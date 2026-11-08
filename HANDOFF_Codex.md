@@ -1,6 +1,6 @@
 # Native adaptation — current handoff
 
-Updated2026-11-08 Europe/Rome. Goal ACTIVE, **ZERO accepted meshes**.
+Updated2026-11-09 Europe/Rome. Goal ACTIVE, **ZERO accepted meshes**.
 TWO strictly accepted M6 Euler CFD→mesh→CFD→mesh at50k metric complexity,
 conservative admissible transfer, finite continued ADAPTED CFD and ACTUAL isolated
 ADAPTED disk restart. Then dedicated BL/constraints/MPI and RANS500k. Actual point/
@@ -17,42 +17,64 @@ A283=`R/m6_runs/euler_build283_pinched_graph_witness_mach_only_real_cfd50k`.
 A278=`R/m6_runs/euler_build278_source_chord_certificate_mach_only_real_cfd50k`.
 A274=`R/m6_runs/euler_build274_metric_cleanup_mach_only_real_cfd50k`.
 
-## LIVE — qualified283 fullsame-seed TWO-event M6 FROZEN
+## CURRENT —283 TERMINAL REFUSED; final-certificate diagnosis ACTIVE
 
-ONE owned heavyjob: tool63535, launch_m6283.py→run_m6.py→MPI6 test_driver
-[NativeSelectedFailureWorkflow3D]. This is the real CFDdriver with refusal observer,
-NOT a fixture that requires rejection. Source checkpoint **61db48895b PUSHED**.
-Command expects2events, Mach-onlyL1/50k, native5400s/outer14400s unchanged.
-A283/owned_startup.json verifies ALL1520source/build/binary/runtime/config/inputpins.
+ZERO accepted meshes. First nativeevent REFUSED mandatory final globalTWO-SIDED
+geometry proof on elapsed-timebudget; feasibility UNDETERMINED. Exit25175/native
+5344.368047s:736019cells,0q/0J/0LOCALgeometry/0size, ALLknown/flagscomplete. Local
+closure is NOT anacceptedmesh/globalproof. No transfer/adaptedCFD/diskrestartproof.
+Lastprequiet complete geometryentry25169/native4621.108681s had0q/J,G16. Sixrounds
+closed16G (+33tets); final~719.5–719.9s/rank spent3fullqueries. Traversal121–128Mwork/
+622–640s,scopebuild52–59s,facetprep24–40s. Same thirdentity bottleneck as278 byquery
+order, but FORWARD vs REVERSE still unproved. Earlier2queries returning doesNOT
+establish their bounds within tolerance. A283/terminal_certification_diagnosis.json.
+Nexttarget SPEED, not newconstruction/repair operators: all localgates closed,
+finalfull query consumes quiettail. Do not credit cleanup (NEVERran) or claimglobal
+LEbenefit. 283qualification/controlledcoverage improvements did NOTcomplete M6.
+
+ALL30rawfiles COMPLETE/736019rows/noomissions/metricscomplete within128MiB/filecaps.
+A283/capture_ready.json + pin_check_before_owned_stop.json seal ALL1520pins unchanged.
+EXACTLYONEpidfdSIGTERM sent to MPI860479/start21882642 afterexplicitrefusal+sealing.
+A283/owned_stop_once.json. NEVERrepeat seal_stop_m6283.py or anyhistorical stop.
+Main63535 TERMINAL1/5538.896861s,pins_verified=true,changed=[],workflow_accepted=false.
+All11actualHOSTownedidentities TERMINAL inA283/terminal_handles.json. Codefreeze
+from M6released; no newbuild/test/solver yet. Actual /proc/ps MUSTrequire_escalated:
+sandboxabsence previouslycaused false terminal inference (corrected beforeaction).
+
+Qualifiedsource61db48895b PUSHED; lateststartup/progress checkpoint4c2f49a74c PUSHED.
+Full283terminal/stop/diagnosis nowLOCAL; pushreviewable checkpoint. CFD SHA
+b885585c5229d67bb01929c5737d175d39d7949c7a098a0789ef960758a1204c; workflowtest_driver
+SHA d8057cf0e9bba284f16422c58312cf4b00525dda80310f538f12988311c6578d.
 ConfigSHA5ad2dc1d9a1cd8bff87f633617b191b50defbc261ab3d0b2ed0987a34722b89e.
-CFDSHA b885585c5229d67bb01929c5737d175d39d7949c7a098a0789ef960758a1204c.
-Workflowtest_driverSHA d8057cf0e9bba284f16422c58312cf4b00525dda80310f538f12988311c6578d.
+Mach-onlyL1/50k,native5400/outer14400 unchanged. StartingREALsavedCFDseed reused;
+61330coords/22fields BIT-IDENTICAL256/qualified254target,SENSOR_MACHonly,
+CL.269535/CD.013536. Initialoriginal-grid proof only; noneadapted afterrefusal.
+Eight unchanged transfer/restartreadiness paths match actual283pins in
+A283/transfer_restart_readiness_reuse.json; sourceauditONLY, notruntimeproof.
 
-Exact owned identities (PID/start_ticks), confirmed live in startup receipt:
-wrapper859900/21881293; runner860220/21882037;
-time860477,timeout860478,MPI860479 ALL /21882642;
-ranks860482–860486 ALL /21882645, rank860487/21882646.
-NEVER restart from stale logs/observation timeout: verify actual owned handles.
-NEVER stop these without preserved outcome or authorized demonstrated bottleneck/
-error/resource pressure. Before any stop recheck exact MPI identity and seal evidence.
-No repeat signals to historical runs. No other active agents/build/tests/heavyjobs.
+Current actualcapture is complete, suitable for bounded residualglobalquery export.
+Reuse prepare_final278_entity2.py for actual283thirdentity, then existingAPI source-
+only and reverse-only upper queries under same20Mwork/8GiB/600s caps. Need separate
+costs before productionchanges; reverse upper-only conservative refusal is NOT an
+outside proof. No newbaseline/perf/GDBcampaign. ExistingFullBoth hiddenfixture
+currently does separate source+Both or full-only; extend TEST-ONLY diagnostic mode
+ifnecessary, preserving productionCFD byte identity. One connectedcycle, no new
+scheduler/config/representation/largercavity/quality-awareconstruction/gate orbudget
+change. Unproven containment/branch/phase-specificwitness ideas inbacklog, notchosen.
 
-Starting REAL savedCFDseed R/m6_inputs/euler_original_force_seed_v1 reused.
-61330points/303359tets, M.8395/AOA3.06. CL.269535/CD.013536 unchanged. All61330initial
-coordinates/22fields BIT-IDENTICAL256 and qualified254target; SENSOR_MACHonly.
-A283/initial_cfd_target_equivalence.json and initial_verifier_reuse.json seal it.
-This is INITIAL original-grid CFD/target proof, not transfer/adaptedCFD acceptance.
-Initial ownership migrated139925cells. Qualityentry round23306/native783.250s:
-690804cells,27052q/27499J/1204geometry/0size, ALLknown/flagscomplete.
-Latest sealed qualitywindow23424/native1342.748s:704561cells,20067q/19324J/1146G/0size,
-allknown. Netq6985/559.498s=12.484/s,J8175/559.498s=14.611/s; slower than274near562s
-(17803q/16890J/1117G). Private commits3640,netq/commit1.919; substantialchurn remains.
-No stuckshape/missingfeatures/private per-trialcollectives. Debtimax/mean1.343;
-mostremainingq interior(13676 vs6391surface; interior may have boundaryvertices).
-Still progressing; keepfrozen. No acceptedmesh or transferproof.
-Startup hostload1.92/8CPUs,MemAvailable48.39GB; later43.54GB. Sampled treeRSS~4.79GB
-at232s, NOTphysical peak. Cache hostquota4GiB/rank715827882bytes; native working
-ceiling12288MiB/rank is a limit, not measured use. No actual memory pressure.
+Timinginterpretation: atmatchinground23872, commits27417201 vs28317029; netq/commit
+1.137 vs1.142, traversal700.8M vs682.8M, qualitytime1462.65 vs2219.91s. Repairyield
+similar; walltime slower. Hostload~15/8CPUs,ranks~78–79%CPU/elapsed(includesMPIspin),
+kernel schedstats flag0 so queueobservations do notestablish solecause. Sampledtree
+RSSpeak14.0215GB, NOTphysicalpeak; no actualmemorypressure. Lastmidrun~9GB.
+
+Read-only analysis: verify_m6283_initial.py already passed; analyze_m6283_frozen.py,
+analyze_m6283_quality_live.py. Old_quality.py assumes measured matchingwindows;
+livecopy preserveschurn/prefix/location assertions. Firstuninterruptedqualitypass
+only for cumulativechurn; latergeometryreturns altercounts outsidecounters. No new
+baseline. CurrentParserfirstevent only; do notmisinterpret original-grid continuation
+afterevent1refusal asadapted CFD. CurrentM6was stopped becausefailedfirstevent leaves
+insufficientcycles forTWOaccepted meshes, notbecause partialrateforecast.
 
 ## Connected correction and qualification
 
@@ -113,7 +135,7 @@ local q/J/geometry/metric/height/interface and remove1point/decrease short defic
 Opposite directions can fail positivity/support/geometry; not all collapses feasible.
 Integrated273 finite one-shot improvement-only short-edge pass reuses existing
 selection/claims/versions/publication/ordinaryCoarsen gates; no hard minimumedge.
-Already strict meshes can accept without optionalcleanup.274/278 NEVER ran it, so
+Already strict meshes can accept without optionalcleanup.274/278/283 NEVER ran it, so
 GLOBAL LE cleanup benefit/causal explanation remain unproven. Do not widen policy.
 
 Latest meaningful fullinspection A274/inspection/rejected_mesh.vtu (+su2):148781pts/

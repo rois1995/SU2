@@ -280,3 +280,22 @@ sealed inA283/owned_startup.json. Native5400/outer14400 unchanged. Initial61330c
 22fields bit-identical256/qualified254target,SENSOR_MACHonly,CL.269535/CD.013536.
 No acceptedmesh yet. Preserve frozen attempt until outcome/authorized preserved
 stopcondition; no new implementation or testcampaign. Current handles in handoff.
+
+## Terminal283, 2026-11-09: local closure, global proof still incomplete
+
+Native exit25175/5344.368047s,736019cells,ALLknown0q/0J/0localgeometry/0size.
+Mandatory final globalBoth REFUSEDelapsedtime, feasibilityundetermined. Sixrounds
+fromgeometryentry25169/4621.108681s,G16 closed (+33tets); wholequiettail~720s/rank
+was3fullqueries. Traversal121–128Mwork/622–640s; scope52–59s,facet24–40s. Direction
+of dominantthirdquery remains unknown; do notinfer previous2within fromreturned.
+A283/terminal_certification_diagnosis.json. Nexttargetcertification SPEED; no reason
+fornewconstruction/qualityoperators fromthis outcome. CleanupNEVERran/globalLEbenefit
+unmeasured. Noacceptedmesh or transfer/continuedadaptedCFD/restart proof.
+
+All30rawfiles COMPLETE736019rows/noomissions/all1520pinsunchanged sealed before
+EXACTLYONEpidfdSIGTERM to MPI860479/start21882642. Main63535 TERMINAL1/5538.896861s;
+ALL11actualhost identities terminal. NEVERrepeatstop/sealer. Currentterminal evidence
+LOCALpendingcheckpoint; qualifiedsource61db48895b/startup4c2f49a74c pushed. Reuseactual
+complete capture for bounded source/reverse API separation before selecting change.
+No newbaseline/perf/GDBcampaign, no raised20M/8GiB/600scaps. Actual reverse upper-only
+finite refusal may be conservative; never treat it asoutsideproof or completeBoth.

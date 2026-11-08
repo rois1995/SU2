@@ -1,0 +1,68 @@
+{
+  "time": 1794177890.2713742,
+  "kernel_schedstats_enabled": "0",
+  "ranks": [
+    {
+      "pid": 860487,
+      "start_ticks": 21882646,
+      "elapsed_seconds": 3503.4500000000116,
+      "user_seconds": 2738.95,
+      "system_seconds": 6.51,
+      "cpu_over_elapsed": 0.783644693088239,
+      "scheduled_runtime_ns": 2745461437954,
+      "runqueue_wait_ns": 757786152000
+    },
+    {
+      "pid": 860486,
+      "start_ticks": 21882645,
+      "elapsed_seconds": 3503.459999999992,
+      "user_seconds": 2741.27,
+      "system_seconds": 7.04,
+      "cpu_over_elapsed": 0.7844559378443043,
+      "scheduled_runtime_ns": 2748320529450,
+      "runqueue_wait_ns": 754930529672
+    },
+    {
+      "pid": 860485,
+      "start_ticks": 21882645,
+      "elapsed_seconds": 3503.459999999992,
+      "user_seconds": 2761.86,
+      "system_seconds": 7.11,
+      "cpu_over_elapsed": 0.7903529653542516,
+      "scheduled_runtime_ns": 2768980915122,
+      "runqueue_wait_ns": 734264372036
+    },
+    {
+      "pid": 860484,
+      "start_ticks": 21882645,
+      "elapsed_seconds": 3503.459999999992,
+      "user_seconds": 2773.44,
+      "system_seconds": 6.51,
+      "cpu_over_elapsed": 0.7934870099844172,
+      "scheduled_runtime_ns": 2779952520793,
+      "runqueue_wait_ns": 723302630450
+    },
+    {
+      "pid": 860483,
+      "start_ticks": 21882645,
+      "elapsed_seconds": 3503.459999999992,
+      "user_seconds": 2745.81,
+      "system_seconds": 7.21,
+      "cpu_over_elapsed": 0.7858003231091568,
+      "scheduled_runtime_ns": 2753019863062,
+      "runqueue_wait_ns": 750235114830
+    },
+    {
+      "pid": 860482,
+      "start_ticks": 21882645,
+      "elapsed_seconds": 3503.459999999992,
+      "user_seconds": 2730.8,
+      "system_seconds": 6.81,
+      "cpu_over_elapsed": 0.7814018142065291,
+      "scheduled_runtime_ns": 2737606938219,
+      "runqueue_wait_ns": 765640463748
+    }
+  ],
+  "loadavg": "14.89 14.98 14.83 15/4259 1002403\n",
+  "caveat": "CPU includes MPI spin; queue counters may be disabled. This is one existing-counter resource observation, not proof of regression cause."
+}

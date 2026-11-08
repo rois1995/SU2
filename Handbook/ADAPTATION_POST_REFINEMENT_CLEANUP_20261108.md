@@ -1,17 +1,34 @@
 # Post-refinement metric cleanup — bounded investigation
 
-Current full278 is TERMINAL REFUSED after complete734914cell census with zero
-known q/J/local-geometry/size failures and no unknown measurements. Final global
-two-sided certification exhausted elapsed time. Integrated cleanup273 NEVER ran
-in274 or278, so its global leading-edge benefit remains unmeasured. Latest complete
-inspection274 retains the metric field and all measured cell data. The current
-active correction is final certification; see HANDOFF_Codex.md and
-[prepared-source investigation](ADAPTATION_PREPARED_SOURCE_CERTIFICATES_20261108.md)
-for actual handles, source/build/input provenance and freeze. Older staged notes
-below preserve the investigation chronology, not current job status. TWO accepted
-Euler50k meshes, conservative admissible transfer, finite adapted CFD and actual
-isolated adapted restart remain required; then dedicated BL/MPI and RANS500k.
-All gates/budgets/validity-first construction and CAD optionality unchanged.
+Current full283 is TERMINAL REFUSED after complete736019cell census with zero
+q/J/LOCAL-geometry/size failures and no unknown measurements. Mandatory final
+global two-sided geometry certification exhausted elapsed time. Integrated
+cleanup273 NEVER ran in274,278 or283; its global leading-edge effect remains
+unmeasured. Actual host identities and all1520source/build/runtime/input pins
+were reverified2026-11-09: all11owned handles absent, pins unchanged. No run was
+interrupted for this renewed cleanup review. See HANDOFF_Codex.md and
+[prepared-source investigation](ADAPTATION_PREPARED_SOURCE_CERTIFICATES_20261108.md).
+
+Confirmed: the original selection/zero-shape-debt admission gap permits short
+edges to survive; bounded tests establish four local feasible point removals,
+not the complete cause of leading-edge over-refinement. Existing273cleanup is
+one conditional opportunity after stalled shape repair, NOT unconditional
+post-refinement cleanup of an otherwise accepted mesh. Thus even a future
+accepted mesh need not have undergone short-edge cleanup. No claim of mesh-wide
+leading-edge improvement follows from its integration or passing fixtures.
+
+The present demonstrated blocker is final geometry certification SPEED. Do not
+widen cleanup policy or insert a competing experiment before resolving that
+blocker. Reuse complete283capture if later outcome warrants a matched whole-field
+cleanup assessment, including complete neighbors, directionality, strict q/J,
+geometry, heights, work and net useful progress. A smaller mesh alone is insufficient.
+The requested around-nose resolution and excessive spanwise resolution remain
+separate; no blanket flow-metric minimum edge or insertion-distance gate is justified.
+
+TWO accepted Euler50k meshes, conservative admissible transfer, finite adapted
+CFD and actual isolated adapted restart remain required; then BL/MPI and RANS500k.
+All gates, budgets, validity-first construction and CAD optionality unchanged.
+Older staged notes below preserve chronology, not current job status.
 
 R=`integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57`.
 A262=`R/m6_runs/euler_build262_compact_capture_mach_only_real_cfd50k`.

@@ -801,3 +801,26 @@ counts alone do not prove safely redundant work. No scheduling implementation or
 acceptance change authorized by this note; first assess the connected281 trace.
 Missing shock allocation and optional global LE cleanup remain separate from the
 active final-certification blocker. Neither query optimization proves their cure.
+
+
+###283 frozen quality rate observation (unproven cause; preserve the run)
+
+First~1104qualityseconds: netq rate10.53/s versus274higher rate at matching stages;
+counted geometry traversal is similar at equal rounds. Meshes/quality times differ,
+so this does NOT establish a regression cause or justify an interruption. The
+fullrun remains active/progressing. If terminal evidence identifies private geometry
+cost, compare SAME saved star/query before changing ordinary MeshToModel preparation.
+One hypothesis is restricting optional graph recovery to queries that benefit from
+large joined footprints; shared scope identity/cache mode semantics must be audited.
+No selected change, newconfig/scheduler or competing implementation authorized.
+
+
+###283 optional containment acceleration (unproven; not an active implementation)
+
+If terminal counters localize cost to newly recovered large footprints, inspect
+whether existing PlanarReference facet search can supply exact positive point or
+centroid-in-triangle witnesses before linear nonconvex boundary scans. First verify
+what its index actually stores. A floating seed alone is insufficient; exact tests
+must certify the true query, and uncertainty falls through existing full coverage/
+hole/crossing checks. No new representation/config or assumption that reverse is
+cheap. Do not change the frozen run or start another baseline/implementation.
