@@ -30,8 +30,10 @@ workers2214419,2214420/15601698 and2214421,2214422,2214423,2214425/15601699.
 All11nice19. Verify actual /proc identities before any authorized action.
 Initial A260/initial_cfd_target_equivalence.json:61330positions andALL22flow/metric
 fields BIT-IDENTICAL256 andqualified corrected254target;ONLYSENSOR_MACH.
-Latest observed:initial construction, first split generation interior entry;
-shape NOTmeasured. Runtime late-priority use/strict acceptance remain UNPROVED.
+First fully measured qualityentry23314/native682.800301:690715cells/27016q/27453J/
+1205g/0size,allflags complete. ALL83initialstage non-time/non-byte rankcounters
+match256;upperwork245091394exact(A260/initial_construction_equivalence.json).
+Runtime late-priority use/strict acceptance remain UNPROVED.
 No demonstrated stop condition. Let frozen attempt finish; no competing campaign.
 
 Build260tool12364TERMINAL0/72.144637s,all1303pins unchanged,both targetsuptodate,
