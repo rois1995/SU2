@@ -15,12 +15,17 @@ CFD or disk restart occurred. The optional cleanup pass NEVER executed.
 
 Each rank added one final query taking~1903.6s, almost entirely traversal
 (~651–659Mwork); preparation <.4s. One extra repair round closed the last q/J cell.
-The demonstrated next blocker is final certification traversal. Distinguish its
-actual source/entity/direction before changing bounds. An existing N=3 triangular
-finite-footprint proof may support a rigorously bounded triangle+Bernstein-error
-witness for N=10 curved source nets; this remains a hypothesis. Both geometry
-directions, exact support, holes/body/feature/height restrictions and resource
-fallbacks must stay intact; source-envelope import is an affected caller.
+The demonstrated next blocker is final certification traversal. Bounded actual
+first-entity(2060reference/2827physicalfaces) source query exhausts1Mwork in old
+production276. Connected277 reuses existing N=3 coverage plus rigorous Bernstein
+chord-deviation/outward rounding, retaining N=10 fallback. Source query now proves
+9.586e-5 within194957work/.659s; test-only278 also proves Both directions within
+442406totalwork/1.543s (including separate source query). No full-run speedup claim.
+[Certification design/evidence](Handbook/ADAPTATION_FINAL_CERTIFICATION_20261108.md).
+Serial qualification live, ONE MPI milestone next, then immediately fullsame-seed
+TWOeventM6. Both geometry directions, exact supports, holes/bodies/features/heights,
+resource budgets and import source-tube semantics are preserved. Do not add another
+cleanup/scheduler/metric-target campaign alongside this active correction.
 
 The latest meaningful rejected mesh is saved and independently verified in build274/inspection/
 rejected_mesh.vtu with captured nodal tensor9, q/J/geometry in CellData, plus .su2.

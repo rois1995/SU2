@@ -1,13 +1,14 @@
 # Post-refinement metric cleanup — bounded investigation
 
-Current271is terminal and refused on oneq cell; allownedhandles verified absent
-before272test-only edits. Build272 and its focused serial diagnosis PASSED.
-Connected273production correction is now BUILDING with pinned sources (see the
-last section and HANDOFF_Codex.md for current handles);
-no competing CFD/MPI campaign. Two accepted Euler50k meshes, conservative
-admissible transfer, finite continued adapted CFD, actual isolated adapted disk
-restart, then dedicated BL/MPI and RANS500k remain the goal. Gates/budgets and
-validity-first construction remain unchanged; CAD optional.
+Current full274 is TERMINAL REFUSED on final two-sided geometry certification
+elapsed time, with complete734806cells/zero q/J/localgeometry/size failures. Cleanup
+never executed. Full rejected148781point mesh+metric is independently verified;
+terminal receipts/checkpoint4b40e63f5c pushed. Diagnostic-only276 now builds one
+bounded saved-final-entity query after275test-only compilation failure; production
+CFD unchanged. See HANDOFF_Codex.md for current handles/source freeze. Two accepted
+Euler50k meshes, conservative admissible transfer, finite adapted CFD and actual
+isolated adapted restart remain required; then dedicated BL/MPI and RANS500k.
+All gates/budgets/validity-first construction and CAD optionality unchanged.
 
 R=`integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57`.
 A262=`R/m6_runs/euler_build262_compact_capture_mach_only_real_cfd50k`.

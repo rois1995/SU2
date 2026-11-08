@@ -242,6 +242,15 @@ TriangleDistanceBounds TriangleDistance(const Box& point,const std::array<Point,
   return {std::max(0.,std::nextafter(double(lower),-INFINITY)),best};
 }
 struct UnionTriangle {std::array<Point,3> points;double error=0;};
+UnionTriangle UnionChord(const std::array<Box,10>& controls) {
+  UnionTriangle piece;
+  for(unsigned k=0;k<3;++k)piece.points[k]=BoxMiddle(controls[k]);
+  for(unsigned q=0;q<10;++q){Box linear{};for(unsigned k=0;k<3;++k)for(unsigned d=0;d<3;++d)
+      linear[d]=Add(linear[d],Multiply({Values(piece.points[k])[d],Values(piece.points[k])[d]},
+          DividePositive({(long double)CubicIndex[q][k],(long double)CubicIndex[q][k]},3)));
+    piece.error=std::max(piece.error,NormBound(Difference(controls[q],linear)));}
+  return piece;
+}
 Box TriangleBox(const UnionTriangle& triangle) {
   Box box=Exact(triangle.points[0]);
   for(auto p:triangle.points)for(unsigned d=0;d<3;++d) {
@@ -1923,12 +1932,7 @@ MappedFacetReference::SurfaceUnionBounds MappedFacetReference::QuerySurfaceUnion
   auto prepare_facet=[&](Id facet,std::vector<UnionTriangle>& model) {
     std::vector<UnionDomain> pending;op.Storage(sizeof(UnionDomain));pending.push_back({facet});
     while(!pending.empty()) {
-      const auto domain=pending.back();pending.pop_back();const auto controls=net(domain);UnionTriangle piece;
-      for(unsigned k=0;k<3;++k)piece.points[k]=BoxMiddle(controls[k]);
-      for(unsigned q=0;q<10;++q){Box linear{};for(unsigned k=0;k<3;++k)for(unsigned d=0;d<3;++d)
-          linear[d]=Add(linear[d],Multiply({Values(piece.points[k])[d],Values(piece.points[k])[d]},
-              DividePositive({(long double)CubicIndex[q][k],(long double)CubicIndex[q][k]},3)));
-        piece.error=std::max(piece.error,NormBound(Difference(controls[q],linear)));}
+      const auto domain=pending.back();pending.pop_back();const auto piece=UnionChord(net(domain));
       op.Storage(transfer_memory::Add(transfer_memory::GrowthBound(model.size()+1,sizeof(UnionTriangle)),
           transfer_memory::GrowthBound(pending.size()+4,sizeof(UnionDomain))));
       if(piece.error<=resolution/16)model.push_back(piece);
@@ -2051,7 +2055,16 @@ MappedFacetReference::SurfaceUnionBounds MappedFacetReference::QuerySurfaceUnion
     auto prepare=[&](const UnionDomain& domain) {
       const auto upper_work=budget.work;
       op.Work();double upper=0,diameter=0;
-      if(from_model)upper=target.Upper(net(domain),op);
+      if(from_model) {
+        const auto controls=net(domain);op.Work(10);const auto chord=UnionChord(controls);upper=INFINITY;
+        if(chord.error<=tolerance) {
+          std::array<Box,3> points;for(unsigned k=0;k<3;++k)points[k]=Exact(chord.points[k]);
+          const auto flat_upper=target.Upper(points,op);
+          // Bernstein convexity bounds the entire patch by this chord plus its certified deviation.
+          upper=std::nextafter(double(Add({flat_upper,flat_upper},{chord.error,chord.error}).hi),INFINITY);
+        }
+        if(!(upper<=tolerance))upper=std::min(upper,target.Upper(controls,op));
+      }
       else {std::array<Box,3> points;for(unsigned k=0;k<3;++k)points[k]=LinearPoint(physical.at(domain.facet),Exact(domain.parameter[k]));upper=target.Upper(points,op);
         if(upper>tolerance&&target.ApproximationError()>0)for(unsigned k=0;k<3;++k)
           diameter=std::max(diameter,NormBound(Difference(points[k],points[(k+1)%3])));}

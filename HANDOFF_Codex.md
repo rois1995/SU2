@@ -13,7 +13,7 @@ R=`integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57`.
 A271=`R/m6_runs/euler_build271_cooperative_deadline_mach_only_real_cfd50k`.
 A262=`R/m6_runs/euler_build262_compact_capture_mach_only_real_cfd50k`.
 
-## CURRENT — build274 TERMINAL REFUSED; full inspection export LIVE
+## CURRENT — build274 REFUSED; bounded diagnostic build276 LIVE/FROZEN
 
 A274=R/m6_runs/euler_build274_metric_cleanup_mach_only_real_cfd50k.
 Latest pushed checkpoint c8512bae42; implementation f2fd9c2c9d. Qualification274
@@ -50,8 +50,37 @@ or production changes. Receipts inspection_export_terminal_handles.json,
 inspection_reader_status.json,inspection_raw_metric_reader_status.json,
 inspection_reader_terminal_handles.json. Latest meaningful full rejected mesh:
 A274/inspection/rejected_mesh.vtu (+.su2), Tensors=captured_nodal_metric.
-No active heavy job. C++ source freeze released; verify next owned handles before
-starting a build/check/run. No per-trial mesh export. ZERO accepted meshes.
+Diagnostic275 failed test compilation; terminal before correction. Diagnostic276
+PASSED57.110s/build; productionCFD BYTE-IDENTICAL274. Actual first entity query
+2060sourcefacets/2827physicalfaces exhausted1Mwork in2.747s (992982traversalwork),
+without production changes. Initial MPI_WIN startup failure fixed using existing
+OMPIosc=pt2pt/4TBscratch; failed andsuccessful query handles terminal/receipt saved.
+
+Connected conservative chord+deviation production277 built PASSED49.157s/allpins.
+CFD SHA c8ac77f8acc1c1d389af440989bd3ba5e5616b62613ccce7a3e09a878d24492a.
+Actual SAME source query COMPLETE194957work/.659146s (187939traversal/.565312s),
+certified bound9.5858962087e-5. Old276 exhausted1Mwork/2.747s withoutproof. Focused
+bulge/missingcoverage +actualquery PASSED10576assertions/2cases11.656s/allpins,
+allownedhandles ABSENT. No full-run speedup/finalmesh claim. Read-only review found
+no concrete safety defect. Original N=10 fallback retained; bothgeometrydirections,
+support/gates unchanged. Import source-envelope caller audited; no new scheduler.
+
+Test-only278 rebuilt PASSED43.054s/allpins, CFD BYTE-IDENTICAL277. Actualsaved
+firstentity both directions now CERTIFIED:source194957work,total442406work (source
++Both),1.543184s, reverse bound2.2833012834e-8, modelbound9.5858962087e-5.
+Focused27810578assertions/2cases12.649s/allpins, exactownedhandles ABSENT.
+Connected serial278 PASSED62994assertions/84cases154.265s/allpins; ownedhandles
+ABSENT. ONE MPI6 milestone PASSED118cases EACHrank169.654s/allpins; every owned
+handle ABSENT. Six assertion totals67602/66675/66703/66878/66495/66756 in interleaved log order;
+do NOT assume that order maps to rank IDs (see sealed JSON).
+R/certification278_qualification.json seals all3cases/source/binary/runtime/input
+pins and actualfirstentityBoth proof. Qualifier verifies all required checks.
+No more fixture/build/MPI campaign before fullsame-seed TWO-event M6. Launcher
+R/launch_m6278.py prepared, attempt euler_build278_source_chord_certificate_mach_only_real_cfd50k;
+not launched yet. Source/binary/helpers remain frozen through that attempt. Verify
+ownedstartup/hash/runtime/seed/counters once started. Goal still ZEROaccepted.
+Read [final certification design](Handbook/ADAPTATION_FINAL_CERTIFICATION_20261108.md).
+No per-trial mesh export. ZERO accepted meshes.
 
 Next: terminal_certification_diagnosis.json seals per-rank counters; bounded actual
 query diagnosis using existing surface-union facilities. Existing N=3 footprint

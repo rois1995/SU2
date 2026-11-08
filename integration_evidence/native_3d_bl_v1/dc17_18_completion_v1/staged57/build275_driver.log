@@ -1,0 +1,22 @@
+ninja: Entering directory `integration_evidence/build-integrated-v3-currenthost'
+[1/2] Compiling C++ object UnitTests/test_driver.p/Common_adaptation_CNativeAffineReference_tests.cpp.o
+FAILED: [code=1] UnitTests/test_driver.p/Common_adaptation_CNativeAffineReference_tests.cpp.o 
+c++ -IUnitTests/test_driver.p -IUnitTests -I../../UnitTests -ISU2_CFD/src -I../../SU2_CFD/src -ICommon/src -I../../Common/src -I../../externals/CLI11 -I../../externals/eigen -I../../externals/cgns/adf -I../../externals/cgns/adfh -Iexternals/cgns -I../../externals/cgns -Iexternals/cgns/hdf5 -I../../externals/cgns/hdf5 -I../../externals/metis/include -I../../externals/metis/GKlib -I../../externals/metis/libmetis -I../../externals/parmetis/include -I../../externals/parmetis/libparmetis -I../../externals/mel -I../../externals/catch2 -I/usr/lib/x86_64-linux-gnu/openmpi/include -I/usr/lib/x86_64-linux-gnu/openmpi/include/openmpi -fdiagnostics-color=always -D_GLIBCXX_ASSERTIONS=1 -D_FILE_OFFSET_BITS=64 -std=c++17 -O2 -g -pthread -fPIC -Wno-empty-body -Wno-ignored-qualifiers -Wno-unused-parameter -Wno-deprecated-declarations -Wno-error=cast-function-type -Wno-cast-function-type -Wno-error=stringop-truncation -Wno-stringop-truncation -Wno-error=missing-field-initializers -Wno-missing-field-initializers -Wno-error=class-memaccess -Wno-class-memaccess -Wno-overloaded-virtual -Wno-array-bounds -Wno-dangling-pointer -march=native -ffast-math -fno-finite-math-only -DHAVE_CGNS -DHAVE_MPI -DHAVE_METIS -DHAVE_PARMETIS -DHAVE_MMG -MD -MQ UnitTests/test_driver.p/Common_adaptation_CNativeAffineReference_tests.cpp.o -MF UnitTests/test_driver.p/Common_adaptation_CNativeAffineReference_tests.cpp.o.d -o UnitTests/test_driver.p/Common_adaptation_CNativeAffineReference_tests.cpp.o -c ../../UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp
+../../UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp: In function ‘void C_A_T_C_H_T_E_S_T_98()’:
+../../UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp:1748:13: error: ‘using std::__shared_ptr_access<const SU2NativeGeometry::MappedFacetReference, __gnu_cxx::_S_atomic, false, false>::element_type = const class SU2NativeGeometry::MappedFacetReference’ {aka ‘const class SU2NativeGeometry::MappedFacetReference’} has no member named ‘ResetGeometryStats’; did you mean ‘GeometryStats’?
+ 1748 |   geometry->ResetGeometryStats();
+      |             ^~~~~~~~~~~~~~~~~~
+      |             GeometryStats
+../../UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp:1751:41: error: cannot convert ‘SU2NativeGeometry::MappedFacetReference::SurfaceUnionBounds’ to ‘double’ in assignment
+ 1751 |   try {bound=geometry->BoundModelSurface(support,physical,tolerance,budget);complete=true;}
+      |              ~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      |                                         |
+      |                                         SU2NativeGeometry::MappedFacetReference::SurfaceUnionBounds
+In file included from ../../UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp:6:
+../../externals/catch2/catch.hpp: In instantiation of ‘const Catch::BinaryExpr<LhsT, const RhsT&> Catch::ExprLhs<LhsT>::operator||(const RhsT&) [with RhsT = bool; LhsT = bool]’:
+../../UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp:1760:35:   required from here
+../../externals/catch2/catch.hpp:2397:47: error: static assertion failed: operator|| is not supported inside assertions, wrap the expression inside parentheses, or decompose it
+ 2397 |             static_assert(always_false<RhsT>::value,
+      |                                               ^~~~~
+../../externals/catch2/catch.hpp:2397:47: note: ‘std::integral_constant<bool, false>::value’ evaluates to false
+ninja: build stopped: cannot make progress due to previous errors.

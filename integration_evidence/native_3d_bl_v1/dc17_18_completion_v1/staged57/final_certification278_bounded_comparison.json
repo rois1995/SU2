@@ -1,0 +1,41 @@
+{
+  "old_production276": {
+    "complete": false,
+    "within_tolerance": false,
+    "support_facets": 2060,
+    "physical_faces": 2827,
+    "work": 1000000,
+    "seconds": 2.7467022400000003,
+    "traversal_work": 992982,
+    "traversal_seconds": 2.649995227,
+    "model_bound": -1,
+    "work_exhausted": true
+  },
+  "new_production277_test278": {
+    "complete": true,
+    "within_tolerance": true,
+    "support_facets": 2060,
+    "physical_faces": 2827,
+    "work": 442406,
+    "source_work": 194957,
+    "both_complete": true,
+    "both_within_tolerance": true,
+    "reverse_bound": 2.2833012833964993e-08,
+    "seconds": 1.5431838240000002,
+    "traversal_work": 415011,
+    "traversal_seconds": 1.235094127,
+    "model_bound": 9.585896208655955e-05,
+    "work_exhausted": false
+  },
+  "new_both_query_incremental_work": 247449,
+  "identical_saved_entity": true,
+  "changed_production_source": "Common/src/adaptation/CNativeAffineReference.cpp",
+  "input_hashes": {
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/geometry_current_queries_20261108T180222_196919/native_final_geometry_result.json": "c6b26eb5bb77db9ce31f8ffdf33e097c232c0482888d7f1116f0449e6ba59b72",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/geometry_current_queries_20261108T180852_217222/native_final_geometry_result.json": "7f8d4e7a53dd1f01761a3b60a76245bfe13a14ebd0884ac3c994585c43930f80",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/geometry_current_queries_20261108T180222_196919/pins.json": "4f992742c4ab244f19d23cc668de22305bc76ad4488599153dd021a69e61f8e2",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/geometry_current_queries_20261108T180852_217222/pins.json": "7cebe5c04539413b5f52fdaa013aee4dc8f68ad8e747136b84fc52e4db18d654",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build274_metric_cleanup_mach_only_real_cfd50k/final_certificate_query_v1/geometry_query_preparation.json": "f9b7234ddcf34d6c2c89ca7bc18322ac27c0401fec5062e39267e15498f769e7"
+  },
+  "scope": "Bounded actual first-entity witness improvement. Old source-only query exhausts1Mwork; new source194957 plus both247449work completes. Not a full workflow timing comparison, final whole-mesh certificate, accepted mesh, transfer or restart."
+}
