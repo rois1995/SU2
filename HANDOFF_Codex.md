@@ -22,7 +22,7 @@ A247=`R/m6_runs/euler_build247_canonical_mach_only_real_cfd50k`(REFUSED baseline
 
 ## CURRENT — terminal254; bounded actual residual diagnosis
 
-Implementation8a2c4e1d48and terminal checkpointe259e1eed8PUSHED. 254first event
+Implementation8a2c4e1d48and inspection checkpointfc87c40994PUSHED. 254first event
 REFUSED at native5332.870105/round42620:private repair round elapsed-time budget.
 COMPLETE terminal741236cells/251q/205J/95geometry/0size,all measured/flags complete.
 ZERO accepted meshes. Tool70856TERMINAL1/5533.745599s. ALL30raw files sealed and
@@ -43,8 +43,42 @@ A254/inspection_{export_status,export_terminal_handles,reader_status,reader_term
 This is refused actual geometry,not acceptance. Large artifacts remain local;
 metadata/hashes pushed. Previous meaningful247 remains historical,not latest mesh.
 
-No heavy solver/build/test alive. One bounded read-only actual254selection task
-is active;NO production correction chosen beyond integrated254conditioning.
+ONE diagnostic-only face-accounting case255 RUNNING tool52151:
+R/cases/current_compound_20261108T005405_1672862,status pid1673110.
+Host helper1672862/start14368544,time1673110/timeout1673111/test1673112
+all start14368999;orted1673113/start14369000;owned_handles_start.json.
+Sources/runtime/config/input/helper pins FROZEN;nice19/libs1,existing bounds.
+Build255TERMINAL0/231.209741s,ALL1303pins unchanged,both targets up to date,
+all recorded build/compiler handles absent. Production SU2_CFD binary is BYTE-
+IDENTICAL to frozen254 (build255_terminal_handles.json). Only fixture logging
+changed:actual physical-face bad counts,unweighted excess/max error,point counts,
+and GeometryRepair METRIC admission. NO production decisions/gates changed.
+It resolves whether lower bad CELL counts merely regroup unchanged failed faces
+versus reducing physical certificate error. No MPI rerun for logging-only fixture
+change. Select production correction ONLY from actual result.
+
+Previous actual254compound tool79180TERMINAL0/102.915297s,41955assertions,
+all pins unchanged;all5host handles absent in case terminal_handles.json.
+R/cases/current_compound_20261108T004404_1638191;A254/bounded_cavity_assessment.json.
+ALL6contexts reproduce captured q/J AND strict geometry-bad counts exactly.
+Tip isolated case closes via collapse+retained relocation. Hard clusters have
+raw collapses that reduce q/Jbad and geometrybad CELL counts,but increase current
+area-weighted guidance ~0.8–6%;not proven actual physical-face error progress.
+Original-star controls mostly stall. No production correction selected from this.
+Serializer67421TERMINAL0/33.062778s:741236paired rows,35066boundary points,
+70128physical faces,all before/after hashes identical. No M6 solver alive.
+NO production correction beyond254conditioning.
+Canonical bounded_residual_selection.json v2:117bad cores own actual wing faces,
+143interior bad cores touch CURRENT wing vertices,ZERO free-interior bad cores.
+Provisional original-reference-node classification was wrong and is preserved
+separately;never use it. All current SU2/owned boundary face sets reconciled.
+Six complete <=64contexts:surface shape-only(two locations),shape+geometry,
+geometry-only,wing-adjacent interior shape-only,and nearby clean wing control.
+Latest exact LE capture analysis tool46341TERMINAL0:A254 has55545wing faces,
+95geometrybad wing cells,64in explicit LE band(vs795old247). Station triangles
+665/647/545/566/575(8.2–15.1xoriginal),median exact metric edge span.134–.163,
+nose.157–.192;>99%edges<.5. Still excessive density;not necessary-spacing proof.
+R/target_delivery254_v1/leading_edge_diagnosis.json reuses prior helper/read-only.
 Use complete actual boundary/adjacent-volume contexts under existing64cell limits;
 compare original-star/compound controls and relevant metric/geometry admission.
 Next target is repair power/admission,not another speed baseline or scheduler.

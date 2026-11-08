@@ -61,7 +61,7 @@ Hessians agree to floating-point accuracy. Near-nose residuals are high
 compression median direction dot≈.970, relative H difference≈.498. Farfield
 samples are sensitive too. This is not localization of every39786/61330 warning:
 production thin-wall cubic/quartic selection and fallback are not reproduced by
-this pure-quadratic cross-check. No proven Hessian recovery bug yet.
+this pure-quadratic cross-check. The subsequent raw-Hessian trace below demonstrated a base-fit conditioning admission defect; residual warnings alone did not establish it.
 
 ## Confirmed delivery on actual247 terminal mesh
 
@@ -218,7 +218,7 @@ or adaptation decisions. Reproduction:target_delivery253_v1/analyze_flow_cuts.py
 and seed_flow_resolution.json (all input/output hashes,explicit band definition).
 
 
-Frozen254 has now demonstrated the existing guarded geometry-construction return,
+The now-terminal254 attempt demonstrated the existing guarded geometry-construction return,
 not full shape closure: first quality exit24832/native3274.720 has49q/29J/974geometry.
 Reconstruction and fresh shape remeasurement repeat;at round26176/native3658.670,
 all737632cells measured:72q/49J/196geometry/0size. Current shape/geometry failures
@@ -266,3 +266,44 @@ physical-wing vertex IDs,not original reference vertex IDs. Original IDs miss
 newly inserted/moved boundary nodes;reference facet IDs remain valid associations
 but do not equal output face vertex triples. A provisional selection caught at
 primary review is preserved explicitly and must not drive cavity tests.
+
+
+Corrected terminal254 location classification (all260bad cores):117own actual
+WING3D faces;143are interior cells sharing CURRENT wing vertices;ZERO are free
+interior. The first provisional classification incorrectly used original reference
+vertex IDs and missed119new-boundary-adjacent cells. It is preserved under an
+explicit provisional name and superseded by bounded_residual_selection.json v2.
+The corrected selector checks every owned row ID/connectivity against the full
+VTU and reconciles all output SU2 marker boundary face sets exactly against owned
+physical faces and reference-facet markers. No true free-interior bad control
+exists in this final field. This does not establish a boundary-only repair method:
+the adjacent volume remains part of every complete affected context. Six contexts
+(25,50,52,53,60,63cells) fit existing limits;none of the bounds was enlarged.
+
+
+Latest254 LE delivery reproduction uses the SAME checked owned/metrics parser
+and exact production edge caches on the complete corrected-target capture:
+55545physical wing faces,all95geometry-bad cells own wing faces,and64 lie in
+the explicit swept LE band(previous247:795). Station triangle counts are
+665/647/545/566/575,8.2–15.1times original,with median production edge lengths
+span.134–.163,nose.157–.192;more than99% are below.5. Thus corrected recovery and
+substantial geometry closure have NOT eliminated over-density. Different targets
+and construction histories prevent attributing this to one operation alone.
+Read-only helper analyze_leading_edge254.py reuses the checked253analysis through
+explicit recorded substitutions;all captured hashes match sealed files,then
+remain unchanged. No new solver,certification or baseline campaign was launched.
+
+Actual254 compound check:41955assertions,102.915297s,all source/runtime/input pins
+unchanged,all owned handles absent. All six whole-context cached q/J and geometry-
+bad counts reproduce exactly. One isolated tip case closes only after collapse
+plus retained-star relocation. Harder surface and adjacent-volume contractions
+retire shape failures and geometry-bad CELLS,but raise area-weighted guidance
+about0.8–6%. Failed faces can be regrouped into fewer cells,so this is not yet
+geometry progress. No production correction follows from those rows. The ONE
+logging-only255follow-up adds bad PHYSICAL-face counts,unweighted certificate
+excess/maxerror,vertex counts,and the previously missing GeometryRepair metric
+validator output to the existing fixture. Same contexts/limits/decisions;no MPI
+campaign for logging-only changes. It resolves this admission hypothesis before
+selecting a connected production correction. Nonlocal publication,original frozen
+field equality at changed trial positions and requested BL heights remain beyond
+this bounded diagnostic;the full workflow still supplies final acceptance.

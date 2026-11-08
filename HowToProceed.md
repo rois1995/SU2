@@ -18,8 +18,16 @@ has **150,080 points and 741,236 cells**, the captured metric tensor as PointDat
 and correctly sized q/J/geometry fields as CellData. All 260 bad cells, 2,400
 neighboring cavity cells and reference geometry are saved. The arrays, point
 ordering, SPD metrics and positive volumes were independently checked. Large
-artifacts remain local; hashes and reviewable metadata are pushed. A bounded
-actual-residual selection is now active; no new production correction is selected.
+artifacts remain local; hashes and reviewable metadata are pushed. The corrected bounded
+selection,serialization and the existing254compound check are complete.
+All6contexts reproduce q/J and geometry-bad counts. Hard-cluster collapses remove
+bad cells but increase area-weighted guidance;actual face-error progress remains
+unproved. Build255 passed with the production solver byte-identical;ONE logging-only
+same-context diagnostic is running to resolve that distinction. No production correction is selected;read HANDOFF for handles.
+Actual current-wing face reconciliation finds117bad cores owning wing faces and
+143interior bad cores touching wing vertices;NONE is free-interior. A provisional
+reference-node-based classification was wrong and is preserved explicitly.
+Six complete contexts fit the existing64cell cap,including a clean wing neighbor.
 
 The active numerical correction is integrated and qualified: the existing QR
 condition bound now applies to base quadratic Hessian fits, not only richer wall

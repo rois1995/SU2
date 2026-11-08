@@ -1,0 +1,89 @@
+{
+  "time": 1794098668.3268611,
+  "status": {
+    "state": "running",
+    "pid": 1638436,
+    "started_at": 1794098644.1906397
+  },
+  "owned_tree": [
+    {
+      "pid": 1638436,
+      "start_ticks": 14308830,
+      "argv": [
+        "/usr/bin/time",
+        "-v",
+        "timeout",
+        "600",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "[NativeCurrentCompound3D]",
+        "--durations",
+        "yes"
+      ],
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/current_compound_20261108T004404_1638191",
+      "rss_bytes": 1531904
+    },
+    {
+      "pid": 1638437,
+      "start_ticks": 14308830,
+      "argv": [
+        "timeout",
+        "600",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "[NativeCurrentCompound3D]",
+        "--durations",
+        "yes"
+      ],
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/current_compound_20261108T004404_1638191",
+      "rss_bytes": 2084864
+    },
+    {
+      "pid": 1638438,
+      "start_ticks": 14308830,
+      "argv": [
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "[NativeCurrentCompound3D]",
+        "--durations",
+        "yes"
+      ],
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/current_compound_20261108T004404_1638191",
+      "rss_bytes": 256991232
+    },
+    {
+      "pid": 1638439,
+      "start_ticks": 14308831,
+      "argv": [
+        "orted",
+        "--hnp",
+        "--set-sid",
+        "--report-uri",
+        "8",
+        "--singleton-died-pipe",
+        "9",
+        "-mca",
+        "state_novm_select",
+        "1",
+        "-mca",
+        "ess",
+        "hnp",
+        "-mca",
+        "pmix",
+        "^s1,s2,cray,isolated"
+      ],
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/current_compound_20261108T004404_1638191",
+      "rss_bytes": 15347712
+    },
+    {
+      "pid": 1638191,
+      "start_ticks": 14308375,
+      "argv": [
+        "python3",
+        "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/run_cases.py",
+        "build254",
+        "current_compound"
+      ],
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated",
+      "rss_bytes": 20717568
+    }
+  ],
+  "scope": "Exact bounded current-compound helper and child identities; no signal sent."
+}

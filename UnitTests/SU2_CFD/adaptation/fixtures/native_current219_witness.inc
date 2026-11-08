@@ -170,22 +170,32 @@ static void CapturedCurrentResidual(bool compound,bool distributed=false) {
       MetricDiagnosis geometry_diagnosis;std::string geometry_metric_reason;
       const bool geometry_metric=ValidateMetricChange(seed.cells.size(),old_active,result.cells.size(),new_active,
           MetricChange::GeometryRefine,geometry_metric_reason,&geometry_diagnosis,relocated);
+      MetricDiagnosis geometry_repair_diagnosis;std::string geometry_repair_reason;
+      const bool geometry_repair_metric=ValidateMetricChange(seed.cells.size(),old_active,result.cells.size(),new_active,
+          MetricChange::GeometryRepair,geometry_repair_reason,&geometry_repair_diagnosis,relocated);
       const bool metric_valid=primitive&&diagnosis.added_excess<=diagnosis.removed_excess&&
           (diagnosis.quality_progress||(new_active.minimum_mean_ratio>=MinimumMeanRatio&&new_active.minimum_scaled_jacobian>=MinimumScaledJacobian));
       const auto old_geometry=GeometryGuidanceExcess(complete,*scope,1e-4);
       const auto new_geometry=GeometryGuidanceExcess(all,*all_context,1e-4);
       REQUIRE(old_geometry.complete);REQUIRE(new_geometry.complete);
-      auto geometry_bad=[&](const Owned& cells,const PlanarReference& geometry) {
-        std::set<Id> bad_cells;
+      struct FaceErrors {std::set<Id> bad_cells;size_t bad_faces=0;long double excess_squared=0;double maximum_error=0;};
+      auto geometry_errors=[&](const Owned& cells,const PlanarReference& geometry) {
+        FaceErrors errors;
         for(const auto& row:cells){bool bad=false;
           for(unsigned slot=0;slot<4;++slot)if(row.second.physical[slot].present){std::array<Point,3> triangle;
             for(unsigned k=0;k<3;++k)triangle[k]=row.second.cell.v[opposite[slot][k]].p;
             const auto error=geometry.SurfaceDeviation(row.second.physical[slot].facet,triangle);
-            REQUIRE(std::isfinite(error));bad=bad||error>1e-4;}
-          if(bad)bad_cells.insert(row.first);}
-        return bad_cells;
+            REQUIRE(std::isfinite(error));bad=bad||error>1e-4;
+            errors.bad_faces+=error>1e-4;errors.maximum_error=std::max(errors.maximum_error,error);
+            const long double excess=std::max(0.L,static_cast<long double>(error)-1e-4);
+            errors.excess_squared+=excess*excess;}
+          if(bad)errors.bad_cells.insert(row.first);}
+        return errors;
       };
-      const auto old_geometry_bad=geometry_bad(owned,*scope),new_geometry_bad=geometry_bad(joined,*all_context);
+      const auto old_face_errors=geometry_errors(owned,*scope),new_face_errors=geometry_errors(joined,*all_context);
+      const auto& old_geometry_bad=old_face_errors.bad_cells;const auto& new_geometry_bad=new_face_errors.bad_cells;
+      auto vertex_count=[](const Owned& cells){std::set<Id> vertices;for(const auto& row:cells)
+        for(const auto& node:row.second.cell.v)vertices.insert(node.id);return vertices.size();};
       std::array<std::set<Id>,2> old_bad,new_bad;
       for(const auto& row:expected){if(row.q<MinimumMeanRatio)old_bad[0].insert(row.id);if(row.J<MinimumScaledJacobian)old_bad[1].insert(row.id);}
       for(const auto& row:joined){const auto m=MeasureMetricCells({row.second.cell},field);
@@ -205,11 +215,16 @@ static void CapturedCurrentResidual(bool compound,bool distributed=false) {
          <<",\"q_retired\":"<<absent(old_bad[0],new_bad[0])<<",\"q_introduced\":"<<absent(new_bad[0],old_bad[0])
          <<",\"J_retired\":"<<absent(old_bad[1],new_bad[1])<<",\"J_introduced\":"<<absent(new_bad[1],old_bad[1])
          <<",\"geometry_retired\":"<<absent(old_geometry_bad,new_geometry_bad)<<",\"geometry_introduced\":"<<absent(new_geometry_bad,old_geometry_bad)
+         <<",\"old_bad_physical_faces\":"<<old_face_errors.bad_faces<<",\"new_bad_physical_faces\":"<<new_face_errors.bad_faces
+         <<",\"old_face_excess_squared\":"<<double(old_face_errors.excess_squared)<<",\"new_face_excess_squared\":"<<double(new_face_errors.excess_squared)
+         <<",\"old_maximum_face_error\":"<<old_face_errors.maximum_error<<",\"new_maximum_face_error\":"<<new_face_errors.maximum_error
+         <<",\"old_context_vertices\":"<<vertex_count(owned)<<",\"new_context_vertices\":"<<vertex_count(joined)
          <<",\"old_geometry_excess\":"<<double(old_geometry.excess)<<",\"new_geometry_excess\":"<<double(new_geometry.excess)
          <<",\"old_maximum_edge\":"<<double(before.maximum_length)<<",\"new_maximum_edge\":"<<double(after.maximum_length)
          <<",\"added_size_excess\":"<<double(diagnosis.added_excess)<<",\"removed_size_excess\":"<<double(diagnosis.removed_excess)
          <<",\"metric_valid\":"<<metric_valid<<",\"metric_reason\":"<<std::quoted(metric_reason)
          <<",\"geometry_refine_valid\":"<<geometry_metric<<",\"geometry_refine_reason\":"<<std::quoted(geometry_metric_reason)
+         <<",\"geometry_repair_metric_valid\":"<<geometry_repair_metric<<",\"geometry_repair_metric_reason\":"<<std::quoted(geometry_repair_reason)
          <<",\"replacement\":"<<replacement<<",\"replacement_reason\":"<<std::quoted(replacement_reason)
          <<",\"interface_valid\":"<<interface_valid<<",\"interface_reason\":"<<std::quoted(interface_reason)
          <<",\"boundary_candidates\":"<<report.boundary_candidates<<",\"boundary_moves\":"<<report.boundary_moves
