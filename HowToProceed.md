@@ -24,13 +24,14 @@ provisional original-reference-node classification was wrong and is preserved.
 Six complete contexts fit the existing64old-cell cap. Both bounded diagnostic
 checks are terminal and reproduce cached q/J and strict geometry counts/sums.
 
-ONE connected correction256has built and is in focused serial validation:shared geometry guidance now uses the
+ONE connected correction256passed58serial cases and99cases on EACH MPI6rank.
+The full same-seed two-event256M6 attempt is now RUNNING FROZEN:shared geometry guidance now uses the
 canonical squared certified-face excess measured by the complete census. An
 actual raw contraction removes10q/8J failures andone failed physical face,
 reduces certified debt15%,keeps worst error unchanged and removesone point;
 old area weighting nevertheless vetoes it. See
 [the current correction](Handbook/ADAPTATION_GEOMETRY_DEBT256_20261108.md).
-After focused serial/ONE MPI6,return immediately to full same-seed two-eventM6.
+Qualification is sealed;do not repeat it. Let the full attempt drive the next step.
 The scalar correction does not guarantee production reaches every bounded
 candidate;no new operator,support bound,scheduler,metric or gate was introduced.
 Read HANDOFF for actual live handles;all current256source pins remain frozen.

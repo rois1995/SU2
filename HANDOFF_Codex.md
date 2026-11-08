@@ -15,12 +15,13 @@ ONE active cycle/ONE owned heavy job;all pinned sources/fixtures/helpers/binary/
 config/inputs FROZEN while running. Preserve authorized evidence/stop/fix/retry.
 
 R=`integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57`.
+A256=`R/m6_runs/euler_build256_canonical_geometry_debt_mach_only_real_cfd50k`(RUNNING FROZEN).
 A254=`R/m6_runs/euler_build254_conditioned_mach_only_real_cfd50k`(TERMINAL REFUSED).
 A253=`R/m6_runs/euler_build253_witness_cutoff_mach_only_real_cfd50k`(TERMINAL REFUSED;partial terminal census).
 A251=`R/m6_runs/euler_build251_upper_cutoff_mach_only_real_cfd50k`(terminal REFUSED).
 A247=`R/m6_runs/euler_build247_canonical_mach_only_real_cfd50k`(REFUSED baseline).
 
-## CURRENT — canonical geometry-debt256 building;254terminal refused
+## CURRENT — full two-event256 M6 RUNNING FROZEN
 
 Implementation8a2c4e1d48and inspection checkpointfc87c40994PUSHED. 254first event
 REFUSED at native5332.870105/round42620:private repair round elapsed-time budget.
@@ -43,41 +44,62 @@ A254/inspection_{export_status,export_terminal_handles,reader_status,reader_term
 This is refused actual geometry,not acceptance. Large artifacts remain local;
 metadata/hashes pushed. Previous meaningful247 remains historical,not latest mesh.
 
-ONE focused serial256 milestone RUNNING tool63150:
-R/cases/current_compound_20261108T010915_1724241,status pid1724529.
-Host wrapper1724241/start14459481,time1724529/timeout1724530/test1724531
-all start14459983;orted1724532/start14459984. owned_handles_start.json.
-ALL source/runtime/input/helper pins FROZEN;nice19/libs1,existing600s case cap.
-Build256TERMINAL0/480.354111s,all1303pins unchanged,both targets up to date,
-all11recorded build startup/compiler handles absent;build256_terminal_handles.json.
-[Current correction/evidence](Handbook/ADAPTATION_GEOMETRY_DEBT256_20261108.md)
-and R/geometry_debt256_plan.json:shared GeometryGuidanceExcess now matches
-canonical complete-census squared certificate excess,removing face-area weights.
-Actual raw collapse:q28→18/J25→17,failed PHYSICAL faces8→7,certified debt−15%,
-max error unchanged,one fewer point;old area weighting rises6% and vetoes it.
-255diagnostic41955assertions/103.936634s,allpins unchanged,all5handles terminal;
-all6baseline strict certificate sums match sealed census to rounding. No metric,
-operator,scheduler,support/gate/budget change. Production selection/retained-star
-orchestration remain limitations,NOT guaranteed by this scalar correction.
+ONE full same-seed two-event M6 RUNNING tool10984,source42a3fedcc7PUSHED.
+A256/status.json time-wrapper1753218/start14514129;launcher1752458/start14512699,
+runner1752768/start14513409,timeout1753219/start14514129,MPI1753220/start14514129.
+MPI test-driver workers1753223/1753224/start14514142,1753225/1753226/1753227/
+start14514143,1753228/start14514144. ALL11identities and exact argv/cwd in
+A256/owned_startup.json. ALL1520source/build/runtime/input pins verified after
+launch. Sources/binary/config/runtime/helpers/inputs FROZEN until terminal or
+preserved evidence satisfies existing authorized stop conditions. No competing job.
+Native5400/outer14400 unchanged,nice19/libs1,MPI6,50k complexity,Mach-only L1.
+ConfigSHA5ad2dc1d9a1cd8bff87f633617b191b50defbc261ab3d0b2ed0987a34722b89e EXACT254.
+Actual INITIAL22CFD/metric fields and coordinates BIT-IDENTICAL to254and qualified
+corrected target:A256/initial_cfd_target_equivalence.json. Sensors ONLYSENSOR_MACH.
+Host cache quota4GiB/rank715827882bytes EXACT254. Initial resource proofavailable
+~40.7GB,sampled treeRSS1.84GB;4TB disk free10.8GB. Monitor disk headroom;no actual
+RAM pressure established. Root/tmp remains unsuitable for compile/MPI scratch.
+Use A256/source/runtime/input/owned receipts;historical254statistics are NOT live.
 
-NEXT:verify current serial terminal/owned handles;then ONE MPI6 milestone via
-R/geometry_debt256_validate.py mpi6 (serial already running). It reuses current254
-six-context serializer for serial and qualified244/placement246_inputs_v1 forMPI.
-Validate affected curves/seams/holes/bodies/features/heights/caches/bounds/budgets,
-conflicts/empty-rank publication and actual complete-context net q/J/geometry.
-Then IMMEDIATELY full same-seed two-eventM6. No baseline/perf/GDB campaign.
-All acceptance/transfer/adaptedCFD/disk-restart/BL/RANS obligations remain open.
-Current exact capture:117bad cores own wing faces,143interior cores touch CURRENT
-wing vertices,ZERO free-interior. Original-reference-node provisional classification
-was wrong and is preserved;use bounded_residual_selection.json v2 ONLY.
-Latest exactLE edges remain short(.13–.19),8–15xoriginal stationtriangles;
-64geometry-bad wing cells in explicit LE band(vs795old247),not spacing-necessity proof.
-255build/test and254test/export/reader ALLTERMINAL;no M6 solver alive.
-Source freeze may be released ONLY after current256owned handles are terminal.
-Prepared launcher:R/launch_m6256.py requires geometry_debt256_qualification.json
-from qualify_geometry_debt256.py SERIAL_CASE MPI_CASE (after both terminal).
-Preserve literal placement input directory:its run.cfg is a SYMLINK and resolving
-it loses companion files;validation wrapper correctly uses absolute(),not resolve().
+[Current correction/evidence](Handbook/ADAPTATION_GEOMETRY_DEBT256_20261108.md)
+and R/geometry_debt256_plan.json:shared geometry guidance matches canonical
+complete-census squared certificate excess,removing area weights. Existing raw
+collapse:q28→18/J25→17,failed physical faces8→7,certified debt−15%,maxerror
+unchanged,one fewer point;old area weighting rises6% and vetoes it. This is NOT
+proof of global closure or production selection/retained-star orchestration.
+No operator,scheduler,metric,support/gate/budget change;validity-first preserved.
+
+Build256TERMINAL0/480.354111s,all1303pins unchanged,both targets up to date,
+all recorded build handles terminal. Focused serial58cases/46938assertions PASSED
+165.939102s (current_compound_20261108T010915_1724241),ONE MPI6 milestone99cases
+on EACH rank PASSED183.821737s (placement_mpi6_20261108T011332_1738581).
+All pins unchanged,all5serial/all10MPI host handles terminal. Qualification reader
+84718TERMINAL0:ALL checks sealed in geometry_debt256_qualification.json;three
+actual raw witnesses satisfy net q/J/physical-face/debt/point progress,no larger
+maximum error. Do NOT rerun passed checks without changed scope/failure evidence.
+
+NEXT:let full256attempt finish unless preserved evidence justifies authorized
+stop. Judge net WHOLE-FIELD q/J removal per second alongside geometrybad counts,
+work,CPU/wait and rank spread. Compare with same-target254 at matching quality
+stages/times;do not add overlapping timers or claim isolated speedup under host
+contention. Read-only current counter helper prepared:R/analyze_m6256_frozen.py
+(reuses prior parser;executed successfully).
+First31matched construction censuses have EXACT254counts/flags/globalwork.
+At length_split_exit20572:670142cells,3766geometrybad,3117sizebad;shape UNMEASURED.
+Native451.071s versus254509.246s is NOT isolated-code speedup evidence.
+A256/construction_comparison254.json;source prefixes hashed by current parser.
+Latest sampled treeRSS6.72GB at wall563s,not physical peak. Keep construction/phase/queue/migration
+modes and all strict gates/budgets. No new baseline/perf/GDB or implementation.
+Two accepted meshes,conservative admissible transfer,finite adaptedCFD and actual
+isolated adapted disk restart still REQUIRED;then dedicatedBL/MPI andRANS500k.
+
+Latest SAVED meaningful mesh remains refused254(above),not current256. Corrected
+actual254classification:117bad cores own wing faces,143interior share CURRENT wing
+vertices,ZERO free interior. Provisional reference-node classification was wrong
+and preserved;use bounded_residual_selection.json v2 ONLY. Exact254LE edges stay
+short(.13–.19),station triangles8–15xoriginal;64geometrybad cells in explicitLE
+band(vs795old247),not necessary-spacing proof. All255/254diagnostic/export/reader
+handles terminal. Do not export every trial or stop/retry old terminal jobs again.
 
 Same saved CFDseed,MACH-only L1/50k,same configSHA5ad2dc1d9a1cd8bff87f633617b191b50defbc261ab3d0b2ed0987a34722b89e.
 Actual full-run initial22fields/coords match qualified target exactly. Initial

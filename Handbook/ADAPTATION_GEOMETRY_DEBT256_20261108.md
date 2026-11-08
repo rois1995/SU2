@@ -87,3 +87,30 @@ input. Do NOT claim the scalar correction guarantees all diagnostic candidates
 are reached/admitted. Observe actual useful production progress and strict whole-
 field counts. Record orchestration/support alternatives in backlog;do not add
 them as a competing implementation without measured production evidence.
+
+
+## Qualification and full return
+
+Build256passed480.354111s,all1303pins unchanged,both targets up to date,
+all owned build handles terminal. Focused serial58cases/46938assertions passed
+165.939102s;ONE MPI6 milestone99cases on EACHrank passed183.821737s. All
+source/runtime/input pins unchanged;all5serial andall10MPIhandles terminal.
+geometry_debt256_qualification.json seals these independent completed stages
+and3actual raw contraction witnesses with no increased maxerror. Do not rerun
+them absent changed scope/failure evidence. These do not establish M6 acceptance.
+
+Immediately returned to full same-seed two-event256M6,tool10984 RUNNING FROZEN.
+Actual original-grid22flow/metric fields and coordinates match254and qualified
+conditioned target BIT-IDENTICALLY. ConfigSHA and host4GiB cachequota match254.
+Current actual owned/source/runtime/input handles/pins are in A256/owned_startup.json;
+read HANDOFF for live state. No new production implementation while frozen.
+
+
+First31matched actual construction censuses have identical254counts,flags and
+replicated global work. At length_split_exit round20572:670142cells,3766geometry
+bad,3117sizebad,q/JUNMEASURED. Native451.071s versus254509.246s is not isolated
+code-speedup evidence under differing host contention. Current and baseline
+INITIAL22flow/metric fields,configuration and host cache quota match exactly.
+Use construction_comparison254.json and guarded source-prefix receipts;compare
+net whole-field q/J and geometry progress only once complete shape measurement
+starts. No accepted mesh or adaptation/transfer/restart claim follows.
