@@ -39,6 +39,16 @@ SIXtestdrivers3159101–3159106. A267/owned_startup.json records ALL11exactident
 SamequalifiedREALseed SHA1eaee788...01a880;Mach-onlyL1/50k,TWOevents,native5400/
 outer14400/12GiBrankworkingstorage/hostcache4GiB unchanged. Initial original-grid
 CFDrestart alreadywritten;NOTadaptedproof. Initialverifier267checksall22fields.
+Initialverifier COMPLETE:all61330coordinates/all22fields bit-identical256/qualifiedtarget;
+configbyte-identical262/SHA5ad2dc1d...22b89e. Firsttwo completeconstructioncheckpoints
+(round1627 length_collapse_exit/ownership_staged):293202cells/2495collapses,
+2972geometrybad/73682sizebad;shapeUNMEASURED. Counts/flags/listedgeometrywork
+EXACT262,all1520source/runtime/inputpinsunchanged. A267/first_construction_equivalence262.json.
+Initialqualityentry23314/native691.831276:690715cells,ALLmeasured,27016q/27453J/
+1205geometry/0size,allcensusflagscomplete. EXACT262counts/flags andALLnon-time/
+non-byte rankfields across83completegroups;all1520pinsunchanged. A267/
+quality_entry_equivalence262.json sealsproof/prefixhashes. No timing speedup or
+mesh-bitidentity claim. Continue frozen through shape/geometryclosure.
 All C++/binary/runtime/helpers/config/inputs FROZEN. No other ownedheavyjob.
 Letthisattemptfinishunlesspreservedevidence meetsauthorizedstopconditions.
 Compare firstconstruction/qualityentry counts+work againstcomplete262;newrepair
