@@ -661,9 +661,12 @@ void FirstRingRow(const Geometry& geometry, unsigned short nDim, unsigned short 
  *   L^T D L <= S_e [ |alpha| Delta^T D Delta + sum_x r_x sum_{m != x'} mu_xm delta_xm^T D delta_xm ],
  *   tau_x = e^T T_x e - (a_xx'.e)^2/mu_xx',  nu_x = M_x - mu_xx',  T_x = sum_m a_xm a_xm^T/mu_xm,  M_x = sum_m mu_xm,
  *   S_e = |alpha| + t_0 + t_1,  r_x = |gamma_x| sqrt(tau_x/nu_x)   (t_x = 0 means u_x = 0: no term).
- * Regrouped by mesh edges f = (m, j): K <= 2 J = sum_f W_f (x) (e_m - e_j)(e_m - e_j)^T,
+ * Regrouped by mesh edges f = (m, j): K <= J = sum_f W_f (x) (e_m - e_j)(e_m - e_j)^T,
  *   W_f = S_f |alpha_f| D_f + mu_mj (Q_m - S_f r_m^f D_f) + mu_jm (Q_j - S_f r_j^f D_f),   Q_x = sum_{e ni x} S_e r_x^e D_e,
- * so 2 J >= K (C4 (ii)), J symmetric, J 1 = 0, first-neighbour blocks only. The exclusions of the own pair in tau and
+ * so J >= K, J symmetric, J 1 = 0, first-neighbour blocks only. J is the bound itself (not B/2): C4 (ii) (sufficient,
+ * with its other hypotheses) holds with the margin 2 (S + J) - K >= J + 2 S, i.e. lambda(K, J + S) <= 1 for any S > 0; with J = B/2 only 2 J >= K
+ * holds, lambda reaches 2 where the bound is tight (model T4 225x65: 1.33 P1, 1.99 GG; FIRST_RING 0.98), the margin is
+ * the pseudo-time term alone, and T4 a10 at CFL 1000 diverged (ROE_TECNO_PLAN.md 6.4). The exclusions of the own pair in tau and
  * nu are subtractions (without them the model needs 1.4-1.8 x more iterations); their rounding error is at most
  * (n_x + 2) eps (e^T T e + own) and (n_x + 2) eps M (n_x terms in T_x, M_x, one product, one subtraction), and that
  * margin is added, so tau and nu are not below their exact values and the bound holds in floating point (the sqrt in
@@ -785,8 +788,8 @@ void JumpNodalQ(const Geometry& geometry, unsigned short nDim, unsigned short nV
 }
 
 /*!
- * \brief Row of the owned node m of J (in w, FIRST_RING_JUMPS): for each edge f = (m, j) the block W_f / 2 on the
- *        diagonal and -W_f / 2 passed to offBlock(j, block). S, phi, Q on halos.
+ * \brief Row of the owned node m of J (in w, FIRST_RING_JUMPS): for each edge f = (m, j) the block W_f on the
+ *        diagonal and -W_f passed to offBlock(j, block) (J = B >= K). S, phi, Q on halos.
  */
 template <class Geometry, class WeightType, class NodeType, class NodeTypeQ, class EdgeType, class PhiType,
           class OffFunc>
@@ -807,8 +810,8 @@ void JumpRow(const Geometry& geometry, unsigned short nDim, unsigned short nVar,
         const su2double d = edgeD(iEdge, k);
         su2double w = sumT * fabs(alpha) * d;
         for (unsigned short x = 0; x < 2; ++x) w += mu[x] * (Q(node[x], k) - sumT * r[x] * d);
-        diag(iVar, jVar) += 0.5 * w;
-        off(iVar, jVar) = -0.5 * w;
+        diag(iVar, jVar) += w;
+        off(iVar, jVar) = -w;
       }
     }
     offBlock(jPoint, off);

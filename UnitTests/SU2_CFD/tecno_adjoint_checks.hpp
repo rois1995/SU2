@@ -361,7 +361,7 @@ struct LinearizationResult {
   double firstRing = 0.0;   /*!< \brief max(0, -lambda_min(2 J - A) / lambda_max(A)), J of TECNO_ADJOINT_JACOBIAN= FIRST_RING. */
   double firstRingEdge = 0.0; /*!< \brief |J_edge - sum_e a_e a_e^T D_e| / |.|, reference beta from EdgeJump. */
   double firstRingSpread = 0.0; /*!< \brief lambda_max(A)/lambda_max(J), for information. */
-  double jumps = 0.0;        /*!< \brief max(0, -lambda_min(2 J - A) / lambda_max(A)), J of FIRST_RING_JUMPS. */
+  double jumps = 0.0;        /*!< \brief max(0, -lambda_min(J - A) / lambda_max(A)), J of FIRST_RING_JUMPS (J >= A). */
   double jumpsRef = 0.0;     /*!< \brief |J - J_ref| / |J_ref|, J_ref assembled pair by pair from the definition (exact
                                   tau, nu; J carries the roundoff margin, O(sqrt(n eps)) where tau vanishes). */
   double jumpsAlpha = 0.0;   /*!< \brief max |alpha_e - alpha_ref| / (|alpha_ref| + 1), alpha_ref from EdgeJump. */
@@ -506,7 +506,7 @@ LinearizationResult LinearizationCheck(const Geometry& geometry, unsigned long n
       /*--- TECNO_ADJOINT_JACOBIAN= FIRST_RING_JUMPS: J from the solver functions (edge weights w = trace(D), H = I
        * here), against J_ref assembled pair by pair from the definition with independent loops (E_x from the
        * coordinates, tau and nu as direct sums over the pairs, alpha from the EdgeJump coefficients beta), and
-       * 2 J - A >= 0, J 1 = 0, J = J^T. ---*/
+       * J - A >= 0, J 1 = 0, J = J^T. ---*/
       auto edgeW = [&](unsigned long e) {
         su2double tr = 0.0;
         for (size_t a = 0; a < nVar; ++a) tr += D(e, a * nVar + a);
@@ -557,7 +557,7 @@ LinearizationResult LinearizationCheck(const Geometry& geometry, unsigned long n
       auto addPair = [&](unsigned long p, unsigned long q, double w, unsigned long e) {
         for (size_t a = 0; a < nVar; ++a) {
           for (size_t b = 0; b < nVar; ++b) {
-            const double blk = 0.5 * w * D(e, a * nVar + b);
+            const double blk = w * D(e, a * nVar + b);
             Jr(nVar * p + a, nVar * p + b) += blk;
             Jr(nVar * q + a, nVar * q + b) += blk;
             Jr(nVar * p + a, nVar * q + b) -= blk;
@@ -612,7 +612,7 @@ LinearizationResult LinearizationCheck(const Geometry& geometry, unsigned long n
         }
       }
       const Eigen::MatrixXd Jjs = 0.5 * (Jj + Jj.transpose());
-      Eigen::SelfAdjointEigenSolver<Eigen::MatrixXd> eigJj(2.0 * Jjs - As);
+      Eigen::SelfAdjointEigenSolver<Eigen::MatrixXd> eigJj(Jjs - As);
       res.jumpsFinite = res.jumpsFinite && (eigJj.info() == Eigen::Success) && std::isfinite(lamMax);
       res.jumps = std::max(res.jumps, -eigJj.eigenvalues().minCoeff() / lamMax);
     };

@@ -2665,7 +2665,7 @@ void CEulerSolver::TeCNOAdjointResidual(CGeometry *geometry, const CConfig *conf
 
   /*--- TECNO_ADJOINT_JACOBIAN= FIRST_RING (TeCNOAdjoint::FirstRingRow): rows of the owned nodes, J_w(m, n) dw/dU_n with
    * the edge blocks beta_{e,m} beta_{e,n} D_e and the diagonal majorant of the second-ring part, 2 J >= C^T D C;
-   * FIRST_RING_JUMPS (TeCNOAdjoint::JumpRow): the edge-jump majorant, 2 J >= C^T D C and J 1 = 0. The edge loop added
+   * FIRST_RING_JUMPS (TeCNOAdjoint::JumpRow): the edge-jump majorant, J >= C^T D C and J 1 = 0. The edge loop added
    * the central part and stored D_e. ---*/
 
   if ((config->GetKind_TeCNO_Adj_Jacobian() != TECNO_ADJ_JACOBIAN::ROE1) &&
