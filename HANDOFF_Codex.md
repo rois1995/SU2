@@ -17,7 +17,7 @@ A260=`R/m6_runs/euler_build260_paired_geometry_priority_mach_only_real_cfd50k`.
 A256=`R/m6_runs/euler_build256_canonical_geometry_debt_mach_only_real_cfd50k`.
 A254=`R/m6_runs/euler_build254_conditioned_mach_only_real_cfd50k`.
 
-## CURRENT — CAPTURE262 QUALIFIED; full same-seed M6 next
+## CURRENT — BUILD262 FULL M6 RUNNING/FROZEN
 
 [Current production design/evidence](Handbook/ADAPTATION_GEOMETRY_PRIORITY260_20261108.md).
 Source checkpoint c88bf6402a plus ONLY the corrected tight-cap test control.
@@ -33,7 +33,15 @@ Build261's single failed test-cap assumption is preserved; only that test contro
 was corrected. Native128MiB caps and encoder were unchanged by that correction.
 Next full MPI6 M6 uses R/launch_m6262.py, same saved real CFD seed/Mach-onlyL1/50k,
 strict gates/native5400/outer14400. No new timing baseline or production policy.
-Record live tool/process identity below once launched; never assume old jobs live.
+LIVE tool46776; launch source5484de33d2 (pushed). Wrapper2597892/start16554420,
+runner2597957/start16554616, time2598239/start16555245, timeout2598240,
+MPI2598241/start16555245, ranks2598251–2598256/start16555262 or16555263.
+A262=R/m6_runs/euler_build262_compact_capture_mach_only_real_cfd50k.
+A262/owned_startup.json preserves exact11handle tree; ALL1520pins verified,
+configuration byte-identical260. Allprocesses nice19/libs1. Host~39GBavailable
+at startup; disk~8.6GB free. Source/build/runtime/helpers/config/inputs NOWFROZEN.
+No stop condition demonstrated; let full attempt finish. Verify actual handles
+before any intervention. Native refusal capture completeness remains unproved.
 
 Build260 tool89696 TERMINAL1/5566.772822s; all11 owned handles absent.
 Firstevent explicitly REFUSED beforestop. Finalexit37121/native5340.295245:

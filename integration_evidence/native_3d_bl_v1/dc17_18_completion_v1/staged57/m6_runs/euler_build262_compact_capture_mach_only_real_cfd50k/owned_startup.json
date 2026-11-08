@@ -1,0 +1,104 @@
+{
+  "time": 1794121161.487721,
+  "tool_session": 46776,
+  "source_commit": "5484de33d2d2dccbf27562748c970c2719c77486",
+  "owned_tree": [
+    {
+      "pid": 2597892,
+      "ppid": 27939,
+      "start_ticks": 16554420,
+      "nice": 19,
+      "exe": "/usr/bin/python3.12",
+      "cmdline": "python3 integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/launch_m6262.py "
+    },
+    {
+      "pid": 2597957,
+      "ppid": 2597892,
+      "start_ticks": 16554616,
+      "nice": 19,
+      "exe": "/usr/bin/python3.12",
+      "cmdline": "/usr/bin/python3 /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/run_m6.py build262 euler_build262_compact_capture_mach_only_real_cfd50k 2 /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_inputs/euler_original_force_seed_v1 --inspect-rejected "
+    },
+    {
+      "pid": 2598239,
+      "ppid": 2597957,
+      "start_ticks": 16555245,
+      "nice": 19,
+      "exe": "/usr/bin/time",
+      "cmdline": "/usr/bin/time -v timeout 14400 mpirun --output-filename rank_output -n 6 /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver [NativeSelectedFailureWorkflow3D] "
+    },
+    {
+      "pid": 2598240,
+      "ppid": 2598239,
+      "start_ticks": 16555245,
+      "nice": 19,
+      "exe": "/usr/bin/timeout",
+      "cmdline": "timeout 14400 mpirun --output-filename rank_output -n 6 /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver [NativeSelectedFailureWorkflow3D] "
+    },
+    {
+      "pid": 2598241,
+      "ppid": 2598240,
+      "start_ticks": 16555245,
+      "nice": 19,
+      "exe": "/usr/bin/orterun",
+      "cmdline": "mpirun --output-filename rank_output -n 6 /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver [NativeSelectedFailureWorkflow3D] "
+    },
+    {
+      "pid": 2598251,
+      "ppid": 2598241,
+      "start_ticks": 16555262,
+      "nice": 19,
+      "exe": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+      "cmdline": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver [NativeSelectedFailureWorkflow3D] "
+    },
+    {
+      "pid": 2598252,
+      "ppid": 2598241,
+      "start_ticks": 16555262,
+      "nice": 19,
+      "exe": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+      "cmdline": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver [NativeSelectedFailureWorkflow3D] "
+    },
+    {
+      "pid": 2598253,
+      "ppid": 2598241,
+      "start_ticks": 16555262,
+      "nice": 19,
+      "exe": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+      "cmdline": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver [NativeSelectedFailureWorkflow3D] "
+    },
+    {
+      "pid": 2598254,
+      "ppid": 2598241,
+      "start_ticks": 16555263,
+      "nice": 19,
+      "exe": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+      "cmdline": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver [NativeSelectedFailureWorkflow3D] "
+    },
+    {
+      "pid": 2598255,
+      "ppid": 2598241,
+      "start_ticks": 16555263,
+      "nice": 19,
+      "exe": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+      "cmdline": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver [NativeSelectedFailureWorkflow3D] "
+    },
+    {
+      "pid": 2598256,
+      "ppid": 2598241,
+      "start_ticks": 16555263,
+      "nice": 19,
+      "exe": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+      "cmdline": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver [NativeSelectedFailureWorkflow3D] "
+    }
+  ],
+  "pins_verified": true,
+  "pin_count": 1520,
+  "changed": [],
+  "config_identical260": true,
+  "loadavg": "6.41 3.82 3.43 7/4625 2600108\n",
+  "meminfo": [
+    "MemAvailable:   39132424 kB",
+    "SwapFree:          13092 kB"
+  ]
+}
