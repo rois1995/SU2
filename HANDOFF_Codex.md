@@ -14,56 +14,80 @@ R=`integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57`.
 A278=`R/m6_runs/euler_build278_source_chord_certificate_mach_only_real_cfd50k`.
 A274=`R/m6_runs/euler_build274_metric_cleanup_mach_only_real_cfd50k`.
 
-## CURRENT — full TWO-event M6 build278 LIVE/FROZEN
+## CURRENT — build278 TERMINAL REFUSED; connected281 QUERY LIVE/FROZEN
 
-Main tool35468, launched from PUSHED2cf112b7ab (qualified source implementation).
-Exact owned identities:wrapper240820/start20629566,runner241097/start20630193,
-time241346+timeout241347+MPI241348/start20630721,
-sixACTUALCFDworkflowtest_driver ranks241371–76/start20630766.
-A278/owned_startup.json verifies ALL1520source/build/binary/runtime/config/inputpins
-and83ACTUALmapped libraries. ActualCFD solver workflow runs inside test_driver
-classes; NOT standaloneSU2_CFD ranks. Both binary hashes pinned. ProductionCFD SHA
-c8ac77f8acc1c1d389af440989bd3ba5e5616b62613ccce7a3e09a878d24492a.
-Initial sampledwhole-treeRSS2.455GB is NOTpeak/physicalusage. HostMemAvailable47.411GB
-atlaunch. Native5400/outer14400,12GiBworkingperrank,hostgeometrycache4GiB unchanged.
-Same REALsavedCFDseed, Mach-onlyL1/50k. verify_m6278_initial.py PASSED:all61330coords/
-22fields BIT-IDENTICAL256 and qualified254target, SENSOR_MACHonly. This is initial
-original-grid proof, NOT adapted CFD or transfer. Source/build/input/runtimeFROZEN.
-NOstop marker, demonstratedfailure/resourcepressure or otherheavyjob. Let runfinish
-unless preserved evidence satisfies existing authorized stop/fix/retry conditions.
-No active sub-agent. Do not start another build/fixture/MPI campaign alongside it.
-Initial six-rank partition EXACT274 outside time fields (receipt initial_partition_equivalence274.json).
-First83complete groups through qualityentry23314 MATCH274 EVERY non-time/non-byte
-rankfield, count, flag and workcounter (quality_entry_equivalence274.json). Quality
-entrynative896.835554s vs274691.828611s:690715cells,27016q/27453J/1205localG/0size,
-ALLknown/flagscomplete. Timinghigher; no construction speedup claim. Await frozen outcome; cleanup not invoked. No source/binary/config/ownership policy change during this frozen attempt.
-Latest geometry_repair_entry24868/native4017.111492s:734912cells,
-0q/0J/2localG/0size, ALLmeasurements/flagscomplete. WHOLE-FIELD SHAPEclosure proven,
-NOTgeometry/fullmeshacceptance. Last reported geometryrepair entry; freshq/J reclosure
-and mandatory globalBoth certificate remain due. No newercompletecensus yet;
-workingstate AFTERentry is UNKNOWN. finish() certifies globalBoth BEFOREexittelemetry,
-so quiettail alone does NOTprove geometryrepair is still active. Use actualexit
-counters/reason, not stale2Gcount, toidentify the blocker. Main35468directpollstillLIVE;
-source/runtime/inputs frozen, no stopmarker/pressure/otherheavyjob. Cleanup NOTused.
+ZERO accepted meshes. A278 first native event REFUSED on elapsed-time budget.
+Exit24869/native5336.347948825s:734914cells,0q/0J/0LOCALgeometry/0size, ALLmeasured/
+censusflagscomplete. Final WHOLE-SURFACE TWO-SIDED geometry proof INCOMPLETE.
+One extra geometry round (+3work,+2tets,rank3accepted+1,upper88/.0564s) closed two
+local failures. Quiettail was globalcertification, NOT continued geometryrepair.
+Cleanup NEVERexecuted. No transfer/adaptedCFD/diskrestart proof.
 
-First CONTROLdivergence vs274 atqualityownership24384:274gain318.325>2cost156.787
-⇒migrate287947cells;278gain389.179<=2cost198.030 ⇒skip. ALLsixrankmath/previouscommon
-decisions/sourcehash/prefixes sealed inownership24384_sensitivity274.json. No
-schedulingcode/configchange. Firstpass q/J/g/work matched through24384, but later
-geometryreturn topology/counts differ, so no isolated downstreamspeedup claim.
-274returnexit24496:732475cells,G559,1112unknownq/J thenfresh215q/270J.
-278returnexit24445:732471cells,G555,q/Jincomplete thenfresh215q/275J.
-Later278length_split_exit24768:G21 with60UNKNOWNq/J; NEVERcallthatshapeclosure.
-Latest24868allknown0q/J supersedes that intermediate state.
+A278/capture_ready.json seals ALL30 COMPLETE raw files/734914rows, no omissions,
+allcachedmeasurements known, within unchanged128MiB/filecaps. ALL1520source/build/
+binary/runtime/config/inputpins verified beforestop. Exactly ONE pidfdSIGTERM sent
+only to MPI241348/start20630721; owned_stop_once.json records it. NEVER repeat.
+Main35468 TERMINAL1/5562.945725s,pins_verified=true,changed=[]; ALL11 exactowned
+identities ABSENT inA278/terminal_handles.json. Oldwrapper240820/runner241097/
+time241346/timeout241347/MPI241348/ranks241371–76 areTERMINAL. No original-grid
+CFD continuation/adap-namedrestart afterrefusal is accepted/adapted proof.
 
-Passiveexact11handles allLIVE;sampledtreepeak13.937GB,MemAvailable~36.8GB,
-hostload10.62 atlatestresource receipt. CPUincludesMPIspin; joincallwallshare is
-NOTtotalMPIwait. Lastpushedqualityevidence684cd8251a; source2cf112b7ab.
-A278/transfer_restart_readiness_reuse.json verifies8audited source/build/helperpaths
-against CURRENTfrozenpins and workflowSHA164bf1c06ac5ba5d663aae871b357f5e7143a1d3bda1c8418efaeb9c3fa52074.
-Read-only audit confirms Cycle2 includes final adaptedCFD and selected inspection
-fixture does NOTrequire refusal. This is readiness only: NOactualtransfer/restartproof.
-Source remains frozen; await outcome before any implementation change.
+Exitcounterdiagnosis inA278/terminal_certification_diagnosis.json: EACHrank3full
+queries/~1318.7s,~1074–1090s traversal/~157–158Mtraversalwork,~204–212s scopebuild,
+17–32s facetprep. Referencequery order has4entities; failure during THIRDentity
+(0,10154,2),37202sourcefacets. Earlier2queries returned, but this alone doesNOTprove
+they were within tolerance. Need bounded exactinput reproduction to distinguish
+source→mesh versus mesh→source before selecting another correction. Existing
+chordbound advanced beyond the firstquery but didNOTcomplete final certification.
+Do not claim full capability or isolated downstreamspeedup. No budgets/gates raised.
+
+279 and test-only280 builds/probes TERMINAL, allpinsunchanged/handlesabsent.
+280 production CFD byte-identical279: SHA053d65c906e35fbf9d0844c1feab2b9b1dd8f4548bf386165d8cce325c20b7c2.
+279 actual query exhausted20M despite primitive controls passing. Full-only280
+existing bounded trace TERMINAL0/222.359s:20M exhausted BEFORE reverse,381114
+forward domains/~295kqueued;607712 completepreparedleaves/198418208bytes already
+available. Fullquery still INCOMPLETE. Traceassessment in
+R/cases/geometry_current_queries_20261108T203706_640926/direction_trace_assessment.json.
+No further source-only probe/baseline/perf/GDB campaign needed.
+
+Build281 TERMINAL0/65.216s,pinsunchanged; helper661175/ninja661208 absent.
+CFDSHA2b64910e25cc1d910b1a44a029f0fee5eb06c8d33408214170a938a69019d2f5.
+ONE owned heavyjob: probe_final281_entity2.py tool82014,helper666256/time666366,
+casegeometry_current_queries_20261108T204417_666256. Connected change retains exact
+UnionDomain with preparedfacet leaves, charges allgrowth/transient/retained bytes,
+freshly certifies leaves, keeps passing regions finished and queues ONLY uncertain
+exact domains for existing traversal. No cropped witness as complete source. Empty
+heap/finishedmaximum handled. Physical-source path, construction/cleanup, ownership,
+nodal transport/config/gates/budgets unchanged. Additionalmetadata affects cache
+admission withinunchangedquota; measure it. LOCAL/UNQUALIFIED. See
+[prepared-source design](Handbook/ADAPTATION_PREPARED_SOURCE_CERTIFICATES_20261108.md).
+C++/binary/helpers frozen through build/check. Verifyactual terminal handles first.
+ONE full-only actual third-entity query plus affected curved/cache/resource
+controls running via probe_final281_entity2.py, unchanged20Mwork/8GiB/600s. Require actual
+query evidence before affectedserial+ONE MPI milestone and immediate fullsame-seed
+TWOeventM6. Actualinput A278/final_certificate_entity2_v1 has37202reference facets/
+53406physicalfaces; full69428boundarycount matches native state.
+
+LatestPUSHED e3b879bb24; terminal278 and279–281work LOCAL need checkpoint. ZERO
+accepted meshes, no transfer/adaptedCFD/restartproof. No active agent.
+
+Same REAL savedCFDseed, Mach-onlyL1/50k; initial61330coords/22fields BIT-IDENTICAL
+256/qualified254target, SENSOR_MACHonly. Sourcefreeze preserved through terminal.
+First83complete groups through qualityentry EXACT274 all non-time/non-bytefields.
+First CONTROLdivergence vs274 atownership24384:274gain318.325>2cost156.787 migrates
+287947cells;278gain389.179<=2cost198.030 skips. ALLsixrankmath/priorcommondecisions/
+sourcehash/prefixes inownership24384_sensitivity274.json. Later geometry-return
+meshes differ, so no causal timing/cleanup claim. Firstgeometryreturn278exit24445:
+732471cells,G555,q/Jincomplete thenfresh215q/275J. Laterexit24768hadG21/60UNKNOWNq/J;
+fresh24868measured0q/J/G2; actualterminal24869nowmeasures0q/J/localG allknown.
+
+LatestPUSHED checkpoint e3b879bb24 (shapeclosure/fork); terminal/stop/diagnosis now
+LOCAL and needcheckpoint. SampledtreeRSSpeak13.937GB, NOTphysicalpeak. No actual
+memorypressure; lastheadroom~33GB. Oneownedheavyjob/nice19/libs1/4TBscratch.
+A278/transfer_restart_readiness_reuse.json verifies8auditedsource/build/helperpaths
+against currentpins/binary. ReadinessONLY; NOactualtransfer/restartproof. Actual
+CFDworkflow uses test_driver solverclasses, NOTstandaloneSU2_CFD ranks. Isolated
+adapted diskrestart must later use same standaloneCFDbinary/runtime. Noactiveagent.
 
 Use R/analyze_m6278_frozen.py,analyze_m6278_quality.py andverify_m6278_initial.py.
 These reuse complete first-event census/counter facilities; no newbaseline/perf/GDB.

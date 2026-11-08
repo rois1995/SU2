@@ -1,11 +1,14 @@
 # Post-refinement metric cleanup — bounded investigation
 
-Current full274 is TERMINAL REFUSED on final two-sided geometry certification
-elapsed time, with complete734806cells/zero q/J/localgeometry/size failures. Cleanup
-never executed. Full rejected148781point mesh+metric is independently verified;
-terminal receipts/checkpoint4b40e63f5c pushed. Diagnostic-only276 now builds one
-bounded saved-final-entity query after275test-only compilation failure; production
-CFD unchanged. See HANDOFF_Codex.md for current handles/source freeze. Two accepted
+Current full278 is TERMINAL REFUSED after complete734914cell census with zero
+known q/J/local-geometry/size failures and no unknown measurements. Final global
+two-sided certification exhausted elapsed time. Integrated cleanup273 NEVER ran
+in274 or278, so its global leading-edge benefit remains unmeasured. Latest complete
+inspection274 retains the metric field and all measured cell data. The current
+active correction is final certification; see HANDOFF_Codex.md and
+[prepared-source investigation](ADAPTATION_PREPARED_SOURCE_CERTIFICATES_20261108.md)
+for actual handles, source/build/input provenance and freeze. Older staged notes
+below preserve the investigation chronology, not current job status. TWO accepted
 Euler50k meshes, conservative admissible transfer, finite adapted CFD and actual
 isolated adapted restart remain required; then dedicated BL/MPI and RANS500k.
 All gates/budgets/validity-first construction and CAD optionality unchanged.

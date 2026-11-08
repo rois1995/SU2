@@ -1,0 +1,55 @@
+{
+  "schema": "native_bounded_final_direction_trace_v1",
+  "source_log_sha256": "ad2675a33d3a02139d3e1d789fbf708f9ef9591a0d3876e018133b1737729ecf",
+  "log_bytes": 72698288,
+  "domain_counts": {
+    "('1', 0)": 37202,
+    "('1', 1)": 31228,
+    "('1', 2)": 75460,
+    "('1', 3)": 135508,
+    "('1', 4)": 100232,
+    "('1', 5)": 1484
+  },
+  "domain_work": {
+    "('1', 0)": 1943080,
+    "('1', 1)": 1747215,
+    "('1', 2)": 3694274,
+    "('1', 3)": 5865734,
+    "('1', 4)": 4014189,
+    "('1', 5)": 50993
+  },
+  "domain_within_counts": {
+    "('1', False)": 247133,
+    "('1', True)": 133981
+  },
+  "last_bounds": [
+    "NATIVE_SURFACE_BOUND model=1 queue=292355 depth=2 upper=0.00070238093806457931 lower=9.8762946323694144e-05 tolerance=0.0001 work=19854731",
+    "NATIVE_SURFACE_BOUND model=1 queue=293612 depth=3 upper=0.00069990056961719157 lower=9.8762946323694144e-05 tolerance=0.0001 work=19920330",
+    "NATIVE_SURFACE_BOUND model=1 queue=294866 depth=3 upper=0.00069701648664282831 lower=9.8762946323694144e-05 tolerance=0.0001 work=19985950"
+  ],
+  "prepared_model": [
+    "NATIVE_SURFACE_MODEL pieces=607712 witness=607712 full=1 prepared=198418208 work=2604671"
+  ],
+  "reverse_reached": false,
+  "query": {
+    "source_queried": false,
+    "complete": false,
+    "within_tolerance": false,
+    "support_facets": 37202,
+    "physical_faces": 53406,
+    "work": 20000000,
+    "full_work": 20000000,
+    "query_work_cap": 20000000,
+    "source_work": 0,
+    "both_complete": false,
+    "both_within_tolerance": false,
+    "reverse_bound": -1,
+    "both_model_bound": -1,
+    "seconds": 208.700179442,
+    "traversal_work": 17315535,
+    "traversal_seconds": 62.776415315,
+    "model_bound": -1,
+    "work_exhausted": false,
+    "full_work_exhausted": true
+  }
+}

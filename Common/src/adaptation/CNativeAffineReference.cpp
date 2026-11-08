@@ -1067,9 +1067,9 @@ struct MappedFacetReference::GeometryStatsState {std::mutex mutex;GeometryStats 
 struct MappedFacetReference::CurvedSearch {
   struct Entry {std::vector<Id> facets;std::shared_ptr<CADTElemClass> index;};
   struct PreparedFacet {
-    std::vector<UnionTriangle> triangles;std::unique_ptr<TriangleUnion> target;
+    std::vector<UnionTriangle> triangles;std::vector<UnionDomain> domains;std::unique_ptr<TriangleUnion> target;
     size_t Bytes()const{return transfer_memory::Add(sizeof(*this),transfer_memory::Mul(triangles.capacity(),sizeof(UnionTriangle)),
-        target?target->ResidentBytes():0,12*sizeof(void*));}
+        transfer_memory::Mul(domains.capacity(),sizeof(UnionDomain)),target?target->ResidentBytes():0,12*sizeof(void*));}
   };
   std::map<Id,Id> root;
   std::map<Id,Entry> entries;
@@ -1929,13 +1929,14 @@ MappedFacetReference::SurfaceUnionBounds MappedFacetReference::QuerySurfaceUnion
     const auto curve=curves.find(domain.facet);if(curve!=curves.end())return Blossom(curve->second,{parameter,parameter,parameter});
     const auto& f=reference->Get(domain.facet);return LinearPoint({f.v[0].p,f.v[1].p,f.v[2].p},parameter);
   };
-  auto prepare_facet=[&](Id facet,std::vector<UnionTriangle>& model) {
+  auto prepare_facet=[&](Id facet,std::vector<UnionTriangle>& model,std::vector<UnionDomain>* domains=nullptr) {
     std::vector<UnionDomain> pending;op.Storage(sizeof(UnionDomain));pending.push_back({facet});
     while(!pending.empty()) {
       const auto domain=pending.back();pending.pop_back();const auto piece=UnionChord(net(domain));
       op.Storage(transfer_memory::Add(transfer_memory::GrowthBound(model.size()+1,sizeof(UnionTriangle)),
-          transfer_memory::GrowthBound(pending.size()+4,sizeof(UnionDomain))));
-      if(piece.error<=resolution/16)model.push_back(piece);
+          transfer_memory::GrowthBound(pending.size()+4,sizeof(UnionDomain)),
+          domains?transfer_memory::GrowthBound(domains->size()+1,sizeof(UnionDomain)):0));
+      if(piece.error<=resolution/16){model.push_back(piece);if(domains)domains->push_back(domain);}
       else {unresolved("target",domain,piece.error,0);const auto children=UnionChildren(domain);pending.insert(pending.end(),children.begin(),children.end());}
     }
   };
@@ -1960,8 +1961,9 @@ MappedFacetReference::SurfaceUnionBounds MappedFacetReference::QuerySurfaceUnion
       else {
         const auto leaf_work=budget.work,leaf_caller=budget.caller_bytes;const auto leaf_start=std::chrono::steady_clock::now();
         op.Storage(sizeof(CurvedSearch::PreparedFacet)+2*sizeof(void*));
-        data=std::make_shared<CurvedSearch::PreparedFacet>();prepare_facet(facet,data->triangles);
-        budget.caller_bytes=transfer_memory::Add(budget.caller_bytes,transfer_memory::Mul(data->triangles.capacity(),sizeof(UnionTriangle)));
+        data=std::make_shared<CurvedSearch::PreparedFacet>();prepare_facet(facet,data->triangles,&data->domains);
+        budget.caller_bytes=transfer_memory::Add(budget.caller_bytes,transfer_memory::Mul(data->triangles.capacity(),sizeof(UnionTriangle)),
+            transfer_memory::Mul(data->domains.capacity(),sizeof(UnionDomain)));
         data->target=std::make_unique<TriangleUnion>(data->triangles,op,resolution,false);
         const auto bytes=transfer_memory::Add(data->Bytes(),256);budget.caller_bytes=leaf_caller;op.Storage(bytes);
         const bool retain=curved_search->prepared.Retain(key,data,bytes,budget.work-leaf_work,curved_search->prepared_limit/2,op);
@@ -2052,22 +2054,12 @@ MappedFacetReference::SurfaceUnionBounds MappedFacetReference::QuerySurfaceUnion
   auto directed=[&](bool from_model,auto& target) {
     std::vector<NodeBound> queue;double lower=0,finished=0;size_t leaves=0;
     size_t traced_work=budget.work;
-    auto prepare=[&](const UnionDomain& domain) {
-      const auto upper_work=budget.work;
-      op.Work();double upper=0,diameter=0;
-      if(from_model) {
-        const auto controls=net(domain);op.Work(10);const auto chord=UnionChord(controls);upper=INFINITY;
-        if(chord.error<=tolerance) {
-          std::array<Box,3> points;for(unsigned k=0;k<3;++k)points[k]=Exact(chord.points[k]);
-          const auto flat_upper=target.Upper(points,op);
-          // Bernstein convexity bounds the entire patch by this chord plus its certified deviation.
-          upper=std::nextafter(double(Add({flat_upper,flat_upper},{chord.error,chord.error}).hi),INFINITY);
-        }
-        if(!(upper<=tolerance))upper=std::min(upper,target.Upper(controls,op));
-      }
-      else {std::array<Box,3> points;for(unsigned k=0;k<3;++k)points[k]=LinearPoint(physical.at(domain.facet),Exact(domain.parameter[k]));upper=target.Upper(points,op);
-        if(upper>tolerance&&target.ApproximationError()>0)for(unsigned k=0;k<3;++k)
-          diameter=std::max(diameter,NormBound(Difference(points[k],points[(k+1)%3])));}
+    auto chord_upper=[&](const UnionTriangle& chord) {
+      std::array<Box,3> points;for(unsigned k=0;k<3;++k)points[k]=Exact(chord.points[k]);
+      const auto flat_upper=target.Upper(points,op);
+      return std::nextafter(double(Add({flat_upper,flat_upper},{chord.error,chord.error}).hi),INFINITY);
+    };
+    auto enqueue=[&](const UnionDomain& domain,double upper,double diameter,size_t upper_work) {
       const auto distance_work=budget.work;
       if(upper>tolerance)lower=std::max(lower,target.Distance(sample(domain,from_model),op).lower);
       if(AtlasOps::Trace()) {
@@ -2078,11 +2070,39 @@ MappedFacetReference::SurfaceUnionBounds MappedFacetReference::QuerySurfaceUnion
         std::fprintf(stderr,"\n");
       }
       if(!std::isfinite(upper))throw std::invalid_argument("Unrepresentable surface-union upper bound.");
+      if(from_model&&upper<=tolerance){finished=std::max(finished,upper);++leaves;return;}
       op.Storage(transfer_memory::GrowthBound(queue.size()+1,sizeof(NodeBound)));
       queue.push_back({domain,upper,diameter});std::push_heap(queue.begin(),queue.end(),compare);
     };
-    if(from_model)for(Id facet:facets)prepare({facet});else for(size_t i=0;i<physical.size();++i)prepare({i});
-    const double initial_upper=queue.front().upper;
+    auto prepare=[&](const UnionDomain& domain,const CurvedSearch::PreparedFacet* prepared=nullptr) {
+      const auto upper_work=budget.work;
+      op.Work();double upper=0,diameter=0;
+      if(from_model) {
+        const auto controls=net(domain);op.Work(10);const auto chord=UnionChord(controls);upper=INFINITY;
+        // Bernstein convexity bounds the entire patch by its chord plus certified deviation.
+        if(chord.error<=tolerance)upper=chord_upper(chord);
+        if(!(upper<=tolerance) && prepared && !prepared->triangles.empty()) {
+          if(prepared->triangles.size()!=prepared->domains.size())throw std::logic_error("Prepared source domains lost complete coverage.");
+          // Keep certified leaves finished; refine only uncertain exact parameter subdomains.
+          for(size_t i=0;i<prepared->triangles.size();++i) {
+            const auto leaf_work=budget.work;op.Work();const auto& leaf=prepared->domains[i];
+            double value=chord_upper(prepared->triangles[i]);
+            if(!(value<=tolerance)){op.Work(10);value=std::min(value,target.Upper(net(leaf),op));}
+            enqueue(leaf,value,0,leaf_work);
+          }
+          return;
+        }
+        if(!(upper<=tolerance))upper=std::min(upper,target.Upper(controls,op));
+      }
+      else {std::array<Box,3> points;for(unsigned k=0;k<3;++k)points[k]=LinearPoint(physical.at(domain.facet),Exact(domain.parameter[k]));upper=target.Upper(points,op);
+        if(upper>tolerance&&target.ApproximationError()>0)for(unsigned k=0;k<3;++k)
+          diameter=std::max(diameter,NormBound(Difference(points[k],points[(k+1)%3])));}
+      enqueue(domain,upper,diameter,upper_work);
+    };
+    if(from_model)for(size_t i=0;i<facets.size();++i)
+      prepare({facets[i]},retained_models.size()==facets.size()?retained_models[i].get():nullptr);
+    else for(size_t i=0;i<physical.size();++i)prepare({i});
+    const double initial_upper=queue.empty()?finished:std::max(finished,queue.front().upper);
     while(!queue.empty()) {
       budget.CheckTime();
       if(AtlasOps::Trace() && budget.work-traced_work>=65536) {

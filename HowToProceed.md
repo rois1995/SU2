@@ -5,37 +5,34 @@ for exact source/build/handle provenance. Two accepted Euler50k meshes, conserva
 admissible transfer, continued adapted CFD and actual isolated adapted disk restart
 remain required; then dedicated BL/MPI and RANS500k. All strict gates remain.
 
-Latest full M6 build274 is TERMINAL REFUSED at native5342.592s. Exit census
-is COMPLETE734806cells with zero q/J/local-geometry/size failures, all measured.
-The final whole-surface TWO-SIDED geometry proof exhausted elapsed time. This is
-shape closure, not accepted geometry or an accepted mesh. All30raw files preserve
-complete topology/tensors/reference; all1520pins verified. Exactly ONE owned MPI
-stop followed sealing; all11prior owned handles are absent. No adapted transfer,
-CFD or disk restart occurred. The optional cleanup pass NEVER executed.
+Latest full M6 build278 is TERMINAL REFUSED at native5336.348s. Complete exit
+census:734914cells, zero q/J/local-geometry/size failures, all known. Final global
+TWO-SIDED geometry proof exhausted elapsed time; shape closure is not acceptance.
+All30raw files/1520pins sealed before exactly ONE owned MPI stop; all11owned
+identities absent. No adapted transfer, CFD or restart occurred. Cleanup NEVER ran.
 
-Each rank added one final query taking~1903.6s, almost entirely traversal
-(~651–659Mwork); preparation <.4s. One extra repair round closed the last q/J cell.
-The demonstrated next blocker is final certification traversal. Bounded actual
-first-entity(2060reference/2827physicalfaces) source query exhausts1Mwork in old
-production276. Connected277 reuses existing N=3 coverage plus rigorous Bernstein
-chord-deviation/outward rounding, retaining N=10 fallback. Source query now proves
-9.586e-5 within194957work/.659s; test-only278 also proves Both directions within
-442406totalwork/1.543s (including separate source query). No full-run speedup claim.
-[Certification design/evidence](Handbook/ADAPTATION_FINAL_CERTIFICATION_20261108.md).
-Serial84cases/62994assertions and ONE MPI6 milestone118cases perrank PASSED.
-Qualified implementation2cf112b7ab and frozen startup ef1784d55e PUSHED. Fullsame-seed
-TWOeventM6 build278 is LIVE/FROZEN; exact handles inHANDOFF_Codex.md. Initial61330
-positions/22fields are BIT-IDENTICAL256/qualified254target, SENSOR_MACHonly.
-No competing implementation/build/check campaign; preserve the frozen attempt
-until its outcome or preserved authorized stopcondition. Both geometry directions, exact supports, holes/bodies/features/heights,
-resource budgets and import source-tube semantics are preserved. Do not add another
-cleanup/scheduler/metric-target campaign alongside this active correction.
+The chord-bound correction completed the first actual surface query cheaply but
+full278 reached a later, much larger third entity before timing out. Counters show
+~1318.7s final certification per rank with~157–158M traversal work. The exact third
+entity has37202reference/53406physicalfaces. This is the demonstrated active blocker.
+Prepared-source reuse279 passed controlled curved/hole/cache0/resource checks but
+its actual full query still exhausted20M work. Do not treat that diagnostic pass
+as a certificate or demonstrated speedup. Test-only280 preserved the279production binary; its full-only trace exhausted20M
+work before reverse traversal,381114 forward domains and~295kqueued despite607712
+complete prepared leaves. Connected281 now retains exact prepared parameter domains
+and refines only uncertain leaves; all metadata is budgeted. It is building and
+unqualified. See the current handoff for handles; C++/helpers/inputs stay frozen.
+[Current design/evidence](Handbook/ADAPTATION_PREPARED_SOURCE_CERTIFICATES_20261108.md).
+Select further work from this actual query, qualify affected serial and ONE MPI
+milestone, then immediately return to full same-seed TWO-event M6. Keep all gates,
+work/time/memory caps, CAD optionality and nodal metric authority. No competing
+cleanup/scheduler/metric-target campaign. Missing shock demand remains separate.
 
 The latest meaningful rejected mesh is saved and independently verified in build274/inspection/
 rejected_mesh.vtu with captured nodal tensor9, q/J/geometry in CellData, plus .su2.
 Exporter and both readers are terminal; exact topology, positive volumes, SPD tensors
 and every raw cell-ID q/J/localG/edge-extrema association pass. Original full262inspection remains available but has four unknown q/J.
-No per-trial files required. See handoff for terminal handles and pins; no heavy job is live.
+No per-trial files required. See handoff for terminal handles and pins; the current query is the only owned heavy job.
 
 The user's cleanup hypothesis now has bounded positive and negative evidence:
 [post-refinement cleanup investigation](Handbook/ADAPTATION_POST_REFINEMENT_CLEANUP_20261108.md).

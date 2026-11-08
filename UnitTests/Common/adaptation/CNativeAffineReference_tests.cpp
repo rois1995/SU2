@@ -912,6 +912,41 @@ TEST_CASE("Model union chord witnesses retain cubic bulges and missing finite co
     CHECK(hole.model_to_mesh>1e-4);CHECK(hole.outside_tolerance);
   }
 }
+TEST_CASE("Prepared curved facet leaves certify complete support without hiding holes", "[NativePreparedSource3D]") {
+  CurvedAtlasFixture cached(0,.03,size_t(1)<<24),recomputed(0,.03,0);
+  auto& g=*cached.geometry;std::vector<std::array<Point,3>> physical;constexpr unsigned n=32;
+  for(unsigned facet=0;facet<4;++facet) {
+    const auto& f=cached.facets[facet];
+    auto point=[&](unsigned i,unsigned j) {
+      if(!i&&!j)return f.v[0].p;if(i==n)return f.v[1].p;if(j==n)return f.v[2].p;
+      SU2Native3D::Edge edge;double t=0;
+      if(!i){edge={f.v[0].id,f.v[2].id};t=double(j)/n;}
+      else if(!j){edge={f.v[0].id,f.v[1].id};t=double(i)/n;}
+      else if(i+j==n){edge={f.v[1].id,f.v[2].id};t=double(j)/n;}
+      else return g.Realize(g.FacetPoint(facet,double(i)/n,double(j)/n));
+      if(edge[0]>edge[1]){std::swap(edge[0],edge[1]);t=1-t;}
+      return g.Realize(g.EdgePoint(edge,t));
+    };
+    for(unsigned i=0;i<n;++i)for(unsigned j=0;i+j<n;++j) {
+      physical.push_back({point(i,j),point(i+1,j),point(i,j+1)});
+      if(i+j+1<n)physical.push_back({point(i+1,j),point(i+1,j+1),point(i,j+1)});
+    }
+  }
+  auto first_budget=GeometryAtlasBudget();const auto first=g.BoundSurfaceUnion({0,1,2,3},physical,1e-4,first_budget);
+  REQUIRE(first.within_tolerance);CHECK(first.model_to_mesh<=1e-4);CHECK(first.mesh_to_model<=1e-4);
+  CHECK(first_budget.peak_bytes<=first_budget.maximum_bytes);CHECK(first_budget.caller_bytes==0);
+  auto repeat_budget=GeometryAtlasBudget();const auto repeat=g.BoundSurfaceUnion({0,1,2,3},physical,1e-4,repeat_budget);
+  CHECK(repeat.within_tolerance);CHECK(repeat.model_to_mesh==first.model_to_mesh);CHECK(repeat.mesh_to_model==first.mesh_to_model);
+  auto storage=GeometryAtlasBudget();storage.maximum_bytes=1;
+  CHECK_THROWS(recomputed.geometry->BoundSurfaceUnion({0,1,2,3},physical,1e-4,storage));CHECK(storage.caller_bytes==0);
+  auto fresh_budget=GeometryAtlasBudget();const auto fresh=recomputed.geometry->BoundSurfaceUnion({0,1,2,3},physical,1e-4,fresh_budget);
+  CHECK(fresh.within_tolerance);CHECK(fresh.model_to_mesh==first.model_to_mesh);CHECK(fresh.mesh_to_model==first.mesh_to_model);
+  auto denied=GeometryAtlasBudget();denied.maximum_work=0;
+  CHECK_THROWS(g.BoundSurfaceUnion({0,1,2,3},physical,1e-4,denied));CHECK(denied.work_exhausted);
+  physical.erase(physical.begin(),physical.begin()+n*n);auto hole_budget=GeometryAtlasBudget();
+  const auto hole=g.BoundSurfaceUnion({0,1,2,3},physical,1e-4,hole_budget);
+  CHECK_FALSE(hole.within_tolerance);CHECK(hole.outside_tolerance);CHECK(hole.model_to_mesh>1e-4);
+}
 
 TEST_CASE("Geometry workload snapshots and cheap facet estimates", "[NativeSurfaceMemo3D][NativeGeometryStats3D]") {
   using namespace SU2Native3D;CurvedAtlasFixture fixture;auto& g=*fixture.geometry;
@@ -1741,8 +1776,7 @@ TEST_CASE("Interrupted surface certification preserves cache and releases query 
   CHECK(g.GeometryStatsSnapshot().memo_union_hits>0);
 }
 
-TEST_CASE("Saved complete M6 entity certification separates source traversal from preparation",
-          "[.][NativeM6FinalGeometry3D]") {
+static void SavedFinalEntityCertification(bool measure_source) {
   using namespace SU2Native3D;
   World world;REQUIRE(world.size==1);
   const auto* archive=std::getenv("SU2_NATIVE_TRANSACTION_REFERENCE");REQUIRE(archive);
@@ -1764,23 +1798,40 @@ TEST_CASE("Saved complete M6 entity certification separates source traversal fro
   geometry->GeometryStatsSnapshot(true);
   bool complete=false;double bound=INFINITY;std::string reason;
   const auto started=std::chrono::steady_clock::now();
-  try {bound=geometry->BoundModelSurface(support,physical,tolerance,budget).model_to_mesh;complete=true;}
-  catch(const std::length_error& e){reason=e.what();REQUIRE(budget.work_exhausted);}
-  const auto source_work=budget.work;bool both_complete=false,both_within=false;double reverse_bound=INFINITY;
-  if(complete&&bound<=tolerance) {
-    try {const auto both=geometry->BoundSurfaceUnion(support,physical,tolerance,budget);
-      both_complete=true;both_within=both.within_tolerance;reverse_bound=both.mesh_to_model;}
+  if(measure_source) {
+    try {bound=geometry->BoundModelSurface(support,physical,tolerance,budget).model_to_mesh;complete=true;}
     catch(const std::length_error& e){reason=e.what();REQUIRE(budget.work_exhausted);}
-    CHECK(both_complete);CHECK(both_within);
   }
+  const auto source_work=budget.work;const auto source_stats=geometry->GeometryStatsSnapshot();
+  std::ofstream source_log("native_final_geometry_source_result.json");REQUIRE(bool(source_log));
+  source_log<<std::setprecision(17)<<std::boolalpha<<"{\"queried\":"<<measure_source<<",\"complete\":"<<complete<<",\"within_tolerance\":"<<(bound<=tolerance)
+     <<",\"work\":"<<source_work<<",\"seconds\":"<<std::chrono::duration<double>(std::chrono::steady_clock::now()-started).count()
+     <<",\"traversal_work\":"<<source_stats.traversal_work<<",\"traversal_seconds\":"<<source_stats.traversal_seconds
+     <<",\"model_bound\":"<<(std::isfinite(bound)?bound:-1)<<",\"work_exhausted\":"<<budget.work_exhausted<<"}\n";
+  source_log.close();REQUIRE(bool(source_log));
+  // Each query has its own unchanged cap; preserve the completed source stage before the full query.
+  AtlasBudget full_budget;full_budget.maximum_bytes=size_t(8)<<30;full_budget.maximum_work=work;
+  full_budget.maximum_integer_bits=size_t(1)<<20;full_budget.caller_bytes=decoded.original->ResidentBytes();
+  bool both_complete=false,both_within=false;double reverse_bound=INFINITY,both_model_bound=INFINITY;
+  try {const auto both=geometry->BoundSurfaceUnion(support,physical,tolerance,full_budget);
+    both_complete=true;both_within=both.within_tolerance;reverse_bound=both.mesh_to_model;both_model_bound=both.model_to_mesh;}
+  catch(const std::length_error& e){reason=e.what();REQUIRE(full_budget.work_exhausted);}
   const auto stats=geometry->GeometryStatsSnapshot();
   std::ofstream log("native_final_geometry_result.json");REQUIRE(bool(log));
-  log<<std::setprecision(17)<<std::boolalpha<<"{\"complete\":"<<complete<<",\"within_tolerance\":"<<(bound<=tolerance)
-     <<",\"support_facets\":"<<facets<<",\"physical_faces\":"<<faces<<",\"work\":"<<budget.work
+  log<<std::setprecision(17)<<std::boolalpha<<"{\"source_queried\":"<<measure_source<<",\"complete\":"<<complete<<",\"within_tolerance\":"<<(bound<=tolerance)
+     <<",\"support_facets\":"<<facets<<",\"physical_faces\":"<<faces<<",\"work\":"<<source_work+full_budget.work
+     <<",\"full_work\":"<<full_budget.work<<",\"query_work_cap\":"<<work
      <<",\"source_work\":"<<source_work<<",\"both_complete\":"<<both_complete<<",\"both_within_tolerance\":"<<both_within
      <<",\"reverse_bound\":"<<(std::isfinite(reverse_bound)?reverse_bound:-1)
+     <<",\"both_model_bound\":"<<(std::isfinite(both_model_bound)?both_model_bound:-1)
      <<",\"seconds\":"<<std::chrono::duration<double>(std::chrono::steady_clock::now()-started).count()
      <<",\"traversal_work\":"<<stats.traversal_work<<",\"traversal_seconds\":"<<stats.traversal_seconds
-     <<",\"model_bound\":"<<(std::isfinite(bound)?bound:-1)<<",\"work_exhausted\":"<<budget.work_exhausted<<"}\n";
-  REQUIRE(bool(log));INFO(reason);CHECK((complete||budget.work_exhausted));
+     <<",\"model_bound\":"<<(std::isfinite(bound)?bound:-1)<<",\"work_exhausted\":"<<budget.work_exhausted
+     <<",\"full_work_exhausted\":"<<full_budget.work_exhausted<<"}\n";
+  REQUIRE(bool(log));INFO(reason);if(measure_source)CHECK((complete||budget.work_exhausted));
+  CHECK((both_complete||full_budget.work_exhausted));
 }
+TEST_CASE("Saved complete M6 entity certification separates source traversal from preparation",
+          "[.][NativeM6FinalGeometry3D]") {SavedFinalEntityCertification(true);}
+TEST_CASE("Saved complete M6 full query diagnoses both directions without repeating the source probe",
+          "[.][NativeM6FullGeometry3D]") {SavedFinalEntityCertification(false);}
