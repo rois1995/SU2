@@ -784,3 +784,20 @@ early strict re-entry rather than consuming budget on the remainder. No such
 cleanup outcome is observed yet; this is not authorization to interrupt274 or
 change pinned sources. Do not turn it into a new scheduler, higher budget or
 minimum-edge gate. Existing deadline refusal remains fail-closed.
+
+
+###281 final-certificate alternatives (unproven; not another active cycle)
+
+Prepared-domain reuse is the active candidate. If its actual-query evidence is
+insufficient, inspect whether TriangleUnion::Upper early exit at the full tolerance
+leaves too little allowance for a source chord's rigorously added error; requesting
+a tighter witness might reduce conservative refusals but has no demonstrated work
+saving. Do not change tolerance or bypass exact coverage.
+
+278 shows three full queries on every rank. Before considering distributed final
+certificate work, prove complete query/source/coordinate/association identity across
+ranks and audit empty-rank, deadline, failure/publication alignment. Identical query
+counts alone do not prove safely redundant work. No scheduling implementation or
+acceptance change authorized by this note; first assess the connected281 trace.
+Missing shock allocation and optional global LE cleanup remain separate from the
+active final-certification blocker. Neither query optimization proves their cure.

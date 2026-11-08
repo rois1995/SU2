@@ -20,8 +20,16 @@ its actual full query still exhausted20M work. Do not treat that diagnostic pass
 as a certificate or demonstrated speedup. Test-only280 preserved the279production binary; its full-only trace exhausted20M
 work before reverse traversal,381114 forward domains and~295kqueued despite607712
 complete prepared leaves. Connected281 now retains exact prepared parameter domains
-and refines only uncertain leaves; all metadata is budgeted. It is building and
-unqualified. See the current handoff for handles; C++/helpers/inputs stay frozen.
+and refines only uncertain leaves; all metadata is budgeted. Build and controls
+passed, but the actual query still exhausted20M before reverse. Matched-work exact
+equal-facet parameter coverage improved only70.35%→71.72%; no closure speedup.
+Existing traces show two large physical projection groups(21230/21103triangles)
+refused for branched boundaries. Offline reproduction now tests whether these are
+grouping artifacts; keep strict graph validation. The exact offline diagnostic finds3/4pinches on the largegroups with manifold
+fullsurface links. One exclusion removes10/9optional-witness triangles and clears
+boundary degree defects.282 replaces281metadata with a one-shot strict-validator
+retry on that subset; ALL original triangles remain in complete support. Building,
+unqualified. See handoff for handles/freeze; no competing implementation.
 [Current design/evidence](Handbook/ADAPTATION_PREPARED_SOURCE_CERTIFICATES_20261108.md).
 Select further work from this actual query, qualify affected serial and ONE MPI
 milestone, then immediately return to full same-seed TWO-event M6. Keep all gates,

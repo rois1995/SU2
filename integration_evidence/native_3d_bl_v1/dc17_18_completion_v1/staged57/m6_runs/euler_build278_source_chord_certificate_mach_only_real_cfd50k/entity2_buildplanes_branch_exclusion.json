@@ -1,0 +1,97 @@
+{
+  "input": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build278_source_chord_certificate_mach_only_real_cfd50k/final_certificate_entity2_v1/entity2.txt",
+  "sha256": "f6627a5e4b748148475dceebc036be3c58c8dc88e3585a12f82f11b120da6d92",
+  "classification": "exact rational cross products of parsed binary64 coordinates; max absolute component selects axis and exact sign selects orientation",
+  "physical_faces": 53406,
+  "unique_exact_coordinate_vertices": 27019,
+  "projection_groups": 36,
+  "branched_groups": [
+    {
+      "root_index": 0,
+      "faces": 21230,
+      "projection_axis_sign": [
+        2,
+        1
+      ],
+      "original_branch_vertices": 3,
+      "one_shot_exclusion": {
+        "excluded_faces": 10,
+        "remaining_faces": 21220,
+        "remaining_edge_connected_face_components": 1,
+        "remaining_boundary_edges": 1106,
+        "remaining_branch_vertices": 0,
+        "remaining_open_or_bad_degree_vertices": 0,
+        "remaining_nonmanifold_edges_gt2": 0,
+        "remaining_same_direction_two_use_edges": 0,
+        "bad_degree_samples": []
+      }
+    },
+    {
+      "root_index": 211,
+      "faces": 21103,
+      "projection_axis_sign": [
+        2,
+        -1
+      ],
+      "original_branch_vertices": 4,
+      "one_shot_exclusion": {
+        "excluded_faces": 9,
+        "remaining_faces": 21094,
+        "remaining_edge_connected_face_components": 1,
+        "remaining_boundary_edges": 1114,
+        "remaining_branch_vertices": 0,
+        "remaining_open_or_bad_degree_vertices": 0,
+        "remaining_nonmanifold_edges_gt2": 0,
+        "remaining_same_direction_two_use_edges": 0,
+        "bad_degree_samples": []
+      }
+    },
+    {
+      "root_index": 422,
+      "faces": 7109,
+      "projection_axis_sign": [
+        0,
+        1
+      ],
+      "original_branch_vertices": 14,
+      "one_shot_exclusion": {
+        "excluded_faces": 48,
+        "remaining_faces": 7061,
+        "remaining_edge_connected_face_components": 2,
+        "remaining_boundary_edges": 1229,
+        "remaining_branch_vertices": 1,
+        "remaining_open_or_bad_degree_vertices": 1,
+        "remaining_nonmanifold_edges_gt2": 0,
+        "remaining_same_direction_two_use_edges": 0,
+        "bad_degree_samples": [
+          {
+            "vertex": 20960,
+            "out": 2,
+            "in": 2
+          }
+        ]
+      }
+    },
+    {
+      "root_index": 28596,
+      "faces": 3927,
+      "projection_axis_sign": [
+        1,
+        -1
+      ],
+      "original_branch_vertices": 6,
+      "one_shot_exclusion": {
+        "excluded_faces": 14,
+        "remaining_faces": 3913,
+        "remaining_edge_connected_face_components": 1,
+        "remaining_boundary_edges": 439,
+        "remaining_branch_vertices": 0,
+        "remaining_open_or_bad_degree_vertices": 0,
+        "remaining_nonmanifold_edges_gt2": 0,
+        "remaining_same_direction_two_use_edges": 0,
+        "bad_degree_samples": []
+      }
+    }
+  ],
+  "scope": "one-shot removal of original branch-incident triangles only; no recursive pruning and no FinitePlaneReference validation"
+}

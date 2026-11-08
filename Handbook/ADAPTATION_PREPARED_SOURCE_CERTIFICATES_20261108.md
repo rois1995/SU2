@@ -125,3 +125,97 @@ CFD SHA2b64910e25cc1d910b1a44a029f0fee5eb06c8d33408214170a938a69019d2f5.
 Bounded read-only second review found no concrete coverage/heap/accounting blocker;
 review is not execution proof. Probe281 now runs controls and the same actual input
 in geometry_current_queries_20261108T204417_666256; C++/helpers/inputs remain frozen.
+
+281 probe TERMINAL0/298.696s, all pins unchanged/all5handles absent. Controls passed
+197476assertions/3cases. Actual fullquery still exhausts20M,220.175s; traversal
+16645152work/53.027s. Largest sampled individual RSS1.075GB, not whole-job peak.
+The budget consumes more preparation work and extra metadata; less traversal time
+at the same cap alone does not establish useful progress. ONE same capped full-only
+existing work trace now compares domain/direction progress to280. It skips already
+sealed controls and source-only probe; no newbaseline/perf/GDB campaign. Keep
+compiled source/binary/helpers/input frozen until it terminates. Checkpoint5250e9b531
+pushed with qualification explicitly pending. Broad serial/MPI and full M6 deferred
+until this actual-query evidence supports the candidate or selects its correction.
+
+## Terminal281 work trace: modest gain, stronger graph refusal evidence
+
+Same capped full-only trace TERMINAL0/261.909s, allpinsunchanged/ownedhandlesabsent.
+123213714bytes within128MiBcap. Before/after disjoint certified equal-facet dyadic
+parameter-area shares70.34779086%/71.71664263%; this is NOT physical surface area.
+Passing leaves never subdivide, so sum(count_at_depth/4^depth) is exact. Both initial
+source covers completed,37202facets seen; still no reverse query. Queue~295k→209k,
+worst remaining upper .000697→.000913. Neither full closure nor speedup established;
+extra metadata/preparation cost is real. Do not qualify solely from leaf counts.
+
+Existing graph counters: physicaltarget53406triangles,36groups,3accepted,4invalid,
+0storage-refused. Two large groups21230/21103 fail branched/duplicate physical graph.
+Model607712triangles,1784groups,1482accepted,34invalid.281traversal has478graph calls,
+446coverage refusals. This is stronger evidence that optional joined target coverage
+is unavailable over much of the actual surface; most queries use triangle witnesses.
+Read-only bounded offline reproduction now localizes branch vertices before deciding
+on a correction. No new implementation selected; no build/test/solver live.
+
+One candidate to assess: omit only branch-incident triangles from the OPTIONAL
+joined graph witness, then retry the unchanged strict FinitePlaneReference once.
+Keep every original target triangle in complete distance/lower support and ordinary
+upper witnesses. A subset witness can only be conservative; its remaining holes
+must still pass exact coverage, otherwise original traversal. No physical topology
+validation relaxed. This is not authorization for indefinite pruning/fallbacks,
+new geometry or larger cavities. Reconsider281domain metadata instead of layering
+unproven variants. Main owns design/acceptance; source/handle provenance in handoff.
+
+## Actual pinch reproduction and replacement282 (one active cycle)
+
+Bounded offline helper reproduced all36physical projectiongroups using exact binary64
+rational normal cross products; minimum relative dominant-axis gap1.028e-4, far
+from rounding ambiguity. Two largegroups21230/21103 have3/4branch vertices. Every
+one has a connected cycle link in the full physical surface. These are projection-
+group boundary pinches, not evidence of invalid local physical topology.
+A278/entity2_buildplanes_graph_diagnostic.json seals source hash and locations.
+
+ONE exclusion of incident triangles removes10/9faces and leaves21220/21094 in
+one component each, no boundary degree/edge-use defects. Third3927group removes14
+and clears degree checks;7109group removes48 but still has a branch. Full footprint
+validation/crossing/coverage NOT established by offline degree checks. Helper and
+receipt: A278/entity2_buildplanes_branch_exclusion.py/.json. No iterative pruning.
+
+282 REPLACES279/281source changes with the qualified277source plus a narrow
+BuildPlanes correction. No prepared-domain metadata or all-or-root leaf precheck
+remains. In a refused optional graph, collect degree!=1 boundary nodes from exact
+edge identities, omit their incident triangles from the optional footprint and
+retry the UNCHANGED strict FinitePlaneReference ONCE. All original target triangles
+stay in Distance, spatial indices and ordinary triangle upper witnesses. The subset
+has no authority to fill holes: strict footprint coverage must pass before lift
+bounds are used. Re-refusal keeps original single-triangle traversal. No geometry,
+physical topology, body/feature/association, height or acceptance guard relaxed.
+
+Only retained witness faces receive triangle_plane/triangle_slot mapping, and the
+lift faces and footprint use the same kept indices. Scope/cache keys still identify
+the complete unchanged target/support; no cross-position certificate reuse. Extra
+bounded maps/vectors are transient, admitted before allocation with2048bytes/face
+in addition to existing preparation/retained accounting, work charged per edge/face.
+No persistent metadata increase. Existing trace adds successful trim/removed-face
+counts; no new configuration/scheduler/geometry representation. Construction remains
+validity-first. Source freezing applies through build/check.
+
+282 adds a flat source patch fully covered away from a projected boundary pinch,
+a true omitted-region negative control and storage exhaustion. Existing curved,
+seam/hole/body/cache/feature/height/resource controls remain required. Build282 now
+LIVE/FROZEN. Next same full-only actual thirdentity under20M/8GiB/600s plus focused
+controls; then affectedserial+ONE MPI milestone if justified, immediately fullsame-
+seed TWOeventM6. No speedup or accepted mesh established. ONE active cycle.
+
+Build282 TERMINAL0/85.264s,allpinsunchanged/ownedhelper+ninjaabsent; CFD SHA
+6de0b795c7ea6707ac07b71cd038d7c7bae22469ab88eb6d90c69c295e456775.
+Read-only bounded review found no concrete subset/mapping/accounting blocker.
+Broader stored group bounding boxes remain conservative envelopes only; actual
+coverage and lifting use the same kept faces. Review is not execution proof.
+Probe geometry_current_queries_20261108T210837_750273 LIVE/FROZEN, same20Mwork cap
+and existing controls plus pinch/realhole/storage. No broad qualification/full M6 yet.
+
+282 probe TERMINAL0/396.892s,allpinsunchanged/all5handlesabsent. Focused pinch/hole/
+storage control passed. ActualBoth query still exhausted20M,330.292s; traversal
+15528820work/88.957s. Increased preparation and traversal cost means recovered
+optional footprints alone do not establish speedup. Same capped full-only existing
+trace now determines useful coverage/direction (no repeatedcontrols/source probe).
+No broad qualification or M6 launch yet; source/helpers/binary/inputs frozen.

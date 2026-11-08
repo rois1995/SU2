@@ -1,0 +1,63 @@
+{
+  "schema": "native_bounded_final_direction_trace_v1",
+  "source_log_sha256": "a0c7790c6d20c2adf447aed9ea0c380c830352f049f6c4dd5d45b1422564e3ea",
+  "log_bytes": 123213714,
+  "domain_counts": {
+    "('1', 4)": 368366,
+    "('1', 3)": 170089,
+    "('1', 2)": 43371,
+    "('1', 1)": 11716,
+    "('1', 0)": 31277,
+    "('1', 5)": 2600
+  },
+  "domain_work": {
+    "('1', 4)": 8826368,
+    "('1', 3)": 4446297,
+    "('1', 2)": 1315326,
+    "('1', 1)": 523690,
+    "('1', 0)": 1049287,
+    "('1', 5)": 39498
+  },
+  "certified_counts": {
+    "('1', 4)": 239601,
+    "('1', 3)": 104790,
+    "('1', 2)": 22426,
+    "('1', 0)": 21858,
+    "('1', 5)": 2166,
+    "('1', 1)": 3380
+  },
+  "source_facets_seen": 37202,
+  "certified_equal_facet_parameter_weight_fraction": "13660173/512",
+  "certified_equal_facet_parameter_share": 0.7171664262842051,
+  "weight_caveat": "Exact dyadic parameter area with equal source-facet weights; not physical surface area or full certification. Certified leaves never subdivide, so records are disjoint.",
+  "last_bounds": [
+    "NATIVE_SURFACE_BOUND model=1 queue=207818 depth=3 upper=0.00093287405629836418 lower=9.8219242466895211e-05 tolerance=0.0001 work=19851380",
+    "NATIVE_SURFACE_BOUND model=1 queue=208398 depth=3 upper=0.00092242439368330116 lower=9.8219242466895211e-05 tolerance=0.0001 work=19916944",
+    "NATIVE_SURFACE_BOUND model=1 queue=208969 depth=2 upper=0.00091347092652099664 lower=9.8219242466895211e-05 tolerance=0.0001 work=19982673"
+  ],
+  "prepared_model": [
+    "NATIVE_SURFACE_MODEL pieces=607712 witness=607712 full=1 prepared=198417880 work=3275054"
+  ],
+  "reverse_reached": false,
+  "query": {
+    "source_queried": false,
+    "complete": false,
+    "within_tolerance": false,
+    "support_facets": 37202,
+    "physical_faces": 53406,
+    "work": 20000000,
+    "full_work": 20000000,
+    "query_work_cap": 20000000,
+    "source_work": 0,
+    "both_complete": false,
+    "both_within_tolerance": false,
+    "reverse_bound": -1,
+    "both_model_bound": -1,
+    "seconds": 244.047919038,
+    "traversal_work": 16645152,
+    "traversal_seconds": 57.365813953,
+    "model_bound": -1,
+    "work_exhausted": false,
+    "full_work_exhausted": true
+  }
+}

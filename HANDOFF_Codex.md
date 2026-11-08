@@ -14,7 +14,7 @@ R=`integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57`.
 A278=`R/m6_runs/euler_build278_source_chord_certificate_mach_only_real_cfd50k`.
 A274=`R/m6_runs/euler_build274_metric_cleanup_mach_only_real_cfd50k`.
 
-## CURRENT — build278 TERMINAL REFUSED; connected281 QUERY LIVE/FROZEN
+## CURRENT — build278 TERMINAL REFUSED; 282 bounded trace LIVE/FROZEN
 
 ZERO accepted meshes. A278 first native event REFUSED on elapsed-time budget.
 Exit24869/native5336.347948825s:734914cells,0q/0J/0LOCALgeometry/0size, ALLmeasured/
@@ -41,35 +41,49 @@ source→mesh versus mesh→source before selecting another correction. Existing
 chordbound advanced beyond the firstquery but didNOTcomplete final certification.
 Do not claim full capability or isolated downstreamspeedup. No budgets/gates raised.
 
-279 and test-only280 builds/probes TERMINAL, allpinsunchanged/handlesabsent.
-280 production CFD byte-identical279: SHA053d65c906e35fbf9d0844c1feab2b9b1dd8f4548bf386165d8cce325c20b7c2.
-279 actual query exhausted20M despite primitive controls passing. Full-only280
-existing bounded trace TERMINAL0/222.359s:20M exhausted BEFORE reverse,381114
-forward domains/~295kqueued;607712 completepreparedleaves/198418208bytes already
-available. Fullquery still INCOMPLETE. Traceassessment in
-R/cases/geometry_current_queries_20261108T203706_640926/direction_trace_assessment.json.
-No further source-only probe/baseline/perf/GDB campaign needed.
+279/280/281builds/probes TERMINAL,allpinsunchanged/handlesabsent. LatestPUSHED
+5250e9b531 preserves terminal278 and281UNQUALIFIED candidate. ZERO accepted meshes.
+281 actualquery stillEXHAUSTED20M, controls passed197476assertions/3cases. Bounded
+worktrace70.3478%→71.7166% certified equal-facet dyadic parameter share, no reverse,
+no demonstrated closure speedup; queue/worstbound tradeoff and metadata cost remain.
+R/prepared_domain281_bounded_comparison.json. Do NOT qualify that variant by counts.
 
-Build281 TERMINAL0/65.216s,pinsunchanged; helper661175/ninja661208 absent.
-CFDSHA2b64910e25cc1d910b1a44a029f0fee5eb06c8d33408214170a938a69019d2f5.
-ONE owned heavyjob: probe_final281_entity2.py tool82014,helper666256/time666366,
-casegeometry_current_queries_20261108T204417_666256. Connected change retains exact
-UnionDomain with preparedfacet leaves, charges allgrowth/transient/retained bytes,
-freshly certifies leaves, keeps passing regions finished and queues ONLY uncertain
-exact domains for existing traversal. No cropped witness as complete source. Empty
-heap/finishedmaximum handled. Physical-source path, construction/cleanup, ownership,
-nodal transport/config/gates/budgets unchanged. Additionalmetadata affects cache
-admission withinunchangedquota; measure it. LOCAL/UNQUALIFIED. See
-[prepared-source design](Handbook/ADAPTATION_PREPARED_SOURCE_CERTIFICATES_20261108.md).
-C++/binary/helpers frozen through build/check. Verifyactual terminal handles first.
-ONE full-only actual third-entity query plus affected curved/cache/resource
-controls running via probe_final281_entity2.py, unchanged20Mwork/8GiB/600s. Require actual
-query evidence before affectedserial+ONE MPI milestone and immediate fullsame-seed
-TWOeventM6. Actualinput A278/final_certificate_entity2_v1 has37202reference facets/
-53406physicalfaces; full69428boundarycount matches native state.
+Stronger confirmedcause: optional physicaltarget projectiongroups21230/21103faces
+refused for branched boundary. Exact offline reproduction finds3/4branch vertices,
+ALL manifold cyclelinks in fullphysicalsurface. One incident-face exclusion removes
+10/9triangles and clears degree/edge-use defects. Other3927groupclears after14;
+7109groupstillbranched after48. Fullfootprint/coverage notproven offline. A278 has
+entity2_buildplanes_graph_diagnostic.json and entity2_buildplanes_branch_exclusion.py/.json.
+No other activeagent; helperboundedoffline, no C++/solver/build fromagent.
 
-LatestPUSHED e3b879bb24; terminal278 and279–281work LOCAL need checkpoint. ZERO
-accepted meshes, no transfer/adaptedCFD/restartproof. No active agent.
+Build282 TERMINAL0/85.264s,pinsunchanged; helper744433/ninja744508 absent.
+CFDSHA6de0b795c7ea6707ac07b71cd038d7c7bae22469ab88eb6d90c69c295e456775.
+Probe282 TERMINAL0/396.892s,pinsunchanged/all5handlesabsent. Pinch/realhole/storage
+and curved/cache/work controls passed, but actualfullquery EXHAUSTED20M again:
+330.292s,15528820traversalwork/88.957s. No fullcertificate or speedup established.
+ONE ownedheavyjob: trace_final282_entity2.py tool28308, same actualinput/full-only
+20M/8GiB/600s/128MiB existingtrace, no repeatedcontrols/sourceprobe. Determine
+useful covered area and direction before qualification; prep/traversal extra cost
+must be weighed, not merely recovered graph counts. C++/binary/helpers FROZEN.
+282 REPLACES279/281sourcevariants
+with qualified277 plus ONE optional-footprint correction in BuildPlanes. On refused
+graph, omit original boundary-branch-incident faces from OPTIONALjoinedwitness and
+retry UNCHANGED strictFinitePlaneReference ONCE. Every original triangle remains in
+completeDistance/index/singletriangleupper support; holes notfilled. Mapping/lift
+faces onlykept; re-refusal fallsbackoriginaltraversal. No persistentmetadata increase;
+transientmaps/vectors fullyadmitted2048bytes/face plus existingtemporary/retained,
+workcharged. No gate/config/scheduler/CAD/geometryrepresentation/metric/construction
+change. No speedup/fullcertificate yet. Read
+[design/evidence](Handbook/ADAPTATION_PREPARED_SOURCE_CERTIFICATES_20261108.md).
+
+C++/binary/buildhelpers FROZEN through build/check. Verifyactualterminalhandles
+before edit. Current trace_final282_entity2.py runs sameactualthirdentity full-only
+20Mwork/8GiB/600s plus pinchedpositive/realhole/storage and existingcurved/cache/
+resource controls. If actualevidence supports it, affectedserial+ONE MPI milestone,
+thenIMMEDIATELY fullsame-seed TWOeventM6. No competingcycle/perf/GDB/baseline.
+Actualinput A278/final_certificate_entity2_v1,37202reference/53406physicalfaces.
+Current282source/test changes LOCAL/UNQUALIFIED; retain281history in5250e9b531.
+No transfer/adaptedCFD/isolatedadaptedrestart proof. All strict gates/budgets unchanged.
 
 Same REAL savedCFDseed, Mach-onlyL1/50k; initial61330coords/22fields BIT-IDENTICAL
 256/qualified254target, SENSOR_MACHonly. Sourcefreeze preserved through terminal.

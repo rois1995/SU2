@@ -912,6 +912,24 @@ TEST_CASE("Model union chord witnesses retain cubic bulges and missing finite co
     CHECK(hole.model_to_mesh>1e-4);CHECK(hole.outside_tolerance);
   }
 }
+TEST_CASE("Optional graph witnesses retain strict coverage across projected boundary pinches", "[NativePinchedWitness3D]") {
+  CurvedAtlasFixture fixture(0,0);std::vector<std::array<Point,3>> physical;constexpr unsigned n=32;
+  auto point=[](unsigned i,unsigned j){return Point{double(i)/n,double(j)/n,0};};
+  for(unsigned i=0;i<n;++i)for(unsigned j=0;j<n;++j) {
+    if((i==n-2&&j==n-2)||(i==n-1&&j==n-1))continue;
+    physical.push_back({point(i,j),point(i,j+1),point(i+1,j+1)});
+    physical.push_back({point(i,j),point(i+1,j+1),point(i+1,j)});
+  }
+  auto budget=GeometryAtlasBudget();budget.maximum_work=100000;
+  const auto left=fixture.geometry->BoundModelSurface({0},physical,1e-4,budget);
+  CHECK(left.model_to_mesh<=1e-4);CHECK_FALSE(left.outside_tolerance);
+  auto hole_budget=GeometryAtlasBudget();
+  const auto hole=fixture.geometry->BoundModelSurface({0,1,2,3},physical,1e-4,hole_budget);
+  CHECK(hole.outside_tolerance);CHECK(hole.model_to_mesh>1e-4);
+  auto storage=GeometryAtlasBudget();storage.maximum_bytes=1;
+  CHECK_THROWS(fixture.geometry->BoundModelSurface({0},physical,1e-4,storage));CHECK(storage.caller_bytes==0);
+}
+
 TEST_CASE("Prepared curved facet leaves certify complete support without hiding holes", "[NativePreparedSource3D]") {
   CurvedAtlasFixture cached(0,.03,size_t(1)<<24),recomputed(0,.03,0);
   auto& g=*cached.geometry;std::vector<std::array<Point,3>> physical;constexpr unsigned n=32;
