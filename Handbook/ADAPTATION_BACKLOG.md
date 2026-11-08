@@ -723,3 +723,15 @@ ONE active correction;do not start these alternatives concurrently):
   unqualified. Weak nonzero curvature over99%of domain volume is not automatically
   spurious;do not zero it,change p/sensors/complexity or add curvature demands
   without independent evidence. Keep same saved CFDseed/target for256comparison.
+
+
+2026-11-08 deferred geometry-direction hypothesis while256 remains FROZEN:
+CNativeEngine3D.cpp Classify geometry demand adds failed-face excess² times
+Euclidean edge length² to ALLthree face edges. This does not identify which
+direction causes the certified face error. A long swept-span edge could therefore
+be preferred even when nose-direction curvature dominates;this is NOT a proven
+cause of the observed LE density. Only if the complete256outcome keeps target
+delivery/construction as its demonstrated blocker,compare existing split proposals
+and exact child-face certificates on representative actual complete cavities.
+Reuse support/certificates/budgets;no extra baseline campaign,mandatory curvature
+metric,quality-aware construction,min-edge gate or competing implementation now.

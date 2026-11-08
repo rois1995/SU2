@@ -32,9 +32,18 @@ CFD-driver workers,not standalone CLI PIDs. Stop ONLY verified owned handles,
 only after preserved evidence satisfies existing authorized stop conditions.
 An observation timeout/stale log is NOT termination. Never restart from that alone.
 
-Latest observed complete window round24128,native2672.776162s:
-730672cells/2419q-bad/1606J-bad/992geometry-bad/0size-bad.
+Latest observed complete window round24832,native3708.266594s:
+732892cells/0q-bad/0J-bad/447geometry-bad/0size-bad.
 ALL cache/census/shape/geometry completeness flags true. No acceptance yet.
+NEW actual shape closure:allq/J/size zero;geometry_repair_entry24512 has775g,
+next complete24576has658g,and24832has447g withq/J/size stillzero. First pass exited24328with
+2q/0J/969g,then existing construction returned187q/202J/813g for reclosure.
+A256/shape_closure_geometry_repair_entry.json seals these transitions;
+geometry_only_progress_snapshot.json records later complete geometry-only windows. This
+refutes assuming new retained-star orchestration is already necessary for shape
+closure;keep alternatives in backlog and wait for the actual terminal outcome.
+Geometry-only mode now active;old254never reached that matching stage.
+First-pass quality_progress/comparison254 must NOT be presented as live g-only data.
 Current counter files:A256/phase_recovery_progress.json,quality_progress.json,
 quality_counter_assessment.json,quality_comparison254.json. Read-only refresh:
 `nice -n19 python3 R/analyze_m6256_frozen.py` (expandR;source-prefix hashes checked).

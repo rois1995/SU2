@@ -119,5 +119,24 @@
       "bytes": 464037,
       "sha256": "59c8ca775550728c91909aa24bd1e500f4ed3c251cf83a52d17ac2a9af6f1cf7"
     }
-  }
+  },
+  "counted_geometry_work_comparison": {
+    "new256": {
+      "quality_upper_work": 1042514635,
+      "quality_upper_calls": 601038,
+      "net_q_removed": 24597,
+      "net_J_removed": 25847,
+      "q_net_per_million_upper_work": 23.59391338424712,
+      "J_net_per_million_upper_work": 24.792937319292406
+    },
+    "old254": {
+      "quality_upper_work": 1055532484,
+      "quality_upper_calls": 606014,
+      "net_q_removed": 23052,
+      "net_J_removed": 24691,
+      "q_net_per_million_upper_work": 21.839214187556923,
+      "J_net_per_million_upper_work": 23.391984968981777
+    }
+  },
+  "counted_work_scope": "Upper-bound work only,not all compute or CPU time. Initial per-rank counts/caches/work matched;different repair queries after entry. No isolated same-query or walltime-causality claim."
 }
