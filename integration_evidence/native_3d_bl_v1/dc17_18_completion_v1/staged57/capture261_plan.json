@@ -1,5 +1,5 @@
 {
-  "state": "analysis_selected_not_implemented",
+  "state": "implemented_CPP_unbuilt",
   "missing_capability": "A complete meaningful rejected M6 mesh with nodal metric and complete actual residual cavities under unchanged diagnostic caps.",
   "evidence": {
     "native_terminal": "m6_runs/euler_build260_paired_geometry_priority_mach_only_real_cfd50k/terminal_assessment.json",
@@ -15,7 +15,7 @@
     "test_inspect_native_failure3d.py",
     "bounded qualification/launch/evidence helpers"
   ],
-  "proposal": "Assess compact JSON arrays with fixed documented field order,flag mask,4owned nodeIDs+6paired metric lengths,fullrepair data andfullbinding metadata. Normalize to the existing dictionary API;preserve legacyv1 reading anduseanexplicitnewformat discriminator. NOzlib/newdependency.",
+  "proposal": "Nine-field compactJSONarray retains FULLsixedgeIDpairs andlengths,all13flags,repairhistoryandsevenbindingfields.NOidentityrewriting,codecdependency,newconfigorcapschange. Explicitnative_failure3d_v2+compact-array-v1;legacyv1accepted. Sharedreader normalizes toexistingdictionaryAPI;LEconsumerusesitandhandlesemptyranks.",
   "invariants": [
     "No native adaptation decision orconstruction/geometry/quality/ownership/transfer change.",
     "Per-file128MiB,streamingscratch1MiB,per-row64KiB andallreader/work/outputcaps unchanged. No newproductionconfig.",
@@ -30,5 +30,12 @@
     "Immediatelyfulltwo-eventsameCFDseedMach-onlyL1/50kM6unchangedgates/native5400/outer14400;this retries thefunctionalgoal andobtainsrequiredactualsupport,NOTa timingbaseline.",
     "Atactualterminal,sealrawoutputs/checkcapsandcompleteness;fullVTU/SU2+metric onlyifcomplete. Then classifycomplete actual4-residualpatches andtest ONEproductionhypothesis through existingoperators."
   ],
-  "completion": "Still TWOacceptedEuler meshes,conservativeadmissibletransfer,finitecontinuedadaptedCFD,actualisolatedadapteddiskrestart;then dedicatedBL/MPI andRANS500k. Noacceptedmeshestodate."
+  "completion": "Still TWOacceptedEuler meshes,conservativeadmissibletransfer,finitecontinuedadaptedCFD,actualisolatedadapteddiskrestart;then dedicatedBL/MPI andRANS500k. Noacceptedmeshestodate.",
+  "actual_prebuild_evidence": {
+    "prototype": "m6_runs/euler_build260_paired_geometry_priority_mach_only_real_cfd50k/capture_compact261_prototype.json",
+    "production_decoder": "m6_runs/euler_build260_paired_geometry_priority_mach_only_real_cfd50k/capture_compact261_production.json",
+    "production_pins": "m6_runs/euler_build260_paired_geometry_priority_mach_only_real_cfd50k/capture_compact261_production_pins.json",
+    "reader_unit_tests": "14passed/toolchunkc3b63a;0.128s;legacy/newformats,caps,identity,nodalmetrics/VTKassociation",
+    "legacy_le_recheck": "capture261_legacy_le_recheck_status.json;ALLscientificfieldsidentical"
+  }
 }

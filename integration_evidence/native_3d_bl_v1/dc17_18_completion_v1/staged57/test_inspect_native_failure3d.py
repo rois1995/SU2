@@ -53,6 +53,28 @@ def _metric(cell_id, version, nodes, *, bad=False, valid=True):
     }
 
 
+def _compact_metric(row):
+    flags=("cache_valid", "q_measured", "j_measured", "geometry_measured", "q_bad", "j_bad", "geometry_bad",
+           "size_bad", "height_bad", "height_unresolved", "surface", "near_feature", "feature_known")
+    bindings=("id", "feature", "version", "dimension", "u", "v", "mobility_dimension")
+    return [row["id"], row["version"], sum(int(row[k]) << i for i,k in enumerate(flags)),
+            row["q"], row["J"], row["geometry_excess_l2"], row["edges"],
+            [[r["vertices"], r["blocked"], r["epoch"]] for r in row["repairs"]],
+            [None if b is None else [b[k] for k in bindings] for b in row["bindings"]]]
+
+
+def _compact_shard(path):
+    manifest=json.loads(path.read_text())
+    original=path.parent/manifest["files"]["metrics"]
+    target=original.with_name(original.name.replace(".jsonl", ".compact.jsonl"))
+    rows=[json.loads(line) for line in original.read_text().splitlines()]
+    target.write_text("".join(json.dumps(_compact_metric(row), separators=(",", ":"))+"\n" for row in rows))
+    manifest.update(schema=INSPECT.COMPACT_SCHEMA, metrics_encoding="compact-array-v1")
+    manifest["files"]["metrics"]=target.name
+    path.write_text(json.dumps(manifest))
+    return target, rows
+
+
 def _reference():
     return {"kind": "facet", "id": 50, "marker": 2,
             "nodes": [[1, 0.0, 0.0, 0.0], [2, 1.0, 0.0, 0.0], [3, 0.0, 1.0, 0.0]],
@@ -129,6 +151,57 @@ class InspectNativeFailureTests(unittest.TestCase):
 
     def tearDown(self):
         self.temp.cleanup()
+
+    def test_compact_roundtrip_preserves_metadata_nodal_metric_and_array_association(self):
+        nodes=[(1,(0.,0.,0.)), (2,(1.,0.,0.)), (3,(0.,1.,0.)), (4,(0.,0.,1.))]
+        metric=_metric(10, 1, nodes, bad=True)
+        metric.update(surface=True, near_feature=True, geometry_bad=True, size_bad=True, height_bad=True,
+                      height_unresolved=True, geometry_excess_l2=.002)
+        metric["repairs"]=[dict(vertices=[1,2], blocked=True, epoch=27)]
+        metric["bindings"][0]=dict(id=1, feature=99, version=3, dimension=2, u=.125, v=.25, mobility_dimension=2)
+        sensors={i:(10.+i,.1*i,.2*i,20.+i,.3*i,30.+i) for i,_ in nodes}
+        path=_write_shard(self.root,0,2,[(10,1,nodes,metric)],sensors=sensors)
+        empty=_write_shard(self.root,1,2,[])
+        target, rows=_compact_shard(path);_compact_shard(empty)
+        self.assertEqual(list(INSPECT._jsonl(target, INSPECT.FILE_LIMIT, "metrics")), rows)
+        result=INSPECT.inspect([str(self.root)], str(self.root/"out"))
+        self.assertTrue(result["final_mesh_complete"])
+        self.assertTrue(result["cavity_complete"])
+        self.assertTrue(result["captured_nodal_metric_complete"])
+        piece=ET.parse(self.root/"out/rejected_mesh.vtu").getroot().find("./UnstructuredGrid/Piece")
+        for name, expected in (("q",metric["q"]),("J",metric["J"]),("geometry_excess_l2",metric["geometry_excess_l2"])):
+            self.assertIsNone(piece.find(f"PointData/DataArray[@Name='{name}']"))
+            self.assertEqual(_float_values(piece.find(f"CellData/DataArray[@Name='{name}']")), [expected])
+        node_ids=list(map(int,piece.find("PointData/DataArray[@Name='global_node_id']").text.split()))
+        self.assertEqual(_float_values(piece.find("PointData/DataArray[@Name='captured_nodal_metric']")),
+                         [v for n in node_ids for v in INSPECT._tensor9(sensors[n])])
+        manifest=json.loads(path.read_text())
+        for encoding, schema in (("unknown", INSPECT.COMPACT_SCHEMA), ("compact-array-v1", INSPECT.SCHEMA)):
+            manifest.update(schema=schema,metrics_encoding=encoding);path.write_text(json.dumps(manifest))
+            with self.assertRaisesRegex(INSPECT.InspectionError, "encoding disagrees"):
+                INSPECT._load_manifests([str(path)])
+        manifest.update(schema=INSPECT.COMPACT_SCHEMA,metrics_encoding="compact-array-v1")
+        manifest["cap_bytes"]={k:INSPECT.FILE_LIMIT for k in ("owned","metrics","reference","rejections")}
+        manifest["cap_bytes"]["metrics"]=target.stat().st_size-1;path.write_text(json.dumps(manifest))
+        with self.assertRaisesRegex(INSPECT.InspectionError, "exceeds cap"):
+            INSPECT._load_manifests([str(path)])
+
+    def test_compact_rejects_malformed_shapes_flags_and_identity(self):
+        nodes=[(1,(0.,0.,0.)), (2,(1.,0.,0.)), (3,(0.,1.,0.)), (4,(0.,0.,1.))]
+        metric=_metric(10,1,nodes)
+        metric["bindings"][0]=dict(id=1,feature=99,version=1,dimension=2,u=.1,v=.2,mobility_dimension=2)
+        packed=_compact_metric(metric);cell={"id":10,"version":1,"nodes":[{"id":n} for n,_ in nodes]}
+        variants=[packed[:-1]]
+        for index,value in ((2,1<<13),(2,True),(7,[[[1],False]]),(8,[None]*3),(6,[]),(0,99),(1,2),(3,None)):
+            changed=json.loads(json.dumps(packed));changed[index]=value;variants.append(changed)
+        changed=json.loads(json.dumps(packed));changed[8][0][0]=99;variants.append(changed)
+        target=self.root/"bad.compact.jsonl"
+        for row in variants:
+            with self.subTest(row=row):
+                target.write_text(json.dumps(row)+"\n")
+                with self.assertRaises(INSPECT.InspectionError):
+                    for decoded in INSPECT._jsonl(target,INSPECT.FILE_LIMIT,"metrics"):
+                        INSPECT._validate_metric(decoded,cell,target)
 
     def test_cross_rank_vertex_star_and_empty_rank(self):
         manifests = _fixture(self.root)

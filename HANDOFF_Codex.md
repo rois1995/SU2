@@ -58,8 +58,12 @@ operators/support/certificates;doNOTrestoreblanketconstructionmeritveto or start
 anunrelatedcache/scheduler/cavitysize/metric-policy campaign.
 
 ACTIVE follow-through: [bounded capture prerequisite](Handbook/ADAPTATION_CAPTURE261_20261108.md),
-R/capture261_plan.json. ANALYSISselected,NOnewC++implementation/build yet. Assess
-lossless compactmetadata againstactual584311rows beforeproducer/reader edits.
+R/capture261_plan.json. Compact9-fieldJSON implemented,NOnewbuildyet. All584311
+actualmetadata rows roundtrip EXACTLY throughprototypeANDproductiondecoder.
+Rank2metrics134MB→66.0MB,rank5→63.7MB;missingrow extrapolation NOTfullcaptureproof.
+Reader14testsPASS;legacyLE scientificfieldsidentical. C++producer/tightcaptest
+UNBUILT/UNVALIDATED. Nextfreeze/build261 withlaunch_build261.py (CFDbinarymust
+staybyte-identical),focusedfailure_capture+actualCPPofflineinspection,thenfullM6.
 Qualifyaffectedlocalformat/caps/associations,thenimmediatefullsame-seedM6retry
 torecoveractualmesh/support;no timingbaseline/newproductionpolicy.
 
@@ -73,8 +77,9 @@ Assertions60284/60406/60023/60231/60203/61109(printorder,notrankmapping).
 ANSIcoloredsummary parsing fixed duringterminalaudit;NOtest rerun/signal.
 R/geometry_priority260_qualification.json seals bothstages,all20resolvedpredictions,
 14actualcompletecavitypredictionDELTAs(maxrelativeerror6.45e-17),andpreservedcanonical
-rawcontractioncontrols. Qualifiertool43397TERMINAL0. RuntimeM6priorityuse/acceptance
-stillUNPROVED. DoNOTrepeat successfulchecks absentchangedscope/failure.
+rawcontractioncontrols. Qualifiertool43397TERMINAL0. Runtimeuse wassubsequently
+measured in260above;strictacceptance remainsUNPROVED. DoNOTrepeat successfulchecks
+absentchangedscope/failure.
 
 ## What changed and invariants
 

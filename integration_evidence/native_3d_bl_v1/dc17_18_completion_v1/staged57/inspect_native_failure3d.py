@@ -19,6 +19,10 @@ from typing import Any, Iterator
 
 
 SCHEMA = "native_failure3d_v1"
+COMPACT_SCHEMA = "native_failure3d_v2"
+COMPACT_FLAGS = ("cache_valid", "q_measured", "j_measured", "geometry_measured", "q_bad", "j_bad",
+                 "geometry_bad", "size_bad", "height_bad", "height_unresolved", "surface", "near_feature", "feature_known")
+COMPACT_BINDINGS = ("id", "feature", "version", "dimension", "u", "v", "mobility_dimension")
 OWNED_FORMAT = 0x4E334443454C4C02
 OWNED_RECORD_BYTES = 416
 FILE_LIMIT = 128 << 20
@@ -61,6 +65,29 @@ def _boolean(value: Any, name: str) -> bool:
     return value
 
 
+def _unpack_compact_metric(row: Any) -> dict[str, Any]:
+    """Normalize v2 JSON arrays without changing cached values or identity fields."""
+    if not isinstance(row, list) or len(row) != 9:
+        raise InspectionError("compact metric row must contain nine entries")
+    mask = _integer(row[2], "compact flags")
+    if mask >= 1 << len(COMPACT_FLAGS):
+        raise InspectionError("unknown compact metric flag bits")
+    repairs, bindings = row[7], row[8]
+    if not isinstance(repairs, list) or len(repairs) > 14:
+        raise InspectionError("compact repairs must contain at most fourteen entries")
+    if any(not isinstance(r, list) or len(r) != 3 for r in repairs):
+        raise InspectionError("compact repair must be [vertices,blocked,epoch]")
+    if not isinstance(bindings, list) or len(bindings) != 4:
+        raise InspectionError("compact bindings must contain four entries")
+    if any(b is not None and (not isinstance(b, list) or len(b) != 7) for b in bindings):
+        raise InspectionError("compact binding must contain seven entries")
+    result = {name: bool(mask & (1 << i)) for i, name in enumerate(COMPACT_FLAGS)}
+    result.update(id=row[0], version=row[1], q=row[3], J=row[4], geometry_excess_l2=row[5], edges=row[6],
+                  repairs=[dict(vertices=r[0], blocked=r[1], epoch=r[2]) for r in repairs],
+                  bindings=[None if b is None else dict(zip(COMPACT_BINDINGS, b)) for b in bindings])
+    return result
+
+
 def _jsonl(path: Path, cap: int, label: str) -> Iterator[dict[str, Any]]:
     if not path.is_file():
         raise InspectionError(f"missing {label} file: {path}")
@@ -74,6 +101,8 @@ def _jsonl(path: Path, cap: int, label: str) -> Iterator[dict[str, Any]]:
                 value = json.loads(line)
             except (json.JSONDecodeError, UnicodeDecodeError) as error:
                 raise InspectionError(f"invalid {label} JSONL at {path}:{line_number}") from error
+            if label == "metrics" and path.name.endswith(".compact.jsonl"):
+                value = _unpack_compact_metric(value)
             if not isinstance(value, dict):
                 raise InspectionError(f"{label} row must be an object at {path}:{line_number}")
             yield value
@@ -109,7 +138,7 @@ def _load_manifests(inputs: list[str]) -> tuple[list[dict[str, Any]], list[str]]
             manifest = json.loads(path.read_text(encoding="utf-8"))
         except (OSError, json.JSONDecodeError) as error:
             raise InspectionError(f"cannot read manifest {path}") from error
-        if not isinstance(manifest, dict) or manifest.get("schema") != SCHEMA:
+        if not isinstance(manifest, dict) or manifest.get("schema") not in (SCHEMA, COMPACT_SCHEMA):
             raise InspectionError(f"unsupported manifest schema: {path}")
         if manifest.get("byte_order") != "little":
             raise InspectionError(f"unsupported byte_order in {path}")
@@ -146,6 +175,9 @@ def _load_manifests(inputs: list[str]) -> tuple[list[dict[str, Any]], list[str]]
             label: _safe_file(path.parent, manifest["files"].get(label), caps[label], label)
             for label in ("owned", "metrics", "reference", "rejections")
         }
+        compact = manifest["schema"] == COMPACT_SCHEMA
+        if compact != files["metrics"].name.endswith(".compact.jsonl") or (compact and manifest.get("metrics_encoding") != "compact-array-v1"):
+            raise InspectionError(f"metrics encoding disagrees with schema or filename in {path}")
         if len(set(files.values())) != len(files):
             raise InspectionError(f"manifest aliases input files in {path}")
         manifest["_path"] = path
@@ -285,7 +317,7 @@ def _validate_metric(row: dict[str, Any], cell: dict[str, Any], path: Path) -> d
     bindings = row.get("bindings")
     if not isinstance(bindings, list) or len(bindings) != 4:
         raise InspectionError("bindings must have four entries")
-    for binding in bindings:
+    for node, binding in zip(cell["nodes"], bindings):
         if binding is None:
             continue
         if not isinstance(binding, dict):
@@ -296,6 +328,8 @@ def _validate_metric(row: dict[str, Any], cell: dict[str, Any], path: Path) -> d
         for name in ("u", "v"):
             if name in binding:
                 _finite(binding[name], f"binding {name}")
+        if binding.get("id") != node["id"]:
+            raise InspectionError("binding id does not match its owned vertex")
     result = dict(row)
     result.update(q=q, J=jac, geometry_excess_l2=geometry_excess, edges=normalized_edges,
                   q_measured=measured["q"], j_measured=measured["j"],

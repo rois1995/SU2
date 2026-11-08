@@ -3562,6 +3562,15 @@ TEST_CASE("Selected failure capture streams actual owned records without changin
     if(std::string(view.stage)!="exit")return;
     exit_seen=true;observed=Bytes(view.working);
     capture.Observe(view);capped.Observe(view);
+    // Fit the complete mesh under the largest non-metric shard, rather than verbose JSON size.
+    const auto stem=root+"/full_rank"+std::to_string(world.rank);
+    size_t tight_limit=0;
+    for(const auto* suffix:{"_owned.bin","_reference.jsonl","_rejections.jsonl"}) {
+      std::ifstream file(stem+suffix,std::ios::binary|std::ios::ate);REQUIRE(file.good());
+      tight_limit=std::max(tight_limit,size_t(file.tellg()));
+    }
+    FailureCapture tight(root+"/tight",world.rank,world.size,1,{},tight_limit);
+    tight.Observe(view);CHECK(tight.Complete());
     auto missing=view;missing.cell_diagnostic={};unknown.Observe(missing);
     auto no_scratch=view;no_scratch.stage_observer_bytes=0;refused.Observe(no_scratch);
   };
@@ -3581,10 +3590,11 @@ TEST_CASE("Selected failure capture streams actual owned records without changin
   const auto read=[](const std::string& path){std::ifstream file(path);return std::string(std::istreambuf_iterator<char>(file),{});};
   const auto manifest=read(capture.ManifestPath());FailureCapture overwrite(root+"/full",world.rank,world.size,1);
   CHECK(manifest.find("\"wall_heights\":[[")!=std::string::npos);
+  CHECK(manifest.find("\"metrics_encoding\":\"compact-array-v1\"")!=std::string::npos);
   if(mapped) {
     const auto metadata=read(stem+"_reference.jsonl");CHECK(metadata.find("\"controls\":[")!=std::string::npos);
     CHECK(metadata.find("\"kind\":\"feature\"")!=std::string::npos);CHECK(metadata.find("\"body\":null")==std::string::npos);
-    if(count)CHECK(read(stem+"_metrics.jsonl").find("\"mobility_dimension\":")!=std::string::npos);
+    if(count)CHECK(read(stem+"_metrics.compact.jsonl").front()=='[');
   }
   options.stage_observer=[&](const StageProgressView& view){overwrite.Observe(view);};
   const auto again=construction?Refine(world,input,source,geometry,{},options):Repair(world,input,source,geometry,{},options);

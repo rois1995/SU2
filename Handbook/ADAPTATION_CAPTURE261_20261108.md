@@ -4,7 +4,7 @@ ONE active follow-through: assess and correct rejected-mesh capture density, the
 return to the complete same-seed two-event M6. No production repair correction
 has been selected from incomplete stars. Read HANDOFF_Codex.md first.
 R=`integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57`.
-Detailed scope/acceptance: `R/capture261_plan.json` (analysis, NOT implemented).
+Detailed scope/acceptance: `R/capture261_plan.json` (implemented, C++ NOT built/qualified).
 
 Terminal260 is fully measured native734313cells/0q/0J/4geometry/0size at
 round37121/native5340.295245. All30rawfiles were sealed and1520pins verified
@@ -42,3 +42,13 @@ Onthatactualoutcomeverifycomplete capture beforefullVTU/SU2+nodalmetric export,
 thenreuseexistingactualcavityharness/operators toselectONEdemonstratedproduction
 correction. Independentfile/arrayintegrity isnotstrictmesh acceptance. TWOaccepted
 Eulermeshes,conservativetransfer,adaptedCFD/diskrestart,BL/MPI andRANS500k remain.
+
+
+Actual prebuild qualification:ALL584311capturedrows roundtrip EXACTLY through
+bothprototype andproductiondecoder;rank2encoded66,007,465bytesvs134,217,421,
+rank5=63,715,534vs134,217,361. Retain FULLedgeIDpairs;the ninefieldarray needsno
+identityrewriting. Missingrow size scenario~101/103MB is NOTfuturecoverageproof.
+Reader14tests passed;legacy247LEanalysis throughnewsharedreader hasALLscientific
+fieldsidentical. C++producer/tightcapcontrol NOTyetbuilt orvalidated. Source edits
+arelocal/uncommitted atthispoint;onlyCaptureheader anditsdistributed unittest
+change compiled code. ProductionCFDbyteidentity mustbeproved duringbuild261.

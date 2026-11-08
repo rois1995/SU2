@@ -69,35 +69,35 @@ class FailureCapture {
   static bool Bad(const CellDiagnostic& row) {
     return row.cache_valid&&(row.q_bad||row.j_bad||row.geometry_bad||row.size_bad||row.height_bad||row.height_unresolved);
   }
+  // v2 compact JSON: id,version,flags,q,J,geometry,edges,repairs,bindings; no values are omitted.
   static std::string Metrics(const OwnedCell& owned,const CellDiagnostic& d,const PlanarReference& geometry) {
+    const bool flags[]={d.cache_valid,d.q_measured,d.j_measured,d.geometry_measured,d.q_bad,d.j_bad,
+                        d.geometry_bad,d.size_bad,d.height_bad,d.height_unresolved,d.surface,d.near_feature,d.feature_known};
+    unsigned mask=0;for(unsigned i=0;i<13;++i)if(flags[i])mask|=1u<<i;
     std::ostringstream out;out<<std::setprecision(17)<<std::boolalpha;
-    out<<"{\"id\":"<<owned.cell.id<<",\"version\":"<<owned.version<<",\"cache_valid\":"<<d.cache_valid<<",\"q\":";
-    Number(out,d.q,d.cache_valid&&d.q_measured);out<<",\"J\":";Number(out,d.J,d.cache_valid&&d.j_measured);
-    out<<",\"geometry_excess_l2\":";Number(out,d.geometry_excess_l2,d.cache_valid&&d.geometry_measured);
-    out<<",\"q_measured\":"<<d.q_measured<<",\"j_measured\":"<<d.j_measured<<",\"geometry_measured\":"<<d.geometry_measured
-       <<",\"q_bad\":"<<d.q_bad<<",\"j_bad\":"<<d.j_bad<<",\"geometry_bad\":"<<d.geometry_bad
-       <<",\"size_bad\":"<<d.size_bad<<",\"height_bad\":"<<d.height_bad<<",\"height_unresolved\":"<<d.height_unresolved
-       <<",\"surface\":"<<d.surface<<",\"near_feature\":"<<d.near_feature<<",\"feature_known\":"<<d.feature_known<<",\"edges\":[";
+    out<<'['<<owned.cell.id<<','<<owned.version<<','<<mask<<',';
+    Number(out,d.q,d.cache_valid&&d.q_measured);out<<',';Number(out,d.J,d.cache_valid&&d.j_measured);
+    out<<',';Number(out,d.geometry_excess_l2,d.cache_valid&&d.geometry_measured);out<<",[";
     size_t edge=0;
     for(unsigned i=0;i<4;++i)for(unsigned j=i+1;j<4;++j,++edge) {
       if(edge)out<<',';
       const Edge endpoints=d.cache_valid?d.edges[edge]:Edge{owned.cell.v[i].id,owned.cell.v[j].id};
       out<<'['<<endpoints[0]<<','<<endpoints[1]<<',';Number(out,d.lengths[edge],d.cache_valid);out<<']';
     }
-    out<<"],\"repairs\":[";
-    for(size_t i=0;i<d.repair_count;++i){if(i)out<<',';const auto& r=d.repairs[i];out<<"{\"vertices\":[";
+    out<<"],[";
+    for(size_t i=0;i<d.repair_count;++i){if(i)out<<',';const auto& r=d.repairs[i];out<<"[[";
       for(unsigned j=0;j<r.feature.count;++j){if(j)out<<',';out<<r.feature.vertices[j];}
-      out<<"],\"blocked\":"<<r.blocked<<",\"epoch\":"<<r.epoch<<'}';}
-    out<<"],\"bindings\":[";
+      out<<"],"<<r.blocked<<','<<r.epoch<<']';}
+    out<<"],[";
     for(size_t i=0;i<4;++i) {
       if(i)out<<',';const auto& node=owned.cell.v[i];const auto* point=geometry.Parameter(node.p);
       if(!point){out<<"null";continue;}
       const auto& b=point->binding;unsigned dimension=b.dimension;
       if(geometry.Mobility() && geometry.Parameters())dimension=geometry.Parameters()->Geometry().MobilityDimension(b,*geometry.Mobility());
-      out<<"{\"id\":"<<node.id<<",\"feature\":"<<b.feature<<",\"version\":"<<b.version<<",\"dimension\":"<<b.dimension
-         <<",\"u\":";Number(out,b.u);out<<",\"v\":";Number(out,b.v);out<<",\"mobility_dimension\":"<<dimension<<'}';
+      out<<'['<<node.id<<','<<b.feature<<','<<b.version<<','<<b.dimension<<',';
+      Number(out,b.u);out<<',';Number(out,b.v);out<<','<<dimension<<']';
     }
-    out<<"]}\n";return out.str();
+    out<<"]]\n";return out.str();
   }
   static std::string FacetRow(const Facet& facet,const PlanarReference& geometry) {
     std::ostringstream out;out<<std::setprecision(17)<<"{\"kind\":\"facet\",\"id\":"<<facet.id
@@ -130,7 +130,7 @@ class FailureCapture {
     RecordStream layout;OwnedCell dummy;layout(dummy);
     if(layout.Size()!=416)throw std::runtime_error("Unsupported failure owned-record layout.");
     const std::string stem=prefix+"_rank"+std::to_string(rank);
-    const std::string owned_path=stem+"_owned.bin",metrics_path=stem+"_metrics.jsonl",reference_path=stem+"_reference.jsonl",rejections_path=stem+"_rejections.jsonl";
+    const std::string owned_path=stem+"_owned.bin",metrics_path=stem+"_metrics.compact.jsonl",reference_path=stem+"_reference.jsonl",rejections_path=stem+"_rejections.jsonl";
     for(const auto& path:{ManifestPath(),owned_path,metrics_path,reference_path,rejections_path})
       if(std::ifstream(path).good())throw std::runtime_error("Refusing to overwrite failure capture: "+path);
     File manifest(ManifestPath(),FileLimit),owned(owned_path,limit),metrics(metrics_path,limit),reference(reference_path,limit),rejections(rejections_path,limit);
@@ -169,8 +169,8 @@ class FailureCapture {
     rejections.Close();const bool volume_complete=!capped&&written==view.working.size();
     const bool all=volume_complete&&reference_complete&&rejections_complete;
     auto basename=[](const std::string& path){const auto slash=path.find_last_of("/\\");return slash==std::string::npos?path:path.substr(slash+1);};
-    std::ostringstream out;out<<std::setprecision(17)<<std::boolalpha<<"{\"schema\":\"native_failure3d_v1\",\"rank\":"<<rank<<",\"ranks\":"<<ranks<<",\"event\":"<<event
-      <<",\"private_diagnostic\":true,\"final_mesh_accepted\":false,\"complete_shard\":"<<all
+    std::ostringstream out;out<<std::setprecision(17)<<std::boolalpha<<"{\"schema\":\"native_failure3d_v2\",\"rank\":"<<rank<<",\"ranks\":"<<ranks<<",\"event\":"<<event
+      <<",\"metrics_encoding\":\"compact-array-v1\",\"private_diagnostic\":true,\"final_mesh_accepted\":false,\"complete_shard\":"<<all
       <<",\"owned_complete\":"<<volume_complete<<",\"metrics_complete\":"<<(volume_complete&&known)
       <<",\"reference_complete\":"<<reference_complete<<",\"rejections_complete\":"<<rejections_complete
       <<",\"working_rows\":"<<view.working.size()<<",\"written_rows\":"<<written<<",\"owned_record_bytes\":416,\"byte_order\":\"little\",\"cap_bytes\":"<<limit

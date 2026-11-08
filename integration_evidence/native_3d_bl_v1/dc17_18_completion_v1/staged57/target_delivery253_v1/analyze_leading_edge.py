@@ -4,6 +4,7 @@ import hashlib,json,sys
 import numpy as np
 HERE=Path(__file__).resolve().parent;R=HERE.parent;REPO=R.parents[3];A=R/'m6_runs/euler_build247_canonical_mach_only_real_cfd50k'
 sys.path.insert(0,str(REPO/'TestCases/adaptation/capability'));import capcheck
+sys.path.insert(0,str(R));import inspect_native_failure3d as failure_reader
 orig=capcheck.read_su2(R/'metric_target244_mach_only/L1/m6.su2');P,F,_=capcheck.read_restart(R/'metric_target244_mach_only/L1/restart_flow.dat')
 wing=P[np.unique(orig.M['WING3D'])];x0=(wing[:,0]-wing[:,1]/np.sqrt(3)).min()
 def stats(a):
@@ -14,6 +15,8 @@ dt=np.dtype({'names':['format','id','nodes','version','physical','sensor_present
 # Subarray fields need explicit shape to retain four vertices/faces and 24 tensor entries.
 dt=np.dtype([('format','<u8'),('id','<u8'),('nodes',np.dtype([('id','<u8'),('xyz','<f8',(3,))]),(4,)),('version','<u8'),('physical','<u8',(4,2)),('sensor_present','<u8'),('sensor','<f8',(4,6))]);assert dt.itemsize==416
 seal=json.loads((A/'capture_ready.json').read_text())['files'];hashes={};facets={}
+manifest_rows,missing=failure_reader._load_manifests([str(A/'adapted_mesh_inspection_rank*_manifest.json')]);assert not missing
+by_rank={m['rank']:m for m in manifest_rows}
 p=A/'inspection/reference_records.jsonl'
 with p.open() as f:
  for line in f:
@@ -25,35 +28,36 @@ standard=[(1,2,3),(0,3,2),(0,1,3),(0,2,1)];faces=[];cells={};production_edges={}
 for rank in range(6):
  path=A/f'adapted_mesh_inspection_rank{rank}_owned.bin';h=hashlib.sha256(path.read_bytes()).hexdigest();assert h==seal[str(path)]['sha256'];hashes[str(path)]=h
  count=int(np.fromfile(path,dtype='<u8',count=1)[0]);assert path.stat().st_size==8+416*count
- data=np.memmap(path,dtype=dt,offset=8,shape=(count,),mode='r');assert (data['format']==data['format'][0]).all()
- mask=data['physical'][:,:,0].any(axis=1)
- for cell in data[mask]:
-  local=[]
-  for slot,physical in enumerate(cell['physical']):
-   if not physical[0]:continue
-   ref=facets[int(physical[1])]
-   if ref['marker']!=2:continue
-   ids=np.array(standard[slot]);xyz=cell['nodes']['xyz'][ids].copy();nodeids=cell['nodes']['id'][ids].copy();c=xyz.mean(axis=0)
-   local.append(len(faces));faces.append({'id':int(cell['id']),'facet':int(physical[1]),'xyz':xyz,'nodes':nodeids,'center':c,'reference':ref})
-  if local:cells[int(cell['id'])]=local
+ if count:
+  data=np.memmap(path,dtype=dt,offset=8,shape=(count,),mode='r');assert (data['format']==data['format'][0]).all()
+  mask=data['physical'][:,:,0].any(axis=1)
+  for cell in data[mask]:
+   local=[]
+   for slot,physical in enumerate(cell['physical']):
+    if not physical[0]:continue
+    ref=facets[int(physical[1])]
+    if ref['marker']!=2:continue
+    ids=np.array(standard[slot]);xyz=cell['nodes']['xyz'][ids].copy();nodeids=cell['nodes']['id'][ids].copy();c=xyz.mean(axis=0)
+    local.append(len(faces));faces.append({'id':int(cell['id']),'facet':int(physical[1]),'xyz':xyz,'nodes':nodeids,'center':c,'reference':ref})
+   if local:cells[int(cell['id'])]=local
  # Stream existing exact census rows; no geometry recomputation or repair decision.
- path=A/f'adapted_mesh_inspection_rank{rank}_metrics.jsonl';dig=hashlib.sha256()
- with path.open('rb') as f:
-  for line in f:
-   dig.update(line);row=json.loads(line);assert row['cache_valid'] and row['q_measured'] and row['j_measured'] and row['geometry_measured']
-   for k in totals:totals[k]+=int(row[k])
-   cid=row['id']
-   if cid in cells:
-    for idx in cells[cid]:faces[idx]['diagnostic']={k:row[k] for k in ['q','J','q_bad','j_bad','geometry_bad','geometry_excess_l2','near_feature','feature_known']}
-    if row['geometry_bad']:
-     geometry.append({'cell':cid,'facets':[faces[j]['facet'] for j in cells[cid]],'centers':[faces[j]['center'].tolist() for j in cells[cid]],'excess':row['geometry_excess_l2'],'near_feature':row['near_feature'],'bindings':row['bindings']})
-    for b in row['bindings']:
-     if b is not None:mobility[b['id']]=b
-    for aa,bb,length in row['edges']:
-     key=tuple(sorted((aa,bb)))
-     if key in production_edges:assert abs(production_edges[key]-length)<=1e-11*max(1,length)
-     production_edges[key]=length
- assert dig.hexdigest()==seal[str(path)]['sha256'];hashes[str(path)]=dig.hexdigest()
+ path=by_rank[rank]['_resolved_files']['metrics'];dig=hashlib.file_digest(path.open('rb'),'sha256').hexdigest()
+ assert dig==seal[str(path)]['sha256']
+ for row in failure_reader._jsonl(path,by_rank[rank]['_caps']['metrics'],'metrics'):
+  assert row['cache_valid'] and row['q_measured'] and row['j_measured'] and row['geometry_measured']
+  for k in totals:totals[k]+=int(row[k])
+  cid=row['id']
+  if cid in cells:
+   for idx in cells[cid]:faces[idx]['diagnostic']={k:row[k] for k in ['q','J','q_bad','j_bad','geometry_bad','geometry_excess_l2','near_feature','feature_known']}
+   if row['geometry_bad']:
+    geometry.append({'cell':cid,'facets':[faces[j]['facet'] for j in cells[cid]],'centers':[faces[j]['center'].tolist() for j in cells[cid]],'excess':row['geometry_excess_l2'],'near_feature':row['near_feature'],'bindings':row['bindings']})
+   for b in row['bindings']:
+    if b is not None:mobility[b['id']]=b
+   for aa,bb,length in row['edges']:
+    key=tuple(sorted((aa,bb)))
+    if key in production_edges:assert abs(production_edges[key]-length)<=1e-11*max(1,length)
+    production_edges[key]=length
+ assert hashlib.file_digest(path.open('rb'),'sha256').hexdigest()==dig;hashes[str(path)]=dig
 assert totals=={'q_bad':1148,'j_bad':484,'geometry_bad':1044},totals
 C=np.array([f['center'] for f in faces]);xyz=np.array([f['xyz'] for f in faces]);normal=np.cross(xyz[:,1]-xyz[:,0],xyz[:,2]-xyz[:,0]);normal/=np.linalg.norm(normal,axis=1)[:,None]
 span=np.tile([1/np.sqrt(3),1,0.],(len(faces),1));span-=np.einsum('ni,ni->n',span,normal)[:,None]*normal;span/=np.linalg.norm(span,axis=1)[:,None];nose=np.cross(normal,span)
@@ -83,4 +87,5 @@ report['geometry_bad_classification_note']='Actual physical-wing reference assoc
 report['geometry_bad_le_near_feature']=sum(r['near_feature'] for r in near_le);report['geometry_bad_le_cells_with_multiple_wing_faces']=sum(len(r['facets'])>1 for r in near_le)
 report['representative_le_bad_cells']=sorted(near_le,key=lambda r:r['excess'],reverse=True)[:8]
 report['sha256']=hashes;report['sha256'][str(Path(__file__))]=hashlib.sha256(Path(__file__).read_bytes()).hexdigest()
+report['sha256'][str(R/'inspect_native_failure3d.py')]=hashlib.sha256((R/'inspect_native_failure3d.py').read_bytes()).hexdigest()
 (HERE/'leading_edge_diagnosis.json').write_text(json.dumps(report,indent=2,allow_nan=False)+'\n');print(json.dumps({k:report[k] for k in ['wing_faces','census_totals','geometry_bad_wing_cells','geometry_bad_actual_wing_face_near_leading_edge_approx_band','geometry_bad_le_near_feature']}))
