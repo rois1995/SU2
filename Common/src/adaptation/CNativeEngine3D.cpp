@@ -5027,9 +5027,30 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
         reserve_optimization(true);
         std::map<Id,Node> nodes;std::set<Edge> edges;
         for(const auto& cell:old.cells)for(auto n:cell.v)nodes.emplace(n.id,n);
-        for(const auto& face:old.surface)for(unsigned k=0;k<3;++k) {
-          Edge edge{face.v[k],face.v[(k+1)%3]};std::sort(edge.begin(),edge.end());edges.insert(edge);
-        }
+        auto geometry_counts=[&](const Patch& patch,std::set<Edge>* failed_edges=nullptr) {
+          Timer timer(stats.geometry_guidance_seconds,options.timings);
+          auto parameters=geometry.PrivateParameters(patch);const auto& reference=parameters?*parameters:geometry;
+          std::map<Face,Id> facets;for(const auto& face:patch.surface)facets.emplace(Key(face.v),face.facet);
+          std::pair<size_t,size_t> counts{};
+          for(const auto& cell:patch.cells) {
+            bool bad=false;
+            for(const auto& face:Faces(cell)) {
+              const auto found=facets.find(Key(face));if(found==facets.end())continue;
+              std::array<Point,3> triangle;
+              for(unsigned k=0;k<3;++k)for(auto n:cell.v)if(n.id==face[k])triangle[k]=n.p;
+              const auto error=reference.SurfaceDeviation(found->second,triangle);++stats.geometry_guidance_faces;
+              if(!std::isfinite(error))throw std::runtime_error("Native3D coupled repair lacks a complete face certificate.");
+              if(error<=options.surface_tolerance)continue;
+              bad=true;++counts.second;
+              if(failed_edges)for(unsigned k=0;k<3;++k) {
+                Edge edge{face[k],face[(k+1)%3]};std::sort(edge.begin(),edge.end());failed_edges->insert(edge);
+              }
+            }
+            counts.first+=bad;
+          }
+          return counts;
+        };
+        const auto old_counts=geometry_counts(old,&edges);
         std::set<Face> physical;for(const auto& face:old.surface)physical.insert(Key(face.v));
         for(const auto& face:Incidence(old.cells).Boundary())if(!physical.count(Key(face)))
           for(unsigned k=0;k<3;++k) {
@@ -5058,6 +5079,10 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
             {Timer timer(stats.reconstruction_seconds,options.timings);CpuTimer cpu(stats.reconstruction_cpu_seconds,options.timings);
               candidate=guarded_geometry(SplitSurfaceStrip(old,edge,point,{},maximum_cell+1+offset,
                   geometry,fresh,result.reason),"SplitSurfaceStrip");}
+            if(candidate) {
+              const auto counts=geometry_counts(fresh);
+              candidate=geometry_trial(counts.first<=old_counts.first && counts.second<old_counts.second);
+            }
             bool valid=validate_private(candidate,MetricChange::GeometryRepair);
             if(!ready)return false;
             // Reclose shape privately; only the complete replacement is eligible for publication.
@@ -5069,7 +5094,11 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
                 candidate=guarded_geometry(optimize_patch(split,RegionMetric(target),false),"OptimizeGeometrySplit");}
               valid=validate_private(candidate,MetricChange::GeometryRepair);
               if(!ready)return false;
-              if(valid){optimization_approved=true;++stats.optimization_validated;}
+              if(valid) {
+                const auto counts=geometry_counts(fresh);
+                valid=geometry_trial(counts.first<=old_counts.first && counts.second<old_counts.second);
+                if(valid){optimization_approved=true;++stats.optimization_validated;}
+              }
             }
             if(valid){approved=repair_approved=true;moved=false;}
             note_ladder(2,valid,began,geometry_before,height_before,repair_work-work_before);

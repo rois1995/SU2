@@ -1,150 +1,97 @@
 # How to proceed
 
-Updated 2026-11-08. **Zero meshes accepted.** Read [HANDOFF_Codex.md](HANDOFF_Codex.md)
-first for owned handles, active work and current provenance. Historical build notes
-never override the current handoff.
+Updated2026-11-08. **Zero accepted meshes.** Read [HANDOFF_Codex.md](HANDOFF_Codex.md)
+for actual owned handles, source/build provenance and current frozen work. Historical
+build numbers never override it.
 
-## Current result and active work
+## Current result
 
-Build254's first M6 event refused at its unchanged elapsed-time limit. Its terminal
-census is complete: **741,236 cells; 251 q-bad, 205 J-bad, 95 geometry-bad, zero
-size-bad**. All thirty capture files are sealed. All 1,520 pins were verified before
-one exact owned MPI stop; every owned solver handle is gone. The driver continued
-CFD on the original grid after refusal: those adap-named files are not adapted CFD.
+The complete same-seed M6 attempt262 refused its first event at the unchanged
+native time limit. It reached shape/size closure at complete censuses but stalled
+on four leading-edge geometry failures. Its final734315-cell state has four
+unknown q/J scores; do not substitute an earlier clean census for final closure.
+All thirty raw files are complete/sealed; source/runtime/input pins were verified
+before the one recorded owned stop. All old solver and inspection handles are
+terminal. Never repeat an old stop.
 
-The meaningful inspection export and independent readback have passed. The saved
-`staged57/m6_runs/euler_build254_conditioned_mach_only_real_cfd50k/inspection/rejected_mesh.vtu`
-has **150,080 points and 741,236 cells**, the captured metric tensor as PointData,
-and correctly sized q/J/geometry fields as CellData. All 260 bad cells, 2,400
-neighboring cavity cells and reference geometry are saved. The arrays, point
-ordering, SPD metrics and positive volumes were independently checked. Large
-artifacts remain local; hashes and reviewable metadata are pushed. The corrected bounded selection finds117bad cores owning wing faces and143
-interior bad cores touching CURRENT wing vertices;NONE is free-interior. A
-provisional original-reference-node classification was wrong and is preserved.
-Six complete contexts fit the existing64old-cell cap. Both bounded diagnostic
-checks are terminal and reproduce cached q/J and strict geometry counts/sums.
+The latest complete inspection mesh is
+`integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build262_compact_capture_mach_only_real_cfd50k/inspection/rejected_mesh.vtu`.
+It has148608points/734315tetrahedra, captured nodal metric9inPointData and correctly
+sized q/J/geometry CellData. Four q/J values are explicitly unknown. Independent
+readback checked SPD tensors, positive volumes and VTU/SU2 connectivity/coordinate
+agreement. This is a rejected inspection mesh, not accepted CFD input. Save another
+full inspection only after meaningful implementation progress; no per-trial VTUs.
 
-ONE connected correction256passed58serial cases and99cases on EACH MPI6rank.
-The full same-seed two-event256M6 attempt is TERMINAL REFUSED. Shared geometry guidance uses the
-canonical squared certified-face excess measured by the complete census. An
-actual raw contraction removes10q/8J failures andone failed physical face,
-reduces certified debt15%,keeps worst error unchanged and removesone point;
-old area weighting nevertheless vetoes it. See
-[the current correction](Handbook/ADAPTATION_GEOMETRY_DEBT256_20261108.md).
-Qualification is sealed;do not repeat it. Let the full attempt drive the next step.
-The scalar correction does not guarantee production reaches every bounded
-candidate;no new operator,support bound,scheduler,metric or gate was introduced.
-All eleven owned handles are terminal after one preserved-evidence stop of the
-original-grid continuation. No heavy job remains; do not repeat that stop.
+## Confirmed diagnosis and remaining uncertainty
 
-The preserved recovery correction254 is integrated and qualified: the existing QR
-condition bound now applies to base quadratic Hessian fits, not only richer wall
-fits. Unsupported first rings use the existing owner-complete second ring; a
-failed final fit keeps the caller fallback. No sensor filtering, new option,
-quality-aware construction or gate change was introduced. The actual same-seed
-replay leaves flow and coordinates bit-identical and changes 71 Hessians. It cuts
-initial quality failures from 106,454 q / 106,204 J to 27,016 q / 27,453 J.
+- Same saved real-CFD seed, Mach-only L1/50k. Broad sampled surface compression
+  bands and requested transverse spacing4–7%chord versus existing3–4%triangles
+  explain little first refinement there. Integrated forces do not prove resolved
+  shocks. These cuts do not identify every lambda-shock branch.
+- Local regularization219 and condition-admission254 corrections remain integrated.
+  The latter changes71Hessians without changing the saved flow. Farfield40.398%
+  of target complexity remains physically unqualified; weak curvature over a huge
+  volume is not automatically numerical noise. Do not change norm/sensor/complexity
+  without evidence.
+- Smooth leading-edge bands have exact production metric edges around.13–.19,
+  mostly below.5, with8–15times the original triangle density. Fixed boundary
+  coordinates are not the explanation for these sampled mobile smooth regions.
+  Geometry-required spacing versus avoidable insertion/limited cleanup remains
+  incompletely separated. Do not impose a blanket minimum-edge gate.
+- Terminal262's late four-failure windows alternate split and quality-repair states.
+  485commits retire no net geometry failures;244211upper queries are exact memo
+  hits with zero new traversal. This blocker is repair power/construction cycling,
+  not fresh certification speed or a reason for another baseline campaign.
 
-The full attempt then reached guarded surface reconstruction and shape reclosure,
-which earlier timed attempts had not reached. However, its late cycles churned
-rather than converged. Best complete shape counts were 34 q / 20 J; the smallest
-geometry-bad count was 60. Neither occurred on an accepted mesh. The final counts
-above remain failures. See [the diagnosis](Handbook/ADAPTATION_TARGET_DELIVERY253_20261107.md)
-and `staged57/m6_runs/euler_build254_conditioned_mach_only_real_cfd50k/terminal_assessment.json`.
+See [target diagnosis](Handbook/ADAPTATION_TARGET_DELIVERY253_20261107.md),
+[complete capture](Handbook/ADAPTATION_CAPTURE261_20261108.md) and
+[source-faithful cavity checks](Handbook/ADAPTATION_CLOSURE263_20261108.md).
+CDT3D is a design reference: its criteria differ from ours, recovery L2 projection
+is distinct from the Lp objective, and its iterated result is not first-adaptation50k.
 
-## What the evidence establishes
+## One active connected correction
 
-- Sampled surface compression is broad in the saved CFD field. The metric requests
-  roughly 4–7% chord spacing where existing triangles are already roughly 3–4%.
-  This explains little first refinement in those strips; it does not identify the
-  complete lambda shocks or establish physical shock resolution.
-- The old leading-edge target has the expected swept-span direction and spacing
-  ratios about 2.55–3.28, while actual triangle extents are much shorter and less
-  anisotropic. Exact captured production edge lengths confirm very short edges.
-  These measurements do not prove which edges geometry requires.
-- Euler without requested BL constraints has no geometric metric composition:
-  q/J and metric edge lengths use the Mach tensor; geometry is separately
-  certified/refined. This is a source fact, not authorization to add curvature
-  demands or change metric normalization.
-- The corrected target improves the construction's starting shape substantially,
-  but build254 demonstrated a **repair/admission limitation** rather than a
-  need for another scheduling or geometry-speed project. Build256 has since
-  established shape closure; its remaining geometry outcome is still pending. Late
-  optimizer commits can reduce debt while introducing more q-bad cells than they
-  retire. Collapse/reconnect can make thousands of trials with no commits.
-- Earlier bounded cavity controls are partial evidence. They did exercise
-  geometry-constrained boundary smoothing (302 candidates, seven moves), despite
-  `boundary=false`; that flag gates generic boundary topology. They did not
-  exercise the dedicated `GeometryRepair` metric-change validator or nonlocal
-  publication. Guidance scores are not automatically equivalent to terminal
-  geometry certificates. Do not infer production admission from those controls.
+A globally checked complete42-cell current cavity contains all four geometry
+failures and three unknown q/J cells. No support bound was enlarged. Existing
+collapse/relocation alone finds no useful closure. Existing split8184–205050218
+plus one boundary quality move reduces failed physical faces/cells4→3 with zero
+q/J failures across the whole affected context. Production current-source metric
+transport/rebasing and publication tensors agree; strip/ring connectivity and
+coordinates agree. Nonlocal contact/publication and actual mesh closure are
+separate obligations.
 
-## Finish the residual geometry cycle
+Connected repair266 compiled;64of65serial cases passed. Its new geometry-repair
+search exhausted a4096-work phase-return fixture. That failure is preserved, not
+waived, and no266MPI/M6 ran. Correction267 restricts this new path to failed-face
+edges and requires raw/final failed-face retirement without increasing geometry-bad
+cell count. Strict excess descent, shape/size/heights/contact gates remain. Support
+is imported completely before the existing disjoint/versioned reservation; existing
+operators,160work,node ranges,memory accounting and publication are reused.
 
-Build256 established full shape/size closure and repeated reclosure. The last
-fully measured census has **734,246 cells, zero q/J/size failures and 73 geometry
-failures**. Its final construction return has **734,280 cells and 78 geometry
-failures**, but **68 cells lack final q/J measurements**. Final whole-field shape
-counts are unknown; no mesh is accepted.
+Build267 and serial65cases/56523assertions passed, including the previously
+failing phase return and actual useful cavity. The ONE MPI6 qualification is
+currently frozen/running. See
+[current design and failed qualification](Handbook/ADAPTATION_COUPLED_REPAIR266_20261108.md).
+Require the actual-cavity candidate plus the previously failing phase-return check,
+then ONE MPI6 milestone for conflicts/empty ranks/curves/features/heights/census/
+ownership/cache equality. If qualified, immediately run full same-seed two-event
+M6; judge whole-field q/J/geometry counts and useful work, not commits/debt alone.
+If it fails, preserve evidence and fix its demonstrated blocker inside this cycle.
 
-Late complete phase endpoints repeatedly alternate construction's 734,280 cells /
-78 geometry failures / squared certificate excess about1.466891e-5 and repair's
-734,246 / 73 / about1.977194e-6. Similar counts/excess do not prove identical mesh
-states. This is a measured residual geometry repair/construction limitation, not
-an established reason for a speed campaign or another scheduler.
+Keep validity-first construction unchanged. Quality-aware coarsening/splitting,
+larger cavities, a different scheduler/geometry representation and mandatory
+curvature demands remain unproven alternatives in [the backlog](Handbook/ADAPTATION_BACKLOG.md).
+One owned heavy job, low priority, single-threaded libraries, source/runtime/input
+freezing and resource receipts apply throughout.
 
-1. The ONE geometry-directed priority correction is implemented and qualified in
-   coherentbuild260. See [currentdesign](Handbook/ADAPTATION_GEOMETRY_PRIORITY260_20261108.md) and
-   `staged57/geometry_priority259_plan.json`. The bounded follow-through is complete:
-   all78facebounds reproduce exactly; a complete50cellcontrol has a useful
-   second-longest split while the longest addsq/Jfailures withoutgeometryprogress.
-   All14actualreplacementdeltas now match paired-faceprediction;serial58cases and
-   MPI699cases oneachrank pass. This doesnot establish fullM6closure.
-2. Use the COMPLETE runtime boundary state and fresh parameter overlays. Rank
-   existing late geometry-return candidates by net squared certificate excess
-   over both incident faces. Preserve all initial construction choices and every
-   gate. Unresolved ordinary geometry uses the existing priority fallback;
-   resource exhaustion must retain its hard stop. Keep the prediction phase-local,
-   account map/scratch storage and invalidate affected support exactly.
-3. Qualification proved predicted two-face geometry changes match actual complete-edge
-   replacements on the sealed14constructed controls. Singleton face gains
-   cannot be added as a shared-edge proposal. The truncated256capture remains
-   unsuitable for claiming complete global volume support or a full-mesh export.
-4. Serial and ONE MPI6 qualification passed; fullsame-seed two-eventM6 build260 is
-   now TERMINAL REFUSED with unchanged gates/budgets:0q/0J/4geometry failures. All
-   ownedhandles areterminal;HANDOFF links sealedpartialcapture and the actual next
-   four-residual diagnosis. Verify actual accepted
-   meshes, conservative admissible transfer, finite adaptedCFD and isolated adapted
-   disk restart. Preserve independently accepted stages if a later obligation fails.
+## Completion
 
-Keep validity-first construction. Do not add q/J ranking or vetoes during it,
-a blanket minimum-edge gate, larger cavities, a scheduler, a geometry
-representation, mandatory curvature metric or a norm/complexity/sensor change
-from a paper or a scalar diagnostic alone. Preserve CAD as optional. Record
-unproven alternatives in [the backlog](Handbook/ADAPTATION_BACKLOG.md).
-
-## Completion remains unchanged
-
-Two strictly accepted Euler CFD → mesh → CFD → mesh events at **50k metric
-complexity**; geometry 1e-4, q≥.2, J≥.05, max edge1.8 and requested heights remain
-strict. Report actual points/cells separately from complexity.
-
-Validate conservative admissible transfer before publication: actual CV-mass
-solve residual ≤1e-10 for every field/time level, all states admissible, scaled
-TARGET integral defect ≤1e-12. Printed old/new domain integrals are not enough.
-Require finite continued CFD on the adapted mesh and a fresh isolated actual
-adapted disk restart with matching point order/coordinates and distinct input and
-output prefixes. Resume-cycle numbering/overwrite and rejected-event consumption
-remain open issues; isolation is not a fix for them.
-
-After Euler succeeds, complete dedicated BL/MPI qualification on curved walls,
-junctions, interfaces, subsequent operations, redistribution and requested
-heights, then the corresponding **RANS500k** workflow. Generic MPI tests do not
-establish that capability. Keep one owned heavy job, source freezing, explicit
-resource/work/time limits, preserved failures and pushed reviewable checkpoints.
-
-
-Current prerequisite afterterminal260: all4badfaces sharevertex8184,butall8
-availablevertexstars haveuncapturedincidentcells. Follow the [bounded capture
-plan](Handbook/ADAPTATION_CAPTURE261_20261108.md) beforeclaiming actualcomplete
-cavitytests orfull260mesh export. No productionrepaircorrection isselectedyet.
+Two strictly accepted Euler meshes at50k metric complexity; actual point/cell
+counts reported separately. Geometry1e-4,q>=.2,J>=.05,maxedge1.8 and requested
+heights stay strict. Require conservative admissible transfer at every field/time
+level (true CV residual<=1e-10, scaled target-integral defect<=1e-12), finite
+continued adapted CFD, matching actual adapted restart/mesh/reference ordering,
+and a real isolated adapted disk restart with distinct input/output filenames.
+Original-grid continuation after refusal is not adapted proof. Resume-cycle0
+filename overwrite and rejected-event consumption remain open; isolation does not
+fix them. Then dedicated BL/constraint/MPI qualification and RANS500k.

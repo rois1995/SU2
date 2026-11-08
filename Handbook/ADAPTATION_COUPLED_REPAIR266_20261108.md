@@ -28,3 +28,22 @@ the same saved-CFD two-event M6 with unchanged gates,50k and5400s native budget.
 Judge whole-field q/J/geometry failures and counted useful progress; local debt
 reduction does not prove closure. All transfer, adapted CFD, actual isolated
 adapted disk restart, dedicated BL/MPI and RANS500k obligations remain.
+
+
+Build266 compiled successfully and its actual-cavity strip parity/source gate
+passed. Serial qualification failed one of65cases (three phase-return assertions):
+the4096-work fixture exhausted its unchanged allowance before quality exit.
+All pins unchanged and all five recorded serial handles terminal before edits.
+No MPI or M6 was launched on266. The failure is preserved in
+R/cases/current_production_20261108T100814_3110252.
+
+The connected267 correction limits the new repair branch to edges on currently
+failed physical faces. Both the raw split screen and final coupled candidate
+must reduce failed physical-face count without increasing geometry-bad cell
+count. Existing strict canonical-excess descent and q/J/size/height/contact gates
+remain additional requirements. This is a filter on this new repair proposal,
+not a new global minimum-edge gate or a construction policy change. It selects
+the demonstrated4→3 candidate over same-count excess-only candidates. Exact
+certificates use fresh candidate parameters and uncertain/nonfinite results fail.
+Same work/time/memory limits. R/launch_build267.py and coupled267_validate.py are
+current; qualification and immediate same-seed M6 follow only if checks pass.

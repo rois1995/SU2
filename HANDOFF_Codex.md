@@ -17,12 +17,32 @@ A260=`R/m6_runs/euler_build260_paired_geometry_priority_mach_only_real_cfd50k`.
 A256=`R/m6_runs/euler_build256_canonical_geometry_debt_mach_only_real_cfd50k`.
 A254=`R/m6_runs/euler_build254_conditioned_mach_only_real_cfd50k`.
 
-## CURRENT — COUPLED GEOMETRY REPAIR266 BUILD RUNNING/FROZEN
+## CURRENT — COUNT-DIRECTED COUPLED REPAIR267 MPI6 RUNNING/FROZEN
 
-ONE owned build tool78205: helper3099775/start17669947, Ninja3099791.
-R/build266_owned_startup.json records exact identities. ALL1303sources/sixhelpers
-frozen, nice19/j3/libs1/4TBscratch,41.86GB available at launch.
-Sourcebasebcf2d1501d plus ONE connected production repair change and fixture parity
+Build266 passed219.250091s/pins unchanged/18ownedhandles terminal, but connected
+serial47414 FAILED3assertions inONEof65cases(64passed),165.357053s/allpinsunchanged.
+Actual cavity parity/g4→3/sourceqJ0 passed. Legacy4096-work geometry-return case
+exhausted work before expected phase return. Case current_production_20261108T100814_3110252
+preserved, allfivehosthandlesabsent. NO266MPI/M6wasrun;notqualified.
+ONEconnectedfix267: newrepairbranch triesonlyfailedphysicalfaceedges; rawsplit and
+finalcandidate mustreducefailedphysicalfacecount andnotincreasegeometrybadcells,
+inadditiontostrictcanonicalexcessdescent/closedshape/size/heights/contact/publication.
+Samebudgets/operators/supportimport;constructionunchanged. Source/fixfrozen during
+Build267 tool62297 TERMINAL0/217.199605s,allsource/helperpinsunchanged.
+CFDSHA2ec933ebe76e432ff38f5bbe9d5920b965bda402560a1a8a0c20000c3543c7e5.
+All18host root/compiler/linker handles absent(build267_terminal_handles.json).
+Serialtool51722 TERMINAL0/158.825857s:65cases/56523assertions,allpinsunchanged;
+allfivehosthandlesabsent(case current_production_20261108T101712_3134567).
+Actual source-gated g4→3/qJ0 candidate and previous4096-work phase-return passed.
+MPI preflighttool78262 TERMINAL1 beforeMPIlaunch: oldfixture referencedchanged
+reader. Alloldpayloadsunchanged;exactreader028b7184ff archivedfromb240f86b35,
+all57source-inputs/outputpayloadsverified;originalreceiptpreserved. Newimmutable
+A262/placement267_reuse_v1 receiptlinksbyteidenticalpayloads andexactproducer.
+Currentretry viaR/coupled267_mpi_validate.py mpi6 RUNNING/FROZEN.
+All1303sources/sixhelpers +binary/inputs frozen,nice19/libs1/4TBscratch.
+AfterterminalMPI6/hostaudit,sealqualification267thenimmediatefullsame-seedM6.
+[Currentdesign/failure](Handbook/ADAPTATION_COUPLED_REPAIR266_20261108.md).
+Sourcebase988090d1e4 plus connected count-directed repair correction and fixture parity
 checks. Construction remains unchanged. Read
 [design/qualification](Handbook/ADAPTATION_COUPLED_REPAIR266_20261108.md).
 Production extends existing complete-core support import before reservation into
@@ -32,7 +52,7 @@ contact/publication gates. Shared160 work and existing node range; additional
 concurrent frozen field admitted explicitly. No new config/operator/scheduler.
 Only compiled files: Common/src/adaptation/CNativeEngine3D.cpp and
 UnitTests/SU2_CFD/adaptation/fixtures/native_current219_witness.inc.
-After terminal host audit: R/coupled266_validate.py serial, then ONE mpi6 milestone;
+After terminal serial/host audit: R/coupled267_validate.py mpi6;
 return immediately to full same-seed two-event M6. No accepted mesh yet.
 
 265 build terminal0/209.303411s, allpins unchanged, old production CFD byte-identical;

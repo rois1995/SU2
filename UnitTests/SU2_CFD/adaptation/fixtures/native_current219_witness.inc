@@ -100,6 +100,7 @@ static void CapturedCurrentResidual(bool compound,bool distributed=false,bool pr
       (production_source?4:2)*MaximumFrozenFieldBytes,size_t(64)<<20);
   REQUIRE(budget.caller_bytes<ceiling);
   auto scope=reference->WithAtlasReservation(budget);
+  size_t source_geometry_candidates=0;
   for(const auto& test:cases) {
     if(compound && !current_capture && test.second!=224633219 && test.second!=218068745)continue;
     INFO(test.first);
@@ -270,7 +271,10 @@ static void CapturedCurrentResidual(bool compound,bool distributed=false,bool pr
       const double seconds=std::chrono::duration<double>(std::chrono::steady_clock::now()-started).count();
       const bool geometry_progress=new_geometry.excess<old_geometry.excess*(1-1e-12L);
       const bool geometry_admissible=geometry_repair_metric&&replacement&&interface_valid&&
-          after.q_bad_cells==0&&after.j_bad_cells==0&&after.maximum_length<=MaximumMetricEdge&&geometry_progress;
+          after.q_bad_cells==0&&after.j_bad_cells==0&&after.maximum_length<=MaximumMetricEdge&&geometry_progress&&
+          (!production_source || (new_geometry_bad.size()<=old_geometry_bad.size()&&
+              new_face_errors.bad_faces<old_face_errors.bad_faces));
+      source_geometry_candidates+=production_source&&geometry_admissible;
       if(needs_reclosure)*needs_reclosure=production_source&&geometry_repair_metric&&replacement&&interface_valid&&
           geometry_progress&&after.maximum_length<=MaximumMetricEdge&&(after.q_bad_cells||after.j_bad_cells);
       log<<"{\"stage\":\"bounded_star_result\",\"case\":"<<std::quoted(test.first)<<",\"vertex\":"<<vertex
@@ -661,6 +665,7 @@ static void CapturedCurrentResidual(bool compound,bool distributed=false,bool pr
       }
     }
   }
+  if(production_source)CHECK(source_geometry_candidates>0);
   log.close();REQUIRE(bool(log));
 }
 TEST_CASE("Current M6 residual stars assess existing coupled repair and complete neighbors",
