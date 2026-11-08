@@ -3562,10 +3562,10 @@ TEST_CASE("Selected failure capture streams actual owned records without changin
     if(std::string(view.stage)!="exit")return;
     exit_seen=true;observed=Bytes(view.working);
     capture.Observe(view);capped.Observe(view);
-    // Fit the complete mesh under the largest non-metric shard, rather than verbose JSON size.
+    // Use the smallest cap that retains every field; offline qualification checks legacy JSON exceeds it.
     const auto stem=root+"/full_rank"+std::to_string(world.rank);
     size_t tight_limit=0;
-    for(const auto* suffix:{"_owned.bin","_reference.jsonl","_rejections.jsonl"}) {
+    for(const auto* suffix:{"_owned.bin","_metrics.compact.jsonl","_reference.jsonl","_rejections.jsonl"}) {
       std::ifstream file(stem+suffix,std::ios::binary|std::ios::ate);REQUIRE(file.good());
       tight_limit=std::max(tight_limit,size_t(file.tellg()));
     }

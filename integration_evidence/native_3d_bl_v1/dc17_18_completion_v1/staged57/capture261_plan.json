@@ -1,5 +1,5 @@
 {
-  "state": "implemented_CPP_unbuilt",
+  "state": "coherent_build262_qualified_full_same_seed_m6_next",
   "missing_capability": "A complete meaningful rejected M6 mesh with nodal metric and complete actual residual cavities under unchanged diagnostic caps.",
   "evidence": {
     "native_terminal": "m6_runs/euler_build260_paired_geometry_priority_mach_only_real_cfd50k/terminal_assessment.json",
@@ -37,5 +37,16 @@
     "production_pins": "m6_runs/euler_build260_paired_geometry_priority_mach_only_real_cfd50k/capture_compact261_production_pins.json",
     "reader_unit_tests": "14passed/toolchunkc3b63a;0.128s;legacy/newformats,caps,identity,nodalmetrics/VTKassociation",
     "legacy_le_recheck": "capture261_legacy_le_recheck_status.json;ALLscientificfieldsidentical"
-  }
+  },
+  "coherent_build": "build262",
+  "preserved_build261_failure": {
+    "case": "cases/failure_capture_20261108T063637_2542612",
+    "source_pins_verified": true,
+    "assertions_passed": 685,
+    "assertions_failed": 1,
+    "cause": "Newtightcapcontrolassumedmetadataalways<=Ownedbytes.CPPplainrepairmetadata2528BvsOwned2504B;allfullcapturesarecorrect.",
+    "offline_actual_cpp": "cases/failure_capture_20261108T063637_2542612/cpp_offline_inspection.json",
+    "fix": "Testcapisthemaximumactualsizeacrossall4compactshards;independentqualificationMUSTprovelegacyJSONexceedsthecap.Noproducercode/cap/gatechange."
+  },
+  "qualification_record": "capture262_qualification.json"
 }

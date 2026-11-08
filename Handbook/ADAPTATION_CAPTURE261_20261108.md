@@ -4,7 +4,7 @@ ONE active follow-through: assess and correct rejected-mesh capture density, the
 return to the complete same-seed two-event M6. No production repair correction
 has been selected from incomplete stars. Read HANDOFF_Codex.md first.
 R=`integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57`.
-Detailed scope/acceptance: `R/capture261_plan.json` (implemented, C++ NOT built/qualified).
+Detailed scope/acceptance: `R/capture261_plan.json` (implemented and qualified in coherent build262).
 
 Terminal260 is fully measured native734313cells/0q/0J/4geometry/0size at
 round37121/native5340.295245. All30rawfiles were sealed and1520pins verified
@@ -49,6 +49,22 @@ bothprototype andproductiondecoder;rank2encoded66,007,465bytesvs134,217,421,
 rank5=63,715,534vs134,217,361. Retain FULLedgeIDpairs;the ninefieldarray needsno
 identityrewriting. Missingrow size scenario~101/103MB is NOTfuturecoverageproof.
 Reader14tests passed;legacy247LEanalysis throughnewsharedreader hasALLscientific
-fieldsidentical. C++producer/tightcapcontrol NOTyetbuilt orvalidated. Source edits
-arelocal/uncommitted atthispoint;onlyCaptureheader anditsdistributed unittest
-change compiled code. ProductionCFDbyteidentity mustbeproved duringbuild261.
+fieldsidentical. C++ producer and corrected tight-cap control passed coherent build262. Production CFD byte identity was verified. Earlier notes below preserve the failed build261 test-control assumption.
+
+
+Build261passed215.263180s/allpinsunchanged/CFDbinarybyte-identical;all8handles
+terminal. Focusedserialcase failure_capture_20261108T063637_2542612 failedONLY
+newtightcapcontrol:2528Bcompactmetadata vs2504Bbinary. AllfullCPPexports read
+correctly;legacyJSON6748B. Thiswasanunsupportedtestassumption,notacapturefailure.
+Afterterminalrootsverified,correctedONLYtestcapcontroltousemaxsizeofall4shards.
+IndependentqualificationmustprovelegacyJSONwouldexceedthatcap. Producer128MiB/
+scratch/algorithmunchanged. Nextcoherentbuild262;noM6onunqualifiedsource.
+
+Coherent262 qualification is complete: build81.191946s, serial690assertions,
+MPI2 690/140assertions with4actualemptyrank generations. Independent reader
+inspection of32actualCPPexports verified CellDataq/J/geometry, nodalmetric9values,
+full/tight payload identity, unknown/capped partial reporting and8controls where
+legacy metadata exceeds the unchanged tight cap. All source/runtime pins held;
+all build/test handles terminal. See R/capture262_qualification.json. Immediate
+next action is full same-seed MPI6 two-event M6 via launch_m6262.py. Actual full
+M6 capture and strict workflow acceptance remain unproved.

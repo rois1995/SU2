@@ -17,18 +17,31 @@ A260=`R/m6_runs/euler_build260_paired_geometry_priority_mach_only_real_cfd50k`.
 A256=`R/m6_runs/euler_build256_canonical_geometry_debt_mach_only_real_cfd50k`.
 A254=`R/m6_runs/euler_build254_conditioned_mach_only_real_cfd50k`.
 
-## CURRENT —260 TERMINAL REFUSED; diagnose the FOUR actual residuals
+## CURRENT — CAPTURE262 QUALIFIED; full same-seed M6 next
 
-[Currentdesign/evidence](Handbook/ADAPTATION_GEOMETRY_PRIORITY260_20261108.md).
-Source checkpoint c04a9b6491c863f2fa6218df3dca20314df9aadc unchanged.
-Tool89696 TERMINAL1/5566.772822s;NOownedheavyjob now.
+[Current production design/evidence](Handbook/ADAPTATION_GEOMETRY_PRIORITY260_20261108.md).
+Source checkpoint c88bf6402a plus ONLY the corrected tight-cap test control.
+Build262 tool31668 TERMINAL0/81.191946s; all1303source pins unchanged,
+production CFD byte-identical SHA0563a1b5a75ee8b6ae0de9a4464e275412457ec42ba1a764b7775e724c89b7c8.
+All recorded build/test handles terminal. Serial tool23143 passed690assertions;
+MPI2 tool48059 passed690/140assertions including4actualempty-rank generations.
+R/capture262_qualification.json independently checks32actual CPP exports,
+array association/lengths, metadata identity, caps and8legacy-metadata cap controls.
+Reader14tests, all584311actual260metadata roundtrips and legacyLE scientific
+results reused with verified provenance. No production repair decision changed.
+Build261's single failed test-cap assumption is preserved; only that test control
+was corrected. Native128MiB caps and encoder were unchanged by that correction.
+Next full MPI6 M6 uses R/launch_m6262.py, same saved real CFD seed/Mach-onlyL1/50k,
+strict gates/native5400/outer14400. No new timing baseline or production policy.
+Record live tool/process identity below once launched; never assume old jobs live.
+
+Build260 tool89696 TERMINAL1/5566.772822s; all11 owned handles absent.
 Firstevent explicitly REFUSED beforestop. Finalexit37121/native5340.295245:
 734313cells,ALLmeasured,0q/0J/4geometry/0size,allnativecensusflags complete.
 TWOaccepted events impossible,so after ALL30rawfilessealed andALL1520pinsverified,
 ONEpidfdSIGTERM sent toownedMPI2214416/start15601692. A260/owned_stop_once.json
 attempts1/signal_sent. All11exactownedhandles ABSENT(A260/terminal_handles.json).
-NEVERrepeat this or any historicalstop. Runtime/source maynowbe edited only for
-ONE evidenced connected nextcorrection after bounded actualresidual diagnosis.
+NEVERrepeat this or any historicalstop. Source was unfrozen after260 for the capture correction; freeze all pinned sources and helpers during the next M6. No competingproductioncorrection.
 
 A260/capture_ready.json:PARTIAL584311/734313owned rows;rank2=207520/290036,
 rank5=201238/268724 duepaired128MiBmetricstreamcaps. Rank4 andothers complete.
@@ -58,14 +71,11 @@ operators/support/certificates;doNOTrestoreblanketconstructionmeritveto or start
 anunrelatedcache/scheduler/cavitysize/metric-policy campaign.
 
 ACTIVE follow-through: [bounded capture prerequisite](Handbook/ADAPTATION_CAPTURE261_20261108.md),
-R/capture261_plan.json. Compact9-fieldJSON implemented,NOnewbuildyet. All584311
-actualmetadata rows roundtrip EXACTLY throughprototypeANDproductiondecoder.
-Rank2metrics134MB→66.0MB,rank5→63.7MB;missingrow extrapolation NOTfullcaptureproof.
-Reader14testsPASS;legacyLE scientificfieldsidentical. C++producer/tightcaptest
-UNBUILT/UNVALIDATED. Nextfreeze/build261 withlaunch_build261.py (CFDbinarymust
-staybyte-identical),focusedfailure_capture+actualCPPofflineinspection,thenfullM6.
-Qualifyaffectedlocalformat/caps/associations,thenimmediatefullsame-seedM6retry
-torecoveractualmesh/support;no timingbaseline/newproductionpolicy.
+R/capture261_plan.json. Compact9-fieldJSON is qualified in coherent build262.
+All584311 actual metadata rows roundtrip exactly; rank2 metrics134MB→66MB,
+rank5→63.7MB. Extrapolation is NOT proof of future full capture. Immediately run
+full same-seed M6; verify actual coverage before exporting a complete mesh or
+probing current residual stars. No additional production repair change selected.
 
 Build260tool12364TERMINAL0/72.144637s,all1303pins unchanged,both targetsuptodate,
 all5recordedhosthandles terminal(R/build260_terminal_handles.json).
