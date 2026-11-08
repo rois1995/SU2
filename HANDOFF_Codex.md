@@ -42,6 +42,14 @@ configuration byte-identical260. Allprocesses nice19/libs1. Host~39GBavailable
 at startup; disk~8.6GB free. Source/build/runtime/helpers/config/inputs NOWFROZEN.
 No stop condition demonstrated; let full attempt finish. Verify actual handles
 before any intervention. Native refusal capture completeness remains unproved.
+Initial original-grid CFD/target COMPLETE: A262/initial_cfd_target_equivalence.json
+verifies all61330positions and22fields BIT-IDENTICAL to256 andqualified254,
+including Mach-only sensor/tensors. This isNOTadaptedCFD. Reused verifier with
+explicit substitutions in R/verify_m6262_initial.py; input/helper hashes held.
+R/analyze_m6262_frozen.py reuses existing six-rank first-event stage parser and
+countedwork comparator against260. At elapsed317s no complete native stage group
+had yet appeared; sampledtreeRSS5.286GB. No inferred stall/stop from quiet logs.
+
 
 Build260 tool89696 TERMINAL1/5566.772822s; all11 owned handles absent.
 Firstevent explicitly REFUSED beforestop. Finalexit37121/native5340.295245:
