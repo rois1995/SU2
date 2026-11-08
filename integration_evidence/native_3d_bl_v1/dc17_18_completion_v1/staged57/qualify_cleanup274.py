@@ -67,6 +67,6 @@ assert not changed,changed
 result={"time":time.time(),"all_required_checks_passed":True,"mpi_ranks":6,
     "source_pins_sha256":sha(ROOT/"build274_source_pins.json"),"stages":stages,
     "useful_source_gated_candidates":witnesses,"cleanup_source_gated_candidates":cleanup_success,"qualification_pins":pins,
-    "actual_m6_runtime_verified":False,"scope":"Connected shape-preserving metric cleanup and coupled repair serial/MPI6 qualification. Not M6 acceptance, transfer, adapted CFD or disk restart proof."}
+    "actual_m6_runtime_verified":False,"successful_cleanup_publication_proven":False,"scope":"Connected shape-preserving metric cleanup and coupled repair serial/MPI6 qualification. Not M6 acceptance, transfer, adapted CFD or disk restart proof."}
 output.write_text(json.dumps(result,indent=2)+"\n")
 print(json.dumps({"all_required_checks_passed":True,"stages":stages,"witnesses":len(witnesses)},indent=2))

@@ -289,3 +289,25 @@ before this test-only correction. Preserve cleanup273_focused_diagnosis.json;
 retry PASSED43685assertions/3cases97.370s/allpins, allownedhandles terminal. Shared
 productiongate retains3raw strictlocal removals plus compounddiagnosticcontrol;
 alignedphase/refusalcontrol passes. Connectedserial LIVE tool72355; noMPIyet.
+
+## Connected qualification and return to full M6
+
+274qualification sealed inR/cleanup274_qualification.json: focused43685/3cases,
+serial62978/83cases, ONE MPI6 117cases EACHrank. Allpins/actualterminalhandles
+verified. Source-reviewed production change plus positive actual-cavity gates and
+aligned no-progress branch are qualified; successful cleanup PUBLICATION/reclosed
+quality remains an actualM6integration obligation, explicitlyfalse inqualification.
+No gate orbudget changed. f2fd9c2c9d pushedthe implementation/focused checkpoint.
+
+Fullsame-seed TWOeventM6 build274 NOWLIVE tool80377. All1520pins and83actualmapped
+libraries verified; exact11ownedidentities inA274/owned_startup.json. SameconfigSHA
+5ad2dc1d9a1cd8bff87f633617b191b50defbc261ab3d0b2ed0987a34722b89e.
+verify_m6274_initial.py confirms all61330positions/22fields BIT-IDENTICAL256 and
+qualified254target, SENSOR_MACH only. Source/binaries/helpers/runtime/inputsfrozen.
+No actualcleanup invocation/outcomeoracceptedmeshyet. Do not interruptwithout
+preserved authorizedevidence. Retainfulltransfer/adaptedCFD/isolatedrestartgoal.
+
+For comparison, cleanup commits are included inlength_collapses/construction_edits;
+PRIVATEqualitybusy/laddercommits retainexisting repair-onlyscope. Use stage labels
+andfullwall/CPU/geometrywork counters to accountcleanup, rather than calling its
+zero privatebusy idleCPU. Judgeglobalnetq/J/g and finalcertifiedoutcome, notpoints.

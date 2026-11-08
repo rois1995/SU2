@@ -33,8 +33,12 @@ identical271. Originaloptimizer controls make0trials. Three raw collapses and on
 collapse+ONEoptimizertrial removeonepoint, improve short-edge/directional conformity
 and preserve q/J0,geometry0,size/interface/currentnodaltransport. Other directions
 fail support/positivity or geometry gates. No nonlocal contact/distributed
-publication/height qualification yet. Connected cleanup273 is implemented locally and BUILDING (tool66136).
-Pinned sources/helpers must remain unchanged until build and validation terminate.
+publication/height qualification yet. Connected cleanup273 is built and pushed f2fd9c2c9d; build274 only corrects a
+synthetic test and is productionCFD byte-identical273. Focused qualification
+PASSED43685assertions/3cases. Connectedserial274 PASSED83cases/62978assertions and ONE MPI6 milestone PASSED
+117cases on everyrank. Fullsame-seed TWOeventM6 build274 NOWLIVE/FROZEN tool80377.
+A274/owned_startup.json seals all1520pins and actual11ownedidentities/83libraries. Pinned sources/helpers stay
+frozen through validation/run; see HANDOFF_Codex.md for exact owned handles.
 
 Correction273 adds ONE finite improvement-only raw-collapse opportunity at
 exhausted q/J repair with geometry/size/heights closed. Absolute fresh q/J, ordinary

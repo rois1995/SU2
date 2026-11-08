@@ -13,37 +13,37 @@ R=`integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57`.
 A271=`R/m6_runs/euler_build271_cooperative_deadline_mach_only_real_cfd50k`.
 A262=`R/m6_runs/euler_build262_compact_capture_mach_only_real_cfd50k`.
 
-## CURRENT — connected serial274 LIVE; production cleanup273 frozen
+## CURRENT — full TWO-event M6 build274 LIVE and FROZEN
 
-Latest pushed edd8ce29a9. Terminal271 and bounded272 evidence/fixture are pushed.
-Production correction273 is local/uncommitted; ONE connected cycle, no competing
-implementation. Read the correction273section of the linked cleanup record.
+Latest pushed f2fd9c2c9d: connected production cleanup273/274focused evidence.
+R/cleanup274_qualification.json now seals connected checks: focused43685assertions/
+3cases97.370s; serial62978/83cases160.372s; ONE MPI6 117cases on EACHrank182.079s.
+Rankassertions66693/66659/67580/66755/66853/66473. Allpins unchanged; allqualification
+ownedhandles terminal. MPItool13019/helper4055570/process4055826–28+4055831–36
+verifiedterminal. Casefolders current_production_20261108T154915_4034511,
+current_production_20261108T155213_4044704,placement_mpi6_20261108T155517_4055570.
+NOmorebuild/fixture/MPI alongside M6. Qualification is NOTfullmeshacceptance.
 
-Build273 TERMINAL0/516.728824s, all1520pins unchanged. New CFD SHA
-369a994f75a2a7cce76973096189f641f3d696aa045bc6bdd0db049499448512.
-Buildtool66136/helper3983839/start19647189+ninja3983955 absent/terminal receipt.
-Focused273 tool29794 TERMINAL1/112.746s,43684of43685assertions. Actual four M6
-contexts/sharedcleanupgate and alignedphasecontrols PASSED; only synthetic unit
-check failed because it modified a shared cached length without changing exact
-endpoint identity/coordinates. Corrected that TESTONLY to move an endpoint too.
-No production correction. Allowned4014048/4014397/4014398/4014399/4014400 terminal,
-sealed in casecurrent_production_20261108T154314_4014048/terminal_handles.json.
-R/cleanup273_focused_diagnosis.json preserves failure and three raw useful removals.
+A274=R/m6_runs/euler_build274_metric_cleanup_mach_only_real_cfd50k.
+Full M6 LIVE tool80377, launchedfrompushedf2fd9c2c9d. Exactownedhandles:
+wrapper4074153/start19808580,runner4074487/start19809216,
+time4074846+timeout4074847+MPI4074848/start19809786,
+sixACTUALCFDworkflowtest_driver ranks4074851–52/start19809789,
+4074853–56/start19809790. A274/owned_startup.json verifies all1520pins, actual
+workflowexecutablehash and83mappedlibraries againstcurrenthostruntime. Commands
+run the existing actualCFD driver fixture, not standaloneSU2_CFD ranks; preserve
+that distinction. SampledtreeRSS3.817GB is NOTpeak/physicalusage. All C++/helpers/
+binaries/runtime/config/inputs FROZEN untilverifiedterminal orpreserved authorized
+stop. NOstop marker exists for274. Native5400/outer14400/12GiBperrank/cachehost4GiB,
+nice19/libs1 unchanged. Mach-onlyL1/50k, same savedrealCFDseed/configSHAbelow.
+Startup enters ordinaryconstruction; no cleanup invocation/outcomeyet. ZEROaccepted.
+ProductionCFD SHA369a994f75a2a7cce76973096189f641f3d696aa045bc6bdd0db049499448512.
+Build274 terminal27.108s/CFD byte-identical273; build273516.729s/allpins.
 
-Build274 TERMINAL0/27.107709s, allpinsunchanged, CFD BYTE-IDENTICAL273 SHAabove.
-Tool52770/helper4031843/start19734794+ninja4031888 verifiedabsent; receipt
-R/build274_terminal_handles.json. Only compiled change was testcheck above.
-Focused274 PASSED43685assertions/3cases97.369868s, allpinsunchanged; tool8761
-andhelper4034511/process4034736/4034737/4034738/4034739 verifiedterminal.
-Casecurrent_production_20261108T154915_4034511 seals gate, actual4M6contexts,
-alignedphasecontrols. ProductionCFD remains SHAabove.
-Connectedserial274 NOWLIVE tool72355/helper4044704/process4044908,
-casecurrent_production_20261108T155213_4044704;
-use actual status/owned handles before starting MPI. Allcompiledsources/helpers/
-runtime/inputs FROZEN; nice19/libs1. ONEownedheavyjob, noM6/MPIalongside.
-After serialterminalpass: cleanup274_validate.py mpi6 ONCE at connected milestone.
-qualify_cleanup274.py andlaunch_m6274.py prepared (not run); then immediately
-fullsame-seed TWOeventM6 using old sameMachL1/50k/gates/budgets. No higher budget.
+The earlier focused273 testcampaign failed only an inconsistent syntheticunitcheck
+(sharedlengthmutatedwhileexactcoordsunchanged). Corrected testcoordinates in274;
+NOproductionchange. Failedcase andreceipt preserved, allownedhandles terminal
+beforeedit. R/cleanup273_focused_diagnosis.json. Buildtools66136/52770 terminal.
 
 Correction: ONE finite improvement-only short-edge opportunity after exhausted
 q/J repair with complete closed geometry/size/heights. Existing coarsening queue,
@@ -54,8 +54,15 @@ Construction remains validity-first. Return to existingquality; actualchanged
 supports reopen blocked features. One-shot marker prevents another cleanup in
 that Adapt invocation. Alreadystrict meshes acceptwithoutoptionalcleanup.
 Read-only source review found no concrete defect. Successful actual cleanup
-publication+strict returned polish remains an integration-validation obligation.
-NoactualM6afterproduction273yet. ZEROacceptedmeshes; fixturesnotcompletion.
+publication+strict returned polish remains an M6integration-validation obligation.
+Counters: cleanup contractions appear in length_collapses/construction_edits;
+quality private busy/ladder commits retaintheir existing scope. Do not interpret
+zero PRIVATEbusy during cleanup asidle CPU orignoreits geometry/constructionwork.
+Use wholefieldq/J/g, complete stages, CPU/work/elapsed counters andactualoutcome.
+Continue thisfrozenM6; preservepins/ownedhandles/resources/outcome; noextra baseline.
+Reuse analyze_m6274_frozen.py / analyze_m6274_quality.py andverify_m6274_initial.py;
+parser prototypes prepared, no newperf/GDB campaign. Qualify actual transfer,
+continuedadaptedCFD/diskrestart ONLYafteracceptedmeshes. GoalACTIVE.
 
 LatestUSERtask: investigate missing post-refinement metric cleanup and leading-edge
 crowding. [Current design/evidence](Handbook/ADAPTATION_POST_REFINEMENT_CLEANUP_20261108.md).
