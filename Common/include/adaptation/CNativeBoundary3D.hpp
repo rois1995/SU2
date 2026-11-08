@@ -156,7 +156,8 @@ struct GeometryGuidance {
   bool complete=true;
 };
 /*! Fitting guidance for accepted or independently validated surfaces, never a publication certificate.
- * Retains face order and arithmetic. An incomplete result proves only excess > reject_above;
+ * Sums squared absolute-tolerance excess per face, as in the complete census, retaining face order.
+ * An incomplete result proves only excess > reject_above;
  * it must not be used as a complete score or as evidence of geometric progress. */
 GeometryGuidance GeometryGuidanceExcess(const Patch& patch,const PlanarReference& geometry,double tolerance,
                                       long double reject_above=std::numeric_limits<long double>::infinity());

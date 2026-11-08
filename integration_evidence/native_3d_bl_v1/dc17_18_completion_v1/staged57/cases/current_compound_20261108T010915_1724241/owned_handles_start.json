@@ -1,0 +1,77 @@
+{
+  "time": 1794100174.506343,
+  "owned_tree": [
+    {
+      "pid": 1724241,
+      "start_ticks": 14459481,
+      "argv": [
+        "python3",
+        "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/geometry_debt256_validate.py",
+        "serial"
+      ],
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated"
+    },
+    {
+      "pid": 1724529,
+      "start_ticks": 14459983,
+      "argv": [
+        "/usr/bin/time",
+        "-v",
+        "timeout",
+        "600",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "[NativeCurrentCompound3D],[NativeSurfaceMemo3D],[NativeSurfaceCache3D],[NativeGeometryBackend3D],[NativeMappedComponent3D],[NativeOverlappingAtlas3D],[NativeHeightOptimization3D],[NativeAcceptedFaceCertificate3D],[NativeTraceCoverage3D],[NativeBoundedGuidance3D],[NativeSurfaceError3D],[NativeCurvedGeometry3D],[NativeJointGeometry3D],[NativeFirstLayer3D]",
+        "--durations",
+        "yes"
+      ],
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/current_compound_20261108T010915_1724241"
+    },
+    {
+      "pid": 1724530,
+      "start_ticks": 14459983,
+      "argv": [
+        "timeout",
+        "600",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "[NativeCurrentCompound3D],[NativeSurfaceMemo3D],[NativeSurfaceCache3D],[NativeGeometryBackend3D],[NativeMappedComponent3D],[NativeOverlappingAtlas3D],[NativeHeightOptimization3D],[NativeAcceptedFaceCertificate3D],[NativeTraceCoverage3D],[NativeBoundedGuidance3D],[NativeSurfaceError3D],[NativeCurvedGeometry3D],[NativeJointGeometry3D],[NativeFirstLayer3D]",
+        "--durations",
+        "yes"
+      ],
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/current_compound_20261108T010915_1724241"
+    },
+    {
+      "pid": 1724531,
+      "start_ticks": 14459983,
+      "argv": [
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "[NativeCurrentCompound3D],[NativeSurfaceMemo3D],[NativeSurfaceCache3D],[NativeGeometryBackend3D],[NativeMappedComponent3D],[NativeOverlappingAtlas3D],[NativeHeightOptimization3D],[NativeAcceptedFaceCertificate3D],[NativeTraceCoverage3D],[NativeBoundedGuidance3D],[NativeSurfaceError3D],[NativeCurvedGeometry3D],[NativeJointGeometry3D],[NativeFirstLayer3D]",
+        "--durations",
+        "yes"
+      ],
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/current_compound_20261108T010915_1724241"
+    },
+    {
+      "pid": 1724532,
+      "start_ticks": 14459984,
+      "argv": [
+        "orted",
+        "--hnp",
+        "--set-sid",
+        "--report-uri",
+        "8",
+        "--singleton-died-pipe",
+        "9",
+        "-mca",
+        "state_novm_select",
+        "1",
+        "-mca",
+        "ess",
+        "hnp",
+        "-mca",
+        "pmix",
+        "^s1,s2,cray,isolated"
+      ],
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/current_compound_20261108T010915_1724241"
+    }
+  ]
+}

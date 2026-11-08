@@ -705,3 +705,21 @@ validation campaign chosen;complete frozen253and use its actual outcome.
  before inferring unnecessary spanwise density. The tested2D TangentialSize helper
  has no production caller and is not ready3D coupling. No mandatory curvature metric,
  CAD dependency,normalization or gate change authorized by source/paper alone.
+
+
+2026-11-08 actual254/255 residual controls (canonical geometry-debt256 is the
+ONE active correction;do not start these alternatives concurrently):
+- Generic collapse→retained-star optimization orchestration is still absent.
+  An isolated tip cavity153495809 closes only with that combination in bounded
+  controls. Raw contraction already helps major clusters after canonical-debt
+  admission;first judge full256production. Existing conditional two-face support
+  expansion may prevent pure-star CollapseVertex input;16apex ordering may also
+  omit a useful retained endpoint. Source map in ADAPTATION_GEOMETRY_DEBT256_20261108.md.
+- Do not confuse lower geometry-bad CELL counts with fewer failed physical faces.
+  255diagnostic now distinguishes both,unweighted certified excess and maximum
+  error. The actual hard-cluster contraction witnesses improve face counts/debt
+  with unchanged maximum error;area weighting was a demonstrated veto.
+- Farfield40.398% target complexity after corrected Hessians remains physically
+  unqualified. Weak nonzero curvature over99%of domain volume is not automatically
+  spurious;do not zero it,change p/sensors/complexity or add curvature demands
+  without independent evidence. Keep same saved CFDseed/target for256comparison.

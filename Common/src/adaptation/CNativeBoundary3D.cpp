@@ -3194,10 +3194,9 @@ GeometryGuidance GeometryGuidanceExcess(const Patch& patch,const PlanarReference
     const std::array<Point,3> p{nodes.at(f.v[0]),nodes.at(f.v[1]),nodes.at(f.v[2])};
     const double bound=geometry.SurfaceDeviation(f.facet,p,true);
     if(!std::isfinite(bound))throw std::invalid_argument("Unresolved native3D fitting-guidance face.");
-    const long double error=std::max(0.,bound-tolerance);
-    const long double ax=static_cast<long double>(p[1].x)-p[0].x,ay=static_cast<long double>(p[1].y)-p[0].y,az=static_cast<long double>(p[1].z)-p[0].z;
-    const long double bx=static_cast<long double>(p[2].x)-p[0].x,by=static_cast<long double>(p[2].y)-p[0].y,bz=static_cast<long double>(p[2].z)-p[0].z;
-    result.excess+=error*error*std::hypot(ay*bz-az*by,az*bx-ax*bz,ax*by-ay*bx);
+    const long double error=std::max(0.L,static_cast<long double>(bound)-tolerance);
+    // Match complete-census debt: changing face area must not veto reduced certified geometry excess.
+    result.excess+=error*error;
     ++result.evaluated_faces;
     if(!std::isfinite(result.excess))throw std::invalid_argument("Unresolved native3D fitting-guidance sum.");
     // Nonnegative additions in the SAME order cannot reduce this rounded partial sum.

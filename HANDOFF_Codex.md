@@ -20,7 +20,7 @@ A253=`R/m6_runs/euler_build253_witness_cutoff_mach_only_real_cfd50k`(TERMINAL RE
 A251=`R/m6_runs/euler_build251_upper_cutoff_mach_only_real_cfd50k`(terminal REFUSED).
 A247=`R/m6_runs/euler_build247_canonical_mach_only_real_cfd50k`(REFUSED baseline).
 
-## CURRENT — terminal254; bounded actual residual diagnosis
+## CURRENT — canonical geometry-debt256 building;254terminal refused
 
 Implementation8a2c4e1d48and inspection checkpointfc87c40994PUSHED. 254first event
 REFUSED at native5332.870105/round42620:private repair round elapsed-time budget.
@@ -43,47 +43,41 @@ A254/inspection_{export_status,export_terminal_handles,reader_status,reader_term
 This is refused actual geometry,not acceptance. Large artifacts remain local;
 metadata/hashes pushed. Previous meaningful247 remains historical,not latest mesh.
 
-ONE diagnostic-only face-accounting case255 RUNNING tool52151:
-R/cases/current_compound_20261108T005405_1672862,status pid1673110.
-Host helper1672862/start14368544,time1673110/timeout1673111/test1673112
-all start14368999;orted1673113/start14369000;owned_handles_start.json.
-Sources/runtime/config/input/helper pins FROZEN;nice19/libs1,existing bounds.
-Build255TERMINAL0/231.209741s,ALL1303pins unchanged,both targets up to date,
-all recorded build/compiler handles absent. Production SU2_CFD binary is BYTE-
-IDENTICAL to frozen254 (build255_terminal_handles.json). Only fixture logging
-changed:actual physical-face bad counts,unweighted excess/max error,point counts,
-and GeometryRepair METRIC admission. NO production decisions/gates changed.
-It resolves whether lower bad CELL counts merely regroup unchanged failed faces
-versus reducing physical certificate error. No MPI rerun for logging-only fixture
-change. Select production correction ONLY from actual result.
+ONE focused serial256 milestone RUNNING tool63150:
+R/cases/current_compound_20261108T010915_1724241,status pid1724529.
+Host wrapper1724241/start14459481,time1724529/timeout1724530/test1724531
+all start14459983;orted1724532/start14459984. owned_handles_start.json.
+ALL source/runtime/input/helper pins FROZEN;nice19/libs1,existing600s case cap.
+Build256TERMINAL0/480.354111s,all1303pins unchanged,both targets up to date,
+all11recorded build startup/compiler handles absent;build256_terminal_handles.json.
+[Current correction/evidence](Handbook/ADAPTATION_GEOMETRY_DEBT256_20261108.md)
+and R/geometry_debt256_plan.json:shared GeometryGuidanceExcess now matches
+canonical complete-census squared certificate excess,removing face-area weights.
+Actual raw collapse:q28→18/J25→17,failed PHYSICAL faces8→7,certified debt−15%,
+max error unchanged,one fewer point;old area weighting rises6% and vetoes it.
+255diagnostic41955assertions/103.936634s,allpins unchanged,all5handles terminal;
+all6baseline strict certificate sums match sealed census to rounding. No metric,
+operator,scheduler,support/gate/budget change. Production selection/retained-star
+orchestration remain limitations,NOT guaranteed by this scalar correction.
 
-Previous actual254compound tool79180TERMINAL0/102.915297s,41955assertions,
-all pins unchanged;all5host handles absent in case terminal_handles.json.
-R/cases/current_compound_20261108T004404_1638191;A254/bounded_cavity_assessment.json.
-ALL6contexts reproduce captured q/J AND strict geometry-bad counts exactly.
-Tip isolated case closes via collapse+retained relocation. Hard clusters have
-raw collapses that reduce q/Jbad and geometrybad CELL counts,but increase current
-area-weighted guidance ~0.8–6%;not proven actual physical-face error progress.
-Original-star controls mostly stall. No production correction selected from this.
-Serializer67421TERMINAL0/33.062778s:741236paired rows,35066boundary points,
-70128physical faces,all before/after hashes identical. No M6 solver alive.
-NO production correction beyond254conditioning.
-Canonical bounded_residual_selection.json v2:117bad cores own actual wing faces,
-143interior bad cores touch CURRENT wing vertices,ZERO free-interior bad cores.
-Provisional original-reference-node classification was wrong and is preserved
-separately;never use it. All current SU2/owned boundary face sets reconciled.
-Six complete <=64contexts:surface shape-only(two locations),shape+geometry,
-geometry-only,wing-adjacent interior shape-only,and nearby clean wing control.
-Latest exact LE capture analysis tool46341TERMINAL0:A254 has55545wing faces,
-95geometrybad wing cells,64in explicit LE band(vs795old247). Station triangles
-665/647/545/566/575(8.2–15.1xoriginal),median exact metric edge span.134–.163,
-nose.157–.192;>99%edges<.5. Still excessive density;not necessary-spacing proof.
-R/target_delivery254_v1/leading_edge_diagnosis.json reuses prior helper/read-only.
-Use complete actual boundary/adjacent-volume contexts under existing64cell limits;
-compare original-star/compound controls and relevant metric/geometry admission.
-Next target is repair power/admission,not another speed baseline or scheduler.
-Keep original validity-first construction,every strict gate,CAD optional,one owned
-heavy job and source-freezing discipline. All transfer/adaptedCFD/disk restart open.
+NEXT:verify current serial terminal/owned handles;then ONE MPI6 milestone via
+R/geometry_debt256_validate.py mpi6 (serial already running). It reuses current254
+six-context serializer for serial and qualified244/placement246_inputs_v1 forMPI.
+Validate affected curves/seams/holes/bodies/features/heights/caches/bounds/budgets,
+conflicts/empty-rank publication and actual complete-context net q/J/geometry.
+Then IMMEDIATELY full same-seed two-eventM6. No baseline/perf/GDB campaign.
+All acceptance/transfer/adaptedCFD/disk-restart/BL/RANS obligations remain open.
+Current exact capture:117bad cores own wing faces,143interior cores touch CURRENT
+wing vertices,ZERO free-interior. Original-reference-node provisional classification
+was wrong and is preserved;use bounded_residual_selection.json v2 ONLY.
+Latest exactLE edges remain short(.13–.19),8–15xoriginal stationtriangles;
+64geometry-bad wing cells in explicit LE band(vs795old247),not spacing-necessity proof.
+255build/test and254test/export/reader ALLTERMINAL;no M6 solver alive.
+Source freeze may be released ONLY after current256owned handles are terminal.
+Prepared launcher:R/launch_m6256.py requires geometry_debt256_qualification.json
+from qualify_geometry_debt256.py SERIAL_CASE MPI_CASE (after both terminal).
+Preserve literal placement input directory:its run.cfg is a SYMLINK and resolving
+it loses companion files;validation wrapper correctly uses absolute(),not resolve().
 
 Same saved CFDseed,MACH-only L1/50k,same configSHA5ad2dc1d9a1cd8bff87f633617b191b50defbc261ab3d0b2ed0987a34722b89e.
 Actual full-run initial22fields/coords match qualified target exactly. Initial

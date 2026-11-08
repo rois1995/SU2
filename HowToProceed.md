@@ -18,18 +18,24 @@ has **150,080 points and 741,236 cells**, the captured metric tensor as PointDat
 and correctly sized q/J/geometry fields as CellData. All 260 bad cells, 2,400
 neighboring cavity cells and reference geometry are saved. The arrays, point
 ordering, SPD metrics and positive volumes were independently checked. Large
-artifacts remain local; hashes and reviewable metadata are pushed. The corrected bounded
-selection,serialization and the existing254compound check are complete.
-All6contexts reproduce q/J and geometry-bad counts. Hard-cluster collapses remove
-bad cells but increase area-weighted guidance;actual face-error progress remains
-unproved. Build255 passed with the production solver byte-identical;ONE logging-only
-same-context diagnostic is running to resolve that distinction. No production correction is selected;read HANDOFF for handles.
-Actual current-wing face reconciliation finds117bad cores owning wing faces and
-143interior bad cores touching wing vertices;NONE is free-interior. A provisional
-reference-node-based classification was wrong and is preserved explicitly.
-Six complete contexts fit the existing64cell cap,including a clean wing neighbor.
+artifacts remain local; hashes and reviewable metadata are pushed. The corrected bounded selection finds117bad cores owning wing faces and143
+interior bad cores touching CURRENT wing vertices;NONE is free-interior. A
+provisional original-reference-node classification was wrong and is preserved.
+Six complete contexts fit the existing64old-cell cap. Both bounded diagnostic
+checks are terminal and reproduce cached q/J and strict geometry counts/sums.
 
-The active numerical correction is integrated and qualified: the existing QR
+ONE connected correction256has built and is in focused serial validation:shared geometry guidance now uses the
+canonical squared certified-face excess measured by the complete census. An
+actual raw contraction removes10q/8J failures andone failed physical face,
+reduces certified debt15%,keeps worst error unchanged and removesone point;
+old area weighting nevertheless vetoes it. See
+[the current correction](Handbook/ADAPTATION_GEOMETRY_DEBT256_20261108.md).
+After focused serial/ONE MPI6,return immediately to full same-seed two-eventM6.
+The scalar correction does not guarantee production reaches every bounded
+candidate;no new operator,support bound,scheduler,metric or gate was introduced.
+Read HANDOFF for actual live handles;all current256source pins remain frozen.
+
+The preserved recovery correction254 is integrated and qualified: the existing QR
 condition bound now applies to base quadratic Hessian fits, not only richer wall
 fits. Unsupported first rings use the existing owner-complete second ring; a
 failed final fit keeps the caller fallback. No sensor filtering, new option,

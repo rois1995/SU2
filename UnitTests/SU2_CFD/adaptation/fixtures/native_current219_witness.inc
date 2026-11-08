@@ -376,6 +376,7 @@ static void CapturedCurrentResidual(bool compound,bool distributed=false) {
       const bool useful=assess(owned,retired,complete,complete,test.second,"production_complete_context");
       if(test.second==219735950)CHECK(useful);
     }
+    bool useful_compound=false;
     if(compound)for(const auto& removed:owned.at(test.second).cell.v)for(const auto& retained:owned.at(test.second).cell.v) {
       if(removed.id==retained.id)continue;
       auto removed_rows=subset(removed.id,removed.id);auto old=patch_from(removed_rows);scope->ExportParameters(old);
@@ -401,9 +402,11 @@ static void CapturedCurrentResidual(bool compound,bool distributed=false) {
       for(const auto& row:fresh.coverage.faces)input.coverage.faces.insert_or_assign(row.first,row.second);
       for(const auto& row:fresh.coverage.traces)input.coverage.traces.insert_or_assign(row.first,row.second);
       retain_coverage(input);
-      assess(prior,retired,seed,input,retained.id,"collapse_before_retained_star_optimizer",false);
-      assess(prior,retired,seed,input,retained.id,"collapse_then_retained_star_optimizer");
+      useful_compound=assess(prior,retired,seed,input,retained.id,"collapse_before_retained_star_optimizer",false)||useful_compound;
+      useful_compound=assess(prior,retired,seed,input,retained.id,"collapse_then_retained_star_optimizer")||useful_compound;
     }
+    // Actual wing-adjacent residual: area weighting vetoed every otherwise useful complete-context contraction.
+    if(compound && current_capture && test.second==256755094)CHECK(useful_compound);
     if(compound) {
       const auto& core=owned.at(test.second);std::vector<unsigned> faces;
       for(unsigned slot=0;slot<4;++slot)if(core.physical[slot].present)faces.push_back(slot);

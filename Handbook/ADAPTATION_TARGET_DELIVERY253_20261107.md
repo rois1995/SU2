@@ -307,3 +307,13 @@ campaign for logging-only changes. It resolves this admission hypothesis before
 selecting a connected production correction. Nonlocal publication,original frozen
 field equality at changed trial positions and requested BL heights remain beyond
 this bounded diagnostic;the full workflow still supplies final acceptance.
+
+
+The255face-level follow-up is now terminal:41955assertions/103.936634s,allpins
+unchanged,all5host handles absent. Baseline strict squared-excess sums match the
+complete capture to rounding. Actual raw contractions reduce failed PHYSICAL
+faces and canonical certificate debt with unchanged maximum error;they are not
+merely cell regrouping. ONE shared canonical-debt256correction was selected and
+is building. See ADAPTATION_GEOMETRY_DEBT256_20261108.md and HANDOFF for active
+state and limits. No retained-star orchestration or new operator is included;
+production selection/admission and full mesh closure remain unproved.

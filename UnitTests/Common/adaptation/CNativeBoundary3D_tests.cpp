@@ -993,7 +993,7 @@ TEST_CASE("Native3D analytic surface bounds cover complete face interiors", "[Na
 
 TEST_CASE("Bounded fitting guidance rejects losing trials without completing their face queries",
           "[NativeSurfaceError3D][NativeBoundedGuidance3D]") {
-  for(bool sphere:{true,false}) {
+  for(bool sphere:{true,false})for(double tolerance:{0.,1e-4}) {
     const auto patch=CurvedVolumeSeed(sphere);
     AnalyticSurface g;g.kind=sphere?AnalyticSurface::Kind::Sphere:AnalyticSurface::Kind::Bump;
     g.extent=sphere?Point{1,0,0}:Point{1,1,1};
@@ -1001,28 +1001,26 @@ TEST_CASE("Bounded fitting guidance rejects losing trials without completing the
     for(const auto& f:patch.surface)
       if(sphere||std::find(f.v.begin(),f.v.end(),3)==f.v.end())curves.emplace(f.facet,g);
     const PlanarReference geometry(Facets(patch),SIZE_MAX,curves);
-    const auto full=GeometryGuidanceExcess(patch,geometry,0);
+    const auto full=GeometryGuidanceExcess(patch,geometry,tolerance);
     REQUIRE(full.complete);REQUIRE(full.excess>0);REQUIRE(full.evaluated_faces==patch.surface.size());
-    // Independent original face-score expression, including its binary64 subtraction and original sum order.
+    // Complete-census face debt uses extended subtraction and the same sum order.
     long double expected=0;
     for(const auto& f:patch.surface) {
       const auto a=Position(patch,f.v[0]),b=Position(patch,f.v[1]),c=Position(patch,f.v[2]);
-      const long double e=std::max(0.,geometry.SurfaceDeviation(f.facet,{a,b,c},true));
-      const long double ax=(long double)b.x-a.x,ay=(long double)b.y-a.y,az=(long double)b.z-a.z;
-      const long double bx=(long double)c.x-a.x,by=(long double)c.y-a.y,bz=(long double)c.z-a.z;
-      expected+=e*e*std::hypot(ay*bz-az*by,az*bx-ax*bz,ax*by-ay*bx);
+      const long double e=std::max(0.L,static_cast<long double>(geometry.SurfaceDeviation(f.facet,{a,b,c},true))-tolerance);
+      expected+=e*e;
     }
     CHECK(full.excess==expected);
     for(long double limit:{0.L,full.excess/4,std::nextafter(full.excess,0.L),full.excess,
                            std::nextafter(full.excess,INFINITY)}) {
-      const auto bounded=GeometryGuidanceExcess(patch,geometry,0,limit);
+      const auto bounded=GeometryGuidanceExcess(patch,geometry,tolerance,limit);
       CHECK((bounded.excess>limit)==(full.excess>limit));
       CHECK(bounded.excess<=full.excess);
       if(bounded.complete)CHECK(bounded.excess==full.excess);
       else {CHECK(bounded.excess>limit);CHECK(bounded.evaluated_faces<full.evaluated_faces);}
       if(limit>=full.excess){CHECK(bounded.complete);CHECK(bounded.evaluated_faces==full.evaluated_faces);}
     }
-    const auto early=GeometryGuidanceExcess(patch,geometry,0,0);
+    const auto early=GeometryGuidanceExcess(patch,geometry,tolerance,0);
     CHECK_FALSE(early.complete);CHECK(early.evaluated_faces<full.evaluated_faces);
     const auto zero=GeometryGuidanceExcess(patch,geometry,10,0);
     CHECK(zero.complete);CHECK(zero.excess==0);CHECK(zero.evaluated_faces==full.evaluated_faces);
