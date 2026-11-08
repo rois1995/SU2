@@ -1,0 +1,108 @@
+{
+  "time": 1794125170.0460846,
+  "scope": "Existing complete four-geometry-failure censuses only. Scalar count/debt states doNOTprove mesh identity.No new profiling/run/repair decision. Nativefinalcapture and complete currentcavities remain required before choosing production change.",
+  "complete_frames": 115,
+  "first": {
+    "stage": "geometry_repair_entry",
+    "round": 25377,
+    "phase": "improvement",
+    "maximum_native_elapsed": 3741.10734558,
+    "totals": {
+      "cells": 734315,
+      "measured": 734315,
+      "q_measured": 734315,
+      "j_measured": 734315,
+      "q_bad": 0,
+      "j_bad": 0,
+      "geometry_bad": 4,
+      "size_bad": 0
+    },
+    "complete_flags": {
+      "cache_consistent": true,
+      "census_complete": true,
+      "shape_complete": true,
+      "geometry_complete": true
+    },
+    "replicated_global_work": 2428583
+  },
+  "last": {
+    "stage": "window",
+    "round": 26496,
+    "phase": "improvement",
+    "maximum_native_elapsed": 3899.282802261,
+    "totals": {
+      "cells": 734313,
+      "measured": 734313,
+      "q_measured": 734313,
+      "j_measured": 734313,
+      "q_bad": 0,
+      "j_bad": 0,
+      "geometry_bad": 4,
+      "size_bad": 0
+    },
+    "complete_flags": {
+      "cache_consistent": true,
+      "census_complete": true,
+      "shape_complete": true,
+      "geometry_complete": true
+    },
+    "replicated_global_work": 2429702
+  },
+  "counter_delta_formula": "sum(last.rank_rows[rank][key])-sum(first.rank_rows[rank][key])",
+  "counter_deltas": {
+    "accepted": 49,
+    "length_splits": 24,
+    "length_collapses": 0,
+    "quality_progress": 25,
+    "geometry_trials": 12257,
+    "geometry_rejected": 8077,
+    "guidance_trials": 4372,
+    "guidance_faces": 30617,
+    "upper_calls": 25029,
+    "upper_work": 0,
+    "traversal_work": 0,
+    "updated_cells": 242,
+    "memo_union_hits": 25029,
+    "memo_union_misses": 0,
+    "memo_direct_hits": 22595,
+    "memo_direct_misses": 0
+  },
+  "scalar_states": [
+    {
+      "cells": 734315,
+      "geometry_debt": 4.533680586216615e-06,
+      "complete_frames": 52
+    },
+    {
+      "cells": 734313,
+      "geometry_debt": 5.203290198771879e-07,
+      "complete_frames": 63
+    }
+  ],
+  "source_prefixes": {
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build262_compact_capture_mach_only_real_cfd50k/rank_output/1/rank.0/stdout": {
+      "bytes": 1739011,
+      "sha256": "2000a6735e0fc19d1d250d0663aa30b0175e940d2a7dc4c5884ee1e2b13854ba"
+    },
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build262_compact_capture_mach_only_real_cfd50k/rank_output/1/rank.1/stdout": {
+      "bytes": 1728570,
+      "sha256": "ca518aa02ddf58afdeaf2b2aa0e037ac3d908494b360b722f41cbbc06402df90"
+    },
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build262_compact_capture_mach_only_real_cfd50k/rank_output/1/rank.2/stdout": {
+      "bytes": 1723170,
+      "sha256": "8b9618a47174f2032676ac6d8da644f1dc217bd6c6fa061cb57e9df8cb336a26"
+    },
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build262_compact_capture_mach_only_real_cfd50k/rank_output/1/rank.3/stdout": {
+      "bytes": 1714152,
+      "sha256": "984233cfef460a249aad0190032196f5a493cc2f4b65d1a7374e42b2f0f19b91"
+    },
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build262_compact_capture_mach_only_real_cfd50k/rank_output/1/rank.4/stdout": {
+      "bytes": 1743521,
+      "sha256": "befcffbbc7f4b626cf0cdc8a4a7a930af21ba4f652267f11f6f8d229dc98abad"
+    },
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build262_compact_capture_mach_only_real_cfd50k/rank_output/1/rank.5/stdout": {
+      "bytes": 1740233,
+      "sha256": "7ea07deae68a89dee9ea001b747ff8a3191fd845342f8e5151ed0050d0a065aa"
+    }
+  }
+}

@@ -82,3 +82,17 @@ edge quadrature at changed trialpositions through existing source facilities,
 aswell as complete actualsupport, exactassociations, geometry certificates and
 neighboringcells. No fixture/C++ change or extra campaign was started. This is
 an interpretation limit already listed in the260handoff, not a new activecycle.
+
+Geometry-mode orchestration check (hypothesis, not a selected correction):
+CNativeEngine3D.cpp's optimize_repair lambda explicitly returns early when
+selection.geometry_repairs is true. Its ordinary optimization starts from old,
+not from a constructed contraction. The current-cavity fixture can separately
+try directed collapse followed by retained-star optimization, but that does not
+establish an admitted production candidate. Once COMPLETE actual residual stars
+are available, check whether any raw geometry-improving contraction is refused
+for shape and whether existing bounded optimization of that candidate restores
+strict q/J while retaining net physical-face/canonical geometry progress and
+metric conformity over the complete patch plus neighbors. Verify against the
+immutable production field first. If no such actual candidate exists, this
+source guard alone is NOT evidence for changing orchestration. No C++ was edited,
+no new operator/budget/cavity size or competing implementation was started.

@@ -51,7 +51,7 @@ countedwork comparator against260. First quality entry round23314/native687.4540
 27016q/27453J/1205geometry/0size,allcompletenessflags true. ALL83stages frominitial
 coarsening through complete quality entry match260: everyrank recordedfield except
 seconds/elapsed/bytes identical. A262/initial_construction_equivalence260.json seals
-verified six-rank prefixes. Export-only correction hasnotchanged decisions sofar.
+verified six-rank prefixes. No measured decision/work change from the export-only correction so far.
 Quality repair RUNNING/FROZEN; first complete window23360/native833.743787:
 697375cells/23178q/23002J/1184geometry/0size. Netfirst-windowq/Jremoved3838/4451,
 26.2356/30.4259perqualitysecond;1410commits. Qchurn21415retired/17577introduced;
@@ -59,18 +59,36 @@ J21249/16798. Counts/churn/commits/countedgeometrywork EXACT260atmatchinground,
 with onlymeasuredtiming differences (notisolatedspeedup). See
 A262/first_quality_window_comparison260.json andR/analyze_m6262_quality.py
 (reusesexistingchurn/location/workparsers;no newrun/profiling/decisions).
-Monitoring: A262/quality_progress.json anditsverifiedsix-rank sourceprefixes are
-authoritative forlatestCOMPLETE shape census;ranklogs mayadvance beforehandoff.
+Monitoring: A262/construction_progress_assessment.json is authoritative forlatest
+complete all-phase census withflags. A262/quality_progress.json coversONLYthefirst
+uninterrupted shape pass;doNOTmistakeitforlatergeometry/shape-reclosure state.
 First quality EXIT24328/native2985.719094s:732281cells ALLmeasured,
 2q/0J/969geometry/0size,allcompletenessflags true. Notshapeclosure/acceptance.
 ALL112stages throughthisexit match260 inEVERYrankfield exceptseconds/elapsed/bytes;
 A262/first_quality_exit_equivalence260.json sealscheckedprefixes. Nativeexit260
 2921.940955s versus2622985.719094s isNOTanisolatedspeedcomparison.
-Thefrozenrun is nowentering itsgeometryrefinement return. Lastelapsed3114s treeRSS
-9.436GB;no stop condition. Allpinned sources/helpers/runtime/inputs stayfrozen.
+First actual geometry-repair entry24717/native3284.905332s:733973cells ALLmeasured,
+0q/0J/344geometry/0size,allcompletenessflags true. Matchingentry260 hasidentical
+per-ranknon-time/non-bytefields;see first_shape_clean_geometry_entry260_comparison.json.
+LATEST completewindow26496/native3899.282802s:734313cells ALLmeasured,
+0q/0J/4geometry/0size,allcompletenessflags true. ALL357matchedstages haveidentical
+counts/flags/comparedwork vs260;NOTmeshbit-identityproof. Lastelapsed4016s treeRSS9.571GB.
+Current115complete4gframes repeat734313/734315cells/twodebts:49commits=24splits+
+25quality-progress,25029upperqueries ALLexactcachehits,0misses/0upperwork/0traversal.
+A262/late_four_geometry_cycle_assessment.json preservescheckedprefixes andcounts.
+Thisconfirms residualrepair/construction cycling,notfreshcertification,asblocker.
+Keepfrozen whileawaitingnativefinish:finalobservermustwritecompletecurrentrawmesh
+before intervention. No competingproductionchange. Afterexplicitfirsteventrefusal,
+sealALL30rawfiles/checkcaps/completeness/ALL1520pins beforeONEexactownedstop ifneeded;
+NEVERrepeat old260orotherstops. Never assumeexpected4failures orcompletecapture:
+classifyactualterminaldata. Avoidrepeatedfull-historyserializationduringlatecycling;
+pollownedhandle/resources/boundedlogtails,thenonefullcounteranalysisatterminal.
+Allpinned sources/helpers/runtime/inputs stayfrozen.
 Nextcavityselection guard inCapture261book:currentfixture usescapturednodalfield,
 notimmutableproductionbackground;changedtrialmetric/edge equivalence mustbeproved
-beforeusing a candidate tojustify a productioncorrection. No extra campaign.
+beforeusing a candidate tojustify a productioncorrection. SourceguardalsoNOTproof:
+geometrymode skipsordinaryoptimize_repair;actualcollapse+retainedstar candidate
+mustbedemonstrated beforechangingorchestration. SeeCapture261book. Noextra campaign.
 Nativefinalcapture/acceptance remainunproved.
 
 
