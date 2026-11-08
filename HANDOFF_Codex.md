@@ -15,7 +15,8 @@ A262=`R/m6_runs/euler_build262_compact_capture_mach_only_real_cfd50k`.
 
 ## CURRENT — full TWO-event M6 build274 LIVE and FROZEN
 
-Latest pushed f2fd9c2c9d: connected production cleanup273/274focused evidence.
+Latest pushed2b65134b32: connectedqualification+frozenM6startup/equivalenttarget.
+Implementation/focusedcheckpoint f2fd9c2c9d is the actual sourcecommit atlaunch.
 R/cleanup274_qualification.json now seals connected checks: focused43685assertions/
 3cases97.370s; serial62978/83cases160.372s; ONE MPI6 117cases on EACHrank182.079s.
 Rankassertions66693/66659/67580/66755/66853/66473. Allpins unchanged; allqualification
@@ -36,7 +37,36 @@ that distinction. SampledtreeRSS3.817GB is NOTpeak/physicalusage. All C++/helper
 binaries/runtime/config/inputs FROZEN untilverifiedterminal orpreserved authorized
 stop. NOstop marker exists for274. Native5400/outer14400/12GiBperrank/cachehost4GiB,
 nice19/libs1 unchanged. Mach-onlyL1/50k, same savedrealCFDseed/configSHAbelow.
-Startup enters ordinaryconstruction; no cleanup invocation/outcomeyet. ZEROaccepted.
+First QUALITYENTRY complete atnative691.828611s/round23314:690715cells,
+27016q/27453J/1205geometry/0size, allmeasurement/censusflagscomplete. ZEROaccepted.
+A274/quality_entry_equivalence271.json proves all83complete groups through this
+entry EXACT271 in EVERYnon-time/non-byte rankfield/count/work/flag. Timingdiffers;
+no causal speedup claim. Cleanup hasnotrun; retainfrozenexecution.
+Recorded firstwindow complete round23360/native836.104867s:697375cells,23178q/23002J/
+1184geometry/0size. SAMEcounts andtraversalwork as271 atmatchinground. Netq
+3838removed in144.276s (26.602/s vs27127.613/s); timingratio0.963 isnot an
+optimization benefit. analyze_m6274_quality.py passedwindowcensus/ladder/location
+checks; private_tracked_collectives0. Secondwindow round23424 and completed
+quiescentownershipredistribution:703962cells,20201q/19573J/1144geometry/0size,
+allflagscomplete; matching271counts/traversalwork. Passive exactownedCPU/RAMread
+verifiedall11handleslive; CPUincludesMPIspinning, notpureusefulwork. Sampled
+treepeak13.915GB duringthisrun, notphysicalpeak; hostMemAvailable37GB atlastread.
+No pressure/stopconditionestablished. A274/transfer_restart_readiness_reuse.json
+verifies8auditedsource/build/helperpathsagainstcurrentpins; NOTactualtransfer/restart.
+BoundedREADONLYLunamonitor /root/closure266_support_review is NOWCOMPLETE;
+primary owns subsequent parsers. No newheavyjob/implementation. Main80377verified
+LIVE. Latestrecorded completewindow23808/native1974.867s:720674cells,
+8925q/7622J/1029geometry/0size, allflagscomplete; cleanupNOTeligible/run.
+The first observed control-path difference vs271 is EXTRA ownership migration
+at23616: old gain238.811<2*cost132.05 ⇒skip, currentgain240.326>2*118.63 ⇒
+migrate157218cells. First differing COMMONcensus23680. Exact6rankrows/prefix
+hashes inA274/ownership23616_sensitivity271.json. Latermatched-round geometrywork
+andcounts diverge, so no causalcleanup/performanceclaim. Existingtiming-aware
+eligibilityexplains differingdecisions, not an isolated downstreamspeedup.
+ContinuefrozenM6; awaitactualnativeoutcome beforeproductionchanges.
+verify_m6274_initial.py PASSED: all61330coords/22fields BIT-IDENTICAL256 and
+qualified254target, SENSOR_MACHonly. Early5group comparison is in first_construction_equivalence271.json;
+new83groupqualityentryreceipt supersedesits coverage withoutdiscardingit.
 ProductionCFD SHA369a994f75a2a7cce76973096189f641f3d696aa045bc6bdd0db049499448512.
 Build274 terminal27.108s/CFD byte-identical273; build273516.729s/allpins.
 
@@ -170,7 +200,7 @@ nor267MPI3159077/start17805236stop. Actual267interruptedstate unknown/unexported
 
 Two accepted meshes. TrueCVmassresidual<=1e-10 EACHfield/timelevel, scaledTARGET-
 integraldefect<=1e-12 andfulladmissibility BEFOREpublication. A271/transfer_restart_readiness_reuse.json
-verifies all9audited256source/buildpathsunchanged, NOT runtimeproof. Need actual
+verifies all8audited256source/buildpathsunchanged, NOT runtimeproof. Need actual
 adaptedmesh/ref/restart matchingcoordinates/order<=1e-12, finitefields,positive
 rho/internalE, continuedadaptedCFD. Then NEWisolatedactualadapted diskrestart:
 ADAP_LOOP=NO,RESTART_SOL=YES,READ_BINARY_RESTART=YES, explicitcheckpointinput and

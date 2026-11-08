@@ -773,3 +773,14 @@ root supports. Investigate existing bounded lossless archive facilities only if
 this blocks required root-cavity/whole-mesh evidence; no chosen codec/newformat
 or cap increase. Do not fill missing cells from historical meshes. Current active
 cycle is the demonstrated post-refinement cleanup/admission investigation.
+
+###274frozen cleanup observation to retain (unproven; do not change the run)
+
+The new improvement-only rawcleanup drains its finite frontier before returning
+toordinaryquality. If wholefield q/J/G/size/heights close during that pass, later
+clean contractions would be optional for acceptance. Watch complete-census counts
+and remaining elapsed work: a measured delay after all gates close could justify
+early strict re-entry rather than consuming budget on the remainder. No such
+cleanup outcome is observed yet; this is not authorization to interrupt274 or
+change pinned sources. Do not turn it into a new scheduler, higher budget or
+minimum-edge gate. Existing deadline refusal remains fail-closed.
