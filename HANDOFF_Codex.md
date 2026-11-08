@@ -20,28 +20,36 @@ A253=`R/m6_runs/euler_build253_witness_cutoff_mach_only_real_cfd50k`(TERMINAL RE
 A251=`R/m6_runs/euler_build251_upper_cutoff_mach_only_real_cfd50k`(terminal REFUSED).
 A247=`R/m6_runs/euler_build247_canonical_mach_only_real_cfd50k`(REFUSED baseline).
 
-## CURRENT — terminal254; ONE bounded inspection export active
+## CURRENT — terminal254; bounded actual residual diagnosis
 
-Source/qualification checkpoint8a2c4e1d48PUSHED;recovery checkpointc99f89f79cPUSHED.
-254first event REFUSED at native5332.870105/round42620:private repair round elapsed
-budget exhausted. Terminal census COMPLETE:741236cells/251q/205J/95geometry/0size,
-ALL cells measured/flags complete. ZERO accepted meshes. Native5.4k budget unchanged.
-Tool70856TERMINAL1/5533.745599s. All30raw capture files sealed/hashed,741236owned+
-metric rows complete:A254/capture_ready.json. ALL1520pins verified AFTER sealing
-BEFORE ONE pidfdSIGTERM to exact MPI1274730/start13602153. owned_stop_once.json
-records attempts1/signal_sent. ALL11owned handles including wrapper absent in
-terminal_handles.json. NEVER repeat that stop. Driver's original-grid CFD and
-adap-named files after refusal do NOT establish adaptation. No owned solver alive.
+Implementation8a2c4e1d48and terminal checkpointe259e1eed8PUSHED. 254first event
+REFUSED at native5332.870105/round42620:private repair round elapsed-time budget.
+COMPLETE terminal741236cells/251q/205J/95geometry/0size,all measured/flags complete.
+ZERO accepted meshes. Tool70856TERMINAL1/5533.745599s. ALL30raw files sealed and
+741236owned/metric rows complete:A254/capture_ready.json. ALL1520pins verified
+AFTER sealing BEFORE ONE pidfdSIGTERM to exact MPI1274730/start13602153.
+owned_stop_once.json attempts1/signal_sent;ALL11solver/wrapper handles absent in
+terminal_handles.json. NEVER repeat that stop. Later original-grid CFD and adap-
+named files are not adapted proof. No owned solver alive.
 
-ONE heavy workload now:tool55016 terminal-mesh export toA254/inspection,using
-existing inspect_native_failure3d.py. A254/inspection_export_status.json and
-inspection_export_owned_startup.json authoritative;helper1563236/start14168905,
-timeout1563641/start14169669,Python1563642/start14169669. ALL1554export pins,
-including compiled sources,remain FROZEN until exporter terminal. No C++ edits.
-User asked for meaningful progressed rejected mesh WITH metric,not every trial;
-this is a justified substantial corrected-target result. No routine per-trial export.
-After export verify actual array lengths,PointData tensor/CellData q/J/geometry,
-point order/connectivity,SPD/positive volume;preserve reader receipts and all handles.
+Meaningful saved mesh NOW A254/inspection/rejected_mesh.vtu and.su2:
+150080points/741236tets. ALL260bad cells and2400neighbor cells plus reference saved.
+PointData captured_nodal_metric9row-major;CellData q/J/geometry_excess_l2/edges.
+Exporter tool55016TERMINAL0/329.411249s,ALL1554pins unchanged,all3handles absent.
+Independent reader tool22015TERMINAL0/2.681038s:correct array lengths/associations,
+VTU/SU2 coords+tets identical,all150080metrics SPD(minEig.00312949064),all tets
+positive(minVolume5.298e-15),bad counts251/205/95 exact;all input hashes unchanged.
+A254/inspection_{export_status,export_terminal_handles,reader_status,reader_terminal_handles}.json.
+This is refused actual geometry,not acceptance. Large artifacts remain local;
+metadata/hashes pushed. Previous meaningful247 remains historical,not latest mesh.
+
+No heavy solver/build/test alive. One bounded read-only actual254selection task
+is active;NO production correction chosen beyond integrated254conditioning.
+Use complete actual boundary/adjacent-volume contexts under existing64cell limits;
+compare original-star/compound controls and relevant metric/geometry admission.
+Next target is repair power/admission,not another speed baseline or scheduler.
+Keep original validity-first construction,every strict gate,CAD optional,one owned
+heavy job and source-freezing discipline. All transfer/adaptedCFD/disk restart open.
 
 Same saved CFDseed,MACH-only L1/50k,same configSHA5ad2dc1d9a1cd8bff87f633617b191b50defbc261ab3d0b2ed0987a34722b89e.
 Actual full-run initial22fields/coords match qualified target exactly. Initial

@@ -12,11 +12,14 @@ size-bad**. All thirty capture files are sealed. All 1,520 pins were verified be
 one exact owned MPI stop; every owned solver handle is gone. The driver continued
 CFD on the original grid after refusal: those adap-named files are not adapted CFD.
 
-A single bounded inspection export is active as recorded in the handoff. It saves
-this substantially progressed rejected mesh with its metric tensor, remaining bad
-cells, neighboring cavities and reference surface. Keep its pins frozen until it
-is terminal. Verify the exported arrays and retain the reader receipt before
-using the mesh for a new diagnosis. Do not save every private trial.
+The meaningful inspection export and independent readback have passed. The saved
+`staged57/m6_runs/euler_build254_conditioned_mach_only_real_cfd50k/inspection/rejected_mesh.vtu`
+has **150,080 points and 741,236 cells**, the captured metric tensor as PointData,
+and correctly sized q/J/geometry fields as CellData. All 260 bad cells, 2,400
+neighboring cavity cells and reference geometry are saved. The arrays, point
+ordering, SPD metrics and positive volumes were independently checked. Large
+artifacts remain local; hashes and reviewable metadata are pushed. A bounded
+actual-residual selection is now active; no new production correction is selected.
 
 The active numerical correction is integrated and qualified: the existing QR
 condition bound now applies to base quadratic Hessian fits, not only richer wall

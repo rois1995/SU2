@@ -1,6 +1,6 @@
 # Same-seed shock/leading-edge diagnosis — active253 cycle
 
-One production correction selected after diagnosis: base quadratic conditioning254; qualified; full M6 running frozen. Zero accepted meshes; all Euler transfer,
+One production correction selected after diagnosis: base quadratic conditioning254; qualified; full M6 terminal REFUSED. Zero accepted meshes; all Euler transfer,
 adapted continuation/disk restart, dedicated BL/MPI and RANS500k obligations remain.
 R=`integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57`.
 Evidence: `R/target_delivery253_v1/{target_diagnosis,radial_reproduction,leading_edge_diagnosis}.json`.
@@ -237,4 +237,32 @@ mean nodal-tensor restrictions,not production quadrature/certification or absenc
 of pointwise drift. Reproduction script/JSON:target_delivery253_v1/
 leading_edge_tensor_reproduction.*;bounded≈4.9s,one thread/nice19,unchanged input
 hashes. This does not justify a curvature metric or prove which short edges are
-geometrically necessary. Frozen254 remains the active workflow.
+geometrically necessary. 254 is now terminal REFUSED; the complete residual capture drives the active bounded diagnosis.
+
+
+## Terminal254 outcome and saved mesh (2026-11-08)
+
+The actual same-seed corrected-target attempt refused at native5332.870105s,
+round42620, under the unchanged elapsed-time limit. Complete terminal census:
+741236cells,251q-bad,205J-bad,95geometry-bad,zero oversized-edge demand.
+Best complete shape counts34q/20J had728geometry failures; minimum60geometry
+failures coincided with133q/122J. They never closed together. Late repair windows
+can retire fewer bad cells than they introduce despite reduced hinge debt.
+This supports testing repair power/admission on actual residuals; it does not
+justify another speed baseline, larger supports or quality-aware construction.
+
+All30raw capture files are sealed,all1520pins verified before the one exact
+owned MPI stop,and every solver handle is terminal. Export and independent
+reader are also terminal,with unchanged pins/hashes. Actual saved rejected mesh:
+150080points/741236tets,PointData captured_nodal_metric9row-major,CellData q/J/
+geometry/metric-edge bounds. All260bad cells,2400neighbor cells and reference
+are preserved. VTU/SU2 coordinates/connectivity match;all nodal tensors SPD,
+all tetrahedra positive. These integrity checks do not certify strict acceptance.
+See A254/inspection_reader_status.json and terminal handle receipts. No accepted
+mesh,conservative transfer,adapted CFD or actual adapted disk restart is established.
+
+The next bounded selection must classify adjacent-volume cells using CURRENT
+physical-wing vertex IDs,not original reference vertex IDs. Original IDs miss
+newly inserted/moved boundary nodes;reference facet IDs remain valid associations
+but do not equal output face vertex triples. A provisional selection caught at
+primary review is preserved explicitly and must not drive cavity tests.
