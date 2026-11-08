@@ -1,0 +1,140 @@
+{
+  "time": 1794102165.1608677,
+  "scope": "First TWO complete first-pass windows,nearest measured quality times,gaps explicit. Same measured start/target;no interpolation or isolated speedup claim. Upper work is counted geometry work,not all compute;overlapping timers not summed. Early net global benefit remains unestablished;continue frozen full run.",
+  "comparisons": [
+    {
+      "round256": 23360,
+      "round254": 23360,
+      "quality_seconds256": 146.75331488099994,
+      "quality_seconds254": 153.643247836,
+      "measured_time_gap": -6.889932955000063,
+      "new256": {
+        "totals": {
+          "cells": 697375,
+          "measured": 697375,
+          "q_measured": 697375,
+          "j_measured": 697375,
+          "q_bad": 23178,
+          "j_bad": 23002,
+          "geometry_bad": 1184,
+          "size_bad": 0
+        },
+        "net_bad_removed": {
+          "q_bad": 3838,
+          "j_bad": 4451,
+          "geometry_bad": 21
+        },
+        "net_bad_removed_per_quality_second": {
+          "q_bad": 26.152731221861508,
+          "j_bad": 30.329808928740377,
+          "geometry_bad": 0.14309727870221253
+        },
+        "commits": 1410.0,
+        "q_net_per_commit": 2.721985815602837,
+        "J_net_per_commit": 3.1567375886524824,
+        "quality_upper_work": 79838053,
+        "q_net_per_million_upper_work": 48.072314589134585,
+        "J_net_per_million_upper_work": 55.75035753940543,
+        "upper_calls": 41699,
+        "traversal_work": 76148706
+      },
+      "old254": {
+        "totals": {
+          "cells": 698030,
+          "measured": 698030,
+          "q_measured": 698030,
+          "j_measured": 698030,
+          "q_bad": 23067,
+          "j_bad": 22873,
+          "geometry_bad": 1177,
+          "size_bad": 0
+        },
+        "net_bad_removed": {
+          "q_bad": 3949,
+          "j_bad": 4580,
+          "geometry_bad": 28
+        },
+        "net_bad_removed_per_quality_second": {
+          "q_bad": 25.7023986125,
+          "j_bad": 29.80931517985566,
+          "geometry_bad": 0.18224035481134465
+        },
+        "commits": 1458.0,
+        "q_net_per_commit": 2.7085048010973938,
+        "J_net_per_commit": 3.141289437585734,
+        "quality_upper_work": 85134689,
+        "q_net_per_million_upper_work": 46.38532243889444,
+        "J_net_per_million_upper_work": 53.79710731074615,
+        "upper_calls": 45130,
+        "traversal_work": 81332190
+      }
+    },
+    {
+      "round256": 23424,
+      "round254": 23424,
+      "quality_seconds256": 380.265072581,
+      "quality_seconds254": 388.130433056,
+      "measured_time_gap": -7.865360474999989,
+      "new256": {
+        "totals": {
+          "cells": 703962,
+          "measured": 703962,
+          "q_measured": 703962,
+          "j_measured": 703962,
+          "q_bad": 20201,
+          "j_bad": 19573,
+          "geometry_bad": 1144,
+          "size_bad": 0
+        },
+        "net_bad_removed": {
+          "q_bad": 6815,
+          "j_bad": 7880,
+          "geometry_bad": 61
+        },
+        "net_bad_removed_per_quality_second": {
+          "q_bad": 17.921709069265994,
+          "j_bad": 20.72238700892385,
+          "geometry_bad": 0.16041441720106026
+        },
+        "commits": 3507.0,
+        "q_net_per_commit": 1.9432563444539492,
+        "J_net_per_commit": 2.2469347020245225,
+        "quality_upper_work": 223125688,
+        "q_net_per_million_upper_work": 30.54332318742251,
+        "J_net_per_million_upper_work": 35.31641771341003,
+        "upper_calls": 99193,
+        "traversal_work": 212058275
+      },
+      "old254": {
+        "totals": {
+          "cells": 704480,
+          "measured": 704480,
+          "q_measured": 704480,
+          "j_measured": 704480,
+          "q_bad": 20157,
+          "j_bad": 19485,
+          "geometry_bad": 1148,
+          "size_bad": 0
+        },
+        "net_bad_removed": {
+          "q_bad": 6859,
+          "j_bad": 7968,
+          "geometry_bad": 57
+        },
+        "net_bad_removed_per_quality_second": {
+          "q_bad": 17.671894332002495,
+          "j_bad": 20.52918122720453,
+          "geometry_bad": 0.14685784763436976
+        },
+        "commits": 3525.0,
+        "q_net_per_commit": 1.9458156028368794,
+        "J_net_per_commit": 2.2604255319148936,
+        "quality_upper_work": 236680834,
+        "q_net_per_million_upper_work": 28.97995534357463,
+        "J_net_per_million_upper_work": 33.6655903451819,
+        "upper_calls": 105313,
+        "traversal_work": 225213842
+      }
+    }
+  ]
+}

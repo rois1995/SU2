@@ -114,3 +114,17 @@ INITIAL22flow/metric fields,configuration and host cache quota match exactly.
 Use construction_comparison254.json and guarded source-prefix receipts;compare
 net whole-field q/J and geometry progress only once complete shape measurement
 starts. No accepted mesh or adaptation/transfer/restart claim follows.
+
+
+First complete quality entry23314 is EXACT254:690715cells/27016q/27453J/1205g/
+0size;all selected per-rank geometry/support/cache/traversal/construction counters
+match,including245091394upper-work. Entry native705.664vs755.523 is timing
+confounded;initial states and counted work are controlled. At window23424,256has
+20201q/19573J/1144g atquality380.265s versus25420157q/19485J/1148g at388.130s.
+New geometry upper-work223125688vs236680834,netq6815vs6859,commits3507vs3525.
+Early net global progress remains similar;no closure benefit established.
+Use explicit measured-time gaps and work-normalized rates in
+early_quality_comparison254_assessment.json;do not extrapolate a terminal result.
+All11owned identities/argv/cwd and1520pins still match in window2receipt.
+TreeRSS8.87GB,available~30.9GB,diskfree10.809GB;no actual resource pressure shown.
+Run stays frozen. All strict acceptance,transfer/adaptedCFD/disk/BL/RANS gates open.

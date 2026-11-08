@@ -23,7 +23,8 @@ A247=`R/m6_runs/euler_build247_canonical_mach_only_real_cfd50k`(REFUSED baseline
 
 ## CURRENT — full two-event256 M6 RUNNING FROZEN
 
-Implementation8a2c4e1d48and inspection checkpointfc87c40994PUSHED. 254first event
+Latest pushed milestone3b580b2a7e;executing C++implementation42a3fedcc7.
+Preserved254implementation8a2c4e1d48/inspectionfc87c40994. 254first event
 REFUSED at native5332.870105/round42620:private repair round elapsed-time budget.
 COMPLETE terminal741236cells/251q/205J/95geometry/0size,all measured/flags complete.
 ZERO accepted meshes. Tool70856TERMINAL1/5533.745599s. ALL30raw files sealed and
@@ -90,6 +91,19 @@ Native451.071s versus254509.246s is NOT isolated-code speedup evidence.
 A256/construction_comparison254.json;source prefixes hashed by current parser.
 Latest sampled treeRSS6.72GB at wall563s,not physical peak. Keep construction/phase/queue/migration
 modes and all strict gates/budgets. No new baseline/perf/GDB or implementation.
+Latest COMPLETE quality window23424/native1085.928814,quality380.265073s:
+703962cells/20201q/19573J/1144geometry/0size. All flags complete;following
+ownership publication preserves counts/flags. Old254window23424 atquality388.130433s:
+20157q/19485J/1148geometry. Early net counts/rates essentially similar;no global
+closure benefit established. New upper work223125688 vsold236680834(~6%less)
+for similar net q/J removal;not an identical-query or walltime-causality claim.
+A256/early_quality_comparison254_assessment.json and quality_comparison254.json.
+At FIRSTquality entry23314:690715cells/27016q/27453J/1205geometry/0size EXACT254;
+ALL selected rank geometry/support/cache/traversal/construction counters match,
+including245091394upper-work. Field/config/cache/start-state comparison controlled.
+Window2 owned receipt:ALL11identities+argv+cwd and1520pins unchanged;treeRSS8.87GB,
+MemAvailable~30.9GB,disk free10.809GB,no stop/source edit. Keep frozen.
+
 Two accepted meshes,conservative admissible transfer,finite adaptedCFD and actual
 isolated adapted disk restart still REQUIRED;then dedicatedBL/MPI andRANS500k.
 
