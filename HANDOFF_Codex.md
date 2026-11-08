@@ -34,7 +34,7 @@ CFD/target provenance, NOT adapted CFD/transfer/acceptance proof.
 Then monitor complete q/J/geometry/size censuses/useful work, leave frozen unless
 preserved evidence meets existing authorized-stop conditions. On refusal, preserve
 actual raw mesh/metric/cavities before source changes. Full transfer/CFD/restart/
-BL/MPI/RANS obligations remain below. Metadata/qualification push pending.
+BL/MPI/RANS obligations remain below. Qualification and launch provenance pushed in9d262e5b3d.
 
 ## PREVIOUS267 — INTERRUPTED FOR PRESERVED DEADLINE OVERRUN
 
@@ -86,8 +86,7 @@ PASSED7cases/107assertions/tool23147terminal0: includes actual full12-cell expor
 after expiry and early refusal contract. All prior failures retained.
 Connected serial271 PASSED81cases/62880assertions161.564077s; ONE MPI6 passed
 115cases EACHrank/183.956574s; allpinsunchanged/allhandles terminal. Full same-seed
-TWO-event M6 launched asCURRENT271above. Latest pushed45a9315aad; currentqualification/
-launch metadata beingcheckpointed.
+TWO-event M6 launched asCURRENT271above. Qualification and launch provenance pushed in9d262e5b3d.
 
 [Current coupled design/evidence](Handbook/ADAPTATION_COUPLED_REPAIR266_20261108.md).
 [Deferred hypotheses](Handbook/ADAPTATION_BACKLOG.md): proposal old-connectivity
