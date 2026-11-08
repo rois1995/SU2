@@ -1,0 +1,83 @@
+{
+  "time": 1794107516.3494995,
+  "tool_session": 51464,
+  "owned_tree": [
+    {
+      "pid": 2038858,
+      "start_ticks": 15192725,
+      "argv": [
+        "python3",
+        "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/geometry_faces257_validate.py"
+      ],
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated",
+      "rss_bytes": 24690688
+    },
+    {
+      "pid": 2039044,
+      "start_ticks": 15193112,
+      "argv": [
+        "/usr/bin/time",
+        "-v",
+        "timeout",
+        "600",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "[NativeGeometryResidualFaces3D]",
+        "--durations",
+        "yes"
+      ],
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/geometry_faces257_20261108T031129_2038858",
+      "rss_bytes": 1310720
+    },
+    {
+      "pid": 2039045,
+      "start_ticks": 15193112,
+      "argv": [
+        "timeout",
+        "600",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "[NativeGeometryResidualFaces3D]",
+        "--durations",
+        "yes"
+      ],
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/geometry_faces257_20261108T031129_2038858",
+      "rss_bytes": 1966080
+    },
+    {
+      "pid": 2039046,
+      "start_ticks": 15193113,
+      "argv": [
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "[NativeGeometryResidualFaces3D]",
+        "--durations",
+        "yes"
+      ],
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/geometry_faces257_20261108T031129_2038858",
+      "rss_bytes": 246841344
+    },
+    {
+      "pid": 2039047,
+      "start_ticks": 15193113,
+      "argv": [
+        "orted",
+        "--hnp",
+        "--set-sid",
+        "--report-uri",
+        "8",
+        "--singleton-died-pipe",
+        "9",
+        "-mca",
+        "state_novm_select",
+        "1",
+        "-mca",
+        "ess",
+        "hnp",
+        "-mca",
+        "pmix",
+        "^s1,s2,cray,isolated"
+      ],
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/geometry_faces257_20261108T031129_2038858",
+      "rss_bytes": 14942208
+    }
+  ],
+  "scope": "One host serial face diagnostic after sandbox MPI_Init failure;source/runtime/input pins frozen."
+}

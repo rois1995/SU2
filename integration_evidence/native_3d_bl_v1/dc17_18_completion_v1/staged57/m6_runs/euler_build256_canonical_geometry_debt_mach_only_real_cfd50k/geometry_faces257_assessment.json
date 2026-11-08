@@ -1,0 +1,277 @@
+{
+  "time": 1794107835.26059,
+  "diagnostic_only": true,
+  "baseline_faces": 78,
+  "baseline_all_contained": true,
+  "maximum_captured_vs_recomputed_excess_error": 0.0,
+  "canonical_geometry_excess_squared": 1.466890995618264e-05,
+  "three_largest_changed_faces": [
+    {
+      "stage": "baseline",
+      "cell": 193488132,
+      "facet": 30131,
+      "contained": true,
+      "bound": 0.002500355138649785,
+      "excess": 0.002400355138649785,
+      "captured_excess": 0.002400355138649785,
+      "work": 1811,
+      "upper_work": 1779
+    },
+    {
+      "stage": "baseline",
+      "cell": 193494274,
+      "facet": 10821,
+      "contained": true,
+      "bound": 0.00222357434509303,
+      "excess": 0.00212357434509303,
+      "captured_excess": 0.00212357434509303,
+      "work": 413,
+      "upper_work": 380
+    },
+    {
+      "stage": "baseline",
+      "cell": 193500415,
+      "facet": 10660,
+      "contained": true,
+      "bound": 0.002009545974500217,
+      "excess": 0.0019095459745002168,
+      "captured_excess": 0.0019095459745002168,
+      "work": 2975,
+      "upper_work": 2943
+    }
+  ],
+  "three_largest_share": 0.9487847877642543,
+  "final_shape_unknown_cells": 68,
+  "face_only_probes": 24,
+  "probe_faces_closing_individually": 4,
+  "probe_summary": [
+    {
+      "cell": 155530751,
+      "old_bound": 0.0005170154603796818,
+      "old_squared_excess": 1.7390189419567793e-07,
+      "longest_edge": {
+        "stage": "face_midpoint_probe",
+        "cell": 155530751,
+        "edge": 1,
+        "contains_children": true,
+        "length_squared": 7.512069020498408e-05,
+        "child_maximum_bound": 0.002150696239398405,
+        "child_squared_excess": 4.20535506628276e-06,
+        "scope": "single_face_only_not_complete_edge_star_or_candidate_admission"
+      },
+      "best_face_only_edge": {
+        "stage": "face_midpoint_probe",
+        "cell": 155530751,
+        "edge": 2,
+        "contains_children": true,
+        "length_squared": 2.0008713469564626e-05,
+        "child_maximum_bound": 0.0005170154603796818,
+        "child_squared_excess": 1.9340149655531586e-07,
+        "scope": "single_face_only_not_complete_edge_star_or_candidate_admission"
+      },
+      "best_closes_this_face": false,
+      "scope": "Independent face-only projections against incident singleton facet;shared-edge projections and complete volume/neighbor admissibility NOT proved. Do not sum adjacent-face probe gains."
+    },
+    {
+      "cell": 155530752,
+      "old_bound": 0.0005170154603796818,
+      "old_squared_excess": 1.7390189419567793e-07,
+      "longest_edge": {
+        "stage": "face_midpoint_probe",
+        "cell": 155530752,
+        "edge": 2,
+        "contains_children": true,
+        "length_squared": 7.512069020498408e-05,
+        "child_maximum_bound": 0.0002272215660261983,
+        "child_squared_excess": 1.6185326862158332e-08,
+        "scope": "single_face_only_not_complete_edge_star_or_candidate_admission"
+      },
+      "best_face_only_edge": {
+        "stage": "face_midpoint_probe",
+        "cell": 155530752,
+        "edge": 2,
+        "contains_children": true,
+        "length_squared": 7.512069020498408e-05,
+        "child_maximum_bound": 0.0002272215660261983,
+        "child_squared_excess": 1.6185326862158332e-08,
+        "scope": "single_face_only_not_complete_edge_star_or_candidate_admission"
+      },
+      "best_closes_this_face": false,
+      "scope": "Independent face-only projections against incident singleton facet;shared-edge projections and complete volume/neighbor admissibility NOT proved. Do not sum adjacent-face probe gains."
+    },
+    {
+      "cell": 161631492,
+      "old_bound": 0.0001000951078991478,
+      "old_squared_excess": 9.045512480306597e-15,
+      "longest_edge": {
+        "stage": "face_midpoint_probe",
+        "cell": 161631492,
+        "edge": 2,
+        "contains_children": true,
+        "length_squared": 1.7022314829733752e-05,
+        "child_maximum_bound": 4.3648637619093266e-05,
+        "child_squared_excess": 0,
+        "scope": "single_face_only_not_complete_edge_star_or_candidate_admission"
+      },
+      "best_face_only_edge": {
+        "stage": "face_midpoint_probe",
+        "cell": 161631492,
+        "edge": 2,
+        "contains_children": true,
+        "length_squared": 1.7022314829733752e-05,
+        "child_maximum_bound": 4.3648637619093266e-05,
+        "child_squared_excess": 0,
+        "scope": "single_face_only_not_complete_edge_star_or_candidate_admission"
+      },
+      "best_closes_this_face": true,
+      "scope": "Independent face-only projections against incident singleton facet;shared-edge projections and complete volume/neighbor admissibility NOT proved. Do not sum adjacent-face probe gains."
+    },
+    {
+      "cell": 163044608,
+      "old_bound": 0.00010017453249202556,
+      "old_squared_excess": 3.0461590772652005e-14,
+      "longest_edge": {
+        "stage": "face_midpoint_probe",
+        "cell": 163044608,
+        "edge": 2,
+        "contains_children": true,
+        "length_squared": 8.676568695648339e-06,
+        "child_maximum_bound": 4.475371981396412e-05,
+        "child_squared_excess": 0,
+        "scope": "single_face_only_not_complete_edge_star_or_candidate_admission"
+      },
+      "best_face_only_edge": {
+        "stage": "face_midpoint_probe",
+        "cell": 163044608,
+        "edge": 2,
+        "contains_children": true,
+        "length_squared": 8.676568695648339e-06,
+        "child_maximum_bound": 4.475371981396412e-05,
+        "child_squared_excess": 0,
+        "scope": "single_face_only_not_complete_edge_star_or_candidate_admission"
+      },
+      "best_closes_this_face": true,
+      "scope": "Independent face-only projections against incident singleton facet;shared-edge projections and complete volume/neighbor admissibility NOT proved. Do not sum adjacent-face probe gains."
+    },
+    {
+      "cell": 163406216,
+      "old_bound": 0.0003023203565867178,
+      "old_squared_excess": 4.0933526689376646e-08,
+      "longest_edge": {
+        "stage": "face_midpoint_probe",
+        "cell": 163406216,
+        "edge": 1,
+        "contains_children": true,
+        "length_squared": 6.226254262267884e-05,
+        "child_maximum_bound": 0.0003023203565867178,
+        "child_squared_excess": 4.403328823375217e-08,
+        "scope": "single_face_only_not_complete_edge_star_or_candidate_admission"
+      },
+      "best_face_only_edge": {
+        "stage": "face_midpoint_probe",
+        "cell": 163406216,
+        "edge": 2,
+        "contains_children": true,
+        "length_squared": 3.4917359795947116e-05,
+        "child_maximum_bound": 9.99544734260675e-05,
+        "child_squared_excess": 0,
+        "scope": "single_face_only_not_complete_edge_star_or_candidate_admission"
+      },
+      "best_closes_this_face": true,
+      "scope": "Independent face-only projections against incident singleton facet;shared-edge projections and complete volume/neighbor admissibility NOT proved. Do not sum adjacent-face probe gains."
+    },
+    {
+      "cell": 193488132,
+      "old_bound": 0.002500355138649785,
+      "old_squared_excess": 5.761704791642429e-06,
+      "longest_edge": {
+        "stage": "face_midpoint_probe",
+        "cell": 193488132,
+        "edge": 1,
+        "contains_children": true,
+        "length_squared": 3.305229781669151e-05,
+        "child_maximum_bound": 0.001973099511890332,
+        "child_squared_excess": 3.5085017814438003e-06,
+        "scope": "single_face_only_not_complete_edge_star_or_candidate_admission"
+      },
+      "best_face_only_edge": {
+        "stage": "face_midpoint_probe",
+        "cell": 193488132,
+        "edge": 2,
+        "contains_children": true,
+        "length_squared": 1.6110004951673298e-05,
+        "child_maximum_bound": 0.00016219582732182456,
+        "child_squared_excess": 3.868320936246218e-09,
+        "scope": "single_face_only_not_complete_edge_star_or_candidate_admission"
+      },
+      "best_closes_this_face": false,
+      "scope": "Independent face-only projections against incident singleton facet;shared-edge projections and complete volume/neighbor admissibility NOT proved. Do not sum adjacent-face probe gains."
+    },
+    {
+      "cell": 193494274,
+      "old_bound": 0.00222357434509303,
+      "old_squared_excess": 4.509567999137292e-06,
+      "longest_edge": {
+        "stage": "face_midpoint_probe",
+        "cell": 193494274,
+        "edge": 0,
+        "contains_children": true,
+        "length_squared": 2.6519343975847878e-05,
+        "child_maximum_bound": 0.0019481629728570016,
+        "child_squared_excess": 3.41570637423963e-06,
+        "scope": "single_face_only_not_complete_edge_star_or_candidate_admission"
+      },
+      "best_face_only_edge": {
+        "stage": "face_midpoint_probe",
+        "cell": 193494274,
+        "edge": 0,
+        "contains_children": true,
+        "length_squared": 2.6519343975847878e-05,
+        "child_maximum_bound": 0.0019481629728570016,
+        "child_squared_excess": 3.41570637423963e-06,
+        "scope": "single_face_only_not_complete_edge_star_or_candidate_admission"
+      },
+      "best_closes_this_face": false,
+      "scope": "Independent face-only projections against incident singleton facet;shared-edge projections and complete volume/neighbor admissibility NOT proved. Do not sum adjacent-face probe gains."
+    },
+    {
+      "cell": 193500415,
+      "old_bound": 0.002009545974500217,
+      "old_squared_excess": 3.6463658287299824e-06,
+      "longest_edge": {
+        "stage": "face_midpoint_probe",
+        "cell": 193500415,
+        "edge": 1,
+        "contains_children": true,
+        "length_squared": 2.04340116862983e-05,
+        "child_maximum_bound": 9.988164245241869e-05,
+        "child_squared_excess": 0,
+        "scope": "single_face_only_not_complete_edge_star_or_candidate_admission"
+      },
+      "best_face_only_edge": {
+        "stage": "face_midpoint_probe",
+        "cell": 193500415,
+        "edge": 1,
+        "contains_children": true,
+        "length_squared": 2.04340116862983e-05,
+        "child_maximum_bound": 9.988164245241869e-05,
+        "child_squared_excess": 0,
+        "scope": "single_face_only_not_complete_edge_star_or_candidate_admission"
+      },
+      "best_closes_this_face": true,
+      "scope": "Independent face-only projections against incident singleton facet;shared-edge projections and complete volume/neighbor admissibility NOT proved. Do not sum adjacent-face probe gains."
+    }
+  ],
+  "next_hypothesis": "Geometry-directed candidate choice/placement can matter;next assess existing complete M6 cavity controls including both physical faces. Do not restore a blanket construction merit veto:historical curved valid construction required omitting it. No production change selected from face-only results.",
+  "evidence_hashes": {
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/geometry_faces257_20261108T031129_2038858/geometry_faces_result.jsonl": "f6b1ecce01a6ae00755a208aa72ca6f6fa9c316dbf55719f55ddd5f5161593d5",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/geometry_faces257_20261108T031129_2038858/status.json": "01b3459f05b30a07204b332bf98e613edd6a9082ac33b04628e64c6ad4ea7e87",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/geometry_faces257_20261108T031129_2038858/terminal_handles.json": "94c62f4880b28ac02dbe1751e71df81c7d53dc01e9527302802be37dc94e5f64",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/geometry_faces257_20261108T031129_2038858/face_input_pins.json": "e449ee94901ea3512d47e3a92e7b8bde961ea075f286a94f8ed36a309a722753",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/geometry_faces257_20261108T031129_2038858/face_input_provenance.json": "d0d1213c26de34b685259d140c9485ab1e334d9953942a3a843758698ca4a3b3",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build256_canonical_geometry_debt_mach_only_real_cfd50k/geometry_residual_location.json": "d27b1873f2d1d59bd56363dfbc619bfdeb27254f99cfe0d1034f35428e75f88b",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build256_canonical_geometry_debt_mach_only_real_cfd50k/geometry_faces257_inputs_v1/preparation.json": "794ae1397ea4f9c56b0b07c9d10a4c7ddd516606e04be9a3f7716f9baed54bb7",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/build257_terminal_handles.json": "efce3040270f8122ceab463b5d5636a20fa29b1f1095ce20672c6a7ce3932639"
+  },
+  "limitations": "Missing current global skin,volume dependencies and original face/trace descriptors. Reconstructed local coverage reproduces all78errors;this does not prove complete cavity support,exact frozen metric at changed positions,geometry gate equivalence,neighbor q/J or replacement/publication. Production CFD binary byte-identical256."
+}

@@ -53,7 +53,7 @@ ONE pidfdSIGTERM sent only MPI1753220/start14514129 AFTER explicit first-event
 refusal and sealing. A256/owned_stop_once.json attempts1/signal_sent. ALL11exact
 recorded handles are absent:A256/terminal_handles.json. NEVER repeat stop or
 restart from old handles. Original-grid continuation after refusal was not adapted
-CFD. No heavy job now;source freeze released only after terminal host proof.
+CFD. Source freeze was released only after terminal host proof. Diagnostic257build/check below are now terminal;no heavy job remains.
 A256/terminal_assessment.json records actual result/unknowns. Completed read-only source survey geometry256_cycle_survey confirms existing
 MoveVertex/CollapseVertex/Reconnect repair paths,geometry-mode optimizer skip,
 blocked-feature exhaustion and construction frontier reset. No competing
@@ -70,6 +70,49 @@ and1520pins matched;sampled treeRSS9.71GB,available~30.1GB,diskfree10.801GB.
 No actual RAM pressure shown. Recheck load/RAM/disk before sustained computation.
 Native5400/outer14400,nice19/libs1/MPI6,hostcache4GiB/rank715827882 unchanged.
 One active connected cycle/one owned heavy workload. Fork pushes authorized.
+
+## ACTIVE residual geometry cycle — diagnostic257 TERMINAL PASSED
+
+Build257tool28014TERMINAL0/207.187881s,all1303pins unchanged,both targets up to
+ date. R/build257_terminal_handles.json:all5recorded host handles terminal;
+production CFD binary BYTE-IDENTICAL256(SHA061ad595711363a91e137c2ff6ccb07a6d8f2816e80f3950dd013567744f7d11).
+Only compiled change is test-only NativeGeometryResidualFaces3D in existing
+native_current219_witness.inc. No production correction selected after256yet.
+
+A256/geometry_residual_location.json:ALL78geometry-bad seeds paired against owned
+records,eachONEactualWING3Dface,NONE near genuine features.23seed cells lack final
+q/J;do not change final68unknown total. Face-center y.1012–.8228,sweptx=x-y/sqrt3
+.000071–.012747. Available neighbor865rows is NOT global support. Captured physical
+faces49301/68962;do NOT construct full current BoundaryParameterState from them.
+
+Existing PrivateParameters overlay on immutable original authority safely
+reconstructs LOCAL face coverage without claiming a full current boundary.
+Exact78cells/121boundarypoints/8probeIDs sealed in
+A256/geometry_faces257_inputs_v1/preparation.json. Successful HOST serial case
+geometry_faces257_20261108T031129_2038858:1case/1674assertionsPASSED57.644050s,
+allsource/runtime/input pins unchanged;tool51464TERMINAL0,all5hosthandles terminal.
+Earlier sandboxtool6834 failed MPI_Init sockets EPERM BEFORE TEST;preserved
+casegeometry_faces257_20261108T031043_2,terminal/no matchinghostdriver. Do not
+repeat successful check or mistake pre-test sandbox failure for a geometry bug.
+
+All78ContainsFace checks pass and ALL78recomputed excesses EXACTLY equal captured
+values. Canonical sum1.466890995618264e-5. Three changed construction faces account
+94.8785%of final excess.24single-face midpoint probes on8faces:all child containment
+valid;4have a direction closing BOTHchildfaces below1e-4. One edge raises bound
+.000517→.002151. Different directions/cross-patch projection matter. These are
+NOT complete edge-star proposals,neighbor q/J/body/contact/heights/dependencies or
+publication proof. Do NOT sum adjacent singleton-facet probe gains. Full evidence:
+A256/geometry_faces257_assessment.json;casegeometry_faces_result.jsonl.
+
+NEXT:assess existing SplitEdge on the ALREADY complete254current-cavity controls,
+including both incident physical faces and complete volume/neighbors,using the
+existing compound assessor. This is one bounded connected hypothesis,not baseline/
+perf/GDB/MPI campaign. Do not infer global current256support from partialshards.
+Construction exemption from surrogate-merit veto was an intentional improvement
+(7e24ddebb06;ADAPTATION_RUNTIME_HISTORY_20261028.md):do NOT blindly restore a blanket
+veto or introduce shape-aware construction. Geometry-directed candidate choice
+is still a hypothesis;no scheduler,newoperators,curvaturemetric or budget change.
+After one justified connected correction,qualify thenreturn full same-seed M6.
 
 ## Active correction and qualified evidence
 
@@ -132,7 +175,7 @@ L2projection differs from Lp objective. CAD remains optional.
 All1520pins verified after sealing BEFORE ONE pidfdSIGTERM to exact old
 MPI1274730/start13602153;owned_stop_once.json attempts1/signal_sent,all11old
 handles terminal. NEVER repeat this stop. Later original-grid CFD/adap-named
-files are not accepted/adapted proof. No254solver alive;256is the LIVE run above.
+files are not accepted/adapted proof. No254or256solver alive;both attempts are terminal.
 
 Latest meaningful saved mesh remains A254/inspection/rejected_mesh.vtu and.su2,
 150080points/741236tets,captured_nodal_metric9row-major PointData;

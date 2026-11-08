@@ -480,3 +480,89 @@ TEST_CASE("Current M6 boundary residuals assess existing collapse and retained-s
 
 TEST_CASE("Actual M6 geometry placement publishes complete curved stars with empty owners",
           "[.][NativeCurrentPlacementMPI3D]") {CapturedCurrentResidual(true,true);}
+
+TEST_CASE("Captured residual wing faces reproduce bounded certificates without a current volume gather",
+          "[.][NativeGeometryResidualFaces3D]") {
+  World world;REQUIRE(world.size==1);
+  const auto* cfg=std::getenv("SU2_NATIVE_FROZEN_CONFIG");REQUIRE(cfg);
+  const std::string config(cfg);const auto slash=config.find_last_of('/');REQUIRE(slash!=std::string::npos);
+  const auto directory=config.substr(0,slash+1);
+  auto bytes=Captured202Bytes(directory+"m6.su2.native_ref");
+  auto original=DecodeReference(std::string(bytes.begin(),bytes.end()));
+  REQUIRE(original.original);REQUIRE(original.original->Parameters());
+  auto cells=Captured202Rows<OwnedCell>(directory+"geometry_faces_owned.bin",416);
+  auto rows=Captured202Rows<BoundaryPoint>(directory+"witness_boundary_points.bin",72);
+  REQUIRE(cells.size()==78);
+  BoundaryPoints points;for(auto p:rows)REQUIRE(points.emplace(p.node.id,p).second);
+  std::map<Id,double> expected;Id id;double excess;
+  std::ifstream input(directory+"geometry_faces_expected.tsv");REQUIRE(bool(input));
+  while(input>>id>>excess){REQUIRE(std::isfinite(excess));REQUIRE(excess>0);REQUIRE(expected.emplace(id,excess).second);}
+  REQUIRE(expected.size()==cells.size());
+  std::set<Id> probes;std::ifstream selected(directory+"geometry_faces_probe_ids.txt");REQUIRE(bool(selected));
+  while(selected>>id){REQUIRE(expected.count(id));REQUIRE(probes.insert(id).second);}REQUIRE(probes.size()==8);
+  const size_t ceiling=size_t(2)<<30;
+  SU2NativeGeometry::AtlasBudget budget;budget.maximum_bytes=ceiling;
+  budget.maximum_work=transfer_memory::Mul(original.facets.size(),SU2NativeGeometry::MappedFacetReference::ClearanceWork);
+  budget.maximum_integer_bits=size_t(1)<<20;
+  budget.caller_bytes=transfer_memory::Add(original.original->ResidentBytes(),transfer_memory::Bytes(cells),
+      transfer_memory::Bytes(rows),size_t(64)<<20);
+  const auto* initial=original.original->Parameters();std::map<int,int> roles{{0,2},{1,0},{2,2}};
+  auto mobile=initial->Mobility().identity?std::shared_ptr<BoundaryParameterState>{}:
+      initial->WithMobilityPolicy(60,roles,budget,ceiling,budget.caller_bytes);
+  const auto* active=mobile?mobile.get():initial;
+  REQUIRE(active->Mobility().angle==60);REQUIRE(active->Mobility().roles==roles);
+  auto entity=active->WithEntityGeometry(1e-4,budget,ceiling,budget.caller_bytes);
+  auto reference=original.original->WithParameterState(entity);
+  budget.caller_bytes=transfer_memory::Add(budget.caller_bytes,entity->ResidentBytes(),reference->ResidentBytes());
+  REQUIRE(budget.caller_bytes<ceiling);
+  auto scope=reference->WithAtlasReservation(budget);REQUIRE(scope);
+  REQUIRE_FALSE(bool(std::ifstream("geometry_faces_result.jsonl")));
+  std::ofstream log("geometry_faces_result.jsonl");REQUIRE(bool(log));log<<std::setprecision(17)<<std::boolalpha;
+  const unsigned opposite[4][3]={{1,2,3},{0,3,2},{0,1,3},{0,2,1}};
+  for(const auto& row:cells) {
+    Patch patch;patch.cells.push_back(row.cell);std::array<Point,3> xyz{};SurfaceFace face;unsigned count=0;
+    for(unsigned slot=0;slot<4;++slot)if(row.physical[slot].present) {
+      ++count;face.facet=row.physical[slot].facet;
+      for(unsigned k=0;k<3;++k){const auto n=row.cell.v[opposite[slot][k]];face.v[k]=n.id;xyz[k]=n.p;
+        const auto p=points.at(n.id);REQUIRE(p.node.p.x==n.p.x);REQUIRE(p.node.p.y==n.p.y);REQUIRE(p.node.p.z==n.p.z);
+        patch.parameters.emplace(n.id,p);}
+    }
+    REQUIRE(count==1);REQUIRE(reference->Get(face.facet).marker==2);patch.surface.push_back(face);
+    const auto work=budget.work;const auto stats0=entity->Geometry().GeometryStatsSnapshot();
+    try {
+      // This overlay reconstructs face coverage only; it cannot admit a volume replacement.
+      auto context=scope->PrivateParameters(patch);REQUIRE(context);context->ExportParameters(patch);
+      const bool contained=context->ContainsFace(face.facet,xyz);CHECK(contained);
+      if(!contained){log<<"{\"stage\":\"baseline\",\"cell\":"<<row.cell.id<<",\"contained\":false}\n";continue;}
+      const double bound=context->SurfaceDeviation(face.facet,xyz,true),actual=std::max(0.,bound-1e-4);
+      REQUIRE(std::isfinite(bound));CHECK(std::abs(actual-expected.at(row.cell.id))<=1e-10);
+      const auto stats1=entity->Geometry().GeometryStatsSnapshot();
+      log<<"{\"stage\":\"baseline\",\"cell\":"<<row.cell.id<<",\"facet\":"<<face.facet
+         <<",\"contained\":true,\"bound\":"<<bound<<",\"excess\":"<<actual<<",\"captured_excess\":"<<expected.at(row.cell.id)
+         <<",\"work\":"<<budget.work-work<<",\"upper_work\":"<<stats1.upper_work-stats0.upper_work<<"}\n";log.flush();
+      if(!probes.count(row.cell.id))continue;
+      for(unsigned edge=0;edge<3;++edge)try {
+        auto trial=scope->PrivateParameters(patch);REQUIRE(trial);
+        const unsigned a=edge,b=(edge+1)%3;const Edge endpoints{face.v[a],face.v[b]};
+        Node midpoint{900000000+row.cell.id*3+edge,{double(((long double)xyz[a].x+xyz[b].x)/2),
+            double(((long double)xyz[a].y+xyz[b].y)/2),double(((long double)xyz[a].z+xyz[b].z)/2)}};
+        REQUIRE_FALSE(points.count(midpoint.id));
+        midpoint=trial->BindNewPoint(midpoint,{face.facet},&endpoints);
+        auto left=xyz,right=xyz;left[a]=midpoint.p;right[b]=midpoint.p;
+        const bool valid=trial->ContainsFace(face.facet,left)&&trial->ContainsFace(face.facet,right);
+        const long double dx=(long double)xyz[a].x-xyz[b].x,dy=(long double)xyz[a].y-xyz[b].y,dz=(long double)xyz[a].z-xyz[b].z;
+        std::ostringstream entry;entry<<std::setprecision(17)<<std::boolalpha;
+        entry<<"{\"stage\":\"face_midpoint_probe\",\"cell\":"<<row.cell.id<<",\"edge\":"<<edge
+           <<",\"contains_children\":"<<valid<<",\"length_squared\":"<<dx*dx+dy*dy+dz*dz;
+        if(valid){const double l=trial->SurfaceDeviation(face.facet,left,true),r=trial->SurfaceDeviation(face.facet,right,true);
+          REQUIRE(std::isfinite(l));REQUIRE(std::isfinite(r));
+          const long double dl=std::max(0.L,(long double)l-1e-4),dr=std::max(0.L,(long double)r-1e-4);
+          entry<<",\"child_maximum_bound\":"<<std::max(l,r)<<",\"child_squared_excess\":"<<dl*dl+dr*dr;}
+        entry<<",\"scope\":\"single_face_only_not_complete_edge_star_or_candidate_admission\"}\n";log<<entry.str();log.flush();
+      }catch(const std::exception& e){log<<"{\"stage\":\"probe_unresolved\",\"cell\":"<<row.cell.id
+          <<",\"edge\":"<<edge<<",\"reason\":"<<std::quoted(e.what())<<"}\n";log.flush();}
+    }catch(const std::exception& e){log<<"{\"stage\":\"baseline_unresolved\",\"cell\":"<<row.cell.id
+        <<",\"reason\":"<<std::quoted(e.what())<<"}\n";log.flush();CHECK(false);}
+  }
+  log.close();REQUIRE(bool(log));CHECK(budget.work<=budget.maximum_work);CHECK(budget.peak_bytes<=ceiling);
+}

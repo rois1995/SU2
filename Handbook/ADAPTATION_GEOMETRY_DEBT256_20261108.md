@@ -181,3 +181,32 @@ actual residual star/dependency closure from existing evidence/facilities;the
 truncated terminal capture alone cannot assert global completeness. Compare full
 physical-face debt/failed sets,associations/body/coverage,q/J/edges and neighbors
 to distinguish candidate limitation from debt reintroduced at construction.
+
+
+## Face-level residual257 diagnostic
+
+Build257passed207.187881s,all1303pins unchanged,allrecordedhosthandles terminal.
+ProductionCFDbinary byte-identical256;onlytestfixture changed. Successful host
+serialgeometry_faces257_20261108T031129_2038858passed1case/1674assertions/57.644050s,
+allsource/runtime/input pins unchanged,all5handles terminal. Earlier sandbox
+launch failed MPI_Init socketEPERM before test and is separately preserved.
+
+All78actualWING3Dfaces pass containment and reproduce captured excess EXACTLY
+using originalauthority+PrivateParameters with reconstructedlocalcoverage. All
+are near the swept leading edge (face-centers y.1012–.8228,x-y/sqrt3=.000071–.012747),
+none marked near genuinefeatures. Three changed construction faces account for
+94.8785%of terminal squared excess1.466890995618264e-5. This rules out stale reporting
+as the explanation for those values,but not conservative upper-bound looseness.
+
+24face-onlyprojectedmidpoint probes on8faces:allchildcontainment valid;4faces have
+a direction closingbothchildren below1e-4. Another split raises maximum bound
+.000517→.002151. Longestedge is not uniformlybest. Independent singleton-facet
+projections must NOT be combined as one shared-edge/cavity proposal. The next
+bounded test uses existing complete254currentcontexts and SplitEdge+wholepatch
+assessor,including otherincidentfaces andvolume/neighbors. No current256global
+starproof from truncatedshards. No production correction selected yet.
+
+Do NOT blindly restore the old entity-construction geometry-merit veto:its removal
+7e24ddebb06 was required by demonstrated valid curvedconstruction (runtimehistory
+20261028). Geometry-directed candidate selection is a hypothesis to test,not a
+blanket quality-aware construction or newgate. All finalstrict gates remain.
