@@ -32,6 +32,19 @@ original-grid proof, NOT adapted CFD or transfer. Source/build/input/runtimeFROZ
 NOstop marker, demonstratedfailure/resourcepressure or otherheavyjob. Let runfinish
 unless preserved evidence satisfies existing authorized stop/fix/retry conditions.
 No active sub-agent. Do not start another build/fixture/MPI campaign alongside it.
+Initial six-rank partition EXACT274 outside time fields (receipt initial_partition_equivalence274.json).
+First83complete groups through qualityentry23314 MATCH274 EVERY non-time/non-byte
+rankfield, count, flag and workcounter (quality_entry_equivalence274.json). Quality
+entrynative896.835554s vs274691.828611s:690715cells,27016q/27453J/1205localG/0size,
+ALLknown/flagscomplete. Timinghigher; no construction speedup claim. Awaitfirst
+qualitywindow and frozen outcome; cleanup not invoked. No source/binary/config/ownership policy change during this frozen attempt.
+Latestqualitywindow23424/native1312.035187s:703962cells,
+20201q/19573J/1144localG/0size, allmeasured/flagscomplete. Counts/traversalwork still
+MATCH274. Cumulative qremoval16.4138/s vs27418.2311/s; timingnotcausalspeedup.
+qsurface6456/interior13745;private_tracked_collectives0,stuckshape0,missingfeatures0.
+Earlierfirstwindow23360netq24.7879/s vs27426.6017/s. Passiveexact11handles allLIVE;
+sampledtreepeak13.937GB,MemAvailable~35GB,hostload8.57 atlastread. CPUincludesMPIspin.
+Source remains frozen; await outcome before any implementation change.
 
 Use R/analyze_m6278_frozen.py,analyze_m6278_quality.py andverify_m6278_initial.py.
 These reuse complete first-event census/counter facilities; no newbaseline/perf/GDB.

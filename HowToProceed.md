@@ -22,8 +22,12 @@ chord-deviation/outward rounding, retaining N=10 fallback. Source query now prov
 9.586e-5 within194957work/.659s; test-only278 also proves Both directions within
 442406totalwork/1.543s (including separate source query). No full-run speedup claim.
 [Certification design/evidence](Handbook/ADAPTATION_FINAL_CERTIFICATION_20261108.md).
-Serial qualification live, ONE MPI milestone next, then immediately fullsame-seed
-TWOeventM6. Both geometry directions, exact supports, holes/bodies/features/heights,
+Serial84cases/62994assertions and ONE MPI6 milestone118cases perrank PASSED.
+Qualified implementation2cf112b7ab and frozen startup ef1784d55e PUSHED. Fullsame-seed
+TWOeventM6 build278 is LIVE/FROZEN; exact handles inHANDOFF_Codex.md. Initial61330
+positions/22fields are BIT-IDENTICAL256/qualified254target, SENSOR_MACHonly.
+No competing implementation/build/check campaign; preserve the frozen attempt
+until its outcome or preserved authorized stopcondition. Both geometry directions, exact supports, holes/bodies/features/heights,
 resource budgets and import source-tube semantics are preserved. Do not add another
 cleanup/scheduler/metric-target campaign alongside this active correction.
 
@@ -51,7 +55,8 @@ publication/height qualification yet. Connected cleanup273 is built and pushed f
 synthetic test and is productionCFD byte-identical273. Focused qualification
 PASSED43685assertions/3cases. Connectedserial274 PASSED83cases/62978assertions and ONE MPI6 milestone PASSED
 117cases on everyrank. Fullsame-seed TWOeventM6 build274 is now terminal as detailed above.
-A274/owned_startup.json seals all1520pins and actual11ownedidentities/83libraries. Exporter still pins sources/helpers; keep them frozen until its verified terminal state; see HANDOFF_Codex.md for exact owned handles.
+A274/owned_startup.json seals all1520pins and actual11ownedidentities/83libraries. Exporter is terminal. Current full278run pins sources/helpers; see HANDOFF_Codex.md
+for exact owned handles.
 
 Correction273 adds ONE finite improvement-only raw-collapse opportunity at
 exhausted q/J repair with geometry/size/heights closed. Absolute fresh q/J, ordinary
