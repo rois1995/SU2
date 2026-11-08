@@ -38,11 +38,30 @@ EXACTLYONEpidfdSIGTERM sent to MPI860479/start21882642 afterexplicitrefusal+seal
 A283/owned_stop_once.json. NEVERrepeat seal_stop_m6283.py or anyhistorical stop.
 Main63535 TERMINAL1/5538.896861s,pins_verified=true,changed=[],workflow_accepted=false.
 All11actualHOSTownedidentities TERMINAL inA283/terminal_handles.json. Codefreeze
-from M6released; no newbuild/test/solver yet. Actual /proc/ps MUSTrequire_escalated:
+from M6released. TEST-ONLY build284 TERMINAL0/51.084s, allpinsunchanged,
+production CFD BYTE-IDENTICAL283; helper1109327/ninja1109359 verifiedabsent.
+TEST-ONLY284 directional diagnostics now BOTH TERMINAL0/allpinsunchanged/all5handles
+absent each; NO owned heavy workload live. Source case
+geometry_current_queries_20261108T233340_1112519:20Mwork exhausted,19.649Mtraversal/
+72.274s,query73.805s,81.8703%equal-facetparametercoverage (NOTphysicalarea or proof).
+Reverse case geometry_current_queries_20261108T233546_1117571:19,999,935work exhausted,
+15.307Mtraversal/121.810s,query193.060s; ALL53488rootfaces visited, then5249childdomains.
+Forward nested graphcoverage10.886Mwork/lift1.974M; reversecoverage5.582M/lift6.399M.
+These are NESTED within upper/traversalwork, never add overlapping counters.
+No outsideproof; both remain incomplete. R/certification284_direction_diagnosis.json
+and each direction_work_assessment.json seal actual work, caps, trace hashes and
+terminal receipts. Only CNativeAffineReference_tests.cpp changed; production CFD
+BYTE-IDENTICAL283, no productionAPI/config/operator changes or correction chosen.
+Hidden fixture legacy model_bound denotes reverse upper bound in reverse-onlymode;
+commandfilter/directionassessment disambiguates. No extra MPI milestone for this
+test-only diagnostic. Next analysis: reduce measured footprintcoverage work using
+existing supports/exact membership; reverse lift remains substantial too. Preserve
+all holes/seams/features/body/height/fullBoth gates and resource accounting.
+Actual /proc/ps MUSTrequire_escalated:
 sandboxabsence previouslycaused false terminal inference (corrected beforeaction).
 
 Qualifiedsource61db48895b PUSHED; lateststartup/progress checkpoint4c2f49a74c PUSHED.
-Full283terminal/stop/diagnosis nowLOCAL; pushreviewable checkpoint. CFD SHA
+Full283terminal/stop/diagnosis PUSHED fd9147dced. CFD SHA
 b885585c5229d67bb01929c5737d175d39d7949c7a098a0789ef960758a1204c; workflowtest_driver
 SHA d8057cf0e9bba284f16422c58312cf4b00525dda80310f538f12988311c6578d.
 ConfigSHA5ad2dc1d9a1cd8bff87f633617b191b50defbc261ab3d0b2ed0987a34722b89e.
@@ -52,13 +71,18 @@ CL.269535/CD.013536. Initialoriginal-grid proof only; noneadapted afterrefusal.
 Eight unchanged transfer/restartreadiness paths match actual283pins in
 A283/transfer_restart_readiness_reuse.json; sourceauditONLY, notruntimeproof.
 
-Current actualcapture is complete, suitable for bounded residualglobalquery export.
+Current actualcapture is complete. Prepared actual283thirdentity:37202reference/
+53488physicalfaces,69520totalphysicalfaces,736019rows; all raw hashes/coordinates
+verified by prepare_final283_entity2.py in14.310s. Query and provenance are in
+A283/final_certificate_entity2_v1. TEST-ONLY284adds source-only/reverse-only choices
+to the existing hidden fixture; no productionAPI/config/operator changes.
+Current actualcapture is suitable for bounded residualglobalquery export.
 Reuse prepare_final278_entity2.py for actual283thirdentity, then existingAPI source-
 only and reverse-only upper queries under same20Mwork/8GiB/600s caps. Need separate
 costs before productionchanges; reverse upper-only conservative refusal is NOT an
-outside proof. No newbaseline/perf/GDBcampaign. ExistingFullBoth hiddenfixture
-currently does separate source+Both or full-only; extend TEST-ONLY diagnostic mode
-ifnecessary, preserving productionCFD byte identity. One connectedcycle, no new
+outside proof. No newbaseline/perf/GDBcampaign. ExistingFullBoth hiddenfixture now also supports TEST-ONLY source-only and reverse-only
+modes; productionCFD byte identity verified. Reuse completed284evidence rather than
+repeating these queries. One connectedcycle, no new
 scheduler/config/representation/largercavity/quality-awareconstruction/gate orbudget
 change. Unproven containment/branch/phase-specificwitness ideas inbacklog, notchosen.
 
@@ -96,7 +120,8 @@ Actualquery STILL INCOMPLETE before reverse; no fullcertificate/capability claim
 later crossing/topology/coverage guards unchanged. ALL non-timequeryfields, counts,
 graphresults EXACT282. Preparation420.931→85.541s,totalquery518.812→182.754s;
 traversal97.881→97.212s. R/convexity283_bounded_comparison.json seals it.
-No fullM6 speedup established yet. Reverse cost and remaining6.77% are unmeasured.
+No fullM6 speedup established yet. Reverse cost and remaining6.77% were unmeasured on that older278query; current283
+directional diagnostics above are a DIFFERENT physicalmesh, not a timing baseline.
 
 Build283 TERMINAL0/49.216s, allpinsunchanged/handlesabsent. Probe TERMINAL0/249.056s,
 pinches/trueholes/storage/curves/cache/work controls passed; actual20Mproof incomplete.

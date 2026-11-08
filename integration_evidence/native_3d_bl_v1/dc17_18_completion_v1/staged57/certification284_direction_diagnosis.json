@@ -1,0 +1,368 @@
+{
+  "time": 1794181259.9909976,
+  "schema": "native_actual_final_direction_diagnosis_v1",
+  "actual_attempt": "euler_build283_pinched_graph_witness_mach_only_real_cfd50k",
+  "production_cfd_byte_identical_to283": true,
+  "test_only": true,
+  "directions": {
+    "model_to_mesh": {
+      "direction": "model_to_mesh",
+      "case": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/geometry_current_queries_20261108T233340_1112519",
+      "query": {
+        "queried": true,
+        "complete": false,
+        "within_tolerance": false,
+        "work": 20000000,
+        "seconds": 73.80549835400001,
+        "traversal_work": 19648884,
+        "traversal_seconds": 72.273800662,
+        "model_bound": -1,
+        "work_exhausted": true
+      },
+      "bound_key_caveat": "Legacy model_bound key denotes the reverse upper bound in reverse-only mode; -1 means no completed finite bound.",
+      "domains_by_depth": {
+        "0": 37202,
+        "1": 20380,
+        "2": 40260,
+        "3": 44638,
+        "4": 20876
+      },
+      "certified_domains_by_depth": {
+        "0": 28097,
+        "1": 4852,
+        "2": 14044,
+        "3": 15228,
+        "4": 8120
+      },
+      "source_items_seen": 37202,
+      "domain_work": {
+        "upper_work": 19064360,
+        "distance_work": 584480
+      },
+      "nested_graph_work": {
+        "calls": 66159,
+        "coverage_work": 10885795,
+        "lift_work": 1974151,
+        "coverage_1": 12302,
+        "coverage_0": 32124,
+        "coverage_2": 21733
+      },
+      "work_caveat": "Graph work is nested within domain upper_work; do not add them. The final interrupted query can have graph work without a completed domain line.",
+      "top_upper_work_domains": [
+        [
+          4541,
+          16391,
+          2,
+          0.0017581741626420387
+        ],
+        [
+          4016,
+          30211,
+          2,
+          0.0017613703167930596
+        ],
+        [
+          3653,
+          10851,
+          2,
+          0.0007245660566375384
+        ],
+        [
+          3652,
+          35710,
+          2,
+          0.001054213560963883
+        ],
+        [
+          3485,
+          35736,
+          2,
+          0.0010464557350885742
+        ],
+        [
+          3458,
+          29822,
+          2,
+          0.0009582007533177976
+        ],
+        [
+          3412,
+          35708,
+          2,
+          0.00106868414223333
+        ],
+        [
+          3398,
+          11045,
+          2,
+          0.0007708356582859736
+        ],
+        [
+          3321,
+          35728,
+          2,
+          0.0009323970734042789
+        ],
+        [
+          3314,
+          35734,
+          2,
+          0.0008949815734867905
+        ],
+        [
+          3231,
+          35685,
+          3,
+          0.0005512178583677328
+        ],
+        [
+          3141,
+          16415,
+          3,
+          0.0005617523221501543
+        ],
+        [
+          3112,
+          16397,
+          2,
+          0.0017254967451403311
+        ],
+        [
+          3101,
+          35710,
+          3,
+          0.0005221568728244633
+        ],
+        [
+          3077,
+          16397,
+          2,
+          0.0005958540335506741
+        ],
+        [
+          3055,
+          10821,
+          2,
+          0.0017424783784599008
+        ],
+        [
+          3053,
+          29891,
+          2,
+          0.00022592640783735446
+        ],
+        [
+          3046,
+          10711,
+          3,
+          0.0004206512282136607
+        ],
+        [
+          3043,
+          30261,
+          2,
+          0.0012013406402230262
+        ],
+        [
+          3038,
+          30031,
+          2,
+          0.0011057219163028828
+        ]
+      ],
+      "last_bounds": [
+        "NATIVE_SURFACE_BOUND model=1 queue=130526 depth=3 upper=0.00090443930564468214 lower=9.8054727258452319e-05 tolerance=0.0001 work=19855415",
+        "NATIVE_SURFACE_BOUND model=1 queue=131039 depth=3 upper=0.00089991565385284301 lower=9.8054727258452319e-05 tolerance=0.0001 work=19921049",
+        "NATIVE_SURFACE_BOUND model=1 queue=131726 depth=2 upper=0.00089498157348668391 lower=9.8054727258452319e-05 tolerance=0.0001 work=19987057"
+      ],
+      "pins": {
+        "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/geometry_current_queries_20261108T233340_1112519/run.log": "091fa4424b7181d9712e15cbc881f3f96e33bbea3e0133abd666dbca39525030",
+        "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/geometry_current_queries_20261108T233340_1112519/command.json": "1ece10b351d8aa6d0d1785661b432c6a421599aebafd108edccd2f7836a70e3e",
+        "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/geometry_current_queries_20261108T233340_1112519/status.json": "bd0a1a39dad9ff45fbcce2523688487d274a769e11b5d589f2941fcfd1c7d245",
+        "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/geometry_current_queries_20261108T233340_1112519/pins.json": "b50fbbad9bc5c107d56fb39edc0388882c3d28ff993b498abf845069d9a385f6",
+        "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/geometry_current_queries_20261108T233340_1112519/terminal_handles.json": "880ba40cb89a772d2b31951abdaa53cb9275d5f1b502085b6db60ebd383d460e",
+        "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/geometry_current_queries_20261108T233340_1112519/native_final_geometry_source_result.json": "0b32c11f61bc63fea7c6d97cfb7403ea1a2dd6a0e501fb170d82e3341536f2b7"
+      },
+      "full_mesh_accepted": false,
+      "coverage": 0.8187034635234665
+    },
+    "mesh_to_model": {
+      "direction": "mesh_to_model",
+      "case": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/geometry_current_queries_20261108T233546_1117571",
+      "query": {
+        "queried": true,
+        "complete": false,
+        "within_tolerance": false,
+        "work": 19999935,
+        "seconds": 193.06018897,
+        "traversal_work": 15307271,
+        "traversal_seconds": 121.809892232,
+        "model_bound": -1,
+        "work_exhausted": true
+      },
+      "bound_key_caveat": "Legacy model_bound key denotes the reverse upper bound in reverse-only mode; -1 means no completed finite bound.",
+      "domains_by_depth": {
+        "0": 53488,
+        "1": 5153,
+        "2": 96
+      },
+      "certified_domains_by_depth": {
+        "0": 30976,
+        "1": 2219,
+        "2": 22
+      },
+      "source_items_seen": 53488,
+      "domain_work": {
+        "upper_work": 15133140,
+        "distance_work": 174125
+      },
+      "nested_graph_work": {
+        "calls": 61644,
+        "coverage_work": 5581820,
+        "lift_work": 6398914,
+        "coverage_0": 41439,
+        "coverage_2": 20190,
+        "coverage_1": 15
+      },
+      "work_caveat": "Graph work is nested within domain upper_work; do not add them. The final interrupted query can have graph work without a completed domain line.",
+      "top_upper_work_domains": [
+        [
+          5711,
+          38206,
+          0,
+          0.0019931365678703484
+        ],
+        [
+          5653,
+          36407,
+          0,
+          0.0019931365678703484
+        ],
+        [
+          3902,
+          42875,
+          0,
+          0.00010562820440945285
+        ],
+        [
+          3796,
+          43247,
+          0,
+          0.00010088805661574149
+        ],
+        [
+          3750,
+          38387,
+          0,
+          9.891923698436202e-05
+        ],
+        [
+          3721,
+          21443,
+          0,
+          0.00010568762814003697
+        ],
+        [
+          3649,
+          46788,
+          0,
+          0.00010073451575359634
+        ],
+        [
+          3626,
+          40016,
+          0,
+          0.0001003935489314394
+        ],
+        [
+          3613,
+          43305,
+          0,
+          0.000125087036369111
+        ],
+        [
+          3593,
+          21263,
+          0,
+          0.00013344671408519078
+        ],
+        [
+          3585,
+          21216,
+          0,
+          0.00010648076607995803
+        ],
+        [
+          3578,
+          38347,
+          0,
+          0.00010198326557494622
+        ],
+        [
+          3574,
+          46065,
+          0,
+          0.0001008408819027634
+        ],
+        [
+          3518,
+          41512,
+          0,
+          0.00010023439739052972
+        ],
+        [
+          3491,
+          49466,
+          0,
+          0.00010199506190416065
+        ],
+        [
+          3478,
+          31552,
+          0,
+          0.00013935125882936635
+        ],
+        [
+          3475,
+          21248,
+          0,
+          0.00010064386080803688
+        ],
+        [
+          3465,
+          42683,
+          0,
+          0.00010060231910336471
+        ],
+        [
+          3463,
+          46762,
+          0,
+          0.00010161797144730565
+        ],
+        [
+          3402,
+          21540,
+          0,
+          0.00013069420276556833
+        ]
+      ],
+      "last_bounds": [
+        "NATIVE_SURFACE_BOUND model=0 queue=56068 depth=0 upper=0.011037771640788042 lower=9.5468150319249264e-05 tolerance=0.0001 work=19843733",
+        "NATIVE_SURFACE_BOUND model=0 queue=56719 depth=0 upper=0.010657795879323256 lower=9.5468150319249264e-05 tolerance=0.0001 work=19910583",
+        "NATIVE_SURFACE_BOUND model=0 queue=57187 depth=0 upper=0.010391550933673877 lower=9.5468150319249264e-05 tolerance=0.0001 work=19976202"
+      ],
+      "pins": {
+        "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/geometry_current_queries_20261108T233546_1117571/run.log": "22842e398e462114d1697d4a5ab890f19cc1234e89db95b4c6bf0c63828d787b",
+        "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/geometry_current_queries_20261108T233546_1117571/command.json": "9baf15422a2c9aa71758556ecba56ee696c7f438a6f4cee1496715e1bef19af2",
+        "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/geometry_current_queries_20261108T233546_1117571/status.json": "c592047dd5b857af8e7be98dcd85db5a1ab404b3e5bfafcb0222cd1ff7e3f29a",
+        "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/geometry_current_queries_20261108T233546_1117571/pins.json": "b50fbbad9bc5c107d56fb39edc0388882c3d28ff993b498abf845069d9a385f6",
+        "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/geometry_current_queries_20261108T233546_1117571/terminal_handles.json": "3405367b4712456599b5aac2b0c13e298f1128212b7ed573734e5e03e91c038a",
+        "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/geometry_current_queries_20261108T233546_1117571/native_final_geometry_source_result.json": "c7d4e67e4c178b5edc0d4149c3a4f17aff7916dc3d942fabd23cbfbbef45582b"
+      },
+      "full_mesh_accepted": false
+    }
+  },
+  "decision": "Both actual directions exceed20Mwork; forward traversal and reverse initial-face certification are expensive. No outside proof; no production correction chosen. Preserve current gates and cleanup; do not rerun an unchanged known-failing workflow solely as a baseline.",
+  "full_mesh_accepted": false
+}

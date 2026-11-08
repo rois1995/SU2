@@ -1,0 +1,42 @@
+{
+  "direction": "model_to_mesh",
+  "query": {
+    "queried": true,
+    "complete": false,
+    "within_tolerance": false,
+    "work": 20000000,
+    "seconds": 73.80549835400001,
+    "traversal_work": 19648884,
+    "traversal_seconds": 72.273800662,
+    "model_bound": -1,
+    "work_exhausted": true
+  },
+  "source_facets_seen": 37202,
+  "domains_by_depth": {
+    "0": 37202,
+    "1": 20380,
+    "2": 40260,
+    "3": 44638,
+    "4": 20876
+  },
+  "certified_domains_by_depth": {
+    "0": 28097,
+    "1": 4852,
+    "2": 14044,
+    "3": 15228,
+    "4": 8120
+  },
+  "certified_equal_facet_parameter_weight": "974637/32",
+  "certified_equal_facet_parameter_share": 0.8187034635234665,
+  "weight_caveat": "Equal original facet parameter area, not physical area or complete certificate.",
+  "last_bounds": [
+    "NATIVE_SURFACE_BOUND model=1 queue=130526 depth=3 upper=0.00090443930564468214 lower=9.8054727258452319e-05 tolerance=0.0001 work=19855415",
+    "NATIVE_SURFACE_BOUND model=1 queue=131039 depth=3 upper=0.00089991565385284301 lower=9.8054727258452319e-05 tolerance=0.0001 work=19921049",
+    "NATIVE_SURFACE_BOUND model=1 queue=131726 depth=2 upper=0.00089498157348668391 lower=9.8054727258452319e-05 tolerance=0.0001 work=19987057"
+  ],
+  "graphs": [
+    "NATIVE_SURFACE_MODEL pieces=0 witness=0 full=0 prepared=0 work=53488",
+    "NATIVE_SURFACE_PLANES triangles=53488 groups=33 accepted=7 invalid=1 storage_refused=0 boundary_trimmed=3 trimmed_triangles=53"
+  ],
+  "full_mesh_accepted": false
+}

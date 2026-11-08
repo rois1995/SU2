@@ -14,10 +14,13 @@ accepted mesh, transfer, adapted CFD or disk restart has occurred.
 The active blocker is final two-sided geometry certification SPEED. Three full
 queries consumed~720s/rank in the final quiet interval; traversal~622–640s dominates
 scope preparation~52–59s and facet preparation~24–40s. Earlier queries returning does
-not establish their bounds were within tolerance. Diagnose the current actual
-third entity separately in each direction using existing APIs, same20Mwork/8GiB/
-600s bounded diagnostic caps and complete283capture. Conservative upper-only
-refusal is not proof of physical geometry failure. No new baseline/perf/GDB campaign.
+not establish their bounds were within tolerance. Test-only284nowseparates the actual third entity in each direction, using existing
+APIs, same20Mwork/8GiB/600s caps and complete283capture. BOTH exhaust work without
+proof: forward traversal19.649M/72.274s; reverse15.307M/121.810s. Nested forward
+coverage10.886Mwork/lift1.974M; reversecoverage5.582M/lift6.399M. Do not add nested
+counters. All owned handles terminal; productionCFD byte-identical283. Reuse this
+evidence to choose one bounded existing-path certificate improvement, especially
+exact footprint coverage. Conservative upper-only refusal is not a physical failure. No new baseline/perf/GDB campaign.
 
 Preserve qualified283 graph-witness recovery, exact nonconvex early exit,277chord
 bounds and earlier construction/metric/ownership improvements. Select ONE connected

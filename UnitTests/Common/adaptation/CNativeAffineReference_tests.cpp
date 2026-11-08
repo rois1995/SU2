@@ -1794,7 +1794,10 @@ TEST_CASE("Interrupted surface certification preserves cache and releases query 
   CHECK(g.GeometryStatsSnapshot().memo_union_hits>0);
 }
 
-static void SavedFinalEntityCertification(bool measure_source) {
+enum class SavedGeometryProbe {SourceThenBoth, Both, Source, Reverse};
+static void SavedFinalEntityCertification(SavedGeometryProbe mode) {
+  const bool measure_source=mode!=SavedGeometryProbe::Both;
+  const bool reverse_only=mode==SavedGeometryProbe::Reverse;
   using namespace SU2Native3D;
   World world;REQUIRE(world.size==1);
   const auto* archive=std::getenv("SU2_NATIVE_TRANSACTION_REFERENCE");REQUIRE(archive);
@@ -1817,7 +1820,8 @@ static void SavedFinalEntityCertification(bool measure_source) {
   bool complete=false;double bound=INFINITY;std::string reason;
   const auto started=std::chrono::steady_clock::now();
   if(measure_source) {
-    try {bound=geometry->BoundModelSurface(support,physical,tolerance,budget).model_to_mesh;complete=true;}
+    try {bound=reverse_only ? geometry->BoundPhysicalSurface(support,physical,tolerance,budget) :
+        geometry->BoundModelSurface(support,physical,tolerance,budget).model_to_mesh;complete=true;}
     catch(const std::length_error& e){reason=e.what();REQUIRE(budget.work_exhausted);}
   }
   const auto source_work=budget.work;const auto source_stats=geometry->GeometryStatsSnapshot();
@@ -1827,6 +1831,9 @@ static void SavedFinalEntityCertification(bool measure_source) {
      <<",\"traversal_work\":"<<source_stats.traversal_work<<",\"traversal_seconds\":"<<source_stats.traversal_seconds
      <<",\"model_bound\":"<<(std::isfinite(bound)?bound:-1)<<",\"work_exhausted\":"<<budget.work_exhausted<<"}\n";
   source_log.close();REQUIRE(bool(source_log));
+  if(mode==SavedGeometryProbe::Source || reverse_only) {
+    INFO(reason);CHECK((complete||budget.work_exhausted));return;
+  }
   // Each query has its own unchanged cap; preserve the completed source stage before the full query.
   AtlasBudget full_budget;full_budget.maximum_bytes=size_t(8)<<30;full_budget.maximum_work=work;
   full_budget.maximum_integer_bits=size_t(1)<<20;full_budget.caller_bytes=decoded.original->ResidentBytes();
@@ -1850,6 +1857,11 @@ static void SavedFinalEntityCertification(bool measure_source) {
   CHECK((both_complete||full_budget.work_exhausted));
 }
 TEST_CASE("Saved complete M6 entity certification separates source traversal from preparation",
-          "[.][NativeM6FinalGeometry3D]") {SavedFinalEntityCertification(true);}
+          "[.][NativeM6FinalGeometry3D]") {SavedFinalEntityCertification(SavedGeometryProbe::SourceThenBoth);}
 TEST_CASE("Saved complete M6 full query diagnoses both directions without repeating the source probe",
-          "[.][NativeM6FullGeometry3D]") {SavedFinalEntityCertification(false);}
+          "[.][NativeM6FullGeometry3D]") {SavedFinalEntityCertification(SavedGeometryProbe::Both);}
+
+TEST_CASE("Saved complete M6 source-only query bounds current reference against current physical faces",
+          "[.][NativeM6SourceGeometry3D]") {SavedFinalEntityCertification(SavedGeometryProbe::Source);}
+TEST_CASE("Saved complete M6 reverse-only query bounds current physical faces against reference",
+          "[.][NativeM6ReverseGeometry3D]") {SavedFinalEntityCertification(SavedGeometryProbe::Reverse);}

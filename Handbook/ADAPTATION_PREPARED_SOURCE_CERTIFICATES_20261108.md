@@ -299,3 +299,40 @@ LOCALpendingcheckpoint; qualifiedsource61db48895b/startup4c2f49a74c pushed. Reus
 complete capture for bounded source/reverse API separation before selecting change.
 No newbaseline/perf/GDBcampaign, no raised20M/8GiB/600scaps. Actual reverse upper-only
 finite refusal may be conservative; never treat it asoutsideproof or completeBoth.
+
+## Current283 directional diagnosis284 — test-only, terminal
+
+Prepared actual283thirdentity from all736019sealed rows:37202reference facets,
+53488physical faces,69520totalphysical faces. Bit-exact coordinates/orientation,
+all30raw hashes and reference identity verified by prepare_final283_entity2.py;
+preparation14.310s. Do not reuse older278physical faces as current283input.
+
+Only the existing hidden test fixture changed: source-only/reverse-only modes
+reuse its parser and existing BoundModelSurface/BoundPhysicalSurface APIs. Build284
+passed51.084s, productionCFD byte-identical283. No production change/config/API.
+Each probe retains20Mwork/8GiB/600s and128MiBfilecap; no new baseline/perf/GDB campaign.
+Both probes terminal0/allpinsunchanged; all5actualhosthandles absent per probe.
+
+Source-only:20Mwork exhausted,query73.805s,traversal19.649M/72.274s; all37202facets
+visited,81.8703%equal-facet parameter area certified, NOTphysical area/partialacceptance.
+Nested graphcoverage10.886Mwork,lift1.974M. Last recorded unresolved upper~8.95e-4,
+lower9.8055e-5. These bounds do not establish physical failure or remaining volume.
+Reverse-only:19,999,935work exhausted,query193.060s,traversal15.307M/121.810s;
+all53488rootfaces plus5249childdomains visited. Nested graphcoverage5.582Mwork,
+lift6.399M. No complete finite bound, no outsideproof. Upper-only refusal must
+never substitute for mandatory finalBoth refinement/proof.
+
+Graphwork is nested within domain upperwork and traversalwork; do not add timers
+or counters. Separate processes/caches and a nowlessoccupiedmachine preclude
+claiming whole-run speedup from these seconds. Existing legacy JSON model_bound
+is the reverse upper bound in reverse-only mode; command filter plus explicit
+direction_work_assessment identifies it. -1 means no completed finite bound.
+R/certification284_direction_diagnosis.json seals provenance/results/costs.
+
+Confirmed next target remains certificate SPEED: finite-footprint coverage is
+especially expensive forward; reverse coverage and lifting also matter. Review
+existing exact membership/index support before selecting ONE production correction.
+Both directions must still complete under unchanged gates/budgets in full same-seed
+TWO-event M6. No production correction selected merely from this diagnostic; do not
+repeat the unchanged known-failing run solely for a baseline. Cleanup273 remains
+integrated/qualified but never executed in274/278/283; no global LEbenefit established.
