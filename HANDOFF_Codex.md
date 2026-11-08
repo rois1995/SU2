@@ -32,11 +32,11 @@ CFD-driver workers,not standalone CLI PIDs. Stop ONLY verified owned handles,
 only after preserved evidence satisfies existing authorized stop conditions.
 An observation timeout/stale log is NOT termination. Never restart from that alone.
 
-Latest observed complete window round24832,native3708.266594s:
-732892cells/0q-bad/0J-bad/447geometry-bad/0size-bad.
+Latest observed complete window round26112,native4406.013439s:
+733808cells/0q-bad/0J-bad/192geometry-bad/0size-bad.
 ALL cache/census/shape/geometry completeness flags true. No acceptance yet.
 NEW actual shape closure:allq/J/size zero;geometry_repair_entry24512 has775g,
-next complete24576has658g,and24832has447g withq/J/size stillzero. First pass exited24328with
+next complete24576has658g,and26112has192g withq/J/size stillzero. First pass exited24328with
 2q/0J/969g,then existing construction returned187q/202J/813g for reclosure.
 A256/shape_closure_geometry_repair_entry.json seals these transitions;
 geometry_only_progress_snapshot.json records later complete geometry-only windows. This
@@ -53,8 +53,8 @@ construction q/J or later phase frames for complete shape counts. First-event
 parsers are not by themselves second-event acceptance proof.
 
 ALL11identities/argv/cwd AND1520source/build/runtime/input pins match in
-A256/resumed_live_owned_receipt.json (this continuation). Sampled treeRSS9.19GB,
-MemAvailable~30.5GB,diskfree10.807GB,no demonstrated RAM pressure. Monitor disk;
+A256/geometry_phase_owned_receipt.json (latest verification). Sampled treeRSS9.71GB,
+MemAvailable~30.1GB,diskfree10.801GB,no demonstrated RAM pressure. Monitor disk;
 root/tmp unsuitable for scratch. Native5400/outer14400 unchanged,nice19/libs1,MPI6.
 Host cache4GiB,rankquota715827882bytes EXACT254. No competing heavy job or source edit.
 

@@ -66,8 +66,9 @@ and `staged57/m6_runs/euler_build254_conditioned_mach_only_real_cfd50k/terminal_
   certified/refined. This is a source fact, not authorization to add curvature
   demands or change metric normalization.
 - The corrected target improves the construction's starting shape substantially,
-  but the remaining closure blocker is now **repair power and admission**, not a
-  demonstrated need for another scheduling or geometry-speed project. Late
+  but build254 demonstrated a **repair/admission limitation** rather than a
+  need for another scheduling or geometry-speed project. Build256 has since
+  established shape closure; its remaining geometry outcome is still pending. Late
   optimizer commits can reduce debt while introducing more q-bad cells than they
   retire. Collapse/reconnect can make thousands of trials with no commits.
 - Earlier bounded cavity controls are partial evidence. They did exercise
@@ -77,29 +78,32 @@ and `staged57/m6_runs/euler_build254_conditioned_mach_only_real_cfd50k/terminal_
   publication. Guidance scores are not automatically equivalent to terminal
   geometry certificates. Do not infer production admission from those controls.
 
-## Next connected cycle
+## Finish the active cycle before choosing another
 
-1. Use actual254 residuals, not unchanged-input assumptions from247/251. Select a
-   small set of complete smooth-boundary and adjacent-volume cavities, including
-   shape-only, shape-plus-geometry and geometry-only cases, with clean neighbors.
-   Classify actual physical faces/reference associations, mobility and body/feature
-   constraints. Separate interior cells from cells whose vertices touch the wall.
-2. Reuse existing move, collapse, reconnection, retained-star optimizer and support
-   import facilities. Compare original-star controls against complete affected
-   contexts within existing bounds. Check the validator appropriate to the actual
-   phase, exact geometry authority/support, refreshed parameters, q/J churn,
-   geometry failures/excess, metric edges, point count and useful progress per
-   second. A positive primitive or lower local guidance score is insufficient.
-3. Test **one connected hypothesis** for the demonstrated residual limitation.
-   A combined surface/volume candidate may be necessary when separate operations
-   cannot leave a useful patch. Establish that it can be constructed and admitted
-   on the actual residuals before integrating it. Do not introduce another local
-   fallback merely because an easy fixture passes.
-4. Qualify the affected behavior with focused serial checks and one MPI6 milestone,
-   including curved seams, holes, separate bodies, genuine features, requested
-   heights, cached/recomputed results, resource exhaustion, conflicts, empty ranks,
-   dependency invalidation and complete publication. Then immediately run the full
-   same-seed two-event M6 attempt again under unchanged budgets.
+1. Keep full build256 frozen. Existing complete-census data now demonstrate true
+   q/J/size closure and entry into dedicated geometry repair, which build254 never
+   reached. Guarded construction can introduce shape failures; fresh complete
+   censuses must establish reclosure. Read the current handoff for the latest
+   counts and verified handles, rather than treating an earlier clean census as
+   the final result.
+2. Let its actual terminal outcome select the blocker. Preserve complete versus
+   partial census status, existing trial/rejection/work counters, source/runtime/
+   input pins and exact owned handles. Do not add another operator, speed campaign
+   or construction policy while this attempt runs. The canonical geometry-debt
+   correction and its focused/MPI qualification above are already complete.
+3. If the first event passes, verify strict native acceptance and actual
+   conservative transfer before publication, then finite adapted CFD and the
+   second accepted event. Preserve independently successful stages. After the full
+   owned workflow is terminal, perform the isolated actual adapted disk restart.
+4. If the attempt refuses, use its actual complete residual surface/adjacent-volume
+   cavities and existing counters to distinguish candidate/admission limitations,
+   conservative certification, useful work cost and construction delivery. Compare
+   complete affected patches and neighbors for q/J churn, physical-face failures/
+   excess, directional conformity, points and useful progress per second. Existing
+   global routes have now demonstrated shape closure: missing retained-star
+   orchestration is a conditional hypothesis, not an established requirement.
+   Select at most one demonstrated connected correction, qualify affected behavior
+   at the established cadence, then return immediately to same-seed full M6.
 
 Keep validity-first construction. Do not add q/J ranking or vetoes during it,
 a blanket minimum-edge gate, larger cavities, a scheduler, a geometry

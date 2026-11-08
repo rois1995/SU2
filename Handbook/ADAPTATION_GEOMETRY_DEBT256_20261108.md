@@ -128,3 +128,13 @@ early_quality_comparison254_assessment.json;do not extrapolate a terminal result
 All11owned identities/argv/cwd and1520pins still match in window2receipt.
 TreeRSS8.87GB,available~30.9GB,diskfree10.809GB;no actual resource pressure shown.
 Run stays frozen. All strict acceptance,transfer/adaptedCFD/disk/BL/RANS gates open.
+
+
+Frozen256 now demonstrates actual full shape/size closure and entry to existing
+dedicated geometry repair:24512/native3113.844530 has0q/0J/775g/0size;26112/
+native4406.013439 has0q/0J/192g/0size on733808cells,all completeness flags true.
+Guarded construction between these frames introduces shape failures and existing
+repair recloses them. No accepted event yet;geometry remains open. This is stronger
+than254shape closure,not proof that all geometric gates will close within budget.
+Missing retained-star orchestration is no longer an established prerequisite for
+shape closure. Latest live handoff/counters take precedence over this snapshot.
