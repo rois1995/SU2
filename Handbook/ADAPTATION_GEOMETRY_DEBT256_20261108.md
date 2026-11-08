@@ -138,3 +138,46 @@ repair recloses them. No accepted event yet;geometry remains open. This is stron
 than254shape closure,not proof that all geometric gates will close within budget.
 Missing retained-star orchestration is no longer an established prerequisite for
 shape closure. Latest live handoff/counters take precedence over this snapshot.
+
+
+## Terminal256 outcome
+
+First native event REFUSED on unchanged time budget. Final31454/native5340.832826
+has734280cells/78geometry/0size,with68q/J-unmeasured;final whole-field shape counts
+UNKNOWN. Last fully measured31442/native5338.745886 has734246/0q/0J/73g/0size.
+Late complete endpoints repeatedly alternate construction734280/78g/debt~1.466891e-5
+and repair734246/73g/~1.977194e-6. Matching counts/excess do not establish mesh
+identity. Existing routes prove shape closure;residual geometry/construction
+repair power/admission now drives the next bounded actual-cavity diagnosis.
+
+All30capture files sealed and1520pins unchanged BEFORE ONE pidfdSIGTERM to owned
+MPI1753220/start14514129. Tool10984TERMINAL1/5612.727731s;all11handles absent.
+Original-grid CFD after refusal is not adapted continuation. Capture is PARTIAL:
+584336/734280owned;rank2/rank5 hit file caps and rank4/rank5 shape incomplete.
+No complete256mesh export/global-star proof from these files. Latest complete
+saved inspection remains254. No extra baseline to fill capture. Preserve all
+partial/unknown evidence and verify support before actual-cavity tests. All strict
+acceptance/transfer/adaptedCFD/disk/BL/RANS obligations remain open.
+
+
+### Bounded terminal source survey
+
+No edits/builds/tests:existing geometry-only service uses MoveVertex and
+CollapseVertex/Reconnect;the metric optimizer is skipped in geometry mode
+(CNativeEngine3D.cpp4896–4978). This does not prove that enabling it would help:its
+metric/shape merit is not automatically a geometry-progress objective. Geometry
+guidance must strictly reduce complete canonical excess in dedicated repair
+(3662–3699);shape/size clean entry is2967–2974. Failed feature service blocks the
+feature;accepted service can requeue it while users remain (832–854). Construction
+return3002–3011 and phase reset2779–2814 rebuild the frontier. These mechanisms
+are consistent with the measured cycle,but do not prove repeated cavity identity
+or justify a scheduling/operator policy change.
+
+Existing capture_feature+transaction_observer provides the ACTUALLY selected
+feature,dependencies,old/fresh imported patch and rejection/certificate path
+(CNativeEngine3D.hpp117–118;cpp3596–3600,3644–3648,4086–4092,5402–5404). It is
+not an arbitrary forced-feature replay. Before using it,obtain one proven complete
+actual residual star/dependency closure from existing evidence/facilities;the
+truncated terminal capture alone cannot assert global completeness. Compare full
+physical-face debt/failed sets,associations/body/coverage,q/J/edges and neighbors
+to distinguish candidate limitation from debt reintroduced at construction.

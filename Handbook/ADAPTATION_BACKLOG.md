@@ -735,3 +735,12 @@ delivery/construction as its demonstrated blocker,compare existing split proposa
 and exact child-face certificates on representative actual complete cavities.
 Reuse support/certificates/budgets;no extra baseline campaign,mandatory curvature
 metric,quality-aware construction,min-edge gate or competing implementation now.
+
+
+- Demonstrated diagnostic limitation256:FileLimit128MiB truncates rank2/rank5
+  metrics/owned rows under current imbalanced ownership;only584336/734280cells
+  captured. Bad-first capture preserves residual seeds,but not guaranteed clean
+  neighbors/full mesh. Before a later meaningful inspection checkpoint,make
+  existing bounded capture preserve a complete mesh with explicit disk/work
+  accounting (reuse streaming/format facilities;do not silently raise production
+  budgets or infer complete support). No baseline rerun solely for capture.

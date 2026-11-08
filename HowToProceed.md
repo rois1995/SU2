@@ -25,7 +25,7 @@ Six complete contexts fit the existing64old-cell cap. Both bounded diagnostic
 checks are terminal and reproduce cached q/J and strict geometry counts/sums.
 
 ONE connected correction256passed58serial cases and99cases on EACH MPI6rank.
-The full same-seed two-event256M6 attempt is now RUNNING FROZEN:shared geometry guidance now uses the
+The full same-seed two-event256M6 attempt is TERMINAL REFUSED. Shared geometry guidance uses the
 canonical squared certified-face excess measured by the complete census. An
 actual raw contraction removes10q/8J failures andone failed physical face,
 reduces certified debt15%,keeps worst error unchanged and removesone point;
@@ -34,7 +34,8 @@ old area weighting nevertheless vetoes it. See
 Qualification is sealed;do not repeat it. Let the full attempt drive the next step.
 The scalar correction does not guarantee production reaches every bounded
 candidate;no new operator,support bound,scheduler,metric or gate was introduced.
-Read HANDOFF for actual live handles;all current256source pins remain frozen.
+All eleven owned handles are terminal after one preserved-evidence stop of the
+original-grid continuation. No heavy job remains; do not repeat that stop.
 
 The preserved recovery correction254 is integrated and qualified: the existing QR
 condition bound now applies to base quadratic Hessian fits, not only richer wall
@@ -78,32 +79,37 @@ and `staged57/m6_runs/euler_build254_conditioned_mach_only_real_cfd50k/terminal_
   publication. Guidance scores are not automatically equivalent to terminal
   geometry certificates. Do not infer production admission from those controls.
 
-## Finish the active cycle before choosing another
+## Finish the residual geometry cycle
 
-1. Keep full build256 frozen. Existing complete-census data now demonstrate true
-   q/J/size closure and entry into dedicated geometry repair, which build254 never
-   reached. Guarded construction can introduce shape failures; fresh complete
-   censuses must establish reclosure. Read the current handoff for the latest
-   counts and verified handles, rather than treating an earlier clean census as
-   the final result.
-2. Let its actual terminal outcome select the blocker. Preserve complete versus
-   partial census status, existing trial/rejection/work counters, source/runtime/
-   input pins and exact owned handles. Do not add another operator, speed campaign
-   or construction policy while this attempt runs. The canonical geometry-debt
-   correction and its focused/MPI qualification above are already complete.
-3. If the first event passes, verify strict native acceptance and actual
-   conservative transfer before publication, then finite adapted CFD and the
-   second accepted event. Preserve independently successful stages. After the full
-   owned workflow is terminal, perform the isolated actual adapted disk restart.
-4. If the attempt refuses, use its actual complete residual surface/adjacent-volume
-   cavities and existing counters to distinguish candidate/admission limitations,
-   conservative certification, useful work cost and construction delivery. Compare
-   complete affected patches and neighbors for q/J churn, physical-face failures/
-   excess, directional conformity, points and useful progress per second. Existing
-   global routes have now demonstrated shape closure: missing retained-star
-   orchestration is a conditional hypothesis, not an established requirement.
-   Select at most one demonstrated connected correction, qualify affected behavior
-   at the established cadence, then return immediately to same-seed full M6.
+Build256 established full shape/size closure and repeated reclosure. The last
+fully measured census has **734,246 cells, zero q/J/size failures and 73 geometry
+failures**. Its final construction return has **734,280 cells and 78 geometry
+failures**, but **68 cells lack final q/J measurements**. Final whole-field shape
+counts are unknown; no mesh is accepted.
+
+Late complete phase endpoints repeatedly alternate construction's 734,280 cells /
+78 geometry failures / squared certificate excess about1.466891e-5 and repair's
+734,246 / 73 / about1.977194e-6. Similar counts/excess do not prove identical mesh
+states. This is a measured residual geometry repair/construction limitation, not
+an established reason for a speed campaign or another scheduler.
+
+1. Read terminal256 evidence and existing source. Use actual residual geometry
+   cavities to distinguish inadequate candidates/admission, certification refusal,
+   association constraints and volume obstruction. Do not presume retained-star
+   orchestration is required: existing global routes now demonstrably close shape.
+2. Verify support before any bounded test. The diagnostic cap truncated rank2/5:
+   only584,336of734,280owned cells are saved. Bad rows were written first, but
+   missing clean neighbors can make apparent stars incomplete. No complete256mesh
+   export is available. Preserve partial/unknown status; the latest complete saved
+   inspection mesh remains254. Do not launch a new baseline merely to fill capture.
+3. Test ONE demonstrated connected hypothesis using existing operators, support,
+   certificates and accounting. Compare complete affected patches and neighbors
+   for q/J churn, physical-face failures/excess, directional conformity, points and
+   useful progress per second. Unproven alternatives remain in the backlog.
+4. Qualify affected behavior at the established cadence, then immediately return
+   to full same-seed two-event M6 under unchanged gates and budgets. Preserve any
+   independently accepted stage. After full workflow termination, verify the actual
+   adapted mesh/restart pair in a new isolated disk-restart continuation.
 
 Keep validity-first construction. Do not add q/J ranking or vetoes during it,
 a blanket minimum-edge gate, larger cavities, a scheduler, a geometry

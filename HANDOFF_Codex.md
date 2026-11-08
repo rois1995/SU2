@@ -18,52 +18,58 @@ R=`integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57`.
 A256=`R/m6_runs/euler_build256_canonical_geometry_debt_mach_only_real_cfd50k`.
 A254=`R/m6_runs/euler_build254_conditioned_mach_only_real_cfd50k`.
 
-## CURRENT — full256 two-event M6 RUNNING FROZEN
+## CURRENT — full256 TERMINAL REFUSED; residual geometry diagnosis
 
-Executing C++implementation42a3fedcc7;qualified/full-start checkpoint3b580b2a7e;
-fifth-census checkpointd27d6dc35e. GitHEAD may be a later metadata-only checkpoint.
-Tool10984 is LIVE (last poll returned running);A256/status.json running.
-Launcher1752458/start14512699,runner1752768/start14513409,
-time1753218/timeout1753219/MPI1753220 all start14514129.
-MPI test-driver workers1753223/1753224/start14514142;
-1753225/1753226/1753227/start14514143;1753228/start14514144.
-Exact11argv/cwd/identities:A256/owned_startup.json. These are actual integrated
-CFD-driver workers,not standalone CLI PIDs. Stop ONLY verified owned handles,
-only after preserved evidence satisfies existing authorized stop conditions.
-An observation timeout/stale log is NOT termination. Never restart from that alone.
+Frozen executing implementation42a3fedcc7; qualification/full-start3b580b2a7e.
+Metadata checkpoints include62cf31ac6c;later metadata HEAD does not change binary.
+First event refused on unchanged time budget;ZERO accepted events. Tool10984
+TERMINAL1/5612.727731s. A256/status.json pins_verified=true,changed=[].
 
-Latest observed complete window round26112,native4406.013439s:
-733808cells/0q-bad/0J-bad/192geometry-bad/0size-bad.
-ALL cache/census/shape/geometry completeness flags true. No acceptance yet.
-NEW actual shape closure:allq/J/size zero;geometry_repair_entry24512 has775g,
-next complete24576has658g,and26112has192g withq/J/size stillzero. First pass exited24328with
-2q/0J/969g,then existing construction returned187q/202J/813g for reclosure.
-A256/shape_closure_geometry_repair_entry.json seals these transitions;
-geometry_only_progress_snapshot.json records later complete geometry-only windows. This
-refutes assuming new retained-star orchestration is already necessary for shape
-closure;keep alternatives in backlog and wait for the actual terminal outcome.
-Geometry-only mode now active;old254never reached that matching stage.
-First-pass quality_progress/comparison254 must NOT be presented as live g-only data.
-Current counter files:A256/phase_recovery_progress.json,quality_progress.json,
-quality_counter_assessment.json,quality_comparison254.json. Read-only refresh:
-`nice -n19 python3 R/analyze_m6256_frozen.py` (expandR;source-prefix hashes checked).
-Comparisons use FIRST uninterrupted shape pass;ALL first-event phase transitions
-are separate in phase_recovery_progress.json. Do not substitute partial/unmeasured
-construction q/J or later phase frames for complete shape counts. First-event
-parsers are not by themselves second-event acceptance proof.
+Final31454/native5340.832826:734280cells/78geometry-bad/0size-bad;
+q/J measured on734212cells,68UNMEASURED. Final whole-field q/J counts UNKNOWN.
+Last fully measured31442/native5338.745886:734246cells/0q/0J/73geometry/0size,
+all cache/census/shape/geometry completeness flags true. Do not present this
+previous shape-clean field as final acceptance. Shape DID close and repeatedly
+reclosed,unlike254. Residual geometry did not close.
 
-ALL11identities/argv/cwd AND1520source/build/runtime/input pins match in
-A256/geometry_phase_owned_receipt.json (latest verification). Sampled treeRSS9.71GB,
-MemAvailable~30.1GB,diskfree10.801GB,no demonstrated RAM pressure. Monitor disk;
-root/tmp unsuitable for scratch. Native5400/outer14400 unchanged,nice19/libs1,MPI6.
-Host cache4GiB,rankquota715827882bytes EXACT254. No competing heavy job or source edit.
+Actual late cycle:construction returns734280cells/78geometry-bad/certified debt
+~1.466891e-5;repair returns734246/73/~1.977194e-6,withq/J/size zero in complete
+phase endpoints. These repeat with near-identical excess,not proven identical
+coordinates/connectivity. A256/late_geometry_cycle_assessment.json seals phase
+endpoints+log-prefix hashes. This identifies residual geometry repair/construction
+power/admission as next target,not speed alone. Do not add a scheduler/operator,
+larger supports,norm/complexity/curvature metric or quality-aware construction
+from this alone. Use actual residual cavities with verified complete support.
 
-NEXT:let frozen256finish unless demonstrated failure/bottleneck/actual resource
-pressure justifies authorized stop. Judge net WHOLE-FIELD q/J removal persecond
-alongside geometry-bad counts,useful counted work,CPU/wait and rank spread.
-Do not add overlapping timers,run a baseline/perf/GDB campaign,raise limits,
-start another scheduler/operator/metric/geometry/construction implementation.
-Preserve source and owned-handle proof before any later stop/fix/retry.
+A256/capture_ready.json seals ALL30rawfiles BEFORE ONE exact owned MPI stop;
+all1520source/build/runtime/helper/input pins matched. Capture PARTIAL:
+584336of734280owned rows;rank2/rank5 cap-truncated,rank4/rank5 shape incomplete.
+Final q/J cannot be reconstructed as known from zero cached failures. No complete
+256VTU or automatic complete-global-star claim from these shards. Bad rows were
+written first;missing clean neighbors remain a support-completeness risk. Keep
+latest complete saved mesh254. Do not rerun a baseline merely to fill capture.
+
+ONE pidfdSIGTERM sent only MPI1753220/start14514129 AFTER explicit first-event
+refusal and sealing. A256/owned_stop_once.json attempts1/signal_sent. ALL11exact
+recorded handles are absent:A256/terminal_handles.json. NEVER repeat stop or
+restart from old handles. Original-grid continuation after refusal was not adapted
+CFD. No heavy job now;source freeze released only after terminal host proof.
+A256/terminal_assessment.json records actual result/unknowns. Completed read-only source survey geometry256_cycle_survey confirms existing
+MoveVertex/CollapseVertex/Reconnect repair paths,geometry-mode optimizer skip,
+blocked-feature exhaustion and construction frontier reset. No competing
+implementation. Next verify complete residual support before one cavity test.
+
+Existing analyze_m6256_frozen.py reuses first-event counters. First-pass
+quality_progress/comparison254 cover ONLY the first uninterrupted shape pass;
+phase_recovery_progress and terminal_assessment cover later phases. No perf/GDB
+or baseline campaign. All complete endpoints,rank counters,exact source prefixes
+are preserved. First-event parsers alone do not establish two-event acceptance.
+
+Resource receipt A256/geometry_phase_owned_receipt.json:all11identities/argv/cwd
+and1520pins matched;sampled treeRSS9.71GB,available~30.1GB,diskfree10.801GB.
+No actual RAM pressure shown. Recheck load/RAM/disk before sustained computation.
+Native5400/outer14400,nice19/libs1/MPI6,hostcache4GiB/rank715827882 unchanged.
+One active connected cycle/one owned heavy workload. Fork pushes authorized.
 
 ## Active correction and qualified evidence
 
