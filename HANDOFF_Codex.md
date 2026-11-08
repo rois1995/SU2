@@ -31,6 +31,16 @@ all1520pins verified. Initial61330coordinates/22fields BIT-IDENTICAL256 and the
 qualified254target, Mach-only sensor; A271/initial_cfd_target_equivalence.json,
 initial_verifier_reuse.json,config_equivalence262.json. This is original-grid
 CFD/target provenance, NOT adapted CFD/transfer/acceptance proof.
+First TWO complete construction checkpoints match267: every non-time/non-byte
+rankfield, mesh counts/flags and compared work counters EXACT. Latestownership_staged
+round1627/native231.804496s:293202cells,2972geometry-bad,73682size-bad; q/J UNMEASURED.
+A271/first_construction_equivalence267.json seals prefix hashes/all1520pins verified.
+Subsequent22complete checkpoints match267counts/flags/comparedwork. Latest recorded
+length_split_exit round18686/native376.024317s:661010cells,3666geometry-bad,
+5129size-bad,q/JUNMEASURED. SeeA271/construction_progress_assessment.json and
+comparison267_matching_stages.json. No speedup/shapeclosure claim. Live receipt
+A271/first_construction_live_receipt.json confirmsall11identities, sampled whole-tree
+RSSpeak7.550500864GB/hostavailable40.476758016GB/load10.68; no resource stop condition.
 Then monitor complete q/J/geometry/size censuses/useful work, leave frozen unless
 preserved evidence meets existing authorized-stop conditions. On refusal, preserve
 actual raw mesh/metric/cavities before source changes. Full transfer/CFD/restart/
@@ -45,8 +55,9 @@ NEVER repeat this or run seal_stop_m6267.py. Source-backed native elapsed estima
 was>6103s against configured5400; no complete census for>2257s. No native event
 refusal/acceptance was observed before stop. This is an interrupted overrun,
 NOT a terminal refused-mesh census. Actual current mesh/state UNKNOWN/unexported.
-All11 exact wrapper/runner/MPI/solver identities host-ABSENT in
-A267/terminal_handles.json; sources may now be edited. No owned heavy job remains.
+All11 exact267wrapper/runner/MPI/solver identities host-ABSENT in
+A267/terminal_handles.json. That terminal receipt authorized268edits at that time;
+CURRENT271is now live and frozen.
 Whole owned-tree sampled peak16.045363200GB;individual3.139829760GB is NOTwhole peak.
 Host had31.34GB available at job3999.9s;stop was NOTfor RAM pressure.
 
@@ -73,7 +84,7 @@ published mesh so ordinary refusal capture can run after deadline expiry. Valida
 expired/unexpired/cached/recomputed behavior, geometry/feature/body/height gates,
 resource exhaustion and MPI6 empty-rank/private-join alignment. Then immediately
 return to full same-seed TWO-event M6. Primitive deadline checks are NOTcompletion.
-Deadline268–271 is ONE connected implementation, still UNQUALIFIED. Latest
+Deadline268–271 is ONE connected implementation, qualified271 below. Latest
 production270 fixes an early-vote regression: raw clock sampling only in PRIVATE
 votes; existing global time guards and sticky query-expiry votes remain. Actual
 FailureCapture completion is added to private-expiry test. Build270passed91.204566s,

@@ -1,4 +1,7 @@
-# Cooperative certification deadline — continuation268
+# Cooperative certification deadline — continuation268–271
+
+Current: qualified271; full frozen same-seed two-event M6 is LIVE. See
+HANDOFF_Codex.md for exact owned handles. No accepted M6 mesh yet.
 
 Missing capability: the unchanged native elapsed budget must remain effective
 inside a long private repair/certification attempt, and expiry must leave a clean
@@ -47,7 +50,8 @@ conservative admissible transfer, finite adapted CFD and actual isolated adapted
 disk restart remain mandatory, followed by dedicated BL/MPI and RANS500k.
 
 Implementation and caller review complete; focused expiry tests added.
-Local268changes are frozen in build268/tool88079; UNVALIDATED. See the current handoff for live state; historical handles never apply.
+The final271source is qualified by the serial/MPI evidence below; it is now
+frozen during the full M6 attempt. Historical268–270handles never apply.
 
 Implementation scope: AtlasBudget holds an optional rank-local deadline predicate,
 sticky expiry and amortized charged-work polling. Geometry APIs also poll on entry
@@ -67,6 +71,8 @@ private trial cancellation with empty ranks and rejected-state serialization.
 A bounded read-only second review found no additional actionable publication,
 empty-rank alignment or refusal-capture defect. This is source review, not runtime
 qualification. The build and runtime checks remain required.
+
+## Validation history (historical live-state statements)
 
 Build268 passed479.549747s with unchanged pins. Focused tests: initial startup
 failed53 (omitted osc=pt2pt), retry passed exact/cache tests but the distributed
