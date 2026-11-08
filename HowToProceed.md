@@ -93,23 +93,25 @@ Late complete phase endpoints repeatedly alternate construction's 734,280 cells 
 states. This is a measured residual geometry repair/construction limitation, not
 an established reason for a speed campaign or another scheduler.
 
-1. Read terminal256 evidence and existing source. Use actual residual geometry
-   cavities to distinguish inadequate candidates/admission, certification refusal,
-   association constraints and volume obstruction. Do not presume retained-star
-   orchestration is required: existing global routes now demonstrably close shape.
-2. Verify support before any bounded test. The diagnostic cap truncated rank2/5:
-   only584,336of734,280owned cells are saved. Bad rows were written first, but
-   missing clean neighbors can make apparent stars incomplete. No complete256mesh
-   export is available. Preserve partial/unknown status; the latest complete saved
-   inspection mesh remains254. Do not launch a new baseline merely to fill capture.
-3. Test ONE demonstrated connected hypothesis using existing operators, support,
-   certificates and accounting. Compare complete affected patches and neighbors
-   for q/J churn, physical-face failures/excess, directional conformity, points and
-   useful progress per second. Unproven alternatives remain in the backlog.
-4. Qualify affected behavior at the established cadence, then immediately return
-   to full same-seed two-event M6 under unchanged gates and budgets. Preserve any
-   independently accepted stage. After full workflow termination, verify the actual
-   adapted mesh/restart pair in a new isolated disk-restart continuation.
+1. Implement the ONE geometry-directed priority hypothesis in
+   `staged57/geometry_priority259_plan.json`. The bounded follow-through is complete:
+   all78facebounds reproduce exactly; a complete50cellcontrol has a useful
+   second-longest split while the longest addsq/Jfailures withoutgeometryprogress.
+   This justifies testing paired-face prediction, not a guarantee of closure.
+2. Use the COMPLETE runtime boundary state and fresh parameter overlays. Rank
+   existing late geometry-return candidates by net squared certificate excess
+   over both incident faces. Preserve all initial construction choices and every
+   gate. Unresolved ordinary geometry uses the existing priority fallback;
+   resource exhaustion must retain its hard stop. Keep the prediction phase-local,
+   account map/scratch storage and invalidate affected support exactly.
+3. First prove predicted two-face geometry changes match actual complete-edge
+   replacements on the already sealed14constructed controls. Singleton face gains
+   cannot be added as a shared-edge proposal. The truncated256capture remains
+   unsuitable for claiming complete global volume support or a full-mesh export.
+4. Qualify affected serial behavior and ONE MPI6 milestone, then immediately run
+   fullsame-seed two-eventM6 with unchanged gates/budgets. Verify actual accepted
+   meshes, conservative admissible transfer, finite adaptedCFD and isolated adapted
+   disk restart. Preserve independently accepted stages if a later obligation fails.
 
 Keep validity-first construction. Do not add q/J ranking or vetoes during it,
 a blanket minimum-edge gate, larger cavities, a scheduler, a geometry

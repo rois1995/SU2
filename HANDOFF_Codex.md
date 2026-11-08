@@ -53,7 +53,7 @@ ONE pidfdSIGTERM sent only MPI1753220/start14514129 AFTER explicit first-event
 refusal and sealing. A256/owned_stop_once.json attempts1/signal_sent. ALL11exact
 recorded handles are absent:A256/terminal_handles.json. NEVER repeat stop or
 restart from old handles. Original-grid continuation after refusal was not adapted
-CFD. Source freeze was released only after terminal host proof. Diagnostic257build/check below are now terminal;no heavy job remains.
+CFD. Source freeze was released only after terminal host proof. Diagnostic257and258build/checks are terminal;no owned heavy job remains.
 A256/terminal_assessment.json records actual result/unknowns. Completed read-only source survey geometry256_cycle_survey confirms existing
 MoveVertex/CollapseVertex/Reconnect repair paths,geometry-mode optimizer skip,
 blocked-feature exhaustion and construction frontier reset. No competing
@@ -71,7 +71,53 @@ No actual RAM pressure shown. Recheck load/RAM/disk before sustained computation
 Native5400/outer14400,nice19/libs1/MPI6,hostcache4GiB/rank715827882 unchanged.
 One active connected cycle/one owned heavy workload. Fork pushes authorized.
 
-## ACTIVE residual geometry cycle — diagnostic257 TERMINAL PASSED
+## ACTIVE residual geometry cycle — one priority correction selected, NOT IMPLEMENTED
+
+R/geometry_priority259_plan.json is the CURRENT connected production hypothesis.
+Do not start competing operator/scheduler/metric work. Next implement/qualify it,
+then IMMEDIATELY fullsame-seedM6;allacceptance/transfer/restart/BL/RANS obligations open.
+Build258tool58891TERMINAL0/207.196763s,all1303pins unchanged,all5recordedhandles
+terminal. ProductionCFDbinary byte-identical256. Focused HOST serialtool46564
+current_compound_20261108T032410_2072069 PASSED1case/43563assertions/102.522122s,
+allsource/runtime/input pins unchanged,all5hosthandles terminal. SAMEsealedcomplete
+A254/current_witnesses_v1 inputs;no current256global-support assumption. Only
+compiled change:test-onlyexistingfixtureordinarySplitEdge+wholecontextassessor.
+Current source has this validated test-only change;no production edit after256yet.
+
+R/complete_edge258_assessment.json:20completecoreboundaryedge trials,14constructed,
+6exactinversionrefusals. Onecomplete50cellcontrol174743936:edge18795-202090700
+removesphysicalbadface7→6,geometrybad7→6,debt7.6299890926e-7→7.6153322748e-7,
+q6/J4unchanged withZEROretirement/introduction,maxedge/maxerrorunchanged,points33→34.
+Replacement/interface/GeometryRefine guards pass. Longestedge18795-201969696 instead
+adds1q/1Jwithnogeometrygain. Otherconstructedchoices canraisegdebt8–9%;ordinary
+split/insertion feasibility is NOT guaranteed by a face prediction. Fullcase
+nonlocalcontact/publication andoriginalfrozenmetric atchangedpositions remainopen.
+
+ONE selected259change:ONLYgeometry-directedconstructionreturns(refine_geometry),
+prefer existingqueuededges by predictedNETcanonicalexcessreduction over BOTHactual
+incidentphysicalfaces from COMPLETE RUNTIME acceptedBoundaryParameterState. Fresh
+PrivateParameters,ALLincidentfacets,sameBindNewPoint(midpoint),ContainsFace before
+validatedbounds. No certificates reusedaspermission. A smallphase-localEdge→score
+map(notserialized) preservesrawCellState.geometry_scores/census;inactiveinitial
+construction staysEXACTlegacy. All queueinsert/erase sites mustuseeffectivepriority.
+Admitmap+transientbytesBEFOREallocation viaexistingadmit/AtlasStorage,propagate
+work/bit/byteexhaustion,checknative deadline between optionalprobes. Beneficial
+score(1,2];unresolved/nonimprovinglegacyfallback raw/(1+raw)∈[0,1),NEVERveto. Clear
+onChangePhase;verifyfullvertexDirectoryclaims/ServiceClaimedVertex retireall entries
+whoseincidentfaces/supportchangedbefore reuse,or explicitlyinvalidate. No new
+config/cachetier/operators/largercavities/scheduler/budgets/quality-awareconstruction.
+
+Production-point audit:actualM6composition isEMPTY becauseconfig.GetnAdap_BL()==0
+(CNativeRemesher3D.cpp349–372,721–726). full_target=1doesNOTimplynonnullcomposition.
+Skip predictor whencomposition oractualheightsnonempty becauseproductionthenuses
+BalancedSplitPoint/height handling. No case/Euler/RANS-label dispatch. CADoptional.
+Before fullqualification,require predictedtwofaceDELTA match ACTUALwholecontext
+SplitEdge delta on14complete258controls. Then focusedaffectedserial +ONE MPI6
+milestone(existing99selection+helperguards),thenfullsame-seedM6withunchangedgates.
+Construction exception from surrogate-meritveto wasintentional(7e24ddebb06);
+DO NOTrestoreblanketveto. Priorityprediction isnotcavityfeasibility orcompletion.
+
+### Completed diagnostic257
 
 Build257tool28014TERMINAL0/207.187881s,all1303pins unchanged,both targets up to
  date. R/build257_terminal_handles.json:all5recorded host handles terminal;
@@ -104,15 +150,8 @@ NOT complete edge-star proposals,neighbor q/J/body/contact/heights/dependencies 
 publication proof. Do NOT sum adjacent singleton-facet probe gains. Full evidence:
 A256/geometry_faces257_assessment.json;casegeometry_faces_result.jsonl.
 
-NEXT:assess existing SplitEdge on the ALREADY complete254current-cavity controls,
-including both incident physical faces and complete volume/neighbors,using the
-existing compound assessor. This is one bounded connected hypothesis,not baseline/
-perf/GDB/MPI campaign. Do not infer global current256support from partialshards.
-Construction exemption from surrogate-merit veto was an intentional improvement
-(7e24ddebb06;ADAPTATION_RUNTIME_HISTORY_20261028.md):do NOT blindly restore a blanket
-veto or introduce shape-aware construction. Geometry-directed candidate choice
-is still a hypothesis;no scheduler,newoperators,curvaturemetric or budget change.
-After one justified connected correction,qualify thenreturn full same-seed M6.
+Complete-edge258follow-through is recorded above. The source survey is complete,
+no agent remainsactive. All existing source/resource/frozenrun instructions persist.
 
 ## Active correction and qualified evidence
 

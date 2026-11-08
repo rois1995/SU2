@@ -410,6 +410,47 @@ static void CapturedCurrentResidual(bool compound,bool distributed=false) {
     if(compound) {
       const auto& core=owned.at(test.second);std::vector<unsigned> faces;
       for(unsigned slot=0;slot<4;++slot)if(core.physical[slot].present)faces.push_back(slot);
+      if(current_capture && !distributed) {
+        // Complete core vertex stars also contain every dependency of their boundary edges.
+        std::set<Edge> edges;
+        for(unsigned slot:faces)for(unsigned k=0;k<3;++k) {
+          Edge e{core.cell.v[opposite[slot][k]].id,core.cell.v[opposite[slot][(k+1)%3]].id};
+          std::sort(e.begin(),e.end());edges.insert(e);
+        }
+        REQUIRE(edges.size()<=6);
+        for(const auto& edge:edges) {
+          Owned ring;std::map<Id,Node> nodes;
+          for(const auto& row:owned) {
+            unsigned count=0;for(Node n:row.second.cell.v){nodes.emplace(n.id,n);count+=n.id==edge[0]||n.id==edge[1];}
+            if(count==2)ring.insert(row);
+          }
+          REQUIRE_FALSE(ring.empty());REQUIRE(ring.size()<=MaximumCavityCells);
+          auto seed=patch_from(ring);scope->ExportParameters(seed);
+          const auto a=nodes.at(edge[0]).p,b=nodes.at(edge[1]).p;
+          const Node midpoint{900000000,{double(((long double)a.x+b.x)/2),double(((long double)a.y+b.y)/2),double(((long double)a.z+b.z)/2)}};
+          Patch fresh;std::string why;const auto started=std::chrono::steady_clock::now();
+          const bool constructed=SplitEdge(seed,edge,midpoint,800000000,*scope,fresh,why);
+          log<<"{\"stage\":\"complete_boundary_edge_split\",\"case\":"<<std::quoted(test.first)
+             <<",\"edge\":["<<edge[0]<<','<<edge[1]<<"],\"ring_cells\":"<<ring.size()
+             <<",\"constructed\":"<<constructed<<",\"reason\":"<<std::quoted(why)
+             <<",\"seconds\":"<<std::chrono::duration<double>(std::chrono::steady_clock::now()-started).count()<<"}\n";log.flush();
+          if(!constructed)continue;
+          Owned joined=owned;for(const auto& row:ring)joined.erase(row.first);
+          std::map<Face,Id> physical;for(auto f:fresh.surface){std::sort(f.v.begin(),f.v.end());physical.emplace(f.v,f.facet);}
+          for(const auto& c:fresh.cells){OwnedCell row;row.cell=c;
+            for(unsigned slot=0;slot<4;++slot){Face key;for(unsigned k=0;k<3;++k)key[k]=c.v[opposite[slot][k]].id;
+              std::sort(key.begin(),key.end());auto f=physical.find(key);if(f!=physical.end())row.physical[slot]={true,f->second};}
+            REQUIRE(joined.emplace(c.id,row).second);}
+          REQUIRE(joined.size()<=MaximumReplacementCells);
+          auto proposed=patch_from(joined);proposed.parameters=complete.parameters;proposed.coverage=complete.coverage;
+          for(const auto& p:fresh.parameters)proposed.parameters.insert_or_assign(p.first,p.second);
+          for(const auto& p:fresh.coverage.faces)proposed.coverage.faces.insert_or_assign(p.first,p.second);
+          for(const auto& p:fresh.coverage.traces)proposed.coverage.traces.insert_or_assign(p.first,p.second);
+          retain_coverage(proposed);std::set<Id> retired;for(const auto& row:owned)retired.insert(row.first);
+          const std::string label="complete_edge_split_"+std::to_string(edge[0])+"_"+std::to_string(edge[1]);
+          assess(joined,retired,complete,proposed,midpoint.id,label.c_str(),false);
+        }
+      }
       // Collapse/retained-star trials above apply to all cores; shelling requires two physical faces.
       if(faces.size()!=2)continue;
       REQUIRE(faces.size()==2);

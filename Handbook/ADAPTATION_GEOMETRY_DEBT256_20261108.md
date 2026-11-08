@@ -210,3 +210,32 @@ Do NOT blindly restore the old entity-construction geometry-merit veto:its remov
 7e24ddebb06 was required by demonstrated valid curvedconstruction (runtimehistory
 20261028). Geometry-directed candidate selection is a hypothesis to test,not a
 blanket quality-aware construction or newgate. All finalstrict gates remain.
+
+
+## Complete-patch follow-through258 and selected259hypothesis
+
+Build258passed207.196763s,all1303pins unchanged,both targets up-to-date,allowned
+recordedhandles terminal. ProductionCFDbinary byte-identical256. Onefocusedserial
+current_compound_20261108T032410_2072069passed43563assertions/102.522122s,allpins
+unchanged/all5handles terminal. No repeatedMPI/baseline campaign. Existingcomplete
+254contexts avoid inferring current256support frompartialcapture.
+
+20corephysicaledgeSplitEdge trials:14constructed,6inversionrefusals. Onlyone
+constructedchoice strictlyreducesgeometry withoutq/Jchurn:complete50cell174743936
+edge18795-202090700physicalbadfaces7→6,g7→6,debt7.6299890926e-7→7.6153322748e-7,
+ZEROq/Jretirement/introduction(q6/J4remain),maxedge/maxerrorunchanged,points33→34.
+Longest18795-201969696insteadadds1q/1Jwithnogeometryprogress. Otherchoicesraise
+gdebt8–9%. Wholepatchreplacement/interface/GeometryRefine pass for theuseful
+choice;globalcontact/publication/originalfrozenfield trialpositions are notproved.
+
+Selected ONEconnected259hypothesis,NOTIMPLEMENTEDyet:use bothincidentface
+geometryprediction toprioritize existinggeometryqueue ONLYon geometry-directed
+returns. Preservevalidity-firstconstruction,initiallegacychoices,repairfairness,
+fullvertex/dependency/publicationgates andallbudgets. No blanketmeritveto.
+R/geometry_priority259_plan.json specifieshelperprojectionequivalence,fresh
+parameters,allincidentfaces,transient/mapmemoryadmission,stickywork exhaustion,
+phase-localinvalidations andpredicted-vs-ACTUALcompleteSplitEdge delta checks.
+Useactivephysicalcomposition/heightstate:actualM6compositionempty;full_target1
+isnot proof ofnonnullcomposition. Skip predictor whereactualproductioninput
+usesBalancedSplitPoint/heightcomposition. Qualifyaffectedserial+ONEMPI6milestone,
+thenIMMEDIATEfullsame-seedM6. No acceptedmeshes/transfer/adaptedCFD/disk/BL/RANSyet.
