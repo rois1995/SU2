@@ -1,0 +1,32 @@
+{
+  "time": 1794103111.0463746,
+  "scope": "Read-only readiness during frozen256;NOT runtime transfer/restart evidence or completion. No solver/helper/source edits and no additional CFD/test job.",
+  "precision_options": {
+    "enable-mixedprec": false,
+    "enable-singleprec": false
+  },
+  "verified_pinned_sources": {
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/SU2_CFD/src/adaptation/CConservativeTransfer.cpp": "9da510e846516899f222b5421d72e09fd05d89e978f8d592c02003c63604fee2",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/SU2_CFD/src/adaptation/CDistributedProjection.cpp": "b651e393ee2897167a45c990c214ae2c77a602444361813970fa5620bf3944bb",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/SU2_CFD/src/adaptation/ConservativeKernels.cpp": "e81a533c852898a39fa15889ad7bf7d0cb5571baae8a16ef42d892dc722634d9",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/Common/include/adaptation/TransferTolerances.hpp": "8cb439e27283c910e1fba102427f6455771eb5ae384cd69bdca4366cf94a89ca",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/SU2_CFD/src/drivers/CSinglezoneDriver.cpp": "911b97ae0c16fcfb1650155094330b17061441e92dc365295036db37f2bc92cb",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/meson-info/intro-buildoptions.json": "3403b6121ccf9db6b53ac6e518be249dfef43f7777476cd0993179ba7d72d127",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/run_m6.py": "c5c624b678ca042997fb76411aa464df6897e0ea18448debd85ca79947fb40bc",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/run_m6_seed.py": "bd28c237f6cacf9664429ef956b274e686fdc60c3430ac06199fa2dc9802ad30"
+  },
+  "runtime_transfer_verified": false,
+  "disk_restart_verified": false,
+  "required_runtime_evidence": {
+    "native": "Every rank strict q/J/geometry/edge/requested-height acceptance and actual event-specific outputs.",
+    "mass_solve": "Parse EACH field/time-level true residual from conservative-P1 table,not the configured CG tolerance;finite and<=1e-10. ConservativeKernels.cpp:454-457 enforces true CV-mass residual;CDistributedProjection.cpp:1434-1448 checks all fields.",
+    "target_integral_and_admissibility": "Distributed CConservativeTransfer.cpp:997-1038 and serial:1275-1302 enforce all transferred states admissible and scaled TARGET-integral defect<=1e-12 BEFORE array publication. Confirm actual path completed in the event. Report numerical target defects only if actually exposed;old/new domain integral changes and post-CFD integrals are not that measurement.",
+    "continued_cfd": "Actual adapted Cycle1/2 solves and event-specific history;independently verify saved matching-grid coordinates,finite conserved fields,positive density/internal energy.",
+    "disk_restart": "After owned workflow is terminal,pin/copy actual accepted mesh+.native_ref+matching restart into a NEW isolated directory. Use explicit final checkpoint basename,SOLUTION_FILENAME distinct from RESTART_FILENAME,ADAP_LOOP=NO,RESTART_SOL=YES,READ_BINARY_RESTART=YES. Run actual same-binary/runtime CFD continuation;validate disk input/output identity and admissible continued state. No original-grid substitute."
+  },
+  "known_limits": [
+    "run_m6.py workflow_accepted only checks ordered stage markers,finite old/new domain integral changes,mesh outputs and following history;not sufficient alone for strict transfer or isolated restart acceptance.",
+    "PrintSummary reports true mass residuals but not numerical final target-integral defects;successful hard-gate execution must be distinguished from observed numerical values.",
+    "Steady isolated restart does not fix resumed adaptation-loop cycle numbering/input-overwrite or rejected-event consumption."
+  ]
+}
