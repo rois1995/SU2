@@ -25,8 +25,9 @@ Focused retry passed3cases/49assertions. Connected269serial found an early refus
 270restricts raw-clock sampling to private votes and tests actual refusal export;
 production270 built and early refusal passes. Full export fixture needed its
 existing scratch admission; build271 passed and focused7cases/107assertions pass,
-including actual12-cell refused-mesh export. Serial271/tool59043 is frozen;
-MPI6/full M6 pending. Do not edit pinned sources.
+including actual12-cell refused-mesh export. Serial271 passed81cases/62880assertions;
+ONE MPI6 passed115cases perrank. Full same-seed TWO-event M6 build271/tool18445
+is now running; see handoff for exact owned handles. Do not edit pinned sources.
 Read the handoff for source/build/handle provenance.
 
 The latest complete saved mesh remains build262's734315-cell terminal refusal.

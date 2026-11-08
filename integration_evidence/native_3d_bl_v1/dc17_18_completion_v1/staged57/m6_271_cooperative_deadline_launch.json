@@ -1,0 +1,31 @@
+{
+  "state": "running",
+  "started_at": 1794143619.4828286,
+  "runner_wrapper": {
+    "pid": 3560024,
+    "start_ticks": 18805290
+  },
+  "attempt": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build271_cooperative_deadline_mach_only_real_cfd50k",
+  "argv": [
+    "/usr/bin/python3",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/run_m6.py",
+    "build271",
+    "euler_build271_cooperative_deadline_mach_only_real_cfd50k",
+    "2",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_inputs/euler_original_force_seed_v1",
+    "--inspect-rejected"
+  ],
+  "source_commit": "45a9315aad5e25e44ace7fef2823f8afd50bcaa4",
+  "sensors": [
+    "MACH"
+  ],
+  "loadavg": "6.48 5.85 4.71 1/4622 3560297\n",
+  "mem": {
+    "MemAvailable": 41833574400,
+    "SwapFree": 20787200
+  },
+  "disk_free_bytes": 24425115648,
+  "mpi_scratch": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/compile-tmp/m6-deadline271-ot80k135",
+  "launcher_sha256": "6d3230e6fcb3c3f9e09e893c331bee3bb712a88ee1112afcd1c77a2258504fe3",
+  "scope": "Full same-seed Mach-only L1/50k TWO-event M6; unchanged gates/native5400/outer14400; bounded raw refusal capture, no per-trial VTU export."
+}

@@ -98,3 +98,13 @@ Build271 passed83.170987s; CFDbyte-identical270, allpinsunchanged, allhandles
 terminal. Focused271 passed7cases/107assertions4.762013s, including the established
 early refusal contract and complete12-cell FailureCapture after private expiry.
 Connected serial271 now running/tool59043; MPI6/fullM6 still pending.
+
+Connected serial271 passed81cases/62880assertions161.564077s, all pins unchanged,
+allhandles terminal. ONE MPI6 milestone launched/tool8594 with41.75GB host available
+and load2.80. FullM6stillpending.
+
+ONE MPI6 passed115cases on EACHrank183.956574s, allpinsunchanged/all10ownedhandles
+terminal. R/deadline271_qualification.json seals focused/serial/MPI plus actual
+source/runtime/helper/input provenance. Full same-seed TWO-event M6 launched
+(tool18445/A271). Read HANDOFF_Codex.md for actual owned handles. Allpinned code/
+helpers/binary/runtime/input/config frozen. No accepted M6 mesh yet.

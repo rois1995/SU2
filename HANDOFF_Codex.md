@@ -13,7 +13,30 @@ R=`integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57`.
 A267=`R/m6_runs/euler_build267_coupled_geometry_repair_mach_only_real_cfd50k`.
 A262=`R/m6_runs/euler_build262_compact_capture_mach_only_real_cfd50k`.
 
-## CURRENT — 267 INTERRUPTED FOR PRESERVED DEADLINE OVERRUN; NO LIVE HEAVY JOB
+## CURRENT — FROZEN271 FULL SAME-SEED TWO-EVENT M6 LIVE
+
+A271=`R/m6_runs/euler_build271_cooperative_deadline_mach_only_real_cfd50k`.
+Tool18445 RUNNING; wrapper3560024/start18805290, runner3560298/start18805912,
+time3560610/start18806491,timeout3560611 andMPI3560612/start18806492,
+solver3560616–3560621/start18806526–18806528. ALL11exact identities verified in
+A271/owned_startup.json. DO NOT stop historical handles or edit ANY pinned sources,
+helpers,binary/runtime/config/inputs. No competing build/test/heavy job.
+QualificationR/deadline271_qualification.json PASSED: focused7/107, serial81/62880,
+ONE MPI6 115cases EACHrank; allpinsunchanged and allqualificationhandles terminal.
+ProductionCFDsha3449cdaf260c7e2014ba1d465b0b94fafd2fe0da7c5c183823acc13aa374093e.
+Mach-onlyL1/50k,savedrealCFDseed,native5400/outer14400 unchanged. StartupMem41.83GB,
+load6.48; actualrunresource receipts inA271. TWOevents requested, bounded raw
+refusalcapture enabled; no per-trial VTU. Sourcecommit45a9315aad. Actualconfig byte-identical262/SHA5ad2dc1d9a1cd8bff87f633617b191b50defbc261ab3d0b2ed0987a34722b89e;
+all1520pins verified. Initial61330coordinates/22fields BIT-IDENTICAL256 and the
+qualified254target, Mach-only sensor; A271/initial_cfd_target_equivalence.json,
+initial_verifier_reuse.json,config_equivalence262.json. This is original-grid
+CFD/target provenance, NOT adapted CFD/transfer/acceptance proof.
+Then monitor complete q/J/geometry/size censuses/useful work, leave frozen unless
+preserved evidence meets existing authorized-stop conditions. On refusal, preserve
+actual raw mesh/metric/cavities before source changes. Full transfer/CFD/restart/
+BL/MPI/RANS obligations remain below. Metadata/qualification push pending.
+
+## PREVIOUS267 — INTERRUPTED FOR PRESERVED DEADLINE OVERRUN
 
 Main tool68708 TERMINAL1/6225.642871s,all1520pins unchanged. Stoptool2384terminal0:
 ONE pidfdSIGTERM to exactMPI3159077/start17805236, after sealing eight log/resource
@@ -61,11 +84,10 @@ admission corrected. Build271 TERMINAL0/83.170987s, CFD BYTE-IDENTICAL270, all p
 owned handles terminal. Focused271cases/deadline_serial_20261108T130603_3540056
 PASSED7cases/107assertions/tool23147terminal0: includes actual full12-cell export
 after expiry and early refusal contract. All prior failures retained.
-Connected serial271 RUNNING tool59043 viaR/deadline271_validate.py serial.
-Sources/helpers FROZEN; get exact case/host handles from output/status before
-nextjob. ONE MPI6 and full same-seed TWO-event M6 still pending. Do not reuse old
-269focused/267qualification for current sources. Latest pushed WIP2bee93a0ac;
-subsequent regression fix/test admissions/evidence are being checkpointed.
+Connected serial271 PASSED81cases/62880assertions161.564077s; ONE MPI6 passed
+115cases EACHrank/183.956574s; allpinsunchanged/allhandles terminal. Full same-seed
+TWO-event M6 launched asCURRENT271above. Latest pushed45a9315aad; currentqualification/
+launch metadata beingcheckpointed.
 
 [Current coupled design/evidence](Handbook/ADAPTATION_COUPLED_REPAIR266_20261108.md).
 [Deferred hypotheses](Handbook/ADAPTATION_BACKLOG.md): proposal old-connectivity
