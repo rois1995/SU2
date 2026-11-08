@@ -28,8 +28,13 @@ refused for branched boundaries. Offline reproduction now tests whether these ar
 grouping artifacts; keep strict graph validation. The exact offline diagnostic finds3/4pinches on the largegroups with manifold
 fullsurface links. One exclusion removes10/9optional-witness triangles and clears
 boundary degree defects.282 replaces281metadata with a one-shot strict-validator
-retry on that subset; ALL original triangles remain in complete support. Building,
-unqualified. See handoff for handles/freeze; no competing implementation.
+retry on that subset; ALL original triangles remain in complete support. Its actual20Mtrace certifies93.23% parameter coverage (before70.35%) but remains
+incomplete.283 adds a classification-preserving early exit after nonconvexity is
+proved; all non-timequerydecisions match282, while preparation drops421→86s. Serial
+qualification passed86cases/63018assertions; ONE MPI passed120cases on eachrank. Qualifiedcheckpoint and immediate fullsame-seedM6
+under originalgates/budgets. Full20Mdiagnostic remains incomplete; native fullgeometry
+acceptance is still mandatory.
+See handoff for handles/freeze; no competing implementation.
 [Current design/evidence](Handbook/ADAPTATION_PREPARED_SOURCE_CERTIFICATES_20261108.md).
 Select further work from this actual query, qualify affected serial and ONE MPI
 milestone, then immediately return to full same-seed TWO-event M6. Keep all gates,

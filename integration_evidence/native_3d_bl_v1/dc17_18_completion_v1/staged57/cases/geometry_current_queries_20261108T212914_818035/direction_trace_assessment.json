@@ -1,0 +1,59 @@
+{
+  "schema": "native_bounded_final_direction_trace_v1",
+  "source_log_sha256": "fb7ee4e8f624f1538f2ac3939fc199ccb861baef772297455fa505e3a1ab2e92",
+  "log_bytes": 105050091,
+  "domain_counts": {
+    "('1', 0)": 37202,
+    "('1', 1)": 13284,
+    "('1', 2)": 23952,
+    "('1', 3)": 35600,
+    "('1', 4)": 58636,
+    "('1', 5)": 16422
+  },
+  "certified_counts": {
+    "('1', 0)": 33015,
+    "('1', 1)": 3710,
+    "('1', 2)": 8104,
+    "('1', 3)": 9159,
+    "('1', 4)": 21381,
+    "('1', 5)": 8357
+  },
+  "source_facets_seen": 37202,
+  "certified_equal_facet_parameter_weight_fraction": "35516201/1024",
+  "certified_equal_facet_parameter_share": 0.9323098231025886,
+  "weight_caveat": "Equal reference-facet parameter area, not physical area or a complete certificate.",
+  "last_bounds": [
+    "NATIVE_SURFACE_BOUND model=1 queue=145886 depth=4 upper=0.00042911235836775354 lower=9.7778589365579978e-05 tolerance=0.0001 work=19860132",
+    "NATIVE_SURFACE_BOUND model=1 queue=146945 depth=4 upper=0.00042590825198336957 lower=9.7778589365579978e-05 tolerance=0.0001 work=19925690",
+    "NATIVE_SURFACE_BOUND model=1 queue=147980 depth=4 upper=0.00042222766318629593 lower=9.7778589365579978e-05 tolerance=0.0001 work=19991328"
+  ],
+  "graphs": [
+    "NATIVE_SURFACE_PLANES triangles=607712 groups=1784 accepted=1511 invalid=5 storage_refused=0 boundary_trimmed=29 trimmed_triangles=906",
+    "NATIVE_SURFACE_MODEL pieces=607712 witness=607712 full=1 prepared=198418208 work=4173985",
+    "NATIVE_SURFACE_PLANES triangles=53406 groups=36 accepted=6 invalid=1 storage_refused=0 boundary_trimmed=3 trimmed_triangles=33"
+  ],
+  "reverse_reached": false,
+  "classification_decisions_match282": true,
+  "query": {
+    "source_queried": false,
+    "complete": false,
+    "within_tolerance": false,
+    "support_facets": 37202,
+    "physical_faces": 53406,
+    "work": 20000000,
+    "full_work": 20000000,
+    "query_work_cap": 20000000,
+    "source_work": 0,
+    "both_complete": false,
+    "both_within_tolerance": false,
+    "reverse_bound": -1,
+    "both_model_bound": -1,
+    "seconds": 182.753903834,
+    "traversal_work": 15528820,
+    "traversal_seconds": 97.212461834,
+    "model_bound": -1,
+    "work_exhausted": false,
+    "full_work_exhausted": true
+  },
+  "full_mesh_accepted": false
+}

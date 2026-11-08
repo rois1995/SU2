@@ -816,11 +816,13 @@ PlanarReference::PlanarReference(std::vector<Facet> input, size_t ceiling, std::
     }
     if (valid) border = StraightBorders(border, nodes);
     bool convex=true;
-    for (auto edge : border)
+    for (auto edge : border) {
       for (Id id : vertices) {
         const auto side = Projected(nodes.at(edge[0]).p, nodes.at(edge[1]).p, nodes.at(id).p, axis, nullptr);
-        if ((sign > 0 && side < 0) || (sign < 0 && side > 0)) convex=false;
+        if ((sign > 0 && side < 0) || (sign < 0 && side > 0)) {convex=false;break;}
       }
+      if(!convex)break;
+    }
     if(!convex && valid)for(size_t i=0;i<border.size();++i)for(size_t j=0;j<i;++j) {
       const auto a=border[i],b=border[j];
       const auto p=PlaneCoordinates(nodes.at(a[0]).p,axis),q=PlaneCoordinates(nodes.at(a[1]).p,axis);

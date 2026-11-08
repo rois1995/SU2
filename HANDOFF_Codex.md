@@ -14,7 +14,7 @@ R=`integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57`.
 A278=`R/m6_runs/euler_build278_source_chord_certificate_mach_only_real_cfd50k`.
 A274=`R/m6_runs/euler_build274_metric_cleanup_mach_only_real_cfd50k`.
 
-## CURRENT — build278 TERMINAL REFUSED; 282 bounded trace LIVE/FROZEN
+## CURRENT — build278 TERMINAL REFUSED; 283 QUALIFIED; fullsame-seedM6 launch NEXT
 
 ZERO accepted meshes. A278 first native event REFUSED on elapsed-time budget.
 Exit24869/native5336.347948825s:734914cells,0q/0J/0LOCALgeometry/0size, ALLmeasured/
@@ -41,49 +41,69 @@ source→mesh versus mesh→source before selecting another correction. Existing
 chordbound advanced beyond the firstquery but didNOTcomplete final certification.
 Do not claim full capability or isolated downstreamspeedup. No budgets/gates raised.
 
-279/280/281builds/probes TERMINAL,allpinsunchanged/handlesabsent. LatestPUSHED
-5250e9b531 preserves terminal278 and281UNQUALIFIED candidate. ZERO accepted meshes.
-281 actualquery stillEXHAUSTED20M, controls passed197476assertions/3cases. Bounded
-worktrace70.3478%→71.7166% certified equal-facet dyadic parameter share, no reverse,
-no demonstrated closure speedup; queue/worstbound tradeoff and metadata cost remain.
-R/prepared_domain281_bounded_comparison.json. Do NOT qualify that variant by counts.
+LatestPUSHEDbf8e47ad38 preserves282 strict optional-witness candidate and bounded
+failures/diagnosis. 279/280/281/282builds+probes TERMINAL/allpinsunchanged/handlesabsent.
+281metadata candidate REPLACED, not layered. Its matched20M coverage gain70.35→71.72%
+was insufficient;282returned to qualified277source plus one-shot graph retry.
 
-Stronger confirmedcause: optional physicaltarget projectiongroups21230/21103faces
-refused for branched boundary. Exact offline reproduction finds3/4branch vertices,
-ALL manifold cyclelinks in fullphysicalsurface. One incident-face exclusion removes
-10/9triangles and clears degree/edge-use defects. Other3927groupclears after14;
-7109groupstillbranched after48. Fullfootprint/coverage notproven offline. A278 has
-entity2_buildplanes_graph_diagnostic.json and entity2_buildplanes_branch_exclusion.py/.json.
-No other activeagent; helperboundedoffline, no C++/solver/build fromagent.
+282 full-only trace tool28308 TERMINAL0/533.852s,allpinsunchanged/5ownedhandlesabsent:
+casegeometry_current_queries_20261108T211658_779719. Query stillEXHAUSTED20M before
+reverse, NOTfullcertificate. Exactdisjoint equal-facet dyadic parameter-area coverage
+93.23098231% versus28070.34779086%, NOTphysicalarea. Remainingqueue~148k versus295k,
+worstupper.0004222 versus.0006970. Physicaltarget6accepted/1invalidgraph(3trimmed,
+33omittedwitnessfaces); reference1511accepted/5invalid(29trimmed,906omitted). Full
+originalsupport remains. direction_trace_assessment.json seals allcounters/results.
+This is substantial boundedcoverage progress, NOTclosure or speedup. Timecostrose:
+query518.812s,traversal97.881s,preparation~420.93s. CPUreceipt325.24user/335.91elapsed
+atmidquery proves little descheduling, not absence of memory/hostcontention.
 
-Build282 TERMINAL0/85.264s,pinsunchanged; helper744433/ninja744508 absent.
-CFDSHA6de0b795c7ea6707ac07b71cd038d7c7bae22469ab88eb6d90c69c295e456775.
-Probe282 TERMINAL0/396.892s,pinsunchanged/all5handlesabsent. Pinch/realhole/storage
-and curved/cache/work controls passed, but actualfullquery EXHAUSTED20M again:
-330.292s,15528820traversalwork/88.957s. No fullcertificate or speedup established.
-ONE ownedheavyjob: trace_final282_entity2.py tool28308, same actualinput/full-only
-20M/8GiB/600s/128MiB existingtrace, no repeatedcontrols/sourceprobe. Determine
-useful covered area and direction before qualification; prep/traversal extra cost
-must be weighed, not merely recovered graph counts. C++/binary/helpers FROZEN.
-282 REPLACES279/281sourcevariants
-with qualified277 plus ONE optional-footprint correction in BuildPlanes. On refused
-graph, omit original boundary-branch-incident faces from OPTIONALjoinedwitness and
-retry UNCHANGED strictFinitePlaneReference ONCE. Every original triangle remains in
-completeDistance/index/singletriangleupper support; holes notfilled. Mapping/lift
-faces onlykept; re-refusal fallsbackoriginaltraversal. No persistentmetadata increase;
-transientmaps/vectors fullyadmitted2048bytes/face plus existingtemporary/retained,
-workcharged. No gate/config/scheduler/CAD/geometryrepresentation/metric/construction
-change. No speedup/fullcertificate yet. Read
-[design/evidence](Handbook/ADAPTATION_PREPARED_SOURCE_CERTIFICATES_20261108.md).
+Build283 TERMINAL0/49.216s,pinsunchanged; helper812520/ninja812636 absent.
+CFDSHAb885585c5229d67bb01929c5737d175d39d7949c7a098a0789ef960758a1204c.
+Probe283 TERMINAL0/249.056s,allpinsunchanged/5ownedhandlesabsent.
+casegeometry_current_queries_20261108T212914_818035; strictcontrols passed.
+assess_final283.py VERIFIED allnon-timequeryfields/domaincounts/graphresults EXACT282,
+93.23098231% coverage; stillEXHAUSTED20M BEFOREreverse. Query518.812→182.754s,
+preparation420.931→85.541s,traversal97.881→97.212s. No fullcertificate or mesh yet.
+R/convexity283_bounded_comparison.json seals comparison.
+Serial TERMINAL0/212.587s,86cases/63018assertions,allpinsunchanged; helper832315/
+time832784/timeout832785/test832786/orted832787 ABSENT.
+MPI6 TERMINAL0/241.121s,120cases perrank,allpinsunchanged/all10ownedhandlesabsent.
+Qualification R/certification283_qualification.json SEALED: implementation behavior
+and boundedactualprogress ONLY; actual_saved_entity_certificate_complete=false.
+No heavyjoblive atthisreceipt; fullsame-seedM6 launchimmediatelyafterqualifiedpush.
+C++/binary/helpers
+FROZEN through serial/MPI and subsequentfullM6. ONLY Common/src/adaptation/
+CNativeBoundary3D.cpp changes from282: break convexity classification loops atfirst
+exactcounterexample. Existing code continued ALL boundary-edge/vertex pairs after
+proving nonconvex, costly for large recoveredfootprints. All subsequent crossing,
+topology and coverage validation remains; classification identical.282graphretry
+unchanged, no prepared-domain metadata. C++/binary/helpers FROZEN throughbuild/check.
+Verifyactualterminalhandles before edits. No otheractiveagent/heavyworkload.
 
-C++/binary/buildhelpers FROZEN through build/check. Verifyactualterminalhandles
-before edit. Current trace_final282_entity2.py runs sameactualthirdentity full-only
-20Mwork/8GiB/600s plus pinchedpositive/realhole/storage and existingcurved/cache/
-resource controls. If actualevidence supports it, affectedserial+ONE MPI milestone,
-thenIMMEDIATELY fullsame-seed TWOeventM6. No competingcycle/perf/GDB/baseline.
-Actualinput A278/final_certificate_entity2_v1,37202reference/53406physicalfaces.
-Current282source/test changes LOCAL/UNQUALIFIED; retain281history in5250e9b531.
-No transfer/adaptedCFD/isolatedadaptedrestart proof. All strict gates/budgets unchanged.
+Current probe_final283_entity2.py combines existing boundedtrace WITHalready-required
+pinch/truehole/storage,curved/cache/work controls to avoid a separate repeatquery.
+Samefull-onlyactualthirdentity37202reference/53406physicalfaces,20Mwork/8GiB/600s/
+128MiBfilecap. No budget/gate raise or baseline/perf/GDB. Check non-time query
+coverage/decisions against282 and prepCPU/wall. Full20Mquery is EXPECTEDincomplete
+because283onlyskips uncharged, classification-irrelevant predicates; do NOT invent
+fullproof. Strong282boundedcoverage plus affectedserial+ONE MPI milestone justifies
+return to fullsame-seed TWOeventM6 underUNCHANGED nativebudgets/finalBoth gate.
+Requiring complete20Mpreflight indefinitely would replace the actual target loop.
+Qualifier/launcher must explicitly preserve incompleteactualquery result and certify
+only changed implementation behavior, NEVER wholemesh acceptance. No fullM6 launch
+before serial+MPI checks and actualhandles terminal. Prepared283qualification explicitly records this bounded scope; check
+assess_final283.py against actual282counts/graphs/allnon-timequeryfields (ignore
+controlrecords before actual607712MODELmarker). Then certification283_validate.py
+serial and mpi6, qualify_certification283.py(probe,serial,mpi dirs),launch_m6283.py.
+Qualifier pins actualstandaloneCFDSHA against buildreceipt, never marks incomplete
+query complete. FullM6launchername euler_build283_pinched_graph_witness_mach_only_real_cfd50k.
+
+Read [design/evidence](Handbook/ADAPTATION_PREPARED_SOURCE_CERTIFICATES_20261108.md).
+No configuration/scheduler/CAD/geometryrepresentation/metric/constructionpolicy change.
+All strictgates/budgets/transfer/continuedCFD/actualadaptedrestart obligations remain.
+ZEROacceptedmeshes; no transfer/adaptedCFD/restartproof. Current283earlyexit LOCAL/
+UNQUALIFIED;282source checkpointbf8e47ad38 pushed. BuildCFD282 SHA
+6de0b795c7ea6707ac07b71cd038d7c7bae22469ab88eb6d90c69c295e456775.
 
 Same REAL savedCFDseed, Mach-onlyL1/50k; initial61330coords/22fields BIT-IDENTICAL
 256/qualified254target, SENSOR_MACHonly. Sourcefreeze preserved through terminal.

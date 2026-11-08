@@ -788,8 +788,8 @@ minimum-edge gate. Existing deadline refusal remains fail-closed.
 
 ###281 final-certificate alternatives (unproven; not another active cycle)
 
-Prepared-domain reuse is the active candidate. If its actual-query evidence is
-insufficient, inspect whether TriangleUnion::Upper early exit at the full tolerance
+Prepared-domain reuse was assessed and replaced by the283optional-witness/early-exit
+change; its gain was modest. If the actual fullM6 outcome still warrants it, inspect whether TriangleUnion::Upper early exit at the full tolerance
 leaves too little allowance for a source chord's rigorously added error; requesting
 a tighter witness might reduce conservative refusals but has no demonstrated work
 saving. Do not change tolerance or bypass exact coverage.

@@ -219,3 +219,57 @@ storage control passed. ActualBoth query still exhausted20M,330.292s; traversal
 optional footprints alone do not establish speedup. Same capped full-only existing
 trace now determines useful coverage/direction (no repeatedcontrols/source probe).
 No broad qualification or M6 launch yet; source/helpers/binary/inputs frozen.
+
+## Terminal282 trace and connected283 preparation fix
+
+533.852s TERMINAL0/allpinsunchanged/allownedhandlesabsent. At20Mwork exact certified
+coverage93.23098231% equal-facet dyadic parameter area (28070.34779086%). Source
+queue~148k/worstupper.0004222 vs~295k/.0006970. Reverse NOTreached; fullcertificate
+INCOMPLETE. Physical graphs6accepted/1invalid;3one-shot recoveries omit33witness
+triangles. Model1511accepted/5invalid;29recoveries omit906witnesspieces. All original
+triangles remain in complete support. 43.25MBtrace within128MiBcap. This is useful
+certification coverage, not mesh improvement, fullproof or a timing speedup.
+
+Preparation~420.93s is now the clear cost. Code audit found existing PlanarReference
+constructor evaluates ALL boundary-edge/vertex convexity pairs even after one exact
+negative side proves nonconvex. New recovered footprints with holes make this waste
+large.283breaks both classification loops on that first counterexample; later
+nonconvex border/crossing/topology/coverage checks remain untouched. No classification
+or acceptance change. ONLY CNativeBoundary3D.cpp differs from282. Existing strict
+convex/nonconvex/hole/body controls exercise it. Build283 currently LIVE/FROZEN.
+
+Next ONE combined bounded trace+controls (probe_final283_entity2.py), no source-only
+repeat. Compare non-time decisions/coverage to282; expected20M exhaustion remains
+because skipped predicates were uncharged. Then affectedserial+ONE MPI milestone,
+immediate fullsame-seed TWOeventM6 with originalnativebudgets/fullBoth gate. The
+20Mprobe establishes boundedprogress, not admissible fullmesh; no artificial need to
+complete it before returning to the actual capability attempt. Record that explicit
+scope in283qualification without marking an incomplete certificate complete.
+
+283 build passed49.216s,allpinsunchanged/ownedhandlesabsent; CFD SHA
+b885585c5229d67bb01929c5737d175d39d7949c7a098a0789ef960758a1204c.
+Combinedtrace+controls TERMINAL0/249.056s,allpinsunchanged/all5handlesabsent;
+casegeometry_current_queries_20261108T212914_818035,105050091bytes withincap.
+assess_final283.py isolates actual query after607712MODELmarker (ignores controls)
+and verifies EVERY non-timequeryfield, domaincount, certifiedcount and graphresult
+EXACT282. Certifiedshare93.23098231%, still20M exhausted before reverse. Preparation
+420.931→85.541s, totalquery518.812→182.754s; traversal97.881→97.212s unchanged.
+R/convexity283_bounded_comparison.json seals evidence. This is measured preparation
+saving on the actual input, not completed M6 certification or workflow speedup.
+Affected serial qualification nowrunning; ONE MPI milestone thenfullsame-seedM6.
+No further production variants/source edits while this frozen campaign runs.
+
+283 affectedserial passed86cases/63018assertions,212.587s,allpinsunchanged/all5owned
+handlesabsent. ONE MPI6 milestone running; no additional implementation or baseline.
+Host load2.24/8logicalCPUs and MemAvailable~47.17GB before launch. Keep source and
+helpers frozen through MPI and fullM6. Seal implementation-only qualification with
+actualquery incomplete flag explicit, then push qualified source and immediately
+launch the unchanged same-seed TWOevent attempt.
+
+283 ONE MPI6 milestone passed120cases on EVERYrank,241.121s,allpinsunchanged and
+all10ownedhandlesabsent. Qualificationsealed R/certification283_qualification.json
+pins source/build/testdriver/runtime/actualCFDbinary/input/helper evidence. It
+EXPLICITLY records actual_saved_entity_certificate_complete=false and no accepted
+mesh. This qualifies implementation behavior/boundedprogress; full unchanged native
+Both gate remains mandatory. Qualifiedcheckpoint push, immediately fullsame-seed
+TWO-eventM6. No new implementation while frozen. DedicatedBL/MPI stillafterEuler.

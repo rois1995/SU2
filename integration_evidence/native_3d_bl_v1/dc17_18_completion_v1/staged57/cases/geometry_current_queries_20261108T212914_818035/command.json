@@ -1,0 +1,30 @@
+{
+  "build": "build283",
+  "case": "geometry_current_queries",
+  "ranks": 1,
+  "argv": [
+    "nice",
+    "-n",
+    "19",
+    "/usr/bin/time",
+    "-v",
+    "timeout",
+    "600",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+    "[NativeM6FullGeometry3D],[NativePreparedSource3D],[NativeSurfaceChord3D],[NativePinchedWitness3D]",
+    "--durations",
+    "yes"
+  ],
+  "environment": {
+    "SU2_NATIVE_TRANSACTION_REFERENCE": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build278_source_chord_certificate_mach_only_real_cfd50k/final_certificate_entity2_v1/m6.su2.native_ref",
+    "SU2_NATIVE_GEOMETRY_QUERY_INPUT": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build278_source_chord_certificate_mach_only_real_cfd50k/final_certificate_entity2_v1/entity2.txt",
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1",
+    "OMPI_MCA_osc": "pt2pt",
+    "OMPI_MCA_orte_tmpdir_base": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/compile-tmp/final276-kgn4nd02",
+    "SU2_NATIVE_GEOMETRY_WORK_TRACE": "1",
+    "TMPDIR": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/compile-tmp"
+  },
+  "timeout_seconds": 600
+}
