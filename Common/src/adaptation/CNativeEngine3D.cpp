@@ -1136,6 +1136,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
   Phase phase=Phase::Construction;
   bool region_rebuilt=false,improvement_changed=false,construction_changed=false,construction_handoff_progress=false;
   bool construction_generation_changed=false;
+  bool metric_cleanup=false,metric_cleanup_tried=false;
   uint64_t phase_start_round=0;
   if(options.stage_observer)options.caller_bytes=transfer_memory::Add(options.caller_bytes,options.stage_observer_bytes);
   const auto started=Clock::now();
@@ -2822,6 +2823,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     return true;
   };
   auto enter_phase=[&](Phase next,bool refine_geometry=false) {
+    metric_cleanup=false;
     if(bidirectional) {
       construction_claims=next==Phase::Construction;stats.split_lane=0;
       if(next==Phase::Construction) {
@@ -3006,8 +3008,16 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
       continue;
     }
     // Amortize the strict census over a useful repair pass before retrying outstanding construction.
-    const bool clean_quality=phase==Phase::Improvement &&
+    const bool clean_quality=!metric_cleanup && phase==Phase::Improvement &&
         !world.maximum(selection.quality_invalid!=0 || selection.unmeasured_shape!=0 || selection.cells.size()!=working.size());
+    if(metric_cleanup && !any) {
+      if(world.maximum(!selection.Progress(working.size()).complete)) {
+        result.reason="Native3D metric cleanup lost its complete improvement census.";return finish();
+      }
+      ++stats.length_collapse_passes;
+      if(!observe_progress("metric_cleanup_exit") || !enter_phase(Phase::Improvement))return finish();
+      continue;
+    }
     // Close shape/height first, then give existing topology repair the residual length debt.
     if(bidirectional && clean_quality && !selection.size_repairs && world.maximum(selection.debt.size_bad_cells!=0)) {
       if(!admit(transfer_memory::Mul(working.size(),selection_bound(true))))return finish();
@@ -3051,7 +3061,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
         continue;
       }
     }
-    if(phase==Phase::Improvement && (world.maximum(improvement_changed) || (construction_handoff_progress && clean_quality)) &&
+    if(!metric_cleanup && phase==Phase::Improvement && (world.maximum(improvement_changed) || (construction_handoff_progress && clean_quality)) &&
         (standalone_coarsening || world.maximum(selection.construction_invalid!=0)) &&
         ((!world.maximum(selection.quality_invalid!=0) && !selection.size_repairs && !selection.geometry_repairs) || !any)) {
       const auto progress=selection.Progress(working.size());
@@ -3164,7 +3174,30 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
         return finish();
       }
     }
-    if (complete && phase==Phase::Improvement && !world.maximum(selection.unmeasured_shape!=0 || selection.quality_invalid!=0 || selection.construction_invalid!=0)) {
+    // One finite, shape-preserving short-edge opportunity can change a stalled repair's neighbors.
+    // A mesh that already satisfies every gate needs no optional cleanup before acceptance.
+    if(bidirectional && !metric_cleanup && !metric_cleanup_tried && phase==Phase::Improvement && !any && !clean_quality) {
+      const auto progress=selection.Progress(working.size());
+      if(!world.maximum(!progress.complete || progress.geometry_bad_cells || progress.size_bad_cells ||
+          progress.height_bad_cells || progress.height_unresolved_cells)) {
+        bool short_edges=false;for(const auto& edge:selection.edges)short_edges|=edge.second.measure.length<CoarseningMetricEdge;
+        if(world.maximum(short_edges)) {
+          if(!admit(transfer_memory::Mul(transfer_memory::Mul(12,working.size()),sizeof(Edge)+4*sizeof(void*))))return finish();
+          CLocalFailure failure;
+          try {
+            directory->BeginConstructionPass();construction_claims=true;length_direction(true);
+            selection.ChangePhase(false,working,field_identity);
+          }catch(const std::exception& e){failure.Set(2,0,e.what());}
+          if(!vote(failure))return finish();
+          metric_cleanup=metric_cleanup_tried=true;repairing=false;phase_start_round=stats.rounds;
+          progress_at_window=stats.size_progress+stats.quality_progress+stats.cell_removals+stats.geometry_progress;
+          attempted_at_window=stats.attempted;deferred_at_window=stats.length_pass_deferred;
+          if(!observe_progress("metric_cleanup_entry"))return finish();
+          continue;
+        }
+      }
+    }
+    if (!metric_cleanup && complete && phase==Phase::Improvement && !world.maximum(selection.unmeasured_shape!=0 || selection.quality_invalid!=0 || selection.construction_invalid!=0)) {
       result.valid=true;result.reason.clear();return finish();
     }
     {
@@ -3180,7 +3213,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
         if (!mesh_progress) ++stats.stagnant_windows;
         if (!mesh_progress && search_progress) ++stats.search_windows;
         if(!observe_progress("window"))return finish();
-        if(phase==Phase::Improvement&&!phase_ownership(true))return finish();
+        if(!metric_cleanup&&phase==Phase::Improvement&&!phase_ownership(true))return finish();
         // Fresh rejected directions are finite search work even on invalid meshes; do not declare infeasibility early.
         if (!mesh_progress && !search_progress) {
           if(!bidirectional && phase==Phase::Construction && !world.maximum(selection.cells.size()!=working.size())) {
@@ -4115,7 +4148,9 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
         { Timer timer(stats.metric_seconds,options.timings); CpuTimer cpu(stats.metric_cpu_seconds,options.timings);
           if (candidate) {
             const auto effective=kind==MetricChange::Repair ? (geometric_progress&&!bidirectional?MetricChange::GeometryRepair:repair_kind()) : kind;
-            if (measured) valid=ValidateMetricChange(old.cells.size(),before,fresh.cells.size(),metric,effective,result.reason,&certified,relocated,coordinate_only);
+            if (measured) valid=metric_cleanup ?
+                ValidateMetricCleanup(old.cells.size(),before,fresh.cells.size(),metric,result.reason,&certified) :
+                ValidateMetricChange(old.cells.size(),before,fresh.cells.size(),metric,effective,result.reason,&certified,relocated,coordinate_only);
             if(valid && no_new_oversized)for(const auto& edge:metric.edges)if(edge.second.length>MaximumMetricEdge) {
               const auto previous=before.edges.find(edge.first);
               auto same=[](Point a,Point b){return a.x==b.x && a.y==b.y && a.z==b.z;};
@@ -5390,7 +5425,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
           for (Id vertex:directory->ChangedVertices()) selection.Touch(vertex);
           // Retire known conflicts in this pass without another global reservation per edge.
           // Unmeasured/remote support and expanded cavities remain guarded by Directory claims.
-          if(bidirectional && phase==Phase::Construction&&construction_claims)
+          if(bidirectional && (phase==Phase::Construction || metric_cleanup)&&construction_claims)
             for(Id vertex:directory->ChangedVertices())stats.length_pass_deferred+=selection.ServiceClaimedVertex(vertex);
         }
         catch (const std::exception& e) { failure.Set(2,0,e.what()); }
@@ -5631,7 +5666,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     Timer timer(stats.completion_seconds,options.timings);
     const int incomplete=world.maximum(selection.cells.size()!=working.size() ? 3 :
         (selection.invalid ? 2 : (coarsening && !selection.queue.empty() ? 1 : 0)));
-    result.valid=phase==Phase::Improvement && incomplete==0 && !world.maximum(selection.unmeasured_shape!=0 || selection.quality_invalid!=0 ||
+    result.valid=!metric_cleanup && phase==Phase::Improvement && incomplete==0 && !world.maximum(selection.unmeasured_shape!=0 || selection.quality_invalid!=0 ||
         selection.construction_invalid!=0 || (standalone_coarsening && improvement_changed));
     stats.stop=result.valid ? EngineStop::Complete : EngineStop::RoundBudget;
     if (incomplete==1)

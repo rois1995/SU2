@@ -521,6 +521,28 @@ bool ValidateMetricChange(size_t old_count, const PatchMetric& before, size_t fr
     return false;
   }
 }
+bool ValidateMetricCleanup(size_t old_count, const PatchMetric& before, size_t fresh_count,
+                          const PatchMetric& fresh, std::string& reason, MetricDiagnosis* diagnosis) {
+  if(diagnosis)*diagnosis={};
+  if(!before.shape_measured || !fresh.shape_measured || before.shape_cells!=old_count || fresh.shape_cells!=fresh_count) {
+    if(diagnosis)diagnosis->failure=MetricFailure::Measurement;
+    reason="Native3D metric cleanup lacks complete old/new shape measurements.";return false;
+  }
+  struct Restore {ShapeAdmission previous=GetShapeAdmission();~Restore(){SetShapeAdmission(previous);}} restore;
+  SetShapeAdmission(ShapeAdmission::Absolute);
+  if(!ValidateMetricChange(old_count,before,fresh_count,fresh,MetricChange::Coarsen,reason,diagnosis))return false;
+  auto deficit=[](const PatchMetric& metric) {
+    long double sum=0;
+    for(const auto& edge:metric.edges){const auto miss=std::max(0.L,CoarseningMetricEdge-edge.second.length);sum+=miss*miss;}
+    return sum;
+  };
+  const auto old_deficit=deficit(before),fresh_deficit=deficit(fresh);
+  if(!(fresh_deficit<old_deficit*(1-1e-12L))) {
+    if(diagnosis)diagnosis->failure=MetricFailure::Progress;
+    reason="Native3D metric cleanup does not reduce complete short-edge deficit.";return false;
+  }
+  return true;
+}
 bool ValidateMetricChange(const std::vector<Cell>& old, const std::vector<Cell>& fresh, MetricChange kind,
                           FrozenField& target, PatchMetric& measured, std::string& reason, MetricStats* stats, const std::map<Edge, EdgeMeasure>* frozen_reuse, MetricDiagnosis* diagnosis,
                           size_t relocated) {

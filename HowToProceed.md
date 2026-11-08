@@ -33,9 +33,17 @@ identical271. Originaloptimizer controls make0trials. Three raw collapses and on
 collapse+ONEoptimizertrial removeonepoint, improve short-edge/directional conformity
 and preserve q/J0,geometry0,size/interface/currentnodaltransport. Other directions
 fail support/positivity or geometry gates. No nonlocal contact/distributed
-publication/height qualification yet. No connected production correction selected.
+publication/height qualification yet. Connected cleanup273 is implemented locally and BUILDING (tool66136).
+Pinned sources/helpers must remain unchanged until build and validation terminate.
 
-Next implement ONE connected metric-cleanup/quality-closure correction using
+Correction273 adds ONE finite improvement-only raw-collapse opportunity at
+exhausted q/J repair with geometry/size/heights closed. Absolute fresh q/J, ordinary
+Coarsen size admission and strict short-edge-deficit decrease preserve clean shape.
+It returns to strict improvement once, preserving changed-support invalidation.
+Strictly accepted meshes are not delayed by optional cleanup. Construction remains
+validity-first; no compound cleanup trials, gate/config/budget changes.
+
+Qualify this connected metric-cleanup/quality-closure correction using
 existing direction queues, ownership, reservations, invalidation, Coarsen metric
 validation and final polish. A hook only after quality is already clean cannot
 address271's q-stuck blocker. Keep validity-first construction: do not add q/J

@@ -9,7 +9,6 @@
 #include "CNativeMetric3D.hpp"
 #include "CNativeRegion3D.hpp"
 namespace SU2Native3D {
-constexpr double CoarseningMetricEdge = .9;  // Frozen candidate hysteresis; final upper/shape gates remain strict.
 constexpr size_t MaximumCandidateBatch = 8;
 enum class EnginePhase { Construction, Improvement };
 enum class PhaseOwnership { Automatic, Disabled, DiagnosticAlways };

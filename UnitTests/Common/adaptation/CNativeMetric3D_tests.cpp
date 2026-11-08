@@ -43,6 +43,41 @@ TEST_CASE("Native 3D final metric gate requires length, shape and sliver criteri
   CHECK_FALSE(ValidateMetricPatch({}, unit, measured, reason));
 }
 
+TEST_CASE("Metric cleanup admits clean contraction without shape debt and rejects collateral failure", "[NativeMetricCleanupGate3D]") {
+  struct Restore {ShapeAdmission previous=GetShapeAdmission();~Restore(){SetShapeAdmission(previous);}} restore;
+  SetShapeAdmission(ShapeAdmission::ValidityOnly);
+  FrozenField target({Donor({})});std::vector<Cell> fine;std::string reason;MetricDiagnosis diagnosis;
+  REQUIRE(Cone({Single()},{4,{.25,.25,.25}},10,fine,reason));
+  const auto before=MeasureMetricCells(fine,target),fresh=MeasureMetricCells({Single()},target);
+  REQUIRE(before.q_bad_cells==0);REQUIRE(before.j_bad_cells==0);
+  CHECK_FALSE(ValidateMetricChange(fine.size(),before,1,fresh,MetricChange::Repair,reason));
+  CHECK(ValidateMetricCleanup(fine.size(),before,1,fresh,reason,&diagnosis));
+  CHECK(diagnosis.shape_measured);CHECK(GetShapeAdmission()==ShapeAdmission::ValidityOnly);
+  for(bool jacobian:{false,true}) {
+    auto bad=fresh;
+    if(jacobian){bad.minimum_scaled_jacobian=MinimumScaledJacobian*.99;bad.j_bad_cells=1;}
+    else {bad.minimum_mean_ratio=MinimumMeanRatio*.99;bad.q_bad_cells=1;}
+    CHECK_FALSE(ValidateMetricCleanup(fine.size(),before,1,bad,reason,&diagnosis));
+    CHECK(diagnosis.failure==MetricFailure::Shape);CHECK(GetShapeAdmission()==ShapeAdmission::ValidityOnly);
+  }
+  auto missing=fresh;missing.shape_cells=0;
+  CHECK_FALSE(ValidateMetricCleanup(fine.size(),before,1,missing,reason,&diagnosis));
+  CHECK(diagnosis.failure==MetricFailure::Measurement);
+  auto long_edge=fresh;long_edge.edges.begin()->second.length=MaximumMetricEdge+.01;
+  long_edge.edges.begin()->second.a.x+=.01;  // Changed coordinates must invalidate the shared-edge certificate.
+  CHECK_FALSE(ValidateMetricCleanup(fine.size(),before,1,long_edge,reason));
+  auto crowded=fresh;crowded.edges.begin()->second.length=.01;
+  CHECK_FALSE(ValidateMetricCleanup(fine.size(),before,1,crowded,reason,&diagnosis));
+  CHECK(diagnosis.failure==MetricFailure::Progress);
+  CHECK(reason.find("short-edge deficit")!=std::string::npos);
+  auto no_short_before=before,no_short_after=fresh;
+  for(auto& edge:no_short_before.edges)edge.second.length=1;
+  for(auto& edge:no_short_after.edges)edge.second.length=1;
+  CHECK_FALSE(ValidateMetricCleanup(fine.size(),no_short_before,1,no_short_after,reason));
+  CHECK_FALSE(ValidateMetricCleanup(1,fresh,1,fresh,reason));
+  CHECK(GetShapeAdmission()==ShapeAdmission::ValidityOnly);
+}
+
 TEST_CASE("Native 3D measurements report passive per-cell q/J failures", "[NativeMesh3D]") {
   const auto good=Single();Cell bad=Single();bad.id=10;
   for(auto& node:bad.v){node.id+=10;node.p.x+=3;}

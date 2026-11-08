@@ -1,0 +1,52 @@
+Filters: [NativeMetricCleanupGate3D],[NativeMetricCleanupPhase3D],[NativeMetricCleanup3D],[NativeMetricCleanupGate3D],[NativeMetricCleanupPhase3D]
+102.326 s: Actual clean M6 stars assess metric cleanup without artificial shape debt
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+test_driver is a Catch v2.13.9 host application.
+Run with -? for options
+
+-------------------------------------------------------------------------------
+Metric cleanup admits clean contraction without shape debt and rejects
+collateral failure
+-------------------------------------------------------------------------------
+../../UnitTests/Common/adaptation/CNativeMetric3D_tests.cpp:46
+...............................................................................
+
+../../UnitTests/Common/adaptation/CNativeMetric3D_tests.cpp:67: FAILED:
+  CHECK_FALSE( ValidateMetricCleanup(fine.size(),before,1,long_edge,reason) )
+with expansion:
+  !true
+
+0.000 s: Metric cleanup admits clean contraction without shape debt and rejects collateral failure
+0.000 s: Stalled shape gets one aligned cleanup pass without forgiving fixed feature debt
+0.000 s: Stalled shape gets one aligned cleanup pass without forgiving fixed feature debt
+0.122 s: Stalled shape gets one aligned cleanup pass without forgiving fixed feature debt
+0.116 s: Stalled shape gets one aligned cleanup pass without forgiving fixed feature debt
+===============================================================================
+test cases:     3 |     2 passed | 1 failed
+assertions: 43685 | 43684 passed | 1 failed
+
+Command exited with non-zero status 1
+	Command being timed: "timeout 600 /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver [NativeMetricCleanupGate3D],[NativeMetricCleanupPhase3D],[NativeMetricCleanup3D],[NativeMetricCleanupGate3D],[NativeMetricCleanupPhase3D] --durations yes"
+	User time (seconds): 95.10
+	System time (seconds): 0.30
+	Percent of CPU this job got: 92%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 1:42.99
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 434968
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 0
+	Minor (reclaiming a frame) page faults: 127356
+	Voluntary context switches: 1176
+	Involuntary context switches: 9448
+	Swaps: 0
+	File system inputs: 0
+	File system outputs: 168
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 1

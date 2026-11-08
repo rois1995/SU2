@@ -280,8 +280,8 @@ static void CapturedCurrentResidual(bool compound,bool distributed=false,bool pr
       auto short_deficit=[](const PatchMetric& metric){long double sum=0;
         for(const auto& edge:metric.edges){const auto d=std::max(0.L,CoarseningMetricEdge-edge.second.length);sum+=d*d;}return sum;};
       bool cleanup_metric=false;std::string cleanup_reason;
-      if(metric_cleanup)cleanup_metric=ValidateMetricChange(seed.cells.size(),old_active,result.cells.size(),new_active,
-          MetricChange::Coarsen,cleanup_reason);
+      if(metric_cleanup)cleanup_metric=ValidateMetricCleanup(seed.cells.size(),old_active,result.cells.size(),new_active,
+          cleanup_reason);
       const bool cleanup_feasible=metric_cleanup&&cleanup_metric&&replacement&&interface_valid&&
           before.q_bad_cells==0&&before.j_bad_cells==0&&after.q_bad_cells==0&&after.j_bad_cells==0&&
           old_face_errors.bad_cells.empty()&&new_face_errors.bad_cells.empty()&&after.maximum_length<=MaximumMetricEdge&&

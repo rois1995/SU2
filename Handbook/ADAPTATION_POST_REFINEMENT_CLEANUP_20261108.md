@@ -1,7 +1,9 @@
 # Post-refinement metric cleanup — bounded investigation
 
 Current271is terminal and refused on oneq cell; allownedhandles verified absent
-before272test-only edits. Build272 and its focused serial diagnosis PASSED; no owned heavy job remains. See HANDOFF_Codex.md for actual livehandles. No production change selected;
+before272test-only edits. Build272 and its focused serial diagnosis PASSED.
+Connected273production correction is now BUILDING with pinned sources (see the
+last section and HANDOFF_Codex.md for current handles);
 no competing CFD/MPI campaign. Two accepted Euler50k meshes, conservative
 admissible transfer, finite continued adapted CFD, actual isolated adapted disk
 restart, then dedicated BL/MPI and RANS500k remain the goal. Gates/budgets and
@@ -236,3 +238,54 @@ validity-first construction or requiring published shape failure first. Keep
 scope bounded and inspect the actual root dependencies where complete support can
 be proved. Qualify affected serial behavior and ONE MPI milestone, immediately
 full same-seed TWO-event M6. All strict gates and completion obligations remain.
+
+## Connected production correction273 — implemented, not yet built/qualified
+
+Missing capability: a completed quality census can have q/J demand with all
+current shape features blocked while geometry/size/heights are closed, yet
+known-clean short-edge stars have no service opportunity. 271 proves that terminal
+state;272 proves admissible raw clean contractions on actual262contexts. These
+remain separate evidence: no claim that those distant collapses cure the rootcell.
+
+Use ONE finite improvement-only cleanup opportunity after shape choices exhaust.
+Reuse existing directed short-edge selection, complete stars, full-vertex claims,
+version checks, private mapped associations, clearance, parameter replacement,
+current-nodal transport, accounting and publication. Keep Phase::Improvement so
+q/J are measured; ordinary construction remains edge-only/validity-first. Only
+this cleanup uses absolute fresh q/J plus ordinary Coarsen changed-edge size gates
+and strictly decreasing complete unique-edge short deficit. This is an objective,
+NOT a hard minimum-edge gate. Geometry/feature/body/height gates remain in their
+existing callers. Raw candidates failing shape are refused; no new optimizer
+trials or cavity expansion added. Compound272success remains a later measured
+possibility, not an extra production fallback.
+
+After this immutable-frontier pass, re-enter the existing quality lifecycle;
+only actual changed supports reopen blocked repair features. A one-shot marker
+prevents another cleanup cycle, budgets remain monotone, and no ownership change
+is attempted under active claims. Existing quiescent quality redistribution
+remains responsible for ownership; no new scheduling/partition policy. Strictly
+clean meshes accept immediately without optional cleanup. This targets the
+demonstrated stalled quality state and does not promise blanket LE triangle
+reduction or solve shock target allocation.
+
+Validation scope: shared gate against clean zero-debt contraction, fresh q/J
+failure, oversized changed edge, missing measurement and short-deficit regression;
+actual four272contexts now call that SAME production gate. One aligned no-progress
+cleanup/strict-reassessment control uses a genuine-feature sliver and empty MPI
+ranks, alongside a clean control. Existing curved/seam/body/height, reservations,
+rejected-history, census/migration and resource cases form ONE MPI6 milestone.
+Then full same-seed TWO-event M6 immediately, judging whole-field q/J/g counts
+and useful removal/work/time rather than local point removal alone.
+
+273buildpassed516.729s/allpins. Focused3cases terminal1/43684of43685assertions:
+actual4M6contexts/sharedgate and alignedphasecontrols PASSED; sole newunitcheck
+mutated a cached length but retained identical coordinates/identity, so shared-edge
+cancellation legitimately bypassed it. Correct the synthetic check to move an
+endpoint too. Production unchanged. Allfocusedownedhandles verified terminal
+before this test-only correction. Preserve cleanup273_focused_diagnosis.json;
+274will rebuild onlythat test/relink, then qualify the connected production cycle.
+
+274test-onlyrebuildpassed27.108s/allpins, productionCFD BYTE-IDENTICAL273. Focused
+retry PASSED43685assertions/3cases97.370s/allpins, allownedhandles terminal. Shared
+productiongate retains3raw strictlocal removals plus compounddiagnosticcontrol;
+alignedphase/refusalcontrol passes. Connectedserial LIVE tool72355; noMPIyet.

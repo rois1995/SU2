@@ -4793,6 +4793,46 @@ TEST_CASE("Metric improvement isolates remaining shape debt after construction",
   }
 }
 
+TEST_CASE("Stalled shape gets one aligned cleanup pass without forgiving fixed feature debt", "[NativeMetricCleanupPhase3D]") {
+  World world;
+  const bool sliver=GENERATE(false,true);const unsigned batch=GENERATE(1u,8u);
+  const std::array<Node,4> nodes{{{0,{0,0,0}},{1,{1,0,0}},{2,{0,1,0}},{3,{0,0,sliver?.01:1.}}}};
+  Fixture fixture;fixture.patch.cells.push_back({0,nodes});
+  for(const auto& face:Incidence(fixture.patch.cells).Boundary()) {
+    const Id facet=fixture.facets.size();
+    fixture.facets.push_back({facet,int(facet)+10,{nodes[face[0]],nodes[face[1]],nodes[face[2]]}});
+    fixture.patch.surface.push_back({face,facet});
+  }
+  const PlanarReference geometry(fixture.facets);
+  const auto input=WithUniformSensor(Partition(Rows(fixture.patch),world),Tensor{});const auto saved=Bytes(input);
+  unsigned entries=0,exits=0,quality_returns=0;size_t blocked_at_entry=0;
+  EngineOptions options;options.candidate_batch=batch;options.maximum_rounds=512;options.maximum_work=32768;
+  options.stage_observer=[&](const StageProgressView& view) {
+    const std::string stage=view.stage;
+    if(stage=="quality_entry" && exits)++quality_returns;
+    if(stage!="metric_cleanup_entry" && stage!="metric_cleanup_exit")return;
+    CHECK(view.phase==EnginePhase::Improvement);CHECK(view.progress.complete);
+    CHECK(view.progress.geometry_bad_cells==0);CHECK(view.progress.size_bad_cells==0);
+    CHECK(view.progress.height_bad_cells==0);CHECK(view.progress.height_unresolved_cells==0);
+    size_t blocked=0;
+    for(const auto& row:view.working) {
+      CellDiagnostic d;REQUIRE(view.cell_diagnostic(row.first,d));CHECK(d.q_measured);CHECK(d.j_measured);
+      const auto& v=row.second.cell.v;const auto m=Measure({v[0].p,v[1].p,v[2].p,v[3].p},Tensor{});
+      CHECK(d.q==Approx(m.mean_ratio));CHECK(d.J==Approx(m.minimum_scaled_jacobian));
+      for(size_t k=0;k<d.repair_count;++k)blocked+=d.repairs[k].blocked;
+    }
+    if(stage=="metric_cleanup_entry"){++entries;blocked_at_entry=blocked;}
+    else {++exits;CHECK(blocked==blocked_at_entry);}
+  };
+  const auto result=AdaptMetric(world,input,Uniform(input,Tensor{}),geometry,{},options);INFO(result.reason);
+  CHECK(entries==unsigned(sliver));CHECK(exits==unsigned(sliver));CHECK(quality_returns==unsigned(sliver));
+  CHECK(result.valid==!sliver);CHECK(Bytes(input)==saved);CHECK(result.stats.global_work<=options.maximum_work);
+  if(sliver) {
+    CHECK(result.stats.stop==EngineStop::OperatorStagnation);
+    CHECK(world.sum(blocked_at_entry)>0);CHECK(world.maximum(result.stats.length_collapses)==0);
+  }
+}
+
 TEST_CASE("Metric size closes in construction or residual repair", "[NativeBidirectionalLength3D]") {
   World world;const auto fixture=Box();const PlanarReference geometry(fixture.facets);
   const auto input=Partition(Rows(fixture.patch),world);const auto saved=Bytes(input);

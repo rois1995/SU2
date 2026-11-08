@@ -13,19 +13,49 @@ R=`integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57`.
 A271=`R/m6_runs/euler_build271_cooperative_deadline_mach_only_real_cfd50k`.
 A262=`R/m6_runs/euler_build262_compact_capture_mach_only_real_cfd50k`.
 
-## CURRENT — bounded cleanup diagnosis272; no production change selected
+## CURRENT — connected serial274 LIVE; production cleanup273 frozen
 
-Build272 TERMINAL0/209.224824s, allpinsunchanged; ONLY changed compiled file is
-UnitTests/SU2_CFD/adaptation/fixtures/native_current219_witness.inc. ProductionCFD
-BYTE-IDENTICAL271/SHA3449cdaf260c7e2014ba1d465b0b94fafd2fe0da7c5c183823acc13aa374093e.
-Buildtool54612/helper3840231/start19360874+ninja3840311 allterminal in
-R/build272_terminal_handles.json. Diagnostic serial PASSED43587assertions/1case98.641478s, allpinsunchanged;
-tool97746/casecurrent_production_20261108T145332_3860624 and allhandles TERMINAL0.
-NOownedheavyjob now. R/metric_cleanup272_diagnosis.json seals local evidence.
-Currentproductioncode unchanged271; fixture272only. Before production edits, choose
-ONE connected integration using existing mechanisms and this evidence plus the
-terminal root-cell blocker. No MPI/nextM6 yet.
-Latest pushed2d854dce0e; terminal271 and cleanup investigation/code272 local/uncommitted.
+Latest pushed edd8ce29a9. Terminal271 and bounded272 evidence/fixture are pushed.
+Production correction273 is local/uncommitted; ONE connected cycle, no competing
+implementation. Read the correction273section of the linked cleanup record.
+
+Build273 TERMINAL0/516.728824s, all1520pins unchanged. New CFD SHA
+369a994f75a2a7cce76973096189f641f3d696aa045bc6bdd0db049499448512.
+Buildtool66136/helper3983839/start19647189+ninja3983955 absent/terminal receipt.
+Focused273 tool29794 TERMINAL1/112.746s,43684of43685assertions. Actual four M6
+contexts/sharedcleanupgate and alignedphasecontrols PASSED; only synthetic unit
+check failed because it modified a shared cached length without changing exact
+endpoint identity/coordinates. Corrected that TESTONLY to move an endpoint too.
+No production correction. Allowned4014048/4014397/4014398/4014399/4014400 terminal,
+sealed in casecurrent_production_20261108T154314_4014048/terminal_handles.json.
+R/cleanup273_focused_diagnosis.json preserves failure and three raw useful removals.
+
+Build274 TERMINAL0/27.107709s, allpinsunchanged, CFD BYTE-IDENTICAL273 SHAabove.
+Tool52770/helper4031843/start19734794+ninja4031888 verifiedabsent; receipt
+R/build274_terminal_handles.json. Only compiled change was testcheck above.
+Focused274 PASSED43685assertions/3cases97.369868s, allpinsunchanged; tool8761
+andhelper4034511/process4034736/4034737/4034738/4034739 verifiedterminal.
+Casecurrent_production_20261108T154915_4034511 seals gate, actual4M6contexts,
+alignedphasecontrols. ProductionCFD remains SHAabove.
+Connectedserial274 NOWLIVE tool72355/helper4044704/process4044908,
+casecurrent_production_20261108T155213_4044704;
+use actual status/owned handles before starting MPI. Allcompiledsources/helpers/
+runtime/inputs FROZEN; nice19/libs1. ONEownedheavyjob, noM6/MPIalongside.
+After serialterminalpass: cleanup274_validate.py mpi6 ONCE at connected milestone.
+qualify_cleanup274.py andlaunch_m6274.py prepared (not run); then immediately
+fullsame-seed TWOeventM6 using old sameMachL1/50k/gates/budgets. No higher budget.
+
+Correction: ONE finite improvement-only short-edge opportunity after exhausted
+q/J repair with complete closed geometry/size/heights. Existing coarsening queue,
+fullstars/claims/versionchecks/geometry/height/clearance/publication/accounting;
+strictfreshq/J + ordinaryCoarsen sizeadmission + strictly decreased complete
+short-edgedeficit. Raw contractions ONLY; no compoundnewtrials/config/scheduler.
+Construction remains validity-first. Return to existingquality; actualchanged
+supports reopen blocked features. One-shot marker prevents another cleanup in
+that Adapt invocation. Alreadystrict meshes acceptwithoutoptionalcleanup.
+Read-only source review found no concrete defect. Successful actual cleanup
+publication+strict returned polish remains an integration-validation obligation.
+NoactualM6afterproduction273yet. ZEROacceptedmeshes; fixturesnotcompletion.
 
 LatestUSERtask: investigate missing post-refinement metric cleanup and leading-edge
 crowding. [Current design/evidence](Handbook/ADAPTATION_POST_REFINEMENT_CLEANUP_20261108.md).

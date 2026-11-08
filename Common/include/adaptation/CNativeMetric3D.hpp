@@ -11,6 +11,7 @@
 #include <limits>
 namespace SU2Native3D {
 constexpr double MaximumMetricEdge = 1.8;
+constexpr double CoarseningMetricEdge = .9;  // Candidate hysteresis, never a minimum-edge acceptance gate.
 /*! Signed planar cross product with fma compensation, compiled in the strict-arithmetic library. */
 long double CompensatedCross2D(long double ax,long double ay,long double bx,long double by);
 struct EdgeMeasure {
@@ -120,6 +121,10 @@ bool ValidateMetricChange(size_t old_count, const PatchMetric& before, size_t fr
                           const PatchMetric& measured, MetricChange kind, std::string& reason,
                           MetricDiagnosis* diagnosis = nullptr, size_t relocated = 0,
                           bool coordinate_move = false);
+/*! Improvement-only contraction: strict fresh shape, ordinary Coarsen size admission and less short-edge deficit.
+ * Geometry, complete support, heights and publication remain the caller's responsibility. */
+bool ValidateMetricCleanup(size_t old_count, const PatchMetric& before, size_t fresh_count,
+                          const PatchMetric& fresh, std::string& reason, MetricDiagnosis* diagnosis = nullptr);
 /*! Requires separately validated geometry/topology/dependencies. Actual centroid target and source-resolved
  * target edge lengths; bounded128 cells. Final completion requires the strict gate on the whole mesh.
  * Reuse requires the same frozen full-field identity, edge IDs and exact endpoint coordinates.

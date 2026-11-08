@@ -1,0 +1,17 @@
+{
+  "time": 1794152901.0633063,
+  "scope": "Build273 focused campaign terminal1; preserve failure, not qualification.",
+  "case": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/current_production_20261108T154314_4014048",
+  "pins_verified": true,
+  "assertions": 43685,
+  "passed_assertions": 43684,
+  "failed_assertions": 1,
+  "passing_cases": [
+    "actual four M6 contexts/shared cleanup gate",
+    "aligned cleanup refusal and strict clean controls"
+  ],
+  "failure": "New test changed cached length on an otherwise identical shared edge; validator correctly cancels shared identity+coordinates. Test corrected to change coordinates too. No production source correction.",
+  "raw_cleanup_successes": 3,
+  "useful_assessment_rows": 7,
+  "production_qualification_complete": false
+}
