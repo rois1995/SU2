@@ -1,5 +1,5 @@
 // Actual corrected-target residuals: existing operators only, never historical replay or acceptance.
-static void CapturedCurrentResidual(bool compound,bool distributed=false,bool production_source=false) {
+static void CapturedCurrentResidual(bool compound,bool distributed=false,bool production_source=false,bool metric_cleanup=false) {
   World world;if(!distributed)REQUIRE(world.size==1);
   const auto* cfg=std::getenv("SU2_NATIVE_FROZEN_CONFIG");REQUIRE(cfg);
   const std::string config(cfg);const auto slash=config.find_last_of('/');REQUIRE(slash!=std::string::npos);
@@ -80,6 +80,9 @@ static void CapturedCurrentResidual(bool compound,bool distributed=false,bool pr
     }
     REQUIRE(edge_cases.eof());REQUIRE(current_capture);
   }
+  if(metric_cleanup){REQUIRE(production_source);REQUIRE(compound);REQUIRE_FALSE(distributed);
+    REQUIRE(cases.size()==4);REQUIRE(construction_edges.size()==cases.size());
+    for(const auto& c:cases)REQUIRE(construction_edges.at(c.first).size()==1);}
   const std::array<std::array<unsigned,3>,4> opposite{{{{1,2,3}},{{0,3,2}},{{0,1,3}},{{0,2,1}}}};
   auto patch_from=[&](const Owned& rows) {
     Patch p;for(const auto& entry:rows){const auto& row=entry.second;p.cells.push_back(row.cell);
@@ -274,6 +277,15 @@ static void CapturedCurrentResidual(bool compound,bool distributed=false,bool pr
           after.q_bad_cells==0&&after.j_bad_cells==0&&after.maximum_length<=MaximumMetricEdge&&geometry_progress&&
           (!production_source || (new_geometry_bad.size()<=old_geometry_bad.size()&&
               new_face_errors.bad_faces<old_face_errors.bad_faces));
+      auto short_deficit=[](const PatchMetric& metric){long double sum=0;
+        for(const auto& edge:metric.edges){const auto d=std::max(0.L,CoarseningMetricEdge-edge.second.length);sum+=d*d;}return sum;};
+      bool cleanup_metric=false;std::string cleanup_reason;
+      if(metric_cleanup)cleanup_metric=ValidateMetricChange(seed.cells.size(),old_active,result.cells.size(),new_active,
+          MetricChange::Coarsen,cleanup_reason);
+      const bool cleanup_feasible=metric_cleanup&&cleanup_metric&&replacement&&interface_valid&&
+          before.q_bad_cells==0&&before.j_bad_cells==0&&after.q_bad_cells==0&&after.j_bad_cells==0&&
+          old_face_errors.bad_cells.empty()&&new_face_errors.bad_cells.empty()&&after.maximum_length<=MaximumMetricEdge&&
+          vertex_count(joined)<vertex_count(owned)&&short_deficit(after)<short_deficit(before);
       source_geometry_candidates+=production_source&&geometry_admissible;
       if(needs_reclosure)*needs_reclosure=production_source&&geometry_repair_metric&&replacement&&interface_valid&&
           geometry_progress&&after.maximum_length<=MaximumMetricEdge&&(after.q_bad_cells||after.j_bad_cells);
@@ -311,6 +323,40 @@ static void CapturedCurrentResidual(bool compound,bool distributed=false,bool pr
          <<",\"optimizer_traversal_work\":"<<optimized_stats.traversal_work-stats0.traversal_work
          <<",\"upper_calls\":"<<stats1.upper_calls-stats0.upper_calls<<",\"traversal_work\":"<<stats1.traversal_work-stats0.traversal_work
          <<",\"native_geometry_progress\":"<<geometry_progress;
+      if(metric_cleanup) {
+        log<<",\"diagnostic_cleanup_feasible\":"<<cleanup_feasible<<",\"coarsen_metric_valid\":"<<cleanup_metric
+           <<",\"coarsen_metric_reason\":"<<std::quoted(cleanup_reason)
+           <<",\"old_short_edge_deficit\":"<<double(short_deficit(before))
+           <<",\"new_short_edge_deficit\":"<<double(short_deficit(after));
+        auto distributions=[&](const char* name,const Patch& patch,const PatchMetric& metric) {
+          std::map<Id,Point> coordinates;for(const auto& cell:patch.cells)for(Node n:cell.v)coordinates.emplace(n.id,n.p);
+          std::vector<double> lengths,span_lengths,nose_lengths,ratios;size_t short09=0,short05=0;
+          for(const auto& edge:metric.edges){lengths.push_back(double(edge.second.length));short09+=edge.second.length<.9L;short05+=edge.second.length<.5L;}
+          for(const auto& face:patch.surface) {
+            std::array<Point,3> p;for(unsigned k=0;k<3;++k)p[k]=coordinates.at(face.v[k]);
+            const double u[3]={p[1].x-p[0].x,p[1].y-p[0].y,p[1].z-p[0].z},v[3]={p[2].x-p[0].x,p[2].y-p[0].y,p[2].z-p[0].z};
+            double n[3]={u[1]*v[2]-u[2]*v[1],u[2]*v[0]-u[0]*v[2],u[0]*v[1]-u[1]*v[0]};
+            const auto norm=std::hypot(n[0],n[1],n[2]);REQUIRE(norm>0);for(auto& x:n)x/=norm;
+            double span[3]={1/std::sqrt(3.),1,0};const double dot=span[0]*n[0]+span[1]*n[1];
+            for(unsigned k=0;k<3;++k)span[k]-=dot*n[k];const auto sn=std::hypot(span[0],span[1],span[2]);REQUIRE(sn>0);for(auto& x:span)x/=sn;
+            const double nose[3]={n[1]*span[2]-n[2]*span[1],n[2]*span[0]-n[0]*span[2],n[0]*span[1]-n[1]*span[0]};
+            double sl=INFINITY,sh=-INFINITY,nl=INFINITY,nh=-INFINITY;
+            for(Point x:p){const auto s=x.x*span[0]+x.y*span[1]+x.z*span[2],t=x.x*nose[0]+x.y*nose[1]+x.z*nose[2];sl=std::min(sl,s);sh=std::max(sh,s);nl=std::min(nl,t);nh=std::max(nh,t);}
+            REQUIRE(nh>nl);ratios.push_back((sh-sl)/(nh-nl));
+            for(unsigned k=0;k<3;++k){const unsigned j=(k+1)%3;Edge e{face.v[k],face.v[j]};std::sort(e.begin(),e.end());
+              const double dx=p[j].x-p[k].x,dy=p[j].y-p[k].y,dz=p[j].z-p[k].z;
+              const bool along=std::abs(dx*span[0]+dy*span[1]+dz*span[2])>std::abs(dx*nose[0]+dy*nose[1]+dz*nose[2]);
+              (along?span_lengths:nose_lengths).push_back(double(metric.edges.at(e).length));}
+          }
+          auto quantiles=[&](std::vector<double> values){log<<'[';if(!values.empty()){std::sort(values.begin(),values.end());bool comma=false;
+            for(double p:{0.,.1,.5,.9,1.}){const auto at=p*(values.size()-1);const size_t lo=size_t(at),hi=std::min(lo+1,values.size()-1);
+              if(comma)log<<',';comma=true;log<<values[lo]+(values[hi]-values[lo])*(at-lo);}}log<<']';};
+          log<<",\""<<name<<"\":{\"unique_edges\":"<<metric.edges.size()<<",\"short09\":"<<short09<<",\"short05\":"<<short05<<",\"edge_quantiles\":";quantiles(lengths);
+          log<<",\"span_face_edge_quantiles\":";quantiles(span_lengths);log<<",\"nose_face_edge_quantiles\":";quantiles(nose_lengths);
+          log<<",\"span_over_nose_extent_quantiles\":";quantiles(ratios);log<<'}';
+        };
+        distributions("old_directional_conformity",complete,before);distributions("new_directional_conformity",all,after);
+      }
       if(production_source) {
         std::map<Id,Point> prior_nodes,fresh_nodes;
         for(const auto& cell:input.cells)for(Node n:cell.v)prior_nodes.emplace(n.id,n.p);
@@ -325,6 +371,7 @@ static void CapturedCurrentResidual(bool compound,bool distributed=false,bool pr
       }
       log<<",\"requested_heights\":0,\"nonlocal_contact_and_publication_checked\":false,\"accepted_mesh\":false}\n";log.flush();
       CHECK_FALSE(budget.work_exhausted);CHECK(budget.geometry_failure.empty());
+      if(metric_cleanup)return cleanup_feasible;
       if(production_source)return geometry_admissible&&new_geometry_bad.size()<old_geometry_bad.size();
       return metric_valid && replacement && interface_valid && after.q_bad_cells<=before.q_bad_cells &&
           after.j_bad_cells<=before.j_bad_cells && (after.q_bad_cells<before.q_bad_cells || after.j_bad_cells<before.j_bad_cells) &&
@@ -333,7 +380,7 @@ static void CapturedCurrentResidual(bool compound,bool distributed=false,bool pr
     auto subset=[&](Id a,Id b){Owned out;for(const auto& row:owned)
       if(std::any_of(row.second.cell.v.begin(),row.second.cell.v.end(),[&](Node n){return n.id==a||n.id==b;}))out.insert(row);
       if(a==b)REQUIRE(out.size()==expected_stars.at(a));return out;};
-    if(!construction_edges.empty()) {
+    if(!metric_cleanup&&!construction_edges.empty()) {
       const auto selected=construction_edges.find(test.first);REQUIRE(selected!=construction_edges.end());
       for(const auto& edge:selected->second) {
         Owned ring;std::map<Id,Node> nodes;
@@ -449,7 +496,9 @@ static void CapturedCurrentResidual(bool compound,bool distributed=false,bool pr
       continue;
     }
     bool useful_star=false;
-    for(const auto& vertex:owned.at(test.second).cell.v) {
+    if(metric_cleanup){std::set<Id> retired;for(const auto& row:owned)retired.insert(row.first);
+      assess(owned,retired,complete,complete,test.second,"clean_context_optimizer");}
+    if(!metric_cleanup)for(const auto& vertex:owned.at(test.second).cell.v) {
       auto local=subset(vertex.id,vertex.id);std::set<Id> retired;for(const auto& row:local)retired.insert(row.first);
       if(local.size()>MaximumCavityCells) {
         log<<"{\"stage\":\"existing_star_limit\",\"case\":"<<std::quoted(test.first)
@@ -468,6 +517,8 @@ static void CapturedCurrentResidual(bool compound,bool distributed=false,bool pr
     bool useful_compound=false;
     if(compound)for(const auto& removed:owned.at(test.second).cell.v)for(const auto& retained:owned.at(test.second).cell.v) {
       if(removed.id==retained.id)continue;
+      if(metric_cleanup){Edge edge{removed.id,retained.id};std::sort(edge.begin(),edge.end());
+        const auto& chosen=construction_edges.at(test.first);if(std::find(chosen.begin(),chosen.end(),edge)==chosen.end())continue;}
       auto removed_rows=subset(removed.id,removed.id);auto old=patch_from(removed_rows);scope->ExportParameters(old);
       Patch fresh;std::string why;
       const auto started=std::chrono::steady_clock::now();
@@ -496,6 +547,7 @@ static void CapturedCurrentResidual(bool compound,bool distributed=false,bool pr
     }
     // Actual wing-adjacent residual: area weighting vetoed every otherwise useful complete-context contraction.
     if(compound && current_capture && test.second==256755094)CHECK(useful_compound);
+    if(metric_cleanup)continue;
     if(compound) {
       const auto& core=owned.at(test.second);std::vector<unsigned> faces;
       for(unsigned slot=0;slot<4;++slot)if(core.physical[slot].present)faces.push_back(slot);
@@ -665,7 +717,7 @@ static void CapturedCurrentResidual(bool compound,bool distributed=false,bool pr
       }
     }
   }
-  if(production_source)CHECK(source_geometry_candidates>0);
+  if(production_source&&!metric_cleanup)CHECK(source_geometry_candidates>0);
   log.close();REQUIRE(bool(log));
 }
 TEST_CASE("Current M6 residual stars assess existing coupled repair and complete neighbors",
@@ -675,6 +727,9 @@ TEST_CASE("Current M6 boundary residuals assess existing collapse and retained-s
 
 TEST_CASE("Actual current M6 candidates use production metric transport and explicit unknown oracles",
           "[.][NativeCurrentProduction3D]") {CapturedCurrentResidual(true,false,true);}
+
+TEST_CASE("Actual clean M6 stars assess metric cleanup without artificial shape debt",
+          "[.][NativeMetricCleanup3D]") {CapturedCurrentResidual(true,false,true,true);}
 
 TEST_CASE("Actual M6 geometry placement publishes complete curved stars with empty owners",
           "[.][NativeCurrentPlacementMPI3D]") {CapturedCurrentResidual(true,true);}

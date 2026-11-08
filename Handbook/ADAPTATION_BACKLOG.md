@@ -761,3 +761,15 @@ mismatch demonstrably causes rejection, reuse production transport/composition
 for the candidate objective; do not silently introduce an immutable-original-target
 policy. This is unproven and does not authorize a competing implementation while
 267 is frozen. Preserve all shape/geometry/height/body/feature/budget gates.
+
+
+###271bounded diagnostic owned-file cap (demonstrated)
+
+Terminal nativecensus complete735624cells/1q/0J/0geometry/0size, but latequality
+ownership gave rank4 414041cells. Its416-byte owned stream hit unchanged128MiBcap:
+322638rows there,644221global,91403clean rows omitted. Rawmetadata/reference and
+rejections are sealed; do not call this a complete mesh or infer globallycomplete
+root supports. Investigate existing bounded lossless archive facilities only if
+this blocks required root-cavity/whole-mesh evidence; no chosen codec/newformat
+or cap increase. Do not fill missing cells from historical meshes. Current active
+cycle is the demonstrated post-refinement cleanup/admission investigation.
