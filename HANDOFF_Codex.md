@@ -36,18 +36,19 @@ Initial six-rank partition EXACT274 outside time fields (receipt initial_partiti
 First83complete groups through qualityentry23314 MATCH274 EVERY non-time/non-byte
 rankfield, count, flag and workcounter (quality_entry_equivalence274.json). Quality
 entrynative896.835554s vs274691.828611s:690715cells,27016q/27453J/1205localG/0size,
-ALLknown/flagscomplete. Timinghigher; no construction speedup claim. Awaitfirst
-qualitywindow and frozen outcome; cleanup not invoked. No source/binary/config/ownership policy change during this frozen attempt.
-Latestqualitywindow23744/native2262.945978s:718464cells,
-10478q/9229J/1049localG/0size, allmeasured/flagscomplete. Counts/traversalwork still
-MATCH274; last recordedownership23616 committed with intactflags. No causal
-speedup claim; finalcertification path NOTyetreached. Net qrate since entry ratio
-.854119 vs274, same traversalwork. Recorded netq/commit1.3706 at23616; mostqbad
-interior. Existing joincallwallshare~.418 there is NOT totalMPIwait; timingsoverlap.
-Initialprovenance+same-seedcheckpointef1784d55e and earlyqualityevidencedb8db3be1f
-PUSHED. Passiveexact11handles allLIVE;sampledtreepeak13.937GB,MemAvailable~35GB,
-hostload8.57 atlastread. CPUincludesMPIspin. Main35468directpollstillLIVE; never
-infer termination orrestart from staleoutput. No stop marker for278.
+ALLknown/flagscomplete. Timinghigher; no construction speedup claim. Await frozen outcome; cleanup not invoked. No source/binary/config/ownership policy change during this frozen attempt.
+Latestqualitywindow23936/native2782.986748s:725027cells,
+6169q/4931J/1004localG/0size, allmeasured/flagscomplete. Counts/traversalwork still
+MATCH274; no causal speedup claim; finalcertification NOTyetreached. Cumulative
+qrate ratio.844167 vs274, same traversalwork. Existing staged shape→geometry/size
+return→shape reclosure remains required. Cleanup has NOTrun. Passiveexact11handles
+allLIVE;sampledtreepeak13.937GB,MemAvailable~35GB,hostload8.57 atlastresource read.
+CPUincludesMPIspin; joincallwallshare is NOTtotalMPIwait. Main35468directpollLIVE.
+No stop marker for278. Latestpushedqualityevidence7aa518c8d8; source2cf112b7ab.
+A278/transfer_restart_readiness_reuse.json now verifies all8audited source/build/
+helperpaths against CURRENTfrozenpins and actual workflowSHA164bf1c06ac5ba5d663aae871b357f5e7143a1d3bda1c8418efaeb9c3fa52074.
+Read-only audit confirms Cycle2 includes final adaptedCFD and selected inspection
+fixture does NOTrequire refusal. This is readiness only: NOactualtransfer/restartproof.
 Source remains frozen; await outcome before any implementation change.
 
 Use R/analyze_m6278_frozen.py,analyze_m6278_quality.py andverify_m6278_initial.py.
