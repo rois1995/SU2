@@ -90,6 +90,29 @@ class PreparationTest(unittest.TestCase):
             with self.assertRaises(ValueError):
                 convert(source, root / "invalid.su2")
 
+    def test_existing_mesh_markers(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            for case, markers, wall in [
+                    ("naca0012", ["Wall", "Farfield"], "Wall"),
+                    ("onera_m6", ["WING3D", "FARFIELD", "SYMMETRY"], "WING3D")]:
+                mesh = root / f"{case}.su2"
+                mesh.write_text(f"NDIME= {CASES[case][0]}\nNELEM= 1\nNPOIN= 4\nNMARK= {len(markers)}\n" +
+                                "".join(f"MARKER_TAG= {m}\nMARKER_ELEMS= 1\n" for m in markers))
+                original = mesh.read_bytes()
+                manifest = prepare(case, root / case, mesh)
+                self.assertTrue(manifest["mesh"]["marker_mapping"])
+                self.assertEqual(mesh.read_bytes(), original)
+                self.assertEqual((root / case / "mesh/mesh.su2").read_bytes(), original)
+                for job in manifest["jobs"]:
+                    config = read_config(root / case / job["config"])
+                    self.assertEqual(config["MARKER_MONITORING"], f"({wall})")
+                    self.assertEqual(config["MARKER_HEATFLUX"], f"({wall}, 0)")
+                    self.assertEqual(config["MARKER_FAR"], "(Farfield)" if case == "naca0012" else "(FARFIELD)")
+                mesh.write_text(mesh.read_text().replace(wall, "UnknownWall"))
+                with self.assertRaises(ValueError):
+                    mesh_metadata(mesh, case)
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)

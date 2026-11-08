@@ -6,6 +6,7 @@ import hashlib
 import json
 import math
 from pathlib import Path
+import re
 import shutil
 import sys
 
@@ -17,6 +18,10 @@ CASES = {
     "naca0012": (2, {"airfoil", "farfield"}),
     "nasa_hump": (2, {"wall", "upper", "inlet", "outlet"}),
     "onera_m6": (3, {"WING", "FARFIELD", "SYMMETRY"}),
+}
+MARKER_ALIASES = {
+    "naca0012": {"airfoil": "Wall", "farfield": "Farfield"},
+    "onera_m6": {"WING": "WING3D"},
 }
 MODES = {"1C_KEEP": (1, "NO"), "1C_SWAP": (1, "YES"),
          "2C_KEEP": (2, "NO"), "2C_SWAP": (2, "YES"), "3C": (3, "NO")}
@@ -38,6 +43,11 @@ def mesh_metadata(path, case):
                     raise ValueError(f"Duplicate mesh header {key}; require a single-zone ASCII SU2 mesh")
                 headers[key] = int(value.split()[0])
     dimension, expected = CASES[case]
+    mapping = {}
+    aliases = MARKER_ALIASES.get(case, {})
+    if set(markers) == {aliases.get(marker, marker) for marker in expected}:
+        mapping = aliases
+        expected = {aliases.get(marker, marker) for marker in expected}
     if headers.get("NDIME") != dimension or set(markers) != expected:
         raise ValueError(f"{case} needs dimension {dimension} and markers {sorted(expected)}")
     if len(markers) != len(expected) or headers.get("NMARK") != len(expected):
@@ -46,13 +56,19 @@ def mesh_metadata(path, case):
         raise ValueError("Empty mesh")
     return {"source": str(path.resolve()), "sha256": hashlib.sha256(path.read_bytes()).hexdigest(),
             "dimension": dimension, "points": headers["NPOIN"], "elements": headers["NELEM"],
-            "markers": sorted(markers), "geometry_and_resolution_verified": False}
+            "markers": sorted(markers), "marker_mapping": mapping,
+            "geometry_and_resolution_verified": False}
 
 
 def prepare(case, output, mesh=None):
     metadata = mesh_metadata(mesh, case) if mesh else None
     config = read_config(HERE / "common.cfg")
     config.update(read_config(HERE / f"{case}.cfg"))
+    if metadata:
+        for key, value in config.items():
+            if key.startswith("MARKER_"):
+                config[key] = re.sub(r"[A-Za-z_][A-Za-z_0-9]*",
+                                     lambda match: metadata["marker_mapping"].get(match[0], match[0]), value)
     dimension = CASES[case][0]
     if case == "nasa_hump":
         # Match SU2's Reynolds initialization before applying NASA pressure ratios.

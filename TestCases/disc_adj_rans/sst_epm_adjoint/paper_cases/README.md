@@ -65,8 +65,8 @@ python3 "$PAPER_CASES/prepare.py" onera_m6 /path/to/new/m6-medium \
   --mesh /path/to/m6-medium.su2
 ```
 
-The preparer checks the ASCII SU2 dimension, nonzero point/element counts and exact
-boundary-marker set, copies the mesh, and records its source path and SHA256 plus
+The preparer checks the ASCII SU2 dimension, nonzero point/element counts and known
+boundary-marker sets, copies the mesh, and records its source path and SHA256 plus
 configuration/template hashes. It refuses to overwrite a campaign. This checks
 the input contract, **not** connectivity, geometry correctness or grid independence.
 Archive the upstream mesh URL/version, conversion command and hash with the manifest.
@@ -145,6 +145,37 @@ mesh is bundled or claimed to have been checked here.
 External benchmark meshes/data are **not downloaded by these scripts or bundled**.
 The NASA PLOT3D converter has been checked with synthetic fixtures; conversion of
 the actual NASA grids and geometric inspection remain pending.
+
+### Existing mesh families inspected on 2026-11-08
+
+The user supplied local verification mesh folders. These assets need not be
+downloaded again. Inspection was read-only; no CFD or local SU2 build was run.
+
+| Family | Files and point counts | Setup consequence |
+|---|---|---|
+| NACA 0012 quadrilaterals | `Mesh_1` through `Mesh_5`: 3,704; 14,576; 57,824; 230,336; 919,424 | Unit chord and approximately 500-chord farfield checked on the coarsest grid; candidate refinement family |
+| Bump in channel | `Mesh_0` through `Mesh_4`: 3,649; 14,337; 56,833; 226,305; 903,169 | Different from NASA hump; do not use with `nasa_hump.cfg` |
+| ONERA M6 mixed viscous candidates | `Coarse_NS.cgns`: 912,869; `Medium_NS.cgns`: 2,397,578; `Fine_NS.cgns`: 8,866,049; `VeryFine_NS.cgns`: 35,448,464 | CGNS metadata contains prism/pyramid/tetrahedral sections; qualify wall resolution and cluster AD memory requirements before selecting levels |
+
+NACA's supplied markers are `Wall` and `Farfield`; the preparer now maps the
+template's `airfoil`/`farfield` to these names in all boundary, plotting and
+monitoring settings. ONERA ASCII files use `WING3D` instead of `WING`, which is
+also supported. Original mesh bytes are preserved, and the mapping is recorded
+in the manifest. Unknown or mixed marker sets still fail rather than being guessed.
+
+The separately supplied M6 `Coarse.su2` has 61,330 points and only tetrahedra;
+it is not the same mesh as `Coarse_NS.cgns`. Do not choose by the word "Coarse"
+alone. The current preparer accepts ASCII SU2 only: the NS CGNS family needs a
+verified conversion on the cluster or explicit CGNS preparation support before
+use. Geometry/scale, trailing-edge definition and near-wall spacing still require
+qualification; the inspected ASCII half-span is about 1.21848 m. Metadata alone
+does not establish agreement with test 2308 or suitability for SST.
+
+The supplied channel bump occupies x=0..1.5 and rises 0.05 above a flat lower
+boundary; its domain extends x=-25..26.5 with a flat upper boundary. It cannot
+replace the no-plenum NASA hump's geometry, incoming boundary layer and contoured
+upper boundary. It can be an additional controlled verification case, but it
+does not fill the separated NASA-hump slot in this matrix.
 
 ## Results and acceptance plan
 

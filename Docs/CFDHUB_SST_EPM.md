@@ -40,6 +40,23 @@ This exception does not change the location of solver or analysis outputs.
 
 ## Existing access and scheduling conventions
 
+The user's cluster-agent prompt, supplied on 2026-11-08, and its referenced
+access/handoff documents are the authoritative operational inputs. Their private
+connection details stay outside the published repository. Use the prompt's exact
+gateway-to-login route, not the older jump-host route used in the failed check.
+Follow its dedicated-folder rule: a new branch gets its own scratch study root
+containing `src`, `build`, `bin`, `jobs`, `cases` and `results`; do not reuse another
+study's binaries or output directories. The storage rule above applies to the
+entire dedicated SU2 study directory, including these siblings of `src`.
+
+Do not build or run SU2 locally under the updated operating instructions. Perform
+builds only on the designated build host when requested; submit CFD through SGE.
+Batch independent remote checks into one SSH call, monitor at most hourly, and stop
+on any SSH/login failure without retries. Leave other sessions' jobs untouched;
+launch a batch only when requested. Use only the queues authorized by the current
+prompt, respect the shared job-count/quota budget, and retrieve only small result
+files. Do not download meshes, restarts or volume outputs unless requested.
+
 Use the user's existing local SSH configuration and transfer helpers. Resolve the
 login/transfer aliases locally; do not embed account names, private host details
 or credentials in published scripts.
