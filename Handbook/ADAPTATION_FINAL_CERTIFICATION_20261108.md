@@ -83,3 +83,20 @@ ONE278MPI6 milestone PASSED118cases on EACHrank169.654s, allpins unchanged and
 allownedhandles ABSENT. Qualification sealed inR/certification278_qualification.json
 with exact query/serial/MPI/source/binary/runtime/input hashes. No further fixture
 campaign before immediate fullsame-seedTWOeventM6. Still ZEROaccepted meshes.
+
+## Frozen278 progression and comparison limit
+
+First83complete construction/qualityentry groups EXACT274 in every non-time/
+non-byte rankfield. Initial61330points/22fields BIT-IDENTICAL256/qualified254target.
+First quality pass matches q/J/g/work through window24384. Existing time-derived
+ownership choice then differs:274gain318.325>2cost156.787 migrates287947cells;
+278gain389.179<=2cost198.030 skips. Allsixrank decisions/math/sourcehash/stablelog
+prefixes inA278/ownership24384_sensitivity274.json. Later geometry-return meshes
+therefore follow different paths; no causal downstream timing or cleanup claim.
+
+278return exit24445 has732471cells,G555 and incomplete q/J; fresh quality entry
+measures215q/275J. A later construction exit24768 hasG21 but60UNKNOWNq/J, so is
+not shape proof. Fresh geometry_repair_entry24868/native4017.111492s measures ALL
+734912cells:0q/0J/2localG/0size. Actual whole-field shape closure, NOT accepted mesh.
+Geometryrepair/reclosure/globalBoth still due. Frozen run LIVE; no source change,
+newtest/perf campaign or stop. Cleanup never executed. Goal still ZEROaccepted.

@@ -37,15 +37,28 @@ First83complete groups through qualityentry23314 MATCH274 EVERY non-time/non-byt
 rankfield, count, flag and workcounter (quality_entry_equivalence274.json). Quality
 entrynative896.835554s vs274691.828611s:690715cells,27016q/27453J/1205localG/0size,
 ALLknown/flagscomplete. Timinghigher; no construction speedup claim. Await frozen outcome; cleanup not invoked. No source/binary/config/ownership policy change during this frozen attempt.
-Latestqualitywindow24192/native3283.480321s:730739cells,
-2092q/1430J/973localG/0size, allmeasured/flagscomplete. Counts/traversalwork still
-MATCH274; cumulative qrate ratio.838727 vs274. No causal speedup claim; final
-certification NOTyetreached. Existing staged shape→geometry/size return→shape
-reclosure remains required. Cleanup has NOTrun. Main35468directpollstillLIVE.
+Latest geometry_repair_entry24868/native4017.111492s:734912cells,
+0q/0J/2localG/0size, ALLmeasurements/flagscomplete. WHOLE-FIELD SHAPEclosure proven,
+NOTgeometry/fullmeshacceptance. Last reported geometryrepair entry; freshq/J reclosure
+and mandatory globalBoth certificate remain due. No newercompletecensus yet;
+workingstate AFTERentry is UNKNOWN. finish() certifies globalBoth BEFOREexittelemetry,
+so quiettail alone does NOTprove geometryrepair is still active. Use actualexit
+counters/reason, not stale2Gcount, toidentify the blocker. Main35468directpollstillLIVE;
+source/runtime/inputs frozen, no stopmarker/pressure/otherheavyjob. Cleanup NOTused.
+
+First CONTROLdivergence vs274 atqualityownership24384:274gain318.325>2cost156.787
+⇒migrate287947cells;278gain389.179<=2cost198.030 ⇒skip. ALLsixrankmath/previouscommon
+decisions/sourcehash/prefixes sealed inownership24384_sensitivity274.json. No
+schedulingcode/configchange. Firstpass q/J/g/work matched through24384, but later
+geometryreturn topology/counts differ, so no isolated downstreamspeedup claim.
+274returnexit24496:732475cells,G559,1112unknownq/J thenfresh215q/270J.
+278returnexit24445:732471cells,G555,q/Jincomplete thenfresh215q/275J.
+Later278length_split_exit24768:G21 with60UNKNOWNq/J; NEVERcallthatshapeclosure.
+Latest24868allknown0q/J supersedes that intermediate state.
+
 Passiveexact11handles allLIVE;sampledtreepeak13.937GB,MemAvailable~36.8GB,
 hostload10.62 atlatestresource receipt. CPUincludesMPIspin; joincallwallshare is
-NOTtotalMPIwait. No stop marker for278. Lastpushedquality/readiness08092603a5;
-source2cf112b7ab. No competing implementation/build/checker/MPIcampaign.
+NOTtotalMPIwait. Lastpushedqualityevidence684cd8251a; source2cf112b7ab.
 A278/transfer_restart_readiness_reuse.json verifies8audited source/build/helperpaths
 against CURRENTfrozenpins and workflowSHA164bf1c06ac5ba5d663aae871b357f5e7143a1d3bda1c8418efaeb9c3fa52074.
 Read-only audit confirms Cycle2 includes final adaptedCFD and selected inspection
