@@ -1,0 +1,365 @@
+{
+  "scope": "Captured nodal target tensors averaged over each actual rejected-mesh wing triangle, restricted to the triangle tangent plane. This is not production quadrature, an edge certification, nor proof of pointwise target drift or causality.",
+  "inputs": {
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build247_canonical_mach_only_real_cfd50k/inspection/rejected_mesh.vtu": {
+      "sha256": "90088c1ff0c79f15206f6be0efde43488202cac91b7fd0bf57f33be420f72a04",
+      "bytes": 145122725
+    },
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build247_canonical_mach_only_real_cfd50k/inspection/rejected_mesh.su2": {
+      "sha256": "bc5bbb7ba9cfea7338b722ba2b04376e5b854ba4829645f58e528f6fe33b4e35",
+      "bytes": 44297556
+    },
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build247_canonical_mach_only_real_cfd50k/m6.su2": {
+      "sha256": "8c839170eb5e359f7de6a41434aa6a9c2d620053f37de6d9360bd04d2a63088b",
+      "bytes": 16374745
+    },
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/target_delivery253_v1/leading_edge_diagnosis.json": {
+      "sha256": "cf6329c53dd9f25ee5a201eaa2195fad01123dd33a30068b98536752267e1a1b",
+      "bytes": 19594
+    }
+  },
+  "script_sha256": "e0aee9fae20279054b433ecc0de0754ef5f449ca277365df7fabecb865592008",
+  "reader": {
+    "meshio": "5.3.5",
+    "numpy": "1.26.4"
+  },
+  "mesh": {
+    "points": 201203,
+    "tetrahedra": 1032602,
+    "marker_tags": {
+      "FARFIELD": 2941,
+      "SYMMETRY": 10165,
+      "WING3D": 53500
+    },
+    "actual_wing_marker_tag": 3,
+    "actual_wing_faces": 53500,
+    "marker_name_order": [
+      "FARFIELD",
+      "SYMMETRY",
+      "WING3D"
+    ],
+    "diagnostic_tag_to_source_marker": {
+      "Marker_0": "FARFIELD",
+      "Marker_1": "SYMMETRY",
+      "Marker_2": "WING3D"
+    },
+    "vtu_su2_coordinates_and_tetrahedra_identical": true,
+    "captured_metric_available_points": 201203,
+    "captured_metric_minimum_eigenvalue": 0.00270493803760962
+  },
+  "stations": [
+    {
+      "y": 0.2,
+      "first_3pct_chord_faces": 472,
+      "chord_definition": 0.7538164745811894,
+      "requested_h_span": {
+        "min": 0.0179232561907807,
+        "p10": 0.04227899029560502,
+        "median": 0.04770931112460691,
+        "p90": 0.051332360029932064,
+        "max": 0.05587697111199022
+      },
+      "requested_h_nose": {
+        "min": 0.013908940872361728,
+        "p10": 0.01429901098708279,
+        "median": 0.017212468341013178,
+        "p90": 0.01931772951627158,
+        "max": 0.02022736739051647
+      },
+      "h_span_over_h_nose": {
+        "min": 1.25237749163285,
+        "p10": 2.384125595272132,
+        "median": 2.712496078510946,
+        "p90": 3.391751366513874,
+        "max": 3.7016588422172436
+      },
+      "long_axis_span_alignment_abs_cos": {
+        "min": 0.9000631812233642,
+        "p10": 0.9968816252831211,
+        "median": 0.9990127035006725,
+        "p90": 0.9999033617881008,
+        "max": 0.9999999979865464
+      },
+      "triangle_span_extent_over_h_span": {
+        "min": 0.01163695196238084,
+        "p10": 0.03763394579451504,
+        "median": 0.09823787392644859,
+        "p90": 0.2178433706352003,
+        "max": 0.419597974659695
+      },
+      "triangle_nose_extent_over_h_nose": {
+        "min": 0.05217958332989378,
+        "p10": 0.11229791524081371,
+        "median": 0.20362954802341654,
+        "p90": 0.2817353784216541,
+        "max": 0.581210273801788
+      },
+      "smallest_projected_eigenvalue": {
+        "min": 318.9903252644364,
+        "p10": 366.6121570425041,
+        "median": 434.80956480851523,
+        "p90": 551.2517744582533,
+        "max": 2571.155178795099
+      },
+      "largest_projected_eigenvalue": {
+        "min": 2450.226177233798,
+        "p10": 2689.7416440246548,
+        "median": 3376.998376796022,
+        "p90": 4901.539663631255,
+        "max": 5424.189411528621
+      }
+    },
+    {
+      "y": 0.4,
+      "first_3pct_chord_faces": 459,
+      "chord_definition": 0.6947786378108918,
+      "requested_h_span": {
+        "min": 0.030469869357685506,
+        "p10": 0.04418359476755838,
+        "median": 0.04894506843263483,
+        "p90": 0.055723593907339636,
+        "max": 0.059060933662266515
+      },
+      "requested_h_nose": {
+        "min": 0.014517634194785313,
+        "p10": 0.015573056878999562,
+        "median": 0.01817622012401408,
+        "p90": 0.02247400604141505,
+        "max": 0.024086503948746948
+      },
+      "h_span_over_h_nose": {
+        "min": 1.7659217955166076,
+        "p10": 2.0485129624698177,
+        "median": 2.7962988227206402,
+        "p90": 3.4469921444141467,
+        "max": 3.8609169478457885
+      },
+      "long_axis_span_alignment_abs_cos": {
+        "min": 0.9952901769378115,
+        "p10": 0.9987957819385607,
+        "median": 0.9998365485133305,
+        "p90": 0.9999855047774829,
+        "max": 0.9999999925953895
+      },
+      "triangle_span_extent_over_h_span": {
+        "min": 0.017214955197664097,
+        "p10": 0.0403567877705653,
+        "median": 0.09277392761805124,
+        "p90": 0.24239421285485888,
+        "max": 0.414214487016476
+      },
+      "triangle_nose_extent_over_h_nose": {
+        "min": 0.04312633298124817,
+        "p10": 0.0971521546895385,
+        "median": 0.17066351745432753,
+        "p90": 0.23903020120642568,
+        "max": 0.48081289192543053
+      },
+      "smallest_projected_eigenvalue": {
+        "min": 285.8726208809443,
+        "p10": 320.20754419546057,
+        "median": 413.44800408370116,
+        "p90": 511.8623910876843,
+        "max": 1075.440647861796
+      },
+      "largest_projected_eigenvalue": {
+        "min": 1727.582543202658,
+        "p10": 1980.733084121217,
+        "median": 3027.489763255521,
+        "p90": 4124.706893141263,
+        "max": 4750.170638941057
+      }
+    },
+    {
+      "y": 0.6,
+      "first_3pct_chord_faces": 488,
+      "chord_definition": 0.6354777247346621,
+      "requested_h_span": {
+        "min": 0.015945257388625452,
+        "p10": 0.03291623583650023,
+        "median": 0.03901042597681423,
+        "p90": 0.04407342603685143,
+        "max": 0.048454131464832836
+      },
+      "requested_h_nose": {
+        "min": 0.011850637559897834,
+        "p10": 0.012746316736397811,
+        "median": 0.015686634240137942,
+        "p90": 0.01808945408566124,
+        "max": 0.01865278961681071
+      },
+      "h_span_over_h_nose": {
+        "min": 1.0011663205213195,
+        "p10": 2.1527008450099325,
+        "median": 2.549724535335672,
+        "p90": 2.7395953057047344,
+        "max": 2.8553874448248973
+      },
+      "long_axis_span_alignment_abs_cos": {
+        "min": 0.7082296300825109,
+        "p10": 0.9993872634420509,
+        "median": 0.9999420885098269,
+        "p90": 0.9999990430501162,
+        "max": 0.9999999998598341
+      },
+      "triangle_span_extent_over_h_span": {
+        "min": 0.014611185736270977,
+        "p10": 0.04600169510523201,
+        "median": 0.1068858736967361,
+        "p90": 0.26197508259797403,
+        "max": 0.4762027092550318
+      },
+      "triangle_nose_extent_over_h_nose": {
+        "min": 0.02704925914032164,
+        "p10": 0.10370188043354313,
+        "median": 0.19172532926052,
+        "p90": 0.26579223707900174,
+        "max": 0.5116389478457727
+      },
+      "smallest_projected_eigenvalue": {
+        "min": 425.0705861454658,
+        "p10": 514.7379324014797,
+        "median": 655.4166447984989,
+        "p90": 921.8221510832649,
+        "max": 2493.6082855944583
+      },
+      "largest_projected_eigenvalue": {
+        "min": 2876.0670408388187,
+        "p10": 3058.313215737911,
+        "median": 4074.0803541288838,
+        "p90": 6157.2005590185045,
+        "max": 7121.48018059298
+      }
+    },
+    {
+      "y": 0.8,
+      "first_3pct_chord_faces": 527,
+      "chord_definition": 0.5771488255974561,
+      "requested_h_span": {
+        "min": 0.03904853506169922,
+        "p10": 0.04132721471490304,
+        "median": 0.04460872754769414,
+        "p90": 0.046289597733487606,
+        "max": 0.049404150574637644
+      },
+      "requested_h_nose": {
+        "min": 0.011805305539543171,
+        "p10": 0.012911101436769176,
+        "median": 0.013639781437272099,
+        "p90": 0.014620212908947028,
+        "max": 0.01735214261857665
+      },
+      "h_span_over_h_nose": {
+        "min": 2.269387293235002,
+        "p10": 2.9944425756780655,
+        "median": 3.2739161790190043,
+        "p90": 3.4526842633965664,
+        "max": 3.6628016712982845
+      },
+      "long_axis_span_alignment_abs_cos": {
+        "min": 0.9937397420719851,
+        "p10": 0.9962588752923943,
+        "median": 0.9994342255366331,
+        "p90": 0.9999718839155817,
+        "max": 0.9999999176882423
+      },
+      "triangle_span_extent_over_h_span": {
+        "min": 0.01135743296135461,
+        "p10": 0.03728234092769116,
+        "median": 0.0900072890570234,
+        "p90": 0.25664029654902215,
+        "max": 0.3515635017910855
+      },
+      "triangle_nose_extent_over_h_nose": {
+        "min": 0.04687043921727909,
+        "p10": 0.1046827604124607,
+        "median": 0.18067700345678295,
+        "p90": 0.2610277600467488,
+        "max": 0.3346714251172802
+      },
+      "smallest_projected_eigenvalue": {
+        "min": 409.37382215518574,
+        "p10": 460.052286942962,
+        "median": 493.400759415229,
+        "p90": 556.9543294573465,
+        "max": 644.4965169731042
+      },
+      "largest_projected_eigenvalue": {
+        "min": 3321.5704436624974,
+        "p10": 4679.309477991995,
+        "median": 5379.745109854988,
+        "p90": 6046.334043090849,
+        "max": 7226.514453496742
+      }
+    },
+    {
+      "y": 1.0,
+      "first_3pct_chord_faces": 549,
+      "chord_definition": 0.5177561190347412,
+      "requested_h_span": {
+        "min": 0.04207085211794648,
+        "p10": 0.045427011754561805,
+        "median": 0.04843287660555457,
+        "p90": 0.051611235564650255,
+        "max": 0.05318135153613006
+      },
+      "requested_h_nose": {
+        "min": 0.011529791934282383,
+        "p10": 0.012314393098014718,
+        "median": 0.0143678193024423,
+        "p90": 0.016758038927919192,
+        "max": 0.01801485178700664
+      },
+      "h_span_over_h_nose": {
+        "min": 2.4262431800783073,
+        "p10": 2.7994168630132386,
+        "median": 3.2837700754698878,
+        "p90": 4.097848325588206,
+        "max": 4.2564308341941555
+      },
+      "long_axis_span_alignment_abs_cos": {
+        "min": 0.9956805499314951,
+        "p10": 0.9980901789552158,
+        "median": 0.9997316155174696,
+        "p90": 0.9999843393628679,
+        "max": 0.9999999999749483
+      },
+      "triangle_span_extent_over_h_span": {
+        "min": 0.010853493675543703,
+        "p10": 0.03266056232814572,
+        "median": 0.07304970267816753,
+        "p90": 0.22401557055351815,
+        "max": 0.29645114650272614
+      },
+      "triangle_nose_extent_over_h_nose": {
+        "min": 0.03664414862271988,
+        "p10": 0.09467105564157334,
+        "median": 0.16544371564719765,
+        "p90": 0.23188697872716074,
+        "max": 0.3591650883775303
+      },
+      "smallest_projected_eigenvalue": {
+        "min": 351.1657162098689,
+        "p10": 372.4088383283112,
+        "median": 419.73058762985164,
+        "p90": 472.81458672970643,
+        "max": 556.0217797040577
+      },
+      "largest_projected_eigenvalue": {
+        "min": 3082.0925143856634,
+        "p10": 3560.8652371028556,
+        "median": 4865.8262477396,
+        "p90": 6606.58393557809,
+        "max": 7534.012077370956
+      }
+    }
+  ],
+  "method": "At each y station use |y-y0|<0.025 and first 3% of the local swept chord xi=x-y/sqrt(3), matching analyze_leading_edge.py. Project span=(1/sqrt(3),1,0) onto each actual face; nose=unit_normal cross projected span. Mean the three nodal tensors, compute directional h=1/sqrt(d^T M d), tangent-plane principal axes and actual triangle projected extents.",
+  "hashes_before_after_equal": true,
+  "execution": {
+    "elapsed_seconds": 4.889056908985367,
+    "requested_niceness": 19,
+    "single_thread_libraries": true,
+    "timeout_seconds": 30
+  }
+}

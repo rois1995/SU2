@@ -15,73 +15,60 @@ ONE active cycle/ONE owned heavy job;all pinned sources/fixtures/helpers/binary/
 config/inputs FROZEN while running. Preserve authorized evidence/stop/fix/retry.
 
 R=`integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57`.
-A254=`R/m6_runs/euler_build254_conditioned_mach_only_real_cfd50k`(LIVE/FROZEN).
+A254=`R/m6_runs/euler_build254_conditioned_mach_only_real_cfd50k`(TERMINAL REFUSED).
 A253=`R/m6_runs/euler_build253_witness_cutoff_mach_only_real_cfd50k`(TERMINAL REFUSED;partial terminal census).
 A251=`R/m6_runs/euler_build251_upper_cutoff_mach_only_real_cfd50k`(terminal REFUSED).
 A247=`R/m6_runs/euler_build247_canonical_mach_only_real_cfd50k`(REFUSED baseline).
 
-## CURRENT — frozen full two-event254M6
+## CURRENT — terminal254; ONE bounded inspection export active
 
-Tool70856LIVE;source/qualification checkpoint8a2c4e1d48PUSHED. New active attempt
-A254 launched immediately after target audit. R/m6_254_condition_launch.json and
-A254/owned_startup.json authoritative HOST identities;R/m6_254_startup_checkpoint.json
-preserves first all1520source/runtime/input pins unchanged and SAME configSHA
-5ad2dc1d9a1cd8bff87f633617b191b50defbc261ab3d0b2ed0987a34722b89e as253.
-Wrapper1274142/start13601208;runner1274263/start13601422;time1274728/start13602152;
-timeout1274729/start13602153;MPI1274730/start13602153;workers1274736,1274737,
-1274738,1274741,1274744,1274749. Verify exact ticks/argv/cwd before any action.
-ALL compiled/executing/pinned sources,fixtures,helpers,binary/config/input FROZEN.
-Same saved real CFDseed,MACH-only L1/50k,gates/native5400/outer14400 unchanged,
-trace UNSET,nice19/libs1,private4TBMPI scratch. No competing implementation.
-Source254 differs by base quadratic condition admission and focused regression;
-construction/geometry/cache/ownership improvements preserved. New target means
-same-round decision identity versus253 is NOT expected;compare matching phases/
-quality-time and net whole-field q/J removal with geometry counts and workload.
-Do not claim closure from target redistribution or counters. Need all acceptance/
-transfer/continued-adapted-CFD/isolated-disk-restart obligations below.
+Source/qualification checkpoint8a2c4e1d48PUSHED;recovery checkpointc99f89f79cPUSHED.
+254first event REFUSED at native5332.870105/round42620:private repair round elapsed
+budget exhausted. Terminal census COMPLETE:741236cells/251q/205J/95geometry/0size,
+ALL cells measured/flags complete. ZERO accepted meshes. Native5.4k budget unchanged.
+Tool70856TERMINAL1/5533.745599s. All30raw capture files sealed/hashed,741236owned+
+metric rows complete:A254/capture_ready.json. ALL1520pins verified AFTER sealing
+BEFORE ONE pidfdSIGTERM to exact MPI1274730/start13602153. owned_stop_once.json
+records attempts1/signal_sent. ALL11owned handles including wrapper absent in
+terminal_handles.json. NEVER repeat that stop. Driver's original-grid CFD and
+adap-named files after refusal do NOT establish adaptation. No owned solver alive.
 
-First COMPLETE quality entry23314:690715cells/27016q/27453J/1205geometry/0size,
-ALL cells measured/flags complete. Versus253entry878443cells/106454q/106204J/
-1381geometry/0size. Native755.522810vs645.622059s (construction110s SLOWER).
-Construction commits85157vs120785;upperwork245091394vs246122779 (almost unchanged),
-uppercalls49857vs52092. Corrected target reduces initial shape failures substantially;
-NOT a same-workload speedup or acceptance. A254/quality_entry_comparison253.json.
-Complete quality ownership publication preserves aggregate counts/flags;not full
-individual-row/dependency proof:A254/ownership_census_integrity.json.
-At entry all11HOST identities and ALL1520pins verified unchanged;tree sampledRSS
-8.912GB,available~32.65GB;RSS not physical peak. A254/quality_entry_live_observation.json.
-Actual full-run initial restart matches ALL22qualified corrected flow/metric fields
-and coordinates exactly:A254/initial_cfd_target_equivalence.json (original-grid CFD,
-not adapted proof). FROZEN attempt remains live. Need net whole-field q/J removal,
-geometry/size closure and shape reclosure;then all transfer/CFD/restart obligations.
+ONE heavy workload now:tool55016 terminal-mesh export toA254/inspection,using
+existing inspect_native_failure3d.py. A254/inspection_export_status.json and
+inspection_export_owned_startup.json authoritative;helper1563236/start14168905,
+timeout1563641/start14169669,Python1563642/start14169669. ALL1554export pins,
+including compiled sources,remain FROZEN until exporter terminal. No C++ edits.
+User asked for meaningful progressed rejected mesh WITH metric,not every trial;
+this is a justified substantial corrected-target result. No routine per-trial export.
+After export verify actual array lengths,PointData tensor/CellData q/J/geometry,
+point order/connectivity,SPD/positive volume;preserve reader receipts and all handles.
 
-FROZEN RECOVERY SNAPSHOT:round26176,native3658.670304,
-737632cells/72q/49J/196geometry/0size,ALL measured/flags complete.
-FIRST shape exit24832:native3274.720,49q/29J/974geometry. Existing guarded
-construction return then rebuilding/reclosure reduced geometry progressively:
-771→728→575→419→291→214→196. This is NOT full shape closure/acceptance.
-Current snapshotq39surface/33interior,J33/16,stuck15of73shape-bad union,missing0,
-private tracked collectives0. Geometry still nonzero;no adapted transfer/CFD proof.
+Same saved CFDseed,MACH-only L1/50k,same configSHA5ad2dc1d9a1cd8bff87f633617b191b50defbc261ab3d0b2ed0987a34722b89e.
+Actual full-run initial22fields/coords match qualified target exactly. Initial
+quality entry690715cells/27016q/27453J/1205g versus253878443/106454/106204/1381.
+Construction110s slower despite fewer commits;no same-workload speedup claim.
+First shape exit3274.720:49q/29J/974g. Guarded geometry construction/reclosure did
+execute;best complete shape census34q/20J/728g,best geometry census133q/122J/60g.
+Late cycles worsened/churned to terminal251/205/95. No full closure. THREE ownership
+publications preserve aggregate flags/counts,not individual dependency proof.
+Terminal shape255bad union:111qsurface/140interior,95Jsurface/110interior;all255
+have edge<.5,none marked near genuine features;stuck97,missing0,private collectives0.
+Window10 resource proof:all11identities/1520pins unchanged,treeRSS9.188GB,available
+~32.84GB,no observed memory stalls;CPU contention. RSS not whole physical peak.
 
-A254/phase_recovery_progress.json records ALL first-event phase transitions.
-quality_progress/quality_comparison253.json deliberately cover ONLY the FIRST
-uninterrupted shape pass(23windows);do NOT mistake that last-window state for
-current after reconstruction. quality_counter_assessment.json reports latest
-complete WINDOW/EXIT locations;check its round against current quality ENTRY.
-Construction may have unmeasured new q/J;only fresh complete measurement establishes
-new counts. No partial/cached zero is a shape pass. Three ownership publications
-preserve aggregate flags/counts;fixed16samples supported,maxdrift.03421424(not
-whole-field equality). Source/resource window10 receipt verifies all11HOST handles/
-ALL1520pins unchanged,treeRSS9.188GB,available~32.84GB,no observed memory stalls.
-Current first-event stage/target drift/provenance records remain underA254.
-Read-only refresh:R/analyze_m6254_frozen.py;no runtime sampling/repair changes.
+NEXT target from this outcome:repair power/admission and coupled surface/volume
+closure,using actual254 residuals. Do NOT start new scheduler,larger-cavity campaign,
+geometry representation,mandatory curvature metric,quality-aware construction or
+norm/sensor/complexity sweep. No blanket minimum-edge gate. Review existing
+operators/support/certificates;test ONE connected hypothesis before production
+change. Source-freezing/one-heavy-job/evidence/stop-fix-retry rules persist.
+All transfer,continued ADAPTED CFD,actual isolated ADAPTED disk restart remain open.
 
-Let frozen attempt finish unless PRESERVED demonstrated failure/bottleneck/actual
-pressure warrants authorized stop. For first-event refusal:seal all30raw files,
-explicitly retain any incomplete-census unknown rows,verify pins BEFORE ONE stop
-of exact owned MPI,then prove all handles/tool terminal. NEVER repeat a stop.
-Driver may continue original-grid CFD after refusal;adap-named files alone prove
-nothing. No routine VTU per trial;latest meaningful247inspection remains available.
+A254/terminal_assessment.json and phase_recovery_progress.json retain ALL first-
+event transitions. quality_progress/comparison253 cover ONLY FIRST uninterrupted
+shape pass(23windows),not terminal. quality_counter_assessment covers actual complete
+WINDOW/EXIT;use matching round. Partial construction q/J never imply passes.
+Read-only refresh:R/analyze_m6254_frozen.py. Source/raw receipts authoritative.
 
 ## Preserved253 outcome and active diagnosis
 
@@ -103,7 +90,7 @@ Confirmed:coarse target in sampled compression strips;very short actual LE edges
 71ill-conditioned first-ring fits corrected below. Farfield allocation/necessary
 geometric resolution/certification scopes remain unresolved;no second correction.
 
-## Qualified conditioning254 — now under full frozen M6
+## Qualified conditioning254 — full M6 refused; integrated fix preserved
 
 Existing-output trace verified raw Hessians;bounded actual smooth-LE compound
 checks passed35836assertions/103.969246s,all pins unchanged and all handles gone.
@@ -137,7 +124,7 @@ absent. ALLflow fields/coords bit-identical;71Hessians changed;maxrawHnorm
 Finalcomplexity49999.999976,SPD/bounds/AR and independent directed-gradation audit
 passed. Sampled shock target5–12%finer;farfield share34.872→40.398% (not solved).
 R/target_delivery254_v1/comparison.json. No norm/sensor/complexity change.
-Full same-seed two-event M6 is now LIVE/FROZEN at unchanged gates/native5400/outer14400.
+Full same-seed two-event254M6 refused;unchanged gates/native5400/outer14400 preserved.
 Zero accepted meshes;no transfer/adaptedCFD/restart claim. No competing cycle.
 
 ## Preserved geometry improvements and inspection

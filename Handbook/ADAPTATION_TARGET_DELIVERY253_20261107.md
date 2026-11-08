@@ -225,3 +225,16 @@ all737632cells measured:72q/49J/196geometry/0size. Current shape/geometry failur
 remain;no accepted mesh/transfer/adaptedCFD/disk-restart claim. The first-pass
 quality-comparison series is intentionally frozen to23windows;all later transitions
 are retained in A254/phase_recovery_progress.json and complete stage evidence.
+
+
+Independent A247 tensor reproduction now also matches the provisional LE demands:
+median h_span/h_nose at five stations=2.713,2.796,2.550,3.274,3.284;median long-axis
+span alignment abs cos=.99901,.99984,.99994,.99943,.99973. Actual triangle extents
+are median.073–.107of requested span spacing,.165–.204of nose spacing. VTU/SU2
+coords/tets match;all201203captured tensors available/SPD;actual53500wing faces
+and station counts472/459/488/527/549 agree with exact-edge analysis. These are
+mean nodal-tensor restrictions,not production quadrature/certification or absence
+of pointwise drift. Reproduction script/JSON:target_delivery253_v1/
+leading_edge_tensor_reproduction.*;bounded≈4.9s,one thread/nice19,unchanged input
+hashes. This does not justify a curvature metric or prove which short edges are
+geometrically necessary. Frozen254 remains the active workflow.

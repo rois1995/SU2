@@ -13,7 +13,7 @@ phases=[{k:e[k] for k in ['stage','round','phase','maximum_native_elapsed','tota
 (a/'phase_recovery_progress.json').write_text(json.dumps({'scope':'All first-event phase transitions;quality_progress comparison is ONLY the first uninterrupted shape pass. Construction may have unmeasured new q/J;use fresh complete quality entry for shape counts. No accepted-mesh claim.','transitions':phases,'latest_stage':{k:p['events'][-1][k] for k in ['stage','round','phase','maximum_native_elapsed','totals','complete_flags']} if p['events'] else None},indent=2)+'\n')
 # Join existing fixed-position drift counters to their following complete census.
 drift_groups={}
-complete={(e['stage'],e['round']) for e in p['events'] if e['phase']=='improvement'}
+complete={(e['stage'],e['round']) for e in p['events'] if e['phase']=='improvement' and all(e['complete_flags'].values())}
 for path,receipt in p['source_prefixes'].items():
  raw=Path(path).read_bytes()[:receipt['bytes']]
  assert hashlib.sha256(raw).hexdigest()==receipt['sha256']
