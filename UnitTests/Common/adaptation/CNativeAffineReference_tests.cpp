@@ -1706,3 +1706,21 @@ TEST_CASE("Representative saved M6 geometry queries preserve exact inputs and ex
   }
   out<<"]}\n";out.close();REQUIRE(bool(out));
 }
+
+TEST_CASE("Interrupted surface certification preserves cache and releases query storage", "[NativeSurfaceMemo3D][NativeDeadline3D]") {
+  using namespace SU2Native3D;CurvedAtlasFixture fixture;auto& g=*fixture.geometry;
+  const auto& f=fixture.facets.front();
+  const std::vector<std::array<Point,3>> physical{{{f.v[0].p,f.v[1].p,f.v[2].p}}};
+  auto budget=GeometryAtlasBudget();budget.caller_bytes=123;
+  unsigned polls=0;budget.within_time=[&]{return ++polls<8;};
+  CHECK_THROWS(g.BoundPhysicalSurface({0,1},physical,.01,budget));
+  CHECK(budget.time_exhausted);CHECK_FALSE(budget.work_exhausted);CHECK(budget.caller_bytes==123);
+  CHECK(budget.geometry_failure.empty());
+  auto fresh=GeometryAtlasBudget();const auto answer=g.BoundPhysicalSurface({0,1},physical,.01,fresh);
+  CurvedAtlasFixture oracle(0,.03,0);auto recomputed=GeometryAtlasBudget();
+  CHECK(answer==oracle.geometry->BoundPhysicalSurface({0,1},physical,.01,recomputed));
+  auto expired=GeometryAtlasBudget();expired.within_time=[] {return false;};
+  CHECK_THROWS(g.BoundPhysicalSurface({0,1},physical,.01,expired));CHECK(expired.time_exhausted);
+  auto warm=GeometryAtlasBudget();CHECK(g.BoundPhysicalSurface({0,1},physical,.01,warm)==answer);
+  CHECK(g.GeometryStatsSnapshot().memo_union_hits>0);
+}

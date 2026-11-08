@@ -205,3 +205,20 @@ TEST_CASE("Atlas cumulative work denial is sticky and preserves output", "[Nativ
   CHECK_FALSE(invalid.work_exhausted);
   auto malformed=Budget();malformed.work=malformed.maximum_work+1;CHECK_FALSE(malformed.ChargeWork(0));CHECK(malformed.work_exhausted);
 }
+
+TEST_CASE("Atlas elapsed expiry is sticky and preserves exact outputs", "[NativeAtlas3D][NativeDeadline3D]") {
+  auto prepared=Budget();std::string reason;
+  const auto a=Fraction(1,3,prepared),b=Fraction(2,5,prepared),sentinel=Integer(7,prepared);
+  auto budget=Budget();unsigned polls=0;
+  budget.within_time=[&]{return ++polls<3;};
+  ExactRatio out=sentinel;
+  while(!budget.time_exhausted) {
+    out=sentinel;
+    if(!ExactMultiply(a,b,out,budget,reason))break;
+  }
+  CHECK(budget.time_exhausted);CHECK_FALSE(budget.work_exhausted);CHECK(Same(out,sentinel));
+  CHECK(reason.find("elapsed-time")!=std::string::npos);
+  budget.within_time=[] {return true;};
+  CHECK_FALSE(ExactAdd(a,b,out,budget,reason));CHECK(Same(out,sentinel));
+  CHECK(budget.time_exhausted);CHECK(budget.geometry_failure.empty());
+}

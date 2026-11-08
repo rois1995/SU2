@@ -366,6 +366,7 @@ std::shared_ptr<BoundaryParameterState> BoundaryParameterState::WithEntityGeomet
 }
 const std::map<BoundaryParameterState::EntityKey,MappedFacetReference::SurfaceUnionBounds>&
 BoundaryParameterState::GeometryCertificates(AtlasBudget& budget,bool complete)const {
+  budget.CheckTime();
   if(!EntityGeometry())throw std::invalid_argument("Entity geometry certificate requested from a legacy face partition.");
   // A source enclosure never substitutes for the final two-sided query.
   if(!complete&&certificate_revision==revision)return geometry_certificates;
@@ -373,8 +374,8 @@ BoundaryParameterState::GeometryCertificates(AtlasBudget& budget,bool complete)c
   const auto live=transfer_memory::Add(budget.caller_bytes,temporary);
   AtlasStorage storage(&budget,live,budget.maximum_bytes);
   std::map<EntityKey,std::vector<std::array<Point,3>>> physical;
-  for(const auto& row:geometry->Reference().Facets())physical.emplace(Entity(row.first),std::vector<std::array<Point,3>>{});
-  for(const auto& row:surface){std::array<Point,3> points;for(unsigned k=0;k<3;++k)points[k]=records.at(row.second.v[k]).point.node.p;
+  for(const auto& row:geometry->Reference().Facets()){budget.CheckTime();physical.emplace(Entity(row.first),std::vector<std::array<Point,3>>{});}
+  for(const auto& row:surface){budget.CheckTime();std::array<Point,3> points;for(unsigned k=0;k<3;++k)points[k]=records.at(row.second.v[k]).point.node.p;
     physical.at(Entity(row.second.facet)).push_back(points);}
   NativeMappedGeometryBackend3D backend(geometry,mobility);std::map<EntityKey,MappedFacetReference::SurfaceUnionBounds> fresh;
   for(const auto& row:physical){GeometrySupport scope;scope.body=std::get<0>(row.first);scope.sheet=std::get<1>(row.first);scope.marker=std::get<2>(row.first);
@@ -1231,14 +1232,14 @@ GeometryProjection ProjectEntitySurface(const State& state,Point point,const Sur
     Id hint,AtlasBudget& budget) {
   NativeMappedGeometryBackend3D backend(state.Authority(),state.Mobility());GeometrySupport support;std::string reason;
   if(!backend.Support(previous,hint,support,budget,reason)) {
-    if(!budget.work_exhausted&&budget.geometry_failure.empty())budget.geometry_failure=reason;
+    if(!budget.work_exhausted&&!budget.time_exhausted&&budget.geometry_failure.empty())budget.geometry_failure=reason;
     throw std::invalid_argument(reason);
   }
   GeometryProjectionScope scope;scope.body=support.body;scope.hint=hint;scope.previous=previous;scope.sheet=support.sheet;
   scope.feature=std::make_pair(2u,support.sheet);scope.absolute_error=std::max(std::numeric_limits<double>::min(),state.GeometryTolerance()/8);
   GeometryProjection projection;GeometryProjectionFailure failure;
   if(!backend.Project(point,scope,projection,budget,reason,&failure)) {
-    if(failure!=GeometryProjectionFailure::Unavailable&&!budget.work_exhausted&&budget.geometry_failure.empty())budget.geometry_failure=reason;
+    if(failure!=GeometryProjectionFailure::Unavailable&&!budget.work_exhausted&&!budget.time_exhausted&&budget.geometry_failure.empty())budget.geometry_failure=reason;
     throw std::invalid_argument(reason);
   }
   return projection;
@@ -1443,6 +1444,7 @@ bool PlanarReference::ParameterOnEdge(Id facet,Point a,Point b,Point p,KernelSta
   return ParametricOnSegment(g.Ideal(Parameter(a)->binding),g.Ideal(Parameter(b)->binding),g.Ideal(Parameter(p)->binding),stats);
 }
 double PlanarReference::ParameterError(Id facet,const std::array<Point,3>& p)const {
+  if(parameter_view->reservation)parameter_view->reservation->CheckTime();
   double maximum=0;const auto& g=parameter_view->accepted->Geometry();std::array<SU2NativeGeometry::SurfaceBinding,3> binding;
   for(unsigned k=0;k<3;++k){const auto b=Parameter(p[k]);if(!b)throw std::invalid_argument("Unbound mapped surface error query.");binding[k]=b->binding;
     const auto plane=Affine().find(facet);if(plane!=Affine().end())maximum=std::max(maximum,SU2NativeGeometry::AffineChart(plane->second).ErrorBound(p[k]));}
@@ -1471,7 +1473,7 @@ double PlanarReference::ParameterError(Id facet,const std::array<Point,3>& p)con
     radius=std::nextafter(radius+state.GeometryTolerance(),INFINITY);
     lo={std::nextafter(lo.x-radius,-INFINITY),std::nextafter(lo.y-radius,-INFINITY),std::nextafter(lo.z-radius,-INFINITY)};
     hi={std::nextafter(hi.x+radius,INFINITY),std::nextafter(hi.y+radius,INFINITY),std::nextafter(hi.z+radius,INFINITY)};
-    auto candidates=g.NearbySurfaceFacets(facet,{lo,hi});const auto entity=state.Entity(facet);
+    auto candidates=g.NearbySurfaceFacets(facet,{lo,hi},budget);const auto entity=state.Entity(facet);
     candidates.erase(std::remove_if(candidates.begin(),candidates.end(),[&](Id id){return state.Entity(id)!=entity;}),candidates.end());
     g.RecordSupportQuery(std::chrono::duration<double>(std::chrono::steady_clock::now()-support_start).count(),candidates.size());
     if(candidates.empty())throw std::invalid_argument("Entity surface query lost its supporting geometry.");

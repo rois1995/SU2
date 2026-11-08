@@ -36,6 +36,7 @@ struct Context {
   AtlasBudget& budget;
   size_t retained=0,live=0;
   Context(AtlasBudget& b,size_t inputs):budget(b),retained(AddSize(b.caller_bytes,inputs)) {
+    b.CheckTime();
     if(!b.ChargeWork(0))throw std::length_error("Atlas arithmetic work budget exhausted.");
     Admit(0);
   }
@@ -118,7 +119,9 @@ Natural Product(Context& c,const Limbs& a,const Limbs& b) {
   c.Work(MulSize(a.size(),b.size()));
   Natural result(c,AddSize(a.size(),b.size()),bits);
   for(size_t i=0;i<a.size();++i){uint64_t carry=0;
-    for(size_t j=0;j<b.size();++j){const uint64_t s=uint64_t(a[i])*b[j]+result.limb[i+j]+carry;
+    for(size_t j=0;j<b.size();++j){
+      if((j&1023)==0)c.budget.CheckTime(); // Product work is charged before this potentially long loop.
+      const uint64_t s=uint64_t(a[i])*b[j]+result.limb[i+j]+carry;
       result.limb[i+j]=uint32_t(s);carry=s>>32;}
     result.limb[i+b.size()]=uint32_t(carry);}
   result.Trim();return result;

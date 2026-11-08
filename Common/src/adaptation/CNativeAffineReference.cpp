@@ -164,7 +164,7 @@ struct AtlasOps {
   const char* name;size_t start=0,children=0;AtlasOps* previous=nullptr;
   static AtlasOps*& Active(){static thread_local AtlasOps* active=nullptr;return active;}
   static bool Trace(){static const bool enabled=[](){const char* value=std::getenv("SU2_NATIVE_GEOMETRY_WORK_TRACE");return value&&std::strcmp(value,"1")==0;}();return enabled;}
-  AtlasOps(AtlasBudget& b,const char* operation):budget(b),name(operation){if(Trace()){start=budget.work;previous=Active();Active()=this;}}
+  AtlasOps(AtlasBudget& b,const char* operation):budget(b),name(operation){budget.CheckTime();if(Trace()){start=budget.work;previous=Active();Active()=this;}}
   AtlasOps(const AtlasOps&)=delete;AtlasOps& operator=(const AtlasOps&)=delete;
   ~AtlasOps() noexcept {if(!Trace())return;Active()=previous;const size_t total=budget.work>=start?budget.work-start:0;
     for(auto* parent=previous;parent;parent=parent->previous)if(&parent->budget==&budget){parent->children+=total;break;}
@@ -1533,7 +1533,8 @@ size_t MappedFacetReference::CurvedQueryWorkspaceBytes(size_t maximum_work)const
 }
 MappedFacetReference::CurvedClosest MappedFacetReference::ClosestCurved(
     Id hint,Point query,double tolerance,size_t maximum_work,size_t ceiling,
-    const std::function<bool(Id)>& allowed_facets,size_t* attempted_work)const {
+    const std::function<bool(Id)>& allowed_facets,size_t* attempted_work,AtlasBudget* reservation)const {
+  if(reservation)reservation->CheckTime();
   CurvedClosest result;
   if(attempted_work)*attempted_work=0;
   struct WorkReceipt { size_t* out; const CurvedClosest& result; ~WorkReceipt(){if(out)*out=result.work;} } receipt{attempted_work,result};
@@ -1546,7 +1547,8 @@ MappedFacetReference::CurvedClosest MappedFacetReference::ClosestCurved(
   const auto storage=CurvedQueryWorkspaceBytes(maximum_work);
   if(storage==SIZE_MAX||storage>ceiling)throw std::length_error("Curved query exceeds storage admission.");
   result.upper=INFINITY;
-  auto consume=[&](){if(result.work>=maximum_work)throw std::length_error("Curved distance certification work exhausted.");++result.work;};
+  auto consume=[&](){if(reservation)reservation->CheckTime();
+    if(result.work>=maximum_work)throw std::length_error("Curved distance certification work exhausted.");++result.work;};
   auto binding=[&](Id id,Point r) {
     const auto& f=reference->Get(id);const auto v=Values(r);
     for(unsigned k=0;k<3;++k)if(v[k]==1)return Vertex(f.v[k].id);
@@ -1623,6 +1625,7 @@ MappedFacetReference::CurvedClosest MappedFacetReference::ClosestCurved(
     if(!allowed_facets || allowed_facets(facet))prepare(facet,{{{1,0,0},{0,1,0},{0,0,1}}},0); }
   if(pending.empty())throw std::logic_error("Curved component broad phase lost its seed.");
   while(!pending.empty()) {
+    if(reservation)reservation->CheckTime();
     result.lower=std::min(result.upper,pending.top().lower);
     if(Subtract(result.upper,result.lower).hi<=tolerance)break;
     const auto parent=pending.top();pending.pop();
@@ -1644,14 +1647,18 @@ MappedFacetReference::CurvedClosest MappedFacetReference::ClosestCurved(
   result.curvature1=evaluation.curvature1;result.curvature2=evaluation.curvature2;
   result.direction1=evaluation.direction1;result.direction2=evaluation.direction2;return result;
 }
-std::vector<Id> MappedFacetReference::NearbySurfaceFacets(Id hint,const std::array<Point,2>& box)const {
+std::vector<Id> MappedFacetReference::NearbySurfaceFacets(Id hint,const std::array<Point,2>& box,AtlasBudget* reservation)const {
+  if(reservation)reservation->CheckTime();
   for(auto p:box)Finite(p);std::vector<Id> result;
   if(!curved_search||!curved_search->root.count(hint)){result.push_back(hint);return result;}
   const auto& entry=curved_search->entries.at(curved_search->root.at(hint));
   if(!entry.index)return entry.facets;
   const auto a=Values(box[0]),b=Values(box[1]);su2double lo[3],hi[3];for(unsigned d=0;d<3;++d){if(a[d]>b[d])throw std::invalid_argument("Reversed model broad-phase box.");lo[d]=a[d];hi[d]=b[d];}
   std::vector<unsigned long> selected;{std::lock_guard<std::mutex> lock(curved_search->mutex);entry.index->DetermineIntersectingElements(lo,hi,selected);}
-  result.reserve(selected.size());for(auto i:selected)result.push_back(entry.facets.at(i));std::sort(result.begin(),result.end());result.erase(std::unique(result.begin(),result.end()),result.end());return result;
+  if(reservation)reservation->CheckTime();
+  result.reserve(selected.size());for(auto i:selected){if(reservation)reservation->CheckTime();result.push_back(entry.facets.at(i));}
+  std::sort(result.begin(),result.end());if(reservation)reservation->CheckTime();
+  result.erase(std::unique(result.begin(),result.end()),result.end());return result;
 }
 bool MappedFacetReference::OrientedFace(Id side,const SurfaceBinding& binding,
     const std::array<Point,3>& physical)const {
@@ -1751,6 +1758,7 @@ MappedFacetReference::SurfaceUnionBounds MappedFacetReference::BoundModelSurface
     double tolerance,AtlasBudget& budget)const {return QuerySurfaceUnion(facets,physical,tolerance,budget,true,false);}
 double MappedFacetReference::BoundPhysicalSurface(const std::vector<Id>& facets,
     const std::vector<std::array<Point,3>>& physical,double tolerance,AtlasBudget& budget)const {
+  budget.CheckTime();
   auto bits=[](double x){uint64_t value;std::memcpy(&value,&x,sizeof value);return value;};
   const bool trace=AtlasOps::Trace();const auto trace_start=budget.work;
   if(trace) {
@@ -1851,6 +1859,7 @@ MappedFacetReference::SurfaceUnionBounds MappedFacetReference::QuerySurfaceUnion
     else {++x.full_calls;x.full_seconds+=seconds;x.full_work+=budget.work-initial_work;}x.union_exceptions+=failed;};
   try {double resolution=tolerance;
     for(;;) {
+      budget.CheckTime();
       try{auto result=QuerySurfaceUnionAtResolution(facets,physical,tolerance,budget,include_model,include_mesh,resolution);
         record(false,upper&&result.mesh_to_model>tolerance);return result;}
       catch(const RefineSurfaceTarget&) {
@@ -1964,6 +1973,7 @@ MappedFacetReference::SurfaceUnionBounds MappedFacetReference::QuerySurfaceUnion
     const auto selection_work=budget.work;const auto selection_start=std::chrono::steady_clock::now();
     Box physical_box=Exact(physical.front().front());
     for(const auto& triangle:physical)for(auto p:triangle)for(unsigned d=0;d<3;++d) {
+      budget.CheckTime();
       physical_box[d].lo=std::min<long double>(physical_box[d].lo,Values(p)[d]);physical_box[d].hi=std::max<long double>(physical_box[d].hi,Values(p)[d]);}
     // Only this upper witness is cropped. Its immutable piece identities establish reuse across overlapping supports.
     const auto selection_caller=budget.caller_bytes;
@@ -1978,6 +1988,7 @@ MappedFacetReference::SurfaceUnionBounds MappedFacetReference::QuerySurfaceUnion
       const auto nearby_bytes=transfer_memory::Mul(nearby.capacity(),sizeof(size_t));
       budget.caller_bytes=transfer_memory::Add(selection_caller,selection_bytes(),nearby_bytes);
       for(auto piece:nearby) {
+        budget.CheckTime();
         op.Storage(transfer_memory::Add(transfer_memory::GrowthBound(selected.size()+1,sizeof(selected.front())),
             transfer_memory::GrowthBound(scope.size()+2,sizeof(uint64_t))));
         selected.emplace_back(i,piece);scope.push_back(facets[i]);scope.push_back(piece);
@@ -2060,6 +2071,7 @@ MappedFacetReference::SurfaceUnionBounds MappedFacetReference::QuerySurfaceUnion
     if(from_model)for(Id facet:facets)prepare({facet});else for(size_t i=0;i<physical.size();++i)prepare({i});
     const double initial_upper=queue.front().upper;
     while(!queue.empty()) {
+      budget.CheckTime();
       if(AtlasOps::Trace() && budget.work-traced_work>=65536) {
         std::fprintf(stderr,"NATIVE_SURFACE_BOUND model=%d queue=%zu depth=%u upper=%.17g lower=%.17g tolerance=%.17g work=%zu\n",
             int(from_model),queue.size(),queue.front().domain.depth,queue.front().upper,lower,tolerance,budget.work);

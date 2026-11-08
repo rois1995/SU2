@@ -1142,6 +1142,10 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
   const auto started_cpu=options.timings ? std::clock() : std::clock_t{};
   std::shared_ptr<BoundaryParameterState> private_parameters;std::shared_ptr<const PlanarReference> private_geometry;
   SU2NativeGeometry::AtlasBudget atlas_budget;std::unique_ptr<PlanarReference> atlas_geometry;
+  if(std::isfinite(options.maximum_seconds) && options.maximum_seconds>0)
+    atlas_budget.within_time=[started,maximum=options.maximum_seconds] {
+      return std::chrono::duration<double>(Clock::now()-started).count()<maximum;
+    };
   const SU2NativeGeometry::BoundaryCoverage no_coverage;
   CLocalFailure parameter_failure;size_t parameter_bound=0;
   const unsigned mapped=accepted_geometry.Mapped();
@@ -1250,6 +1254,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     return world.elect(local);
   };
   auto vote=[&](const CLocalFailure& local) {
+    if(atlas_budget.within_time && !atlas_budget.within_time())atlas_budget.time_exhausted=true;
     stats.atlas_work=atlas_budget.work;stats.atlas_peak_bytes=atlas_budget.peak_bytes;
     stats.maximum_work_bytes=std::max(stats.maximum_work_bytes,atlas_budget.peak_bytes);
     // Elect sticky geometry failures at the existing stage votes, even if a trial caught the exception.
@@ -1260,13 +1265,17 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     constexpr unsigned short geometry_backend_failure=5;
     if(!atlas_budget.geometry_failure.empty())pending.Set(geometry_backend_failure,0,
         "Native3D geometry backend failure: "+atlas_budget.geometry_failure);
+    constexpr unsigned short atlas_time_refusal=6;
+    if(atlas_budget.time_exhausted)pending.Set(atlas_time_refusal,0,
+        "Native3D geometry/private work exhausts elapsed-time budget; feasibility is undetermined.");
     const auto elected=elect_trial_failure(pending);
     if (elected.any) result.reason=elected.message;
-    if(elected.any && (elected.severity==atlas_work_refusal||elected.severity==geometry_backend_failure)){
+    if(elected.any && (elected.severity==atlas_work_refusal||elected.severity==geometry_backend_failure||elected.severity==atlas_time_refusal)){
       // A quota refusal need not be the only failure; retain the ordinary elected diagnostic too.
       const auto original=elect_trial_failure(local);
       if(original.any)result.reason+=" Original failure: "+original.message;
-      result.valid=false;stats.stop=elected.severity==atlas_work_refusal?EngineStop::WorkBudget:EngineStop::Failure;
+      result.valid=false;stats.stop=elected.severity==atlas_time_refusal?EngineStop::TimeBudget:
+          elected.severity==atlas_work_refusal?EngineStop::WorkBudget:EngineStop::Failure;
     }
     return !elected.any;
   };
@@ -5033,6 +5042,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
           std::map<Face,Id> facets;for(const auto& face:patch.surface)facets.emplace(Key(face.v),face.facet);
           std::pair<size_t,size_t> counts{};
           for(const auto& cell:patch.cells) {
+            atlas_budget.CheckTime();
             bool bad=false;
             for(const auto& face:Faces(cell)) {
               const auto found=facets.find(Key(face));if(found==facets.end())continue;
@@ -6279,7 +6289,7 @@ bool MeshOptimizer::SmoothBoundary(Id p) {
     if(!Limited() && std::isfinite(before) && report.boundary_candidates && report.boundary_rejected_shape>shape_start &&
         report.boundary_rejected_validity==validity_start && report.boundary_rejected_edge==edge_start &&
         report.boundary_rejected_geometry==geometry_start &&
-        (!reservation || (!reservation->work_exhausted && reservation->geometry_failure.empty())))RememberRejectedSmooth(p);
+        (!reservation || (!reservation->work_exhausted && !reservation->time_exhausted && reservation->geometry_failure.empty())))RememberRejectedSmooth(p);
     return false;
   }
   prepared_atlas={};projected_context.reset();if(atlas_budget)atlas_budget->caller_bytes=caller_restore.original;
@@ -6405,7 +6415,7 @@ bool MeshOptimizer::Smooth(Id p) {
     if(!Limited() && std::isfinite(oldMin) && report.interior_candidates && report.interior_rejected_shape>shape_start &&
         report.interior_rejected_validity==validity_start && report.interior_rejected_edge==edge_start &&
         report.interior_rejected_geometry==geometry_start &&
-        (!reservation || (!reservation->work_exhausted && reservation->geometry_failure.empty())))RememberRejectedSmooth(p);
+        (!reservation || (!reservation->work_exhausted && !reservation->time_exhausted && reservation->geometry_failure.empty())))RememberRejectedSmooth(p);
     return false;
   }
   std::stable_sort(trials.begin(),trials.end(),[](const Trial& u,const Trial& v){return u.score>v.score;});
@@ -6430,7 +6440,7 @@ bool MeshOptimizer::Smooth(Id p) {
   if(!Limited() && std::isfinite(oldMin) && report.interior_candidates && report.interior_rejected_shape>shape_start &&
       report.interior_rejected_validity==validity_start && report.interior_rejected_edge==edge_start &&
       report.interior_rejected_geometry==geometry_start &&
-      (!reservation || (!reservation->work_exhausted && reservation->geometry_failure.empty())))RememberRejectedSmooth(p);
+      (!reservation || (!reservation->work_exhausted && !reservation->time_exhausted && reservation->geometry_failure.empty())))RememberRejectedSmooth(p);
   return false;
 }
 // O5: boundary edge (a,b) between two boundary faces bound to the same facet (coplanar within 1e-12 relative); its open

@@ -4919,3 +4919,46 @@ TEST_CASE("Cumulative atlas and backend failure stop all workers before construc
   CHECK(world.sum(fired)==1);CHECK(world.sum(later)==0);CHECK(world.sum(result.stats.accepted)==0);
   CHECK(result.stats.quality_stages==0);CHECK(Bytes(input)==saved);CHECK(Bytes(result.cells)==Bytes(WithUniformSensor(input,{4,0,0,4,0,4})));CHECK(parameters->Snapshot()==snapshot);
 }
+
+TEST_CASE("Private geometry expiry joins empty ranks and captures the last published mesh", "[NativeDeadline3D][NativeRejectedState3D]") {
+  World world;auto box=Box();box.patch.cells.clear();const Node center{8,{.99,.99,.99}};
+  for(const auto& f:box.facets) {
+    Cell c{box.patch.cells.size(),{center,f.v[0],f.v[1],f.v[2]}};
+    if(Orientation(c.v[0].p,c.v[1].p,c.v[2].p,c.v[3].p)<0)std::swap(c.v[2],c.v[3]);
+    box.patch.cells.push_back(c);
+  }
+  auto rename=[](Id id){return id==0?Id(8):id==8?Id(0):id;};
+  for(auto& c:box.patch.cells)for(auto& n:c.v)n.id=rename(n.id);
+  for(auto& f:box.patch.surface)for(auto& id:f.v)id=rename(id);
+  for(auto& f:box.facets)for(auto& n:f.v)n.id=rename(n.id);
+  Owned input;if(!world.rank)for(const auto& row:Rows(box.patch))input.emplace(row.cell.id,row);
+  const auto saved=Bytes(input);
+  auto root=std::make_shared<PlanarReference>(box.facets);std::map<Id,double> errors;
+  for(auto f:box.facets)errors.emplace(f.id,1e-13);
+  auto authority=std::make_shared<SU2NativeGeometry::MappedFacetReference>(root,errors,7);
+  BoundaryPoints records;for(auto f:box.facets)for(auto n:f.v)records.emplace(n.id,BoundaryPoint{n,authority->Vertex(n.id)});
+  auto parameters=std::make_shared<BoundaryParameterState>(authority,records,box.patch.surface);
+  SU2NativeGeometry::AtlasBudget setup{size_t(1)<<28,size_t(1)<<29,4096};std::map<int,int> roles;
+  for(const auto& f:box.facets)roles[f.marker]=2;
+  parameters=parameters->WithMobilityPolicy(45,roles,setup);
+  const auto snapshot=parameters->Snapshot();
+  auto geometry=PlanarReference::WithParameters(root,parameters);
+  EngineOptions options;options.maximum_seconds=120;options.maximum_work=4096;
+  options.capture_feature={{0,0,0},1};bool expired=false;unsigned captured=0;
+  options.transaction_observer=[&](const TransactionView& view) {
+    if(std::string(view.stage)!="begin" || !view.selected)return;
+    auto* budget=view.geometry.AtlasReservation();REQUIRE(budget);
+    // Deterministic event-clock expiry in a private trial, without sleeping or changing the mesh.
+    budget->within_time=[] {return false;};expired=true;
+  };
+  options.rejected_state=[&](const Owned& cells,const PlanarReference& active,const std::string&) {
+    ++captured;REQUIRE(active.Parameters());CHECK_FALSE(active.Parameters()->Snapshot().empty());
+    for(const auto& row:cells){const auto& v=row.second.cell.v;CHECK(Orientation(v[0].p,v[1].p,v[2].p,v[3].p)>0);}
+  };
+  const auto result=Repair(world,input,Uniform(input,Tensor{}),*geometry,{},options);INFO(result.reason);
+  CHECK(world.maximum(expired));CHECK_FALSE(result.valid);CHECK(result.stats.stop==EngineStop::TimeBudget);
+  CHECK(world.sum(result.stats.accepted)==0);CHECK(captured==1);CHECK(Bytes(input)==saved);
+  CHECK(world.sum(result.cells.size())==box.patch.cells.size());
+  CHECK(result.stats.quality.private_tracked_collectives==0);
+  CHECK(parameters->Snapshot()==snapshot);
+}

@@ -744,3 +744,20 @@ metric,quality-aware construction,min-edge gate or competing implementation now.
   existing bounded capture preserve a complete mesh with explicit disk/work
   accounting (reuse streaming/format facilities;do not silently raise production
   budgets or infer complete support). No baseline rerun solely for capture.
+
+
+2026-11-08 deferred within coupled267 cycle, pending actual terminal evidence:
+The last complete state25011 is6q/5J/2geometry; the live run then has a long
+private-repair interval without a new complete census. Do not infer an unchanged
+mesh or interrupt solely from this log gap. After terminal capture, distinguish
+geometry-query work from repair yield using existing cumulative counters and
+representative actual complete cavities. A specific source-fidelity hypothesis:
+OptimizeMetricMesh proposes against old-connectivity current-nodal FrozenField,
+whereas final ImportMetricSamplesLocal/PublishMetrics rebase onto candidate
+connectivity.263/265 validated a few actual candidates, not equality of every
+changed-position/candidate score. Compare proposal and production q/J on the
+actual residual before blaming either certification or connectivity. If a material
+mismatch demonstrably causes rejection, reuse production transport/composition
+for the candidate objective; do not silently introduce an immutable-original-target
+policy. This is unproven and does not authorize a competing implementation while
+267 is frozen. Preserve all shape/geometry/height/body/feature/budget gates.

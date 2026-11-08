@@ -6,13 +6,25 @@ build numbers never override it.
 
 ## Current result
 
-The complete same-seed M6 attempt262 refused its first event at the unchanged
-native time limit. It reached shape/size closure at complete censuses but stalled
-on four leading-edge geometry failures. Its final734315-cell state has four
-unknown q/J scores; do not substitute an earlier clean census for final closure.
-All thirty raw files are complete/sealed; source/runtime/input pins were verified
-before the one recorded owned stop. All old solver and inspection handles are
-terminal. Never repeat an old stop.
+Build267's geometry phase improved measured retirement and reached two geometry
+failures after shape-clean checkpoints. It then stopped yielding complete
+censuses during private shape repair. The preserved native elapsed estimate
+exceeded6103seconds against configured5400. Under the existing authorization,
+all1520pins were verified, eight log/resource files sealed, and ONE exact owned
+MPI stop sent. All11owned identities are now absent. No native acceptance/refusal
+or current mesh capture was produced before interruption. Last complete state
+was6q/5J/2geometry; actual terminal state is UNKNOWN. Zero accepted meshes.
+
+The active continuation is cooperative deadline enforcement through long query/
+certification work and safe private-round expiry. It must preserve the last
+published mesh so ordinary refusal capture can run. No budget/gate/target change.
+268deadline implementation and focused tests are frozen in build session88079,
+helper3486849/start18637953, ninja3486900. UNVALIDATED; do not edit pinned sources.
+Read the handoff for source/build/handle provenance.
+
+The latest complete saved mesh remains build262's734315-cell terminal refusal.
+Fourq/J values are unknown; earlier clean censuses do not prove final shape.
+All raw files, input/source pins and prior once-only stop are preserved.
 
 The latest complete inspection mesh is
 `integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build262_compact_capture_mach_only_real_cfd50k/inspection/rejected_mesh.vtu`.
@@ -68,15 +80,21 @@ cell count. Strict excess descent, shape/size/heights/contact gates remain. Supp
 is imported completely before the existing disjoint/versioned reservation; existing
 operators,160work,node ranges,memory accounting and publication are reused.
 
-Build267, serial65cases/56523assertions and99cases on EACH MPI6rank passed,
-including the previously failing phase return and actual useful cavity. Evidence
-is sealed and the full same-seed TWO-event M6 build267 is RUNNING/FROZEN. See
-[current design and failed qualification](Handbook/ADAPTATION_COUPLED_REPAIR266_20261108.md).
-Require the actual-cavity candidate plus the previously failing phase-return check,
-then ONE MPI6 milestone for conflicts/empty ranks/curves/features/heights/census/
-ownership/cache equality. If qualified, immediately run full same-seed two-event
-M6; judge whole-field q/J/geometry counts and useful work, not commits/debt alone.
-If it fails, preserve evidence and fix its demonstrated blocker inside this cycle.
+Build267, serial65cases/56523assertions and99cases on EACH MPI6rank passed.
+Actual runtime geometry retirement344→4 took251seconds versus456 in262, with
+83M versus206M traversal work. Native work increased31103versus15410; meshes
+differ. These observations are not an isolated benchmark or full closure proof.
+The later non-yielding private interval is now the demonstrated blocker.
+
+Next268must thread the existing event deadline through long geometry/exact-work
+paths and reject an expired private round collectively without publishing partial
+proposals. Validate expired/unexpired/cache/resource behavior and one MPI6
+milestone, then immediately run full same-seed TWO-event M6. A bounded refusal
+and recoverable diagnostic mesh are necessary supporting behavior, not completion.
+Only actual residual cavity evidence can justify proposal-objective/metric-rebasing
+or further repair changes; the hypotheses are recorded in the backlog.
+See [coupled evidence](Handbook/ADAPTATION_COUPLED_REPAIR266_20261108.md) and
+[deadline continuation](Handbook/ADAPTATION_DEADLINE268_20261108.md).
 
 Keep validity-first construction unchanged. Quality-aware coarsening/splitting,
 larger cavities, a different scheduler/geometry representation and mandatory

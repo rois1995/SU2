@@ -374,7 +374,8 @@ bool CheckFirstHeight(const Patch& patch,const WallHeights& heights,const Planar
           const auto& geometry=reference.Parameters()->Geometry();
           const auto work=SU2NativeGeometry::MappedFacetReference::ClearanceWork;
           const double precision=std::max(std::numeric_limits<double>::min(),height->second*1e-4);
-          clearance=geometry.ClosestCurved(face.facet,apex.p,precision,work,geometry.CurvedQueryWorkspaceBytes(work)).clearance_lower;
+          clearance=geometry.ClosestCurved(face.facet,apex.p,precision,work,geometry.CurvedQueryWorkspaceBytes(work),{},nullptr,
+              reference.AtlasReservation()).clearance_lower;
         } else {
           const auto closest=reference.ClosestAnalytic(face.facet,apex.p);
           const auto n=closest.normal,d=closest.direction;

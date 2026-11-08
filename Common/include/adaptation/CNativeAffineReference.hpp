@@ -156,9 +156,9 @@ class MappedFacetReference {
    * Ambiguous accuracy or resource exhaustion throws; no other body/marker is searched. */
   CurvedClosest ClosestCurved(Id hint,Point query,double absolute_error,size_t maximum_work,
                               size_t ceiling=SIZE_MAX, const std::function<bool(Id)>& allowed_facets={},
-                              size_t* attempted_work=nullptr)const;
+                              size_t* attempted_work=nullptr,AtlasBudget* reservation=nullptr)const;
   /*! Fixed-model broad phase within the hinted body/marker; candidates are not associations. */
-  std::vector<Id> NearbySurfaceFacets(Id hint,const std::array<Point,2>& box)const;
+  std::vector<Id> NearbySurfaceFacets(Id hint,const std::array<Point,2>& box,AtlasBudget* reservation=nullptr)const;
   static constexpr size_t ClearanceWork=16384;
   /*! Additional scratch bound for one active query; immutable authority storage is separate. */
   size_t CurvedQueryWorkspaceBytes(size_t maximum_work)const;

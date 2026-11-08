@@ -19,6 +19,7 @@
 namespace SU2NativeGeometry {
 namespace {
 void Use(AtlasBudget& budget,size_t scratch=0) {
+  budget.CheckTime();
   if(!budget.ChargeWork())throw std::length_error("Geometry backend work exhausted.");
   const auto bytes=transfer_memory::Add(budget.caller_bytes,scratch);budget.peak_bytes=std::max(budget.peak_bytes,bytes);
   if(bytes==SIZE_MAX||bytes>budget.maximum_bytes)throw std::length_error("Geometry backend storage exhausted.");
@@ -190,7 +191,7 @@ bool NativeMappedGeometryBackend3D::Project(Point query,const GeometryProjection
     std::array<Point,2> box;
     box[0]={std::nextafter(double((long double)query.x-radius),-INFINITY),std::nextafter(double((long double)query.y-radius),-INFINITY),std::nextafter(double((long double)query.z-radius),-INFINITY)};
     box[1]={std::nextafter(double((long double)query.x+radius),INFINITY),std::nextafter(double((long double)query.y+radius),INFINITY),std::nextafter(double((long double)query.z+radius),INFINITY)};
-    if(best_upper>scope.absolute_error)for(Id id:authority->NearbySurfaceFacets(scope.hint,box)) {
+    if(best_upper>scope.absolute_error)for(Id id:authority->NearbySurfaceFacets(scope.hint,box,&budget)) {
       if(id!=scope.hint)candidate(id);
       if(best_upper<=scope.absolute_error)break;
     }

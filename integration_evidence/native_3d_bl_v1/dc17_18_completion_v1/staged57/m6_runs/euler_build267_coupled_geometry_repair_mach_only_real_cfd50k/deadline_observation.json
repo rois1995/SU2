@@ -1,0 +1,64 @@
+{
+  "time": 1794139456.8009217,
+  "resource_job_seconds": 5850.291336297989,
+  "owned_mpi_kernel_age_seconds": 5844.100000000006,
+  "last_census_age_estimates": [
+    {
+      "rank": 0,
+      "stage": "quality_entry",
+      "round": 25011,
+      "emitted_elapsed": 3480.685956707,
+      "file_mtime": 1794137199.017858,
+      "file_age_seconds": 2257.783063650131,
+      "elapsed_lower_bound_estimate": 5738.469020366669
+    },
+    {
+      "rank": 1,
+      "stage": "quality_entry",
+      "round": 25011,
+      "emitted_elapsed": 3480.691058085,
+      "file_mtime": 1794137199.021858,
+      "file_age_seconds": 2257.7790637016296,
+      "elapsed_lower_bound_estimate": 5738.470121860504
+    },
+    {
+      "rank": 2,
+      "stage": "quality_entry",
+      "round": 25011,
+      "emitted_elapsed": 3480.721223133,
+      "file_mtime": 1794137199.051858,
+      "file_age_seconds": 2257.74906373024,
+      "elapsed_lower_bound_estimate": 5738.470286846161
+    },
+    {
+      "rank": 3,
+      "stage": "quality_entry",
+      "round": 25011,
+      "emitted_elapsed": 3480.685855614,
+      "file_mtime": 1794137199.017858,
+      "file_age_seconds": 2257.783063650131,
+      "elapsed_lower_bound_estimate": 5738.468919277191
+    },
+    {
+      "rank": 4,
+      "stage": "quality_entry",
+      "round": 25011,
+      "emitted_elapsed": 3480.705722774,
+      "file_mtime": 1794137199.036858,
+      "file_age_seconds": 2257.7640635967255,
+      "elapsed_lower_bound_estimate": 5738.469786405563
+    },
+    {
+      "rank": 5,
+      "stage": "quality_entry",
+      "round": 25011,
+      "emitted_elapsed": 3480.720990968,
+      "file_mtime": 1794137199.051858,
+      "file_age_seconds": 2257.74906373024,
+      "elapsed_lower_bound_estimate": 5738.470054626465
+    }
+  ],
+  "configured_max_seconds": 5400,
+  "source_semantics": "CNativeEngine3D.cpp1790 emits Clock::now()-started; CNativeRemesher3D.cpp481-490 passesremaining_time <= configured5400 as kernel.maximum_seconds. Fileage gives conservative normal-clock elapsed estimate, not an in-process query profile.",
+  "signal_sent": false
+}

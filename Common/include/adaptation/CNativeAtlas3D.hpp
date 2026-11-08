@@ -7,7 +7,9 @@
 #include "CNativeTopology3D.hpp"
 #include <cstddef>
 #include <cstdint>
+#include <functional>
 #include <map>
+#include <stdexcept>
 #include <string>
 #include <vector>
 
@@ -30,7 +32,19 @@ struct AtlasBudget {
   size_t work=0,caller_bytes=0,peak_bytes=0;  // Peak is historical across admitted storage windows.
   bool work_exhausted=false; // Sticky cumulative-work denial, including a request larger than remaining work.
   std::string geometry_failure; // Sticky stage failure; candidate refusals do not set it.
+  std::function<bool()> within_time; // Rank-local event deadline; never performs a collective.
+  bool time_exhausted=false;
+  size_t next_time_check=0;
+  void CheckTime() {
+    if(time_exhausted || (within_time && !within_time())) {
+      time_exhausted=true;
+      throw std::length_error("Curved atlas elapsed-time budget exhausted.");
+    }
+  }
   bool ChargeWork(size_t count=1) {
+    if(time_exhausted || (within_time && (work>=next_time_check || count>=next_time_check-work))) {
+      CheckTime();next_time_check=work>SIZE_MAX-1024?SIZE_MAX:work+1024;
+    }
     if(work_exhausted || work>maximum_work || count>maximum_work-work){work_exhausted=true;return false;}
     work+=count;return true;
   }
