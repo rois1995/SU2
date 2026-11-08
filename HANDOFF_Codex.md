@@ -47,8 +47,13 @@ verifies all61330positions and22fields BIT-IDENTICAL to256 andqualified254,
 including Mach-only sensor/tensors. This isNOTadaptedCFD. Reused verifier with
 explicit substitutions in R/verify_m6262_initial.py; input/helper hashes held.
 R/analyze_m6262_frozen.py reuses existing six-rank first-event stage parser and
-countedwork comparator against260. At elapsed317s no complete native stage group
-had yet appeared; sampledtreeRSS5.286GB. No inferred stall/stop from quiet logs.
+countedwork comparator against260. First quality entry round23314/native687.454090s:690715cells ALLmeasured,
+27016q/27453J/1205geometry/0size,allcompletenessflags true. ALL83stages frominitial
+coarsening through complete quality entry match260: everyrank recordedfield except
+seconds/elapsed/bytes identical. A262/initial_construction_equivalence260.json seals
+verified six-rank prefixes. Export-only correction hasnotchanged decisions sofar.
+Latest elapsed843s sampledtreeRSS8.653GB. Now quality repair RUNNING/FROZEN;
+no stop condition demonstrated. Nativefinalcapture/acceptance remainunproved.
 
 
 Build260 tool89696 TERMINAL1/5566.772822s; all11 owned handles absent.
