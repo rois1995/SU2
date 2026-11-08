@@ -106,3 +106,28 @@ if exits:
                       "stages": rows, "source_prefixes260": progress["source_prefixes"],
                       "source_prefixes256": old["source_prefixes"], "analysis_sha256": sha(Path(__file__).resolve())}
         (attempt / "first_geometry_return_comparison256.json").write_text(json.dumps(comparison, indent=2) + "\n")
+
+# First shape-clean geometry-mode entry is a matched capability stage, not acceptance.
+clean_entries = [e for e in progress["events"] if e["stage"] == "geometry_repair_entry"]
+if exits and clean_entries:
+    baseline = ROOT / "m6_runs/euler_build256_canonical_geometry_debt_mach_only_real_cfd50k/construction_progress_assessment.json"
+    old = json.loads(baseline.read_text())
+    old_exit = next(e for e in old["events"] if e["stage"] == "quality_exit")
+    old_clean = next(e for e in old["events"] if e["stage"] == "geometry_repair_entry")
+    assert exits[0]["totals"] == old_exit["totals"]
+    rows = {}
+    for label, before, after in (("build260", exits[0], clean_entries[0]), ("build256", old_exit, old_clean)):
+        assert all(before["complete_flags"].values()) and all(after["complete_flags"].values())
+        assert all(after["totals"][k] == 0 for k in ("q_bad", "j_bad", "size_bad"))
+        keys = ("upper_work", "traversal_work", "guidance_trials", "guidance_faces", "length_splits", "accepted")
+        work = {k: sum(int(r[k]) for r in after["rank_rows"].values()) -
+                   sum(int(r[k]) for r in before["rank_rows"].values()) for k in keys}
+        removed = before["totals"]["geometry_bad"] - after["totals"]["geometry_bad"]
+        rows[label] = {"stage": after["stage"], "round": after["round"], "totals": after["totals"],
+                       "native_seconds_from_common_exit": after["maximum_native_elapsed"] - before["maximum_native_elapsed"],
+                       "geometry_bad_net_removed": removed, "counted_work_from_common_exit": work,
+                       "geometry_bad_removed_per_million_upper_work": removed * 1e6 / work["upper_work"]}
+    output = {"scope": "First complete q/J/size-clean geometry-mode entry,starting from identical first-quality-exit field. Different paths and cell counts;not equal-time comparison or final acceptance. Guidance includes ordinary repair plus scoring. Walltime confounded by host contention.",
+              "stages": rows, "source_prefixes260": progress["source_prefixes"],
+              "source_prefixes256": old["source_prefixes"], "analysis_sha256": sha(Path(__file__).resolve())}
+    (attempt / "first_shape_clean_geometry_comparison256.json").write_text(json.dumps(output, indent=2) + "\n")

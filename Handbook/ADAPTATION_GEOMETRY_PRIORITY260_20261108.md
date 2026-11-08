@@ -118,3 +118,13 @@ walltime speedup. Fewer remaininggeometry failures may ormaynot repayit during
 subsequent strictreclosure. Preserve frozen fullrun outcome before another change.
 A260/first_geometry_return_comparison256.json includes complete staged counts and
 sourceprefix receipts. ZEROacceptedmeshes;alltransfer/CFD/restart/BL/RANS dutiesopen.
+
+
+First actual shape-clean geometry-mode entry24717/native3216.817235 has344g.
+From the common firstqualityexit it retires625g/150.743011Mupperwork versus
+256194g/53.377667M:4.146vs3.634g per million upper-work. Paths/cellcounts differ;
+no isolated timing claim. A260/first_shape_clean_geometry_comparison256.json.
+Later complete geometry_repair_entry25160/native3579.341618:734208cells/0q/0J/
+55g/0size. The minimum over256's preserved COMPLETEcensusframes is73g with0q/J;
+inter-census/unmeasured states are unknown. A260/geometry55_complete_census.json
+seals both actual frames and sourceprefix receipts. No acceptance/transfer yet.

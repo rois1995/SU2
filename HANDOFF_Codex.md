@@ -42,7 +42,12 @@ Versus256firstreturn813g/187q/202J:374vs156g removed,but68.397496Mvs3.177143M
 upperwork and107.919655vs24.691960s phaseelapsed. No isolatedtiming speedup or
 wholeworkflow benefit claim. A260/geometry_priority_phase_use.json and
 first_geometry_return_comparison256.json preserve complete stages/counterproof.
-Strictacceptance andsubsequentreclosure remain UNPROVED;run staysFROZEN.
+Firstactualshape-clean geometry_repair_entry24717/native3216.817235:733973cells/0q/0J/
+344g/0size,allflagscomplete. Asecondgeometryreturn occurred beforethisfirstactual
+shape-clean census;doNOTcall firstfreshqualityentry shapeclosure. Geometryrepair
+nowactive. Latestcomplete geometry_repair_entry25160/native3579.341618:
+734208cells/0q/0J/55g/0size,allflagscomplete. Strictacceptance remains UNPROVED;
+run staysFROZEN.
 No terminalrefusal/resourcepressure. Let frozen attempt establish remainingclosure;
 no competing campaign or speculative source edit.
 
