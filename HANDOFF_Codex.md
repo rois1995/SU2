@@ -33,8 +33,18 @@ fields BIT-IDENTICAL256 andqualified corrected254target;ONLYSENSOR_MACH.
 First fully measured qualityentry23314/native682.800301:690715cells/27016q/27453J/
 1205g/0size,allflags complete. ALL83initialstage non-time/non-byte rankcounters
 match256;upperwork245091394exact(A260/initial_construction_equivalence.json).
-Runtime late-priority use/strict acceptance remain UNPROVED.
-No demonstrated stop condition. Let frozen attempt finish; no competing campaign.
+Firstqualityexit24328/native2921.940955:732281cells/2q/0J/969g/0size.
+ALL112pre-priority stage non-time/non-byte counters match256. Scoring then executed
+2285probes/13662facechecks;entry3020.493556 preserves allcounts/noacceptededits.
+Rank5guidance97.072809s dominates98.552601s transition;positive-score count UNOBSERVED.
+Firstfreshquality24492/native3029.860610:732861cells/208q/257J/595g/0size.
+Versus256firstreturn813g/187q/202J:374vs156g removed,but68.397496Mvs3.177143M
+upperwork and107.919655vs24.691960s phaseelapsed. No isolatedtiming speedup or
+wholeworkflow benefit claim. A260/geometry_priority_phase_use.json and
+first_geometry_return_comparison256.json preserve complete stages/counterproof.
+Strictacceptance andsubsequentreclosure remain UNPROVED;run staysFROZEN.
+No terminalrefusal/resourcepressure. Let frozen attempt establish remainingclosure;
+no competing campaign or speculative source edit.
 
 Build260tool12364TERMINAL0/72.144637s,all1303pins unchanged,both targetsuptodate,
 all5recordedhosthandles terminal(R/build260_terminal_handles.json).

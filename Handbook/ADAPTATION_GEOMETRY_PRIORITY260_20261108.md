@@ -89,3 +89,32 @@ ownedworkflowterminal,perform NEWisolated actualadapted diskrestart withdistinct
 input/outputprefixes,matchingpoint order/coords andfinite/admissiblestate. Generic
 workflow_accepted alone isinsufficient. See transfer_restart_readiness.json inA256
 andHANDOFF for strictnumericguards/openresume bugs. Then dedicatedBL/MPI andRANS500k.
+
+
+## Actual frozen260 first geometry return
+
+Source checkpoint c04a9b6491 is frozen; metadata checkpoints do not change runtime.
+Tool89696 remains live; exact host handles inHANDOFF. Startup1520pins/config match256,
+61330positions/all22initialflow/metricfields bit-identical256/qualified254target.
+All112censusstages through firstqualityexit match256 non-time/non-byte per-rank
+counters:exit24328/native2921.940955,732281cells/2q/0J/969g/0size,allflags complete.
+Walltimes differ under host contention; no initialcode-speedup claim.
+
+Actualscoring path is now measured before ANY construction publication:
+2285edgeprobes/13662evaluatedfaces. Transition toconstructionentry took98.552601s;
+rank5=1509probes/97.072809guidance seconds,rank4=745/69.739801s,others31probes.
+Counts/flags/globalwork/accepted/split/collapse counters unchanged across scoring.
+Timers overlap; do not addguidance/upper/traversal. Positive-score count isnot
+exposed;do notinvent it. Read-onlyanalyzer reuses existing counters,not newperf/GDB.
+A260/geometry_priority_phase_use.json preserves allrankdeltas and sourceprefixes.
+
+Firstfresh qualityentry24492/native3029.860610:732861cells/208q/257J/595g/0size,
+allflags complete. Matched256firstreturn24474:732793/187q/202J/813g/0size.
+Geometry-bad retirement374vs156;netq increase206vs185,J257vs202. Construction
+added580vs512cells andaccepted245vs217splits. Thisis NOTactualpoint-count evidence.
+Whole return upperwork68,397,496vs3,177,143,traversal66,464,124vs2,821,404;
+elapsed107.919655vs24.691960s. Countedworkcost is substantial,not an isolated
+walltime speedup. Fewer remaininggeometry failures may ormaynot repayit during
+subsequent strictreclosure. Preserve frozen fullrun outcome before another change.
+A260/first_geometry_return_comparison256.json includes complete staged counts and
+sourceprefix receipts. ZEROacceptedmeshes;alltransfer/CFD/restart/BL/RANS dutiesopen.
