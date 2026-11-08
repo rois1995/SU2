@@ -30,12 +30,29 @@ signal_senttrue;NEVERrepeatstop. ALL11exactownedidentities absent in
 A262/terminal_handles.json. Source/runtime/inputs remainedunchanged. NoMPIjobnow.
 Capture262FIXPROVED actualownedcoverage734315/734315,ALLsixowned_complete and
 complete_shardTRUE,includingemptyrank3. Metricscompletefalse iscachedshapeunknown,
-NOTlostrows. DoNOTclaimcompleteq/Jcensus. ONEowned export RUNNING tool76274 viaR/export_m6262_inspection.py,usingexistingreader;
-helper2840316,timeout2840601,readerchild recorded ininspection_export_owned_startup.json.
-Source/reader/runtime/rawinputs pinned1557files andFROZEN untilterminal+pinchecks.
-Actual40GBavailableRAM/~24.8GBdiskfree atlaunch,nice19/libs1,timeout1200 unchanged.
-Thenindependentarray/geometryintegrity checks,including explicitunknownq/Jfields.
-Latestcompleteindependentlyvalidatedmesh remains254 until262export/readbackpass.
+NOTlostrows. DoNOTclaimcompleteq/Jcensus. Fullactualexport/readback COMPLETE;NOownedheavyjob now. Tool76274 TERMINAL0/
+338.682921s,ALL1557pinsunchanged,all3hosthandlesabsent. Independentreader43849
+TERMINAL0/4.882237s;exacthostscriptabsent. Seeinspection_export_terminal_handles.json,
+inspection_reader_status.json andinspection_reader_terminal_handles.json.
+LATEST COMPLETEsavedmesh A262/inspection/rejected_mesh.vtu and.su2:
+148608points/734315tets;captured_nodal_metric9rowmajor inPointData; q/J/geometry in
+CellData withcorrectlengths. ALLtensorsfinite/SPD,alltetvolumespositive,VTU/SU2coords/
+connectivityidentical. FOURcellsq/JUNKNOWN;knownq/Jbad0 isNOTglobalq/Jclosure.
+4geometryfailures. ReaderpartialTRUE solelyrank5metricsincomplete+4unknowncells;
+fulltopology/tensorfield COMPLETE. GenericSU2tagsMarker_0/1/2 areinspectionfallbacks,
+NOTapprovedsolverinput. Rawlargeartifacts local;code/hashes/metadata arepushed.
+All4knowngeometrycore globalvertexstars EXACTLYmatch122savedcavitycells. Per-core
+four-starunions107/42/98/97;vertexstarmax86. Existing64boundexcludes3whole-core
+contexts. COMPLETE42cellcore155561218coversALL4geometrybad and3of4unknownq/J;
+unknown223403263liesoutside42. All4geometrybadshare8184 andownactualWING3Dfaces
+(ref10821/16404,body0/sheet10154,y≈.313–.319). TwofeatureflagsKNOWNfalse;twoUNKNOWN,
+so doNOTinfer absenceofgenuinefeatures fornewcells. Seegeometry_residual_location.json.
+No largerboundneededforfirst42celltest;preserveunchangedoutsideinterfaces/neighbors.
+Nextsingleactivecycle:classifyactualfaces/referencebindings/featureunknowns,choose
+completeexisting<=64context,proveimmutableproductionfield atchangedtrialpositions,
+then test ONEexistingcoupledcandidate hypothesis. Unknowncachedq/J MUSTNOTsilently
+passNaN-basedexpectedmetric comparisons. No productioncorrectionselectedyet.
+
 
 Build262passed81.191946s;1303sourcepinsunchanged;productionCFDbyte-identical
 0563a1b5a75ee8b6ae0de9a4464e275412457ec42ba1a764b7775e724c89b7c8.
@@ -53,17 +70,24 @@ thenreclosed. ALL357matchedstages through4gregimehadidenticalcounts/flags/compar
 vs260;NOTmeshbitidentity/timingspeedupproof. All1520pins checkedatfirstqualityexit.
 Sourcecheckpointf8bd84aa8d pushedfirstqualityproof;01f2f0e488 pushedcurrent4gdiagnosis.
 
-Current115complete4gframes:49commits=24splits+25quality-progress,25029upperqueries
+Terminal1135complete4gframes:485commits=242splits+243quality-progress,244211upperqueries
 ALLexactmemo hits/0misses/0upperwork/0traversal. Two scalar734313/734315states andtwo
 canonicaldebts;NOTmeshidentityproof. A262/late_four_geometry_cycle_assessment.json.
-Blockerconfirmed repair/constructioncycling,notfreshcertification. Fullterminal
-counteranalysis maynowrun ONCE aftermesh export ratherthanrepeatedhistory rewrites.
+Terminalexitnative5340.187351s has4q/JUNMEASURED;lastcomplete36311/native5338.503479
+has734313/0q/0J/4g/0size. DoNOTsubstitutethisforfinalshape. ALL2034matching measured
+stages equal260counts/flags/comparedwork;terminal_comparison260_summary.json.
+SampledWHOLEownedtreepeak13.984GB;3.054GBindividualpeak isNOTwholejobpeak.
+A262/terminal_assessment.json setsnexttargetrepairpower/construction,NOTfreshqueryspeed.
+Blockerconfirmed repair/constructioncycling,notfreshcertification. Fullterminalcounteranalysis completedONCE aftermesh export;no repeatneededabsentnewfailure.
 [Capture/nextvalidationguards](Handbook/ADAPTATION_CAPTURE261_20261108.md).
 ExistingfixtureusesCURRENTnodaltensors,NOTimmutableproductionbackground;changedtrial
 metric/edgeequivalence mustbeproved. Geometrymode skipsordinaryoptimize_repair;
 rawcollapse+retainedstar optimization isONLYhypothesis untildemonstratedonactual
 COMPLETEcurrentstars+neighbors withstrictgeometry/shape/size/height gates.
 NOproductionrepaircorrectionselected;no competingimplementation. KeepCADoptional.
+BoundedREADONLY Luna survey /root/current262_field_facilities locatesexisting
+production/source-field query facilities forthe SAME42cell diagnostic;no edits/jobs.
+Primaryretainsdesign/source review/acceptance. Readitsresultbeforeinventingfieldpath.
 
 Currentgeometrypriority260 productiondesign/evidence:
 [Paired-face geometry priority](Handbook/ADAPTATION_GEOMETRY_PRIORITY260_20261108.md).

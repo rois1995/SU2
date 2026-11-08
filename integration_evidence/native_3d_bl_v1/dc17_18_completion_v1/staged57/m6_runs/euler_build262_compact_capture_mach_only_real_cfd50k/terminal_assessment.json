@@ -1,0 +1,97 @@
+{
+  "time": 1794127782.2808928,
+  "tool_session": 46776,
+  "tool_exit_code": 1,
+  "status": {
+    "state": "terminal",
+    "solver_exit_code": 1,
+    "native_event_accepted": false,
+    "native_state": "solver exit failure; native acceptance not claimed",
+    "workflow_accepted": false,
+    "pins_verified": true,
+    "changed": [],
+    "seconds": 5597.155217885971,
+    "largest_sampled_individual_process_rss_bytes": 3054309376,
+    "rss_note": "sampled process RSS; not a whole-job peak",
+    "transfer_reload_validation": "separate existing validation required"
+  },
+  "exit": {
+    "stage": "exit",
+    "round": 36312,
+    "phase": "improvement",
+    "maximum_native_elapsed": 5340.187350634,
+    "totals": {
+      "cells": 734315,
+      "measured": 734315,
+      "q_measured": 734311,
+      "j_measured": 734311,
+      "q_bad": 0,
+      "j_bad": 0,
+      "geometry_bad": 4,
+      "size_bad": 0
+    },
+    "complete_flags": {
+      "cache_consistent": true,
+      "census_complete": true,
+      "shape_complete": false,
+      "geometry_complete": true
+    },
+    "replicated_global_work": 2439518
+  },
+  "last_complete": {
+    "stage": "construction_entry",
+    "round": 36311,
+    "phase": "construction",
+    "maximum_native_elapsed": 5338.503479318,
+    "totals": {
+      "cells": 734313,
+      "measured": 734313,
+      "q_measured": 734313,
+      "j_measured": 734313,
+      "q_bad": 0,
+      "j_bad": 0,
+      "geometry_bad": 4,
+      "size_bad": 0
+    },
+    "complete_flags": {
+      "cache_consistent": true,
+      "census_complete": true,
+      "shape_complete": true,
+      "geometry_complete": true
+    },
+    "replicated_global_work": 2439517
+  },
+  "raw_owned_complete": true,
+  "captured_rows": 734315,
+  "unknown_q_J_cells": 4,
+  "geometry_bad": 4,
+  "source_pins_verified": true,
+  "all_owned_handles_terminal": true,
+  "single_stop_receipt": "owned_stop_once.json",
+  "sampled_tree_peak_rss_bytes": 13983780864,
+  "tree_peak_note": "Maximum recorded sum across owned process tree,not a continuous measurement. Individual-process peak isnot whole-job peak.",
+  "next_target": "repair_power_and_construction_cycle",
+  "evidence_for_target": {
+    "complete_four_failure_frames": 1135,
+    "counter_deltas": {
+      "accepted": 485,
+      "length_splits": 242,
+      "length_collapses": 0,
+      "quality_progress": 243,
+      "geometry_trials": 119555,
+      "geometry_rejected": 78732,
+      "guidance_trials": 42768,
+      "guidance_faces": 298647,
+      "upper_calls": 244211,
+      "upper_work": 0,
+      "traversal_work": 0,
+      "updated_cells": 2422,
+      "memo_union_hits": 244211,
+      "memo_union_misses": 0,
+      "memo_direct_hits": 220642,
+      "memo_direct_misses": 0
+    },
+    "net_q_J_geometry_count_improvement": 0
+  },
+  "scope": "Refusedfirstevent;ZEROacceptedmeshes.TwoacceptedEuler,transfer,adaptedCFD/diskrestart,BL/MPI andRANS500k remain."
+}

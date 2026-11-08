@@ -96,3 +96,22 @@ metric conformity over the complete patch plus neighbors. Verify against the
 immutable production field first. If no such actual candidate exists, this
 source guard alone is NOT evidence for changing orchestration. No C++ was edited,
 no new operator/budget/cavity size or competing implementation was started.
+
+Actual build262 capture and independent readback are now qualified. All734315owned
+rows were captured under the unchanged128MiB/file caps. The saved mesh has148608
+points, complete SPD nodal tensors, correct CellDataq/J/geometry lengths and positive
+tetrahedral volumes. VTU/SU2 coordinates and connectivity match. Four q/J values
+remain unmeasured, explicitly NaN; this is not strict acceptance. All30rawfiles and
+1520pins were verified before ONEownedMPIstop after explicit first-event refusal.
+All producer/export/readback handles are terminal. See HANDOFF for exact receipts.
+
+Full connectivity independently proves122neighbor cells around the4knowngeometry
+cores. Whole-core unions are107/42/98/97 at unchanged64; core155561218 supplies a
+complete42cell context covering all4geometry failures and3of4unknownq/J cells.
+Unknown223403263 lies outside it. All4geometry cases share8184 and actualWING3D
+faces onbody0/sheet10154. Two feature flags are unknown, so fresh association/
+feature checks remain necessary. Do not enlarge a cavity or mislabel unknowns.
+When preparing expected metrics, NaN comparisons must be explicit: std::max(error,
+abs(measured-NaN)) can silently retain the old error. Count known/unknown oracle
+entries and never claim a cached match for an unmeasured cell. Evaluate the proper
+production source at changed positions before selecting any production correction.

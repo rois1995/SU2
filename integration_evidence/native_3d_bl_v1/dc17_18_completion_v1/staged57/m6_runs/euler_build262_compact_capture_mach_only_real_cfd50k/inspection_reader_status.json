@@ -1,0 +1,134 @@
+{
+  "state": "terminal",
+  "exit_code": 0,
+  "all_reader_checks_passed": true,
+  "seconds": 4.882237179990625,
+  "actual_points": 148608,
+  "actual_cells": 734315,
+  "measured_bad_counts": {
+    "known_q_bad": 0,
+    "known_j_bad": 0,
+    "geometry_bad": 4,
+    "q_unknown": 4,
+    "j_unknown": 4
+  },
+  "whole_field_q_J_bad_counts_known": false,
+  "unknown_cell_records": {
+    "223403264": {
+      "rank": 5,
+      "q_measured": false,
+      "j_measured": false,
+      "geometry_measured": true
+    },
+    "223403266": {
+      "rank": 5,
+      "q_measured": false,
+      "j_measured": false,
+      "geometry_measured": true
+    },
+    "223403263": {
+      "rank": 5,
+      "q_measured": false,
+      "j_measured": false,
+      "geometry_measured": true
+    },
+    "223403265": {
+      "rank": 5,
+      "q_measured": false,
+      "j_measured": false,
+      "geometry_measured": true
+    }
+  },
+  "point_tensor_components": 9,
+  "q_J_geometry_are_CellData": true,
+  "array_lengths_correct": true,
+  "coordinates_tetrahedra_equal_su2": true,
+  "captured_metric_available_points": 148608,
+  "minimum_metric_eigenvalue": 0.0031294906435304854,
+  "minimum_positive_volume": 1.169285264697224e-13,
+  "bad_cells": 4,
+  "cavity_cells": 122,
+  "known_core_global_vertex_stars_complete": true,
+  "per_core_complete_contexts": [
+    {
+      "id": 152544772,
+      "four_star_union_size": 107,
+      "vertex_star_sizes": [
+        17,
+        7,
+        17,
+        86
+      ]
+    },
+    {
+      "id": 155561218,
+      "four_star_union_size": 42,
+      "vertex_star_sizes": [
+        18,
+        17,
+        9,
+        17
+      ]
+    },
+    {
+      "id": 223403264,
+      "four_star_union_size": 98,
+      "vertex_star_sizes": [
+        17,
+        4,
+        7,
+        86
+      ]
+    },
+    {
+      "id": 223403266,
+      "four_star_union_size": 97,
+      "vertex_star_sizes": [
+        17,
+        9,
+        4,
+        86
+      ]
+    }
+  ],
+  "diagnostic_partial_reasons": [
+    "rank 5 metrics source is incomplete",
+    "4 cells have unknown metric cache"
+  ],
+  "input_hashes_before": {
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build262_compact_capture_mach_only_real_cfd50k/inspection/rejected_mesh.vtu": "ab8b55a9a38c49488b56c5bb33bf1abc4a6ad3f9873221471211ef019a292a9d",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build262_compact_capture_mach_only_real_cfd50k/inspection/rejected_mesh.su2": "83bfff0959a4f3cfcfa2f3478ec0875b1b061122c6bb591d2d7b83a60c2532c9",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build262_compact_capture_mach_only_real_cfd50k/inspection/bad_cells.vtu": "f8498905e0c6230e876602d178e8b492ed8ca732d785febde878a9a694c437fa",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build262_compact_capture_mach_only_real_cfd50k/inspection/cavities.vtu": "5ee74353c4ed46804ddccb2d8a925738abf679cf522ceb9087a3216c35a0055d",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build262_compact_capture_mach_only_real_cfd50k/inspection/inspect_manifest.json": "4768342cbafe894caca29ff2bca4c45a7afd9f95bcceea4ed0c92efbe5a7364e",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build262_compact_capture_mach_only_real_cfd50k/capture_ready.json": "c294e1a1a7d6389bbb3ace55fd25d52bbd36c00f5d05fbd78f737cc9aeaa1643",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/validate_m6262_inspection.py": "e507757817a121f2c207df11ca477004dd6399d3f88ba8dbb71f527d04e92849",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build262_compact_capture_mach_only_real_cfd50k/adapted_mesh_inspection_rank0_manifest.json": "be14d06504d684423bd2ab7087517b3b1658ebe06f192c993aee95b191051791",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build262_compact_capture_mach_only_real_cfd50k/adapted_mesh_inspection_rank1_manifest.json": "8a732ea30ac8c705543ea7e51ee422e074a7b8c25c53d67599e4855bb06f0d85",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build262_compact_capture_mach_only_real_cfd50k/adapted_mesh_inspection_rank2_manifest.json": "9c53bcfb21be41422e79d79b095321009276698891bd688b90c492a6abbeb339",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build262_compact_capture_mach_only_real_cfd50k/adapted_mesh_inspection_rank3_manifest.json": "c647ff0874185607618571d51bff87b505e67d151cb164460f08f3ec954e95f3",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build262_compact_capture_mach_only_real_cfd50k/adapted_mesh_inspection_rank4_manifest.json": "b55f39b5e837e1d407865c22a051dd60c2f360a1767f5c453117d3e90f0520a0",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build262_compact_capture_mach_only_real_cfd50k/adapted_mesh_inspection_rank5_manifest.json": "c954ac529f148fca2e743d258b4c41bc709f9fe260025e14c0cd2ba80ca0d5ef",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build262_compact_capture_mach_only_real_cfd50k/adapted_mesh_inspection_rank5_metrics.compact.jsonl": "dfadf2a96412f8884c0b6fa11adcc63735d8a52da165015400eeb877feeb7768"
+  },
+  "input_hashes_after": {
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build262_compact_capture_mach_only_real_cfd50k/inspection/rejected_mesh.vtu": "ab8b55a9a38c49488b56c5bb33bf1abc4a6ad3f9873221471211ef019a292a9d",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build262_compact_capture_mach_only_real_cfd50k/inspection/rejected_mesh.su2": "83bfff0959a4f3cfcfa2f3478ec0875b1b061122c6bb591d2d7b83a60c2532c9",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build262_compact_capture_mach_only_real_cfd50k/inspection/bad_cells.vtu": "f8498905e0c6230e876602d178e8b492ed8ca732d785febde878a9a694c437fa",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build262_compact_capture_mach_only_real_cfd50k/inspection/cavities.vtu": "5ee74353c4ed46804ddccb2d8a925738abf679cf522ceb9087a3216c35a0055d",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build262_compact_capture_mach_only_real_cfd50k/inspection/inspect_manifest.json": "4768342cbafe894caca29ff2bca4c45a7afd9f95bcceea4ed0c92efbe5a7364e",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build262_compact_capture_mach_only_real_cfd50k/capture_ready.json": "c294e1a1a7d6389bbb3ace55fd25d52bbd36c00f5d05fbd78f737cc9aeaa1643",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/validate_m6262_inspection.py": "e507757817a121f2c207df11ca477004dd6399d3f88ba8dbb71f527d04e92849",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build262_compact_capture_mach_only_real_cfd50k/adapted_mesh_inspection_rank0_manifest.json": "be14d06504d684423bd2ab7087517b3b1658ebe06f192c993aee95b191051791",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build262_compact_capture_mach_only_real_cfd50k/adapted_mesh_inspection_rank1_manifest.json": "8a732ea30ac8c705543ea7e51ee422e074a7b8c25c53d67599e4855bb06f0d85",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build262_compact_capture_mach_only_real_cfd50k/adapted_mesh_inspection_rank2_manifest.json": "9c53bcfb21be41422e79d79b095321009276698891bd688b90c492a6abbeb339",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build262_compact_capture_mach_only_real_cfd50k/adapted_mesh_inspection_rank3_manifest.json": "c647ff0874185607618571d51bff87b505e67d151cb164460f08f3ec954e95f3",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build262_compact_capture_mach_only_real_cfd50k/adapted_mesh_inspection_rank4_manifest.json": "b55f39b5e837e1d407865c22a051dd60c2f360a1767f5c453117d3e90f0520a0",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build262_compact_capture_mach_only_real_cfd50k/adapted_mesh_inspection_rank5_manifest.json": "c954ac529f148fca2e743d258b4c41bc709f9fe260025e14c0cd2ba80ca0d5ef",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build262_compact_capture_mach_only_real_cfd50k/adapted_mesh_inspection_rank5_metrics.compact.jsonl": "dfadf2a96412f8884c0b6fa11adcc63735d8a52da165015400eeb877feeb7768"
+  },
+  "helper_sha256": "e507757817a121f2c207df11ca477004dd6399d3f88ba8dbb71f527d04e92849",
+  "meshio_version": "5.3.5",
+  "numpy_version": "1.26.4",
+  "scope": "Full actual rejected topology/tensors and array associations independently read back. Known4geometry-core globalstars complete. Unknownq/J remainexplicit;not allbadset proof,strictcertificate,acceptedmesh,transfer oradaptedCFD/restart."
+}

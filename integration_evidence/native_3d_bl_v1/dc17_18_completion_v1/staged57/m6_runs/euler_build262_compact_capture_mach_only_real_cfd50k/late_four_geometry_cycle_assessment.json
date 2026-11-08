@@ -1,7 +1,7 @@
 {
-  "time": 1794125170.0460846,
-  "scope": "Existing complete four-geometry-failure censuses only. Scalar count/debt states doNOTprove mesh identity.No new profiling/run/repair decision. Nativefinalcapture and complete currentcavities remain required before choosing production change.",
-  "complete_frames": 115,
+  "time": 1794127782.2515724,
+  "terminal_assessment": true,
+  "scope": "All first-event COMPLETE four-geometry-failure frames. Scalar states areNOTmeshidentity.FinalpartialshapeEXITseparate;no acceptedmesh or newprofiling.",
   "first": {
     "stage": "geometry_repair_entry",
     "round": 25377,
@@ -26,10 +26,10 @@
     "replicated_global_work": 2428583
   },
   "last": {
-    "stage": "window",
-    "round": 26496,
-    "phase": "improvement",
-    "maximum_native_elapsed": 3899.282802261,
+    "stage": "construction_entry",
+    "round": 36311,
+    "phase": "construction",
+    "maximum_native_elapsed": 5338.503479318,
     "totals": {
       "cells": 734313,
       "measured": 734313,
@@ -46,63 +46,64 @@
       "shape_complete": true,
       "geometry_complete": true
     },
-    "replicated_global_work": 2429702
+    "replicated_global_work": 2439517
   },
+  "complete_frames": 1135,
   "counter_delta_formula": "sum(last.rank_rows[rank][key])-sum(first.rank_rows[rank][key])",
   "counter_deltas": {
-    "accepted": 49,
-    "length_splits": 24,
+    "accepted": 485,
+    "length_splits": 242,
     "length_collapses": 0,
-    "quality_progress": 25,
-    "geometry_trials": 12257,
-    "geometry_rejected": 8077,
-    "guidance_trials": 4372,
-    "guidance_faces": 30617,
-    "upper_calls": 25029,
+    "quality_progress": 243,
+    "geometry_trials": 119555,
+    "geometry_rejected": 78732,
+    "guidance_trials": 42768,
+    "guidance_faces": 298647,
+    "upper_calls": 244211,
     "upper_work": 0,
     "traversal_work": 0,
-    "updated_cells": 242,
-    "memo_union_hits": 25029,
+    "updated_cells": 2422,
+    "memo_union_hits": 244211,
     "memo_union_misses": 0,
-    "memo_direct_hits": 22595,
+    "memo_direct_hits": 220642,
     "memo_direct_misses": 0
   },
   "scalar_states": [
     {
       "cells": 734315,
       "geometry_debt": 4.533680586216615e-06,
-      "complete_frames": 52
+      "complete_frames": 512
     },
     {
       "cells": 734313,
       "geometry_debt": 5.203290198771879e-07,
-      "complete_frames": 63
+      "complete_frames": 623
     }
   ],
   "source_prefixes": {
     "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build262_compact_capture_mach_only_real_cfd50k/rank_output/1/rank.0/stdout": {
-      "bytes": 1739011,
-      "sha256": "2000a6735e0fc19d1d250d0663aa30b0175e940d2a7dc4c5884ee1e2b13854ba"
+      "bytes": 9860958,
+      "sha256": "945d3828c10f888a665b5b2c2f40aedc3a56c2a9e57a6bbdb5699bbdcf86857a"
     },
     "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build262_compact_capture_mach_only_real_cfd50k/rank_output/1/rank.1/stdout": {
-      "bytes": 1728570,
-      "sha256": "ca518aa02ddf58afdeaf2b2aa0e037ac3d908494b360b722f41cbbc06402df90"
+      "bytes": 9931324,
+      "sha256": "f6efa0f49385368de3e233cfcd89abb4af884c8e70a4323ef0486868e63678f5"
     },
     "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build262_compact_capture_mach_only_real_cfd50k/rank_output/1/rank.2/stdout": {
-      "bytes": 1723170,
-      "sha256": "8b9618a47174f2032676ac6d8da644f1dc217bd6c6fa061cb57e9df8cb336a26"
+      "bytes": 9899940,
+      "sha256": "e112da27fe91f037cbdd0e5c9ba9cbedbcfbaea3d63d8dcfffa49e0a89ea41b8"
     },
     "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build262_compact_capture_mach_only_real_cfd50k/rank_output/1/rank.3/stdout": {
-      "bytes": 1714152,
-      "sha256": "984233cfef460a249aad0190032196f5a493cc2f4b65d1a7374e42b2f0f19b91"
+      "bytes": 9824193,
+      "sha256": "f0d6a0d290e586fff26d570d71c3397015fffa82fb33fcc9e2eda29466dc63b4"
     },
     "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build262_compact_capture_mach_only_real_cfd50k/rank_output/1/rank.4/stdout": {
-      "bytes": 1743521,
-      "sha256": "befcffbbc7f4b626cf0cdc8a4a7a930af21ba4f652267f11f6f8d229dc98abad"
+      "bytes": 10031249,
+      "sha256": "2799644ea5b5193e51bfb062ce8beb84144010068497621f3d96ce26fb227bf3"
     },
     "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build262_compact_capture_mach_only_real_cfd50k/rank_output/1/rank.5/stdout": {
-      "bytes": 1740233,
-      "sha256": "7ea07deae68a89dee9ea001b747ff8a3191fd845342f8e5151ed0050d0a065aa"
+      "bytes": 10016994,
+      "sha256": "867e2c20557ca55a1b21186220dbda6b9c0875006abb242fef4c95954daec063"
     }
   }
 }
