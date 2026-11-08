@@ -17,79 +17,58 @@ A260=`R/m6_runs/euler_build260_paired_geometry_priority_mach_only_real_cfd50k`.
 A256=`R/m6_runs/euler_build256_canonical_geometry_debt_mach_only_real_cfd50k`.
 A254=`R/m6_runs/euler_build254_conditioned_mach_only_real_cfd50k`.
 
-## CURRENT — BUILD262 FULL M6 RUNNING/FROZEN
+## CURRENT — BUILD262 TERMINAL REFUSED; COMPLETE RAW MESH, Q/J PARTIAL
 
-[Current production design/evidence](Handbook/ADAPTATION_GEOMETRY_PRIORITY260_20261108.md).
-Source checkpoint c88bf6402a plus ONLY the corrected tight-cap test control.
-Build262 tool31668 TERMINAL0/81.191946s; all1303source pins unchanged,
-production CFD byte-identical SHA0563a1b5a75ee8b6ae0de9a4464e275412457ec42ba1a764b7775e724c89b7c8.
-All recorded build/test handles terminal. Serial tool23143 passed690assertions;
-MPI2 tool48059 passed690/140assertions including4actualempty-rank generations.
-R/capture262_qualification.json independently checks32actual CPP exports,
-array association/lengths, metadata identity, caps and8legacy-metadata cap controls.
-Reader14tests, all584311actual260metadata roundtrips and legacyLE scientific
-results reused with verified provenance. No production repair decision changed.
-Build261's single failed test-cap assumption is preserved; only that test control
-was corrected. Native128MiB caps and encoder were unchanged by that correction.
-Next full MPI6 M6 uses R/launch_m6262.py, same saved real CFD seed/Mach-onlyL1/50k,
-strict gates/native5400/outer14400. No new timing baseline or production policy.
-LIVE tool46776; launch source5484de33d2 (pushed). Wrapper2597892/start16554420,
-runner2597957/start16554616, time2598239/start16555245, timeout2598240,
-MPI2598241/start16555245, ranks2598251–2598256/start16555262 or16555263.
-A262=R/m6_runs/euler_build262_compact_capture_mach_only_real_cfd50k.
-A262/owned_startup.json preserves exact11handle tree; ALL1520pins verified,
-configuration byte-identical260. Allprocesses nice19/libs1. Host~39GBavailable
-at startup; disk~8.6GB free. Source/build/runtime/helpers/config/inputs NOWFROZEN.
-No stop condition demonstrated; let full attempt finish. Verify actual handles
-before any intervention. Native refusal capture completeness remains unproved.
-Initial original-grid CFD/target COMPLETE: A262/initial_cfd_target_equivalence.json
-verifies all61330positions and22fields BIT-IDENTICAL to256 andqualified254,
-including Mach-only sensor/tensors. This isNOTadaptedCFD. Reused verifier with
-explicit substitutions in R/verify_m6262_initial.py; input/helper hashes held.
-R/analyze_m6262_frozen.py reuses existing six-rank first-event stage parser and
-countedwork comparator against260. First quality entry round23314/native687.454090s:690715cells ALLmeasured,
-27016q/27453J/1205geometry/0size,allcompletenessflags true. ALL83stages frominitial
-coarsening through complete quality entry match260: everyrank recordedfield except
-seconds/elapsed/bytes identical. A262/initial_construction_equivalence260.json seals
-verified six-rank prefixes. No measured decision/work change from the export-only correction so far.
-Quality repair RUNNING/FROZEN; first complete window23360/native833.743787:
-697375cells/23178q/23002J/1184geometry/0size. Netfirst-windowq/Jremoved3838/4451,
-26.2356/30.4259perqualitysecond;1410commits. Qchurn21415retired/17577introduced;
-J21249/16798. Counts/churn/commits/countedgeometrywork EXACT260atmatchinground,
-with onlymeasuredtiming differences (notisolatedspeedup). See
-A262/first_quality_window_comparison260.json andR/analyze_m6262_quality.py
-(reusesexistingchurn/location/workparsers;no newrun/profiling/decisions).
-Monitoring: A262/construction_progress_assessment.json is authoritative forlatest
-complete all-phase census withflags. A262/quality_progress.json coversONLYthefirst
-uninterrupted shape pass;doNOTmistakeitforlatergeometry/shape-reclosure state.
-First quality EXIT24328/native2985.719094s:732281cells ALLmeasured,
-2q/0J/969geometry/0size,allcompletenessflags true. Notshapeclosure/acceptance.
-ALL112stages throughthisexit match260 inEVERYrankfield exceptseconds/elapsed/bytes;
-A262/first_quality_exit_equivalence260.json sealscheckedprefixes. Nativeexit260
-2921.940955s versus2622985.719094s isNOTanisolatedspeedcomparison.
-First actual geometry-repair entry24717/native3284.905332s:733973cells ALLmeasured,
-0q/0J/344geometry/0size,allcompletenessflags true. Matchingentry260 hasidentical
-per-ranknon-time/non-bytefields;see first_shape_clean_geometry_entry260_comparison.json.
-LATEST completewindow26496/native3899.282802s:734313cells ALLmeasured,
-0q/0J/4geometry/0size,allcompletenessflags true. ALL357matchedstages haveidentical
-counts/flags/comparedwork vs260;NOTmeshbit-identityproof. Lastelapsed4016s treeRSS9.571GB.
-Current115complete4gframes repeat734313/734315cells/twodebts:49commits=24splits+
-25quality-progress,25029upperqueries ALLexactcachehits,0misses/0upperwork/0traversal.
-A262/late_four_geometry_cycle_assessment.json preservescheckedprefixes andcounts.
-Thisconfirms residualrepair/construction cycling,notfreshcertification,asblocker.
-Keepfrozen whileawaitingnativefinish:finalobservermustwritecompletecurrentrawmesh
-before intervention. No competingproductionchange. Afterexplicitfirsteventrefusal,
-sealALL30rawfiles/checkcaps/completeness/ALL1520pins beforeONEexactownedstop ifneeded;
-NEVERrepeat old260orotherstops. Never assumeexpected4failures orcompletecapture:
-classifyactualterminaldata. Avoidrepeatedfull-historyserializationduringlatecycling;
-pollownedhandle/resources/boundedlogtails,thenonefullcounteranalysisatterminal.
-Allpinned sources/helpers/runtime/inputs stayfrozen.
-Nextcavityselection guard inCapture261book:currentfixture usescapturednodalfield,
-notimmutableproductionbackground;changedtrialmetric/edge equivalence mustbeproved
-beforeusing a candidate tojustify a productioncorrection. SourceguardalsoNOTproof:
-geometrymode skipsordinaryoptimize_repair;actualcollapse+retainedstar candidate
-mustbedemonstrated beforechangingorchestration. SeeCapture261book. Noextra campaign.
-Nativefinalcapture/acceptance remainunproved.
+A262=`R/m6_runs/euler_build262_compact_capture_mach_only_real_cfd50k`.
+Tool46776 TERMINAL1/5597.155218s. Firstevent EXPLICITLYREFUSED on native metric-update
+elapsed-time budget at round36312. Actual734315cells;4geometry/0size; terminal
+q/Jwhole-fieldcounts UNKNOWN because shape_complete=false onrank5. Earliercomplete
+0q/Jframes areNEVERsubstitutesforterminalcounts. ZEROacceptedmeshes.
+ALL30rawfiles sealed/stable/withinUNCHANGED128MiB caps;ALL1520pins verified BEFORE
+ONEpidfdSIGTERM toMPI2598241/start16555245. A262/owned_stop_once.json attempts1/
+signal_senttrue;NEVERrepeatstop. ALL11exactownedidentities absent in
+A262/terminal_handles.json. Source/runtime/inputs remainedunchanged. NoMPIjobnow.
+Capture262FIXPROVED actualownedcoverage734315/734315,ALLsixowned_complete and
+complete_shardTRUE,includingemptyrank3. Metricscompletefalse iscachedshapeunknown,
+NOTlostrows. DoNOTclaimcompleteq/Jcensus. ONEowned export RUNNING tool76274 viaR/export_m6262_inspection.py,usingexistingreader;
+helper2840316,timeout2840601,readerchild recorded ininspection_export_owned_startup.json.
+Source/reader/runtime/rawinputs pinned1557files andFROZEN untilterminal+pinchecks.
+Actual40GBavailableRAM/~24.8GBdiskfree atlaunch,nice19/libs1,timeout1200 unchanged.
+Thenindependentarray/geometryintegrity checks,including explicitunknownq/Jfields.
+Latestcompleteindependentlyvalidatedmesh remains254 until262export/readbackpass.
+
+Build262passed81.191946s;1303sourcepinsunchanged;productionCFDbyte-identical
+0563a1b5a75ee8b6ae0de9a4464e275412457ec42ba1a764b7775e724c89b7c8.
+Focusedserial690assertions;MPI2 690/140with4actualemptyrankgenerations;
+R/capture262_qualification.json verifies32CPPexports/8legacycapcontrols. Reader14tests
+andall584311old260metadata rows roundtrip exactly;legacyLEscientificfieldsidentical.
+Build261failedONLYnewtestcapassumption;correctedtestcontrolpreservedandqualified262.
+Captureencoding/header checkpointc88bf6402a;correctedcoherentcheckpoint5484de33d2.
+InitialCFDall61330coords/22fields bit-identical256/qualified254,Mach-onlyL1/50k.
+ALL112initialthroughfirstqualityexit per-rankfields excepttime/bytes EXACT260;
+A262/first_quality_exit_equivalence260.json. Firstexit24328/native2985.719094:
+732281/2q/0J/969g/0size (allmeasured). Actualshape-clean geometryentry24717/native
+3284.905332:733973/0q/0J/344g/0size. Subsequentlygeometryrefinement reintroducedshape,
+thenreclosed. ALL357matchedstages through4gregimehadidenticalcounts/flags/comparedwork
+vs260;NOTmeshbitidentity/timingspeedupproof. All1520pins checkedatfirstqualityexit.
+Sourcecheckpointf8bd84aa8d pushedfirstqualityproof;01f2f0e488 pushedcurrent4gdiagnosis.
+
+Current115complete4gframes:49commits=24splits+25quality-progress,25029upperqueries
+ALLexactmemo hits/0misses/0upperwork/0traversal. Two scalar734313/734315states andtwo
+canonicaldebts;NOTmeshidentityproof. A262/late_four_geometry_cycle_assessment.json.
+Blockerconfirmed repair/constructioncycling,notfreshcertification. Fullterminal
+counteranalysis maynowrun ONCE aftermesh export ratherthanrepeatedhistory rewrites.
+[Capture/nextvalidationguards](Handbook/ADAPTATION_CAPTURE261_20261108.md).
+ExistingfixtureusesCURRENTnodaltensors,NOTimmutableproductionbackground;changedtrial
+metric/edgeequivalence mustbeproved. Geometrymode skipsordinaryoptimize_repair;
+rawcollapse+retainedstar optimization isONLYhypothesis untildemonstratedonactual
+COMPLETEcurrentstars+neighbors withstrictgeometry/shape/size/height gates.
+NOproductionrepaircorrectionselected;no competingimplementation. KeepCADoptional.
+
+Currentgeometrypriority260 productiondesign/evidence:
+[Paired-face geometry priority](Handbook/ADAPTATION_GEOMETRY_PRIORITY260_20261108.md).
+Frozenbuild/run obligations apply tothenextsingleownedexport/check;noC++editsuntil
+requiredsource/build/validation handles terminal. Forkpushes authorized.
 
 
 Build260 tool89696 TERMINAL1/5566.772822s; all11 owned handles absent.

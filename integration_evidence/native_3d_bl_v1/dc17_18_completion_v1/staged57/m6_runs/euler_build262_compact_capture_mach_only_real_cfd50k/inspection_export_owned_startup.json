@@ -1,0 +1,32 @@
+{
+  "time": 1794126946.776932,
+  "tool_session": 76274,
+  "owned_tree": [
+    {
+      "pid": 2840316,
+      "ppid": 27939,
+      "start_ticks": 17130396,
+      "nice": 19,
+      "exe": "/usr/bin/python3.12",
+      "cmdline": "python3 integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/export_m6262_inspection.py "
+    },
+    {
+      "pid": 2840601,
+      "ppid": 2840316,
+      "start_ticks": 17131072,
+      "nice": 19,
+      "exe": "/usr/bin/timeout",
+      "cmdline": "timeout 1200 /usr/bin/python3 /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/inspect_native_failure3d.py /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build262_compact_capture_mach_only_real_cfd50k/adapted_mesh_inspection_rank*_manifest.json --output /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build262_compact_capture_mach_only_real_cfd50k/inspection "
+    },
+    {
+      "pid": 2840602,
+      "ppid": 2840601,
+      "start_ticks": 17131072,
+      "nice": 19,
+      "exe": "/usr/bin/python3.12",
+      "cmdline": "/usr/bin/python3 /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/inspect_native_failure3d.py /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build262_compact_capture_mach_only_real_cfd50k/adapted_mesh_inspection_rank*_manifest.json --output /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build262_compact_capture_mach_only_real_cfd50k/inspection "
+    }
+  ],
+  "one_owned_heavy_export": true,
+  "scope": "Actualhostexporthelper/timeout/reader identities;producerMPI allterminal beforeexport. Pinssource/readers/inputs remainfrozen."
+}
