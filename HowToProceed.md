@@ -5,41 +5,29 @@ for exact source/build/handle provenance. Two accepted Euler50k meshes, conserva
 admissible transfer, continued adapted CFD and actual isolated adapted disk restart
 remain required; then dedicated BL/MPI and RANS500k. All strict gates remain.
 
-Latest full M6 build278 is TERMINAL REFUSED at native5336.348s. Complete exit
-census:734914cells, zero q/J/local-geometry/size failures, all known. Final global
-TWO-SIDED geometry proof exhausted elapsed time; shape closure is not acceptance.
-All30raw files/1520pins sealed before exactly ONE owned MPI stop; all11owned
-identities absent. No adapted transfer, CFD or restart occurred. Cleanup NEVER ran.
+Fullsame-seed TWO-event M6 **build283 is LIVE/FROZEN**, sourcecheckpoint61db48895b
+PUSHED. ONE owned heavy workload; exact handles,1520pins and binary hashes in the
+current handoff/A283 startup receipt. Native5400/outer14400, all gates unchanged.
+Initial61330coords/22CFDfields are bit-identical to256/qualified254target, Mach-only
+L1/50k, CL.269535/CD.013536. No acceptedmesh yet. Let outcome drive further work;
+do not introduce another implementation/build/test campaign while it runs.
 
-The chord-bound correction completed the first actual surface query cheaply but
-full278 reached a later, much larger third entity before timing out. Counters show
-~1318.7s final certification per rank with~157–158M traversal work. The exact third
-entity has37202reference/53406physicalfaces. This is the demonstrated active blocker.
-Prepared-source reuse279 passed controlled curved/hole/cache0/resource checks but
-its actual full query still exhausted20M work. Do not treat that diagnostic pass
-as a certificate or demonstrated speedup. Test-only280 preserved the279production binary; its full-only trace exhausted20M
-work before reverse traversal,381114 forward domains and~295kqueued despite607712
-complete prepared leaves. Connected281 now retains exact prepared parameter domains
-and refines only uncertain leaves; all metadata is budgeted. Build and controls
-passed, but the actual query still exhausted20M before reverse. Matched-work exact
-equal-facet parameter coverage improved only70.35%→71.72%; no closure speedup.
-Existing traces show two large physical projection groups(21230/21103triangles)
-refused for branched boundaries. Offline reproduction now tests whether these are
-grouping artifacts; keep strict graph validation. The exact offline diagnostic finds3/4pinches on the largegroups with manifold
-fullsurface links. One exclusion removes10/9optional-witness triangles and clears
-boundary degree defects.282 replaces281metadata with a one-shot strict-validator
-retry on that subset; ALL original triangles remain in complete support. Its actual20Mtrace certifies93.23% parameter coverage (before70.35%) but remains
-incomplete.283 adds a classification-preserving early exit after nonconvexity is
-proved; all non-timequerydecisions match282, while preparation drops421→86s. Serial
-qualification passed86cases/63018assertions; ONE MPI passed120cases on eachrank. Qualifiedcheckpoint and immediate fullsame-seedM6
-under originalgates/budgets. Full20Mdiagnostic remains incomplete; native fullgeometry
-acceptance is still mandatory.
-See handoff for handles/freeze; no competing implementation.
-[Current design/evidence](Handbook/ADAPTATION_PREPARED_SOURCE_CERTIFICATES_20261108.md).
-Select further work from this actual query, qualify affected serial and ONE MPI
-milestone, then immediately return to full same-seed TWO-event M6. Keep all gates,
-work/time/memory caps, CAD optionality and nodal metric authority. No competing
-cleanup/scheduler/metric-target campaign. Missing shock demand remains separate.
+Preceding278 finished local shape/geometry/size closure on734914cells but refused
+final globalBoth certification on elapsed time. Cleanup NEVERran. Its complete raw
+archive and exactly-one owned stop are sealed; all old handles absent, NEVERrepeat.
+
+The connected283 correction addresses a demonstrated certificate bottleneck. Two
+large physical projectiongroups(21230/21103faces) were refused for boundary pinches,
+although the full physical vertex links are manifold. A one-shot OPTIONALwitness
+subset omits branch-incident triangles and retries unchanged strict validation.
+Every original triangle remains in complete distance support; holes/gates unchanged.
+At20Mwork exact equal-facet parameter coverage rises70.35%→93.23%, but the fullproof
+is still incomplete before reverse. Early exit after exact nonconvexity classification
+preserves every non-timequerydecision and reduces preparation421→86s,totalquery
+519→183s. This is bounded implementation evidence, not acceptedM6/wholeworkflow speedup.
+Serial86cases/63018assertions and ONE MPI6 milestone120cases on eachrank passed,
+allpinsunchanged/ownedhandlesabsent. Current fullM6 now judges capability under the
+original nativebudget/finalBoth gate. [Design/evidence](Handbook/ADAPTATION_PREPARED_SOURCE_CERTIFICATES_20261108.md).
 
 The latest meaningful rejected mesh is saved and independently verified in build274/inspection/
 rejected_mesh.vtu with captured nodal tensor9, q/J/geometry in CellData, plus .su2.

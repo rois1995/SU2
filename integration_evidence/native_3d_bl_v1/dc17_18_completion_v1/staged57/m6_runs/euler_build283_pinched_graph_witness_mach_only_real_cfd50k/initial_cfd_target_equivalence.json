@@ -1,0 +1,46 @@
+{
+  "positions_bit_identical": true,
+  "all_22_fields_bit_identical_to256_and_qualified_target": true,
+  "common_fields_bit_identical": {
+    "x": true,
+    "y": true,
+    "z": true,
+    "Density": true,
+    "Momentum_x": true,
+    "Momentum_y": true,
+    "Momentum_z": true,
+    "Energy": true,
+    "Pressure": true,
+    "Temperature": true,
+    "Mach": true,
+    "Pressure_Coefficient": true,
+    "Velocity_x": true,
+    "Velocity_y": true,
+    "Velocity_z": true,
+    "SENSOR_MACH": true,
+    "Metric_XX": true,
+    "Metric_XY": true,
+    "Metric_XZ": true,
+    "Metric_YY": true,
+    "Metric_YZ": true,
+    "Metric_ZZ": true
+  },
+  "sensor_fields": [
+    "SENSOR_MACH"
+  ],
+  "input_hashes_before": {
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build283_pinched_graph_witness_mach_only_real_cfd50k/restart_flow_adap_00000.dat": "61ebd3b0cd3a00889784772378ce7897ec6245c517f2ee382492288c43dbafd4",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build256_canonical_geometry_debt_mach_only_real_cfd50k/restart_flow_adap_00000.dat": "61ebd3b0cd3a00889784772378ce7897ec6245c517f2ee382492288c43dbafd4",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/metric_target254_conditioned_v1/L1/restart_flow.dat": "fccc2b94dc8595a69567edcadc5049a7ef34d421e38e922b3a61cdf730052577",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/verify_m6260_initial.py": "d8002085443a1a2d13dd34572886fb8509cdf6f3845533d91d6bec08dca4cdbd",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/TestCases/adaptation/capability/capcheck.py": "38ee0fe9fc60d7b29ab796303d8c5cec2770ad1beb06e2e5b76d5c687d495f92"
+  },
+  "input_hashes_after": {
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build283_pinched_graph_witness_mach_only_real_cfd50k/restart_flow_adap_00000.dat": "61ebd3b0cd3a00889784772378ce7897ec6245c517f2ee382492288c43dbafd4",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build256_canonical_geometry_debt_mach_only_real_cfd50k/restart_flow_adap_00000.dat": "61ebd3b0cd3a00889784772378ce7897ec6245c517f2ee382492288c43dbafd4",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/metric_target254_conditioned_v1/L1/restart_flow.dat": "fccc2b94dc8595a69567edcadc5049a7ef34d421e38e922b3a61cdf730052577",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/verify_m6260_initial.py": "d8002085443a1a2d13dd34572886fb8509cdf6f3845533d91d6bec08dca4cdbd",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/TestCases/adaptation/capability/capcheck.py": "38ee0fe9fc60d7b29ab796303d8c5cec2770ad1beb06e2e5b76d5c687d495f92"
+  },
+  "scope": "Completed INITIAL original-grid CFD/target in the actual frozen283 attempt;same saved seed and corrected Mach-only L1/50k tensor. Not adapted CFD, mesh acceptance or transfer proof."
+}
