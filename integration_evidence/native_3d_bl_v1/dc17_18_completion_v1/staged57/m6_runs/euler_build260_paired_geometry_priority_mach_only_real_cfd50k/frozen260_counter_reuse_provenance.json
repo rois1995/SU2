@@ -1,0 +1,66 @@
+{
+  "input_hashes_before": {
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/analyze_m6254_frozen.py": "ddff3430674fbaf5d62e5df3f864b36580c0aa82f0c6da2c4bfd913e39afcd1b",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/analyze_m6260_frozen.py": "2cc3cac4950f2fd4fe8464d9d597363d8d96303e0d55336b3a5ab2005f9ac26d"
+  },
+  "input_hashes_after": {
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/analyze_m6254_frozen.py": "ddff3430674fbaf5d62e5df3f864b36580c0aa82f0c6da2c4bfd913e39afcd1b",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/analyze_m6260_frozen.py": "2cc3cac4950f2fd4fe8464d9d597363d8d96303e0d55336b3a5ab2005f9ac26d"
+  },
+  "transformed_sha256": "5eb3535ea09ac0b12267551fe7acaaf6118361a1339d27170ebce0058b4f9e70",
+  "changes": [
+    [
+      "a=r/'m6_runs/euler_build254_conditioned_mach_only_real_cfd50k'",
+      "a=r/'m6_runs/euler_build260_paired_geometry_priority_mach_only_real_cfd50k'"
+    ],
+    [
+      "m6_runs/euler_build253_witness_cutoff_mach_only_real_cfd50k/quality_progress.json",
+      "m6_runs/euler_build256_canonical_geometry_debt_mach_only_real_cfd50k/quality_progress.json"
+    ],
+    [
+      "Replace BOTH literal244 attempt paths with254",
+      "Replace BOTH literal244 attempt paths with260"
+    ],
+    [
+      "live_quality254_analysis_provenance.json",
+      "live_quality260_analysis_provenance.json"
+    ],
+    [
+      "round254",
+      "round260"
+    ],
+    [
+      "round253",
+      "round256"
+    ],
+    [
+      "quality_seconds254",
+      "quality_seconds260"
+    ],
+    [
+      "quality_seconds253",
+      "quality_seconds256"
+    ],
+    [
+      "gap254_minus253",
+      "gap260_minus256"
+    ],
+    [
+      "current254",
+      "current260"
+    ],
+    [
+      "previous253",
+      "previous256"
+    ],
+    [
+      "quality_comparison253.json",
+      "quality_comparison256.json"
+    ],
+    [
+      "Corrected target changes workload;no same-query or isolated-speedup claim.",
+      "Initial CFD fields,target tensors,configuration and host cache quota match256;late geometry-priority decisions change workload. No same-query or isolated-speedup claim under host contention."
+    ]
+  ],
+  "scope": "Read-only existing first-event counters;whole-field counts require complete flags. Nearest complete quality times are measured,not interpolated;later phase transitions remain separate. No acceptance or timing causality claim."
+}

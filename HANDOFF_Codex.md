@@ -17,17 +17,22 @@ A260=`R/m6_runs/euler_build260_paired_geometry_priority_mach_only_real_cfd50k`.
 A256=`R/m6_runs/euler_build256_canonical_geometry_debt_mach_only_real_cfd50k`.
 A254=`R/m6_runs/euler_build254_conditioned_mach_only_real_cfd50k`.
 
-## CURRENT —260 QUALIFIED; fullM6 NEXT, NOT STARTED
+## CURRENT —260 full two-event M6 LIVE/FROZEN
 
 [Currentdesign/evidence](Handbook/ADAPTATION_GEOMETRY_PRIORITY260_20261108.md).
-R/geometry_priority259_plan.json is the ONLYactive connected implementation;
-coherent source version/build260. Fivecompiledfiles changed:Boundary3D.hpp,
-BoundaryParameters3D.cpp,NativeEngine3D.cpp,Boundary3D_tests.cpp,current219witness.inc.
-Allstages terminal;NOownedheavyjob now. Nextpush source/evidence checkpoint then
-IMMEDIATE R/launch_m6260.py fullsame-seedMach-onlyL1/50k TWO-eventM6. DoNOTlaunch
-anotherbaseline/operator/scheduler/metric/geometryrepresentation campaign.
-Launchermustverifyqualification,pins andterminalstagehandles. Before sustained
-work recheckactualhostload/RAM/disk. DoNOTrepeat any historicalstop below.
+Source checkpoint c04a9b6491c863f2fa6218df3dca20314df9aadc PUSHED. Tool89696 LIVE;
+R/launch_m6260.py / R/m6_260_geometry_priority_launch.json and A260/status.json
+running. ONE owned heavy job; doNOTlaunch again or edit pinned code/helpers/config.
+Startup A260/owned_startup.json verifies ALL1520pins and config identical256.
+Exact host identities(pid/startticks):launcher2213822/15600320,runner2214101/15601026,
+time2214414/15601691,timeout2214415/15601692,MPI2214416/15601692;
+workers2214419,2214420/15601698 and2214421,2214422,2214423,2214425/15601699.
+All11nice19. Verify actual /proc identities before any authorized action.
+Initial A260/initial_cfd_target_equivalence.json:61330positions andALL22flow/metric
+fields BIT-IDENTICAL256 andqualified corrected254target;ONLYSENSOR_MACH.
+Latest observed:initial construction, first split generation interior entry;
+shape NOTmeasured. Runtime late-priority use/strict acceptance remain UNPROVED.
+No demonstrated stop condition. Let frozen attempt finish; no competing campaign.
 
 Build260tool12364TERMINAL0/72.144637s,all1303pins unchanged,both targetsuptodate,
 all5recordedhosthandles terminal(R/build260_terminal_handles.json).

@@ -106,12 +106,12 @@ an established reason for a speed campaign or another scheduler.
    gate. Unresolved ordinary geometry uses the existing priority fallback;
    resource exhaustion must retain its hard stop. Keep the prediction phase-local,
    account map/scratch storage and invalidate affected support exactly.
-3. First prove predicted two-face geometry changes match actual complete-edge
-   replacements on the already sealed14constructed controls. Singleton face gains
+3. Qualification proved predicted two-face geometry changes match actual complete-edge
+   replacements on the sealed14constructed controls. Singleton face gains
    cannot be added as a shared-edge proposal. The truncated256capture remains
    unsuitable for claiming complete global volume support or a full-mesh export.
-4. Qualify affected serial behavior and ONE MPI6 milestone, then immediately run
-   fullsame-seed two-eventM6 with unchanged gates/budgets. Verify actual accepted
+4. Serial and ONE MPI6 qualification passed; fullsame-seed two-eventM6 build260 is
+   now LIVE/FROZEN with unchanged gates/budgets. HANDOFF lists verified handles. Verify actual accepted
    meshes, conservative admissible transfer, finite adaptedCFD and isolated adapted
    disk restart. Preserve independently accepted stages if a later obligation fails.
 
