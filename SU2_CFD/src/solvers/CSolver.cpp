@@ -6253,6 +6253,10 @@ void CSolver::Strong_BC(CGeometry* geometry, CSolver** solver_container, CConfig
 
   }
 
+  /*--- BC_ENTROPY_P1_STRONG_SLIP: after closure C (Weak_BC_Residual) and all other residual and Jacobian terms of the
+   * wall rows, one projector per point of the Euler walls and symmetry planes. ---*/
+  if (config->GetBC_Entropy_P1_Strong_Slip()) BC_Slip_Strong_P1(geometry, config);
+
 }
 
 void CSolver::CorrectBoundHessian(CGeometry *geometry, const CConfig *config, const unsigned short Kind_Solver) {

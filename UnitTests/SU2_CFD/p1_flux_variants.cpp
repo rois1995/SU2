@@ -50,6 +50,7 @@
 #include "../../SU2_CFD/include/numerics/flow/p1_boundary_ghost.hpp"
 #include "../../SU2_CFD/include/numerics/flow/p1_boundary_closure.hpp"
 #include "../../SU2_CFD/include/numerics/flow/jst_weak_wall.hpp"
+#include "../../SU2_CFD/include/numerics/flow/p1_strong_slip.hpp"
 #include "../../SU2_CFD/include/numerics/flow/p1_sst_matched.hpp"
 #include "../../SU2_CFD/include/numerics/flow/jst_entropy.hpp"
 #include "../../SU2_CFD/include/numerics_simd/flow/convection/common.hpp"
@@ -8453,4 +8454,117 @@ TEST_CASE("P1 SST matched AXISYMMETRIC: S_E = Shat_E + k S_rho in both forms, un
     const su2double fd = ((rk + h) / rho * S[0] - (rk - h) / rho * S[0]) / (2 * h);
     CHECK(fd == Approx(S[0] / rho).margin(1e-8));
   }
+}
+
+/*--- BC_ENTROPY_P1_STRONG_SLIP (ROE_TECNO_PLAN.md 6.8): the per-point projector P = I - Q^T Q of P1StrongSlip. ---*/
+TEST_CASE("Strong slip: wall-normal basis, projector, entropy identity and Jacobian rows", "[P1Flux]") {
+  namespace pss = P1StrongSlip;
+  std::mt19937 gen(4242);
+  std::uniform_real_distribution<double> uni(-1.0, 1.0);
+  const su2double pi = 4.0 * atan(1.0);
+
+  /*--- P as a matrix on the momentum components (iVel = 1 of a 5-vector). ---*/
+  auto projector = [&](unsigned short nDim, unsigned short nq, const su2double (*Q)[3], su2double (*P)[3]) {
+    for (unsigned short c = 0; c < nDim; ++c) {
+      su2double v[5] = {0.0, 0.0, 0.0, 0.0, 0.0};
+      v[1 + c] = 1.0;
+      pss::SlipProject(nDim, nq, Q, 1, v);
+      for (unsigned short r = 0; r < nDim; ++r) P[r][c] = v[1 + r];
+    }
+  };
+
+  struct Case { unsigned short nDim, nNormals, rank; su2double n[4][3]; };
+  const su2double a1 = 1.0 * pi / 180.0, a5 = 5.0 * pi / 180.0;
+  const std::vector<Case> cases = {
+    {2, 1, 1, {{0.0, -1.0, 0.0}}},
+    {2, 2, 2, {{0.0, -1.0, 0.0}, {1.0, 0.0, 0.0}}},
+    {2, 2, 1, {{0.0, -1.0, 0.0}, {sin(a1), -cos(a1), 0.0}}},          /*--- nearly parallel: one direction ---*/
+    {2, 2, 2, {{0.0, -1.0, 0.0}, {sin(a5), -cos(a5), 0.0}}},          /*--- 5 deg: two directions ---*/
+    {3, 2, 2, {{0.3, -0.9, 0.2}, {0.0, 0.0, 1.0}}},                   /*--- oblique wall meeting a symmetry plane ---*/
+    {3, 3, 3, {{1.0, 0.2, 0.0}, {0.1, 1.0, 0.3}, {0.0, 0.4, 1.0}}},
+    {3, 4, 3, {{1.0, 0.0, 0.0}, {0.0, 1.0, 0.0}, {0.0, 0.0, 1.0}, {0.5, 0.5, 0.5}}},
+    {3, 2, 1, {{0.0, 0.0, -1.0}, {0.0, sin(a1), -cos(a1)}}},
+  };
+
+  for (const auto& cs : cases) {
+    su2double n[4][3] = {{0.0}};
+    for (unsigned short a = 0; a < cs.nNormals; ++a) {
+      su2double norm = 0.0;
+      for (unsigned short d = 0; d < 3; ++d) norm += cs.n[a][d] * cs.n[a][d];
+      for (unsigned short d = 0; d < 3; ++d) n[a][d] = cs.n[a][d] / sqrt(norm);
+    }
+    su2double Q[3][3] = {{0.0}};
+    const auto nq = pss::SlipBasis(cs.nDim, cs.nNormals, n, Q);
+    REQUIRE(nq == cs.rank);
+    /*--- Orthonormal rows. ---*/
+    for (unsigned short r = 0; r < nq; ++r)
+      for (unsigned short t = 0; t < nq; ++t) {
+        su2double dot = 0.0;
+        for (unsigned short d = 0; d < cs.nDim; ++d) dot += Q[r][d] * Q[t][d];
+        CHECK(dot == Approx(r == t ? 1.0 : 0.0).margin(1e-14));
+      }
+    su2double P[3][3] = {{0.0}};
+    projector(cs.nDim, nq, Q, P);
+    /*--- Symmetric, idempotent, trace = nDim - rank. ---*/
+    su2double trace = 0.0;
+    for (unsigned short r = 0; r < cs.nDim; ++r) {
+      trace += P[r][r];
+      for (unsigned short c = 0; c < cs.nDim; ++c) {
+        CHECK(P[r][c] == Approx(P[c][r]).margin(1e-14));
+        su2double pp = 0.0;
+        for (unsigned short k = 0; k < cs.nDim; ++k) pp += P[r][k] * P[k][c];
+        CHECK(pp == Approx(P[r][c]).margin(1e-14));
+      }
+    }
+    CHECK(trace == Approx(cs.nDim - nq).margin(1e-13));
+    /*--- The first normal is removed exactly, a dropped (nearly parallel) one up to sin 2.5 deg. ---*/
+    for (unsigned short a = 0; a < cs.nNormals; ++a) {
+      su2double v[5] = {0.0, 0.0, 0.0, 0.0, 0.0};
+      for (unsigned short d = 0; d < cs.nDim; ++d) v[1 + d] = n[a][d];
+      pss::SlipProject(cs.nDim, nq, Q, 1, v);
+      su2double rest = 0.0;
+      for (unsigned short d = 0; d < cs.nDim; ++d) rest += v[1 + d] * v[1 + d];
+      CHECK(sqrt(rest) <= ((a == 0) ? 1e-14 : sqrt(pss::PARALLEL_SIN2) + 1e-14));
+    }
+
+    for (int trial = 0; trial < 20; ++trial) {
+      const unsigned short nVar = cs.nDim + 2;
+      /*--- Entropy identity at a tangent state: w . P(r) = w . r. ---*/
+      P1BoundaryClosure::EsState S;
+      S.rho = exp(0.5 * uni(gen)); S.p = exp(0.5 * uni(gen));
+      su2double m[5] = {0.0, 0.0, 0.0, 0.0, 0.0};
+      for (unsigned short d = 0; d < cs.nDim; ++d) m[1 + d] = uni(gen);
+      CHECK(pss::SlipPenetration(cs.nDim, nq, Q, 1, m) <= 1.0 + 1e-14);
+      pss::SlipProject(cs.nDim, nq, Q, 1, m);
+      CHECK(pss::SlipPenetration(cs.nDim, nq, Q, 1, m) <= 1e-14);
+      for (unsigned short d = 0; d < cs.nDim; ++d) S.vel[d] = m[1 + d];
+      su2double w[5] = {0.0};
+      P1BoundaryClosure::EsEntropyVariables(cs.nDim, kGamma, S, w);
+      su2double r[5] = {0.0}, Pr[5] = {0.0};
+      for (unsigned short v = 0; v < nVar; ++v) Pr[v] = r[v] = uni(gen);
+      pss::SlipProject(cs.nDim, nq, Q, 1, Pr);
+      su2double wr = 0.0, wPr = 0.0, scale = 0.0;
+      for (unsigned short v = 0; v < nVar; ++v) {
+        wr += w[v] * r[v]; wPr += w[v] * Pr[v]; scale += fabs(w[v] * r[v]);
+      }
+      CHECK(fabs(wr - wPr) <= 1e-14 * (1.0 + scale));
+      /*--- Non-momentum components untouched. ---*/
+      CHECK(Pr[0] == r[0]);
+      CHECK(Pr[nVar - 1] == r[nVar - 1]);
+
+      /*--- Jacobian rows: P(J) x = P(J x). ---*/
+      su2double J[25] = {0.0}, x[5] = {0.0}, Jx[5] = {0.0}, PJx[5] = {0.0};
+      for (unsigned short v = 0; v < nVar * nVar; ++v) J[v] = uni(gen);
+      for (unsigned short v = 0; v < nVar; ++v) x[v] = uni(gen);
+      for (unsigned short i = 0; i < nVar; ++i)
+        for (unsigned short j = 0; j < nVar; ++j) Jx[i] += J[i * nVar + j] * x[j];
+      pss::SlipProjectRows(cs.nDim, nVar, nq, Q, 1, J);
+      for (unsigned short i = 0; i < nVar; ++i)
+        for (unsigned short j = 0; j < nVar; ++j) PJx[i] += J[i * nVar + j] * x[j];
+      pss::SlipProject(cs.nDim, nq, Q, 1, Jx);
+      for (unsigned short i = 0; i < nVar; ++i) CHECK(PJx[i] == Approx(Jx[i]).margin(1e-14));
+    }
+  }
+  su2double zero[5] = {0.0, 0.0, 0.0, 0.0, 0.0}, Qz[3][3] = {{0.0, 1.0, 0.0}};
+  CHECK(pss::SlipPenetration(2, 1, Qz, 1, zero) == 0.0);
 }

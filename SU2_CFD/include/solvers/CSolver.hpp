@@ -1217,6 +1217,12 @@ public:
                                              CSolver** solver_container,
                                              const CConfig* config, unsigned short val_marker) {}
 
+  /*!
+   * \brief BC_ENTROPY_P1_STRONG_SLIP: u.n = 0 and no normal-momentum equation at the points of the Euler walls and
+   *        symmetry planes, after closure C (called by Strong_BC).
+   */
+  inline virtual void BC_Slip_Strong_P1(CGeometry* geometry, const CConfig* config) {}
+
  
   /*!
    * \brief A virtual member.
