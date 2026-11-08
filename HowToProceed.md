@@ -5,19 +5,28 @@ for exact source/build/handle provenance. Two accepted Euler50k meshes, conserva
 admissible transfer, continued adapted CFD and actual isolated adapted disk restart
 remain required; then dedicated BL/MPI and RANS500k. All strict gates remain.
 
-Latest full M6 build271 refused event1 at native3378.395s on ONE q-bad cell;
-735624cells,0J/0geometry/0size, all census flags complete. Stop was operator
-stagnation, not time/work/RAM exhaustion. Cell152833287 is root-adjacent, interior
-withtwo surface vertices; q=.1988707996,J=.0604710627, all14featuresblocked.
-One verified owned MPI stop followed sealed evidence; every owned handle terminal.
-No transfer/adaptedCFD/restart occurred. Later original-grid CFD is not proof.
+Latest full M6 build274 is TERMINAL REFUSED at native5342.592s. Exit census
+is COMPLETE734806cells with zero q/J/local-geometry/size failures, all measured.
+The final whole-surface TWO-SIDED geometry proof exhausted elapsed time. This is
+shape closure, not accepted geometry or an accepted mesh. All30raw files preserve
+complete topology/tensors/reference; all1520pins verified. Exactly ONE owned MPI
+stop followed sealing; all11prior owned handles are absent. No adapted transfer,
+CFD or disk restart occurred. The optional cleanup pass NEVER executed.
 
-The terminal raw snapshot is PARTIAL: rank4's416-byte owned stream reached the
-unchanged128MiBcap;644221of735624rows saved,91403clean rows omitted. Nativeglobal
-census is complete, savedconnectivity is not. Do not fill gaps from historical
-runs or label a partial mesh complete. Latest COMPLETE inspection remains
-build262/inspection/rejected_mesh.vtu,148608points/734315tets, nodalmetric9 and four
-unknown q/J cells explicit. It is not shape-certified. No per-trial VTUs needed.
+Each rank added one final query taking~1903.6s, almost entirely traversal
+(~651–659Mwork); preparation <.4s. One extra repair round closed the last q/J cell.
+The demonstrated next blocker is final certification traversal. Distinguish its
+actual source/entity/direction before changing bounds. An existing N=3 triangular
+finite-footprint proof may support a rigorously bounded triangle+Bernstein-error
+witness for N=10 curved source nets; this remains a hypothesis. Both geometry
+directions, exact support, holes/body/feature/height restrictions and resource
+fallbacks must stay intact; source-envelope import is an affected caller.
+
+The latest meaningful rejected mesh is saved and independently verified in build274/inspection/
+rejected_mesh.vtu with captured nodal tensor9, q/J/geometry in CellData, plus .su2.
+Exporter and both readers are terminal; exact topology, positive volumes, SPD tensors
+and every raw cell-ID q/J/localG/edge-extrema association pass. Original full262inspection remains available but has four unknown q/J.
+No per-trial files required. See handoff for terminal handles and pins; no heavy job is live.
 
 The user's cleanup hypothesis now has bounded positive and negative evidence:
 [post-refinement cleanup investigation](Handbook/ADAPTATION_POST_REFINEMENT_CLEANUP_20261108.md).
@@ -36,9 +45,8 @@ fail support/positivity or geometry gates. No nonlocal contact/distributed
 publication/height qualification yet. Connected cleanup273 is built and pushed f2fd9c2c9d; build274 only corrects a
 synthetic test and is productionCFD byte-identical273. Focused qualification
 PASSED43685assertions/3cases. Connectedserial274 PASSED83cases/62978assertions and ONE MPI6 milestone PASSED
-117cases on everyrank. Fullsame-seed TWOeventM6 build274 NOWLIVE/FROZEN tool80377.
-A274/owned_startup.json seals all1520pins and actual11ownedidentities/83libraries. Pinned sources/helpers stay
-frozen through validation/run; see HANDOFF_Codex.md for exact owned handles.
+117cases on everyrank. Fullsame-seed TWOeventM6 build274 is now terminal as detailed above.
+A274/owned_startup.json seals all1520pins and actual11ownedidentities/83libraries. Exporter still pins sources/helpers; keep them frozen until its verified terminal state; see HANDOFF_Codex.md for exact owned handles.
 
 Correction273 adds ONE finite improvement-only raw-collapse opportunity at
 exhausted q/J repair with geometry/size/heights closed. Absolute fresh q/J, ordinary

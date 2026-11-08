@@ -311,3 +311,37 @@ For comparison, cleanup commits are included inlength_collapses/construction_edi
 PRIVATEqualitybusy/laddercommits retainexisting repair-onlyscope. Use stage labels
 andfullwall/CPU/geometrywork counters to accountcleanup, rather than calling its
 zero privatebusy idleCPU. Judgeglobalnetq/J/g and finalcertifiedoutcome, notpoints.
+
+###Frozen274 long quiet tail — source-level hypothesis, NOT live-stack proof
+
+After qualityentry25035/native3437.224s (1q/1J/0g/0size), no newercomplete
+census was visible bywall4842s. SampledRSS grows similarly on ALLsixranks, even
+near-emptyowners; jobhandle80377isstilllive, no stop/pressure demonstrated. This
+doesNOTprove the workingmesh stillhasthatbadcell: finish() inCNativeEngine3D.cpp
+1840 performs GeometryCertificates(atlas_budget,true) BEFORE exit telemetry1918.
+BoundaryParameterState::GeometryCertificates at368 groups the ENTIREreplicated
+workingphysicalsurface bybody/sheet/marker; NativeMappedGeometryBackend3D.cpp263
+calls BoundSurfaceUnion forBothdirections. Thus finalglobalcertification is a
+plausiblequietstage onceinternalshapehasclosed, but thereisNOdynamicproofyet.
+Use the actualexitq/J/gflags, reasons and per-rankquery/guidance/optimizercounters
+todistinguishfinalcertificationfromlongprivateqrepair. No perf/GDB/newbaseline.
+Localcachedgeometry0 isNOTa substitute for this mandatory complete two-sided
+proof. No geometrydirection/gate maybedropped onthebasis of thishypothesis.
+
+### Actual terminal274 supersedes the quiet-tail hypothesis
+
+Exit25036/native5342.591765s is COMPLETE734806cells with zero q/J/local-geometry/
+size failures and all measurements known. Native refusal is elapsed-time exhaustion
+in mandatory final whole-surface two-sided certification. Cleanup NEVER executed.
+From entry25035 to exit each rank adds one full query/~1903.6s,~651–659M traversal
+work but <.4s preparation. Rank3 alone commits one extra repair (+22work,+6tets).
+Thus final traversal is demonstrated; preparation or continued polishing is not
+the terminal bottleneck. Local geometry zero is not the global two-sided proof.
+
+Full30file snapshot saved, all734806cells/metrics known, pins verified; exactly one
+owned MPI stop, all11prior handles absent. Full rejected mesh+tensor export now
+running; independently validate it before sharing. Goal still ZERO accepted.
+Investigate existing N=3 finite-footprint bounds versus N=10 model-source hulls;
+a rigorous flat-triangle plus Bernstein-deviation witness is only a hypothesis.
+Retain original both-direction certification/fallback and source-envelope import
+semantics. No broader cleanup changes justified by a pass that never ran cleanup.

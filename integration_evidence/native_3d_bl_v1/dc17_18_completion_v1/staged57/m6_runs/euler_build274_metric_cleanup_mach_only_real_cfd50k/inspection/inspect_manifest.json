@@ -1,0 +1,63 @@
+{
+  "actual_full_mesh_cells": 734806,
+  "actual_full_mesh_points": 148781,
+  "bad_cells_omitted": 0,
+  "bad_cells_retained": 0,
+  "bad_rows_total": 0,
+  "bad_set_complete": true,
+  "captured_nodal_metric_complete": true,
+  "captured_nodal_metric_points": 148781,
+  "captured_nodal_metric_semantics": "Current transported nodal sensor tensor; full target only when engine full_target=1. Query-time composition and original frozen background are not reconstructed. Nine row-major symmetric components in PointData; absent tensors are NaN with availability=0. Surface extraction retains this same volume field; no separate surface tensor is fabricated.",
+  "cavity_cells_omitted": 0,
+  "cavity_cells_retained": 0,
+  "cavity_complete": true,
+  "event": 1,
+  "expected_ranks": 6,
+  "final_mesh_accepted": false,
+  "final_mesh_complete": true,
+  "final_su2_complete": true,
+  "full_mesh_error": null,
+  "full_mesh_exported_cells": 734806,
+  "full_mesh_measurements_complete": true,
+  "full_su2_error": null,
+  "full_su2_exported_cells": 734806,
+  "full_su2_signed_orientation_counts": {
+    "boundary_orientation_unknown": 0,
+    "degenerate": 0,
+    "negative": 0,
+    "positive": 734806
+  },
+  "historical_rejections": 384,
+  "input_rows": 734806,
+  "inputs": [
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build274_metric_cleanup_mach_only_real_cfd50k/adapted_mesh_inspection_rank0_manifest.json",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build274_metric_cleanup_mach_only_real_cfd50k/adapted_mesh_inspection_rank1_manifest.json",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build274_metric_cleanup_mach_only_real_cfd50k/adapted_mesh_inspection_rank2_manifest.json",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build274_metric_cleanup_mach_only_real_cfd50k/adapted_mesh_inspection_rank3_manifest.json",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build274_metric_cleanup_mach_only_real_cfd50k/adapted_mesh_inspection_rank4_manifest.json",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build274_metric_cleanup_mach_only_real_cfd50k/adapted_mesh_inspection_rank5_manifest.json"
+  ],
+  "marker_name_fallbacks": [
+    "0:Marker_0",
+    "1:Marker_1",
+    "2:Marker_2"
+  ],
+  "missing_ranks": [],
+  "partial": false,
+  "partial_reasons": [],
+  "present_ranks": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5
+  ],
+  "reference_facets": 48954,
+  "reference_features_corners": 676,
+  "rejection_scope": "historical_not_final_state_reason",
+  "schema": "native_failure3d_inspection_v1",
+  "star_definition": "cells sharing any global node id with a retained bad core cell",
+  "unknown_metric_rows": 0,
+  "visualization_note": "VTU is a bounded visualization export; exact reference controls and metadata are in reference_records.jsonl."
+}

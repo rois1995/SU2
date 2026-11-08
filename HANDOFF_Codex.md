@@ -13,62 +13,65 @@ R=`integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57`.
 A271=`R/m6_runs/euler_build271_cooperative_deadline_mach_only_real_cfd50k`.
 A262=`R/m6_runs/euler_build262_compact_capture_mach_only_real_cfd50k`.
 
-## CURRENT — full TWO-event M6 build274 LIVE and FROZEN
-
-Latest pushed2b65134b32: connectedqualification+frozenM6startup/equivalenttarget.
-Implementation/focusedcheckpoint f2fd9c2c9d is the actual sourcecommit atlaunch.
-R/cleanup274_qualification.json now seals connected checks: focused43685assertions/
-3cases97.370s; serial62978/83cases160.372s; ONE MPI6 117cases on EACHrank182.079s.
-Rankassertions66693/66659/67580/66755/66853/66473. Allpins unchanged; allqualification
-ownedhandles terminal. MPItool13019/helper4055570/process4055826–28+4055831–36
-verifiedterminal. Casefolders current_production_20261108T154915_4034511,
-current_production_20261108T155213_4044704,placement_mpi6_20261108T155517_4055570.
-NOmorebuild/fixture/MPI alongside M6. Qualification is NOTfullmeshacceptance.
+## CURRENT — build274 TERMINAL REFUSED; full inspection export LIVE
 
 A274=R/m6_runs/euler_build274_metric_cleanup_mach_only_real_cfd50k.
-Full M6 LIVE tool80377, launchedfrompushedf2fd9c2c9d. Exactownedhandles:
-wrapper4074153/start19808580,runner4074487/start19809216,
-time4074846+timeout4074847+MPI4074848/start19809786,
-sixACTUALCFDworkflowtest_driver ranks4074851–52/start19809789,
-4074853–56/start19809790. A274/owned_startup.json verifies all1520pins, actual
-workflowexecutablehash and83mappedlibraries againstcurrenthostruntime. Commands
-run the existing actualCFD driver fixture, not standaloneSU2_CFD ranks; preserve
-that distinction. SampledtreeRSS3.817GB is NOTpeak/physicalusage. All C++/helpers/
-binaries/runtime/config/inputs FROZEN untilverifiedterminal orpreserved authorized
-stop. NOstop marker exists for274. Native5400/outer14400/12GiBperrank/cachehost4GiB,
-nice19/libs1 unchanged. Mach-onlyL1/50k, same savedrealCFDseed/configSHAbelow.
-First QUALITYENTRY complete atnative691.828611s/round23314:690715cells,
-27016q/27453J/1205geometry/0size, allmeasurement/censusflagscomplete. ZEROaccepted.
-A274/quality_entry_equivalence271.json proves all83complete groups through this
-entry EXACT271 in EVERYnon-time/non-byte rankfield/count/work/flag. Timingdiffers;
-no causal speedup claim. Cleanup hasnotrun; retainfrozenexecution.
-Recorded firstwindow complete round23360/native836.104867s:697375cells,23178q/23002J/
-1184geometry/0size. SAMEcounts andtraversalwork as271 atmatchinground. Netq
-3838removed in144.276s (26.602/s vs27127.613/s); timingratio0.963 isnot an
-optimization benefit. analyze_m6274_quality.py passedwindowcensus/ladder/location
-checks; private_tracked_collectives0. Secondwindow round23424 and completed
-quiescentownershipredistribution:703962cells,20201q/19573J/1144geometry/0size,
-allflagscomplete; matching271counts/traversalwork. Passive exactownedCPU/RAMread
-verifiedall11handleslive; CPUincludesMPIspinning, notpureusefulwork. Sampled
-treepeak13.915GB duringthisrun, notphysicalpeak; hostMemAvailable37GB atlastread.
-No pressure/stopconditionestablished. A274/transfer_restart_readiness_reuse.json
-verifies8auditedsource/build/helperpathsagainstcurrentpins; NOTactualtransfer/restart.
-BoundedREADONLYLunamonitor /root/closure266_support_review is NOWCOMPLETE;
-primary owns subsequent parsers. No newheavyjob/implementation. Main80377verified
-LIVE. Latestrecorded completewindow23808/native1974.867s:720674cells,
-8925q/7622J/1029geometry/0size, allflagscomplete; cleanupNOTeligible/run.
-The first observed control-path difference vs271 is EXTRA ownership migration
-at23616: old gain238.811<2*cost132.05 ⇒skip, currentgain240.326>2*118.63 ⇒
-migrate157218cells. First differing COMMONcensus23680. Exact6rankrows/prefix
-hashes inA274/ownership23616_sensitivity271.json. Latermatched-round geometrywork
-andcounts diverge, so no causalcleanup/performanceclaim. Existingtiming-aware
-eligibilityexplains differingdecisions, not an isolated downstreamspeedup.
-ContinuefrozenM6; awaitactualnativeoutcome beforeproductionchanges.
-verify_m6274_initial.py PASSED: all61330coords/22fields BIT-IDENTICAL256 and
-qualified254target, SENSOR_MACHonly. Early5group comparison is in first_construction_equivalence271.json;
-new83groupqualityentryreceipt supersedesits coverage withoutdiscardingit.
-ProductionCFD SHA369a994f75a2a7cce76973096189f641f3d696aa045bc6bdd0db049499448512.
-Build274 terminal27.108s/CFD byte-identical273; build273516.729s/allpins.
+Latest pushed checkpoint c8512bae42; implementation f2fd9c2c9d. Qualification274
+passed focused3cases/43685assertions, serial83/62978 and ONE MPI6 117cases EACHrank;
+all pinned inputs/runtime verified. CFD SHA369a994f75a2a7cce76973096189f641f3d696aa045bc6bdd0db049499448512.
+Same saved real CFD seed, Mach-onlyL1/50k and unchanged gates/budgets.
+
+Native first event REFUSED on time_budget at round25036/native5342.591765s.
+Complete exit census734806cells,0q/0J/0LOCALgeometry/0size; ALL measurements known.
+Mandatory FINAL WHOLE-SURFACE TWO-SIDED geometry certification did NOT complete.
+Local zero geometry failures does not establish that gate. ZERO accepted meshes,
+no adapted transfer/CFD/restart. Cleanup NEVER executed; no benefit attributed.
+Last surface q/J cell closed in ONE additional repair round (+22work,+6cells).
+Between qualityentry25035 and exit25036 EACHrank added one full geometry query,
+~1903.6s full-query time and ~651–659M traversal work. Preparation was <.4s/rank.
+Confirmed active blocker is FINAL CERTIFICATION TRAVERSAL, not continued q repair
+or preparation. Exact failing entity/source bound still requires bounded diagnosis.
+
+All30 raw snapshot files COMPLETE:734806/734806cells, no partial rank or unknown
+q/J, captured nodal tensors/reference preserved within unchanged caps. All1520
+runtime/source/input pins verified. A274/capture_ready.json and owned_stop_once.json
+seal authorized evidence-first stop: exactly ONE signal to MPI4074848/start19809786.
+NEVER repeat it. Main80377 TERMINAL1,5953.058s,pins_verified=true,changed=[];
+A274/terminal_handles.json proves ALL11 prior owned identities ABSENT. Peak sampled
+whole-tree RSS13.915GB, NOT physical peak; no resource-pressure claim.
+
+Inspection exporter TERMINAL0/326.530s/all1557pins unchanged; exact helper157001,
+timeout157290,child157291 ALLABSENT. Both independent readers TERMINAL0:148781points,
+734806cells, VTU/SU2 exact topology/coordinates, all volumes positive, complete
+SPDmetric9, correct CellData lengths. Full734806cell-ID join proves q/J/localG and
+edge extrema equal raw records exactly. Empty bad/cavity files are valid zero-cell
+binaryVTK. Two reader-only assumptions corrected with failure receipts; no export
+or production changes. Receipts inspection_export_terminal_handles.json,
+inspection_reader_status.json,inspection_raw_metric_reader_status.json,
+inspection_reader_terminal_handles.json. Latest meaningful full rejected mesh:
+A274/inspection/rejected_mesh.vtu (+.su2), Tensors=captured_nodal_metric.
+No active heavy job. C++ source freeze released; verify next owned handles before
+starting a build/check/run. No per-trial mesh export. ZERO accepted meshes.
+
+Next: terminal_certification_diagnosis.json seals per-rank counters; bounded actual
+query diagnosis using existing surface-union facilities. Existing N=3 footprint
+bounds handle triangular coverage but cubic degree-elevated affine source uses
+N=10 hull bounds. A triangle-plus-rigorous-Bernstein-deviation upper witness may
+reuse the existing finite footprint without dropping either geometry direction;
+this is an UNPROVEN hypothesis, not a selected production fix. All uncertain bounds
+must fall back. Audit source-envelope import caller too. No new scheduler, config,
+CAD dependence, larger cavities or raised budgets. After affected serial and ONE
+MPI qualification of a demonstrated connected fix, immediately full same-seed
+TWO-event M6. Cleanup remains integrated but actual publication unproven.
+
+Earlier comparison: all83complete groups through qualityentry23314 MATCH271 in
+EVERY non-time/non-byte field/work/flag. First control divergence at ownership23616:
+271gain238.811<2*cost132.05 skipped;274gain240.326>2*118.63 moved157218cells.
+Timing-aware ownership prevents attributing later differences to cleanup/speedup.
+Receipts quality_entry_equivalence271.json,ownership23616_sensitivity271.json.
+verify_m6274_initial.py confirms all61330positions/22fields BIT-IDENTICAL256/254.
+Transfer_restart_readiness_reuse.json covers8unchanged audited paths, NOT runtime
+proof. All qualification/build handles terminal. No active sub-agent.
 
 The earlier focused273 testcampaign failed only an inconsistent syntheticunitcheck
 (sharedlengthmutatedwhileexactcoordsunchanged). Corrected testcoordinates in274;
@@ -211,3 +214,4 @@ resources/MPI andRANS500k. Do not markgoalcomplete fromdiagnostics or onegateclo
 
 Prior detailed state archived in
 [pre272 handoff](Handbook/History/HANDOFF_before272_cleanup_20261108.md).
+
