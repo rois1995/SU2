@@ -19,6 +19,7 @@ BINARY = REPO / "integration_evidence/build-integrated-v3-currenthost/UnitTests/
 CASES = {
     "geometry_current_queries": (1, "[NativeM6GeometryQueries3D]"),
     "current_compound": (1, "[NativeCurrentCompound3D]"),
+    "current_production": (1, "[NativeCurrentProduction3D]"),
     "current_residual": (1, "[NativeCurrentResidual3D]"),
     "captured_shape_census": (1, "[NativeCapturedShapeCensus3D]"),
     "captured_cavity": (1, "[NativeCapturedCavity3D]"),
@@ -283,12 +284,13 @@ def main():
                 pins[str(path.resolve())] = item["sha256"]
             for path in (preparation_path, ROOT / "prepare_geometry225_queries.py"):
                 pins[str(path.resolve())] = sha(path)
-        if case in ("current_residual", "current_compound", "placement_mpi6"):
+        if case in ("current_residual", "current_compound", "current_production", "placement_mpi6"):
             # C++ companion files follow the requested directory, even when run.cfg is a symlink.
             config = Path(os.environ["SU2_NATIVE_FROZEN_CONFIG"]).absolute()
             receipt = config.parent / "witness_preparation.json"
             preparation = json.loads(receipt.read_text())
-            if preparation["schema"] != "native_current_witness_preparation_v1" or preparation["input_hashes_before"] != preparation["input_hashes_after"]:
+            schema = "native_current_source263_preparation_v1" if case == "current_production" else "native_current_witness_preparation_v1"
+            if preparation["schema"] != schema or preparation["input_hashes_before"] != preparation["input_hashes_after"]:
                 raise RuntimeError("current witness provenance incomplete")
             for name, item in preparation["outputs"].items():
                 path = config.parent / name
@@ -296,7 +298,11 @@ def main():
                     raise RuntimeError("current witness input changed: " + str(path))
                 pins[str(path.resolve())] = item["sha256"]
             preparer = "prepare_current227_witnesses.py" if (config.parent / "current_residual_cases.tsv").exists() else "prepare_current219_witnesses.py"
-            for name, digest in preparation["input_hashes_before"].items():
+            inputs = dict(preparation["input_hashes_before"])
+            if case == "current_production":
+                preparer = "prepare_current263_witnesses.py"
+                inputs.update(preparation["preparer_reuse"]["helper_hashes"])
+            for name, digest in inputs.items():
                 if sha(Path(name)) != digest:
                     raise RuntimeError("current witness source input changed: " + name)
                 pins[name] = digest

@@ -1,11 +1,12 @@
 // Actual corrected-target residuals: existing operators only, never historical replay or acceptance.
-static void CapturedCurrentResidual(bool compound,bool distributed=false) {
+static void CapturedCurrentResidual(bool compound,bool distributed=false,bool production_source=false) {
   World world;if(!distributed)REQUIRE(world.size==1);
   const auto* cfg=std::getenv("SU2_NATIVE_FROZEN_CONFIG");REQUIRE(cfg);
   const std::string config(cfg);const auto slash=config.find_last_of('/');REQUIRE(slash!=std::string::npos);
   const auto directory=config.substr(0,slash+1);
   std::ifstream current_cases(directory+"current_residual_cases.tsv");
   const bool current_capture=bool(current_cases);
+  if(production_source)REQUIRE(current_capture);
   const auto logfile=distributed?"native_current_residual_rank"+std::to_string(world.rank)+".jsonl":"native_current_residual_result.jsonl";
   REQUIRE_FALSE(bool(std::ifstream(logfile)));
   std::ofstream log(logfile);REQUIRE(bool(log));log<<std::setprecision(17)<<std::boolalpha;
@@ -96,7 +97,7 @@ static void CapturedCurrentResidual(bool compound,bool distributed=false) {
   };
   const auto identity=std::make_shared<const FrozenMetricIdentity>();
   budget.caller_bytes=transfer_memory::Add(budget.caller_bytes,state->ResidentBytes(),reference->ResidentBytes(),
-      2*MaximumFrozenFieldBytes,size_t(64)<<20);
+      (production_source?4:2)*MaximumFrozenFieldBytes,size_t(64)<<20);
   REQUIRE(budget.caller_bytes<ceiling);
   auto scope=reference->WithAtlasReservation(budget);
   for(const auto& test:cases) {
@@ -113,30 +114,50 @@ static void CapturedCurrentResidual(bool compound,bool distributed=false) {
     REQUIRE(donors.size()<=MaximumDonors);
     auto extensions=AssociatedExtensions(donors,*scope);
     FrozenField field(std::move(donors),MetricComposition{},false,extensions,MetricEdgeBreakpoints{},identity,true,MaximumDonors,true);
+    CavityMetricSource metric_source(world,owned);
     auto complete=patch_from(owned);scope->ExportParameters(complete);
     const auto before=MeasureMetricCells(complete.cells,field);
     double q_error=0,j_error=0,edge_error=0;
+    size_t known_q=0,known_j=0,unknown_q=0,unknown_j=0;
     for(const auto& prior:expected){const auto measured=MeasureMetricCells({owned.at(prior.id).cell},field);
-      q_error=std::max(q_error,std::abs(measured.minimum_mean_ratio-prior.q));
-      j_error=std::max(j_error,std::abs(measured.minimum_scaled_jacobian-prior.J));
+      if(std::isfinite(prior.q)){++known_q;q_error=std::max(q_error,std::abs(measured.minimum_mean_ratio-prior.q));}
+      else {REQUIRE(production_source);REQUIRE(std::isnan(prior.q));++unknown_q;}
+      if(std::isfinite(prior.J)){++known_j;j_error=std::max(j_error,std::abs(measured.minimum_scaled_jacobian-prior.J));}
+      else {REQUIRE(production_source);REQUIRE(std::isnan(prior.J));++unknown_j;}
       for(const auto& e:prior.edges) {
-        if(current_capture)REQUIRE(std::isnan(e.length));
-        else edge_error=std::max(edge_error,double(std::abs(measured.edges.at(e.vertices).length-e.length)));
+        if(current_capture&&!production_source)REQUIRE(std::isnan(e.length));
+        else {REQUIRE(std::isfinite(e.length));edge_error=std::max(edge_error,double(std::abs(measured.edges.at(e.vertices).length-e.length)));}
       }}
+    REQUIRE(known_q+unknown_q==rows.size());REQUIRE(known_j+unknown_j==rows.size());
+    REQUIRE(known_q>0);REQUIRE(known_j>0);
     REQUIRE(q_error<=1e-10);REQUIRE(j_error<=1e-10);REQUIRE(edge_error<=1e-10);
     log<<"{\"stage\":\"current_metric_match\",\"case\":"<<std::quoted(test.first)<<",\"cells\":"<<rows.size()
        <<",\"q_error\":"<<q_error<<",\"J_error\":"<<j_error<<",\"edge_error\":"<<edge_error
-       <<",\"captured_edges_available\":"<<!current_capture<<"}\n";log.flush();
+       <<",\"captured_edges_available\":"<<(!current_capture||production_source)
+       <<",\"known_q_oracles\":"<<known_q<<",\"known_J_oracles\":"<<known_j
+       <<",\"unknown_q_oracles\":"<<unknown_q<<",\"unknown_J_oracles\":"<<unknown_j
+       <<",\"production_current_source\":"<<production_source<<"}\n";log.flush();
     auto assess=[&](Owned local,const std::set<Id>& retired,const Patch& seed,Patch input,Id vertex,const char* kind,bool optimize=true,size_t relocated=0,
-                    const GeometrySplitPrediction* prediction=nullptr) {
+                    const GeometrySplitPrediction* prediction=nullptr,bool* needs_reclosure=nullptr) {
       REQUIRE_FALSE(seed.cells.empty());REQUIRE(seed.cells.size()<=MaximumCavityCells);
       auto context=scope->PrivateParameters(input);REQUIRE(context);context->ExportParameters(input);
+      std::vector<OwnedCell> source_rows;
+      std::unique_ptr<FrozenField> proposal_field;
+      if(production_source) {
+        for(Id id:retired)source_rows.push_back(owned.at(id));
+        REQUIRE(source_rows.size()==seed.cells.size());
+        auto imported=metric_source.ImportCellsLocal(seed.cells,source_rows,ceiling,budget.caller_bytes);
+        INFO(imported.reason);REQUIRE(imported.valid);
+        const auto components=AssociatedExtensions(imported.cells,*scope);
+        proposal_field=std::make_unique<FrozenField>(std::move(imported.cells),MetricComposition{},false,
+            components,MetricEdgeBreakpoints{},identity,true,MaximumDonors,true);
+      }
       const auto stats0=state->Geometry().GeometryStatsSnapshot();
       const auto started=std::chrono::steady_clock::now();
       OptimizeOptions options;options.maximum_work=160;options.maximum_seconds=30;options.boundary=false;
       options.cache_entries=8*MaximumReplacementCells;options.geometry=context.get();options.surface_tolerance=1e-4;
       Id node=600000000,cell=700000000;OptimizeReport report;
-      const bool changed=optimize&&OptimizeMetricMesh(local,RegionMetric(field),node,cell,options,report);
+      const bool changed=optimize&&OptimizeMetricMesh(local,RegionMetric(proposal_field?*proposal_field:field),node,cell,options,report);
       const auto optimized_stats=state->Geometry().GeometryStatsSnapshot();
       REQUIRE(report.trials<=160);REQUIRE(local.size()<=MaximumReplacementCells);
       auto result=patch_from(local);result.parameters=input.parameters;result.coverage=input.coverage;
@@ -145,6 +166,26 @@ static void CapturedCurrentResidual(bool compound,bool distributed=false) {
       for(const auto& p:report.coverage.traces)result.coverage.traces.insert_or_assign(p.first,p.second);
       retain_coverage(result);
       auto final_context=context->PrivateParameters(result);REQUIRE(final_context);final_context->ExportParameters(result);
+      std::unique_ptr<FrozenField> gate_field;
+      if(production_source) {
+        std::map<Id,Point> previous;for(const auto& row:source_rows)for(Node n:row.cell.v)previous.emplace(n.id,n.p);
+        for(const auto& cell:result.cells)for(Node n:cell.v)if(previous.count(n.id)) {
+          const auto p=previous.at(n.id);REQUIRE(n.p.x==p.x);REQUIRE(n.p.y==p.y);REQUIRE(n.p.z==p.z);
+        }
+        auto imported=metric_source.ImportMetricSamplesLocal(result.cells,source_rows,{},ceiling,budget.caller_bytes);
+        INFO(imported.reason);REQUIRE(imported.valid);
+        std::vector<OwnedCell> published;for(const auto& row:local)published.push_back(row.second);
+        PublishMetrics(source_rows,published);
+        std::map<Id,const DonorCell*> sampled;for(const auto& row:imported.cells)REQUIRE(sampled.emplace(row.cell.id,&row).second);
+        for(const auto& row:published) {
+          const auto& donor=*sampled.at(row.cell.id);
+          for(unsigned k=0;k<4;++k)REQUIRE(SameMetric(row.sensor[k],donor.sensor[k]));
+          local.at(row.cell.id)=row;
+        }
+        const auto components=AssociatedExtensions(imported.cells,*scope);
+        gate_field=std::make_unique<FrozenField>(std::move(imported.cells),MetricComposition{},false,
+            components,MetricEdgeBreakpoints{},identity,true,MaximumDonors,true);
+      }
       std::string replacement_reason,interface_reason,metric_reason;
       const bool replacement=state->CheckReplacement(seed,result,replacement_reason,ceiling,budget.caller_bytes,&budget);
       std::set<Face> physical;for(auto f:seed.surface){std::sort(f.v.begin(),f.v.end());physical.insert(f.v);}
@@ -164,8 +205,20 @@ static void CapturedCurrentResidual(bool compound,bool distributed=false) {
       for(const auto& p:result.coverage.traces)all.coverage.traces.insert_or_assign(p.first,p.second);
       retain_coverage(all);
       auto all_context=scope->PrivateParameters(all);REQUIRE(all_context);all_context->ExportParameters(all);
-      const auto after=MeasureMetricCells(all.cells,field);
-      const auto old_active=MeasureMetricCells(seed.cells,field),new_active=MeasureMetricCells(result.cells,field);
+      std::unique_ptr<FrozenField> joined_field;
+      if(production_source) {
+        std::vector<DonorCell> donors;
+        for(const auto& row:joined){REQUIRE(row.second.sensor_present);DonorCell donor;
+          donor.cell=row.second.cell;donor.sensor=row.second.sensor;donors.push_back(donor);}
+        const auto components=AssociatedExtensions(donors,*scope);
+        joined_field=std::make_unique<FrozenField>(std::move(donors),MetricComposition{},false,
+            components,MetricEdgeBreakpoints{},identity,true,MaximumDonors,true);
+      }
+      auto& after_field=joined_field?*joined_field:field;
+      const auto after=MeasureMetricCells(all.cells,after_field);
+      const auto old_active=MeasureMetricCells(seed.cells,proposal_field?*proposal_field:field);
+      const auto new_active=MeasureMetricCells(result.cells,gate_field?*gate_field:field);
+      const auto proposal_metric=production_source?MeasureMetricCells(result.cells,*proposal_field):new_active;
       MetricDiagnosis diagnosis;
       const bool primitive=ValidateMetricChange(seed.cells.size(),old_active,result.cells.size(),new_active,MetricChange::Repair,metric_reason,&diagnosis);
       MetricDiagnosis geometry_diagnosis;std::string geometry_metric_reason;
@@ -203,8 +256,11 @@ static void CapturedCurrentResidual(bool compound,bool distributed=false) {
       auto vertex_count=[](const Owned& cells){std::set<Id> vertices;for(const auto& row:cells)
         for(const auto& node:row.second.cell.v)vertices.insert(node.id);return vertices.size();};
       std::array<std::set<Id>,2> old_bad,new_bad;
-      for(const auto& row:expected){if(row.q<MinimumMeanRatio)old_bad[0].insert(row.id);if(row.J<MinimumScaledJacobian)old_bad[1].insert(row.id);}
-      for(const auto& row:joined){const auto m=MeasureMetricCells({row.second.cell},field);
+      if(production_source)for(const auto& row:owned){const auto m=MeasureMetricCells({row.second.cell},field);
+        if(m.minimum_mean_ratio<MinimumMeanRatio)old_bad[0].insert(row.first);
+        if(m.minimum_scaled_jacobian<MinimumScaledJacobian)old_bad[1].insert(row.first);}
+      else for(const auto& row:expected){if(row.q<MinimumMeanRatio)old_bad[0].insert(row.id);if(row.J<MinimumScaledJacobian)old_bad[1].insert(row.id);}
+      for(const auto& row:joined){const auto m=MeasureMetricCells({row.second.cell},after_field);
         if(m.minimum_mean_ratio<MinimumMeanRatio)new_bad[0].insert(row.first);
         if(m.minimum_scaled_jacobian<MinimumScaledJacobian)new_bad[1].insert(row.first);}
       auto absent=[](const std::set<Id>& a,const std::set<Id>& b){size_t count=0;for(Id id:a)count+=!b.count(id);return count;};
@@ -212,6 +268,11 @@ static void CapturedCurrentResidual(bool compound,bool distributed=false) {
       REQUIRE(new_bad[0].size()==after.q_bad_cells);REQUIRE(new_bad[1].size()==after.j_bad_cells);
       const auto stats1=state->Geometry().GeometryStatsSnapshot();
       const double seconds=std::chrono::duration<double>(std::chrono::steady_clock::now()-started).count();
+      const bool geometry_progress=new_geometry.excess<old_geometry.excess*(1-1e-12L);
+      const bool geometry_admissible=geometry_repair_metric&&replacement&&interface_valid&&
+          after.q_bad_cells==0&&after.j_bad_cells==0&&after.maximum_length<=MaximumMetricEdge&&geometry_progress;
+      if(needs_reclosure)*needs_reclosure=production_source&&geometry_repair_metric&&replacement&&interface_valid&&
+          geometry_progress&&after.maximum_length<=MaximumMetricEdge&&(after.q_bad_cells||after.j_bad_cells);
       log<<"{\"stage\":\"bounded_star_result\",\"case\":"<<std::quoted(test.first)<<",\"vertex\":"<<vertex
          <<",\"kind\":"<<std::quoted(kind)<<",\"active_cells\":"<<seed.cells.size()<<",\"context_cells\":"<<complete.cells.size()<<",\"new_context_cells\":"<<all.cells.size()
          <<",\"changed\":"<<changed<<",\"trials\":"<<report.trials<<",\"seconds\":"<<seconds<<",\"optimizer_seconds\":"<<report.seconds
@@ -231,6 +292,10 @@ static void CapturedCurrentResidual(bool compound,bool distributed=false) {
          <<",\"metric_valid\":"<<metric_valid<<",\"metric_reason\":"<<std::quoted(metric_reason)
          <<",\"geometry_refine_valid\":"<<geometry_metric<<",\"geometry_refine_reason\":"<<std::quoted(geometry_metric_reason)
          <<",\"geometry_repair_metric_valid\":"<<geometry_repair_metric<<",\"geometry_repair_metric_reason\":"<<std::quoted(geometry_repair_reason)
+         <<",\"production_current_source\":"<<production_source<<",\"production_source_rows\":"<<source_rows.size()
+         <<",\"proposal_q_bad\":"<<proposal_metric.q_bad_cells<<",\"source_gate_q_bad\":"<<new_active.q_bad_cells
+         <<",\"proposal_J_bad\":"<<proposal_metric.j_bad_cells<<",\"source_gate_J_bad\":"<<new_active.j_bad_cells
+         <<",\"production_geometry_admissible\":"<<(production_source&&geometry_admissible)
          <<",\"replacement\":"<<replacement<<",\"replacement_reason\":"<<std::quoted(replacement_reason)
          <<",\"interface_valid\":"<<interface_valid<<",\"interface_reason\":"<<std::quoted(interface_reason)
          <<",\"boundary_candidates\":"<<report.boundary_candidates<<",\"boundary_moves\":"<<report.boundary_moves
@@ -241,8 +306,22 @@ static void CapturedCurrentResidual(bool compound,bool distributed=false) {
          <<",\"optimizer_upper_calls\":"<<optimized_stats.upper_calls-stats0.upper_calls
          <<",\"optimizer_traversal_work\":"<<optimized_stats.traversal_work-stats0.traversal_work
          <<",\"upper_calls\":"<<stats1.upper_calls-stats0.upper_calls<<",\"traversal_work\":"<<stats1.traversal_work-stats0.traversal_work
-         <<",\"requested_heights\":0,\"nonlocal_contact_and_publication_checked\":false,\"accepted_mesh\":false}\n";log.flush();
+         <<",\"native_geometry_progress\":"<<geometry_progress;
+      if(production_source) {
+        std::map<Id,Point> prior_nodes,fresh_nodes;
+        for(const auto& cell:input.cells)for(Node n:cell.v)prior_nodes.emplace(n.id,n.p);
+        for(const auto& cell:result.cells)for(Node n:cell.v)fresh_nodes.emplace(n.id,n.p);
+        auto changed_nodes=[&](const auto& from,const auto& to) {
+          bool comma=false;for(const auto& row:from)if(!to.count(row.first)) {
+            if(comma)log<<',';comma=true;log<<'['<<row.first<<','<<row.second.x<<','<<row.second.y<<','<<row.second.z<<']';
+          }
+        };
+        log<<",\"optimizer_removed_nodes\":[";changed_nodes(prior_nodes,fresh_nodes);
+        log<<"],\"optimizer_added_nodes\":[";changed_nodes(fresh_nodes,prior_nodes);log<<']';
+      }
+      log<<",\"requested_heights\":0,\"nonlocal_contact_and_publication_checked\":false,\"accepted_mesh\":false}\n";log.flush();
       CHECK_FALSE(budget.work_exhausted);CHECK(budget.geometry_failure.empty());
+      if(production_source)return geometry_admissible&&new_geometry_bad.size()<old_geometry_bad.size();
       return metric_valid && replacement && interface_valid && after.q_bad_cells<=before.q_bad_cells &&
           after.j_bad_cells<=before.j_bad_cells && (after.q_bad_cells<before.q_bad_cells || after.j_bad_cells<before.j_bad_cells) &&
           new_geometry.excess<=old_geometry.excess;
@@ -423,6 +502,23 @@ static void CapturedCurrentResidual(bool compound,bool distributed=false) {
           Edge e{core.cell.v[opposite[slot][k]].id,core.cell.v[opposite[slot][(k+1)%3]].id};
           std::sort(e.begin(),e.end());edges.insert(e);
         }
+        if(production_source) {
+          const auto demand=GeometryGuidanceExcess(complete,*scope,1e-4);REQUIRE(demand.complete);
+          std::set<Id> common;bool first=true;
+          for(const auto& row:owned)if(demand.bad_cells.count(row.first)) {
+            std::set<Id> nodes;for(Node n:row.second.cell.v)nodes.insert(n.id);
+            if(first){common=nodes;first=false;}
+            else for(auto it=common.begin();it!=common.end();)if(!nodes.count(*it))it=common.erase(it);else ++it;
+          }
+          // A globally complete common vertex star proves every incident edge ring is present.
+          for(const auto& row:owned)if(demand.bad_cells.count(row.first))for(unsigned slot=0;slot<4;++slot)if(row.second.physical[slot].present)
+            for(unsigned k=0;k<3;++k) {
+              Edge edge{row.second.cell.v[opposite[slot][k]].id,row.second.cell.v[opposite[slot][(k+1)%3]].id};
+              if((common.count(edge[0])&&expected_stars.count(edge[0]))||(common.count(edge[1])&&expected_stars.count(edge[1]))) {
+                std::sort(edge.begin(),edge.end());edges.insert(edge);
+              }
+            }
+        }
         REQUIRE(edges.size()<=6);
         for(const auto& edge:edges) {
           Owned ring;std::map<Id,Node> nodes;
@@ -469,7 +565,12 @@ static void CapturedCurrentResidual(bool compound,bool distributed=false) {
           for(const auto& p:fresh.coverage.traces)proposed.coverage.traces.insert_or_assign(p.first,p.second);
           retain_coverage(proposed);std::set<Id> retired;for(const auto& row:owned)retired.insert(row.first);
           const std::string label="complete_edge_split_"+std::to_string(edge[0])+"_"+std::to_string(edge[1]);
-          assess(joined,retired,complete,proposed,midpoint.id,label.c_str(),false,0,&prediction);
+          bool reclosure=false;
+          assess(joined,retired,complete,proposed,midpoint.id,label.c_str(),false,0,&prediction,&reclosure);
+          if(reclosure) {
+            const std::string combined=label+"_then_optimizer";
+            assess(joined,retired,complete,proposed,midpoint.id,combined.c_str());
+          }
         }
       }
       // Collapse/retained-star trials above apply to all cores; shelling requires two physical faces.
@@ -539,6 +640,9 @@ TEST_CASE("Current M6 residual stars assess existing coupled repair and complete
           "[.][NativeCurrentResidual3D]") {CapturedCurrentResidual(false);}
 TEST_CASE("Current M6 boundary residuals assess existing collapse and retained-star optimization",
           "[.][NativeCurrentCompound3D]") {CapturedCurrentResidual(true);}
+
+TEST_CASE("Actual current M6 candidates use production metric transport and explicit unknown oracles",
+          "[.][NativeCurrentProduction3D]") {CapturedCurrentResidual(true,false,true);}
 
 TEST_CASE("Actual M6 geometry placement publishes complete curved stars with empty owners",
           "[.][NativeCurrentPlacementMPI3D]") {CapturedCurrentResidual(true,true);}

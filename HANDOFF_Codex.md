@@ -17,7 +17,35 @@ A260=`R/m6_runs/euler_build260_paired_geometry_priority_mach_only_real_cfd50k`.
 A256=`R/m6_runs/euler_build256_canonical_geometry_debt_mach_only_real_cfd50k`.
 A254=`R/m6_runs/euler_build254_conditioned_mach_only_real_cfd50k`.
 
-## CURRENT — BUILD262 TERMINAL REFUSED; COMPLETE RAW MESH, Q/J PARTIAL
+## CURRENT — MEASURED SPLIT/RECLOSURE FOLLOW-UP264 READY TO BUILD
+
+Build263/serialtool6058 TERMINALPASS:40107assertions/97.945698s,1553casepinsunchanged;
+all5recordedserialhandles absent. R/closure263_assessment.json preservesresults.
+Known39q/Joracles exact,3unknownexplicit;252edgeoraclesmaxerror5.59e-17.
+Oldcanonicalgeometrymatchesactualcapture. Twelve directedcollapses:only1constructed,
+no useful geometrygain before/afteroptimizer. Originalqualityoptimizertried0moves
+onshape-cleanstars. Arawsplit8184–205050218 reduces4g→3g butintroduces1Jbad.
+ONEconnectedfollowup:existingboundedoptimizer ongeometry-progressingsplits that
+needshapereclosure. Includeallbadfaceedges incidenttocompletecommon8184star;
+SAME6edgecap/42context/64bound/160work/30soptimizer/600scase,NOnewproductionlogic.
+Correctdiagnosticgeometryprogress toEXACTnativeafter<before*(1-1e-12),notstrictlt.
+NextR/launch_build264.py thenR/closure264_validate.py. Priorhandlesallterminal;
+sourceeditscomplete but264notyetbuilt. No productionfixselected;fullgoalunchanged.
+Onlycompiledchange:UnitTests/SU2_CFD/adaptation/fixtures/native_current219_witness.inc.
+No productionadaptationchanges. R/run_cases.py addsfocusedcurrent_production case.
+NewhiddenNativeCurrentProduction3D variant explicitlycountsunknownoracles,imports
+current-source donorfields,comparesPublishMetrics tensors,andmeasurescandidate
+rebasing +completejoinedneighbors. Legacyfixture behaviorretained.
+Actual42contextpreparationCOMPLETE32.757683s/allrawpinsunchanged:39known/3unknown
+q/Joracles,252FINITEactualedgeoracles;34515boundarypoints/69026physicalfaces.
+A262/current_witnesses_v1/witness_preparation.json andR/prepare_current263_witnesses.py.
+Build263terminal/serialpassed; R/closure264_validate.py willrunONEfocusedserialcase,
+existing600stimeout/160work/30soptimizer/64cellbound. NoMPIcampaignfordiagnostic.
+[Design/acceptance](Handbook/ADAPTATION_CLOSURE263_20261108.md). No productionfix
+selected untilactualsource-gated candidate isdemonstrated;thenconnectedqualification
+andimmediatefullsame-seedM6. ZEROacceptedmeshes;allfullgoal obligationsunchanged.
+
+## Build262 — terminal refused; complete saved mesh, q/J partial
 
 A262=`R/m6_runs/euler_build262_compact_capture_mach_only_real_cfd50k`.
 Tool46776 TERMINAL1/5597.155218s. Firstevent EXPLICITLYREFUSED on native metric-update
@@ -30,7 +58,7 @@ signal_senttrue;NEVERrepeatstop. ALL11exactownedidentities absent in
 A262/terminal_handles.json. Source/runtime/inputs remainedunchanged. NoMPIjobnow.
 Capture262FIXPROVED actualownedcoverage734315/734315,ALLsixowned_complete and
 complete_shardTRUE,includingemptyrank3. Metricscompletefalse iscachedshapeunknown,
-NOTlostrows. DoNOTclaimcompleteq/Jcensus. Fullactualexport/readback COMPLETE;NOownedheavyjob now. Tool76274 TERMINAL0/
+NOTlostrows. DoNOTclaimcompleteq/Jcensus. Fullactualexport/readback COMPLETE;allpriorheavyhandles terminal BEFORE263buildabove. Tool76274 TERMINAL0/
 338.682921s,ALL1557pinsunchanged,all3hosthandlesabsent. Independentreader43849
 TERMINAL0/4.882237s;exacthostscriptabsent. Seeinspection_export_terminal_handles.json,
 inspection_reader_status.json andinspection_reader_terminal_handles.json.
@@ -49,7 +77,7 @@ unknown223403263liesoutside42. All4geometrybadshare8184 andownactualWING3Dfaces
 so doNOTinfer absenceofgenuinefeatures fornewcells. Seegeometry_residual_location.json.
 No largerboundneededforfirst42celltest;preserveunchangedoutsideinterfaces/neighbors.
 Nextsingleactivecycle:classifyactualfaces/referencebindings/featureunknowns,choose
-completeexisting<=64context,proveimmutableproductionfield atchangedtrialpositions,
+completeexisting<=64context,reproduceproductioncurrent-source transport/rebasing atchangedtrialpositions,
 then test ONEexistingcoupledcandidate hypothesis. Unknowncachedq/J MUSTNOTsilently
 passNaN-basedexpectedmetric comparisons. No productioncorrectionselectedyet.
 
@@ -80,14 +108,19 @@ SampledWHOLEownedtreepeak13.984GB;3.054GBindividualpeak isNOTwholejobpeak.
 A262/terminal_assessment.json setsnexttargetrepairpower/construction,NOTfreshqueryspeed.
 Blockerconfirmed repair/constructioncycling,notfreshcertification. Fullterminalcounteranalysis completedONCE aftermesh export;no repeatneededabsentnewfailure.
 [Capture/nextvalidationguards](Handbook/ADAPTATION_CAPTURE261_20261108.md).
-ExistingfixtureusesCURRENTnodaltensors,NOTimmutableproductionbackground;changedtrial
-metric/edgeequivalence mustbeproved. Geometrymode skipsordinaryoptimize_repair;
+Existingfixtureusesold-connectivity CURRENTnodaltensors;productiongatesrebasetensors
+ontocandidateconnectivity. Changedtrialmetric/edgeequivalence mustbeproved. Geometrymode skipsordinaryoptimize_repair;
 rawcollapse+retainedstar optimization isONLYhypothesis untildemonstratedonactual
 COMPLETEcurrentstars+neighbors withstrictgeometry/shape/size/height gates.
 NOproductionrepaircorrectionselected;no competingimplementation. KeepCADoptional.
-BoundedREADONLY Luna survey /root/current262_field_facilities locatesexisting
-production/source-field query facilities forthe SAME42cell diagnostic;no edits/jobs.
-Primaryretainsdesign/source review/acceptance. Readitsresultbeforeinventingfieldpath.
+BoundedREADONLY Luna survey /root/current262_field_facilities COMPLETE;primaryreview
+confirmed CavityMetricSource::ImportMetricSamplesLocal andPublishMetrics usecurrent
+nodalsensors andcandidateconnectivity,NOTstaticoriginalglobalbackground. M6composition/
+edge_breakpoints EMPTY byGetnAdap_BL0+factory. No target-transportpolicychange.
+ACTIVE [source-faithful diagnostic263](Handbook/ADAPTATION_CLOSURE263_20261108.md):
+hiddenfixturevariant+actual42context;explicitunknownoracles/candidate-sourcegate,
+thenmeasuredsplit/reclosurefollowup264.
+No productioncorrectionselected. Sourceeditscomplete;263buildaboveisnowFROZEN.
 
 Currentgeometrypriority260 productiondesign/evidence:
 [Paired-face geometry priority](Handbook/ADAPTATION_GEOMETRY_PRIORITY260_20261108.md).

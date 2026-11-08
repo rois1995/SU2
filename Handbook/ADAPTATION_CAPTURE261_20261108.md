@@ -115,3 +115,11 @@ When preparing expected metrics, NaN comparisons must be explicit: std::max(erro
 abs(measured-NaN)) can silently retain the old error. Count known/unknown oracle
 entries and never claim a cached match for an unmeasured cell. Evaluate the proper
 production source at changed positions before selecting any production correction.
+
+Source-trace clarification for263: earlier "immutable production background"
+wording refers to the fixed current dependency snapshot during one transaction,
+not a globally immutable adaptation-entry interpolant. CavityMetricSource
+transports current nodal tensors onto candidate connectivity for the final gate;
+accepted publication updates that current representation. The new diagnostic
+reuses those production calls. It does not change metric transport or target
+policy. See ADAPTATION_CLOSURE263_20261108.md for the active bounded check.
