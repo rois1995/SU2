@@ -68,9 +68,9 @@ cell count. Strict excess descent, shape/size/heights/contact gates remain. Supp
 is imported completely before the existing disjoint/versioned reservation; existing
 operators,160work,node ranges,memory accounting and publication are reused.
 
-Build267 and serial65cases/56523assertions passed, including the previously
-failing phase return and actual useful cavity. The ONE MPI6 qualification is
-currently frozen/running. See
+Build267, serial65cases/56523assertions and99cases on EACH MPI6rank passed,
+including the previously failing phase return and actual useful cavity. Evidence
+is sealed and the full same-seed TWO-event M6 build267 is RUNNING/FROZEN. See
 [current design and failed qualification](Handbook/ADAPTATION_COUPLED_REPAIR266_20261108.md).
 Require the actual-cavity candidate plus the previously failing phase-return check,
 then ONE MPI6 milestone for conflicts/empty ranks/curves/features/heights/census/

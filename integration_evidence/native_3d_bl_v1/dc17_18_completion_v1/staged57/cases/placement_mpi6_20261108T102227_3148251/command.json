@@ -1,0 +1,33 @@
+{
+  "build": "build267",
+  "case": "placement_mpi6",
+  "ranks": 6,
+  "argv": [
+    "nice",
+    "-n",
+    "19",
+    "/usr/bin/time",
+    "-v",
+    "timeout",
+    "600",
+    "mpirun",
+    "--bind-to",
+    "none",
+    "-n",
+    "6",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+    "[NativeFailureCapture3D],[NativeRejectedState3D],[NativeStageProgress3D],[NativePhaseOwnership3D],[NativeRepairBatch3D],[NativeGeometryReturn3D],[NativeHeightOptimization3D],[NativeCurvedTransaction3D],[NativeFeaturePublication3D],[NativeConcurrentComposed3D],[NativeConcurrentRepair3D],[NativeDefault3D],[NativeJointAffineSource3D],[NativeCurrentPlacementMPI3D],[NativeStagedConstruction3D],[NativeJointGeometry3D],[NativeSurfaceStrip3D],[NativePlanarStrip3D],[NativeFirstLayer3D],[NativeInteriorPlacement3D],[NativeMetricSplitRule3D],[ConservativeClipRobustness],[NativeCurvedRuntime3D],[NativeReference3D],[NativeSurfaceMemo3D],[NativeSurfaceCache3D],[NativeGeometryBackend3D],[NativeMappedComponent3D],[NativeOverlappingAtlas3D],[NativeHeightOptimization3D],[NativeAcceptedFaceCertificate3D],[NativeTraceCoverage3D],[NativeBoundedGuidance3D],[NativeSurfaceError3D],[NativeCurvedGeometry3D]",
+    "--durations",
+    "yes"
+  ],
+  "environment": {
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1",
+    "SU2_NATIVE_FROZEN_CONFIG": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build262_compact_capture_mach_only_real_cfd50k/placement267_reuse_v1/run.cfg",
+    "OMPI_MCA_osc": "pt2pt",
+    "OMPI_MCA_orte_tmpdir_base": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/compile-tmp/coupled267-ct6niv1e",
+    "TMPDIR": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/compile-tmp"
+  },
+  "timeout_seconds": 600
+}
