@@ -49,6 +49,13 @@ Initialqualityentry23314/native691.831276:690715cells,ALLmeasured,27016q/27453J/
 non-byte rankfields across83completegroups;all1520pinsunchanged. A267/
 quality_entry_equivalence262.json sealsproof/prefixhashes. No timing speedup or
 mesh-bitidentity claim. Continue frozen through shape/geometryclosure.
+Firstqualityexit24328/native2929.486600:732281cells,2q/0J/969geometry/0size,
+ALLmeasured/allcensusflagscomplete. First112completegroups EXACT262counts/flags/
+ALLnon-time/non-byte rankfields;all1520pinsunchanged. A267/first_quality_exit_equivalence262.json.
+Geometryreturn24492/native3032.095509:732861cells/595geometry/0size,
+BUT1158q/J UNMEASURED(shape_complete=false);cached1q/0J areNOTwholefieldcounts.
+Owned68708stilllive;source remainsfrozen. Countervalues aretimestampedobservations,
+notterminalacceptance. Readliveper-ranklogs fornewerstate.
 All C++/binary/runtime/helpers/config/inputs FROZEN. No other ownedheavyjob.
 Letthisattemptfinishunlesspreservedevidence meetsauthorizedstopconditions.
 Compare firstconstruction/qualityentry counts+work againstcomplete262;newrepair
