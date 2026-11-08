@@ -45,8 +45,15 @@ first_geometry_return_comparison256.json preserve complete stages/counterproof.
 Firstactualshape-clean geometry_repair_entry24717/native3216.817235:733973cells/0q/0J/
 344g/0size,allflagscomplete. Asecondgeometryreturn occurred beforethisfirstactual
 shape-clean census;doNOTcall firstfreshqualityentry shapeclosure. Geometryrepair
-nowactive. Latestcomplete geometry_repair_entry25160/native3579.341618:
-734208cells/0q/0J/55g/0size,allflagscomplete. Strictacceptance remains UNPROVED;
+nowactive. Complete4g regime fromnative3659.872694 to4043.537094:0q/0J/4g/0size,
+allflagscomplete atselected endpoints;734313↔734315cells andcanonicaldebt
+5.2032901988e-7↔4.5336805862e-6 (scalarstates doNOTprove meshidentity).
+121commits=60splits+61quality-progress;60819upperqueries ALLexactcachehits,
+ZEROadditionalupper/traversalwork. Residualrepair/construction cycling,notfresh
+certification traversal,is thedemonstratedblocker. A260/late_four_geometry_cycle_assessment.json.
+The55g snapshot pushedinb240f86b35;later construction mayhaveunmeasuredq/J,
+checkactualflags. Waitforbounded terminalresidualcapture;doNOTeditpinnedsource.
+Strictacceptance remains UNPROVED;
 run staysFROZEN.
 No terminalrefusal/resourcepressure. Let frozen attempt establish remainingclosure;
 no competing campaign or speculative source edit.

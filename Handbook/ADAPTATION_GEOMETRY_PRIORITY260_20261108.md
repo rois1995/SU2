@@ -128,3 +128,31 @@ Later complete geometry_repair_entry25160/native3579.341618:734208cells/0q/0J/
 55g/0size. The minimum over256's preserved COMPLETEcensusframes is73g with0q/J;
 inter-census/unmeasured states are unknown. A260/geometry55_complete_census.json
 seals both actual frames and sourceprefix receipts. No acceptance/transfer yet.
+
+
+## Four-failure late regime: measured blocker while still frozen
+
+Complete4g frames native3659.872694→4043.537094 show TWOscalarstates:
+734313cells/debt5.203290198771879e-7 and734315/debt4.533680586216615e-6,
+BOTH0q/0J/4g/0size. 282complete frames,154low/128high. Thisis not proof of
+mesh-coordinate/connectivity identity; do notcall scalar equality an identicalmesh.
+121additionalcommits=60lengthsplits+61quality-progress;no lengthcollapses,
+602updatedcells. Uppercalls60819=60819exactunionmemo hits,zero misses;upperwork
+andtraversalwork BOTHZERO. Directmemo hits54894,zero misses. The short earlier
+3659.9→3802.1endpoint comparison hadunchangedhighdebt;thelongerobservations now
+showbothalternatingstates ratherthan persistent identicaldebt.
+A260/late_four_geometry_cycle_assessment.json preserves complete rawrankframes,
+sourceprefixes,scalarstates andcounterdifference formula. No perf/GDB campaign.
+
+This supports residualrepair/construction cycling as the current blocker,not
+fresh certification traversal. Itdoesnot identify which physicalfaces/cavities
+or explain causal operator refusals. Waitforactual boundedterminal capture;
+then classify actualfaces/referenceassociations andglobalcompletecavities, inspect
+existingoperator candidates andwholepatch outcomes beforeselecting ONEcorrection.
+DoNOTrestore blanketconstruction meritveto orchoose a cache/scheduler/newoperator
+from these aggregate counters. Thefirst-return scoringcost remainsreal;its
+optimization isnot what closes these4failures. Keep the fullM6attempt frozen.
+FailureCapture stillpairs owned/metric writes under128MiB caps;verify actual
+terminal coverage. Partialshards cannotprove fullmesh/stars or replace a fullVTU.
+Existing preparer requires terminalsolver/export handles and completecurrent
+boundary state;do notbypass its support/completeness checks ifcaptureispartial.
