@@ -111,7 +111,9 @@ an established reason for a speed campaign or another scheduler.
    cannot be added as a shared-edge proposal. The truncated256capture remains
    unsuitable for claiming complete global volume support or a full-mesh export.
 4. Serial and ONE MPI6 qualification passed; fullsame-seed two-eventM6 build260 is
-   now LIVE/FROZEN with unchanged gates/budgets. HANDOFF lists verified handles. Verify actual accepted
+   now TERMINAL REFUSED with unchanged gates/budgets:0q/0J/4geometry failures. All
+   ownedhandles areterminal;HANDOFF links sealedpartialcapture and the actual next
+   four-residual diagnosis. Verify actual accepted
    meshes, conservative admissible transfer, finite adaptedCFD and isolated adapted
    disk restart. Preserve independently accepted stages if a later obligation fails.
 
@@ -140,3 +142,9 @@ junctions, interfaces, subsequent operations, redistribution and requested
 heights, then the corresponding **RANS500k** workflow. Generic MPI tests do not
 establish that capability. Keep one owned heavy job, source freezing, explicit
 resource/work/time limits, preserved failures and pushed reviewable checkpoints.
+
+
+Current prerequisite afterterminal260: all4badfaces sharevertex8184,butall8
+availablevertexstars haveuncapturedincidentcells. Follow the [bounded capture
+plan](Handbook/ADAPTATION_CAPTURE261_20261108.md) beforeclaiming actualcomplete
+cavitytests orfull260mesh export. No productionrepaircorrection isselectedyet.

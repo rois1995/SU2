@@ -156,3 +156,14 @@ FailureCapture stillpairs owned/metric writes under128MiB caps;verify actual
 terminal coverage. Partialshards cannotprove fullmesh/stars or replace a fullVTU.
 Existing preparer requires terminalsolver/export handles and completecurrent
 boundary state;do notbypass its support/completeness checks ifcaptureispartial.
+
+
+## Terminal260 (supersedes all live notes above)
+
+Firstevent REFUSED atnative5340.295245/round37121:734313cells,ALLmeasured,
+0q/0J/4geometry/0size. All30rawfiles sealed/1520pins verified BEFOREONEexactowned
+MPI2214416/start15601692 SIGTERM. All11handlesabsent/tool89696terminal1/5566.772822s.
+Neverrepeatstop. Rawpartial584311/734313,rank2/rank5 metricscaps truncatedowned.
+Checkedlocalizer preservesall4badseeds;all8availablevertexstars failnecessaryface
+closure. No complete260mesh/globalstarclaim. Nextcapture-prerequisite plan:
+ADAPTATION_CAPTURE261_20261108.md. ZEROaccepted;allfullworkflowobligationsremain.

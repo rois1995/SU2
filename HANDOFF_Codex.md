@@ -17,46 +17,51 @@ A260=`R/m6_runs/euler_build260_paired_geometry_priority_mach_only_real_cfd50k`.
 A256=`R/m6_runs/euler_build256_canonical_geometry_debt_mach_only_real_cfd50k`.
 A254=`R/m6_runs/euler_build254_conditioned_mach_only_real_cfd50k`.
 
-## CURRENT —260 full two-event M6 LIVE/FROZEN
+## CURRENT —260 TERMINAL REFUSED; diagnose the FOUR actual residuals
 
 [Currentdesign/evidence](Handbook/ADAPTATION_GEOMETRY_PRIORITY260_20261108.md).
-Source checkpoint c04a9b6491c863f2fa6218df3dca20314df9aadc PUSHED. Tool89696 LIVE;
-R/launch_m6260.py / R/m6_260_geometry_priority_launch.json and A260/status.json
-running. ONE owned heavy job; doNOTlaunch again or edit pinned code/helpers/config.
-Startup A260/owned_startup.json verifies ALL1520pins and config identical256.
-Exact host identities(pid/startticks):launcher2213822/15600320,runner2214101/15601026,
-time2214414/15601691,timeout2214415/15601692,MPI2214416/15601692;
-workers2214419,2214420/15601698 and2214421,2214422,2214423,2214425/15601699.
-All11nice19. Verify actual /proc identities before any authorized action.
-Initial A260/initial_cfd_target_equivalence.json:61330positions andALL22flow/metric
-fields BIT-IDENTICAL256 andqualified corrected254target;ONLYSENSOR_MACH.
-First fully measured qualityentry23314/native682.800301:690715cells/27016q/27453J/
-1205g/0size,allflags complete. ALL83initialstage non-time/non-byte rankcounters
-match256;upperwork245091394exact(A260/initial_construction_equivalence.json).
-Firstqualityexit24328/native2921.940955:732281cells/2q/0J/969g/0size.
-ALL112pre-priority stage non-time/non-byte counters match256. Scoring then executed
-2285probes/13662facechecks;entry3020.493556 preserves allcounts/noacceptededits.
-Rank5guidance97.072809s dominates98.552601s transition;positive-score count UNOBSERVED.
-Firstfreshquality24492/native3029.860610:732861cells/208q/257J/595g/0size.
-Versus256firstreturn813g/187q/202J:374vs156g removed,but68.397496Mvs3.177143M
-upperwork and107.919655vs24.691960s phaseelapsed. No isolatedtiming speedup or
-wholeworkflow benefit claim. A260/geometry_priority_phase_use.json and
-first_geometry_return_comparison256.json preserve complete stages/counterproof.
-Firstactualshape-clean geometry_repair_entry24717/native3216.817235:733973cells/0q/0J/
-344g/0size,allflagscomplete. Asecondgeometryreturn occurred beforethisfirstactual
-shape-clean census;doNOTcall firstfreshqualityentry shapeclosure. Geometryrepair
-nowactive. Complete4g regime fromnative3659.872694 to4043.537094:0q/0J/4g/0size,
-allflagscomplete atselected endpoints;734313↔734315cells andcanonicaldebt
-5.2032901988e-7↔4.5336805862e-6 (scalarstates doNOTprove meshidentity).
-121commits=60splits+61quality-progress;60819upperqueries ALLexactcachehits,
-ZEROadditionalupper/traversalwork. Residualrepair/construction cycling,notfresh
-certification traversal,is thedemonstratedblocker. A260/late_four_geometry_cycle_assessment.json.
-The55g snapshot pushedinb240f86b35;later construction mayhaveunmeasuredq/J,
-checkactualflags. Waitforbounded terminalresidualcapture;doNOTeditpinnedsource.
-Strictacceptance remains UNPROVED;
-run staysFROZEN.
-No terminalrefusal/resourcepressure. Let frozen attempt establish remainingclosure;
-no competing campaign or speculative source edit.
+Source checkpoint c04a9b6491c863f2fa6218df3dca20314df9aadc unchanged.
+Tool89696 TERMINAL1/5566.772822s;NOownedheavyjob now.
+Firstevent explicitly REFUSED beforestop. Finalexit37121/native5340.295245:
+734313cells,ALLmeasured,0q/0J/4geometry/0size,allnativecensusflags complete.
+TWOaccepted events impossible,so after ALL30rawfilessealed andALL1520pinsverified,
+ONEpidfdSIGTERM sent toownedMPI2214416/start15601692. A260/owned_stop_once.json
+attempts1/signal_sent. All11exactownedhandles ABSENT(A260/terminal_handles.json).
+NEVERrepeat this or any historicalstop. Runtime/source maynowbe edited only for
+ONE evidenced connected nextcorrection after bounded actualresidual diagnosis.
+
+A260/capture_ready.json:PARTIAL584311/734313owned rows;rank2=207520/290036,
+rank5=201238/268724 duepaired128MiBmetricstreamcaps. Rank4 andothers complete.
+Native finalshape IScomplete;rawpartialcapture doesNOTprove independentfullmesh
+recomputation/globalcurrentstars/full260VTU. Checkedlocalizer findsall4seeds/59
+availableneighbors;ALL8involvedvertexstars failnecessaryfaceclosure. Thisblocks
+completeactualcavityprobes;seeavailable_star_closure.json. No baseline/perf/GDB.
+Latest COMPLETE fullmesh withmetric remains254inspection;doNOTpresent partial260
+as a complete mesh. GoalstillZEROaccepted;transfer/adaptedCFD/restart unproved.
+
+Firstqualityentry23314 matched256exactly:690715cells/27016q/27453J/1205g/0size,
+upperwork245091394. ALL112pre-priority non-time/non-byte rankcounters matched256.
+Firstgeometryscoring2285probes/13662faces took98.552601s transition(maxrank5
+97.072809guidance). Freshquality24492:732861/208q/257J/595g,vs256813g/187q/202J.
+374vs156g removed,but68.397496Mvs3.177143Mupperwork;notanisolatedspeedupclaim.
+Firstactualshape-clean24717/native3216.817235:733973/0q/0J/344g/0size.
+Complete55g snapshot pushedinb240f86b35;subsequently reachedthe4g regime.
+
+Late4g completeframes alternate734313↔734315cells andcanonicaldebt
+5.2032901988e-7↔4.5336805862e-6. Scalarstates doNOTprove meshidentity.
+Preserved3659.872694→4043.537094 interval:121commits=60splits+61quality-progress,
+60819upperqueries ALLexactcachehits,ZEROadditionalupper/traversalwork.
+A260/late_four_geometry_cycle_assessment.json. Thisdemonstrates residualrepair/
+construction cycling,notfreshcertification traversal,asnextblocker. Inspectactual
+faces/referenceassociations andcompleteadjacentvolume candidates using existing
+operators/support/certificates;doNOTrestoreblanketconstructionmeritveto or start
+anunrelatedcache/scheduler/cavitysize/metric-policy campaign.
+
+ACTIVE follow-through: [bounded capture prerequisite](Handbook/ADAPTATION_CAPTURE261_20261108.md),
+R/capture261_plan.json. ANALYSISselected,NOnewC++implementation/build yet. Assess
+lossless compactmetadata againstactual584311rows beforeproducer/reader edits.
+Qualifyaffectedlocalformat/caps/associations,thenimmediatefullsame-seedM6retry
+torecoveractualmesh/support;no timingbaseline/newproductionpolicy.
 
 Build260tool12364TERMINAL0/72.144637s,all1303pins unchanged,both targetsuptodate,
 all5recordedhosthandles terminal(R/build260_terminal_handles.json).
