@@ -47,3 +47,17 @@ the demonstrated4→3 candidate over same-count excess-only candidates. Exact
 certificates use fresh candidate parameters and uncertain/nonfinite results fail.
 Same work/time/memory limits. R/launch_build267.py and coupled267_validate.py are
 current; qualification and immediate same-seed M6 follow only if checks pass.
+
+
+Runtime267 is frozen and ongoing (HANDOFF owns exact handles). Same g344 entry
+reaches a shape-clean g4 checkpoint in251.05s versus456.20s in262, with82.96M
+versus206.22M traversal work. Native work doubles31103versus15410; end meshes
+have734903versus734315cells. Complete-census shape peaks are30q/23J versus64q/61J,
+with unknown intermediate frames6versus15. These are recorded frames, not exact
+continuous peaks, and timings are not an isolated benchmark. Full comparison and
+unchanged1520pins are sealed in A267/geometry_phase_comparison262.json.
+Next complete state25011 has6q/5J/2geometry failures; no accepted mesh. The log
+then waits during reclosure; only actual handles/counters determine live progress.
+Do not start another implementation while267 is frozen. Same-count error-reduction
+candidates from265 remain preserved hypotheses if terminal evidence warrants
+revisiting the new count screen; no successful full closure is established.

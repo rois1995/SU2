@@ -53,7 +53,21 @@ Firstqualityexit24328/native2929.486600:732281cells,2q/0J/969geometry/0size,
 ALLmeasured/allcensusflagscomplete. First112completegroups EXACT262counts/flags/
 ALLnon-time/non-byte rankfields;all1520pinsunchanged. A267/first_quality_exit_equivalence262.json.
 Geometryreturn24492/native3032.095509:732861cells/595geometry/0size,
-BUT1158q/J UNMEASURED(shape_complete=false);cached1q/0J areNOTwholefieldcounts.
+BUT1158q/J UNMEASURED;cached1q/0J wereNOTwholefieldcounts. Fresh24674:
+733713cells/128q/153J/357geometry/0size,allcomplete. Firstactualshape/sizeclosure
+geometry_repair_entry24717/native3223.155418:733973cells/0q/0J/344geometry/0size,
+ALLmeasured/allflagscomplete. Newconnectedgeometrypath thenactivated.
+A267/geometry_phase_comparison262.json SEALED/all1520pinsunchanged: same g344entry
+→firstshape-clean g4 in251.049090s versus262456.202014s; traversal82.963Mvs206.217M,
+upperwork85.775Mvs212.309M, commits398vs707, BUTnativework31103vs15410.
+Endcells734903vs734315;NOTsamemesh/isolatedtiming/per-operatorcausalproof.
+Complete-census transientq/Jmax30/23vs64/61;6vs15shapeunknownframes,NOTtruebetween-
+censuspeakproof. Firstnewg4quality_exit25010/native3474.204508 has0q/J/size.
+NEXTcompletequality_entry25011/native3480.721223:734908cells/6q/5J/2geometry/0size,
+allflagscomplete. This remainsLASTCOMPLETEobservation whileowned68708isLIVE; doNOT
+interpretloggap asstagnation/termination. Noacceptedmesh. Lastresource~4171jobseconds,
+11.08GBsampledtreeRSS;host31.34GBavailableatjob3999.9s/all11identitieslive.
+Continue FROZEN throughterminal outcome orpreservedauthorizedstopcondition.
 Owned68708stilllive;source remainsfrozen. Countervalues aretimestampedobservations,
 notterminalacceptance. Readliveper-ranklogs fornewerstate.
 All C++/binary/runtime/helpers/config/inputs FROZEN. No other ownedheavyjob.

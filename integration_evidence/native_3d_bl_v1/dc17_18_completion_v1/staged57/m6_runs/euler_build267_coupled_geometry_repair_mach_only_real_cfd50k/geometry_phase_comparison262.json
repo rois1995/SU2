@@ -1,0 +1,214 @@
+{
+  "time": 1794137612.138938,
+  "comparison": {
+    "build262": {
+      "start": {
+        "stage": "geometry_repair_entry",
+        "round": 24717,
+        "phase": "improvement",
+        "maximum_native_elapsed": 3284.905331784,
+        "totals": {
+          "cells": 733973,
+          "measured": 733973,
+          "q_measured": 733973,
+          "j_measured": 733973,
+          "q_bad": 0,
+          "j_bad": 0,
+          "geometry_bad": 344,
+          "size_bad": 0
+        },
+        "complete_flags": {
+          "cache_consistent": true,
+          "census_complete": true,
+          "shape_complete": true,
+          "geometry_complete": true
+        },
+        "replicated_global_work": 2413173
+      },
+      "end": {
+        "stage": "geometry_repair_entry",
+        "round": 25377,
+        "phase": "improvement",
+        "maximum_native_elapsed": 3741.10734558,
+        "totals": {
+          "cells": 734315,
+          "measured": 734315,
+          "q_measured": 734315,
+          "j_measured": 734315,
+          "q_bad": 0,
+          "j_bad": 0,
+          "geometry_bad": 4,
+          "size_bad": 0
+        },
+        "complete_flags": {
+          "cache_consistent": true,
+          "census_complete": true,
+          "shape_complete": true,
+          "geometry_complete": true
+        },
+        "replicated_global_work": 2428583
+      },
+      "seconds": 456.2020137960003,
+      "net_geometry_bad_removed": 340,
+      "geometry_bad_removed_per_second": 0.7452838648626344,
+      "work": {
+        "accepted": 707,
+        "upper_calls": 129097,
+        "upper_work": 212308659,
+        "traversal_work": 206217366,
+        "scope_build_work": 2107602,
+        "facet_build_work": 9035,
+        "piece_selection_work": 3507386,
+        "guidance_trials": 19997,
+        "guidance_faces": 142862,
+        "geometry_trials": 62105,
+        "length_splits": 116,
+        "length_collapses": 0,
+        "quality_progress": 403,
+        "smooth_boundary_candidates": 2625,
+        "smooth_boundary_moves": 125,
+        "smooth_boundary_guidance": 446,
+        "smooth_boundary_upper_queries": 2014,
+        "smooth_interior_candidates": 788,
+        "smooth_interior_moves": 102,
+        "global_work": 15410
+      },
+      "geometry_debt_end": 4.533680586216615e-06,
+      "shape_unknown_frames": 15,
+      "maximum_complete_q_bad": 64,
+      "maximum_complete_J_bad": 61,
+      "source_prefixes": {
+        "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build262_compact_capture_mach_only_real_cfd50k/rank_output/1/rank.0/stdout": {
+          "bytes": 9860958,
+          "sha256": "945d3828c10f888a665b5b2c2f40aedc3a56c2a9e57a6bbdb5699bbdcf86857a"
+        },
+        "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build262_compact_capture_mach_only_real_cfd50k/rank_output/1/rank.1/stdout": {
+          "bytes": 9931324,
+          "sha256": "f6efa0f49385368de3e233cfcd89abb4af884c8e70a4323ef0486868e63678f5"
+        },
+        "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build262_compact_capture_mach_only_real_cfd50k/rank_output/1/rank.2/stdout": {
+          "bytes": 9899940,
+          "sha256": "e112da27fe91f037cbdd0e5c9ba9cbedbcfbaea3d63d8dcfffa49e0a89ea41b8"
+        },
+        "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build262_compact_capture_mach_only_real_cfd50k/rank_output/1/rank.3/stdout": {
+          "bytes": 9824193,
+          "sha256": "f0d6a0d290e586fff26d570d71c3397015fffa82fb33fcc9e2eda29466dc63b4"
+        },
+        "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build262_compact_capture_mach_only_real_cfd50k/rank_output/1/rank.4/stdout": {
+          "bytes": 10031249,
+          "sha256": "2799644ea5b5193e51bfb062ce8beb84144010068497621f3d96ce26fb227bf3"
+        },
+        "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build262_compact_capture_mach_only_real_cfd50k/rank_output/1/rank.5/stdout": {
+          "bytes": 10016994,
+          "sha256": "867e2c20557ca55a1b21186220dbda6b9c0875006abb242fef4c95954daec063"
+        }
+      }
+    },
+    "build267": {
+      "start": {
+        "stage": "geometry_repair_entry",
+        "round": 24717,
+        "phase": "improvement",
+        "maximum_native_elapsed": 3223.155417581,
+        "totals": {
+          "cells": 733973,
+          "measured": 733973,
+          "q_measured": 733973,
+          "j_measured": 733973,
+          "q_bad": 0,
+          "j_bad": 0,
+          "geometry_bad": 344,
+          "size_bad": 0
+        },
+        "complete_flags": {
+          "cache_consistent": true,
+          "census_complete": true,
+          "shape_complete": true,
+          "geometry_complete": true
+        },
+        "replicated_global_work": 2413173
+      },
+      "end": {
+        "stage": "quality_exit",
+        "round": 25010,
+        "phase": "improvement",
+        "maximum_native_elapsed": 3474.20450771,
+        "totals": {
+          "cells": 734903,
+          "measured": 734903,
+          "q_measured": 734903,
+          "j_measured": 734903,
+          "q_bad": 0,
+          "j_bad": 0,
+          "geometry_bad": 4,
+          "size_bad": 0
+        },
+        "complete_flags": {
+          "cache_consistent": true,
+          "census_complete": true,
+          "shape_complete": true,
+          "geometry_complete": true
+        },
+        "replicated_global_work": 2444276
+      },
+      "seconds": 251.04909012899998,
+      "net_geometry_bad_removed": 340,
+      "geometry_bad_removed_per_second": 1.3543167984607838,
+      "work": {
+        "accepted": 398,
+        "upper_calls": 132866,
+        "upper_work": 85775230,
+        "traversal_work": 82963302,
+        "scope_build_work": 957603,
+        "facet_build_work": 6083,
+        "piece_selection_work": 1623706,
+        "guidance_trials": 3568,
+        "guidance_faces": 164725,
+        "geometry_trials": 31342,
+        "length_splits": 26,
+        "length_collapses": 0,
+        "quality_progress": 181,
+        "smooth_boundary_candidates": 11577,
+        "smooth_boundary_moves": 701,
+        "smooth_boundary_guidance": 2547,
+        "smooth_boundary_upper_queries": 13293,
+        "smooth_interior_candidates": 2029,
+        "smooth_interior_moves": 267,
+        "global_work": 31103
+      },
+      "geometry_debt_end": 3.835758388948793e-06,
+      "shape_unknown_frames": 6,
+      "maximum_complete_q_bad": 30,
+      "maximum_complete_J_bad": 23,
+      "source_prefixes": {
+        "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build267_coupled_geometry_repair_mach_only_real_cfd50k/rank_output/1/rank.0/stdout": {
+          "bytes": 725252,
+          "sha256": "8007fefbb1ae0f5f6969afff5f08dd487ecb18f49a7102f19f347d95978d6c3b"
+        },
+        "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build267_coupled_geometry_repair_mach_only_real_cfd50k/rank_output/1/rank.1/stdout": {
+          "bytes": 704993,
+          "sha256": "7c3a31b89f9ccfb6ad59264f25b46226cc93ae2914580ed6bf0780d4e689b101"
+        },
+        "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build267_coupled_geometry_repair_mach_only_real_cfd50k/rank_output/1/rank.2/stdout": {
+          "bytes": 702537,
+          "sha256": "69ad0dc6adb27f3199a2791e35525136db3c44b96aeafefef1643549f6ee0276"
+        },
+        "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build267_coupled_geometry_repair_mach_only_real_cfd50k/rank_output/1/rank.3/stdout": {
+          "bytes": 702104,
+          "sha256": "e3104b584a2261a3b48026b6240d1c47d0af0ca51665ee4b3a7428ed4f77e2b3"
+        },
+        "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build267_coupled_geometry_repair_mach_only_real_cfd50k/rank_output/1/rank.4/stdout": {
+          "bytes": 708251,
+          "sha256": "aaf445d700cdb34eb8b5eb3f27ce9859db5862c2a8e582c3f10a25dc95d5c700"
+        },
+        "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build267_coupled_geometry_repair_mach_only_real_cfd50k/rank_output/1/rank.5/stdout": {
+          "bytes": 707121,
+          "sha256": "a24af90e8a8dfbb78215070065b4f4cc96d9029b901de45df237f7c72171569d"
+        }
+      }
+    }
+  },
+  "all_pins_unchanged": true,
+  "pins_checked": 1520,
+  "scope": "Same shape-clean g344entry to first complete shape-clean g4endpoint. Different end meshes (734315 versus734903cells); transient shape/unknown frames retained, not monotonically clean. Counted work and wall observations; no isolated timing or per-operator causal proof. Full267 remainsfrozen/live; no acceptedmesh."
+}
