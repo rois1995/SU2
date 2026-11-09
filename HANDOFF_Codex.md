@@ -66,8 +66,11 @@ Preserve its outcome before ANYpinnedsource/helper/binary edit. First-event stag
 parser stops after firstexit; do not mistake its fixedzero counts for event2 status.
 A293/second_native_progress_assessment.json now reuses the same parser AFTERexact
 per-rank first-exit byte offsets; second-event prefixes separatelyhashed. Latest
-secondwindow8512/native1204.955s:865097cells,5558q-bad/4345J-bad/0geometry-bad/
-15size-bad; allknown/complete. Source/binary/helpers/inputs remainFROZEN.
+secondsize_repair_entry8928/native1609.634s:870415cells,0q-bad/0J-bad/0geometry-bad/
+15size-bad; allknown/complete. No newercompletecensus yet; all11actualidentitieslive,
+latestwall~5927s, sampledtreeRSS11.717GB, hostavailable~34.5GiB. This measured shape
+closure is NOTfinalsize/globalgeometry acceptance. Preserve frozenrun untiloutcome
+or documented authorizedstopcondition; quietlogs alone are insufficient. Source/binary/helpers/inputs remainFROZEN.
 First-event boundary/query counter analysis PUSHED99f8f4edfd; pure-shape rejection
 eligibility already excludes resource/validity/edge/geometry failures. Next connected
 performance design still requires dependency and projection/certificate safety proof;
