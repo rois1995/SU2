@@ -9151,3 +9151,134 @@ TEST_CASE("Strong slip: wall-normal basis, projector, entropy identity and Jacob
   CHECK(pss::SlipPenetration(2, 1, Qz, 1, mz, 6.0) == Approx(0.5));
 }
 
+/*--- BC_ENTROPY_P1_STRONG_SLIP crease groups (ROE_TECNO_PLAN.md 6.11, item 2): P1StrongSlip::SlipFaceGroups. ---*/
+TEST_CASE("Strong slip: crease groups of the incident wall faces", "[P1Flux]") {
+  namespace pss = P1StrongSlip;
+  const su2double pi = 4.0 * atan(1.0);
+  /*--- 3D fan of 6 triangles around the point 0 (other nodes 1..6 on a ring), face f = (0, f+1, f+2 mod 6); the ring
+   * node k at angle 60 k deg, height z_k. Returns the groups and checks the summed normal of each group. ---*/
+  auto fan = [&](const su2double* z, su2double (*groupN)[3]) {
+    su2double x[7][3] = {{0.0, 0.0, 0.0}};
+    for (unsigned short k = 0; k < 6; ++k) {
+      x[k + 1][0] = cos(pi * k / 3.0); x[k + 1][1] = sin(pi * k / 3.0); x[k + 1][2] = z[k];
+    }
+    su2double N[6][3];
+    unsigned long other[6][3] = {{0}};
+    unsigned short nOther[6];
+    for (unsigned short f = 0; f < 6; ++f) {
+      const unsigned short a = f + 1, b = (f + 1) % 6 + 1;
+      su2double u[3], v[3];
+      for (unsigned short d = 0; d < 3; ++d) { u[d] = x[a][d]; v[d] = x[b][d]; }
+      N[f][0] = 0.5 * (u[1] * v[2] - u[2] * v[1]);
+      N[f][1] = 0.5 * (u[2] * v[0] - u[0] * v[2]);
+      N[f][2] = 0.5 * (u[0] * v[1] - u[1] * v[0]);
+      other[f][0] = a; other[f][1] = b; nOther[f] = 2;
+    }
+    return pss::SlipFaceGroups(3, 6, N, other, nOther, groupN);
+  };
+  su2double g[32][3];
+  /*--- Flat and gently curved: one group (the vertex normal is kept). ---*/
+  const su2double flat[6] = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0}, bump[6] = {-0.3, -0.2, -0.4, -0.3, -0.1, -0.5};
+  CHECK(fan(flat, g) == 1);
+  CHECK(fan(bump, g) == 1);
+  CHECK(g[0][2] > 0.0);
+  /*--- Sharp edge along the ring nodes 1 and 4 (x axis): the half y > 0 folded down to a thin wedge, the half y < 0
+   * flat: faces 0-2 (y >= 0) and 3-5 fold by more than 90 deg across the edges 0-1 and 0-4 -> two groups with the
+   * normals of the two halves. ---*/
+  const su2double wedge = 164.0 * pi / 180.0;
+  su2double xr[7][3] = {{0.0, 0.0, 0.0}};
+  for (unsigned short k = 0; k < 6; ++k) {
+    const su2double c = cos(pi * k / 3.0), s = sin(pi * k / 3.0);
+    xr[k + 1][0] = c;
+    xr[k + 1][1] = (s > 1e-12) ? s * cos(wedge) : s;
+    xr[k + 1][2] = (s > 1e-12) ? s * sin(wedge) : 0.0;
+  }
+  {
+    su2double N[6][3];
+    unsigned long other[6][3] = {{0}};
+    unsigned short nOther[6];
+    for (unsigned short f = 0; f < 6; ++f) {
+      const unsigned short a = f + 1, b = (f + 1) % 6 + 1;
+      const su2double* u = xr[a]; const su2double* v = xr[b];
+      N[f][0] = 0.5 * (u[1] * v[2] - u[2] * v[1]);
+      N[f][1] = 0.5 * (u[2] * v[0] - u[0] * v[2]);
+      N[f][2] = 0.5 * (u[0] * v[1] - u[1] * v[0]);
+      other[f][0] = a; other[f][1] = b; nOther[f] = 2;
+    }
+    const auto n = pss::SlipFaceGroups(3, 6, N, other, nOther, g);
+    REQUIRE(n == 2);
+    /*--- Each group normal is parallel to the normals of its faces; the two together give rank 2 in SlipBasis, so the
+     * slip velocity is along the edge (x axis). ---*/
+    for (unsigned short q = 0; q < 2; ++q) {
+      const su2double ng = sqrt(g[q][0] * g[q][0] + g[q][1] * g[q][1] + g[q][2] * g[q][2]);
+      unsigned short nPar = 0;
+      for (unsigned short f = 0; f < 6; ++f) {
+        const su2double nf = sqrt(N[f][0] * N[f][0] + N[f][1] * N[f][1] + N[f][2] * N[f][2]);
+        const su2double c = (g[q][0] * N[f][0] + g[q][1] * N[f][1] + g[q][2] * N[f][2]) / (ng * nf);
+        if (c > 1.0 - 1e-12) ++nPar;
+      }
+      CHECK(nPar == 3);
+    }
+    su2double unit[2][3], Q[3][3];
+    for (unsigned short q = 0; q < 2; ++q) {
+      const su2double ng = sqrt(g[q][0] * g[q][0] + g[q][1] * g[q][1] + g[q][2] * g[q][2]);
+      for (unsigned short d = 0; d < 3; ++d) unit[q][d] = g[q][d] / ng;
+    }
+    REQUIRE(pss::SlipBasis(3, 2, unit, Q) == 2);
+    su2double m[5] = {0.0, 0.3, -0.7, 0.4, 0.0};
+    pss::SlipProject(3, 2, Q, 1, m);
+    CHECK(fabs(m[2]) < 1e-14);
+    CHECK(fabs(m[3]) < 1e-14);
+    CHECK(m[1] == Approx(0.3).margin(1e-14));
+    /*--- With the vertex normal alone (sum of all faces, the bisector) the slip plane contains a velocity that crosses
+     * the faces almost normally: t = nbar x e_x, |t . n_f| > 0.9 for the faces of both halves. ---*/
+    su2double S[3] = {0.0, 0.0, 0.0};
+    for (unsigned short f = 0; f < 6; ++f)
+      for (unsigned short d = 0; d < 3; ++d) S[d] += N[f][d];
+    const su2double t[3] = {0.0, S[2], -S[1]}, nt = sqrt(S[1] * S[1] + S[2] * S[2]);
+    for (unsigned short f = 0; f < 6; ++f) {
+      const su2double nf = sqrt(N[f][0] * N[f][0] + N[f][1] * N[f][1] + N[f][2] * N[f][2]);
+      CHECK(fabs(t[0] * N[f][0] + t[1] * N[f][1] + t[2] * N[f][2]) / (nt * nf) > 0.9);
+    }
+  }
+  /*--- A fold of exactly 90 deg or less is not a crease (N_f . N_g > 0 required to join; 90 deg gives 0 -> split). ---*/
+  {
+    su2double N[2][3] = {{0.0, 0.0, 1.0}, {0.0, sin(0.4 * pi), cos(0.4 * pi)}};
+    unsigned long other[2][3] = {{1, 2, 0}, {2, 3, 0}};
+    unsigned short nOther[2] = {2, 2};
+    CHECK(pss::SlipFaceGroups(3, 2, N, other, nOther, g) == 1);
+    N[1][1] = 1.0; N[1][2] = 0.0;
+    CHECK(pss::SlipFaceGroups(3, 2, N, other, nOther, g) == 2);
+    /*--- Not adjacent (no common other node): never joined. ---*/
+    other[1][0] = 5; other[1][1] = 6;
+    N[1][1] = 0.0; N[1][2] = 1.0;
+    CHECK(pss::SlipFaceGroups(3, 2, N, other, nOther, g) == 2);
+  }
+  /*--- Acute chain (Codex review 1 of 6.11): adjacent products positive, N_0 . N_2 < 0. The pairwise rule keeps face 2
+   * apart, and every group normal is inside the dual cone of its faces (n . N_f >= |N_f|^2). ---*/
+  {
+    const su2double r3 = sqrt(3.0);
+    su2double N[3][3] = {{0.0, 0.0, 1.0}, {0.5 * r3, 0.0, 0.5}, {r3, 3.0, -2.0}};
+    unsigned long other[3][3] = {{1, 2, 0}, {2, 3, 0}, {3, 4, 0}};
+    unsigned short nOther[3] = {2, 2, 2};
+    REQUIRE(pss::SlipFaceGroups(3, 3, N, other, nOther, g) == 2);
+    CHECK(g[0][0] == Approx(0.5 * r3));
+    CHECK(g[1][1] == Approx(3.0));
+    for (unsigned short f = 0; f < 3; ++f) {
+      const unsigned short q = (f < 2) ? 0 : 1;
+      const su2double nf2 = N[f][0] * N[f][0] + N[f][1] * N[f][1] + N[f][2] * N[f][2];
+      CHECK(g[q][0] * N[f][0] + g[q][1] * N[f][1] + g[q][2] * N[f][2] >= nf2 - 1e-14);
+    }
+  }
+  /*--- 2D: the two segments of a point; a thin wedge (164 deg fold) splits, a smooth wall does not. ---*/
+  {
+    su2double N[2][3] = {{0.0, -1.0, 0.0}, {sin(0.1), -cos(0.1), 0.0}};
+    unsigned long other[2][3] = {{1, 0, 0}, {2, 0, 0}};
+    unsigned short nOther[2] = {1, 1};
+    CHECK(pss::SlipFaceGroups(2, 2, N, other, nOther, g) == 1);
+    CHECK(g[0][0] == Approx(sin(0.1)).margin(1e-15));
+    N[1][0] = sin(wedge); N[1][1] = -cos(wedge);
+    CHECK(N[0][0] * N[1][0] + N[0][1] * N[1][1] < 0.0);
+    CHECK(pss::SlipFaceGroups(2, 2, N, other, nOther, g) == 2);
+  }
+}
