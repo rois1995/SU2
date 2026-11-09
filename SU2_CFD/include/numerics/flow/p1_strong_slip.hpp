@@ -105,20 +105,22 @@ inline void SlipProjectRows(unsigned short nDim, unsigned short nVar, unsigned s
 }
 
 /*!
- * \brief |Q m| / |m| of the momentum m = vec[iVel..], 0 where m = 0 (penetration diagnostic).
+ * \brief |Q m| / max(|m|, mRef) of the momentum m = vec[iVel..] (penetration diagnostic), 0 if both are 0. mRef (the free
+ *        stream momentum) keeps the value meaningful where m is roundoff, e.g. at points with rank = nDim.
  */
 template <class VecType>
 inline su2double SlipPenetration(unsigned short nDim, unsigned short rank, const su2double (*Q)[3],
-                                 unsigned short iVel, const VecType& vec) {
+                                 unsigned short iVel, const VecType& vec, su2double mRef) {
   su2double m2 = 0.0, q2 = 0.0;
   for (unsigned short d = 0; d < nDim; ++d) m2 += vec[iVel + d] * vec[iVel + d];
-  if (!(m2 > 0.0)) return 0.0;
   for (unsigned short r = 0; r < rank; ++r) {
     su2double proj = 0.0;
     for (unsigned short d = 0; d < nDim; ++d) proj += Q[r][d] * vec[iVel + d];
     q2 += proj * proj;
   }
-  return sqrt(q2 / m2);
+  const su2double den2 = fmax(m2, mRef * mRef);
+  if (!(den2 > 0.0)) return 0.0;
+  return sqrt(q2 / den2);
 }
 
 }  // namespace P1StrongSlip

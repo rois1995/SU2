@@ -1576,7 +1576,9 @@ void CFVMFlowSolverBase<V, R>::BC_Slip_Strong_P1(CGeometry* geometry, const CCon
       slipReadyP1 = true;
     }
 
-    su2double penetration = 0.0, reaction[MAXNDIM] = {0.0};
+    su2double penetration = 0.0, reaction[MAXNDIM] = {0.0}, mRef = 0.0;
+    for (auto iDim = 0u; iDim < nDim; ++iDim) mRef += pow(GetDensity_Inf() * GetVelocity_Inf(iDim), 2);
+    mRef = sqrt(mRef);
     for (size_t k = 0; k < slipPointsP1.size(); ++k) {
       const auto iPoint = slipPointsP1[k];
       const auto nq = slipRankP1[k];
@@ -1586,7 +1588,7 @@ void CFVMFlowSolverBase<V, R>::BC_Slip_Strong_P1(CGeometry* geometry, const CCon
 
       /*--- Momentum of the old solution (the update is Solution = Solution_Old + dU), with the diagnostic. ---*/
       su2double* solutionOld = nodes->GetSolution_Old(iPoint);
-      penetration = max(penetration, P1StrongSlip::SlipPenetration(nDim, nq, Q, iVel, solutionOld));
+      penetration = max(penetration, P1StrongSlip::SlipPenetration(nDim, nq, Q, iVel, solutionOld, mRef));
       P1StrongSlip::SlipProject(nDim, nq, Q, iVel, solutionOld);
 
       /*--- Residual: the removed part is the wall reaction beyond closure C (force-balance diagnostic). ---*/
@@ -1622,7 +1624,7 @@ void CFVMFlowSolverBase<V, R>::BC_Slip_Strong_P1(CGeometry* geometry, const CCon
       SU2_MPI::Allreduce(&penetration, &penGlobal, 1, MPI_DOUBLE, MPI_MAX, SU2_MPI::GetComm());
       SU2_MPI::Allreduce(reaction, reactGlobal, MAXNDIM, MPI_DOUBLE, MPI_SUM, SU2_MPI::GetComm());
       if (rank == MASTER_NODE) {
-        std::cout << "BC_ENTROPY_P1_STRONG_SLIP: inner iteration " << iter << ", max |Q^T m|/|m| before the projection "
+        std::cout << "BC_ENTROPY_P1_STRONG_SLIP: inner iteration " << iter << ", max |Q^T m|/max(|m|, |m_inf|) before the projection "
                   << penGlobal << ", removed momentum residual (" << reactGlobal[0] << ", " << reactGlobal[1];
         if (nDim == 3) std::cout << ", " << reactGlobal[2];
         std::cout << ")" << std::endl;

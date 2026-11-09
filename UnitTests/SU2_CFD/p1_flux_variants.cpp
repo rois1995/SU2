@@ -8534,9 +8534,11 @@ TEST_CASE("Strong slip: wall-normal basis, projector, entropy identity and Jacob
       S.rho = exp(0.5 * uni(gen)); S.p = exp(0.5 * uni(gen));
       su2double m[5] = {0.0, 0.0, 0.0, 0.0, 0.0};
       for (unsigned short d = 0; d < cs.nDim; ++d) m[1 + d] = uni(gen);
-      CHECK(pss::SlipPenetration(cs.nDim, nq, Q, 1, m) <= 1.0 + 1e-14);
+      CHECK(pss::SlipPenetration(cs.nDim, nq, Q, 1, m, 0.0) <= 1.0 + 1e-14);
       pss::SlipProject(cs.nDim, nq, Q, 1, m);
-      CHECK(pss::SlipPenetration(cs.nDim, nq, Q, 1, m) <= 1e-14);
+      /*--- After the projection Q m is roundoff; relative to a reference momentum 1 (m may itself be roundoff at
+       * rank = nDim). ---*/
+      CHECK(pss::SlipPenetration(cs.nDim, nq, Q, 1, m, 1.0) <= 1e-14);
       for (unsigned short d = 0; d < cs.nDim; ++d) S.vel[d] = m[1 + d];
       su2double w[5] = {0.0};
       P1BoundaryClosure::EsEntropyVariables(cs.nDim, kGamma, S, w);
@@ -8566,5 +8568,8 @@ TEST_CASE("Strong slip: wall-normal basis, projector, entropy identity and Jacob
     }
   }
   su2double zero[5] = {0.0, 0.0, 0.0, 0.0, 0.0}, Qz[3][3] = {{0.0, 1.0, 0.0}};
-  CHECK(pss::SlipPenetration(2, 1, Qz, 1, zero) == 0.0);
+  CHECK(pss::SlipPenetration(2, 1, Qz, 1, zero, 0.0) == 0.0);
+  su2double mz[5] = {0.0, 0.0, 3.0, 0.0, 0.0};
+  CHECK(pss::SlipPenetration(2, 1, Qz, 1, mz, 0.0) == Approx(1.0));
+  CHECK(pss::SlipPenetration(2, 1, Qz, 1, mz, 6.0) == Approx(0.5));
 }
