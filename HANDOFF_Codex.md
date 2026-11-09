@@ -17,7 +17,7 @@ A287=`R/m6_runs/euler_build287_exact_face_coverage_mach_only_real_cfd50k`.
 A283=`R/m6_runs/euler_build283_pinched_graph_witness_mach_only_real_cfd50k`.
 A274=`R/m6_runs/euler_build274_metric_cleanup_mach_only_real_cfd50k`.
 
-## CURRENT —287 TERMINAL REFUSED; final certification speed remains blocker
+## CURRENT —289 qualified; start full same-seed TWO-event M6 immediately
 
 ZERO accepted meshes. Firstevent REFUSED mandatory globalBoth geometry certificate
 on elapsedtime, feasibility UNDETERMINED. Exit25210/native5346.697059773:
@@ -58,7 +58,7 @@ Build47.061s/focused12cases7295assertions52.017s/pinsunchanged/allhandlesabsent.
 Sameactual287query20M: coverage92.7799→93.2912% equalfacet PARAMETERarea,1447common
 newcertified/0regressed, commonwork+0.4023%,bothincomplete. Too small usefulgain.
 Patch+rejection+comparison preserved. Allhandles terminal before sources restored
-EXACTqualified287. BINARYstill288: REBUILDrequired before anyfullM6. No MPI/fullof288.
+EXACTqualified287 before implementing289below. No MPI/fullof288; discarded,notlayered.
 Currentcycle remains finalglobalcertificate efficiency.289 candidate prepares immutable
 nonconvex border coordinates once in PlanarReference; same ordered coordinates reused
 by Contains/ContainsSegment/ContainsFace. All exact predicates/earlyguards/coverage
@@ -73,20 +73,30 @@ incomplete. Sourcepins/5actualhandles verified. Reverse savedqualified283input T
 ALL60892domains/order/bounds/chargedwork EXACT. Query177.592→99.755s, traversal
 110.111→33.958s, serialCPU184.71→106.92s. Allpins/5actualhandlesabsent. Both20M
 certificates stillincomplete. Select289connected immutable-preparation correction;
-serial LIVE tool90769/case current_production_20261109T024223_1539645
-(wrapper1539645/launcher1539844), then ONE MPI6 and immediatefullsame-seed TWOeventM6.
- 288 discarded,
-notlayered. No competingcleanup/construction cycle. Unselected alternatives backlog.
+serial TERMINAL0/200.069s,90cases67446assertions/allpins/5actualhandlesabsent
+(case current_production_20261109T024223_1539645). ONE MPI6 TERMINAL0/220.460s,
+124cases EVERYrank, assertions72054/71127/71330/70947/71155/71208, allpinsunchanged/
+all10actualhandlesabsent (placement_mpi6_20261109T024619_1550272).
+R/certification289_qualification.json SEALEDfivecases, sourcepinsSHA
+501927a52b6733c0ac7e54eed7d6cfc45a397a00eaa35a0f6ee6abcb2d063629.
+CFD SHA ff961bf8e23d0f8a2422019cd7e34c5b13129e82191216d5c7e4a51ecbd77678.
+Implementation31ff1c3bad PUSHED. Qualificationpush then launch_m6289.py immediately;
+no more local variants or MPI campaigns. Fullattempt name
+m6_runs/euler_build289_prepared_borders_mach_only_real_cfd50k. Need actualowned
+startup handles/runtime receipts and verify_m6289_initial.py. Source/binary/helpers/
+inputs/runtime freeze remains. Actualsaved certificates stillincomplete, ZEROaccepted.
+288 discarded,notlayered; cleanup/construction policies unchanged. Otherideasbacklog.
 
 CFD/target provenance unchanged: Mach-onlyL1/50k same savedREALCFDseed,61330coords/
 22fields BIT-IDENTICAL256/qualified254target,SENSOR_MACHonly,CL.269535/CD.013536.
-Original-grid proof only. All6actualexecutables+84mappedELFfiles matchedpins atstartup.
+Original-grid287proof only. All6actual287executables+84mappedELFfiles matchedpins
+at287startup; verifynew289startup before claiming equivalentliveprovenance.
 Cachehostquota4GiB/rank715827882B,nativeworkingstorage12GiB/rank, native5400/outer14400.
 Actual /proc/ps MUSTrequire_escalated; sandboxabsence previouslyfalse-terminal.
 Neverinfer termination fromelapsed/stalelogs. Source/build/runtime/input hashesbelow.
 Eight unchangedtransfer/restart readinesspaths matchedactual287pins; NOTexecutionproof.
 
-Connected production change ONLY CNativeBoundary3D.cpp's private planar boundary-
+Prior287 qualified change (retained in289): CNativeBoundary3D.cpp's planar boundary-
 segment/open-triangle intersection proof: exact triangle-edge and segment-line
 separating axes replace general tetrahedron clipping; reuse existing nonzero face
 orientation. ALL original early vertex winding checks retained. Exact orientation,

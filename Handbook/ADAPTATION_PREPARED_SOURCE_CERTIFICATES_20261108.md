@@ -477,3 +477,17 @@ Existing independent notch oracle covers3planes/bothorientations, plus holes/sea
 curves/heights/resources. Same actual287 source and savedqualified283 reverse query
 must preserve completed domain order/bounds/work exactly; CPU/wall comparison atfixed
 work determines whether this warrants serial+ONE MPI and immediatefullsame-seed M6.
+
+###289 qualified; return immediately to full M6
+
+Build379.306s; focused12cases/7281assertions52.757s; serial90cases/67446assertions
+200.069s; ONE MPI6 124cases EVERYrank220.460s, assertions72054/71127/71330/70947/
+71155/71208. Allpins unchanged/all actualhandles terminal before nextstage.
+Actualcurrent287 source: ALL82448domains/bounds/order/per-domainwork EXACT;
+query83.042→27.921s, traversal81.156→25.990s, serialCPU89.79→35.01s.
+Savedqualified283 reverse: ALL60892domains/bounds/order/per-domainwork EXACT;
+query177.592→99.755s, traversal110.111→33.958s, serialCPU184.71→106.92s.
+Both20Mcertificates incomplete. No gate/budget changed. CPU/work comparisons support
+preparation savings, not wholeM6 timing or acceptance. certification289_qualification.json
+seals allfivecases, source/binary/runtime/input/helper/provenance/terminalreceipts.
+Push qualification then fullsame-seed TWOeventM6 immediately; preservefreeze/outcome.

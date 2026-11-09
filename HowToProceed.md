@@ -36,9 +36,12 @@ with same predicate operands/order, root/axis identity and complete storageaccou
 No mutablecache/index/newrepresentation. Actualtrace13.532Mcoverage of19.533Mupperwork
 motivates removing repeated maplookup/projection; usefulCPUgain stilltoqualify.
 Build289passed379.306s, focused12cases/7281assertions52.757s, pins/handlesverified.
-Sameactual287source and oldqualified283reverse comparisons next; require exact
-bounds/order/work and usefulCPUgain, then affectedserial+ONE MPI and immediatefull
-same-seed TWOeventM6. All source/binary/helpers/inputs frozen during eachrun.
+Both comparisons preserve EVERY completeddomain/bound/per-domain work exactly.
+SourceCPU89.79→35.01s/query83.04→27.92; reverseCPU184.71→106.92s/query177.59→99.76s.
+No completedcertificate yet. Connectedserial PASSED90cases67446assertions200.069s;
+ONE MPI6 PASSED124cases EVERYrank220.460s, allpins/actualhandlesverified.
+Qualification sealed; immediately fullsame-seed TWOeventM6, then transfer/continued
+adaptedCFD/isolated adaptedrestart. No further localvariants before fulloutcome. All source/binary/helpers/inputs frozen during eachrun.
 No new scheduler/config/largercavity/budget/gate. Otherhypotheses backlog; ONEcycle/job.
 
 Counts/operations matched283 ONLYthroughround24000,firstdiverged24064; latermatching

@@ -842,3 +842,18 @@ or infer benefit. Select only if the frozen outcome and existing diagnostics sho
 repeated forward work is an actual blocker. This is NOT another active cycle or
 an authorized implementation during frozen287. Keep all fullBoth/hole/seam/body/
 feature/height gates. No new representation, scheduler, larger cavity or config.
+
+###289 preparation cycle: alternatives not selected
+
+288 per-call residual-tolerance chord-witness search was measured on the actual287
+source query and rejected: only+0.511percentage-point equal-facet parameter coverage
+at20M, commonwork+.4023%, bothproofs incomplete. Correctnesscontrols passed, but no
+useful speedup established. Patch/comparison/rejection under staged57; do not layer it.
+
+A border-segment ADT/interval index and precomputed touched-corner coordinates remain
+unselected. Actualcoveragework is dominant, but289's smaller immutable border-endpoint
+preparation preserves exact traversal/work and reduces both saved directional CPU
+substantially. Finish its connected qualification and fullsame-seed M6 before adding
+an index or more proof variants. Any later broadphase must retain point-on-edge/ray,
+wholeface winding/interior crossing and segment/corner-touch supersets, originaledge
+order, conservative memory/transient admission and strict exact predicates.
