@@ -352,7 +352,7 @@ class CBoundaryLayerMetric {
 
  private:
   struct WallProjection;
-  WallProjection ProjectWall(unsigned short wall,const std::array<double,3>& point,double absoluteError=-1)const;
+  WallProjection ProjectWall(unsigned short wall,const std::array<double,3>& point,double absoluteError=-1,size_t transientBytes=0)const;
   bool CurvedWall(unsigned short wall)const;
   bool MayIntersectBand3D(const std::array<std::array<double,3>,4>& tetrahedron,unsigned short wall)const;
   Sample EvaluateImpl(unsigned short wall, const su2double* coord, su2double coreEigenvalue, bool distanceOnly,

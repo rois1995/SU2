@@ -22,7 +22,7 @@ R=`integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57`.
 A293=`R/m6_runs/euler_build293_bounded_reference_mach_only_real_cfd50k`.
 D293=`R/m6_runs/euler_build293_adapted_event1_disk_restart_v1`.
 
-## CURRENT — Euler296 terminal/verified; connected curved BL milestone next
+## CURRENT — Euler296 verified; connected curved BL implementation active
 
 NO ownedheavyjob active. Frozen296 tool57374 TERMINAL0/3902.168s; all1520pins
 unchanged, all11actualHOST identities ABSENT in A296/terminal_handles.json.
@@ -45,7 +45,7 @@ timers separate and join-call time is NOTtotalMPIwait. Causal material gain NOT
 established. Latest user therefore directs BL next; no speculative Euler cycle.
 
 Qualified archived source: production294 +test-only295/296. Current working C++ has
-unvalidated connected curved-BL changes (build298 frozen/running); do not reuse296 source pins.
+unvalidated connected curved-BL changes (build301 frozen/running); do not reuse296 source pins.
 StandaloneCFD SHA b316e4f9fd3c76b43c10c8c4ffb85f7040da0ab93cb2850182bec1c31dbab256;
 test_driver SHA6f8184dc7359a62ce6d9d82a2f96055ac6caebf2b5e7354c5f9800b4cedd403c.
 Frozen workflow used same selected-failure wrapper as293, invoking actual production
@@ -61,16 +61,27 @@ Before substantial implementation, missing capability and acceptance were stated
 to user: original no-CAD cubic wall authority must serve distance/normals, combined
 flow/BL metric, quadrature and chord integration together; existing first-row/joint-
 wall helpers do NOTprove complete multilayer coverage or post-migration suitability.
-R/m6_bl_preflight296.json pins48954curvednets and current explicit builder refusal.
-Read-only audits completed. Connected curved-BL source implementation STARTED,
-unbuilt/unvalidated: component-aware retained cubic walls, certified distance
-enclosures/physical-foot interpolation, conservative support bounds and chord
-crossing resolution are being integrated. Build297 TERMINAL1/522.606s, unchanged pins, all11actualHOST identities terminal;
-source snapshot preserved. It failed on wrong namespace/ambiguous test tensor.
-Corrected build298 running, tool session88564; helper3471708/start28131678,
-ninja3471710/start28131697. Source frozen; build298_owned_startup.json records
-actual identities. No BL tests/CFD yet. Shared policy/engine reservation binding
-remains a review blocker.
+R/m6_bl_preflight296.json pins48954curvednets and the original explicit builder refusal.
+Connected cubic-BL implementation is WIP, NOTqualified. Build300 PASSED then its
+focused check TERMINAL1/464.222s, allpinsunchanged/exactHOSThandles+wrapper absent:
+21/22cases passed,281741assertions passed. Near-wall normal now passes independent
+polynomial checks; curved chord exhausted unchanged16384work while repeatedly
+restarting complete trees to achieve total uncertainty<=1e-8. Earlier compile,
+default-memory and normal/chord failures are preserved in linked design history.
+
+CURRENT FROZEN build301 session30473, helper3519596/start28249637,
+ninja3519598/start28249654; actual identities build301_owned_startup.json.
+One ownedheavyjob, no sources/helper edits until terminal verification.
+301 changes ONLY CBCheader/cpp: retain unresolved-leaf frontier, discard only
+certified excluded intervals, refine largest uncertainty; exact AffinePointBounds
+cover midpoint/endpoints for Lipschitz screening, outward sum<=unchanged1e-8.
+16384work/65536cut caps unchanged; admit frontier before reserve and account it
+alongside active query/cuts/set storage. No runtime301 outcome yet.
+Actual binaries currently build300 (see build300_status.json) until301 completes;
+archived296 hashes above are regression assets, NOTcurrent working executables.
+Shared policy/engine geometry reservation binding remains a review blocker;
+new true-cubic hidden volume/competing component checks, BL suitability census,
+ONE connected MPI milestone and actual M6BL remain outstanding. No new Euler cycle.
 Next ACTUAL implementation: audit/reuse those production callers and wall-aware
 operators, retain strict gates/budgets, define current-mesh BL census for h0/normal
 alignment/progression/coverage/outer transition/tangential flow conformity/features/

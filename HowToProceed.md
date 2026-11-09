@@ -37,8 +37,8 @@ allowed; no permanent frozen columns/coords/prisms or Euler/RANS-label dispatch.
 Focused checks plus ONE connected MPI milestone, promptly actual M6 BL, then saved
 reasonable RANS500k two-event flow+turbulence transfer/continuedCFD/actual adapted
 diskrestart. Existing120iteration M6SA state is only an initial-guess candidate;
-qualify/continue it rather than blindly restart. No BL source implementation or
-campaign has started yet. Full goal ACTIVE; Euler acceptance is not BL completion.
+qualify/continue it rather than blindly restart. Connected curved-BL implementation is active but unqualified; current frozen
+build/job and preserved failures are in HANDOFF_Codex.md and the linked BL design. Full goal ACTIVE; Euler acceptance is not BL completion.
 
 The remaining notes are historical evidence; the active next action is above.
 

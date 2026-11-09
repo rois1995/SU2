@@ -2,7 +2,7 @@
 
 User steering2026-11-09. This is the next implementation milestone AFTER frozen
 FIRST296 terminated and actual owned handles were verified terminal. Connected BL
-source implementation has now begun; build298 is frozen/running (session88564);297 failed compilation.
+source implementation has now begun; build301 is frozen/running (session30473); current state takes precedence below.
 No BL tests/CFD yet. Preserve qualified Euler construction/certification,
 all gates/budgets and the completed293 two-event/restart baseline/checkpoints.
 Small296 timing changes, reuse counters and speculative geometry optimizations do
@@ -164,3 +164,54 @@ integration support outward rather than shrinking its envelope, and includes thi
 wall's D1 feature contributions in the chord uncertainty tensor bound. Source
 frozen in build298_source_pins; session88564/actual identities in
 build298_owned_startup.json. No BL runtime evidence yet.
+
+### Runtime findings298/299 and current300
+
+298 built successfully (64.161s, allpinsunchanged/8actualhandles terminal). Its
+focused check passed21/22cases and281699assertions; the new cubic case failed
+because the builder assigned native-memory0 literally instead of retaining the
+existing default2GiB. This was corrected without changing any configured limit.
+299 built successfully (42.125s/allpinsunchanged/14sampledhandles absent). Focused
+299 terminated2 after62.691s, allpinsunchanged/exactactualhandles+wrapper absent,
+21/22cases passed and281740assertions passed. Independent polynomial surface point
+exposed a false near-wall normal: a closest candidate within the certified distance
+error had tiny tangential residual, mistakenly normalized as the physical normal.
+The new chord resolver also correctly refused total crossing uncertainty beyond1e-8;
+per-leaf allowance alone did not bound the sum over multiple crossings.
+
+300 fixes BOTH in the same ongoing connected cycle: use the authority differential
+normal when distance lower bound cannot resolve separation from the wall; refine
+crossings until summed metric uncertainty<=unchanged1e-8, still counting all passes
+against original16384work. Not a tolerance increase. Frozen build300 session98477,
+helper3490902/start28178881,ninja3490904/start28178899. No runtime300 result yet;
+no MPI/actualM6BL qualification claimed. New true cubic hidden-volume and competing
+component tests, shared event reservation binding and current-mesh suitability
+census remain outstanding. Preserve failures; do not launch MPI prematurely.
+
+### Demonstrated chord blocker300; current frozen301
+
+Build300 PASSED/44.150s/all14sampledhandles absent. Focused300:
+`cases/geometry_backend_20261109T151657_3493673`, tool46484 TERMINAL1/464.222s,
+pins unchanged, all4exactHOST PID/start identities and wrapper3493673 absent.
+21/22cases passed,281741/281742assertions passed. No near-wall normal assertion
+failed. Cubic chord refused at unchanged16384interval work. This is actual bounded
+runtime failure, not a speculative optimization opportunity. The restart-from-root
+uncertainty loop repeated identical previously certified/excluded intervals.
+
+301 keeps an admitted max16384 unresolved-leaf frontier and refines the largest
+uncertainty, replacing parent error by children with outward arithmetic. Excluded
+leaves remain excluded only within this synchronous frozen wall/profile/chord.
+Existing AffinePointBounds bound exact chord midpoint/endpoints; radius to both
+endpoint boxes covers the complete ideal affine interval by convexity. No scale-
+heuristic coordinate padding. This should reduce duplicate queries and unnecessary
+uncertainty, but benefit/correctness are not established until runtime. Total
+uncertainty remains<=1e-8, intervalwork16384/cuts65536 unchanged. True coincidence,
+tangency and representability floors must still refuse at existing limits.
+Frontier admitted before reserve; live frontier/levels/cuts/set scratch is included
+in query admission, and cut/set growth is admitted before mutation. Existing
+attached atlas reservations receive peaks/work/deadline checks; missing production
+reservation binding described above remains open. No new config/scheduler/CAD.
+
+Build301 frozen session30473, helper3519596/start28249637,
+ninja3519598/start28249654. Verify actual build301_owned_startup.json handles
+terminal before any compiled/helper edits. No301runtime/MPI/M6BL claim.

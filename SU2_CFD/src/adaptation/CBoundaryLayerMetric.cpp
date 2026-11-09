@@ -27,6 +27,7 @@
 #include "../../include/adaptation/CBoundaryLayerMetric.hpp"
 #include "../../include/adaptation/CNativeBLComposition3D.hpp"
 #include "../../../Common/include/adaptation/CNativeSupport3D.hpp"
+#include "../../../Common/include/adaptation/CNativePointConstruction3D.hpp"
 
 #include <algorithm>
 #include <array>
@@ -314,7 +315,7 @@ bool CBoundaryLayerMetric::CurvedWall(unsigned short wall)const {
 }
 
 CBoundaryLayerMetric::WallProjection CBoundaryLayerMetric::ProjectWall(
-    unsigned short index,const std::array<double,3>& point,double absoluteError)const {
+    unsigned short index,const std::array<double,3>& point,double absoluteError,size_t transientBytes)const {
   const auto& wall=walls.at(index);WallProjection out;
   if(!wall.authority)throw std::invalid_argument("Wall projection needs retained native authority.");
   const SU2Native3D::Point query{point[0],point[1],point[2]};
@@ -324,18 +325,18 @@ CBoundaryLayerMetric::WallProjection CBoundaryLayerMetric::ProjectWall(
   }
   const auto& geometry=wall.authority->Parameters()->Geometry();
   const double error=absoluteError>0?absoluteError:1e-6*SU2_TYPE::GetValue(wall.layer.firstHeight);
-  const auto retained=StorageBytes();
+  const auto retained=transfer_memory::Add(StorageBytes(),transientBytes);
   if(retained>wall.geometry_ceiling)throw std::length_error("Retained BL storage exceeds curved query admission.");
   size_t available=wall.geometry_ceiling-retained,maximumWork=SU2NativeGeometry::MappedFacetReference::ClearanceWork;
   auto* reservation=wall.authority->AtlasReservation();size_t attempted=0;
   if(reservation) {
     reservation->CheckTime();
-    if(reservation->caller_bytes>reservation->maximum_bytes || reservation->work_exhausted || reservation->work>reservation->maximum_work)
+    if(transfer_memory::Add(reservation->caller_bytes,transientBytes)>reservation->maximum_bytes || reservation->work_exhausted || reservation->work>reservation->maximum_work)
       throw std::length_error("Curved BL caller reservation exhausted.");
-    available=std::min(available,reservation->maximum_bytes-reservation->caller_bytes);
+    available=std::min(available,reservation->maximum_bytes-reservation->caller_bytes-transientBytes);
     maximumWork=std::min(maximumWork,reservation->maximum_work-reservation->work);
     if(!maximumWork){reservation->work_exhausted=true;throw std::length_error("Curved BL geometry work exhausted.");}
-    reservation->peak_bytes=std::max(reservation->peak_bytes,transfer_memory::Add(reservation->caller_bytes,
+    reservation->peak_bytes=std::max(reservation->peak_bytes,transfer_memory::Add(reservation->caller_bytes,transientBytes,
         geometry.CurvedQueryWorkspaceBytes(maximumWork)));
   }
   SU2NativeGeometry::MappedFacetReference::CurvedClosest closest;
@@ -2053,7 +2054,8 @@ CBoundaryLayerMetric::Sample CBoundaryLayerMetric::EvaluateImpl(unsigned short i
     if (nZero == 1) n = d.edgeNormal[id][kMin];
     if (nZero >= 2) n = d.vertexNormal[t[kMax]];
     if(wall.authority)n={smooth.normal.x,smooth.normal.y,smooth.normal.z};
-    if (sample.distance > d.tolerance) {
+    // A distance interval containing the wall does not resolve the direction of its tiny candidate displacement.
+    if (sample.distance > d.tolerance && (!CurvedWall(iWall) || projection.lower>d.tolerance)) {
       if(wall.authority)n={smooth.direction.x,smooth.direction.y,smooth.direction.z};
       else for (unsigned short iDim = 0; iDim < 3; ++iDim) n[iDim] = radial[iDim] / sample.distance;
     }
@@ -2248,7 +2250,7 @@ std::shared_ptr<CBoundaryLayerMetric> CBoundaryLayerMetric::FromNativeReference(
       if(group.first.first) {
         wall.authority=reference.original;wall.authority_facet=group.second.front();
         wall.surface_tolerance=SU2_TYPE::GetValue(config.GetAdap_Hausd());
-        wall.geometry_ceiling=config.GetAdap_Native_MemoryLimit();
+        if(const auto limit=config.GetAdap_Native_MemoryLimit())wall.geometry_ceiling=limit;
         if(group.first.first==2)wall.authority_facets=std::move(group.second);
         else if(!wall.authority->CompleteAnalytic(wall.authority_facet))
           throw std::invalid_argument("Native3D analytic BL partial component is unsupported.");
@@ -3424,36 +3426,75 @@ std::vector<double> CBoundaryLayerMetric::EdgeBreakpointsImpl(
       return false;
     };
     if(CurvedWall(wall)) {
-      // Distance to the entire retained finite surface is 1-Lipschitz; uncertain crossings are never discarded.
-      const long double length=std::sqrt(dot(chord,chord));size_t work=0;double unresolvedError=0;
+      // Keep certified excluded intervals excluded; only unresolved leaves consume further geometry work.
+      struct Interval {double left,right;long double uncertainty;};
+      auto admit=[&](size_t scratch) {
+        if(transfer_memory::Add(StorageBytes(),scratch)>walls[wall].geometry_ceiling)
+          throw std::length_error("Cubic BL chord workspace exceeds storage admission.");
+        if(auto* reservation=walls[wall].authority->AtlasReservation()) {
+          reservation->CheckTime();
+          const auto peak=transfer_memory::Add(reservation->caller_bytes,scratch);
+          if(peak>reservation->maximum_bytes)throw std::length_error("Cubic BL caller workspace exhausted.");
+          reservation->peak_bytes=std::max(reservation->peak_bytes,peak);
+        }
+      };
+      const auto frontierBytes=transfer_memory::Mul(16384,sizeof(Interval));
+      admit(transfer_memory::Add(frontierBytes,transfer_memory::Bytes(levels),transfer_memory::Bytes(cuts),
+          transfer_memory::Mul(retained.size(),sizeof(double)+4*sizeof(void*))));
+      std::vector<Interval> frontier;frontier.reserve(16384);
+      auto larger=[](const Interval& a,const Interval& b){return a.uncertainty<b.uncertainty;};
+      size_t work=0;long double unresolved=0;
       double eigenvalue=d.maximum_wall_eigenvalue;
       for(const auto& feature:features)if(std::binary_search(feature.walls.begin(),feature.walls.end(),wall))
         eigenvalue+=1/(feature.h0*feature.h0);
       if(!std::isfinite(eigenvalue))throw std::runtime_error("Unrepresentable cubic BL feature bound.");
+      const long double metricBound=std::nextafter(std::sqrt((long double)eigenvalue),INFINITY);
       levels.erase(std::remove(levels.begin(),levels.end(),0.),levels.end());
-      const double allowance=1e-8/std::max(size_t(1),levels.size());
-      auto mandatory=[&](double t){if(t>0 && t<1 && retained.insert(t).second){
-        if(cuts.size()>=65536)throw std::runtime_error("Cubic BL edge cuts exceed work budget.");cuts.push_back(t);}};
-      std::function<void(double,double)> resolve;
-      resolve=[&](double left,double right) {
-        if(++work>16384)throw std::runtime_error("Cubic BL distance crossings exceed work budget.");
-        const auto middle=.5*(left+right);std::array<double,3> point{};double scale=0;
-        for(unsigned j=0;j<3;++j){point[j]=(1-middle)*a[j]+middle*b[j];scale=std::max(scale,std::abs(point[j]));}
-        const auto radius=length*(right-left)/2;
-        const double roundoff=128*std::numeric_limits<double>::epsilon()*(scale+double(length));
-        const auto projection=ProjectWall(wall,point,std::max(std::numeric_limits<double>::min(),
-            std::min(1e-6*h0,double(radius)*.125+roundoff)));
-        if(std::none_of(levels.begin(),levels.end(),[&](double level){
-          return level>=projection.lower-radius-roundoff && level<=projection.upper+radius+roundoff;}))return;
-        const double uncertainty=double(length*(right-left)*std::sqrt(eigenvalue));
-        if(uncertainty<=allowance) {
-          unresolvedError+=uncertainty;if(unresolvedError>1e-8)throw std::runtime_error("Cubic BL crossing uncertainty exceeds edge tolerance.");
-          mandatory(left);mandatory(right);return;
-        }
+      const SU2Native3D::Point first{a[0],a[1],a[2]},last{b[0],b[1],b[2]};
+      auto classify=[&](double left,double right) {
+        if(++work>16384)throw std::runtime_error("Cubic BL distance crossings exceed work budget; unresolved bound="+std::to_string(double(unresolved))+", leaves="+std::to_string(frontier.size()));
+        const double middle=.5*(left+right);
         if(middle==left || middle==right)throw std::runtime_error("Unresolved cubic BL distance crossing.");
-        resolve(left,middle);resolve(middle,right);
+        const auto center=SU2Native3D::AffinePointBounds(first,last,middle);
+        const auto low=SU2Native3D::AffinePointBounds(first,last,left),high=SU2Native3D::AffinePointBounds(first,last,right);
+        const std::array<double,3> point{center[0].x,center[0].y,center[0].z};
+        long double radius=0;
+        for(const auto& endpoint:{low,high}) {
+          const double lo[3]={endpoint[0].x,endpoint[0].y,endpoint[0].z},hi[3]={endpoint[1].x,endpoint[1].y,endpoint[1].z};
+          long double squared=0;
+          for(unsigned j=0;j<3;++j) {
+            const long double delta=std::nextafter(std::max(std::abs((long double)point[j]-lo[j]),std::abs((long double)point[j]-hi[j])),INFINITY);
+            squared=std::nextafter(squared+std::nextafter(delta*delta,INFINITY),INFINITY);
+          }
+          radius=std::max(radius,std::nextafter(std::sqrt(squared),INFINITY));
+        }
+        const size_t scratch=transfer_memory::Add(transfer_memory::Bytes(frontier),transfer_memory::Bytes(levels),
+            transfer_memory::Bytes(cuts),transfer_memory::Mul(retained.size(),sizeof(double)+4*sizeof(void*)));
+        const auto projection=ProjectWall(wall,point,std::max(std::numeric_limits<double>::min(),
+            std::min(1e-6*h0,double(radius)*.125)),scratch);
+        const auto lower=std::nextafter((long double)projection.lower-radius,-INFINITY),upper=std::nextafter((long double)projection.upper+radius,INFINITY);
+        if(std::none_of(levels.begin(),levels.end(),[&](double level){return level>=lower && level<=upper;}))return;
+        const auto uncertainty=std::nextafter(2*radius*metricBound,INFINITY);
+        frontier.push_back({left,right,uncertainty});std::push_heap(frontier.begin(),frontier.end(),larger);
+        unresolved=std::nextafter(unresolved+uncertainty,INFINITY);
       };
-      resolve(0,1);continue;
+      classify(0,1);
+      while(unresolved>1e-8 && !frontier.empty()) {
+        std::pop_heap(frontier.begin(),frontier.end(),larger);const auto parent=frontier.back();frontier.pop_back();
+        unresolved=std::max(0.L,std::nextafter(unresolved-parent.uncertainty,INFINITY));
+        const auto middle=.5*(parent.left+parent.right);
+        classify(parent.left,middle);classify(middle,parent.right);
+      }
+      if(frontier.empty())unresolved=0; // Every interval was excluded by a certificate.
+      if(unresolved>1e-8)throw std::runtime_error("Cubic BL total crossing uncertainty exceeds edge tolerance.");
+      for(const auto& leaf:frontier)for(double t:{leaf.left,leaf.right})if(t>0 && t<1 && !retained.count(t)) {
+        if(cuts.size()>=65536)throw std::runtime_error("Cubic BL edge cuts exceed work budget.");
+        admit(transfer_memory::Add(frontierBytes,transfer_memory::Bytes(levels),
+            transfer_memory::Mul(2*std::max(cuts.capacity(),cuts.size()+1),sizeof(double)),
+            transfer_memory::Mul(retained.size()+1,sizeof(double)+4*sizeof(void*))));
+        retained.insert(t);cuts.push_back(t);
+      }
+      continue;
     }
     if(walls[wall].authority) {
       const auto& authority=*walls[wall].authority;const auto& g=authority.Analytic().at(walls[wall].authority_facet);
