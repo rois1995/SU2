@@ -2977,19 +2977,22 @@ void CEulerSolver::TeCNOAdjointFCTPasses(CGeometry *geometry, const CConfig *con
     SU2_OMP_MASTER {
       TeCNOAdjoint::FCTSetupFinish(*geometry, nDim, TeCNOAdjFCTRows, TeCNOAdjFCTSetup);
       TeCNOAdjFCTRows.resize(0, 0);
-      TeCNOAdjoint::FCTWorkResize(*geometry, TeCNOAdjFCTSetup, TeCNOAdjFCTWork);
+      TeCNOAdjoint::FCTWorkResize(*geometry, TeCNOAdjFCTSetup, TeCNOAdjFCTWork,
+                                  config->GetKind_TeCNO_Adj_FCT_Bound() == TECNO_ADJ_FCT_BOUND::NODE_INPUT);
     }
     END_SU2_OMP_MASTER
     SU2_OMP_BARRIER
   }
+  const bool nodeInput = (config->GetKind_TeCNO_Adj_FCT_Bound() == TECNO_ADJ_FCT_BOUND::NODE_INPUT);
   if (config->GetKind_TeCNO_Adj_Gradient() == TECNO_ADJ_GRADIENT::P1_AVERAGE) {
     TeCNOAdjoint::FCTPasses(*geometry, nDim, TeCNOAdjEdgeA, TeCNOAdjVol, TeCNOAdjFCTSetup, nodes->TeCNOAdjEdgeTVD,
-                            TeCNOAdjW, TeCNOAdjFCTWork, nodes->TeCNOAdjEdgePhi, comm, config->GetTeCNO_Adj_FCT_Passes());
+                            TeCNOAdjW, TeCNOAdjFCTWork, nodes->TeCNOAdjEdgePhi, comm, config->GetTeCNO_Adj_FCT_Passes(),
+                            nodeInput);
   } else {
     auto volume = [&](unsigned long iPoint) { return geometry->nodes->GetVolume(iPoint); };
     TeCNOAdjoint::FCTPasses(*geometry, nDim, TeCNOAdjoint::GreenGaussWeights<CGeometry>{*geometry, nDim}, volume,
                             TeCNOAdjFCTSetup, nodes->TeCNOAdjEdgeTVD, TeCNOAdjW, TeCNOAdjFCTWork,
-                            nodes->TeCNOAdjEdgePhi, comm, config->GetTeCNO_Adj_FCT_Passes());
+                            nodes->TeCNOAdjEdgePhi, comm, config->GetTeCNO_Adj_FCT_Passes(), nodeInput);
   }
 
   const auto iter = config->GetInnerIter();
@@ -3007,6 +3010,7 @@ void CEulerSolver::TeCNOAdjointFCTPasses(CGeometry *geometry, const CConfig *con
              << "; Phi_eq: act " << 100.0 * global[6] / n << " %, zeros " << 100.0 * global[7] / n << " %, mean "
              << global[8] / n << ", wmean " << global[9] / fmax(global[5], EPS);
         if (config->GetTeCNO_Adj_FCT_Passes() > 1) cout << " (" << config->GetTeCNO_Adj_FCT_Passes() << " passes)";
+        if (nodeInput) cout << " (NODE_INPUT)";
         cout << endl;
       }
     }

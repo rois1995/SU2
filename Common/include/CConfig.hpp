@@ -90,6 +90,7 @@ private:
   TECNO_ADJ_GRADIENT Kind_TeCNO_Adj_Gradient; /*!< \brief Gradient of w in that dissipation (TECNO_ADJOINT_GRADIENT). */
   TECNO_ADJ_LIMITER Kind_TeCNO_Adj_Limiter;   /*!< \brief Per-edge-end limiter of that dissipation (TECNO_ADJOINT_LIMITER). */
   unsigned short TeCNO_Adj_FCT_Passes;        /*!< \brief Zalesak passes of EDGE_ENTROPY_FCT (TECNO_ADJOINT_FCT_PASSES). */
+  TECNO_ADJ_FCT_BOUND Kind_TeCNO_Adj_FCT_Bound; /*!< \brief Bound of EDGE_ENTROPY_FCT (TECNO_ADJOINT_FCT_BOUND). */
   TECNO_ADJ_JACOBIAN Kind_TeCNO_Adj_Jacobian; /*!< \brief Jacobian of that dissipation (TECNO_ADJOINT_JACOBIAN). */
   bool Edge_Form_EC_Exact_Jacobian; /*!< \brief Exact Jacobian of the Ismail-Roe central parts of the ROE options. */
   bool BC_Entropy_P1;          /*!< \brief Entropy stable hybridized weak boundary of BC_WEAK_P1 (closure C). */
@@ -10122,6 +10123,11 @@ public:
    *        amounts, ROE_TECNO_PLAN.md 6.11).
    */
   unsigned short GetTeCNO_Adj_FCT_Passes() const { return TeCNO_Adj_FCT_Passes; }
+
+  /*!
+   * \brief Bound of TECNO_ADJOINT_LIMITER= EDGE_ENTROPY_FCT (TWO_NODE: S4c-S4e; NODE_INPUT: S4f, ROE_TECNO_PLAN.md 6.13).
+   */
+  TECNO_ADJ_FCT_BOUND GetKind_TeCNO_Adj_FCT_Bound() const { return Kind_TeCNO_Adj_FCT_Bound; }
 
   /*!
    * \brief TECNO_ADJOINT_JACOBIAN: Jacobian of the dissipation of EDGE_FORM_TECNO_ADJOINT, ROE1 (default), FIRST_RING

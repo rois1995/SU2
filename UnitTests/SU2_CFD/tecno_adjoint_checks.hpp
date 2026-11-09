@@ -1335,15 +1335,17 @@ struct FCTData {
  */
 template <class Geometry, class WeightType, class VolumeType, class HaloCopy>
 void FCTRun(const Geometry& geometry, unsigned short nDim, const WeightType& weights, const VolumeType& volume,
-            const su2activematrix& W, FCTData& d, HaloCopy&& haloCopy, unsigned short nPasses = 1) {
+            const su2activematrix& W, FCTData& d, HaloCopy&& haloCopy, unsigned short nPasses = 1,
+            bool nodeInput = false) {
   su2activematrix rows;
   TeCNOAdjoint::FCTSetupRows(geometry, d.setup, rows);
   haloCopy(rows);
   TeCNOAdjoint::FCTSetupFinish(geometry, nDim, rows, d.setup);
-  TeCNOAdjoint::FCTWorkResize(geometry, d.setup, d.work);
+  TeCNOAdjoint::FCTWorkResize(geometry, d.setup, d.work, nodeInput);
   d.store.resize(geometry.GetnEdge(), TeCNOAdjoint::FCT_STORE_WIDTH);
   d.store = su2double(-1.0);
-  TeCNOAdjoint::FCTPasses(geometry, nDim, weights, volume, d.setup, d.ing, W, d.work, d.store, haloCopy, nPasses);
+  TeCNOAdjoint::FCTPasses(geometry, nDim, weights, volume, d.setup, d.ing, W, d.work, d.store, haloCopy, nPasses,
+                          nodeInput);
 }
 
 /*--- Independent reference (serial): canonical edge data from the coordinates and the ingredient columns. ---*/
@@ -1356,6 +1358,7 @@ struct FCTRefEdge {
    * alpha, gamma. ---*/
   double A[2][4] = {{0}}, cap[4] = {0}, o[4] = {0}, sigma[4] = {0}, phic[4] = {0}, Mc[4] = {0}, Mv[3] = {0};
   double Pm[4] = {0}, R[4] = {0}, room[4] = {0}, aown[4] = {0}, rho[4] = {1, 1, 1, 1}, alpha[4] = {0}, gam[4] = {0};
+  double rowCap[2][4] = {{0}};  /*!< \brief NODE_INPUT: cap of the row of canonical end x. */
   bool valid[4] = {false, false, false, false};
 };
 
@@ -1404,13 +1407,132 @@ inline void FCTRefProject(unsigned short nDim, const FCTRefEdge& r, const double
 }
 
 /*!
+ * \brief Self piece of the h-th (edge, end) at node a (TECNO_ADJOINT_FCT_BOUND= NODE_INPUT): the pair formula with the
+ *        weight replaced by s_a = sum_k g_k, contributor = the edge itself; 0 within the rounding bound of s_a . e_h.
+ */
+inline double FCTRefSelf(const FCTRefResult& res, unsigned short nDim, unsigned long a, size_t h, int f) {
+  const auto& r = res.ed[res.at[a][h].first];
+  double s[3] = {0, 0, 0}, sa[3] = {0, 0, 0};
+  for (const auto& g : res.g[a])
+    for (unsigned short d = 0; d < nDim; ++d) {
+      s[d] += g[d];
+      sa[d] += std::fabs(g[d]);
+    }
+  double pi = 0, size = 0;
+  for (unsigned short d = 0; d < nDim; ++d) {
+    pi += s[d] * r.e[d];
+    size += sa[d] * std::fabs(r.e[d]);
+  }
+  if (!(std::fabs(pi) > double(res.at[a].size() + nDim + 2) * std::numeric_limits<double>::epsilon() * size)) return 0.0;
+  pi *= (res.at[a][h].second == 0) ? 1.0 : -1.0;
+  double m = r.Mc[f];
+  if (f == 2) {
+    m = 0;
+    double ms = 0;
+    for (unsigned short d = 0; d < nDim; ++d) {
+      m += r.t[d] * r.Mv[d];
+      ms += std::fabs(r.t[d] * r.Mv[d]);
+    }
+    if (!(std::fabs(m) > (nDim + 2) * std::numeric_limits<double>::epsilon() * ms)) return 0.0;
+  }
+  return 0.5 * ((r.dy[f] >= 0) ? 1.0 : -1.0) * pi * m / r.D[f];
+}
+
+/*!
+ * \brief NODE_INPUT selection of the reference (ROE_TECNO_PLAN.md 6.13): rows (edge, canonical end x); the row of x gets the
+ *        own term, the pairs collected at the other end n[1 - x] (all contributors), the pairs at n[x] of the invalid
+ *        contributors and the edge's own self piece at n[x] (valid). swapRows (test only) exchanges far and near.
+ */
+template <class PairC>
+void FCTReferenceNodeInput(FCTRefResult& res, unsigned short nDim, unsigned short nPasses, bool swapRows,
+                           const std::vector<std::vector<unsigned long>>& nbr, PairC&& pairC) {
+  auto& ed = res.ed;
+  const size_t nE = ed.size();
+  using Rows = std::vector<std::array<std::array<double, 4>, 2>>;
+  auto zero = [&]() { return Rows(nE, {{{0, 0, 0, 0}, {0, 0, 0, 0}}}); };
+  Rows Rr = zero();
+  for (unsigned short pass = 0; pass < nPasses; ++pass) {
+    const bool first = (pass == 0);
+    Rows P = zero(), S = zero(), Sz = zero();
+    for (unsigned long a = 0; a < res.at.size(); ++a)
+      for (size_t h = 0; h < res.at[a].size(); ++h) {
+        const auto eh = res.at[a][h].first;
+        const int xh = res.at[a][h].second;
+        const int far = swapRows ? xh : 1 - xh, near = swapRows ? 1 - xh : xh;
+        for (int f = 0; f < 4; ++f) {
+          if (!ed[eh].valid[f]) continue;
+          for (size_t k = 0; k < res.at[a].size(); ++k) {
+            const auto ek = res.at[a][k].first;
+            const double c = pairC(a, h, k, f), al = first ? 0.0 : ed[ek].alpha[f];
+            P[eh][far][f] += std::max(0.0, c) * (1 - al);
+            S[eh][far][f] += al * c;
+            Sz[eh][far][f] += std::fabs(al * c);
+            if (!ed[ek].valid[f]) {
+              P[eh][near][f] += std::max(0.0, c) * (1 - al);
+              S[eh][near][f] += al * c;
+              Sz[eh][near][f] += std::fabs(al * c);
+            }
+          }
+          const double cs = FCTRefSelf(res, nDim, a, h, f), al = first ? 0.0 : ed[eh].alpha[f];
+          P[eh][near][f] += std::max(0.0, cs) * (1 - al);
+          S[eh][near][f] += al * cs;
+          Sz[eh][near][f] += std::fabs(al * cs);
+        }
+      }
+    std::vector<std::array<double, 4>> ar(nE, {1, 1, 1, 1});
+    for (unsigned long e = 0; e < nE; ++e) {
+      const auto& r = ed[e];
+      const double nPairs = double(nbr[r.n[0]].size() + nbr[r.n[1]].size());
+      for (int f = 0; f < 4; ++f) {
+        const double al = first ? 0.0 : r.alpha[f], own = r.phic[f] * r.o[f], den = own * (1 - al);
+        for (int x = 0; x < 2; ++x) {
+          double Q = r.rowCap[x][f];
+          if (!first) {
+            const double tau = (nPairs + 3) * std::numeric_limits<double>::epsilon() *
+                               (r.rowCap[x][f] + std::fabs(al * own) + Sz[e][x][f]);
+            Q = r.valid[f] ? std::max(0.0, r.rowCap[x][f] - al * own - S[e][x][f] - tau) : 0.0;
+          }
+          Rr[e][x][f] = (r.valid[f] && P[e][x][f] > Q) ? Q / P[e][x][f] : 1.0;
+          const double room = std::max(0.0, Q - Rr[e][x][f] * P[e][x][f]);
+          if (r.valid[f] && den > 0) ar[e][f] = std::min(ar[e][f], std::min(1.0, room / den));
+        }
+      }
+    }
+    std::vector<std::array<double, 4>> rho(nE, {1, 1, 1, 1});
+    for (unsigned long a = 0; a < res.at.size(); ++a)
+      for (size_t k = 0; k < res.at[a].size(); ++k) {
+        const auto ek = res.at[a][k].first;
+        const int xk = res.at[a][k].second;
+        for (int f = 0; f < 4; ++f) {
+          if (!first && !(ed[ek].alpha[f] < 1.0)) continue;
+          for (size_t h = 0; h < res.at[a].size(); ++h) {
+            const auto eh = res.at[a][h].first;
+            const int xh = res.at[a][h].second;
+            if (!ed[eh].valid[f] || !(pairC(a, h, k, f) > 0)) continue;
+            rho[ek][f] = std::min(rho[ek][f], Rr[eh][swapRows ? xh : 1 - xh][f]);
+            if (!ed[ek].valid[f]) rho[ek][f] = std::min(rho[ek][f], Rr[eh][swapRows ? 1 - xh : xh][f]);
+          }
+          if (ed[ek].valid[f] && FCTRefSelf(res, nDim, a, k, f) > 0)
+            rho[ek][f] = std::min(rho[ek][f], Rr[ek][swapRows ? 1 - xk : xk][f]);
+        }
+      }
+    for (unsigned long e = 0; e < nE; ++e)
+      for (int f = 0; f < 4; ++f)
+        ed[e].alpha[f] = first ? std::min(rho[e][f], ar[e][f])
+                               : std::min(1.0, ed[e].alpha[f] + (1 - ed[e].alpha[f]) * std::min(rho[e][f], ar[e][f]));
+  }
+  for (auto& r : ed)
+    for (int f = 0; f < 4; ++f) r.gam[f] = 1 - r.alpha[f];
+}
+
+/*!
  * \brief The model-8 limiter on a serial geometry: everything from global lists (adjacency, all elements of the mesh
  *        containing the end, Eigen inverses), in the canonical orientation of TVDRefEdges.
  */
 template <class Geometry, class WeightType, class VolumeType>
 FCTRefResult FCTReference(const Geometry& geometry, unsigned short nDim, const su2activematrix& ing,
                           const su2activematrix& W, const WeightType& weights, const VolumeType& volume,
-                          unsigned short nPasses = 1) {
+                          unsigned short nPasses = 1, bool nodeInput = false, bool swapRows = false) {
   namespace ta = TeCNOAdjoint;
   FCTRefResult res;
   auto& ed = res.ed;
@@ -1536,7 +1658,8 @@ FCTRefResult FCTReference(const Geometry& geometry, unsigned short nDim, const s
       }
       for (int f = 0; f < 4; ++f) {
         const double ratio = (r.lamFix[f] > 0) ? r.lam[f] / r.lamFix[f] : 0.0;
-        r.A[x][f] = std::max(std::max(beta[f], ub[f]), 0.5 * (1 - sx * ratio) * std::fabs(r.dy[f]));
+        const double ownJ = 0.5 * (1 - sx * ratio) * std::fabs(r.dy[f]);
+        r.A[x][f] = nodeInput ? std::max(beta[f], ub[f]) + ownJ : std::max(std::max(beta[f], ub[f]), ownJ);
       }
     }
     /*--- (2) Own values. ---*/
@@ -1550,6 +1673,10 @@ FCTRefResult FCTReference(const Geometry& geometry, unsigned short nDim, const s
       r.sigma[f] = 0.5 * (r.s[0][f] + r.s[1][f]);
       r.o[f] = sgn * r.sigma[f];
       r.phic[f] = (r.valid[f] && r.o[f] > 0) ? std::min(1.0, r.cap[f] / r.o[f]) : 1.0;
+      if (nodeInput) {  /*--- S4f (ROE_TECNO_PLAN.md 6.13, D3): |l_c| <= |dy| on every valid entry. ---*/
+        if (r.valid[f]) r.phic[f] = (r.o[f] > 0) ? std::min(r.phic[f], 2 * std::fabs(r.dy[f]) / r.o[f]) : 0.0;
+        for (int x = 0; x < 2; ++x) r.rowCap[x][f] = 2 * r.A[x][f] + delta;
+      }
       r.Mc[f] = r.phic[f] * r.D[f] * (r.dy[f] - r.phic[f] * r.sigma[f]);
     }
     for (unsigned short d = 0; d < nDim; ++d)
@@ -1578,6 +1705,10 @@ FCTRefResult FCTReference(const Geometry& geometry, unsigned short nDim, const s
     }
     return 0.5 * ((rh.dy[f] >= 0) ? 1.0 : -1.0) * pi * m / rh.D[f];
   };
+  if (nodeInput) {
+    FCTReferenceNodeInput(res, nDim, nPasses, swapRows, nbr, pairC);
+    return res;
+  }
   for (unsigned long a = 0; a < nP; ++a)
     for (size_t h = 0; h < res.at[a].size(); ++h)
       for (int f = 0; f < 4; ++f)
@@ -1720,6 +1851,100 @@ inline double FCTBoxViolation(const FCTRefResult& ref, unsigned short nDim, cons
     }
   }
   return worst;
+}
+
+/*!
+ * \brief NODE_INPUT checks on the reference data with stored values at the ramp r: (box) the largest relative excess of
+ *        the row amounts (guarded terms as the selection) over the row caps; (identity) for every node and scalar field,
+ *        with independent contributor weights w (unfiltered terms), the largest relative difference between the pushes
+ *        sum_h D_h sg_h sig_h sum_k w_k c_hk (the near pairs at the node) and sum_h D_h sg_h sig_h (sum_{k invalid} w_k c_hk
+ *        + [h valid] w_h c_self,h).
+ */
+template <class Gen>
+void FCTNodeInputChecks(const FCTRefResult& ref, unsigned short nDim, const su2activematrix& store, double ramp,
+                        Gen& gen, double& box, double& identity) {
+  const auto& ed = ref.ed;
+  const double eps = std::numeric_limits<double>::epsilon();
+  auto mOf = [&](unsigned long eh, unsigned long ek, int f) {
+    const auto& rh = ed[eh];
+    const auto& rk = ed[ek];
+    const double pk = FCTStored(store, ek, rk.flip, 0, f);
+    if (f != 2) return pk * rk.D[f] * (rk.dy[f] - pk * rk.sigma[f]);
+    double m = 0;
+    for (unsigned short d = 0; d < nDim; ++d) m += rh.t[d] * pk * rk.D[2] * (rk.dyS[d] - pk * 0.5 * (rk.sS[0][d] + rk.sS[1][d]));
+    return m;
+  };
+  auto pairRaw = [&](unsigned long a, size_t h, size_t k, int f, bool guard) {
+    const auto eh = ref.at[a][h].first, ek = ref.at[a][k].first;
+    double pi = 0, size = 0;
+    for (unsigned short d = 0; d < nDim; ++d) {
+      pi += ref.g[a][h][d] * ed[ek].e[d];
+      size += std::fabs(ref.g[a][h][d] * ed[ek].e[d]);
+    }
+    if (guard && !(std::fabs(pi) > (nDim + 2) * eps * size)) return 0.0;
+    pi *= (ref.at[a][h].second == 0) ? 1.0 : -1.0;
+    return 0.5 * ((ed[eh].dy[f] >= 0) ? 1.0 : -1.0) * pi * mOf(eh, ek, f) / ed[eh].D[f];
+  };
+  auto selfRaw = [&](unsigned long a, size_t h, int f) {
+    const auto eh = ref.at[a][h].first;
+    double s[3] = {0, 0, 0}, pi = 0;
+    for (const auto& g : ref.g[a])
+      for (unsigned short d = 0; d < nDim; ++d) s[d] += g[d];
+    for (unsigned short d = 0; d < nDim; ++d) pi += s[d] * ed[eh].e[d];
+    pi *= (ref.at[a][h].second == 0) ? 1.0 : -1.0;
+    return 0.5 * ((ed[eh].dy[f] >= 0) ? 1.0 : -1.0) * pi * mOf(eh, eh, f) / ed[eh].D[f];
+  };
+  std::uniform_real_distribution<double> U(0.0, 1.0);
+  std::vector<std::array<double, 4>> wgt(ed.size());
+  for (auto& w : wgt) for (auto& x : w) x = U(gen);
+  std::vector<std::array<std::array<double, 4>, 2>> S(ed.size(), {{{0, 0, 0, 0}, {0, 0, 0, 0}}}), Z = S;
+  for (unsigned long a = 0; a < ref.at.size(); ++a) {
+    for (int f = 0; f < 4; ++f) {
+      double lhs = 0, rhs = 0, scale = 0;
+      for (size_t h = 0; h < ref.at[a].size(); ++h) {
+        const auto eh = ref.at[a][h].first;
+        const int xh = ref.at[a][h].second;
+        const double conv = ed[eh].D[f] * ((ed[eh].dy[f] >= 0) ? 1.0 : -1.0) * ((xh == 0) ? 1.0 : -1.0);
+        for (size_t k = 0; k < ref.at[a].size(); ++k) {
+          const auto ek = ref.at[a][k].first;
+          const double c = pairRaw(a, h, k, f, false), al = ramp * FCTStored(store, ek, ed[ek].flip, 1, f);
+          if (f != 2) {
+            lhs += conv * wgt[ek][f] * c;
+            scale += std::fabs(conv * wgt[ek][f] * c);
+            if (!ed[ek].valid[f]) rhs += conv * wgt[ek][f] * c;
+          }
+          if (!ed[eh].valid[f]) continue;
+          const double cg = pairRaw(a, h, k, f, true);
+          S[eh][1 - xh][f] += al * cg;
+          Z[eh][1 - xh][f] += std::fabs(al * cg);
+          if (!ed[ek].valid[f]) {
+            S[eh][xh][f] += al * cg;
+            Z[eh][xh][f] += std::fabs(al * cg);
+          }
+        }
+        if (f != 2 && ed[eh].valid[f]) rhs += conv * wgt[eh][f] * selfRaw(a, h, f);
+        if (ed[eh].valid[f]) {
+          const double cs = FCTRefSelf(ref, nDim, a, h, f), al = ramp * FCTStored(store, eh, ed[eh].flip, 1, f);
+          S[eh][xh][f] += al * cs;
+          Z[eh][xh][f] += std::fabs(al * cs);
+        }
+      }
+      if (f != 2 && scale > 0) identity = std::max(identity, std::fabs(lhs - rhs) / scale);
+    }
+  }
+  for (unsigned long e = 0; e < ed.size(); ++e) {
+    const auto& r = ed[e];
+    for (int f = 0; f < 4; ++f) {
+      if (!r.valid[f]) continue;
+      const double pc = FCTStored(store, e, r.flip, 0, f), al = ramp * FCTStored(store, e, r.flip, 1, f);
+      const double own = al * pc * ((r.dy[f] >= 0) ? 1.0 : -1.0) * r.sigma[f];
+      for (int x = 0; x < 2; ++x) {
+        const double tot = own + S[e][x][f];
+        const double scale = r.rowCap[x][f] + std::fabs(r.dy[f]) + std::fabs(r.sigma[f]) + Z[e][x][f];
+        box = std::max(box, std::max(0.0, tot - r.rowCap[x][f]) / scale);
+      }
+    }
+  }
 }
 
 /*!

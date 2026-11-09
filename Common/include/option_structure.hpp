@@ -891,6 +891,18 @@ static const MapType<std::string, TECNO_ADJ_LIMITER> TeCNO_Adj_Limiter_Map = {
 };
 
 /*!
+ * \brief Bound of TECNO_ADJOINT_LIMITER= EDGE_ENTROPY_FCT (TECNO_ADJOINT_FCT_BOUND, ROE_TECNO_PLAN.md 6.13).
+ */
+enum class TECNO_ADJ_FCT_BOUND {
+  TWO_NODE,   /*!< \brief One box per edge, 2 min(A_0, A_1), A = max(beta, u, own jump) (S4c-S4e, default). */
+  NODE_INPUT, /*!< \brief One box per edge end with the amounts that reach the node, A = max(beta, u) + own jump, and the entropy own bound |l_c| <= |dy| (S4f). */
+};
+static const MapType<std::string, TECNO_ADJ_FCT_BOUND> TeCNO_Adj_FCT_Bound_Map = {
+  MakePair("TWO_NODE", TECNO_ADJ_FCT_BOUND::TWO_NODE)
+  MakePair("NODE_INPUT", TECNO_ADJ_FCT_BOUND::NODE_INPUT)
+};
+
+/*!
  * \brief Jacobian of the dissipation of EDGE_FORM_TECNO_ADJOINT (TECNO_ADJOINT_JACOBIAN).
  */
 enum class TECNO_ADJ_JACOBIAN {

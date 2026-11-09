@@ -1325,6 +1325,9 @@ struct FCTSetup {
  */
 struct FCTWork {
   su2activematrix A, Pm, rho, edge, buf, S, Ssize;
+  /*--- TECNO_ADJOINT_FCT_BOUND= NODE_INPUT (S4f, ROE_TECNO_PLAN.md 6.13), per (edge, local end y) at column 4 y + f: the cap
+   * of the row of end y, the near halves (invalid contributors and the self piece) of Pm, S and its size, and R per row. ---*/
+  su2activematrix rowCap, PmN, SN, SNsize, Rrow;
 };
 
 /*!
@@ -1549,7 +1552,7 @@ inline void FCTProject(unsigned short nDim, const FCTEdgeView& v, const su2doubl
  */
 template <class Geometry, class StoreType, class FieldType>
 void FCTEndCapacity(const Geometry& geometry, unsigned short nDim, const FCTSetup& setup, const StoreType& ing,
-                    const FieldType& W, su2activematrix& A) {
+                    const FieldType& W, su2activematrix& A, bool nodeInput = false) {
   const unsigned short nVar = nDim + 2;
   SU2_OMP_FOR_STAT(OMP_CHUNK)
   for (unsigned long a = 0; a < geometry.GetnPointDomain(); ++a) {
@@ -1588,7 +1591,9 @@ void FCTEndCapacity(const Geometry& geometry, unsigned short nDim, const FCTSetu
       for (unsigned short f = 0; f < TVD_NFIELD; ++f) {
         const su2double ratio = (v.lamFix[f] > 0.0) ? v.lam[f] / v.lamFix[f] : su2double(0.0);
         const su2double own = 0.5 * (1.0 - sx * ratio) * fabs(v.dy[f]);
-        A(iEdge, 4 * y + f) = fmax(cap[f], fmax(ub[f], own));
+        /*--- NODE_INPUT (S4f, D1): the star (coefficient <= 2 D) and the own jump (first-order coefficient) attach at the
+         * same time, A = max(beta, u) + own (the bar-state bound); TWO_NODE: the larger of the three. ---*/
+        A(iEdge, 4 * y + f) = nodeInput ? fmax(cap[f], ub[f]) + own : fmax(cap[f], fmax(ub[f], own));
       }
     }
   }
@@ -1630,7 +1635,8 @@ void FCTExchange(const Geometry& geometry, const FCTSetup& setup, su2activematri
  */
 template <class Geometry, class StoreType>
 void FCTEdgeOwn(const Geometry& geometry, unsigned short nDim, const FCTSetup& setup, const StoreType& ing,
-                const su2activematrix& A, su2activematrix& ed) {
+                const su2activematrix& A, su2activematrix& ed, bool nodeInput = false,
+                su2activematrix* rowCap = nullptr) {
   SU2_OMP_FOR_STAT(OMP_CHUNK)
   for (unsigned long iEdge = 0; iEdge < geometry.GetnEdge(); ++iEdge) {
     FCTEdgeView v;
@@ -1644,7 +1650,15 @@ void FCTEdgeOwn(const Geometry& geometry, unsigned short nDim, const FCTSetup& s
       const su2double cap = 2.0 * fmin(A(iEdge, 4 * y0 + f), A(iEdge, 4 * (1 - y0) + f)) + delta;
       const su2double sigma = 0.5 * (v.s[0][f] + v.s[1][f]);
       const su2double o = sg * sigma;
-      const su2double phic = (valid && (o > 0.0)) ? fmin(su2double(1.0), cap / o) : su2double(1.0);
+      su2double phic = (valid && (o > 0.0)) ? fmin(su2double(1.0), cap / o) : su2double(1.0);
+      if (nodeInput) {
+        /*--- S4f (D3): the entropy own bound |l_c| <= |dy| of every valid entry, phi_c o <= 2 |dy| (o > 0) and phi_c = 0
+         * (o <= 0), so that its production D (dy^2 + alpha (l_c^2 - dy^2)) is nonincreasing in alpha; the rows of the two
+         * ends get their own caps 2 A_y + delta (D2). ---*/
+        if (valid && (o > 0.0)) phic = fmin(phic, 2.0 * fabs(v.dy[f]) / o);
+        if (valid && !(o > 0.0)) phic = 0.0;
+        for (unsigned short y = 0; y < 2; ++y) (*rowCap)(iEdge, 4 * y + f) = 2.0 * A(iEdge, 4 * y + f) + delta;
+      }
       ed(iEdge, FCT_E_PHIC + f) = phic;
       ed(iEdge, FCT_E_CAP + f) = cap;
       ed(iEdge, FCT_E_O + f) = o;
@@ -1931,6 +1945,181 @@ void FCTAlphaIncrement(const Geometry& geometry, const su2activematrix& rho, su2
   END_SU2_OMP_FOR
 }
 
+/*--- TECNO_ADJOINT_FCT_BOUND= NODE_INPUT (S4f, ROE_TECNO_PLAN.md 6.13, D2): one box per edge END. The pair fluxes of the
+ * moment of node a (gam a_ab.Y_a on the edges of a) reach the other ends b; at a itself their sum is the self term
+ * -gam s_a.Y_a, s_a = sum_b a_ab. Exact decomposition of the antidiffusive input of node a (frozen field, scalar fields):
+ * the row (e, end at a) holds the own term, the pairs collected at the OTHER end of e (all contributors), the pairs at a of
+ * the contributors that are invalid in the field, and, if e is valid, its self piece c_self = 1/2 sg sigma (s_a . e_e) M_c,e
+ * / D_e (the pair formula with g replaced by s_a). Row box S_{e,y} <= 2 A_y + delta; the selection runs on the rows. ---*/
+
+/*!
+ * \brief Self piece of the edge h of the star in field f (0 within the rounding bound of s_a . e_h, the terms of
+ *        sum_k g_k . e_h; shear: the projection of its own moment vector on its own t with the guard of FCTPair).
+ */
+inline su2double FCTSelf(unsigned short nDim, const FCTNodeStar& st, size_t h, unsigned short f,
+                         const su2activematrix& ed) {
+  const auto& vh = st.view[h];
+  su2double sum[3] = {}, gAbs[3] = {};
+  for (size_t k = 0; k < st.edge.size(); ++k) {
+    for (unsigned short iDim = 0; iDim < nDim; ++iDim) {
+      sum[iDim] += st.g[k][iDim];
+      gAbs[iDim] += fabs(st.g[k][iDim]);
+    }
+  }
+  su2double pi = 0.0, size = 0.0;
+  for (unsigned short iDim = 0; iDim < nDim; ++iDim) {
+    pi += sum[iDim] * vh.e[iDim];
+    size += gAbs[iDim] * fabs(vh.e[iDim]);
+  }
+  const su2double nTerms = su2double(st.edge.size() + nDim + 2);
+  if (!(fabs(pi) > nTerms * std::numeric_limits<su2double>::epsilon() * size)) return 0.0;
+  pi *= st.sigma[h];
+  const su2double sg = (vh.dy[f] >= 0.0) ? 1.0 : -1.0;
+  su2double m = 0.0;
+  if (f == 2) {
+    su2double msize = 0.0;
+    for (unsigned short iDim = 0; iDim < nDim; ++iDim) {
+      m += vh.t[iDim] * ed(st.edge[h], FCT_E_MVEC + iDim);
+      msize += fabs(vh.t[iDim] * ed(st.edge[h], FCT_E_MVEC + iDim));
+    }
+    if (!(fabs(m) > (nDim + 2) * std::numeric_limits<su2double>::epsilon() * msize)) return 0.0;
+  } else {
+    m = ed(st.edge[h], FCT_E_MC + f);
+  }
+  return 0.5 * sg * pi * m / vh.D[f];
+}
+
+/*!
+ * \brief NODE_INPUT halves on the owned nodes, per (edge h at the node a, its local end y_h): with the current alpha
+ *        (pass 1: remaining = 1, weights unused) the far half F = sum over all contributors k at a of the positive parts
+ *        max(0, c) rem_k (work Pm, goes to the row of the other end), the near half N = the same over the invalid
+ *        contributors + max(0, c_self) rem_h (work PmN, row of end y_h); for the remaining passes also the weighted sums
+ *        S_F = sum alpha_k c, S_N = sum_{k invalid} alpha_k c + alpha_h c_self and their sizes. Only valid observers.
+ */
+template <class Geometry, class WeightType, class VolumeType, class StoreType>
+void FCTHalvesNodeInput(const Geometry& geometry, unsigned short nDim, const WeightType& weights,
+                        const VolumeType& volume, const StoreType& ing, const su2activematrix& ed, bool firstPass,
+                        FCTWork& work) {
+  FCTNodeStar st;
+  SU2_OMP_FOR_STAT(OMP_CHUNK)
+  for (unsigned long a = 0; a < geometry.GetnPointDomain(); ++a) {
+    FCTLoadStar(geometry, nDim, weights, volume, ing, a, st);
+    for (size_t h = 0; h < st.edge.size(); ++h) {
+      const auto eh = st.edge[h];
+      const unsigned short col0 = 4 * st.y[h];
+      for (unsigned short f = 0; f < TVD_NFIELD; ++f) {
+        su2double pF = 0.0, pN = 0.0, sF = 0.0, sFz = 0.0, sN = 0.0, sNz = 0.0;
+        if (ed(eh, FCT_E_VALID + f) != 0.0) {
+          for (size_t k = 0; k < st.edge.size(); ++k) {
+            const su2double c = FCTPair(nDim, st, h, k, f, ed);
+            const su2double alpha = firstPass ? su2double(0.0) : ed(st.edge[k], FCT_E_ALPHA + f);
+            const su2double pos = fmax(su2double(0.0), c) * (1.0 - alpha);
+            pF += pos;
+            sF += alpha * c;
+            sFz += fabs(alpha * c);
+            if (ed(st.edge[k], FCT_E_VALID + f) == 0.0) {
+              pN += pos;
+              sN += alpha * c;
+              sNz += fabs(alpha * c);
+            }
+          }
+          const su2double cs = FCTSelf(nDim, st, h, f, ed);
+          const su2double alpha = firstPass ? su2double(0.0) : ed(eh, FCT_E_ALPHA + f);
+          pN += fmax(su2double(0.0), cs) * (1.0 - alpha);
+          sN += alpha * cs;
+          sNz += fabs(alpha * cs);
+        }
+        work.Pm(eh, col0 + f) = pF;
+        work.PmN(eh, col0 + f) = pN;
+        if (!firstPass) {
+          work.S(eh, col0 + f) = sF;
+          work.Ssize(eh, col0 + f) = sFz;
+          work.SN(eh, col0 + f) = sN;
+          work.SNsize(eh, col0 + f) = sNz;
+        }
+      }
+    }
+  }
+  END_SU2_OMP_FOR
+}
+
+/*!
+ * \brief NODE_INPUT rows on every local edge: row y has the load P_y = N(y) + F(1 - y) and the capacity Q_y (pass 1: the
+ *        row cap; later passes: max(0, cap_y - S_y(alpha) - tau_y), S_y = alpha phi_c o + S_N(y) + S_F(1 - y), tau_y the
+ *        rounding bound of that sum as S4e); R_y = min(1, Q_y / P_y) (work Rrow), room_y = max(0, Q_y - R_y P_y),
+ *        a_e = min over the rows of min(1, room_y / (phi_c o (1 - alpha))) (FCT_E_AOWN).
+ */
+template <class Geometry>
+void FCTRowsNodeInput(const Geometry& geometry, const FCTSetup& setup, bool firstPass, FCTWork& work) {
+  auto& ed = work.edge;
+  SU2_OMP_FOR_STAT(OMP_CHUNK)
+  for (unsigned long iEdge = 0; iEdge < geometry.GetnEdge(); ++iEdge) {
+    const su2double nPairs = su2double(setup.degree[geometry.edges->GetNode(iEdge, 0)] +
+                                       setup.degree[geometry.edges->GetNode(iEdge, 1)]);
+    for (unsigned short f = 0; f < TVD_NFIELD; ++f) {
+      const bool valid = (ed(iEdge, FCT_E_VALID + f) != 0.0);
+      const su2double alpha = firstPass ? su2double(0.0) : ed(iEdge, FCT_E_ALPHA + f);
+      const su2double own = ed(iEdge, FCT_E_PHIC + f) * ed(iEdge, FCT_E_O + f);
+      const su2double den = own * (1.0 - alpha);
+      su2double aown = 1.0;
+      for (unsigned short y = 0; y < 2; ++y) {
+        const unsigned short cy = 4 * y + f, cf = 4 * (1 - y) + f;
+        const su2double cap = work.rowCap(iEdge, cy);
+        su2double Q = cap;
+        if (!firstPass) {
+          const su2double raw = cap - alpha * own - work.SN(iEdge, cy) - work.S(iEdge, cf);
+          const su2double tau = (nPairs + 3.0) * std::numeric_limits<su2double>::epsilon() *
+                                (cap + fabs(alpha * own) + work.SNsize(iEdge, cy) + work.Ssize(iEdge, cf));
+          Q = valid ? fmax(su2double(0.0), raw - tau) : su2double(0.0);
+        }
+        const su2double pm = work.PmN(iEdge, cy) + work.Pm(iEdge, cf);
+        const su2double R = (valid && (pm > Q)) ? Q / pm : su2double(1.0);
+        const su2double room = fmax(su2double(0.0), Q - R * pm);
+        work.Rrow(iEdge, cy) = R;
+        if (valid && (den > 0.0)) aown = fmin(aown, fmin(su2double(1.0), room / den));
+      }
+      ed(iEdge, FCT_E_AOWN + f) = aown;
+    }
+  }
+  END_SU2_OMP_FOR
+}
+
+/*!
+ * \brief NODE_INPUT observer minima on the owned nodes: rho of the contributor k at the node a (column 4 y_k + f) = min of
+ *        R of the rows it loads positively: R(h, other end of h) for every valid observer h at a with c_hk > 0, R(h, y_h)
+ *        as well if k is invalid in the field, and R(k, y_k) if k is valid with c_self > 0; 1 if none. Later passes:
+ *        only contributors with alpha < 1 (as S4e).
+ */
+template <class Geometry, class WeightType, class VolumeType, class StoreType>
+void FCTObserverMinNodeInput(const Geometry& geometry, unsigned short nDim, const WeightType& weights,
+                             const VolumeType& volume, const StoreType& ing, const su2activematrix& ed,
+                             const su2activematrix& Rrow, bool firstPass, su2activematrix& rho) {
+  FCTNodeStar st;
+  SU2_OMP_FOR_STAT(OMP_CHUNK)
+  for (unsigned long a = 0; a < geometry.GetnPointDomain(); ++a) {
+    FCTLoadStar(geometry, nDim, weights, volume, ing, a, st);
+    for (size_t k = 0; k < st.edge.size(); ++k) {
+      const auto ek = st.edge[k];
+      for (unsigned short f = 0; f < TVD_NFIELD; ++f) {
+        su2double m = 1.0;
+        if (firstPass || (ed(ek, FCT_E_ALPHA + f) < 1.0)) {
+          const bool kValid = (ed(ek, FCT_E_VALID + f) != 0.0);
+          for (size_t h = 0; h < st.edge.size(); ++h) {
+            const auto eh = st.edge[h];
+            if (ed(eh, FCT_E_VALID + f) == 0.0) continue;
+            if (!(FCTPair(nDim, st, h, k, f, ed) > 0.0)) continue;
+            m = fmin(m, Rrow(eh, 4 * (1 - st.y[h]) + f));
+            if (!kValid) m = fmin(m, Rrow(eh, 4 * st.y[h] + f));
+          }
+          if (kValid && (FCTSelf(nDim, st, k, f, ed) > 0.0)) m = fmin(m, Rrow(ek, 4 * st.y[k] + f));
+        }
+        rho(ek, 4 * st.y[k] + f) = m;
+      }
+    }
+  }
+  END_SU2_OMP_FOR
+}
+
 /*!
  * \brief Final pass on every local edge: alpha (FCT_E_ALPHA) and gamma = 1 - alpha (S4d), stored with phi_c in the local
  *        layout (FCT_PHIC, FCT_ALPHA, FCT_GAMMA + local field).
@@ -1966,7 +2155,33 @@ template <class Geometry, class WeightType, class VolumeType, class StoreType, c
           class Comm>
 void FCTPasses(const Geometry& geometry, unsigned short nDim, const WeightType& weights, const VolumeType& volume,
                const FCTSetup& setup, const StoreType& ing, const FieldType& W, FCTWork& work, PhiType& store,
-               Comm&& comm, unsigned short nPasses = 1) {
+               Comm&& comm, unsigned short nPasses = 1, bool nodeInput = false) {
+  if (nodeInput) {
+    /*--- TECNO_ADJOINT_FCT_BOUND= NODE_INPUT (S4f, ROE_TECNO_PLAN.md 6.13): exchanges in the order A -> {F, N} -> rows on
+     * every local edge -> rho -> alpha; each later pass {S_F, its size, F, S_N, its size, N} -> rows -> rho' -> alpha. ---*/
+    FCTEndCapacity(geometry, nDim, setup, ing, W, work.A, true);
+    FCTExchange(geometry, setup, work.A, work.buf, comm);
+    FCTEdgeOwn(geometry, nDim, setup, ing, work.A, work.edge, true, &work.rowCap);
+    for (unsigned short pass = 0; pass < nPasses; ++pass) {
+      const bool first = (pass == 0);
+      FCTHalvesNodeInput(geometry, nDim, weights, volume, ing, work.edge, first, work);
+      FCTExchange(geometry, setup, work.Pm, work.buf, comm);
+      FCTExchange(geometry, setup, work.PmN, work.buf, comm);
+      if (!first) {
+        FCTExchange(geometry, setup, work.S, work.buf, comm);
+        FCTExchange(geometry, setup, work.Ssize, work.buf, comm);
+        FCTExchange(geometry, setup, work.SN, work.buf, comm);
+        FCTExchange(geometry, setup, work.SNsize, work.buf, comm);
+      }
+      FCTRowsNodeInput(geometry, setup, first, work);
+      FCTObserverMinNodeInput(geometry, nDim, weights, volume, ing, work.edge, work.Rrow, first, work.rho);
+      FCTExchange(geometry, setup, work.rho, work.buf, comm);
+      if (first) FCTAlpha(geometry, work.rho, work.edge);
+      else FCTAlphaIncrement(geometry, work.rho, work.edge);
+    }
+    FCTFinal(geometry, nDim, ing, work.edge, store);
+    return;
+  }
   FCTEndCapacity(geometry, nDim, setup, ing, W, work.A);
   FCTExchange(geometry, setup, work.A, work.buf, comm);
   FCTEdgeOwn(geometry, nDim, setup, ing, work.A, work.edge);
@@ -1993,7 +2208,7 @@ void FCTPasses(const Geometry& geometry, unsigned short nDim, const WeightType& 
  * \brief Sizes the work arrays (serial: no exchange buffer).
  */
 template <class Geometry>
-void FCTWorkResize(const Geometry& geometry, const FCTSetup& setup, FCTWork& work) {
+void FCTWorkResize(const Geometry& geometry, const FCTSetup& setup, FCTWork& work, bool nodeInput = false) {
   const auto nEdge = geometry.GetnEdge();
   work.A.resize(nEdge, 8) = su2double(0.0);
   work.Pm.resize(nEdge, 8) = su2double(0.0);
@@ -2001,6 +2216,13 @@ void FCTWorkResize(const Geometry& geometry, const FCTSetup& setup, FCTWork& wor
   work.edge.resize(nEdge, FCT_E_WIDTH) = su2double(0.0);
   work.S.resize(nEdge, 8) = su2double(0.0);
   work.Ssize.resize(nEdge, 8) = su2double(0.0);
+  if (nodeInput) {
+    work.rowCap.resize(nEdge, 8) = su2double(0.0);
+    work.PmN.resize(nEdge, 8) = su2double(0.0);
+    work.SN.resize(nEdge, 8) = su2double(0.0);
+    work.SNsize.resize(nEdge, 8) = su2double(0.0);
+    work.Rrow.resize(nEdge, 8) = su2double(1.0);
+  }
   if (SU2_MPI::GetSize() > 1) work.buf.resize(geometry.GetnPoint(), 4 * std::max<unsigned short>(setup.maxDeg, 1)) = su2double(0.0);
 }
 
