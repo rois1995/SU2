@@ -41,25 +41,27 @@ match pinned hashes inA287/actual_runtime_startup.json. Cachehostquota4GiB,rank
 PUSHED startupcheckpointdaf3e29d10.
 Qualification explicitly full_mesh_accepted=false/actualcertificate_complete=false.
 
-LatestactualHOST1794185740:ALL11ownedidentities LIVE,load8.17/8CPUs,MemAvailable
-39.684GB,sampledtreeRSS8.934GB (notphysicalpeak). ALL1520pins unchanged
-inA287/pin_check_quality_window5.json; no compiledsource changes.
+LatestactualHOST1794186226:ALL11ownedidentities LIVE,load7.34/8CPUs,MemAvailable
+39.686GB,sampledtreeRSS8.943GB (notphysicalpeak). ALL1520pins unchanged
+inA287/pin_check_quality_window10.json; no compiledsource changes.
 Qualityentry23306/native573.762890:690804cells,27052q/27499J/localG1204/size0,
 ALLknown/flagscomplete, EXACT283entrycounts (oldnative783.249625).
-FIFTHcomplete qualitywindow23616/native1389.775754159:714635cells,
-13548q/12235J/localG1096/size0, ALLknown/flagscomplete.
-Counts/9676cumulativecommits EXACT283samewindow.
-Cumulativenetq13504/J15264/G108 removed in816.012864s
-(old1361.834525s), q16.5488/s vs9.9160/s;
-qremoved/commit1.3956, debtmax/mean1.16308,
-joincallwallshare0.459299 (NOTCPUidle). Traversal
-461.333Mvs470.232M;
+TENTHcomplete qualitywindow23936/native1942.401088520:725684cells,
+6217q/4940J/localG1023/size0, ALLknown/flagscomplete.
+Counts/18720cumulativecommits EXACT283samewindow.
+Cumulativenetq20835/J22559/G181 removed in1368.638198s
+(old2414.377385s), q15.2232/s vs8.6296/s;
+qremoved/commit1.1130, debtmax/mean1.48749,
+joincallwallshare0.460528 (NOTCPUidle). Traversal
+717.727Mvs731.169M;
 walltime difference cannot be solelycode. Counts/rates are completecensus values,
 NOTextrapolated live values or acceptance. Qualitychurn/location/ladder assertions
 PASS; existing counters only, no newinstrumentation/perf/GDB/baselinecampaign.
-Eight transfer/restart readinesspaths unchanged against actual287pins; NOTactual
-transfer/adaptedCFD/restartproof. KeepM6frozen and snapshots reviewable. No otherjob/
-implementation or demonstrated resourcepressure/authorizedstopcondition.
+Existing residualgeometry/size repair and shape reclosure remain mandatory BEFORE
+finalglobalBothcertificate. No cleanup273globalbenefit established; firstshape
+pass stillactive. Eight transfer/restart readinesspaths unchanged against actual
+287pins; NOTactual transfer/adaptedCFD/restartproof. KeepM6frozen and snapshots
+reviewable. No otherjob/implementation or demonstrated authorizedstopcondition.
 
 Connected production change ONLY CNativeBoundary3D.cpp's private planar boundary-
 segment/open-triangle intersection proof: exact triangle-edge and segment-line
