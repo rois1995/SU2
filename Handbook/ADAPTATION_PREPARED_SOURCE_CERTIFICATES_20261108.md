@@ -404,3 +404,29 @@ Do not layer a conditional point-winding policy. This is smaller than either fai
 variant and preserves measured cheap negative screening. Same exact oracle and
 shared notch/curved/hole/resource controls plus both actual directional comparisons
 must qualify before serial+ONE MPI milestone/fullsame-seed M6. No speedup claim yet.
+
+###287 bounded actual comparisons — both directions preserve bounds, modest work savings
+
+Build287passed33.108s; focused12cases/7281assertions52.692s; pinsunchanged/handles
+terminal. Production CFD SHA b6dae65a3ac3e0f74b4c8886872f90c4581d75dfc824cd1a21bbe9a1d3ce97dc.
+Source: ALL163356old domains retain EXACT bounds/decisions/order. Common charged
+work19,648,840→19,533,020 (-0.5894%);20Mcap completes164858vs163356domains.
+Reverse: ALL58737old domains retain EXACT bounds/decisions/order. Common work
+15,307,265→15,162,399 (-0.9464%);20Mcap completes60892vs58737domains.
+Sourcequery70.179s versus73.805s; reverse177.592s versus193.060s. This is modest
+bounded behavior evidence; no whole-run causal timing, fullcertificate or mesh
+acceptance claim. Both probes exhausted20M without a completed bound/outsideproof.
+Allpinsunchanged/all5actualhosthandles absent per probe. Restoredearlyguards avoid
+285/286reverse regressions. Serial287+ONE MPI6 then fullsame-seed M6 immediately;
+do not keep extending local variants because the measured savings are small.
+
+###287 connected qualification SEALED; full same-seed M6 next
+
+Serial90cases/67446assertions198.989s; ONE MPI6 milestone124cases EVERYrank217.203s,
+assertions72054/71127/71330/70947/71155/71208. Allpinsunchanged, all5serialhandles/
+all10MPIhandles actualHOSTverified absent. Focused12cases/7281assertions already
+passed. R/certification287_qualification.json seals fivecases, sameinput/bounds and
+small workreductionsBOTHdirections, oracle, source/binary/runtime/hash/terminalpins.
+Explicitfull_mesh_accepted=false/actual_saved_entity_certificate_complete=false.
+Qualified production code is cbaba0b675; push evidence then fullsame-seed TWO-event
+M6 immediately. No more local variants or extra MPI campaigns before outcome.

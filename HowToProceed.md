@@ -1,70 +1,56 @@
 # How to proceed
 
-Updated2026-11-09. **Zero accepted meshes.** [HANDOFF_Codex.md](HANDOFF_Codex.md)
-is the current source/build/input/handle authority. Completion remains TWO strict
-Euler50k meshes, conservative admissible transfer, finite adapted CFD and an actual
-isolated adapted disk restart; then dedicated BL/MPI and RANS500k.
+Updated2026-11-09. ZERO accepted meshes. [HANDOFF_Codex.md](HANDOFF_Codex.md) is the
+current source/build/input/handle authority. Completion remains TWO strict Euler50k
+meshes, conservative admissible transfer, finite adapted CFD and actual isolated
+adapted disk restart; then dedicated BL/MPI and RANS500k. All gates/budgets unchanged.
 
-Build283 is TERMINAL REFUSED, not frozen/live. All11actual host identities are
-terminal; all1520pinned source/build/runtime/input paths remain unchanged. Complete
-capture contains736019cells with zero q/J/local-geometry/size failures and no unknown
-measurements. This is local closure, not mandatory global geometry proof. No
-accepted mesh, transfer, adapted CFD or disk restart has occurred.
+Connected287certificate change is QUALIFIED: preserve all original early vertex
+coverage guards; replace general segment clipping in the planar boundary-interior
+proof with exact separating axes, reusing existing face orientation. No new geometry
+representation/config/scheduler or skipped final certificate. Earlier285/286point-
+winding removals regressed reverse work and are REJECTED, not layered into287.
 
-The active blocker is final two-sided geometry certification SPEED. Current287
-candidate preserves all original early vertex coverage checks and replaces only
-general segment clipping in the complete planar boundary-intersection proof with
-exact separating axes. Buildpassed; qualification ACTIVE, sources frozen. Earlier
-285/286vertex-winding removal variants had reverse-work regressions and are rejected.
-Read HANDOFF for actual handles; no speedup or acceptance claim until qualification
-and full same-seed TWO-event M6.
+Same actual283query bounds/order remain exact; common work falls only0.59%forward/
+0.95%reverse. BOTH20Mqueries still incomplete. Do not claim substantial closure or
+whole-run speedup. Focused12cases/7281assertions; serial90cases/67446assertions; ONE
+MPI6 milestone124cases EVERYrank passed. Source/binary/runtime/input pins unchanged,
+allowned handles terminal. Qualification explicitly is NOTmeshacceptance.
 
- Three full
-queries consumed~720s/rank in the final quiet interval; traversal~622–640s dominates
-scope preparation~52–59s and facet preparation~24–40s. Earlier queries returning does
-not establish their bounds were within tolerance. Test-only284nowseparates the actual third entity in each direction, using existing
-APIs, same20Mwork/8GiB/600s caps and complete283capture. BOTH exhaust work without
-proof: forward traversal19.649M/72.274s; reverse15.307M/121.810s. Nested forward
-coverage10.886Mwork/lift1.974M; reversecoverage5.582M/lift6.399M. Do not add nested
-counters. All owned handles terminal; productionCFD byte-identical283. Reuse this
-evidence to choose one bounded existing-path certificate improvement, especially
-exact footprint coverage. Conservative upper-only refusal is not a physical failure. No new baseline/perf/GDB campaign.
+Push evidence then immediately fullsame-seed TWO-event M6 via launch_m6287.py.
+No more local variants, baseline/perf/GDB campaigns or extra MPI campaign before
+its outcome. Keep source/helpers/binary/config/runtime/inputs frozen. Current
+handoff will record exact owned handles and startup pins. Native5400/outer14400,
+Mach-onlyL1/50k, savedREALCFDseed reused; verify61330coords/22fields against the
+qualified initial target. Judge wholefield q/J/geometry/size and countedwork/netbad
+removal persecond; hostcontention prevents walltime-alone code attribution.
 
-Preserve qualified283 graph-witness recovery, exact nonconvex early exit,277chord
-bounds and earlier construction/metric/ownership improvements. Select ONE connected
-correction from actual direction/cost evidence; qualify affected serial behavior
-and ONE MPI milestone, then immediately resume full same-seed TWO-event M6 with
-unchanged gates and native5400budget. No new scheduler/config/larger cavities,
-quality-aware construction, mandatory CAD or relaxed gates.
+283refused final globalBoth proof after localclosure of736019cells,allknown0q/J/
+localgeometry/size. Final~720s/rank dominated traversal, not ongoing localpolishing.
+All30rawfiles complete; all1520pins sealed before exactlyone ownedMPIstop; all11old
+identities terminal. NEVER repeat historical stop helpers. Noacceptedmesh/transfer/
+adaptedCFD/restart. Complete283rawgeometry query supports same-input diagnostics.
 
-The [cleanup investigation](Handbook/ADAPTATION_POST_REFINEMENT_CLEANUP_20261108.md)
-confirms an old clean-star selection/admission gap. Four actual262clean contexts
-establish three raw collapses and one collapse+optimizer replacement that remove
-one point and improve exact short-edge/directional measures under local strict
-gates. Other directions fail positivity/support/geometry. Physical regression
-versus conservative geometry refusal remains unresolved. Local witnesses do not
-establish a whole-mesh leading-edge cure.
+[Cleanup investigation](Handbook/ADAPTATION_POST_REFINEMENT_CLEANUP_20261108.md):
+original clean-star selection/admission gap confirmed; fouractual262clean contexts
+prove localpointremovals with strictchecks and better directional/shortedge measures.
+Other directions fail positivity/support/geometry. Integrated273cleanup qualified274
+is finite, conditional on stalledshape withgeometry/size/heightsclosed; NOTautomatic
+postrefinement cleanup or minimumedgegate.274/278/283NEVERran it; no wholefieldLE
+benefit established. Preserve it while activecertificatecycle finishes.
 
-Connected273cleanup is already integrated and qualified:274focused43685assertions/
-3cases, serial83cases/62978assertions, ONE MPI6 milestone117cases/rank. It supplies
-ONE finite shape-preserving raw-collapse opportunity when shape repair stalls with
-geometry/size/heights closed, using existing claims, versions, publication and
-ordinary Coarsen size admission plus strictly decreasing whole-patch short deficit.
-It does NOT run unconditionally after refinement or delay a strictly clean mesh.
-274,278 and283never executed it. Do not attribute any whole-field improvement to
-cleanup or widen its policy while final certification remains the active blocker.
+Latest meaningful verified mesh remains274/inspection/rejected_mesh.vtu (+su2),
+148781points/734806tets, captured nodalmetric9 SPD and knownq/J/localgeometry in
+CellData. Refused globalproof, notaccepted.262hasfourUNKNOWNq/J; no shapecertificate.
+No pertrial VTU required; export a new finalmesh when meaningfully useful.
 
-Latest meaningful independently validated mesh is build274/inspection/rejected_mesh.vtu
-(and.su2),148781points/734806tets, captured nodal metric9 and q/J/localgeometry in
-CellData. Refused final certificate; not accepted. Full283rawcapture is available;
-no per-trial VTU needed.262has four unknown q/J and is not shape-certified.
+After TWOaccepted: verify perfield/timelevel true massresidual<=1e-10, scaledtarget
+integraldefect<=1e-12 and admissibility; require finite continued ADAPTED CFD.
+Then isolate actualacceptedmesh/native_ref/matchingrestart in a newdir, ADAP_LOOP=NO,
+RESTART_SOL=YES,READ_BINARY_RESTART=YES; input/output restartbasenames must differ.
+Verifycoords/order<=1e-12,finitefields,positive density/internalenergy and continued
+CFD. Source readiness is not runtimeproof. Then dedicatedBL/constraints/MPI/RANS500k.
 
-After TWO accepted meshes, verify true mass residual<=1e-10 per transferred field/
-timelevel, scaled target-integral defect<=1e-12 and admissibility. Run finite adapted
-CFD, then isolate the actual accepted mesh/native_ref/matching restart and continue
-with ADAP_LOOP=NO, RESTART_SOL=YES, READ_BINARY_RESTART=YES; checkpoint input and
-restart output basenames must differ. Source readiness is not runtime proof.
-
-Shock allocation remains separate: sampled requested spacing~4–6%chord versus
-existing~3–4%. Cleanup does not strengthen shock demand. Other recovery/norm/
-gradation/geometry-metric hypotheses remain in[the backlog](Handbook/ADAPTATION_BACKLOG.md).
+Shockallocation stays separate: sampledtarget~4–6%chord versus existing~3–4%.
+Cleanup/certificate speedup does not strengthen shockdemand. Other hypotheses stay
+in[the backlog](Handbook/ADAPTATION_BACKLOG.md), not a competing cycle.
