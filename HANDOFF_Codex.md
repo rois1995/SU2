@@ -38,8 +38,23 @@ A287/initial_cfd_target_equivalence.json +initial_verifier_reuse.json. ORIGINAL-
 proof ONLY, not adaptedCFD/transfer. ALL6actual executableinodes and84mappedELFfiles
 match pinned hashes inA287/actual_runtime_startup.json. Cachehostquota4GiB,rank
 715827882bytes, nativeworkingstorage12GiB/rank unchanged. Startup/live evidence
-LOCAL; push reviewable checkpoint.
+PUSHED startupcheckpointdaf3e29d10.
 Qualification explicitly full_mesh_accepted=false/actualcertificate_complete=false.
+
+LatestactualHOST1794184996:ALL11ownedidentities LIVE,load7.54/8CPUs,MemAvailable
+39.881GB,sampledtreeRSS8.775GB (notphysicalpeak). ALL1520pins reverifiedunchanged
+inA287/pin_check_quality_window1.json. No actualresourcepressure/stopcondition.
+Qualityentry23306/native573.762890:690804cells,27052q/27499J/localG1204/size0,
+ALLknown/flagscomplete, EXACT283entrycounts (oldnative783.249625).
+FIRSTcomplete qualitywindow23360/native734.570102:699056cells,22725q/22530J,
+localG1183/size0, ALLknown/flagscomplete. Counts/1698commits EXACT283samewindow.
+Netq4327/J4969/G21 removed in160.807s (old258.636s), q26.908/s vs16.730/s;
+qremoved/commit2.548, debtmax/mean1.262, joincallwallshare.424 (NOTCPUidle).
+Traversal105.261M vs106.893M (-1.53%); walltimedifference cannotbe solelycode.
+Completeprefix/churn/location/ladder assertions PASS in existing frozen/qualitylive
+analyzers; firstevent/first uninterruptedqualitypass ONLY. Source audit's8transfer/
+restartpaths verified against actual287pins intransfer_restart_readiness_reuse.json;
+NOTactual transfer/adaptedCFD/restartproof. No newjob/implementation. CurrentdataLOCAL.
 
 Connected production change ONLY CNativeBoundary3D.cpp's private planar boundary-
 segment/open-triangle intersection proof: exact triangle-edge and segment-line
