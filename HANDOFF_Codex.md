@@ -38,17 +38,23 @@ Actual296cfg differs from actual293 ONLY ADAP_SUBITER2→1; native5400/outer1440
 Mach-only L1/50k, original saved seed and all gates/constraints unchanged. Initial
 61330coordinates/all22CFD+metric fields BIT-IDENTICAL qualified254/256, independently
 verified by verify_m6296_initial.py. Initial quality_entry round23306/native572.311s
-EXACT293 counts:690804tets,27052q-bad/27499J-bad/1204G-bad/0size. Eight qualitywindows match293 counts exactly; latestwindow23808/native1721.361s has
-8832q/7414J/1047G-bad, net q removal15.857/s versus15.776/s (~0.5%, no established
-gain), traversal WORK unchanged. All11 actualHOST identities reverified live this
-continuation; about37GiB MemAvailable. No stop/edit is justified by this partial
-performance result. First-window new counters1295contexts/3007preparedtrials/
-104reusedfaces; rejected-star hits0 as baseline.
+EXACT293 counts:690804tets,27052q-bad/27499J-bad/1204G-bad/0size. Thirteen qualitywindows match293 counts exactly; latestwindow24128/native2244.224s
+has2532q/1718J/973G-bad, net q removal14.666/s versus14.536/s (~0.9%, no established
+gain), traversal WORK unchanged. All11 actualHOST identities verified live this
+continuation; about37GiB MemAvailable. No stop/edit justified by partial performance.
+First-window counters1295contexts/3007preparedtrials/104reusedfaces; rejected-star
+hits0 as baseline. Source and all runtime helpers remain frozen.
 A296/first_boundary_reuse_observation.json seals current partial counters/prefixes.
 Read-only review found scope index also serves exact Upper seed/candidate order and
 joint finite footprints; no safe simple removal. DO NOTedit/stop frozen replay on
 partial evidence. Use analyze_m6296_stages.py and analyze_m6296_quality.py; preserve
 allcensuses/work/CPU evidence and wait for acceptedfirstAdapt/continuedCFD/checkpoint.
+Prepared UNEXECUTED validate_m6296_first_completion.py reuses293 independent saved-
+data checks for ONEactual296event, dynamic actual point/native cell counts, absolute
+transfer residual, finite/admissible matching continuedCDF and atomic independent
+checkpoint copy to m6_inputs/euler_adapted296_event1_v1. Transformation/compile
+self-check passed; invoke ONLY after actual terminal handles and accepted status
+are verified, with final stage parser updated. It does not claim event2/disk/BL/RANS.
 Do NOTuse historical293/291monitor/stop helpers or infer terminal from stale logs.
 
 boundary296_qualification.json PASSED: focused27cases/5877assertions, connected
