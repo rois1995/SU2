@@ -66,3 +66,25 @@ Compare work/progress at matching stages and explain trajectory changes. Commit
 counts/debt alone are insufficient (291 window:8246 q-bad retired,6859 introduced).
 Return to preserved adapted-CFD state after qualification; keep logical event
 identity and matching restart provenance explicit across isolated directories.
+
+## Actual completed first-event293 counters
+
+FIRST293 is accepted/transferred/persisted with finite adaptedCFD. Its independently
+verified matching mesh/reference/restart copy is staged57/m6_inputs/
+euler_adapted293_event1_v1; actual isolated disk restart still pending. Frozen
+driver already entered event2; preserve that outcome before pinned edits.
+
+first_event_performance_counters.json in293attempt seals exact first-event prefixes
+and comparisons to291. Native3640.719s versus2913535.671s; all164matching counts/flags/
+comparedwork exact. Boundary292056starsearches,8reusehits,395093candidates,17177moves;
+2174.545aggregate rank-seconds versus interior65.269. Scope364250misses/builds,
+1080.444aggregate rank-seconds; traversal4896.194rank-seconds. These overlapping
+clocks are NOTadditive and are not critical-path wall shares. They establish real
+boundary/scope work worth targeting, not a proven optimization or safe new cache.
+
+Further source review: RememberRejectedSmooth already limits retention to finite
+pure-shape rejection with no validity/edge/geometry failures and no exhausted
+atlas work/time or geometry_failure. Preserve that exclusion. Dependency-specific
+invalidation may reuse this existing set without a new scheduler, but complete
+old/new cavity dependencies, projected-association semantics, metric state and
+transient limits must be demonstrated first. No production change yet.
