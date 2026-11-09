@@ -41,20 +41,25 @@ match pinned hashes inA287/actual_runtime_startup.json. Cachehostquota4GiB,rank
 PUSHED startupcheckpointdaf3e29d10.
 Qualification explicitly full_mesh_accepted=false/actualcertificate_complete=false.
 
-LatestactualHOST1794184996:ALL11ownedidentities LIVE,load7.54/8CPUs,MemAvailable
-39.881GB,sampledtreeRSS8.775GB (notphysicalpeak). ALL1520pins reverifiedunchanged
-inA287/pin_check_quality_window1.json. No actualresourcepressure/stopcondition.
+LatestactualHOST1794185457:ALL11ownedidentities LIVE,load7.30/8CPUs,MemAvailable
+39.781GB,sampledtreeRSS8.921GB (notphysicalpeak). ALL1520pins reverifiedunchanged
+inA287/pin_check_quality_window3.json. No observedresourcepressure/stopcondition.
 Qualityentry23306/native573.762890:690804cells,27052q/27499J/localG1204/size0,
 ALLknown/flagscomplete, EXACT283entrycounts (oldnative783.249625).
-FIRSTcomplete qualitywindow23360/native734.570102:699056cells,22725q/22530J,
-localG1183/size0, ALLknown/flagscomplete. Counts/1698commits EXACT283samewindow.
-Netq4327/J4969/G21 removed in160.807s (old258.636s), q26.908/s vs16.730/s;
-qremoved/commit2.548, debtmax/mean1.262, joincallwallshare.424 (NOTCPUidle).
-Traversal105.261M vs106.893M (-1.53%); walltimedifference cannotbe solelycode.
-Completeprefix/churn/location/ladder assertions PASS in existing frozen/qualitylive
-analyzers; firstevent/first uninterruptedqualitypass ONLY. Source audit's8transfer/
-restartpaths verified against actual287pins intransfer_restart_readiness_reuse.json;
-NOTactual transfer/adaptedCFD/restartproof. No newjob/implementation. CurrentdataLOCAL.
+THIRDcomplete qualitywindow23488/native1097.106411:708230cells,17888q/16900J,
+localG1144/size0, ALLknown/flagscomplete; ownershipcommitted1107.335627 preserves
+allflags/counts. Counts/5543cumulativecommits EXACT283samewindow.
+Cumulativenetq9164/J10599/G60 removed in523.343521s (old851.539423s),
+q17.5105/s vs10.7617/s; qremoved/commit1.6533, debtmax/mean1.18294,
+joincallwallshare.458825 (NOTCPUidle). Traversal318.391Mvs324.591M(-1.91%);
+walltimedifference cannotbe solelycode. Secondwindow qretired19572/introduced16914
+net2658; nostuck/missingfeatures. Mostremainingqinterior; shortedgecorrelation NOT
+constructioncausality. Currentthirdwindowlocation/ladder/churn ledger preserved
+inquality_counter_assessment.json and complete rawprefixes; no newinstrumentation.
+Completeprefix/churn/location/ladder assertions PASS in existing analyzers;
+firstevent/first uninterruptedqualitypass ONLY. Eight unchangedtransfer/restart
+readinesspaths match actual287pins, NOTactual transfer/adaptedCFD/restartproof.
+CurrentprogressdataLOCAL; push checkpoint. KeepM6frozen; no otherjob/implementation.
 
 Connected production change ONLY CNativeBoundary3D.cpp's private planar boundary-
 segment/open-triangle intersection proof: exact triangle-edge and segment-line
