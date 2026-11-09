@@ -41,9 +41,10 @@ match pinned hashes inA287/actual_runtime_startup.json. Cachehostquota4GiB,rank
 PUSHED startupcheckpointdaf3e29d10.
 Qualification explicitly full_mesh_accepted=false/actualcertificate_complete=false.
 
-LatestactualHOST1794187402:ALL11ownedidentities LIVE,load6.94/8CPUs,MemAvailable
-37.207GB,sampledtreeRSS11.491GB (notphysicalpeak). ALL1520pins unchanged
-inA287/pin_check_quality_tail.json. Compiledsources/helpers remain FROZEN.
+LatestactualHOST1794188305:ALL11ownedidentities LIVE,load8.12/8CPUs,MemAvailable
+37.115GB,sampledtreeRSS11.553GB (notphysicalpeak). ALL1520pins unchanged
+inA287/quiet_tail_live_observation.json. Compiledsources/helpers remain FROZEN.
+Atjobelapsed4228.648s, no nativesummary/refusal; cycle0stillactive.
 LATESTcomplete census quality_entry25203/native2924.517556179:736322cells,
 2q/2J/localG0/size0, ALLknown/flagscomplete. Previousconstruction census had8UNKNOWN
 q/J afterfinalsplit; never call its printedzeros shapeclosure. Reassessment found
@@ -65,7 +66,7 @@ comparison ONLYfirstuninterruptedpass; geometryconstructionchangescounts elsewhe
 Actualfirstpassendedearlierthan283 (old4201.702643s,10q/4J/G929), differentmesh/state.
 Eight unchangedtransfer/restartreadinesspaths match actual287pins; NOTactual
 transfer/adaptedCFD/restartproof. No currentrefusal/stagnation/resourcepressure
-justifiesstop. Currentquiet-taildataLOCAL; pushcheckpoint andkeepfrozen.
+justifiesstop. Quiet-tail evidence retained in currentcheckpoint; keepfrozen.
 Backlog has UNSELECTED forward-proof reuse across reverse-target refinement;
 source retry confirmed, actualM6use/savings NOTestablished. Notanotheractivecycle.
 
