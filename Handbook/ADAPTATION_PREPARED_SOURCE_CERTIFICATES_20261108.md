@@ -430,3 +430,20 @@ small workreductionsBOTHdirections, oracle, source/binary/runtime/hash/terminalp
 Explicitfull_mesh_accepted=false/actual_saved_entity_certificate_complete=false.
 Qualified production code is cbaba0b675; push evidence then fullsame-seed TWO-event
 M6 immediately. No more local variants or extra MPI campaigns before outcome.
+
+###287 terminal and current-source replay: residual tolerance hypothesis
+
+FullM6 refused globalBoth on elapsedtime at736323tets with ALLknown local q/J/G/size
+zero. Allownedhandles terminal; all1520pins unchanged. Threefullqueries/rank took
+~2420s,168–172M traversalwork. No acceptedmesh/transfer/restart. See terminal diagnosis.
+Current physicalsurface differs from283:37202reference/53512physicalfaces reconstructed
+bitexactly from all30hashsealed captures. Existing sourcequery at20M/8GiB/600s exhausts
+work:82448domains,92.7799% equalfacet PARAMETERarea certified, notpartialacceptance.
+All9physicalgraph witnesses accepted after existingtrim; further branchclosure deferred.
+9498unresolveddomains had flatgraph upper<=tol but composedcurved upper>tol, costing
+4.092Mupperwork. Existing flatquery stops at fulltol before adding chorderror. Test ONE
+per-call residualaccuracy searchhint, retaining bestvalidupper, fullnetfallback and
+outwardcomposed acceptance. Goal must NOTreplace bestwitness cutoff or cacheidentity.
+Samecurrentquery fixed20M must demonstrate substantial proofprogress; no assumedgain.
+Cleanup273 remains qualified but never executed in274/278/283/287; local feasible
+replacements do not prove globalLEbenefit. Missing shocktarget allocation stays separate.

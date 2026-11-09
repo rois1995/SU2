@@ -1,0 +1,20 @@
+{
+  "time": 1794189659.0405326,
+  "attempts": 1,
+  "signal_sent": true,
+  "target": {
+    "pid": 1243218,
+    "rss_bytes": 15708160,
+    "name": "mpirun",
+    "start_ticks": 22852005,
+    "state": "S",
+    "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build287_exact_face_coverage_mach_only_real_cfd50k",
+    "exe": "/usr/bin/orterun",
+    "argv": "mpirun --output-filename rank_output -n 6 /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver [NativeSelectedFailureWorkflow3D] "
+  },
+  "capture_ready_sha256": "8bd8e1341cc497389ff0c070e62fe84cf449c922df238956d81622987d59ea00",
+  "pins_verified_before_stop": true,
+  "reason": "Explicitfirsteventrefusal preventsTWOaccepted events;all30filesFULLYsealed,complete localnativecensus andALL1520pinsverifiedbeforestop. Finalglobaltwo-sidedgeometrycertificate exceededtimebudget; noneaccepted. StoponlyverifiedMPIonce.",
+  "stop_helper_sha256": "5c04a8b58ab930f0557a7be68a179e99bfa606545d803130da79dd8f6d2f01c4",
+  "state": "one_pidfd_SIGTERM_sent"
+}

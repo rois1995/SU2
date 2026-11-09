@@ -17,14 +17,28 @@ whole-run speedup. Focused12cases/7281assertions; serial90cases/67446assertions;
 MPI6 milestone124cases EVERYrank passed. Source/binary/runtime/input pins unchanged,
 allowned handles terminal. Qualification explicitly is NOTmeshacceptance.
 
-Qualification PUSHED6dfc9e73f7. Fullsame-seed TWO-event M6 build287 is LIVE/FROZEN
-(tool65435; exact11owned identities/all1520pins in HANDOFF and owned_startup.json).
-No more local variants, baseline/perf/GDB campaigns or extra MPI campaign before
-its outcome. Keep source/helpers/binary/config/runtime/inputs frozen. Current
-handoff will record exact owned handles and startup pins. Native5400/outer14400,
-Mach-onlyL1/50k, savedREALCFDseed reused; verify61330coords/22fields against the
-qualified initial target. Judge wholefield q/J/geometry/size and countedwork/netbad
-removal persecond; hostcontention prevents walltime-alone code attribution.
+Full287 is TERMINAL REFUSED, notlive. All11ownedidentities areterminal, all1520pins
+unchanged, all30rawfiles complete736323cells/metrics/noomissions. Exactlyoneverified
+ownedMPIstop after explicitrefusal/capture; NEVERrepeat stophelpers. Nativeexit
+5346.697s hasallknown0q/J/LOCALgeometry/size, but mandatory globalBoth remains
+incomplete. Noacceptedmesh/transfer/adaptedCFD/restart. Fullcertainty is unchanged.
+
+The quiettail is now confirmed: ~2s privateclosure, then~2420s/rank in3fullqueries;
+~2342–2357s traversal. Finalcertificate SPEED/algorithmic proofwork remains blocker.
+No widercleanup/construction/shape variant or higherbudget isjustified by thisoutcome.
+Prepareactualcurrentquery (37202reference/53512physicalwingfaces), inspect existing
+prepared graph rejection/traversal counters under same20M/8GiB/600s diagnosticcaps,
+and select ONE demonstrated connectedcorrection. Optional branch-elimination
+closure is only a hypothesis until actualcurrentquery confirmsmissingwitnesses;
+strictconstructor/fulltriangles/support/association/body/height/finalBoth gates stay.
+No new scheduler/config/largercavity/geometryrepresentation. Existing unselected
+forward-proof reuse and duplicatequery ideas remaininbacklog. ONEactivecycle/job.
+After affectedserial+ONE MPI milestone, immediately fullsame-seed TWOeventM6 again.
+
+Counts/operations matched283 ONLYthroughround24000,firstdiverged24064; latermatching
+rounds aredifferentworkloads. Initial61330coords/22fields matchqualifiedMach-only
+L1/50k seed exactly. Do not attribute walltimedifferences solelytocode or useold283
+physicalquery ascurrent287geometry. Native5400/outer14400/allgates unchanged.
 
 283refused final globalBoth proof after localclosure of736019cells,allknown0q/J/
 localgeometry/size. Final~720s/rank dominated traversal, not ongoing localpolishing.

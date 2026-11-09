@@ -17,58 +17,56 @@ A287=`R/m6_runs/euler_build287_exact_face_coverage_mach_only_real_cfd50k`.
 A283=`R/m6_runs/euler_build283_pinched_graph_witness_mach_only_real_cfd50k`.
 A274=`R/m6_runs/euler_build274_metric_cleanup_mach_only_real_cfd50k`.
 
-## CURRENT —287 full same-seed TWO-event M6 LIVE/FROZEN
+## CURRENT —287 TERMINAL REFUSED; final certification speed remains blocker
 
-Qualification SEALED/PUSHED6dfc9e73f7, sourcecbaba0b675. Full287 ACTIVE tool65435;
-ONE owned heavy workload. Exact actualHOSTstartup tree inA287/owned_startup.json,
-all1520source/build/runtime/config/input pins verifiedunchanged atstartup.
-Wrapper1242721/start22850740; runner1243010/start22851483;
-time1243216/timeout1243217/MPI1243218 allstart22852005;
-ranks1243221–1243225/start22852008,rank1243226/start22852009.
-ConfigSHA5ad2dc1d9a1cd8bff87f633617b191b50defbc261ab3d0b2ed0987a34722b89e,
-EXACTsame283config. Mach-onlyL1/50k savedREALCFDseed, TWOevents,native5400/outer14400.
-Allcompiled/executing/pinned code/helpers/binary/runtime/config/inputs FROZEN.
-Do not introduce another implementation/build/test while it runs. Let terminal
-outcome or preserved existing authorizedstop evidence drive next work. Current
-run/status and actualPID+startticks govern; never repeat historicalstophelpers.
-Atlaunch load1.13,MemAvailable48.610GB,diskfree122.610GB. FirstCFDCL.269535/CD.013536,
-metric recovery0.361s, all61330fits withoutWLSfallback. Initialrestart verification
-PASSED:61330coords/22fields BIT-IDENTICAL256/qualified254target,SENSOR_MACHonly.
-A287/initial_cfd_target_equivalence.json +initial_verifier_reuse.json. ORIGINAL-grid
-proof ONLY, not adaptedCFD/transfer. ALL6actual executableinodes and84mappedELFfiles
-match pinned hashes inA287/actual_runtime_startup.json. Cachehostquota4GiB,rank
-715827882bytes, nativeworkingstorage12GiB/rank unchanged. Startup/live evidence
-PUSHED startupcheckpointdaf3e29d10.
-Qualification explicitly full_mesh_accepted=false/actualcertificate_complete=false.
+ZERO accepted meshes. Firstevent REFUSED mandatory globalBoth geometry certificate
+on elapsedtime, feasibility UNDETERMINED. Exit25210/native5346.697059773:
+736323cells,0q/0J/0LOCALgeometry/0size, ALLknown/flagscomplete. No transfer/adaptedCFD/
+restartproof. Postrefusal original-grid continuation is NOTadaptedCFD.
+Lastcomplete prequietqualityentry25203/native2924.517556 had2q/2J/G0/size0. Sevenmore
+rounds/+1tet close localshape: onlyrank5private90uppercalls/1.702s,6commits,1boundary+
+1interiormove. Then ALLsixranks spend3fullqueries/~2420.1s each, traversal168.4–171.9M/
+2342.4–2357.1s; scope43–45s,facet18–30s. Therefore quiettail was globalcertificate,
+not continuedpolishing. Thirdentity byorderedquerycount; direction/repeatedreverse
+refinement NOTidentified by aggregatecounters. A287/terminal_certification_diagnosis.json.
+Speed/algorithmic proof work is nexttarget, not more shape variants, construction,
+coarsening eligibility or raised limits. Cleanup NEVERlogged; no globalLEbenefit.
 
-LatestactualHOST1794188305:ALL11ownedidentities LIVE,load8.12/8CPUs,MemAvailable
-37.115GB,sampledtreeRSS11.553GB (notphysicalpeak). ALL1520pins unchanged
-inA287/quiet_tail_live_observation.json. Compiledsources/helpers remain FROZEN.
-Atjobelapsed4228.648s, no nativesummary/refusal; cycle0stillactive.
-LATESTcomplete census quality_entry25203/native2924.517556179:736322cells,
-2q/2J/localG0/size0, ALLknown/flagscomplete. Previousconstruction census had8UNKNOWN
-q/J afterfinalsplit; never call its printedzeros shapeclosure. Reassessment found
-these2q/2J. Last observedmetric_cleanup events NONE; do not infer it executed.
-Firstshape pass quality_exit24513/native2559.095769:733163cells,10q/4J/G945/size0;
-NOTshapeclosure. Existing geometry returns reducedG945→551→336→71→50→30→4→0,
-reopening q/J on changedcavities; allhard final gates retained. Subsequent reclosure
-stillrequired. Lastcomplete fullyshapeclean state25202 had0q/JbutG4.
-QUIETTAIL: No newcompletecensus afterquality_entry25203. Could be private finalshape
-repair OR finalwhole-surfaceBothproof after internalclosure. finish() certifies
-BEFORE exit telemetry, so lastq2/J2 neednotbe livecurrentcounts. NOdynamicstage/
-directionproof, noacceptedmesh. AllrankRSSgrew, supportsbutdoesnotprove globalwork.
-Wait outcome/complete counters; no perf/GDB/instrumentation or stopfromquietlogs.
-IMPORTANT counts/operations match283 ONLYTHROUGHround24000. FIRSTdivergence24064:
-new729691cells/3545q/2514J/984G vsold729895/3481q/2416J/983G. Later matchingrounds
-are DIFFERENTworkloads; no pure kernel/causal walltimeclaim. Cause unresolved.
-Existing completeprefix/churn/location/ladder assertions PASS, cumulativequality
-comparison ONLYfirstuninterruptedpass; geometryconstructionchangescounts elsewhere.
-Actualfirstpassendedearlierthan283 (old4201.702643s,10q/4J/G929), differentmesh/state.
-Eight unchangedtransfer/restartreadinesspaths match actual287pins; NOTactual
-transfer/adaptedCFD/restartproof. No currentrefusal/stagnation/resourcepressure
-justifiesstop. Quiet-tail evidence retained in currentcheckpoint; keepfrozen.
-Backlog has UNSELECTED forward-proof reuse across reverse-target refinement;
-source retry confirmed, actualM6use/savings NOTestablished. Notanotheractivecycle.
+ALL30rawfiles COMPLETE/736323rows/metrics/noomissions within128MiB/filecaps.
+ALL1520pins SEALED inA287/capture_ready.json+pin_check_before_owned_stop.json.
+EXACTLYONEpidfdSIGTERM to MPI1243218/start22852005 AFTERrefusal+sealedcapture.
+A287/owned_stop_once.json; NEVERrerun seal_stop_m6287.py or anyhistoricalstop.
+Main65435 TERMINAL1/5589.211461s,pins_verified=true,changed=[],workflow_accepted=false.
+ALL11actualHOSTidentities TERMINAL/absent inA287/terminal_handles.json. Sourcefreeze
+released; NO C++changes yet. Fullterminal/stop/diagnosis evidenceLOCAL, pushcheckpoint.
+Qualificationcode cbaba0b675 /qualification6dfc9e73f7 PUSHED; startupdaf3e29d10,
+progressb071376231/1905a9b4a0/18662b3f2a/cb96f6524d andquiet7c170fa1f9/abe90d98c1PUSHED.
+
+Activecycle: current actual thirdentity replay TERMINAL. Preparation84286/13.327s:
+37202reference facets/53512physicalfaces, bitexactcoordinates, all30sealedrawfiles.
+Probe95076/94.736s, case geometry_current_queries_20261109T020817_1454632:
+20Mwork exhausted,83.042s query,19.735M traversal/81.156s. Pinsunchanged/all5HOST
+handles absent. Physicaltarget36groups/9accepted/0invalid/0storage refusals;
+3groups recovered by existingtrim. Further graphbranchclosure NOTselected.
+82448completed domains,32026unresolved; equaloriginalfacet PARAMETERarea92.7799%
+certified (NOTphysicalarea/partialacceptance). Trace identifies9498unresolvedsource
+domains with passingflatgraph witness but failed composedcurvedbound,4.092Mupperwork.
+This proves curvature-margin misses, not existenceofbetterwitness or speedup.
+ONE candidate: per-call residual-tolerance SEARCHGOAL for curvedchord Upper, keeping
+bestvalidwitness, separatecutoff, defaultallothercallers, outwardfinalsum and full
+control-netfallback. No change support/cacheidentity/gate/budget. Test SAMEactual287
+query at20M before claiming usefulgain; reject marginal/regressive result. Readonly
+Luna calleraudit confirms only forwardchord needsgoal; reverse/defaultunchanged.
+After justifiedcorrection: affectedserial+ONE MPI milestone, immediately fullsame-seed
+TWOeventM6. No competingcleanup/construction/scheduler cycle. Otherhypotheses backlog.
+
+CFD/target provenance unchanged: Mach-onlyL1/50k same savedREALCFDseed,61330coords/
+22fields BIT-IDENTICAL256/qualified254target,SENSOR_MACHonly,CL.269535/CD.013536.
+Original-grid proof only. All6actualexecutables+84mappedELFfiles matchedpins atstartup.
+Cachehostquota4GiB/rank715827882B,nativeworkingstorage12GiB/rank, native5400/outer14400.
+Actual /proc/ps MUSTrequire_escalated; sandboxabsence previouslyfalse-terminal.
+Neverinfer termination fromelapsed/stalelogs. Source/build/runtime/input hashesbelow.
+Eight unchangedtransfer/restart readinesspaths matchedactual287pins; NOTexecutionproof.
 
 Connected production change ONLY CNativeBoundary3D.cpp's private planar boundary-
 segment/open-triangle intersection proof: exact triangle-edge and segment-line

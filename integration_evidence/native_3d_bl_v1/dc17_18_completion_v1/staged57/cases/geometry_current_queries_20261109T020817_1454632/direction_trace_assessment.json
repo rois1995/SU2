@@ -1,0 +1,143 @@
+{
+  "schema": "native_actual_source_certificate_trace_v1",
+  "case": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/geometry_current_queries_20261109T020817_1454632",
+  "source_log_sha256": "bc2908398e9ebbad98e23f1a07fdc33736cd8b7457dc2864363834bf30871560",
+  "graphs": [
+    "NATIVE_SURFACE_MODEL pieces=0 witness=0 full=0 prepared=0 work=53512",
+    "NATIVE_SURFACE_PLANES triangles=53512 groups=36 accepted=9 invalid=0 storage_refused=0 boundary_trimmed=3 trimmed_triangles=61"
+  ],
+  "query": {
+    "queried": true,
+    "complete": false,
+    "within_tolerance": false,
+    "work": 19999787,
+    "seconds": 83.042012521,
+    "traversal_work": 19734593,
+    "traversal_seconds": 81.156396763,
+    "model_bound": -1,
+    "work_exhausted": true
+  },
+  "domain_counts_by_depth": {
+    "0": 37202,
+    "1": 12924,
+    "2": 20716,
+    "3": 8108,
+    "4": 3498
+  },
+  "certified_domains_by_depth": {
+    "0": 33020,
+    "1": 3451,
+    "2": 9235,
+    "3": 3211,
+    "4": 1505
+  },
+  "certified_equal_facet_parameter_share": 0.9277992656644805,
+  "coverage_caveat": "Equal original-facet parameter area, not physical area, no completed certificate.",
+  "complete_domains": 82448,
+  "unresolved_domains": 32026,
+  "passing_flat_graph_but_curved_bound_unresolved": {
+    "domains": 9498,
+    "upper_work": 4091854,
+    "graph_calls": 19681
+  },
+  "examples": [
+    {
+      "facet": 10231,
+      "depth": 0,
+      "curved_upper": 0.00012735331564641813,
+      "best_flat_graph_upper": 9.203131616531936e-05,
+      "parameter": "1,0,0;0,1,0;0,0,1;\n",
+      "upper_work": 300
+    },
+    {
+      "facet": 10249,
+      "depth": 0,
+      "curved_upper": 0.00012888127523512984,
+      "best_flat_graph_upper": 9.31430955036371e-05,
+      "parameter": "1,0,0;0,1,0;0,0,1;\n",
+      "upper_work": 302
+    },
+    {
+      "facet": 10285,
+      "depth": 0,
+      "curved_upper": 0.0001319453171527528,
+      "best_flat_graph_upper": 9.536132507308362e-05,
+      "parameter": "1,0,0;0,1,0;0,0,1;\n",
+      "upper_work": 281
+    },
+    {
+      "facet": 10438,
+      "depth": 0,
+      "curved_upper": 0.00013628399583422482,
+      "best_flat_graph_upper": 9.58190063394036e-05,
+      "parameter": "1,0,0;0,1,0;0,0,1;\n",
+      "upper_work": 348
+    },
+    {
+      "facet": 10793,
+      "depth": 0,
+      "curved_upper": 0.00011143880858813396,
+      "best_flat_graph_upper": 6.788099460155583e-05,
+      "parameter": "1,0,0;0,1,0;0,0,1;\n",
+      "upper_work": 306
+    },
+    {
+      "facet": 10803,
+      "depth": 0,
+      "curved_upper": 0.00011175786196501058,
+      "best_flat_graph_upper": 6.7928381555993e-05,
+      "parameter": "1,0,0;0,1,0;0,0,1;\n",
+      "upper_work": 305
+    },
+    {
+      "facet": 10957,
+      "depth": 0,
+      "curved_upper": 0.00012324027665102497,
+      "best_flat_graph_upper": 6.743646312074981e-05,
+      "parameter": "1,0,0;0,1,0;0,0,1;\n",
+      "upper_work": 303
+    },
+    {
+      "facet": 10977,
+      "depth": 0,
+      "curved_upper": 0.00014044219125136442,
+      "best_flat_graph_upper": 8.357633891068932e-05,
+      "parameter": "1,0,0;0,1,0;0,0,1;\n",
+      "upper_work": 352
+    },
+    {
+      "facet": 11007,
+      "depth": 0,
+      "curved_upper": 0.000117570633170472,
+      "best_flat_graph_upper": 5.9274548604253614e-05,
+      "parameter": "1,0,0;0,1,0;0,0,1;\n",
+      "upper_work": 381
+    },
+    {
+      "facet": 17536,
+      "depth": 0,
+      "curved_upper": 0.00010553574619794051,
+      "best_flat_graph_upper": 4.779638676519429e-05,
+      "parameter": "1,0,0;0,1,0;0,0,1;\n",
+      "upper_work": 421
+    },
+    {
+      "facet": 17538,
+      "depth": 0,
+      "curved_upper": 0.000143053645713414,
+      "best_flat_graph_upper": 8.64158826246803e-05,
+      "parameter": "1,0,0;0,1,0;0,0,1;\n",
+      "upper_work": 362
+    },
+    {
+      "facet": 17540,
+      "depth": 0,
+      "curved_upper": 0.00010131447951522832,
+      "best_flat_graph_upper": 4.5188204774649184e-05,
+      "parameter": "1,0,0;0,1,0;0,0,1;\n",
+      "upper_work": 332
+    }
+  ],
+  "inference": "For completed unresolved source domains, any passing graph witness belongs to chord trial: a passing N10 control-hull witness would make final upper pass. Curvature consumes remaining tolerance. This proves margin misses, not existence of a tighter witness or established speedup. Seed triangle early returns without graph trace are not counted.",
+  "full_mesh_accepted": false
+}
