@@ -45,10 +45,10 @@ comparison291_matching_stages.json and stage_parser_reuse.json seal existingpars
 reuse/prefixhashes. Read-only transfer_restart_readiness_reuse.json verifies seven
 unchangedpins; driverdiff reviewed for outputbudget propagation only. Actualnewrun
 transfer/continuedCFD/restart remainUNPROVED.
-Latest completewindow23552/native1250.531s:711604cells,15422q-bad/14267J-bad/
-1118geometry-bad/0size-bad; allknown/complete. All91matchingstages EXACTcounts/flags/
-comparedwork versus291. All11actualidentities stilllive, sampledtreeRSS9.050GB,
-hostavailable~36.9GiB. No stopcondition demonstrated. Continue frozen293; do not
+Latest completewindow23936/native1943.812s:725684cells,6217q-bad/4940J-bad/
+1023geometry-bad/0size-bad; allknown/complete. All97matchingstages EXACTcounts/flags/
+comparedwork versus291. All11actualidentities stilllive, sampledtreeRSS9.051GB,
+hostavailable~36.8GiB. No stopcondition demonstrated. Continue frozen293; do not
 start anotherjob. Existingparser remains first-event-only; followingevents require
 separate event-specific acceptance/transfer/continuedCFD audit.
 
