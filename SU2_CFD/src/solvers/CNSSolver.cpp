@@ -900,6 +900,13 @@ void CNSSolver::BC_HeatFlux_Wall_Generic(const CGeometry* geometry, const CConfi
     for (auto iDim = 0u; iDim < nDim; iDim++)
       UnitNormal[iDim] = -Normal[iDim]/Area;
 
+    /*--- EULER_WALL_CREASE_NORMALS (ROE_TECNO_PLAN.md 6.14): at a crease point |sum N| is a cancellation residue of the
+     * dual area; the prescribed flux acts on the wetted area, the sum of the corner-vector magnitudes (static grid). ---*/
+    if (config->GetEuler_Wall_Crease_Normals() && (geometry->creaseArea.size() > val_marker)) {
+      const auto itA = geometry->creaseArea[val_marker].find(iVertex);
+      if (itA != geometry->creaseArea[val_marker].end()) Area = itA->second;
+    }
+
     /*--- Apply a weak boundary condition for the energy equation.
      Compute the residual due to the prescribed heat flux.
      The convective part will be zero if the grid is not moving. ---*/
