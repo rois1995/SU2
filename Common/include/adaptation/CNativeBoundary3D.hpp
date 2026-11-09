@@ -141,6 +141,7 @@ class PlanarReference {
   std::map<Id, Id> canonical;
   std::set<Id> complete_analytic, nonconvex;
   std::map<Id, std::vector<Edge>> boundaries;
+  std::map<Id,std::vector<std::array<Point,2>>> boundary_coordinates;
   std::map<Id,std::vector<std::array<Id,3>>> boundary_corners;
   std::map<Id, std::shared_ptr<const PlanarReference>> bump_charts;
   std::map<Id, Node> nodes;

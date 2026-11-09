@@ -26,14 +26,20 @@ incomplete. Noacceptedmesh/transfer/adaptedCFD/restart. Fullcertainty is unchang
 The quiettail is now confirmed: ~2s privateclosure, then~2420s/rank in3fullqueries;
 ~2342–2357s traversal. Finalcertificate SPEED/algorithmic proofwork remains blocker.
 No widercleanup/construction/shape variant or higherbudget isjustified by thisoutcome.
-Prepareactualcurrentquery (37202reference/53512physicalwingfaces), inspect existing
-prepared graph rejection/traversal counters under same20M/8GiB/600s diagnosticcaps,
-and select ONE demonstrated connectedcorrection. Optional branch-elimination
-closure is only a hypothesis until actualcurrentquery confirmsmissingwitnesses;
-strictconstructor/fulltriangles/support/association/body/height/finalBoth gates stay.
-No new scheduler/config/largercavity/geometryrepresentation. Existing unselected
-forward-proof reuse and duplicatequery ideas remaininbacklog. ONEactivecycle/job.
-After affectedserial+ONE MPI milestone, immediately fullsame-seed TWOeventM6 again.
+Actualcurrentquery37202reference/53512physicalfaces replayed at20M: physicalgraphs
+9accepted/0invalid afterexistingtrim, so additional branchclosure is not selected.
+9498curvature-margin misses motivated288residual-goal search; rejected for only
+0.511percentage-point parametercoverage gain and+.4%commonwork, bothincomplete.
+Patch/evidence saved; restored287source before289candidate (notlayered).
+289prepares immutable border coordinates once for Contains/ContainsSegment/ContainsFace,
+with same predicate operands/order, root/axis identity and complete storageaccounting.
+No mutablecache/index/newrepresentation. Actualtrace13.532Mcoverage of19.533Mupperwork
+motivates removing repeated maplookup/projection; usefulCPUgain stilltoqualify.
+Build289passed379.306s, focused12cases/7281assertions52.757s, pins/handlesverified.
+Sameactual287source and oldqualified283reverse comparisons next; require exact
+bounds/order/work and usefulCPUgain, then affectedserial+ONE MPI and immediatefull
+same-seed TWOeventM6. All source/binary/helpers/inputs frozen during eachrun.
+No new scheduler/config/largercavity/budget/gate. Otherhypotheses backlog; ONEcycle/job.
 
 Counts/operations matched283 ONLYthroughround24000,firstdiverged24064; latermatching
 rounds aredifferentworkloads. Initial61330coords/22fields matchqualifiedMach-only
@@ -51,7 +57,7 @@ original clean-star selection/admission gap confirmed; fouractual262clean contex
 prove localpointremovals with strictchecks and better directional/shortedge measures.
 Other directions fail positivity/support/geometry. Integrated273cleanup qualified274
 is finite, conditional on stalledshape withgeometry/size/heightsclosed; NOTautomatic
-postrefinement cleanup or minimumedgegate.274/278/283NEVERran it; no wholefieldLE
+postrefinement cleanup or minimumedgegate.274/278/283/287NEVERran it; no wholefieldLE
 benefit established. Preserve it while activecertificatecycle finishes.
 
 Latest meaningful verified mesh remains274/inspection/rejected_mesh.vtu (+su2),

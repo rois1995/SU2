@@ -1,0 +1,44 @@
+{
+  "schema": "native_residual_search_comparison_v1",
+  "old_case": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/geometry_current_queries_20261109T020817_1454632",
+  "new_case": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/geometry_current_queries_20261109T022209_1486845",
+  "input_sha256": "c762b4be389a78c3885c89276606b92659f5a55f1db40e0847cc64394142aa43",
+  "old": {
+    "query": {
+      "queried": true,
+      "complete": false,
+      "within_tolerance": false,
+      "work": 19999787,
+      "seconds": 83.042012521,
+      "traversal_work": 19734593,
+      "traversal_seconds": 81.156396763,
+      "model_bound": -1,
+      "work_exhausted": true
+    },
+    "completed_domains": 82448,
+    "certified_equal_facet_parameter_share": 0.9277992656644805,
+    "unresolved_domains": 32026
+  },
+  "new": {
+    "query": {
+      "queried": true,
+      "complete": false,
+      "within_tolerance": false,
+      "work": 19999993,
+      "seconds": 81.69088788,
+      "traversal_work": 19734799,
+      "traversal_seconds": 79.802986434,
+      "model_bound": -1,
+      "work_exhausted": true
+    },
+    "completed_domains": 82218,
+    "certified_equal_facet_parameter_share": 0.9329116630154293,
+    "unresolved_domains": 30486
+  },
+  "common_domains": 82218,
+  "common_newly_certified": 1447,
+  "common_passing_regressions": 0,
+  "common_old_work": 19655553,
+  "common_new_work": 19734634,
+  "caveat": "Equal original-facet parameter area, not physical area or partial acceptance; common-domain work excludes distinct traversal/preparation."
+}

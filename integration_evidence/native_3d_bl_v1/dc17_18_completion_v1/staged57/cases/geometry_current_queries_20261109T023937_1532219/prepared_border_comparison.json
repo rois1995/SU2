@@ -1,0 +1,87 @@
+{
+  "schema": "native_exact_face_coverage_bounded_comparison_v1",
+  "direction": "reverse",
+  "old_case": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/geometry_current_queries_20261109T001246_1206798",
+  "new_case": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/geometry_current_queries_20261109T023937_1532219",
+  "same_actual_input": true,
+  "completed_old_domains": 60892,
+  "completed_new_domains": 60892,
+  "common_completed_domains": 60892,
+  "common_domain_decisions_and_bounds_identical": true,
+  "common_domain_old_work": 15307318,
+  "common_domain_new_work": 15307318,
+  "common_domain_work_ratio": 1.0,
+  "complete_domain_work_identical": true,
+  "old_query": {
+    "queried": true,
+    "complete": false,
+    "within_tolerance": false,
+    "work": 19999988,
+    "seconds": 177.591641339,
+    "traversal_work": 15307324,
+    "traversal_seconds": 110.111427028,
+    "model_bound": -1,
+    "work_exhausted": true
+  },
+  "new_query": {
+    "queried": true,
+    "complete": false,
+    "within_tolerance": false,
+    "work": 19999988,
+    "seconds": 99.75538528000001,
+    "traversal_work": 15307324,
+    "traversal_seconds": 33.958269098,
+    "model_bound": -1,
+    "work_exhausted": true
+  },
+  "old_domain_counts": {
+    "0": 53488,
+    "1": 7008,
+    "2": 396
+  },
+  "new_domain_counts": {
+    "0": 53488,
+    "1": 7008,
+    "2": 396
+  },
+  "old_certified_counts": {
+    "0": 30976,
+    "1": 3488,
+    "2": 76
+  },
+  "new_certified_counts": {
+    "0": 30976,
+    "1": 3488,
+    "2": 76
+  },
+  "old_nested_graph_work": {
+    "calls": 62842,
+    "coverage_work": 5505793,
+    "lift_work": 6433787
+  },
+  "new_nested_graph_work": {
+    "calls": 62842,
+    "coverage_work": 5505793,
+    "lift_work": 6433787
+  },
+  "work_caveat": "Graph work nested within domain/traversal; interrupted final query can lack a completed domain line. Different work cap progress is not complete certification or whole-run timing.",
+  "full_mesh_accepted": false,
+  "old_serial_tree_cpu_seconds": 184.71,
+  "old_pins": {
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/geometry_current_queries_20261109T001246_1206798/run.log": "569275541d6a4512adc40f88f744d96205b9bcb099e93259698f4797217590b1",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/geometry_current_queries_20261109T001246_1206798/command.json": "073db432cf6004934baa5f971e0a9174a7aa55e6f8439e5fc95753372931d42b",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/geometry_current_queries_20261109T001246_1206798/pins.json": "047e2737d1600f71d74cf26e5f666bb09731c7720417d183b340eca6a519861b",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/geometry_current_queries_20261109T001246_1206798/status.json": "564de359331d5268c65f711facc454267e0d899de9fec0a00212304fb2cabac3",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/geometry_current_queries_20261109T001246_1206798/terminal_handles.json": "dbcbe4d94e59828844a634d6b4de4496479d838b196067003fef96dd06130eca",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/geometry_current_queries_20261109T001246_1206798/native_final_geometry_source_result.json": "f0c309134856d0ca351bfeee161016456f5f1cc013f640b07c3007fc5bb8b372"
+  },
+  "new_serial_tree_cpu_seconds": 106.92,
+  "new_pins": {
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/geometry_current_queries_20261109T023937_1532219/run.log": "6e32feefea427e0c2801e493b24ae18bcbdf0780eaa3005d1aa0bc3320b9a7d7",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/geometry_current_queries_20261109T023937_1532219/command.json": "02e1b77c73ab481fd30159c9863381b2709dd0cd41b2034f15e8f090c0c52761",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/geometry_current_queries_20261109T023937_1532219/pins.json": "4b6dca580c0b3508630deef22a7a5209352599c812f1a6617525a6eabfb520db",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/geometry_current_queries_20261109T023937_1532219/status.json": "e0b13aace81d182878be17d6802278f25a4c03694c3a9c1e191eb3ceaf3deaca",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/geometry_current_queries_20261109T023937_1532219/terminal_handles.json": "8dced0fbb4c40c3c0b3bec123d75e11922924bb488c2f480bd0be764bdc59958",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/geometry_current_queries_20261109T023937_1532219/native_final_geometry_source_result.json": "7dd8aede18df513883688efce5e0804114b9c163103df5ea33562c908841408f"
+  }
+}

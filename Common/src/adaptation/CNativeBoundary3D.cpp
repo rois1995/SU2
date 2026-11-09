@@ -949,6 +949,11 @@ PlanarReference::PlanarReference(std::vector<Facet> input, size_t ceiling, std::
     else if(g.kind==AnalyticSurface::Kind::Disk)throw std::invalid_argument("Disk authority requires its complete connected circular cap.");
   }
   for(const auto& row:boundaries)if(nonconvex.count(row.first)) {
+    const auto& f=Get(row.first);size_t axis=0;
+    while(Projected(f.v[0].p,f.v[1].p,f.v[2].p,axis,nullptr)==0)++axis;
+    // Immutable projected borders are shared by all exact footprint checks.
+    auto& coordinates=boundary_coordinates[row.first];coordinates.reserve(row.second.size());
+    for(auto edge:row.second)coordinates.push_back({PlaneCoordinates(nodes.at(edge[0]).p,axis),PlaneCoordinates(nodes.at(edge[1]).p,axis)});
     std::map<Id,Id> previous,next;
     for(auto edge:row.second){previous.emplace(edge[1],edge[0]);next.emplace(edge[0],edge[1]);}
     auto& corners=boundary_corners[row.first];corners.reserve(next.size());
@@ -1030,7 +1035,7 @@ size_t PlanarReference::ConstructionBytes(size_t count, size_t curves,size_t pla
   size_t retained = 0, peak = 0;
   if (count) CADTElemClass::PredictBytes(3, 2 * count, count, 2 * count, &retained, &peak);
   // shortcut: conservative map/component scratch; calibrate allocator requests before larger reference campaigns.
-  return transfer_memory::Add(transfer_memory::Mul(count, 4096), curves ? ConstructionBytes(curves) : 0,
+  return transfer_memory::Add(transfer_memory::Mul(count,4096+6*sizeof(Point)+sizeof(std::pair<const Id,std::vector<std::array<Point,2>>>)+4*sizeof(void*)), curves ? ConstructionBytes(curves) : 0,
                              planes ? transfer_memory::Add(ConstructionBytes(planes),transfer_memory::Mul(planes,12288)) : 0,
                              transfer_memory::Mul(curves, 2*(sizeof(std::pair<const Id,AnalyticSurface>)+4*sizeof(void*))), retained, peak,
                              transfer_memory::Mul(count, 6 * sizeof(su2double) + 3 * sizeof(unsigned long) + 4 * sizeof(unsigned short)));
@@ -1040,9 +1045,10 @@ size_t PlanarReference::ResidentBytes() const {
   auto map = [](const auto& m) {
     return transfer_memory::Mul(m.size(), sizeof(typename std::decay_t<decltype(m)>::value_type) + 4 * sizeof(void*));
   };
-  size_t result = transfer_memory::Add(sizeof(*this), map(facets), map(canonical), map(boundaries), map(nodes), map(analytic), map(bump_charts), map(complete_analytic), map(nonconvex), map(boundary_corners),map(affine),map(affine_charts),
+  size_t result = transfer_memory::Add(sizeof(*this), map(facets), map(canonical), map(boundaries), map(boundary_coordinates), map(nodes), map(analytic), map(bump_charts), map(complete_analytic), map(nonconvex), map(boundary_corners),map(affine),map(affine_charts),
       transfer_memory::Bytes(affine_domains),transfer_memory::Bytes(declared_components));
   for(const auto& domain:affine_domains)result=transfer_memory::Add(result,domain->ResidentBytes());
+  for(const auto& row:boundary_coordinates)result=transfer_memory::Add(result,transfer_memory::Bytes(row.second));
   for(const auto& row:boundary_corners)result=transfer_memory::Add(result,transfer_memory::Bytes(row.second));
   for (const auto& entry : boundaries) result = transfer_memory::Add(result, transfer_memory::Bytes(entry.second));
   for(const auto& entry:bump_charts)
@@ -1166,8 +1172,8 @@ bool PlanarReference::Contains(Id id, Point p, KernelStats* stats) const {
       }
     } else if(nonconvex.count(id)) {
       const auto q=PlaneCoordinates(p,axis);int winding=0;
-      for(auto edge:group->second) {
-        const auto a=PlaneCoordinates(nodes.at(edge[0]).p,axis),b=PlaneCoordinates(nodes.at(edge[1]).p,axis);
+      for(const auto& edge:boundary_coordinates.at(id)) {
+        const auto a=edge[0],b=edge[1];
         if(OnEdge(a,b,q,stats))return true;
         const bool up=a.y<=q.y && b.y>q.y,down=a.y>q.y && b.y<=q.y;
         if(!up && !down)continue;
@@ -1199,8 +1205,8 @@ bool PlanarReference::ContainsSegment(Id id,Point a,Point b,KernelStats* stats)c
   a=PlaneCoordinates(a,axis);b=PlaneCoordinates(b,axis);
   auto side=[&](Point x,Point y,Point p){return Projected(x,y,p,2,stats);};
   auto opposite=[](long double x,long double y){return (x<0&&y>0)||(x>0&&y<0);};
-  for(auto edge:boundaries.at(id)) {
-    const auto p=PlaneCoordinates(nodes.at(edge[0]).p,axis),q=PlaneCoordinates(nodes.at(edge[1]).p,axis);
+  for(const auto& edge:boundary_coordinates.at(id)) {
+    const auto p=edge[0],q=edge[1];
     if(std::max(a.x,b.x)<std::min(p.x,q.x) || std::max(p.x,q.x)<std::min(a.x,b.x) ||
        std::max(a.y,b.y)<std::min(p.y,q.y) || std::max(p.y,q.y)<std::min(a.y,b.y))continue;
     if(opposite(side(a,b,p),side(a,b,q))&&opposite(side(p,q,a),side(p,q,b)))return false;
@@ -1263,8 +1269,8 @@ bool PlanarReference::ContainsFace(Id id, const std::array<Point, 3>& triangle, 
           return OrientationCentroidSign({0,y,0},{1,y,0},t,{0,0,1},stats);
         };
         int winding=0;
-        for(auto edge:boundaries.at(Canonical(id))) {
-          const auto a=PlaneCoordinates(nodes.at(edge[0]).p,axis),b=PlaneCoordinates(nodes.at(edge[1]).p,axis);
+        for(const auto& edge:boundary_coordinates.at(id)) {
+          const auto a=edge[0],b=edge[1];
           // A strictly separated height interval cannot cross the face or its exact centroid ray.
           if(std::max(a.y,b.y)<lo || std::min(a.y,b.y)>hi)continue;
           const int ay=centroid_side(a.y),by=centroid_side(b.y);

@@ -1,0 +1,76 @@
+diff --git a/Common/src/adaptation/CNativeAffineReference.cpp b/Common/src/adaptation/CNativeAffineReference.cpp
+index d643f3480c..ed6b70fd75 100644
+--- a/Common/src/adaptation/CNativeAffineReference.cpp
++++ b/Common/src/adaptation/CNativeAffineReference.cpp
+@@ -306,7 +306,8 @@ class TriangleUnion {
+     for(auto i:candidates){const auto b=Distance(point,i,op);bound.lower=std::min(bound.lower,b.lower);bound.upper=std::min(bound.upper,b.upper);}
+     return bound;
+   }
+-  template<size_t N> double Upper(const std::array<Box,N>& hull,AtlasOps& op) {
++  template<size_t N> double Upper(const std::array<Box,N>& hull,AtlasOps& op,double requested_accuracy=INFINITY) {
++    const double goal=std::min(accuracy,requested_accuracy);
+     Box box;for(unsigned d=0;d<3;++d){box[d]={INFINITY,-INFINITY};for(const auto& p:hull){box[d].lo=std::min(box[d].lo,p[d].lo);box[d].hi=std::max(box[d].hi,p[d].hi);}}
+     auto witness=[&](size_t i,double cutoff)->double{double b=0;for(const auto& p:hull){
+       b=std::max(b,Distance(p,i,op,false).upper);
+@@ -315,14 +316,14 @@ class TriangleUnion {
+     }return b;};
+     if(++visit==0){std::fill(visited.begin(),visited.end(),0);visit=1;}
+     // A convex triangle witness can certify small domains before expensive finite-footprint coverage.
+-    const auto seed=Seed(box,op);double best=witness(seed,INFINITY);if(best<=accuracy)return best;
++    const auto seed=Seed(box,op);double best=witness(seed,INFINITY);if(best<=goal)return best;
+     auto plane_bound=[&](size_t i)->double{const auto group=triangle_plane[i];if(group==SIZE_MAX||visited[group]==visit)return INFINITY;
+-      visited[group]=visit;op.Work();return planes[group].Upper(hull,op,best);};
+-    best=std::min(best,plane_bound(seed));if(best<=accuracy)return best;
++      visited[group]=visit;op.Work();return planes[group].Upper(hull,op,best,goal);};
++    best=std::min(best,plane_bound(seed));if(best<=goal)return best;
+     // A passing witness must intersect the hull's tolerance neighbourhood; retain the seed's valid upper bound.
+     Candidates(box,std::min(best,accuracy),op);
+-    for(auto i:candidates){if(i==seed)continue;best=std::min(best,witness(i,best));if(best<=accuracy)return best;
+-      best=std::min(best,plane_bound(i));if(best<=accuracy)return best;}return best;
++    for(auto i:candidates){if(i==seed)continue;best=std::min(best,witness(i,best));if(best<=goal)return best;
++      best=std::min(best,plane_bound(i));if(best<=goal)return best;}return best;
+   }
+   size_t ResidentBytes()const {
+     auto bytes=[](const auto& v){return transfer_memory::Mul(v.capacity(),sizeof(typename std::decay_t<decltype(v)>::value_type));};
+@@ -340,7 +341,7 @@ class TriangleUnion {
+     std::vector<Plane> faces;unsigned axis=0;
+     TriangleUnion* owner=nullptr;size_t group=0;double axis_lo=INFINITY,axis_hi=-INFINITY;
+     std::array<double,2> lo{},hi{};bool positive=true;
+-    template<size_t N> double Upper(const std::array<Box,N>& hull,AtlasOps& op,double cutoff)const {
++    template<size_t N> double Upper(const std::array<Box,N>& hull,AtlasOps& op,double cutoff,double goal)const {
+       struct TraceReceipt {
+         AtlasOps& op;size_t start,coverage_work=0;unsigned coverage=0;double bound=INFINITY;
+         ~TraceReceipt(){if(AtlasOps::Trace())std::fprintf(stderr,
+@@ -444,7 +445,7 @@ class TriangleUnion {
+                   value=Add(value,Multiply({lower[i],upper[i]},Subtract({c[i],c[i]},{pivot,pivot})));
+                 best=std::min(best,value.hi);
+               }
+-              if(best>owner->accuracy*denominator) {
++              if(best>goal*denominator) {
+                 // Any nonnegative multipliers give c.lambda <= max_i(c_i + sum mu_e*a_ei).
+                 auto certify=[&](unsigned e,long double mu,unsigned f,long double nu) {
+                   if(!std::isfinite(mu)||!std::isfinite(nu)||mu<0||nu<0)return;
+@@ -2087,7 +2088,9 @@ MappedFacetReference::SurfaceUnionBounds MappedFacetReference::QuerySurfaceUnion
+         const auto controls=net(domain);op.Work(10);const auto chord=UnionChord(controls);upper=INFINITY;
+         if(chord.error<=tolerance) {
+           std::array<Box,3> points;for(unsigned k=0;k<3;++k)points[k]=Exact(chord.points[k]);
+-          const auto flat_upper=target.Upper(points,op);
++          // Search against the remaining margin; acceptance still uses the outward composed bound.
++          const double goal=std::max(0.,std::nextafter(double(Subtract({tolerance,tolerance},{chord.error,chord.error}).lo),-INFINITY));
++          const auto flat_upper=mesh_union->Upper(points,op,goal);
+           // Bernstein convexity bounds the entire patch by this chord plus its certified deviation.
+           upper=std::nextafter(double(Add({flat_upper,flat_upper},{chord.error,chord.error}).hi),INFINITY);
+         }
+diff --git a/UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp b/UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp
+index df60780d0d..90806a3316 100644
+--- a/UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp
++++ b/UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp
+@@ -897,7 +897,7 @@ TEST_CASE("Geometry work prediction distinguishes cross-chart surface incidence"
+   }
+ }
+ TEST_CASE("Model union chord witnesses retain cubic bulges and missing finite coverage", "[NativeSurfaceChord3D]") {
+-  const double bulge=GENERATE(0.,1e-6,.03);CurvedAtlasFixture fixture(0,bulge);
++  const double bulge=GENERATE(0.,1e-6,5e-5,9e-5,.03);CurvedAtlasFixture fixture(0,bulge);
+   std::vector<std::array<Point,3>> physical;
+   for(unsigned i=0;i<4;++i){const auto& f=fixture.facets[i];physical.push_back({f.v[0].p,f.v[1].p,f.v[2].p});}
+   auto budget=GeometryAtlasBudget();

@@ -447,3 +447,33 @@ outwardcomposed acceptance. Goal must NOTreplace bestwitness cutoff or cacheiden
 Samecurrentquery fixed20M must demonstrate substantial proofprogress; no assumedgain.
 Cleanup273 remains qualified but never executed in274/278/283/287; local feasible
 replacements do not prove globalLEbenefit. Missing shocktarget allocation stays separate.
+
+###288 residual-goal candidate rejected; unchanged coverage work is dominant
+
+Build47.061s; focused12cases/7295assertions52.017s, allpins/handles verified.
+Actual287source replay at20M: coverage92.7799→93.2912% equal-facet parameterarea,
+1447common newcertified/0passingregressed; common-domain work+0.4023%; bothincomplete.
+81.691s versus83.042s querywall is insufficient usefulgain. CandidateNOTselected,
+patch/rejection/comparison preserved. Allhandles terminal before restoring exact
+qualified287sources. Binary remains288 UNQUALIFIED until nextbuild. No MPI/full288.
+Existing287trace partitions upperwork19.533M: graphcoverage13.532M, lift3.263M;
+fullsampledistance0.201M. Coverage states0/1/2 counts48913/17609/35808. This supports
+reviewing repeated finite-footprint work rather than adding more witness variants.
+Immutable border nodes are repeatedly map-looked-up/projected inside Contains,
+ContainsFace and ContainsSegment; inspect existing preparation/index facilities
+before selecting next correction. Strict proofs/order/default behavior must remain.
+
+###289 connected immutable-border preparation candidate (unqualified)
+
+Replace repeated immutable node-map lookup/projected-coordinate preparation in ALL
+plain nonconvex Contains/ContainsSegment/ContainsFace edge loops with once-prepared
+ordered endpoints. Same first nonzero projection axis, root canonical identity,
+predicate operands/order, winding/crossing proofs, earlyguards and returnedbounds.
+No mutablecache or index. Segment touched-corner loop unchanged. Coordinate map and
+vector capacity included in ResidentBytes; ConstructionBytes charges max3edges/facet
+and max1mapentry/facet. Definition-backed parameter views share definition lifetime.
+Read-only lifecycle review found no correctness issue or duplicate facility; notproof.
+Existing independent notch oracle covers3planes/bothorientations, plus holes/seams/
+curves/heights/resources. Same actual287 source and savedqualified283 reverse query
+must preserve completed domain order/bounds/work exactly; CPU/wall comparison atfixed
+work determines whether this warrants serial+ONE MPI and immediatefullsame-seed M6.

@@ -1,13 +1,14 @@
 # Post-refinement metric cleanup — bounded investigation
 
-Current full283 is TERMINAL REFUSED after complete736019cell census with zero
+Latest full287 is TERMINAL REFUSED after complete736323cell census with zero
 q/J/LOCAL-geometry/size failures and no unknown measurements. Mandatory final
 global two-sided geometry certification exhausted elapsed time. Integrated
-cleanup273 NEVER ran in274,278 or283; its global leading-edge effect remains
-unmeasured. Actual host identities and all1520source/build/runtime/input pins
-were reverified2026-11-09: all11owned handles absent, pins unchanged. No run was
-interrupted for this renewed cleanup review. See HANDOFF_Codex.md and
+cleanup273 NEVER ran in274,278,283 or287; its global leading-edge effect remains
+unmeasured. All11actualHOST handles absent and all1520pins unchanged at terminal.
+No run was interrupted for cleanup review. See HANDOFF_Codex.md and
 [prepared-source investigation](ADAPTATION_PREPARED_SOURCE_CERTIFICATES_20261108.md).
+Current actualsource replay demonstrates expensive proof traversal, not a new
+cleanup eligibility failure. No cleanup extension selected in this certification cycle.
 
 Confirmed: the original selection/zero-shape-debt admission gap permits short
 edges to survive; bounded tests establish four local feasible point removals,
@@ -19,7 +20,7 @@ leading-edge improvement follows from its integration or passing fixtures.
 
 The present demonstrated blocker is final geometry certification SPEED. Do not
 widen cleanup policy or insert a competing experiment before resolving that
-blocker. Reuse complete283capture if later outcome warrants a matched whole-field
+blocker. Reuse complete287capture if later outcome warrants a matched whole-field
 cleanup assessment, including complete neighbors, directionality, strict q/J,
 geometry, heights, work and net useful progress. A smaller mesh alone is insufficient.
 The requested around-nose resolution and excessive spanwise resolution remain

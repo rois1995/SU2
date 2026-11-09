@@ -38,7 +38,8 @@ EXACTLYONEpidfdSIGTERM to MPI1243218/start22852005 AFTERrefusal+sealedcapture.
 A287/owned_stop_once.json; NEVERrerun seal_stop_m6287.py or anyhistoricalstop.
 Main65435 TERMINAL1/5589.211461s,pins_verified=true,changed=[],workflow_accepted=false.
 ALL11actualHOSTidentities TERMINAL/absent inA287/terminal_handles.json. Sourcefreeze
-released; NO C++changes yet. Fullterminal/stop/diagnosis evidenceLOCAL, pushcheckpoint.
+released after287; current289candidate builds/runs below are now pinned. Terminal287
+evidence PUSHED a7a8c5baca; preserve unrelated dirtyfiles.
 Qualificationcode cbaba0b675 /qualification6dfc9e73f7 PUSHED; startupdaf3e29d10,
 progressb071376231/1905a9b4a0/18662b3f2a/cb96f6524d andquiet7c170fa1f9/abe90d98c1PUSHED.
 
@@ -52,13 +53,30 @@ handles absent. Physicaltarget36groups/9accepted/0invalid/0storage refusals;
 certified (NOTphysicalarea/partialacceptance). Trace identifies9498unresolvedsource
 domains with passingflatgraph witness but failed composedcurvedbound,4.092Mupperwork.
 This proves curvature-margin misses, not existenceofbetterwitness or speedup.
-ONE candidate: per-call residual-tolerance SEARCHGOAL for curvedchord Upper, keeping
-bestvalidwitness, separatecutoff, defaultallothercallers, outwardfinalsum and full
-control-netfallback. No change support/cacheidentity/gate/budget. Test SAMEactual287
-query at20M before claiming usefulgain; reject marginal/regressive result. Readonly
-Luna calleraudit confirms only forwardchord needsgoal; reverse/defaultunchanged.
-After justifiedcorrection: affectedserial+ONE MPI milestone, immediately fullsame-seed
-TWOeventM6. No competingcleanup/construction/scheduler cycle. Otherhypotheses backlog.
+288 residualaccuracy SEARCHGOAL candidate REJECTED after measured replay, NOTproduction.
+Build47.061s/focused12cases7295assertions52.017s/pinsunchanged/allhandlesabsent.
+Sameactual287query20M: coverage92.7799→93.2912% equalfacet PARAMETERarea,1447common
+newcertified/0regressed, commonwork+0.4023%,bothincomplete. Too small usefulgain.
+Patch+rejection+comparison preserved. Allhandles terminal before sources restored
+EXACTqualified287. BINARYstill288: REBUILDrequired before anyfullM6. No MPI/fullof288.
+Currentcycle remains finalglobalcertificate efficiency.289 candidate prepares immutable
+nonconvex border coordinates once in PlanarReference; same ordered coordinates reused
+by Contains/ContainsSegment/ContainsFace. All exact predicates/earlyguards/coverage
+rules unchanged. ConstructionBytes/ResidentBytes include added map/vector storage;
+no mutablecache, ADT, scheduler/config/gate/budget change. Actualtrace13.532Mcoverage
+work of19.533Mupperwork motivates reducing repeated node-map lookup/projection.
+Build289 TERMINAL0/379.306s/pinsunchanged/allbuildhandlesabsent. Focused12cases/
+7281assertions52.757s/allpins/5handlesabsent. Source actual287case
+geometry_current_queries_20261109T023809_1528202 TERMINAL0: ALL82448domains/order/
+bounds/chargedwork EXACT, query83.042→27.921s, serialCPU89.79→35.01s. Both20Mproofs
+incomplete. Sourcepins/5actualhandles verified. Reverse savedqualified283input TERMINAL0 case geometry_current_queries_20261109T023937_1532219:
+ALL60892domains/order/bounds/chargedwork EXACT. Query177.592→99.755s, traversal
+110.111→33.958s, serialCPU184.71→106.92s. Allpins/5actualhandlesabsent. Both20M
+certificates stillincomplete. Select289connected immutable-preparation correction;
+serial LIVE tool90769/case current_production_20261109T024223_1539645
+(wrapper1539645/launcher1539844), then ONE MPI6 and immediatefullsame-seed TWOeventM6.
+ 288 discarded,
+notlayered. No competingcleanup/construction cycle. Unselected alternatives backlog.
 
 CFD/target provenance unchanged: Mach-onlyL1/50k same savedREALCFDseed,61330coords/
 22fields BIT-IDENTICAL256/qualified254target,SENSOR_MACHonly,CL.269535/CD.013536.
