@@ -64,6 +64,12 @@ struct RowRegistry {
   std::vector<std::pair<std::array<P, 3>, std::vector<std::pair<std::array<P, 3>, bool>>>> extras;
   uint64_t digest = 0;   // FNV-1a of the sorted vertex coordinates of the mesh it was written for
   size_t unsupported = 0;  // crease-fan copies/fan cells (not produced by the single lift) are not continued
+  size_t ResidentBytes() const {
+    using transfer_memory::Add;using transfer_memory::Bytes;
+    size_t bytes=Add(sizeof(*this),Bytes(lift),Bytes(apex),Bytes(overrides),Bytes(extras));
+    for(const auto& row:extras)bytes=Add(bytes,Bytes(row.second));
+    return bytes;
+  }
   std::string Encode() const {
     std::ostringstream o;
     o << std::setprecision(17) << "SU2_NATIVE_ROWS 1\ndigest " << digest << "\nunsupported " << unsupported << "\n";
@@ -115,6 +121,11 @@ struct RowRegistry {
 struct Continuation {
   std::shared_ptr<RowRegistry> committed, pending;
   std::string source;  // where `committed` came from (sidecar path or "memory")
+  size_t ResidentBytes() const {
+    using transfer_memory::Add;
+    return Add(sizeof(*this),transfer_memory::Bytes(source),committed?Add(committed->ResidentBytes(),4*sizeof(void*)):0,
+        pending&&pending!=committed?Add(pending->ResidentBytes(),4*sizeof(void*)):0);
+  }
 };
 /*! Numbering-independent digest of a mesh: every cell as its sorted quadruple of exact vertex coordinates plus the
  *  physical flags of its faces, sorted (binds coordinates and connectivity, not identities). */

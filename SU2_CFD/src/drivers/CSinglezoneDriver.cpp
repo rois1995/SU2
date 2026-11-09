@@ -562,7 +562,7 @@ void CSinglezoneDriver::RunAdaptationLoop() {
 
     /*--- The new mesh is accepted (built, solution transferred). ---*/
 
-    if (replaced && config->GetAdap_Mesh_Output()) WriteAdaptedMesh(iCycle + 1);
+    if (replaced && config->GetAdap_Mesh_Output()) WriteAdaptedMesh(iCycle + 1,0,mesh.reference_io_caller_bytes);
 
     summary.back().adaptTime = SU2_MPI::Wtime() - adaptStart;
   }
@@ -1131,7 +1131,7 @@ void CSinglezoneDriver::RunTimeAdaptationLoop() {
 
       const auto outputStart = SU2_MPI::Wtime();
       if (replaced) {
-        if (config->GetAdap_Mesh_Output()) WriteAdaptedMesh(iCycle, TimeIter + 1);
+        if (config->GetAdap_Mesh_Output()) WriteAdaptedMesh(iCycle, TimeIter + 1,mesh.reference_io_caller_bytes);
         WriteTimeHistoryRestarts();
       }
       const auto outputTime = SU2_MPI::Wtime() - outputStart;
@@ -1567,6 +1567,7 @@ void CSinglezoneDriver::RunTimeFixedPointLoop() {
         }
         /*--- MMG's metric at the points of the new mesh, fetched by each rank for its local points from the slices. ---*/
         meshMetric = nextMesh.slices.FetchPointMetric(*geometry_container[ZONE_0][INST_0][MESH_0]);
+        const auto reference_caller_bytes=nextMesh.reference_io_caller_bytes;
         nextMesh = CRemeshResult();
         output->SetVolumeAverageStart(first, config);
         row.replaceTime += SU2_TYPE::GetValue(lastReplaceTime);
@@ -1577,7 +1578,7 @@ void CSinglezoneDriver::RunTimeFixedPointLoop() {
          *    transferred steps n and n-1 (they replace those of the previous mesh), as in the WINDOW_AVERAGE loop. ---*/
         if (accepted) {
           const auto outputStart = SU2_MPI::Wtime();
-          if (config->GetAdap_Mesh_Output()) WriteAdaptedMesh(iCycle, first);
+          if (config->GetAdap_Mesh_Output()) WriteAdaptedMesh(iCycle,first,reference_caller_bytes);
           if (first > 0) WriteTimeHistoryRestarts();
           row.outputTime = SU2_TYPE::GetValue(SU2_MPI::Wtime() - outputStart);
           UsedTimeOutput += row.outputTime;
@@ -1742,7 +1743,7 @@ string CSinglezoneDriver::AdaptedMeshName(unsigned long iCycle, unsigned long fi
   return config->GetUnsteady_FileName(config->GetMesh_Out_FileName(), static_cast<int>(firstTimeIter), "");
 }
 
-void CSinglezoneDriver::WriteAdaptedMesh(unsigned long iCycle, unsigned long firstTimeIter) const {
+void CSinglezoneDriver::WriteAdaptedMesh(unsigned long iCycle, unsigned long firstTimeIter,size_t caller_bytes) const {
   SU2_ZONE_SCOPED
 
   auto* config = config_container[ZONE_0];
@@ -1759,7 +1760,10 @@ void CSinglezoneDriver::WriteAdaptedMesh(unsigned long iCycle, unsigned long fir
   if (config->GetKind_Adap_Remesher() == ADAP_REMESHER::NATIVE_CAVITY) {
     if(geometry_container[ZONE_0][INST_0][MESH_0]->GetnDim()==3){
       if(!nativeReference3D || !nativeReference3D->original)SU2_MPI::Error("Native3D mesh output requires its retained geometry reference.",CURRENT_FUNCTION);
-      SU2Native3D::WriteReference(fileName+config->GetMesh_Out_FileExtension()+".native_ref",*nativeReference3D);
+      const auto ceiling=SU2Native3D::NativeMemoryCeiling(*config,*geometry_container[ZONE_0][INST_0][MESH_0],
+          SU2Native3D::ReferenceStorageLimit3D,false,SU2_MPI::GetComm());
+      if(nativeFirstRow3D)caller_bytes=transfer_memory::Add(caller_bytes,nativeFirstRow3D->ResidentBytes());
+      SU2Native3D::WriteReference(fileName+config->GetMesh_Out_FileExtension()+".native_ref",*nativeReference3D,ceiling,caller_bytes);
       if(nativeFirstRow3D && nativeFirstRow3D->committed && rank==MASTER_NODE)
         SU2NativeBLPipeline3D::WriteContinuation(fileName+config->GetMesh_Out_FileExtension()+".native_rows",*nativeFirstRow3D);
       profile.Mark(1);

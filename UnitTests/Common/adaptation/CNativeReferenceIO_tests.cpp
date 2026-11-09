@@ -128,7 +128,7 @@ TEST_CASE("Native reference sidecar records the first-height tolerance and refus
   CHECK_THROWS(SU2NativeFirstHeight::AdoptRecorded(0, 1.0));
 }
 
-TEST_CASE("Native v8 atlas sidecar preserves exact covers traces and independent policy", "[NativeAtlasReferenceIO3D]") {
+TEST_CASE("Native v8 atlas sidecar preserves exact covers traces and independent policy", "[NativeAtlasReferenceIO3D][NativeReferenceBudget3D]") {
   namespace N=SU2Native3D;namespace G=SU2NativeGeometry;
   const std::array<N::Node,4> nodes{{{1,{0,0,0}},{2,{1,0,0}},{3,{0,1,0}},{4,{0,0,1}}}};
   std::vector<N::Facet> facets{{10,0,{nodes[1],nodes[2],nodes[3]}},{11,0,{nodes[0],nodes[3],nodes[2]}},
@@ -150,11 +150,32 @@ TEST_CASE("Native v8 atlas sidecar preserves exact covers traces and independent
   }
   std::shared_ptr<N::BoundaryParameterState> parameters;
   REQUIRE_NOTHROW(parameters=std::make_shared<N::BoundaryParameterState>(geometry,points,surface,9,SIZE_MAX,0,coverage,policy,&budget));
-  N::ReferenceState state;state.facets=facets;state.marker_names={"body"};state.original=N::PlanarReference::WithParameters(definition,parameters);
+  N::ReferenceState state;state.facets=facets;state.marker_names={"body"};state.first_height_tol=.125;state.original=N::PlanarReference::WithParameters(definition,parameters);
   std::string encoded;REQUIRE_NOTHROW(encoded=N::EncodeReference(state));REQUIRE(encoded.find("SU2_NATIVE_REFERENCE_3D 8\n")==0);
   N::ReferenceState recovered;REQUIRE_NOTHROW(recovered=N::DecodeReference(encoded));REQUIRE(recovered.original->Parameters());
   CHECK(recovered.original->Parameters()->Geometry().Version()==37);CHECK(recovered.original->Parameters()->Mobility().version==1);
   CHECK(recovered.original->Parameters()->Mobility().identity==policy.identity);CHECK(N::EncodeReference(recovered)==encoded);
+  const size_t ceiling=size_t(1)<<26,caller=ceiling/2,held=N::ReferenceStorageBytes(state);
+  CHECK(N::EncodeReference(state,ceiling,caller)==encoded);
+  CHECK_THROWS(N::EncodeReference(state,held));
+  CHECK_THROWS(N::EncodeReference(state,held+1));
+  CHECK_THROWS(N::EncodeReference(state,ceiling,ceiling));
+  CHECK_THROWS(N::EncodeReference(state,ceiling,SIZE_MAX));
+  auto named=state;named.marker_names={"body \\\"quoted\\\""};
+  const auto named_text=N::EncodeReference(named,ceiling,caller);
+  CHECK(N::EncodeReference(N::DecodeReference(named_text),ceiling,caller)==named_text);
+  const std::string filename="native3d_budget_roundtrip.native_ref";
+  // Only root serializes; impossible non-root reservations must not break collective alignment.
+  N::WriteReference(filename,state,ceiling,SU2_MPI::GetRank()?SIZE_MAX:caller);
+  auto loaded=state;bool found=false;size_t peak=0;
+  REQUIRE(N::LoadReference(filename,loaded,found,reason,ceiling,caller,peak));REQUIRE(found);
+  CHECK(peak<=ceiling);CHECK(loaded.first_height_tol==.125);CHECK(N::EncodeReference(loaded,ceiling,caller)==encoded);
+  const auto saved=N::EncodeReference(loaded,ceiling,caller);
+  CHECK_FALSE(N::LoadReference(filename,loaded,found,reason,1,caller,peak));CHECK_FALSE(found);
+  CHECK(N::EncodeReference(loaded,ceiling,caller)==saved);
+  SU2_MPI::Barrier(SU2_MPI::GetComm());
+  if(!SU2_MPI::GetRank())std::remove(filename.c_str());
+  SU2_MPI::Barrier(SU2_MPI::GetComm());
   const auto payload=parameters->Payload();CHECK(payload.size()==parameters->PayloadBytes());
   std::shared_ptr<N::BoundaryParameterState> restored;REQUIRE_NOTHROW(restored=N::BoundaryParameterState::FromPayload(geometry,payload));CHECK(restored->Snapshot()==parameters->Snapshot());
   auto truncated=payload;truncated.pop_back();CHECK_THROWS(N::BoundaryParameterState::FromPayload(geometry,truncated));
@@ -175,4 +196,18 @@ TEST_CASE("Native v8 atlas sidecar preserves exact covers traces and independent
   auto legacy=std::make_shared<N::BoundaryParameterState>(geometry,points,surface);
   state.original=N::PlanarReference::WithParameters(definition,legacy);const auto old=N::EncodeReference(state);
   CHECK(old.find("SU2_NATIVE_REFERENCE_3D 5\n")==0);CHECK(N::DecodeReference(old).original->Parameters()->Mobility().identity==0);
+}
+
+TEST_CASE("Reference write resource refusal preserves the prior published file", "[.][NativeReferenceWriteRefusal3D]") {
+  namespace N=SU2Native3D;
+  const std::array<N::Node,4> n{{{1,{0,0,0}},{2,{1,0,0}},{3,{0,1,0}},{4,{0,0,1}}}};
+  N::ReferenceState state;state.marker_names={"body"};
+  state.facets={{10,0,{n[1],n[2],n[3]}},{11,0,{n[0],n[3],n[2]}},
+                {12,0,{n[0],n[1],n[3]}},{13,0,{n[0],n[2],n[1]}}};
+  state.original=std::make_shared<N::PlanarReference>(state.facets);
+  const std::string filename="native3d_write_refusal.native_ref";
+  if(!SU2_MPI::GetRank()){std::ofstream file(filename);file<<"prior-published-reference\n";REQUIRE(bool(file));}
+  SU2_MPI::Barrier(SU2_MPI::GetComm());
+  N::WriteReference(filename,state,1);
+  FAIL("Expected collective resource refusal before opening a temporary file.");
 }

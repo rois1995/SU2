@@ -1,0 +1,49 @@
+Filters: [NativeM6ReferencePublication3D]
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+test_driver is a Catch v2.13.9 host application.
+Run with -? for options
+
+-------------------------------------------------------------------------------
+Saved M6 entity authority publishes and reloads within its admitted budget
+-------------------------------------------------------------------------------
+../../UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp:1956
+...............................................................................
+
+../../UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp:1907: FAILED:
+  CHECK( EncodeReference(archive,ReferenceStorageLimit3D,caller)==encoded )
+due to unexpected exception with message:
+  Native3D reference decoding exceeds storage budget: requested 2032009256,
+  ceiling 944012432.
+
+NATIVE3D_REFERENCE_CACHE host_ranks=1 host_quota_bytes=4294967296 rank_quota_bytes=4294967296
+NATIVE3D_REFERENCE_CACHE host_ranks=1 host_quota_bytes=4294967296 rank_quota_bytes=4294967296
+278.354 s: Saved M6 entity authority publishes and reloads within its admitted budget
+===============================================================================
+test cases:      1 |      0 passed | 1 failed
+assertions: 278215 | 278214 passed | 1 failed
+
+Command exited with non-zero status 1
+	Command being timed: "timeout 600 /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver [NativeM6ReferencePublication3D] --durations yes"
+	User time (seconds): 277.66
+	System time (seconds): 0.74
+	Percent of CPU this job got: 99%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 4:38.72
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 980896
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 0
+	Minor (reclaiming a frame) page faults: 493401
+	Voluntary context switches: 1068
+	Involuntary context switches: 1784
+	Swaps: 0
+	File system inputs: 0
+	File system outputs: 93032
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 1

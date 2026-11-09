@@ -12,6 +12,8 @@
 #include "CComplexityNormalization.hpp"
 #include <utility>
 namespace SU2Native3D {
+/*! Shared configured/automatic storage policy for remeshing and reference persistence. */
+size_t NativeMemoryCeiling(const CConfig&,const CGeometry&,size_t base,bool print,SU2_Comm comm);
 struct NormalizationProposal3D {
   bool valid=true,changed=false;
   std::string reason;

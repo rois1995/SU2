@@ -230,7 +230,7 @@ protected:
    * \param[in] iCycle - Adaptation cycle of the mesh.
    * \param[in] firstTimeIter - First time step solved on the mesh (time-domain runs).
    */
-  void WriteAdaptedMesh(unsigned long iCycle, unsigned long firstTimeIter = 0) const;
+  void WriteAdaptedMesh(unsigned long iCycle, unsigned long firstTimeIter = 0, size_t caller_bytes = 0) const;
 
 public:
 

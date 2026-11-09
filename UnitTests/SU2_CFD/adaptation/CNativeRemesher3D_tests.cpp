@@ -84,7 +84,7 @@ void CheckTransport(const RemeshStats& s) {
 }
 }  // namespace
 
-TEST_CASE("Native3D default ownership survives rejection after private accepted edits", "[NativeDefault3D]") {
+TEST_CASE("Native3D default ownership survives rejection after private accepted edits", "[NativeDefault3D][NativeReferenceBudget3D]") {
   World world;
   auto config = MakeConfig(3,
                            "SOLVER= EULER\nCOMPUTE_METRIC= YES\nADAP_SENSOR= PRESSURE\n"
@@ -115,6 +115,7 @@ TEST_CASE("Native3D default ownership survives rejection after private accepted 
   const auto result = backend.Remesh(*config, donor.Fine(), sensor);
   CHECK(GetShapeAdmission()==previous_shape);
   REQUIRE(result.status == CRemeshResult::Status::COMPLETE);
+  CHECK(result.reference_io_caller_bytes>=result.slices.ResidentBytes());
   CHECK_FALSE(reference->original);
   CHECK(backend.Statistics().partition.destinations.empty());
   CHECK(backend.Statistics().source.builds == 0);
@@ -139,7 +140,8 @@ TEST_CASE("Native3D default ownership survives rejection after private accepted 
     Mute mute;
     CMeshOutput::WriteMesh(config.get(), &accepted.Fine(), "default_native3d");
   }
-  WriteReference("default_native3d.su2.native_ref", *reference);
+  WriteReference("default_native3d.su2.native_ref",*reference,
+      NativeMemoryCeiling(*config,accepted.Fine(),ReferenceStorageLimit3D,false,SU2_MPI::GetComm()),result.reference_io_caller_bytes);
   ReferenceState reloaded;
   CHECK(LoadReference("default_native3d.su2.native_ref", reloaded));
   CHECK(EncodeReference(reloaded) == encoded);
@@ -775,13 +777,14 @@ TEST_CASE("Native construction factories must pass the distributed stages before
   }
 }
 
-TEST_CASE("Explicit native memory limits cannot auto-grow or publish partial state", "[NativeMemoryLimit3D]") {
+TEST_CASE("Explicit native memory limits cannot auto-grow or publish partial state", "[NativeMemoryLimit3D][NativeReferenceBudget3D]") {
   const bool firstRow=GENERATE(false,true);
   auto config=MakeConfig(3,"SOLVER= EULER\nCOMPUTE_METRIC= YES\nADAP_SENSOR= PRESSURE\n"
       "ADAP_REMESHER= NATIVE_CAVITY\nADAP_SURFACE= YES\nADAP_HESSIAN_NOISE= 0\nADAP_NATIVE_MEMORY_LIMIT= 1\n"
       "MARKER_EULER= (wall)\nADAP_BL_MARKER= (wall)\nADAP_BL_FIRST_HEIGHT= (.1)\nADAP_BL_GROWTH= (1.2)\nADAP_BL_THICKNESS= (.3)\n"
       +std::string(firstRow?"ADAP_BL_METHOD= FIRST_ROW\n":""));
   MeshSolution donor(config.get(),simplex_test::MakeSimplexMesh(3,1,[](const passivedouble* p){return p[2]==0?std::string("wall"):simplex_test::Marker3D(p);}),0);
+  CHECK(NativeMemoryCeiling(*config,donor.Fine(),ReferenceStorageLimit3D,false,SU2_MPI::GetComm())==(size_t(1)<<20));
   const auto saved=Snapshot(donor);su2activematrix sensor(donor.Fine().GetnPointDomain(),6);
   for(size_t p=0;p<sensor.rows();++p)for(unsigned k=0;k<6;++k)sensor(p,k)=(k==0||k==3||k==5)?1.:0.;
   auto reference=std::make_shared<ReferenceState>();EngineOptions options;options.caller_bytes=size_t(1)<<20;
@@ -790,6 +793,19 @@ TEST_CASE("Explicit native memory limits cannot auto-grow or publish partial sta
   CHECK(result.status!=CRemeshResult::Status::COMPLETE);CHECK_FALSE(result.onAccepted);
   CHECK_FALSE(reference->original);CHECK(Snapshot(donor)==saved);
   CHECK(remesher.Statistics().maximum_native_bytes>config->GetAdap_Native_MemoryLimit());
+}
+
+TEST_CASE("Reference output counts shared continuation storage once", "[NativeReferenceBudget3D]") {
+  SU2NativeBLPipeline3D::Continuation state;
+  const auto empty=state.ResidentBytes();
+  state.committed=std::make_shared<SU2NativeBLPipeline3D::RowRegistry>();
+  state.committed->lift.resize(3);state.committed->extras.resize(2);state.committed->extras[0].second.resize(5);
+  const auto committed=state.ResidentBytes();CHECK(committed>empty);
+  state.pending=state.committed;CHECK(state.ResidentBytes()==committed);
+  state.pending=std::make_shared<SU2NativeBLPipeline3D::RowRegistry>(*state.committed);
+  CHECK(state.ResidentBytes()>committed);
+  state.pending.reset();CHECK(state.ResidentBytes()==committed);
+  state.committed.reset();CHECK(state.ResidentBytes()==empty);
 }
 
 TEST_CASE("Unchanged normalization cannot publish an over-budget candidate", "[NativeNormalizationPublication3D]") {

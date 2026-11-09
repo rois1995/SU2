@@ -30,7 +30,7 @@ CNativeRemesher3D::CNativeRemesher3D(std::shared_ptr<ReferenceState> retained, E
     : reference(std::move(retained)), options(control), compositionFactory(std::move(constraints)), normalizationFactory(std::move(normalizer)) {
   if (!reference) throw std::invalid_argument("Native3D needs driver-owned reference storage.");
 }
-namespace {
+namespace SU2Native3D {
 // DC-16: FIRST_ROW gathers and multiplies the whole mesh on one worker; its ceiling (reference setup, construction,
 // publication) is max(default, 1.5 x the event's need), capped at 25 % of the node memory (shared with other jobs).
 // Need before the construction: max(measured peak RSS of this process, 4 KiB per input cell; measured: the import of
@@ -60,6 +60,8 @@ size_t NativeMemoryCeiling(const CConfig& config,const CGeometry& geometry,size_
   if (print) std::cout<<"DC16 FIRST_ROW memory: need "<<(need>>20)<<" MiB, ceiling "<<(ceiling>>20)<<" MiB (default "<<(base>>20)<<" MiB, cap 25 % of node memory "<<(cap>>20)<<" MiB)"<<std::endl;
   return ceiling;
 }
+}  // namespace SU2Native3D
+namespace {
 // Configuration prepares mobility explicitly; loading an old sidecar never changes its semantics.
 void PrepareMobility(const CConfig& config,ReferenceState& state,size_t ceiling,size_t caller) {
   if(!state.original || !state.original->Mapped())return;
@@ -762,6 +764,8 @@ CRemeshResult CNativeRemesher3D::Remesh(const CConfig& config, const CGeometry& 
         };
       }
       result.status = CRemeshResult::Status::COMPLETE;
+      result.reference_io_caller_bytes=transfer_memory::Add(control.caller_bytes,
+          ReferenceStorageBytes(*reference),result.slices.ResidentBytes(),transfer_memory::Bytes(result.markers));
       result.onAccepted = [state = reference, pending, accepted = constructionAccepted]() {
         if (!pending->published) {
           std::swap(*state, pending->state);

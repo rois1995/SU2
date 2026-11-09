@@ -83,10 +83,28 @@ size_t DecodeBytes(size_t bytes, const Header& h) {
           transfer_memory::Mul(h.surface,8256),transfer_memory::Mul(h.atlas_words,256),
           h.version>=8?SU2NativeGeometry::CurvedAtlasWorkspaceBytes(transfer_memory::Mul(h.atlas_words,128)):0):0);
 }
+size_t EncodedBytesBound(const ReferenceState& state) {
+  // A 17-digit double or 64-bit integer plus separator fits32 bytes; quoted names can double.
+  using transfer_memory::Add;using transfer_memory::Mul;
+  size_t names=0;for(const auto& name:state.marker_names)names=Add(names,Mul(name.size(),2),3);
+  const auto* p=state.original->Parameters();
+  return Add(1024,names,Mul(state.facets.size(),14*32),Mul(state.original->Analytic().size(),14*32),
+      Mul(state.original->Affine().size(),14*32),p?Add(Mul(p->Geometry().Errors().size(),2*32),
+      Mul(p->Geometry().Curves().size(),31*32),Mul(p->Records().size(),9*32),
+      Mul(p->Surface().size(),4*32),Mul(BoundaryAtlasBytes(p->Coverage(),p->Mobility())/8,21)):0);
+}
 }  // namespace
-std::string EncodeReference(const ReferenceState& state) {
+static ReferenceState DecodeReferenceImpl(const std::string&,size_t,size_t&,size_t cache_cap=SIZE_MAX);
+std::string EncodeReference(const ReferenceState& state,size_t ceiling,size_t caller_bytes) {
   if (!state.original || state.marker_names.empty() || state.facets.empty())
     throw std::invalid_argument("Cannot persist an uninitialized native3D reference.");
+  const auto retained=transfer_memory::Add(caller_bytes,ReferenceStorageBytes(state));
+  if(retained==SIZE_MAX || retained>=ceiling)
+    throw std::length_error("Native3D reference encoding retained state exceeds storage budget.");
+  const auto encoded_bound=EncodedBytesBound(state);
+  const auto serialized=transfer_memory::Add(retained,transfer_memory::Mul(encoded_bound,8));
+  if(serialized==SIZE_MAX || serialized>ceiling)
+    throw std::length_error("Native3D reference serialization exceeds storage budget.");
   std::ostringstream out;
   out.imbue(std::locale::classic());
   out << std::setprecision(17);
@@ -150,7 +168,8 @@ std::string EncodeReference(const ReferenceState& state) {
     }
   }
   if(version>=8) {
-    const auto encoded=EncodeBoundaryAtlas(parameters->Coverage(),parameters->Mobility());RecordStream input(encoded);
+    const auto encoded=EncodeBoundaryAtlas(parameters->Coverage(),parameters->Mobility(),ceiling,
+        transfer_memory::Add(retained,transfer_memory::Mul(encoded_bound,2)));RecordStream input(encoded);
     for(size_t i=0;i<encoded.size()/8;++i){uint64_t word;input(word);out << word << '\n';}
   }
   // Optional trailing policy record (any version): readers without it see a legacy sidecar.
@@ -161,11 +180,14 @@ std::string EncodeReference(const ReferenceState& state) {
   if (!out)
     throw std::runtime_error("Native3D reference exceeds file limit.");
   auto bytes = out.str();
-  DecodeReference(bytes);
+  if(bytes.size()>encoded_bound)throw std::logic_error("Native3D reference exceeds its serialization bound.");
+  // The decoder's eight-wire-byte allowance also covers the encoder's live string buffers.
+  // Temporary validation must not reserve another host geometry-cache share.
+  size_t decoded_peak=0;DecodeReferenceImpl(bytes,ceiling-retained,decoded_peak,0);
   return bytes;
 }
 static ReferenceState DecodeReferenceImpl(const std::string& bytes,size_t ceiling,size_t& maximum_bytes,
-                                          size_t cache_cap=SIZE_MAX) {
+                                          size_t cache_cap) {
   if (transfer_memory::Mul(bytes.size(), 8) > ceiling)
     throw std::length_error("Native3D reference parsing exceeds storage budget.");
   std::istringstream in(bytes);
@@ -175,7 +197,8 @@ static ReferenceState DecodeReferenceImpl(const std::string& bytes,size_t ceilin
   const size_t construction = PlanarReference::ConstructionBytes(facets,header.analytic,header.affine), requested = DecodeBytes(bytes.size(), header);
   maximum_bytes=std::max(maximum_bytes,requested);
   if (requested == SIZE_MAX || requested > ceiling)
-    throw std::length_error("Native3D reference decoding exceeds storage budget.");
+    throw std::length_error("Native3D reference decoding exceeds storage budget: requested "+
+        std::to_string(requested)+", ceiling "+std::to_string(ceiling)+".");
   const auto query_cache=SU2NativeGeometry::MappedFacetReference::SurfaceQueryStorageBytes(
       header.curves,std::min(ceiling-requested,cache_cap));
   maximum_bytes=std::max(maximum_bytes,transfer_memory::Add(requested,query_cache));
@@ -388,10 +411,10 @@ bool LoadReference(const std::string& filename, ReferenceState& state) {
   CollectiveFailure(failure, CURRENT_FUNCTION);
   return loaded;
 }
-void WriteReference(const std::string& filename, const ReferenceState& state) {
+void WriteReference(const std::string& filename, const ReferenceState& state,size_t ceiling,size_t caller_bytes) {
   CLocalFailure failure;
   if (!SU2_MPI::GetRank()) try {
-      const auto bytes = EncodeReference(state), temporary = filename + ".tmp";
+      const auto bytes = EncodeReference(state,ceiling,caller_bytes), temporary = filename + ".tmp";
       {
         std::ofstream output(temporary, std::ios::binary | std::ios::trunc);
         if (!output.write(bytes.data(), bytes.size())) throw std::runtime_error("Cannot write native3D reference.");

@@ -14,7 +14,10 @@ constexpr size_t ReferenceCacheHostLimit3D = size_t(4) << 30;
 size_t ReferenceCacheRankQuota3D(size_t host_bytes, int ranks_on_host);
 /*! Quarter of valid Linux MemAvailable, capped at the shared-host limit; fallback is the precomputed sysconf quota. */
 size_t ReferenceCacheHostQuota3D(const std::string& meminfo, size_t fallback_quota);
-std::string EncodeReference(const ReferenceState& state);
+/*! Encoding validates with the decoder under the same ceiling, including the retained input reference.
+ * caller_bytes accounts additional retained native storage, excluding state itself. */
+std::string EncodeReference(const ReferenceState& state, size_t ceiling = ReferenceStorageLimit3D,
+                            size_t caller_bytes = 0);
 ReferenceState DecodeReference(const std::string& bytes, size_t ceiling = ReferenceStorageLimit3D);
 /*! Collective root I/O and elected decoding. Missing file returns false; malformed files never rebase geometry. */
 bool LoadReference(const std::string& filename, ReferenceState& state);
@@ -23,5 +26,6 @@ bool LoadReference(const std::string& filename, ReferenceState& state);
  * maximum_bytes includes caller_bytes; malformed files remain fatal rather than rebasing geometry. */
 bool LoadReference(const std::string& filename, ReferenceState& state, bool& loaded, std::string& reason,
                    size_t ceiling, size_t caller_bytes, size_t& maximum_bytes);
-void WriteReference(const std::string& filename, const ReferenceState& state);
+void WriteReference(const std::string& filename, const ReferenceState& state,
+                    size_t ceiling = ReferenceStorageLimit3D, size_t caller_bytes = 0);
 }  // namespace SU2Native3D

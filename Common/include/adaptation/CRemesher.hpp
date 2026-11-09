@@ -59,6 +59,7 @@ struct CRemeshResult {
   Status status = Status::COMPLETE;  /*!< \brief Status of the remesh. */
   std::function<bool()> beforeAcceptance; /*!< \brief Optional collective admission deadline before rebuilding; presence must match all ranks. */
   std::function<void()> onAccepted;  /*!< \brief Publish prepared reference bindings after successful replacement/transfer. */
+  size_t reference_io_caller_bytes = 0; /*!< \brief Retained native policy, prior reference and reader storage at output; excludes the new reference. */
 };
 
 /*!

@@ -1866,8 +1866,7 @@ TEST_CASE("Saved complete M6 source-only query bounds current reference against 
 TEST_CASE("Saved complete M6 reverse-only query bounds current physical faces against reference",
           "[.][NativeM6ReverseGeometry3D]") {SavedFinalEntityCertification(SavedGeometryProbe::Reverse);}
 
-TEST_CASE("Saved complete M6 faces certify fresh entity reverse bounds without a global target union",
-          "[.][NativeM6FacewiseGeometry3D]") {
+static void SavedM6EntityFaces(bool publish_reference) {
   using namespace SU2Native3D;World world;REQUIRE(world.size==1);
   constexpr size_t memory_limit=size_t(8)<<30,work_limit=20000000;
   auto read=[](const char* path){REQUIRE(path);std::ifstream input(path,std::ios::binary|std::ios::ate);REQUIRE(bool(input));
@@ -1898,6 +1897,37 @@ TEST_CASE("Saved complete M6 faces certify fresh entity reverse bounds without a
   if(!restored->Mobility().identity)restored=restored->WithMobilityPolicy(60,roles,setup,memory_limit,setup.caller_bytes);
   REQUIRE(restored->Mobility().angle==60);REQUIRE(restored->Mobility().roles==roles);
   auto entity=restored->WithEntityGeometry(tolerance,setup,memory_limit,setup.caller_bytes);
+  if(publish_reference) {
+    // Exercise the complete saved authority/policy; current-query faces are not substituted for accepted atlas traces.
+    auto archive=reference;archive.original=PlanarReference::WithParameters(definition,entity);
+    const auto caller=transfer_memory::Add(reference.original->ResidentBytes(),restored->ResidentBytes(),
+        reference_bytes.capacity(),payload.capacity(),bytes.capacity(),queries.capacity()*sizeof(Query),keys.capacity()*sizeof(Face));
+    const auto encoded=EncodeReference(archive,memory_limit,caller);REQUIRE(encoded.size()<(size_t(128)<<20));
+    bool default_refused=false;std::string default_reason;
+    try {const auto default_text=EncodeReference(archive,ReferenceStorageLimit3D,transfer_memory::Add(caller,encoded.capacity()));CHECK(default_text==encoded);}
+    catch(const std::exception& e){default_refused=true;default_reason=e.what();CHECK(default_reason.find("budget")!=std::string::npos);}
+    const std::string filename="saved_m6_publication.native_ref";
+    WriteReference(filename,archive,memory_limit,transfer_memory::Add(caller,encoded.capacity()));
+    ReferenceState loaded;bool found=false;size_t peak=0;std::string why;
+    const auto held=transfer_memory::Add(caller,ReferenceStorageBytes(archive),encoded.capacity());
+    REQUIRE(LoadReference(filename,loaded,found,why,memory_limit,held,peak));REQUIRE(found);CHECK(peak<=memory_limit);
+    const auto load_peak=peak;
+    REQUIRE(loaded.original->Parameters());
+    CHECK(loaded.original->Parameters()->GeometryTolerance()==tolerance);
+    CHECK(loaded.original->Parameters()->Mobility().identity==entity->Mobility().identity);
+    CHECK(EncodeReference(loaded,memory_limit,held)==encoded);
+    const auto immutable=EncodeReference(loaded,memory_limit,held);
+    CHECK_FALSE(LoadReference(filename,loaded,found,why,1,
+        transfer_memory::Add(held,ReferenceStorageBytes(loaded),immutable.capacity()),peak));CHECK_FALSE(found);
+    CHECK(EncodeReference(loaded,memory_limit,transfer_memory::Add(held,immutable.capacity()))==immutable);
+    std::ofstream result("native_m6_reference_publication_result.json");REQUIRE(bool(result));
+    result<<std::boolalpha<<"{\"roundtrip_complete\":true,\"wire_bytes\":"<<encoded.size()
+          <<",\"ceiling\":"<<memory_limit<<",\"load_peak_bytes\":"<<load_peak<<",\"default_refused\":"<<default_refused
+          <<",\"default_reason\":"<<std::quoted(default_reason)<<",\"reference_facets\":"<<archive.facets.size()
+          <<",\"current_surface_faces\":"<<entity->Surface().size()
+          <<",\"scope\":\"Saved original M6 authority with entity/mobility policy, not the lost291 current atlas or accepted-mesh replay\"}\n";
+    result.close();REQUIRE(bool(result));return;
+  }
   AtlasBudget budget;budget.maximum_work=work_limit;budget.maximum_bytes=memory_limit;budget.maximum_integer_bits=size_t(1)<<20;
   budget.caller_bytes=reference.original->ResidentBytes()+geometry->ResidentBytes()+restored->ResidentBytes()+entity->ResidentBytes()+
       payload.capacity()+bytes.capacity()+queries.capacity()*sizeof(Query)+keys.capacity()*sizeof(Face);
@@ -1921,3 +1951,8 @@ TEST_CASE("Saved complete M6 faces certify fresh entity reverse bounds without a
         <<",\"scope\":\"Fresh complete-face mesh-to-model bounds only; no global forward or accepted mesh claim\"}\n";
   output.close();REQUIRE(bool(output));INFO(reason);CHECK(processed>0);CHECK((processed==queries.size()||budget.work_exhausted));CHECK(refused==0);
 }
+
+TEST_CASE("Saved complete M6 faces certify fresh entity reverse bounds without a global target union",
+          "[.][NativeM6FacewiseGeometry3D]") {SavedM6EntityFaces(false);}
+TEST_CASE("Saved M6 entity authority publishes and reloads within its admitted budget",
+          "[.][NativeM6ReferencePublication3D]") {SavedM6EntityFaces(true);}
