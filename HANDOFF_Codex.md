@@ -41,25 +41,25 @@ match pinned hashes inA287/actual_runtime_startup.json. Cachehostquota4GiB,rank
 PUSHED startupcheckpointdaf3e29d10.
 Qualification explicitly full_mesh_accepted=false/actualcertificate_complete=false.
 
-LatestactualHOST1794185457:ALL11ownedidentities LIVE,load7.30/8CPUs,MemAvailable
-39.781GB,sampledtreeRSS8.921GB (notphysicalpeak). ALL1520pins reverifiedunchanged
-inA287/pin_check_quality_window3.json. No observedresourcepressure/stopcondition.
+LatestactualHOST1794185740:ALL11ownedidentities LIVE,load8.17/8CPUs,MemAvailable
+39.684GB,sampledtreeRSS8.934GB (notphysicalpeak). ALL1520pins unchanged
+inA287/pin_check_quality_window5.json; no compiledsource changes.
 Qualityentry23306/native573.762890:690804cells,27052q/27499J/localG1204/size0,
 ALLknown/flagscomplete, EXACT283entrycounts (oldnative783.249625).
-THIRDcomplete qualitywindow23488/native1097.106411:708230cells,17888q/16900J,
-localG1144/size0, ALLknown/flagscomplete; ownershipcommitted1107.335627 preserves
-allflags/counts. Counts/5543cumulativecommits EXACT283samewindow.
-Cumulativenetq9164/J10599/G60 removed in523.343521s (old851.539423s),
-q17.5105/s vs10.7617/s; qremoved/commit1.6533, debtmax/mean1.18294,
-joincallwallshare.458825 (NOTCPUidle). Traversal318.391Mvs324.591M(-1.91%);
-walltimedifference cannotbe solelycode. Secondwindow qretired19572/introduced16914
-net2658; nostuck/missingfeatures. Mostremainingqinterior; shortedgecorrelation NOT
-constructioncausality. Currentthirdwindowlocation/ladder/churn ledger preserved
-inquality_counter_assessment.json and complete rawprefixes; no newinstrumentation.
-Completeprefix/churn/location/ladder assertions PASS in existing analyzers;
-firstevent/first uninterruptedqualitypass ONLY. Eight unchangedtransfer/restart
-readinesspaths match actual287pins, NOTactual transfer/adaptedCFD/restartproof.
-CurrentprogressdataLOCAL; push checkpoint. KeepM6frozen; no otherjob/implementation.
+FIFTHcomplete qualitywindow23616/native1389.775754159:714635cells,
+13548q/12235J/localG1096/size0, ALLknown/flagscomplete.
+Counts/9676cumulativecommits EXACT283samewindow.
+Cumulativenetq13504/J15264/G108 removed in816.012864s
+(old1361.834525s), q16.5488/s vs9.9160/s;
+qremoved/commit1.3956, debtmax/mean1.16308,
+joincallwallshare0.459299 (NOTCPUidle). Traversal
+461.333Mvs470.232M;
+walltime difference cannot be solelycode. Counts/rates are completecensus values,
+NOTextrapolated live values or acceptance. Qualitychurn/location/ladder assertions
+PASS; existing counters only, no newinstrumentation/perf/GDB/baselinecampaign.
+Eight transfer/restart readinesspaths unchanged against actual287pins; NOTactual
+transfer/adaptedCFD/restartproof. KeepM6frozen and snapshots reviewable. No otherjob/
+implementation or demonstrated resourcepressure/authorizedstopcondition.
 
 Connected production change ONLY CNativeBoundary3D.cpp's private planar boundary-
 segment/open-triangle intersection proof: exact triangle-edge and segment-line
