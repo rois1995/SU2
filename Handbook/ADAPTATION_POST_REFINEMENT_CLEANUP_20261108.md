@@ -1,17 +1,16 @@
 # Post-refinement metric cleanup — bounded investigation
 
-Latest full289 is TERMINAL REFUSED after complete736323cell census with zero
-q/J/LOCAL-geometry/size failures and no unknown measurements. Mandatory final
-global two-sided geometry certification hit internal storage admission
-(13,482,375,068 requested versus12,884,901,888 ceiling), then the time wrapper.
-All24nonmanifest payloads are SHA-identical287. Integrated
-cleanup273 NEVER ran in274,278,283,287 or289; its global leading-edge effect remains
-unmeasured. All11actualHOST handles absent and all1520pins unchanged at terminal.
-No run was interrupted for cleanup review. See HANDOFF_Codex.md and
-[prepared-source investigation](ADAPTATION_PREPARED_SOURCE_CERTIFICATES_20261108.md).
-Current source/reverse evidence demonstrates expensive proof traversal and
-resolution-keyed target preparation/storage, not a new
-cleanup eligibility failure. No cleanup extension selected in this certification cycle.
+Current full293 is LIVE/frozen after qualified bounded reference persistence.
+Previous291 reached strict native acceptance:149051points/736323tets, ALLknown0
+q/J/global-geometry/size failures and complete flags. Conservative transfer passed;
+writing the geometry-reference sidecar then failed on the encoder default2GiB
+self-check. The connected existing-budget propagation fix passed serial/MPI6;
+see HANDOFF_Codex.md and ADAPTATION_REFERENCE_PERSISTENCE_20261109.md. No complete
+workflow event/adapted restart is claimed. No frozen run was interrupted for cleanup.
+
+Integrated cleanup273 NEVER ran in274,278,283,287,289 or291; its whole-field
+leading-edge effect remains unmeasured. Do not add a competing cleanup change
+while the qualified persistence/fullworkflow cycle is active.
 
 Confirmed: the original selection/zero-shape-debt admission gap permits short
 edges to survive; bounded tests establish four local feasible point removals,
@@ -21,9 +20,7 @@ post-refinement cleanup of an otherwise accepted mesh. Thus even a future
 accepted mesh need not have undergone short-edge cleanup. No claim of mesh-wide
 leading-edge improvement follows from its integration or passing fixtures.
 
-The present demonstrated blocker is final geometry certification work/storage. Do not
-widen cleanup policy or insert a competing experiment before resolving that
-blocker. Reuse complete287capture if later outcome warrants a matched whole-field
+Reuse complete287capture if a later outcome warrants a matched whole-field
 cleanup assessment, including complete neighbors, directionality, strict q/J,
 geometry, heights, work and net useful progress. A smaller mesh alone is insufficient.
 The requested around-nose resolution and excessive spanwise resolution remain
@@ -32,15 +29,6 @@ separate; no blanket flow-metric minimum edge or insertion-distance gate is just
 TWO accepted Euler50k meshes, conservative admissible transfer, finite adapted
 CFD and actual isolated adapted restart remain required; then BL/MPI and RANS500k.
 All gates, budgets, validity-first construction and CAD optionality unchanged.
-Current update2026-11-09:291 reached strict native acceptance, ALLknown0q/J/geometry/
-size,149051points/736323tets; conservative transfer completed. Reference sidecar
-write then failed on encoder default2GiB self-check. ONE connected budget propagation
-fix is qualified serial/MPI6; full293 is LIVE/frozen. See current HANDOFF and
-ADAPTATION_REFERENCE_PERSISTENCE_20261109.md. Cleanup never ran291 either. Thus the
-eligibility limitation and four local feasible removals remain confirmed, but its
-whole-field LE benefit and complete causal explanation remain unproved. Do not
-add a competing cleanup implementation while persistence/fullworkflow is active.
-
 Older staged notes below preserve chronology, not current job status.
 
 R=`integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57`.
