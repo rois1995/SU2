@@ -17,13 +17,29 @@ A287=`R/m6_runs/euler_build287_exact_face_coverage_mach_only_real_cfd50k`.
 A283=`R/m6_runs/euler_build283_pinched_graph_witness_mach_only_real_cfd50k`.
 A274=`R/m6_runs/euler_build274_metric_cleanup_mach_only_real_cfd50k`.
 
-## CURRENT —287 qualified; immediately launch full same-seed TWO-event M6
+## CURRENT —287 full same-seed TWO-event M6 LIVE/FROZEN
 
-All build/probe/serial/MPI287handles TERMINAL, pins unchanged. No owned heavy job
-live yet. R/certification287_qualification.json SEALED, all_required_checks_passed,
-mpi_ranks6; explicitly full_mesh_accepted=false/actual certificate_complete=false.
-Qualified source cbaba0b675 PUSHED; qualification documentation/evidence nowLOCAL,
-push then launch_m6287.py immediately. No more implementation variants.
+Qualification SEALED/PUSHED6dfc9e73f7, sourcecbaba0b675. Full287 ACTIVE tool65435;
+ONE owned heavy workload. Exact actualHOSTstartup tree inA287/owned_startup.json,
+all1520source/build/runtime/config/input pins verifiedunchanged atstartup.
+Wrapper1242721/start22850740; runner1243010/start22851483;
+time1243216/timeout1243217/MPI1243218 allstart22852005;
+ranks1243221–1243225/start22852008,rank1243226/start22852009.
+ConfigSHA5ad2dc1d9a1cd8bff87f633617b191b50defbc261ab3d0b2ed0987a34722b89e,
+EXACTsame283config. Mach-onlyL1/50k savedREALCFDseed, TWOevents,native5400/outer14400.
+Allcompiled/executing/pinned code/helpers/binary/runtime/config/inputs FROZEN.
+Do not introduce another implementation/build/test while it runs. Let terminal
+outcome or preserved existing authorizedstop evidence drive next work. Current
+run/status and actualPID+startticks govern; never repeat historicalstophelpers.
+Atlaunch load1.13,MemAvailable48.610GB,diskfree122.610GB. FirstCFDCL.269535/CD.013536,
+metric recovery0.361s, all61330fits withoutWLSfallback. Initialrestart verification
+PASSED:61330coords/22fields BIT-IDENTICAL256/qualified254target,SENSOR_MACHonly.
+A287/initial_cfd_target_equivalence.json +initial_verifier_reuse.json. ORIGINAL-grid
+proof ONLY, not adaptedCFD/transfer. ALL6actual executableinodes and84mappedELFfiles
+match pinned hashes inA287/actual_runtime_startup.json. Cachehostquota4GiB,rank
+715827882bytes, nativeworkingstorage12GiB/rank unchanged. Startup/live evidence
+LOCAL; push reviewable checkpoint.
+Qualification explicitly full_mesh_accepted=false/actualcertificate_complete=false.
 
 Connected production change ONLY CNativeBoundary3D.cpp's private planar boundary-
 segment/open-triangle intersection proof: exact triangle-edge and segment-line

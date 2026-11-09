@@ -17,7 +17,8 @@ whole-run speedup. Focused12cases/7281assertions; serial90cases/67446assertions;
 MPI6 milestone124cases EVERYrank passed. Source/binary/runtime/input pins unchanged,
 allowned handles terminal. Qualification explicitly is NOTmeshacceptance.
 
-Push evidence then immediately fullsame-seed TWO-event M6 via launch_m6287.py.
+Qualification PUSHED6dfc9e73f7. Fullsame-seed TWO-event M6 build287 is LIVE/FROZEN
+(tool65435; exact11owned identities/all1520pins in HANDOFF and owned_startup.json).
 No more local variants, baseline/perf/GDB campaigns or extra MPI campaign before
 its outcome. Keep source/helpers/binary/config/runtime/inputs frozen. Current
 handoff will record exact owned handles and startup pins. Native5400/outer14400,
