@@ -5839,7 +5839,7 @@ class MeshOptimizer {
   std::unordered_map<std::array<double,3>,Tensor,CoordinateHash> tensors;
   std::map<std::array<Id,4>,CellQuality> qualities;  // ordered cell vertex ids (an identity keeps its coordinates)
   std::map<std::array<double,6>,long double> exact;
-  // Target/options are fixed during this optimizer; every commit invalidates all geometry/star context.
+  // Target/options are fixed; pure-shape rejections depend on the complete vertex star.
   std::set<Id> rejected_smoothing;
   bool Limited() {
     if(limited)return true;
@@ -5996,7 +5996,7 @@ class MeshOptimizer {
     for(Id id:old) {
       const auto& row=mesh.at(id);const auto faces=OppositeFaces(row.cell);
       for(unsigned k=0;k<4;++k)if(row.physical[k].present){auto f=faces[k];std::sort(f.begin(),f.end());bindings.emplace(f,row.physical[k]);oldPhysical.insert(f);physical.erase(f);}
-      for(const auto& n:row.cell.v){auto& s=star[n.id];s.erase(std::remove(s.begin(),s.end(),id),s.end());}
+      for(const auto& n:row.cell.v){rejected_smoothing.erase(n.id);auto& s=star[n.id];s.erase(std::remove(s.begin(),s.end(),id),s.end());}
       mesh.erase(id);
     }
     std::set<Face> used;
@@ -6004,12 +6004,12 @@ class MeshOptimizer {
       c.id=next_cell++;OwnedCell row;row.cell=c;row.version=1;const auto faces=OppositeFaces(c);
       for(unsigned k=0;k<4;++k){auto f=faces[k];std::sort(f.begin(),f.end());const auto b=bindings.find(f);if(b!=bindings.end()){row.physical[k]=b->second;used.insert(f);physical.insert_or_assign(f,b->second.facet);}}
       if(!mesh.emplace(c.id,row).second)throw std::logic_error("Native3D optimizer repeated a cell identity.");
-      for(const auto& n:c.v){star[n.id].push_back(c.id);points[n.id]=n.p;}
+      for(const auto& n:c.v){rejected_smoothing.erase(n.id);star[n.id].push_back(c.id);points[n.id]=n.p;}
     }
     for(const auto& a:added)if(!used.count(a.first))throw std::logic_error("Native3D optimizer lost a created boundary face.");
     if(added.empty())for(const auto& f:oldPhysical)if(!used.count(f))throw std::logic_error("Native3D optimizer lost a physical face binding.");
     if(removed!=UINT64_MAX){const auto s=star.find(removed);if(s!=star.end()&&!s->second.empty())throw std::logic_error("Native3D optimizer removed a used vertex.");star.erase(removed);points.erase(removed);}
-    changed=true;rejected_smoothing.clear();Bound();
+    changed=true;Bound();
   }
   void RememberRejectedSmooth(Id p) {
     if(!options.cache_entries)return;

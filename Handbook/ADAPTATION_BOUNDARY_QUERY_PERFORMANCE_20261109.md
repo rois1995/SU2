@@ -114,3 +114,51 @@ Adapt covers subsequent remesh/replacement/transfer/mesh+reference output. Use
 3819.85s as total accepted first-adaptation comparison alongside native3640.719s,
 matching-stage work/progress and CPU/busy/join. Native2913535.671s is a native-only
 comparison;291 failed IO and has no completed whole-adaptation timing baseline.
+
+## Active implementation start — UNBUILT / UNVALIDATED
+
+First connected component edits MeshOptimizer::Commit: invalidate remembered pure-
+shape rejections for every vertex in BOTH retired and introduced cells, rather than
+clearing unrelated entries. The complete affected star changes under any shared
+coordinate/connectivity/physical-binding edit; target/options stay frozen during
+the private optimizer. Removed/moved identities occur in the retired/introduced
+sets. Existing pure-shape-only/resource exclusions and capacity bound stay intact;
+bulk optimizer replacement still clears all history. This is NOTqualified yet.
+Required regressions: unrelated commit retains eligible rejection; shared neighbor/
+association/topology changes reopen it; cached/cold optimizer results and heights
+agree under complete-search budgets; resource exhaustion is never remembered.
+
+Old-side movement topology and numeric guidance reuse are still under design; no
+prepared-context API or new distance certificate implemented yet. Existing
+SmoothBoundary already prepares projection screening and passes the RAW proposal
+again into MoveVertex, correctly avoiding an idempotent-projection assumption.
+Prepare expensive old context lazily after existing cheap screening; eager setup
+on every searched star risks regression. Fresh position metrics and trial parameter
+views remain mandatory. Finish the connected implementation before broad regression
+or another M6 replay; no component-only capability claim.
+
+Read-only prepared-leaf review: target prepare calls Upper BEFORE Distance, and
+Distance runs only when upper>tolerance. Existing prepared leaves have footprints=false:
+do NOTcall TriangleUnion::Upper on them; its non-passing fallback indexes plane data
+that those leaves do not own. A separate convex-only witness can use exact selected
+pieces, with original joined-union fallback when no witness passes. Complete-support
+lower distance must still visit all pinned support leaves. Hit/miss ordering and
+uncached oracle must preserve numeric equivalence, not merely gate classification.
+Deferred construction must preserve caller-byte restoration, admitted overlap and
+shared-cache lifetime; no half-built target publication. Benefit remains unproven.
+
+Existing ignored corpus is available: build235/geometry_trial_queries_v1/
+current_geometry_queries.bin,5744B,SHA
+c176553d16ea9a1846807d5377070618c917b74f831d88266d307abd1e6f30e0.
+Version18,tol1e-4,12actual trial queries, immutable input/preparation receipts.
+Latest preserved replay is build237,cases/geometry_current_queries_20261107T054026_2837742:
+559126coldwork,1094scopebuildwork,540961traversalwork,163assertions. HISTORICAL,
+NOTcurrent293timing. Reuse tag NativeM6GeometryQueries3D with candidate build and
+SU2_NATIVE_TRANSACTION_REFERENCE/HAUSD/GEOMETRY_QUERY_INPUT in a NEWcase directory.
+No current293 corpus replay exists; no new old-baseline campaign was started.
+
+C++worktree now differs from qualified293; existing293binaries remain baseline only.
+Do not launch old build293 wrappers against modified source pins. No build/test/job
+is active. Next: complete/review old-star/guidance reuse and focused cache invalidation
+checks, then ONE connected build/serial/MPI milestone and complete first-adaptation
+replay at unchanged5400budget using original saved CFDseed.

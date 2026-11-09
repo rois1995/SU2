@@ -21,7 +21,7 @@ R=`integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57`.
 A293=`R/m6_runs/euler_build293_bounded_reference_mach_only_real_cfd50k`.
 D293=`R/m6_runs/euler_build293_adapted_event1_disk_restart_v1`.
 
-## CURRENT — Euler workflow and actual isolated disk restart VERIFIED
+## CURRENT — boundary performance WIP; qualified Euler293 baseline preserved
 
 No ownedheavyjob active. Fullworkflow tool90456 TERMINAL0/6615.086935759s,
 workflow_accepted=true,pins_verified=true,changed=[]. All11actualHOST identities
@@ -45,8 +45,15 @@ restart, explicitly restart-event1 only. D293rawstatus.disk_restart_validated=fa
 is the runner's BEFORE-independent-validation flag; do not confuse it with the
 subsequent verified PASS. This is steadyCFDrestart, NOTresumed-adaptation cycle-
 numbering/input-overwrite qualification. Neither continuedCFD nor restart claims
-converged physics. Source/code remains293unchanged; next active cycle is boundary
-performance DESIGN/implementation, not another baseline run or BL/RANS job yet.
+converged physics. No owned job is active. Active connected performance implementation has STARTED:
+Common/src/adaptation/CNativeEngine3D.cpp now invalidates local pure-shape rejected
+smoothing entries only for vertices in retired/introduced cells at Commit; bulk
+replacement still clears all. UNBUILT/UNVALIDATED; no performance benefit claim.
+Old-star topology/numeric guidance reuse remains under design, prepared-leaf option
+is diagnostic pending exact-oracle/admission proof. See active design section.
+Complete connected source/test changes before build/focusedserial/ONE MPI milestone,
+then immediate same-seed FIRST adaptation. Existing293binaries are baseline only;
+do NOTrun old wrappers with modified CPP/source pins. No competing BL/RANS job yet.
 Do NOTrelaunch293,65802 or historical stophelpers.
 
 ## Completed Euler two-event evidence
