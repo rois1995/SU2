@@ -52,35 +52,30 @@ terminalprovenance. Sampled peak treeRSS13.615603712GB (NOTtruephysicalpeak).
 
 ## Active cycle — bounded reference persistence using existing native budget
 
-Candidate292 is implemented LOCAL. Build292 TERMINAL0/263.284s, all99actualbuild
-handles absent/pins unchanged. CFD SHA
+Production292/test-only293 qualified for fullM6; sourcecode PUSHEDc63ea88490.
+Build292263.284s; build29347.717s, productionCFD BYTE-IDENTICAL292:
 89aa555d0a6a13679cc62f989fc30c5b4acec0c773bc3d972fe4cadf5629e75c.
-Focused292 PASSED29cases/1583assertions/55.777s, all5handles absent/pins unchanged.
-Dedicated negativewriter TERMINAL1 EXPECTED/4.621s: priorfileunchanged/no.tmp, pins
-unchanged; allsampledhandles absent and actualhost test/orted sweep empty.
-Large savedauthority292 TERMINAL1/283.026s, all5handles absent/pins unchanged.
-278214/278215assertions passed; one expected-default-refusal call was incorrectly
-evaluated inside CHECK, so Catch caught the exception before its outer handler.
-Roundtrip47,601,733B did complete under8GiB; admittedLoadPeak6,491,331,901B, sampled
-individualRSS1,005,080,576B. Default-refused=false in its JSON is a harness artifact;
-case remainsFAILED, preserved reference292_harness_failure.json.
-Test-only293 correction evaluates EncodeReference before CHECK and charges its
-retained encoded string. Build293 TERMINAL0/47.717s, pinsunchanged/all10handles absent;
-productionCFD BYTE-IDENTICAL292 (89aa555d...e75c). Focused293 PASSED29cases/1583
-assertions/54.838s,all5handles absent/pins unchanged. Dedicated negative293 EXPECTED
-exit1/4.589s,priorfileunchanged/no.tmp,pins unchanged/allhandles absent+host sweep.
-Corrected largeauthority293 LIVE tool57395; then connectedserial/ONE MPI milestone,
-fullsame-seed TWOevents. Qualification remains INCOMPLETE.
-No budget/gate changes; C++/binary/pinnedhelpers remainFROZEN.
-Eleven affected
-C++headers/sources/tests; no construction/repair/metric/geometry gate changes.
-Existing ceiling is threaded through all3driver output modes. Retained prior
-reference/policy/reader envelopes and continuation capacities are propagated;
-encoder admits wire/text/atlas/self-decode peaks, temporary decoder cachecap0.
-Public2GiB default, native12GiB, hostcache4GiB and work/time limits unchanged.
+Allactualbuild/testhandles terminal and pins unchanged before eachnextstage.
+Focused29329cases/1583assertions/54.838s; expectednegative1exit/4.589s preservesprior
+file/no.tmp; largeauthority1case/278215assertions/286.295s. 47,601,733B roundtrip,
+2GiB refusal correctlycaught. AdmittedLoadPeak6,491,331,901B, sampledindividualRSS
+1,005,264,896B: originalM6authority/entitypolicy, NOTlost291currentatlas replay.
+Connectedserial97cases/67903assertions/205.072s; ONE MPI6 130cases EVERYrank/224.471s,
+assertions72217/71302/71110/71487/71413/71342 inlogorder. MPIall10handles absent.
+R/reference293_qualification.json seals5stages including explicitexpectednegative.
+No newM6 run yet afterfix: pushqualification, launch_m6293.py ONCE immediately.
+C++/binary/runtime/pinnedhelpers/inputs remainFROZEN for fullsame-seed TWOevents.
+
+All3driver output modes propagate existingbudget plus priorreference/policy/reader/
+marker envelopes; continuation capacities charged withshareddata once. Encoder
+admits wire/text/atlas/self-decode, temporary cachecap0. Public2GiBdefault/native12GiB/
+hostcache4GiB/work/time/gates unchanged. No operators or construction changes.
 [Current design](Handbook/ADAPTATION_REFERENCE_PERSISTENCE_20261109.md).
-launch_build292.py alreadyexecuted ONCE; do NOTrelaunch. Continue focused/largeauthority/
-expectednegative/serial/ONE MPI qualification, then fullsame-seed TWOevents.
+
+Failed292largecase is PRESERVED:278214/278215passed, expectedexception mistakenly
+insideCHECK. reference292_harness_failure.json records it. Test-only293 movedcall
+outsideCHECK, chargedretainedstring, productionunchanged. Do notpromote failed292
+ordinarycase or its default_refused=false harnessartifact into success.
 
 Demonstrated source mismatch: CNativeReferenceIO3D.cpp EncodeReference calls
 DecodeReference(bytes) with defaultReferenceStorageLimit3D=2GiB, while production

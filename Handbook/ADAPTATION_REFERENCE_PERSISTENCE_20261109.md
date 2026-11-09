@@ -60,3 +60,16 @@ Completion still requires both accepted meshes, conservative admissible transfer
 finite continued adapted CFD and isolated actual adapted disk restart; then BL/MPI
 qualification and corresponding RANS500k workflow. Passing archive fixtures is not
 completion. The current291 SU2 file lacks its sidecar and matching restart.
+
+## Qualified293, full M6 next
+
+Build292263.284s; test-only29347.717s, productionCFD byte-identical292. Focused29cases/
+1583assertions54.838s; dedicated negative4.589s expectedexit1, priorfileunchanged/no.tmp.
+Large originalM6authority roundtrip47,601,733B:1case/278215assertions286.295s under
+8GiB, default2GiB refusal correctlycaught. Admittedloadpeak6,491,331,901B is not RSS;
+sampledindividualRSS1,005,264,896B. Failed292CHECK-wrapper mistake remainspreserved,
+notreported aspass. Production was unchanged by293test correction.
+Connectedserial97cases/67903assertions205.072s; ONE MPI6 130cases EVERYrank224.471s.
+Allpins unchanged/allactualhandles terminal betweenstages. reference293_qualification
+sealsfivechecks and explicitexpectednegative. Fullsame-seed TWOeventM6 immediately;
+actualcurrentmesh persistence, adaptedCFD and isolatedrestart remain unproved.
