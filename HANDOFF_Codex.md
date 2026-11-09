@@ -37,6 +37,14 @@ C++/binary/runtime/pinnedhelpers/inputs FROZEN. Do NOT launch another attempt or
 edit them before verified terminal handles; preserve frozenrun unless outcome or
 existing authorized stop evidence justifies action. Native5400/outer14400/native
 12GiB/hostcache4GiB and ALL gates unchanged. No event outcome claimed yet.
+Qualityentry23306/native578.709s:690804cells,27052q-bad/27499J-bad/1204geometry-bad/
+0size-bad, ALLmeasurements known and completeflags. All83matchingstages against291
+have EXACTcounts/flags/comparedwork. Latest sampled treeRSS8.737GB (notphysicalpeak),
+hostavailable~35.7GiB, all11identitieslive. A293/construction_progress_assessment.json,
+comparison291_matching_stages.json and stage_parser_reuse.json seal existingparser
+reuse/prefixhashes. Read-only transfer_restart_readiness_reuse.json verifies seven
+unchangedpins; driverdiff reviewed for outputbudget propagation only. Actualnewrun
+transfer/continuedCFD/restart remainUNPROVED.
 
 ## Previous291 TERMINAL after native acceptance/transfer; reference write failed
 
