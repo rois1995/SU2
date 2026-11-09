@@ -950,3 +950,14 @@ do not establish a new curved-BL regression; keep actualM6 BL as active capabili
 target. Evidence: staged57/mpi303_baseline_failure_comparison.json and
 mpi303_distributed_baseline_comparison.json; curved_bl303_qualification.json records
 partial/baseline-controlled scope, not an all-suite pass.
+
+### Curved BL volume chord direction — unproven active-blocker hypothesis311
+
+IntegrationRule3DVisible chooses an opposite tetrahedral vertex from wall-distance
+scores and uses collapsed face-to-vertex columns. Some such chords could have small
+wall-distance variation relative to physical length, making global1-Lipschitz
+level exclusion expensive. Existing normal-direction chart construction elsewhere
+in IntegrationRule3D may be reusable with a curved query's proposed normal (axis
+choice is heuristic, never a geometry certificate). No change selected: first use
+faithful311 captured chord/fresh bounds to distinguish this from accounting residue
+or other causes. Keep all convergence, geometry, height and resource gates.
