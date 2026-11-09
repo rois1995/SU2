@@ -481,8 +481,8 @@ work determines whether this warrants serial+ONE MPI and immediatefullsame-seed 
 ###289 qualified; return immediately to full M6
 
 Build379.306s; focused12cases/7281assertions52.757s; serial90cases/67446assertions
-200.069s; ONE MPI6 124cases EVERYrank220.460s, assertions72054/71127/71330/70947/
-71155/71208. Allpins unchanged/all actualhandles terminal before nextstage.
+200.069s; ONE MPI6 124cases EVERYrank220.460s, assertions72048/70941/71161/71223/
+71127/71321. Allpins unchanged/all actualhandles terminal before nextstage.
 Actualcurrent287 source: ALL82448domains/bounds/order/per-domainwork EXACT;
 query83.042→27.921s, traversal81.156→25.990s, serialCPU89.79→35.01s.
 Savedqualified283 reverse: ALL60892domains/bounds/order/per-domainwork EXACT;

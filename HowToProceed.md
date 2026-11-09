@@ -40,8 +40,11 @@ Both comparisons preserve EVERY completeddomain/bound/per-domain work exactly.
 SourceCPU89.79→35.01s/query83.04→27.92; reverseCPU184.71→106.92s/query177.59→99.76s.
 No completedcertificate yet. Connectedserial PASSED90cases67446assertions200.069s;
 ONE MPI6 PASSED124cases EVERYrank220.460s, allpins/actualhandlesverified.
-Qualification sealed; immediately fullsame-seed TWOeventM6, then transfer/continued
-adaptedCFD/isolated adaptedrestart. No further localvariants before fulloutcome. All source/binary/helpers/inputs frozen during eachrun.
+Qualification sealed; fullsame-seed TWOeventM6 build289 NOWLIVE/FROZEN tool61806.
+All1520pins/sixactualexes/84mappedELFfiles perrank verified; initial61330coords/22fields
+BIT-IDENTICALsameMach-only seed. Actualownedhandles inHANDOFF/A289. No source/helper/
+binary/input edits or extra campaign untilterminaloutcome/authorizedpreservedevidence.
+Then transfer/continuedadaptedCFD/isolated adaptedrestart. All source/binary/helpers/inputs frozen during eachrun.
 No new scheduler/config/largercavity/budget/gate. Otherhypotheses backlog; ONEcycle/job.
 
 Counts/operations matched283 ONLYthroughround24000,firstdiverged24064; latermatching
