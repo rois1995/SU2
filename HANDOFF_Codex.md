@@ -36,10 +36,10 @@ R/certification289_qualification.json seals fivecases/allpins/terminalreceipts.
 Current actualexe is test_driver onall6ranks, standaloneCFD also built/qualified.
 Initialqualityentry23306/native578.990650s COMPLETE690804cells:27052q/27499J/
 1204geometry/0size, allknown/flagscomplete, EXACTsame counts/flags as287(entry573.763s).
-Latestcomplete window23424/native920.028520s:704561cells,20067q/19324J/1146G/0size,
-allknown/flagscomplete. EXACTcounts/flags versus287(samewindow920.562714s).
-Read-only monitoring delegated bounded300s to cert287_graph_audit; no edits/jobs.
-A289/initial_quality_entry_verified.json + frozen_progress_checkpoint_v1.json preserve
+Latestrecorded window23936/native1927.185885s:
+725684cells,6217q/4940J/1023G/0size, allknown/flagscomplete. EXACTcounts/flags versus287.
+Read-only counter monitoring delegated bounded600s to cert287_graph_audit; no edits/jobs.
+A289/initial_quality_entry_verified.json + frozen_progress_checkpoint_v2.json preserve
 completeprefix evidence. No early
 construction speedup claim; largecertificate savings remain to prove in fullrun.
 No acceptedmesh/transfer/adaptedCFD/restart observed. Do not declare completion from
