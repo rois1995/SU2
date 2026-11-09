@@ -33,6 +33,16 @@ C++/binary/runtime/helpers/inputs FROZEN through outcome; no otherownedheavyjob.
 Preserve run until terminal or preserved evidence meets authorized stopconditions.
 ZEROacceptedmeshes. No transfer/adaptedCFD/diskrestart yet.
 
+Current291 firstqualityentry round23306/native582.909946864s:690804cells, ALLknown
+27052q-bad/27499J-bad/1204localgeometry-bad/0size-bad; completeflagsALLtrue.
+ALL83matchingstages counts/flags/comparedwork EXACT289; oldentry578.990650232s.
+No causal timingspeedup claim; the changed finalproof has notrun yet.
+A291/initial_quality_entry_verified.json seals1520pins+all6sourceprefixes;
+quality_entry_host_resources.json preservesactual11identities,CPU/RSS/hostpressure.
+Existing analyze_m6291_frozen.py +analyze_m6291_quality_live.py reuse counters versus289;
+no newbaseline/perf/GDB or repairdecisions. Keep compiledsources FROZEN.
+Transfer/restart readiness8paths matchactual291pins, NOTexecutionproof.
+
 ### Previous289 terminal evidence selects this connected certificate cycle
 
 ZERO accepted meshes. Event1 exit25210/native5344.631751870:736323cells, ALLknown
