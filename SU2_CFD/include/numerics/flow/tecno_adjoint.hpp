@@ -1277,7 +1277,9 @@ void JumpRowEnds(const Geometry& geometry, unsigned short nDim, unsigned short n
  *      R_e = min(1, cap/Pm_e), room = max(0, cap - R_e Pm_e), a_e = min(1, room/(phi_c o)) (valid, phi_c o > 0) else 1;
  *  (4) rho_e' = min of R_e over the valid observers with c > 0 (1 if none), alpha = min(rho, a_e),
  *      gamma = 1 - alpha on every entry (S4d, ROE_TECNO_PLAN.md 6.10; S4c had the zero term
- *      gamma = max(0, 1 - alpha - (room - alpha phi_c o)/|dy|), which leaves central edge fields at vetoed entries).
+ *      gamma = max(0, 1 - alpha - (room - alpha phi_c o)/|dy|), which leaves central edge fields at vetoed entries);
+ *  (5) TECNO_ADJOINT_FCT_PASSES = n > 1 (S4e, ROE_TECNO_PLAN.md 6.11): n - 1 further passes of (3)-(4) on the remaining
+ *      amounts (1 - alpha) with the remaining capacity Q_e = cap_e - S_e(alpha), alpha nondecreasing, the box kept.
  * Residual (tecnoAdjointEdgeFCT): Delta part D (alpha_r l_c + gamma_r dy), moment alpha_r phi_c D l_c at both ends,
  * l_c = dy - phi_c sigma, (alpha_r, gamma_r) = (r alpha, 1 - r (1 - gamma)) with the MUSCL ramp r, transpose coefficient
  * GradientCoefficient(1, 0): sum_m w_m.R_m = sum_e sum_f D (alpha_r l_c^2 + gamma_r dy^2) >= 0 for any values (A1');
@@ -1298,9 +1300,9 @@ inline unsigned short FCTWidth(unsigned short nDim) { return TVDWidth(nDim) + 8 
 constexpr unsigned short FCT_PHIC = 0, FCT_ALPHA = 4, FCT_GAMMA = 8, FCT_STORE_WIDTH = 12;
 
 /*--- Per-edge work values (canonical fields): phi_c, cap, o, valid, M_c (scalar fields), the shear moment vector, R,
- * room and a_e. ---*/
+ * room, a_e and alpha (of the current pass). ---*/
 constexpr unsigned short FCT_E_PHIC = 0, FCT_E_CAP = 4, FCT_E_O = 8, FCT_E_VALID = 12, FCT_E_MC = 16, FCT_E_MVEC = 20,
-                         FCT_E_R = 23, FCT_E_ROOM = 27, FCT_E_AOWN = 31, FCT_E_WIDTH = 35;
+                         FCT_E_R = 23, FCT_E_ROOM = 27, FCT_E_AOWN = 31, FCT_E_ALPHA = 35, FCT_E_WIDTH = 39;
 
 /*!
  * \brief Static data of EDGE_ENTROPY_FCT on a partition: global node degrees, star slots of every (edge, local end) and
@@ -1321,7 +1323,7 @@ struct FCTSetup {
  *        column 4 y + f, the per-edge values (FCT_E_*) and the exchange buffer (nPoint, 4 maxDeg).
  */
 struct FCTWork {
-  su2activematrix A, Pm, rho, edge, buf;
+  su2activematrix A, Pm, rho, edge, buf, S;
 };
 
 /*!
@@ -1796,19 +1798,143 @@ void FCTObserverMin(const Geometry& geometry, unsigned short nDim, const WeightT
 }
 
 /*!
- * \brief Pass (6) on every local edge: alpha and gamma = 1 - alpha (S4d), stored with phi_c in the local layout (FCT_PHIC, FCT_ALPHA,
- *        FCT_GAMMA + local field).
+ * \brief Pass (6) on every local edge: alpha = min(rho, a_e) of the first Zalesak pass (FCT_E_ALPHA + f).
+ */
+template <class Geometry>
+void FCTAlpha(const Geometry& geometry, const su2activematrix& rho, su2activematrix& ed) {
+  SU2_OMP_FOR_STAT(OMP_CHUNK)
+  for (unsigned long iEdge = 0; iEdge < geometry.GetnEdge(); ++iEdge) {
+    for (unsigned short f = 0; f < TVD_NFIELD; ++f) {
+      const su2double r = fmin(rho(iEdge, f), rho(iEdge, 4 + f));
+      ed(iEdge, FCT_E_ALPHA + f) = fmin(r, ed(iEdge, FCT_E_AOWN + f));
+    }
+  }
+  END_SU2_OMP_FOR
+}
+
+/*--- Further Zalesak passes on the remaining amounts (TECNO_ADJOINT_FCT_PASSES > 1, S4e, ROE_TECNO_PLAN.md 6.11). With the
+ * current alpha feasible (S_e(alpha) = sg alpha_e phi_c sigma + sum_pairs alpha_e' c <= cap_e at every valid observer),
+ * the remaining capacity Q_e = max(0, cap_e - S_e(alpha)) contains the cancellation of the amounts already accepted.
+ * One pass of steps (3)-(6) on the remaining amounts (1 - alpha_e') c and (1 - alpha_e) phi_c o with the capacity Q_e
+ * gives increments d = (1 - alpha) min(rho', a_e') >= 0 with S_e(alpha + d) <= S_e(alpha) + room' + R' Pm' = cap_e (the
+ * negative remaining amounts only lower S_e). alpha is nondecreasing and bounded by 1; the first pass is S4d. ---*/
+
+/*!
+ * \brief Remaining pass, owned nodes: the halves of S_e(alpha) (pairs only, work S) and of the remaining positive amounts
+ *        Pm' = sum max(0, c) (1 - alpha_k) (work Pm) of every valid observer at the node, column 4 y + f.
+ */
+template <class Geometry, class WeightType, class VolumeType, class StoreType>
+void FCTRemainingHalves(const Geometry& geometry, unsigned short nDim, const WeightType& weights,
+                        const VolumeType& volume, const StoreType& ing, const su2activematrix& ed, su2activematrix& S,
+                        su2activematrix& Pm) {
+  FCTNodeStar st;
+  SU2_OMP_FOR_STAT(OMP_CHUNK)
+  for (unsigned long a = 0; a < geometry.GetnPointDomain(); ++a) {
+    FCTLoadStar(geometry, nDim, weights, volume, ing, a, st);
+    for (size_t h = 0; h < st.edge.size(); ++h) {
+      for (unsigned short f = 0; f < TVD_NFIELD; ++f) {
+        su2double sum = 0.0, pos = 0.0;
+        if (ed(st.edge[h], FCT_E_VALID + f) != 0.0) {
+          for (size_t k = 0; k < st.edge.size(); ++k) {
+            const su2double c = FCTPair(nDim, st, h, k, f, ed);
+            const su2double alpha = ed(st.edge[k], FCT_E_ALPHA + f);
+            sum += alpha * c;
+            pos += fmax(su2double(0.0), c) * (1.0 - alpha);
+          }
+        }
+        S(st.edge[h], 4 * st.y[h] + f) = sum;
+        Pm(st.edge[h], 4 * st.y[h] + f) = pos;
+      }
+    }
+  }
+  END_SU2_OMP_FOR
+}
+
+/*!
+ * \brief Remaining pass, every local edge: Q, R', room' and a_e' on the remaining amounts (FCT_E_R, FCT_E_ROOM,
+ *        FCT_E_AOWN are overwritten).
+ */
+template <class Geometry>
+void FCTRoomRemaining(const Geometry& geometry, const su2activematrix& S, const su2activematrix& Pm,
+                      su2activematrix& ed) {
+  SU2_OMP_FOR_STAT(OMP_CHUNK)
+  for (unsigned long iEdge = 0; iEdge < geometry.GetnEdge(); ++iEdge) {
+    for (unsigned short f = 0; f < TVD_NFIELD; ++f) {
+      const bool valid = (ed(iEdge, FCT_E_VALID + f) != 0.0);
+      const su2double alpha = ed(iEdge, FCT_E_ALPHA + f);
+      const su2double own = ed(iEdge, FCT_E_PHIC + f) * ed(iEdge, FCT_E_O + f);
+      const su2double Q =
+          valid ? fmax(su2double(0.0), ed(iEdge, FCT_E_CAP + f) - alpha * own - S(iEdge, f) - S(iEdge, 4 + f))
+                : su2double(0.0);
+      const su2double pm = Pm(iEdge, f) + Pm(iEdge, 4 + f);
+      const su2double R = (valid && (pm > Q)) ? Q / pm : su2double(1.0);
+      const su2double room = fmax(su2double(0.0), Q - R * pm);
+      const su2double den = own * (1.0 - alpha);
+      ed(iEdge, FCT_E_R + f) = R;
+      ed(iEdge, FCT_E_ROOM + f) = room;
+      ed(iEdge, FCT_E_AOWN + f) = (valid && (den > 0.0)) ? fmin(su2double(1.0), room / den) : su2double(1.0);
+    }
+  }
+  END_SU2_OMP_FOR
+}
+
+/*!
+ * \brief Remaining pass, owned nodes: the half of rho' of every contributor with a remaining amount (alpha < 1), the
+ *        min of R' over the valid observers at the node with c > 0 (1 if none), column 4 y + f of rho.
+ */
+template <class Geometry, class WeightType, class VolumeType, class StoreType>
+void FCTObserverMinRemaining(const Geometry& geometry, unsigned short nDim, const WeightType& weights,
+                             const VolumeType& volume, const StoreType& ing, const su2activematrix& ed,
+                             su2activematrix& rho) {
+  FCTNodeStar st;
+  SU2_OMP_FOR_STAT(OMP_CHUNK)
+  for (unsigned long a = 0; a < geometry.GetnPointDomain(); ++a) {
+    FCTLoadStar(geometry, nDim, weights, volume, ing, a, st);
+    for (size_t k = 0; k < st.edge.size(); ++k) {
+      for (unsigned short f = 0; f < TVD_NFIELD; ++f) {
+        su2double m = 1.0;
+        if (ed(st.edge[k], FCT_E_ALPHA + f) < 1.0) {
+          for (size_t h = 0; h < st.edge.size(); ++h) {
+            if (ed(st.edge[h], FCT_E_VALID + f) == 0.0) continue;
+            if (FCTPair(nDim, st, h, k, f, ed) > 0.0) m = fmin(m, ed(st.edge[h], FCT_E_R + f));
+          }
+        }
+        rho(st.edge[k], 4 * st.y[k] + f) = m;
+      }
+    }
+  }
+  END_SU2_OMP_FOR
+}
+
+/*!
+ * \brief Remaining pass, every local edge: alpha <- min(1, alpha + (1 - alpha) min(rho', a_e')).
+ */
+template <class Geometry>
+void FCTAlphaIncrement(const Geometry& geometry, const su2activematrix& rho, su2activematrix& ed) {
+  SU2_OMP_FOR_STAT(OMP_CHUNK)
+  for (unsigned long iEdge = 0; iEdge < geometry.GetnEdge(); ++iEdge) {
+    for (unsigned short f = 0; f < TVD_NFIELD; ++f) {
+      const su2double alpha = ed(iEdge, FCT_E_ALPHA + f);
+      const su2double r = fmin(rho(iEdge, f), rho(iEdge, 4 + f));
+      ed(iEdge, FCT_E_ALPHA + f) = fmin(su2double(1.0), alpha + (1.0 - alpha) * fmin(r, ed(iEdge, FCT_E_AOWN + f)));
+    }
+  }
+  END_SU2_OMP_FOR
+}
+
+/*!
+ * \brief Final pass on every local edge: alpha (FCT_E_ALPHA) and gamma = 1 - alpha (S4d), stored with phi_c in the local
+ *        layout (FCT_PHIC, FCT_ALPHA, FCT_GAMMA + local field).
  */
 template <class Geometry, class StoreType, class PhiType>
 void FCTFinal(const Geometry& geometry, unsigned short nDim, const StoreType& ing, const su2activematrix& ed,
-              const su2activematrix& rho, PhiType& store) {
+              PhiType& store) {
   SU2_OMP_FOR_STAT(OMP_CHUNK)
   for (unsigned long iEdge = 0; iEdge < geometry.GetnEdge(); ++iEdge) {
     const bool flip = TVDFlip(geometry, nDim, iEdge);
     for (unsigned short f = 0; f < TVD_NFIELD; ++f) {
       const su2double phic = ed(iEdge, FCT_E_PHIC + f);
-      const su2double r = fmin(rho(iEdge, f), rho(iEdge, 4 + f));
-      const su2double alpha = fmin(r, ed(iEdge, FCT_E_AOWN + f));
+      const su2double alpha = ed(iEdge, FCT_E_ALPHA + f);
       /*--- S4d (ROE_TECNO_PLAN.md 6.10): gamma = 1 - alpha on every entry (no zero term), so that the frozen edge-field
        * form D (alpha l_c^2 + (1 - alpha) dy^2) >= D (dy - alpha phi_c sigma)^2 dominates the A1 form of Phi_e = alpha
        * phi_c; the room the veto leaves unused stays unused. ---*/
@@ -1831,7 +1957,7 @@ template <class Geometry, class WeightType, class VolumeType, class StoreType, c
           class Comm>
 void FCTPasses(const Geometry& geometry, unsigned short nDim, const WeightType& weights, const VolumeType& volume,
                const FCTSetup& setup, const StoreType& ing, const FieldType& W, FCTWork& work, PhiType& store,
-               Comm&& comm) {
+               Comm&& comm, unsigned short nPasses = 1) {
   FCTEndCapacity(geometry, nDim, setup, ing, W, work.A);
   FCTExchange(geometry, setup, work.A, work.buf, comm);
   FCTEdgeOwn(geometry, nDim, setup, ing, work.A, work.edge);
@@ -1840,7 +1966,17 @@ void FCTPasses(const Geometry& geometry, unsigned short nDim, const WeightType& 
   FCTRoom(geometry, work.Pm, work.edge);
   FCTObserverMin(geometry, nDim, weights, volume, ing, work.edge, work.rho);
   FCTExchange(geometry, setup, work.rho, work.buf, comm);
-  FCTFinal(geometry, nDim, ing, work.edge, work.rho, store);
+  FCTAlpha(geometry, work.rho, work.edge);
+  for (unsigned short pass = 1; pass < nPasses; ++pass) {
+    FCTRemainingHalves(geometry, nDim, weights, volume, ing, work.edge, work.S, work.Pm);
+    FCTExchange(geometry, setup, work.S, work.buf, comm);
+    FCTExchange(geometry, setup, work.Pm, work.buf, comm);
+    FCTRoomRemaining(geometry, work.S, work.Pm, work.edge);
+    FCTObserverMinRemaining(geometry, nDim, weights, volume, ing, work.edge, work.rho);
+    FCTExchange(geometry, setup, work.rho, work.buf, comm);
+    FCTAlphaIncrement(geometry, work.rho, work.edge);
+  }
+  FCTFinal(geometry, nDim, ing, work.edge, store);
 }
 
 /*!
@@ -1853,6 +1989,7 @@ void FCTWorkResize(const Geometry& geometry, const FCTSetup& setup, FCTWork& wor
   work.Pm.resize(nEdge, 8) = su2double(0.0);
   work.rho.resize(nEdge, 8) = su2double(1.0);
   work.edge.resize(nEdge, FCT_E_WIDTH) = su2double(0.0);
+  work.S.resize(nEdge, 8) = su2double(0.0);
   if (SU2_MPI::GetSize() > 1) work.buf.resize(geometry.GetnPoint(), 4 * std::max<unsigned short>(setup.maxDeg, 1)) = su2double(0.0);
 }
 

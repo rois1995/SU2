@@ -1895,6 +1895,8 @@ void CConfig::SetConfig_Options() {
   addEnumOption("TECNO_ADJOINT_GRADIENT", Kind_TeCNO_Adj_Gradient, TeCNO_Adj_Gradient_Map, TECNO_ADJ_GRADIENT::GREEN_GAUSS);
   /*!\brief TECNO_ADJOINT_LIMITER \n DESCRIPTION: Per-edge-end limiter of the dissipation of EDGE_FORM_TECNO_ADJOINT. EDGE_ENTROPY_VA: for each edge end and characteristic entropy field j (shear as one block), phi = (Delta^2 + a Delta + tau)/(a^2 + Delta^2 + tau) with Delta the nodal jump and a the U-MUSCL slope of that field, unclipped, tau the roundoff floor (eps S_j)^2; the residual applies the transpose, so the entropy identity holds for any values (P1_TECNO_ADJ_LIMITER.md). EDGE_ENTROPY_TVD: per edge end and characteristic field, the own-slope clip to the box [min(0,B) - d, max(0,B) + d], B = 2 minmod(Delta, b_0, b_1), b_a = 2 s_a - Delta, times a smooth node factor (product over the half-edges of the node) that keeps the frozen-field moment of the full AD flux in that box (P1_TECNO_ADJ_LIMITER.md, fourth candidate), recomputed while INNER_ITER <= LIMITER_ITER and frozen afterwards (not in the restart; MUSCL_KAPPA_FLOW= 0). EDGE_ENTROPY_FCT: per edge and characteristic field, the convex combination alpha R(phi_c) + (1 - alpha) R(0) of the A1 terms with the own value phi_c (no zero term, ROE_TECNO_PLAN.md 6.10), the box the two-node LED attachment B = 2 sg min(A_0, A_1) (largest same-sign star jump, upwind-element far side, own jump with the first-order coefficient), alpha from Zalesak's selection on the frozen-field moments (P1_TECNO_ADJ_LIMITER.md, candidate 8), recomputed while INNER_ITER <= LIMITER_ITER and frozen afterwards (not in the restart; MUSCL_KAPPA_FLOW= 0; the MUSCL ramp acts on the weights). \ingroup Config \default NONE */
   addEnumOption("TECNO_ADJOINT_LIMITER", Kind_TeCNO_Adj_Limiter, TeCNO_Adj_Limiter_Map, TECNO_ADJ_LIMITER::NONE);
+  /*!\brief TECNO_ADJOINT_FCT_PASSES \n DESCRIPTION: Number of Zalesak passes of TECNO_ADJOINT_LIMITER= EDGE_ENTROPY_FCT. 1: one pass (candidate 8 / S4d). n > 1: n - 1 further passes on the remaining antidiffusive amounts (1 - alpha) with the remaining capacity cap - S_e(alpha) of every observer, which contains the cancellation of the amounts already accepted; alpha is nondecreasing over the passes, the box S_e <= cap and gamma = 1 - alpha hold after every pass (ROE_TECNO_PLAN.md 6.11). \ingroup Config \default 1 */
+  addUnsignedShortOption("TECNO_ADJOINT_FCT_PASSES", TeCNO_Adj_FCT_Passes, 1);
   /*!\brief TECNO_ADJOINT_JACOBIAN \n DESCRIPTION: Jacobian of the dissipation of EDGE_FORM_TECNO_ADJOINT. ROE1: first order Roe dissipation on the dissipation normal. FIRST_RING: for frozen D_e and phi, the edge blocks a_e a_e^T D_e of the exact linearization C^T D C (a_e the coefficients of the jump at the two edge nodes, gradient entries included) plus a diagonal majorant of the second-ring part (Young with eps = 1 and Cauchy-Schwarz), so that 2 J >= C^T D C; first-neighbour blocks only (ROE_TECNO_PLAN.md M4, J2). FIRST_RING_JUMPS: every term of the jump written as a jump over a mesh edge, Cauchy-Schwarz with the pair weights mu_xm = sqrt(a_xm^T E_x a_xm) (E_x the mean of e e^T over the edges of x weighted by trace(D_e H_e), H the entropy Hessian; uniform if all weights vanish) and a three-term weighted Cauchy-Schwarz; J is that bound, so J >= C^T D C (C4 margin independent of the time step) and J 1 = 0 (as C^T D C); first-neighbour blocks only (ROE_TECNO_PLAN.md 6.4). \ingroup Config \default ROE1 */
   addEnumOption("TECNO_ADJOINT_JACOBIAN", Kind_TeCNO_Adj_Jacobian, TeCNO_Adj_Jacobian_Map, TECNO_ADJ_JACOBIAN::ROE1);
   /*!\brief EDGE_FORM_EC_EXACT_JACOBIAN \n DESCRIPTION: ROE with EDGE_FORM_EC_FLUX or EDGE_FORM_TECNO: exact Jacobian of the Ismail-Roe flux of the nodal states (both node blocks) instead of 1/2 A_i, 1/2 A_k. \ingroup Config \default false */
@@ -6374,6 +6376,7 @@ void CConfig::CheckP1FluxOptions() const {
   if (Edge_Form_TeCNO_A4_Jacobian) active.push_back("EDGE_FORM_TECNO_A4_JACOBIAN");
   if (Kind_TeCNO_Adj_Gradient == TECNO_ADJ_GRADIENT::P1_AVERAGE) active.push_back("TECNO_ADJOINT_GRADIENT= P1_AVERAGE");
   if (Kind_TeCNO_Adj_Limiter != TECNO_ADJ_LIMITER::NONE) active.push_back("TECNO_ADJOINT_LIMITER");
+  if (TeCNO_Adj_FCT_Passes != 1) active.push_back("TECNO_ADJOINT_FCT_PASSES");
   if (Kind_TeCNO_Adj_Jacobian != TECNO_ADJ_JACOBIAN::ROE1) active.push_back("TECNO_ADJOINT_JACOBIAN");
   if (Edge_Form_EC_Exact_Jacobian) active.push_back("EDGE_FORM_EC_EXACT_JACOBIAN");
   if (Edge_Form_TeCNO_Wide && !Edge_Form_TeCNO) SU2_MPI::Error("EDGE_FORM_TECNO_WIDE: needs EDGE_FORM_TECNO= YES.", CURRENT_FUNCTION);
@@ -6572,6 +6575,12 @@ void CConfig::CheckP1FluxOptions() const {
       if (NewtonKrylov) SU2_MPI::Error(name + lim + " not with NEWTON_KRYLOV.", CURRENT_FUNCTION);
       if (DiscreteAdjoint) SU2_MPI::Error(name + lim + " not with the discrete adjoint.", CURRENT_FUNCTION);
     }
+  }
+  if (TeCNO_Adj_FCT_Passes != 1) {
+    const string name = "TECNO_ADJOINT_FCT_PASSES: ";
+    if (TeCNO_Adj_FCT_Passes == 0) SU2_MPI::Error(name + "at least 1 pass.", CURRENT_FUNCTION);
+    if (Kind_TeCNO_Adj_Limiter != TECNO_ADJ_LIMITER::EDGE_ENTROPY_FCT)
+      SU2_MPI::Error(name + "needs TECNO_ADJOINT_LIMITER= EDGE_ENTROPY_FCT.", CURRENT_FUNCTION);
   }
   if (Kind_TeCNO_Adj_Jacobian != TECNO_ADJ_JACOBIAN::ROE1) {
     const string name = (Kind_TeCNO_Adj_Jacobian == TECNO_ADJ_JACOBIAN::FIRST_RING) ? "TECNO_ADJOINT_JACOBIAN= FIRST_RING: "

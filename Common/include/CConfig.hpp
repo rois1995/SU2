@@ -89,6 +89,7 @@ private:
   bool Edge_Form_TeCNO_A4_Jacobian; /*!< \brief Provable majorant (Lemma A4) of its linearization as the Jacobian. */
   TECNO_ADJ_GRADIENT Kind_TeCNO_Adj_Gradient; /*!< \brief Gradient of w in that dissipation (TECNO_ADJOINT_GRADIENT). */
   TECNO_ADJ_LIMITER Kind_TeCNO_Adj_Limiter;   /*!< \brief Per-edge-end limiter of that dissipation (TECNO_ADJOINT_LIMITER). */
+  unsigned short TeCNO_Adj_FCT_Passes;        /*!< \brief Zalesak passes of EDGE_ENTROPY_FCT (TECNO_ADJOINT_FCT_PASSES). */
   TECNO_ADJ_JACOBIAN Kind_TeCNO_Adj_Jacobian; /*!< \brief Jacobian of that dissipation (TECNO_ADJOINT_JACOBIAN). */
   bool Edge_Form_EC_Exact_Jacobian; /*!< \brief Exact Jacobian of the Ismail-Roe central parts of the ROE options. */
   bool BC_Entropy_P1;          /*!< \brief Entropy stable hybridized weak boundary of BC_WEAK_P1 (closure C). */
@@ -10114,6 +10115,12 @@ public:
    * \brief TECNO_ADJOINT_LIMITER: per-edge-end limiter of EDGE_FORM_TECNO_ADJOINT, none (default) or EDGE_ENTROPY_VA.
    */
   TECNO_ADJ_LIMITER GetKind_TeCNO_Adj_Limiter() const { return Kind_TeCNO_Adj_Limiter; }
+
+  /*!
+   * \brief Number of Zalesak passes of TECNO_ADJOINT_LIMITER= EDGE_ENTROPY_FCT (1: S4d; more: passes on the remaining
+   *        amounts, ROE_TECNO_PLAN.md 6.11).
+   */
+  unsigned short GetTeCNO_Adj_FCT_Passes() const { return TeCNO_Adj_FCT_Passes; }
 
   /*!
    * \brief TECNO_ADJOINT_JACOBIAN: Jacobian of the dissipation of EDGE_FORM_TECNO_ADJOINT, ROE1 (default), FIRST_RING

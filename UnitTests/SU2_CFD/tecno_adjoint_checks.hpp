@@ -1335,7 +1335,7 @@ struct FCTData {
  */
 template <class Geometry, class WeightType, class VolumeType, class HaloCopy>
 void FCTRun(const Geometry& geometry, unsigned short nDim, const WeightType& weights, const VolumeType& volume,
-            const su2activematrix& W, FCTData& d, HaloCopy&& haloCopy) {
+            const su2activematrix& W, FCTData& d, HaloCopy&& haloCopy, unsigned short nPasses = 1) {
   su2activematrix rows;
   TeCNOAdjoint::FCTSetupRows(geometry, d.setup, rows);
   haloCopy(rows);
@@ -1343,7 +1343,7 @@ void FCTRun(const Geometry& geometry, unsigned short nDim, const WeightType& wei
   TeCNOAdjoint::FCTWorkResize(geometry, d.setup, d.work);
   d.store.resize(geometry.GetnEdge(), TeCNOAdjoint::FCT_STORE_WIDTH);
   d.store = su2double(-1.0);
-  TeCNOAdjoint::FCTPasses(geometry, nDim, weights, volume, d.setup, d.ing, W, d.work, d.store, haloCopy);
+  TeCNOAdjoint::FCTPasses(geometry, nDim, weights, volume, d.setup, d.ing, W, d.work, d.store, haloCopy, nPasses);
 }
 
 /*--- Independent reference (serial): canonical edge data from the coordinates and the ingredient columns. ---*/
@@ -1409,7 +1409,8 @@ inline void FCTRefProject(unsigned short nDim, const FCTRefEdge& r, const double
  */
 template <class Geometry, class WeightType, class VolumeType>
 FCTRefResult FCTReference(const Geometry& geometry, unsigned short nDim, const su2activematrix& ing,
-                          const su2activematrix& W, const WeightType& weights, const VolumeType& volume) {
+                          const su2activematrix& W, const WeightType& weights, const VolumeType& volume,
+                          unsigned short nPasses = 1) {
   namespace ta = TeCNOAdjoint;
   FCTRefResult res;
   auto& ed = res.ed;
@@ -1597,12 +1598,49 @@ FCTRefResult FCTReference(const Geometry& geometry, unsigned short nDim, const s
         for (size_t h = 0; h < res.at[a].size(); ++h)
           if (ed[res.at[a][h].first].valid[f] && (pairC(a, h, k, f) > 0))
             ed[res.at[a][k].first].rho[f] = std::min(ed[res.at[a][k].first].rho[f], ed[res.at[a][h].first].R[f]);
-  for (auto& r : ed) {
-    for (int f = 0; f < 4; ++f) {
-      r.alpha[f] = std::min(r.rho[f], r.aown[f]);
-      r.gam[f] = 1 - r.alpha[f];  /*--- S4d (ROE_TECNO_PLAN.md 6.10): no zero term, valid and invalid entries. ---*/
+  for (auto& r : ed)
+    for (int f = 0; f < 4; ++f) r.alpha[f] = std::min(r.rho[f], r.aown[f]);
+  /*--- (5) S4e (ROE_TECNO_PLAN.md 6.11): further passes on the remaining amounts with Q = cap - S(alpha). ---*/
+  for (unsigned short pass = 1; pass < nPasses; ++pass) {
+    std::vector<std::array<double, 4>> S(nE, {0, 0, 0, 0}), Pr(nE, {0, 0, 0, 0}), rho(nE, {1, 1, 1, 1});
+    for (unsigned long a = 0; a < nP; ++a)
+      for (size_t h = 0; h < res.at[a].size(); ++h)
+        for (int f = 0; f < 4; ++f) {
+          const auto eh = res.at[a][h].first;
+          if (!ed[eh].valid[f]) continue;
+          for (size_t k = 0; k < res.at[a].size(); ++k) {
+            const double c = pairC(a, h, k, f), al = ed[res.at[a][k].first].alpha[f];
+            S[eh][f] += al * c;
+            Pr[eh][f] += std::max(0.0, c) * (1.0 - al);
+          }
+        }
+    std::vector<std::array<double, 4>> Rr(nE, {1, 1, 1, 1}), ar(nE, {1, 1, 1, 1});
+    for (unsigned long e = 0; e < nE; ++e) {
+      const auto& r = ed[e];
+      for (int f = 0; f < 4; ++f) {
+        const double own = r.phic[f] * r.o[f];
+        const double Q = r.valid[f] ? std::max(0.0, r.cap[f] - r.alpha[f] * own - S[e][f]) : 0.0;
+        Rr[e][f] = (r.valid[f] && Pr[e][f] > Q) ? Q / Pr[e][f] : 1.0;
+        const double room = std::max(0.0, Q - Rr[e][f] * Pr[e][f]);
+        const double den = own * (1.0 - r.alpha[f]);
+        ar[e][f] = (r.valid[f] && den > 0) ? std::min(1.0, room / den) : 1.0;
+      }
     }
+    for (unsigned long a = 0; a < nP; ++a)
+      for (size_t k = 0; k < res.at[a].size(); ++k)
+        for (int f = 0; f < 4; ++f) {
+          const auto ek = res.at[a][k].first;
+          if (!(ed[ek].alpha[f] < 1.0)) continue;
+          for (size_t h = 0; h < res.at[a].size(); ++h)
+            if (ed[res.at[a][h].first].valid[f] && (pairC(a, h, k, f) > 0))
+              rho[ek][f] = std::min(rho[ek][f], Rr[res.at[a][h].first][f]);
+        }
+    for (unsigned long e = 0; e < nE; ++e)
+      for (int f = 0; f < 4; ++f)
+        ed[e].alpha[f] = std::min(1.0, ed[e].alpha[f] + (1.0 - ed[e].alpha[f]) * std::min(rho[e][f], ar[e][f]));
   }
+  for (auto& r : ed)
+    for (int f = 0; f < 4; ++f) r.gam[f] = 1 - r.alpha[f];  /*--- S4d (ROE_TECNO_PLAN.md 6.10): no zero term, valid and invalid entries. ---*/
   return res;
 }
 

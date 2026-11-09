@@ -4418,7 +4418,8 @@ namespace {
 
 template <size_t nDim, class Geometry>
 tac::FCTData RunFCT(const Geometry& geometry, const tac::States& S, bool projected, const tac::P1Average* p1,
-                    const su2activematrix* wOverride = nullptr, const su2activematrix* ingOverride = nullptr) {
+                    const su2activematrix* wOverride = nullptr, const su2activematrix* ingOverride = nullptr,
+                    unsigned short nPasses = 1) {
   tac::FCTData d;
   const auto w = wOverride ? *wOverride : tac::EntropyField(S, nDim);
   if (ingOverride) {
@@ -4430,20 +4431,21 @@ tac::FCTData RunFCT(const Geometry& geometry, const tac::States& S, bool project
   }
   auto noHalo = [](su2activematrix&) {};
   if (p1) {
-    tac::FCTRun(geometry, nDim, p1->weights, p1->volume, w, d, noHalo);
+    tac::FCTRun(geometry, nDim, p1->weights, p1->volume, w, d, noHalo, nPasses);
   } else {
     auto volume = [&](unsigned long i) { return geometry.nodes->GetVolume(i); };
-    tac::FCTRun(geometry, nDim, TeCNOAdjoint::GreenGaussWeights<Geometry>{geometry, nDim}, volume, w, d, noHalo);
+    tac::FCTRun(geometry, nDim, TeCNOAdjoint::GreenGaussWeights<Geometry>{geometry, nDim}, volume, w, d, noHalo, nPasses);
   }
   return d;
 }
 
 template <class Geometry>
 tac::FCTRefResult RefFCT(const Geometry& geometry, unsigned short nDim, const su2activematrix& ing,
-                         const su2activematrix& w, const tac::P1Average* p1) {
-  if (p1) return tac::FCTReference(geometry, nDim, ing, w, p1->weights, p1->volume);
+                         const su2activematrix& w, const tac::P1Average* p1, unsigned short nPasses = 1) {
+  if (p1) return tac::FCTReference(geometry, nDim, ing, w, p1->weights, p1->volume, nPasses);
   auto volume = [&](unsigned long i) { return geometry.nodes->GetVolume(i); };
-  return tac::FCTReference(geometry, nDim, ing, w, TeCNOAdjoint::GreenGaussWeights<Geometry>{geometry, nDim}, volume);
+  return tac::FCTReference(geometry, nDim, ing, w, TeCNOAdjoint::GreenGaussWeights<Geometry>{geometry, nDim}, volume,
+                           nPasses);
 }
 
 /*--- Largest |stored - reference| over (edge, canonical field, phi_c/alpha/gamma), and finiteness. ---*/
@@ -4478,17 +4480,41 @@ void EdgeEntropyFCTCase() {
       const tac::P1Average* p1p = p1Average ? &p1 : nullptr;
       const auto nPoint = geometry.GetnPoint();
       double refDiff = 0.0, box = 0.0, identity = 0.0, conservation = 0.0, minProd = 1e300, minPhi = 1e300,
-             maxGam = 0.0, sumBound = 0.0, outside = 0.0;
+             maxGam = 0.0, sumBound = 0.0, outside = 0.0, monotone = 0.0, gain = 0.0;
       bool finite = true;
       std::mt19937 gen(73);
       for (int t = 0; t < 8; ++t) {
         const auto S = (t < 2) ? CoordinateStates(geometry, nDim) : tac::RandomStates(nPoint, nDim, gen, (t % 2) ? 0.3 : 1.0);
         const bool projected = (t % 2);
         const auto w = tac::EntropyField(S, nDim);
-        const auto d = RunFCT<nDim>(geometry, S, projected, p1p);
-        const auto ref = RefFCT(geometry, nDim, d.ing, w, p1p);
+        const auto d1 = RunFCT<nDim>(geometry, S, projected, p1p);
+        const auto ref1 = RefFCT(geometry, nDim, d1.ing, w, p1p);
+        refDiff = std::max(refDiff, FCTRefDiff(ref1, d1.store, finite));
+        for (const double r : {0.25, 0.5, 1.0}) box = std::max(box, tac::FCTBoxViolation(ref1, nDim, d1.store, r));
+        /*--- S4e (ROE_TECNO_PLAN.md 6.11): 4 passes against the reference, the box with the final values, alpha
+         * nondecreasing over the passes; the checks below use the 4-pass store. ---*/
+        const auto d = RunFCT<nDim>(geometry, S, projected, p1p, nullptr, nullptr, 4);
+        const auto ref = RefFCT(geometry, nDim, d.ing, w, p1p, 4);
         refDiff = std::max(refDiff, FCTRefDiff(ref, d.store, finite));
         for (const double r : {0.25, 0.5, 1.0}) box = std::max(box, tac::FCTBoxViolation(ref, nDim, d.store, r));
+        /*--- Passes 2 and 3: reference and box as well; alpha nondecreasing pass by pass (1 <= 2 <= 3 <= 4). ---*/
+        const su2activematrix* prev = &d1.store;
+        std::vector<tac::FCTData> mid;
+        for (const unsigned short np : {2, 3}) {
+          mid.push_back(RunFCT<nDim>(geometry, S, projected, p1p, nullptr, nullptr, np));
+          const auto refn = RefFCT(geometry, nDim, mid.back().ing, w, p1p, np);
+          refDiff = std::max(refDiff, FCTRefDiff(refn, mid.back().store, finite));
+          box = std::max(box, tac::FCTBoxViolation(refn, nDim, mid.back().store, 1.0));
+        }
+        const su2activematrix* stores[] = {&mid[0].store, &mid[1].store, &d.store};
+        for (const su2activematrix* next : stores) {
+          for (auto e = 0ul; e < geometry.GetnEdge(); ++e)
+            for (int f = 0; f < 4; ++f)
+              monotone = std::min(monotone, double((*next)(e, ta::FCT_ALPHA + f) - (*prev)(e, ta::FCT_ALPHA + f)));
+          prev = next;
+        }
+        for (auto e = 0ul; e < geometry.GetnEdge(); ++e)
+          for (int f = 0; f < 4; ++f) gain += double(d.store(e, ta::FCT_ALPHA + f) - d1.store(e, ta::FCT_ALPHA + f));
         for (auto e = 0ul; e < geometry.GetnEdge(); ++e) {
           for (int f = 0; f < 4; ++f) {
             const double pc = d.store(e, ta::FCT_PHIC + f), al = d.store(e, ta::FCT_ALPHA + f), ga = d.store(e, ta::FCT_GAMMA + f);
@@ -4519,8 +4545,11 @@ void EdgeEntropyFCTCase() {
       INFO("nDim " << nDim << " moved " << moved << " P1 average " << p1Average << ": |stored - reference| " << refDiff
                    << ", box " << box << ", A1' identity " << identity << ", min production " << minProd
                    << ", conservation " << conservation << ", outside [0,1] " << outside << ", |alpha + gamma - 1| "
-                   << sumBound << ", min alpha phi_c " << minPhi << ", max gamma " << maxGam);
+                   << sumBound << ", min alpha phi_c " << minPhi << ", max gamma " << maxGam
+                   << ", min alpha(4 passes) - alpha(1) " << monotone << ", sum of the gains " << gain);
       CHECK(finite);
+      CHECK(monotone >= 0.0);
+      CHECK(gain > 0.0);  /*--- The shock-like states have vetoed entries that the later passes partly recover. ---*/
       CHECK(refDiff < 1e-10);
       CHECK(box < 1e-12);
       CHECK(identity < 1e-12);
@@ -4743,9 +4772,14 @@ void EdgeEntropyFCTMPICase() {
   d.ing = tac::FCTIngredientsOf<nDim>(geometry, w, grad, es);
   auto halo = [&](su2activematrix& m) { tac::TVDHaloCopy(geometry, m); };
   tac::FCTRun(geometry, nDim, p1.weights, p1.volume, w, d, halo);
+  /*--- S4e (ROE_TECNO_PLAN.md 6.11): the same with 4 passes (rows of kind 2), exchanges of S, Pm' and rho'. ---*/
+  tac::FCTData d4;
+  d4.ing = d.ing;
+  tac::FCTRun(geometry, nDim, p1.weights, p1.volume, w, d4, halo, 4);
 
-  /*--- Residual of the owned nodes. ---*/
+  /*--- Residual of the owned nodes with a store (1 pass: R, 4 passes: R4). ---*/
   const double ramp = 0.7;
+  auto residualOf = [&](const su2activematrix& store) {
   su2activematrix R(geometry.GetnPoint(), nVar), Q(geometry.GetnEdge(), 2 * nVar);
   R = su2double(0.0);
   for (auto e = 0ul; e < geometry.GetnEdge(); ++e) {
@@ -4762,7 +4796,7 @@ void EdgeEntropyFCTMPICase() {
       }
     }
     Double fct[12];
-    for (int c = 0; c < 12; ++c) fct[c] = d.store(e, c);
+    for (int c = 0; c < 12; ++c) fct[c] = store(e, c);
     const auto& st = es[e];
     tecnoAdjointEdgeFCT(Double(tac::GAMMA), st.avg, st.unit, st.lamM, st.lam0, st.lamP, st.scale, dw, p_i, p_k, ramp,
                         fct, q, q_m);
@@ -4779,12 +4813,17 @@ void EdgeEntropyFCTMPICase() {
   tac::TVDHaloCopy(geometry, flat);
   fromFlat(Y);
   ta::AddTransposeP1(geometry, nDim, nVar, p1.weights, Y, ta::GradientCoefficient(1.0, 0.0), R);
+  return R;
+  };
+  const auto R = residualOf(d.store), R4 = residualOf(d4.store);
 
   /*--- Rows: node (kind 0, global index, 0, residual, zeros) and edge (kind 1, canonical global ends, 12 values). ---*/
   std::vector<double> rows;
   for (auto i = 0ul; i < geometry.GetnPointDomain(); ++i) {
     rows.insert(rows.end(), {0.0, double(geometry.nodes->GetGlobalIndex(i)), 0.0});
     for (int c = 0; c < 12; ++c) rows.push_back((c < int(nVar)) ? double(R(i, c)) : 0.0);
+    rows.insert(rows.end(), {3.0, double(geometry.nodes->GetGlobalIndex(i)), 0.0});
+    for (int c = 0; c < 12; ++c) rows.push_back((c < int(nVar)) ? double(R4(i, c)) : 0.0);
   }
   for (auto e = 0ul; e < geometry.GetnEdge(); ++e) {
     const bool flip = ta::TVDFlip(geometry, nDim, e);
@@ -4793,6 +4832,9 @@ void EdgeEntropyFCTMPICase() {
     rows.insert(rows.end(), {1.0, double(geometry.nodes->GetGlobalIndex(n[0])), double(geometry.nodes->GetGlobalIndex(n[1]))});
     for (int which = 0; which < 3; ++which)
       for (int f = 0; f < 4; ++f) rows.push_back(tac::FCTStored(d.store, e, flip, which, f));
+    rows.insert(rows.end(), {2.0, double(geometry.nodes->GetGlobalIndex(n[0])), double(geometry.nodes->GetGlobalIndex(n[1]))});
+    for (int which = 0; which < 3; ++which)
+      for (int f = 0; f < 4; ++f) rows.push_back(tac::FCTStored(d4.store, e, flip, which, f));
   }
   const int size = SU2_MPI::GetSize();
   int count = static_cast<int>(rows.size());
@@ -4847,8 +4889,10 @@ void EdgeEntropyFCTParityDump() {
     const tac::P1Average p1(geometry);
     std::mt19937 gen(91);
     const auto S = (k == 0) ? CoordinateStates(geometry, nDim) : tac::RandomStates(geometry.GetnPoint(), nDim, gen, 0.3);
-    const auto d = RunFCT<nDim>(geometry, S, false, &p1);
-    std::ofstream f("tecno_fct_parity_" + std::to_string(nDim) + "d_" + std::to_string(k) + ".dat");
+    for (const unsigned short nPasses : {1, 4}) {
+    const auto d = RunFCT<nDim>(geometry, S, false, &p1, nullptr, nullptr, nPasses);
+    std::ofstream f("tecno_fct_parity_" + std::to_string(nDim) + "d_" + std::to_string(k) +
+                    ((nPasses > 1) ? "_p" + std::to_string(nPasses) : std::string("")) + ".dat");
     f.precision(17);
     f << "# " << nDim << " " << geometry.GetnPoint() << " " << geometry.GetnElem() << " " << geometry.GetnEdge() << "\n";
     for (auto i = 0ul; i < geometry.GetnPoint(); ++i) {
@@ -4871,6 +4915,7 @@ void EdgeEntropyFCTParityDump() {
       f << " " << d.ing(e, TeCNOAdjoint::TVD_GUARD) << " " << d.ing(e, TeCNOAdjoint::TVD_GUARD + 1) << "\n";
     }
     CHECK(f.good());
+    }
   }
 }
 }  // namespace
@@ -9105,3 +9150,4 @@ TEST_CASE("Strong slip: wall-normal basis, projector, entropy identity and Jacob
   CHECK(pss::SlipPenetration(2, 1, Qz, 1, mz, 0.0) == Approx(1.0));
   CHECK(pss::SlipPenetration(2, 1, Qz, 1, mz, 6.0) == Approx(0.5));
 }
+

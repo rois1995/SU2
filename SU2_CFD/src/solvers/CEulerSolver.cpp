@@ -2984,12 +2984,12 @@ void CEulerSolver::TeCNOAdjointFCTPasses(CGeometry *geometry, const CConfig *con
   }
   if (config->GetKind_TeCNO_Adj_Gradient() == TECNO_ADJ_GRADIENT::P1_AVERAGE) {
     TeCNOAdjoint::FCTPasses(*geometry, nDim, TeCNOAdjEdgeA, TeCNOAdjVol, TeCNOAdjFCTSetup, nodes->TeCNOAdjEdgeTVD,
-                            TeCNOAdjW, TeCNOAdjFCTWork, nodes->TeCNOAdjEdgePhi, comm);
+                            TeCNOAdjW, TeCNOAdjFCTWork, nodes->TeCNOAdjEdgePhi, comm, config->GetTeCNO_Adj_FCT_Passes());
   } else {
     auto volume = [&](unsigned long iPoint) { return geometry->nodes->GetVolume(iPoint); };
     TeCNOAdjoint::FCTPasses(*geometry, nDim, TeCNOAdjoint::GreenGaussWeights<CGeometry>{*geometry, nDim}, volume,
                             TeCNOAdjFCTSetup, nodes->TeCNOAdjEdgeTVD, TeCNOAdjW, TeCNOAdjFCTWork,
-                            nodes->TeCNOAdjEdgePhi, comm);
+                            nodes->TeCNOAdjEdgePhi, comm, config->GetTeCNO_Adj_FCT_Passes());
   }
 
   const auto iter = config->GetInnerIter();
@@ -3005,7 +3005,9 @@ void CEulerSolver::TeCNOAdjointFCTPasses(CGeometry *geometry, const CConfig *con
              << ", Phi_e = alpha phi_c: act " << 100.0 * global[1] / n << " %, zeros " << 100.0 * global[2] / n
              << " %, mean " << global[3] / n << ", wmean " << global[4] / fmax(global[5], EPS)
              << "; Phi_eq: act " << 100.0 * global[6] / n << " %, zeros " << 100.0 * global[7] / n << " %, mean "
-             << global[8] / n << ", wmean " << global[9] / fmax(global[5], EPS) << endl;
+             << global[8] / n << ", wmean " << global[9] / fmax(global[5], EPS);
+        if (config->GetTeCNO_Adj_FCT_Passes() > 1) cout << " (" << config->GetTeCNO_Adj_FCT_Passes() << " passes)";
+        cout << endl;
       }
     }
     END_SU2_OMP_MASTER
