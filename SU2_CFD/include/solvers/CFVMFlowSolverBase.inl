@@ -3720,6 +3720,23 @@ void CFVMFlowSolverBase<V, FlowRegime>::Friction_Forces(const CGeometry* geometr
         UnitNormal[iDim] = Normal[iDim] / Area;
       }
 
+      /*--- EULER_WALL_CREASE_NORMALS (ROE_TECNO_PLAN.md 6.14): at a crease point of a no-slip wall the unit vertex normal
+       * is a cancellation residue; the local wall outputs (wall shear, skin friction, y+, heat flux) are the averages over
+       * the crease groups weighted by their wetted areas |N_q|, and the heat integral uses the wetted area. The force
+       * integral TauElem * Area = tau . sum N is the dual-face integral of the nodal stress and stays unchanged. ---*/
+      const std::vector<std::array<su2double, MAXNDIM>>* creaseN = nullptr;
+      const std::vector<std::pair<su2double, std::pair<unsigned long, su2double>>>* creaseG = nullptr;
+      su2double areaHF = Area;
+      if (config->GetEuler_Wall_Crease_Normals() && !wallfunctions && (geometry->creaseNormals.size() > iMarker)) {
+        const auto itN = geometry->creaseNormals[iMarker].find(iVertex);
+        const auto itG = geometry->creaseGroups[iMarker].find(iVertex);
+        if ((itN != geometry->creaseNormals[iMarker].end()) && (itG != geometry->creaseGroups[iMarker].end())) {
+          creaseN = &itN->second;
+          creaseG = &itG->second;
+          areaHF = geometry->creaseArea[iMarker].at(iVertex);
+        }
+      }
+
       /*--- Evaluate Tau ---*/
       su2double Tau[3][3] = {{0.0}};
       CNumerics::ComputeStressTensor(nDim, Tau, Grad_Vel, Viscosity);
@@ -3744,6 +3761,15 @@ void CFVMFlowSolverBase<V, FlowRegime>::Friction_Forces(const CGeometry* geometr
       GeometryToolbox::TangentProjection(nDim, Tau, UnitNormal, TauTangent);
 
       WallShearStress[iMarker][iVertex] = GeometryToolbox::Norm(int(MAXNDIM), TauTangent);
+      if (creaseN) {
+        for (unsigned short iDim = 0; iDim < MAXNDIM; iDim++) TauTangent[iDim] = 0.0;
+        for (size_t q = 0; q < creaseN->size(); ++q) {
+          su2double tanQ[MAXNDIM] = {0.0};
+          GeometryToolbox::TangentProjection(nDim, Tau, (*creaseN)[q].data(), tanQ);
+          for (unsigned short iDim = 0; iDim < nDim; iDim++) TauTangent[iDim] += (*creaseG)[q].first * tanQ[iDim] / areaHF;
+        }
+        WallShearStress[iMarker][iVertex] = GeometryToolbox::Norm(int(MAXNDIM), TauTangent);
+      }
 
       /*--- For wall functions, the wall stresses need to be scaled by the wallfunction stress Tau_Wall---*/
       if (wallfunctions && (YPlus[iMarker][iVertex] > minYPlus)){
@@ -3790,8 +3816,22 @@ void CFVMFlowSolverBase<V, FlowRegime>::Friction_Forces(const CGeometry* geometr
           const su2double dist_ij = GeometryToolbox::NormalDistance(nDim, UnitNormal, Coord, Coord_Normal);
           const su2double There = nodes->GetTemperature(iPointNormal);
           HeatFlux[iMarker][iVertex] = thermal_conductivity * (There - Twall_local) / dist_ij * RefHeatFlux;
+          bool stencil = (creaseN != nullptr);
+          if (stencil)
+            for (const auto& grp : *creaseG) stencil = stencil && (grp.second.second > 0.0);
+          if (stencil) {
+            su2double sum = 0.0;
+            for (const auto& grp : *creaseG)
+              sum += grp.first * (nodes->GetTemperature(grp.second.first) - Twall_local) / grp.second.second;
+            HeatFlux[iMarker][iVertex] = thermal_conductivity * sum / areaHF * RefHeatFlux;
+          }  /*--- Without a valid group stencil SU2's flux density is kept (on the wetted area in the integral). ---*/
         } else {
           su2double dTdn = GeometryToolbox::DotProduct(nDim, Grad_Temp, UnitNormal);
+          if (creaseN) {
+            dTdn = 0.0;
+            for (size_t q = 0; q < creaseN->size(); ++q)
+              dTdn += (*creaseG)[q].first * GeometryToolbox::DotProduct(nDim, Grad_Temp, (*creaseN)[q].data()) / areaHF;
+          }
           if (FlowRegime == ENUM_REGIME::INCOMPRESSIBLE && !energy) dTdn = 0.0;
           HeatFlux[iMarker][iVertex] = thermal_conductivity * dTdn * RefHeatFlux;
         }
@@ -3845,8 +3885,24 @@ void CFVMFlowSolverBase<V, FlowRegime>::Friction_Forces(const CGeometry* geometr
         for (unsigned short iDim = 0; iDim < nDim; iDim++) {
           CSkinFriction[iMarker](iVertex, iDim) = (traction[iDim] - tractionNormal * UnitNormal[iDim]) * factorFric;
         }
+        if (creaseN) {
+          /*--- Traction on the wetted area, tangential part: the components along the crease-group normals removed
+           * (orthonormal basis of their span, CreaseGroups::Basis). ---*/
+          su2double list[CreaseGroups::MAX_FACES][3] = {{0.0}}, Q[3][3] = {{0.0}};
+          const auto nList = static_cast<unsigned short>(std::min<size_t>(CreaseGroups::MAX_FACES, creaseN->size()));
+          for (unsigned short a = 0; a < nList; ++a)
+            for (unsigned short d = 0; d < 3; ++d) list[a][d] = (*creaseN)[a][d];
+          const auto rankQ = CreaseGroups::Basis(nDim, nList, list, Q);
+          su2double tr[MAXNDIM] = {0.0};
+          for (unsigned short iDim = 0; iDim < nDim; iDim++) tr[iDim] = wallFlux[iDim + 1] / areaHF;
+          for (unsigned short r = 0; r < rankQ; ++r) {
+            const su2double proj = GeometryToolbox::DotProduct(nDim, Q[r], tr);
+            for (unsigned short iDim = 0; iDim < nDim; iDim++) tr[iDim] -= proj * Q[r][iDim];
+          }
+          for (unsigned short iDim = 0; iDim < nDim; iDim++) CSkinFriction[iMarker](iVertex, iDim) = tr[iDim] * factorFric;
+        }
         P1NodalHeatFlux[iMarker][iVertex] = HeatFlux[iMarker][iVertex];
-        HeatFlux[iMarker][iVertex] = wallFlux[nDim + 1] / Area * RefHeatFlux;
+        HeatFlux[iMarker][iVertex] = wallFlux[nDim + 1] / areaHF * RefHeatFlux;
       }
 
       /*--- Note that heat is computed at the
@@ -3877,7 +3933,7 @@ void CFVMFlowSolverBase<V, FlowRegime>::Friction_Forces(const CGeometry* geometr
         AccumulateMoment(nDim, RefLength, Force, MomentDist, Coord, MomentViscous, MomentX_Force, MomentY_Force,
                          MomentZ_Force);
 
-        HF_Visc_Local += HeatFlux[iMarker][iVertex] * Area;
+        HF_Visc_Local += HeatFlux[iMarker][iVertex] * areaHF;
         MaxHF_Visc_Local += pow(HeatFlux[iMarker][iVertex], MaxNorm);
       }
     }
