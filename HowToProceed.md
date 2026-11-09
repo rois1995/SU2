@@ -5,6 +5,11 @@ current source/build/input/handle authority. Completion remains TWO strict Euler
 meshes, conservative admissible transfer, finite adapted CFD and actual isolated
 adapted disk restart; then dedicated BL/MPI and RANS500k. All gates/budgets unchanged.
 
+Current291 fullsame-seed TWO-event M6 is LIVE, tool83989; source/checkpoint
+2d558a1d4d PUSHED. Do not edit compiled/pinned code or relaunch. Actual11ownedhandles,
+6exe inodes/84mappedELF each and1520pins verified; initial61330coords/22fields exact.
+Read HANDOFF_Codex.md for current identities. Noacceptedmesh/transfer/adaptedCFD yet.
+
 Prior287certificate change is QUALIFIED (retained in289): preserve all original early vertex
 coverage guards; replace general segment clipping in the planar boundary-interior
 proof with exact separating axes, reusing existing face orientation. No new geometry

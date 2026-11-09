@@ -17,7 +17,23 @@ A289=`R/m6_runs/euler_build289_prepared_borders_mach_only_real_cfd50k`.
 A287=`R/m6_runs/euler_build287_exact_face_coverage_mach_only_real_cfd50k`.
 A274=`R/m6_runs/euler_build274_metric_cleanup_mach_only_real_cfd50k`.
 
-## CURRENT —289 TERMINAL REFUSED; final certificate storage/work is blocker
+## CURRENT —291 full same-seed TWO-event M6 LIVE, sources FROZEN
+
+Qualified production/checkpoint PUSHED2d558a1d4d. Active attempt
+A291=`R/m6_runs/euler_build291_facewise_certificate_mach_only_real_cfd50k`.
+Main tool83989 LIVE; wrapper2134033/start25213637, runner2134403/start25214361,
+time2134869/start25214932, timeout2134870 and MPI2134871/start25214933;
+six ranks2134925–2134929/start25214984,2134930/start25214985.
+ActualHOST owned_startup.json verifies all11identities/pins. actual_runtime_startup.json
+verifies all6runningexe inodes and84mappedELF files/rank against1520pins.
+Same Mach-onlyL1/50k REALCFDseed. Initial61330coords and ALL22fields BIT-IDENTICAL
+256/qualified254target; onlySENSOR_MACH,CL.269535/CD.013536. Initial original-grid
+proof only, notadaptedCFD/acceptance. Native5400/outer14400 unchanged.
+C++/binary/runtime/helpers/inputs FROZEN through outcome; no otherownedheavyjob.
+Preserve run until terminal or preserved evidence meets authorized stopconditions.
+ZEROacceptedmeshes. No transfer/adaptedCFD/diskrestart yet.
+
+### Previous289 terminal evidence selects this connected certificate cycle
 
 ZERO accepted meshes. Event1 exit25210/native5344.631751870:736323cells, ALLknown
 0q/0J/0LOCALgeometry/0size, flagscomplete. Mandatory globalBoth certificate incomplete.
@@ -45,9 +61,9 @@ PASSED125cases EVERYrank/223.706s (assertions71215/72142/71418/71296/71243/71035
 in logorder). Allpins unchanged/allactualownedhandles absent before nextstage.
 R/certification291_qualification.json seals affected checks and explicitly
 partial captured-face diagnostic, NOTwholemesh acceptance. C++/binary/helpers
-remain FROZEN for immediate fullsame-seed TWO-event M6.
-No full M6 after this change yet: push qualified checkpoint, then launch_m6291.py
-once. No competing cleanup extension.
+remain FROZEN for active fullsame-seed TWO-event M6 above.
+Qualification PUSHED2d558a1d4d; launch_m6291.py alreadyexecuted ONCE.
+Do NOTrelaunch. No competing cleanup extension.
 
 First face replay290 hit unchanged20M work cap after17776/69544faces,0overTol,
 maxupper9.9999622526187977e-5,peak admitted1120212192B. Wholefield UNPROVED.
@@ -84,7 +100,7 @@ Do NOTuse HasAcceptedFaceCertificate association/orientation bool asdistanceproo
 or localG0 alone. Factored existing EntityGeometry branch into EntityFaceError with exactsameauthority,
 body/sheet/marker support, currentbindings/coords, optionalaffinefloor and budgets.
 Focused controls, bounded face replay, connectedserial and ONE MPI milestone
-complete. Immediatefullsame-seed TWOeventM6 is next; allstrictgates unchanged.
+complete. Fullsame-seed TWOeventM6 is nowLIVE; allstrictgates unchanged.
 No new scheduler/config/geometryrepresentation/largercavity/gate/budget. No competing
 cleanup policy, localresolution experiment or proofcache variant. Unselectedbacklog.
 
