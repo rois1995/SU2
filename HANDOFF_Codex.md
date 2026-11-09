@@ -135,10 +135,26 @@ integraluncertainty. Sourcecorrection implemented20lines: outwardidealchordspan 
 for unresolvedintegralmeasure; geometricradius still drivescertifiedexclusion. Adjacent
 intervalsretain spanbound; if unrefinable frontier cannotmeet1e-8 itfailsclosed.
 Test adds truecurvedtranslatedmicroheight crossing and optionalexactcellreplay branch
-inexistinghiddenprobe. CURRENT FROZEN build304 session49142; helper3986594/start29345956,
-ninja3986595/start29345972, nice19/j3/libs1/42GiBavailable. ONLYCBC.cpp+one testfile
-changed. Sourcepins frozen; verifyexactownedterminalbeforeedits. Unvalidatedfix;
-independentproof review andtargetedtests pending. Do not
+inexistinghiddenprobe. Production304 built54.159s; focused22existingcases/283883assertionsPASSED.
+CFD SHA c1803dab44ac9d12112775f975a24469a888413a27cac62c635344f44578ffa8.
+Test-only305/306 fixture setup failures retained (missing adjacent controlnets;
+unrepresentable1e-12 realizationcontract at1e6 translation). Allhandles terminal.
+Test307 correctedclosed/completemappedfixture withcoordinate-scaled1.4e-8 contract
+(<1%h0 and strict1e-4gate); actualdistancequeryprecision unchanged. PASSED11assertions/
+1case/12.997s, pinsunchanged/all5sampledhandlesabsent. ProductionBYTEIDENTICAL304.
+Exactcellreplay307 TERMINAL1 afterauthority/inputload: geometry_work0, diagnostic
+positive-volume helper rejected global-node orientation. Actualcell/sensors untouched.
+All5exacthandles absent. Test-onlyfix usespositive COPYforindependent volume check.
+Build308 PASSED98.139s, pinsunchanged/all10sampledbuildPIDsabsent; CFDbyteidentical304.
+Currenttest_driver SHA d100074703ca0d2616038a595df6674a2cfa24bdee8ca6c9043e2bc8cfd132eb.
+CURRENT FROZEN actualsavedcell replay308 session32708:
+R/cases/cubic_cell_replay308_v1, wrapper387146/start30877976; time387458/timeout387459/
+test_driver387460/start30878497;orted387461/start30878498. Exact50values/original
+48954netauthority loaded; productionvolumeintegration began at7.197s. No outcome yet.
+Serial1800s diagnostic bound/native5400unchanged, nice19/libs1/4TBscratch. Freeze
+allCpp/helpers/binaries/runtime/inputs; actualterminalhandlesbeforeedits/newjob.
+Reuse307translatedpass/30422cases; ifactualcellqualifiedreturnfullsame-seedM6.
+No newbroadcampaign, no BLmeshacceptance. Do not
 raise1e-8/work/cuts/budgets or use sampling-only exclusion. No competingcycle.
 SavedRANSstate/Euler293checkpointshashpreservation PASS; evidence
 R/euler293_preservation_during_bl303.json. No recomputation ofsavedCFD needed.

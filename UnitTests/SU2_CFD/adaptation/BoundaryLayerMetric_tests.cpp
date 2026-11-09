@@ -1385,23 +1385,35 @@ TEST_CASE("Translated cubic distance crossings close by chord span rather than c
   using namespace SU2Native3D;
   using SU2NativeGeometry::MappedFacetReference;
   constexpr double shift=1e6,h0=2e-6;
-  const Node n0{0,{shift,shift,0}},n1{1,{shift+1,shift,0}},n2{2,{shift,shift+1,0}};
-  const std::vector<Facet> facets{{0,0,{n0,n1,n2}}};
+  const Node n0{0,{shift,shift,0}},n1{1,{shift+1,shift,0}},n2{2,{shift,shift+1,0}},n3{3,{shift,shift,1}};
+  const std::vector<Facet> facets{{0,0,{n0,n2,n1}},{1,1,{n0,n1,n3}},
+                                  {2,1,{n1,n2,n3}},{3,1,{n2,n0,n3}}};
   auto original=std::make_shared<PlanarReference>(facets);
-  MappedFacetReference::CurvedNets nets;auto& net=nets[0];
+  MappedFacetReference::CurvedNets nets;
   const unsigned powers[10][3]={{3,0,0},{0,3,0},{0,0,3},{2,1,0},{1,2,0},{0,2,1},{0,1,2},{1,0,2},{2,0,1},{1,1,1}};
-  for(unsigned q=0;q<10;++q) {
-    long double x=0,y=0;
-    for(unsigned k=0;k<3;++k){x+=powers[q][k]*(long double)facets[0].v[k].p.x/3;y+=powers[q][k]*(long double)facets[0].v[k].p.y/3;}
-    net[q]={double(x),double(y),0};
+  for(const auto& face:facets)for(unsigned q=0;q<10;++q) {
+    long double x=0,y=0,z=0;
+    for(unsigned k=0;k<3;++k) {
+      x+=powers[q][k]*(long double)face.v[k].p.x/3;
+      y+=powers[q][k]*(long double)face.v[k].p.y/3;
+      z+=powers[q][k]*(long double)face.v[k].p.z/3;
+    }
+    nets[face.id][q]={double(x),double(y),double(z)};
   }
-  net[9].z=-.03;
-  auto geometry=std::make_shared<MappedFacetReference>(original,std::map<Id,double>{{0,1e-12}},304,SIZE_MAX,false,nets);
-  BoundaryPoints points;
-  for(const auto& node:facets[0].v)points.emplace(node.id,BoundaryPoint{node,geometry->Vertex(node.id)});
-  auto parameters=std::make_shared<BoundaryParameterState>(geometry,points,std::vector<SurfaceFace>{{{0,1,2},0}},1);
+  nets.at(0)[9].z=-.03;
+  // Outward model-coordinate boxes need a representable contract at this translation; query precision stays h0-relative.
+  const auto referenceError=64*std::numeric_limits<double>::epsilon()*shift;
+  REQUIRE(referenceError<h0*.01);
+  auto geometry=std::make_shared<MappedFacetReference>(original,
+      std::map<Id,double>{{0,referenceError},{1,referenceError},{2,referenceError},{3,referenceError}},304,SIZE_MAX,false,nets);
+  BoundaryPoints points;std::vector<SurfaceFace> skin;
+  for(const auto& face:facets) {
+    for(const auto& node:face.v)points.emplace(node.id,BoundaryPoint{node,geometry->Vertex(node.id)});
+    skin.push_back({{face.v[0].id,face.v[1].id,face.v[2].id},face.id});
+  }
+  auto parameters=std::make_shared<BoundaryParameterState>(geometry,points,skin,1);
   CBoundaryLayerMetric::Wall wall;wall.layer={"wall",h0,1.2,.01};
-  wall.coord={shift,shift,0,shift+1,shift,0,shift,shift+1,0};wall.conn={0,1,2,2};
+  wall.coord={shift,shift,0,shift,shift+1,0,shift+1,shift,0};wall.conn={0,1,2,2};
   wall.authority=PlanarReference::WithParameters(original,parameters);wall.authority_facet=0;wall.authority_facets={0};wall.surface_tolerance=1e-4;
   CBoundaryLayerMetric layers(3,{wall});
   // At the barycentre the independent cubic graph has zero slope and z=-.18/27.
@@ -1462,6 +1474,9 @@ TEST_CASE("Actual retained cubic wall policy probe without CFD", "[.][NativeActu
       std::cout<<std::setprecision(17)<<"{\"replay_core\":"<<core<<",\"replay_log_scale\":"<<logScale<<"}"<<std::endl;
       std::array<Point,4> tetrahedron;
       for(unsigned k=0;k<4;++k)tetrahedron[k]={cell[k][0],cell[k][1],cell[k][2]};
+      // The recorded global-node order is retained for integration; the volume helper needs a positive copy.
+      if(Orientation(tetrahedron[0],tetrahedron[1],tetrahedron[2],tetrahedron[3])<0)
+        std::swap(tetrahedron[0],tetrahedron[1]);
       const double expectedVolume=double(TetrahedronVolume(tetrahedron));REQUIRE(expectedVolume>0);
       for(const auto& metric:sensor)REQUIRE_NOTHROW(ValidateTensor({metric.m[0][0],metric.m[0][1],metric.m[0][2],metric.m[1][1],metric.m[1][2],metric.m[2][2]}));
       size_t evaluations=0;

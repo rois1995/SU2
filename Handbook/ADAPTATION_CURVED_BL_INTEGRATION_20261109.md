@@ -402,3 +402,33 @@ bound; impossibleaggregateconvergence stillrefuses. Same1e-8/work/cuts/memory/de
 Truecubic translatedmicroheight testcase andstrict50-value actualcellreplaybranch
 added toexistinghiddenM6probe; no productionconfigoption. NOTYETVALIDATED.
 Bounded failingcell input/provenance/plan under m6_bl_inputs/crossing303_cell0_v1.
+
+### Focused chord validation and diagnostic setup305–308
+
+Production304 build passed54.159s and affected22cases/283883assertionspassed. New
+translatedfixture firstfailed open-reference topology, then305 missingadjacent
+planarcontrolnets, then306 unrepresentable1e-12 realizationcontract at1e6 coordinates.
+All failures preserved; allownedhandles terminal beforeedits. These were setup
+failures beforechordexecution, not acceptedqualifications.
+
+Test307 usesclosedtet/alladjacentnets/onegenuinelycurvedwall, a coordinate-scaled
+realizationcontract64*eps*1e6 (~1.4e-8, <1%h0, belowstrict1e-4). H0/queryprecision
+unchanged; forward/reversechordcutregression PASSED11assertions/12.997s. Production
+CFD remainsBYTEIDENTICAL304c1803dab... . No completeM6closureclaim.
+
+Savedactualcellreplay307 loadedoriginal48954netauthority andexact50values, then
+failed diagnosticTetrahedronVolume positive-orientationprecheck (geometry_work0).
+SourceCSolverusesglobal-nodeorder; replay keeps it forIntegrationRule3D. Test-only308
+usespositiveorientedCOPYforindependentvolume check. All5replayhandlesverifiedabsent.
+CURRENTfrozenbuild308 session41491/helper380409/start30865551/ninja380410/start30865565.
+No sourceedits untilterminal. Nextsingle actualcellreplay308 bounded1800s, thenreturn
+fullsame-seedM6 ifqualified. Reuse22passingcases and307regression; no broadrepeat.
+
+Build308 passed98.139s/allpinsunchanged/all10sampledPIDsabsent; productionCFD remains
+c1803dab... BYTEIDENTICAL304. Hiddenreplay positive-volumeCOPYfix is test-only.
+CURRENT FROZEN replay308 session32708/cases/cubic_cell_replay308_v1,
+wrapper387146/start30877976; owned_handles.json recordsall5exactidentities.
+Actual48954netauthority/exact50values loaded; productionIntegrationRule3D began7.197s.
+Serial1800diagnosticbound/currentnative5400, allsource/helpers/binary/runtime/input
+frozen. Outcome pending; no fulltarget/mesh qualification yet. Returnfullsame-seed
+M6 afterqualifyingactualblocker; no newbroadcampaign orspeculativeoptimization.
