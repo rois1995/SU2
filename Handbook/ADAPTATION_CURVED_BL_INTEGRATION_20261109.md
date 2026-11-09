@@ -485,3 +485,23 @@ Serial1800/currentnative5400 unchanged. No outcome yet.
 parse_chord310_terminal.py prepared/syntheticselfcheckpassed; terminal+verifiedpins/
 actualhandles requiredbefore extractingDecimaldiagnostics and9-valuechord+provenance.
 No autosolverlaunch. Fullworkflowremainsblockeduntilactualtargetblockerqualified.
+
+### Faithful310 terminal work-limit refusal; sharedcapture311
+
+Faithful310 TERMINAL1/1264.192s, pins/runtimeverified/all5exactidentitiesabsent.
+Correct.0001initial/retainedcore,.007604989trial/hgrad1.3; actualintegrationfailed
+at1261.481s/13328602geometrywork, chord16384-stepguard/leaves7965. No target/mesh.
+Oldstd::to_string printsremainingbound0.000000; no precisechordpayload (310only
+instrumentedadjacentguard). This is nowauthoritativefirst-trial production-policy
+workfailure; do notraisecap orinterpretroundedzeroasqualified.
+
+311sharederrorformatter coversworkguardandadjacentguard. Duringpartialsplit, pending
+coverisparent beforeleftchild, righthalfbefore rightchild; plusheap givesexactlyonce
+coverofallremainingunresolvedregion. Freshoutwardsumvalidupper; unqueriedpending
+region maylaterbecertifiedaway, soexceeds-tol isnotirreducibilityproof. Independently
+reviewed; noqueryorder/acceptance/limitschanged. Build311 PASSED72.169s/allpins/
+all14sampledbuildPIDsabsent.
+CURRENT FROZEN replay311 session65502/cases/cubic_cell_replay311_v1, wrapper544556/
+start31225876; owned_handles storesall5identities. Correctpolicyprinted; integration
+began10.329s,1800diagnosticbound/native5400unchanged. Nextterminal311genericparser
+extractsfailedchordfordirectisolation; notanotherfullbaselinecampaign.

@@ -3479,12 +3479,47 @@ std::vector<double> CBoundaryLayerMetric::EdgeBreakpointsImpl(
       if(!std::isfinite(lengthBound))throw std::runtime_error("Unrepresentable cubic BL chord length bound.");
       levels.erase(std::remove(levels.begin(),levels.end(),0.),levels.end());
       const SU2Native3D::Point first{a[0],a[1],a[2]},last{b[0],b[1],b[2]};
+      auto intervalUncertainty=[&](double left,double right) {
+        const auto width=std::nextafter((long double)right-left,INFINITY);
+        return std::nextafter(std::nextafter(width*lengthBound,INFINITY)*metricBound,INFINITY);
+      };
+      auto fail=[&](const char* category,const char* reason,const Interval& extra,long double incrementalTotal) {
+        long double freshTotal=0,adjacentTotal=0,splittableTotal=0,largestSplittable=0;
+        size_t adjacent=0,splittable=0;
+        auto collect=[&](const Interval& leaf) {
+          freshTotal=std::nextafter(freshTotal+leaf.uncertainty,INFINITY);
+          const auto midpoint=.5*(leaf.left+leaf.right);
+          if(midpoint==leaf.left || midpoint==leaf.right) {
+            ++adjacent;adjacentTotal=std::nextafter(adjacentTotal+leaf.uncertainty,INFINITY);
+          } else {
+            ++splittable;splittableTotal=std::nextafter(splittableTotal+leaf.uncertainty,INFINITY);
+            largestSplittable=std::max(largestSplittable,leaf.uncertainty);
+          }
+        };
+        collect(extra);for(const auto& leaf:frontier)collect(leaf);
+        std::ostringstream context;context<<std::setprecision(std::numeric_limits<long double>::max_digits10)
+            <<reason<<"\nCubic BL chord replay: {\"a\":[";
+        for(unsigned j=0;j<3;++j)context<<(j?",":"")<<a[j];context<<"],\"b\":[";
+        for(unsigned j=0;j<3;++j)context<<(j?",":"")<<b[j];
+        context<<"],\"failure_type\":\""<<category<<"\",\"band_ratio\":"<<bandRatio<<",\"fade_bands\":"<<fadeBands<<",\"feature_transitions\":"<<featureTransitions
+            <<",\"wall\":"<<wall<<",\"authority_facet\":"<<walls[wall].authority_facet
+            <<",\"transition_core\":"<<transitionCore<<",\"transition_slope\":"<<transitionSlope<<",\"full\":"<<full<<",\"support\":"<<thickness
+            <<",\"h0\":"<<h0<<",\"eigenvalue\":"<<eigenvalue<<",\"metric_bound\":"<<metricBound
+            <<",\"length_bound\":"<<lengthBound<<",\"left\":"<<extra.left<<",\"right\":"<<extra.right
+            <<",\"width\":"<<((long double)extra.right-extra.left)<<",\"parent_uncertainty\":"<<extra.uncertainty
+            <<",\"incremental_total\":"<<incrementalTotal<<",\"fresh_total\":"<<freshTotal
+            <<",\"adjacent_total\":"<<adjacentTotal<<",\"splittable_total\":"<<splittableTotal
+            <<",\"adjacent\":"<<adjacent<<",\"splittable\":"<<splittable<<",\"largest_splittable\":"<<largestSplittable
+            <<",\"work\":"<<work<<",\"leaves\":"<<(frontier.size()+1)<<",\"tolerance\":1e-8}";
+        throw std::runtime_error(context.str());
+      };
+      Interval pending{0,1,intervalUncertainty(0,1)};
       auto classify=[&](double left,double right) {
         if(left==right)return;
-        if(++work>16384)throw std::runtime_error("Cubic BL distance crossings exceed work budget; unresolved bound="+std::to_string(double(unresolved))+", leaves="+std::to_string(frontier.size()));
+        if(++work>16384)fail("work_budget","Cubic BL distance crossings exceed work budget.",pending,
+            std::nextafter(unresolved+pending.uncertainty,INFINITY));
         // Coordinate enclosures bound level exclusion; only ideal chord span contributes integration measure.
-        const auto width=std::nextafter((long double)right-left,INFINITY);
-        const auto uncertainty=std::nextafter(std::nextafter(width*lengthBound,INFINITY)*metricBound,INFINITY);
+        const auto uncertainty=intervalUncertainty(left,right);
         const double middle=.5*(left+right);
         if(middle==left || middle==right) {
           frontier.push_back({left,right,uncertainty});std::push_heap(frontier.begin(),frontier.end(),larger);
@@ -3520,36 +3555,11 @@ std::vector<double> CBoundaryLayerMetric::EdgeBreakpointsImpl(
         unresolved=std::max(0.L,std::nextafter(unresolved-parent.uncertainty,INFINITY));
         const auto middle=.5*(parent.left+parent.right);
         if(middle==parent.left || middle==parent.right) {
-          long double freshTotal=0,adjacentTotal=0,splittableTotal=0,largestSplittable=0;
-          size_t adjacent=0,splittable=0;
-          auto collect=[&](const Interval& leaf) {
-            freshTotal=std::nextafter(freshTotal+leaf.uncertainty,INFINITY);
-            const auto midpoint=.5*(leaf.left+leaf.right);
-            if(midpoint==leaf.left || midpoint==leaf.right) {
-              ++adjacent;adjacentTotal=std::nextafter(adjacentTotal+leaf.uncertainty,INFINITY);
-            } else {
-              ++splittable;splittableTotal=std::nextafter(splittableTotal+leaf.uncertainty,INFINITY);
-              largestSplittable=std::max(largestSplittable,leaf.uncertainty);
-            }
-          };
-          collect(parent);for(const auto& leaf:frontier)collect(leaf);
-          std::ostringstream context;context<<std::setprecision(std::numeric_limits<long double>::max_digits10)
-              <<"Unresolved cubic BL distance crossing; adjacent interval exceeds total uncertainty allowance.\nCubic BL chord replay: {\"a\":[";
-          for(unsigned j=0;j<3;++j)context<<(j?",":"")<<a[j];context<<"],\"b\":[";
-          for(unsigned j=0;j<3;++j)context<<(j?",":"")<<b[j];
-          context<<"],\"band_ratio\":"<<bandRatio<<",\"fade_bands\":"<<fadeBands<<",\"feature_transitions\":"<<featureTransitions
-              <<",\"wall\":"<<wall<<",\"authority_facet\":"<<walls[wall].authority_facet
-              <<",\"transition_core\":"<<transitionCore<<",\"transition_slope\":"<<transitionSlope<<",\"full\":"<<full<<",\"support\":"<<thickness
-              <<",\"h0\":"<<h0<<",\"eigenvalue\":"<<eigenvalue<<",\"metric_bound\":"<<metricBound
-              <<",\"length_bound\":"<<lengthBound<<",\"left\":"<<parent.left<<",\"right\":"<<parent.right
-              <<",\"width\":"<<((long double)parent.right-parent.left)<<",\"parent_uncertainty\":"<<parent.uncertainty
-              <<",\"incremental_total\":"<<incrementalTotal<<",\"fresh_total\":"<<freshTotal
-              <<",\"adjacent_total\":"<<adjacentTotal<<",\"splittable_total\":"<<splittableTotal
-              <<",\"adjacent\":"<<adjacent<<",\"splittable\":"<<splittable<<",\"largest_splittable\":"<<largestSplittable
-              <<",\"work\":"<<work<<",\"leaves\":"<<(frontier.size()+1)<<",\"tolerance\":1e-8}";
-          throw std::runtime_error(context.str());
+          fail("adjacent","Unresolved cubic BL distance crossing; adjacent interval exceeds total uncertainty allowance.",parent,incrementalTotal);
         }
-        classify(parent.left,middle);classify(middle,parent.right);
+        // Include both unprocessed children in failure diagnostics until the first child is classified.
+        pending=parent;classify(parent.left,middle);
+        pending={middle,parent.right,intervalUncertainty(middle,parent.right)};classify(middle,parent.right);
       }
       if(frontier.empty())unresolved=0; // Every interval was excluded by a certificate.
       if(unresolved>1e-8)throw std::runtime_error("Cubic BL total crossing uncertainty exceeds edge tolerance.");

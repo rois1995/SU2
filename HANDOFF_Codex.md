@@ -167,18 +167,29 @@ Independentcallerreview confirms310full-layer setupfaithfulforcapturedFIRSTtrial
 recordedsensors + ApplySample(capturedcore,false), initialtransition.0001 then trial
 .007604989 retainedmin.0001/hgrad1.3. Base/A notconsumedbythisstrictcellcallback.
 Resourceallowance differsfromfullsolver; no fullnormalization/MPI/reconstructionclaim.
-CURRENT FROZEN faithfulreplay310 session78676 R/cases/cubic_cell_replay310_v1:
-wrapper466078/start31046059; time466336/timeout466337/start31046671;
-test_driver466338/orted466344/start31046672. Initial/retainedcore.0001 andtrialcore
-.007604989/hgrad1.3 PRINTED; IntegrationRule3D began7.888s. Outcome pending.
-Serial1800diagnosticbound/currentnative5400, nice19/libs1/4TBscratch; allCpp/helpers/
-binaries/runtime/inputs frozenuntilactualhandles terminal.
-Next iffailure: parse_chord310_terminal.py extractswrappedJSONwithDecimal, compares
-fresh/adjacent sums toactualbinary64tol, produces9-valuechord input+provenance.
-Parserprepared/syntheticselfcheckpassed, NOTRUNoncurrentreplay; launchesnojob.
-Thenusecapturedchord/evidence toselectonecorrection, orreturnfullsame-seedM6ifcell
-qualified. Preparedfullrun308MUSTNOTlaunch (requiresfailed/incompletepolicy308).
-No newbroadcampaign or BLmeshacceptance. Do not
+Faithfulreplay310 TERMINAL1/1264.192s; allpins/mappedELFverified/all5exacthandles
+ABSENT. Runtimeprofilecorrect(.0001initial/retained,.007604989trial,hgrad1.3).
+ActualIntegrationRule3D failed1261.481s/13328602geometrywork at chord16384-step
+workguard, leaves7965; scalarprinted0.000000 losesactualprecision. No normalized
+target/BLmesh. See cases/cubic_cell_replay310_v1/assessment.json.
+Previousdiagnostic onlycoveredadjacentguard, so no chordpayload availablefrom310.
+Build311 PASSED72.169s/pinsunchanged/all14sampledbuildPIDsabsent. ONLYCBC.cpp
+changed fordiagnostics: sharedfailureformatter nowcapturesworkguardtoo, withpending
+split interval+heap coveringALLremainingunresolvedregion exactlyonce. Beforeleft
+child,pending=parent; beforeright,pending=right half. Independentreviewconfirms
+cover; freshsum isvalidupperbound, but exceeds-tol doesnotproveirreducibility of
+unqueriedpendingregion. No query/order/acceptance/work/time budgetchanges.
+CFD SHA27eb8051216de283cb1e2f76b69bbc86019856cf7768039ad0d407a10c6dd3a1;
+test_driver3e7ceed54467544aaecb6fbcb5ac402316d99fb958a93a090c4e9a4a67aeb6c9.
+CURRENT FROZEN faithfulreplay311 session65502 R/cases/cubic_cell_replay311_v1:
+wrapper544556/start31225876; time544864/timeout544865/test_driver544866/start31226539;
+orted544867/start31226540. Input/policy loaded, runtimecorescorrect; integration
+began10.329s. Serial1800/currentnative5400,nice19/libs1/4TBscratch; allCpp/helpers/
+binaries/runtime/inputs frozenuntilactualhandles terminal. Nosecondheavyjob.
+Nextparse_chord310_terminal.py (genericCLI) onterminal311 toextractprecisechord and
+nine-valueinput/provenance, then directchord-basedcorrection/qualification. No new
+fullbaselinecampaign. Preparedfullrun308MUSTNOTlaunch. Keepfullsame-seedM6return
+afteractualblockerqualified; no BLmeshacceptance. Do not
 raise1e-8/work/cuts/budgets or use sampling-only exclusion. No competingcycle.
 SavedRANSstate/Euler293checkpointshashpreservation PASS; evidence
 R/euler293_preservation_during_bl303.json. No recomputation ofsavedCFD needed.
