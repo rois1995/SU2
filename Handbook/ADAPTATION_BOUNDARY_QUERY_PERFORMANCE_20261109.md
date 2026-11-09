@@ -1,0 +1,68 @@
+# Boundary query performance — next connected cycle
+
+User steering2026-11-09; analysis only, no source edits or new workload. Preserve
+current frozen293. First require strict native acceptance, conservative admissible
+transfer, usable mesh/reference/matching adapted-CFD checkpoint and actual finite
+continued CFD. Preserve that progress independently. If frozen driver has already
+entered adaptation2, preserve its outcome and verify terminal owned handles before
+editing pinned sources. Its automatic cycle transition must not be confused with
+permission to interrupt an in-progress event. All Euler/BL/MPI/RANS obligations stay.
+
+After that boundary, prioritize ONE connected performance cycle using build291 and
+subsequent first-event evidence. Reuse SAME original saved CFD seed, Mach-onlyL1,
+50k target, constraints,5400native/14400outer budgets and current validity-first
+construction. Compare complete first-adaptation replay; no simultaneous sensor,
+norm, target or construction-policy experiment. Then return to the preserved
+adapted CFD checkpoint for adaptation2 if still required. Separate actual isolated
+adapted disk restart remains mandatory. Never overwrite the preserved checkpoint.
+
+## Confirmed static observations, not demonstrated speedups
+
+- MeshOptimizer::Commit clears all rejected_smoothing after every commit.
+  RememberRejectedSmooth currently stores vertex IDs, so simply retaining it would
+  be unsafe. Prove complete relevant cavity dependencies and invalidate on changes
+  to neighbors, coordinates, bindings, support, metric state and phase/options.
+- SmoothBoundary already builds its patch, exports old parameters, caches old merit,
+  prepares a projected context/atlas, screens shape/edges and lazily measures old
+  geometry. Retain these facilities and whole-patch merit. Inspect remaining repeated
+  work across MoveVertex/PrivateParameters/Finish/GeometryGuidanceExcess; do not
+  assume a second projection reproduces the first coordinate or association.
+- MoveVertex currently reconstructs PrivateParameters(old), Incidence, SkinMap,
+  CheckSurface and Nodes on each trial. Reusable old-side context must preserve
+  complete interfaces, exact positivity/topology, associations, features, bodies,
+  requested heights, storage/work/time admission and current transport authority.
+  Fresh trial positions and their metrics/geometry still require evaluation.
+- GeometryGuidanceExcess creates a private parameter context and visits complete
+  patch.surface. Existing exact-coordinate/support certificate facilities are the
+  starting point. Reuse unchanged contributions only with valid coordinates,
+  association/support/tolerance/authority identity. Accepted association is not a
+  distance proof. Uncertain conservative bounds fall back to full certification.
+- CNativeAffineReference scope misses copy selected prepared triangles, then build
+  a TriangleUnion. Existing prepared leaf forest is already available. Investigate
+  direct reusable leaf/subtree query execution while preserving exact witness
+  support identity, conservative finite-domain bounds, active-reference accounting,
+  transient admission and ordering/fallback correctness. Separate identical-query
+  hits from nearby positions changing selected-piece keys; no benefit assumed.
+
+Existing counters decide the connected scope: geometry traversal/preparation,
+trial/move yield, interior versus boundary work, q/J retirement and introduction,
+net whole-field removal/s, geometry-bad counts and total accepted first-event time.
+Rank CPU and busy/join counters account for contention; join-call time is not total
+MPI wait. Overlapping smooth/guidance/certificate clocks must not be added.
+Changed-cell measurement/private-to-public reuse and clearance-index rebuilds are
+secondary unless their counters demonstrate the active bottleneck. Unrelated
+hypotheses belong in ADAPTATION_BACKLOG.md.
+
+## Qualification and return
+
+State the demonstrated limitation and exact dependency design before implementation.
+Use existing ownership/reservation/publication, metric/certificate/cache machinery;
+no new scheduler/configuration/CAD requirement. Focused checks plus ONE appropriate
+MPI milestone: seams, genuine features, separate bodies, requested heights, stale
+neighbors/dependencies, cached/recomputed equivalence, empty ranks and resource
+exhaustion. Freeze source/build/runtime/helpers/inputs during each campaign.
+Then immediately replay complete first adaptation under unchanged gates/budgets.
+Compare work/progress at matching stages and explain trajectory changes. Commit
+counts/debt alone are insufficient (291 window:8246 q-bad retired,6859 introduced).
+Return to preserved adapted-CFD state after qualification; keep logical event
+identity and matching restart provenance explicit across isolated directories.

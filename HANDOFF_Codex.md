@@ -52,6 +52,20 @@ All11actualidentities stilllive, sampledtreeRSS9.167GB, hostavailable~37.0GiB. N
 start anotherjob. Existingparser remains first-event-only; followingevents require
 separate event-specific acceptance/transfer/continuedCFD audit.
 
+## Latest user steering — preserve adapted CFD, then boundary-query performance
+
+Preserve frozen293. Once event1 is accepted/transferred/persisted and continued
+adaptedCFD succeeds, retain mesh+reference+matchingrestart in an independent
+checkpoint and prioritize ONE connected boundary-query performance cycle before
+another adaptation. Frozen driver advances automatically: if already inside event2,
+preserve its outcome before editing any pins. Do not interrupt an activeevent on
+an assumption that the first checkpoint is complete. Same-seed first-adaptation
+replay is the performance comparator: Mach-onlyL1/50k, unchanged constraints/gates/
+budgets/construction. No source change yet; bounded static observations recorded in
+[performance cycle](Handbook/ADAPTATION_BOUNDARY_QUERY_PERFORMANCE_20261109.md).
+Return to preserved adaptedCFD for logical event2 if needed; actual diskrestart,
+BL/MPI and RANS500k obligations unchanged. Currentrun has NOevent1output yet.
+
 ## Previous291 TERMINAL after native acceptance/transfer; reference write failed
 
 Main83989 TERMINAL1/3716.395958s; pins_verified=true,changed=[],workflow_accepted=false.
