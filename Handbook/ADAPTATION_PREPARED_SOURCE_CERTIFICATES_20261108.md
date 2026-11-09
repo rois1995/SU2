@@ -491,3 +491,29 @@ Both20Mcertificates incomplete. No gate/budget changed. CPU/work comparisons sup
 preparation savings, not wholeM6 timing or acceptance. certification289_qualification.json
 seals allfivecases, source/binary/runtime/input/helper/provenance/terminalreceipts.
 Push qualification then fullsame-seed TWOeventM6 immediately; preservefreeze/outcome.
+
+###289 terminal: same mesh, more work, target preparation hits storage
+
+Nativeexit25210/5344.631751870s:736323tets,allknown0q/J/localG/size. GlobalBoth
+incomplete. Wrapper timeexhaustion; ORIGINALstorage13482375068 vs12884901888,
+caller5381336204+scratch8101038864 atQuerySurfaceUnionAtResolution. All30rawfiles
+FULL/metrics/noomissions,all1520pins verified, exactlyone ownedpidfdstop afterseal,
+all11actualhandles absent; main5576.256s terminal1. Neverrepeat stophelper.
+All24nonmanifest rawpayloads SHA-identical287. Currentmesh notchanged by289.
+Peak sampledtree25.777GB,notphysicalpeak; MemAvailable~24–25GB/PSI0, nohostOOM.
+Finalwindow2460.107s/rank vs2872422.180;3outerfullcalls. Summedtraversal3.713Bvs1.020B,
+scope54.19Mvs14.75M,facet33.42Mvs4.08M,pieceselection18.36Mvs4.03M. Cache391.7MB/rank,
+notlarge residentgrowth. Eachcleanrank adds37202facetvisits (Wing support count).
+SourceRefineSurfaceTarget only reverse; eachretry globally lowersres/=4, re-prepares
+resolution-keyed leaves and joined scoped witness. Directiontimes/retrycount not
+explicit counters. Sourcecopy/query time remains a certificate capability blocker.
+
+Next review ONE existing-proof decomposition: ParameterError's entity branch gives
+rigorous physicalface→same model correspondence or scoped-union upper. Max overALL
+current physicalfaces with exactmatchingbody/sheet/marker support certifies reverse;
+retain fullglobal model→mesh and originalBoth fallback if anybound uncertain.
+HasAcceptedFaceCertificate is only acceptedassociation/coverage/orientation reuse,
+not distanceproof. Never promote localG0 withoutfresh bounds/freshness proof. Reuse
+existingexactFaceMemo and scoped support, preserve budgets and allother gates. This
+is underreview, not yetimplemented/validated. Unselectedtarget-refinement/proofcache
+ideas staybacklog. Fullsame-seed twoevents must follow affectedserial+ONE MPI milestone.

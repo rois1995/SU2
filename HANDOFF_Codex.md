@@ -17,44 +17,61 @@ A289=`R/m6_runs/euler_build289_prepared_borders_mach_only_real_cfd50k`.
 A287=`R/m6_runs/euler_build287_exact_face_coverage_mach_only_real_cfd50k`.
 A274=`R/m6_runs/euler_build274_metric_cleanup_mach_only_real_cfd50k`.
 
-## CURRENT — full289 LIVE and FROZEN; no C++/binary/helper/input edits
+## CURRENT —289 TERMINAL REFUSED; final certificate storage/work is blocker
 
-Fullsame-seed TWOeventM6 LIVE tool61806. Wrapper1564408/start23715184;
-runner1564745/start23715930; time1564977/timeout1564978 start23716464;
-MPI1564979/start23716465; ranks1564982–1564985 start23716467,
-1564986–1564987 start23716468. ALL11actualHOST handles recorded A289/owned_startup.json.
-ALL1520source/build/runtime/input pins verified; all6actual executable inodes match,
-84mappedELF files EACHrank matchpins: A289/actual_runtime_startup.json.
+ZERO accepted meshes. Event1 exit25210/native5344.631751870:736323cells, ALLknown
+0q/0J/0LOCALgeometry/0size, flagscomplete. Mandatory globalBoth certificate incomplete.
+Wrapper reports timebudget; ORIGINALfailure is atlasSTORAGE admission requested
+13482375068 vsceiling12884901888, caller5381336204/scratch8101038864,
+operation QuerySurfaceUnionAtResolution. Neither hostOOM nor mesh inadmissibility
+is proved. Original-grid postrefusal CFD is NOTadaptedCFD/transfer.
+
+ALL30rawfiles FULL/metrics/noomissions/128MiBfilecaps; ALL1520pins unchanged.
+ALL24nonmanifest payloads (owned/metrics/reference/rejections across6ranks) are
+SHA-IDENTICAL287, not merely count-matched. No new VTU needed for this identicalmesh.
+A289/capture_ready.json + terminal_certification_diagnosis.json seal evidence.
+EXACTLYONEverifiedpidfdSIGTERM to MPI1564979/start23716465 AFTERexplicitrefusal,
+fullcapture andpins. NEVERrepeat seal_stop_m6289.py or any historical stophelper.
+Main61806 TERMINAL1/5576.256499s,pins_verified=true,changed=[],workflow_accepted=false.
+ALL11actualHOST identities ABSENT in A289/terminal_handles.json. Sourcefreeze
+released; no ownedheavyjob active. No new C++edits sincequalified289yet.
 Actual /proc/ps MUSTrequire_escalated; sandboxabsence previouslyfalse-terminal.
-Never infer termination fromelapsed/stalelogs. StopONLY verifiedownedrun after
-preserved authorizedfailure/bottleneck/resourcepressure. NEVER repeat historical stops.
 
-Implementation31ff1c3bad, qualification484f5678c8 PUSHED. SourcepinsSHA
-501927a52b6733c0ac7e54eed7d6cfc45a397a00eaa35a0f6ee6abcb2d063629.
+289source/qualification/startup/progress PUSHED31ff1c3bad/484f5678c8/736fe5a1ff/
+f3ab201418/6b68cee93c/c349e03ccb. Fullterminal+newdiagnosis LOCAL: pushbeforecode.
+SourcepinsSHA501927a52b6733c0ac7e54eed7d6cfc45a397a00eaa35a0f6ee6abcb2d063629.
 CFD SHA ff961bf8e23d0f8a2422019cd7e34c5b13129e82191216d5c7e4a51ecbd77678.
 R/certification289_qualification.json seals fivecases/allpins/terminalreceipts.
-Current actualexe is test_driver onall6ranks, standaloneCFD also built/qualified.
-Initialqualityentry23306/native578.990650s COMPLETE690804cells:27052q/27499J/
-1204geometry/0size, allknown/flagscomplete, EXACTsame counts/flags as287(entry573.763s).
-Latestrecorded quality_entry25203/native2884.527886s:
-736322cells,2q/2J/0G/0size, allknown/flagscomplete. EXACTcounts/flags versus287.
-This follows geometry-construction returns; no first-pass churn/rate extension across
-those returns. Quiettail may be finalcertificate after privateclosure, but q/J/global
-closure/acceptance must come from actualoutcome/counters, not silence. Read-onlycounter
-monitor bounded600s to cert287_graph_audit; no edits/jobs; primaryowns actualhandles.
-A289/initial_quality_entry_verified.json + frozen_progress_checkpoint_v3.json preserve
-completeprefix evidence. No early
-construction speedup claim; largecertificate savings remain to prove in fullrun.
-No acceptedmesh/transfer/adaptedCFD/restart observed. Do not declare completion from
-fixture success, primitive speed, localgeometry0 or workflow_accepted alone.
+All6actualexe inodes+84mappedELF files/rank matchedpins atstartup.
+Peak sampledtreeRSS25.777GB, not truephysicalpeak; host~24–25GB available/PSI~0.
+Resourcefailure is internaladmission, not actualhostpressure or a residentcacheleak.
+
+Finalwindow25203→25210: ~2460.107s/rank vs2872422.180;3outerfullcalls each.
+Summed traversal3.713B vs1.020B (~3.64xwork/s over samewindow), scopebuild54.19Mvs14.75M,
+facetbuild33.42Mvs4.08M,pieceSelection18.36Mvs4.03M. Preparedresident~391.7MB/rank
+near396.84MBlimit, not larger finalresidentcache. Cleanranks0–4 eachaddEXACT37202
+facetvisits versus287, sameas Wing support; additional reverse-target preparation
+established with QuerySurfaceUnion's soleRefineSurfaceTarget throw in reverse,
+resolution/=4 retry. Directionwallshare/exactretrycount not directly emitted.
+Rank5 additionally90privateuppercalls/6commits; do notattribute them tofullqueries.
+
+ONE nextconnected hypothesis underreview: final mesh→model direction can use fresh
+rigorous per-face correspondence/scoped bounds already used by ParameterError,
+while retaining global model→mesh and fullBoth fallback for uncertain bounds.
+Do NOTuse HasAcceptedFaceCertificate association/orientation bool asdistanceproof,
+or localG0 alone. Audit/factor existing EntityGeometry branch with exactsameauthority,
+body/sheet/marker support, currentbindings/coords, optionalaffinefloor and budgets.
+Then completeaffectedserial+ONE MPI milestone and immediatefullsame-seed TWOeventM6.
+No new scheduler/config/geometryrepresentation/largercavity/gate/budget. No competing
+cleanup policy, localresolution experiment or proofcache variant. Unselectedbacklog.
 
 SameREALCFDseed R/m6_inputs/euler_original_force_seed_v1,61330pts/303359tets,
 M.8395/AOA3.06,CL.269535/CD.013536. Mach-onlyL1/50k, configSHA
 5ad2dc1d9a1cd8bff87f633617b191b50defbc261ab3d0b2ed0987a34722b89e.
 verify_m6289_initial.py PASSED all61330coords/22fields BIT-IDENTICAL256/qualified254
-target,SENSOR_MACHonly. A289/initial_verifier_reuse.json; ORIGINAL-grid proof only.
+target,SENSOR_MACHonly. ORIGINAL-grid proof only.
 Cachehostquota4GiB/rank715827882B,nativeworkingstorage12GiB/rank;
-native5400/outer14400 unchanged. Runnerresource samples are not truephysicalpeak.
+native5400/outer14400 unchanged. All acceptance/transfer/restart obligations remain.
 
 ## Active connected correction and qualification
 
@@ -127,7 +144,8 @@ Export another finalmesh onlywhen meaningfully beneficial, alongside actualmetri
 Require trueCVmassresidual<=1e-10 EACHfield/timelevel, scaledTARGETintegraldefect
 <=1e-12 and fulladmissibility beforepublication. Hardtarget/admissibility gatesexist;
 old/newdomainintegral change is NOTtargetdefect. Eightunchangedsource/helper readiness
-paths auditedagainst287pins,NOTexecutionproof. Driver cycles0..nCycles includes
+paths now verified against actual289pins in A289/transfer_restart_readiness_reuse.json,
+NOTexecutionproof. Driver cycles0..nCycles includes
 finaladaptedCFD afterevent2. Original-grid continuation after refusal proves none.
 
 After TWOaccepted: isolate ACTUALacceptedmesh+.native_ref+MATCHINGrestart in newdir;

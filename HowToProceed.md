@@ -5,7 +5,7 @@ current source/build/input/handle authority. Completion remains TWO strict Euler
 meshes, conservative admissible transfer, finite adapted CFD and actual isolated
 adapted disk restart; then dedicated BL/MPI and RANS500k. All gates/budgets unchanged.
 
-Connected287certificate change is QUALIFIED: preserve all original early vertex
+Prior287certificate change is QUALIFIED (retained in289): preserve all original early vertex
 coverage guards; replace general segment clipping in the planar boundary-interior
 proof with exact separating axes, reusing existing face orientation. No new geometry
 representation/config/scheduler or skipped final certificate. Earlier285/286point-
@@ -23,29 +23,21 @@ ownedMPIstop after explicitrefusal/capture; NEVERrepeat stophelpers. Nativeexit
 5346.697s hasallknown0q/J/LOCALgeometry/size, but mandatory globalBoth remains
 incomplete. Noacceptedmesh/transfer/adaptedCFD/restart. Fullcertainty is unchanged.
 
-The quiettail is now confirmed: ~2s privateclosure, then~2420s/rank in3fullqueries;
-~2342–2357s traversal. Finalcertificate SPEED/algorithmic proofwork remains blocker.
-No widercleanup/construction/shape variant or higherbudget isjustified by thisoutcome.
-Actualcurrentquery37202reference/53512physicalfaces replayed at20M: physicalgraphs
-9accepted/0invalid afterexistingtrim, so additional branchclosure is not selected.
-9498curvature-margin misses motivated288residual-goal search; rejected for only
-0.511percentage-point parametercoverage gain and+.4%commonwork, bothincomplete.
-Patch/evidence saved; restored287source before289candidate (notlayered).
-289prepares immutable border coordinates once for Contains/ContainsSegment/ContainsFace,
-with same predicate operands/order, root/axis identity and complete storageaccounting.
-No mutablecache/index/newrepresentation. Actualtrace13.532Mcoverage of19.533Mupperwork
-motivates removing repeated maplookup/projection; usefulCPUgain stilltoqualify.
-Build289passed379.306s, focused12cases/7281assertions52.757s, pins/handlesverified.
-Both comparisons preserve EVERY completeddomain/bound/per-domain work exactly.
-SourceCPU89.79→35.01s/query83.04→27.92; reverseCPU184.71→106.92s/query177.59→99.76s.
-No completedcertificate yet. Connectedserial PASSED90cases67446assertions200.069s;
-ONE MPI6 PASSED124cases EVERYrank220.460s, allpins/actualhandlesverified.
-Qualification sealed; fullsame-seed TWOeventM6 build289 NOWLIVE/FROZEN tool61806.
-All1520pins/sixactualexes/84mappedELFfiles perrank verified; initial61330coords/22fields
-BIT-IDENTICALsameMach-only seed. Actualownedhandles inHANDOFF/A289. No source/helper/
-binary/input edits or extra campaign untilterminaloutcome/authorizedpreservedevidence.
-Then transfer/continuedadaptedCFD/isolated adaptedrestart. All source/binary/helpers/inputs frozen during eachrun.
-No new scheduler/config/largercavity/budget/gate. Otherhypotheses backlog; ONEcycle/job.
+Full289 is now TERMINAL REFUSED at736323tets,allknown0q/J/localG/size.
+Originalfailure: atlasstorage13482375068requested vs12884901888ceiling, caller5.381GB/
+scratch8.101GB; wrapper also reports timebudget. All30rawfiles complete/all1520pins
+unchanged, exactlyone verifiedownedstop, all11actualhandles absent. All24nonmanifest
+rawpayloads SHA-identical287. PrimitiveCPUgain enabled3.64x traversalwork in similar
+finalwindow; still NO globalcertificate/acceptedmesh/transfer/adaptedCFD/restart.
+Preparedresidentcache remainedbounded; hostRAM/PSI showed no actualpressure.
+
+NextONEconnected candidate: reuse fresh rigorous per-face mesh→model bounds from
+existing entity ParameterError path, retain whole model→mesh proof, fullBoth fallback
+for uncertain localbounds. Accepted-face association/orientation cert is NOTdistance
+proof; localG0 alone is insufficient. Same exactsource/support/body/sheet/marker,
+currentcoordinates/bindings and resourceadmission required. Audit/factor existing
+logic beforeadding machinery. After affectedserial+ONE MPI milestone, fullsame-seed
+TWOeventM6 immediately. No widercleanup/targets/norms/schedulers/budgets/gates.
 
 Counts/operations matched283 ONLYthroughround24000,firstdiverged24064; latermatching
 rounds aredifferentworkloads. Initial61330coords/22fields matchqualifiedMach-only

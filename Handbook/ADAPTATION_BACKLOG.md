@@ -857,3 +857,33 @@ substantially. Finish its connected qualification and fullsame-seed M6 before ad
 an index or more proof variants. Any later broadphase must retain point-on-edge/ray,
 wholeface winding/interior crossing and segment/corner-touch supersets, originaledge
 order, conservative memory/transient admission and strict exact predicates.
+
+###289 frozen tail: unselected query-refinement hypothesis
+
+The same localfield reaches lastknown2q/2J/G0/size0 at25203; global outcome pending.
+RSS grew during the quiettail to~24.5GB and then plateaued, with~25GB MemAvailable
+and no PSI pressure; this is NOT a leak or proof of a particular query direction.
+After the frozen outcome, inspect existing QuerySurfaceUnion/RefineSurfaceTarget:
+resolution is reduced globally and whole-query preparation/directions retried.
+If actual counters/evidence establish reverse-target refinement as the blocker,
+compare selective refinement of already indexed prepared facet/subtree support,
+retaining every coarse leaf for complete target/lower bounds, exact per-leaf
+resolution identities, transient/active-reference accounting and full fallback.
+A query-local completedforward proof can be reused only if its complete source,
+physical target, tolerance and budget accounting are unchanged. Current source
+supports the dependency argument, but no actual retry/savings is established.
+This is NOT selected implementation or authorization for a competing frozen cycle.
+
+Before a new target-refinement mechanism, audit existing unchanged-face certificates
+at final GeometryCertificates. If each complete current physical face already has
+an authoritative whole-face mesh→model upper bound against an exact subset of the
+same global reference, its upper also bounds distance to the global union. Max over
+ALL current faces plus an independently completed global model→mesh certificate
+would retain both gates. Need prove authority/support containment, coordinate/
+association/version freshness and complete face coverage across owners; localG0
+alone is insufficient. Some certificates may be private/owner-local or absent;
+unknown/missing proofs must use existing rigorous fallback, with empty-rank
+alignment, active-reference/transient admission and unchanged heights/features/
+body checks. BoundModelSurface already exists, but source eligibility/lifetimes and
+actual reverse dominance are NOT audited for this proposal. No implementation or
+new distributed mechanism selected before frozen289's actual outcome.
