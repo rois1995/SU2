@@ -122,8 +122,10 @@ andoriginals. CURRENT FROZEN actualM6BL TWOevent500k session79914:
 R/m6_runs/rans_curved303_v1, launcher run_rans_curved303.py;
 wrapper3919208/start29162081; time3919519/timeout3919520/start29162898;
 mpirun3919521/start29162899; ranks3919525..26/start29162901,3919527..30/start29162902.
-owned_handles.json recordsactualidentities/CPU/RSS every2s. Initialreference loading
-observed; no target/mesh outcome yet. FIRST_ROW1native/MPI6CFD,h02e-6/g1.2/T.01,
+owned_handles.json recordsactualidentities/CPU/RSS every2s. ActualinitialCFD finiteCL.155731/CD.050268; Hessianrecovery.396s, meanresidual.08478/
+31864above.05, D1features400segments/82images/0corners. Nowcombinedtargetmetric
+construction active; latest frozen_observation.json verifiesALLpins unchanged,
+sampledRSS~2.37GiB, all6ranksbusy. No normalizedtarget/mesh outcome yet. FIRST_ROW1native/MPI6CFD,h02e-6/g1.2/T.01,
 L1Machonly/native5400 EACHevent/outer14400 TOTAL/12GiB unchanged. Pin allCpp/helpers/
 binaries/runtime/config/input untilactualhandles terminal or preservedauthorizedstop.
 Preparedcase m6_bl_inputs/rans_curved303_v1 copiesexactseed/reference/mesh; checkpoints
