@@ -45,6 +45,13 @@ notconverged/wallresolvedphysics. Next actualM6BL500k, sameheight/profile/strict
 thencompleteflow+SAtransfer/continuedCFD/secondadaptation/actualadapteddiskrestart.
 SeeHANDOFFforcurrenthandlesand fullprovenance. FullgoalACTIVE; Euler is notBLcompletion.
 
+Actual BL303 reached full-target construction and refused a cubic distance crossing
+before producing a mesh. The chord span correction passed22affectedcases and an
+independent translated regression. The first saved-cell replays omitted production
+outer-transition setup; their scope is corrected in replay309_policy_fidelity_audit.json.
+Build310 corrects the replay before using it to select the next production change.
+Keep the actual first-target failure driving this same connected BL milestone.
+
 The remaining notes are historical evidence; the active next action is above.
 
 Prior287certificate change is QUALIFIED (retained in289): preserve all original early vertex

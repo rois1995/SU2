@@ -1,6 +1,6 @@
 # Native adaptation — current handoff
 
-Updated2026-11-09 Europe/Rome. Goal ACTIVE. TWO Euler50k meshes are strictly
+Updated2026-11-10 Europe/Rome. Goal ACTIVE. TWO Euler50k meshes are strictly
 accepted, conservatively transferred, persisted and followed by finite adapted
 CFD in293. Isolated actual adapted disk restart PASSED. Euler functional milestone is verified.
 FIRST296 replay is TERMINAL ACCEPTED and independently preserved. Current active
@@ -147,14 +147,38 @@ positive-volume helper rejected global-node orientation. Actualcell/sensors unto
 All5exacthandles absent. Test-onlyfix usespositive COPYforindependent volume check.
 Build308 PASSED98.139s, pinsunchanged/all10sampledbuildPIDsabsent; CFDbyteidentical304.
 Currenttest_driver SHA d100074703ca0d2616038a595df6674a2cfa24bdee8ca6c9043e2bc8cfd132eb.
-CURRENT FROZEN actualsavedcell replay308 session32708:
-R/cases/cubic_cell_replay308_v1, wrapper387146/start30877976; time387458/timeout387459/
-test_driver387460/start30878497;orted387461/start30878498. Exact50values/original
-48954netauthority loaded; productionvolumeintegration began at7.197s. No outcome yet.
-Serial1800s diagnostic bound/native5400unchanged, nice19/libs1/4TBscratch. Freeze
-allCpp/helpers/binaries/runtime/inputs; actualterminalhandlesbeforeedits/newjob.
-Reuse307translatedpass/30422cases; ifactualcellqualifiedreturnfullsame-seedM6.
-No newbroadcampaign, no BLmeshacceptance. Do not
+Replay308 TERMINAL1/551.750s/5502217geometrywork, all5exacthandlesabsent/pinsverified.
+It usedexactcelldata BUT omittedfullouter-transitionpolicy; cannotestablishfailure
+ofcorrectedproductiontarget. replay309_policy_fidelity_audit.json SUPERSEDES earlier
+exact-replay/insufficient-fixclaims. Originalactual303failure remainsauthoritative.
+Sourceproof: CSolver3202/3206 configuresfulltransition; MakeTargetPolicy.Update245
+initializesat1/Hmax²=.0001 andmonotonesupportretainsmincore acrosstrials. Probe
+previouslyonlycalledFromNativeReference, leavingtransitionCore0.
+Replay309 wasSTOPPED fordemonstratedvalidationfidelityerror withpreservedevidence.
+InitialSIGTERMtimegroupmissedGNUtimeout's separategroup; reverifiedremaining3owned
+identities terminated toCOMPLETESAMEauthorizedstop. All5identitiesABSENT; see
+authorized_stop.json/authorized_stop_completion.json/terminal_handles_actual.json.
+Neverrepeatstophelper orrerunoldreplays.
+Build310 PASSED90.153s/allpinsunchanged/all21sampledbuildPIDsabsent.
+CFD SHA cc009e8d3345bb8f856bac5dcee422dcdd884225fcf799865699c1bdd88303bc;
+test_driver fd47ffa25b72b9d0efea3c65c6f01260f4dc7cf91f09f1f4b5c2cdb70c41d35d.
+Productionacceptancedecisions unchanged (diagnostic-only309/310 fields).
+Independentcallerreview confirms310full-layer setupfaithfulforcapturedFIRSTtrial: raw
+recordedsensors + ApplySample(capturedcore,false), initialtransition.0001 then trial
+.007604989 retainedmin.0001/hgrad1.3. Base/A notconsumedbythisstrictcellcallback.
+Resourceallowance differsfromfullsolver; no fullnormalization/MPI/reconstructionclaim.
+CURRENT FROZEN faithfulreplay310 session78676 R/cases/cubic_cell_replay310_v1:
+wrapper466078/start31046059; time466336/timeout466337/start31046671;
+test_driver466338/orted466344/start31046672. Initial/retainedcore.0001 andtrialcore
+.007604989/hgrad1.3 PRINTED; IntegrationRule3D began7.888s. Outcome pending.
+Serial1800diagnosticbound/currentnative5400, nice19/libs1/4TBscratch; allCpp/helpers/
+binaries/runtime/inputs frozenuntilactualhandles terminal.
+Next iffailure: parse_chord310_terminal.py extractswrappedJSONwithDecimal, compares
+fresh/adjacent sums toactualbinary64tol, produces9-valuechord input+provenance.
+Parserprepared/syntheticselfcheckpassed, NOTRUNoncurrentreplay; launchesnojob.
+Thenusecapturedchord/evidence toselectonecorrection, orreturnfullsame-seedM6ifcell
+qualified. Preparedfullrun308MUSTNOTlaunch (requiresfailed/incompletepolicy308).
+No newbroadcampaign or BLmeshacceptance. Do not
 raise1e-8/work/cuts/budgets or use sampling-only exclusion. No competingcycle.
 SavedRANSstate/Euler293checkpointshashpreservation PASS; evidence
 R/euler293_preservation_during_bl303.json. No recomputation ofsavedCFD needed.

@@ -1,0 +1,34 @@
+{
+  "time": 1794265615.8314092,
+  "action": "SIGTERM verified owned replay process group440486 only",
+  "reason": "Demonstrated validation fidelity error: production CSolver.cpp2950/3202/3206 and CNativeBLTarget3D.hpp245 configure outer transition; current probe replay omitted it. Preserve setup/evidence; stop diagnostic, not a production mesh run.",
+  "verified_owned_identities": [
+    {
+      "pid": 440104,
+      "start_ticks": 30986665
+    },
+    {
+      "pid": 440486,
+      "start_ticks": 30987509
+    },
+    {
+      "pid": 440487,
+      "start_ticks": 30987509
+    },
+    {
+      "pid": 440488,
+      "start_ticks": 30987509
+    },
+    {
+      "pid": 440489,
+      "start_ticks": 30987510
+    }
+  ],
+  "source_and_input_pins_unchanged": true,
+  "source_evidence": {
+    "initial_core": "1 / ADAP_HMAX^2 = 0.0001",
+    "trial_core": 0.007604989047340492,
+    "production_behavior": "MakeTargetPolicy initial Update(core=eigMin) then ConfigureOuterTransition(frozenCore,hgrad); monotone support retains smaller initial core.",
+    "replay_defect": "Only FromNativeReference called; transitionCore stays0. No ConfigureOuterTransition before IntegrationRule3D."
+  }
+}

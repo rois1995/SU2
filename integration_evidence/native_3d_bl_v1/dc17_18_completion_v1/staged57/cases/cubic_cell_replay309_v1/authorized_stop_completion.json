@@ -1,0 +1,24 @@
+{
+  "time": 1794265682.5118027,
+  "reason": "Complete the same authorized diagnostic stop: GNU timeout moved descendants into its own process group, so the initial time-wrapper group signal did not reach them.",
+  "verified_owned_identities": [
+    {
+      "pid": 440487,
+      "start_ticks": 30987509,
+      "state": "S",
+      "pgid": 440487
+    },
+    {
+      "pid": 440488,
+      "start_ticks": 30987509,
+      "state": "R",
+      "pgid": 440487
+    },
+    {
+      "pid": 440489,
+      "start_ticks": 30987510,
+      "state": "S",
+      "pgid": 440489
+    }
+  ]
+}

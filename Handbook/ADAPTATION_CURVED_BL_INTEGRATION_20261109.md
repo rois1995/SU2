@@ -432,3 +432,56 @@ Actual48954netauthority/exact50values loaded; productionIntegrationRule3D began7
 Serial1800diagnosticbound/currentnative5400, allsource/helpers/binary/runtime/input
 frozen. Outcome pending; no fulltarget/mesh qualification yet. Returnfullsame-seed
 M6 afterqualifyingactualblocker; no newbroadcampaign orspeculativeoptimization.
+
+### 2026-11-10 — actualcell308 stillrefuses; isolateaggregatebound
+
+Replay308 TERMINAL1/551.750s, allsource/input/runtimepinsverified, all5exact
+identitiesabsent. ActualIntegrationRule3D failedafter548.959s/5502217geometrywork:
+`adjacentintervalexceedstotaluncertaintyallowance`. Source-spanfix passesindependent
+regressionbutisnot sufficientactualM6qualification. No target/mesh accepted.
+
+Incrementaloutwardsum mayaccumulateresidue; anadjacentlargestleaf mayalsoblock other
+refinableleaves; orleafsum mayactuallyexceedtolerance. Currentevidence doesnot
+distinguishthese. CURRENTfrozenbuild309 session75176/helper429037/ninja429046 adds
+ERROR-ONLYstructureddata: exactchorda/b/args/wall/component, length/metricbounds,
+parentinterval, incrementalBEFOREremoval, freshoutwardsum includingparent, counts/
+sums foradjacent/splittableleaves andmaxsplittableuncertainty. No acceptancechange.
+Existinghiddenprobe addsbounded8-value directchord input, forisolatingcapturedchord
+withoutanotherwholecellreplay. Nextexactcellreplay309 thenchoosecorrectionfrom
+thesevalues; all1e-8/work/cuts/memory/timegates unchanged. No speculativefallback.
+Preparedrun_rans_curved308.py isNOTRUN andmustremainblockedbyreplay308failure.
+
+### Replay policy fidelity correction310 — supersedes308/309 scopeclaims
+
+Sourceaudit foundreplay308/309 loadedexactcell/sensor/core/reference but OMITTED
+ConfigureOuterTransition. ProductionCSolver3202/3206 andFIRST_ROW TargetPolicy.Update
+initializefull at eigMin=1/Hmax²=.0001, then configurecapturedtrialcore. Monotone
+transition supportretainsmincore; capturedtrial.007604989 leavesretained.0001.
+PreviousreplaytransitionCore stayed0. Thus308'srealrefusal is NOT proofthatcorrected
+productionM6 stillfails. Originalactual303 refusal remainsauthoritative. Audit
+replay309_policy_fidelity_audit.json preservesexactsourceproof andscopecorrection.
+
+309diagnosticSTOPauthorizedforvalidationfidelityerror, preservingpins/sourceevidence.
+GNUtimeout moveddescendants toanothergroup; afterinitialtimewrappergroupSIGTERM,
+threeexactremainingidentities were reverified/terminated ascompletionof SAMEstop.
+All5identitiesnowabsent. No unrelatedjobs affected; neverrepeatstophelper.
+
+CURRENTfrozenbuild310 session48949/helper458360/ninja458374. Test replaynowfaithfully
+calls sharedfull ConfigureOuterTransition(initialCore,hgrad) then trialcore/hgrad,
+assertsretainedmincore andprintsinitial/trial/retainedvalues. SourceCSolvercallback
+usesnativeLayersdirectly; base/Apolicy are notconsumedthere, so nonewduplicatefactory
+needed. BudgetBL=false explicitlyasserted. Error-onlyproductiondiagnostic nowalso
+recordsretainedtransitioncore/slope/full/support; directchordinput9values includes
+capturedtransitioncore. No acceptance/gate/budget changes. Nextfaithfulreplay310;
+independentcallerfidelityreview pending. Source/helpers frozenuntilterminal.
+
+Build310 PASSED90.153s/pinsunchanged/all21sampledhandlesabsent. Independentcaller
+reviewconfirmsfirst-trial full-layer replaymutations andcallback; resourceadmission
+differsfromfullsolver/base/Aretention, notwhole-normalizationqualification.
+CURRENT FROZEN faithfulreplay310 session78676/cases/cubic_cell_replay310_v1;
+wrapper466078/start31046059, fullownedidentities inowned_handles.json. Runtime
+printsinitial/retainedtransition.0001, trial.007604989,hgrad1.3; integrationbegan7.888s.
+Serial1800/currentnative5400 unchanged. No outcome yet.
+parse_chord310_terminal.py prepared/syntheticselfcheckpassed; terminal+verifiedpins/
+actualhandles requiredbefore extractingDecimaldiagnostics and9-valuechord+provenance.
+No autosolverlaunch. Fullworkflowremainsblockeduntilactualtargetblockerqualified.

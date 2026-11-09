@@ -41,6 +41,8 @@
 #include <queue>
 #include <set>
 #include <functional>
+#include <iomanip>
+#include <sstream>
 
 #include "../../../Common/include/CConfig.hpp"
 #include "../../../Common/include/parallelization/CPassiveComm.hpp"
@@ -3513,11 +3515,40 @@ std::vector<double> CBoundaryLayerMetric::EdgeBreakpointsImpl(
       };
       classify(0,1);
       while(unresolved>1e-8 && !frontier.empty()) {
+        const auto incrementalTotal=unresolved;
         std::pop_heap(frontier.begin(),frontier.end(),larger);const auto parent=frontier.back();frontier.pop_back();
         unresolved=std::max(0.L,std::nextafter(unresolved-parent.uncertainty,INFINITY));
         const auto middle=.5*(parent.left+parent.right);
-        if(middle==parent.left || middle==parent.right)
-          throw std::runtime_error("Unresolved cubic BL distance crossing; adjacent interval exceeds total uncertainty allowance.");
+        if(middle==parent.left || middle==parent.right) {
+          long double freshTotal=0,adjacentTotal=0,splittableTotal=0,largestSplittable=0;
+          size_t adjacent=0,splittable=0;
+          auto collect=[&](const Interval& leaf) {
+            freshTotal=std::nextafter(freshTotal+leaf.uncertainty,INFINITY);
+            const auto midpoint=.5*(leaf.left+leaf.right);
+            if(midpoint==leaf.left || midpoint==leaf.right) {
+              ++adjacent;adjacentTotal=std::nextafter(adjacentTotal+leaf.uncertainty,INFINITY);
+            } else {
+              ++splittable;splittableTotal=std::nextafter(splittableTotal+leaf.uncertainty,INFINITY);
+              largestSplittable=std::max(largestSplittable,leaf.uncertainty);
+            }
+          };
+          collect(parent);for(const auto& leaf:frontier)collect(leaf);
+          std::ostringstream context;context<<std::setprecision(std::numeric_limits<long double>::max_digits10)
+              <<"Unresolved cubic BL distance crossing; adjacent interval exceeds total uncertainty allowance.\nCubic BL chord replay: {\"a\":[";
+          for(unsigned j=0;j<3;++j)context<<(j?",":"")<<a[j];context<<"],\"b\":[";
+          for(unsigned j=0;j<3;++j)context<<(j?",":"")<<b[j];
+          context<<"],\"band_ratio\":"<<bandRatio<<",\"fade_bands\":"<<fadeBands<<",\"feature_transitions\":"<<featureTransitions
+              <<",\"wall\":"<<wall<<",\"authority_facet\":"<<walls[wall].authority_facet
+              <<",\"transition_core\":"<<transitionCore<<",\"transition_slope\":"<<transitionSlope<<",\"full\":"<<full<<",\"support\":"<<thickness
+              <<",\"h0\":"<<h0<<",\"eigenvalue\":"<<eigenvalue<<",\"metric_bound\":"<<metricBound
+              <<",\"length_bound\":"<<lengthBound<<",\"left\":"<<parent.left<<",\"right\":"<<parent.right
+              <<",\"width\":"<<((long double)parent.right-parent.left)<<",\"parent_uncertainty\":"<<parent.uncertainty
+              <<",\"incremental_total\":"<<incrementalTotal<<",\"fresh_total\":"<<freshTotal
+              <<",\"adjacent_total\":"<<adjacentTotal<<",\"splittable_total\":"<<splittableTotal
+              <<",\"adjacent\":"<<adjacent<<",\"splittable\":"<<splittable<<",\"largest_splittable\":"<<largestSplittable
+              <<",\"work\":"<<work<<",\"leaves\":"<<(frontier.size()+1)<<",\"tolerance\":1e-8}";
+          throw std::runtime_error(context.str());
+        }
         classify(parent.left,middle);classify(middle,parent.right);
       }
       if(frontier.empty())unresolved=0; // Every interval was excluded by a certificate.

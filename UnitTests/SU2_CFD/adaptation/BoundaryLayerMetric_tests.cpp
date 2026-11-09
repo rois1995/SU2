@@ -1458,6 +1458,22 @@ TEST_CASE("Actual retained cubic wall policy probe without CFD", "[.][NativeActu
   };
   CBoundaryLayerMetric::GeometryReservationScope reservation(*layers,budget);
   try {
+    if(const auto* chordPath=std::getenv("SU2_NATIVE_BL_CHORD_REPLAY")) {
+      std::ifstream inputChord(chordPath);REQUIRE(bool(inputChord));
+      std::array<double,3> a{},b{};double bandRatio=0,replayTransitionCore=0;unsigned fadeBands=0;
+      for(auto* point:{&a,&b})for(auto& value:*point){inputChord>>value;REQUIRE(std::isfinite(value));}
+      inputChord>>bandRatio>>fadeBands>>replayTransitionCore;REQUIRE(bool(inputChord));inputChord>>std::ws;REQUIRE(inputChord.eof());
+      REQUIRE(std::isfinite(bandRatio));REQUIRE(bandRatio>1);REQUIRE(fadeBands>0);REQUIRE(fadeBands<=256);
+      REQUIRE(std::isfinite(replayTransitionCore));REQUIRE(replayTransitionCore>=0);
+      if(replayTransitionCore>0)layers->ConfigureOuterTransition(replayTransitionCore,SU2_TYPE::GetValue(config.GetAdap_Hgrad()));
+      CHECK(layers->GetOuterTransitionCore()==replayTransitionCore);
+      receipt("replay_chord_begin",9);
+      const auto cuts=layers->EdgeBreakpoints(a,b,bandRatio,fadeBands);
+      REQUIRE(cuts.size()>=2);CHECK(cuts.front()==0);CHECK(cuts.back()==1);
+      for(size_t k=1;k<cuts.size();++k)CHECK(cuts[k]>cuts[k-1]);
+      receipt("replay_chord_complete",cuts.size());
+      return;
+    }
     if(const auto* replayPath=std::getenv("SU2_NATIVE_BL_CELL_REPLAY")) {
       std::ifstream replay(replayPath);REQUIRE(bool(replay));
       double core=0,logScale=0;replay>>core>>logScale;
@@ -1470,8 +1486,20 @@ TEST_CASE("Actual retained cubic wall policy probe without CFD", "[.][NativeActu
       REQUIRE(bool(replay));replay>>std::ws;REQUIRE(replay.eof());
       REQUIRE(std::isfinite(core));REQUIRE(core>0);REQUIRE(std::isfinite(logScale));
       // The captured sensor/core already belong to this complexity trial; logScale is provenance, not another scaling.
+      REQUIRE_FALSE(config.GetAdap_BL_Budget());
+      const double initialCore=1./std::pow(SU2_TYPE::GetValue(config.GetAdap_Hmax()),2);
+      const double hgrad=SU2_TYPE::GetValue(config.GetAdap_Hgrad());
+      // Match the full-layer mutations in MakeTargetPolicy(initial core) and CSolver's complexity trial.
+      double expectedTransitionCore=core;
+      if(config.GetKind_Adap_BL_Method()==ADAP_BL_METHOD::FIRST_ROW) {
+        layers->ConfigureOuterTransition(initialCore,hgrad);expectedTransitionCore=std::min(initialCore,core);
+      }
+      layers->ConfigureOuterTransition(core,hgrad);
+      CHECK(layers->GetOuterTransitionCore()==expectedTransitionCore);
       receipt("replay_input",50);
-      std::cout<<std::setprecision(17)<<"{\"replay_core\":"<<core<<",\"replay_log_scale\":"<<logScale<<"}"<<std::endl;
+      std::cout<<std::setprecision(17)<<"{\"replay_core\":"<<core<<",\"replay_log_scale\":"<<logScale
+               <<",\"initial_transition_core\":"<<initialCore<<",\"retained_transition_core\":"<<layers->GetOuterTransitionCore()
+               <<",\"hgrad\":"<<hgrad<<"}"<<std::endl;
       std::array<Point,4> tetrahedron;
       for(unsigned k=0;k<4;++k)tetrahedron[k]={cell[k][0],cell[k][1],cell[k][2]};
       // The recorded global-node order is retained for integration; the volume helper needs a positive copy.

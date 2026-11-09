@@ -1,0 +1,22 @@
+{
+  "status": "REPLAY_POLICY_FIDELITY_DEFECT_CONFIRMED",
+  "source": "CSolver.cpp2950/3202/3206; CNativeBLTarget3D.hpp245; ConfigureOuterTransition monotone core/support.",
+  "defect": "Replay308/309 used exact cell/sensors/core/reference but omitted outer-transition setup, so they do not reproduce the complete production target.",
+  "actual_setup": "FIRST_ROW MakeTargetPolicy configures full layers at eigMin=1/Hmax^2; each trial configures frozenCore then calls firstRowTarget.Update. Full layer retains min core/support across trials.",
+  "current_cfg_initial_core": 0.0001,
+  "captured_trial_core": 0.007604989047340492,
+  "required_fix": "Replay full-layer ConfigureOuterTransition(initialCore,hgrad) for FIRST_ROW then ConfigureOuterTransition(trialCore,hgrad); record retained core. No sampling/height/budget relaxation.",
+  "conclusions": "308 refusal is real for unconfigured policy but cannot establish failure of the corrected production M6 target. Original actual303 refusal remains authoritative. Independent translated regression and22passingcases remain valid within scope.",
+  "affected_cases": [
+    "cubic_cell_replay307_v1",
+    "cubic_cell_replay308_v1",
+    "cubic_cell_replay309_v1"
+  ],
+  "authorized_stop": "309 stopped after preserving source/provenance mismatch; initial time wrapper signal required exact remaining descendant cleanup. All5identities nowabsent.",
+  "source_hashes": {
+    "SU2_CFD/src/solvers/CSolver.cpp": "41a252a129424174e441d25ee63055433cc393c74e5b97b16348cae9ecef0341",
+    "SU2_CFD/include/adaptation/CNativeBLTarget3D.hpp": "d4ec1489f53b1d26d7603cd63812bd1c9f6a09dfbb56e024c5ecbedd7eb89b50",
+    "SU2_CFD/src/adaptation/CBoundaryLayerMetric.cpp": "e98efc25fdffb7f2d811745c60498e2b085d86e8fcabdb1a7affdabc14dfac51",
+    "UnitTests/SU2_CFD/adaptation/BoundaryLayerMetric_tests.cpp": "a7edc0edd90699356677bca722749b66ed1b212aa16abd06f017fdbcfb41db64"
+  }
+}
