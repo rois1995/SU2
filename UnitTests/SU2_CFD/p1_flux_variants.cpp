@@ -4527,7 +4527,7 @@ void EdgeEntropyFCTCase() {
       CHECK(minProd >= 0.0);
       CHECK(conservation < 1e-12);
       CHECK(outside <= 0.0);
-      CHECK(sumBound <= 1e-15);
+      CHECK(sumBound <= 1e-12);  /*--- alpha + gamma <= 1 up to rounding (ROE_TECNO_PLAN.md 6.9, rev 4). ---*/
       CHECK(minPhi < 0.5);  /*--- The shock-like states activate the limiter. ---*/
       if (SU2_MPI::GetRank() == MASTER_NODE) WARN("EDGE_ENTROPY_FCT nDim " << nDim << " moved " << moved << " P1 "
                                                   << p1Average << ": min alpha phi_c " << minPhi << ", max gamma " << maxGam);
@@ -4896,6 +4896,43 @@ TEST_CASE("TECNO_ADJOINT_LIMITER= EDGE_ENTROPY_FCT: FIRST_RING_JUMPS with the st
 TEST_CASE("TECNO_ADJOINT_LIMITER= EDGE_ENTROPY_FCT: MPI, values and residual by global index, cut edges", "[P1Flux]") {
   EdgeEntropyFCTMPICase<2>();
   EdgeEntropyFCTMPICase<3>();
+}
+
+TEST_CASE("TECNO_ADJOINT_LIMITER= EDGE_ENTROPY_FCT: rev 4 guard of analytically orthogonal pairs", "[P1Flux]") {
+  /*--- pi = g . e' and t . M with an exact zero whose computed value is a rounding residue: FCTPair returns 0 (no veto,
+   * no Pm); the same pairs perturbed by 1e-10 (well resolved) are kept with the sign of the exact value. ---*/
+  namespace ta = TeCNOAdjoint;
+  const double g[3] = {0.1, 0.2, 0.3}, eo[3] = {0.5, 0.5, -0.5};
+  const double residue = g[0] * eo[0] + g[1] * eo[1] + g[2] * eo[2];
+  for (const double pert : {0.0, 1e-10, -1e-10}) {
+    for (const int f : {0, 2}) {
+      ta::FCTNodeStar st;
+      st.view.resize(2);
+      st.edge = {0, 1};
+      st.y = {0, 0};
+      st.sigma = {1.0, 1.0};
+      st.g.assign(2, {0.0, 0.0, 0.0});
+      for (int d = 0; d < 3; ++d) st.g[0][d] = (f == 0) ? g[d] : 0.6 * (d + 1);
+      for (int d = 0; d < 3; ++d) st.view[1].e[d] = (f == 0) ? eo[d] : 1.0;
+      if (f == 0) st.view[1].e[2] = eo[2] * (1.0 - pert);
+      st.view[0].D[f] = 1.0;
+      st.view[0].dy[f] = 1.0;
+      for (int d = 0; d < 3; ++d) st.view[0].t[d] = g[d];
+      su2activematrix ed(2, ta::FCT_E_WIDTH);
+      ed = su2double(0.0);
+      ed(1, ta::FCT_E_MC + 0) = 2.0;
+      for (int d = 0; d < 3; ++d) ed(1, ta::FCT_E_MVEC + d) = eo[d];
+      if (f == 2) ed(1, ta::FCT_E_MVEC + 2) = eo[2] * (1.0 - pert);
+      const double c = ta::FCTPair(3, st, 0, 1, f, ed);
+      INFO("field " << f << " perturbation " << pert << ": rounding residue " << residue << ", c " << c);
+      if (pert == 0.0) {
+        CHECK(c == 0.0);
+      } else {
+        CHECK(c != 0.0);
+        CHECK(((c > 0.0) == (pert > 0.0)));
+      }
+    }
+  }
 }
 
 TEST_CASE("TECNO_ADJOINT_LIMITER= EDGE_ENTROPY_FCT: fixed states for the model parity check", "[P1Flux]") {

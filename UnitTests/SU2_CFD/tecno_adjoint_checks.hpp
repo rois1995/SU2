@@ -1558,13 +1558,22 @@ FCTRefResult FCTReference(const Geometry& geometry, unsigned short nDim, const s
   auto pairC = [&](unsigned long a, size_t h, size_t k, int f) {
     const auto& rh = ed[res.at[a][h].first];
     const auto& rk = ed[res.at[a][k].first];
-    double pi = 0;
-    for (unsigned short d = 0; d < nDim; ++d) pi += res.g[a][h][d] * rk.e[d];
+    double pi = 0, size = 0;
+    for (unsigned short d = 0; d < nDim; ++d) {
+      pi += res.g[a][h][d] * rk.e[d];
+      size += std::fabs(res.g[a][h][d] * rk.e[d]);
+    }
+    if (!(std::fabs(pi) > (nDim + 2) * std::numeric_limits<double>::epsilon() * size)) return 0.0;  /*--- rev 4 ---*/
     pi *= (res.at[a][h].second == 0) ? 1.0 : -1.0;
     double m = rk.Mc[f];
     if (f == 2) {
       m = 0;
-      for (unsigned short d = 0; d < nDim; ++d) m += rh.t[d] * rk.Mv[d];
+      double ms = 0;
+      for (unsigned short d = 0; d < nDim; ++d) {
+        m += rh.t[d] * rk.Mv[d];
+        ms += std::fabs(rh.t[d] * rk.Mv[d]);
+      }
+      if (!(std::fabs(m) > (nDim + 2) * std::numeric_limits<double>::epsilon() * ms)) return 0.0;  /*--- rev 4 ---*/
     }
     return 0.5 * ((rh.dy[f] >= 0) ? 1.0 : -1.0) * pi * m / rh.D[f];
   };
@@ -1607,12 +1616,12 @@ inline double FCTStored(const su2activematrix& store, unsigned long e, bool flip
 
 /*!
  * \brief Largest relative excess of the frozen-field box by the stored values at the ramp r over the valid entries:
- *        S_e = r [sg (alpha phi_c sigma + (1 - alpha - gamma) dy) + sum_pairs alpha_e' c] <= cap_e (the reference data
- *        of the pairs), and the largest |stored - reference|.
+ *        S_e = r [sg (alpha phi_c sigma + (1 - alpha - gamma) dy) + sum_pairs alpha_e' c] <= cap_e + E_drop, all pairs
+ *        unfiltered, E_drop the budget of the pairs that the selection drops (rev 4), relative to the size of the terms.
  */
 inline double FCTBoxViolation(const FCTRefResult& ref, unsigned short nDim, const su2activematrix& store, double ramp) {
   const auto& ed = ref.ed;
-  std::vector<std::array<double, 4>> S(ed.size(), {0, 0, 0, 0}), size(ed.size(), {0, 0, 0, 0});
+  std::vector<std::array<double, 4>> S(ed.size(), {0, 0, 0, 0}), size(ed.size(), {0, 0, 0, 0}), drop(ed.size(), {0, 0, 0, 0});
   for (unsigned long a = 0; a < ref.at.size(); ++a) {
     for (size_t h = 0; h < ref.at[a].size(); ++h) {
       const auto eh = ref.at[a][h].first;
@@ -1637,6 +1646,19 @@ inline double FCTBoxViolation(const FCTRefResult& ref, unsigned short nDim, cons
           const double term = ramp * FCTStored(store, ek, rk.flip, 1, f) * c;
           S[eh][f] += term;
           size[eh][f] += std::fabs(term);
+          /*--- Budget of a pair that the selection drops (rev 4): |term| <= r alpha' tau_pi |m| / (2 D), or with the
+           * shear projection dropped r alpha' |pi| tau_t / (2 D), tau the rounding bounds of the two dot products. ---*/
+          const double eps = std::numeric_limits<double>::epsilon();
+          double gs = 0;
+          for (unsigned short d = 0; d < nDim; ++d) gs += std::fabs(ref.g[a][h][d] * rk.e[d]);
+          const double al = ramp * FCTStored(store, ek, rk.flip, 1, f);
+          if (!(std::fabs(pi) > (nDim + 2) * eps * gs)) drop[eh][f] += al * 0.5 * (nDim + 2) * eps * gs * std::fabs(m) / rh.D[f];
+          if (f == 2) {
+            double ms = 0;
+            for (unsigned short d = 0; d < nDim; ++d)
+              ms += std::fabs(rh.t[d] * pk * rk.D[2] * (rk.dyS[d] - pk * 0.5 * (rk.sS[0][d] + rk.sS[1][d])));
+            if (!(std::fabs(m) > (nDim + 2) * eps * ms)) drop[eh][f] += al * 0.5 * std::fabs(pi) * (nDim + 2) * eps * ms / rh.D[f];
+          }
         }
       }
     }
@@ -1652,7 +1674,7 @@ inline double FCTBoxViolation(const FCTRefResult& ref, unsigned short nDim, cons
       const double own = sgn * (al * pc * r.sigma[f] + (1 - al - ga) * r.dy[f]);
       const double tot = S[e][f] + own;
       const double scale = r.cap[f] + std::fabs(r.dy[f]) + std::fabs(r.sigma[f]) + size[e][f];
-      worst = std::max(worst, std::max(0.0, tot - r.cap[f]) / scale);
+      worst = std::max(worst, std::max(0.0, tot - r.cap[f] - drop[e][f]) / scale);
     }
   }
   return worst;

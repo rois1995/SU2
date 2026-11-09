@@ -1272,7 +1272,8 @@ void JumpRowEnds(const Geometry& geometry, unsigned short nDim, unsigned short n
  *      B = 2 sg min(A_0, A_1), cap = |B| + delta, sigma = (s_0 + s_1)/2, o = sg sigma, phi_c = min(1, cap/o) (valid, o > 0)
  *      else 1, M_c = phi_c D (dy - phi_c sigma) (shear: the vector phi_c D (dy_S - phi_c sigma_S));
  *  (3) pairs (observer e at a, contributor e' at a, self included): c = 1/2 sg_e pi M_c,e' / D_e, pi = sigma_a (g_a . e_e')
- *      the weights of EDGE_ENTROPY_TVD (shear: t_e . M_c,e'); Pm_e = sum over both ends of max(0, c) (valid observers),
+ *      the weights of EDGE_ENTROPY_TVD (shear: t_e . M_c,e'), pi and the shear projection = 0 within the rounding bound
+ *      of their dot products (rev 4, FCTPair); Pm_e = sum over both ends of max(0, c) (valid observers),
  *      R_e = min(1, cap/Pm_e), room = max(0, cap - R_e Pm_e), a_e = min(1, room/(phi_c o)) (valid, phi_c o > 0) else 1;
  *  (4) rho_e' = min of R_e over the valid observers with c > 0 (1 if none), alpha = min(rho, a_e),
  *      gamma = max(0, 1 - alpha - (room - alpha phi_c o)/|dy|) (valid) else 0.
@@ -1691,17 +1692,32 @@ inline void FCTLoadStar(const Geometry& geometry, unsigned short nDim, const Wei
 
 /*!
  * \brief Contribution c of the contributor k to the valid observer h at the node in field f (frozen field).
+ *        Revision 4 (ROE_TECNO_PLAN.md 6.9): the pair weight pi = sigma (g . e') and the shear projection t_e . M_c,e'
+ *        are taken as 0 when they are within the floating-point bound of their dot product of the stored inputs,
+ *        (nDim + 2) eps sum_d |a_d b_d| (an analytically orthogonal pair, whose computed sign is set by rounding), so
+ *        that such a pair neither enters Pm nor vetoes the contributor. Upstream rounding of the stored weights is not
+ *        covered by this bound.
  */
 inline su2double FCTPair(unsigned short nDim, const FCTNodeStar& st, size_t h, size_t k, unsigned short f,
                          const su2activematrix& ed) {
   const auto& vh = st.view[h];
-  su2double pi = 0.0;
-  for (unsigned short iDim = 0; iDim < nDim; ++iDim) pi += st.g[h][iDim] * st.view[k].e[iDim];
+  su2double pi = 0.0, size = 0.0;
+  for (unsigned short iDim = 0; iDim < nDim; ++iDim) {
+    pi += st.g[h][iDim] * st.view[k].e[iDim];
+    size += fabs(st.g[h][iDim] * st.view[k].e[iDim]);
+  }
+  if (!(fabs(pi) > (nDim + 2) * std::numeric_limits<su2double>::epsilon() * size)) return 0.0;
   pi *= st.sigma[h];
   const su2double sg = (vh.dy[f] >= 0.0) ? 1.0 : -1.0;
   su2double m = 0.0;
   if (f == 2) {
-    for (unsigned short iDim = 0; iDim < nDim; ++iDim) m += vh.t[iDim] * ed(st.edge[k], FCT_E_MVEC + iDim);
+    /*--- The projection t_e . M_c,e' of the contributor's shear moment, 0 within the same rounding bound (rev 4). ---*/
+    su2double msize = 0.0;
+    for (unsigned short iDim = 0; iDim < nDim; ++iDim) {
+      m += vh.t[iDim] * ed(st.edge[k], FCT_E_MVEC + iDim);
+      msize += fabs(vh.t[iDim] * ed(st.edge[k], FCT_E_MVEC + iDim));
+    }
+    if (!(fabs(m) > (nDim + 2) * std::numeric_limits<su2double>::epsilon() * msize)) return 0.0;
   } else {
     m = ed(st.edge[k], FCT_E_MC + f);
   }
