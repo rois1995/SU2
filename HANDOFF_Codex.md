@@ -17,7 +17,28 @@ A283=`R/m6_runs/euler_build283_pinched_graph_witness_mach_only_real_cfd50k`.
 A278=`R/m6_runs/euler_build278_source_chord_certificate_mach_only_real_cfd50k`.
 A274=`R/m6_runs/euler_build274_metric_cleanup_mach_only_real_cfd50k`.
 
-## CURRENT —283 TERMINAL REFUSED; final-certificate diagnosis ACTIVE
+## CURRENT —287 exact boundary-intersection revision BUILDING; all early guards restored
+
+ONE connected geometry-certificate cycle. Original point-winding removal285passed
+correctness but reverse common-domain work+28.42%. Adding exact planar boundary
+separation286gave sourcework-13.57% but reverse+21.87%. BOTH versions performance
+REJECTED despite lowerwalltimes/identicalcommonbounds. All285/286probes are TERMINAL,
+pinsunchanged/allactualhandlesabsent. Patches and rejected_work_diagnosis receipts
+preserved; NO MPI/M6of285/286. Serial28590cases/67446assertions passed236.428s but
+must NOTbe attributed to revised287source.
+
+287RESTORES ALL original early vertex winding checks, keeps ONLY exact planar
+BoundaryCrossesTriangleInterior separating axes, reusing existing fresh face
+orientation. No newrepresentation/index/cache/config/scheduler/gate/budget; no
+point/face certificate skipped. Boundary-only contacts remain excluded from
+open-interior crossing, holes/seams/body/feature/height/finalBoth gates unchanged.
+Exact rational interval oracle140352checks/0mismatches +independentread-onlyreview
+support logic; new C++ L-notch/plane/orientation/offplane controls and existing
+curves/holes/resources still required. Build287 TERMINAL0/33.108s/allpinsunchanged/helper1192109+ninja1192195absent.
+Focused287 ACTIVE tool51168, casegeometry_current_queries_20261109T000910_1197741,runner1197802.
+ALLcompiled/pinned source/helpers frozen. Next
+SAMEactual283source/reverse commonbounds+work→affectedserial+ONE MPI6milestone→
+immediate fullsame-seed TWO-event M6. No competingcycle, no unchangedbaseline.
 
 ZERO accepted meshes. First nativeevent REFUSED mandatory final globalTWO-SIDED
 geometry proof on elapsed-timebudget; feasibility UNDETERMINED. Exit25175/native

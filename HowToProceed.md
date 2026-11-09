@@ -11,7 +11,15 @@ capture contains736019cells with zero q/J/local-geometry/size failures and no un
 measurements. This is local closure, not mandatory global geometry proof. No
 accepted mesh, transfer, adapted CFD or disk restart has occurred.
 
-The active blocker is final two-sided geometry certification SPEED. Three full
+The active blocker is final two-sided geometry certification SPEED. Current287
+candidate preserves all original early vertex coverage checks and replaces only
+general segment clipping in the complete planar boundary-intersection proof with
+exact separating axes. Buildpassed; qualification ACTIVE, sources frozen. Earlier
+285/286vertex-winding removal variants had reverse-work regressions and are rejected.
+Read HANDOFF for actual handles; no speedup or acceptance claim until qualification
+and full same-seed TWO-event M6.
+
+ Three full
 queries consumed~720s/rank in the final quiet interval; traversal~622–640s dominates
 scope preparation~52–59s and facet preparation~24–40s. Earlier queries returning does
 not establish their bounds were within tolerance. Test-only284nowseparates the actual third entity in each direction, using existing

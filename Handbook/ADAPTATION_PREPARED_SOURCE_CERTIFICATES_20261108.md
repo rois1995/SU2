@@ -336,3 +336,71 @@ Both directions must still complete under unchanged gates/budgets in full same-s
 TWO-event M6. No production correction selected merely from this diagnostic; do not
 repeat the unchanged known-failing run solely for a baseline. Cleanup273 remains
 integrated/qualified but never executed in274/278/283; no global LEbenefit established.
+
+## Connected285 candidate — exact complete-face coverage, qualification pending
+
+Measured284forwardgraphcoverage10.886Mwork versus1.974Mlift; reversecoverage5.582M
+andlift6.399M. Scope: PlanarReference::ContainsFace shared by FinitePlaneReference
+and ordinary planar surface callers; mapped/affine/analytic dispatches retain their
+existing checks. No configuration, export, ownership or archive change.
+
+A nondegenerate coplanar triangle has connected open interior. If no footprint
+boundary intersects that interior, membership is constant there. The EXACT
+centroid winding decides membership; closedness then includes the triangle border.
+Thus the existing complete boundary-interior exclusion plus exact centroid winding
+makes THREE separate vertex windings redundant. Candidate removes only those
+three winding passes on the already validated nonconvex PLANAR path. Exact plane
+membership of every vertex, orientation, all border-segment tests and exact
+centroid predicates remain. Holes lying inside the triangle are still rejected
+by their boundary segments; triangles inside holes fail winding; boundary contact
+remains allowed. This is a topological proof, not sampled approximate certification.
+
+New focused test independently clips each candidate edge against the open missing
+quadrant of an L-shaped footprint using small exact integer fractions. All286
+triples from13points, three coordinate planes, both orientations; includes outside
+vertices, notch crossings, tangencies, degeneracies and denormal off-plane queries.
+Existing multiple-hole/disconnected/rotated footprint and surface-union controls
+remain required. Compare same actual283queries and common domain decisions before
+qualification; one serial/MPI milestone then immediate full same-seed TWO-event M6.
+No acceptance or speedup claim until measured. Build285 freezes sources/helpers.
+
+###285 reverse work regression;286 connected boundary-crossing revision
+
+285focused PASSED12cases/7281assertions; serial90cases/67446assertions236.428s, all
+pins unchanged and allowned handles terminal before source edit. Actual source
+163356commoncompleted domains preserve bounds/order EXACTLY, work19.649→17.769M
+(-9.57%). But reverse41474common domains cost11.919→15.307M (+28.42%);20Mcap now
+stops before visiting all rootfaces. Lowerwall123.680s versus193.060s is insufficient.
+No MPI/fullM6of285; performancequalification REJECTED. Saved originaldiff in
+R/face285_initial_candidate.patch. Removing early pointwindings exposes expensive
+general exact segment clipping on rejected footprint attempts.
+
+286keeps wholeface topology proof, replaces only BorderCrossesTriangleInterior's
+general clipping with exact planar separating axes, reusing alreadycomputed nonzero
+face orientation. Reject if any triangleedge has both segmentendpoints nonstrictly
+outside its openhalfplane; then require trianglevertices on both strict sides of
+segmentline. The infinite line cuts triangleinterior exactly under the latter test;
+its three strict halfplane intervals overlap, each overlaps finite segmentinterval
+under the former test, so 1Dinterval Helly gives positive-length finite overlap.
+Collinear/boundary/vertex-only contacts excluded; zero-length segment false.
+Boundingbox still rejects separated cases; exact Orientation predicates retained.
+No new representation/config/gate/budget or cavity behavior. Rational interval
+oracle140352checks/0mismatches in1.177s; independent read-only review agrees, neither
+is M6proof. Shared C++ notch/hole/tangency controls and actual query decisions/work
+must pass, followed by connectedserial and ONE MPI milestone before fullsame-seed M6.
+
+###286 retained reverse work regression;287 restores early guards
+
+286focused12cases/7281assertions passed60.374s/allpins/handles. Source exact common
+bounds/order with work-13.57%,200429domains versus163356;20Mcoverage82.8483%equalfacet
+parameterarea. Reverse exact common43497bounds but work+21.87%, still fewer roots
+visited. Lower querywall125.619s versus193.060s insufficient; performance REJECTED.
+No serial/MPI/M6of286. face286_initial_candidate.patch and rejected_work_diagnosis
+preserve the exact candidate/outcome. All handles terminal before revision.
+
+287restores ALL original vertex Contains guards, retaining ONLY exact planar segment/
+open-triangle separation and reuse of alreadycomputed nonzero triangleorientation.
+Do not layer a conditional point-winding policy. This is smaller than either failed
+variant and preserves measured cheap negative screening. Same exact oracle and
+shared notch/curved/hole/resource controls plus both actual directional comparisons
+must qualify before serial+ONE MPI milestone/fullsame-seed M6. No speedup claim yet.

@@ -1,0 +1,70 @@
+diff --git a/Common/src/adaptation/CNativeBoundary3D.cpp b/Common/src/adaptation/CNativeBoundary3D.cpp
+index 2fb16e55ec..44a1cc450f 100644
+--- a/Common/src/adaptation/CNativeBoundary3D.cpp
++++ b/Common/src/adaptation/CNativeBoundary3D.cpp
+@@ -1226,9 +1226,11 @@ bool PlanarReference::ContainsFace(Id id, const std::array<Point, 3>& triangle,
+   if(parameter_view)return ParameterContainsFace(id,triangle,stats);
+   id=Canonical(id);
+   if(affine.count(id))return affine_domains.at(affine_charts.at(id))->ContainsFace(id,triangle,stats);
+-  for (auto p : triangle)
+-    if (!Contains(id, p, stats)) return false;
+-  const auto& f = Get(Canonical(id));
++  const auto& f = Get(id);
++  if(nonconvex.count(id) && !analytic.count(id)) {
++    // Exact centroid winding plus no boundary in the open triangle proves the entire closed face.
++    for(auto p:triangle)if(Orientation(f.v[0].p,f.v[1].p,f.v[2].p,p,stats)!=0)return false;
++  } else for(auto p:triangle)if(!Contains(id,p,stats))return false;
+   const auto curved=analytic.find(Canonical(id));
+   if (curved!=analytic.end()) {
+     const auto& g=curved->second;
+diff --git a/UnitTests/Common/adaptation/CNativeBoundary3D_tests.cpp b/UnitTests/Common/adaptation/CNativeBoundary3D_tests.cpp
+index 2675f7e5ee..d516d2b8e7 100644
+--- a/UnitTests/Common/adaptation/CNativeBoundary3D_tests.cpp
++++ b/UnitTests/Common/adaptation/CNativeBoundary3D_tests.cpp
+@@ -2137,3 +2137,46 @@ TEST_CASE("Native3D first-height tolerance is inclusive at dyadic and computed b
+   CHECK_FALSE(decide(1,1,0,reason));CHECK(reason.find("tolerance")!=std::string::npos);
+   CHECK_FALSE(decide(1,1,1,reason));
+ }
++
++TEST_CASE("Complete nonconvex face containment matches independent open-notch clipping",
++          "[NativeMesh3D][NativePlanarUnion3D][NativeFaceCoverage3D]") {
++  const std::array<std::array<int,2>,13> points{{{{0,0}},{{4,0}},{{4,2}},{{2,2}},{{2,4}},{{0,4}},
++      {{1,1}},{{3,1}},{{1,3}},{{3,3}},{{5,1}},{{2,1}},{{1,2}}}};
++  auto outside_notch=[](const std::array<int,2>& a,const std::array<int,2>& b) {
++    using Fraction=std::pair<int,int>;Fraction lo{0,1},hi{1,1};
++    auto less=[](Fraction x,Fraction y){return x.first*y.second<y.first*x.second;};
++    for(unsigned d=0;d<2;++d) {
++      const int delta=b[d]-a[d];
++      if(!delta){if(a[d]<=2)return false;continue;}
++      if(delta>0){const Fraction t{2-a[d],delta};if(less(lo,t))lo=t;}
++      else {const Fraction t{a[d]-2,-delta};if(less(t,hi))hi=t;}
++    }
++    return less(lo,hi);
++  };
++  for(unsigned axis=0;axis<3;++axis)for(bool reversed:{false,true}) {
++    auto place=[&](std::array<int,2> xy){return axis==0?Point{0,.5*xy[0],.5*xy[1]}:
++        axis==1?Point{.5*xy[0],0,.5*xy[1]}:Point{.5*xy[0],.5*xy[1],0};};
++    std::array<Node,6> nodes;for(unsigned i=0;i<6;++i)nodes[i]={i,place(points[i])};
++    std::vector<Facet> facets{{0,7,{nodes[0],nodes[1],nodes[3]}},{1,7,{nodes[1],nodes[2],nodes[3]}},
++        {2,7,{nodes[0],nodes[3],nodes[5]}},{3,7,{nodes[3],nodes[4],nodes[5]}}};
++    if(reversed)for(auto& f:facets)std::swap(f.v[1],f.v[2]);
++    const PlanarReference reference(facets);REQUIRE(reference.Canonical(3)==0);
++    for(unsigned i=0;i<points.size();++i)for(unsigned j=i+1;j<points.size();++j)
++      for(unsigned k=j+1;k<points.size();++k) {
++        const auto a=points[i],b=points[j],c=points[k];
++        const int area=(b[0]-a[0])*(c[1]-a[1])-(b[1]-a[1])*(c[0]-a[0]);
++        bool expected=area!=0;
++        for(auto p:{a,b,c})expected&=p[0]>=0&&p[0]<=4&&p[1]>=0&&p[1]<=4;
++        expected&=!outside_notch(a,b)&&!outside_notch(b,c)&&!outside_notch(c,a);
++        std::array<Point,3> triangle{{place(a),place(b),place(c)}};
++        if((area<0)!=reversed)std::swap(triangle[1],triangle[2]);
++        INFO(axis);INFO(reversed);INFO(i);INFO(j);INFO(k);
++        CHECK(reference.ContainsFace(0,triangle)==expected);
++        if(expected) {
++          for(auto p:triangle)CHECK(reference.Contains(0,p));
++          auto off=triangle;double* coordinate=axis==0?&off[0].x:axis==1?&off[0].y:&off[0].z;
++          *coordinate=std::numeric_limits<double>::denorm_min();CHECK_FALSE(reference.ContainsFace(0,off));
++        }
++      }
++  }
++}
