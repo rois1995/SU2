@@ -875,9 +875,11 @@ TEST_CASE("Scoped numeric guidance reuses only unchanged entity face contracts",
     const auto original=star;const auto retained=budget.caller_bytes;
     auto prepared=PrepareVertexMove(star,*scoped);REQUIRE(prepared);
     budget.caller_bytes+=prepared->ResidentBytes();
+    size_t accepted_moves=0;
     for(Point target:std::vector<Point>{{.4,.4,0},{.55,.45,0},{.5,.5,0},{-1,-1,0}}) {
       Patch cold,warm;std::string a,b;
       const bool accepted=MoveVertex(original,8,{200000,target},300000,*scoped,cold,a);
+      accepted_moves+=accepted;INFO(a);
       CHECK(MoveVertex(*prepared,8,{200000,target},300000,warm,b)==accepted);
       CHECK(a==b);REQUIRE(cold.cells.size()==warm.cells.size());
       for(size_t k=0;k<cold.cells.size();++k)for(unsigned j=0;j<4;++j) {
@@ -887,19 +889,26 @@ TEST_CASE("Scoped numeric guidance reuses only unchanged entity face contracts",
       REQUIRE(cold.surface.size()==warm.surface.size());
       for(size_t k=0;k<cold.surface.size();++k){CHECK(cold.surface[k].v==warm.surface[k].v);CHECK(cold.surface[k].facet==warm.surface[k].facet);}
     }
+    REQUIRE(accepted_moves>0);
     budget.caller_bytes=retained;
     const auto ceiling=budget.maximum_bytes;budget.maximum_bytes=budget.caller_bytes;
     CHECK_FALSE(PrepareVertexMove(star,*scoped));budget.maximum_bytes=ceiling;
-    return;
   }
   SECTION("mapped boundary optimizer retains admitted face guidance") {
     Owned mesh;
-    for(auto cell:patch.cells){if(Orientation(cell.v[0].p,cell.v[1].p,cell.v[2].p,cell.v[3].p)<0)std::swap(cell.v[2],cell.v[3]);
+    for(auto cell:patch.cells){for(auto& n:cell.v)if(n.id==100000)n.p={.8,.7,.8};if(Orientation(cell.v[0].p,cell.v[1].p,cell.v[2].p,cell.v[3].p)<0)std::swap(cell.v[2],cell.v[3]);
       OwnedCell row;row.cell=cell;row.version=1;row.physical[0]={true,cell.id-1000};mesh.emplace(cell.id,row);}
-    const Tensor tensor{1.5,0,0,.15,0,.05};
+    const Tensor tensor{1.5,0,0,.0015,0,.0015};
+    struct Restore {ShapeAdmission value=GetShapeAdmission();~Restore(){SetShapeAdmission(value);}} restore;
+    SetShapeAdmission(ShapeAdmission::ValidityOnly);
+    for(const auto& row:mesh)if(std::any_of(row.second.cell.v.begin(),row.second.cell.v.end(),[](Node n){return n.id==8;})) {
+      const auto& v=row.second.cell.v;
+      REQUIRE(Measure({v[0].p,v[1].p,v[2].p,v[3].p},tensor).mean_ratio<MinimumMeanRatio);
+      for(unsigned i=0;i<4;++i)for(unsigned j=i+1;j<4;++j)REQUIRE(MetricNorm(v[i].p,v[j].p,tensor)<MaximumMetricEdge);
+    }
     RegionMetric target([&](Point){return tensor;},[&](Point a,Point b){return MetricNorm(a,b,tensor);});
     OptimizeOptions options;options.geometry=scoped.get();options.surface_tolerance=.1;
-    options.swaps=options.collapses=options.insertions=false;options.maximum_work=4096;options.maximum_sweeps=4;
+    options.swaps=options.collapses=options.insertions=options.boundary=false;options.maximum_work=4096;options.maximum_sweeps=4;
     for(const auto& row:mesh)for(auto n:row.second.cell.v)if(n.id!=8)options.frozen_vertices.insert(n.id);
     const auto retained=budget.caller_bytes;Id node=200000,cell=300000;OptimizeReport report;
     OptimizeMetricMesh(mesh,target,node,cell,options,report);
@@ -907,9 +916,8 @@ TEST_CASE("Scoped numeric guidance reuses only unchanged entity face contracts",
     CHECK(report.boundary_move_contexts>0);CHECK(report.boundary_prepared_trials>=report.boundary_move_contexts);
     CHECK(report.boundary_guidance_reused_faces<=report.boundary_guidance_faces);CHECK(budget.caller_bytes==retained);
     CHECK(budget.peak_bytes<=budget.maximum_bytes);
-    return;
   }
-  SECTION("unchanged contracts and invalidation") {}
+  SECTION("unchanged contracts and invalidation") {
   GeometryGuidanceMemo memo;const auto caller=budget.caller_bytes;
   REQUIRE(memo.Prepare(patch,*scoped,0));budget.caller_bytes=caller+memo.ResidentBytes();
   const auto cold=GeometryGuidanceExcess(patch,*scoped,0);
@@ -954,6 +962,7 @@ TEST_CASE("Scoped numeric guidance reuses only unchanged entity face contracts",
   CHECK(GeometryGuidanceExcess(patch,*scoped,0,INFINITY,&refused).reused_faces==0);
   CHECK_THROWS(refused.Prepare(patch,*scoped,NAN));
   budget.caller_bytes=caller;
+  }
 }
 TEST_CASE("Geometry work prediction distinguishes cross-chart surface incidence", "[NativeGeometryWorkEstimate3D]") {
   // This positive observed-work check needs a retained fine leaf, including its reusable distance index.

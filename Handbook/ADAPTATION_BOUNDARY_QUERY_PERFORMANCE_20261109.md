@@ -201,3 +201,66 @@ continued-CFD acceptance receipts to both. Its config/acceptance self-check pass
 this helper was not a pinned build input. No new production configuration option.
 The original293 matching checkpoints and actual two-event/disk-restart evidence
 remain preserved. BL/MPI/RANS qualification still outstanding.
+
+### Build294 and corrected test295
+
+294 passed369.256s, allpins unchanged; all11actualHOST handles terminal. Production
+CFD SHA b316e4f9fd3c76b43c10c8c4ffb85f7040da0ab93cb2850182bec1c31dbab256.
+Focused294 current_production_20261109T125153_3140872 passed27cases/5804assertions
+in59.196s with unchanged pins, all5actualHOST handles absent. INSufficient evidence:
+an early return in the new Catch section prevented discovery of later memo/caller
+sections. Preserve it; do not use it to claim those checks ran.295 removes early
+returns and encloses memo checks in their own section; mapped caller fixture has an
+offset interior apex to give the boundary point useful movement demand. Test-only
+build295 tool58528/wrapper3145883/start27327767/child3145946 must preserve CFD294 bytes.
+Source/helper freeze active. No serial/MPI milestone or M6 replay yet.
+
+### Corrected focused296 passed; connected milestone active
+
+295 test-only build passed with unchanged294CFD; focused295 correctly failed two
+caller-counter assertions because the original tensor left node8's star without
+repair demand. No production change. Exact failed295 source is reconstructed and
+SHA-verified in source295_CNativeAffineReference_tests.cpp.snapshot; its build,raw
+failure and handles remain preserved. One success-output diagnostic initially
+failed MPI_Win_create because osc=pt2pt was missing; corrected established MPI
+startup passed and confirmed accepted prepared/cold raw moves. Neither is a perf
+campaign or qualification substitute.
+
+296 changes only the fixture: removes early returns, checks at least one admitted
+raw move, explicitly uses production validity-only shape admission and an SPD
+anisotropy with measured initial q failures and all old edges below1.8. Production
+CFD remains BIT-IDENTICAL294. Build296 passed49.091s; focused296 passed27cases/
+5877assertions in61.077s, with all three new sections observed, unchangedpins and
+allactualHOST handles terminal. Connected serial now tool86407/current_production_
+20261109T130501_3172831; sources/helpers frozen. ONE MPI6 follows if successful.
+No performance or whole-M6 improvement established yet.
+
+Planned first296 config has EXACTLY one difference from actual293: ADAP_SUBITER2→1.
+Same Mach-only L1/50k, original saved seed, bounds, gradation, geometry/heights,
+validity-first construction and native5400/outer14400. run_m6 retains transfer,
+output and following CFD receipts for the one-event replay and samples per-process
+CPU/start ticks alongside existing2s RSS observations; no extra perf/GDB campaign.
+Existing first-event stage helper is reused by analyze_m6296_stages.py against the
+sealed293 first-event prefixes; quality comparisons must stop at first shape exit
+before geometry/size reconstruction. Net whole-field q/J counts and geometry,
+CPU/busy/join plus work and total accepted first Adapt3819.85s remain criteria.
+
+### Qualified296; complete first-adaptation replay LIVE
+
+boundary296_qualification.json seals focused27/5877assertions, serial99/68536 and
+ONE MPI6 milestone132cases EVERYrank (71963/72862/72138/71755/71935/72016assertions
+as printed, rank order not implied). Allpins unchanged/allstagehandles terminal.
+MPI223.239s,serial204.053s. No performance benefit claimed.
+
+A296=m6_runs/euler_build296_boundary_reuse_mach_only_real_cfd50k, tool57374,
+wrapper3191866/start27444699, runner3192139, process3192385; sole heavyjob. All11
+actualHOST identities and six mapped runtimes sealed in owned_startup.json.
+Same selected-failure test_driver wrapper as293 executes actual production driver;
+executing SHA6f8184dc7359a62ce6d9d82a2f96055ac6caebf2b5e7354c5f9800b4cedd403c,
+84ELF files/rank match pins. Initial61330coordinates/all22CFD+metric fields exactly
+match qualified254/256; sensorMACH only. StandaloneCDF294 SHA remains b316e4f9...
+Actualcfg differs293 ONLY SUBITER2→1, proven atlaunch; allbudgets/constraints identical.
+Current replay is frozen; outcome and work/net progress decide benefit. Inputs and
+checkpoints293 remain preserved. Starting ownership check initially expected a
+standaloneCFD inode and correctly foundnone; corrected verifier uses the actual
+pinned command's test_driver inode, not a fabricated process claim.

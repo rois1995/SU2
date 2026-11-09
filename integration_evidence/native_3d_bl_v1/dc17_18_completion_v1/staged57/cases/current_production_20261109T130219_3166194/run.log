@@ -1,0 +1,88 @@
+NATIVE3D_REFERENCE_CACHE host_ranks=1 host_quota_bytes=4294967296 rank_quota_bytes=4294967296
+NATIVE3D_REFERENCE_CACHE host_ranks=1 host_quota_bytes=4294967296 rank_quota_bytes=4294967296
+NATIVE3D_REFERENCE_CACHE host_ranks=1 host_quota_bytes=4294967296 rank_quota_bytes=4294967296
+Filters: [NativeGuidanceReuse3D],[NativeSmoothingHistory3D],[NativeOptimize3D],[NativeHeightOptimization3D],[NativeGuidanceReuse3D],[NativeSmoothingHistory3D],[NativeMetricCleanupGate3D],[NativeMetricCleanupPhase3D],[NativeReferenceIO3D],[NativeAtlasReferenceIO3D],[NativeReferenceBudget3D],[NativeFacewiseCertificate3D],[NativeSurfaceChord3D],[NativePreparedSource3D],[NativePinchedWitness3D],[NativePlanarUnion3D],[NativeFaceCoverage3D]
+NATIVE3D rank=0 ranks=1 workers=1 complete=0 detailed=0 total=0.0020643829999999999 other=1.2343999999999637e-05 cpu=0.002055 idle_cpu=0 support=7.8039999999999815e-06 reference=0.00011510399999999999 import=0.00083344099999999987 source=6.2799999999991335e-07 weights=2.699999999988302e-08 partition=3.2999999999977492e-08 donor_migration=3.4000000000101657e-08 communicator=1.3857999999999839e-05 refine=0.0010766340000000001 coarsen=0 wait=3.8770000000002205e-06 return=2.0599999999999091e-07 policy=2.8600000000016633e-07 reassessment=1.0700000000005844e-07 normalization=0 initial=6 final=0 refine_accepted=1 coarsen_accepted=0 tracked_bytes=19568 tracked_calls=100 nested_tracked_collectives=2.1790000000001999e-05 tracked_import_bytes=2880 tracked_import_calls=7 nested_tracked_import=1.8579999999999812e-06 tracked_parent_bytes=0 tracked_parent_calls=0 nested_tracked_parent=0 tracked_worker_bytes=16688 tracked_worker_calls=93 nested_tracked_worker=1.9932000000002018e-05 native_bound=15775792 process_peak_rss=36962304
+Native3D rejected event: Native 3D adaptation round limit reached before cached metric size/shape gates were satisfied.; accepted CFD mesh/solution retained.
+Native3D frozen stages: count=1 shared_work=1 correction_trials=0 correction=0 correction_status=1 correction_density_queries=0 correction_geometry_queries=0 correction_seconds=0 reason=
+NATIVE3D rank=0 ranks=1 workers=1 complete=1 detailed=0 total=0.048843258000000001 other=1.1593000000004183e-05 cpu=0.048841999999999997 idle_cpu=0 support=1.3359999999997853e-06 reference=5.4347000000000163e-05 import=0.00076921699999999999 source=4.5599999999980725e-07 weights=2.7000000000099861e-08 partition=2.6000000000192536e-08 donor_migration=2.5999999999758855e-08 communicator=1.7912999999997875e-05 refine=0.01863768 coarsen=0 wait=4.0089999999992632e-06 return=0.00015011499999999928 policy=2.150000000000242e-07 reassessment=0.029196297999999999 normalization=0 initial=6 final=62 refine_accepted=22 coarsen_accepted=0 tracked_bytes=3754864 tracked_calls=2766 nested_tracked_collectives=0.00094045499999990219 tracked_import_bytes=2880 tracked_import_calls=7 nested_tracked_import=1.95600000000044e-06 tracked_parent_bytes=3413328 tracked_parent_calls=922 nested_tracked_parent=0.00056288799999994893 tracked_worker_bytes=338656 tracked_worker_calls=1837 nested_tracked_worker=0.00037561099999995282 native_bound=16110760 process_peak_rss=41013248
+Native3D frozen stages: count=1 shared_work=27 correction_trials=0 correction=0 correction_status=1 correction_density_queries=0 correction_geometry_queries=0 correction_seconds=0 reason=
+Native3D candidate complexity: value=8 uncertainty_indicator=0 requested_budget=10000 relative_budget_discrepancy=-0.99919999999999998 standard_error=0 block_standard_error=0 samples=8192 current_nodal_field=1 proven_bound=0 normalization_correction=0
+0.057 s: Native3D default ownership survives rejection after private accepted edits
+Native3D configured working-storage ceiling: 1 MiB per rank
+NATIVE3D_REFERENCE_CACHE host_ranks=1 host_quota_bytes=4294967296 rank_quota_bytes=4294967296
+NATIVE3D rank=0 ranks=1 workers=1 complete=0 detailed=0 total=5.5046000000003037e-05 other=9.8899999999985111e-07 cpu=5.3999999999999998e-05 idle_cpu=0 support=2.847000000000266e-06 reference=5.121000000000292e-05 import=0 source=0 weights=0 partition=0 donor_migration=0 communicator=0 refine=0 coarsen=0 wait=0 return=0 policy=0 reassessment=0 normalization=0 initial=0 final=0 refine_accepted=0 coarsen_accepted=0 tracked_bytes=0 tracked_calls=0 nested_tracked_collectives=0 tracked_import_bytes=0 tracked_import_calls=0 nested_tracked_import=0 tracked_parent_bytes=0 tracked_parent_calls=0 nested_tracked_parent=0 tracked_worker_bytes=0 tracked_worker_calls=0 nested_tracked_worker=0 native_bound=1048928 process_peak_rss=41013248
+Native3D rejected event: Native3D reference loading exceeds storage budget.; accepted CFD mesh/solution retained.
+0.001 s: Explicit native memory limits cannot auto-grow or publish partial state
+Native3D configured working-storage ceiling: 1 MiB per rank
+NATIVE3D_REFERENCE_CACHE host_ranks=1 host_quota_bytes=4294967296 rank_quota_bytes=4294967296
+NATIVE3D rank=0 ranks=1 workers=1 complete=0 detailed=0 total=5.1363999999998189e-05 other=9.5299999999798324e-07 cpu=5.1e-05 idle_cpu=0 support=2.1750000000000935e-06 reference=4.8236000000000112e-05 import=0 source=0 weights=0 partition=0 donor_migration=0 communicator=0 refine=0 coarsen=0 wait=0 return=0 policy=0 reassessment=0 normalization=0 initial=0 final=0 refine_accepted=0 coarsen_accepted=0 tracked_bytes=0 tracked_calls=0 nested_tracked_collectives=0 tracked_import_bytes=0 tracked_import_calls=0 nested_tracked_import=0 tracked_parent_bytes=0 tracked_parent_calls=0 nested_tracked_parent=0 tracked_worker_bytes=0 tracked_worker_calls=0 nested_tracked_worker=0 native_bound=1048928 process_peak_rss=41013248
+Native3D rejected event: Native3D reference loading exceeds storage budget.; accepted CFD mesh/solution retained.
+0.001 s: Explicit native memory limits cannot auto-grow or publish partial state
+0.000 s: Reference output counts shared continuation storage once
+0.000 s: Native centroid orientation uses the mathematical point even when it is not binary64
+0.001 s: Native finite patch certification preserves marker creases and finite nonconvex domains
+0.002 s: Native exact planar annuli retain holes across complete face containment
+0.080 s: Complete nonconvex face containment matches independent open-notch clipping
+0.004 s: prepared complete star matches fresh trial contexts
+0.649 s: Scoped numeric guidance reuses only unchanged entity face contracts
+0.060 s: mapped boundary optimizer retains admitted face guidance
+0.701 s: Scoped numeric guidance reuses only unchanged entity face contracts
+0.907 s: unchanged contracts and invalidation
+1.549 s: Scoped numeric guidance reuses only unchanged entity face contracts
+0.031 s: Model union chord witnesses retain cubic bulges and missing finite coverage
+0.016 s: Model union chord witnesses retain cubic bulges and missing finite coverage
+0.007 s: Model union chord witnesses retain cubic bulges and missing finite coverage
+0.184 s: Optional graph witnesses retain strict coverage across projected boundary pinches
+44.849 s: Prepared curved facet leaves certify complete support without hiding holes
+1.322 s: Fresh entity face bounds preserve correspondence and coordinate invalidation
+3.029 s: Fresh entity face bounds preserve correspondence and coordinate invalidation
+0.001 s: Metric cleanup admits clean contraction without shape debt and rejects collateral failure
+0.002 s: Native 3D optimizer: edge removal 3-2 and n -> 2n-4 with the optimal ring triangulation
+0.003 s: Native 3D optimizer: smoothing, collapse, frozen sets, skin and determinism
+0.004 s: Rejected smoothing history preserves cold optimizer results across disjoint and shared commits
+0.000 s: Native 3D optimizer: boundary edge flip inside one facet
+0.000 s: Native 3D optimizer: length-driven edge removal of an interior edge longer than 1.8
+0.004 s: Native 3D optimizer: sliver removal by vertex insertion (O7/O8) and length-driven insertion (O7L)
+0.001 s: Optimizer smoothing reduces whole-star debt beyond a max-min stationary point
+0.002 s: Edge triangulation minimizes summed shape debt instead of its worst score
+0.000 s: coordinate relaxation alone
+0.013 s: Metric optimizer moves an interior apex to satisfy requested first height
+0.000 s: coordinate relaxation precedes enabled enrichment
+0.013 s: Metric optimizer moves an interior apex to satisfy requested first height
+0.014 s: Debt optimization preserves admitted first height during shape movement
+0.002 s: Stalled shape gets one aligned cleanup pass without forgiving fixed feature debt
+0.000 s: Stalled shape gets one aligned cleanup pass without forgiving fixed feature debt
+0.119 s: Stalled shape gets one aligned cleanup pass without forgiving fixed feature debt
+0.118 s: Stalled shape gets one aligned cleanup pass without forgiving fixed feature debt
+0.000 s: Native3D reference cache quota is shared equally within each host
+0.000 s: Native3D reference cache quota uses bounded MemAvailable with sysconf fallback
+NATIVE3D_REFERENCE_CACHE host_ranks=1 host_quota_bytes=4294967296 rank_quota_bytes=4294967296
+NATIVE3D_REFERENCE_CACHE host_ranks=1 host_quota_bytes=4294967296 rank_quota_bytes=4294967296
+0.026 s: Native v8 atlas sidecar preserves exact covers traces and independent policy
+===============================================================================
+All tests passed (5877 assertions in 27 test cases)
+
+	Command being timed: "timeout 600 /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver [NativeGuidanceReuse3D],[NativeSmoothingHistory3D],[NativeOptimize3D],[NativeHeightOptimization3D],[NativeGuidanceReuse3D],[NativeSmoothingHistory3D],[NativeMetricCleanupGate3D],[NativeMetricCleanupPhase3D],[NativeReferenceIO3D],[NativeAtlasReferenceIO3D],[NativeReferenceBudget3D],[NativeFacewiseCertificate3D],[NativeSurfaceChord3D],[NativePreparedSource3D],[NativePinchedWitness3D],[NativePlanarUnion3D],[NativeFaceCoverage3D] --durations yes"
+	User time (seconds): 51.82
+	System time (seconds): 0.10
+	Percent of CPU this job got: 97%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 0:53.11
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 135676
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 0
+	Minor (reclaiming a frame) page faults: 61351
+	Voluntary context switches: 1064
+	Involuntary context switches: 430
+	Swaps: 0
+	File system inputs: 0
+	File system outputs: 88
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0

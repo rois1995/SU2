@@ -21,46 +21,54 @@ R=`integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57`.
 A293=`R/m6_runs/euler_build293_bounded_reference_mach_only_real_cfd50k`.
 D293=`R/m6_runs/euler_build293_adapted_event1_disk_restart_v1`.
 
-## CURRENT — boundary performance WIP; qualified Euler293 baseline preserved
+## CURRENT — qualified boundary reuse; FIRST-adaptation296 frozen/live
 
-Build294 is the ONLY ownedheavyjob: wrapper3125260/start27276529, child3125341,
-tool20693. Source/helpers frozen; UNQUALIFIED boundary reuse cycle. See below. Fullworkflow tool90456 TERMINAL0/6615.086935759s,
-workflow_accepted=true,pins_verified=true,changed=[]. All11actualHOST identities
-ABSENT, A293/terminal_handles.json; natural completion,NOmanualstop. Both events
-independently validated by R/validate_m6293_completion.py with all1520pins reverified.
-All12actual rank/event source prefixes hashed in workflow293_prefix_verification.json.
+ONLY ownedheavyjob: tool57374, wrapper3191866/start27444699, runner3192139,
+process3192385. A296=`R/m6_runs/euler_build296_boundary_reuse_mach_only_real_cfd50k`.
+A296/owned_startup.json seals ALL11actualHOST PID/start identities, six executing
+inodes and84mappedELF/rank. Same selected-failure wrapper as293 invokes production
+CSinglezoneDriver on actual M6; not a toy fixture. Executing test_driver SHA
+6f8184dc7359a62ce6d9d82a2f96055ac6caebf2b5e7354c5f9800b4cedd403c;
+standalone production294 CFD SHA
+b316e4f9fd3c76b43c10c8c4ffb85f7040da0ab93cb2850182bec1c31dbab256.
+Build295/296 changed tests only, preserving CFD294 bytes.
 
-Diskrestart tool65802 TERMINAL0/181.356204s; unchanged1527pins/input bytes, all10
-actualHOST identities ABSENT in D293/terminal_handles.json. Same qualified standalone
-CFD, MPI6, six executing inodes and84mappedELF/rank verified. It used an independent
-copy of ACTUAL first149051point/736323tet mesh+.native_ref+MATCHING followingCycle1
-restart. ADAP_LOOP=NO,RESTART_SOL=YES,READ_BINARY_RESTART=YES; input accepted293_input.dat
-DIFFERENT from output continued293_restart.dat. Actual log confirms disk input;
-new output coordinates BIT-IDENTICAL to accepted mesh, allfields finite, positive
-rho/internalenergy and nonzero changes in allconservedfields. Actual finite step:
-CL.269980/CD.015165/rmsRho-2.241746. Inputcheckpoint bytes remainunchanged.
+Source/build/runtime/inputs/helpers FROZEN. No CPP/helper edits or competing job.
+Actual296cfg differs from actual293 ONLY ADAP_SUBITER2→1; native5400/outer14400,
+Mach-only L1/50k, original saved seed and all gates/constraints unchanged. Initial
+61330coordinates/all22CFD+metric fields BIT-IDENTICAL qualified254/256, independently
+verified by verify_m6296_initial.py. Startup in native reference/import; no complete
+six-rank stage census yet. Current first-stage evidence: analyze_m6296_stages.py;
+quality comparison only after initial quality_entry/window via analyze_m6296_quality.py.
+Do NOTuse historical293/291monitor/stop helpers or infer terminal from stale logs.
 
-R/validate_disk_restart293.py seals D293/disk_restart_validation.json(PASS).
-A293/euler293_completion.json combines actual two-event workflow plus isolated
-restart, explicitly restart-event1 only. D293rawstatus.disk_restart_validated=false
-is the runner's BEFORE-independent-validation flag; do not confuse it with the
-subsequent verified PASS. This is steadyCFDrestart, NOTresumed-adaptation cycle-
-numbering/input-overwrite qualification. Neither continuedCFD nor restart claims
-converged physics. Active connected performance implementation is FROZEN in build294:
-Common/src/adaptation/CNativeEngine3D.cpp now invalidates local pure-shape rejected
-smoothing entries only for vertices in retired/introduced cells at Commit; bulk
-replacement still clears all. UNBUILT/UNVALIDATED; no performance benefit claim.
-PreparedVertexMove now owns an immutable copied old star and validated skin/physical/
-node maps; each surviving trial uses fresh private parameters and raw projection.
-Bounded numeric entity-face guidance memo requires exact epoch/revision/definition/
-face/coordinates/bindings/tolerance and is enabled only if unchanged faces exist.
-New per-rank counters report contexts/prepared trials and reused guidance faces.
-All UNBUILT/UNVALIDATED until294 completes. Prepared-leaf direct execution remains
-diagnostic pending exact numeric oracle/admission proof. See active design section.
-Complete connected source/test changes before build/focusedserial/ONE MPI milestone,
-then immediate same-seed FIRST adaptation. Existing293binaries are baseline only;
-do NOTrun old wrappers with modified CPP/source pins. No competing BL/RANS job yet.
-Do NOTrelaunch293,65802 or historical stophelpers.
+boundary296_qualification.json PASSED: focused27cases/5877assertions, connected
+serial99cases/68536assertions and ONE MPI6 milestone132cases EVERYrank. All stage
+pins unchanged and actual handles terminal. Production294 built successfully;
+295 exposed a shape-clean test fixture after early-return correction;296 fixes
+only that fixture. All insufficient/failed295 evidence and exactsource preserved.
+No performance benefit or new accepted mesh established yet. Connected candidate:
+immutable old-star validation/maps reused lazily, fresh raw projection/parameters
+per trial, exact unchanged entity-face numeric guidance only where such faces
+exist, and dependency-specific pure-shape rejected-star invalidation. Retained
+storage admitted; bulk replacement still clears history. Prepared-leaf direct
+execution remains deferred pending exact-oracle/admission proof, not a new cycle.
+[Current design/evidence](Handbook/ADAPTATION_BOUNDARY_QUERY_PERFORMANCE_20261109.md).
+
+Completed293 frozen fullworkflow tool90456 TERMINAL0/6615.087s, all1520pins unchanged,
+all11actualHOST identities ABSENT; independent two-event validation and both matching
+checkpoints preserved. Actual isolated adapted disk restart tool65802 TERMINAL0/
+181.356s, all1527pins unchanged/all10handles ABSENT; standalone MPI6 CFD, bit-exact
+mesh coordinates, finite/admissible changed state, input bytes preserved. Independent
+A293/euler293_completion.json and D293/disk_restart_validation.json PASS. Euler
+milestone verified; full goal still ACTIVE. This steady CFD disk restart does NOT
+qualify resumed adaptation-loop numbering/overwrite behavior.
+
+After complete first296 replay, compare net whole-field q/J removal, geometry,
+work, CPU/busy/join and total accepted firstAdapt versus2933819.85s. Keep overlapping
+timers separate; join-call time is NOTtotalMPIwait. Return to preserved293event1
+adapted CFD checkpoint for logical event2 qualification as needed, then dedicated
+BL/constraints/MPI and RANS500k. Never overwrite either preserved293checkpoint.
 
 ## Completed Euler two-event evidence
 
@@ -117,7 +125,7 @@ or critical-path shares. RankCPU snapshots and existing busy/join/churn counters
 are available; join-call time is NOTtotalMPIwait. Judge net whole-field q/J removal/s,
 geometry-bad and accepted first-event time, not commits/debt alone.
 
-Static opportunities reviewed: old-star topology/parameter reconstruction in
+Earlier static opportunities reviewed: old-star topology/parameter reconstruction in
 MoveVertex/SmoothBoundary; copied scoped unions despite prepared leaves; Commit
 clears rejected_smoothing. Existing rejection cache excludes non-shape/resource
 failures;8hits alone does NOTmeasure eligible insertions or prove invalidation is
@@ -125,7 +133,7 @@ its cause. HasAcceptedFaceCertificate verifies association/coverage, NOTnumeric
 distance. Preserve exact dependencies, projection semantics (not idempotence),
 coordinates/associations/support/tolerance/authority, fresh changed-position metrics,
 active refs/transient admission, seams/features/bodies/heights and strictfinalproof.
-No production performance change yet; secondary measurement/clearance work only
+Boundary reuse candidate is qualified as above; secondary measurement/clearance work only
 if counters demonstrate it. Unrelated ideas stay in backlog.
 
 ## Qualified source and historical records to retain

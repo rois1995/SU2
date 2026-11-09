@@ -1,0 +1,846 @@
+Filters: [NativeGuidanceReuse3D]
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+test_driver is a Catch v2.13.9 host application.
+Run with -? for options
+
+-------------------------------------------------------------------------------
+Scoped numeric guidance reuses only unchanged entity face contracts
+  prepared complete star matches fresh trial contexts
+-------------------------------------------------------------------------------
+../../UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp:869
+...............................................................................
+
+../../UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp:876: PASSED:
+  REQUIRE( prepared )
+with expansion:
+  {?}
+
+../../UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp:881: PASSED:
+  CHECK( MoveVertex(*prepared,8,{200000,target},300000,warm,b)==accepted )
+with expansion:
+  true == true
+
+../../UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp:882: PASSED:
+  CHECK( a==b )
+with expansion:
+  "" == ""
+
+../../UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp:882: PASSED:
+  REQUIRE( cold.cells.size()==warm.cells.size() )
+with expansion:
+  4 == 4
+
+../../UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp:885: PASSED:
+  CHECK( x.id==y.id )
+with expansion:
+  100000 (0x186a0) == 100000 (0x186a0)
+
+../../UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp:885: PASSED:
+  CHECK( x.p.x==y.p.x )
+with expansion:
+  0.5 == 0.5
+
+../../UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp:885: PASSED:
+  CHECK( x.p.y==y.p.y )
+with expansion:
+  0.5 == 0.5
+
+../../UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp:885: PASSED:
+  CHECK( x.p.z==y.p.z )
+with expansion:
+  0.5 == 0.5
+
+../../UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp:885: PASSED:
+  CHECK( x.id==y.id )
+with expansion:
+  0 == 0
+
+../../UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp:885: PASSED:
+  CHECK( x.p.x==y.p.x )
+with expansion:
+  0.0 == 0.0
+
+../../UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp:885: PASSED:
+  CHECK( x.p.y==y.p.y )
+with expansion:
+  0.0 == 0.0
+
+../../UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp:885: PASSED:
+  CHECK( x.p.z==y.p.z )
+with expansion:
+  0.0 == 0.0
+
+../../UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp:885: PASSED:
+  CHECK( x.id==y.id )
+with expansion:
+  2 == 2
+
+../../UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp:885: PASSED:
+  CHECK( x.p.x==y.p.x )
+with expansion:
+  0.0 == 0.0
+
+../../UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp:885: PASSED:
+  CHECK( x.p.y==y.p.y )
+with expansion:
+  1.0 == 1.0
+
+../../UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp:885: PASSED:
+  CHECK( x.p.z==y.p.z )
+with expansion:
+  0.0 == 0.0
+
+../../UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp:885: PASSED:
+  CHECK( x.id==y.id )
+with expansion:
+  200000 (0x30d40) == 200000 (0x30d40)
+
+../../UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp:885: PASSED:
+  CHECK( x.p.x==y.p.x )
+with expansion:
+  0.4 == 0.4
+
+../../UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp:885: PASSED:
+  CHECK( x.p.y==y.p.y )
+with expansion:
+  0.4 == 0.4
+
+../../UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp:885: PASSED:
+  CHECK( x.p.z==y.p.z )
+with expansion:
+  -0.0 == -0.0
+
+../../UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp:885: PASSED:
+  CHECK( x.id==y.id )
+with expansion:
+  100000 (0x186a0) == 100000 (0x186a0)
+
+../../UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp:885: PASSED:
+  CHECK( x.p.x==y.p.x )
+with expansion:
+  0.5 == 0.5
+
+../../UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp:885: PASSED:
+  CHECK( x.p.y==y.p.y )
+with expansion:
+  0.5 == 0.5
+
+../../UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp:885: PASSED:
+  CHECK( x.p.z==y.p.z )
+with expansion:
+  0.5 == 0.5
+
+../../UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp:885: PASSED:
+  CHECK( x.id==y.id )
+with expansion:
+  2 == 2
+
+../../UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp:885: PASSED:
+  CHECK( x.p.x==y.p.x )
+with expansion:
+  0.0 == 0.0
+
+../../UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp:885: PASSED:
+  CHECK( x.p.y==y.p.y )
+with expansion:
+  1.0 == 1.0
+
+../../UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp:885: PASSED:
+  CHECK( x.p.z==y.p.z )
+with expansion:
+  0.0 == 0.0
+
+../../UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp:885: PASSED:
+  CHECK( x.id==y.id )
+with expansion:
+  3 == 3
+
+../../UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp:885: PASSED:
+  CHECK( x.p.x==y.p.x )
+with expansion:
+  1.0 == 1.0
+
+../../UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp:885: PASSED:
+  CHECK( x.p.y==y.p.y )
+with expansion:
+  1.0 == 1.0
+
+../../UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp:885: PASSED:
+  CHECK( x.p.z==y.p.z )
+with expansion:
+  0.0 == 0.0
+
+../../UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp:885: PASSED:
+  CHECK( x.id==y.id )
+with expansion:
+  200000 (0x30d40) == 200000 (0x30d40)
+
+../../UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp:885: PASSED:
+  CHECK( x.p.x==y.p.x )
+with expansion:
+  0.4 == 0.4
+
+../../UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp:885: PASSED:
+  CHECK( x.p.y==y.p.y )
+with expansion:
+  0.4 == 0.4
+
+../../UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp:885: PASSED:
+  CHECK( x.p.z==y.p.z )
+with expansion:
+  -0.0 == -0.0
+
+../../UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp:885: PASSED:
+  CHECK( x.id==y.id )
+with expansion:
+  100000 (0x186a0) == 100000 (0x186a0)
+
+../../UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp:885: PASSED:
+  CHECK( x.p.x==y.p.x )
+with expansion:
+  0.5 == 0.5
+
+../../UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp:885: PASSED:
+  CHECK( x.p.y==y.p.y )
+with expansion:
+  0.5 == 0.5
+
+../../UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp:885: PASSED:
+  CHECK( x.p.z==y.p.z )
+with expansion:
+  0.5 == 0.5
+
+../../UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp:885: PASSED:
+  CHECK( x.id==y.id )
+with expansion:
+  3 == 3
+
+../../UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp:885: PASSED:
+  CHECK( x.p.x==y.p.x )
+with expansion:
+  1.0 == 1.0
+
+../../UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp:885: PASSED:
+  CHECK( x.p.y==y.p.y )
+with expansion:
+  1.0 == 1.0
+
+../../UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp:885: PASSED:
+  CHECK( x.p.z==y.p.z )
+with expansion:
+  0.0 == 0.0
+
+../../UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp:885: PASSED:
+  CHECK( x.id==y.id )
+with expansion:
+  1 == 1
+
+../../UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp:885: PASSED:
+  CHECK( x.p.x==y.p.x )
+with expansion:
+  1.0 == 1.0
+
+../../UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp:885: PASSED:
+  CHECK( x.p.y==y.p.y )
+with expansion:
+  0.0 == 0.0
+
+../../UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp:885: PASSED:
+  CHECK( x.p.z==y.p.z )
+with expansion:
+  0.0 == 0.0
+
+../../UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp:885: PASSED:
+  CHECK( x.id==y.id )
+with expansion:
+  200000 (0x30d40) == 200000 (0x30d40)
+
+../../UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp:885: PASSED:
+  CHECK( x.p.x==y.p.x )
+with expansion:
+  0.4 == 0.4
+
+../../UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp:885: PASSED:
+  CHECK( x.p.y==y.p.y )
+with expansion:
+  0.4 == 0.4
+
+../../UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp:885: PASSED:
+  CHECK( x.p.z==y.p.z )
+with expansion:
+  -0.0 == -0.0
+
+../../UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp:885: PASSED:
+  CHECK( x.id==y.id )
+with expansion:
+  100000 (0x186a0) == 100000 (0x186a0)
+
+../../UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp:885: PASSED:
+  CHECK( x.p.x==y.p.x )
+with expansion:
+  0.5 == 0.5
+
+../../UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp:885: PASSED:
+  CHECK( x.p.y==y.p.y )
+with expansion:
+  0.5 == 0.5
+
+../../UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp:885: PASSED:
+  CHECK( x.p.z==y.p.z )
+with expansion:
+  0.5 == 0.5
+
+../../UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp:885: PASSED:
+  CHECK( x.id==y.id )
+with expansion:
+  1 == 1
+
+../../UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp:885: PASSED:
+  CHECK( x.p.x==y.p.x )
+with expansion:
+  1.0 == 1.0
+
+../../UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp:885: PASSED:
+  CHECK( x.p.y==y.p.y )
+with expansion:
+  0.0 == 0.0
+
+../../UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp:885: PASSED:
+  CHECK( x.p.z==y.p.z )
+with expansion:
+  0.0 == 0.0
+
+../../UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp:885: PASSED:
+  CHECK( x.id==y.id )
+with expansion:
+  0 == 0
+
+../../UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp:885: PASSED:
+  CHECK( x.p.x==y.p.x )
+with expansion:
+  0.0 == 0.0
+
+../../UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp:885: PASSED:
+  CHECK( x.p.y==y.p.y )
+with expansion:
+  0.0 == 0.0
+
+../../UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp:885: PASSED:
+  CHECK( x.p.z==y.p.z )
+with expansion:
+  0.0 == 0.0
+
+../../UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp:885: PASSED:
+  CHECK( x.id==y.id )
+with expansion:
+  200000 (0x30d40) == 200000 (0x30d40)
+
+../../UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp:885: PASSED:
+  CHECK( x.p.x==y.p.x )
+with expansion:
+  0.4 == 0.4
+
+../../UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp:885: PASSED:
+  CHECK( x.p.y==y.p.y )
+with expansion:
+  0.4 == 0.4
+
+../../UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp:885: PASSED:
+  CHECK( x.p.z==y.p.z )
+with expansion:
+  -0.0 == -0.0
+
+../../UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp:887: PASSED:
+  REQUIRE( cold.surface.size()==warm.surface.size() )
+with expansion:
+  4 == 4
+
+../../UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp:888: PASSED:
+  CHECK( cold.surface[k].v==warm.surface[k].v )
+with expansion:
+  { 0, 200000 (0x30d40), 1 }
+  ==
+  { 0, 200000 (0x30d40), 1 }
+
+../../UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp:888: PASSED:
+  CHECK( cold.surface[k].facet==warm.surface[k].facet )
+with expansion:
+  3 == 3
+
+../../UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp:888: PASSED:
+  CHECK( cold.surface[k].v==warm.surface[k].v )
+with expansion:
+  { 0, 2, 200000 (0x30d40) }
+  ==
+  { 0, 2, 200000 (0x30d40) }
+
+../../UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp:888: PASSED:
+  CHECK( cold.surface[k].facet==warm.surface[k].facet )
+with expansion:
+  0 == 0
+
+../../UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp:888: PASSED:
+  CHECK( cold.surface[k].v==warm.surface[k].v )
+with expansion:
+  { 1, 200000 (0x30d40), 3 }
+  ==
+  { 1, 200000 (0x30d40), 3 }
+
+../../UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp:888: PASSED:
+  CHECK( cold.surface[k].facet==warm.surface[k].facet )
+with expansion:
+  2 == 2
+
+../../UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp:888: PASSED:
+  CHECK( cold.surface[k].v==warm.surface[k].v )
+with expansion:
+  { 2, 3, 200000 (0x30d40) }
+  ==
+  { 2, 3, 200000 (0x30d40) }
+
+../../UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp:888: PASSED:
+  CHECK( cold.surface[k].facet==warm.surface[k].facet )
+with expansion:
+  1 == 1
+
+../../UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp:881: PASSED:
+  CHECK( MoveVertex(*prepared,8,{200000,target},300000,warm,b)==accepted )
+with expansion:
+  true == true
+
+../../UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp:882: PASSED:
+  CHECK( a==b )
+with expansion:
+  "" == ""
+
+../../UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp:882: PASSED:
+  REQUIRE( cold.cells.size()==warm.cells.size() )
+with expansion:
+  4 == 4
+
+../../UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp:885: PASSED:
+  CHECK( x.id==y.id )
+with expansion:
+  100000 (0x186a0) == 100000 (0x186a0)
+
+../../UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp:885: PASSED:
+  CHECK( x.p.x==y.p.x )
+with expansion:
+  0.5 == 0.5
+
+../../UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp:885: PASSED:
+  CHECK( x.p.y==y.p.y )
+with expansion:
+  0.5 == 0.5
+
+../../UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp:885: PASSED:
+  CHECK( x.p.z==y.p.z )
+with expansion:
+  0.5 == 0.5
+
+../../UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp:885: PASSED:
+  CHECK( x.id==y.id )
+with expansion:
+  0 == 0
+
+../../UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp:885: PASSED:
+  CHECK( x.p.x==y.p.x )
+with expansion:
+  0.0 == 0.0
+
+../../UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp:885: PASSED:
+  CHECK( x.p.y==y.p.y )
+with expansion:
+  0.0 == 0.0
+
+../../UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp:885: PASSED:
+  CHECK( x.p.z==y.p.z )
+with expansion:
+  0.0 == 0.0
+
+../../UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp:885: PASSED:
+  CHECK( x.id==y.id )
+with expansion:
+  2 == 2
+
+../../UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp:885: PASSED:
+  CHECK( x.p.x==y.p.x )
+with expansion:
+  0.0 == 0.0
+
+../../UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp:885: PASSED:
+  CHECK( x.p.y==y.p.y )
+with expansion:
+  1.0 == 1.0
+
+../../UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp:885: PASSED:
+  CHECK( x.p.z==y.p.z )
+with expansion:
+  0.0 == 0.0
+
+../../UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp:885: PASSED:
+  CHECK( x.id==y.id )
+with expansion:
+  200000 (0x30d40) == 200000 (0x30d40)
+
+../../UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp:885: PASSED:
+  CHECK( x.p.x==y.p.x )
+with expansion:
+  0.55 == 0.55
+
+../../UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp:885: PASSED:
+  CHECK( x.p.y==y.p.y )
+with expansion:
+  0.45 == 0.45
+
+../../UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp:885: PASSED:
+  CHECK( x.p.z==y.p.z )
+with expansion:
+  -0.0 == -0.0
+
+../../UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp:885: PASSED:
+  CHECK( x.id==y.id )
+with expansion:
+  100000 (0x186a0) == 100000 (0x186a0)
+
+../../UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp:885: PASSED:
+  CHECK( x.p.x==y.p.x )
+with expansion:
+  0.5 == 0.5
+
+../../UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp:885: PASSED:
+  CHECK( x.p.y==y.p.y )
+with expansion:
+  0.5 == 0.5
+
+../../UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp:885: PASSED:
+  CHECK( x.p.z==y.p.z )
+with expansion:
+  0.5 == 0.5
+
+../../UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp:885: PASSED:
+  CHECK( x.id==y.id )
+with expansion:
+  2 == 2
+
+../../UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp:885: PASSED:
+  CHECK( x.p.x==y.p.x )
+with expansion:
+  0.0 == 0.0
+
+../../UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp:885: PASSED:
+  CHECK( x.p.y==y.p.y )
+with expansion:
+  1.0 == 1.0
+
+../../UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp:885: PASSED:
+  CHECK( x.p.z==y.p.z )
+with expansion:
+  0.0 == 0.0
+
+../../UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp:885: PASSED:
+  CHECK( x.id==y.id )
+with expansion:
+  3 == 3
+
+../../UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp:885: PASSED:
+  CHECK( x.p.x==y.p.x )
+with expansion:
+  1.0 == 1.0
+
+../../UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp:885: PASSED:
+  CHECK( x.p.y==y.p.y )
+with expansion:
+  1.0 == 1.0
+
+../../UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp:885: PASSED:
+  CHECK( x.p.z==y.p.z )
+with expansion:
+  0.0 == 0.0
+
+../../UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp:885: PASSED:
+  CHECK( x.id==y.id )
+with expansion:
+  200000 (0x30d40) == 200000 (0x30d40)
+
+../../UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp:885: PASSED:
+  CHECK( x.p.x==y.p.x )
+with expansion:
+  0.55 == 0.55
+
+../../UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp:885: PASSED:
+  CHECK( x.p.y==y.p.y )
+with expansion:
+  0.45 == 0.45
+
+../../UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp:885: PASSED:
+  CHECK( x.p.z==y.p.z )
+with expansion:
+  -0.0 == -0.0
+
+../../UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp:885: PASSED:
+  CHECK( x.id==y.id )
+with expansion:
+  100000 (0x186a0) == 100000 (0x186a0)
+
+../../UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp:885: PASSED:
+  CHECK( x.p.x==y.p.x )
+with expansion:
+  0.5 == 0.5
+
+../../UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp:885: PASSED:
+  CHECK( x.p.y==y.p.y )
+with expansion:
+  0.5 == 0.5
+
+../../UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp:885: PASSED:
+  CHECK( x.p.z==y.p.z )
+with expansion:
+  0.5 == 0.5
+
+../../UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp:885: PASSED:
+  CHECK( x.id==y.id )
+with expansion:
+  3 == 3
+
+../../UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp:885: PASSED:
+  CHECK( x.p.x==y.p.x )
+with expansion:
+  1.0 == 1.0
+
+../../UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp:885: PASSED:
+  CHECK( x.p.y==y.p.y )
+with expansion:
+  1.0 == 1.0
+
+../../UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp:885: PASSED:
+  CHECK( x.p.z==y.p.z )
+with expansion:
+  0.0 == 0.0
+
+../../UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp:885: PASSED:
+  CHECK( x.id==y.id )
+with expansion:
+  1 == 1
+
+../../UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp:885: PASSED:
+  CHECK( x.p.x==y.p.x )
+with expansion:
+  1.0 == 1.0
+
+../../UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp:885: PASSED:
+  CHECK( x.p.y==y.p.y )
+with expansion:
+  0.0 == 0.0
+
+../../UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp:885: PASSED:
+  CHECK( x.p.z==y.p.z )
+with expansion:
+  0.0 == 0.0
+
+../../UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp:885: PASSED:
+  CHECK( x.id==y.id )
+with expansion:
+  200000 (0x30d40) == 200000 (0x30d40)
+
+../../UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp:885: PASSED:
+  CHECK( x.p.x==y.p.x )
+with expansion:
+  0.55 == 0.55
+
+../../UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp:885: PASSED:
+  CHECK( x.p.y==y.p.y )
+with expansion:
+  0.45 == 0.45
+
+../../UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp:885: PASSED:
+  CHECK( x.p.z==y.p.z )
+with expansion:
+  -0.0 == -0.0
+
+../../UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp:885: PASSED:
+  CHECK( x.id==y.id )
+with expansion:
+  100000 (0x186a0) == 100000 (0x186a0)
+
+../../UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp:885: PASSED:
+  CHECK( x.p.x==y.p.x )
+with expansion:
+  0.5 == 0.5
+
+../../UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp:885: PASSED:
+  CHECK( x.p.y==y.p.y )
+with expansion:
+  0.5 == 0.5
+
+../../UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp:885: PASSED:
+  CHECK( x.p.z==y.p.z )
+with expansion:
+  0.5 == 0.5
+
+../../UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp:885: PASSED:
+  CHECK( x.id==y.id )
+with expansion:
+  1 == 1
+
+../../UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp:885: PASSED:
+  CHECK( x.p.x==y.p.x )
+with expansion:
+  1.0 == 1.0
+
+../../UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp:885: PASSED:
+  CHECK( x.p.y==y.p.y )
+with expansion:
+  0.0 == 0.0
+
+../../UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp:885: PASSED:
+  CHECK( x.p.z==y.p.z )
+with expansion:
+  0.0 == 0.0
+
+../../UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp:885: PASSED:
+  CHECK( x.id==y.id )
+with expansion:
+  0 == 0
+
+../../UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp:885: PASSED:
+  CHECK( x.p.x==y.p.x )
+with expansion:
+  0.0 == 0.0
+
+../../UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp:885: PASSED:
+  CHECK( x.p.y==y.p.y )
+with expansion:
+  0.0 == 0.0
+
+../../UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp:885: PASSED:
+  CHECK( x.p.z==y.p.z )
+with expansion:
+  0.0 == 0.0
+
+../../UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp:885: PASSED:
+  CHECK( x.id==y.id )
+with expansion:
+  200000 (0x30d40) == 200000 (0x30d40)
+
+../../UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp:885: PASSED:
+  CHECK( x.p.x==y.p.x )
+with expansion:
+  0.55 == 0.55
+
+../../UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp:885: PASSED:
+  CHECK( x.p.y==y.p.y )
+with expansion:
+  0.45 == 0.45
+
+../../UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp:885: PASSED:
+  CHECK( x.p.z==y.p.z )
+with expansion:
+  -0.0 == -0.0
+
+../../UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp:887: PASSED:
+  REQUIRE( cold.surface.size()==warm.surface.size() )
+with expansion:
+  4 == 4
+
+../../UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp:888: PASSED:
+  CHECK( cold.surface[k].v==warm.surface[k].v )
+with expansion:
+  { 0, 200000 (0x30d40), 1 }
+  ==
+  { 0, 200000 (0x30d40), 1 }
+
+../../UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp:888: PASSED:
+  CHECK( cold.surface[k].facet==warm.surface[k].facet )
+with expansion:
+  3 == 3
+
+../../UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp:888: PASSED:
+  CHECK( cold.surface[k].v==warm.surface[k].v )
+with expansion:
+  { 0, 2, 200000 (0x30d40) }
+  ==
+  { 0, 2, 200000 (0x30d40) }
+
+../../UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp:888: PASSED:
+  CHECK( cold.surface[k].facet==warm.surface[k].facet )
+with expansion:
+  0 == 0
+
+../../UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp:888: PASSED:
+  CHECK( cold.surface[k].v==warm.surface[k].v )
+with expansion:
+  { 1, 200000 (0x30d40), 3 }
+  ==
+  { 1, 200000 (0x30d40), 3 }
+
+../../UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp:888: PASSED:
+  CHECK( cold.surface[k].facet==warm.surface[k].facet )
+with expansion:
+  2 == 2
+
+../../UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp:888: PASSED:
+  CHECK( cold.surface[k].v==warm.surface[k].v )
+with expansion:
+  { 2, 3, 200000 (0x30d40) }
+  ==
+  { 2, 3, 200000 (0x30d40) }
+
+../../UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp:888: PASSED:
+  CHECK( cold.surface[k].facet==warm.surface[k].facet )
+with expansion:
+  1 == 1
+
+../../UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp:881: PASSED:
+  CHECK( MoveVertex(*prepared,8,{200000,target},300000,warm,b)==accepted )
+with expansion:
+  false == false
+
+../../UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp:882: PASSED:
+  CHECK( a==b )
+with expansion:
+  "Native 3D movement needs a new identity and a distinct position."
+  ==
+  "Native 3D movement needs a new identity and a distinct position."
+
+../../UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp:882: PASSED:
+  REQUIRE( cold.cells.size()==warm.cells.size() )
+with expansion:
+  0 == 0
+
+../../UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp:887: PASSED:
+  REQUIRE( cold.surface.size()==warm.surface.size() )
+with expansion:
+  0 == 0
+
+../../UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp:881: PASSED:
+  CHECK( MoveVertex(*prepared,8,{200000,target},300000,warm,b)==accepted )
+with expansion:
+  false == false
+
+../../UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp:882: PASSED:
+  CHECK( a==b )
+with expansion:
+  "Native3D movement projects back to its original position."
+  ==
+  "Native3D movement projects back to its original position."
+
+../../UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp:882: PASSED:
+  REQUIRE( cold.cells.size()==warm.cells.size() )
+with expansion:
+  0 == 0
+
+../../UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp:887: PASSED:
+  REQUIRE( cold.surface.size()==warm.surface.size() )
+with expansion:
+  0 == 0
+
+../../UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp:892: PASSED:
+  CHECK_FALSE( PrepareVertexMove(star,*scoped) )
+with expansion:
+  !{?}
+
+===============================================================================
+All tests passed (162 assertions in 1 test case)
+

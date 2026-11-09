@@ -1,0 +1,33 @@
+{
+  "state": "running",
+  "started_at": 1794230014.4584663,
+  "runner_wrapper": {
+    "pid": 3191866,
+    "start_ticks": 27444699
+  },
+  "attempt": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build296_boundary_reuse_mach_only_real_cfd50k",
+  "argv": [
+    "/usr/bin/python3",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/run_m6.py",
+    "build296",
+    "euler_build296_boundary_reuse_mach_only_real_cfd50k",
+    "1",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_inputs/euler_original_force_seed_v1",
+    "--inspect-rejected"
+  ],
+  "source_commit": "0dd4f6787cec81bb6c28f91a1faaa81451613d04",
+  "sensors": [
+    "MACH"
+  ],
+  "baseline293_config_sha256": "5ad2dc1d9a1cd8bff87f633617b191b50defbc261ab3d0b2ed0987a34722b89e",
+  "configuration_difference": "ADAP_SUBITER 2 to 1 only; all seed, L1/50k, geometry, height, quality, memory and time directives identical",
+  "loadavg": "3.34 3.96 3.31 1/4349 3192138\n",
+  "mem": {
+    "MemAvailable": 48838836224,
+    "SwapFree": 4043587584
+  },
+  "disk_free_bytes": 124869898240,
+  "mpi_scratch": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/compile-tmp/m6-certificate296-lb98j2l8",
+  "launcher_sha256": "4989a948044c55ea391f0e57e281056fd1ba5aae8742c61c616a6ee2470efc69",
+  "scope": "Complete same-seed Mach-only L1/50k FIRST-adaptation performance replay; unchanged gates/native5400/outer14400; preserve293 adapted CFD checkpoints and logical second-adaptation obligation; bounded raw refusal capture, no per-trial VTU export."
+}

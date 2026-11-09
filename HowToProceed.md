@@ -11,9 +11,10 @@ Both actual mesh/reference/matching-CFDrestart checkpoints are independently cop
 under staged57/m6_inputs/euler_adapted293_event{1,2}_v1; metadata/hashes pushed, large
 actual assets retained locally. Isolated restart on event1 passed MPI6 with same
 qualified standaloneCFD, unchanged inputs/pins, exact coordinates and finite/admissible
-changed output. All fullworkflow/restart owned handles are terminal; no heavyjob active.
+changed output. All293 fullworkflow/restart owned handles are terminal. The active boundary-reuse
+qualification job and source freeze are recorded in HANDOFF_Codex.md.
 
-Next priority is ONE connected boundary geometry-query performance cycle, as requested:
+Current priority is ONE connected boundary geometry-query performance cycle, as requested:
 [design and measured evidence](Handbook/ADAPTATION_BOUNDARY_QUERY_PERFORMANCE_20261109.md).
 Use unchanged Mach-onlyL1/50k seed/constraints/budgets/construction, focused checks plus
 ONE MPI milestone, then complete FIRST-adaptation replay. Reuse existing293/291 evidence;

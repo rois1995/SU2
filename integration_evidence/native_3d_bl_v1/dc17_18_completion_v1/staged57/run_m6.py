@@ -224,6 +224,10 @@ def acceptance_self_check():
                 *[f"  {name}: 0.0" for name in ("Density", "Momentum-x", "Momentum-y", "Momentum-z", "Energy")],
                 "Time: setup 1 s", "The problem uses the new mesh:", "Mesh replaced in 1 s",
                 f"Writing the adapted mesh of cycle {n}: adapted_mesh_adap_{n:05d}.su2."]
+    single=[line.replace(" of 2:"," of 1:") for line in event(1)]+["Cycle 1 of 1: transferred solution."]
+    assert assess_workflow(single,history,outputs,1)[0]["complete"]
+    assert not assess_workflow(single,"",outputs,1)[0]["complete"]
+    assert not assess_workflow(single,history,{},1)[0]["complete"]
     lines = event(1) + event(2) + ["Cycle 2 of 2: transferred solution."]
     assert all(r["complete"] for r in assess_workflow(lines, history, outputs))
     for missing in ("Solution Transfer (conservative P1)", "Mesh replaced in ", "Cycle 1 of 2:"):
@@ -373,6 +377,13 @@ def main():
             print(json.dumps({"state": "running", "attempt": str(attempt), "pid": process.pid}), flush=True)
             while process.poll() is None:
                 rows = sample_tree(process.pid)
+                for row in rows:
+                    try:
+                        stat=(Path('/proc')/str(row['pid'])/'stat').read_text().rsplit(')',1)[1].split()
+                        row.update(process_start_ticks=int(stat[19]),cpu_user_ticks=int(stat[11]),
+                                   cpu_system_ticks=int(stat[12]),cpu_ticks_per_second=os.sysconf('SC_CLK_TCK'))
+                    except FileNotFoundError:
+                        pass  # Process exited between the existing RSS sample and this CPU sample.
                 largest_sampled_rss = max(largest_sampled_rss,
                                           max((row["rss_bytes"] for row in rows), default=0))
                 receipt.write(json.dumps({"elapsed_seconds": time.time() - started,
