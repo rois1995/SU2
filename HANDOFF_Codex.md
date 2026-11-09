@@ -38,11 +38,12 @@ Actual296cfg differs from actual293 ONLY ADAP_SUBITER2→1; native5400/outer1440
 Mach-only L1/50k, original saved seed and all gates/constraints unchanged. Initial
 61330coordinates/all22CFD+metric fields BIT-IDENTICAL qualified254/256, independently
 verified by verify_m6296_initial.py. Initial quality_entry round23306/native572.311s
-EXACT293 counts:690804tets,27052q-bad/27499J-bad/1204G-bad/0size. Three quality
-windows match293 counts exactly; latestwindow23488 has17888q/16900J/1144G-bad,
-net q removal17.689/s versus17.639/s (~0.3%, no established gain), traversal WORK
-unchanged. Lateststage ownership_committed23488/native1100.527s. First-window new
-counters1295contexts/3007preparedtrials/104reusedfaces; rejected-star hits0 as baseline.
+EXACT293 counts:690804tets,27052q-bad/27499J-bad/1204G-bad/0size. Eight qualitywindows match293 counts exactly; latestwindow23808/native1721.361s has
+8832q/7414J/1047G-bad, net q removal15.857/s versus15.776/s (~0.5%, no established
+gain), traversal WORK unchanged. All11 actualHOST identities reverified live this
+continuation; about37GiB MemAvailable. No stop/edit is justified by this partial
+performance result. First-window new counters1295contexts/3007preparedtrials/
+104reusedfaces; rejected-star hits0 as baseline.
 A296/first_boundary_reuse_observation.json seals current partial counters/prefixes.
 Read-only review found scope index also serves exact Upper seed/candidate order and
 joint finite footprints; no safe simple removal. DO NOTedit/stop frozen replay on
@@ -77,6 +78,10 @@ work, CPU/busy/join and total accepted firstAdapt versus2933819.85s. Keep overla
 timers separate; join-call time is NOTtotalMPIwait. Return to preserved293event1
 adapted CFD checkpoint for logical event2 qualification as needed, then dedicated
 BL/constraints/MPI and RANS500k. Never overwrite either preserved293checkpoint.
+Read-only next-stage R/m6_bl_preflight296.json confirms48954M6CurvedNets meet the
+current BLmetric builder's explicit refusal guard. Runtime M6BL notrun/qualified;
+existing analytic/flat fixtures do not close it. Deferred in backlog; no competing
+BL implementation or job during frozen296.
 
 ## Completed Euler two-event evidence
 

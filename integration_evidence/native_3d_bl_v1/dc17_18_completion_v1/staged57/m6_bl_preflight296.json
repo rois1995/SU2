@@ -1,0 +1,41 @@
+{
+  "time": 1794231716.360383,
+  "scope": "Read-only next-stage preflight while FIRST296 stays frozen. No BL job, new implementation, test campaign or runtime M6 BL refusal claimed.",
+  "m6_reference": {
+    "path": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/validation54/m6_euler/m6.su2.native_ref",
+    "sha256": "2e99fb7870e2c718f110da8509e4c0f7e746ce138e7f27ab57aa0dedbb6c42de",
+    "bytes": 46610856,
+    "header": "SU2_NATIVE_REFERENCE_3D 7",
+    "counts": {
+      "markers": 3,
+      "facets": 48954,
+      "analytic": 0,
+      "affine": 8094,
+      "errors": 48954,
+      "points": 24479,
+      "surface": 48954,
+      "geometry_version": 18,
+      "revision": 1,
+      "curves": 48954
+    }
+  },
+  "source_pins": {
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/SU2_CFD/src/adaptation/CBoundaryLayerMetric.cpp": "26f0c55d4a234f0648dee716a6adfcc2fe19f8d6961ca0c5510c91ee66cc5f16",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/Common/include/adaptation/CNativeAffineReference.hpp": "398bdb3ba5d08bb15954a75965a668d120f8621e918a6a4e2ccc116789af2cf0",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/SU2_CFD/src/solvers/CSolver.cpp": "ef7d3176d904a1426440fc1c07f10a429f233162dd3830be4e08e293ed355d49",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/UnitTests/SU2_CFD/adaptation/BoundaryLayerMetric_tests.cpp": "8b7ecdfeec38c970e7180b39d144faaff9b54197e62851fefa4002d2c8e009e4"
+  },
+  "confirmed_source_behavior": {
+    "guard": "FromNativeReference rejects mapped reference with nonempty Geometry().Curves().",
+    "curves_definition": "MappedFacetReference::Curves returns CurvedNets, not merely optional CAD curves.",
+    "production_callers": [
+      "CSolver::ComputeMetric",
+      "CSinglezoneDriver",
+      "CNativeBLTarget3D::MakeTargetPolicy"
+    ],
+    "existing_test": "Native3D complexity reference does not rebase the wall on the adapted surface explicitly expects this refusal."
+  },
+  "next_stage_requirement": "After current performance replay and preserved event2 qualification, validate the real curved M6 BL path under MPI. Analytic-cylinder/flat-wall fixture passes do not establish this capability. Preserve no-CAD authority; do not delete guard or use faceted substitute without connected curved support, quadrature and chord-integration qualification.",
+  "BL_qualified": false,
+  "RANS500k_complete": false
+}

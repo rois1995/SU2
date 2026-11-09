@@ -894,3 +894,18 @@ new distributed mechanism selected before frozen289's actual outcome.
   associations/invalidation/admission must remain. NOTselected while demonstrated
   WriteReference budget-propagation failure is active. No furthercache/geometry
   variant or budgetchange before persistencefix +fulltwo-event outcome.
+
+## Deferred next-stage BL gate — read-only296 preflight
+
+After the active frozen first296 performance replay and preserved event2 obligations,
+qualify the actual cubic M6 BL path. staged57/m6_bl_preflight296.json pins current
+source and original46,610,856B reference: version7,48,954CurvedNets. Current
+CBoundaryLayerMetric::FromNativeReference explicitly refuses nonempty Curves;
+Curves() returns CurvedNets, so this is relevant to actual M6, not only optionalCAD.
+The production ComputeMetric/driver/BL-target callers reach this builder when BL
+is requested. Existing NativeVolumeBL3D/NativeCurvedMappedGuards3D test expects
+that refusal. This is a confirmed source/input gate, NOTan executed M6BL runtime
+failure or BLqualification. Do not remove it or substitute facets without connected
+curved support, quadrature and chord-integration qualification. Keep one active
+cycle; no BL implementation or campaign while FIRST296 stays frozen. Existing
+analytic/flat-wall RANS lifecycle passes do not prove cubic-M6 BL support.

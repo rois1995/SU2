@@ -21,6 +21,11 @@ ONE MPI milestone, then complete FIRST-adaptation replay. Reuse existing293/291 
 no new old-baseline campaign. Return to preserved adaptedCFD for logical event2 if
 changed production behavior needs requalification; do not discard its progress.
 Dedicated BL/constraints/MPI and RANS500k remain required afterward. Full goal ACTIVE.
+Read-only296 preflight pins a concrete next-stage gate: the M6reference contains
+48954CurvedNets and the current BLmetric builder explicitly refuses such input.
+See staged57/m6_bl_preflight296.json and the linked backlog. This has not run as
+an M6BL job; qualify the real curved path, not only analytic/flat-wall fixtures.
+Do not start that implementation while the current performance replay is frozen.
 
 The remaining notes are historical evidence; the active next action is above.
 
