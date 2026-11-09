@@ -887,3 +887,10 @@ alignment, active-reference/transient admission and unchanged heights/features/
 body checks. BoundModelSurface already exists, but source eligibility/lifetimes and
 actual reverse dominance are NOT audited for this proposal. No implementation or
 new distributed mechanism selected before frozen289's actual outcome.
+
+- After291 nativeacceptance: finalinterval now573.258s; freshperface reverseupper
+  queries dominate435–446s/rank versus completeglobalforward~115s/rank. Further
+  unchangedface distance-certificate reuse may help, but exactsupport/coordinates/
+  associations/invalidation/admission must remain. NOTselected while demonstrated
+  WriteReference budget-propagation failure is active. No furthercache/geometry
+  variant or budgetchange before persistencefix +fulltwo-event outcome.

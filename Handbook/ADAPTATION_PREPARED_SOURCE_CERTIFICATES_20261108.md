@@ -568,3 +568,20 @@ Allpins unchanged/allactualownedhandles absent. certification291_qualification.j
 seals fourstages, explicitpartialface diagnostic, source/binary/runtime/input/helper
 pins. This qualifies affected behavior for fullM6, not completeacceptedgeometry.
 Push then launch_m6291.py immediately for fullsame-seed Mach-onlyL1/50k TWOevents.
+
+###291 terminal native acceptance; next blocker is persistence
+
+Fullnative3535.670512s/736323tets,149051points,allknown0q/J/geometry/size,
+all6ranks stop=complete. Mandatory globaltwo-sided geometry PASSED. All163pre-final
+matchingstages versus289 counts/flags/comparedwork exact. Finalinterval573.257515s
+versus2460.103865s;4fullsourcecalls/rank ~115s,reverseupper32618calls/rank ~435–446s
+(rank5also90privatecalls). No overlappingtimer addition. ConservativeP1 transfer
+completed10.24s:5trueresiduals2.649e-14..7.722e-14,0inadmissiblestates, pinnedtarget
+integral hardgate executed. Numericalfinaltargetdefects notprinted.
+
+Workflow thenFAILED WriteReference's default2GiB self-decode admission. Adapted
+SU2mesh38361722B preserved, companionnative_ref/restart missing, no adaptedCFD.
+All11actualownedhandles absent, all1520pins unchanged, naturalMPIabort/noagentstop.
+Sampledpeak treeRSS13.615603712GB,nottruephysicalpeak. terminal_publication_diagnosis
+seals nativeacceptance separately from failedworkflow. Activecycle moves to bounded
+referencepersistence with existing configured budget/caller, preserving thisfix.

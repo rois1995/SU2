@@ -1,14 +1,22 @@
 # How to proceed
 
-Updated2026-11-09. ZERO accepted meshes. [HANDOFF_Codex.md](HANDOFF_Codex.md) is the
+Updated2026-11-09. One native291mesh passed strictgates+conservative transfer; ZERO
+complete workflow events. [HANDOFF_Codex.md](HANDOFF_Codex.md) is the
 current source/build/input/handle authority. Completion remains TWO strict Euler50k
 meshes, conservative admissible transfer, finite adapted CFD and actual isolated
 adapted disk restart; then dedicated BL/MPI and RANS500k. All gates/budgets unchanged.
 
-Current291 fullsame-seed TWO-event M6 is LIVE, tool83989; source/checkpoint
-2d558a1d4d PUSHED. Do not edit compiled/pinned code or relaunch. Actual11ownedhandles,
-6exe inodes/84mappedELF each and1520pins verified; initial61330coords/22fields exact.
-Read HANDOFF_Codex.md for current identities. Noacceptedmesh/transfer/adaptedCFD yet.
+Current291 is TERMINAL1: accepted149051point/736323tet native mesh and conservative
+transfer succeeded, then WriteReference failed its default2GiB decode self-check.
+All11ownedhandles absent/all1520pins verified; no manualstop. Complete adapted SU2
+mesh is preserved, but .native_ref/matchingrestart missing; no adaptedCFD/restart.
+Activecycle is boundedreferencepersistence: propagate existing configured ceiling
+and retainedcaller into writer/encoder validation, without raising limits/bypassing
+checks. Fullnativefinalinterval573.258s vs2892460.104s; keep qualifiedgeometryfix.
+Read HANDOFF_Codex.md for exactevidence and nextvalidation. Do notstart competing
+cleanup, scheduler, geometry or target changes. Fullsame-seed TWOevents afterfix.
+
+The remaining notes are historical evidence; the active next action is above.
 
 Prior287certificate change is QUALIFIED (retained in289): preserve all original early vertex
 coverage guards; replace general segment clipping in the planar boundary-interior
