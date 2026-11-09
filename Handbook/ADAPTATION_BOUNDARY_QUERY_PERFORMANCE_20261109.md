@@ -264,3 +264,31 @@ Current replay is frozen; outcome and work/net progress decide benefit. Inputs a
 checkpoints293 remain preserved. Starting ownership check initially expected a
 standaloneCFD inode and correctly foundnone; corrected verifier uses the actual
 pinned command's test_driver inode, not a fabricated process claim.
+
+### First complete quality296 window — partial, no established gain
+
+Construction through all83complete groups/quality entry matches293 counts,flags
+and comparedwork exactly. Entry round23306/native572.310757s:690804tets,27052q-bad,
+27499J-bad,1204geometry-bad,0size. Firstwindow23360/native731.824856s:22725q/22530J/
+1183geometry-bad, matching293 wholefield counts. Net q removal27.126/s versus
+26.906/s (~0.8% timing difference), NOTan established speedup. Current quality159.514s
+versus293160.822s; boundary aggregate seconds144.291versus144.426 overlapgeometry.
+
+New296 counters:1295prepared old-star contexts/3007prepared trials/104exactreused
+faces. Boundarystarsearches16738/rejected-historyhits0 match293. upper_calls65fewer,
+but upper_work349842858,traversal_work327436073,scope_build_work7809526 andscope_misses
+52092 are EXACT293 atthis stage. Reuse has not reduced counted expensive querywork
+inthis window. Read-only review of existing scope distance/upper preparation is
+still within this activecycle; no source change or newcampaign while frozen.
+Let complete firstreplay outcome decide benefit and subsequent work. Current host
+identity checks all11same; last MemAvailable about39GiB, no demonstrated pressure.
+
+Three matching complete qualitywindows now show no material timing gain: latest
+23488 q17888/J16900/G1144, netq17.689/s versus29317.639/s (~0.3%); traversalwork1.0.
+first_boundary_reuse_observation.json seals these PARTIAL counters and prefixes.
+Frozen full first296 continues, latestownership_committed23488/native1100.527s.
+Read-only index audit: scope TriangleUnion index also selects exact Upper seed and
+candidate order, not merely lower-distance queries. Joint finite-plane footprints
+are absent from prepared per-facet leaves. Omitting index/copy can change numeric
+bounds and early-return order; no safe smaller removal identified. No code/change/
+newcampaign is authorized by this hypothesis while the run remains frozen.

@@ -37,9 +37,17 @@ Source/build/runtime/inputs/helpers FROZEN. No CPP/helper edits or competing job
 Actual296cfg differs from actual293 ONLY ADAP_SUBITER2→1; native5400/outer14400,
 Mach-only L1/50k, original saved seed and all gates/constraints unchanged. Initial
 61330coordinates/all22CFD+metric fields BIT-IDENTICAL qualified254/256, independently
-verified by verify_m6296_initial.py. Startup in native reference/import; no complete
-six-rank stage census yet. Current first-stage evidence: analyze_m6296_stages.py;
-quality comparison only after initial quality_entry/window via analyze_m6296_quality.py.
+verified by verify_m6296_initial.py. Initial quality_entry round23306/native572.311s
+EXACT293 counts:690804tets,27052q-bad/27499J-bad/1204G-bad/0size. Three quality
+windows match293 counts exactly; latestwindow23488 has17888q/16900J/1144G-bad,
+net q removal17.689/s versus17.639/s (~0.3%, no established gain), traversal WORK
+unchanged. Lateststage ownership_committed23488/native1100.527s. First-window new
+counters1295contexts/3007preparedtrials/104reusedfaces; rejected-star hits0 as baseline.
+A296/first_boundary_reuse_observation.json seals current partial counters/prefixes.
+Read-only review found scope index also serves exact Upper seed/candidate order and
+joint finite footprints; no safe simple removal. DO NOTedit/stop frozen replay on
+partial evidence. Use analyze_m6296_stages.py and analyze_m6296_quality.py; preserve
+allcensuses/work/CPU evidence and wait for acceptedfirstAdapt/continuedCFD/checkpoint.
 Do NOTuse historical293/291monitor/stop helpers or infer terminal from stale logs.
 
 boundary296_qualification.json PASSED: focused27cases/5877assertions, connected
