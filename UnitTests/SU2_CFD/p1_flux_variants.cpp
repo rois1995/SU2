@@ -4493,7 +4493,7 @@ void EdgeEntropyFCTCase() {
           for (int f = 0; f < 4; ++f) {
             const double pc = d.store(e, ta::FCT_PHIC + f), al = d.store(e, ta::FCT_ALPHA + f), ga = d.store(e, ta::FCT_GAMMA + f);
             outside = std::max(outside, std::max({-pc, pc - 1.0, -al, al - 1.0, -ga, ga - 1.0}));
-            sumBound = std::max(sumBound, al + ga - 1.0);
+            sumBound = std::max(sumBound, std::fabs(al + ga - 1.0));
             minPhi = std::min(minPhi, al * pc);
             maxGam = std::max(maxGam, ga);
           }
@@ -4518,7 +4518,7 @@ void EdgeEntropyFCTCase() {
       }
       INFO("nDim " << nDim << " moved " << moved << " P1 average " << p1Average << ": |stored - reference| " << refDiff
                    << ", box " << box << ", A1' identity " << identity << ", min production " << minProd
-                   << ", conservation " << conservation << ", outside [0,1] " << outside << ", alpha + gamma - 1 "
+                   << ", conservation " << conservation << ", outside [0,1] " << outside << ", |alpha + gamma - 1| "
                    << sumBound << ", min alpha phi_c " << minPhi << ", max gamma " << maxGam);
       CHECK(finite);
       CHECK(refDiff < 1e-10);
@@ -4527,7 +4527,7 @@ void EdgeEntropyFCTCase() {
       CHECK(minProd >= 0.0);
       CHECK(conservation < 1e-12);
       CHECK(outside <= 0.0);
-      CHECK(sumBound <= 1e-12);  /*--- alpha + gamma <= 1 up to rounding (ROE_TECNO_PLAN.md 6.9, rev 4). ---*/
+      CHECK(sumBound <= 1e-12);  /*--- alpha + gamma = 1 on every entry up to rounding (S4d, ROE_TECNO_PLAN.md 6.10). ---*/
       CHECK(minPhi < 0.5);  /*--- The shock-like states activate the limiter. ---*/
       if (SU2_MPI::GetRank() == MASTER_NODE) WARN("EDGE_ENTROPY_FCT nDim " << nDim << " moved " << moved << " P1 "
                                                   << p1Average << ": min alpha phi_c " << minPhi << ", max gamma " << maxGam);

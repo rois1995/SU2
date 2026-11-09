@@ -1600,7 +1600,7 @@ FCTRefResult FCTReference(const Geometry& geometry, unsigned short nDim, const s
   for (auto& r : ed) {
     for (int f = 0; f < 4; ++f) {
       r.alpha[f] = std::min(r.rho[f], r.aown[f]);
-      r.gam[f] = r.valid[f] ? std::max(0.0, 1 - r.alpha[f] - (r.room[f] - r.alpha[f] * r.phic[f] * r.o[f]) / std::fabs(r.dy[f])) : 0.0;
+      r.gam[f] = 1 - r.alpha[f];  /*--- S4d (ROE_TECNO_PLAN.md 6.10): no zero term, valid and invalid entries. ---*/
     }
   }
   return res;

@@ -881,7 +881,7 @@ enum class TECNO_ADJ_LIMITER {
   NONE,            /*!< \brief No per-edge limiter (default; the nodal EDGE_FORM_TECNO_ADJOINT_LIMITER is separate). */
   EDGE_ENTROPY_VA, /*!< \brief Van Albada algebra per edge end and characteristic entropy field, unclipped. */
   EDGE_ENTROPY_TVD, /*!< \brief Frozen-field TVD box on the full AD flux with a smooth node factor, frozen after LIMITER_ITER. */
-  EDGE_ENTROPY_FCT, /*!< \brief Two-node LED box and convex (linear FCT) blend of the A1 terms R(phi_c), R(0) and 0, frozen after LIMITER_ITER. */
+  EDGE_ENTROPY_FCT, /*!< \brief Two-node LED box and convex (linear FCT) blend of the A1 terms R(phi_c) and R(0) (no zero term), frozen after LIMITER_ITER. */
 };
 static const MapType<std::string, TECNO_ADJ_LIMITER> TeCNO_Adj_Limiter_Map = {
   MakePair("NONE", TECNO_ADJ_LIMITER::NONE)

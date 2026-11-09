@@ -851,7 +851,8 @@ FORCEINLINE void tecnoAdjointFCTIngredients(const CRoeVariables<nDim>& avg, cons
  *        block): per field (the shear block one value) with the ramp on the weights, alpha_r = ramp alpha,
  *        gamma_r = 1 - ramp (1 - gamma), l_c = dy - phi_c (s_i + s_k)/2, the Delta part q = R c(alpha_r l_c + gamma_r dy)
  *        and the moment of both ends q_m = R c(alpha_r phi_c l_c), c the amplitudes (kappa = 0, transpose coefficient
- *        GradientCoefficient(1, 0)). Then sum_m w_m.R_m = sum_e sum_f D (alpha_r l_c^2 + gamma_r dy^2) >= 0 (A1').
+ *        GradientCoefficient(1, 0)). Then sum_m w_m.R_m = sum_e sum_f D (alpha_r l_c^2 + gamma_r dy^2) >= 0 (A1'); the stored
+ *        gamma is 1 - alpha (S4d), so alpha_r + gamma_r = 1 for every ramp.
  * \param[in] fct - phi_c, alpha, gamma of M, 0, S, P (TeCNOAdjoint::FCT_PHIC, FCT_ALPHA, FCT_GAMMA), local orientation.
  * \param[out] yL, yD - Optional, l_c and dy: (M, 0, P, then the nDim shear components).
  */

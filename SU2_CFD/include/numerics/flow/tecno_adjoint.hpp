@@ -1276,12 +1276,13 @@ void JumpRowEnds(const Geometry& geometry, unsigned short nDim, unsigned short n
  *      of their dot products (rev 4, FCTPair); Pm_e = sum over both ends of max(0, c) (valid observers),
  *      R_e = min(1, cap/Pm_e), room = max(0, cap - R_e Pm_e), a_e = min(1, room/(phi_c o)) (valid, phi_c o > 0) else 1;
  *  (4) rho_e' = min of R_e over the valid observers with c > 0 (1 if none), alpha = min(rho, a_e),
- *      gamma = max(0, 1 - alpha - (room - alpha phi_c o)/|dy|) (valid) else 0.
+ *      gamma = 1 - alpha on every entry (S4d, ROE_TECNO_PLAN.md 6.10; S4c had the zero term
+ *      gamma = max(0, 1 - alpha - (room - alpha phi_c o)/|dy|), which leaves central edge fields at vetoed entries).
  * Residual (tecnoAdjointEdgeFCT): Delta part D (alpha_r l_c + gamma_r dy), moment alpha_r phi_c D l_c at both ends,
  * l_c = dy - phi_c sigma, (alpha_r, gamma_r) = (r alpha, 1 - r (1 - gamma)) with the MUSCL ramp r, transpose coefficient
  * GradientCoefficient(1, 0): sum_m w_m.R_m = sum_e sum_f D (alpha_r l_c^2 + gamma_r dy^2) >= 0 for any values (A1');
- * frozen field: S_e = sg (alpha phi_c sigma + (1 - alpha - gamma) dy) + sum_pairs alpha_e' c <= cap_e (box), also for
- * every ramp (S scales with r). MPI: A (1) needs the star and the ball of a, the halves of Pm and rho (3, 4) all edges of
+ * frozen field: S_e = sg alpha phi_c sigma + sum_pairs alpha_e' c <= cap_e (box), also for every ramp (S scales with r);
+ * frozen edge-field form D (alpha l_c^2 + (1 - alpha) dy^2) >= D (dy - alpha phi_c sigma)^2 (convexity). MPI: A (1) needs the star and the ball of a, the halves of Pm and rho (3, 4) all edges of
  * a; they are computed by the owner of a for each edge of a and copied to the cut edges of the other ranks through the
  * star slots (FCTSetup: position of the global index of the other end in the sorted global neighbour list of a). Every
  * local edge then has the serial values. ---*/
@@ -1795,7 +1796,7 @@ void FCTObserverMin(const Geometry& geometry, unsigned short nDim, const WeightT
 }
 
 /*!
- * \brief Pass (6) on every local edge: alpha and gamma, stored with phi_c in the local layout (FCT_PHIC, FCT_ALPHA,
+ * \brief Pass (6) on every local edge: alpha and gamma = 1 - alpha (S4d), stored with phi_c in the local layout (FCT_PHIC, FCT_ALPHA,
  *        FCT_GAMMA + local field).
  */
 template <class Geometry, class StoreType, class PhiType>
@@ -1805,24 +1806,13 @@ void FCTFinal(const Geometry& geometry, unsigned short nDim, const StoreType& in
   for (unsigned long iEdge = 0; iEdge < geometry.GetnEdge(); ++iEdge) {
     const bool flip = TVDFlip(geometry, nDim, iEdge);
     for (unsigned short f = 0; f < TVD_NFIELD; ++f) {
-      const bool valid = (ed(iEdge, FCT_E_VALID + f) != 0.0);
       const su2double phic = ed(iEdge, FCT_E_PHIC + f);
       const su2double r = fmin(rho(iEdge, f), rho(iEdge, 4 + f));
       const su2double alpha = fmin(r, ed(iEdge, FCT_E_AOWN + f));
-      su2double gam = 0.0;
-      if (valid) {
-        /*--- |dy| of the canonical field (invariant under the orientation). ---*/
-        su2double ady = 0.0;
-        if (f == 2) {
-          for (unsigned short iDim = 0; iDim < nDim; ++iDim) ady += pow(ing(iEdge, TVD_SHEAR + iDim), 2);
-          ady = sqrt(ady);
-        } else {
-          const unsigned short fl = TVDLocalField(f, flip);
-          ady = fabs(ing(iEdge, TVD_DY + ((fl == 3) ? 2 : fl)));
-        }
-        const su2double left = ed(iEdge, FCT_E_ROOM + f) - alpha * phic * ed(iEdge, FCT_E_O + f);
-        gam = fmax(su2double(0.0), 1.0 - alpha - left / ady);
-      }
+      /*--- S4d (ROE_TECNO_PLAN.md 6.10): gamma = 1 - alpha on every entry (no zero term), so that the frozen edge-field
+       * form D (alpha l_c^2 + (1 - alpha) dy^2) >= D (dy - alpha phi_c sigma)^2 dominates the A1 form of Phi_e = alpha
+       * phi_c; the room the veto leaves unused stays unused. ---*/
+      const su2double gam = 1.0 - alpha;
       const unsigned short fl = TVDLocalField(f, flip);
       store(iEdge, FCT_PHIC + fl) = phic;
       store(iEdge, FCT_ALPHA + fl) = alpha;

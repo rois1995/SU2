@@ -244,7 +244,7 @@ protected:
     auto& edgeQ = solution.TeCNOAdjEdgeQ;
     if (tecnoAdjFCT) {
       /*--- EDGE_ENTROPY_FCT: phi_c, alpha, gamma from the store of CEulerSolver::TeCNOAdjointTVDLimiter (frozen after
-       * LIMITER_ITER), the convex blend of R(phi_c), R(0) and 0 with the ramp on the weights (tecnoAdjointEdgeFCT); the
+       * LIMITER_ITER), the convex blend of R(phi_c) and R(0) (gamma = 1 - alpha, S4d) with the ramp on the weights (tecnoAdjointEdgeFCT); the
        * same moment at both ends. ---*/
       VectorDbl<nVar> p_i, p_j, q, q_m;
       for (size_t iVar = 0; iVar < nVar; ++iVar) {
