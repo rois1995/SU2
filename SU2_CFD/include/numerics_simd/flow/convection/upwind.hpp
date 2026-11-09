@@ -104,6 +104,7 @@ protected:
   const bool tecnoAdjVA;          /*!< \brief TECNO_ADJOINT_LIMITER= EDGE_ENTROPY_VA (extended instances only). */
   const bool tecnoAdjFR;          /*!< \brief TECNO_ADJOINT_JACOBIAN= FIRST_RING or FIRST_RING_JUMPS (extended instances only). */
   const bool tecnoAdjTVD;         /*!< \brief TECNO_ADJOINT_LIMITER= EDGE_ENTROPY_TVD (extended instances only). */
+  const bool tecnoAdjFCT;         /*!< \brief TECNO_ADJOINT_LIMITER= EDGE_ENTROPY_FCT (extended instances only). */
 
   /*!
    * \brief Constructor, store some constants and forward args to base.
@@ -141,7 +142,8 @@ protected:
     tkeVars(config.GetKind_Turb_Model() == TURB_MODEL::SST ? findTurbVars(args...) : nullptr),
     tecnoAdjVA(tecnoAdj && config.GetKind_TeCNO_Adj_Limiter() == TECNO_ADJ_LIMITER::EDGE_ENTROPY_VA),
     tecnoAdjFR(tecnoAdj && config.GetKind_TeCNO_Adj_Jacobian() != TECNO_ADJ_JACOBIAN::ROE1),
-    tecnoAdjTVD(tecnoAdj && config.GetKind_TeCNO_Adj_Limiter() == TECNO_ADJ_LIMITER::EDGE_ENTROPY_TVD) {
+    tecnoAdjTVD(tecnoAdj && config.GetKind_TeCNO_Adj_Limiter() == TECNO_ADJ_LIMITER::EDGE_ENTROPY_TVD),
+    tecnoAdjFCT(tecnoAdj && config.GetKind_TeCNO_Adj_Limiter() == TECNO_ADJ_LIMITER::EDGE_ENTROPY_FCT) {
   }
 
   /*!
@@ -205,13 +207,17 @@ protected:
       }
     }
     constexpr size_t width = TeCNOAdjoint::TVD_SHEAR + 3 * nDim;
-    Double out[width];
+    constexpr size_t widthFCT = width + 8 + 2 * nDim;
+    Double out[widthFCT];
     tecnoAdjointTVDIngredients(Double(gamma), avg, rUnitNormal, lamM, lam0, lamP, scale, dw, p_i, p_j, V1st.i, V1st.j,
                                out);
+    /*--- EDGE_ENTROPY_FCT: speeds and the projection data of the edge (TeCNOAdjoint::FCTWidth columns). ---*/
+    if (tecnoAdjFCT) tecnoAdjointFCTIngredients(avg, rUnitNormal, lamM, lam0, lamP, out + width);
+    const size_t used = tecnoAdjFCT ? widthFCT : width;
     auto& store = solution.TeCNOAdjEdgeTVD;
     for (size_t k = 0; k < Double::Size; ++k) {
       if (updateMask[k] == 0.0) continue;
-      for (size_t col = 0; col < width; ++col) store(iEdge[k], col) = out[col][k];
+      for (size_t col = 0; col < used; ++col) store(iEdge[k], col) = out[col][k];
     }
   }
 
@@ -236,7 +242,32 @@ protected:
                        const Double& phi_i, const Double& phi_j) const {
     const su2double coefDelta = 1.0 - umusclRamp * umusclKappa;
     auto& edgeQ = solution.TeCNOAdjEdgeQ;
-    if (tecnoAdjTVD) {
+    if (tecnoAdjFCT) {
+      /*--- EDGE_ENTROPY_FCT: phi_c, alpha, gamma from the store of CEulerSolver::TeCNOAdjointTVDLimiter (frozen after
+       * LIMITER_ITER), the convex blend of R(phi_c), R(0) and 0 with the ramp on the weights (tecnoAdjointEdgeFCT); the
+       * same moment at both ends. ---*/
+      VectorDbl<nVar> p_i, p_j, q, q_m;
+      for (size_t iVar = 0; iVar < nVar; ++iVar) {
+        p_i(iVar) = 0.0;
+        p_j(iVar) = 0.0;
+        for (size_t iDim = 0; iDim < nDim; ++iDim) {
+          p_i(iVar) += gradW_i(iVar, iDim) * vector_ij(iDim);
+          p_j(iVar) += gradW_j(iVar, iDim) * vector_ij(iDim);
+        }
+      }
+      const auto fctStore = gatherVariables<TeCNOAdjoint::FCT_STORE_WIDTH>(iEdge, solution.TeCNOAdjEdgePhi);
+      Double fct[TeCNOAdjoint::FCT_STORE_WIDTH];
+      for (size_t k = 0; k < TeCNOAdjoint::FCT_STORE_WIDTH; ++k) fct[k] = fctStore(k);
+      tecnoAdjointEdgeFCT(gamma, avg, unitNormal, lamM, lam0, lamP, scale, dw, p_i, p_j, umusclRamp, fct, q, q_m);
+      for (size_t iVar = 0; iVar < nVar; ++iVar) flux(iVar) -= q(iVar);
+      for (size_t k = 0; k < Double::Size; ++k) {
+        if (updateMask[k] == 0.0) continue;
+        for (size_t iVar = 0; iVar < nVar; ++iVar) {
+          edgeQ(iEdge[k], iVar) = q_m(iVar)[k];
+          edgeQ(iEdge[k], nVar + iVar) = q_m(iVar)[k];
+        }
+      }
+    } else if (tecnoAdjTVD) {
       /*--- EDGE_ENTROPY_TVD: Phi of both ends from the store of CEulerSolver::TeCNOAdjointTVDLimiter (frozen after
        * LIMITER_ITER), the S2 algebra with these values (tecnoAdjointEdgePhi). ---*/
       VectorDbl<nVar> p_i, p_j, q, q_i, q_j;

@@ -1300,4 +1300,499 @@ void TVDHaloCopy(const Geometry& geometry, su2activematrix& data) {
   }
 }
 
+/*--- TECNO_ADJOINT_LIMITER= EDGE_ENTROPY_FCT (ROE_TECNO_PLAN.md 6.9): the passes of TeCNOAdjoint on a geometry (the
+ * kernel's ingredient functions, FCTSetupRows/Finish, FCTPasses), an independent reference of the model-8 formulas
+ * (explicit eigenvectors, brute-force upwind elements, global pair lists), the frozen-field box of the final values,
+ * Theorem A1' with the stored values and FIRST_RING_JUMPS with the stored phi_c. ---*/
+
+/*!
+ * \brief Ingredients with the FCT columns of every local edge from w, its gradient and the frozen edge states.
+ */
+template <size_t nDim, class Geometry>
+su2activematrix FCTIngredientsOf(const Geometry& geometry, const su2activematrix& w, const CVectorOfMatrix& grad,
+                                 const std::vector<TVDEdgeState<nDim>>& es) {
+  const auto tvd = TVDIngredientsOf<nDim>(geometry, w, grad, es);
+  const unsigned short width = TeCNOAdjoint::FCTWidth(nDim), X = TeCNOAdjoint::TVDWidth(nDim);
+  su2activematrix ing(geometry.GetnEdge(), width);
+  for (auto e = 0ul; e < geometry.GetnEdge(); ++e) {
+    for (unsigned short c = 0; c < X; ++c) ing(e, c) = tvd(e, c);
+    const auto& st = es[e];
+    Double out[8 + 2 * 3];
+    tecnoAdjointFCTIngredients(st.avg, st.unit, st.lamM, st.lam0, st.lamP, out);
+    for (unsigned short c = 0; c < width - X; ++c) ing(e, X + c) = out[c][0];
+  }
+  return ing;
+}
+
+struct FCTData {
+  su2activematrix ing, store;
+  TeCNOAdjoint::FCTSetup setup;
+  TeCNOAdjoint::FCTWork work;
+};
+
+/*!
+ * \brief Setup (rows copied to the halos by haloCopy) and the passes on given ingredients and entropy variables.
+ */
+template <class Geometry, class WeightType, class VolumeType, class HaloCopy>
+void FCTRun(const Geometry& geometry, unsigned short nDim, const WeightType& weights, const VolumeType& volume,
+            const su2activematrix& W, FCTData& d, HaloCopy&& haloCopy) {
+  su2activematrix rows;
+  TeCNOAdjoint::FCTSetupRows(geometry, d.setup, rows);
+  haloCopy(rows);
+  TeCNOAdjoint::FCTSetupFinish(geometry, nDim, rows, d.setup);
+  TeCNOAdjoint::FCTWorkResize(geometry, d.setup, d.work);
+  d.store.resize(geometry.GetnEdge(), TeCNOAdjoint::FCT_STORE_WIDTH);
+  d.store = su2double(-1.0);
+  TeCNOAdjoint::FCTPasses(geometry, nDim, weights, volume, d.setup, d.ing, W, d.work, d.store, haloCopy);
+}
+
+/*--- Independent reference (serial): canonical edge data from the coordinates and the ingredient columns. ---*/
+struct FCTRefEdge {
+  unsigned long n[2] = {0, 0};
+  bool flip = false;
+  double e[3] = {0, 0, 0}, dy[4] = {0}, s[2][4] = {{0}}, D[4] = {0}, d[4] = {0}, lam[4] = {0}, lamFix[4] = {0};
+  double dyS[3] = {0}, sS[2][3] = {{0}}, t[3] = {0}, c = 0, H = 0, u[3] = {0}, nrm[3] = {0};
+  /*--- Results: A of the canonical ends, valid, cap, o, sigma, phi_c, M_c, the shear moment, Pm, R, room, a_e, rho,
+   * alpha, gamma. ---*/
+  double A[2][4] = {{0}}, cap[4] = {0}, o[4] = {0}, sigma[4] = {0}, phic[4] = {0}, Mc[4] = {0}, Mv[3] = {0};
+  double Pm[4] = {0}, R[4] = {0}, room[4] = {0}, aown[4] = {0}, rho[4] = {1, 1, 1, 1}, alpha[4] = {0}, gam[4] = {0};
+  bool valid[4] = {false, false, false, false};
+};
+
+struct FCTRefResult {
+  std::vector<FCTRefEdge> ed;
+  std::vector<std::vector<std::pair<unsigned long, int>>> at;  /*!< \brief (edge, canonical end) at each node. */
+  std::vector<std::vector<std::array<double, 3>>> g;           /*!< \brief Gradient weight of the other end, same order. */
+};
+
+/*!
+ * \brief Characteristic values of z in the canonical fields of the edge from the explicit eigenvectors
+ *        r_M = (1, u - c n, H - u.n c), r_0 = (1, u, |u|^2/2), r_P = (1, u + c n, H + u.n c), r_t = (0, t, u.t).
+ */
+inline void FCTRefProject(unsigned short nDim, const FCTRefEdge& r, const double* z, double* y) {
+  double un = 0, q2 = 0;
+  for (unsigned short d = 0; d < nDim; ++d) {
+    un += r.u[d] * r.nrm[d];
+    q2 += r.u[d] * r.u[d];
+  }
+  double rM[5], r0[5], rP[5], rt[5];
+  rM[0] = r0[0] = rP[0] = 1.0;
+  rt[0] = 0.0;
+  for (unsigned short d = 0; d < nDim; ++d) {
+    rM[1 + d] = r.u[d] - r.c * r.nrm[d];
+    r0[1 + d] = r.u[d];
+    rP[1 + d] = r.u[d] + r.c * r.nrm[d];
+    rt[1 + d] = r.t[d];
+  }
+  double ut = 0;
+  for (unsigned short d = 0; d < nDim; ++d) ut += r.u[d] * r.t[d];
+  rM[nDim + 1] = r.H - un * r.c;
+  r0[nDim + 1] = 0.5 * q2;
+  rP[nDim + 1] = r.H + un * r.c;
+  rt[nDim + 1] = ut;
+  double yM = 0, y0 = 0, yP = 0, yt = 0;
+  for (unsigned short v = 0; v < nDim + 2; ++v) {
+    yM += rM[v] * z[v];
+    y0 += r0[v] * z[v];
+    yP += rP[v] * z[v];
+    yt += rt[v] * z[v];
+  }
+  y[0] = r.flip ? yP : yM;
+  y[1] = y0;
+  y[2] = yt;
+  y[3] = r.flip ? yM : yP;
+}
+
+/*!
+ * \brief The model-8 limiter on a serial geometry: everything from global lists (adjacency, all elements of the mesh
+ *        containing the end, Eigen inverses), in the canonical orientation of TVDRefEdges.
+ */
+template <class Geometry, class WeightType, class VolumeType>
+FCTRefResult FCTReference(const Geometry& geometry, unsigned short nDim, const su2activematrix& ing,
+                          const su2activematrix& W, const WeightType& weights, const VolumeType& volume) {
+  namespace ta = TeCNOAdjoint;
+  FCTRefResult res;
+  auto& ed = res.ed;
+  const auto nP = geometry.GetnPoint(), nE = geometry.GetnEdge();
+  const unsigned short nVar = nDim + 2, X = ta::TVDWidth(nDim);
+  ed.resize(nE);
+  for (unsigned long e = 0; e < nE; ++e) {
+    auto& r = ed[e];
+    const unsigned long a = geometry.edges->GetNode(e, 0), b = geometry.edges->GetNode(e, 1);
+    std::array<double, 3> xa = {0, 0, 0}, xb = {0, 0, 0};
+    for (unsigned short d = 0; d < nDim; ++d) {
+      xa[d] = geometry.nodes->GetCoord(a)[d];
+      xb[d] = geometry.nodes->GetCoord(b)[d];
+    }
+    r.flip = std::lexicographical_compare(xb.begin(), xb.begin() + nDim, xa.begin(), xa.begin() + nDim);
+    r.n[0] = r.flip ? b : a;
+    r.n[1] = r.flip ? a : b;
+    for (unsigned short d = 0; d < nDim; ++d) r.e[d] = geometry.nodes->GetCoord(r.n[1])[d] - geometry.nodes->GetCoord(r.n[0])[d];
+    const double sg = r.flip ? -1.0 : 1.0;
+    const int scalarCol[4] = {r.flip ? 2 : 0, 1, -1, r.flip ? 0 : 2};
+    const int dCol[4] = {r.flip ? 2 : 0, 1, 3, r.flip ? 0 : 2};
+    const int lamCol[4] = {r.flip ? 2 : 0, 1, 1, r.flip ? 0 : 2};
+    for (int f = 0; f < 4; ++f) {
+      r.D[f] = ing(e, ta::TVD_D + dCol[f]);
+      r.d[f] = ing(e, ta::TVD_GUARD + ((f == 2) ? 1 : 0));
+      r.lam[f] = sg * ing(e, X + ta::FCT_LAM + lamCol[f]);
+      r.lamFix[f] = ing(e, X + ta::FCT_LAMFIX + lamCol[f]);
+      if (f == 2) continue;
+      r.dy[f] = sg * ing(e, ta::TVD_DY + scalarCol[f]);
+      r.s[0][f] = sg * ing(e, (r.flip ? ta::TVD_S1 : ta::TVD_S0) + scalarCol[f]);
+      r.s[1][f] = sg * ing(e, (r.flip ? ta::TVD_S0 : ta::TVD_S1) + scalarCol[f]);
+    }
+    double n2 = 0;
+    for (unsigned short d = 0; d < nDim; ++d) {
+      r.dyS[d] = sg * ing(e, ta::TVD_SHEAR + d);
+      r.sS[0][d] = sg * ing(e, ta::TVD_SHEAR + (r.flip ? 2 : 1) * nDim + d);
+      r.sS[1][d] = sg * ing(e, ta::TVD_SHEAR + (r.flip ? 1 : 2) * nDim + d);
+      n2 += r.dyS[d] * r.dyS[d];
+    }
+    const double nn = std::sqrt(n2);
+    r.dy[2] = nn;
+    for (unsigned short d = 0; d < nDim; ++d) r.t[d] = (nn > 0) ? r.dyS[d] / nn : 0.0;
+    for (int x = 0; x < 2; ++x) {
+      r.s[x][2] = 0;
+      for (unsigned short d = 0; d < nDim; ++d) r.s[x][2] += r.sS[x][d] * r.t[d];
+    }
+    r.c = ing(e, X + ta::FCT_SOUND);
+    r.H = ing(e, X + ta::FCT_ENTHALPY);
+    for (unsigned short d = 0; d < nDim; ++d) {
+      r.u[d] = ing(e, X + ta::FCT_VEL + d);
+      r.nrm[d] = ing(e, X + ta::FCT_VEL + nDim + d);
+    }
+  }
+  /*--- Adjacency (from the edge list), degrees, gradient weights of the pairs. ---*/
+  res.at.assign(nP, {});
+  res.g.assign(nP, {});
+  std::vector<std::vector<unsigned long>> nbr(nP);
+  for (unsigned long e = 0; e < nE; ++e) {
+    for (int x = 0; x < 2; ++x) {
+      const auto a = ed[e].n[x];
+      res.at[a].push_back({e, x});
+      nbr[a].push_back(ed[e].n[1 - x]);
+      const unsigned short lend = (geometry.edges->GetNode(e, 0) == a) ? 0 : 1;
+      std::array<double, 3> gg = {0, 0, 0};
+      for (unsigned short d = 0; d < nDim; ++d) gg[d] = weights(e, lend * nDim + d) / volume(a);
+      res.g[a].push_back(gg);
+    }
+  }
+  /*--- (1) A of every canonical end. ---*/
+  for (unsigned long e = 0; e < nE; ++e) {
+    auto& r = ed[e];
+    for (int x = 0; x < 2; ++x) {
+      const auto a = r.n[x];
+      const double sx = (x == 0) ? 1.0 : -1.0;
+      double sgn[4], beta[4] = {0, 0, 0, 0}, z[5], y[4];
+      for (int f = 0; f < 4; ++f) sgn[f] = (r.dy[f] >= 0) ? 1.0 : -1.0;
+      for (auto v : nbr[a]) {
+        for (unsigned short k = 0; k < nVar; ++k) z[k] = sx * (W(a, k) - W(v, k));
+        FCTRefProject(nDim, r, z, y);
+        for (int f = 0; f < 4; ++f) beta[f] = std::max(beta[f], sgn[f] * y[f]);
+      }
+      /*--- Upwind element: all elements of the mesh with the node a, direction x_a - x_other. ---*/
+      double dir[3] = {0, 0, 0}, best = -1e300, bestMu[3] = {0, 0, 0};
+      unsigned long bestV[3] = {0, 0, 0};
+      for (unsigned short d = 0; d < nDim; ++d) dir[d] = geometry.nodes->GetCoord(a)[d] - geometry.nodes->GetCoord(r.n[1 - x])[d];
+      for (unsigned long iElem = 0; iElem < geometry.GetnElem(); ++iElem) {
+        const auto* el = geometry.elem[iElem];
+        bool has = false;
+        for (unsigned short k = 0; k < el->GetnNodes(); ++k) has = has || (el->GetNode(k) == a);
+        if (!has) continue;
+        Eigen::MatrixXd M(nDim, nDim);
+        unsigned long vv[3] = {0, 0, 0};
+        int c = 0;
+        for (unsigned short k = 0; k < el->GetnNodes(); ++k) {
+          const auto p = el->GetNode(k);
+          if (p == a) continue;
+          vv[c] = p;
+          for (unsigned short d = 0; d < nDim; ++d) M(d, c) = geometry.nodes->GetCoord(p)[d] - geometry.nodes->GetCoord(a)[d];
+          ++c;
+        }
+        Eigen::VectorXd rhs(nDim);
+        for (unsigned short d = 0; d < nDim; ++d) rhs(d) = dir[d];
+        const Eigen::VectorXd mu = M.inverse() * rhs;
+        const double score = mu.minCoeff() / std::max(mu.cwiseAbs().sum(), 1e-300);
+        if (score > best) {
+          best = score;
+          for (int k = 0; k < c; ++k) {
+            bestMu[k] = mu(k);
+            bestV[k] = vv[k];
+          }
+        }
+      }
+      double ub[4];
+      if (best >= -1e-10) {
+        for (unsigned short k = 0; k < nVar; ++k) {
+          z[k] = 0;
+          for (unsigned short m = 0; m < nDim; ++m) z[k] += bestMu[m] * sx * (W(a, k) - W(bestV[m], k));
+        }
+        FCTRefProject(nDim, r, z, y);
+        for (int f = 0; f < 4; ++f) ub[f] = sgn[f] * y[f];
+      } else {
+        for (int f = 0; f < 4; ++f) ub[f] = sgn[f] * (2 * r.s[x][f] - r.dy[f]);
+      }
+      for (int f = 0; f < 4; ++f) {
+        const double ratio = (r.lamFix[f] > 0) ? r.lam[f] / r.lamFix[f] : 0.0;
+        r.A[x][f] = std::max(std::max(beta[f], ub[f]), 0.5 * (1 - sx * ratio) * std::fabs(r.dy[f]));
+      }
+    }
+    /*--- (2) Own values. ---*/
+    const double nmax = double(std::max(nbr[r.n[0]].size(), nbr[r.n[1]].size()));
+    for (int f = 0; f < 4; ++f) {
+      const double delta = (nmax + 2) * r.d[f];
+      r.valid[f] = (std::fabs(r.dy[f]) > delta) && (r.D[f] > 0);
+      const double sgn = (r.dy[f] >= 0) ? 1.0 : -1.0;
+      const double B = 2 * sgn * std::min(r.A[0][f], r.A[1][f]);
+      r.cap[f] = std::fabs(B) + delta;
+      r.sigma[f] = 0.5 * (r.s[0][f] + r.s[1][f]);
+      r.o[f] = sgn * r.sigma[f];
+      r.phic[f] = (r.valid[f] && r.o[f] > 0) ? std::min(1.0, r.cap[f] / r.o[f]) : 1.0;
+      r.Mc[f] = r.phic[f] * r.D[f] * (r.dy[f] - r.phic[f] * r.sigma[f]);
+    }
+    for (unsigned short d = 0; d < nDim; ++d)
+      r.Mv[d] = r.phic[2] * r.D[2] * (r.dyS[d] - r.phic[2] * 0.5 * (r.sS[0][d] + r.sS[1][d]));
+  }
+  /*--- (3) Pairs at every node: c of the contributor k seen by the observer h. ---*/
+  auto pairC = [&](unsigned long a, size_t h, size_t k, int f) {
+    const auto& rh = ed[res.at[a][h].first];
+    const auto& rk = ed[res.at[a][k].first];
+    double pi = 0;
+    for (unsigned short d = 0; d < nDim; ++d) pi += res.g[a][h][d] * rk.e[d];
+    pi *= (res.at[a][h].second == 0) ? 1.0 : -1.0;
+    double m = rk.Mc[f];
+    if (f == 2) {
+      m = 0;
+      for (unsigned short d = 0; d < nDim; ++d) m += rh.t[d] * rk.Mv[d];
+    }
+    return 0.5 * ((rh.dy[f] >= 0) ? 1.0 : -1.0) * pi * m / rh.D[f];
+  };
+  for (unsigned long a = 0; a < nP; ++a)
+    for (size_t h = 0; h < res.at[a].size(); ++h)
+      for (int f = 0; f < 4; ++f)
+        if (ed[res.at[a][h].first].valid[f])
+          for (size_t k = 0; k < res.at[a].size(); ++k) ed[res.at[a][h].first].Pm[f] += std::max(0.0, pairC(a, h, k, f));
+  for (auto& r : ed) {
+    for (int f = 0; f < 4; ++f) {
+      r.R[f] = (r.valid[f] && r.Pm[f] > r.cap[f]) ? r.cap[f] / r.Pm[f] : 1.0;
+      r.room[f] = std::max(0.0, r.cap[f] - r.R[f] * r.Pm[f]);
+      const double den = r.phic[f] * r.o[f];
+      r.aown[f] = (r.valid[f] && den > 0) ? std::min(1.0, r.room[f] / den) : 1.0;
+    }
+  }
+  /*--- (4) Observer minima and the final values. ---*/
+  for (unsigned long a = 0; a < nP; ++a)
+    for (size_t k = 0; k < res.at[a].size(); ++k)
+      for (int f = 0; f < 4; ++f)
+        for (size_t h = 0; h < res.at[a].size(); ++h)
+          if (ed[res.at[a][h].first].valid[f] && (pairC(a, h, k, f) > 0))
+            ed[res.at[a][k].first].rho[f] = std::min(ed[res.at[a][k].first].rho[f], ed[res.at[a][h].first].R[f]);
+  for (auto& r : ed) {
+    for (int f = 0; f < 4; ++f) {
+      r.alpha[f] = std::min(r.rho[f], r.aown[f]);
+      r.gam[f] = r.valid[f] ? std::max(0.0, 1 - r.alpha[f] - (r.room[f] - r.alpha[f] * r.phic[f] * r.o[f]) / std::fabs(r.dy[f])) : 0.0;
+    }
+  }
+  return res;
+}
+
+/*!
+ * \brief Canonical value (phi_c 0, alpha 1, gamma 2) of the stored local layout.
+ */
+inline double FCTStored(const su2activematrix& store, unsigned long e, bool flip, int which, int f) {
+  const int fl = flip ? ((f == 0) ? 3 : ((f == 3) ? 0 : f)) : f;
+  return store(e, 4 * which + fl);
+}
+
+/*!
+ * \brief Largest relative excess of the frozen-field box by the stored values at the ramp r over the valid entries:
+ *        S_e = r [sg (alpha phi_c sigma + (1 - alpha - gamma) dy) + sum_pairs alpha_e' c] <= cap_e (the reference data
+ *        of the pairs), and the largest |stored - reference|.
+ */
+inline double FCTBoxViolation(const FCTRefResult& ref, unsigned short nDim, const su2activematrix& store, double ramp) {
+  const auto& ed = ref.ed;
+  std::vector<std::array<double, 4>> S(ed.size(), {0, 0, 0, 0}), size(ed.size(), {0, 0, 0, 0});
+  for (unsigned long a = 0; a < ref.at.size(); ++a) {
+    for (size_t h = 0; h < ref.at[a].size(); ++h) {
+      const auto eh = ref.at[a][h].first;
+      const auto& rh = ed[eh];
+      for (int f = 0; f < 4; ++f) {
+        if (!rh.valid[f]) continue;
+        for (size_t k = 0; k < ref.at[a].size(); ++k) {
+          const auto ek = ref.at[a][k].first;
+          const auto& rk = ed[ek];
+          double pi = 0;
+          for (unsigned short d = 0; d < nDim; ++d) pi += ref.g[a][h][d] * rk.e[d];
+          pi *= (ref.at[a][h].second == 0) ? 1.0 : -1.0;
+          /*--- M_c of the contributor with its stored phi_c. ---*/
+          const double pk = FCTStored(store, ek, rk.flip, 0, f);
+          double m = pk * rk.D[f] * (rk.dy[f] - pk * rk.sigma[f]);
+          if (f == 2) {
+            m = 0;
+            for (unsigned short d = 0; d < nDim; ++d)
+              m += rh.t[d] * pk * rk.D[2] * (rk.dyS[d] - pk * 0.5 * (rk.sS[0][d] + rk.sS[1][d]));
+          }
+          const double c = 0.5 * ((rh.dy[f] >= 0) ? 1.0 : -1.0) * pi * m / rh.D[f];
+          const double term = ramp * FCTStored(store, ek, rk.flip, 1, f) * c;
+          S[eh][f] += term;
+          size[eh][f] += std::fabs(term);
+        }
+      }
+    }
+  }
+  double worst = 0;
+  for (unsigned long e = 0; e < ed.size(); ++e) {
+    const auto& r = ed[e];
+    for (int f = 0; f < 4; ++f) {
+      if (!r.valid[f]) continue;
+      const double pc = FCTStored(store, e, r.flip, 0, f), al = ramp * FCTStored(store, e, r.flip, 1, f);
+      const double ga = 1.0 - ramp * (1.0 - FCTStored(store, e, r.flip, 2, f));
+      const double sgn = (r.dy[f] >= 0) ? 1.0 : -1.0;
+      const double own = sgn * (al * pc * r.sigma[f] + (1 - al - ga) * r.dy[f]);
+      const double tot = S[e][f] + own;
+      const double scale = r.cap[f] + std::fabs(r.dy[f]) + std::fabs(r.sigma[f]) + size[e][f];
+      worst = std::max(worst, std::max(0.0, tot - r.cap[f]) / scale);
+    }
+  }
+  return worst;
+}
+
+/*!
+ * \brief Adjoint dissipation residual with the stored values (local layout) and frozen edge states, any w:
+ *        tecnoAdjointEdgeFCT per edge, the Delta part scattered as the edge loop, NodalMomentEnds and the transpose with
+ *        GradientCoefficient(1, 0). Returns R and sum_e sum_f D (alpha_r l_c^2 + gamma_r dy^2) from the ingredients' D.
+ */
+template <size_t nDim, class Geometry>
+su2activematrix FCTResidual(const Geometry& geometry, const std::vector<TVDEdgeState<nDim>>& es,
+                            const su2activematrix& store, const su2activematrix& w, double ramp, const P1Average* p1,
+                            const su2activematrix* ing, double& sumProd) {
+  constexpr size_t nVar = nDim + 2;
+  const auto nPoint = w.rows();
+  const auto grad = TVDGradientOf<nDim>(geometry, w, p1);
+  su2activematrix Q(geometry.GetnEdge(), 2 * nVar), R(nPoint, nVar);
+  R = su2double(0.0);
+  sumProd = 0.0;
+  for (auto e = 0ul; e < geometry.GetnEdge(); ++e) {
+    const auto i = geometry.edges->GetNode(e, 0), k = geometry.edges->GetNode(e, 1);
+    VectorDbl<nVar> dw, p_i, p_k, q, q_m;
+    for (size_t v = 0; v < nVar; ++v) {
+      dw(v) = w(k, v) - w(i, v);
+      p_i(v) = 0.0;
+      p_k(v) = 0.0;
+      for (size_t d = 0; d < nDim; ++d) {
+        const double ed = geometry.nodes->GetCoord(k)[d] - geometry.nodes->GetCoord(i)[d];
+        p_i(v) += grad(i, v, d) * ed;
+        p_k(v) += grad(k, v, d) * ed;
+      }
+    }
+    Double fct[12], yL[nDim + 3], yD[nDim + 3];
+    for (int c = 0; c < 12; ++c) fct[c] = store(e, c);
+    const auto& st = es[e];
+    tecnoAdjointEdgeFCT(Double(GAMMA), st.avg, st.unit, st.lamM, st.lam0, st.lamP, st.scale, dw, p_i, p_k, ramp, fct, q,
+                        q_m, yL, yD);
+    if (ing) {
+      namespace ta = TeCNOAdjoint;
+      const auto& g = *ing;
+      /*--- Local fields M (0), 0 (1), P (2), shear (3 + d) of yL/yD; store fields M 0, 0 1, S 2, P 3. ---*/
+      const int sf[3] = {0, 1, 3};
+      for (int j = 0; j < 3; ++j) {
+        const double ar = ramp * store(e, ta::FCT_ALPHA + sf[j]), gr = 1.0 - ramp * (1.0 - store(e, ta::FCT_GAMMA + sf[j]));
+        sumProd += g(e, ta::TVD_D + j) * (ar * yL[j][0] * yL[j][0] + gr * yD[j][0] * yD[j][0]);
+      }
+      const double ar = ramp * store(e, ta::FCT_ALPHA + 2), gr = 1.0 - ramp * (1.0 - store(e, ta::FCT_GAMMA + 2));
+      for (size_t d = 0; d < nDim; ++d)
+        sumProd += g(e, ta::TVD_D + 3) * (ar * yL[3 + d][0] * yL[3 + d][0] + gr * yD[3 + d][0] * yD[3 + d][0]);
+    }
+    for (size_t v = 0; v < nVar; ++v) {
+      R(i, v) -= q(v)[0];
+      R(k, v) += q(v)[0];
+      Q(e, v) = q_m(v)[0];
+      Q(e, nVar + v) = q_m(v)[0];
+    }
+  }
+  CVectorOfMatrix Y(nPoint, nVar, nDim, 0.0);
+  const su2double gam = TeCNOAdjoint::GradientCoefficient(1.0, 0.0);
+  if (p1) {
+    TeCNOAdjoint::NodalMomentEnds(geometry, nDim, nVar, Q, p1->volume, Y);
+    TeCNOAdjoint::AddTransposeP1(geometry, nDim, nVar, p1->weights, Y, gam, R);
+  } else {
+    auto volume = [&](unsigned long iPoint) { return geometry.nodes->GetVolume(iPoint); };
+    TeCNOAdjoint::NodalMomentEnds(geometry, nDim, nVar, Q, volume, Y);
+    TeCNOAdjoint::AddTranspose(geometry, nDim, nVar, Y, gam, R);
+  }
+  return R;
+}
+
+/*!
+ * \brief FIRST_RING_JUMPS with the stored values: J from JumpNodal / JumpNodalQEndsFCT / JumpRowEndsFCT against the
+ *        frozen linear residual matrix K of FCTResidual (column by column, ramp r), lambda_min(J - K) >= 0, J 1 = 0,
+ *        J = J^T.
+ */
+template <size_t nDim, class Geometry>
+TVDJumpsResult FCTJumpsCheck(const Geometry& geometry, const std::vector<TVDEdgeState<nDim>>& es,
+                             const su2activematrix& store, double ramp, const P1Average* p1) {
+  constexpr size_t nVar = nDim + 2;
+  const auto nPoint = geometry.GetnPoint();
+  const auto nDof = nVar * nPoint;
+  TVDJumpsResult res;
+  Eigen::MatrixXd K(nDof, nDof);
+  for (auto col = 0ul; col < nDof; ++col) {
+    su2activematrix w(nPoint, nVar);
+    w = su2double(0.0);
+    w(col / nVar, col % nVar) = 1.0;
+    double dummy = 0.0;
+    const auto R = FCTResidual<nDim>(geometry, es, store, w, ramp, p1, nullptr, dummy);
+    for (auto i = 0ul; i < nPoint; ++i)
+      for (size_t v = 0; v < nVar; ++v) K(nVar * i + v, col) = R(i, v);
+  }
+  const Eigen::MatrixXd Ks = 0.5 * (K + K.transpose());
+  Eigen::SelfAdjointEigenSolver<Eigen::MatrixXd> eigK(Ks);
+  const double lamMax = std::max(eigK.eigenvalues().maxCoeff(), 1e-300);
+  const auto D = TVDFrozenD<nDim>(es);
+  auto check = [&](const auto& weights, const auto& volume) {
+    auto edgeW = [&](unsigned long e) {
+      su2double tr = 0.0;
+      for (size_t a = 0; a < nVar; ++a) tr += D(e, a * nVar + a);
+      return tr;
+    };
+    su2activematrix Sj(nPoint, 3 + 2 * nDim * nDim), Qj(nPoint, nVar * nVar);
+    TeCNOAdjoint::JumpNodal(geometry, nDim, weights, volume, edgeW, Sj);
+    TeCNOAdjoint::JumpNodalQEndsFCT(geometry, nDim, nVar, weights, Sj, store, D, Qj);
+    Eigen::MatrixXd J = Eigen::MatrixXd::Zero(nDof, nDof);
+    for (auto i = 0ul; i < nPoint; ++i) {
+      TeCNOAdjoint::Block diag;
+      TeCNOAdjoint::JumpRowEndsFCT(geometry, nDim, nVar, weights, Sj, Qj, D, store, i, diag,
+                                   [&](unsigned long k, const TeCNOAdjoint::Block& off) {
+        for (size_t a = 0; a < nVar; ++a)
+          for (size_t b = 0; b < nVar; ++b) J(nVar * i + a, nVar * k + b) += off(a, b);
+      });
+      for (size_t a = 0; a < nVar; ++a)
+        for (size_t b = 0; b < nVar; ++b) J(nVar * i + a, nVar * i + b) += diag(a, b);
+    }
+    res.finite = res.finite && J.allFinite() && K.allFinite();
+    res.asym = std::max(res.asym, (J - J.transpose()).norm() / J.norm());
+    for (auto i = 0ul; i < nPoint; ++i) {
+      for (size_t a = 0; a < nVar; ++a) {
+        for (size_t b = 0; b < nVar; ++b) {
+          double sum = 0.0;
+          for (auto k = 0ul; k < nPoint; ++k) sum += J(nVar * i + a, nVar * k + b);
+          res.rowSum = std::max(res.rowSum, std::fabs(sum) / J.norm());
+        }
+      }
+    }
+    const Eigen::MatrixXd Js = 0.5 * (J + J.transpose());
+    Eigen::SelfAdjointEigenSolver<Eigen::MatrixXd> eig(Js - Ks);
+    res.finite = res.finite && (eig.info() == Eigen::Success);
+    res.jumps = std::max(res.jumps, -eig.eigenvalues().minCoeff() / lamMax);
+  };
+  if (p1) {
+    check(p1->weights, p1->volume);
+  } else {
+    auto volume = [&](unsigned long i) { return geometry.nodes->GetVolume(i); };
+    check(TeCNOAdjoint::GreenGaussWeights<Geometry>{geometry, nDim}, volume);
+  }
+  return res;
+}
+
 }  // namespace TeCNOAdjointChecks

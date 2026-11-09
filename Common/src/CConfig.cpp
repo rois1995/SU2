@@ -1893,7 +1893,7 @@ void CConfig::SetConfig_Options() {
   addBoolOption("EDGE_FORM_TECNO_A4_JACOBIAN", Edge_Form_TeCNO_A4_Jacobian, false);
   /*!\brief TECNO_ADJOINT_GRADIENT \n DESCRIPTION: Gradient G of the entropy variables in the dissipation of EDGE_FORM_TECNO_ADJOINT. GREEN_GAUSS: Green-Gauss on the dual in difference form (linear exact only at interior nodes of the median dual). P1_AVERAGE: G_i w = sum_T W_i^T grad(w_h)|_T / sum_T W_i^T with the dual shares W of the residual (moved with MOD_CENTROIDS), linear exact at every node, simplices only (P1_TECNO_ADJ_GRADIENT.md). \ingroup Config \default GREEN_GAUSS */
   addEnumOption("TECNO_ADJOINT_GRADIENT", Kind_TeCNO_Adj_Gradient, TeCNO_Adj_Gradient_Map, TECNO_ADJ_GRADIENT::GREEN_GAUSS);
-  /*!\brief TECNO_ADJOINT_LIMITER \n DESCRIPTION: Per-edge-end limiter of the dissipation of EDGE_FORM_TECNO_ADJOINT. EDGE_ENTROPY_VA: for each edge end and characteristic entropy field j (shear as one block), phi = (Delta^2 + a Delta + tau)/(a^2 + Delta^2 + tau) with Delta the nodal jump and a the U-MUSCL slope of that field, unclipped, tau the roundoff floor (eps S_j)^2; the residual applies the transpose, so the entropy identity holds for any values (P1_TECNO_ADJ_LIMITER.md). EDGE_ENTROPY_TVD: per edge end and characteristic field, the own-slope clip to the box [min(0,B) - d, max(0,B) + d], B = 2 minmod(Delta, b_0, b_1), b_a = 2 s_a - Delta, times a smooth node factor (product over the half-edges of the node) that keeps the frozen-field moment of the full AD flux in that box (P1_TECNO_ADJ_LIMITER.md, fourth candidate), recomputed while INNER_ITER <= LIMITER_ITER and frozen afterwards (not in the restart; MUSCL_KAPPA_FLOW= 0). \ingroup Config \default NONE */
+  /*!\brief TECNO_ADJOINT_LIMITER \n DESCRIPTION: Per-edge-end limiter of the dissipation of EDGE_FORM_TECNO_ADJOINT. EDGE_ENTROPY_VA: for each edge end and characteristic entropy field j (shear as one block), phi = (Delta^2 + a Delta + tau)/(a^2 + Delta^2 + tau) with Delta the nodal jump and a the U-MUSCL slope of that field, unclipped, tau the roundoff floor (eps S_j)^2; the residual applies the transpose, so the entropy identity holds for any values (P1_TECNO_ADJ_LIMITER.md). EDGE_ENTROPY_TVD: per edge end and characteristic field, the own-slope clip to the box [min(0,B) - d, max(0,B) + d], B = 2 minmod(Delta, b_0, b_1), b_a = 2 s_a - Delta, times a smooth node factor (product over the half-edges of the node) that keeps the frozen-field moment of the full AD flux in that box (P1_TECNO_ADJ_LIMITER.md, fourth candidate), recomputed while INNER_ITER <= LIMITER_ITER and frozen afterwards (not in the restart; MUSCL_KAPPA_FLOW= 0). EDGE_ENTROPY_FCT: per edge and characteristic field, the convex combination alpha R(phi_c) + gamma R(0) of the A1 terms with the own value phi_c and the zero term, the box the two-node LED attachment B = 2 sg min(A_0, A_1) (largest same-sign star jump, upwind-element far side, own jump with the first-order coefficient), alpha from Zalesak's selection on the frozen-field moments, gamma from the room left (P1_TECNO_ADJ_LIMITER.md, candidate 8), recomputed while INNER_ITER <= LIMITER_ITER and frozen afterwards (not in the restart; MUSCL_KAPPA_FLOW= 0; the MUSCL ramp acts on the weights). \ingroup Config \default NONE */
   addEnumOption("TECNO_ADJOINT_LIMITER", Kind_TeCNO_Adj_Limiter, TeCNO_Adj_Limiter_Map, TECNO_ADJ_LIMITER::NONE);
   /*!\brief TECNO_ADJOINT_JACOBIAN \n DESCRIPTION: Jacobian of the dissipation of EDGE_FORM_TECNO_ADJOINT. ROE1: first order Roe dissipation on the dissipation normal. FIRST_RING: for frozen D_e and phi, the edge blocks a_e a_e^T D_e of the exact linearization C^T D C (a_e the coefficients of the jump at the two edge nodes, gradient entries included) plus a diagonal majorant of the second-ring part (Young with eps = 1 and Cauchy-Schwarz), so that 2 J >= C^T D C; first-neighbour blocks only (ROE_TECNO_PLAN.md M4, J2). FIRST_RING_JUMPS: every term of the jump written as a jump over a mesh edge, Cauchy-Schwarz with the pair weights mu_xm = sqrt(a_xm^T E_x a_xm) (E_x the mean of e e^T over the edges of x weighted by trace(D_e H_e), H the entropy Hessian; uniform if all weights vanish) and a three-term weighted Cauchy-Schwarz; J is that bound, so J >= C^T D C (C4 margin independent of the time step) and J 1 = 0 (as C^T D C); first-neighbour blocks only (ROE_TECNO_PLAN.md 6.4). \ingroup Config \default ROE1 */
   addEnumOption("TECNO_ADJOINT_JACOBIAN", Kind_TeCNO_Adj_Jacobian, TeCNO_Adj_Jacobian_Map, TECNO_ADJ_JACOBIAN::ROE1);
@@ -6563,12 +6563,14 @@ void CConfig::CheckP1FluxOptions() const {
       SU2_MPI::Error(name + "not with EDGE_FORM_TECNO_ADJOINT_LIMITER (the nodal weights), one limiter at a time.", CURRENT_FUNCTION);
     if (Edge_Form_TeCNO_A4_Jacobian)
       SU2_MPI::Error(name + "not with EDGE_FORM_TECNO_A4_JACOBIAN (the majorant with per-edge limiters is not derived).", CURRENT_FUNCTION);
-    if (Kind_TeCNO_Adj_Limiter == TECNO_ADJ_LIMITER::EDGE_ENTROPY_TVD) {
-      /*--- The box and the node factor are derived for the jump Delta - 1/2 (Phi_0 s_0 + Phi_1 s_1) (kappa = 0); the
-       * frozen store is one value per edge end and field for the whole implicit step. ---*/
-      if (MUSCL_Kappa_Flow != 0.0) SU2_MPI::Error(name + "EDGE_ENTROPY_TVD needs MUSCL_KAPPA_FLOW= 0.", CURRENT_FUNCTION);
-      if (NewtonKrylov) SU2_MPI::Error(name + "EDGE_ENTROPY_TVD not with NEWTON_KRYLOV.", CURRENT_FUNCTION);
-      if (DiscreteAdjoint) SU2_MPI::Error(name + "EDGE_ENTROPY_TVD not with the discrete adjoint.", CURRENT_FUNCTION);
+    if ((Kind_TeCNO_Adj_Limiter == TECNO_ADJ_LIMITER::EDGE_ENTROPY_TVD) ||
+        (Kind_TeCNO_Adj_Limiter == TECNO_ADJ_LIMITER::EDGE_ENTROPY_FCT)) {
+      /*--- The box and the node factor (TVD) or the box and the blend weights (FCT) are derived for the jump
+       * Delta - 1/2 (Phi_0 s_0 + Phi_1 s_1) (kappa = 0); the frozen store is per edge for the whole implicit step. ---*/
+      const string lim = (Kind_TeCNO_Adj_Limiter == TECNO_ADJ_LIMITER::EDGE_ENTROPY_TVD) ? "EDGE_ENTROPY_TVD" : "EDGE_ENTROPY_FCT";
+      if (MUSCL_Kappa_Flow != 0.0) SU2_MPI::Error(name + lim + " needs MUSCL_KAPPA_FLOW= 0.", CURRENT_FUNCTION);
+      if (NewtonKrylov) SU2_MPI::Error(name + lim + " not with NEWTON_KRYLOV.", CURRENT_FUNCTION);
+      if (DiscreteAdjoint) SU2_MPI::Error(name + lim + " not with the discrete adjoint.", CURRENT_FUNCTION);
     }
   }
   if (Kind_TeCNO_Adj_Jacobian != TECNO_ADJ_JACOBIAN::ROE1) {
@@ -6578,12 +6580,15 @@ void CConfig::CheckP1FluxOptions() const {
     if (Edge_Form_TeCNO_A4_Jacobian)
       SU2_MPI::Error(name + "not with EDGE_FORM_TECNO_A4_JACOBIAN, one dissipation Jacobian at a time.", CURRENT_FUNCTION);
     /*--- FIRST_RING_JUMPS is derived for per-edge-end limiter values stored before the edge loop (EDGE_ENTROPY_TVD:
-     * alpha and phi of each edge end from the stored Phi, TeCNOAdjoint::JumpEdgeEnds); EDGE_ENTROPY_VA has no store. ---*/
+     * alpha and phi of each edge end from the stored Phi, TeCNOAdjoint::JumpEdgeEnds; EDGE_ENTROPY_FCT: the stored phi_c
+     * at both ends and alpha >= 1, which majorizes both blended terms K(phi_c) and K(0), TeCNOAdjoint::JumpEdgeEndsFCT);
+     * EDGE_ENTROPY_VA has no store. ---*/
     const bool jumpsTVD = (Kind_TeCNO_Adj_Jacobian == TECNO_ADJ_JACOBIAN::FIRST_RING_JUMPS) &&
-                          (Kind_TeCNO_Adj_Limiter == TECNO_ADJ_LIMITER::EDGE_ENTROPY_TVD);
+                          ((Kind_TeCNO_Adj_Limiter == TECNO_ADJ_LIMITER::EDGE_ENTROPY_TVD) ||
+                           (Kind_TeCNO_Adj_Limiter == TECNO_ADJ_LIMITER::EDGE_ENTROPY_FCT));
     if ((Kind_TeCNO_Adj_Limiter != TECNO_ADJ_LIMITER::NONE) && !jumpsTVD)
       SU2_MPI::Error(name + "not with TECNO_ADJOINT_LIMITER (per-edge limiter matrices are not derived), except "
-                     "FIRST_RING_JUMPS with EDGE_ENTROPY_TVD.", CURRENT_FUNCTION);
+                     "FIRST_RING_JUMPS with EDGE_ENTROPY_TVD or EDGE_ENTROPY_FCT.", CURRENT_FUNCTION);
   }
   if (Edge_Form_TeCNO_A4_Jacobian) {
     const string name = "EDGE_FORM_TECNO_A4_JACOBIAN: ";

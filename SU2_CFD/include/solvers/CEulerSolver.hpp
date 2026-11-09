@@ -31,6 +31,7 @@
 #include "CFVMFlowSolverBase.hpp"
 #include "../variables/CEulerVariable.hpp"
 #include "../output/CTurboOutput.hpp"
+#include "../numerics/flow/tecno_adjoint.hpp"
 
 /*!
  * \class CEulerSolver
@@ -64,6 +65,10 @@ protected:
   unsigned long TeCNOAdjTVDLastIter = 0; /*!< \brief Inner iteration of the last computation. */
   su2activematrix TeCNOAdjTVDSnapshot; /*!< \brief Copy of the stored values at their last computation (freeze check). */
   bool TeCNOAdjTVDReported = false; /*!< \brief The freeze was reported. */
+  /*--- TECNO_ADJOINT_LIMITER= EDGE_ENTROPY_FCT (TeCNOAdjointTVDLimiter in its FCT mode, TeCNOAdjoint EDGE_ENTROPY_FCT). ---*/
+  TeCNOAdjoint::FCTSetup TeCNOAdjFCTSetup; /*!< \brief Degrees, star slots and upwind elements (static mesh). */
+  TeCNOAdjoint::FCTWork TeCNOAdjFCTWork;   /*!< \brief Work arrays of the passes. */
+  su2activematrix TeCNOAdjFCTRows;         /*!< \brief Rows of the setup exchange (freed after the setup). */
 
   /*!
    * \brief EDGE_FORM_TECNO_ADJOINT: entropy variables, their gradient (TECNO_ADJOINT_GRADIENT: Green-Gauss in difference
@@ -101,9 +106,17 @@ protected:
    * \brief TECNO_ADJOINT_LIMITER= EDGE_ENTROPY_TVD: ingredients pass of the extended kernel on every local edge, own
    *        clip, node factors on the owned nodes (copied to the halos) and the per-edge-end values Phi, while
    *        TeCNOAdjoint::TVDRecompute is true; afterwards the store is frozen (compared bitwise with a snapshot). Called in
-   *        Upwind_Residual before the edge loop. Not inlined.
+   *        Upwind_Residual before the edge loop. Not inlined. EDGE_ENTROPY_FCT: the same ingredients pass (with the FCT
+   *        columns), then TeCNOAdjoint::FCTPasses (star exchanges through CommPointData) into the per-edge store of
+   *        phi_c, alpha, gamma, with the same freeze rule, snapshot check and report.
    */
   NEVERINLINE void TeCNOAdjointTVDLimiter(CGeometry *geometry, CSolver **solver_container, const CConfig *config);
+
+  /*!
+   * \brief TECNO_ADJOINT_LIMITER= EDGE_ENTROPY_FCT: setup on the first call, TeCNOAdjoint::FCTPasses into the store and
+   *        the activity statistics. Called by TeCNOAdjointTVDLimiter after the ingredients pass. Not inlined.
+   */
+  NEVERINLINE void TeCNOAdjointFCTPasses(CGeometry *geometry, const CConfig *config);
 
   /*!
    * \brief VISC_P1_ENTROPY_MOVED: viscous part of the element budget of SetEdgeBlendLambda (Navier-Stokes solver).
