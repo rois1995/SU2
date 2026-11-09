@@ -1346,6 +1346,29 @@ void CNSSolver::BC_Isothermal_Wall_Generic(CGeometry *geometry, CSolver **solver
     su2double Res_Conv = 0.0;
     su2double Res_Visc = thermal_conductivity * dTdn * Area;
 
+    /*--- EULER_WALL_CREASE_NORMALS (ROE_TECNO_PLAN.md 6.14): at a crease point the vertex normal is a cancellation
+     * residue, so Point_Normal and NormalDistance along it are not a wall-normal stencil and |sum N| is not the wetted
+     * area. The flux is the sum over the crease groups q of k (Twall - T_q) / d_q |N_q|, T_q at the inward normal
+     * neighbour of the group and d_q its normal distance (CGeometry::creaseGroups). Static grid, no CHT. ---*/
+    su2double areaOverDist = 0.0;
+    bool creasePoint = false;
+    if (config->GetEuler_Wall_Crease_Normals() && !cht_mode && (geometry->creaseGroups.size() > val_marker)) {
+      const auto itG = geometry->creaseGroups[val_marker].find(iVertex);
+      bool stencil = (itG != geometry->creaseGroups[val_marker].end());
+      if (stencil)
+        for (const auto& grp : itG->second) stencil = stencil && (grp.second.second > 0.0);
+      if (stencil) {
+        creasePoint = true;
+        Res_Visc = 0.0;
+        areaOverDist = 0.0;
+        for (const auto& grp : itG->second) {
+          const su2double areaQ = grp.first, distQ = grp.second.second;
+          Res_Visc -= thermal_conductivity * (nodes->GetTemperature(grp.second.first) - Twall) / distQ * areaQ;
+          areaOverDist += areaQ / distQ;
+        }
+      }
+    }
+
     /*--- Calculate Jacobian for implicit time stepping ---*/
 
     if (implicit) {
@@ -1356,12 +1379,14 @@ void CNSSolver::BC_Isothermal_Wall_Generic(CGeometry *geometry, CSolver **solver
       su2double Vel2 = GeometryToolbox::SquaredNorm(nDim, &nodes->GetPrimitive(iPoint)[prim_idx.Velocity()]);
       su2double dTdrho = 1.0/Density * ( -Twall + (Gamma-1.0)/Gas_Constant*(Vel2/2.0) );
 
-      Jacobian_i[nDim+1][0] = thermal_conductivity/dist_ij * dTdrho * Area;
+      Jacobian_i[nDim+1][0] = creasePoint ? thermal_conductivity * areaOverDist * dTdrho
+                                          : thermal_conductivity/dist_ij * dTdrho * Area;
 
       for (auto jDim = 0u; jDim < nDim; jDim++)
         Jacobian_i[nDim+1][jDim+1] = 0.0;
 
-      Jacobian_i[nDim+1][nDim+1] = thermal_conductivity/dist_ij * (Gamma-1.0)/(Gas_Constant*Density) * Area;
+      Jacobian_i[nDim+1][nDim+1] = creasePoint ? thermal_conductivity * areaOverDist * (Gamma-1.0)/(Gas_Constant*Density)
+                                               : thermal_conductivity/dist_ij * (Gamma-1.0)/(Gas_Constant*Density) * Area;
     }
 
     /*--- If the wall is moving, there are additional residual contributions
