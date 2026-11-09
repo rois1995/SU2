@@ -51,6 +51,8 @@ extern "C" {
 #include <climits>
 #include <memory>
 #include <unordered_map>
+#include <map>
+#include <array>
 #include <cstdint>
 
 #include "primal_grid/CPrimalGrid.hpp"
@@ -262,6 +264,22 @@ class CGeometry {
 
   /*!< \brief Corrected normals on nodes with shared symmetry markers. */
   vector<std::unordered_map<unsigned long, std::array<su2double, MAXNDIM>>> symmetryNormals;
+  /*! \brief Unit normals of the crease groups of the owned Euler-wall points with two or more groups, by marker and vertex
+   *         (ComputeCreaseNormals; BC_ENTROPY_P1_STRONG_SLIP, EULER_WALL_CREASE_NORMALS). */
+  vector<std::map<unsigned long, std::vector<std::array<su2double, MAXNDIM>>>> creaseNormals;
+  /*! \brief Joint constraint basis of the owned points with crease normals (EULER_WALL_CREASE_NORMALS): rank and the
+   *         orthonormal rows Q of the normals of all Euler walls and symmetry planes of the point (crease-group normals
+   *         where present), Gram-Schmidt in marker order with SU2's parallel drop rule. */
+  std::map<unsigned long, std::pair<unsigned short, std::array<std::array<su2double, MAXNDIM>, MAXNDIM>>> creaseBasis;
+  /*! \brief Wetted dual area sum_q |N_q| of the crease points, by marker and vertex (|sum N| is the vertex normal). */
+  vector<std::map<unsigned long, su2double>> creaseArea;
+  /*! \brief No-slip crease points, per group (order of creaseNormals, the marker's own group directions): the marker's
+   *         wetted area of the group (sum of its corner-vector magnitudes), the normal neighbour along the group
+   *         direction (into the fluid) and its normal distance. */
+  vector<std::map<unsigned long, std::vector<std::pair<su2double, std::pair<unsigned long, su2double>>>>> creaseGroups;
+  unsigned long nCreasePoints = 0;    /*!< \brief Local owned Euler-wall crease points with group normals. */
+  unsigned long nCreasePointsNoSlip = 0; /*!< \brief Local owned no-slip crease points (EULER_WALL_CREASE_NORMALS). */
+  unsigned long nCreaseFallbacks = 0; /*!< \brief Local owned points kept with the vertex normal (faces or consistency). */
 
   /*!< \brief Bool if boundary-marker is straight(2D)/plane(3D) for each local marker. */
   vector<bool> boundIsStraight;
@@ -1061,6 +1079,12 @@ class CGeometry {
    * \param[in] config - Definition of the particular problem.
    */
   void ComputeModifiedSymmetryNormals(const CConfig* config);
+
+  /*!
+   * \brief Crease groups of the owned Euler-wall points (ROE_TECNO_PLAN.md 6.11 B, 6.14) into creaseNormals.
+   * \param[in] config - Definition of the particular problem.
+   */
+  void ComputeCreaseNormals(const CConfig* config);
 
   /*!
    * \brief A virtual member.

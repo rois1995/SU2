@@ -94,6 +94,7 @@ private:
   bool Edge_Form_EC_Exact_Jacobian; /*!< \brief Exact Jacobian of the Ismail-Roe central parts of the ROE options. */
   bool BC_Entropy_P1;          /*!< \brief Entropy stable hybridized weak boundary of BC_WEAK_P1 (closure C). */
   bool BC_Entropy_P1_Strong_Slip; /*!< \brief Strong u.n = 0 at the Euler walls and symmetry planes of closure C. */
+  bool Euler_Wall_Crease_Normals; /*!< \brief Crease-group normals in BC_Euler_Wall and correctGradientsSymmetry. */
   bool Visc_P1_Entropy;        /*!< \brief P1 Galerkin viscous operator in entropy variables, one frozen K per simplex. */
   bool BC_Wall_Entropy_P1;     /*!< \brief Entropy stable weak no-slip walls: closure C plus the SIPG penalty in entropy variables. */
   bool P1_Wall_Forces;         /*!< \brief Wall forces, Cf and heat flux from the boundary fluxes of the P1 entropy walls. */
@@ -10157,6 +10158,12 @@ public:
    *        Euler walls and symmetry planes (projection of SU2's BC_Sym_Plane, one projector per point).
    */
   bool GetBC_Entropy_P1_Strong_Slip() const { return BC_Entropy_P1_Strong_Slip; }
+
+  /*!
+   * \brief EULER_WALL_CREASE_NORMALS: at Euler-wall points with two or more crease groups the group normals replace the
+   *        vertex normal in the symmetry projection of BC_Euler_Wall and in correctGradientsSymmetry (ROE_TECNO_PLAN.md 6.14).
+   */
+  bool GetEuler_Wall_Crease_Normals() const { return Euler_Wall_Crease_Normals; }
 
   /*!
    * \brief JST_WEAK_WALL_DISSIPATION: eps4 = 0 on the edges with exactly one end on a weak no-slip wall of

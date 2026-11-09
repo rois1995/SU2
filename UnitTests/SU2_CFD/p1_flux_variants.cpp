@@ -51,6 +51,7 @@
 #include "../../SU2_CFD/include/numerics/flow/p1_boundary_closure.hpp"
 #include "../../SU2_CFD/include/numerics/flow/jst_weak_wall.hpp"
 #include "../../SU2_CFD/include/numerics/flow/p1_strong_slip.hpp"
+#include "../../SU2_CFD/include/gradients/correctGradientsSymmetry.hpp"
 #include "../../SU2_CFD/include/numerics/flow/p1_sst_matched.hpp"
 #include "../../SU2_CFD/include/numerics/flow/jst_entropy.hpp"
 #include "../../SU2_CFD/include/numerics_simd/flow/convection/common.hpp"
@@ -9162,6 +9163,77 @@ TEST_CASE("Strong slip: wall-normal basis, projector, entropy identity and Jacob
   su2double mz[5] = {0.0, 0.0, 3.0, 0.0, 0.0};
   CHECK(pss::SlipPenetration(2, 1, Qz, 1, mz, 0.0) == Approx(1.0));
   CHECK(pss::SlipPenetration(2, 1, Qz, 1, mz, 6.0) == Approx(0.5));
+}
+
+/*--- EULER_WALL_CREASE_NORMALS (ROE_TECNO_PLAN.md 6.14): CreaseGroups::SubspaceGradientCorrection. Rank 1 equals Blazek's
+ * correction (detail::correctGradient); rank 2 does not depend on the basis of the subspace S (two oblique crease normals
+ * and two different orthonormal bases give the same result), is idempotent, removes the normal derivatives of the
+ * scalars along both original normals and makes the velocity gradient invariant under R = I - 2 P_S. ---*/
+TEST_CASE("Euler-wall crease normals: subspace gradient correction", "[P1Flux]") {
+  namespace cg = CreaseGroups;
+  std::mt19937 gen(515);
+  std::uniform_real_distribution<double> uni(-1.0, 1.0);
+  auto unit = [](su2double* v) {
+    const su2double n = GeometryToolbox::Norm(3, v);
+    for (int d = 0; d < 3; ++d) v[d] /= n;
+  };
+  for (int trial = 0; trial < 20; ++trial) {
+    su2double G0[5][3];
+    for (int v = 0; v < 5; ++v)
+      for (int d = 0; d < 3; ++d) G0[v][d] = uni(gen);
+    /*--- Rank 1: Blazek. ---*/
+    su2double n[3] = {uni(gen), uni(gen), uni(gen)};
+    unit(n);
+    su2double A[5][3], B[5][3];
+    for (int v = 0; v < 5; ++v)
+      for (int d = 0; d < 3; ++d) A[v][d] = B[v][d] = G0[v][d];
+    su2double Q1[3][3] = {{n[0], n[1], n[2]}};
+    detail::correctGradient<3>(0, 5, 1, n, A);
+    cg::SubspaceGradientCorrection<3>(0, 5, 1, 1, Q1, B);
+    for (int v = 0; v < 5; ++v)
+      for (int d = 0; d < 3; ++d) CHECK(A[v][d] == Approx(B[v][d]).margin(1e-13));
+    /*--- Rank 2 from two oblique normals (a wedge), two bases (Gram-Schmidt in both orders). ---*/
+    su2double n1[3] = {uni(gen), uni(gen), uni(gen)}, n2[3] = {uni(gen), uni(gen), uni(gen)};
+    unit(n1);
+    unit(n2);
+    su2double L12[2][3] = {{n1[0], n1[1], n1[2]}, {n2[0], n2[1], n2[2]}};
+    su2double L21[2][3] = {{n2[0], n2[1], n2[2]}, {n1[0], n1[1], n1[2]}};
+    su2double Qa[3][3] = {{0.0}}, Qb[3][3] = {{0.0}};
+    REQUIRE(cg::Basis(3, 2, L12, Qa) == 2);
+    REQUIRE(cg::Basis(3, 2, L21, Qb) == 2);
+    su2double C[5][3], D[5][3];
+    for (int v = 0; v < 5; ++v)
+      for (int d = 0; d < 3; ++d) C[v][d] = D[v][d] = G0[v][d];
+    cg::SubspaceGradientCorrection<3>(0, 5, 1, 2, Qa, C);
+    cg::SubspaceGradientCorrection<3>(0, 5, 1, 2, Qb, D);
+    for (int v = 0; v < 5; ++v)
+      for (int d = 0; d < 3; ++d) CHECK(C[v][d] == Approx(D[v][d]).margin(1e-13));
+    /*--- Idempotent. ---*/
+    cg::SubspaceGradientCorrection<3>(0, 5, 1, 2, Qa, D);
+    for (int v = 0; v < 5; ++v)
+      for (int d = 0; d < 3; ++d) CHECK(C[v][d] == Approx(D[v][d]).margin(1e-13));
+    /*--- Scalars: no derivative along either original normal. ---*/
+    for (const int v : {0, 4}) {
+      CHECK(fabs(GeometryToolbox::DotProduct(3, C[v], n1)) < 1e-13);
+      CHECK(fabs(GeometryToolbox::DotProduct(3, C[v], n2)) < 1e-13);
+    }
+    /*--- Velocity gradient invariant under R = I - 2 P_S: R G R = G. ---*/
+    su2double P[3][3] = {{0.0}}, R[3][3], RG[3][3] = {{0.0}};
+    for (int i = 0; i < 3; ++i)
+      for (int j = 0; j < 3; ++j)
+        for (int r = 0; r < 2; ++r) P[i][j] += Qa[r][i] * Qa[r][j];
+    for (int i = 0; i < 3; ++i)
+      for (int j = 0; j < 3; ++j) R[i][j] = ((i == j) ? 1.0 : 0.0) - 2.0 * P[i][j];
+    for (int i = 0; i < 3; ++i)
+      for (int j = 0; j < 3; ++j)
+        for (int k = 0; k < 3; ++k) RG[i][j] += R[i][k] * C[1 + k][j];
+    for (int i = 0; i < 3; ++i)
+      for (int j = 0; j < 3; ++j) {
+        su2double RGR = 0.0;
+        for (int k = 0; k < 3; ++k) RGR += RG[i][k] * R[k][j];
+        CHECK(RGR == Approx(C[1 + i][j]).margin(1e-13));
+      }
+  }
 }
 
 /*--- BC_ENTROPY_P1_STRONG_SLIP crease groups (ROE_TECNO_PLAN.md 6.11, item 2): P1StrongSlip::SlipFaceGroups. ---*/

@@ -26,8 +26,10 @@
  */
 
 #include <unordered_set>
+#include <tuple>
 
 #include "../../include/geometry/CGeometry.hpp"
+#include "../../include/toolboxes/crease_groups.hpp"
 #include "../../include/geometry/elements/CElement.hpp"
 #include "../../include/parallelization/omp_structure.hpp"
 #include "../../include/toolboxes/boundary_closure.hpp"
@@ -3053,6 +3055,269 @@ su2double CGeometry::GetSurfaceArea(const CConfig* config, unsigned short val_ma
 
   SU2_MPI::Error("Unable to match local-marker with cfg-marker for Surface Area.", CURRENT_FUNCTION);
   return 0.0;
+}
+
+void CGeometry::ComputeCreaseNormals(const CConfig* config) {
+  /*--- Crease groups of the Euler-wall points (ROE_TECNO_PLAN.md 6.11 B, 6.14; CreaseGroups::FaceGroups). The incident
+   * faces of an owned point are gathered over ALL Euler-wall markers (a sharp edge inside one marker and two markers
+   * meeting at a sharp edge are the same case; ComputeModifiedSymmetryNormals sums the normals of two curved markers,
+   * which reproduces the cancellation residue of one marker). Adjacent faces are merged only if every pair of the
+   * merged group has N_f . N_g > 0, N_f SU2's corner area vectors. With two or more groups the unit group normals are
+   * stored for every Euler-wall (marker, vertex) of the point in creaseNormals, and creaseArea is the wetted dual area of
+   * that marker at the point, sum over the groups of |sum of its own corner vectors in the group|. Consistency check:
+   * per marker the corner vectors must reproduce its vertex normal (1e-6 relative). Static mesh, owned points. ---*/
+  creaseNormals.clear();
+  creaseNormals.resize(nMarker);
+  creaseArea.clear();
+  creaseArea.resize(nMarker);
+  creaseGroups.clear();
+  creaseGroups.resize(nMarker);
+  creaseBasis.clear();
+  nCreasePoints = 0;
+  nCreasePointsNoSlip = 0;
+  nCreaseFallbacks = 0;
+
+  struct Face {
+    unsigned short marker;
+    unsigned long elem;
+    unsigned short node;
+  };
+  /*--- Two families, grouped separately: Euler walls, and (EULER_WALL_CREASE_NORMALS only) the no-slip walls (heat
+   * flux, isothermal, heat transfer) for their wetted area, normal neighbours and wall outputs. ---*/
+  const bool noSlip = config->GetEuler_Wall_Crease_Normals();
+  auto family = [&](unsigned short iMarker) -> int {
+    const auto kind = config->GetMarker_All_KindBC(iMarker);
+    if (kind == EULER_WALL) return 1;
+    if (noSlip && ((kind == HEAT_FLUX) || (kind == ISOTHERMAL) || (kind == HEAT_TRANSFER))) return 2;
+    return 0;
+  };
+  /*--- Key (family, marker or -1, point): without EULER_WALL_CREASE_NORMALS the Euler walls are grouped per marker (the
+   * BC_ENTROPY_P1_STRONG_SLIP behaviour of 6.11 B, bitwise), with it across all markers of the family (a sharp edge
+   * between two markers is the same case as one inside a marker). ---*/
+  std::map<std::tuple<int, int, unsigned long>, std::vector<Face>> facesOf;
+  for (auto iMarker = 0u; iMarker < nMarker; ++iMarker) {
+    const int fam = family(iMarker);
+    if (fam == 0) continue;
+    const int mkey = noSlip ? -1 : static_cast<int>(iMarker);
+    for (auto iElem = 0ul; iElem < GetnElem_Bound(iMarker); ++iElem) {
+      const auto* elem = bound[iMarker][iElem];
+      for (unsigned short iNode = 0; iNode < elem->GetnNodes(); ++iNode) {
+        const auto p = elem->GetNode(iNode);
+        if (nodes->GetDomain(p)) facesOf[std::make_tuple(fam, mkey, p)].push_back({static_cast<unsigned short>(iMarker), iElem, iNode});
+      }
+    }
+  }
+
+  /*--- Corner area vector of a face at its node iNode: the pieces of CPhysicalGeometry::SetBoundControlVolume
+   * (CVertex::SetNodes_Coord with the stored element CG and the edge midpoints), so that the corner vectors of a point
+   * on one marker sum to its vertex normal. ---*/
+  auto cornerVector = [&](const CPrimalGrid* elem, unsigned short iNode, su2double* N) {
+    N[0] = N[1] = N[2] = 0.0;
+    const su2double* X = nodes->GetCoord(elem->GetNode(iNode));
+    const su2double* CG = elem->GetCG();
+    if (nDim == 2) {
+      if (iNode == 0) { N[0] += X[1] - CG[1]; N[1] -= X[0] - CG[0]; }
+      if (iNode == 1) { N[0] += CG[1] - X[1]; N[1] -= CG[0] - X[0]; }
+      return;
+    }
+    for (unsigned short iNeighbor = 0; iNeighbor < elem->GetnNeighbor_Nodes(iNode); ++iNeighbor) {
+      const su2double* Y = nodes->GetCoord(elem->GetNode(elem->GetNeighbor_Nodes(iNode, iNeighbor)));
+      su2double mid[3] = {0.0}, va[3] = {0.0}, vb[3] = {0.0}, cr[3] = {0.0};
+      for (unsigned short d = 0; d < 3; ++d) mid[d] = 0.5 * (X[d] + Y[d]);
+      const su2double* edgeCG = (iNeighbor == 0) ? CG : mid;
+      const su2double* faceCG = (iNeighbor == 0) ? mid : CG;
+      for (unsigned short d = 0; d < 3; ++d) { va[d] = X[d] - edgeCG[d]; vb[d] = faceCG[d] - edgeCG[d]; }
+      GeometryToolbox::CrossProduct(va, vb, cr);
+      for (unsigned short d = 0; d < 3; ++d) N[d] += 0.5 * cr[d];
+    }
+  };
+
+  for (auto& item : facesOf) {
+    const int fam = std::get<0>(item.first);
+    const auto iPoint = std::get<2>(item.first);
+    auto& faces = item.second;
+    if (faces.size() > CreaseGroups::MAX_FACES) {
+      ++nCreaseFallbacks;
+      continue;
+    }
+    /*--- Faces ordered by their sorted global nodes (then marker): deterministic on any partition. ---*/
+    auto key = [&](const Face& fc) {
+      const auto* elem = bound[fc.marker][fc.elem];
+      std::vector<unsigned long> g;
+      for (unsigned short iNode = 0; iNode < elem->GetnNodes(); ++iNode)
+        g.push_back(nodes->GetGlobalIndex(elem->GetNode(iNode)));
+      std::sort(g.begin(), g.end());
+      g.push_back(fc.marker);
+      return g;
+    };
+    std::sort(faces.begin(), faces.end(), [&](const Face& x, const Face& y) { return key(x) < key(y); });
+    const auto nFaces = static_cast<unsigned short>(faces.size());
+    su2double N[CreaseGroups::MAX_FACES][3], groupN[CreaseGroups::MAX_FACES][3];
+    unsigned long other[CreaseGroups::MAX_FACES][3] = {{0}};
+    unsigned short nOther[CreaseGroups::MAX_FACES] = {0}, faceGroup[CreaseGroups::MAX_FACES] = {0};
+    for (unsigned short f = 0; f < nFaces; ++f) {
+      const auto* elem = bound[faces[f].marker][faces[f].elem];
+      cornerVector(elem, faces[f].node, N[f]);
+      for (unsigned short iNode = 0; iNode < elem->GetnNodes(); ++iNode) {
+        const auto p = elem->GetNode(iNode);
+        if (p != iPoint && nOther[f] < 3) other[f][nOther[f]++] = p;
+      }
+    }
+    const auto nGroups = CreaseGroups::FaceGroups(nDim, nFaces, N, other, nOther, groupN, faceGroup);
+    if (nGroups < 2) continue;
+
+    /*--- Markers of the point: consistency of their own corner vectors with their vertex normals. ---*/
+    bool ok = true;
+    for (unsigned short q = 0; q < nGroups; ++q) ok = ok && (GeometryToolbox::Norm(nDim, groupN[q]) > 0.0);
+    std::vector<unsigned short> markers;
+    for (const auto& fc : faces)
+      if (std::find(markers.begin(), markers.end(), fc.marker) == markers.end()) markers.push_back(fc.marker);
+    for (const auto iMarker : markers) {
+      const auto iVertex = nodes->GetVertex(iPoint, iMarker);
+      if (iVertex < 0) {
+        ok = false;
+        continue;
+      }
+      su2double dual[3] = {0.0, 0.0, 0.0}, normal[MAXNDIM] = {0.0}, diff = 0.0, sum = 0.0;
+      for (unsigned short f = 0; f < nFaces; ++f)
+        if (faces[f].marker == iMarker)
+          for (unsigned short d = 0; d < nDim; ++d) dual[d] += N[f][d];
+      vertex[iMarker][iVertex]->GetNormal(normal);
+      for (unsigned short d = 0; d < nDim; ++d) {
+        diff += pow(dual[d] - normal[d], 2);
+        sum += pow(normal[d], 2);
+      }
+      ok = ok && (diff <= 1e-12 * sum);
+    }
+    if (!ok) {
+      ++nCreaseFallbacks;
+      continue;
+    }
+    if (fam == 1) {
+      /*--- Euler walls: the joint group normals for every marker of the point (strong slip, joint basis). ---*/
+      ++nCreasePoints;
+      for (const auto iMarker : markers) {
+        const auto iVertex = nodes->GetVertex(iPoint, iMarker);
+        auto& list = creaseNormals[iMarker][iVertex];
+        for (unsigned short q = 0; q < nGroups; ++q) {
+          std::array<su2double, MAXNDIM> unit = {0.0, 0.0, 0.0};
+          const su2double area = GeometryToolbox::Norm(nDim, groupN[q]);
+          for (auto iDim = 0u; iDim < nDim; ++iDim) unit[iDim] = groupN[q][iDim] / area;
+          list.push_back(unit);
+        }
+      }
+      continue;
+    }
+
+    /*--- No-slip walls: per marker its OWN part of every group (Codex review 2 of 6.14): direction of the sum of its corner
+     * vectors in the group, wetted area sum |N_f| of those corner vectors (exact corner areas), and the normal
+     * neighbour along that direction (the vertex normals point into the fluid, as CPhysicalGeometry::FindNormal_Neighbor
+     * uses them) with its normal distance. A marker with a group neighbour at a nonpositive distance keeps the vertex
+     * normal (counted). ---*/
+    for (const auto iMarker : markers) {
+      const auto iVertex = nodes->GetVertex(iPoint, iMarker);
+      std::vector<std::array<su2double, MAXNDIM>> units;
+      std::vector<std::pair<su2double, std::pair<unsigned long, su2double>>> groups;
+      su2double wetted = 0.0;
+      bool valid = true;
+      for (unsigned short q = 0; q < nGroups; ++q) {
+        su2double part[3] = {0.0, 0.0, 0.0}, areaQ = 0.0;
+        for (unsigned short f = 0; f < nFaces; ++f)
+          if ((faces[f].marker == iMarker) && (faceGroup[f] == q)) {
+            for (unsigned short d = 0; d < nDim; ++d) part[d] += N[f][d];
+            areaQ += GeometryToolbox::Norm(nDim, N[f]);
+          }
+        const su2double np = GeometryToolbox::Norm(nDim, part);
+        if (!(np > 0.0)) continue;
+        std::array<su2double, MAXNDIM> unit = {0.0, 0.0, 0.0};
+        for (unsigned short d = 0; d < nDim; ++d) unit[d] = part[d] / np;
+        unsigned long best = iPoint;
+        su2double cosMax = -2.0, dist = 0.0;
+        for (unsigned short iNeigh = 0; iNeigh < nodes->GetnPoint(iPoint); ++iNeigh) {
+          const auto jPoint = nodes->GetPoint(iPoint, iNeigh);
+          su2double dot = 0.0, len = 0.0;
+          for (unsigned short d = 0; d < nDim; ++d) {
+            const su2double dx = nodes->GetCoord(jPoint, d) - nodes->GetCoord(iPoint, d);
+            dot += dx * unit[d];
+            len += dx * dx;
+          }
+          const su2double c = dot / sqrt(len);
+          if (c > cosMax) {
+            cosMax = c;
+            best = jPoint;
+            dist = dot;
+          }
+        }
+        valid = valid && (dist > 0.0);
+        units.push_back(unit);
+        groups.push_back({areaQ, {best, dist}});
+        wetted += areaQ;
+      }
+      /*--- Stored with one or more own groups (a marker of a split edge has one); the normal-neighbour stencil is used by
+       * the isothermal wall and output only if every distance is positive (else they keep SU2's stencil, counted). ---*/
+      if (units.empty()) continue;
+      ++nCreasePointsNoSlip;
+      if (!valid) ++nCreaseFallbacks;
+      creaseNormals[iMarker][iVertex] = units;
+      creaseGroups[iMarker][iVertex] = groups;
+      creaseArea[iMarker][iVertex] = wetted;
+    }
+  }
+
+  /*--- Joint basis per crease point: the normals of every Euler wall and symmetry plane of the point in marker order
+   * (crease-group normals where present, else the modified symmetry normal or the vertex unit normal). The standard
+   * wall projection and the gradient correction use it in every marker call at the point, so the operation is one
+   * projection / one correction per point, independent of the marker order (EULER_WALL_CREASE_NORMALS). ---*/
+  for (auto iMarker = 0u; iMarker < nMarker; ++iMarker) {
+    if (config->GetMarker_All_KindBC(iMarker) != EULER_WALL) continue;
+    for (const auto& item : creaseNormals[iMarker]) {
+      const auto iPoint = vertex[iMarker][item.first]->GetNode();
+      if (creaseBasis.count(iPoint)) continue;
+      std::vector<std::array<su2double, 3>> list;
+      for (auto jMarker = 0u; jMarker < nMarker; ++jMarker) {
+        const auto kind = config->GetMarker_All_KindBC(jMarker);
+        if ((kind != EULER_WALL) && (kind != SYMMETRY_PLANE)) continue;
+        const auto jVertex = nodes->GetVertex(iPoint, jMarker);
+        if (jVertex < 0) continue;
+        const auto itC = creaseNormals[jMarker].find(jVertex);
+        if (itC != creaseNormals[jMarker].end()) {
+          for (const auto& u : itC->second) list.push_back({u[0], u[1], u[2]});
+          continue;
+        }
+        std::array<su2double, 3> unit = {0.0, 0.0, 0.0};
+        const auto itS = symmetryNormals[jMarker].find(jVertex);
+        if (itS != symmetryNormals[jMarker].end()) {
+          for (auto iDim = 0u; iDim < nDim; ++iDim) unit[iDim] = itS->second[iDim];
+        } else {
+          su2double normal[MAXNDIM] = {0.0};
+          vertex[jMarker][jVertex]->GetNormal(normal);
+          const su2double area = GeometryToolbox::Norm(nDim, normal);
+          for (auto iDim = 0u; iDim < nDim; ++iDim) unit[iDim] = normal[iDim] / area;
+        }
+        list.push_back(unit);
+      }
+      std::unique_ptr<su2double[][3]> buf(new su2double[std::max<size_t>(1, list.size())][3]);
+      for (size_t a = 0; a < list.size(); ++a)
+        for (unsigned short d = 0; d < 3; ++d) buf[a][d] = list[a][d];
+      su2double Q[3][3] = {{0.0}};
+      const auto rank = CreaseGroups::Basis(nDim, static_cast<unsigned short>(list.size()), buf.get(), Q);
+      auto& entry = creaseBasis[iPoint];
+      entry.first = rank;
+      for (unsigned short r = 0; r < 3; ++r)
+        for (unsigned short d = 0; d < 3; ++d) entry.second[r][d] = Q[r][d];
+    }
+  }
+
+  if (config->GetEuler_Wall_Crease_Normals()) {
+    unsigned long local[3] = {nCreasePoints, nCreasePointsNoSlip, nCreaseFallbacks}, global[3] = {0, 0, 0};
+    SU2_MPI::Allreduce(local, global, 3, MPI_UNSIGNED_LONG, MPI_SUM, SU2_MPI::GetComm());
+    if (SU2_MPI::GetRank() == MASTER_NODE) {
+      cout << "EULER_WALL_CREASE_NORMALS: " << global[0] << " Euler-wall crease points and " << global[1]
+           << " no-slip (marker, crease point) entries with their face-group normals; " << global[2]
+           << " fallbacks (more than " << CreaseGroups::MAX_FACES << " faces or inconsistent face data: vertex normal kept;"
+           << " no-slip entries without a positive normal distance in every group: SU2's isothermal stencil kept)." << endl;
+    }
+  }
 }
 
 void CGeometry::ComputeModifiedSymmetryNormals(const CConfig* config) {

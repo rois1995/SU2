@@ -32,6 +32,7 @@
 
 #include "../../../Common/include/parallelization/omp_structure.hpp"
 #include "../../../Common/include/toolboxes/geometry_toolbox.hpp"
+#include "../../../Common/include/toolboxes/crease_groups.hpp"
 
 namespace detail {
 /*!
@@ -116,11 +117,28 @@ void correctGradientsSymmetry(CGeometry& geometry, const CConfig& config, const 
     }
   }
 
+  /*--- EULER_WALL_CREASE_NORMALS (ROE_TECNO_PLAN.md 6.14): at a point with crease normals the correction is the
+   * subspace correction of CreaseGroups::SubspaceGradientCorrection with the joint basis of the point
+   * (CGeometry::creaseBasis, all Euler walls and symmetry planes of the point), the same in every marker call
+   * (idempotent), so it does not depend on the marker order or on the basis of the subspace. ---*/
+  const bool crease = config.GetEuler_Wall_Crease_Normals();
+
   for (const auto iMarker : symMarkers) {
     SU2_OMP_FOR_STAT(32)
     for (size_t iVertex = 0; iVertex < geometry.GetnVertex(iMarker); ++iVertex) {
 
       const auto iPoint = geometry.vertex[iMarker][iVertex]->GetNode();
+
+      if (crease) {
+        const auto itB = geometry.creaseBasis.find(iPoint);
+        if (itB != geometry.creaseBasis.end()) {
+          su2double Q[3][3] = {{0.0}};
+          for (unsigned short r = 0; r < 3; ++r)
+            for (unsigned short d = 0; d < 3; ++d) Q[r][d] = itB->second.second[r][d];
+          CreaseGroups::SubspaceGradientCorrection<nDim>(varBegin, varEnd, idxVel, itB->second.first, Q, gradient[iPoint]);
+          continue;
+        }
+      }
 
       /*--- Get the normal of the current symmetry. This may be the original normal of the vertex
        * or a modified normal if there are intersecting symmetries. ---*/

@@ -1348,6 +1348,7 @@ void CFVMFlowSolverBase<V, FlowRegime>::BC_Sym_Plane(CGeometry* geometry, CSolve
                          (config->GetKind_FluidModel() == IDEAL_GAS);
   const auto iVel = prim_idx.Velocity();
   const bool compressibleProjection = FlowRegime == ENUM_REGIME::COMPRESSIBLE && iVel == 1 && nVar == nDim + 2;
+  const bool creaseNormals = config->GetEuler_Wall_Crease_Normals() && !dynamic_grid;
 
 
   /*--- Blazek chapter 8.:
@@ -1376,6 +1377,45 @@ void CFVMFlowSolverBase<V, FlowRegime>::BC_Sym_Plane(CGeometry* geometry, CSolve
     } else {
       const su2double Area = GeometryToolbox::Norm(nDim, Normal);
       for (auto iDim = 0u; iDim < nDim; iDim++) UnitNormal[iDim] = Normal[iDim] / Area;
+    }
+
+    /*--- EULER_WALL_CREASE_NORMALS (ROE_TECNO_PLAN.md 6.14): at a point with crease normals (CGeometry::creaseBasis) the
+     * momentum of Solution_Old, the residual, the Jacobian rows and the truncation error are projected with
+     * P = I - Q Q^T, Q the joint orthonormal basis of the normals of all Euler walls and symmetry planes of the point
+     * (crease-group normals where present). Every marker call at the point applies the same P (idempotent), so the
+     * result does not depend on the marker order. Static grid: no grid-velocity terms. ---*/
+    if (creaseNormals) {
+      const auto itB = geometry->creaseBasis.find(iPoint);
+      if (itB != geometry->creaseBasis.end()) {
+        const auto nq = itB->second.first;
+        su2double Q[3][3] = {{0.0}};
+        for (unsigned short r = 0; r < 3; ++r)
+          for (unsigned short d = 0; d < 3; ++d) Q[r][d] = itB->second.second[r][d];
+
+        su2double* solutionOld = nodes->GetSolution_Old(iPoint);
+        P1StrongSlip::SlipProject(nDim, nq, Q, iVel, solutionOld);
+        su2double res[MAXNVAR] = {0.0};
+        for (auto iVar = 0u; iVar < nVar; ++iVar) res[iVar] = LinSysRes(iPoint, iVar);
+        P1StrongSlip::SlipProject(nDim, nq, Q, iVel, res);
+        for (auto iDim = 0u; iDim < nDim; ++iDim) LinSysRes(iPoint, iVel + iDim) = res[iVel + iDim];
+        if (implicit) {
+          auto projectBlock = [&](unsigned long jPoint) {
+            const auto view = Jacobian.GetBlockView(iPoint, jPoint);
+            if (!view) return;
+            su2double block[MAXNVAR * MAXNVAR];
+            for (auto iVar = 0u; iVar < nVar; ++iVar)
+              for (auto jVar = 0u; jVar < nVar; ++jVar) block[iVar * nVar + jVar] = view(iVar, jVar);
+            P1StrongSlip::SlipProjectRows(nDim, nVar, nq, Q, iVel, block);
+            Jacobian.SetBlock(iPoint, jPoint, block);
+          };
+          projectBlock(iPoint);
+          for (size_t iNeigh = 0; iNeigh < geometry->nodes->GetnPoint(iPoint); ++iNeigh)
+            projectBlock(geometry->nodes->GetPoint(iPoint, iNeigh));
+        }
+        su2double* truncError = nodes->GetResTruncError(iPoint);
+        P1StrongSlip::SlipProject(nDim, nq, Q, iVel, truncError);
+        continue;
+      }
     }
 
     /*--- The classical compressible projection below already supplies wall pressure work. ---*/
@@ -1540,106 +1580,22 @@ void CFVMFlowSolverBase<V, R>::BC_Slip_Strong_P1(CGeometry* geometry, const CCon
   BEGIN_SU2_OMP_SAFE_GLOBAL_ACCESS {
     if (!slipReadyP1) {
       std::map<unsigned long, std::vector<std::array<su2double, 3>>> normals;
-      unsigned long nCrease = 0, nCreaseFallback = 0;
+      const unsigned long nCrease = geometry->nCreasePoints, nCreaseFallback = geometry->nCreaseFallbacks;
       for (auto iMarker = 0u; iMarker < config->GetnMarker_All(); ++iMarker) {
         const auto kind = config->GetMarker_All_KindBC(iMarker);
         if ((kind != EULER_WALL) && (kind != SYMMETRY_PLANE)) continue;
-
-        /*--- Euler walls: incident boundary faces of the owned points for the crease groups of
-         * P1StrongSlip::SlipFaceGroups (ROE_TECNO_PLAN.md 6.11, item 2). The normal distribution sends every surface
-         * element to the owner of each of its nodes (CPhysicalGeometry), so the faces of an owned point are local. ---*/
-        std::map<unsigned long, std::vector<std::pair<unsigned long, unsigned short>>> facesOf;
-        if (kind == EULER_WALL) {
-          for (auto iElem = 0ul; iElem < geometry->GetnElem_Bound(iMarker); ++iElem) {
-            const auto* elem = geometry->bound[iMarker][iElem];
-            for (unsigned short iNode = 0; iNode < elem->GetnNodes(); ++iNode) {
-              const auto p = elem->GetNode(iNode);
-              if (geometry->nodes->GetDomain(p)) facesOf[p].emplace_back(iElem, iNode);
-            }
-          }
-        }
-        /*--- Corner area vector of a face at its node iNode: the pieces of CPhysicalGeometry::SetBoundControlVolume
-         * (CVertex::SetNodes_Coord with the stored element CG and the edge midpoints), so that the corner vectors of
-         * a point sum to its vertex normal. ---*/
-        auto cornerVector = [&](const CPrimalGrid* elem, unsigned short iNode, su2double* N) {
-          N[0] = N[1] = N[2] = 0.0;
-          const su2double* X = geometry->nodes->GetCoord(elem->GetNode(iNode));
-          const su2double* CG = elem->GetCG();
-          if (nDim == 2) {
-            if (iNode == 0) { N[0] += X[1] - CG[1]; N[1] -= X[0] - CG[0]; }
-            if (iNode == 1) { N[0] += CG[1] - X[1]; N[1] -= CG[0] - X[0]; }
-            return;
-          }
-          for (unsigned short iNeighbor = 0; iNeighbor < elem->GetnNeighbor_Nodes(iNode); ++iNeighbor) {
-            const su2double* Y = geometry->nodes->GetCoord(elem->GetNode(elem->GetNeighbor_Nodes(iNode, iNeighbor)));
-            su2double mid[3] = {0.0}, va[3] = {0.0}, vb[3] = {0.0}, cr[3] = {0.0};
-            for (unsigned short d = 0; d < 3; ++d) mid[d] = 0.5 * (X[d] + Y[d]);
-            const su2double* edgeCG = (iNeighbor == 0) ? CG : mid;
-            const su2double* faceCG = (iNeighbor == 0) ? mid : CG;
-            for (unsigned short d = 0; d < 3; ++d) { va[d] = X[d] - edgeCG[d]; vb[d] = faceCG[d] - edgeCG[d]; }
-            GeometryToolbox::CrossProduct(va, vb, cr);
-            for (unsigned short d = 0; d < 3; ++d) N[d] += 0.5 * cr[d];
-          }
-        };
 
         for (auto iVertex = 0ul; iVertex < geometry->nVertex[iMarker]; ++iVertex) {
           const auto iPoint = geometry->vertex[iMarker][iVertex]->GetNode();
           if (!geometry->nodes->GetDomain(iPoint)) continue;
 
-          /*--- Crease groups of an Euler-wall point: with two or more groups their unit normals replace the vertex
-           * normal. Consistency check: the corner vectors must reproduce the vertex normal (1e-6 relative), else the
-           * vertex normal is kept and the point counted. Faces ordered by their sorted global nodes. ---*/
-          const auto itF = facesOf.find(iPoint);
-          if (itF != facesOf.end()) {
-            if (itF->second.size() > P1StrongSlip::SLIP_MAX_FACES) {
-              ++nCreaseFallback;
-            } else {
-              auto faces = itF->second;
-              auto key = [&](const std::pair<unsigned long, unsigned short>& fc) {
-                const auto* elem = geometry->bound[iMarker][fc.first];
-                std::vector<unsigned long> g;
-                for (unsigned short iNode = 0; iNode < elem->GetnNodes(); ++iNode)
-                  g.push_back(geometry->nodes->GetGlobalIndex(elem->GetNode(iNode)));
-                std::sort(g.begin(), g.end());
-                return g;
-              };
-              std::sort(faces.begin(), faces.end(), [&](const auto& x, const auto& y) { return key(x) < key(y); });
-              const auto nFaces = static_cast<unsigned short>(faces.size());
-              su2double N[P1StrongSlip::SLIP_MAX_FACES][3], groupN[P1StrongSlip::SLIP_MAX_FACES][3];
-              unsigned long other[P1StrongSlip::SLIP_MAX_FACES][3] = {{0}};
-              unsigned short nOther[P1StrongSlip::SLIP_MAX_FACES] = {0};
-              su2double dual[3] = {0.0, 0.0, 0.0};
-              for (unsigned short f = 0; f < nFaces; ++f) {
-                const auto* elem = geometry->bound[iMarker][faces[f].first];
-                cornerVector(elem, faces[f].second, N[f]);
-                for (unsigned short iNode = 0; iNode < elem->GetnNodes(); ++iNode) {
-                  const auto p = elem->GetNode(iNode);
-                  if (p != iPoint && nOther[f] < 3) other[f][nOther[f]++] = p;
-                }
-                for (unsigned short d = 0; d < nDim; ++d) dual[d] += N[f][d];
-              }
-              const auto nGroups = P1StrongSlip::SlipFaceGroups(nDim, nFaces, N, other, nOther, groupN);
-              if (nGroups >= 2) {
-                su2double normal[MAXNDIM] = {0.0}, diff = 0.0, sum = 0.0;
-                geometry->vertex[iMarker][iVertex]->GetNormal(normal);
-                for (unsigned short d = 0; d < nDim; ++d) {
-                  diff += pow(dual[d] - normal[d], 2);
-                  sum += pow(normal[d], 2);
-                }
-                bool ok = (diff <= 1e-12 * sum);
-                for (unsigned short q = 0; q < nGroups; ++q) ok = ok && (GeometryToolbox::Norm(nDim, groupN[q]) > 0.0);
-                if (ok) {
-                  ++nCrease;
-                  for (unsigned short q = 0; q < nGroups; ++q) {
-                    std::array<su2double, 3> unit = {0.0, 0.0, 0.0};
-                    const su2double area = GeometryToolbox::Norm(nDim, groupN[q]);
-                    for (auto iDim = 0u; iDim < nDim; ++iDim) unit[iDim] = groupN[q][iDim] / area;
-                    normals[iPoint].push_back(unit);
-                  }
-                  continue;
-                }
-                ++nCreaseFallback;
-              }
+          /*--- Crease groups of an Euler-wall point (CGeometry::ComputeCreaseNormals, ROE_TECNO_PLAN.md 6.11 B / 6.14):
+           * with two or more groups their unit normals replace the vertex normal. ---*/
+          if (kind == EULER_WALL) {
+            const auto itC = geometry->creaseNormals[iMarker].find(iVertex);
+            if (itC != geometry->creaseNormals[iMarker].end()) {
+              for (const auto& unitC : itC->second) normals[iPoint].push_back({unitC[0], unitC[1], unitC[2]});
+              continue;
             }
           }
 
