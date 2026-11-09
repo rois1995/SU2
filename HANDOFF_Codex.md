@@ -45,7 +45,7 @@ timers separate and join-call time is NOTtotalMPIwait. Causal material gain NOT
 established. Latest user therefore directs BL next; no speculative Euler cycle.
 
 Qualified archived source: production294 +test-only295/296. Current working C++ has
-unvalidated connected curved-BL changes (build302 built; focused302 frozen/running); do not reuse296 source pins.
+connected curved-BL changes (build302 built; serial303 passed; MPI303 frozen/running); do not reuse296 source pins.
 StandaloneCFD SHA b316e4f9fd3c76b43c10c8c4ffb85f7040da0ab93cb2850182bec1c31dbab256;
 test_driver SHA6f8184dc7359a62ce6d9d82a2f96055ac6caebf2b5e7354c5f9800b4cedd403c.
 Frozen workflow used same selected-failure wrapper as293, invoking actual production
@@ -86,12 +86,27 @@ all5sampledhandles absent: actual_cubic_bl_20261109T172504_3838079. 56-point com
 localcell/216726geometrywork; sameactualoriginalauthority/constraints. NotCFDflow/
 normalizedtarget/BLmeshcoverage. Prior302probe wasunsigned-distance/oppositeside.
 
-CURRENT FROZEN connected SERIAL303 session48868, case
-R/cases/serial_20261109T172624_3841227, wrapper3841227;
-time3841316/timeout3841317/test_driver3841318/orted3841319 start28962600.
-600s cap; owned_startup.json recordsactualidentities. No terminaloutcome yet.
-Source/helpers/binaries frozen; verifyactualterminalbeforeedits. ONE connected
-MPI6milestone next ifserialpasses, thenpromptlyactualM6BLgeneration/realCFDtarget.
+Serial303 PASSED107cases/544736assertions/334.570s, allpinsunchanged/exactowned
+handles+wrapper absent: cases/serial_20261109T172624_3841227.
+MPI6-303 TERMINAL124/605.346s: cases/mpi6_20261109T173409_3860527,
+allpinsunchanged/all10exactstartupidentities+wrapper ABSENT in terminal_handles.
+Broadqualification FAILED/INCOMPLETE:222assertions at9CNativeImport3D_tests locations,
+600s cap. assessment.json preserves completed duration records and failurecounts.
+Sharedgeometryledger case completedon ALL6ranks withoutreportedfailure.
+Archived296 MPI6 control TERMINAL37/48.508s, allpinsverified/all10handlesabsent,
+reproduces SAME222assertions at SAME9locations across5cases (including wall-policy
+completion refusal); comparison in mpi303_baseline_failure_comparison.json. These
+are pre-existing; do not weaken assertions or misreport broadpass. Timeout adds6
+SIGTERM artifacts in active cachetest. No production correction justified by control.
+CURRENT FROZEN MPI303 resume session84753, wrapper3895940/start29101747,
+case R/cases/mpi6_resume303_20261109T174937_3895940; time3896021/timeout3896022
+start29101918; mpirun3896023/start29101919;6ranks3896026..31/start29101921..22.
+owned_startup.json pins all10actualidentities. ONLY118unfinished cases selected,
+same600sbound; completed prior evidence retained. Verifyterminalbeforeedits/newjob.
+Isolated savedRANS continuation inputs prepared under
+R/m6_inputs/rans_seed_continuation303_v1; launcher run_rans_continuation303.py NOTRUN.
+Exact savedmesh/SAstate, unchangedphysics/CFL,80furtheriterations,distinct input/output
+restartstems. RealCFDtarget/actualBLgeneration remain pending qualification.
 
 Production302 scopes share ONE eventAtlasBudget through preparation/engine/FIRST_ROW/
 reassessment/normalization; lifetime/callerwindows restore, cumulativework/failure/

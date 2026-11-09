@@ -1,0 +1,27 @@
+{
+  "build": "build303",
+  "case": "serial",
+  "ranks": 1,
+  "argv": [
+    "nice",
+    "-n",
+    "19",
+    "/usr/bin/time",
+    "-v",
+    "timeout",
+    "600",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+    "[NativeStagedConstruction3D],[NativeConstructionHandoff3D],[NativeShapeAdmission3D],[NativeFirstLayer3D],[NativeOptimize3D],[NativeJointGeometry3D],[NativeInteriorPlacement3D],[NativeConcurrentRepair3D],[NativeQualityPass3D],[NativeHeightOptimization3D],[NativeCoarsenQualityReturn3D],[NativeCoordinateStar3D],[NativeMetricSplitRule3D],[NativeRepairFairness3D],[NativeConstructionSweep3D],[NativeCoarsenQualityReturn3D],[ConservativeClipRobustness],[NativeStageProgress3D],[NativeStageCapture3D],[NativeCurvedMappedGuards3D],[NativeCurvedBL3D],[NativeComposite3D],[NativeVolumeBL3D],[NativeCurvedBLVolume3D],[NativeInteractingBLVolume3D],[NativeSharedGeometryBudget3D],[NativeGeometryBackend3D],[NativeParallelBL3D],[NativeReferenceBudget3D],[NativeDeadline3D]",
+    "--durations",
+    "yes"
+  ],
+  "environment": {
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1",
+    "OMPI_MCA_osc": "pt2pt",
+    "OMPI_MCA_orte_tmpdir_base": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/compile-tmp/curvedBL303-b_dxzrnp",
+    "TMPDIR": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/compile-tmp"
+  },
+  "timeout_seconds": 600
+}

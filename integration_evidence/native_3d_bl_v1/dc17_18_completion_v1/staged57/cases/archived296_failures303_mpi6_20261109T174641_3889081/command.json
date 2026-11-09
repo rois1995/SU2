@@ -1,0 +1,34 @@
+{
+  "build": "build303",
+  "case": "archived296_failures303_mpi6",
+  "ranks": 6,
+  "argv": [
+    "nice",
+    "-n",
+    "19",
+    "/usr/bin/time",
+    "-v",
+    "timeout",
+    "600",
+    "mpirun",
+    "--bind-to",
+    "none",
+    "-n",
+    "6",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/baselines/qualified_euler296_pre_bl_v1/binaries/test_driver",
+    "Native3D driver publishes only accepted mesh and transfers affine BDF2 states,Actual CFD import generates bounded bump sensor columns with collective provenance and refusal,Actual CFD import generates a finite spherical sensor shell with copied boundary values,Native3D production wall policy preserves sensor donors and RANS histories across worker counts,Mapped native runtime completes a uniform target before conservative BDF2 transfer",
+    "--durations",
+    "yes"
+  ],
+  "environment": {
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1",
+    "OMPI_MCA_osc": "pt2pt",
+    "TMPDIR": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/compile-tmp",
+    "OMPI_MCA_orte_tmpdir_base": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/compile-tmp/control296-303-7k7er5o9"
+  },
+  "timeout_seconds": 600,
+  "binary_provenance": "archived qualified_euler296_pre_bl_v1; build303 labels only current source/runtime controls",
+  "archive_manifest": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/baselines/qualified_euler296_pre_bl_v1/manifest.json"
+}

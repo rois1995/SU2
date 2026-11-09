@@ -1,0 +1,73 @@
+{
+  "status": "INPUTS_PREPARED_UNQUALIFIED_NOT_RUN",
+  "scope": "Isolated 80-iteration steady RANS/SA continuation inputs only. No CFD/MPI/build launched; not reasonable-flow qualification or RANS500k completion. Parent must choose bounded guarded runtime after frozen MPI terminal.",
+  "original_directory": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/oneram6_coarse_v1/flow_checkpoint",
+  "original_sha256": {
+    "Coarse.su2": "8c839170eb5e359f7de6a41434aa6a9c2d620053f37de6d9360bd04d2a63088b",
+    "restart_flow.dat": "3b4090771eda3bb3348e0fee96971910472daab7f7a52970eaccdc3950d30c17",
+    "run.cfg": "acd22ae3a278ce4e362dd84603f4a29ee1e35dd9c868bdca96bc73bbfc25fadd",
+    "provenance.json": "dd0a678cd3ca74baaf4312fb6573634dbaf37f8fddbd85db9a7f5a890b7b7521",
+    "history.csv": "b4790a6634c84c5c69aa90a400133fc9d956955229dca523e30f97f48384be41",
+    "native.log": "3f542f4e207ea82bea66ea136776635de587800b7494071daf1c307c06019b98"
+  },
+  "changed_options": {
+    "RESTART_SOL": {
+      "from": "NO",
+      "to": "YES"
+    },
+    "READ_BINARY_RESTART": {
+      "from": null,
+      "to": "YES"
+    },
+    "SOLUTION_FILENAME": {
+      "from": "restart_flow",
+      "to": "baseline_sa_seed"
+    },
+    "ITER": {
+      "from": "120",
+      "to": "80"
+    },
+    "OUTPUT_WRT_FREQ": {
+      "from": "120",
+      "to": "80"
+    },
+    "SCREEN_WRT_FREQ_INNER": {
+      "from": "10",
+      "to": "1"
+    },
+    "HISTORY_WRT_FREQ_INNER": {
+      "from": null,
+      "to": "1"
+    },
+    "HISTORY_OUTPUT": {
+      "from": null,
+      "to": "( ITER, RMS_RES, AERO_COEFF )"
+    },
+    "ADAP_LOOP": {
+      "from": null,
+      "to": "NO"
+    }
+  },
+  "output_restart_stem": "restart_flow",
+  "input_restart_stem": "baseline_sa_seed",
+  "preserved": "Exact original physics, dimensional normalization, CFL adaptation and SA options; unchanged volume solution/primitive/residual output groups.",
+  "runtime_requirements": {
+    "scratch": "existing repository build compile-tmp on 4TB disk; parent retains existing runtime scratch convention",
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1",
+    "priority": "nice19",
+    "launch": "NONE; parent only after MPI terminal"
+  },
+  "file_sha256": {
+    "baseline_history.csv": "b4790a6634c84c5c69aa90a400133fc9d956955229dca523e30f97f48384be41",
+    "Coarse.su2": "8c839170eb5e359f7de6a41434aa6a9c2d620053f37de6d9360bd04d2a63088b",
+    "run.cfg": "8b37888b7bd9b1246d8429e6845523d37b16f16f781ed1bd1f23a7a53420e2ae",
+    "baseline_sa_seed.dat": "3b4090771eda3bb3348e0fee96971910472daab7f7a52970eaccdc3950d30c17",
+    "baseline_run.cfg": "acd22ae3a278ce4e362dd84603f4a29ee1e35dd9c868bdca96bc73bbfc25fadd",
+    "baseline_provenance.json": "dd0a678cd3ca74baaf4312fb6573634dbaf37f8fddbd85db9a7f5a890b7b7521",
+    "baseline_native.log": "3f542f4e207ea82bea66ea136776635de587800b7494071daf1c307c06019b98"
+  },
+  "originals_unchanged": true,
+  "copied_inputs_byteidentical": true
+}

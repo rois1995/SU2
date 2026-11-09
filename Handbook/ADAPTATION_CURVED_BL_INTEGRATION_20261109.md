@@ -2,8 +2,10 @@
 
 User steering2026-11-09. This is the next implementation milestone AFTER frozen
 FIRST296 terminated and actual owned handles were verified terminal. Connected BL
-source implementation has now begun; build301 is frozen/running (session30473); current state takes precedence below.
-No BL tests/CFD yet. Preserve qualified Euler construction/certification,
+source implementation is built302/303; serial303 passed, broad MPI303 terminated
+at its600s cap with failures. Current outcome/control work is recorded below.
+Actual curved-M6 policy probes passed, but no BLmesh generation or RANSCFD yet.
+Preserve qualified Euler construction/certification,
 all gates/budgets and the completed293 two-event/restart baseline/checkpoints.
 Small296 timing changes, reuse counters and speculative geometry optimizations do
 not justify another Euler cycle. Only clear material outcome evidence can change
@@ -326,9 +328,25 @@ Reference6.708s,policy6.991s,fluidpoint7.111s/1233work,chord7.150s/1644work/2cut
 56-point completecell27.232s/216726work. Loader/admittedpeak4625561376 NOTRSS;
 oneprocess /time max332492KiB,27.20CPU/27.68wall. NoWholeM6mesh/flowclaim.
 
-CURRENT frozenSERIAL303 session48868/cases/serial_20261109T172624_3841227;
-600s cap, actualPID/start records inowned_startup. No terminaloutcome yet; pinsfrozen.
-ONEconnectedMPI6milestone next ifpassing, thenreturnactualM6BLgeneration/normalized
-realsavedCFDtarget. Maintain initialflowqualification, allshape/geometry/height/
-transfer/turbulence/continuedCFD/restart obligations. Do not mistake policyprobe or
-ledgerfixture for BLsuitability/coverage.
+Serial303 PASSED107cases/544736assertions,334.570s; allpinsunchanged/exactowned
+handles and wrapper absent. Case serial_20261109T172624_3841227.
+MPI6-303 TERMINAL124/605.346s at600scap; allpinsunchanged/all10exacthost
+identities+wrapper absent. Case mpi6_20261109T173409_3860527/assessment.json retains
+222assertionfailures at9oldCNativeImport3D_tests locations andcompletedtests.
+Shared event/engine ledger case completed ALL6ranks withoutreportedfailure;
+wholeMPIqualification FAILED/INCOMPLETE. Matching archived296 control of5failed
+cases planned; directextensiontests rununchangedimportcode but noexactbaselineproofyet.
+No sourceedit/raisedbudget; reusecompleted evidence/resume affectedqualification.
+ActualM6BLgeneration/normalized savedCFDtarget remain next capability.
+Isolated80-iteration savedRANScontinuation inputs+launcher preparedonly, NOTRUN;
+unchangedphysics/CFL, exactmesh/SAstate, distinctinput/outputstems. No reasonable-flow
+qualification yet. Do not mistake policyprobe/ledgerfixture for BLsuitability/coverage.
+
+Archived296 exact5-case MPI6control TERMINAL37/48.508s, archive/current/runtimepins
+verified/all10observedhandlesabsent. Reproduces SAME222failures at SAME9import
+locations, including productionwallpolicy completion refusal. No connectedproduction
+fix justified by these pre-existing failures. Broadtimeout SIGTERM artifacts are
+separate. mpi303_baseline_failure_comparison.json records scope.
+CURRENT FROZEN resume session84753/case mpi6_resume303_20261109T174937_3895940,
+118unfinishedcases only/same600scap, allcurrent303pins frozen. Priorcompleted
+results retained; terminalhandles required before sourceedit/newheavyjob.
