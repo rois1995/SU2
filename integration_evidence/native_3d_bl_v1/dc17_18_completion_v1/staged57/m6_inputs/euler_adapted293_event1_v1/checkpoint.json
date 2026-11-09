@@ -1,0 +1,67 @@
+{
+  "schema": "adapted293_event1_preserved_checkpoint_v1",
+  "time": 1794221777.891735,
+  "source_attempt": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build293_bounded_reference_mach_only_real_cfd50k",
+  "destination": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_inputs/euler_adapted293_event1_v1",
+  "native_accepted": true,
+  "mesh_points": 149051,
+  "mesh_cells": 736323,
+  "true_mass_residuals": {
+    "Density": 7.722e-14,
+    "Momentum-x": 2.649e-14,
+    "Momentum-y": 5.244e-14,
+    "Momentum-z": 3.14e-14,
+    "Energy": 7.627e-14
+  },
+  "projected_inadmissible_states": 0,
+  "target_integral_gate": "Successful pinned transfer enforces scaled TARGET defect<=1e-12 before publication; final numerical target defects not printed.",
+  "continued_adapted_cfd": {
+    "rms_rho": -2.143478,
+    "CL": 0.269781,
+    "CD": 0.014756
+  },
+  "continued_history_rows": [
+    {
+      "Time_Iter": "0",
+      "Outer_Iter": "0",
+      "Inner_Iter": "0",
+      "Adap_Cycle": "1",
+      "Adap_Iter": "1",
+      "rms[Rho]": "-2.143477888",
+      "rms[RhoU]": "0.3517141106",
+      "rms[RhoV]": "0.4305216355",
+      "rms[RhoW]": "0.5211953267",
+      "rms[RhoE]": "3.374119149"
+    }
+  ],
+  "coordinate_maximum_error": 0.0,
+  "all_restart_fields_finite": true,
+  "minimum_density": 0.6223603149820991,
+  "minimum_internal_energy_density": 104024.17079785543,
+  "precision": "Float64",
+  "input_hashes": {
+    "adapted_mesh_adap_00001.su2": "960b6d56ef9e3c7e0a88b9b763b3d419b3edf9523a45662352898ad4a730c28d",
+    "adapted_mesh_adap_00001.su2.native_ref": "51fcfd52b2c9a90b4f532d978807910bfccf2d977320a6ad8b45aecbf9502eb3",
+    "restart_flow_adap_00001.dat": "eb4a267515ef4e45528d0e2675702428b2dd30f44ff1889a52aca8fe52e2fef3",
+    "run.cfg": "5ad2dc1d9a1cd8bff87f633617b191b50defbc261ab3d0b2ed0987a34722b89e",
+    "pins.json": "4cb22c16e1d1e2b7060702f300ef680fd401cf88f73db04d291403e6929ea265",
+    "seed_input.json": "5ec5a0bc76b77d0dbbf33b8589842bd16ca0404549812abbd71a3c0f2682eef1",
+    "workflow_event_00001.json": "e1bcff79eb551bf4a61eadce232c782e0cd3f6073b52e0d9771a208c479ac09e"
+  },
+  "all_1520_runtime_source_input_pins_verified": true,
+  "pin_count": 1520,
+  "checkpoint_file_hashes": {
+    "adapted_mesh_adap_00001.su2": "960b6d56ef9e3c7e0a88b9b763b3d419b3edf9523a45662352898ad4a730c28d",
+    "continued_cfd.log": "a47d237954b13dc7bbc3d72c66d59c0bfc1f5161b30b94ad1b7f4cd2f0a2beae",
+    "seed_input.json": "5ec5a0bc76b77d0dbbf33b8589842bd16ca0404549812abbd71a3c0f2682eef1",
+    "pins.json": "4cb22c16e1d1e2b7060702f300ef680fd401cf88f73db04d291403e6929ea265",
+    "run.cfg": "5ad2dc1d9a1cd8bff87f633617b191b50defbc261ab3d0b2ed0987a34722b89e",
+    "restart_flow_adap_00001.dat": "eb4a267515ef4e45528d0e2675702428b2dd30f44ff1889a52aca8fe52e2fef3",
+    "continued_history.csv": "4888a133cd5cbef8965d55d9fb6ec998b9faeffb30423071acb3530110bade62",
+    "adapted_mesh_adap_00001.su2.native_ref": "51fcfd52b2c9a90b4f532d978807910bfccf2d977320a6ad8b45aecbf9502eb3",
+    "workflow_event_00001.json": "e1bcff79eb551bf4a61eadce232c782e0cd3f6073b52e0d9771a208c479ac09e"
+  },
+  "disk_restart_verified": false,
+  "second_adaptation_entered": true,
+  "scope": "Independent actual accepted mesh/reference plus MATCHING following-cycle continued-CFD restart; canonical sidecar validated by qualified writer. Isolated actual disk restart still required. Frozen second adaptation already entered; preserve its outcome before pinned edits. Restart metric is the newly computed next target, not an exported construction-transport field."
+}

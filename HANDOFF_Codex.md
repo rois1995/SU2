@@ -1,7 +1,8 @@
 # Native adaptation — current handoff
 
-Updated2026-11-09 Europe/Rome. Goal ACTIVE. ONE native candidate passed strict
-acceptance and conservative transfer in291; ZERO complete workflow events/checkpoints.
+Updated2026-11-09 Europe/Rome. Goal ACTIVE. FIRST event293 is accepted/transferred/persisted with finite continued
+adapted CFD; its actual matched checkpoint is independently preserved. Event2 is
+already LIVE/frozen. Actual isolated disk restart is still UNPROVED.
 Completion remains TWO strictly accepted Euler50k CFD→mesh→CFD→mesh events,
 conservative admissible transfer, finite continued ADAPTED CFD and ACTUAL isolated
 ADAPTED disk restart; then dedicated BL/constraints/MPI and RANS500k. Do not count
@@ -36,19 +37,36 @@ qualified254target; Mach-onlyL1/50k and same savedCFDseed. Initial host availabl
 C++/binary/runtime/pinnedhelpers/inputs FROZEN. Do NOT launch another attempt or
 edit them before verified terminal handles; preserve frozenrun unless outcome or
 existing authorized stop evidence justifies action. Native5400/outer14400/native
-12GiB/hostcache4GiB and ALL gates unchanged. No event outcome claimed yet.
+12GiB/hostcache4GiB and ALL gates unchanged. Event1 verified below; event2 LIVE.
 Qualityentry23306/native578.709s:690804cells,27052q-bad/27499J-bad/1204geometry-bad/
 0size-bad, ALLmeasurements known and completeflags. All83matchingstages against291
 have EXACTcounts/flags/comparedwork. Latest sampled treeRSS8.737GB (notphysicalpeak),
 hostavailable~35.7GiB, all11identitieslive. A293/construction_progress_assessment.json,
 comparison291_matching_stages.json and stage_parser_reuse.json seal existingparser
 reuse/prefixhashes. Read-only transfer_restart_readiness_reuse.json verifies seven
-unchangedpins; driverdiff reviewed for outputbudget propagation only. Actualnewrun
-transfer/continuedCFD/restart remainUNPROVED.
-Latest completequality_exit24513/native2587.237s:733163cells,10q-bad/4J-bad/
-945geometry-bad/0size-bad; allknown/complete. Intermediate phase exit is NOTshape
-closure or acceptance. All111matchingstages EXACTcounts/flags/comparedwork versus291.
-All11actualidentities stilllive, sampledtreeRSS9.167GB, hostavailable~37.0GiB. No stopcondition demonstrated. Continue frozen293; do not
+unchangedpins; driverdiff reviewed for outputbudget propagation only. Actualfirst-event transfer/
+continuedCFD now verified below; isolatedrestart remainsUNPROVED.
+First native exit25210/native3640.719s:149051points/736323tets, ALLknown0q/J/
+geometry/size, completeflags and all6nativecomplete. All164matchingstages against291
+EXACTcounts/flags/comparedwork. Samecandidate/trajectory, slowerwall under observed
+contention; no causal IO/kernel speedup claim. Conservative transfer trueCVresiduals
+7.722e-14/2.649e-14/5.244e-14/3.140e-14/7.627e-14,0inadmissibleprojectedstates.
+Successful pinnedpath enforces scaledTARGETintegraldefect<=1e-12; finalnumericaltarget
+defects notprinted. Savedmesh38361722B +native_ref49677601B; writer~48.7s.
+FollowingCycle1 actualCFD finite:CL.269781/CD.014756/rmsRho-2.143478. Matching
+restart_flow_adap_00001.dat26233722B saved; coordinates BIT-IDENTICAL149051meshpoints,
+all22fields finite,minrho.6223603149820991,mininternalE-density104024.17079785543.
+Independent COPY retained at R/m6_inputs/euler_adapted293_event1_v1/checkpoint.json;
+A293/preserved_first_adapted_checkpoint.json pins manifest. Actual mesh/reference/
+matchingrestart/config/provenance/log/history retained; all1520pins reverified.
+Actual isolated disk restart stillUNPROVED. Restart metric is newly computed NEXT
+target, not an exported construction-transport field.
+Frozen driver already entered SECOND adaptation (NATIVE3D_PARTITION inCycle1).
+Preserve its outcome before ANYpinnedsource/helper/binary edit. First-event stage
+parser stops after firstexit; do not mistake its fixedzero counts for event2 status.
+All11actualidentities live atlastverification; sampledtreeRSS~10.13GB,
+hostavailable~36.1GiB. Rankuser/system CPUticks now retained in owned_observations
+alongside existing NATIVE3D_QUALITY busy/join counters; joincall is NOTtotalMPIwait. No stopcondition demonstrated. Continue frozen293; do not
 start anotherjob. Existingparser remains first-event-only; followingevents require
 separate event-specific acceptance/transfer/continuedCFD audit.
 
@@ -64,7 +82,7 @@ replay is the performance comparator: Mach-onlyL1/50k, unchanged constraints/gat
 budgets/construction. No source change yet; bounded static observations recorded in
 [performance cycle](Handbook/ADAPTATION_BOUNDARY_QUERY_PERFORMANCE_20261109.md).
 Return to preserved adaptedCFD for logical event2 if needed; actual diskrestart,
-BL/MPI and RANS500k obligations unchanged. Currentrun has NOevent1output yet.
+BL/MPI and RANS500k obligations unchanged. First checkpoint is now preserved and event2 already entered; see CURRENT above.
 
 ## Previous291 TERMINAL after native acceptance/transfer; reference write failed
 
