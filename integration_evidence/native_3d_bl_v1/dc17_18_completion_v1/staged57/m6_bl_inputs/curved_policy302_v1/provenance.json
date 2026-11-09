@@ -1,0 +1,27 @@
+{
+  "scope": "Actual original M6 no-CAD curved geometry policy only. No CFD seed is read, no normalized flow target or accepted BL mesh is claimed.",
+  "source_config": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/oneram6_coarse_v1/run.cfg",
+  "source_config_sha256": "f1482475f988bb9806acbe272a72b4d8345c72a94c1110e97bbd9c7f76ab6e3b",
+  "config": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_bl_inputs/curved_policy302_v1/run.cfg",
+  "config_sha256": "d6595f94a39db65e6e769a6ad47a5b5b09648e0472dc4d83f5979898e339ca0f",
+  "reference": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/validation54/m6_euler/m6.su2.native_ref",
+  "reference_sha256": "2e99fb7870e2c718f110da8509e4c0f7e746ce138e7f27ab57aa0dedbb6c42de",
+  "changes": {
+    "ADAP_SENSOR": "( MACH )",
+    "ADAP_SIZES": "( 500000 )",
+    "ADAP_COMPLEXITY": "500000",
+    "ADAP_NORM": "1",
+    "ADAP_NATIVE_MEMORY_LIMIT": "12288",
+    "ADAP_NATIVE_RANKS": "1",
+    "ADAP_BL_METHOD": "FIRST_ROW",
+    "ADAP_ANGLE": "60"
+  },
+  "preserved_constraints": {
+    "first_height": 2e-06,
+    "growth": 1.2,
+    "thickness": 0.01,
+    "hausd": 0.0001,
+    "native_time": 300
+  },
+  "preparation_sha256": "0ee9049b6f2e6eb8fa01fa23a7d8a57da2783ed9d2913699a9d540022cab6266"
+}

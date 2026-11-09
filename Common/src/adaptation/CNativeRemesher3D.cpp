@@ -7,6 +7,7 @@
 
 #include "../../include/adaptation/CNativeRemesher3D.hpp"
 #include "../../include/adaptation/CNativeMetricTransport3D.hpp"
+#include "../../include/adaptation/CNativeAffineReference.hpp"
 #include "../../include/adaptation/CNativeRuntimeProfile3D.hpp"
 #include "../../include/adaptation/CNativeReferenceIO3D.hpp"
 #include "../../include/CConfig.hpp"
@@ -239,6 +240,7 @@ CRemeshResult CNativeRemesher3D::Remesh(const CConfig& config, const CGeometry& 
     ReferenceState state;
     bool published = false;
   };
+  SU2NativeGeometry::AtlasBudget target_event_budget;
   do {
     CheckSupport(config, geometry);
     phase(0);
@@ -381,6 +383,22 @@ CRemeshResult CNativeRemesher3D::Remesh(const CConfig& config, const CGeometry& 
     if (control.maximum_work==SIZE_MAX)
       control.maximum_work=std::max<size_t>(4096,transfer_memory::Mul(stats.initial_cells,64));
     if (!vote(control.maximum_work!=SIZE_MAX,"Native3D automatic global work ceiling overflows.")) break;
+    std::shared_ptr<void> target_event_lease;
+    if(control.geometry_workspace_bytes) {
+      try {
+        if(control.geometry_workspace_bytes>=control.memory_ceiling)throw std::length_error("Native event geometry scratch exceeds shared memory ceiling.");
+        target_event_budget.maximum_bytes=control.memory_ceiling;
+        control.memory_ceiling-=control.geometry_workspace_bytes;
+        target_event_budget.caller_bytes=control.memory_ceiling;
+        target_event_budget.maximum_work=transfer_memory::Mul(transfer_memory::Add(stats.initial_cells,control.maximum_work),SU2NativeGeometry::MappedFacetReference::ClearanceWork);
+        if(target_event_budget.maximum_work==SIZE_MAX)throw std::length_error("Native event geometry work overflows.");
+        target_event_budget.within_time=[&](){return !control.maximum_seconds || std::chrono::duration<double>(std::chrono::steady_clock::now()-deadline_start).count()<control.maximum_seconds;};
+        if(!control.geometry_reservation)throw std::invalid_argument("Native event omitted its retained geometry reservation binding.");
+        target_event_lease=control.geometry_reservation(target_event_budget);
+      }catch(const std::exception& e){failure.Set(2,0,e.what());}
+      if(!vote(!failure.Failed(),failure.message))break;
+      if(!admit(transfer_memory::Add(held(),OwnedStorageBytes(imported.cells),transfer_memory::Bytes(imported.original))))break;
+    }
     Owned working = std::move(imported.cells);  // Private import already owns this map; no duplicate is needed.
     std::vector<DonorCell> migrated;
     const std::vector<DonorCell>* worker_source = &imported.original;
@@ -489,6 +507,7 @@ CRemeshResult CNativeRemesher3D::Remesh(const CConfig& config, const CGeometry& 
       if (parent.rank < stats.workers && ready) {
         World workers(comm);
         auto kernel = control;
+        if(control.geometry_workspace_bytes)kernel.shared_geometry_budget=&target_event_budget;
         kernel.maximum_seconds=worker_seconds;
         kernel.maximum_work=control.maximum_work-stats.cumulative_work;
         const auto worker_start=workers.seconds();
@@ -530,6 +549,7 @@ CRemeshResult CNativeRemesher3D::Remesh(const CConfig& config, const CGeometry& 
           if (valid && construction) {
             // FIRST_ROW publishes only a provisional private mesh into the shared distributed stages.
             stats.construction = true;
+            if(kernel.shared_geometry_budget)kernel.memory_ceiling=target_event_budget.maximum_bytes;
             auto built = construction(workers, working, stage_source, pending->state, composition, kernel, stats.construction_report);
             stats.construction_stats = built.stats;
             valid = built.valid;
@@ -553,11 +573,15 @@ CRemeshResult CNativeRemesher3D::Remesh(const CConfig& config, const CGeometry& 
               const size_t estimated=transfer_memory::Add(held(),OwnedStorageBytes(working),transfer_memory::Bytes(migrated),
                                                      transfer_memory::Bytes(imported.original),transfer_memory::Mul(6144,imported.original.size()));
               const size_t need=std::max(measured,estimated);
-              const size_t wanted=std::max(control.memory_ceiling,need>=SIZE_MAX/2?SIZE_MAX:need+need/2);  // never below the pre-construction ceiling
+              const size_t wanted=std::max(control.geometry_workspace_bytes?target_event_budget.maximum_bytes:control.memory_ceiling,need>=SIZE_MAX/2?SIZE_MAX:need+need/2);  // never below the pre-construction ceiling
               std::cout<<"DC16 publication memory: need "<<need/(size_t(1)<<20)<<" MiB (measured peak "<<measured/(size_t(1)<<20)<<", estimated "<<estimated/(size_t(1)<<20)<<"), ceiling "<<std::min(wanted,cap)/(size_t(1)<<20)
                        <<" MiB (default "<<control.memory_ceiling/(size_t(1)<<20)<<" MiB, cap 25 % of node memory "<<cap/(size_t(1)<<20)<<" MiB)"<<std::endl;
               if (wanted>cap) { valid=false; detail="FIRST_ROW publication needs an estimated "+std::to_string(need>>20)+" MiB x 1.5, above the 25 % node-memory cap ("+std::to_string(cap>>20)+" MiB)."; }
-              else control.memory_ceiling=wanted;
+              else {
+                control.memory_ceiling=wanted;
+                if(control.geometry_workspace_bytes){target_event_budget.maximum_bytes=wanted;
+                  control.memory_ceiling-=control.geometry_workspace_bytes;target_event_budget.caller_bytes=control.memory_ceiling;}
+              }
             }
             if(built.stats.global_work>kernel.maximum_work) {
               valid=false;detail="FIRST_ROW construction exhausted shared native work.";
@@ -578,6 +602,7 @@ CRemeshResult CNativeRemesher3D::Remesh(const CConfig& config, const CGeometry& 
           }
           if(valid) {
             const auto refine_begin=workers.seconds();
+            if(kernel.shared_geometry_budget)kernel.memory_ceiling=target_event_budget.maximum_bytes;
             auto refined = AdaptMetric(workers, working, stage_source, *pending->state.original, composition, kernel);
             stats.refine = refined.stats;
             valid = refined.valid;
@@ -633,6 +658,10 @@ CRemeshResult CNativeRemesher3D::Remesh(const CConfig& config, const CGeometry& 
       ready = vote(valid, detail);
       // review 3: the construction worker may have raised the publication ceiling; every parent rank uses that value
       control.memory_ceiling = size_t(CPassiveComm::Allreduce(uint64_t(control.memory_ceiling), CPassiveComm::Op::MAX, parent.comm));
+      if(control.geometry_workspace_bytes) {
+        target_event_budget.maximum_bytes=transfer_memory::Add(control.memory_ceiling,control.geometry_workspace_bytes);
+        target_event_budget.caller_bytes=control.memory_ceiling;
+      }
       if(ready && stats.workers<parent.size && pending->state.original->Mapped()) {
         ready=SynchronizeBoundaryParameters(parent,stats.workers,pending->state,reason,stats.parameter_return,
             control.memory_ceiling,transfer_memory::Add(held(),OwnedStorageBytes(working),transfer_memory::Bytes(imported.original),transfer_memory::Bytes(migrated)));
@@ -777,6 +806,7 @@ CRemeshResult CNativeRemesher3D::Remesh(const CConfig& config, const CGeometry& 
       stats.complete = true;
     }
   } while (false);
+  stats.maximum_native_bytes=std::max(stats.maximum_native_bytes,target_event_budget.peak_bytes);
   // Capture attempted import/parent/worker work even when an earlier phase rejects the event.
   stats.parent_transport_bytes = parent.bytes_sent;
   stats.parent_transport_calls = parent.collective_calls;
@@ -995,6 +1025,8 @@ CRemeshResult CNativeRemesher3D::Remesh(const CConfig& config, const CGeometry& 
     };
     if(stats.construction)engine("construction",stats.construction_stats);
     engine("refine",stats.refine); engine("coarsen",stats.coarsen);
+    if(control.geometry_workspace_bytes)detail<<" target_geometry_work="<<target_event_budget.work
+        <<" target_geometry_reserved_peak_bytes="<<target_event_budget.peak_bytes<<" target_geometry_scratch="<<control.geometry_workspace_bytes;
     SU2Native3D::ProfileRow3D(detail.str(), parent.comm);
   }
   if(parent.rank==0 && stats.normalization_stages) {

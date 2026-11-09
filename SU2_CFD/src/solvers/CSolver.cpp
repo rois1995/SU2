@@ -2653,7 +2653,7 @@ void CSolver::ComputeMetric(CGeometry *geometry, const CConfig *config, const ve
   SU2Native3D::RuntimeProfile3D<6> profile(config->GetWrt_Performance() && nDim == 3 &&
       config->GetKind_Adap_Remesher() == ADAP_REMESHER::NATIVE_CAVITY, "metric_build");
 
-  const size_t nativeMemoryLimit=config->GetAdap_Native_MemoryLimit()?config->GetAdap_Native_MemoryLimit():(size_t(2)<<30);
+  size_t nativeMemoryLimit=config->GetAdap_Native_MemoryLimit()?config->GetAdap_Native_MemoryLimit():(size_t(2)<<30);
   if(!replay)nativeMetricFamily3D.reset();
   const auto nSensor = config->GetnAdap_Sensor();
   const su2double p = config->GetAdap_Norm();
@@ -2908,8 +2908,10 @@ void CSolver::ComputeMetric(CGeometry *geometry, const CConfig *config, const ve
     double low[3],high[3];CPassiveComm::Allreduce(policy,low,3,CPassiveComm::Op::MIN);CPassiveComm::Allreduce(policy,high,3,CPassiveComm::Op::MAX);
     if(!std::equal(low,low+3,high))SU2_MPI::Error("Inconsistent native3D BL budget controls.",CURRENT_FUNCTION);
   }
+  SU2NativeGeometry::AtlasBudget metric_geometry_budget;
   std::shared_ptr<CBoundaryLayerMetric> nativeLayers;
   std::shared_ptr<SU2NativeBLPipeline3D::TargetPolicy> firstRowTarget;
+  std::shared_ptr<void> metric_geometry_lease;
   struct CellRule {
     std::array<unsigned long, 3> nodes;
     std::array<std::array<double,2>,3> coordinates;
@@ -2947,6 +2949,24 @@ void CSolver::ComputeMetric(CGeometry *geometry, const CConfig *config, const ve
       if(nDim==3 && config->GetKind_Adap_BL_Method()==ADAP_BL_METHOD::FIRST_ROW) {
         if(!nativeReference3D)throw std::runtime_error("FIRST_ROW normalization requires its retained geometry authority.");
         firstRowTarget=SU2NativeBLPipeline3D::MakeTargetPolicy(*config,*nativeReference3D,SU2_TYPE::GetValue(eigMin),-1,nativeLayers);
+      }
+      const auto geometryScratch=firstRowTarget
+          ? std::max(firstRowTarget->full->GeometryWorkspaceBytes(),firstRowTarget->base->GeometryWorkspaceBytes())
+          : nativeLayers->GeometryWorkspaceBytes();
+      if(geometryScratch) {
+        if(geometryScratch>=nativeMemoryLimit)throw std::length_error("Native target geometry scratch exceeds memory ceiling.");
+        metric_geometry_budget.maximum_bytes=nativeMemoryLimit;
+        nativeMemoryLimit-=geometryScratch;
+        metric_geometry_budget.caller_bytes=nativeMemoryLimit;
+        const auto cells=size_t(geometry->GetGlobal_nElem());
+        const auto work=config->GetAdap_Native_Max_Work()?size_t(config->GetAdap_Native_Max_Work()):std::max(size_t(4096),transfer_memory::Mul(cells,64));
+        metric_geometry_budget.maximum_work=transfer_memory::Mul(transfer_memory::Add(cells,work),SU2NativeGeometry::MappedFacetReference::ClearanceWork);
+        if(metric_geometry_budget.maximum_work==SIZE_MAX)throw std::length_error("Native target geometry work overflows.");
+        metric_geometry_budget.within_time=[geometryStart,maximum=SU2_TYPE::GetValue(config->GetAdap_Native_Max_Time())] {
+          return maximum<=0 || SU2_MPI::Wtime()-geometryStart<maximum;
+        };
+        metric_geometry_lease=firstRowTarget?firstRowTarget->ReserveGeometry(metric_geometry_budget):
+            std::static_pointer_cast<void>(std::make_shared<CBoundaryLayerMetric::GeometryReservationScope>(*nativeLayers,metric_geometry_budget));
       }
       {
         /*--- D1 crease-frame law: one feature set (detected on replicated original geometry) on every rank. ---*/
@@ -3976,6 +3996,9 @@ void CSolver::ComputeMetric(CGeometry *geometry, const CConfig *config, const ve
   std::string detail;
   if (config->GetWrt_Performance() && nDim == 3 && nativeMetric) {
     std::ostringstream counters;
+    if(metric_geometry_budget.maximum_work)counters<<" geometry_work="<<metric_geometry_budget.work
+        <<" geometry_reserved_peak_bytes="<<metric_geometry_budget.peak_bytes;
+
     counters << std::setprecision(17) << " nested_gradation=" << gradationSeconds
              << " nested_gradation_halo=" << haloSeconds << " nested_gradation_reduction=" << reductionSeconds
              << " complexity=" << metricComplexityFinal << " bracketed=" << metricComplexityBracketed

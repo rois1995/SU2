@@ -46,6 +46,7 @@
 #include "../../../Common/include/adaptation/CNativeImport2D.hpp"
 #include "../../../Common/include/adaptation/CNativeField3D.hpp"
 #include "../../../Common/include/adaptation/CNativeImport3D.hpp"
+#include "../../../Common/include/adaptation/CNativeReferenceIO3D.hpp"
 #include "../../../Common/include/geometry/CPhysicalGeometry.hpp"
 #include "../../../Common/include/geometry/meshreader/CMemoryMeshReaderFVM.hpp"
 #include "../../../Common/include/linear_algebra/blas_structure.hpp"
@@ -1316,15 +1317,148 @@ TEST_CASE("Native3D complexity reference does not rebase the wall on the adapted
   }
   CBoundaryLayerMetric admitted(3,{limited});
   CHECK(admitted.MarkerDistance(0,foot)==Approx(0).margin(2e-9));
+  CHECK(current.GeometryWorkspaceBytes()==0);
+  REQUIRE(admitted.GeometryWorkspaceBytes()>0);
+  SU2NativeGeometry::AtlasBudget outer;
+  outer.maximum_work=8*MappedFacetReference::ClearanceWork;
+  outer.caller_bytes=admitted.StorageBytes();
+  outer.maximum_bytes=outer.caller_bytes+admitted.GeometryWorkspaceBytes();
+  {
+    CBoundaryLayerMetric::GeometryReservationScope scope(admitted,outer);
+    CHECK(admitted.MarkerDistance(0,foot)==Approx(0).margin(2e-9));
+    CHECK(outer.work>0);
+    const auto charged=outer.work;
+    SU2NativeGeometry::AtlasBudget expired=outer;
+    expired.within_time=[](){return false;};
+    {
+      CBoundaryLayerMetric::GeometryReservationScope nested(admitted,expired);
+      CHECK_THROWS(admitted.MarkerDistance(0,foot));
+      CHECK(expired.time_exhausted);
+    }
+    CHECK(admitted.MarkerDistance(0,foot)==Approx(0).margin(2e-9));
+    CHECK(outer.work>charged);CHECK_FALSE(outer.time_exhausted);
+    SU2NativeGeometry::AtlasBudget noBytes=outer;
+    noBytes.maximum_bytes=noBytes.caller_bytes;
+    {
+      CBoundaryLayerMetric::GeometryReservationScope nested(admitted,noBytes);
+      CHECK_THROWS(admitted.MarkerDistance(0,foot));
+    }
+    SU2NativeGeometry::AtlasBudget noWork=outer;
+    noWork.work=noWork.maximum_work;
+    {
+      CBoundaryLayerMetric::GeometryReservationScope nested(admitted,noWork);
+      CHECK_THROWS(admitted.MarkerDistance(0,foot));CHECK(noWork.work_exhausted);
+    }
+    const su2double query[3]={foot[0],foot[1],foot[2]};
+    const auto cached=admitted.Evaluate(0,query,1.);
+    CBoundaryLayerMetric::Tensor cachedTensor,recomputed;
+    for(unsigned j=0;j<3;++j)cachedTensor.m[j][j]=recomputed.m[j][j]=1;
+    admitted.ApplySample(0,cached,cachedTensor,1.,nullptr,false);
+    admitted.ApplyPoint(query,recomputed,1.,nullptr,false);
+    CheckTensor(3,cachedTensor,recomputed,1e-9);
+  }
+  auto* borrowed=admitted.ExchangeGeometryReservation(nullptr);
+  if(borrowed)admitted.ExchangeGeometryReservation(borrowed);
+  CHECK(borrowed==nullptr);
   limited.geometry_ceiling=1;
   CHECK_THROWS([&](){CBoundaryLayerMetric bounded(3,{limited});return bounded.MarkerDistance(0,foot);}());
   const auto saved=state.original;const auto savedPoints=parameters->Snapshot();
   ImportedGeometry output;std::string reason;BridgeStats stats;
   REQUIRE(ImportGeometry(*test.config,test.Geometry(),nullptr,state,output,reason,stats,SIZE_MAX));
   CHECK(reason.empty());CHECK(output.cells.size()==imported.cells.size());
-  CHECK(CPassiveComm::Allreduce(uint64_t(output.original.size()),CPassiveComm::Op::SUM,SU2_MPI::GetComm())>
-        CPassiveComm::Allreduce(uint64_t(imported.original.size()),CPassiveComm::Op::SUM,SU2_MPI::GetComm()));
+  // Reimport retains one original donor per CFD simplex; wall curvature does not create source-volume cells.
+  REQUIRE(output.original.size()==imported.original.size());
+  for(size_t k=0;k<output.original.size();++k) {
+    CHECK(output.original[k].cell.id==imported.original[k].cell.id);
+    for(unsigned j=0;j<4;++j) {
+      CHECK(output.original[k].cell.v[j].id==imported.original[k].cell.v[j].id);
+      const auto a=output.original[k].cell.v[j].p,b=imported.original[k].cell.v[j].p;
+      CHECK(a.x==b.x);CHECK(a.y==b.y);CHECK(a.z==b.z);
+    }
+  }
   CHECK(state.original==saved);CHECK(parameters->Snapshot()==savedPoints);
+  CHECK(state.original->Parameters()->Geometry().Curves().at(f.id)[9].z==nets.at(f.id)[9].z);
+  CHECK(CBoundaryLayerMetric::FromNativeReference(state,*test.config)->MarkerDistance(0,foot)==Approx(0).margin(2e-9));
+}
+
+TEST_CASE("Actual retained cubic wall policy probe without CFD", "[.][NativeActualCubicBLPolicy3D]") {
+  using namespace SU2Native3D;
+  const auto* configPath=std::getenv("SU2_NATIVE_FROZEN_CONFIG");
+  const auto* referencePath=std::getenv("SU2_NATIVE_BL_REFERENCE");
+  REQUIRE(configPath);REQUIRE(referencePath);REQUIRE(SU2_MPI::GetSize()==1);
+  const auto start=std::chrono::steady_clock::now();
+  SU2NativeGeometry::AtlasBudget budget;
+  auto receipt=[&](const char* stage,size_t count) {
+    std::cout<<std::setprecision(17)<<"{\"probe\":\"actual_cubic_bl\",\"stage\":\""<<stage<<"\",\"count\":"<<count
+             <<",\"elapsed_seconds\":"<<std::chrono::duration<double>(std::chrono::steady_clock::now()-start).count()
+             <<",\"geometry_work\":"<<budget.work<<",\"peak_bytes\":"<<budget.peak_bytes<<"}"<<std::endl;
+  };
+  std::ifstream input(configPath);REQUIRE(bool(input));std::stringstream configuration;configuration<<input.rdbuf();
+  CConfig config(configuration,SU2_COMPONENT::SU2_CFD,false);
+  const auto memoryLimit=config.GetAdap_Native_MemoryLimit();
+  budget.maximum_bytes=memoryLimit?memoryLimit:size_t(2)<<30;
+  ReferenceState reference;bool loaded=false;std::string loadReason;size_t loadPeak=0;
+  REQUIRE(LoadReference(referencePath,reference,loaded,loadReason,budget.maximum_bytes,0,loadPeak));
+  REQUIRE(loaded);budget.peak_bytes=loadPeak;
+  REQUIRE(reference.original);REQUIRE(reference.original->Mapped());REQUIRE(config.GetnAdap_BL()>0);
+  const auto& geometry=reference.original->Parameters()->Geometry();
+  REQUIRE_FALSE(geometry.Curves().empty());receipt("reference_loaded",geometry.Curves().size());
+  auto layers=CBoundaryLayerMetric::FromNativeReference(reference,config);receipt("policy_built",layers->StorageBytes());
+  budget.caller_bytes=transfer_memory::Add(layers->StorageBytes(),ReferenceStorageBytes(reference));
+  REQUIRE(transfer_memory::Add(budget.caller_bytes,layers->GeometryWorkspaceBytes())<=budget.maximum_bytes);
+  const auto facets=reference.original->Facets().size();
+  const auto work=config.GetAdap_Native_Max_Work()?size_t(config.GetAdap_Native_Max_Work()):std::max(transfer_memory::Mul(facets,64),size_t(4096));
+  budget.maximum_work=transfer_memory::Mul(transfer_memory::Add(facets,work),SU2NativeGeometry::MappedFacetReference::ClearanceWork);
+  const double seconds=SU2_TYPE::GetValue(config.GetAdap_Native_Max_Time());
+  if(seconds>0)budget.within_time=[start,seconds] {
+    return std::chrono::duration<double>(std::chrono::steady_clock::now()-start).count()<seconds;
+  };
+  CBoundaryLayerMetric::GeometryReservationScope reservation(*layers,budget);
+  try {
+    const auto requested=config.GetAdap_BL(0);
+    auto selected=geometry.Curves().end();
+    for(auto it=geometry.Curves().begin();it!=geometry.Curves().end();++it) {
+      const auto& face=reference.original->Facets().at(it->first);
+      if(reference.marker_names.at(face.marker)!=requested.marker)continue;
+      const auto linear=(face.v[0].p.z+face.v[1].p.z+face.v[2].p.z)/3;
+      if(std::abs(it->second[9].z-linear)>1e-12){selected=it;break;}
+    }
+    REQUIRE(selected!=geometry.Curves().end());
+    const auto surface=geometry.EvaluateSurface(selected->first,geometry.FacetPoint(selected->first,1./3,1./3));
+    const double h=SU2_TYPE::GetValue(requested.firstHeight);REQUIRE(h>0);
+    unsigned short wall=layers->GetnWall();
+    const std::array<double,3> foot{{surface.point.x,surface.point.y,surface.point.z}},normal{{surface.normal.x,surface.normal.y,surface.normal.z}};
+    std::array<double,3> near{},a{},b{};
+    for(unsigned j=0;j<3;++j){near[j]=foot[j]-.25*h*normal[j];a[j]=foot[j]-.125*h*normal[j];b[j]=foot[j]-.375*h*normal[j];}
+    su2double query[3]={near[0],near[1],near[2]};double closest=std::numeric_limits<double>::infinity();
+    for(unsigned short k=0;k<layers->GetnWall();++k)if(layers->GetLayer(k).marker==requested.marker) {
+      const auto distance=SU2_TYPE::GetValue(layers->Evaluate(k,query,1.).distance);
+      if(distance<closest){closest=distance;wall=k;}
+    }
+    REQUIRE(wall<layers->GetnWall());const auto sample=layers->Evaluate(wall,query,1.);
+    CHECK(sample.distance==Approx(.25*h).margin(2e-6*h));CHECK(sample.hn==Approx(h).epsilon(2e-6));
+    double alignment=0;for(unsigned j=0;j<3;++j)alignment+=SU2_TYPE::GetValue(sample.normal[j])*normal[j];
+    CHECK(alignment==Approx(-1).margin(2e-5));
+    CBoundaryLayerMetric::Tensor tensor;for(unsigned j=0;j<3;++j)tensor.m[j][j]=1;
+    layers->ApplyPoint(query,tensor,1.,nullptr,false);
+    CHECK(MetricDensity({tensor.m[0][0],tensor.m[0][1],tensor.m[0][2],tensor.m[1][1],tensor.m[1][2],tensor.m[2][2]})>0);
+    receipt("fluid_near_wall_point",selected->first);
+    CBoundaryLayerMetric::ChordOwners owners;const auto cuts=layers->EdgeBreakpoints(a,b,1.5,16,&owners);
+    REQUIRE(cuts.size()>=2);receipt("chord",cuts.size());
+    CBoundaryLayerMetric::Tensor chord;for(unsigned j=0;j<3;++j)chord.m[j][j]=1;
+    layers->ApplyPointOnChord(query,chord,1.,owners,.5L,false);CheckTensor(3,chord,tensor,1e-8);
+    const auto tangent=surface.first;const double tn=std::hypot(tangent.x,tangent.y,tangent.z);REQUIRE(tn>0);
+    const std::array<double,3> t{{tangent.x/tn,tangent.y/tn,tangent.z/tn}},
+        cross{{normal[1]*t[2]-normal[2]*t[1],normal[2]*t[0]-normal[0]*t[2],normal[0]*t[1]-normal[1]*t[0]}};
+    const double side=.125*h;
+    std::array<std::array<double,3>,4> cell{{near,near,near,near}};
+    for(unsigned j=0;j<3;++j){cell[1][j]+=side*t[j];cell[2][j]-=side*cross[j];cell[3][j]-=side*normal[j];}
+    bool dependent=false;const auto rule=layers->IntegrationRule3D(cell,1.5,{},&dependent);
+    double volume=0;bool active=false;
+    for(const auto& point:rule){CHECK(point.weight>0);volume+=point.weight;active=active||!point.samples.empty();}
+    CHECK(dependent);CHECK(active);CHECK(volume==Approx(side*side*side/6).epsilon(1e-6));
+    receipt("complete_local_cell",rule.size());
+  } catch(...) {receipt("failed",0);throw;}
 }
 
 TEST_CASE("Native3D volume integration resolves a far vertex closest to another wall face", "[NativeVolumeBL3D]") {

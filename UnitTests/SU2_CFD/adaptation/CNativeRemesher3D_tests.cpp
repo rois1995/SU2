@@ -777,6 +777,85 @@ TEST_CASE("Native construction factories must pass the distributed stages before
   }
 }
 
+TEST_CASE("Native event and mapped engines borrow one geometry ledger", "[NativeSharedGeometryBudget3D]") {
+  World world;
+  auto config=MakeConfig(3,"SOLVER= EULER\nCOMPUTE_METRIC= YES\nADAP_SENSOR= MACH\n"
+      "ADAP_REMESHER= NATIVE_CAVITY\nADAP_SURFACE= YES\nADAP_HESSIAN_NOISE= 0\n"
+      "ADAP_NATIVE_MEMORY_LIMIT= 1024\nADAP_NATIVE_RANKS= 1\nADAP_NATIVE_REPARTITION= NO\n"
+      "ADAP_HAUSD= .0001\nMARKER_EULER= (wall)\nADAP_BL_MARKER= (wall)\n"
+      "ADAP_BL_FIRST_HEIGHT= (1)\nADAP_BL_GROWTH= (1.2)\nADAP_BL_THICKNESS= (1.2)\n");
+  MeshSolution donor(config.get(),simplex_test::MakeSimplexMesh(3,1,[](const passivedouble* p){
+    return p[2]==0?std::string("wall"):simplex_test::Marker3D(p);}),0);
+  su2activematrix sensor(donor.Fine().GetnPointDomain(),6);
+  for(size_t p=0;p<sensor.rows();++p)for(unsigned k=0;k<6;++k)sensor(p,k)=(k==0||k==3||k==5)?1.:0.;
+  auto reference=std::make_shared<ReferenceState>();
+  ImportGeometry(*config,donor.Fine(),&sensor,*reference);
+  using SU2NativeGeometry::MappedFacetReference;
+  MappedFacetReference::CurvedNets nets;std::map<Id,double> errors;
+  const unsigned powers[10][3]={{3,0,0},{0,3,0},{0,0,3},{2,1,0},{1,2,0},{0,2,1},{0,1,2},{1,0,2},{2,0,1},{1,1,1}};
+  for(const auto& face:reference->facets) {
+    auto& net=nets[face.id];errors[face.id]=1e-12;
+    for(unsigned q=0;q<10;++q) {
+      Point point{};
+      for(unsigned k=0;k<3;++k){point.x+=powers[q][k]*face.v[k].p.x/3;point.y+=powers[q][k]*face.v[k].p.y/3;point.z+=powers[q][k]*face.v[k].p.z/3;}
+      net[q]=point;
+    }
+  }
+  auto geometry=std::make_shared<MappedFacetReference>(reference->original,errors,303,SIZE_MAX,false,nets,0);
+  BoundaryPoints points;std::vector<SurfaceFace> skin;
+  for(const auto& face:reference->facets) {
+    for(const auto& node:face.v)points.emplace(node.id,BoundaryPoint{node,geometry->Vertex(node.id)});
+    skin.push_back({{face.v[0].id,face.v[1].id,face.v[2].id},face.id});
+  }
+  auto parameters=std::make_shared<BoundaryParameterState>(geometry,points,skin,1);
+  reference->original=PlanarReference::WithParameters(reference->original,parameters);
+  SU2NativeGeometry::AtlasBudget* borrowed=nullptr,*parentBudget=nullptr;
+  size_t lastWork=0,lastPeak=0,finalWork=0,finalPeak=0;
+  unsigned leases=0,nested=0,queries=0,construction=0;
+  auto observe=[&]() {
+    if(!borrowed)return;
+    CHECK(borrowed==parentBudget);CHECK(borrowed->work>=lastWork);CHECK(borrowed->peak_bytes>=lastPeak);
+    REQUIRE(borrowed->ChargeWork());
+    borrowed->peak_bytes=std::max(borrowed->peak_bytes,borrowed->caller_bytes);
+    lastWork=borrowed->work;lastPeak=borrowed->peak_bytes;++queries;
+  };
+  auto policy=[&](const CConfig&,const ReferenceState& state,double,EngineOptions& control)->MetricComposition {
+    const auto wall=std::find(state.marker_names.begin(),state.marker_names.end(),"wall");
+    REQUIRE(wall!=state.marker_names.end());
+    control.wall_heights[int(wall-state.marker_names.begin())]=1;
+    control.region_walls[int(wall-state.marker_names.begin())]={1,1.2,1.2};
+    control.geometry_workspace_bytes=size_t(16)<<20;
+    control.geometry_reservation=[&](SU2NativeGeometry::AtlasBudget& budget)->std::shared_ptr<void> {
+      auto* previous=borrowed;
+      if(previous){CHECK(previous==&budget);++nested;}else {CHECK(parentBudget==nullptr);parentBudget=&budget;}
+      borrowed=&budget;++leases;observe();
+      return std::shared_ptr<void>(&budget,[&,previous](void*) {
+        finalWork=borrowed->work;finalPeak=borrowed->peak_bytes;borrowed=previous;
+      });
+    };
+    // Identity composition isolates event/engine ledger plumbing; it does not generate a BL profile.
+    control.edge_breakpoints=[&](Point,Point){observe();return std::vector<double>{0,1};};
+    return [&](Point,Tensor value){observe();return value;};
+  };
+  EngineOptions options;options.maximum_work=64;options.maximum_seconds=120;
+  CNativeRemesher3D remesher(reference,options,policy);
+  remesher.SetConstruction([&](World&,const Owned& cells,const std::vector<DonorCell>&,
+      const ReferenceState& state,MetricComposition,const EngineOptions& kernel,std::string& report) {
+    ++construction;CHECK(kernel.shared_geometry_budget==parentBudget);CHECK(borrowed==parentBudget);observe();
+    EngineResult result;result.cells=cells;result.reference=state.original;result.valid=true;
+    report="identity construction for shared-ledger plumbing";return result;
+  });
+  const auto result=remesher.Remesh(*config,donor.Fine(),sensor);
+  INFO(remesher.Statistics().construction_report);
+  REQUIRE(result.status==CRemeshResult::Status::COMPLETE);
+  CHECK(construction==(world.rank==0?1u:0u));CHECK(leases>=1);CHECK(borrowed==nullptr);CHECK(finalWork>=lastWork);CHECK(finalPeak>=lastPeak);
+  CHECK(queries>0);
+  if(world.rank==0)CHECK(nested>=1);
+  CHECK(remesher.Statistics().workers==1);
+  REQUIRE(bool(result.onAccepted));result.onAccepted();
+  REQUIRE(reference->original);CHECK(reference->original->AtlasReservation()==nullptr);
+}
+
 TEST_CASE("Explicit native memory limits cannot auto-grow or publish partial state", "[NativeMemoryLimit3D][NativeReferenceBudget3D]") {
   const bool firstRow=GENERATE(false,true);
   auto config=MakeConfig(3,"SOLVER= EULER\nCOMPUTE_METRIC= YES\nADAP_SENSOR= PRESSURE\n"

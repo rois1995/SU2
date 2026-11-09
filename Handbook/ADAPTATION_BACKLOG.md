@@ -922,3 +922,19 @@ current scope entries are retained BEFORE Upper, so lazy growth cannot bypass ca
 accounting. Keep the spatial index (it selects Upper seeds/candidates), and retain
 joint finite coverage for seams/holes. This is an unproven idea, NOTa production
 change or a competing cycle while FIRST296 is frozen.
+
+
+## 2026-11-09 — unproven curved BL query risks (not another active cycle)
+
+- Test whether chords coincident with a distance-band level (especially already
+  layered planar/ruled regions at h0) exhaust conservative crossing refinement.
+  Current frontier must refuse unresolved intervals, never relax1e-8/worklimits.
+  No production failure at such a chord has been preserved yet; investigate from
+  actual BL outcome, not by adding a new scheduler/geometry representation.
+- Distance-error certification does not itself tightly bound the direction of an
+  approximate closest-point displacement at microscopic h0. Check tangential tensor
+  demand against known true surface normals under strong anisotropy before choosing
+  any normal/projection change. Existing differential geometry and bounded numerical
+  projection are candidates for reuse; any proposal used as a seed still needs full
+  global support/distance certification. No speedup or normal-delivery defect is
+  established by this note; keep actual geometry/feature/body/height gates unchanged.

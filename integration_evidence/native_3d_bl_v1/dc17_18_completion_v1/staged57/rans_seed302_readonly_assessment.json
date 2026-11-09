@@ -1,0 +1,69 @@
+{
+  "scope": "Read-only saved real RANS/SA state assessment; no CFD launched.",
+  "input_pins": {
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/oneram6_coarse_v1/flow_checkpoint/Coarse.su2": "8c839170eb5e359f7de6a41434aa6a9c2d620053f37de6d9360bd04d2a63088b",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/oneram6_coarse_v1/flow_checkpoint/run.cfg": "acd22ae3a278ce4e362dd84603f4a29ee1e35dd9c868bdca96bc73bbfc25fadd",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/oneram6_coarse_v1/flow_checkpoint/restart_flow.dat": "3b4090771eda3bb3348e0fee96971910472daab7f7a52970eaccdc3950d30c17"
+  },
+  "reused_helpers": "capcheck.read_restart/read_su2",
+  "binary_header": [
+    535532,
+    9,
+    61330,
+    8,
+    0
+  ],
+  "restart_bytes": 4416077,
+  "points": 61330,
+  "tets": 303359,
+  "fields": [
+    "x",
+    "y",
+    "z",
+    "Density",
+    "Momentum_x",
+    "Momentum_y",
+    "Momentum_z",
+    "Energy",
+    "Nu_Tilde"
+  ],
+  "all_finite": true,
+  "coordinates_exact": true,
+  "density_min": 0.22430336179997215,
+  "internal_energy_density_min": 155839.80402566676,
+  "derived_pressure_min_gamma14": 62335.921610266705,
+  "nu_tilde_min": 1e-16,
+  "nu_tilde_max": 0.00031461267570548124,
+  "wall_floor_values": 19506,
+  "off_wall_floor_values": 0,
+  "historical_bounds_ledger_known": false,
+  "physics": {
+    "solver": "RANS",
+    "turbulence": "SA",
+    "mach": 0.8395,
+    "aoa_degrees": 3.06,
+    "reynolds": 11720000,
+    "reference_length": 0.64607,
+    "reference_area": 0.7532,
+    "wall": "adiabatic WING3D"
+  },
+  "force_samples": {
+    "80": {
+      "CL": 0.152913,
+      "CD": 0.046823
+    },
+    "110": {
+      "CL": 0.156016,
+      "CD": 0.053813
+    },
+    "119": {
+      "CL": 0.157317,
+      "CD": 0.053009
+    }
+  },
+  "safe_admissible_restart_initial_guess": true,
+  "reasonable_flow_qualified": false,
+  "converged_flow_claim": false,
+  "current_binary_restart_checked": false,
+  "next": "Reuse exact copied state/mesh/physics for bounded isolated continuation and assess force/spatial behavior; do not recompute from freestream or substitute Euler. No experimental coefficient target inferred."
+}

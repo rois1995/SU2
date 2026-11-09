@@ -215,3 +215,120 @@ reservation binding described above remains open. No new config/scheduler/CAD.
 Build301 frozen session30473, helper3519596/start28249637,
 ninja3519598/start28249654. Verify actual build301_owned_startup.json handles
 terminal before any compiled/helper edits. No301runtime/MPI/M6BL claim.
+
+Build301 PASSED328.339s with unchanged source pins; all11exact actual build handles
+terminal. Focused301 is CURRENT FROZEN session60253 in
+cases/geometry_backend_20261109T153336_3533357. Actual identities saved in its
+owned_startup.json; same600s cap. No terminal outcome yet. Source review found no
+concrete arithmetic/admission flaw, not a substitute for runtime evidence.
+
+Reservation follow-up: normalization proposal already receives rank-local `within`,
+ceiling and caller_bytes in CNativeNormalizationStage3D.hpp::job.propose; use that
+existing scope for retained-layer queries rather than changing the factory API or
+using its `time()` wrapper (which performs collectives and MUSTNOTbe called from a
+rank-local geometry traversal). EngineOptions can carry a narrow optional borrowed
+reservation binding callback/token for retained full/base; bind existing engine
+AtlasBudget after initialized allowance, restore prior pointers before stack budget
+destruction, including exceptions/nested contexts. FIRST_ROW has its existing ctl
+budget/deadline/live StateBytes scope. Initial CSolver ComputeMetric is a separate
+scope from the native engine: preserve existing enclosing runtime/sample/memory
+limits, do not invent an unaccounted full event allowance or pretend an engine-only
+binding covers initial target normalization. All this remains unimplemented.
+
+### Connected reservation integration302 and actual-M6 policy evidence
+
+302 builds10changed C++ files at nice19/j4/libs1, PASSED280.352s, unchangedpins;
+all83sampledactualbuild PIDs absent. Initial metric setup reserves bounded query
+workspace inside its existing native ceiling and binds a rank-local deadline/work
+scope. The complete Remesh event shares ONE AtlasBudget across retained full/base,
+source preparation, reassessment and normalization. Engine borrows the same ledger,
+restores caller/byte/integer/work windows on exit but retains attemptedwork/sticky
+failures/peaks. FIRST_ROW receives that ledger and originaltotal ceiling, reserves
+queryscratch from state allowance, and admits state/facet/marker/input copies BEFORE
+allocation. Source normals/support/metric decisions unchanged by budget binding.
+All callbacks are rank-local; callback install failures use existing collective
+failure election. Automatic existing publication-memory synchronization updates
+both state and total reservation windows; explicit configured limits stayfixed.
+No new scheduler/config/time/work allowance. This is source design, NOTMPIproof.
+
+Nested scope restoration, elapsed/work/byte refusal and cached/fresh agreement
+checks added. Reimport's expected donor growth was stale: unchanged
+CNativeImport3D.cpp1135–1163 creates one donor per CFD simplex. Archived296 binary
+with its pinned old source/runtime reproduces48>48 (controlv2,0.021stest/1.877shelper,
+11assertionspassed/1failed). Firstcontrolv1 abortedMPI_Win_create beforeassertions;
+v2 reapplies existingOMPI_MCA_osc=pt2pt/4TBscratch. Both preserved. New test verifies
+same count, EACHsourcecell/nodeID/coordinates, unchanged cubic controls/state and
+recomputed authority distance. Geometry and acceptance gates are not weakened.
+
+Actual probe302 PASSED74assertions,20.436shelper/16.466stest, pins/inputhashes
+unchanged/all5sampledhosthandles absent. Case:
+`cases/actual_cubic_bl_20261109T162051_3649913`.
+Inputs`m6_bl_inputs/curved_policy302_v1/provenance.json`: actual original no-CAD
+referenceSHA2e99fb...42de/48954nets, physicalh0=2e-6,g1.2,T.01/Hausd1e-4. Mach-onlyL1,
+nominal500k input, FIRST_ROW1worker, native querytime300s diagnostic bound unchanged
+from source config,12GiBfixedcurrentcap. No CFDseed is read and NOflow target is
+computed/normalized; the probe uses identity flow tensor for composition checks.
+This does NOTqualify flow allocation, BL coverage/generation or RANS500k workflow.
+
+Probe stages: reference6.596s, policy6.875s/23,456,436storagebytes; actualnearwall
+6.952s/693work; chord6.975s/924work/2cuts; complete42-point tinycell16.333s/96750work.
+Peak4,625,561,376bytes is the admitted/reserved model (including loader/cachequota),
+NOTRSS; /usr/bin/time max332716KiB is oneprocess, not wholejobpeak. Wholeprobe used
+16.36CPU/16.78wall seconds, so no contention-based speedup claim. Forward geometry
+supplies the M6 point/normal oracle; independent polynomial fixture supplies the
+separate truecurved distance/normal check. Hidden volume/competing curved components
+and actual firstrow/migration suitability still require qualification.
+
+CURRENT frozen focused302 session93759:
+`cases/geometry_backend_20261109T162533_3661553`. Ownedstartup records exactPID/start;
+600s cap. No terminal outcome yet. Do not edit pins. After affected focused checks,
+ONE connected MPI milestone, then promptly actual M6BL generation using savedreal
+CFD; analytic/unitpolicies are not the next capability milestone.
+
+Focused302 PASSED22cases/283883assertions,303.957s, allpinsunchanged/all4exacthost
+identities+wrapper terminal. No BLmesh/generation/coverage or currentRANSloop claim.
+
+Current test-only303 build session44439/helper3823881,start28918849;
+ninja3823928,start28918964. Only2tests changed; assert productionCFD79c4d51b... stays
+byteidentical. New NativeSharedGeometryBudget3D checks completeevent/engine ledger
+identity/monotonicity/restoration and absence of borrowed budget on published
+reference. Affine-equivalent cubic cube/identitymetric isolatesplumbing; requested
+h0=1 is installed/enforced, no actuallayergeneration claim. No assertions/workcharges
+in noexceptshared-pointer teardown. 303 M6probe fixes query direction to FLUID side
+(-modeloutwardnormal), signed alignment, positive localcellorientation.302was an
+unsigned-distance policy check on the opposite side; notfluid-domaincoverage.
+No303runtime result yet; do noteditpins untilactualterminalverification.
+
+Read-only savedRANS assessment is staged57/rans_seed302_readonly_assessment.json.
+All61330coords exact/coarseSHA8c8391..., all9fieldsfinite,ρmin.22430336,
+ρe_min155839.804;νtilde_min1e-16/max.0003146127. All19506floorvalues areWINGnodes,
+noneoffwall; no historicalclippingledgerclaim. Savedconfigacd22ae3... and restart
+3b409077... matchprovenance. Safe admissibleinitialguess, NOTyetreasonable/converged
+flow/currentbinaryrestartqualified. CL80..119+2.88%,CD+13.2%;110..119CL+.83%,CD−1.49%.
+Reuse exactcopiedcheckpoint with unchangedphysics/nondimensionalization for bounded
+continuation whenBLqualification permits; do notstartfromfreestream orsubstituteEuler.
+
+
+303 TEST-ONLY build PASSED181.151s/pinsunchanged/exactbuildhandles terminal,
+productionCFD byte-identical30279c4d51b587f... . Shared event/engine ledger fixture
+PASSED34061assertions/1case (0.060stest/4.346shelper), requestedcubeh0=1 enforced,
+noactuallayergenerationclaim. Identitysyntheticcomposition separatesresourceAPI
+plumbing fromthealreadytestedphysicalCBCpolicy. Publishedreference has no borrowed
+AtlasReservation; nested engine and event use SAMEledger. Constructor uses1native
+worker soMPI6milestone also exercises idleparentalignment. No throw/workcharges in
+shared-pointer teardown; state snapshots/restoration only.
+
+Fluid-side actualM6probe303 PASSED88assertions (27.344stest/31.390shelper), allinput/
+source/runtimepins unchanged/all5observedPIDsabsent. Case
+actual_cubic_bl_20261109T172504_3838079; nativeh0=2e-6/g1.2/T.01/Hausd1e-4 unchanged.
+Physicalquery -outwardnormal, signednormalalignment; positiveoriented localcell.
+Reference6.708s,policy6.991s,fluidpoint7.111s/1233work,chord7.150s/1644work/2cuts;
+56-point completecell27.232s/216726work. Loader/admittedpeak4625561376 NOTRSS;
+oneprocess /time max332492KiB,27.20CPU/27.68wall. NoWholeM6mesh/flowclaim.
+
+CURRENT frozenSERIAL303 session48868/cases/serial_20261109T172624_3841227;
+600s cap, actualPID/start records inowned_startup. No terminaloutcome yet; pinsfrozen.
+ONEconnectedMPI6milestone next ifpassing, thenreturnactualM6BLgeneration/normalized
+realsavedCFDtarget. Maintain initialflowqualification, allshape/geometry/height/
+transfer/turbulence/continuedCFD/restart obligations. Do not mistake policyprobe or
+ledgerfixture for BLsuitability/coverage.

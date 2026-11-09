@@ -42,6 +42,7 @@
 class CConfig;
 class CGeometry;
 namespace SU2NativeBoundary2D { struct ReferenceState; }
+namespace SU2NativeGeometry { struct AtlasBudget; }
 namespace SU2Native3D { struct ReferenceState; class PlanarReference; class SupportSampler3D; }
 
 /*!
@@ -133,6 +134,24 @@ class CBoundaryLayerMetric {
 
   static constexpr passivedouble floorFraction = 0.05; /*!< \brief Band of the tangential floor, fraction of the
                                                             largest tangential size of the wall metric. */
+
+  /*! Borrowed rank-local reservation; metric/budget outlive nested scopes, callbacks perform no collectives. */
+  SU2NativeGeometry::AtlasBudget* ExchangeGeometryReservation(SU2NativeGeometry::AtlasBudget* reservation) noexcept {
+    auto* previous=geometryReservation;geometryReservation=reservation;return previous;
+  }
+  /*! Maximum cubic query workspace plus bounded chord frontier, cuts/owners and distance levels. */
+  size_t GeometryWorkspaceBytes()const;
+  class GeometryReservationScope {
+   public:
+    GeometryReservationScope(CBoundaryLayerMetric& metric,SU2NativeGeometry::AtlasBudget& reservation) noexcept
+        :metric(metric),previous(metric.ExchangeGeometryReservation(&reservation)) {}
+    ~GeometryReservationScope() noexcept {metric.ExchangeGeometryReservation(previous);}
+    GeometryReservationScope(const GeometryReservationScope&)=delete;
+    GeometryReservationScope& operator=(const GeometryReservationScope&)=delete;
+   private:
+    CBoundaryLayerMetric& metric;
+    SU2NativeGeometry::AtlasBudget* previous;
+  };
 
   /*!
    * \brief One original physical boundary face for D1 feature detection (nDim points: 2D a segment with the fluid on
@@ -423,5 +442,6 @@ class CBoundaryLayerMetric {
   unsigned short nDim = 0;
   su2double cornerAngle = 0.0; /*!< \brief D1 feature angle (degrees): convex edges/vertices turning by more. */
   std::vector<Wall> walls;
+  SU2NativeGeometry::AtlasBudget* geometryReservation=nullptr;
   std::vector<std::unique_ptr<WallData>> data;
 };

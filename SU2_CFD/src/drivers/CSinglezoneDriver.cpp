@@ -322,6 +322,10 @@ std::unique_ptr<CRemesher> CSinglezoneDriver::MakeRemesher() {
               SU2_TYPE::GetValue(layer.growth),SU2_TYPE::GetValue(layer.thickness)};
         }
         control.caller_bytes=transfer_memory::Add(control.caller_bytes,layers->StorageBytes());
+        control.geometry_workspace_bytes=layers->GeometryWorkspaceBytes();
+        if(control.geometry_workspace_bytes)control.geometry_reservation=[layers](SU2NativeGeometry::AtlasBudget& budget)->std::shared_ptr<void> {
+          return std::make_shared<CBoundaryLayerMetric::GeometryReservationScope>(*layers,budget);
+        };
         // Composed edges integrate the chord-pinned law (deterministic nearest-facet ownership, WP-C).
         control.edge_breakpoints=SU2NativeBL3D::EdgeGeometry(layers,core);
         return SU2NativeBL3D::Composition(layers,core);
@@ -369,6 +373,8 @@ std::unique_ptr<CRemesher> CSinglezoneDriver::MakeRemesher() {
                 SU2_TYPE::GetValue(layer.growth),SU2_TYPE::GetValue(layer.thickness)};
           }
           control.caller_bytes=transfer_memory::Add(control.caller_bytes,policy->StorageBytes());
+          control.geometry_workspace_bytes=std::max(policy->full->GeometryWorkspaceBytes(),policy->base->GeometryWorkspaceBytes());
+          if(control.geometry_workspace_bytes)control.geometry_reservation=[policy](SU2NativeGeometry::AtlasBudget& budget){return policy->ReserveGeometry(budget);};
           control.edge_breakpoints=policy->Edges();
           *slot=policy;
           return policy->Composition();
@@ -382,7 +388,7 @@ std::unique_ptr<CRemesher> CSinglezoneDriver::MakeRemesher() {
           const auto* config=config_container[ZONE_0];
           if(!*slot)throw std::runtime_error("FIRST_ROW construction without its target policy.");
           SU2NativeBLPipeline3D::EventControls ctl;
-          ctl.seconds=kernel.maximum_seconds;ctl.memory_ceiling=kernel.memory_ceiling;ctl.maximum_work=kernel.maximum_work;
+          ctl.seconds=kernel.maximum_seconds;ctl.memory_ceiling=kernel.memory_ceiling;ctl.maximum_work=kernel.maximum_work;ctl.caller_bytes=kernel.caller_bytes;ctl.geometry_budget=kernel.shared_geometry_budget;
           ctl.final_cycle=config->GetAdap_BL_RampFinal();ctl.event=config->GetAdap_BL_RampEvent();ctl.ramp_factor=config->GetAdap_BL_RampFactor();
           ctl.report_prefix=nativeConstructionPrefix.empty()?config->GetMesh_Out_FileName()+"_bl_event"+std::to_string(ctl.event):nativeConstructionPrefix;
           ctl.export_mesh=nativeConstructionExport;

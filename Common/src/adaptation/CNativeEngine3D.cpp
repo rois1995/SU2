@@ -1144,8 +1144,19 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
   const auto started=Clock::now();
   const auto started_cpu=options.timings ? std::clock() : std::clock_t{};
   std::shared_ptr<BoundaryParameterState> private_parameters;std::shared_ptr<const PlanarReference> private_geometry;
-  SU2NativeGeometry::AtlasBudget atlas_budget;std::unique_ptr<PlanarReference> atlas_geometry;
-  if(std::isfinite(options.maximum_seconds) && options.maximum_seconds>0)
+  SU2NativeGeometry::AtlasBudget local_atlas_budget;
+  auto& atlas_budget=options.shared_geometry_budget?*options.shared_geometry_budget:local_atlas_budget;
+  const auto atlas_work_initial=atlas_budget.work;
+  struct RestoreBudgetWindow {
+    SU2NativeGeometry::AtlasBudget* budget;size_t caller,bytes,bits,maximum_work;
+    ~RestoreBudgetWindow(){if(budget){budget->caller_bytes=caller;budget->maximum_bytes=bytes;
+      budget->maximum_integer_bits=bits;budget->maximum_work=maximum_work;}}
+  } restore_budget{options.shared_geometry_budget,atlas_budget.caller_bytes,atlas_budget.maximum_bytes,
+      atlas_budget.maximum_integer_bits,atlas_budget.maximum_work};
+  std::unique_ptr<PlanarReference> atlas_geometry;
+  std::shared_ptr<void> target_geometry_lease;
+  const auto atlas_scratch=std::max(AtlasScratchBytes,options.geometry_workspace_bytes);
+  if(!options.shared_geometry_budget && std::isfinite(options.maximum_seconds) && options.maximum_seconds>0)
     atlas_budget.within_time=[started,maximum=options.maximum_seconds] {
       return std::chrono::duration<double>(Clock::now()-started).count()<maximum;
     };
@@ -1158,13 +1169,13 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     const auto* parameters=accepted_geometry.Parameters();
     // Stage clones are boundary-only and admitted once, never per transaction. Private overlays are bounded.
     parameter_bound=transfer_memory::Add(options.caller_bytes,accepted_geometry.ResidentBytes(),
-        transfer_memory::Mul(parameters->ResidentBytes(),2),AtlasScratchBytes,MapBytes(accepted),transfer_memory::Bytes(original));
+        transfer_memory::Mul(parameters->ResidentBytes(),2),atlas_scratch,MapBytes(accepted),transfer_memory::Bytes(original));
     if(parameter_bound==SIZE_MAX || parameter_bound>options.memory_ceiling)throw std::length_error("Native boundary parameter stage exceeds storage admission.");
     private_parameters=std::make_shared<BoundaryParameterState>(*parameters);
     private_geometry=accepted_geometry.WithParameterState(private_parameters);
-    options.caller_bytes=transfer_memory::Add(options.caller_bytes,AtlasScratchBytes);
+    options.caller_bytes=transfer_memory::Add(options.caller_bytes,atlas_scratch);
     if(private_parameters->Mobility().identity||!private_parameters->Coverage().faces.empty()||!private_parameters->Coverage().traces.empty()) {
-      atlas_budget.caller_bytes=parameter_bound-AtlasScratchBytes;atlas_budget.maximum_bytes=options.memory_ceiling;
+      atlas_budget.caller_bytes=parameter_bound-atlas_scratch;atlas_budget.maximum_bytes=options.memory_ceiling;
       // Half holds the nested planner/reconstruction arithmetic arrays; half holds correspondence records.
       size_t low=0,high=AtlasScratchBytes*8;
       while(low<high){const size_t bits=low+(high-low+1)/2;
@@ -1258,7 +1269,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
   };
   auto vote=[&](const CLocalFailure& local) {
     if(private_repair && atlas_budget.within_time && !atlas_budget.within_time())atlas_budget.time_exhausted=true;
-    stats.atlas_work=atlas_budget.work;stats.atlas_peak_bytes=atlas_budget.peak_bytes;
+    stats.atlas_work=atlas_budget.work-atlas_work_initial;stats.atlas_peak_bytes=atlas_budget.peak_bytes;
     stats.maximum_work_bytes=std::max(stats.maximum_work_bytes,atlas_budget.peak_bytes);
     // Elect sticky geometry failures at the existing stage votes, even if a trial caught the exception.
     constexpr unsigned short atlas_work_refusal=4;
@@ -1298,7 +1309,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
         selection.Bytes(),MapBytes(retired_edges),MapBytes(campaign_edges),MapBytes(inactive_blocked_edges),
         transfer_memory::Mul(inactive_blocked_links,sizeof(Id)+4*sizeof(void*)),field_identity ? 64 : 0);
   };
-  auto real_bytes=[&]() {const auto live=bytes();return atlas_geometry&&live!=SIZE_MAX?live-AtlasScratchBytes:live;};
+  auto real_bytes=[&]() {const auto live=bytes();return atlas_geometry&&live!=SIZE_MAX?live-atlas_scratch:live;};
   auto admit=[&](size_t extra) {
     const auto peak=transfer_memory::Add(bytes(),source.ResidentBytes(),directory->ResidentBytes(),extra);
     stats.maximum_work_bytes=std::max(stats.maximum_work_bytes,peak);
@@ -1306,7 +1317,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     if (peak==SIZE_MAX || peak>options.memory_ceiling) failure.Set(3,0,"Native 3D adaptation working storage exceeds budget.");
     const bool admitted=vote(failure);
     // Integer workspace stays fixed; geometric query arrays use the remaining configured memory pool.
-    if(admitted&&atlas_geometry){atlas_budget.caller_bytes=peak-AtlasScratchBytes;atlas_budget.maximum_bytes=options.memory_ceiling;}
+    if(admitted&&atlas_geometry){atlas_budget.caller_bytes=peak-atlas_scratch;atlas_budget.maximum_bytes=options.memory_ceiling;}
     return admitted;
   };
   auto coalesce=[&](std::vector<Choice>& choices) {
@@ -1899,7 +1910,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     stats.donor_search_seconds = donor.search_seconds; stats.donor_filter_seconds = donor.filter_seconds;
     stats.metric_support_cells=donor.metric_sample_cells;stats.metric_support_edges=donor.metric_edge_queries;stats.metric_support_skipped=donor.metric_edge_skipped;stats.metric_support_duplicates=donor.metric_edge_duplicates;
     stats.maximum_work_bytes = std::max(stats.maximum_work_bytes, donor.maximum_work_bytes);
-    stats.atlas_work=atlas_budget.work;stats.atlas_peak_bytes=atlas_budget.peak_bytes;
+    stats.atlas_work=atlas_budget.work-atlas_work_initial;stats.atlas_peak_bytes=atlas_budget.peak_bytes;
     stats.maximum_work_bytes=std::max(stats.maximum_work_bytes,atlas_budget.peak_bytes);
     result.parameters=private_parameters;result.reference=private_geometry;
     if(curved && !result.valid && !selection.cells.empty()) {
@@ -1972,8 +1983,17 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     const auto global_cells=CPassiveComm::Allreduce(uint64_t(accepted.size()),CPassiveComm::Op::SUM,world.comm);
     stats.work_limit=options.maximum_work==SIZE_MAX ? std::max<size_t>(4096,transfer_memory::Mul(global_cells,64)) : options.maximum_work;
     if (stats.work_limit==SIZE_MAX) failure.Set(1,0,"Native 3D automatic work ceiling overflows.");
-    if(atlas_geometry){atlas_budget.maximum_work=transfer_memory::Mul(transfer_memory::Add(global_cells,stats.work_limit),SU2NativeGeometry::MappedFacetReference::ClearanceWork);
-      if(atlas_budget.maximum_work==SIZE_MAX)failure.Set(1,0,"Native3D exact atlas arithmetic work reservation overflows.");}
+    if(atlas_geometry) {
+      const auto allowance=transfer_memory::Mul(transfer_memory::Add(global_cells,stats.work_limit),SU2NativeGeometry::MappedFacetReference::ClearanceWork);
+      if(allowance==SIZE_MAX)failure.Set(1,0,"Native3D exact atlas arithmetic work reservation overflows.");
+      else atlas_budget.maximum_work=options.shared_geometry_budget?
+          std::min(atlas_budget.maximum_work,transfer_memory::Add(atlas_budget.work,allowance)):allowance;
+    }
+    const auto lease_low=CPassiveComm::Allreduce(unsigned(bool(options.geometry_reservation)),CPassiveComm::Op::MIN,world.comm);
+    const auto lease_high=CPassiveComm::Allreduce(unsigned(bool(options.geometry_reservation)),CPassiveComm::Op::MAX,world.comm);
+    if(lease_low!=lease_high)failure.Set(1,0,"Native3D target geometry reservation differs across workers.");
+    if(atlas_geometry && options.geometry_reservation)try {target_geometry_lease=options.geometry_reservation(atlas_budget);}
+      catch(const std::exception& e){failure.Set(2,0,e.what());}
     const auto batch_lo=CPassiveComm::Allreduce(options.candidate_batch,CPassiveComm::Op::MIN,world.comm);
     const auto batch_hi=CPassiveComm::Allreduce(options.candidate_batch,CPassiveComm::Op::MAX,world.comm);
     if (batch_lo!=batch_hi || !batch_hi || batch_hi>MaximumCandidateBatch)

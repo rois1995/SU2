@@ -8,6 +8,7 @@
 #include "CNativeDonor3D.hpp"
 #include "CNativeMetric3D.hpp"
 #include "CNativeRegion3D.hpp"
+namespace SU2NativeGeometry {struct AtlasBudget;}
 namespace SU2Native3D {
 constexpr size_t MaximumCandidateBatch = 8;
 enum class EnginePhase { Construction, Improvement };
@@ -107,6 +108,9 @@ struct EngineOptions {
   double surface_tolerance = 0;  // Analytic authority requires a positive frozen physical error ceiling.
   WallHeights wall_heights;  // Frozen marker h0 and tolerance T (ADAP_BL_FIRST_HEIGHT_TOL); empty releases the first-row constraint.
   std::map<int,RegionWallPolicy> region_walls;  // Same existing frozen BL configuration; no scenario selection.
+  SU2NativeGeometry::AtlasBudget* shared_geometry_budget=nullptr;  // Borrowed synchronous event ledger.
+  size_t geometry_workspace_bytes=0;  // Reserved scratch for retained target queries, within the existing ceiling.
+  std::function<std::shared_ptr<void>(SU2NativeGeometry::AtlasBudget&)> geometry_reservation;  // Synchronous borrowed lease; no collectives.
   MetricEdgeBreakpoints edge_breakpoints;  // Frozen geometry bands; required for composed target edge audits.
   // Optional rank-local diagnostic; must not enter worker/world collectives or retain borrowed patches.
   std::function<void(const Patch&,const Patch&,Feature,const MetricDiagnosis&,bool,const std::string&)> rejected_trial;

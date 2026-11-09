@@ -217,6 +217,14 @@ struct TargetPolicy {
   std::map<int, int> roles;  // marker -> 1 BL wall, 0 reflective continuation (MARKER_SYM), 2 other physical partner
   MetricComposition Composition() const { return dc10::CompositionA(base, full, core, A); }
   MetricEdgeBreakpoints Edges() const { return dc10::EdgeGeometryA(base, full, core, A); }
+  std::shared_ptr<void> ReserveGeometry(SU2NativeGeometry::AtlasBudget& reservation) const {
+    struct Lease {
+      CBoundaryLayerMetric::GeometryReservationScope full,base;
+      Lease(CBoundaryLayerMetric& fullMetric,CBoundaryLayerMetric& baseMetric,SU2NativeGeometry::AtlasBudget& budget)
+          :full(fullMetric,budget),base(baseMetric,budget) {}
+    };
+    return std::make_shared<Lease>(*full,*base,reservation);
+  }
   size_t StorageBytes() const {
     size_t bytes=transfer_memory::Add(sizeof(*this),full->StorageBytes(),base->StorageBytes(),sizeof(*A),
         transfer_memory::Bytes(A->creases),transfer_memory::Bytes(A->strips),transfer_memory::Bytes(A->chains),transfer_memory::Bytes(A->chainOf));

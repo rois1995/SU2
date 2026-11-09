@@ -328,7 +328,7 @@ CBoundaryLayerMetric::WallProjection CBoundaryLayerMetric::ProjectWall(
   const auto retained=transfer_memory::Add(StorageBytes(),transientBytes);
   if(retained>wall.geometry_ceiling)throw std::length_error("Retained BL storage exceeds curved query admission.");
   size_t available=wall.geometry_ceiling-retained,maximumWork=SU2NativeGeometry::MappedFacetReference::ClearanceWork;
-  auto* reservation=wall.authority->AtlasReservation();size_t attempted=0;
+  auto* reservation=geometryReservation?geometryReservation:wall.authority->AtlasReservation();size_t attempted=0;
   if(reservation) {
     reservation->CheckTime();
     if(transfer_memory::Add(reservation->caller_bytes,transientBytes)>reservation->maximum_bytes || reservation->work_exhausted || reservation->work>reservation->maximum_work)
@@ -375,6 +375,19 @@ double CBoundaryLayerMetric::MarkerDistance(unsigned short index,const std::arra
 }
 
 CBoundaryLayerMetric::~CBoundaryLayerMetric() = default;
+size_t CBoundaryLayerMetric::GeometryWorkspaceBytes()const {
+  using namespace transfer_memory;
+  size_t query=0;bool curved=false;
+  for(const auto& wall:walls)if(!wall.authority_facets.empty()) {
+    curved=true;
+    query=std::max(query,wall.authority->Parameters()->Geometry().CurvedQueryWorkspaceBytes(
+        SU2NativeGeometry::MappedFacetReference::ClearanceWork));
+  }
+  if(!curved)return 0;
+  // Frontier intervals, growing cut vectors/tree nodes, and distance levels coexist with one query.
+  return Add(query,Mul(16384,4*sizeof(long double)),
+      Mul(65536,4*sizeof(double)+4*sizeof(void*)),Mul(4096,sizeof(double)));
+}
 size_t CBoundaryLayerMetric::StorageBytes() const {
   using namespace transfer_memory;
   size_t bytes=Add(sizeof(*this),Bytes(walls),Bytes(data));
@@ -2219,6 +2232,12 @@ std::shared_ptr<CBoundaryLayerMetric> CBoundaryLayerMetric::FromNativeReference(
 std::shared_ptr<CBoundaryLayerMetric> CBoundaryLayerMetric::FromNativeReference(
     const SU2Native3D::ReferenceState& reference, const CConfig& config, double featureAngle) {
   if (!reference.original) throw std::invalid_argument("Native3D BL needs immutable original geometry.");
+  if(config.GetnAdap_BL() && reference.original->Mapped() && !reference.original->Parameters()->Geometry().Curves().empty()) {
+    const auto ceiling=config.GetAdap_Native_MemoryLimit()?config.GetAdap_Native_MemoryLimit():(size_t(2)<<30);
+    // Same conservative wall-policy construction admission as the native remesher, also needed before metric setup.
+    if(transfer_memory::Add(SU2Native3D::ReferenceStorageBytes(reference),transfer_memory::Mul(reference.facets.size(),8192))>ceiling)
+      throw std::length_error("Cubic BL policy construction exceeds native storage ceiling.");
+  }
   std::vector<Wall> walls;
   for(unsigned short b=0;b<config.GetnAdap_BL();++b) {
     const auto layer=config.GetAdap_BL(b);
@@ -3431,7 +3450,7 @@ std::vector<double> CBoundaryLayerMetric::EdgeBreakpointsImpl(
       auto admit=[&](size_t scratch) {
         if(transfer_memory::Add(StorageBytes(),scratch)>walls[wall].geometry_ceiling)
           throw std::length_error("Cubic BL chord workspace exceeds storage admission.");
-        if(auto* reservation=walls[wall].authority->AtlasReservation()) {
+        if(auto* reservation=geometryReservation?geometryReservation:walls[wall].authority->AtlasReservation()) {
           reservation->CheckTime();
           const auto peak=transfer_memory::Add(reservation->caller_bytes,scratch);
           if(peak>reservation->maximum_bytes)throw std::length_error("Cubic BL caller workspace exhausted.");

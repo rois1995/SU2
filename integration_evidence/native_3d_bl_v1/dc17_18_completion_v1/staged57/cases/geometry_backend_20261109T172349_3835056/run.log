@@ -1,0 +1,33 @@
+Filters: [NativeSharedGeometryBudget3D]
+Native3D configured working-storage ceiling: 1024 MiB per rank
+Native3D curved mobility: protected_edges=12 corners=8 fixed_points=8 curve_points=0 surface_points=0 setup_work=97709
+NATIVE3D rank=0 ranks=1 workers=1 complete=1 detailed=0 total=0.053746784999999998 other=1.3895999999992414e-05 cpu=0.053735999999999999 idle_cpu=0 support=6.5350000000002212e-06 reference=5.5689999999995396e-06 import=0.0077923739999999995 source=2.1249999999986557e-06 weights=2.6000000000192536e-08 partition=2.2000000000563236e-08 donor_migration=2.0999999999354868e-08 communicator=3.5237000000003932e-05 refine=0.0092507030000000007 coarsen=0 wait=7.3299999999998366e-06 return=0.0071064300000000039 policy=9.8350000000014398e-06 reassessment=0.029516681999999999 normalization=0 initial=6 final=6 refine_accepted=0 coarsen_accepted=0 tracked_bytes=3380664 tracked_calls=1017 nested_tracked_collectives=0.00060432900000003537 tracked_import_bytes=2880 tracked_import_calls=7 nested_tracked_import=5.6559999999997168e-06 tracked_parent_bytes=3364456 tracked_parent_calls=928 nested_tracked_parent=0.00058145600000002878 tracked_worker_bytes=13328 tracked_worker_calls=82 nested_tracked_worker=1.7217000000006866e-05 native_bound=1056964608 process_peak_rss=40448000
+Native3D frozen stages: count=1 shared_work=0 correction_trials=0 correction=0 correction_status=1 correction_density_queries=0 correction_geometry_queries=0 correction_seconds=0 reason=
+Native3D candidate complexity: value=1 uncertainty_indicator=0 requested_budget=10000 relative_budget_discrepancy=-0.99990000000000001 standard_error=0 block_standard_error=0 samples=8192 current_nodal_field=1 proven_bound=0 normalization_correction=0
+0.060 s: Native event and mapped engines borrow one geometry ledger
+===============================================================================
+All tests passed (34061 assertions in 1 test case)
+
+	Command being timed: "timeout 600 /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver [NativeSharedGeometryBudget3D] --durations yes"
+	User time (seconds): 0.07
+	System time (seconds): 0.02
+	Percent of CPU this job got: 27%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 0:00.36
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 39500
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 0
+	Minor (reclaiming a frame) page faults: 3896
+	Voluntary context switches: 1096
+	Involuntary context switches: 19
+	Swaps: 0
+	File system inputs: 0
+	File system outputs: 8
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0

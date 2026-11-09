@@ -4,14 +4,14 @@ Updated2026-11-09 Europe/Rome. Goal ACTIVE. TWO Euler50k meshes are strictly
 accepted, conservatively transferred, persisted and followed by finite adapted
 CFD in293. Isolated actual adapted disk restart PASSED. Euler functional milestone is verified.
 FIRST296 replay is TERMINAL ACCEPTED and independently preserved. Current active
-cycle now switches to the requested connected curved-BL milestone; no further Euler
+cycle is the requested connected curved-BL milestone; no further Euler
 performance cycle justified. BL/MPI and RANS500k remain outstanding.
 No convergence/experimental shock-validation claim: continued CFD was one iteration
 per adapted cycle. Actual mesh point/cell counts differ from complexity50k.
 
 Geometry1e-4,q>=.2,J>=.05,maxedge1.8,requested heights strict. Validity-first
 construction/current nodal metric transport/CAD optional unchanged. One active
-cycle/one ownedheavyjob, nice19/libs1/buildj3/4TBscratch. Freeze compiled/executing/
+cycle/one ownedheavyjob, nice19/libs1/buildj3–4/4TBscratch. Freeze compiled/executing/
 pinned sources, helpers, binaries, runtime and inputs during validation. Actual
 /proc/ps MUST require_escalated; sandbox absence is not authoritative. Verify exact
 PID/start identities before restart or edits. Fork pushes authorized, exact-whitelist
@@ -24,7 +24,7 @@ D293=`R/m6_runs/euler_build293_adapted_event1_disk_restart_v1`.
 
 ## CURRENT — Euler296 verified; connected curved BL implementation active
 
-NO ownedheavyjob active. Frozen296 tool57374 TERMINAL0/3902.168s; all1520pins
+Euler296 ownedheavyjob is terminal; current BL job is below. Frozen296 tool57374 TERMINAL0/3902.168s; all1520pins
 unchanged, all11actualHOST identities ABSENT in A296/terminal_handles.json.
 A296=`R/m6_runs/euler_build296_boundary_reuse_mach_only_real_cfd50k`.
 Independent validate_m6296_first_completion.py PASSED (tool85380 terminal0):
@@ -45,7 +45,7 @@ timers separate and join-call time is NOTtotalMPIwait. Causal material gain NOT
 established. Latest user therefore directs BL next; no speculative Euler cycle.
 
 Qualified archived source: production294 +test-only295/296. Current working C++ has
-unvalidated connected curved-BL changes (build301 frozen/running); do not reuse296 source pins.
+unvalidated connected curved-BL changes (build302 built; focused302 frozen/running); do not reuse296 source pins.
 StandaloneCFD SHA b316e4f9fd3c76b43c10c8c4ffb85f7040da0ab93cb2850182bec1c31dbab256;
 test_driver SHA6f8184dc7359a62ce6d9d82a2f96055ac6caebf2b5e7354c5f9800b4cedd403c.
 Frozen workflow used same selected-failure wrapper as293, invoking actual production
@@ -62,26 +62,53 @@ to user: original no-CAD cubic wall authority must serve distance/normals, combi
 flow/BL metric, quadrature and chord integration together; existing first-row/joint-
 wall helpers do NOTprove complete multilayer coverage or post-migration suitability.
 R/m6_bl_preflight296.json pins48954curvednets and the original explicit builder refusal.
-Connected cubic-BL implementation is WIP, NOTqualified. Build300 PASSED then its
-focused check TERMINAL1/464.222s, allpinsunchanged/exactHOSThandles+wrapper absent:
-21/22cases passed,281741assertions passed. Near-wall normal now passes independent
-polynomial checks; curved chord exhausted unchanged16384work while repeatedly
-restarting complete trees to achieve total uncertainty<=1e-8. Earlier compile,
-default-memory and normal/chord failures are preserved in linked design history.
+Connected cubic-BL implementation is WIP, NOTqualified. Build302 PASSED/280.352s,
+allpinsunchanged/all83sampledactualbuildPIDs absent; nice19/j4, libraries1.
+Current executables in build302_status.json: test_driver db8022570f85...,
+CFD79c4d51b587f...; archived296 hashes above are regression assets.
+Actual no-CAD M6 policy probe PASSED74assertions/20.436s, allinput/source/runtime
+pins unchanged/all5sampledhandles absent: cases/actual_cubic_bl_20261109T162051_3649913.
+48954truecubicnets; actual h0-policy distance/normal, combinedtensor/chord,
+complete42-point local integrationcell;96750geometrywork. This is NOTa normalized
+CFD target, BLmesh generation/coverage/shape acceptance or RANS500k completion.
 
-CURRENT FROZEN build301 session30473, helper3519596/start28249637,
-ninja3519598/start28249654; actual identities build301_owned_startup.json.
-One ownedheavyjob, no sources/helper edits until terminal verification.
-301 changes ONLY CBCheader/cpp: retain unresolved-leaf frontier, discard only
-certified excluded intervals, refine largest uncertainty; exact AffinePointBounds
-cover midpoint/endpoints for Lipschitz screening, outward sum<=unchanged1e-8.
-16384work/65536cut caps unchanged; admit frontier before reserve and account it
-alongside active query/cuts/set storage. No runtime301 outcome yet.
-Actual binaries currently build300 (see build300_status.json) until301 completes;
-archived296 hashes above are regression assets, NOTcurrent working executables.
-Shared policy/engine geometry reservation binding remains a review blocker;
-new true-cubic hidden volume/competing component checks, BL suitability census,
-ONE connected MPI milestone and actual M6BL remain outstanding. No new Euler cycle.
+Focused302 PASSED22cases/283883assertions,303.957s, pinsunchanged; all4exact
+actualPID/start identities+wrapper absent. This qualifies affected CBC behavior,
+NOTcompleteBLgeneration. Case geometry_backend_20261109T162533_3661553.
+
+Build303 PASSED181.151s, pinsunchanged/all5exactactualbuildhandles terminal;
+TEST-ONLYchanges, productionCFD BYTE-IDENTICAL30279c4d51b... . Currenttest_driver
+ce51758bf686... . Shared-ledger integration PASSED34061assertions/1case/4.346s,
+allobservedhandles absent: geometry_backend_20261109T172349_3835056. Realcubeh0=1
+heightgate installed; identitycomposition isolatesplumbing, NOTlayergeneration.
+Fluid-side(-outwardnormal) M6probe303 PASSED88assertions/31.390s/allinputspinned/
+all5sampledhandles absent: actual_cubic_bl_20261109T172504_3838079. 56-point complete
+localcell/216726geometrywork; sameactualoriginalauthority/constraints. NotCFDflow/
+normalizedtarget/BLmeshcoverage. Prior302probe wasunsigned-distance/oppositeside.
+
+CURRENT FROZEN connected SERIAL303 session48868, case
+R/cases/serial_20261109T172624_3841227, wrapper3841227;
+time3841316/timeout3841317/test_driver3841318/orted3841319 start28962600.
+600s cap; owned_startup.json recordsactualidentities. No terminaloutcome yet.
+Source/helpers/binaries frozen; verifyactualterminalbeforeedits. ONE connected
+MPI6milestone next ifserialpasses, thenpromptlyactualM6BLgeneration/realCFDtarget.
+
+Production302 scopes share ONE eventAtlasBudget through preparation/engine/FIRST_ROW/
+reassessment/normalization; lifetime/callerwindows restore, cumulativework/failure/
+peaksretained. Initialmetric uses existing-config-bounded scope. Queryscratch is
+reserved insideexistingceiling; no newconfig/scheduler/time/workbudget. CBC22cases
+and sharedintegration passed; MPI/fullgeneration proofoutstanding. Exact302source
+snapshot locallysaved/verified beforetest-only303changes (manifestreviewable).
+Archivedpre-BL296controlv2 reproduces stale48>48donortest; currenttestinsteadchecks
+exactdonor IDs/coordinates/authority. Firstcontrolv1failedMPIsetupbeforeassertions.
+
+SavedRANS/SAseed read-onlyverified finite/admissible/meshmatched61330/303359; all
+19506SAfloorvalues exactlywallnodes. rans_seed302_readonly_assessment.json pins
+restart3b409077... and savedconfigacd22ae3... . Safeinitialguess; reasonableflow/
+currentbinaryrestart unqualified. NoRANSsolve launched; preserve/reuse exactstate.
+New true-cubic hidden-volume/competing component checks, current-mesh BL suitability
+census, ONE connected MPI milestone and actual M6BL generation remain outstanding.
+FIRST_ROW currently requires1native worker; do not call it distributed generation.
 Next ACTUAL implementation: audit/reuse those production callers and wall-aware
 operators, retain strict gates/budgets, define current-mesh BL census for h0/normal
 alignment/progression/coverage/outer transition/tangential flow conformity/features/

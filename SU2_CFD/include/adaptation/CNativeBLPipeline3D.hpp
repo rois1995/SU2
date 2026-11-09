@@ -170,7 +170,8 @@ struct EventControls {
   bool final_cycle = true;     // true first heights: the final gates decide acceptance
   unsigned long event = 0;
   double ramp_factor = 1;
-  size_t memory_ceiling = size_t(2) << 30;
+  size_t memory_ceiling = size_t(2) << 30, caller_bytes=0;
+  SU2NativeGeometry::AtlasBudget* geometry_budget=nullptr;
   size_t maximum_work = SIZE_MAX;  // Shared event allowance; construction is charged before distributed improvement.
   std::string report_prefix;   // <prefix>_bl_report.json (and <prefix>_final.mesh when export_mesh)
   bool export_mesh = false;
@@ -221,10 +222,16 @@ inline EngineResult RunEvent(World& world, const Owned& cells, const std::vector
   out.valid = false;out.stats.initial_cells=cells.size();
   struct RestoreShape {ShapeAdmission previous=GetShapeAdmission();~RestoreShape(){SetShapeAdmission(previous);}} restore_shape;
   SetShapeAdmission(ShapeAdmission::ValidityOnly);
+  SU2NativeGeometry::AtlasBudget local_geometry_budget;
+  auto& geometry_budget=ctl.geometry_budget?*ctl.geometry_budget:local_geometry_budget;
+  const auto geometry_work_initial=geometry_budget.work;
+  std::shared_ptr<void> geometry_lease;
   std::ostringstream json;
   json << std::setprecision(12) << "{\"event\":" << ctl.event << ",\"ramp_factor\":" << ctl.ramp_factor
        << ",\"final_cycle\":" << ctl.final_cycle << ",\"input_cells\":" << cells.size();
   auto finish = [&](const std::string& reason) {
+    out.stats.atlas_work=geometry_budget.work-geometry_work_initial;out.stats.atlas_peak_bytes=geometry_budget.peak_bytes;
+    out.stats.maximum_work_bytes=std::max(out.stats.maximum_work_bytes,geometry_budget.peak_bytes);
     out.reason = reason;
     json << ",\"construction_valid\":" << out.valid << ",\"final_acceptance\":\"deferred to distributed stages\",\"reason\":" << junction_wp0::Json(reason) << "}\n";
     report = json.str();
@@ -237,8 +244,29 @@ inline EngineResult RunEvent(World& world, const Owned& cells, const std::vector
     const double budget = ctl.seconds > 0 ? ctl.seconds : 7200.0;
     const double reserve = std::min(.5*budget,std::max(120.0,.1*budget)), usable = budget-reserve;
     auto elapsed = [&] { return std::chrono::duration<double>(Clock::now() - t0).count(); };
+    const auto queryScratch=std::max(policy.full->GeometryWorkspaceBytes(),policy.base->GeometryWorkspaceBytes());
+    size_t stateCeiling=ctl.memory_ceiling;
+    if(queryScratch) {
+      if(queryScratch>=stateCeiling)return finish("FIRST_ROW geometry scratch exceeds shared memory ceiling.");
+      stateCeiling-=queryScratch;
+      if(!ctl.geometry_budget){geometry_budget.maximum_bytes=ctl.memory_ceiling;geometry_budget.caller_bytes=stateCeiling;}
+      const auto work=ctl.maximum_work==SIZE_MAX?std::max(size_t(4096),transfer_memory::Mul(cells.size(),64)):ctl.maximum_work;
+      const auto allowance=transfer_memory::Mul(transfer_memory::Add(cells.size(),work),SU2NativeGeometry::MappedFacetReference::ClearanceWork);
+      if(allowance==SIZE_MAX)return finish("FIRST_ROW geometry work reservation overflows.");
+      if(!ctl.geometry_budget){geometry_budget.maximum_work=allowance;
+        geometry_budget.within_time=[t0,budget] {return std::chrono::duration<double>(Clock::now()-t0).count()<budget;};}
+      geometry_lease=policy.ReserveGeometry(geometry_budget);
+    }
     detail::PipelineScope scope;
     dc10::optionA = policy.A; dc10::probeBase = policy.base; dc10::probeFull = policy.full;
+    size_t metadataBytes=transfer_memory::Add(sizeof(State),transfer_memory::Bytes(state.facets),transfer_memory::Bytes(state.marker_names));
+    for(const auto& marker:state.marker_names)metadataBytes=transfer_memory::Add(metadataBytes,marker.capacity()+1);
+    const size_t callerBytes=transfer_memory::Add(ctl.caller_bytes,transfer_memory::Mul(cells.size(),640),
+        transfer_memory::Mul(donors.size(),sizeof(DonorCell)+64),metadataBytes,
+        ctl.caller_bytes?0:transfer_memory::Add(policy.StorageBytes(),ReferenceStorageBytes(state)));
+    if(transfer_memory::Add(callerBytes,transfer_memory::Mul(cells.size(),640),
+        transfer_memory::Mul(donors.size(),sizeof(DonorCell)+64))>stateCeiling)
+      return finish("FIRST_ROW input copies leave no admitted geometry workspace.");
     auto s = std::make_unique<State>();
     s->name = "native_first_row";
     s->markers = state.marker_names;
@@ -272,6 +300,8 @@ inline EngineResult RunEvent(World& world, const Owned& cells, const std::vector
     s->core = policy.core;
     s->layers = policy.full;
     s->mesh = cells;
+    if(detail::StateBytes(*s,callerBytes,donors.size())>stateCeiling)
+      return finish("FIRST_ROW input/state leaves no admitted geometry workspace.");
     auto makeField = [&](const junction_wp0::State& x) {
       return std::make_unique<FrozenField>(donors, policy.Composition(), true, AssociatedExtensions(donors, *x.reference),
                                            policy.Edges(), std::make_shared<const FrozenMetricIdentity>(), true,
@@ -283,14 +313,13 @@ inline EngineResult RunEvent(World& world, const Owned& cells, const std::vector
     DetectCreases(*s, policy.roles);  // DC-15: crease roles from the configuration marker kinds
     json << ",\"authority\":{\"mapped_input\":" << state.original->Mapped() << ",\"declared_error\":" << declared << ",\"fitted_planes\":" << fittedPlanes << ",\"affine\":" << s->reference->Affine().size()
          << "},\"wall_faces\":" << WallFaces(*s).size() << ",\"h0_min\":" << s->h0;
-    const size_t callerBytes = cells.size() * 640 + donors.size() * (sizeof(DonorCell) + 64);
     auto memoryOk = [&](const char* where, std::string& why, size_t extra = 0) {
       const auto bytes = detail::StateBytes(*s, callerBytes + extra, donors.size());
       out.stats.maximum_work_bytes=std::max(out.stats.maximum_work_bytes,bytes);
       out.stats.maximum_owned=std::max(out.stats.maximum_owned,s->mesh.size());
-      if (bytes <= ctl.memory_ceiling) return true;
+      if (bytes <= stateCeiling) return true;
       why = std::string("FIRST_ROW state estimate exceeds the native memory ceiling at ") + where + " (" +
-            std::to_string(bytes) + " > " + std::to_string(ctl.memory_ceiling) + " bytes)";
+            std::to_string(bytes) + " > " + std::to_string(stateCeiling) + " bytes after geometry reservation)";
       return false;
     };
     // continuation: the committed registry of the previous accepted event, digest-matched to this mesh
