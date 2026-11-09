@@ -95,6 +95,8 @@ class CBoundaryLayerMetric {
     std::shared_ptr<const SU2Native3D::PlanarReference> authority;
     uint64_t authority_facet=0; /*!< Complete analytic component; absent authority keeps faceted behavior. */
     double surface_tolerance=0; /*!< Frozen physical geometry ceiling in mesh units, independent of first height. */
+    std::vector<uint64_t> authority_facets; /*!< Exact finite cubic component, in original triangle order. */
+    size_t geometry_ceiling=size_t(2)<<30; /*!< Existing native storage ceiling; no independent geometry allowance. */
   };
 
   /*!
@@ -206,6 +208,8 @@ class CBoundaryLayerMetric {
    * \brief Number of walls (sorted by marker name).
    */
   unsigned short GetnWall() const { return walls.size(); }
+  /*! Marker policy distance across its independent connected wall components. */
+  double MarkerDistance(unsigned short wall,const std::array<double,3>& point)const;
   /*! Bounds of the immutable physical wall coordinates, without metric support padding. */
   std::array<double,6> WallBounds() const;
 
@@ -347,6 +351,10 @@ class CBoundaryLayerMetric {
                    std::vector<WallReport>* reports = nullptr, bool useTangentialFloor = true);
 
  private:
+  struct WallProjection;
+  WallProjection ProjectWall(unsigned short wall,const std::array<double,3>& point,double absoluteError=-1)const;
+  bool CurvedWall(unsigned short wall)const;
+  bool MayIntersectBand3D(const std::array<std::array<double,3>,4>& tetrahedron,unsigned short wall)const;
   Sample EvaluateImpl(unsigned short wall, const su2double* coord, su2double coreEigenvalue, bool distanceOnly,
                       unsigned long pinned = ChordOwners::NoFacet);
   std::vector<double> EdgeBreakpointsImpl(const std::array<double,3>& a,const std::array<double,3>& b,

@@ -1246,13 +1246,78 @@ TEST_CASE("Native3D complexity reference does not rebase the wall on the adapted
     for(unsigned q=0;q<10;++q){long double p[3]={};for(unsigned k=0;k<3;++k){p[0]+=powers[q][k]*(long double)f.v[k].p.x;p[1]+=powers[q][k]*(long double)f.v[k].p.y;p[2]+=powers[q][k]*(long double)f.v[k].p.z;}
       net[q]={double(p[0]/3),double(p[1]/3),double(p[2]/3)};}
   }
+  const auto curvedFace=std::find_if(state.facets.begin(),state.facets.end(),[&](const Facet& f){
+    return state.marker_names.at(f.marker)=="wall";
+  });
+  REQUIRE(curvedFace!=state.facets.end());
+  nets.at(curvedFace->id)[9].z-=.03;
   auto curved=std::make_shared<MappedFacetReference>(state.original,errors,7,SIZE_MAX,false,nets);
   BoundaryPoints points;std::vector<SurfaceFace> skin;
   for(const auto& f:state.facets){for(auto n:f.v)points.emplace(n.id,BoundaryPoint{n,curved->Vertex(n.id)});skin.push_back({{f.v[0].id,f.v[1].id,f.v[2].id},f.id});}
   auto parameters=std::make_shared<BoundaryParameterState>(curved,points,skin,1);
   state.original=PlanarReference::WithParameters(state.original,parameters);
-  CHECK_THROWS_WITH(CBoundaryLayerMetric::FromNativeReference(state,*test.config),
-      "Native3D BL curved mapped queries are not integrated; refusing a faceted substitute.");
+  layers=CBoundaryLayerMetric::FromNativeReference(state,*test.config);
+  // The interior Bernstein control changes z by -0.18*u*v*w; no production projection supplies this oracle.
+  constexpr double u=.2,v=.3,w=.5;
+  const auto& f=*curvedFace;
+  const std::array<double,3> foot{{u*f.v[0].p.x+v*f.v[1].p.x+w*f.v[2].p.x,
+      u*f.v[0].p.y+v*f.v[1].p.y+w*f.v[2].p.y,-.18*u*v*w}};
+  const std::array<double,3> du{{f.v[0].p.x-f.v[2].p.x,f.v[0].p.y-f.v[2].p.y,-.18*v*(w-u)}},
+      dv{{f.v[1].p.x-f.v[2].p.x,f.v[1].p.y-f.v[2].p.y,-.18*u*(w-v)}};
+  std::array<double,3> normal{{du[1]*dv[2]-du[2]*dv[1],du[2]*dv[0]-du[0]*dv[2],du[0]*dv[1]-du[1]*dv[0]}};
+  const double norm=std::hypot(normal[0],normal[1],normal[2]);
+  for(auto& n:normal)n/=norm;
+  for(double offset:{0.,.0001,.002}) {
+    su2double query[3];for(unsigned j=0;j<3;++j)query[j]=foot[j]+offset*normal[j];
+    const auto sample=layers->Evaluate(0,query,1.);
+    CHECK(sample.distance==Approx(offset).margin(2e-9));
+    CHECK(sample.hn==Approx(SU2_TYPE::GetValue(NormalSize(.001,1.2,offset))).margin(2e-9));
+    double alignment=0;for(unsigned j=0;j<3;++j)alignment+=SU2_TYPE::GetValue(sample.normal[j])*normal[j];
+    CHECK(std::abs(alignment)==Approx(1).margin(2e-5));
+    CHECK(layers->MarkerDistance(0,{{SU2_TYPE::GetValue(query[0]),SU2_TYPE::GetValue(query[1]),SU2_TYPE::GetValue(query[2])}})==Approx(offset).margin(2e-9));
+    CBoundaryLayerMetric::Tensor flow;for(unsigned j=0;j<3;++j)flow.m[j][j]=1e8;
+    layers->ApplyPoint(query,flow,1.,nullptr,false);
+    for(unsigned i=0;i<3;++i)for(unsigned j=0;j<3;++j)
+      CHECK(flow.m[i][j]==Approx(i==j?1e8:0.).margin(2e-5));
+  }
+  // This chord crosses the wall at t=1/4; endpoints and midpoint miss the full thin band.
+  std::array<double,3> a,b;
+  for(unsigned j=0;j<3;++j){a[j]=foot[j]-.2*normal[j];b[j]=foot[j]+.6*normal[j];}
+  for(double t:{0.,.5,1.}) {
+    su2double query[3];for(unsigned j=0;j<3;++j)query[j]=(1-t)*a[j]+t*b[j];
+    CHECK(layers->Evaluate(0,query,1.).weight==0);
+  }
+  CBoundaryLayerMetric::ChordOwners owners;
+  const auto cuts=layers->EdgeBreakpoints(a,b,1.5,16,&owners),reverse=layers->EdgeBreakpoints(b,a);
+  REQUIRE(cuts.size()>2);REQUIRE(cuts.size()==reverse.size());
+  for(size_t k=0;k<cuts.size();++k)CHECK(cuts[k]==Approx(1-reverse[cuts.size()-1-k]).margin(2e-8));
+  bool active=false;
+  for(size_t k=1;k<cuts.size();++k) {
+    const double t=.5*(cuts[k-1]+cuts[k]);su2double query[3];
+    for(unsigned j=0;j<3;++j)query[j]=(1-t)*a[j]+t*b[j];
+    active=active||layers->Evaluate(0,query,1.).weight>0;
+    CBoundaryLayerMetric::Tensor pointwise,chord;for(unsigned j=0;j<3;++j)pointwise.m[j][j]=chord.m[j][j]=1;
+    layers->ApplyPoint(query,pointwise,1.,nullptr,false);
+    layers->ApplyPointOnChord(query,chord,1.,owners,t,false);
+    CheckTensor(3,chord,pointwise,1e-9);
+  }
+  CHECK(active);
+  CBoundaryLayerMetric::Wall limited;limited.layer={"wall",.001,1.2,.1};
+  limited.authority=state.original;limited.authority_facet=f.id;limited.surface_tolerance=1e-4;
+  for(const auto& candidate:state.facets)if(curved->CurvedComponent(candidate.id)==curved->CurvedComponent(f.id)) {
+    limited.authority_facets.push_back(candidate.id);
+  }
+  std::sort(limited.authority_facets.begin(),limited.authority_facets.end());
+  for(auto id:limited.authority_facets) {
+    const auto start=limited.coord.size()/3;
+    for(const auto& node:state.original->Facets().at(id).v)
+      limited.coord.insert(limited.coord.end(),{node.p.x,node.p.y,node.p.z});
+    limited.conn.insert(limited.conn.end(),{start,start+1,start+2,start+2});
+  }
+  CBoundaryLayerMetric admitted(3,{limited});
+  CHECK(admitted.MarkerDistance(0,foot)==Approx(0).margin(2e-9));
+  limited.geometry_ceiling=1;
+  CHECK_THROWS([&](){CBoundaryLayerMetric bounded(3,{limited});return bounded.MarkerDistance(0,foot);}());
   const auto saved=state.original;const auto savedPoints=parameters->Snapshot();
   ImportedGeometry output;std::string reason;BridgeStats stats;
   REQUIRE(ImportGeometry(*test.config,test.Geometry(),nullptr,state,output,reason,stats,SIZE_MAX));

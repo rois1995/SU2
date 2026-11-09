@@ -302,11 +302,82 @@ struct CBoundaryLayerMetric::WallData {
   std::vector<CBoundaryLayerMetric::Tensor> vertexLog; /*!< \brief Logarithm of the size tensor of each vertex. */
 };
 
+struct CBoundaryLayerMetric::WallProjection {
+  SU2Native3D::PlanarReference::ClosestSurface surface;
+  double lower=0,upper=0;
+  size_t face=0;
+  SU2Native3D::Point bary{};
+};
+
+bool CBoundaryLayerMetric::CurvedWall(unsigned short wall)const {
+  return !walls.at(wall).authority_facets.empty();
+}
+
+CBoundaryLayerMetric::WallProjection CBoundaryLayerMetric::ProjectWall(
+    unsigned short index,const std::array<double,3>& point,double absoluteError)const {
+  const auto& wall=walls.at(index);WallProjection out;
+  if(!wall.authority)throw std::invalid_argument("Wall projection needs retained native authority.");
+  const SU2Native3D::Point query{point[0],point[1],point[2]};
+  if(!CurvedWall(index)) {
+    out.surface=wall.authority->ClosestAnalytic(wall.authority_facet,query);
+    out.lower=out.upper=out.surface.distance;return out;
+  }
+  const auto& geometry=wall.authority->Parameters()->Geometry();
+  const double error=absoluteError>0?absoluteError:1e-6*SU2_TYPE::GetValue(wall.layer.firstHeight);
+  const auto retained=StorageBytes();
+  if(retained>wall.geometry_ceiling)throw std::length_error("Retained BL storage exceeds curved query admission.");
+  size_t available=wall.geometry_ceiling-retained,maximumWork=SU2NativeGeometry::MappedFacetReference::ClearanceWork;
+  auto* reservation=wall.authority->AtlasReservation();size_t attempted=0;
+  if(reservation) {
+    reservation->CheckTime();
+    if(reservation->caller_bytes>reservation->maximum_bytes || reservation->work_exhausted || reservation->work>reservation->maximum_work)
+      throw std::length_error("Curved BL caller reservation exhausted.");
+    available=std::min(available,reservation->maximum_bytes-reservation->caller_bytes);
+    maximumWork=std::min(maximumWork,reservation->maximum_work-reservation->work);
+    if(!maximumWork){reservation->work_exhausted=true;throw std::length_error("Curved BL geometry work exhausted.");}
+    reservation->peak_bytes=std::max(reservation->peak_bytes,transfer_memory::Add(reservation->caller_bytes,
+        geometry.CurvedQueryWorkspaceBytes(maximumWork)));
+  }
+  SU2NativeGeometry::MappedFacetReference::CurvedClosest closest;
+  try {closest=geometry.ClosestCurved(wall.authority_facet,query,error,maximumWork,available,{},&attempted,reservation);}
+  catch(...) {
+    if(reservation){reservation->work=transfer_memory::Add(reservation->work,attempted);
+      reservation->work_exhausted=reservation->work_exhausted || reservation->work>=reservation->maximum_work;}
+    throw;
+  }
+  if(reservation && !reservation->ChargeWork(attempted))throw std::length_error("Curved BL geometry work exhausted.");
+  out.lower=closest.lower;out.upper=closest.upper;
+  const auto where=std::lower_bound(wall.authority_facets.begin(),wall.authority_facets.end(),closest.facet);
+  if(where==wall.authority_facets.end() || *where!=closest.facet)
+    throw std::logic_error("Curved BL closest foot escaped retained component.");
+  out.face=where-wall.authority_facets.begin();
+  out.bary=geometry.SurfaceCoordinates(closest.facet,closest.binding);
+  auto& surface=out.surface;surface.point=closest.point;surface.normal=closest.normal;
+  surface.direction={query.x-surface.point.x,query.y-surface.point.y,query.z-surface.point.z};
+  surface.distance=std::hypot(surface.direction.x,surface.direction.y,surface.direction.z);
+  if(surface.distance>0) {
+    surface.direction.x/=surface.distance;surface.direction.y/=surface.distance;surface.direction.z/=surface.distance;
+  }
+  return out;
+}
+
+double CBoundaryLayerMetric::MarkerDistance(unsigned short index,const std::array<double,3>& point)const {
+  double distance=INFINITY;
+  for(unsigned short wall=0;wall<walls.size();++wall)if(walls[wall].layer.marker==walls.at(index).layer.marker) {
+    if(walls[wall].authority)distance=std::min(distance,ProjectWall(wall,point).surface.distance);
+    else {
+      const su2double x[3]={point[0],point[1],point[2]};
+      distance=std::min(distance,SU2_TYPE::GetValue(const_cast<CBoundaryLayerMetric*>(this)->EvaluateImpl(wall,x,1.,true).distance));
+    }
+  }
+  return distance;
+}
+
 CBoundaryLayerMetric::~CBoundaryLayerMetric() = default;
 size_t CBoundaryLayerMetric::StorageBytes() const {
   using namespace transfer_memory;
   size_t bytes=Add(sizeof(*this),Bytes(walls),Bytes(data));
-  for(const auto& wall:walls)bytes=Add(bytes,wall.layer.marker.capacity()+1,Bytes(wall.coord),Bytes(wall.conn));
+  for(const auto& wall:walls)bytes=Add(bytes,wall.layer.marker.capacity()+1,Bytes(wall.coord),Bytes(wall.conn),Bytes(wall.authority_facets));
   for(const auto& ptr:data)if(ptr) {
     const auto& d=*ptr;
     bytes=Add(bytes,sizeof(d),Bytes(d.elem),Bytes(d.length),Bytes(d.segments),Bytes(d.vertexNormal),
@@ -674,7 +745,7 @@ void CBoundaryLayerMetric::Build() {
   if (nDim != 2 && nDim != 3) SU2_MPI::Error("The boundary-layer metric needs a 2D or 3D mesh.", CURRENT_FUNCTION);
 
   /*--- Walls in the order of their names (the order of the intersections). ---*/
-  std::sort(walls.begin(), walls.end(), [](const Wall& a, const Wall& b) { return a.layer.marker < b.layer.marker; });
+  std::sort(walls.begin(), walls.end(), [](const Wall& a, const Wall& b) { return std::tie(a.layer.marker,a.authority_facet) < std::tie(b.layer.marker,b.authority_facet); });
 
   for (const auto& wall : walls) {
     const auto& name = wall.layer.marker;
@@ -689,7 +760,7 @@ void CBoundaryLayerMetric::Build() {
       SU2_MPI::Error("Wall " + name + ": the boundary-layer metric needs first height > 0, growth >= 1 and thickness "
                      ">= first height.", CURRENT_FUNCTION);
     }
-    if(wall.authority && (nDim!=3 || !wall.authority->CompleteAnalytic(wall.authority_facet) ||
+    if(wall.authority && (nDim!=3 || (wall.authority_facets.empty() && !wall.authority->CompleteAnalytic(wall.authority_facet)) ||
         !(wall.surface_tolerance>0) || !std::isfinite(wall.surface_tolerance)))
       throw std::invalid_argument("Invalid native3D analytic BL authority/geometry tolerance.");
     d->full = max(d->h0, 0.9 * d->thickness);
@@ -904,7 +975,7 @@ void CBoundaryLayerMetric::Build() {
       }
     }
 
-    if(wall.authority) {
+    if(wall.authority && wall.authority_facets.empty()) {
       const auto root=wall.authority->Canonical(wall.authority_facet);
       using TriangleKey=std::array<std::array<double,3>,3>;
       std::set<TriangleKey> expected,actual;
@@ -948,6 +1019,48 @@ void CBoundaryLayerMetric::Build() {
       }
       d->maximum_wall_eigenvalue=4*bound;
       if(!std::isfinite(d->maximum_wall_eigenvalue))throw std::runtime_error("Unrepresentable native3D curved BL metric bound.");
+    }
+    if(!wall.authority_facets.empty()) {
+      if(!wall.authority || nDim!=3 || wall.conn.size()!=4*wall.authority_facets.size())
+        throw std::invalid_argument("Curved BL needs one original triangle per retained facet.");
+      const auto& geometry=wall.authority->Parameters()->Geometry();
+      static constexpr unsigned powers[10][3]={{3,0,0},{0,3,0},{0,0,3},{2,1,0},{1,2,0},{0,2,1},{0,1,2},{1,0,2},{2,0,1},{1,1,1}};
+      for(size_t face=0;face<wall.authority_facets.size();++face) {
+        const auto facet=wall.authority_facets[face];
+        if(geometry.CurvedComponent(facet)!=geometry.CurvedComponent(wall.authority_facet))
+          throw std::invalid_argument("Curved BL mixes disconnected components.");
+        const auto& original=wall.authority->Facets().at(facet);
+        const auto& net=geometry.Curves().at(facet);
+        for(unsigned k=0;k<3;++k) {
+          const auto* p=x(wall.conn[4*face+k]);const auto q=original.v[k].p;
+          if(SU2_TYPE::GetValue(p[0])!=q.x || SU2_TYPE::GetValue(p[1])!=q.y || SU2_TYPE::GetValue(p[2])!=q.z)
+            throw std::invalid_argument("Curved BL proxy ordering differs from original support.");
+        }
+        for(unsigned k=0;k<10;++k) {
+          const long double control[3]={net[k].x,net[k].y,net[k].z};long double delta[3]{};
+          for(unsigned j=0;j<3;++j) {
+            long double linear=0,scale=std::abs(control[j]);
+            for(unsigned v=0;v<3;++v) {const auto value=SU2_TYPE::GetValue(x(wall.conn[4*face+v])[j]);
+              linear+=powers[k][v]*(long double)value/3;scale+=std::abs((long double)value);}
+            delta[j]=std::abs(control[j]-linear)+64*std::numeric_limits<long double>::epsilon()*scale;
+          }
+          const auto error=std::sqrt(delta[0]*delta[0]+delta[1]*delta[1]+delta[2]*delta[2]);
+          d->proxy_error=std::max(d->proxy_error,std::nextafter(double(error),INFINITY));
+        }
+      }
+      size_t complete=0;for(const auto& entry:geometry.Curves())
+        complete+=geometry.CurvedComponent(entry.first)==geometry.CurvedComponent(wall.authority_facet);
+      if(complete!=wall.authority_facets.size() || !std::is_sorted(wall.authority_facets.begin(),wall.authority_facets.end()) ||
+          std::adjacent_find(wall.authority_facets.begin(),wall.authority_facets.end())!=wall.authority_facets.end())
+        throw std::invalid_argument("Curved BL needs exact complete component support.");
+      for(unsigned j=0;j<3;++j){d->low[j]-=d->proxy_error;d->high[j]+=d->proxy_error;}
+      double bound=1/std::pow(SU2_TYPE::GetValue(d->h0),2);
+      for(const auto& logarithm:d->vertexLog) {
+        su2double vectors[3][3],values[3],workspace[3];CBlasStructure::EigenDecomposition(logarithm.m,vectors,values,3,workspace);
+        for(auto value:values)bound=std::max(bound,std::exp(-SU2_TYPE::GetValue(value)));
+      }
+      d->maximum_wall_eigenvalue=4*bound;
+      if(!std::isfinite(d->maximum_wall_eigenvalue))throw std::runtime_error("Unrepresentable cubic BL metric bound.");
     }
     /*--- Local ADT of the segments / triangles. ---*/
     const unsigned short nNode = nDim;
@@ -1745,6 +1858,11 @@ std::array<double,6> CBoundaryLayerMetric::WallBounds() const {
     const auto value=SU2_TYPE::GetValue(wall.coord[nDim*p+j]);
     result[j]=std::min(result[j],value);result[j+3]=std::max(result[j+3],value);
   }
+  for(const auto& wall:walls)if(!wall.authority_facets.empty())
+    for(auto facet:wall.authority_facets)for(const auto& point:wall.authority->Parameters()->Geometry().Curves().at(facet)) {
+      const double x[3]={point.x,point.y,point.z};
+      for(unsigned j=0;j<3;++j){result[j]=std::min(result[j],x[j]);result[j+3]=std::max(result[j+3],x[j]);}
+    }
   return result;
 }
 
@@ -1806,16 +1924,17 @@ CBoundaryLayerMetric::Sample CBoundaryLayerMetric::EvaluateImpl(unsigned short i
   su2double adtDistance = 0.0;
   SU2Native3D::PlanarReference::ClosestSurface smooth;
   su2double lookup[3]={X[0],X[1],nDim==3?X[2]:su2double(0.)};
+  WallProjection projection;
   if(wall.authority) {
-    smooth=wall.authority->ClosestAnalytic(wall.authority_facet,
-        {SU2_TYPE::GetValue(X[0]),SU2_TYPE::GetValue(X[1]),SU2_TYPE::GetValue(X[2])});
+    projection=ProjectWall(iWall,{SU2_TYPE::GetValue(X[0]),SU2_TYPE::GetValue(X[1]),SU2_TYPE::GetValue(X[2])});
+    smooth=projection.surface;
     lookup[0]=smooth.point.x;lookup[1]=smooth.point.y;lookup[2]=smooth.point.z;
   }
   // A chord-owned facet (EdgeBreakpoints envelope piece) replaces the nearest-facet search outright: the search result
   // would be overwritten by the owner, so it is skipped (identical sample, no ADT descent per integration point).
   const bool ownedFacet = nDim == 3 && pinned != ChordOwners::NoFacet && !wall.authority;
   // Tangential interpolation belongs to the physical foot, not an interior proxy Voronoi branch.
-  if (!ownedFacet) d.adt->DetermineNearestElement(lookup, adtDistance, markerID, id, rankID);
+  if (!ownedFacet && !CurvedWall(iWall)) d.adt->DetermineNearestElement(lookup, adtDistance, markerID, id, rankID);
 
   su2double tangentSize[3][3] = {{0.0}};  // 3D: size tensor (squared sizes) on the tangent plane
   su2double ht = 0.0, tangent[3] = {0.0};  // 2D
@@ -1895,7 +2014,10 @@ CBoundaryLayerMetric::Sample CBoundaryLayerMetric::EvaluateImpl(unsigned short i
       return distance2;
     };
     su2double w[3],radial[3],dist2;
-    if(ownedFacet) {
+    if(CurvedWall(iWall)) {
+      id=projection.face;w[0]=projection.bary.x;w[1]=projection.bary.y;w[2]=projection.bary.z;
+      dist2=0;std::fill(radial,radial+3,0.);
+    } else if(ownedFacet) {
       // Chord ownership (EdgeBreakpoints envelope piece): deterministic among rounding-level distance ties. The
       // envelope (long double) is the authority; the double closest-point classifier is not re-compared against it.
       if(pinned>=d.faceNormal.size())throw std::invalid_argument("Native BL chord owner is not a wall facet.");
@@ -1987,7 +2109,7 @@ CBoundaryLayerMetric::Sample CBoundaryLayerMetric::EvaluateImpl(unsigned short i
         M[i][j] = tangent[i] * tangent[j] / (ht * ht) + sample.normal[i] * sample.normal[j] / pow(sample.hn, 2);
   } else {
     double curvature=0;std::array<double,3> direction{};const std::array<double,3>* curvedDirection=nullptr;
-    if(wall.authority) {
+    if(wall.authority && !CurvedWall(iWall)) {
       const auto& g=wall.authority->Analytic().at(wall.authority_facet);
       if(g.kind!=SU2Native3D::AnalyticSurface::Kind::Disk) {
         const long double epsilon=wall.surface_tolerance;
@@ -2095,37 +2217,45 @@ std::shared_ptr<CBoundaryLayerMetric> CBoundaryLayerMetric::FromNativeReference(
 std::shared_ptr<CBoundaryLayerMetric> CBoundaryLayerMetric::FromNativeReference(
     const SU2Native3D::ReferenceState& reference, const CConfig& config, double featureAngle) {
   if (!reference.original) throw std::invalid_argument("Native3D BL needs immutable original geometry.");
-  // shortcut: remove this refusal only with curved support, quadrature and chord integration qualified together.
-  if(reference.original->Mapped() && !reference.original->Parameters()->Geometry().Curves().empty())
-    throw std::invalid_argument("Native3D BL curved mapped queries are not integrated; refusing a faceted substitute.");
   std::vector<Wall> walls;
-  for (unsigned short b=0;b<config.GetnAdap_BL();++b) {
-    Wall wall;wall.layer=config.GetAdap_BL(b);
-    std::map<uint64_t,unsigned long> points;
-    bool faceted=false;std::set<uint64_t> components;
-    for(const auto& face:reference.facets) {
-      if(reference.marker_names.at(face.marker)!=wall.layer.marker) continue;
-      if(reference.original->Affine().count(face.id))
-        throw std::invalid_argument("Native3D BL on declared affine wall authority is unsupported; no faceted substitute is frozen.");
-      if(reference.original->Analytic().count(face.id))components.insert(reference.original->Canonical(face.id));
-      else faceted=true;
-      for(const auto& node:face.v) {
-        auto insertion=points.emplace(node.id,points.size());
-        if(insertion.second) {
-          wall.coord.push_back(node.p.x);wall.coord.push_back(node.p.y);wall.coord.push_back(node.p.z);
-        }
-        wall.conn.push_back(insertion.first->second);
+  for(unsigned short b=0;b<config.GetnAdap_BL();++b) {
+    const auto layer=config.GetAdap_BL(b);
+    // One metric contribution per connected wall component, with the marker's common requested profile.
+    std::map<std::pair<unsigned,uint64_t>,std::vector<uint64_t>> groups;
+    for(const auto& face:reference.facets)if(reference.marker_names.at(face.marker)==layer.marker) {
+      if(reference.original->Mapped() && reference.original->Parameters()->Geometry().Curves().count(face.id))
+        groups[{2,reference.original->Parameters()->Geometry().CurvedComponent(face.id)}].push_back(face.id);
+      else if(reference.original->Analytic().count(face.id))groups[{1,reference.original->Canonical(face.id)}].push_back(face.id);
+      else {
+        if(reference.original->Affine().count(face.id))
+          throw std::invalid_argument("Native3D BL on declared affine wall authority is unsupported.");
+        groups[{0,0}].push_back(face.id);
       }
-      wall.conn.push_back(wall.conn.back());
     }
-    if(wall.conn.empty()) throw std::invalid_argument("Native3D BL marker has no original wall faces: "+wall.layer.marker);
-    if(!components.empty()) {
-      if(faceted || components.size()!=1)throw std::invalid_argument("Native3D analytic BL marker needs one complete component; split physical components into separate markers.");
-      wall.authority=reference.original;wall.authority_facet=*components.begin();
-      if(!wall.authority->CompleteAnalytic(wall.authority_facet))throw std::invalid_argument("Native3D analytic BL partial/graph component is unsupported.");
-      wall.surface_tolerance=SU2_TYPE::GetValue(config.GetAdap_Hausd());
+    if(groups.empty())throw std::invalid_argument("Native3D BL marker has no original wall faces: "+layer.marker);
+    for(auto& group:groups) {
+      Wall wall;wall.layer=layer;std::map<uint64_t,unsigned long> points;
+      std::sort(group.second.begin(),group.second.end());
+      for(auto id:group.second) {
+        const auto& face=reference.original->Facets().at(id);
+        for(const auto& node:face.v) {
+          auto insertion=points.emplace(node.id,points.size());
+          if(insertion.second){wall.coord.push_back(node.p.x);wall.coord.push_back(node.p.y);wall.coord.push_back(node.p.z);}
+          wall.conn.push_back(insertion.first->second);
+        }
+        wall.conn.push_back(wall.conn.back());
+      }
+      if(group.first.first) {
+        wall.authority=reference.original;wall.authority_facet=group.second.front();
+        wall.surface_tolerance=SU2_TYPE::GetValue(config.GetAdap_Hausd());
+        wall.geometry_ceiling=config.GetAdap_Native_MemoryLimit();
+        if(group.first.first==2)wall.authority_facets=std::move(group.second);
+        else if(!wall.authority->CompleteAnalytic(wall.authority_facet))
+          throw std::invalid_argument("Native3D analytic BL partial component is unsupported.");
+      }
+      if(walls.size()==std::numeric_limits<unsigned short>::max())throw std::length_error("Too many BL wall components.");
+      walls.push_back(std::move(wall));
     }
-    walls.push_back(std::move(wall));
   }
   /*--- D1: complete original walls (facets oriented out of the fluid) and the other physical facets as partners. ---*/
   FeatureOptions options;
@@ -2312,6 +2442,20 @@ CBoundaryLayerMetric::ComplexityEstimate3D CBoundaryLayerMetric::EstimateComplex
   return estimate;
 }
 
+bool CBoundaryLayerMetric::MayIntersectBand3D(const std::array<std::array<double,3>,4>& tet,unsigned short wall)const {
+  if(!CurvedWall(wall))return MayIntersectSmoothBand(tet,*walls[wall].authority,walls[wall].authority_facet,data[wall]->support);
+  std::array<double,3> center{};
+  for(unsigned j=0;j<3;++j)for(const auto& p:tet)center[j]+=.25*p[j];
+  long double radius=0,scale=0;
+  for(const auto& p:tet) {
+    long double r2=0;for(unsigned j=0;j<3;++j){const auto d=(long double)p[j]-center[j];r2+=d*d;scale=std::max(scale,std::abs((long double)p[j]));}
+    radius=std::max(radius,std::sqrt(r2));
+  }
+  const auto projection=ProjectWall(wall,center);
+  const auto roundoff=128*std::numeric_limits<double>::epsilon()*(scale+radius);
+  return (long double)projection.lower-radius-roundoff<=data[wall]->support;
+}
+
 std::vector<CBoundaryLayerMetric::IntegrationPoint3D> CBoundaryLayerMetric::IntegrationRule3DImpl(
     const std::array<std::array<double,3>,4>& tetrahedron,double bandRatio,IntegrationDensity3D density,
     bool* sensorDependent,ComplexityEstimate3D* estimate,size_t maximumEvaluations,
@@ -2330,7 +2474,7 @@ std::vector<CBoundaryLayerMetric::IntegrationPoint3D> CBoundaryLayerMetric::Inte
   if(!workspace || !workspace->prepared)for(unsigned short wall=0;wall<walls.size();++wall) {
     const auto& d=*data[wall];if(!d.adt)continue;
     const double thickness=d.support+d.proxy_error;
-    if(walls[wall].authority && !MayIntersectSmoothBand(tetrahedron,*walls[wall].authority,walls[wall].authority_facet,d.support))continue;
+    if(walls[wall].authority && !MayIntersectBand3D(tetrahedron,wall))continue;
     bool hidden=true;
     if(!walls[wall].authority)for(const auto& p:tetrahedron){const su2double x[3]={p[0],p[1],p[2]};hidden=hidden && EvaluateImpl(wall,x,1.,true).distance>=thickness;}
     su2double low[3],high[3];
@@ -2344,7 +2488,7 @@ std::vector<CBoundaryLayerMetric::IntegrationPoint3D> CBoundaryLayerMetric::Inte
       SupportFace face;face.thickness=thickness;face.wall=wall;
       for(unsigned k=0;k<3;++k)for(unsigned j=0;j<3;++j)
         face.vertices[k][j]=SU2_TYPE::GetValue(walls[wall].coord[3*d.elem[3*f+k]+j]);
-      if(!MayIntersectWallBand(tetrahedron,face.vertices,thickness*(1-1e-12)))continue;
+      if(!MayIntersectWallBand(tetrahedron,face.vertices,CurvedWall(wall)?std::nextafter(thickness,INFINITY):thickness*(1-1e-12)))continue;
       freshSupport.push_back(face);hiddenSupport=hiddenSupport || hidden;
       if(walls[wall].authority)break; // One frame seed; smooth support is certified by the whole component.
     }
@@ -2396,7 +2540,7 @@ std::vector<CBoundaryLayerMetric::IntegrationPoint3D> CBoundaryLayerMetric::Inte
   for(unsigned k=0;k<4;++k)fanSource[k]={tetrahedron[k][0],tetrahedron[k][1],tetrahedron[k][2]};
   const bool fanReversed=SU2Native3D::Orientation(fanSource[0],fanSource[1],fanSource[2],fanSource[3])<0;
   if(fanReversed)std::swap(fanSource[1],fanSource[2]);
-  for(const auto& wall:walls)if(wall.authority) {
+  for(const auto& wall:walls)if(wall.authority && wall.authority_facets.empty()) {
     const auto& g=wall.authority->Analytic().at(wall.authority_facet);
     std::array<long double,4> centerWeights;
     if(g.kind!=SU2Native3D::AnalyticSurface::Kind::Sphere || !SU2Native3D::Barycentric(fanSource,g.origin,centerWeights))continue;
@@ -2960,7 +3104,7 @@ std::vector<CBoundaryLayerMetric::IntegrationPoint3D> CBoundaryLayerMetric::Inte
       for(const auto& f:support)if(!sampled[f.wall])for(const auto& r:regions) {
         if(BLDeterminant(r[0],r[1],r[2],r[3])==0)continue;
         const auto& w=walls[f.wall];
-        p.unresolved=p.unresolved || (w.authority?MayIntersectSmoothBand(r,*w.authority,w.authority_facet,data[f.wall]->support):
+        p.unresolved=p.unresolved || (w.authority?MayIntersectBand3D(r,f.wall):
             MayIntersectWallBand(r,f.vertices,f.thickness*(1-1e-12)));
       }
       return p;
@@ -3153,7 +3297,7 @@ std::vector<CBoundaryLayerMetric::IntegrationPoint3D> CBoundaryLayerMetric::Inte
       for(const auto& face:support)if(!sampled[face.wall])for(const auto& region:regions) {
         if(BLDeterminant(region[0],region[1],region[2],region[3])==0)continue;
         const auto& wall=walls[face.wall];
-        if(wall.authority ? MayIntersectSmoothBand(region,*wall.authority,wall.authority_facet,data[face.wall]->support) :
+        if(wall.authority ? MayIntersectBand3D(region,face.wall) :
             MayIntersectWallBand(region,face.vertices,face.thickness*(1-1e-12)))panel.unresolved=true;
       }
     }
@@ -3271,8 +3415,7 @@ std::vector<double> CBoundaryLayerMetric::EdgeBreakpointsImpl(
     } else for (unsigned k = 1; k <= fadeBands; ++k) levels.push_back(full + (thickness-full)*k/fadeBands);
     validRoot=[&](double t) {
       su2double x[3]{};for(unsigned j=0;j<nDim;++j)x[j]=(1-t)*a[j]+t*b[j];
-      const double actual=walls[wall].authority ? walls[wall].authority->ClosestAnalytic(walls[wall].authority_facet,
-          {SU2_TYPE::GetValue(x[0]),SU2_TYPE::GetValue(x[1]),SU2_TYPE::GetValue(x[2])}).distance : SU2_TYPE::GetValue(EvaluateImpl(wall,x,1.,true).distance);
+      const double actual=SU2_TYPE::GetValue(EvaluateImpl(wall,x,1.,true).distance);
       double coordinateScale=0;
       for(unsigned j=0;j<nDim;++j)coordinateScale=std::max({coordinateScale,std::abs(a[j]),std::abs(b[j])});
       const double roundoff=64*std::numeric_limits<double>::epsilon()*coordinateScale;
@@ -3280,6 +3423,38 @@ std::vector<double> CBoundaryLayerMetric::EdgeBreakpointsImpl(
         if(std::abs(actual-level)<=std::max(roundoff,1e-10*std::max(h0,level)))return true;
       return false;
     };
+    if(CurvedWall(wall)) {
+      // Distance to the entire retained finite surface is 1-Lipschitz; uncertain crossings are never discarded.
+      const long double length=std::sqrt(dot(chord,chord));size_t work=0;double unresolvedError=0;
+      double eigenvalue=d.maximum_wall_eigenvalue;
+      for(const auto& feature:features)if(std::binary_search(feature.walls.begin(),feature.walls.end(),wall))
+        eigenvalue+=1/(feature.h0*feature.h0);
+      if(!std::isfinite(eigenvalue))throw std::runtime_error("Unrepresentable cubic BL feature bound.");
+      levels.erase(std::remove(levels.begin(),levels.end(),0.),levels.end());
+      const double allowance=1e-8/std::max(size_t(1),levels.size());
+      auto mandatory=[&](double t){if(t>0 && t<1 && retained.insert(t).second){
+        if(cuts.size()>=65536)throw std::runtime_error("Cubic BL edge cuts exceed work budget.");cuts.push_back(t);}};
+      std::function<void(double,double)> resolve;
+      resolve=[&](double left,double right) {
+        if(++work>16384)throw std::runtime_error("Cubic BL distance crossings exceed work budget.");
+        const auto middle=.5*(left+right);std::array<double,3> point{};double scale=0;
+        for(unsigned j=0;j<3;++j){point[j]=(1-middle)*a[j]+middle*b[j];scale=std::max(scale,std::abs(point[j]));}
+        const auto radius=length*(right-left)/2;
+        const double roundoff=128*std::numeric_limits<double>::epsilon()*(scale+double(length));
+        const auto projection=ProjectWall(wall,point,std::max(std::numeric_limits<double>::min(),
+            std::min(1e-6*h0,double(radius)*.125+roundoff)));
+        if(std::none_of(levels.begin(),levels.end(),[&](double level){
+          return level>=projection.lower-radius-roundoff && level<=projection.upper+radius+roundoff;}))return;
+        const double uncertainty=double(length*(right-left)*std::sqrt(eigenvalue));
+        if(uncertainty<=allowance) {
+          unresolvedError+=uncertainty;if(unresolvedError>1e-8)throw std::runtime_error("Cubic BL crossing uncertainty exceeds edge tolerance.");
+          mandatory(left);mandatory(right);return;
+        }
+        if(middle==left || middle==right)throw std::runtime_error("Unresolved cubic BL distance crossing.");
+        resolve(left,middle);resolve(middle,right);
+      };
+      resolve(0,1);continue;
+    }
     if(walls[wall].authority) {
       const auto& authority=*walls[wall].authority;const auto& g=authority.Analytic().at(walls[wall].authority_facet);
       Vector radial{},velocity=chord,axis{};

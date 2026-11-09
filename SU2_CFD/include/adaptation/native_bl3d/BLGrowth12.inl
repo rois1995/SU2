@@ -67,7 +67,7 @@ inline Decision Admit12(State& s,const Patch& old,const Patch& fresh,Kind kind) 
 // ---- wall policy of a column (production layers, per wall) -------------------------------------------------------------
 inline std::map<int,unsigned short> layerOfMarker;
 inline void MapLayers(State& s){layerOfMarker.clear();for(int m:s.walls)for(unsigned short w=0;w<s.layers->GetnWall();++w)if(s.layers->GetLayer(w).marker==s.markers.at(m))layerOfMarker[m]=w;}
-inline long double WallDistanceTo(State& s,unsigned short w,V x){const su2double X[3]={double(x.x),double(x.y),double(x.z)};return SU2_TYPE::GetValue(s.layers->Evaluate(w,X,s.core).distance);}
+inline long double WallDistanceTo(State& s,unsigned short w,V x){return s.layers->MarkerDistance(w,{double(x.x),double(x.y),double(x.z)});}
 inline long double MinWallDistance(State& s,V x){long double d=INFINITY;for(unsigned short w=0;w<s.layers->GetnWall();++w)d=std::min(d,WallDistanceTo(s,w,x));return d;}
 inline long double FirstHeightOf(State& s,unsigned short w){return SU2_TYPE::GetValue(s.layers->GetLayer(w).firstHeight);}
 inline long double GrowthOf(State& s,unsigned short w){return SU2_TYPE::GetValue(s.layers->GetLayer(w).growth);}

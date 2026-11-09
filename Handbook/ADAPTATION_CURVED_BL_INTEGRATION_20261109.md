@@ -1,8 +1,9 @@
 # Connected curved-wall BL milestone
 
 User steering2026-11-09. This is the next implementation milestone AFTER frozen
-FIRST296 terminates and actual owned handles are verified terminal. No BL source
-edits/build/campaign have begun. Preserve qualified Euler construction/certification,
+FIRST296 terminated and actual owned handles were verified terminal. Connected BL
+source implementation has now begun; build298 is frozen/running (session88564);297 failed compilation.
+No BL tests/CFD yet. Preserve qualified Euler construction/certification,
 all gates/budgets and the completed293 two-event/restart baseline/checkpoints.
 Small296 timing changes, reuse counters and speculative geometry optimizations do
 not justify another Euler cycle. Only clear material outcome evidence can change
@@ -115,3 +116,51 @@ continue from it when appropriate instead of recomputing from scratch. Residual
 convergence is not itself the user's sole criterion. Nearby original mesh directory
 contains matching meshes but the bounded inventory found no alternate solved RANS
 state. No RANS CFD was launched during frozen296.
+
+## Working implementation — unbuilt, not qualification
+
+The active working change retains one cubic same-marker connected component per
+wall contribution, shared requested profile, and exact original facet order. Point
+queries use existing certified ClosestCurved with h0-scaled absolute error and
+existing bounded work/storage; barycentric tangential interpolation uses the actual
+returned binding. Component-aware marker distance prevents last-component lookup
+from silently choosing a different disconnected wall. Planar triangles provide a
+Bernstein control-deviation envelope for broad-phase integration support only.
+Whole-component distance lower bounds and the distance function's 1-Lipschitz
+property conservatively screen hidden bands and bracket chord crossings; unresolved
+queries/crossings throw at existing limits. Analytic/faceted paths are retained.
+No new curvature metric or configuration is introduced. These claims describe
+intended source behavior, not passing evidence. Closest-point candidate normals are
+local differential evaluations, not certificates of a unique foot. Actual query
+work, hidden-band convergence and M6 feasibility remain to be measured. BL current-
+mesh suitability census, operation/migration preservation and RANS remain unproven.
+
+### Build297 source review and remaining binding gap
+
+Build297 freezes the six changed production/test files under build297_source_pins
+and builds production CFD plus test_driver at nice19/j3 with resource receipts.
+Actual host identities are in build297_owned_startup.json; verify terminal before
+editing any pinned source. Euler296 source/binaries remain independently archived.
+Read-only review found WallBounds missed cubic controls (fixed), and query admission
+used the entire ceiling without live BL storage (fixed). Attached atlas reservations
+are now respected and attempted query work charged even on failure. HOWEVER, the
+production retained policy is constructed before the engine's private reservation;
+that view does not reach captured full/base layers. The current per-query and outer
+loop limits do not establish shared event geometry-work/deadline accounting. Connect
+that existing reservation across normalization/construction/improvement before
+calling this capability production-qualified. No deadline/quota increase authorized.
+FIRST_ROW currently explicitly requires ONE native worker; general later stages
+are distributed. This is an existing limitation, not qualified MPI BL generation.
+The actual frozen-M6 diagnostic NativeFrozenBL14 accepts SU2_DC14_CONFIG/DONORS/OUT/
+EVENT and uses production ComputeMetric/backend. Prefer it to invented analytic-only
+campaigns when the affected focused behavior is sound. Actual M6 feasibility and
+current-mesh BL suitability remain open.
+
+Build297 terminated1 after522.606s, pins unchanged and all11actual host identities
+terminal. Wrong geometry namespace and ambiguous test tensor prevented compilation;
+no runtime result claimed. Six changed source files preserved in
+staged57/build297_source_snapshot. Build298 corrects those names, keeps cubic
+integration support outward rather than shrinking its envelope, and includes this
+wall's D1 feature contributions in the chord uncertainty tensor bound. Source
+frozen in build298_source_pins; session88564/actual identities in
+build298_owned_startup.json. No BL runtime evidence yet.

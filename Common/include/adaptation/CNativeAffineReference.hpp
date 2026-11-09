@@ -150,6 +150,10 @@ class MappedFacetReference {
   bool OrientedFace(Id side,const SurfaceBinding&,const std::array<Point,3>&)const;
   SU2Native3D::Edge OriginalEdge(Id feature)const{return edges.at(feature);}
   Id Body(Id facet)const{return body_roots.at(facet);}
+  /*! Same-marker edge-connected component used by the certified curved closest query. */
+  Id CurvedComponent(Id facet)const;
+  /*! Barycentric coordinates on a supporting original facet, not a geometric inverse. */
+  Point SurfaceCoordinates(Id side,const SurfaceBinding&)const;
   /*! Closest distance to the edge-connected, same-marker curved component containing hint.
    * Outward control-hull subdivision certifies [lower,upper] to the requested absolute error.
    * The returned binding/normal describe the candidate point, not a certified unique minimizer.

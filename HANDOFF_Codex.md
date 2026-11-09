@@ -44,7 +44,8 @@ have not reduced expensivegeometrywork. RankCPU/busy/join/churn retained; overla
 timers separate and join-call time is NOTtotalMPIwait. Causal material gain NOT
 established. Latest user therefore directs BL next; no speculative Euler cycle.
 
-Current qualified source: production294 +test-only295/296, allC++ STILL UNCHANGED.
+Qualified archived source: production294 +test-only295/296. Current working C++ has
+unvalidated connected curved-BL changes (build298 frozen/running); do not reuse296 source pins.
 StandaloneCFD SHA b316e4f9fd3c76b43c10c8c4ffb85f7040da0ab93cb2850182bec1c31dbab256;
 test_driver SHA6f8184dc7359a62ce6d9d82a2f96055ac6caebf2b5e7354c5f9800b4cedd403c.
 Frozen workflow used same selected-failure wrapper as293, invoking actual production
@@ -61,7 +62,15 @@ to user: original no-CAD cubic wall authority must serve distance/normals, combi
 flow/BL metric, quadrature and chord integration together; existing first-row/joint-
 wall helpers do NOTprove complete multilayer coverage or post-migration suitability.
 R/m6_bl_preflight296.json pins48954curvednets and current explicit builder refusal.
-Read-only three-agent audits completed; NO BL source edit/build/test/CFD yet.
+Read-only audits completed. Connected curved-BL source implementation STARTED,
+unbuilt/unvalidated: component-aware retained cubic walls, certified distance
+enclosures/physical-foot interpolation, conservative support bounds and chord
+crossing resolution are being integrated. Build297 TERMINAL1/522.606s, unchanged pins, all11actualHOST identities terminal;
+source snapshot preserved. It failed on wrong namespace/ambiguous test tensor.
+Corrected build298 running, tool session88564; helper3471708/start28131678,
+ninja3471710/start28131697. Source frozen; build298_owned_startup.json records
+actual identities. No BL tests/CFD yet. Shared policy/engine reservation binding
+remains a review blocker.
 Next ACTUAL implementation: audit/reuse those production callers and wall-aware
 operators, retain strict gates/budgets, define current-mesh BL census for h0/normal
 alignment/progression/coverage/outer transition/tangential flow conformity/features/

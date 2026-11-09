@@ -1568,6 +1568,15 @@ size_t MappedFacetReference::CurvedQueryWorkspaceBytes(size_t maximum_work)const
   return transfer_memory::Add(transfer_memory::Mul(facets,2*sizeof(unsigned long)),
       transfer_memory::Mul(maximum_work,4*sizeof(CurvedQueryRegion)));
 }
+Id MappedFacetReference::CurvedComponent(Id facet)const {
+  if(!curved_search)throw std::invalid_argument("Curved component requested without a cubic authority.");
+  return curved_search->root.at(facet);
+}
+Point MappedFacetReference::SurfaceCoordinates(Id side,const SurfaceBinding& binding)const {
+  const auto p=FacetParameters(side,binding);const auto a=Values(p.origin),b=Values(p.first),c=Values(p.second);Vec result;
+  for(unsigned k=0;k<3;++k)result[k]=double(a[k]+(long double)p.u*(b[k]-(long double)a[k])+(long double)p.v*(c[k]-(long double)a[k]));
+  return ToPoint(result);
+}
 MappedFacetReference::CurvedClosest MappedFacetReference::ClosestCurved(
     Id hint,Point query,double tolerance,size_t maximum_work,size_t ceiling,
     const std::function<bool(Id)>& allowed_facets,size_t* attempted_work,AtlasBudget* reservation)const {
