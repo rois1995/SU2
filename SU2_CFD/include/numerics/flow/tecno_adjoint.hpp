@@ -1279,7 +1279,8 @@ void JumpRowEnds(const Geometry& geometry, unsigned short nDim, unsigned short n
  *      gamma = 1 - alpha on every entry (S4d, ROE_TECNO_PLAN.md 6.10; S4c had the zero term
  *      gamma = max(0, 1 - alpha - (room - alpha phi_c o)/|dy|), which leaves central edge fields at vetoed entries);
  *  (5) TECNO_ADJOINT_FCT_PASSES = n > 1 (S4e, ROE_TECNO_PLAN.md 6.11): n - 1 further passes of (3)-(4) on the remaining
- *      amounts (1 - alpha) with the remaining capacity Q_e = cap_e - S_e(alpha), alpha nondecreasing, the box kept.
+ *      amounts (1 - alpha) with the remaining capacity Q_e = max(0, cap_e - S_e(alpha) - tau_e) (tau_e the rounding
+ *      bound of that sum), alpha nondecreasing, the box kept.
  * Residual (tecnoAdjointEdgeFCT): Delta part D (alpha_r l_c + gamma_r dy), moment alpha_r phi_c D l_c at both ends,
  * l_c = dy - phi_c sigma, (alpha_r, gamma_r) = (r alpha, 1 - r (1 - gamma)) with the MUSCL ramp r, transpose coefficient
  * GradientCoefficient(1, 0): sum_m w_m.R_m = sum_e sum_f D (alpha_r l_c^2 + gamma_r dy^2) >= 0 for any values (A1');
@@ -1323,7 +1324,7 @@ struct FCTSetup {
  *        column 4 y + f, the per-edge values (FCT_E_*) and the exchange buffer (nPoint, 4 maxDeg).
  */
 struct FCTWork {
-  su2activematrix A, Pm, rho, edge, buf, S;
+  su2activematrix A, Pm, rho, edge, buf, S, Ssize;
 };
 
 /*!
@@ -1826,23 +1827,25 @@ void FCTAlpha(const Geometry& geometry, const su2activematrix& rho, su2activemat
 template <class Geometry, class WeightType, class VolumeType, class StoreType>
 void FCTRemainingHalves(const Geometry& geometry, unsigned short nDim, const WeightType& weights,
                         const VolumeType& volume, const StoreType& ing, const su2activematrix& ed, su2activematrix& S,
-                        su2activematrix& Pm) {
+                        su2activematrix& Ssize, su2activematrix& Pm) {
   FCTNodeStar st;
   SU2_OMP_FOR_STAT(OMP_CHUNK)
   for (unsigned long a = 0; a < geometry.GetnPointDomain(); ++a) {
     FCTLoadStar(geometry, nDim, weights, volume, ing, a, st);
     for (size_t h = 0; h < st.edge.size(); ++h) {
       for (unsigned short f = 0; f < TVD_NFIELD; ++f) {
-        su2double sum = 0.0, pos = 0.0;
+        su2double sum = 0.0, size = 0.0, pos = 0.0;
         if (ed(st.edge[h], FCT_E_VALID + f) != 0.0) {
           for (size_t k = 0; k < st.edge.size(); ++k) {
             const su2double c = FCTPair(nDim, st, h, k, f, ed);
             const su2double alpha = ed(st.edge[k], FCT_E_ALPHA + f);
             sum += alpha * c;
+            size += fabs(alpha * c);
             pos += fmax(su2double(0.0), c) * (1.0 - alpha);
           }
         }
         S(st.edge[h], 4 * st.y[h] + f) = sum;
+        Ssize(st.edge[h], 4 * st.y[h] + f) = size;
         Pm(st.edge[h], 4 * st.y[h] + f) = pos;
       }
     }
@@ -1852,20 +1855,26 @@ void FCTRemainingHalves(const Geometry& geometry, unsigned short nDim, const Wei
 
 /*!
  * \brief Remaining pass, every local edge: Q, R', room' and a_e' on the remaining amounts (FCT_E_R, FCT_E_ROOM,
- *        FCT_E_AOWN are overwritten).
+ *        FCT_E_AOWN are overwritten). Q = max(0, cap - S_e(alpha) - tau), tau = (n_0 + n_1 + 3) eps (cap + |alpha phi_c o|
+ *        + sum |alpha' c|) the rounding bound of that sum (n the node degrees, the number of pairs): a saturated box has
+ *        no remaining capacity (a roundoff Q over a small Pm' would give an arbitrary R'), and Q is continuous.
  */
 template <class Geometry>
-void FCTRoomRemaining(const Geometry& geometry, const su2activematrix& S, const su2activematrix& Pm,
-                      su2activematrix& ed) {
+void FCTRoomRemaining(const Geometry& geometry, const FCTSetup& setup, const su2activematrix& S,
+                      const su2activematrix& Ssize, const su2activematrix& Pm, su2activematrix& ed) {
   SU2_OMP_FOR_STAT(OMP_CHUNK)
   for (unsigned long iEdge = 0; iEdge < geometry.GetnEdge(); ++iEdge) {
     for (unsigned short f = 0; f < TVD_NFIELD; ++f) {
       const bool valid = (ed(iEdge, FCT_E_VALID + f) != 0.0);
       const su2double alpha = ed(iEdge, FCT_E_ALPHA + f);
       const su2double own = ed(iEdge, FCT_E_PHIC + f) * ed(iEdge, FCT_E_O + f);
-      const su2double Q =
-          valid ? fmax(su2double(0.0), ed(iEdge, FCT_E_CAP + f) - alpha * own - S(iEdge, f) - S(iEdge, 4 + f))
-                : su2double(0.0);
+      const su2double cap = ed(iEdge, FCT_E_CAP + f);
+      const su2double raw = cap - alpha * own - S(iEdge, f) - S(iEdge, 4 + f);
+      const su2double nPairs = su2double(setup.degree[geometry.edges->GetNode(iEdge, 0)] +
+                                         setup.degree[geometry.edges->GetNode(iEdge, 1)]);
+      const su2double tau = (nPairs + 3.0) * std::numeric_limits<su2double>::epsilon() *
+                            (cap + fabs(alpha * own) + Ssize(iEdge, f) + Ssize(iEdge, 4 + f));
+      const su2double Q = valid ? fmax(su2double(0.0), raw - tau) : su2double(0.0);
       const su2double pm = Pm(iEdge, f) + Pm(iEdge, 4 + f);
       const su2double R = (valid && (pm > Q)) ? Q / pm : su2double(1.0);
       const su2double room = fmax(su2double(0.0), Q - R * pm);
@@ -1968,10 +1977,11 @@ void FCTPasses(const Geometry& geometry, unsigned short nDim, const WeightType& 
   FCTExchange(geometry, setup, work.rho, work.buf, comm);
   FCTAlpha(geometry, work.rho, work.edge);
   for (unsigned short pass = 1; pass < nPasses; ++pass) {
-    FCTRemainingHalves(geometry, nDim, weights, volume, ing, work.edge, work.S, work.Pm);
+    FCTRemainingHalves(geometry, nDim, weights, volume, ing, work.edge, work.S, work.Ssize, work.Pm);
     FCTExchange(geometry, setup, work.S, work.buf, comm);
+    FCTExchange(geometry, setup, work.Ssize, work.buf, comm);
     FCTExchange(geometry, setup, work.Pm, work.buf, comm);
-    FCTRoomRemaining(geometry, work.S, work.Pm, work.edge);
+    FCTRoomRemaining(geometry, setup, work.S, work.Ssize, work.Pm, work.edge);
     FCTObserverMinRemaining(geometry, nDim, weights, volume, ing, work.edge, work.rho);
     FCTExchange(geometry, setup, work.rho, work.buf, comm);
     FCTAlphaIncrement(geometry, work.rho, work.edge);
@@ -1990,6 +2000,7 @@ void FCTWorkResize(const Geometry& geometry, const FCTSetup& setup, FCTWork& wor
   work.rho.resize(nEdge, 8) = su2double(1.0);
   work.edge.resize(nEdge, FCT_E_WIDTH) = su2double(0.0);
   work.S.resize(nEdge, 8) = su2double(0.0);
+  work.Ssize.resize(nEdge, 8) = su2double(0.0);
   if (SU2_MPI::GetSize() > 1) work.buf.resize(geometry.GetnPoint(), 4 * std::max<unsigned short>(setup.maxDeg, 1)) = su2double(0.0);
 }
 

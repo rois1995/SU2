@@ -1602,7 +1602,7 @@ FCTRefResult FCTReference(const Geometry& geometry, unsigned short nDim, const s
     for (int f = 0; f < 4; ++f) r.alpha[f] = std::min(r.rho[f], r.aown[f]);
   /*--- (5) S4e (ROE_TECNO_PLAN.md 6.11): further passes on the remaining amounts with Q = cap - S(alpha). ---*/
   for (unsigned short pass = 1; pass < nPasses; ++pass) {
-    std::vector<std::array<double, 4>> S(nE, {0, 0, 0, 0}), Pr(nE, {0, 0, 0, 0}), rho(nE, {1, 1, 1, 1});
+    std::vector<std::array<double, 4>> S(nE, {0, 0, 0, 0}), Ss(nE, {0, 0, 0, 0}), Pr(nE, {0, 0, 0, 0}), rho(nE, {1, 1, 1, 1});
     for (unsigned long a = 0; a < nP; ++a)
       for (size_t h = 0; h < res.at[a].size(); ++h)
         for (int f = 0; f < 4; ++f) {
@@ -1611,6 +1611,7 @@ FCTRefResult FCTReference(const Geometry& geometry, unsigned short nDim, const s
           for (size_t k = 0; k < res.at[a].size(); ++k) {
             const double c = pairC(a, h, k, f), al = ed[res.at[a][k].first].alpha[f];
             S[eh][f] += al * c;
+            Ss[eh][f] += std::fabs(al * c);
             Pr[eh][f] += std::max(0.0, c) * (1.0 - al);
           }
         }
@@ -1619,7 +1620,10 @@ FCTRefResult FCTReference(const Geometry& geometry, unsigned short nDim, const s
       const auto& r = ed[e];
       for (int f = 0; f < 4; ++f) {
         const double own = r.phic[f] * r.o[f];
-        const double Q = r.valid[f] ? std::max(0.0, r.cap[f] - r.alpha[f] * own - S[e][f]) : 0.0;
+        const double raw = r.cap[f] - r.alpha[f] * own - S[e][f];
+        const double nPairs = double(nbr[r.n[0]].size() + nbr[r.n[1]].size());
+        const double tau = (nPairs + 3) * std::numeric_limits<double>::epsilon() * (r.cap[f] + std::fabs(r.alpha[f] * own) + Ss[e][f]);
+        const double Q = r.valid[f] ? std::max(0.0, raw - tau) : 0.0;  /*--- less the rounding bound of the sum. ---*/
         Rr[e][f] = (r.valid[f] && Pr[e][f] > Q) ? Q / Pr[e][f] : 1.0;
         const double room = std::max(0.0, Q - Rr[e][f] * Pr[e][f]);
         const double den = own * (1.0 - r.alpha[f]);
