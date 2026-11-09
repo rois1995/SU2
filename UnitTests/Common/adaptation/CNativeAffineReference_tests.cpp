@@ -1865,3 +1865,59 @@ TEST_CASE("Saved complete M6 source-only query bounds current reference against 
           "[.][NativeM6SourceGeometry3D]") {SavedFinalEntityCertification(SavedGeometryProbe::Source);}
 TEST_CASE("Saved complete M6 reverse-only query bounds current physical faces against reference",
           "[.][NativeM6ReverseGeometry3D]") {SavedFinalEntityCertification(SavedGeometryProbe::Reverse);}
+
+TEST_CASE("Saved complete M6 faces certify fresh entity reverse bounds without a global target union",
+          "[.][NativeM6FacewiseGeometry3D]") {
+  using namespace SU2Native3D;World world;REQUIRE(world.size==1);
+  constexpr size_t memory_limit=size_t(8)<<30,work_limit=20000000;
+  auto read=[](const char* path){REQUIRE(path);std::ifstream input(path,std::ios::binary|std::ios::ate);REQUIRE(bool(input));
+    const auto length=input.tellg();REQUIRE(length>0);REQUIRE(size_t(length)<(size_t(128)<<20));
+    std::vector<char> bytes(static_cast<size_t>(length));input.seekg(0);input.read(bytes.data(),bytes.size());REQUIRE(bool(input));return bytes;};
+  const auto reference_bytes=read(std::getenv("SU2_NATIVE_TRANSACTION_REFERENCE"));
+  const auto reference=DecodeReference({reference_bytes.begin(),reference_bytes.end()});
+  REQUIRE(reference.original);const auto* initial=reference.original->Parameters();REQUIRE(initial);
+  const auto original=initial->Authority();REQUIRE(original);
+  const auto bytes=read(std::getenv("SU2_NATIVE_GEOMETRY_QUERY_INPUT"));RecordStream input(bytes);
+  uint64_t magic=0,version=0,geometry_version=0,count=0,quota=0;double tolerance=0;
+  input(magic,version,geometry_version,count,tolerance,quota);
+  REQUIRE(magic==0x4d36515545525931ULL);REQUIRE(version==2);REQUIRE(geometry_version==original->Version());
+  REQUIRE(count>0);REQUIRE(count<=100000);REQUIRE(bytes.size()==48+256*count);REQUIRE(tolerance==1e-4);
+  struct Query {SurfaceFace face;std::array<BoundaryPoint,3> points;};std::vector<Query> queries(count);std::vector<Face> keys;
+  for(auto& q:queries){uint64_t support=0;input(q.face,q.points,support);REQUIRE(support==0);
+    for(unsigned k=0;k<3;++k)REQUIRE(q.face.v[k]==q.points[k].node.id);
+    auto key=q.face.v;std::sort(key.begin(),key.end());keys.push_back(key);}
+  REQUIRE(input.End());std::sort(keys.begin(),keys.end());REQUIRE(std::adjacent_find(keys.begin(),keys.end())==keys.end());
+  const auto definition=std::make_shared<PlanarReference>(original->Reference());
+  const auto geometry=std::make_shared<MappedFacetReference>(definition,original->Errors(),original->Version(),memory_limit,false,original->Curves(),quota);
+  const auto payload=initial->Payload();
+  auto restored=BoundaryParameterState::FromPayload(geometry,payload,memory_limit,reference.original->ResidentBytes());
+  AtlasBudget setup;setup.maximum_bytes=memory_limit;setup.maximum_integer_bits=size_t(1)<<20;
+  setup.maximum_work=transfer_memory::Mul(transfer_memory::Add(reference.facets.size(),restored->Surface().size()),MappedFacetReference::ClearanceWork);
+  setup.caller_bytes=reference.original->ResidentBytes()+geometry->ResidentBytes()+restored->ResidentBytes()+payload.capacity()+bytes.capacity();
+  const std::map<int,int> roles{{0,2},{1,0},{2,2}};
+  if(!restored->Mobility().identity)restored=restored->WithMobilityPolicy(60,roles,setup,memory_limit,setup.caller_bytes);
+  REQUIRE(restored->Mobility().angle==60);REQUIRE(restored->Mobility().roles==roles);
+  auto entity=restored->WithEntityGeometry(tolerance,setup,memory_limit,setup.caller_bytes);
+  AtlasBudget budget;budget.maximum_work=work_limit;budget.maximum_bytes=memory_limit;budget.maximum_integer_bits=size_t(1)<<20;
+  budget.caller_bytes=reference.original->ResidentBytes()+geometry->ResidentBytes()+restored->ResidentBytes()+entity->ResidentBytes()+
+      payload.capacity()+bytes.capacity()+queries.capacity()*sizeof(Query)+keys.capacity()*sizeof(Face);
+  geometry->GeometryStatsSnapshot(true);size_t processed=0,refused=0,direct=0;double maximum=0;std::string reason;
+  const auto started=std::chrono::steady_clock::now();
+  try {for(const auto& q:queries){budget.CheckTime();REQUIRE(entity->ContainsEntityFace(q.face.facet,q.points));
+      std::array<Point,3> physical;std::array<SurfaceBinding,3> binding;bool same_facet=true;
+      for(unsigned k=0;k<3;++k){physical[k]=q.points[k].node.p;binding[k]=q.points[k].binding;
+        REQUIRE(geometry->Admissible(binding[k],physical[k]));same_facet=same_facet&&geometry->Supports(q.face.facet,binding[k]);}
+      direct+=same_facet;
+      const auto bound=entity->EntityFaceError(q.face.facet,binding,physical,&budget);REQUIRE(std::isfinite(bound));REQUIRE(bound>=0);
+      maximum=std::max(maximum,bound);refused+=bound>tolerance;++processed;
+    }}catch(const std::exception& error){reason=error.what();}
+  const auto stats=geometry->GeometryStatsSnapshot();
+  std::ofstream output("native_facewise_geometry_result.json");REQUIRE(bool(output));
+  output<<std::setprecision(17)<<std::boolalpha<<"{\"complete\":"<<(processed==queries.size())<<",\"faces\":"<<count
+        <<",\"processed\":"<<processed<<",\"direct_faces\":"<<direct<<",\"over_tolerance\":"<<refused<<",\"maximum_upper\":"<<maximum
+        <<",\"work\":"<<budget.work<<",\"work_limit\":"<<work_limit<<",\"work_exhausted\":"<<budget.work_exhausted<<",\"peak_bytes\":"<<budget.peak_bytes
+        <<",\"seconds\":"<<std::chrono::duration<double>(std::chrono::steady_clock::now()-started).count()
+        <<",\"upper_calls\":"<<stats.upper_calls<<",\"direct_calls\":"<<stats.direct_calls<<",\"reason\":"<<std::quoted(reason)
+        <<",\"scope\":\"Fresh complete-face mesh-to-model bounds only; no global forward or accepted mesh claim\"}\n";
+  output.close();REQUIRE(bool(output));INFO(reason);CHECK(processed>0);CHECK((processed==queries.size()||budget.work_exhausted));CHECK(refused==0);
+}

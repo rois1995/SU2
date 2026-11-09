@@ -1,13 +1,16 @@
 # Post-refinement metric cleanup — bounded investigation
 
-Latest full287 is TERMINAL REFUSED after complete736323cell census with zero
+Latest full289 is TERMINAL REFUSED after complete736323cell census with zero
 q/J/LOCAL-geometry/size failures and no unknown measurements. Mandatory final
-global two-sided geometry certification exhausted elapsed time. Integrated
-cleanup273 NEVER ran in274,278,283 or287; its global leading-edge effect remains
+global two-sided geometry certification hit internal storage admission
+(13,482,375,068 requested versus12,884,901,888 ceiling), then the time wrapper.
+All24nonmanifest payloads are SHA-identical287. Integrated
+cleanup273 NEVER ran in274,278,283,287 or289; its global leading-edge effect remains
 unmeasured. All11actualHOST handles absent and all1520pins unchanged at terminal.
 No run was interrupted for cleanup review. See HANDOFF_Codex.md and
 [prepared-source investigation](ADAPTATION_PREPARED_SOURCE_CERTIFICATES_20261108.md).
-Current actualsource replay demonstrates expensive proof traversal, not a new
+Current source/reverse evidence demonstrates expensive proof traversal and
+resolution-keyed target preparation/storage, not a new
 cleanup eligibility failure. No cleanup extension selected in this certification cycle.
 
 Confirmed: the original selection/zero-shape-debt admission gap permits short
@@ -18,7 +21,7 @@ post-refinement cleanup of an otherwise accepted mesh. Thus even a future
 accepted mesh need not have undergone short-edge cleanup. No claim of mesh-wide
 leading-edge improvement follows from its integration or passing fixtures.
 
-The present demonstrated blocker is final geometry certification SPEED. Do not
+The present demonstrated blocker is final geometry certification work/storage. Do not
 widen cleanup policy or insert a competing experiment before resolving that
 blocker. Reuse complete287capture if later outcome warrants a matched whole-field
 cleanup assessment, including complete neighbors, directionality, strict q/J,

@@ -364,24 +364,72 @@ std::shared_ptr<BoundaryParameterState> BoundaryParameterState::WithEntityGeomet
     next->facet_faces.emplace(std::get<1>(next->Entity(row.second.facet)),row.first);}
   next->ValidateEntityFeatures(budget);return next;
 }
+double BoundaryParameterState::EntityFaceError(Id facet,const std::array<SurfaceBinding,3>& binding,
+    const std::array<Point,3>& p,AtlasBudget* budget,double maximum)const {
+  if(!EntityGeometry())throw std::invalid_argument("Entity face error requires an absolute geometry tolerance.");
+  if(budget)budget->CheckTime();
+  const auto& state=*this;const auto& g=*geometry;
+  bool direct=true;for(const auto& b:binding)direct=direct&&g.Supports(facet,b);
+  if(direct){const auto start=std::chrono::steady_clock::now();double result;
+    try{result=std::max(maximum,g.SurfaceError(facet,binding,p));}
+    catch(...){g.RecordDirectQuery(std::chrono::duration<double>(std::chrono::steady_clock::now()-start).count(),0,true);throw;}
+    g.RecordDirectQuery(std::chrono::duration<double>(std::chrono::steady_clock::now()-start).count(),0,false);
+    if(result>state.GeometryTolerance()&&maximum<=state.GeometryTolerance()&&budget) {
+      // A failed correspondence upper bound need not imply a distance violation.
+      const auto scratch=transfer_memory::Add(budget->caller_bytes,256,2*sizeof(Id),2*sizeof(std::array<Point,3>));
+      AtlasStorage storage(budget,scratch,budget->maximum_bytes);
+      const std::vector<Id> support{facet};const std::vector<std::array<Point,3>> triangles{p};
+      result=std::max(maximum,std::min(result,g.BoundPhysicalSurface(support,triangles,state.GeometryTolerance(),*budget)));
+    }
+    return result;}
+
+  if(!budget)throw std::invalid_argument("Entity surface query lacks a geometry reservation.");
+  const auto support_start=std::chrono::steady_clock::now();
+  Point lo=p[0],hi=p[0];const auto model=g.Realize(binding[0]);double radius=0;
+  for(auto q:p){lo={std::min(lo.x,q.x),std::min(lo.y,q.y),std::min(lo.z,q.z)};hi={std::max(hi.x,q.x),std::max(hi.y,q.y),std::max(hi.z,q.z)};
+    radius=std::max(radius,std::hypot(q.x-model.x,q.y-model.y,q.z-model.z));}
+  radius=std::nextafter(radius+state.GeometryTolerance(),INFINITY);
+  lo={std::nextafter(lo.x-radius,-INFINITY),std::nextafter(lo.y-radius,-INFINITY),std::nextafter(lo.z-radius,-INFINITY)};
+  hi={std::nextafter(hi.x+radius,INFINITY),std::nextafter(hi.y+radius,INFINITY),std::nextafter(hi.z+radius,INFINITY)};
+  auto candidates=g.NearbySurfaceFacets(facet,{lo,hi},budget);const auto entity=state.Entity(facet);
+  candidates.erase(std::remove_if(candidates.begin(),candidates.end(),[&](Id id){return state.Entity(id)!=entity;}),candidates.end());
+  g.RecordSupportQuery(std::chrono::duration<double>(std::chrono::steady_clock::now()-support_start).count(),candidates.size());
+  if(candidates.empty())throw std::invalid_argument("Entity surface query lost its supporting geometry.");
+  return std::max(maximum,g.BoundPhysicalSurface(candidates,{p},state.GeometryTolerance(),*budget));
+}
 const std::map<BoundaryParameterState::EntityKey,MappedFacetReference::SurfaceUnionBounds>&
 BoundaryParameterState::GeometryCertificates(AtlasBudget& budget,bool complete)const {
   budget.CheckTime();
   if(!EntityGeometry())throw std::invalid_argument("Entity geometry certificate requested from a legacy face partition.");
-  // A source enclosure never substitutes for the final two-sided query.
+  // A source enclosure alone never substitutes for both directed proofs.
   if(!complete&&certificate_revision==revision)return geometry_certificates;
   const auto temporary=transfer_memory::Add(transfer_memory::Mul(surface.size(),160),transfer_memory::Mul(geometry->Reference().Facets().size(),256));
   const auto live=transfer_memory::Add(budget.caller_bytes,temporary);
   AtlasStorage storage(&budget,live,budget.maximum_bytes);
-  std::map<EntityKey,std::vector<std::array<Point,3>>> physical;
-  for(const auto& row:geometry->Reference().Facets()){budget.CheckTime();physical.emplace(Entity(row.first),std::vector<std::array<Point,3>>{});}
-  for(const auto& row:surface){budget.CheckTime();std::array<Point,3> points;for(unsigned k=0;k<3;++k)points[k]=records.at(row.second.v[k]).point.node.p;
-    physical.at(Entity(row.second.facet)).push_back(points);}
+  struct EntitySurface {std::vector<std::array<Point,3>> faces;double reverse=0;};
+  // Per-entity metadata remains inside the admitted 256 bytes per reference facet.
+  std::map<EntityKey,EntitySurface> physical;
+  const bool facewise=complete&&!geometry->ReferenceComponents();
+  for(const auto& row:geometry->Reference().Facets()){budget.CheckTime();physical.emplace(Entity(row.first),EntitySurface{});}
+  for(const auto& row:surface){budget.CheckTime();std::array<Point,3> points;std::array<SurfaceBinding,3> binding;
+    for(unsigned k=0;k<3;++k){const auto& point=records.at(row.second.v[k]).point;points[k]=point.node.p;binding[k]=point.binding;}
+    auto& entity=physical.at(Entity(row.second.facet));entity.faces.push_back(points);
+    if(facewise&&entity.reverse<=geometry_tolerance) {
+      const double bound=EntityFaceError(row.second.facet,binding,points,&budget);
+      entity.reverse=std::isfinite(bound)&&bound>=0?std::max(entity.reverse,bound):INFINITY;
+    }
+  }
   NativeMappedGeometryBackend3D backend(geometry,mobility);std::map<EntityKey,MappedFacetReference::SurfaceUnionBounds> fresh;
   for(const auto& row:physical){GeometrySupport scope;scope.body=std::get<0>(row.first);scope.sheet=std::get<1>(row.first);scope.marker=std::get<2>(row.first);
     MappedFacetReference::SurfaceUnionBounds result;std::string reason;
-    if(!backend.PatchErrorBounds(scope,row.second,geometry_tolerance,result,budget,reason,
-        complete?GeometryErrorDirection::Both:GeometryErrorDirection::ModelToMesh))throw std::invalid_argument(reason);
+    const bool reverse_known=facewise&&row.second.reverse<=geometry_tolerance;
+    if(!backend.PatchErrorBounds(scope,row.second.faces,geometry_tolerance,result,budget,reason,
+        complete&&!reverse_known?GeometryErrorDirection::Both:GeometryErrorDirection::ModelToMesh))throw std::invalid_argument(reason);
+    if(reverse_known) {
+      // Every face bounds distance to a subset of this same entity; retain the complete source-to-mesh proof.
+      result.mesh_to_model=row.second.reverse;result.physical_pieces=row.second.faces.size();
+      result.within_tolerance=!result.outside_tolerance&&result.model_to_mesh<=geometry_tolerance&&result.mesh_to_model<=geometry_tolerance;
+    }
     fresh.emplace(row.first,result);}
   geometry_certificates=std::move(fresh);certificate_revision=revision;return geometry_certificates;
 }
@@ -1448,37 +1496,7 @@ double PlanarReference::ParameterError(Id facet,const std::array<Point,3>& p)con
   double maximum=0;const auto& g=parameter_view->accepted->Geometry();std::array<SU2NativeGeometry::SurfaceBinding,3> binding;
   for(unsigned k=0;k<3;++k){const auto b=Parameter(p[k]);if(!b)throw std::invalid_argument("Unbound mapped surface error query.");binding[k]=b->binding;
     const auto plane=Affine().find(facet);if(plane!=Affine().end())maximum=std::max(maximum,SU2NativeGeometry::AffineChart(plane->second).ErrorBound(p[k]));}
-  if(EntityGeometry()) {
-    const auto& state=*parameter_view->accepted;
-    bool direct=true;for(const auto& b:binding)direct=direct&&g.Supports(facet,b);
-    if(direct){const auto start=std::chrono::steady_clock::now();double result;
-      try{result=std::max(maximum,g.SurfaceError(facet,binding,p));}
-      catch(...){g.RecordDirectQuery(std::chrono::duration<double>(std::chrono::steady_clock::now()-start).count(),0,true);throw;}
-      g.RecordDirectQuery(std::chrono::duration<double>(std::chrono::steady_clock::now()-start).count(),0,false);
-      auto* budget=parameter_view->reservation;
-      if(result>state.GeometryTolerance()&&maximum<=state.GeometryTolerance()&&budget) {
-        // A failed correspondence upper bound need not imply a distance violation.
-        const auto scratch=transfer_memory::Add(budget->caller_bytes,256,2*sizeof(Id),2*sizeof(std::array<Point,3>));
-        AtlasStorage storage(budget,scratch,budget->maximum_bytes);
-        const std::vector<Id> support{facet};const std::vector<std::array<Point,3>> triangles{p};
-        result=std::max(maximum,std::min(result,g.BoundPhysicalSurface(support,triangles,state.GeometryTolerance(),*budget)));
-      }
-      return result;}
-
-    auto* budget=parameter_view->reservation;if(!budget)throw std::invalid_argument("Entity surface query lacks a geometry reservation.");
-    const auto support_start=std::chrono::steady_clock::now();
-    Point lo=p[0],hi=p[0];const auto model=g.Realize(binding[0]);double radius=0;
-    for(auto q:p){lo={std::min(lo.x,q.x),std::min(lo.y,q.y),std::min(lo.z,q.z)};hi={std::max(hi.x,q.x),std::max(hi.y,q.y),std::max(hi.z,q.z)};
-      radius=std::max(radius,std::hypot(q.x-model.x,q.y-model.y,q.z-model.z));}
-    radius=std::nextafter(radius+state.GeometryTolerance(),INFINITY);
-    lo={std::nextafter(lo.x-radius,-INFINITY),std::nextafter(lo.y-radius,-INFINITY),std::nextafter(lo.z-radius,-INFINITY)};
-    hi={std::nextafter(hi.x+radius,INFINITY),std::nextafter(hi.y+radius,INFINITY),std::nextafter(hi.z+radius,INFINITY)};
-    auto candidates=g.NearbySurfaceFacets(facet,{lo,hi},budget);const auto entity=state.Entity(facet);
-    candidates.erase(std::remove_if(candidates.begin(),candidates.end(),[&](Id id){return state.Entity(id)!=entity;}),candidates.end());
-    g.RecordSupportQuery(std::chrono::duration<double>(std::chrono::steady_clock::now()-support_start).count(),candidates.size());
-    if(candidates.empty())throw std::invalid_argument("Entity surface query lost its supporting geometry.");
-    return std::max(maximum,g.BoundPhysicalSurface(candidates,{p},state.GeometryTolerance(),*budget));
-  }
+  if(EntityGeometry())return parameter_view->accepted->EntityFaceError(facet,binding,p,parameter_view->reservation,maximum);
   if(!AtlasActive(*parameter_view->accepted)&&parameter_view->coverage.faces.empty()&&parameter_view->coverage.traces.empty())return std::max(maximum,g.SurfaceError(facet,binding,p));
   SurfaceFace face;face.facet=facet;bool transient=false;
   for(unsigned k=0;k<3;++k){const auto* point=Parameter(p[k]);face.v[k]=point->node.id;

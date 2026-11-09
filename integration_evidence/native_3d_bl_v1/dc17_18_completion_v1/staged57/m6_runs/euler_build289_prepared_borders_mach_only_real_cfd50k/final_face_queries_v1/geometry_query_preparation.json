@@ -1,0 +1,505 @@
+{
+  "archive_format_version": 7,
+  "cached_geometry_diagnostic": {
+    "all_geometry_values_known": true,
+    "geometry_bad_rows": 0,
+    "interpretation": "Whole-field cached census only; it is not proof of native geometry certification or acceptance.",
+    "maximum_cached_geometry_excess_l2": 0.0,
+    "unknown_geometry_rows": 0,
+    "unknown_q_or_j_rows": 0
+  },
+  "counts": {
+    "faces_by_reference_entity": [
+      {
+        "entity": [
+          0,
+          0,
+          0
+        ],
+        "physical_faces": 2827,
+        "reference_facets": 2060
+      },
+      {
+        "entity": [
+          0,
+          2060,
+          1
+        ],
+        "physical_faces": 11756,
+        "reference_facets": 8094
+      },
+      {
+        "entity": [
+          0,
+          10154,
+          2
+        ],
+        "physical_faces": 53512,
+        "reference_facets": 37202
+      },
+      {
+        "entity": [
+          0,
+          27868,
+          2
+        ],
+        "physical_faces": 1449,
+        "reference_facets": 1598
+      }
+    ],
+    "faces_by_reference_marker": {
+      "0": 2827,
+      "1": 11756,
+      "2": 54961
+    },
+    "manifests": 6,
+    "owned_rows_scanned": 736323,
+    "physical_face_observations": 69544,
+    "sealed_input_files": 30,
+    "unique_physical_faces": 69544,
+    "unique_physical_vertices": 34774,
+    "wing_entity": [
+      0,
+      10154,
+      2
+    ],
+    "wing_physical_faces": 53512
+  },
+  "execution_receipt": {
+    "MKL_NUM_THREADS": "1",
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "nice": 19,
+    "pid": 2,
+    "seconds": 37.93038824698306
+  },
+  "failed_preparation_attempts": [
+    {
+      "after_hash_verification_reached": false,
+      "attempt": 1,
+      "binary_payload_written": false,
+      "corrected_identity": [
+        0,
+        10154,
+        2
+      ],
+      "failure": "Marker-id-only Wing assertion failed; marker 2 spans multiple (body,sheet,marker) entities.",
+      "output_directory_created": false,
+      "sealed_inputs_verified_before_scan": true
+    }
+  ],
+  "input_hashes_after": {
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/inspect_native_failure3d.py": {
+      "bytes": 53722,
+      "sha256": "039b495fe526129acec458b0745f76d0d75047978f7dc1e5ff34fa101c59c7bb"
+    },
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build289_prepared_borders_mach_only_real_cfd50k/adapted_mesh_inspection_rank0_manifest.json": {
+      "bytes": 1699,
+      "sha256": "9779d399c940a6ccb0bfdbeed4f9e4b1f08bd1392c0ca39b6b6b2ffe059c9eec"
+    },
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build289_prepared_borders_mach_only_real_cfd50k/adapted_mesh_inspection_rank0_metrics.compact.jsonl": {
+      "bytes": 16051286,
+      "sha256": "fea2d94dd72862a7c664572539c18d0762f7b8af45654ced1406208d75da54b5"
+    },
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build289_prepared_borders_mach_only_real_cfd50k/adapted_mesh_inspection_rank0_owned.bin": {
+      "bytes": 20544168,
+      "sha256": "bfee2e44012170c101d664114acf8a6d422d866cd766638be165dde97c53ec91"
+    },
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build289_prepared_borders_mach_only_real_cfd50k/adapted_mesh_inspection_rank0_reference.jsonl": {
+      "bytes": 49419846,
+      "sha256": "0a3f43c1f8fd58bb72f6f9b83147105282fb6f86b82a5b24551ca3761afd0e69"
+    },
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build289_prepared_borders_mach_only_real_cfd50k/adapted_mesh_inspection_rank0_rejections.jsonl": {
+      "bytes": 28867,
+      "sha256": "bcf75e121efe0601d9e1971b557d31fb178a812f18a72c6e307998d9e61741b7"
+    },
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build289_prepared_borders_mach_only_real_cfd50k/adapted_mesh_inspection_rank1_manifest.json": {
+      "bytes": 1703,
+      "sha256": "3f754646fbe9f171ca4cd5b2396f191aa681d24bddc45c5777b3425c434d30b2"
+    },
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build289_prepared_borders_mach_only_real_cfd50k/adapted_mesh_inspection_rank1_metrics.compact.jsonl": {
+      "bytes": 54213488,
+      "sha256": "da586a5384a2524d90382633a7eed305341f19d4508cca6c54c1a885e90334ee"
+    },
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build289_prepared_borders_mach_only_real_cfd50k/adapted_mesh_inspection_rank1_owned.bin": {
+      "bytes": 67270952,
+      "sha256": "43335ad6074e53415724ad460bd719e171eaae4aa01a3daa6154ce250443ada5"
+    },
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build289_prepared_borders_mach_only_real_cfd50k/adapted_mesh_inspection_rank1_reference.jsonl": {
+      "bytes": 49419846,
+      "sha256": "0a3f43c1f8fd58bb72f6f9b83147105282fb6f86b82a5b24551ca3761afd0e69"
+    },
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build289_prepared_borders_mach_only_real_cfd50k/adapted_mesh_inspection_rank1_rejections.jsonl": {
+      "bytes": 32048,
+      "sha256": "21de5140d370ce871aaf91edc5fb2a5c05131db70764efdb2f28c14eddf627b6"
+    },
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build289_prepared_borders_mach_only_real_cfd50k/adapted_mesh_inspection_rank2_manifest.json": {
+      "bytes": 1671,
+      "sha256": "569fc997e2bf4d533d060c336d348eb56b55babd20550632758f9eebe5ff572c"
+    },
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build289_prepared_borders_mach_only_real_cfd50k/adapted_mesh_inspection_rank2_metrics.compact.jsonl": {
+      "bytes": 47787840,
+      "sha256": "22f89c0bc043ff79e6489c2155b07afdd641cc2bf4df922112c2f963e26c9955"
+    },
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build289_prepared_borders_mach_only_real_cfd50k/adapted_mesh_inspection_rank2_owned.bin": {
+      "bytes": 58749192,
+      "sha256": "435f13543aa561b2a7847d629f94b365418cfab4a6a7cf3414ce96b0429f1145"
+    },
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build289_prepared_borders_mach_only_real_cfd50k/adapted_mesh_inspection_rank2_reference.jsonl": {
+      "bytes": 49419846,
+      "sha256": "0a3f43c1f8fd58bb72f6f9b83147105282fb6f86b82a5b24551ca3761afd0e69"
+    },
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build289_prepared_borders_mach_only_real_cfd50k/adapted_mesh_inspection_rank2_rejections.jsonl": {
+      "bytes": 31563,
+      "sha256": "7fa51d14006662d71c82043b80f782ab03a4a80e639f357682c09d1839008831"
+    },
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build289_prepared_borders_mach_only_real_cfd50k/adapted_mesh_inspection_rank3_manifest.json": {
+      "bytes": 1699,
+      "sha256": "ec6d774f0cfa3f4483828ac2b0d5529748241df4ee83f2982decaefad8014129"
+    },
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build289_prepared_borders_mach_only_real_cfd50k/adapted_mesh_inspection_rank3_metrics.compact.jsonl": {
+      "bytes": 26394602,
+      "sha256": "18e015ecf0b0236bc61d7c142855053c16b3547935a413068bcab050264808f9"
+    },
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build289_prepared_borders_mach_only_real_cfd50k/adapted_mesh_inspection_rank3_owned.bin": {
+      "bytes": 34526760,
+      "sha256": "8a4b26bf46c5626f537502d95bd7e9e19226f9a7d53aadf9e110e92ca0fd9614"
+    },
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build289_prepared_borders_mach_only_real_cfd50k/adapted_mesh_inspection_rank3_reference.jsonl": {
+      "bytes": 49419846,
+      "sha256": "0a3f43c1f8fd58bb72f6f9b83147105282fb6f86b82a5b24551ca3761afd0e69"
+    },
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build289_prepared_borders_mach_only_real_cfd50k/adapted_mesh_inspection_rank3_rejections.jsonl": {
+      "bytes": 30303,
+      "sha256": "4b0ee12fe13dd171101a708be83c8f5cad3e46ea8033c947175aee849cd584ad"
+    },
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build289_prepared_borders_mach_only_real_cfd50k/adapted_mesh_inspection_rank4_manifest.json": {
+      "bytes": 1703,
+      "sha256": "418b90bd344e4c4f0528f2c634b10536826285cfdc52801f9a73ac704926450b"
+    },
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build289_prepared_borders_mach_only_real_cfd50k/adapted_mesh_inspection_rank4_metrics.compact.jsonl": {
+      "bytes": 52686693,
+      "sha256": "c8fa0fd0774256f63f2e86d0626344748f22471d52cf20dbd613ed4e344bc1c1"
+    },
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build289_prepared_borders_mach_only_real_cfd50k/adapted_mesh_inspection_rank4_owned.bin": {
+      "bytes": 67254728,
+      "sha256": "8dbd74f43455f4a66e39d61158c2d0a57fc92058954cb44f22b1dceeff3e6c4d"
+    },
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build289_prepared_borders_mach_only_real_cfd50k/adapted_mesh_inspection_rank4_reference.jsonl": {
+      "bytes": 49419846,
+      "sha256": "0a3f43c1f8fd58bb72f6f9b83147105282fb6f86b82a5b24551ca3761afd0e69"
+    },
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build289_prepared_borders_mach_only_real_cfd50k/adapted_mesh_inspection_rank4_rejections.jsonl": {
+      "bytes": 35779,
+      "sha256": "7d207550378d568099d227139dfce27803bc9621f21acd633d8fa0d03996b7e8"
+    },
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build289_prepared_borders_mach_only_real_cfd50k/adapted_mesh_inspection_rank5_manifest.json": {
+      "bytes": 1703,
+      "sha256": "ba8f44e4f95de448b789ea9d1c61a5c87a81e841cbdbb8524055c3ec775efad8"
+    },
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build289_prepared_borders_mach_only_real_cfd50k/adapted_mesh_inspection_rank5_metrics.compact.jsonl": {
+      "bytes": 45751671,
+      "sha256": "eae703c834be9dcafb75da8bd8b9d036d149186414a853bcfd260d711eb5de51"
+    },
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build289_prepared_borders_mach_only_real_cfd50k/adapted_mesh_inspection_rank5_owned.bin": {
+      "bytes": 57964616,
+      "sha256": "595592c504b2fb8d9a91d4fb4af8a5898b55dc316cdbefcee53b3b81a9392b52"
+    },
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build289_prepared_borders_mach_only_real_cfd50k/adapted_mesh_inspection_rank5_reference.jsonl": {
+      "bytes": 49419846,
+      "sha256": "0a3f43c1f8fd58bb72f6f9b83147105282fb6f86b82a5b24551ca3761afd0e69"
+    },
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build289_prepared_borders_mach_only_real_cfd50k/adapted_mesh_inspection_rank5_rejections.jsonl": {
+      "bytes": 33319,
+      "sha256": "1714e202fb3fbc8ad66531c6f9075030fccda0e7d6b7d7ba7456b55dbd0a746f"
+    },
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build289_prepared_borders_mach_only_real_cfd50k/capture_ready.json": {
+      "bytes": 14982,
+      "sha256": "641e966e9b15e95daeedcf8ea6af0ad3e9cec837af3086f888a7458161470ff7"
+    },
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build289_prepared_borders_mach_only_real_cfd50k/construction_progress_assessment.json": {
+      "bytes": 5701864,
+      "sha256": "9b85cc0c3375505072066c525e0e6c83a067b2d665a7b71e68c69219c1bdf3cb"
+    },
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build289_prepared_borders_mach_only_real_cfd50k/run.cfg": {
+      "bytes": 2529,
+      "sha256": "5ad2dc1d9a1cd8bff87f633617b191b50defbc261ab3d0b2ed0987a34722b89e"
+    },
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build289_prepared_borders_mach_only_real_cfd50k/terminal_handles.json": {
+      "bytes": 1089,
+      "sha256": "5a1911a195e013acedefc68060a980189d8e4e069ac791bb3f87abbd1c4ea7fe"
+    },
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/prepare_final290_face_queries.py": {
+      "bytes": 21683,
+      "sha256": "99fee180efb7cb984ba6f137d4ed2fb87d39e5292375c56d0f8c34f1a589003a"
+    },
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/validation22/m6_authority.json.native_ref": {
+      "bytes": 46610856,
+      "sha256": "2e99fb7870e2c718f110da8509e4c0f7e746ce138e7f27ab57aa0dedbb6c42de"
+    }
+  },
+  "input_hashes_before": {
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/inspect_native_failure3d.py": {
+      "bytes": 53722,
+      "sha256": "039b495fe526129acec458b0745f76d0d75047978f7dc1e5ff34fa101c59c7bb"
+    },
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build289_prepared_borders_mach_only_real_cfd50k/adapted_mesh_inspection_rank0_manifest.json": {
+      "bytes": 1699,
+      "sha256": "9779d399c940a6ccb0bfdbeed4f9e4b1f08bd1392c0ca39b6b6b2ffe059c9eec"
+    },
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build289_prepared_borders_mach_only_real_cfd50k/adapted_mesh_inspection_rank0_metrics.compact.jsonl": {
+      "bytes": 16051286,
+      "sha256": "fea2d94dd72862a7c664572539c18d0762f7b8af45654ced1406208d75da54b5"
+    },
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build289_prepared_borders_mach_only_real_cfd50k/adapted_mesh_inspection_rank0_owned.bin": {
+      "bytes": 20544168,
+      "sha256": "bfee2e44012170c101d664114acf8a6d422d866cd766638be165dde97c53ec91"
+    },
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build289_prepared_borders_mach_only_real_cfd50k/adapted_mesh_inspection_rank0_reference.jsonl": {
+      "bytes": 49419846,
+      "sha256": "0a3f43c1f8fd58bb72f6f9b83147105282fb6f86b82a5b24551ca3761afd0e69"
+    },
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build289_prepared_borders_mach_only_real_cfd50k/adapted_mesh_inspection_rank0_rejections.jsonl": {
+      "bytes": 28867,
+      "sha256": "bcf75e121efe0601d9e1971b557d31fb178a812f18a72c6e307998d9e61741b7"
+    },
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build289_prepared_borders_mach_only_real_cfd50k/adapted_mesh_inspection_rank1_manifest.json": {
+      "bytes": 1703,
+      "sha256": "3f754646fbe9f171ca4cd5b2396f191aa681d24bddc45c5777b3425c434d30b2"
+    },
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build289_prepared_borders_mach_only_real_cfd50k/adapted_mesh_inspection_rank1_metrics.compact.jsonl": {
+      "bytes": 54213488,
+      "sha256": "da586a5384a2524d90382633a7eed305341f19d4508cca6c54c1a885e90334ee"
+    },
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build289_prepared_borders_mach_only_real_cfd50k/adapted_mesh_inspection_rank1_owned.bin": {
+      "bytes": 67270952,
+      "sha256": "43335ad6074e53415724ad460bd719e171eaae4aa01a3daa6154ce250443ada5"
+    },
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build289_prepared_borders_mach_only_real_cfd50k/adapted_mesh_inspection_rank1_reference.jsonl": {
+      "bytes": 49419846,
+      "sha256": "0a3f43c1f8fd58bb72f6f9b83147105282fb6f86b82a5b24551ca3761afd0e69"
+    },
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build289_prepared_borders_mach_only_real_cfd50k/adapted_mesh_inspection_rank1_rejections.jsonl": {
+      "bytes": 32048,
+      "sha256": "21de5140d370ce871aaf91edc5fb2a5c05131db70764efdb2f28c14eddf627b6"
+    },
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build289_prepared_borders_mach_only_real_cfd50k/adapted_mesh_inspection_rank2_manifest.json": {
+      "bytes": 1671,
+      "sha256": "569fc997e2bf4d533d060c336d348eb56b55babd20550632758f9eebe5ff572c"
+    },
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build289_prepared_borders_mach_only_real_cfd50k/adapted_mesh_inspection_rank2_metrics.compact.jsonl": {
+      "bytes": 47787840,
+      "sha256": "22f89c0bc043ff79e6489c2155b07afdd641cc2bf4df922112c2f963e26c9955"
+    },
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build289_prepared_borders_mach_only_real_cfd50k/adapted_mesh_inspection_rank2_owned.bin": {
+      "bytes": 58749192,
+      "sha256": "435f13543aa561b2a7847d629f94b365418cfab4a6a7cf3414ce96b0429f1145"
+    },
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build289_prepared_borders_mach_only_real_cfd50k/adapted_mesh_inspection_rank2_reference.jsonl": {
+      "bytes": 49419846,
+      "sha256": "0a3f43c1f8fd58bb72f6f9b83147105282fb6f86b82a5b24551ca3761afd0e69"
+    },
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build289_prepared_borders_mach_only_real_cfd50k/adapted_mesh_inspection_rank2_rejections.jsonl": {
+      "bytes": 31563,
+      "sha256": "7fa51d14006662d71c82043b80f782ab03a4a80e639f357682c09d1839008831"
+    },
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build289_prepared_borders_mach_only_real_cfd50k/adapted_mesh_inspection_rank3_manifest.json": {
+      "bytes": 1699,
+      "sha256": "ec6d774f0cfa3f4483828ac2b0d5529748241df4ee83f2982decaefad8014129"
+    },
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build289_prepared_borders_mach_only_real_cfd50k/adapted_mesh_inspection_rank3_metrics.compact.jsonl": {
+      "bytes": 26394602,
+      "sha256": "18e015ecf0b0236bc61d7c142855053c16b3547935a413068bcab050264808f9"
+    },
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build289_prepared_borders_mach_only_real_cfd50k/adapted_mesh_inspection_rank3_owned.bin": {
+      "bytes": 34526760,
+      "sha256": "8a4b26bf46c5626f537502d95bd7e9e19226f9a7d53aadf9e110e92ca0fd9614"
+    },
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build289_prepared_borders_mach_only_real_cfd50k/adapted_mesh_inspection_rank3_reference.jsonl": {
+      "bytes": 49419846,
+      "sha256": "0a3f43c1f8fd58bb72f6f9b83147105282fb6f86b82a5b24551ca3761afd0e69"
+    },
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build289_prepared_borders_mach_only_real_cfd50k/adapted_mesh_inspection_rank3_rejections.jsonl": {
+      "bytes": 30303,
+      "sha256": "4b0ee12fe13dd171101a708be83c8f5cad3e46ea8033c947175aee849cd584ad"
+    },
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build289_prepared_borders_mach_only_real_cfd50k/adapted_mesh_inspection_rank4_manifest.json": {
+      "bytes": 1703,
+      "sha256": "418b90bd344e4c4f0528f2c634b10536826285cfdc52801f9a73ac704926450b"
+    },
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build289_prepared_borders_mach_only_real_cfd50k/adapted_mesh_inspection_rank4_metrics.compact.jsonl": {
+      "bytes": 52686693,
+      "sha256": "c8fa0fd0774256f63f2e86d0626344748f22471d52cf20dbd613ed4e344bc1c1"
+    },
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build289_prepared_borders_mach_only_real_cfd50k/adapted_mesh_inspection_rank4_owned.bin": {
+      "bytes": 67254728,
+      "sha256": "8dbd74f43455f4a66e39d61158c2d0a57fc92058954cb44f22b1dceeff3e6c4d"
+    },
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build289_prepared_borders_mach_only_real_cfd50k/adapted_mesh_inspection_rank4_reference.jsonl": {
+      "bytes": 49419846,
+      "sha256": "0a3f43c1f8fd58bb72f6f9b83147105282fb6f86b82a5b24551ca3761afd0e69"
+    },
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build289_prepared_borders_mach_only_real_cfd50k/adapted_mesh_inspection_rank4_rejections.jsonl": {
+      "bytes": 35779,
+      "sha256": "7d207550378d568099d227139dfce27803bc9621f21acd633d8fa0d03996b7e8"
+    },
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build289_prepared_borders_mach_only_real_cfd50k/adapted_mesh_inspection_rank5_manifest.json": {
+      "bytes": 1703,
+      "sha256": "ba8f44e4f95de448b789ea9d1c61a5c87a81e841cbdbb8524055c3ec775efad8"
+    },
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build289_prepared_borders_mach_only_real_cfd50k/adapted_mesh_inspection_rank5_metrics.compact.jsonl": {
+      "bytes": 45751671,
+      "sha256": "eae703c834be9dcafb75da8bd8b9d036d149186414a853bcfd260d711eb5de51"
+    },
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build289_prepared_borders_mach_only_real_cfd50k/adapted_mesh_inspection_rank5_owned.bin": {
+      "bytes": 57964616,
+      "sha256": "595592c504b2fb8d9a91d4fb4af8a5898b55dc316cdbefcee53b3b81a9392b52"
+    },
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build289_prepared_borders_mach_only_real_cfd50k/adapted_mesh_inspection_rank5_reference.jsonl": {
+      "bytes": 49419846,
+      "sha256": "0a3f43c1f8fd58bb72f6f9b83147105282fb6f86b82a5b24551ca3761afd0e69"
+    },
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build289_prepared_borders_mach_only_real_cfd50k/adapted_mesh_inspection_rank5_rejections.jsonl": {
+      "bytes": 33319,
+      "sha256": "1714e202fb3fbc8ad66531c6f9075030fccda0e7d6b7d7ba7456b55dbd0a746f"
+    },
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build289_prepared_borders_mach_only_real_cfd50k/capture_ready.json": {
+      "bytes": 14982,
+      "sha256": "641e966e9b15e95daeedcf8ea6af0ad3e9cec837af3086f888a7458161470ff7"
+    },
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build289_prepared_borders_mach_only_real_cfd50k/construction_progress_assessment.json": {
+      "bytes": 5701864,
+      "sha256": "9b85cc0c3375505072066c525e0e6c83a067b2d665a7b71e68c69219c1bdf3cb"
+    },
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build289_prepared_borders_mach_only_real_cfd50k/run.cfg": {
+      "bytes": 2529,
+      "sha256": "5ad2dc1d9a1cd8bff87f633617b191b50defbc261ab3d0b2ed0987a34722b89e"
+    },
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build289_prepared_borders_mach_only_real_cfd50k/terminal_handles.json": {
+      "bytes": 1089,
+      "sha256": "5a1911a195e013acedefc68060a980189d8e4e069ac791bb3f87abbd1c4ea7fe"
+    },
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/prepare_final290_face_queries.py": {
+      "bytes": 21683,
+      "sha256": "99fee180efb7cb984ba6f137d4ed2fb87d39e5292375c56d0f8c34f1a589003a"
+    },
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/validation22/m6_authority.json.native_ref": {
+      "bytes": 46610856,
+      "sha256": "2e99fb7870e2c718f110da8509e4c0f7e746ce138e7f27ab57aa0dedbb6c42de"
+    }
+  },
+  "outputs": {
+    "faces.bin": {
+      "bytes": 17803312,
+      "sha256": "6a43df2e9b8a3fae23bcd0d2a4b91cc27d19f604741194f541ace00d5addfa63"
+    },
+    "m6.su2.native_ref": {
+      "bytes": 46610856,
+      "sha256": "2e99fb7870e2c718f110da8509e4c0f7e746ce138e7f27ab57aa0dedbb6c42de",
+      "symlink_target": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/validation22/m6_authority.json.native_ref"
+    }
+  },
+  "query_format": {
+    "atlas_quota": 401031168,
+    "cache_bytes_per_curve": 8192,
+    "curves_count_from_native_reference_header": 48954,
+    "face_memo_reservation_bytes": 4194544,
+    "face_order": [
+      [
+        1,
+        2,
+        3
+      ],
+      [
+        0,
+        3,
+        2
+      ],
+      [
+        0,
+        1,
+        3
+      ],
+      [
+        0,
+        2,
+        1
+      ]
+    ],
+    "face_struct": "<QQQQ",
+    "geometry_definition_version": 18,
+    "host_rank_available_bytes": 715827882,
+    "magic": 5563723816339921201,
+    "native_config": {
+      "ADAP_ANGLE": 60.0,
+      "ADAP_COMPLEXITY": 50000,
+      "ADAP_NATIVE_MEMORY_LIMIT": 12288,
+      "ADAP_NATIVE_RANKS": 6
+    },
+    "point_struct": "<QdddQQQdd",
+    "prepared_limit_after_face_memo_bytes": 396836624,
+    "rotation": "rotate oriented FaceOrder so the minimum global node id is first; never reverse orientation",
+    "support_count": 0,
+    "support_count_struct": "<Q",
+    "tolerance": 0.0001,
+    "version": 2
+  },
+  "reference_source": {
+    "identical_reference_sha256": "0a3f43c1f8fd58bb72f6f9b83147105282fb6f86b82a5b24551ca3761afd0e69",
+    "marker_names_in_archive_order": [
+      "FARFIELD",
+      "SYMMETRY",
+      "WING3D"
+    ],
+    "reference_facets_by_entity": [
+      {
+        "entity": [
+          0,
+          0,
+          0
+        ],
+        "reference_facets": 2060
+      },
+      {
+        "entity": [
+          0,
+          2060,
+          1
+        ],
+        "reference_facets": 8094
+      },
+      {
+        "entity": [
+          0,
+          10154,
+          2
+        ],
+        "reference_facets": 37202
+      },
+      {
+        "entity": [
+          0,
+          27868,
+          2
+        ],
+        "reference_facets": 1598
+      }
+    ],
+    "reference_facets_by_marker": {
+      "0": 2060,
+      "1": 8094,
+      "2": 38800
+    },
+    "shard_reference_files": 6
+  },
+  "schema": "native_current_geometry_query_preparation_v1",
+  "scope": "All unique physical faces from the sealed current A289 snapshot; this prepares input only and is not a geometry certification or acceptance result.",
+  "source_event": 1,
+  "source_exit_elapsed": 5344.63175187,
+  "source_round": 25210,
+  "terminal_receipt": {
+    "all_owned_handles_terminal": true,
+    "owned_identities_absent": true,
+    "sha256": "5a1911a195e013acedefc68060a980189d8e4e069ac791bb3f87abbd1c4ea7fe"
+  }
+}

@@ -492,6 +492,31 @@ TEST_CASE("Physical source tubes preserve conservative shell checks without face
   CHECK_THROWS(MappedFacetReference::SourcePatch::Tube({triangle[0],triangle[0],triangle[2]},.01));
 }
 
+TEST_CASE("Fresh entity face bounds preserve correspondence and coordinate invalidation", "[NativeGeometryBackend3D][NativeFacewiseCertificate3D]") {
+  using namespace SU2Native3D;BackendFixture fixture(GENERATE(false,true));auto budget=BackendBudget();
+  BoundaryPoints points;std::vector<SurfaceFace> skin;
+  for(const auto& f:fixture.facets){skin.push_back({{f.v[0].id,f.v[1].id,f.v[2].id},f.id});
+    for(auto n:f.v)points.emplace(n.id,BoundaryPoint{n,fixture.geometry->Vertex(n.id)});}
+  auto legacy=std::make_shared<BoundaryParameterState>(fixture.geometry,points,skin,1,SIZE_MAX,0,BoundaryCoverage{},fixture.policy,&budget);
+  auto entity=legacy->WithEntityGeometry(.01,budget);
+  auto reference=PlanarReference::WithParameters(fixture.reference,entity)->WithAtlasReservation(budget);
+  const auto& face=fixture.facets.front();std::array<Point,3> actual;std::array<SurfaceBinding,3> binding;
+  for(unsigned k=0;k<3;++k){actual[k]=face.v[k].p;binding[k]=fixture.geometry->Vertex(face.v[k].id);}
+  const auto bound=entity->EntityFaceError(face.id,binding,actual,&budget);
+  CHECK(bound<=.01);CHECK(bound==reference->SurfaceError(face.id,actual));
+  auto moved=actual;moved[0].z+=.05;
+  CHECK(entity->EntityFaceError(face.id,binding,moved,&budget)>.01);
+  CHECK(entity->EntityFaceError(face.id,binding,actual,&budget)==bound);
+  for(const auto& row:entity->GeometryCertificates(budget,true)) {
+    CHECK(row.second.within_tolerance);CHECK(row.second.mesh_to_model<=.01);
+    CHECK(row.second.model_pieces==0);CHECK(row.second.physical_pieces>0);
+  }
+  auto exhausted=BackendBudget();exhausted.maximum_bytes=1;
+  CHECK_THROWS(entity->GeometryCertificates(exhausted,true));
+  auto no_work=BackendBudget();no_work.maximum_work=0;
+  CHECK_THROWS(entity->GeometryCertificates(no_work,true));CHECK(no_work.work_exhausted);
+}
+
 TEST_CASE("Entity geometry preserves feature contracts through reference and payload roundtrips", "[NativeGeometryBackend3D]") {
   using namespace SU2Native3D;BackendFixture fixture;auto budget=BackendBudget();std::string reason;
   BoundaryPoints points;std::vector<SurfaceFace> skin;

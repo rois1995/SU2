@@ -33,12 +33,34 @@ A289/capture_ready.json + terminal_certification_diagnosis.json seal evidence.
 EXACTLYONEverifiedpidfdSIGTERM to MPI1564979/start23716465 AFTERexplicitrefusal,
 fullcapture andpins. NEVERrepeat seal_stop_m6289.py or any historical stophelper.
 Main61806 TERMINAL1/5576.256499s,pins_verified=true,changed=[],workflow_accepted=false.
-ALL11actualHOST identities ABSENT in A289/terminal_handles.json. Sourcefreeze
-released; no ownedheavyjob active. No new C++edits sincequalified289yet.
+ALL11actualHOST identities ABSENT in A289/terminal_handles.json. Source freeze was released after289; production candidate290 is now built as291
+(test-only rebuild, CFD byte-identical290). Build291 TERMINAL0/47.096s; all actual
+compiler/build handles absent. Production CFD SHA
+6bb7708715643f9e4941ed85bcc51ccb422ca8b95f4c33a6f1d75f96ada7cc41.
+Focused291 PASSED28cases/5616assertions/56.695s, pins unchanged/all5handles absent.
+Captured-face291 TERMINAL0/111.747s: EXACTsame17776-face prefix/bounds/work as290,
+work-exhausted partial diagnostic; pins unchanged/all5actualhandles absent.
+Connectedserial291 PASSED91cases/67534assertions/203.088s; ONE MPI6 milestone
+PASSED125cases EVERYrank/223.706s (assertions71215/72142/71418/71296/71243/71035
+in logorder). Allpins unchanged/allactualownedhandles absent before nextstage.
+R/certification291_qualification.json seals affected checks and explicitly
+partial captured-face diagnostic, NOTwholemesh acceptance. C++/binary/helpers
+remain FROZEN for immediate fullsame-seed TWO-event M6.
+No full M6 after this change yet: push qualified checkpoint, then launch_m6291.py
+once. No competing cleanup extension.
+
+First face replay290 hit unchanged20M work cap after17776/69544faces,0overTol,
+maxupper9.9999622526187977e-5,peak admitted1120212192B. Wholefield UNPROVED.
+It failed one diagnostic expectation that allfaces fit; preserve evidence.
+291 only classifies work-exhausted partial replay explicitly and adds a final
+certificate work-exhaustion guard test; no production/budget/gate change.
+ALL69544faces (17.8MB) remain prepared with allsealedrawhashes unchanged:
+R/prepare_final290_face_queries.py; A289/final_face_queries_v1 metadata/selfcheck.
+Targetpool401031168/actualprepared396836624.
 Actual /proc/ps MUSTrequire_escalated; sandboxabsence previouslyfalse-terminal.
 
 289source/qualification/startup/progress PUSHED31ff1c3bad/484f5678c8/736fe5a1ff/
-f3ab201418/6b68cee93c/c349e03ccb. Fullterminal+newdiagnosis LOCAL: pushbeforecode.
+f3ab201418/6b68cee93c/c349e03ccb. Fullterminal+newdiagnosis PUSHEDf0ae3aeb43.
 SourcepinsSHA501927a52b6733c0ac7e54eed7d6cfc45a397a00eaa35a0f6ee6abcb2d063629.
 CFD SHA ff961bf8e23d0f8a2422019cd7e34c5b13129e82191216d5c7e4a51ecbd77678.
 R/certification289_qualification.json seals fivecases/allpins/terminalreceipts.
@@ -55,13 +77,14 @@ established with QuerySurfaceUnion's soleRefineSurfaceTarget throw in reverse,
 resolution/=4 retry. Directionwallshare/exactretrycount not directly emitted.
 Rank5 additionally90privateuppercalls/6commits; do notattribute them tofullqueries.
 
-ONE nextconnected hypothesis underreview: final mesh→model direction can use fresh
+ONE connected290/291 candidate qualified for fullM6 attempt: final mesh→model direction can use fresh
 rigorous per-face correspondence/scoped bounds already used by ParameterError,
 while retaining global model→mesh and fullBoth fallback for uncertain bounds.
 Do NOTuse HasAcceptedFaceCertificate association/orientation bool asdistanceproof,
-or localG0 alone. Audit/factor existing EntityGeometry branch with exactsameauthority,
+or localG0 alone. Factored existing EntityGeometry branch into EntityFaceError with exactsameauthority,
 body/sheet/marker support, currentbindings/coords, optionalaffinefloor and budgets.
-Then completeaffectedserial+ONE MPI milestone and immediatefullsame-seed TWOeventM6.
+Focused controls, bounded face replay, connectedserial and ONE MPI milestone
+complete. Immediatefullsame-seed TWOeventM6 is next; allstrictgates unchanged.
 No new scheduler/config/geometryrepresentation/largercavity/gate/budget. No competing
 cleanup policy, localresolution experiment or proofcache variant. Unselectedbacklog.
 

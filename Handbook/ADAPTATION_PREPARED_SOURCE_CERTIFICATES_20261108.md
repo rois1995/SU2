@@ -517,3 +517,54 @@ not distanceproof. Never promote localG0 withoutfresh bounds/freshness proof. Re
 existingexactFaceMemo and scoped support, preserve budgets and allother gates. This
 is underreview, not yetimplemented/validated. Unselectedtarget-refinement/proofcache
 ideas staybacklog. Fullsame-seed twoevents must follow affectedserial+ONE MPI milestone.
+
+###290 connected candidate implemented; build/validation pending
+
+Factor the unchanged EntityGeometry branch of PlanarReference::ParameterError into
+BoundaryParameterState::EntityFaceError (correspondence CubicDeviation/directfacet
+or same-entity localBoundPhysicalSurface, existing exactmemo/support/cache).
+FinalGeometryCertificates freshbounds ALLcurrentfaces, max perbody/sheet/marker;
+if finite/nonnegative and<=tol, combine with existing completeglobalModelToMesh.
+If a numericbound isuncertain/too large use originalBoth; invalidinput/resource
+exceptions remainfailclosed. ReferenceComponents retainsoldBoth finite-domainproof.
+HasAcceptedFaceCertificate remainsassociation/coverage/orientation only, neverused
+asdistanceproof. LocalG0 is notpromoted toproof. Allpoint/binding inputs comefrom
+currentimmutable state; no cross-query proofcache/new scheduler/representation.
+Perentity reverse scalar fits existing256/refFacet allowance; facevectors160/face.
+PrivateParameterError preservesoptionalaffinefloor, exactbounds and no-budgetdirect
+semantics. Import's incompleteSourceEnclosure unchanged; finalgeometry stillBoth
+mathematically, with sameTol and whole-source coverage. Height/body/topology/shape/
+size gates remainindependent andunchanged.
+
+Read-only correctnessreview foundno blockingissue; notexecutionproof. Newcontrols
+cover fresh coordinatekeys, multiplebodies, actualcomplete certs and resourcefailure.
+ALL69544actualcurrentfaces prepared in17,803,312B v2payload, exactbindings/version18,
+FaceOrder, all30inputhashes, binaryselfcheck. Mainsheet(0,10154,2)53512faces; other
+Wing sheet(0,27868,2)1449, FARFIELD2827, SYMMETRY11756; marker alone is insufficient.
+48954curves/715827882available ->401031168querypool/396836624prepared aftermemo.
+Initialprep marker-onlyassertion failedbeforeoutput; correctedusingexactentity and
+rerun37.93s nice19/libs1. No CFD baseline. Fullreplay bounded20M/8GiB/600s; then
+connectedserial+ONE MPI milestone, immediatefullsame-seed TWO-event M6.
+
+###291 bounded replay and affected qualification
+
+Build290 completed361.267s. The first actual-face replay hit unchanged20Mwork
+at17776/69544faces,0overTol,maxupper9.9999622526187977e-5,peakadmitted1120212192B;
+it FAILED its wholefield-completion expectation. Preserve failed290case and
+facewise290_work_diagnosis.json. Wholefield remains UNPROVED, notinadmissible.
+Build291 changes only diagnostic classification (explicit work-incomplete, like
+existing savedgeometry probes) and a no-publication work-exhaustion control.
+Production CFD byte-identical290; no budget/gate changes. Build47.096s.
+Focused28cases/5616assertions56.695s passed. Actualface291 diagnostic111.747s:
+EXACTsame processedprefix/bounds/counters/work/peak as290, query56.418s, still
+partial. Complete currentface data is not the same as a complete certificate.
+Allactualownedhandles absent and pins unchanged before connectedserial291 began.
+Next ONE MPI6, sealqualification and push, then immediatefullsame-seed TWO-event M6.
+This proves neither wholemesh certification nor a leadingedge cleanup benefit.
+
+291 affectedserial PASSED91cases/67534assertions/203.088s. ONE MPI6 PASSED125cases
+EVERYrank/223.706s; assertions71215/72142/71418/71296/71243/71035 inlogorder.
+Allpins unchanged/allactualownedhandles absent. certification291_qualification.json
+seals fourstages, explicitpartialface diagnostic, source/binary/runtime/input/helper
+pins. This qualifies affected behavior for fullM6, not completeacceptedgeometry.
+Push then launch_m6291.py immediately for fullsame-seed Mach-onlyL1/50k TWOevents.

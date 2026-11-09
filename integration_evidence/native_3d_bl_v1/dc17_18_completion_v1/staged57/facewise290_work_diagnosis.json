@@ -1,0 +1,23 @@
+{
+  "time": 1794201725.1493585,
+  "case": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/geometry_current_queries_20261109T051554_1896124",
+  "result": {
+    "complete": false,
+    "faces": 69544,
+    "processed": 17776,
+    "direct_faces": 14779,
+    "over_tolerance": 0,
+    "maximum_upper": 9.999962252618798e-05,
+    "work": 20000000,
+    "work_limit": 20000000,
+    "peak_bytes": 1120212192,
+    "seconds": 56.413698437,
+    "upper_calls": 3248,
+    "direct_calls": 14779,
+    "reason": "Curved atlas work exhausted.",
+    "scope": "Fresh complete-face mesh-to-model bounds only; no global forward or accepted mesh claim"
+  },
+  "production_change_rejected": false,
+  "diagnosis": "Complete actual-field diagnostic exceeded unchanged20M cumulative cap; no completed upper exceededtol, no storage exhaustion. Wholefield remains UNPROVED. Preserve partial evidence; do not raise cap. Align diagnostic classification with existing saved-geometry probes, and retain full M6 gate/cumulative budgets.",
+  "next_build": "291 test-only budget classification and no-publication work guard; production code remains290"
+}

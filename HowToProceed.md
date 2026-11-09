@@ -35,8 +35,10 @@ NextONEconnected candidate: reuse fresh rigorous per-face mesh→model bounds fr
 existing entity ParameterError path, retain whole model→mesh proof, fullBoth fallback
 for uncertain localbounds. Accepted-face association/orientation cert is NOTdistance
 proof; localG0 alone is insufficient. Same exactsource/support/body/sheet/marker,
-currentcoordinates/bindings and resourceadmission required. Audit/factor existing
-logic beforeadding machinery. After affectedserial+ONE MPI milestone, fullsame-seed
+currentcoordinates/bindings and resourceadmission required. Factored existing
+logic into EntityFaceError; candidate290/291 built and affected qualification passed.
+Fresh captured-face replay is explicitly partial:17776/69544 at unchanged20Mwork,
+0overTol; no wholefield proof. Serial91cases/67534assertions and ONE MPI6 125cases EVERYrank passed; fullsame-seed
 TWOeventM6 immediately. No widercleanup/targets/norms/schedulers/budgets/gates.
 
 Counts/operations matched283 ONLYthroughround24000,firstdiverged24064; latermatching
