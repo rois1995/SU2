@@ -229,7 +229,8 @@ struct EngineStats {
   uint64_t boundary_smoothing_stars=0,boundary_smoothing_reused=0,boundary_smoothing_candidates=0;
   uint64_t boundary_smoothing_validity_rejects=0,boundary_smoothing_shape_rejects=0,boundary_smoothing_edge_rejects=0,boundary_smoothing_geometry_rejects=0;
   uint64_t boundary_smoothing_guidance_calls=0,boundary_smoothing_upper_queries=0,boundary_smoothing_moves=0;
-  uint64_t boundary_smoothing_guidance_faces=0,boundary_smoothing_guidance_early_rejections=0;
+  uint64_t boundary_smoothing_move_contexts=0,boundary_smoothing_prepared_trials=0;
+  uint64_t boundary_smoothing_guidance_faces=0,boundary_smoothing_guidance_reused_faces=0,boundary_smoothing_guidance_early_rejections=0;
   long double boundary_smoothing_debt_reduction=0;double boundary_smoothing_seconds=0;
   uint64_t interior_smoothing_stars=0,interior_smoothing_reused=0,interior_smoothing_candidates=0;
   uint64_t interior_smoothing_validity_rejects=0,interior_smoothing_shape_rejects=0,interior_smoothing_edge_rejects=0,interior_smoothing_geometry_rejects=0;

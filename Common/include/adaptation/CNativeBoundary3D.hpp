@@ -98,6 +98,9 @@ class PlanarReference {
                                                             std::shared_ptr<BoundaryParameterState> parameters);
   bool Mapped()const{return bool(parameter_view);}
   BoundaryParameterState* Parameters()const;
+  /*! Epoch identity without extending its lifetime in caller-owned weak memos. */
+  std::shared_ptr<const BoundaryParameterState> ParameterStateHandle()const;
+  std::shared_ptr<const PlanarReference> DefinitionHandle()const{return definition;}
   std::shared_ptr<const PlanarReference> WithParameterState(std::shared_ptr<BoundaryParameterState> parameters)const;
   /*! Private operator overlay; null in the unchanged strict path. */
   std::unique_ptr<PlanarReference> PrivateParameters(const Patch& patch,SU2NativeGeometry::AtlasBudget* reservation=nullptr)const;
@@ -155,13 +158,38 @@ struct GeometryGuidance {
   long double excess=0;
   size_t evaluated_faces=0;
   bool complete=true;
+  size_t reused_faces=0;
 };
+class GeometryGuidanceMemo;
 /*! Fitting guidance for accepted or independently validated surfaces, never a publication certificate.
  * Sums squared absolute-tolerance excess per face, as in the complete census, retaining face order.
  * An incomplete result proves only excess > reject_above;
  * it must not be used as a complete score or as evidence of geometric progress. */
 GeometryGuidance GeometryGuidanceExcess(const Patch& patch,const PlanarReference& geometry,double tolerance,
-                                      long double reject_above=std::numeric_limits<long double>::infinity());
+                                      long double reject_above=std::numeric_limits<long double>::infinity(),
+                                      GeometryGuidanceMemo* memo=nullptr);
+/*! Scoped entity-face numeric guidance, never an association or publication certificate.
+ * Prepare admits bounded storage; caller includes ResidentBytes in its retained reservation.
+ * First evaluation records bounds; later evaluations reuse only exact unchanged contracts. */
+class GeometryGuidanceMemo {
+ public:
+  bool Prepare(const Patch&,const PlanarReference&,double tolerance);
+  size_t ResidentBytes()const;
+ private:
+  struct Entry {
+    SurfaceFace face;
+    std::array<Point,3> points;
+    std::array<SU2NativeGeometry::SurfaceBinding,3> binding;
+    double bound=0;
+  };
+  std::vector<Entry> entries;
+  std::weak_ptr<const BoundaryParameterState> epoch;
+  std::weak_ptr<const PlanarReference> definition;
+  uint64_t revision=0;
+  double tolerance=0;
+  bool recording=false;
+  friend GeometryGuidance GeometryGuidanceExcess(const Patch&,const PlanarReference&,double,long double,GeometryGuidanceMemo*);
+};
 struct GeometrySplitPrediction {
   long double before=0,after=0;
   size_t evaluated_faces=0;
@@ -353,6 +381,22 @@ bool CollapseVertex(const Patch& old, Id point, Id neighbor, Id first_cell, cons
 /*! Coordinate-only move; maximum_old_cells is an explicit complete-star admission (default remains64). */
 bool MoveVertex(const Patch& old, Id vertex, Node point, Id first_cell, const PlanarReference& reference, Patch& fresh,
                 std::string& reason, KernelStats* stats = nullptr, size_t maximum_old_cells = MaximumCavityCells);
+/*! Immutable admitted old-star validation for repeated moves; every trial has fresh private parameters. */
+class PreparedVertexMove {
+ public:
+  ~PreparedVertexMove();
+  size_t ResidentBytes()const;
+ private:
+  struct Data;
+  explicit PreparedVertexMove(std::unique_ptr<Data>);
+  std::unique_ptr<Data> data;
+  friend std::unique_ptr<PreparedVertexMove> PrepareVertexMove(const Patch&,const PlanarReference&,KernelStats*);
+  friend bool MoveVertex(const PreparedVertexMove&,Id,Node,Id,Patch&,std::string&,KernelStats*);
+};
+/*! Optional bounded reuse; null means use ordinary MoveVertex. Caller charges ResidentBytes while retained. */
+std::unique_ptr<PreparedVertexMove> PrepareVertexMove(const Patch&,const PlanarReference&,KernelStats* stats=nullptr);
+bool MoveVertex(const PreparedVertexMove&,Id vertex,Node point,Id first_cell,Patch& fresh,
+                std::string& reason,KernelStats* stats=nullptr);
 /*! Fixed-skin reconnection to an existing admitted apex (including face2->3 and edge3->2/4->4).
  * Geometry/topology only: frozen metric progress, complete dependencies and global IDs remain caller duties. */
 bool Reconnect(const Patch& old, Id vertex, Id first_cell, const PlanarReference& reference, Patch& fresh,

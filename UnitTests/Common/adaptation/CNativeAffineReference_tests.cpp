@@ -9,6 +9,7 @@
 #include "../../../Common/include/adaptation/CNativeBoundary3D.hpp"
 #include "../../../Common/include/adaptation/CNativeReferenceIO3D.hpp"
 #include "../../../Common/include/adaptation/CNativeImport3D.hpp"
+#include "../../../Common/include/adaptation/CNativeOptimize3D.hpp"
 #include "../../../Common/include/adaptation/CNativeGeometryBackend3D.hpp"
 #include "../../../Common/include/adaptation/CNativePointConstruction3D.hpp"
 #include <fstream>
@@ -852,6 +853,107 @@ struct CurvedAtlasFixture {
     FaceCoverage cover;std::string reason;REQUIRE(geometry->ResolveSingleChart(facet,binding,cover,budget,reason));return cover;
   }
 };
+}
+TEST_CASE("Scoped numeric guidance reuses only unchanged entity face contracts", "[NativeGuidanceReuse3D][NativeCurvedAtlas3D]") {
+  using namespace SU2Native3D;
+  CurvedAtlasFixture fixture;const auto& g=*fixture.geometry;auto budget=GeometryAtlasBudget();
+  BoundaryPoints points;std::vector<SurfaceFace> skin;std::map<int,int> roles;Patch patch;
+  for(const auto& f:fixture.facets){skin.push_back({{f.v[0].id,f.v[1].id,f.v[2].id},f.id});roles.emplace(f.marker,2);
+    for(auto n:f.v)points.emplace(n.id,BoundaryPoint{n,g.Vertex(n.id)});
+    patch.cells.push_back({1000+f.id,{Node{100000,{.5,.5,.5}},f.v[0],f.v[1],f.v[2]}});}
+  patch.surface=skin;patch.parameters=points;
+  auto state=std::make_shared<BoundaryParameterState>(fixture.geometry,points,skin);
+  state=state->WithMobilityPolicy(60,roles,budget);state=state->WithEntityGeometry(.1,budget);
+  const std::shared_ptr<const PlanarReference> definition(fixture.geometry,&g.Reference());
+  auto reference=PlanarReference::WithParameters(definition,state);auto scoped=reference->WithAtlasReservation(budget);
+  SECTION("prepared complete star matches fresh trial contexts") {
+    Patch star;star.parameters=points;
+    for(auto cell:patch.cells)if(std::any_of(cell.v.begin(),cell.v.end(),[](Node n){return n.id==8;})) {
+      if(Orientation(cell.v[0].p,cell.v[1].p,cell.v[2].p,cell.v[3].p)<0)std::swap(cell.v[2],cell.v[3]);
+      star.cells.push_back(cell);star.surface.push_back(skin.at(cell.id-1000));
+    }
+    const auto original=star;const auto retained=budget.caller_bytes;
+    auto prepared=PrepareVertexMove(star,*scoped);REQUIRE(prepared);
+    budget.caller_bytes+=prepared->ResidentBytes();
+    for(Point target:std::vector<Point>{{.4,.4,0},{.55,.45,0},{.5,.5,0},{-1,-1,0}}) {
+      Patch cold,warm;std::string a,b;
+      const bool accepted=MoveVertex(original,8,{200000,target},300000,*scoped,cold,a);
+      CHECK(MoveVertex(*prepared,8,{200000,target},300000,warm,b)==accepted);
+      CHECK(a==b);REQUIRE(cold.cells.size()==warm.cells.size());
+      for(size_t k=0;k<cold.cells.size();++k)for(unsigned j=0;j<4;++j) {
+        const auto x=cold.cells[k].v[j],y=warm.cells[k].v[j];
+        CHECK(x.id==y.id);CHECK(x.p.x==y.p.x);CHECK(x.p.y==y.p.y);CHECK(x.p.z==y.p.z);
+      }
+      REQUIRE(cold.surface.size()==warm.surface.size());
+      for(size_t k=0;k<cold.surface.size();++k){CHECK(cold.surface[k].v==warm.surface[k].v);CHECK(cold.surface[k].facet==warm.surface[k].facet);}
+    }
+    budget.caller_bytes=retained;
+    const auto ceiling=budget.maximum_bytes;budget.maximum_bytes=budget.caller_bytes;
+    CHECK_FALSE(PrepareVertexMove(star,*scoped));budget.maximum_bytes=ceiling;
+    return;
+  }
+  SECTION("mapped boundary optimizer retains admitted face guidance") {
+    Owned mesh;
+    for(auto cell:patch.cells){if(Orientation(cell.v[0].p,cell.v[1].p,cell.v[2].p,cell.v[3].p)<0)std::swap(cell.v[2],cell.v[3]);
+      OwnedCell row;row.cell=cell;row.version=1;row.physical[0]={true,cell.id-1000};mesh.emplace(cell.id,row);}
+    const Tensor tensor{1.5,0,0,.15,0,.05};
+    RegionMetric target([&](Point){return tensor;},[&](Point a,Point b){return MetricNorm(a,b,tensor);});
+    OptimizeOptions options;options.geometry=scoped.get();options.surface_tolerance=.1;
+    options.swaps=options.collapses=options.insertions=false;options.maximum_work=4096;options.maximum_sweeps=4;
+    for(const auto& row:mesh)for(auto n:row.second.cell.v)if(n.id!=8)options.frozen_vertices.insert(n.id);
+    const auto retained=budget.caller_bytes;Id node=200000,cell=300000;OptimizeReport report;
+    OptimizeMetricMesh(mesh,target,node,cell,options,report);
+    CHECK(report.boundary_stars_searched>0);CHECK(report.boundary_guidance_calls>0);
+    CHECK(report.boundary_move_contexts>0);CHECK(report.boundary_prepared_trials>=report.boundary_move_contexts);
+    CHECK(report.boundary_guidance_reused_faces<=report.boundary_guidance_faces);CHECK(budget.caller_bytes==retained);
+    CHECK(budget.peak_bytes<=budget.maximum_bytes);
+    return;
+  }
+  SECTION("unchanged contracts and invalidation") {}
+  GeometryGuidanceMemo memo;const auto caller=budget.caller_bytes;
+  REQUIRE(memo.Prepare(patch,*scoped,0));budget.caller_bytes=caller+memo.ResidentBytes();
+  const auto cold=GeometryGuidanceExcess(patch,*scoped,0);
+  const auto recorded=GeometryGuidanceExcess(patch,*scoped,0,INFINITY,&memo);
+  REQUIRE(recorded.complete);CHECK(recorded.excess==cold.excess);CHECK(recorded.reused_faces==0);
+  const auto before=g.GeometryStatsSnapshot();const auto warm=GeometryGuidanceExcess(patch,*scoped,0,INFINITY,&memo);
+  const auto after=g.GeometryStatsSnapshot();CHECK(warm.excess==cold.excess);CHECK(warm.complete);
+  CHECK(warm.reused_faces==skin.size());CHECK(warm.evaluated_faces==skin.size());
+  CHECK(after.direct_calls==before.direct_calls);CHECK(after.upper_calls==before.upper_calls);
+  for(long double limit:{0.L,cold.excess/2,cold.excess}) {
+    const auto full=GeometryGuidanceExcess(patch,*scoped,0,limit);
+    const auto reused=GeometryGuidanceExcess(patch,*scoped,0,limit,&memo);
+    CHECK(reused.excess==full.excess);CHECK(reused.complete==full.complete);
+    CHECK(reused.evaluated_faces==full.evaluated_faces);CHECK(reused.reused_faces==reused.evaluated_faces);
+  }
+  auto changed=patch;const Id moved=fixture.facets.front().v[2].id;
+  auto position=points.at(moved).node.p;position.x=std::nextafter(position.x,INFINITY);
+  changed.parameters.at(moved).node.p=position;
+  for(auto& cell:changed.cells)for(auto& node:cell.v)if(node.id==moved)node.p=position;
+  const auto moved_cold=GeometryGuidanceExcess(changed,*scoped,0);
+  const auto moved_warm=GeometryGuidanceExcess(changed,*scoped,0,INFINITY,&memo);
+  size_t unchanged=0;for(const auto& face:skin)unchanged+=std::find(face.v.begin(),face.v.end(),moved)==face.v.end();
+  CHECK(moved_warm.excess==moved_cold.excess);CHECK(moved_warm.reused_faces==unchanged);
+  auto rotated=patch;std::rotate(rotated.surface[0].v.begin(),rotated.surface[0].v.begin()+1,rotated.surface[0].v.end());
+  CHECK(GeometryGuidanceExcess(rotated,*scoped,0,INFINITY,&memo).excess==GeometryGuidanceExcess(rotated,*scoped,0).excess);
+  CHECK(GeometryGuidanceExcess(rotated,*scoped,0,INFINITY,&memo).reused_faces==skin.size()-1);
+  auto invalid=patch;invalid.parameters.begin()->second.binding.version++;
+  CHECK_THROWS(GeometryGuidanceExcess(invalid,*scoped,0,INFINITY,&memo));
+  CHECK_THROWS(GeometryGuidanceExcess(invalid,*scoped,0));
+  const auto different_tolerance=GeometryGuidanceExcess(patch,*scoped,.01,INFINITY,&memo);
+  CHECK(different_tolerance.reused_faces==0);
+  CHECK(different_tolerance.excess==GeometryGuidanceExcess(patch,*scoped,.01).excess);
+  auto other=reference->WithParameterState(std::make_shared<BoundaryParameterState>(*state));
+  auto other_scope=other->WithAtlasReservation(budget);
+  const auto other_result=GeometryGuidanceExcess(patch,*other_scope,0,INFINITY,&memo);
+  CHECK(other_result.reused_faces==0);CHECK(other_result.excess==cold.excess);
+  GeometryGuidanceMemo refused;const auto ceiling=budget.maximum_bytes;
+  budget.maximum_bytes=budget.caller_bytes+refused.ResidentBytes();
+  CHECK_FALSE(refused.Prepare(patch,*scoped,0));CHECK_FALSE(budget.work_exhausted);
+  budget.maximum_bytes=ceiling;
+  CHECK(GeometryGuidanceExcess(patch,*scoped,0,INFINITY,&refused).excess==cold.excess);
+  CHECK(GeometryGuidanceExcess(patch,*scoped,0,INFINITY,&refused).reused_faces==0);
+  CHECK_THROWS(refused.Prepare(patch,*scoped,NAN));
+  budget.caller_bytes=caller;
 }
 TEST_CASE("Geometry work prediction distinguishes cross-chart surface incidence", "[NativeGeometryWorkEstimate3D]") {
   // This positive observed-work check needs a retained fine leaf, including its reusable distance index.

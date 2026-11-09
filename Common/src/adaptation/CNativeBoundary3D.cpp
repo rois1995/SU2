@@ -12,6 +12,7 @@
 #include "../../include/adt/CADTElemClass.hpp"
 #include "../../include/option_structure.hpp"
 #include <cmath>
+#include <cstring>
 #include <functional>
 #include <iomanip>
 #include <sstream>
@@ -2996,19 +2997,55 @@ bool CollapseVertex(const Patch& old, Id point, Id neighbor, Id first, const Pla
     return false;
   }
 }
-bool MoveVertex(const Patch& old, Id vertex, Node point, Id first, const PlanarReference& base_reference, Patch& fresh,
-                std::string& reason, KernelStats* stats, size_t maximum_old_cells) {
+struct PreparedVertexMove::Data {
+  Patch patch;
+  std::unique_ptr<PlanarReference> reference;
+  Skin skin;
+  Physical physical;
+  std::map<Id,Node> nodes;
+  size_t bytes=0;
+};
+PreparedVertexMove::PreparedVertexMove(std::unique_ptr<Data> value):data(std::move(value)){}
+PreparedVertexMove::~PreparedVertexMove()=default;
+size_t PreparedVertexMove::ResidentBytes()const{return data->bytes;}
+std::unique_ptr<PreparedVertexMove> PrepareVertexMove(const Patch& old,const PlanarReference& geometry,KernelStats* stats) {
+  auto* budget=geometry.AtlasReservation();
+  if(!geometry.Mapped()||!budget||old.cells.empty()||old.cells.size()>MaximumCavityCells)return {};
+  // Include copied patch, map nodes, parameter overlay and temporary incidence before allocating.
+  const size_t bytes=transfer_memory::Add(sizeof(PreparedVertexMove),sizeof(PreparedVertexMove::Data),
+      transfer_memory::Mul(old.cells.size(),8192),transfer_memory::Mul(old.parameters.size(),1024),
+      transfer_memory::Mul(BoundaryCoverageBytes(old.coverage),4),geometry.ParameterOverlayBytes());
+  const auto live=transfer_memory::Add(budget->caller_bytes,bytes);
+  if(live==SIZE_MAX||live>budget->maximum_bytes)return {};
+  budget->CheckTime();
+  struct Restore {SU2NativeGeometry::AtlasBudget& budget;size_t caller;~Restore(){budget.caller_bytes=caller;}} restore{*budget,budget->caller_bytes};
+  budget->caller_bytes=live;
+  auto data=std::unique_ptr<PreparedVertexMove::Data>(new PreparedVertexMove::Data);
+  data->patch=old;data->reference=geometry.PrivateParameters(data->patch);
+  Bounds(data->patch);data->skin=SkinMap(Incidence(data->patch.cells,stats).Boundary());
+  data->physical=CheckSurface(data->patch,data->skin,*data->reference,stats);
+  data->nodes=Nodes(data->patch.cells);data->bytes=bytes;
+  budget->peak_bytes=std::max(budget->peak_bytes,live);
+  return std::unique_ptr<PreparedVertexMove>(new PreparedVertexMove(std::move(data)));
+}
+namespace {
+bool MoveVertexImpl(const Patch& old, Id vertex, Node point, Id first, const PlanarReference& base_reference, Patch& fresh,
+                    std::string& reason, KernelStats* stats,size_t maximum_old_cells,
+                    const Skin* prepared_skin=nullptr,const Physical* prepared_physical=nullptr,
+                    const std::map<Id,Node>* prepared_nodes=nullptr) {
   try {
-    auto parameter_context=base_reference.PrivateParameters(old);
+    auto parameter_context=base_reference.PrivateParameters(prepared_skin?Patch{}:old);
     const auto& reference=parameter_context?*parameter_context:base_reference;
     Bounds(old, maximum_old_cells);
     const size_t maximum_faces = maximum_old_cells > std::numeric_limits<size_t>::max() / 4
                                      ? std::numeric_limits<size_t>::max()
                                      : 4 * maximum_old_cells;
-    const Incidence index(old.cells, stats);
-    const auto before = SkinMap(index.Boundary());
-    const auto physical = CheckSurface(old, before, reference, stats, maximum_faces);
-    const auto nodes = Nodes(old.cells);
+    Skin local_skin;Physical local_physical;std::map<Id,Node> local_nodes;
+    if(!prepared_skin){local_skin=SkinMap(Incidence(old.cells,stats).Boundary());
+      local_physical=CheckSurface(old,local_skin,reference,stats,maximum_faces);local_nodes=Nodes(old.cells);}
+    const auto& before=prepared_skin?*prepared_skin:local_skin;
+    const auto& physical=prepared_physical?*prepared_physical:local_physical;
+    const auto& nodes=prepared_nodes?*prepared_nodes:local_nodes;
     const auto original = nodes.at(vertex);
     if (nodes.count(point.id) || (original.p.x == point.p.x && original.p.y == point.p.y && original.p.z == point.p.z))
       throw std::invalid_argument("Native 3D movement needs a new identity and a distinct position.");
@@ -3128,6 +3165,17 @@ bool MoveVertex(const Patch& old, Id vertex, Node point, Id first, const PlanarR
     return false;
   }
 }
+} // namespace
+bool MoveVertex(const Patch& old,Id vertex,Node point,Id first,const PlanarReference& reference,Patch& fresh,
+                std::string& reason,KernelStats* stats,size_t maximum_old_cells) {
+  return MoveVertexImpl(old,vertex,point,first,reference,fresh,reason,stats,maximum_old_cells);
+}
+bool MoveVertex(const PreparedVertexMove& prepared,Id vertex,Node point,Id first,Patch& fresh,
+                std::string& reason,KernelStats* stats) {
+  const auto& data=*prepared.data;
+  return MoveVertexImpl(data.patch,vertex,point,first,*data.reference,fresh,reason,stats,MaximumCavityCells,
+                        &data.skin,&data.physical,&data.nodes);
+}
 bool ShellBoundaryCell(const Patch& old, Id cell, Id first, const PlanarReference& base_reference, Patch& fresh,
                        std::string& reason, KernelStats* stats) {
   try {
@@ -3192,18 +3240,55 @@ bool Reconnect(const Patch& old, Id vertex, Id first, const PlanarReference& bas
     return false;
   }
 }
+size_t GeometryGuidanceMemo::ResidentBytes()const {
+  return transfer_memory::Add(sizeof(*this),transfer_memory::Mul(entries.capacity(),sizeof(Entry)));
+}
+bool GeometryGuidanceMemo::Prepare(const Patch& patch,const PlanarReference& geometry,double requested_tolerance) {
+  std::vector<Entry>().swap(entries);epoch.reset();definition.reset();recording=false;
+  if(!std::isfinite(requested_tolerance)||requested_tolerance<0)
+    throw std::invalid_argument("Invalid native3D fitting-guidance tolerance.");
+  const auto state=geometry.ParameterStateHandle();auto* budget=geometry.AtlasReservation();
+  if(!geometry.EntityGeometry()||!state||!geometry.DefinitionHandle()||!budget||patch.surface.size()>4*MaximumCavityCells)return false;
+  const auto bytes=transfer_memory::Add(sizeof(*this),transfer_memory::GrowthBound(patch.surface.size(),sizeof(Entry)));
+  const auto peak=transfer_memory::Add(budget->caller_bytes,bytes);
+  if(peak==SIZE_MAX||peak>budget->maximum_bytes)return false;
+  budget->CheckTime();entries.reserve(patch.surface.size());
+  budget->peak_bytes=std::max(budget->peak_bytes,transfer_memory::Add(budget->caller_bytes,ResidentBytes()));
+  epoch=state;definition=geometry.DefinitionHandle();revision=state->Revision();tolerance=requested_tolerance;recording=true;return true;
+}
 GeometryGuidance GeometryGuidanceExcess(const Patch& patch,const PlanarReference& base_geometry,double tolerance,
-                                      long double reject_above) {
+                                      long double reject_above,GeometryGuidanceMemo* memo) {
   if(!std::isfinite(tolerance)||tolerance<0||std::isnan(reject_above)||reject_above<0)
     throw std::invalid_argument("Invalid native3D fitting-guidance threshold.");
   auto parameters=base_geometry.PrivateParameters(patch);const auto& geometry=parameters?*parameters:base_geometry;
+  auto equal_double=[](double a,double b){return std::memcmp(&a,&b,sizeof(double))==0;};
+  const auto state=memo?geometry.ParameterStateHandle():std::shared_ptr<const BoundaryParameterState>{};
+  const bool reusable=memo&&geometry.EntityGeometry()&&state&&memo->epoch.lock()==state&&
+      memo->definition.lock()==geometry.DefinitionHandle()&&memo->revision==state->Revision()&&equal_double(memo->tolerance,tolerance);
+  const bool recording=reusable&&memo->recording;
+  bool unused=false;
+  struct Seal {bool& recording;~Seal(){recording=false;}} seal{recording?memo->recording:unused};
   std::map<Id,Point> nodes;
   for(const auto& c:patch.cells)for(auto n:c.v)nodes.emplace(n.id,n.p);
   GeometryGuidance result;
   for(const auto& f:patch.surface) {
     const std::array<Point,3> p{nodes.at(f.v[0]),nodes.at(f.v[1]),nodes.at(f.v[2])};
-    const double bound=geometry.SurfaceDeviation(f.facet,p,true);
+    std::array<SU2NativeGeometry::SurfaceBinding,3> binding;bool bound_points=reusable;
+    if(reusable)for(unsigned k=0;k<3;++k){const auto* point=geometry.Parameter(p[k]);
+      if(!point){bound_points=false;break;}binding[k]=point->binding;}
+    const GeometryGuidanceMemo::Entry* retained=nullptr;
+    if(bound_points&&!recording)for(const auto& entry:memo->entries) {
+      if(entry.face.facet!=f.facet||entry.face.v!=f.v)continue;
+      bool same=true;
+      for(unsigned k=0;k<3;++k){const auto& a=entry.binding[k];const auto& b=binding[k];
+        same=same&&equal_double(entry.points[k].x,p[k].x)&&equal_double(entry.points[k].y,p[k].y)&&equal_double(entry.points[k].z,p[k].z)&&
+            a.feature==b.feature&&a.version==b.version&&a.dimension==b.dimension&&equal_double(a.u,b.u)&&equal_double(a.v,b.v);}
+      if(same){retained=&entry;break;}
+    }
+    const double bound=retained?retained->bound:geometry.SurfaceDeviation(f.facet,p,true);
     if(!std::isfinite(bound))throw std::invalid_argument("Unresolved native3D fitting-guidance face.");
+    if(retained){if(auto* budget=geometry.AtlasReservation())budget->CheckTime();++result.reused_faces;}
+    if(recording&&bound_points&&memo->entries.size()<memo->entries.capacity())memo->entries.push_back({f,p,binding,bound});
     const long double error=std::max(0.L,static_cast<long double>(bound)-tolerance);
     // Match complete-census debt: changing face area must not veto reduced certified geometry excess.
     result.excess+=error*error;

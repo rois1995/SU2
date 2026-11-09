@@ -831,6 +831,34 @@ TEST_CASE("Native 3D optimizer: smoothing, collapse, frozen sets, skin and deter
    for(;i1!=m1.end();++i1,++i2)for(unsigned k=0;k<4;++k)same=same&&i1->first==i2->first&&i1->second.cell.v[k].id==i2->second.cell.v[k].id&&i1->second.cell.v[k].p.x==i2->second.cell.v[k].p.x;
    CHECK(same);}
 }
+TEST_CASE("Rejected smoothing history preserves cold optimizer results across disjoint and shared commits", "[NativeOptimize3D][NativeSmoothingHistory3D]") {
+  FrozenField field({CoveringDonor({1.5,0,0,.15,0,.05})});const RegionMetric target(field);
+  const std::array<Node,4> skin{{{1,{0,0,0}},{2,{1,0,0}},{3,{0,1,0}},{4,{0,0,1}}}};
+  std::vector<std::array<Node,4>> cells;
+  for(unsigned part=0;part<3;++part)for(unsigned omit=0;omit<4;++omit) {
+    std::array<Node,3> face;unsigned k=0;
+    for(unsigned j=0;j<4;++j)if(j!=omit){auto n=skin[j];n.id+=part*100;n.p.x+=part*2;face[k++]=n;}
+    const Node center{5+part*100,{part*2+(part==0?.4:.85),.05,.05}};
+    cells.push_back(Tet(center,face[0],face[1],face[2]));
+  }
+  for(auto mode:{ShapeAdmission::Absolute,ShapeAdmission::ValidityOnly}) {
+    struct Restore {ShapeAdmission value=GetShapeAdmission();~Restore(){SetShapeAdmission(value);}} restore;
+    SetShapeAdmission(mode);
+    auto warm=MeshOf(cells),cold=warm;OptimizeOptions options;
+    options.swaps=options.collapses=options.insertions=false;options.maximum_sweeps=16;
+    OptimizeReport a,b;Id an=1000,ac=10000,bn=an,bc=ac;
+    const bool changed=OptimizeMetricMesh(warm,target,an,ac,options,a);
+    options.cache_entries=0;
+    CHECK(OptimizeMetricMesh(cold,target,bn,bc,options,b)==changed);
+    CHECK(an==bn);CHECK(ac==bc);CHECK(a.moves==b.moves);CHECK(a.relabel==b.relabel);
+    REQUIRE(warm.size()==cold.size());
+    for(const auto& row:warm){const auto& other=cold.at(row.first).cell;
+      for(unsigned k=0;k<4;++k){const auto x=row.second.cell.v[k],y=other.v[k];
+        CHECK(x.id==y.id);CHECK(x.p.x==y.p.x);CHECK(x.p.y==y.p.y);CHECK(x.p.z==y.p.z);}}
+    CHECK(Facts(warm,field).positive);
+  }
+}
+
 TEST_CASE("Native 3D optimizer: boundary edge flip inside one facet", "[NativeOptimize3D]") {
   FrozenField field({CoveringDonor({1,0,0,1,0,1})});const RegionMetric target(field);
   // two cells over a planar boundary quad a-r0-b-rm split along a-b (score .78); the flip to r0-rm gives 2.48

@@ -23,7 +23,8 @@ D293=`R/m6_runs/euler_build293_adapted_event1_disk_restart_v1`.
 
 ## CURRENT — boundary performance WIP; qualified Euler293 baseline preserved
 
-No ownedheavyjob active. Fullworkflow tool90456 TERMINAL0/6615.086935759s,
+Build294 is the ONLY ownedheavyjob: wrapper3125260/start27276529, child3125341,
+tool20693. Source/helpers frozen; UNQUALIFIED boundary reuse cycle. See below. Fullworkflow tool90456 TERMINAL0/6615.086935759s,
 workflow_accepted=true,pins_verified=true,changed=[]. All11actualHOST identities
 ABSENT, A293/terminal_handles.json; natural completion,NOmanualstop. Both events
 independently validated by R/validate_m6293_completion.py with all1520pins reverified.
@@ -45,12 +46,17 @@ restart, explicitly restart-event1 only. D293rawstatus.disk_restart_validated=fa
 is the runner's BEFORE-independent-validation flag; do not confuse it with the
 subsequent verified PASS. This is steadyCFDrestart, NOTresumed-adaptation cycle-
 numbering/input-overwrite qualification. Neither continuedCFD nor restart claims
-converged physics. No owned job is active. Active connected performance implementation has STARTED:
+converged physics. Active connected performance implementation is FROZEN in build294:
 Common/src/adaptation/CNativeEngine3D.cpp now invalidates local pure-shape rejected
 smoothing entries only for vertices in retired/introduced cells at Commit; bulk
 replacement still clears all. UNBUILT/UNVALIDATED; no performance benefit claim.
-Old-star topology/numeric guidance reuse remains under design, prepared-leaf option
-is diagnostic pending exact-oracle/admission proof. See active design section.
+PreparedVertexMove now owns an immutable copied old star and validated skin/physical/
+node maps; each surviving trial uses fresh private parameters and raw projection.
+Bounded numeric entity-face guidance memo requires exact epoch/revision/definition/
+face/coordinates/bindings/tolerance and is enabled only if unchanged faces exist.
+New per-rank counters report contexts/prepared trials and reused guidance faces.
+All UNBUILT/UNVALIDATED until294 completes. Prepared-leaf direct execution remains
+diagnostic pending exact numeric oracle/admission proof. See active design section.
 Complete connected source/test changes before build/focusedserial/ONE MPI milestone,
 then immediate same-seed FIRST adaptation. Existing293binaries are baseline only;
 do NOTrun old wrappers with modified CPP/source pins. No competing BL/RANS job yet.
@@ -89,7 +95,7 @@ Seed R/m6_inputs/euler_original_force_seed_v1 is original61330points/303359tets,
 Mach.8395/AOA3.06,CL.269535/CD.013536. Initial293positions/all22fields bit-identical
 qualified254/256, sensorMACH only,L1/50k.
 
-## Next connected performance cycle — user priority, not implemented
+## Connected performance cycle — implementation frozen, qualification pending
 
 [Design/evidence](Handbook/ADAPTATION_BOUNDARY_QUERY_PERFORMANCE_20261109.md).
 Frozen workflow had already entered event2 when first checkpoint was verified;

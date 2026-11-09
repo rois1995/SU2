@@ -162,3 +162,42 @@ Do not launch old build293 wrappers against modified source pins. No build/test/
 is active. Next: complete/review old-star/guidance reuse and focused cache invalidation
 checks, then ONE connected build/serial/MPI milestone and complete first-adaptation
 replay at unchanged5400budget using original saved CFDseed.
+
+## Connected candidate294 — source frozen, not qualified
+
+PreparedVertexMove owns a copied bounded old star, private old parameters and
+validated skin/physical/node maps. SmoothBoundary prepares it lazily after the
+existing projected-shape screen. Every surviving raw proposal still receives a
+fresh private overlay, projection, moved-cell positivity, full output topology,
+association/feature/geometry and height/metric checks. The prepared context cannot
+accept a different old patch, and stale accepted epochs fail through the existing
+private-parameter revision check. Optional storage refusal falls back to ordinary
+MoveVertex. Factory scratch and retained context are charged to the existing budget.
+
+Scoped numeric entity-face guidance records actually evaluated bounds; reuse needs
+exact epoch+revision+definition, tolerance, ordered face IDs/facet, coordinates and
+all binding fields. Fresh trial views still validate associations. No publication
+certificate is inferred from association. Typical boundary stars have only faces
+incident on the moved vertex: memo preparation is skipped there, since all faces
+change. Complete-patch summation/early-rejection order is preserved. Counters expose
+prepared contexts/trials and exact reused-face counts; benefit is not established.
+
+Rejected-star invalidation remains the connected earlier WIP component. Added cold
+optimizer comparison (absolute/validity-only, disjoint and shared commits), numeric
+memo equivalence/invalidation/admission cases, prepared-versus-fresh raw move trials
+and a mapped boundary caller/accounting check. Tests are not run yet. Read-only
+second opinion found no concrete wrong-result defect; it does not qualify the code.
+Prepared context lifetime must remain inside its AtlasBudget reservation scope.
+
+Build294 uses pinned eight changed C++ files, nice19/j3/libs1/4TB scratch. Tool20693,
+wrapper3125260/start27276529, child3125341. Source/helpers MUST stay unchanged until
+terminal identities are verified. Next focused serial, connected serial and ONE
+MPI6 milestone, then immediate accepted FIRST-adaptation replay with original seed,
+Mach-only L1/50k and unchanged native5400/outer14400 constraints/budgets.
+
+run_m6.py now permits the existing test-event count to be1 or2, preserves native5400
+and outer14400 for the requested first-event replay, and applies transfer/output/
+continued-CFD acceptance receipts to both. Its config/acceptance self-check passed;
+this helper was not a pinned build input. No new production configuration option.
+The original293 matching checkpoints and actual two-event/disk-restart evidence
+remain preserved. BL/MPI/RANS qualification still outstanding.

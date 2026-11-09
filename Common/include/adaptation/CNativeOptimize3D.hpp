@@ -53,8 +53,9 @@ struct OptimizeReport {
   uint64_t point_queries = 0, edge_integrations = 0, edge_surrogates = 0;
   size_t boundary_stars_searched=0,boundary_stars_reused=0,boundary_candidates=0;
   size_t boundary_rejected_validity=0,boundary_rejected_shape=0,boundary_rejected_edge=0,boundary_rejected_geometry=0;
+  size_t boundary_move_contexts=0,boundary_prepared_trials=0;
   size_t boundary_guidance_calls=0,boundary_upper_queries=0,boundary_moves=0;
-  size_t boundary_guidance_faces=0,boundary_guidance_early_rejections=0;
+  size_t boundary_guidance_faces=0,boundary_guidance_reused_faces=0,boundary_guidance_early_rejections=0;
   long double boundary_debt_reduction=0;double boundary_seconds=0;
   size_t interior_stars_searched=0,interior_stars_reused=0,interior_candidates=0;
   size_t interior_rejected_validity=0,interior_rejected_shape=0,interior_rejected_edge=0,interior_rejected_geometry=0;

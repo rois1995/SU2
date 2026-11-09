@@ -1033,6 +1033,9 @@ std::unique_ptr<PlanarReference> PlanarReference::PrivateParameters(const Patch&
   }
   return std::unique_ptr<PlanarReference>(new PlanarReference(definition,std::move(view)));
 }
+std::shared_ptr<const BoundaryParameterState> PlanarReference::ParameterStateHandle()const {
+  if(!parameter_view)return {};parameter_view->Check();return parameter_view->accepted;
+}
 std::unique_ptr<PlanarReference> PlanarReference::WithAtlasReservation(AtlasBudget& reservation)const {
   auto scoped=PrivateParameters(Patch{},&reservation);
   // A work scope over accepted state follows publications; real proposal overlays remain revision-pinned.

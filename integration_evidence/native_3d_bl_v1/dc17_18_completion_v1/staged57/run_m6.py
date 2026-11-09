@@ -34,8 +34,8 @@ def euler_config(text, expected_events, native_budget):
     if expected_events == 2:
         changes += [
             (r"(?m)^ADAP_SUBITER=[ \t]*\([ \t]*1[ \t]*\)[ \t]*$", "ADAP_SUBITER= ( 2 )"),
-            (r"(?m)^ADAP_NATIVE_MAX_TIME=[ \t]*1800[ \t]*$", f"ADAP_NATIVE_MAX_TIME= {native_budget}"),
         ]
+    changes.append((r"(?m)^ADAP_NATIVE_MAX_TIME=[ \t]*1800[ \t]*$", f"ADAP_NATIVE_MAX_TIME= {native_budget}"))
     for pattern, replacement in changes:
         text, count = re.subn(pattern, replacement, text)
         if count != 1:
@@ -189,13 +189,13 @@ def save_completed_workflow(attempt, expected_events, reuse=False):
 
 def acceptance_self_check():
     baseline = (BASE / "run.cfg").read_text()
-    for events, budget in ((1, 1800), (2, 5400)):
+    for events, budget in ((1, 1800), (1, 5400), (2, 5400)):
         expected = baseline.replace("ADAP_COMPLEXITY= 500000", "ADAP_COMPLEXITY= 50000").replace(
             "ADAP_SIZES= ( 500000 )", "ADAP_SIZES= ( 50000 )").replace(
             "ADAP_SENSOR= ( MACH, PRESSURE )", "ADAP_SENSOR= ( MACH )")
         if events == 2:
-            expected = expected.replace("ADAP_SUBITER= ( 1 )", "ADAP_SUBITER= ( 2 )").replace(
-                "ADAP_NATIVE_MAX_TIME= 1800", "ADAP_NATIVE_MAX_TIME= 5400")
+            expected = expected.replace("ADAP_SUBITER= ( 1 )", "ADAP_SUBITER= ( 2 )")
+        expected=expected.replace("ADAP_NATIVE_MAX_TIME= 1800", f"ADAP_NATIVE_MAX_TIME= {budget}")
         assert euler_config(baseline, events, budget) == expected
     seeded = seed_config(euler_config(baseline, 2, 5400))
     assert "RESTART_SOL= YES" in seeded
@@ -271,15 +271,15 @@ def copy_qualified_seed(seed, attempt):
 
 def main():
     inspect_rejected = len(sys.argv) == 6 and sys.argv[5] == "--inspect-rejected"
-    if ((len(sys.argv) != 5 and not inspect_rejected) or sys.argv[3] != "2" or
+    if ((len(sys.argv) != 5 and not inspect_rejected) or sys.argv[3] not in ("1", "2") or
         not re.fullmatch(r"build[1-9][0-9]*", sys.argv[1]) or
         not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9_.-]{0,60}", sys.argv[2])):
-        raise SystemExit("usage: run_m6.py buildN unique_attempt 2 qualified_seed_directory [--inspect-rejected]")
+        raise SystemExit("usage: run_m6.py buildN unique_attempt {1,2} qualified_seed_directory [--inspect-rejected]")
     build, unique_attempt = sys.argv[1:3]
     seed = Path(sys.argv[4]).resolve(strict=True)
-    expected_events = 2
-    native_budget = 5400 if expected_events == 2 else 1800
-    outer_timeout = 14400 if expected_events == 2 else 2400
+    expected_events = int(sys.argv[3])
+    native_budget = 5400
+    outer_timeout = 14400
     acceptance_self_check()
     attempt = ROOT / "m6_runs" / unique_attempt
     attempt.mkdir(parents=True, exist_ok=False)
@@ -379,8 +379,7 @@ def main():
                                           "processes": rows,
                                           "sampled_process_tree_rss_bytes": sum(row["rss_bytes"] for row in rows)}) + "\n")
                 receipt.flush()
-                if expected_events == 2:
-                    save_completed_workflow(attempt, expected_events, reuse=True)
+                save_completed_workflow(attempt, expected_events, reuse=True)
                 time.sleep(2)
             code = process.wait()
 
@@ -388,12 +387,11 @@ def main():
         rank_logs = [attempt / "run.log", *attempt.glob("rank_output/*/rank.*/stdout")]
         assessment = native_assessment(rank_logs, code, expected_events)
         save(attempt / "native_assessment.json", assessment)
-        workflow = save_completed_workflow(attempt, expected_events) if expected_events == 2 else []
+        workflow = save_completed_workflow(attempt, expected_events)
         workflow_accepted = (code == 0 and not changed and assessment["native_event_accepted"] is True
-                             and len(workflow) == expected_events and all(row["complete"] for row in workflow)) if expected_events == 2 else None
-        if expected_events == 2:
-            save(attempt / "workflow_assessment.json", {"workflow_accepted": workflow_accepted, "events": workflow,
-                 "restart_and_unsteady_history": "not validated"})
+                             and len(workflow) == expected_events and all(row["complete"] for row in workflow))
+        save(attempt / "workflow_assessment.json", {"workflow_accepted": workflow_accepted, "events": workflow,
+             "restart_and_unsteady_history": "not validated"})
         result = {"state": "terminal", "solver_exit_code": code,
                   "native_event_accepted": assessment["native_event_accepted"],
                   "native_state": assessment["native_state"], "workflow_accepted": workflow_accepted,
@@ -404,7 +402,7 @@ def main():
                   "transfer_reload_validation": "separate existing validation required"}
         save(status_path, result)
         print(json.dumps(result))
-        raise SystemExit(code or int(bool(changed)) or int(assessment["native_event_accepted"] is not True) or int(expected_events == 2 and not workflow_accepted))
+        raise SystemExit(code or int(bool(changed)) or int(assessment["native_event_accepted"] is not True) or int(not workflow_accepted))
     except SystemExit:
         raise
     except Exception as error:
