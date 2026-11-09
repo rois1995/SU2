@@ -32,6 +32,15 @@ separate; no blanket flow-metric minimum edge or insertion-distance gate is just
 TWO accepted Euler50k meshes, conservative admissible transfer, finite adapted
 CFD and actual isolated adapted restart remain required; then BL/MPI and RANS500k.
 All gates, budgets, validity-first construction and CAD optionality unchanged.
+Current update2026-11-09:291 reached strict native acceptance, ALLknown0q/J/geometry/
+size,149051points/736323tets; conservative transfer completed. Reference sidecar
+write then failed on encoder default2GiB self-check. ONE connected budget propagation
+fix is qualified serial/MPI6; full293 is LIVE/frozen. See current HANDOFF and
+ADAPTATION_REFERENCE_PERSISTENCE_20261109.md. Cleanup never ran291 either. Thus the
+eligibility limitation and four local feasible removals remain confirmed, but its
+whole-field LE benefit and complete causal explanation remain unproved. Do not
+add a competing cleanup implementation while persistence/fullworkflow is active.
+
 Older staged notes below preserve chronology, not current job status.
 
 R=`integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57`.

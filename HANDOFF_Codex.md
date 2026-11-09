@@ -20,12 +20,30 @@ R=`integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57`.
 A291=`R/m6_runs/euler_build291_facewise_certificate_mach_only_real_cfd50k`.
 A289=`R/m6_runs/euler_build289_prepared_borders_mach_only_real_cfd50k`.
 
-## CURRENT —291 TERMINAL after native acceptance/transfer; reference write failed
+## CURRENT —293 LIVE, frozen full same-seed TWO-event M6
+
+Qualification PUSHED8f6e38a2ff. Full attempt launched ONCE with launch_m6293.py;
+main tool90456 LIVE. A293=`R/m6_runs/euler_build293_bounded_reference_mach_only_real_cfd50k`.
+Receipt R/m6_293_bounded_reference_launch.json; wrapper2629885/start26208916,
+runner2630301/start26209645, time2630593/start26210179, timeout2630594 and
+MPI2630595/start26210180; ranks2630614/20/24 start26210184,
+2630629/32 start26210185,2630636 start26210186. All nice19.
+A293/owned_startup.json records all11 actualHOST identities; all1520pins verified.
+A293/loaded_runtime_startup.json verifies six executing inodes and84mappedELF/rank.
+verify_m6293_initial.py verifies all61330positions/22fields BIT-IDENTICAL256 and
+qualified254target; Mach-onlyL1/50k and same savedCFDseed. Initial host available
+48.663GB, load2.00/3.32/3.01, diskfree121.809GB. One ownedheavyjob.
+C++/binary/runtime/pinnedhelpers/inputs FROZEN. Do NOT launch another attempt or
+edit them before verified terminal handles; preserve frozenrun unless outcome or
+existing authorized stop evidence justifies action. Native5400/outer14400/native
+12GiB/hostcache4GiB and ALL gates unchanged. No event outcome claimed yet.
+
+## Previous291 TERMINAL after native acceptance/transfer; reference write failed
 
 Main83989 TERMINAL1/3716.395958s; pins_verified=true,changed=[],workflow_accepted=false.
 ALL11actualHOST identities ABSENT, sealed A291/terminal_handles.json. NaturalMPIabort;
-NOmanualsignal sent. Sourcefreeze RELEASED; no ownedheavyjob active. Do NOTrelaunch
-291 or historical stophelpers. All1520source/build/runtime/input/helperpins verified.
+NOmanualsignal sent. Its sourcefreeze was released before the qualified persistence
+cycle; CURRENT293 is frozen/live above. Do NOTrelaunch291 or historical stophelpers. All1520source/build/runtime/input/helperpins verified.
 
 Native exit25210/3535.670512273s:736323tets, ALLknown0q/J/geometry/size, allflags
 complete; stop=complete onEVERYrank, mandatorytwo-sided globalgeometry gate PASSED.
@@ -63,7 +81,7 @@ file/no.tmp; largeauthority1case/278215assertions/286.295s. 47,601,733B roundtri
 Connectedserial97cases/67903assertions/205.072s; ONE MPI6 130cases EVERYrank/224.471s,
 assertions72217/71302/71110/71487/71413/71342 inlogorder. MPIall10handles absent.
 R/reference293_qualification.json seals5stages including explicitexpectednegative.
-No newM6 run yet afterfix: pushqualification, launch_m6293.py ONCE immediately.
+FullM6 launched ONCE as293, see CURRENT above; never relaunch the same attempt.
 C++/binary/runtime/pinnedhelpers/inputs remainFROZEN for fullsame-seed TWOevents.
 
 All3driver output modes propagate existingbudget plus priorreference/policy/reader/
