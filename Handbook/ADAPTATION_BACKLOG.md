@@ -824,3 +824,21 @@ what its index actually stores. A floating seed alone is insufficient; exact tes
 must certify the true query, and uncertainty falls through existing full coverage/
 hole/crossing checks. No new representation/config or assumption that reverse is
 cheap. Do not change the frozen run or start another baseline/implementation.
+
+### Frozen287 observation: retain forward proof across reverse-target refinement (unselected)
+
+Source fact: QuerySurfaceUnion catches RefineSurfaceTarget and calls
+QuerySurfaceUnionAtResolution again with BOTH directions. That routine computes
+forward then reverse. A completed model-to-physical certificate depends on exact
+reference controls/support, physical faces and tolerance, not the reverse target's
+piecewise approximation resolution. Consider retaining only its completed primitive
+result within ONE unchanged query invocation across target-only refinement, with
+all cumulative time/work/storage admission and fail-closed behavior preserved.
+Do not broaden cache identity or reuse across changed geometry/associations.
+
+No evidence yet that current M6 reaches reverse refinement or that this saves its
+work. Existing20Mactualprobes exhaust before a full certificate; do not raise caps
+or infer benefit. Select only if the frozen outcome and existing diagnostics show
+repeated forward work is an actual blocker. This is NOT another active cycle or
+an authorized implementation during frozen287. Keep all fullBoth/hole/seam/body/
+feature/height gates. No new representation, scheduler, larger cavity or config.

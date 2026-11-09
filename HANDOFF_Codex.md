@@ -41,27 +41,33 @@ match pinned hashes inA287/actual_runtime_startup.json. Cachehostquota4GiB,rank
 PUSHED startupcheckpointdaf3e29d10.
 Qualification explicitly full_mesh_accepted=false/actualcertificate_complete=false.
 
-LatestactualHOST1794186226:ALL11ownedidentities LIVE,load7.34/8CPUs,MemAvailable
-39.686GB,sampledtreeRSS8.943GB (notphysicalpeak). ALL1520pins unchanged
-inA287/pin_check_quality_window10.json; no compiledsource changes.
-Qualityentry23306/native573.762890:690804cells,27052q/27499J/localG1204/size0,
-ALLknown/flagscomplete, EXACT283entrycounts (oldnative783.249625).
-TENTHcomplete qualitywindow23936/native1942.401088520:725684cells,
-6217q/4940J/localG1023/size0, ALLknown/flagscomplete.
-Counts/18720cumulativecommits EXACT283samewindow.
-Cumulativenetq20835/J22559/G181 removed in1368.638198s
-(old2414.377385s), q15.2232/s vs8.6296/s;
-qremoved/commit1.1130, debtmax/mean1.48749,
-joincallwallshare0.460528 (NOTCPUidle). Traversal
-717.727Mvs731.169M;
-walltime difference cannot be solelycode. Counts/rates are completecensus values,
-NOTextrapolated live values or acceptance. Qualitychurn/location/ladder assertions
-PASS; existing counters only, no newinstrumentation/perf/GDB/baselinecampaign.
-Existing residualgeometry/size repair and shape reclosure remain mandatory BEFORE
-finalglobalBothcertificate. No cleanup273globalbenefit established; firstshape
-pass stillactive. Eight transfer/restart readinesspaths unchanged against actual
-287pins; NOTactual transfer/adaptedCFD/restartproof. KeepM6frozen and snapshots
-reviewable. No otherjob/implementation or demonstrated authorizedstopcondition.
+LatestactualHOST1794187402:ALL11ownedidentities LIVE,load6.94/8CPUs,MemAvailable
+37.207GB,sampledtreeRSS11.491GB (notphysicalpeak). ALL1520pins unchanged
+inA287/pin_check_quality_tail.json. Compiledsources/helpers remain FROZEN.
+LATESTcomplete census quality_entry25203/native2924.517556179:736322cells,
+2q/2J/localG0/size0, ALLknown/flagscomplete. Previousconstruction census had8UNKNOWN
+q/J afterfinalsplit; never call its printedzeros shapeclosure. Reassessment found
+these2q/2J. Last observedmetric_cleanup events NONE; do not infer it executed.
+Firstshape pass quality_exit24513/native2559.095769:733163cells,10q/4J/G945/size0;
+NOTshapeclosure. Existing geometry returns reducedG945→551→336→71→50→30→4→0,
+reopening q/J on changedcavities; allhard final gates retained. Subsequent reclosure
+stillrequired. Lastcomplete fullyshapeclean state25202 had0q/JbutG4.
+QUIETTAIL: No newcompletecensus afterquality_entry25203. Could be private finalshape
+repair OR finalwhole-surfaceBothproof after internalclosure. finish() certifies
+BEFORE exit telemetry, so lastq2/J2 neednotbe livecurrentcounts. NOdynamicstage/
+directionproof, noacceptedmesh. AllrankRSSgrew, supportsbutdoesnotprove globalwork.
+Wait outcome/complete counters; no perf/GDB/instrumentation or stopfromquietlogs.
+IMPORTANT counts/operations match283 ONLYTHROUGHround24000. FIRSTdivergence24064:
+new729691cells/3545q/2514J/984G vsold729895/3481q/2416J/983G. Later matchingrounds
+are DIFFERENTworkloads; no pure kernel/causal walltimeclaim. Cause unresolved.
+Existing completeprefix/churn/location/ladder assertions PASS, cumulativequality
+comparison ONLYfirstuninterruptedpass; geometryconstructionchangescounts elsewhere.
+Actualfirstpassendedearlierthan283 (old4201.702643s,10q/4J/G929), differentmesh/state.
+Eight unchangedtransfer/restartreadinesspaths match actual287pins; NOTactual
+transfer/adaptedCFD/restartproof. No currentrefusal/stagnation/resourcepressure
+justifiesstop. Currentquiet-taildataLOCAL; pushcheckpoint andkeepfrozen.
+Backlog has UNSELECTED forward-proof reuse across reverse-target refinement;
+source retry confirmed, actualM6use/savings NOTestablished. Notanotheractivecycle.
 
 Connected production change ONLY CNativeBoundary3D.cpp's private planar boundary-
 segment/open-triangle intersection proof: exact triangle-edge and segment-line
