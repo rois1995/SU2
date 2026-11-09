@@ -42,14 +42,17 @@ quality_entry_host_resources.json preservesactual11identities,CPU/RSS/hostpressu
 Existing analyze_m6291_frozen.py +analyze_m6291_quality_live.py reuse counters versus289;
 no newbaseline/perf/GDB or repairdecisions. Keep compiledsources FROZEN.
 Transfer/restart readiness8paths matchactual291pins, NOTexecutionproof.
-Latestcompletequalitywindow23616/native1396.599569944s:714635cells,
-13548q-bad/12235J-bad/1096localgeometry-bad/0size-bad,allflagscomplete.
-Net13504q/15264J removed;16.5960q/s vs28916.7807q/s; ALL92matchingstage counts,
-flags and comparedwork identical. Cumulative9676commits,92297qretired/78793introduced;
-no missingfeatures/stuckshape/privatecollectives. Latestlocation2969surface/10579interior
-q-bad. Churn/shortedge correlations do not establish cleanup causality.
-A291/frozen_progress_checkpoint_v1.json sealsall1520pins,all11actualidentities live,
-completeprefixes/counters/resource sample. SampledtreeRSS~8.9GB, amplehostheadroom.
+Current291 latestcompletequalityentry25203/native2962.412997140s:736322cells,
+ALLknown2q-bad/2J-bad/0LOCALgeometry-bad/0size-bad; completeflagsALLtrue.
+Existinggeometryreturns reduced945localG-bad to0, with interleavedshape reclosure.
+ALL163matchingstage counts/flags/comparedwork EXACT289. Last289entry2884.527886485s;
+walltime differences alone are not causal performance evidence.
+Remaining repairs/mandatoryfinalglobalcertificate outcome is NOTyetobserved.
+Do NOTinfer q/J0 or acceptedmesh from quietlogs. Wait frozen tool83989/actualhandles.
+A291/frozen_progress_checkpoint_v2.json seals1520pins/all11actualidentities live,
+completeprefixes/matchingwork/actualhostCPU+memory. SampledtreeRSS~9.2GB, pressure0,
+ampleresourceheadroom. Prior midqualityV1/906b24befc remainspreserved.
+No competingcleanup/newoperators or diagnostics campaign.
 These are pre-finalcertificate counters, not evidence of its speed/acceptance.
 
 ### Previous289 terminal evidence selects this connected certificate cycle
