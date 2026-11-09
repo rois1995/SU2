@@ -1,0 +1,102 @@
+{
+  "event": 1,
+  "native_accepted": true,
+  "points": 149051,
+  "cells": 736323,
+  "native_seconds": 3518.586105927,
+  "true_mass_residuals": {
+    "Density": 7.722e-14,
+    "Momentum-x": 2.649e-14,
+    "Momentum-y": 5.244e-14,
+    "Momentum-z": 3.14e-14,
+    "Energy": 7.627e-14
+  },
+  "projected_inadmissible_states": 0,
+  "continued_adapted_cfd": {
+    "rms_rho": -2.143478,
+    "CL": 0.269781,
+    "CD": 0.014756
+  },
+  "continued_history": [
+    {
+      "Time_Iter": "0",
+      "Outer_Iter": "0",
+      "Inner_Iter": "0",
+      "Adap_Cycle": "1",
+      "Adap_Iter": "1",
+      "rms[Rho]": "-2.143477888",
+      "rms[RhoU]": "0.3517141106",
+      "rms[RhoV]": "0.4305216355",
+      "rms[RhoW]": "0.5211953267",
+      "rms[RhoE]": "3.374119149"
+    }
+  ],
+  "coordinate_maximum_error": 0.0,
+  "all_restart_fields_finite": true,
+  "minimum_density": 0.6223603149820991,
+  "minimum_internal_energy_density": 104024.17079785543,
+  "precision": "Float64",
+  "file_hashes": {
+    "adapted_mesh_adap_00001.su2": "960b6d56ef9e3c7e0a88b9b763b3d419b3edf9523a45662352898ad4a730c28d",
+    "adapted_mesh_adap_00001.su2.native_ref": "51fcfd52b2c9a90b4f532d978807910bfccf2d977320a6ad8b45aecbf9502eb3",
+    "restart_flow_adap_00001.dat": "eb4a267515ef4e45528d0e2675702428b2dd30f44ff1889a52aca8fe52e2fef3"
+  },
+  "preserved_checkpoint": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_inputs/euler_adapted296_event1_v1",
+  "disk_restart_verified": false,
+  "validation_helpers": {
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/validate_m6293_completion.py": "8f0e721a2a74c950a15e03c3a2c69cd59cbaebdc2aa291bc22a32577471edffb",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/TestCases/adaptation/capability/capcheck.py": "38ee0fe9fc60d7b29ab796303d8c5cec2770ad1beb06e2e5b76d5c687d495f92"
+  },
+  "scope": "Actual accepted mesh/reference with MATCHING following-cycle continued-CFD restart; isolated disk restart pending.",
+  "validation_reuse": {
+    "helper_hashes": {
+      "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/validate_m6293_completion.py": "8f0e721a2a74c950a15e03c3a2c69cd59cbaebdc2aa291bc22a32577471edffb",
+      "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/validate_m6296_first_completion.py": "84483f14dceccf0a8225458e3ce475a53393af2c8f2559316d0ea1fe358f3478"
+    },
+    "transformed_sha256": "2302f9bb9166b295905d0b2626cbd8adb37b4147f22e7fcc86e0fee3ad140518",
+    "changes": [
+      [
+        "euler_build293_bounded_reference_mach_only_real_cfd50k",
+        "euler_build296_boundary_reuse_mach_only_real_cfd50k"
+      ],
+      [
+        "('construction_progress_assessment.json', 'second_native_progress_assessment.json')",
+        "('construction_progress_assessment.json',)"
+      ],
+      [
+        "for event, (points_expected, cells_expected) in enumerate(((149051, 736323), (172001, 870422)), 1):",
+        "for event in (1,):\n    cells_expected = native[event - 1]['totals']['cells']"
+      ],
+      [
+        "    mesh = capcheck.read_su2(A / names[0])",
+        "    mesh = capcheck.read_su2(A / names[0])\n    points_expected = len(mesh.P)\n    assert points_expected > 0"
+      ],
+      [
+        "assert mesh.dim == 3 and len(mesh.P) == points_expected and len(mesh.E) == cells_expected",
+        "assert mesh.dim == 3 and len(mesh.E) == cells_expected"
+      ],
+      [
+        "value <= 1e-10",
+        "abs(value) <= 1e-10"
+      ],
+      [
+        "workflow_events_independently_verified=2",
+        "workflow_events_independently_verified=1"
+      ],
+      [
+        "euler_adapted293_event",
+        "euler_adapted296_event"
+      ],
+      [
+        ".adapted293-event",
+        ".adapted296-event"
+      ],
+      [
+        "workflow293_independent_validation.json",
+        "workflow296_independent_validation.json"
+      ]
+    ],
+    "additional_transform": "Cycle total2 to1 only; exact saved-data checks retained. Actual output point count and complete native cell census replace historical expected mesh counts. Absolute transfer residual checked.",
+    "scope": "First-adaptation replay296, not logical event2 or completion of the whole goal. Disk restart, BL and RANS qualification remain separate."
+  }
+}

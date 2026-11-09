@@ -14,18 +14,31 @@ qualified standaloneCFD, unchanged inputs/pins, exact coordinates and finite/adm
 changed output. All293 fullworkflow/restart owned handles are terminal. The active boundary-reuse
 qualification job and source freeze are recorded in HANDOFF_Codex.md.
 
-Current priority is ONE connected boundary geometry-query performance cycle, as requested:
-[design and measured evidence](Handbook/ADAPTATION_BOUNDARY_QUERY_PERFORMANCE_20261109.md).
-Use unchanged Mach-onlyL1/50k seed/constraints/budgets/construction, focused checks plus
-ONE MPI milestone, then complete FIRST-adaptation replay. Reuse existing293/291 evidence;
-no new old-baseline campaign. Return to preserved adaptedCFD for logical event2 if
-changed production behavior needs requalification; do not discard its progress.
-Dedicated BL/constraints/MPI and RANS500k remain required afterward. Full goal ACTIVE.
-Read-only296 preflight pins a concrete next-stage gate: the M6reference contains
-48954CurvedNets and the current BLmetric builder explicitly refuses such input.
-See staged57/m6_bl_preflight296.json and the linked backlog. This has not run as
-an M6BL job; qualify the real curved path, not only analytic/flat-wall fixtures.
-Do not start that implementation while the current performance replay is frozen.
+FIRST296 is now TERMINAL ACCEPTED and independently preserved:149051points/
+736323tets, allknown0q/J/G/size, conservative admissible transfer and finite continued
+CFD. Mesh/reference/restart are byte-identical293event1 and independently copied to
+staged57/m6_inputs/euler_adapted296_event1_v1. All11actualHOST handles absent; all1520
+pins unchanged. Actual firstAdapt3689.76versus2933819.85s (-3.4%), with identical
+expensive geometrywork and outputs: no causal material performance gain established.
+Qualified296source/binaries archived locally before BL edits;293two-event/restart
+proof and BOTH checkpoints remain primary regression baseline.
+
+Current next cycle is the [connected curved BL milestone](Handbook/ADAPTATION_CURVED_BL_INTEGRATION_20261109.md).
+Latest user: no further Euler optimization cycle for small timings, reuse counters
+or speculation. Missing capability/evidence/acceptance are stated there before
+implementation. Combined flow/BL target plus explicit wall-aware construction and
+constrained repair; audit/reuse first-row/joint-wall/metric/height facilities without
+assuming complete multilayer extrusion. Address original no-CAD cubic distance/
+normal, composition, quadrature and chord integration together. Do not simply remove
+the guard or replace curved walls with planar ones. Measure BL suitability beyond
+q/J and after split/coarsen/move/reconnect/migration. Temporary coordinated layers
+allowed; no permanent frozen columns/coords/prisms or Euler/RANS-label dispatch.
+
+Focused checks plus ONE connected MPI milestone, promptly actual M6 BL, then saved
+reasonable RANS500k two-event flow+turbulence transfer/continuedCFD/actual adapted
+diskrestart. Existing120iteration M6SA state is only an initial-guess candidate;
+qualify/continue it rather than blindly restart. No BL source implementation or
+campaign has started yet. Full goal ACTIVE; Euler acceptance is not BL completion.
 
 The remaining notes are historical evidence; the active next action is above.
 

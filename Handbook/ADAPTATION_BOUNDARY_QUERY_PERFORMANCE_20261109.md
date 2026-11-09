@@ -292,3 +292,27 @@ candidate order, not merely lower-distance queries. Joint finite-plane footprint
 are absent from prepared per-facet leaves. Omitting index/copy can change numeric
 bounds and early-return order; no safe smaller removal identified. No code/change/
 newcampaign is authorized by this hypothesis while the run remains frozen.
+
+## Terminal296 outcome and explicit switch to BL
+
+Frozen296 is TERMINAL0/3902.168s; all1520pins unchanged/all11actualHOST identities
+ABSENT. Native3518.586s accepted149051points/736323tets, allknown0q/J/G/size.
+Independent saved-data validator passed; trueCVresiduals unchanged293(max7.722e-14),
+0inadmissible projections, actual continuedCL.269781/CD.014756. Matching threefiles
+(mesh/reference/restart) are BYTE-IDENTICAL293event1, independently copied to
+m6_inputs/euler_adapted296_event1_v1. Coordinates exact/all22fields finite/positive
+rho+internalenergy. No new standalone296diskrestart claimed; completed293 two-event
+and actual isolated restart remain primary regression baseline.
+
+accepted_first_performance_comparison293.json preserves actual driverAdapt3689.76
+versus3819.85s (-3.4%), native3518.586versus3640.719, perrankCPU and first-quality
+busy/join/churn. All164matching counts/flags identical; expensive upper/traversal/
+scopebuilding work and scope misses EXACT. Outputs identical. Small wall differences
+with unchanged expensive work are not a proven material kernel gain. User explicitly
+directs connected BL next; no further Euler cycle for timings/reuse/speculation.
+
+Before BL edits, archive_euler296_pre_bl.py hash-verified1303sources/BOTH qualified
+binaries in baselines/qualified_euler296_pre_bl_v1 (localpayloads, metadata retained).
+Current CPP unchanged; actual source freeze safely released only after terminal
+proof and independent validation. See ADAPTATION_CURVED_BL_INTEGRATION_20261109.md
+for the next connected capability, suitability census and strict acceptance.

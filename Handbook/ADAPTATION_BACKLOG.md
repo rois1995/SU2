@@ -909,3 +909,16 @@ failure or BLqualification. Do not remove it or substitute facets without connec
 curved support, quadrature and chord-integration qualification. Keep one active
 cycle; no BL implementation or campaign while FIRST296 stays frozen. Existing
 analytic/flat-wall RANS lifecycle passes do not prove cubic-M6 BL support.
+
+## Deferred scope-preparation hypothesis after frozen296
+
+Source-only observation: TriangleUnion eagerly builds joint finite footprints in
+its constructor although Upper first tries a convex seed witness and can return
+without those footprints. Demand-driven footprint construction might avoid some
+scope preparation. No seed-pass frequency or traversal saving established. Any
+experiment must preserve exact witness order, numeric cached/recomputed results,
+exception-safe cache entries, charged retained/transient growth and active leases;
+current scope entries are retained BEFORE Upper, so lazy growth cannot bypass cache
+accounting. Keep the spatial index (it selects Upper seeds/candidates), and retain
+joint finite coverage for seams/holes. This is an unproven idea, NOTa production
+change or a competing cycle while FIRST296 is frozen.

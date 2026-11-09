@@ -1,0 +1,336 @@
+{
+  "time": 1794234406.7614462,
+  "scope": "Accepted complete first adaptation only; same seed/L1/50k/constraints/budgets.293 two-event and isolated restart remain regression baseline.",
+  "builds": {
+    "293": {
+      "driver_rows": [
+        {
+          "cycle": 0,
+          "complexity": "input mesh",
+          "points": 61330,
+          "iterations": 1,
+          "solve_seconds": 40.6008,
+          "adapt_seconds": 3819.85
+        },
+        {
+          "cycle": 1,
+          "complexity": "50000",
+          "points": 149051,
+          "iterations": 1,
+          "solve_seconds": 152.95,
+          "adapt_seconds": 2440.84
+        },
+        {
+          "cycle": 2,
+          "complexity": "50000",
+          "points": 172001,
+          "iterations": 1,
+          "solve_seconds": 146.688,
+          "adapt_seconds": null
+        }
+      ],
+      "accepted_first_adapt_seconds": 3819.85,
+      "native_seconds": 3640.719193877,
+      "quality_seconds": 2008.5276215100002,
+      "entry_counts": {
+        "cells": 690804,
+        "measured": 690804,
+        "q_measured": 690804,
+        "j_measured": 690804,
+        "q_bad": 27052,
+        "j_bad": 27499,
+        "geometry_bad": 1204,
+        "size_bad": 0
+      },
+      "shape_exit_counts": {
+        "cells": 733163,
+        "measured": 733163,
+        "q_measured": 733163,
+        "j_measured": 733163,
+        "q_bad": 10,
+        "j_bad": 4,
+        "geometry_bad": 945,
+        "size_bad": 0
+      },
+      "final_counts": {
+        "cells": 736323,
+        "measured": 736323,
+        "q_measured": 736323,
+        "j_measured": 736323,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 0,
+        "size_bad": 0
+      },
+      "quality_net_bad_per_second": {
+        "q_bad": 13.46359378402273,
+        "j_bad": 13.689132131192403,
+        "geometry_bad": 0.12895018083210885
+      },
+      "whole_closure_net_bad_per_second": {
+        "q_bad": 8.834718977492924,
+        "j_bad": 8.980701506804595,
+        "geometry_bad": 0.39320573890660504
+      },
+      "first_quality_service_rank_sums": {
+        "commits": 27480.0,
+        "q_retired": 151958.0,
+        "q_introduced": 124916.0,
+        "j_retired": 137210.0,
+        "j_introduced": 109715.0,
+        "busy_seconds": 3679.978758781001,
+        "join_call_seconds": 5445.380450071999,
+        "tracked_collective_call_seconds": 1429.1075075531635
+      },
+      "native_printed_rank_cpu": [
+        {
+          "rank": 0,
+          "total": 3752.896310823,
+          "cpu": 3612.447714,
+          "idle_cpu": 0.0
+        },
+        {
+          "rank": 1,
+          "total": 3752.919722632,
+          "cpu": 3611.231387,
+          "idle_cpu": 0.0
+        },
+        {
+          "rank": 2,
+          "total": 3752.910110578,
+          "cpu": 3612.862518,
+          "idle_cpu": 0.0
+        },
+        {
+          "rank": 3,
+          "total": 3752.9087452870003,
+          "cpu": 3610.295061,
+          "idle_cpu": 0.0
+        },
+        {
+          "rank": 4,
+          "total": 3752.979046551,
+          "cpu": 3612.282825,
+          "idle_cpu": 0.0
+        },
+        {
+          "rank": 5,
+          "total": 3752.915812646,
+          "cpu": 3609.0051799999997,
+          "idle_cpu": 0.0
+        }
+      ],
+      "counters": {
+        "upper_calls": 960620.0,
+        "upper_work": 2423102562.0,
+        "traversal_work": 2699066078.0,
+        "scope_build_work": 31846868.0,
+        "scope_misses": 364250.0,
+        "smooth_boundary_stars": 292056.0,
+        "smooth_boundary_reused": 8.0,
+        "smooth_boundary_move_contexts": 0.0,
+        "smooth_boundary_prepared_trials": 0.0,
+        "smooth_boundary_guidance_reused_faces": 0.0,
+        "smooth_boundary_seconds": 2174.544924348003,
+        "scope_build_seconds": 1080.4444428839988,
+        "traversal_seconds": 4896.194068332015
+      },
+      "source_prefixes": {
+        "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build293_bounded_reference_mach_only_real_cfd50k/rank_output/1/rank.0/stdout": {
+          "bytes": 795073,
+          "sha256": "90a84bed14a86ae30b32a06f59b92b5b84abbd66a17d1fd7c255368b564e5377"
+        },
+        "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build293_bounded_reference_mach_only_real_cfd50k/rank_output/1/rank.1/stdout": {
+          "bytes": 775294,
+          "sha256": "0b637d9c49c0e5637dc711b108e9fe245d0bc7a9b787d8f8defd7f4e64fc649f"
+        },
+        "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build293_bounded_reference_mach_only_real_cfd50k/rank_output/1/rank.2/stdout": {
+          "bytes": 774747,
+          "sha256": "136d0d1a1058affce6ed7ef9ec441447fdc07a8065beaea3d35a70a400b29182"
+        },
+        "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build293_bounded_reference_mach_only_real_cfd50k/rank_output/1/rank.3/stdout": {
+          "bytes": 774118,
+          "sha256": "60bfd384268d7c479daa7580de78d5dba442c43ad68667f4f63b4551efae03af"
+        },
+        "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build293_bounded_reference_mach_only_real_cfd50k/rank_output/1/rank.4/stdout": {
+          "bytes": 773836,
+          "sha256": "4d64ce14628c478cc161718d150ee99ea762bffad95d96718fc6b88c11bd282f"
+        },
+        "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build293_bounded_reference_mach_only_real_cfd50k/rank_output/1/rank.5/stdout": {
+          "bytes": 773832,
+          "sha256": "e015d75b7900fc113612c10e9bb7a5ebc5f97015b4d9572ff31f55b3b14490f7"
+        }
+      }
+    },
+    "296": {
+      "driver_rows": [
+        {
+          "cycle": 0,
+          "complexity": "input mesh",
+          "points": 61330,
+          "iterations": 1,
+          "solve_seconds": 41.1643,
+          "adapt_seconds": 3689.76
+        },
+        {
+          "cycle": 1,
+          "complexity": "50000",
+          "points": 149051,
+          "iterations": 1,
+          "solve_seconds": 156.015,
+          "adapt_seconds": null
+        }
+      ],
+      "accepted_first_adapt_seconds": 3689.76,
+      "native_seconds": 3518.586105927,
+      "quality_seconds": 1974.5344466300003,
+      "entry_counts": {
+        "cells": 690804,
+        "measured": 690804,
+        "q_measured": 690804,
+        "j_measured": 690804,
+        "q_bad": 27052,
+        "j_bad": 27499,
+        "geometry_bad": 1204,
+        "size_bad": 0
+      },
+      "shape_exit_counts": {
+        "cells": 733163,
+        "measured": 733163,
+        "q_measured": 733163,
+        "j_measured": 733163,
+        "q_bad": 10,
+        "j_bad": 4,
+        "geometry_bad": 945,
+        "size_bad": 0
+      },
+      "final_counts": {
+        "cells": 736323,
+        "measured": 736323,
+        "q_measured": 736323,
+        "j_measured": 736323,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 0,
+        "size_bad": 0
+      },
+      "quality_net_bad_per_second": {
+        "q_bad": 13.695380217931081,
+        "j_bad": 13.924801386436473,
+        "geometry_bad": 0.13117016035959433
+      },
+      "whole_closure_net_bad_per_second": {
+        "q_bad": 9.181762324893128,
+        "j_bad": 9.33347930549446,
+        "geometry_bad": 0.4086515540134307
+      },
+      "first_quality_service_rank_sums": {
+        "commits": 27480.0,
+        "q_retired": 151958.0,
+        "q_introduced": 124916.0,
+        "j_retired": 137210.0,
+        "j_introduced": 109715.0,
+        "busy_seconds": 3640.1493898250005,
+        "join_call_seconds": 5450.036177646001,
+        "tracked_collective_call_seconds": 1359.307111151157
+      },
+      "native_printed_rank_cpu": [
+        {
+          "rank": 0,
+          "total": 3624.5911850840002,
+          "cpu": 3552.08951,
+          "idle_cpu": 0.0
+        },
+        {
+          "rank": 1,
+          "total": 3624.618862654,
+          "cpu": 3549.893498,
+          "idle_cpu": 0.0
+        },
+        {
+          "rank": 2,
+          "total": 3624.605087962,
+          "cpu": 3550.453396,
+          "idle_cpu": 0.0
+        },
+        {
+          "rank": 3,
+          "total": 3624.6320124530002,
+          "cpu": 3548.8280889999996,
+          "idle_cpu": 0.0
+        },
+        {
+          "rank": 4,
+          "total": 3624.6177926990003,
+          "cpu": 3546.8833419999996,
+          "idle_cpu": 0.0
+        },
+        {
+          "rank": 5,
+          "total": 3624.613667966,
+          "cpu": 3545.990076,
+          "idle_cpu": 0.0
+        }
+      ],
+      "counters": {
+        "upper_calls": 960294.0,
+        "upper_work": 2423102562.0,
+        "traversal_work": 2699066078.0,
+        "scope_build_work": 31846868.0,
+        "scope_misses": 364250.0,
+        "smooth_boundary_stars": 292056.0,
+        "smooth_boundary_reused": 8.0,
+        "smooth_boundary_move_contexts": 19271.0,
+        "smooth_boundary_prepared_trials": 42428.0,
+        "smooth_boundary_guidance_reused_faces": 374.0,
+        "smooth_boundary_seconds": 2160.2850064379986,
+        "scope_build_seconds": 983.4570645189998,
+        "traversal_seconds": 4787.681905927026
+      },
+      "source_prefixes": {
+        "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build296_boundary_reuse_mach_only_real_cfd50k/rank_output/1/rank.0/stdout": {
+          "bytes": 813371,
+          "sha256": "793d0c3bf94acd192aa5f664313fbb0531db540ae926bed2c2a8946cb75ea9b3"
+        },
+        "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build296_boundary_reuse_mach_only_real_cfd50k/rank_output/1/rank.1/stdout": {
+          "bytes": 793168,
+          "sha256": "5a4aea3bfe172ae7d6759fc99bb9f601c9fe45b8aa16a46aac7a6213324642db"
+        },
+        "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build296_boundary_reuse_mach_only_real_cfd50k/rank_output/1/rank.2/stdout": {
+          "bytes": 792725,
+          "sha256": "9826b15464b2bf8164200113f1372d05b4194e30452a060568e319c6b4a722e8"
+        },
+        "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build296_boundary_reuse_mach_only_real_cfd50k/rank_output/1/rank.3/stdout": {
+          "bytes": 791993,
+          "sha256": "c1835f491b53df656a8ac7663cf0573da3a92f94f2f1226bb2ecab99463326e0"
+        },
+        "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build296_boundary_reuse_mach_only_real_cfd50k/rank_output/1/rank.4/stdout": {
+          "bytes": 792125,
+          "sha256": "c29013e55b75e93f1080927775953d4852fbc0fe0fa6072eb664b0e30f2443bd"
+        },
+        "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build296_boundary_reuse_mach_only_real_cfd50k/rank_output/1/rank.5/stdout": {
+          "bytes": 791641,
+          "sha256": "1871a2526b46b8647105a052a54e90f768e30d73e134d3cc2d210be23eedc077"
+        }
+      }
+    }
+  },
+  "accepted_first_adapt_difference_seconds": -130.0899999999997,
+  "accepted_first_adapt_time_reduction_fraction": 0.03405631111169283,
+  "mesh_reference_and_continued_restart_byte_identical": true,
+  "expensive_geometry_work_reduced": false,
+  "causal_material_performance_gain_established": false,
+  "decision": "Switch to the user-requested connected curved BL milestone. No further Euler optimization cycle justified by small timing differences or reuse counters.",
+  "timer_notes": "All seconds in counter/rank sums overlap; never add smoothing/scope/traversal clocks. Join-call seconds are not total MPI wait. Printed CPU includes MPI spin and is not useful work by itself.",
+  "source_pins": {
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/seal_m6296_performance.py": "f626b7b5175c108b0e998bab39fcfe7e0a39267e1bbd5a838eac8ee234a6bfd8",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build293_bounded_reference_mach_only_real_cfd50k/status.json": "6026fbbb2f652357f36cb210bd682174d2cec85a4430b781be14351f57a34b82",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build293_bounded_reference_mach_only_real_cfd50k/terminal_handles.json": "62ffb92c2507219846cfbde69af699833c5a0fd912a00b5ef5e9c45d4cc2d423",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build293_bounded_reference_mach_only_real_cfd50k/run.log": "2836bed6d64d05ebf738d06b3c18a9b02e6781d8e09f85d2dadfe7109862664b",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build293_bounded_reference_mach_only_real_cfd50k/construction_progress_assessment.json": "b81fe49eed67d81291db97a2f112125ac290bbbb77ff320e578ca43a56950af6",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build296_boundary_reuse_mach_only_real_cfd50k/status.json": "e81507af2a32096ec2adc40fdc53177925544f1fe059644514a9a21760d04885",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build296_boundary_reuse_mach_only_real_cfd50k/terminal_handles.json": "e571d16cef24a0f5d36c25b159d4b5971d9c5fdb1614245526369e13951ffa93",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build296_boundary_reuse_mach_only_real_cfd50k/run.log": "a1ac310e94eef260b7a5365bbb365a86f9ff6c77f5afe5dbc8bdb3f999204bad",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build296_boundary_reuse_mach_only_real_cfd50k/construction_progress_assessment.json": "af5ac745e841f5643e9102a24b01a36df1603e95b8370ef235900a2832936f5a"
+  }
+}
