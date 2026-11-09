@@ -11,8 +11,8 @@ Both actual mesh/reference/matching-CFDrestart checkpoints are independently cop
 under staged57/m6_inputs/euler_adapted293_event{1,2}_v1; metadata/hashes pushed, large
 actual assets retained locally. Isolated restart on event1 passed MPI6 with same
 qualified standaloneCFD, unchanged inputs/pins, exact coordinates and finite/admissible
-changed output. All293 fullworkflow/restart owned handles are terminal. The active boundary-reuse
-qualification job and source freeze are recorded in HANDOFF_Codex.md.
+changed output. All293 fullworkflow/restart owned handles are terminal. The active curved-BL
+cycle and source freeze are recorded in HANDOFF_Codex.md.
 
 FIRST296 is now TERMINAL ACCEPTED and independently preserved:149051points/
 736323tets, allknown0q/J/G/size, conservative admissible transfer and finite continued
@@ -34,11 +34,16 @@ the guard or replace curved walls with planar ones. Measure BL suitability beyon
 q/J and after split/coarsen/move/reconnect/migration. Temporary coordinated layers
 allowed; no permanent frozen columns/coords/prisms or Euler/RANS-label dispatch.
 
-Focused checks plus ONE connected MPI milestone, promptly actual M6 BL, then saved
-reasonable RANS500k two-event flow+turbulence transfer/continuedCFD/actual adapted
-diskrestart. Existing120iteration M6SA state is only an initial-guess candidate;
-qualify/continue it rather than blindly restart. Connected curved-BL implementation is active but unqualified; current frozen
-build/job and preserved failures are in HANDOFF_Codex.md and the linked BL design. Full goal ACTIVE; Euler acceptance is not BL completion.
+Curved-BL302/303 is built:22focusedcases/283883assertions and107serialcases/
+544736assertions pass. ConnectedMPI selected348cases acrossresumable stages;7old
+failures reproduceexactlyonarchived296, no newfailureidentified, NOTglobalpass.
+ActualoriginalM6cubicpolicy passed fluid-side88assertions; noactualBLmesh yet.
+SavedRANS continuation succeeded80steps/currentbinaryMPI6, allfieldsadmissible,
+CL.15573/CD.05027; preservedstateSHAc90000...f1c78. Spatialcutsfinite but wallY+
+median32/p90194 showscoarsewallresolution; seedqualifiedONLYinitialadaptation,
+notconverged/wallresolvedphysics. Next actualM6BL500k, sameheight/profile/strictgates,
+thencompleteflow+SAtransfer/continuedCFD/secondadaptation/actualadapteddiskrestart.
+SeeHANDOFFforcurrenthandlesand fullprovenance. FullgoalACTIVE; Euler is notBLcompletion.
 
 The remaining notes are historical evidence; the active next action is above.
 

@@ -1,0 +1,37 @@
+{
+  "argv": [
+    "nice",
+    "-n",
+    "19",
+    "/usr/bin/time",
+    "-v",
+    "timeout",
+    "--signal=TERM",
+    "--kill-after=20s",
+    "1800",
+    "mpirun",
+    "--output-filename",
+    "rank_output",
+    "-n",
+    "6",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/SU2_CFD/src/SU2_CFD",
+    "run.cfg"
+  ],
+  "wrapper": {
+    "pid": 3904326,
+    "start_ticks": 29123272
+  },
+  "saved_checkpoint": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_inputs/rans_seed_continuation303_v1",
+  "source_attempt": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/mpi6_20261109T173409_3860527",
+  "initial_available_bytes": 45443899392,
+  "loadavg": "2.36 3.13 4.24 1/4749 3904484\n",
+  "environment": {
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1",
+    "OMPI_MCA_osc": "pt2pt",
+    "TMPDIR": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/compile-tmp",
+    "OMPI_MCA_orte_tmpdir_base": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/compile-tmp/rans-continuation303-v7zxs64c"
+  },
+  "scope": "80 further steady RANS/SA iterations on exact saved original mesh/state. No adaptation or reasonable-flow qualification claim; inspect fields, forces and solver corrections separately."
+}

@@ -1,0 +1,205 @@
+{
+  "status": "CHANGED_BEHAVIOR_VALIDATED_WITH_PREEXISTING_MPI_FAILURES",
+  "all_required_checks_passed": false,
+  "scope": "Connected cubic-wall distance/normal, composition, quadrature/chord and shared resource-ledger behavior. Not full BL generation/coverage or RANS workflow.",
+  "build": 303,
+  "production_build": 302,
+  "source_pins_sha256": "ef473f7bb70b3677cfc2dd448fd30adbecf8440e5914037c61189a7473ad683c",
+  "stages": [
+    {
+      "case": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/geometry_backend_20261109T162533_3661553",
+      "status": {
+        "state": "terminal",
+        "exit_code": 0,
+        "seconds": 303.95718717575073,
+        "pins_verified": true,
+        "changed": [],
+        "largest_sampled_individual_process_rss_bytes": 148107264,
+        "rss_note": "sampled process RSS; not a whole-job peak"
+      },
+      "rank_test_summaries": [],
+      "rank_assertion_summaries": [],
+      "whole_pass_summaries": [
+        "All tests passed (283883 assertions in 22 test cases)"
+      ],
+      "log_sha256": "9f01ff82ba719cca334a0ca5c785ff100fcfcb00f85b36ed03cd8061f4cc0ea6",
+      "terminal_sha256": "64f9ebb193fa42dbb1e939f586e68287646d0ecfdc12776d1c1805fc9e273c5e"
+    },
+    {
+      "case": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/geometry_backend_20261109T172349_3835056",
+      "status": {
+        "state": "terminal",
+        "exit_code": 0,
+        "seconds": 4.345762491226196,
+        "pins_verified": true,
+        "changed": [],
+        "largest_sampled_individual_process_rss_bytes": 602112,
+        "rss_note": "sampled process RSS; not a whole-job peak"
+      },
+      "rank_test_summaries": [],
+      "rank_assertion_summaries": [],
+      "whole_pass_summaries": [
+        "All tests passed (34061 assertions in 1 test case)"
+      ],
+      "log_sha256": "bc04e61537249a13c0a577819535ce4fcf5fae869c0f8b370a27d64937ed553c",
+      "terminal_sha256": "3008db67796da683f15abfcb328b40e503f651c796efb10c5f15f5a3967d0339"
+    },
+    {
+      "case": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/serial_20261109T172624_3841227",
+      "status": {
+        "state": "terminal",
+        "exit_code": 0,
+        "seconds": 334.5699007511139,
+        "pins_verified": true,
+        "changed": [],
+        "largest_sampled_individual_process_rss_bytes": 146231296,
+        "rss_note": "sampled process RSS; not a whole-job peak"
+      },
+      "rank_test_summaries": [],
+      "rank_assertion_summaries": [],
+      "whole_pass_summaries": [
+        "All tests passed (544736 assertions in 107 test cases)"
+      ],
+      "log_sha256": "d39f90d934de58449ce0ff51811c463f08e7962ec1909f7b111d57ac62e27b8a",
+      "terminal_sha256": "f836ee19c71c620ed0b96f9f4bd0329cbce5e06cafcf7d21179339bc8719bb4b"
+    },
+    {
+      "case": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/mpi6_20261109T173409_3860527",
+      "status": {
+        "state": "terminal",
+        "exit_code": 124,
+        "seconds": 605.3456478118896,
+        "pins_verified": true,
+        "changed": [],
+        "largest_sampled_individual_process_rss_bytes": 105287680,
+        "rss_note": "sampled process RSS; not a whole-job peak"
+      },
+      "rank_test_summaries": [
+        "test cases:    232 |    226 passed |  6 failed",
+        "test cases:    232 |    226 passed |  6 failed",
+        "test cases:    232 |    226 passed |  6 failed",
+        "test cases:    232 |    226 passed |  6 failed",
+        "test cases:    232 |    226 passed |  6 failed",
+        "test cases:    232 |    226 passed |  6 failed"
+      ],
+      "rank_assertion_summaries": [
+        "assertions: 582887 | 582849 passed | 38 failed",
+        "assertions: 583149 | 583111 passed | 38 failed",
+        "assertions: 582548 | 582510 passed | 38 failed",
+        "assertions: 583369 | 583331 passed | 38 failed",
+        "assertions: 582824 | 582786 passed | 38 failed",
+        "assertions: 585511 | 585473 passed | 38 failed"
+      ],
+      "whole_pass_summaries": [],
+      "log_sha256": "cdef74baadfcb9e4d01d2227562f4876d66eea7e3329ab107597a975e4dd52fb",
+      "terminal_sha256": "d73133e87158d45a486e7812034a0fb08ab747e2f26704da812f369aa72ef591"
+    },
+    {
+      "case": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/mpi6_resume303_20261109T174937_3895940",
+      "status": {
+        "state": "terminal",
+        "exit_code": 18,
+        "seconds": 42.36560559272766,
+        "pins_verified": true,
+        "changed": [],
+        "largest_sampled_individual_process_rss_bytes": 66142208,
+        "rss_note": "sampled process RSS; not a whole-job peak"
+      },
+      "rank_test_summaries": [
+        "test cases:   118 |   116 passed |  2 failed",
+        "test cases:   118 |   116 passed |  2 failed",
+        "test cases:   118 |   116 passed |  2 failed",
+        "test cases:   118 |   116 passed |  2 failed",
+        "test cases:   118 |   116 passed |  2 failed",
+        "test cases:   118 |   116 passed |  2 failed"
+      ],
+      "rank_assertion_summaries": [
+        "assertions: 25357 | 25339 passed | 18 failed",
+        "assertions: 19863 | 19845 passed | 18 failed",
+        "assertions: 19933 | 19915 passed | 18 failed",
+        "assertions: 21411 | 21393 passed | 18 failed",
+        "assertions: 21378 | 21360 passed | 18 failed",
+        "assertions: 18956 | 18938 passed | 18 failed"
+      ],
+      "whole_pass_summaries": [],
+      "log_sha256": "43b55dfb9900a2badf054513609cc327216cee70fcffed87e4be0fe41f9b0841",
+      "terminal_sha256": "4753a286a8c83b449589878acf9881a63c08d307dbcf7b77fba3f2c586ddcaa3"
+    },
+    {
+      "case": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/archived296_failures303_mpi6_20261109T174641_3889081",
+      "status": {
+        "state": "terminal",
+        "exit_code": 37,
+        "seconds": 48.50766110420227,
+        "pins_verified": true,
+        "changed": [],
+        "largest_sampled_individual_process_rss_bytes": 56799232,
+        "rss_note": "sampled process RSS; not a whole-job peak",
+        "binary_provenance": "archived qualified_euler296_pre_bl_v1; build303 labels only current source/runtime controls",
+        "archive_manifest": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/baselines/qualified_euler296_pre_bl_v1/manifest.json"
+      },
+      "rank_test_summaries": [
+        "test cases:    5 |    0 passed |  5 failed",
+        "test cases:    5 |    0 passed |  5 failed",
+        "test cases:    5 |    0 passed |  5 failed",
+        "test cases:    5 |    0 passed |  5 failed",
+        "test cases:    5 |    0 passed |  5 failed",
+        "test cases:    5 |    0 passed |  5 failed"
+      ],
+      "rank_assertion_summaries": [
+        "assertions: 1555 | 1518 passed | 37 failed",
+        "assertions: 1588 | 1551 passed | 37 failed",
+        "assertions: 1678 | 1641 passed | 37 failed",
+        "assertions: 1555 | 1518 passed | 37 failed",
+        "assertions: 1636 | 1599 passed | 37 failed",
+        "assertions: 1727 | 1690 passed | 37 failed"
+      ],
+      "whole_pass_summaries": [],
+      "log_sha256": "036652da3bac2cc4aea7ba2911abb5e6be1405b14c114793dce406bda61de207",
+      "terminal_sha256": "87319145fd281fbdc66784534c9a80e60524f7ca15141a3cc2773528add6e987"
+    },
+    {
+      "case": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/archived296_distributed303_mpi6_20261109T175217_3902095",
+      "status": {
+        "state": "terminal",
+        "exit_code": 18,
+        "seconds": 11.404945850372314,
+        "pins_verified": true,
+        "changed": [],
+        "largest_sampled_individual_process_rss_bytes": 38633472,
+        "rss_note": "sampled process RSS; not a whole-job peak",
+        "binary_provenance": "archived qualified_euler296_pre_bl_v1; build303 labels only current source/runtime controls",
+        "archive_manifest": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/baselines/qualified_euler296_pre_bl_v1/manifest.json"
+      },
+      "rank_test_summaries": [
+        "test cases:    2 |    0 passed |  2 failed",
+        "test cases:    2 |    0 passed |  2 failed",
+        "test cases:    2 |    0 passed |  2 failed",
+        "test cases:    2 |    0 passed |  2 failed",
+        "test cases:    2 |    0 passed |  2 failed",
+        "test cases:    2 |    0 passed |  2 failed"
+      ],
+      "rank_assertion_summaries": [
+        "assertions: 5861 | 5843 passed | 18 failed",
+        "assertions: 6549 | 6531 passed | 18 failed",
+        "assertions: 6459 | 6441 passed | 18 failed",
+        "assertions: 5263 | 5245 passed | 18 failed",
+        "assertions: 5771 | 5753 passed | 18 failed",
+        "assertions: 6567 | 6549 passed | 18 failed"
+      ],
+      "whole_pass_summaries": [],
+      "log_sha256": "fc635d78e89edca1fadcc1377179e27516db7d8f53a1968e439e874a941fcec7",
+      "terminal_sha256": "d844f64ee329a94189e073630a3e7ff2f421c07c8dc08f41aa1d30bb38f829ce"
+    }
+  ],
+  "mpi_ranks": 6,
+  "mpi_selected_cases": 348,
+  "preexisting_failing_cases": 7,
+  "baseline_controls": [
+    "mpi303_baseline_failure_comparison.json",
+    "mpi303_distributed_baseline_comparison.json"
+  ],
+  "no_new_mpi_failure_identified": true,
+  "limits": "Initial broad600s timeout retained; unfinished118 cases resumed under same600s cap. Seven failing cases remain failures; exact archived296 controls reproduce all assertion locations/counts. No production gates or budgets changed.",
+  "remaining": "Actual M6 BL target normalization/generation and current-mesh suitability census, post-operation/migration preservation, RANS500k transfer/continuedCFD/secondadaptation/adapteddiskrestart."
+}

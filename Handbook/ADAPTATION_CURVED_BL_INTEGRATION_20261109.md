@@ -350,3 +350,28 @@ separate. mpi303_baseline_failure_comparison.json records scope.
 CURRENT FROZEN resume session84753/case mpi6_resume303_20261109T174937_3895940,
 118unfinishedcases only/same600scap, allcurrent303pins frozen. Priorcompleted
 results retained; terminalhandles required before sourceedit/newheavyjob.
+
+MPI303 resume TERMINAL18/42.366s,116/118casespassed EVERYrank;2remainingfailures
+EXACTLYreproduce on archived296 MPI6control TERMINAL18/11.405s (108assertions,4locations).
+Allpinsverified/allownedidentitiesabsent. All348selectedcases now covered;7old
+failures remainFAIL, no newMPIregressionidentified. curved_bl303_qualification.json
+explicitly all_required_checks_passed=false; no blanketqualificationpassclaim.
+
+SavedRANS80-stepcontinuation303 TERMINAL0/23.568s, currentproductionCFD/MPI6,
+allpins/mappedELFverified/all10actualhandlesabsent. Independentflow+SA/coords/
+positivity checks passed. FinalCL.15573/CD.05027, last10spans.085%/.783%; no need
+blindfreestreamrecompute. Spatial303 exactFloat32associations all19506wallnodes;
+fivefiniteCpsections, Y+median32.22/p90193.74/max447.81 warnsnearwallresolution.
+Parentuse decision qualifies ONLYcoarse-grid initialadaptationseed, notconverged/
+wallresolved/experimentalphysics. Preservec90000...f1c78 restart and originals.
+Next actualtwo-eventBL500k attempt withcurrent5400/event,14400outer,12GiB,
+h02e-6/g1.2/T.01/MachonlyL1; FIRST_ROW still1nativeworker/MPI6CFD. No target/mesh
+acceptance yet. Actualtarget normalization/construction outcome drivesnextfix.
+
+CURRENT FROZEN actualtwo-eventM6BL run rans_curved303_v1, session79914,
+wrapper3919208/start29162081; owned_handles recordsallactualidentities. Inputseed
+c90000...f1c78/originalcubicreference2e99fb...42de/exact61330pointmesh, L1Machonly/
+500k/h02e-6/g1.2/T.01,FIRST_ROW1native/MPI6CFD,native5400/event,outer14400TOTAL,12GiB.
+AllCpp/helpers/binaries/runtime/config/input frozen. No target/meshacceptanceyet.
+SeedandEuler293checkpointsremainseparate/intact. Newlauncher usesexisting selected
+failureworkflow for firstsubstantial rejectedstate, not per-trial mesh exports.

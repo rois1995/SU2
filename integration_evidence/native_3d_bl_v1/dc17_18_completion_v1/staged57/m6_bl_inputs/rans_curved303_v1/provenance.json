@@ -1,0 +1,16 @@
+{
+  "status": "INPUTS_PREPARED_UNQUALIFIED_NOT_RUN",
+  "scope": "Actual saved RANS/SA continuation, Mach L1/500k curved FIRST_ROW two-event attempt; qualification partial and baseline-controlled, not all-pass. CFD checkpoint remains separate.",
+  "file_sha256": {
+    "m6.su2": "8c839170eb5e359f7de6a41434aa6a9c2d620053f37de6d9360bd04d2a63088b",
+    "run.cfg": "1f17f94fab7796eb4a34bdd3cf36a854fdc3eff401486033f07445633599c3af",
+    "baseline_sa_seed.dat": "c90000ea804c7e08a54dbec93f218b5bd3ae3dce3db8c287db6783fd138f1c78",
+    "m6.su2.native_ref": "2e99fb7870e2c718f110da8509e4c0f7e746ce138e7f27ab57aa0dedbb6c42de"
+  },
+  "seed_attempt": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/rans_seed_continuation303_v1",
+  "policy": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_bl_inputs/curved_policy302_v1/run.cfg",
+  "physics": "Original continuation RANS/SA; ITER1 then one finite CFD iteration per adapted event",
+  "gates": "Unchanged first height/geometry/q/J/size/transfer; no CAD replacement",
+  "native_seconds_per_event": 5400,
+  "outer_seconds_total": 14400
+}

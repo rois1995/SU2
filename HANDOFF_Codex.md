@@ -98,15 +98,36 @@ reproduces SAME222assertions at SAME9locations across5cases (including wall-poli
 completion refusal); comparison in mpi303_baseline_failure_comparison.json. These
 are pre-existing; do not weaken assertions or misreport broadpass. Timeout adds6
 SIGTERM artifacts in active cachetest. No production correction justified by control.
-CURRENT FROZEN MPI303 resume session84753, wrapper3895940/start29101747,
-case R/cases/mpi6_resume303_20261109T174937_3895940; time3896021/timeout3896022
-start29101918; mpirun3896023/start29101919;6ranks3896026..31/start29101921..22.
-owned_startup.json pins all10actualidentities. ONLY118unfinished cases selected,
-same600sbound; completed prior evidence retained. Verifyterminalbeforeedits/newjob.
-Isolated savedRANS continuation inputs prepared under
-R/m6_inputs/rans_seed_continuation303_v1; launcher run_rans_continuation303.py NOTRUN.
-Exact savedmesh/SAstate, unchangedphysics/CFL,80furtheriterations,distinct input/output
-restartstems. RealCFDtarget/actualBLgeneration remain pending qualification.
+MPI303 resume TERMINAL18/42.366s, allpinsunchanged/all10actualhandlesabsent;
+case mpi6_resume303_20261109T174937_3895940:116/118cases pass EVERYrank,2fail.
+Archived296 two-case distributedcontrol TERMINAL18/11.405s reproduces exact108
+failures at4locations; allpins/archiveverified/all10handlesabsent. Total7pre-existing
+failingcases remainFAIL, notglobalpass; no newMPIregressionidentified. Evidence
+curved_bl303_qualification.json and both mpi303_*baseline*comparison.json. Do not
+repeat broadcampaign or fixunrelatedexpectations duringactiveBLcycle.
+
+SavedRANS80-step continuation TERMINAL0/23.568s, session16450;
+R/m6_runs/rans_seed_continuation303_v1. Allpins/mappedELFverified/all10actualhandles
+includingwrapperabsent in terminal_handles_actual.json. Independentassessmentpassed:
+61330points/303359tets, exactcoords/all9fieldsfinite,positiveρ/internalE/pressure,
+SAfloor1e-16 ONLYall19506wallvertices. FinalCL.155729588/CD.05027280454,
+rmsρ-3.00758/SA-7.39381,last10relativeCLspan.085%/CDspan.783%.
+Spatial303 uniquelymatchesALL19506wallnodes viaexactFloat32representations (previous
+6decimalquantization646misses were diagnosticartifact); finitefiveCp cuts, surface
+Cp[-.675,1.077], noslipwallMach0 notoutershockdiagnostic. WallY+median32.22/p90193.74/
+max447.81 warns coarsewallresolution. rans_seed303_use_decision.json qualifies ONLY
+coarse-grid initialadaptationseed, NOTconverged/wallresolved/experimentalflow.
+PreservecontinuedstateSHAc90000ea804c7e08a54dbec93f218b5bd3ae3dce3db8c287db6783fd138f1c78
+andoriginals. CURRENT FROZEN actualM6BL TWOevent500k session79914:
+R/m6_runs/rans_curved303_v1, launcher run_rans_curved303.py;
+wrapper3919208/start29162081; time3919519/timeout3919520/start29162898;
+mpirun3919521/start29162899; ranks3919525..26/start29162901,3919527..30/start29162902.
+owned_handles.json recordsactualidentities/CPU/RSS every2s. Initialreference loading
+observed; no target/mesh outcome yet. FIRST_ROW1native/MPI6CFD,h02e-6/g1.2/T.01,
+L1Machonly/native5400 EACHevent/outer14400 TOTAL/12GiB unchanged. Pin allCpp/helpers/
+binaries/runtime/config/input untilactualhandles terminal or preservedauthorizedstop.
+Preparedcase m6_bl_inputs/rans_curved303_v1 copiesexactseed/reference/mesh; checkpoints
+remainseparate. Outputfrequency1 preservespercycleCFD; no per-trial mesh exports.
 
 Production302 scopes share ONE eventAtlasBudget through preparation/engine/FIRST_ROW/
 reassessment/normalization; lifetime/callerwindows restore, cumulativework/failure/
@@ -121,8 +142,8 @@ SavedRANS/SAseed read-onlyverified finite/admissible/meshmatched61330/303359; al
 19506SAfloorvalues exactlywallnodes. rans_seed302_readonly_assessment.json pins
 restart3b409077... and savedconfigacd22ae3... . Safeinitialguess; reasonableflow/
 currentbinaryrestart unqualified. NoRANSsolve launched; preserve/reuse exactstate.
-New true-cubic hidden-volume/competing component checks, current-mesh BL suitability
-census, ONE connected MPI milestone and actual M6BL generation remain outstanding.
+Current-mesh BL suitability census and actual M6BL generation remain outstanding;
+MPI milestone has baseline-controlled scope above, not an all-suite pass.
 FIRST_ROW currently requires1native worker; do not call it distributed generation.
 Next ACTUAL implementation: audit/reuse those production callers and wall-aware
 operators, retain strict gates/budgets, define current-mesh BL census for h0/normal

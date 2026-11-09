@@ -1,0 +1,26 @@
+{
+  "status": "QUALIFIED_FOR_COARSE_GRID_INITIAL_ADAPTATION_ONLY",
+  "qualified_for_initial_adaptation": true,
+  "converged": false,
+  "wall_resolved": false,
+  "experimental_validation": false,
+  "reason": "Actual current-binary disk continuation succeeds; exact matching mesh, finite/admissible flow+SA, plausible finite surface pressures/compression, positive lift/drag with modest final-window variation. Coarse-wall resolution requires adaptation, not more same-grid iteration.",
+  "CL": 0.155729588,
+  "CD": 0.05027280454,
+  "last10_relative_span": {
+    "CL": 0.0008534105573913411,
+    "CD": 0.007829108364427833
+  },
+  "wall_yplus": {
+    "median": 32.2168,
+    "p90": 193.7413,
+    "maximum": 447.8071
+  },
+  "limitations": "No resolved outer-flow shock, boundary-layer profile, separation or experimental-force qualification. Surface Mach zero is no-slip, not missing outer-flow information. No historical clipping ledger/SA conservation claim. Strict BL mesh, transfer and continued CFD gates still required.",
+  "restart_sha256": "c90000ea804c7e08a54dbec93f218b5bd3ae3dce3db8c287db6783fd138f1c78",
+  "mesh_sha256": "8c839170eb5e359f7de6a41434aa6a9c2d620053f37de6d9360bd04d2a63088b",
+  "evidence": [
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/rans_seed_continuation303_v1/continuation303_independent_assessment.json",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/rans_seed_continuation303_v1/spatial303/summary.json"
+  ]
+}

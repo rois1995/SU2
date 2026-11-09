@@ -938,3 +938,15 @@ change or a competing cycle while FIRST296 is frozen.
   projection are candidates for reuse; any proposal used as a seed still needs full
   global support/distance certification. No speedup or normal-delivery defect is
   established by this note; keep actual geometry/feature/body/height gates unchanged.
+
+### Pre-existing broad MPI fixture failures confirmed303
+
+Archived qualified296 binary reproduces seven failing cases selected by the broad
+303 milestone: donor extensions/count trajectories, wall-policy proposal-budget
+completion, execution-path geometry counters, automaticrepair cellcount and zero-work
+support counters. Both matching MPI6controls preserve EXACT assertionlocations/counts.
+Do not call them passes or change expectations without a separate diagnosis. They
+do not establish a new curved-BL regression; keep actualM6 BL as active capability
+target. Evidence: staged57/mpi303_baseline_failure_comparison.json and
+mpi303_distributed_baseline_comparison.json; curved_bl303_qualification.json records
+partial/baseline-controlled scope, not an all-suite pass.

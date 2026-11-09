@@ -1,0 +1,305 @@
+{
+  "status": "ADMISSIBLE_CONTINUATION_ONLY_REASONABLE_FLOW_UNQUALIFIED",
+  "scope": "80-step same-mesh saved RANS/SA continuation; no adaptation, physical convergence, external validation or mesh-resolution qualification.",
+  "mesh": {
+    "points": 61330,
+    "tets": 303359,
+    "sha256": "8c839170eb5e359f7de6a41434aa6a9c2d620053f37de6d9360bd04d2a63088b"
+  },
+  "original_inputs_unchanged": true,
+  "pins_verified": true,
+  "initial": {
+    "sha256": "3b4090771eda3bb3348e0fee96971910472daab7f7a52970eaccdc3950d30c17",
+    "fields": [
+      "x",
+      "y",
+      "z",
+      "Density",
+      "Momentum_x",
+      "Momentum_y",
+      "Momentum_z",
+      "Energy",
+      "Nu_Tilde"
+    ],
+    "all_finite": true,
+    "coordinates_exact": true,
+    "density_range": [
+      0.22430336179997215,
+      1.537204102500929
+    ],
+    "internal_energy_density_range": [
+      155839.80402566676,
+      364457.17186861305
+    ],
+    "derived_pressure_range": [
+      62335.921610266705,
+      145782.86874744523
+    ],
+    "sa_range": [
+      1e-16,
+      0.00031461267570548124
+    ],
+    "sa_zero_count": 0,
+    "sa_below_floor_count": 0,
+    "sa_floor_count": 19506,
+    "wall_vertices": 19506,
+    "sa_floor_on_wall": 19506,
+    "sa_floor_off_wall": 0,
+    "wall_sa_range": [
+      1e-16,
+      1e-16
+    ]
+  },
+  "continued": {
+    "sha256": "c90000ea804c7e08a54dbec93f218b5bd3ae3dce3db8c287db6783fd138f1c78",
+    "fields": [
+      "x",
+      "y",
+      "z",
+      "Density",
+      "Momentum_x",
+      "Momentum_y",
+      "Momentum_z",
+      "Energy",
+      "Nu_Tilde"
+    ],
+    "all_finite": true,
+    "coordinates_exact": true,
+    "density_range": [
+      0.14909855389448562,
+      1.5386090689798022
+    ],
+    "internal_energy_density_range": [
+      156708.90871478865,
+      364946.7036913301
+    ],
+    "derived_pressure_range": [
+      62683.56348591546,
+      145978.68147653205
+    ],
+    "sa_range": [
+      1e-16,
+      0.0005691111152555299
+    ],
+    "sa_zero_count": 0,
+    "sa_below_floor_count": 0,
+    "sa_floor_count": 19506,
+    "wall_vertices": 19506,
+    "sa_floor_on_wall": 19506,
+    "sa_floor_off_wall": 0,
+    "wall_sa_range": [
+      1e-16,
+      1e-16
+    ]
+  },
+  "history_rows": 80,
+  "trajectory": {
+    "CL": {
+      "full": {
+        "first": 0.157331168,
+        "last": 0.155729588,
+        "min": 0.1550077552,
+        "max": 0.1578487195,
+        "mean": 0.15615879558875,
+        "delta": -0.0016015799999999913,
+        "relative_span": 0.018192790801754028
+      },
+      "last20": {
+        "first": 0.1552073746,
+        "last": 0.155729588,
+        "min": 0.1552073746,
+        "max": 0.155729588,
+        "mean": 0.155533352375,
+        "delta": 0.0005222133999999989,
+        "relative_span": 0.0033575653840528814
+      },
+      "last10": {
+        "first": 0.1555967288,
+        "last": 0.155729588,
+        "min": 0.1555967288,
+        "max": 0.155729588,
+        "mean": 0.15568028641,
+        "delta": 0.00013285920000000173,
+        "relative_span": 0.0008534105573913411
+      }
+    },
+    "CD": {
+      "full": {
+        "first": 0.0529911428,
+        "last": 0.05027280454,
+        "min": 0.04839325494,
+        "max": 0.0529911428,
+        "mean": 0.05036862226000001,
+        "delta": -0.0027183382600000014,
+        "relative_span": 0.0912847652704488
+      },
+      "last20": {
+        "first": 0.0508783167,
+        "last": 0.05027280454,
+        "min": 0.05027280454,
+        "max": 0.05091011363,
+        "mean": 0.050665047415,
+        "delta": -0.0006055121600000019,
+        "relative_span": 0.012578870888637914
+      },
+      "last10": {
+        "first": 0.05066799454,
+        "last": 0.05027280454,
+        "min": 0.05027280454,
+        "max": 0.05066799454,
+        "mean": 0.05047701240100001,
+        "delta": -0.00039518999999999666,
+        "relative_span": 0.007829108364427833
+      }
+    },
+    "rms[Rho]": {
+      "full": {
+        "first": -2.04535542,
+        "last": -3.007578022,
+        "min": -3.007578022,
+        "max": -2.04535542,
+        "mean": -2.4682404248,
+        "delta": -0.9622226020000002,
+        "relative_span": 0.3898415212440128
+      },
+      "last20": {
+        "first": -2.750989674,
+        "last": -3.007578022,
+        "min": -3.007578022,
+        "max": -2.750989674,
+        "mean": -2.88397853635,
+        "delta": -0.2565883480000002,
+        "relative_span": 0.08897026963478781
+      },
+      "last10": {
+        "first": -2.892929718,
+        "last": -3.007578022,
+        "min": -3.007578022,
+        "max": -2.892929718,
+        "mean": -2.9548197349,
+        "delta": -0.11464830400000015,
+        "relative_span": 0.03880043937904733
+      }
+    },
+    "rms[nu]": {
+      "full": {
+        "first": -6.469557828,
+        "last": -7.393811803,
+        "min": -7.393811803,
+        "max": -6.394915534,
+        "mean": -6.7835124716,
+        "delta": -0.9242539750000001,
+        "relative_span": 0.14725354647492742
+      },
+      "last20": {
+        "first": -7.087174629,
+        "last": -7.393811803,
+        "min": -7.393811803,
+        "max": -7.052133486,
+        "mean": -7.199125392099999,
+        "delta": -0.30663717400000046,
+        "relative_span": 0.0474610870613454
+      },
+      "last10": {
+        "first": -7.188894381,
+        "last": -7.393811803,
+        "min": -7.393811803,
+        "max": -7.188894381,
+        "mean": -7.2896083742,
+        "delta": -0.2049174220000003,
+        "relative_span": 0.028110895878201276
+      }
+    }
+  },
+  "surface": {
+    "original": {
+      "available": true,
+      "sha256": "e7ed89cd313358439d9881445345abd17f35e8a6b0d021f89138957842c2238b",
+      "points": 19506,
+      "precision": "Float32",
+      "finite": true,
+      "fields": [
+        "Density",
+        "Energy",
+        "Nu_Tilde",
+        "Pressure",
+        "Temperature",
+        "Mach",
+        "Pressure_Coefficient",
+        "Laminar_Viscosity",
+        "Heat_Flux",
+        "Y_Plus",
+        "Eddy_Viscosity",
+        "Residual_Density",
+        "Residual_Energy",
+        "Residual_Nu_Tilde"
+      ],
+      "selected_ranges": {
+        "Pressure": {
+          "min": 62335.921875,
+          "max": 143733.609375
+        },
+        "Mach": {
+          "min": 0.0,
+          "max": 0.0
+        },
+        "Pressure_Coefficient": {
+          "min": -0.6825376749038696,
+          "max": 1.0730907917022705
+        }
+      },
+      "wall_coordinate_matches": 18860,
+      "scope": "Nodal field ranges and coordinate association only; no spatial shock/separation or Cp-distribution qualification."
+    },
+    "continued": {
+      "available": true,
+      "sha256": "bc3f59de8608a97c3b371eec17a86fce42b007208553b94f98892bea3f4fa10b",
+      "points": 19506,
+      "precision": "Float32",
+      "finite": true,
+      "fields": [
+        "Density",
+        "Energy",
+        "Nu_Tilde",
+        "Pressure",
+        "Temperature",
+        "Mach",
+        "Pressure_Coefficient",
+        "Laminar_Viscosity",
+        "Heat_Flux",
+        "Y_Plus",
+        "Eddy_Viscosity",
+        "Residual_Density",
+        "Residual_Energy",
+        "Residual_Nu_Tilde"
+      ],
+      "selected_ranges": {
+        "Pressure": {
+          "min": 62683.5625,
+          "max": 143913.625
+        },
+        "Mach": {
+          "min": 0.0,
+          "max": 0.0
+        },
+        "Pressure_Coefficient": {
+          "min": -0.6750395894050598,
+          "max": 1.0769731998443604
+        }
+      },
+      "wall_coordinate_matches": 18860,
+      "scope": "Nodal field ranges and coordinate association only; no spatial shock/separation or Cp-distribution qualification."
+    }
+  },
+  "solver_bounds_messages": [],
+  "bounds_correction_ledger": "Not independently available; wall floor values and absence of log messages do not prove zero corrections or exact SA integral conservation.",
+  "remaining": "Parent must assess force trajectory and spatial pressure/shock/separation and wall-resolution evidence. Stability/admissibility alone do not qualify reasonable flow. Mesh underresolution is not established by these checks.",
+  "helper_sha256": "03d0be959f11966e5f4eea7a9a48c17e3f4686dd9c8748cb7005d4fb49c7d81a",
+  "output_sha256": {
+    "restart_flow.dat": "c90000ea804c7e08a54dbec93f218b5bd3ae3dce3db8c287db6783fd138f1c78",
+    "history.csv": "534c737771f01293a3ad21562ad3048d49336d76e1e8643431a61b602ccaf804",
+    "run.log": "14591c23fbf59fe14aa5dda7b5756a97b7806ce1c2248bc2e1511a690a9ca5b0",
+    "status.json": "e6b6b8c0cf122f94611f6c607fb62391fbba57bcdbcb4a0d18c433002445a281",
+    "mapped_runtime_pins.json": "4fb9c3073aea25782c7d25b1875e019f6a8aa76f027ffe3ec23b039a12299ae1"
+  }
+}
