@@ -1,0 +1,25 @@
+{
+  "status": "FAILED_BEFORE_MESH_CONSTRUCTION",
+  "seconds": 1332.2366559505463,
+  "failure": "Native geometric complexity cell 0: Unresolved cubic BL distance crossing.",
+  "complexity_trial": 1,
+  "normalized_target_produced": false,
+  "adapted_mesh_produced": false,
+  "workflow_accepted": false,
+  "all_owned_handles_terminal": true,
+  "pins_verified": true,
+  "mapped_runtime_verified": true,
+  "peak_sampled_process_tree_rss_bytes": 2543861760,
+  "last_rank_cpu_ticks": {
+    "3919530": 130588,
+    "3919529": 130529,
+    "3919528": 130522,
+    "3919527": 130477,
+    "3919526": 130648,
+    "3919525": 130614
+  },
+  "scope": "Original no-CAD cubic builder and initial CFD succeed. First full-domain metric trial refuses unresolved chord; zero BL meshes, transfers or adaptedCFD. Time/gates not relaxed.",
+  "next": "Bounded exact-cell replay. Investigate separation of geometric enclosure radius (nonshrinking coordinate-rounding floor) from ideal chord interval measure in unresolved integral bound. Hypothesis, not proven correction.",
+  "run_log_sha256": "6a72aa499d49165c9ef8d68f7f3139b9937c7f25b49e6141643a41db93adf674",
+  "failed_cell_sha256": "6bd0190e08d252068473139782bc9e26018ea11f2e74aeca46599e4e6adc05d0"
+}

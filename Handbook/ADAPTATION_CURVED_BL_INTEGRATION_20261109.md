@@ -375,3 +375,30 @@ c90000...f1c78/originalcubicreference2e99fb...42de/exact61330pointmesh, L1Machon
 AllCpp/helpers/binaries/runtime/config/input frozen. No target/meshacceptanceyet.
 SeedandEuler293checkpointsremainseparate/intact. Newlauncher usesexisting selected
 failureworkflow for firstsubstantial rejectedstate, not per-trial mesh exports.
+
+### Actual full-target303 terminal failure — active blocker
+
+Actual RANS/BL two-event attempt TERMINAL1/1332.237s, source/binary/runtime/inputpins
+unchanged, all10exactownedhandlesabsent. InitialCFDfinite and truecubic builder work;
+firstcomplexitytrial cell0 refuses `Unresolved cubic BL distance crossing` when
+interval midpoint rounds toendpoint(CBC3476). NO normalized500k target or BLmesh.
+Exactcell/sensors/core/logscale preserved under rans_curved303_v1/failed_complexity_cell0.json;
+terminal_assessment.json recordsfailure/resources. No native-timeincrease.
+
+Bounded investigation hypothesis: currentlevel-exclusion radius conservatively
+contains ideal affinechord despite coordinate rounding; that radius has a nonzero
+roundofffloor. Current unresolved integralbound reuses2*radius*metricBound, which
+need notshrink with parameterintervalwidth. Investigate using certifiedidealchord
+spanlength for integralmeasure while retainingfullradius for distanceexclusion.
+Preserve1e-8 totaluncertainty, work/cuts/memory, exactsupport and finalstrictgates.
+Independent proof review and exactcellreplay pending; no productioncorrectionyet.
+This is the sameconnectedcurvedBL integration milestone, not an Euleroptimization.
+
+Build304 CURRENT FROZEN session49142/helper3986594/start29345956/ninja3986595/
+start29345972. OnlyCBC.cpp+BoundaryLayerMetric_tests.cpp changed. Sourcecorrection
+usesoutwardidealchord spanlength for unresolvedintegralbound, keepsdistanceenclosure
+radius for certifiedlevel exclusion. Adjacentparameterintervalsretainunresolvedspan
+bound; impossibleaggregateconvergence stillrefuses. Same1e-8/work/cuts/memory/deadline.
+Truecubic translatedmicroheight testcase andstrict50-value actualcellreplaybranch
+added toexistinghiddenM6probe; no productionconfigoption. NOTYETVALIDATED.
+Bounded failingcell input/provenance/plan under m6_bl_inputs/crossing303_cell0_v1.

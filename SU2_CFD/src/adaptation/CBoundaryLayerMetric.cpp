@@ -3468,12 +3468,27 @@ std::vector<double> CBoundaryLayerMetric::EdgeBreakpointsImpl(
         eigenvalue+=1/(feature.h0*feature.h0);
       if(!std::isfinite(eigenvalue))throw std::runtime_error("Unrepresentable cubic BL feature bound.");
       const long double metricBound=std::nextafter(std::sqrt((long double)eigenvalue),INFINITY);
+      long double squaredLengthBound=0;
+      for(const auto component:chord) {
+        const auto magnitude=std::nextafter(std::abs(component),INFINITY);
+        squaredLengthBound=std::nextafter(squaredLengthBound+std::nextafter(magnitude*magnitude,INFINITY),INFINITY);
+      }
+      const auto lengthBound=std::nextafter(std::sqrt(squaredLengthBound),INFINITY);
+      if(!std::isfinite(lengthBound))throw std::runtime_error("Unrepresentable cubic BL chord length bound.");
       levels.erase(std::remove(levels.begin(),levels.end(),0.),levels.end());
       const SU2Native3D::Point first{a[0],a[1],a[2]},last{b[0],b[1],b[2]};
       auto classify=[&](double left,double right) {
+        if(left==right)return;
         if(++work>16384)throw std::runtime_error("Cubic BL distance crossings exceed work budget; unresolved bound="+std::to_string(double(unresolved))+", leaves="+std::to_string(frontier.size()));
+        // Coordinate enclosures bound level exclusion; only ideal chord span contributes integration measure.
+        const auto width=std::nextafter((long double)right-left,INFINITY);
+        const auto uncertainty=std::nextafter(std::nextafter(width*lengthBound,INFINITY)*metricBound,INFINITY);
         const double middle=.5*(left+right);
-        if(middle==left || middle==right)throw std::runtime_error("Unresolved cubic BL distance crossing.");
+        if(middle==left || middle==right) {
+          frontier.push_back({left,right,uncertainty});std::push_heap(frontier.begin(),frontier.end(),larger);
+          unresolved=std::nextafter(unresolved+uncertainty,INFINITY);
+          return;
+        }
         const auto center=SU2Native3D::AffinePointBounds(first,last,middle);
         const auto low=SU2Native3D::AffinePointBounds(first,last,left),high=SU2Native3D::AffinePointBounds(first,last,right);
         const std::array<double,3> point{center[0].x,center[0].y,center[0].z};
@@ -3493,7 +3508,6 @@ std::vector<double> CBoundaryLayerMetric::EdgeBreakpointsImpl(
             std::min(1e-6*h0,double(radius)*.125)),scratch);
         const auto lower=std::nextafter((long double)projection.lower-radius,-INFINITY),upper=std::nextafter((long double)projection.upper+radius,INFINITY);
         if(std::none_of(levels.begin(),levels.end(),[&](double level){return level>=lower && level<=upper;}))return;
-        const auto uncertainty=std::nextafter(2*radius*metricBound,INFINITY);
         frontier.push_back({left,right,uncertainty});std::push_heap(frontier.begin(),frontier.end(),larger);
         unresolved=std::nextafter(unresolved+uncertainty,INFINITY);
       };
@@ -3502,6 +3516,8 @@ std::vector<double> CBoundaryLayerMetric::EdgeBreakpointsImpl(
         std::pop_heap(frontier.begin(),frontier.end(),larger);const auto parent=frontier.back();frontier.pop_back();
         unresolved=std::max(0.L,std::nextafter(unresolved-parent.uncertainty,INFINITY));
         const auto middle=.5*(parent.left+parent.right);
+        if(middle==parent.left || middle==parent.right)
+          throw std::runtime_error("Unresolved cubic BL distance crossing; adjacent interval exceeds total uncertainty allowance.");
         classify(parent.left,middle);classify(middle,parent.right);
       }
       if(frontier.empty())unresolved=0; // Every interval was excluded by a certificate.

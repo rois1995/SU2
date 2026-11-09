@@ -1,0 +1,28 @@
+{
+  "objective": "Replay actual M6 original complexity-trial cell0 and independently regress interval-measure decay without another CFD solve. No accepted BL mesh claim.",
+  "existing_probe": "UnitTests/SU2_CFD/adaptation/BoundaryLayerMetric_tests.cpp [NativeActualCubicBLPolicy3D] already loads CConfig/LoadReference and shared GeometryReservationScope; currently tests a representative local cell, NOT cell.json. Existing binary cannot consume this exact replay yet.",
+  "minimal_test_change": [
+    "Add optional cell.json input branch to that hidden probe, preserving current default probe. Parse only captured coordinates, nodal sensor tensors, core and log_scale; validate four finite points, SPD tensors and positive tetrahedron.",
+    "Build actual SU2NativeBLTarget3D::MakeTargetPolicy(config, reference, core, 0). BL_BUDGET is absent/false in saved run.cfg; zero outerParameter is unused. Preserve same shared work/time/memory reservation. Never substitute faceted Wall replay.",
+    "For IntegrationRule3D density callback interpolate original nodal sensor with integration-point barycentrics (exp(log_scale)=1 here), then apply policy.Composition() at the reconstructed actual point. Return sqrt(det(target)); keep all positive-rule/convergence/work refusal gates.",
+    "Run exactly the recorded complete tetrahedron, not a cropped or replacement cell. Require completion/positive quadrature volume matching exact cell volume after fix. Log count/time/shared work/peak and do not treat numerical convergence as rigorous certification."
+  ],
+  "chord_diagnostics": {
+    "existing": "Current crossing exception has no chord/left/right/middle/radius/eigenvalue fields. Internal volume quadrature chords are not necessarily one of the six physical tetrahedron edges; six edge probes cannot establish reproduction.",
+    "minimal_if_needed": "At existing midpoint-collapse throw, preserve actual chord a/b, wall component/facet, left/right/middle, metricBound and outstanding uncertainty/frontier/work. Radius is computed after the throw; include last parent leaf radius/uncertainty or recompute the same AffinePointBounds enclosure for diagnostic output without using it as proof of progress."
+  },
+  "independent_math_regression": [
+    "AffinePointBounds encloses coordinate-rounding uncertainty: physical enclosure radius may remain nonzero as right-left shrinks at fixed nonzero coordinates. Preserve this floor for conservative distance-band inclusion.",
+    "The uncertainty charged to a leaf INTEGRAL must use a separate outward bound of chord arclength times parameter width times the tensor metric bound. Do not charge 2*geometricRadius*metricBound as parameter-span measure.",
+    "Use nonzero translated chord coordinates, bisect down to adjacent binary64 parameters, verify geometric inclusion remains conservative while separate leaf metric-span bound decreases with parameter width. Cover degenerate/zero-length chord and large metric bound. Do not loosen geometry/height tolerances to erase coordinate floor."
+  ],
+  "bounded_execution_plan": {
+    "only_after_primary_review_and_build": "One serial selected hidden replay, libs1/nice19, saved reference/config absolute paths, external timeout600; preserve log/status/pins and actual handle terminal receipts. No build or run executed by this preparation.",
+    "current_probe_command": "SU2_NATIVE_FROZEN_CONFIG=<crossing303_cell0_v1/run.cfg absolute> SU2_NATIVE_BL_REFERENCE=<source m6.su2.native_ref absolute> ... test_driver [NativeActualCubicBLPolicy3D] (currently representative policy probe only; requires minimal optional replay branch before claiming cell0 replay)"
+  },
+  "acceptance_limitations": [
+    "Exact failed inner chord and its radius/metricBound are not present in303 evidence; do not invent them.",
+    "Original trial cell0 sensor/core/coordinates are captured exactly as roundtrippable binary64 JSON, with source-reference/config provenance.",
+    "No new solver, C++ changes, build, replay or CFD launch performed."
+  ]
+}

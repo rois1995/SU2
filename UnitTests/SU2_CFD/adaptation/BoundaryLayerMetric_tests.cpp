@@ -1381,6 +1381,37 @@ TEST_CASE("Native3D complexity reference does not rebase the wall on the adapted
   CHECK(CBoundaryLayerMetric::FromNativeReference(state,*test.config)->MarkerDistance(0,foot)==Approx(0).margin(2e-9));
 }
 
+TEST_CASE("Translated cubic distance crossings close by chord span rather than coordinate radius", "[NativeCubicChordSpan3D]") {
+  using namespace SU2Native3D;
+  using SU2NativeGeometry::MappedFacetReference;
+  constexpr double shift=1e6,h0=2e-6;
+  const Node n0{0,{shift,shift,0}},n1{1,{shift+1,shift,0}},n2{2,{shift,shift+1,0}};
+  const std::vector<Facet> facets{{0,0,{n0,n1,n2}}};
+  auto original=std::make_shared<PlanarReference>(facets);
+  MappedFacetReference::CurvedNets nets;auto& net=nets[0];
+  const unsigned powers[10][3]={{3,0,0},{0,3,0},{0,0,3},{2,1,0},{1,2,0},{0,2,1},{0,1,2},{1,0,2},{2,0,1},{1,1,1}};
+  for(unsigned q=0;q<10;++q) {
+    long double x=0,y=0;
+    for(unsigned k=0;k<3;++k){x+=powers[q][k]*(long double)facets[0].v[k].p.x/3;y+=powers[q][k]*(long double)facets[0].v[k].p.y/3;}
+    net[q]={double(x),double(y),0};
+  }
+  net[9].z=-.03;
+  auto geometry=std::make_shared<MappedFacetReference>(original,std::map<Id,double>{{0,1e-12}},304,SIZE_MAX,false,nets);
+  BoundaryPoints points;
+  for(const auto& node:facets[0].v)points.emplace(node.id,BoundaryPoint{node,geometry->Vertex(node.id)});
+  auto parameters=std::make_shared<BoundaryParameterState>(geometry,points,std::vector<SurfaceFace>{{{0,1,2},0}},1);
+  CBoundaryLayerMetric::Wall wall;wall.layer={"wall",h0,1.2,.01};
+  wall.coord={shift,shift,0,shift+1,shift,0,shift,shift+1,0};wall.conn={0,1,2,2};
+  wall.authority=PlanarReference::WithParameters(original,parameters);wall.authority_facet=0;wall.authority_facets={0};wall.surface_tolerance=1e-4;
+  CBoundaryLayerMetric layers(3,{wall});
+  // At the barycentre the independent cubic graph has zero slope and z=-.18/27.
+  const std::array<double,3> a{{shift+1./3,shift+1./3,-.18/27+.25*h0}},
+      b{{a[0],a[1],-.18/27+1.25*h0}};
+  const auto cuts=layers.EdgeBreakpoints(a,b),reverse=layers.EdgeBreakpoints(b,a);
+  REQUIRE(cuts.size()>2);REQUIRE(cuts.size()==reverse.size());
+  for(size_t k=0;k<cuts.size();++k)CHECK(cuts[k]==Approx(1-reverse[cuts.size()-1-k]).margin(1e-8));
+}
+
 TEST_CASE("Actual retained cubic wall policy probe without CFD", "[.][NativeActualCubicBLPolicy3D]") {
   using namespace SU2Native3D;
   const auto* configPath=std::getenv("SU2_NATIVE_FROZEN_CONFIG");
@@ -1415,6 +1446,52 @@ TEST_CASE("Actual retained cubic wall policy probe without CFD", "[.][NativeActu
   };
   CBoundaryLayerMetric::GeometryReservationScope reservation(*layers,budget);
   try {
+    if(const auto* replayPath=std::getenv("SU2_NATIVE_BL_CELL_REPLAY")) {
+      std::ifstream replay(replayPath);REQUIRE(bool(replay));
+      double core=0,logScale=0;replay>>core>>logScale;
+      std::array<std::array<double,3>,4> cell{};
+      std::array<CBoundaryLayerMetric::Tensor,4> sensor{};
+      for(auto& point:cell)for(auto& value:point){replay>>value;REQUIRE(std::isfinite(value));}
+      for(auto& metric:sensor)for(auto& row:metric.m)for(auto& value:row) {
+        double inputValue=0;replay>>inputValue;REQUIRE(std::isfinite(inputValue));value=inputValue;
+      }
+      REQUIRE(bool(replay));replay>>std::ws;REQUIRE(replay.eof());
+      REQUIRE(std::isfinite(core));REQUIRE(core>0);REQUIRE(std::isfinite(logScale));
+      // The captured sensor/core already belong to this complexity trial; logScale is provenance, not another scaling.
+      receipt("replay_input",50);
+      std::cout<<std::setprecision(17)<<"{\"replay_core\":"<<core<<",\"replay_log_scale\":"<<logScale<<"}"<<std::endl;
+      std::array<Point,4> tetrahedron;
+      for(unsigned k=0;k<4;++k)tetrahedron[k]={cell[k][0],cell[k][1],cell[k][2]};
+      const double expectedVolume=double(TetrahedronVolume(tetrahedron));REQUIRE(expectedVolume>0);
+      for(const auto& metric:sensor)REQUIRE_NOTHROW(ValidateTensor({metric.m[0][0],metric.m[0][1],metric.m[0][2],metric.m[1][1],metric.m[1][2],metric.m[2][2]}));
+      size_t evaluations=0;
+      auto targetDensity=[&](const CBoundaryLayerMetric::IntegrationPoint3D& point) {
+        ++evaluations;CBoundaryLayerMetric::Tensor metric;
+        for(unsigned k=0;k<4;++k)for(unsigned i=0;i<3;++i)for(unsigned j=0;j<3;++j)
+          metric.m[i][j]+=point.barycentric[k]*sensor[k].m[i][j];
+        for(const auto& sample:point.samples)layers->ApplySample(sample.wall,sample.sample,metric,core,nullptr,false);
+        su2double vectors[3][3],eigenvalues[3],scratch[3];
+        CBlasStructure::EigenDecomposition(metric.m,vectors,eigenvalues,3,scratch);
+        return SU2_TYPE::GetValue(sqrt(eigenvalues[0]*eigenvalues[1]*eigenvalues[2]));
+      };
+      bool dependent=false;receipt("replay_integration_begin",0);
+      const auto rule=layers->IntegrationRule3D(cell,1.5,targetDensity,&dependent);
+      double volume=0,integral=0;
+      for(const auto& point:rule) {
+        REQUIRE(std::isfinite(point.weight));REQUIRE(point.weight>0);
+        double barycentric=0;
+        for(double value:point.barycentric){CHECK(value>=-1e-12);CHECK(value<=1+1e-12);barycentric+=value;}
+        CHECK(barycentric==Approx(1).margin(1e-12));
+        const double density=targetDensity(point);REQUIRE(std::isfinite(density));REQUIRE(density>0);
+        volume+=point.weight;integral+=point.weight*density;
+      }
+      REQUIRE_FALSE(rule.empty());CHECK(volume==Approx(expectedVolume).epsilon(1e-8));
+      CHECK(std::isfinite(integral));CHECK(integral>0);
+      receipt("replay_complete",rule.size());receipt("replay_density_evaluations",evaluations);
+      std::cout<<std::setprecision(17)<<"{\"replay_volume\":"<<volume<<",\"replay_integral\":"<<integral
+               <<",\"sensor_dependent\":"<<(dependent?"true":"false")<<"}"<<std::endl;
+      return;
+    }
     const auto requested=config.GetAdap_BL(0);
     auto selected=geometry.Curves().end();
     for(auto it=geometry.Curves().begin();it!=geometry.Curves().end();++it) {
