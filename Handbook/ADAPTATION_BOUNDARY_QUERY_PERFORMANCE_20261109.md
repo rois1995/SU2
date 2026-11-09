@@ -88,3 +88,19 @@ atlas work/time or geometry_failure. Preserve that exclusion. Dependency-specifi
 invalidation may reuse this existing set without a new scheduler, but complete
 old/new cavity dependencies, projected-association semantics, metric state and
 transient limits must be demonstrated first. No production change yet.
+
+Existing-facility review: PlanarReference::HasAcceptedFaceCertificate verifies
+retained face identity, BoundaryPoints, association and face/trace coverage. It
+is used to avoid repeating support/coverage validation; it contains no numeric
+distance bound and must not substitute for SurfaceDeviation.
+GeometryGuidanceExcess still builds PrivateParameters and obtains SurfaceDeviation
+for complete patch.surface. Reuse must retain an actually evaluated numeric bound
+under exact coordinate/association/coverage/support/tolerance/authority validity,
+preserve complete-patch accumulation order and fall back on uncertainty. Existing
+point-keyed frozen tensor reuse in boundary linearizations must remain intact.
+No new certificate or production reuse mechanism has been implemented.
+
+The eight boundary reuse hits do not count eligible pure-shape insertions or
+distinguish commit invalidations from capacity resets. Do not attribute low reuse
+solely to Commit or assume dependency-specific retention has a material gain.
+Test unchanged versus changed complete dependencies and assess actual replay yield.

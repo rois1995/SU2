@@ -64,6 +64,15 @@ target, not an exported construction-transport field.
 Frozen driver already entered SECOND adaptation (NATIVE3D_PARTITION inCycle1).
 Preserve its outcome before ANYpinnedsource/helper/binary edit. First-event stage
 parser stops after firstexit; do not mistake its fixedzero counts for event2 status.
+A293/second_native_progress_assessment.json now reuses the same parser AFTERexact
+per-rank first-exit byte offsets; second-event prefixes separatelyhashed. Latest
+secondwindow8512/native1204.955s:865097cells,5558q-bad/4345J-bad/0geometry-bad/
+15size-bad; allknown/complete. Source/binary/helpers/inputs remainFROZEN.
+First-event boundary/query counter analysis PUSHED99f8f4edfd; pure-shape rejection
+eligibility already excludes resource/validity/edge/geometry failures. Next connected
+performance design still requires dependency and projection/certificate safety proof;
+no source edit or speedup claim. Functions-store m6293_monitor_cmd monitors BOTH
+native events and actualHOST PID/startticks/CPUticks; never use old291monitor.
 All11actualidentities live atlastverification; sampledtreeRSS~10.13GB,
 hostavailable~36.1GiB. Rankuser/system CPUticks now retained in owned_observations
 alongside existing NATIVE3D_QUALITY busy/join counters; joincall is NOTtotalMPIwait. No stopcondition demonstrated. Continue frozen293; do not
