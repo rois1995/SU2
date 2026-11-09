@@ -1,0 +1,58 @@
+{
+  "time": 1794225369.9589443,
+  "disk_restart_verified": true,
+  "adapted_points": 149051,
+  "adapted_cells": 736323,
+  "ranks": 6,
+  "standalone_qualified_cfd": true,
+  "seconds": 181.35620403289795,
+  "source_checkpoint": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_inputs/euler_adapted293_event1_v1",
+  "coordinate_maximum_error": 0.0,
+  "all_output_fields_finite": true,
+  "minimum_density": 0.6202126016422966,
+  "minimum_internal_energy_density": 103727.59567641586,
+  "precision": "Float64",
+  "continued_cfd": {
+    "rms_rho": -2.241746,
+    "CL": 0.26998,
+    "CD": 0.015165
+  },
+  "continued_history": [
+    {
+      "Time_Iter": "0",
+      "Outer_Iter": "0",
+      "Inner_Iter": "0",
+      "rms[Rho]": "-2.241745581",
+      "rms[RhoU]": "0.2557125636",
+      "rms[RhoV]": "0.3928837647",
+      "rms[RhoW]": "0.4821303416",
+      "rms[RhoE]": "3.272701873"
+    }
+  ],
+  "conservative_field_changes": {
+    "Density": 0.04304823405020031,
+    "Momentum_x": 20.820330174503624,
+    "Momentum_y": 9.001715886111754,
+    "Momentum_z": 19.264039714152744,
+    "Energy": 14151.364365736837
+  },
+  "all_inputs_and_pins_unchanged": true,
+  "pin_count": 1527,
+  "validation_helpers": {
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/validate_disk_restart293.py": "7f5562fdb61454766feec98a9699bc2208c8c0057bf78445f67a246dbb2d16c5",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/TestCases/adaptation/capability/capcheck.py": "38ee0fe9fc60d7b29ab796303d8c5cec2770ad1beb06e2e5b76d5c687d495f92"
+  },
+  "artifact_sha256": {
+    "accepted293.su2": "960b6d56ef9e3c7e0a88b9b763b3d419b3edf9523a45662352898ad4a730c28d",
+    "accepted293.su2.native_ref": "51fcfd52b2c9a90b4f532d978807910bfccf2d977320a6ad8b45aecbf9502eb3",
+    "accepted293_input.dat": "eb4a267515ef4e45528d0e2675702428b2dd30f44ff1889a52aca8fe52e2fef3",
+    "continued293_restart.dat": "b028779b8b705ec5594cd249e5298256687b90b7d53a33d2cfe7a4dd34fd32cf",
+    "run.cfg": "eb6e5c9604d0df74ce6a7e438b2edfe8d4554ec311a0bdac0133fdd4d6c5d3d6",
+    "run.log": "5cec3698178fad71fcdfb002849aa9076a9249647a4cad0aacabc097775c7d76",
+    "continued_history.csv": "a2454ef61054453ec03865d7df4d2227b431e4706ec11419734266abdcbb3d26",
+    "status.json": "08e74ffe995a859e0ed32c24bd501ddd7c4e0e7e22019e02df6985a5279c346e",
+    "terminal_handles.json": "001cef1085a04cbe6e716e62d390a90f4779139fb6273a32338d385963b5f7fe",
+    "loaded_runtime_startup.json": "dfd44ce0eff0360848f76d338fbe97226069f74f1749b73fea41dcee3a4a713d"
+  },
+  "scope": "Actual isolated steady CFD disk restart on FIRST accepted adapted mesh and MATCHING following-CFD state. Preserved sidecar bytes unchanged; no adaptation transaction or resume-cycle numbering fix claimed. One continued CFD iteration, not convergence qualification."
+}

@@ -1,6 +1,6 @@
 # Bounded native reference persistence
 
-Active connected cycle after full M6 build291. The native mesh passed every gate
+Completed connected persistence cycle after full M6 build291. The native mesh passed every gate
 and conservative transfer, then WriteReference failed the decoder's fixed2GiB
 self-check. No complete workflow event or adapted restart was produced. Terminal
 handles, pins, transfer evidence and the actual SU2 mesh are sealed in staged57's
@@ -73,3 +73,15 @@ Connectedserial97cases/67903assertions205.072s; ONE MPI6 130cases EVERYrank224.4
 Allpins unchanged/allactualhandles terminal betweenstages. reference293_qualification
 sealsfivechecks and explicitexpectednegative. Fullsame-seed TWOeventM6 immediately;
 actualcurrentmesh persistence, adaptedCFD and isolatedrestart remain unproved.
+
+## Actual full workflow and disk restart passed293
+
+Two accepted meshes149051/736323 and172001/870422(points/tets), both conservative
+admissible transfers, persisted49,677,601/49,438,337B reference sidecars and matching
+finite continuedCFD restarts. Fullworkflow terminal0/6615.087s; all1520pins unchanged,
+all11actualhandles absent. Actual isolated adapted-event1 standaloneCFD MPI6restart
+terminal0/181.356s; unchanged inputs/1527pins, exact coordinates, finite/admissible
+changed output, all10actualhandles absent. Detailed independent receipts in293attempt
+and adapted_event1_disk_restart_v1. Public/default/native budgets and allgates stayed
+unchanged. Steady diskrestart does not qualify resumed-loop numbering/overwrite.
+Next requested cycle is boundary-query performance; BL/MPI/RANS500k remain outstanding.

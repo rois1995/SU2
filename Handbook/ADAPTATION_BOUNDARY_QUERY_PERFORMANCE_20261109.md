@@ -1,12 +1,13 @@
 # Boundary query performance — next connected cycle
 
-User steering2026-11-09; analysis only, no source edits or new workload. Preserve
-current frozen293. First require strict native acceptance, conservative admissible
-transfer, usable mesh/reference/matching adapted-CFD checkpoint and actual finite
-continued CFD. Preserve that progress independently. If frozen driver has already
-entered adaptation2, preserve its outcome and verify terminal owned handles before
-editing pinned sources. Its automatic cycle transition must not be confused with
-permission to interrupt an in-progress event. All Euler/BL/MPI/RANS obligations stay.
+User steering2026-11-09; performance analysis only, no production performance edits.
+Full293 now completed TWO accepted/transferred/persisted meshes with finite continued
+CFD; actual isolated first-adapted disk restart passed MPI6. All11fullworkflow and
+10restart actualHOST handles terminal; no ownedheavyjob active. Both independent
+matched checkpoints are retained in staged57/m6_inputs/euler_adapted293_event{1,2}_v1.
+Frozen driver had already entered event2 when checkpoint1 was verified; its outcome
+was preserved before any source edits. Euler milestone is now verified; full goal
+still includes this requested performance cycle, dedicated BL/MPI and RANS500k.
 
 After that boundary, prioritize ONE connected performance cycle using build291 and
 subsequent first-event evidence. Reuse SAME original saved CFD seed, Mach-onlyL1,
@@ -71,8 +72,8 @@ identity and matching restart provenance explicit across isolated directories.
 
 FIRST293 is accepted/transferred/persisted with finite adaptedCFD. Its independently
 verified matching mesh/reference/restart copy is staged57/m6_inputs/
-euler_adapted293_event1_v1; actual isolated disk restart still pending. Frozen
-driver already entered event2; preserve that outcome before pinned edits.
+euler_adapted293_event1_v1. Actual isolated disk restart now PASSED; event2 also
+completed and is independently preserved before any production performance edits.
 
 first_event_performance_counters.json in293attempt seals exact first-event prefixes
 and comparisons to291. Native3640.719s versus2913535.671s; all164matching counts/flags/
@@ -104,3 +105,12 @@ The eight boundary reuse hits do not count eligible pure-shape insertions or
 distinguish commit invalidations from capacity resets. Do not attribute low reuse
 solely to Commit or assume dependency-specific retention has a material gain.
 Test unchanged versus changed complete dependencies and assess actual replay yield.
+
+Completed driver summary293: FIRST Adapt3819.85s, initial Solve40.6008s and
+following adapted Solve152.95s; second Adapt2440.84s/final Solve146.688s.
+workflow293_driver_timing_summary.json seals actual rounded rows and full log hash.
+In this steady path ComputeMetric is in RunTimeLoop postprocessing (Solve timer);
+Adapt covers subsequent remesh/replacement/transfer/mesh+reference output. Use
+3819.85s as total accepted first-adaptation comparison alongside native3640.719s,
+matching-stage work/progress and CPU/busy/join. Native2913535.671s is a native-only
+comparison;291 failed IO and has no completed whole-adaptation timing baseline.

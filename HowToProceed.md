@@ -1,20 +1,25 @@
 # How to proceed
 
-Updated2026-11-09. One native291mesh passed strictgates+conservative transfer; ZERO
-complete workflow events. [HANDOFF_Codex.md](HANDOFF_Codex.md) is the
-current source/build/input/handle authority. Completion remains TWO strict Euler50k
-meshes, conservative admissible transfer, finite adapted CFD and actual isolated
-adapted disk restart; then dedicated BL/MPI and RANS500k. All gates/budgets unchanged.
+Updated2026-11-09. TWO strictly accepted Euler50k meshes, conservative admissible
+transfers, finite continued adaptedCFD and actual isolated adapted disk restart
+are VERIFIED in293. Actual meshes149051points/736323tets and172001points/870422tets;
+allq/J/geometry/size failures zero/known. Target50k is metric complexity, not counts.
+CFD continuation was one iteration per adapted mesh; no converged-physics claim.
 
-Current291 is TERMINAL1: accepted149051point/736323tet native mesh and conservative
-transfer succeeded, then WriteReference failed its default2GiB decode self-check.
-All11ownedhandles absent/all1520pins verified; no manualstop. Complete adapted SU2
-mesh is preserved, but .native_ref/matchingrestart missing; no adaptedCFD/restart.
-Activecycle is boundedreferencepersistence: propagate existing configured ceiling
-and retainedcaller into writer/encoder validation, without raising limits/bypassing
-checks. Fullnativefinalinterval573.258s vs2892460.104s; keep qualifiedgeometryfix.
-Read HANDOFF_Codex.md for exactevidence and nextvalidation. Do notstart competing
-cleanup, scheduler, geometry or target changes. Fullsame-seed TWOevents afterfix.
+[HANDOFF_Codex.md](HANDOFF_Codex.md) is current source/build/input/handle authority.
+Both actual mesh/reference/matching-CFDrestart checkpoints are independently copied
+under staged57/m6_inputs/euler_adapted293_event{1,2}_v1; metadata/hashes pushed, large
+actual assets retained locally. Isolated restart on event1 passed MPI6 with same
+qualified standaloneCFD, unchanged inputs/pins, exact coordinates and finite/admissible
+changed output. All fullworkflow/restart owned handles are terminal; no heavyjob active.
+
+Next priority is ONE connected boundary geometry-query performance cycle, as requested:
+[design and measured evidence](Handbook/ADAPTATION_BOUNDARY_QUERY_PERFORMANCE_20261109.md).
+Use unchanged Mach-onlyL1/50k seed/constraints/budgets/construction, focused checks plus
+ONE MPI milestone, then complete FIRST-adaptation replay. Reuse existing293/291 evidence;
+no new old-baseline campaign. Return to preserved adaptedCFD for logical event2 if
+changed production behavior needs requalification; do not discard its progress.
+Dedicated BL/constraints/MPI and RANS500k remain required afterward. Full goal ACTIVE.
 
 The remaining notes are historical evidence; the active next action is above.
 

@@ -1,16 +1,14 @@
 # Post-refinement metric cleanup — bounded investigation
 
-Current full293 is LIVE/frozen after qualified bounded reference persistence.
-Previous291 reached strict native acceptance:149051points/736323tets, ALLknown0
-q/J/global-geometry/size failures and complete flags. Conservative transfer passed;
-writing the geometry-reference sidecar then failed on the encoder default2GiB
-self-check. The connected existing-budget propagation fix passed serial/MPI6;
-see HANDOFF_Codex.md and ADAPTATION_REFERENCE_PERSISTENCE_20261109.md. No complete
-workflow event/adapted restart is claimed. No frozen run was interrupted for cleanup.
+Full293 is TERMINAL successful: TWO strictly accepted meshes149051points/736323tets
+and172001points/870422tets, conservative admissible transfers and finite continued
+adaptedCFD; actual isolated first-adapted diskrestart also PASSED MPI6. Allhandles
+terminal/pins unchanged. See HANDOFF_Codex.md for current nextcycle and exactreceipts.
 
-Integrated cleanup273 NEVER ran in274,278,283,287,289 or291; its whole-field
-leading-edge effect remains unmeasured. Do not add a competing cleanup change
-while the qualified persistence/fullworkflow cycle is active.
+Conditional cleanup273 NEVER ran in either293event; no whole-field leading-edge
+cleanup benefit is established. No frozen run was interrupted for cleanup. Next
+user-priority cycle is boundary-query performance; do not widen cleanup eligibility
+or change construction policy without measured active-blocker evidence.
 
 Confirmed: the original selection/zero-shape-debt admission gap permits short
 edges to survive; bounded tests establish four local feasible point removals,

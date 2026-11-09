@@ -1,0 +1,113 @@
+{
+  "time": 1794225370.2487748,
+  "two_accepted_euler50k_events_verified": true,
+  "conservative_admissible_transfers_verified": true,
+  "finite_continued_adapted_cfd_verified": true,
+  "actual_isolated_adapted_disk_restart_verified": true,
+  "disk_restart_event": 1,
+  "events": [
+    {
+      "event": 1,
+      "native_accepted": true,
+      "points": 149051,
+      "cells": 736323,
+      "native_seconds": 3640.719193877,
+      "true_mass_residuals": {
+        "Density": 7.722e-14,
+        "Momentum-x": 2.649e-14,
+        "Momentum-y": 5.244e-14,
+        "Momentum-z": 3.14e-14,
+        "Energy": 7.627e-14
+      },
+      "projected_inadmissible_states": 0,
+      "continued_adapted_cfd": {
+        "rms_rho": -2.143478,
+        "CL": 0.269781,
+        "CD": 0.014756
+      },
+      "continued_history": [
+        {
+          "Time_Iter": "0",
+          "Outer_Iter": "0",
+          "Inner_Iter": "0",
+          "Adap_Cycle": "1",
+          "Adap_Iter": "1",
+          "rms[Rho]": "-2.143477888",
+          "rms[RhoU]": "0.3517141106",
+          "rms[RhoV]": "0.4305216355",
+          "rms[RhoW]": "0.5211953267",
+          "rms[RhoE]": "3.374119149"
+        }
+      ],
+      "coordinate_maximum_error": 0.0,
+      "all_restart_fields_finite": true,
+      "minimum_density": 0.6223603149820991,
+      "minimum_internal_energy_density": 104024.17079785543,
+      "precision": "Float64",
+      "file_hashes": {
+        "adapted_mesh_adap_00001.su2": "960b6d56ef9e3c7e0a88b9b763b3d419b3edf9523a45662352898ad4a730c28d",
+        "adapted_mesh_adap_00001.su2.native_ref": "51fcfd52b2c9a90b4f532d978807910bfccf2d977320a6ad8b45aecbf9502eb3",
+        "restart_flow_adap_00001.dat": "eb4a267515ef4e45528d0e2675702428b2dd30f44ff1889a52aca8fe52e2fef3"
+      },
+      "preserved_checkpoint": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_inputs/euler_adapted293_event1_v1",
+      "disk_restart_verified": true
+    },
+    {
+      "event": 2,
+      "native_accepted": true,
+      "points": 172001,
+      "cells": 870422,
+      "native_seconds": 2314.855203748,
+      "true_mass_residuals": {
+        "Density": 6.464e-14,
+        "Momentum-x": 7.261e-14,
+        "Momentum-y": 4.007e-14,
+        "Momentum-z": 8.97e-14,
+        "Energy": 6.34e-14
+      },
+      "projected_inadmissible_states": 0,
+      "continued_adapted_cfd": {
+        "rms_rho": -2.32261,
+        "CL": 0.269952,
+        "CD": 0.015095
+      },
+      "continued_history": [
+        {
+          "Time_Iter": "0",
+          "Outer_Iter": "0",
+          "Inner_Iter": "0",
+          "Adap_Cycle": "2",
+          "Adap_Iter": "2",
+          "rms[Rho]": "-2.322610043",
+          "rms[RhoU]": "0.1683477305",
+          "rms[RhoV]": "0.3025670003",
+          "rms[RhoW]": "0.369421568",
+          "rms[RhoE]": "3.190810464"
+        }
+      ],
+      "coordinate_maximum_error": 0.0,
+      "all_restart_fields_finite": true,
+      "minimum_density": 0.6196863298373745,
+      "minimum_internal_energy_density": 103601.88501193766,
+      "precision": "Float64",
+      "file_hashes": {
+        "adapted_mesh_adap_00002.su2": "4bb5661c27b14cd12d7f0b0b340107e69413e86884ab63ed2384d71d8e262306",
+        "adapted_mesh_adap_00002.su2.native_ref": "a188fedf5a9b5082b42990927c51657ec7d52d13213ea23508168dcc59ad6303",
+        "restart_flow_adap_00002.dat": "b8842987c9f5a92979d82a4c06c037b037644b8a8a28766838c5b54ef0dac613"
+      },
+      "preserved_checkpoint": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_inputs/euler_adapted293_event2_v1",
+      "disk_restart_verified": false
+    }
+  ],
+  "evidence": {
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build293_bounded_reference_mach_only_real_cfd50k/workflow293_independent_validation.json": "852a8428b2d2b89718499e15c5101e14583325d04610e86bcbdff709a345c13e",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build293_bounded_reference_mach_only_real_cfd50k/workflow293_prefix_verification.json": "fe4dab6bc66bcd2b19366e2543171cf84598a9d8c8d58bad1201690d4cb00b78",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build293_adapted_event1_disk_restart_v1/disk_restart_validation.json": "c67e693607871b9a411b476e7d7894ad65019cc3bbbb5261f7ec012e2b19da88"
+  },
+  "sampled_workflow_tree_peak_rss_bytes": 17197293568,
+  "memory_scope": "Sampled summed process RSS, not physical whole-job peak.",
+  "performance_cycle_implemented": false,
+  "dedicated_bl_mpi_qualified": false,
+  "rans500k_complete": false,
+  "full_goal_complete": false
+}

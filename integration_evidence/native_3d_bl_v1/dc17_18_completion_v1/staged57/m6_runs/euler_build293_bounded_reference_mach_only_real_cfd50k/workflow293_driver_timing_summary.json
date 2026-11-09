@@ -1,0 +1,31 @@
+{
+  "time": 1794225689.784752,
+  "rows": [
+    {
+      "cycle": 0,
+      "complexity": "input mesh",
+      "points": 61330,
+      "iterations": 1,
+      "solve_seconds": 40.6008,
+      "adapt_seconds": 3819.85
+    },
+    {
+      "cycle": 1,
+      "complexity": "50000",
+      "points": 149051,
+      "iterations": 1,
+      "solve_seconds": 152.95,
+      "adapt_seconds": 2440.84
+    },
+    {
+      "cycle": 2,
+      "complexity": "50000",
+      "points": 172001,
+      "iterations": 1,
+      "solve_seconds": 146.688,
+      "adapt_seconds": null
+    }
+  ],
+  "source_log_sha256": "2836bed6d64d05ebf738d06b3c18a9b02e6781d8e09f85d2dadfe7109862664b",
+  "scope": "Rounded driver summary. Adapt is the RunAdaptationLoop interval after RunTimeLoop through remesh/replacement/transfer/mesh-reference output. This path computes target metrics during RunTimeLoop postprocessing, included in Solve; do not add overlapping native/query clocks. First accepted Adapt3819.85s is the complete first-adaptation replay baseline;291 has no completed IO summary."
+}
