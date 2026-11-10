@@ -219,3 +219,37 @@ symmetry232–233=11, sharp-angle candidate4497–4498=23. All within64 current 
 These are original-mesh geometry/connectivity inputs, not generated BL results;
 native feature/association classification and all metric/quality measures remain
 to establish before any acceptance conclusion.
+
+
+##333 prerequisite result and next integration boundary
+
+Strict no-op333 sealed the intentional regenerated build graph; effective strict
+flags verified. Closest/candidate checks passed1017assertions/2cases/8.346s; all5
+actual handles absent. SAME real captured chord now PASSES334assertions,296cuts,
+354.764s helper,geometry work5397983 versus old refusal5957792/401.019s. All5 actual
+handles absent, source/runtime/input pins unchanged. The bound changes together
+with mandatory strict arithmetic are the connected prerequisite correction; this
+is not an isolated attribution to either component. It is not whole-surface
+performance or BL qualification: about6minutes/chord remains impractical at scale.
+Independent grazing and translated/curved-resource checks remain pending.
+
+The surface-preparation path must therefore stop asking a full h0 volume metric
+for every original wall chord. Existing valid surface parameters and forward
+EvaluateSurface differentials are the starting point for an intrinsic tangential
+policy; an accepted association is not an arbitrary-point distance certificate.
+Any direct parameter evaluation must keep exact support, coordinates/association
+invalidation and height/body/feature certificates, and distinguish the reference
+parameter point from its rounded realization. Keep volume edge certification intact.
+First quantify flow, inherited wall-tangent and normal contributions on the selected
+real contexts; retain the current policy until that evidence justifies changing it.
+Then wire the existing coupled cavity operations/readiness and constrained direction/
+front transactions together. Do not launch another full workflow on the strength
+of the kernel pass or keep optimizing the kernel independently of this capability.
+
+
+Independent grazing regression333 passes12 assertions/196.465s, all5 actual handles
+absent. Its distance bands are checked against independently known planar-cubic
+roots; it is a primitive conservative-bound test, not BL readiness evidence. It
+also confirms the expensive global-query route is unsuitable as a blanket surface
+selection path. Translated/resource behavior and integrated surface/front tests
+remain pending; no MPI/full workflow has been launched after this prerequisite.

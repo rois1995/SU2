@@ -13,17 +13,26 @@ unchanged; CBL and native geometry effective strict-FP flags verified. Build332
 compiled40.150s/all20 actual handles absent, but regenerated build.ninja and
 compile_commands.json, so its old pin check failed; graph review + no-op333 seals
 expected regeneration. Normal strict library built; AD build paths untested.
-Current ONE owned heavy job: actual same captured-chord retest on333, tool85951,
-wrapper3482666/start37881667; test tree3482801. Case
-`R/cases/curved333_after_bounds_chord_20261110T181257_3482666`;
-live_runtime_observation verifies5 actual handles and70 mappedELFs. Sources FROZEN.
-Closest/candidate checks passed1017assertions/2cases/8.346s, all5 actual handles
-absent. Grazing/translated chord checks still pending; prior331 combined focused
-check was INTERRUPTED143/287.613s for fast-math proof precondition (not a test
-pass/failure). Helpers `R/check_bounds333.py`, `R/replay_chord333_after_bounds.py`.
+Actual SAME captured chord retest333 PASSED334assert/354.764s helper,
+296cuts,geometrywork5397983 vs old refusal5957792; all5 actual handles absent,
+pins/runtime verified. This closes ONE primitive; ~6minutes/chord remains too
+expensive for whole-surface preparation. Do not present it as BL capability.
+Closest/candidate checks passed1017assert/2cases/8.346s, all5 actual handles absent.
+Independent grazing-band test333 PASSED12assert/196.465s, all5 actual handles
+absent/pins unchanged. It retains known roots but confirms high query cost.
+Current ONE owned job: translated cubic/resource check on strict333, tool58170,
+case `R/cases/curved333_translated_20261110T182532_3517263`; verify actual handles before edits.
+Sources FROZEN. Additional curved/composed guards remain pending; prior331
+combined focused was INTERRUPTED143/287.613s for fast-math precondition.
+Helpers `R/check_bounds333.py`, `R/replay_chord333_after_bounds.py`.
 No MPI/full attempt until connected surface/front integration and qualification.
-Actual context manifest provides complete11–24cell endpoint stars, not certified
-feature/metric readiness. Current strategy below remains authoritative.
+Actual context manifest supplies complete11–24cell endpoint stars, not certified
+feature/metric readiness. Next surface work must avoid full h0 volume-chord demand:
+investigate existing parameter/differential evaluation for intrinsic tangential
+samples, quantify inherited tangent/normal/flow components BEFORE policy changes,
+and reuse Euler coupled operators with a complete wall-readiness census. Maintain
+the existing constrained/blended field and refresh relevant dependencies. Do not
+substitute another kernel-only/full-run cycle for the requested construction work.
 
 ## Active connected curved-BL strategy
 
@@ -37,7 +46,7 @@ Chord replay TERMINAL1/401.019s; all5 actual identities absent, pins unchanged.
 It reproduced EXACT16385work/406leaves/.00100516uncertainty refusal;5.957792M
 geometry work/396.318s primitive. Adjacent-point probe TERMINAL0/12.684s,172assert,
 7770geometrywork; all5 actual handles absent/pins unchanged. Both helpers retained.
-Uncommitted prerequisite prototype under frozen331 build: certified candidate-box
+Prerequisite prototype under strict333 validation: certified candidate-box
 plus endpoint squared-distance concavity exclusion, existing Lip fallback/limits.
 Read-only proof review found no remaining blocker after optional endpoint fallback
 fix; build/focused qualification pending. Surface/front integration remains to

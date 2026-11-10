@@ -1,7 +1,7 @@
 {
   "state": "in_progress",
   "scope": "Prerequisite distance-bound/strict-arithmetic validation only; integrated curved BL remains incomplete.",
-  "checked_unix": 1794334763.473271,
+  "checked_unix": 1794335186.4335098,
   "build333": {
     "state": "terminal",
     "exit_code": 0,
@@ -22,14 +22,34 @@
     "attempt": "cases/curved333_closest_20261110T181148_3479587",
     "actual_handles_terminal": true
   },
-  "actual_chord_retest": "running: cases/curved333_after_bounds_chord_20261110T181257_3482666",
+  "actual_chord_retest": {
+    "passed": true,
+    "attempt": "cases/curved333_after_bounds_chord_20261110T181257_3482666",
+    "assertions": 334,
+    "seconds": 354.7643258571625,
+    "cuts": 296,
+    "geometry_work": 5397983,
+    "prior_failure_geometry_work": 5957792,
+    "prior_failure_seconds": 401.0185475349426,
+    "same_limits": true,
+    "all_actual_handles_terminal": true,
+    "scope": "One actual failing primitive now closes; not whole-surface efficiency or BL qualification."
+  },
   "remaining_focused": [
-    "grazing chord independent bands",
-    "translated cubic bounds",
-    "curved-resource and composed integration refusal checks"
+    "translated cubic bounds/resource behavior",
+    "additional curved/composed integration behavior before broad milestone"
   ],
   "surface_front_integration_complete": false,
   "mpi_milestone_complete": false,
   "bl_mesh_accepted": false,
-  "full_workflow_accepted": false
+  "full_workflow_accepted": false,
+  "current_job": "cases/curved333_translated_20261110T182532_3517263",
+  "grazing_check": {
+    "passed": true,
+    "assertions": 12,
+    "cases": 1,
+    "seconds": 196.46516394615173,
+    "attempt": "cases/curved333_grazing_20261110T182013_3502765",
+    "all_actual_handles_terminal": true
+  }
 }
