@@ -6,11 +6,40 @@ restart are verified293. BL generation/constraint preservation under MPI and ful
 RANS500k TWO events/flow+SA transfer/CFD/actual adapted restart remain unproven.
 ONE connected curved-BL cycle. R=`integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57`.
 
+## Current owned workload — authoritative
+
+Build331 LIVE (tool session5435, wrapper3437236/start37782066,
+compiler driver3437269/start37782116). FIVE changed compiled files pinned; sources
+FROZEN until every actual build handle is terminal. Low priority j3,4TB scratch,
+47.4GB available at launch. This is a prerequisite-only focused build, NOT a BL
+capability milestone. Prepared helpers: `R/check_bounds331.py`,
+`R/replay_chord331_after_bounds.py`; run only after successful terminal build and
+actual-handle checks. No MPI/full attempt until connected surface/front integration.
+
+## Active connected curved-BL strategy
+
+User now requests integrated surface preparation, constrained/blended directions,
+coordinated first layer/front growth and outer transition BEFORE another full run.
+[Current strategy, audit and acceptance conditions](Handbook/ADAPTATION_CURVED_BL_CONSTRUCTION_STRATEGY_20261110.md).
+Audit-only bounded agents completed without edits/jobs. Prerequisite diagnosis uses
+ONE preserved actual330 chord with existing build330 diagnostic, helper
+`R/replay_chord331.py`, case `curved331_actual_chord_20261110T173020_3365437`.
+Chord replay TERMINAL1/401.019s; all5 actual identities absent, pins unchanged.
+It reproduced EXACT16385work/406leaves/.00100516uncertainty refusal;5.957792M
+geometry work/396.318s primitive. Adjacent-point probe TERMINAL0/12.684s,172assert,
+7770geometrywork; all5 actual handles absent/pins unchanged. Both helpers retained.
+Uncommitted prerequisite prototype under frozen331 build: certified candidate-box
+plus endpoint squared-distance concavity exclusion, existing Lip fallback/limits.
+Read-only proof review found no remaining blocker after optional endpoint fallback
+fix; build/focused qualification pending. Surface/front integration remains to
+implement; do NOT start full workflow after a kernel-only pass. Current strategy
+records missing facilities, proof and actual diagnosis. ONE connected milestone.
+
 ## Frozen owned workload — authoritative current state
 
 Full SAME303seed BL/RANS330 TERMINAL: outer14400 timeout124, wrapper14403.143s.
 ALL10 actual host owned identities ABSENT in330/terminal_handles_actual.json;
-source/build/input pins and mapped runtime verified unchanged. Sources now editable.
+source/build/input pins and mapped runtime verified unchanged. Current331 freeze above.
 Two remesh attempts both FAILED in W wall-edge measurement before any split/first
 row: W5503.34/5503.79s,58305 unmeasurable edges,0 splits. Most edge failures were
 reported after time expiry; do not call them independent geometric obstructions.
@@ -36,7 +65,7 @@ no first-row construction or accepted operation. Driver consumed event and enter
 cycle1 on the original61330-point grid; TWO accepted events were impossible.
 `R/m6_runs/rans_curved329_v1/assessment.json`, raw prefix, stop request and manifest
 preserve evidence. All10 exact actual host handles ABSENT in
-`terminal_handles_actual.json`; rechecked before330 source edits. Current330 is FROZEN.
+`terminal_handles_actual.json`; rechecked before330 source edits. Current331 freeze is authoritative.
 
 Selected connected correction: skip unused expensive partition work prediction
 when there is only ONE native destination. Existing Repartition initializes every

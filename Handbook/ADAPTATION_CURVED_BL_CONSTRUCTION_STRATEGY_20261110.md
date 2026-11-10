@@ -1,0 +1,196 @@
+# Connected curved-BL construction strategy — 2026-11-10
+
+Status: audit and bounded prerequisite diagnosis, NOT implemented/qualified BL capability.
+This is the active connected cycle requested after terminal330; no competing implementation.
+Euler293's two accepted events and isolated adapted restart remain the regression baseline.
+R=`integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57`.
+
+## Evidence and scope
+
+330 is terminal124 at outer14400; all10 actual owned handles absent,1585 pins and
+mapped runtime verified. Both remesh events failed W before any split/placement:
+5503.34/5503.79s,58305 unmeasurable edges,0 splits. Most failures followed deadline
+expiry. Earliest meaningful witnesses are three composed-edge evaluation refusals
+and two curved-band chord work refusals near the root/leading edge. The later BL
+report overwrote the same event0 filename; raw log preserves both attempts.
+
+The unused sole-worker weight correction works: weights.00433s versus329's5398.49s.
+Initial metric work/target exactly match329;1226.497s versus1426.532s is not its gain.
+The provisional1.174528M estimate remains outside500k, with empirical indicator
+108761.874 and no proven error bound. Sensor-only complexity2.08846 is at the
+coarsest floor. Inherited wall tangent sizing is implemented, but its actual
+contribution to this excess is unmeasured. The638k face-covariance calculation is
+only a planar scale proxy, not a physical lower bound or production integral.
+
+The missing capability is a measured-ready tangential wall mesh followed by a
+coherent, constraint-aware advancing volume front. A split prepass, a direction
+map, provisional validity or a generated-looking mesh cannot establish it.
+Keep geometry1e-4,q>=.2,J>=.05,maxedge1.8,requested heights/progression,positivity,
+body separation, no-CAD authority and existing work/time/memory limits unchanged.
+
+##1. Surface preparation, coupled to neighboring volume
+
+Implemented: W10 splits long wall edges and thin-strip edges in volume cavities.
+Euler/native machinery already provides coupled collapse, relocation, reconnection,
+geometry refinement, support import, reservations and atomic publication. Its
+surface-priority lane still measures the full volume target. There is no complete
+all-requested-wall tangential readiness phase or engine-facing tangent metric policy.
+
+Strategy: reuse those operators and ownership/publication machinery for the union
+of actual requested no-slip markers. Measure physical tangent-plane flow demand,
+the existing inherited wall-tangent contribution, and geometry/first-layer
+feasibility separately. Keep BL normal spacing in the volume/advancement target;
+it must not enter a surface tangential length merely because a straight curved-wall
+chord has a normal component. This does NOT waive genuinely necessary geometric
+resolution or positive clearance of a prospective first layer. Height constraints
+already satisfied on existing rows must survive; absent first rows are constructed
+subsequently, not fabricated by a measurement flag.
+
+Do not remove inherited tangent sizing or introduce a mandatory curvature metric
+before quantifying the actual effect. First bounded hypothesis: surface selection
+must distinguish tangent demand from the volume normal term while full patch
+geometry and actual first-child feasibility remain certified. Test this on real
+smooth/LE/root/feature contexts before changing production target policy.
+
+Readiness must cover every requested wall face and incident complete bounded volume
+support: complete/current associations; no unknown geometry/tangent measurements;
+geometry within the unchanged tolerance; no unresolved overlong tangential demand;
+no unresolved interface/body/feature or first-child feasibility failure. Short-edge
+and directional distributions, accepted/refused coarsening, placement and connectivity
+changes must be reported. There is no blanket minimum-edge gate: geometry can need
+short edges. An admissible smaller replacement is evidence; point count alone is not.
+Recompute affected readiness after each surface publication and ownership change.
+Shape is measured for diagnosis here; construction remains validity-first and final
+q/J/size/height certification applies to the complete resulting volume.
+
+##2. Constrained and blended advancement directions
+
+Implemented: ComputeDirectionField derives carrier-plane/intersection constraints,
+blends along wall neighborhoods toward unconstrained directions, and reduces blending
+to retain visibility. DirectionAt rechecks current star constraints and uses the map
+only if carrier tangency and its existing visibility margin hold. Two-carrier
+intersections use their feasible line. Preserve this policy, not independent raw normals.
+
+Strategy: build the field AFTER surface readiness. Rebuild affected data when wall
+coordinates, wall/carrier incidence, geometry association or relevant constraints
+change. An interior-only edit is not automatically a direction change. Audit R1,
+R2 and completion for actual surface dependency changes; do not assume every edit
+changes the wall, or that a surviving direction remains smoothly blended. Retain
+carrier tangency at symmetry, smooth recovery away along the wall, visibility and
+normal-distance height compliance when the advance is oblique. Report direction
+jumps, visibility minima, constrained/blended counts and rejected/rebuilt entries.
+Current fixtures exercise carriers; actual curved M6 continuity/invalidation remains unproven.
+
+##3. Coordinated first layer
+
+Implemented: PlanLift/DirectionAt, ridge-side constructions, first-child completion
+and cavity transactions. Existing operations build replacements, check exact positive
+cells, topology/interface/carrier conditions, geometry and applicable heights, then
+commit. These are the mechanisms to produce aligned cells and preserve the cavity
+interface; neither the local direction map nor a registry proves whole-wall coverage.
+
+Strategy: advance compatible neighboring faces together using existing lift and
+first-child transactions within current support bounds. Shared vertex/face identity
+and a consistent cavity decomposition must prevent gaps/overlap. Revalidate actual
+wall-normal distance and footprint against curved authority, including oblique
+carrier-constrained advancement. Incompatible or missing support is explicit unresolved
+readiness/front demand, not silent coverage. Final first-child and reference-clearance
+census must cover every requested face and neighboring volume, with zero unknowns.
+
+##4. Successive coordinated fronts
+
+Implemented: PhaseG groups adjacent pending tops, LayerTransaction replaces their
+above-front cavities and fills swept interfaces, clearance/retry paths handle some
+obstructions. NextLayer chooses the limiting wall policy, takes a metric-unit step,
+then checks distance increase and thickness. It is NOT an independent direct proof
+of requested normal progression. Columns retain initial lift/copy directions;
+CountLayers is diagnostic and its call/export coverage must be verified.
+
+Strategy: keep the constrained/blended origin policy consistent through growth;
+validate its dependencies and current visibility as fronts change. A stored direction
+is usable only while its actual constraints remain valid. Reuse coordinated layer
+transactions and clearance repair for curved LE, root/junctions and competing walls.
+Report stopped fronts separately by thickness/isotropy/physical collision/constraint,
+missing support, work or time; work/time/cap exhaustion does not prove BL coverage.
+Measure actual normal increments, alignment, progression, per-wall coverage and
+unresolved fronts. No permanent columns, fixed coordinates or prism requirement.
+Actual M6 progression/coverage, direction refresh and competing-wall behavior remain missing.
+
+##5. Outer transition and complete-mesh closure
+
+Implemented: front transactions preserve their cavity boundary and attach to the
+surrounding tets; the remesher passes provisional construction into the ordinary
+metric/geometry/shape lifecycle. Construction validity is provisional; its temporary
+height-failure exclusion is not a final height waiver. No separate qualified smooth
+outer-transition construction stage has been demonstrated.
+
+Strategy: measure transition conformity, normal progression and neighboring volume
+quality, then use the existing coupled operators to close residuals and reclose shape.
+Surface/front state remains movable under actual geometry/features/heights. Rebuild
+surface/direction/front dependencies after relevant changes; never freeze columns
+merely to preserve a construction registry. Require complete final geometry, q/J,
+size and requested-height census, conservative admissible flow+SA transfer, finite
+continued CFD, TWO accepted RANS500k events and isolated adapted disk restart.
+FIRST_ROW native1 with CFD MPI6 still does not qualify native distributed BL generation.
+
+## Prerequisite: measurable curved edges without changed limits
+
+W currently measures full-volume target along incoming wall chords. The first
+failures precede meaningful construction. Its first unique-edge scan finishes before
+its local split-loop time check; after geometry time expires it continues recording
+many derivative failures. This is a diagnostic/control-flow gap, not permission to
+raise limits or count expired queries as independent geometric failures.
+
+Reuse existing retained geometry and exact-query/projection facilities. Investigate
+band-crossing interval bounds versus actual profile transitions, and composed-edge
+quadrature versus support/normal/association changes. Keep exact support identity,
+association/coordinate invalidation, pin accounting and bounded transient storage.
+Uncertain bounds fall back to full certification; sampling is never a certificate.
+One preserved actual chord reproduced EXACTLY using build330 and the existing
+ActualCubicBLPolicy3D diagnostic:401.019s helper/396.318s primitive,5.957792M
+geometry work,16385 classifier work,406 splittable leaves,.00100516 unresolved
+versus1e-8. All5 actual handles absent, source/runtime/input pins unchanged.
+Eight adjacent/identical point probes passed172 assertions/12.684s helper,7770
+geometry work. The sampled closest facet35672 and nonzero direction-dot-chord
+near-.000544 are stable; direct distance intervals are2.2–7.0e-15 wide at1e-14
+requested precision. The nearest band is h0*1.5^7=3.4171875e-5. Samples diagnose,
+not certify, branch stability. Local bound2.498e5 is~44x below global1.102e7;
+the remaining refusal still needs much tighter interval exclusion.
+
+Prerequisite prototype, NOT validated: retain a certified cubic candidate box from
+the existing closest query. For any fixed closed surface S, d_S(x)^2-|x|^2 is
+concave (an infimum of affine functions), so squared distance throughout a chord
+is at least the linearly interpolated endpoint lower squares minus s(1-s)|e|^2.
+The weaker min(endpoint lower)^2-|e|^2/4 is conservative. Distance to ONE actual
+candidate point supplies an upper bound, whose maximum over a straight interval
+occurs at an endpoint. Use its Bernstein enclosure, outward arithmetic and affine
+rounding/padding bounds. Intersect only consistent finite enclosures with the
+existing Lipschitz certificate; retain fallback. This needs no unique-foot,
+monotonicity, normal-cone or sampling assumption and applies across seams, holes,
+separate bodies and genuine features in the exact same support. Work/tolerance/
+authority limits remain unchanged. Added endpoint geometry work and resource
+fallback still require focused review/qualification. Full surface/front changes
+remain to implement and qualify in this SAME milestone; this kernel prototype is
+not its completion. No new baseline/perf/GDB campaign.
+Do not carry this measurement refusal unchanged into a larger surface stage.
+
+## Qualification / return to full workflow
+
+ONE connected hypothesis must first work on representative ACTUAL M6 patches plus
+neighboring volume: smooth curvature, LE, symmetry intersections, genuine features
+and junctions, with a clean control. Preserve complete support and frozen303 seed.
+Compare geometry and cached/recomputed results; flow/inherited/geometry/normal target
+contributions; tangential directional lengths/alignment; direction continuity and
+invalidation; normal first heights/progression/coverage; transition; q/J; point count;
+work/time/CPU and memory. Include missing support/resource refusal and ownership
+migration with intact constraints. Existing synthetic tests are primitive evidence.
+Run focused checks during implementation, then ONE appropriate connected MPI
+milestone before full same-seed BL/RANS. No full attempt until the prerequisite and
+integrated construction strategy are qualified. Keep Coulaud/MAdLib actual-patch
+investigation linked; tangent-plane/curve metrics are hypotheses, its normal metric
+extension is not a BL height law, and its L2 error is not strict certification.
+
+Sources: CNativeBLPipeline3D.hpp:270–315,392–478; native_bl3d/BLOptionA10.inl:54–120;
+BLFirstRow9.inl:237–302,787–802; BLGrowth12.inl:86–132,166–272,329–492;
+CNativeEngine3D.cpp surface lanes/cavity operators; CBoundaryLayerMetric.cpp:140–209,
+2150–2204,3520–3794,4256–4337. See linked handoff for existing qualification limits.

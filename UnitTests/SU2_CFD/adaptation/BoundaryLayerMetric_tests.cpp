@@ -1525,6 +1525,40 @@ TEST_CASE("Translated cubic distance crossings close by chord span rather than c
   }
 }
 
+TEST_CASE("Grazing cubic-authority chords retain every independently known distance band", "[NativeCubicChordSpan3D]") {
+  using namespace SU2Native3D;using SU2NativeGeometry::MappedFacetReference;
+  const Node a{0,{0,0,0}},b{1,{1,0,0}},c{2,{0,1,0}},d{3,{0,0,1}};
+  const std::vector<Facet> faces{{0,0,{a,b,c}},{1,1,{a,d,b}},{2,1,{b,d,c}},{3,1,{c,d,a}}};
+  auto original=std::make_shared<PlanarReference>(faces);MappedFacetReference::CurvedNets nets;
+  const unsigned powers[10][3]={{3,0,0},{0,3,0},{0,0,3},{2,1,0},{1,2,0},{0,2,1},{0,1,2},{1,0,2},{2,0,1},{1,1,1}};
+  std::map<Id,double> errors;
+  for(const auto& f:faces) {
+    errors.emplace(f.id,1e-13);
+    for(unsigned k=0;k<10;++k) {
+      Point p{};
+      for(unsigned j=0;j<3;++j) {p.x+=powers[k][j]*f.v[j].p.x/3;p.y+=powers[k][j]*f.v[j].p.y/3;p.z+=powers[k][j]*f.v[j].p.z/3;}
+      nets[f.id][k]=p;
+    }
+  }
+  auto authority=std::make_shared<MappedFacetReference>(original,errors,331,SIZE_MAX,false,nets);
+  BoundaryPoints points;std::vector<SurfaceFace> skin;
+  for(const auto& f:faces){for(const auto& n:f.v)points.emplace(n.id,BoundaryPoint{n,authority->Vertex(n.id)});skin.push_back({{f.v[0].id,f.v[1].id,f.v[2].id},f.id});}
+  auto parameters=std::make_shared<BoundaryParameterState>(authority,points,skin);
+  constexpr double h0=2e-6;
+  CBoundaryLayerMetric::Wall wall;wall.layer={"wall",h0,1.2,.01};wall.coord={0,0,0,1,0,0,0,1,0};wall.conn={0,1,2,2};
+  wall.authority=PlanarReference::WithParameters(original,parameters);wall.authority_facet=0;wall.authority_facets={0};wall.surface_tolerance=1e-4;
+  CBoundaryLayerMetric metric(3,{wall});
+  const std::array<double,3> first{.002,.002,-.25*h0},last{.010,.002,-50.25*h0};
+  const auto cuts=metric.EdgeBreakpoints(first,last);
+  REQUIRE(cuts.size()>2);
+  std::vector<double> levels{.5};for(double level=1;level<50.25;level*=1.5)levels.push_back(level);
+  for(double level:levels) {
+    const double root=(level-.25)/50;double miss=1;
+    for(double t:cuts)miss=std::min(miss,std::abs(t-root));
+    CHECK(miss*std::hypot(last[0]-first[0],last[2]-first[2])*(2/h0)<=1e-8);
+  }
+}
+
 TEST_CASE("Strict integration diagnostics preserve quadrature decisions", "[NativeStrictBLDiagnostics3D]") {
   CBoundaryLayerMetric::Wall wall;wall.layer={"wall",.02,1.2,.08};
   wall.coord={0,0,0,1,0,0,0,1,0};wall.conn={0,1,2,2};

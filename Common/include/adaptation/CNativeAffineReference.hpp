@@ -133,6 +133,8 @@ class MappedFacetReference {
     Id facet=0;
     SurfaceBinding binding;
     Point point{},normal{};
+    /*! Outward enclosure of one actual cubic candidate in this exact support; not a nearest-foot enclosure. */
+    std::array<Point,2> candidate_bounds{};
     double lower=0,upper=0;
     /*! Lower bound on -dot(query-surface, outward unit normal) at every possible nearest point.
      * Positive certifies fluid-side normal clearance; nonpositive includes unresolved sign. */

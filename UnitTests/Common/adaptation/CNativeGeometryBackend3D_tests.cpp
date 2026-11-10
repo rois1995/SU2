@@ -720,6 +720,14 @@ TEST_CASE("Closest cubic queries reuse immutable regions without reusing query b
     CHECK(a.point.x==b.point.x);CHECK(a.point.y==b.point.y);CHECK(a.point.z==b.point.z);
     CHECK(a.normal.x==b.normal.x);CHECK(a.normal.y==b.normal.y);CHECK(a.normal.z==b.normal.z);
     CHECK(a.curvature1==b.curvature1);CHECK(a.curvature2==b.curvature2);
+    for(unsigned side=0;side<2;++side) {
+      CHECK(a.candidate_bounds[side].x==b.candidate_bounds[side].x);
+      CHECK(a.candidate_bounds[side].y==b.candidate_bounds[side].y);
+      CHECK(a.candidate_bounds[side].z==b.candidate_bounds[side].z);
+    }
+    CHECK(a.candidate_bounds[0].x<=a.candidate_bounds[1].x);
+    CHECK(a.candidate_bounds[0].y<=a.candidate_bounds[1].y);
+    CHECK(a.candidate_bounds[0].z<=a.candidate_bounds[1].z);
   };
   for(unsigned repeat=0;repeat<2;++repeat)for(const Point query:{Point{.25,.25,-.03},Point{.5,.5,-.01},Point{10.25,.25,-.03}}) {
     const Id hint=query.x>5?100:0;
@@ -744,6 +752,9 @@ TEST_CASE("Closest cubic queries reuse immutable regions without reusing query b
     const auto bounded=protectedCache->ClosestCurved(hint,point,1e-7,3*expected.work,SIZE_MAX,only);
     compare(bounded,expected);CHECK(bounded.work<=3*expected.work);
     CHECK(bounded.work<=expected.work+64);
+    CHECK(bounded.candidate_bounds[0].x<=point.x);CHECK(point.x<=bounded.candidate_bounds[1].x);
+    CHECK(bounded.candidate_bounds[0].y<=point.y);CHECK(point.y<=bounded.candidate_bounds[1].y);
+    CHECK(bounded.candidate_bounds[0].z<=point.z);CHECK(point.z<=bounded.candidate_bounds[1].z);
   }
   const auto pressure=saturated->GeometryStatsSnapshot();
   CHECK(pressure.evictions>0);CHECK(protectedCache->GeometryStatsSnapshot().closest_region_retention_refusals>0);

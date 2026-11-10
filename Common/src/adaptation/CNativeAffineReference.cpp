@@ -1621,6 +1621,12 @@ MappedFacetReference::CurvedClosest MappedFacetReference::ClosestCurved(
     const auto upper=NormBound(Difference(box,Exact(query)));
     if(upper<result.upper) {
       result.facet=id;result.binding=binding(id,r);result.point=Realize(result.binding);result.upper=upper;
+      Vec low{},high{};
+      for(unsigned d=0;d<3;++d) {
+        low[d]=std::nextafter(double(box[d].lo),-INFINITY);
+        high[d]=std::nextafter(double(box[d].hi),INFINITY);
+      }
+      result.candidate_bounds={ToPoint(low),ToPoint(high)};
     }
   };
   consume();candidate(hint,{1,0,0});candidate(hint,{0,1,0});candidate(hint,{0,0,1});candidate(hint,{.5,.25,.25});

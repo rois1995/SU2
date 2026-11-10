@@ -363,6 +363,7 @@ struct CBoundaryLayerMetric::WallProjection {
   double lower=0,upper=0;
   size_t face=0;
   SU2Native3D::Point bary{};
+  std::array<SU2Native3D::Point,2> candidate_bounds{};
 };
 
 bool CBoundaryLayerMetric::CurvedWall(unsigned short wall)const {
@@ -417,6 +418,7 @@ CBoundaryLayerMetric::WallProjection CBoundaryLayerMetric::ProjectWall(
   }
   if(reservation && !reservation->ChargeWork(attempted))throw std::length_error("Curved BL geometry work exhausted.");
   out.lower=closest.lower;out.upper=closest.upper;
+  out.candidate_bounds=closest.candidate_bounds;
   const auto where=std::lower_bound(wall.authority_facets.begin(),wall.authority_facets.end(),closest.facet);
   if(where==wall.authority_facets.end() || *where!=closest.facet)
     throw std::logic_error("Curved BL closest foot escaped retained component.");
@@ -3603,7 +3605,9 @@ std::vector<double> CBoundaryLayerMetric::EdgeBreakpointsImpl(
           reservation->peak_bytes=std::max(reservation->peak_bytes,peak);
         }
       };
-      const auto frontierBytes=transfer_memory::Mul(16384,sizeof(Interval));
+      constexpr size_t endpointScratch=2048;
+      static_assert(3*sizeof(WallProjection)<=endpointScratch,"Endpoint projections exceed reserved scratch.");
+      const auto frontierBytes=transfer_memory::Add(transfer_memory::Mul(16384,sizeof(Interval)),endpointScratch);
       admit(transfer_memory::Add(frontierBytes,transfer_memory::Bytes(levels),transfer_memory::Bytes(cuts),
           transfer_memory::Mul(retained.size(),sizeof(double)+4*sizeof(void*))));
       std::vector<Interval> frontier;frontier.reserve(16384);
@@ -3693,8 +3697,58 @@ std::vector<double> CBoundaryLayerMetric::EdgeBreakpointsImpl(
             transfer_memory::Bytes(cuts),transfer_memory::Mul(retained.size(),sizeof(double)+4*sizeof(void*)));
         const auto projection=ProjectWall(wall,point,std::max(std::numeric_limits<double>::min(),
             std::min(1e-6*h0,double(radius)*.125)),scratch);
-        const auto lower=std::nextafter((long double)projection.lower-radius,-INFINITY),upper=std::nextafter((long double)projection.upper+radius,INFINITY);
+        auto lower=std::nextafter((long double)projection.lower-radius,-INFINITY),upper=std::nextafter((long double)projection.upper+radius,INFINITY);
         if(std::none_of(levels.begin(),levels.end(),[&](double level){return level>=lower && level<=upper;}))return;
+        if(std::all_of(metricPadding.begin(),metricPadding.end(),[](double x){return std::isfinite(x);})) {
+          try {
+            // d(x)^2-|x|^2 is concave for any fixed closed support: endpoints bound the interior from below.
+            const auto precision=std::max(std::numeric_limits<double>::min(),std::min(1e-6*h0,double(radius)*.125));
+            long double endpointLower=INFINITY,fixedUpper=0,roundingSquared=0;
+            const double aa[3]={a[0],a[1],a[2]},bb[3]={b[0],b[1],b[2]};
+            for(unsigned j=0;j<3;++j) {
+              const auto epsilon=std::numeric_limits<double>::epsilon();
+              const auto gamma=BLUp(4.L*epsilon/(1-4.L*epsilon));
+              const auto error=BLUp(BLUp(gamma*BLUp(std::abs((long double)aa[j])+std::abs((long double)bb[j])))+
+                  BLUp(4.L*std::numeric_limits<double>::denorm_min()+metricPadding[j]));
+              roundingSquared=BLUp(roundingSquared+BLUp(error*error));
+            }
+            for(const auto& endpoint:{low,high}) {
+              const auto& x=endpoint[0];
+              const auto end=ProjectWall(wall,{x.x,x.y,x.z},precision,transfer_memory::Add(scratch,endpointScratch));
+              long double queryErrorSquared=0,maximumSquared=0;
+              const double lo[3]={endpoint[0].x,endpoint[0].y,endpoint[0].z},hi[3]={endpoint[1].x,endpoint[1].y,endpoint[1].z};
+              const auto& foot=projection.candidate_bounds;
+              const double footLow[3]={foot[0].x,foot[0].y,foot[0].z},footHigh[3]={foot[1].x,foot[1].y,foot[1].z};
+              for(unsigned j=0;j<3;++j) {
+                const auto error=BLUp((long double)hi[j]-lo[j]);
+                queryErrorSquared=BLUp(queryErrorSquared+BLUp(error*error));
+                const auto distance=std::max(std::abs(BLDown((long double)lo[j]-footHigh[j])),
+                                             std::abs(BLUp((long double)hi[j]-footLow[j])));
+                maximumSquared=BLUp(maximumSquared+BLUp(distance*distance));
+              }
+              const auto distance=std::max(0.L,BLDown((long double)end.lower-BLUp(std::sqrt(queryErrorSquared))));
+              endpointLower=std::min(endpointLower,distance);
+              fixedUpper=std::max(fixedUpper,BLUp(std::sqrt(maximumSquared)));
+            }
+            const auto span=BLUp(BLUp((long double)right-left)*lengthBound);
+            const auto squaredLower=std::max(0.L,BLDown(BLDown(endpointLower*endpointLower)-BLUp(BLUp(span*span)/4)));
+            const auto rounding=BLUp(std::sqrt(roundingSquared));
+            const auto tightenedLower=BLDown(BLDown(std::sqrt(squaredLower))-rounding);
+            const auto tightenedUpper=BLUp(fixedUpper+rounding);
+            if(std::isfinite(tightenedLower)&&std::isfinite(tightenedUpper)&&
+                std::max(lower,tightenedLower)<=std::min(upper,tightenedUpper)) {
+              lower=std::max(lower,tightenedLower);upper=std::min(upper,tightenedUpper);
+            }
+            if(std::none_of(levels.begin(),levels.end(),[&](double level){return level>=lower && level<=upper;}))return;
+          } catch(const std::length_error&) {
+            auto* reservation=geometryReservation?geometryReservation:walls[wall].authority->AtlasReservation();
+            if(reservation) {
+              reservation->CheckTime();
+              if(reservation->work_exhausted || reservation->work>=reservation->maximum_work)throw;
+            }
+            // Optional endpoint refusal leaves the original midpoint/Lipschitz certificate in force.
+          }
+        }
         if(std::all_of(metricPadding.begin(),metricPadding.end(),[](double x){return std::isfinite(x);})) {
           auto up=[](long double x){return std::nextafter(x,INFINITY);};
           auto down=[](long double x){return std::nextafter(x,-INFINITY);};
