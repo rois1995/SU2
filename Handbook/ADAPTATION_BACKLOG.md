@@ -12,6 +12,15 @@ its relevance or the user explicitly reprioritizes it.
   hypotheses. No competing implementation, CAD dependence, high-order elements,
   L1/L2 switch or replacement of strict certification/first-height prescription.
 
+- Frozen329 target evaluation completed but is OUTSIDE500k estimated bounds:
+  estimate1.174528m, empirical indicator.108762m, sensor complexity2.08846 at floor.
+  Original-wall-edge covariance contributes tangential sizes to the BL tensor even
+  with the additional TangentialFloor flag disabled. Its causal contribution is
+  UNMEASURED; this is a policy floor, not a physical impossibility proof. Include
+  inherited tangents, full/base D1, normal profile and continuation separately in
+  the already queued first-representative-BL-patch audit. Keep329 frozen; no target,
+  height, norm, construction or geometry-representation change from this lead.
+
 - Conditional AFTER frozen329 terminal: use existing bounded-complexity sample,
   preparationGeometryQueries/profileGeometryQueries/profileRefreshes counters to
   establish whether profile refresh repeats unchanged coordinate/support geometry.

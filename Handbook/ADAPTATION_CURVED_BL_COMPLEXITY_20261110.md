@@ -417,3 +417,48 @@ Inspected source hashes:
 - SU2_CFD/src/adaptation/CNativeComplexity3D.cpp `fe92c276b6e01d248a6fbf673482f0d5a22a28ecde320de5ae77c6a3867cd08b`
 - SU2_CFD/include/adaptation/CNativeComplexity3D.hpp `832a6c7a20d21a4d5f6d823af59729096ef01339f3c77da943808753a7f836cf`
 - SU2_CFD/src/solvers/CSolver.cpp `a96cf2a80c674e559393efde588ad8dc9d43c6c8455526c2762bd658452a8358`
+
+##329 completed target evaluation: policy floor exceeds500k
+
+First actual curved-M6 target evaluation completed. Source/build/seed/constraints
+remain frozen; native construction continues. `R/m6_runs/rans_curved329_v1/
+metric_build_completed.log` preserves the completed byte prefix independently of
+the still-growing run.log; metric_build_assessment.json parses all six rank stages.
+
+Normalization status outside_estimated_bounds, provisional1, proven_error_bound0,
+trials1. Estimate1174528.3859844327, empirical3SE indicator108761.87398603413 versus
+requested500000. Sensor-only density min=max1e-6, AR1, complexity2.0884618106155486:
+the coarse sensor floor does not remove the remaining BL contribution1174526.2975.
+This is an estimated minimum of the CURRENT POLICY, not proof that physical
+geometry/height constraints intrinsically require>500k. Do not label it a qualified
+500k target, silently raise complexity, weaken heights or call the workflow passed.
+
+8192 proposals,6516 inside/nonzero; preparation geometry queries6516 and trial
+geometry queries13032, six rank-profile refreshes. With onlyONE trial this is the
+expected full/base pair of profile evaluations, NOT evidence of repeated scale-
+trial invalidation. Existing profile-refresh backlog hypothesis is not established.
+Metric-build1426.532s includes normalization, gradation and composed nodal audit;
+it is not a pure geometry-query timer. Keep preparation_seconds_max318.079,
+assessment_seconds_max207.543 and all other nested/max timers separate. Metric
+geometry work by rank10136289/12188969/10368433/8959758/7598151/4222169; CPU includes
+MPI polling. geometry_reserved_peak_bytes12879626240 is ledger reservation, not
+physical RSS. Final q/J/geometry/height acceptance and generated BL suitability
+remain entirely unproven.
+
+Bounded read-only composition audit: CBoundaryLayerMetric constructs3D wall face
+size covariance from original wall edges, angle-averages its rotated logarithm
+into vertexLog, then interpolates/rotates it to the queried tangent plane and
+inverts it in WallMetric3D. Thus the BL tensor carries inherited wall-mesh tangent
+resolution as well as requested normal spacing. This is confirmed source behavior,
+not a demonstrated defect or quantified cause of the excess floor. ApplySample's
+intersection preserves these tangent demands even when useTangentialFloor=false;
+that flag controls an ADDITIONAL near-wall floor, not removal of the tangent block.
+Curved mapped walls do not execute the separate analytic cylinder/sphere curvature
+cap in EvaluateImpl. Do not infer that strict geometric demand is absent: geometry
+certification and actual wall/volume construction remain separate authorities.
+
+At the first representative saved BL patch, the queued geometry/flow/height/
+inherited-tangent decomposition must distinguish this policy contribution from
+necessary physical geometric resolution, D1 constraints, normal progression and
+construction obstruction. Only then select ONE justified correction. No production
+metric, normal-height, representation or construction policy changed by this audit.

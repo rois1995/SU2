@@ -17,7 +17,15 @@ are not terminal. Compiled sources/helpers/inputs FROZEN. ONE owned heavy job.
 
 Original303 savedRANS seed, Mach-onlyL1/500k,h02e-6/g1.2/T.01,geometry1e-4,
 native5400/outer14400TOTAL,12GiB/rank unchanged. CFDMPI6/FIRST_ROWnative1 is NOT
-distributed BL generation qualification. No normalized actual BL target or mesh yet.
+distributed BL generation qualification. Target evaluation now COMPLETED, but is
+UNQUALIFIED: outside_estimated_bounds/provisional1, estimate1174528.386 with empirical
+indicator108761.874 versus500k; sensor-only complexity2.08846 at density floor.
+Metric-build1426.532s,8192samples/6516inside,6516preparation+13032full/base geometry
+queries. Only1trial: no demonstrated repeated-scale refresh churn. Completed log
+prefix/parsed assessment in run folder. Native construction continues FROZEN; no
+actual BL mesh yet. Preserve outcome. This is the current POLICY floor, not a
+proven physical500k impossibility. Inherited wall-edge tangent sizes are confirmed
+source behavior; their causal contribution is not measured. See current design.
 
 329 connected correction and full-launch checkpointbe73153380 PUSHED. CFD SHA
 69d635b238df15292c22f28e7aebee7083b8adabd73210dc320918cd53e36e72;
