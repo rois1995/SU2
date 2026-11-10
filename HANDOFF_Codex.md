@@ -16,6 +16,15 @@ Preserve outcome unless an evidence-backed authorized stop condition occurs.
 330 skips only unused sole-worker weight prediction; same L1/500k/heights/budgets.
 329 terminal evidence below drives this correction; do not mistake it for live.
 
+330 initial metric COMPLETED1226.497s. SAME normalization/target/support/work
+counters as329, geometry work53473769. Wall−14.02% is NOT this correction's gain:
+routing branch executes later; CPU includes MPI polling. Target still UNQUALIFIED
+1.175M vs500k. All303359 cells migrated to rank0 using uniform weights; DC15
+construction prepare reached (pipeline elapsed1.579s, NOT total remesher time).
+The prior unused-weight blocker is passed; final phase receipts and actual BL
+result pending. `R/m6_runs/rans_curved330_v1/metric_build_completed.log` and its assessment
+preserve exact matching-stage evidence. Keep frozen. No generated BL mesh yet.
+
 Full SAMEseed RANS/BL329 TERMINAL after evidence-backed authorized stop. Event0
 rejected at native5400s: weights5398.49s, import<=.781s, donor build<=.690s;
 no first-row construction or accepted operation. Driver consumed event and entered
