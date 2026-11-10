@@ -153,6 +153,10 @@ worker; MPI6 parents do NOT establish distributed BL generation.
 
 ## Qualification scope and remaining BL/RANS requirements
 
+[Current BL suitability evidence route](Handbook/ADAPTATION_BL_SUITABILITY_EVIDENCE_ROUTE_20261110.md)
+records existing outputs and unproven curved-normal/progression/coverage properties.
+No actual mesh failure is inferred from that read-only audit.
+
 `curved_bl303_qualification.json`:107 serial cases/544736 assertions passed; shared
 ledger smoke34061 assertions passed. Actual fluid-side M6 policy probe passed88
 assertions on a tiny complete cell, NOT full target/generation. Resumable MPI303
