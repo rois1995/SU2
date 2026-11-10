@@ -27,11 +27,17 @@ adds warm planar root before pressure; production byte-identical327. Build328
 PASS32.114s/all10 sampled identities absent; focused328 PASS664assertions/2cases,
 8.715s/all5 actual handles absent/pins verified. Exact certificates and <=3x uncached
 work hold under saturation, including protected refusal and cold eviction.
-ONE connected MPI6 milestone328 LIVE session29646. Find actual case folder under
-`R/cases/curved328_mpi6_*`; verify actual PID/start identities and terminal status
-before any source/helper edit or next job. Compiled sources/helpers FROZEN.
-No additional broad serial campaign: reuse325 unaffected serial, new focused check
-covers changed policy. On MPI pass immediately full SAMEseed M6, original budgets.
+ONE connected MPI6 milestone328 PASSED62cases EVERYrank/408.243s, all10 actual
+identities absent/pins verified; assertion counts5016/4977/5610/5014/5025/5065(logorder).
+qualification328.json seals behavior only. SAMEseed full RANS/BL328 is launching
+session11073. Check `R/m6_runs/rans_curved328_v1/{status.json,owned_handles.json}`
+(or exact helper host handle during preflight); never relaunch on quiet output.
+Compiled sources/helpers/inputs FROZEN. No other owned heavy workload. Original
+303savedSAseed/L1Mach/500k/h02e-6/g1.2/T.01/native5400/outer14400 unchanged.
+CFD3285f22b26f4cd6ef41ae003a6efbd4460b711b3e0d2d302747e8cb49be0e953658;
+test32840901b817055dd5a97d573ef3b470af435b90d5671669d227441f1be6f361b23.
+Connected correction/focused checkpointa2d8f35f2a pushed; preserve all prior failures.
+No new broad serial campaign:325 unaffected serial plus328focused/connectedMPI.
 
 
 Historical Full SAMEseed RANS/BL325 TERMINAL1/427.031s (session20806

@@ -350,3 +350,8 @@ reuses325 affected selection before immediate full same-seed M6. Read-only calle
 review found no concrete defect: generic prepared-leaf/union remain64 scans; only
 cubic caller requests1. Saturation size8192 is host-layout-specific; its assertions
 establish pressure for this build, not portability proof.
+
+ONE328 connected MPI milestone passed62cases EVERYrank/408.243s, all10 exact
+actual identities absent/pins verified; assertions5016/4977/5610/5014/5025/5065.
+qualification328.json seals behavior. Immediate full same303seed attempt328 launched
+with original constraints/budgets. No walltime speedup claim from these fixtures.
