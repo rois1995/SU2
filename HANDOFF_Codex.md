@@ -10,6 +10,18 @@ R = `integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57`.
 
 ## Frozen owned workload — authoritative current state
 
+Full SAMEseed RANS/BL319 ACTIVE(session70391), pinned C++/helpers/inputs FROZEN.
+R/m6_runs/rans_curved319_v1. Wrapper1427833/start33248148;
+time1428575/timeout1428576/mpirun1428577(start33250039), ranks1428580..1428585
+(start33250042). Current owned_handles.json is authoritative; verify actual
+terminal identities before edits/restart/another heavy workload. Initial CFD finite
+CL.155731/CD.050268; Hessian/D1 prefix matches314. Target construction active;
+no normalized target or BL mesh/event accepted yet. CFDMPI6/FIRST_ROWnative1,
+Mach-onlyL1/500k, h02e-6/g1.2/T.01, geometry1e-4, native5400/outer14400total,
+12GiB/rank unchanged. Host query-cache quota4GiB/rankquota715827882B; initial
+sampled process tree~3.2GB with ample headroom. launch_observation.json verifies
+live source/input/runtime pins and all10 exact owned identities. Keep source frozen.
+
 Build319 TERMINAL0/368.360s, all152 sampled actual build handles absent; pins verified.
 Focused319 PASSED231assertions/6.347s, all5 actual handles absent, pins verified.
 Actual captured chord314 replay319 PASS60assertions/32cuts: certification26.624s
@@ -20,7 +32,16 @@ This is measured query benefit, not full target completion. Earlier chord311
 replay319 PASS37assertions/9cuts: certification7.449s vs31610.443s (-28.7%);
 work124069 vs113482,102209region hits/10587misses,17193288cache bytes/no refusal.
 All5 actual handles absent; pins/runtime verified. Complete first-cell319 replay
-ACTIVE(session46573), original1800s diagnostic cap; pinned sources/helpers frozen. CFD SHA
+TERMINAL124/1803.413s at unchanged1800s diagnostic cap, all5 actual identities absent;
+pins/runtime verified. No completed integral or intrinsic guard failure. Last1740s
+window73completedchords/13734density evaluations/29.300Mchargedwork. CPU1798.88+.77s;
+maximum sampled process-tree RSS1681326080B, plateaued near1.68GB.
+Affected serial319 PASSED52cases/286104assertions/326.610s, all5 actual handles
+absent/pins verified. ONE MPI6 milestone319 PASSED55cases on EVERYrank/164.704s, all10 actual
+identities absent/pins verified. qualification319.json seals BEHAVIOR qualification;
+actual_cell remains passed:false/diagnostic124. Next full SAMEseed RANS/BL319
+using already authorized native5400/total14400, all constraints unchanged.
+Full319 is now active/frozen as recorded above. CFD SHA
 `c40a2b865d1be8ede594a52e8935d96047324325fdd49a9d165746bcf81550b6`;
 test SHA `77d14ce513410ad6cbf43ed33b943b6ab93369cb460ced53b3bf36fd05ff9642`. Cell318 phase observation TERMINAL124/300s as planned,
 all5 actual identities absent; source/input/runtime pins verified. Build318
@@ -69,7 +90,7 @@ actual captured chords; full strict-cell qualification is still INCOMPLETE:
 
 Build316/317 status/source/runtime/binary hashes remain in their pinned receipts;
 317 production CFD is byte-identical316. No new performance correction after316.
-Current affected serial/MPI qualification remains pending. After318 completes and
+Affected319 serial and ONE MPI milestone passed as scoped above. After318 completes and
 actual handles are terminal, choose the next connected correction from measured
 phase cost. Do not launch full316/318 from chord passes alone, raise limits or add
 another cycle. Review [bound design/evidence](Handbook/ADAPTATION_CURVED_BL_LEAF_BOUNDS_20261110.md).
@@ -155,8 +176,16 @@ qualify affected behavior at cadence, then promptly actual SAMEseed M6 RANS/BL.
 Preserve all prior qualification/checkpoints and every final BL suitability,
 transfer/CFD/TWOevents/actual adapted restart obligation. No budget increases.
 Preserve unrelated dirty files; whitelist staging; fork pushes authorized.
-Latest pushed checkpoint `57ef457705` preserves complete-cell316 timeout and
-qualified observational317/318 diagnostics; local319 is not yet qualified/pushed.
+Latest pushed checkpoint `eb01836389` preserves319 implementation/build, focused
+exactness/resource checks and BOTH actual captured-chord passes. Whole cell319 is
+terminal/incomplete; behavior qualification is sealed; full319 workflow is now active, not accepted.
+Prepared certification319_affected.py / certification319_mpi6.py / run_rans_curved319.py
+serial/MPI passed; full319 is now launched with terminal prerequisite receipts.
+The actual cell stays passed:false if diagnostic124; its1800s observation does not
+establish native5400 failure. After affected serial and ONE MPI pass, return to
+actual SAMEseed M6 at UNCHANGED5400native/14400total budgets rather than extending
+the diagnostic or choosing another optimization. Intrinsic guard failures require
+a connected fix; a shorter observation timeout is recorded honestly, never a pass.
 Complete the current strict-cell diagnosis/correction, affected checks and ONE MPI
 milestone, then promptly full SAMEseed M6. Keep pinned sources frozen during jobs.
 
@@ -290,7 +319,7 @@ Accepted first replay296 is byte-identical to293event1 (mesh/reference/restart).
 causal material performance gain NOT established. User directs BL, no further Euler
 optimization cycle for small timing/reuse changes. Both binaries and1303 sources
 are archived under `R/baselines/qualified_euler296_pre_bl_v1`; manifest verified.
-`R/euler293_preservation_during_bl303.json` confirms both saved checkpoints and
+`R/euler293_preservation_during_bl319.json` freshly verifies both saved checkpoints and
 isolated restart artifacts still match hashes. Never overwrite them.
 
 ## Rules and records

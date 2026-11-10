@@ -205,3 +205,39 @@ terminal/all5 identities absent and source/input/runtime pins verified. Query ti
 and work are distinct: geometry reuse reduces CPU while maintenance adds charged
 work. Consistent isolated-query timing benefit is NOT full-target completion.
 The complete first-cell319 replay is now active at unchanged1800s diagnostic cap.
+
+
+###319 complete-cell observation and return to actual M6
+
+Cell319 TERMINAL124/1803.413s, original diagnostic1800 cap, all5 actual identities
+absent and all source/input/runtime pins verified. Last1740s window has73completed
+chords/13734density evaluations/29.300Mchargedwork; CPU1798.88+.77s, sampled treeRSS
+maximum1,681,326,080B plateauing near1.68GB. No completed integral or intrinsic guard
+refusal. Keep actual_cell passed:false; actual target/BL generation remains unproven.
+
+The1800s probe is a shorter observation than the ALREADY authorized5400s production
+native limit. It cannot establish a native5400 failure. Complete affected serial and
+ONE MPI behavior qualification, then return to the full SAMEseed actual M6 attempt
+with native5400/total14400 UNCHANGED. This avoids making a diagnostic the capability
+objective. The full-run helper explicitly records/accepts this incomplete diagnostic
+as evidence, not a passed integral; all five other behavioral stages must pass.
+No production C++ change or gate/constraint/budget relaxation accompanies this scope
+correction. Any intrinsic guard or new validation failure still requires a fix.
+
+
+###319 behavior qualification and actual workflow launch
+
+Affected serial PASSED52cases/286104assertions/326.610s, all5 actual identities
+absent. ONE MPI6 PASSED55cases on EVERYrank/164.704s, all10 identities absent;
+assertions2960/2949/2912/2951/2898/3442 (log order), all pins verified.
+qualification319.json seals this BEHAVIOR scope, keeping actual_cell passed:false.
+Prior303seven baseline-controlled failures outside this selection remain failures.
+No all-suite, normalized target, BL generation or workflow acceptance claim.
+
+Full SAMEseed RANS/BL319 launched with original303 mesh/reference/seed/config,
+native5400/total14400/12GiBperrank unchanged. Frozen full-run source/helper/input pins,
+initial finiteCFDCL.155731/CD.050268 and matching Hessian/D1 prefix. NativeFIRST_ROW1
+with MPI6 parents is not distributed generation qualification. Follow HANDOFF for
+live identities and do not edit sources until terminal or preserved stop evidence.
+Euler293 BOTH checkpoints and isolated restart artifacts freshly hash-verified in
+euler293_preservation_during_bl319.json (22files). All completion duties remain.

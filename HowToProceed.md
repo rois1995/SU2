@@ -66,9 +66,14 @@ replay timed out at its existing1800s diagnostic limit (CPU1797.84s). No complet
 cell integral, target/BL mesh or current316 broad/MPI pass. Focused277assertions pass.
 Inspect existing work/density counters to locate remaining strict integration cost;
 the timeout alone does not identify its phase or prove native5400 failure.
-Require that actual cell, focused affected checks and ONE MPI milestone before
-returning to the SAME saved SA seed/config/500k full attempt; keep every gate and
-budget unchanged. Follow HANDOFF for actual handles and pinned sources.
+Production319 now reuses exact cubic region geometry within the existing bounded
+scope-pool allowance. Both actual captured queries retain their cut counts and
+reduce certification CPU-wall time by about29%; whole-cell1800s diagnostic remains
+incomplete. Affected52cases/286104assertions pass; ONE MPI6 milestone is active.
+After behavior qualification, return to the SAME saved SA seed/config/500k actual
+M6 attempt at unchanged native5400/total14400 budgets. Keep the shorter diagnostic
+passed:false; it does not prove failure at the production limit. See HANDOFF for
+actual handles and all remaining target/BL suitability/transfer/CFD/restart duties. Follow HANDOFF for actual handles and pinned sources.
 Keep the actual first-target failure driving this same connected BL milestone.
 
 The remaining notes are historical evidence; the active next action is above.

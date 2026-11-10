@@ -961,3 +961,21 @@ in IntegrationRule3D may be reusable with a curved query's proposed normal (axis
 choice is heuristic, never a geometry certificate). No change selected: first use
 faithful311 captured chord/fresh bounds to distinguish this from accounting residue
 or other causes. Keep all convergence, geometry, height and resource gates.
+
+
+### Deferred closest-query alternatives —2026-11-10
+
+The ACTIVE319 hypothesis reuses immutable cubic region geometry; preserve its
+frozen actual-cell replay and judge its complete outcome before selecting more work.
+
+- Exact closest-result memoization: same binary64 query/support and a completed
+  interval meeting the new precision could be reusable, but repeated-query frequency
+  on the CURRENT corrected target is unmeasured. Candidate bindings/normals are not
+  unique-foot certificates; tighter-result reuse can change a fresh looser proposal.
+  Do not infer benefit from old sub-ULP failure leaves or cache hits alone.
+- Better upper candidates: ClosestCurved currently seeds vertices/fixed barycentrics
+  on the hint and nearest indexed facet. Existing numerical cubic projection may
+  supply a better proposal before complete certified traversal. Its benefit is
+  unmeasured; any use must validate finite in-domain barycentrics and retain fresh
+  complete support, distance/clearance traversal and strict final gates. No CAD
+  dependency or replacement of a certificate by numerical minimization.
