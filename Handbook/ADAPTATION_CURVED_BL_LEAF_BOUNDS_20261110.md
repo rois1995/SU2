@@ -102,8 +102,51 @@ Captured311 chord PASSED37assertions; certification10.443s/113482work/9cuts,
 versus314 17.014s/181652work/16cuts on that SAME captured query. Work reduced37.5%;
 wall times remain subject to contention. Both actual process trees terminal,
 all source/input/runtime pins verified. Faithful complete first-cell replay is
-currently active; target construction and BL mesh acceptance remain unproven.
+TERMINAL124/1802.249s, actual diagnostic timeout1800. All5 actual identities absent;
+source/input/runtime pins verified. CPU1797.84+.60s; maximum sampled treeRSS
+324,579,328B, later stable224,550,912B. No completed integral or inner guard:
+target construction and BL mesh acceptance remain unproven. This is not a proven
+native5400 failure or a measured attribution to chord preparation.
 
-No broad or MPI qualification completed for316 yet. Cached/fresh and unknown-envelope
-regressions are compiled but not run. Preserve the fixed global fallback, every
+Focused316 PASSED277assertions/51.421s, all5 actual handles absent, pins verified.
+Cached/fresh tensors and unknown-envelope/global fallback are covered. No affected
+broad or MPI qualification completed for316 yet. Preserve the fixed global fallback, every
 feature/image, height policy and original ideal-chord certificate scope.
+
+## Next bounded observation within this cycle
+
+Read-only audit confirms strict IntegrationColumns3D recomputes EdgeBreakpoints for
+each angular ray and retains only local radial/comparison/angular points. The
+separate estimate/workspace path has preparedChords/reusedChords/preparationSeconds
+and a barycentric-key cache; those are NOT counters for this strict replay.
+The existing density callback evaluation count and AtlasBudget work/deadline callback
+can emit rate-limited test-only windows without changing numerical decisions.
+They distinguish density progress from geometry-only periods, but time between
+density callbacks also includes SamplePoints and source reconstruction: it cannot
+by itself identify chord preparation. Exact repeated-chord counts/preparation time
+need explicit phase counters; do not infer them from the1800s timeout.
+
+
+## Observational317/318 follow-up (not a second optimization cycle)
+
+Test-only317, production byte-identical316, uses existing AtlasBudget deadline checks
+to flush60s work/evaluation windows.300s observation timed out as planned, all5
+actual identities absent, all pins/runtime verified. At240s work2537406/evals1407;
+density arithmetic.003751s.120→180s adds649969work but only5density evaluations.
+These confirm geometry-heavy intervals, not chord-vs-point attribution.
+
+318 adds optional observational diagnostics to IntegrationRule3D using the EXISTING
+ComplexityEstimate3D counters plus preparingChord. It stays separate from the scalar
+estimate selector through all three strict-column routes. Completed preparation
+count/time exclude a currently active or throwing chord; preparingChord intentionally
+remains true on a chord exception. Other support/point/cylinder costs are not
+attributed by this counter. No caching, changed query/cut/acceptance decision or
+new production configuration. Timing/output can affect elapsed-limit termination.
+Build318 passed246.227s/all52 sampled actual build handles absent. Equality fixture
+passed396assertions/4.353s, exactly matching weights, barycentrics, samples and
+full tensors with/without diagnostics. Same actual cell completed its300s phase observation (expectedtimeout124), all5
+actual identities absent and all source/input/runtime pins verified. At120s four
+completed chords cost57.996s, another active; at180s five cost138.749s, activefalse;
+at240s seven cost138.871s, another active. Geometrywork2604384, density arithmetic
+.003898s. This identifies costly strict chord preparation, not exact point-query
+repetition. It is not a new baseline campaign or full target qualification.

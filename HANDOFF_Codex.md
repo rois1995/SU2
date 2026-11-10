@@ -10,23 +10,55 @@ R = `integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57`.
 
 ## Frozen owned workload — authoritative current state
 
-Captured chord314 replay316 PASSED60assertions/47.845s; all5 actual identities absent,
-source/input/runtime pins verified. Actual certification37.560s/409726geometry work/32cuts.
-Earlier chord311 replay316 PASSED37assertions/terminal0; all5 actual handles absent,
-source/input/runtime pins verified. Certification10.443s/113482work/9cuts (314:181652work).
-Faithful actual cell0 replay316 ACTIVE (session76918); pinned sources frozen.
-Build316 TERMINAL0/252.261s, all55 sampled actual build handles absent, pins verified.
-CFD SHA7fd635548074a5550be5f6ccd47f04d3940b69e95dcff48dbb0184148c13a6ad;
-test SHA3f012515a5d5efbb92fd6bb95c9161868a5b5da79bef219bb885d7174955a591.
-Prior test-only build315 TERMINAL0/56.156s, all10 sampled
-actual build PIDs absent; point315 TERMINAL0/11.439s, all5 exact identities absent.
-Source/input/runtime pins unchanged. Production CFD SHA
-`2db03acf36789faa1cd06335a6c8818306267d2f7d76f5e803f91868e66cc448` (identical314);
-test315 SHA `792349aa47582e0531136d93dce86b701a9622711757387d18051d0483b83afa`.
-Build316 is built but UNVALIDATED: interval-local normal-profile
-and feature-anchor bounds, explicit evaluated-distance arithmetic and actual source-query
-padding. Three compiled files changed (CBC source/header and its tests). Prior terminal
-handles were reverified absent before freezing this build. One connected BL cycle.
+NO active owned heavy job. Cell318 phase observation TERMINAL124/300s as planned,
+all5 actual identities absent; source/input/runtime pins verified. Build318
+TERMINAL0/246.227s, pins verified/all52 sampled actual build handles absent.
+CFD SHA `b0bc8926898f4ac50c66bf6ecaeeb2e77b5b433905830f08f69b88811cca08c0`;
+test SHA `3803931ee74f1319d8feec98de9a326520000b2cf5a42ef8f7627d1bacba63b8`.
+Focused318 PASS396assertions/4.353s: exact complete-rule equality with/without
+optional diagnostics. Both sampled helper/child identities absent (short case;
+sampling does not enumerate every fleeting descendant). Counters do NOT select
+scalar estimation, cache data or change query/cut/gate/config/budgets.
+
+Actual318 windows identify expensive strict chord preparation: at120s FOUR
+completed chords cost57.996s and another is active; at180s FIVE cost138.749s,
+active=false; at240s SEVEN cost138.871s and another is active. Geometry work2.604M,
+density arithmetic.003898s. This does not establish identical-query frequency.
+`cases/cubic_cell_replay318_v1/assessment.json` preserves measured scope.
+
+Next candidate remains inside this SAME BL cycle: investigate reuse of immutable
+cubic descendant control boxes/hulls rebuilt in ClosestCurved::prepare for every
+nearby query. Existing closest path has no result memo or prepared descendant nets;
+surface PreparedFacet/Pool reuse currently serves approximate triangle unions,
+which cannot replace exact cubic data. Any correction must reuse bounded pool
+ownership/admission, preserve complete current support and fresh query-dependent
+bounds/candidates, and prove cached/recomputed agreement and actual M6 progress.
+No speedup or exact point-query repetition established yet. No competing Euler
+optimization, new configuration/scheduler/geometry authority or budget increase.
+
+One connected BL cycle. Production316 local profile/feature bounds passed both
+actual captured chords; full strict-cell qualification is still INCOMPLETE:
+- Chord314 PASS60assertions/47.845s; certification37.560s/409726work/32cuts.
+- Chord311 PASS37assertions; certification10.443s/113482work/9cuts vs314181652work.
+- Faithful actual cell0 replay316 TERMINAL124/1802.249s (diagnostic1800), all5 actual
+  identities absent and source/input/runtime pins verified. CPU1797.84+.60s;
+  maximum sampled treeRSS324579328B, later stable224550912B. No integral/inner guard.
+  This does NOT prove a full native5400 failure or which inner work dominates.
+- Focused316 PASS277assertions/51.421s, all5 actual handles absent: cached/fresh,
+  transported anchors, invalid padding and uncertain/global fallback.
+- Test-only317 observation TERMINAL124/300s as planned, all5 identities absent,
+  pins/runtime verified. At240s:2537406geometry work/1407density evaluations/.003751s
+  density arithmetic.120→180s adds649969work but only5density evaluations. Thus
+  geometry-heavy intervals are confirmed; chord-vs-point attribution is not.
+
+Build316/317 status/source/runtime/binary hashes remain in their pinned receipts;
+317 production CFD is byte-identical316. No new performance correction after316.
+Current affected serial/MPI qualification remains pending. After318 completes and
+actual handles are terminal, choose the next connected correction from measured
+phase cost. Do not launch full316/318 from chord passes alone, raise limits or add
+another cycle. Review [bound design/evidence](Handbook/ADAPTATION_CURVED_BL_LEAF_BOUNDS_20261110.md).
+Next meaningful result remains actual normalized target/BL mesh, followed by its
+current-mesh suitability census, MPI constraints, TWO RANS events/transfer/CFD/restart.
 
 Full SAMEseed RANS/BL314 is TERMINAL1/5462.393s. All10 exact actual owned
 PID/start identities absent; all source/input/runtime pins verified. Original
@@ -107,9 +139,10 @@ qualify affected behavior at cadence, then promptly actual SAMEseed M6 RANS/BL.
 Preserve all prior qualification/checkpoints and every final BL suitability,
 transfer/CFD/TWOevents/actual adapted restart obligation. No budget increases.
 Preserve unrelated dirty files; whitelist staging; fork pushes authorized.
-Latest pushed checkpoint `f2bb733801` preserves terminal314/315 receipts and the working design.
-Next: build316, actual captured chords311/314 and faithful cell0, affected checks and ONE
-MPI milestone, then promptly full SAMEseed M6. Keep pinned sources frozen during jobs.
+Latest pushed checkpoint `5368eec89a` preserves316 implementation/build and TWO
+captured-chord passes; the current complete-cell timeout/focused pass await push.
+Complete the current strict-cell diagnosis/correction, affected checks and ONE MPI
+milestone, then promptly full SAMEseed M6. Keep pinned sources frozen during jobs.
 
 ## Demonstrated BL blocker and next action
 

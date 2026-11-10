@@ -1460,6 +1460,27 @@ TEST_CASE("Translated cubic distance crossings close by chord span rather than c
   }
 }
 
+TEST_CASE("Strict integration diagnostics preserve quadrature decisions", "[NativeStrictBLDiagnostics3D]") {
+  CBoundaryLayerMetric::Wall wall;wall.layer={"wall",.02,1.2,.08};
+  wall.coord={0,0,0,1,0,0,0,1,0};wall.conn={0,1,2,2};
+  CBoundaryLayerMetric layers(3,{wall});
+  const std::array<std::array<double,3>,4> cell{{{{.1,.1,.025}},{{.2,.1,.025}},{{.1,.2,.025}},{{.1,.1,.045}}}};
+  const auto ordinary=layers.IntegrationRule3D(cell);
+  CBoundaryLayerMetric::ComplexityEstimate3D diagnostic;
+  const auto observed=layers.IntegrationRule3D(cell,1.5,{},nullptr,&diagnostic);
+  CHECK_FALSE(diagnostic.preparingChord);CHECK(diagnostic.preparedChords>0);CHECK(diagnostic.preparationSeconds>=0);
+  REQUIRE(observed.size()==ordinary.size());
+  for(size_t k=0;k<ordinary.size();++k) {
+    CHECK(observed[k].barycentric==ordinary[k].barycentric);CHECK(observed[k].weight==ordinary[k].weight);
+    REQUIRE(observed[k].samples.size()==ordinary[k].samples.size());
+    for(size_t j=0;j<ordinary[k].samples.size();++j) {
+      CHECK(observed[k].samples[j].wall==ordinary[k].samples[j].wall);
+      CHECK(observed[k].samples[j].sample.distance==ordinary[k].samples[j].sample.distance);
+      CheckTensor(3,observed[k].samples[j].sample.full,ordinary[k].samples[j].sample.full,0.);
+    }
+  }
+}
+
 TEST_CASE("Actual retained cubic wall policy probe without CFD", "[.][NativeActualCubicBLPolicy3D]") {
   using namespace SU2Native3D;
   const auto* configPath=std::getenv("SU2_NATIVE_FROZEN_CONFIG");
@@ -1489,8 +1510,21 @@ TEST_CASE("Actual retained cubic wall policy probe without CFD", "[.][NativeActu
   const auto work=config.GetAdap_Native_Max_Work()?size_t(config.GetAdap_Native_Max_Work()):std::max(transfer_memory::Mul(facets,64),size_t(4096));
   budget.maximum_work=transfer_memory::Mul(transfer_memory::Add(facets,work),SU2NativeGeometry::MappedFacetReference::ClearanceWork);
   const double seconds=SU2_TYPE::GetValue(config.GetAdap_Native_Max_Time());
-  if(seconds>0)budget.within_time=[start,seconds] {
-    return std::chrono::duration<double>(std::chrono::steady_clock::now()-start).count()<seconds;
+  const bool cellReplay=std::getenv("SU2_NATIVE_BL_CELL_REPLAY")!=nullptr;
+  size_t replayEvaluations=0;double replayDensitySeconds=0;
+  CBoundaryLayerMetric::ComplexityEstimate3D replayDiagnostics;
+  auto nextWindow=start+std::chrono::seconds(60);
+  if(seconds>0)budget.within_time=[&,start,seconds] {
+    const auto now=std::chrono::steady_clock::now();
+    if(cellReplay && now>=nextWindow) {
+      receipt("replay_work_window",replayEvaluations);
+      std::cout<<std::setprecision(17)<<"{\"replay_density_seconds\":"<<replayDensitySeconds
+               <<",\"completed_chords\":"<<replayDiagnostics.preparedChords
+               <<",\"completed_chord_seconds\":"<<replayDiagnostics.preparationSeconds
+               <<",\"active_chord\":"<<(replayDiagnostics.preparingChord?"true":"false")<<"}"<<std::endl;
+      nextWindow=now+std::chrono::seconds(60);
+    }
+    return std::chrono::duration<double>(now-start).count()<seconds;
   };
   CBoundaryLayerMetric::GeometryReservationScope reservation(*layers,budget);
   try {
@@ -1604,16 +1638,20 @@ TEST_CASE("Actual retained cubic wall policy probe without CFD", "[.][NativeActu
       for(const auto& metric:sensor)REQUIRE_NOTHROW(ValidateTensor({metric.m[0][0],metric.m[0][1],metric.m[0][2],metric.m[1][1],metric.m[1][2],metric.m[2][2]}));
       size_t evaluations=0;
       auto targetDensity=[&](const CBoundaryLayerMetric::IntegrationPoint3D& point) {
-        ++evaluations;CBoundaryLayerMetric::Tensor metric;
+        const auto densityStart=std::chrono::steady_clock::now();
+        ++evaluations;++replayEvaluations;CBoundaryLayerMetric::Tensor metric;
         for(unsigned k=0;k<4;++k)for(unsigned i=0;i<3;++i)for(unsigned j=0;j<3;++j)
           metric.m[i][j]+=point.barycentric[k]*sensor[k].m[i][j];
         for(const auto& sample:point.samples)layers->ApplySample(sample.wall,sample.sample,metric,core,nullptr,false);
         su2double vectors[3][3],eigenvalues[3],scratch[3];
         CBlasStructure::EigenDecomposition(metric.m,vectors,eigenvalues,3,scratch);
-        return SU2_TYPE::GetValue(sqrt(eigenvalues[0]*eigenvalues[1]*eigenvalues[2]));
+        const double value=SU2_TYPE::GetValue(sqrt(eigenvalues[0]*eigenvalues[1]*eigenvalues[2]));
+        replayDensitySeconds+=std::chrono::duration<double>(std::chrono::steady_clock::now()-densityStart).count();
+        CHECK(replayEvaluations==evaluations);CHECK(replayDensitySeconds>=0);
+        return value;
       };
       bool dependent=false;receipt("replay_integration_begin",0);
-      const auto rule=layers->IntegrationRule3D(cell,1.5,targetDensity,&dependent);
+      const auto rule=layers->IntegrationRule3D(cell,1.5,targetDensity,&dependent,&replayDiagnostics);
       double volume=0,integral=0;
       for(const auto& point:rule) {
         REQUIRE(std::isfinite(point.weight));REQUIRE(point.weight>0);
@@ -1623,6 +1661,7 @@ TEST_CASE("Actual retained cubic wall policy probe without CFD", "[.][NativeActu
         const double density=targetDensity(point);REQUIRE(std::isfinite(density));REQUIRE(density>0);
         volume+=point.weight;integral+=point.weight*density;
       }
+      CHECK_FALSE(replayDiagnostics.preparingChord);CHECK(replayDiagnostics.preparationSeconds>=0);
       REQUIRE_FALSE(rule.empty());CHECK(volume==Approx(expectedVolume).epsilon(1e-8));
       CHECK(std::isfinite(integral));CHECK(integral>0);
       receipt("replay_complete",rule.size());receipt("replay_density_evaluations",evaluations);

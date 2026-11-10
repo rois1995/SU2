@@ -1,0 +1,68 @@
+{
+  "passed": false,
+  "outcome": "BOUNDED_PHASE_OBSERVATION_NOT_ACCEPTANCE",
+  "windows": [
+    {
+      "probe": "actual_cubic_bl",
+      "stage": "replay_work_window",
+      "count": 294,
+      "elapsed_seconds": 60.000038846,
+      "geometry_work": 594822,
+      "peak_bytes": 4625561376
+    },
+    {
+      "probe": "actual_cubic_bl",
+      "stage": "replay_work_window",
+      "count": 819,
+      "elapsed_seconds": 120.00011995300001,
+      "geometry_work": 1265989,
+      "peak_bytes": 4625561376
+    },
+    {
+      "probe": "actual_cubic_bl",
+      "stage": "replay_work_window",
+      "count": 936,
+      "elapsed_seconds": 180.000155893,
+      "geometry_work": 1933790,
+      "peak_bytes": 4625561376
+    },
+    {
+      "probe": "actual_cubic_bl",
+      "stage": "replay_work_window",
+      "count": 1407,
+      "elapsed_seconds": 240.00018177500002,
+      "geometry_work": 2604384,
+      "peak_bytes": 4625561376
+    }
+  ],
+  "phases": [
+    {
+      "replay_density_seconds": 0.0006852550000000003,
+      "completed_chords": 2,
+      "completed_chord_seconds": 14.208820750000001,
+      "active_chord": true
+    },
+    {
+      "replay_density_seconds": 0.0020733450000000007,
+      "completed_chords": 4,
+      "completed_chord_seconds": 57.996433637,
+      "active_chord": true
+    },
+    {
+      "replay_density_seconds": 0.002393313000000002,
+      "completed_chords": 5,
+      "completed_chord_seconds": 138.748609515,
+      "active_chord": false
+    },
+    {
+      "replay_density_seconds": 0.003898073,
+      "completed_chords": 7,
+      "completed_chord_seconds": 138.870573103,
+      "active_chord": true
+    }
+  ],
+  "confirmed": "Strict chord preparation is active during60/120/240s windows; completed prep138.870573s at240s plus active eighth chord. Density arithmetic .003898s.",
+  "unresolved": "Exact repeated point-query frequency, repeated subtree frequency and fractional CPU cost within closest-query preparation remain unmeasured. No completed cell integral/target/BL mesh.",
+  "pins_verified": true,
+  "mapped_runtime_verified": true
+}

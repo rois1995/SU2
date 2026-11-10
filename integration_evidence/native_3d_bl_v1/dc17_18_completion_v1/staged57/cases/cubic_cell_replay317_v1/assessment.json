@@ -1,0 +1,49 @@
+{
+  "passed": false,
+  "outcome": "BOUNDED_OBSERVATION_NOT_ACCEPTANCE",
+  "seconds": 303.59285283088684,
+  "windows": [
+    {
+      "probe": "actual_cubic_bl",
+      "stage": "replay_work_window",
+      "count": 294,
+      "elapsed_seconds": 60.00006358500001,
+      "geometry_work": 580510,
+      "peak_bytes": 4625561376
+    },
+    {
+      "probe": "actual_cubic_bl",
+      "stage": "replay_work_window",
+      "count": 819,
+      "elapsed_seconds": 120.00012733800001,
+      "geometry_work": 1234053,
+      "peak_bytes": 4625561376
+    },
+    {
+      "probe": "actual_cubic_bl",
+      "stage": "replay_work_window",
+      "count": 824,
+      "elapsed_seconds": 180.00017758500002,
+      "geometry_work": 1884022,
+      "peak_bytes": 4625561376
+    },
+    {
+      "probe": "actual_cubic_bl",
+      "stage": "replay_work_window",
+      "count": 1407,
+      "elapsed_seconds": 240.00021834600003,
+      "geometry_work": 2537406,
+      "peak_bytes": 4625561376
+    }
+  ],
+  "density_seconds": [
+    0.0007121910000000003,
+    0.0020988559999999983,
+    0.0021113609999999982,
+    0.003751372999999996
+  ],
+  "confirmed": "Negligible density arithmetic; sustained geometry work, including a60s window with only5 completed density evaluations.",
+  "unresolved": "Counter windows do not distinguish chord preparation from SamplePoints/closest geometry; no exact duplicate-query measurement or completed integral.",
+  "pins_verified": true,
+  "mapped_runtime_verified": true
+}

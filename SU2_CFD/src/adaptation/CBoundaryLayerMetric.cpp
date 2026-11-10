@@ -2531,8 +2531,10 @@ void SetBLSourceQuery(const BLTetrahedron& source,const SU2Native3D::Tetrahedron
 }
 
 std::vector<CBoundaryLayerMetric::IntegrationPoint3D> CBoundaryLayerMetric::IntegrationRule3D(
-    const std::array<std::array<double,3>,4>& tetrahedron,double bandRatio,IntegrationDensity3D density,bool* sensorDependent) {
-  return IntegrationRule3DImpl(tetrahedron,bandRatio,std::move(density),sensorDependent,nullptr,0);
+    const std::array<std::array<double,3>,4>& tetrahedron,double bandRatio,IntegrationDensity3D density,bool* sensorDependent,
+    ComplexityEstimate3D* diagnostics) {
+  if(diagnostics)*diagnostics={};
+  return IntegrationRule3DImpl(tetrahedron,bandRatio,std::move(density),sensorDependent,nullptr,0,-1,nullptr,diagnostics);
 }
 
 struct CBoundaryLayerMetric::ComplexityWorkspace3D {
@@ -2598,7 +2600,7 @@ bool CBoundaryLayerMetric::MayIntersectBand3D(const std::array<std::array<double
 std::vector<CBoundaryLayerMetric::IntegrationPoint3D> CBoundaryLayerMetric::IntegrationRule3DImpl(
     const std::array<std::array<double,3>,4>& tetrahedron,double bandRatio,IntegrationDensity3D density,
     bool* sensorDependent,ComplexityEstimate3D* estimate,size_t maximumEvaluations,
-    double absoluteTolerance,ComplexityWorkspace3D* workspace) {
+    double absoluteTolerance,ComplexityWorkspace3D* workspace,ComplexityEstimate3D* diagnostics) {
   if(nDim!=3 || !std::isfinite(bandRatio) || !(bandRatio>1))
     throw std::invalid_argument("Invalid native3D BL volume quadrature.");
   for(const auto& p:tetrahedron)for(auto x:p)if(!std::isfinite(x))
@@ -2711,10 +2713,10 @@ std::vector<CBoundaryLayerMetric::IntegrationPoint3D> CBoundaryLayerMetric::Inte
       }
     }
     if(sensorDependent)*sensorDependent=true;
-    return IntegrationColumns3D(tetrahedron,columns,support,bandRatio,probe,estimate,maximumEvaluations,absoluteTolerance,workspace);
+    return IntegrationColumns3D(tetrahedron,columns,support,bandRatio,probe,estimate,maximumEvaluations,absoluteTolerance,workspace,diagnostics);
   }
   // Scalar complexity needs a positive covering, not the strict projected-chart closure.
-  if(estimate)return IntegrationRule3DVisible(tetrahedron,support,bandRatio,probe,estimate,maximumEvaluations,absoluteTolerance,workspace);
+  if(estimate)return IntegrationRule3DVisible(tetrahedron,support,bandRatio,probe,estimate,maximumEvaluations,absoluteTolerance,workspace,diagnostics);
   using Triangle=std::array<std::array<double,4>,3>;
   struct ChordRule {
     Triangle entry,exit;
@@ -2726,7 +2728,7 @@ std::vector<CBoundaryLayerMetric::IntegrationPoint3D> CBoundaryLayerMetric::Inte
   std::vector<IntegrationPoint3D> rule;
   if(!hiddenSupport) {
     if(sensorDependent)*sensorDependent=bool(density);
-    return IntegrationRule3DVisible(tetrahedron,support,bandRatio,probe,estimate,maximumEvaluations);
+    return IntegrationRule3DVisible(tetrahedron,support,bandRatio,probe,estimate,maximumEvaluations,-1,nullptr,diagnostics);
   }
   SU2Native3D::Tetrahedron originalSource;
   for(unsigned k=0;k<4;++k)originalSource[k]={tetrahedron[k][0],tetrahedron[k][1],tetrahedron[k][2]};
@@ -3061,13 +3063,13 @@ std::vector<CBoundaryLayerMetric::IntegrationPoint3D> CBoundaryLayerMetric::Inte
     }
     columns.push_back(std::move(column));
   }
-  return IntegrationColumns3D(tetrahedron,columns,support,bandRatio,probe,estimate,maximumEvaluations);
+  return IntegrationColumns3D(tetrahedron,columns,support,bandRatio,probe,estimate,maximumEvaluations,-1,nullptr,diagnostics);
 }
 
 std::vector<CBoundaryLayerMetric::IntegrationPoint3D> CBoundaryLayerMetric::IntegrationRule3DVisible(
     const BLTetrahedron& tetrahedron,const std::vector<SupportFace3D>& support,double bandRatio,
     const IntegrationDensity3D& density,ComplexityEstimate3D* estimate,size_t maximumEvaluations,
-    double absoluteTolerance,ComplexityWorkspace3D* workspace) {
+    double absoluteTolerance,ComplexityWorkspace3D* workspace,ComplexityEstimate3D* diagnostics) {
   unsigned opposite=workspace && workspace->opposite>=0?unsigned(workspace->opposite):0;
   double best=std::numeric_limits<double>::infinity();
   if(!workspace || workspace->opposite<0)for(unsigned short wall=0;wall<walls.size();++wall)if(data[wall]->adt) {
@@ -3087,13 +3089,13 @@ std::vector<CBoundaryLayerMetric::IntegrationPoint3D> CBoundaryLayerMetric::Inte
     for(unsigned j=0;j<3;++j)column.projection[next][j]=tetrahedron[k][j]-tetrahedron[opposite][j];
     ++next;
   }
-  return IntegrationColumns3D(tetrahedron,{column},support,bandRatio,density,estimate,maximumEvaluations,absoluteTolerance,workspace);
+  return IntegrationColumns3D(tetrahedron,{column},support,bandRatio,density,estimate,maximumEvaluations,absoluteTolerance,workspace,diagnostics);
 }
 
 std::vector<CBoundaryLayerMetric::IntegrationPoint3D> CBoundaryLayerMetric::IntegrationColumns3D(
     const BLTetrahedron& tetrahedron,const std::vector<Column3D>& charts,const std::vector<SupportFace3D>& support,
     double bandRatio,const IntegrationDensity3D& probe,ComplexityEstimate3D* estimate,size_t maximumEvaluations,
-    double absoluteTolerance,ComplexityWorkspace3D* workspace) {
+    double absoluteTolerance,ComplexityWorkspace3D* workspace,ComplexityEstimate3D* diagnostics) {
   using Triangle=std::array<std::array<double,4>,3>;
   SU2Native3D::Tetrahedron originalSource;
   for(unsigned k=0;k<4;++k)originalSource[k]={tetrahedron[k][0],tetrahedron[k][1],tetrahedron[k][2]};
@@ -3324,7 +3326,13 @@ std::vector<CBoundaryLayerMetric::IntegrationPoint3D> CBoundaryLayerMetric::Inte
         const auto jacobian=chart.area*fraction*length*(fine?faceWeights[corner]:comparisonWeights[corner]);
         // Sub-ulp endpoints can round to one point; retain their positive barycentric measure.
         const auto metricPadding=BLSourceChordPadding(tetrahedron,entry,exit,start,end,std::numeric_limits<double>::epsilon());
+        const auto chordStart=diagnostics?std::chrono::steady_clock::now():std::chrono::steady_clock::time_point{};
+        if(diagnostics)diagnostics->preparingChord=true;
         const auto cuts=start==end?std::vector<double>{0,1}:EdgeBreakpoints(start,end,std::max(2.,bandRatio),4,nullptr,metricPadding);
+        if(diagnostics) {
+          diagnostics->preparingChord=false;++diagnostics->preparedChords;
+          diagnostics->preparationSeconds+=std::chrono::duration<double>(std::chrono::steady_clock::now()-chordStart).count();
+        }
         auto radial=[&](double left,double right,unsigned order,std::vector<IntegrationPoint3D>& samples) {
           double value=0;const long double half=.5L*((long double)right-left);
           std::array<long double,2> nodes2{gauss2[0],gauss2[1]},weights2{1,1};

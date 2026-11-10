@@ -1,0 +1,39 @@
+NATIVE3D_REFERENCE_CACHE host_ranks=1 host_quota_bytes=4294967296 rank_quota_bytes=4294967296
+Filters: [NativeActualCubicBLPolicy3D]
+{"probe":"actual_cubic_bl","stage":"reference_loaded","count":48954,"elapsed_seconds":6.6238164130000001,"geometry_work":0,"peak_bytes":4625561376}
+{"probe":"actual_cubic_bl","stage":"policy_built","count":23456452,"elapsed_seconds":6.9096274150000001,"geometry_work":0,"peak_bytes":4625561376}
+{"probe":"actual_cubic_bl","stage":"replay_input","count":50,"elapsed_seconds":6.9174589120000007,"geometry_work":0,"peak_bytes":4625561376}
+{"replay_core":0.0076049890473404921,"replay_log_scale":0,"initial_transition_core":0.0001,"retained_transition_core":0.0001,"hgrad":1.3}
+{"probe":"actual_cubic_bl","stage":"replay_integration_begin","count":0,"elapsed_seconds":6.9174784330000003,"geometry_work":0,"peak_bytes":4625561376}
+{"probe":"actual_cubic_bl","stage":"replay_work_window","count":294,"elapsed_seconds":60.000063585000007,"geometry_work":580510,"peak_bytes":4625561376}
+{"replay_density_seconds":0.00071219100000000026}
+{"probe":"actual_cubic_bl","stage":"replay_work_window","count":819,"elapsed_seconds":120.00012733800001,"geometry_work":1234053,"peak_bytes":4625561376}
+{"replay_density_seconds":0.0020988559999999983}
+{"probe":"actual_cubic_bl","stage":"replay_work_window","count":824,"elapsed_seconds":180.00017758500002,"geometry_work":1884022,"peak_bytes":4625561376}
+{"replay_density_seconds":0.0021113609999999982}
+{"probe":"actual_cubic_bl","stage":"replay_work_window","count":1407,"elapsed_seconds":240.00021834600003,"geometry_work":2537406,"peak_bytes":4625561376}
+{"replay_density_seconds":0.0037513729999999958}
+Command exited with non-zero status 124
+	Command being timed: "timeout --signal=TERM --kill-after=20s 300 /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver [NativeActualCubicBLPolicy3D] --durations yes"
+	User time (seconds): 299.58
+	System time (seconds): 0.16
+	Percent of CPU this job got: 99%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 5:00.01
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 332896
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 0
+	Minor (reclaiming a frame) page faults: 91692
+	Voluntary context switches: 1073
+	Involuntary context switches: 2920
+	Swaps: 0
+	File system inputs: 0
+	File system outputs: 40
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 124

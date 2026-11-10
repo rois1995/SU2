@@ -1,6 +1,6 @@
 # How to proceed
 
-Updated2026-11-09. TWO strictly accepted Euler50k meshes, conservative admissible
+Updated2026-11-10. TWO strictly accepted Euler50k meshes, conservative admissible
 transfers, finite continued adaptedCFD and actual isolated adapted disk restart
 are VERIFIED in293. Actual meshes149051points/736323tets and172001points/870422tets;
 allq/J/geometry/size failures zero/known. Target50k is metric complexity, not counts.
@@ -59,9 +59,16 @@ serial22cases/283883assertions, captured M6 chord45assertions and ONE MPI6
 a later chord in the same first complexity cell hit its16384-step work guard.
 Fresh unresolved3.1354e-8 exceeds1e-8 despite local eigenvalue7e12 vs global1.215e14.
 This is full collective duration, not measured selected-cell/chord time. Test-only315
-prepares8 bounded captured point queries to distinguish coordinate enclosure,
-distance intervals and whole-chord bounds before selecting another production fix.
-Follow HANDOFF for actual handles. No full BL target/mesh proven yet.
+passed8 bounded point queries/164assertions, supporting an interval-local profile
+and feature-envelope correction. [Production316](Handbook/ADAPTATION_CURVED_BL_LEAF_BOUNDS_20261110.md)
+is built and its TWO actual captured chords pass; the faithful complete first-cell
+replay timed out at its existing1800s diagnostic limit (CPU1797.84s). No completed
+cell integral, target/BL mesh or current316 broad/MPI pass. Focused277assertions pass.
+Inspect existing work/density counters to locate remaining strict integration cost;
+the timeout alone does not identify its phase or prove native5400 failure.
+Require that actual cell, focused affected checks and ONE MPI milestone before
+returning to the SAME saved SA seed/config/500k full attempt; keep every gate and
+budget unchanged. Follow HANDOFF for actual handles and pinned sources.
 Keep the actual first-target failure driving this same connected BL milestone.
 
 The remaining notes are historical evidence; the active next action is above.

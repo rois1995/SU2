@@ -11,6 +11,10 @@ Small296 timing changes, reuse counters and speculative geometry optimizations d
 not justify another Euler cycle. Only clear material outcome evidence can change
 this ordering. One active implementation/validation cycle and one heavy workload.
 
+Current316 substep: [interval-local bounds and actual-query evidence](ADAPTATION_CURVED_BL_LEAF_BOUNDS_20261110.md).
+HANDOFF remains the current owned-handle/source-freeze authority. Full target and
+BL mesh construction remain unproven; prior qualification is scoped below.
+
 ## Missing capability and evidence
 
 Actual M6 uses the original no-CAD cubic authority: preflight296 pins48954curved

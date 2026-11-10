@@ -319,13 +319,15 @@ class CBoundaryLayerMetric {
     std::vector<PointSample> samples;
   };
   using IntegrationDensity3D = std::function<double(const IntegrationPoint3D&)>;
+  struct ComplexityEstimate3D;
   /*! Positive quadrature after geometric distance-band clipping, using original-cell barycentrics.
    *  Visible-band and hidden-support refinement estimate error in the supplied full target density;
    *  absent a callback, it monitors the BL composed with a unit isotropic sensor.
-   *  Work/depth/point bounds reject unresolved integration; no nodal BL interpolation. */
+   *  Work/depth/point bounds reject unresolved integration; no nodal BL interpolation.
+   *  Optional diagnostics observe strict column chord preparation; they never select the scalar-estimate path. */
   std::vector<IntegrationPoint3D> IntegrationRule3D(
       const std::array<std::array<double,3>,4>& tetrahedron, double bandRatio = 1.5,
-      IntegrationDensity3D density = {}, bool* sensorDependent = nullptr);
+      IntegrationDensity3D density = {}, bool* sensorDependent = nullptr, ComplexityEstimate3D* diagnostics = nullptr);
 
   struct IntegrationLimit : std::runtime_error { using std::runtime_error::runtime_error; };
   bool SupportsCorrectionSupport3D() const;
@@ -343,6 +345,7 @@ class CBoundaryLayerMetric {
     size_t evaluations=0, panels=0, preparedChords=0, reusedChords=0, cachedBytes=0;
     double seconds=0, preparationSeconds=0, densitySeconds=0;
     bool limited=false, unresolvedSupport=false;
+    bool preparingChord=false; // Optional strict-column diagnostics; preparationSeconds counts completed chords.
   };
   struct ComplexityWorkspace3D;
   /*! Geometry-only workspace tied to this wall model and one original cell. The ceiling counts retained
@@ -384,7 +387,7 @@ class CBoundaryLayerMetric {
   std::vector<IntegrationPoint3D> IntegrationRule3DImpl(
       const std::array<std::array<double,3>,4>& tetrahedron, double bandRatio,
       IntegrationDensity3D density, bool* sensorDependent, ComplexityEstimate3D* estimate, size_t maximumEvaluations,
-      double absoluteTolerance=-1, ComplexityWorkspace3D* workspace=nullptr);
+      double absoluteTolerance=-1, ComplexityWorkspace3D* workspace=nullptr, ComplexityEstimate3D* diagnostics=nullptr);
   std::vector<IntegrationPoint2D> IntegrationRule2DImpl(
       const std::array<std::array<double, 2>, 3>& triangle, double bandRatio, unsigned depth);
   struct SupportFace3D {
@@ -402,11 +405,11 @@ class CBoundaryLayerMetric {
   std::vector<IntegrationPoint3D> IntegrationRule3DVisible(const std::array<std::array<double,3>,4>& tetrahedron,
       const std::vector<SupportFace3D>& support,double bandRatio,const IntegrationDensity3D& density,
       ComplexityEstimate3D* estimate=nullptr, size_t maximumEvaluations=0,
-      double absoluteTolerance=-1, ComplexityWorkspace3D* workspace=nullptr);
+      double absoluteTolerance=-1, ComplexityWorkspace3D* workspace=nullptr, ComplexityEstimate3D* diagnostics=nullptr);
   std::vector<IntegrationPoint3D> IntegrationColumns3D(const std::array<std::array<double,3>,4>& tetrahedron,
       const std::vector<Column3D>& columns,const std::vector<SupportFace3D>& support,double bandRatio,
       const IntegrationDensity3D& density, ComplexityEstimate3D* estimate=nullptr, size_t maximumEvaluations=0,
-      double absoluteTolerance=-1, ComplexityWorkspace3D* workspace=nullptr);
+      double absoluteTolerance=-1, ComplexityWorkspace3D* workspace=nullptr, ComplexityEstimate3D* diagnostics=nullptr);
   struct WallData;
   void Build();
 
