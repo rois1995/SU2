@@ -8,6 +8,14 @@ ONE connected curved-BL cycle. R=`integration_evidence/native_3d_bl_v1/dc17_18_c
 
 ## Frozen owned workload — authoritative current state
 
+Full SAME303seed BL/RANS330 LIVE, tool session74564. Wrapper2539795/start35744141;
+time2540305/start35745299. Exact10 actual host identities in330 owned_handles;
+launch_observation verifies1585 source/build/input pins and84 mappedELFs unchanged.
+One owned heavy workload, all compiled sources/helpers/inputs FROZEN.
+Preserve outcome unless an evidence-backed authorized stop condition occurs.
+330 skips only unused sole-worker weight prediction; same L1/500k/heights/budgets.
+329 terminal evidence below drives this correction; do not mistake it for live.
+
 Full SAMEseed RANS/BL329 TERMINAL after evidence-backed authorized stop. Event0
 rejected at native5400s: weights5398.49s, import<=.781s, donor build<=.690s;
 no first-row construction or accepted operation. Driver consumed event and entered
@@ -27,9 +35,9 @@ Build330 PASSED22.192s,17 actual sampled handles absent, pins unchanged.
 Qualification330 SEALED: serial25.411s10/11cases, MPI6 51.481s21/22cases EACHrank.
 Only known baseline diagnostic assertions2780/2781 fail (serial4, MPI24 total);
 no new failure. New sole-worker routing and all other affected checks pass.
-All build/serial/MPI actual handles absent; sources FROZEN for immediate full330.
+All build/serial/MPI actual handles absent; full330 now running FROZEN.
 `R/qualification330.json` explicitly is NOT an all-suite or BL workflow pass.
-Helpers `R/check_weights330.py`, `R/run_rans_curved330.py`; full replay launching.
+Helpers `R/check_weights330.py`, `R/run_rans_curved330.py`; full replay LIVE with verified actual handles.
 
 
 Original303 savedRANS seed, Mach-onlyL1/500k,h02e-6/g1.2/T.01,geometry1e-4,
