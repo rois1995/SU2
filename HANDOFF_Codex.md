@@ -11,8 +11,8 @@ R = `integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57`.
 ## Owned workload — authoritative current state
 
 No owned heavy job. ALL323 full/point/build/focused handles are TERMINAL, actual
-host checks saved. Latest pushed qualification baseline afcf7459ea; diagnostic323
-and captured failure/replay checkpoint pending push (do this before new code).
+host checks saved. Qualification baseline afcf7459ea and diagnostic323/captured
+failure/replay checkpoint dbd371b1ba are pushed. No pending build or validation job.
 Build323 passed120.203s/all18 sampled actual handles absent; focused283assertions/
 56.386s/all5 identities absent. Error context only, type/work charging preserved.
 Full SAMEseed323 TERMINAL1/83.033s, all10 exact identities absent/pins/runtime verified.
@@ -41,8 +41,11 @@ support count using existing NearbySurfaceFacets on an inward cube at the final
 certified upper (subset of the old initial cube). No new baseline/perf/GDB campaign.
 One connected correction after this proof, affected serial and ONE MPI milestone,
 then promptly full SAMEseed M6. No cap/height/gate changes or speculative operators.
-Read-only arithmetic/box-coverage review requested from existing agent
-/root/curved_bl_caller_review; inspect its reply before implementing radius pruning.
+Read-only review confirms root/index box coverage and reusable distance query,
+conditionally: require safely normal/finite R-SQUARED, outward construction, bounded
+gap/square/sum rounding, finite ordered bounds, and audit fast-math/FTZ/DAZ assumptions.
+Otherwise retain cube. No proof from sampling/inflation64epsilon alone. Review in
+linked complexity design; no pruning implementation or speedup established.
 
 Full SAMEseed RANS/BL322 TERMINAL1/130.363s, session57470 closed. All10 exact owned
 host identities absent; terminal_handles_actual.json seals this. All1571source/input

@@ -175,3 +175,16 @@ count for old preparation demand without another baseline. Work/CPU/certificate
 changes are separate measurements. Then affected serial and ONE meaningful MPI
 milestone, immediately actual same-seed M6. No new baseline/perf/GDB campaign,
 relaxed query/final tolerance or speculative geometry-query memo variant.
+
+Read-only review (curved_bl_caller_review) confirms existing terminal inflated boxes
+and internal min-low/max-high bounds enclose root cubic control hulls, and existing
+distance-query buffers/mutex/sorting/allowed-facet rules can be retained. Conditional
+arithmetic argument needs safely NORMAL/FINITE R-SQUARED, not merely normal R.
+Ordinary round-to-nearest gap/square/three-term accumulation has a small relative
+error factor;64epsilon can provide ample slack only after explicitly bounding that
+factor, radius-square downward rounding and subnormal terms. Audit actual compiler
+fast-math and FTZ/DAZ behavior or prove their effects covered; otherwise use original
+cube. No sample-based blessing of a constant. Suggested oracle: indexed>16facets,
+a nearest patch plus many cube-only boxes, near-radius cases, restricted/body support
+and independent small-support or exhaustive certificates. No edits/jobs from review.
+Diagnostic/refusal/replay checkpoint dbd371b1ba pushed; no owned heavy job remains.
