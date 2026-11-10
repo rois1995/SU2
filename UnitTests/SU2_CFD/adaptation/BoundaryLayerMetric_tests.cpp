@@ -1628,6 +1628,22 @@ TEST_CASE("Actual retained cubic wall policy probe without CFD", "[.][NativeActu
         }
         catch(...) {charge();throw;}
         charge();REQUIRE_FALSE(budget.work_exhausted);
+        std::array<Point,2> inwardCube;
+        double* corners[2][3]={{&inwardCube[0].x,&inwardCube[0].y,&inwardCube[0].z},
+                              {&inwardCube[1].x,&inwardCube[1].y,&inwardCube[1].z}};
+        const double coordinate[3]={q.x,q.y,q.z};
+        for(unsigned j=0;j<3;++j) {
+          *corners[0][j]=std::nextafter(coordinate[j]-closest.upper,INFINITY);
+          *corners[1][j]=std::nextafter(coordinate[j]+closest.upper,-INFINITY);
+        }
+        if(inwardCube[0].x<=inwardCube[1].x && inwardCube[0].y<=inwardCube[1].y && inwardCube[0].z<=inwardCube[1].z) {
+          const auto scratch=transfer_memory::Mul(geometry.Curves().size(),4*sizeof(Id));
+          REQUIRE(scratch<=budget.maximum_bytes-budget.caller_bytes);budget.CheckTime();
+          budget.peak_bytes=std::max(budget.peak_bytes,transfer_memory::Add(budget.caller_bytes,scratch));
+          const auto count=geometry.NearbySurfaceFacets(facet,inwardCube).size();
+          budget.CheckTime();
+          std::cout<<"{\"point_query\":"<<index<<",\"old_initial_cube_candidates_at_least\":"<<count<<"}"<<std::endl;
+        }
         REQUIRE(geometry.CurvedComponent(closest.facet)==geometry.CurvedComponent(facet));
         REQUIRE(std::isfinite(closest.lower));REQUIRE(std::isfinite(closest.upper));
         REQUIRE(closest.lower>=0);REQUIRE(closest.upper>=closest.lower);

@@ -20,6 +20,7 @@
 #include <optional>
 #include <type_traits>
 #include <utility>
+#include <cfenv>
 namespace SU2NativeGeometry {
 namespace {
 using Vec=std::array<double,3>;
@@ -1627,12 +1628,25 @@ MappedFacetReference::CurvedClosest MappedFacetReference::ClosestCurved(
   if(!std::isfinite(result.upper))throw std::invalid_argument("Unrepresentable curved query distance.");
   std::vector<unsigned long> candidates;
   if(entry.index) {
-    const auto x=Values(query);su2double lo[3],hi[3];
-    for(unsigned d=0;d<3;++d) {
-      lo[d]=std::nextafter(double(Subtract(x[d],result.upper).lo),-INFINITY);
-      hi[d]=std::nextafter(double(Add({x[d],x[d]},{result.upper,result.upper}).hi),INFINITY);
+    const auto x=Values(query);
+    const double minimum=64*std::sqrt(std::numeric_limits<double>::min());
+    const double maximum=std::sqrt(std::numeric_limits<double>::max())/64;
+    std::lock_guard<std::mutex> lock(curved_search->mutex);
+    if(std::numeric_limits<double>::is_iec559 && std::fegetround()==FE_TONEAREST &&
+       result.upper>=minimum && result.upper<=maximum) {
+      // Cover the house squared-distance arithmetic, including flushed subnormals; retain its complete root boxes.
+      const auto expanded=Multiply({result.upper,result.upper},1.L+64.L*std::numeric_limits<double>::epsilon());
+      const auto radius=std::nextafter(double(expanded.hi),INFINITY);
+      const su2double coordinate[3]={query.x,query.y,query.z};
+      entry.index->DetermineElementsWithinDistance(coordinate,radius,candidates);
+    } else {
+      su2double lo[3],hi[3];
+      for(unsigned d=0;d<3;++d) {
+        lo[d]=std::nextafter(double(Subtract(x[d],result.upper).lo),-INFINITY);
+        hi[d]=std::nextafter(double(Add({x[d],x[d]},{result.upper,result.upper}).hi),INFINITY);
+      }
+      entry.index->DetermineIntersectingElements(lo,hi,candidates);
     }
-    std::lock_guard<std::mutex> lock(curved_search->mutex);entry.index->DetermineIntersectingElements(lo,hi,candidates);
     std::sort(candidates.begin(),candidates.end());
   } else {candidates.resize(entry.facets.size());std::iota(candidates.begin(),candidates.end(),0);}
   auto compare=[](const Region& a,const Region& b){return a.lower>b.lower;};

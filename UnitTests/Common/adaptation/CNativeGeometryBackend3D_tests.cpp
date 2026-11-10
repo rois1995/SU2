@@ -10,6 +10,10 @@
 #include "../../../Common/include/adaptation/CNativeReferenceIO3D.hpp"
 #include <cmath>
 #include <limits>
+#include <cfenv>
+#if defined(__SSE2__)
+#include <xmmintrin.h>
+#endif
 using namespace SU2NativeGeometry;
 namespace {
 AtlasBudget BackendBudget(){return {size_t(1)<<22,size_t(1)<<28,4096};}
@@ -733,4 +737,83 @@ TEST_CASE("Closest cubic queries reuse immutable regions without reusing query b
   CHECK_THROWS(cached->ClosestCurved(0,query,1e-6,16384,0));
   auto expired=BackendBudget();expired.within_time=[](){return false;};
   CHECK_THROWS(cached->ClosestCurved(0,query,1e-6,16384,SIZE_MAX,{},nullptr,&expired));CHECK(expired.time_exhausted);
+}
+
+TEST_CASE("Indexed cubic closest queries avoid cube-only roots under the original work allowance", "[NativeClosestPrepared3D][NativeClosestDistance3D]") {
+  using namespace SU2Native3D;
+  BackendFixture base;std::vector<Facet> facets;std::map<Edge,Node> midpoints;Id nextNode=8;
+  auto midpoint=[&](Node a,Node b) {
+    Edge edge{a.id,b.id};std::sort(edge.begin(),edge.end());
+    const auto found=midpoints.find(edge);if(found!=midpoints.end())return found->second;
+    Node node{nextNode++,{.5*(a.p.x+b.p.x),.5*(a.p.y+b.p.y),.5*(a.p.z+b.p.z)}};
+    midpoints.emplace(edge,node);return node;
+  };
+  for(const auto& face:base.facets) {
+    const auto a=face.v[0],b=face.v[1],c=face.v[2],ab=midpoint(a,b),bc=midpoint(b,c),ca=midpoint(c,a);
+    for(const auto& triangle:std::array<std::array<Node,3>,4>{{{a,ab,ca},{ab,b,bc},{ca,bc,c},{ab,bc,ca}}})
+      facets.push_back({Id(facets.size()),0,triangle});
+  }
+  REQUIRE(facets.size()==48);
+  for(size_t i=0;i<48;++i) {
+    auto face=facets[i];face.id+=1000;for(auto& node:face.v){node.id+=1000;node.p.x+=10;}
+    facets.push_back(face);
+  }
+  auto reference=std::make_shared<PlanarReference>(facets);MappedFacetReference::CurvedNets nets;std::map<Id,double> errors;
+  const unsigned powers[10][3]={{3,0,0},{0,3,0},{0,0,3},{2,1,0},{1,2,0},{0,2,1},{0,1,2},{1,0,2},{2,0,1},{1,1,1}};
+  for(const auto& face:facets) {
+    errors[face.id]=1e-12;
+    for(unsigned q=0;q<10;++q) {
+      long double p[3]={};for(unsigned k=0;k<3;++k) {
+        p[0]+=powers[q][k]*(long double)face.v[k].p.x/3;
+        p[1]+=powers[q][k]*(long double)face.v[k].p.y/3;
+        p[2]+=powers[q][k]*(long double)face.v[k].p.z/3;
+      }
+      nets[face.id][q]={double(p[0]),double(p[1]),double(p[2])};
+    }
+    if(face.id%1000<8)nets[face.id][9].z-=.01;
+  }
+  const auto quota=GENERATE(size_t(0),size_t(4)<<20);
+  MappedFacetReference geometry(reference,errors,324,SIZE_MAX,false,nets,quota);
+  for(unsigned repeat=0;repeat<2;++repeat)for(Id hint:{Id(0),Id(1000)}) {
+    const Point query{-19,2,19};const double x=hint?10:0;
+    const auto closest=geometry.ClosestCurved(hint,query,1e-10,32);
+    CHECK(geometry.CurvedComponent(closest.facet)==hint);
+    CHECK(closest.point.x==x);CHECK(closest.point.y==1);CHECK(closest.point.z==1);
+    const auto oracle=std::hypot(19+x,1.,18.);
+    CHECK(closest.lower<=oracle+1e-13);CHECK(closest.upper>=oracle-1e-13);
+    CHECK(closest.upper-closest.lower<=1e-10);CHECK(closest.work<=32);
+    const std::array<Point,2> inward{{{std::nextafter(query.x-closest.upper,INFINITY),std::nextafter(query.y-closest.upper,INFINITY),
+                                     std::nextafter(query.z-closest.upper,INFINITY)},
+                                    {std::nextafter(query.x+closest.upper,-INFINITY),std::nextafter(query.y+closest.upper,-INFINITY),
+                                     std::nextafter(query.z+closest.upper,-INFINITY)}}};
+    CHECK(geometry.NearbySurfaceFacets(hint,inward).size()==48);
+  }
+  const auto restricted=geometry.ClosestCurved(0,{-19,2,19},1e-10,32,SIZE_MAX,[](Id id){return id==0;});
+  CHECK(restricted.facet==0);CHECK(restricted.point.x==0);CHECK(restricted.point.y==.5);CHECK(restricted.point.z==0);
+  const auto vertex=geometry.ClosestCurved(0,{0,0,0},1e-10,32);
+  CHECK(vertex.lower==0);CHECK(vertex.upper<64*std::sqrt(std::numeric_limits<double>::min()));
+  const auto tiny=geometry.ClosestCurved(0,{0,0,-1e-155},1e-10,32);
+  CHECK(tiny.lower<=1e-155);CHECK(tiny.upper>=1e-155);
+  CHECK(tiny.upper<64*std::sqrt(std::numeric_limits<double>::min()));
+#if defined(__SSE2__)
+  {
+    struct Restore {unsigned value=_mm_getcsr();~Restore(){_mm_setcsr(value);}} restore;
+    _mm_setcsr(restore.value | (1u<<15) | (1u<<6));
+    const auto flushed=geometry.ClosestCurved(0,{-32*std::numeric_limits<double>::denorm_min(),2,19},1e-10,32);
+    CHECK(flushed.point.x==0);CHECK(flushed.point.y==1);CHECK(flushed.point.z==1);
+    const auto oracle=std::hypot(1.,18.);
+    CHECK(flushed.lower<=oracle+1e-13);CHECK(flushed.upper>=oracle-1e-13);
+    CHECK(flushed.upper-flushed.lower<=1e-10);
+  }
+#endif
+  {
+    struct Restore {int value=std::fegetround();~Restore(){std::fesetround(value);}} restore;
+    REQUIRE(std::fesetround(FE_UPWARD)==0);
+    size_t work=0;
+    CHECK_THROWS_AS(geometry.ClosestCurved(0,{-19,2,19},1e-10,32,SIZE_MAX,{},&work),std::length_error);
+    CHECK(work==32);
+  }
+  size_t attempted=0;CHECK_THROWS(geometry.ClosestCurved(0,{-19,2,19},1e-10,1,SIZE_MAX,{},&attempted));CHECK(attempted==1);
+  CHECK_THROWS(geometry.ClosestCurved(0,{-19,2,19},1e-10,32,0));
+  CHECK_THROWS(geometry.ClosestCurved(0,{1e155,1e155,1e155},1e-10,32));
 }

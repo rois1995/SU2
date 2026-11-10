@@ -188,3 +188,80 @@ cube. No sample-based blessing of a constant. Suggested oracle: indexed>16facets
 a nearest patch plus many cube-only boxes, near-radius cases, restricted/body support
 and independent small-support or exhaustive certificates. No edits/jobs from review.
 Diagnostic/refusal/replay checkpoint dbd371b1ba pushed; no owned heavy job remains.
+
+##324 connected candidate-discovery correction — unqualified
+
+Missing capability: the actual far-field query fails16384work before target
+normalization. Its38800-facet component and current cube-root preparation motivate
+distance discovery; candidate demand must be measured on the saved query after
+qualification, not inferred solely from component size. Reuse house ADT distance
+query and retain cube outside a conservative arithmetic range. No new tree/cache.
+
+Proof contract for the3D caller: R is a certified upper witness, binary64 IEEE,
+round-to-nearest;64*sqrt(DBL_MIN)<=R<=sqrt(DBL_MAX)/64. Thus R^2 has4096-fold
+normal/overflow headroom. A potentially contributing terminal/internal box has
+exact Euclidean distance<=R, so each active gap<=R. Ordered bounds mean at most
+one signed gap per axis; no cancellation in the squared three-term sum. Ordinary
+subtraction/square/accumulation overestimation is bounded by gamma(8), using epsilon
+(rather than half-epsilon) conservatively. Input DAZ can shift each coordinate/bound
+by at most DBL_MIN, hence Euclidean gap by<4*DBL_MIN<epsilon*R in this range. FTZ of
+positive squares/sums only decreases their distance; gradual subnormal rounding adds
+at most3*denorm_min, less than epsilon*R^2/1024 here. These terms fit16epsilon*R^2.
+An outward R*(1+64epsilon) squared and rounded down still exceeds that upper error
+bound. Potential-candidate arithmetic cannot overflow within the safe range;
+overflowing distant positive sums cannot hide a within-R box. Original cube remains
+for other rounding modes, non-IEEE formats or zero/tiny/huge R.
+
+Geometry caller TU is compiled with final-fno-fast-math/-fno-unsafe-math-optimizations/
+-ffp-contract=off; house ADT has fast-math. Its relevant operations are min/max,
+subtraction, squares and a nonnegative three-term sum, so reassociation/contraction
+cannot exceed the above rounding count. No reciprocal/sqrt approximation occurs in
+its distance predicate. FTZ/DAZ are explicitly covered, not assumed absent. The
+immutable root control hulls are enclosed by the existing inflated terminal boxes
+and internal min-low/max-high bounds. Full allowed support, mutex, sorting, fresh
+subdivision/normal/clearance tests, work and workspace admission remain unchanged.
+
+Added indexed oracle fixture: two disconnected48-facet bodies, curved lower patches
+and known far-field closest corners, cold/warm and zero/4MiB caches, allowed-only
+patch, zero-radius and huge-radius fallbacks, tight32-work oracle plus work/storage
+refusals. Existing M6 point probe reports old-cube candidate lower count using an
+inward cube at final upper, with scratch/time admission. No new production counters.
+Affected compiled files: affine-reference implementation, backend tests and existing
+BL point probe. No config/profile/sensor/norm/budget/construction change. Build324
+starting; neither pruning correctness nor actual M6 benefit is claimed yet.
+
+##325 focused and exact actual-query evidence
+
+Build324 PASS84.161s/all22 actual sampled handles absent. First indexed fixture
+92/94assertions passed; only failure in each cache variant assumed an outward
+zero-distance upper exactly0.325 corrects that oracle and adds tiny radius,
+FE_UPWARD fallback and explicit x86 FTZ/DAZ with subnormal input. Build325
+PASS32.122s/all10 actual handles absent; production CFD byte-identical324.
+Focused325 PASSED120assertions/5.767s/all5 handles absent/pins verified. Other scalar
+build modes and exact safe-range endpoints are not separately qualified.
+
+Captured M6 point325 PASSED39assertions/11.816s helper, all5 exact identities absent,
+all source/input/runtime pins verified. Direct closest query completes406work at
+original16384cap/tol2e-12; interval[27.3762348846350391796,27.3762348846360872301],
+width1.04805e-12. Additional metric evaluation204work. Existing inward cube at final
+upper contains38800facets. Since witness upper only decreases, this cube is inside
+the old initial cube: old initial preparation necessarily had38800roots, each costing
+at least1work before refinement, independently of cache hits. This confirms initial
+root preparation as this actual refusal's blocker. Point323 remains failed16384work;
+no completed baseline timing or full-target speedup claim. Serial cold prepared
+quota differs from fullMPI, as before. Full target/BL mesh remains unproven.
+
+Affected serial325 now frozen; after it and ONE MPI milestone, immediately actual
+SAMEseed M6. No new baseline campaign. Preserve requested heights and every gate.
+
+##325 connected qualification and return to full case
+
+Affected serial PASSED64cases/286722assertions/362.233s, all5 actual identities
+absent/pins verified. ONE MPI6 PASSED62cases EVERYrank/459.039s, all10 exact actual
+identities terminal/pins verified; assertions4701/4664/4703/5297/4752/4712(log order).
+qualification325.json seals focused, actual query, serial and MPI behavior scope,
+not target/mesh/workflow acceptance. Prior303seven baseline-controlled failures
+outside affected selection remain failures. No timing speedup inference under
+contention. Full SAMEseed325 now starts with original303 inputs/SA seed/constraints
+and original native5400,total14400,12GiB/rank limits. Follow HANDOFF live handles;
+no more isolated diagnostics while this actual attempt is frozen.

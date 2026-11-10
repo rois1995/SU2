@@ -24,20 +24,15 @@ Qualified296source/binaries archived locally before BL edits;293two-event/restar
 proof and BOTH checkpoints remain primary regression baseline.
 
 Current next cycle is the [connected curved BL milestone](Handbook/ADAPTATION_CURVED_BL_INTEGRATION_20261109.md).
-Full319 now TERMINAL1/5457.353s, original5400s atlas deadline in first target cell;
-no target or BL mesh, all actual handles terminal/pins/runtime verified. Isolated
-chord cache gains did not resolve target feasibility. The active connected correction
-is [bounded cubic complexity integration](Handbook/ADAPTATION_CURVED_BL_COMPLEXITY_20261110.md):
-conservative padded proposal coverage, true cubic evaluations, existing shared
-FIRST_ROW target and explicit empirical uncertainty.321 focused2211assertions and
-322 affected11cases/471assertions pass. ONE MPI milestone322 PASSED61cases everyrank. Full SAMEseed322 then failed130.363s
-with curved distance-query work exhaustion before normalization/BL generation. All
-owned identities terminal/pins/runtime verified. 323 diagnostic capture and existing point probe now reproduce the16384-work refusal
-at far-field point(-19.52,2.08,19.09), component38800facets. Both runs terminal and
-pins/runtime verified. Next assess existing distance-based ADT discovery against the
-current cube query, with a proven rounding margin/fallback; no candidate correction
-implemented yet. See HANDOFF. Gates/heights/budgets unchanged.
-This is not BL mesh/normalization acceptance and sampling is not a geometry proof.
+Full325 now ACTIVE and frozen; see HANDOFF for actual handles/pins. Conservative
+existing-ADT distance discovery clears the captured M6 far-field query in406work
+at unchanged16384cap/tol2e-12, where old initial cube selected38800roots. Focused120
+assertions, actual query39, affected serial64cases/286722assertions and ONE MPI6
+62cases everyrank pass. [Connected proof/evidence](Handbook/ADAPTATION_CURVED_BL_COMPLEXITY_20261110.md).
+Full SAMEseed M6 immediately resumed with original500k/L1/SA seed/heights/budgets.
+No normalized target or BL mesh yet. Preserve its outcome; no additional baseline
+campaign or optimization during source freeze. Then all BL suitability/constraints,
+TWO RANS events, conservative admissible SA/flow transfer, CFD and disk restart.
 
 Latest user: no further Euler optimization cycle for small timings, reuse counters
 or speculation. Missing capability/evidence/acceptance are stated there before

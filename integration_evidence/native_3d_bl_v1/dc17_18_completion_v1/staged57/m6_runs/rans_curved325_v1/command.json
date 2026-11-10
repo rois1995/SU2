@@ -1,0 +1,43 @@
+{
+  "argv": [
+    "nice",
+    "-n",
+    "19",
+    "/usr/bin/time",
+    "-v",
+    "timeout",
+    "--signal=TERM",
+    "--kill-after=20s",
+    "14400",
+    "mpirun",
+    "--output-filename",
+    "rank_output",
+    "-n",
+    "6",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+    "[NativeSelectedFailureWorkflow3D]",
+    "--durations",
+    "yes"
+  ],
+  "wrapper": {
+    "pid": 1960877,
+    "start_ticks": 34441534
+  },
+  "saved_checkpoint": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_bl_inputs/rans_curved303_v1",
+  "source_attempt": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/rans_curved314_v1",
+  "initial_available_bytes": 33127776256,
+  "loadavg": "7.23 8.27 7.57 8/5019 1962666\n",
+  "environment": {
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1",
+    "OMPI_MCA_osc": "pt2pt",
+    "TMPDIR": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/compile-tmp",
+    "OMPI_MCA_orte_tmpdir_base": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/compile-tmp/rans-curved325-d1k80jm0",
+    "SU2_NATIVE_FROZEN_CONFIG": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/rans_curved325_v1/run.cfg"
+  },
+  "expected_events": 2,
+  "outer_seconds_total": 14400,
+  "qualification": "Conservative cubic distance discovery qualified with focused/actual point/serial/one MPI6 milestone; fullBL target unproven",
+  "scope": "Same303 seed/config after mapped cubic proposal/shared FIRST_ROW target plus conservative existing-ADT distance discovery qualification. Empirical uncertainty remains explicit; native5400 and total14400 are unchanged. Actual RANS/SA CFD to curved BL mesh to finite CFD to second mesh, outer14400 total. Unchanged strict gates; conservative flow/turbulence transfer and disk restart require independent assessment. Rejected-state capture enabled."
+}
