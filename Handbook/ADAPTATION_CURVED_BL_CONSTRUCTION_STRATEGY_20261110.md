@@ -325,3 +325,99 @@ target is correct or that500k is feasible. Global inherited-tangent contribution
 actual flow combination, principal-direction alignment and patch/front coverage
 remain unresolved. Existing TargetPolicy/engine hooks and actual-cavity replay
 facilities are the next integration work, not another kernel-only/full-run loop.
+
+##335 actual cavity geometry experiment — pending qualification
+
+The exact same303 double sensor snapshot is absent from preserved330 outputs;
+Float32 VTU metric visualization is not an exact source field, and older binary
+replays are from incompatible seeds. This is an attribution/input gap, not license
+to rebase the target. No new full baseline/profiling campaign is started.
+
+The bounded diagnostic reuses production CPhysicalGeometry, PrepareReference and
+ImportGeometry with its documented null-metric identity geometry-preflight control.
+It loads the exact original303 mesh and complete immutable sidecar. Existing331
+source cell ordinals are converted to vertex tuples with capcheck.read_su2, then
+mapped to native IDs; an independent full imported-mesh scan checks complete
+endpoint-star equality. An early review corrected wrong operator scopes: collapse,
+move and reconnection receive the complete individual endpoint star; SplitEdge gets
+the complete edge star; coupled SplitSurfaceStrip uses the complete endpoint union.
+Unchanged surrounding context cells are merged back before whole-context measurements.
+
+Eight trials per context cover two directed collapses, two midpoint relocations,
+two existing-apex reconnections, a split and an unmoved surface-strip split. These
+are existing operators, not new variants or a scheduler. They preserve validity-first
+admission. Existing Directory clearance checks proposals against the entire imported
+mesh; complete patch face geometry, requested first-height reports and Euclidean q/J
+CONTROLS are recorded. Production metric certification/admission remains explicitly
+false, and no mesh is published. A built proposal without complete measurement is
+reported separately. Work/time/resource refusals remain unresolved evidence.
+The300s diagnostic window is below existing5400s native budget; limits/gates unchanged.
+
+This experiment can distinguish geometric/topological/association refusal from
+mere selection opportunity. It cannot alone establish actual target conformity,
+BL suitability, first-layer coverage or a feasible500k target. Those remain part
+of this connected surface/front implementation and must precede the full attempt.
+Build335 currently frozen; no passing outcome claimed.
+
+335 build passed180.193s with unchanged pins, all10 observed actual build handles
+absent and production CFD byte-identical334. The diagnostic itself aborted134 after
+50.572s BEFORE any cavity trial: the bare CPhysicalGeometry reader had not passed
+through CDriver::BuildGeometryFVM, so native import queried an uninitialized domain
+flag array. All5 actual handles absent; pins unchanged. The exact failed fixture is
+preserved in the case, alongside assessment/inputs/resource receipts. Do not treat
+this setup failure as a production construction refusal. GNU time's final exit0
+line accompanies a signal abort here and is NOT success; wrapper134/Catch failure
+are authoritative.336 fixes only diagnostic setup with existing driver geometry
+preprocessing and RAII ownership; native production paths remain unchanged.
+Additional before-build manifest/current checks verify all8 preparation/input hashes;
+336 incorporates them into the case pins directly.336 build is frozen/unqualified.
+
+336 build passed178.155s/all10 actual handles absent; no replay was launched.
+Before runtime, source audit identified AtlasBudget's zero integer-bit default,
+which could manufacture exact feature-trace refusals.337 uses the engine's existing
+16MiB scratch/bisection bound for maximum_integer_bits; no geometric tolerance or
+work cap increase.336 fixture and qualification-deferred receipt are preserved.
+337 is frozen under build, no runtime outcome yet. This is diagnostic qualification
+within the connected cycle, not another production optimization or BL acceptance.
+
+##337 actual cavity outcome — bounded geometry evidence
+
+337 build passed178.188s, all10 actual build handles absent. Corrected replay passed
+304573assertions/1case,77.770s wrapper, all5 actual identities absent, unchanged pins
+and70 actual mapped ELF verified. Production CFD remains byte-identical334.
+`R/qualification337.json`, `R/surface_cavities337_assessment.json` and raw JSONL
+preserve each trial, whole-context measurement, reason and provenance.37of40trials
+constructed, passed external clearance and completed measurements;3refused. No
+work/time exhaustion.953200patch geometry work;181938600mobility setup work is a
+separate ledger. No timing comparison to previous chord probes is justified.
+
+Confirmed gate/control behavior (bad geometry counts are FACES):
+- Root original:9bad faces, upper.001995. One collapse is body/feature-refused;
+  the other removes1point but upper rises to.009046. Fewer bad faces is not closure.
+- Smooth original:0bad faces. Directed collapses introduce3/2bad faces, uppers
+  .000138/.000108. Moves/reconnections/splits remain geometry-clean in this context.
+- Selected spanwise LE original:10bad faces, upper.00058255. Collapses remove1point
+  but retain8bad faces; other tested operations do not close the surrounding geometry.
+- Symmetry original:0bad faces. Trial0 collapse removes1point, upper.00009192,
+  zero geometry failures and unchanged zero Euclidean q/J failures. Opposite collapse
+  remains within geometry but introduces1q/1J CONTROL failure.
+- Sharp-angle candidate: directed collapse and move toward the obstructed side fail
+  at cell162609. Opposite collapse removes1point, geometry-clean, with Euclidean
+  q/J CONTROL failures reduced15/14to13/12. Its genuine-feature status is still not
+  independently exported; existing mobility/feature gates were retained.
+
+All37measured replacements and5original controls fail requested first height;
+there was no row generation. Euclidean q/J are diagnostic controls, NOT BL-target
+shape. No actual production metric/size acceptance is established without the exact
+same303 field. Geometry values are conservative upper certificates; a gate failure
+alone does not prove exact physical error exceeds tolerance. No mesh was published.
+
+This establishes that existing operators can construct externally clear actual M6
+surface/volume replacements, while raw point removal or splits do not close all
+geometry. It supports a complete readiness phase, not automatic coarsening or a
+changed target. Source review found existing native PredictGeometrySplit/priorities;
+FIRST_ROW W precedes that engine and does not perform its full geometry readiness.
+Reuse these facilities in the connected implementation. Distinguish around-nose
+geometry demand from the tested spanwise edge, and resolve exact target retention/
+composition before policy changes. Full surface/direction/front/transition integration,
+MPI qualification and RANS500k remain required; no full attempt is launched yet.

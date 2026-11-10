@@ -1,6 +1,6 @@
 # Native adaptation — current handoff
 
-Updated2026-11-10 Europe/Rome. Goal ACTIVE. Euler50k TWO accepted events,
+Updated2026-11-11 Europe/Rome. Goal ACTIVE. Euler50k TWO accepted events,
 conservative admissible transfer, finite adapted CFD and isolated adapted disk
 restart are verified293. BL generation/constraint preservation under MPI and full
 RANS500k TWO events/flow+SA transfer/CFD/actual adapted restart remain unproven.
@@ -8,38 +8,63 @@ ONE connected curved-BL cycle. R=`integration_evidence/native_3d_bl_v1/dc17_18_c
 
 ## Current owned workload — authoritative
 
-NONE. Build334 and both serial checks are terminal; all52 observed build PIDs and
-all5 actual identities per check are absent. Source/build pins unchanged.
-334 adds an intrinsic sided reference-association wall sample, reusing existing
-metric logic with support/version/profile/work/time/memory checks. It is NOT a
-rounded-coordinate distance certificate. Existing Evaluate callers retain their
-closest-certification path. No sizing/construction policy or gate changed.
+NONE.337 build and actual cavity experiment are TERMINAL0; all10 observed build
+handles and all5 actual replay identities absent, pins unchanged,70 actual mapped
+ELF verified. Production CFD byte-identical334. Build178.188s; replay77.770s,
+304573assertions/1case. This is a GEOMETRY/CONTROL experiment, not BL acceptance.
+`R/qualification337.json`, `R/surface_cavities337_assessment.json` seal scope.
 
-Build334 PASSED248.360s. Focused association/curved-target check PASSED2244assert/
-1case, Catch298.877s (GNU wall299.19s). Its observer wrapper disappeared during
-turn steering; terminal outcome was recovered from independent GNU exit0/Catch
-result, all actual handles absent and reverified pins.70 actual mapped ELF verified.
-Actual5-context surface probe PASSED121assert/27sided samples/11.600s wrapper,
-81geometry work and zero closest-query counter deltas. Current code/evidence is WIP toward the full connected milestone;
-`R/qualification334.json` seals its LIMITED scope.
+Five exact original303 contexts,40trials:37constructed, externally clear and fully
+measured;3refusals (root body/feature, sharp-candidate volume obstruction). Each
+operator receives its proper complete vertex/edge star, with unchanged surrounding
+cells restored for full endpoint-union measurements. Original root/LE contexts
+already FAIL strict geometry (9/10bad FACES, not cells). Smooth directed collapses
+create3/2bad faces. Symmetry trial0 removes1point while retaining geometry and zero
+Euclidean-control q/J failures. These are NOT production metric q/J or size gates.
+All measured patches still fail requested first height; no layer was constructed.
+953200patch geometry work; mobility setup181938600 is a separate ledger. Upper
+geometry values above tolerance are gate failures, not exact-error lower proofs.
+No mesh published, no sizing/construction policy or gate changed.
 
-Actual endpoint/face-centroid forms: inherited tangent square roots near.93–1.03
-on root/smooth contexts; full-volume chord forms reach1697/60 due to h0 normal term.
-Selected spanwise LE edge has tangent.89–.91 and full.89–1.01. These are NOT exact
-edge quadrature, actual CFD-Hessian/composed-target replay, feasible replacements
-or global complexity decomposition. `R/surface_components334_assessment.json`.
-Helpers `R/check_surface334.py`, `R/replay_surface334.py`, `R/analyze_surface334.py`.
+335 setup failure134 is preserved (bare reader lacked driver preprocessing, ZERO
+trials).336 compiled but was not replayed: audit found default zero integer-bit
+allowance.337 fixes both using CDriver::BuildGeometryFVM and the engine's existing
+16MiB scratch-bounded integer allowance. Exact prior fixtures/receipts preserved.
+Helpers `R/prepare_surface_cavities335.py`, `R/replay_cavities337.py`,
+`R/analyze_surface_cavities337.py`; input `R/m6_bl_inputs/surface_cavities335_v1`.
+
+334 intrinsic sided-association API remains qualified only for its declared scope:
+2244assert focused +121assert/27actual sided samples/81work/no closest queries.
+It is NOT a rounded-coordinate distance certificate. Root/smooth full chord forms
+are dominated by h0 normal term; selected spanwise LE edge is not. These are local
+forms, not exact edge quadrature/global complexity. Euler293's22saved payloads
+384685699bytes unchanged in `R/euler293_preservation_during_bl334.json`.
 
 ## Active connected curved-BL strategy
 
 [Strategy, audit and acceptance conditions](Handbook/ADAPTATION_CURVED_BL_CONSTRUCTION_STRATEGY_20261110.md).
 Next: connect the measured tangential surface demand to existing TargetPolicy and
-native coupled cavity operators; first demonstrate representative actual complete
-patch replacements, keeping final full-target size/geometry and first-child clearance
-separate from selection. Quantify actual flow/inherited/geometry/height contributions
+native coupled cavity operators; 337 demonstrates geometry-eligible replacements in bounded actual contexts, but
+actual target conformity remains unproven. Keep final full-target size/geometry and
+first-child clearance separate from selection. Quantify actual flow/inherited/geometry/height contributions
 and global provisional complexity excess BEFORE changing target policy. Preserve
 constrained/blended directions and rebuild affected dependencies after surface edits.
-Bounded read-only agent is locating an existing actual-cavity loader/replay route.
+Checkpoint8b3ae2e275 pushed;337 source/evidence ready for next WIP checkpoint.
+Exact same303 double sensor snapshot was not found; Float32 VTU and older binary
+seeds cannot substitute for exact production target provenance. Retain that gap,
+trace the actual flow/nodal/composed target path (bounded read-only agent assigned),
+and use existing capture/export
+facilities to retain exact target input before judging a sizing-policy change.
+
+The original bad root/LE geometry and geometry-refused smooth collapses show why
+readiness must include complete-patch certification. Existing native engine already
+has PredictGeometrySplit and geometry-priority selection; FIRST_ROW W uses only
+full-volume metric lengths/thin-strip splitting and runs before that engine. Audit
+and reuse the engine's geometry facilities for surface readiness; do not introduce
+a new scheduler/operator or assume the selected spanwise edge resolves around-nose
+geometry. Geometry-required versus conservative-bound refusal still needs distinction.
+Implement the full surface/direction/front strategy in this SAME cycle; these
+primitive actual-context results are not permission for another full attempt.
 No MPI/full attempt until connected surface/front integration and qualification.
 
 Strict333 prerequisite actual chord PASSED334assert/354.764s/296cuts/5.397983M work

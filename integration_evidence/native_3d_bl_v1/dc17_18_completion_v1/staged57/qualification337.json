@@ -1,0 +1,41 @@
+{
+  "checked_unix": 1794351661.5946064,
+  "build": 337,
+  "scope": "Bounded actual original-M6 geometry/topology/external-contact experiment only; NOT full target metric acceptance, BL generation, MPI qualification or RANS workflow.",
+  "result": {
+    "harness_passed": true,
+    "assertions": 304573,
+    "contexts": 5,
+    "trials": 40,
+    "constructed": 37,
+    "external_clearance_passed": 37,
+    "complete_patch_measurements": 37,
+    "wrapper_seconds": 77.77008986473083,
+    "patch_geometry_work": 953200
+  },
+  "sampled_process_tree_rss_peak_bytes": 1335742464,
+  "production_CFD_binary_unchanged_since334": true,
+  "no_mesh_published": true,
+  "production_metric_certified": false,
+  "first_layer_generated": false,
+  "evidence": {
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/build337_status.json": "e5d8af770cf35b76dfc1929e97c12e52349827b37c0a2053d402d1ad02cdadd4",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/build337_source_pins.json": "90c97a7683d139a05d90951a839f31870bad9ce8b9d533528ac673ff333e980e",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/build337_terminal_handles.json": "e2a3df2284e46aff4666697f8741437e711ee7bf9dd29ce256b4c73a2a87af88",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved337_surface_cavities_20261110T225500_31104/status.json": "3594c73c687d69e16e87d1a1ae7c6154eb702313c376b052e4db3f98ed7d82c4",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved337_surface_cavities_20261110T225500_31104/pins.json": "dfd5eb49370472af47cb6d930f594eec18fe7278ee1ba380605094cee233c5de",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved337_surface_cavities_20261110T225500_31104/run.log": "ff128d91b0b48262407c56d42f696792c406030ef0deb5bb39dc2ddde1132a59",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved337_surface_cavities_20261110T225500_31104/terminal_handles_actual.json": "26a3b4ff642a5fa7784bebe8a96a5daf52df1f3a59257af406ce4dff29ca45e4",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved337_surface_cavities_20261110T225500_31104/mapped_runtime_actual.json": "3f984c13d1f9d83f2a001043ee04f8f168fb51e02f17b2641eb25c55fe1a4746",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved337_surface_cavities_20261110T225500_31104/actual_bl_surface_cavities.jsonl": "558a54c668f2678e4b65df9cba68e5de19b419c6176f63bce5954c69f0f0b541",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/surface_cavities337_assessment.json": "6378808f79dd670b58f5e54687f0089cc8ae42a0646ac4a22a6320d153d42ba7",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_bl_inputs/surface_cavities335_v1/provenance.json": "e745e35562ea37743a16c255d74d8f1e008bfcd6095f6f8adb4e900e7a162c92"
+  },
+  "limits": [
+    "Identity-metric q/J controls do not certify production BL/flow q/J or metric size.",
+    "Conservative geometry upper values above tolerance are gate failures, not an independent lower-bound proof of physical error.",
+    "All measured original/pre-layer patches still fail requested first height; this fixture does not generate rows.",
+    "No source/build/input policy or acceptance gate changed.",
+    "Native MPI BL construction and two-event RANS500k remain unproven."
+  ]
+}

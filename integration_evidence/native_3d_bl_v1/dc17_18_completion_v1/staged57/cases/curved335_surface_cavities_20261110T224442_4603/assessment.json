@@ -1,0 +1,9 @@
+{
+  "status": "diagnostic_setup_failure",
+  "exit_code": 134,
+  "cavity_trials_reached": 0,
+  "reason": "Bare CPhysicalGeometry reader was passed to ImportGeometry before driver geometry preprocessing; point-domain bool container assertion.",
+  "production_failure": false,
+  "all_actual_handles_absent": true,
+  "fix": "Use existing CDriver::BuildGeometryFVM before native mobility/import, with explicit geometry ownership."
+}

@@ -1,0 +1,80 @@
+NATIVE3D_REFERENCE_CACHE host_ranks=1 host_quota_bytes=4294967296 rank_quota_bytes=4294967296
+Filters: [NativeActualBLSurfaceCavity3D]
+Three dimensional problem.
+61330 grid points.
+303359 volume elements.
+3 surface markers.
+2060 boundary elements in index 0 (Marker = FARFIELD).
+8094 boundary elements in index 1 (Marker = SYMMETRY).
+38800 boundary elements in index 2 (Marker = WING3D).
+Native3D curved mobility: protected_edges=674 corners=2 fixed_points=2 curve_points=671 surface_points=23806 setup_work=181938600
+test_driver: ../../Common/src/adaptation/../../include/containers/C2DContainer.hpp:309: const Scalar_t& container_details::AccessorImpl<Index_t, Scalar_t, StorageType::ColumnMajor, AlignSize, 0, 1>::operator()(Index_t) const [with Index_t = long unsigned int; Scalar_t = bool; long unsigned int AlignSize = 64]: Assertion `i >= 0 && i < m_rows' failed.
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+test_driver is a Catch v2.13.9 host application.
+Run with -? for options
+
+-------------------------------------------------------------------------------
+Actual curved BL surface cavities preserve complete dependencies
+-------------------------------------------------------------------------------
+../../UnitTests/SU2_CFD/adaptation/fixtures/native_actual_bl_surface_cavities.inc:2
+...............................................................................
+
+../../UnitTests/SU2_CFD/adaptation/fixtures/native_actual_bl_surface_cavities.inc:2: FAILED:
+  {Unknown expression after the reported line}
+due to a fatal error condition:
+  SIGABRT - Abort (abnormal termination) signal
+
+0.000 s: Actual curved BL surface cavities preserve complete dependencies
+===============================================================================
+test cases:  1 |  0 passed | 1 failed
+assertions: 11 | 10 passed | 1 failed
+
+[pc-rausa:04694] *** Process received signal ***
+[pc-rausa:04694] Signal: Aborted (6)
+[pc-rausa:04694] Signal code:  (-6)
+[pc-rausa:04694] [ 0] /lib/x86_64-linux-gnu/libc.so.6(+0x45330)[0x7fdd35a45330]
+[pc-rausa:04694] [ 1] /lib/x86_64-linux-gnu/libc.so.6(pthread_kill+0x11c)[0x7fdd35a9ec0c]
+[pc-rausa:04694] [ 2] /lib/x86_64-linux-gnu/libc.so.6(gsignal+0x1e)[0x7fdd35a4527e]
+[pc-rausa:04694] [ 3] /lib/x86_64-linux-gnu/libc.so.6(abort+0xdf)[0x7fdd35a288ff]
+[pc-rausa:04694] [ 4] /lib/x86_64-linux-gnu/libc.so.6(+0x2881b)[0x7fdd35a2881b]
+[pc-rausa:04694] [ 5] /lib/x86_64-linux-gnu/libc.so.6(+0x3b517)[0x7fdd35a3b517]
+[pc-rausa:04694] [ 6] /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver(+0x1d8aced)[0x5dec87d0dced]
+[pc-rausa:04694] [ 7] /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver(+0x1d92397)[0x5dec87d15397]
+[pc-rausa:04694] [ 8] /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver(+0x1de2bd4)[0x5dec87d65bd4]
+[pc-rausa:04694] [ 9] /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver(+0x97579b)[0x5dec868f879b]
+[pc-rausa:04694] [10] /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver(+0x10c2783)[0x5dec87045783]
+[pc-rausa:04694] [11] /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver(+0x10db388)[0x5dec8705e388]
+[pc-rausa:04694] [12] /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver(+0x10db71b)[0x5dec8705e71b]
+[pc-rausa:04694] [13] /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver(+0x10f0ad2)[0x5dec87073ad2]
+[pc-rausa:04694] [14] /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver(+0x10f107e)[0x5dec8707407e]
+[pc-rausa:04694] [15] /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver(+0x3c6c16)[0x5dec86349c16]
+[pc-rausa:04694] [16] /lib/x86_64-linux-gnu/libc.so.6(+0x2a1ca)[0x7fdd35a2a1ca]
+[pc-rausa:04694] [17] /lib/x86_64-linux-gnu/libc.so.6(__libc_start_main+0x8b)[0x7fdd35a2a28b]
+[pc-rausa:04694] [18] /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver(+0x3f95a5)[0x5dec8637c5a5]
+[pc-rausa:04694] *** End of error message ***
+timeout: the monitored command dumped core
+Command terminated by signal 6
+	Command being timed: "timeout 600 /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver [NativeActualBLSurfaceCavity3D] --durations yes"
+	User time (seconds): 45.30
+	System time (seconds): 0.22
+	Percent of CPU this job got: 97%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 0:46.91
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 377068
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 0
+	Minor (reclaiming a frame) page faults: 145986
+	Voluntary context switches: 1047
+	Involuntary context switches: 350
+	Swaps: 0
+	File system inputs: 0
+	File system outputs: 24
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0
