@@ -26,6 +26,13 @@ and high-order mesh elements are outside the authorized change. The2024 log-simp
 DG paper is supporting context only, not a reason to switch L1/L2 or Hessian recovery.
 L2 recovery/projection and an Lp adaptation error objective are different choices.
 
+Completed329 target evaluation is provisional/outside500k estimated bounds.
+[Current metric-stage diagnosis](ADAPTATION_CURVED_BL_METRIC_STAGE_DIAGNOSIS_20261110.md)
+records inherited tangent-policy evidence and unresolved attribution. The saved
+initial flow VTU is still the original mesh and exports sensor-only floor tensors;
+it is not a representative generated BL mesh or its effective composed metric.
+The queued complete-patch investigation remains pending that first actual result.
+
 ## Bounded evidence plan
 
 Use existing diagnostics, actual saved fields and complete supports first. Choose

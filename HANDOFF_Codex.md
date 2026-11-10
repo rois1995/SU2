@@ -35,6 +35,24 @@ resource receipts. Preserve outcome; use existing work counters before selecting
 any further connected correction. Immediately pursue full BL/RANS workflow, not
 another baseline/perf/GDB campaign. All original acceptance obligations remain.
 
+## Read-only329 metric-stage diagnosis
+
+[Concrete attribution and gaps](Handbook/ADAPTATION_CURVED_BL_METRIC_STAGE_DIAGNOSIS_20261110.md)
+is preserved with `R/m6_runs/rans_curved329_v1/metric_stage_attribution_bounds.json`.
+At least899.206s of the broad1424.828s bucket lies outside its constructor/assessment
+calls (loose overlapping-timer upper525.622s, not an additive breakdown). Final
+nodal audit makes66760 target evaluations incl5430 halo instances; support covers
+the domain, so base closest is evaluated at each.6516 full SamplePoints requests
+repeat at initial target attachment with unchanged full model/version/coordinates.
+A.Weight adds conditional base evaluations outside printed profile counters.
+Current charged cache maintenance <=27.09% by source call upper bound; this is NOT
+a timing split. Root/refinement, exact/nearby identity and total collective-wait
+seconds remain attribution gaps. No new job/profiler or production change.
+Actual global inherited-tangent contribution is unmeasured; a clearly labeled
+planar face-covariance/normal-law scale proxy is638k, not the production1.175m
+integral, physical lower bound or accepted target. Preserve the queued actual
+patch analysis. SelectONE correction only AFTER preserving frozen329's outcome.
+
 ## Current connected capability and evidence
 
 296 rejected curved wall authority.302/303 added genuine no-CAD cubic wall support,

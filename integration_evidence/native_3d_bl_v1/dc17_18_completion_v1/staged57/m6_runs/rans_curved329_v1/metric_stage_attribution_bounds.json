@@ -1,0 +1,72 @@
+{
+  "source": "read-only existing logs/source/mesh metadata, no new run",
+  "original_points": 61330,
+  "wall_faces": 38800,
+  "wall_points": 19506,
+  "domain_lower": [
+    -100.0,
+    -1.062527844000001e-13,
+    -100.0
+  ],
+  "domain_upper": [
+    100.0,
+    100.0,
+    100.0
+  ],
+  "wall_lower": [
+    -6.134604418e-14,
+    -1.062527844000001e-13,
+    -0.03943038082526835
+  ],
+  "wall_upper": [
+    1.144078015999939,
+    1.218480547302815,
+    0.03943038082526791
+  ],
+  "continuation_support_lower_bound": 381.14946104785133,
+  "axis_padding_required_to_cover_domain": 99.99999999999994,
+  "source_derived_nodal_applypoint_calls_at_least": 61330,
+  "core": 9.999999999999973e-05,
+  "clock_bound": {
+    "broad_phase_max": 1424.827881854,
+    "constructor_plus_assessment_loose_upper": 525.6222247000001,
+    "phase_outside_constructor_assessment_at_least": 899.2056571539999,
+    "scope": "One constructor and one assessment; preparation timer includes refresh also inside assessment. Upper sum is intentionally loose, not an additive cost breakdown. Residual does not isolate geometry from nodal tensor/edge audit or other untimed work."
+  },
+  "query_limits": "Nodal66760composition calls are source-derived from summed nPoint. Expanded curved-wall AABB covers domain; each base evaluation invokes closest. Unique geometry coordinates, full/base closest identity, successful root/refinement/cache work split and exclusive geometry/collective seconds are not recorded.",
+  "verified_hgrad": 1.3,
+  "nodal_target_requests_including_halos": 66760,
+  "halo_duplicate_requests": 5430,
+  "source_derived_closest_call_upper_bound": {
+    "calls": 226344,
+    "conditional_assumptions": "One curved wall in full/base from same38800-face wing group; one assessment/trial; strict quadrature0; direct audit false. Includes full/base samples, conditional A-distance and up to3calls per nodal composition; excludes subsequent remeshing.",
+    "cache_work_max": 14486016,
+    "observed_geometry_work": 53473769,
+    "cache_work_fraction_max": 0.2708994759654963,
+    "other_charged_work_at_least": 38987753,
+    "not_a_timing_split": true
+  },
+  "sampler_repeated_full_requests": {
+    "count": 6516,
+    "cause": "Full model/version and stored coordinates remain valid after constructor; initial cachedTarget=null makes first target attachment refresh full+base.",
+    "low_level_identical_query_count": "not instrumented"
+  },
+  "evidence_sha256": {
+    "metric_build_completed.log": "6af370f223bacb3825c262e16b520b823b1115cb35ff675f748a0bc46071b91c",
+    "metric_build_assessment.json": "7a7b365a9523b6f09197e80e6861c82b04b824933730827a96197246f96d5cd0",
+    "pins.json": "7d13fdb25df9a36598a85e110aabc58c968def515873e1008d8d58b554eb1b0e",
+    "run.cfg": "1f17f94fab7796eb4a34bdd3cf36a854fdc3eff401486033f07445633599c3af",
+    "m6.su2": "8c839170eb5e359f7de6a41434aa6a9c2d620053f37de6d9360bd04d2a63088b"
+  },
+  "inherited_tangent_scale_proxy": {
+    "wall_faces": 38800,
+    "first_height": 2e-06,
+    "growth": 1.2,
+    "thickness": 0.01,
+    "planar_independent_face_metric_area": 16800.892833418107,
+    "normal_metric_depth": 37.97394529730994,
+    "layer_complexity_proxy": 637996.1854021858,
+    "production_contribution_quantified": false,
+    "scope": "Algebraic element-local planar scale check only. Excludes production vertex-log interpolation, curved Jacobians, D1, overlaps, flow and continuation. Not a physical lower bound, actual layer count or decomposition of1.175m."
+  }
+}

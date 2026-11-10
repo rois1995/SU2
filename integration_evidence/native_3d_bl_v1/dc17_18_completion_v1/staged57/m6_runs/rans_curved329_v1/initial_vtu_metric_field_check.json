@@ -1,0 +1,38 @@
+{
+  "file": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/rans_curved329_v1/flow_adap_00000.vtu",
+  "file_sha256": "48577b81b3298adf09aa9b29f25caa74c9aad954aa669eedaab12bd2f7d0518b",
+  "reader": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/TestCases/adaptation/capability/capcheck.py",
+  "reader_sha256": "38ee0fe9fc60d7b29ab796303d8c5cec2770ad1beb06e2e5b76d5c687d495f92",
+  "points": 61330,
+  "precision": "Float32",
+  "all_exported_fields_finite": true,
+  "positive_density_pressure": true,
+  "nonnegative_SA": true,
+  "metric_fields": {
+    "Metric_XX": {
+      "minimum": 9.999999747378752e-05,
+      "maximum": 9.999999747378752e-05
+    },
+    "Metric_XY": {
+      "minimum": -1.0263940737658679e-19,
+      "maximum": 9.836181732217927e-20
+    },
+    "Metric_XZ": {
+      "minimum": -7.377333723911207e-20,
+      "maximum": 6.039131914915429e-20
+    },
+    "Metric_YY": {
+      "minimum": 9.999999747378752e-05,
+      "maximum": 9.999999747378752e-05
+    },
+    "Metric_YZ": {
+      "minimum": -5.804437510679407e-20,
+      "maximum": 5.813241814324268e-20
+    },
+    "Metric_ZZ": {
+      "minimum": 9.999999747378752e-05,
+      "maximum": 9.999999747378752e-05
+    }
+  },
+  "scope": "Original unadapted mesh after initial CFD step. Exported METRIC is sensor-only at isotropic floor, not composed physical BL tensor. No adapted-mesh, transfer or restart acceptance claimed."
+}

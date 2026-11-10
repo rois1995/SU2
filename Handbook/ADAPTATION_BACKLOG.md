@@ -21,13 +21,16 @@ its relevance or the user explicitly reprioritizes it.
   the already queued first-representative-BL-patch audit. Keep329 frozen; no target,
   height, norm, construction or geometry-representation change from this lead.
 
-- Conditional AFTER frozen329 terminal: use existing bounded-complexity sample,
-  preparationGeometryQueries/profileGeometryQueries/profileRefreshes counters to
-  establish whether profile refresh repeats unchanged coordinate/support geometry.
-  Inspect sample-version semantics and fresh profile-dependent values before any
-  reuse change. Rising CPU includes possible MPI polling and does not establish
-  this hypothesis. No competing implementation, extra profiler/campaign or new
-  geometry representation. [Source/counter audit](ADAPTATION_CURVED_BL_COMPLEXITY_20261110.md).
+- AFTER frozen329 terminal, use the [measured/source-derived stage diagnosis](ADAPTATION_CURVED_BL_METRIC_STAGE_DIAGNOSIS_20261110.md)
+  when selecting ONE connected correction. Initial target attachment repeats6516
+  full SamplePoints requests at unchanged coordinates/model/version; it is not a
+  six-trial refresh issue. Nodal composition evaluates66760 point instances incl
+  5430 halos. A.Weight adds base distance evaluations outside printed profile
+  counters. Geometry/metric sample separation and existing owned/halo exchange
+  are investigation starting points, not established speedups or selected work.
+  Preserve exact support/profile identity, fresh position-dependent values,
+  association invalidation and current admission. No competing implementation,
+  new scheduler/representation/config or another baseline/profiler campaign.
 
 - Conditional hypothesis AFTER frozen244terminal only: if useful geometry placement
   is offered too late after shape exhaustion, assess existing positive-visibility

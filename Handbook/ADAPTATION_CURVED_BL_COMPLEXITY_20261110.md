@@ -4,6 +4,10 @@
 preserved. Full319 terminal1/5457.353s; all10 actual identities absent, source/input
 pins and mapped runtime verified. No normalized target or BL mesh was produced.
 
+Latest329 read-only work diagnosis and target-attribution limits:
+[metric-stage diagnosis](ADAPTATION_CURVED_BL_METRIC_STAGE_DIAGNOSIS_20261110.md).
+The frozen remeshing outcome remains authoritative for the next connected change.
+
 ## Missing capability and evidence
 
 The first original cell cannot complete strict curved target quadrature within
