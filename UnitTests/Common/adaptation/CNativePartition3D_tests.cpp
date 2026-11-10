@@ -127,6 +127,35 @@ TEST_CASE("Native tetrahedral partition migrates two constraints with atomic rec
     Log(world,log.str());
   }
 }
+TEST_CASE("Sole native destination preserves cells and donors with uniform routing weights", "[NativeDistributed3D][NativePartition3D]") {
+  World world; const auto all=Grid(1);
+  for(int layout:{0,1,2}) {
+    const auto original=Layout(all,world,layout); auto uniform=original,weighted=original;
+    std::vector<uint32_t> unit(original.size(),1),work,geometry;
+    std::vector<DonorCell> donors;
+    for(const auto& row:original) {
+      work.push_back(Prescribed(row.second));geometry.push_back(MaximumPartitionWeight);
+      DonorCell donor;donor.cell=row.second.cell;donor.sensor.fill({2,0,0,3,0,4});donors.push_back(donor);
+    }
+    PartitionStats a,b;std::string reason;
+    REQUIRE(Repartition(world,weighted,work,1,a,reason,SIZE_MAX,0,geometry));
+    REQUIRE(Repartition(world,uniform,unit,1,b,reason));
+    CHECK(a.destinations==b.destinations);CHECK(Bytes(uniform)==Bytes(weighted));
+    CHECK(uniform.size()==(world.rank==0?all.size():0));
+    CHECK(std::all_of(b.destinations.begin(),b.destinations.end(),[](int rank){return rank==0;}));
+    std::vector<std::vector<DonorCell>> send(world.size);size_t j=0;
+    for(const auto& donor:donors)send.at(b.destinations.at(j++)).push_back(donor);
+    bool admitted=false;auto received=world.exchange(send,&admitted,SIZE_MAX,0);REQUIRE(admitted);
+    CHECK(received.size()==uniform.size());
+    for(const auto& donor:received) {
+      CHECK(Bytes(OwnedCell{donor.cell})==Bytes(OwnedCell{all.at(donor.cell.id).cell}));
+      for(const auto& tensor:donor.sensor)CHECK(tensor.xx==2);
+    }
+    auto rejected=original;const auto saved=Bytes(rejected);PartitionStats refusal;
+    CHECK_FALSE(Repartition(world,rejected,unit,1,refusal,reason,world.rank==0?1:SIZE_MAX));
+    CHECK(Bytes(rejected)==saved);
+  }
+}
 TEST_CASE("Geometry work attributes closed flat surface faces and edge shares once", "[NativePartition3D][NativeGeometryWeight3D]") {
   auto cells=Grid(1);std::vector<Facet> facets;
   for(auto& item:cells) {

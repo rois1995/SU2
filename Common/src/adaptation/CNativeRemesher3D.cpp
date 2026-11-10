@@ -447,7 +447,16 @@ CRemeshResult CNativeRemesher3D::Remesh(const CConfig& config, const CGeometry& 
                              transfer_memory::Add(held(), OwnedStorageBytes(working)));
       phase(3);
       std::vector<uint32_t> weights,geometry_weights;
-      if (ready && repartition)
+      if (ready && repartition && stats.workers == 1) {
+        // A sole destination cannot use work estimates; keep graph validation and complete migration.
+        ready = admit(transfer_memory::Add(held(), transfer_memory::Bytes(imported.original),
+            OwnedStorageBytes(working), source.ResidentBytes(), transfer_memory::Mul(working.size(), sizeof(uint32_t))));
+        if (ready) {
+          try { weights.assign(working.size(), 1); }
+          catch (const std::exception& e) { ready = false; reason = e.what(); }
+          ready = vote(ready, reason);
+        }
+      } else if (ready && repartition)
         ready =
             WorkingWeights(parent, working, source, weights, reason, stats.weights, composition, control.memory_ceiling,
                            transfer_memory::Add(held(), transfer_memory::Bytes(imported.original)), control.timings,
@@ -460,6 +469,7 @@ CRemeshResult CNativeRemesher3D::Remesh(const CConfig& config, const CGeometry& 
       if(ready&&repartition) {
         const auto& p=stats.partition;const auto r=parent.rank;const auto& w=stats.weights;
         std::cout<<std::setprecision(17)<<"NATIVE3D_PARTITION rank="<<r<<" parts="<<stats.workers
+            <<" uniform_routing_weights="<<(stats.workers==1)
             <<" cells_before="<<p.cells_before.at(r)<<" cells_after="<<p.cells_after.at(r)
             <<" metric_before="<<p.work_before.at(r)<<" metric_after="<<p.work_after.at(r)
             <<" geometry_before="<<p.geometry_before.at(r)<<" geometry_after="<<p.geometry_after.at(r)

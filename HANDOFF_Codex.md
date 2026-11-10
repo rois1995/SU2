@@ -22,7 +22,15 @@ color to0 and calls graph partitioners only for parts>1; uniform admitted weight
 cannot change sole-worker routing. Preserve graph/directory validation, donor/cell
 migration, multiworker prediction, geometry/height/shape certification and budgets.
 Focused serial + ONE MPI milestone then immediate SAME303seed full BL/RANS.
-No implementation/qualification of this correction yet.
+330 minimal remesher branch and sole-destination migration check implemented.
+Build330 PASSED22.192s,17 actual sampled handles absent, pins unchanged.
+Qualification330 SEALED: serial25.411s10/11cases, MPI6 51.481s21/22cases EACHrank.
+Only known baseline diagnostic assertions2780/2781 fail (serial4, MPI24 total);
+no new failure. New sole-worker routing and all other affected checks pass.
+All build/serial/MPI actual handles absent; sources FROZEN for immediate full330.
+`R/qualification330.json` explicitly is NOT an all-suite or BL workflow pass.
+Helpers `R/check_weights330.py`, `R/run_rans_curved330.py`; full replay launching.
+
 
 Original303 savedRANS seed, Mach-onlyL1/500k,h02e-6/g1.2/T.01,geometry1e-4,
 native5400/outer14400TOTAL,12GiB/rank unchanged. CFDMPI6/FIRST_ROWnative1 is NOT

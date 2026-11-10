@@ -1,0 +1,78 @@
+{
+  "build": "build330",
+  "state": "terminal",
+  "passed": true,
+  "scope": "Sole-native-destination uniform routing. New routing and affected invariants pass; mapped-runtime diagnostic assertions remain baseline-controlled failures. Not an all-suite pass or BL/workflow qualification.",
+  "focused": {
+    "passed": true,
+    "attempt": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/weights330_focused_20261110T121239_2528971",
+    "seconds": 25.41139030456543,
+    "expected_exit_code": 4,
+    "all_suite_pass": false,
+    "known_failure_locations": {
+      "2780": 2,
+      "2781": 2
+    },
+    "case_counts": [
+      [
+        "11",
+        "10",
+        "1"
+      ]
+    ],
+    "new_failures": 0,
+    "helper_sha256": "5aa68b37eda98929011b44449e5cc9dea02581fc56694a0a6216bbe510182c4b"
+  },
+  "mpi6": {
+    "passed": true,
+    "attempt": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/weights330_mpi6_20261110T121402_2532767",
+    "seconds": 51.48099160194397,
+    "expected_exit_code": 4,
+    "all_suite_pass": false,
+    "known_failure_locations": {
+      "2780": 12,
+      "2781": 12
+    },
+    "case_counts": [
+      [
+        "22",
+        "21",
+        "1"
+      ],
+      [
+        "22",
+        "21",
+        "1"
+      ],
+      [
+        "22",
+        "21",
+        "1"
+      ],
+      [
+        "22",
+        "21",
+        "1"
+      ],
+      [
+        "22",
+        "21",
+        "1"
+      ],
+      [
+        "22",
+        "21",
+        "1"
+      ]
+    ],
+    "new_failures": 0,
+    "helper_sha256": "5aa68b37eda98929011b44449e5cc9dea02581fc56694a0a6216bbe510182c4b"
+  },
+  "reused_qualification325_sha256": "f5c2162d3eac4f30bc09c17a312709445799c983a43bb9f419c4181dc4057a61",
+  "reused_qualification328_sha256": "ffe8f2ef11f6f337625466f3f80d726a7adca4cfcc2c01a4d08ec39e8c71a147",
+  "reused_qualification329_sha256": "100c60692d733e378630ca4455fba2514fa903e39d2e802b0e829acfb6f01516",
+  "reuse_scope": "Unchanged geometry/query/cache authority retains qualified329 focused/actual-point and328 broader MPI evidence. Current330 mapped remesh/transfer and payload migration checks cover remesher routing. Prior diagnostic failures preserved.",
+  "actual_m6_target_accepted": false,
+  "bl_mesh_generated": false,
+  "workflow_accepted": false
+}

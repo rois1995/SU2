@@ -180,3 +180,51 @@ a correction or authorizing a stop. No new profiler or competing implementation.
 - CNativeBLTarget3D.hpp:62–66,93–129,237–267,283–302.
 - CBoundaryLayerMetric.cpp:372–429,939–1019,1964–1999,2010–2254,4000–4014,4171–4198.
 - CPhysicalGeometry.cpp:2108–2122 sums nPoint including halos.
+
+
+## Terminal329: first remesh event locates the immediate blocker
+
+The preserved first-event prefix explicitly rejects at native5400s, with
+5398.49s in WorkingWeights; import max.7804s and donor build max.6898s.
+Geometry-estimator arithmetic itself is only.166–.399s per rank. Actual target
+composition requests/misses are55488,40948,64913,104607,86546,147216, zero hits,
+and one failure per rank. Reported target geometry work is54.3–59.4million/rank.
+The current-nodal weight path recreates an uncached sampler per cell and evaluates
+center plus four vertices. These are balancing proxies, not acceptance checks.
+Source preparation/deadline hypotheses above did not cause this measured failure.
+
+No construction or accepted operation occurred; the driver entered cycle1 on the
+original grid. Authorized stop preserved outcome before source edits; all10 actual
+owned identities are absent. See329 assessment, raw prefix, stop and terminal
+manifest. No target/BL mesh/transfer acceptance is claimed.
+
+The selected correction skips this unused proxy when native workers==1. Existing
+Repartition initializes all colors to0 and invokes partitioners only for parts>1;
+unit work and empty geometry weights cannot affect the sole destination. Keep its
+full directory/dual-face topology checks, storage admission, atomic migration,
+source-donor routing and all subsequent target/certification unchanged. Multiworker
+estimation is unchanged. Telemetry explicitly labels uniform routing weights.
+This removes proven unnecessary work without changing geometry authority, caches,
+metric policy, constraints or budgets. It does not diagnose every1427s metric-stage
+cost or resolve the unqualified1.175M target floor.
+
+Acceptance for330: focused serial and one MPI6 milestone must preserve complete
+records and donor routing, empty-rank alignment, resource refusal, curved state,
+heights and certificate behavior. Then immediately replay full same303seed BL/RANS
+under original500k/L1/heights/budgets. Runtime progress beyond weight preparation,
+not passing fixtures, establishes removal of this actual blocker. BL suitability,
+full nativeMPI construction and the two-event RANS workflow remain obligations.
+
+
+330 qualification: build22.192s,17 sampled actual handles absent; serial25.411s,
+MPI6 51.481s. New sole-destination comparison preserves exact cells, source donor
+coordinates/tensors and destinations across layouts including empty ranks and
+collective memory refusal. Existing mapped runtime completes remeshing and
+conservative BDF2 transfer, but its old diagnostic geometry_progress/reactivated
+assertions2780/2781 fail unchanged (4 serial,24 MPI total). Archived296 control
+already records exactly these locations/counts; do not call this an all-suite pass.
+Serial10/11 cases and MPI21/22 cases EACHrank pass; no new failure. Current MPI
+also covers curved transactions, heights and immutable surface memo behavior.
+Unchanged329 actual-point/cubic cache and328 broader MPI evidence retained.
+All actual handles terminal; qualification330 seals scope. Immediate full SAMEseed
+replay next, without another baseline/profiler or target/construction-policy change.
