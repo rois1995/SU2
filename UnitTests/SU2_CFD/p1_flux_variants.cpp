@@ -4850,7 +4850,25 @@ void EdgeEntropyFCTLensCase() {
         std::vector<tac::FCTData> runs;
         for (unsigned short np = 1; np <= 10; ++np) runs.push_back(RunFCT<nDim>(geometry, S, projected, p1p, nullptr, nullptr, np, true, true));
         const auto ref1 = RefFCT(geometry, nDim, runs[0].ing, w, p1p, 1, true, false, true);
-        refDiff = std::max(refDiff, FCTRefDiff(ref1, runs[0].store, finite));
+        {
+          const double dd = FCTRefDiff(ref1, runs[0].store, finite);
+          if (dd > 1e-10) {  /*--- diagnostic of the worst entries (pass 1) ---*/
+            int shown = 0;
+            for (unsigned long e = 0; e < ref1.ed.size() && shown < 6; ++e)
+              for (int f = 0; f < 4 && shown < 6; ++f) {
+                const auto& r = ref1.ed[e];
+                const double al = tac::FCTStored(runs[0].store, e, r.flip, 1, f), pc = tac::FCTStored(runs[0].store, e, r.flip, 0, f);
+                if (std::fabs(al - r.alpha[f]) + std::fabs(pc - r.phic[f]) >= 0.5 * dd) {
+                  ++shown;
+                  WARN("LENS pass-1 mismatch t " << t << " edge " << e << " flip " << r.flip << " f " << f << " valid " << r.valid[f]
+                       << " dy " << r.dy[f] << " sigma " << r.sigma[f] << " o " << r.o[f] << " phic " << pc << "/" << r.phic[f]
+                       << " alpha " << al << "/" << r.alpha[f] << " cap " << r.rowCap[0][f] << " " << r.rowCap[1][f]
+                       << " D " << r.D[f]);
+                }
+              }
+          }
+          refDiff = std::max(refDiff, dd);
+        }
         const auto ref10 = RefFCT(geometry, nDim, runs[9].ing, w, p1p, 10, true, false, true);
         /*--- Passes 2-10, every entry: mean |alpha - alpha_ref| (passes after the first amplify the rounding of the
          * summation order, model document section 7); the largest entry difference is reported. ---*/

@@ -1691,6 +1691,7 @@ FCTRefResult FCTReference(const Geometry& geometry, unsigned short nDim, const s
       r.sigma[f] = 0.5 * (r.s[0][f] + r.s[1][f]);
       r.o[f] = sgn * r.sigma[f];
       r.phic[f] = (r.valid[f] && r.o[f] > 0) ? std::min(1.0, r.cap[f] / r.o[f]) : 1.0;
+      bool lensZero = false;
       if (nodeInput && lens) {  /*--- P1_TECNO_LIMITER_MODEL.md section 4: own value from P2, P3, P5 (no cap). ---*/
         if (r.valid[f]) {
           double s2 = r.o[f] * r.o[f];
@@ -1703,13 +1704,14 @@ FCTRefResult FCTReference(const Geometry& geometry, unsigned short nDim, const s
           }
           const double ady = std::fabs(r.dy[f]);
           r.phic[f] = (r.o[f] > 0) ? std::min(1.0, std::min(ady / r.o[f], 2 * ady * r.o[f] / s2)) : 0.0;
+          lensZero = (f != 2) && (r.o[f] > 0) && (ady / r.o[f] <= 1.0) && (ady / r.o[f] <= 2 * ady * r.o[f] / s2);
         }
         for (int x = 0; x < 2; ++x) r.rowCap[x][f] = 2 * r.A[x][f] + delta;
       } else if (nodeInput) {  /*--- S4f (ROE_TECNO_PLAN.md 6.13, D3): |l_c| <= |dy| on every valid entry. ---*/
         if (r.valid[f]) r.phic[f] = (r.o[f] > 0) ? std::min(r.phic[f], 2 * std::fabs(r.dy[f]) / r.o[f]) : 0.0;
         for (int x = 0; x < 2; ++x) r.rowCap[x][f] = 2 * r.A[x][f] + delta;
       }
-      r.Mc[f] = r.phic[f] * r.D[f] * (r.dy[f] - r.phic[f] * r.sigma[f]);
+      r.Mc[f] = lensZero ? 0.0 : r.phic[f] * r.D[f] * (r.dy[f] - r.phic[f] * r.sigma[f]);  /*--- l(dy/sigma) = 0 exactly ---*/
     }
     for (unsigned short d = 0; d < nDim; ++d)
       r.Mv[d] = r.phic[2] * r.D[2] * (r.dyS[d] - r.phic[2] * 0.5 * (r.sS[0][d] + r.sS[1][d]));

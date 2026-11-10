@@ -1651,6 +1651,7 @@ void FCTEdgeOwn(const Geometry& geometry, unsigned short nDim, const FCTSetup& s
       const su2double sigma = 0.5 * (v.s[0][f] + v.s[1][f]);
       const su2double o = sg * sigma;
       su2double phic = (valid && (o > 0.0)) ? fmin(su2double(1.0), cap / o) : su2double(1.0);
+      bool zeroMoment = false;
       if (nodeInput) {
         /*--- S4f (D3): the entropy own bound |l_c| <= |dy| of every valid entry, phi_c o <= 2 |dy| (o > 0) and phi_c = 0
          * (o <= 0), so that its production D (dy^2 + alpha (l_c^2 - dy^2)) is nonincreasing in alpha; the rows of the two
@@ -1669,7 +1670,12 @@ void FCTEdgeOwn(const Geometry& geometry, unsigned short nDim, const FCTSetup& s
               }
             }
             const su2double ady = fabs(v.dy[f]);
-            phic = fmin(su2double(1.0), fmin(ady / o, 2.0 * ady * o / sig2));
+            const su2double root = ady / o, prodBound = 2.0 * ady * o / sig2;
+            phic = fmin(su2double(1.0), fmin(root, prodBound));
+            /*--- Where the minimum is the zero-moment root dy/sigma (also o = |dy|: phi_c = 1 = root), l(phi_c) = 0 and
+             * the scalar moment is exactly 0 (Lemma 3); its floating-point residue would carry a rounding sign and let an
+             * overloaded observer veto the entry, so it is set to 0. ---*/
+            zeroMoment = (f != 2) && (root <= 1.0) && (root <= prodBound);
           } else if (valid) {
             phic = 0.0;
           }
@@ -1683,7 +1689,7 @@ void FCTEdgeOwn(const Geometry& geometry, unsigned short nDim, const FCTSetup& s
       ed(iEdge, FCT_E_CAP + f) = cap;
       ed(iEdge, FCT_E_O + f) = o;
       ed(iEdge, FCT_E_VALID + f) = valid ? 1.0 : 0.0;
-      ed(iEdge, FCT_E_MC + f) = (f == 2) ? su2double(0.0) : phic * v.D[f] * (v.dy[f] - phic * sigma);
+      ed(iEdge, FCT_E_MC + f) = ((f == 2) || zeroMoment) ? su2double(0.0) : phic * v.D[f] * (v.dy[f] - phic * sigma);
     }
     const su2double phiS = ed(iEdge, FCT_E_PHIC + 2);
     for (unsigned short iDim = 0; iDim < 3; ++iDim) {
