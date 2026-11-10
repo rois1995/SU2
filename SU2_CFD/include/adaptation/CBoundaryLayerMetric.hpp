@@ -334,7 +334,8 @@ class CBoundaryLayerMetric {
   /*! Roundoff-level coplanarity classification for integration selection only; never changes wall geometry. */
   bool PlanarWalls3D() const;
 
-  /*! Complete faceted-wall support proposal, independent of the sensor/scale. Analytic authority retains
+  /*! Complete triangle-tube proposal, padded by the certified envelope for mapped cubic walls.
+   * True authority evaluates distances/normals/tensors; proposal geometry never replaces it. Analytic authority retains
    * its existing integration path. includeTransition=false proposes only the requested wall band; a caller
    * must then cover any outer continuation separately. Limits bound work/storage, not metric or integration error. */
   std::shared_ptr<SU2Native3D::SupportSampler3D> PrepareCorrectionSupport3D(size_t maximumBytes,uint64_t maximumWork,

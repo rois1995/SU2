@@ -10,27 +10,35 @@ R = `integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57`.
 
 ## Frozen owned workload — authoritative current state
 
-Full SAMEseed RANS/BL319 ACTIVE(session70391). All compiled C++/helpers/inputs FROZEN.
-Run: `R/m6_runs/rans_curved319_v1`. Wrapper1427833/start33248148;
-time1428575/timeout1428576/mpirun1428577(start33250039), ranks1428580..1428585
-(start33250042). Current owned_handles.json/resources/status are authoritative.
-Verify actual terminal identities before edits, restart or another heavy job.
-Preserve this outcome unless evidence justifies the already authorized owned stop.
+Build321 TERMINAL0/62.122s, all18 sampled actual host build handles absent; source
+pins verified. CFD SHA dbbbf8b98e60dc9a24692f0473bb6209b00b262a1cf945025a17ebf62e4b4aa1;
+test c0ff0695e915e6e00680c448bea97588697f4d3fdce0130a0b644d7df78d2781.
+Focused321 ACTIVE(session67371), all compiled sources/helpers FROZEN:
+`R/cases/curved321_focused_20261110T070621_1682998`; wrapper1682998,
+time1683100/timeout1683101/test1683102/orted1683103. Actual identities recorded in
+owned_handles_actual.json. Verify terminal handles before source edits/next job.
+The first focused launch failed before fixture entry with MPI_Win_create (exit53),
+all5 actual handles absent; rerun uses established OMPI_MCA_osc=pt2pt. Preserve both.
+320 passed246.232s/all11 observed actual host handles absent; no tests ran between
+320/321. New mapped cubic proposal/shared-target capability remains UNVALIDATED.
+Focused/affected serial and ONE MPI milestone pending, then promptly same-seed M6.
+
+Full SAMEseed RANS/BL319 TERMINAL1/5457.353s (session70391 closed). All10 exact
+owned PID/start identities are ABSENT in actual host /proc; terminal_handles_actual.json
+seals this. Source/input pins and84mappedELF verified unchanged. No owned heavy job.
+Run: `R/m6_runs/rans_curved319_v1`; assessment.json records failure before the first
+normalized target/BL mesh: selected global cell0/trial1 exhausted original native5400s.
+The full wall includes collective joining; CPU includes possible MPI polling.
+Peak sampled summed treeRSS3,235,180,544B. No target or BL mesh accepted.
 
 Build319 terminal0/368.360s, pins verified/all152 sampled actual build handles absent.
 CFD SHA `c40a2b865d1be8ede594a52e8935d96047324325fdd49a9d165746bcf81550b6`;
 test SHA `77d14ce513410ad6cbf43ed33b943b6ab93369cb460ced53b3bf36fd05ff9642`.
-Full-run launch_observation.json verifies every source/input pin,84mappedELF and
-all10 live PID/start identities. Initial CFD finite CL.155731/CD.050268 and
-Hessian/D1 prefix match314. Target construction active; no normalized target,
-BL mesh or accepted event yet. CFDMPI6/FIRST_ROWnative1, Mach-onlyL1/500k,
-h02e-6/g1.2/T.01, geometry1e-4, native5400/outer14400TOTAL,12GiB/rank unchanged.
-One-hour verified wait: all10 exact identities live, 1617source/input/runtime
-pins match,84mappedELF unchanged. Sampled tree3.23GB, availableRAM~27.5GiB.
-No target result/failure; CPU may include MPI polling. See hour1_provenance_observation.json
-and verified_wait_observations.jsonl for later observations.
-Host reference-query cache quota4GiB/rankquota715827882B. Monitor actual summed
-process-tree RSS and host headroom; reserved/model bytes are not RSS or host peaks.
+Initial CFD finite CL.155731/CD.050268 and Hessian/D1 prefix match314. Original
+CFDMPI6/FIRST_ROWnative1, Mach-onlyL1/500k,h02e-6/g1.2/T.01,geometry1e-4,
+native5400/outer14400TOTAL,12GiB/rank unchanged. No more cache microvariants:
+reconsider target integration using existing bounded correction facilities.
+[Next connected design](Handbook/ADAPTATION_CURVED_BL_COMPLEXITY_20261110.md).
 
 Pushed implementation `eb01836389`; qualification/full-launch `3fdd2cfd31`.
 [Connected design/history](Handbook/ADAPTATION_CURVED_BL_INTEGRATION_20261109.md),
@@ -73,7 +81,7 @@ backlog, not another active implementation.
 
 qualification319.json seals BEHAVIOR scope; actual_cell stays passed:false.
 The shorter1800s diagnostic does not establish native5400 failure. Actual full319
-now uses original production budgets after behavior qualification. No target/mesh/
+used original production budgets after behavior qualification and failed as recorded above. No target/mesh/
 workflow acceptance claim. Prior303seven baseline-controlled MPI failures outside
 this affected selection remain failures, not an all-suite pass. FIRST_ROWnative1
 with MPI6 parents is NOT distributed BL generation qualification.

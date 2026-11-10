@@ -4349,23 +4349,40 @@ bool CBoundaryLayerMetric::PlanarWalls3D() const {
 
 bool CBoundaryLayerMetric::SupportsCorrectionSupport3D() const {
   if(nDim!=3 || walls.empty())return false;
-  for(const auto& wall:walls)if(wall.authority || wall.layer.growth<1 || wall.layer.thickness<wall.layer.firstHeight)return false;
+  for(size_t w=0;w<walls.size();++w) {
+    const auto& wall=walls[w];const auto& d=*data[w];
+    if((wall.authority && wall.authority_facets.empty()) || wall.layer.growth<1 ||
+       wall.layer.thickness<wall.layer.firstHeight || !std::isfinite(d.proxy_error+d.maximum_realization_error))return false;
+  }
   return true;
 }
 
 std::shared_ptr<SU2Native3D::SupportSampler3D> CBoundaryLayerMetric::PrepareCorrectionSupport3D(
     size_t maximumBytes,uint64_t maximumWork,bool includeTransition) const {
-  if(nDim!=3)throw std::invalid_argument("Correction support requires3D faceted walls.");
+  if(!SupportsCorrectionSupport3D())throw std::invalid_argument("Correction support requires qualified3D faceted or mapped cubic walls.");
+  size_t temporary=transfer_memory::Add(sizeof(std::vector<SU2Native3D::SupportWall3D>),
+      transfer_memory::GrowthBound(walls.size(),sizeof(SU2Native3D::SupportWall3D)));
+  for(size_t w=0;w<walls.size();++w)temporary=transfer_memory::Add(temporary,
+      transfer_memory::GrowthBound(walls[w].coord.size()/3,sizeof(SU2Native3D::Point)),
+      transfer_memory::GrowthBound(data[w]->elem.size()/3,sizeof(std::array<size_t,3>)));
+  if(temporary>=maximumBytes)throw std::length_error("Correction support copies exceed storage admission.");
   std::vector<SU2Native3D::SupportWall3D> support;
+  support.reserve(walls.size());
   for(size_t wall=0;wall<walls.size();++wall) {
-    if(walls[wall].authority)throw std::invalid_argument("Analytic wall correction support is not qualified; retain analytic quadrature.");
     SU2Native3D::SupportWall3D row;const auto& d=*data[wall];
     row.first_height=SU2_TYPE::GetValue(d.h0);row.growth=SU2_TYPE::GetValue(d.growth);row.thickness=includeTransition?d.support:SU2_TYPE::GetValue(d.thickness);
+    if(walls[wall].authority) {
+      // The complete cubic lies in this proxy tube; only the proposal uses its triangles.
+      auto up=[](long double value){return std::nextafter(value,INFINITY);};
+      const auto radius=up(up(up((long double)row.thickness+d.proxy_error)+d.maximum_realization_error)+up(1e-6L*row.first_height));
+      row.thickness=std::nextafter(double(radius),INFINITY);
+      if(!std::isfinite(row.thickness))throw std::length_error("Curved correction support radius overflows.");
+    }
     for(size_t p=0;p<walls[wall].coord.size()/3;++p)row.vertices.push_back({SU2_TYPE::GetValue(walls[wall].coord[3*p]),SU2_TYPE::GetValue(walls[wall].coord[3*p+1]),SU2_TYPE::GetValue(walls[wall].coord[3*p+2])});
     for(size_t f=0;f<d.elem.size()/3;++f)row.triangles.push_back({d.elem[3*f],d.elem[3*f+1],d.elem[3*f+2]});
     support.push_back(std::move(row));
   }
-  return std::make_shared<SU2Native3D::SupportSampler3D>(support,maximumBytes,maximumWork);
+  return std::make_shared<SU2Native3D::SupportSampler3D>(support,maximumBytes-temporary,maximumWork);
 }
 
 namespace SU2NativeBL3D {

@@ -241,3 +241,14 @@ with MPI6 parents is not distributed generation qualification. Follow HANDOFF fo
 live identities and do not edit sources until terminal or preserved stop evidence.
 Euler293 BOTH checkpoints and isolated restart artifacts freshly hash-verified in
 euler293_preservation_during_bl319.json (22files). All completion duties remain.
+
+
+###319 actual full outcome — terminal, not target-qualified
+
+Full319 TERMINAL1/5457.353s; all10 exact actual host identities absent, all pins and
+84mappedELF verified. Selected first target cell0/trial1 exhausted unchanged5400s
+atlas deadline. No normalized target/BL mesh/accepted event. Peak sampled summed
+process-treeRSS3,235,180,544B; CPU includes possible MPI polling.319 clears isolated
+chords faster but does not establish whole-target feasibility. No more speculative
+cache microvariants. See ADAPTATION_CURVED_BL_COMPLEXITY_20261110.md for the next
+connected integration strategy; keep strict edge/final mesh certification separate.

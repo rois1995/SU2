@@ -25,6 +25,7 @@
  */
 
 #include "catch.hpp"
+#include "../../../Common/include/adaptation/CNativeSupport3D.hpp"
 #include "../../../SU2_CFD/include/adaptation/CNativeCandidateComplexity3D.hpp"
 
 #include <array>
@@ -1281,6 +1282,55 @@ TEST_CASE("Native3D complexity reference does not rebase the wall on the adapted
     for(unsigned i=0;i<3;++i)for(unsigned j=0;j<3;++j)
       CHECK(flow.m[i][j]==Approx(i==j?1e8:0.).margin(2e-5));
   }
+  REQUIRE(layers->SupportsCorrectionSupport3D());
+  auto proposal=layers->PrepareCorrectionSupport3D(size_t(64)<<20,1000000);
+  // A point in the true curved band lies outside every unpadded planar wall tube.
+  const SU2Native3D::Point witness{foot[0],foot[1],-.1-.5*std::abs(foot[2])};
+  const su2double query[3]={witness.x,witness.y,witness.z};
+  REQUIRE(layers->Evaluate(0,query,1.).weight>0);
+  REQUIRE(proposal->Density(witness)>0);
+  SU2Native3D::SupportWall3D flat;flat.first_height=.001;flat.growth=1.2;flat.thickness=.1;
+  for(const auto& face:state.facets)if(state.marker_names.at(face.marker)=="wall") {
+    const auto at=flat.vertices.size();for(const auto& node:face.v)flat.vertices.push_back(node.p);
+    flat.triangles.push_back({at,at+1,at+2});
+  }
+  SU2Native3D::SupportSampler3D unpadded({flat},size_t(64)<<20,1000000);
+  CHECK(unpadded.Density(witness)==0);
+  CBoundaryLayerMetric::Tensor direct,retained;
+  for(unsigned j=0;j<3;++j)direct.m[j][j]=retained.m[j][j]=1;
+  layers->ApplyPoint(query,direct,1.,nullptr,false);
+  for(const auto& sample:layers->SamplePoints({query[0],query[1],query[2]}))
+    layers->ApplySample(sample.wall,sample.sample,retained,1.,nullptr,false);
+  CheckTensor(3,direct,retained,0);
+  CHECK_THROWS(layers->PrepareCorrectionSupport3D(1,1000000));
+  CHECK_THROWS(layers->PrepareCorrectionSupport3D(size_t(64)<<20,1));
+  std::vector<CNativeComplexity3D::SourceCell> source;
+  if(SU2_MPI::GetRank()==0)for(size_t cell=0;cell<mesh.GetnElem();++cell) {
+    CNativeComplexity3D::SourceCell row;row.cell.id=cell;
+    for(unsigned k=0;k<4;++k) {
+      const auto node=mesh.elem[4*cell+k];row.nodes[k]=node;
+      row.cell.v[k]={node,{mesh.coord[3*node],mesh.coord[3*node+1],mesh.coord[3*node+2]}};
+    }
+    source.push_back(row);
+  }
+  auto boundedLayers=CBoundaryLayerMetric::FromNativeReference(state,*test.config);
+  auto target=SU2NativeBLPipeline3D::MakeTargetPolicy(*test.config,state,1.,-1,boundedLayers);
+  target->Update(1.,1.3);
+  CNativeComplexity3D bounded(*boundedLayers,source,mesh.GetnPoint(),size_t(128)<<20,128,7519,true);
+  std::vector<CBoundaryLayerMetric::Tensor> sensor(mesh.GetnPoint());
+  for(auto& m:sensor)for(unsigned j=0;j<3;++j)m.m[j][j]=1;
+  const auto first=bounded.Assess(sensor,1,true,target.get());
+  for(auto& m:sensor)for(unsigned j=0;j<3;++j)m.m[j][j]=2;
+  target->Update(2.,1.3);
+  const auto changed=bounded.Assess(sensor,2,true,target.get());
+  for(auto& m:sensor)for(unsigned j=0;j<3;++j)m.m[j][j]=1;
+  target->Update(1.,1.3);
+  const auto repeated=bounded.Assess(sensor,1,true,target.get());
+  CHECK(first.directChecks==first.inside);CHECK(first.inside>0);
+  CHECK(changed.directChecks==first.directChecks);
+  CHECK(changed.sensorQuadrature>first.sensorQuadrature);
+  CHECK(repeated.global.value==first.global.value);
+  CHECK(repeated.global.uncertainty==first.global.uncertainty);
   // This chord crosses the wall at t=1/4; endpoints and midpoint miss the full thin band.
   std::array<double,3> a,b;
   for(unsigned j=0;j<3;++j){a[j]=foot[j]-.2*normal[j];b[j]=foot[j]+.6*normal[j];}
@@ -2202,7 +2252,6 @@ TEST_CASE("Planar wall preserves a finer rotated tangent field across its source
 
 
 #include "NativeCorrectionReplay3D.hpp"
-#include "../../../Common/include/adaptation/CNativeSupport3D.hpp"
 
 TEST_CASE("Replay a complete faceted wall volume-integration input without CFD", "[.][NativeFacetedVolumeReplay3D]") {
   const char* path=std::getenv("SU2_NATIVE_BL_REPLAY");REQUIRE(path!=nullptr);
