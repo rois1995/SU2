@@ -3253,7 +3253,7 @@ TEST_CASE("Actual native normalization reports uncertainty at intersecting walls
   const auto output=test.ComputeMetric();INFO(output);
   CHECK(output.find("Native3D complexity normalization:")!=std::string::npos);
   CHECK(output.find("proven_error_bound=0")!=std::string::npos);
-  CHECK(output.find("Native3D bounded complexity strategy: nonplanar faceted wall geometry.")!=std::string::npos);
+  CHECK(output.find("Native3D bounded complexity strategy: complete wall-support proposals, retained authority evaluations and empirical uncertainty.")!=std::string::npos);
   CHECK(output.find("0 strict density evaluations.")!=std::string::npos);
   CHECK(std::isfinite(test.solver[FLOW_SOL]->GetMetricComplexityFinal()));
   // The published donor is sensor-only even at a wall; BL composition remains a query-time operation.

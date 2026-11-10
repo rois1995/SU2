@@ -24,6 +24,19 @@ Qualified296source/binaries archived locally before BL edits;293two-event/restar
 proof and BOTH checkpoints remain primary regression baseline.
 
 Current next cycle is the [connected curved BL milestone](Handbook/ADAPTATION_CURVED_BL_INTEGRATION_20261109.md).
+Full319 now TERMINAL1/5457.353s, original5400s atlas deadline in first target cell;
+no target or BL mesh, all actual handles terminal/pins/runtime verified. Isolated
+chord cache gains did not resolve target feasibility. The active connected correction
+is [bounded cubic complexity integration](Handbook/ADAPTATION_CURVED_BL_COMPLEXITY_20261110.md):
+conservative padded proposal coverage, true cubic evaluations, existing shared
+FIRST_ROW target and explicit empirical uncertainty.321 focused2211assertions and
+322 affected11cases/471assertions pass. ONE MPI milestone322 PASSED61cases everyrank. Full SAMEseed322 then failed130.363s
+with curved distance-query work exhaustion before normalization/BL generation. All
+owned identities terminal/pins/runtime verified. Capture exact refused query/support
+and reproduce with existing actual-point facilities before selecting the next fix;
+see HANDOFF. Gates/heights/budgets unchanged.
+This is not BL mesh/normalization acceptance and sampling is not a geometry proof.
+
 Latest user: no further Euler optimization cycle for small timings, reuse counters
 or speculation. Missing capability/evidence/acceptance are stated there before
 implementation. Combined flow/BL target plus explicit wall-aware construction and

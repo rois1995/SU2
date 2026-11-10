@@ -10,18 +10,37 @@ R = `integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57`.
 
 ## Frozen owned workload — authoritative current state
 
-Build321 TERMINAL0/62.122s, all18 sampled actual host build handles absent; source
-pins verified. CFD SHA dbbbf8b98e60dc9a24692f0473bb6209b00b262a1cf945025a17ebf62e4b4aa1;
-test c0ff0695e915e6e00680c448bea97588697f4d3fdce0130a0b644d7df78d2781.
-Focused321 ACTIVE(session67371), all compiled sources/helpers FROZEN:
-`R/cases/curved321_focused_20261110T070621_1682998`; wrapper1682998,
-time1683100/timeout1683101/test1683102/orted1683103. Actual identities recorded in
-owned_handles_actual.json. Verify terminal handles before source edits/next job.
-The first focused launch failed before fixture entry with MPI_Win_create (exit53),
-all5 actual handles absent; rerun uses established OMPI_MCA_osc=pt2pt. Preserve both.
-320 passed246.232s/all11 observed actual host handles absent; no tests ran between
-320/321. New mapped cubic proposal/shared-target capability remains UNVALIDATED.
-Focused/affected serial and ONE MPI milestone pending, then promptly same-seed M6.
+Full SAMEseed RANS/BL322 TERMINAL1/130.363s, session57470 closed. All10 exact owned
+host identities absent; terminal_handles_actual.json seals this. All1571source/input
+pins and84mappedELF match. No owned heavy job. Initial CFD CL.155731/CD.050268 and
+Hessian/D1 prefix match319. Reached bounded shared FIRST_ROW complexity strategy,
+then refused with `Curved distance certification work exhausted.` No normalized
+target/BL mesh/accepted event. Peak sampled summed treeRSS3,136,856,064B. Fast failure
+is NOT a target-integration speedup. Same303 seed/config/heights/budgets unchanged.
+`R/m6_runs/rans_curved322_v1/assessment.json` and terminal_evidence_manifest.json.
+Launch observation caught one zombie during failure; do NOT call it all-live. Source
+and runtime hashes verified there; actual terminal receipt independently verifies
+all identities absent. Read current status/owned handles before another job.
+
+Next in SAME connected cycle: capture exact refused closest-query point/support/
+requested precision/work using existing ProjectWall and actual-point replay facility.
+Current error lacks those data. Add diagnostic context only, preserve exception/work
+accounting and decisions, focused-check it, then reproduce actual refusal. No new
+baseline/perf/GDB campaign, cap increase, speculative closest-cache variant or relaxed
+geometry/height gate. Use actual query to select correction; target/generation and
+full BL suitability remain unproven.
+
+Build322 and connected behavioral qualification TERMINAL PASS. Build132.215s/all10 sampled actual handles absent. CFD byte-
+identical321 SHA dbbbf8b98e60dc9a24692f0473bb6209b00b262a1cf945025a17ebf62e4b4aa1;
+test a1fa2de874ccb4db0c5aeecc9a535e3dc92b42596a06b07204e2d4ef36598f51.
+Focused321 PASS2211assertions/188.509s; affected322 PASS11cases/471assertions/13.068s.
+ONE MPI6 PASS61cases EVERYrank/572.371s, all10 exact identities terminal/pins verified;
+assertions4586/4626/4575/4577/4538/5171(log order), sampled treeRSS718,483,456B.
+qualification322.json is BEHAVIOR scope only. Preserve pre-fixture Win_create exit53
+and stale diagnostic assertion failure; corrected retries pass. Old303seven baseline-
+controlled failures outside affected selection stay failures, not an all-suite pass.
+run_rans_curved322.py executed the SAME303 seed/config/shared FIRST_ROW
+L1/500k target under unchanged budgets/gates; outcome above. Never relaunch its folder.
 
 Full SAMEseed RANS/BL319 TERMINAL1/5457.353s (session70391 closed). All10 exact
 owned PID/start identities are ABSENT in actual host /proc; terminal_handles_actual.json

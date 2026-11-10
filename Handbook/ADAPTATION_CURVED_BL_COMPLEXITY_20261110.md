@@ -95,3 +95,35 @@ proposal vector copies and deduct their peak allowance from sampler admission;
 exercise mapped cubic shared FIRST_ROW base/A target plus outer-continuation mixture
 and cached/direct profile/core changes with empty source ranks. Build321 frozen;
 no tests or actual M6 benefit claimed. Keep empirical uncertainty explicit.
+
+##322 connected behavioral qualification — no mesh claim
+
+321 focused PASSED2211assertions/188.509s. Initial launch failed MPI_Win_create
+before fixture entry; established pt2pt runtime retry passed, all5 identities absent.
+321 affected11cases had470/471assertions pass; sole failure was an old diagnostic
+text expectation.322 updates that expectation only: build132.215s, all10 actual
+sampled handles absent, production CFD byte-identical321. Affected322 PASSED
+11cases/471assertions/13.068s, all5 handles absent and pins verified.
+ONE MPI6 milestone322 PASSED61cases EVERYrank/572.371s, all10 exact identities
+terminal/pins verified. Assertions4586/4626/4575/4577/4538/5171 (log order); sampled
+summed treeRSS peak718,483,456B. Covers the extended mapped-cubic shared-target
+fixture, dynamic stencils, FIRST_ROW normalization, features/heights, concurrent
+repair/publication, phase ownership, geometry/cache equivalence and resource refusals.
+Host contention substantial; this is correctness evidence, not a timing speedup.
+qualification322.json seals behavior scope only; prior303seven baseline-controlled
+failures outside the affected selection remain failures. Return directly to actual
+M6; no further strict-cell baseline campaign. Target/mesh/BL suitability unproven.
+
+##322 actual full outcome — geometry query work refusal
+
+Full SAMEseed322 TERMINAL1/130.363s, all10 actual identities absent, all pins/runtime
+verified. Initial CFD/Hessian/D1 prefix matches319. Reached bounded shared FIRST_ROW
+strategy, then `Curved distance certification work exhausted.` No normalized target,
+BL mesh or accepted event. Sampled summed treeRSS peak3,136,856,064B. This replaces
+the observed5400s selected-cell deadline with an earlier query work refusal; it is
+NOT a measured target speedup. Exact failed query/support/precision is absent from
+current exception, so preserve evidence and add diagnostic context at ProjectWall
+without changing decisions or work accounting. Reproduce with existing actual-point
+probe before selecting any correction. No cap/gate change or speculative cache work.
+Launch observation independently verifies1571pins/84ELF but caught one zombie during
+failure; it is NOT an all-live receipt. Terminal receipt independently verifies all.

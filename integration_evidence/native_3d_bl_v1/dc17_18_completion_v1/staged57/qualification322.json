@@ -1,0 +1,47 @@
+{
+  "build": "build322",
+  "state": "terminal",
+  "passed": true,
+  "scope": "Connected bounded mapped-cubic proposal/shared FIRST_ROW target behavior only. Not full target, BL mesh or workflow acceptance.",
+  "serial": {
+    "passed": true,
+    "attempt": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved322_affected_20261110T071440_1705878",
+    "cases": 11,
+    "assertions": 471,
+    "seconds": 13.068459033966064
+  },
+  "mpi": {
+    "passed": true,
+    "attempt": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved322_mpi6_20261110T071526_1708662",
+    "ranks": 6,
+    "cases_every_rank": 61,
+    "assertions_log_order": [
+      4586,
+      4626,
+      4575,
+      4577,
+      4538,
+      5171
+    ],
+    "seconds": 572.3707535266876,
+    "sampled_peak_tree_rss_bytes": 718483456
+  },
+  "focused321": {
+    "passed": true,
+    "attempt": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved321_focused_20261110T070621_1682998",
+    "assertions": 2211,
+    "cases": 1,
+    "scope": "Same production CFD as322;322 only updates unrelated diagnostic-string assertion. Extended fixture also passes in MPI322."
+  },
+  "preserved_failures": [
+    "Pre-fixture OpenMPI Win_create exit53 without established pt2pt setting; corrected runtime retry passed",
+    "321 serial diagnostic-string assertion stale, corrected322 passes",
+    "Prior303 seven baseline-controlled failures outside affected selection remain failures"
+  ],
+  "actual_m6_target_accepted": false,
+  "bl_mesh_generated": false,
+  "workflow_accepted": false,
+  "uncertainty": "Existing empirical correction indicators retained; not a proven integration error or geometry bound.",
+  "normalization_target": "Shared FIRST_ROW base/A target, correcting old strict full-only callback mismatch; do not claim identical-integral timing comparison.",
+  "next": "Full same303 saved RANS seed/input/config under unchanged5400 native/14400total budgets; strict gates and true cubic authority retained."
+}

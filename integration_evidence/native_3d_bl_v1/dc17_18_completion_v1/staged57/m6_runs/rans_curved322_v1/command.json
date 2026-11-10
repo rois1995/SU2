@@ -1,0 +1,43 @@
+{
+  "argv": [
+    "nice",
+    "-n",
+    "19",
+    "/usr/bin/time",
+    "-v",
+    "timeout",
+    "--signal=TERM",
+    "--kill-after=20s",
+    "14400",
+    "mpirun",
+    "--output-filename",
+    "rank_output",
+    "-n",
+    "6",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+    "[NativeSelectedFailureWorkflow3D]",
+    "--durations",
+    "yes"
+  ],
+  "wrapper": {
+    "pid": 1739570,
+    "start_ticks": 34002181
+  },
+  "saved_checkpoint": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_bl_inputs/rans_curved303_v1",
+  "source_attempt": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/rans_curved314_v1",
+  "initial_available_bytes": 31176491008,
+  "loadavg": "16.28 18.10 13.95 6/4912 1740356\n",
+  "environment": {
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1",
+    "OMPI_MCA_osc": "pt2pt",
+    "TMPDIR": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/compile-tmp",
+    "OMPI_MCA_orte_tmpdir_base": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/compile-tmp/rans-curved322-kjxwhb0r",
+    "SU2_NATIVE_FROZEN_CONFIG": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/rans_curved322_v1/run.cfg"
+  },
+  "expected_events": 2,
+  "outer_seconds_total": 14400,
+  "qualification": "Affected bounded cubic normalization serial and MPI6 behavior qualified; fullBL target unproven",
+  "scope": "Same303 seed/config after mapped cubic proposal/shared FIRST_ROW target qualification. Empirical uncertainty remains explicit; native5400 and total14400 are unchanged. Actual RANS/SA CFD to curved BL mesh to finite CFD to second mesh, outer14400 total. Unchanged strict gates; conservative flow/turbulence transfer and disk restart require independent assessment. Rejected-state capture enabled."
+}
