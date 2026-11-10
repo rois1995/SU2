@@ -150,3 +150,58 @@ completed chords cost57.996s, another active; at180s five cost138.749s, activefa
 at240s seven cost138.871s, another active. Geometrywork2604384, density arithmetic
 .003898s. This identifies costly strict chord preparation, not exact point-query
 repetition. It is not a new baseline campaign or full target qualification.
+
+
+## Selected connected hypothesis319: reusable exact cubic region geometry
+
+Missing capability is usable strict M6 BL target integration within existing
+budgets.316 clears both captured chord refusals but its complete first-cell replay
+is incomplete at1800s.318 attributes long intervals to chord preparation. Source
+inspection finds ClosestCurved::prepare recomputes ten outward Blossom control
+boxes and their hull for every facet/parameter triangle on every nearby query.
+This geometry-only data repeats independently of exact point-query identity;
+its fraction of CPU and the speedup remain hypotheses to validate.
+
+Reuse the EXISTING prepared scope pool, clock eviction/shared_ptr pinning, quota
+and admission for immutable exact descendant nets/hulls. A disjoint key namespace
+contains facet plus all exact binary64 parameter-triangle coordinates within the
+same immutable authority/version. Preserve existing facet/scope allowance halves;
+closest geometry shares the scope half, rather than adding a new allowance/pool.
+No approximate UnionTriangle may substitute for cubic nets. Query candidates,
+distance/clearance lower bounds, normals and allowed-support traversal stay fresh.
+No reuse of completed closest results or assumed projection idempotence.
+
+Cache construction/keys must fit transient scratch admission; retained payload and
+both map/clock keys count against the existing reserved pool. Active shared_ptrs
+pin data through use. Metadata maintenance consumes the existing query work budget;
+zero quota/refused retention recomputes normally. Do not change gates, configuration,
+work/time/memory ceilings, sensor/target/construction policies or CAD optionality.
+
+Qualification: exact cached-vs-zero-cache closest intervals/candidates on distinct
+queries and restricted/body supports; exhausted work/storage/deadline failure,
+seams/features/heights and shared ownership. Then the SAME two captured M6 chords
+and actual complete first cell under unchanged diagnostic limits. Measure build
+reuse separately from fresh query work, CPU and useful integral progress. Successful
+reuse counters alone do not qualify the correction. Complete affected serial and
+ONE MPI milestone only after demonstrated actual-case benefit, then promptly full
+SAMEseed RANS/BL. No mesh/workflow completion claim from fixtures.
+
+
+###319 first qualification (incomplete)
+
+Build319 terminal0/368.360s, all152 sampled actual handles absent/pins verified.
+Focused exact cached/zero/tiny-cache comparison PASSED231assertions/6.347s,
+all5 actual handles absent. Complete support, separate bodies and restricted facet
+checks, exact intervals/candidates/normals/curvatures and resource refusals pass.
+Concurrent duplicate publication/pinned eviction and surface-pool competition still
+need their affected milestone coverage; no all-suite claim.
+
+Actual captured chord314 PASS60assertions/32cuts: certification26.624s vs31637.560s
+(-29.1%); work432259 vs409726, exactly22533charged cache insertions.384255region
+hits/22533misses,36,593,592retained bytes/no refusal, within existing3,204,054,800quota.
+Chord311 PASS37assertions/9cuts:7.449s vs10.443s(-28.7%);124069 vs113482work,
+102209region hits/10587misses,17,193,288bytes/no refusal. Both actual process trees
+terminal/all5 identities absent and source/input/runtime pins verified. Query time
+and work are distinct: geometry reuse reduces CPU while maintenance adds charged
+work. Consistent isolated-query timing benefit is NOT full-target completion.
+The complete first-cell319 replay is now active at unchanged1800s diagnostic cap.

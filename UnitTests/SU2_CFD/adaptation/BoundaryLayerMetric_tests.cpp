@@ -1601,6 +1601,12 @@ TEST_CASE("Actual retained cubic wall policy probe without CFD", "[.][NativeActu
       REQUIRE(cuts.size()>=2);CHECK(cuts.front()==0);CHECK(cuts.back()==1);
       for(size_t k=1;k<cuts.size();++k)CHECK(cuts[k]>cuts[k-1]);
       receipt("replay_chord_complete",cuts.size());
+      const auto stats=geometry.GeometryStatsSnapshot();
+      std::cout<<std::setprecision(17)<<"{\"closest_region_hits\":"<<stats.closest_region_hits
+               <<",\"closest_region_misses\":"<<stats.closest_region_misses
+               <<",\"closest_region_build_seconds\":"<<stats.closest_region_build_seconds
+               <<",\"closest_region_retention_refusals\":"<<stats.closest_region_retention_refusals
+               <<",\"prepared_bytes\":"<<stats.prepared_bytes<<",\"prepared_limit\":"<<stats.prepared_limit<<"}"<<std::endl;
       return;
     }
     if(const auto* replayPath=std::getenv("SU2_NATIVE_BL_CELL_REPLAY")) {

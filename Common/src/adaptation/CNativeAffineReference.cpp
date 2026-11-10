@@ -1094,10 +1094,12 @@ struct MappedFacetReference::ComponentData {
 struct MappedFacetReference::GeometryStatsState {std::mutex mutex;GeometryStats value;};
 struct MappedFacetReference::CurvedSearch {
   struct Entry {std::vector<Id> facets;std::shared_ptr<CADTElemClass> index;};
+  struct CubicRegionGeometry {std::array<Box,10> net;Box hull;};
   struct PreparedFacet {
     std::vector<UnionTriangle> triangles;std::unique_ptr<TriangleUnion> target;
+    std::unique_ptr<CubicRegionGeometry> cubic;
     size_t Bytes()const{return transfer_memory::Add(sizeof(*this),transfer_memory::Mul(triangles.capacity(),sizeof(UnionTriangle)),
-        target?target->ResidentBytes():0,12*sizeof(void*));}
+        target?target->ResidentBytes():0,cubic?sizeof(CubicRegionGeometry):0,12*sizeof(void*));}
   };
   std::map<Id,Id> root;
   std::map<Id,Entry> entries;
@@ -1114,7 +1116,7 @@ struct MappedFacetReference::CurvedSearch {
       // Reuse earns bounded protection proportional to reconstruction work per retained byte.
       e.credit=1+std::min<size_t>(3,e.work/(1+e.bytes/64));return e.data;
     }
-    bool Retain(const Key& key,const std::shared_ptr<PreparedFacet>& data,size_t size,size_t work,size_t limit,AtlasOps& op) {
+    template<class Work> bool Retain(const Key& key,const std::shared_ptr<PreparedFacet>& data,size_t size,size_t work,size_t limit,Work& op) {
       if(size>limit)return false;
       // Bounded clock work: cold scopes cannot permanently occupy a full pool. An active
       // shared reference pins its allocation and accounting until a later query can evict it.
@@ -1565,8 +1567,10 @@ std::array<Point,2> MappedFacetReference::CurvedBounds(const SurfaceBinding& b)c
 size_t MappedFacetReference::CurvedQueryWorkspaceBytes(size_t maximum_work)const {
   if(!curved_search)return 0;
   size_t facets=0;for(const auto& row:curved_search->entries)facets=std::max(facets,row.second.facets.size());
+  const auto cacheScratch=curved_search->prepared_limit?transfer_memory::Add(sizeof(CurvedSearch::PreparedFacet),
+      sizeof(CurvedSearch::CubicRegionGeometry),512,44*sizeof(uint64_t)):0;
   return transfer_memory::Add(transfer_memory::Mul(facets,2*sizeof(unsigned long)),
-      transfer_memory::Mul(maximum_work,4*sizeof(CurvedQueryRegion)));
+      transfer_memory::Mul(maximum_work,4*sizeof(CurvedQueryRegion)),cacheScratch);
 }
 Id MappedFacetReference::CurvedComponent(Id facet)const {
   if(!curved_search)throw std::invalid_argument("Curved component requested without a cubic authority.");
@@ -1633,15 +1637,45 @@ MappedFacetReference::CurvedClosest MappedFacetReference::ClosestCurved(
   } else {candidates.resize(entry.facets.size());std::iota(candidates.begin(),candidates.end(),0);}
   auto compare=[](const Region& a,const Region& b){return a.lower>b.lower;};
   std::priority_queue<Region,std::vector<Region>,decltype(compare)> pending(compare);
+  struct CacheWork {decltype(consume)& charge;void Work(){charge();}} cacheWork{consume};
   auto prepare=[&](Id id,const std::array<Point,3>& parameter,unsigned depth) {
     consume();std::array<Box,10> net;Box hull{};
-    for(unsigned d=0;d<3;++d)hull[d]={INFINITY,-INFINITY};
-    for(unsigned q=0;q<10;++q) {
-      std::array<Box,3> args;unsigned at=0;
-      for(unsigned k=0;k<3;++k)for(unsigned n=0;n<CubicIndex[q][k];++n)args[at++]=Exact(parameter[k]);
-      net[q]=Blossom(curves.at(id),args);
-      for(unsigned d=0;d<3;++d){hull[d].lo=std::min(hull[d].lo,net[q][d].lo);hull[d].hi=std::max(hull[d].hi,net[q][d].hi);}
+    std::vector<uint64_t> key;
+    std::shared_ptr<CurvedSearch::PreparedFacet> prepared;
+    const auto limit=curved_search->prepared_limit-curved_search->prepared_limit/2;
+    if(limit) {
+      // Union-scope keys start with positive finite tolerance bits; this namespace cannot collide.
+      key.reserve(11);key.push_back(UINT64_MAX);key.push_back(id);
+      for(const auto& p:parameter)for(double x:Values(p)) {uint64_t bits;std::memcpy(&bits,&x,sizeof bits);key.push_back(bits);}
+      std::lock_guard<std::mutex> lock(curved_search->prepared_mutex);prepared=curved_search->scopes.Find(key);
     }
+    const bool hit=bool(prepared);double buildSeconds=0;bool refused=false;
+    if(hit) {
+      if(!prepared->cubic)throw std::logic_error("Cubic preparation key collided with a union scope.");
+      net=prepared->cubic->net;hull=prepared->cubic->hull;
+    } else {
+      const auto started=std::chrono::steady_clock::now();
+      for(unsigned d=0;d<3;++d)hull[d]={INFINITY,-INFINITY};
+      for(unsigned q=0;q<10;++q) {
+        std::array<Box,3> args;unsigned at=0;
+        for(unsigned k=0;k<3;++k)for(unsigned n=0;n<CubicIndex[q][k];++n)args[at++]=Exact(parameter[k]);
+        net[q]=Blossom(curves.at(id),args);
+        for(unsigned d=0;d<3;++d){hull[d].lo=std::min(hull[d].lo,net[q][d].lo);hull[d].hi=std::max(hull[d].hi,net[q][d].hi);}
+      }
+      buildSeconds=std::chrono::duration<double>(std::chrono::steady_clock::now()-started).count();
+      const auto bytes=transfer_memory::Add(sizeof(CurvedSearch::PreparedFacet),sizeof(CurvedSearch::CubicRegionGeometry),
+          12*sizeof(void*),transfer_memory::Mul(key.capacity(),2*sizeof(uint64_t)),256);
+      if(limit && bytes<=limit) {
+        prepared=std::make_shared<CurvedSearch::PreparedFacet>();
+        prepared->cubic=std::make_unique<CurvedSearch::CubicRegionGeometry>(CurvedSearch::CubicRegionGeometry{net,hull});
+        std::lock_guard<std::mutex> lock(curved_search->prepared_mutex);
+        // A simultaneous query may have published the same immutable geometry while it was constructed.
+        if(!curved_search->scopes.Find(key))refused=!curved_search->scopes.Retain(key,prepared,bytes,1,limit,cacheWork);
+      } else refused=true;
+    }
+    {std::lock_guard<std::mutex> lock(geometry_stats->mutex);auto& stats=geometry_stats->value;
+      stats.closest_region_hits+=hit;stats.closest_region_misses+=!hit;
+      stats.closest_region_build_seconds+=buildSeconds;stats.closest_region_retention_refusals+=refused;}
     Point r{};auto v=Values(r);
     for(unsigned d=0;d<3;++d)v[d]=.25*Values(parameter[0])[d]+.25*Values(parameter[1])[d]+.5*Values(parameter[2])[d];
     candidate(id,ToPoint(v));

@@ -10,7 +10,19 @@ R = `integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57`.
 
 ## Frozen owned workload — authoritative current state
 
-NO active owned heavy job. Cell318 phase observation TERMINAL124/300s as planned,
+Build319 TERMINAL0/368.360s, all152 sampled actual build handles absent; pins verified.
+Focused319 PASSED231assertions/6.347s, all5 actual handles absent, pins verified.
+Actual captured chord314 replay319 PASS60assertions/32cuts: certification26.624s
+versus31637.560s (-29.1%); work432259 versus409726 (+22533 cache insertions).
+384255immutable-region hits/22533misses, no retention refusal,36593592cache bytes
+within existing3204054800allowance. All5 actual handles absent/pins/runtime verified.
+This is measured query benefit, not full target completion. Earlier chord311
+replay319 PASS37assertions/9cuts: certification7.449s vs31610.443s (-28.7%);
+work124069 vs113482,102209region hits/10587misses,17193288cache bytes/no refusal.
+All5 actual handles absent; pins/runtime verified. Complete first-cell319 replay
+ACTIVE(session46573), original1800s diagnostic cap; pinned sources/helpers frozen. CFD SHA
+`c40a2b865d1be8ede594a52e8935d96047324325fdd49a9d165746bcf81550b6`;
+test SHA `77d14ce513410ad6cbf43ed33b943b6ab93369cb460ced53b3bf36fd05ff9642`. Cell318 phase observation TERMINAL124/300s as planned,
 all5 actual identities absent; source/input/runtime pins verified. Build318
 TERMINAL0/246.227s, pins verified/all52 sampled actual build handles absent.
 CFD SHA `b0bc8926898f4ac50c66bf6ecaeeb2e77b5b433905830f08f69b88811cca08c0`;
@@ -26,14 +38,18 @@ active=false; at240s SEVEN cost138.871s and another is active. Geometry work2.60
 density arithmetic.003898s. This does not establish identical-query frequency.
 `cases/cubic_cell_replay318_v1/assessment.json` preserves measured scope.
 
-Next candidate remains inside this SAME BL cycle: investigate reuse of immutable
+Local319 is built but UNVALIDATED, inside this SAME BL cycle: reuse immutable
 cubic descendant control boxes/hulls rebuilt in ClosestCurved::prepare for every
 nearby query. Existing closest path has no result memo or prepared descendant nets;
 surface PreparedFacet/Pool reuse currently serves approximate triangle unions,
 which cannot replace exact cubic data. Any correction must reuse bounded pool
 ownership/admission, preserve complete current support and fresh query-dependent
 bounds/candidates, and prove cached/recomputed agreement and actual M6 progress.
-No speedup or exact point-query repetition established yet. No competing Euler
+No speedup or exact point-query repetition established yet. Four compiled files changed:
+Common CNativeAffineReference.cpp/.hpp and GeometryBackend/BLMetric tests. Bounded
+geometry-only data shares the scope half quota with tagged keys; all query bounds
+remain fresh. Next build319, focused exact-cached/recomputed/resource checks, actual
+captured M6 chords and whole first cell. Details in the linked bound design. No competing Euler
 optimization, new configuration/scheduler/geometry authority or budget increase.
 
 One connected BL cycle. Production316 local profile/feature bounds passed both
@@ -139,8 +155,8 @@ qualify affected behavior at cadence, then promptly actual SAMEseed M6 RANS/BL.
 Preserve all prior qualification/checkpoints and every final BL suitability,
 transfer/CFD/TWOevents/actual adapted restart obligation. No budget increases.
 Preserve unrelated dirty files; whitelist staging; fork pushes authorized.
-Latest pushed checkpoint `5368eec89a` preserves316 implementation/build and TWO
-captured-chord passes; the current complete-cell timeout/focused pass await push.
+Latest pushed checkpoint `57ef457705` preserves complete-cell316 timeout and
+qualified observational317/318 diagnostics; local319 is not yet qualified/pushed.
 Complete the current strict-cell diagnosis/correction, affected checks and ONE MPI
 milestone, then promptly full SAMEseed M6. Keep pinned sources frozen during jobs.
 

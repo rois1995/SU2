@@ -702,3 +702,35 @@ TEST_CASE("Captured M6 surface foot within projection accuracy is available", "[
   GeometrySupport support;REQUIRE(backend.Support(result.binding,result.surface,support,budget,reason));
   CHECK(support.body==scope.body);CHECK(support.sheet==*scope.sheet);
 }
+
+TEST_CASE("Closest cubic queries reuse immutable regions without reusing query bounds", "[NativeClosestPrepared3D]") {
+  BackendFixture fixture(true);std::map<Id,double> errors;
+  for(const auto& facet:fixture.facets)errors.emplace(facet.id,1e-12);
+  auto make=[&](size_t quota) {return std::make_shared<MappedFacetReference>(fixture.reference,errors,57,SIZE_MAX,false,
+      fixture.geometry->Curves(),quota);};
+  const auto fresh=make(0),cached=make(size_t(1)<<22),tiny=make(1);
+  auto compare=[](const auto& a,const auto& b) {
+    CHECK(a.facet==b.facet);CHECK(a.binding.feature==b.binding.feature);CHECK(a.binding.version==b.binding.version);
+    CHECK(a.binding.dimension==b.binding.dimension);CHECK(a.binding.u==b.binding.u);CHECK(a.binding.v==b.binding.v);
+    CHECK(a.lower==b.lower);CHECK(a.upper==b.upper);CHECK(a.clearance_lower==b.clearance_lower);
+    CHECK(a.point.x==b.point.x);CHECK(a.point.y==b.point.y);CHECK(a.point.z==b.point.z);
+    CHECK(a.normal.x==b.normal.x);CHECK(a.normal.y==b.normal.y);CHECK(a.normal.z==b.normal.z);
+    CHECK(a.curvature1==b.curvature1);CHECK(a.curvature2==b.curvature2);
+  };
+  for(unsigned repeat=0;repeat<2;++repeat)for(const Point query:{Point{.25,.25,-.03},Point{.5,.5,-.01},Point{10.25,.25,-.03}}) {
+    const Id hint=query.x>5?100:0;
+    const auto expected=fresh->ClosestCurved(hint,query,1e-7,16384);
+    compare(cached->ClosestCurved(hint,query,1e-7,16384),expected);
+    compare(tiny->ClosestCurved(hint,query,1e-7,16384),expected);
+  }
+  const auto onlyBottom=[](Id id){return id==0;};
+  const Point query{.25,.25,1.1};
+  compare(cached->ClosestCurved(0,query,1e-6,16384,SIZE_MAX,onlyBottom),
+          fresh->ClosestCurved(0,query,1e-6,16384,SIZE_MAX,onlyBottom));
+  const auto stats=cached->GeometryStatsSnapshot();CHECK(stats.closest_region_hits>0);CHECK(stats.closest_region_misses>0);
+  CHECK(stats.prepared_bytes<=stats.prepared_limit);CHECK(tiny->GeometryStatsSnapshot().closest_region_retention_refusals>0);
+  size_t work=99;CHECK_THROWS(cached->ClosestCurved(0,query,1e-6,1,SIZE_MAX,{},&work));CHECK(work==1);
+  CHECK_THROWS(cached->ClosestCurved(0,query,1e-6,16384,0));
+  auto expired=BackendBudget();expired.within_time=[](){return false;};
+  CHECK_THROWS(cached->ClosestCurved(0,query,1e-6,16384,SIZE_MAX,{},nullptr,&expired));CHECK(expired.time_exhausted);
+}
