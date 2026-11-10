@@ -8,13 +8,22 @@ ONE connected curved-BL cycle. R=`integration_evidence/native_3d_bl_v1/dc17_18_c
 
 ## Current owned workload — authoritative
 
-Build331 LIVE (tool session5435, wrapper3437236/start37782066,
-compiler driver3437269/start37782116). FIVE changed compiled files pinned; sources
-FROZEN until every actual build handle is terminal. Low priority j3,4TB scratch,
-47.4GB available at launch. This is a prerequisite-only focused build, NOT a BL
-capability milestone. Prepared helpers: `R/check_bounds331.py`,
-`R/replay_chord331_after_bounds.py`; run only after successful terminal build and
-actual-handle checks. No MPI/full attempt until connected surface/front integration.
+Strict build333 SEALED: no-op2.140s, all2 actual handles absent, source/build pins
+unchanged; CBL and native geometry effective strict-FP flags verified. Build332
+compiled40.150s/all20 actual handles absent, but regenerated build.ninja and
+compile_commands.json, so its old pin check failed; graph review + no-op333 seals
+expected regeneration. Normal strict library built; AD build paths untested.
+Current ONE owned heavy job: actual same captured-chord retest on333, tool85951,
+wrapper3482666/start37881667; test tree3482801. Case
+`R/cases/curved333_after_bounds_chord_20261110T181257_3482666`;
+live_runtime_observation verifies5 actual handles and70 mappedELFs. Sources FROZEN.
+Closest/candidate checks passed1017assertions/2cases/8.346s, all5 actual handles
+absent. Grazing/translated chord checks still pending; prior331 combined focused
+check was INTERRUPTED143/287.613s for fast-math proof precondition (not a test
+pass/failure). Helpers `R/check_bounds333.py`, `R/replay_chord333_after_bounds.py`.
+No MPI/full attempt until connected surface/front integration and qualification.
+Actual context manifest provides complete11–24cell endpoint stars, not certified
+feature/metric readiness. Current strategy below remains authoritative.
 
 ## Active connected curved-BL strategy
 

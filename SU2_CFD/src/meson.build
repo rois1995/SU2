@@ -177,7 +177,6 @@ su2_cfd_src += files(['adaptation/CAdapSensors.cpp',
                       'adaptation/CBarycentricTransfer.cpp',
                       'adaptation/CAdjointTransfer.cpp',
                       'adaptation/CConservativeTransfer.cpp',
-                      'adaptation/CBoundaryLayerMetric.cpp',
                       'adaptation/CNativeComplexity3D.cpp',
                       'adaptation/CMetricPredictor.cpp',
                       'adaptation/CTransferAdmissibility.cpp',
@@ -215,13 +214,20 @@ if get_option('enable-gprof')
   profiling_args = ['-pg','-no-pie']
 endif
 
+# Outward BL distance/integration certificates need the same arithmetic as native geometry.
+su2_bl_metric_src = files('adaptation/CBoundaryLayerMetric.cpp')
+su2_bl_metric_args = ['-fno-fast-math', '-fno-unsafe-math-optimizations', '-ffp-contract=off']
+
 if get_option('enable-normal')
+  su2_bl_metric_lib = static_library('SU2BLMetric', su2_bl_metric_src,
+                                    install: false, dependencies: [su2_deps, common_dep],
+                                    cpp_args: [default_warning_flags, su2_cpp_args, su2_bl_metric_args])
   su2_cfd_lib = static_library('SU2core',
                                su2_cfd_src,
                                install : false,
 		               dependencies : [su2_deps, common_dep],
 		               cpp_args:  [default_warning_flags, su2_cpp_args])
-  su2_cfd_dep = declare_dependency(link_with: su2_cfd_lib,
+  su2_cfd_dep = declare_dependency(link_with: [su2_cfd_lib, su2_bl_metric_lib],
                                    include_directories: su2_cfd_include)
   su2_cfd = executable('SU2_CFD',
                        'SU2_CFD.cpp',
@@ -233,12 +239,15 @@ if get_option('enable-normal')
 endif
 
 if get_option('enable-autodiff')
+  su2_bl_metric_lib_ad = static_library('SU2BLMetric_AD', su2_bl_metric_src,
+                                      install: false, dependencies: [su2_deps, codi_dep, commonAD_dep],
+                                      cpp_args: [default_warning_flags, su2_cpp_args, codi_rev_args, su2_bl_metric_args])
   su2_cfd_lib_ad = static_library('SU2core_AD',
                                su2_cfd_src,
                                install : false,
 		               dependencies : [su2_deps, codi_dep, commonAD_dep],
                                cpp_args: [default_warning_flags, su2_cpp_args, codi_rev_args])
-  su2_cfd_dep_ad = declare_dependency(link_with: su2_cfd_lib_ad,
+  su2_cfd_dep_ad = declare_dependency(link_with: [su2_cfd_lib_ad, su2_bl_metric_lib_ad],
                                    include_directories: su2_cfd_include)
   su2_cfd_ad = executable('SU2_CFD_AD',
                           'SU2_CFD.cpp',
@@ -250,12 +259,15 @@ if get_option('enable-autodiff')
 endif
 
 if get_option('enable-directdiff')
+  su2_bl_metric_lib_dd = static_library('SU2BLMetric_DIRECTDIFF', su2_bl_metric_src,
+                                      install: false, dependencies: [su2_deps, codi_dep, commonDD_dep],
+                                      cpp_args: [default_warning_flags, su2_cpp_args, codi_for_args, su2_bl_metric_args])
   su2_cfd_lib_dd = static_library('SU2core_DIRECTDIFF',
                                su2_cfd_src,
                                install : false,
 		               dependencies : [su2_deps, codi_dep, commonDD_dep],
                                cpp_args: [default_warning_flags, su2_cpp_args, codi_for_args])
-  su2_cfd_dep_dd = declare_dependency(link_with: su2_cfd_lib_dd,
+  su2_cfd_dep_dd = declare_dependency(link_with: [su2_cfd_lib_dd, su2_bl_metric_lib_dd],
                                    include_directories: su2_cfd_include)
   su2_cfd_dd = executable('SU2_CFD_DIRECTDIFF',
                           'SU2_CFD.cpp',

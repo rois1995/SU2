@@ -194,3 +194,28 @@ Sources: CNativeBLPipeline3D.hpp:270–315,392–478; native_bl3d/BLOptionA10.in
 BLFirstRow9.inl:237–302,787–802; BLGrowth12.inl:86–132,166–272,329–492;
 CNativeEngine3D.cpp surface lanes/cavity operators; CBoundaryLayerMetric.cpp:140–209,
 2150–2204,3520–3794,4256–4337. See linked handoff for existing qualification limits.
+
+
+## Current arithmetic/build qualification limit
+
+331 compiled successfully372.347s/all150 actual sampled handles absent. Before
+qualifying the bound, compile-command audit found CBoundaryLayerMetric was still
+built with fast-math, whereas the native geometry source was strict. The focused
+check was therefore interrupted287.613s/143, all5 actual handles absent and pins
+unchanged. No passing/failing assertion conclusion is drawn. Exact compiler commands
+and stop rationale are preserved in its authorized_stop_request.json.
+
+332 uses a source-specific strict BL metric static library and retains each normal,
+reverse-AD and forward-AD mode's original dependencies/macros. The same native
+-fno-fast-math/-fno-unsafe-math-optimizations/-ffp-contract=off flags are appended.
+This is necessary to support the proof; normal build/focused verification pending,
+AD configurations not tested. It is not a sensor/norm/height/target policy change;
+floating-point trajectories must be reassessed, not assumed byte-identical.
+
+Original actual-M6 context selection is preserved in
+R/m6_bl_inputs/chord331_from330_v1/actual_contexts.json. Complete endpoint stars:
+failed65–18865=20cells, smooth5925–5950=14,LE4220–4221=24,
+symmetry232–233=11, sharp-angle candidate4497–4498=23. All within64 current bound.
+These are original-mesh geometry/connectivity inputs, not generated BL results;
+native feature/association classification and all metric/quality measures remain
+to establish before any acceptance conclusion.

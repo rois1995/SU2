@@ -1,0 +1,64 @@
+{
+  "checked_unix": 1794334081.877184,
+  "reason": "Focused build331 does not meet outward-interval proof arithmetic precondition: CBoundaryLayerMetric compiled with fast-math, while geometry source is strict. Interrupt only this owned validation, preserve as unqualified, correct build path before repeating. No assertion conclusion or performance result claimed.",
+  "owned_verified": [
+    {
+      "pid": 3456095,
+      "rss_bytes": 1531904,
+      "name": "time",
+      "start_ticks": 37823744,
+      "user_cpu_ticks": 0,
+      "system_cpu_ticks": 0,
+      "pgid": 3456095,
+      "session": 3456095,
+      "state": "S"
+    },
+    {
+      "pid": 3456096,
+      "rss_bytes": 2097152,
+      "name": "timeout",
+      "start_ticks": 37823744,
+      "user_cpu_ticks": 0,
+      "system_cpu_ticks": 0,
+      "pgid": 3456096,
+      "session": 3456095,
+      "state": "S"
+    },
+    {
+      "pid": 3456097,
+      "rss_bytes": 39419904,
+      "name": "test_driver",
+      "start_ticks": 37823744,
+      "user_cpu_ticks": 28292,
+      "system_cpu_ticks": 3,
+      "pgid": 3456096,
+      "session": 3456095,
+      "state": "R"
+    },
+    {
+      "pid": 3456098,
+      "rss_bytes": 15319040,
+      "name": "orted",
+      "start_ticks": 37823745,
+      "user_cpu_ticks": 0,
+      "system_cpu_ticks": 1,
+      "pgid": 3456098,
+      "session": 3456098,
+      "state": "S"
+    }
+  ],
+  "compile_commands": [
+    {
+      "directory": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost",
+      "command": "c++ -ICommon/src/libSU2AccurateSum.a.p -ICommon/src -I../../Common/src -I../../externals/CLI11 -I../../externals/eigen -I../../externals/cgns/adf -I../../externals/cgns/adfh -Iexternals/cgns -I../../externals/cgns -Iexternals/cgns/hdf5 -I../../externals/cgns/hdf5 -I../../externals/metis/include -I../../externals/metis/GKlib -I../../externals/metis/libmetis -I../../externals/parmetis/include -I../../externals/parmetis/libparmetis -I../../externals/mel -I/usr/lib/x86_64-linux-gnu/openmpi/include -I/usr/lib/x86_64-linux-gnu/openmpi/include/openmpi -fdiagnostics-color=always -D_GLIBCXX_ASSERTIONS=1 -D_FILE_OFFSET_BITS=64 -std=c++17 -O2 -g -fPIC -pthread -Wno-empty-body -Wno-ignored-qualifiers -Wno-unused-parameter -Wno-deprecated-declarations -Wno-error=cast-function-type -Wno-cast-function-type -Wno-error=stringop-truncation -Wno-stringop-truncation -Wno-error=missing-field-initializers -Wno-missing-field-initializers -Wno-error=class-memaccess -Wno-class-memaccess -Wno-overloaded-virtual -Wno-array-bounds -Wno-dangling-pointer -march=native -ffast-math -fno-finite-math-only -DHAVE_CGNS -DHAVE_MPI -DHAVE_METIS -DHAVE_PARMETIS -DHAVE_MMG -fno-fast-math -fno-unsafe-math-optimizations -ffp-contract=off -MD -MQ Common/src/libSU2AccurateSum.a.p/adaptation_CNativeAffineReference.cpp.o -MF Common/src/libSU2AccurateSum.a.p/adaptation_CNativeAffineReference.cpp.o.d -o Common/src/libSU2AccurateSum.a.p/adaptation_CNativeAffineReference.cpp.o -c ../../Common/src/adaptation/CNativeAffineReference.cpp",
+      "file": "../../Common/src/adaptation/CNativeAffineReference.cpp",
+      "output": "Common/src/libSU2AccurateSum.a.p/adaptation_CNativeAffineReference.cpp.o"
+    },
+    {
+      "directory": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost",
+      "command": "c++ -ISU2_CFD/src/libSU2core.a.p -ISU2_CFD/src -I../../SU2_CFD/src -I../../externals/CLI11 -I../../externals/eigen -I../../externals/cgns/adf -I../../externals/cgns/adfh -Iexternals/cgns -I../../externals/cgns -Iexternals/cgns/hdf5 -I../../externals/cgns/hdf5 -I../../externals/metis/include -I../../externals/metis/GKlib -I../../externals/metis/libmetis -I../../externals/parmetis/include -I../../externals/parmetis/libparmetis -I../../externals/mel -ICommon/src -I../../Common/src -I/usr/lib/x86_64-linux-gnu/openmpi/include -I/usr/lib/x86_64-linux-gnu/openmpi/include/openmpi -fdiagnostics-color=always -D_GLIBCXX_ASSERTIONS=1 -D_FILE_OFFSET_BITS=64 -std=c++17 -O2 -g -fPIC -pthread -Wno-empty-body -Wno-ignored-qualifiers -Wno-unused-parameter -Wno-deprecated-declarations -Wno-error=cast-function-type -Wno-cast-function-type -Wno-error=stringop-truncation -Wno-stringop-truncation -Wno-error=missing-field-initializers -Wno-missing-field-initializers -Wno-error=class-memaccess -Wno-class-memaccess -Wno-overloaded-virtual -Wno-array-bounds -Wno-dangling-pointer -march=native -ffast-math -fno-finite-math-only -DHAVE_CGNS -DHAVE_MPI -DHAVE_METIS -DHAVE_PARMETIS -DHAVE_MMG -MD -MQ SU2_CFD/src/libSU2core.a.p/adaptation_CBoundaryLayerMetric.cpp.o -MF SU2_CFD/src/libSU2core.a.p/adaptation_CBoundaryLayerMetric.cpp.o.d -o SU2_CFD/src/libSU2core.a.p/adaptation_CBoundaryLayerMetric.cpp.o -c ../../SU2_CFD/src/adaptation/CBoundaryLayerMetric.cpp",
+      "file": "../../SU2_CFD/src/adaptation/CBoundaryLayerMetric.cpp",
+      "output": "SU2_CFD/src/libSU2core.a.p/adaptation_CBoundaryLayerMetric.cpp.o"
+    }
+  ]
+}

@@ -1,0 +1,35 @@
+{
+  "state": "in_progress",
+  "scope": "Prerequisite distance-bound/strict-arithmetic validation only; integrated curved BL remains incomplete.",
+  "checked_unix": 1794334763.473271,
+  "build333": {
+    "state": "terminal",
+    "exit_code": 0,
+    "seconds": 2.140458345413208,
+    "pins_verified": true,
+    "changed": [],
+    "completed_build": true,
+    "binaries": {
+      "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver": "c1f8c50e3f45d32e3d5bda9e772a91c7bebaf3c4a8ae30d2120c1d25aec60ec4",
+      "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/SU2_CFD/src/SU2_CFD": "8d2762279a6f3fdd84bbc89b9c9f1325d874c7b163f75ac0db28489c884c88bc"
+    }
+  },
+  "closest_checks": {
+    "passed": true,
+    "assertions": 1017,
+    "cases": 2,
+    "seconds": 8.346227169036865,
+    "attempt": "cases/curved333_closest_20261110T181148_3479587",
+    "actual_handles_terminal": true
+  },
+  "actual_chord_retest": "running: cases/curved333_after_bounds_chord_20261110T181257_3482666",
+  "remaining_focused": [
+    "grazing chord independent bands",
+    "translated cubic bounds",
+    "curved-resource and composed integration refusal checks"
+  ],
+  "surface_front_integration_complete": false,
+  "mpi_milestone_complete": false,
+  "bl_mesh_accepted": false,
+  "full_workflow_accepted": false
+}
