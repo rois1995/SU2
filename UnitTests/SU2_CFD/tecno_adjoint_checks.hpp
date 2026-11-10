@@ -1366,6 +1366,10 @@ struct FCTRefResult {
   std::vector<FCTRefEdge> ed;
   std::vector<std::vector<std::pair<unsigned long, int>>> at;  /*!< \brief (edge, canonical end) at each node. */
   std::vector<std::vector<std::array<double, 3>>> g;           /*!< \brief Gradient weight of the other end, same order. */
+  /*!< \brief NODE_INPUT: s_a = sum of the gradient weights of node a and sum of their absolute values, summed in the star
+   *   order of the geometry with the arithmetic of TeCNOAdjoint::FCTLoadStar (w * (1/V)): at interior nodes of the median
+   *   dual s_a is a rounding residue whose guard decision depends on the summation order (ROE_TECNO_PLAN.md 6.13). */
+  std::vector<std::array<double, 3>> s, sAbs;
 };
 
 /*!
@@ -1412,12 +1416,8 @@ inline void FCTRefProject(unsigned short nDim, const FCTRefEdge& r, const double
  */
 inline double FCTRefSelf(const FCTRefResult& res, unsigned short nDim, unsigned long a, size_t h, int f) {
   const auto& r = res.ed[res.at[a][h].first];
-  double s[3] = {0, 0, 0}, sa[3] = {0, 0, 0};
-  for (const auto& g : res.g[a])
-    for (unsigned short d = 0; d < nDim; ++d) {
-      s[d] += g[d];
-      sa[d] += std::fabs(g[d]);
-    }
+  const auto& s = res.s[a];
+  const auto& sa = res.sAbs[a];
   double pi = 0, size = 0;
   for (unsigned short d = 0; d < nDim; ++d) {
     pi += s[d] * r.e[d];
@@ -1597,8 +1597,22 @@ FCTRefResult FCTReference(const Geometry& geometry, unsigned short nDim, const s
       nbr[a].push_back(ed[e].n[1 - x]);
       const unsigned short lend = (geometry.edges->GetNode(e, 0) == a) ? 0 : 1;
       std::array<double, 3> gg = {0, 0, 0};
-      for (unsigned short d = 0; d < nDim; ++d) gg[d] = weights(e, lend * nDim + d) / volume(a);
+      const double invVol = 1.0 / volume(a);  /*--- the arithmetic of TeCNOAdjoint::FCTLoadStar ---*/
+      for (unsigned short d = 0; d < nDim; ++d) gg[d] = weights(e, lend * nDim + d) * invVol;
       res.g[a].push_back(gg);
+    }
+  }
+  res.s.assign(nP, {0, 0, 0});
+  res.sAbs.assign(nP, {0, 0, 0});
+  for (unsigned long a = 0; a < nP; ++a) {
+    const double invVol = 1.0 / volume(a);
+    for (auto iEdge : geometry.nodes->GetEdges(a)) {
+      const unsigned short lend = (geometry.edges->GetNode(iEdge, 0) == a) ? 0 : 1;
+      for (unsigned short d = 0; d < nDim; ++d) {
+        const double gd = weights(iEdge, lend * nDim + d) * invVol;
+        res.s[a][d] += gd;
+        res.sAbs[a][d] += std::fabs(gd);
+      }
     }
   }
   /*--- (1) A of every canonical end. ---*/

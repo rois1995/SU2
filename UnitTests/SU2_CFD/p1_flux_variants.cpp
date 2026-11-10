@@ -4691,7 +4691,21 @@ void EdgeEntropyFCTNodeInputCase() {
         std::vector<tac::FCTData> runs;
         for (const unsigned short np : {1, 2, 3, 4}) runs.push_back(RunFCT<nDim>(geometry, S, projected, p1p, nullptr, nullptr, np, true));
         const auto ref1 = RefFCT(geometry, nDim, runs[0].ing, w, p1p, 1, true);
-        refDiff = std::max(refDiff, FCTRefDiff(ref1, runs[0].store, finite));
+        {
+          const double dd = FCTRefDiff(ref1, runs[0].store, finite);
+          if (dd > 1e-10) {  /*--- Diagnostic of the worst entry (pass 1). ---*/
+            for (unsigned long e = 0; e < ref1.ed.size(); ++e)
+              for (int f = 0; f < 4; ++f) {
+                const auto& r = ref1.ed[e];
+                const double al = tac::FCTStored(runs[0].store, e, r.flip, 1, f), pc = tac::FCTStored(runs[0].store, e, r.flip, 0, f);
+                if (std::fabs(al - r.alpha[f]) + std::fabs(pc - r.phic[f]) >= 0.5 * dd)
+                  WARN("NODE_INPUT pass-1 mismatch t " << t << " edge " << e << " f " << f << " valid " << r.valid[f] << " o "
+                       << r.o[f] << " phic " << pc << "/" << r.phic[f] << " alpha " << al << "/" << r.alpha[f] << " rho "
+                       << r.rho[f] << " cap " << r.rowCap[0][f] << " " << r.rowCap[1][f]);
+              }
+          }
+          refDiff = std::max(refDiff, dd);
+        }
         const auto refSwap = RefFCT(geometry, nDim, runs[0].ing, w, p1p, 1, true, true);
         swapDiff = std::max(swapDiff, FCTRefDiff(refSwap, runs[0].store, finite));
         for (size_t n = 0; n < runs.size(); ++n) {
