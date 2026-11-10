@@ -157,8 +157,10 @@ Accepted first replay296 is byte-identical to293event1 (mesh/reference/restart).
 causal material performance gain NOT established. User directs BL, no further Euler
 optimization cycle for small timing/reuse changes. Both binaries and1303 sources
 are archived under `R/baselines/qualified_euler296_pre_bl_v1`; manifest verified.
-`R/euler293_preservation_during_bl319.json` freshly verifies both saved checkpoints and
-isolated restart artifacts still match hashes. Never overwrite them.
+`R/euler293_preservation_during_bl329.json` freshly verifies all22 saved checkpoint/
+isolated-restart artifacts (384685699bytes), plus all1305 supplementary qualified296
+source/binary archive files, unchanged against existing manifests. No CFD rerun or
+new current-runtime numerical qualification. Never overwrite preserved artifacts.
 
 ## Rules and records
 
