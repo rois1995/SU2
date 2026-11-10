@@ -34,52 +34,99 @@
 
 namespace CreaseGroups {
 
-/*--- Crease groups of a wall point (ROE_TECNO_PLAN.md 6.11, item 2). The vertex normal of a marker point is the sum of
- * the corner area vectors N_f of its incident faces (SU2's median-dual pieces of each face at the point). Where incident
- * faces fold by 90 deg or more (N_f . N_g <= 0, e.g. the upper and lower faces at a sharp trailing edge) that sum can be a
- * cancellation residue: on the ONERA M6 trailing edge it is 76 deg (median) away from the face normals and the slip
- * plane contains face normals (penetration |u.n_f|/|u| up to 0.99 in the S4c state). Discrete grouping rule: two groups
- * are merged across an edge (adjacent faces: sharing another node; 2D: the two segments of a point) only if every pair
- * of faces of the merged group has N_f . N_g > 0; then the group normal n = sum N_g satisfies n . N_f >= |N_f|^2 > 0 for
- * every face of the group (inside its dual cone, for any area weights; for N_f . N_g < 0 there are weights for which
- * this fails). Every group contributes its summed normal (the groups' sum is the vertex normal); one group: the vertex
- * normal is kept. Deterministic for a given face order (the caller orders the faces by their global nodes). ---*/
+/*--- Crease groups of a wall point (ROE_TECNO_PLAN.md 6.11, item 2; 6.14 rev 5). The vertex normal of a marker point is the
+ * sum of the corner area vectors N_f of its incident faces (SU2's median-dual pieces of each face at the point). Where
+ * incident faces fold by 90 deg or more (e.g. the upper and lower faces at a sharp trailing edge) that sum can be a
+ * cancellation residue: on the ONERA M6 trailing edge it is 76 deg (median) away from the face normals.
+ * Compatibility: N_f . N_g > COMPATIBLE_COS |N_f| |N_g|. A group G whose faces are pairwise compatible has a summed
+ * normal n = sum N_g with n . N_f >= |N_f|^2 > 0 for every face of G (inside the dual cone of its faces, for any area
+ * weights) and |n|^2 >= sum |N_g|^2 (no cancellation), for nonzero corner vectors; for a pair with N_f . N_g < 0 there
+ * are area weights for which both fail (90 deg is the mathematical bound; COMPATIBLE_COS is a round-off guard above it). Rule (order independent): links are the adjacent compatible pairs (adjacent: sharing another node; 2D: the two
+ * segments of a point), weighted by their cosine. The groups are the maximal pairwise-compatible clusters of the
+ * single-linkage hierarchy of the links: connected components of the links, and every component that is not pairwise
+ * compatible is split by removing its weakest links (smallest cosine, ties together), recursively. These clusters are
+ * nested, so the maximal ones partition the faces; the result depends only on the set of faces, not on their order.
+ * Where every component of the links is pairwise compatible (all points of the 2D meshes and all but two points of the
+ * M6 wing) the groups are those components, the same as a greedy merge in face order with the same compatibility test
+ * (the earlier rule used N_f . N_g > 0: pairs with 0 < cos <= COMPATIBLE_COS are now creases). A face compatible with
+ * two mutually incompatible neighbours joins the one with the larger cosine (equal: it forms its own group). Implied
+ * feature angle: folds of less than 90 deg inside a compatible cluster are averaged (one group), as SU2's vertex
+ * normal does everywhere. Every group contributes its summed normal (the groups' sum is the vertex normal). ---*/
 constexpr unsigned short MAX_FACES = 32;
+
+/*--- Compatibility threshold of the cosine: SU2's tolerance for normal pairs (PARALLEL_TOLERANCE of
+ * CGeometry::ComputeModifiedSymmetryNormals), so that a nominal right angle is a crease whatever the round-off. ---*/
+constexpr passivedouble COMPATIBLE_COS = 0.001;
 
 /*!
  * \brief Groups of the nFaces incident faces of a point (corner area vectors N, consistently oriented; for each face up
- *        to 3 other nodes, nOther per face). Adjacent pairs (f, g), f < g, in lexicographic order merge their groups if
- *        all cross products of the two groups are positive.
+ *        to 3 other nodes, nOther per face): maximal pairwise-compatible single-linkage clusters (see above).
  * \return number of groups; groupN[q] the summed area vector of group q (groups in order of their first face).
  */
 inline unsigned short FaceGroups(unsigned short nDim, unsigned short nFaces, const su2double (*N)[3],
-                                     const unsigned long (*other)[3], const unsigned short* nOther,
-                                     su2double (*groupN)[3], unsigned short* faceGroup = nullptr) {
-  unsigned short group[MAX_FACES];
-  for (unsigned short f = 0; f < nFaces; ++f) group[f] = f;
-  auto dot = [&](unsigned short f, unsigned short g) {
-    su2double d = 0.0;
-    for (unsigned short k = 0; k < nDim; ++k) d += N[f][k] * N[g][k];
-    return d;
-  };
+                                 const unsigned long (*other)[3], const unsigned short* nOther,
+                                 su2double (*groupN)[3], unsigned short* faceGroup = nullptr) {
+  /*--- Links: adjacent compatible pairs, with their cosine. ---*/
+  constexpr unsigned short MAX_LINKS = MAX_FACES * (MAX_FACES - 1) / 2;
+  su2double len[MAX_FACES], dotFG[MAX_FACES][MAX_FACES];
+  for (unsigned short f = 0; f < nFaces; ++f) {
+    for (unsigned short g = 0; g < nFaces; ++g) {
+      su2double d = 0.0;
+      for (unsigned short k = 0; k < nDim; ++k) d += N[f][k] * N[g][k];
+      dotFG[f][g] = d;
+    }
+    len[f] = sqrt(dotFG[f][f]);
+  }
+  auto compatible = [&](unsigned short f, unsigned short g) { return dotFG[f][g] > COMPATIBLE_COS * len[f] * len[g]; };
+  unsigned short linkA[MAX_LINKS], linkB[MAX_LINKS], nLinks = 0;
+  su2double linkCos[MAX_LINKS];
+  bool active[MAX_LINKS];
   for (unsigned short f = 0; f < nFaces; ++f) {
     for (unsigned short g = f + 1; g < nFaces; ++g) {
-      if (group[f] == group[g]) continue;
       bool adjacent = (nDim == 2);
       for (unsigned short a = 0; a < nOther[f] && !adjacent; ++a)
         for (unsigned short b = 0; b < nOther[g]; ++b) adjacent = adjacent || (other[f][a] == other[g][b]);
-      if (!adjacent) continue;
-      bool positive = true;
-      for (unsigned short p = 0; p < nFaces && positive; ++p) {
-        if (group[p] != group[f]) continue;
-        for (unsigned short q = 0; q < nFaces && positive; ++q)
-          if (group[q] == group[g]) positive = (dot(p, q) > 0.0);
-      }
-      if (!positive) continue;
-      const auto keep = std::min(group[f], group[g]), drop = std::max(group[f], group[g]);
-      for (unsigned short p = 0; p < nFaces; ++p)
-        if (group[p] == drop) group[p] = keep;
+      if (!adjacent || !compatible(f, g)) continue;
+      linkA[nLinks] = f;
+      linkB[nLinks] = g;
+      linkCos[nLinks] = dotFG[f][g] / (len[f] * len[g]);
+      active[nLinks] = true;
+      ++nLinks;
     }
+  }
+  /*--- Components of the active links (labelled by their smallest face); every component that is not pairwise
+   * compatible loses all of its weakest links (smallest cosine, ties together); repeat until all are compatible. ---*/
+  unsigned short group[MAX_FACES];
+  while (true) {
+    for (unsigned short f = 0; f < nFaces; ++f) group[f] = f;
+    for (bool changed = true; changed;) {
+      changed = false;
+      for (unsigned short l = 0; l < nLinks; ++l) {
+        if (!active[l] || (group[linkA[l]] == group[linkB[l]])) continue;
+        const auto keep = std::min(group[linkA[l]], group[linkB[l]]), drop = std::max(group[linkA[l]], group[linkB[l]]);
+        for (unsigned short p = 0; p < nFaces; ++p)
+          if (group[p] == drop) group[p] = keep;
+        changed = true;
+      }
+    }
+    bool split = false;
+    for (unsigned short r = 0; r < nFaces; ++r) {
+      if (group[r] != r) continue;
+      bool clique = true;
+      for (unsigned short p = r; p < nFaces && clique; ++p) {
+        if (group[p] != r) continue;
+        for (unsigned short q = p + 1; q < nFaces && clique; ++q)
+          if (group[q] == r) clique = compatible(p, q);
+      }
+      if (clique) continue;
+      su2double weakest = 2.0;
+      for (unsigned short l = 0; l < nLinks; ++l)
+        if (active[l] && (group[linkA[l]] == r)) weakest = std::min(weakest, linkCos[l]);
+      for (unsigned short l = 0; l < nLinks; ++l)
+        if (active[l] && (group[linkA[l]] == r) && (linkCos[l] <= weakest)) active[l] = false;
+      split = true;
+    }
+    if (!split) break;
   }
   unsigned short nGroups = 0, slotOf[MAX_FACES];
   for (unsigned short f = 0; f < nFaces; ++f) {

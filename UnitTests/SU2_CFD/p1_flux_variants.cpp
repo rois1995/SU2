@@ -9542,3 +9542,132 @@ TEST_CASE("Strong slip: crease groups of the incident wall faces", "[P1Flux]") {
     CHECK(pss::SlipFaceGroups(2, 2, N, other, nOther, g) == 2);
   }
 }
+
+TEST_CASE("Crease groups: order-independent groups at corners", "[P1Flux]") {
+  /*--- Groups of a fan of faces for every permutation of the face order (all n! orders): the partition (canonical: groups
+   * numbered in the order of the first face of the original order) must not depend on the order. Returns it. ---*/
+  auto partition = [&](unsigned short nDim, unsigned short n, const su2double (*N)[3], const unsigned long (*edge)[3],
+                       const unsigned short* nEdge) {
+    std::vector<unsigned short> perm(n), ref;
+    for (unsigned short f = 0; f < n; ++f) perm[f] = f;
+    bool first = true, same = true;
+    do {
+      su2double Np[32][3], g[32][3];
+      unsigned long ep[32][3] = {{0}};
+      unsigned short nep[32], fg[32];
+      for (unsigned short a = 0; a < n; ++a) {
+        for (unsigned short d = 0; d < 3; ++d) Np[a][d] = N[perm[a]][d];
+        for (unsigned short k = 0; k < 3; ++k) ep[a][k] = edge[perm[a]][k];
+        nep[a] = nEdge[perm[a]];
+      }
+      CreaseGroups::FaceGroups(nDim, n, Np, ep, nep, g, fg);
+      std::vector<unsigned short> byFace(n), canon(n), slot(32, 99);
+      for (unsigned short a = 0; a < n; ++a) byFace[perm[a]] = fg[a];
+      unsigned short next = 0;
+      for (unsigned short f = 0; f < n; ++f) {
+        if (slot[byFace[f]] == 99) slot[byFace[f]] = next++;
+        canon[f] = slot[byFace[f]];
+      }
+      if (first) ref = canon;
+      same = same && (canon == ref);
+      first = false;
+    } while (std::next_permutation(perm.begin(), perm.end()));
+    CHECK(same);
+    return ref;
+  };
+  auto rankOf = [&](unsigned short n, const su2double (*N)[3], const std::vector<unsigned short>& part) {
+    su2double unit[32][3] = {{0.0}}, Q[3][3];
+    unsigned short nG = 0;
+    for (auto q : part) nG = std::max<unsigned short>(nG, q + 1);
+    for (unsigned short q = 0; q < nG; ++q) {
+      su2double s[3] = {0.0, 0.0, 0.0};
+      for (unsigned short f = 0; f < n; ++f)
+        if (part[f] == q) for (unsigned short d = 0; d < 3; ++d) s[d] += N[f][d];
+      const su2double l = sqrt(s[0] * s[0] + s[1] * s[1] + s[2] * s[2]);
+      for (unsigned short d = 0; d < 3; ++d) unit[q][d] = s[d] / l;
+    }
+    return CreaseGroups::Basis(3, nG, unit, Q);
+  };
+  /*--- Closed fan of 6 faces around a point, face f adjacent to f + 1 (shared other node f + 1) and face 5 to face 0. ---*/
+  unsigned long ring[6][3] = {{0}};
+  unsigned short nRing[6];
+  for (unsigned short f = 0; f < 6; ++f) {
+    ring[f][0] = f + 1;
+    ring[f][1] = (f + 1) % 6 + 1;
+    nRing[f] = 2;
+  }
+  const su2double pi = 4.0 * atan(1.0);
+  /*--- Box corner: three planes at 90 deg, two faces each (unequal areas): three groups, rank 3. ---*/
+  {
+    const su2double N[6][3] = {{1.0, 0, 0}, {0.4, 0, 0}, {0, 0.7, 0}, {0, 2.0, 0}, {0, 0, 0.3}, {0, 0, 1.1}};
+    const auto part = partition(3, 6, N, ring, nRing);
+    CHECK(part == std::vector<unsigned short>{0, 0, 1, 1, 2, 2});
+    CHECK(rankOf(6, N, part) == 3);
+  }
+  /*--- Wing-tip-like corner: trailing edge along y, upper faces (0, 1) and lower faces (4, 5) of a 10 deg wedge (normals
+   * (sin 5, 0, +-cos 5) tilted by e towards the cap; across the trailing edge between faces 5 and 0 they fold by about
+   * 170 deg) and a cap (2, 3, normal y) at 90 - e deg to both halves. e = 5 deg (cap at 85 deg): the cap is compatible
+   * with both halves, which are incompatible with each other; equal cosines: the cap forms its own group (rank 3). Cap
+   * tilted 1 deg towards the upper half (84 / 86 deg): it joins the upper half (larger cosine; folds below 90 deg are
+   * averaged), rank 2. e = -5 deg (cap at 95 deg to both): three groups, rank 3. Unequal face areas. ---*/
+  for (const su2double capDeg : {85.0, 95.0}) {
+    const su2double w = 5.0 * pi / 180.0, e = (90.0 - capDeg) * pi / 180.0;
+    const su2double U[3] = {sin(w) * cos(e), sin(e), cos(w) * cos(e)};
+    su2double N[6][3] = {{U[0], U[1], U[2]}, {0.6 * U[0], 0.6 * U[1], 0.6 * U[2]}, {0, 0.8, 0}, {0, 0.8, 0},
+                         {0.6 * U[0], 0.6 * U[1], -0.6 * U[2]}, {U[0], U[1], -U[2]}};
+    const auto part = partition(3, 6, N, ring, nRing);
+    CHECK(part == std::vector<unsigned short>{0, 0, 1, 1, 2, 2});
+    CHECK(rankOf(6, N, part) == 3);
+    if (capDeg < 90.0) {
+      const su2double t = pi / 180.0;
+      N[2][1] = N[3][1] = 0.8 * cos(t);
+      N[2][2] = N[3][2] = 0.8 * sin(t);
+      const auto tilted = partition(3, 6, N, ring, nRing);
+      CHECK(tilted == std::vector<unsigned short>{0, 0, 0, 0, 1, 1});
+      CHECK(rankOf(6, N, tilted) == 2);
+    }
+  }
+  /*--- Compatibility threshold: cosine 0.0005 (below COMPATIBLE_COS = 0.001) is a crease, cosine 0.002 is not. ---*/
+  {
+    const su2double t[2] = {0.0005, 0.002};
+    for (unsigned short k = 0; k < 2; ++k) {
+      const su2double N[2][3] = {{0.0, 0.0, 1.0}, {0.0, sqrt(1.0 - t[k] * t[k]), t[k]}};
+      const unsigned long edge[2][3] = {{1, 2, 0}, {2, 3, 0}};
+      const unsigned short nEdge[2] = {2, 2};
+      const auto part = partition(3, 2, N, edge, nEdge);
+      CHECK(part == (k == 0 ? std::vector<unsigned short>{0, 1} : std::vector<unsigned short>{0, 0}));
+    }
+  }
+  /*--- ONERA M6 wing (hybrid mesh, 258969 points), point 46 (tip, trailing edge on the tip ridge z = 0) and point 47 (tip
+   * ridge): corner vectors and other nodes of the incident faces. Lower faces (z component < 0) and upper faces fold by
+   * 108 deg across the trailing edge and by 88 deg across the ridge; groups: lower and upper halves for every face order
+   * (rank 2: the velocity along the sharp edge). The earlier greedy merge in face order gave 2 or 3 groups at point 46
+   * depending on the order (3 for the sorted order: a group across the ridge, rank 3, zero velocity). ---*/
+  {
+    const su2double N[6][3] = {{-3.4527637101296927e-06, 0.00013549416073123523, -0.00015240393609880425},
+                               {-3.425224979111915e-06, 0.00013441347941039864, 0.00023411606631673615},
+                               {-5.6299153361818569e-06, 0.0001216527217636005, -0.00011034177632880386},
+                               {-5.8212976089669138e-06, 0.0001257881612846936, 0.00012987386080468954},
+                               {1.2126984884427711e-05, 0.00012108851495268514, -0.00012929906974200344},
+                               {5.2382358223712074e-05, 0.00012513052349801823, 0.00017125460926028838}};
+    const unsigned long edge[6][3] = {{45, 1441}, {3123, 45}, {1407, 47}, {47, 3121}, {1441, 1407}, {3121, 3123}};
+    const unsigned short nEdge[6] = {2, 2, 2, 2, 2, 2};
+    const auto part = partition(3, 6, N, edge, nEdge);
+    CHECK(part == std::vector<unsigned short>{0, 1, 0, 1, 0, 1});
+    CHECK(rankOf(6, N, part) == 2);
+  }
+  {
+    const su2double N[7][3] = {{-5.6299153361818536e-06, 0.00012165272176360047, -0.00011034177632880187},
+                               {-5.8212976089685045e-06, 0.00012578816128469322, 0.00012987386080468927},
+                               {-5.8941065175494447e-06, 8.69062243930457e-05, -6.1310200144633052e-05},
+                               {-5.53290568833489e-06, 8.158046378434997e-05, 4.8596030875096337e-05},
+                               {7.18835195206529e-06, 9.514498481312483e-05, -7.9450342581273144e-05},
+                               {5.3368426594275388e-05, 5.4546638530220041e-05, 0.00010323437735996845},
+                               {-4.3552878196415469e-05, 9.095605988952612e-05, 0.0001297251427599337}};
+    const unsigned long edge[7][3] = {{46, 1407}, {3121, 46}, {1391, 48}, {48, 3091}, {1407, 1391}, {3091, 3093}, {3093, 3121}};
+    const unsigned short nEdge[7] = {2, 2, 2, 2, 2, 2, 2};
+    const auto part = partition(3, 7, N, edge, nEdge);
+    CHECK(part == std::vector<unsigned short>{0, 1, 0, 1, 0, 1, 1});
+    CHECK(rankOf(7, N, part) == 2);
+  }
+}
