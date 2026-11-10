@@ -1,0 +1,44 @@
+{
+  "outcome": "BOTH_CAPTURED_PRIMITIVES_PASS_ORIGINAL_CAP",
+  "queries": [
+    {
+      "point_query": 0,
+      "returned_facet": 19817,
+      "lower": 7.83642556136526e-05,
+      "upper": 7.836425595861322e-05,
+      "candidate_position": [
+        0.8588243593878696,
+        0.2211836928408947,
+        0.001708812833748124
+      ],
+      "candidate_normal": [
+        -0.12276208582844769,
+        0.03448773415747606,
+        -0.9918367136155688
+      ],
+      "candidate_distance_not_certificate": 7.836425595863033e-05,
+      "work": 1314
+    },
+    {
+      "point_query": 1,
+      "returned_facet": 28702,
+      "lower": 0.0027747792675896217,
+      "upper": 0.002774779269377307,
+      "candidate_position": [
+        0.9871567484842015,
+        0.6413646125881779,
+        -4.0470514649561625e-05
+      ],
+      "candidate_normal": [
+        -0.9623088015542983,
+        0.27195913378875497,
+        1.0146660783934764e-08
+      ],
+      "candidate_distance_not_certificate": 0.002774779269377421,
+      "work": 5791
+    }
+  ],
+  "passed_assertions": 58,
+  "full_context_failure_reproduced": false,
+  "scope": "Same actual captured queries, reference, tolerance2e-12,work16384. Cold serial history differs from full MPI quota/history; not a full target or BL mesh qualification."
+}

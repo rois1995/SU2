@@ -1,0 +1,49 @@
+{
+  "build": "build328",
+  "outcome": "FAILED_DIFFERENT_QUERY_TOTAL_OPTIONAL_CACHE_WORK",
+  "workflow_accepted": false,
+  "target_completed": false,
+  "bl_mesh_generated": false,
+  "accepted_events": 0,
+  "terminal_seconds": 368.9354898929596,
+  "pins_verified": true,
+  "mapped_runtime_verified": true,
+  "all_owned_handles_terminal": true,
+  "sampled_peak_tree_rss_bytes": 3748847616,
+  "query": {
+    "point": [
+      0.9898269419966986,
+      0.6406099824869472,
+      -4.037100709896809e-05
+    ],
+    "wall": 0,
+    "hint": 10154,
+    "component": 10154,
+    "component_facets": 38800,
+    "absolute_error": 2e-12,
+    "maximum_work": 16384,
+    "attempted_work": 16384,
+    "available_bytes": 12714152
+  },
+  "work": {
+    "work": 16384,
+    "maximum_work": 16384,
+    "seed_work": 2,
+    "root_work": 46,
+    "refinement_work": 5604,
+    "cache_work": 10732,
+    "failed_kind": 3,
+    "root_candidates": 46,
+    "completed_roots": 46,
+    "completed_refinements": 5603,
+    "retention_attempts": 5567,
+    "retention_successes": 5166,
+    "retention_refusals": 400,
+    "cache_scans": 5566,
+    "scope_limit": 198418312,
+    "scope_bytes_at_failure_snapshot": 198417072,
+    "scope_entries_at_failure_snapshot": 122178,
+    "scope_evictions_at_failure_snapshot": 402540
+  },
+  "scope": "Different near-wall point. One-scan-per-admission327 bounds each miss but total optional work10732 still dominates. Need query-wide bounded optional admission; original query work/geometry cap stays unchanged. No end-to-end speedup or BL acceptance claim."
+}

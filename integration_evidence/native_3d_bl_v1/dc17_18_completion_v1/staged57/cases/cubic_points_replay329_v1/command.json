@@ -1,0 +1,38 @@
+{
+  "argv": [
+    "nice",
+    "-n",
+    "19",
+    "/usr/bin/time",
+    "-v",
+    "timeout",
+    "--signal=TERM",
+    "--kill-after=20s",
+    "180",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+    "[NativeActualCubicBLPolicy3D]",
+    "--durations",
+    "yes"
+  ],
+  "wrapper": {
+    "pid": 2183872,
+    "start_ticks": 34905368
+  },
+  "replay_inputs": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_bl_inputs/closest328_points_v1",
+  "timeout_seconds": 180,
+  "source_attempt": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/rans_curved328_v1",
+  "initial_available_bytes": 44361375744,
+  "loadavg": "4.07 5.40 6.67 5/5002 2184136\n",
+  "environment": {
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1",
+    "OMPI_MCA_osc": "pt2pt",
+    "TMPDIR": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/compile-tmp",
+    "OMPI_MCA_orte_tmpdir_base": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/compile-tmp/points-replay329-fdna38ky",
+    "SU2_NATIVE_FROZEN_CONFIG": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/rans_curved328_v1/run.cfg",
+    "SU2_NATIVE_BL_REFERENCE": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/rans_curved328_v1/m6.su2.native_ref",
+    "SU2_NATIVE_BL_POINT_REPLAY": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_bl_inputs/closest328_points_v1/points.txt"
+  },
+  "scope": "One actual M6 near-wall closest-query refusal; cold prepared cache may differ from full-run warming. Geometry primitive only, not full target metric reconstruction. Serial 180-second bound, unchanged native5400/config/geometry and acceptance gates; no full adaptation qualification."
+}

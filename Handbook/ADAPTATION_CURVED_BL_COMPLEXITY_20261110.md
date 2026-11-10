@@ -355,3 +355,40 @@ ONE328 connected MPI milestone passed62cases EVERYrank/408.243s, all10 exact
 actual identities absent/pins verified; assertions5016/4977/5610/5014/5025/5065.
 qualification328.json seals behavior. Immediate full same303seed attempt328 launched
 with original constraints/budgets. No walltime speedup claim from these fixtures.
+
+##328 full outcome: total optional maintenance remains the blocker
+
+Full328 failed368.935s,all10 actual identities absent/pins/runtime verified. Different
+point(.98982694199669863,.64060998248694723,-4.0371007098968091e-5), same original
+error/cap. Work16384=seed2+root46+refinement5604+cache10732;5566scans,5166insertions,
+400refusals. No normalized target/BL mesh. One scan per miss bounds individual
+admission but total maintenance still consumes65.5% of query cap. Preserve this
+evidence independently of326 and do not infer end-to-end speedup from failure time.
+
+329 completes the same bounded optional-cache correction by applying64 optional
+work units across the whole cubic query, rather than each insertion. Before an
+admission require room for its maximum2units (scan+insertion), otherwise refuse
+retention and continue using fresh transient geometry. Scans still advance the
+clock and honor active references/credits; all performed work is charged. Generic
+prepared-leaf/union admission remains64scans, unmodified. At identical geometric
+traversal totalwork<=uncached+64 (also previous3x bound); original16384cap remains.
+This reserves most work for certification, does not increase a budget or assume
+geometry cheaply certifies. A query needing more than the remaining original cap
+can still refuse; no guarantee for arbitrary inputs. New full328 captured point and
+325control will test actual primitive completion before immediate full-case return.
+
+329 build passed48.127s/all18 sampled actual identities absent/pins verified. Focused
+681assertions/2cases passed8.797s/all5 identities absent. Existing two-point actual
+probe passed58assertions/13.964s/all5 identities absent/pins/runtime verified.325control
+1314work,328new point5791work, same2e-12error/16384cap. New interval width1.78769e-12.
+This confirms both primitives fit but does not reproduce full warmed MPI context or
+complete target metric reconstruction. Focused MPI closest/memo/concurrent publication
+check qualifies new per-query guard; reuse328 broader62cases eachrank unchanged.
+Immediately full same-seed329 after it. Read-only caller review found no concrete
+short-circuit/bound/caller-scope defect; originalcap can still refuse genuinely
+expensive geometry, so actual case remains decisive.
+
+329 focused MPI passed14cases EACHrank/42.690s, all10 sampled actual identities
+absent/pins verified (929/929/929/929/936/931assertions). qualification329.json seals
+new focused/actual points/MPI plus explicitly reused328 broader milestone. Full
+same303seed329 launched immediately. No geometry/gate/budget/metric policy change.

@@ -728,6 +728,7 @@ TEST_CASE("Closest cubic queries reuse immutable regions without reusing query b
     compare(tiny->ClosestCurved(hint,query,1e-7,16384),expected);
     const auto bounded=saturated->ClosestCurved(hint,query,1e-7,3*expected.work);
     compare(bounded,expected);CHECK(bounded.work<=3*expected.work);
+    CHECK(bounded.work<=expected.work+64);
   }
   const auto onlyBottom=[](Id id){return id==0;};
   const Point query{.25,.25,1.1};
@@ -742,6 +743,7 @@ TEST_CASE("Closest cubic queries reuse immutable regions without reusing query b
     const auto expected=fresh->ClosestCurved(hint,point,1e-7,16384,SIZE_MAX,only);
     const auto bounded=protectedCache->ClosestCurved(hint,point,1e-7,3*expected.work,SIZE_MAX,only);
     compare(bounded,expected);CHECK(bounded.work<=3*expected.work);
+    CHECK(bounded.work<=expected.work+64);
   }
   const auto pressure=saturated->GeometryStatsSnapshot();
   CHECK(pressure.evictions>0);CHECK(protectedCache->GeometryStatsSnapshot().closest_region_retention_refusals>0);

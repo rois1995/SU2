@@ -1659,6 +1659,7 @@ MappedFacetReference::CurvedClosest MappedFacetReference::ClosestCurved(
   initialCandidates=candidates.size();
   auto compare=[](const Region& a,const Region& b){return a.lower>b.lower;};
   std::priority_queue<Region,std::vector<Region>,decltype(compare)> pending(compare);
+  constexpr size_t cacheAllowance=64;
   struct CacheWork {decltype(consume)& charge;void Work(){charge(3);}} cacheWork{consume};
   auto prepare=[&](Id id,const std::array<Point,3>& parameter,unsigned depth) {
     consume(depth?2:1);std::array<Box,10> net;Box hull{};
@@ -1694,8 +1695,8 @@ MappedFacetReference::CurvedClosest MappedFacetReference::ClosestCurved(
         // A simultaneous query may have published the same immutable geometry while it was constructed.
         if(!curved_search->scopes.Find(key)) {
           ++retentionAttempts;
-          // Optional cubic insertion advances the clock once; protected entries may refuse retention.
-          refused=!curved_search->scopes.Retain(key,prepared,bytes,1,limit,cacheWork,1);
+          // Bound optional maintenance across the query, reserving room for its scan and insertion.
+          refused=charged[3]>cacheAllowance-2 || !curved_search->scopes.Retain(key,prepared,bytes,1,limit,cacheWork,1);
           retentionSuccesses+=!refused;retentionRefusals+=refused;
         }
       } else {refused=true;++retentionAttempts;++retentionRefusals;}
