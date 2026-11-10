@@ -4964,8 +4964,37 @@ void EdgeEntropyFCTLensCase() {
       CHECK(refDiff < 1e-10);
       CHECK(meanDiff < 1e-3);
       CHECK(maxDiffDet < 1e-10);
-      CHECK(tauSensitive > 0);
-      CHECK(tauWrong == 0);
+      /*--- The pass-1 allowance tau = (n_0 + n_1 + 3) eps cap (model section 6) changes alpha only at the 1e-15 level, below
+       * the code-to-code rounding of the comparison above (tauSensitive / tauWrong are reported only); it is asserted on a
+       * controlled row: load between cap - tau and cap gives R = (cap - tau)/load < 1 with the lens path, R = 1 without. ---*/
+      {
+        const auto S0 = CoordinateStates(geometry, nDim);
+        auto dc = RunFCT<nDim>(geometry, S0, false, p1p, nullptr, nullptr, 1, true, true);
+        auto& wk = dc.work;
+        const unsigned long e0 = 0;
+        const int f0 = 1;
+        const double nP = double(dc.setup.degree[geometry.edges->GetNode(e0, 0)] + dc.setup.degree[geometry.edges->GetNode(e0, 1)]);
+        const double cap = 1.0, tau = (nP + 3.0) * std::numeric_limits<double>::epsilon() * cap, load = cap - 0.5 * tau;
+        auto setRow = [&]() {
+          wk.edge(e0, ta::FCT_E_VALID + f0) = 1.0;
+          wk.rowCap(e0, f0) = cap;
+          wk.rowCap(e0, 4 + f0) = cap;
+          wk.PmN(e0, f0) = load;
+          wk.Pm(e0, 4 + f0) = 0.0;
+          wk.PmN(e0, 4 + f0) = 0.0;
+          wk.Pm(e0, f0) = 0.0;
+        };
+        setRow();
+        ta::FCTRowsNodeInput(geometry, dc.setup, true, wk, true);
+        const double rLens = wk.Rrow(e0, f0);
+        setRow();
+        ta::FCTRowsNodeInput(geometry, dc.setup, true, wk, false);
+        const double rNode = wk.Rrow(e0, f0);
+        INFO("controlled row: R with the pass-1 tau " << rLens << " (expected " << (cap - tau) / load << "), without " << rNode);
+        CHECK(rLens == (cap - tau) / load);
+        CHECK(rLens < 1.0);
+        CHECK(rNode == 1.0);
+      }
       CHECK(box < 1e-12);
       CHECK(identity < 1e-12);
       CHECK(l2Excess <= 1e-14);
