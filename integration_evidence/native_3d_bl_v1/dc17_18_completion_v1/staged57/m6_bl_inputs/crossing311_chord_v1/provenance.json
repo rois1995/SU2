@@ -1,0 +1,73 @@
+{
+  "source_attempt": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/cubic_cell_replay311_v1",
+  "exit_code": 1,
+  "pins": {
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/cubic_cell_replay311_v1/run.log": "d18c3fca9776a574cb75eed6e3fc5a0751b32335155550ef94d6ccca6dfdcbf2",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/cubic_cell_replay311_v1/status.json": "7d9249a01cb279ca0986ef0d2090f379f7573899519a61f0e65a8d9cf7397b63",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/cubic_cell_replay311_v1/terminal_handles_actual.json": "a2736ea7dd0a6b76680267aef81cdb0f63e6ad7905dae61a8a73e93f743ace9d",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/cubic_cell_replay311_v1/command.json": "2ae8dd23f786af912460a83e1eb74c089a9397e5a1e19f959b9be064ea9e3c10",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/cubic_cell_replay311_v1/pins.json": "191ff7612b05c44d3903170a88729a4830374558897be75dfc39f570c1772628",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_bl_inputs/crossing303_cell0_v1/run.cfg": "1f17f94fab7796eb4a34bdd3cf36a854fdc3eff401486033f07445633599c3af",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/rans_curved303_v1/m6.su2.native_ref": "2e99fb7870e2c718f110da8509e4c0f7e746ce138e7f27ab57aa0dedbb6c42de",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/parse_chord310_terminal.py": "70194b8ed61c2bb51050fd63b8594f5a3b3a06361922eb77116cf1015f879d96"
+  },
+  "config": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_bl_inputs/crossing303_cell0_v1/run.cfg",
+  "reference": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/rans_curved303_v1/m6.su2.native_ref",
+  "scope": "Terminal diagnostic extraction only; totals do not uniquely establish cause.",
+  "result": "chord_error_extracted",
+  "binary64_tolerance": "1.0000000000000000209225608301284726753266340892878361046314239501953125E-8",
+  "diagnostic_values": {
+    "a": [
+      "1.02173919494387033247",
+      "0.765559837805510401409",
+      "-0.00970581424180780305555"
+    ],
+    "b": [
+      "1.0231297371803222962",
+      "0.764757040574268631694",
+      "-0.010139456429924991257"
+    ],
+    "failure_type": "work_budget",
+    "band_ratio": "2",
+    "fade_bands": "4",
+    "feature_transitions": "1",
+    "wall": "0",
+    "authority_facet": "10154",
+    "transition_core": "0.000100000000000000004792",
+    "transition_slope": "0.262364264467491059563",
+    "full": "0.00900000000000000105471",
+    "support": "6882489.52879503928125",
+    "h0": "0.0000019999999999999999095",
+    "eigenvalue": "121500000000000",
+    "metric_bound": "11022703.8425243014426",
+    "length_bound": "0.00166317066266854987784",
+    "left": "0.157066244614709416005",
+    "right": "0.157066244614709527028",
+    "width": "1.11022302462515654042E-16",
+    "parent_uncertainty": "2.03533164257699999915E-12",
+    "incremental_total": "2.98787033982473019492E-8",
+    "fresh_total": "2.98786685130303687012E-8",
+    "adjacent_total": "1.13571505655796602799E-9",
+    "splittable_total": "2.87429534564724021493E-8",
+    "adjacent": "558",
+    "splittable": "7408",
+    "largest_splittable": "4.07066328515399999829E-12",
+    "work": "16385",
+    "leaves": "7966",
+    "tolerance": "1E-8"
+  },
+  "comparisons": {
+    "fresh_total": {
+      "le_tolerance": false,
+      "decimal": "2.98786685130303687012E-8"
+    },
+    "adjacent_total": {
+      "le_tolerance": true,
+      "decimal": "1.13571505655796602799E-9"
+    }
+  },
+  "output_sha256": {
+    "raw_chord.json": "d244198eac01788292498770ba3c4467c6928fa1becea354134c02362951005a",
+    "chord.txt": "2a0a9c87ccbcdc669d6f35d5e4de3e59343d972c40fe9c1666fab349516da1aa"
+  }
+}

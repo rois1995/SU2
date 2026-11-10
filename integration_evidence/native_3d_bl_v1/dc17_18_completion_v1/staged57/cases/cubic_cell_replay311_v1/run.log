@@ -1,0 +1,69 @@
+NATIVE3D_REFERENCE_CACHE host_ranks=1 host_quota_bytes=4294967296 rank_quota_bytes=4294967296
+Filters: [NativeActualCubicBLPolicy3D]
+{"probe":"actual_cubic_bl","stage":"reference_loaded","count":48954,"elapsed_seconds":9.813338550000001,"geometry_work":0,"peak_bytes":4625561376}
+{"probe":"actual_cubic_bl","stage":"policy_built","count":23456436,"elapsed_seconds":10.317387123000001,"geometry_work":0,"peak_bytes":4625561376}
+{"probe":"actual_cubic_bl","stage":"replay_input","count":50,"elapsed_seconds":10.329374489000001,"geometry_work":0,"peak_bytes":4625561376}
+{"replay_core":0.0076049890473404921,"replay_log_scale":0,"initial_transition_core":0.0001,"retained_transition_core":0.0001,"hgrad":1.3}
+{"probe":"actual_cubic_bl","stage":"replay_integration_begin","count":0,"elapsed_seconds":10.329413934000002,"geometry_work":0,"peak_bytes":4625561376}
+{"probe":"actual_cubic_bl","stage":"failed","count":0,"elapsed_seconds":1252.6981176200002,"geometry_work":13328602,"peak_bytes":4625561376}
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+test_driver is a Catch v2.13.9 host application.
+Run with -? for options
+
+-------------------------------------------------------------------------------
+Actual retained cubic wall policy probe without CFD
+-------------------------------------------------------------------------------
+../../UnitTests/SU2_CFD/adaptation/BoundaryLayerMetric_tests.cpp:1427
+...............................................................................
+
+../../UnitTests/SU2_CFD/adaptation/BoundaryLayerMetric_tests.cpp:1509: FAILED:
+  {Unknown expression after the reported line}
+due to unexpected exception with message:
+  Cubic BL distance crossings exceed work budget.
+  Cubic BL chord replay: {"a":[1.02173919494387033247,0.765559837805510401409,-
+  0.00970581424180780305555],"b":[1.0231297371803222962,0.
+  764757040574268631694,-0.010139456429924991257],"failure_type":"work_budget",
+  "band_ratio":2,"fade_bands":4,"feature_transitions":1,"wall":0,
+  "authority_facet":10154,"transition_core":0.000100000000000000004792,
+  "transition_slope":0.262364264467491059563,"full":0.00900000000000000105471,
+  "support":6882489.52879503928125,"h0":1.9999999999999999095e-06,"eigenvalue":
+  121500000000000,"metric_bound":11022703.8425243014426,"length_bound":0.
+  00166317066266854987784,"left":0.157066244614709416005,"right":0.
+  157066244614709527028,"width":1.11022302462515654042e-16,
+  "parent_uncertainty":2.03533164257699999915e-12,"incremental_total":2.
+  98787033982473019492e-08,"fresh_total":2.98786685130303687012e-08,
+  "adjacent_total":1.13571505655796602799e-09,"splittable_total":2.
+  87429534564724021493e-08,"adjacent":558,"splittable":7408,
+  "largest_splittable":4.07066328515399999829e-12,"work":16385,"leaves":7966,
+  "tolerance":1e-8}
+
+0.000 s: Actual retained cubic wall policy probe without CFD
+===============================================================================
+test cases:  1 |  0 passed | 1 failed
+assertions: 73 | 72 passed | 1 failed
+
+Command exited with non-zero status 1
+	Command being timed: "timeout --signal=TERM --kill-after=20s 1800 /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver [NativeActualCubicBLPolicy3D] --durations yes"
+	User time (seconds): 1249.86
+	System time (seconds): 0.41
+	Percent of CPU this job got: 99%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 20:53.19
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 332612
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 0
+	Minor (reclaiming a frame) page faults: 91814
+	Voluntary context switches: 1083
+	Involuntary context switches: 11815
+	Swaps: 0
+	File system inputs: 0
+	File system outputs: 40
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 1

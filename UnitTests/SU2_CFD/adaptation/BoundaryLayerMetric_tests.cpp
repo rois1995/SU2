@@ -1386,8 +1386,9 @@ TEST_CASE("Translated cubic distance crossings close by chord span rather than c
   using SU2NativeGeometry::MappedFacetReference;
   constexpr double shift=1e6,h0=2e-6;
   const Node n0{0,{shift,shift,0}},n1{1,{shift+1,shift,0}},n2{2,{shift,shift+1,0}},n3{3,{shift,shift,1}};
-  const std::vector<Facet> facets{{0,0,{n0,n2,n1}},{1,1,{n0,n1,n3}},
-                                  {2,1,{n1,n2,n3}},{3,1,{n2,n0,n3}}};
+  // The tetrahedron is a solid body: normals point into it, out of the exterior fluid.
+  const std::vector<Facet> facets{{0,0,{n0,n1,n2}},{1,1,{n0,n3,n1}},
+                                  {2,1,{n1,n3,n2}},{3,1,{n2,n3,n0}}};
   auto original=std::make_shared<PlanarReference>(facets);
   MappedFacetReference::CurvedNets nets;
   const unsigned powers[10][3]={{3,0,0},{0,3,0},{0,0,3},{2,1,0},{1,2,0},{0,2,1},{0,1,2},{1,0,2},{2,0,1},{1,1,1}};
@@ -1413,15 +1414,39 @@ TEST_CASE("Translated cubic distance crossings close by chord span rather than c
   }
   auto parameters=std::make_shared<BoundaryParameterState>(geometry,points,skin,1);
   CBoundaryLayerMetric::Wall wall;wall.layer={"wall",h0,1.2,.01};
-  wall.coord={shift,shift,0,shift,shift+1,0,shift+1,shift,0};wall.conn={0,1,2,2};
+  wall.coord={shift,shift,0,shift+1,shift,0,shift,shift+1,0};wall.conn={0,1,2,2};
   wall.authority=PlanarReference::WithParameters(original,parameters);wall.authority_facet=0;wall.authority_facets={0};wall.surface_tolerance=1e-4;
-  CBoundaryLayerMetric layers(3,{wall});
+  CBoundaryLayerMetric::FeatureOptions featureOptions;
+  bool transported=false;
+  SECTION("ordinary cubic crossings") {}
+  SECTION("distant genuine features retain a conservative local bound") {featureOptions.hgrad=1.3;}
+  SECTION("transported anchors retain genuine feature demands") {featureOptions.hgrad=1.3;transported=true;}
+  if(featureOptions.hgrad>0)for(const auto& face:facets)if(face.marker==1) {
+    CBoundaryLayerMetric::FeatureFace partner;
+    for(const auto& node:face.v)partner.coord.insert(partner.coord.end(),{node.p.x,node.p.y,node.p.z});
+    featureOptions.faces.push_back(std::move(partner));
+  }
+  CBoundaryLayerMetric layers(3,{wall},45.,featureOptions);
+  if(featureOptions.hgrad>0)REQUIRE(layers.GetFeatures().segments>0);
+  if(transported)layers.ConfigureOuterTransition(.0001,1.3);
   // At the barycentre the independent cubic graph has zero slope and z=-.18/27.
-  const std::array<double,3> a{{shift+1./3,shift+1./3,-.18/27+.25*h0}},
-      b{{a[0],a[1],-.18/27+1.25*h0}};
+  const std::array<double,3> a{{shift+1./3,shift+1./3,-.18/27-(transported?.008:.25*h0)}},
+      b{{a[0],a[1],-.18/27-(transported?.012:1.25*h0)}};
   const auto cuts=layers.EdgeBreakpoints(a,b),reverse=layers.EdgeBreakpoints(b,a);
-  REQUIRE(cuts.size()>2);REQUIRE(cuts.size()==reverse.size());
-  for(size_t k=0;k<cuts.size();++k)CHECK(cuts[k]==Approx(1-reverse[cuts.size()-1-k]).margin(1e-8));
+  REQUIRE(cuts.size()>2);REQUIRE(reverse.size()>2);
+  if(!transported) {
+    REQUIRE(cuts.size()==reverse.size());
+    for(size_t k=0;k<cuts.size();++k)CHECK(cuts[k]==Approx(1-reverse[cuts.size()-1-k]).margin(1e-8));
+  } else {
+    // Adaptive frontiers can differ by direction; both must resolve the known full-band crossing.
+    for(const auto* partition:{&cuts,&reverse}) {
+      CHECK(partition->front()==0);CHECK(partition->back()==1);
+      for(size_t k=1;k<partition->size();++k)CHECK((*partition)[k]>(*partition)[k-1]);
+      const auto root=partition==&cuts?.25:.75;double miss=1;
+      for(auto t:*partition)miss=std::min(miss,std::abs(t-root));
+      CHECK(miss*std::abs(b[2]-a[2])*(2/h0)<=1e-8);
+    }
+  }
 }
 
 TEST_CASE("Actual retained cubic wall policy probe without CFD", "[.][NativeActualCubicBLPolicy3D]") {

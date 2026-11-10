@@ -10,36 +10,58 @@ R = `integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57`.
 
 ## Frozen owned workload — authoritative current state
 
-ONE heavy job: faithful first-complexity-cell replay311, tool session **65502**,
-`R/cases/cubic_cell_replay311_v1`, launcher `R/replay_cubic_cell311.py`.
+ONE heavy job: actual captured M6 chord replay314, tool session **86141**,
+`R/cases/cubic_chord_replay314_v1`, launcher `R/replay_cubic_chord314.py`.
+Wrapper659646/start31472655; time659903/start31473180;
+timeout659904/test659905/start31473181; orted659906/start31473181.
+Verify SAME handles on actual host; no competing job or pinned source edits.
+Authority48954 loaded7.215s, policy built7.508s, chord began7.517s. Outcome pending.
+1800 diagnostic outer limit, native5400/config/inputs unchanged, nice19/libs1.
 
-| Process | PID | Start ticks |
-|---|---:|---:|
-| Wrapper | 544556 | 31225876 |
-| time | 544864 | 31226539 |
-| timeout | 544865 | 31226539 |
-| test_driver | 544866 | 31226539 |
-| orted | 544867 | 31226540 |
+Build314 TERMINAL0/64.130s, pins unchanged/all10 sampled actual handles absent.
+Production CFD SHA `2db03acf36789faa1cd06335a6c8818306267d2f7d76f5e803f91868e66cc448`
+(byte-identical312/313); test SHA
+`c63f3578d9bc8d63ec78dc408bb9ca0063d8feaebf8c2e23cc1b1d7834aafd00`.
+Focused314 PASS120assertions/1case/57.444s, all five actual test PIDs absent:
+`R/cases/geometry_backend_20261110T002325_655729`.
 
-Actual host identities are in `owned_handles.json`; resources/CPU are sampled every
-2 seconds. Input and original 48,954-net no-CAD authority loaded. Runtime prints
-initial/retained transition core .0001, captured trial core .0076049890473404921,
-hgrad1.3; production IntegrationRule3D began at10.329s. No outcome yet.
-Serial diagnostic limit1800s, native config5400s, nice19, single-threaded libraries,
-4TB scratch. Do not edit pinned C++/helpers/binaries/runtime/config/input or launch
-another heavy job until actual handles are terminal or preserved evidence justifies
-the existing authorized stop workflow. Poll the SAME handle, never restart from an
-observation timeout or stale log. Actual /proc/ps requires escalation; sandbox
-absence is not terminal evidence. Docs/git snapshots may change while frozen.
+Replay311 is TERMINAL1/1255.902s; all5 actual owned PID/start identities absent,
+source/input/runtime pins verified. Exact13,328,602 geometry work matches310.
+Captured chord and Decimal comparison are in `R/m6_bl_inputs/crossing311_chord_v1`;
+terminal assessment in `R/cases/cubic_cell_replay311_v1/assessment.json`.
+Fresh unresolved2.98786685e-8 (adjacent1.13571506e-9, splittable2.87429535e-8):
+this is not mainly accumulator residue and does not prove irreducible uncertainty.
 
-Current build311 PASSED72.169s, all pins unchanged, all14 sampled build PIDs absent:
+Build312 tests ONE connected correction: root-query reuse to bound all feature
+contributions on a conservative enclosure of transported chord anchors. Original
+wall bound and every feature remain; finite enclosure/distance arithmetic weakens
+distant feature maxima, otherwise global fallback. Candidate query precision and
+all original-facet realization contracts are included. Geometry exclusion and1e-8,
+work/storage/time/cut gates unchanged. Shared public-edge and volume-column callers
+use the same implementation. No construction or metric-target policy change.
+New translated regression sections cover genuine features and transported anchors.
+This is UNQUALIFIED: build/focused checks/actual captured chord remain required.
 
-- CFD SHA `27eb8051216de283cb1e2f76b69bbc86019856cf7768039ad0d407a10c6dd3a1`
-- test_driver SHA `3e7ceed54467544aaecb6fbcb5ac402316d99fb958a93a090c4e9a4a67aeb6c9`
-- `build311_source_pins.json`, `build311_status.json`, `build311_terminal_handles.json`
-- Pushed checkpoint `4b2b75b0ce`; source pin/binary receipts take precedence over
-  historical build numbers. Preserve unrelated dirty logs/.orig/untracked/submodules.
-  Fork pushes authorized; stage exact whitelists only.
+Build312 passed64.134s; all18 sampled build handles absent. Focused check failed
+2 feature-setup assertions (no D1 segments), ordinary translated section passed.
+All five sampled test handles absent. Build313 corrects only the fixture; preserve
+the failure, which does not establish a production numerical failure.
+
+Build313 passed60.122s, production CFD byte-identical312; all10 build handles
+absent. Corrected feature cases certified both chord directions, but a new test
+incorrectly required equal adaptive frontier counts (44vs43). Its1failure/55.526s
+is preserved, all five handles absent. Build314 changes ONLY this assertion to
+check physical full-band root resolution at the metric-weighted1e-8 allowance.
+
+After actual chord314 terminal PASS/actual handles absent: affected22 serial cases via
+`certification314_affected.py` and ONE MPI6 milestone via `certification314_mpi6.py`,
+if actual captured chord proves useful. `run_rans_curved314.py` is prepared only,
+requires qualification314.json terminal PASS with focused/mpi/actual_chord entries
+and verified actual terminal handles. It preserves303 seed/config exactly. Existing helper
+requires exact311 chord/config/reference provenance and build312 terminal/binary
+pins. Follow with appropriate MPI milestone and promptly full SAME-seed M6 after
+qualification. Preserve all unrelated dirty logs/.orig/untracked/submodules;
+whitelist git staging. Fork pushes authorized.
 
 ## Demonstrated BL blocker and next action
 
@@ -81,26 +103,14 @@ Faithful310 terminated1/1264.192s, all pins/runtime verified/all5 identities abs
 The old message rounded its remaining bound to0.000000. No target/mesh accepted.
 See `R/cases/cubic_cell_replay310_v1/assessment.json`.
 
-311 adds failure-only capture at BOTH work and adjacent guards. Pending split region
-plus heap covers all remaining unresolved intervals once; fresh outward totals are
-valid upper bounds. At a work exit, pending territory is not yet queried: exceeding
-tolerance does NOT prove irreducibility. Query order, acceptance and budgets did not
-change. Independent pending-cover review passed. Current frozen replay captures
-precise endpoints/profile/intervals/fresh and incremental totals/work.
-
-After terminal, verify actual identities, then use the existing generic parser:
-
-```text
-python3 R/parse_chord310_terminal.py R/cases/cubic_cell_replay311_v1 NEW_OUTPUT_DIRECTORY
-```
-
-Expand R in the actual command. Parser requires terminal/pin/runtime/handle receipts,
-uses Decimal against the actual binary64 tolerance, and emits a nine-value chord
-input plus provenance. It launches no job. Use that chord to select ONE demonstrated
-correction, qualify affected behavior at the established cadence, then promptly
-return to complete SAME-seed M6. No new baseline/perf/GDB campaign, raised budgets,
-sampling-only exclusion or speculative fallback. Prepared `run_rans_curved308.py`
-MUST NOT launch: its required308 replay failed and had incomplete policy.
+311 captured both work/adjacent guard failures without changing decisions. Its
+terminal outcome and precise extracted chord are summarized above. Root failure
+metadata exposes global metric bound1.215e14, metric-length factor1.10227e7 for a
+.00166317 chord. Actual ApplyFeatures weakens terms by feature distance at transported
+anchors, whereas the old crossing bound sums every maximum. Local-bound correction
+312 is a hypothesis under qualification; no speedup or full-target pass yet.
+Prepared old `run_rans_curved308.py` MUST NOT launch: incomplete308 policy and stale
+prerequisites. See linked design/history for fidelity and pending-cover audits.
 
 ## Saved RANS seed and unchanged full-case inputs
 

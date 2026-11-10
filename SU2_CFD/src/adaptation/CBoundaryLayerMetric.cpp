@@ -300,7 +300,7 @@ struct CBoundaryLayerMetric::WallData {
   /*--- 3D ---*/
   std::vector<Vec3> faceNormal;            /*!< \brief Unit normal of each triangle. */
   std::vector<std::array<Vec3, 3>> edgeNormal; /*!< \brief Normal of the edge opposite each vertex of a triangle. */
-  double maximum_wall_eigenvalue=0;
+  double maximum_wall_eigenvalue=0,maximum_realization_error=0;
   double proxy_error=0; /*!< Broad-phase envelope only; never a query distance or metric. */
   std::vector<CBoundaryLayerMetric::Tensor> vertexLog; /*!< \brief Logarithm of the size tensor of each vertex. */
 };
@@ -1047,6 +1047,8 @@ void CBoundaryLayerMetric::Build() {
           throw std::invalid_argument("Curved BL mixes disconnected components.");
         const auto& original=wall.authority->Facets().at(facet);
         const auto& net=geometry.Curves().at(facet);
+        d->maximum_realization_error=std::max(d->maximum_realization_error,
+            geometry.MaximumError(geometry.FacetPoint(facet,1./3,1./3)));
         for(unsigned k=0;k<3;++k) {
           const auto* p=x(wall.conn[4*face+k]);const auto q=original.v[k].p;
           if(SU2_TYPE::GetValue(p[0])!=q.x || SU2_TYPE::GetValue(p[1])!=q.y || SU2_TYPE::GetValue(p[2])!=q.z)
@@ -3469,7 +3471,8 @@ std::vector<double> CBoundaryLayerMetric::EdgeBreakpointsImpl(
       for(const auto& feature:features)if(std::binary_search(feature.walls.begin(),feature.walls.end(),wall))
         eigenvalue+=1/(feature.h0*feature.h0);
       if(!std::isfinite(eigenvalue))throw std::runtime_error("Unrepresentable cubic BL feature bound.");
-      const long double metricBound=std::nextafter(std::sqrt((long double)eigenvalue),INFINITY);
+      const double globalEigenvalue=eigenvalue;
+      long double metricBound=std::nextafter(std::sqrt((long double)eigenvalue),INFINITY);
       long double squaredLengthBound=0;
       for(const auto component:chord) {
         const auto magnitude=std::nextafter(std::abs(component),INFINITY);
@@ -3504,7 +3507,7 @@ std::vector<double> CBoundaryLayerMetric::EdgeBreakpointsImpl(
         context<<"],\"failure_type\":\""<<category<<"\",\"band_ratio\":"<<bandRatio<<",\"fade_bands\":"<<fadeBands<<",\"feature_transitions\":"<<featureTransitions
             <<",\"wall\":"<<wall<<",\"authority_facet\":"<<walls[wall].authority_facet
             <<",\"transition_core\":"<<transitionCore<<",\"transition_slope\":"<<transitionSlope<<",\"full\":"<<full<<",\"support\":"<<thickness
-            <<",\"h0\":"<<h0<<",\"eigenvalue\":"<<eigenvalue<<",\"metric_bound\":"<<metricBound
+            <<",\"h0\":"<<h0<<",\"global_eigenvalue\":"<<globalEigenvalue<<",\"eigenvalue\":"<<eigenvalue<<",\"metric_bound\":"<<metricBound
             <<",\"length_bound\":"<<lengthBound<<",\"left\":"<<extra.left<<",\"right\":"<<extra.right
             <<",\"width\":"<<((long double)extra.right-extra.left)<<",\"parent_uncertainty\":"<<extra.uncertainty
             <<",\"incremental_total\":"<<incrementalTotal<<",\"fresh_total\":"<<freshTotal
@@ -3545,8 +3548,62 @@ std::vector<double> CBoundaryLayerMetric::EdgeBreakpointsImpl(
             std::min(1e-6*h0,double(radius)*.125)),scratch);
         const auto lower=std::nextafter((long double)projection.lower-radius,-INFINITY),upper=std::nextafter((long double)projection.upper+radius,INFINITY);
         if(std::none_of(levels.begin(),levels.end(),[&](double level){return level>=lower && level<=upper;}))return;
-        frontier.push_back({left,right,uncertainty});std::push_heap(frontier.begin(),frontier.end(),larger);
-        unresolved=std::nextafter(unresolved+uncertainty,INFINITY);
+        if(left==0 && right==1 && !features.empty()) {
+          auto up=[](long double x){return std::nextafter(x,INFINITY);};
+          auto down=[](long double x){return std::nextafter(x,-INFINITY);};
+          auto doubleUp=[](long double x){return std::nextafter(double(x),INFINITY);};
+          auto doubleDown=[](long double x){return std::nextafter(double(x),-INFINITY);};
+          std::array<double,3> anchorLow{},anchorHigh{};
+          std::array<long double,3> rounding{};long double coordinateError=0;
+          for(unsigned j=0;j<3;++j) {
+            // gamma(4) covers either rounded affine chord formula; include underflow explicitly.
+            const auto epsilon=std::numeric_limits<double>::epsilon();
+            const auto gamma=up(4.L*epsilon/(1-4.L*epsilon));
+            rounding[j]=up(up(gamma*up(std::abs((long double)a[j])+std::abs((long double)b[j])))+
+                4.L*std::numeric_limits<double>::denorm_min());
+            coordinateError=up(coordinateError+rounding[j]);
+          }
+          // Bound candidate-foot distance by true distance, query precision and the realization contract.
+          // The factor three also bounds rounded component subtraction and hypot by their L1 envelope.
+          const auto distanceBound=doubleUp(3*up(up(up(up(projection.upper+radius)+1e-6*h0)+
+              d.maximum_realization_error)+coordinateError));
+          const auto outward=transitionCore>0?std::max(0.,doubleUp((long double)distanceBound-full)):0.;
+          for(unsigned j=0;j<3;++j) {
+            // A normalized rounded direction has components <2; include the rounded anchor subtraction.
+            const auto displacement=doubleUp(2.L*outward);
+            anchorLow[j]=doubleDown(down(down((long double)std::min(a[j],b[j])-rounding[j])-displacement));
+            anchorHigh[j]=doubleUp(up(up((long double)std::max(a[j],b[j])+rounding[j])+displacement));
+          }
+          long double localEigenvalue=d.maximum_wall_eigenvalue;
+          const bool finite=std::isfinite(distanceBound) && std::all_of(anchorLow.begin(),anchorLow.end(),[](double x){return std::isfinite(x);}) &&
+              std::all_of(anchorHigh.begin(),anchorHigh.end(),[](double x){return std::isfinite(x);});
+          for(const auto& feature:features)if(finite && std::binary_search(feature.walls.begin(),feature.walls.end(),wall)) {
+            long double squaredLower=0;
+            for(unsigned j=0;j<3;++j) {
+              // Enclose the implemented segment a+s*t, rather than assuming its rounded endpoint equals b.
+              const auto product=feature.corner?0.L:(long double)feature.length*feature.t[j];
+              const auto productLow=std::min(0.L,down(product)),productHigh=std::max(0.L,up(product));
+              const auto lo=down(down((long double)anchorLow[j]-feature.a[j])-productHigh);
+              const auto hi=up(up((long double)anchorHigh[j]-feature.a[j])-productLow);
+              const auto gap=std::max({0.L,lo,-hi});
+              squaredLower=std::max(0.L,down(squaredLower+std::max(0.L,down(gap*gap))));
+            }
+            const auto rho=std::max(0.,doubleDown(std::max(0.L,down(std::sqrt(squaredLower)))));
+            const auto growth=std::max(0.,doubleDown((long double)featureSlope*rho));
+            const auto height=std::max(feature.h0,doubleDown((long double)feature.h0+growth));
+            const auto square=doubleDown((long double)height*height);
+            const auto contribution=square>0?doubleUp(1.L/square):INFINITY;
+            // Retain every feature, including images; uncertain arithmetic falls back to its global contribution.
+            const auto global=doubleUp(1.L/down((long double)feature.h0*feature.h0));
+            localEigenvalue=up(localEigenvalue+std::min(global,contribution));
+          }
+          if(finite && std::isfinite(localEigenvalue) && localEigenvalue<globalEigenvalue) {
+            eigenvalue=doubleUp(localEigenvalue);metricBound=up(std::sqrt((long double)eigenvalue));
+          }
+        }
+        const auto boundedUncertainty=intervalUncertainty(left,right);
+        frontier.push_back({left,right,boundedUncertainty});std::push_heap(frontier.begin(),frontier.end(),larger);
+        unresolved=std::nextafter(unresolved+boundedUncertainty,INFINITY);
       };
       classify(0,1);
       while(unresolved>1e-8 && !frontier.empty()) {

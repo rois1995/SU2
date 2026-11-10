@@ -505,3 +505,53 @@ CURRENT FROZEN replay311 session65502/cases/cubic_cell_replay311_v1, wrapper5445
 start31225876; owned_handles storesall5identities. Correctpolicyprinted; integration
 began10.329s,1800diagnosticbound/native5400unchanged. Nextterminal311genericparser
 extractsfailedchordfordirectisolation; notanotherfullbaselinecampaign.
+
+
+## Faithful311 result and connected local bound312 — 2026-11-10
+
+311 terminated1/1255.902s, unchanged pins/runtime and all five actual PID/start
+identities absent. Geometry work13,328,602 exactly matches310. Precise chord capture
+and Decimal extraction are under staged57/m6_bl_inputs/crossing311_chord_v1.
+Fresh unresolved upper2.9878668513e-8 exceeds1e-8; adjacent1.1357150566e-9,
+splittable2.8742953456e-8. Accumulator residue is not the main explanation.
+Splittable/pending territory remains, so this is not a proof of irreducibility.
+Global BL eigenvalue bound1.215e14 includes every associated feature at its h0
+maximum, even distant segments/corners/images. Actual ApplyFeatures weakens those
+terms at the transported anchor by 1/(h0+log(hgrad)*rho)^2.
+
+Working312 keeps the wall eigenvalue bound and ALL feature terms, but bounds each
+term over a chord-wide conservative anchor enclosure. Root projection is reused;
+no extra geometry query or change to geometry exclusion. Candidate distance is
+bounded by certified distance plus query precision, maximum original-facet
+realization contract and affine coordinate error. A factor-three L1 envelope
+covers rounded distance evaluation; normalized direction components are bounded
+by two, enclosing inward transport and rounded anchor subtraction. Nonfinite
+bounds retain the global estimate. Feature separation uses outward intervals for
+the implemented a+s*t segment, downward distance/height arithmetic and upward
+reciprocal/sum. No support-pruning, feature maximum replacement, new config, gate
+or budget change. Existing storage accounting includes the new scalar contract.
+Independent read-only review found no additional safety defect; actual checks are
+still required and no work saving or full-target acceptance is established.
+
+Build312 passed64.134s. Focused translated fixture ordinary section passed, but
+new feature sections failed setup because an interior-fluid tetrahedron has no
+solid-convex D1 edges. Preserve its2failedassertions/11.568s receipt under
+cases/geometry_backend_20261110T001628_635339. All sampled PIDs absent. Build313
+changes ONLY that fixture to a solid tetrahedron with outward-fluid normal
+orientation and queries on its exterior side. Production code remains312.
+No full BL normalized target or mesh, transfer or continued adapted RANS yet.
+
+Build313 passed60.122s with production CFD SHA identical312. New genuine-feature
+section passed; transported chord certified in both directions but test expected
+identical frontier cardinality (44vs43), which adaptive stopping does not promise.
+Preserve1failedassertion/55.526s under cases/geometry_backend_20261110T001909_643264;
+all five sampled PIDs absent. Test-only314 checks sorted endpoints and resolution
+of the independently known full-band crossing with the metric-weighted1e-8 bound,
+while retaining the original forward/reverse equality check for the thin ray.
+These are fixture/assertion corrections, not production changes or relaxed gates.
+
+Build314 passed64.130s, all10 sampled handles absent; CFD identical312/313. Focused
+fixture passed120assertions/1case/57.444s, all five sampled handles absent. This
+qualifies those primitive paths only. Actual captured M6 chord314 is now frozen;
+HANDOFF owns its current handles/outcome. Broader affected serial and ONE MPI
+milestone follow only if that replay demonstrates useful progress.

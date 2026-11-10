@@ -49,7 +49,11 @@ Actual BL303 reached full-target construction and refused a cubic distance cross
 before producing a mesh. The chord span correction passed22affectedcases and an
 independent translated regression. The first saved-cell replays omitted production
 outer-transition setup; their scope is corrected in replay309_policy_fidelity_audit.json.
-Build310 corrects the replay before using it to select the next production change.
+Faithful310/311 reproduce the first-cell work refusal. Precise311 capture shows
+a true unresolved upper near3e-8, dominated by splittable intervals, with a global
+feature eigenvalue upper1.215e14. Connected312 tests distance-weakened contributions
+over conservatively enclosed transported anchors; test-only313 corrects a new
+feature fixture. Follow HANDOFF for live handles. No full BL target/mesh yet.
 Keep the actual first-target failure driving this same connected BL milestone.
 
 The remaining notes are historical evidence; the active next action is above.
