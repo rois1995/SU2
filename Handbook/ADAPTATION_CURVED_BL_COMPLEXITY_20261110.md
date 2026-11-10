@@ -392,3 +392,28 @@ expensive geometry, so actual case remains decisive.
 absent/pins verified (929/929/929/929/936/931assertions). qualification329.json seals
 new focused/actual points/MPI plus explicitly reused328 broader milestone. Full
 same303seed329 launched immediately. No geometry/gate/budget/metric policy change.
+
+## Frozen329 observation: normalization work versus CPU
+
+Read-only source audit while329 is frozen; no new job, instrumentation or decision
+change. CSolver enters bounded CNativeComplexity3D with8192 initial proposals. Draws
+are distributed across ranks, located/imported, then queries are routed to original
+source owners before layers.SamplePoints. Vote/exchange/reduction calls separate
+phases. The strategy line does not establish which inner phase a quiet rank is in.
+CPU ticks can include MPI polling; rising CPU proves execution, not useful geometry
+work or a wait-share measurement. Do not compare partial failed-run wall times as
+accepted-target speedups.
+
+Existing final Statistics expose samples/inside, preparationGeometryQueries,
+profileGeometryQueries/profileRefreshes, assessments, backgroundBuilds/Reuses and
+correctionEvaluations, plus preparation/background/correction/reduction seconds.
+Use these and actual full-run outcome before selecting further work. Complete
+profile snapshots depend on sample version; whether refreshes repeat unchanged
+geometry must be established from counters and validity rules, not assumed from
+this audit. No geometry reuse change is authorized by this note. Existing frozen
+run and strict budgets take precedence.
+
+Inspected source hashes:
+- SU2_CFD/src/adaptation/CNativeComplexity3D.cpp `fe92c276b6e01d248a6fbf673482f0d5a22a28ecde320de5ae77c6a3867cd08b`
+- SU2_CFD/include/adaptation/CNativeComplexity3D.hpp `832a6c7a20d21a4d5f6d823af59729096ef01339f3c77da943808753a7f836cf`
+- SU2_CFD/src/solvers/CSolver.cpp `a96cf2a80c674e559393efde588ad8dc9d43c6c8455526c2762bd658452a8358`

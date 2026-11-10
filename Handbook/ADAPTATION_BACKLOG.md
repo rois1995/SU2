@@ -12,6 +12,14 @@ its relevance or the user explicitly reprioritizes it.
   hypotheses. No competing implementation, CAD dependence, high-order elements,
   L1/L2 switch or replacement of strict certification/first-height prescription.
 
+- Conditional AFTER frozen329 terminal: use existing bounded-complexity sample,
+  preparationGeometryQueries/profileGeometryQueries/profileRefreshes counters to
+  establish whether profile refresh repeats unchanged coordinate/support geometry.
+  Inspect sample-version semantics and fresh profile-dependent values before any
+  reuse change. Rising CPU includes possible MPI polling and does not establish
+  this hypothesis. No competing implementation, extra profiler/campaign or new
+  geometry representation. [Source/counter audit](ADAPTATION_CURVED_BL_COMPLEXITY_20261110.md).
+
 - Conditional hypothesis AFTER frozen244terminal only: if useful geometry placement
   is offered too late after shape exhaustion, assess existing positive-visibility
   split plus existing optimizer as ONE complete private quality candidate. Actual243
