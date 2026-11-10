@@ -8,42 +8,37 @@ ONE connected curved-BL cycle. R=`integration_evidence/native_3d_bl_v1/dc17_18_c
 
 ## Frozen owned workload — authoritative current state
 
-Full SAMEseed RANS/BL329 LIVE, tool session67659. Wrapper2191065/start34920623;
-time2191806/start34922170. Exact six rank identities in
-`R/m6_runs/rans_curved329_v1/owned_handles.json`; launch observation verifies all10
-actual host identities and1596 source/build/input/runtime pins unchanged.
-Check actual host `/proc` and status before action. Quiet logs/observation timeout
-are not terminal. Compiled sources/helpers/inputs FROZEN. ONE owned heavy job.
+Full SAMEseed RANS/BL329 TERMINAL after evidence-backed authorized stop. Event0
+rejected at native5400s: weights5398.49s, import<=.781s, donor build<=.690s;
+no first-row construction or accepted operation. Driver consumed event and entered
+cycle1 on the original61330-point grid; TWO accepted events were impossible.
+`R/m6_runs/rans_curved329_v1/assessment.json`, raw prefix, stop request and manifest
+preserve evidence. All10 exact actual host handles ABSENT in
+`terminal_handles_actual.json`; rechecked before source edits. Sources now editable.
+
+Selected connected correction: skip unused expensive partition work prediction
+when there is only ONE native destination. Existing Repartition initializes every
+color to0 and calls graph partitioners only for parts>1; uniform admitted weights
+cannot change sole-worker routing. Preserve graph/directory validation, donor/cell
+migration, multiworker prediction, geometry/height/shape certification and budgets.
+Focused serial + ONE MPI milestone then immediate SAME303seed full BL/RANS.
+No implementation/qualification of this correction yet.
 
 Original303 savedRANS seed, Mach-onlyL1/500k,h02e-6/g1.2/T.01,geometry1e-4,
 native5400/outer14400TOTAL,12GiB/rank unchanged. CFDMPI6/FIRST_ROWnative1 is NOT
-distributed BL generation qualification. Target evaluation now COMPLETED, but is
-UNQUALIFIED: outside_estimated_bounds/provisional1, estimate1174528.386 with empirical
+distributed BL generation qualification. Target UNQUALIFIED:
+outside_estimated_bounds/provisional1, estimate1174528.386 with empirical
 indicator108761.874 versus500k; sensor-only complexity2.08846 at density floor.
 Metric-build1426.532s,8192samples/6516inside,6516preparation+13032full/base geometry
-queries. Only1trial: no demonstrated repeated-scale refresh churn. Completed log
-prefix/parsed assessment in run folder. Native construction continues FROZEN; no
-actual BL mesh yet. Preserve outcome. This is the current POLICY floor, not a
-proven physical500k impossibility. Inherited wall-edge tangent sizes are confirmed
-source behavior; their causal contribution is not measured. See current design.
+queries, ONE trial. No actual BL mesh yet. Current POLICY floor is not a proven
+physical500k impossibility; inherited wall tangent contribution remains unmeasured.
+Preserve first representative actual-patch Coulaud/MAdLib analysis.
 
-329 connected correction and full-launch checkpointbe73153380 PUSHED. CFD SHA
-69d635b238df15292c22f28e7aebee7083b8adabd73210dc320918cd53e36e72;
+329 query-wide optional cache allowance qualification remains valid: checkpoint
+be73153380 PUSHED. CFD SHA69d635b238df15292c22f28e7aebee7083b8adabd73210dc320918cd53e36e72;
 test SHAaebaf1f8a84b6bfae5a6a134230803f496067d2f2f75d235c26a27e1ed3f1057.
-At terminal: verify every owned identity absent, source/runtime pins, raw logs and
-resource receipts. Preserve outcome; use existing work counters before selecting
-any further connected correction. Immediately pursue full BL/RANS workflow, not
-another baseline/perf/GDB campaign. All original acceptance obligations remain.
-
-Remesher-entry last log write is about1495.866s after full-run start; its native
-5400s clock begins after that entry print. Do not equate total elapsed>5400 with
-native-event expiry. `remesh_setup_observation.json` records the external marker,
-not the active function. Read-only follow-up found setup atlas budgets without
-within_time in PrepareMobility and JointAffineCoverage/GeometryCertificates; they
-are work/memory bounded and checked at later deadline points. No demonstrated
-collective mismatch, active-function attribution or overrun from quiet logs alone.
-Existing import faces/source-envelope/payload/work receipts publish on return.
-Preserve the frozen outcome before choosing a correction; see diagnosis update.
+Read-only setup deadline gaps did NOT cause this outcome: measured import fast;
+weight-stage event deadline fired at5400s. Do not implement an unrelated setup fix.
 
 ## Read-only329 metric-stage diagnosis
 
