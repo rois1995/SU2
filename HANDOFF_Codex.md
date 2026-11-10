@@ -35,6 +35,16 @@ resource receipts. Preserve outcome; use existing work counters before selecting
 any further connected correction. Immediately pursue full BL/RANS workflow, not
 another baseline/perf/GDB campaign. All original acceptance obligations remain.
 
+Remesher-entry last log write is about1495.866s after full-run start; its native
+5400s clock begins after that entry print. Do not equate total elapsed>5400 with
+native-event expiry. `remesh_setup_observation.json` records the external marker,
+not the active function. Read-only follow-up found setup atlas budgets without
+within_time in PrepareMobility and JointAffineCoverage/GeometryCertificates; they
+are work/memory bounded and checked at later deadline points. No demonstrated
+collective mismatch, active-function attribution or overrun from quiet logs alone.
+Existing import faces/source-envelope/payload/work receipts publish on return.
+Preserve the frozen outcome before choosing a correction; see diagnosis update.
+
 ## Read-only329 metric-stage diagnosis
 
 [Concrete attribution and gaps](Handbook/ADAPTATION_CURVED_BL_METRIC_STAGE_DIAGNOSIS_20261110.md)

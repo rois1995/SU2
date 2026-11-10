@@ -153,6 +153,26 @@ and an appropriate MPI milestone must precede immediate same-seed full BL/RANS
 return. Two accepted meshes, admissible conservative flow/SA transfer, finite
 continued CFD and actual adapted disk restart remain required.
 
+## Subsequent remesher setup: current observation limit
+
+A bounded read-only follow-up found no demonstrated collective-alignment error in
+PrepareMobility, normalization-factory eligibility or ImportGeometry. Unequal local
+mesh sizes and runnable ranks do not establish a mismatch or deadlock. The factory
+creates a job; it does not execute normalization trials at construction time.
+
+Two setup atlas budgets lack a within_time callback: PrepareMobility in
+CNativeRemesher3D.cpp:82 and JointAffineCoverage in CNativeImport3D.cpp:438. The latter
+can construct revision-cached GeometryCertificates at:478 before subsequent local
+deadline checkpoints. These operations remain work/memory bounded, but their
+inside-call time is not continuously checked by those budgets. This is a source
+observation, not evidence locating the live run or proving an overrun.
+
+Existing eventual receipts contain remesher phase totals and import faces_seconds,
+source_envelope_seconds, payload time, work/limit, contacts and distances. Their
+publication often waits for the enclosing operation to return. Preserve the frozen
+outcome and inspect those counters before attributing the quiet interval, choosing
+a correction or authorizing a stop. No new profiler or competing implementation.
+
 ## Source anchors
 
 - CSolver.cpp:2906–3035,3313–3325,3656–3704,3765–3832.
