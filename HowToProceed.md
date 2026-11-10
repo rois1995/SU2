@@ -32,9 +32,11 @@ conservative padded proposal coverage, true cubic evaluations, existing shared
 FIRST_ROW target and explicit empirical uncertainty.321 focused2211assertions and
 322 affected11cases/471assertions pass. ONE MPI milestone322 PASSED61cases everyrank. Full SAMEseed322 then failed130.363s
 with curved distance-query work exhaustion before normalization/BL generation. All
-owned identities terminal/pins/runtime verified. Capture exact refused query/support
-and reproduce with existing actual-point facilities before selecting the next fix;
-see HANDOFF. Gates/heights/budgets unchanged.
+owned identities terminal/pins/runtime verified. 323 diagnostic capture and existing point probe now reproduce the16384-work refusal
+at far-field point(-19.52,2.08,19.09), component38800facets. Both runs terminal and
+pins/runtime verified. Next assess existing distance-based ADT discovery against the
+current cube query, with a proven rounding margin/fallback; no candidate correction
+implemented yet. See HANDOFF. Gates/heights/budgets unchanged.
 This is not BL mesh/normalization acceptance and sampling is not a geometry proof.
 
 Latest user: no further Euler optimization cycle for small timings, reuse counters

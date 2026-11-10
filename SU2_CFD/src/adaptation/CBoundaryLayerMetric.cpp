@@ -395,10 +395,24 @@ CBoundaryLayerMetric::WallProjection CBoundaryLayerMetric::ProjectWall(
         geometry.CurvedQueryWorkspaceBytes(maximumWork)));
   }
   SU2NativeGeometry::MappedFacetReference::CurvedClosest closest;
-  try {closest=geometry.ClosestCurved(wall.authority_facet,query,error,maximumWork,available,{},&attempted,reservation);}
-  catch(...) {
+  auto failedWork=[&]() {
     if(reservation){reservation->work=transfer_memory::Add(reservation->work,attempted);
       reservation->work_exhausted=reservation->work_exhausted || reservation->work>=reservation->maximum_work;}
+  };
+  try {closest=geometry.ClosestCurved(wall.authority_facet,query,error,maximumWork,available,{},&attempted,reservation);}
+  catch(const std::length_error& failure) {
+    failedWork();
+    std::ostringstream context;context<<std::setprecision(std::numeric_limits<double>::max_digits10)
+        <<failure.what()<<"\nCubic BL point replay: {\"point\":["<<point[0]<<","<<point[1]<<","<<point[2]
+        <<"],\"wall\":"<<index<<",\"hint\":"<<wall.authority_facet
+        <<",\"component\":"<<geometry.CurvedComponent(wall.authority_facet)
+        <<",\"component_facets\":"<<wall.authority_facets.size()<<",\"absolute_error\":"<<error
+        <<",\"maximum_work\":"<<maximumWork<<",\"attempted_work\":"<<attempted
+        <<",\"available_bytes\":"<<available<<"}";
+    throw std::length_error(context.str());
+  }
+  catch(...) {
+    failedWork();
     throw;
   }
   if(reservation && !reservation->ChargeWork(attempted))throw std::length_error("Curved BL geometry work exhausted.");

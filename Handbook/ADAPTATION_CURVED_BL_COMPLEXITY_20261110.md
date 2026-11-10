@@ -127,3 +127,51 @@ without changing decisions or work accounting. Reproduce with existing actual-po
 probe before selecting any correction. No cap/gate change or speculative cache work.
 Launch observation independently verifies1571pins/84ELF but caught one zombie during
 failure; it is NOT an all-live receipt. Terminal receipt independently verifies all.
+
+###323 diagnostic-only capture step
+
+All322 run identities terminal before edits. ProjectWall now adds exact point,
+wall/hint/component/support-count, precision, maximum/attempted work and available
+bytes to length_error failures only. Original type, prefix, work charging and other
+exceptions remain. A new existing chord-fixture section exhausts one work unit and
+checks replay context, type and accounting. No repair/target/geometry decision or
+cap changed. Build323 PASS120.203s/all18 sampled actual handles absent/pins verified;
+focused check active. Reuse322 serial/MPI for unchanged behavior once diagnostic
+check passes; no new broad MPI campaign. Capture actual full-case refusal then
+reproduce with existing bounded actual-point probe before selecting correction.
+
+##323 actual capture and next bounded correction
+
+Focused323 PASSED283assertions/56.386s, all5 identities absent/pins verified. Full323
+TERMINAL1/83.033s, all10 identities absent/pins/runtime verified. Exact query: point
+(-19.516658935823891,2.0845123426984715,19.090249991586017), component/hint10154,
+wall0,38800facets, error2e-12, max/attempted work16384, available12714152B. No target
+or BL mesh. Existing point replay323 reproduces SAME work refusal, terminal1/11.914s,
+all5 identities absent/pins/runtime verified. Keep its test FAILED(31/32assertions).
+Cold cache and serial prepared quota differ; direct primitive is core-independent.
+
+Source lead: ClosestCurved builds a cube around its current candidate radius, calls
+DetermineIntersectingElements and prepares every returned root before narrowing.
+Far-field cubes can cover a complete component even though only a small cap can
+contain a closest point. Actual initial candidate count/phase attribution remains
+to establish; component size alone is insufficient. Existing house ADT already has
+DetermineElementsWithinDistance. Reuse it with conservative arithmetic inflation,
+not a new tree/cache/geometry representation or a larger work limit.
+
+Before using its binary64 squared-distance comparison for certification, bound
+subtraction/square/three-term accumulation overestimation and radius-square rounding.
+A generous outward relative radius margin can cover these errors in a safe normal
+range; retain the existing cube for zero/tiny/huge/nonfinite or uncertain cases.
+Potential true candidates have gaps<=radius, so overflowing far-node distances may
+be excluded only where the bound proves they cannot contribute. Check actual house
+box inflation/leaf bounds and compiler arithmetic assumptions, not just sample data.
+
+Qualify an indexed component>16facets with analytic far-field closest oracle and
+tight unchanged budget, cached/zero/tiny-cache, allowed facets, separate components,
+seams/features, heights and work/time/storage refusal. Actual captured point must
+complete. After success, count NearbySurfaceFacets in an INWARD cube at final upper:
+it is a subset of the old initial candidate cube, allowing a conservative lower
+count for old preparation demand without another baseline. Work/CPU/certificate
+changes are separate measurements. Then affected serial and ONE meaningful MPI
+milestone, immediately actual same-seed M6. No new baseline/perf/GDB campaign,
+relaxed query/final tolerance or speculative geometry-query memo variant.

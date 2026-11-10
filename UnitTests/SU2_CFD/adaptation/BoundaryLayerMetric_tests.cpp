@@ -1467,8 +1467,9 @@ TEST_CASE("Translated cubic distance crossings close by chord span rather than c
   wall.coord={shift,shift,0,shift+1,shift,0,shift,shift+1,0};wall.conn={0,1,2,2};
   wall.authority=PlanarReference::WithParameters(original,parameters);wall.authority_facet=0;wall.authority_facets={0};wall.surface_tolerance=1e-4;
   CBoundaryLayerMetric::FeatureOptions featureOptions;
-  bool transported=false,unknownPadding=false;
+  bool transported=false,unknownPadding=false,failedQuery=false;
   SECTION("ordinary cubic crossings") {}
+  SECTION("failed cubic queries preserve work and exact replay context") {failedQuery=true;}
   SECTION("distant genuine features retain a conservative local bound") {featureOptions.hgrad=1.3;}
   SECTION("transported anchors retain genuine feature demands") {featureOptions.hgrad=1.3;transported=true;}
   SECTION("uncertain metric envelopes retain global certification") {featureOptions.hgrad=1.3;unknownPadding=true;}
@@ -1483,6 +1484,20 @@ TEST_CASE("Translated cubic distance crossings close by chord span rather than c
   // At the barycentre the independent cubic graph has zero slope and z=-.18/27.
   const std::array<double,3> a{{shift+1./3,shift+1./3,-.18/27-(transported?.008:.25*h0)}},
       b{{a[0],a[1],-.18/27-(transported?.012:1.25*h0)}};
+  if(failedQuery) {
+    SU2NativeGeometry::AtlasBudget budget;budget.maximum_work=1;budget.caller_bytes=layers.StorageBytes();
+    budget.maximum_bytes=budget.caller_bytes+layers.GeometryWorkspaceBytes();
+    CBoundaryLayerMetric::GeometryReservationScope scope(layers,budget);
+    const su2double query[3]={a[0],a[1],a[2]};bool caught=false;
+    try {layers.Evaluate(0,query,1.);}
+    catch(const std::length_error& failure) {
+      caught=true;const std::string message=failure.what();INFO(message);
+      CHECK(message.find("Cubic BL point replay: {\"point\":[")!=std::string::npos);
+      CHECK(message.find("\"maximum_work\":1,\"attempted_work\":1")!=std::string::npos);
+    }
+    CHECK(caught);CHECK(budget.work==1);CHECK(budget.work_exhausted);
+    return;
+  }
   const std::array<double,3> padding=unknownPadding?std::array<double,3>{INFINITY,INFINITY,INFINITY}:std::array<double,3>{};
   const auto cuts=layers.EdgeBreakpoints(a,b,1.5,16,nullptr,padding),reverse=layers.EdgeBreakpoints(b,a,1.5,16,nullptr,padding);
   CHECK_THROWS(layers.EdgeBreakpoints(a,b,1.5,16,nullptr,{-1,0,0}));

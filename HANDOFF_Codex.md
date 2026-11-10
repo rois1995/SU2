@@ -8,7 +8,41 @@ curved-BL implementation/validation cycle.
 
 R = `integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57`.
 
-## Frozen owned workload — authoritative current state
+## Owned workload — authoritative current state
+
+No owned heavy job. ALL323 full/point/build/focused handles are TERMINAL, actual
+host checks saved. Latest pushed qualification baseline afcf7459ea; diagnostic323
+and captured failure/replay checkpoint pending push (do this before new code).
+Build323 passed120.203s/all18 sampled actual handles absent; focused283assertions/
+56.386s/all5 identities absent. Error context only, type/work charging preserved.
+Full SAMEseed323 TERMINAL1/83.033s, all10 exact identities absent/pins/runtime verified.
+No normalized target or BL mesh. Exact refused point(-19.516658935823891,
+2.0845123426984715,19.090249991586017), hint/component10154/wall0,38800facets,
+absolute_error2e-12,maximum/attempted work16384,available12714152B. Capture under
+`R/m6_bl_inputs/closest323_point_v1`; actual source run rans_curved323_v1.
+Existing bounded point replay `R/cases/cubic_point_replay323_v1` TERMINAL1/11.914s,
+all5 identities absent/pins/runtime verified, SAME16384-work refusal reproduced.
+Test stays FAILED(31/32assertions), not a passed query/target. Cold cache and serial
+quota differ from full run; no identical work trajectory or metric reconstruction
+claim. Probe direct ClosestCurved is independent of its header's policy core.
+
+NEXT demonstrated blocker: far-field whole-component closest-query preparation.
+ClosestCurved uses a query-centred CUBE of candidate radius then prepares every
+intersecting root before refinement; a38.8k component can exceed16k work here.
+Actual phase attribution/candidate counts still need confirmation. Reuse existing
+CADTElemClass::DetermineElementsWithinDistance rather than adding an index/cache.
+Its squared binary64 comparison needs proven outward radius padding and an extreme-
+range/uncertain fallback to the existing cube. Preserve full true support/allowed
+facets, fresh candidate/normal/clearance certification, quota and work accounting.
+Test a component>16facets with a known far-field closest point under a tight budget,
+cached/zero-cache, allowed supports, seams/bodies and resource refusals. Actual saved
+point must complete; compare work and conservative certificates. Report old cube
+support count using existing NearbySurfaceFacets on an inward cube at the final
+certified upper (subset of the old initial cube). No new baseline/perf/GDB campaign.
+One connected correction after this proof, affected serial and ONE MPI milestone,
+then promptly full SAMEseed M6. No cap/height/gate changes or speculative operators.
+Read-only arithmetic/box-coverage review requested from existing agent
+/root/curved_bl_caller_review; inspect its reply before implementing radius pruning.
 
 Full SAMEseed RANS/BL322 TERMINAL1/130.363s, session57470 closed. All10 exact owned
 host identities absent; terminal_handles_actual.json seals this. All1571source/input

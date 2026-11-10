@@ -1,0 +1,30 @@
+{
+  "build": "build323",
+  "outcome": "FAILED_CURVED_DISTANCE_QUERY_WORK_CAPTURED",
+  "workflow_accepted": false,
+  "target_completed": false,
+  "bl_mesh_generated": false,
+  "accepted_events": 0,
+  "terminal_seconds": 83.03312230110168,
+  "pins_verified": true,
+  "mapped_runtime_verified": true,
+  "all_owned_handles_terminal": true,
+  "sampled_peak_tree_rss_bytes": 3030073344,
+  "query": {
+    "point": [
+      -19.51665893582389,
+      2.0845123426984715,
+      19.090249991586017
+    ],
+    "wall": 0,
+    "hint": 10154,
+    "component": 10154,
+    "component_facets": 38800,
+    "absolute_error": 2e-12,
+    "maximum_work": 16384,
+    "attempted_work": 16384,
+    "available_bytes": 12714152
+  },
+  "reproduction": "cases/cubic_point_replay323_v1 reproduces16384-work refusal; test remains failed, not accepted.",
+  "comparison": "Diagnostic-only change;83vs130seconds is fast failure under different contention, not target or mesh speedup."
+}
