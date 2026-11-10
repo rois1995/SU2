@@ -1,0 +1,26 @@
+{
+  "checked_unix": 1794330939.9750972,
+  "state": "terminal_timeout",
+  "exit_code": 124,
+  "seconds": 14403.1431889534,
+  "all_owned_handles_terminal": true,
+  "pins_verified": true,
+  "accepted_events": 0,
+  "event_rejections": [
+    "Native3D rejected event: FIRST_ROW construction failed: FIRST_ROW construction exhausted the shared elapsed deadline.; accepted CFD mesh/solution retained.",
+    "Native3D rejected event: FIRST_ROW construction failed: FIRST_ROW construction exhausted the shared elapsed deadline.; accepted CFD mesh/solution retained."
+  ],
+  "phase_W": [
+    "DC15 phase W seconds=5503.34 elapsed=5504.92 cells=303359 rss_kB=1322332 splits=0 outcome=unmeasurable wall edges: 58305",
+    "DC15 phase W seconds=5503.79 elapsed=5505.23 cells=303359 rss_kB=1322960 splits=0 outcome=unmeasurable wall edges: 58305"
+  ],
+  "rank0_native_summaries": [
+    "NATIVE3D rank=0 ranks=6 workers=1 complete=0 detailed=1 total=5508.2550447539998 other=0.011363321999851905 cpu=5504.6472960000001 idle_cpu=0 support=0.0023458110001683963 reference=0.011007663999862416 import=0.52926805500010232 source=0.67245613299996876 weights=0.0043263340000976314 partition=1.3984493210000437 donor_migration=0.25884049699993739 communicator=0.00010098399980051909 refine=5505.343181663 coarsen=0 wait=0.0011828750002678134 return=6.8999725044704974e-08 policy=0.022521961999927953 reassessment=6.4000232669059187e-08 normalization=0 initial=303359 final=0 refine_accepted=0 coarsen_accepted=0 tracked_bytes=130340912 tracked_calls=33 nested_tracked_collectives=0.62611425299951406 tracked_import_bytes=15370008 tracked_import_calls=7 nested_tracked_import=0.075645936000228176 tracked_parent_bytes=114970904 tracked_parent_calls=25 nested_tracked_parent=0.5504667299992434 tracked_worker_bytes=0 tracked_worker_calls=1 nested_tracked_worker=1.5870000424911268e-06 native_bound=12880413792 process_peak_rss=1354067968",
+    "NATIVE3D rank=0 ranks=6 workers=1 complete=0 detailed=1 total=5508.142447526001 other=0.0074506780019873986 cpu=5505.9582999999993 idle_cpu=0 support=0.0022215280005184468 reference=0.010471532999872579 import=0.47584064999955444 source=0.64833929700034787 weights=0.004183016999377287 partition=1.1419418830000723 donor_migration=0.20949800400012464 communicator=0.00011171899859618861 refine=5505.6029566739999 coarsen=0 wait=0.0010987220011884347 return=1.5800105757080019e-07 policy=0.038333593000061228 reassessment=6.9998350227251649e-08 normalization=0 initial=303359 final=0 refine_accepted=0 coarsen_accepted=0 tracked_bytes=130340912 tracked_calls=33 nested_tracked_collectives=0.52792484600104217 tracked_import_bytes=15370008 tracked_import_calls=7 nested_tracked_import=0.071786106001127337 tracked_parent_bytes=114970904 tracked_parent_calls=25 nested_tracked_parent=0.45613695000065491 tracked_worker_bytes=0 tracked_worker_calls=1 nested_tracked_worker=1.7899992599268444e-06 native_bound=12880413792 process_peak_rss=1354711040"
+  ],
+  "construction_splits": 0,
+  "first_rows_constructed": false,
+  "generated_BL_mesh_saved": false,
+  "interpretation": "Both remesh attempts exhausted the shared deadline during the wall-edge measurement prepass with zero splits; no first-row placement or accepted transfer occurred. Most unmeasurable edges are reported only after expiry, not independent geometric infeasibility. Current BL report is the later attempt (same event0 filename reused); raw log preserves both.",
+  "next_action": "Use earliest real composed-edge/chord refusals and query counters to select one connected curved-BL correction; do not infer that full surface adaptation alone fixes this failure. Preserve strict gates and same seed."
+}

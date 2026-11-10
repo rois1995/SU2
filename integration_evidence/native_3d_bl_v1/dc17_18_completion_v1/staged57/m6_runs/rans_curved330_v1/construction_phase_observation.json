@@ -1,0 +1,59 @@
+{
+  "checked_unix": 1794314808.5735376,
+  "last_completed_phase": "prepare",
+  "partial_report": {
+    "event": 0,
+    "ramp_factor": 1,
+    "final_cycle": 1,
+    "input_cells": 303359,
+    "authority": {
+      "mapped_input": 1,
+      "declared_error": 0,
+      "fitted_planes": 0,
+      "affine": 8094
+    },
+    "wall_faces": 38800,
+    "h0_min": 2e-06,
+    "continuation": {
+      "source": "none",
+      "mapped": 0,
+      "dropped": 0,
+      "chain_step": 0
+    },
+    "dc16": {
+      "validity_only_construction": 1,
+      "v_demand_queue": 0,
+      "room_step": 1
+    },
+    "limits": {
+      "budget_seconds": 5397.10069805,
+      "reserve_seconds": 539.710069805,
+      "W": [
+        233220,
+        388.59125026
+      ],
+      "R1": [
+        39012,
+        242.869531412
+      ],
+      "R2_seconds": 1214.34765706,
+      "G_seconds": 728.608594237,
+      "maximum_work": 19414976,
+      "memory_ceiling": 12884901888
+    },
+    "phase_prepare": {
+      "seconds": 0.001525762,
+      "elapsed": 1.578987594,
+      "cells": 303359
+    }
+  },
+  "source_observation": "The next pipeline call is PhaseW10. It constructs the complete unique-wall-edge candidate list (vertex prefilter, then Len for survivors) before checking its local seconds/work limit in the split loop. Therefore the W seconds setting is not a hard deadline on the initial selection scan. The shared event geometry/time budget still applies; no active-stack attribution or event overrun is established.",
+  "active_function_proven": false,
+  "authorized_stop_evidence": false,
+  "pinned_code_changed": false,
+  "source_sha256": {
+    "SU2_CFD/include/adaptation/CNativeBLPipeline3D.hpp": "f36b7cca0248b14e9b854581a408a90979db6ab416f7d3b188c725bd864ba2a1",
+    "SU2_CFD/include/adaptation/native_bl3d/BLOptionA10.inl": "21b4ad49bd674c3e7e2e0feb78e47a2d07985003b2caade70a09ba430238e360",
+    "SU2_CFD/include/adaptation/native_bl3d/BLVolume13.inl": "968126813d4a4cd518fc63e2a199237928251018338dcc89f74216563d12c2eb"
+  }
+}

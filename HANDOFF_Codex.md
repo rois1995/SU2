@@ -8,22 +8,27 @@ ONE connected curved-BL cycle. R=`integration_evidence/native_3d_bl_v1/dc17_18_c
 
 ## Frozen owned workload — authoritative current state
 
-Full SAME303seed BL/RANS330 LIVE, tool session74564. Wrapper2539795/start35744141;
-time2540305/start35745299. Exact10 actual host identities in330 owned_handles;
-launch_observation verifies1585 source/build/input pins and84 mappedELFs unchanged.
-One owned heavy workload, all compiled sources/helpers/inputs FROZEN.
-Preserve outcome unless an evidence-backed authorized stop condition occurs.
-330 skips only unused sole-worker weight prediction; same L1/500k/heights/budgets.
-329 terminal evidence below drives this correction; do not mistake it for live.
+Full SAME303seed BL/RANS330 TERMINAL: outer14400 timeout124, wrapper14403.143s.
+ALL10 actual host owned identities ABSENT in330/terminal_handles_actual.json;
+source/build/input pins and mapped runtime verified unchanged. Sources now editable.
+Two remesh attempts both FAILED in W wall-edge measurement before any split/first
+row: W5503.34/5503.79s,58305 unmeasurable edges,0 splits. Most edge failures were
+reported after time expiry; do not call them independent geometric obstructions.
+Rank0 native5508.26/5508.14s; first-event weights only.00433s versus329's5398.49s:
+the selected sole-destination correction removed that blocker.0 accepted meshes,
+0 adapted transfer/checkpoint/restart. Later full attempt overwrote same event0 BL
+report filename; raw log preserves both.330 assessment/terminal manifest preserve
+outcome. No representative generated BL patch exists yet.
 
-330 initial metric COMPLETED1226.497s. SAME normalization/target/support/work
-counters as329, geometry work53473769. Wall−14.02% is NOT this correction's gain:
-routing branch executes later; CPU includes MPI polling. Target still UNQUALIFIED
-1.175M vs500k. All303359 cells migrated to rank0 using uniform weights; DC15
-construction prepare reached (pipeline elapsed1.579s, NOT total remesher time).
-The prior unused-weight blocker is passed; final phase receipts and actual BL
-result pending. `R/m6_runs/rans_curved330_v1/metric_build_completed.log` and its assessment
-preserve exact matching-stage evidence. Keep frozen. No generated BL mesh yet.
+Initial metric1226.497s had EXACT same target/support/geometry work53473769 as329;
+wall−14.02% is not attributable to routing change, which executes afterward.
+Target still unqualified1.175M vs500k. Preserved initial prefix and assessment.
+NEXT: inspect earliest actual composed-edge/chord refusals and full W counters;
+select ONE connected correction from demonstrated failure. Do not substitute an
+unproven surface-remeshing policy or increase budgets. Existing W is only a split
+prepass from incoming surface, not complete surface coarsen/relocate/reconnect/
+quality closure. Preserve requested Coulaud/MAdLib actual-patch investigation until
+an actual generated result. Same saved303seed and every gate remain mandatory.
 
 Full SAMEseed RANS/BL329 TERMINAL after evidence-backed authorized stop. Event0
 rejected at native5400s: weights5398.49s, import<=.781s, donor build<=.690s;
@@ -44,9 +49,9 @@ Build330 PASSED22.192s,17 actual sampled handles absent, pins unchanged.
 Qualification330 SEALED: serial25.411s10/11cases, MPI6 51.481s21/22cases EACHrank.
 Only known baseline diagnostic assertions2780/2781 fail (serial4, MPI24 total);
 no new failure. New sole-worker routing and all other affected checks pass.
-All build/serial/MPI actual handles absent; full330 now running FROZEN.
+All build/serial/MPI/full330 actual handles absent; full330 outcome preserved.
 `R/qualification330.json` explicitly is NOT an all-suite or BL workflow pass.
-Helpers `R/check_weights330.py`, `R/run_rans_curved330.py`; full replay LIVE with verified actual handles.
+Helpers `R/check_weights330.py`, `R/run_rans_curved330.py`; full replay terminal; current failure above.
 
 
 Original303 savedRANS seed, Mach-onlyL1/500k,h02e-6/g1.2/T.01,geometry1e-4,
