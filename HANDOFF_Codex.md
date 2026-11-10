@@ -22,7 +22,7 @@ no first-row construction or accepted operation. Driver consumed event and enter
 cycle1 on the original61330-point grid; TWO accepted events were impossible.
 `R/m6_runs/rans_curved329_v1/assessment.json`, raw prefix, stop request and manifest
 preserve evidence. All10 exact actual host handles ABSENT in
-`terminal_handles_actual.json`; rechecked before source edits. Sources now editable.
+`terminal_handles_actual.json`; rechecked before330 source edits. Current330 is FROZEN.
 
 Selected connected correction: skip unused expensive partition work prediction
 when there is only ONE native destination. Existing Repartition initializes every
@@ -72,7 +72,8 @@ seconds remain attribution gaps. No new job/profiler or production change.
 Actual global inherited-tangent contribution is unmeasured; a clearly labeled
 planar face-covariance/normal-law scale proxy is638k, not the production1.175m
 integral, physical lower bound or accepted target. Preserve the queued actual
-patch analysis. SelectONE correction only AFTER preserving frozen329's outcome.
+patch analysis. Terminal329 selected the330 routing correction; preserve330 outcome
+before selecting further implementation.
 
 ## Current connected capability and evidence
 

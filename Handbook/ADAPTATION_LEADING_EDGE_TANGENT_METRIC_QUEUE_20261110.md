@@ -75,6 +75,26 @@ everywhere. Record complete-patch/neighbor geometry failures and excess, q/J fai
 removed/introduced, metric conformity, point counts, work, useful progress/time and
 memory. A smaller mesh or a higher cache-hit count is insufficient.
 
+## Frozen330 capture-readiness audit
+
+Read-only source check while330 remains live: NativeSelectedFailureWorkflow3D
+installs FailureCapture only on the first rejected engine exit. It preserves raw
+OwnedCell records (including transported sensor tensors), cached q/J/geometry/edge
+diagnostics and the reference. FailureCapture explicitly does not recompute metric
+or geometry values. Its tensors therefore are NOT an export of the effective BL
+composition. An absent/unknown cached value must remain unknown.
+
+The existing ActualCubicBLPolicy3D point probe evaluates the raw wall model and
+certified closest query; it does not reconstruct the full/base OptionA production
+TargetPolicy. NativeSavedMetric3D recomputes the whole metric initialization and
+is not an inexpensive extraction of this run. Do not launch either as a competing
+campaign or label raw wall eigenvalues as the combined target. Use cached exact
+edge diagnostics where available. If bounded point reconstruction is needed after
+terminal, retain sensor/source coordinates, original authority, exact support,
+full/base profile and D1/blending identity, frozen core and constraints, then reuse
+the actual TargetPolicy composition. Do not silently substitute a sensor-only or
+wall-only tensor. No pinned code or helper was changed by this readiness audit.
+
 ## Decision and return
 
 If geometry target deficiency is demonstrated, test ONE connected correction with
