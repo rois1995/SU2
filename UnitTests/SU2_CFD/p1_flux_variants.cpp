@@ -4420,7 +4420,7 @@ namespace {
 template <size_t nDim, class Geometry>
 tac::FCTData RunFCT(const Geometry& geometry, const tac::States& S, bool projected, const tac::P1Average* p1,
                     const su2activematrix* wOverride = nullptr, const su2activematrix* ingOverride = nullptr,
-                    unsigned short nPasses = 1, bool nodeInput = false) {
+                    unsigned short nPasses = 1, bool nodeInput = false, bool lens = false) {
   tac::FCTData d;
   const auto w = wOverride ? *wOverride : tac::EntropyField(S, nDim);
   if (ingOverride) {
@@ -4432,11 +4432,11 @@ tac::FCTData RunFCT(const Geometry& geometry, const tac::States& S, bool project
   }
   auto noHalo = [](su2activematrix&) {};
   if (p1) {
-    tac::FCTRun(geometry, nDim, p1->weights, p1->volume, w, d, noHalo, nPasses, nodeInput);
+    tac::FCTRun(geometry, nDim, p1->weights, p1->volume, w, d, noHalo, nPasses, nodeInput, lens);
   } else {
     auto volume = [&](unsigned long i) { return geometry.nodes->GetVolume(i); };
     tac::FCTRun(geometry, nDim, TeCNOAdjoint::GreenGaussWeights<Geometry>{geometry, nDim}, volume, w, d, noHalo, nPasses,
-                nodeInput);
+                nodeInput, lens);
   }
   return d;
 }
@@ -4444,11 +4444,11 @@ tac::FCTData RunFCT(const Geometry& geometry, const tac::States& S, bool project
 template <class Geometry>
 tac::FCTRefResult RefFCT(const Geometry& geometry, unsigned short nDim, const su2activematrix& ing,
                          const su2activematrix& w, const tac::P1Average* p1, unsigned short nPasses = 1,
-                         bool nodeInput = false, bool swapRows = false) {
-  if (p1) return tac::FCTReference(geometry, nDim, ing, w, p1->weights, p1->volume, nPasses, nodeInput, swapRows);
+                         bool nodeInput = false, bool swapRows = false, bool lens = false, bool lensTau = true) {
+  if (p1) return tac::FCTReference(geometry, nDim, ing, w, p1->weights, p1->volume, nPasses, nodeInput, swapRows, lens, lensTau);
   auto volume = [&](unsigned long i) { return geometry.nodes->GetVolume(i); };
   return tac::FCTReference(geometry, nDim, ing, w, TeCNOAdjoint::GreenGaussWeights<Geometry>{geometry, nDim}, volume,
-                           nPasses, nodeInput, swapRows);
+                           nPasses, nodeInput, swapRows, lens, lensTau);
 }
 
 /*--- Largest |stored - reference| over (edge, canonical field, phi_c/alpha/gamma), and finiteness. ---*/
@@ -4819,6 +4819,268 @@ void EdgeEntropyFCTNodeInputCase() {
   }
 }
 
+/*--- TECNO_ADJOINT_FCT_BOUND= ENTROPY_LENS (P1_TECNO_LIMITER_MODEL.md rev 4, ROE_TECNO_PLAN.md 6.15): 10 passes (A5)
+ * against the independent reference, the row box and the node-input identity (FCTNodeInputChecks), Theorem 1 (|l_c|^2 <=
+ * dy^2 incl. the shear vector, 0 <= l_eff <= |dy|, observed moment >= 0, production of the valid entries nonincreasing
+ * pass by pass), A1', bounds, alpha + gamma = 1, linear w (Theorem 4: alpha = 1, phi_c >= 1 - eta) and uniform states. ---*/
+template <size_t nDim>
+void EdgeEntropyFCTLensCase() {
+  constexpr size_t nVar = nDim + 2;
+  namespace ta = TeCNOAdjoint;
+  for (const bool moved : {false, true}) {
+    for (const bool p1Average : {false, true}) {
+      const std::string mesh = "tecno_fct_lens_" + std::to_string(nDim) + "d.su2";
+      WriteSimplexMesh(mesh, nDim, (nDim == 2) ? 7 : 3, 0.4, 0.3, (nDim == 2) ? BendMesh2D : BendMesh3D);
+      MeshCase test(mesh, moved ? P1AverageMoved : "");
+      auto& geometry = *test.geometry;
+      const tac::P1Average p1(geometry);
+      const tac::P1Average* p1p = p1Average ? &p1 : nullptr;
+      const auto nPoint = geometry.GetnPoint();
+      double maxDiffLater = 0.0, maxDiffDet = 0.0;
+      unsigned long tauSensitive = 0, tauWrong = 0;
+      double refDiff = 0.0, meanDiff = 0.0, box = 0.0, identity = 0.0, l2Excess = 0.0, leffLow = 0.0, leffHigh = 0.0,
+             momNeg = 0.0, prodIncrease = 0.0, monotone = 0.0, a1 = 0.0, minProd = 1e300, outside = 0.0, sumBound = 0.0,
+             minPhi = 1e300;
+      bool finite = true;
+      std::mt19937 gen(97);
+      for (int t = 0; t < 8; ++t) {
+        const auto S = (t < 2) ? CoordinateStates(geometry, nDim) : tac::RandomStates(nPoint, nDim, gen, (t % 2) ? 0.3 : 1.0);
+        const bool projected = (t % 2);
+        const auto w = tac::EntropyField(S, nDim);
+        std::vector<tac::FCTData> runs;
+        for (unsigned short np = 1; np <= 10; ++np) runs.push_back(RunFCT<nDim>(geometry, S, projected, p1p, nullptr, nullptr, np, true, true));
+        const auto ref1 = RefFCT(geometry, nDim, runs[0].ing, w, p1p, 1, true, false, true);
+        refDiff = std::max(refDiff, FCTRefDiff(ref1, runs[0].store, finite));
+        const auto ref10 = RefFCT(geometry, nDim, runs[9].ing, w, p1p, 10, true, false, true);
+        /*--- Passes 2-10, every entry: mean |alpha - alpha_ref| (passes after the first amplify the rounding of the
+         * summation order, model document section 7); the largest entry difference is reported. ---*/
+        for (unsigned short np = 2; np <= 10; ++np) {
+          const auto refn = (np == 10) ? ref10 : RefFCT(geometry, nDim, runs[np - 1].ing, w, p1p, np, true, false, true);
+          double sum = 0.0, mx = 0.0;
+          size_t cnt = 0;
+          for (unsigned long e = 0; e < refn.ed.size(); ++e)
+            for (int f = 0; f < 4; ++f, ++cnt) {
+              const double dv = std::fabs(tac::FCTStored(runs[np - 1].store, e, refn.ed[e].flip, 1, f) - refn.ed[e].alpha[f]);
+              sum += dv;
+              mx = std::max(mx, dv);
+            }
+          meanDiff = std::max(meanDiff, sum / std::max<size_t>(cnt, 1));
+          maxDiffLater = std::max(maxDiffLater, mx);
+          if (t < 2) maxDiffDet = std::max(maxDiffDet, mx);  /*--- deterministic coordinate states: every entry gated ---*/
+        }
+        /*--- The pass-1 rounding allowance of the model (Q = max(0, cap - tau)): on the entries where the reference with and
+         * without it differ, the stored alpha must be the one with it. ---*/
+        {
+          const auto refNo = RefFCT(geometry, nDim, runs[0].ing, w, p1p, 1, true, false, true, false);
+          for (unsigned long e = 0; e < ref1.ed.size(); ++e)
+            for (int f = 0; f < 4; ++f) {
+              const double aT = ref1.ed[e].alpha[f], aN = refNo.ed[e].alpha[f];
+              if (!(std::fabs(aT - aN) > 1e-14 * std::fabs(aT))) continue;  /*--- above the rounding of the two codes ---*/
+              ++tauSensitive;
+              const double aS = tac::FCTStored(runs[0].store, e, ref1.ed[e].flip, 1, f);
+              if (!(std::fabs(aS - aT) < std::fabs(aS - aN))) ++tauWrong;
+            }
+        }
+        for (const double r : {0.25, 0.5, 1.0}) tac::FCTNodeInputChecks(ref10, nDim, runs[9].store, r, gen, box, identity);
+        std::vector<double> prev, first;
+        for (size_t n = 0; n < runs.size(); ++n) {
+          std::vector<double> prod;
+          first.clear();
+          for (unsigned long e = 0; e < ref1.ed.size(); ++e) {
+            const auto& r = ref1.ed[e];
+            for (int f = 0; f < 4; ++f) {
+              const double pc = tac::FCTStored(runs[n].store, e, r.flip, 0, f), al = tac::FCTStored(runs[n].store, e, r.flip, 1, f);
+              if (n > 0) monotone = std::min(monotone, al - tac::FCTStored(runs[n - 1].store, e, r.flip, 1, f));
+              if (!r.valid[f]) continue;
+              const double ady = std::fabs(r.dy[f]), o = r.o[f];
+              double l2 = (r.dy[f] - pc * r.sigma[f]) * (r.dy[f] - pc * r.sigma[f]);
+              if (f == 2) {
+                l2 = 0;
+                for (unsigned short d = 0; d < nDim; ++d) {
+                  const double ld = r.dyS[d] - pc * 0.5 * (r.sS[0][d] + r.sS[1][d]);
+                  l2 += ld * ld;
+                }
+              }
+              l2Excess = std::max(l2Excess, (l2 - ady * ady) / (ady * ady));
+              const double leff = ady - al * pc * o;
+              leffLow = std::max(leffLow, -leff / ady);
+              leffHigh = std::max(leffHigh, leff / ady - 1.0);
+              momNeg = std::max(momNeg, -pc * (ady - pc * o) / ady);
+              prod.push_back(r.D[f] * (al * l2 + (1 - al) * ady * ady));
+              first.push_back(r.D[f] * ady * ady);
+            }
+          }
+          if (!prev.empty())
+            for (size_t q = 0; q < prod.size(); ++q) prodIncrease = std::max(prodIncrease, (prod[q] - prev[q]) / first[q]);
+          prev = prod;
+        }
+        const auto& d = runs.back();
+        for (auto e = 0ul; e < geometry.GetnEdge(); ++e)
+          for (int f = 0; f < 4; ++f) {
+            const double pc = d.store(e, ta::FCT_PHIC + f), al = d.store(e, ta::FCT_ALPHA + f), ga = d.store(e, ta::FCT_GAMMA + f);
+            outside = std::max(outside, std::max({-pc, pc - 1.0, -al, al - 1.0, -ga, ga - 1.0}));
+            sumBound = std::max(sumBound, std::fabs(al + ga - 1.0));
+            minPhi = std::min(minPhi, al * pc);
+          }
+        const auto es = tac::TVDEdgeStates<nDim>(geometry, S, projected);
+        for (const double ramp : {0.25, 1.0}) {
+          double prod = 0.0;
+          const auto R = tac::FCTResidual<nDim>(geometry, es, d.store, w, ramp, p1p, &d.ing, prod);
+          double wR = 0.0, absWR = 0.0;
+          for (auto i = 0ul; i < nPoint; ++i)
+            for (size_t v = 0; v < nVar; ++v) {
+              wR += w(i, v) * R(i, v);
+              absWR += fabs(w(i, v) * R(i, v));
+            }
+          a1 = std::max(a1, fabs(wR - prod) / absWR);
+          minProd = std::min(minProd, prod);
+        }
+      }
+      INFO("nDim " << nDim << " moved " << moved << " P1 " << p1Average << ": ENTROPY_LENS |stored - reference| (pass 1) "
+                   << refDiff << ", mean |alpha diff| (passes 2-10) " << meanDiff << " (max " << maxDiffLater << ", coordinate states "
+                   << maxDiffDet << "), pass-1 tau-sensitive entries " << tauSensitive << " (wrong " << tauWrong << ")"  << ", row box " << box << ", identity "
+                   << identity << ", |l_c|^2/dy^2 - 1 " << l2Excess << ", l_eff low/high " << leffLow << " " << leffHigh
+                   << ", moment < 0 " << momNeg << ", production increase " << prodIncrease << ", min alpha increase "
+                   << monotone << ", A1' " << a1 << ", outside " << outside << ", |alpha + gamma - 1| " << sumBound);
+      CHECK(finite);
+      CHECK(refDiff < 1e-10);
+      CHECK(meanDiff < 1e-3);
+      CHECK(maxDiffDet < 1e-10);
+      CHECK(tauSensitive > 0);
+      CHECK(tauWrong == 0);
+      CHECK(box < 1e-12);
+      CHECK(identity < 1e-12);
+      CHECK(l2Excess <= 1e-14);
+      CHECK(leffLow <= 1e-14);
+      CHECK(leffHigh <= 1e-14);
+      CHECK(momNeg <= 1e-14);
+      CHECK(prodIncrease <= 1e-12);
+      CHECK(monotone >= 0.0);
+      CHECK(a1 < 1e-12);
+      CHECK(minProd >= 0.0);
+      CHECK(outside <= 0.0);
+      CHECK(sumBound <= 1e-12);
+      CHECK(minPhi < 0.5);
+      if (SU2_MPI::GetRank() == MASTER_NODE) WARN("EDGE_ENTROPY_FCT ENTROPY_LENS nDim " << nDim << " moved " << moved << " P1 "
+                                                  << p1Average << ": row box " << box << ", identity " << identity);
+      /*--- Linear w (P1 average): Theorem 4, alpha = 1 and phi_c >= 1 - eta, eta = max |sigma - dy| / |dy| (vector for
+       * the shear block) of the state (floating-point form of phi_c = 1). ---*/
+      if (p1Average) {
+        su2activematrix wLin(nPoint, nVar);
+        const double coef[5][3] = {{0.7, -0.4, 0.3}, {0.2, 0.9, -0.5}, {-0.6, 0.3, 0.8}, {0.4, 0.5, -0.7}, {-0.3, -0.8, 0.6}};
+        for (auto i = 0ul; i < nPoint; ++i)
+          for (size_t v = 0; v < nVar; ++v) {
+            wLin(i, v) = 0.5 * (v + 1);
+            for (size_t dd = 0; dd < nDim; ++dd) wLin(i, v) += coef[v][dd] * geometry.nodes->GetCoord(i)[dd];
+          }
+        const auto S = CoordinateStates(geometry, nDim);
+        const auto d = RunFCT<nDim>(geometry, S, false, p1p, &wLin, nullptr, 10, true, true);
+        const auto ref = RefFCT(geometry, nDim, d.ing, wLin, p1p, 1, true, false, true);
+        double eta = 0.0, alphaDev = 0.0, phiDef = 0.0, gamDev = 0.0;
+        for (auto e = 0ul; e < geometry.GetnEdge(); ++e) {
+          const auto& r = ref.ed[e];
+          for (int f = 0; f < 4; ++f) {
+            alphaDev = std::max(alphaDev, std::fabs(tac::FCTStored(d.store, e, r.flip, 1, f) - 1.0));
+            gamDev = std::max(gamDev, std::fabs(tac::FCTStored(d.store, e, r.flip, 2, f)));
+            if (!r.valid[f]) continue;
+            double err = std::fabs(r.sigma[f] - r.dy[f]);
+            if (f == 2) {
+              err = 0;
+              for (unsigned short dd = 0; dd < nDim; ++dd) {
+                const double ed_ = 0.5 * (r.sS[0][dd] + r.sS[1][dd]) - r.dyS[dd];
+                err += ed_ * ed_;
+              }
+              err = std::sqrt(err);
+            }
+            eta = std::max(eta, err / std::fabs(r.dy[f]));
+            phiDef = std::max(phiDef, 1.0 - tac::FCTStored(d.store, e, r.flip, 0, f));
+          }
+        }
+        double prodDef = 0.0;
+        for (auto e = 0ul; e < geometry.GetnEdge(); ++e)
+          for (int f = 0; f < 4; ++f)
+            if (ref.ed[e].valid[f])
+              prodDef = std::max(prodDef, 1.0 - tac::FCTStored(d.store, e, ref.ed[e].flip, 1, f) *
+                                                    tac::FCTStored(d.store, e, ref.ed[e].flip, 0, f));
+        INFO("nDim " << nDim << " moved " << moved << ": linear w, |alpha - 1| " << alphaDev << ", |gamma| " << gamDev
+                     << ", 1 - phi_c " << phiDef << ", 1 - alpha phi_c " << prodDef << ", eta " << eta);
+        CHECK(prodDef <= eta + 1e-14);  /*--- Theorem 4 in floating point: alpha phi_c >= 1 - eta. ---*/
+        if (SU2_MPI::GetRank() == MASTER_NODE)  /*--- the model document's gate-1 threshold, reported (model gate). ---*/
+          WARN("ENTROPY_LENS linear w nDim " << nDim << " moved " << moved << ": 1 - min alpha phi_c " << prodDef
+               << " (model gate 1e-12: " << ((prodDef <= 1e-12) ? "met" : "not met") << "), eta " << eta);
+      }
+      /*--- Zero D of both acoustic fields (invalid, (1, 1, 0)), zero |lambda|_fix on every third edge and zero D of the
+       * entropy field on every second edge: finite and equal to the reference after pass 1. ---*/
+      {
+        const auto S = CoordinateStates(geometry, nDim);
+        const auto w = tac::EntropyField(S, nDim);
+        const auto d0 = RunFCT<nDim>(geometry, S, false, p1p, nullptr, nullptr, 1, true, true);
+        auto ingB = d0.ing;
+        const unsigned short X = ta::TVDWidth(nDim);
+        for (auto e = 0ul; e < geometry.GetnEdge(); ++e) { ingB(e, ta::TVD_D + 0) = 0.0; ingB(e, ta::TVD_D + 2) = 0.0; }
+        for (auto e = 0ul; e < geometry.GetnEdge(); e += 3)
+          for (int c = 0; c < 3; ++c) ingB(e, X + ta::FCT_LAMFIX + c) = 0.0;
+        for (auto e = 1ul; e < geometry.GetnEdge(); e += 2) ingB(e, ta::TVD_D + 1) = 0.0;
+        const auto dB = RunFCT<nDim>(geometry, S, false, p1p, nullptr, &ingB, 1, true, true);
+        bool finB = true;
+        const auto refB = RefFCT(geometry, nDim, ingB, w, p1p, 1, true, false, true);
+        const double diffB = FCTRefDiff(refB, dB.store, finB);
+        INFO("nDim " << nDim << " moved " << moved << " P1 " << p1Average << ": ENTROPY_LENS zero D / zero speeds reference " << diffB);
+        CHECK(finB);
+        CHECK(diffB < 1e-10);
+      }
+      /*--- Uniform state: (1, 1, 0) exactly. ---*/
+      {
+        tac::States U;
+        U.rho.assign(nPoint, 1.3);
+        U.p.assign(nPoint, 0.9);
+        U.u.assign(nPoint, {0.4, -0.2, (nDim == 3) ? 0.1 : 0.0});
+        const auto d = RunFCT<nDim>(geometry, U, false, p1p, nullptr, nullptr, 10, true, true);
+        double dev = 0.0;
+        for (auto e = 0ul; e < geometry.GetnEdge(); ++e)
+          for (int f = 0; f < 4; ++f)
+            dev = std::max(dev, double(fabs(d.store(e, ta::FCT_PHIC + f) - 1.0) + fabs(d.store(e, ta::FCT_ALPHA + f) - 1.0) +
+                                       fabs(d.store(e, ta::FCT_GAMMA + f))));
+        CHECK(dev == 0.0);
+      }
+    }
+  }
+}
+
+/*--- Gate 1 of P1_TECNO_LIMITER_MODEL.md section 10 (linear w: alpha phi_c >= 1 - 1e-12 on every valid entry), asserted
+ * as written. Tagged [P1FluxModelGate], not [P1Flux]: run explicitly by the check job of ROE_TECNO_PLAN.md 6.15 (the model
+ * gate is a validation item; its failure is reported, not hidden). ---*/
+template <size_t nDim>
+void EdgeEntropyFCTLensLinearGate() {
+  constexpr size_t nVar = nDim + 2;
+  for (const bool moved : {false, true}) {
+    const std::string mesh = "tecno_fct_lensgate_" + std::to_string(nDim) + "d.su2";
+    WriteSimplexMesh(mesh, nDim, (nDim == 2) ? 7 : 3, 0.4, 0.3, (nDim == 2) ? BendMesh2D : BendMesh3D);
+    MeshCase test(mesh, moved ? P1AverageMoved : "");
+    auto& geometry = *test.geometry;
+    const tac::P1Average p1(geometry);
+    const auto nPoint = geometry.GetnPoint();
+    su2activematrix wLin(nPoint, nVar);
+    const double coef[5][3] = {{0.7, -0.4, 0.3}, {0.2, 0.9, -0.5}, {-0.6, 0.3, 0.8}, {0.4, 0.5, -0.7}, {-0.3, -0.8, 0.6}};
+    for (auto i = 0ul; i < nPoint; ++i)
+      for (size_t v = 0; v < nVar; ++v) {
+        wLin(i, v) = 0.5 * (v + 1);
+        for (size_t dd = 0; dd < nDim; ++dd) wLin(i, v) += coef[v][dd] * geometry.nodes->GetCoord(i)[dd];
+      }
+    const auto S = CoordinateStates(geometry, nDim);
+    const auto d = RunFCT<nDim>(geometry, S, false, &p1, &wLin, nullptr, 10, true, true);
+    const auto ref = RefFCT(geometry, nDim, d.ing, wLin, &p1, 1, true, false, true);
+    double prodDef = 0.0;
+    for (auto e = 0ul; e < geometry.GetnEdge(); ++e)
+      for (int f = 0; f < 4; ++f)
+        if (ref.ed[e].valid[f])
+          prodDef = std::max(prodDef, 1.0 - tac::FCTStored(d.store, e, ref.ed[e].flip, 1, f) *
+                                                tac::FCTStored(d.store, e, ref.ed[e].flip, 0, f));
+    INFO("nDim " << nDim << " moved " << moved << ": model gate 1, linear w, 1 - min alpha phi_c " << prodDef);
+    CHECK(prodDef <= 1e-12);
+  }
+}
+
 template <size_t nDim>
 void EdgeEntropyFCTInvarianceCase() {
   /*--- Numbering: the same lattice mesh with permuted point numbers gives the same canonical values on every edge,
@@ -4881,6 +5143,16 @@ void EdgeEntropyFCTJumpsCase() {
       su2activematrix store;
       if (t < 2) {
         store = RunFCT<nDim>(geometry, S, projected, p1p).store;
+        /*--- ENTROPY_LENS stores (10 passes): the majorant J' >= K_r of the limiter model (Theorem 3). ---*/
+        const auto lensStore = RunFCT<nDim>(geometry, S, projected, p1p, nullptr, nullptr, 10, true, true).store;
+        const auto esL = tac::TVDEdgeStates<nDim>(geometry, S, projected);
+        for (const double ramp : {1.0, 0.5, 0.25}) {
+          const auto res = tac::FCTJumpsCheck<nDim>(geometry, esL, lensStore, ramp, p1p);
+          worst.jumps = std::max(worst.jumps, res.jumps);
+          worst.rowSum = std::max(worst.rowSum, res.rowSum);
+          worst.asym = std::max(worst.asym, res.asym);
+          worst.finite = worst.finite && res.finite;
+        }
       } else {
         /*--- Prescribed values: phi_c, alpha, gamma in [0, 1] with alpha + gamma <= 1, some zero. ---*/
         store.resize(geometry.GetnEdge(), ta::FCT_STORE_WIDTH);
@@ -4954,6 +5226,10 @@ void EdgeEntropyFCTMPICase() {
   tac::FCTData dn;
   dn.ing = d.ing;
   tac::FCTRun(geometry, nDim, p1.weights, p1.volume, w, dn, halo, 4, true);
+  /*--- ENTROPY_LENS with 10 passes (rows of kind 6 values, kind 7 residual). ---*/
+  tac::FCTData dl;
+  dl.ing = d.ing;
+  tac::FCTRun(geometry, nDim, p1.weights, p1.volume, w, dl, halo, 10, true, true);
 
   /*--- Residual of the owned nodes with a store (1 pass: R, 4 passes: R4). ---*/
   const double ramp = 0.7;
@@ -4993,7 +5269,7 @@ void EdgeEntropyFCTMPICase() {
   ta::AddTransposeP1(geometry, nDim, nVar, p1.weights, Y, ta::GradientCoefficient(1.0, 0.0), R);
   return R;
   };
-  const auto R = residualOf(d.store), R4 = residualOf(d4.store), RN = residualOf(dn.store);
+  const auto R = residualOf(d.store), R4 = residualOf(d4.store), RN = residualOf(dn.store), RL = residualOf(dl.store);
 
   /*--- Rows: node (kind 0, global index, 0, residual, zeros) and edge (kind 1, canonical global ends, 12 values). ---*/
   std::vector<double> rows;
@@ -5004,6 +5280,8 @@ void EdgeEntropyFCTMPICase() {
     for (int c = 0; c < 12; ++c) rows.push_back((c < int(nVar)) ? double(R4(i, c)) : 0.0);
     rows.insert(rows.end(), {5.0, double(geometry.nodes->GetGlobalIndex(i)), 0.0});
     for (int c = 0; c < 12; ++c) rows.push_back((c < int(nVar)) ? double(RN(i, c)) : 0.0);
+    rows.insert(rows.end(), {7.0, double(geometry.nodes->GetGlobalIndex(i)), 0.0});
+    for (int c = 0; c < 12; ++c) rows.push_back((c < int(nVar)) ? double(RL(i, c)) : 0.0);
   }
   for (auto e = 0ul; e < geometry.GetnEdge(); ++e) {
     const bool flip = ta::TVDFlip(geometry, nDim, e);
@@ -5018,6 +5296,9 @@ void EdgeEntropyFCTMPICase() {
     rows.insert(rows.end(), {4.0, double(geometry.nodes->GetGlobalIndex(n[0])), double(geometry.nodes->GetGlobalIndex(n[1]))});
     for (int which = 0; which < 3; ++which)
       for (int f = 0; f < 4; ++f) rows.push_back(tac::FCTStored(dn.store, e, flip, which, f));
+    rows.insert(rows.end(), {6.0, double(geometry.nodes->GetGlobalIndex(n[0])), double(geometry.nodes->GetGlobalIndex(n[1]))});
+    for (int which = 0; which < 3; ++which)
+      for (int f = 0; f < 4; ++f) rows.push_back(tac::FCTStored(dl.store, e, flip, which, f));
   }
   const int size = SU2_MPI::GetSize();
   int count = static_cast<int>(rows.size());
@@ -5113,6 +5394,18 @@ TEST_CASE("TECNO_ADJOINT_FCT_BOUND= NODE_INPUT: reference, row box, node-input i
   if (SU2_MPI::GetSize() > 1) return;
   EdgeEntropyFCTNodeInputCase<2>();
   EdgeEntropyFCTNodeInputCase<3>();
+}
+
+TEST_CASE("TECNO_ADJOINT_FCT_BOUND= ENTROPY_LENS: model gate 1, linear w alpha phi_c >= 1 - 1e-12", "[P1FluxModelGate]") {
+  if (SU2_MPI::GetSize() > 1) return;
+  EdgeEntropyFCTLensLinearGate<2>();
+  EdgeEntropyFCTLensLinearGate<3>();
+}
+
+TEST_CASE("TECNO_ADJOINT_FCT_BOUND= ENTROPY_LENS: the limiter model, reference, row box, identity, Theorems 1 and 4", "[P1Flux]") {
+  if (SU2_MPI::GetSize() > 1) return;
+  EdgeEntropyFCTLensCase<2>();
+  EdgeEntropyFCTLensCase<3>();
 }
 
 TEST_CASE("TECNO_ADJOINT_LIMITER= EDGE_ENTROPY_FCT: numbering invariance", "[P1Flux]") {

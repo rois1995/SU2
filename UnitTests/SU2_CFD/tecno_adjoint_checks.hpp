@@ -1336,7 +1336,7 @@ struct FCTData {
 template <class Geometry, class WeightType, class VolumeType, class HaloCopy>
 void FCTRun(const Geometry& geometry, unsigned short nDim, const WeightType& weights, const VolumeType& volume,
             const su2activematrix& W, FCTData& d, HaloCopy&& haloCopy, unsigned short nPasses = 1,
-            bool nodeInput = false) {
+            bool nodeInput = false, bool lens = false) {
   su2activematrix rows;
   TeCNOAdjoint::FCTSetupRows(geometry, d.setup, rows);
   haloCopy(rows);
@@ -1345,7 +1345,7 @@ void FCTRun(const Geometry& geometry, unsigned short nDim, const WeightType& wei
   d.store.resize(geometry.GetnEdge(), TeCNOAdjoint::FCT_STORE_WIDTH);
   d.store = su2double(-1.0);
   TeCNOAdjoint::FCTPasses(geometry, nDim, weights, volume, d.setup, d.ing, W, d.work, d.store, haloCopy, nPasses,
-                          nodeInput);
+                          nodeInput, lens);
 }
 
 /*--- Independent reference (serial): canonical edge data from the coordinates and the ingredient columns. ---*/
@@ -1445,7 +1445,8 @@ inline double FCTRefSelf(const FCTRefResult& res, unsigned short nDim, unsigned 
  */
 template <class PairC>
 void FCTReferenceNodeInput(FCTRefResult& res, unsigned short nDim, unsigned short nPasses, bool swapRows,
-                           const std::vector<std::vector<unsigned long>>& nbr, PairC&& pairC) {
+                           const std::vector<std::vector<unsigned long>>& nbr, PairC&& pairC, bool lens = false,
+                           bool lensTau = true) {
   auto& ed = res.ed;
   const size_t nE = ed.size();
   using Rows = std::vector<std::array<std::array<double, 4>, 2>>;
@@ -1487,6 +1488,8 @@ void FCTReferenceNodeInput(FCTRefResult& res, unsigned short nDim, unsigned shor
         const double al = first ? 0.0 : r.alpha[f], own = r.phic[f] * r.o[f], den = own * (1 - al);
         for (int x = 0; x < 2; ++x) {
           double Q = r.rowCap[x][f];
+          if (first && lens && lensTau)  /*--- the limiter model: Q = max(0, cap - S(0) - tau) on every pass ---*/
+            Q = r.valid[f] ? std::max(0.0, r.rowCap[x][f] - (nPairs + 3) * std::numeric_limits<double>::epsilon() * r.rowCap[x][f]) : 0.0;
           if (!first) {
             const double tau = (nPairs + 3) * std::numeric_limits<double>::epsilon() *
                                (r.rowCap[x][f] + std::fabs(al * own) + Sz[e][x][f]);
@@ -1532,7 +1535,8 @@ void FCTReferenceNodeInput(FCTRefResult& res, unsigned short nDim, unsigned shor
 template <class Geometry, class WeightType, class VolumeType>
 FCTRefResult FCTReference(const Geometry& geometry, unsigned short nDim, const su2activematrix& ing,
                           const su2activematrix& W, const WeightType& weights, const VolumeType& volume,
-                          unsigned short nPasses = 1, bool nodeInput = false, bool swapRows = false) {
+                          unsigned short nPasses = 1, bool nodeInput = false, bool swapRows = false,
+                          bool lens = false, bool lensTau = true) {
   namespace ta = TeCNOAdjoint;
   FCTRefResult res;
   auto& ed = res.ed;
@@ -1687,7 +1691,21 @@ FCTRefResult FCTReference(const Geometry& geometry, unsigned short nDim, const s
       r.sigma[f] = 0.5 * (r.s[0][f] + r.s[1][f]);
       r.o[f] = sgn * r.sigma[f];
       r.phic[f] = (r.valid[f] && r.o[f] > 0) ? std::min(1.0, r.cap[f] / r.o[f]) : 1.0;
-      if (nodeInput) {  /*--- S4f (ROE_TECNO_PLAN.md 6.13, D3): |l_c| <= |dy| on every valid entry. ---*/
+      if (nodeInput && lens) {  /*--- P1_TECNO_LIMITER_MODEL.md section 4: own value from P2, P3, P5 (no cap). ---*/
+        if (r.valid[f]) {
+          double s2 = r.o[f] * r.o[f];
+          if (f == 2) {
+            s2 = 0;
+            for (unsigned short d = 0; d < nDim; ++d) {
+              const double sm = 0.5 * (r.sS[0][d] + r.sS[1][d]);
+              s2 += sm * sm;
+            }
+          }
+          const double ady = std::fabs(r.dy[f]);
+          r.phic[f] = (r.o[f] > 0) ? std::min(1.0, std::min(ady / r.o[f], 2 * ady * r.o[f] / s2)) : 0.0;
+        }
+        for (int x = 0; x < 2; ++x) r.rowCap[x][f] = 2 * r.A[x][f] + delta;
+      } else if (nodeInput) {  /*--- S4f (ROE_TECNO_PLAN.md 6.13, D3): |l_c| <= |dy| on every valid entry. ---*/
         if (r.valid[f]) r.phic[f] = (r.o[f] > 0) ? std::min(r.phic[f], 2 * std::fabs(r.dy[f]) / r.o[f]) : 0.0;
         for (int x = 0; x < 2; ++x) r.rowCap[x][f] = 2 * r.A[x][f] + delta;
       }
@@ -1720,7 +1738,7 @@ FCTRefResult FCTReference(const Geometry& geometry, unsigned short nDim, const s
     return 0.5 * ((rh.dy[f] >= 0) ? 1.0 : -1.0) * pi * m / rh.D[f];
   };
   if (nodeInput) {
-    FCTReferenceNodeInput(res, nDim, nPasses, swapRows, nbr, pairC);
+    FCTReferenceNodeInput(res, nDim, nPasses, swapRows, nbr, pairC, lens, lensTau);
     return res;
   }
   for (unsigned long a = 0; a < nP; ++a)

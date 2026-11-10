@@ -2978,21 +2978,22 @@ void CEulerSolver::TeCNOAdjointFCTPasses(CGeometry *geometry, const CConfig *con
       TeCNOAdjoint::FCTSetupFinish(*geometry, nDim, TeCNOAdjFCTRows, TeCNOAdjFCTSetup);
       TeCNOAdjFCTRows.resize(0, 0);
       TeCNOAdjoint::FCTWorkResize(*geometry, TeCNOAdjFCTSetup, TeCNOAdjFCTWork,
-                                  config->GetKind_TeCNO_Adj_FCT_Bound() == TECNO_ADJ_FCT_BOUND::NODE_INPUT);
+                                  config->GetKind_TeCNO_Adj_FCT_Bound() != TECNO_ADJ_FCT_BOUND::TWO_NODE);
     }
     END_SU2_OMP_MASTER
     SU2_OMP_BARRIER
   }
-  const bool nodeInput = (config->GetKind_TeCNO_Adj_FCT_Bound() == TECNO_ADJ_FCT_BOUND::NODE_INPUT);
+  const bool nodeInput = (config->GetKind_TeCNO_Adj_FCT_Bound() != TECNO_ADJ_FCT_BOUND::TWO_NODE);
+  const bool lens = (config->GetKind_TeCNO_Adj_FCT_Bound() == TECNO_ADJ_FCT_BOUND::ENTROPY_LENS);
   if (config->GetKind_TeCNO_Adj_Gradient() == TECNO_ADJ_GRADIENT::P1_AVERAGE) {
     TeCNOAdjoint::FCTPasses(*geometry, nDim, TeCNOAdjEdgeA, TeCNOAdjVol, TeCNOAdjFCTSetup, nodes->TeCNOAdjEdgeTVD,
                             TeCNOAdjW, TeCNOAdjFCTWork, nodes->TeCNOAdjEdgePhi, comm, config->GetTeCNO_Adj_FCT_Passes(),
-                            nodeInput);
+                            nodeInput, lens);
   } else {
     auto volume = [&](unsigned long iPoint) { return geometry->nodes->GetVolume(iPoint); };
     TeCNOAdjoint::FCTPasses(*geometry, nDim, TeCNOAdjoint::GreenGaussWeights<CGeometry>{*geometry, nDim}, volume,
                             TeCNOAdjFCTSetup, nodes->TeCNOAdjEdgeTVD, TeCNOAdjW, TeCNOAdjFCTWork,
-                            nodes->TeCNOAdjEdgePhi, comm, config->GetTeCNO_Adj_FCT_Passes(), nodeInput);
+                            nodes->TeCNOAdjEdgePhi, comm, config->GetTeCNO_Adj_FCT_Passes(), nodeInput, lens);
   }
 
   const auto iter = config->GetInnerIter();
@@ -3010,7 +3011,7 @@ void CEulerSolver::TeCNOAdjointFCTPasses(CGeometry *geometry, const CConfig *con
              << "; Phi_eq: act " << 100.0 * global[6] / n << " %, zeros " << 100.0 * global[7] / n << " %, mean "
              << global[8] / n << ", wmean " << global[9] / fmax(global[5], EPS);
         if (config->GetTeCNO_Adj_FCT_Passes() > 1) cout << " (" << config->GetTeCNO_Adj_FCT_Passes() << " passes)";
-        if (nodeInput) cout << " (NODE_INPUT)";
+        if (nodeInput) cout << (lens ? " (ENTROPY_LENS)" : " (NODE_INPUT)");
         cout << endl;
       }
     }

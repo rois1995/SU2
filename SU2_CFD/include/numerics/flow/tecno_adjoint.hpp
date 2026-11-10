@@ -1636,7 +1636,7 @@ void FCTExchange(const Geometry& geometry, const FCTSetup& setup, su2activematri
 template <class Geometry, class StoreType>
 void FCTEdgeOwn(const Geometry& geometry, unsigned short nDim, const FCTSetup& setup, const StoreType& ing,
                 const su2activematrix& A, su2activematrix& ed, bool nodeInput = false,
-                su2activematrix* rowCap = nullptr) {
+                su2activematrix* rowCap = nullptr, bool lens = false) {
   SU2_OMP_FOR_STAT(OMP_CHUNK)
   for (unsigned long iEdge = 0; iEdge < geometry.GetnEdge(); ++iEdge) {
     FCTEdgeView v;
@@ -1655,8 +1655,28 @@ void FCTEdgeOwn(const Geometry& geometry, unsigned short nDim, const FCTSetup& s
         /*--- S4f (D3): the entropy own bound |l_c| <= |dy| of every valid entry, phi_c o <= 2 |dy| (o > 0) and phi_c = 0
          * (o <= 0), so that its production D (dy^2 + alpha (l_c^2 - dy^2)) is nonincreasing in alpha; the rows of the two
          * ends get their own caps 2 A_y + delta (D2). ---*/
-        if (valid && (o > 0.0)) phic = fmin(phic, 2.0 * fabs(v.dy[f]) / o);
-        if (valid && !(o > 0.0)) phic = 0.0;
+        if (lens) {
+          /*--- ENTROPY_LENS (P1_TECNO_LIMITER_MODEL.md section 4, Lemma 2-3): the own value from P2, P3, P5 alone,
+           * phi_c = min(1, |dy|/o, 2 |dy| o / |sigma|^2) (o > 0), 0 (o <= 0); |sigma|^2 = o^2 for the scalar fields, the
+           * squared norm of the mean shear slope vector for the shear block; the cap acts through alpha only. ---*/
+          if (valid && (o > 0.0)) {
+            su2double sig2 = o * o;
+            if (f == 2) {
+              sig2 = 0.0;
+              for (unsigned short iDim = 0; iDim < nDim; ++iDim) {
+                const su2double sm = 0.5 * (v.sS[0][iDim] + v.sS[1][iDim]);
+                sig2 += sm * sm;
+              }
+            }
+            const su2double ady = fabs(v.dy[f]);
+            phic = fmin(su2double(1.0), fmin(ady / o, 2.0 * ady * o / sig2));
+          } else if (valid) {
+            phic = 0.0;
+          }
+        } else {
+          if (valid && (o > 0.0)) phic = fmin(phic, 2.0 * fabs(v.dy[f]) / o);
+          if (valid && !(o > 0.0)) phic = 0.0;
+        }
         for (unsigned short y = 0; y < 2; ++y) (*rowCap)(iEdge, 4 * y + f) = 2.0 * A(iEdge, 4 * y + f) + delta;
       }
       ed(iEdge, FCT_E_PHIC + f) = phic;
@@ -2050,7 +2070,7 @@ void FCTHalvesNodeInput(const Geometry& geometry, unsigned short nDim, const Wei
  *        a_e = min over the rows of min(1, room_y / (phi_c o (1 - alpha))) (FCT_E_AOWN).
  */
 template <class Geometry>
-void FCTRowsNodeInput(const Geometry& geometry, const FCTSetup& setup, bool firstPass, FCTWork& work) {
+void FCTRowsNodeInput(const Geometry& geometry, const FCTSetup& setup, bool firstPass, FCTWork& work, bool lens = false) {
   auto& ed = work.edge;
   SU2_OMP_FOR_STAT(OMP_CHUNK)
   for (unsigned long iEdge = 0; iEdge < geometry.GetnEdge(); ++iEdge) {
@@ -2066,6 +2086,12 @@ void FCTRowsNodeInput(const Geometry& geometry, const FCTSetup& setup, bool firs
         const unsigned short cy = 4 * y + f, cf = 4 * (1 - y) + f;
         const su2double cap = work.rowCap(iEdge, cy);
         su2double Q = cap;
+        if (firstPass && lens) {
+          /*--- ENTROPY_LENS (P1_TECNO_LIMITER_MODEL.md section 6): Q = max(0, cap - S(0) - tau) also on the first pass,
+           * S(0) = 0 and tau = (n_0 + n_1 + 3) eps cap. ---*/
+          const su2double tau = (nPairs + 3.0) * std::numeric_limits<su2double>::epsilon() * cap;
+          Q = valid ? fmax(su2double(0.0), cap - tau) : su2double(0.0);
+        }
         if (!firstPass) {
           const su2double raw = cap - alpha * own - work.SN(iEdge, cy) - work.S(iEdge, cf);
           const su2double tau = (nPairs + 3.0) * std::numeric_limits<su2double>::epsilon() *
@@ -2155,13 +2181,13 @@ template <class Geometry, class WeightType, class VolumeType, class StoreType, c
           class Comm>
 void FCTPasses(const Geometry& geometry, unsigned short nDim, const WeightType& weights, const VolumeType& volume,
                const FCTSetup& setup, const StoreType& ing, const FieldType& W, FCTWork& work, PhiType& store,
-               Comm&& comm, unsigned short nPasses = 1, bool nodeInput = false) {
+               Comm&& comm, unsigned short nPasses = 1, bool nodeInput = false, bool lens = false) {
   if (nodeInput) {
     /*--- TECNO_ADJOINT_FCT_BOUND= NODE_INPUT (S4f, ROE_TECNO_PLAN.md 6.13): exchanges in the order A -> {F, N} -> rows on
      * every local edge -> rho -> alpha; each later pass {S_F, its size, F, S_N, its size, N} -> rows -> rho' -> alpha. ---*/
     FCTEndCapacity(geometry, nDim, setup, ing, W, work.A, true);
     FCTExchange(geometry, setup, work.A, work.buf, comm);
-    FCTEdgeOwn(geometry, nDim, setup, ing, work.A, work.edge, true, &work.rowCap);
+    FCTEdgeOwn(geometry, nDim, setup, ing, work.A, work.edge, true, &work.rowCap, lens);
     for (unsigned short pass = 0; pass < nPasses; ++pass) {
       const bool first = (pass == 0);
       FCTHalvesNodeInput(geometry, nDim, weights, volume, ing, work.edge, first, work);
@@ -2173,7 +2199,7 @@ void FCTPasses(const Geometry& geometry, unsigned short nDim, const WeightType& 
         FCTExchange(geometry, setup, work.SN, work.buf, comm);
         FCTExchange(geometry, setup, work.SNsize, work.buf, comm);
       }
-      FCTRowsNodeInput(geometry, setup, first, work);
+      FCTRowsNodeInput(geometry, setup, first, work, lens);
       FCTObserverMinNodeInput(geometry, nDim, weights, volume, ing, work.edge, work.Rrow, first, work.rho);
       FCTExchange(geometry, setup, work.rho, work.buf, comm);
       if (first) FCTAlpha(geometry, work.rho, work.edge);
