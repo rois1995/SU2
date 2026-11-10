@@ -25,8 +25,10 @@ all10 live PID/start identities. Initial CFD finite CL.155731/CD.050268 and
 Hessian/D1 prefix match314. Target construction active; no normalized target,
 BL mesh or accepted event yet. CFDMPI6/FIRST_ROWnative1, Mach-onlyL1/500k,
 h02e-6/g1.2/T.01, geometry1e-4, native5400/outer14400TOTAL,12GiB/rank unchanged.
-Latest verified wait: all10 identities live near978s, sampled tree3.23GB and
-MemAvailable~42.9GB; no target result/failure. CPU counters may include MPI polling.
+One-hour verified wait: all10 exact identities live, 1617source/input/runtime
+pins match,84mappedELF unchanged. Sampled tree3.23GB, availableRAM~27.5GiB.
+No target result/failure; CPU may include MPI polling. See hour1_provenance_observation.json
+and verified_wait_observations.jsonl for later observations.
 Host reference-query cache quota4GiB/rankquota715827882B. Monitor actual summed
 process-tree RSS and host headroom; reserved/model bytes are not RSS or host peaks.
 
