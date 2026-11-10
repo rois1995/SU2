@@ -6400,6 +6400,14 @@ void CConfig::CheckP1FluxOptions() const {
     SU2_MPI::Error("FLUX_CORRECTION: not available with grid motion, it does not keep free stream.", CURRENT_FUNCTION);
   }
 
+  /*--- EULER_WALL_CREASE_NORMALS (ROE_TECNO_PLAN.md 6.14) is a general boundary option (also without the P1 options), so its
+   * refusals come before the return of the P1 family checks. ---*/
+  if (Euler_Wall_Crease_Normals) {
+    const string name = "EULER_WALL_CREASE_NORMALS: ";
+    if (GetDynamic_Grid()) SU2_MPI::Error(name + "not with grid motion.", CURRENT_FUNCTION);
+    if (nMGLevels > 0) SU2_MPI::Error(name + "not with multigrid (MGLEVEL= 0).", CURRENT_FUNCTION);
+  }
+
   if (active.empty()) return;
 
   auto refuse = [&](const string& reason) { SU2_MPI::Error(active[0] + ": " + reason, CURRENT_FUNCTION); };
@@ -6627,11 +6635,6 @@ void CConfig::CheckP1FluxOptions() const {
     if ((Kind_Linear_Solver_Prec == Q_LU_SGS) || (Kind_Linear_Solver_Prec == Q_JACOBI) || (Kind_Linear_Solver_Prec == Q_IDENTITY))
       SU2_MPI::Error(name + "not with the quantized matrices (LINEAR_SOLVER_PREC= Q_LU_SGS, Q_JACOBI, Q_IDENTITY).", CURRENT_FUNCTION);
     if (GetDynamic_Grid()) SU2_MPI::Error(name + "not with grid motion.", CURRENT_FUNCTION);
-  }
-  if (Euler_Wall_Crease_Normals) {
-    const string name = "EULER_WALL_CREASE_NORMALS: ";
-    if (GetDynamic_Grid()) SU2_MPI::Error(name + "not with grid motion.", CURRENT_FUNCTION);
-    if (nMGLevels > 0) SU2_MPI::Error(name + "not with multigrid (MGLEVEL= 0).", CURRENT_FUNCTION);
   }
   if (BC_Entropy_P1) {
     /*--- Closure C on Euler walls, symmetry planes, far field, inlets and outlets; with NAVIER_STOKES and RANS (SA) the
