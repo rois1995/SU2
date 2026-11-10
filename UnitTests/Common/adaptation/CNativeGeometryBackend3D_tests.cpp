@@ -712,7 +712,7 @@ TEST_CASE("Closest cubic queries reuse immutable regions without reusing query b
   for(const auto& facet:fixture.facets)errors.emplace(facet.id,1e-12);
   auto make=[&](size_t quota) {return std::make_shared<MappedFacetReference>(fixture.reference,errors,57,SIZE_MAX,false,
       fixture.geometry->Curves(),quota);};
-  const auto fresh=make(0),cached=make(size_t(1)<<22),tiny=make(1);
+  const auto fresh=make(0),cached=make(size_t(1)<<22),tiny=make(1),saturated=make(8192);
   auto compare=[](const auto& a,const auto& b) {
     CHECK(a.facet==b.facet);CHECK(a.binding.feature==b.binding.feature);CHECK(a.binding.version==b.binding.version);
     CHECK(a.binding.dimension==b.binding.dimension);CHECK(a.binding.u==b.binding.u);CHECK(a.binding.v==b.binding.v);
@@ -726,6 +726,8 @@ TEST_CASE("Closest cubic queries reuse immutable regions without reusing query b
     const auto expected=fresh->ClosestCurved(hint,query,1e-7,16384);
     compare(cached->ClosestCurved(hint,query,1e-7,16384),expected);
     compare(tiny->ClosestCurved(hint,query,1e-7,16384),expected);
+    const auto bounded=saturated->ClosestCurved(hint,query,1e-7,3*expected.work);
+    compare(bounded,expected);CHECK(bounded.work<=3*expected.work);
   }
   const auto onlyBottom=[](Id id){return id==0;};
   const Point query{.25,.25,1.1};
@@ -733,6 +735,17 @@ TEST_CASE("Closest cubic queries reuse immutable regions without reusing query b
           fresh->ClosestCurved(0,query,1e-6,16384,SIZE_MAX,onlyBottom));
   const auto stats=cached->GeometryStatsSnapshot();CHECK(stats.closest_region_hits>0);CHECK(stats.closest_region_misses>0);
   CHECK(stats.prepared_bytes<=stats.prepared_limit);CHECK(tiny->GeometryStatsSnapshot().closest_region_retention_refusals>0);
+  const auto protectedCache=make(8192);
+  for(const Id hint:{Id(2),Id(2),Id(3),Id(4),Id(5),Id(6),Id(7),Id(8),Id(9),Id(10),Id(11)}) {
+    const auto only=[&](Id id){return id==hint;};
+    const auto point=fixture.reference->Get(hint).v[0].p;
+    const auto expected=fresh->ClosestCurved(hint,point,1e-7,16384,SIZE_MAX,only);
+    const auto bounded=protectedCache->ClosestCurved(hint,point,1e-7,3*expected.work,SIZE_MAX,only);
+    compare(bounded,expected);CHECK(bounded.work<=3*expected.work);
+  }
+  const auto pressure=saturated->GeometryStatsSnapshot();
+  CHECK(pressure.evictions>0);CHECK(protectedCache->GeometryStatsSnapshot().closest_region_retention_refusals>0);
+  CHECK(pressure.prepared_bytes<=pressure.prepared_limit);
   size_t work=99;CHECK_THROWS(cached->ClosestCurved(0,query,1e-6,1,SIZE_MAX,{},&work));CHECK(work==1);
   CHECK_THROWS(cached->ClosestCurved(0,query,1e-6,16384,0));
   auto expired=BackendBudget();expired.within_time=[](){return false;};

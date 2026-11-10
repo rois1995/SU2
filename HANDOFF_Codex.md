@@ -8,19 +8,31 @@ ONE connected curved-BL cycle. R=`integration_evidence/native_3d_bl_v1/dc17_18_c
 
 ## Frozen owned workload — authoritative current state
 
-Full SAMEseed RANS/BL326 is LIVE and FROZEN. Verified actual host identities:
-wrapper2098940/start34721692; time2099791/start34723446;
-timeout2099793/start34723447; mpirun2099795/start34723447; six ranks in
-`R/m6_runs/rans_curved326_v1/owned_handles.json` all match/live. No second job.
-At140s the initial finite CFD/Hessian/D1 prefix matches325; target normalization
-is underway. Check current status/handles before action; quiet logs are not terminal.
-Compiled sources/helpers/inputs remain FROZEN until actual terminal verification.
-Build326 PASS90.455s/all18 sampled identities absent; focused326 PASS6.404s,
-actual terminal receipt in its case directory. qualification326.json reuses325
-unchanged algorithm qualification. Only failure-local counters/error context and
-resource assertion changed; no traversal/cache-policy/precision/cap decisions.
-Run uses SAME303 saved SA seed/inputs/constraints/budgets. At terminal reconcile
-seed/root/refinement/cache work with attempted_work before choosing a correction.
+Full SAMEseed326 TERMINAL1/279.228s; all10 actual identities absent, pins/runtime
+verified. `R/m6_runs/rans_curved326_v1/assessment.json` preserves decisive attribution:
+16384work=2seed+17root+538refinement+15827cache;15503 clock scans,324 successful
+retentions,223 refusals plus one interrupted attempt. Same near-wall point325.
+Optional maintenance is96.60% of exhausted work. No normalized target or BL mesh.
+
+Active connected correction327: bound only optional CUBIC insertion to one clock
+scan per miss, preserving generic leaf/union default64. A miss recomputes immutable
+geometry, advances clock, may refuse retention; no query-bound/support/gate change.
+All existing reference pinning, byte accounting, insertion charging and limits stay.
+Each preparation adds at most one scan and one insertion: <=3x uncached work for
+identical traversal. Saturated-pool oracle checks exact geometry equality, work
+bound, evictions/refusals and memory ceiling. Focused then appropriate connected
+MPI milestone, immediately full SAMEseed M6. Build327 PASS48.141s/all17 sampled actual handles absent. Focused327 failed only
+unexercised refusal assertion (465/466), all5 exact handles absent.328 test-only
+adds warm planar root before pressure; production byte-identical327. Build328
+PASS32.114s/all10 sampled identities absent; focused328 PASS664assertions/2cases,
+8.715s/all5 actual handles absent/pins verified. Exact certificates and <=3x uncached
+work hold under saturation, including protected refusal and cold eviction.
+ONE connected MPI6 milestone328 LIVE session29646. Find actual case folder under
+`R/cases/curved328_mpi6_*`; verify actual PID/start identities and terminal status
+before any source/helper edit or next job. Compiled sources/helpers FROZEN.
+No additional broad serial campaign: reuse325 unaffected serial, new focused check
+covers changed policy. On MPI pass immediately full SAMEseed M6, original budgets.
+
 
 Historical Full SAMEseed RANS/BL325 TERMINAL1/427.031s (session20806
 closed), all10 exact host identities absent/pins/runtime verified. Source/runtime

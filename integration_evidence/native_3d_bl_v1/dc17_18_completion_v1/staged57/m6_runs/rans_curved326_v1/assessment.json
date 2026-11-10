@@ -1,0 +1,50 @@
+{
+  "build": "build326",
+  "outcome": "FAILED_OPTIONAL_CUBIC_CACHE_MAINTENANCE_WORK",
+  "workflow_accepted": false,
+  "target_completed": false,
+  "bl_mesh_generated": false,
+  "accepted_events": 0,
+  "terminal_seconds": 279.2279405593872,
+  "pins_verified": true,
+  "mapped_runtime_verified": true,
+  "all_owned_handles_terminal": true,
+  "sampled_peak_tree_rss_bytes": 3752235008,
+  "query": {
+    "point": [
+      0.8588339729254973,
+      0.2211809932944099,
+      0.0017865383054739758
+    ],
+    "wall": 0,
+    "hint": 10154,
+    "component": 10154,
+    "component_facets": 38800,
+    "absolute_error": 2e-12,
+    "maximum_work": 16384,
+    "attempted_work": 16384,
+    "available_bytes": 12714152
+  },
+  "work": {
+    "work": 16384,
+    "maximum_work": 16384,
+    "seed_work": 2,
+    "root_work": 17,
+    "refinement_work": 538,
+    "cache_work": 15827,
+    "failed_kind": 3,
+    "root_candidates": 17,
+    "completed_roots": 17,
+    "completed_refinements": 537,
+    "retention_attempts": 548,
+    "retention_successes": 324,
+    "retention_refusals": 223,
+    "cache_scans": 15503,
+    "scope_limit": 198418312,
+    "scope_bytes_at_failure_snapshot": 198417072,
+    "scope_entries_at_failure_snapshot": 122178,
+    "scope_evictions_at_failure_snapshot": 236864
+  },
+  "cache_work_fraction": 0.96600341796875,
+  "scope": "Same near-wall query as325. Optional cache work dominates. Root/refinement total555 plus2 seeds; failure inside cache work. No target/BL acceptance or end-to-end speedup inferred."
+}

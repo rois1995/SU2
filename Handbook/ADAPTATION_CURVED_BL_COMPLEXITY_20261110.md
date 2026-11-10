@@ -316,3 +316,37 @@ in concurrent callers; local work split remains per-query. No traversal/seed/
 cache-policy/cap/gate change. Focused failure checks then actual same-seed M6 to
 capture full state; reuse325 unchanged behavior instead of another broad MPI campaign
 for counters. Counter data must select the next correction.
+
+##326 terminal attribution and327 bounded optional maintenance
+
+Full326 terminal279.228s, all10 exact identities absent/pins/runtime verified. Same
+near-wall point as325. Work16384=seed2+root17+refinement538+cache15827; cache scans15503,
+324 insertions,223 refusals,one interrupted attempt. Root candidates17;537 completed
+refinements. Scope snapshot198417072B/198418312B,122178entries. Cache quota is the
+actual dynamic event allowance, not an assumed fixed half of rank quota. Optional
+maintenance consumed96.60% of cap: demonstrated blocker, not a geometric failure.
+
+327 keeps generic Pool::Retain default64 for prepared leaf/union callers. Only cubic
+region admission requests one clock scan per miss. Scan/pinning/credit/bytes and
+insertion charges remain unchanged; a protected entry can refuse caching and the
+query uses its fresh transient data. Repeated misses still advance the clock. No
+certificate, parameter, support, query order, normal/clearance or gate change.
+At most two metadata units per prepared region bounds total work by three times
+uncached geometry work at identical traversal. Saturated-cache test compares every
+result field to uncached, exercises refusal/eviction and enforces that work bound
+and byte limit. No claim of actual target or BL suitability until full case passes.
+
+327 builds48.141s/all17 sampled actual identities absent. Focused327465/466assertions
+passed; only protected-cache refusal coverage failed because the original sequence
+evicted cold entries without reusing them.328 test-only adds repeated exact planar
+root queries before pressure to earn clock credit, then distinct roots. Numerical
+certificates/work bound passed327; do not claim refusal path was exercised there.
+
+328 production byte-identical327; test-only rebuild32.114s/all10 actual sampled
+identities absent. Focused328664assertions/2cases passed8.715s/all5 actual identities
+absent/pins verified. Protected refusal now exercised; saturated exact certificates,
+<=3x uncached work, eviction and byte ceiling passed. ONE connected MPI6 milestone
+reuses325 affected selection before immediate full same-seed M6. Read-only caller
+review found no concrete defect: generic prepared-leaf/union remain64 scans; only
+cubic caller requests1. Saturation size8192 is host-layout-specific; its assertions
+establish pressure for this build, not portability proof.

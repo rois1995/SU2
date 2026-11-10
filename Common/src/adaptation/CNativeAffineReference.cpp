@@ -1117,11 +1117,11 @@ struct MappedFacetReference::CurvedSearch {
       // Reuse earns bounded protection proportional to reconstruction work per retained byte.
       e.credit=1+std::min<size_t>(3,e.work/(1+e.bytes/64));return e.data;
     }
-    template<class Work> bool Retain(const Key& key,const std::shared_ptr<PreparedFacet>& data,size_t size,size_t work,size_t limit,Work& op) {
+    template<class Work> bool Retain(const Key& key,const std::shared_ptr<PreparedFacet>& data,size_t size,size_t work,size_t limit,Work& op,size_t maximum_scans=64) {
       if(size>limit)return false;
       // Bounded clock work: cold scopes cannot permanently occupy a full pool. An active
       // shared reference pins its allocation and accounting until a later query can evict it.
-      size_t scans=std::min<size_t>(64,clock.size()*5);
+      size_t scans=std::min(maximum_scans,clock.size()*5);
       while(transfer_memory::Add(bytes,size)>limit && scans-- && !clock.empty()) {
         op.Work();auto first=clock.begin();auto found=values.find(*first);auto& e=found->second;
         if(e.data.use_count()!=1 || e.credit) {if(e.credit)--e.credit;clock.splice(clock.end(),clock,first);continue;}
@@ -1694,7 +1694,8 @@ MappedFacetReference::CurvedClosest MappedFacetReference::ClosestCurved(
         // A simultaneous query may have published the same immutable geometry while it was constructed.
         if(!curved_search->scopes.Find(key)) {
           ++retentionAttempts;
-          refused=!curved_search->scopes.Retain(key,prepared,bytes,1,limit,cacheWork);
+          // Optional cubic insertion advances the clock once; protected entries may refuse retention.
+          refused=!curved_search->scopes.Retain(key,prepared,bytes,1,limit,cacheWork,1);
           retentionSuccesses+=!refused;retentionRefusals+=refused;
         }
       } else {refused=true;++retentionAttempts;++retentionRefusals;}
