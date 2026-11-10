@@ -8,92 +8,64 @@ ONE connected curved-BL cycle. R=`integration_evidence/native_3d_bl_v1/dc17_18_c
 
 ## Frozen owned workload — authoritative current state
 
-Full SAMEseed328 TERMINAL1/368.935s; all10 actual identities absent/pins/runtime
-verified,1581 live-to-terminal pins unchanged. No normalized target or BL mesh.
-New near-wall point(.98982694199669863,.64060998248694723,-4.0371007098968091e-5)
-exhausted16384=2seed+46root+5604refinement+10732cache (5566scans,5166insertions).
-One scan per miss bounds each admission but not total optional cost.326 prior
-16384=2seed+17root+538refinement+15827cache; retained as distinct failure evidence.
+Full SAMEseed RANS/BL329 LIVE, tool session67659. Wrapper2191065/start34920623;
+time2191806/start34922170. Exact six rank identities in
+`R/m6_runs/rans_curved329_v1/owned_handles.json`; launch observation verifies all10
+actual host identities and1596 source/build/input/runtime pins unchanged.
+Check actual host `/proc` and status before action. Quiet logs/observation timeout
+are not terminal. Compiled sources/helpers/inputs FROZEN. ONE owned heavy job.
 
-Active connected329 correction: query-wide64-unit optional cubic cache allowance,
-reusing the old bounded-clock allowance at query scope. Each admission still at
-most1scan+1insertion; skip retention when fewer than2 optional units remain. Fresh
-immutable geometry still drives full certification. Generic union default64 per
-admission unchanged. Query cap16384/time/memory/tolerance unchanged; optional cost
-<=64 (not free), work<=uncached+64 at identical traversal. No new config/algorithm.
-329 adds this bound to saturated exact-result test. Capture two actual points in
-`R/m6_bl_inputs/closest328_points_v1`:325control plus328new failure, header core
-used only for policy construction, not full flow-target reconstruction. Focused
-then actual points and affected MPI check; reuse unchanged328 connected evidence,
-no another broad campaign for this query-local guard. Immediately full SAMEseed M6.
-Build329 PASS48.127s/all18 sampled actual build identities absent/pins verified.
-Focused329 PASS681assertions/2cases/8.797s, all5 exact identities absent/pins verified.
-Actual two-point probe329 PASS58assertions/13.964s/all5 identities absent/pins/runtime
-verified:325control1314work,328failure5791work, both same error2e-12/cap16384.
-Intervals width3.44961e-13/1.78769e-12. Cold serial differs from full warmed MPI;
-no full-context/target qualification. Scope receipt at cases/cubic_points_replay329_v1.
-Focused MPI6 PASSED14cases EACHrank/42.690s, all10 actual identities absent/pins
-verified; counts929/929/929/929/936/931(logorder). qualification329.json seals
-focused, both actual points, MPI and reused328 broader evidence.
-SAMEseed full329 LIVE session67659, wrapper2191065/start34920623;
-time2191806. All10 actual identities and all launch pins verified in
-`R/m6_runs/rans_curved329_v1/launch_observation.json`. Inspect run status and
-owned handles before action. Sources/helpers/inputs FROZEN. No other heavy job.
-Original saved303RANS seed, L1Mach500k,h02e-6/g1.2/T.01,geometry1e-4/native5400/
-outer14400TOTAL,12GiB/rank unchanged. FIRST_ROWnative1+CFDMPI6 is NOT distributed
-BL generation qualification. New actual target/BL mesh remains unproven.
-All original goals/gates/budgets remain; no BL suitability claim.
+Original303 savedRANS seed, Mach-onlyL1/500k,h02e-6/g1.2/T.01,geometry1e-4,
+native5400/outer14400TOTAL,12GiB/rank unchanged. CFDMPI6/FIRST_ROWnative1 is NOT
+distributed BL generation qualification. No normalized actual BL target or mesh yet.
 
-327/328 one-scan admission qualified: focused328664assert/2cases, MPI62cases EACH
-rank/408.243s, all exact handles absent/pins verified. Source checkpointa2d8f35f2a;
-qualification/full328 launch0101278806 pushed.328 is production byte-identical327.
+329 connected correction and full-launch checkpointbe73153380 PUSHED. CFD SHA
+69d635b238df15292c22f28e7aebee7083b8adabd73210dc320918cd53e36e72;
+test SHAaebaf1f8a84b6bfae5a6a134230803f496067d2f2f75d235c26a27e1ed3f1057.
+At terminal: verify every owned identity absent, source/runtime pins, raw logs and
+resource receipts. Preserve outcome; use existing work counters before selecting
+any further connected correction. Immediately pursue full BL/RANS workflow, not
+another baseline/perf/GDB campaign. All original acceptance obligations remain.
 
+## Current connected capability and evidence
 
-Historical Full SAMEseed RANS/BL325 TERMINAL1/427.031s (session20806
-closed), all10 exact host identities absent/pins/runtime verified. Source/runtime
-launch check1595pins/84ELF matched; initial CFD/Hessian/D1 prefix same323. No normalized
-target, BL mesh or accepted RANS event. Run `R/m6_runs/rans_curved325_v1`.
-New refused point(0.85883397292549735,0.22118099329440991,0.0017865383054739758),
-root/hint10154/wall0/38800facets, error2e-12,max/attempted16384,available12714152B.
-Peak sampled summed treeRSS3,753,537,536B. Preserve raw evidence/manifests and checkpoints.
-These325 handles are historical; LIVE326 now pins the sources.
+296 rejected curved wall authority.302/303 added genuine no-CAD cubic wall support,
+distance/normals, composition and chord integration.316/319 improved bounds and
+immutable region reuse. Full319 still failed normalization's first cell at5400s.
+322 uses existing bounded wall-support correction proposals, actual authority
+sampling and shared FIRST_ROW normalization; empirical uncertainty is not a proof.
+324/325 correct cube-overinclusive closest-root discovery using existing ADT distance
+screening with outward arithmetic padding; fallback stays conservative. Strict-FP
+caller/fast-math ADT proof covers current binary64/rounding/DAZ/FTZ envelope; other
+scalar modes/exact range endpoints remain unqualified. No new index/representation.
 
-Existing near-point replay325 TERMINAL0/11.685s,39assertions, all5 exact identities
-absent/pins/runtime verified. SAME captured point/ref/hint/error completes2500work;
-metric Evaluate warm1251extra, interval width3.44961e-13. Old-cube lower count3.
-`R/m6_bl_inputs/closest325_point_v1` and `R/cases/cubic_near_point_replay325_v1`.
-THIS DOES NOT reproduce full-state work refusal: cold serial pool/history differs
-from fullMPI rank quota715827882B. Header core reused only for policy construction;
-closest primitive independent of it. Do not claim complete target/BL suitability.
+326 full evidence isolated optional cache maintenance:16384work=2seed+17root+
+538refinement+15827cache.327/328 one clock scan per cubic miss retained generic
+leaf/union64-scan behavior, pinning, byte admission and charges. Full328 reached a
+DIFFERENT point but still failed16384=2seed+46root+5604refinement+10732cache.
+Both failed before a normalized target/BL mesh; all actual handles terminal and
+pins/runtime verified. Detailed receipts: `R/m6_runs/rans_curved{326,328}_v1/assessment.json`.
 
-NEXT after frozen326 terminal: assess actual full-query work/context before a fix.
-Cold physical query needs2500, full refused16384. Audit model identity and prepared
-cache/quota/history. Pool::Retain can scan64 protected entries per new insertion;
-metadata pressure is a hypothesis, NOT measured cause. Read-only review confirms quota/history, clock credit and shared event budget
-differences; it has not established the cause.
-326 now contains minimal failure-only LOCAL work split (seed, root/refinement preparations,
-cache metadata; candidates/retention outcomes if useful). Reconcile exactly with
-attempted_work. Emit after lock unwinding; counter lifetimes must cover the work
-receipt. Do NOT Snapshot/lock/call telemetry callbacks from consume/Retain because
-prepared_mutex may already be held. Preserve exception type/charging/decisions.
-No new geometry algorithm, tolerance/cap increase, projection seed or cache variant
-before attribution. If optional cubic maintenance is the demonstrated blocker,
-preserve generic union-scope cache behavior and all active-reference accounting.
-No new baseline/perf/GDB campaign. Then focused checks/appropriate milestone cadence
-and immediately SAMEseed full M6. Full goal/gates/budgets remain unchanged.
+329 completes the SAME optional-maintenance correction: at most64 charged cache
+units per entire cubic query; skip retention if fewer than2 remain for scan+insert.
+Fresh immutable geometry still drives full certification; no certificate/query
+order/tolerance/work-cap/target/repair change. Generic leaf/union default64 per
+admission unchanged. At identical traversal, totalwork<=uncached+64 and<=3xuncached.
+Original query cap16384 can still refuse genuinely expensive geometry.
 
-SAME303 seed/mesh/ref/config, CFDMPI6/FIRST_ROWnative1, Mach-onlyL1/500k,
-h02e-6/g1.2/T.01,geometry1e-4,native5400/outer14400TOTAL,12GiB/rank unchanged.
-FIRST_ROWnative1 with MPI6 parents is NOT distributed BL generation qualification.
+qualification329.json seals: focused681assertions/2cases/8.797s; actual two captured
+points58assertions/13.964s; focused MPI6 14cases EACHrank/42.690s. All actual handles
+absent/pins verified. Actual325control1314work;328failure5791work at SAME2e-12error/
+16384cap; interval widths3.44961e-13/1.78769e-12. Cold serial history differs from full
+warmed MPI, so not full target qualification. Reused325 unaffected64case serial and
+328 broaderMPI62cases EACHrank/408.243s remain explicit behavior evidence. Prior303
+seven baseline-controlled failures remain failures, not an all-suite pass.
 
-Build325 terminal0/32.122s/all10 sampled actual build handles absent. Production CFD
-byte-identical324: afcb2a2e3bc586d5f1838e5e713a4ca5d0c2d73d025397980694a6c594adf3ee;
-test e0daef24add891fb4af8daa05555dbb0666a443259653e5cf2edbe277910a042.
-325 implementation/qualification/full launch checkpoint977f4a4d9f is pushed.
-Terminal outcome/new near-query evidence checkpoint1fe6e09baf is pushed. Preserve old
-qualification receipts; they do not establish actual target or BL mesh acceptance.
+[Connected design, proof and full evidence](Handbook/ADAPTATION_CURVED_BL_COMPLEXITY_20261110.md),
+[bound/cache history](Handbook/ADAPTATION_CURVED_BL_LEAF_BOUNDS_20261110.md),
+[pre329 handoff history](Handbook/History/HANDOFF_before329_cache_consolidation_20261110.md).
 
-## User-queued investigation — do not reprioritize active attribution
+## User-queued investigation — first representative saved result
 
 At FIRST representative saved actual BL mesh/patch, run the bounded
 [Coulaud2025 leading-edge audit](Handbook/ADAPTATION_LEADING_EDGE_TANGENT_METRIC_QUEUE_20261110.md).
@@ -103,52 +75,6 @@ directional conformity/q/J on complete surface/neighboring volume patches. Smoot
 patches and genuine features separately; a patch seam is not a physical feature.
 Keep CAD optional, all gates and current L1/Hessian policy. No high-order elements,
 new geometry/scheduler or paper-normal extension as a BL height law. See backlog.
-
-## Connected correction and scope
-
-296 refused curved M6 wall authority.302/303 implemented genuine no-CAD cubic
-wall distance/normals, composition, quadrature/chords and shared resource budgets.
-303/314 failed chord work;316 bounds and319 exact immutable region reuse cleared
-captured chords but full319 failed first target cell at native5400s. No BL mesh.
-322 qualified padded cubic correction proposals, true authority evaluation and
-shared FIRST_ROW normalization; its full case then failed a distance query.
-323 diagnostics captured/reproduced exact far-field point(-19.516658935823891,
-2.0845123426984715,19.090249991586017), component/hint10154,38800facets,
-error2e-12,work16384. All these historical handles terminal and pins/runtime verified.
-
-324/325 reuses EXISTING ADT distance discovery with proven outward arithmetic
-padding in a safe squared-radius range; otherwise keeps original cube. Full support,
-allowed facets, mutex/sorting, fresh normals/clearance/certification and all budgets
-remain. No new index/cache/config/scheduler/geometry representation or metric policy.
-[Proof, callers and evidence](Handbook/ADAPTATION_CURVED_BL_COMPLEXITY_20261110.md).
-Caller is strict FP, ADT fast-math; proof covers DAZ/FTZ and positive accumulation.
-Read-only review found no concrete current binary64 completeness defect under stated
-conditions. Other scalar build modes and exact range endpoints remain unqualified.
-
-- Focused325 PASS120assertions/5.767s/all5 actual handles absent: indexed48facet/two-
-  body tight32work oracle, cold/warm/zero cache, tiny radius, changed rounding,
-  explicit FTZ/DAZ+subnormal input, restricted support/work/storage refusal.
-- Actual saved point325 PASS39assertions/11.816s/all5 identities absent/pins/runtime
-  verified: direct406work at SAME16384cap/error2e-12, interval width1.04805e-12;
-  further metric evaluation204work. Inward final-upper cube contains38800roots,
-  a subset of old initial cube. Old root preparation necessarily exceeded16384
-  before refinement regardless of cache hits. Point323 stays FAILED16384work.
-- Affected serial PASS64cases/286722assertions/362.233s/all5 actual handles absent.
-- ONE MPI6 PASS62cases EVERYrank/459.039s/all10 exact identities absent/pins verified;
-  assertions4701/4664/4703/5297/4752/4712(log order).
-
-qualification325.json is BEHAVIOR scope, not normalized target/BL mesh/workflow
-acceptance. No full timing speedup inference from a previously incomplete query.
-325 only corrects324 test's unjustified exact-zero upper expectation and adds FP
-checks; production identical324. Preserve failed evidence. Prior303seven baseline-
-controlled failures outside affected selection remain failures, not an all-suite pass.
-
-Use actual325 outcome/cold-context discrepancy above to drive next work. No isolated
-baseline/perf/GDB campaigns or speculative cache variants. Preserve every BL suitability, mesh,
-transfer, continued-CFD and restart obligation. FIRST_ROWnative1 with MPI6 parents
-is NOT distributed BL generation qualification. CAD stays optional.
-[Integration history](Handbook/ADAPTATION_CURVED_BL_INTEGRATION_20261109.md),
-[bound/cache history](Handbook/ADAPTATION_CURVED_BL_LEAF_BOUNDS_20261110.md).
 
 ## Saved RANS seed and unchanged full-case inputs
 
