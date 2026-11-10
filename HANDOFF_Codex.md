@@ -8,11 +8,14 @@ ONE connected curved-BL cycle. R=`integration_evidence/native_3d_bl_v1/dc17_18_c
 
 ## Current owned workload — authoritative
 
-NONE.337 build and actual cavity experiment are TERMINAL0; all10 observed build
-handles and all5 actual replay identities absent, pins unchanged,70 actual mapped
-ELF verified. Production CFD byte-identical334. Build178.188s; replay77.770s,
-304573assertions/1case. This is a GEOMETRY/CONTROL experiment, not BL acceptance.
-`R/qualification337.json`, `R/surface_cavities337_assessment.json` seal scope.
+NONE.338 build and precision check are TERMINAL0; all9 observed build identities
+and2 observed short-test identities absent, pins unchanged. Production CFD remains
+byte-identical334. Build16.141s; focused serial check165assertions/1case plus243
+bitwise coordinate/core-metric values recovered via existing capcheck.read_vtu.
+The existing VOLUME_OUTPUT_PRECISION=DOUBLE/Paraview XML path is sufficient;
+no new exporter is needed. `R/target_core338_audit.json` seals source and test scope.
+337 geometry experiment remains qualified ONLY for its bounded geometry/control
+scope: `R/qualification337.json`, `R/surface_cavities337_assessment.json`.
 
 Five exact original303 contexts,40trials:37constructed, externally clear and fully
 measured;3refusals (root body/feature, sharp-candidate volume obstruction). Each
@@ -49,12 +52,25 @@ actual target conformity remains unproven. Keep final full-target size/geometry 
 first-child clearance separate from selection. Quantify actual flow/inherited/geometry/height contributions
 and global provisional complexity excess BEFORE changing target policy. Preserve
 constrained/blended directions and rebuild affected dependencies after surface edits.
-Checkpoint8b3ae2e275 pushed;337 source/evidence ready for next WIP checkpoint.
-Exact same303 double sensor snapshot was not found; Float32 VTU and older binary
-seeds cannot substitute for exact production target provenance. Retain that gap,
-trace the actual flow/nodal/composed target path (bounded read-only agent assigned),
-and use existing capture/export
-facilities to retain exact target input before judging a sizing-policy change.
+337 source/evidence PUSHED9955cd2756 (334 prerequisite checkpoint8b3ae2e275).
+Run330's exact double core was not saved and cannot be recovered from Float32.
+Caller audit confirms GetMetric is the normalized/bounded/gradated bare flow CORE;
+FIRST_ROW composition is applied later, not twice. The steady adaptation loop
+consumes it directly after Postprocess/Output, without public RemeshFromMetric's
+refresh. Existing output precision DOUBLE preserves core scalar fields losslessly.
+Prepared `R/m6_bl_inputs/rans_curved_surface_ready_v1` reuses exact303 mesh/ref/SA
+seed; ONLY existing VOLUME_OUTPUT_PRECISION=DOUBLE differs from canonical303.
+NOT LAUNCHED. No new baseline/profiling capture campaign; use this output at the
+next authorized full workflow. Verify Float64 types/counts and exact node mapping
+before reuse. Core output is not the BL-composed target: reconstruct with unchanged
+geometry/associations/profile/composition. No new exporter/config knob required.
+
+Next connected source work: intrinsic wall guidance must query the core without
+first invoking the expensive geometric composition. Reuse FrozenField's donor
+lookup/cache/current-nodal transport for a core-only query, then connect it to
+surface preparation; do not redefine target transport or cache distance certificates.
+Complete geometry/tangential readiness, constrained-field refresh and coordinated
+front/transition integration remain required before full attempt/MPI milestone.
 
 The original bad root/LE geometry and geometry-refused smooth collapses show why
 readiness must include complete-patch certification. Existing native engine already

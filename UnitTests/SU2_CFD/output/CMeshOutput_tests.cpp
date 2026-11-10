@@ -28,6 +28,7 @@
 
 #include <algorithm>
 #include <array>
+#include <cmath>
 #include <cstdio>
 #include <fstream>
 #include <map>
@@ -39,8 +40,11 @@
 #include "../../../Common/include/geometry/meshreader/CSU2ASCIIMeshReaderFVM.hpp"
 #include "../../../Common/include/geometry/meshreader/CSU2BinaryMeshReaderFVM.hpp"
 #include "../../../Common/include/geometry/meshreader/CCGNSMeshReaderFVM.hpp"
+#include "../../../Common/include/geometry/meshreader/CMemoryMeshReaderFVM.hpp"
 #include "../../../SU2_CFD/include/drivers/CDriver.hpp"
 #include "../../../SU2_CFD/include/output/CMeshOutput.hpp"
+#include "../../../SU2_CFD/include/output/filewriter/CFVMDataSorter.hpp"
+#include "../../../SU2_CFD/include/output/filewriter/CParaviewXMLFileWriter.hpp"
 #include "../../Common/adaptation/SimplexMeshTestCase.hpp"
 
 namespace {
@@ -232,6 +236,33 @@ CSimplexMesh AnisotropicRectangle() {
 }
 
 }  // namespace
+
+TEST_CASE("Native metric output retains binary64 fields through the existing writer", "[.][NativeMetricOutputPrecision3D]") {
+  const auto mesh=simplex_test::MakeSimplexMesh(3,2,simplex_test::Marker3D);
+  auto config=MakeConfig(3,"unused.su2","SU2","",
+      "MARKER_FAR= (x_minus, x_plus, y_minus, y_plus, z_plus, z_minus_a, z_minus_b)\nVOLUME_OUTPUT_PRECISION= DOUBLE\n");
+  REQUIRE(config->GetVolume_Output_Double_Precision());
+  CMemoryMeshReaderFVM reader(config.get(),mesh,0,1);CGeometry** geometry=nullptr;
+  CDriver::BuildGeometryFVM(config.get(),new CPhysicalGeometry(config.get(),reader,1),geometry,true);
+  std::unique_ptr<CGeometry*[]> arrayOwner(geometry);std::unique_ptr<CGeometry> fine(geometry[MESH_0]);
+  const vector<string> fields{"x","y","z","Metric_XX","Metric_XY","Metric_XZ","Metric_YY","Metric_YZ","Metric_ZZ"};
+  CFVMDataSorter sorter(config.get(),fine.get(),fields);
+  const auto value=[](unsigned long node,unsigned component) {
+    return (component==0||component==3||component==5?1.:.125)+std::ldexp(double(6*node+component+1),-40);
+  };
+  for(unsigned long p=0;p<fine->GetnPointDomain();++p) {
+    const auto id=fine->nodes->GetGlobalIndex(p);
+    for(unsigned d=0;d<3;++d)sorter.SetUnsortedData(p,d,fine->nodes->GetCoord(p,d));
+    for(unsigned k=0;k<6;++k)sorter.SetUnsortedData(p,3+k,value(id,k));
+  }
+  sorter.SortOutputData();sorter.SortConnectivity(config.get(),fine.get(),true);
+  REQUIRE(sorter.GetnPointsGlobal()==mesh.GetnPoint());
+  for(unsigned long p=0;p<sorter.GetnPoints();++p)for(unsigned k=0;k<6;++k)
+    CHECK(sorter.GetData(3+k,p)==value(sorter.GetGlobalIndex(p),k));
+  CParaviewXMLFileWriter writer(&sorter,config->GetVolume_Output_Double_Precision());
+  writer.WriteData("native_metric_binary64");
+  if(SU2_MPI::GetRank()==MASTER_NODE){std::ifstream output("native_metric_binary64.vtu",std::ios::binary);REQUIRE(bool(output));}
+}
 
 TEST_CASE("Mesh output from memory, SU2", "[Adaptation]") {
   CheckWriteAndRead(simplex_test::MakeSimplexMesh(2, 4, simplex_test::Marker2D), "SU2");

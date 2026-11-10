@@ -421,3 +421,42 @@ Reuse these facilities in the connected implementation. Distinguish around-nose
 geometry demand from the tested spanwise edge, and resolve exact target retention/
 composition before policy changes. Full surface/direction/front/transition integration,
 MPI qualification and RANS500k remain required; no full attempt is launched yet.
+
+##338 exact target-input provenance and existing export facility
+
+Source audit distinguishes the core from its BL composition. CSolver writes the
+normalized/scaled/bounded/gradated flow core to node GetMetric and retained selected;
+FIRST_ROW applies its policy to a separate composed copy for target assessment.
+The steady RunAdaptationLoop consumes GetMetric directly after RunTimeLoop's
+Postprocess and Output. Public RemeshFromMetric refreshes, but this loop does not.
+Thus there is no duplicate BL composition or second metric rebuild in this path.
+
+Run330 preserved only Float32 visualization fields; lost double bits cannot be
+restored. Contrary to the initial absence-of-codec concern, an existing facility
+already provides lossless output: VOLUME_OUTPUT_PRECISION=DOUBLE selects Float64
+for points and scalar Metric_XX/XY/XZ/YY/YZ/ZZ in the Paraview XML writer. The sorter
+stores passivedouble and transfers MPI_DOUBLE in the native primal-double build.
+No new exporter, persistence framework or config option is required.
+
+338 adds a focused check of that EXISTING path:165C++ assertions and243bitwise
+coordinate/metric values through CFVMDataSorter, CParaviewXMLFileWriter and the
+existing independent capcheck.read_vtu. Values distinguish binary64 from Float32.
+Build16.141s, serial wrapper4.322s, unchanged pins; all9observed build handles and
+2observed short-test identities absent. Production CFD byte-identical334. Runtime
+libraries use existing pinned manifest; the short child was not individually
+sampled for a new maps snapshot. No MPI export or actual M6 field is claimed yet.
+`R/target_core338_audit.json` pins source facts and evidence.
+
+Prepared `R/m6_bl_inputs/rans_curved_surface_ready_v1` preserves exact303 mesh,
+immutable reference and reasonable saved SA seed; ONLY existing output precision
+changes. It is NOT launched. Use this at the next authorized full workflow, with no
+new baseline/profiler campaign. Check Float64/counts and exact global-node/coordinate
+association before reusing a capture. The exported core is NOT the BL-composed
+tensor; actual reconstruction still needs the unchanged geometry and wall policy.
+
+The next connected source step is a core-only FrozenField query sharing existing
+donor/cache/current-nodal rules, followed by intrinsic wall guidance and the native
+engine's complete surface-readiness path. Do not use legacy RefineOptimize for this:
+it disables mapped boundary optimization/freezes wall-adjacent vertices, while the
+current mutable production lifecycle is AdaptMetric. This is part of the requested
+surface/direction/front milestone, not a new scheduler or target-policy change.

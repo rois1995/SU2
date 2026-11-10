@@ -1,0 +1,30 @@
+{
+  "actual_host_proc": true,
+  "all_owned_handles_terminal": true,
+  "live_owned_handles": [],
+  "sampled_identities": [
+    {
+      "pid": 102548,
+      "start_ticks": 39757045
+    }
+  ],
+  "wrapper_excluded": {
+    "pid": 102468,
+    "start_ticks": 39756873
+  },
+  "checked_unix": 1794353172.406392,
+  "wrapper_verified_terminal": true,
+  "identities": [
+    {
+      "pid": 102548,
+      "start_ticks": 39757045,
+      "state": "ABSENT"
+    },
+    {
+      "pid": 102468,
+      "start_ticks": 39756873,
+      "state": "ABSENT"
+    }
+  ],
+  "scope": "All observed owned identities absent; short-lived child identities can fall between resource samples."
+}

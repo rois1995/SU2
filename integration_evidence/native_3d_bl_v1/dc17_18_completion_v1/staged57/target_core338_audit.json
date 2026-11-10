@@ -1,0 +1,54 @@
+{
+  "checked_unix": 1794353474.187066,
+  "build": 338,
+  "production_CFD_sha256": "af35dc0f42e096d9a6e2a4bc1ed28930db7c22b0d7cd4a4b622765729e92c48d",
+  "scope": "Production target-input/output source audit plus focused binary64 export validation; no M6 recomputation, adaptation, profiling or new export implementation.",
+  "facts": [
+    "Steady RunAdaptationLoop consumes GetMetric directly after RunTimeLoop; public RemeshFromMetric refreshes separately.",
+    "Postprocess computes sensor/Hessian/core metric before Output.",
+    "GetMetric retains normalized, scaled, bounded, sensor-gradated flow core; FIRST_ROW geometric BL composition is applied at target queries.",
+    "The composed copy in CSolver does not overwrite core nodes; there is no duplicate BL composition.",
+    "Existing VOLUME_OUTPUT_PRECISION=DOUBLE reaches CParaviewXMLFileWriter Float64 for coordinates and all scalar Metric_XX/XY/XZ/YY/YZ/ZZ fields.",
+    "Data sorter stores passivedouble and sends MPI_DOUBLE; normal primal build is double.",
+    "CFVMDataSorter orders point fields by original global IDs; future M6 capture must verify IDs/coordinates/connectivity rather than assume a mapping."
+  ],
+  "qualification": {
+    "cpp_assertions": 165,
+    "bitwise_values_checked": 243,
+    "points": 27,
+    "components": 6,
+    "serial_only": true,
+    "production_binary_unchanged_since334": true,
+    "roundtrip_sha256": "f18d351598df33e8b596f0399f7c44c45ab31bd1bda4cf713823bb4addebb913"
+  },
+  "remaining": [
+    "Run330 Float32 precision cannot be restored.",
+    "Actual M6 Float64 core has not yet been emitted; prepared same303 input is NOT launched.",
+    "Core tensor export is not the BL-composed target; replay requires the same geometry/parameters/profile/target composition.",
+    "No claim of surface readiness, curved BL generation, MPI BL qualification or RANS workflow acceptance."
+  ],
+  "prepared_input": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_bl_inputs/rans_curved_surface_ready_v1/provenance.json",
+  "source_sha256": {
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/Common/src/CConfig.cpp": "72144df5bc675ae38c0342f884bfab224b507ec6ea313efaa6e3d90e51ca95f6",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/Common/include/CConfig.hpp": "6f47c253648f6ee6045a4697d94c47359a501ea11d40c1da38931ded70313012",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/SU2_CFD/src/output/COutput.cpp": "e949804a4ad7d938253c00dac5fdef8033faadcba9d5611255ac0c3381b37bba",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/SU2_CFD/src/output/CFlowOutput.cpp": "e4a95456a6fb2084f64c991fbaf5a7b92839683b917ccfd9e76d92e43b12283d",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/SU2_CFD/src/output/filewriter/CParaviewXMLFileWriter.cpp": "31245c39a008ece41728877f06b7c74e2fbb49b38125b99512857f890fa3b09c",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/SU2_CFD/include/output/filewriter/CParallelDataSorter.hpp": "6313ed4efe2e5507e8a26fce0fe907b08d5417e012a97a0379ed2010c0e0b50b",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/SU2_CFD/src/output/filewriter/CParallelDataSorter.cpp": "ad47b90feac3e6af473c9b7255c675f697023b7893fdef5e0b3f173f363623f9",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/SU2_CFD/src/output/filewriter/CFVMDataSorter.cpp": "6b098b383e8cf75420268225859d01e710a1f0a4c218f6f9afc6f0ded8f4904d",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/SU2_CFD/src/drivers/CSinglezoneDriver.cpp": "9e1af6142765c610db6989512fd368ee0aea5697d5e2a13c27c7a38072a4ac1c",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/SU2_CFD/src/solvers/CSolver.cpp": "a96cf2a80c674e559393efde588ad8dc9d43c6c8455526c2762bd658452a8358",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/SU2_CFD/include/adaptation/CNativeMetricFamily3D.hpp": "26675c9036ac8417736d644e524c7d63b3620cf5f875ec8a2455ac9347951329"
+  },
+  "evidence_sha256": {
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/build338_source_pins.json": "0861d968b658854a08099e0c77e06bcb2c637316633b0d4996d348b084d8426d",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/build338_status.json": "128ee5d2fef5fc9d7cea615f111e5a0de149741d668868211343cf4694761533",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/build338_terminal_handles.json": "5825c66323edf15e053dbcc902be5452c30959836fca19ebe74be48222976c41",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved338_precision_20261110T232529_102468/status.json": "123cc3493e8a90d1a2e064c1ccb0f202220edb3ccaefe4545a7f3a5f21019755",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved338_precision_20261110T232529_102468/pins.json": "3636bfb04d07f38253e15743b98ec9a9654569ea2101a25a4e44a70f2323791c",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved338_precision_20261110T232529_102468/run.log": "ee4c6791295919184c185206cfbf9ae43897f11b2bd29acb1e5719b1160c33cd",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved338_precision_20261110T232529_102468/bitwise_roundtrip.json": "f18d351598df33e8b596f0399f7c44c45ab31bd1bda4cf713823bb4addebb913",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved338_precision_20261110T232529_102468/terminal_handles_actual.json": "9772df5bb906bc192375a89868f1a108704755e2643f0e69d8d06d49173a666d"
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "created_unix": 1794352483.1254046,
+  "scope": "Prepared input only; NOT launched. Same saved303 RANS seed, mesh, reference, Mach-only L1,500k, heights, constraints and budgets. Existing output precision option only.",
+  "parent_config": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_bl_inputs/rans_curved303_v1/run.cfg",
+  "parent_config_sha256": "1f17f94fab7796eb4a34bdd3cf36a854fdc3eff401486033f07445633599c3af",
+  "config_sha256": "0a7de022729f69b170deaee2eaabbd5347550da8134cbdaa39587f7173e78742",
+  "only_config_change": "VOLUME_OUTPUT_PRECISION=DOUBLE",
+  "payload_sha256": {
+    "m6.su2": "8c839170eb5e359f7de6a41434aa6a9c2d620053f37de6d9360bd04d2a63088b",
+    "m6.su2.native_ref": "2e99fb7870e2c718f110da8509e4c0f7e746ce138e7f27ab57aa0dedbb6c42de",
+    "baseline_sa_seed.dat": "c90000ea804c7e08a54dbec93f218b5bd3ae3dce3db8c287db6783fd138f1c78"
+  },
+  "source_provenance_sha256": "4ba36777d9c1a80fe31b4dd8669b36b386bea0a8e86979032b1fc2720f7ab64b",
+  "expected_output": "Paraview XML Float64 core METRIC_XX/XY/XZ/YY/YZ/ZZ plus coordinates; not the BL-composed target.",
+  "verification_required": "Before reuse, verify types/counts, exact source-node association and reconstruct/query the same frozen BL target. No full attempt until surface/front connected milestone is qualified."
+}
