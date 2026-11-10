@@ -813,7 +813,14 @@ TEST_CASE("Indexed cubic closest queries avoid cube-only roots under the origina
     CHECK_THROWS_AS(geometry.ClosestCurved(0,{-19,2,19},1e-10,32,SIZE_MAX,{},&work),std::length_error);
     CHECK(work==32);
   }
-  size_t attempted=0;CHECK_THROWS(geometry.ClosestCurved(0,{-19,2,19},1e-10,1,SIZE_MAX,{},&attempted));CHECK(attempted==1);
+  size_t attempted=0;bool exhausted=false;
+  try {geometry.ClosestCurved(0,{-19,2,19},1e-10,1,SIZE_MAX,{},&attempted);}
+  catch(const std::length_error& error) {
+    exhausted=true;const std::string message=error.what();INFO(message);
+    CHECK(message.find("Cubic closest work replay:")!=std::string::npos);
+    CHECK(message.find("\"work\":1,\"maximum_work\":1,\"seed_work\":1,\"root_work\":0,\"refinement_work\":0,\"cache_work\":0")!=std::string::npos);
+  }
+  CHECK(exhausted);CHECK(attempted==1);
   CHECK_THROWS(geometry.ClosestCurved(0,{-19,2,19},1e-10,32,0));
   CHECK_THROWS(geometry.ClosestCurved(0,{1e155,1e155,1e155},1e-10,32));
 }

@@ -301,3 +301,18 @@ count can distinguish effects; cache size/quota must be read under its existing 
 Emit failures AFTER lock unwinding, with counters alive through the work receipt.
 Never Snapshot or invoke telemetry callbacks inside consume/Retain while the prepared
 mutex may be held. No edits/jobs were performed by review.
+
+##326 attribution-only step — no decision changes
+
+Actual full/cold discrepancy remains unresolved. Add local counters at unchanged
+consume sites: seed, root prepare, refinement prepare, cache metadata. Sum exactly
+to attempted work; completed preparation and retention outcome counts distinguish
+unfinished work. A private work-limit marker unwinds ALL query/pool locks before
+formatting the same public length_error and capturing scope size/quota/evictions
+under the existing mutex. No Snapshot/telemetry callback under consume/Retain.
+Cache scans=charged metadata-successful insertions for this work-limit exit.
+Shared cache snapshot is explicitly after failure and may include other queries
+in concurrent callers; local work split remains per-query. No traversal/seed/
+cache-policy/cap/gate change. Focused failure checks then actual same-seed M6 to
+capture full state; reuse325 unchanged behavior instead of another broad MPI campaign
+for counters. Counter data must select the next correction.

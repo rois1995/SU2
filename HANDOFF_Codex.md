@@ -8,14 +8,28 @@ ONE connected curved-BL cycle. R=`integration_evidence/native_3d_bl_v1/dc17_18_c
 
 ## Frozen owned workload — authoritative current state
 
-No owned heavy job. Full SAMEseed RANS/BL325 TERMINAL1/427.031s (session20806
+Full SAMEseed RANS/BL326 is LIVE and FROZEN. Verified actual host identities:
+wrapper2098940/start34721692; time2099791/start34723446;
+timeout2099793/start34723447; mpirun2099795/start34723447; six ranks in
+`R/m6_runs/rans_curved326_v1/owned_handles.json` all match/live. No second job.
+At140s the initial finite CFD/Hessian/D1 prefix matches325; target normalization
+is underway. Check current status/handles before action; quiet logs are not terminal.
+Compiled sources/helpers/inputs remain FROZEN until actual terminal verification.
+Build326 PASS90.455s/all18 sampled identities absent; focused326 PASS6.404s,
+actual terminal receipt in its case directory. qualification326.json reuses325
+unchanged algorithm qualification. Only failure-local counters/error context and
+resource assertion changed; no traversal/cache-policy/precision/cap decisions.
+Run uses SAME303 saved SA seed/inputs/constraints/budgets. At terminal reconcile
+seed/root/refinement/cache work with attempted_work before choosing a correction.
+
+Historical Full SAMEseed RANS/BL325 TERMINAL1/427.031s (session20806
 closed), all10 exact host identities absent/pins/runtime verified. Source/runtime
 launch check1595pins/84ELF matched; initial CFD/Hessian/D1 prefix same323. No normalized
 target, BL mesh or accepted RANS event. Run `R/m6_runs/rans_curved325_v1`.
 New refused point(0.85883397292549735,0.22118099329440991,0.0017865383054739758),
 root/hint10154/wall0/38800facets, error2e-12,max/attempted16384,available12714152B.
 Peak sampled summed treeRSS3,753,537,536B. Preserve raw evidence/manifests and checkpoints.
-All sources free to edit ONLY after checking current handles again before new work.
+These325 handles are historical; LIVE326 now pins the sources.
 
 Existing near-point replay325 TERMINAL0/11.685s,39assertions, all5 exact identities
 absent/pins/runtime verified. SAME captured point/ref/hint/error completes2500work;
@@ -25,12 +39,12 @@ THIS DOES NOT reproduce full-state work refusal: cold serial pool/history differ
 from fullMPI rank quota715827882B. Header core reused only for policy construction;
 closest primitive independent of it. Do not claim complete target/BL suitability.
 
-NEXT in SAME connected cycle: attribute actual full-query work/context before a fix.
+NEXT after frozen326 terminal: assess actual full-query work/context before a fix.
 Cold physical query needs2500, full refused16384. Audit model identity and prepared
 cache/quota/history. Pool::Retain can scan64 protected entries per new insertion;
 metadata pressure is a hypothesis, NOT measured cause. Read-only review confirms quota/history, clock credit and shared event budget
 differences; it has not established the cause.
-Add minimal failure-only LOCAL work split (seed, root/refinement preparations,
+326 now contains minimal failure-only LOCAL work split (seed, root/refinement preparations,
 cache metadata; candidates/retention outcomes if useful). Reconcile exactly with
 attempted_work. Emit after lock unwinding; counter lifetimes must cover the work
 receipt. Do NOT Snapshot/lock/call telemetry callbacks from consume/Retain because
@@ -49,8 +63,19 @@ Build325 terminal0/32.122s/all10 sampled actual build handles absent. Production
 byte-identical324: afcb2a2e3bc586d5f1838e5e713a4ca5d0c2d73d025397980694a6c594adf3ee;
 test e0daef24add891fb4af8daa05555dbb0666a443259653e5cf2edbe277910a042.
 325 implementation/qualification/full launch checkpoint977f4a4d9f is pushed.
-Terminal outcome/new near-query evidence checkpoint still pending. Preserve old
+Terminal outcome/new near-query evidence checkpoint1fe6e09baf is pushed. Preserve old
 qualification receipts; they do not establish actual target or BL mesh acceptance.
+
+## User-queued investigation — do not reprioritize active attribution
+
+At FIRST representative saved actual BL mesh/patch, run the bounded
+[Coulaud2025 leading-edge audit](Handbook/ADAPTATION_LEADING_EDGE_TANGENT_METRIC_QUEUE_20261110.md).
+Paper read in focused primary-PDF extracts; hypotheses only. Separate physical
+curvature/tolerance demand, flow/geometry/height target plus gradation, and actual
+directional conformity/q/J on complete surface/neighboring volume patches. Smooth
+patches and genuine features separately; a patch seam is not a physical feature.
+Keep CAD optional, all gates and current L1/Hessian policy. No high-order elements,
+new geometry/scheduler or paper-normal extension as a BL height law. See backlog.
 
 ## Connected correction and scope
 

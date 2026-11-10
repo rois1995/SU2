@@ -1598,8 +1598,15 @@ MappedFacetReference::CurvedClosest MappedFacetReference::ClosestCurved(
   const auto storage=CurvedQueryWorkspaceBytes(maximum_work);
   if(storage==SIZE_MAX||storage>ceiling)throw std::length_error("Curved query exceeds storage admission.");
   result.upper=INFINITY;
-  auto consume=[&](){if(reservation)reservation->CheckTime();
-    if(result.work>=maximum_work)throw std::length_error("Curved distance certification work exhausted.");++result.work;};
+  struct WorkLimit {};
+  std::array<size_t,4> charged{}; // Seed, root preparation, refinement preparation, optional cache maintenance.
+  std::array<size_t,2> completed{};
+  size_t initialCandidates=0,retentionAttempts=0,retentionSuccesses=0,retentionRefusals=0;
+  unsigned failedKind=0;
+  auto consume=[&](unsigned kind=0){if(reservation)reservation->CheckTime();
+    if(result.work>=maximum_work){failedKind=kind;throw WorkLimit{};}
+    ++result.work;++charged[kind];};
+  try {
   auto binding=[&](Id id,Point r) {
     const auto& f=reference->Get(id);const auto v=Values(r);
     for(unsigned k=0;k<3;++k)if(v[k]==1)return Vertex(f.v[k].id);
@@ -1649,11 +1656,12 @@ MappedFacetReference::CurvedClosest MappedFacetReference::ClosestCurved(
     }
     std::sort(candidates.begin(),candidates.end());
   } else {candidates.resize(entry.facets.size());std::iota(candidates.begin(),candidates.end(),0);}
+  initialCandidates=candidates.size();
   auto compare=[](const Region& a,const Region& b){return a.lower>b.lower;};
   std::priority_queue<Region,std::vector<Region>,decltype(compare)> pending(compare);
-  struct CacheWork {decltype(consume)& charge;void Work(){charge();}} cacheWork{consume};
+  struct CacheWork {decltype(consume)& charge;void Work(){charge(3);}} cacheWork{consume};
   auto prepare=[&](Id id,const std::array<Point,3>& parameter,unsigned depth) {
-    consume();std::array<Box,10> net;Box hull{};
+    consume(depth?2:1);std::array<Box,10> net;Box hull{};
     std::vector<uint64_t> key;
     std::shared_ptr<CurvedSearch::PreparedFacet> prepared;
     const auto limit=curved_search->prepared_limit-curved_search->prepared_limit/2;
@@ -1684,8 +1692,12 @@ MappedFacetReference::CurvedClosest MappedFacetReference::ClosestCurved(
         prepared->cubic=std::make_unique<CurvedSearch::CubicRegionGeometry>(CurvedSearch::CubicRegionGeometry{net,hull});
         std::lock_guard<std::mutex> lock(curved_search->prepared_mutex);
         // A simultaneous query may have published the same immutable geometry while it was constructed.
-        if(!curved_search->scopes.Find(key))refused=!curved_search->scopes.Retain(key,prepared,bytes,1,limit,cacheWork);
-      } else refused=true;
+        if(!curved_search->scopes.Find(key)) {
+          ++retentionAttempts;
+          refused=!curved_search->scopes.Retain(key,prepared,bytes,1,limit,cacheWork);
+          retentionSuccesses+=!refused;retentionRefusals+=refused;
+        }
+      } else {refused=true;++retentionAttempts;++retentionRefusals;}
     }
     {std::lock_guard<std::mutex> lock(geometry_stats->mutex);auto& stats=geometry_stats->value;
       stats.closest_region_hits+=hit;stats.closest_region_misses+=!hit;
@@ -1713,7 +1725,7 @@ MappedFacetReference::CurvedClosest MappedFacetReference::ClosestCurved(
       direction=Difference(Exact(query),Blossom(curves.at(id),{Exact(ToPoint(v)),Exact(ToPoint(v)),Exact(ToPoint(v))}));
     }
     const double bound=std::max(0.,std::nextafter(double(lower),-INFINITY));
-    pending.push({id,parameter,bound,PositiveNormalClearance(net,query),depth});
+    pending.push({id,parameter,bound,PositiveNormalClearance(net,query),depth});++completed[depth?1:0];
   };
   for(auto index:candidates) { const auto facet=entry.facets.at(index);
     if(!allowed_facets || allowed_facets(facet))prepare(facet,{{{1,0,0},{0,1,0},{0,0,1}}},0); }
@@ -1740,6 +1752,24 @@ MappedFacetReference::CurvedClosest MappedFacetReference::ClosestCurved(
   const auto evaluation=EvaluateSurface(result.facet,result.binding);result.normal=evaluation.normal;
   result.curvature1=evaluation.curvature1;result.curvature2=evaluation.curvature2;
   result.direction1=evaluation.direction1;result.direction2=evaluation.direction2;return result;
+  }catch(const WorkLimit&) {
+    // All query/pool locks have unwound before observing shared cache state or formatting the failure.
+    size_t bytes=0,entries=0,evictions=0;
+    {std::lock_guard<std::mutex> lock(curved_search->prepared_mutex);
+      bytes=curved_search->scopes.bytes;entries=curved_search->scopes.values.size();evictions=curved_search->scopes.evictions;}
+    std::ostringstream message;message<<"Curved distance certification work exhausted.\nCubic closest work replay: {"
+        <<"\"work\":"<<result.work<<",\"maximum_work\":"<<maximum_work
+        <<",\"seed_work\":"<<charged[0]<<",\"root_work\":"<<charged[1]
+        <<",\"refinement_work\":"<<charged[2]<<",\"cache_work\":"<<charged[3]
+        <<",\"failed_kind\":"<<failedKind<<",\"root_candidates\":"<<initialCandidates
+        <<",\"completed_roots\":"<<completed[0]<<",\"completed_refinements\":"<<completed[1]
+        <<",\"retention_attempts\":"<<retentionAttempts<<",\"retention_successes\":"<<retentionSuccesses
+        <<",\"retention_refusals\":"<<retentionRefusals<<",\"cache_scans\":"<<(charged[3]-retentionSuccesses)
+        <<",\"scope_limit\":"<<(curved_search->prepared_limit-curved_search->prepared_limit/2)
+        <<",\"scope_bytes_at_failure_snapshot\":"<<bytes<<",\"scope_entries_at_failure_snapshot\":"<<entries
+        <<",\"scope_evictions_at_failure_snapshot\":"<<evictions<<"}";
+    throw std::length_error(message.str());
+  }
 }
 std::vector<Id> MappedFacetReference::NearbySurfaceFacets(Id hint,const std::array<Point,2>& box,AtlasBudget* reservation)const {
   if(reservation)reservation->CheckTime();

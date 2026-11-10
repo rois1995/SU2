@@ -1,8 +1,16 @@
 # Adaptation backlog
 
-Current cycle: [cache and phase ownership integration](ADAPTATION_CACHE_PHASE_20261030.md).
+Current cycle: [curved BL integration](ADAPTATION_CURVED_BL_INTEGRATION_20261109.md);
+[latest work/evidence](ADAPTATION_CURVED_BL_COMPLEXITY_20261110.md).
 Keep one active cycle; pursue another item only when the target run demonstrates
 its relevance or the user explicitly reprioritizes it.
+
+- User-queued2026-11-10: [leading-edge tangent geometry/combined target/delivery
+  audit](ADAPTATION_LEADING_EDGE_TANGENT_METRIC_QUEUE_20261110.md), triggered by the
+  first representative saved BL result in the CURRENT cycle. Coulaud2025 physical
+  tangent metrics, separate genuine-curve constraints and parameter retention are
+  hypotheses. No competing implementation, CAD dependence, high-order elements,
+  L1/L2 switch or replacement of strict certification/first-height prescription.
 
 - Conditional hypothesis AFTER frozen244terminal only: if useful geometry placement
   is offered too late after shape exhaustion, assess existing positive-visibility
