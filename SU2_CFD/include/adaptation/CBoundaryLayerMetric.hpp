@@ -358,9 +358,11 @@ class CBoundaryLayerMetric {
 
   /*! Sorted chord parameters resolving every faceted-wall distance band in 2D/3D.
    *  Face/edge/vertex offset intersections detect a thin band even when both endpoints
-   *  and the midpoint are outside it. Used with actual-point composition, never nodal BL tensors. */
+   *  and the midpoint are outside it. Used with actual-point composition, never nodal BL tensors.
+   *  metricPadding encloses caller-specific query reconstruction for metric bounds, not chord measure. */
   std::vector<double> EdgeBreakpoints(const std::array<double, 3>& a, const std::array<double, 3>& b,
-                                      double bandRatio = 1.5, unsigned fadeBands = 16, ChordOwners* owners = nullptr);
+                                      double bandRatio = 1.5, unsigned fadeBands = 16, ChordOwners* owners = nullptr,
+                                      const std::array<double,3>& metricPadding = {});
 
   /*! Retained vectors/maps/tree plus first-thread tree workspace growth; excludes allocator/RSS and construction peak. */
   size_t StorageBytes() const;
@@ -377,7 +379,8 @@ class CBoundaryLayerMetric {
   Sample EvaluateImpl(unsigned short wall, const su2double* coord, su2double coreEigenvalue, bool distanceOnly,
                       unsigned long pinned = ChordOwners::NoFacet);
   std::vector<double> EdgeBreakpointsImpl(const std::array<double,3>& a,const std::array<double,3>& b,
-      double bandRatio,unsigned fadeBands,bool featureTransitions=true,ChordOwners* owners=nullptr);
+      double bandRatio,unsigned fadeBands,bool featureTransitions=true,ChordOwners* owners=nullptr,
+      const std::array<double,3>& metricPadding={});
   std::vector<IntegrationPoint3D> IntegrationRule3DImpl(
       const std::array<std::array<double,3>,4>& tetrahedron, double bandRatio,
       IntegrationDensity3D density, bool* sensorDependent, ComplexityEstimate3D* estimate, size_t maximumEvaluations,

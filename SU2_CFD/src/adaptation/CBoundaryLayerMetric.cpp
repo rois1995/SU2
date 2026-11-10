@@ -62,6 +62,59 @@ using Vec3 = std::array<su2double, 3>;
 using Mat3 = su2double[3][3];
 constexpr double NormalFeatureThreshold3D = 1e-10;
 
+long double BLUp(long double x){return std::nextafter(x,INFINITY);}
+long double BLDown(long double x){return std::nextafter(x,-INFINITY);}
+double BLDoubleUp(long double x){return std::nextafter(double(x),INFINITY);}
+double BLDoubleDown(long double x){return std::nextafter(double(x),-INFINITY);}
+long double BLLongUnit(long double magnitude) {
+  magnitude=BLUp(std::abs(magnitude));return BLUp(std::nextafter(magnitude,INFINITY)-magnitude);
+}
+long double BLDoubleUnit(long double magnitude) {
+  const auto bound=BLDoubleUp(std::abs(magnitude));
+  return std::isfinite(bound)?BLUp((long double)std::nextafter(bound,INFINITY)-bound):INFINITY;
+}
+// Directed operations follow the existing native geometry interval arithmetic; no fast-math assumptions.
+struct BLRange {long double lo,hi;};
+BLRange BLAdd(BLRange a,BLRange b){return {BLDown(a.lo+b.lo),BLUp(a.hi+b.hi)};}
+BLRange BLSubtract(BLRange a,BLRange b){return BLAdd(a,{-b.hi,-b.lo});}
+BLRange BLMultiply(BLRange a,BLRange b) {
+  const long double products[]={a.lo*b.lo,a.lo*b.hi,a.hi*b.lo,a.hi*b.hi};
+  return {BLDown(*std::min_element(products,products+4)),BLUp(*std::max_element(products,products+4))};
+}
+
+std::array<double,2> BLDisplacementNormBounds(const std::array<double,3>& delta) {
+  const auto scale=std::max({std::abs(delta[0]),std::abs(delta[1]),std::abs(delta[2])});
+  if(!scale)return {0,0};
+  if(!std::isfinite(scale))return {scale,INFINITY};
+  long double low=0,high=0;
+  for(auto x:delta) {
+    const auto quotient=(long double)x/scale;
+    const auto a=BLDown(quotient),b=BLUp(quotient);
+    const auto minimum=a<=0 && b>=0?0.L:std::min(std::abs(a),std::abs(b));
+    const auto maximum=std::max(std::abs(a),std::abs(b));
+    low=std::max(0.L,BLDown(low+std::max(0.L,BLDown(minimum*minimum))));
+    high=BLUp(high+BLUp(maximum*maximum));
+  }
+  const auto lower=std::max(scale,BLDoubleDown(BLDown(std::max(0.L,BLDown(std::sqrt(low)))*scale)));
+  const auto upper=BLDoubleUp(BLUp(BLUp(std::sqrt(high))*scale));
+  return {lower,std::max(lower,upper)};
+}
+
+// Enclose rounded subtraction and the scaled directed norm above, including subnormal conversion.
+std::array<double,2> BLEvaluatedDistanceBounds(long double lower,long double upper) {
+  if(!(upper>=0) || !std::isfinite(upper))return {0,INFINITY};
+  const auto subtractionError=BLUp(3*BLDoubleUnit(upper));
+  const auto a=std::max(0.L,BLDown(lower-subtractionError)),b=BLUp(upper+subtractionError);
+  // Normalized arguments stay within2, sums within8: <=27 ULPs for divisions/squares/adds,
+  // then sqrt (2), scale multiplication (2) and binary64 conversion (2), each outward.
+  const auto normalizedError=BLUp(34*BLLongUnit(8));
+  const auto error=BLUp(BLUp(BLUp(normalizedError*b)+BLUp(2*BLLongUnit(BLUp(8*b))))+
+      BLUp(2*BLDoubleUnit(BLUp(8*b))));
+  if(!std::isfinite(error))return {0,INFINITY};
+  return {std::max(0.,BLDoubleDown(std::max(0.L,BLDown(a-error)))),BLDoubleUp(BLUp(b+error))};
+}
+
+
 su2double Dot(unsigned short nDim, const su2double* a, const su2double* b) {
   su2double s = 0.0;
   for (unsigned short i = 0; i < nDim; ++i) s += a[i] * b[i];
@@ -300,7 +353,7 @@ struct CBoundaryLayerMetric::WallData {
   /*--- 3D ---*/
   std::vector<Vec3> faceNormal;            /*!< \brief Unit normal of each triangle. */
   std::vector<std::array<Vec3, 3>> edgeNormal; /*!< \brief Normal of the edge opposite each vertex of a triangle. */
-  double maximum_wall_eigenvalue=0,maximum_realization_error=0;
+  double maximum_wall_eigenvalue=0,maximum_tangent_eigenvalue=0,maximum_realization_error=0;
   double proxy_error=0; /*!< Broad-phase envelope only; never a query distance or metric. */
   std::vector<CBoundaryLayerMetric::Tensor> vertexLog; /*!< \brief Logarithm of the size tensor of each vertex. */
 };
@@ -357,9 +410,16 @@ CBoundaryLayerMetric::WallProjection CBoundaryLayerMetric::ProjectWall(
   out.bary=geometry.SurfaceCoordinates(closest.facet,closest.binding);
   auto& surface=out.surface;surface.point=closest.point;surface.normal=closest.normal;
   surface.direction={query.x-surface.point.x,query.y-surface.point.y,query.z-surface.point.z};
-  surface.distance=std::hypot(surface.direction.x,surface.direction.y,surface.direction.z);
+  const std::array<double,3> displacement{surface.direction.x,surface.direction.y,surface.direction.z};
+  const auto norm=BLDisplacementNormBounds(displacement);
+  surface.distance=std::clamp(std::hypot(displacement[0],displacement[1],displacement[2]),norm[0],norm[1]);
+  if(!std::isfinite(surface.distance))throw std::runtime_error("Unrepresentable cubic BL candidate distance.");
   if(surface.distance>0) {
-    surface.direction.x/=surface.distance;surface.direction.y/=surface.distance;surface.direction.z/=surface.distance;
+    const long double scale=std::max({std::abs(displacement[0]),std::abs(displacement[1]),std::abs(displacement[2])});
+    std::array<long double,3> direction;long double squared=0;
+    for(unsigned j=0;j<3;++j){direction[j]=displacement[j]/scale;squared+=direction[j]*direction[j];}
+    const auto length=std::sqrt(squared);
+    surface.direction={double(direction[0]/length),double(direction[1]/length),double(direction[2]/length)};
   }
   return out;
 }
@@ -1075,9 +1135,12 @@ void CBoundaryLayerMetric::Build() {
       double bound=1/std::pow(SU2_TYPE::GetValue(d->h0),2);
       for(const auto& logarithm:d->vertexLog) {
         su2double vectors[3][3],values[3],workspace[3];CBlasStructure::EigenDecomposition(logarithm.m,vectors,values,3,workspace);
-        for(auto value:values)bound=std::max(bound,std::exp(-SU2_TYPE::GetValue(value)));
+        for(auto value:values) {
+          const auto tangent=std::exp(-SU2_TYPE::GetValue(value));
+          bound=std::max(bound,tangent);d->maximum_tangent_eigenvalue=std::max(d->maximum_tangent_eigenvalue,tangent);
+        }
       }
-      d->maximum_wall_eigenvalue=4*bound;
+      d->maximum_wall_eigenvalue=4*bound;d->maximum_tangent_eigenvalue=4*d->maximum_tangent_eigenvalue;
       if(!std::isfinite(d->maximum_wall_eigenvalue))throw std::runtime_error("Unrepresentable cubic BL metric bound.");
     }
     /*--- Local ADT of the segments / triangles. ---*/
@@ -2390,6 +2453,57 @@ bool MayIntersectWallBand(const BLTetrahedron& tet,const std::array<BLPoint3D,3>
     if(separated(closestAxis(p,{tet[(f+1)%4],tet[(f+2)%4],tet[(f+3)%4]})))return false;
   return true;
 }
+// Enclose the actual source reconstruction relative to its supplied physical chord.
+std::array<double,3> BLSourceChordPadding(const BLTetrahedron& source,const std::array<double,4>& entry,
+    const std::array<double,4>& exit,const BLPoint3D& start,const BLPoint3D& end,double inwardScale) {
+  std::array<double,3> unknown{INFINITY,INFINITY,INFINITY};
+  if(std::isnan(inwardScale) || inwardScale<0)return unknown;
+  long double maximumInward=0;
+  for(unsigned attempt=1;attempt<8;++attempt) {
+    const auto inward=std::ldexp(inwardScale,attempt+3);
+    if(inward>=.5)break;
+    maximumInward=std::max(maximumInward,(long double)inward);
+  }
+  std::array<long double,4> coefficientError{},coefficientMagnitude{};
+  for(unsigned k=1;k<4;++k) {
+    if(!std::isfinite(entry[k]) || !std::isfinite(exit[k]))return unknown;
+    const auto magnitude=std::max({1.L,std::abs((long double)entry[k]),std::abs((long double)exit[k])});
+    // Complement, two products and addition; also covers LD mixing followed by binary64 conversion.
+    const auto mix=BLUp(BLUp(magnitude*BLDoubleUnit(1))+BLUp(4*BLDoubleUnit(BLUp(4*magnitude))));
+    const auto lo=BLDown(std::min((long double)entry[k],(long double)exit[k])-mix);
+    const auto hi=BLUp(std::max((long double)entry[k],(long double)exit[k])+mix);
+    const auto requested=std::max({1.L,std::abs(lo),std::abs(hi)});
+    const auto drift=BLUp(maximumInward*BLUp(std::max(std::abs(.25L-lo),std::abs(.25L-hi))));
+    const auto inwardRound=BLUp(BLUp(requested*BLDoubleUnit(1))+BLUp(4*BLDoubleUnit(BLUp(4*requested))));
+    coefficientError[k]=BLUp(BLUp(mix+drift)+inwardRound);
+    coefficientMagnitude[k]=BLUp(std::max(std::abs((long double)entry[k]),std::abs((long double)exit[k]))+coefficientError[k]);
+  }
+  std::array<double,3> padding;
+  for(unsigned j=0;j<3;++j) {
+    BLRange first{source[0][j],source[0][j]},last=first;
+    long double displacement=0,reconstruction=0,magnitude=std::abs((long double)source[0][j]);
+    for(unsigned k=1;k<4;++k) {
+      const auto delta=BLSubtract({source[k][j],source[k][j]},{source[0][j],source[0][j]});
+      first=BLAdd(first,BLMultiply({entry[k],entry[k]},delta));
+      last=BLAdd(last,BLMultiply({exit[k],exit[k]},delta));
+      const auto length=BLUp(std::max(std::abs(delta.lo),std::abs(delta.hi)));
+      displacement=BLUp(displacement+BLUp(coefficientError[k]*length));
+      const auto subtraction=BLLongUnit(BLUp(std::abs((long double)source[k][j])+std::abs((long double)source[0][j])));
+      const auto product=BLUp(coefficientMagnitude[k]*BLUp(length+subtraction));
+      const auto multiplication=BLLongUnit(BLUp(2*product));
+      reconstruction=BLUp(BLUp(reconstruction+BLUp(coefficientMagnitude[k]*subtraction))+multiplication);
+      magnitude=BLUp(BLUp(magnitude+product)+multiplication);
+    }
+    const auto bound=BLUp(BLUp(2*magnitude)+32*std::numeric_limits<long double>::denorm_min());
+    reconstruction=BLUp(BLUp(reconstruction+BLUp(3*BLLongUnit(bound)))+BLDoubleUnit(bound));
+    const auto offset=BLUp(std::max({std::abs(first.lo-start[j]),std::abs(first.hi-start[j]),
+        std::abs(last.lo-end[j]),std::abs(last.hi-end[j])}));
+    if(!std::isfinite(offset) || !std::isfinite(displacement) || !std::isfinite(reconstruction))return unknown;
+    padding[j]=BLDoubleUp(BLUp(BLUp(offset+displacement)+reconstruction));
+  }
+  return padding;
+}
+
 void SetBLSourceQuery(const BLTetrahedron& source,const SU2Native3D::Tetrahedron& positive,bool reversed,
                       std::array<double,4>& parent,BLPoint3D& position,
                       double inwardScale=std::numeric_limits<double>::epsilon()) {
@@ -3086,7 +3200,8 @@ std::vector<CBoundaryLayerMetric::IntegrationPoint3D> CBoundaryLayerMetric::Inte
         }
         if(!retained) {
           const auto begin=std::chrono::steady_clock::now();
-          fresh=start==end?std::vector<double>{0,1}:EdgeBreakpointsImpl(start,end,2.,4,false);
+          const auto metricPadding=BLSourceChordPadding(tetrahedron,entry,exit,start,end,inwardScale);
+          fresh=start==end?std::vector<double>{0,1}:EdgeBreakpointsImpl(start,end,2.,4,false,nullptr,metricPadding);
           estimate->preparationSeconds+=std::chrono::duration<double>(std::chrono::steady_clock::now()-begin).count();
           ++estimate->preparedChords;
           const auto bytes=sizeof(decltype(workspace->chords)::value_type)+4*sizeof(void*)+fresh.capacity()*sizeof(double);
@@ -3208,7 +3323,8 @@ std::vector<CBoundaryLayerMetric::IntegrationPoint3D> CBoundaryLayerMetric::Inte
         if(!(length>0))throw std::runtime_error("Native3D parallel integration chord has nonpositive length: length="+std::to_string(double(length))+" chart_area="+std::to_string(double(chart.area)));
         const auto jacobian=chart.area*fraction*length*(fine?faceWeights[corner]:comparisonWeights[corner]);
         // Sub-ulp endpoints can round to one point; retain their positive barycentric measure.
-        const auto cuts=start==end?std::vector<double>{0,1}:EdgeBreakpoints(start,end,std::max(2.,bandRatio),4);
+        const auto metricPadding=BLSourceChordPadding(tetrahedron,entry,exit,start,end,std::numeric_limits<double>::epsilon());
+        const auto cuts=start==end?std::vector<double>{0,1}:EdgeBreakpoints(start,end,std::max(2.,bandRatio),4,nullptr,metricPadding);
         auto radial=[&](double left,double right,unsigned order,std::vector<IntegrationPoint3D>& samples) {
           double value=0;const long double half=.5L*((long double)right-left);
           std::array<long double,2> nodes2{gauss2[0],gauss2[1]},weights2{1,1};
@@ -3224,6 +3340,7 @@ std::vector<CBoundaryLayerMetric::IntegrationPoint3D> CBoundaryLayerMetric::Inte
           }
           for(unsigned g=0;g<order;++g) {
             const long double node=order==7?gauss7[g]:(order==5?gauss[g]:nodes2[g]);
+            if(!(node>=-1 && node<=1))throw IntegrationLimit("Unresolved native3D radial quadrature abscissa.");
             const long double remaining=(1.L-right)+half*(1-node),t=1-remaining;
             std::array<double,4> parent{};BLPoint3D position{};
             for(unsigned k=0;k<4;++k) {
@@ -3371,13 +3488,15 @@ std::vector<CBoundaryLayerMetric::IntegrationPoint3D> CBoundaryLayerMetric::Inte
 
 std::vector<double> CBoundaryLayerMetric::EdgeBreakpoints(
     const std::array<double, 3>& a, const std::array<double, 3>& b, double bandRatio, unsigned fadeBands,
-    ChordOwners* owners) {
-  return EdgeBreakpointsImpl(a,b,bandRatio,fadeBands,true,owners);
+    ChordOwners* owners,const std::array<double,3>& metricPadding) {
+  return EdgeBreakpointsImpl(a,b,bandRatio,fadeBands,true,owners,metricPadding);
 }
 
 std::vector<double> CBoundaryLayerMetric::EdgeBreakpointsImpl(
     const std::array<double,3>& a,const std::array<double,3>& b,double bandRatio,unsigned fadeBands,bool featureTransitions,
-    ChordOwners* owners) {
+    ChordOwners* owners,const std::array<double,3>& metricPadding) {
+  for(auto padding:metricPadding)if(std::isnan(padding) || padding<0)
+    throw std::invalid_argument("Invalid native BL metric query padding.");
   if (!std::isfinite(bandRatio) || !(bandRatio > 1.0) || !fadeBands || fadeBands>256)
     throw std::invalid_argument("Invalid native BL edge band ratio/fade partition.");
   using Vector = std::array<long double, 3>;
@@ -3450,7 +3569,8 @@ std::vector<double> CBoundaryLayerMetric::EdgeBreakpointsImpl(
     };
     if(CurvedWall(wall)) {
       // Keep certified excluded intervals excluded; only unresolved leaves consume further geometry work.
-      struct Interval {double left,right;long double uncertainty;};
+      struct Interval {double left,right;long double uncertainty,metric;};
+      static_assert(sizeof(Interval)<=4*sizeof(long double),"Curved frontier exceeds reserved workspace.");
       auto admit=[&](size_t scratch) {
         if(transfer_memory::Add(StorageBytes(),scratch)>walls[wall].geometry_ceiling)
           throw std::length_error("Cubic BL chord workspace exceeds storage admission.");
@@ -3472,7 +3592,7 @@ std::vector<double> CBoundaryLayerMetric::EdgeBreakpointsImpl(
         eigenvalue+=1/(feature.h0*feature.h0);
       if(!std::isfinite(eigenvalue))throw std::runtime_error("Unrepresentable cubic BL feature bound.");
       const double globalEigenvalue=eigenvalue;
-      long double metricBound=std::nextafter(std::sqrt((long double)eigenvalue),INFINITY);
+      const long double metricBound=std::nextafter(std::sqrt((long double)eigenvalue),INFINITY);
       long double squaredLengthBound=0;
       for(const auto component:chord) {
         const auto magnitude=std::nextafter(std::abs(component),INFINITY);
@@ -3482,9 +3602,9 @@ std::vector<double> CBoundaryLayerMetric::EdgeBreakpointsImpl(
       if(!std::isfinite(lengthBound))throw std::runtime_error("Unrepresentable cubic BL chord length bound.");
       levels.erase(std::remove(levels.begin(),levels.end(),0.),levels.end());
       const SU2Native3D::Point first{a[0],a[1],a[2]},last{b[0],b[1],b[2]};
-      auto intervalUncertainty=[&](double left,double right) {
+      auto intervalUncertainty=[&](double left,double right,long double bound) {
         const auto width=std::nextafter((long double)right-left,INFINITY);
-        return std::nextafter(std::nextafter(width*lengthBound,INFINITY)*metricBound,INFINITY);
+        return std::nextafter(std::nextafter(width*lengthBound,INFINITY)*bound,INFINITY);
       };
       auto fail=[&](const char* category,const char* reason,const Interval& extra,long double incrementalTotal) {
         long double freshTotal=0,adjacentTotal=0,splittableTotal=0,largestSplittable=0;
@@ -3506,8 +3626,13 @@ std::vector<double> CBoundaryLayerMetric::EdgeBreakpointsImpl(
         for(unsigned j=0;j<3;++j)context<<(j?",":"")<<b[j];
         context<<"],\"failure_type\":\""<<category<<"\",\"band_ratio\":"<<bandRatio<<",\"fade_bands\":"<<fadeBands<<",\"feature_transitions\":"<<featureTransitions
             <<",\"wall\":"<<wall<<",\"authority_facet\":"<<walls[wall].authority_facet
-            <<",\"transition_core\":"<<transitionCore<<",\"transition_slope\":"<<transitionSlope<<",\"full\":"<<full<<",\"support\":"<<thickness
-            <<",\"h0\":"<<h0<<",\"global_eigenvalue\":"<<globalEigenvalue<<",\"eigenvalue\":"<<eigenvalue<<",\"metric_bound\":"<<metricBound
+            <<",\"metric_padding\":[";
+        for(unsigned j=0;j<3;++j) {
+          if(j)context<<",";
+          if(std::isfinite(metricPadding[j]))context<<metricPadding[j];else context<<"null";
+        }
+        context<<"]"<<",\"transition_core\":"<<transitionCore<<",\"transition_slope\":"<<transitionSlope<<",\"full\":"<<full<<",\"support\":"<<thickness
+            <<",\"h0\":"<<h0<<",\"global_eigenvalue\":"<<globalEigenvalue<<",\"eigenvalue\":"<<(extra.metric*extra.metric)<<",\"metric_bound\":"<<extra.metric
             <<",\"length_bound\":"<<lengthBound<<",\"left\":"<<extra.left<<",\"right\":"<<extra.right
             <<",\"width\":"<<((long double)extra.right-extra.left)<<",\"parent_uncertainty\":"<<extra.uncertainty
             <<",\"incremental_total\":"<<incrementalTotal<<",\"fresh_total\":"<<freshTotal
@@ -3516,16 +3641,16 @@ std::vector<double> CBoundaryLayerMetric::EdgeBreakpointsImpl(
             <<",\"work\":"<<work<<",\"leaves\":"<<(frontier.size()+1)<<",\"tolerance\":1e-8}";
         throw std::runtime_error(context.str());
       };
-      Interval pending{0,1,intervalUncertainty(0,1)};
-      auto classify=[&](double left,double right) {
+      Interval pending{0,1,intervalUncertainty(0,1,metricBound),metricBound};
+      auto classify=[&](double left,double right,long double effectiveBound) {
         if(left==right)return;
         if(++work>16384)fail("work_budget","Cubic BL distance crossings exceed work budget.",pending,
             std::nextafter(unresolved+pending.uncertainty,INFINITY));
         // Coordinate enclosures bound level exclusion; only ideal chord span contributes integration measure.
-        const auto uncertainty=intervalUncertainty(left,right);
+        const auto uncertainty=intervalUncertainty(left,right,effectiveBound);
         const double middle=.5*(left+right);
         if(middle==left || middle==right) {
-          frontier.push_back({left,right,uncertainty});std::push_heap(frontier.begin(),frontier.end(),larger);
+          frontier.push_back({left,right,uncertainty,effectiveBound});std::push_heap(frontier.begin(),frontier.end(),larger);
           unresolved=std::nextafter(unresolved+uncertainty,INFINITY);
           return;
         }
@@ -3548,7 +3673,7 @@ std::vector<double> CBoundaryLayerMetric::EdgeBreakpointsImpl(
             std::min(1e-6*h0,double(radius)*.125)),scratch);
         const auto lower=std::nextafter((long double)projection.lower-radius,-INFINITY),upper=std::nextafter((long double)projection.upper+radius,INFINITY);
         if(std::none_of(levels.begin(),levels.end(),[&](double level){return level>=lower && level<=upper;}))return;
-        if(left==0 && right==1 && !features.empty()) {
+        if(std::all_of(metricPadding.begin(),metricPadding.end(),[](double x){return std::isfinite(x);})) {
           auto up=[](long double x){return std::nextafter(x,INFINITY);};
           auto down=[](long double x){return std::nextafter(x,-INFINITY);};
           auto doubleUp=[](long double x){return std::nextafter(double(x),INFINITY);};
@@ -3559,23 +3684,31 @@ std::vector<double> CBoundaryLayerMetric::EdgeBreakpointsImpl(
             // gamma(4) covers either rounded affine chord formula; include underflow explicitly.
             const auto epsilon=std::numeric_limits<double>::epsilon();
             const auto gamma=up(4.L*epsilon/(1-4.L*epsilon));
-            rounding[j]=up(up(gamma*up(std::abs((long double)a[j])+std::abs((long double)b[j])))+
-                4.L*std::numeric_limits<double>::denorm_min());
+            rounding[j]=up(up(up(gamma*up(std::abs((long double)a[j])+std::abs((long double)b[j])))+
+                4.L*std::numeric_limits<double>::denorm_min())+metricPadding[j]);
             coordinateError=up(coordinateError+rounding[j]);
           }
-          // Bound candidate-foot distance by true distance, query precision and the realization contract.
-          // The factor three also bounds rounded component subtraction and hypot by their L1 envelope.
-          const auto distanceBound=doubleUp(3*up(up(up(up(projection.upper+radius)+1e-6*h0)+
-              d.maximum_realization_error)+coordinateError));
-          const auto outward=transitionCore>0?std::max(0.,doubleUp((long double)distanceBound-full)):0.;
+          const auto distance=BLEvaluatedDistanceBounds(
+              down(down(lower-coordinateError)-d.maximum_realization_error),
+              up(up(up(upper+coordinateError)+d.maximum_realization_error)+1e-6*h0));
+          const auto outward=transitionCore>0?std::max(0.,doubleUp((long double)distance[1]-full)):0.;
+          const double firstLow[3]={low[0].x,low[0].y,low[0].z},firstHigh[3]={low[1].x,low[1].y,low[1].z};
+          const double lastLow[3]={high[0].x,high[0].y,high[0].z},lastHigh[3]={high[1].x,high[1].y,high[1].z};
           for(unsigned j=0;j<3;++j) {
-            // A normalized rounded direction has components <2; include the rounded anchor subtraction.
+            // Unit-normal components stay below2, including rounded anchor multiplication/subtraction.
             const auto displacement=doubleUp(2.L*outward);
-            anchorLow[j]=doubleDown(down(down((long double)std::min(a[j],b[j])-rounding[j])-displacement));
-            anchorHigh[j]=doubleUp(up(up((long double)std::max(a[j],b[j])+rounding[j])+displacement));
+            anchorLow[j]=doubleDown(down(down((long double)std::min(firstLow[j],lastLow[j])-rounding[j])-displacement));
+            anchorHigh[j]=doubleUp(up(up((long double)std::max(firstHigh[j],lastHigh[j])+rounding[j])+displacement));
           }
-          long double localEigenvalue=d.maximum_wall_eigenvalue;
-          const bool finite=std::isfinite(distanceBound) && std::all_of(anchorLow.begin(),anchorLow.end(),[](double x){return std::isfinite(x);}) &&
+          const auto profile=transitionCore>0?std::min(distance[0],full):distance[0];
+          const auto growth=std::max(0.,doubleDown((long double)SU2_TYPE::GetValue(d.growth)-1));
+          const auto numerator=doubleDown(2.L*doubleDown((long double)h0+doubleDown((long double)growth*profile)));
+          const auto denominator=doubleUp((long double)SU2_TYPE::GetValue(d.growth)+1);
+          // The optional outer-normal policy only raises hn. Keep the existing safety factor for both terms.
+          const auto height=std::max(h0,doubleDown((long double)numerator/denominator));
+          const auto heightSquared=doubleDown((long double)height*height);
+          long double localEigenvalue=heightSquared>0?up(d.maximum_tangent_eigenvalue+up(4.L/heightSquared)):INFINITY;
+          const bool finite=std::isfinite(distance[1]) && std::all_of(anchorLow.begin(),anchorLow.end(),[](double x){return std::isfinite(x);}) &&
               std::all_of(anchorHigh.begin(),anchorHigh.end(),[](double x){return std::isfinite(x);});
           for(const auto& feature:features)if(finite && std::binary_search(feature.walls.begin(),feature.walls.end(),wall)) {
             long double squaredLower=0;
@@ -3597,15 +3730,14 @@ std::vector<double> CBoundaryLayerMetric::EdgeBreakpointsImpl(
             const auto global=doubleUp(1.L/down((long double)feature.h0*feature.h0));
             localEigenvalue=up(localEigenvalue+std::min(global,contribution));
           }
-          if(finite && std::isfinite(localEigenvalue) && localEigenvalue<globalEigenvalue) {
-            eigenvalue=doubleUp(localEigenvalue);metricBound=up(std::sqrt((long double)eigenvalue));
-          }
+          if(finite && std::isfinite(localEigenvalue))
+            effectiveBound=std::min(effectiveBound,up(std::sqrt(localEigenvalue)));
         }
-        const auto boundedUncertainty=intervalUncertainty(left,right);
-        frontier.push_back({left,right,boundedUncertainty});std::push_heap(frontier.begin(),frontier.end(),larger);
+        const auto boundedUncertainty=intervalUncertainty(left,right,effectiveBound);
+        frontier.push_back({left,right,boundedUncertainty,effectiveBound});std::push_heap(frontier.begin(),frontier.end(),larger);
         unresolved=std::nextafter(unresolved+boundedUncertainty,INFINITY);
       };
-      classify(0,1);
+      classify(0,1,metricBound);
       while(unresolved>1e-8 && !frontier.empty()) {
         const auto incrementalTotal=unresolved;
         std::pop_heap(frontier.begin(),frontier.end(),larger);const auto parent=frontier.back();frontier.pop_back();
@@ -3615,8 +3747,8 @@ std::vector<double> CBoundaryLayerMetric::EdgeBreakpointsImpl(
           fail("adjacent","Unresolved cubic BL distance crossing; adjacent interval exceeds total uncertainty allowance.",parent,incrementalTotal);
         }
         // Include both unprocessed children in failure diagnostics until the first child is classified.
-        pending=parent;classify(parent.left,middle);
-        pending={middle,parent.right,intervalUncertainty(middle,parent.right)};classify(middle,parent.right);
+        pending=parent;classify(parent.left,middle,parent.metric);
+        pending={middle,parent.right,intervalUncertainty(middle,parent.right,parent.metric),parent.metric};classify(middle,parent.right,parent.metric);
       }
       if(frontier.empty())unresolved=0; // Every interval was excluded by a certificate.
       if(unresolved>1e-8)throw std::runtime_error("Cubic BL total crossing uncertainty exceeds edge tolerance.");

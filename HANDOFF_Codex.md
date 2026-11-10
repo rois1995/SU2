@@ -10,13 +10,23 @@ R = `integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57`.
 
 ## Frozen owned workload — authoritative current state
 
-NO active owned heavy job. Test-only build315 TERMINAL0/56.156s, all10 sampled
+Captured chord314 replay316 PASSED60assertions/47.845s; all5 actual identities absent,
+source/input/runtime pins verified. Actual certification37.560s/409726geometry work/32cuts.
+Earlier chord311 replay316 PASSED37assertions/terminal0; all5 actual handles absent,
+source/input/runtime pins verified. Certification10.443s/113482work/9cuts (314:181652work).
+Faithful actual cell0 replay316 ACTIVE (session76918); pinned sources frozen.
+Build316 TERMINAL0/252.261s, all55 sampled actual build handles absent, pins verified.
+CFD SHA7fd635548074a5550be5f6ccd47f04d3940b69e95dcff48dbb0184148c13a6ad;
+test SHA3f012515a5d5efbb92fd6bb95c9161868a5b5da79bef219bb885d7174955a591.
+Prior test-only build315 TERMINAL0/56.156s, all10 sampled
 actual build PIDs absent; point315 TERMINAL0/11.439s, all5 exact identities absent.
 Source/input/runtime pins unchanged. Production CFD SHA
 `2db03acf36789faa1cd06335a6c8818306267d2f7d76f5e803f91868e66cc448` (identical314);
 test315 SHA `792349aa47582e0531136d93dce86b701a9622711757387d18051d0483b83afa`.
-Only compiled change315 is the bounded test diagnostic interface. No production
-correction after314 yet. One active connected BL integration cycle.
+Build316 is built but UNVALIDATED: interval-local normal-profile
+and feature-anchor bounds, explicit evaluated-distance arithmetic and actual source-query
+padding. Three compiled files changed (CBC source/header and its tests). Prior terminal
+handles were reverified absent before freezing this build. One connected BL cycle.
 
 Full SAMEseed RANS/BL314 is TERMINAL1/5462.393s. All10 exact actual owned
 PID/start identities absent; all source/input/runtime pins verified. Original
@@ -34,7 +44,7 @@ Maximum sampled tree RSS2,543,411,200B; sampled CPU31,422.76s includes MPI polli
 terminal assessment; cell coordinates/sensors/core/trial match303 EXACTLY.
 Selected ideal leaf span~1.04e-18 vs coordinate ULP~2.22e-16 supports, but does not
 prove, a coordinate-enclosure/Lipschitz-floor limitation amplified by a coarse
-whole-chord feature bound. No production correction selected from this yet.
+whole-chord feature bound. This motivates the connected316 local-bound correction, not a relaxed certificate.
 
 Point315 passed164assertions on EIGHT deduplicated leaf/neighbor queries using
 existing ClosestCurved and separate Evaluate,8600geometry work (6680+1920).
@@ -44,7 +54,7 @@ This supports interval-local profile/feature envelopes, not a sample certificate
 or a proven replacement bound. `point_probe_v1/analysis315.json` records scope.
 [Working connected bound design](Handbook/ADAPTATION_CURVED_BL_LEAF_BOUNDS_20261110.md)
 contains the numerical contract, actual source-query caller padding and remaining
-proof decisions. Review those before implementation; no new config/framework,
+proof decisions. Review those before qualification; no new config/framework,
 CAD dependence, geometry representation, relaxed gate or increased budget.
 
 Affected serial314 PASS283883assertions/22cases/291.681s; ONE MPI6 PASS27cases
@@ -97,8 +107,9 @@ qualify affected behavior at cadence, then promptly actual SAMEseed M6 RANS/BL.
 Preserve all prior qualification/checkpoints and every final BL suitability,
 transfer/CFD/TWOevents/actual adapted restart obligation. No budget increases.
 Preserve unrelated dirty files; whitelist staging; fork pushes authorized.
-Latest pushed checkpoint `3a5acabd12` precedes the current terminal314/315 receipts;
-push exact reviewable failure/diagnostic artifacts before the next production change.
+Latest pushed checkpoint `f2bb733801` preserves terminal314/315 receipts and the working design.
+Next: build316, actual captured chords311/314 and faithful cell0, affected checks and ONE
+MPI milestone, then promptly full SAMEseed M6. Keep pinned sources frozen during jobs.
 
 ## Demonstrated BL blocker and next action
 

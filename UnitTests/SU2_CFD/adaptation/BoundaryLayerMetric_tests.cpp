@@ -1417,10 +1417,11 @@ TEST_CASE("Translated cubic distance crossings close by chord span rather than c
   wall.coord={shift,shift,0,shift+1,shift,0,shift,shift+1,0};wall.conn={0,1,2,2};
   wall.authority=PlanarReference::WithParameters(original,parameters);wall.authority_facet=0;wall.authority_facets={0};wall.surface_tolerance=1e-4;
   CBoundaryLayerMetric::FeatureOptions featureOptions;
-  bool transported=false;
+  bool transported=false,unknownPadding=false;
   SECTION("ordinary cubic crossings") {}
   SECTION("distant genuine features retain a conservative local bound") {featureOptions.hgrad=1.3;}
   SECTION("transported anchors retain genuine feature demands") {featureOptions.hgrad=1.3;transported=true;}
+  SECTION("uncertain metric envelopes retain global certification") {featureOptions.hgrad=1.3;unknownPadding=true;}
   if(featureOptions.hgrad>0)for(const auto& face:facets)if(face.marker==1) {
     CBoundaryLayerMetric::FeatureFace partner;
     for(const auto& node:face.v)partner.coord.insert(partner.coord.end(),{node.p.x,node.p.y,node.p.z});
@@ -1432,19 +1433,29 @@ TEST_CASE("Translated cubic distance crossings close by chord span rather than c
   // At the barycentre the independent cubic graph has zero slope and z=-.18/27.
   const std::array<double,3> a{{shift+1./3,shift+1./3,-.18/27-(transported?.008:.25*h0)}},
       b{{a[0],a[1],-.18/27-(transported?.012:1.25*h0)}};
-  const auto cuts=layers.EdgeBreakpoints(a,b),reverse=layers.EdgeBreakpoints(b,a);
+  const std::array<double,3> padding=unknownPadding?std::array<double,3>{INFINITY,INFINITY,INFINITY}:std::array<double,3>{};
+  const auto cuts=layers.EdgeBreakpoints(a,b,1.5,16,nullptr,padding),reverse=layers.EdgeBreakpoints(b,a,1.5,16,nullptr,padding);
+  CHECK_THROWS(layers.EdgeBreakpoints(a,b,1.5,16,nullptr,{-1,0,0}));
+  CHECK_THROWS(layers.EdgeBreakpoints(a,b,1.5,16,nullptr,{std::numeric_limits<double>::quiet_NaN(),0,0}));
+  for(const auto& query:{a,b}) {
+    const su2double x[3]={query[0],query[1],query[2]};const auto sample=layers.Evaluate(0,x,1.);
+    CHECK(std::isfinite(SU2_TYPE::GetValue(sample.distance)));CHECK(sample.distance>=0);
+    CHECK(std::hypot(SU2_TYPE::GetValue(sample.normal[0]),SU2_TYPE::GetValue(sample.normal[1]),
+                     SU2_TYPE::GetValue(sample.normal[2]))==Approx(1.).margin(2e-12));
+    CBoundaryLayerMetric::Tensor cached,fresh;for(unsigned j=0;j<3;++j)cached.m[j][j]=fresh.m[j][j]=1;
+    layers.ApplySample(0,sample,cached,1.,nullptr,false);layers.ApplyPoint(x,fresh,1.,nullptr,false);
+    CheckTensor(3,cached,fresh,1e-9);
+  }
   REQUIRE(cuts.size()>2);REQUIRE(reverse.size()>2);
-  if(!transported) {
-    REQUIRE(cuts.size()==reverse.size());
-    for(size_t k=0;k<cuts.size();++k)CHECK(cuts[k]==Approx(1-reverse[cuts.size()-1-k]).margin(1e-8));
-  } else {
-    // Adaptive frontiers can differ by direction; both must resolve the known full-band crossing.
-    for(const auto* partition:{&cuts,&reverse}) {
-      CHECK(partition->front()==0);CHECK(partition->back()==1);
-      for(size_t k=1;k<partition->size();++k)CHECK((*partition)[k]>(*partition)[k-1]);
-      const auto root=partition==&cuts?.25:.75;double miss=1;
+  // Independent cubic normal-ray crossings; adaptive partitions need not have equal cardinality.
+  for(const auto* partition:{&cuts,&reverse}) {
+    CHECK(partition->front()==0);CHECK(partition->back()==1);
+    for(size_t k=1;k<partition->size();++k)CHECK((*partition)[k]>(*partition)[k-1]);
+    for(double forwardRoot:transported?std::vector<double>{.25}:std::vector<double>{.25,.75}) {
+      const auto root=partition==&cuts?forwardRoot:1-forwardRoot;double miss=1;
       for(auto t:*partition)miss=std::min(miss,std::abs(t-root));
-      CHECK(miss*std::abs(b[2]-a[2])*(2/h0)<=1e-8);
+      const double normalSizeUpper=h0+(1.2-1)*(transported?.01:1.25*h0);
+      CHECK(miss*std::abs(b[2]-a[2])*(2/normalSizeUpper)<=1e-8);
     }
   }
 }
@@ -1541,13 +1552,18 @@ TEST_CASE("Actual retained cubic wall policy probe without CFD", "[.][NativeActu
       std::ifstream inputChord(chordPath);REQUIRE(bool(inputChord));
       std::array<double,3> a{},b{};double bandRatio=0,replayTransitionCore=0;unsigned fadeBands=0;
       for(auto* point:{&a,&b})for(auto& value:*point){inputChord>>value;REQUIRE(std::isfinite(value));}
-      inputChord>>bandRatio>>fadeBands>>replayTransitionCore;REQUIRE(bool(inputChord));inputChord>>std::ws;REQUIRE(inputChord.eof());
+      inputChord>>bandRatio>>fadeBands>>replayTransitionCore;REQUIRE(bool(inputChord));inputChord>>std::ws;
+      std::array<double,3> metricPadding{};const bool padded=!inputChord.eof();
+      if(padded) {
+        for(auto& value:metricPadding){inputChord>>value;REQUIRE(bool(inputChord));REQUIRE(std::isfinite(value));REQUIRE(value>=0);}
+        inputChord>>std::ws;REQUIRE(inputChord.eof());
+      }
       REQUIRE(std::isfinite(bandRatio));REQUIRE(bandRatio>1);REQUIRE(fadeBands>0);REQUIRE(fadeBands<=256);
       REQUIRE(std::isfinite(replayTransitionCore));REQUIRE(replayTransitionCore>=0);
       if(replayTransitionCore>0)layers->ConfigureOuterTransition(replayTransitionCore,SU2_TYPE::GetValue(config.GetAdap_Hgrad()));
       CHECK(layers->GetOuterTransitionCore()==replayTransitionCore);
-      receipt("replay_chord_begin",9);
-      const auto cuts=layers->EdgeBreakpoints(a,b,bandRatio,fadeBands);
+      receipt("replay_chord_begin",padded?12:9);
+      const auto cuts=layers->EdgeBreakpoints(a,b,bandRatio,fadeBands,nullptr,metricPadding);
       REQUIRE(cuts.size()>=2);CHECK(cuts.front()==0);CHECK(cuts.back()==1);
       for(size_t k=1;k<cuts.size();++k)CHECK(cuts[k]>cuts[k-1]);
       receipt("replay_chord_complete",cuts.size());

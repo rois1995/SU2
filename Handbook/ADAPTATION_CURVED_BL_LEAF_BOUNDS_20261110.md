@@ -1,7 +1,6 @@
 # Connected cubic BL interval-bound correction — working design
 
-2026-11-10. ONE existing curved-BL integration cycle. Production change is not
-implemented or qualified yet. Preserve qualified Euler293 checkpoints and all
+2026-11-10. ONE existing curved-BL integration cycle. Production316 built successfully; qualification is pending. Preserve qualified Euler293 checkpoints and all
 construction/certification improvements. No gate, budget, sensor, Lp objective,
 requested height, geometry authority, scheduler or production configuration change.
 
@@ -25,7 +24,7 @@ below the7e12 CHORD upper. This supports interval-local bounds, but does not pro
 that the same small bound holds throughout a chord or that a new method converges.
 Data: staged57/m6_bl_inputs/crossing314_chord_v1/point_probe_v1/analysis315.json.
 
-## Connected candidate, pending proof review
+## Connected316 implementation, pending qualification
 
 1. Retain the global upper as fallback. Split the immutable wall bound into its
    tangential contribution and normal-height contribution. For each unresolved
@@ -47,18 +46,18 @@ Data: staged57/m6_bl_inputs/crossing314_chord_v1/point_probe_v1/analysis315.json
    contract; ordinary results should be preserved where possible. A portable
    envelope must cover candidate query precision, realization contracts, rounded
    subtraction, norm evaluation and zero/subnormal/overflow cases separately.
-   Do not replace this proof with an unexplained64eps pad. One reviewed route
-   bounds the six squared-norm product/add operations by12 ULPs at a magnitude
-   enclosing every intermediate (e.g.4*D^2+128*minimum LD increment), then applies
-   the same outward sqrt/conversion. Overflow/uncertainty retains the global bound.
+   The implemented scaled directed norm bounds normalized intermediates by8. Its
+   error envelope uses34 LD ULPs at8 times the distance, plus explicit scale/cast
+   ULP terms and subtraction error. Overflow/uncertainty retains the global bound.
 4. Preserve caller semantics: strict IntegrationColumns reconstructs source points
    via SetBLSourceQuery and up to8 inward attempts, rather than ordinary affine
    rounding. A private per-axis source-query envelope must include normalized
    endpoint offsets, radial complement/mix rounding, the double inward expression,
    LD reconstruction and final conversion; use the actual accepted retry scales.
-   Keep SetBLSourceQuery itself unchanged. Review whether padding belongs only to
-   the metric envelope or must also enlarge ideal-chord exclusion; do not silently
-   change certificate scope. This remains a proof decision before implementation.
+   SetBLSourceQuery itself remains unchanged. Padding bounds metric evaluations
+   at reconstructed/inward samples. Original ideal-chord exclusion remains unchanged:
+   this does not newly certify that rounded Gauss samples cannot cross an excluded
+   level. Preserve that existing scope and the independent quadrature-error checks.
 5. Store each leaf's effective bound; children may tighten by min(parent,new) only
    for the same frozen profile and complete child interval. Adjacent leaves inherit
    the parent bound without querying. Update pending-cover diagnostics consistently.
@@ -92,3 +91,19 @@ RANS500k events, conservative admissible flow AND SA transfer, finite adapted CF
 and an actual isolated adapted disk restart. FIRST_ROW native1 with MPI6 parents
 alone is not distributed BL generation. Missing progression/coverage and curved
 alignment evidence remains documented in ADAPTATION_BL_SUITABILITY_EVIDENCE_ROUTE.
+
+## Build316 first actual evidence (incomplete qualification)
+
+Build316 terminal0/252.261s, source pins unchanged and55 sampled actual build
+processes absent. Captured314 chord PASSED60assertions/47.845s helper; certification
+37.560s/409726geometry work/32cuts. This resolves that preserved work refusal,
+not a measured comparison to its incomplete full-run chord work.
+Captured311 chord PASSED37assertions; certification10.443s/113482work/9cuts,
+versus314 17.014s/181652work/16cuts on that SAME captured query. Work reduced37.5%;
+wall times remain subject to contention. Both actual process trees terminal,
+all source/input/runtime pins verified. Faithful complete first-cell replay is
+currently active; target construction and BL mesh acceptance remain unproven.
+
+No broad or MPI qualification completed for316 yet. Cached/fresh and unknown-envelope
+regressions are compiled but not run. Preserve the fixed global fallback, every
+feature/image, height policy and original ideal-chord certificate scope.
