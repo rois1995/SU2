@@ -2006,9 +2006,38 @@ CBoundaryLayerMetric::Sample CBoundaryLayerMetric::Evaluate(unsigned short iWall
   return EvaluateImpl(iWall,X,coreEigenvalue,false);
 }
 
+CBoundaryLayerMetric::Sample CBoundaryLayerMetric::EvaluateAtSurfaceAssociation(
+    unsigned short index,uint64_t facet,const SU2NativeGeometry::SurfaceBinding& binding,su2double coreEigenvalue) {
+  const auto& wall=walls.at(index);
+  if(nDim!=3 || !CurvedWall(index) || !(SU2_TYPE::GetValue(coreEigenvalue)>0) ||
+      !std::isfinite(SU2_TYPE::GetValue(coreEigenvalue)))
+    throw std::invalid_argument("Intrinsic wall sample needs a curved 3D authority and finite positive core.");
+  const auto where=std::lower_bound(wall.authority_facets.begin(),wall.authority_facets.end(),facet);
+  if(where==wall.authority_facets.end() || *where!=facet)
+    throw std::invalid_argument("Intrinsic wall sample leaves its exact retained support.");
+  const auto scratch=GeometryWorkspaceBytes(); // Reuse the admitted geometry envelope; no search scratch is allocated.
+  if(transfer_memory::Add(StorageBytes(),scratch)>wall.geometry_ceiling)
+    throw std::length_error("Intrinsic wall sample exceeds geometry storage admission.");
+  auto* reservation=geometryReservation?geometryReservation:wall.authority->AtlasReservation();
+  if(reservation) {
+    reservation->CheckTime();
+    const auto peak=transfer_memory::Add(reservation->caller_bytes,scratch);
+    if(peak>reservation->maximum_bytes)throw std::length_error("Intrinsic wall sample caller workspace exhausted.");
+    reservation->peak_bytes=std::max(reservation->peak_bytes,peak);
+    if(!reservation->ChargeWork(1))throw std::length_error("Intrinsic wall sample geometry work exhausted.");
+  }
+  const auto& geometry=wall.authority->Parameters()->Geometry();
+  const auto evaluation=geometry.EvaluateSurface(facet,binding);
+  WallProjection associated;associated.face=where-wall.authority_facets.begin();
+  associated.bary=geometry.SurfaceCoordinates(facet,binding);
+  associated.surface.point=evaluation.point;associated.surface.normal=evaluation.normal;
+  const su2double x[3]={evaluation.point.x,evaluation.point.y,evaluation.point.z};
+  return EvaluateImpl(index,x,coreEigenvalue,false,ChordOwners::NoFacet,&associated);
+}
+
 CBoundaryLayerMetric::Sample CBoundaryLayerMetric::EvaluateImpl(unsigned short iWall, const su2double* X,
                                                                su2double coreEigenvalue, bool distanceOnly,
-                                                               unsigned long pinned) {
+                                                               unsigned long pinned,const WallProjection* associated) {
   const auto& wall = walls[iWall];
   auto& d = *data[iWall];
   Sample sample;sample.profile_version=sampleVersion;
@@ -2023,7 +2052,7 @@ CBoundaryLayerMetric::Sample CBoundaryLayerMetric::EvaluateImpl(unsigned short i
   su2double lookup[3]={X[0],X[1],nDim==3?X[2]:su2double(0.)};
   WallProjection projection;
   if(wall.authority) {
-    projection=ProjectWall(iWall,{SU2_TYPE::GetValue(X[0]),SU2_TYPE::GetValue(X[1]),SU2_TYPE::GetValue(X[2])});
+    projection=associated?*associated:ProjectWall(iWall,{SU2_TYPE::GetValue(X[0]),SU2_TYPE::GetValue(X[1]),SU2_TYPE::GetValue(X[2])});
     smooth=projection.surface;
     lookup[0]=smooth.point.x;lookup[1]=smooth.point.y;lookup[2]=smooth.point.z;
   }

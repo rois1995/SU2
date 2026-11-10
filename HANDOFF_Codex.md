@@ -8,56 +8,52 @@ ONE connected curved-BL cycle. R=`integration_evidence/native_3d_bl_v1/dc17_18_c
 
 ## Current owned workload — authoritative
 
-Strict build333 SEALED: no-op2.140s, all2 actual handles absent, source/build pins
-unchanged; CBL and native geometry effective strict-FP flags verified. Build332
-compiled40.150s/all20 actual handles absent, but regenerated build.ninja and
-compile_commands.json, so its old pin check failed; graph review + no-op333 seals
-expected regeneration. Normal strict library built; AD build paths untested.
-Actual SAME captured chord retest333 PASSED334assert/354.764s helper,
-296cuts,geometrywork5397983 vs old refusal5957792; all5 actual handles absent,
-pins/runtime verified. This closes ONE primitive; ~6minutes/chord remains too
-expensive for whole-surface preparation. Do not present it as BL capability.
-Closest/candidate checks passed1017assert/2cases/8.346s, all5 actual handles absent.
-Independent grazing-band test333 PASSED12assert/196.465s, all5 actual handles
-absent/pins unchanged. It retains known roots but confirms high query cost.
-Current ONE owned job: translated cubic/resource check on strict333, tool58170,
-case `R/cases/curved333_translated_20261110T182532_3517263`; verify actual handles before edits.
-Sources FROZEN. Additional curved/composed guards remain pending; prior331
-combined focused was INTERRUPTED143/287.613s for fast-math precondition.
-Helpers `R/check_bounds333.py`, `R/replay_chord333_after_bounds.py`.
-No MPI/full attempt until connected surface/front integration and qualification.
-Actual context manifest supplies complete11–24cell endpoint stars, not certified
-feature/metric readiness. Next surface work must avoid full h0 volume-chord demand:
-investigate existing parameter/differential evaluation for intrinsic tangential
-samples, quantify inherited tangent/normal/flow components BEFORE policy changes,
-and reuse Euler coupled operators with a complete wall-readiness census. Maintain
-the existing constrained/blended field and refresh relevant dependencies. Do not
-substitute another kernel-only/full-run cycle for the requested construction work.
+NONE. Build334 and both serial checks are terminal; all52 observed build PIDs and
+all5 actual identities per check are absent. Source/build pins unchanged.
+334 adds an intrinsic sided reference-association wall sample, reusing existing
+metric logic with support/version/profile/work/time/memory checks. It is NOT a
+rounded-coordinate distance certificate. Existing Evaluate callers retain their
+closest-certification path. No sizing/construction policy or gate changed.
+
+Build334 PASSED248.360s. Focused association/curved-target check PASSED2244assert/
+1case, Catch298.877s (GNU wall299.19s). Its observer wrapper disappeared during
+turn steering; terminal outcome was recovered from independent GNU exit0/Catch
+result, all actual handles absent and reverified pins.70 actual mapped ELF verified.
+Actual5-context surface probe PASSED121assert/27sided samples/11.600s wrapper,
+81geometry work and zero closest-query counter deltas. Current code/evidence is WIP toward the full connected milestone;
+`R/qualification334.json` seals its LIMITED scope.
+
+Actual endpoint/face-centroid forms: inherited tangent square roots near.93–1.03
+on root/smooth contexts; full-volume chord forms reach1697/60 due to h0 normal term.
+Selected spanwise LE edge has tangent.89–.91 and full.89–1.01. These are NOT exact
+edge quadrature, actual CFD-Hessian/composed-target replay, feasible replacements
+or global complexity decomposition. `R/surface_components334_assessment.json`.
+Helpers `R/check_surface334.py`, `R/replay_surface334.py`, `R/analyze_surface334.py`.
 
 ## Active connected curved-BL strategy
 
-User now requests integrated surface preparation, constrained/blended directions,
-coordinated first layer/front growth and outer transition BEFORE another full run.
-[Current strategy, audit and acceptance conditions](Handbook/ADAPTATION_CURVED_BL_CONSTRUCTION_STRATEGY_20261110.md).
-Audit-only bounded agents completed without edits/jobs. Prerequisite diagnosis uses
-ONE preserved actual330 chord with existing build330 diagnostic, helper
-`R/replay_chord331.py`, case `curved331_actual_chord_20261110T173020_3365437`.
-Chord replay TERMINAL1/401.019s; all5 actual identities absent, pins unchanged.
-It reproduced EXACT16385work/406leaves/.00100516uncertainty refusal;5.957792M
-geometry work/396.318s primitive. Adjacent-point probe TERMINAL0/12.684s,172assert,
-7770geometrywork; all5 actual handles absent/pins unchanged. Both helpers retained.
-Prerequisite prototype under strict333 validation: certified candidate-box
-plus endpoint squared-distance concavity exclusion, existing Lip fallback/limits.
-Read-only proof review found no remaining blocker after optional endpoint fallback
-fix; build/focused qualification pending. Surface/front integration remains to
-implement; do NOT start full workflow after a kernel-only pass. Current strategy
-records missing facilities, proof and actual diagnosis. ONE connected milestone.
+[Strategy, audit and acceptance conditions](Handbook/ADAPTATION_CURVED_BL_CONSTRUCTION_STRATEGY_20261110.md).
+Next: connect the measured tangential surface demand to existing TargetPolicy and
+native coupled cavity operators; first demonstrate representative actual complete
+patch replacements, keeping final full-target size/geometry and first-child clearance
+separate from selection. Quantify actual flow/inherited/geometry/height contributions
+and global provisional complexity excess BEFORE changing target policy. Preserve
+constrained/blended directions and rebuild affected dependencies after surface edits.
+Bounded read-only agent is locating an existing actual-cavity loader/replay route.
+No MPI/full attempt until connected surface/front integration and qualification.
 
-## Frozen owned workload — authoritative current state
+Strict333 prerequisite actual chord PASSED334assert/354.764s/296cuts/5.397983M work
+versus old refusal5.957792M; ~6minutes/chord remains unsuitable for a wall scan.
+Closest1017assert, grazing12assert, translated/resource283assert passed333; all owned
+handles terminal. Strict CBL/native FP verified; AD paths untested. Kernel passes
+are not complete BL qualification. Euler293's22saved payloads384685699bytes unchanged
+again in `R/euler293_preservation_during_bl334.json`.
+
+## Preserved full330 outcome — historical
 
 Full SAME303seed BL/RANS330 TERMINAL: outer14400 timeout124, wrapper14403.143s.
 ALL10 actual host owned identities ABSENT in330/terminal_handles_actual.json;
-source/build/input pins and mapped runtime verified unchanged. Current331 freeze above.
+source/build/input pins and mapped runtime verified unchanged. Current live state is given above.
 Two remesh attempts both FAILED in W wall-edge measurement before any split/first
 row: W5503.34/5503.79s,58305 unmeasurable edges,0 splits. Most edge failures were
 reported after time expiry; do not call them independent geometric obstructions.
@@ -70,8 +66,8 @@ outcome. No representative generated BL patch exists yet.
 Initial metric1226.497s had EXACT same target/support/geometry work53473769 as329;
 wall−14.02% is not attributable to routing change, which executes afterward.
 Target still unqualified1.175M vs500k. Preserved initial prefix and assessment.
-NEXT: inspect earliest actual composed-edge/chord refusals and full W counters;
-select ONE connected correction from demonstrated failure. Do not substitute an
+Its edge/chord refusal diagnosis and334 surface component follow-up are recorded
+in the active construction strategy above. Do not substitute an
 unproven surface-remeshing policy or increase budgets. Existing W is only a split
 prepass from incoming surface, not complete surface coarsen/relocate/reconnect/
 quality closure. Preserve requested Coulaud/MAdLib actual-patch investigation until
@@ -83,7 +79,7 @@ no first-row construction or accepted operation. Driver consumed event and enter
 cycle1 on the original61330-point grid; TWO accepted events were impossible.
 `R/m6_runs/rans_curved329_v1/assessment.json`, raw prefix, stop request and manifest
 preserve evidence. All10 exact actual host handles ABSENT in
-`terminal_handles_actual.json`; rechecked before330 source edits. Current331 freeze is authoritative.
+`terminal_handles_actual.json`; rechecked before330 source edits. Current live state is given above.
 
 Selected connected correction: skip unused expensive partition work prediction
 when there is only ONE native destination. Existing Repartition initializes every

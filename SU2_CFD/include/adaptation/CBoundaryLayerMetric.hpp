@@ -42,7 +42,7 @@
 class CConfig;
 class CGeometry;
 namespace SU2NativeBoundary2D { struct ReferenceState; }
-namespace SU2NativeGeometry { struct AtlasBudget; }
+namespace SU2NativeGeometry { struct AtlasBudget; struct SurfaceBinding; }
 namespace SU2Native3D { struct ReferenceState; class PlanarReference; class SupportSampler3D; }
 
 /*!
@@ -245,6 +245,11 @@ class CBoundaryLayerMetric {
    * \return The sample; Sample::weight is 0 beyond the thickness (the metric is then not set).
    */
   Sample Evaluate(unsigned short iWall, const su2double* coord, su2double coreEigenvalue);
+  /*! Intrinsic sample at a valid forward association on this wall's immutable reference.
+   * Not a closest-point or distance certificate for a rounded working-mesh coordinate.
+   * Re-evaluate after association/profile changes; no query result is retained here. */
+  Sample EvaluateAtSurfaceAssociation(unsigned short wall,uint64_t facet,
+      const SU2NativeGeometry::SurfaceBinding&,su2double coreEigenvalue);
 
   /*! Nearest-facet ownership along one chord, taken from the same faceted 3D wall-distance envelope that produced
    *  its cuts (EdgeBreakpoints). Per wall: ascending piece ends with the owning wall facet; a facet owns itself, a
@@ -381,7 +386,7 @@ class CBoundaryLayerMetric {
   bool CurvedWall(unsigned short wall)const;
   bool MayIntersectBand3D(const std::array<std::array<double,3>,4>& tetrahedron,unsigned short wall)const;
   Sample EvaluateImpl(unsigned short wall, const su2double* coord, su2double coreEigenvalue, bool distanceOnly,
-                      unsigned long pinned = ChordOwners::NoFacet);
+                      unsigned long pinned = ChordOwners::NoFacet,const WallProjection* associated=nullptr);
   std::vector<double> EdgeBreakpointsImpl(const std::array<double,3>& a,const std::array<double,3>& b,
       double bandRatio,unsigned fadeBands,bool featureTransitions=true,ChordOwners* owners=nullptr,
       const std::array<double,3>& metricPadding={});

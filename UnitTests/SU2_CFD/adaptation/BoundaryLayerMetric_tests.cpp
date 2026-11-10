@@ -1269,6 +1269,47 @@ TEST_CASE("Native3D complexity reference does not rebase the wall on the adapted
   std::array<double,3> normal{{du[1]*dv[2]-du[2]*dv[1],du[2]*dv[0]-du[0]*dv[2],du[0]*dv[1]-du[1]*dv[0]}};
   const double norm=std::hypot(normal[0],normal[1],normal[2]);
   for(auto& n:normal)n/=norm;
+  {
+    auto associatedLayers=CBoundaryLayerMetric::FromNativeReference(state,*test.config);
+    const auto binding=curved->FacetPoint(f.id,v,w);
+    const auto before=curved->GeometryStatsSnapshot();
+    const auto intrinsic=associatedLayers->EvaluateAtSurfaceAssociation(0,f.id,binding,1.);
+    const auto after=curved->GeometryStatsSnapshot();
+    CHECK(after.closest_region_hits==before.closest_region_hits);
+    CHECK(after.closest_region_misses==before.closest_region_misses);
+    CHECK(intrinsic.distance==0);CHECK(intrinsic.hn==Approx(.001));
+    const auto evaluation=curved->EvaluateSurface(f.id,binding);
+    const su2double onSurface[3]={evaluation.point.x,evaluation.point.y,evaluation.point.z};
+    const auto searched=associatedLayers->Evaluate(0,onSurface,1.);
+    CheckTensor(3,intrinsic.full,searched.full,2e-6);
+    auto stale=binding;++stale.version;
+    CHECK_THROWS(associatedLayers->EvaluateAtSurfaceAssociation(0,f.id,stale,1.));
+    CHECK_THROWS(associatedLayers->EvaluateAtSurfaceAssociation(0,UINT64_MAX,binding,1.));
+    CHECK_THROWS(associatedLayers->EvaluateAtSurfaceAssociation(0,f.id,binding,0.));
+    SU2NativeGeometry::AtlasBudget budget;budget.maximum_work=1;budget.caller_bytes=associatedLayers->StorageBytes();
+    budget.maximum_bytes=transfer_memory::Add(budget.caller_bytes,associatedLayers->GeometryWorkspaceBytes());
+    {
+      CBoundaryLayerMetric::GeometryReservationScope scope(*associatedLayers,budget);
+      const auto fresh=associatedLayers->EvaluateAtSurfaceAssociation(0,f.id,binding,1.);
+      CheckTensor(3,fresh.full,intrinsic.full,0.);CHECK(budget.work==1);
+      CHECK_THROWS(associatedLayers->EvaluateAtSurfaceAssociation(0,f.id,binding,1.));CHECK(budget.work_exhausted);
+    }
+    auto expired=budget;expired.work=0;expired.work_exhausted=false;expired.within_time=[](){return false;};
+    {
+      CBoundaryLayerMetric::GeometryReservationScope scope(*associatedLayers,expired);
+      CHECK_THROWS(associatedLayers->EvaluateAtSurfaceAssociation(0,f.id,binding,1.));CHECK(expired.time_exhausted);
+    }
+    auto noBytes=budget;noBytes.work=0;noBytes.work_exhausted=false;noBytes.maximum_bytes=noBytes.caller_bytes;
+    {
+      CBoundaryLayerMetric::GeometryReservationScope scope(*associatedLayers,noBytes);
+      CHECK_THROWS(associatedLayers->EvaluateAtSurfaceAssociation(0,f.id,binding,1.));
+    }
+    associatedLayers->ConfigureOuterTransition(.0001,1.3);
+    const auto fresh=associatedLayers->EvaluateAtSurfaceAssociation(0,f.id,binding,.0001);
+    CHECK(fresh.profile_version!=intrinsic.profile_version);
+    CBoundaryLayerMetric::Tensor target;for(unsigned j=0;j<3;++j)target.m[j][j]=1;
+    CHECK_THROWS(associatedLayers->ApplySample(0,intrinsic,target,.0001,nullptr,false));
+  }
   for(double offset:{0.,.0001,.002}) {
     su2double query[3];for(unsigned j=0;j<3;++j)query[j]=foot[j]+offset*normal[j];
     const auto sample=layers->Evaluate(0,query,1.);
@@ -1627,6 +1668,55 @@ TEST_CASE("Actual retained cubic wall policy probe without CFD", "[.][NativeActu
   };
   CBoundaryLayerMetric::GeometryReservationScope reservation(*layers,budget);
   try {
+    if(const auto* surfacePath=std::getenv("SU2_NATIVE_BL_SURFACE_REPLAY")) {
+      std::ifstream edges(surfacePath);REQUIRE(bool(edges));double core=0;size_t count=0;
+      edges>>core>>count;REQUIRE(core>0);REQUIRE(std::isfinite(core));REQUIRE(count>0);REQUIRE(count<=16);
+      auto base=CBoundaryLayerMetric::FromNativeReference(reference,config,179.999);
+      budget.caller_bytes=transfer_memory::Add(budget.caller_bytes,base->StorageBytes());
+      REQUIRE(transfer_memory::Add(budget.caller_bytes,base->GeometryWorkspaceBytes())<=budget.maximum_bytes);
+      CBoundaryLayerMetric::GeometryReservationScope baseReservation(*base,budget);
+      layers->ConfigureOuterTransition(core,SU2_TYPE::GetValue(config.GetAdap_Hgrad()));
+      base->ConfigureOuterTransition(core,SU2_TYPE::GetValue(config.GetAdap_Hgrad()));
+      const auto before=geometry.GeometryStatsSnapshot();size_t samples=0;
+      for(size_t edge=0;edge<count;++edge) {
+        unsigned short wall=0;Id a=0,b=0;edges>>wall>>a>>b;REQUIRE(bool(edges));REQUIRE(a!=b);REQUIRE(wall<base->GetnWall());
+        size_t sides=0;
+        for(const auto& item:reference.original->Facets()) {
+          const auto& f=item.second;if(reference.marker_names.at(f.marker)!=base->GetLayer(wall).marker)continue;
+          bool first=false,second=false;Point pa{},pb{};
+          for(const auto& node:f.v){if(node.id==a){first=true;pa=node.p;}if(node.id==b){second=true;pb=node.p;}}
+          if(!first||!second)continue;++sides;
+          const double e[3]={pb.x-pa.x,pb.y-pa.y,pb.z-pa.z};
+          for(unsigned location=0;location<3;++location) {
+            const auto binding=location==0?geometry.Vertex(a):location==1?geometry.Vertex(b):geometry.FacetPoint(f.id,1./3,1./3);
+            budget.CheckTime();REQUIRE(budget.ChargeWork(1));
+            const auto differential=geometry.EvaluateSurface(f.id,binding);
+            const auto sample=base->EvaluateAtSurfaceAssociation(wall,f.id,binding,core);
+            const auto full=layers->EvaluateAtSurfaceAssociation(wall,f.id,binding,core);
+            double normal[3],tangent[3],dot=0;
+            for(unsigned j=0;j<3;++j){normal[j]=SU2_TYPE::GetValue(sample.normal[j]);dot+=normal[j]*e[j];}
+            for(unsigned j=0;j<3;++j)tangent[j]=e[j]-dot*normal[j];
+            auto quadratic=[&](const double* v,const CBoundaryLayerMetric::Tensor& tensor) {
+              long double q=0;for(unsigned i=0;i<3;++i)for(unsigned j=0;j<3;++j)q+=(long double)v[i]*SU2_TYPE::GetValue(tensor.m[i][j])*v[j];return q;
+            };
+            long double flowFloor=0;for(auto x:tangent)flowFloor+=(long double)core*x*x;
+            const auto normalPart=(long double)dot*dot/std::pow(SU2_TYPE::GetValue(sample.hn),2);
+            std::cout<<std::setprecision(21)<<"{\"surface_component\":true,\"edge\":"<<edge<<",\"a\":"<<a<<",\"b\":"<<b
+              <<",\"side\":"<<f.id<<",\"location\":"<<location<<",\"point\":["<<differential.point.x<<','<<differential.point.y<<','<<differential.point.z
+              <<"],\"normal\":["<<normal[0]<<','<<normal[1]<<','<<normal[2]<<"],\"curvature\":["<<differential.curvature1<<','<<differential.curvature2
+              <<"],\"normal_h0_q\":"<<normalPart<<",\"inherited_tangent_q\":"<<quadratic(tangent,sample.full)
+              <<",\"base_full_q\":"<<quadratic(e,sample.full)<<",\"full_D1_q\":"<<quadratic(e,full.full)
+              <<",\"controlled_flow_floor_tangent_q\":"<<flowFloor<<",\"diagnostic_not_edge_quadrature\":true}"<<std::endl;
+            CHECK(sample.distance==0);CHECK(sample.hn==Approx(base->GetLayer(wall).firstHeight));++samples;
+          }
+        }
+        REQUIRE(sides>0);
+      }
+      edges>>std::ws;REQUIRE(edges.eof());
+      const auto after=geometry.GeometryStatsSnapshot();
+      CHECK(after.closest_region_hits==before.closest_region_hits);CHECK(after.closest_region_misses==before.closest_region_misses);
+      receipt("surface_components_complete",samples);return;
+    }
     if(const auto* pointPath=std::getenv("SU2_NATIVE_BL_POINT_REPLAY")) {
       using SU2NativeGeometry::MappedFacetReference;
       std::ifstream points(pointPath);REQUIRE(bool(points));

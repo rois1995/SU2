@@ -1,0 +1,10 @@
+{
+  "build": "334",
+  "strict_metric_compile_command": {
+    "directory": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost",
+    "command": "c++ -ISU2_CFD/src/libSU2BLMetric.a.p -ISU2_CFD/src -I../../SU2_CFD/src -I../../externals/CLI11 -I../../externals/eigen -I../../externals/cgns/adf -I../../externals/cgns/adfh -Iexternals/cgns -I../../externals/cgns -Iexternals/cgns/hdf5 -I../../externals/cgns/hdf5 -I../../externals/metis/include -I../../externals/metis/GKlib -I../../externals/metis/libmetis -I../../externals/parmetis/include -I../../externals/parmetis/libparmetis -I../../externals/mel -ICommon/src -I../../Common/src -I/usr/lib/x86_64-linux-gnu/openmpi/include -I/usr/lib/x86_64-linux-gnu/openmpi/include/openmpi -fdiagnostics-color=always -D_GLIBCXX_ASSERTIONS=1 -D_FILE_OFFSET_BITS=64 -std=c++17 -O2 -g -fPIC -pthread -Wno-empty-body -Wno-ignored-qualifiers -Wno-unused-parameter -Wno-deprecated-declarations -Wno-error=cast-function-type -Wno-cast-function-type -Wno-error=stringop-truncation -Wno-stringop-truncation -Wno-error=missing-field-initializers -Wno-missing-field-initializers -Wno-error=class-memaccess -Wno-class-memaccess -Wno-overloaded-virtual -Wno-array-bounds -Wno-dangling-pointer -march=native -ffast-math -fno-finite-math-only -DHAVE_CGNS -DHAVE_MPI -DHAVE_METIS -DHAVE_PARMETIS -DHAVE_MMG -fno-fast-math -fno-unsafe-math-optimizations -ffp-contract=off -MD -MQ SU2_CFD/src/libSU2BLMetric.a.p/adaptation_CBoundaryLayerMetric.cpp.o -MF SU2_CFD/src/libSU2BLMetric.a.p/adaptation_CBoundaryLayerMetric.cpp.o.d -o SU2_CFD/src/libSU2BLMetric.a.p/adaptation_CBoundaryLayerMetric.cpp.o -c ../../SU2_CFD/src/adaptation/CBoundaryLayerMetric.cpp",
+    "file": "../../SU2_CFD/src/adaptation/CBoundaryLayerMetric.cpp",
+    "output": "SU2_CFD/src/libSU2BLMetric.a.p/adaptation_CBoundaryLayerMetric.cpp.o"
+  },
+  "scope": "Normal build only; AD variants remain unqualified."
+}

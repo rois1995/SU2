@@ -253,3 +253,75 @@ roots; it is a primitive conservative-bound test, not BL readiness evidence. It
 also confirms the expensive global-query route is unsuitable as a blanket surface
 selection path. Translated/resource behavior and integrated surface/front tests
 remain pending; no MPI/full workflow has been launched after this prerequisite.
+
+## Surface-readiness implementation in progress334
+
+The translated cubic/resource check333 passed283 assertions in74.445s with unchanged
+pins; all5 actual owned identities are absent. It completes the bounded prerequisite
+checks listed above, not complete BL qualification.
+
+A pending intrinsic surface sample reuses the existing CBoundaryLayerMetric profile,
+inherited tangent interpolation and feature calculation at a valid forward reference
+association. It checks exact wall-support membership, sided incidence, current binding
+version, positive finite core, shared work/time and conservative memory admission.
+It bypasses nearest-foot discovery only because its input denotes a reference point;
+it is NOT a distance certificate for an arbitrary rounded working coordinate. No
+result is retained. Profile-version checks still protect later ApplySample calls.
+Normal Evaluate and arbitrary-point geometry certification remain on their old paths.
+
+Focused stale/support/profile/resource checks and a bounded actual M6 component
+probe accompany the pending code. The probe includes the failed root chord, smooth
+upper surface, leading edge, symmetry interface and a sharp-angle candidate. It uses
+the whole original reference, each incident wall side, endpoints and face centroids.
+It compares the inherited tangent quadratic form, full chord form, normal h0 form,
+D1-enabled raw form and a labeled isotropic flow-floor control, with local differential
+curvatures. These are diagnostics, NOT exact edge quadrature, a replay of the actual
+CFD Hessian, a global complexity decomposition or a new geometry sizing policy.
+Construction integration, complete patch replacements and readiness/front census
+remain to implement and qualify. Do not launch a full attempt after these checks.
+
+Integration review: TargetPolicy owns the shared base/full/OptionA target and budget
+lease; the native engine owns distributed physical-edge selection and coupled cavity
+publication. A tangent facility must connect these existing layers, not remain only
+in the serial FIRST_ROW wrapper. Intrinsic tangent readiness alone cannot waive the
+final full-target chord-size audit or first-child reference clearance. Curved chord
+sag can be much larger than h0 even when the surface meets the coarser geometry
+ceiling; distinguish that real layer-feasibility demand from a selection artifact.
+The current component probe does not resolve this distinction by itself.
+
+##334 bounded surface prerequisite outcome
+
+Build334 passed248.360s with unchanged pins and all52 observed build PIDs absent.
+Focused intrinsic association + existing curved-target checks passed2244assertions/
+1case, Catch298.877s/GNU wall299.19s. The observation wrapper disappeared during
+turn steering; actual child identities stayed live and sources frozen. Independent
+GNU exit0/Catch result, reverified pins and all5 actual handles absent sealed the
+recovered result;70 actual mapped ELF were checked while live.
+
+The actual5-context probe passed121assertions with27sided samples,81geometry-work
+charges and zero closest-query hit/miss deltas. Wrapper11.600s includes preparation;
+reference load6.619s and component completion7.257s. It is not equivalent work to a
+certified chord and supplies no claimed chord speedup. All5 actual handles absent.
+`R/qualification334.json`, `R/surface_components334_assessment.json` and raw case
+receipts preserve source/build/helper/input/runtime/resource provenance and scope.
+
+| Original context | sqrt inherited tangent form | sqrt full chord form |
+|---|---:|---:|
+| Root failed chord65–18865 | .929–1.023 | 3.081–1697.203 |
+| Smooth upper5925–5950 | .969–1.031 | 15.131–59.584 |
+| Spanwise LE4220–4221 | .891–.908 | .891–1.014 |
+| Symmetry interface232–233 | .970–.991 | .974–3.764 |
+| Sharp-angle candidate4497–4498 | .998–1.002 | .998–1.002 |
+
+These are endpoint/face-centroid forms of the SAME physical chord at each side;
+they are not integrated edge lengths, metric-ready patches or physical curvature
+sizing certificates. The normal h0 contribution accounts for the root/smooth excess
+to the checked numeric residual. The isotropic floor control is not the actual saved
+CFD Hessian/OptionA target. No mesh mutation or admissible replacement was tested.
+This supports separating intrinsic tangent selection from normal-height demand,
+while preserving final full-target chord size and actual first-child clearance.
+It does NOT establish that excess surface points can be removed, that the combined
+target is correct or that500k is feasible. Global inherited-tangent contribution,
+actual flow combination, principal-direction alignment and patch/front coverage
+remain unresolved. Existing TargetPolicy/engine hooks and actual-cavity replay
+facilities are the next integration work, not another kernel-only/full-run loop.

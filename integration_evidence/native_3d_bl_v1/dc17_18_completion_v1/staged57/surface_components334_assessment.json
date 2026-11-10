@@ -1,0 +1,168 @@
+{
+  "scope": "Original M6 sided endpoint/face-centroid quadratic forms only. No mesh mutation, edge quadrature, actual flow-Hessian replay, geometry/height certificate, global complexity decomposition or BL qualification.",
+  "source_pins": {
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_bl_inputs/chord331_from330_v1/actual_contexts.json": "e30b7b6da996adde7bdce519d1c5a52ee29407f999996cb7dfd851e0089c295d",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved334_surface_components_20261110T222410_4141734/pins.json": "eff47a29bc979e7a9be1020b66f3b8d134a324da0cf053e81a9f57e25da404f8",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved334_surface_components_20261110T222410_4141734/run.log": "fd2574802a739d5d605366bea3e5134aa1c217d42f18bd99015b897947a9bd85",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved334_surface_components_20261110T222410_4141734/status.json": "ad2b6a19e5c2457fda2c511be2bf2756e3db4a9e77128f5e01ff09893aea573a",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved334_surface_components_20261110T222410_4141734/terminal_handles_actual.json": "14b513dcd4cf5e5b49dc414efd86145684e9a3cc1347b174bf99e3a741c31c34",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/analyze_surface334.py": "2094b2650982452c19f77200ab1184b8f75a0bebba47bbd04add04e92c1f2566"
+  },
+  "completion": {
+    "probe": "actual_cubic_bl",
+    "stage": "surface_components_complete",
+    "count": 27,
+    "elapsed_seconds": 7.256719652,
+    "geometry_work": 81,
+    "peak_bytes": 4625561376
+  },
+  "contexts": [
+    {
+      "label": "actual_failed_chord",
+      "edge": [
+        65,
+        18865
+      ],
+      "samples": 6,
+      "sides": [
+        30335,
+        35672
+      ],
+      "sqrt_inherited_tangent_form": [
+        0.9288035281888991,
+        1.023493203167072
+      ],
+      "sqrt_full_chord_form": [
+        3.08094528512542,
+        1697.2029448716855
+      ],
+      "sqrt_normal_h0_form": [
+        2.9330287149864223,
+        1697.2026893850075
+      ],
+      "curvature_range": [
+        -133.2684579250642,
+        340.5653210962137
+      ]
+    },
+    {
+      "label": "smooth_upper",
+      "edge": [
+        5925,
+        5950
+      ],
+      "samples": 6,
+      "sides": [
+        24311,
+        25037
+      ],
+      "sqrt_inherited_tangent_form": [
+        0.9688842341393937,
+        1.0310258892832842
+      ],
+      "sqrt_full_chord_form": [
+        15.13064827087418,
+        59.58429704278993
+      ],
+      "sqrt_normal_h0_form": [
+        15.097371944893082,
+        59.57641913898703
+      ],
+      "curvature_range": [
+        -0.03328589393777939,
+        0.6617084273894348
+      ]
+    },
+    {
+      "label": "leading_edge",
+      "edge": [
+        4220,
+        4221
+      ],
+      "samples": 6,
+      "sides": [
+        10672,
+        29962
+      ],
+      "sqrt_inherited_tangent_form": [
+        0.8914101792702381,
+        0.9080242058602279
+      ],
+      "sqrt_full_chord_form": [
+        0.8914101836334979,
+        1.0137228569708465
+      ],
+      "sqrt_normal_h0_form": [
+        8.819596390266467e-05,
+        0.4506950990615568
+      ],
+      "curvature_range": [
+        -1.0696073763010445,
+        115.06209600112527
+      ]
+    },
+    {
+      "label": "symmetry_wall_interface",
+      "edge": [
+        232,
+        233
+      ],
+      "samples": 3,
+      "sides": [
+        25814
+      ],
+      "sqrt_inherited_tangent_form": [
+        0.9703578031619184,
+        0.9906729043825581
+      ],
+      "sqrt_full_chord_form": [
+        0.9740375927174615,
+        3.763849665650661
+      ],
+      "sqrt_normal_h0_form": [
+        0.08458703133223129,
+        3.6361804586668267
+      ],
+      "curvature_range": [
+        -9.564292165915411,
+        1.2982233478517249
+      ]
+    },
+    {
+      "label": "sharp_edge_candidate",
+      "edge": [
+        4497,
+        4498
+      ],
+      "samples": 6,
+      "sides": [
+        11271,
+        28755
+      ],
+      "sqrt_inherited_tangent_form": [
+        0.9975509339638514,
+        1.0024596914282742
+      ],
+      "sqrt_full_chord_form": [
+        0.9975509339638505,
+        1.0024596914282176
+      ],
+      "sqrt_normal_h0_form": [
+        8.890809063930332e-12,
+        3.312298060647093e-07
+      ],
+      "curvature_range": [
+        -0.012862729438516303,
+        1.1539345643003478e-09
+      ]
+    }
+  ],
+  "confirmed": "Full-volume normal-height term dominates these root and smooth-wall chord forms; inherited tangent forms remain near one. The selected spanwise leading-edge edge has little normal contribution.",
+  "unresolved": [
+    "Actual flow/geometry/height target combination and gradation",
+    "Intrinsic directional integration and principal-direction alignment",
+    "Global inherited-tangent contribution to provisional 1.175M complexity",
+    "Admissible coupled surface/volume replacements and first-child clearance",
+    "Full-target final chord-size compliance after tangential preparation"
+  ]
+}
