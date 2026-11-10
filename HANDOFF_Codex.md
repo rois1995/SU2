@@ -23,7 +23,9 @@ Full303 config/input bytes preserved: original61330points/303359tets, saved SA
 restart c90000...f1c78; Mach-only L1/500k, h0=2e-6,g1.2,T.01, strict existing
 geometry/q/J/size/height gates; native5400/event/12GiB, outer14400 TOTAL. MPI6 CFD
 parent with FIRST_ROW1 native worker, NOT distributed BL-generation qualification.
-Host launch44.4GiB available/load3.26; nice19/libs1/4TB scratch.
+Host launch44.4GiB available/load3.26; nice19/libs1/4TB scratch. Initial continued
+CFD matches303: CL.155731/CD.050268, finite rho/SA residuals. Hessian recovery
+statistics and D1 feature identity match303. Full target/mesh still pending.
 
 Affected serial314 PASS283883assertions/22cases/291.681s; ONE MPI6 PASS27cases
 EVERYrank/66.660s, all10 sampled MPI handles absent. Earlier7 baseline303 failures
@@ -52,7 +54,7 @@ terminal assessment in `R/cases/cubic_cell_replay311_v1/assessment.json`.
 Fresh unresolved2.98786685e-8 (adjacent1.13571506e-9, splittable2.87429535e-8):
 this is not mainly accumulator residue and does not prove irreducible uncertainty.
 
-Build312 tests ONE connected correction: root-query reuse to bound all feature
+Production312 (retained in314) implements ONE connected correction: root-query reuse to bound all feature
 contributions on a conservative enclosure of transported chord anchors. Original
 wall bound and every feature remain; finite enclosure/distance arithmetic weakens
 distant feature maxima, otherwise global fallback. Candidate query precision and
@@ -60,27 +62,20 @@ all original-facet realization contracts are included. Geometry exclusion and1e-
 work/storage/time/cut gates unchanged. Shared public-edge and volume-column callers
 use the same implementation. No construction or metric-target policy change.
 New translated regression sections cover genuine features and transported anchors.
-This is UNQUALIFIED: build/focused checks/actual captured chord remain required.
+Current affected qualification314 PASSED as scoped above; complete BL generation
+and full-target acceptance remain unproven.
 
-Build312 passed64.134s; all18 sampled build handles absent. Focused check failed
-2 feature-setup assertions (no D1 segments), ordinary translated section passed.
-All five sampled test handles absent. Build313 corrects only the fixture; preserve
-the failure, which does not establish a production numerical failure.
-
-Build313 passed60.122s, production CFD byte-identical312; all10 build handles
-absent. Corrected feature cases certified both chord directions, but a new test
-incorrectly required equal adaptive frontier counts (44vs43). Its1failure/55.526s
-is preserved, all five handles absent. Build314 changes ONLY this assertion to
-check physical full-band root resolution at the metric-weighted1e-8 allowance.
+Test-only313 corrected the new fixture orientation (solid exterior fluid) and314
+replaced an invalid equal-frontier-count assertion with physical crossing accuracy.
+Their preserved setup/assertion failures and all terminal receipts are linked in
+the detailed BL handbook; no production/gate change accompanied either correction.
 
 After full314 outcome, independently assess target/mesh acceptance, BL suitability,
 flow AND turbulence conservation/admissibility, continued CFD and saved checkpoints.
 Preserve failures and let actual outcome select the next correction. Final actual
-isolated adapted RANS disk restart remains required. No extra baseline campaign. Existing helper
-requires exact311 chord/config/reference provenance and build312 terminal/binary
-pins. Follow with appropriate MPI milestone and promptly full SAME-seed M6 after
-qualification. Preserve all unrelated dirty logs/.orig/untracked/submodules;
-whitelist git staging. Fork pushes authorized.
+isolated adapted RANS disk restart remains required. No extra baseline campaign.
+Preserve unrelated dirty logs/.orig/untracked/submodules; whitelist git staging.
+Fork pushes authorized. Qualified checkpoint `d092292497` is pushed.
 
 ## Demonstrated BL blocker and next action
 
@@ -100,7 +95,7 @@ Production304 separates geometric enclosure radius (still used for certified
 Lipschitz exclusion) from outward ideal chord span (unresolved integral measure).
 The total1e-8 bound, work/cuts/memory/time gates remain unchanged. Existing22 affected
 cases/283883 assertions passed304. Translated genuinely cubic regression passed307
-(11 assertions,12.997s); later test-only changes preserve its code. Fixture setup
+(11 assertions,12.997s);314 expands its scope as recorded above. Fixture setup
 failures and the replay volume-copy precheck failure remain recorded, not passes.
 
 **Replay fidelity correction:**308/309 had exact cell data but omitted production
