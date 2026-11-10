@@ -24,14 +24,16 @@ Qualified296source/binaries archived locally before BL edits;293two-event/restar
 proof and BOTH checkpoints remain primary regression baseline.
 
 Current next cycle is the [connected curved BL milestone](Handbook/ADAPTATION_CURVED_BL_INTEGRATION_20261109.md).
-Full325 now ACTIVE and frozen; see HANDOFF for actual handles/pins. Conservative
+Full325 now TERMINAL1/427.031s, all actual handles terminal/pins/runtime verified;
+see HANDOFF. Conservative
 existing-ADT distance discovery clears the captured M6 far-field query in406work
 at unchanged16384cap/tol2e-12, where old initial cube selected38800roots. Focused120
 assertions, actual query39, affected serial64cases/286722assertions and ONE MPI6
 62cases everyrank pass. [Connected proof/evidence](Handbook/ADAPTATION_CURVED_BL_COMPLEXITY_20261110.md).
-Full SAMEseed M6 immediately resumed with original500k/L1/SA seed/heights/budgets.
-No normalized target or BL mesh yet. Preserve its outcome; no additional baseline
-campaign or optimization during source freeze. Then all BL suitability/constraints,
+Full SAMEseed M6 then refused a DIFFERENT near-wall query at16384work. Cold replay
+completes that query2500work (warm1251extra); full-state failure not reproduced.
+Attribute model/cache/quota history and cache-maintenance work before selecting a
+fix. No normalized target or BL mesh, no cap/tolerance change or baseline campaign. Then all BL suitability/constraints,
 TWO RANS events, conservative admissible SA/flow transfer, CFD and disk restart.
 
 Latest user: no further Euler optimization cycle for small timings, reuse counters

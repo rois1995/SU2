@@ -1,0 +1,35 @@
+NATIVE3D_REFERENCE_CACHE host_ranks=1 host_quota_bytes=4294967296 rank_quota_bytes=4294967296
+Filters: [NativeActualCubicBLPolicy3D]
+{"probe":"actual_cubic_bl","stage":"reference_loaded","count":48954,"elapsed_seconds":7.4561764210000003,"geometry_work":0,"peak_bytes":4625561376}
+{"probe":"actual_cubic_bl","stage":"policy_built","count":23456452,"elapsed_seconds":7.8811995540000002,"geometry_work":0,"peak_bytes":4625561376}
+{"point_query":0,"old_initial_cube_candidates_at_least":3}
+{"point_query":0,"returned_facet":19817,"lower":7.83642556136525966857e-05,"upper":7.83642559586132154579e-05,"candidate_position":[0.858824359387869606941,0.221183692840894702281,0.00170881283374812401737],"candidate_normal":[-0.122762085828447692348,0.034487734157476059027,-0.991836713615568799085],"candidate_distance_not_certificate":7.83642559586303322997e-05,"work":2500}
+{"point_evaluation":0,"extra_geometry_work":1251,"distance_not_certificate":7.83642559586303322997e-05,"normal":[0.122677584443788539881,-0.0344486966892391180406,0.991848525517606383062],"full_tensor_eigenvalues":[5915.67249833582718566,777211.049333773786202,3874111617.14277410507]}
+{"probe":"actual_cubic_bl","stage":"point_replay_complete","count":1,"elapsed_seconds":8.0856065529999999,"geometry_work":3751,"peak_bytes":4625561376}
+8.201 s: Actual retained cubic wall policy probe without CFD
+===============================================================================
+All tests passed (39 assertions in 1 test case)
+
+	Command being timed: "timeout --signal=TERM --kill-after=20s 180 /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver [NativeActualCubicBLPolicy3D] --durations yes"
+	User time (seconds): 8.06
+	System time (seconds): 0.16
+	Percent of CPU this job got: 96%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 0:08.52
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 332872
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 0
+	Minor (reclaiming a frame) page faults: 91794
+	Voluntary context switches: 1056
+	Involuntary context switches: 88
+	Swaps: 0
+	File system inputs: 0
+	File system outputs: 8
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0

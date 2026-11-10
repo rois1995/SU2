@@ -265,3 +265,39 @@ outside affected selection remain failures. No timing speedup inference under
 contention. Full SAMEseed325 now starts with original303 inputs/SA seed/constraints
 and original native5400,total14400,12GiB/rank limits. Follow HANDOFF live handles;
 no more isolated diagnostics while this actual attempt is frozen.
+
+##325 full outcome and warm-context discrepancy
+
+Full325 TERMINAL1/427.031s, all10 exact identities absent/pins/runtime verified.
+No normalized target or BL mesh. New near-wall point(0.85883397292549735,
+0.22118099329440991,0.0017865383054739758), same component10154/38800,
+error2e-12,max/attempted work16384,available12714152B. Peak sampled tree3,753,537,536B.
+All initial CFD/Hessian/D1 prefix unchanged; no speed inference from a failed run.
+
+Existing cold near-point replay325 PASSED39assertions/11.685s, all5 exact identities
+absent, source/input/runtime verified. Direct2500work, warm Evaluate1251extra,
+interval[7.83642556136525966857e-5,7.83642559586132154579e-5] width3.44961e-13.
+Old-cube lower count3. It DOES NOT reproduce full-state failure. Serial cold
+prepared quota/history differ (host4GiB vs full rank715827882B). No full flow metric
+reconstruction claim. Preserve full refusal and cold success independently.
+
+Next bounded investigation must attribute context/work, not guess a closer-point
+algorithm. Audit runtime model identity and caches. Retain's optional64 scans over
+protected clock entries can consume query work; this is only a source lead until
+measured. A failure-only local split of seed/preparation/cache-metadata work and
+root-vs-refinement phase can expose the cause without a new profiler/campaign or
+changed decisions. Never Snapshot/lock the prepared pool from consume/Retain because
+its mutex may already be held. Preserve type and attempted-work charging. If cubic
+cache maintenance proves dominant, keep large union-scope admission behavior and
+reference pinning/accounting intact. No work/tolerance raise or new algorithm yet.
+Read-only caller review requested; follow current handoff.
+
+Read-only review confirms meaningful cold/full differences: rank-local quota/history,
+clock credit1–4,64 charged scans per Retain, pinned-reference skips and shared event
+work/time window. It does NOT establish metadata pressure as325's cause. Minimal
+query-local work split must reconcile exactly with attempted_work (seed, root and
+refinement preparation, cache maintenance). Retention attempts/refusals and candidate
+count can distinguish effects; cache size/quota must be read under its existing lock.
+Emit failures AFTER lock unwinding, with counters alive through the work receipt.
+Never Snapshot or invoke telemetry callbacks inside consume/Retain while the prepared
+mutex may be held. No edits/jobs were performed by review.

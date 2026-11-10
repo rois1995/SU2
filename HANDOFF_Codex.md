@@ -8,30 +8,49 @@ ONE connected curved-BL cycle. R=`integration_evidence/native_3d_bl_v1/dc17_18_c
 
 ## Frozen owned workload — authoritative current state
 
-Full SAMEseed RANS/BL325 ACTIVE(session20806), all compiled C++/helpers/inputs FROZEN.
-`R/m6_runs/rans_curved325_v1`. Wrapper1960877/start34441534;
-time1962667/start34444969,timeout1962668/mpirun1962669/start34444970;
-ranks1962672,1962673,1962674,1962675,1962678,1962684(starts in owned_handles.json).
-Current status/owned_handles/resources are authoritative. Verify actual terminal
-PID/start identities before edits/another job. Preserve outcome unless evidence
-justifies the existing authorized owned stop. No other owned heavy workload.
+No owned heavy job. Full SAMEseed RANS/BL325 TERMINAL1/427.031s (session20806
+closed), all10 exact host identities absent/pins/runtime verified. Source/runtime
+launch check1595pins/84ELF matched; initial CFD/Hessian/D1 prefix same323. No normalized
+target, BL mesh or accepted RANS event. Run `R/m6_runs/rans_curved325_v1`.
+New refused point(0.85883397292549735,0.22118099329440991,0.0017865383054739758),
+root/hint10154/wall0/38800facets, error2e-12,max/attempted16384,available12714152B.
+Peak sampled summed treeRSS3,753,537,536B. Preserve raw evidence/manifests and checkpoints.
+All sources free to edit ONLY after checking current handles again before new work.
 
-SAME303 saved SA seed/mesh/ref/config. CFDMPI6/FIRST_ROWnative1, Mach-onlyL1/500k,
-h02e-6/g1.2/T.01, geometry1e-4, native5400/outer14400TOTAL,12GiB/rank unchanged.
-Initial CFD finite CL.155731/CD.050268; Hessian/D1 prefix matches323. Now bounded
-shared FIRST_ROW target construction; no normalized target, BL mesh or accepted event.
-launch_observation.json independently verifies1595source/input pins,84mappedELF and
-all10 exact live identities. At216.963s sampled summed treeRSS3,747,180,544B,
-MemAvailable25.81GB. CPU includes possible MPI polling, not useful-work proof.
-Reference cache host4GiB/rank715827882B; model reservations are not actual RSS.
-Monitor actual summed tree memory and host headroom; leave unrelated jobs untouched.
+Existing near-point replay325 TERMINAL0/11.685s,39assertions, all5 exact identities
+absent/pins/runtime verified. SAME captured point/ref/hint/error completes2500work;
+metric Evaluate warm1251extra, interval width3.44961e-13. Old-cube lower count3.
+`R/m6_bl_inputs/closest325_point_v1` and `R/cases/cubic_near_point_replay325_v1`.
+THIS DOES NOT reproduce full-state work refusal: cold serial pool/history differs
+from fullMPI rank quota715827882B. Header core reused only for policy construction;
+closest primitive independent of it. Do not claim complete target/BL suitability.
+
+NEXT in SAME connected cycle: attribute actual full-query work/context before a fix.
+Cold physical query needs2500, full refused16384. Audit model identity and prepared
+cache/quota/history. Pool::Retain can scan64 protected entries per new insertion;
+metadata pressure is a hypothesis, NOT measured cause. Read-only review confirms quota/history, clock credit and shared event budget
+differences; it has not established the cause.
+Add minimal failure-only LOCAL work split (seed, root/refinement preparations,
+cache metadata; candidates/retention outcomes if useful). Reconcile exactly with
+attempted_work. Emit after lock unwinding; counter lifetimes must cover the work
+receipt. Do NOT Snapshot/lock/call telemetry callbacks from consume/Retain because
+prepared_mutex may already be held. Preserve exception type/charging/decisions.
+No new geometry algorithm, tolerance/cap increase, projection seed or cache variant
+before attribution. If optional cubic maintenance is the demonstrated blocker,
+preserve generic union-scope cache behavior and all active-reference accounting.
+No new baseline/perf/GDB campaign. Then focused checks/appropriate milestone cadence
+and immediately SAMEseed full M6. Full goal/gates/budgets remain unchanged.
+
+SAME303 seed/mesh/ref/config, CFDMPI6/FIRST_ROWnative1, Mach-onlyL1/500k,
+h02e-6/g1.2/T.01,geometry1e-4,native5400/outer14400TOTAL,12GiB/rank unchanged.
+FIRST_ROWnative1 with MPI6 parents is NOT distributed BL generation qualification.
 
 Build325 terminal0/32.122s/all10 sampled actual build handles absent. Production CFD
 byte-identical324: afcb2a2e3bc586d5f1838e5e713a4ca5d0c2d73d025397980694a6c594adf3ee;
 test e0daef24add891fb4af8daa05555dbb0666a443259653e5cf2edbe277910a042.
-Current325 implementation/qualification/full launch checkpoint needs push; Git/doc
-snapshots allowed while sources remain frozen. Never edit qualification325.json or
-other pinned receipts/helpers during this run.
+325 implementation/qualification/full launch checkpoint977f4a4d9f is pushed.
+Terminal outcome/new near-query evidence checkpoint still pending. Preserve old
+qualification receipts; they do not establish actual target or BL mesh acceptance.
 
 ## Connected correction and scope
 
@@ -72,8 +91,8 @@ acceptance. No full timing speedup inference from a previously incomplete query.
 checks; production identical324. Preserve failed evidence. Prior303seven baseline-
 controlled failures outside affected selection remain failures, not an all-suite pass.
 
-Let actual325 outcome drive next work. No more isolated baseline/perf/GDB campaigns
-or speculative cache variants while frozen. Preserve every BL suitability, mesh,
+Use actual325 outcome/cold-context discrepancy above to drive next work. No isolated
+baseline/perf/GDB campaigns or speculative cache variants. Preserve every BL suitability, mesh,
 transfer, continued-CFD and restart obligation. FIRST_ROWnative1 with MPI6 parents
 is NOT distributed BL generation qualification. CAD stays optional.
 [Integration history](Handbook/ADAPTATION_CURVED_BL_INTEGRATION_20261109.md),

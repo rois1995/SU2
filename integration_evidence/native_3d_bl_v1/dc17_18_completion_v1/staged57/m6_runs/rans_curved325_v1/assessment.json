@@ -1,0 +1,30 @@
+{
+  "build": "build325",
+  "outcome": "FAILED_NEW_NEAR_WALL_QUERY_WORK",
+  "workflow_accepted": false,
+  "target_completed": false,
+  "bl_mesh_generated": false,
+  "accepted_events": 0,
+  "terminal_seconds": 427.031450510025,
+  "pins_verified": true,
+  "mapped_runtime_verified": true,
+  "all_owned_handles_terminal": true,
+  "sampled_peak_tree_rss_bytes": 3753537536,
+  "query": {
+    "point": [
+      0.8588339729254973,
+      0.2211809932944099,
+      0.0017865383054739758
+    ],
+    "wall": 0,
+    "hint": 10154,
+    "component": 10154,
+    "component_facets": 38800,
+    "absolute_error": 2e-12,
+    "maximum_work": 16384,
+    "attempted_work": 16384,
+    "available_bytes": 12714152
+  },
+  "scope": "Prior far-field point cleared; new near-wall query exhausts original16384 cap. Candidate/refinement/cache-maintenance attribution unresolved; reproduce before choosing correction.",
+  "cold_replay": "Primitive near query completes2500work, warm Evaluate1251; full-state work refusal not reproduced. Need work/cache-context attribution, not a geometry tolerance or work-cap change."
+}
