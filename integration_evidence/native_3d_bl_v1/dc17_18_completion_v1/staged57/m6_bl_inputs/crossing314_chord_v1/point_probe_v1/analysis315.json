@@ -1,0 +1,76 @@
+{
+  "scope": "Bounded point315 measurement, no complete chord/cell/normalization acceptance. Candidate normals do not certify unique closest feet or derivatives.",
+  "attempt": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/cubic_point_replay315_v1",
+  "query_count": 8,
+  "certified_widths": [
+    "2.255140E-17",
+    "2.255141E-17",
+    "1.561251E-17",
+    "2.775557E-17",
+    "6.93890E-18",
+    "6.93890E-18",
+    "1.561251E-17",
+    "1.561251E-17"
+  ],
+  "classifier_radius": "2.482594761251413992e-16",
+  "level_binary64": "0.0090320000000000018",
+  "lower_minus_level": [
+    "9.540979587555371661437675357E-17",
+    "1.179611958755537166143767536E-16",
+    "-8.854722510412444628338562325E-14",
+    "-8.864896299670641244462833856E-10",
+    "-8.864897404065041941244462834E-7",
+    "8.873804468587555371661437675E-14",
+    "8.864898190519258755537166144E-10",
+    "8.864897147204536858755537166E-7"
+  ],
+  "absolute_normal_dot_chord": 0.0008864897275882629,
+  "signed_normal_derived_distance_derivative": 0.0008864897275882629,
+  "normal_dot_unit_chord": 0.37790838433276847,
+  "finite_difference_diagnostics": [
+    {
+      "index": 2,
+      "dt": -1.000000082740371e-10,
+      "distance_derivative": 0.0008864609701038905
+    },
+    {
+      "index": 3,
+      "dt": -1.0000000000287557e-06,
+      "distance_derivative": 0.0008864897227492833
+    },
+    {
+      "index": 4,
+      "dt": -0.0010000000000000009,
+      "distance_derivative": 0.0008864897405097195
+    },
+    {
+      "index": 5,
+      "dt": 1.000000082740371e-10,
+      "distance_derivative": 0.00088634821306322
+    },
+    {
+      "index": 6,
+      "dt": 1.0000000000287557e-06,
+      "distance_derivative": 0.0008864897201471935
+    },
+    {
+      "index": 7,
+      "dt": 0.0010000000000000009,
+      "distance_derivative": 0.0008864897146215737
+    }
+  ],
+  "whole_chord_eigenvalue_bound": "7000002482075.79785156",
+  "max_measured_full_tensor_eigenvalue": 8541122.068683634,
+  "bound_to_measured_eigenvalue_ratio": 819564.7393615398,
+  "bound_to_measured_integrand_sqrt_ratio": 905.2981494300868,
+  "direct_query_work": 6680,
+  "extra_evaluation_work": 1920,
+  "provenance_sha256": {
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/cubic_point_replay315_v1/run.log": "31406a0bb78f9403ed4474bd2430aa1cc1b68901a8a90c6f3d06a7e622de82d0",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/cubic_point_replay315_v1/status.json": "4986a63e7efad6ec1d18b58ba75a31f199190be0da8d503f2e97fbd6322fa9b9",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/cubic_point_replay315_v1/terminal_handles_actual.json": "25ea796d7b3f6ff90bc66ad020e6d2544deb4f1388370c667a75f04d44d91206",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_bl_inputs/crossing314_chord_v1/point_probe_v1/provenance.json": "dfbe516ec1d8356dafa64ecec9591c6876ee62e66edcfbf1ac416d64d293620d",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_bl_inputs/crossing314_chord_v1/point_probe_v1/points.txt": "2d7813955199c740435a59250b2e19fbd3671bb6f324839b97ec5f6d30cb69f8"
+  },
+  "conclusion": "Distance interval widths at center are smaller than affine coordinate enclosure radius. Measured derivative is nonzero and agrees with neighbor differences. Whole-chord eigenvalue bound exceeds measured tensors by about six orders of magnitude. These measurements support tightening a certified per-leaf metric bound; they do not prove a bound or unique cause for all retained leaves."
+}

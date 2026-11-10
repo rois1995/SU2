@@ -1483,6 +1483,60 @@ TEST_CASE("Actual retained cubic wall policy probe without CFD", "[.][NativeActu
   };
   CBoundaryLayerMetric::GeometryReservationScope reservation(*layers,budget);
   try {
+    if(const auto* pointPath=std::getenv("SU2_NATIVE_BL_POINT_REPLAY")) {
+      using SU2NativeGeometry::MappedFacetReference;
+      std::ifstream points(pointPath);REQUIRE(bool(points));
+      double retainedCore=0,trialCore=0;size_t count=0;
+      points>>retainedCore>>trialCore>>count;REQUIRE(bool(points));
+      REQUIRE(std::isfinite(retainedCore));REQUIRE(retainedCore>0);
+      REQUIRE(std::isfinite(trialCore));REQUIRE(trialCore>=retainedCore);
+      REQUIRE(count>0);REQUIRE(count<=12);
+      layers->ConfigureOuterTransition(retainedCore,SU2_TYPE::GetValue(config.GetAdap_Hgrad()));
+      for(size_t index=0;index<count;++index) {
+        Id facet=0;size_t wall=0;Point q;double error=0;
+        points>>facet>>wall>>q.x>>q.y>>q.z>>error;REQUIRE(bool(points));
+        REQUIRE(geometry.Curves().count(facet));REQUIRE(wall<layers->GetnWall());
+        REQUIRE(std::isfinite(q.x));REQUIRE(std::isfinite(q.y));REQUIRE(std::isfinite(q.z));
+        REQUIRE(std::isfinite(error));REQUIRE(error>0);
+        budget.CheckTime();REQUIRE(budget.work<=budget.maximum_work);
+        const auto maximumWork=std::min(MappedFacetReference::ClearanceWork,budget.maximum_work-budget.work);
+        REQUIRE(maximumWork>0);REQUIRE(budget.caller_bytes<=budget.maximum_bytes);
+        const auto available=budget.maximum_bytes-budget.caller_bytes;
+        REQUIRE(geometry.CurvedQueryWorkspaceBytes(maximumWork)<=available);
+        budget.peak_bytes=std::max(budget.peak_bytes,transfer_memory::Add(budget.caller_bytes,
+            geometry.CurvedQueryWorkspaceBytes(maximumWork)));
+        size_t attempted=0;MappedFacetReference::CurvedClosest closest;
+        auto charge=[&] {
+          budget.work=transfer_memory::Add(budget.work,attempted);
+          budget.work_exhausted=budget.work_exhausted || budget.work>budget.maximum_work;
+        };
+        try {closest=geometry.ClosestCurved(facet,q,error,maximumWork,available,{},&attempted,&budget);}
+        catch(const std::exception&) {
+          charge();
+          std::cout<<"{\"point_query\":"<<index<<",\"failed\":true,\"work\":"<<attempted<<"}"<<std::endl;
+          throw;
+        }
+        catch(...) {charge();throw;}
+        charge();REQUIRE_FALSE(budget.work_exhausted);
+        REQUIRE(geometry.CurvedComponent(closest.facet)==geometry.CurvedComponent(facet));
+        REQUIRE(std::isfinite(closest.lower));REQUIRE(std::isfinite(closest.upper));
+        REQUIRE(closest.lower>=0);REQUIRE(closest.upper>=closest.lower);
+        const auto candidateDistance=std::hypot(q.x-closest.point.x,q.y-closest.point.y,q.z-closest.point.z);
+        std::cout<<std::setprecision(21)<<"{\"point_query\":"<<index<<",\"returned_facet\":"<<closest.facet<<",\"lower\":"<<closest.lower
+                 <<",\"upper\":"<<closest.upper<<",\"candidate_position\":["<<closest.point.x<<','<<closest.point.y<<','<<closest.point.z
+                 <<"],\"candidate_normal\":["<<closest.normal.x<<','<<closest.normal.y<<','<<closest.normal.z
+                 <<"],\"candidate_distance_not_certificate\":"<<candidateDistance<<",\"work\":"<<attempted<<"}"<<std::endl;
+        const auto beforeEvaluation=budget.work;
+        const su2double x[3]={q.x,q.y,q.z};const auto sample=layers->Evaluate(static_cast<unsigned short>(wall),x,trialCore);
+        su2double vectors[3][3],eigenvalues[3],scratch[3];
+        CBlasStructure::EigenDecomposition(sample.full.m,vectors,eigenvalues,3,scratch);
+        std::cout<<std::setprecision(21)<<"{\"point_evaluation\":"<<index<<",\"extra_geometry_work\":"<<budget.work-beforeEvaluation
+                 <<",\"distance_not_certificate\":"<<SU2_TYPE::GetValue(sample.distance)
+                 <<",\"normal\":["<<sample.normal[0]<<','<<sample.normal[1]<<','<<sample.normal[2]
+                 <<"],\"full_tensor_eigenvalues\":["<<eigenvalues[0]<<','<<eigenvalues[1]<<','<<eigenvalues[2]<<"]}"<<std::endl;
+      }
+      points>>std::ws;REQUIRE(points.eof());receipt("point_replay_complete",count);return;
+    }
     if(const auto* chordPath=std::getenv("SU2_NATIVE_BL_CHORD_REPLAY")) {
       std::ifstream inputChord(chordPath);REQUIRE(bool(inputChord));
       std::array<double,3> a{},b{};double bandRatio=0,replayTransitionCore=0;unsigned fadeBands=0;

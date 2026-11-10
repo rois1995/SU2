@@ -55,8 +55,13 @@ feature eigenvalue upper1.215e14. Connected312 tests distance-weakened contribut
 over conservatively enclosed transported anchors; test-only313 corrects a new
 feature fixture. Affected314 qualification passed: primitive120assertions,
 serial22cases/283883assertions, captured M6 chord45assertions and ONE MPI6
-27cases EVERYrank. Full same-seed two-event RANS/BL314 is running frozen; follow
-HANDOFF for actual handles and outcome. No full BL target/mesh proven yet.
+27cases EVERYrank. Full314 TERMINAL1/5462.393s, unchanged pins/all10handles absent:
+a later chord in the same first complexity cell hit its16384-step work guard.
+Fresh unresolved3.1354e-8 exceeds1e-8 despite local eigenvalue7e12 vs global1.215e14.
+This is full collective duration, not measured selected-cell/chord time. Test-only315
+prepares8 bounded captured point queries to distinguish coordinate enclosure,
+distance intervals and whole-chord bounds before selecting another production fix.
+Follow HANDOFF for actual handles. No full BL target/mesh proven yet.
 Keep the actual first-target failure driving this same connected BL milestone.
 
 The remaining notes are historical evidence; the active next action is above.

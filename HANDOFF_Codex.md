@@ -10,22 +10,42 @@ R = `integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57`.
 
 ## Frozen owned workload — authoritative current state
 
-ONE heavy job: full SAMEseed two-event RANS/BL314, tool session **66944**,
-`R/m6_runs/rans_curved314_v1`, launcher `R/run_rans_curved314.py`.
-Wrapper686358/start31528751; time687148,timeout687149,mpirun687150/start31530379;
-six test_driver ranks687153..687158/start31530382. Exact identities/resources and
-mapped ELF pins are saved continuously in the run folder. Source/input/runtime/
-helpers/qualification receipts are FROZEN. Verify actual terminal handles before
-editing or launching another heavy workload; authorized evidenced stop/fix/retry
-remains available. Do not rewrite pinned prior terminal receipts or qualification.
+NO active owned heavy job. Test-only build315 TERMINAL0/56.156s, all10 sampled
+actual build PIDs absent; point315 TERMINAL0/11.439s, all5 exact identities absent.
+Source/input/runtime pins unchanged. Production CFD SHA
+`2db03acf36789faa1cd06335a6c8818306267d2f7d76f5e803f91868e66cc448` (identical314);
+test315 SHA `792349aa47582e0531136d93dce86b701a9622711757387d18051d0483b83afa`.
+Only compiled change315 is the bounded test diagnostic interface. No production
+correction after314 yet. One active connected BL integration cycle.
 
-Full303 config/input bytes preserved: original61330points/303359tets, saved SA
-restart c90000...f1c78; Mach-only L1/500k, h0=2e-6,g1.2,T.01, strict existing
-geometry/q/J/size/height gates; native5400/event/12GiB, outer14400 TOTAL. MPI6 CFD
-parent with FIRST_ROW1 native worker, NOT distributed BL-generation qualification.
-Host launch44.4GiB available/load3.26; nice19/libs1/4TB scratch. Initial continued
-CFD matches303: CL.155731/CD.050268, finite rho/SA residuals. Hessian recovery
-statistics and D1 feature identity match303. Full target/mesh still pending.
+Full SAMEseed RANS/BL314 is TERMINAL1/5462.393s. All10 exact actual owned
+PID/start identities absent; all source/input/runtime pins verified. Original
+61330-point/303359-tet inputs and saved SA seed remain intact. Initial CFD finite
+CL.155731/CD.050268; same303 Hessian/D1 statistics. No normalized target or BL mesh,
+transfer/continued adapted CFD/second event/restart. Selected failure is first
+complexity trial cell0, a LATER chord work guard16385,7246 splittable leaves,
+fresh uncertainty3.13542258e-8 > unchanged1e-8; adjacent0. Local eigenvalue7.00000248e12
+vs global1.215e14. This is NOT an outer-timeout result. Full wall duration includes
+all ranks and final failure collective; it is NOT measured selected-chord/cell time.
+Other-rank local failures/progress are not exposed by the selected global error.
+Maximum sampled tree RSS2,543,411,200B; sampled CPU31,422.76s includes MPI polling.
+
+`R/m6_bl_inputs/crossing314_chord_v1` preserves exact chord/cell/provenance and
+terminal assessment; cell coordinates/sensors/core/trial match303 EXACTLY.
+Selected ideal leaf span~1.04e-18 vs coordinate ULP~2.22e-16 supports, but does not
+prove, a coordinate-enclosure/Lipschitz-floor limitation amplified by a coarse
+whole-chord feature bound. No production correction selected from this yet.
+
+Point315 passed164assertions on EIGHT deduplicated leaf/neighbor queries using
+existing ClosestCurved and separate Evaluate,8600geometry work (6680+1920).
+Certified interval width~2.26e-17 vs classifier radius2.48e-16. Measured tensor max
+~8.54e6 vs7e12 CHORD bound; sampled normalized distance slope.3779 is not tangent.
+This supports interval-local profile/feature envelopes, not a sample certificate
+or a proven replacement bound. `point_probe_v1/analysis315.json` records scope.
+[Working connected bound design](Handbook/ADAPTATION_CURVED_BL_LEAF_BOUNDS_20261110.md)
+contains the numerical contract, actual source-query caller padding and remaining
+proof decisions. Review those before implementation; no new config/framework,
+CAD dependence, geometry representation, relaxed gate or increased budget.
 
 Affected serial314 PASS283883assertions/22cases/291.681s; ONE MPI6 PASS27cases
 EVERYrank/66.660s, all10 sampled MPI handles absent. Earlier7 baseline303 failures
@@ -70,12 +90,15 @@ replaced an invalid equal-frontier-count assertion with physical crossing accura
 Their preserved setup/assertion failures and all terminal receipts are linked in
 the detailed BL handbook; no production/gate change accompanied either correction.
 
-After full314 outcome, independently assess target/mesh acceptance, BL suitability,
-flow AND turbulence conservation/admissibility, continued CFD and saved checkpoints.
-Preserve failures and let actual outcome select the next correction. Final actual
-isolated adapted RANS disk restart remains required. No extra baseline campaign.
-Preserve unrelated dirty logs/.orig/untracked/submodules; whitelist git staging.
-Fork pushes authorized. Qualified checkpoint `d092292497` is pushed.
+Use bounded point measurements to separate whole-chord feature overbounds,
+coordinate enclosures, query precision and near-tangent distance variation.
+Choose ONE demonstrated connected correction; reuse existing facilities and
+qualify affected behavior at cadence, then promptly actual SAMEseed M6 RANS/BL.
+Preserve all prior qualification/checkpoints and every final BL suitability,
+transfer/CFD/TWOevents/actual adapted restart obligation. No budget increases.
+Preserve unrelated dirty files; whitelist staging; fork pushes authorized.
+Latest pushed checkpoint `3a5acabd12` precedes the current terminal314/315 receipts;
+push exact reviewable failure/diagnostic artifacts before the next production change.
 
 ## Demonstrated BL blocker and next action
 

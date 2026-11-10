@@ -581,3 +581,46 @@ Full SAMEseed RANS/BL314 is now frozen under unchanged303 inputs and strict gate
 No generation/acceptance/transfer/continued adapted RANS/restart proven yet. Follow
 HANDOFF current handles; keep qualification and prior terminal receipts immutable
 because the full run pins them. Actual outcome drives the next connected action.
+
+
+## Full314 terminal and bounded point diagnosis315 — 2026-11-10
+
+Full314 TERMINAL1/5462.393s, all source/input/runtime pins unchanged and all10
+exact owned PID/start identities absent. No normalized target/BL mesh or adapted
+RANS transfer/CFD/event/restart. Selected failure cell0/trial1/core/sensors/coords
+match303 exactly. The earlier captured chord is cleared, but a later chord fails
+its16384 classification cap: local eigenvalue7.00000248e12 vs global1.215e14;
+7246splittable/0adjacent leaves, fresh3.13542258e-8 >1e-8. Fresh/incremental residue
+~1.79e-14 cannot explain excess2.14e-8. Exact new payloads/provenance are in
+staged57/m6_bl_inputs/crossing314_chord_v1. Whole target remains unproven.
+
+CSolver breaks its local cell loop on error and then joins CollectiveFailure;
+other ranks may continue their local work. Therefore5462s is complete collective
+latency, not measured time in selected cell/chord, and selected global error does
+not expose other-rank progress/failures. No claim of a global deadline refusal.
+Maximum sampled process-tree RSS2,543,411,200B; sampled CPU31,422.76s includes MPI
+polling/waiting. /usr/bin/time's mpirun RSS is not a whole-job peak.
+
+Selected ideal leaf span~1.04e-18 is below coordinate spacing~2.22e-16. This
+supports investigating the coordinate-enclosure/Lipschitz floor, amplified by
+whole-chord feature bounds, but does not uniquely establish cause. Existing
+external M6 query replay covers surface-union certificates, not arbitrary closest
+point intervals; no whole-chord baseline replay is launched to diagnose this.
+Test-only315 extends existing NativeActualCubicBLPolicy3D with max12 point records:
+retained/trial core and original component hint/wall/xyz/precision, using existing
+ClosestCurved plus separate actual policy Evaluate. Original authority, shared
+work/storage/time admission and exact attempted-work receipts remain. Eight
+Fraction-derived deduplicated leaf/neighbor points are prepared with classifier
+radius2.48259476e-16/precision3.10324345e-17. Returned point/normal/distance are
+explicit diagnostics, not certificates. No production path changed or correction
+selected. Review measured intervals before choosing ONE connected next change.
+
+Point315 PASSED164assertions/11.439s helper, all5 exact owned identities absent,
+all pins/runtime verified. Build315 test-only passed56.156s/all10 handles absent;
+production CFD byte-identical314. Direct6680work plus separate Evaluate1920work.
+Certified center widths2.26e-17 vsradius2.48e-16; distance slope8.8649e-4 agrees
+with finite differences (normalized.3779, not tangent in samples). Tensor maximum
+8.54e6 at these points is far below7e12 chord bound. See point_probe_v1/analysis315.json.
+This supports a conservative interval-local profile/feature bound; no new bound
+or production speedup is established. Working design/proof obligations are in
+ADAPTATION_CURVED_BL_LEAF_BOUNDS_20261110.md. No active heavy job now.

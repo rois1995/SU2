@@ -1,0 +1,106 @@
+{
+  "state": "terminal_failure",
+  "exit_code": 1,
+  "seconds": 5462.392743587494,
+  "failure": "First complexity trial cell0 cubic chord work budget exhausted; target normalization and mesh acceptance not achieved",
+  "cell_matches303_exact": {
+    "global_cell": true,
+    "core": true,
+    "log_scale": true,
+    "complexity_trial": true,
+    "nodes": true,
+    "coordinates": true,
+    "sensor": true
+  },
+  "resource_summary": {
+    "samples": 2532,
+    "max_sampled_tree_rss_bytes": 2543411200,
+    "sampled_processes": [
+      {
+        "pid": 687148,
+        "start_ticks": 31530379,
+        "name": "nice",
+        "max_rss_bytes": 1531904,
+        "last_user_ticks": 0,
+        "last_system_ticks": 0,
+        "sampled_cpu_seconds": 0.0
+      },
+      {
+        "pid": 687149,
+        "start_ticks": 31530379,
+        "name": "timeout",
+        "max_rss_bytes": 2093056,
+        "last_user_ticks": 0,
+        "last_system_ticks": 0,
+        "sampled_cpu_seconds": 0.0
+      },
+      {
+        "pid": 687150,
+        "start_ticks": 31530379,
+        "name": "mpirun",
+        "max_rss_bytes": 15712256,
+        "last_user_ticks": 1,
+        "last_system_ticks": 2,
+        "sampled_cpu_seconds": 0.03
+      },
+      {
+        "pid": 687158,
+        "start_ticks": 31530382,
+        "name": "test_driver",
+        "max_rss_bytes": 418496512,
+        "last_user_ticks": 523313,
+        "last_system_ticks": 424,
+        "sampled_cpu_seconds": 5237.37
+      },
+      {
+        "pid": 687157,
+        "start_ticks": 31530382,
+        "name": "test_driver",
+        "max_rss_bytes": 429809664,
+        "last_user_ticks": 523239,
+        "last_system_ticks": 408,
+        "sampled_cpu_seconds": 5236.47
+      },
+      {
+        "pid": 687156,
+        "start_ticks": 31530382,
+        "name": "test_driver",
+        "max_rss_bytes": 416411648,
+        "last_user_ticks": 523668,
+        "last_system_ticks": 427,
+        "sampled_cpu_seconds": 5240.95
+      },
+      {
+        "pid": 687155,
+        "start_ticks": 31530382,
+        "name": "test_driver",
+        "max_rss_bytes": 420798464,
+        "last_user_ticks": 523330,
+        "last_system_ticks": 347,
+        "sampled_cpu_seconds": 5236.77
+      },
+      {
+        "pid": 687154,
+        "start_ticks": 31530382,
+        "name": "test_driver",
+        "max_rss_bytes": 420265984,
+        "last_user_ticks": 523076,
+        "last_system_ticks": 393,
+        "sampled_cpu_seconds": 5234.69
+      },
+      {
+        "pid": 687153,
+        "start_ticks": 31530382,
+        "name": "test_driver",
+        "max_rss_bytes": 418291712,
+        "last_user_ticks": 523266,
+        "last_system_ticks": 382,
+        "sampled_cpu_seconds": 5236.48
+      }
+    ],
+    "note": "Sampled tree RSS is not whole-job peak. Sampled CPU ticks include MPI waiting/polling and do not measure useful work. /usr/bin/time mpirun RSS is not whole-job RSS."
+  },
+  "scope": "Actual same-seed RANS full314 failed before first target normalization; no mesh, transfer, adapted CFD or restart qualification.",
+  "provenance": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_bl_inputs/crossing314_chord_v1/provenance.json",
+  "collective_latency_caveat": "5462s is full collective failure latency, not selected chord/cell runtime. Other ranks can progress other cells or reach their own deadline before CollectiveFailure; selected rank/cell is not all-rank progress evidence. CPU includes MPI polling."
+}
