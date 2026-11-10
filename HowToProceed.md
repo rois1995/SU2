@@ -53,7 +53,10 @@ Faithful310/311 reproduce the first-cell work refusal. Precise311 capture shows
 a true unresolved upper near3e-8, dominated by splittable intervals, with a global
 feature eigenvalue upper1.215e14. Connected312 tests distance-weakened contributions
 over conservatively enclosed transported anchors; test-only313 corrects a new
-feature fixture. Follow HANDOFF for live handles. No full BL target/mesh yet.
+feature fixture. Affected314 qualification passed: primitive120assertions,
+serial22cases/283883assertions, captured M6 chord45assertions and ONE MPI6
+27cases EVERYrank. Full same-seed two-event RANS/BL314 is running frozen; follow
+HANDOFF for actual handles and outcome. No full BL target/mesh proven yet.
 Keep the actual first-target failure driving this same connected BL milestone.
 
 The remaining notes are historical evidence; the active next action is above.

@@ -1,0 +1,43 @@
+{
+  "argv": [
+    "nice",
+    "-n",
+    "19",
+    "/usr/bin/time",
+    "-v",
+    "timeout",
+    "--signal=TERM",
+    "--kill-after=20s",
+    "14400",
+    "mpirun",
+    "--output-filename",
+    "rank_output",
+    "-n",
+    "6",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+    "[NativeSelectedFailureWorkflow3D]",
+    "--durations",
+    "yes"
+  ],
+  "wrapper": {
+    "pid": 686358,
+    "start_ticks": 31528751
+  },
+  "saved_checkpoint": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_bl_inputs/rans_curved303_v1",
+  "source_attempt": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/mpi6_20261109T173409_3860527",
+  "initial_available_bytes": 46921056256,
+  "loadavg": "2.90 3.30 3.06 2/4756 687147\n",
+  "environment": {
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1",
+    "OMPI_MCA_osc": "pt2pt",
+    "TMPDIR": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/compile-tmp",
+    "OMPI_MCA_orte_tmpdir_base": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/compile-tmp/rans-curved314-hy8kf94d",
+    "SU2_NATIVE_FROZEN_CONFIG": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/rans_curved314_v1/run.cfg"
+  },
+  "expected_events": 2,
+  "outer_seconds_total": 14400,
+  "qualification": "Partial/baseline-controlled MPI evidence, not all-pass",
+  "scope": "Same303 seed/config after focused/MPI/actual-chord314 PASS. Actual RANS/SA CFD to curved BL mesh to finite CFD to second mesh, outer14400 total. Unchanged strict gates; conservative flow/turbulence transfer and disk restart require independent assessment. Rejected-state capture enabled."
+}

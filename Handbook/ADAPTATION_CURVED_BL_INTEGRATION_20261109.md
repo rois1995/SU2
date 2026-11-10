@@ -555,3 +555,29 @@ fixture passed120assertions/1case/57.444s, all five sampled handles absent. This
 qualifies those primitive paths only. Actual captured M6 chord314 is now frozen;
 HANDOFF owns its current handles/outcome. Broader affected serial and ONE MPI
 milestone follow only if that replay demonstrates useful progress.
+
+Actual captured chord314 PASSED45assertions/27.681s helper, all five exact owned
+identities absent and all source/runtime/input pins verified. Certification used
+181652geometry work/17.014s and16cuts, unchanged1e-8/work/cut gates. This clears the
+specific prior refused chord. Old311work13,328,602 is cumulative first-cell work,
+not a separately measured old single-chord baseline; do not claim73x speedup.
+Whole first-cell/target/mesh/workflow remain unproven. Affected serial22 and one
+MPI milestone are next, then promptly the actual full SAMEseed RANS/BL attempt.
+
+Affected314 serial passed22cases/283883assertions/291.681s, all five sampled actual
+handles absent, all pins unchanged. ONE selected MPI6 milestone is now frozen;
+qualification314.json remains pending until actual complete terminal results.
+No actual full-target/BL mesh acceptance is claimed.
+
+ONE MPI314 selected milestone PASSED27cases EVERYrank/66.660s, all10 sampled actual
+PIDs absent and source/runtime pins unchanged. Assertions/rank1207,1737,1193,1244,
+1255,1246. Coverage includes new cubic feature/transported crossings, D1,
+curved analytic checks, height optimization, concurrent publication/dependencies,
+repair batches and phase ownership. Prior303 known7 failures outside this affected
+selection remain FAIL; no all-suite claim. qualification314.json seals current
+primitive120assertions, affected serial22, actual chord45assertions and MPI27/rank.
+
+Full SAMEseed RANS/BL314 is now frozen under unchanged303 inputs and strict gates.
+No generation/acceptance/transfer/continued adapted RANS/restart proven yet. Follow
+HANDOFF current handles; keep qualification and prior terminal receipts immutable
+because the full run pins them. Actual outcome drives the next connected action.

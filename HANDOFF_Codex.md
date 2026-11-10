@@ -10,13 +10,33 @@ R = `integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57`.
 
 ## Frozen owned workload — authoritative current state
 
-ONE heavy job: actual captured M6 chord replay314, tool session **86141**,
-`R/cases/cubic_chord_replay314_v1`, launcher `R/replay_cubic_chord314.py`.
-Wrapper659646/start31472655; time659903/start31473180;
-timeout659904/test659905/start31473181; orted659906/start31473181.
-Verify SAME handles on actual host; no competing job or pinned source edits.
-Authority48954 loaded7.215s, policy built7.508s, chord began7.517s. Outcome pending.
-1800 diagnostic outer limit, native5400/config/inputs unchanged, nice19/libs1.
+ONE heavy job: full SAMEseed two-event RANS/BL314, tool session **66944**,
+`R/m6_runs/rans_curved314_v1`, launcher `R/run_rans_curved314.py`.
+Wrapper686358/start31528751; time687148,timeout687149,mpirun687150/start31530379;
+six test_driver ranks687153..687158/start31530382. Exact identities/resources and
+mapped ELF pins are saved continuously in the run folder. Source/input/runtime/
+helpers/qualification receipts are FROZEN. Verify actual terminal handles before
+editing or launching another heavy workload; authorized evidenced stop/fix/retry
+remains available. Do not rewrite pinned prior terminal receipts or qualification.
+
+Full303 config/input bytes preserved: original61330points/303359tets, saved SA
+restart c90000...f1c78; Mach-only L1/500k, h0=2e-6,g1.2,T.01, strict existing
+geometry/q/J/size/height gates; native5400/event/12GiB, outer14400 TOTAL. MPI6 CFD
+parent with FIRST_ROW1 native worker, NOT distributed BL-generation qualification.
+Host launch44.4GiB available/load3.26; nice19/libs1/4TB scratch.
+
+Affected serial314 PASS283883assertions/22cases/291.681s; ONE MPI6 PASS27cases
+EVERYrank/66.660s, all10 sampled MPI handles absent. Earlier7 baseline303 failures
+outside this changed selection remain failures, NOT an all-suite pass.
+`R/qualification314.json` seals current affected primitive/serial/MPI/actual-chord
+PASS, with verified pins and actual terminal handles; no BL mesh/workflow claim.
+
+Actual captured M6 chord314 PASSED45assertions/27.681s helper, all5 exact actual
+PID/start identities absent, source/runtime/input pins verified. Chord certification
+17.014s/181652geometry work/16cuts. This clears the captured refusal at unchanged
+allowance/work caps, NOT whole-cell/target/generation or a controlled whole-cell
+speedup (311 totalwork includes prior work before the terminal chord).
+`R/cases/cubic_chord_replay314_v1/assessment.json` records scope.
 
 Build314 TERMINAL0/64.130s, pins unchanged/all10 sampled actual handles absent.
 Production CFD SHA `2db03acf36789faa1cd06335a6c8818306267d2f7d76f5e803f91868e66cc448`
@@ -53,11 +73,10 @@ incorrectly required equal adaptive frontier counts (44vs43). Its1failure/55.526
 is preserved, all five handles absent. Build314 changes ONLY this assertion to
 check physical full-band root resolution at the metric-weighted1e-8 allowance.
 
-After actual chord314 terminal PASS/actual handles absent: affected22 serial cases via
-`certification314_affected.py` and ONE MPI6 milestone via `certification314_mpi6.py`,
-if actual captured chord proves useful. `run_rans_curved314.py` is prepared only,
-requires qualification314.json terminal PASS with focused/mpi/actual_chord entries
-and verified actual terminal handles. It preserves303 seed/config exactly. Existing helper
+After full314 outcome, independently assess target/mesh acceptance, BL suitability,
+flow AND turbulence conservation/admissibility, continued CFD and saved checkpoints.
+Preserve failures and let actual outcome select the next correction. Final actual
+isolated adapted RANS disk restart remains required. No extra baseline campaign. Existing helper
 requires exact311 chord/config/reference provenance and build312 terminal/binary
 pins. Follow with appropriate MPI milestone and promptly full SAME-seed M6 after
 qualification. Preserve all unrelated dirty logs/.orig/untracked/submodules;
