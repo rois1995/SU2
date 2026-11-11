@@ -8,23 +8,25 @@ Read AGENTS.md and [HowToProceed.md](HowToProceed.md). Historical states are in
 
 ## Current owned workload — authoritative
 
-Current owned workload: build364 connected published-census batching RUNNING/FROZEN,
-tool session83994; wrapper1428842/start42937818,ninja1428844/start42937835.
-Actual handles verified live in R/build364_start_verified.json; do not edit pinned
-C++/tests/helpers until terminal.363 diagnostic TERMINAL1/61.810s, pins intact,
-all5actual identities absent. Two completed actual contexts show guidance>99%of
-planner time;65/80 and43/56 calls repeat identical samples. Remaining contexts stopped
-on a fixture child-budget exhaustion flag (NOT production failure); exact source and
-partial evidence preserved in R/seed363_assessment.json/source_snapshots363.
-364 uses existing multi-cell planner once per existing <=10-cell measurement batch,
-then extracts each cell's6edges and requested-face max. No persistent cache, larger
-batch or private-trial reuse. Extra scratch admitted. Source audit confirms actual
-BoundaryGuidance uses immutable binding support; batch overlay does not widen it.
-Focused tests compare cached measurements/flags bitwise against standalone cells,
-including5actual curved/seam/feature contexts. One serial affected pass and ONE MPI
-milestone, then immediately full SAME303 attempt. No qualification/speedup claimed yet.
-363 build passed194.271s, production CFD byte-identical362.364 changes Engine measure,
-its equivalence test and diagnostic child-budget/grouping fixture only.
+Current owned workload: NONE after qualified364 milestone. Full364 runner is prepared,
+read-only preflight next, then launch immediately after checkpoint. No source edit.
+Build364 TERMINAL0/206.222s,pins intact/all22observed handles absent. Serial364 passed
+3442assertions/9cases,4.451s; actual364 passed315957assertions/1case,67.798s,ALL5actual
+contexts; MPI364 passed17cases on EVERYrank,4063–6918assertions/rank,365.101s.
+All pins intact/all actual process identities terminal. R/qualification364.json scopes
+AFFECTED BEHAVIOR ONLY, not accepted BL/native MPI generation/full RANS qualification.
+See R/seed364_assessment.json for exact context results and timing caveats.
+
+364 correction uses existing multi-cell planner once per existing <=10-cell published
+measurement batch, then exact per-cell6edges/requested-face max. No larger batch,
+persistent cache or private-trial reuse. Extra scratch admitted. Binding/ForFacets
+support invariant under batch overlay; cached-vs-single edges/flags pass. Matching
+root20-cell seed.55455→.37551s, smooth14-cell.30381→.11588s; not a full-run speedup.
+Production CFD364 SHA5fbb3f5ce343b6259bb41911e3243605db2207ca4e9a3f973d196afa8c13ef65.
+Next IMMEDIATELY complete same303 two-event workflow with run_rans_curved364.py,
+unchanged500k/gates/budgets. Native1 guard remains; native MPI FIRST_ROW unqualified.
+363 diagnostic failure/source snapshots preserved; sticky child-budget flag corrected
+only in diagnostic fixture. No production budget, target or certification change.
 
 Full362 TERMINAL1/1810.658s after preserved first
 surface-preparation failure and authorized SIGTERM to verified MPI1251566/start42533873.

@@ -641,3 +641,24 @@ size flags on partial requested walls/empty ranks, all5actual contexts including
 features and symmetry, then ONE MPI milestone and immediate same303 full workflow.
 No target allocation, geometry representation, scheduler/config, operator or budget
 change. Full-surface readiness and useful production improvement remain unproven.
+
+
+364 build passed206.222s/pins intact/all22observed handles absent. Serial passed
+3442assertions/9cases; cached-vs-single bitwise edges/size flags and fewer calls.
+Actual364 passed315957assertions/1case/67.798s acrossALL5saved M6 contexts, pins
+intact/all5actual identities absent. Guidance accounts for98.44–99.00%ofdirect
+planner time; field/overlay work is tiny. Matching root20-cell seed.55455→.37551s
+and smooth14-cell.30381→.11588s. Leading edge seeds16of24cells and performs private
+trials: no direct total/call comparison. These are bounded primitive results, NOT
+full-run speedup, normalized-target qualification or usable BL. Child budget refusals
+are expected diagnostic outcomes; all next contexts now execute without poisoned flags.
+Source audit confirms published binding support is invariant under batch surface overlay;
+private old/fresh/streamed callers remain unchanged. ONE MPI364 milestone now frozen;
+if passed, immediately full same303 workflow. See seed364_assessment.json for scope.
+
+
+364 ONE MPI milestone passed17cases on EVERYrank,4063–6918assertions/rank,365.101s,
+pins intact/all10actual identities absent. qualification364.json pins serial/actual/
+MPI scopes and exact-source support-invariance proof. This qualifies affected
+measurement behavior only; no accepted BL or native-MPI FIRST_ROW claim. Immediately
+full same303 two-event workflow after checkpoint, with unchanged target/constraints.
