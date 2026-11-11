@@ -1384,7 +1384,9 @@ TEST_CASE("Native3D complexity reference does not rebase the wall on the adapted
   {
     size_t compositions=0;
     FrozenField flow(imported.original,[&](Point,SU2Native3D::Tensor sensor){++compositions;return sensor;});
-    const auto coreMetric=flow.Sensor(f.v[0].p);
+    // The constant fixture sensor is rank-local; the globally retained wall vertex need not be in its donors.
+    const auto coreMetric=imported.original.empty()?SU2Native3D::Tensor{1,0,0,1,0,1}:
+        flow.Sensor(imported.original.front().cell.v[0].p);
     const auto before=curved->GeometryStatsSnapshot();
     const auto guidance=target->IntrinsicSurfaceGuidance(0,f.id,f.v[0],*state.original,coreMetric);
     const auto after=curved->GeometryStatsSnapshot();

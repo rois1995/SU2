@@ -352,3 +352,53 @@ Acceptance: focused curved/cache/resource/feature checks, actual point and compl
 surface-volume patch response, one connected MPI milestone, then return to the same
 saved303 full workflow. This does not resolve unproven coverage/progression/transition
 or the provisional complexity excess.
+
+###358 actual result and next target
+
+358 focused serial passes4387assertions/20cases in304.595s. Same five saved M6
+queries pass in11.607s: metric axes equal the directly returned differential axes
+to rounding, unchanged query work. Native actual patch replay is terminal1/356.018s,
+pins intact, all actual sampled PID/start identities absent. Initial prepared patch
+binary SHA97f054241fffc01bcbc0a20f21bda4aa337bc69d8edc9277e63ddb23ca21d2b8
+is identical to356; same16splits and5-column/25-cell candidate. All strict geometry,
+height and contact checks still pass. Corrected control metric gives24q-bad/25J-bad
+versus25/25, unknown0. This is metric evaluation change, not better construction.
+
+Existing repair reports12moves/2coordinated moves but the strict complete-patch
+height check rejects21.2111% relative error>10%. The original candidate is retained.
+Internal zero height rejections is not strict admissibility: AdmitFirstHeight
+intentionally permits measured height debt in ValidityOnly construction. Production
+later performs nonprovisional per-cell/complete invalid checks; retain that staged
+contract and never treat a helper success as final acceptance. Native optimization
+again exhausts the same300s geometry deadline. No feasible repaired replacement,
+net mesh-quality closure or speedup is established. Remaining construction/repair
+power is the next capability target, not speculative normal/cache optimization.
+
+front358_assessment.json seals captures, counters and scope. Edge breakpoint geometry
+155.353s, edge composition9.388s and edge total164.742s overlap other timers. Queries
+2328, misses2008, compositions2823,6edge integrations,495edge compositions; trajectory
+differs from356 after repair, so terminal counts are not matching useful progress.
+ONE MPI358 milestone is running. After its outcome, return to the complete same303
+workflow with qualified correction and every gate/budget unchanged. Curved BL
+coverage/progression/transition and native MPI FIRST_ROW generation remain unproven.
+
+###359 MPI fixture correction, same connected qualification
+
+358 MPI exposed an existing fixture assumption: globally retained wall vertex
+(0.5,1,0) was queried through rank-local immutable donors. Four ranks threw while
+others reached later collectives. Preserved failure/log and exact owned termination
+receipts; all actual identities then absent.359 changes ONLY that constant sensor
+witness to a local donor point, using the known unit fixture tensor on empty ranks.
+No test tail is skipped: complete complexity and cached/recomputed checks remain.
+Build359 passes62.118s, production CFD binary identical358, test hash recorded.
+The same connected MPI milestone is retrying; do not mark failed358 MPI qualified.
+Serial358 evidence is reused only for unchanged production behavior, with explicit
+old-test snapshot and changed-fixture/binary exception superseded by MPI359. No new
+serial campaign is justified solely by moving the constant-sensor fixture witness.
+
+All22 Euler293 payloads and canonical/prepared303 mesh/reference/RANS+SA seed rehash
+unchanged in euler293_preservation_during_bl358.json and rans303_preservation_during_bl358.json.
+Full runner359 is prepared, not launched; same seed/Mach-only L1/500k/h0=2e-6/
+g=1.2/T=.01/height tolerance.1/hausd1e-4/q.2/J.05/maxedge1.8/native5400/outer14400,
+with existing DOUBLE output setting only. Full workflow and true native-MPI BL
+construction remain unproven; the native1 FIRST_ROW guard is unchanged.
