@@ -31,6 +31,7 @@
 #include "../../include/linear_algebra/CMatrixInverse.hpp"
 #include "../../include/toolboxes/allocation_toolbox.hpp"
 
+#include <algorithm>
 #include <cmath>
 #include <limits>
 #include <type_traits>
@@ -201,6 +202,11 @@ void CSysMatrix<ScalarType>::Initialize(unsigned long npoint, unsigned long npoi
   /*--- Application of this matrix, FVM or FEM. ---*/
   const auto type = EdgeConnect ? ConnectivityType::FiniteVolume : ConnectivityType::FiniteElement;
 
+  /*--- EDGE_FORM_P1_MIXED (JST_P1ES_JACOBIAN_DIAG.md 8.3): the split-pair pattern of an edge-connected matrix is the
+   * finite element pattern (all node pairs of each cell); the edges keep their meaning through edge_ptr_u/l below. ---*/
+  const bool extended = EdgeConnect && splitPairPattern;
+  const auto patType = extended ? ConnectivityType::FiniteElement : type;
+
   /*--- Type of preconditioner the matrix will be asked to build. ---*/
   auto prec = config->GetKind_Linear_Solver_Prec();
 
@@ -247,7 +253,7 @@ void CSysMatrix<ScalarType>::Initialize(unsigned long npoint, unsigned long npoi
 
   /*--- L/D/U index structures and value arrays. ---*/
   {
-    const auto& pat = geometry->GetSparsePattern(type, 0);
+    const auto& pat = geometry->GetSparsePattern(patType, 0);
     mat.row_ptr_l = pat.l.outerPtr();
     mat.col_ind_l = pat.l.innerIdx();
     mat.nnz_l = pat.l.getNumNonZeros();
@@ -325,12 +331,38 @@ void CSysMatrix<ScalarType>::Initialize(unsigned long npoint, unsigned long npoi
     }
   }
 
-  if (type == ConnectivityType::FiniteVolume) {
+  if (type == ConnectivityType::FiniteVolume && !extended) {
     edge_ptr_l = geometry->GetUToLTransposeSparsePatternMap(type).data();
   }
+  if (extended) {
+    if (useCuda || quantized_offdiag_needed || config->GetDiscrete_Adjoint()) {
+      SU2_MPI::Error("EDGE_FORM_P1_MIXED: the split-pair Jacobian pattern is not available with CUDA, quantized "
+                     "preconditioners or the discrete adjoint.", CURRENT_FUNCTION);
+    }
+    /*--- Edge e = (i, j), i < j: U entry (i, j) and L entry (j, i) of the extended pattern. ---*/
+    const auto nEdge = geometry->GetnEdge();
+    edgeMapU.resize(nEdge);
+    edgeMapL.resize(nEdge);
+    auto find = [](const su2uint* rowPtr, const su2uint* colInd, unsigned long row, unsigned long col) {
+      const auto* first = colInd + rowPtr[row];
+      const auto* last = colInd + rowPtr[row + 1];
+      const auto* it = std::lower_bound(first, last, static_cast<su2uint>(col));
+      if (it == last || *it != col) SU2_MPI::Error("Split-pair pattern: an edge is not in the pattern.", CURRENT_FUNCTION);
+      return static_cast<su2uint>(it - colInd);
+    };
+    for (auto iEdge = 0ul; iEdge < nEdge; ++iEdge) {
+      const auto iPoint = geometry->edges->GetNode(iEdge, 0);
+      const auto jPoint = geometry->edges->GetNode(iEdge, 1);
+      if (iPoint >= jPoint) SU2_MPI::Error("Split-pair pattern: edges must have node 0 < node 1.", CURRENT_FUNCTION);
+      edgeMapU[iEdge] = find(mat.row_ptr_u, mat.col_ind_u, iPoint, jPoint);
+      edgeMapL[iEdge] = find(mat.row_ptr_l, mat.col_ind_l, jPoint, iPoint);
+    }
+    edge_ptr_u = edgeMapU.data();
+    edge_ptr_l = edgeMapL.data();
+  }
   if (needTranspPtr) {
-    l_to_u_transp = geometry->GetLToUTransposeSparsePatternMap(type).data();
-    u_to_l_transp = geometry->GetUToLTransposeSparsePatternMap(type).data();
+    l_to_u_transp = geometry->GetLToUTransposeSparsePatternMap(patType).data();
+    u_to_l_transp = geometry->GetUToLTransposeSparsePatternMap(patType).data();
   }
 
   /*--- Get ILU sparse pattern, if fill is 0 no new data is allocated. --*/
@@ -339,7 +371,7 @@ void CSysMatrix<ScalarType>::Initialize(unsigned long npoint, unsigned long npoi
     ilu_fill_in = config->GetIluOptions().FillIn;
     ilu_gpu_sweeps = config->GetIluOptions().GPUSweeps;
 
-    const auto& pat_ilu = geometry->GetSparsePattern(type, ilu_fill_in);
+    const auto& pat_ilu = geometry->GetSparsePattern(patType, ilu_fill_in);
     ilu.row_ptr_l = pat_ilu.l.outerPtr();
     ilu.col_ind_l = pat_ilu.l.innerIdx();
     ilu.nnz_l = pat_ilu.l.getNumNonZeros();
@@ -448,7 +480,7 @@ void CSysMatrix<ScalarType>::Initialize(unsigned long npoint, unsigned long npoi
 
     if (lu_sgs_on_device) {
       // get the zero-filled sparse pattern for the LU-SGS
-      const auto& pat_lusgs = geometry->GetSparsePattern(type, 0);
+      const auto& pat_lusgs = geometry->GetSparsePattern(patType, 0);
 
       /*--- Compute the levels using the lower pattern for the forward pass and
        * reverse the levels for the backward pass. This works if L and U are symmetric, to be verified ---*/
@@ -838,6 +870,17 @@ void CSysMatrix<ScalarType>::SetValDiagonalZero() {
   SU2_OMP_FOR_STAT(omp_heavy_size)
   for (auto iVar = 0ul; iVar < nPointDomain * nVar * nEqn; ++iVar) mat.d[iVar] = 0;
   END_SU2_OMP_FOR
+
+  /*--- Split-pair pattern: the blocks of non-edge pairs are added (AddBlock), not overwritten by the edge loop, so
+   * every off-diagonal block is reset too (the edge blocks are overwritten anyway). ---*/
+  if (edge_ptr_u) {
+    SU2_OMP_FOR_STAT(omp_heavy_size)
+    for (auto i = 0ul; i < mat.nnz_l * nVar * nEqn; ++i) mat.l[i] = 0;
+    END_SU2_OMP_FOR
+    SU2_OMP_FOR_STAT(omp_heavy_size)
+    for (auto i = 0ul; i < mat.nnz_u * nVar * nEqn; ++i) mat.u[i] = 0;
+    END_SU2_OMP_FOR
+  }
 }
 
 template <class ScalarType>
@@ -1727,7 +1770,7 @@ void CSysMatrix<ScalarType>::TransposeInPlace() {
 
   /*--- Swap ij with ji and transpose them. ---*/
 
-  if (edge_ptr_l) {
+  if (edge_ptr_l && !edge_ptr_u) {
     /*--- FV path: each edge maps to one U and one L block. ---*/
     SU2_OMP_FOR_DYN(omp_heavy_size * 2)
     for (auto iEdge = 0ul; iEdge < mat.nnz_l; ++iEdge) {

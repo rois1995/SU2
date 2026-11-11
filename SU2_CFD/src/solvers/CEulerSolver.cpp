@@ -38,6 +38,7 @@
 #include "../../include/numerics/flow/jst_weak_wall.hpp"
 #include "../../include/numerics/flow/jst_entropy.hpp"
 #include "../../include/numerics/flow/p1_sst_matched.hpp"
+#include "../../include/numerics/flow/p1_boundary_closure.hpp"
 #include "../../include/fluid/CIdealGas.hpp"
 #include "../../include/fluid/CVanDerWaalsGas.hpp"
 #include "../../include/fluid/CPengRobinson.hpp"
@@ -178,7 +179,31 @@ CEulerSolver::CEulerSolver(CGeometry *geometry, CConfig *config,
     if (rank == MASTER_NODE)
       cout << "Initialize Jacobian structure (" << description << "). MG level: " << iMesh <<"." << endl;
 
+    /*--- EDGE_FORM_P1_MIXED: the split pairs (face and body diagonals of non-simplex cells) get their Jacobian blocks,
+     * so the pattern is extended by them (JST_P1ES_JACOBIAN_DIAG.md 8.3). ---*/
+    /*--- The OpenMP reducer strategy derives the diagonal from the edge blocks only: there the split pairs keep no
+     * Jacobian (plain pattern, CSysMatrix drops their blocks), as before. ---*/
+    const bool splitPairs = (iMesh == MESH_0) && config->GetEdge_Form_P1_Mixed() && !ReducerStrategy;
+    if ((iMesh == MESH_0) && config->GetEdge_Form_P1_Mixed() && ReducerStrategy && (rank == MASTER_NODE))
+      cout << "WARNING: EDGE_FORM_P1_MIXED with the OpenMP reducer strategy: the split pairs have no Jacobian." << endl;
+    Jacobian.SetSplitPairPattern(splitPairs);
     Jacobian.Initialize(nPoint, nPointDomain, nVar, nVar, true, geometry, config, ReducerStrategy, true);
+
+    if (splitPairs) {
+      /*--- Cost of the extended pattern: off-diagonal blocks of the owned rows. ---*/
+      const auto& fv = geometry->GetSparsePattern(ConnectivityType::FiniteVolume, 0);
+      const auto& fe = geometry->GetSparsePattern(ConnectivityType::FiniteElement, 0);
+      su2double loc[2] = {0.0, 0.0}, glob[2] = {0.0, 0.0};
+      for (auto iPoint = 0ul; iPoint < nPointDomain; ++iPoint) {
+        loc[0] += fv.csr.getNumNonZeros(iPoint) - 1.0;
+        loc[1] += fe.csr.getNumNonZeros(iPoint) - 1.0;
+      }
+      SU2_MPI::Allreduce(loc, glob, 2, MPI_DOUBLE, MPI_SUM, SU2_MPI::GetComm());
+      if (rank == MASTER_NODE) {
+        cout << "Split-pair Jacobian pattern: " << glob[1] << " off-diagonal blocks (edges only: " << glob[0]
+             << ", +" << 100.0 * (glob[1] - glob[0]) / max(1.0, glob[0]) << "%)." << endl;
+      }
+    }
   }
   else {
     if (rank == MASTER_NODE)
@@ -2102,10 +2127,22 @@ void CEulerSolver::SplitEdgeResidual(const CGeometry *geometry, const CConfig *c
 
   /*--- EDGE_FORM_P1_MIXED (P1_MIXED.md, 8.3): the face and body diagonals of the split averages carry only the central
    * part along n_ik, E = 0 (W = |t|/(d+1)). With EDGE_FORM_EC_FLUX it is the Ismail-Roe flux, so that the whole central
-   * part is entropy conservative at interior nodes (Theorem X4). No dissipation, no Jacobian (the diagonals are not in
-   * the sparsity pattern), static meshes only. ---*/
+   * part is entropy conservative at interior nodes (Theorem X4). No dissipation, static meshes only. Jacobian: the exact
+   * derivatives of the pair flux in the extended pattern (JST_P1ES_JACOBIAN_DIAG.md 8.3): EsIsmailRoeJacobian, which at
+   * equal states is 0.5 A(U).n, the derivative of the mean flux; matched k as the edge kernel, L(k_up) Jhat T(k). ---*/
   if (config->GetEdge_Form_P1_Mixed()) {
     const bool ecFlux = config->GetEdge_Form_EC_Flux();
+    /*--- Only with the split-pair pattern (not with the OpenMP reducer, which keeps the plain pattern). ---*/
+    /*--- The current integration kind (explicit during matrix-free NEWTON_KRYLOV products), as the edge kernel. ---*/
+    const bool implicit = (config->GetKind_TimeIntScheme() == EULER_IMPLICIT) && Jacobian.HasSplitPairPattern();
+    namespace pbc = P1BoundaryClosure;
+    auto esState = [&](unsigned long iPoint) {
+      pbc::EsState S;
+      S.rho = nodes->GetDensity(iPoint);
+      S.p = nodes->GetPressure(iPoint);
+      for (auto iDim = 0u; iDim < nDim; ++iDim) S.vel[iDim] = nodes->GetVelocity(iPoint, iDim);
+      return S;
+    };
     auto state = [&](unsigned long iPoint) {
       P1AleEntropy::State S;
       S.rho = nodes->GetDensity(iPoint);
@@ -2123,9 +2160,48 @@ void CEulerSolver::SplitEdgeResidual(const CGeometry *geometry, const CConfig *c
           addFlux(iPoint, splitNormal[iSplit], 0.5, flux);
           addFlux(kPoint, splitNormal[iSplit], 0.5, flux);
         }
+        const su2double massFlux = flux[0];
         if (turbMatched) addPairKine(iPoint, kPoint, flux);
         if (geometry->nodes->GetDomain(iPoint)) LinSysRes.AddBlock(iPoint, flux);
         if (geometry->nodes->GetDomain(kPoint)) LinSysRes.SubtractBlock(kPoint, flux);
+
+        if (implicit) {
+          /*--- d flux/dU_i and d flux/dU_k. Mean flux: the Ismail-Roe Jacobian at equal states, 0.5 A(U).n. ---*/
+          const auto Si = esState(iPoint), Sk = esState(kPoint);
+          su2double jac_i[pbc::ES_NVAR][pbc::ES_NVAR], jac_k[pbc::ES_NVAR][pbc::ES_NVAR], dummy[pbc::ES_NVAR][pbc::ES_NVAR];
+          if (ecFlux) {
+            pbc::EsIsmailRoeJacobian(nDim, Gamma, Si, Sk, splitNormal[iSplit], jac_i, jac_k);
+          } else {
+            pbc::EsIsmailRoeJacobian(nDim, Gamma, Si, Si, splitNormal[iSplit], jac_i, dummy);
+            pbc::EsIsmailRoeJacobian(nDim, Gamma, Sk, Sk, splitNormal[iSplit], dummy, jac_k);
+          }
+          if (turbMatched) {
+            const su2double kUp = P1SSTMatched::KUpwind(massFlux, tke(iPoint), tke(kPoint));
+            struct BlockRef {
+              su2double (*m)[pbc::ES_NVAR];
+              su2double& operator()(unsigned short a, unsigned short b) { return m[a][b]; }
+            };
+            BlockRef bi{jac_i}, bk{jac_k};
+            P1SSTMatched::TransformJacobian(nVar, bi, kUp, tke(iPoint));
+            P1SSTMatched::TransformJacobian(nVar, bk, kUp, tke(kPoint));
+          }
+          /*--- Diagonal: [a][b] access (SetBlock2Diag); off-diagonal: flat blocks with row stride nVar (pointer overload). ---*/
+          su2double flat_i[pbc::ES_NVAR * pbc::ES_NVAR], flat_k[pbc::ES_NVAR * pbc::ES_NVAR];
+          for (auto a = 0u; a < nVar; ++a) {
+            for (auto b = 0u; b < nVar; ++b) {
+              flat_i[a * nVar + b] = jac_i[a][b];
+              flat_k[a * nVar + b] = jac_k[a][b];
+            }
+          }
+          if (geometry->nodes->GetDomain(iPoint)) {
+            Jacobian.AddBlock2Diag(iPoint, jac_i);
+            Jacobian.AddBlock(iPoint, kPoint, flat_k);
+          }
+          if (geometry->nodes->GetDomain(kPoint)) {
+            Jacobian.SubtractBlock2Diag(kPoint, jac_k);
+            Jacobian.SubtractBlock(kPoint, iPoint, flat_i);
+          }
+        }
       }
     }
     END_SU2_OMP_SAFE_GLOBAL_ACCESS

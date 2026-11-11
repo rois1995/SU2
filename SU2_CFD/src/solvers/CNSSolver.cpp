@@ -487,7 +487,8 @@ void CNSSolver::MixedViscousResidual(CGeometry *geometry, const CPrimalGrid *ele
       P1SSTMatched::KineDiffusionStateJacobian(nDim, Gamma, gasConst, simplex.size, simplex.grad, state, addRow, jacobian);
     }
 
-    /*--- Blocks of non-edge pairs (face and body diagonals) are not in the sparsity pattern, AddBlock drops them. ---*/
+    /*--- Blocks of non-edge pairs (face and body diagonals): in the split-pair pattern of EDGE_FORM_P1_MIXED they are
+     * kept (JST_P1ES_JACOBIAN_DIAG.md 8.3); in a plain pattern AddBlock drops them. ---*/
     for (unsigned short a = 0; a < nNodes; ++a) {
       if (!geometry->nodes->GetDomain(point[a])) continue;
       for (unsigned short b = 0; b < nNodes; ++b) {

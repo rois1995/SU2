@@ -37,6 +37,7 @@
 #include <vector>
 #include "../../Common/include/CConfig.hpp"
 #include "../../Common/include/geometry/CPhysicalGeometry.hpp"
+#include "../../Common/include/linear_algebra/CSysMatrix.hpp"
 #include "../../Common/include/toolboxes/boundary_closure.hpp"
 #include "../../Common/include/toolboxes/p1_simplex.hpp"
 #include "../../Common/include/toolboxes/p1_mixed.hpp"
@@ -10086,4 +10087,112 @@ TEST_CASE("Crease groups: order-independent groups at corners", "[P1Flux]") {
     CHECK(part == std::vector<unsigned short>{0, 1, 0, 1, 0, 1, 1});
     CHECK(rankOf(7, N, part) == 2);
   }
+}
+
+/*--- JST_P1ES_JACOBIAN_DIAG.md 8.3: the split-pair pattern of EDGE_FORM_P1_MIXED holds both blocks of every split pair
+ * (face and body diagonals of the non-simplex cells), and the edge-addressed blocks are the (i, j) and (j, i) blocks of
+ * the pattern; with the plain pattern the edge map is the identity as before. ---*/
+TEST_CASE("EDGE_FORM_P1_MIXED: split-pair Jacobian pattern and edge block addressing", "[P1Flux]") {
+  for (int nDim : {2, 3}) {
+    const std::string mesh = "p1_mixed_pattern_" + std::to_string(nDim) + "d.su2";
+    WriteMixedMesh(mesh, nDim, (nDim == 2) ? 6 : 3, 0.2, 1.0);
+    MeshCase test(mesh, MixedOptions);
+    auto& geometry = *test.geometry;
+    geometry.SetEdgeFormP1(true);
+    const auto& splitNodes = geometry.edges->GetSplitNodes();
+    /*--- Global counts only: a partition may hold no split pair (no REQUIRE that could stop one rank). ---*/
+    auto globalSum = [](unsigned long x) {
+      unsigned long y = 0;
+      SU2_MPI::Allreduce(&x, &y, 1, MPI_UNSIGNED_LONG, MPI_SUM, SU2_MPI::GetComm());
+      return y;
+    };
+    const auto nPairs = globalSum(splitNodes.size());
+    INFO("nDim " << nDim << " split pairs " << nPairs);
+    CHECK(nPairs > 0);
+    const unsigned short nVar = nDim + 2;
+
+    for (bool extended : {false, true}) {
+      CSysMatrix<su2mixedfloat> J;
+      J.SetSplitPairPattern(extended);
+      J.Initialize(geometry.GetnPoint(), geometry.GetnPointDomain(), nVar, nVar, true, &geometry, test.config.get());
+      unsigned long missingPairs = 0, wrongEdges = 0;
+      for (const auto& pair : splitNodes) {
+        missingPairs += (J.GetBlock(pair[0], pair[1]) == nullptr) + (J.GetBlock(pair[1], pair[0]) == nullptr);
+      }
+      for (auto iEdge = 0ul; iEdge < geometry.GetnEdge(); ++iEdge) {
+        const auto iPoint = geometry.edges->GetNode(iEdge, 0), jPoint = geometry.edges->GetNode(iEdge, 1);
+        su2mixedfloat *bii = nullptr, *bij = nullptr, *bji = nullptr, *bjj = nullptr;
+        J.GetBlocks(iEdge, iPoint, jPoint, bii, bij, bji, bjj);
+        wrongEdges += (bij != J.GetBlock(iPoint, jPoint)) + (bji != J.GetBlock(jPoint, iPoint)) +
+                      (bii != J.GetBlock(iPoint, iPoint)) + (bjj != J.GetBlock(jPoint, jPoint));
+      }
+      /*--- The reset of each assembly clears the added non-edge blocks of the split-pair pattern. ---*/
+      unsigned long notReset = 0;
+      if (extended) {
+        su2double ones[pbc::ES_NVAR * pbc::ES_NVAR];
+        for (auto& v : ones) v = 1.0;
+        for (const auto& pair : splitNodes) J.AddBlock(pair[0], pair[1], ones);
+        J.SetValDiagonalZero();
+        for (const auto& pair : splitNodes) {
+          const auto* b = J.GetBlock(pair[0], pair[1]);
+          for (unsigned short k = 0; k < nVar * nVar; ++k) notReset += (b[k] != 0.0);
+        }
+      }
+      INFO("extended " << extended);
+      CHECK(globalSum(wrongEdges) == 0);
+      CHECK(globalSum(notReset) == 0);
+      if (extended) CHECK(globalSum(missingPairs) == 0);
+      else CHECK(globalSum(missingPairs) > 0);
+    }
+  }
+}
+
+/*--- JST_P1ES_JACOBIAN_DIAG.md 8.3: the split-pair blocks of the mean flux are the Ismail-Roe Jacobian at equal states,
+ * EsIsmailRoeJacobian(S, S, n) = (0.5 A(U).n, 0.5 A(U).n), the derivative of 0.5 (F_i + F_k).n. ---*/
+TEST_CASE("EDGE_FORM_P1_MIXED: split-pair mean-flux blocks are the Ismail-Roe Jacobian at equal states", "[P1Flux]") {
+  std::mt19937 gen(9606);
+  std::uniform_real_distribution<double> u(-1.0, 1.0);
+  su2double worst = 0.0;
+  for (int nDim : {2, 3}) {
+    const int nVar = nDim + 2;
+    for (int trial = 0; trial < 50; ++trial) {
+      const pbc::EsState S = JacRandomState(gen, nDim, 0.5, 0.8);
+      su2double n[3] = {0.0, 0.0, 0.0};
+      for (int d = 0; d < nDim; ++d) n[d] = u(gen);
+      su2double jl[pbc::ES_NVAR][pbc::ES_NVAR], jr[pbc::ES_NVAR][pbc::ES_NVAR];
+      pbc::EsIsmailRoeJacobian(nDim, kGamma, S, S, n, jl, jr);
+      su2double U[pbc::ES_NVAR] = {0.0};
+      pbc::EsConservative(nDim, kGamma, S, U);
+      auto halfFlux = [&](const pbc::EsState& s, su2double* f) {
+        su2double un = 0.0, v2 = 0.0;
+        for (int d = 0; d < nDim; ++d) {
+          un += s.vel[d] * n[d];
+          v2 += s.vel[d] * s.vel[d];
+        }
+        const su2double H = kGamma * s.p / ((kGamma - 1.0) * s.rho) + 0.5 * v2;
+        f[0] = 0.5 * s.rho * un;
+        for (int d = 0; d < nDim; ++d) f[d + 1] = 0.5 * (s.rho * s.vel[d] * un + s.p * n[d]);
+        f[nDim + 1] = 0.5 * s.rho * H * un;
+      };
+      su2double ref = 0.0, err = 0.0;
+      for (int c = 0; c < nVar; ++c) {
+        const su2double h = 1e-6 * std::max(su2double(1.0), su2double(fabs(U[c])));
+        su2double Up[pbc::ES_NVAR], Um[pbc::ES_NVAR];
+        for (int v = 0; v < nVar; ++v) Up[v] = Um[v] = U[v];
+        Up[c] += h;
+        Um[c] -= h;
+        su2double fp[pbc::ES_NVAR], fm[pbc::ES_NVAR];
+        halfFlux(JacStateOf(nDim, Up), fp);
+        halfFlux(JacStateOf(nDim, Um), fm);
+        for (int v = 0; v < nVar; ++v) {
+          const su2double fd = (fp[v] - fm[v]) / (2.0 * h);
+          err = std::max({err, su2double(fabs(fd - jl[v][c])), su2double(fabs(fd - jr[v][c]))});
+          ref = std::max(ref, su2double(fabs(fd)));
+        }
+      }
+      worst = std::max(worst, err / ref);
+    }
+  }
+  INFO("worst relative error " << worst);
+  CHECK(worst < 1e-6);
 }

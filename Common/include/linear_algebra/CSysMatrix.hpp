@@ -354,6 +354,21 @@ class CSysMatrix {
    */
   const su2uint* edge_ptr_l;
 
+  /*!
+   * \brief Split-pair pattern (EDGE_FORM_P1_MIXED, JST_P1ES_JACOBIAN_DIAG.md 8.3): the FV pattern plus the node pairs of
+   *        the face and body diagonals of non-simplex cells, i.e. the finite element pattern, so the U index of an edge
+   *        is no longer the edge index. edge_ptr_u maps edges to their U index (null for the plain FV pattern, where the
+   *        map is the identity), edge_ptr_l then points to edgeMapL.
+   */
+  bool splitPairPattern = false;
+  const su2uint* edge_ptr_u = nullptr;
+  std::vector<su2uint> edgeMapU, edgeMapL;
+
+  /*!
+   * \brief U index of the block (i, j) of edge iEdge (i < j).
+   */
+  FORCEINLINE unsigned long EdgeU(unsigned long iEdge) const { return edge_ptr_u ? edge_ptr_u[iEdge] : iEdge; }
+
   unsigned short ilu_fill_in; /*!< \brief Fill level for the ILU preconditioner. */
 
   /*!< \brief Level structure of the ILU dependency graph: rows within a level are independent,
@@ -729,6 +744,26 @@ class CSysMatrix {
    *            the solver to declare whether it will "set and forget".
    * \param[in] override_prec - Decide if, and with what argument to override the preconditioner.
    */
+  /*!
+   * \brief Before Initialize: use the split-pair pattern (FV pattern plus the face and body diagonals of non-simplex
+   *        cells) for an edge-connected matrix (EDGE_FORM_P1_MIXED, JST_P1ES_JACOBIAN_DIAG.md 8.3).
+   */
+  inline void SetSplitPairPattern(bool value) { splitPairPattern = value; }
+
+  /*!
+   * \brief True when the matrix was initialized with the split-pair pattern.
+   */
+  inline bool HasSplitPairPattern() const { return edge_ptr_u != nullptr; }
+
+  /*!
+   * \brief Call f(jPoint) for every off-diagonal block (iPoint, jPoint) of row iPoint in the matrix pattern.
+   */
+  template <class F>
+  inline void ForEachOffDiagColumn(unsigned long iPoint, F&& f) const {
+    for (auto k = mat.row_ptr_l[iPoint]; k < mat.row_ptr_l[iPoint + 1]; ++k) f(static_cast<unsigned long>(mat.col_ind_l[k]));
+    for (auto k = mat.row_ptr_u[iPoint]; k < mat.row_ptr_u[iPoint + 1]; ++k) f(static_cast<unsigned long>(mat.col_ind_u[k]));
+  }
+
   void Initialize(unsigned long npoint, unsigned long npointdomain, unsigned short nvar, unsigned short neqn,
                   bool EdgeConnect, CGeometry* geometry, const CConfig* config, bool needTranspPtr = false,
                   bool allow_quant = false, std::optional<unsigned short> override_prec = std::nullopt);
@@ -888,7 +923,7 @@ class CSysMatrix {
     const auto blkSz = nVar * nEqn;
     bii = &mat.d[iPoint * blkSz];
     bjj = &mat.d[jPoint * blkSz];
-    bij = &mat.u[iEdge * blkSz];
+    bij = &mat.u[EdgeU(iEdge) * blkSz];
     bji = &mat.l[edge_ptr_l[iEdge] * blkSz];
   }
 
@@ -922,13 +957,13 @@ class CSysMatrix {
           bij_buf[offset] = PassiveAssign(block_j[iVar][jVar] * scale);
           bji_buf[offset] = -PassiveAssign(block_i[iVar][jVar] * scale);
         }
-      QuantizeBlock(bij_buf, &q_scale.u[iEdge * nVar], &q_blocks.u[iEdge * blkSz]);
+      QuantizeBlock(bij_buf, &q_scale.u[EdgeU(iEdge) * nVar], &q_blocks.u[EdgeU(iEdge) * blkSz]);
       const auto k_l = edge_ptr_l[iEdge];
       QuantizeBlock(bji_buf, &q_scale.l[k_l * nVar], &q_blocks.l[k_l * blkSz]);
       return;
     }
 
-    auto* bij = &mat.u[iEdge * blkSz];
+    auto* bij = &mat.u[EdgeU(iEdge) * blkSz];
     auto* bji = &mat.l[edge_ptr_l[iEdge] * blkSz];
     for (iVar = 0; iVar < nVar; iVar++) {
       for (jVar = 0; jVar < nEqn; jVar++) {
@@ -994,12 +1029,12 @@ class CSysMatrix {
           bjj[i] -= blk_j[k][i];
         }
         EncodeQuantBlock([&, k](unsigned long r, unsigned long c) { return blk_j[k][r * nVar + c]; },
-                         &q_scale.u[iEdge[k] * nVar], &q_blocks.u[iEdge[k] * blkSz], nVar);
+                         &q_scale.u[EdgeU(iEdge[k]) * nVar], &q_blocks.u[EdgeU(iEdge[k]) * blkSz], nVar);
         const auto k_l = edge_ptr_l[iEdge[k]];
         EncodeQuantBlock([&, k](unsigned long r, unsigned long c) { return blk_i[k][r * nVar + c]; },
                          &q_scale.l[k_l * nVar], &q_blocks.l[k_l * blkSz], nVar);
       } else {
-        auto bij = &mat.u[iEdge[k] * blkSz];
+        auto bij = &mat.u[EdgeU(iEdge[k]) * blkSz];
         auto bji = &mat.l[edge_ptr_l[iEdge[k]] * blkSz];
         /*--- Update, block i was negated during transpose in the
          * hope the assignments below become non-temporal stores. ---*/
@@ -1038,13 +1073,13 @@ class CSysMatrix {
           bij_buf[offset] = PassiveAssign(block_j[iVar][jVar] * scale);
           bji_buf[offset] = -PassiveAssign(block_i[iVar][jVar] * scale);
         }
-      QuantizeBlock(bij_buf, &q_scale.u[iEdge * nVar], &q_blocks.u[iEdge * blkSz]);
+      QuantizeBlock(bij_buf, &q_scale.u[EdgeU(iEdge) * nVar], &q_blocks.u[EdgeU(iEdge) * blkSz]);
       const auto k_l = edge_ptr_l[iEdge];
       QuantizeBlock(bji_buf, &q_scale.l[k_l * nVar], &q_blocks.l[k_l * blkSz]);
       return;
     }
 
-    ScalarType* bij = &mat.u[iEdge * blkSz];
+    ScalarType* bij = &mat.u[EdgeU(iEdge) * blkSz];
     ScalarType* bji = &mat.l[edge_ptr_l[iEdge] * blkSz];
     for (iVar = 0; iVar < nVar; iVar++) {
       for (jVar = 0; jVar < nEqn; jVar++) {
@@ -1094,13 +1129,13 @@ class CSysMatrix {
           bij_buf[offset] = PassiveAssign(jac_ij[iVar][jVar] * mask);
           bji_buf[offset] = PassiveAssign(jac_ji[iVar][jVar] * mask);
         }
-      QuantizeBlock(bij_buf, &q_scale.u[iEdge * nVar], &q_blocks.u[iEdge * blkSz]);
+      QuantizeBlock(bij_buf, &q_scale.u[EdgeU(iEdge) * nVar], &q_blocks.u[EdgeU(iEdge) * blkSz]);
       const auto k_l = edge_ptr_l[iEdge];
       QuantizeBlock(bji_buf, &q_scale.l[k_l * nVar], &q_blocks.l[k_l * blkSz]);
       return;
     }
 
-    auto* bij = &mat.u[iEdge * blkSz];
+    auto* bij = &mat.u[EdgeU(iEdge) * blkSz];
     auto* bji = &mat.l[edge_ptr_l[iEdge] * blkSz];
     for (iVar = 0; iVar < nVar; iVar++) {
       for (jVar = 0; jVar < nEqn; jVar++) {
@@ -1129,13 +1164,13 @@ class CSysMatrix {
           bij_buf[offset] = PassiveAssign(jac_ij[iVar][jVar] * mask);
           bji_buf[offset] = PassiveAssign(jac_ji[iVar][jVar] * mask);
         }
-      QuantizeBlock(bij_buf, &q_scale.u[iEdge * nVar], &q_blocks.u[iEdge * blkSz]);
+      QuantizeBlock(bij_buf, &q_scale.u[EdgeU(iEdge) * nVar], &q_blocks.u[EdgeU(iEdge) * blkSz]);
       const auto k_l = edge_ptr_l[iEdge];
       QuantizeBlock(bji_buf, &q_scale.l[k_l * nVar], &q_blocks.l[k_l * blkSz]);
       return;
     }
 
-    auto* bij = &mat.u[iEdge * blkSz];
+    auto* bij = &mat.u[EdgeU(iEdge) * blkSz];
     auto* bji = &mat.l[edge_ptr_l[iEdge] * blkSz];
     for (iVar = 0; iVar < nVar; iVar++) {
       for (jVar = 0; jVar < nEqn; jVar++) {
@@ -1177,12 +1212,12 @@ class CSysMatrix {
 
       if (quantized_mode) {
         EncodeQuantBlock([&, k](unsigned long r, unsigned long c) { return blk_j[k][r * nVar + c]; },
-                         &q_scale.u[iEdge[k] * nVar], &q_blocks.u[iEdge[k] * blkSz], nVar);
+                         &q_scale.u[EdgeU(iEdge[k]) * nVar], &q_blocks.u[EdgeU(iEdge[k]) * blkSz], nVar);
         const auto k_l = edge_ptr_l[iEdge[k]];
         EncodeQuantBlock([&, k](unsigned long r, unsigned long c) { return blk_i[k][r * nVar + c]; },
                          &q_scale.l[k_l * nVar], &q_blocks.l[k_l * blkSz], nVar);
       } else {
-        ScalarType* bij = &mat.u[iEdge[k] * blkSz];
+        ScalarType* bij = &mat.u[EdgeU(iEdge[k]) * blkSz];
         ScalarType* bji = &mat.l[edge_ptr_l[iEdge[k]] * blkSz];
         /*--- Update, block i was negated during transpose in the
          * hope the assignments below become non-temporal stores. ---*/
