@@ -2582,7 +2582,8 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
   auto measure=[&](const std::vector<Id>& ids,bool seed,double* enclosing_seconds) {
     const auto plan_scratch=transfer_memory::Add(
         transfer_memory::Mul(3*MaximumCampaignEdges,sizeof(std::pair<const Edge,EdgeMeasure>)+6*sizeof(void*)),
-        surface_target?SurfacePlanningScratchBytes(1):0);
+        surface_target?transfer_memory::Add(SurfacePlanningScratchBytes(MeasurementBatch),
+            transfer_memory::Mul(MeasurementBatch,sizeof(OwnedCell))):0);
     if(!admit(transfer_memory::Add(plan_scratch,transfer_memory::Mul(MeasurementBatch,sizeof(Cell)+sizeof(unsigned char)))))return false;
     selection.census_started=true;
     const size_t count=CPassiveComm::Allreduce(ids.size(),CPassiveComm::Op::MAX,world.comm);
@@ -2624,6 +2625,15 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
         const auto components=AssociatedExtensions(imported.cells,geometry);
         FrozenField field(std::move(imported.cells),composition,options.timings,components,options.edge_breakpoints,field_identity,true,MaximumDonors,true);
         FieldAccounting accounting{stats,field};
+        PatchMetric planned;
+        if(surface_target && phase==Phase::Construction) {
+          Imported published;published.cells.reserve(batch);
+          for(size_t i=slot;i<std::min(slot+batch,ids.size());++i)published.cells.push_back(working.at(ids[i]));
+          MetricStats counted;
+          // Published coordinates/associations and the field are unchanged throughout this measurement batch.
+          planned=MeasureSurfacePlanning(GeometryPatch(published,&geometry),field,geometry,options.wall_heights,surface_target,&counted);
+          stats.edge_evaluations+=counted.edge_evaluations;stats.edge_reused+=counted.edge_reused;
+        }
         for (size_t i=slot;i<std::min(slot+batch,ids.size());++i) {
           PatchMetric metric;
           std::string reason;
@@ -2631,9 +2641,18 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
           const auto& cell=working.at(ids[i]).cell;
           bool strict=false,quality_valid=false,height_valid=true;FirstHeightReport height;
           if(phase==Phase::Construction) {
-            metric=surface_target?MeasureSurfacePlanning(GeometryPatch(Imported{{working.at(ids[i])},true,{}},&geometry),
-                field,geometry,options.wall_heights,surface_target,&counted):
-                MeasureMetricEdges({cell},field,&counted,&reuse,&campaign_edges);
+            if(surface_target) {
+              const auto& owned=working.at(ids[i]);
+              for(unsigned a=0;a<4;++a)for(unsigned b=a+1;b<4;++b) {
+                Edge key{cell.v[a].id,cell.v[b].id};std::sort(key.begin(),key.end());
+                metric.edges.emplace(key,planned.edges.at(key));
+              }
+              for(const auto& edge:metric.edges)for(unsigned face=0;face<4;++face)
+                if(cell.v[face].id!=edge.first[0] && cell.v[face].id!=edge.first[1] && owned.physical[face].present &&
+                    options.wall_heights.count(geometry.Get(owned.physical[face].facet).marker) && edge.second.length>metric.maximum_length) {
+                  metric.maximum_length=edge.second.length;metric.longest_edge=edge.first;
+                }
+            } else metric=MeasureMetricEdges({cell},field,&counted,&reuse,&campaign_edges);
             strict=metric.maximum_length<=MaximumMetricEdge;
           } else {
             const bool metric_valid=ValidateMetricPatch({cell},field,metric,reason,&counted,&reuse);

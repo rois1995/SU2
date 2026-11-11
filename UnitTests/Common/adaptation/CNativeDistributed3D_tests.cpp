@@ -880,14 +880,36 @@ TEST_CASE("Surface preparation closes the complete census across incremental see
   if(!world.rank)for(auto row:Rows(fixture.patch))input.emplace(row.cell.id,row);
   input=WithUniformSensor(std::move(input),{});const auto saved=Bytes(input);
   EngineOptions options;options.maximum_work=1024;options.maximum_seconds=30;options.wall_heights[7]=.01;
-  const BoundaryMetric target=[](Node node,const PlanarReference&,Tensor) {
+  const BoundaryMetric samples=[](Node node,const PlanarReference&,Tensor) {
     return node.p.z==0?std::vector<BoundaryMetricSample>{{{1,0,0,1,0,1e12},{0,0,1}}}:
         std::vector<BoundaryMetricSample>{};
+  };
+  size_t guidanceCalls=0;
+  const BoundaryMetric target=[&](Node node,const PlanarReference& current,Tensor sensor) {
+    ++guidanceCalls;return samples(node,current,sensor);
+  };
+  options.stage_observer_bytes=size_t(1)<<20;
+  options.stage_observer=[&](const StageProgressView& view) {
+    for(const auto& row:view.working) {
+      CellDiagnostic cached;if(!view.cell_diagnostic(row.first,cached))continue;
+      Patch patch;patch.cells.push_back(row.second.cell);
+      for(const auto& face:fixture.patch.surface)if(std::all_of(face.v.begin(),face.v.end(),[&](Id id) {
+        return std::any_of(row.second.cell.v.begin(),row.second.cell.v.end(),[&](Node node){return node.id==id;});
+      }))patch.surface.push_back(face);
+      DonorCell donor;donor.cell=row.second.cell;donor.sensor.fill({});
+      auto identity=std::make_shared<const FrozenMetricIdentity>(FrozenMetricIdentity::Scope::SurfacePlanning);
+      FrozenField core({donor},{},false,{},{},identity,true,MaximumDonors,true);
+      const auto single=MeasureSurfacePlanning(patch,core,geometry,options.wall_heights,samples);
+      CHECK_FALSE(cached.q_measured);CHECK_FALSE(cached.j_measured);
+      CHECK(cached.size_bad==(single.maximum_length>MaximumMetricEdge));
+      for(unsigned edge=0;edge<6;++edge)CHECK(cached.lengths[edge]==single.edges.at(cached.edges[edge]).length);
+    }
   };
   const auto result=PrepareSurface(world,input,Uniform(input,{}),geometry,target,options);
   INFO(result.reason);REQUIRE(result.surface_prepared);CHECK_FALSE(result.valid);
   CHECK(CPassiveComm::Allreduce(result.cells.size(),CPassiveComm::Op::SUM,world.comm)==60);
   CHECK(CPassiveComm::Allreduce(result.stats.cached_measured_cells,CPassiveComm::Op::SUM,world.comm)==60);
+  CHECK(CPassiveComm::Allreduce(guidanceCalls,CPassiveComm::Op::SUM,world.comm)<4*60);
   CHECK(result.stats.quality_stages==0);CHECK(result.stats.field_compositions==0);CHECK(Bytes(input)==saved);
 }
 

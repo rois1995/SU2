@@ -8,7 +8,25 @@ Read AGENTS.md and [HowToProceed.md](HowToProceed.md). Historical states are in
 
 ## Current owned workload — authoritative
 
-Current owned workload: NONE. Full362 TERMINAL1/1810.658s after preserved first
+Current owned workload: build364 connected published-census batching RUNNING/FROZEN,
+tool session83994; wrapper1428842/start42937818,ninja1428844/start42937835.
+Actual handles verified live in R/build364_start_verified.json; do not edit pinned
+C++/tests/helpers until terminal.363 diagnostic TERMINAL1/61.810s, pins intact,
+all5actual identities absent. Two completed actual contexts show guidance>99%of
+planner time;65/80 and43/56 calls repeat identical samples. Remaining contexts stopped
+on a fixture child-budget exhaustion flag (NOT production failure); exact source and
+partial evidence preserved in R/seed363_assessment.json/source_snapshots363.
+364 uses existing multi-cell planner once per existing <=10-cell measurement batch,
+then extracts each cell's6edges and requested-face max. No persistent cache, larger
+batch or private-trial reuse. Extra scratch admitted. Source audit confirms actual
+BoundaryGuidance uses immutable binding support; batch overlay does not widen it.
+Focused tests compare cached measurements/flags bitwise against standalone cells,
+including5actual curved/seam/feature contexts. One serial affected pass and ONE MPI
+milestone, then immediately full SAME303 attempt. No qualification/speedup claimed yet.
+363 build passed194.271s, production CFD byte-identical362.364 changes Engine measure,
+its equivalence test and diagnostic child-budget/grouping fixture only.
+
+Full362 TERMINAL1/1810.658s after preserved first
 surface-preparation failure and authorized SIGTERM to verified MPI1251566/start42533873.
 All10actual PID/start identities absent,1623pins intact,mapped runtime verified.
 Authoritative folder `R/m6_runs/rans_curved362_v1`: assessment.json,
@@ -42,7 +60,7 @@ engine coverage retained. Production CFD360–362 byte-identical SHA
 Read-only audit R/surface362_reuse_audit.json: zero current-nodal hits do not prove
 expensive core work (exact-vertex/direct-P1 fast paths). PrivateParameters copies
 overlays, not whole state. Next bounded actual-census check should split existing
-core/context/guidance costs before choosing reuse. No sources edited after terminal yet. Detailed history is in
+core/context/guidance costs before choosing reuse. 364 production published-measurement change is LOCAL/UNVALIDATED; no other cycle. Detailed history is in
 [physical-height topic](Handbook/ADAPTATION_CURVED_BL_PHYSICAL_HEIGHT_20261111.md).
 
 Same saved303 reasonable coarse RANS+SA seed, Mach-only L1,500k metric complexity;

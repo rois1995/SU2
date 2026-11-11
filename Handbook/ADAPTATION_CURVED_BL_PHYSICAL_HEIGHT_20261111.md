@@ -610,3 +610,34 @@ but its measured share is missing. Next: bounded actual published-census context
 cost split using existing counters/timers and helpers, not a new baseline/perf/GDB
 campaign, before selecting one connected production correction. Private trial
 contexts must not inherit published-node guidance without full dependency proof.
+
+
+###363 bounded attribution and connected364 correction
+
+Test-only363 build passed194.271s, production CFD unchanged362. The bounded actual
+fixture completed two contexts before a diagnostic-only failure: root guidance
+.295490/.298229s planner,80calls/15nodes/65identical repeats; smooth .290931/.293762s,
+56calls/13nodes/43identical repeats. Core queries/edge work and independent overlay
+preparation are tiny. Case terminal1/61.810s, pins intact, all5actual identities absent.
+Its deliberately bounded engine window exhausted a sticky shared flag that poisoned
+the next independent context.364 isolates that child window and charges consumed work
+back to the unchanged parent; no production budget or certification change.
+363 direct field grouping8 was not exact production grouping;364 mirrors16-cell seeds
+split at MaximumCavityCells/6 (=10), without increasing any batch bound.
+
+Selected connected correction: existing MeasureSurfacePlanning measures a published
+census batch once, deduplicating node guidance and edge work, then each cell receives
+its exact6edges and its own requested-face maximum with lexicographic tie order.
+Private old/fresh/streamed candidate measurement stays unchanged; no persistent cache.
+Extra bounded scratch includes batched OwnedCell rows/incidence. Published coordinates,
+sensors, associations and immutable geometry remain fixed during the local measurement;
+selection Add does not publish changes. TargetPolicy guidance derives sides from the
+accepted binding/immutable ForFacets, not private surface overlays; flat fallback has
+no overlay. No expanded support or reused private certificate. Complete readiness,
+strict final gates, nodal transport and resource checks remain.
+
+Validation planned at the established cadence: cached-vs-standalone bitwise edges and
+size flags on partial requested walls/empty ranks, all5actual contexts including seams,
+features and symmetry, then ONE MPI milestone and immediate same303 full workflow.
+No target allocation, geometry representation, scheduler/config, operator or budget
+change. Full-surface readiness and useful production improvement remain unproven.

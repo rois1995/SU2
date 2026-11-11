@@ -77,7 +77,17 @@ measurement_cpu328.291s overlaps. All actual handles absent, pins/runtime intact
 Audit repeated measurement on unchanged published census cells using existing
 core-edge/sample caches and prepared contexts; attribution remains incomplete.
 Keep planning guidance separate from raw core lengths and private candidate state.
-No target change, new operator/scheduler, limit increase or gate relaxation selected. First assess whether surface preparation reaches useful operators and a
+No target change, new operator/scheduler, limit increase or gate relaxation selected.
+
+Bounded actual attribution363 completed root/smooth contexts: sided guidance is>99%
+of direct planner time, with repeated identical node samples. Its later diagnostic
+child-budget flag failure is preserved. Connected364 (currently building/frozen)
+uses the existing multi-cell planner once per existing published measurement batch,
+extracting exact per-cell edges/requested-face maxima; private trials are unchanged.
+No persistent cache or larger batch. Focused cached-versus-single equivalence, all5
+actual contexts and ONE MPI milestone precede immediate same303 full retry. See
+HANDOFF_Codex.md for current handles and qualification; no improvement is yet proven.
+ First assess whether surface preparation reaches useful operators and a
 complete readiness census within the unchanged window. Then judge actual first-layer,
 growth and transition results; useful operators or test passes are not usable BL.
 See the [physical-height topic](Handbook/ADAPTATION_CURVED_BL_PHYSICAL_HEIGHT_20261111.md)
