@@ -572,3 +572,30 @@ metric-entry CFD restart is byte-identical. No metric work reduction or target
 allocation change. See metric362_first_stage_comparison.json and immutable entry
 log. Current frozen362 is now in native surface preparation; await its useful
 operations/readiness and outcome before choosing further correction.
+
+
+###362 first surface outcome — terminal and preserved
+
+First prep391.599729s,99work/14commits,49280seed cells/6160batches,49346cached of
+303320current cells(16.27%), versus35917540of303359.14commits remove39tets net;
+point count and final conformity are not established. Readiness still fails on the
+unchanged deadline, with11cached metric/height cell demands and no cached edge demand;
+this partial demand count is not whole-field closure. Seed327.415894s(83.61%ofwindow),
+measurement_cpu328.291217s OVERLAPS it.203168field requests/0hits,296298edge evaluations/
+0reuse, geometrywork1944277. No q/J census, complete geometry/size or first row.
+
+After preserving first report/log/capture, authorized stop targeted verified
+MPI1251566/start42533873 during second metric on retained unadapted mesh. Wrapper
+terminal1/1810.658s,1623pins intact,mapped runtime verified, all10actual identities
+absent. No accepted adapted progress discarded. Full362 assessment and terminal
+receipts are in R/m6_runs/rans_curved362_v1; no accepted BL/RANS event or disk restart.
+
+Next bounded source audit in this SAME connected cycle: unchanged published census
+measurements. Surface planning currently ignores the existing edge reuse collected
+by engine measure; those stored lengths are planning guidance, so cannot be passed
+blindly as raw core lengths. Current_nodal QueryImpl bypasses the bounded point cache,
+accounting for zero hits by construction. Static repetition is confirmed, but current
+report does not separate core search/integration, context preparation and guidance
+cost. Need a connected safe reuse hypothesis with exact identity/association/core
+invalidation and admitted transient memory; uncertain/private contexts must recompute.
+No further correction, target policy, scheduler or increased budget selected yet.

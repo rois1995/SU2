@@ -1,0 +1,35 @@
+{
+  "authorized_by": "Standing AGENTS stop/fix/retry instruction for preserved demonstrated M6 construction failure; no accepted adapted CFD state is discarded.",
+  "checked_unix": 1794382704.3703485,
+  "pid": 1251566,
+  "start_ticks": 42533873,
+  "cmd": "mpirun --output-filename rank_output -n 6 /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver [NativeSelectedFailureWorkflow3D] --durations yes ",
+  "reason": "FIRST_ROW surface preparation failed: Native 3D kernel elapsed-time budget exhausted; feasibility is undetermined. Local cached demands: geometry_cells=0, metric_or_height_cells=11, geometry_edges=0, metric_edges=0. Last local rejection: edge 13859,13856: Native 3D coarsening removes no cells or fails changed-edge size admission.",
+  "surface_preparation": {
+    "prepared": 0,
+    "final_acceptance": false,
+    "seconds": 391.599729247,
+    "work": 99,
+    "commits": 14,
+    "geometry_work": 1944277,
+    "field_compositions": 0,
+    "seed_cells": 49280,
+    "seed_batches": 6160,
+    "cached_measured_cells": 49346,
+    "seed_seconds": 327.41589391,
+    "measurement_cpu_seconds": 328.291217,
+    "field_requests": 203168,
+    "field_hits": 0,
+    "field_misses": 203168,
+    "edge_evaluations": 296298,
+    "edge_reused": 0,
+    "reason": "Native 3D kernel elapsed-time budget exhausted; feasibility is undetermined. Local cached demands: geometry_cells=0, metric_or_height_cells=11, geometry_edges=0, metric_edges=0. Last local rejection: edge 13859,13856: Native 3D coarsening removes no cells or fails changed-edge size admission."
+  },
+  "pins_verified": true,
+  "pin_count": 1623,
+  "preserved_sha256": {
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/rans_curved362_v1/first_event_surface_failure_report.json": "c6d9533a2b3bfbc76682d2934e84446e7a5a45c7513f1cc80ce64f7c467b2e70",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/rans_curved362_v1/first_event_failure_run.log": "b9ca8d3bfbb8ae710527ecadc8643d42280a68e68087a4aeb05b50110f7f78e4"
+  },
+  "signal": "SIGTERM"
+}

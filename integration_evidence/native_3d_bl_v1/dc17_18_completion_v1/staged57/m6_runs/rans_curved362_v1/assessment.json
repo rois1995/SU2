@@ -1,0 +1,80 @@
+{
+  "state": "terminal",
+  "full_workflow_accepted": false,
+  "accepted_adaptations": 0,
+  "usable_BL": false,
+  "conservative_adapted_transfer": false,
+  "continued_adapted_CFD": false,
+  "adapted_disk_restart": false,
+  "created_unix": 1794382924.4461772,
+  "surface_preparation": {
+    "prepared": 0,
+    "final_acceptance": false,
+    "seconds": 391.599729247,
+    "work": 99,
+    "commits": 14,
+    "geometry_work": 1944277,
+    "field_compositions": 0,
+    "seed_cells": 49280,
+    "seed_batches": 6160,
+    "cached_measured_cells": 49346,
+    "seed_seconds": 327.41589391,
+    "measurement_cpu_seconds": 328.291217,
+    "field_requests": 203168,
+    "field_hits": 0,
+    "field_misses": 203168,
+    "edge_evaluations": 296298,
+    "edge_reused": 0,
+    "reason": "Native 3D kernel elapsed-time budget exhausted; feasibility is undetermined. Local cached demands: geometry_cells=0, metric_or_height_cells=11, geometry_edges=0, metric_edges=0. Last local rejection: edge 13859,13856: Native 3D coarsening removes no cells or fails changed-edge size admission."
+  },
+  "capture_progress": {
+    "owned": 303320,
+    "measured": 49346,
+    "q_bad": 0,
+    "j_bad": 0,
+    "geometry_bad": 0,
+    "size_bad": 11
+  },
+  "capture_census_complete": false,
+  "capture_shape_complete": false,
+  "cached_coverage": 0.16268627192404062,
+  "previous359_cached_measured_cells": 17540,
+  "cached_coverage_ratio_cells": 2.813340935005701,
+  "seed_share_of_surface_window": 0.8360983664099617,
+  "strict_gates_unchanged": true,
+  "construction_cells_before": 303359,
+  "construction_cells_after": 303320,
+  "net_cell_change": -39,
+  "authorized_stop": true,
+  "all_actual_handles_terminal": true,
+  "pins_verified": true,
+  "mapped_runtime_verified": true,
+  "interpretation": [
+    "Connected360 change enabled14commits/99work and2.81x more measured cells before the same phase deadline; it did not reach readiness.",
+    "Seed_seconds327.416 dominates391.600surface window. Measurement_cpu328.291 overlaps seeding and private work; do not add timers.",
+    "Zero reported q/J failures means no q/J census in validity-first construction, not shape closure. Whole field geometry/size remains incomplete.",
+    "No accepted adapted state was discarded; second metric on retained mesh was stopped after preserved first failure.",
+    "Subattribution to geometry contexts, boundary guidance, core P1 search and edge integration remains incomplete. Next audit unchanged published-census repetition using existing caches and exact invalidation before choosing one correction."
+  ],
+  "artifacts_sha256": {
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/rans_curved362_v1/first_event_surface_failure_report.json": "c6d9533a2b3bfbc76682d2934e84446e7a5a45c7513f1cc80ce64f7c467b2e70",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/rans_curved362_v1/first_event_failure_run.log": "b9ca8d3bfbb8ae710527ecadc8643d42280a68e68087a4aeb05b50110f7f78e4",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/rans_curved362_v1/adapted_mesh_inspection_rank0_manifest.json": "d7848b33c94cd7dd77c9d4f261e487c3a12403bb6b4e2b27fe5496d85c9da57c",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/rans_curved362_v1/authorized_stop_first_event.json": "75687d30eb16c0058101996b20ad18f269d09ae0c501f83e544e59e191fd6a67",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/rans_curved362_v1/terminal_handles_actual.json": "558b79a1b03d79b18689d4929d26e42d71d20ab1f3df60de518c7151c236fa12",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/rans_curved362_v1/status.json": "8fc9dc77a55746e8e8fd21e8bd3bd1868365bd2da732895cbde999751f186ec4"
+  },
+  "local_capture_payload_sha256": {
+    "adapted_mesh_inspection_rank0_reference.jsonl": "0a3f43c1f8fd58bb72f6f9b83147105282fb6f86b82a5b24551ca3761afd0e69",
+    "adapted_mesh_inspection_rank0_rejections.jsonl": "1fe7665959ed4b37b2ac9cfa586001b387f82442e330996694bba05cc99f4e11",
+    "adapted_mesh_inspection_rank0_owned.bin": "d3751535eeeaab9dccd2f6721113a02895f6e82f0e06a983dcc281a73efb8e90",
+    "adapted_mesh_inspection_rank0_manifest.json": "d7848b33c94cd7dd77c9d4f261e487c3a12403bb6b4e2b27fe5496d85c9da57c",
+    "adapted_mesh_inspection_rank0_metrics.compact.jsonl": "72fc47f4c6c169813c814bd6a938213211829ce925d955fb9716dcc89e01fc27"
+  },
+  "lossless_capture_archive": {
+    "manifest": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/rans_curved362_v1/capture_archive/manifest.json",
+    "sha256": "6789d85614e06c195e37c8f6c495368d4ef8d72471456386c44e62e1741840b1",
+    "total_bytes": 52915426,
+    "decoded_hashes_verified": true
+  }
+}

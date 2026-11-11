@@ -70,8 +70,14 @@ in369.066s, pins intact/all actual handles absent. Follow HANDOFF_Codex.md for i
 setups are preserved; production patch bounds remain unchanged. Strict normal serial360
 passed independently, although that campaign as a whole failed its separate new fixture.
 
-Qualified change pushed2e151415c8. Full SAME303 workflow362 is RUNNING/FROZEN;
-its exact live handles and start receipt are in HANDOFF_Codex.md. First assess whether surface preparation reaches useful operators and a
+Qualified change pushed2e151415c8. Full SAME303 workflow362 is TERMINAL after
+preserved first surface failure:14commits/99work,49346cached cells versus35917540,
+but still only16.27%ofcurrent cells before391.600s deadline. Seed327.416s dominates;
+measurement_cpu328.291s overlaps. All actual handles absent, pins/runtime intact.
+Audit repeated measurement on unchanged published census cells using existing
+core-edge/sample caches and prepared contexts; attribution remains incomplete.
+Keep planning guidance separate from raw core lengths and private candidate state.
+No target change, new operator/scheduler, limit increase or gate relaxation selected. First assess whether surface preparation reaches useful operators and a
 complete readiness census within the unchanged window. Then judge actual first-layer,
 growth and transition results; useful operators or test passes are not usable BL.
 See the [physical-height topic](Handbook/ADAPTATION_CURVED_BL_PHYSICAL_HEIGHT_20261111.md)

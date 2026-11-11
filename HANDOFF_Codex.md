@@ -8,54 +8,39 @@ Read AGENTS.md and [HowToProceed.md](HowToProceed.md). Historical states are in
 
 ## Current owned workload — authoritative
 
-Current owned workload: full same303 workflow362 RUNNING/FROZEN, tool session6695.
-Folder `R/m6_runs/rans_curved362_v1`; wrapper1251081/start42532701,
-timeout1251565/start42533873, MPI1251566/start42533873; actual10PID/start identities
-verified live in start_verified_actual.json,1623pins intact, runtime mapping recorded.
-Started2026-11-11T07:08:19UTC. Initial same-seed CFD finite CL.155731/CD.050268;
-first composed metric COMPLETE1254.119s, metric_build1253.731s(+2.74% versus359),
-IDENTICAL per-rank geometry work and complexity948069.856. Metric-entry CFD restart
-byte-identical359. No metric work reduction; this change targets surface planning.
-Now in native surface preparation; no remesh outcome yet. See
-R/metric362_first_stage_comparison.json and immutable initial_cfd_metric_entry.log.
-Actual10identities last reverified live; metric_live_observation.json is historical
-within this same still-live attempt, not its latest elapsed stage. Compiled C++/tests
-and pinned helpers remain unchanged until verified terminal or preserved failure
-justifies authorized stop. Qualified change pushed2e151415c8 before launch. Build362 TERMINAL0/70.163s, pins intact,9observed build
-PIDs absent. Serial362 TERMINAL0/4.426s,741assertions/9cases, pins intact/all actual
-identities absent. MPI362 TERMINAL0/369.066s,17cases on EVERYrank,4062–4217assertions/rank,
-pins intact/all10actual identities absent. `R/qualification362.json` scopes affected
-planning/seeding/height/curved/ownership/resource behavior only, NOT usable BL.
-Attempts: `R/cases/curved362_height_callers_serial_20261111T065906_1229092` and
-`R/cases/curved362_height_callers_mpi6_20261111T065929_1230143`.
-362 is a fixture-only successor.360 serial
-9/10cases passed incl strict normal bounds; new320-cell fixture hit default donor
-cap.361 admitted donor count then exposed existing whole-metric patch128 limit.
-Both failures/pins/actual-terminal receipts preserved; neither campaign passed.
-362 uses supported80-cell planning star, keeps320 whole-patch refusal, and retains
-existing large-star streamed engine tests in MPI. NO production limit raised.
-361 production CFD byte-identical360; new build changes only fixture source.
-C++/tests frozen during362 build/validation; source CFD360hash
+Current owned workload: NONE. Full362 TERMINAL1/1810.658s after preserved first
+surface-preparation failure and authorized SIGTERM to verified MPI1251566/start42533873.
+All10actual PID/start identities absent,1623pins intact,mapped runtime verified.
+Authoritative folder `R/m6_runs/rans_curved362_v1`: assessment.json,
+first_event_surface_failure_report.json,first_event_failure_run.log,
+authorized_stop_first_event.json and terminal_handles_actual.json.
+
+First surface prep391.600s,99work/14commits,49280seed cells/6160batches,
+49346cached of303320current cells(16.27%), versus35917540/303359(5.78%).
+Seed327.416s (83.61%ofphase); measurement_cpu328.291s OVERLAPS it. Field203168queries,
+0hits;296298edge evaluations,0reuse. Geometrywork1944277. Readiness still FAILED,
+q/J unmeasured, geometry/size census incomplete. No accepted BL mesh/transfer/restart.
+360–362 improved useful operations/coverage, not capability completion. Next active
+work: audit safe repeated measurement reuse on unchanged PUBLISHED census cells,
+using existing core-edge/sample caches/prepared contexts. Subattribution remains
+incomplete; do not equate all seed CPU with geometry or reuse planning guidance as
+raw core-edge lengths. Keep one connected cycle, no config/gate/limit changes.
+
+First metric COMPLETE1254.119s (metric_build1253.731,+2.74%vs359), IDENTICAL per-rank
+geometry work and provisional complexity948069.856. Metric-entry CFD restart is
+byte-identical359. See R/metric362_first_stage_comparison.json. No metric work gain.
+
+Qualified360–362 change pushed2e151415c8: once-per-node sided planning in a fixed
+patch, dynamic admitted scratch, existing incremental construction seeding for
+surface_target with empty ordinary composition. No cross-call guidance cache.
+Build362 passed70.163s; serial741assertions/9cases; ONE MPI6 milestone17cases on
+EVERYrank,4062–4217assertions/rank,369.066s. All pins/actual-terminal receipts verified.
+R/qualification362.json scopes affected behavior only, NOT native MPI BL generation.
+Failed360/361 fixture setups preserved; whole-patch128 cap and streamed320-cell
+engine coverage retained. Production CFD360–362 byte-identical SHA
 37d822060736776a92d3cd0091b433245a9b1d94c6d8c9bda4a62f40a521eb22.
-359 terminal receipts and source snapshots verified before edits.
-360 connected change: fixed-patch planning guidance once per unique node via sorted
-linear incidence, one sided sample list live, no cross-call cache. Additional scratch
-is dynamically admitted for actual imported size, including imported large coordinate stars (streamed measurement where required); no new global cache/cavity bound. Existing incremental construction
-seeding now recognizes nonempty surface_target with empty ordinary composition.
-Improvement/full readiness/ownership guards remain. BL reports expose existing
-seed/measurement/field counters. Normal unit assertions now use explicit absolute
-bounds (Approx's default relative epsilon no longer masks their margin).
-Affected serial checks and ONE connected MPI milestone passed; next immediately full
-same303 workflow. No new diagnostic loader/config, new CFD seed or target change.
-Passing checks will not establish usable BL. Read-only surface359_seeding_coverage.json
-confirms17540/303359 measured(5.78%),285819 location/measurement UNKNOWN; zero q/J
-measurements. Partial exports lack composed tensors/component contributions, so cannot
-apportion complexity excess. Full359 failure remains active evidence:
-391.593s surface seeding,0work/commits,geometry_work273738. All10actual handles absent,
-pins/runtime intact; first-event report/log/core preserved under R/m6_runs/rans_curved359_v1.
-Exact entry sensor core1e-4I at all61330points to2.304e-15relative, Float64 association;
-composed estimate948069.856 versus500k remains provisional/no proven bound. No
-accepted BL/RANS mesh, transfer or disk restart. See current physical-height topic.
+No sources edited after this terminal outcome yet. Detailed history is in
+[physical-height topic](Handbook/ADAPTATION_CURVED_BL_PHYSICAL_HEIGHT_20261111.md).
 
 Same saved303 reasonable coarse RANS+SA seed, Mach-only L1,500k metric complexity;
 not500k points. Native5400s/outer14400s,12GiB per rank, CFD MPI6/native FIRST_ROW1.
