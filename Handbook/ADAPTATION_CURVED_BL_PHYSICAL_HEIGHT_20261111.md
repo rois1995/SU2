@@ -669,3 +669,11 @@ PID/start identities verified live,1639pins intact,84mapped ELF files match. Fir
 metric stage running. See HANDOFF_Codex.md and R/m6_runs/rans_curved364_v1/
 start_verified_actual.json. Keep compiled/executing sources frozen. No remesh
 outcome or full-run speedup established yet; all BL/RANS obligations remain.
+
+
+364 first metric COMPLETE1199.666s (metric_build1199.254s versus3621253.731s).
+Per-rank geometry work, complexity948069.856 and metric-entry CFD restart are exactly
+unchanged. Wall-time ratio.95655 is not a metric work improvement or justification
+for another optimization cycle. Scope/timer caveats are in
+metric364_first_stage_comparison.json. Current frozen364 is in native surface
+preparation; await its useful progress and complete strict readiness/outcome.

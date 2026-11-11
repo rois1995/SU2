@@ -12,13 +12,16 @@ Current owned workload: full same303 workflow364 RUNNING/FROZEN,tool session3199
 Folder `R/m6_runs/rans_curved364_v1`; wrapper1466577/start43035039,
 timeout1467060/start43036402,MPI1467061/start43036403. All10actual identities verified
 live,1639pins intact,84mapped ELF files match in start_verified_actual.json.
-Started2026-11-11T08:32:04.384512+00:00. Initial CFD/first metric stage running; no remesh outcome yet.
+Started2026-11-11T08:32:04.384512+00:00. First metric COMPLETE1199.666s,metric_build1199.254s; per-rank geometry work and
+provisional complexity948069.856 IDENTICAL to362. Metric-entry CFD restart byte-identical.
+No metric work reduction. Now in native surface preparation; no remesh outcome yet.
+See R/metric364_first_stage_comparison.json and immutable entry log.
 Do not edit pinned C++/tests/helpers until verified terminal or preserved failure
 justifies the standing authorized stop. Qualified checkpoint pushed87d0be3905 before launch.
 Build364 TERMINAL0/206.222s,pins intact/all22observed handles absent. Serial364 passed
 3442assertions/9cases,4.451s; actual364 passed315957assertions/1case,67.798s,ALL5actual
 contexts; MPI364 passed17cases on EVERYrank,4063–6918assertions/rank,365.101s.
-All pins intact/all actual process identities terminal. R/qualification364.json scopes
+All validation pins intact/check process identities terminal. R/qualification364.json scopes
 AFFECTED BEHAVIOR ONLY, not accepted BL/native MPI generation/full RANS qualification.
 See R/seed364_assessment.json for exact context results and timing caveats.
 
@@ -33,42 +36,15 @@ unchanged500k/gates/budgets. Native1 guard remains; native MPI FIRST_ROW unquali
 363 diagnostic failure/source snapshots preserved; sticky child-budget flag corrected
 only in diagnostic fixture. No production budget, target or certification change.
 
-Full362 TERMINAL1/1810.658s after preserved first
-surface-preparation failure and authorized SIGTERM to verified MPI1251566/start42533873.
-All10actual PID/start identities absent,1623pins intact,mapped runtime verified.
-Authoritative folder `R/m6_runs/rans_curved362_v1`: assessment.json,
-first_event_surface_failure_report.json,first_event_failure_run.log,
-authorized_stop_first_event.json and terminal_handles_actual.json.
-
-First surface prep391.600s,99work/14commits,49280seed cells/6160batches,
-49346cached of303320current cells(16.27%), versus35917540/303359(5.78%).
-Seed327.416s (83.61%ofphase); measurement_cpu328.291s OVERLAPS it. Field203168queries,
-0hits;296298edge evaluations,0reuse. Geometrywork1944277. Readiness still FAILED,
-q/J unmeasured, geometry/size census incomplete. No accepted BL mesh/transfer/restart.
-360–362 improved useful operations/coverage, not capability completion. Next active
-work: audit safe repeated measurement reuse on unchanged PUBLISHED census cells,
-using existing core-edge/sample caches/prepared contexts. Subattribution remains
-incomplete; do not equate all seed CPU with geometry or reuse planning guidance as
-raw core-edge lengths. Keep one connected cycle, no config/gate/limit changes.
-
-First metric COMPLETE1254.119s (metric_build1253.731,+2.74%vs359), IDENTICAL per-rank
-geometry work and provisional complexity948069.856. Metric-entry CFD restart is
-byte-identical359. See R/metric362_first_stage_comparison.json. No metric work gain.
-
-Qualified360–362 change pushed2e151415c8: once-per-node sided planning in a fixed
-patch, dynamic admitted scratch, existing incremental construction seeding for
-surface_target with empty ordinary composition. No cross-call guidance cache.
-Build362 passed70.163s; serial741assertions/9cases; ONE MPI6 milestone17cases on
-EVERYrank,4062–4217assertions/rank,369.066s. All pins/actual-terminal receipts verified.
-R/qualification362.json scopes affected behavior only, NOT native MPI BL generation.
-Failed360/361 fixture setups preserved; whole-patch128 cap and streamed320-cell
-engine coverage retained. Production CFD360–362 byte-identical SHA
-37d822060736776a92d3cd0091b433245a9b1d94c6d8c9bda4a62f40a521eb22.
-Read-only audit R/surface362_reuse_audit.json: zero current-nodal hits do not prove
-expensive core work (exact-vertex/direct-P1 fast paths). PrivateParameters copies
-overlays, not whole state. Next bounded actual-census check should split existing
-core/context/guidance costs before choosing reuse. 364 production published-measurement change is LOCAL/UNVALIDATED; no other cycle. Detailed history is in
-[physical-height topic](Handbook/ADAPTATION_CURVED_BL_PHYSICAL_HEIGHT_20261111.md).
+Preserved full362 TERMINAL1/1810.658s: first surface prep391.600s,14commits/99work,
+49346cached/303320cells(16.27%); seed327.416s dominated. No q/J or complete geometry/size
+census, no first row or accepted mesh. Verified owned stop,pins/runtime intact,all10
+actual identities absent. R/m6_runs/rans_curved362_v1/assessment.json and lossless
+capture_archive preserve the complete partial state. That outcome selected363/364
+attribution/batching above; old audit next-step notes are historical. Full359/362
+metric stages shared exact work/target; none established metric speedup.359 Float64
+sensor core1e-4I at all61330points within2.304e-15relative, not composed target or proof
+of no later drift. Detailed evidence/history is in the linked physical-height topic.
 
 Same saved303 reasonable coarse RANS+SA seed, Mach-only L1,500k metric complexity;
 not500k points. Native5400s/outer14400s,12GiB per rank, CFD MPI6/native FIRST_ROW1.
