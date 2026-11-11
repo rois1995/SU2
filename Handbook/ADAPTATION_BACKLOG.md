@@ -1069,3 +1069,24 @@ Existing bounded native numerical projection remains a possible upper-bound cand
 seed (source locations in normalization handbook). User explicitly prioritizes safe
 whole-edge exclusion first, then purpose-aware metric-edge measurement precision.
 Do not implement the projection seed in parallel or treat its speedup as established.
+
+
+###2026-11-11 queued stage2physical geometry attribution (during385frozen chord)
+
+Read-only source: CBoundaryLayerMetric::EvaluateImpl sets explicit curvature caps
+for analytic cylinder/sphere walls; curved mapped case leaves Sample.curvature=0.
+IntrinsicSurfaceGuidance reuses EvaluateAtSurfaceAssociation and the flow/base
+composition; no explicit curved principal-curvature floor was located there.
+Inherited vertex-log sizing is still a separate tangential contribution. This is
+source behavior, NOT proof that the complete target lacks adequate resolution.
+
+Saved actual facet30331sample has principal curvatures74.7147/.0218185 and combined
+principal densities95.1742/59.7466. A local constant-curvature chord estimate would
+suggest geometry demand stronger in the first direction, but local curvature alone
+is not a full-patch geometry certificate. After the current witness qualification,
+use existing exact geometry/cavity diagnostics to compare flow/inherited sizing,
+physical geometry tolerance, first-row feasibility and realized directional lengths.
+Requested h0can impose suitability constraints stronger than final surface tolerance;
+do not assume a physical minimum, select a curvature policy, change inherited scale
+or silently raise nominal target from these local estimates. This is the already
+queued Coulaud/MAdLib/tangential-profile investigation, not a competing change.

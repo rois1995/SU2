@@ -1,0 +1,196 @@
+{
+  "state": "serial_MPI_primitives_qualified_actual_chord_frozen",
+  "build": {
+    "state": "terminal",
+    "exit_code": 0,
+    "seconds": 28.110307693481445,
+    "pins_verified": true,
+    "changed": [],
+    "completed_build": true,
+    "binaries": {
+      "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver": "071be89d08c11dd321e02e315d419e8802d1cb7b13586c67378618f7b909f0e2",
+      "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/SU2_CFD/src/SU2_CFD": "3a65b4b43d0f844365a4ffe669a6da7cd790b2223e572c6216346e0b53394f9b"
+    }
+  },
+  "qualification": {
+    "serial": {
+      "case": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved385_joint_serial_20261111T155207_2539683",
+      "status": {
+        "state": "terminal",
+        "exit_code": 0,
+        "seconds": 63.635151624679565,
+        "pins_verified": true,
+        "changed": [],
+        "largest_sampled_individual_process_rss_bytes": 60030976,
+        "rss_note": "sampled process RSS; not a whole-job peak"
+      },
+      "terminal": {
+        "actual_host_proc": true,
+        "all_owned_handles_terminal": true,
+        "live_owned_handles": [],
+        "sampled_identities": [
+          {
+            "pid": 2539824,
+            "start_ticks": 45676878
+          },
+          {
+            "pid": 2539825,
+            "start_ticks": 45676878
+          },
+          {
+            "pid": 2539826,
+            "start_ticks": 45676878
+          },
+          {
+            "pid": 2539827,
+            "start_ticks": 45676879
+          }
+        ],
+        "wrapper_excluded": {
+          "pid": 2539683,
+          "start_ticks": 45676692
+        },
+        "checked_unix": 1794412443.0145714,
+        "wrapper_verified_terminal": true
+      },
+      "tests": [
+        [
+          "4977",
+          "50"
+        ]
+      ]
+    },
+    "points": {
+      "case": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved385_accuracy_point_frames_20261111T155403_2545342",
+      "status": {
+        "state": "terminal",
+        "exit_code": 0,
+        "seconds": 12.894315242767334,
+        "pins_verified": true,
+        "changed": [],
+        "largest_sampled_individual_process_rss_bytes": 340504576,
+        "rss_note": "sampled process RSS; not a whole-job peak"
+      },
+      "terminal": {
+        "actual_host_proc": true,
+        "all_owned_handles_terminal": true,
+        "live_owned_handles": [],
+        "sampled_identities": [
+          {
+            "pid": 2545459,
+            "start_ticks": 45688468
+          },
+          {
+            "pid": 2545460,
+            "start_ticks": 45688468
+          },
+          {
+            "pid": 2545461,
+            "start_ticks": 45688468
+          },
+          {
+            "pid": 2545462,
+            "start_ticks": 45688469
+          }
+        ],
+        "wrapper_excluded": {
+          "pid": 2545342,
+          "start_ticks": 45688262
+        },
+        "checked_unix": 1794412500.0379345,
+        "wrapper_verified_terminal": true
+      },
+      "tests": []
+    },
+    "mpi6": {
+      "case": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved385_closest_mpi6_20261111T155500_2547941",
+      "status": {
+        "state": "terminal",
+        "exit_code": 0,
+        "seconds": 12.602164030075073,
+        "pins_verified": true,
+        "changed": [],
+        "largest_sampled_individual_process_rss_bytes": 44552192,
+        "rss_note": "sampled process RSS; not a whole-job peak"
+      },
+      "terminal": {
+        "actual_host_proc": true,
+        "all_owned_handles_terminal": true,
+        "live_owned_handles": [],
+        "sampled_identities": [
+          {
+            "pid": 2548020,
+            "start_ticks": 45694157
+          },
+          {
+            "pid": 2548021,
+            "start_ticks": 45694157
+          },
+          {
+            "pid": 2548022,
+            "start_ticks": 45694157
+          },
+          {
+            "pid": 2548049,
+            "start_ticks": 45694168
+          },
+          {
+            "pid": 2548048,
+            "start_ticks": 45694168
+          },
+          {
+            "pid": 2548047,
+            "start_ticks": 45694167
+          },
+          {
+            "pid": 2548046,
+            "start_ticks": 45694167
+          },
+          {
+            "pid": 2548045,
+            "start_ticks": 45694167
+          },
+          {
+            "pid": 2548044,
+            "start_ticks": 45694167
+          }
+        ],
+        "wrapper_excluded": {
+          "pid": 2547941,
+          "start_ticks": 45693964
+        },
+        "checked_unix": 1794412629.2846098,
+        "wrapper_verified_terminal": true
+      },
+      "tests": [
+        [
+          "3947",
+          "29"
+        ],
+        [
+          "3925",
+          "29"
+        ],
+        [
+          "4005",
+          "29"
+        ],
+        [
+          "3928",
+          "29"
+        ],
+        [
+          "4128",
+          "29"
+        ],
+        [
+          "3926",
+          "29"
+        ]
+      ]
+    }
+  },
+  "actual_case": "cases/curved385_target_geometry_20261111T155709_2553462",
+  "remaining": "Original full chord, target reasonableness and complete checkpoint, BLgeneration/strict acceptance and RANSworkflow. No actual-chord or fresh-query speedup yet.",
+  "safety": "Same complete certified lower/clearance traversal; optional bounded witnesses only; normal law/profile/gates/config/budgets unchanged. Partial384compile failure preserved."
+}

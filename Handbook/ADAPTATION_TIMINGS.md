@@ -437,3 +437,22 @@ from selected371policy, so full target eigenvalues are NOT production comparison
 Selected384hypothesis reuses existing minimizer as an interval-certified upper
 witness with128maximum optional charged callback units total; full certification
 and unchanged total budget remain. Benefit must be established on saved full chord.
+
+
+##384–385 bounded precise upper witnesses (actual chord pending)
+
+384build466.488s fails one new test's private-API reference; production compiles,
+pins intact/all155owned actual-host handles terminal.385test-only correction uses
+independent long-double Bernstein evaluation; incremental build28.110s passes.
+50focused serial cases/4977assertions pass63.635s. MPI6passes29cases EVERYrank
+(3925–4128assertions/rank)/12.602s. No primitive campaign is BLgeneration acceptance.
+
+Same12-point primitive replay385passes12.894swrapper/3180work versus38312.861s/
+2870work. Normal differences under coarse/tight request now5.55e-17–1.67e-16, feet
+≤1.99e-18.10proposal improvements/310additional charged work. This establishes
+candidate stability on those points, NOT reduced fresh-query work or wall speedup.
+Setup dominates these tiny runs; do not infer performance from their total times.
+Source/probe stats show initial winning witnesses are vertices and skip polish;
+these queries improve only after lower traversal. The original full chord is frozen
+under unchanged300s geometry/600souter, source/binary/input pinned. Its outcome
+must decide whether this is materially useful for stage2and the active blocker.

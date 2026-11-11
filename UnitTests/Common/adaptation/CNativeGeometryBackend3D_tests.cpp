@@ -906,10 +906,14 @@ TEST_CASE("Closest cubic upper witnesses stabilize normals without replacing dis
     CHECK(std::hypot(coarse.normal.x-tight.normal.x,coarse.normal.y-tight.normal.y,coarse.normal.z-tight.normal.z)<1e-9);
     CHECK(std::hypot(coarse.point.x-tight.point.x,coarse.point.y-tight.point.y,coarse.point.z-tight.point.z)<1e-9);
     CHECK(geometry->Supports(coarse.facet,coarse.binding));CHECK(geometry->Admissible(coarse.binding,coarse.point));
-    const auto bounds=geometry->CurvedBounds(coarse.binding);
-    CHECK(coarse.candidate_bounds[0].x==bounds[0].x);CHECK(coarse.candidate_bounds[1].x==bounds[1].x);
-    CHECK(coarse.candidate_bounds[0].y==bounds[0].y);CHECK(coarse.candidate_bounds[1].y==bounds[1].y);
-    CHECK(coarse.candidate_bounds[0].z==bounds[0].z);CHECK(coarse.candidate_bounds[1].z==bounds[1].z);
+    REQUIRE(coarse.binding.dimension==2);
+    const long double u=coarse.binding.u,v=coarse.binding.v,w=1-u-v;
+    const long double weight[10]={w*w*w,u*u*u,v*v*v,3*w*w*u,3*w*u*u,3*u*u*v,3*u*v*v,3*w*v*v,3*w*w*v,6*w*u*v};
+    const auto& net=geometry->Curves().at(coarse.facet);std::array<long double,3> model{};
+    for(unsigned k=0;k<10;++k){model[0]+=weight[k]*net[k].x;model[1]+=weight[k]*net[k].y;model[2]+=weight[k]*net[k].z;}
+    CHECK(coarse.candidate_bounds[0].x<=model[0]);CHECK(model[0]<=coarse.candidate_bounds[1].x);
+    CHECK(coarse.candidate_bounds[0].y<=model[1]);CHECK(model[1]<=coarse.candidate_bounds[1].y);
+    CHECK(coarse.candidate_bounds[0].z<=model[2]);CHECK(model[2]<=coarse.candidate_bounds[1].z);
     const auto after=geometry->GeometryStatsSnapshot();
     CHECK(after.closest_projection_attempts>before.closest_projection_attempts);
     CHECK(after.closest_projection_work-before.closest_projection_work<=256);

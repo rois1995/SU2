@@ -12,11 +12,20 @@ RUNNING/next-action notes there are not live instructions.
 
 ## Current source and owned workload — authoritative
 
-Build384 RUNNING/FROZEN, session88347; wrapper2509346/start45604556,
-ninja2509347/start45604572. R/build384_status.json, resources/driver log and source
-pins own the evidence. Five compiled files change: Common CNativeAffineReference
-header/source, geometry-backend tests, BoundaryLayerMetric tests and actual front
-probe include. Do NOT edit pinned C++until actual-host terminal verification.
+Original saved-target chord385 RUNNING/FROZEN, session15094;
+R/cases/curved385_target_geometry_20261111T155709_2553462, child2553546.
+Do NOT edit pinned C++until actual-host terminal verification.
+Serial385passed4977assertions/50cases/63.635s; MPI6passed29cases EVERYrank
+(3925–4128assertions/rank)/12.602s; owned identities terminal/pins intact.
+Same12points385passed12.894s/3180work (383:2870work). Matched coarse/tight normals
+now differ5.55e-17–1.67e-16 (383:up to4.62e-6), feet≤1.99e-18;10successful proposal
+improvements/310extra work. This is accuracy progress, NOT fresh-query speedup.
+R/edge_accuracy385_point_assessment.json. Initial roots are vertices and skip polish
+for these points; only final polish runs. Assess full-chord result before any change.
+Build385passed28.110s, pins intact/owned handles terminal. CFD
+SHA3a65b4b43d0f844365a4ffe669a6da7cd790b2223e572c6216346e0b53394f9b.
+384failed466.488s(private test API), terminal/all155identities absent; exact failure
+preserved3d1866448b.385only fixes test with independent Bernstein evaluation.
 
 Implementation384hypothesis: reuse existing normalized MinimizeTriangle to improve
 upper witnesses before and after the complete distance traversal. At most64charged
@@ -29,13 +38,13 @@ Optional pre-search work CAN reduce remaining traversal budget; actual benefit a
 availability must be measured, not assumed. No numerical tolerance, gate, target
 policy, normal law, new config/scheduler or CAD dependency changed.
 
-NEXT: verify build384terminal actual-host identities/pins; focused
-R/check_witness_serial384.py → same12points R/replay_accuracy_points384.py → ONE
-appropriate connected MPI R/check_witness_mpi384.py → original saved full chord
-R/check_witness_actual384.py. Preserve every terminal/failure receipt. A stable normal
+NEXT: verify build385terminal actual-host identities/pins; focused
+R/check_witness_serial385.py → same12points R/replay_accuracy_points385.py → ONE
+appropriate connected MPI R/check_witness_mpi385.py → original saved full chord
+R/check_witness_actual385.py. Preserve every terminal/failure receipt. A stable normal
 or lower query count alone is insufficient: require useful full-chord progress under
-unchanged bounds. Current source is local/uncommitted; latest pushed6b372129f1owns
-pre-change point evidence/design. Production383checkpointb597d15fd8 remains preserved.
+unchanged bounds. Production384source checkpoint3d1866448bis unqualified; test fix local. Latest
+pushed6b372129f1owns pre-change point evidence/design. Production383checkpointb597d15fd8 remains preserved.
 
 ## Demonstrated blocker and prior qualification
 

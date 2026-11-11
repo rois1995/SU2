@@ -1,0 +1,52 @@
+{
+  "case": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved385_accuracy_point_frames_20261111T155403_2545342",
+  "status": {
+    "state": "terminal",
+    "exit_code": 0,
+    "seconds": 12.894315242767334,
+    "pins_verified": true,
+    "changed": [],
+    "largest_sampled_individual_process_rss_bytes": 340504576,
+    "rss_note": "sampled process RSS; not a whole-job peak"
+  },
+  "pairs": [
+    {
+      "coarse": 0,
+      "tight": 4,
+      "normal_difference": 5.551115123125783e-17,
+      "foot_difference": 1.9873754096201567e-18
+    },
+    {
+      "coarse": 2,
+      "tight": 6,
+      "normal_difference": 5.551115123125783e-17,
+      "foot_difference": 9.69739903612216e-19
+    },
+    {
+      "coarse": 3,
+      "tight": 7,
+      "normal_difference": 1.6653345369377348e-16,
+      "foot_difference": 1.8399521000200487e-18
+    },
+    {
+      "coarse": 8,
+      "tight": 10,
+      "normal_difference": 1.3597399555105182e-16,
+      "foot_difference": 1.8399521000200487e-18
+    },
+    {
+      "coarse": 9,
+      "tight": 11,
+      "normal_difference": 1.3597399555105182e-16,
+      "foot_difference": 7.818293051731877e-19
+    }
+  ],
+  "counters": {
+    "closest_projection_attempts": 10,
+    "closest_projection_improvements": 10,
+    "closest_projection_work": 310,
+    "work": 3180
+  },
+  "baseline": "edge_accuracy383_point_assessment.json",
+  "interpretation": "Normal variation at matched points falls to machine precision in this primitive replay; charged work increases2870to3180. No fresh-query or complete-chord speedup claimed. Root witnesses are vertices for these queries, so initial polish is skipped and only final polish runs; assess full chord before another change."
+}
