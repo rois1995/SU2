@@ -26,22 +26,23 @@ but the full chord still refuses near the root: all root proposals hit64cap.
 386qualifies outward Newton handoff to EXISTING edge/KKT and flat initialization:
 51serial cases,53cases per MPI6rank, stable root/midpoint probes. Preparation drops
 to106.972s, but the complete chord STILLrefuses the same deadline. No live workload.
-Prepared387production-mobility/full-target replay now demonstrates the near-endpoint
-cause: same exact dim1binding/foot, different closest differential sides,2.53%tensor
-change and.015%chord-speed change.388implements deterministic exact-supported-side
-selection only on prepared released seams, within the same wall/component/body.
-All388handles are terminal. Serial52cases/7288assertions and MPI6 54cases EVERYrank
-pass; prepared exact-binding tensors are now bit-identical. Original chord STILL
-refuses same300s atlas deadline:111.088spreparation/8163evaluations, no scalar.
-No performance gain is established. Next bounded analysis must attribute existing
-quadrature error/work and remaining geometry uncertainty to actual caller accuracy
-requirements, before selecting another production change. No more speculative
-minimizer/seam variants, larger caps, blanket tolerance reductions or baselines.
-Explicit association sides, genuine features, first-height profile and all gates
-remain. A separate same-facet interior-foot discrepancy is still unresolved.
-No tolerance or ten-point replacement is justified. Analytic sensor-only lower
-length .388on the hard edge cannot resolve splitting/coarsening; ranking, insertion
-and final acceptance still require composed measurements.
+Prepared387revealed exact-binding side ambiguity;388fixes it and passes52serialcases
+and54cases on EVERYMPI6rank, but the original chord still refuses the same deadline.
+389now localizes the remaining bottleneck:258initial panels/3870samples, another
+4275complete refinement samples; one small root interval takes81%of refinement
+samples and82%of remaining estimated error. At two actual hotspot points, tighter
+certificates change near-seam interior to edge bindings and alter the fulltensor2.53%.
+These are DIFFERENTbindings; do not extend canonicalization by coordinate coincidence.
+
+Currentproductionbinary remains388;389only adds a bounded test-only trace/parser.
+All owned handles terminal, evidence/pins in staged57/metric_edge389_attribution.json.
+Review existing competitive prepared supports for a valid upper witness within the
+ORIGINALproposal/query budget. On these actualpoints, facet35672fails64callbacks while
+30335converges19/39; largerdiagnosticcap still leaves failures, so do not raise limits.
+This supports investigation, not a selected/proven production correction. Preserve
+complete allowed support/body, canonical interval witness, global lower/clearance
+proof, memory/reference accounting and every gate. No speculative minimizer variants,
+blanket tolerance changes, new target policy or ten-point replacement.
 
 Stage2still needs a reasonable target and faithful composed checkpoint/reload before
 surface generation. Bounded accurate witnesses and active-edge handling are qualified, but still require

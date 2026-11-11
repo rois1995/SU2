@@ -4,7 +4,8 @@ SU2NativeBLPipeline3D::detail::PipelineScope pipeline;
 const bool exclusionOnly=std::string(std::getenv("SU2_NATIVE_BL_FRONT_PROBE"))=="saved_target_exclusion";
 const bool accuracyOnly=std::string(std::getenv("SU2_NATIVE_BL_FRONT_PROBE"))=="saved_target_accuracy";
 const bool stabilityOnly=std::string(std::getenv("SU2_NATIVE_BL_FRONT_PROBE"))=="saved_target_stability";
-const bool savedTarget=stabilityOnly||accuracyOnly||exclusionOnly||std::string(std::getenv("SU2_NATIVE_BL_FRONT_PROBE"))=="saved_target_geometry";
+const bool panelsOnly=std::string(std::getenv("SU2_NATIVE_BL_FRONT_PROBE"))=="saved_target_panels";
+const bool savedTarget=panelsOnly||stabilityOnly||accuracyOnly||exclusionOnly||std::string(std::getenv("SU2_NATIVE_BL_FRONT_PROBE"))=="saved_target_geometry";
 double selectedCore=1e-4,tangentScale=1;
 std::map<Id,std::pair<Point,Tensor>> savedCore;
 if(savedTarget) {
@@ -53,12 +54,33 @@ state->thickness=SU2_TYPE::GetValue(config.GetAdap_BL(0).thickness);state->memor
 const auto priorCaller=budget.caller_bytes;
 const auto retained=transfer_memory::Add(priorCaller,policy->StorageBytes(),
     transfer_memory::Mul(imported.cells.size(),3*(sizeof(DonorCell)+640)),
-    transfer_memory::Mul(savedCore.size(),sizeof(decltype(savedCore)::value_type)+4*sizeof(void*)),size_t(256)<<20);
+    transfer_memory::Mul(savedCore.size(),sizeof(decltype(savedCore)::value_type)+4*sizeof(void*)),size_t(256)<<20,
+    panelsOnly?(size_t(64)<<10):0);
 REQUIRE(retained<ceiling);budget.caller_bytes=retained;
 std::vector<DonorCell> donors;donors.reserve(imported.cells.size());
 for(const auto& row:imported.cells){DonorCell d;d.cell=row.second.cell;for(unsigned k=0;k<4;++k)d.sensor[k]=coreAt(d.cell.v[k]);donors.push_back(d);}
 const auto extensions=AssociatedExtensions(donors,*scope);
-state->field=std::make_unique<FrozenField>(std::move(donors),policy->Composition(),true,extensions,policy->Edges(),
+std::ofstream edgeSamples,edgeCuts;
+auto targetEdges=policy->Edges();
+if(panelsOnly) {
+  edgeSamples.open("actual_bl_edge_samples.tsv");edgeCuts.open("actual_bl_edge_cuts.jsonl");
+  REQUIRE(bool(edgeSamples));REQUIRE(bool(edgeCuts));
+  edgeSamples<<std::setprecision(21);edgeCuts<<std::setprecision(21);
+  targetEdges=[&,original=targetEdges](Point a,Point b) {
+    auto resolved=original(a,b);
+    edgeCuts<<"{\"a\":["<<a.x<<','<<a.y<<','<<a.z<<"],\"b\":["<<b.x<<','<<b.y<<','<<b.z<<"],\"cuts\":[";
+    for(size_t j=0;j<resolved.cuts.size();++j){if(j)edgeCuts<<',';edgeCuts<<resolved.cuts[j];}
+    edgeCuts<<"]}"<<std::endl;REQUIRE(bool(edgeCuts));
+    resolved.pinned=[&,original=std::move(resolved.pinned),a,b,calls=size_t(0)](long double t,Point p,Tensor sensor) mutable {
+      REQUIRE(++calls<=65536);
+      const auto target=original?original(t,p,sensor):policy->Composition()(p,sensor);
+      edgeSamples<<t<<'\t'<<MetricNorm(a,b,target)<<'\t'<<p.x<<'\t'<<p.y<<'\t'<<p.z<<'\t'<<budget.work<<'\n';
+      REQUIRE(bool(edgeSamples));return target;
+    };
+    return resolved;
+  };
+}
+state->field=std::make_unique<FrozenField>(std::move(donors),policy->Composition(),true,extensions,targetEdges,
     std::make_shared<const FrozenMetricIdentity>(),true,std::max(MaximumDonors,imported.cells.size()));
 state->retained_bytes=[&]{return retained;};
 state->admit_scratch=[&](size_t bytes){if(transfer_memory::Add(retained,bytes)>ceiling)

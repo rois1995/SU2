@@ -1,0 +1,206 @@
+{
+  "scope": "Bounded existing-edge numerical-work attribution, no production numerical/policy change or mesh acceptance.",
+  "source_and_runtime_pins_verified": true,
+  "production_binary_identical388": true,
+  "build": {
+    "state": "terminal",
+    "exit_code": 0,
+    "seconds": 198.18272495269775,
+    "pins_verified": true,
+    "changed": [],
+    "completed_build": true,
+    "binaries": {
+      "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver": "f23fffe875861160b269a4938c55ef9630bc15d416ba7b397e534c80d6143dce",
+      "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/SU2_CFD/src/SU2_CFD": "035ec27fda7abeb7b1b9c0ffb6e9b048e5feaf8f8904aaab35db4dce330be209"
+    }
+  },
+  "trace": {
+    "path": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved389_target_panels_20261111T174451_2785110",
+    "status": {
+      "state": "terminal",
+      "exit_code": 1,
+      "seconds": 355.9332277774811,
+      "pins_verified": true,
+      "changed": [],
+      "largest_sampled_individual_process_rss_bytes": 1721245696,
+      "rss_note": "sampled process RSS; not a whole-job peak"
+    },
+    "terminal": {
+      "actual_host_proc": true,
+      "all_owned_handles_terminal": true,
+      "live_owned_handles": [],
+      "sampled_identities": [
+        {
+          "pid": 2785194,
+          "start_ticks": 46353295
+        },
+        {
+          "pid": 2785195,
+          "start_ticks": 46353295
+        },
+        {
+          "pid": 2785196,
+          "start_ticks": 46353295
+        },
+        {
+          "pid": 2785197,
+          "start_ticks": 46353296
+        }
+      ],
+      "wrapper_excluded": {
+        "pid": 2785110,
+        "start_ticks": 46353095
+      },
+      "checked_unix": 1794420175.418799,
+      "wrapper_verified_terminal": true
+    },
+    "counters": {
+      "context": "actual_failed_chord",
+      "stage": "existing_counters",
+      "field": {
+        "queries": 20,
+        "query_misses": 20,
+        "compositions": 8178,
+        "edge_integrations": 2,
+        "edge_compositions": 8158,
+        "edge_pieces": 2
+      },
+      "edge_failures": 1,
+      "edge_geometry_seconds": 111.038595977,
+      "edge_composition_seconds": 182.86140000699953,
+      "edge_seconds": 293.90682748,
+      "cumulative_perf": {
+        "ops": {
+          "Column directions": {
+            "count": 1,
+            "seconds": 0.36852265,
+            "ms_per_op": 368.52265
+          }
+        },
+        "caches": {
+          "length_hits": 0,
+          "length_misses": 0,
+          "length_failures": 0,
+          "shape_hits": 0,
+          "shape_misses": 0,
+          "height_hits": 0,
+          "height_misses": 0,
+          "rejection_cache_skips": 0,
+          "geometry_length_hits": 0
+        }
+      }
+    },
+    "geometry_counters": {
+      "context": "actual_failed_chord",
+      "stage": "existing_geometry_counters",
+      "closest_region_hits": 3988253,
+      "closest_region_misses": 461985,
+      "closest_region_build_seconds": 15.34655092199991,
+      "closest_answer_hits": 6762,
+      "closest_answer_misses": 11801,
+      "closest_answer_refinements": 139,
+      "closest_answer_stores": 11800,
+      "closest_answer_refusals": 0,
+      "closest_projection_attempts": 12188,
+      "closest_projection_improvements": 11129,
+      "closest_projection_work": 385137,
+      "prepared_bytes": 349669984,
+      "memo_direct_hits": 0,
+      "memo_direct_misses": 0
+    }
+  },
+  "point_replay": {
+    "path": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved389_dominant_panel_points_20261111T175427_2805577",
+    "status": {
+      "state": "terminal",
+      "exit_code": 0,
+      "seconds": 61.72464680671692,
+      "pins_verified": true,
+      "changed": [],
+      "largest_sampled_individual_process_rss_bytes": 1408557056,
+      "rss_note": "sampled process RSS; not a whole-job peak"
+    },
+    "terminal": {
+      "actual_host_proc": true,
+      "all_owned_handles_terminal": true,
+      "live_owned_handles": [],
+      "sampled_identities": [
+        {
+          "pid": 2805653,
+          "start_ticks": 46410938
+        },
+        {
+          "pid": 2805654,
+          "start_ticks": 46410938
+        },
+        {
+          "pid": 2805655,
+          "start_ticks": 46410938
+        },
+        {
+          "pid": 2805656,
+          "start_ticks": 46410938
+        }
+      ],
+      "wrapper_excluded": {
+        "pid": 2805577,
+        "start_ticks": 46410728
+      },
+      "checked_unix": 1794420175.419018,
+      "wrapper_verified_terminal": true
+    }
+  },
+  "parser_check": {
+    "command": [
+      "python3",
+      "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/assess_target_panels389.py",
+      "--self-test"
+    ],
+    "exit_code": 0,
+    "stdout": "self-test passed\n",
+    "fixes": "Constants copied from source; long-double2e-18protocol tolerance only for offline matching, not measurement. Complete malformed blocks rejected; pair order checked; active leaves and partial lastsplit retained."
+  },
+  "analysis_pins": {
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/assess_target_panels389.py": "780c3b9e81507f8958b3ad682559c2f14a4aaa91df65f28e8c8da5ce2d2d2498",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/target_panels389_assessment.json": "9c7f26b970c3b664e71f6f5d57d4b75479bc55080fee81e86e2ab3af34198efe",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/dominant_points389_assessment.json": "5466713ad9b63ce30a60b5b88b0f8e4f0de74dd9f6615c473fb98e4776557657",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_bl_inputs/dominant389_point_frames_v1/minimizer_attribution.json": "1db26d006a2a070d92016cecf33aa7af3f7ff311cefb85ebe7d5f154d23ffefe",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_bl_inputs/dominant389_point_frames_v1/provenance.json": "06f4bd79a7a47b8cb2bc05d63bc1bc83a3987aa9fe24e0921adf6961af706825"
+  },
+  "initial_evaluations": 3870,
+  "complete_refinement_evaluations": 4275,
+  "trailing_successful_evaluations": 12,
+  "dominant_initial_interval": {
+    "cut_interval": [
+      "0.000294775210939235421392",
+      "0.000589896934322098331904"
+    ],
+    "active_leaves": 116,
+    "panels": 232,
+    "initial_panels": 1,
+    "refinement_panels": 231,
+    "evaluations": 3480,
+    "estimated_integral": "0.47855479173114025662556941406024287514872169353195",
+    "summed_G7_K15_difference": "0.0000018200957989434301119606026260621509707598655918553",
+    "geometry_work_delta": "1459415",
+    "max_depth": 9
+  },
+  "dominant_refinement_evaluation_share": 0.8105263157894737,
+  "dominant_remaining_estimator_share": 0.819176376136419,
+  "last_complete_estimate": "42.068987461296701726740491019860280070181174488952",
+  "last_complete_estimated_error": "0.0000022218607029755529028815113893603307471972446885530",
+  "numerical_allowance": "4.2069987461296701726740491019860280070181174488952E-8",
+  "confirmed": [
+    "Initial coverage completes; refinement is strongly localized near a released seam at root.",
+    "At two actual dominant-leaf nodes, default vs tighter distance queries change exact bindingdim2-to1 and full tensor~2.53% despite tiny foot/distance change. Scalar height changes~8.6e-8relative.",
+    "Existing source grades core nodal sensors; composed BL target only has profile/ray mechanisms and a reporting audit, no continuous composed gradation guarantee.",
+    "Point distance-width and quadrature-estimator tolerances are not one end-to-end normal/tensor error budget."
+  ],
+  "unresolved": [
+    "True integral/error and safe action enclosure remain unavailable.",
+    "Fixed10actual error remains unknown; no unconditional replacement justified.",
+    "Prepared-support witness reuse is not implemented or performance-proven.",
+    "Complete target checkpoint, usable generated BL, native MPI BLconstraint qualification and RANS workflow remain pending."
+  ],
+  "next": "Review existing prepared competitive facet/subtree candidates for valid upper witnesses inside ORIGINAL query/proposal work. Preserve exact allowed support/body/bindings and global lower proof. No cap increases, interior-binding promotion or new metric/geometry representation."
+}

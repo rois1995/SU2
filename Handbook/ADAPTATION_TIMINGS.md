@@ -556,3 +556,49 @@ EVERYrank/305.900s (6786–7091assertions/rank), including empty ranks/migration
 state/resources. These establish affected contracts, NOT native MPI BLgeneration.
 Next is bounded existing-panel/error attribution and purpose-specific measurement
 requirements. Do not claim speedup from stabilized normals or fewer queries alone.
+
+
+##389 bounded edge-work attribution (production binary unchanged388)
+
+Build389198.183s changes ONLYtestfixture tracing. Raw existing edge callback returns
+same tensors/algorithm; source/runtime/input pins intact. Original chord TERMINAL1/
+355.933s at SAME300s atlas deadline:111.0386spreparation,182.8614scomposition,
+293.9068stotaledge,8158attempted evaluations. Trace itself adds overhead; these times
+are diagnostic, not a new baseline/performance result. Largest sampled individual
+RSS1721245696B, not whole-job peak. No complete scalar/new mesh; source61330nodes/
+303359tets unchanged. R/metric_edge389_attribution.json.
+
+| Work | Count/units | Useful finding |
+|---|---:|---|
+| Geometric cuts / initial panels |259/258|Initial coverage completes |
+| Initial quadrature evaluations |3870|47.44%of8157successful samples |
+| Complete refinement evaluations |4275|52.41%;12further samples in partial last panel |
+| Complete measured panels / maxdepth |543/9|Depth20cap is not the failure |
+| Known initial/refinement geometrywork |1427161/1791945|Exclude query0/unmeasured baseline and unfinished lastpanel work |
+| Dominant root interval evaluations |3480|3465refinement samples =81.05%of complete refinement work |
+| Dominant root remaining estimator |1.82010e-6|81.92%of total2.22186e-6estimated error |
+| Lastcomplete partition estimate/allowance |42.06898746/4.207e-8|NOT converged/accepted;53xerror allowance remains |
+
+The dominant interval t=[.000294775210939,.000589896934322]has only~1.14%of estimated
+integral but~82%of estimated error. The sum uses ACTIVEleaves; split parents are not
+double-counted. Parent survives incomplete lastsplit. Reconstructed numerical
+G7/K15differences are NOT conservative error enclosures. Long-double trace matching
+uses2e-18ONLYoffline, not production integration tolerance. Parser self-check covers
+source constants, node order/pair swaps, tiny rounded cuts, bad full blocks and
+partial coverage. First cumulative samplework1888199includes prep and is unassigned;
+it must not be counted as one query's work.
+
+Existing prepared12point probe (6actual largest-error leaf nodes, default/tighter
+certificates) TERMINAL0/61.7246s,6646point geometrywork/.397647spoint evaluation,
+RSS1408557056Bsampledindividual. Two fixed-query pairs change near-seam interior to
+edge binding, foot6.51e-11/2.27e-10, normal~.01752, fulltensor~2.53%, chordspeed~.015%;
+scalarhnonly~8.6e-8relative. Geometry-result instability is a measured contributor,
+not proof that all variation is noise or that relaxed scalar precision is safe.
+
+Reuse existing standalone minimizer on TWOactual nets/sixquerypoints: facet35672
+points0/1cap at64while30335converges19/39. Diagnosticfull-loop allowance4096still
+leaves two nonconverged cases; no production limit was raised. Earliest existing
+KKT condition sometimes precedes return, but early checking alone cannot fix all.
+Next review EXISTINGcompetitive prepared supports for valid upper witnesses within
+original work admission, global lower/clearance proof and exact body/support.
+No speedup or usable BLclaim follows from these diagnostics; remain stage2.

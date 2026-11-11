@@ -1,0 +1,38 @@
+{
+  "source_case": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved389_target_panels_20261111T174451_2785110",
+  "source_pins": {
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved389_target_panels_20261111T174451_2785110/actual_bl_edge_samples.tsv": "f4a26bba91b7827ace5741f770faa4f0c9ec0fc540b4dd466765254067483b33",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved389_target_panels_20261111T174451_2785110/actual_bl_edge_cuts.jsonl": "6ddc41b0d5b4b82b8cbd23f0a972e49ba6353156a3616a779143298f78cd85a5",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/target_panels389_assessment.json": "9c7f26b970c3b664e71f6f5d57d4b75479bc55080fee81e86e2ab3af34198efe"
+  },
+  "selection": "Six actual nodes from the largest-error active leaf in the completed trace; exact represented coordinates, same saved371target. Default/tighter certificates only, no edge integration or target change.",
+  "panel": {
+    "lo": "0.00047922628805352474046330124880748943401302710524395",
+    "hi": "0.00048383756498138197343789875119251056598697289475605",
+    "value": "0.0073859878686610179249928134981328903599756300947549",
+    "error": "4.8910534408218534971970357253209042468560247366147E-8",
+    "first": "4650",
+    "rows": "15"
+  },
+  "indices": [
+    0,
+    1,
+    2,
+    7,
+    8,
+    13
+  ],
+  "parameters": [
+    "0.000481531926517453356951",
+    "0.000479245988878528590094",
+    "0.000483817864156378123807",
+    "0.000479822223693732803347",
+    "0.000483241629341173910554",
+    "0.000481052849532961469231"
+  ],
+  "points_sha256": "9958737900ebcd045865960adf93223ba126d821d2378182b441b931b978dc17",
+  "limitations": [
+    "Numerical G7/K15 difference is not a conservative error bound.",
+    "No normal accuracy proof; no constructed patch."
+  ]
+}

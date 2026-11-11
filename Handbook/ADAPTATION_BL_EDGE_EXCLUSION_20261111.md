@@ -390,3 +390,107 @@ accuracy need. Reuse saved edge/evidence; no more speculative projection variant
 raised budgets, blanket trial/tolerance reduction or ten-point replacement. No safe
 composed action interval has yet been demonstrated. Stage3requires a credible target
 and faithful complete checkpoint first; analytic fixtures are insufficient.
+
+
+##389bounded existing-panel attribution — test-only
+
+Missing evidence: aggregate388counters cannot separate initial panel coverage from
+adaptive refinement or locate remaining numerical error. Reuse the original saved
+edge and prepared371target in the existing actual-M6loader. A test-only wrapper of
+the existing EdgeGeometry pinned callback returns the identical tensor once, while
+streaming at most65536successful samples: parameter, speed, represented coordinates
+and cumulative geometrywork. Export existing cuts after their normal construction.
+64KiBstream allowance admitted; no target/geometry/integration decisions, tolerance,
+limits or production configuration changes. Same300s atlas/600souter. CFD binary must
+remain identical388; no redundant MPI campaign for a test-only diagnostic.
+
+Expected output: offline reconstruction of completed G7/K15panels, initial versus
+refined work, local value/error and dominant remaining intervals. Accept diagnostic
+only if node protocol, partitions and work accounting match; partial last panel and
+missing initial coverage stay explicit. Reconstructed estimator is NOT a conservative
+integral bound and must never drive acceptance. First synthetic parser checks cover
+constant/linear rules, split panels, pair order and partial panels. Then one actual
+bounded trace; no new baseline/perf/GDBcampaign. Trace overhead precludes interpreting
+small wall-time changes as performance. Remain stage2and select no new production
+variant before attribution. Geometry-result uncertainty remains separately unproven.
+
+
+389read-only gradation audit: CSolver.cpp:3072–3163grades sensor blMetric over the
+nodal graph (max256sweeps); explicit comments exclude geometry wall tensor/normal
+reset. Composed audit3673–3717/3853–3861reports violations without spreading the BL
+field. TargetPolicy::Update285–302synchronizes full/base tangent/normal profiles and
+transitions. Requested NormalSize(h0,g,d), tangential transport/rotation, genuine-
+feature slope and per-wall radial continuation are pointwise/profile mechanisms,
+not a continuous composed derivative enclosure. CBoundaryLayerMetric.cpp:2349–2351
+explicitly distinguishes fixed-ray continuation from changing nearest-wall frames.
+Prescribed physical BLvariation must not be silently graded away.
+
+ClosestCurved distance-width2e-12does not certify candidate foot/normal angle;
+CNativeAffineReference.hpp documents local differential values separately. The
+G7/K15stopping estimator1e-9*abs(total)+1e-12applies to evaluated callback values,
+not target uncertainty from feet/frames. Their numerical magnitudes cannot be
+compared as one end-to-end error budget.388removes exact-binding side ambiguity;
+remaining interior-foot/tangent/normal uncertainty still needs attribution.
+
+
+389diagnostic acceptance refinement: distinguish paying15samples on each INITIAL
+geometric interval from adaptive subdivision driven by G7/K15estimated error.
+Neither counts nor a deadline alone establishes excessive precision. If initial
+coverage is incomplete, no full integral/error estimate can be reconstructed and
+that outcome must remain explicit. Work deltas exclude unmeasured first-query work;
+its cumulative value includes preparation and must never be charged to one panel.
+Synthetic parser checks are passing before actual collection. Reconstruction must
+use active leaves only, not sum split parents plus children; a failing child pair
+retains its parent in the production total until BOTHchildren complete.
+
+
+##389terminal trace — refinement localized, causal attribution still pending
+
+Actual trace TERMINAL1/355.933s at SAMEdeadline, CFD binary identical388, pins intact
+and actual-host identities terminal.259cuts/258initial panels.543complete panels,
+12successful samples in unfinished last panel.3870initial evaluations,4275complete
+refinement evaluations; first-query work baseline unassigned. Maxdepth9, not depthcap.
+One initial root interval[.0002947752109392354,.0005898969343220983]uses3480evaluations
+(231refinement panels plus initial; incomplete last sibling preserved),~81%of complete
+refinement evaluations and~82%of remaining estimated error. Reconstructed LASTcomplete
+partition estimate42.06898746,error2.2218607e-6vs4.2069987e-8allowance. These are numerical
+estimates at the failure, NOT a converged integral/certificate/final acceptance.
+
+Offline parser corrects source-literal copying and allows long-double rounding in
+node-protocol matching; mismatched complete15node blocks now FAILrather than being
+mislabelled arbitrary-size partial panels. Constants copied exactly from current
+source; sample order/pairs, Decimal input and active-leaf accounting independently
+checked. No production behavior changes. Partial lastsplit retains parent until both
+children complete. Raw capture and hashes preserved in target_panels389_assessment.json.
+
+Next bounded existing12point probe selects6ACTUALnodes of highest-error active leaf
+[t=.000479226288054,.000483837564981], first default2e-12then tighter2e-14requests,
+SAMEprepared371target. Compare full tensor/normal/foot at identical physical queries
+and fixed reconstructed incoming sensor. Sourcepoint coordinates are exact represented
+binary64 values; reconstructed sensor parameter is labelled, not exact original
+quadrature arithmetic. Input/provenance in m6_bl_inputs/dominant389_point_frames_v1.
+Physical variation versus geometry-result noise remains unresolved until this probe.
+
+
+##389dominant-point result and bounded witness attribution
+
+Prepared6pairs (actual largest-error leaf nodes) PASS61.725s/6646point work/.39765s.
+Two fixed-query pairs default→tighter change near-seam facet-interior binding to edge
+361: foot6.51e-11/2.27e-10, normal~.01752, fulltensor2.53%, chordspeed.015%, scalarhn
+~8.6e-8relative. This is geometry-result instability in the dominant numerical-error
+interval, not evidence to promote interior bindings. Exact-binding388rule remains
+valid and intentionally cannot merge these different supports. True global integral
+and a conservative action enclosure remain unavailable.
+
+Existing isolated minimizer on exactnets30335/35672and SAME6queries:35672points0/1
+exhaust64callbacks, whereas30335converges19/39. A4096diagnostic allowance still does
+not converge30335point3/35672point1. Thus neither raising caps nor early KKT alone is
+a demonstrated complete fix. No production budget/algorithm changed; source/results
+in dominant389_point_frames_v1/minimizer_attribution.{cpp,json}. Global query's
+polish uses currentbest facet before/after global subdivision; competitive prepared
+facets are not explicitly polished. Next assess reusing those existing supports for
+a LEGALcertified upper witness, within ORIGINALproposal/work budget, rather than
+repeating an ineffective same-facet solve. No new operator or geometry authority.
+Any change requires full allowed-component lower/clearance proof, canonical interval
+witness, body/support identity, accounting, focused constraints and actual chord.
+No implementation/performance benefit from this hypothesis has been established.

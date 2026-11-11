@@ -1,76 +1,86 @@
 # Native adaptation — current handoff
 
-Updated2026-11-11 Europe/Rome. Goal ACTIVE. ONE connected curved-BL cycle and one
-owned heavy workload. R=`integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57`.
+Updated2026-11-11 Europe/Rome. Goal ACTIVE. ONE connected curved-BL cycle/one owned
+heavy workload. R=`integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57`.
 Read AGENTS.md, [ordered stages](Handbook/ADAPTATION_CURVED_BL_STAGE_INTEGRATION_20261111.md),
 [current accuracy/exclusion design](Handbook/ADAPTATION_BL_EDGE_EXCLUSION_20261111.md),
 [normalization](Handbook/ADAPTATION_CURVED_BL_NORMALIZATION_20261111.md),
 [timing/work ledger](Handbook/ADAPTATION_TIMINGS.md) and [HowToProceed](HowToProceed.md).
-History/source receipts remain in [pre388snapshot](Handbook/ADAPTATION_HANDOFF_HISTORY_PRE_388_20261111.md)
-and [pre384snapshot](Handbook/ADAPTATION_HANDOFF_HISTORY_PRE_384_20261111.md).
-Historical RUNNING/next-action text is not live state.
+History: [pre388](Handbook/ADAPTATION_HANDOFF_HISTORY_PRE_388_20261111.md),
+[pre384](Handbook/ADAPTATION_HANDOFF_HISTORY_PRE_384_20261111.md). Historical RUNNING/
+next-action notes are not live state.
 
 ## Actual source/build/owned workload — authoritative
 
-Current workload: NONE. Build388, serial, MPI6, prepared-target and original-chord
-checks TERMINAL;42actual-host PID/start identities reverified absent, all pins intact.
-R/seam388_qualification.json. Source checkpoint04e7977ebc PUSHED; qualification
-record preserves both passing component checks and FAILED actual-chord outcome.
-Build64.133s. CFD SHA035ec27fda7abeb7b1b9c0ffb6e9b048e5feaf8f8904aaab35db4dce330be209.
-Test SHA d54c2625dc8f1a9dbbc1580cbbed8403169414c2652d948246b2267814826ecb.
-Serial52cases/7288assertions251.554s; MPI6passes54cases EVERYrank,6786–7091assertions/
-rank305.900s. Native MPI BLgeneration still UNQUALIFIED; FIRST_ROWnative1guard remains.
+Current workload: NONE. Build389/panel trace/dominant-point replay TERMINAL;
+20actual-host PID/start identities reverified absent. All source/binary/input/runtime
+pins intact. R/metric_edge389_attribution.json. Bounded standalone numerical helper
+also exited0; no production source change in389, no new production variant selected.
+Build389198.183s; CFD byte-identical388:
+035ec27fda7abeb7b1b9c0ffb6e9b048e5feaf8f8904aaab35db4dce330be209.
+Test SHA f23fffe875861160b269a4938c55ef9630bc15d416ba7b397e534c80d6143dce.
+Test-only wrapper returns same callback tensor, streams<=65536samples/64KiBadmission.
+Reuse388production qualification: serial52cases/7288assertions251.554s; MPI6passes
+54cases EVERYrank/6786–7091assertions/rank305.900s. No redundant389MPIcampaign.
+Native MPI BLgeneration still UNQUALIFIED; FIRST_ROWnative1guard remains.
+Latest pushed source/evidence checkpoint11fc02fd95;389evidence checkpoint follows.
 
-387prepared actual-M6 target proved a root cause: identical exact dim1binding/foot
-with prepared mobilitydim2can select two differential sides, changing COMPLETEtensor
-2.53%/original-chord speed.015%.388canonically chooses the lowest exact supported
-facet only within SAMEwall/component/prepared body at released seams. No coordinate
-coincidence, normal averaging or interior-binding promotion. Genuine features,
-unprepared fallback and explicit forward surface association remain sided. Distance
-certificate/point/normal law unchanged; support/evaluation work charged. Closest
-cache unchanged. All ProjectWall callers audited; bounded review found no blocker.
+##389demonstrated attribution — no complete edge/target/BL yet
 
-Prepared388replay12points PASS61.718s,5738point work vs3875519(+3.97%); exact same-
-binding/foot pairs now bit-identical FULLtensor, normal, chord speed and scalar height.
-R/target_stability{387,388}_assessment.json. Separate dim2same-facet pair still has
-9.82e-10foot shift/2.50e-7relative speed discrepancy. No global normal-accuracy proof.
+Original saved chord trace TERMINAL1/355.933s at SAME300s atlas/600souter.111.039s
+geometry prep,182.861scomposition,8158attempted integrand evaluations,8157successful
+samples. Trace overhead means no timing gain claim.259cuts/258INITIALpanels use3870
+samples;285complete refinement panels use4275samples +12partial. Maxdepth9, not cap.
+ONEroot interval[t=.000294775210939,.000589896934322]uses3480samples,81.05%of complete
+refinement samples and81.92%of remaining numerical error. Lastcomplete partition
+estimate42.06898746,error2.22186e-6 vs4.207e-8allowance; NOT converged/certified scalar.
+R/target_panels389_assessment.json; raw trace/cuts and strict-parser self-check retained.
 
-Original388chord FAILED again SAME300s atlas/600souter: wrapper356.000s, preparation
-111.088s (386106.972),8163integrand evaluations (3868359),composition182.703s,
-contextwork5114485. CPU350.19user+1.05system/351.55command-wall;99%CPU, not evidence
-of major contention. Timers overlap; no final length, mesh or workflow speedup.
-R/geometry_target388_assessment.json. Refusal q=[.0023826985501798066,
-3.2580523622618771e-6,-.0076345929016125059],hint10154,wall0,error2e-12.
+Bounded prepared12point replay of6ACTUALworst-leaf nodes PASS61.725s/6646work/.39765s
+point evaluation. At two IDENTICALquerypositions, default2e-12vs2e-14request changes
+near-seam facet-interior binding to genuine edge binding: foot shift6.51e-11/2.27e-10,
+full tensor2.53%, chord speed.015%; scalarhnchanges~8.6e-8relative. Thus geometry-result
+noise is a demonstrated contributor to the numerical-error hotspot, not solely real
+BLvariation. R/dominant_points389_assessment.json; input/provenance in
+R/m6_bl_inputs/dominant389_point_frames_v1.388exact-binding canonical side rule is
+working but intentionally does NOT merge different bindings or promote interiors.
 
-## Next ACTIVE analysis — remain stage2, no new production variant selected
+Existing standalone minimizer, SAMEtwo actual nets/sixpoints:35672forpoints0/1hits64
+proposal cap;30335converges19/39callbacks. Allowing4096DIAGNOSTICcallbacks still leaves
+some cases nonconverged: cap increases are NOT a solution/authorization. Early KKT
+checking alone also cannot fix every failure. minimizer_attribution.{cpp,json} in
+same input folder; this is a bounded numerical check, NOT a geometric certificate.
 
-Use existing saved edge/counters and source to attribute quadrature work/error to
-physical combined-target variation versus candidate-foot/normal noise, bounds and
-accuracy requirements. No more speculative minimizer/seam variants, raised caps,
-relaxed tolerances, new baseline/perf/GDB campaign. Need a bounded analysis of the
-existing integration panels/remaining uncertainty before another correction.
-388fixes a demonstrated target inconsistency; useful chord completion is not proven.
+## Next ACTIVE work — connected prepared-support review, remain stage2
 
-Audit classification/ranking/balanced insertion/candidate conformity/final checks
-separately. Existing analytic SensorEdgeLength is a mathematical lower-bound route
-where composition preserves sensor, with outward numerical margin still required
-for a proof. Hard edge sensor.388is inconclusive. No ready composed upper bound found.
-Do not use classification bounds/GL10estimates as accurate ranking/placement/final
-measurements. Existing G7/K15error estimator is NOT a conservative integral enclosure.
-382GL10controls show up to1.7%error; actual M6reference refused, actual error UNKNOWN.
-Uncertain bounds/refinement exhaustion must fall back/refuse, never accept.
+Source ClosestCurved polishes only its currentbest facet before/after subdivision.
+Review reuse of EXISTINGcompetitive prepared facets/subtrees for valid upper
+witnesses inside ORIGINALquery/proposal budget, rather than repeating ineffective
+same-facet work. Actual alternate30335solve above supports this investigation;
+selection/performance/safety are still hypotheses, NOT implemented. Reuse existing
+candidate/support discovery; no larger-cavity campaign/new geometry/scheduler/config.
+Any candidate must be certified by canonical binding+outward ParameterBox/Blossom;
+retain complete allowed support/body identity, global lower proof, clearance,
+active-reference/memory accounting and final gates. Never promote interior bindings
+from coordinate coincidence. Do not just raise caps, tighten distance globally,
+relax quadrature tolerances or add another speculative minimizer variant.
 
-383WHOLE-EDGE EXCLUSION QUALIFIED: all-wall/full-influence conservative support bounds
-in both factories; exact analytic P1integration/inverse bypass with versioned identity
-checks. Serial23cases, MPI6 25cases EVERYrank,5actual-context controls. Original5M6edges
-remain nonexcluded/full path; translated outside controls exact background agreement
-and0composed samples. R/edge_exclusion383_qualification.json.380shared closest/cache,
-385bounded certified witnesses and386active-edge/KKT correction preserved.386prep
-improved versus380but still no scalar. Reuse qualifying evidence within its scope.
+Classification/ranking/insertion/conformity/final requirements remain distinct.
+Analytic sensor-only length.388is an inconclusive lower-bound route on this edge;
+no ready composed upper/action enclosure is established. G7/K15estimator is NOT a
+conservative integral bound.382GL10controls have up to1.7%error; actual GL10error
+still UNKNOWN because no converged reference. No fixed-rule replacement selected.
+Core nodal gradation excludes BLtensors. BLnormal/tangent/transition mechanisms grade
+profiles/rays; no continuous composed guarantee. Distance-width does NOT bound normal
+angle or complete tensor error. Preserve physicalh0/g/T; do not grade them away.
 
-Earlier broad MPI380was NOT wholly green:84of85cases pass EVERYrank; unchanged planar
-automatic-repair fixed-count assertion expects3cells but gets6. Keep failure/backlog
-before final broad integration; do not start a competing repair cycle.
+383whole-edge exclusion QUALIFIED in BOTHfactories, exact P1integral/inverse bypass,
+versioned identity/stale checks; original5M6edges nonexcluded, translated controls
+exact background/0composed samples. R/edge_exclusion383_qualification.json.380cache,
+385bounded certified witnesses,386active-edge/KKT and388exact-supported seam side
+improvements preserved.388serial/MPI qualifies affected contracts, not full BL.
+Broad MPI380NOTwhollygreen:84/85cases EACHrank; unchanged planar fixed-count3vs6failure
+stays in backlog for final integration, not a competing current repair cycle.
 
 ## Stage inputs and credible-output requirements
 
