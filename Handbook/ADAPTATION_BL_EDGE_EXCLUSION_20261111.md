@@ -569,3 +569,41 @@ as already documented385/386. This inherited bounded-availability tradeoff does 
 allow uncertified results; no claim optional work can never cause bounded refusal.
 Post-traversal scans/proposals fit explicitly in remaining work, cacheadmission
 skipsifnecessary. Judge useful completion, not attempt/improvement counters alone.
+
+
+##391terminal qualification and newrefusal — first improvement is insufficient
+
+FinalserialPASS53cases/7307assertions252.571s; ONE MPI6PASS55cases EVERYrank,
+6805–7110assertions/rank305.851s. Eligibility19assertions and original6hotspot pairs
+also pass. Source checkpoint6c73e637e0. Geometry/query contracts qualified in focused
+scope; native MPI BLgeneration remains unqualified. R/prepared391_qualification.json.
+
+Original chord STILLrefuses SAME300s atlas/600souter:356.014swrapper,109.4728sprep,
+8491integrand evaluations,184.3615scomposition,5903245contextwork. No length or newmesh.
+CPU350.35user+1.06system; timers overlap. Prepared bytes449955008; largest sampled
+individual RSS1813536768B, not wholejob peak. No computational speedup established.
+Refusal now q=[.0024597140053985514,.00014749340572871503,-.0076241276755620781],
+t≈.02185onoriginalchord; different interval alone does not prove whole-root closure.
+
+Newbounded12point probe PASS61.778s/8960pointwork/.31849spoint evaluations. Central
+actualquery and3nearbycontrols default2e-12→2e-14change edge361binding tofacet35672
+interior: foot5.49e-9–6.13e-9,normal~.00854,fulltensor~1.22%,chordspeed~3.54e-5relative.
+Scalarhnchanges~3e-9relative. Two farthercontrols agree. Different bindings must NOT
+be merged/promoted bycoordinatecoincidence. Source/results in
+m6_bl_inputs/refusal391_point_frames_v1, refusal_points391_assessment.json.
+
+Bounded same local minimizer on both ACTUALnets now CONVERGESwithin64forALL6queries:
+30335edgewitness31callbacks,35672trueinteriorwitness31or56. Interiorparams match tighter
+global result. This is no longer a proposal-cap failure. Source391postloop exits
+on ANYupperimprovement, leaving a secondallowed actual opportunity unused after an
+initialvertexskip. Validedgeupper need not be bestcompetitive witness; normal-based
+field can therefore remain unstable although distancewidth meets its contract.
+
+Next connected correction is to COMPLETEthe original TWOdistinct witness opportunities
+instead of stopping after firstimprovement; choose best certified upper after both.
+No cap/minimizer/tolerance/operator/geometry/metric/config change. Everyproposal still
+passes canonical interval upper proof; global allowed-component lower, final
+clearance/differential/cache and allresource/physical gates stay unchanged. This
+hypothesis is supported by exact31/56callback witnesses, but NOT implemented or
+performance-qualified yet. Validate old+newactualpoints and originalchord, not only
+subsetfixtures. All52owned actual-host391identities reverified terminal; nofrozenjob.

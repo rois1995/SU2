@@ -34,15 +34,17 @@ samples and82%of remaining estimated error. At two actual hotspot points, tighte
 certificates change near-seam interior to edge bindings and alter the fulltensor2.53%.
 These are DIFFERENTbindings; do not extend canonicalization by coordinate coincidence.
 
-Currentproductionbinary remains388;389only adds a bounded test-only trace/parser.
-All owned handles terminal, evidence/pins in staged57/metric_edge389_attribution.json.
-Review existing competitive prepared supports for a valid upper witness within the
-ORIGINALproposal/query budget. On these actualpoints, facet35672fails64callbacks while
-30335converges19/39; largerdiagnosticcap still leaves failures, so do not raise limits.
-This supports investigation, not a selected/proven production correction. Preserve
-complete allowed support/body, canonical interval witness, global lower/clearance
-proof, memory/reference accounting and every gate. No speculative minimizer variants,
-blanket tolerance changes, new target policy or ten-point replacement.
+Currentqualified391querysource6c73e637e0uses competitive preparedsupports within the
+originalmax2distinct64callback attempts. Serial53cases and MPI6 55cases EVERYrank
+pass; all6oldhotspotpairs are now bit-identical. The original chord STILLrefuses:
+109.473spreparation/8491evaluations/no scalar. No performancegain is established.
+Newrefusal at t≈.02185shows1.22%tensor jitter between edge andinterior bindings.
+Bothactualfacet solves converge31/56callbacks within64; the earlyexit after ANYupper
+improvement leaves a secondallowed witness unevaluated. Next complete BOTHdistinct
+opportunities, retaining canonicalinterval upperproof, completegloballower/clearance
+andoriginalbudgets. This correction is notimplemented/performance-proven yet. Test
+old+newactualpointsets andoriginalchord, not onlythe oldsubset. Do not raise caps,
+change metric/geometry/normalpolicy orrelax quadrature. Allowned391handles terminal.
 
 Stage2still needs a reasonable target and faithful composed checkpoint/reload before
 surface generation. Bounded accurate witnesses and active-edge handling are qualified, but still require

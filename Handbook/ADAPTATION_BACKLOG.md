@@ -1090,3 +1090,13 @@ Requested h0can impose suitability constraints stronger than final surface toler
 do not assume a physical minimum, select a curvature policy, change inherited scale
 or silently raise nominal target from these local estimates. This is the already
 queued Coulaud/MAdLib/tangential-profile investigation, not a competing change.
+
+## Deferred after391 witness completion — prepared separation invariants
+
+Current active correction is the demonstrated unused second-witness opportunity;
+do not start a competing optimization. If stable complete queries remain the
+measured bottleneck, review invariant separating directions/control projections in
+existing `CubicRegionGeometry`: millions of prepared-region hits still recompute
+geometric separation work. Reuse prepared data first; no new representation or
+speedup is established. Any experiment must preserve outward bounds, exact support,
+cache quotas/active references, cached-vs-recomputed agreement and resource refusal.

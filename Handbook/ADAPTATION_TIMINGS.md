@@ -617,3 +617,32 @@ work/.382740spoint evaluations. ALLsixpairs bit-identical foot/normal/fulltensor
 chordspeed/scalarhn. Pointwork+27.2%vs3896646, not a speedup. Additional scan/unused
 originalproposal opportunity are charged. Serial/MPI/fullchord qualification pending;
 normal stability alone does not establish construction or workflow improvement.
+
+
+##391terminal — subset stability improved, complete edge still unavailable
+
+R/prepared391_qualification.json, geometry_target391_assessment.json. Serial53cases/
+7307assertions252.571s and MPI6 55cases EVERYrank/6805–7110assertions/rank305.851s pass.
+Original6hotspot pairs are bit-identical, but originalchord TERMINAL1/356.014s under
+SAME300s atlas deadline. No scalar/newmesh/fulltargetcheckpoint. One actual query
+moved to t≈.02185; this alone is not a measured whole-root retirement result.
+
+| Quantity |388 |391 |
+|---|---:|---:|
+| Preparation s |111.0878|109.4728|
+| Integrand attempts beforedeadline |8163|8491|
+| Composition s (nested) |182.7027|184.3615|
+| Totaledge s |293.7983|293.8426|
+| Contextgeometrywork |5114485|5903245|
+
+Different certified candidates/cut/refinement trajectories; no fixed-work timing or
+speedup claim.391projection13252attempts/11791improvements/425690work;regionhits3873800/
+misses556993,rebuild18.5374sNESTED,prepared449955008B. Individual sampledRSS1813536768B,
+not whole-job peak. CPU350.35user+1.06system;no MPIwait attribution from thisserialrun.
+
+Newrefusal12point replay61.778s/8960pointwork/.318489spoint eval shows remaining1.22%
+fulltensor/~3.54e-5relative-speed instability foractualquery+3nearcontrols at two
+certificateaccuracies. Twofarthercontrolsagree. Localisolatedbothactualfacets all6
+queries converge31/56callbacks within64: firstvalidedgeimprovement skips a still-
+available betterinterior witness. Next is complete BOTHoriginaldistinct opportunities,
+not raisedcaps, changednormalpolicy or quadraturetolerance. No benefit established yet.
