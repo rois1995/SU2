@@ -34,17 +34,16 @@ samples and82%of remaining estimated error. At two actual hotspot points, tighte
 certificates change near-seam interior to edge bindings and alter the fulltensor2.53%.
 These are DIFFERENTbindings; do not extend canonicalization by coordinate coincidence.
 
-Currentqualified391querysource6c73e637e0uses competitive preparedsupports within the
-originalmax2distinct64callback attempts. Serial53cases and MPI6 55cases EVERYrank
-pass; all6oldhotspotpairs are now bit-identical. The original chord STILLrefuses:
-109.473spreparation/8491evaluations/no scalar. No performancegain is established.
-Newrefusal at t≈.02185shows1.22%tensor jitter between edge andinterior bindings.
-Bothactualfacet solves converge31/56callbacks within64; the earlyexit after ANYupper
-improvement leaves a secondallowed witness unevaluated. Next complete BOTHdistinct
-opportunities, retaining canonicalinterval upperproof, completegloballower/clearance
-andoriginalbudgets. This correction is notimplemented/performance-proven yet. Test
-old+newactualpointsets andoriginalchord, not onlythe oldsubset. Do not raise caps,
-change metric/geometry/normalpolicy orrelax quadrature. Allowned391handles terminal.
+Build392completes both original distinct upper-witness opportunities. Focusedserial
+53cases and MPI6 55cases EVERYrank pass; both saved6pair pointsets now agree exactly.
+Yet originalchord STILLrefuses SAME300s deadline:105.522spreparation/8907evaluations,
+no scalar or demonstrated performancegain. All original392handles terminal.
+Do not add more speculative witness/minimizer variants. The existing bounded
+GL10versusG7/K15 diagnostic is now terminal: widest interval completes195evaluations
+but GL10 differs.3186%; whole reference still exhausts300s, so whole error remains
+UNKNOWN. No lower-precision production path is enabled. All392handles terminal;
+use saved results and caller dependencies to select the next demonstrated correction. Classification, ranking, insertion and final measurement are
+separate contracts; an unproved numerical error estimate is not an action bound.
 
 Stage2still needs a reasonable target and faithful composed checkpoint/reload before
 surface generation. Bounded accurate witnesses and active-edge handling are qualified, but still require

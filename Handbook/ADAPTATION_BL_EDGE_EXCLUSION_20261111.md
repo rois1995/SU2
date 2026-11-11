@@ -607,3 +607,87 @@ clearance/differential/cache and allresource/physical gates stay unchanged. This
 hypothesis is supported by exact31/56callback witnesses, but NOT implemented or
 performance-qualified yet. Validate old+newactualpoints and originalchord, not only
 subsetfixtures. All52owned actual-host391identities reverified terminal; nofrozenjob.
+
+
+##392completion of the original two-witness policy
+
+391terminal actualpoint31/56callback evidence demonstrates that ANYimprovement is
+an insufficient stop condition for a normal-dependent target.392removes only that
+earlyexit: after a valid improvement, a remaining distinct competitive witness can
+still be evaluated. Loop/actual-attempt cap stays2, eachproposal64, totalquerywork and
+full-scan admission unchanged. No solver iteration, geometry/normal/target policy,
+query precision, configuration or acceptance change. Existing canonical interval
+upper proof remains the only way to update a witness, followed by complete lower/
+clearance/differential/cache state.
+
+Newregression exercises two competitive supports near an initialvertex and requires
+twoattempts within128callbackwork; restricted-only-facet regression still requires
+ONE useful solve/no duplicate. Focused serial/MPI omit only the unchanged expensive
+NativeCurvedMappedGuards target-construction case already passed391; both include
+changed closest/geometry/height/cache/resource behavior and MPIownership/emptyrank
+milestone. No communication or target-composition caller changed. Reuse391evidence
+only for unchanged scope; old ANDnewactual saved6pairs are rerun at392. Then original
+chord mustfinish under SAME300s/600s before a useful measurement claim.
+
+
+##392terminal: both witness opportunities qualified; whole edge still unresolved
+
+Focused serial53cases/5029assertions61.350s and MPI6 55cases EVERYrank65.526s pass.
+Both saved actual6pair pointsets now give bit-identical foot/normal/fulltensor/speed/
+hn at default/tighter requests. Additional actualpointwork is not a speedup.
+Original chord TERMINAL1/355.013s at SAME300s atlas:105.5218spreparation,
+8907evaluations/188.2862scomposition,9091472contextgeometrywork. No scalar/mesh.
+Refusal near t=.9968does not establish whole-edge convergence. The complete target
+still lacks a usable measurement on this edge; do not respond with speculative
+projection variants or increased limits. All original392identities terminal before
+starting the existing saved_target_accuracy fixture, unchanged source/build/target.
+It reports GL10whole and widest-subinterval comparison before whole numerical
+integration; if reference refuses, error stays UNKNOWN. No result changes repair
+choices, ranking, placement or final acceptance. Stay stage2.
+
+
+## Accuracy contract audit (392; no production tolerance change)
+
+| Purpose | Actual consumers | Required result / risk |
+|---|---|---|
+| Split/coarsen classification |Engine Selection::Candidate, BLState::Length |A conservative action interval could suffice, but current shared record holds a scalar |
+| Ranking |Selection::Priority/Queue, longest-edge choices |Ordering uses length, not just threshold membership |
+| Balanced insertion |FrozenField::BalancedSplitPoint; BLLayer/BLSplit/BLFirstRow9 |Whole integral and fresh prefix checks; relative1e-8 placement residual |
+| Candidate conformity |Metric3D::MeasureMetricCells; MeshOptimizer::Certified |Complete affected edges and size merit; existing surrogate is heuristic, not an enclosure |
+| Final acceptance |Whole-field measurement/census via Metric3D and RegionFieldService |Unresolved measurement cannot become accepted; strict maxedge1.8 unchanged |
+| Layer placement |BLState prospective row bracketing/inversion |Unit-metric intervals require more than a split/coarsen flag; physical h0/g must be checked separately |
+
+Metric3D::MeasureMetricCells caches the scalar into EdgeMeasure; Engine reuses it
+for queue ordering, size debt, changed-edge checks and migration records. Therefore
+putting a threshold bound in EdgeMeasure::length would change downstream semantics.
+RegionFieldService coordinate cache and FIRST_ROW length caches also return scalar
+values. Any future action-only route must stay separate from these scalar records
+and must recompute before a purpose needing actual length. No such new route is
+implemented without a useful proven bound on the difficult edge.
+
+Existing analytic P1 sensor integral is a lower-bound starting point only where
+composition is proven to preserve it in Loewner order; outward numerical enclosure
+is still required for certified action. On the actual chord its .388006743 lower
+value proves neither split (>1.8) nor coarsen (<.9). G7/K15 difference is not a
+conservative integral bound. Ten samples cannot prove that unsampled BL crossings
+or changing normals are absent. Exact outside-BL exclusion already bypasses all
+composed integration when its full support/version checks succeed.
+
+Source still shows only core nodal gradation and fixed-ray/profile continuation;
+there is no established global continuous composed derivative bound. Requested
+normal variation is not itself an error. The actual389error concentration and
+old/newpointset instability demonstrate geometry-result sensitivity as one cause;
+392point agreement does not prove that all remaining variation is genuine or that
+a relaxed quadrature tolerance would be safe. Keep this attribution gap explicit.
+
+
+392accuracy terminal outcome: SAME300s atlas exhausted after355.988swrapper.
+The widest retained interval [.1788552525,.4608000905] now has a completed numerical
+reference195evaluations/2.913s. GL10=1.551897632 versus1.556857441:relative.3186%,
+no split/coarsen threshold difference ON THAT INTERVAL. WholeGL10=39.19932377 is
+uncertified; whole reference refuses8821evaluations/182.953s. Whole error/ranking/
+balanced-placement consequences UNKNOWN. This demonstrates a localized measuring
+capability improvement; it does not validate ten-point substitution, a precision
+relaxation or whole-edge speedup. No production accuracy policy changed. Preserve
+R/edge_accuracy392_assessment.json, prepared392_qualification.json and raw logs.
+All392owned handles terminal/pins intact. Stay stage2; no new frozen workload.

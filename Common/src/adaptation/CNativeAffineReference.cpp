@@ -1839,7 +1839,8 @@ MappedFacetReference::CurvedClosest MappedFacetReference::ClosestCurved(
       if(other!=UINT64_MAX)facet=other;else if(polished(facet))break;
     }
     const auto before=proposals;
-    if(polish(facet) || proposals==before)break;
+    polish(facet); // An improved upper witness need not be the best competitive witness.
+    if(proposals==before)break;
   }
   result.lower=std::min(result.lower,result.upper);
   result.clearance_lower=INFINITY;

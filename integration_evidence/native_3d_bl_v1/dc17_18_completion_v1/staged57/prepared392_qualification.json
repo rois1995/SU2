@@ -1,0 +1,364 @@
+{
+  "scope": "Focused geometry/query contract qualification; complete M6 edge still unresolved. NOT accepted curved BL/native MPI BL generation.",
+  "build": {
+    "state": "terminal",
+    "exit_code": 0,
+    "seconds": 36.154597997665405,
+    "pins_verified": true,
+    "changed": [],
+    "completed_build": true,
+    "binaries": {
+      "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver": "8b96514a0773a03c618bd0368e8999aef315fe9ad2e498999346dbbdb97050e7",
+      "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/SU2_CFD/src/SU2_CFD": "710ff0bd4cd4d66adb846e07ead33859cef13a6174aa6056fd91657f73c1fd81"
+    }
+  },
+  "cases": {
+    "witness": {
+      "path": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved392_two_witness_serial_20261111T190553_2952270",
+      "status": {
+        "state": "terminal",
+        "exit_code": 0,
+        "seconds": 7.4051513671875,
+        "pins_verified": true,
+        "changed": [],
+        "largest_sampled_individual_process_rss_bytes": 32792576,
+        "rss_note": "sampled process RSS; not a whole-job peak"
+      },
+      "terminal": {
+        "actual_host_proc": true,
+        "all_owned_handles_terminal": true,
+        "live_owned_handles": [],
+        "sampled_identities": [
+          {
+            "pid": 2952349,
+            "start_ticks": 46839442
+          },
+          {
+            "pid": 2952350,
+            "start_ticks": 46839442
+          },
+          {
+            "pid": 2952351,
+            "start_ticks": 46839442
+          },
+          {
+            "pid": 2952352,
+            "start_ticks": 46839443
+          }
+        ],
+        "wrapper_excluded": {
+          "pid": 2952270,
+          "start_ticks": 46839263
+        },
+        "checked_unix": 1794423960.4894848
+      },
+      "passing_summaries": [
+        "All tests passed (105 assertions in 4 test cases)"
+      ]
+    },
+    "serial": {
+      "path": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved392_prepared_serial_20261111T190719_2955186",
+      "status": {
+        "state": "terminal",
+        "exit_code": 0,
+        "seconds": 61.350377321243286,
+        "pins_verified": true,
+        "changed": [],
+        "largest_sampled_individual_process_rss_bytes": 59981824,
+        "rss_note": "sampled process RSS; not a whole-job peak"
+      },
+      "terminal": {
+        "actual_host_proc": true,
+        "all_owned_handles_terminal": true,
+        "live_owned_handles": [],
+        "sampled_identities": [
+          {
+            "pid": 2955272,
+            "start_ticks": 46848103
+          },
+          {
+            "pid": 2955273,
+            "start_ticks": 46848103
+          },
+          {
+            "pid": 2955274,
+            "start_ticks": 46848103
+          },
+          {
+            "pid": 2955275,
+            "start_ticks": 46848104
+          }
+        ],
+        "wrapper_excluded": {
+          "pid": 2955186,
+          "start_ticks": 46847931
+        },
+        "checked_unix": 1794424101.0657544
+      },
+      "passing_summaries": [
+        "All tests passed (5029 assertions in 53 test cases)"
+      ]
+    },
+    "mpi6": {
+      "path": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved392_prepared_mpi6_20261111T191423_2969539",
+      "status": {
+        "state": "terminal",
+        "exit_code": 0,
+        "seconds": 65.52606630325317,
+        "pins_verified": true,
+        "changed": [],
+        "largest_sampled_individual_process_rss_bytes": 63148032,
+        "rss_note": "sampled process RSS; not a whole-job peak"
+      },
+      "terminal": {
+        "actual_host_proc": true,
+        "all_owned_handles_terminal": true,
+        "live_owned_handles": [],
+        "sampled_identities": [
+          {
+            "pid": 2969620,
+            "start_ticks": 46890513
+          },
+          {
+            "pid": 2969621,
+            "start_ticks": 46890513
+          },
+          {
+            "pid": 2969622,
+            "start_ticks": 46890513
+          },
+          {
+            "pid": 2969630,
+            "start_ticks": 46890516
+          },
+          {
+            "pid": 2969629,
+            "start_ticks": 46890516
+          },
+          {
+            "pid": 2969628,
+            "start_ticks": 46890516
+          },
+          {
+            "pid": 2969627,
+            "start_ticks": 46890516
+          },
+          {
+            "pid": 2969626,
+            "start_ticks": 46890516
+          },
+          {
+            "pid": 2969625,
+            "start_ticks": 46890516
+          }
+        ],
+        "wrapper_excluded": {
+          "pid": 2969539,
+          "start_ticks": 46890336
+        },
+        "checked_unix": 1794424529.3151255
+      },
+      "passing_summaries": [
+        "All tests passed\u001b[0m (5191 assertions in 55 test cases)",
+        "All tests passed\u001b[0m (5194 assertions in 55 test cases)",
+        "All tests passed\u001b[0m (5213 assertions in 55 test cases)",
+        "All tests passed\u001b[0m (5192 assertions in 55 test cases)",
+        "All tests passed\u001b[0m (5271 assertions in 55 test cases)",
+        "All tests passed\u001b[0m (5394 assertions in 55 test cases)"
+      ]
+    },
+    "old_hotspot": {
+      "path": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved392_dominant_panel_points_20261111T191136_2963869",
+      "status": {
+        "state": "terminal",
+        "exit_code": 0,
+        "seconds": 60.71215200424194,
+        "pins_verified": true,
+        "changed": [],
+        "largest_sampled_individual_process_rss_bytes": 1408827392,
+        "rss_note": "sampled process RSS; not a whole-job peak"
+      },
+      "terminal": {
+        "actual_host_proc": true,
+        "all_owned_handles_terminal": true,
+        "live_owned_handles": [],
+        "sampled_identities": [
+          {
+            "pid": 2963963,
+            "start_ticks": 46873781
+          },
+          {
+            "pid": 2963964,
+            "start_ticks": 46873781
+          },
+          {
+            "pid": 2963965,
+            "start_ticks": 46873781
+          },
+          {
+            "pid": 2963966,
+            "start_ticks": 46873782
+          }
+        ],
+        "wrapper_excluded": {
+          "pid": 2963869,
+          "start_ticks": 46873587
+        },
+        "checked_unix": 1794424356.9969218
+      },
+      "passing_summaries": [
+        "All tests passed (8075273 assertions in 1 test case)"
+      ]
+    },
+    "new_refusal": {
+      "path": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved392_refusal_point_frames_20261111T190938_2959829",
+      "status": {
+        "state": "terminal",
+        "exit_code": 0,
+        "seconds": 60.7287163734436,
+        "pins_verified": true,
+        "changed": [],
+        "largest_sampled_individual_process_rss_bytes": 1409601536,
+        "rss_note": "sampled process RSS; not a whole-job peak"
+      },
+      "terminal": {
+        "actual_host_proc": true,
+        "all_owned_handles_terminal": true,
+        "live_owned_handles": [],
+        "sampled_identities": [
+          {
+            "pid": 2959929,
+            "start_ticks": 46862041
+          },
+          {
+            "pid": 2959930,
+            "start_ticks": 46862041
+          },
+          {
+            "pid": 2959931,
+            "start_ticks": 46862041
+          },
+          {
+            "pid": 2959932,
+            "start_ticks": 46862042
+          }
+        ],
+        "wrapper_excluded": {
+          "pid": 2959829,
+          "start_ticks": 46861840
+        },
+        "checked_unix": 1794424239.5847015
+      },
+      "passing_summaries": [
+        "All tests passed (8075273 assertions in 1 test case)"
+      ]
+    },
+    "original_chord": {
+      "path": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved392_target_geometry_20261111T191743_2976153",
+      "status": {
+        "state": "terminal",
+        "exit_code": 1,
+        "seconds": 355.01282000541687,
+        "pins_verified": true,
+        "changed": [],
+        "largest_sampled_individual_process_rss_bytes": 1846362112,
+        "rss_note": "sampled process RSS; not a whole-job peak"
+      },
+      "terminal": {
+        "actual_host_proc": true,
+        "all_owned_handles_terminal": true,
+        "live_owned_handles": [],
+        "sampled_identities": [
+          {
+            "pid": 2976240,
+            "start_ticks": 46910542
+          },
+          {
+            "pid": 2976241,
+            "start_ticks": 46910542
+          },
+          {
+            "pid": 2976242,
+            "start_ticks": 46910542
+          },
+          {
+            "pid": 2976243,
+            "start_ticks": 46910543
+          }
+        ],
+        "wrapper_excluded": {
+          "pid": 2976153,
+          "start_ticks": 46910342
+        },
+        "checked_unix": 1794425018.8706086
+      },
+      "passing_summaries": []
+    },
+    "accuracy": {
+      "path": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved392_target_accuracy_20261111T192625_2995503",
+      "status": {
+        "state": "terminal",
+        "exit_code": 1,
+        "seconds": 355.987548828125,
+        "pins_verified": true,
+        "changed": [],
+        "largest_sampled_individual_process_rss_bytes": 1856221184,
+        "rss_note": "sampled process RSS; not a whole-job peak"
+      },
+      "terminal": {
+        "actual_host_proc": true,
+        "all_owned_handles_terminal": true,
+        "live_owned_handles": [],
+        "sampled_identities": [
+          {
+            "pid": 2995588,
+            "start_ticks": 46962681
+          },
+          {
+            "pid": 2995589,
+            "start_ticks": 46962681
+          },
+          {
+            "pid": 2995590,
+            "start_ticks": 46962681
+          },
+          {
+            "pid": 2995597,
+            "start_ticks": 46962682
+          }
+        ],
+        "wrapper_excluded": {
+          "pid": 2995503,
+          "start_ticks": 46962475
+        },
+        "checked_unix": 1794425541.2408757
+      }
+    }
+  },
+  "actual_host_terminal_recheck": {
+    "unix": 1794425405.2736757,
+    "identity_count": 35,
+    "all_terminal": true
+  },
+  "source_sha256": {
+    "Common/src/adaptation/CNativeAffineReference.cpp": "9ea4dd3b401161ca70642d997ead202cfe74d9f4f24af536e2dd07683a9f6e96",
+    "UnitTests/Common/adaptation/CNativeGeometryBackend3D_tests.cpp": "3833698adbe129ad2a9592ffb7228986ebc83c9707bd56d108310013c255c2b5"
+  },
+  "original_chord_completed": false,
+  "usable_BL": false,
+  "native_MPI_BL_generation_qualified": false,
+  "performance_gain_proven": false,
+  "next": "Remain stage2. Attribute residual integration work before selecting a separate action-bound contract; no further speculative witness variants, tolerance relaxation or raised budget.",
+  "evidence_pins": {
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/dominant_points392_assessment.json": "e281335bb98fc6c0516728cc1896c29bb03a7b9e9eb74f999bf9230e408466d8",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/refusal_points392_assessment.json": "49c3e3c9ca54a0ba0595bbfd1c2623c67a470281d43eb9ef405d7c73cb2fe868",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/geometry_target392_assessment.json": "fce615af4f670dfb939da2bf501733d81b373807b02d0cd4ed9a77b5b9aed6d6",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/point_launch392_guard_failure.json": "9071488b33587e2f09dd795a3b28c781e0fabda2ce044e770d6dd56d30592fdc",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/edge_accuracy392_assessment.json": "c55eb147c2b7321bd16154e2d3a851691b77f84f5a98262549efce51be546df9"
+  },
+  "accuracy_diagnostic": {
+    "subinterval_relative_error": 0.0031857825199489436,
+    "whole_error_known": false,
+    "complete_reference": false
+  }
+}

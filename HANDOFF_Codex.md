@@ -12,7 +12,26 @@ next-action text is superseded by this live state.
 
 ## Actual source/build/owned workload — authoritative
 
-Current workload:NONE. All391build/eligibility/hotspot/serial/MPI/chord/newrefusal
+Current workload: NONE. Original392chord and existing392accuracy diagnostic both
+TERMINAL1; actual-host PID/start identities reverified absent, source/build/input
+pins intact. R/prepared392_qualification.json and edge_accuracy392_assessment.json.
+Original392chord TERMINAL1/355.013s, actual-host identities verified terminal before
+this diagnostic. SAME300s atlas/600souter:105.5218spreparation,8907evaluations,
+188.2862scomposition,9091472contextwork. NOlength/newmesh or performance gain.
+R/geometry_target392_assessment.json. Refusal moved near t=.9968, not proof of
+whole-edge convergence or fixed-work improvement. CPU349.74user+1.06system;
+prepared486963232B, sampled individual RSS1846362112B (not whole-job peak).
+392build PASS36.155s; focused witness PASS4cases/105assertions7.405s;
+focusedserial PASS53cases/5029assertions61.350s; MPI6PASS55cases EVERYrank,
+5191–5394assertions/rank65.526s. Relevant handles terminal/pins intact.
+Oldhotspot392PASS60.712s/12112pointwork; newrefusal392PASS60.729s/11092pointwork:
+ALLsixpairs in EACHset bit-identical foot/normal/FULLtensor/chordspeed/scalarhn.
+Work rises vs391; no per-query speedup claim. Initial missing-receipt launcher guard
+refused BEFOREanyworkload (point_launch392_guard_failure.json).
+Current392finishes both original distinct64callback opportunities after upper
+improvement; no caps/geometry/target/gates changed. CFD SHA710ff0bd4cd4d66adb846e07ead33859cef13a6174aa6056fd91657f73c1fd81;
+testSHA8b96514a0773a03c618bd0368e8999aef315fe9ad2e498999346dbbdb97050e7.
+All391build/eligibility/hotspot/serial/MPI/chord/newrefusal
 checks TERMINAL;52actual-host PID/start identities reverified absent, allpins intact.
 R/prepared391_qualification.json. Source6c73e637e0 PUSHED; terminal391evidence is
 saved in this checkpoint with the next demonstrated gap.
@@ -35,25 +54,21 @@ foot~5.5e-9 and edge361→facet35672interior binding. Twofarthercontrolsagree. S
 changes~3e-9relative. R/refusal_points391_assessment.json; input/provenance/exactlocal
 nets in R/m6_bl_inputs/refusal391_point_frames_v1. Do NOTpromote different bindings.
 
-## Next ACTIVE correction — finish same witness capability, remain stage2
+## ACTIVE accuracy diagnosis — remain stage2
 
-Bothactual localfacet solves now CONVERGEwithin64atall6newqueries:30335edgewitness31,
-35672interiorwitness31/56callbacks. Interiorparams match tighterglobalanswer.
-minimizer_attribution.{cpp,json} in sameinputfolder. Not a cap/minimizer failure.
-391postloop stops after ANYimproved upperwitness, leaving an unused allowed attempt
-after initialvertexskip. Next complete BOTHoriginal distinct-facet opportunities
-instead of earlyexit on improvement. Candidate proof/global lower/clearance stays;
-no raisedcaps, tightened distance, relaxedquad, targetpolicy/operator/geometry/config.
-This correction is not implemented/performance-proven yet. Do not start another
-optimization cycle or more seed/minimizer variants. Originalquerytotal/max2x64 and
-memory/deadline budgets remain. Anynewwitness must pass canonical ParameterBox/
-Blossom upperproof; keep exactallowedcomponent/body and complete final cache state.
-
-Validate old6pairs ANDnewrefusalpointset, restricted-nearvertex, cached/recomputed,
-features/bodies/heights/exhaustion; MPI at meaningful integration cadence, reuse391
-scope where valid. Then ORIGINALfullchord unchanged300s/600s. Subsetstability is not
-completion. If chord completes, return to credible stage2target/fullcheckpoint;
-no fullworkflow retry before preceding stage outputs are credible.
+392completed the demonstrated two-witness gap and stabilized BOTHsaved actual point
+sets, but originalchord still refuses. Do not continue speculative seed/minimizer
+variants or increase caps. Existing GL10/G7-K15 diagnostic also TERMINAL1/355.988s at unchanged300s atlas.
+Preparation107.785s/259cuts. Widest interval [.1788552525,.4608000905] now completes
+195reference evaluations/2.913s:GL10=1.551897632 versus1.556857441, relative.3186%,
+no split/coarsen decision difference ON THIS INTERVAL. WholeGL10=39.19932377 is
+unproved; whole reference refuses after8821evaluations/182.953s. Error/ranking/
+insertion consequences on completeedge remain UNKNOWN. R/edge_accuracy392_assessment.json.
+No accurate scalar/usable BL/checkpoint or whole-edge speedup. Do not add further
+speculative witness variants or relax tolerances. Next attribute residual integration
+work using existing facilities, then select a proven purpose-specific correction.
+Scalar reparameterization is diagnostic, not an acceptance value or action bound.
+No full workflow before credible stage2target/checkpoint.
 
 Classification/ranking/balanced insertion/conformity/final accuracy stay distinct.
 Sensor-only length.388is inconclusive; no composedaction enclosure established.

@@ -646,3 +646,41 @@ certificateaccuracies. Twofarthercontrolsagree. Localisolatedbothactualfacets al
 queries converge31/56callbacks within64: firstvalidedgeimprovement skips a still-
 available betterinterior witness. Next is complete BOTHoriginaldistinct opportunities,
 not raisedcaps, changednormalpolicy or quadraturetolerance. No benefit established yet.
+
+
+##392terminal originaledge and bounded accuracy follow-up
+
+| Work | Wall s | Useful result / work |
+|---|---:|---|
+| Build |36.155|Pinned sources, both binaries rebuilt |
+| Focused serial |61.350|53cases/5029assertions pass |
+| Focused MPI6 |65.526|55cases EACHrank/5191–5394assertions pass |
+| Oldhotspot12points |60.712|12112pointwork;6default/tighter pairs identical |
+| Newrefusal12points |60.729|11092pointwork;6pairs identical |
+| Originalchord wrapper |355.013|Deadline refusal; NOscalar |
+| Chord preparation (nested) |105.5218|Same complete geometry/support policy |
+| Chord composition (nested) |188.2862|8907integrand attempts |
+| Total edge (contains above) |293.8163|9091472contextgeometrywork |
+
+CPU349.74user+1.06system, no wait attribution. Geometry region4014218hits/580982misses,
+18.3048sbuild NESTED; answers6782hits/12530misses/119refinements; optionalprojection
+14709attempts/12277improvements/455814work. Prepared486963232B; sampled individual
+RSS1846362112B, not whole-job peak. Different trajectories before a common deadline
+are not fixed-work throughput comparisons. Local12pair stability improved; no
+whole-edge/BL speedup demonstrated. Reusing the existing bounded accuracy diagnostic
+is the next measurement, not a new production precision policy.
+
+
+392existing bounded accuracy diagnostic TERMINAL1/355.988s, same300s atlas/600souter:
+preparation107.7847s/259cuts/3209730geometrywork; wholeGL10 ten samples .2281s/6804work,
+estimate39.19932377 (error UNKNOWN). Widest interval [.1788552525,.4608000905] now
+completes195reference evaluations in2.9132s; comparison block101685geometrywork
+includes ten-point work too. GL10=1.551897632 vs numerical1.556857441, relative.3186%,
+no split/coarsen decision difference there. Whole reference still refuses after
+8821evaluations/182.9534s/5614441geometrywork. Those timers nest; no summation into
+independent costs. This is actual subinterval measurement progress, not whole-edge
+speedup or a safe precision change. Scalar reparameterization is test-only; missing
+whole reference leaves ranking/insertion/final numerical agreement unproven.
+CPU350.00user+1.08system; no MPIwait attribution. Prepared495758080B; largest
+sampled individual RSS1856221184B, not whole-job peak.
+R/edge_accuracy392_assessment.json. All392owned handles terminal; no running job.

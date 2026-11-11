@@ -958,3 +958,18 @@ TEST_CASE("Closest witness reuse does not repeat a deterministic restricted-face
   CHECK(geometry.Body(shifted.facet)!=geometry.Body(0));
   CHECK(geometry.CurvedComponent(shifted.facet)!=geometry.CurvedComponent(0));
 }
+
+
+TEST_CASE("Closest witnesses compare competitive supports after an upper improvement", "[NativeClosestWitness3D][NativeGeometryBackend3D]") {
+  using namespace SU2Native3D;BackendFixture fixture;std::map<Id,double> errors;
+  for(const auto& facet:fixture.facets)errors.emplace(facet.id,1e-12);
+  MappedFacetReference geometry(fixture.reference,errors,57,SIZE_MAX,false,fixture.geometry->Curves(),0);
+  const auto before=geometry.GeometryStatsSnapshot();
+  const auto result=geometry.ClosestCurved(0,{.000123,.000123,-.0001},1e-7,16384);
+  const auto after=geometry.GeometryStatsSnapshot();
+  CHECK(result.lower>=0);CHECK(result.upper>=result.lower);CHECK(result.upper-result.lower<=1e-7);
+  CHECK(geometry.Supports(result.facet,result.binding));CHECK(geometry.Admissible(result.binding,result.point));
+  CHECK(after.closest_projection_attempts-before.closest_projection_attempts==2);
+  CHECK(after.closest_projection_work-before.closest_projection_work<=128);
+  CHECK(result.work<=16384);
+}
