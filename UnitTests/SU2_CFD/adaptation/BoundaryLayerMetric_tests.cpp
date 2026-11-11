@@ -2203,21 +2203,94 @@ TEST_CASE("Smooth spherical BL thin volume rule resolves an enclosed layer again
   CHECK(measured==Approx(expected).epsilon(8e-4));
 }
 
+TEST_CASE("Cubic first-height certification enforces physical distance and shared resources", "[NativeCurvedFirstHeightBudget3D]") {
+  using namespace SU2Native3D;using namespace SU2NativeGeometry;
+  const std::array<Node,4> nodes{{{0,{0,0,0}},{1,{1,0,0}},{2,{0,1,0}},{3,{.25,.25,.2}}}};
+  Cell cell{0,nodes};std::vector<Facet> facets;std::vector<SurfaceFace> skin;Id wall=UINT64_MAX;
+  for(const auto& face:Incidence({cell}).Boundary()) {
+    std::array<Node,3> triangle;bool bottom=true;
+    for(unsigned k=0;k<3;++k){triangle[k]=nodes.at(face[k]);bottom=bottom&&triangle[k].p.z==0;}
+    const Id id=facets.size();facets.push_back({id,bottom?7:8,triangle});skin.push_back({face,id});if(bottom)wall=id;
+  }
+  REQUIRE(wall!=UINT64_MAX);
+  auto flat=std::make_shared<PlanarReference>(facets);
+  MappedFacetReference::CurvedNets nets;std::map<Id,double> errors;
+  const unsigned powers[10][3]={{3,0,0},{0,3,0},{0,0,3},{2,1,0},{1,2,0},{0,2,1},{0,1,2},{1,0,2},{2,0,1},{1,1,1}};
+  for(const auto& face:facets) {
+    errors[face.id]=1e-12;auto& net=nets[face.id];
+    for(unsigned q=0;q<10;++q) {
+      long double p[3]={};for(unsigned k=0;k<3;++k) {
+        p[0]+=powers[q][k]*static_cast<long double>(face.v[k].p.x);
+        p[1]+=powers[q][k]*static_cast<long double>(face.v[k].p.y);
+        p[2]+=powers[q][k]*static_cast<long double>(face.v[k].p.z);
+      }
+      net[q]={double(p[0]/3),double(p[1]/3),double(p[2]/3)};
+    }
+  }
+  nets.at(wall)[9].z+=.03;
+  auto geometry=std::make_shared<MappedFacetReference>(flat,errors,7,SIZE_MAX,false,nets);
+  BoundaryPoints points;for(auto node:nodes)points.emplace(node.id,BoundaryPoint{node,geometry->Vertex(node.id)});
+  auto parameters=std::make_shared<BoundaryParameterState>(geometry,points,skin);
+  auto reference=PlanarReference::WithParameters(flat,parameters);
+  Patch child;child.cells={cell};child.surface={skin.at(wall)};
+  AtlasBudget budget;budget.maximum_work=4*MappedFacetReference::ClearanceWork;
+  budget.caller_bytes=parameters->ResidentBytes();
+  budget.maximum_bytes=transfer_memory::Add(budget.caller_bytes,geometry->CurvedQueryWorkspaceBytes(MappedFacetReference::ClearanceWork));
+  std::string reason;FirstHeightReport report;
+  SECTION("A measured compatible child charges its query") {
+    auto scoped=reference->WithAtlasReservation(budget);
+    INFO(reason);CHECK(CheckFirstHeight(child,{{7,.2}},*scoped,report,reason));
+    CHECK(report.measured);CHECK(report.height_failures==0);CHECK(budget.work>0);
+    CHECK(budget.work<=MappedFacetReference::ClearanceWork);CHECK(budget.peak_bytes>budget.caller_bytes);
+    const auto cold=report;const auto work=budget.work;
+    CHECK(CheckFirstHeight(child,{{7,.2}},*scoped,report,reason));CHECK(budget.work>work);
+    CHECK(report.height_failures==cold.height_failures);CHECK(report.reference_clearance_failures==cold.reference_clearance_failures);
+    CHECK(report.maximum_relative_error==Approx(cold.maximum_relative_error).margin(2e-4));
+  }
+  SECTION("Planar height passes while true curved distance misses") {
+    child.cells[0].v[3].p.z=.02;
+    CHECK(CheckFirstHeight(child,{{7,.02}},*flat,report,reason));
+    auto scoped=reference->WithAtlasReservation(budget);
+    CHECK_FALSE(CheckFirstHeight(child,{{7,.02}},*scoped,report,reason));
+    CHECK(report.measured);CHECK(report.height_failures==1);CHECK(report.maximum_relative_error>.1);
+    CHECK(report.reference_clearance_failures==0);CHECK(budget.work>0);
+  }
+  SECTION("Exhausted shared work refuses without a measurement") {
+    budget.work=budget.maximum_work;auto scoped=reference->WithAtlasReservation(budget);
+    CHECK_FALSE(CheckFirstHeight(child,{{7,.2}},*scoped,report,reason));
+    CHECK_FALSE(report.measured);CHECK(budget.work_exhausted);CHECK(budget.work==budget.maximum_work);
+  }
+  SECTION("A failed closest query still charges attempted remaining work") {
+    budget.work=budget.maximum_work-1;const auto before=budget.work;
+    auto scoped=reference->WithAtlasReservation(budget);
+    CHECK_FALSE(CheckFirstHeight(child,{{7,.2}},*scoped,report,reason));
+    CHECK_FALSE(report.measured);CHECK(budget.work>before);CHECK(budget.work<=budget.maximum_work);CHECK(budget.work_exhausted);
+  }
+  SECTION("Remaining storage rather than total storage limits the query") {
+    budget.maximum_bytes=geometry->CurvedQueryWorkspaceBytes(MappedFacetReference::ClearanceWork);
+    REQUIRE(budget.maximum_bytes>budget.caller_bytes);auto scoped=reference->WithAtlasReservation(budget);
+    CHECK_FALSE(CheckFirstHeight(child,{{7,.2}},*scoped,report,reason));CHECK_FALSE(report.measured);
+    CHECK(budget.work==0);CHECK(reason.find("storage admission")!=std::string::npos);
+  }
+}
+
 TEST_CASE("Smooth first-row clearance separates curved geometry blockage from exact facet altitude", "[NativeCurvedBL3D]") {
   using namespace SU2Native3D;const auto wall=AnalyticSphereWall();const auto& reference=*wall.authority;
   const auto face=reference.Get(0);const auto a=face.v[0].p,b=face.v[1].p,c=face.v[2].p;
   Point center{(a.x+b.x+c.x)/3,(a.y+b.y+c.y)/3,(a.z+b.z+c.z)/3};
   const double radius=std::hypot(center.x,center.y,center.z);
-  for(double height:{.1,.6}) {
+  for(double height:{.1,.6,8.}) {
     Node apex{10,{center.x*(1+height/radius),center.y*(1+height/radius),center.z*(1+height/radius)}};
     Cell cell;cell.id=100;cell.v={face.v[0],face.v[2],face.v[1],apex};
     REQUIRE(Orientation(cell.v[0].p,cell.v[1].p,cell.v[2].p,cell.v[3].p)>0);
     Patch patch{{cell},{{{face.v[0].id,face.v[1].id,face.v[2].id},0}}};
     FirstHeightReport report;std::string reason;const bool valid=CheckFirstHeight(patch,{{1,height}},reference,report,reason);
-    CHECK(report.height_failures==0);CHECK(report.footprint_failures==0);
+    CHECK(report.footprint_failures==0);
     CHECK(report.minimum_reference_clearance_ratio==Approx((radius+height-1)/height).epsilon(2e-12));
-    CHECK(valid==(height>.5));
-    if(!valid){CHECK(report.reference_clearance_failures==1);CHECK(reason.find("geometry-height incompatibility")!=std::string::npos);CHECK(report.reference_clearance_cell==100);}
+    CHECK(report.height_failures==(height<1?1u:0u));CHECK(valid==(height>1));
+    if(height<.5){CHECK(report.reference_clearance_failures==1);CHECK(reason.find("geometry-height incompatibility")!=std::string::npos);CHECK(report.reference_clearance_cell==100);}
+    if(height==.6){CHECK(report.reference_clearance_failures==0);CHECK(report.measured);CHECK(report.maximum_relative_error>.1);
+      CHECK(reason.find("prescribed height fails")!=std::string::npos);}
   }
   const PlanarReference partial({face},SIZE_MAX,{{0,reference.Analytic().at(0)}});
   CHECK_FALSE(partial.CompleteAnalytic(0));CHECK_THROWS(partial.ClosestAnalytic(0,{1.1,0,0}));

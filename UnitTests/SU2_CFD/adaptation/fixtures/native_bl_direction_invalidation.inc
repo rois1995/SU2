@@ -118,6 +118,62 @@ TEST_CASE("BL private publication retains parameter authority and nodal core", "
   }
 }
 
+TEST_CASE("A curved first-child cone tries a physically admissible existing LP candidate", "[NativeCurvedFirstChild3D]") {
+  using namespace junction_wp0;using namespace SU2NativeGeometry;
+  const std::array<Node,4> nodes{{{0,{0,0,0}},{1,{1,0,0}},{2,{0,1,0}},{3,{.25,.25,.2}}}};
+  const Cell cell{0,nodes};std::vector<Facet> facets;std::vector<SurfaceFace> surface;
+  std::vector<Face> skin;Id wall=UINT64_MAX;
+  for(const auto& face:Incidence({cell}).Boundary()) {
+    std::array<Node,3> triangle;bool bottom=true;
+    for(unsigned k=0;k<3;++k){triangle[k]=nodes.at(face[k]);bottom=bottom&&triangle[k].p.z==0;}
+    const Id id=facets.size();facets.push_back({id,bottom?7:8,triangle});surface.push_back({face,id});
+    if(bottom){wall=id;skin.insert(skin.begin(),face);}else skin.push_back(face);
+  }
+  REQUIRE(wall!=UINT64_MAX);auto flat=std::make_shared<PlanarReference>(facets);
+  MappedFacetReference::CurvedNets nets;std::map<Id,double> errors;
+  const unsigned powers[10][3]={{3,0,0},{0,3,0},{0,0,3},{2,1,0},{1,2,0},{0,2,1},{0,1,2},{1,0,2},{2,0,1},{1,1,1}};
+  for(const auto& facet:facets) {
+    errors[facet.id]=1e-12;auto& net=nets[facet.id];
+    for(unsigned q=0;q<10;++q){V p{};for(unsigned k=0;k<3;++k)p=p+(powers[q][k]/3.L)*Of(facet.v[k].p);net[q]=Pt(p);}
+  }
+  nets.at(wall)[9].z+=.006;
+  auto authority=std::make_shared<MappedFacetReference>(flat,errors,7,SIZE_MAX,false,nets);
+  BoundaryPoints points;for(auto node:nodes)points.emplace(node.id,BoundaryPoint{node,authority->Vertex(node.id)});
+  auto parameters=std::make_shared<BoundaryParameterState>(authority,points,surface);
+  auto reference=PlanarReference::WithParameters(flat,parameters);
+  State state;state.reference=reference;state.heights[7]=.02;state.h0=.02;
+  std::map<Id,Node> byId;for(auto node:nodes)byId.emplace(node.id,node);
+  const auto cone=dc9::ConeColumn(state,skin,byId,10,false,*reference,wall,.02);
+  INFO(cone.witness);REQUIRE(cone.ok);REQUIRE_FALSE(cone.cells.empty());
+  Patch first;first.cells={cone.cells.front()};first.surface={{skin.front(),wall}};
+  FirstHeightReport measured;std::string reason;
+  INFO(reason);CHECK(CheckFirstHeight(first,state.heights,*reference,measured,reason));
+  CHECK(measured.measured);CHECK(measured.maximum_relative_error<=.1);CHECK(measured.reference_clearance_failures==0);
+  SECTION("A split wall child uses its new binding in the current private context") {
+    Patch old;old.cells={cell};old.surface=surface;auto current=reference->PrivateParameters(old);REQUIRE(current);
+    std::set<Id> incident;
+    for(const auto& facet:facets) {
+      bool a=false,b=false;for(auto node:facet.v){a=a||node.id==0;b=b||node.id==1;}
+      if(a&&b)incident.insert(facet.id);
+    }
+    const Edge edge{0,1};const auto midpoint=current->BindNewPoint({4,{.5,0,0}},incident,&edge);
+    auto split=cell;split.v[1]=midpoint;
+    std::vector<Face> childSkin;Face wallFace{};
+    for(auto face:Incidence({split}).Boundary()) {
+      if(std::find(face.begin(),face.end(),Id(3))==face.end()){wallFace=face;childSkin.insert(childSkin.begin(),face);}
+      else childSkin.push_back(face);
+    }
+    auto splitNodes=byId;splitNodes.emplace(midpoint.id,midpoint);Id childFacet=UINT64_MAX;
+    REQUIRE(current->FindFace(7,{splitNodes.at(wallFace[0]).p,splitNodes.at(wallFace[1]).p,splitNodes.at(wallFace[2]).p},childFacet));
+    CHECK_THROWS(dc9::ConeColumn(state,childSkin,splitNodes,11,false,*reference,childFacet,.02));
+    const auto child=dc9::ConeColumn(state,childSkin,splitNodes,11,false,*current,childFacet,.02);
+    INFO(child.witness);REQUIRE(child.ok);
+    Patch firstChild;firstChild.cells={child.cells.front()};firstChild.surface={{wallFace,childFacet}};
+    current->ExportParameters(firstChild);
+    CHECK(CheckFirstHeight(firstChild,state.heights,*current,measured,reason));CHECK(measured.measured);
+  }
+}
+
 TEST_CASE("BL private publication uses the parameter state's canonical component anchors", "[NativeBLDirectionInvalidation3D]") {
   using namespace junction_wp0;
   State s;

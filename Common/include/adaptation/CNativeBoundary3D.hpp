@@ -225,7 +225,7 @@ struct FirstHeightReport {
   double minimum_reference_clearance_ratio=std::numeric_limits<double>::infinity();
   Id reference_clearance_facet=0,reference_clearance_cell=0;
   Point reference_clearance_apex{};
-  double maximum_relative_error=0, maximum_tilt=0, minimum_barycentric=1./3;
+  double maximum_relative_error=0, maximum_tilt=0, minimum_barycentric=1./3; // Worst facet-altitude or certified physical-distance error.
   Id footprint_facet=0, footprint_cell=0;
   Id worst_facet=0, worst_cell=0;
   Point worst_apex{};

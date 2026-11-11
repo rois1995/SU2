@@ -369,19 +369,62 @@ bool CheckFirstHeight(const Patch& patch,const WallHeights& heights,const Planar
         if(count==3){++found;apex=opposite;cell=candidate.id;}
       }
       if(found!=1){++report.missing_cells;throw std::invalid_argument("Native3D wall face has no unique first child.");}
+      long double physical_height_error=0;
       const bool curved=reference.Mapped() && reference.Parameters()->Geometry().Curves().count(face.facet);
       if(curved || reference.CompleteAnalytic(face.facet)) {
         long double clearance=0;
         if(curved) {
           const auto& geometry=reference.Parameters()->Geometry();
-          const auto work=SU2NativeGeometry::MappedFacetReference::ClearanceWork;
-          const double precision=std::max(std::numeric_limits<double>::min(),height->second*1e-4);
-          clearance=geometry.ClosestCurved(face.facet,apex.p,precision,work,geometry.CurvedQueryWorkspaceBytes(work),{},nullptr,
-              reference.AtlasReservation()).clearance_lower;
+          size_t remaining=SU2NativeGeometry::MappedFacetReference::ClearanceWork;
+          double precision=std::max(std::numeric_limits<double>::min(),height->second*1e-4);
+          auto* reservation=reference.AtlasReservation();
+          for(;;) {
+            size_t work=remaining,available=geometry.CurvedQueryWorkspaceBytes(work);
+            if(reservation) {
+              reservation->CheckTime();
+              if(reservation->caller_bytes>reservation->maximum_bytes || reservation->work_exhausted ||
+                  reservation->work>reservation->maximum_work)
+                throw std::length_error("Native3D first-height curved caller reservation exhausted.");
+              work=std::min(work,reservation->maximum_work-reservation->work);
+              if(!work){reservation->work_exhausted=true;throw std::length_error("Native3D first-height curved work exhausted.");}
+              available=reservation->maximum_bytes-reservation->caller_bytes;
+              reservation->peak_bytes=std::max(reservation->peak_bytes,
+                  transfer_memory::Add(reservation->caller_bytes,geometry.CurvedQueryWorkspaceBytes(work)));
+            }
+            if(!work)throw std::length_error("Native3D first-height curved interval remains unresolved within local work.");
+            size_t attempted=0;SU2NativeGeometry::MappedFacetReference::CurvedClosest closest;
+            try {closest=geometry.ClosestCurved(face.facet,apex.p,precision,work,available,{},&attempted,reservation);}
+            catch(...) {
+              if(reservation){reservation->work=transfer_memory::Add(reservation->work,attempted);
+                reservation->work_exhausted=reservation->work_exhausted||reservation->work>=reservation->maximum_work;}
+              throw;
+            }
+            remaining-=attempted;
+            if(reservation) {
+              const auto before=reservation->work;
+              try {if(!reservation->ChargeWork(attempted))throw std::length_error("Native3D first-height curved work exhausted.");}
+              catch(...) {
+                if(reservation->work==before)reservation->work=transfer_memory::Add(before,attempted);
+                reservation->work_exhausted=reservation->work_exhausted||reservation->work>reservation->maximum_work;
+                throw;
+              }
+            }
+            clearance=closest.clearance_lower;
+            const long double lower=static_cast<long double>(closest.lower)/height->second-1,
+                              upper=static_cast<long double>(closest.upper)/height->second-1;
+            physical_height_error=std::max(std::abs(lower),std::abs(upper));
+            if(SU2NativeFirstHeight::Within(physical_height_error,heights.tolerance) ||
+                upper < -static_cast<long double>(heights.tolerance) || lower > heights.tolerance)break;
+            const double tighter=std::max(std::numeric_limits<double>::min(),precision*.25);
+            if(!remaining||tighter>=precision)
+              throw std::length_error("Native3D first-height curved interval straddles the requested tolerance; measurement unresolved.");
+            precision=tighter;
+          }
         } else {
           const auto closest=reference.ClosestAnalytic(face.facet,apex.p);
           const auto n=closest.normal,d=closest.direction;
           clearance=-closest.distance*((long double)d.x*n.x+(long double)d.y*n.y+(long double)d.z*n.z);
+          physical_height_error=std::abs(static_cast<long double>(closest.distance)/height->second-1);
         }
         if(clearance/height->second<report.minimum_reference_clearance_ratio) {
           report.minimum_reference_clearance_ratio=double(clearance/height->second);
@@ -390,7 +433,8 @@ bool CheckFirstHeight(const Patch& patch,const WallHeights& heights,const Planar
         if(!(clearance>0))++report.reference_clearance_failures;
       }
       const auto altitude=std::abs(Orientation(a,b,c,apex.p,stats))/area;
-      const long double height_error=std::abs(altitude/height->second-1);const double error=double(height_error);
+      const long double height_error=std::max(std::abs(altitude/height->second-1),physical_height_error);
+      const double error=double(height_error);
       auto tangent=Delta(apex.p,center);const auto projection=Dot(tangent,normal);
       for(unsigned j=0;j<3;++j)tangent[j]-=projection*normal[j];
       report.maximum_tilt=std::max(report.maximum_tilt,double(Norm(tangent)/height->second));

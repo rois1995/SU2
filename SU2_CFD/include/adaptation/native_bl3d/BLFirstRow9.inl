@@ -389,9 +389,10 @@ inline size_t firstChildDiagnostics=0;
 struct ConeOut { bool ok=false;std::string cls,witness;std::vector<Cell> cells;Node apex;double fq=0,fJ=0,colq=0;long double slack=-INFINITY; };
 // h0: the prescribed first height of the column's wall face (FaceH0 of skin[0]; a caller passes it for a face not yet in
 // the mesh). DC-12 shapePolicy.validity: every cone cell must be valid and the best first child valid (not absolute).
-inline ConeOut ConeColumn(State& s,const std::vector<Face>& skin,const std::map<Id,Node>& nodes,Id apexId,bool spread,long double h0Override=-1) {
+inline ConeOut ConeColumn(State& s,const std::vector<Face>& skin,const std::map<Id,Node>& nodes,Id apexId,bool spread,
+                          const PlanarReference& reference,Id facet,long double h0Override=-1) {
   Scope scope("ConeColumn");
-  ConeOut out;const long double h0=h0Override>0?h0Override:FaceH0(s,skin[0]),T=HeightTolerance;const Face& f=skin[0];
+  ConeOut out;const long double h0=h0Override>0?h0Override:FaceH0(s,skin[0]),T=s.heights.tolerance;const Face& f=skin[0];
   const V a=Of(nodes.at(f[0]).p),b=Of(nodes.at(f[1]).p),c=Of(nodes.at(f[2]).p);const V n=-1.L*Outward(a,b,c);
   std::vector<std::array<V,3>> tris;for(size_t k=1;k<skin.size();++k)tris.push_back({Of(nodes.at(skin[k][0]).p),Of(nodes.at(skin[k][1]).p),Of(nodes.at(skin[k][2]).p)});
   std::vector<V> cand;
@@ -402,19 +403,32 @@ inline ConeOut ConeColumn(State& s,const std::vector<Face>& skin,const std::map<
        const auto d=Sigma()*Dot(N,p0-tris[k][0])/nn/h0;if(d>-1e-9L)w<<" ("<<skin[k+1][0]<<","<<skin[k+1][1]<<","<<skin[k+1][2]<<")="<<double(d);}}
     out.witness=w.str();return out;}
   cand.push_back((1.L/3)*(a+b+c)+h0*n);
-  bool found=false;
+  bool found=false,heightDenied=false;
   auto evaluate=[&](const std::vector<V>& list){
     for(const auto& p:list){const Node apex{apexId,Pt(p)};std::vector<Cell> cone;bool pos=true;
       for(size_t k=0;k<skin.size()&&pos;++k){Cell cell{0,{apex,nodes.at(skin[k][0]),nodes.at(skin[k][1]),nodes.at(skin[k][2])}};
         pos=Positive(cell.v);if(pos)cone.push_back(cell);}
-      if(!pos)continue;out.cells=cone;out.apex=apex;found=true;return;}};
+      if(!pos)continue;
+      if((reference.Mapped()&&reference.Parameters()->Geometry().Curves().count(facet))||reference.CompleteAnalytic(facet)) {
+        Patch child;child.cells={cone.front()};child.surface={{f,facet}};reference.ExportParameters(child);
+        const WallHeights requested(std::map<int,double>{{reference.Get(facet).marker,double(h0)}},double(T));
+        FirstHeightReport measured;std::string why;
+        if(!CheckFirstHeight(child,requested,reference,measured,why)) {
+          heightDenied=true;out.witness=why;
+          const auto* budget=reference.AtlasReservation();
+          if(budget&&(budget->work_exhausted||budget->time_exhausted))throw std::length_error(why);
+          continue;
+        }
+      }
+      out.cells=cone;out.apex=apex;found=true;return;}};
   evaluate(cand);
   if(spread||!found) {
     std::vector<V> grid;const std::array<std::array<long double,3>,7> feet{{{1.L/3,1.L/3,1.L/3},{.6L,.2L,.2L},{.2L,.6L,.2L},{.2L,.2L,.6L},{.45L,.45L,.1L},{.45L,.1L,.45L},{.1L,.45L,.45L}}};
     for(long double eta:{.92L,1.L,1.08L})for(const auto& w:feet)grid.push_back(w[0]*a+w[1]*b+w[2]*c+(eta*h0)*n);
     evaluate(grid);
   }
-  if(out.cells.empty()){out.cls="partial-state";out.witness="LP apex rounds outside its column";return out;}
+  if(out.cells.empty()){out.cls=heightDenied?"height":"partial-state";
+    if(!heightDenied)out.witness="LP apex rounds outside its column";return out;}
   out.ok=true;return out;
 }
 
@@ -701,7 +715,8 @@ inline Tx Transaction(State& s,const Rows& rows,const std::set<Id>& V0,bool low)
     fresh.push_back(m);}
   for(const auto& sp:sectors)for(const auto& g:sp.second.gaps){fresh.push_back(Cell{0,g});++tx.gaps;}
   // columns of every rebuilt face
-  std::map<Face,Face> outFace;for(const auto& f:PhysicalOf(s,cavity,true))outFace[f.key]=f.out;
+  std::map<Face,Face> outFace;std::map<Face,Id> wallFacet;
+  for(const auto& f:PhysicalOf(s,cavity,true)){outFace[f.key]=f.out;wallFacet[f.key]=f.facet;}
   std::map<Face,int> lateralMarker;
   auto carrierMarker=[&](Id x0,Id x1)->int{for(const auto& sf:tx.old.surface){const int m=s.reference->Get(sf.facet).marker;if(s.walls.count(m))continue;if(Has(sf.v,x0)&&Has(sf.v,x1))return m;}return -1;};
   for(const auto& sp:sectors)for(const auto& r:sp.second.carrierFaces)lateralMarker[r.first]=r.second;
@@ -720,7 +735,7 @@ inline Tx Transaction(State& s,const Rows& rows,const std::set<Id>& V0,bool low)
      for(const auto& d:dir)if(dir.count({d.first.second,d.first.first})!=1||d.second!=1){closed=false;w<<" ("<<d.first.first<<"->"<<d.first.second<<")";}
      if(!closed){tx.failing.push_back(key);if(tx.cls.empty()){tx.cls="skin";std::ostringstream z;z<<"face "<<key[0]<<","<<key[1]<<","<<key[2]<<": column skin not closed:"<<w.str()<<"; faces:";
         for(const auto& t:skin.faces)z<<" ("<<t[0]<<","<<t[1]<<","<<t[2]<<")";tx.witness=z.str();}continue;}}
-    auto cone=ConeColumn(s,skin.faces,nodes,next,false);
+    auto cone=ConeColumn(s,skin.faces,nodes,next,false,ref,wallFacet.at(key));
     if(!cone.ok){tx.failing.push_back(key);if(tx.cls.empty()){tx.cls=cone.cls;std::ostringstream w;w<<"face "<<key[0]<<","<<key[1]<<","<<key[2]<<(low?" (low band)":"")<<": "<<cone.witness<<"; lifted:";
         const V a=Of(nodes.at(f[0]).p),b=Of(nodes.at(f[1]).p),c=Of(nodes.at(f[2]).p),n=-1.L*Outward(a,b,c);const auto la=Norm(b-c),lb=Norm(c-a),lc=Norm(a-b),r=Norm(Cross(b-a,c-a))/(la+lb+lc);
         for(Id x:f)if(Lf(x)!=x){const V q=Of(nodes.at(Lf(x)).p)-Of(nodes.at(x).p);const auto hn=Dot(q,n);w<<" v"<<x<<"(H_n/h0="<<double(hn/s.h0)<<",tangential/inradius="<<double(Norm(q-hn*n)/r)<<")";}
@@ -1279,7 +1294,10 @@ inline bool ApexMove(State& s,Rows& rows,const Face& key,VStage& g,std::string& 
   std::vector<Face> ordered;for(const auto& f:skin)if(Sorted(f)==key)ordered.push_back(f);if(ordered.size()!=1){why="column skin has no unique wall face";return false;}
   for(const auto& f:skin)if(Sorted(f)!=key)ordered.push_back(f);
   std::map<Id,Node> nodes;for(const auto& c:old.cells)for(auto n:c.v)nodes[n.id]=n;
-  auto cone=ConeColumn(s,ordered,nodes,s.next_node,true);if(!cone.ok){why="ApexMove: "+cone.cls+" "+cone.witness;return false;}
+  auto priv=s.reference->PrivateParameters(old);const auto& ref=priv?*priv:*s.reference;
+  const auto wall=std::find_if(old.surface.begin(),old.surface.end(),[&](const SurfaceFace& face){return Sorted(face.v)==key;});
+  if(wall==old.surface.end()){why="ApexMove: missing physical wall support";return false;}
+  auto cone=ConeColumn(s,ordered,nodes,s.next_node,true,ref,wall->facet);if(!cone.ok){why="ApexMove: "+cone.cls+" "+cone.witness;return false;}
   Patch fresh;fresh.cells=cone.cells;for(size_t i=0;i<fresh.cells.size();++i)fresh.cells[i].id=s.next_cell+i;fresh.surface=old.surface;fresh.parameters=old.parameters;
   std::string reason;if(!ValidatePrescribedInterface(old.cells,fresh.cells,skin,reason,nullptr,MaximumCavityCells)){why="ApexMove: "+reason;return false;}
   try{s.reference->ExportParameters(fresh);}catch(const std::exception& x){why=x.what();return false;}
@@ -1332,7 +1350,9 @@ inline bool ColumnSplitJunction(State& s,Rows& rows,Edge ab,const Face& f,VStage
   std::map<Id,Id> L=rows.lift;L[m.id]=ms.id;auto Lf=[&](Id x){const auto it=L.find(x);return it==L.end()?x:it->second;};
   const Face out=wallIt->second.v;Face f1=out,f2=out;for(auto& x:f1)if(x==b)x=m.id;for(auto& x:f2)if(x==a)x=m.id;
   std::map<Face,Id> newApex;const long double parentH0=FaceH0(s,f);  // the halves are not in the mesh yet: the parent's wall height
-  for(const Face& h:{f1,f2}){const auto skin=ColumnSkin(h,Lf);auto cone=ConeColumn(s,skin.faces,nodes,next,false,parentH0);
+  for(const Face& h:{f1,f2}){const auto skin=ColumnSkin(h,Lf);Id childFacet=0;
+    if(!ref.FindFace(markerOf(wallIt->second.facet),{nodes.at(h[0]).p,nodes.at(h[1]).p,nodes.at(h[2]).p},childFacet)){why="ColumnSplit junction: missing child wall support";return false;}
+    auto cone=ConeColumn(s,skin.faces,nodes,next,false,ref,childFacet,parentH0);
     if(!cone.ok){why="ColumnSplit junction: "+cone.cls+" "+cone.witness;return false;}nodes[next]=cone.apex;newApex[Sorted(h)]=next++;fresh.insert(fresh.end(),cone.cells.begin(),cone.cells.end());}
   if(fresh.size()>MaximumReplacementCells){why="ColumnSplit junction exceeds 128 fresh cells";return false;}
   for(size_t i=0;i<fresh.size();++i)fresh[i].id=s.next_cell+i;
@@ -1405,7 +1425,9 @@ inline bool ColumnSplit(State& s,Rows& rows,Edge ab,VStage& g,std::string& why,s
   std::vector<Face> newWall;std::map<Face,Id> newApex;std::map<Face,int> childMarker;
   for(const auto& f:faces){const Face out=wallOf.at(f).v;Face f1=out,f2=out;for(auto& x:f1)if(x==b)x=m.id;for(auto& x:f2)if(x==a)x=m.id;
     const long double parentH0=FaceH0(s,f);  // the halves are not in the mesh yet: the parent's wall height
-    for(const Face& h:{f1,f2}){const auto skin=ColumnSkin(h,Lf);auto cone=ConeColumn(s,skin.faces,nodes,next,false,parentH0);
+    for(const Face& h:{f1,f2}){const auto skin=ColumnSkin(h,Lf);Id childFacet=0;
+      if(!ref.FindFace(s.reference->Get(wallOf.at(f).facet).marker,{nodes.at(h[0]).p,nodes.at(h[1]).p,nodes.at(h[2]).p},childFacet)){why="ColumnSplit: missing child wall support";return false;}
+      auto cone=ConeColumn(s,skin.faces,nodes,next,false,ref,childFacet,parentH0);
       if(!cone.ok){why="ColumnSplit: "+cone.cls+" "+cone.witness;return false;}nodes[next]=cone.apex;newApex[Sorted(h)]=next++;newWall.push_back(h);
       childMarker[Sorted(h)]=s.reference->Get(wallOf.at(f).facet).marker;fresh.insert(fresh.end(),cone.cells.begin(),cone.cells.end());}}
   if(fresh.size()>MaximumReplacementCells){why="ColumnSplit exceeds 128 fresh cells";return false;}

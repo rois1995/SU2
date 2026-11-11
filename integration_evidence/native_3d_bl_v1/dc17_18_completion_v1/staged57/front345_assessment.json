@@ -1,0 +1,132 @@
+{
+  "checked_unix": 1794362817.989924,
+  "scope": "Actual original-M6 pre-layer cavities with isotropic1e-4 control core; not saved-CFD target or adapted/prepared surface qualification.",
+  "completed_campaign": false,
+  "terminal_exit": 1,
+  "wrapper_seconds": 356.01216077804565,
+  "reason": "Shared300-second geometry window expired during sharp-edge transaction.",
+  "completed_context_results": [
+    {
+      "context": "actual_failed_chord",
+      "stage": "first_row_result",
+      "constructed": false,
+      "closure_vertices": 5,
+      "old_cells": 46,
+      "fresh_cells": 118,
+      "external_clearance": false,
+      "passing_rows_preserved": false,
+      "class": "height",
+      "reason": "face 18863: Native3D geometry-height incompatibility of the normal-row proposal at facet 30331 cell 303473 clearance/h0=-0.035186: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.",
+      "geometry_work": 783,
+      "seconds": 0.8162914950000001,
+      "mesh_published": false
+    },
+    {
+      "context": "smooth_upper",
+      "stage": "first_row_result",
+      "constructed": true,
+      "closure_vertices": 1,
+      "old_cells": 6,
+      "fresh_cells": 30,
+      "external_clearance": false,
+      "passing_rows_preserved": true,
+      "class": "",
+      "reason": "",
+      "geometry_work": 884731,
+      "seconds": 54.452051227000005,
+      "mesh_published": false
+    },
+    {
+      "context": "leading_edge",
+      "stage": "first_row_result",
+      "constructed": false,
+      "closure_vertices": 5,
+      "old_cells": 43,
+      "fresh_cells": 141,
+      "external_clearance": false,
+      "passing_rows_preserved": false,
+      "class": "cap",
+      "reason": "cap-bound closure: 141 fresh cells",
+      "geometry_work": 1196270,
+      "seconds": 72.428101799,
+      "mesh_published": false
+    },
+    {
+      "context": "symmetry_wall_interface",
+      "stage": "first_row_result",
+      "constructed": true,
+      "closure_vertices": 1,
+      "old_cells": 6,
+      "fresh_cells": 18,
+      "external_clearance": false,
+      "passing_rows_preserved": true,
+      "class": "",
+      "reason": "",
+      "geometry_work": 1390,
+      "seconds": 0.390869038,
+      "mesh_published": false
+    }
+  ],
+  "physical_height_ratio_intervals": {
+    "smooth_upper": [
+      [
+        0.8471942604756767,
+        0.847197738721111
+      ],
+      [
+        0.7857765904060181,
+        0.7858723019500768
+      ],
+      [
+        0.8255031568374179,
+        0.8255414296988993
+      ],
+      [
+        0.7727316248556478,
+        0.7727366209775651
+      ],
+      [
+        0.8378341791588472,
+        0.8378679865815372
+      ],
+      [
+        0.8464516003328213,
+        0.8465451397827471
+      ]
+    ],
+    "symmetry_wall_interface": [
+      [
+        0.5852407353349022,
+        0.5852506928635899
+      ],
+      [
+        0.5596233771166456,
+        0.5596252089051533
+      ],
+      [
+        8.39939193714069,
+        8.399448454765183
+      ]
+    ]
+  },
+  "confirmed": [
+    "Smooth candidate passes old planar height but six certified physical distances are outside unchanged10percent tolerance.",
+    "Symmetry candidate has three certified physical-height misses as well.",
+    "Common CheckFirstHeight bypassed work charging and retained-caller scratch subtraction for cubic closest queries."
+  ],
+  "diagnostic_corrections_required": [
+    "External clearance input candidate flag was initialized false; no external contact test ran, so false values establish neither refusal nor acceptance.",
+    "Directional density diagnostics omitted projection into each sided tangent plane; do not use those density values to judge target deficiency.",
+    "Completed first-row contexts remain partial evidence; no row was published and no growing front/BL mesh was generated.",
+    "Old common height-query costs are absent from the shared-work ledger; geometry work is incomplete for these contexts."
+  ],
+  "evidence": {
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved345_front_patches_20261111T014839_426314/run.log": "dbec2927394f8ec650a7283e02c31a349400d733b3c9fe4301ab89be9e5aaa67",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved345_front_patches_20261111T014839_426314/status.json": "9dd6f6d97c99062f91bf4f47bb59a6205f2b5c2c65b79c82deb1918c764e4516",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved345_front_patches_20261111T014839_426314/pins.json": "42a640bfcc4826c9eff37c8f05f61193d5368cb3574145b24a31b3c4352fc570",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved345_front_patches_20261111T014839_426314/command.json": "338fe7cbfafc5eba8070c8c1692288e1f2eee74de899f528ffa5f4f1d6f4f5e1",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved345_front_patches_20261111T014839_426314/terminal_handles_actual.json": "f0ecd39dc6d9593190b5edc4dde3a5aba8898e5768e1992c44c041e6a1b8c486",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved345_front_patches_20261111T014839_426314/actual_bl_front.jsonl": "ff301ad684ee396ef9d99dcb233293f1d8ab21dff6b8747c10a6bf01c1855447",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved345_front_patches_20261111T014839_426314/actual_bl_surface_cavities.jsonl": "30c0d702afca99e9cf4f6fce123dd09f5e7b547a518a582c7836715bf56f7681"
+  }
+}

@@ -87,6 +87,10 @@ TEST_CASE("Actual curved BL surface cavities preserve complete dependencies", "[
        <<",\"first_height_reference_clearance_failures\":"<<report.reference_clearance_failures
        <<",\"first_height_reason\":"<<std::quoted(why)<<",\"production_metric_certified\":false}"<<std::endl;
   };
+  if(std::getenv("SU2_NATIVE_BL_FRONT_PROBE")) {
+#include "native_actual_bl_front_probe.inc"
+    return;
+  }
   size_t trials=0;
   for(size_t c=0;c<count;++c) {
     std::string label;Edge edge{};size_t n=0;input>>label>>edge[0]>>edge[1]>>n;REQUIRE(bool(input));REQUIRE(edge[0]!=edge[1]);REQUIRE(n>0);REQUIRE(n<=MaximumCavityCells);

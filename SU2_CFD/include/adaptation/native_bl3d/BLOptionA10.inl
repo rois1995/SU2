@@ -359,7 +359,8 @@ inline Tx10 Transaction10(State& s,const Rows10& rows,const std::set<Id>& V0,boo
   auto isColumn=[&](const Cell& c){for(auto n:c.v)if(oldApices.count(n.id))return true;return false;};
   std::map<Id,Id> columnApex;for(const auto& c:tx.old.cells)for(auto n:c.v)if(oldApices.count(n.id))columnApex[c.id]=n.id;
   std::map<Id,Face> apexToFace;for(const auto& f:tx.rebuilt){const auto a=rows.apex.find(f);if(a!=rows.apex.end())apexToFace[a->second]=f;}
-  std::map<Face,Face> outFace;for(const auto& f:PhysicalOf(s,cavity,true))outFace[f.key]=f.out;
+  std::map<Face,Face> outFace;std::map<Face,Id> wallFacet;
+  for(const auto& f:PhysicalOf(s,cavity,true)){outFace[f.key]=f.out;wallFacet[f.key]=f.facet;}
   std::vector<Cell> fresh;std::map<Id,std::map<Id,Node>> image;  // moved old cell id -> old vertex id -> image
   std::map<std::pair<Id,Id>,size_t> slotOf;  // (old cell id, ridge vertex) -> slot
   for(const auto& c:tx.old.cells) {
@@ -469,7 +470,7 @@ inline Tx10 Transaction10(State& s,const Rows10& rows,const std::set<Id>& V0,boo
     {std::map<std::pair<Id,Id>,int> dir;for(const auto& t:skin.faces)for(int i=0;i<3;++i)++dir[{t[i],t[(i+1)%3]}];bool closed=true;std::ostringstream w;
      for(const auto& d:dir)if(dir.count({d.first.second,d.first.first})!=1||d.second!=1){closed=false;w<<" ("<<d.first.first<<"->"<<d.first.second<<")";}
      if(!closed){tx.failing.push_back(key);if(tx.cls.empty()){tx.cls="skin";tx.witness="face "+std::to_string(key[0])+": column skin not closed:"+w.str();}continue;}}
-    auto cone=ConeColumn(s,skin.faces,nodes,next,false);
+    auto cone=ConeColumn(s,skin.faces,nodes,next,false,ref,wallFacet.at(key));
     if(!cone.ok){tx.failing.push_back(key);if(tx.cls.empty()){tx.cls=cone.cls;std::ostringstream w;w<<"face "<<key[0]<<","<<key[1]<<","<<key[2]<<(low?" (low band)":"")<<": "<<cone.witness;tx.witness=w.str();}continue;}
     tx.first_q=std::min(tx.first_q,cone.fq);tx.first_J=std::min(tx.first_J,cone.fJ);tx.min_slack=std::min(tx.min_slack,cone.slack);
     tx.apices[key]=next;nodes[next]=cone.apex;++next;fresh.insert(fresh.end(),cone.cells.begin(),cone.cells.end());

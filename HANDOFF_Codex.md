@@ -8,11 +8,58 @@ ONE connected curved-BL cycle. R=`integration_evidence/native_3d_bl_v1/dc17_18_c
 
 ## Current owned workload — authoritative
 
-NONE. Build344 TERMINAL0/72.170s; all18 observed build identities absent.
+Build347 TERMINAL0 (test-only, CFD identical346). Focused347 PASSED340asserts/
+9cases; affected serial caller regression PASSED1911asserts/14cases. ONE connected
+MPI6 milestone PASSED23cases on EVERY rank (2558–2683asserts/rank),5.411s wrapper,
+pins intact; all10 observed MPI identities including wrapper rechecked absent.
+This qualifies affected constraint/caller/migration checks, NOT native MPI FIRST_ROW.
+Current owned workload: NONE. Actual smooth347 TERMINAL0/121.825s wrapper;
+all5 actual PID/start identities absent, pins intact. NO row built/published;
+closure65old against64cap after repeated physical-height refusals. Existing5lift
+edge integrations succeed,54.849s total (45.036geometry,9.812composition), contained
+in PlanLift54.850/Transaction60.228s; keep overlapping timers separate.
+Focused/actual scope sealed in `R/height347_qualification.json`. The corrected
+production and actual diagnostic work are checkpoint-ready, incomplete curved BL.
+Current test SHAfa7ac7fc6fa743a6f458423d8ab129e815e9bb49f799c3115991c6379a275313.
+346 build TERMINAL0/388.372s, all153 observed identities absent; focused physical
+height/resource/cone/analytic/preservation/planar-entry checks PASSED329asserts/
+9cases,8.415s wrapper, all5 observed actual check handles absent; pins intact.
+Actual smooth346 TERMINAL0/121.829s harness, all5 handles absent. NO row constructed:
+strict physical-height screening grows closure to65old cells against64cap. Existing
+PlanLift54.630s and ConeColumn5.344s overlap inside Transaction59.9999s (do not add
+Transaction to them). Field performed5edge integrations/495edge compositions.
+This is an original, unprepared M6 patch/control core, not production target or BL
+acceptance. Remaining blocker is feasible coordinated row placement/readiness;
+existing queries also dominate its cost. Do not infer infeasibility or enlarge bounds.
+Current compiled CFD SHA9be6aacb8ec55a637cef71da89bdc9d03c03ca0ef3e382e98264ee42453d533c;
+346 test SHA904eab8fa880bc6460d7cf7ce5ba3db48311b5af7dc628cf09c0d2ea2ccb7112.
+See [physical-height evidence and correction](Handbook/ADAPTATION_CURVED_BL_PHYSICAL_HEIGHT_20261111.md).
+Other actual contexts and full workflow remain unqualified; native MPI generation remains unproven.
+345 test-only build passed186.197s (CFD byte-identical344), all10 build identities
+absent. Actual original-M6 front probe345 TERMINAL1/356.012s:300s geometry deadline
+expired on sharp context; all5 observed actual check identities absent, pins intact.
+`R/front345_assessment.json` preserves partial evidence and diagnostic flaws.
+Smooth candidate: planar height passes but six certified physical distances are
+.7727–.8472h0. Symmetry three distances also miss(.5596–.5853h0,8.399h0).
+Root clearance refused; LE coupled proposal hit128fresh-cell cap(141fresh/43old).
+No row published, no adapted BL mesh. External clearance was NOT attempted because
+its candidate input flag was false; those values are not contact failures. Old
+curvature-density diagnostics missed each-side tangent projection and must not judge
+target deficiency. Core was a labelled1e-4 isotropic control, NOT production CFD target.
+345 source audit also confirms Common CheckFirstHeight's cubic queries bypassed
+shared work/retained-caller scratch accounting.346 fixes the common physical-distance
+contract for cubic/complete analytic heights while preserving plane/footprint/clearance;
+charges attempts/failures, bounds unresolved retries within SAME local/event limits.
+Existing ConeColumn LP/grid candidates now screen strict height using exact private
+face context across all5 production callers. Focused cubic/new-point/cold-warm and affected MPI caller checks now pass347;
+actual-front diagnostic scope is limited as above.
+No new scheduler/config/target/budgets/cavity size. Native1 limitation remains.
+
+Build344 TERMINAL0/72.170s; all18 observed build identities absent.
 Focused344 PASSED160asserts/7cases; planar production entry344 PASSED69asserts/
 1case (fresh row/growth plus continuation). All actual check wrappers/observed
 children ABSENT; source/build/runtime/input pins intact. `R/surface344_qualification.json`
-seals this LIMITED scope. Current CFD SHA2701e681ef84de143ea40bcd7ddec0d2796fc6fc1234f088a17d78da6e1cc773;
+seals this LIMITED scope. Historical344 CFD SHA2701e681ef84de143ea40bcd7ddec0d2796fc6fc1234f088a17d78da6e1cc773;
 test SHA9f34e3055020fbf24d991930af4b89801df4c4668e221c61448830623e828357.
 All22 Euler293 payloads/384685699bytes and same303 inputs rechecked unchanged344.
 No MPI/full M6 attempt launched. Next actual curved patch/front qualification in

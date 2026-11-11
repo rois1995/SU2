@@ -26,19 +26,27 @@ requested first row. Do not present them as production-target mesh acceptance.
 ## Active connected implementation
 
 Follow the [construction strategy and evidence](Handbook/ADAPTATION_CURVED_BL_CONSTRUCTION_STRATEGY_20261110.md).
-Build339 and test-only correction340 passed. Focused prerequisite scope is sealed
-in staged57/surface340_qualification.json: two passing339 cases retained, corrected
-core-policy case passed38 assertions. The original339 test expectation failure is
-preserved; no production policy changed to satisfy it. All observed owned handles
-are terminal. Core-only lookup and association-aware intrinsic guidance are
-implemented and their connected production consumer is now local work in progress.
-Build344 compiles it and passes160assertions/7focused cases plus69assertions in
-the planar two-event provisional production entry.344 fixes a generation-progress
-scope mismatch that stopped wall refinement after4splits;343 fixes strict publication
-of equivalent canonical facet anchors. Source/build/check handles are terminal and
-qualified only for staged57/surface344_qualification.json's scope. None establishes
-curved M6 normal heights/progression/coverage, final target acceptance or native MPI
-generation. Continue actual curved patch/front qualification in the SAME cycle.
+Surface preparation344 is implemented and focused-qualified. Actual front345
+exposed a shared height-checking gap: triangle-plane height could pass while
+certified distance to the curved wall missed h0.346 corrects the common physical
+height/resource contract and screens existing cone candidates at all five callers.
+347 adds new-point/cold-warm checks and bounded diagnostic logging. Focused347
+passed340assertions/9cases; serial caller regression passed1911assertions/14cases;
+one connected MPI6 milestone passed23cases on every rank. This does NOT qualify
+native MPI BL generation; its native1 guard remains.
+
+The actual smooth346 original-wall/control-core patch constructs NO row: strict
+screening grows closure to65old cells against64cap. Transaction59.9999s includes
+PlanLift54.6304s and ConeColumn5.3442s. Do not add overlapping timers, enlarge bounds
+or treat the harness pass as mesh acceptance. Terminal smooth347 bounded replay confirms this trajectory and adds rejection
+evidence without changing decisions. Five lift-edge integrations have zero failures;
+54.849s includes45.036s geometry and9.812s composition. Preparation currently lacks
+prospective physical-height feasibility as a readiness obligation. This is a
+confirmed information gap, not proof that surface refinement is necessary. See the
+[physical-height diagnosis](Handbook/ADAPTATION_CURVED_BL_PHYSICAL_HEIGHT_20261111.md).
+Next choose a demonstrated placement/readiness/connectivity correction, rather
+than a speculative performance cycle. No full attempt until this connected
+surface/front capability is checked on actual M6 contexts.
 
 1. Qualify the newly connected native construction lifecycle with its explicitly provisional
    requested-wall preparation phase. Reuse splitting, collapse, relocation,
