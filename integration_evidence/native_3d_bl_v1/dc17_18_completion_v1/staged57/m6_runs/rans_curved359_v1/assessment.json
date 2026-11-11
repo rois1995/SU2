@@ -1,0 +1,67 @@
+{
+  "state": "terminal",
+  "workflow_accepted": false,
+  "accepted_events": 0,
+  "completed_adaptation_attempts": 1,
+  "first_event": {
+    "event": 0,
+    "ramp_factor": 1,
+    "final_cycle": 1,
+    "input_cells": 303359,
+    "authority": {
+      "mapped_input": 1,
+      "declared_error": 0,
+      "fitted_planes": 0,
+      "affine": 8094
+    },
+    "wall_faces": 38800,
+    "h0_min": 2e-06,
+    "surface_preparation": {
+      "prepared": 0,
+      "final_acceptance": false,
+      "seconds": 391.592777149,
+      "work": 0,
+      "commits": 0,
+      "geometry_work": 273738,
+      "field_compositions": 0,
+      "reason": "Native3D metric seeding exhausts elapsed-time budget. Local cached demands: geometry_cells=0, metric_or_height_cells=2, geometry_edges=0, metric_edges=84."
+    },
+    "construction_valid": 0,
+    "final_acceptance": "deferred to distributed stages",
+    "reason": "FIRST_ROW surface preparation failed: Native3D metric seeding exhausts elapsed-time budget. Local cached demands: geometry_cells=0, metric_or_height_cells=2, geometry_edges=0, metric_edges=84."
+  },
+  "wrapper_terminal": {
+    "state": "terminal",
+    "exit_code": 1,
+    "seconds": 2346.9317371845245,
+    "pins_verified": true,
+    "changed": [],
+    "mapped_runtime_verified": true,
+    "unknown_or_changed_mapped_elf": [],
+    "disk_restart_validated": false,
+    "reasonable_flow_qualified": false,
+    "expected_events": 2,
+    "workflow_accepted": false,
+    "qualification": "Requires independent event/transfer/turbulence/CFD/restart assessment; exit zero alone is insufficient"
+  },
+  "authorized_stop": "After confirmed first construction failure; second CFD/metric evaluation had begun on retained accepted CFD grid. No second adaptation outcome claimed.",
+  "source_build_inputs_frozen_until_terminal": true,
+  "all_ten_owned_identities_terminal": true,
+  "scope": "Actual same saved303 RANS/Mach-only L1/500k first attempt, native1; NOT usable BL/native-MPI generation/transfer/restart qualification.",
+  "artifacts": {
+    "first_event_surface_failure_report.json": "f0443b06572fe94dae7a6ac6b9e8dfb4f5156d429c5afdf8f3a5008b08c6870c",
+    "first_event_failure_run.log": "a1d0b27c2f38512cf7fbe80d5de9446d5f7976ff7b3c2ad1bd633650d88f6199",
+    "authorized_stop_first_event.json": "dad3291542be6384ffd3384d9913dedafec2c59aa51a5401ecc9764f26167568",
+    "terminal_handles_actual.json": "9eaff1f22fc1033608f490f05a1dd0688ad0ffafaf45f050e35198bd23db1dba",
+    "initial_metric_core_assessment.json": "276d7d45fc51a488b7f4f603aef1eca4c10689dcfc9a319b41d99f131902fee1",
+    "initial_metric_core_float64.npz": "6478a0dce12c3caa6f3c82dde111cd44901f1786c828ecb3c737465a10a13316"
+  },
+  "confirmed_blocker": "Complete initial surface-planning census exhausted unchanged391.6s preparation window before any operations. Cached demands are not counts of queries or measured cells.",
+  "next": "One connected planning/seeding work-reuse correction; preserve complete final census, dependency checks, geometry/height/body constraints and source/build/input provenance. Use saved exact entry core/authority for affected replay, not a new CFD baseline.",
+  "unresolved": [
+    "No accepted BL mesh; growth/coverage/transition untested on full M6.",
+    "Current provisional composed complexity948070 exceeds500k; inherited wall tangent contribution remains unquantified.",
+    "Control-core patch now has original sensor core correspondence to roundoff, but complete production-profile/association equivalence still needs verification before relabeling it.",
+    "Do not reuse planning edge data solely by endpoints if associations/support changed."
+  ]
+}

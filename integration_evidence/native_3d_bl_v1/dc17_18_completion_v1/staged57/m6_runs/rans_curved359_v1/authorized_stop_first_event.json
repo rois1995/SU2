@@ -1,0 +1,86 @@
+{
+  "checked_unix": 1794376500.8009508,
+  "reason": "Completed first adaptation failed surface preparation metric seeding at391.593s with0work/0commits and no first row; accepted CFD retained. Subsequent repeated metric stage cannot resolve demonstrated construction blocker. Existing autonomous stop/fix/retry authorization.",
+  "first_event": {
+    "event": 0,
+    "ramp_factor": 1,
+    "final_cycle": 1,
+    "input_cells": 303359,
+    "authority": {
+      "mapped_input": 1,
+      "declared_error": 0,
+      "fitted_planes": 0,
+      "affine": 8094
+    },
+    "wall_faces": 38800,
+    "h0_min": 2e-06,
+    "surface_preparation": {
+      "prepared": 0,
+      "final_acceptance": false,
+      "seconds": 391.592777149,
+      "work": 0,
+      "commits": 0,
+      "geometry_work": 273738,
+      "field_compositions": 0,
+      "reason": "Native3D metric seeding exhausts elapsed-time budget. Local cached demands: geometry_cells=0, metric_or_height_cells=2, geometry_edges=0, metric_edges=84."
+    },
+    "construction_valid": 0,
+    "final_acceptance": "deferred to distributed stages",
+    "reason": "FIRST_ROW surface preparation failed: Native3D metric seeding exhausts elapsed-time budget. Local cached demands: geometry_cells=0, metric_or_height_cells=2, geometry_edges=0, metric_edges=84."
+  },
+  "verified_live_identities": [
+    {
+      "pid": 950213,
+      "start_ticks": 41858666,
+      "state": "S"
+    },
+    {
+      "pid": 950812,
+      "start_ticks": 41859933,
+      "state": "S"
+    },
+    {
+      "pid": 950813,
+      "start_ticks": 41859934,
+      "state": "S"
+    },
+    {
+      "pid": 950814,
+      "start_ticks": 41859934,
+      "state": "S"
+    },
+    {
+      "pid": 950832,
+      "start_ticks": 41859937,
+      "state": "R"
+    },
+    {
+      "pid": 950831,
+      "start_ticks": 41859937,
+      "state": "R"
+    },
+    {
+      "pid": 950830,
+      "start_ticks": 41859937,
+      "state": "R"
+    },
+    {
+      "pid": 950829,
+      "start_ticks": 41859937,
+      "state": "R"
+    },
+    {
+      "pid": 950828,
+      "start_ticks": 41859937,
+      "state": "R"
+    },
+    {
+      "pid": 950827,
+      "start_ticks": 41859936,
+      "state": "R"
+    }
+  ],
+  "pins_verified": true,
+  "signal": "SIGTERM to verified owned mpirun950814/start41859934",
+  "stop_action_not_time_or_observation_timeout": true
+}

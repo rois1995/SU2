@@ -8,16 +8,35 @@ Read AGENTS.md and [HowToProceed.md](HowToProceed.md). Historical states are in
 
 ## Current owned workload — authoritative
 
-FULL same-seed RANS359 two-event attempt RUNNING, tool session19959:
-`R/m6_runs/rans_curved359_v1`, wrapper950213/start41858666,
-time950812/start41859933, timeout950813/start41859934,
-mpirun950814/start41859934, ranks950827–950832/start41859936–41859937.
-Read current status/owned_handles/resources before action. Live-start actual-host
-verification:10 matching live identities,1623 source/build/input pins intact,
-84 mapped ELF pins match. `live_start_provenance.json` seals this observation.
-C++/tests/helper/input FROZEN until terminal or preserved authorized-stop evidence.
-Do not restart from elapsed time or an observation timeout. Source/qualification
-checkpointb089d978f2 is pushed; documentation updates may follow without code changes.
+Current owned workload: NONE. Full359 was stopped under existing authorization
+AFTER confirmed first-adaptation construction failure. Terminal1/2346.932s,1623 pins
+intact/mapped runtime verified; all10 actual PID/start identities absent. Tool19959
+is TERMINAL. `R/m6_runs/rans_curved359_v1/assessment.json` and
+first_event_surface_failure_report.json/first_event_failure_run.log preserve outcome.
+Surface preparation:391.593s,work0,commits0,geometry_work273738,field_compositions0;
+metric seeding exhausted its existing phase deadline. No first row or accepted mesh.
+Cached2metric/height-cell demands and84metric-edge demands are NOT measured-query counts.
+Second CFD/metric evaluation had begun on retained CFD; no second adaptation result
+is claimed. No accepted progress discarded. Frozen source lock released ONLY after
+terminal_handles_actual.json verified all recorded identities absent.
+
+First metric stage:1220.616s total; geometry work IDENTICAL on all6ranks to330,
+no demonstrated speedup. Composed estimate948069.856 vs500k, indicator77214.161,
+provisional/no proven bound. Initial sensor core1e-4I at ALL61330points within
+2.304e-15relative, exact Float64 coordinate association. Sensor core .npz/assessment
+and metric359_first_stage_comparison.json preserve data, NOT a composed-target export.
+
+Next connected correction: production surface-planning seeding/work reuse. Current
+seed_next takes whole-census route because composition is empty despite nonempty
+surface_target; existing composed-target incremental seeding is the starting point.
+MeasureSurfacePlanning reevaluates endpoint guidance per incident edge (2E calls vs
+V unique nodes) with fixed patch context. Reuse locally without stale association
+or persistent-certificate assumptions; preserve existing scratch admission/limits.
+Audit all callers/phase modes and keep complete final surface readiness/census.
+Do not merely change one predicate without checking coarsening/refill/ownership.
+Add already-existing seed/field/measurement counters to the BL report before relying
+on operation counts. No new scheduler/config/budgets or target policy selected.
+Current source/qualification checkpointb089d978f2 remains; no new C++ edits yet.
 
 Same saved303 reasonable coarse RANS+SA seed, Mach-only L1,500k metric complexity;
 not500k points. Native5400s/outer14400s,12GiB per rank, CFD MPI6/native FIRST_ROW1.
@@ -68,7 +87,10 @@ geometry/height/contact PASS, q-bad24/J-bad25 (356:25/25), unknown0. Existing re
 improves loss but full strict height check rejects21.2111% error>10%; original
 candidate retained. Native optimizer again exhausts the shared300s geometry window.
 front358_assessment.json seals captures/counters. No admissible repair, usable BL
-or speedup proven. Remaining construction/repair capability is the next target.
+or speedup proven. Read-only shape decomposition is in front358_shape_decomposition.json:
+4/5wall q/J-bad plus20/20above-row q/J-bad. Above-row cells still await growth/transition;
+control-target evidence alone cannot diagnose the production target. Private interface
+fixes5of6wallvertices; this is not a permanent production boundary freeze. Remaining construction/repair capability is the next target.
 Provisional AdmitFirstHeight under validity-only construction is not final height
 admission; later nonprovisional cell/completion gates remain strict. Keep all gates.
 
@@ -93,7 +115,7 @@ row, successive fronts, outer transition and complete strict closure. Progressio
 coverage, transition and true native-MPI BL construction remain UNPROVEN. Preserve
 queued Coulaud/MAdLib audit of physical curvature/tolerance demand, separate target
 contributions and realized leading-edge conformity. Inherited tangential contribution
-to provisional1.174528M versus500k remains unquantified; do not call it infeasible,
+to historical1.174528M/current948070 versus500k remains unquantified; do not call it infeasible,
 raise complexity or weaken heights. Exact330 core was not saved; no baseline campaign.
 
 Use frozen359 outcome to select the next connected correction. Completion remains

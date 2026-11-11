@@ -7,7 +7,8 @@ its production CFD binary is byte-identical344.
 ## Preserved actual-M6 probe345
 
 `staged57/front345_assessment.json` seals the partial probe. The original mesh and
-no-CAD authority, five saved337 contexts, requested h0=2e-6 and T=.1 were used.
+no-CAD authority, five saved337 contexts, requested h0=2e-6 and T=.01 were used. (The old prose T=.1 was
+incorrect:345 pinned config hash matches the unchanged335 input with thickness.01.)
 Its isotropic1e-4 control core is NOT the saved-CFD production metric or a500k target.
 No surface preparation was applied and no candidate was published.
 
@@ -419,3 +420,97 @@ accuracy proof. Existing independent point assessment uses a direct1e-14 dot bou
 and all five358 normal axes agree exactly; it supplies the stricter saved-point
 check. Tighten those unit assertions explicitly after terminal without interrupting
 this frozen workflow. This does not establish a production failure/stop condition.
+
+### Read-only decomposition during frozen359
+
+front358_shape_decomposition.json reuses the25-cell capture and centroid tensor
+frames; NO new solver/cavity campaign or pinned-code edit. Wall children4q-bad/
+5J-bad;20above-row cells20q-bad/20J-bad. Above-row cells still span toward old volume
+after ONE row; successive fronts/outer transition have not been exercised. Do not
+require their final shape closure from a first-row-only diagnostic.
+
+Wall tangent-projected triangle qualities range.302–.9998, while centroid-metric
+tangential edge lengths are.122–.444 and planar first height is1.0h0. The near-equilateral
+wall face still has q.0925/J.0129. Therefore poor tangential triangle shape alone does
+not explain all five failures; target-normal/tangent proportions and placement also
+matter. These are centroid/tangent diagnostics, NOT exact production edge quadrature,
+physical curvature bounds or the saved-CFD normalized target. They do NOT prove a
+deficient production geometry metric or500k infeasibility. Compare the actual frozen
+production target/front result before selecting a correction.
+
+Source audit: options.boundary=false disables legacy no-geometry boundary operators;
+with options.geometry, SmoothBoundary remains available. Actual private cavity
+interface fixes6vertices, including5of6wallvertices; only wall seed61340 is free.
+The blocked interior vertex39424 has59neighbors outside this25-cell candidate.
+These are real private-support restrictions, NOT permanently frozen production
+columns or evidence that the complete global native optimizer has the same mobility.
+Keep the current full run frozen and let its actual surface/preparation/growth result
+select further work. No new operator/cavity/metric policy is selected from this data.
+
+### Metric-stage attribution using existing terminal330 evidence
+
+metric359_readonly_attribution_from330.json preserves first330 metric profiles,
+source hashes and attribution limits. CSolver.cpp and CNativeComplexity3D.cpp are
+byte-identical330→current359; target/boundary headers changed, so old timings are
+NOT new359 performance measurements. Historical Hessian.436757s versus1225.133s
+complexity/gradation/audit window. Prep257.072s includes profile refresh also inside
+assessment163.802s: these OVERLAP. Even summing both maxima as an overestimate and
+subtracting known nested gradation leaves a conservative804.115s outside those
+named windows. That residual is not proven geometry time.
+
+Current source performs composed nodal audit over nPoint INCLUDING halos before
+profile.Mark(2), invoking TargetPolicy::ApplyPoint. OptionA cheap crease screening
+already exists; surviving weights may query wall distance before base/full metric
+composition. This is a concrete untimed repeated-query lead, not a demonstrated
+speedup. Initial6516 SamplePoints passes are followed by13032 full/base refresh
+passes at the SAME retained coordinates. These are high-level calls, not raw nearest
+queries: wall boxes may skip/multiply work. Only ONE normalization trial occurred;
+repeated scale trials are not the historical blocker. Geometry-work rank spread
+2.887x despite nearly equal CPU/wall windows leaves synchronization attribution
+unresolved; CPU alone cannot distinguish work and MPI polling.
+
+Prepared-region hits are not identical-query-result hits. Current counters do not
+separate metric-stage support discovery, prepared construction, certification
+traversal, cache maintenance and rank join/wait per query. Keep those gaps explicit.
+No new perf/GDB/baseline campaign, counter instrumentation or production change was
+started. Compare frozen359 counters/outcome before selecting the next connected fix.
+Historical330 sensor MinDensity=MaxDensity1e-6/AR1 means its flow metric hit the
+coarsest floor everywhere; wait for359 actual target before applying that conclusion
+to the current run or calling the control target equivalent to production.
+
+###359 terminal first surface failure — current active blocker
+
+Full359 first metric completed1220.616s. Geometry work is IDENTICAL on every rank
+to330; no meaningful work/time improvement. Current estimate948069.856 with empirical
+indicator77214.161 remains outside500k, no proven bound. Exact Float64 initial-grid
+core at ALL61330nodes is1e-4I within2.304e-15relative; coordinates match original mesh
+pointwise. Snapshot/assessment are retained, SENSOR-ONLY, not full BL target or proof
+of no later drift. Both configurations match except mesh path/output precision;
+complete target-profile/association equivalence must still be checked before treating
+control-cavity data as production target evidence.
+
+First surface preparation failed391.593s,0work/0commits,geometry_work273738 and0field
+compositions: metric seeding deadline, before first row. Cached2cell/84edge DEMANDS
+are not measured-query counts. Preserved report/log before later event0 overwrites.
+Second CFD/metric evaluation had begun; stopped only verified owned MPI launcher
+under standing failure authorization. Wrapper terminal1/2346.932s, pins intact,
+mapped runtime verified; all10actual identities absent. No second adaptation outcome
+or accepted progress claimed. See full case assessment.json and authorized-stop files.
+
+Source lead: PrepareSurface uses empty ordinary composition but nonempty boundary
+callback. seed_next at CNativeEngine3D.cpp:2665 therefore eagerly measures the whole
+initial mesh; existing composed-construction path seeds incrementally. PrepareSurface
+uses bidirectional Refine, not standalone Coarsen, but refill/complete-census/ownership
+conditions must be audited before changing this. MeasureSurfacePlanning also calls
+boundary guidance for each endpoint of each edge instead of once per unique node
+in the fixed patch (Single:12versus4); all calls share current context/core. This is
+safe local-reuse territory, NOT permission for stale cross-publication certificates.
+Its current reuse/campaign-edge handling must be reviewed; do not reuse by endpoints
+alone when exact associations/support can change. Keep bounded scratch admission.
+
+Next connected change addresses seeding/work reuse, with existing counters exposed
+in BL failure reports. No target policy, new scheduler/config, larger cavity, budget
+increase or gate relaxation selected. Metric-allocation and physical curvature
+investigations remain queued within this BL cycle; original wall tangent demand
+survives useTangentialFloor=false and cubic sampling has no analytic-curvature cap,
+but source facts alone cannot apportion948k or prove500k feasibility.

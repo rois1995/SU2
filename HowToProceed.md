@@ -125,3 +125,25 @@ Push reviewable checkpoints; passing fixtures are not workflow completion.
 
 [Prior HowToProceed history](Handbook/ADAPTATION_HOW_TO_PROCEED_HISTORY_PRE_339_20261111.md)
 is preserved. Unrelated alternatives stay in [the backlog](Handbook/ADAPTATION_BACKLOG.md).
+
+## Next correction selected by full359
+
+First production surface preparation failed after391.593s before any operators.
+Target preparation completed first; its exact original-grid sensor core is1e-4I
+within2.304e-15relative, while composed complexity is provisional948070 versus500k.
+No accepted mesh or transfer/continued-adapted-CFD/restart follows from this run.
+
+Fix the demonstrated seeding/work repetition before another full attempt. Reuse
+existing incremental composed-target seeding for expensive boundary guidance where
+correct; keep complete final readiness and all collective/dependency alignment.
+Within a fixed planning patch, evaluate unchanged nodal guidance once per node
+rather than once per incident edge. Preserve bounded scratch and fresh evaluation
+after coordinates/associations/context change. Do not add a persistent cache keyed
+only by endpoints. Existing seed counters need to survive into the BL failure report.
+
+Validate affected serial behavior and one connected MPI milestone including empty
+ranks and support/association invalidation, then replay the actual failed surface
+stage from saved exact core/authority and promptly return to full same303 workflow.
+Do not re-solve the seed or start another metric/perf baseline campaign. Target
+allocation/curvature/inherited-tangent hypotheses remain unresolved and must not be
+used to bypass this computational blocker or silently change500k/heights/gates.
