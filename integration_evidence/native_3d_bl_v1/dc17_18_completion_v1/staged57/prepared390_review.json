@@ -1,0 +1,14 @@
+{
+  "base_commit": "1415fd3178a3a08eabab8f5eb83ec019b3523345",
+  "source_pins": {
+    "Common/src/adaptation/CNativeAffineReference.cpp": "9b7045117ab7eb962cde24d0457bdef95683b592800b98aa9e85af9f399b455e",
+    "UnitTests/Common/adaptation/CNativeGeometryBackend3D_tests.cpp": "fb20da0eaf9ab28d1f600380c15270bdbae16c2fb177dcfc54ca9ecfbf6967ef"
+  },
+  "patch_sha256": "66eccc9f0b0fd249e409ac5d33978512bbe748e3d20163e440d47fe9e19cf61b",
+  "scope": "Exact390source reconstructed and SHA-verified before391integration; preserve390serialpass and actualpair3regression. Not qualified production candidate.",
+  "findings": [
+    "Initialvertex seed can skip firstproposal;390can drop solepost-traversal current solve.",
+    "390hotspotpairs0/1fixed butpair3changes from3.27e-8to.00015034relative speed mismatch when alternate proposal fails."
+  ],
+  "correction": "Track at most2distinct actual attempts; move skipped initial opportunity after subdivision. If optional alternatefails, try untried current facet, or the remaining competitive support, inside original2x64and totalquerywork."
+}

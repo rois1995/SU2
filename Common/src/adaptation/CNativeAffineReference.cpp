@@ -1662,8 +1662,11 @@ MappedFacetReference::CurvedClosest MappedFacetReference::ClosestCurved(
       result.candidate_bounds={ToPoint(low),ToPoint(high)};
     }
   };
-  auto polish=[&]() {
-    if(result.binding.dimension==0 || maximum_work-result.work<64)return;
+  std::array<Id,2> polishedFacets{};unsigned proposals=0;
+  auto polished=[&](Id facet){return std::find(polishedFacets.begin(),polishedFacets.begin()+proposals,facet)!=polishedFacets.begin()+proposals;};
+  auto polish=[&](Id facet) {
+    if(proposals==polishedFacets.size() || polished(facet) || result.binding.dimension==0 || maximum_work-result.work<64)return false;
+    polishedFacets[proposals++]=facet;
     const auto firstWork=result.work;const auto firstUpper=result.upper;bool improved=false;
     struct ProposalLimit {};
     auto record=[&]() {
@@ -1673,7 +1676,7 @@ MappedFacetReference::CurvedClosest MappedFacetReference::ClosestCurved(
     };
     auto use=[&](){if(result.work-firstWork>=64)throw ProposalLimit{};consume();};
     try {
-      use();const Id facet=result.facet;
+      use();
       std::array<SU2NativeCurved::Vec<3>,10> net;
       for(unsigned q=0;q<10;++q)net[q]=Values(curves.at(facet)[q]);
       const auto local=SU2NativeCurved::detail::NormalizeTriangleProjection(net,Values(query));
@@ -1688,7 +1691,7 @@ MappedFacetReference::CurvedClosest MappedFacetReference::ClosestCurved(
     } catch(const ProposalLimit&) {} // Optional witness only; the complete lower-bound search remains authoritative.
       catch(const std::invalid_argument&) {}
       catch(...) {record();throw;}
-    record();
+    record();return improved;
   };
   consume();candidate(hint,{1,0,0});candidate(hint,{0,1,0});candidate(hint,{0,0,1});candidate(hint,{.5,.25,.25});
   if(!std::isfinite(result.upper))throw std::invalid_argument("Unrepresentable curved query distance.");
@@ -1725,7 +1728,7 @@ MappedFacetReference::CurvedClosest MappedFacetReference::ClosestCurved(
   } else {candidates.resize(entry.facets.size());std::iota(candidates.begin(),candidates.end(),0);}
   initialCandidates=candidates.size();
   auto compare=[](const Region& a,const Region& b){return a.lower>b.lower;};
-  std::priority_queue<Region,std::vector<Region>,decltype(compare)> pending(compare);
+  std::vector<Region> pending;
   constexpr size_t cacheAllowance=64;
   // Region retention must leave the completed answer one scan/insertion within the same cap.
   const size_t regionAllowance=answerKey.empty()?cacheAllowance:cacheAllowance-2;
@@ -1796,17 +1799,18 @@ MappedFacetReference::CurvedClosest MappedFacetReference::ClosestCurved(
       direction=Difference(Exact(query),Blossom(curves.at(id),{Exact(ToPoint(v)),Exact(ToPoint(v)),Exact(ToPoint(v))}));
     }
     const double bound=std::max(0.,std::nextafter(double(lower),-INFINITY));
-    pending.push({id,parameter,bound,PositiveNormalClearance(net,query),depth});++completed[depth?1:0];
+    pending.push_back({id,parameter,bound,PositiveNormalClearance(net,query),depth});
+    std::push_heap(pending.begin(),pending.end(),compare);++completed[depth?1:0];
   };
   for(auto index:candidates) { const auto facet=entry.facets.at(index);
     if(!allowed_facets || allowed_facets(facet))prepare(facet,{{{1,0,0},{0,1,0},{0,0,1}}},0); }
   if(pending.empty())throw std::logic_error("Curved component broad phase lost its seed.");
-  polish();
+  const Id firstFacet=result.facet;polish(firstFacet);
   while(!pending.empty()) {
     if(reservation)reservation->CheckTime();
-    result.lower=std::min(result.upper,pending.top().lower);
+    result.lower=std::min(result.upper,pending.front().lower);
     if(Subtract(result.upper,result.lower).hi<=tolerance)break;
-    const auto parent=pending.top();pending.pop();
+    const auto parent=pending.front();std::pop_heap(pending.begin(),pending.end(),compare);pending.pop_back();
     if(parent.depth>=48)throw std::length_error("Curved distance parameters exhausted their exact dyadic resolution.");
     std::array<Point,3> mid;
     for(unsigned k=0;k<3;++k){const auto a=Values(parent.parameter[k]),b=Values(parent.parameter[(k+1)%3]);Vec r{};
@@ -1814,11 +1818,32 @@ MappedFacetReference::CurvedClosest MappedFacetReference::ClosestCurved(
     for(unsigned k=0;k<3;++k)prepare(parent.facet,{parent.parameter[k],mid[k],mid[(k+2)%3]},parent.depth+1);
     prepare(parent.facet,{mid[0],mid[1],mid[2]},parent.depth+1);
   }
-  polish();
+  auto alternative=[&](Id current) {
+    Id facet=UINT64_MAX;double bestLower=INFINITY;
+    const auto remaining=maximum_work-result.work;
+    if(entry.facets.size()>1 && remaining>=64 && pending.size()<=remaining-64)
+      for(const auto& region:pending) {
+        consume();
+        if(region.facet!=current && !polished(region.facet) && region.lower<=result.upper &&
+            (region.lower<bestLower || (region.lower==bestLower && region.facet<facet))) {
+          facet=region.facet;bestLower=region.lower;
+        }
+      }
+    return facet;
+  };
+  // Reuse a skipped vertex-seed opportunity after subdivision; never repeat a deterministic facet solve.
+  for(unsigned retry=0;retry<2 && proposals<polishedFacets.size();++retry) {
+    Id facet=result.facet;
+    if(polished(facet) || (!proposals && facet==firstFacet)) {
+      const auto other=alternative(facet);
+      if(other!=UINT64_MAX)facet=other;else if(polished(facet))break;
+    }
+    const auto before=proposals;
+    if(polish(facet) || proposals==before)break;
+  }
   result.lower=std::min(result.lower,result.upper);
   result.clearance_lower=INFINITY;
-  while(!pending.empty()) {
-    const auto region=pending.top();pending.pop();
+  for(const auto& region:pending) {
     if(region.lower<=result.upper)result.clearance_lower=std::min(result.clearance_lower,
         region.clearance>0?region.clearance:-result.upper);
   }

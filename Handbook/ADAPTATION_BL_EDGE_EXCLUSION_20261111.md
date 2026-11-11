@@ -494,3 +494,78 @@ repeating an ineffective same-facet solve. No new operator or geometry authority
 Any change requires full allowed-component lower/clearance proof, canonical interval
 witness, body/support identity, accounting, focused constraints and actual chord.
 No implementation/performance benefit from this hypothesis has been established.
+
+
+##390connected competitive prepared-witness correction
+
+Missing capability: current deterministic flat-start solve can be repeated on the
+same failing facet, even though another already prepared competitive facet admits a
+better legal witness.389actualdata:35672points0/1cap64,30335converges19/39, while the
+resulting binding uncertainty creates2.53%tensor noise in dominant root refinement.
+This is measured witness-selection weakness, not authorization to promote interiors,
+raise caps, smooth physical features or change the BLmetric/geometry authority.
+
+390keeps maxTWOproposals/max64callbacks each. Firstproposal remains currentbest.
+If subdivision ends on another facet, secondproposal uses that facet asbefore.
+Otherwise replace the deterministic duplicate by min(lower,facetID) competitive
+OTHERfacet among already admitted pending regions with lower<=currentupper.
+Admit complete read-only scan only if remaining>=64and pending.size<=remaining-64;
+charge/time-check each visit. No room/no candidate skips optional duplicate, retaining
+the valid global result. No extra retained supports or geometry copies; same vector
+heap/comparator/incremental push_heap/pop_heap preserves priority-queue semantics.
+Clearance min is computed over ALLuntouched pending leaves AFTERthe final witness;
+normal/differentials and complete answer cache then use the final exact binding.
+
+Every proposal must pass existing converged solver and canonical ParameterBox/
+Blossom outward upper proof. Full global lower subdivision and same allowed body/
+marker/predicate support unchanged. No newnormal-error claim or metric policy.
+No increasedquery/proposal/storage/deadline budget or config. Workcounts mayrise
+from charged support scan; useful completion, not fewer queries, judges benefit.
+Bounded read-only review found no contract issue; tests still required.
+
+Acceptance: restricted support performs one deterministic proposal (no duplicate),
+no body escape, cached/recomputed certificates agree, exhaustion remains refusal;
+focused geometry/seam/feature/height/invalidations, existing hotspot6pairs, ONE MPI6
+milestone with empty ranks/migration and original full chord at SAME300s atlas/600s
+outer. Actual point/edge behavior must establish usefulness before moving stage2.
+No native MPI BLgeneration or fulltarget checkpoint claim from this component.
+
+
+##390review/actual regression and completed391policy
+
+390buildPASS36.160s; serialPASS53cases/7299assertions247.538s. Actual6pair replay
+PASSdiagnostic61.711s/7935point work, but improvement condition FAILS: pairs0/1become
+bit-identical while pair3regresses from3.27e-8to.00015034relative chord-speed mismatch
+(2.53%tensor). The alternative30335solver can fail there; the old useful35672solve
+was lost when the initial vertex seed had skipped its first proposal. Serial alone
+missed this case. NO390MPI/full-chordcampaign launched. Exact390source patch is
+SHA-verified against build390pins in prepared390_source.patch/prepared390_review.json.
+
+391tracks at mostTWOactual distinct-facet attempts,64callbacks each. A skipped initial
+vertex attempt remains available after subdivision. Prefer the competitive prepared
+other support as390; if it does not improve the witness, spend an unused opportunity
+on the untried current facet or remaining competitive support. Never repeat a facet
+solve, never exceed original2x64or totalquerywork, and skip unadmitted scans. Same
+canonical interval witness and global lower/clearance/caching order. Existing solver,
+physical target, geometry, tolerance, memory ceiling and configs unchanged.
+Near-vertex restricted-only-facet regression requires restoring exactlyONEsolve;
+normal restricted case still avoids duplicate. This completes the SAMEconnected
+witness-selection correction; no competing implementation/extraMPIcycle.
+
+Validate eligibility check first, then identical saved6point pairs (required numerical
+fulltensor/chord-speed agreement<1e-9, not a normal-error certificate), focused serial,
+ONEconnectedMPI milestone and original chord under unchanged300s/600s.391build is
+frozen. No performance/BL capability claim until actual useful completion.
+
+
+391buildPASS36.159s. Restricted ordinary+nearvertex regression PASS19assertions/5.307s.
+Actual saved6pair replayPASS61.175s,8454pointwork/.38274spoint evaluation: ALLsixpairs
+now have bit-identical feet, normals, fulltensor, chord speed and scalarhn across
+default/tighter requests. This removes390pair3regression without raising caps or
+promoting interiors. Workincreases27.2%vs3896646; no perquery speedup claim. Full
+serial/MPI/originalchord still required. Source review found no contract issue; first
+pre-traversal optional witness can still consume budget later needed for proof,
+as already documented385/386. This inherited bounded-availability tradeoff does not
+allow uncertified results; no claim optional work can never cause bounded refusal.
+Post-traversal scans/proposals fit explicitly in remaining work, cacheadmission
+skipsifnecessary. Judge useful completion, not attempt/improvement counters alone.

@@ -602,3 +602,18 @@ KKT condition sometimes precedes return, but early checking alone cannot fix all
 Next review EXISTINGcompetitive prepared supports for valid upper witnesses within
 original work admission, global lower/clearance proof and exact body/support.
 No speedup or usable BLclaim follows from these diagnostics; remain stage2.
+
+
+##390/391 connected prepared-support witness integration (qualification ongoing)
+
+390build36.160s/serial53cases7299assertions247.538s pass. Hotspot12point diagnostic
+61.711s/7935work fixes originalpairs0/1but regresses pair3to2.53%tensor/.015%speed
+mismatch because an alternate failure consumes the only post-traversal opportunity
+when the initial vertex had skipped its solve. No390MPI/fullchord campaign; exact
+source390patch/hash and failure retained. Passing serial did not close this gap.
+
+391build36.159s; eligibility19assertions5.307s; actualhotspot6pairs61.175s/8454point
+work/.382740spoint evaluations. ALLsixpairs bit-identical foot/normal/fulltensor/
+chordspeed/scalarhn. Pointwork+27.2%vs3896646, not a speedup. Additional scan/unused
+originalproposal opportunity are charged. Serial/MPI/fullchord qualification pending;
+normal stability alone does not establish construction or workflow improvement.

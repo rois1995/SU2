@@ -12,10 +12,20 @@ next-action notes are not live state.
 
 ## Actual source/build/owned workload — authoritative
 
-Current workload: NONE. Build389/panel trace/dominant-point replay TERMINAL;
+Current workload: focused391serial integration RUNNING; C++ PINNED.
+R/cases/curved391_prepared_serial_*/status.json/pins.json own live handle.
+Build391TERMINAL0/36.159s; eligibility regression PASS19assertions/5.307s.
+Prepared actual6pairs PASS61.175s/8454point work: ALLsixpairs bit-identical feet,
+normals,FULLtensor,chord speed and scalarhn. R/dominant_points391_assessment.json.
+Work+27.2%vs389; no perquery/workflow speedup claim. Fullserial, ONE MPI and original
+chord pending.391uses at mostTWOdistinct actual64callback attempts, restoring a
+skipped vertex opportunity after subdivision; same lower/clearance/gates/budgets.
+390serialpass+actualpair3regression preserved; exact390patch SHA-verified in
+prepared390_source.patch/prepared390_review.json. No390MPI/fullchord was launched.
+Build389/panel trace/dominant-point replay TERMINAL;
 20actual-host PID/start identities reverified absent. All source/binary/input/runtime
 pins intact. R/metric_edge389_attribution.json. Bounded standalone numerical helper
-also exited0; no production source change in389, no new production variant selected.
+also exited0; no production source change in389.390implementation now selected from that evidence.
 Build389198.183s; CFD byte-identical388:
 035ec27fda7abeb7b1b9c0ffb6e9b048e5feaf8f8904aaab35db4dce330be209.
 Test SHA f23fffe875861160b269a4938c55ef9630bc15d416ba7b397e534c80d6143dce.
@@ -58,7 +68,7 @@ Source ClosestCurved polishes only its currentbest facet before/after subdivisio
 Review reuse of EXISTINGcompetitive prepared facets/subtrees for valid upper
 witnesses inside ORIGINALquery/proposal budget, rather than repeating ineffective
 same-facet work. Actual alternate30335solve above supports this investigation;
-selection/performance/safety are still hypotheses, NOT implemented. Reuse existing
+selection/performance/safety require390qualification; implementation is frozen in build. Reuse existing
 candidate/support discovery; no larger-cavity campaign/new geometry/scheduler/config.
 Any candidate must be certified by canonical binding+outward ParameterBox/Blossom;
 retain complete allowed support/body identity, global lower proof, clearance,

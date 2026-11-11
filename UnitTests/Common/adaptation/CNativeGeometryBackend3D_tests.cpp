@@ -938,3 +938,23 @@ TEST_CASE("Cubic projection hands outward root steps to its existing active-edge
     CHECK(std::abs(u-.0013165528116)<1e-9);
   }
 }
+
+TEST_CASE("Closest witness reuse does not repeat a deterministic restricted-facet solve", "[NativeClosestWitness3D][NativeGeometryBackend3D]") {
+  using namespace SU2Native3D;BackendFixture fixture(true);std::map<Id,double> errors;
+  for(const auto& facet:fixture.facets)errors.emplace(facet.id,1e-12);
+  MappedFacetReference geometry(fixture.reference,errors,57,SIZE_MAX,false,fixture.geometry->Curves(),0);
+  const auto restricted=[](Id id){return id==0;};
+  for(const Point query:{Point{.23,.41,-.03},Point{.0001,.0002,-.0001}}) {
+    const auto before=geometry.GeometryStatsSnapshot();
+    const auto result=geometry.ClosestCurved(0,query,1e-7,16384,SIZE_MAX,restricted);
+    const auto after=geometry.GeometryStatsSnapshot();
+    CHECK(result.facet==0);CHECK(geometry.Supports(result.facet,result.binding));
+    CHECK(result.lower>=0);CHECK(result.upper>=result.lower);CHECK(result.upper-result.lower<=1e-7);
+    CHECK(after.closest_projection_attempts-before.closest_projection_attempts==1);
+    CHECK(after.closest_projection_work-before.closest_projection_work<=64);
+    CHECK(result.work<=16384);
+  }
+  const auto shifted=geometry.ClosestCurved(100,{10.23,.41,-.03},1e-7,16384);
+  CHECK(geometry.Body(shifted.facet)!=geometry.Body(0));
+  CHECK(geometry.CurvedComponent(shifted.facet)!=geometry.CurvedComponent(0));
+}
