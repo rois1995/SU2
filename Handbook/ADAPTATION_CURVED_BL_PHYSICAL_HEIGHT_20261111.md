@@ -564,3 +564,11 @@ Composed tensors/component contributions are not serialized; these exports canno
 apportion948k among original wall tangential spacing, height, features and gradation.
 Use this limited authoritative coverage baseline against362 existing counters; no
 new CFD, geometry query, baseline or profiling campaign was launched.
+
+
+362 first metric complete1254.119s (build1253.731s versus3591220.236s,+2.74%).
+Every rank's geometry-work count and complexity948069.856 are IDENTICAL to359;
+metric-entry CFD restart is byte-identical. No metric work reduction or target
+allocation change. See metric362_first_stage_comparison.json and immutable entry
+log. Current frozen362 is now in native surface preparation; await its useful
+operations/readiness and outcome before choosing further correction.

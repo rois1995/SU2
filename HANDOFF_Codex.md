@@ -13,8 +13,13 @@ Folder `R/m6_runs/rans_curved362_v1`; wrapper1251081/start42532701,
 timeout1251565/start42533873, MPI1251566/start42533873; actual10PID/start identities
 verified live in start_verified_actual.json,1623pins intact, runtime mapping recorded.
 Started2026-11-11T07:08:19UTC. Initial same-seed CFD finite CL.155731/CD.050268;
-first composed metric evaluation running, actual10identities reverified live in
-metric_live_observation.json. No remesh outcome yet. Compiled C++/tests
+first composed metric COMPLETE1254.119s, metric_build1253.731s(+2.74% versus359),
+IDENTICAL per-rank geometry work and complexity948069.856. Metric-entry CFD restart
+byte-identical359. No metric work reduction; this change targets surface planning.
+Now in native surface preparation; no remesh outcome yet. See
+R/metric362_first_stage_comparison.json and immutable initial_cfd_metric_entry.log.
+Actual10identities last reverified live; metric_live_observation.json is historical
+within this same still-live attempt, not its latest elapsed stage. Compiled C++/tests
 and pinned helpers remain unchanged until verified terminal or preserved failure
 justifies authorized stop. Qualified change pushed2e151415c8 before launch. Build362 TERMINAL0/70.163s, pins intact,9observed build
 PIDs absent. Serial362 TERMINAL0/4.426s,741assertions/9cases, pins intact/all actual
