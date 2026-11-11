@@ -104,3 +104,47 @@ match original composition exactly; no current difficult-edge speedup is claimed
 Counters exist, but successful saved-target mode continues before its cumulative
 counter dump; correct that diagnostic control flow with the next bounded accuracy
 extension. Qualification does not establish a complete target checkpoint or BL mesh.
+
+
+##382 diagnostic input/output/acceptance (no production accuracy change)
+
+Input: same371selected core, fresh policy recipe and first preserved actual M6 edge,
+original300s geometry envelope. Confirm endpoints share an original mesh edge so
+its P1 core is the endpoint interpolation. Prepare geometry once. Output: GL10whole-
+chord estimate (diagnostic only, explicitly crosses cuts), GL10versus unchanged
+production numerical engine on the widest existing smooth cut interval, then whole
+chord with ALLcuts retained. A unit-chord scalar reparameterization reuses the same
+G7/K15integrator/tolerance; it is not a physical candidate or exact integral enclosure.
+GL10constant/degree18polynomial self-checks guard the rule. Report its rounding and
+numerical-reference limitations. Any incomplete reference leaves GL10error UNKNOWN.
+No new deadline, acceptance, placement or construction decision results from this.
+
+Production pins must match381; focused serial verifies the diagnostic control-flow
+change and original exclusion behavior. Existing MPI381milestone is reused because
+production sources/binary and loaded libraries must remain identical. Actual run
+must preserve partial interval results on refusal. Successful target-only branches
+now reach existing cumulative telemetry instead of skipping it via `continue`.
+No altered production decision means no new patch trajectory to qualify yet; a
+production accuracy correction requires demonstrated trustworthy bounds and affected
+complete-patch/integration validation before use.
+
+
+## Demonstrated remaining exclusion caller gap (read-only during382)
+
+Factory bypass381still leaves `FrozenField::EdgeLength` in its composed numerical
+branch: identity pinned samples avoid BLgeometry, but generic G7/K15work remains.
+The existing sensor-only branch already integrates the P1quadratic form analytically.
+Connected correction after382terminal: let an edge geometry supply an optional
+freshness-checked assertion that the complete target equals the incoming sensor on
+this chord. Only the two proven-exclusion factories set it. `FrozenField` then uses
+its existing analytic branch, including balanced-inverse behavior; every ambiguous
+or ordinary composed edge retains the current integration. Stale cached contexts
+must throw before using the analytic path, not silently skip the pinned validator.
+This is exact identity reuse, not an approximate classification bound.
+
+Acceptance: varying anisotropic core tensors yield the same analytic target/sensor
+length, zero composed samples; disabling only the identity assertion retains the
+existing numerical reference and matching length. Stale profile/support/radius
+contexts still refuse; actual-authority distant controls verify the same full edge
+behavior. Requalify the connected production milestone after this caller correction.
+No demonstrated saving on the five nonexcluded M6edges is assumed.

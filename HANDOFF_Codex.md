@@ -12,16 +12,23 @@ construction validity-first; intermediate quality debt is provisional, not accep
 
 ## Current state — authoritative
 
-Current workload: NONE; build381 and all three qualifications TERMINAL, actual-host
-owned identities verified absent. R/edge_exclusion381_qualification.json.
-Build381passed444.505s, pins intact; serial2589assertions/17cases/5.264s;
-MPI6passed24cases EVERYrank (2812–3015assertions/rank)/5.792s. Saved5M6contexts
-passed82.024s: all original edges remain ambiguous/full path; five translated
-outside controls have exact zero tensor difference. No difficult-edge speedup.
-CFD SHA9afcca7d61ac69a6ff45fcad84f151a0bd8cf95f80b2e9cf8fc4cf0af85bf3f9.
-Next ACTIVE: purpose-aware measurement investigation described in the exclusion
-handbook. Production accuracy unchanged; G7/K15 error estimator is NOT a certified
-interval. Existing scalar dependencies and composed-gradation gap audited.
+Current workload: saved-M6 accuracy diagnostic382 RUNNING/FROZEN, session40592.
+R/cases/curved382_target_accuracy_* latest status/command/resources own handles.
+Build382 TERMINAL0/238.253s, pins intact/all actual-host identities terminal;
+production CFD byte-identical381. Serial382 TERMINAL0/4.632s, pins intact/all owned
+handles terminal. No production accuracy/decision changes; two test-only includes
+compare GL10with existing G7/K15engine on the physical integrand, retaining cuts.
+One saved difficult context, original300s geometry deadline. Do not edit pinned C++
+until actual-host terminal. MPI381production milestone remains applicable if source,
+loaded libraries and production binary unchanged; no diagnostic-only MPI campaign.
+
+Qualified exclusion checkpoint3ce85033c3 PUSHED. Build381 and all three qualifications
+TERMINAL, actual-host owned identities verified absent.
+R/edge_exclusion381_qualification.json. Build381passed444.505s, pins intact;
+serial2589assertions/17cases/5.264s; MPI6passed24cases EVERYrank
+(2812–3015assertions/rank)/5.792s. Saved5M6contexts passed82.024s: all original
+edges remain ambiguous/full path; five translated outside controls have exact zero
+tensor difference. No difficult-edge speedup. CFD SHA9afcca7d61ac69a6ff45fcad84f151a0bd8cf95f80b2e9cf8fc4cf0af85bf3f9.
 
 Actual380 TERMINAL1/362.580s, pins intact; all4children+
 wrapper rechecked absent on actual host. R/geometry_target380_assessment.json.

@@ -2,7 +2,8 @@
 using namespace junction_wp0;
 SU2NativeBLPipeline3D::detail::PipelineScope pipeline;
 const bool exclusionOnly=std::string(std::getenv("SU2_NATIVE_BL_FRONT_PROBE"))=="saved_target_exclusion";
-const bool savedTarget=exclusionOnly||std::string(std::getenv("SU2_NATIVE_BL_FRONT_PROBE"))=="saved_target_geometry";
+const bool accuracyOnly=std::string(std::getenv("SU2_NATIVE_BL_FRONT_PROBE"))=="saved_target_accuracy";
+const bool savedTarget=accuracyOnly||exclusionOnly||std::string(std::getenv("SU2_NATIVE_BL_FRONT_PROBE"))=="saved_target_geometry";
 double selectedCore=1e-4,tangentScale=1;
 std::map<Id,std::pair<Point,Tensor>> savedCore;
 if(savedTarget) {
@@ -167,6 +168,8 @@ for(size_t index=0;index<count;++index) {
         CHECK(maximumDifference==0);
         frontLog<<"{\"context\":"<<std::quoted(label)<<",\"stage\":\"actual_authority_outside_control\",\"translated_synthetic_control\":true"
                 <<",\"original_cfd_edge\":false,\"maximum_tensor_difference\":"<<maximumDifference<<",\"flow_tensor_from_original_node\":true}"<<std::endl;
+      } else if(accuracyOnly) {
+#include "native_actual_bl_accuracy_probe.inc"
       } else {
       const auto fullLength=state->field->TargetEdgeLength(a,b);
       REQUIRE(sensorLength>0);REQUIRE(fullLength>0);REQUIRE(std::isfinite(fullLength));
@@ -182,8 +185,7 @@ for(size_t index=0;index<count;++index) {
       frontLog<<"{\"context\":"<<std::quoted(label)<<",\"stage\":\"target_geometry_only_complete\",\"geometry_work\":"<<budget.work-beforeWork
               <<",\"seconds\":"<<std::chrono::duration<double>(std::chrono::steady_clock::now()-t0).count()
               <<",\"construction_attempted\":false,\"production_target_certified\":false}"<<std::endl;
-      continue;
-    }
+    } else {
     dc9::Rows rows;std::set<Id> moving{edge[0]};dc9::Tx tx;bool low=false;
     Face firstFail{};bool haveFail=false;
     for(unsigned grow=0;grow<20;++grow) {
@@ -330,6 +332,7 @@ for(size_t index=0;index<count;++index) {
 #include "native_actual_bl_surface_height_probe.inc"
       }
     }
+    } // Construction is intentionally omitted by target-only diagnostics.
   } catch(const std::exception& e) {
     frontLog<<"{\"context\":"<<std::quoted(label)<<",\"stage\":\"refusal\",\"reason\":"<<std::quoted(e.what())
             <<",\"geometry_work\":"<<budget.work-beforeWork<<",\"seconds\":"
