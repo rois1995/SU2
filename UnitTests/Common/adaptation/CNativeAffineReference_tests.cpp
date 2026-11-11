@@ -741,6 +741,7 @@ TEST_CASE("Curved mapped controls persist physical geometry separately from exac
 
 TEST_CASE("Curved first-height clearance and principal curvature use the persisted polynomial", "[NativeCurvedMapped3D]") {
   using namespace SU2Native3D;
+  const auto quota=GENERATE(size_t(0),size_t(1)<<22);
   const std::array<Node,4> n{{{0,{0,0,0}},{1,{3,0,0}},{2,{0,3,0}},{3,{0,0,-3}}}};
   const std::vector<Facet> facets{{0,0,{n[2],n[1],n[3]}},{1,0,{n[0],n[3],n[1]}},
       {2,0,{n[0],n[2],n[3]}},{3,0,{n[0],n[1],n[2]}}};
@@ -774,7 +775,7 @@ TEST_CASE("Curved first-height clearance and principal curvature use the persist
     CHECK(patch.Separated(source,work,1024));
   }
   nets[3][9].z=.1;
-  auto geometry=std::make_shared<MappedFacetReference>(base,errors,1,SIZE_MAX,false,nets);
+  auto geometry=std::make_shared<MappedFacetReference>(base,errors,1,SIZE_MAX,false,nets,quota);
   const std::array<SurfaceBinding,3> sourceBinding{{geometry->Vertex(0),geometry->Vertex(1),geometry->Vertex(2)}};
   const std::array<Point,3> sourceFace{{n[0].p,n[1].p,n[2].p}};
   const auto sourcePatch=geometry->PrepareSourcePatch(3,sourceBinding,sourceFace);
@@ -807,20 +808,25 @@ TEST_CASE("Curved first-height clearance and principal curvature use the persist
   CHECK(fluid.clearance_lower>0);CHECK(fluid.clearance_lower<=.01+1e-12);
   const auto outside=geometry->ClosestCurved(3,{point.x,point.y,point.z+.01},1e-8,16384);
   CHECK(outside.clearance_lower<0);
-  nets[3][9].z=-.1;geometry=std::make_shared<MappedFacetReference>(base,errors,2,SIZE_MAX,false,nets);
+  nets[3][9].z=-.1;geometry=std::make_shared<MappedFacetReference>(base,errors,2,SIZE_MAX,false,nets,quota);
   const auto fluidward=geometry->PrepareSourcePatch(3,{{geometry->Vertex(0),geometry->Vertex(1),geometry->Vertex(2)}},sourceFace);
   CHECK(fluidward.OutwardDisplacement()<1e-10);sourceWork=0;
   CHECK(fluidward.Separated({{{0,0,.001},{3,0,.001},{0,3,.001}}},sourceWork,1024));
   auto parameters=ComponentState(geometry,facets);const auto reference=PlanarReference::WithParameters(base,parameters);
   CHECK(reference->SearchWorkspaceBytes()>=geometry->CurvedQueryWorkspaceBytes(MappedFacetReference::ClearanceWork));
-  for(double h:{.001,.1}) {
-    Patch patch;patch.cells.push_back({0,{n[0],n[2],n[1],{100,{1,1,-h}}}});
+  for(double h:{.001,.1,.3})for(bool physical:{false,true}) {
+    // At x=y=1 the persisted graph is z=-.6/27; planar altitude alone misses the requested distance.
+    const double apex=-h-(physical?.6/27:0);
+    Patch patch;patch.cells.push_back({0,{n[0],n[2],n[1],{100,{1,1,apex}}}});
     patch.surface.push_back({{0,1,2},3});reference->ExportParameters(patch);
     FirstHeightReport report;std::string reason;
     const bool accepted=CheckFirstHeight(patch,{{0,h}},*reference,report,reason);INFO(reason);
-    CHECK(accepted==(h==.1));CHECK(report.height_failures==0);CHECK(report.footprint_failures==0);
-    CHECK(report.reference_clearance_failures==(h==.1?0:1));
-    CHECK((report.minimum_reference_clearance_ratio>0)==(h==.1));
+    // Both true distance and facet altitude must pass: this fixed face is not ready for the smaller heights.
+    CHECK(accepted==(h==.3));CHECK(report.height_failures==(h==.3?0:1));CHECK(report.footprint_failures==0);
+    const bool fluid=physical||h>=.1;
+    CHECK(report.reference_clearance_failures==(fluid?0:1));
+    CHECK((report.minimum_reference_clearance_ratio>0)==fluid);
+    if(physical)CHECK(report.maximum_relative_error==Approx((.6/27)/h).margin(1e-3));
   }
 }
 

@@ -1,0 +1,161 @@
+Filters: [NativeCurvedMapped3D],[NativeClosestPrepared3D],[NativeCurvedFirstHeightBudget3D]
+0.010 s: A measured compatible child charges its query
+0.011 s: Cubic first-height certification enforces physical distance and shared resources
+0.013 s: Planar height passes while true curved distance misses
+0.014 s: Cubic first-height certification enforces physical distance and shared resources
+0.000 s: Exhausted shared work refuses without a measurement
+0.001 s: Cubic first-height certification enforces physical distance and shared resources
+0.000 s: A failed closest query still charges attempted remaining work
+0.001 s: Cubic first-height certification enforces physical distance and shared resources
+0.000 s: Remaining storage rather than total storage limits the query
+0.001 s: Cubic first-height certification enforces physical distance and shared resources
+0.262 s: Curved mapped controls persist physical geometry separately from exact parameter topology
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+test_driver is a Catch v2.13.9 host application.
+Run with -? for options
+
+-------------------------------------------------------------------------------
+Curved first-height clearance and principal curvature use the persisted
+polynomial
+-------------------------------------------------------------------------------
+../../UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp:742
+...............................................................................
+
+../../UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp:824: FAILED:
+  CHECK( accepted==physical )
+with expansion:
+  false == true
+with message:
+  Native3D prescribed height fails at facet 3 cell 0 relative error 22.222222 >
+  tolerance 0.100000
+
+../../UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp:824: FAILED:
+  CHECK( report.height_failures==(physical?0:1) )
+with expansion:
+  1 == 0
+with message:
+  Native3D prescribed height fails at facet 3 cell 0 relative error 22.222222 >
+  tolerance 0.100000
+
+../../UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp:828: FAILED:
+  CHECK( report.maximum_relative_error<1e-3 )
+with expansion:
+  22.2222222222 < 0.001
+with message:
+  Native3D prescribed height fails at facet 3 cell 0 relative error 22.222222 >
+  tolerance 0.100000
+
+../../UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp:824: FAILED:
+  CHECK( accepted==physical )
+with expansion:
+  false == true
+with message:
+  Native3D prescribed height fails at facet 3 cell 0 relative error 0.222222 >
+  tolerance 0.100000
+
+../../UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp:824: FAILED:
+  CHECK( report.height_failures==(physical?0:1) )
+with expansion:
+  1 == 0
+with message:
+  Native3D prescribed height fails at facet 3 cell 0 relative error 0.222222 >
+  tolerance 0.100000
+
+../../UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp:828: FAILED:
+  CHECK( report.maximum_relative_error<1e-3 )
+with expansion:
+  0.2222222222 < 0.001
+with message:
+  Native3D prescribed height fails at facet 3 cell 0 relative error 0.222222 >
+  tolerance 0.100000
+
+0.073 s: Curved first-height clearance and principal curvature use the persisted polynomial
+-------------------------------------------------------------------------------
+Curved first-height clearance and principal curvature use the persisted
+polynomial
+-------------------------------------------------------------------------------
+../../UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp:742
+...............................................................................
+
+../../UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp:824: FAILED:
+  CHECK( accepted==physical )
+with expansion:
+  false == true
+with message:
+  Native3D prescribed height fails at facet 3 cell 0 relative error 22.222222 >
+  tolerance 0.100000
+
+../../UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp:824: FAILED:
+  CHECK( report.height_failures==(physical?0:1) )
+with expansion:
+  1 == 0
+with message:
+  Native3D prescribed height fails at facet 3 cell 0 relative error 22.222222 >
+  tolerance 0.100000
+
+../../UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp:828: FAILED:
+  CHECK( report.maximum_relative_error<1e-3 )
+with expansion:
+  22.2222222222 < 0.001
+with message:
+  Native3D prescribed height fails at facet 3 cell 0 relative error 22.222222 >
+  tolerance 0.100000
+
+../../UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp:824: FAILED:
+  CHECK( accepted==physical )
+with expansion:
+  false == true
+with message:
+  Native3D prescribed height fails at facet 3 cell 0 relative error 0.222222 >
+  tolerance 0.100000
+
+../../UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp:824: FAILED:
+  CHECK( report.height_failures==(physical?0:1) )
+with expansion:
+  1 == 0
+with message:
+  Native3D prescribed height fails at facet 3 cell 0 relative error 0.222222 >
+  tolerance 0.100000
+
+../../UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp:828: FAILED:
+  CHECK( report.maximum_relative_error<1e-3 )
+with expansion:
+  0.2222222222 < 0.001
+with message:
+  Native3D prescribed height fails at facet 3 cell 0 relative error 0.222222 >
+  tolerance 0.100000
+
+0.065 s: Curved first-height clearance and principal curvature use the persisted polynomial
+2.582 s: Closest cubic queries reuse complete certificates and immutable regions
+1.782 s: Closest certificates retain exact support accuracy and current resource contracts
+0.749 s: Indexed cubic closest queries avoid cube-only roots under the original work allowance
+0.713 s: Indexed cubic closest queries avoid cube-only roots under the original work allowance
+===============================================================================
+test cases:    6 |    5 passed |  1 failed
+assertions: 1857 | 1845 passed | 12 failed
+
+Command exited with non-zero status 12
+	Command being timed: "timeout 600 /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver [NativeCurvedMapped3D],[NativeClosestPrepared3D],[NativeCurvedFirstHeightBudget3D] --durations yes"
+	User time (seconds): 6.27
+	System time (seconds): 0.03
+	Percent of CPU this job got: 95%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 0:06.60
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 35160
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 0
+	Minor (reclaiming a frame) page faults: 2915
+	Voluntary context switches: 885
+	Involuntary context switches: 114
+	Swaps: 0
+	File system inputs: 0
+	File system outputs: 16
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 12

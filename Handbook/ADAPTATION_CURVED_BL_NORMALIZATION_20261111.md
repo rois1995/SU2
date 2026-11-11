@@ -350,3 +350,85 @@ competing local/global cache design. Allowed-facet callbacks must not be conflat
 exact hint/authority/support and outward accuracy/resource checks remain mandatory.
 No shared closest-result implementation exists yet. This is inside the current
 geometry certification correction, not a new target/scheduler/construction policy.
+
+##376 shared-certificate capability under validation
+
+Input remains exact371saved core/final policy recipe and original M6 context.
+Expected output is complete certified chord measurement within the existing atlas
+budget, plus unchanged geometry/accuracy/resource contracts.375's per-chord memo
+is removed. Complete closest results now use the existing immutable authority's
+scopes pool, under its original byte quota and active-reference clock eviction.
+Key namespace/hint/point bits separate support; per-tolerance immutable keys retain
+tighter results without changing a referenced record. A lookup selects the tightest
+stored request and reuses only if the existing outward Subtract(upper,lower).hi
+meets current requested accuracy. Arbitrary allowed-facet callbacks bypass answer
+lookup/storage. Current time/work/workspace checks precede reuse, current attempted
+work is returned, and optional insertion has room for at most one scan/insertion
+inside the existing64maintenance cap. No successful certificate is made a work
+failure solely by optional retention. Parameter/mobility/metric evaluations remain
+fresh outside the immutable geometric distance result.
+
+Scope includes ProjectWall/metric composition and boundary candidate height queries
+through the shared ClosestCurved path. Focused checks cover exact/nearby positions,
+tighter/looser accuracy, body/hint separation, callback restrictions, new geometry
+with the same IDs, zero/tiny/evicting quotas, expired deadlines/work/storage and
+existing curved normal/chord behavior. New complete-certificate counters distinguish
+answer hits from region preparation hits. One connected MPI milestone is required;
+none of this establishes native MPI BL generation or a complete target checkpoint.
+
+##376–378 development evidence
+
+376compiled successfully in580.777s; sources remain in source_snapshots376 where
+subsequently changed. Static review found optional allocation failure could discard
+a completed query;377catches optional-cache bad_alloc and returns the certified
+result. Answer reuse is limited to the normal FE_TONEAREST execution domain;
+other floating environments retain the original computation. Work-receipt tests
+now permit valid one-unit hits while requiring cold/exhausted/storage refusals.
+377build passed48.142s. Its focused closest check failed3assertions/3cases (1018of
+1021passed) in11.076s: no result stores/hits. Region cache maintenance had consumed
+the entire64unit optional cap before completed-answer retention. Failure, terminal
+identities and source_snapshots377 are preserved.378reserves2units for answer
+retention INSIDE the same64cap. No certification limit, gate or target changes.
+Broader serial/MPI qualification and exact actual M6 chord replay remain required.
+
+##380 completed integration evidence and remaining query blocker
+
+Serial380passed1879assertions/6cases, including cold/cached corrected dual height
+controls. Production CFD byte-identical378; common pins differ only fixture/test
+binary, allowing32other378passing cases to stand. The earlier height fixture error
+was assuming one geometric height: production correctly takes the maximum of facet
+altitude and true distance errors. Both cold/cached reject its small-height fixed
+face; the .3control satisfies both. No physical gate was changed.
+
+MPI6completed84/85cases per rank; modified cache/constraint cases pass. A planar
+fixed-count assertion alone fails9times/rank in an unchanged case that does not call
+ClosestCurved. Preserve/backlog, do not claim whole MPIcampaign green or native BL
+MPIgeneration. See closest380_qualification.json and compressed complete raw log.
+
+Actual same exact saved context is terminal1/362.580s, pins intact/allhandles absent.
+Preparation191.679s vs375242.075;4534integrand evaluations vs1925, before unchanged
+300s atlas deadline. Shared answers6272hits/9969misses (1551accuracy refinements),
+9968stores/no refusals; region rebuild12.056s. Work4350564 vs4268956 includes different
+integration progress, not fixed-work equivalence. No final length/target acceptance.
+
+Next demonstrated blocker is fresh certification cost across many integration
+points, rather than region preparation or failed cache admission. Assess existing
+bounded native numerical projection as a better valid candidate/upper bound while
+retaining all global lower traversal and support/resource proof. Normal/candidate
+jitter versus required quadrature work remains a hypothesis. Use existing saved
+point/chord input and diagnostics; do not add a new baseline/perf/GDB campaign,
+change tolerance or geometry representation, or advance surface generation before
+stage2target diagnosis and faithful composed checkpoint/reload are credible.
+
+Source reuse lead for the next bounded investigation (not implemented):
+CNativeCurvedReference.hpp detail::NormalizeTriangleProjection, ClosestOnTriangle,
+MinimizeTriangle; production NativeMappedGeometryBackend3D::Project uses them at
+CNativeGeometryBackend3D.cpp:143+. Eval/derivative callbacks already admit/charge
+work. Newton output is only a proposal: require valid canonical barycentric binding
+and outward physical realization upper bound, retain all support traversal, and
+fall back on nonconvergence/invalid parameters/seed budget. Raw floating barycentric
+weights must not be assumed exact: current candidate() uses Exact(r) while binding
+uses dependent third weight, so a new candidate must preserve the same actual
+surface point/support enclosure. No inference of a unique foot/normal follows from
+scalar distance certification. Existing SU2_NATIVE_BL_POINT_REPLAY can inspect exact
+380points without a new baseline/perf/GDB campaign; no seed speedup is established.

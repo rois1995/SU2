@@ -3706,15 +3706,11 @@ std::vector<double> CBoundaryLayerMetric::EdgeBreakpointsImpl(
       // Keep certified excluded intervals excluded; only unresolved leaves consume further geometry work.
       struct Interval {double left,right;long double uncertainty,metric;};
       struct ProjectionStats {
-        size_t calls=0,work=0,hits=0,misses=0,refinements=0;
+        size_t calls=0,work=0;
         double seconds=0,maximum_seconds=0,error=0,maximum_error=0;
         std::array<double,3> point{},maximum_point{};
         const char* step="none";
       } projections;
-      struct Certificate {double error;WallProjection projection;};
-      // The wall/component and geometry parameters stay fixed for this synchronous chord invocation.
-      std::map<std::array<uint64_t,3>,Certificate> certificates;
-      size_t certificateCapacity=0,certificateBytes=0;
       auto project=[&](const std::array<double,3>& point,double error,size_t scratch,const char* step) {
         ++projections.calls;projections.point=point;projections.error=error;projections.step=step;
         auto* reservation=geometryReservation?geometryReservation:walls[wall].authority->AtlasReservation();
@@ -3728,28 +3724,7 @@ std::vector<double> CBoundaryLayerMetric::EdgeBreakpointsImpl(
           }
           if(reservation)projections.work=transfer_memory::Add(projections.work,reservation->work-workBefore);
         };
-        try {
-          std::array<uint64_t,3> key{};
-          if(certificateCapacity) {
-            if(reservation) {
-              reservation->CheckTime();
-              if(!reservation->ChargeWork())throw std::length_error("Cubic chord certificate lookup work exhausted.");
-            }
-            for(unsigned j=0;j<3;++j)std::memcpy(&key[j],&point[j],sizeof key[j]);
-            const auto found=certificates.find(key);
-            if(found!=certificates.end() && found->second.error<=error) {
-              ++projections.hits;const auto result=found->second.projection;record();return result;
-            }
-            ++projections.misses;projections.refinements+=found!=certificates.end();
-          }
-          auto result=ProjectWall(wall,point,error,transfer_memory::Add(scratch,certificateBytes));
-          if(certificateCapacity) {
-            const auto found=certificates.find(key);
-            if(found!=certificates.end())found->second={error,result};
-            else if(certificates.size()<certificateCapacity)certificates.emplace(key,Certificate{error,result});
-          }
-          record();return result;
-        }
+        try {auto result=ProjectWall(wall,point,error,scratch);record();return result;}
         catch(...){record();throw;}
       };
       static_assert(sizeof(Interval)<=4*sizeof(long double),"Curved frontier exceeds reserved workspace.");
@@ -3764,22 +3739,10 @@ std::vector<double> CBoundaryLayerMetric::EdgeBreakpointsImpl(
         }
       };
       constexpr size_t endpointScratch=2048;
-      static_assert(3*sizeof(WallProjection)+sizeof(ProjectionStats)+sizeof(certificates)<=endpointScratch,"Endpoint projections exceed reserved scratch.");
+      static_assert(3*sizeof(WallProjection)+sizeof(ProjectionStats)<=endpointScratch,"Endpoint projections exceed reserved scratch.");
       const auto frontierBytes=transfer_memory::Add(transfer_memory::Mul(16384,sizeof(Interval)),endpointScratch);
-      const auto initialScratch=transfer_memory::Add(frontierBytes,transfer_memory::Bytes(levels),transfer_memory::Bytes(cuts),
-          transfer_memory::Mul(retained.size(),sizeof(double)+4*sizeof(void*)));
-      const auto queryBytes=walls[wall].authority->Parameters()->Geometry().CurvedQueryWorkspaceBytes(
-          SU2NativeGeometry::MappedFacetReference::ClearanceWork);
-      size_t available=walls[wall].geometry_ceiling>StorageBytes()?walls[wall].geometry_ceiling-StorageBytes():0;
-      if(auto* reservation=geometryReservation?geometryReservation:walls[wall].authority->AtlasReservation())
-        available=std::min(available,reservation->maximum_bytes>reservation->caller_bytes?
-            reservation->maximum_bytes-reservation->caller_bytes:0);
-      const auto mandatory=transfer_memory::Add(initialScratch,queryBytes);
-      const auto entryBytes=transfer_memory::Add(sizeof(decltype(certificates)::value_type),8*sizeof(void*));
-      // Optional memo storage comes from the existing envelope, including one full certification workspace.
-      if(available>mandatory)certificateCapacity=std::min(size_t(3*16384),(available-mandatory)/entryBytes);
-      certificateBytes=transfer_memory::Mul(certificateCapacity,entryBytes);
-      admit(transfer_memory::Add(initialScratch,certificateBytes));
+      admit(transfer_memory::Add(frontierBytes,transfer_memory::Bytes(levels),transfer_memory::Bytes(cuts),
+          transfer_memory::Mul(retained.size(),sizeof(double)+4*sizeof(void*))));
       std::vector<Interval> frontier;frontier.reserve(16384);
       auto larger=[](const Interval& a,const Interval& b){return a.uncertainty<b.uncertainty;};
       size_t work=0;long double unresolved=0;
@@ -3836,8 +3799,6 @@ std::vector<double> CBoundaryLayerMetric::EdgeBreakpointsImpl(
             <<",\"adjacent\":"<<adjacent<<",\"splittable\":"<<splittable<<",\"largest_splittable\":"<<largestSplittable
             <<",\"work\":"<<work<<",\"leaves\":"<<(frontier.size()+1)<<",\"tolerance\":1e-8"
             <<",\"projection_calls\":"<<projections.calls<<",\"projection_work\":"<<projections.work
-            <<",\"certificate_hits\":"<<projections.hits<<",\"certificate_misses\":"<<projections.misses
-            <<",\"certificate_refinements\":"<<projections.refinements<<",\"certificate_capacity\":"<<certificateCapacity
             <<",\"projection_seconds\":"<<projections.seconds<<",\"maximum_projection_seconds\":"<<projections.maximum_seconds
             <<",\"projection_step\":\""<<projections.step<<"\",\"query_point\":["<<projections.point[0]<<','<<projections.point[1]<<','<<projections.point[2]
             <<"],\"requested_point_error\":"<<projections.error<<",\"maximum_projection_point\":["<<projections.maximum_point[0]<<','<<projections.maximum_point[1]<<','<<projections.maximum_point[2]
@@ -4012,7 +3973,6 @@ std::vector<double> CBoundaryLayerMetric::EdgeBreakpointsImpl(
         }
         if(frontier.empty())unresolved=0; // Every interval was excluded by a certificate.
         if(unresolved>1e-8)throw std::runtime_error("Cubic BL total crossing uncertainty exceeds edge tolerance.");
-        certificates.clear();certificateBytes=0;
         for(const auto& leaf:frontier)for(double t:{leaf.left,leaf.right})if(t>0 && t<1 && !retained.count(t)) {
           if(cuts.size()>=65536)throw std::runtime_error("Cubic BL edge cuts exceed work budget.");
           admit(transfer_memory::Add(frontierBytes,transfer_memory::Bytes(levels),

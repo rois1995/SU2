@@ -1050,3 +1050,15 @@ measure375's same-point certificate reuse on the exact saved context. The existi
 actual-front journal's std::quoted strings can contain raw newlines;374evidence
 is preserved and decoded as sequential JSON values with strict=False. A broader
 JSON serialization cleanup is unrelated to the current certification blocker.
+
+
+###380 unrelated planar repair count assertion (preserve before final broad regression)
+Broad MPI6 selected85cases/rank:84passed, one automatic planar repair case failed
+9assertions/rank only at CNativeDistributed3D_tests.cpp:1784 (expects original3cells,
+actual6). Geometry/quality/audit assertions passed. The fixture constructs ordinary
+PlanarReference with unchanged Engine/Distributed code; shared ClosestCurved answer
+cache is not reached. Preserve run.log.gz/hash and closest380_qualification.json.
+Triage whether the fixed-count expectation is stale or reflects unwanted existing
+construction behavior; do not silently delete it or report the whole campaign green.
+Do not start an unrelated repair implementation during the active curved-BL target
+cycle. Revisit before declaring the eventual broad integrated regression complete.

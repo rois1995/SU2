@@ -321,6 +321,9 @@ for(size_t index=0;index<count;++index) {
     const auto stats=state->reference->Parameters()->Geometry().GeometryStatsSnapshot();
     frontLog<<"{\"context\":"<<std::quoted(label)<<",\"stage\":\"existing_geometry_counters\",\"closest_region_hits\":"<<stats.closest_region_hits
             <<",\"closest_region_misses\":"<<stats.closest_region_misses<<",\"closest_region_build_seconds\":"<<stats.closest_region_build_seconds
+            <<",\"closest_answer_hits\":"<<stats.closest_answer_hits<<",\"closest_answer_misses\":"<<stats.closest_answer_misses
+            <<",\"closest_answer_refinements\":"<<stats.closest_answer_refinements<<",\"closest_answer_stores\":"<<stats.closest_answer_stores
+            <<",\"closest_answer_refusals\":"<<stats.closest_answer_refusals
             <<",\"prepared_bytes\":"<<stats.prepared_bytes<<",\"memo_direct_hits\":"<<stats.memo_direct_hits
             <<",\"memo_direct_misses\":"<<stats.memo_direct_misses<<"}"<<std::endl;
   }

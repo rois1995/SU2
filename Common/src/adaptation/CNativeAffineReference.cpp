@@ -1099,8 +1099,9 @@ struct MappedFacetReference::CurvedSearch {
   struct PreparedFacet {
     std::vector<UnionTriangle> triangles;std::unique_ptr<TriangleUnion> target;
     std::unique_ptr<CubicRegionGeometry> cubic;
+    std::unique_ptr<CurvedClosest> closest;
     size_t Bytes()const{return transfer_memory::Add(sizeof(*this),transfer_memory::Mul(triangles.capacity(),sizeof(UnionTriangle)),
-        target?target->ResidentBytes():0,cubic?sizeof(CubicRegionGeometry):0,12*sizeof(void*));}
+        target?target->ResidentBytes():0,cubic?sizeof(CubicRegionGeometry):0,closest?sizeof(CurvedClosest):0,12*sizeof(void*));}
   };
   std::map<Id,Id> root;
   std::map<Id,Entry> entries;
@@ -1601,12 +1602,38 @@ MappedFacetReference::CurvedClosest MappedFacetReference::ClosestCurved(
   struct WorkLimit {};
   std::array<size_t,4> charged{}; // Seed, root preparation, refinement preparation, optional cache maintenance.
   std::array<size_t,2> completed{};
-  size_t initialCandidates=0,retentionAttempts=0,retentionSuccesses=0,retentionRefusals=0;
+  size_t initialCandidates=0,retentionAttempts=0,retentionSuccesses=0,retentionRefusals=0,answerLookups=0;
   unsigned failedKind=0;
   auto consume=[&](unsigned kind=0){if(reservation)reservation->CheckTime();
     if(result.work>=maximum_work){failedKind=kind;throw WorkLimit{};}
     ++result.work;++charged[kind];};
   try {
+  std::vector<uint64_t> answerKey;
+  const auto scopeLimit=curved_search->prepared_limit-curved_search->prepared_limit/2;
+  if(scopeLimit && !allowed_facets && std::fegetround()==FE_TONEAREST) try {
+    // Immutable geometry owns the pool; arbitrary caller predicates have no reusable support identity.
+    answerKey.reserve(6);answerKey={UINT64_MAX-1,hint};
+    for(double x:Values(query)){uint64_t bits;std::memcpy(&bits,&x,sizeof bits);answerKey.push_back(bits);}
+    consume(3);++answerLookups;
+    std::shared_ptr<CurvedSearch::PreparedFacet> saved;
+    {
+      std::lock_guard<std::mutex> lock(curved_search->prepared_mutex);
+      const auto found=curved_search->scopes.values.lower_bound(answerKey);
+      if(found!=curved_search->scopes.values.end() && found->first.size()==6 &&
+          std::equal(answerKey.begin(),answerKey.end(),found->first.begin()))
+        saved=curved_search->scopes.Find(found->first);
+    }
+    if(saved && !saved->closest)throw std::logic_error("Closest certificate key collided with prepared geometry.");
+    const bool hit=saved && Subtract(saved->closest->upper,saved->closest->lower).hi<=tolerance;
+    {
+      std::lock_guard<std::mutex> lock(geometry_stats->mutex);auto& stats=geometry_stats->value;
+      stats.closest_answer_hits+=hit;stats.closest_answer_misses+=!hit;stats.closest_answer_refinements+=saved && !hit;
+    }
+    if(hit) {const auto work=result.work;result=*saved->closest;result.work=work;return result;}
+    uint64_t bits;std::memcpy(&bits,&tolerance,sizeof bits);answerKey.push_back(bits);
+  } catch(const std::bad_alloc&) {
+    answerKey.clear();std::lock_guard<std::mutex> lock(geometry_stats->mutex);++geometry_stats->value.closest_answer_refusals;
+  }
   auto binding=[&](Id id,Point r) {
     const auto& f=reference->Get(id);const auto v=Values(r);
     for(unsigned k=0;k<3;++k)if(v[k]==1)return Vertex(f.v[k].id);
@@ -1666,6 +1693,8 @@ MappedFacetReference::CurvedClosest MappedFacetReference::ClosestCurved(
   auto compare=[](const Region& a,const Region& b){return a.lower>b.lower;};
   std::priority_queue<Region,std::vector<Region>,decltype(compare)> pending(compare);
   constexpr size_t cacheAllowance=64;
+  // Region retention must leave the completed answer one scan/insertion within the same cap.
+  const size_t regionAllowance=answerKey.empty()?cacheAllowance:cacheAllowance-2;
   struct CacheWork {decltype(consume)& charge;void Work(){charge(3);}} cacheWork{consume};
   auto prepare=[&](Id id,const std::array<Point,3>& parameter,unsigned depth) {
     consume(depth?2:1);std::array<Box,10> net;Box hull{};
@@ -1702,7 +1731,7 @@ MappedFacetReference::CurvedClosest MappedFacetReference::ClosestCurved(
         if(!curved_search->scopes.Find(key)) {
           ++retentionAttempts;
           // Bound optional maintenance across the query, reserving room for its scan and insertion.
-          refused=charged[3]>cacheAllowance-2 || !curved_search->scopes.Retain(key,prepared,bytes,1,limit,cacheWork,1);
+          refused=charged[3]>regionAllowance-2 || !curved_search->scopes.Retain(key,prepared,bytes,1,limit,cacheWork,1);
           retentionSuccesses+=!refused;retentionRefusals+=refused;
         }
       } else {refused=true;++retentionAttempts;++retentionRefusals;}
@@ -1759,7 +1788,24 @@ MappedFacetReference::CurvedClosest MappedFacetReference::ClosestCurved(
   if(!std::isfinite(result.clearance_lower))throw std::logic_error("Curved clearance lost all possible nearest points.");
   const auto evaluation=EvaluateSurface(result.facet,result.binding);result.normal=evaluation.normal;
   result.curvature1=evaluation.curvature1;result.curvature2=evaluation.curvature2;
-  result.direction1=evaluation.direction1;result.direction2=evaluation.direction2;return result;
+  result.direction1=evaluation.direction1;result.direction2=evaluation.direction2;
+  if(!answerKey.empty()) {
+    bool stored=false,refused=false;
+    // At most one eviction scan and one insertion; optional retention cannot exhaust a completed query.
+    if(charged[3]<=cacheAllowance-2 && maximum_work-result.work>=2) {
+      try {
+      auto saved=std::make_shared<CurvedSearch::PreparedFacet>();saved->closest=std::make_unique<CurvedClosest>(result);
+      const auto bytes=transfer_memory::Add(saved->Bytes(),transfer_memory::Mul(answerKey.capacity(),2*sizeof(uint64_t)),256);
+      std::lock_guard<std::mutex> lock(curved_search->prepared_mutex);
+      if(!curved_search->scopes.Find(answerKey)) {
+        stored=curved_search->scopes.Retain(answerKey,saved,bytes,result.work,scopeLimit,cacheWork,1);refused=!stored;
+      }
+      } catch(const std::bad_alloc&) {refused=true;}
+    } else refused=true;
+    std::lock_guard<std::mutex> lock(geometry_stats->mutex);auto& stats=geometry_stats->value;
+    stats.closest_answer_stores+=stored;stats.closest_answer_refusals+=refused;
+  }
+  return result;
   }catch(const WorkLimit&) {
     // All query/pool locks have unwound before observing shared cache state or formatting the failure.
     size_t bytes=0,entries=0,evictions=0;
@@ -1772,7 +1818,8 @@ MappedFacetReference::CurvedClosest MappedFacetReference::ClosestCurved(
         <<",\"failed_kind\":"<<failedKind<<",\"root_candidates\":"<<initialCandidates
         <<",\"completed_roots\":"<<completed[0]<<",\"completed_refinements\":"<<completed[1]
         <<",\"retention_attempts\":"<<retentionAttempts<<",\"retention_successes\":"<<retentionSuccesses
-        <<",\"retention_refusals\":"<<retentionRefusals<<",\"cache_scans\":"<<(charged[3]-retentionSuccesses)
+        <<",\"retention_refusals\":"<<retentionRefusals<<",\"cache_scans\":"<<(charged[3]-retentionSuccesses-answerLookups)
+        <<",\"answer_lookup_work\":"<<answerLookups
         <<",\"scope_limit\":"<<(curved_search->prepared_limit-curved_search->prepared_limit/2)
         <<",\"scope_bytes_at_failure_snapshot\":"<<bytes<<",\"scope_entries_at_failure_snapshot\":"<<entries
         <<",\"scope_evictions_at_failure_snapshot\":"<<evictions<<"}";

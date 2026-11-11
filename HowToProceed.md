@@ -7,6 +7,22 @@ Use the [stage integration cadence](Handbook/ADAPTATION_CURVED_BL_STAGE_INTEGRAT
 and maintained [timing/work ledger](Handbook/ADAPTATION_TIMINGS.md). Full retries are
 reserved for integration milestones or failures not reproducible at a stage boundary.
 
+## Current stage2 blocker
+
+Build380shares complete closest-distance certificates in the existing bounded
+immutable geometry pool, replacing375's local chord memo. Same saved target recipe:
+preparation191.679s,4534integrand evaluations before the unchanged deadline; final
+chord still unavailable. All owned handles terminal. See
+[normalization/qualification evidence](Handbook/ADAPTATION_CURVED_BL_NORMALIZATION_20261111.md)
+and [timings](Handbook/ADAPTATION_TIMINGS.md). Cheaper fresh certification is the
+next investigation; existing bounded numerical projection may supply a better
+valid candidate/upper bound while complete lower-bound proof/fallback remains.
+No such seed correction is selected/implemented yet. MPIchanged-path checks pass;
+one unrelated planar fixed-count test fails and is preserved in backlog. Native
+MPI BL generation remains unqualified. Stage2still needs a reasonable target and
+faithful composed checkpoint/reload before surface generation. Construction notes
+below are historical capability evidence, not current live-job instructions.
+
 ## Preserved completion and current blocker
 
 Euler293 completed TWO strictly accepted Euler50k adaptations, conservative
@@ -26,7 +42,7 @@ the wall stage viable. Actual337 cavity trials establish bounded geometry/operat
 behavior only; their q/J are Euclidean controls, and all tested contexts lack the
 requested first row. Do not present them as production-target mesh acceptance.
 
-## Active connected implementation
+## Implemented construction history
 
 Follow the [construction strategy and evidence](Handbook/ADAPTATION_CURVED_BL_CONSTRUCTION_STRATEGY_20261110.md).
 Surface preparation344 is implemented and focused-qualified. Actual front345

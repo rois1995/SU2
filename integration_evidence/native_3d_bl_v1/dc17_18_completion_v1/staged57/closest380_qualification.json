@@ -1,0 +1,76 @@
+{
+  "scope": "Shared closest-certificate capability only; no native MPI BL generation or complete M6 target/BL acceptance.",
+  "build380": {
+    "state": "terminal",
+    "exit_code": 0,
+    "seconds": 60.14079236984253,
+    "pins_verified": true,
+    "changed": [],
+    "completed_build": true,
+    "binaries": {
+      "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver": "2efb330f620428418d4e8619a48e6eb9fc279129bdf894ed62520a9eee4ddae7",
+      "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/SU2_CFD/src/SU2_CFD": "33b13e8f0844aeb6be4631fe942deb063c376979cda484615c19d4f355d3a7be"
+    }
+  },
+  "serial378": {
+    "case": "curved378_joint_serial_20261111T133802_2198294",
+    "cases": 33,
+    "passed": 32,
+    "failed": 1,
+    "assertions": 3433,
+    "failed_assertions": 3,
+    "failure": "Old curved-height fixture expected only planar height; production enforces both facet altitude and true curved distance."
+  },
+  "serial380": {
+    "case": "curved380_joint_serial_20261111T135032_2228880",
+    "cases": 6,
+    "assertions": 1879,
+    "passed": true,
+    "seconds": 10.835978031158447,
+    "reuse_audit": "serial380_reuse378_pins.json",
+    "notes": "New fixture covers cold/cached geometry; low-height fixed face rejected, .3control satisfies both unchanged gates. Other32passing378cases retained under audited common source/input/library identity."
+  },
+  "mpi380": {
+    "case": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved380_closest_mpi6_20261111T135110_2230436",
+    "ranks": 6,
+    "cases_per_rank": 85,
+    "passed_per_rank": 84,
+    "failed_per_rank": 1,
+    "failed_assertions_per_rank": 9,
+    "whole_campaign_passed": false,
+    "changed_path_checks_passed": true,
+    "summaries": [
+      "test cases:    85 |    84 passed | 1 failed",
+      "assertions: 13870 | 13861 passed | 9 failed",
+      "test cases:    85 |    84 passed | 1 failed",
+      "assertions: 11749 | 11740 passed | 9 failed",
+      "test cases:    85 |    84 passed | 1 failed",
+      "assertions: 11834 | 11825 passed | 9 failed",
+      "test cases:    85 |    84 passed | 1 failed",
+      "assertions: 10393 | 10384 passed | 9 failed",
+      "test cases:   85 |   84 passed | 1 failed",
+      "assertions: 9399 | 9390 passed | 9 failed",
+      "test cases:    85 |    84 passed | 1 failed",
+      "assertions: 10415 | 10406 passed | 9 failed"
+    ],
+    "failure_source": "UnitTests/Common/adaptation/CNativeDistributed3D_tests.cpp:1784",
+    "failure_test": "Native automatic MPI repair selects complete failing features and restores frozen gates",
+    "failure": "Fixed count==original3cells expected, actual6; all other validity/quality/audit assertions passed.",
+    "scope_exclusion_evidence": "Fixture constructs only PlanarReference without mapped geometry and unchanged Engine/Distributed code; modified ClosestCurved path is not reached. Preserve/triage separately, do not claim whole campaign green.",
+    "archive": "run.log.gz",
+    "seconds": 84.98518419265747
+  },
+  "actual": {
+    "assessment": "geometry_target380_assessment.json",
+    "exit_code": 1,
+    "seconds": 362.58006834983826,
+    "pins_verified": true,
+    "all_owned_terminal": true,
+    "complete_chord": false
+  },
+  "production_sha256": {
+    "Common/src/adaptation/CNativeAffineReference.cpp": "569a30388f74c6283cf03109346bc42525e69574fa5b509c453257f954c280a6",
+    "Common/include/adaptation/CNativeAffineReference.hpp": "c339cfffdf1ff7eda6a5bffd40d30ed8d6476960b9d453a250480169e4404d15",
+    "SU2_CFD/src/adaptation/CBoundaryLayerMetric.cpp": "377aef92633ef38354bf6b3394ed3bef82b861a84c6e58d1acd53aec38fe29d9"
+  }
+}

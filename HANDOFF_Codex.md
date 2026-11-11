@@ -12,7 +12,33 @@ construction validity-first; intermediate quality debt is provisional, not accep
 
 ## Current state — authoritative
 
-No owned heavy workload. Actual375 TERMINAL1/361.336s, pins intact; all4children+
+No owned heavy workload. Actual380 TERMINAL1/362.580s, pins intact; all4children+
+wrapper rechecked absent on actual host. R/geometry_target380_assessment.json.
+Preparation191.679s (375242.075),4534integrand evaluations (3751925),composition100.308s
+before the unchanged300s atlas deadline. Contextwork4350564 (3754268956), different
+progress/positions, not identical-work comparison. Shared certs6272hits/9969misses,
+1551insufficient-accuracy refinements,9968stores/0refusals; region rebuild12.056s.
+Final chord/usable BL/complete target remain unavailable. No full-adaptation speedup.
+
+Next connected investigation: cheaper MISS certification, not another cache-counter
+optimization. Reuse existing bounded numerical/native model projection machinery
+as a possible better actual candidate/upper bound; preserve complete global lower
+traversal, exact support/body/association, work/memory admission and fallback. Assess
+candidate/normal accuracy versus repeated quadrature costs from saved point/chord
+before selecting a correction. Local derivative/seed opportunities remain hypotheses;
+no new geometry/constraint/tolerance policy or implementation is selected yet.
+
+Build380passed60.141s; CFD SHA33b13e8f0844aeb6be4631fe942deb063c376979cda484615c19d4f355d3a7be
+is byte-identical378. Serial380passed1879assertions/6cases/10.836s (cold/cached dual
+height gates);32other378passing cases retained by full common-pin/library audit.
+MPI380 TERMINAL9/84.985s, allowned identities terminal:84of85cases pass on EVERYrank.
+All modified cache/constraint cases pass; one unchanged planar automatic-repair
+fixed-count assertion fails9times/rank (6cells vs3) while other quality/audits pass.
+Do NOT claim whole MPIcampaign green. Preserve/backlog before final broad regression.
+Native MPI BL generation remains unqualified. R/closest380_qualification.json;
+MPIlog losslessgzip/hash; snapshots376–379 preserve all intermediate failures.
+
+Actual375 TERMINAL1/361.336s, pins intact; all4children+
 wrapper verified absent on actual host. R/geometry_target375_assessment.json.
 Breakpoint preparation now COMPLETES in242.075s;1925composed integrand evaluations
 then consume50.101s before the same300s atlas deadline.374could not finish
@@ -25,50 +51,19 @@ Only production CBoundaryLayerMetric.cpp changes: per-wall/chord exact point mem
 sufficient successful accuracy only, bounded scratch from existing envelope,
 work/deadline checks and no cross-call lifetime.
 
-Next connected assessment: remaining point certification during composition.
-Existing OptionA::Weight→WallDistance and subsequent Compose(base) both evaluate
-the exact same point/support; if w>0, Compose(full) evaluates again. Determine
-safe use of existing immutable geometry cache/pool for complete closest-distance
-certificates across these callers, including exact support/hint, allowed-facet
-callbacks, sufficient outward accuracy, active references, admission and exhaustion.
-Prefer one shared facility over keeping competing per-chord/global memos. Do not
-edit merely to add a cache-hit counter or repeat a baseline. No implementation
-of that extension yet. Keep stage2target diagnosis/checkpoint obligation and budgets.
-
-374single saved-target chord diagnostic TERMINAL1/
-358.197s, pins intact; all4children+wrapper rechecked absent on actual host.
-R/geometry_target374_assessment.json preserves exact replay/counters. Build374
-TERMINAL0/202.232s; focused serial374424assertions/4cases/257.590s passed.
-Measured10627point projections/292.589s,3687intervals; region preparation13.059s.
-Active width7.1e-15, point error3.6e-18, unresolved1.25e-8>1e-8; no edge integrand.
-Next connected375hypothesis: local per-wall/chord exact-point projection certificate
-reuse only when its successful accuracy meets the request; same authority/support,
-bounded/admitted memory, budget checks and recomputation fallback. No cross-call
-cache, target change or gate/budget relaxation. Valid hit fraction not measured yet.
-
-373actual saved-target diagnostic TERMINAL1/355.999s, pins intact, all5owned
-actual-host identities terminal. R/geometry_target373_assessment.json. FIRST
-20-cell context only:7associated wall-point contributions and20centroid queries
-complete, then293.942566s in edge_geometry,0edge integrand compositions,1edge failure,
-contextgeometrywork4836754. Existing300s atlas deadline exhausted. Normal metric
-density≈500000 agrees with h0; physical placement/progression remain unverified.
-Other4contexts and the actual chord length remain unmeasured. Source identifies
-curved EdgeBreakpoints preparation, not Mach recovery/integrand evaluation. It does
-not distinguish repeated preparation from conservative refinement yet.
-
-374closes the timeout replay gap: current interval/point/error, projection counts/
-cost and existing geometry counters; journals completed centroids before the chord.
-First run focused [NativeCubicChordSpan3D],[NativeBLTangentialNormalization3D] via
-R/check_chord_serial374.py, then exact single failed context using
-R/check_chord_capture374.py. R/m6_bl_inputs/target_chord373_v1 preserves its20cells,
-endpoints65/18865 and exact fresh-policy recipe from371selected core. No new global
-metric/CFD/baseline/perf/GDB run. No optimization selected before those counters.
-
-Build373 TERMINAL0/198.222s,10owned handles terminal; CFD byte-identical371,
-test SHAedfcb725e02b092de88e98d0e137be297793ca8795e79b76700db85d38a1c591.
-372failed only the new test's Tensor/ApplyPoint type mismatch (terminal1/18.146s,
-all5owned handles absent; source_snapshots372 preserves it);373uses Composition().
-
+376design: authority-instance-local namespace + exact hint/query-coordinate bits;
+only unrestricted queries reuse complete successful closest certificates, and only
+if outward distance width meets the current error request. Requested accuracy is
+part of the immutable record key so tighter successful records can coexist without
+mutating active references. Existing clock/byte quota/64optional-work cap apply;
+optional retention cannot turn a completed certificate into a work refusal. Current
+work/deadline/workspace contracts are checked before hits. Curve/body/marker support
+is immutable; current mobility/profile evaluation still occurs in ProjectWall and
+Evaluate. No cross-policy raw metric sample is reused. Source analysis identifies
+possible identical point work in OptionA Weight/WallDistance + base/full Compose;
+its actual eliminated fraction remains to be measured. Prior373–375details are in
+[normalization evidence](Handbook/ADAPTATION_CURVED_BL_NORMALIZATION_20261111.md)
+and R/geometry_target{373,374,375}_assessment.json.
 
 371actual saved-CFD METRIC-ONLY stage TERMINAL0/
 1739.083s,429364assertions total across6ranks. All10owned actual-host identities

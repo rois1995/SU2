@@ -707,7 +707,7 @@ TEST_CASE("Captured M6 surface foot within projection accuracy is available", "[
   CHECK(support.body==scope.body);CHECK(support.sheet==*scope.sheet);
 }
 
-TEST_CASE("Closest cubic queries reuse immutable regions without reusing query bounds", "[NativeClosestPrepared3D]") {
+TEST_CASE("Closest cubic queries reuse complete certificates and immutable regions", "[NativeClosestPrepared3D]") {
   BackendFixture fixture(true);std::map<Id,double> errors;
   for(const auto& facet:fixture.facets)errors.emplace(facet.id,1e-12);
   auto make=[&](size_t quota) {return std::make_shared<MappedFacetReference>(fixture.reference,errors,57,SIZE_MAX,false,
@@ -743,6 +743,8 @@ TEST_CASE("Closest cubic queries reuse immutable regions without reusing query b
   compare(cached->ClosestCurved(0,query,1e-6,16384,SIZE_MAX,onlyBottom),
           fresh->ClosestCurved(0,query,1e-6,16384,SIZE_MAX,onlyBottom));
   const auto stats=cached->GeometryStatsSnapshot();CHECK(stats.closest_region_hits>0);CHECK(stats.closest_region_misses>0);
+  CHECK(stats.closest_answer_hits>0);CHECK(stats.closest_answer_stores>0);
+  CHECK(fresh->GeometryStatsSnapshot().closest_answer_hits==0);CHECK(tiny->GeometryStatsSnapshot().closest_answer_stores==0);
   CHECK(stats.prepared_bytes<=stats.prepared_limit);CHECK(tiny->GeometryStatsSnapshot().closest_region_retention_refusals>0);
   const auto protectedCache=make(8192);
   for(const Id hint:{Id(2),Id(2),Id(3),Id(4),Id(5),Id(6),Id(7),Id(8),Id(9),Id(10),Id(11)}) {
@@ -763,6 +765,47 @@ TEST_CASE("Closest cubic queries reuse immutable regions without reusing query b
   CHECK_THROWS(cached->ClosestCurved(0,query,1e-6,16384,0));
   auto expired=BackendBudget();expired.within_time=[](){return false;};
   CHECK_THROWS(cached->ClosestCurved(0,query,1e-6,16384,SIZE_MAX,{},nullptr,&expired));CHECK(expired.time_exhausted);
+}
+
+TEST_CASE("Closest certificates retain exact support accuracy and current resource contracts", "[NativeClosestPrepared3D]") {
+  BackendFixture fixture(true);std::map<Id,double> errors;
+  for(const auto& f:fixture.facets)errors.emplace(f.id,1e-12);
+  const auto cached=std::make_shared<MappedFacetReference>(fixture.reference,errors,57,SIZE_MAX,false,
+      fixture.geometry->Curves(),size_t(1)<<22);
+  const auto fresh=std::make_shared<MappedFacetReference>(fixture.reference,errors,57,SIZE_MAX,false,
+      fixture.geometry->Curves(),0);
+  const Point query{.25,.25,-.03};
+  const auto initial=cached->ClosestCurved(0,query,1e-5,16384);
+  auto stats=cached->GeometryStatsSnapshot();REQUIRE(stats.closest_answer_stores>0);
+  size_t work=99;
+  const auto hit=cached->ClosestCurved(0,query,1e-5,1,SIZE_MAX,{},&work);
+  CHECK(work==1);CHECK(hit.work==1);CHECK(hit.work<initial.work);
+  CHECK(hit.lower==initial.lower);CHECK(hit.upper==initial.upper);CHECK(hit.clearance_lower==initial.clearance_lower);
+  CHECK(hit.candidate_bounds[0].x==initial.candidate_bounds[0].x);CHECK(hit.candidate_bounds[1].z==initial.candidate_bounds[1].z);
+  CHECK(cached->ClosestCurved(0,query,1e-4,1).upper==initial.upper);
+  const auto tight=cached->ClosestCurved(0,query,1e-10,16384),expected=fresh->ClosestCurved(0,query,1e-10,16384);
+  CHECK(tight.upper-tight.lower<=1e-10);CHECK(tight.lower==expected.lower);CHECK(tight.upper==expected.upper);
+  CHECK(cached->GeometryStatsSnapshot().closest_answer_refinements>stats.closest_answer_refinements);
+  CHECK(cached->ClosestCurved(0,query,1e-10,1).upper==tight.upper);
+  const auto beforeRestricted=cached->GeometryStatsSnapshot();
+  const auto only=[](Id id){return id==0;};
+  const auto restricted=cached->ClosestCurved(0,query,1e-10,16384,SIZE_MAX,only);
+  CHECK(restricted.facet==0);CHECK(cached->GeometryStatsSnapshot().closest_answer_hits==beforeRestricted.closest_answer_hits);
+  const auto other=cached->ClosestCurved(100,query,1e-5,16384);
+  CHECK(other.point.x>9);CHECK(other.lower>9); // Same query bits cannot borrow another body's certificate.
+  auto nearby=query;nearby.x=std::nextafter(nearby.x,1.);
+  const auto misses=cached->GeometryStatsSnapshot().closest_answer_misses;
+  cached->ClosestCurved(0,nearby,1e-5,16384);
+  CHECK(cached->GeometryStatsSnapshot().closest_answer_misses==misses+1);
+  CHECK_THROWS(cached->ClosestCurved(0,query,1e-5,0));
+  CHECK_THROWS(cached->ClosestCurved(0,query,1e-5,16384,0));
+  auto expired=BackendBudget();expired.within_time=[](){return false;};
+  CHECK_THROWS(cached->ClosestCurved(0,query,1e-5,16384,SIZE_MAX,{},nullptr,&expired));CHECK(expired.time_exhausted);
+  auto changed=fixture.geometry->Curves();changed.at(0)[9].z-=.005;
+  // A new immutable authority must compute its own answer even with identical hint/query/version.
+  const auto replaced=std::make_shared<MappedFacetReference>(fixture.reference,errors,57,SIZE_MAX,false,changed,size_t(1)<<22);
+  const auto altered=replaced->ClosestCurved(0,query,1e-5,16384);
+  CHECK(replaced->GeometryStatsSnapshot().closest_answer_hits==0);CHECK(altered.lower!=initial.lower);
 }
 
 TEST_CASE("Indexed cubic closest queries avoid cube-only roots under the original work allowance", "[NativeClosestPrepared3D][NativeClosestDistance3D]") {
@@ -846,7 +889,7 @@ TEST_CASE("Indexed cubic closest queries avoid cube-only roots under the origina
     CHECK(message.find("Cubic closest work replay:")!=std::string::npos);
     CHECK(message.find("\"work\":1,\"maximum_work\":1,\"seed_work\":1,\"root_work\":0,\"refinement_work\":0,\"cache_work\":0")!=std::string::npos);
   }
-  CHECK(exhausted);CHECK(attempted==1);
+  CHECK(exhausted==(quota==0));CHECK(attempted==1);
   CHECK_THROWS(geometry.ClosestCurved(0,{-19,2,19},1e-10,32,0));
   CHECK_THROWS(geometry.ClosestCurved(0,{1e155,1e155,1e155},1e-10,32));
 }

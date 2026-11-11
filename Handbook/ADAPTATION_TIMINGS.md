@@ -11,8 +11,8 @@ BL followed. Latest construction result remains364's preserved surface deadline
 failure. Requested500k is nominal complexity, not a node count or acceptance gate.
 Euler293's completed workflow remains preserved. 373bounded saved-target diagnostic failed in chord preparation;374diagnostic
 capture build/focused checks passed; replay374failed at its original atlas deadline.
-375focused checks passed; actual replay completes breakpoint preparation, then
-exhausts the unchanged deadline during composed point evaluation. No global metric/CFD rerun.
+375completes breakpoint preparation but not the chord. Shared certificate380is
+terminal with more integrand progress but no complete chord; no global metric/CFD rerun.
 
 This is the maintained timing/work record requested by the user. Update current
 stage rows and the efficiency table after each meaningful completed result; retain
@@ -141,6 +141,12 @@ coverage and accepted-mesh progress, not commits alone.
 |360–362 unique-node surface guidance and incremental seeding|Cached measurement coverage17540→49346cells(2.81x) within matching391.6s window; enabled14commits instead of none.|Connected changes, so gains are not apportioned between them. Readiness still failed; no final q/J improvement claimed.|
 |364 existing-batch planning reuse|Versus362:5.13%more seeded cells,5.16%more cached cells,4.77%less seed wall time; requests203168→181894(−10.47%), edge evaluations296298→284869(−3.86%).|Full metric work/target IDENTICAL; surface trajectory differs. Modest wall differences remain contention-sensitive. Surface readiness still failed.|
 |364 bounded matching patch controls|Root20-cell seed0.55455→0.37551s; smooth14-cell0.30381→0.11588s; exact cached/single-cell edges and flags agree.|Controls, not global speedup. Related failed363fixture and source are preserved; compare engine seeding, not differently grouped direct calls. See `R/seed364_assessment.json`.|
+
+380shared closest-certificate pool: the same blocked actual query completes
+preparation in191.679s versus375's242.075s and reaches4534rather than1925integrand
+evaluations before the same deadline. This is a demonstrated bounded-query progress
+gain; different point/partition trajectories and incomplete final length prevent
+an accepted-adaptation or fixed-work speedup claim. Details below.
 
 Full362→364 metric wall1253.731→1199.254s with EXACT same per-rank geometry work,
 composed complexity and byte-identical metric-entry restart. This establishes NO
@@ -278,3 +284,58 @@ The final refusal is a composed-point query at original2e-12accuracy, not the
 near-roundoff breakpoint query. Existing OptionA weight/base/full composition
 paths can repeat geometry at the exact same point; safe shared certificate reuse
 is the next assessment, not yet implemented.
+
+##376–380 shared-certificate development/qualification (actual result pending)
+
+The shared immutable geometry scopes pool now retains complete successful closest
+certificates under exact point/hint keys, current outward accuracy and existing
+quota/work/deadline contracts;375's separate per-chord memo is removed. This is
+one connected correction to the same point-certification bottleneck. Main M6 timing
+and work gains remain unmeasured until the current frozen replay terminates.
+
+| Check | Wall s | Result/scope |
+|---|---:|---|
+|376build|580.7767|Pass; header change rebuilt47targets, not adaptation time |
+|377build|48.1419|Pass; optional allocation fallback/current rounding domain |
+|377closest check|11.0762|3cases,1018of1021assertions pass; zero answer stores due maintenance starvation |
+|378build|44.1305|Pass; reserve2units WITHIN original64maintenance cap |
+|378serial|323.1961|32of33cases pass;3failures all one older curved-height fixture |
+|379build/check|52.1295/10.9428|Production unchanged; test's physical placement still fails second existing facet-altitude gate; cold/cached same12failures |
+|380build/check|60.1408/10.8360|Production byte-identical378;1879assertions/6cases pass with both height gates and cold/cached controls |
+|380MPI6|84.9852|84of85cases pass EACH rank; all changed cache/constraint cases pass; unrelated planar fixed-count case fails9assertions/rank; whole run is NOT green |
+
+32passing378cases are retained after common-pin audit: only the corrected test file
+and test_driver differ; production CFD and loaded-library/input/production-source
+pins agree. MPIraw33.72MB log is losslessly archived as1.79MB gzip with roundtrip/hash
+receipt; see closest380_qualification.json. No exact cache-hit fraction or accepted
+mesh speedup is claimed from these fixtures. Native MPI BL generation remains open.
+The actual380replay is the SAME first20-cell saved context/target recipe and original
+300s atlas deadline; its final work/result will determine the next action.
+
+##380 actual saved-target result — fresh certification remains dominant
+
+Same first20-cell context and exact371selected core/fresh policy recipe. Terminal1/
+362.580s, pins intact, actual owned handles terminal; R/geometry_target380_assessment.json.
+
+| Measured work |375|380|
+|---|---:|---:|
+| Complete breakpoint preparation s |242.0751|191.6789|
+| Edge integrand evaluations before same deadline |1925|4534|
+| Edge composition s |50.1013|100.3078|
+| Context geometry work |4268956|4350564|
+| Complete chord |No|No|
+
+Preparation wall is20.82%lower; integrand progress2.355x at1.91%more charged total
+work. More accurate reused certificates can alter certified partitions/point visits;
+this is increased progress on the same blocked query, not identical work or accepted
+mesh speedup. Geometry preparation and composition are separate top-level edge
+phases here; prepared-region rebuild12.056s is nested, not additive.
+
+Complete answer hits6272, misses9969, hit share38.62%;1551misses have an existing
+certificate too wide for the new request. Other misses combine new/absent/evicted
+entries; do not label them all nearby trials.9968stores/0refusals. Prepared regions
+3836771hits/339648misses,216044768Bretained. Successful closest queries still lack
+seed/root/refinement timing split; normal-candidate jitter vs true quadrature
+variation is unresolved. Next assess cheaper fresh certification using existing
+bounded projection seeds, retaining the full proof. More cache counters alone
+will not close this case. No target/constraint/budget change or new baseline campaign.
