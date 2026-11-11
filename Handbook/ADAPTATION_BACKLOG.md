@@ -1019,4 +1019,23 @@ cache/kernel cycle from those source opportunities. Revisit only if later measur
 work makes them material; retain finite/SPD checks, exact norm fallbacks, immutable
 sample lifetime, exact field/endpoint identity and memory admission. No production
 change selected for these alternatives. See surface362_reuse_audit.json and
-seed364_assessment.json. Active work remains full frozen364 and its actual outcome.
+seed364_assessment.json. This was the364deferral; HANDOFF owns current work.
+
+
+### After371: invariant geometry through metric-support/profile refresh
+
+371successfully evaluates3distinct targets but makes39096trial geometry point
+requests versus13032in364, with18rank profile refreshes. Geometry work71299713;
+preparation612.375s and assessment510.418s overlap. Existing tangent-only raw-sample
+reuse does not avoid these actual M6 refreshes. Source suggests that changes to
+metric support/features may invalidate samples whose underlying authority/query
+coordinates remain unchanged. This is a hypothesis, NOT a selected optimization.
+
+Before changing it, distinguish previously active samples from newly admitted wall
+supports, normal-profile/anchor changes from envelope-only changes, full/base/D1
+query data and exact authority/association identities. Uncertain/new supports need
+fresh certification, all transient/active-reference accounting and work/time budgets
+remain. Whole-target values/cached/direct results must agree; counters alone do not
+prove benefit. Active work is target reasonableness and complete stage2checkpoint,
+not another independent performance cycle. Also isolate the unsplit all-node
+composed-gradation audit before claiming what part of total time is traversal.

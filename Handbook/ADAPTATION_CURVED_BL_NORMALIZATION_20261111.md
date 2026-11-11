@@ -2,6 +2,10 @@
 
 2026-11-11. Read HANDOFF_Codex.md for authoritative provenance/handles.
 Euler293 workflow/checkpoints remain preserved. Full364 is terminal; no usable BL.
+371actual saved-CFD metric-only evaluation passed (terminal0/1739.083s).370failed its
+coarsest preflight;371uses the existing locally expanding solve. Serial371passes;
+370MPI primitive/publication checks are reused. Actual target suitability, complete
+composed-target checkpoint and generated BL remain unproven. Handles live in HANDOFF.
 
 ## Confirmed evidence
 
@@ -13,7 +17,7 @@ bound), flow-only2.08846, requested nominal500000. Overshoot alone is NOT failur
 and does not prove a physical minimum. Surface preparation exhausted its deadline
 before first row:18commits,51891of303310cells cached,391.619s. q/J unknown.
 
-CSolver normalization scales/clips/grades only sensor eigenvalues. The 3D BL
+Through364, CSolver normalization scaled/clipped/graded only sensor eigenvalues. The 3D BL
 wall tensor independently interpolates original-wall size covariance; its inherited
 tangent block survives even when the optional legacy tangential floor is disabled.
 The prescribed normal law, analytic curvature cap and D1 features are separate.
@@ -49,8 +53,11 @@ saved stages, then full integration (latest stage cadence). Other ideas remain i
 
 ## Implementation status
 
-CSolver normalization is unchanged. Experimental shared tangent selection/recomposition
-is local and UNQUALIFIED.365 compile failed at one new test (mixed float/double
+370/371 connect shared tangent selection/recomposition to the initial fixed-normal
+3D BL scalar solve; optional outer-normal budget selection retains its original
+tangent policy. Focused correctness passes; actual target qualification is pending.
+The following365–368 history records the API qualification preceding that connection.
+365 compile failed at one new test (mixed float/double
 initializer list); exact source/status and47terminal identities preserved.366 passed build308.338s,393assertions/8serial cases and306735assertions/1actual
 case across5contexts (103.969s). Exact source is sealed in source_snapshots366;
 367follow-ups are now checked by368 (see latest outcome below). The candidate scales inherited covariance before geometry caps
@@ -59,8 +66,8 @@ owner/wall/profile inputs; support/non-tangent changes refuse reuse. Full/base a
 
 Review found original featureHmax-dependent redundancy radius must grow when
 coarsening.366 rebuilds existing feature grid/reflected images, refreshes native
-support conservatively and rebuilds the existing Option-A policy when its active
-radius changes; new buffers require existing ledger admission. No envelope facility
+support conservatively and refreshes the existing Option-A radius-dependent data when its active
+radius changes (370retains immutable crease/chains); new buffers require existing ledger admission. No envelope facility
 or larger budget. A future sample-profile refresh can still require real geometry.
 368 closes the candidate-complexity q.weight refresh and exercises synthetic/full-
 base cached/direct tangential trials and actual saved patches. Production policy
@@ -74,21 +81,22 @@ inherited eigenvalues roughly halves centroid density sums in smooth/LE/root
 contexts. These sums are NOT integrals. Original unlayered shape does not improve;
 LE q-bad23→24/J-bad21→22. This does not select a production target or establish an
 admissible replacement. Use the preserved358 generated row and full-neighbor capture
-next, plus independent physical-progression checks. One unqualified candidate-cache
-weight dependency and prospective grid-admission refinement are local367 edits.
+next, plus independent physical-progression checks. 368qualified the candidate-cache weight refresh;370added bounded radius-update
+admission and immutable crease reuse. Their actual target benefit remains unproven.
 
 
-## Proposed normalization connection (not enabled)
+## Joint normalization connection — implemented370/371, target unproven
 
 Use the existing scalar family/root solver for the composed field. Reference the
 inherited tangent factor to the existing flow-only nominal-scale proposal, rather
 than the arbitrary magnitude of raw Hessians: coarser trials scale both sensor and
 inherited tangent demands, while hn/curvature/features remain independent. Preserve
-directional ratios and the existing depth/outer-transport facilities. This would
-allow flow demand to participate instead of forcing it to its2.09-complexity floor
+directional ratios and the existing depth/outer-transport facilities. This makes flow demand an adjustable participant instead of forcing it to its2.09-complexity floor
 while treating original triangles as immutable resolution. The composed integral,
 not a sum of separate estimates, selects the scale. Actual target attribution and
-physical/constructed patch checks must support selection; this is not enabled yet.
+physical/constructed patch checks must support selecting the resulting target;
+371successfully evaluated it on the actual saved CFD field; physical suitability
+and allocation remain under assessment.
 
 The selected tangent policy must be retained/frozen with each original metric event;
 private subsequent source-only normalization must not mutate a shared accepted
@@ -101,7 +109,8 @@ overshoot in CSolver/normalization/publication. The latest nominal clarification
 requires changing that rejection to explicit estimated status/diagnostics, preserving
 all resource, geometry, q/J, metric and requested-height gates. Current actual config
 has that option disabled; do not confuse the historical branch with364's deadline
-failure. No nominal-gate production edit has been made yet.
+failure. 370converted these complexity-only refusals to diagnostics without changing
+physical/resource acceptance. The publication regression covers this distinction.
 
 
 ##368 outcome and latest cadence
@@ -129,14 +138,14 @@ unproven. Stage1 verified metric-entry CFD/authority is now reusable without ano
 CFD advance; that is not a composed-target checkpoint.
 
 
-##369 bounded evidence and next target diagnostic
+##369 bounded evidence preceding the target diagnostic
 
 Read-only assess_saved_row369.py parses the existing25-cell capture and independently
 reproduces saved q/J (maximum absolute difference1.67e-16). With the SAME coordinates,
 adding a finer tangent-only tensor control (normal quadratic form unchanged) changes
 wall q/J-bad4/5→0/0 at factor8; all20outer cells stay bad. A face-normal-aligned tensor
 control alone does not close the wall cells. Neither control is a justified target
-policy, actual remesh or geometry certificate. No production metric change selected.
+policy, actual remesh or geometry certificate. It did not select a finer tangent floor.
 
 Existing358records show original smooth-wall planning length1.10177 but no sampled
 height-feasible child.16coupled splits create21descendants,14sample-feasible, then
@@ -145,15 +154,16 @@ planning scale and height-feasible construction, not a unique cause or mandatory
 refinement law. Reuse those records; do not repeat construction to rediscover it.
 
 Older345leading-edge curvature/density records suggest a geometric-directional
-mismatch but use an older diagnostic/metric path. Reproduce on the current build
-before treating them as authoritative.369adds only a diagnostic early exit after
+mismatch but use an older diagnostic/metric path.369reproduced the local samples
+on the current API, adding only a diagnostic early exit after
 existing surface derivatives, sided tangent guidance and constrained directions,
 covering the5saved original contexts. No cavity construction/generation, CFD solve,
 new metric policy, bounds, budgets or final gate change. Expected output: current
 physical-curvature/principal-direction/tangent-demand records with per-context work
 and wall time. These remain local samples, not global curvature bounds/certification.
 
-Acceptance of this diagnostic: all contexts complete under existing300s envelope,
+369passed all42samples/5contexts in78.391s. Its diagnostic acceptance was completion
+under the existing300s envelope,
 valid associations and finite nonzero sided metric demands; no generation is
 attempted. Then compare physical geometry demand, original inheritance and height
 feasibility before choosing the connected production normalization correction.
@@ -208,8 +218,8 @@ checkpoint/reload is still required before stage3; existing sensor exports are
 insufficient. No new curvature floor or construction policy is selected.
 
 370 build passed352.424s, focused serial1096assertions/16cases and connected MPI6
-841assertions/16cases EACH rank. Actual saved-CFD metric-only evaluation is frozen
-and running; no actual target reasonableness, generated BL or speedup is established.
+841assertions/16cases EACH rank. Its subsequent actual metric-only evaluation failed
+as recorded below; no actual target reasonableness, generated BL or speedup is established.
 Qualification details: R/joint370_qualification.json. Native FIRST_ROW1 guard remains.
 
 
@@ -226,3 +236,57 @@ its original tangent policy and old preflight; its separate profile selection is
 not converted to a second joint search. It remains nominal, not a rejection gate.
 An actually needed extreme trial could still expose representability limits; do
 not claim that issue generally solved. Actual target reasonableness remains open.
+
+
+##371 actual same-field result — stage2 remains provisional
+
+R/metric_stage371_assessment.json: terminal0/1739.083s;429364assertions/6ranks,
+all10owned actual-host handles terminal; pins intact. No CFD advance/construction.
+Composed estimate504040.450±48545.704 empirical indicator, nominal500k. Tangent
+factor.28717458874925855; core.0047263575870155755. Three distinct evaluated fields;
+normalizer counts4requests because an unchanged uncertainty reassessment is cached.
+Runtime/independent Mach errors4.44e-16/6.66e-16; conservative flow values unchanged.
+
+Core nodal complexity140142.106 (364:2.08846);50.42%ofcore-only nodal complexity is
+beyondradius20. This is not composed complexity allocation; large volume can matter.
+Local flow-only principal-direction spacing at actual LE samples has medians
+.008923/.034139. These are NOT the full combined surface/BL demand or a geometry
+certificate. Reuse current case/core_allocation_assessment.json and exact existing-
+format selected_core_native.bin for bounded full-target queries without CFD/recovery.
+Neither export preserves the complete family/profile/support state.
+
+Core nodal audit has0edges above1+1e-5 despite the256sweep iteration cap; no fixed
+point is claimed. Composed nodal audit133745bad directed edges, worst ratio2.71976e6
+(364:293237and796263). Fewer failures but a worse maximum does not establish a
+usable target/mesh. Full physical allocation and representative actual composed
+point/chord/height-direction behavior must be inspected before surface preparation.
+
+Metric1732.127s includes57.672authority initialization; metric build1673.930s,
+geometrywork71299713 (364:53473769). This is a changed target/three-field solve,
+not an efficiency comparison. Existing profile refreshes make39096geometry queries
+versus13032in364. Retained geometry invariance through changing metric support is
+an attribution/reuse question, not an established optimization; keep it in backlog
+until it addresses the active demonstrated blocker.
+
+## Next bounded check372 — input/output/acceptance before changes
+
+Missing evidence:371exports the flow/core contribution, not full combined tangential
+and normal demand on the actual M6 patches. Its composed nodal audit is provisional,
+so matching nominal complexity cannot establish target reasonableness.
+
+Input: exact371selected_core_native.bin/final scale/core, unchanged original303
+mesh/reference and the existing5bounded M6 contexts. Reuse the current actual-front
+diagnostic with a test-only saved-field selector; retain its300s envelope and all
+geometry/resource checks. No CFD, global metric reconstruction, operator or surface
+generation attempt. Reconstruct a fresh policy at the SAME final controls; this is
+NOT a claim to restore371's full support history or complete target checkpoint.
+
+Expected output: full/flow/wall-profile directional densities at actual associated
+wall points, requested normal demand, existing surface-planning lengths, original
+patch centroid q/J diagnosis and one production-integrated chord per context.
+Wall-profile isolation includes the mandatory isotropic core and is not additive.
+Input records must be complete, unique, finite/SPD and match requested coordinates;
+finite positive queries and repeated-query agreement in the fresh policy must hold.
+This does not establish cold-cache equivalence or restore371support history. Retain all outputs
+if geometry/edge work exhausts the existing bound; unresolved work is not approval.
+No final whole-mesh shape gate is applied to these unlayered diagnostic inputs.

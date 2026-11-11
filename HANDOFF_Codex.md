@@ -12,63 +12,58 @@ construction validity-first; intermediate quality debt is provisional, not accep
 
 ## Current state — authoritative
 
-Current owned workload:371actual saved-CFD METRIC-ONLY stage RUNNING/FROZEN,
-session15803; R/cases/curved371_saved_cfd_metric_stage_20261111T111921_1888531.
-Wrapper1888531; time1888611. Exact AF7seed/MPI6/Mach-only L1/nominal500k,
-unchanged normal/geometry/budgets; no CFD advance or construction. Do not edit
-pinned sources until actual-host terminal. R/joint371_qualification.json.
-Read-only frozen receipt verified1601pins,84mappedELFs and6live ranks at
-~529s: no changes/unknown runtimes; current case/frozen_provenance_receipt.json.
-CPU includes possible MPI polling; no stop condition or accepted target established.
-Build371 TERMINAL0/58.132s,14owned identities absent, pins intact;
+Current owned workload: build372 RUNNING/FROZEN, session58881;
+wrapper1989463/start44323786,ninja1989487/start44323811. Test-only saved-target
+diagnostic, production sources unchanged. Do not edit pinned sources until terminal.
+
+371actual saved-CFD METRIC-ONLY stage TERMINAL0/
+1739.083s,429364assertions total across6ranks. All10owned actual-host identities
+terminal;1601source/build/input pins intact. R/metric_stage371_assessment.json and
+R/cases/curved371_saved_cfd_metric_stage_20261111T111921_1888531 own the evidence.
+No CFD advance or construction. Runtime Mach error4.44e-16; independent saved-field
+reconstruction6.66e-16. Conservative flow variables unchanged at every owned node.
+
+Provisional composed target504040.450±48545.704empirical indicator (not a bound),
+nominal500k; tangent scale.28717458874925855, core.0047263575870155755. Original
+h0/g/T unchanged. Core nodal complexity140142.106 versus364's2.08846;50.42%ofthat
+CORE-only diagnostic lies beyondradius20. This is not an additive decomposition
+of the composed target and does not establish inappropriate allocation by itself.
+Core gradation reached256sweep limit but has0directed nodal edges over1+1e-5;
+composed audit has133745failures (364:293237), maximumratio2.71976e6 (364:796263).
+No continuous-field/geometry/BL-suitability acceptance is claimed.
+
+Source mesh61330nodes/303359tets is unchanged; NO new BL mesh exists.
+Metric1732.127s includes57.672authority setup; build1673.930s; geometrywork71299713.
+No speedup:3distinct field evaluations versus1in364, target changed. Timings ledger
+separates nested/overlapping costs, CPU and unknown wait attribution.
+
+Exact core export (existing NativeFrozenVolume3D layout) and42source-coordinate
+flow-direction diagnostics: current case/{selected_core_native.bin,
+core_allocation_assessment.json,saved_cfd_metric_rank*.jsonl}. These are CORE-only,
+NOT a complete composed-target checkpoint or original-family persistence.
+
+Next: use those exact saved tensors with existing bounded actual-M6 contexts to
+inspect full/flow/BL/physical geometry demands, normal law and directional/chord
+conformity; localize farfield core allocation before selecting target reasonableness.
+Do not repeat CFD or launch surface generation merely because total≈500k. Complete
+composed-target reconstruction/reload remains required before stage3.
+
+Build371 TERMINAL0/58.132s,14owned identities terminal, pins intact;
 CFD SHA7cf80707d006eb2c5d80afa1143b730e8502e1458e1f9fe0bfd6fbc68ef24cd8;
 test SHAf13261de51726d5fb72bc606b920a45899395994ad491e7756bb24cb0580b92e.
-Serial371terminal0/68.606s,1096assertions/16cases, actual-host handles terminal.
-371changes ONLY CSolver: remove the obsolete unconditional coarse endpoint
-preflight for fixed-normal joint normalization; existing local bracket expansion/
-24assessments/budgets retained. Optional ADAP_BL_BUDGET outer-profile mode keeps its
-original tangent policy. No numerical/geometry floor added. A needed extreme may
-still fail representation. Actual target assessment/checkpoint still outstanding.
+Serial371passed1096assertions/16cases/68.606s.370MPI primitive/publication milestone
+passed841assertions/16cases EACH rank;371actual target solve also passedMPI6.
+Dedicated native-MPI BL generation remains unqualified (FIRST_ROW1 guard remains).
+370failed the unnecessary extreme coarse preflight (SPD);371uses existing local
+bracket expansion/24assessment cap. Optional outer-normal ADAP_BL_BUDGET mode keeps
+its original tangent policy. No numeric/geometry floor or relaxed gate was added.
+An actually needed extreme trial may still expose representation limits.
 
-370actual saved-CFD metric-only TERMINAL1/65.933s, pins intact; all10owned actual-host
-identities terminal. R/cases/curved370_saved_cfd_metric_stage_20261111T111101_1866897.
-Error: D1 intersection sum not positive definite in first coarse trial. This is
-NOT complexity overshoot rejection; no CFD advance or construction occurred.
-Serial370terminal0/75.753s,1096assertions/16cases; MPI6terminal0/5.425s,
-841assertions/16cases on EACH rank. All owned identities actual-host terminal;
-pins intact. R/joint370_qualification.json owns limited qualification scope.
-Build370 TERMINAL0/352.424s,58owned identities absent, all pins intact;
-CFD SHAd0872a42bd3354bf3f49515db26dc097005fef921cf0ebecbee28b0d1d141a6f;
-test SHAcb71dd694496b148b1fd1552463ee1a521cdde440b48183adc2a67f1b0c40d08.
-Joint normalization passed focused serial and connected MPI checks; actual saved-CFD
-metric stage failed at an unnecessary extreme endpoint. Not a selected reasonable
-target or speedup.371passed serial; actual metric-only MPI6 is running. Reuse370MPI
-primitive/publication evidence; no second fixture campaign for CSolver-only change.
-369target-only actual diagnostic TERMINAL0/78.391s,
-303453assertions/1case; all owned actual-host identities verified terminal and pins
-intact in R/geometry369_assessment.json.42samples across5actual M6 contexts, no CFD
-advance or construction. Local context costs/work are recorded in the timing ledger;
-these exclude shared setup and do not establish a production speedup.
-Build369 TERMINAL0/244.469s, all10observed build identities absent; CFD byte-identical368.
-Test SHA95b87517866c53256deac8e41ad8e0d035c1723c1f737f98ba0bcdd2f9f6e088.
-
-368focused/actual checks TERMINAL; all5actual
-identities absent in EACH case and pins intact. Build368 TERMINAL0/68.130s;
-all10observed build identities absent. CFD SHA6297c7f82411e15cd95ae36c6ad5f0529d7dac5c1bdbd9e94c91e5a5ed67283f;
-test SHA57978caec389405d8966fc3e56179b50d968511b4e8a41e5d08b5ac6638e965f.
-367 failed ONLY a new test's unsupported long-double CPassiveComm reduction;
-exact failing source preserved.368 uses existing explicit MPI_LONG_DOUBLE call.
-Production byte-identical367. No full M6 retry has been launched.
-
-368serial PASSED420assertions/9cases/5.838s. Actual PASSED306789assertions/1case/
-138.187s:5original contexts + saved358generated row and84-cell neighbor union.
-R/tangential368_assessment.json seals LIMITED target diagnosis, not accepted BL.
-25-cell row keeps strict geometry/height/positivity at factors1,.75,.5, but wall
-q-bad4→5/J-bad5→5;20outer cells remain q/J-bad.84-cell union geometry/positivity
-passes;34neighbor-only wall cells retain height debt (previously unlayered).
-Coarsening alone is NOT selected. Analytic NextLayer control separately shows
-metric-unit advancement does not prove physical progression with oblique/fine-
-tangent demand. Actual progression/coverage/transition remain unqualified.
+Prior368–370 patch/API/diagnostic evidence is preserved in the linked normalization
+handbook and R/{tangential368_assessment,geometry369_assessment,
+joint370_qualification,metric_stage370_failure,joint371_qualification}.json.
+Neither uniform coarsening nor finer-tangent controls established admissible actual
+BL replacements. Physical discrete progression/coverage/outer transition stay open.
 
 CURRENT CADENCE: ordered stage integration (latest user instruction), NOT immediate
 full-workflow retry after each fix. Stage1 verified/reusable input is
@@ -82,8 +77,8 @@ Stage2 target/normalization is ACTIVE: finish physical geometry/directional/heig
 feasibility attribution, select a justified connected correction, then qualify a
 complete composed-target disk checkpoint. Sensor-only files are insufficient.
 Production CSolver selector now has the371joint flow/inherited-tangent candidate
-for fixed-normal policies; focused serial is qualified, actual M6 target remains
-unqualified. Frozen replay retains its selected scale. Crease geometry
+for fixed-normal policies; focused serial and actual M6 MPI target evaluation pass,
+while target reasonableness remains under assessment. Frozen replay retains its selected scale. Crease geometry
 is reused during radius refresh; feature/index transient storage is pre-admitted.
 Nominal complexity-only refusals are diagnostic; physical/resource gates remain.
 This is not an established reasonable target or speedup. No new operators/scheduler.
@@ -114,8 +109,8 @@ Check actual host load/RAM and owned PID/start identities before heavy jobs/edit
 
 ## Active stage2 and next bounded work
 
-Full composed3D complexity ALREADY counts BL volume/outer continuation. Existing
-normalization adjusts only flow while wall covariance preserves inherited triangle
+Full composed3D complexity ALREADY counts BL volume/outer continuation. Before370,
+normalization adjusted only flow while wall covariance preserves inherited triangle
 spacing. The experimental shared API can vary inherited tangents before protected
 normal/geometry/D1 composition; exact owner/wall/support/profile dependencies govern
 same-point recomposition. Changed feature radius requires index/images/Option-A
@@ -136,10 +131,13 @@ NextLayer progression must be assessed separately, including oblique/outer behav
 No new operator, larger cavity, scheduler, geometry representation or depth law is
 selected. Queued Coulaud/MAdLib hypotheses remain inside this investigation.
 
-Frozen371source audit confirms monotone support/broad-phase history is missing
+371source audit confirms monotone support/broad-phase history is missing
 from config+scale+final-core reconstruction; see stage cadence checkpoint audit.
 The current JSON remains diagnostic, not a complete checkpoint. No source edits
-were made during the run.
+were made during the run. Source trace confirms SA restart loading refreshes flow
+primitives before Mach sampling; terminal runtime comparison is still required.
+Timing ledger now identifies the untimed complete nodal composition audit; its
+share of metric cost is NOT measured and no optimization is selected from it.
 
 After target reasonableness, establish fresh-process reconstruction of the SAME
 composed target and geometry, reusing existing .native_ref, RecordStream/donor and
@@ -147,7 +145,8 @@ stage-capture formats first. Include selected core/original family as needed,
 normal/tangent/feature/Option-A/outer policy and complete provenance; sensor-only
 exports are insufficient. Stage3surface work waits for credible stage2output.
 Run focused checks and meaningful MPI ownership/publication/integration milestones;
-new profile MPI qualification is still pending. Native FIRST_ROW1 guard remains.
+profile primitives and actual target solve pass MPI; generated BL qualification
+is still pending. Native FIRST_ROW1 guard remains.
 No full M6 baseline/perf/GDB campaign or full retry is currently authorized merely
 because a local check passes; latest stage cadence controls.
 

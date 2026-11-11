@@ -1,12 +1,46 @@
-// Included inside the existing actual-M6 loader: selection changes, not geometry or CFD provenance.
+// Included inside the existing actual-M6 loader; saved-target mode reads exact371 core values, no CFD/generation.
 using namespace junction_wp0;
 SU2NativeBLPipeline3D::detail::PipelineScope pipeline;
+const bool savedTarget=std::string(std::getenv("SU2_NATIVE_BL_FRONT_PROBE"))=="saved_target_geometry";
+double selectedCore=1e-4,tangentScale=1;
+std::map<Id,std::pair<Point,Tensor>> savedCore;
+if(savedTarget) {
+  const auto* path=std::getenv("SU2_NATIVE_FROZEN_SENSOR3D");REQUIRE(path);
+  const auto* coreText=std::getenv("SU2_NATIVE_FROZEN_CORE3D");REQUIRE(coreText);
+  const auto* scaleText=std::getenv("SU2_NATIVE_FROZEN_TANGENT_SCALE3D");REQUIRE(scaleText);
+  std::istringstream coreStream(coreText),scaleStream(scaleText);coreStream>>selectedCore;scaleStream>>tangentScale;
+  REQUIRE(bool(coreStream));REQUIRE(bool(scaleStream));coreStream>>std::ws;scaleStream>>std::ws;
+  REQUIRE(coreStream.eof());REQUIRE(scaleStream.eof());REQUIRE(std::isfinite(selectedCore));REQUIRE(selectedCore>0);
+  REQUIRE(std::isfinite(tangentScale));REQUIRE(tangentScale>0);REQUIRE(tangentScale<=1);
+  std::ifstream source(path,std::ios::binary);uint64_t records=0;source.read(reinterpret_cast<char*>(&records),8);
+  REQUIRE(bool(source));REQUIRE(records>0);REQUIRE(records<=10000000);
+  const auto bytes=transfer_memory::Mul(records,sizeof(decltype(savedCore)::value_type)+4*sizeof(void*));
+  REQUIRE(transfer_memory::Add(budget.caller_bytes,bytes)<ceiling);
+  source.seekg(0,std::ios::end);REQUIRE(source.tellg()==std::streamoff(8+104*records));source.seekg(8,std::ios::beg);
+  for(uint64_t k=0;k<records;++k) {
+    Id id=0;Point p{};std::array<double,9> m;
+    source.read(reinterpret_cast<char*>(&id),8);source.read(reinterpret_cast<char*>(&p.x),8);
+    source.read(reinterpret_cast<char*>(&p.y),8);source.read(reinterpret_cast<char*>(&p.z),8);
+    source.read(reinterpret_cast<char*>(m.data()),72);REQUIRE(bool(source));
+    REQUIRE(std::isfinite(p.x));REQUIRE(std::isfinite(p.y));REQUIRE(std::isfinite(p.z));
+    REQUIRE(m[1]==m[3]);REQUIRE(m[2]==m[6]);REQUIRE(m[5]==m[7]);
+    const Tensor t{m[0],m[1],m[2],m[4],m[5],m[8]};ValidateTensor(t);
+    REQUIRE(savedCore.emplace(id,std::make_pair(p,t)).second);
+  }
+  REQUIRE(source.peek()==std::char_traits<char>::eof());
+}
 auto policy=SU2NativeBLPipeline3D::MakeTargetPolicy(config,*reference,1e-4,-1);
-policy->Update(1e-4,SU2_TYPE::GetValue(config.GetAdap_Hgrad()));
+if(savedTarget)policy->full->SelectTangentialScale(tangentScale);
+policy->Update(selectedCore,SU2_TYPE::GetValue(config.GetAdap_Hgrad()));
 auto geometryLease=policy->ReserveGeometry(budget);
 dc10::optionA=policy->A;dc10::probeBase=policy->base;dc10::probeFull=policy->full;
 dc9::validityOnlyConstruction=true;dc9::markerRoles=policy->roles;
-const Tensor control{1e-4,0,0,1e-4,0,1e-4};
+const Tensor control{selectedCore,0,0,selectedCore,0,selectedCore};
+auto coreAt=[&](Node node) {
+  if(!savedTarget)return control;
+  const auto& row=savedCore.at(node.id);REQUIRE(row.first.x==node.p.x);REQUIRE(row.first.y==node.p.y);REQUIRE(row.first.z==node.p.z);
+  return row.second;
+};
 auto state=std::make_unique<State>();state->name="actual_curved_front_probe";
 state->facets=reference->facets;state->markers=reference->marker_names;
 state->heights=heights;for(const auto& height:heights)state->walls.insert(height.first);
@@ -15,10 +49,11 @@ state->growth=SU2_TYPE::GetValue(config.GetAdap_BL(0).growth);
 state->thickness=SU2_TYPE::GetValue(config.GetAdap_BL(0).thickness);state->memory_ceiling=ceiling;
 const auto priorCaller=budget.caller_bytes;
 const auto retained=transfer_memory::Add(priorCaller,policy->StorageBytes(),
-    transfer_memory::Mul(imported.cells.size(),3*(sizeof(DonorCell)+640)),size_t(256)<<20);
+    transfer_memory::Mul(imported.cells.size(),3*(sizeof(DonorCell)+640)),
+    transfer_memory::Mul(savedCore.size(),sizeof(decltype(savedCore)::value_type)+4*sizeof(void*)),size_t(256)<<20);
 REQUIRE(retained<ceiling);budget.caller_bytes=retained;
 std::vector<DonorCell> donors;donors.reserve(imported.cells.size());
-for(const auto& row:imported.cells){DonorCell d;d.cell=row.second.cell;d.sensor.fill(control);donors.push_back(d);}
+for(const auto& row:imported.cells){DonorCell d;d.cell=row.second.cell;for(unsigned k=0;k<4;++k)d.sensor[k]=coreAt(d.cell.v[k]);donors.push_back(d);}
 const auto extensions=AssociatedExtensions(donors,*scope);
 state->field=std::make_unique<FrozenField>(std::move(donors),policy->Composition(),true,extensions,policy->Edges(),
     std::make_shared<const FrozenMetricIdentity>(),true,std::max(MaximumDonors,imported.cells.size()));
@@ -41,13 +76,13 @@ for(size_t index=0;index<count;++index) {
   std::set<Id> selected;
   for(size_t i=0;i<n;++i){std::array<Id,4> key;for(auto& id:key)input>>id;std::sort(key.begin(),key.end());selected.insert(byVertices.at(key));}
   REQUIRE(selected.size()==n);
-  state->mesh=imported.cells;for(auto& row:state->mesh){row.second.sensor_present=true;row.second.sensor.fill(control);}
+  state->mesh=imported.cells;for(auto& row:state->mesh){row.second.sensor_present=true;for(unsigned k=0;k<4;++k)row.second.sensor[k]=coreAt(row.second.cell.v[k]);}
   state->live_parameters=std::make_shared<BoundaryParameterState>(*reference->original->Parameters());
   state->reference=scope->WithParameterState(state->live_parameters)->WithAtlasReservation(budget);
   state->overlay.clear();Prepare(*state);dc12::ApplyWallPolicies(*state);state->heights.tolerance=heights.tolerance;
   dc9::DetectCreases(*state,policy->roles);dc9::ensureDirectionField(*state);
   const auto old=PatchOf(*state,std::vector<Id>(selected.begin(),selected.end()));
-  std::vector<DonorCell> localDonors;for(const auto& c:old.cells){DonorCell d;d.cell=c;d.sensor.fill(control);localDonors.push_back(d);}
+  std::vector<DonorCell> localDonors;for(const auto& c:old.cells){DonorCell d;d.cell=c;for(unsigned k=0;k<4;++k)d.sensor[k]=coreAt(d.cell.v[k]);localDonors.push_back(d);}
   auto identity=std::make_shared<const FrozenMetricIdentity>(FrozenMetricIdentity::Scope::SurfacePlanning);
   FrozenField core(std::move(localDonors),{},true,{}, {},identity);
   const auto beforeWork=budget.work;const auto t0=std::chrono::steady_clock::now();
@@ -58,14 +93,28 @@ for(size_t index=0;index<count;++index) {
     const auto plan=MeasureSurfacePlanning(old,core,*state->reference,heights,
         [&](Node node,const PlanarReference& context,Tensor sensor){return policy->BoundaryGuidance(node,context,sensor,reference->marker_names);});
     frontLog<<"{\"context\":"<<std::quoted(label)<<",\"stage\":\"surface_planning\",\"maximum_requested_length\":"<<plan.maximum_length
-            <<",\"core_control_only\":true,\"full_target_certified\":false,\"geometry_work\":"<<budget.work-beforeWork<<"}"<<std::endl;
+            <<",\"core_control_only\":"<<!savedTarget<<",\"full_target_certified\":false,\"geometry_work\":"<<budget.work-beforeWork<<"}"<<std::endl;
     for(const auto& face:old.surface)if(heights.count(state->reference->Get(face.facet).marker)) {
       const auto& geometry=state->reference->Parameters()->Geometry();const auto vertex=face.v[0];
       const auto p=NodePoint(*state,vertex);const auto* association=state->reference->Parameter(p);REQUIRE(association);
       if(!budget.ChargeWork(1))throw std::length_error("Actual curvature probe exhausted geometry work.");
       const auto physical=geometry.EvaluateSurface(face.facet,association->binding);
-      const auto guidance=policy->BoundaryGuidance({vertex,p},*state->reference,control,reference->marker_names);
+      const auto guidance=policy->BoundaryGuidance({vertex,p},*state->reference,coreAt({vertex,p}),reference->marker_names);
       const auto direction=dc9::DirectionAt(*state,vertex);
+      if(savedTarget) {
+        const auto flow=coreAt({vertex,p});auto combined=flow;policy->ApplyPoint(p,combined);
+        auto repeated=flow;policy->ApplyPoint(p,repeated);
+        CHECK(combined.xx==repeated.xx);CHECK(combined.xy==repeated.xy);CHECK(combined.xz==repeated.xz);
+        CHECK(combined.yy==repeated.yy);CHECK(combined.yz==repeated.yz);CHECK(combined.zz==repeated.zz);
+        const auto wall=policy->BoundaryGuidance({vertex,p},*state->reference,control,reference->marker_names);
+        auto density=[&](Tensor m,Point d){return MetricNorm({0,0,0},d,m);};
+        frontLog<<"{\"context\":"<<std::quoted(label)<<",\"stage\":\"saved_target_contributions\",\"vertex\":"<<vertex
+                <<",\"flow_principal_density\":["<<density(flow,physical.direction1)<<','<<density(flow,physical.direction2)
+                <<"],\"combined_principal_density\":["<<density(combined,physical.direction1)<<','<<density(combined,physical.direction2)
+                <<"],\"combined_normal_density\":"<<density(combined,physical.normal)<<",\"wall_profile_with_core_floor_principal_density\":[";
+        long double d0=0,d1=0;for(const auto& side:wall){d0=std::max(d0,density(side.tensor,physical.direction1));d1=std::max(d1,density(side.tensor,physical.direction2));}
+        frontLog<<d0<<','<<d1<<"],\"components_additive\":false,\"physical_height_placement_verified\":false}"<<std::endl;
+      }
       double tangent1=0,tangent2=0;
       for(const auto& side:guidance) {
         auto density=[&](Point direction) {
@@ -80,9 +129,25 @@ for(size_t index=0;index<count;++index) {
       pointJSON(physical.direction1);frontLog<<',';pointJSON(physical.direction2);
       frontLog<<"],\"control_planning_directional_density\":["<<tangent1<<','<<tangent2<<"],\"direction_ok\":"<<direction.ok
               <<",\"carrier_rank\":"<<direction.rank<<",\"smooth_normal_alignment_abs\":"
-              <<(direction.ok?std::abs(Dot(direction.d,Of(physical.normal))):0.)<<",\"core_control_only\":true}"<<std::endl;
+              <<(direction.ok?std::abs(Dot(direction.d,Of(physical.normal))):0.)<<",\"core_control_only\":"<<!savedTarget<<"}"<<std::endl;
     }
-    if(std::string(std::getenv("SU2_NATIVE_BL_FRONT_PROBE"))=="target_geometry_only") {
+    if(savedTarget) {
+      size_t qb=0,jb=0;double minq=1,minj=1;
+      for(const auto& cell:old.cells) {
+        Tetrahedron tet;Point center{};for(unsigned k=0;k<4;++k){tet[k]=cell.v[k].p;center.x+=tet[k].x/4;center.y+=tet[k].y/4;center.z+=tet[k].z/4;}
+        const auto m=Measure(tet,state->field->evaluate(center));qb+=m.mean_ratio<MinimumMeanRatio;jb+=m.minimum_scaled_jacobian<MinimumScaledJacobian;
+        minq=std::min(minq,m.mean_ratio);minj=std::min(minj,m.minimum_scaled_jacobian);
+      }
+      const auto a=NodePoint(*state,edge[0]),b=NodePoint(*state,edge[1]);
+      const auto sensorLength=state->field->SensorEdgeLength(a,b),fullLength=state->field->TargetEdgeLength(a,b);
+      REQUIRE(sensorLength>0);REQUIRE(fullLength>0);REQUIRE(std::isfinite(fullLength));
+      frontLog<<"{\"context\":"<<std::quoted(label)<<",\"stage\":\"saved_target_patch\",\"core\":"<<selectedCore
+              <<",\"tangent_scale\":"<<tangentScale<<",\"q_bad_centroid\":"<<qb<<",\"J_bad_centroid\":"<<jb
+              <<",\"q_centroid_min\":"<<minq<<",\"J_centroid_min\":"<<minj
+              <<",\"sensor_edge_length\":"<<sensorLength<<",\"composed_edge_length\":"<<fullLength
+              <<",\"construction_attempted\":false,\"complete_checkpoint\":false}"<<std::endl;
+    }
+    if(savedTarget||std::string(std::getenv("SU2_NATIVE_BL_FRONT_PROBE"))=="target_geometry_only") {
       budget.CheckTime();REQUIRE_FALSE(budget.work_exhausted);
       frontLog<<"{\"context\":"<<std::quoted(label)<<",\"stage\":\"target_geometry_only_complete\",\"geometry_work\":"<<budget.work-beforeWork
               <<",\"seconds\":"<<std::chrono::duration<double>(std::chrono::steady_clock::now()-t0).count()

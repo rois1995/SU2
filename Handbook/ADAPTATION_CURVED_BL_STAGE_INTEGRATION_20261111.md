@@ -132,9 +132,9 @@ only when credible; a failed or partial diagnostic is evidence, not a resumable
 successful stage. Full retries are now integration milestones, not the default
 next action after every correction.
 
-## Frozen371 checkpoint audit — no implementation change
+##371 checkpoint audit — no implementation change
 
-Source audit while371runs confirms a specific reconstruction gap. The native3D
+Source audit during371 confirmed a specific reconstruction gap. The native3D
 reference sidecar preserves geometry/control curves, marker/facet identity and
 parameter/mobility records. RecordStream can encode explicit scalar/array records;
 it does not serialize runtime metric pointers or vectors automatically. The
@@ -146,7 +146,7 @@ its low/high broad-phase bounds. A later finer core may leave these bounds intac
 feature reindexing and outer-profile changes also affect the transition identity.
 Therefore final config + selected tangent scale + final core alone does not
 reconstruct the same retained state. This is confirmed source behavior, not an
-observed discrepancy in371 (which is still frozen).
+observed discrepancy in371 (371has since terminated successfully; no checkpoint codec yet).
 
 The smallest candidate persistence path is the existing encoded reference plus
 explicit family records keyed by global ID/coordinates, selected and original

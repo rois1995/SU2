@@ -5,13 +5,12 @@ integration result. [Current handoff](../HANDOFF_Codex.md) owns live handles;
 [stage inputs/outputs and acceptance](ADAPTATION_CURVED_BL_STAGE_INTEGRATION_20261111.md)
 own the development sequence. R=`integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57`.
 
-Latest complete production observation: same-seed curved BL/RANS364, terminal with
-preserved surface-preparation deadline failure. No usable BL or accepted RANS mesh.
-Stage2 tangential-profile development is active; build370 joint-normalization candidate
-passed compilation in352.424s and focused serial/MPI checks; actual saved-CFD
-metric-only stage failed;371endpoint correction passed serial and its actual
-MPI6metric-only evaluation is frozen/running. No validated production result.500k is nominal complexity, not a
-node count or acceptance gate. Euler293's completed workflow remains preserved.
+Latest completed target observation:371same saved-CFD MPI6 metric-only stage,
+terminal0/1739.083s. Target remains provisional; no surface construction or usable
+BL followed. Latest construction result remains364's preserved surface deadline
+failure. Requested500k is nominal complexity, not a node count or acceptance gate.
+Euler293's completed workflow remains preserved. Build372is frozen/running for a
+test-only bounded saved-target diagnostic; no new global metric or CFD run.
 
 ## Current runtime by stage
 
@@ -20,7 +19,7 @@ These are observed times, not forecasts. “Not reached” is not zero cost.
 | Section | Latest measured wall time | CPU / synchronization | Work and useful output |
 |---|---:|---|---|
 | 1. Saved CFD seed and geometry | Initial geometry max1.4644s; CFD solve not separately attributed here | Geometry maxCPU≈1.3871s/rank; includes partition/migration/preprocessing | Saved303 RANS+SA mesh/reference/restart reused;61330source points/303359input tets; coarse reasonable coefficients, not convergence/wall-resolution proof |
-| 2. Complete metric construction/normalization | max1199.6663s including Hessian | CPU≈1174–1175s/rank; polling can count as CPU, so total MPI wait is unknown |1trial;8192proposals/6516inside; composed estimate948069.856±77214.161 empirical indicator; flow-only2.08846; no proven error bound |
+| 2. Complete metric construction/normalization |371max1732.127s, including57.672authority setup | CPU≈1684.7–1687.5s/rank; includes possible MPI polling |3distinct evaluated fields/4normalizer requests;8192proposals/6516inside; estimate504040.450±48545.704 empirical indicator; core nodal140142.106; target suitability pending |
 | 3. Coupled surface preparation |391.6188s | Measurement CPU311.9047s is nested/overlapping; native FIRST_ROW uses serial guard |122kernel work,18commits;51891cached of303310current cells; readiness incomplete |
 | 4. Directions and first row | Not reached by full364 | Not measured for complete stage | Saved bounded358 row exists:5columns/25cells, strict initial geometry/height/contact pass, q-bad24/J-bad25; not a usable BL |
 | 5. Successive growth | Not reached by full364 | Not measured | Physical progression/coverage on actual generated complete BL unqualified |
@@ -31,6 +30,43 @@ First-event geometry/metric evidence: `R/m6_runs/rans_curved364_v1/initial_cfd_m
 `first_event_surface_failure_report.json`, `assessment.json`, `resources.jsonl`.
 The full364 wrapper1972.886s includes setup/output/authorized stop and a later prefix
 after first-event failure. It is not a pure first-adaptation time.
+
+## Latest metric-stage detail —371
+
+Source: R/metric_stage371_assessment.json and its terminal case. SameAF7CFD entry,
+Mach-onlyL1/nominal500k/normal controls. Core export covers61330source nodes and
+303359original tets; no new mesh was constructed. Actual target policy changed,
+so this is NOT a pure speed comparison with364.
+
+| Section | Maximum accumulated wall s / work | Interpretation |
+|---|---:|---|
+| Complete metric |1732.12698|Includes authority setup57.67186 and Hessian.53508|
+| Metric build |1673.92964|Nested;364was1199.254 with a different target and1field|
+| Complexity/gradation/nodal audit |1672.09312|Nested; nodal composition still unsplit|
+| Retained preparation |612.37501|Includes geometry profile refreshes also timed in assessments|
+| Assessment |510.41761|Overlaps preparation refresh; do not add them|
+| Background / correction / reduction |.28463/.01897/.0000727|Nested; not geometry preparation or total MPI wait|
+| Sensor gradation |43.15338|639accumulated sweeps,9275366owned-point visits,6200653tensor updates|
+| Gradation halo / reduction |1.01036/37.55872|Nested maxima, not additive or total MPI wait|
+| Geometry queries |6516initial preparation;39096trial requests|3distinct fields;13032trial requests in364|
+| Background determinants / correction queries |20021694/19548|6donor index builds;0donor searches during density assessment|
+
+Geometry work rank0–5:12371453/15620824/14312446/13305466/9866131/5823393;
+sum71299713, max/min≈2.68. Versus364work53473769(+33.3%), metric build+39.6%,
+with3distinct evaluated fields versus1. This establishes no efficiency gain/loss
+for an unchanged target. Successful tangent recomposition primitives alone did
+not eliminate actual M6 profile geometry refreshes; cause/reuse safety needs diagnosis.
+
+Provisional composed estimate504040.450±48545.704empirical indicator (no bound),
+tangentfactor.28717458874925855. Core nodal complexity140142.106;50.42%ofthat
+core-only nodal measure is beyondradius20. Do not call it composed allocation.
+Core gradation reaches256sweep cap with0directed edges over1+1e-5; fixed point not
+proved. Composed audit133745bad directed edges/worst2.71976e6 (364:293237/796263).
+Those counts do not certify continuous target conformity or BL suitability.
+
+Peak sampled process-tree RSS3408777216B(≈3.17GiB), largest sampled process
+605880320B(≈.56GiB); neither is a true physical whole-job peak. Geometry-reservation
+peak10673107716B(≈9.94GiB) is ledger admission, not RSS. No resource pressure stop.
 
 ## Metric-stage detail — full364
 
@@ -57,6 +93,15 @@ into seed/root/refinement work; failure-only splits must not be extrapolated.
 Do NOT add the nested/max timers above. RankCPU includes possible MPI polling.
 Join-call duration is not total MPI wait. Full busy-versus-wait attribution is a
 recorded gap; no derived wait percentage is justified here.
+
+Frozen371source review identifies one concrete unsplit section inside that total:
+after normalization, CSolver forms the composed tensor once at EVERY local node
+(owned + halos) for the composed-gradation audit. This work is outside the retained
+complexity preparation/assessment timers but inside complexity_gradation_audit.
+Final donor statistics reuse sensor-only tensors and do NOT repeat this composition.
+No separate duration/work delta exists for the nodal composition in current evidence;
+it is a candidate attribution gap, not a proved fraction of the1199s total.
+
 
 ## Surface-preparation detail and matching-window history
 
@@ -113,7 +158,7 @@ only after matching work/progress and scope are demonstrated.
 |370connected MPI6|5.4247 wrapper;1.12 test process|841assertions/16cases EACH rank; synthetic joint-scalar solve is serial-only, so this is not a speed comparison.|
 |370actual saved-CFD metric-only|65.9329 wrapper;61.85 process tree|Failed first coarse trial: D1 intersection sum not SPD; pins intact, no CFD advance/construction. No credible target/checkpoint.|
 |371endpoint correction serial|68.6061 wrapper|1096assertions/16cases, pass; production CSolver-only correction. No speedup attribution from this test.|
-|371actual saved-CFD metric-only|RUNNING; no terminal timing|At~529s provenance check:1601pins/84mappedELFs unchanged,6live ranks. Sampled tree RSS~3.2GiB earlier; not peak or useful-work attribution. Same AF7/Mach-L1/nominal500k and unchanged budgets; no CFD advance/construction.|
+|371actual saved-CFD metric-only|1739.083 wrapper;1732.127 metric|429364assertions across6ranks, pass; exact conserved values unchanged and independent Mach error6.66e-16. Provisional target, not accepted BL.|
 
 369 measured context work/time: failing-chord79units/0.12217s, smooth-upper129/0.17698s,
 leading-edge130/0.20864s, symmetry-interface59/0.08340s and sharp-edge candidate130/0.20092s.
