@@ -1,0 +1,107 @@
+{
+  "case": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved386_endpoint_point_frames_20261111T163958_2651010",
+  "status": {
+    "state": "terminal",
+    "exit_code": 0,
+    "seconds": 11.5358247756958,
+    "pins_verified": true,
+    "changed": [],
+    "largest_sampled_individual_process_rss_bytes": 341225472,
+    "rss_note": "sampled process RSS; not a whole-job peak"
+  },
+  "terminal": {
+    "actual_host_proc": true,
+    "all_owned_handles_terminal": true,
+    "live_owned_handles": [],
+    "sampled_identities": [
+      {
+        "pid": 2651063,
+        "start_ticks": 45963953
+      },
+      {
+        "pid": 2651064,
+        "start_ticks": 45963954
+      },
+      {
+        "pid": 2651065,
+        "start_ticks": 45963954
+      },
+      {
+        "pid": 2651066,
+        "start_ticks": 45963954
+      }
+    ],
+    "wrapper_excluded": {
+      "pid": 2651010,
+      "start_ticks": 45963771
+    },
+    "checked_unix": 1794415545.687633,
+    "wrapper_verified_terminal": true
+  },
+  "pairs": [
+    {
+      "a": 0,
+      "b": 4,
+      "facets": [
+        35672,
+        30335
+      ],
+      "foot_bit_identical": true,
+      "normal_difference": 0.0175036285336194,
+      "sample_normal_difference": 0.0
+    },
+    {
+      "a": 2,
+      "b": 6,
+      "facets": [
+        30335,
+        30335
+      ],
+      "foot_bit_identical": true,
+      "normal_difference": 0.0,
+      "sample_normal_difference": 0.0
+    },
+    {
+      "a": 3,
+      "b": 7,
+      "facets": [
+        30335,
+        30335
+      ],
+      "foot_bit_identical": true,
+      "normal_difference": 0.0,
+      "sample_normal_difference": 0.0
+    },
+    {
+      "a": 8,
+      "b": 10,
+      "facets": [
+        35672,
+        30335
+      ],
+      "foot_bit_identical": true,
+      "normal_difference": 0.01754636339070678,
+      "sample_normal_difference": 0.0
+    },
+    {
+      "a": 9,
+      "b": 11,
+      "facets": [
+        30335,
+        30335
+      ],
+      "foot_bit_identical": false,
+      "normal_difference": 2.0579710237759924e-07,
+      "sample_normal_difference": 2.0579710237759924e-07
+    }
+  ],
+  "counters": {
+    "closest_projection_attempts": 10,
+    "closest_projection_improvements": 8,
+    "closest_projection_work": 343,
+    "total_work": 5423
+  },
+  "confirmed": "Identical physical query AND bit-identical foot can return different supporting facets and sided ClosestCurved normals as distance request changes. The standalone wall sample normal DOES NOT change for those pairs because its conservative unprepared-support policy uses the displacement direction. One other pair still has different feet/normal on the same facet.",
+  "next": "Analysis first: replay exact prepared production mobility and full selected target at the captured point. Establish the effect of side ambiguity versus remaining capped/inaccurate proposals before choosing any correction. Canonical normal-side selection is only a hypothesis; do not average features/bodies or add another minimizer variant.",
+  "limitation": "Primitive probe original tangent policy and unprepared mobility; NOT production full-target evidence. Global distance/clearance gates unchanged. Full chord and BLmesh still unaccepted."
+}

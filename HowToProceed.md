@@ -21,9 +21,15 @@ whole GL10estimate39.19917, but widest retained interval's numerical reference
 refuses after7384evaluations. Actual error UNKNOWN; ten points are not a replacement.
 383bounded point replay now confirms dyadic candidate-normal variation: same point,
 tighter distance request shifts normal2.77e-6 and normal-only speed4.9e-5relative.
-384tests existing bounded MinimizeTriangle upper witnesses with full certified
-lower/clearance search retained. It is building/frozen; source/handles/validation
-order live in the handoff. No tolerance or target-policy change is selected.
+385bounded witnesses stabilize midpoint normals and cut preparation to137.985s,
+but the full chord still refuses near the root: all root proposals hit64cap.
+386qualifies outward Newton handoff to EXISTING edge/KKT and flat initialization:
+51serial cases,53cases per MPI6rank, stable root/midpoint probes. Preparation drops
+to106.972s, but the complete chord STILLrefuses the same deadline. No live workload.
+A new near-endpoint probe shows same-foot/different-sided-normal ambiguity, but its
+unprepared mobility masks that change in the wall sample. Next reproduce exact
+prepared mobility and COMPLETEcomposed target at that point before another fix.
+No tolerance or target-policy change is selected; see handoff for full evidence.
 
 Stage2still needs a reasonable target and faithful composed checkpoint/reload before
 surface generation. The accurate-witness hypothesis is now selected from383point evidence; require

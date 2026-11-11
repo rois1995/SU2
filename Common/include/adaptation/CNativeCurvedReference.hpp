@@ -394,6 +394,7 @@ bool MinimizeTriangle(const Vec<3>& p, double& u, double& v, Evaluate evaluate, 
     const double base = -u * gu - v * gv;
     return std::isfinite(tolerance) && std::min({base, base + gu, base + gv}) >= -tolerance;
   };
+  const double snap = 1e-10;
   for (int outer = 0; outer < 6; ++outer) {
     for (int it = 0; it < 100; ++it) {
       Vec<3> Su, Sv;
@@ -403,6 +404,8 @@ bool MinimizeTriangle(const Vec<3>& p, double& u, double& v, Evaluate evaluate, 
       const double det = a * c - b * b;
       if (!(det > 0)) return false;
       const double du = -(c * gu - b * gv) / det, dv = -(a * gv - b * gu) / det, f0 = Dot<3>(r, r);
+      // An outward Newton step belongs to the existing active-edge/KKT phase, not projected 2D backtracking.
+      if ((u<=snap && du<0) || (v<=snap && dv<0) || (1-u-v<=snap && du+dv>0)) break;
       double lambda = 1, nu = u, nv = v;
       bool descent = false;
       for (int ls = 0; ls < 40; ++ls, lambda *= .5) {
@@ -416,7 +419,6 @@ bool MinimizeTriangle(const Vec<3>& p, double& u, double& v, Evaluate evaluate, 
       if (step < 1e-15) break;
     }
     // near-boundary iterates (backtracking stalls against a constraint) are snapped onto it for the edge phase
-    const double snap = 1e-10;
     if (u <= snap) u = 0;
     if (v <= snap) v = 0;
     if (1 - u - v <= snap) {

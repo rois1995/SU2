@@ -920,3 +920,21 @@ TEST_CASE("Closest cubic upper witnesses stabilize normals without replacing dis
   }
   CHECK(geometry->GeometryStatsSnapshot().closest_projection_improvements>0);
 }
+
+TEST_CASE("Cubic projection hands outward root steps to its existing active-edge phase", "[NativeClosestWitness3D][NativeGeometryBackend3D]") {
+  using namespace SU2NativeCurved;
+  std::array<Vec<3>,10> source{{{{0.0107187521002556,0.004987338589743502,-0.01353298943882928}},{{0.005985127462594315,0.006749924753011305,-0.007145077741415979}},{{0.002380958890740337,-1.062527844e-13,-0.007634829294804406}},{{0.008876224025965773,0.005731130435994923,-0.011740583689208774}},{{0.007116715244831473,0.006422449570221775,-0.009522611208878595}},{{0.0047722882695313724,0.004506621610010489,-0.007314696685367057}},{{0.002590789684815837,0.0022499749175995997,-0.008016585346009058}},{{0.0038557028446380387,0.0016624461965103322,-0.010317907490540294}},{{0.007702020475297107,0.003465103699437577,-0.011869227014413298}},{{0.005547628727338193,0.004053221050335582,-0.009976586779429326}}}};
+  const Vec<3> query{.0023856979606071641,8.8753797110671701e-6,-.0076341853274697422};
+  for(double perturb:{-1e-6,0.,1e-6}) {
+    auto net=source;const auto target=detail::NormalizeTriangleProjection(net,query);
+    double u=0,v=0;detail::ClosestOnTriangle(target,net[0],net[1],net[2],u,v);u+=perturb;detail::ClampSimplex(u,v);
+    unsigned work=1;auto use=[&](){if(work>=64)throw std::length_error("Captured root projection exceeded its unchanged proposal cap.");++work;};
+    auto evaluate=[&](double a,double b){use();return detail::TrianglePatch(net,1-a-b,a,b);};
+    auto derivatives=[&](double a,double b,Vec<3>& first,Vec<3>& second){use();detail::TriangleDerivatives(net,a,b,first,second);};
+    bool converged=false;REQUIRE_NOTHROW(converged=detail::MinimizeTriangle(target,u,v,evaluate,derivatives));
+    REQUIRE(converged);CHECK(work<64);CHECK(u>=0);CHECK(v>=0);CHECK(1-u-v>=0);
+    const auto point=detail::TrianglePatch(source,1-u-v,u,v);
+    CHECK(Norm<3>(Sub<3>(point,query))<4.451579e-6);
+    CHECK(std::abs(u-.0013165528116)<1e-9);
+  }
+}

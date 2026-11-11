@@ -456,3 +456,46 @@ Source/probe stats show initial winning witnesses are vertices and skip polish;
 these queries improve only after lower traversal. The original full chord is frozen
 under unchanged300s geometry/600souter, source/binary/input pinned. Its outcome
 must decide whether this is materially useful for stage2and the active blocker.
+
+
+##385 actual full chord and386active-edge correction (full result pending)
+
+385full chord TERMINAL1/358.142s, pins intact/all owned identities terminal;
+R/geometry_target385_assessment.json. Preparation137.985s vs380191.679s,27.99%lower
+wall;6219integrand evaluations vs4534,37.16%more progress before same deadline.
+Composition153.566s, total contextwork4839168,430653projection work,10705attempts/
+6987improvements. Changed candidate/cut trajectory; no fixed-work or complete-edge
+speedup. Largest sampled individual RSS1723019264B, not whole-job peak.
+
+New root replay385TERMINAL0/11.538s,5696work: all10fresh proposals cap at64,0improve;
+normal variation2.06e-7–5.96e-7. Isolated capturedfacet numerical test finds wasted
+projected2Dbacktracking against active constraint. Stock64cap fails3/3starts; stock
+full loop87–166callbacks. Existing edge/KKT handoff22–31callbacks converges3/3.
+Not a geometric certificate or accepted patch; controlled solver-work diagnosis.
+
+386build38.121s passes; serial51cases/5001assertions59.336s; MPI6passes53cases EACHrank
+(5163–5366assertions/rank)/64.434s. Same12root points:5320work vs5696(-6.60%),10of10
+improvements/264proposal work, central coarse/tight foot+normal identical. Midpoint
+3300work vs3853180(+3.77%); retain both work increases and decreases. Tiny probe
+wall11.481/11.507s is setup-dominated; no per-query wall-speed claim. Actual full chord
+is frozen under unchanged original300s geometry/600souter, awaiting useful completion.
+
+
+##386 actual — cheaper preparation, full chord still refused
+
+R/geometry_target386_assessment.json. Terminal1/355.005s, pins intact/owned actual-host
+identities terminal. Same source seed/core/policy/config/limits; candidate/cut path
+changes. Preparation106.972s vs385137.985s vs380191.679s (44.19%lower than380).
+8359integrand evaluations vs6219vs4534 (84.36%more than380before same deadline).
+Composition186.889s,total edge293.869s,contextwork5273871; projection12389attempts/
+11272improvements/391575work. Region rebuild16.511s is nested, not additive. Whole
+edge length still unavailable: no accepted-edge/mesh or full-workflow speedup.
+Largest sampled individual RSS1739042816B, not whole-job peak.
+
+New endpoint12point replay11.536s/5423work finds same-foot/different-sided-normal
+results at identical queries (.0175036normal difference), while conservative
+unprepared wall sample uses identical displacement normal. One same-facet pair still
+has2.06e-7normal discrepancy. Thus primitive side ambiguity is confirmed, but full
+production target impact remains unproven; prepared mobility differs from this
+probe. Next measure complete actual tensor/directional sensitivity and integration
+error, rather than optimizing more query variants from counters alone.

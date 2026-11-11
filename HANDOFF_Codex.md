@@ -12,20 +12,49 @@ RUNNING/next-action notes there are not live instructions.
 
 ## Current source and owned workload — authoritative
 
-Current workload: NONE; actual385and near-root point replay TERMINAL, all owned
-actual-host identities verified absent. Source385primitive-qualified, actual chord
-still refuses at unchanged deadline. R/geometry_target385_assessment.json.
+Current workload: NONE. Build386and all serial/MPI/point/actual checks TERMINAL;
+all actual-host owned identities verified absent, source/input/binary pins intact.
+R/witness386_qualification.json and geometry_target386_assessment.json.
+Build38.121s; serial51cases/5001assertions59.336s; MPI6passed53cases EVERYrank
+(5163–5366assertions/rank)/64.434s. Midpoint+root12point replays PASS: all5coarse/tight
+pairs have bit-identical feet ANDnormals. Capturedroot bounded convergence passes.
+CFD SHA7a4dc87120d00edca3d7e5a1d5732857964fa9c5c38bd34989c4cd8e44ccac30.
+
+Actual386TERMINAL1/355.005s at SAME300s atlas deadline. Preparation106.972s
+(385137.985;380191.679),8359integrand evaluations(3856219;3804534),composition
+186.889s,totalwork5273871. NO final chord, usable BL or full-target checkpoint.
+This is cheaper completed preparation/more integration progress, not accepted-edge
+or full-workflow speedup; certified query/cut trajectory changes.
+
+Next ACTIVE ANALYSIS: complete target stability with EXACT prepared production
+mobility/selected371policy at saved near-endpoint refusal. Existing primitive replay
+386endpoint passed11.536s/5423work, but found two residual modes. Same bit-identical
+foot at identical query can select facet35672vs30335 and normals differ.0175036;
+one other pair still has foot/normal discrepancy on same facet. Crucially standalone
+wall normal uses conservative unprepared-support displacement and masks the side
+change. DO NOT claim production metric impact proven. Source actual pipeline calls
+PrepareReference→PrepareMobility before MakeTargetPolicy; standalone probe does not.
+R/edge_accuracy386_endpoint_assessment.json. Audit/measure full tensor/directional
+value and exact binding/mobility/support, capped-vs-nonimproving proposals and current
+integration error before selecting another correction. No more speculative minimizer
+variants/cap increases/tolerance changes. Canonical smooth-seam normal-side choice
+is only a hypothesis; preserve explicit sides, genuine features, bodies and heights.
+
+386production correction is local22lines plus captured regression: reuse flat
+initialization and existing active-edge/KKT phase before outward projected2Dline
+search. No new operator, iteration/callback cap, numerical tolerance, target policy,
+geometry representation or configuration. All global certification/gates retained.
+Latest pushed86ec45767dpreserves385failure/design;386checkpoint now ready to push.
+
+Actual385TERMINAL1/358.142s, pins intact/all owned actual-host identities terminal.
 Preparation137.985s (380191.679),6219integrand evaluations (3804534),composition
-153.566s; no length. More progress/different trajectory, not accepted-edge speedup.
-Refusal near root q=[.0023856979606071641,8.8753797110671701e-6,-.0076341853274697422].
-Near-root replay12points passed11.538s; all10fresh proposals hit64cap/0improvements,
-normal variation2.06e-7–5.96e-7 remains. R/edge_accuracy385_root_assessment.json.
-Bounded saved-facet numerical test demonstrates outward2Dbacktracking against an
-active constraint. Existing edge/KKT phase handoff converges22–31calls versus
-original64cap fails3/3 (stock full87–166calls). Next connected386fix: early handoff
-when Newton points outward from an active constraint, same existing snap/KKT criteria,
-and reuse backend flat-triangle initialization in polisher. No cap increase, no
-capped iterate retention. Preserve full global certification.
+153.566s; still NO length. R/geometry_target385_assessment.json. Root point385replay
+passed11.538s but10fresh proposals hit64cap/0improvements; normal variation
+2.06e-7–5.96e-7 remains. R/edge_accuracy385_root_assessment.json.
+Saved exactfacet30335numerical probe isolates outward2Dbacktracking at active
+constraint: stock64cap fails3/3starts (full87–166calls). Existing edge/KKT handoff
+converges22–31calls/3of3.386integrates that measured correction; no capped iterate
+retention, no cap increase.86ec45767dpreserves exact failure/diagnosis.
 
 Serial385passed4977assertions/50cases; MPI6passed29cases EACHrank; midpoint12point
 normals stabilized to~1e-16 at3180work. Root-specific failure above narrows blocker.
@@ -44,13 +73,10 @@ Optional pre-search work CAN reduce remaining traversal budget; actual benefit a
 availability must be measured, not assumed. No numerical tolerance, gate, target
 policy, normal law, new config/scheduler or CAD dependency changed.
 
-NEXT: verify build385terminal actual-host identities/pins; focused
-R/check_witness_serial385.py → same12points R/replay_accuracy_points385.py → ONE
-appropriate connected MPI R/check_witness_mpi385.py → original saved full chord
-R/check_witness_actual385.py. Preserve every terminal/failure receipt. A stable normal
+NEXT validation scripts use386suffix: check_witness_serial, replay_accuracy_points,
+replay_root_points, check_witness_mpi, check_witness_actual. Preserve every terminal/failure receipt. A stable normal
 or lower query count alone is insufficient: require useful full-chord progress under
-unchanged bounds. Production384source checkpoint3d1866448bis unqualified; test fix local. Latest
-pushed6b372129f1owns pre-change point evidence/design. Production383checkpointb597d15fd8 remains preserved.
+unchanged bounds. Production384source checkpoint3d1866448bis unqualified; test fix local. 86ec45767dpreserves385actual/root failure and measured correction. Production383checkpointb597d15fd8 remains preserved.
 
 ## Demonstrated blocker and prior qualification
 

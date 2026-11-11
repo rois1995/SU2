@@ -1677,7 +1677,7 @@ MappedFacetReference::CurvedClosest MappedFacetReference::ClosestCurved(
       std::array<SU2NativeCurved::Vec<3>,10> net;
       for(unsigned q=0;q<10;++q)net[q]=Values(curves.at(facet)[q]);
       const auto local=SU2NativeCurved::detail::NormalizeTriangleProjection(net,Values(query));
-      const auto start=SurfaceCoordinates(facet,result.binding);double u=start.y,v=start.z;
+      double u=0,v=0;SU2NativeCurved::detail::ClosestOnTriangle(local,net[0],net[1],net[2],u,v);
       auto evaluate=[&](double a,double b){use();return SU2NativeCurved::detail::TrianglePatch(net,1-a-b,a,b);};
       auto derivatives=[&](double a,double b,SU2NativeCurved::Vec<3>& first,SU2NativeCurved::Vec<3>& second) {
         use();SU2NativeCurved::detail::TriangleDerivatives(net,a,b,first,second);

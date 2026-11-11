@@ -260,3 +260,30 @@ paths. Full global lower/clearance proof, canonical interval witness, support/bo
 feature and all physical gates remain. Validate capturedroot bounded convergence,
 focused serial/appropriate MPI, same midpoint+root points, then original full chord.
 No competing implementation or new operator/geometry representation/config.
+
+
+##386 outcome — stop minimizer variants; measure actual composed target
+
+51serial cases/5001assertions and53MPIcases on EVERYrank pass. Root and midpoint
+12point replays: all matched coarse/tight feet/normals identical. Actual full chord
+still refuses SAMEdeadline: prep106.972s,8359integrand evaluations, no scalar.
+R/witness386_qualification.json; detailed timings in ledger. Passing primitives and
+higher progress do not close the M6case or establish stage2target credibility.
+
+New endpoint replay: q=[.0023828429790437302,3.5285402554410939e-6,-.0076345732759321161]
+at2e-12vs2e-14returns bit-identical foot but facet35672vs30335 and normals differ
+.0175036. Another pair has same-facet foot discrepancy. The standalone wall sample
+normal is unchanged for the side-only pair because unprepared support uses radial
+fallback. Actual PrepareReference prepares mobility before target creation, so the
+full production effect is NOT yet demonstrated. Do not mistake this primitive
+normal difference for a measured full-tensor discrepancy.
+
+Next connected analysis must reproduce prepared mobility, exact selected core and
+full/base/Option-Acomposition at this saved point; report binding/side/support and
+actual tensor/directional changes. Separate capped proposal failures from valid
+nonimproving witnesses and inspect current quadrature error distribution. Existing
+ForFacets/Supports/CurvedComponent/body/mobility may support deterministic side
+identity on released seams, but no such production correction is selected yet.
+Explicit side requests, genuine features and bodies must never be averaged or
+silently changed. Do not add more numerical seed variants or raise caps without
+new evidence. All budgets/final gates and stage order remain unchanged.
