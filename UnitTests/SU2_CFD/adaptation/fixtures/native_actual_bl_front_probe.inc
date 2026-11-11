@@ -371,6 +371,9 @@ for(size_t index=0;index<count;++index) {
             <<",\"closest_answer_hits\":"<<stats.closest_answer_hits<<",\"closest_answer_misses\":"<<stats.closest_answer_misses
             <<",\"closest_answer_refinements\":"<<stats.closest_answer_refinements<<",\"closest_answer_stores\":"<<stats.closest_answer_stores
             <<",\"closest_answer_refusals\":"<<stats.closest_answer_refusals
+            <<",\"closest_projection_attempts\":"<<stats.closest_projection_attempts
+            <<",\"closest_projection_improvements\":"<<stats.closest_projection_improvements
+            <<",\"closest_projection_work\":"<<stats.closest_projection_work
             <<",\"prepared_bytes\":"<<stats.prepared_bytes<<",\"memo_direct_hits\":"<<stats.memo_direct_hits
             <<",\"memo_direct_misses\":"<<stats.memo_direct_misses<<"}"<<std::endl;
   }

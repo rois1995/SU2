@@ -415,3 +415,25 @@ Counts include explicit synthetic-control calls and are not original-flow saving
 analytic samples are not performed and therefore do not increment sample counter.
 All5original actual edges stay on detailed path. No complete-mesh/time improvement
 or accepted curved BL claimed. No gate, profile, configured limit or normal law changed.
+
+
+##383 bounded point replay — accuracy attribution
+
+R/edge_accuracy383_point_assessment.json; saved382refusal +nearby positions,
+12queries only, existing probe/no code change. Terminal0/12.861swrapper,
+248assertions/one case; actual-host handles terminal/pins intact. Reference load
+7.085s, policy built7.423s cumulative, all queries done7.615s cumulative.2870charged
+geometry work. Largest sampled individual RSS341549056B, not whole-job peak;
+4625561376B is conservative admission peak, not measured process RSS.
+
+Identical coarse/tight repeats cost1work. Other requests cost232–332work. At the
+same physical point,2e-12vs2e-14distance tolerance changes foot3.8065e-8,
+normal2.7683e-6; derived normal-only chord speed changes4.8824e-5relative. Coarse
+nearby positions share a discrete foot before jumping. This confirms candidate-
+normal discretization and distance-only accuracy insufficiency for reproducible
+metric sampling; it does not quantify all original quadrature error. The tighter
+answer is not an exact normal certificate. Original tangential policy here differs
+from selected371policy, so full target eigenvalues are NOT production comparisons.
+Selected384hypothesis reuses existing minimizer as an interval-certified upper
+witness with128maximum optional charged callback units total; full certification
+and unchanged total budget remain. Benefit must be established on saved full chord.

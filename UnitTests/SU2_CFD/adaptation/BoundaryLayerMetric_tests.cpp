@@ -1850,6 +1850,10 @@ TEST_CASE("Actual retained cubic wall policy probe without CFD", "[.][NativeActu
                  <<",\"normal\":["<<sample.normal[0]<<','<<sample.normal[1]<<','<<sample.normal[2]
                  <<"],\"full_tensor_eigenvalues\":["<<eigenvalues[0]<<','<<eigenvalues[1]<<','<<eigenvalues[2]<<"]}"<<std::endl;
       }
+      const auto stats=geometry.GeometryStatsSnapshot();
+      std::cout<<"{\"closest_projection_attempts\":"<<stats.closest_projection_attempts
+               <<",\"closest_projection_improvements\":"<<stats.closest_projection_improvements
+               <<",\"closest_projection_work\":"<<stats.closest_projection_work<<"}"<<std::endl;
       points>>std::ws;REQUIRE(points.eof());receipt("point_replay_complete",count);return;
     }
     if(const auto* chordPath=std::getenv("SU2_NATIVE_BL_CHORD_REPLAY")) {

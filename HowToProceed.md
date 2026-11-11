@@ -16,18 +16,18 @@ ambiguous, while translated outside controls match the original background tenso
 edges:23serial cases,25cases on EVERYMPI6rank,5saved-context controls pass. All
 owned handles are terminal; see handoff for source/build/provenance.
 
-382diagnostic preserved the original geometry deadline:186.895spreparation/296cuts;
-whole GL10estimate39.19917, but even the widest retained interval's unchanged
-numerical reference refuses after7384evaluations. Actual error remains UNKNOWN.
-This demonstrates both substantial geometric partition work and a difficult local
-integrand; true variation, geometry-query jitter and unnecessarily tight tolerance
-are not yet separated. Do not replace production measurements with ten points or
-promote embedded-rule error estimates to conservative bounds.
+382diagnostic retained the original geometry deadline:186.895spreparation/296cuts;
+whole GL10estimate39.19917, but widest retained interval's numerical reference
+refuses after7384evaluations. Actual error UNKNOWN; ten points are not a replacement.
+383bounded point replay now confirms dyadic candidate-normal variation: same point,
+tighter distance request shifts normal2.77e-6 and normal-only speed4.9e-5relative.
+384tests existing bounded MinimizeTriangle upper witnesses with full certified
+lower/clearance search retained. It is building/frozen; source/handles/validation
+order live in the handoff. No tolerance or target-policy change is selected.
 
 Stage2still needs a reasonable target and faithful composed checkpoint/reload before
-surface generation. Cheaper projection-seed alternatives remain deferred; use the
-above diagnosis to choose one measured blocker after the exact exclusion capability
-is qualified. Native MPI BL generation remains unqualified; the separate unchanged
+surface generation. The accurate-witness hypothesis is now selected from383point evidence; require
+actual chord progress before claiming success. Native MPI BL generation remains unqualified; the separate unchanged
 planar fixed-count failure380stays in the backlog. Historical construction notes
 below are capability evidence, not current live-job instructions.
 

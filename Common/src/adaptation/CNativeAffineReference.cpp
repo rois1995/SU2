@@ -8,6 +8,7 @@
 #include "../../include/adaptation/CNativeBoundary3D.hpp"
 #include "../../include/adaptation/CNativeGeometryValidation2D.hpp"
 #include "../../include/adaptation/CTransferMemory.hpp"
+#include "../../include/adaptation/CNativeCurvedReference.hpp"
 #include "../../include/adt/CADTElemClass.hpp"
 #include "../../include/option_structure.hpp"
 #include <cstring>
@@ -1571,7 +1572,7 @@ size_t MappedFacetReference::CurvedQueryWorkspaceBytes(size_t maximum_work)const
   size_t facets=0;for(const auto& row:curved_search->entries)facets=std::max(facets,row.second.facets.size());
   const auto cacheScratch=curved_search->prepared_limit?transfer_memory::Add(sizeof(CurvedSearch::PreparedFacet),
       sizeof(CurvedSearch::CubicRegionGeometry),512,44*sizeof(uint64_t)):0;
-  return transfer_memory::Add(transfer_memory::Mul(facets,2*sizeof(unsigned long)),
+  return transfer_memory::Add(4096,transfer_memory::Mul(facets,2*sizeof(unsigned long)),
       transfer_memory::Mul(maximum_work,4*sizeof(CurvedQueryRegion)),cacheScratch);
 }
 Id MappedFacetReference::CurvedComponent(Id facet)const {
@@ -1643,18 +1644,51 @@ MappedFacetReference::CurvedClosest MappedFacetReference::ClosestCurved(
     }
     return FacetPoint(id,r.y,r.z);
   };
-  auto candidate=[&](Id id,Point r) {
-    const auto a=Exact(r);const auto box=Blossom(curves.at(id),{a,a,a});
+  auto candidate=[&](Id id,Point r,bool canonical=false) {
+    SurfaceBinding foot;
+    auto a=Exact(r);
+    if(canonical){foot=binding(id,r);a=ParameterBox(FacetParameters(id,foot));}
+    const auto box=Blossom(curves.at(id),{a,a,a});
     const auto upper=NormBound(Difference(box,Exact(query)));
     if(upper<result.upper) {
-      result.facet=id;result.binding=binding(id,r);result.point=Realize(result.binding);result.upper=upper;
+      if(!canonical)foot=binding(id,r);
+      const auto point=Realize(foot);
       Vec low{},high{};
       for(unsigned d=0;d<3;++d) {
         low[d]=std::nextafter(double(box[d].lo),-INFINITY);
         high[d]=std::nextafter(double(box[d].hi),INFINITY);
       }
+      result.facet=id;result.binding=foot;result.point=point;result.upper=upper;
       result.candidate_bounds={ToPoint(low),ToPoint(high)};
     }
+  };
+  auto polish=[&]() {
+    if(result.binding.dimension==0 || maximum_work-result.work<64)return;
+    const auto firstWork=result.work;const auto firstUpper=result.upper;bool improved=false;
+    struct ProposalLimit {};
+    auto record=[&]() {
+      std::lock_guard<std::mutex> lock(geometry_stats->mutex);auto& stats=geometry_stats->value;
+      ++stats.closest_projection_attempts;stats.closest_projection_improvements+=improved;
+      stats.closest_projection_work+=result.work-firstWork;
+    };
+    auto use=[&](){if(result.work-firstWork>=64)throw ProposalLimit{};consume();};
+    try {
+      use();const Id facet=result.facet;
+      std::array<SU2NativeCurved::Vec<3>,10> net;
+      for(unsigned q=0;q<10;++q)net[q]=Values(curves.at(facet)[q]);
+      const auto local=SU2NativeCurved::detail::NormalizeTriangleProjection(net,Values(query));
+      const auto start=SurfaceCoordinates(facet,result.binding);double u=start.y,v=start.z;
+      auto evaluate=[&](double a,double b){use();return SU2NativeCurved::detail::TrianglePatch(net,1-a-b,a,b);};
+      auto derivatives=[&](double a,double b,SU2NativeCurved::Vec<3>& first,SU2NativeCurved::Vec<3>& second) {
+        use();SU2NativeCurved::detail::TriangleDerivatives(net,a,b,first,second);
+      };
+      if(SU2NativeCurved::detail::MinimizeTriangle(local,u,v,evaluate,derivatives)) {
+        use();candidate(facet,{1-u-v,u,v},true);improved=result.upper<firstUpper;
+      }
+    } catch(const ProposalLimit&) {} // Optional witness only; the complete lower-bound search remains authoritative.
+      catch(const std::invalid_argument&) {}
+      catch(...) {record();throw;}
+    record();
   };
   consume();candidate(hint,{1,0,0});candidate(hint,{0,1,0});candidate(hint,{0,0,1});candidate(hint,{.5,.25,.25});
   if(!std::isfinite(result.upper))throw std::invalid_argument("Unrepresentable curved query distance.");
@@ -1767,6 +1801,7 @@ MappedFacetReference::CurvedClosest MappedFacetReference::ClosestCurved(
   for(auto index:candidates) { const auto facet=entry.facets.at(index);
     if(!allowed_facets || allowed_facets(facet))prepare(facet,{{{1,0,0},{0,1,0},{0,0,1}}},0); }
   if(pending.empty())throw std::logic_error("Curved component broad phase lost its seed.");
+  polish();
   while(!pending.empty()) {
     if(reservation)reservation->CheckTime();
     result.lower=std::min(result.upper,pending.top().lower);
@@ -1779,6 +1814,8 @@ MappedFacetReference::CurvedClosest MappedFacetReference::ClosestCurved(
     for(unsigned k=0;k<3;++k)prepare(parent.facet,{parent.parameter[k],mid[k],mid[(k+2)%3]},parent.depth+1);
     prepare(parent.facet,{mid[0],mid[1],mid[2]},parent.depth+1);
   }
+  polish();
+  result.lower=std::min(result.lower,result.upper);
   result.clearance_lower=INFINITY;
   while(!pending.empty()) {
     const auto region=pending.top();pending.pop();

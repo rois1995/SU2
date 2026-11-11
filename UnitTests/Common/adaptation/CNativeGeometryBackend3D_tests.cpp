@@ -893,3 +893,26 @@ TEST_CASE("Indexed cubic closest queries avoid cube-only roots under the origina
   CHECK_THROWS(geometry.ClosestCurved(0,{-19,2,19},1e-10,32,0));
   CHECK_THROWS(geometry.ClosestCurved(0,{1e155,1e155,1e155},1e-10,32));
 }
+
+TEST_CASE("Closest cubic upper witnesses stabilize normals without replacing distance certification", "[NativeClosestWitness3D]") {
+  using namespace SU2Native3D;BackendFixture fixture;std::map<Id,double> errors;
+  for(const auto& f:fixture.facets)errors.emplace(f.id,1e-12);
+  auto geometry=std::make_shared<MappedFacetReference>(fixture.reference,errors,57,SIZE_MAX,false,fixture.geometry->Curves(),0);
+  for(double shift:{-1e-7,0.,1e-7}) {
+    const Point query{.23+shift,.41,-.03};const auto before=geometry->GeometryStatsSnapshot();
+    const auto coarse=geometry->ClosestCurved(0,query,1e-5,16384),tight=geometry->ClosestCurved(0,query,1e-11,16384);
+    CHECK(coarse.upper-coarse.lower<=1e-5);CHECK(tight.upper-tight.lower<=1e-11);
+    CHECK(coarse.lower<=tight.upper);CHECK(tight.lower<=coarse.upper);
+    CHECK(std::hypot(coarse.normal.x-tight.normal.x,coarse.normal.y-tight.normal.y,coarse.normal.z-tight.normal.z)<1e-9);
+    CHECK(std::hypot(coarse.point.x-tight.point.x,coarse.point.y-tight.point.y,coarse.point.z-tight.point.z)<1e-9);
+    CHECK(geometry->Supports(coarse.facet,coarse.binding));CHECK(geometry->Admissible(coarse.binding,coarse.point));
+    const auto bounds=geometry->CurvedBounds(coarse.binding);
+    CHECK(coarse.candidate_bounds[0].x==bounds[0].x);CHECK(coarse.candidate_bounds[1].x==bounds[1].x);
+    CHECK(coarse.candidate_bounds[0].y==bounds[0].y);CHECK(coarse.candidate_bounds[1].y==bounds[1].y);
+    CHECK(coarse.candidate_bounds[0].z==bounds[0].z);CHECK(coarse.candidate_bounds[1].z==bounds[1].z);
+    const auto after=geometry->GeometryStatsSnapshot();
+    CHECK(after.closest_projection_attempts>before.closest_projection_attempts);
+    CHECK(after.closest_projection_work-before.closest_projection_work<=256);
+  }
+  CHECK(geometry->GeometryStatsSnapshot().closest_projection_improvements>0);
+}
