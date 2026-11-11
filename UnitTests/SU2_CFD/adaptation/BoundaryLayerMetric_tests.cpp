@@ -1357,6 +1357,28 @@ TEST_CASE("Native3D complexity reference does not rebase the wall on the adapted
   auto boundedLayers=CBoundaryLayerMetric::FromNativeReference(state,*test.config);
   auto target=SU2NativeBLPipeline3D::MakeTargetPolicy(*test.config,state,1.,-1,boundedLayers);
   target->Update(1.,1.3);
+  {
+    size_t compositions=0;
+    FrozenField flow(imported.original,[&](Point,SU2Native3D::Tensor sensor){++compositions;return sensor;});
+    const auto coreMetric=flow.Sensor(f.v[0].p);
+    const auto before=curved->GeometryStatsSnapshot();
+    const auto guidance=target->IntrinsicSurfaceGuidance(0,f.id,f.v[0],*state.original,coreMetric);
+    const auto after=curved->GeometryStatsSnapshot();
+    CHECK(compositions==0);CHECK(flow.Statistics().compositions==0);
+    CHECK(after.closest_region_hits==before.closest_region_hits);CHECK(after.closest_region_misses==before.closest_region_misses);
+    CBoundaryLayerMetric::Tensor expected;for(unsigned k=0;k<3;++k)expected.m[k][k]=1;
+    const auto associated=target->base->EvaluateAtSurfaceAssociation(0,f.id,curved->Vertex(f.v[0].id),1.);
+    target->base->ApplySample(0,associated,expected,1.,nullptr,false);
+    CBoundaryLayerMetric::Tensor actual;SU2NativeBLPipeline3D::TargetPolicy::Unpack(guidance.tensor,actual);
+    CheckTensor(3,actual,expected,0);
+    CHECK(guidance.normal.x==SU2_TYPE::GetValue(associated.normal[0]));
+    CHECK(guidance.normal.y==SU2_TYPE::GetValue(associated.normal[1]));
+    CHECK(guidance.normal.z==SU2_TYPE::GetValue(associated.normal[2]));
+    auto wrong=f.v[0];wrong.id=UINT64_MAX;
+    CHECK_THROWS(target->IntrinsicSurfaceGuidance(0,f.id,wrong,*state.original,coreMetric));
+    auto unsupported=std::make_shared<PlanarReference>(state.facets);
+    CHECK_THROWS(target->IntrinsicSurfaceGuidance(0,f.id,f.v[0],*unsupported,coreMetric));
+  }
   CNativeComplexity3D bounded(*boundedLayers,source,mesh.GetnPoint(),size_t(128)<<20,128,7519,true);
   std::vector<CBoundaryLayerMetric::Tensor> sensor(mesh.GetnPoint());
   for(auto& m:sensor)for(unsigned j=0;j<3;++j)m.m[j][j]=1;

@@ -460,3 +460,65 @@ engine's complete surface-readiness path. Do not use legacy RefineOptimize for t
 it disables mapped boundary optimization/freezes wall-adjacent vertices, while the
 current mutable production lifecycle is AdaptMetric. This is part of the requested
 surface/direction/front milestone, not a new scheduler or target-policy change.
+
+### Core-only query producer — local uncompiled WIP
+
+The shared FrozenField query now has an explicit Sensor(point) entry for the
+pre-composition core. QueryImpl retains identical donor search, canonical ties,
+near-coverage/current-nodal policy, interpolation/cache and failure accounting.
+Normal Query always requests composition; Sensor skips it and validates the core.
+No new cache, geometry certificate, metric-transport definition or config is added.
+Focused tests cover both donor policies, identical raw tensors, no composition,
+normal full-target composition and invalid/outside source queries. They are written
+but NOT run, and no production consumer is enabled yet. This producer is only part
+of the pending intrinsic guidance/surface-readiness integration. No new build or
+full attempt is started; preserve these local changes across compaction.
+
+
+## Current consumer audit — 2026-11-11, build339 frozen
+
+Do not call AdaptMetric as a black-box surface prepass or substitute a projected
+composition. Its construction census integrates all six full-volume chords;
+it then enters shape improvement and final strict height closure. Changing only
+queue order leaves build330's measurement bottleneck intact. FrozenField::Sensor
+and TargetPolicy::IntrinsicSurfaceGuidance are producer interfaces under focused
+qualification339, not a completed surface stage. Returned guidance includes the
+normal term and must be restricted to the own-wall tangent plane; exact whole-target
+edge certificates cannot be reused for that distinct planning quantity.
+
+The connected consumer must extend the existing engine's construction phase:
+requested-wall predicates/weights, seed/update and BOTH streamed/nonstreamed
+candidate measurements, explicit tangential/geometry progress, proper complete
+vertex/edge/reconnection support, and a provisional preparation result before
+quality improvement. Reuse existing finite generations, fair reservations,
+blocked-support invalidation, migration, directory clearance and atomic publication.
+Do not add another scheduler. Merely enabling the repair lane would inject q/J
+weights and shape-progress vetoes; those must remain absent during construction.
+
+Keep complete two-sided geometry certification and exact validity. Distinguish
+preparation completion from strict final acceptance; budgets and unknown measurements
+must reject preparation rather than fabricate readiness. Preserve already passing
+requested rows using complete old-to-new surface coverage: matching surviving face
+IDs is insufficient, while requiring all neighboring absent rows to pass is too
+strong. Existing aggregate/provisional height checks alone do not establish this
+preservation. Missing rows remain explicit coordinated first-layer construction
+obligations. No global height/q/J/size gate may be removed from final adaptation.
+
+Build339 also closes the measured deadline-control gap in W: check the existing
+allowance during its initial scan and stop before repeated expired queries/strip
+work. This is budget handling, not a geometry speedup or proof of readiness.
+No full attempt or MPI milestone is justified until the connected consumer,
+constrained-direction refresh and coordinated front/transition checks are in place.
+
+
+339/340 focused result: core-only immutable/current-nodal lookup, exact-authority
+intrinsic guidance and zero-allowance wall-scan behavior are covered by
+`R/surface340_qualification.json`.339's guidance/deadline cases passed; its new
+core test wrongly expected outside-cavity rejection in current-nodal mode. Existing
+best-parent/clamped transport is authoritative. Test-only340 verifies that value,
+agreement with full Query, immutable-donor rejection, nonfinite rejection and no
+unrequested composition (38assertions). Production339/340 CFD is byte-identical;
+retain the two passing339 cases rather than repeat the298-second unchanged check.
+All observed handles terminal/pins verified. No production tangent consumer,
+complete surface readiness, actual M6 wall-scan performance, MPI BL generation or
+full RANS workflow is qualified by these checks. No new full attempt was launched.

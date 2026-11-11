@@ -38,6 +38,24 @@ using namespace SU2Native3D;
 #include "fixtures/native_current219_witness.inc"
 #include "fixtures/native_actual_bl_surface_cavities.inc"
 
+TEST_CASE("FIRST_ROW wall measurement honors exhausted budgets before querying", "[NativeWallPreparation3D]") {
+  SU2NativeBLPipeline3D::detail::PipelineScope scope;
+  junction_wp0::State state;
+  DonorCell donor;donor.cell={1,{{{1,{0,0,0}},{2,{1,0,0}},{3,{0,1,0}},{4,{0,0,1}}}}};
+  for(auto& tensor:donor.sensor)tensor={1,0,0,1,0,1};
+  state.field=std::make_unique<FrozenField>(std::vector<DonorCell>{donor});
+  // A live wall index ensures the old unconditional scan would try an actual edge.
+  state.wall_indexed=true;state.wall_index[Face{1,2,3}]=1;
+  for(const bool elapsed: {false,true}) {
+    std::ostringstream log;
+    const auto before=state.field->Statistics().requests;
+    const auto report=dc10::PhaseW10(state,elapsed?size_t(64):0,elapsed?0.:60.,log);
+    CHECK(report.outcome=="limit");CHECK(report.work==0);CHECK(report.unmeasurable==0);
+    CHECK(report.accepted==0);CHECK(state.field->Statistics().requests==before);
+    CHECK(log.str().empty());
+  }
+}
+
 #if defined(__GNUC__) && defined(__linux__)
 // Optional test-only PMPI collector; ordinary binaries do not supply these symbols.
 extern "C" void su2_m6_trace_begin() __attribute__((weak));

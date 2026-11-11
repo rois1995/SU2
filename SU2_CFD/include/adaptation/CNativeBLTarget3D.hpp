@@ -6,6 +6,7 @@
 #pragma once
 #include "CNativeBLVector3D.hpp"
 #include "../../../Common/include/adaptation/CNativeImport3D.hpp"
+#include "../../../Common/include/adaptation/CNativeField3D.hpp"
 #include "CNativeBLComposition3D.hpp"
 #include "../../../Common/include/CConfig.hpp"
 #include "../../../Common/include/adaptation/CTransferMemory.hpp"
@@ -212,6 +213,7 @@ using namespace SU2Native3D;
  *  reassessment and of the construction's frozen field. */
 struct TargetPolicy {
   std::shared_ptr<CBoundaryLayerMetric> full, base;
+  std::shared_ptr<const PlanarReference> authority;
   std::shared_ptr<dc10::OptionA> A;
   double core = 0, h0 = 0, outer_parameter = -1;
   std::map<int, int> roles;  // marker -> 1 BL wall, 0 reflective continuation (MARKER_SYM), 2 other physical partner
@@ -253,6 +255,30 @@ struct TargetPolicy {
     m.m[0][0]=result.xx;m.m[0][1]=m.m[1][0]=result.xy;m.m[0][2]=m.m[2][0]=result.xz;
     m.m[1][1]=result.yy;m.m[1][2]=m.m[2][1]=result.yz;m.m[2][2]=result.zz;
   }
+  struct SurfaceGuidance {Tensor tensor;Point normal;};
+  /*! Intrinsic planning: option-A weight is zero on a requested reference wall.
+   * The known wall uses its forward association; other walls are evaluated freshly.
+   * No distance/edge certificate or retained sample; final queries still use Composition(). */
+  SurfaceGuidance IntrinsicSurfaceGuidance(unsigned short wall,Id facet,Node node,
+      const PlanarReference& context,Tensor sensor) const {
+    if(!authority || !authority->Parameters() || !context.Parameters() ||
+        authority->Parameters()->Authority()!=context.Parameters()->Authority())
+      throw std::invalid_argument("Intrinsic wall guidance changed its geometry authority.");
+    const auto* point=context.Parameter(node.p);
+    if(!point || point->node.id!=node.id || point->node.p.x!=node.p.x ||
+        point->node.p.y!=node.p.y || point->node.p.z!=node.p.z)
+      throw std::invalid_argument("Intrinsic wall guidance lacks the current coordinate association.");
+    const auto associated=base->EvaluateAtSurfaceAssociation(wall,facet,point->binding,core);
+    ValidateTensor(sensor);
+    CBoundaryLayerMetric::Tensor metric;Unpack(sensor,metric);
+    const su2double x[3]={node.p.x,node.p.y,node.p.z};
+    for(unsigned short w=0;w<base->GetnWall();++w) {
+      const auto sample=w==wall?associated:base->Evaluate(w,x,core);
+      base->ApplySample(w,sample,metric,core,nullptr,false);
+    }
+    return {Pack(metric),{SU2_TYPE::GetValue(associated.normal[0]),SU2_TYPE::GetValue(associated.normal[1]),
+        SU2_TYPE::GetValue(associated.normal[2])}};
+  }
   void ApplyPoint(Point p,CBoundaryLayerMetric::Tensor& m) const {
     Unpack(A->Compose(*base,*full,core,p,Pack(m),nullptr,0),m);
   }
@@ -283,6 +309,7 @@ inline std::map<int, int> MarkerRoles(const CConfig& config, const ReferenceStat
 inline std::shared_ptr<TargetPolicy> MakeTargetPolicy(const CConfig& config, const ReferenceState& state, double core,
                                                       double outerParameter, std::shared_ptr<CBoundaryLayerMetric> retained = {}) {
   auto p = std::make_shared<TargetPolicy>();
+  p->authority=state.original;
   p->core = core;
   p->outer_parameter = outerParameter;
   p->full = retained ? retained : CBoundaryLayerMetric::FromNativeReference(state, config);

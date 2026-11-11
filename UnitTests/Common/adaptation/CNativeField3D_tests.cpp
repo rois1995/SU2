@@ -83,6 +83,29 @@ TEST_CASE("Native 3D original sensor cache recomposes thin geometric demand at e
   CHECK(finer.Query({.125, .125, .0005}).target.zz == 1e10);
   CHECK(finer.Statistics().query_seconds == 0);
 }
+TEST_CASE("Native 3D core queries share donor policies without geometric composition", "[NativeMesh3D]") {
+  for(bool currentNodal:{false,true}) {
+    size_t compositions=0;
+    auto combine=[&](Point,Tensor sensor){++compositions;sensor.zz=1e8;return sensor;};
+    FrozenField field({Single()},combine,true,{},{},{},true,MaximumDonors,currentNodal);
+    const Point p{.125,.125,.0005},q{.25,.125,.25};
+    const auto first=field.Sensor(p),second=field.Sensor(q);
+    CHECK(compositions==0);CHECK(field.Statistics().compositions==0);
+    const auto full=field.Query(p);
+    CHECK(full.sensor.xx==first.xx);CHECK(full.sensor.xy==first.xy);CHECK(full.sensor.xz==first.xz);
+    CHECK(full.sensor.yy==first.yy);CHECK(full.sensor.yz==first.yz);CHECK(full.sensor.zz==first.zz);
+    CHECK(full.target.zz==1e8);CHECK(compositions==1);CHECK(field.Statistics().compositions==1);
+    CHECK(second.xx==Approx(2.25));CHECK(second.yy==Approx(3.125));CHECK(second.zz==Approx(4.25));
+    if(currentNodal) {
+      const auto outside=field.Sensor({1,1,1});
+      CHECK(outside.xx==Approx(2+1./3));CHECK(outside.yy==Approx(3+1./3));CHECK(outside.zz==Approx(4+1./3));
+      CHECK(compositions==1);
+      CHECK(SameMetric(outside,field.Query({1,1,1}).sensor));
+    } else CHECK_THROWS(field.Sensor({1,1,1}));
+    CHECK_THROWS_AS(field.Sensor({std::numeric_limits<double>::infinity(),0,0}),std::invalid_argument);
+    CHECK(compositions==(currentNodal?2u:1u));
+  }
+}
 TEST_CASE("Native 3D original donor ties use original node keys independently of cell IDs and delivery",
           "[NativeMesh3D]") {
   const Node a{0, {0, 0, 0}}, b{1, {1, 0, 0}}, c{2, {0, 1, 0}}, top{3, {.25, .25, 1}}, bottom{4, {.25, .25, -1}};

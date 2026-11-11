@@ -1,0 +1,89 @@
+{
+  "checked_unix": 1794355624.488071,
+  "scope": "Focused prerequisite behavior only; NOT connected surface preparation, MPI BL generation, M6 target feasibility or RANS workflow qualification.",
+  "qualified_prerequisites": true,
+  "builds": {
+    "build339": {
+      "state": "terminal",
+      "exit_code": 0,
+      "seconds": 342.3521876335144,
+      "pins_verified": true,
+      "changed": [],
+      "completed_build": true,
+      "binaries": {
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver": "ca056dafec5c9ab9c510faadd907953a81e1c4fac9a2401f18084246fa4aa2eb",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/SU2_CFD/src/SU2_CFD": "6b899641e0b61a1dd72afbf518ce2786da0a69852bc170d5465df4b5927afb1d"
+      }
+    },
+    "build340": {
+      "state": "terminal",
+      "exit_code": 0,
+      "seconds": 20.10791540145874,
+      "pins_verified": true,
+      "changed": [],
+      "completed_build": true,
+      "binaries": {
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver": "3e11b1c6228dfab1f399a509a36522999881b544bd51cb60f33cf5f1aaed4fde",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/SU2_CFD/src/SU2_CFD": "6b899641e0b61a1dd72afbf518ce2786da0a69852bc170d5465df4b5927afb1d"
+      }
+    }
+  },
+  "source_delta_339_to_340": [
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/UnitTests/Common/adaptation/CNativeField3D_tests.cpp"
+  ],
+  "retained_cases": [
+    {
+      "name": "Native3D complexity reference does not rebase the wall on the adapted surface",
+      "case": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved339_surface_interfaces_20261110T235858_178894",
+      "passed": true,
+      "seconds": 298.263
+    },
+    {
+      "name": "FIRST_ROW wall measurement honors exhausted budgets before querying",
+      "case": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved339_surface_interfaces_20261110T235858_178894",
+      "passed": true
+    }
+  ],
+  "corrected_case": {
+    "name": "Native 3D core queries share donor policies without geometric composition",
+    "case": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved340_core_policy_20261111T000546_194997",
+    "passed": true,
+    "assertions": 38
+  },
+  "preserved_failure": {
+    "case": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved339_surface_interfaces_20261110T235858_178894",
+    "assertions": 2308,
+    "failed_assertions": 1,
+    "reason": "New test incorrectly required current-nodal best-parent transport to reject an outside-cavity point; production semantics were unchanged. Corrected test checks the clamped best-parent value and agreement with full Query."
+  },
+  "reuse_basis": "Only the core-query test translation unit changed in340; production sources, curved/deadline test translation units, runtime, flags and commands are unchanged. Build340 compiled that one unit and relinked test_driver; production CFD is byte-identical339. Retain the two passing339 cases without a repeated 298-second curved check.",
+  "cfd_sha256": "6b899641e0b61a1dd72afbf518ce2786da0a69852bc170d5465df4b5927afb1d",
+  "test_driver_sha256": "3e11b1c6228dfab1f399a509a36522999881b544bd51cb60f33cf5f1aaed4fde",
+  "actual339_mapped_elf": 70,
+  "all_observed_owned_handles_terminal": true,
+  "limitations": [
+    "No production tangential guidance consumer yet.",
+    "Projected guidance is not a distance or integrated edge certificate.",
+    "Zero-allowance W checks establish no query starts; they do not establish full M6 performance.",
+    "No MPI milestone or full M6 launched for these prerequisite changes.",
+    "Short340 process sampling can miss brief children; do not infer whole-job peak RSS from its sampled process."
+  ],
+  "next": "Explicit provisional requested-wall phase in existing native engine, including both measurement paths and complete replacement-coverage preservation of passing rows; then constrained directions/front integration.",
+  "evidence": {
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/build339_status.json": "9d90583bfb0daf5b4ecb73f216251f76ef8f46d2a8e34ecaa365225cf98dc7ff",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/build340_status.json": "5560fe167d7cfd59ee7512b072d1fa9aafaab0b64d93c7693ebd6b4318a56a04",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/build339_source_pins.json": "0bb0ec4ff44044563cb7802ab71ce1f837aad661f1616077496b15f0b2755e2e",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/build340_source_pins.json": "43983a72b1bc21a2ba451fecd138ad3356ecf466d273c7ae1269039a0ac3daba",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved339_surface_interfaces_20261110T235858_178894/status.json": "257aef98626f4f026621a6c3a2bf0ebadbc0f3da0f917ef856794ad36b2bcf82",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved339_surface_interfaces_20261110T235858_178894/run.log": "8ffc29d915205ce397c959cae47db01a9722b0530e0381b3904a67c157dded3d",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved339_surface_interfaces_20261110T235858_178894/pins.json": "22b60ff35d6e0f23e54e3cd90ddf66cd6c9c3957dc6e80b1f0871a89496c9d2b",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved339_surface_interfaces_20261110T235858_178894/actual_runtime_maps.json": "1ab60ea36dc77b40bec85a4af754a4477d3cc055903b8c3508624049f0f16d52",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved339_surface_interfaces_20261110T235858_178894/terminal_handles_actual.json": "eb78b06e5369df2396fd0402b3b8a2c3e82da57f3835b2eb0747daefdd0d0932",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved340_core_policy_20261111T000546_194997/status.json": "1dd1e486a85b23f93ba4573cd282ac4b47e9d9588fda4ca6a90934c34acaf380",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved340_core_policy_20261111T000546_194997/run.log": "778a458c26f4f84f09b6938e6ed262d50d81edfad5a36762c1a75c80e693c8c4",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved340_core_policy_20261111T000546_194997/pins.json": "ebfc5a041eaa8d6c15c5c0b366d8cd48ac819b7e92228f7cd196c3054f322546",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved340_core_policy_20261111T000546_194997/terminal_handles_actual.json": "c6730558a240e449e9f2b7c76471c304ce9c0d616e78814737d77a7d9712cc9f",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/euler293_preservation_during_bl339.json": "caf2fc1c350fabff2fe26016315a693234a046bdc60ea731919276ae333ba9c0",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/surface339_input_preservation.json": "469fb746848e594e7f36e6c1f27d6b7ebd54bb7446af51610342f8546e77513f"
+  }
+}

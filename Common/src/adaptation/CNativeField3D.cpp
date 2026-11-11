@@ -526,6 +526,12 @@ FieldSample FrozenField::QueryMidpoint(Point a,Point b) {
   }catch(...){++stats.failures;throw;}
 }
 FieldSample FrozenField::Query(Point point) {
+  return QueryImpl(point,true);
+}
+Tensor FrozenField::Sensor(Point point) {
+  return QueryImpl(point,false).sensor;
+}
+FieldSample FrozenField::QueryImpl(Point point,bool applyComposition) {
   Timer query_time(stats.query_seconds, timings);
   ++stats.requests;
   try {
@@ -538,7 +544,8 @@ FieldSample FrozenField::Query(Point point) {
       DonorSample result;
       { Timer timer(stats.search_seconds, timings); result = EvaluateCavitySample(donors, point); }
       FieldSample sample{result.sensor, result.sensor, result.Key(), result.weights, UINT64_MAX};
-      if (composition) {
+      if (!applyComposition) ValidateTensor(sample.sensor, &stats.kernel);
+      if (applyComposition && composition) {
         Timer compose(stats.composition_seconds, timings); ++stats.compositions;
         sample.target = composition(point, sample.sensor); ValidateTensor(sample.target, &stats.kernel);
       }
@@ -636,7 +643,8 @@ FieldSample FrozenField::Query(Point point) {
     FieldSample sample{value.tensor, value.tensor, donors[value.donor].Key(), value.weights,
                        donors[value.donor].extension_component};
     if (sample.extension_component!=UINT64_MAX) ++stats.extended_queries;
-    if (composition) {
+    if (!applyComposition) ValidateTensor(sample.sensor, &stats.kernel);
+    if (applyComposition && composition) {
       Timer timer(stats.composition_seconds, timings);
       ++stats.compositions;
       sample.target = composition(point, sample.sensor);

@@ -89,6 +89,9 @@ class FrozenField {
                        size_t donor_limit = MaximumDonors, bool current_nodal = false);  // DC-14: a whole-domain caller (FIRST_ROW) admits its own bound
   ~FrozenField();
   FieldSample Query(Point point);
+  /*! Same donor/current-nodal lookup and validation as Query, without geometric composition.
+   * Returns the pre-composition sensor/core tensor only; never a full-target certificate. */
+  Tensor Sensor(Point point);
   /*! Sensor P1 at the ideal endpoint midpoint; BL at its represented coordinate. Never populates Query's point cache. */
   FieldSample QueryMidpoint(Point a,Point b);
   Tensor evaluate(Point point) { return Query(point).target; }
@@ -111,6 +114,7 @@ class FrozenField {
   const FieldStats& Statistics() const { return stats; }
 
  private:
+  FieldSample QueryImpl(Point point,bool applyComposition);
   /*! Optional by-product of one edge integration: chord parameter whose prefix integral is `fraction` of the total,
    *  inverted inside the converged panel partition (NaN when unresolved). A proposal only; callers verify it. */
   struct LengthInverse {

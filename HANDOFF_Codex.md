@@ -8,14 +8,43 @@ ONE connected curved-BL cycle. R=`integration_evidence/native_3d_bl_v1/dc17_18_c
 
 ## Current owned workload — authoritative
 
-NONE.338 build and precision check are TERMINAL0; all9 observed build identities
-and2 observed short-test identities absent, pins unchanged. Production CFD remains
-byte-identical334. Build16.141s; focused serial check165assertions/1case plus243
-bitwise coordinate/core-metric values recovered via existing capcheck.read_vtu.
-The existing VOLUME_OUTPUT_PRECISION=DOUBLE/Paraview XML path is sufficient;
-no new exporter is needed. `R/target_core338_audit.json` seals source and test scope.
-337 geometry experiment remains qualified ONLY for its bounded geometry/control
-scope: `R/qualification337.json`, `R/surface_cavities337_assessment.json`.
+NONE. Build339 and test-only correction340 are TERMINAL0; focused339 serial
+wrapper TERMINAL1 with ONE incorrect new test expectation; corrected340 serial
+TERMINAL0. All116 observed339 build identities,9 observed340 build identities,
+5 actual339 serial identities and2 observed340 short-check identities absent.
+All pins verified at their respective completion;70 actual339 mapped ELFs matched.
+`R/surface340_qualification.json` seals scope and evidence reuse.
+
+339/340 prerequisite implementation is compiled and focused-qualified; source and
+sealed evidence are included in this reviewable checkpoint:
+FrozenField::Sensor shares QueryImpl donor/cache/current-nodal rules and skips
+composition only for explicit core-only calls. TargetPolicy::IntrinsicSurfaceGuidance
+requires exact authority identity, node/coordinate association and sided wall support;
+other walls are evaluated freshly. Tensor STILL includes own h0 normal demand;
+consumer must restrict directions to its current own-wall tangent plane. It is NOT
+a distance or integrated-edge certificate. No production tangent consumer enabled.
+W checks its EXISTING work/time allowance during initial wall scanning and stops
+before derivative expired queries/strip work. Zero-allowance tests prove no queries
+start; actual whole-wall speed/feasibility is unproven. No limits/gates changed.
+
+339 build342.352s; serial302.545s/3cases,2passed and1failed test expectation:
+current-nodal authority deliberately clamps best-parent outside-cavity weights;
+immutable-donor queries reject instead. Production lookup was unchanged. Test-only
+340 build20.108s, corrected38assertions/1case passed4.314s wrapper. Retain339's passing
+curved-guidance and deadline cases: only core-test TU changed, production CFD
+byte-identical339, other test sources/runtime/flags unchanged. Do not report339 as
+an all-pass run. No MPI/full M6 milestone launched. Short340 sampling misses some
+brief children and does not establish whole-job RSS. Current CFD SHA
+6b899641e0b61a1dd72afbf518ce2786da0a69852bc170d5465df4b5927afb1d;
+test SHA3e11b1c6228dfab1f399a509a36522999881b544bd51cb60f33cf5f1aaed4fde.
+
+338 precision/input checkpoint remains PUSHEDb707af59d3. Existing DOUBLE XML output
+recovered243 coordinate/core-metric values bitwise (`R/target_core338_audit.json`).
+All22 Euler293 payloads/384685699bytes rechecked unchanged339; SAME303 prepared
+mesh/reference/SA seed/config verified in `R/surface339_input_preservation.json`.
+HowToProceed.md now reflects the active curved-BL construction cycle; old status
+text is preserved in its linked historical handbook.337 remains qualified ONLY
+for bounded actual geometry/Euclidean-control scope (`R/qualification337.json`).
 
 Five exact original303 contexts,40trials:37constructed, externally clear and fully
 measured;3refusals (root body/feature, sharp-candidate volume obstruction). Each
@@ -65,10 +94,11 @@ next authorized full workflow. Verify Float64 types/counts and exact node mappin
 before reuse. Core output is not the BL-composed target: reconstruct with unchanged
 geometry/associations/profile/composition. No new exporter/config knob required.
 
-Next connected source work: intrinsic wall guidance must query the core without
-first invoking the expensive geometric composition. Reuse FrozenField's donor
-lookup/cache/current-nodal transport for a core-only query, then connect it to
-surface preparation; do not redefine target transport or cache distance certificates.
+Next connected source work: consume the qualified Sensor/intrinsic-guidance APIs in
+an explicit provisional requested-wall phase of the existing engine. Cover selection,
+seed/update and streamed/nonstreamed candidate paths, and preserve passing rows by
+complete replacement coverage. Do not substitute a planning composition for the full
+target, enable shape-weighted repair during construction, or reuse distance certificates.
 Complete geometry/tangential readiness, constrained-field refresh and coordinated
 front/transition integration remain required before full attempt/MPI milestone.
 

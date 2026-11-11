@@ -79,22 +79,31 @@ inline std::vector<std::tuple<Face,long double,V>> StripFaces(State& s) {
 inline W10 PhaseW10(State& s,size_t work,double seconds,std::ostream& log) {
   Scope scope("PhaseW");
   W10 g;Begin(s,g);const auto t0=Clock::now();
+  auto limited=[&](){return g.work>=work || Seconds(t0)>=seconds;};
   for(unsigned sweep=0;;++sweep) {
+    if(limited()){g.outcome="limit";break;}
     std::vector<std::pair<long double,Edge>> longs;std::set<Edge> seen;g.unmeasurable=0;
-    for(const auto& wf:WallFaces(s))for(int i=0;i<3;++i){Edge e{std::min(wf.second[i],wf.second[(i+1)%3]),std::max(wf.second[i],wf.second[(i+1)%3])};
+    for(const auto& wf:WallFaces(s)) {
+      if(limited()){g.outcome="limit";break;}
+      for(int i=0;i<3;++i){Edge e{std::min(wf.second[i],wf.second[(i+1)%3]),std::max(wf.second[i],wf.second[(i+1)%3])};
+      if(limited()){g.outcome="limit";break;}
       if(!seen.insert(e).second)continue;long double l=0;
       // DC-16: production selection by the vertex-tensor estimate first; only candidates above 1.8/1.5 are integrated
       if(wallPrefilter){bool ok=true;long double est=0;try{est=wallEstimate(e[0],e[1]);}catch(const std::exception&){ok=false;}if(ok&&est<=MaximumMetricEdge/1.5L){++g.prefiltered;continue;}}
       try{l=Len(s,e[0],e[1]);}catch(const std::exception& x){++g.reasons["length: "+Key(x.what())];++g.unmeasurable;
+        // Expired queries are one budget exit, not thousands of independent edge obstructions.
+        if(limited()){g.outcome="limit";break;}
         if(g.unmeasurable<=8){const V A=Of(NodePoint(s,e[0])),B=Of(NodePoint(s,e[1]));log<<std::setprecision(17)<<"DC10 W unmeasurable "<<e[0]<<"-"<<e[1]<<" w(a)="<<double(optionA->Weight(A))<<" w(mid)="<<double(optionA->Weight(.5L*(A+B)))
           <<" w(b)="<<double(optionA->Weight(B))<<" crease="<<OnCrease(A,B)<<" : "<<x.what()<<"\n";}
         continue;}
       if(l>MaximumMetricEdge)longs.emplace_back(-l,e);}
+    }
     log<<"DC10 W sweep "<<sweep<<" wall_faces="<<WallFaces(s).size()<<" long_wall_edges="<<longs.size()<<" work="<<g.work<<"\n";
+    if(g.outcome=="limit")break;
     if(longs.empty()){g.outcome=g.unmeasurable?"unmeasurable wall edges: "+std::to_string(g.unmeasurable):"complete";break;}
     std::sort(longs.begin(),longs.end());bool changed=false;
     for(const auto& row:longs) {
-      if(g.work>=work||Seconds(t0)>=seconds){g.outcome="limit";break;}
+      if(limited()){g.outcome="limit";break;}
       const auto e=row.second;if(Star(s,e).empty())continue;
       const Point a=NodePoint(s,e[0]),b=NodePoint(s,e[1]);std::vector<Point> points;
       try{points.push_back(s.field->SegmentPoint(a,b,.5));}catch(const std::exception&){}
@@ -104,15 +113,17 @@ inline W10 PhaseW10(State& s,size_t work,double seconds,std::ostream& log) {
     if(!g.outcome.empty())break;
     if(!changed){g.outcome="blocked";break;}
   }
+  if(g.outcome=="limit"){End(s,g,t0);return g;}
   // thin-strip rule (user decision: >= 4 wall cells across a blunt TE base): split strip-face edges whose across-strip
   // extent exceeds width/4 (5% slack), largest first; same W limits and the D.2 invariant.
   for(unsigned sweep=0;sweep<32;++sweep) {
+    if(limited()){g.outcome="limit";break;}
     std::vector<std::pair<long double,Edge>> cand;std::set<Edge> seen;
     for(const auto& sf:StripFaces(s)){const Face& f=std::get<0>(sf);const auto width=std::get<1>(sf);const V e=std::get<2>(sf);
       for(int i=0;i<3;++i){const Edge ed{std::min(f[i],f[(i+1)%3]),std::max(f[i],f[(i+1)%3])};const auto across=std::abs(Dot(Of(NodePoint(s,ed[1]))-Of(NodePoint(s,ed[0])),e));
         if(across>1.05L*width/4&&seen.insert(ed).second)cand.emplace_back(-across/width,ed);}}
     if(cand.empty())break;std::sort(cand.begin(),cand.end());bool changed=false;
-    for(const auto& row:cand){if(g.work>=work||Seconds(t0)>=seconds){g.outcome="limit";break;}
+    for(const auto& row:cand){if(limited()){g.outcome="limit";break;}
       const Edge e=row.second;if(Star(s,e).empty())continue;if(SplitWallEdge(s,e,{Mid(NodePoint(s,e[0]),NodePoint(s,e[1]))},g,"strip")){++g.strip_splits;changed=true;}}
     if(g.outcome=="limit"||!changed)break;
   }
