@@ -1,7 +1,11 @@
-# Safe whole-edge BL exclusion — active connected correction
+# BL edge exclusion and measurement accuracy
 
-User request supersedes the queued projection-seed optimization. Remain in the
-curved-BL stage2 cycle; seed work is deferred. Read HANDOFF_Codex.md for live state.
+Current status, build394: whole-edge exclusion remains qualified; the difficult M6
+edge now converges within its original budget after immutable-region reuse and the
+existing strict-interior KKT stop. Expanded serial/MPI and actual point/edge checks
+pass. GL10whole underestimates6.82%; no precision substitution. Return to stage2target
+reasonableness and complete checkpoint/reload. HANDOFF_Codex.md owns live state.
+The original design and chronological evidence below are retained as history.
 
 Input: a complete frozen wall authority, current full/base/transition profiles,
 BL-only composition policy, straight segment and its rounded metric query envelope.
@@ -751,3 +755,56 @@ interval upper/lower/clearance/support proof remains mandatory. Audit every gene
 MinimizeTriangle caller, exact actual root/residual queries and invalid/singular/
 near-feature controls. If actualfield stability does not improve, preserve that
 failure rather than accumulate variants. All393handles terminal/pins intact.
+
+
+##394connected strict-interior KKT stop — input/output/acceptance before qualification
+
+Input:393saved actual residual/control nodes and immutable nets; same saved CFD/core/
+tangent target and full geometry/resource/accuracy constraints. Missing capability:
+existing interior solver meets its own KKT at callback9 but spends64and discards
+valid local witnesses.393point probes prove remaining target sensitivity at exactly
+those two actual nodes.394factors the SAME KKT expression and tests it with existing
+Newton gradients/residual after positive Gram determinant, only u,v,w>existing snap.
+No extra evaluation, cap/seed/tolerance change or active-edge snapping bypass.
+
+Shared callers audited: ClosestCurved optional candidate (still complete canonical
+interval upper/global lower/clearance proof); NativeMappedGeometryBackend3D projection
+(still candidate association/body/support/admission checks); generic curved reference
+(still same stationarity criterion, nearfeature path unchanged). Early KKT supplies
+no standalone distance/normal certificate. Tests add two exact actual residuals with
+original64callback cap and independent saved forward-distance ceilings; stationary
+singular derivative pair must still refuse. Preserve existing root/edge/feature tests.
+
+Require focused serial cached/fresh, curved mobility/features and resource checks,
+ONE MPI ownership/constraint milestone, actual old/newpoint stability and original
+full edge within SAME300s/600s before a useful-capability claim. Watch whether early
+stopping changes integrand/cut trajectory; compare actual query quality and work,
+not assumptions that earlier KKT must be numerically identical to late Newton.
+No final scalar/BL/target checkpoint claim from passing local regressions.
+
+
+##394terminal qualification: actual whole-edge measurement completes
+
+R/prepared394_qualification.json: expandedserial83cases/22594assertions241.533s;
+ONE MPI6 56cases EACHrank/5526–5729assertions66.436s; all3actual12pointsets pass,
+18default/tighter pairs bit-identical. Original M6edge now converges at EXACTsame
+policy/gates/300s atlas/600souter:207.818swrapper,69.4869spreparation,
+78.0256scomposition,147.5169stotaledge.6375evaluations(4185initial/2190refinement),
+280cuts; numerical length42.06899590894017/error estimate4.12715e-8≤4.20700e-8.
+Source-matched offline parser validates complete coverage and no partial panel.
+Numerical witness/cut trajectory differs;393unconverged snapshot is NOT a reference.
+No constructed patch, complete target checkpoint, accepted BL or workflow-time claim.
+
+Independent existingaccuracy case PASSES217.869s. Reparameterizedwhole reference
+42.068995904246883 agrees with direct to1.116e-10relative. GL10whole39.199324065 is
+6.82135%low; widestinterval.318579%error. Both split/coarsen choices agree ON THISedge
+only; neither sampling nor embedded differences are conservative action bounds.
+Do not substitute GL10for ranking, balanced insertion, candidate conformity or final
+acceptance. No accuracy policy changed; excessive work was materially reduced by
+fixing repeated geometry preparation and avoidable projection stopping behavior.
+
+All394owned handles terminal and fullsource/build/input pins verified. Preserve
+qualified Euler/BL changes. Next complete physical/directional target assessment and
+faithful composed-policy checkpoint/fresh-process agreement before surface work.
+No new speculative query optimization. Dedicated native-MPI BLgeneration and full
+RANS workflow remain outstanding; this qualified measurement is not their substitute.

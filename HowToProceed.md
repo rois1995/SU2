@@ -7,35 +7,34 @@ Use the [stage integration cadence](Handbook/ADAPTATION_CURVED_BL_STAGE_INTEGRAT
 and maintained [timing/work ledger](Handbook/ADAPTATION_TIMINGS.md). Full retries are
 reserved for integration milestones or failures not reproducible at a stage boundary.
 
-## Current stage2 blocker
+## Next stage2 output
 
-Current active work is [whole-edge exclusion and bounded accuracy diagnosis](Handbook/ADAPTATION_BL_EDGE_EXCLUSION_20261111.md).
-383whole-edge exclusion qualified in bothfactories.392two bounded witness opportunities
-stabilize both old saved6pair pointsets but originaledge still refuses.393now reuses
-immutable midpoint enclosures and cubic normal controls/maxnorm in the existing
-exact-key region cache; focused53serialcases/MPI6 55cases perrank pass.
+The difficult-edge measurement blocker is resolved by build394. Existing region
+reuse plus earlier use of the unchanged interior stationarity criterion lets the
+original M6 edge converge under the original deadline: 6,375 evaluations, 147.517 s
+in the edge evaluator, 207.818 s including setup. Expanded serial, MPI6 and all three
+saved actual point sets pass. See [current evidence](Handbook/ADAPTATION_BL_EDGE_EXCLUSION_20261111.md).
+This is numerical target measurement, not an accepted mesh or usable BL.
 
-Actual393edge does31.8%less preparation and16831successfulevaluations vs3928936 under
-same300s deadline. ALLshared speeds/positions/cuts match exactly. However it STILL
-refuses: error5.199e-8 >4.207e-8allowance. Memory rises within unchanged cap. No
-acceptededge or BLcapability. Residual12point probe is terminal: twoactualpoints retain4.5–5.6ppm speed sensitivity
-to certificate accuracy, controls agree. On exact samefacet nets, original64callback
-local solves hit cap despite meeting EXISTINGinterior KKT at callback9. Next assess
-using that unchanged criterion during strict-interior Newton iterations, reusing
-alreadycomputed derivatives/residuals and preserving active-edge snapping. No new
-seeds/caps/tolerances or global certification changes; NOTimplemented yet.
+The independent ten-point diagnostic underestimates whole-edge length by 6.82%.
+It makes the same split/coarsen decision on this particular edge, but cannot replace
+accurate ranking, insertion or final checks. No lower-precision path was enabled.
 
-A threshold bound must remain distinct from scalar ranking/insertion/final values.
-GL10differs.3186%on one completed interval; wholeerror UNKNOWN. No safe lower-
-precision construction path is enabled. Handoff owns current handles and provenance.
+Return to physical/directional target reasonableness and a COMPLETE composed-target
+checkpoint before surface generation. Keep the same saved CFD seed without another
+advance, Mach-only L1, nominal 500k, normal law and constraints. Inspect flow, geometry,
+inherited tangent and requested-height contributions, recomposition/gradation and
+actual M6 contexts; do not select a change merely because complexity decreases.
 
-Stage2still needs a reasonable target and faithful composed checkpoint/reload before
-surface generation. Bounded accurate witnesses and active-edge handling are qualified, but still require
-actual chord completion before claiming capability. Native MPI BL generation remains unqualified; the separate unchanged
-planar fixed-count failure380stays in the backlog. Historical construction notes
-below are capability evidence, not current live-job instructions.
+Reuse native_ref and existing binary record helpers. Preserve or reconstruct the
+exact full/base profiles, transition support/history, OptionA radius/identity and
+source core/geometry. Wall tangent logarithms/maxima derive from immutable original
+wall geometry, so test deterministic reconstruction before serializing raw private
+state. Selected core/scales alone still omit policy state. Prove fresh-process
+point/chord/authority agreement. No speculative query optimization or full workflow
+retry before this stage output is credible. Handoff owns current handles/provenance.
 
-## Preserved completion and current blocker
+## Preserved workflow and construction history
 
 Euler293 completed TWO strictly accepted Euler50k adaptations, conservative
 admissible transfers, finite continued adapted CFD and an actual isolated adapted

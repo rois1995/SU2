@@ -6,76 +6,67 @@ Read AGENTS.md, [ordered stages](Handbook/ADAPTATION_CURVED_BL_STAGE_INTEGRATION
 [current accuracy/exclusion design](Handbook/ADAPTATION_BL_EDGE_EXCLUSION_20261111.md),
 [normalization](Handbook/ADAPTATION_CURVED_BL_NORMALIZATION_20261111.md),
 [timing/work ledger](Handbook/ADAPTATION_TIMINGS.md), [HowToProceed](HowToProceed.md).
-History [pre393](Handbook/ADAPTATION_HANDOFF_HISTORY_PRE_393_20261111.md)/
+History [pre394](Handbook/ADAPTATION_HANDOFF_HISTORY_PRE_394_20261111.md)/
+[pre393](Handbook/ADAPTATION_HANDOFF_HISTORY_PRE_393_20261111.md)/
 [pre388](Handbook/ADAPTATION_HANDOFF_HISTORY_PRE_388_20261111.md)/
 [pre384](Handbook/ADAPTATION_HANDOFF_HISTORY_PRE_384_20261111.md); historical RUNNING/
 next-action text is superseded by this live state.
 
 ## Actual source/build/owned workload — authoritative
 
-Current workload: NONE. All393build/serial/MPI/actual/residual-point identities
-reverified terminal on actual host; source/build/input pins intact.
-R/prepared393_qualification.json. 393source/evidence preserved in this reviewable checkpoint.
-Original393M6edge TERMINAL1/355.918s; actual-host identities reverified absent.
-Build393PASS36.118s; serial53cases/5349assertions62.354s and MPI6 55cases EACHrank/
-5511–5714assertions67.467s pass. Pins intact/handles terminal. Buildidentity:
-CFDc3702db870ef6dd2fad3998993f9042b28e282243ecc6df9fcc17dcde080adb7;
-test2eab76daf1994411dfd865973850267622cc732fa892f67148a7f3391ef59ddb.
-Source393localuncommitted. Previous392checkpoint6ed8ceee96PUSHED; complete391/392
-results/qualification/failedguards preserved, history linked above. Native MPI BL
-GENERATION remains unqualified; FIRST_ROWnative1guard stays. BroadMPI38084/85cases
-perrank: unchanged planar fixedcount3vs6failure retained in backlog, no fullgreenclaim.
+Current workload: NONE. All394build/serial/MPI/3pointsets/originaledge/accuracy
+identities reverified terminal on actual host; full source/build/input pins intact.
+R/prepared394_qualification.json.394source/evidence in this reviewable checkpoint.
+Previous393checkpoint7689c8a942PUSHED; earlier failures preserved in linked history.
+Build394PASS36.244s. CFD260fa2887c808d9d94828a1052a63634f7397b9303d26bf01ae912bfdec24c6c;
+testb5fd5e2657570bc4aa9e2185f222ed289e691a68431848bf371dfc6f6deaa428.
+Expandedserial83cases/22594assertions241.533s; MPI6 56cases EACHrank/5526–5729assertions
+66.436s. All3actualpointsets pass:18default/tighter pairs bit-identical foot/normal/
+FULLtensor/chordspeed/hn. Residualpointwork5117vs3937116, wrapper dominated byloading.
+Native MPI BL GENERATION remains unqualified; FIRST_ROWnative1guard stays. Broad380
+MPI84/85cases perrank: unrelated unchanged planar fixedcount3vs6failure in backlog.
 
-393retains immutable midpoint interval and cubic normal controls/maxnorm in EXISTING
-exact-key region cache. All query-dependent projections/candidate comparison/full
-traversal remain fresh. Cache/retention/transient admission uses new sizeof; local
-region explicitly admitted even cacheOFF. Same maxwork/deadline/target/normal laws,
-canonical witness proof and strict gates. No lower-precision measurement route.
-Larger cache entries reduce potential coverage; source review found no defect but
-is not qualification. R/prepared393_source_review.json.
+394uses SAMEexisting KKT criterion during strict-interior Newton iterations after
+positive derivative Gram determinant. Existing snap/active-edge logic, caps, seeds,
+canonical interval upper/global lower/clearance proof unchanged.393immutable-region
+cache reuse remains. No lower-precision measurement or classification substitution.
 
-## ACTIVE accuracy diagnosis — remain stage2
+## Stage2 measurement blocker resolved; return to target/checkpoint
 
-393originaledge with existing paneltrace: SAME300s atlas/600souter. Preparation
-71.699s vs392trace105.153s.16831successfulsamples vs8936; ALL8936shared parameter/
-speed/position samples and ALLcuts identical. Different later query mix prevents
-an exact matching-work CPU claim. Lastpartition estimate42.0689957056/error
-5.19907e-8 still above4.20700e-8allowance. NO converged scalar/usableBL/checkpoint.
-Prepared1252716336B; largest sampled individualRSS2600288256B, higher but within
-unchanged limits, not wholejob peak. R/target_panels393_assessment.json.
+ORIGINAL394M6edge PASSES207.818swrapper under SAME300s atlas/600souter: converged
+numerical length42.06899590894017;6375evals (4185initial/2190refinement), prep69.4869s,
+composition78.0256s,totaledge147.5169s. CPU202.49user+1.10system. Error estimator
+4.12715e-8 <=4.20700e-8allowance; G7/K15difference is NOT a conservative enclosure.
+393refused atdeadline after16831successfulsamples/12960refinement. Numerical witness/
+cut trajectory changes, so no fixed-work or accepted-mesh time comparison. Prepared
+672202704B; largest sampled individualRSS2039324672B, not wholejob peak.
+R/target_panels394_assessment.json. NO construction/acceptedmesh/fulltargetcheckpoint.
 
-392trace had89.91%of refinement samples above t=.94; old dominant root interval now
-15samples/zero refinement/error1.21e-14.393adds7895samples but error falls modestly.
-Residual12point probe PASS61.694s/7116pointwork/.22661spoint eval: twoactual
-residuals change speed4.52e-6/5.57e-6relative, normal~2e-7 and foot3.78e-9/5.34e-9
-at default2e-12→2e-14. Other2residuals and BOTHsmooth controls agree exactly.
-Bothunstableanswers are interior35672dyadic subdivision witnesses. Inputs/results:
-R/m6_bl_inputs/residual393_point_frames_v1 and residual_points393_assessment.json.
-Existing unchanged local solver on exact twofacet nets, original64callbacks ONLY,
-confirms35672points0/3cap64 although EXISTING KKT is met at callback9; otherpoints
-converge25–44.30335allconverge22–43. No cap/seed variant was tested.
-Next demonstrated correction: evaluate the SAME existing KKT criterion during the
-strict-interior Newton iterations using already computed derivatives/residuals,
-rather than continue roundoff line searches until cap. Preserve positive derivative
-Gram determinant and near-edge snapping/active-edge logic; do not promote features.
-This is not implemented yet. Audit all shared MinimizeTriangle callers; qualify
-old+new actualqueries and originaledge after serial/ONE MPI milestone. No global
-upper/lower/clearance proof, geometry/height/metric/quad tolerance or budget change.
+Independent existingaccuracy diagnostic PASSES217.869s: whole reparameterized G7/K15
+42.068995904246883 agrees with direct integral to1.116e-10relative. WholeGL10estimate
+39.199324065 underestimates6.82135%; widestinterval error.318579%. Both split/coarsen
+choices same ON THISoverlongedge, not proof for other edges/ranking/insertion/final.
+R/edge_accuracy394_assessment.json. No GL10replacement or precision relaxation.
 
-Classification/ranking/balanced insertion/conformity/final accuracy stay distinct.
-Sensor-only length.388is inconclusive; no composedaction enclosure established.
-G7/K15difference is NOT a conservative integral bound.392GL10widest-interval
-comparison completes195referenceevals: .3186%error/no split-coarsen difference
-there. WholeGL10=39.19932377 has UNKNOWNerror without converged whole reference.
-Core nodal gradation excludes BLtensors; fixed-ray/profile continuation is not a
-continuous global composed gradation proof. Distancewidth does NOT bound normal/
-tensorerror. h0/g/T and all strict geometry/q/J/size/height gates unchanged.
+Next: finish ordered stage2physical/directional target assessment and COMPLETEtarget
+checkpoint/fresh-process agreement before surface generation. Reuse original saved
+CFD seed/no advance, same Mach-onlyL1/nominal500k and normal law. Do not launch another
+speculative query optimization cycle now. Existing diagnostic reconstruction from
+finalcore/scales is NOT original371state: preserve exact full/base outer profile,
+transition support/history and OptionA identity/radius as well as core/sourcegeometry.
+R/target_checkpoint393_audit.json maps existing formats and gaps; primaryclarification:
+WallData::vertexLog/maxima derive from immutable wall geometry and may be rebuilt;
+raw private serialization is not automatically needed. Need actual same-target
+point/chord/authority agreement after a fresh process, not sensor tensors alone.
 
-383whole-edge exclusion QUALIFIED in BOTHfactories, exactP1integral/inverse/versioned
-identity. Original5M6edges nonexcluded; translatedcontrols exactbackground/0composed
-samples. R/edge_exclusion383_qualification.json. Earlier caching/witness/construction
-improvements preserved. Queued Coulaud/MAdLib geometry/target/realized BL investigation
-remains in this cycle; do not start a competing scheduler/geometry representation.
+Classification/ranking/insertion/conformity/final accuracy remain separate contracts.
+Core nodal gradation excludes BLtensors; fixed-ray/profile continuation is not global
+continuous composed gradation proof. Distancewidth does NOT bound normal/tensorerror.
+Keep physical h0/g/T and strict geometry/q/J/size/height gates.383whole-edge exclusion
+remains qualified in BOTHfactories; original5M6edges nonexcluded, outsidecontrols
+exactbackground. R/edge_exclusion383_qualification.json. Coulaud/MAdLib geometry/
+target/realized BL investigation remains queued inside this cycle; no new scheduler,
+mandatoryCAD, geometry representation, permanent columns or configoptions.
 
 ## Stage inputs and credible-output requirements
 

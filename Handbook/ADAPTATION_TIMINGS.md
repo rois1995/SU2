@@ -5,14 +5,14 @@ integration result. [Current handoff](../HANDOFF_Codex.md) owns live handles;
 [stage inputs/outputs and acceptance](ADAPTATION_CURVED_BL_STAGE_INTEGRATION_20261111.md)
 own the development sequence. R=`integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57`.
 
-Latest completed target observation:371same saved-CFD MPI6 metric-only stage,
-terminal0/1739.083s. Target remains provisional; no surface construction or usable
-BL followed. Latest construction result remains364's preserved surface deadline
-failure. Requested500k is nominal complexity, not a node count or acceptance gate.
-Euler293's completed workflow remains preserved. 373bounded saved-target diagnostic failed in chord preparation;374diagnostic
-capture build/focused checks passed; replay374failed at its original atlas deadline.
-375completes breakpoint preparation but not the chord. Shared certificate380is
-terminal with more integrand progress but no complete chord; no global metric/CFD rerun.
+Latest stage-2 diagnostic: build394 completes the saved difficult M6 edge under
+the original budget. The evaluator takes147.517s/6375evaluations; total wrapper
+207.818s includes setup. An independent numerical reference agrees to1.116e-10
+relative; ten-point quadrature underestimates this edge by6.82%. No new mesh was
+constructed. Full composed normalization is still only measured at371(1739.083s
+wrapper); its target remains provisional. Latest construction is364's preserved
+surface deadline failure.500k is nominal complexity, not a node count or acceptance
+gate. Euler293's completed workflow/checkpoints remain preserved.
 
 This is the maintained timing/work record requested by the user. Update current
 stage rows and the efficiency table after each meaningful completed result; retain
@@ -27,6 +27,7 @@ These are observed times, not forecasts. “Not reached” is not zero cost.
 |---|---:|---|---|
 | 1. Saved CFD seed and geometry | Initial geometry max1.4644s; CFD solve not separately attributed here | Geometry maxCPU≈1.3871s/rank; includes partition/migration/preprocessing | Saved303 RANS+SA mesh/reference/restart reused;61330source points/303359input tets; coarse reasonable coefficients, not convergence/wall-resolution proof |
 | 2. Complete metric construction/normalization |371max1732.127s, including57.672authority setup | CPU≈1684.7–1687.5s/rank; includes possible MPI polling |3distinct evaluated fields/4normalizer requests;8192proposals/6516inside; estimate504040.450±48545.704 empirical indicator; core nodal140142.106; target suitability pending |
+| 2. Saved difficult-edge measurement (394) |147.517s evaluator;207.818s with setup |202.49s user+1.10s system; serial, no MPIwait attribution |6375evaluations; converged numerical length42.06899590894; no construction/checkpoint |
 | 3. Coupled surface preparation |391.6188s | Measurement CPU311.9047s is nested/overlapping; native FIRST_ROW uses serial guard |122kernel work,18commits;51891cached of303310current cells; readiness incomplete |
 | 4. Directions and first row | Not reached by full364 | Not measured for complete stage | Saved bounded358 row exists:5columns/25cells, strict initial geometry/height/contact pass, q-bad24/J-bad25; not a usable BL |
 | 5. Successive growth | Not reached by full364 | Not measured | Physical progression/coverage on actual generated complete BL unqualified |
@@ -137,6 +138,7 @@ coverage and accepted-mesh progress, not commits alone.
 
 | Change | Demonstrated computational effect | Limits |
 |---|---|---|
+|393 immutable region invariants +394 existing interior KKT stop|Original difficult edge now converges in147.517s/6375evaluations, where393exhausted its300s atlas deadline after16831successfulsamples. Refinement samples12960→2190.|Same seed/target policy/constraints/limits; numerical witness/cut trajectory changes. No accepted-mesh or workflow timing claim. More expensive region cache records remain bounded.|
 |329 bounded optional cubic-cache maintenance|At most64optional cache work units per closest query, preserving original certification cap. Previously captured328query now completes in5791units;325control1314units. Both retain original2e-12query error and16384cap.|Primitive work/correctness gain; not a full-target timing comparison. See [complexity evidence](ADAPTATION_CURVED_BL_COMPLEXITY_20261110.md).|
 |360–362 unique-node surface guidance and incremental seeding|Cached measurement coverage17540→49346cells(2.81x) within matching391.6s window; enabled14commits instead of none.|Connected changes, so gains are not apportioned between them. Readiness still failed; no final q/J improvement claimed.|
 |364 existing-batch planning reuse|Versus362:5.13%more seeded cells,5.16%more cached cells,4.77%less seed wall time; requests203168→181894(−10.47%), edge evaluations296298→284869(−3.86%).|Full metric work/target IDENTICAL; surface trajectory differs. Modest wall differences remain contention-sensitive. Surface readiness still failed.|
@@ -750,3 +752,62 @@ does not prove all variation is noise. Next SAMEcriterion strict-interior stoppi
 assessment, not another cap/seed/tolerance campaign. All393handles terminal.
 
 393actualedge CPU350.15user+1.23system; no MPIwait inference from this serial run.
+
+
+##394strict-interior existing-KKT stop (qualification pending)
+
+BuildPASS36.244s; headers/callers rebuilt, pins intact and actual-host build identities
+terminal. Focused serial adds curved atlas/mobility/publication scope because shared
+projection code changed. Follow with saved actual old/newpoint sets, ONE MPI milestone
+and originalfull edge under unchanged300s/600s. No cap, seed, KKT/quad tolerance,
+normal law or acceptance gate changed. Numerical field trajectory can change from
+the prior roundoff iterate; quantify instead of claiming identical results a priori.
+
+394expanded focusedserial PASS83cases/22594assertions241.533s (includes curved atlas/
+mobility/publication beyond393scope, so not a serial runtime comparison). Actual
+residual-point stability probe is frozen/running; olderpointsets and MPI follow.
+
+
+394residual12point probePASS60.727s/5117pointwork/.161423spoint eval, all6default/
+tighter pairs bit-identical foot/normal/fulltensor/chordspeed/hn (393hadtwo unstable).
+Work-28.1%vs3937116. Geometryloading dominates wrapper; no wrapper speedup claim.
+Earlier hotspot12points PASS61.750s/12112work/.294622spoint eval, all6pairs identical.
+Remaining earlier-refusal probe then ONE MPI milestone/full edge still required.
+
+
+394earlier-refusal12points PASS61.800s/10957pointwork/.218340spoint eval; all6pairs
+bit-identical. Together3savedsets give18default/tighter pairs agreeing exactly.
+ONE MPI6PASS56cases EACHrank/5526–5729assertions66.436s. Allprerequisites terminal.
+
+##394actual difficult-edge completion — useful stage2measurement
+
+Original same-target edge PASSES207.818swrapper under SAME300s atlas/600souter:
+length42.06899590894017,6375evaluations, zero edgefailures. Preparation69.4869s,
+composition78.0256s,totaledge147.5169s (nested, not additive beyond totaledge).
+Globalquerywork7086984; region3172158hits/454109misses; prepared672202704B,
+sampled individualRSS2039324672B, not wholejob peak. Parser reconstructed all
+6375samples:4185initial-panel samples (280cuts/279panels),2190refinement samples,
+maxdepth11, summed G7/K15difference4.12715e-8 <=4.20700e-8allowance. This is the
+existing converged NUMERICALintegral, not a conservative enclosure/constructed mesh.
+
+393had no scalar bydeadline after16831successfulsamples,3870initial/12960refinement;
+394uses MOREinitial panels (+21), FARfewer refinements. Corrected witness/stopping
+changes numerical field/cut trajectory; prior393snapshot is NOT an error reference.
+Allstrict policies and physical settings unchanged; no lower-precision actionroute.
+Scope: actual saved edge, no construction; sampledcentroid q/Jclassification20bad
+unchanged, not wholefield census. Stage2target reasonableness/checkpoint remain.
+
+Existing GL10diagnostic now frozen: preparation69.4684s/280cuts, whole10estimate
+39.19932407/.1790s; widestinterval1.551897637 vs numerical1.556857459, .318579%error,
+345referenceevals/3.5068s. Whole numerical-reference comparison still pending.
+No fixed10replacement or precision relaxation selected from its low work count.
+
+
+394accuracy diagnostic PASSES217.869s. Whole numerical reference42.068995904246883
+versus direct42.06899590894017:relative difference1.11562e-10. GL10whole39.199324065
+underestimates6.82135%; no split/coarsen difference on THISoverlongedge. Whole
+reference7095evals/83.1285s; widestreference345evals/3.5068s (nested). GL10approximation
+is not a conservative bound and is not used for decisions/acceptance. No ten-point
+replacement, tolerance relaxation or budget increase. All394owned handles terminal;
+source/build/input provenance in prepared394_qualification.json. Return to complete
+stage2target reasonableness/checkpoint, then ordered surface/front/growth workflow.

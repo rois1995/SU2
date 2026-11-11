@@ -940,6 +940,39 @@ TEST_CASE("Cubic projection hands outward root steps to its existing active-edge
   }
 }
 
+TEST_CASE("Stationary M6 interior projections finish within their existing proposal cap", "[NativeClosestWitness3D][NativeGeometryBackend3D]") {
+  using namespace SU2NativeCurved;
+  const std::array<Vec<3>,10> source{{
+      {-6.134604418e-14,-1.062527844e-13,-2.220446049e-16},
+      {0.002380958890740337,-1.062527844e-13,-0.007634829294804406},
+      {0.005985127462594315,0.006749924753011305,-0.007145077741415979},
+      {-6.134590622944794e-14,-1.0625262339472095e-13,-0.002544943098268283},
+      {0.0010876769410745942,-1.0625293350187024e-13,-0.005375938618652015},
+      {0.002590789684815837,0.0022499749175995997,-0.008016585346009058},
+      {0.0047722882695313724,0.004506621610010489,-0.007314696685367057},
+      {0.003601495673574434,0.004726382603528558,-0.00497952260970985},
+      {-6.132869694524023e-14,0.0022499749175996,-0.0023816925804721555},
+      {0.0016187149166728397,0.0023082510533316354,-0.005190026895249503}}};
+  const std::array<Vec<3>,2> queries{{
+      {0.0058498695558686581,0.0064966123247880208,-0.0071634572285588019},
+      {0.0058333663456222396,0.0064657049393182838,-0.0071656997631941678}}};
+  const double maximumDistance[]={5.571373e-6,6.754493e-6};
+  for(unsigned index=0;index<queries.size();++index) {
+    const auto& query=queries[index];
+    auto net=source;const auto target=detail::NormalizeTriangleProjection(net,query);
+    double u=0,v=0;detail::ClosestOnTriangle(target,net[0],net[1],net[2],u,v);
+    unsigned work=1;auto use=[&](){if(work>=64)throw std::length_error("Captured interior projection exceeded its unchanged proposal cap.");++work;};
+    auto evaluate=[&](double a,double b){use();return detail::TrianglePatch(net,1-a-b,a,b);};
+    auto derivatives=[&](double a,double b,Vec<3>& first,Vec<3>& second){use();detail::TriangleDerivatives(net,a,b,first,second);};
+    bool converged=false;REQUIRE_NOTHROW(converged=detail::MinimizeTriangle(target,u,v,evaluate,derivatives));
+    REQUIRE(converged);CHECK(work<64);CHECK(u>1e-10);CHECK(v>1e-10);CHECK(1-u-v>1e-10);
+    CHECK(Norm<3>(Sub<3>(detail::TrianglePatch(source,1-u-v,u,v),query))<maximumDistance[index]);
+  }
+  double u=.25,v=.25;
+  CHECK_FALSE(detail::MinimizeTriangle(Vec<3>{},u,v,[](double,double){return Vec<3>{};},
+      [](double,double,Vec<3>& first,Vec<3>& second){first={};second={};}));
+}
+
 TEST_CASE("Closest witness reuse does not repeat a deterministic restricted-facet solve", "[NativeClosestWitness3D][NativeGeometryBackend3D]") {
   using namespace SU2Native3D;BackendFixture fixture(true);std::map<Id,double> errors;
   for(const auto& facet:fixture.facets)errors.emplace(facet.id,1e-12);

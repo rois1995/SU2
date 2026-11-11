@@ -1,0 +1,22 @@
+{
+  "scope": "Primary code/caller review and bounded read-only delegated audit, not correctness qualification.",
+  "change": "Reuse identical existing KKT expression within strict-interior Newton loop after positive Gram determinant, using already computed derivatives/residual.",
+  "production_callers": [
+    "MappedFacetReference::ClosestCurved optional polish with global candidate enclosure/lower/clearance proof",
+    "NativeMappedGeometryBackend3D::Project candidate projection with scope/body/association checks",
+    "Generic CurvedReference3D::Minimize/ProjectOnFace with existing feature classification"
+  ],
+  "preserved": [
+    "Identical tolerance, gradient directions and finite test.",
+    "Positive determinant checked before early stop.",
+    "All barycentric coordinates exceed existing snap; near-edge and corner path unchanged.",
+    "No extra evaluations, seed changes or raised work/iteration limits.",
+    "Optional candidate never replaces global certification."
+  ],
+  "risks": [
+    "Earlier stationary witness may differ from the eventual roundoff Newton iterate; validate actual field stability/trajectory and complete edge.",
+    "Existing KKT alone is not a global nearest-foot or normal-accuracy certificate."
+  ],
+  "regression": "Two exact393residual points/cubic net, cap64 and independent saved distance ceilings; singular Gram refusal. Existing outward-root and genuine feature tests retained.",
+  "delegated_review": "curved_region_reuse_audit393 found no concrete defect; no edits/tests by reviewer."
+}

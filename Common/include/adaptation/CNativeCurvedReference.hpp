@@ -385,14 +385,16 @@ inline Vec<3> NormalizeTriangleProjection(std::array<Vec<3>,10>& points,const Ve
 template <class Evaluate, class Derivatives>
 bool MinimizeTriangle(const Vec<3>& p, double& u, double& v, Evaluate evaluate, Derivatives derivatives) {
   auto F = [&](double a, double b) { const auto r = Sub<3>(evaluate(a, b), p); return Dot<3>(r, r); };
-  auto stationary = [&] {
-    Vec<3> Su, Sv; derivatives(u, v, Su, Sv);
-    const auto r = Sub<3>(evaluate(u, v), p);
-    const double gu = Dot<3>(Su, r), gv = Dot<3>(Sv, r), norm2 = Dot<3>(Su, Su) + Dot<3>(Sv, Sv);
-    const double tolerance = 1e-7 * std::sqrt(Dot<3>(r, r) * norm2) + 64 * std::numeric_limits<double>::epsilon() * norm2;
+  auto meetsKKT = [&](double gu,double gv,double norm2,double residual2) {
+    const double tolerance = 1e-7 * std::sqrt(residual2 * norm2) + 64 * std::numeric_limits<double>::epsilon() * norm2;
     // KKT against all three feasible vertex directions, including active edges and corners.
     const double base = -u * gu - v * gv;
     return std::isfinite(tolerance) && std::min({base, base + gu, base + gv}) >= -tolerance;
+  };
+  auto stationary = [&] {
+    Vec<3> Su, Sv; derivatives(u, v, Su, Sv);
+    const auto r = Sub<3>(evaluate(u, v), p);
+    return meetsKKT(Dot<3>(Su, r),Dot<3>(Sv, r),Dot<3>(Su, Su)+Dot<3>(Sv, Sv),Dot<3>(r, r));
   };
   const double snap = 1e-10;
   for (int outer = 0; outer < 6; ++outer) {
@@ -403,7 +405,10 @@ bool MinimizeTriangle(const Vec<3>& p, double& u, double& v, Evaluate evaluate, 
       const double a = Dot<3>(Su, Su), b = Dot<3>(Su, Sv), c = Dot<3>(Sv, Sv), gu = Dot<3>(Su, r), gv = Dot<3>(Sv, r);
       const double det = a * c - b * b;
       if (!(det > 0)) return false;
-      const double du = -(c * gu - b * gv) / det, dv = -(a * gv - b * gu) / det, f0 = Dot<3>(r, r);
+      const double f0 = Dot<3>(r, r);
+      // Keep active-edge snapping; an already stationary interior must not chase roundoff until its caller's cap.
+      if(u>snap && v>snap && 1-u-v>snap && meetsKKT(gu,gv,a+c,f0))return true;
+      const double du = -(c * gu - b * gv) / det, dv = -(a * gv - b * gu) / det;
       // An outward Newton step belongs to the existing active-edge/KKT phase, not projected 2D backtracking.
       if ((u<=snap && du<0) || (v<=snap && dv<0) || (1-u-v<=snap && du+dv>0)) break;
       double lambda = 1, nu = u, nv = v;

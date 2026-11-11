@@ -1,0 +1,408 @@
+{
+  "scope": "Connected shared projection stop qualified on expanded serial, MPI and actual M6 point/edge/accuracy diagnostics. Actual numerical edge measurement now completes; no BL mesh or complete target checkpoint.",
+  "build": {
+    "state": "terminal",
+    "exit_code": 0,
+    "seconds": 36.24394416809082,
+    "pins_verified": true,
+    "changed": [],
+    "completed_build": true,
+    "binaries": {
+      "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver": "b5fd5e2657570bc4aa9e2185f222ed289e691a68431848bf371dfc6f6deaa428",
+      "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/SU2_CFD/src/SU2_CFD": "260fa2887c808d9d94828a1052a63634f7397b9303d26bf01ae912bfdec24c6c"
+    }
+  },
+  "cases": {
+    "serial": {
+      "path": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved394_prepared_serial_20261111T200854_3086843",
+      "status": {
+        "state": "terminal",
+        "exit_code": 0,
+        "seconds": 241.53304648399353,
+        "pins_verified": true,
+        "changed": [],
+        "largest_sampled_individual_process_rss_bytes": 63315968,
+        "rss_note": "sampled process RSS; not a whole-job peak"
+      },
+      "terminal": {
+        "actual_host_proc": true,
+        "all_owned_handles_terminal": true,
+        "live_owned_handles": [],
+        "sampled_identities": [
+          {
+            "pid": 3086909,
+            "start_ticks": 47217560
+          },
+          {
+            "pid": 3086910,
+            "start_ticks": 47217560
+          },
+          {
+            "pid": 3086911,
+            "start_ticks": 47217560
+          },
+          {
+            "pid": 3086912,
+            "start_ticks": 47217561
+          }
+        ],
+        "wrapper_excluded": {
+          "pid": 3086843,
+          "start_ticks": 47217384
+        },
+        "checked_unix": 1794427975.8009353
+      },
+      "passing_summaries": [
+        "All tests passed (22594 assertions in 83 test cases)"
+      ],
+      "cpu": {
+        "User time (seconds)": 237.49,
+        "System time (seconds)": 0.06
+      }
+    },
+    "mpi6": {
+      "path": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved394_prepared_mpi6_20261111T201800_3105981",
+      "status": {
+        "state": "terminal",
+        "exit_code": 0,
+        "seconds": 66.43578553199768,
+        "pins_verified": true,
+        "changed": [],
+        "largest_sampled_individual_process_rss_bytes": 65306624,
+        "rss_note": "sampled process RSS; not a whole-job peak"
+      },
+      "terminal": {
+        "actual_host_proc": true,
+        "all_owned_handles_terminal": true,
+        "live_owned_handles": [],
+        "sampled_identities": [
+          {
+            "pid": 3106067,
+            "start_ticks": 47272177
+          },
+          {
+            "pid": 3106068,
+            "start_ticks": 47272177
+          },
+          {
+            "pid": 3106069,
+            "start_ticks": 47272177
+          },
+          {
+            "pid": 3106077,
+            "start_ticks": 47272180
+          },
+          {
+            "pid": 3106076,
+            "start_ticks": 47272180
+          },
+          {
+            "pid": 3106075,
+            "start_ticks": 47272180
+          },
+          {
+            "pid": 3106074,
+            "start_ticks": 47272180
+          },
+          {
+            "pid": 3106073,
+            "start_ticks": 47272180
+          },
+          {
+            "pid": 3106072,
+            "start_ticks": 47272180
+          }
+        ],
+        "wrapper_excluded": {
+          "pid": 3105981,
+          "start_ticks": 47272003
+        },
+        "checked_unix": 1794428346.8688707
+      },
+      "passing_summaries": [
+        "All tests passed\u001b[0m (5527 assertions in 56 test cases)",
+        "All tests passed\u001b[0m (5729 assertions in 56 test cases)",
+        "All tests passed\u001b[0m (5548 assertions in 56 test cases)",
+        "All tests passed\u001b[0m (5526 assertions in 56 test cases)",
+        "All tests passed\u001b[0m (5529 assertions in 56 test cases)",
+        "All tests passed\u001b[0m (5606 assertions in 56 test cases)"
+      ],
+      "cpu": {
+        "User time (seconds)": 368.97,
+        "System time (seconds)": 0.38
+      }
+    },
+    "old_hotspot": {
+      "path": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved394_dominant_panel_points_20261111T201428_3098572",
+      "status": {
+        "state": "terminal",
+        "exit_code": 0,
+        "seconds": 61.749967098236084,
+        "pins_verified": true,
+        "changed": [],
+        "largest_sampled_individual_process_rss_bytes": 1408589824,
+        "rss_note": "sampled process RSS; not a whole-job peak"
+      },
+      "terminal": {
+        "actual_host_proc": true,
+        "all_owned_handles_terminal": true,
+        "live_owned_handles": [],
+        "sampled_identities": [
+          {
+            "pid": 3098650,
+            "start_ticks": 47250969
+          },
+          {
+            "pid": 3098651,
+            "start_ticks": 47250969
+          },
+          {
+            "pid": 3098652,
+            "start_ticks": 47250969
+          },
+          {
+            "pid": 3098653,
+            "start_ticks": 47250970
+          }
+        ],
+        "wrapper_excluded": {
+          "pid": 3098572,
+          "start_ticks": 47250771
+        },
+        "checked_unix": 1794428129.8868208
+      },
+      "passing_summaries": [
+        "All tests passed (8075273 assertions in 1 test case)"
+      ],
+      "cpu": {
+        "User time (seconds)": 56.15,
+        "System time (seconds)": 0.91
+      }
+    },
+    "old_refusal": {
+      "path": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved394_refusal_point_frames_20261111T201559_3101761",
+      "status": {
+        "state": "terminal",
+        "exit_code": 0,
+        "seconds": 61.79992151260376,
+        "pins_verified": true,
+        "changed": [],
+        "largest_sampled_individual_process_rss_bytes": 1408643072,
+        "rss_note": "sampled process RSS; not a whole-job peak"
+      },
+      "terminal": {
+        "actual_host_proc": true,
+        "all_owned_handles_terminal": true,
+        "live_owned_handles": [],
+        "sampled_identities": [
+          {
+            "pid": 3101843,
+            "start_ticks": 47260113
+          },
+          {
+            "pid": 3101844,
+            "start_ticks": 47260114
+          },
+          {
+            "pid": 3101845,
+            "start_ticks": 47260114
+          },
+          {
+            "pid": 3101846,
+            "start_ticks": 47260114
+          }
+        ],
+        "wrapper_excluded": {
+          "pid": 3101761,
+          "start_ticks": 47259913
+        },
+        "checked_unix": 1794428221.3714101
+      },
+      "passing_summaries": [
+        "All tests passed (8075273 assertions in 1 test case)"
+      ],
+      "cpu": {
+        "User time (seconds)": 56.0,
+        "System time (seconds)": 0.83
+      }
+    },
+    "residual": {
+      "path": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved394_residual_panel_points_20261111T201311_3095843",
+      "status": {
+        "state": "terminal",
+        "exit_code": 0,
+        "seconds": 60.72725176811218,
+        "pins_verified": true,
+        "changed": [],
+        "largest_sampled_individual_process_rss_bytes": 1408663552,
+        "rss_note": "sampled process RSS; not a whole-job peak"
+      },
+      "terminal": {
+        "actual_host_proc": true,
+        "all_owned_handles_terminal": true,
+        "live_owned_handles": [],
+        "sampled_identities": [
+          {
+            "pid": 3095935,
+            "start_ticks": 47243268
+          },
+          {
+            "pid": 3095936,
+            "start_ticks": 47243268
+          },
+          {
+            "pid": 3095937,
+            "start_ticks": 47243268
+          },
+          {
+            "pid": 3095945,
+            "start_ticks": 47243269
+          }
+        ],
+        "wrapper_excluded": {
+          "pid": 3095843,
+          "start_ticks": 47243074
+        },
+        "checked_unix": 1794428051.8827758
+      },
+      "passing_summaries": [
+        "All tests passed (8075273 assertions in 1 test case)"
+      ],
+      "cpu": {
+        "User time (seconds)": 55.25,
+        "System time (seconds)": 0.83
+      }
+    },
+    "actual": {
+      "path": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved394_target_geometry_20261111T201950_3109646",
+      "status": {
+        "state": "terminal",
+        "exit_code": 0,
+        "seconds": 207.817729473114,
+        "pins_verified": true,
+        "changed": [],
+        "largest_sampled_individual_process_rss_bytes": 2039324672,
+        "rss_note": "sampled process RSS; not a whole-job peak"
+      },
+      "terminal": {
+        "actual_host_proc": true,
+        "all_owned_handles_terminal": true,
+        "live_owned_handles": [],
+        "sampled_identities": [
+          {
+            "pid": 3109730,
+            "start_ticks": 47283231
+          },
+          {
+            "pid": 3109731,
+            "start_ticks": 47283232
+          },
+          {
+            "pid": 3109732,
+            "start_ticks": 47283232
+          },
+          {
+            "pid": 3109733,
+            "start_ticks": 47283232
+          }
+        ],
+        "wrapper_excluded": {
+          "pid": 3109646,
+          "start_ticks": 47283037
+        },
+        "checked_unix": 1794428598.602424
+      },
+      "passing_summaries": [
+        "All tests passed (8087755 assertions in 1 test case)"
+      ],
+      "cpu": {
+        "User time (seconds)": 202.49,
+        "System time (seconds)": 1.1
+      }
+    },
+    "accuracy": {
+      "path": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved394_target_accuracy_20261111T202558_3122492",
+      "status": {
+        "state": "terminal",
+        "exit_code": 0,
+        "seconds": 217.86906838417053,
+        "pins_verified": true,
+        "changed": [],
+        "largest_sampled_individual_process_rss_bytes": 2123292672,
+        "rss_note": "sampled process RSS; not a whole-job peak"
+      },
+      "terminal": {
+        "actual_host_proc": true,
+        "all_owned_handles_terminal": true,
+        "live_owned_handles": [],
+        "sampled_identities": [
+          {
+            "pid": 3122599,
+            "start_ticks": 47320005
+          },
+          {
+            "pid": 3122600,
+            "start_ticks": 47320006
+          },
+          {
+            "pid": 3122601,
+            "start_ticks": 47320006
+          },
+          {
+            "pid": 3122602,
+            "start_ticks": 47320006
+          }
+        ],
+        "wrapper_excluded": {
+          "pid": 3122492,
+          "start_ticks": 47319807
+        },
+        "checked_unix": 1794428976.3604393
+      },
+      "passing_summaries": [
+        "All tests passed (8075008 assertions in 1 test case)"
+      ],
+      "cpu": {
+        "User time (seconds)": 212.18,
+        "System time (seconds)": 1.05
+      }
+    }
+  },
+  "source_sha256": {
+    "Common/include/adaptation/CNativeCurvedReference.hpp": "3f25eaf6d2fc946945d2f3ad919975d60eab97c216a5053851c4dd5ea10f815e",
+    "UnitTests/Common/adaptation/CNativeGeometryBackend3D_tests.cpp": "91791ba316493e84697a0698bafa55d8278be77032c0c83b6f5b0a1c1c394e67"
+  },
+  "terminal_recheck": {
+    "actual_host_proc": true,
+    "all_owned_handles_terminal": true,
+    "checked_unix": 1794429112.2865899,
+    "identity_count": 40
+  },
+  "actual_edge_completed": true,
+  "actual_edge_length": 42.06899590894017,
+  "usable_BL": false,
+  "complete_target_checkpoint": false,
+  "native_MPI_BL_generation_qualified": false,
+  "performance": {
+    "preparation_seconds": 69.486887857,
+    "composition_seconds": 78.025595838,
+    "total_edge_seconds": 147.516940941,
+    "wrapper_seconds": 207.817729473114,
+    "evaluations": 6375,
+    "initial_evaluations": 4185,
+    "refinement_evaluations": 2190,
+    "previous393_evaluations_before_refusal": 16831,
+    "previous393_refinement_evaluations": 12960,
+    "normal_witness_and_cut_trajectory_changed": true,
+    "accepted_mesh_or_workflow_time_improvement_proven": false
+  },
+  "next": "Return to ordered stage2: assess physical/directional composed target and persist complete policy/state with fresh-process agreement before coupled surface preparation. No more speculative query optimization.",
+  "evidence_pins": {
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/target_panels394_assessment.json": "2d8c7743143dc9e2a20e6670e30cbb8b1e37e0a0167d4c782c3f97fb0ddd6dec",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/residual_points394_assessment.json": "0e0457ba643d71ce9d38da7103643ac83c68d360521e1d6650c980df360bab45",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/dominant_points394_assessment.json": "98158fc5f93b959d303dee1dbefb2a47ab8eb116537d9097dca67ecb26a581e6",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/refusal_points394_assessment.json": "17067495ec7555adf0d716b3298afe60c81c9160086618ef36907c9e43020740",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/edge_accuracy394_assessment.json": "38e9b08a82fc2bafc09504fe62b6c471e691d652c585027c443b5572dc058ce5",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/prepared394_source_review.json": "aba02eeb52db4d03e91b2bddbe8194d50b99ed25df0fd9949fea7304d65203d7"
+  }
+}
