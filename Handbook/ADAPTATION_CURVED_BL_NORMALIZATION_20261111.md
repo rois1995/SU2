@@ -311,3 +311,42 @@ types, bounds, work/time budgets, acceptance and repair decisions. Use the exact
 single failed20-cell context with saved371data, not a new baseline/perf/GDB campaign.
 Focused resource-replay checks precede that replay. No caching/bound optimization
 is selected until this distinguishes the responsible work.
+
+##374 diagnosis and connected375 correction under validation
+
+374is terminal1/358.197s with intact pins/all actual owned identities absent.
+Its exact replay preserves10627point projections over3687intervals,292.589s
+projection wall versus13.059sregion rebuild. 4.112Mprepared-region hits do not
+avoid point-specific certification. At width7.1e-15/error3.6e-18, remaining bound
+1.25e-8exceeds1e-8. This supports testing repeated endpoint/midpoint certification
+reuse; it does not prove the total problem is solved by memoization.
+
+Scope: EdgeBreakpointsImpl's curved branch, shared by strict edge breakpoints and
+3D integration chord preparation. Wall/component/reference/mobility remain fixed
+inside each synchronous invocation.375retains complete successful projections
+under exact binary64point keys and reuses only a certificate produced at equal or
+tighter requested accuracy. It never reuses a foot alone, shares across walls or
+persists across calls. Each lookup checks/charges the existing reservation; all
+memo nodes have conservative bounded scratch admission alongside a full query
+workspace. If no spare storage exists, use original full queries. Final cut
+retention follows memo destruction. Bounds, thresholds, height law and limits stay
+unchanged. Focused curved/resource checks and the same actual chord must validate
+this hypothesis before any performance claim or further stage.
+
+##375 outcome and next scope
+
+Focused375 passed424assertions/4cases in178.614s. Actual exact context is terminal1/
+361.336s, pins intact/all actual handles absent. Breakpoint preparation now completes
+in242.075s, followed by1925integrand evaluations/50.101s before the same deadline.
+No final length or accepted target/BL. Work4268956includes these evaluations versus
+374work4700941before any integrand. Do not turn this into a full workflow speedup.
+
+The demonstrated remaining cost is point certification during composition. Source
+OptionA::Compose first calls Weight→WallDistance (base Evaluate), then base Compose,
+and sometimes full Compose, at identical point/support. Existing geometry is
+immutable and its prepared pool is already bounded/active-reference aware; assess
+whether it can retain complete closest-result certificates safely, without a
+competing local/global cache design. Allowed-facet callbacks must not be conflated;
+exact hint/authority/support and outward accuracy/resource checks remain mandatory.
+No shared closest-result implementation exists yet. This is inside the current
+geometry certification correction, not a new target/scheduler/construction policy.

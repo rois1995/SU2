@@ -12,15 +12,39 @@ construction validity-first; intermediate quality debt is provisional, not accep
 
 ## Current state — authoritative
 
-Current owned workload:374single saved-target chord diagnostic RUNNING/FROZEN,
-session63570, wrapper2083233; case
-R/cases/curved374_target_geometry_20261111T124950_2083233.
-No CFD/global metric solve or construction. Existing300s atlas/600s outer limits.
-Do not edit pinned sources until actual-host terminal. Build374 TERMINAL0/202.232s;
-22owned handles terminal. Focused serial374 TERMINAL0/257.590s,
-424assertions/4cases, pins intact;4child identities and wrapper rechecked absent on
-actual host before replay. Diagnostic counters/context only; no bound, threshold,
-repair decision or budget change.
+No owned heavy workload. Actual375 TERMINAL1/361.336s, pins intact; all4children+
+wrapper verified absent on actual host. R/geometry_target375_assessment.json.
+Breakpoint preparation now COMPLETES in242.075s;1925composed integrand evaluations
+then consume50.101s before the same300s atlas deadline.374could not finish
+preparation in293.289s and performed0integrand evaluations. Context work4268956
+versus4700941, but new work includes composition: different progress, not identical
+fixed work. Final chord/usable target still unavailable. Local memo hit fraction
+not exported on this successful preparation path; no full-adaptation speedup claim.
+Build375 passed42.162s; focused serial424assertions/4cases/178.614s, pins intact.
+Only production CBoundaryLayerMetric.cpp changes: per-wall/chord exact point memo,
+sufficient successful accuracy only, bounded scratch from existing envelope,
+work/deadline checks and no cross-call lifetime.
+
+Next connected assessment: remaining point certification during composition.
+Existing OptionA::Weight→WallDistance and subsequent Compose(base) both evaluate
+the exact same point/support; if w>0, Compose(full) evaluates again. Determine
+safe use of existing immutable geometry cache/pool for complete closest-distance
+certificates across these callers, including exact support/hint, allowed-facet
+callbacks, sufficient outward accuracy, active references, admission and exhaustion.
+Prefer one shared facility over keeping competing per-chord/global memos. Do not
+edit merely to add a cache-hit counter or repeat a baseline. No implementation
+of that extension yet. Keep stage2target diagnosis/checkpoint obligation and budgets.
+
+374single saved-target chord diagnostic TERMINAL1/
+358.197s, pins intact; all4children+wrapper rechecked absent on actual host.
+R/geometry_target374_assessment.json preserves exact replay/counters. Build374
+TERMINAL0/202.232s; focused serial374424assertions/4cases/257.590s passed.
+Measured10627point projections/292.589s,3687intervals; region preparation13.059s.
+Active width7.1e-15, point error3.6e-18, unresolved1.25e-8>1e-8; no edge integrand.
+Next connected375hypothesis: local per-wall/chord exact-point projection certificate
+reuse only when its successful accuracy meets the request; same authority/support,
+bounded/admitted memory, budget checks and recomputation fallback. No cross-call
+cache, target change or gate/budget relaxation. Valid hit fraction not measured yet.
 
 373actual saved-target diagnostic TERMINAL1/355.999s, pins intact, all5owned
 actual-host identities terminal. R/geometry_target373_assessment.json. FIRST

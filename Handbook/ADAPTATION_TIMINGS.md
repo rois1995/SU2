@@ -10,7 +10,9 @@ terminal0/1739.083s. Target remains provisional; no surface construction or usab
 BL followed. Latest construction result remains364's preserved surface deadline
 failure. Requested500k is nominal complexity, not a node count or acceptance gate.
 Euler293's completed workflow remains preserved. 373bounded saved-target diagnostic failed in chord preparation;374diagnostic
-capture build and focused checks passed; the single saved-target chord replay is running. No new global metric or CFD run.
+capture build/focused checks passed; replay374failed at its original atlas deadline.
+375focused checks passed; actual replay completes breakpoint preparation, then
+exhausts the unchanged deadline during composed point evaluation. No global metric/CFD rerun.
 
 This is the maintained timing/work record requested by the user. Update current
 stage rows and the efficiency table after each meaningful completed result; retain
@@ -232,3 +234,47 @@ an MPI wait attribution. Wrapper CPU350.34s/user +1.00s/system versus351.67sproc
 wall; serial probe, no memory pressure. The measured cost lies in geometric cut
 preparation; exact repeated queries versus conservative refinement remain unknown.
 374adds bounded failure-only context/counters; no optimization or timing gain yet.
+
+##374 completed chord attribution and375 hypothesis
+
+Same saved371target recipe and exact first20-cell context; terminal1/358.197s,
+pins intact, actual-host owned handles terminal. Source: R/geometry_target374_assessment.json.
+
+| Work | Measurement | Meaning |
+|---|---:|---|
+| Chord geometry preparation |293.28856s|0edge integrand compositions |
+| Point-projection requests |10627|3687classified intervals; includes midpoint/endpoints |
+| Projection wall/work |292.58914s /4690841units|Largest single query.07851s; many queries dominate |
+| Prepared cubic region reuse |4112119hits/395452misses|Geometry-only reuse, not point-result memoization |
+| Prepared-region rebuilding |13.05939s|Nested in projection cost; not the principal measured wall cost |
+| Remaining crossing uncertainty |1.25e-8 vs1e-8 required|Active interval7.1e-15wide, requested point error3.6e-18; incomplete |
+
+375is an unqualified hypothesis: per-wall/per-chord exact-point successful
+projection certificates, reusable only for equal/looser accuracy requests, with
+original support and full candidate bounds retained together. Memo storage uses
+spare existing admission; deadline/work checks remain. No target/limit/gate changes.
+No hit fraction, work reduction or speedup is established yet.
+
+##375 completed outcome — preparation progresses, complete chord still blocked
+
+R/geometry_target375_assessment.json: actual terminal1/361.336s, pins intact and
+all owned actual-host handles terminal. Build42.162s; focused serial178.614s,
+424assertions/4cases passed. These check timings are not adaptation speedups.
+
+| Same exact M6 context |374|375|
+|---|---:|---:|
+| Breakpoint geometry preparation s |293.2886, incomplete|242.0751, complete|
+| Edge integrand evaluations |0|1925|
+| Edge composition s |0|50.1013 before deadline|
+| Total context geometry work |4700941|4268956|
+| Final chord |Unavailable|Unavailable|
+
+The new total work includes integrand certification; the old work does not. This
+is increased useful progress under the same deadline, not an identical-work timing
+comparison. No full-chord, target-stage or accepted-BL speedup is established.
+Successful preparation does not export local memo-hit fraction; it remains unknown.
+New prepared-region stats:3798987hits/318108misses,11.1531srebuild,198412200Bretained.
+The final refusal is a composed-point query at original2e-12accuracy, not the
+near-roundoff breakpoint query. Existing OptionA weight/base/full composition
+paths can repeat geometry at the exact same point; safe shared certificate reuse
+is the next assessment, not yet implemented.

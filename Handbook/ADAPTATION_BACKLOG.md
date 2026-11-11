@@ -1039,3 +1039,14 @@ remain. Whole-target values/cached/direct results must agree; counters alone do 
 prove benefit. Active work is target reasonableness and complete stage2checkpoint,
 not another independent performance cycle. Also isolate the unsplit all-node
 composed-gradation audit before claiming what part of total time is traversal.
+
+
+###374 deferred chord alternatives (not active)
+The actual chord reaches near-roundoff intervals with a conservative scalar
+metric bound and very small point-query errors. Directional metric bounds,
+nearby-point Lipschitz certificate reuse and interval-envelope changes remain
+unproved alternatives; no new bound/geometry representation is selected. First
+measure375's same-point certificate reuse on the exact saved context. The existing
+actual-front journal's std::quoted strings can contain raw newlines;374evidence
+is preserved and decoded as sequential JSON values with strict=False. A broader
+JSON serialization cleanup is unrelated to the current certification blocker.

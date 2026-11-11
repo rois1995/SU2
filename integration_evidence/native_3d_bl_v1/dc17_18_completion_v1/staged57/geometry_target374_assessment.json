@@ -1,0 +1,171 @@
+{
+  "scope": "Exact same371 selected-core/final policy recipe, first original20-cell M6 context. Failure diagnosis; not BL or target acceptance.",
+  "case": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved374_target_geometry_20261111T124950_2083233",
+  "status": {
+    "state": "terminal",
+    "exit_code": 1,
+    "seconds": 358.19701385498047,
+    "pins_verified": true,
+    "changed": [],
+    "largest_sampled_individual_process_rss_bytes": 1655128064,
+    "rss_note": "sampled process RSS; not a whole-job peak"
+  },
+  "terminal": {
+    "actual_host_proc": true,
+    "all_owned_handles_terminal": true,
+    "live_owned_handles": [],
+    "sampled_identities": [
+      {
+        "pid": 2083314,
+        "start_ticks": 44583193
+      },
+      {
+        "pid": 2083315,
+        "start_ticks": 44583193
+      },
+      {
+        "pid": 2083316,
+        "start_ticks": 44583193
+      },
+      {
+        "pid": 2083317,
+        "start_ticks": 44583194
+      }
+    ],
+    "wrapper_excluded": {
+      "pid": 2083233,
+      "start_ticks": 44582980
+    },
+    "checked_unix": 1794401862.9466345
+  },
+  "source_commit": "56eb016d93",
+  "chord_replay": {
+    "a": [
+      0.002380958890740337,
+      -1.062527844e-13,
+      -0.007634829294804406
+    ],
+    "b": [
+      0.005985127462594315,
+      0.006749924753011305,
+      -0.007145077741415979
+    ],
+    "failure_type": "resource_budget",
+    "band_ratio": 1.5,
+    "fade_bands": 16,
+    "feature_transitions": 1,
+    "wall": 0,
+    "authority_facet": 10154,
+    "metric_padding": [
+      0,
+      0,
+      0
+    ],
+    "transition_core": 0.0047263575870155755,
+    "transition_slope": 0.26236426446749106,
+    "full": 0.009000000000000001,
+    "support": 6882489.528795039,
+    "h0": 2e-06,
+    "global_eigenvalue": 126000000000000,
+    "eigenvalue": 1000404736576.8848,
+    "metric_bound": 1000202.347816123,
+    "length_bound": 0.007667553185412896,
+    "left": 0.9875166745882282,
+    "right": 0.9875166745882353,
+    "width": 7.105427357601002e-15,
+    "parent_uncertainty": 5.449226632986617e-11,
+    "incremental_total": 1.2500014939064714e-08,
+    "fresh_total": 1.2499944446232875e-08,
+    "adjacent_total": 0,
+    "splittable_total": 1.2499944446232875e-08,
+    "adjacent": 0,
+    "splittable": 149,
+    "largest_splittable": 1.0898453265973233e-10,
+    "work": 3687,
+    "leaves": 149,
+    "tolerance": 1e-08,
+    "projection_calls": 10627,
+    "projection_work": 4690841,
+    "projection_seconds": 292.5891415239984,
+    "maximum_projection_seconds": 0.078513807,
+    "projection_step": "midpoint",
+    "query_point": [
+      0.0059401354534729936,
+      0.006665663245813189,
+      -0.007151191469427846
+    ],
+    "requested_point_error": 3.605685443864245e-18,
+    "maximum_projection_point": [
+      0.0054908923394839364,
+      0.005824316023887188,
+      -0.007212236758664142
+    ],
+    "maximum_projection_error": 1.7436149753854278e-15
+  },
+  "counters": [
+    {
+      "context": "actual_failed_chord",
+      "stage": "saved_target_centroids_complete",
+      "q_bad_centroid": 20,
+      "J_bad_centroid": 20,
+      "q_centroid_min": 0.0027056210178297785,
+      "J_centroid_min": 5.034670657697832e-05
+    },
+    {
+      "context": "actual_failed_chord",
+      "stage": "existing_counters",
+      "field": {
+        "queries": 20,
+        "query_misses": 20,
+        "compositions": 20,
+        "edge_integrations": 2,
+        "edge_compositions": 0,
+        "edge_pieces": 2
+      },
+      "edge_failures": 1,
+      "edge_geometry_seconds": 293.28856443,
+      "edge_composition_seconds": 0,
+      "edge_seconds": 293.289029208,
+      "cumulative_perf": {
+        "ops": {
+          "Column directions": {
+            "count": 1,
+            "seconds": 0.44143099,
+            "ms_per_op": 441.43099
+          }
+        },
+        "caches": {
+          "length_hits": 0,
+          "length_misses": 0,
+          "length_failures": 0,
+          "shape_hits": 0,
+          "shape_misses": 0,
+          "height_hits": 0,
+          "height_misses": 0,
+          "rejection_cache_skips": 0,
+          "geometry_length_hits": 0
+        }
+      }
+    },
+    {
+      "context": "actual_failed_chord",
+      "stage": "existing_geometry_counters",
+      "closest_region_hits": 4112119,
+      "closest_region_misses": 395452,
+      "closest_region_build_seconds": 13.059387650000412,
+      "prepared_bytes": 279222440,
+      "memo_direct_hits": 0,
+      "memo_direct_misses": 0
+    }
+  ],
+  "confirmed": "10627 point projections consume292.589s; prepared-region rebuild13.059s. At3687 intervals, unresolved bound1.25e-8 exceeds1e-8. No integrand work starts.",
+  "hypothesis": "A per-wall per-chord exact-coordinate certificate memo may remove repeated midpoint/endpoint recertification, if its original successful accuracy meets each request. Actual valid hit fraction/savings not yet measured.",
+  "next_acceptance": "Focused bound/resource checks plus identical actual context completion under same300s atlas/600s outer limits; no constraint change.",
+  "journal_note": "Existing std::quoted diagnostic string includes literal newlines; parsed sequential JSON values with strict=False. Raw journal preserved unchanged.",
+  "sha256": {
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved374_target_geometry_20261111T124950_2083233/actual_bl_front.jsonl": "2717a97e1f7d395df53fad081263eb0a170dd0ba44b407116b22497246d56759",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved374_target_geometry_20261111T124950_2083233/run.log": "5b0b9a13b12227103bde8007370198c9e556c1fbaaf4477b9c9b167332011c1e",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved374_target_geometry_20261111T124950_2083233/pins.json": "63f15152ea0d4feeabd84540b5c339c47b0870f460bd8b0f946b76a161c8704b",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved374_target_geometry_20261111T124950_2083233/command.json": "6754a467e1c0e454aded4142f93e38d393c8b58e47f97588f8251990fef13009"
+  }
+}
