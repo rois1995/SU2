@@ -525,3 +525,34 @@ vs.34441s. Additional exact-support visits are charged, so no per-query savings
 claim: useful output is removal of the2.53%side-only tensor ambiguity, with exact
 same-binding normals/tensors/chord speeds now bit-identical. Interior-foot residual
 unchanged. MPI and original whole-chord outcome pending; no workflow speedup yet.
+
+
+##388 terminal original chord — no demonstrated speedup
+
+R/geometry_target388_assessment.json, seam388_qualification.json. Actual TERMINAL1/
+355.9998s wrapper at unchanged300s atlas/600souter, pins intact/all42owned actual-host
+388identities terminal. No scalar/constructed patch/mesh. Same saved CFD/core/scales,
+physical constraints and limits; corrected exact-supported side can change integrand
+and cut/refinement trajectory, so this is not identical fixed-work timing.
+
+| Quantity |386 |388 |Interpretation |
+|---|---:|---:|---|
+| Geometry preparation s |106.9717|111.0878|3.85%increase; no gain |
+| Integrand evaluations before deadline |8359|8163|2.34%fewer, no complete result |
+| Composition s |186.8893|182.7027|Nested in edge time; trajectory differs |
+| Total edge s |293.8695|293.7983|Same shared budget, not speedup |
+| Context geometrywork |5273871|5114485|3.02%lower, no useful completion |
+| Prepared-region build s |16.5108|15.3719|Nested; do not add to preparation |
+
+388region hits3990134/misses462013; answer hits6762/misses11806/refinements139;
+projection12193attempts/11132improvements/385334work;349719360Bprepared retained.
+CPU350.19user+1.05system vs351.55command wall (99%CPU), so major contention is not
+supported for this serial replay. CPU does not prove all geometry work useful.
+Largest sampled individual RSS1720934400B; not whole-job peak. Starting mesh remains
+61330points/303359tets; no adapted counts. New refusing point and raw log retained.
+
+Component qualification: serial52cases/7288assertions251.554s; MPI6passes54cases
+EVERYrank/305.900s (6786–7091assertions/rank), including empty ranks/migration/stale
+state/resources. These establish affected contracts, NOT native MPI BLgeneration.
+Next is bounded existing-panel/error attribution and purpose-specific measurement
+requirements. Do not claim speedup from stabilized normals or fewer queries alone.

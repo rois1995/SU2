@@ -361,3 +361,32 @@ ranks/migration; prepared12point replay must eliminate side-only full-target cha
 without hiding the remaining interior-foot difference. Then measure original whole
 chord under SAME300s atlas/600s outer and report work/integral outcome. Fewer queries
 or passing primitives alone do not establish useful construction improvement.
+
+
+388serial PASS7288assertions/52cases251.554s; connected MPI6PASS54cases EVERYrank,
+6786–7091assertions/rank305.900s. Actual prepared12point replayPASS61.718s: exact
+same-binding/foot pairs now bit-identical complete tensors, normals/chord speeds,
+without changing requested scalar heights. Raw differential sides remain different
+(as allowed by global closest contract); same-facet interior-foot residual unchanged.
+No correctness blocker found in bounded read-only review. Resource charges and
+unprepared/feature/explicit-side exclusions verified in source. The original whole
+chord remains required before claiming computational benefit. Native MPI BLgeneration
+is NOT qualified by this metric/constraint milestone; production native1guard remains.
+
+
+##388 actual outcome — useful completion still blocked
+
+Original chord TERMINAL1/356.000s, same300s atlas/600souter, pins intact/all actual-
+host owned identities terminal. Preparation111.088s vs386106.972;8163evaluations
+vs8359; composition182.703s; contextwork5114485. No final scalar/patch/mesh. CPU99%
+of351.55scommand wall does not support major contention here. Timers overlap and
+trajectory differs; no speedup claim. R/geometry_target388_assessment.json and
+seam388_qualification.json preserve success/failure separately.
+
+The exact-side inconsistency is fixed and focused-qualified; it does not close the
+remaining integration bottleneck. Stay stage2. Next analyze existing quadrature
+panels/error allocation and remaining foot/normal uncertainty against each caller's
+accuracy need. Reuse saved edge/evidence; no more speculative projection variants,
+raised budgets, blanket trial/tolerance reduction or ten-point replacement. No safe
+composed action interval has yet been demonstrated. Stage3requires a credible target
+and faithful complete checkpoint first; analytic fixtures are insufficient.

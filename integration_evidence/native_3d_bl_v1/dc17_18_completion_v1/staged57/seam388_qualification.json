@@ -1,0 +1,232 @@
+{
+  "scope": "Deterministic differential side for exact released-seam BL binding; not full BL capability or performance qualification.",
+  "build": {
+    "state": "terminal",
+    "exit_code": 0,
+    "seconds": 64.13348197937012,
+    "pins_verified": true,
+    "changed": [],
+    "completed_build": true,
+    "binaries": {
+      "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver": "d54c2625dc8f1a9dbbc1580cbbed8403169414c2652d948246b2267814826ecb",
+      "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/SU2_CFD/src/SU2_CFD": "035ec27fda7abeb7b1b9c0ffb6e9b048e5feaf8f8904aaab35db4dce330be209"
+    }
+  },
+  "source_pins_verified": true,
+  "cases": {
+    "serial": {
+      "path": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved388_seam_serial_20261111T171643_2726896",
+      "status": {
+        "state": "terminal",
+        "exit_code": 0,
+        "seconds": 251.55429887771606,
+        "pins_verified": true,
+        "changed": [],
+        "largest_sampled_individual_process_rss_bytes": 61448192,
+        "rss_note": "sampled process RSS; not a whole-job peak"
+      },
+      "terminal": {
+        "actual_host_proc": true,
+        "all_owned_handles_terminal": true,
+        "live_owned_handles": [],
+        "sampled_identities": [
+          {
+            "pid": 2726985,
+            "start_ticks": 46184446
+          },
+          {
+            "pid": 2726986,
+            "start_ticks": 46184447
+          },
+          {
+            "pid": 2726987,
+            "start_ticks": 46184447
+          },
+          {
+            "pid": 2726988,
+            "start_ticks": 46184447
+          }
+        ],
+        "wrapper_excluded": {
+          "pid": 2726896,
+          "start_ticks": 46184265
+        },
+        "checked_unix": 1794418424.037617,
+        "wrapper_verified_terminal": true
+      },
+      "passing_summaries": [
+        "All tests passed (7288 assertions in 52 test cases)"
+      ]
+    },
+    "mpi6": {
+      "path": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved388_seam_mpi6_20261111T172219_2738671",
+      "status": {
+        "state": "terminal",
+        "exit_code": 0,
+        "seconds": 305.8996455669403,
+        "pins_verified": true,
+        "changed": [],
+        "largest_sampled_individual_process_rss_bytes": 65814528,
+        "rss_note": "sampled process RSS; not a whole-job peak"
+      },
+      "terminal": {
+        "actual_host_proc": true,
+        "all_owned_handles_terminal": true,
+        "live_owned_handles": [],
+        "sampled_identities": [
+          {
+            "pid": 2738749,
+            "start_ticks": 46218131
+          },
+          {
+            "pid": 2738750,
+            "start_ticks": 46218131
+          },
+          {
+            "pid": 2738751,
+            "start_ticks": 46218131
+          },
+          {
+            "pid": 2738759,
+            "start_ticks": 46218135
+          },
+          {
+            "pid": 2738758,
+            "start_ticks": 46218135
+          },
+          {
+            "pid": 2738757,
+            "start_ticks": 46218134
+          },
+          {
+            "pid": 2738756,
+            "start_ticks": 46218134
+          },
+          {
+            "pid": 2738755,
+            "start_ticks": 46218134
+          },
+          {
+            "pid": 2738754,
+            "start_ticks": 46218134
+          }
+        ],
+        "wrapper_excluded": {
+          "pid": 2738671,
+          "start_ticks": 46217940
+        },
+        "checked_unix": 1794418424.0373685,
+        "wrapper_verified_terminal": true
+      },
+      "passing_summaries": [
+        "All tests passed (6789 assertions in 54 test cases)",
+        "All tests passed (6786 assertions in 54 test cases)",
+        "All tests passed (7091 assertions in 54 test cases)",
+        "All tests passed (6787 assertions in 54 test cases)",
+        "All tests passed (6808 assertions in 54 test cases)",
+        "All tests passed (6968 assertions in 54 test cases)"
+      ]
+    },
+    "prepared_target": {
+      "path": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved388_target_stability_20261111T172108_2736207",
+      "status": {
+        "state": "terminal",
+        "exit_code": 0,
+        "seconds": 61.71808052062988,
+        "pins_verified": true,
+        "changed": [],
+        "largest_sampled_individual_process_rss_bytes": 1408532480,
+        "rss_note": "sampled process RSS; not a whole-job peak"
+      },
+      "terminal": {
+        "actual_host_proc": true,
+        "all_owned_handles_terminal": true,
+        "live_owned_handles": [],
+        "sampled_identities": [
+          {
+            "pid": 2736301,
+            "start_ticks": 46211010
+          },
+          {
+            "pid": 2736302,
+            "start_ticks": 46211011
+          },
+          {
+            "pid": 2736303,
+            "start_ticks": 46211011
+          },
+          {
+            "pid": 2736304,
+            "start_ticks": 46211011
+          }
+        ],
+        "wrapper_excluded": {
+          "pid": 2736207,
+          "start_ticks": 46210810
+        },
+        "checked_unix": 1794418424.037833,
+        "wrapper_verified_terminal": true
+      },
+      "passing_summaries": [
+        "All tests passed (8075273 assertions in 1 test case)"
+      ]
+    },
+    "original_chord": {
+      "path": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved388_target_geometry_20261111T172734_2748513",
+      "status": {
+        "state": "terminal",
+        "exit_code": 1,
+        "seconds": 355.9997720718384,
+        "pins_verified": true,
+        "changed": [],
+        "largest_sampled_individual_process_rss_bytes": 1720934400,
+        "rss_note": "sampled process RSS; not a whole-job peak"
+      },
+      "terminal": {
+        "actual_host_proc": true,
+        "all_owned_handles_terminal": true,
+        "live_owned_handles": [],
+        "sampled_identities": [
+          {
+            "pid": 2748592,
+            "start_ticks": 46249613
+          },
+          {
+            "pid": 2748593,
+            "start_ticks": 46249614
+          },
+          {
+            "pid": 2748594,
+            "start_ticks": 46249614
+          },
+          {
+            "pid": 2748595,
+            "start_ticks": 46249614
+          }
+        ],
+        "wrapper_excluded": {
+          "pid": 2748513,
+          "start_ticks": 46249413
+        },
+        "checked_unix": 1794418424.0380406,
+        "wrapper_verified_terminal": true
+      },
+      "passing_summaries": []
+    }
+  },
+  "actual_chord_completed": false,
+  "accepted_BL": false,
+  "native_MPI_BL_generation_qualified": false,
+  "confirmed": [
+    "Same exact released-seam binding/foot now produces bit-identical full tensor across different allowed closest sides.",
+    "Explicit surface-side associations, genuine features, separate bodies and physical normal profile retained.",
+    "Existing analytic sensor-only lower length .388 is inconclusive for hard-edge classification."
+  ],
+  "unresolved": [
+    "Original chord still refuses at unchanged300s atlas deadline.",
+    "One same-facet pair retains closest-foot and2.5e-7relative chord-speed discrepancy.",
+    "No certified composed integral interval or safe classification-only replacement has been demonstrated.",
+    "Actual fixed10 quadrature error remains unknown because the numerical reference has not completed."
+  ],
+  "next": "Bounded attribution of existing quadrature error/work to physical variation versus geometry-result noise and caller decision requirements. No more speculative minimizer variants/tolerance/cap changes, no new baseline campaign; remain stage2."
+}

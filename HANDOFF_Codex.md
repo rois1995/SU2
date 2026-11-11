@@ -1,136 +1,76 @@
 # Native adaptation — current handoff
 
-Updated2026-11-11 Europe/Rome. Goal ACTIVE. ONE connected curved-BL cycle and
-one owned heavy workload. R=`integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57`.
-Read AGENTS.md and [ordered stage cadence](Handbook/ADAPTATION_CURVED_BL_STAGE_INTEGRATION_20261111.md),
+Updated2026-11-11 Europe/Rome. Goal ACTIVE. ONE connected curved-BL cycle and one
+owned heavy workload. R=`integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57`.
+Read AGENTS.md, [ordered stages](Handbook/ADAPTATION_CURVED_BL_STAGE_INTEGRATION_20261111.md),
 [current accuracy/exclusion design](Handbook/ADAPTATION_BL_EDGE_EXCLUSION_20261111.md),
-[normalization evidence](Handbook/ADAPTATION_CURVED_BL_NORMALIZATION_20261111.md),
+[normalization](Handbook/ADAPTATION_CURVED_BL_NORMALIZATION_20261111.md),
 [timing/work ledger](Handbook/ADAPTATION_TIMINGS.md) and [HowToProceed](HowToProceed.md).
-Detailed prior state, source/build/input receipts and failures are preserved in
-[pre384history](Handbook/ADAPTATION_HANDOFF_HISTORY_PRE_384_20261111.md); historical
-RUNNING/next-action notes there are not live instructions.
+History/source receipts remain in [pre388snapshot](Handbook/ADAPTATION_HANDOFF_HISTORY_PRE_388_20261111.md)
+and [pre384snapshot](Handbook/ADAPTATION_HANDOFF_HISTORY_PRE_384_20261111.md).
+Historical RUNNING/next-action text is not live state.
 
-## Current source and owned workload — authoritative
+## Actual source/build/owned workload — authoritative
 
-Current workload: ONE connected388MPI6 milestone RUNNING; C++ PINNED.
-R/cases/curved388_seam_mpi6_*/status.json/pins.json own live handle.
-Actual prepared388target replay TERMINAL0/61.718s,5738work/.35924spoint eval:
-all exact same-binding/foot pairs now have bit-identical FULLtensor, normals and
-chord speeds; scalar requested height unchanged. Raw certificate sides still differ
-(as allowed), interior-foot residual remains. R/target_stability388_assessment.json.
-Focused388serial TERMINAL0/251.554s, pins intact/owned identities terminal.
-Build388TERMINAL0/64.133s, actual-host handles terminal; pins intact.
-CFD SHA035ec27fda7abeb7b1b9c0ffb6e9b048e5feaf8f8904aaab35db4dce330be209.
-387diagnostic TERMINAL0/61.793s, all actual-host handles terminal, pins intact.
-Confirmed exact same released-seam binding/foot selects two sides and changes full
-BLtarget2.53%, chord speed.015%; R/target_stability387_assessment.json.388selects
-minimum immutable exact supported facet within SAMEwall/component/body only for
-prepared mobility-dimension2seams. Explicit sides/features/unprepared unchanged.
-Focused serial +actual prepared replay PASS. ONE MPI milestone running; original chord pending.
-Build387test-only passed196.243s; CFD binary byte-identical386.
-Build386and all serial/MPI/point/actual checks TERMINAL;
-all actual-host owned identities verified absent, source/input/binary pins intact.
-R/witness386_qualification.json and geometry_target386_assessment.json.
-Build38.121s; serial51cases/5001assertions59.336s; MPI6passed53cases EVERYrank
-(5163–5366assertions/rank)/64.434s. Midpoint+root12point replays PASS: all5coarse/tight
-pairs have bit-identical feet ANDnormals. Capturedroot bounded convergence passes.
-CFD SHA7a4dc87120d00edca3d7e5a1d5732857964fa9c5c38bd34989c4cd8e44ccac30.
+Current workload: NONE. Build388, serial, MPI6, prepared-target and original-chord
+checks TERMINAL;42actual-host PID/start identities reverified absent, all pins intact.
+R/seam388_qualification.json. Source checkpoint04e7977ebc PUSHED; qualification
+record preserves both passing component checks and FAILED actual-chord outcome.
+Build64.133s. CFD SHA035ec27fda7abeb7b1b9c0ffb6e9b048e5feaf8f8904aaab35db4dce330be209.
+Test SHA d54c2625dc8f1a9dbbc1580cbbed8403169414c2652d948246b2267814826ecb.
+Serial52cases/7288assertions251.554s; MPI6passes54cases EVERYrank,6786–7091assertions/
+rank305.900s. Native MPI BLgeneration still UNQUALIFIED; FIRST_ROWnative1guard remains.
 
-Actual386TERMINAL1/355.005s at SAME300s atlas deadline. Preparation106.972s
-(385137.985;380191.679),8359integrand evaluations(3856219;3804534),composition
-186.889s,totalwork5273871. NO final chord, usable BL or full-target checkpoint.
-This is cheaper completed preparation/more integration progress, not accepted-edge
-or full-workflow speedup; certified query/cut trajectory changes.
+387prepared actual-M6 target proved a root cause: identical exact dim1binding/foot
+with prepared mobilitydim2can select two differential sides, changing COMPLETEtensor
+2.53%/original-chord speed.015%.388canonically chooses the lowest exact supported
+facet only within SAMEwall/component/prepared body at released seams. No coordinate
+coincidence, normal averaging or interior-binding promotion. Genuine features,
+unprepared fallback and explicit forward surface association remain sided. Distance
+certificate/point/normal law unchanged; support/evaluation work charged. Closest
+cache unchanged. All ProjectWall callers audited; bounded review found no blocker.
 
-Next ACTIVE ANALYSIS: complete target stability with EXACT prepared production
-mobility/selected371policy at saved near-endpoint refusal. Existing primitive replay
-386endpoint passed11.536s/5423work, but found two residual modes. Same bit-identical
-foot at identical query can select facet35672vs30335 and normals differ.0175036;
-one other pair still has foot/normal discrepancy on same facet. Crucially standalone
-wall normal uses conservative unprepared-support displacement and masks the side
-change. DO NOT claim production metric impact proven. Source actual pipeline calls
-PrepareReference→PrepareMobility before MakeTargetPolicy; standalone probe does not.
-R/edge_accuracy386_endpoint_assessment.json. Audit/measure full tensor/directional
-value and exact binding/mobility/support, capped-vs-nonimproving proposals and current
-integration error before selecting another correction. No more speculative minimizer
-variants/cap increases/tolerance changes. Canonical smooth-seam normal-side choice
-is only a hypothesis; preserve explicit sides, genuine features, bodies and heights.
+Prepared388replay12points PASS61.718s,5738point work vs3875519(+3.97%); exact same-
+binding/foot pairs now bit-identical FULLtensor, normal, chord speed and scalar height.
+R/target_stability{387,388}_assessment.json. Separate dim2same-facet pair still has
+9.82e-10foot shift/2.50e-7relative speed discrepancy. No global normal-accuracy proof.
 
-386production correction is local22lines plus captured regression: reuse flat
-initialization and existing active-edge/KKT phase before outward projected2Dline
-search. No new operator, iteration/callback cap, numerical tolerance, target policy,
-geometry representation or configuration. All global certification/gates retained.
-Qualified386source/evidence checkpoint9b6e552ed1 PUSHED. Full chord remains refused.
+Original388chord FAILED again SAME300s atlas/600souter: wrapper356.000s, preparation
+111.088s (386106.972),8163integrand evaluations (3868359),composition182.703s,
+contextwork5114485. CPU350.19user+1.05system/351.55command-wall;99%CPU, not evidence
+of major contention. Timers overlap; no final length, mesh or workflow speedup.
+R/geometry_target388_assessment.json. Refusal q=[.0023826985501798066,
+3.2580523622618771e-6,-.0076345929016125059],hint10154,wall0,error2e-12.
 
-Actual385TERMINAL1/358.142s, pins intact/all owned actual-host identities terminal.
-Preparation137.985s (380191.679),6219integrand evaluations (3804534),composition
-153.566s; still NO length. R/geometry_target385_assessment.json. Root point385replay
-passed11.538s but10fresh proposals hit64cap/0improvements; normal variation
-2.06e-7–5.96e-7 remains. R/edge_accuracy385_root_assessment.json.
-Saved exactfacet30335numerical probe isolates outward2Dbacktracking at active
-constraint: stock64cap fails3/3starts (full87–166calls). Existing edge/KKT handoff
-converges22–31calls/3of3.386integrates that measured correction; no capped iterate
-retention, no cap increase.86ec45767dpreserves exact failure/diagnosis.
+## Next ACTIVE analysis — remain stage2, no new production variant selected
 
-Serial385passed4977assertions/50cases; MPI6passed29cases EACHrank; midpoint12point
-normals stabilized to~1e-16 at3180work. Root-specific failure above narrows blocker.
-Build385passed28.110s; CFD SHA3a65b4b43d0f844365a4ffe669a6da7cd790b2223e572c6216346e0b53394f9b.
-Qualified primitive checkpointb86c50be50 pushed;384compile-test failure3d1866448b
-preserved. No usable BLmesh or complete target checkpoint yet.
+Use existing saved edge/counters and source to attribute quadrature work/error to
+physical combined-target variation versus candidate-foot/normal noise, bounds and
+accuracy requirements. No more speculative minimizer/seam variants, raised caps,
+relaxed tolerances, new baseline/perf/GDB campaign. Need a bounded analysis of the
+existing integration panels/remaining uncertainty before another correction.
+388fixes a demonstrated target inconsistency; useful chord completion is not proven.
 
-Implementation384hypothesis: reuse existing normalized MinimizeTriangle to improve
-upper witnesses before and after the complete distance traversal. At most64charged
-callbacks per proposal inside the original total budget; nonconvergence/invalid
-proposal falls back. Canonical binding +outward ParameterBox/Blossom certifies every
-new witness. Full allowed-component lower search and final clearance remain; cache
-only complete final results.4096Badditional scratch admitted, no configured budget
-increase. New attempt/improvement/work counters use existing geometry stats.
-Optional pre-search work CAN reduce remaining traversal budget; actual benefit and
-availability must be measured, not assumed. No numerical tolerance, gate, target
-policy, normal law, new config/scheduler or CAD dependency changed.
+Audit classification/ranking/balanced insertion/candidate conformity/final checks
+separately. Existing analytic SensorEdgeLength is a mathematical lower-bound route
+where composition preserves sensor, with outward numerical margin still required
+for a proof. Hard edge sensor.388is inconclusive. No ready composed upper bound found.
+Do not use classification bounds/GL10estimates as accurate ranking/placement/final
+measurements. Existing G7/K15error estimator is NOT a conservative integral enclosure.
+382GL10controls show up to1.7%error; actual M6reference refused, actual error UNKNOWN.
+Uncertain bounds/refinement exhaustion must fall back/refuse, never accept.
 
-Completed386validation scripts/receipts are preserved; reuse passing evidence until
-affected code or inputs change. Do not repeat them as a baseline campaign. The next
-work is the prepared complete-target sensitivity analysis above.
+383WHOLE-EDGE EXCLUSION QUALIFIED: all-wall/full-influence conservative support bounds
+in both factories; exact analytic P1integration/inverse bypass with versioned identity
+checks. Serial23cases, MPI6 25cases EVERYrank,5actual-context controls. Original5M6edges
+remain nonexcluded/full path; translated outside controls exact background agreement
+and0composed samples. R/edge_exclusion383_qualification.json.380shared closest/cache,
+385bounded certified witnesses and386active-edge/KKT correction preserved.386prep
+improved versus380but still no scalar. Reuse qualifying evidence within its scope.
 
-## Demonstrated blocker and prior qualification
-
-Actual383point replay TERMINAL0/12.861swrapper (7.615sprobe),248assertions/12points,
-2870work; source/input/binary pins intact, all actual-host handles terminal.
-R/edge_accuracy383_point_assessment.json. At identical q,2e-12→2e-14distance request
-changes foot3.8065e-8, normal2.7683e-6 and normal-only chord speed4.8824e-5relative.
-Nearby coarse queries share EXACTLY one dyadic candidate, then jump. Exact repeats
-cost1work. This demonstrates candidate-normal discretization; a distance-width
-certificate alone does not certify normal accuracy. The original tangent-policy
-probe is geometry attribution, NOT full selected371target acceptance. Tight answers
-are not exact normal certificates. Source proposes only vertices/dyadic points;
-existing bounded minimizer is now selected from this evidence, not merely literature.
-
-382diagnostic TERMINAL1/359.211s, original300s geometry deadline. Preparation
-186.895s/296cuts; GL10whole estimate39.19917in.298s/3634work. Widest retained interval's
-numerical reference refuses after7384evaluations/106.016s. Actual GL10errors UNKNOWN.
-Scalar diagnostic reparameterization adds rounding and does not reproduce the exact
-production trajectory. Analytic normal-profile controls have up to1.7%error and
-near-threshold decision differences. No fixed-rule replacement/tolerance relaxation
-or conservative action enclosure was established. R/edge_accuracy382_assessment.json.
-
-383complete outside-edge capability QUALIFIED: build434.447s; serial2664assertions/
-23cases/4.648s; MPI6passed25cases EVERYrank (2826–3029assertions/rank)/5.523s;
-actual5contexts78.990s. All owned actual-host identities terminal/pins intact.
-R/edge_exclusion383_qualification.json. All5translated outside controls have exact
-target/background analytic lengths and0composed edge samples. All5ORIGINAL M6edges
-remain ambiguous/full path; no hard-edge/workflow speedup. Exact per-edge sensor
-identity has dependency checks; stale contexts refuse. Existing analytic P1integral
-and inverse reused. CFD SHAa0c14c47d7a5f65578da0781748ca1b2beab2aaad09f7e38a45f046603bbf654.
-
-380shared complete closest certificates/unchanged prepared regions are preserved.
-Preparation191.679s,4534integrand evaluations,100.308scomposition before the unchanged
-300s atlas deadline; no complete chord. Timers overlap; see ledger. The earlier broad
-MPI380campaign is NOT wholly green:84of85cases pass on every rank; unchanged planar
-automatic-repair fixed-count assertion expects3cells but gets6. Modified geometry/
-cache/constraint checks pass. Preserve/backlog before final broad integration; do
-not weaken it or start a competing repair cycle. Native MPI BLgeneration remains
-unqualified: FIRST_ROW1production guard still exists.
+Earlier broad MPI380was NOT wholly green:84of85cases pass EVERYrank; unchanged planar
+automatic-repair fixed-count assertion expects3cells but gets6. Keep failure/backlog
+before final broad integration; do not start a competing repair cycle.
 
 ## Stage inputs and credible-output requirements
 

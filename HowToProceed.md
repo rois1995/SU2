@@ -30,8 +30,13 @@ Prepared387production-mobility/full-target replay now demonstrates the near-endp
 cause: same exact dim1binding/foot, different closest differential sides,2.53%tensor
 change and.015%chord-speed change.388implements deterministic exact-supported-side
 selection only on prepared released seams, within the same wall/component/body.
-Current build/check handle is in handoff; serial, prepared replay, one MPI milestone
-and original chord must establish behavior and useful progress before claiming gain.
+All388handles are terminal. Serial52cases/7288assertions and MPI6 54cases EVERYrank
+pass; prepared exact-binding tensors are now bit-identical. Original chord STILL
+refuses same300s atlas deadline:111.088spreparation/8163evaluations, no scalar.
+No performance gain is established. Next bounded analysis must attribute existing
+quadrature error/work and remaining geometry uncertainty to actual caller accuracy
+requirements, before selecting another production change. No more speculative
+minimizer/seam variants, larger caps, blanket tolerance reductions or baselines.
 Explicit association sides, genuine features, first-height profile and all gates
 remain. A separate same-facet interior-foot discrepancy is still unresolved.
 No tolerance or ten-point replacement is justified. Analytic sensor-only lower
