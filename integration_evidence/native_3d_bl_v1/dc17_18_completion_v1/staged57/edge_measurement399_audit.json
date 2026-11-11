@@ -1,0 +1,53 @@
+{
+  "scope": "Evidence and source audit of construction edge accuracy requirements; no classification/insertion/final accuracy changes.",
+  "difficult_edge": {
+    "numerical_length": 42.06899590894017,
+    "evaluations": 6375,
+    "initial_evaluations": 4185,
+    "refinement_evaluations": 2190,
+    "initial_intervals": 279,
+    "tiny_intervals_below_parameter_width_1e_10": 248,
+    "tiny_interval_evaluations": 3720,
+    "preparation_seconds": 69.486887857,
+    "composition_seconds": 78.025595838,
+    "total_edge_seconds": 147.516940941,
+    "timers_overlap": true
+  },
+  "contracts": {
+    "classification": "May use a conservative interval excluding a threshold; existing G7/K15 difference is not such an interval.",
+    "ranking": "Existing queue compares scalar lengths and size excess; a bound is not interchangeable.",
+    "insertion": "BalancedSplitPoint requires converged whole length and verifies prefix residual at relative1e-8.",
+    "candidate_conformity": "ValidateMetricChange uses full patch edge excess and maximum, including retained edges.",
+    "final_acceptance": "Unresolved measurements remain failures; existing numerical evaluator unchanged."
+  },
+  "confirmed": [
+    "Whole-edge out-of-BL exclusion qualified383 in both composition factories; outside controls exact background with zero BL compositions.",
+    "Core gradation alone does not grade the continuously recomposed BL target.",
+    "394 shared geometry projection correction qualified serial/MPI/actual; original difficult edge completes under unchanged bounds.",
+    "248 tiny initial intervals still get15point evaluation; deleting ownership/transition cuts is unjustified."
+  ],
+  "unresolved": [
+    "No conservative composed-speed interval is exposed by current EdgeGeometry; nearest-distance width does not bound normal/tensor error.",
+    "A certified lower bound alone would help split classification but not existing ranking/insertion/publication measurements.",
+    "Prescribed normal growth, curved-frame rotation, feature transitions and query noise are not causally separated by nodal gradation counts.",
+    "Savings on tiny intervals need valid tensor bounds and total error accounting; no conditional speedup is established."
+  ],
+  "input_sha256": {
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/prepared394_qualification.json": "27139504ad7882c15461955334d8dfcce397abeb7903c4b6e9ffc957fadc9bb6",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/target_panels394_assessment.json": "2d8c7743143dc9e2a20e6670e30cbb8b1e37e0a0167d4c782c3f97fb0ddd6dec",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/edge_accuracy394_assessment.json": "38e9b08a82fc2bafc09504fe62b6c471e691d652c585027c443b5572dc058ce5",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/edge_exclusion383_qualification.json": "b39cab2b61c2841682741198fd9a9a954aad052641cd62e024598be918424dbb",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/composed_gradation399_assessment.json": "13d0580a31410d20f326fddc2c37e5ed46be32b1bca7fb9961e70b80096df21a"
+  },
+  "source_sha256": {
+    "Common/src/adaptation/CNativeField3D.cpp": "7c5f6e86eae2faf354c460c54c0ad872ab639b587ed03c43d8d8d9796773f4de",
+    "Common/include/adaptation/CNativeField3D.hpp": "01781b0690e771e637029655674b348a53c6d0844b9172f4ff33453db698aa49",
+    "Common/src/adaptation/CNativeMetric3D.cpp": "a6a0a8552b016e75e749b9654920a44f395600654bf03220812cd83424f014be",
+    "Common/src/adaptation/CNativeRegionField3D.cpp": "9acff7c50c7f602897258933c0ef3b790a15dd7b496e77b152cc106f9c3142ba",
+    "Common/src/adaptation/CNativeEngine3D.cpp": "c3a61d36d1cac11de9709f7df0f4d0b0903ee417135ae98ac1b7fece78ea8754",
+    "SU2_CFD/src/adaptation/CBoundaryLayerMetric.cpp": "aca2d5976b29329df72cca94a4b5964104061c54a2881720873a44299d585ec6",
+    "SU2_CFD/src/solvers/CSolver.cpp": "4d60b5e4474b3d1623ce34d70e90c2143f9dedbbc6acc568c364cf0ba3ddb7f6"
+  },
+  "production_precision_change": false,
+  "full_workflow_complete": false
+}

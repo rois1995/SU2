@@ -100,7 +100,7 @@ The target/planning baseline does not establish accepted shape or coherent cover
 Local curvature proxy deficiency remains a hypothesis, not proof that a new geometry
 metric is necessary. No production target correction is selected from these results.
 
-## Next bounded discrimination, still stage2
+##399 completed bounded discrimination, still stage2
 
 The missing data are the CURRENT actual centroid metric frames of the saved cells;
 old358frame tensors came from a different uniform control. Reuse the existing compact
@@ -117,3 +117,33 @@ needed, reuse existing coupled connectivity/relocation with complete relevant su
 current nodal transport and global clearance. Partial savedunion already has incomplete
 height obligations; weakening those to pass a repair is not permitted. Coordinate
 controls and local proxy do not justify a new scheduler, larger cavity or policy.
+
+
+399 exported existing centroid tensors/base samples without new queries. Build210.225s,
+actual115.188s; saved measurements and146337geometrywork byte-identical398. All1652pins
+and actual-host terminal identities reverified. Independent q/J disagreement≤1.943e-16.
+Frozen-centroid fixed-face optimal-apex controls within allowed planeheight give
+q>.2 for ALL5wallcells. Therefore current diagnostic does NOT establish fixed-face
+metric/height incompatibility. Actualapex/frame normal alignment is>.99999992;
+normal-only frame rotation does not make wall cells pass. Tangent-matrix factors8/16
+make5wallcells pass in the control but20othercells remainbad. These are neither
+actual moved-point queries nor evidence for choosing a different production target.
+R/saved_row399_sensitivity.json preserves controls and limits.
+
+Read-only current composed nodal transport audit exactly reproduces123186bad,
+maximum3115659.1964465, core0. Wall→wall52955;wall→nonwall2145;reverse5780;
+nonwall→nonwall62306.52945wall→wallbad pairs have strong dominant eigenaxes at
+bothends (ratio>1e4); median axischange.29975degrees,maximum89.4494. Worstpair64→4184
+turns30.08degrees nearroot/LE. Axis is not a certified normal, nonwall includes
+symmetry/farfield, and nodal transport is not continuous-field certification.
+No policy change follows from this count alone; it localizes the combined target
+assessment and forbids treating core gradation as combined gradation.
+
+Operator review: single MoveVertex cannot coordinate wall+heightapices; connectivity
+repair fixes cavity skin. Existing SplitSurfaceStrip (bounded multi-move), RefitWallSplit
+and BL transactions already coordinate some wall/volume operations. Reuse them before
+adding operators. Saved25apex-only stars are locally closed (fiveapices61347–61351,
+fourincidentcells each,no extra84union incidence), but old captures lack live ownership,
+versions/current nodal values/globalclearance for a production admission claim.
+Next admissible feasibility trial must retain complete relevant supports, requested
+heights and private position-dependent evaluation. Do not declare raw controls accepted.

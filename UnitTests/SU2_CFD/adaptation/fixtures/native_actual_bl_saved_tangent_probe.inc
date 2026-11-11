@@ -113,6 +113,10 @@
       FirstHeightReport height;bool heightPass=false;
       try {heightPass=CheckFirstHeight(patch,heights,ref,height,heightReason);}catch(const std::exception& e){heightReason=e.what();}
 
+      std::ofstream frames;
+      if(checkpointTarget) {
+        frames.open(std::string(label)+"_frames.jsonl");REQUIRE(bool(frames));frames<<std::setprecision(17)<<std::boolalpha;
+      }
       std::map<std::array<double,3>,PointSamples> samples;
       auto ensurePoint=[&](Point p) {
         const std::array<double,3> key{{p.x,p.y,p.z}};
@@ -168,6 +172,19 @@
             if(shared!=3)continue;
             if(heights.count(ref.Get(f.facet).marker)){wallAdjacent=true;break;}
           }
+          if(checkpointTarget) {
+            const auto& baseSamples=samples.at({cp.x,cp.y,cp.z}).base;
+            const auto at=std::find_if(baseSamples.begin(),baseSamples.end(),[](const auto& q){return q.wall==0;});
+            REQUIRE(at!=baseSamples.end());const auto& sample=at->sample;
+            frames<<"{\"cell\":"<<c.id<<",\"centroid\":["<<cp.x<<','<<cp.y<<','<<cp.z<<"],\"metric\":["
+                  <<center.xx<<','<<center.xy<<','<<center.xz<<','<<center.yy<<','<<center.yz<<','<<center.zz
+                  <<"],\"q\":"<<measured.mean_ratio<<",\"J\":"<<measured.minimum_scaled_jacobian<<",\"wall_child\":"<<wallAdjacent
+                  <<",\"wall0_distance\":"<<SU2_TYPE::GetValue(sample.distance)<<",\"wall0_normal\":["
+                  <<SU2_TYPE::GetValue(sample.normal[0])<<','<<SU2_TYPE::GetValue(sample.normal[1])<<','<<SU2_TYPE::GetValue(sample.normal[2])
+                  <<"],\"wall0_hn\":"<<SU2_TYPE::GetValue(sample.hn)
+                  <<",\"control_target_only\":false,\"complete_target_checkpoint\":true,\"saved_coordinate_diagnostic\":true}"<<std::endl;
+            REQUIRE(bool(frames));
+          }
           if(wallAdjacent){++wallCells;minQWall=std::min(minQWall,measured.mean_ratio);minJWall=std::min(minJWall,measured.minimum_scaled_jacobian);
             qBadWall+=measured.mean_ratio<MinimumMeanRatio;jBadWall+=measured.minimum_scaled_jacobian<MinimumScaledJacobian;}
           else {++otherCells;minQOther=std::min(minQOther,measured.mean_ratio);minJOther=std::min(minJOther,measured.minimum_scaled_jacobian);
@@ -202,6 +219,7 @@
         saved<<"{\"context\":"<<std::quoted(label)<<",\"status\":\"limited\",\"reason\":"<<std::quoted(e.what())<<",\"factor_measurement_complete\":false}"<<std::endl;
         if(checkpointTarget)throw;
       }
+      if(checkpointTarget){frames.close();REQUIRE(bool(frames));}
       if(!checkpointTarget){policy->full->SelectTangentialScale(originalScale);policy->Update(9.9999999999999734e-5,SU2_TYPE::GetValue(config.GetAdap_Hgrad()));}
       REQUIRE(geometryPass);
       if(std::string(label)=="saved_prepared_repair_before")CHECK(heightPass);

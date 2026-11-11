@@ -1,6 +1,6 @@
 # Native adaptation — current handoff
 
-Updated2026-11-11Europe/Rome. Goal ACTIVE. One connected curved-BLcycle/one heavy job.
+Updated2026-11-12Europe/Rome. Goal ACTIVE. One connected curved-BLcycle/one heavy job.
 R=`integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57`.
 Read AGENTS.md, [ordered stages](Handbook/ADAPTATION_CURVED_BL_STAGE_INTEGRATION_20261111.md),
 [checkpoint](Handbook/ADAPTATION_BL_TARGET_CHECKPOINT_20261111.md),
@@ -12,40 +12,52 @@ preserves detailed394/396provenance; earlier histories remain linked there.
 
 ## Source/build/owned workload — authoritative
 
-Current workload NONE. All398build/serial/MPI/actual handlesactual-host terminal;
-full source/binary/input/runtime pins verified BEFORE any next edits.398actualcase
-R/cases/curved398_checkpoint_target_patches_20261111T224341_3423337 PASS115.252s,
-5contexts/42physical+contribution samples,25-cell row and84-cell union measured,
-frozen full/base profiles/core/radius all unchanged, no CFD/metric recompute/construction.
-R/target_patches398_assessment.json (22.6Massertions mostly repeated source-coordinate
-checks; NOT a mesh capability claim). Source reference identity guard now PASSES.
-Shared PrepareReference fix adopts/validates preloaded legacy first_height_tol like
-fresh path; compute collective memory ceiling before local failure. No tolerance/
-physical metric/operator/config change. Build398PASS210.270s; CFD307c62b04384cbf7f2d7ace740d540e0c64edac30ed66dfa76902701225080a0;
-test2e0b4d16c1a3a7285f824d7f0dd1e31ebc8cdb18a992d8b3ceaae85ecb57fec8.
-Focusedserial6cases/237assertions4.451s; MPI6SAME6/237EVERYrank4.437s. Not nativeMPI
-BLgeneration. Qualified396source/fidelity remains valid where fresh path/codecs/
-metric evaluation unchanged. Source/evidence2652ccf84aPUSHED;398checkpoint pendingpush.
+No owned heavy workload. Build399 and actual399 diagnostic are terminal/PASS;
+actual-host PID+start identities rechecked in R/terminal_recheck399.json. All1652
+actual-case source/binary/input/helper pins reverified before documentation edits.
+Unrelated host Python collector left untouched. R/target_patches399_qualification.json.
+Build399210.225s; CFD BYTE-IDENTICAL398:
+307c62b04384cbf7f2d7ace740d540e0c64edac30ed66dfa76902701225080a0;
+test6b81a43a4c3755a8c5d4e60749b01d0d691fd939371553d6bea73b31d08d0558.
+Source/evidence398eeeb02f562PUSHED;399diagnostic checkpoint pending push.
+Actualcase R/cases/curved399_checkpoint_target_patches_20261111T231039_3485346
+PASS115.188s. Single fixture adds bounded25+84 current metric-frame export using
+ALREADYcomputed tensors/samples; no added geometry queries. Saved patch measurements
+BYTE-IDENTICAL398, same146337atlaswork. Reuse398MPIpolicy qualification; no new
+MPIcampaign for diagnostic output. NativeMPI BLgeneration remains unqualified.
 
-398row25positive/geometrypass(max6.404e-7)/firstheightpass(maxrel.001745), but5/5wall
-and20/20other centroid q/Jbad (minq.06125wall/.000413other,minJ.006745wall/9.55e-6other).
-Union84positive/geometrypass(max5.420e-5),39wall+29other centroid q/Jbad;34neighbor-only
-heightfailures from incomplete adjacent layers. Approximate endpoint/centroid edge
-statistics are NOT exact conformity. No usableBL or admissible new replacement.
-Original5context planning maxima .836/1.158/.963/.516/1.714: not surface readiness.
-397failure preservedR/target_patches397_refusal.json; no contexts measured there.
+Independent R/saved_row399_sensitivity.json reproduces centroid q/J to1.943e-16.
+All25saved-row cells remain q/Jbad despite positivity/geometry/firstheight passing.
+All5wall cells have frozen-centroid fixed-face/allowed-plane-height optimum q>.2:
+this CONTROL does NOT prove target incompatibility. Existing apex normal alignment
+>.99999992. Rotating only tensor frame toward face normal remains insufficient;
+finer tangent tensor controls improve wall cells but20other cells staybad. Controls
+are NOT position-dependent target evaluations, actual moves or admissible replacements.
+Saved coordinates are older358construction, original396P1source is a controlled field,
+not a reconstruction of old generated-node transported tensors. Union84has incomplete
+adjacent layer heights; do not relax them. Existing MoveVertex handles one fullstar;
+RepairMetricConnectivity fixes cavity skin, so cannot test coordinated wall motion.
+Reuse existing SplitSurfaceStrip/RefitWallSplit/rowtransactions for any justified
+coupled proposal, with live complete support/current nodal transport/globalclearance.
 
-Next ONE bounded hypothesis: distinguish fixed-face placement limitations from target/
-surface-resolution mismatch and insufficient coupled connectivity. Reuse existing
-metric-frame capture format/independent saved_row369 quality algebra on CURRENT398
-centroid tensors. Add only missing diagnostic frame output (no extra geometryqueries),
-then compute a frozen-centroid-metric optimal-apex upper control under prescribed
-plane-height interval, and orientation/tangent controls. These are NOT full-field
-feasibility proofs or a new metric policy. Existing raw358frames used uniformcontrol
-and cannot substitute current field. Do not select curvature/tangent metric from
-local proxy or fitted q improvements alone. Before actual repair trials use existing
-complete dependencies, transported nodal authority and global clearance; do not treat
-partial saved84union as complete generated BL. See current assessment design.
+NEW read-only R/composed_gradation399_assessment.json independently reproduces ALL
+123186nodal composed transport violations/max3115659.1964465; core0bad. Wall→wall52955,
+wall→nonwall2145, reverse5780, nonwall→nonwall62306. Nonwall includes otherboundary.
+52945wall→wallbad pairs have eigenratio>1e4 at bothends; median dominant-axis change
+.29975degrees, maximum89.4494. Worst ratio pair64→4184 turns30.08degrees nearroot/LE.
+Dominant axis is not a certified normal; no continuous gradation/causal noise proof.
+No target correction selected from counts or local curvature proxies alone.
+
+Edge investigation disposition:383whole-edge exclusion remains qualified in BOTH
+factories.394shared projection fix already resolves original measurement deadline;
+no lower-precision/classification scalar substituted. R/edge_measurement399_audit.json
+and Handbook/ADAPTATION_BL_EDGE_ACCURACY_20261112.md audit classification/ranking/
+insertion/conformity/final callers.394saved trace has248/279initial intervals narrower
+than1e-10parameter consuming3720/6375evaluations; cuts retain ownership/transition
+information. G7/K15difference is not a conservative interval. No exposed conservative
+composed-speed bound justifies skipping these samples or early classification yet.
+No extra baseline/perf/GDB or new scheduler/config/limit. Remain in ordered stage2.
+
 All396producer/reload/build/serial/MPIhandles actual-host terminal; full pins verified
 BEFORE edits. Qualified396 source/evidence2652ccf84aPUSHED; sourceimplementationb2d18d8f30.
 Qualified complete target checkpoint396, R/target_checkpoint396_qualification.json:
@@ -92,14 +104,13 @@ cause. Mapped BL wall evaluation currently has no analytic curvature cap; final
 geometry certification remains independent. Do NOT add a curvature metric from this
 alone. Existing unproven alternatives remain in Handbook/ADAPTATION_BACKLOG.md.
 
-Next one diagnostic connection: use EXACT decoded policy + complete original P1
-sourcecore in existing5-context front and saved35825-cell/84-neighbor diagnostics.
-No profile mutation/finalscalar recipe/uniform-core substitution. Preserve association/
-body/feature/height/reference support; generated nodes need original-donor interpolation.
-Journal contribution/centroid/strict geometry/height data before costly chords; reuse
-396same-target chord rather than redo it per context. Target and original-cavity
-quality diagnostics are provisional, not final whole-field acceptance. See current
-assessment design before editing. Production metrics/operators remain unchanged.
+Exact saved-policy5-context/25-cell/84-neighbor assessment completed398/399,
+not pending. Next bound actual coupled placement/construction feasibility using
+complete existing supports and operators; distinguish physical target requirements
+from incomplete transition and constrained skin. Do not choose a new curvature target
+from sampled proxy or matrix controls. The stage2 suitability limitation remains
+explicit before declaring surface input credible. Current diagnostic/control evidence
+and scope are in Handbook/ADAPTATION_BL_TARGET_ASSESSMENT_20261111.md.
 
 R/cases/curved396_saved_cfd_metric_stage_20261111T214613_3294100/selected_core_native.bin
 is an exact existing-format derived CORE-only export, SHA in core_allocation_assessment.json;

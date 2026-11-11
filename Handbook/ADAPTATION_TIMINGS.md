@@ -870,3 +870,20 @@ runtime-authority preparation/self-validation. Largest sampled singleRSS14736302
 not wholejobpeak.22.6Massertions mostly repeated sourcecoordinate checks are not
 quality progress. All25saved-row cells remain centroid q/Jbad despite geometry/height
 passing; union68/84q/Jbad,34incomplete-neighbor height failures. No acceptedmesh time.
+
+
+##399 frame and saved-data assessment (no production optimization)
+
+Build210.225s; actual5-context diagnostic115.188s vs398115.252s. This difference is
+NOT a speedup. Production CFD is byte-identical398; patch measurements byte-identical,
+atlaswork146337unchanged.25+84frame rows reuse existing samples/tensors, zero additional
+geometry queries. Largest sampled singleRSS1473998848B is not wholejobpeak.
+Independent q/J/control analysis.098s; composed nodal transport localization8.061s
+wall on single-threaded libraries. No CFD/geometry requests in either offline analysis.
+Counts123186composed violations exactly reproduce original C++ audit; core0.
+
+Existing394difficult-edge trace:248/279initial intervals narrower than1e-10parameter
+consume3720/6375evaluations. Initialtotal4185,refinement2190; prep69.487s,composition
+78.026s nested within147.517s edge total. We have evaluation attribution, not per-tiny-
+interval timing or a proved dispensability bound. No query/time saving claimed from
+this observation. See edge accuracy audit; no precision or final-gate change.

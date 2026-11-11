@@ -1,0 +1,779 @@
+{
+  "scope": "Read-only localization of the existing nodal transport audit; not a continuous-field or acceptance certificate.",
+  "nodes": 61330,
+  "undirected_edges": 389165,
+  "directed_edges": 778330,
+  "core_bad": 0,
+  "composed_bad": 123186,
+  "cpp_reported_bad": 123186,
+  "cpp_count_reproduced": true,
+  "maximum_ratio": 3115659.1964465133,
+  "cpp_rounded_maximum_ratio": 3115660.0,
+  "cpp_maximum_reproduced_to_print_precision": true,
+  "categories": {
+    "wall_to_wall": {
+      "directed_edges": 116610,
+      "bad": 52955,
+      "bad_both_axes_dominant": 52945,
+      "dominant_axis_angle_degrees_quantiles": [
+        0.0,
+        0.06600384421884628,
+        0.29975017856342173,
+        1.179008386465401,
+        89.44939379607595
+      ],
+      "maximum_ratio": 3115659.1964465133
+    },
+    "wall_to_nonwall": {
+      "directed_edges": 63944,
+      "bad": 2145,
+      "bad_both_axes_dominant": 0,
+      "dominant_axis_angle_degrees_quantiles": [],
+      "maximum_ratio": 90.3609524651203
+    },
+    "nonwall_to_wall": {
+      "directed_edges": 63944,
+      "bad": 5780,
+      "bad_both_axes_dominant": 0,
+      "dominant_axis_angle_degrees_quantiles": [],
+      "maximum_ratio": 15576.336152075943
+    },
+    "nonwall_to_nonwall": {
+      "directed_edges": 533832,
+      "bad": 62306,
+      "bad_both_axes_dominant": 0,
+      "dominant_axis_angle_degrees_quantiles": [],
+      "maximum_ratio": 124.55052320036329
+    }
+  },
+  "worst20": [
+    {
+      "a": 64,
+      "b": 4184,
+      "a_point": [
+        -6.134604418e-14,
+        -1.062527844e-13,
+        -2.220446049e-16
+      ],
+      "b_point": [
+        0.004052326190574358,
+        0.007019120774940143,
+        2.219979883720242e-16
+      ],
+      "a_markers": [
+        "SYMMETRY",
+        "WING3D"
+      ],
+      "b_markers": [
+        "WING3D"
+      ],
+      "ratio": 3115659.1964465133,
+      "core_ratio": 0.9316420693122359,
+      "physical_length": 0.0081049,
+      "dominant_axis_angle_degrees": 30.078622596789092,
+      "a_spectrum": [
+        3214.6987600141238,
+        5927.231800081224,
+        250000000225.71152
+      ],
+      "b_spectrum": [
+        2925.7829737514917,
+        6216.89709394201,
+        250000000155.35675
+      ],
+      "b_dominant_axis_fraction_of_chord_metric": 0.993863333785822
+    },
+    {
+      "a": 67,
+      "b": 17814,
+      "a_point": [
+        0.01711331402844765,
+        -1.062527844e-13,
+        -0.01867540662924493
+      ],
+      "b_point": [
+        0.02213959864763668,
+        0.008690725968301127,
+        -0.01864041281061645
+      ],
+      "a_markers": [
+        "SYMMETRY",
+        "WING3D"
+      ],
+      "b_markers": [
+        "WING3D"
+      ],
+      "ratio": 1798064.3458486774,
+      "core_ratio": 0.9965605360942221,
+      "physical_length": 0.010039595584404225,
+      "dominant_axis_angle_degrees": 13.55699141396803,
+      "a_spectrum": [
+        3107.5664959268324,
+        3990.902218669871,
+        250000000009.16098
+      ],
+      "b_spectrum": [
+        2931.3983764780623,
+        3655.1910354280035,
+        250000000000.1569
+      ],
+      "b_dominant_axis_fraction_of_chord_metric": 0.9164848521904521
+    },
+    {
+      "a": 271,
+      "b": 7319,
+      "a_point": [
+        0.01711331402844753,
+        -1.062527844e-13,
+        0.01867540662924443
+      ],
+      "b_point": [
+        0.02213959864763668,
+        0.008690725968301127,
+        0.01864041281061645
+      ],
+      "a_markers": [
+        "SYMMETRY",
+        "WING3D"
+      ],
+      "b_markers": [
+        "WING3D"
+      ],
+      "ratio": 1768720.995674809,
+      "core_ratio": 0.9999061187641579,
+      "physical_length": 0.010039595584404284,
+      "dominant_axis_angle_degrees": 13.556991375795775,
+      "a_spectrum": [
+        2999.5390065338865,
+        4591.598763958676,
+        250000000041.78354
+      ],
+      "b_spectrum": [
+        2824.286535654443,
+        4700.716094118675,
+        250000000026.80634
+      ],
+      "b_dominant_axis_fraction_of_chord_metric": 0.9186819393730463
+    },
+    {
+      "a": 74,
+      "b": 17728,
+      "a_point": [
+        0.118315567173494,
+        -1.062527844e-13,
+        -0.03269582925699924
+      ],
+      "b_point": [
+        0.1268287303769517,
+        0.01829948682644265,
+        -0.03237802444153107
+      ],
+      "a_markers": [
+        "SYMMETRY",
+        "WING3D"
+      ],
+      "b_markers": [
+        "WING3D"
+      ],
+      "ratio": 575765.9482206552,
+      "core_ratio": 0.882757544121172,
+      "physical_length": 0.020185295780455578,
+      "dominant_axis_angle_degrees": 3.1683767645043996,
+      "a_spectrum": [
+        808.3579763654061,
+        1318.1394750322956,
+        250000000333.08023
+      ],
+      "b_spectrum": [
+        867.9525199193575,
+        1513.7259135857441,
+        250000001305.37485
+      ],
+      "b_dominant_axis_fraction_of_chord_metric": 0.6840932048418901
+    },
+    {
+      "a": 4291,
+      "b": 5662,
+      "a_point": [
+        0.7279472878201834,
+        1.196299999999894,
+        0.01550524807922069
+      ],
+      "b_point": [
+        0.7240870021830671,
+        1.189595756156663,
+        0.0155536389485927
+      ],
+      "a_markers": [
+        "WING3D"
+      ],
+      "b_markers": [
+        "WING3D"
+      ],
+      "ratio": 326925.13884370617,
+      "core_ratio": 0.9658070170989969,
+      "physical_length": 0.007736344898326682,
+      "dominant_axis_angle_degrees": 6.078144788546187,
+      "a_spectrum": [
+        3918.6741814181482,
+        7080.485072856149,
+        250000000027.69965
+      ],
+      "b_spectrum": [
+        4737.726022072924,
+        6166.200751415124,
+        250000000000.0176
+      ],
+      "b_dominant_axis_fraction_of_chord_metric": 0.38860331087405847
+    },
+    {
+      "a": 14983,
+      "b": 16157,
+      "a_point": [
+        0.7279472878201834,
+        1.196299999999894,
+        -0.01550524807922069
+      ],
+      "b_point": [
+        0.7240870021830671,
+        1.189595756156663,
+        -0.0155536389485927
+      ],
+      "a_markers": [
+        "WING3D"
+      ],
+      "b_markers": [
+        "WING3D"
+      ],
+      "ratio": 316651.95654483803,
+      "core_ratio": 0.9983300749026862,
+      "physical_length": 0.007736344898326682,
+      "dominant_axis_angle_degrees": 6.07814471885397,
+      "a_spectrum": [
+        3921.466376880104,
+        7464.115331705675,
+        250000000476.3345
+      ],
+      "b_spectrum": [
+        4708.546775222149,
+        7293.080930682586,
+        250000000153.17078
+      ],
+      "b_dominant_axis_fraction_of_chord_metric": 0.38645915360332256
+    },
+    {
+      "a": 4297,
+      "b": 5506,
+      "a_point": [
+        0.7886854302363765,
+        1.196299999999894,
+        0.02036823394969098
+      ],
+      "b_point": [
+        0.7841482796075913,
+        1.188455634682555,
+        0.02044649496130549
+      ],
+      "a_markers": [
+        "WING3D"
+      ],
+      "b_markers": [
+        "WING3D"
+      ],
+      "ratio": 259519.84811933717,
+      "core_ratio": 0.9999999999999984,
+      "physical_length": 0.009062335672777538,
+      "dominant_axis_angle_degrees": 6.014613712296351,
+      "a_spectrum": [
+        3172.428141145044,
+        6501.3875107924605,
+        250000002746.28656
+      ],
+      "b_spectrum": [
+        4199.634260012498,
+        6684.278142854078,
+        250000005582.9401
+      ],
+      "b_dominant_axis_fraction_of_chord_metric": 0.5773346508700429
+    },
+    {
+      "a": 14989,
+      "b": 16001,
+      "a_point": [
+        0.7886854302363765,
+        1.196299999999894,
+        -0.02036823394969098
+      ],
+      "b_point": [
+        0.7841482796075913,
+        1.188455634682555,
+        -0.02044649496130549
+      ],
+      "a_markers": [
+        "WING3D"
+      ],
+      "b_markers": [
+        "WING3D"
+      ],
+      "ratio": 248014.42888921333,
+      "core_ratio": 0.8587108364073226,
+      "physical_length": 0.009062335672777538,
+      "dominant_axis_angle_degrees": 6.014613869645204,
+      "a_spectrum": [
+        3215.4702485950334,
+        6799.424573710322,
+        250000000907.90994
+      ],
+      "b_spectrum": [
+        4151.266080049742,
+        6132.814999227854,
+        250000002268.73495
+      ],
+      "b_dominant_axis_fraction_of_chord_metric": 0.5804526103288749
+    },
+    {
+      "a": 273,
+      "b": 8370,
+      "a_point": [
+        0.002380958890740336,
+        -1.062527844e-13,
+        0.007634829294803963
+      ],
+      "b_point": [
+        0.005985127462594315,
+        0.006749924753011305,
+        0.007145077741415979
+      ],
+      "a_markers": [
+        "SYMMETRY",
+        "WING3D"
+      ],
+      "b_markers": [
+        "WING3D"
+      ],
+      "ratio": 233243.09412358224,
+      "core_ratio": 0.9773730593285177,
+      "physical_length": 0.007667553185412868,
+      "dominant_axis_angle_degrees": 28.830596849902815,
+      "a_spectrum": [
+        3996.9839351940523,
+        7321.547868113225,
+        250000000509.5971
+      ],
+      "b_spectrum": [
+        2967.965135515003,
+        7532.821940591781,
+        250000000007.18665
+      ],
+      "b_dominant_axis_fraction_of_chord_metric": 0.9995037027052373
+    },
+    {
+      "a": 65,
+      "b": 18865,
+      "a_point": [
+        0.002380958890740337,
+        -1.062527844e-13,
+        -0.007634829294804406
+      ],
+      "b_point": [
+        0.005985127462594315,
+        0.006749924753011305,
+        -0.007145077741415979
+      ],
+      "a_markers": [
+        "SYMMETRY",
+        "WING3D"
+      ],
+      "b_markers": [
+        "WING3D"
+      ],
+      "ratio": 228940.0685088073,
+      "core_ratio": 0.9679554644644497,
+      "physical_length": 0.0076675531854128965,
+      "dominant_axis_angle_degrees": 27.188349020185015,
+      "a_spectrum": [
+        3868.47181267661,
+        8359.008106574734,
+        250000000021.70752
+      ],
+      "b_spectrum": [
+        3606.7933690878995,
+        8652.703344610694,
+        250000000020.12234
+      ],
+      "b_dominant_axis_fraction_of_chord_metric": 0.9994943239550725
+    },
+    {
+      "a": 264,
+      "b": 7233,
+      "a_point": [
+        0.118315567173494,
+        -1.062527844e-13,
+        0.03269582925699879
+      ],
+      "b_point": [
+        0.1268287303769517,
+        0.01829948682644265,
+        0.03237802444153107
+      ],
+      "a_markers": [
+        "SYMMETRY",
+        "WING3D"
+      ],
+      "b_markers": [
+        "WING3D"
+      ],
+      "ratio": 219624.22869000203,
+      "core_ratio": 0.8512292548935274,
+      "physical_length": 0.02018529578045557,
+      "dominant_axis_angle_degrees": 3.1683768433752144,
+      "a_spectrum": [
+        933.6010503280356,
+        2032.6748118717176,
+        250000000227.49814
+      ],
+      "b_spectrum": [
+        929.2650377721812,
+        1587.6975453805173,
+        250000000138.3804
+      ],
+      "b_dominant_axis_fraction_of_chord_metric": 0.5666409598844275
+    },
+    {
+      "a": 4303,
+      "b": 5373,
+      "a_point": [
+        0.8456622901758997,
+        1.196299999999894,
+        0.0220935948615619
+      ],
+      "b_point": [
+        0.8403301016828826,
+        1.18901780730352,
+        0.02217621187399717
+      ],
+      "a_markers": [
+        "WING3D"
+      ],
+      "b_markers": [
+        "WING3D"
+      ],
+      "ratio": 203049.73200684387,
+      "core_ratio": 0.9406714160903018,
+      "physical_length": 0.009026039561343064,
+      "dominant_axis_angle_degrees": 4.612016986789429,
+      "a_spectrum": [
+        3364.1385639789137,
+        5040.847221995755,
+        250000000297.33057
+      ],
+      "b_spectrum": [
+        3200.9288884980433,
+        5193.601923757797,
+        250000000719.01404
+      ],
+      "b_dominant_axis_fraction_of_chord_metric": 0.6749173759082859
+    },
+    {
+      "a": 4298,
+      "b": 5464,
+      "a_point": [
+        0.7987221666281538,
+        1.196299999999894,
+        0.02082993077504358
+      ],
+      "b_point": [
+        0.797010554421025,
+        1.189943033892234,
+        0.02097919607161953
+      ],
+      "a_markers": [
+        "WING3D"
+      ],
+      "b_markers": [
+        "WING3D"
+      ],
+      "ratio": 201768.59968805185,
+      "core_ratio": 0.9999999999999998,
+      "physical_length": 0.006585052358963507,
+      "dominant_axis_angle_degrees": 4.743413096061808,
+      "a_spectrum": [
+        3022.4459456715585,
+        6226.507547034208,
+        250000002125.1266
+      ],
+      "b_spectrum": [
+        3707.5001153220974,
+        6528.777328710357,
+        250000005519.8861
+      ],
+      "b_dominant_axis_fraction_of_chord_metric": 0.3165619170631319
+    },
+    {
+      "a": 4292,
+      "b": 5631,
+      "a_point": [
+        0.7367735122263241,
+        1.196299999999893,
+        0.01652010109699704
+      ],
+      "b_point": [
+        0.7314215464458658,
+        1.189984590948565,
+        0.0163818399641187
+      ],
+      "a_markers": [
+        "WING3D"
+      ],
+      "b_markers": [
+        "WING3D"
+      ],
+      "ratio": 196090.29175200884,
+      "core_ratio": 0.9999982947323741,
+      "physical_length": 0.008279314303833246,
+      "dominant_axis_angle_degrees": 6.0766342960114805,
+      "a_spectrum": [
+        2851.5272529229524,
+        6088.404546623827,
+        250000000042.33505
+      ],
+      "b_spectrum": [
+        2847.1670959149046,
+        5616.199266823154,
+        250000000342.1068
+      ],
+      "b_dominant_axis_fraction_of_chord_metric": 0.9662199654977869
+    },
+    {
+      "a": 4305,
+      "b": 5374,
+      "a_point": [
+        0.8629997373281584,
+        1.196299999999894,
+        0.02218018469301012
+      ],
+      "b_point": [
+        0.8581398326945594,
+        1.188766259875418,
+        0.02228991890928655
+      ],
+      "a_markers": [
+        "WING3D"
+      ],
+      "b_markers": [
+        "WING3D"
+      ],
+      "ratio": 194573.78283765173,
+      "core_ratio": 0.9995228248482799,
+      "physical_length": 0.008965933019437372,
+      "dominant_axis_angle_degrees": 4.588172462691166,
+      "a_spectrum": [
+        3802.9959042381515,
+        5431.887445678506,
+        250000000335.23257
+      ],
+      "b_spectrum": [
+        3032.31690703171,
+        4607.746695453567,
+        250000001121.25272
+      ],
+      "b_dominant_axis_fraction_of_chord_metric": 0.6504822754880554
+    },
+    {
+      "a": 14984,
+      "b": 16126,
+      "a_point": [
+        0.7367735122263241,
+        1.196299999999893,
+        -0.01652010109699704
+      ],
+      "b_point": [
+        0.7314215464458658,
+        1.189984590948565,
+        -0.0163818399641187
+      ],
+      "a_markers": [
+        "WING3D"
+      ],
+      "b_markers": [
+        "WING3D"
+      ],
+      "ratio": 189397.09478956746,
+      "core_ratio": 0.9974846139261484,
+      "physical_length": 0.008279314303833246,
+      "dominant_axis_angle_degrees": 6.076634317528618,
+      "a_spectrum": [
+        2903.9757414524393,
+        7907.574029712831,
+        250000000110.3744
+      ],
+      "b_spectrum": [
+        2857.868872593329,
+        7839.292785941141,
+        250000000029.16986
+      ],
+      "b_dominant_axis_fraction_of_chord_metric": 0.9678957706885888
+    },
+    {
+      "a": 4306,
+      "b": 5338,
+      "a_point": [
+        0.871375960973716,
+        1.196299999999894,
+        0.02214344551317909
+      ],
+      "b_point": [
+        0.8673548619465921,
+        1.188682352300822,
+        0.02225693300947001
+      ],
+      "a_markers": [
+        "WING3D"
+      ],
+      "b_markers": [
+        "WING3D"
+      ],
+      "ratio": 181149.5681508656,
+      "core_ratio": 0.9688773502791619,
+      "physical_length": 0.0086145616989448,
+      "dominant_axis_angle_degrees": 4.003466083876107,
+      "a_spectrum": [
+        3414.096832470683,
+        5546.142911085908,
+        250000000350.2233
+      ],
+      "b_spectrum": [
+        3098.461380766412,
+        4770.741004782468,
+        250000001678.18515
+      ],
+      "b_dominant_axis_fraction_of_chord_metric": 0.040023327941289426
+    },
+    {
+      "a": 4304,
+      "b": 5403,
+      "a_point": [
+        0.8544297990553253,
+        1.196299999999894,
+        0.02216436062671485
+      ],
+      "b_point": [
+        0.8490423582308,
+        1.188938966100266,
+        0.02225962400933868
+      ],
+      "a_markers": [
+        "WING3D"
+      ],
+      "b_markers": [
+        "WING3D"
+      ],
+      "ratio": 176619.13480911712,
+      "core_ratio": 0.9781445859715672,
+      "physical_length": 0.009122412719303112,
+      "dominant_axis_angle_degrees": 4.1121132376549525,
+      "a_spectrum": [
+        3539.9297514167542,
+        5175.442649844999,
+        250000000198.1239
+      ],
+      "b_spectrum": [
+        2926.5821298827555,
+        4664.319696182243,
+        250000000538.45914
+      ],
+      "b_dominant_axis_fraction_of_chord_metric": 0.4467684822382626
+    },
+    {
+      "a": 14990,
+      "b": 15959,
+      "a_point": [
+        0.7987221666281538,
+        1.196299999999894,
+        -0.02082993077504358
+      ],
+      "b_point": [
+        0.797010554421025,
+        1.189943033892234,
+        -0.02097919607161953
+      ],
+      "a_markers": [
+        "WING3D"
+      ],
+      "b_markers": [
+        "WING3D"
+      ],
+      "ratio": 176288.4602237473,
+      "core_ratio": 0.9541605674623606,
+      "physical_length": 0.006585052358963507,
+      "dominant_axis_angle_degrees": 4.743413130442826,
+      "a_spectrum": [
+        2825.510009400981,
+        7094.3557687625425,
+        250000001205.85574
+      ],
+      "b_spectrum": [
+        3901.9796543771026,
+        8650.56732654653,
+        250000002364.46185
+      ],
+      "b_dominant_axis_fraction_of_chord_metric": 0.2664029217060527
+    },
+    {
+      "a": 4300,
+      "b": 5430,
+      "a_point": [
+        0.8181348500558248,
+        1.196299999999894,
+        0.02152908614656558
+      ],
+      "b_point": [
+        0.8134076664284161,
+        1.189270143296254,
+        0.02158978755021659
+      ],
+      "a_markers": [
+        "WING3D"
+      ],
+      "b_markers": [
+        "WING3D"
+      ],
+      "ratio": 175499.3514212316,
+      "core_ratio": 1.0000000000000027,
+      "physical_length": 0.008471648893890585,
+      "dominant_axis_angle_degrees": 4.679706667228001,
+      "a_spectrum": [
+        2956.5391220286133,
+        7173.640609148061,
+        250000002301.12582
+      ],
+      "b_spectrum": [
+        3274.5872777447275,
+        7199.487010227589,
+        250000004616.03506
+      ],
+      "b_dominant_axis_fraction_of_chord_metric": 0.001611702520424478
+    }
+  ],
+  "input_sha256": {
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_bl_inputs/rans_metric_entry364_v1/m6.su2": "8c839170eb5e359f7de6a41434aa6a9c2d620053f37de6d9360bd04d2a63088b",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/target_checkpoint396_producer.json": "6fa170cac891b882c1946581a855b9b846db78ee8c747db68f0885d33b4709e1",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/assess_target_directions396.py": "7a67765c4db42a3f52f2c46015633e9be6e8fcf7c037361de01f81465d1119b9",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved396_saved_cfd_metric_stage_20261111T214613_3294100/target_rank0.bin": "e25519ad876fbaace4e8f5e10504620b85dbf3d13eb64e91799cb3bafd0c1a65",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved396_saved_cfd_metric_stage_20261111T214613_3294100/target_rank1.bin": "69369a62707cff18e71d8f545f1303190f76bc28aa87cf1610e47e4963c18a32",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved396_saved_cfd_metric_stage_20261111T214613_3294100/target_rank2.bin": "b42c184c7966c8f99d19b37bcd748b1f887b10126c312bc1d93b5f197c1a9068",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved396_saved_cfd_metric_stage_20261111T214613_3294100/target_rank3.bin": "3c5d26a54172bc12671a96d3584c45a2419d1ca5373b7b18bff7d18ff88c3102",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved396_saved_cfd_metric_stage_20261111T214613_3294100/target_rank4.bin": "bb7f0e32670af0aec2ce2d0de7280f43a4deeae753269f48c83482510702c983",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved396_saved_cfd_metric_stage_20261111T214613_3294100/target_rank5.bin": "8feb12360d3c81cf9a4d8a47c55d840a5fe362fc773ff8f08feeee4ba4e87fd2"
+  },
+  "helper_sha256": "99cb6e664a1fbd0222ed92f43116a37fb0596328509b374e4a4fe3e8b10ec861",
+  "seconds": 8.06116502796067,
+  "cpu_seconds": 8.059655669000001,
+  "limits": [
+    "Same original-point full tensors; independent NumPy eigensolver may differ near threshold from production arithmetic.",
+    "Nodal edge transport only, not continuous metric gradation or final mesh acceptance.",
+    "Dominant eigenvector is a diagnostic axis, not a certified surface normal;1e4spectral separation only classifies analysis.",
+    "Nonwall includes symmetry/farfield boundary nodes as well as interior. Genuine feature/seam status not inferred from coordinates or marker membership.",
+    "No new CFD/geometry queries, policy, heights, mesh or operator decisions."
+  ]
+}

@@ -1,6 +1,6 @@
 # How to proceed
 
-Updated2026-11-11 Europe/Rome. [HANDOFF_Codex.md](HANDOFF_Codex.md) is the current
+Updated2026-11-12 Europe/Rome. [HANDOFF_Codex.md](HANDOFF_Codex.md) is the current
 source/build/input/owned-handle authority. Keep ONE connected curved-BL cycle and
 one owned heavy workload. Goal remains ACTIVE.
 Use the [stage integration cadence](Handbook/ADAPTATION_CURVED_BL_STAGE_INTEGRATION_20261111.md)
@@ -226,3 +226,21 @@ then run the full same303 integration workflow at a meaningful milestone.
 Do not re-solve the seed or start another metric/perf baseline campaign. Target
 allocation/curvature/inherited-tangent hypotheses remain unresolved and must not be
 used to bypass this computational blocker or silently change500k/heights/gates.
+
+
+Current399assessment: complete saved-policy patch measurement now exists; do not redo
+checkpoint plumbing. Geometry/firstheight pass on the saved25-cell row, but allcells
+remain centroid q/Jbad. Frozen-metric optimal-apex controls do not prove target
+incompatibility; matrix tangent controls are not actual candidates. Reuse existing
+coupled operators on complete relevant state to distinguish placement/connectivity
+from target mismatch. Do not impose final transition quality on an unfinished row.
+Core gradation0bad does not qualify composed field: independent saved-data audit
+reproduces123186nodal violations. Localize prescribed variation/curved-frame changes
+before selecting a target correction. No new metric policy is currently justified.
+
+The edge precision request has an explicit caller audit in
+[edge accuracy](Handbook/ADAPTATION_BL_EDGE_ACCURACY_20261112.md). Tiny ownership panels
+are measured expensively, but currently lack a conservative composed-speed enclosure;
+G7/K15differences and GL10samples are not bounds. Preserve accurate scalars for ranking,
+insertion and final acceptance. Keep ordered stage2active instead of speculative
+integration changes or another baseline campaign.

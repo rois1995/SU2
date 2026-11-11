@@ -1109,3 +1109,15 @@ cache quotas/active references, cached-vs-recomputed agreement and resource refu
   staged57/normal_progression396_source_review.json. Test actual physical intervals/
   coverage at the growth stage; do not infer them from unchanged profile settings or
   introduce a competing growth-policy correction before current checkpoint fidelity.
+
+
+###399 edge accuracy investigation (unproved alternative, not an active implementation)
+
+Saved394has248tiny initial ownership intervals/3720of6375evaluations. Consider bounded
+integration only if a conservative composed tensor/speed enclosure can be reused or
+proved across both factories, rounded coordinates, normal changes, intersections and
+profile transitions. Preserve cuts/identity and total error accounting. G7/K15error,
+distance width and GL10samples are not such bounds. Classification-only lower bounds
+cannot substitute ranking/insertion/conformity/final scalars. No policy selected;
+remain in current stage2target/coupled-patch assessment. See
+ADAPTATION_BL_EDGE_ACCURACY_20261112.md and staged57/edge_measurement399_audit.json.
