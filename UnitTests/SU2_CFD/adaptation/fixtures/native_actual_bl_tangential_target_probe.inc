@@ -1,5 +1,7 @@
 // Same saved production inputs; centroid/vertex tensor diagnostics are not exact cell quadrature or BL acceptance.
 auto policy=SU2NativeBLPipeline3D::MakeTargetPolicy(config,*reference,1e-4,-1);
+const bool checkpointTarget=false;
+auto savedSensorAt=[&](Point){return Tensor{policy->core,0,0,policy->core,0,policy->core};};
 auto lease=policy->ReserveGeometry(budget);
 std::ofstream out("actual_bl_tangential_target.jsonl");REQUIRE(bool(out));out<<std::setprecision(17);
 for(size_t index=0;index<count;++index) {

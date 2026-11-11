@@ -1,0 +1,2630 @@
+{
+  "scope": "Exact decoded396target on five original actual contexts and saved358row/neighbors; no constructed replacement or final BL acceptance.",
+  "state": "diagnostic_qualified_target_suitability_unproven",
+  "build": {
+    "state": "terminal",
+    "exit_code": 0,
+    "seconds": 210.27032446861267,
+    "pins_verified": true,
+    "changed": [],
+    "completed_build": true,
+    "binaries": {
+      "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver": "2e0b4d16c1a3a7285f824d7f0dd1e31ebc8cdb18a992d8b3ceaae85ecb57fec8",
+      "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/SU2_CFD/src/SU2_CFD": "307c62b04384cbf7f2d7ace740d540e0c64edac30ed66dfa76902701225080a0"
+    }
+  },
+  "focused": [
+    {
+      "attempt": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved398_prepared_serial_20261111T224217_3420064",
+      "status": {
+        "state": "terminal",
+        "exit_code": 0,
+        "seconds": 4.4507904052734375,
+        "pins_verified": true,
+        "changed": [],
+        "largest_sampled_individual_process_rss_bytes": 532480,
+        "rss_note": "sampled process RSS; not a whole-job peak"
+      },
+      "passing_by_rank": [
+        [
+          "237",
+          "6"
+        ]
+      ],
+      "terminal_receipt": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved398_prepared_serial_20261111T224217_3420064/terminal_handles_actual.json"
+    },
+    {
+      "attempt": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved398_prepared_mpi6_20261111T224244_3421137",
+      "status": {
+        "state": "terminal",
+        "exit_code": 0,
+        "seconds": 4.437258243560791,
+        "pins_verified": true,
+        "changed": [],
+        "largest_sampled_individual_process_rss_bytes": 602112,
+        "rss_note": "sampled process RSS; not a whole-job peak"
+      },
+      "passing_by_rank": [
+        [
+          "237",
+          "6"
+        ],
+        [
+          "237",
+          "6"
+        ],
+        [
+          "237",
+          "6"
+        ],
+        [
+          "237",
+          "6"
+        ],
+        [
+          "237",
+          "6"
+        ],
+        [
+          "237",
+          "6"
+        ]
+      ],
+      "terminal_receipt": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved398_prepared_mpi6_20261111T224244_3421137/terminal_handles_actual.json"
+    }
+  ],
+  "attempt": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved398_checkpoint_target_patches_20261111T224341_3423337",
+  "status": {
+    "state": "terminal",
+    "exit_code": 0,
+    "seconds": 115.25169634819031,
+    "pins_verified": true,
+    "changed": [],
+    "largest_sampled_individual_process_rss_bytes": 1473630208,
+    "rss_note": "sampled process RSS; not a whole-job peak"
+  },
+  "terminal": {
+    "actual_host_proc": true,
+    "all_owned_handles_terminal": true,
+    "live_owned_handles": [],
+    "sampled_identities": [
+      {
+        "pid": 3423466,
+        "start_ticks": 48146365
+      },
+      {
+        "pid": 3423467,
+        "start_ticks": 48146365
+      },
+      {
+        "pid": 3423468,
+        "start_ticks": 48146365
+      },
+      {
+        "pid": 3423469,
+        "start_ticks": 48146366
+      }
+    ],
+    "wrapper_excluded": {
+      "pid": 3423337,
+      "start_ticks": 48146097
+    },
+    "checked_unix": 1794437681.8732793
+  },
+  "pins_verified": true,
+  "assertions": [
+    [
+      "22638618",
+      "1"
+    ]
+  ],
+  "complete_contexts": [
+    {
+      "context": "actual_failed_chord",
+      "stage": "target_geometry_only_complete",
+      "geometry_work": 17210,
+      "seconds": 0.844750722,
+      "construction_attempted": false,
+      "production_target_certified": false
+    },
+    {
+      "context": "smooth_upper",
+      "stage": "target_geometry_only_complete",
+      "geometry_work": 9149,
+      "seconds": 0.596716317,
+      "construction_attempted": false,
+      "production_target_certified": false
+    },
+    {
+      "context": "leading_edge",
+      "stage": "target_geometry_only_complete",
+      "geometry_work": 23226,
+      "seconds": 1.289917801,
+      "construction_attempted": false,
+      "production_target_certified": false
+    },
+    {
+      "context": "symmetry_wall_interface",
+      "stage": "target_geometry_only_complete",
+      "geometry_work": 3979,
+      "seconds": 0.24860922500000002,
+      "construction_attempted": false,
+      "production_target_certified": false
+    },
+    {
+      "context": "sharp_edge_candidate",
+      "stage": "target_geometry_only_complete",
+      "geometry_work": 19330,
+      "seconds": 1.14487973,
+      "construction_attempted": false,
+      "production_target_certified": false
+    }
+  ],
+  "physical_samples": [
+    {
+      "context": "actual_failed_chord",
+      "stage": "physical_target_directions",
+      "facet": 35967,
+      "vertex": 18866,
+      "point": [
+        0.01512062227998561,
+        0.01202475892583987,
+        -0.0137755477945289
+      ],
+      "curvatures": [
+        44.05994937033062,
+        -0.02175994513771711
+      ],
+      "directions": [
+        [
+          0.5698260686621661,
+          -0.4852883745809245,
+          -0.6631692430817525
+        ],
+        [
+          0.5827665993873034,
+          0.8076128043024624,
+          -0.09024770891978726
+        ]
+      ],
+      "control_planning_directional_density": [
+        73.49041880417421,
+        54.08775038230167
+      ],
+      "direction_ok": true,
+      "carrier_rank": 0,
+      "smooth_normal_alignment_abs": 0.9999972558867862,
+      "core_control_only": false
+    },
+    {
+      "context": "actual_failed_chord",
+      "stage": "physical_target_directions",
+      "facet": 35672,
+      "vertex": 65,
+      "point": [
+        0.002380958890740337,
+        -1.062527844e-13,
+        -0.007634829294804406
+      ],
+      "curvatures": [
+        340.5653210962137,
+        27.626565104021328
+      ],
+      "directions": [
+        [
+          0.12167308169037878,
+          -0.9709721872977534,
+          -0.2059336608866626
+        ],
+        [
+          0.48173976397255064,
+          0.23916868141553,
+          -0.8430451599040397
+        ]
+      ],
+      "control_planning_directional_density": [
+        81.61324240638417,
+        74.69587144834463
+      ],
+      "direction_ok": true,
+      "carrier_rank": 1,
+      "smooth_normal_alignment_abs": 0.999829650505251,
+      "core_control_only": false
+    },
+    {
+      "context": "actual_failed_chord",
+      "stage": "physical_target_directions",
+      "facet": 44770,
+      "vertex": 66,
+      "point": [
+        0.008499375416377727,
+        -1.062527844e-13,
+        -0.01405010452510511
+      ],
+      "curvatures": [
+        299.1333225162171,
+        15.183966803558745
+      ],
+      "directions": [
+        [
+          0.07985808239617781,
+          -0.9948876868298543,
+          -0.06181567172123059
+        ],
+        [
+          0.7867286816259499,
+          0.10098757643562734,
+          -0.6089823403948206
+        ]
+      ],
+      "control_planning_directional_density": [
+        95.17309280334752,
+        63.679766082745374
+      ],
+      "direction_ok": true,
+      "carrier_rank": 1,
+      "smooth_normal_alignment_abs": 0.9999493236793185,
+      "core_control_only": false
+    },
+    {
+      "context": "actual_failed_chord",
+      "stage": "physical_target_directions",
+      "facet": 35673,
+      "vertex": 18865,
+      "point": [
+        0.005985127462594315,
+        0.006749924753011305,
+        -0.007145077741415979
+      ],
+      "curvatures": [
+        49.6259043373032,
+        -1.661435510488186
+      ],
+      "directions": [
+        [
+          0.40671060135735304,
+          -0.16048816542238348,
+          -0.8993497848461954
+        ],
+        [
+          0.47762641968629566,
+          0.8765406337035667,
+          0.05957785397444362
+        ]
+      ],
+      "control_planning_directional_density": [
+        89.9885458693669,
+        64.51014121268642
+      ],
+      "direction_ok": true,
+      "carrier_rank": 0,
+      "smooth_normal_alignment_abs": 0.997561984179935,
+      "core_control_only": false
+    },
+    {
+      "context": "actual_failed_chord",
+      "stage": "physical_target_directions",
+      "facet": 30332,
+      "vertex": 4184,
+      "point": [
+        0.004052326190574358,
+        0.007019120774940143,
+        2.219979883720242e-16
+      ],
+      "curvatures": [
+        97.02924732762543,
+        -124.93015752034039
+      ],
+      "directions": [
+        [
+          0.1460631127535037,
+          0.25218890742580313,
+          -0.9565909899555488
+        ],
+        [
+          0.4794318390418755,
+          0.827774989823359,
+          0.2914338311450182
+        ]
+      ],
+      "control_planning_directional_density": [
+        78.2836273796688,
+        54.90313063969104
+      ],
+      "direction_ok": true,
+      "carrier_rank": 0,
+      "smooth_normal_alignment_abs": 0.998798837379486,
+      "core_control_only": false
+    },
+    {
+      "context": "actual_failed_chord",
+      "stage": "physical_target_directions",
+      "facet": 30335,
+      "vertex": 18865,
+      "point": [
+        0.005985127462594315,
+        0.006749924753011305,
+        -0.007145077741415979
+      ],
+      "curvatures": [
+        74.0785191995402,
+        -107.87199213738165
+      ],
+      "directions": [
+        [
+          -0.5005444966440542,
+          -0.033263211722785145,
+          0.8650715378656471
+        ],
+        [
+          -0.3781477448275474,
+          -0.8904905909216434,
+          -0.253043060687035
+        ]
+      ],
+      "control_planning_directional_density": [
+        85.1192405653884,
+        70.81109795221543
+      ],
+      "direction_ok": true,
+      "carrier_rank": 0,
+      "smooth_normal_alignment_abs": 0.997561984179935,
+      "core_control_only": false
+    },
+    {
+      "context": "actual_failed_chord",
+      "stage": "physical_target_directions",
+      "facet": 30331,
+      "vertex": 18863,
+      "point": [
+        0.01036330070343628,
+        0.01416515067555235,
+        -0.007298158238992362
+      ],
+      "curvatures": [
+        74.71466565247229,
+        0.0218185193497154
+      ],
+      "directions": [
+        [
+          0.31585940212929864,
+          -0.3260487362478041,
+          -0.8910247245041699
+        ],
+        [
+          0.5446821265619539,
+          0.8312520386390244,
+          -0.11109198559038157
+        ]
+      ],
+      "control_planning_directional_density": [
+        89.46540135596615,
+        56.1600659819293
+      ],
+      "direction_ok": true,
+      "carrier_rank": 0,
+      "smooth_normal_alignment_abs": 0.9999340589217969,
+      "core_control_only": false
+    },
+    {
+      "context": "smooth_upper",
+      "stage": "physical_target_directions",
+      "facet": 22520,
+      "vertex": 5984,
+      "point": [
+        0.6373447139923842,
+        0.5846660431892228,
+        0.02998996949648403
+      ],
+      "curvatures": [
+        0.5862235355273845,
+        -0.04537768863964391
+      ],
+      "directions": [
+        [
+          -0.9270715959779737,
+          0.3736482891728206,
+          0.03041729654451446
+        ],
+        [
+          0.3734546941417226,
+          0.927570435360537,
+          -0.012028252931185856
+        ]
+      ],
+      "control_planning_directional_density": [
+        44.123458139581885,
+        27.037664849972963
+      ],
+      "direction_ok": true,
+      "carrier_rank": 0,
+      "smooth_normal_alignment_abs": 0.9999998330521984,
+      "core_control_only": false
+    },
+    {
+      "context": "smooth_upper",
+      "stage": "physical_target_directions",
+      "facet": 26718,
+      "vertex": 5924,
+      "point": [
+        0.6541210346949083,
+        0.6279860383171693,
+        0.02945678230467321
+      ],
+      "curvatures": [
+        0.6398720823643214,
+        -0.0032819025841188945
+      ],
+      "directions": [
+        [
+          -0.9039708579847937,
+          0.4266248843074623,
+          0.028773182025634083
+        ],
+        [
+          0.42641183079634126,
+          0.904428660149966,
+          -0.013481441178506685
+        ]
+      ],
+      "control_planning_directional_density": [
+        41.89823471447256,
+        25.74266422550721
+      ],
+      "direction_ok": true,
+      "carrier_rank": 0,
+      "smooth_normal_alignment_abs": 0.9999999320664723,
+      "core_control_only": false
+    },
+    {
+      "context": "smooth_upper",
+      "stage": "physical_target_directions",
+      "facet": 25037,
+      "vertex": 5950,
+      "point": [
+        0.6583834126400382,
+        0.5895255236454423,
+        0.02920382037994782
+      ],
+      "curvatures": [
+        0.5809401070876647,
+        -0.03328589393777939
+      ],
+      "directions": [
+        [
+          -0.9210276722667264,
+          0.387301693557501,
+          0.0412967926893496
+        ],
+        [
+          0.38713230073695376,
+          0.9219414871811092,
+          -0.012348114851965455
+        ]
+      ],
+      "control_planning_directional_density": [
+        39.55412642760859,
+        26.012137022392167
+      ],
+      "direction_ok": true,
+      "carrier_rank": 0,
+      "smooth_normal_alignment_abs": 0.999999932146084,
+      "core_control_only": false
+    },
+    {
+      "context": "smooth_upper",
+      "stage": "physical_target_directions",
+      "facet": 26682,
+      "vertex": 5950,
+      "point": [
+        0.6583834126400382,
+        0.5895255236454423,
+        0.02920382037994782
+      ],
+      "curvatures": [
+        0.6046948967248377,
+        0.018422143599092104
+      ],
+      "directions": [
+        [
+          0.9044303529445042,
+          -0.4246699522314307,
+          -0.040757432996127725
+        ],
+        [
+          -0.42446334120584683,
+          -0.9053364784929293,
+          0.014026142819414016
+        ]
+      ],
+      "control_planning_directional_density": [
+        39.37790499970565,
+        26.27814277602407
+      ],
+      "direction_ok": true,
+      "carrier_rank": 0,
+      "smooth_normal_alignment_abs": 0.999999932146084,
+      "core_control_only": false
+    },
+    {
+      "context": "smooth_upper",
+      "stage": "physical_target_directions",
+      "facet": 24646,
+      "vertex": 5922,
+      "point": [
+        0.6670538731764631,
+        0.6106544784693566,
+        0.02893303824509885
+      ],
+      "curvatures": [
+        0.5839748834247488,
+        -0.028084074230358608
+      ],
+      "directions": [
+        [
+          -0.9251581384548118,
+          0.37735648386615783,
+          0.04104269648789449
+        ],
+        [
+          0.3771988331542853,
+          0.9260569070344957,
+          -0.01181715705019638
+        ]
+      ],
+      "control_planning_directional_density": [
+        36.82060313369104,
+        23.299460562631683
+      ],
+      "direction_ok": true,
+      "carrier_rank": 0,
+      "smooth_normal_alignment_abs": 0.9999999520063378,
+      "core_control_only": false
+    },
+    {
+      "context": "smooth_upper",
+      "stage": "physical_target_directions",
+      "facet": 24311,
+      "vertex": 5984,
+      "point": [
+        0.6373447139923842,
+        0.5846660431892228,
+        0.02998996949648403
+      ],
+      "curvatures": [
+        0.6591408656876896,
+        -0.04415393666056591
+      ],
+      "directions": [
+        [
+          0.9351399064977645,
+          -0.35294797847221265,
+          -0.030677023449658267
+        ],
+        [
+          -0.3527655140755502,
+          -0.9356429239026447,
+          0.011349494698998252
+        ]
+      ],
+      "control_planning_directional_density": [
+        44.2181699036044,
+        26.882491125468118
+      ],
+      "direction_ok": true,
+      "carrier_rank": 0,
+      "smooth_normal_alignment_abs": 0.9999998330521983,
+      "core_control_only": false
+    },
+    {
+      "context": "smooth_upper",
+      "stage": "physical_target_directions",
+      "facet": 26681,
+      "vertex": 5925,
+      "point": [
+        0.644721230848695,
+        0.6065782031192788,
+        0.02975625691877816
+      ],
+      "curvatures": [
+        0.6419915440603384,
+        0.012797961111840587
+      ],
+      "directions": [
+        [
+          -0.9380215097380569,
+          0.34528656078454406,
+          0.029880398429703275
+        ],
+        [
+          0.34510591500601856,
+          0.9384972902483015,
+          -0.011168868539557075
+        ]
+      ],
+      "control_planning_directional_density": [
+        42.9958645649173,
+        25.55092383711972
+      ],
+      "direction_ok": true,
+      "carrier_rank": 0,
+      "smooth_normal_alignment_abs": 0.9999999180561704,
+      "core_control_only": false
+    },
+    {
+      "context": "smooth_upper",
+      "stage": "physical_target_directions",
+      "facet": 24310,
+      "vertex": 5948,
+      "point": [
+        0.6796397198235864,
+        0.5925277716578916,
+        0.02820941343814351
+      ],
+      "curvatures": [
+        0.48440824382755243,
+        -0.04852507964875101
+      ],
+      "directions": [
+        [
+          -0.9493237042251086,
+          0.3099184560771478,
+          0.05229775500990054
+        ],
+        [
+          0.3099265578360805,
+          0.9507254831477971,
+          -0.008159928998857015
+        ]
+      ],
+      "control_planning_directional_density": [
+        36.17809580270662,
+        23.98355117602301
+      ],
+      "direction_ok": true,
+      "carrier_rank": 0,
+      "smooth_normal_alignment_abs": 0.9999995552004047,
+      "core_control_only": false
+    },
+    {
+      "context": "smooth_upper",
+      "stage": "physical_target_directions",
+      "facet": 26700,
+      "vertex": 5949,
+      "point": [
+        0.6702718218716456,
+        0.5748019501017945,
+        0.02854323987869356
+      ],
+      "curvatures": [
+        0.5365172334468123,
+        0.00728328234554727
+      ],
+      "directions": [
+        [
+          0.919389857858772,
+          -0.3900622720919338,
+          -0.0507317765991417
+        ],
+        [
+          -0.3899684204619382,
+          -0.9207481450357791,
+          0.012144317831528272
+        ]
+      ],
+      "control_planning_directional_density": [
+        40.17793456519321,
+        26.41236791078905
+      ],
+      "direction_ok": true,
+      "carrier_rank": 0,
+      "smooth_normal_alignment_abs": 0.9999999625724555,
+      "core_control_only": false
+    },
+    {
+      "context": "smooth_upper",
+      "stage": "physical_target_directions",
+      "facet": 26662,
+      "vertex": 5949,
+      "point": [
+        0.6702718218716456,
+        0.5748019501017945,
+        0.02854323987869356
+      ],
+      "curvatures": [
+        0.525573791540274,
+        -0.006937818255763828
+      ],
+      "directions": [
+        [
+          0.908575847623259,
+          -0.4146698408597747,
+          -0.050387024093564395
+        ],
+        [
+          -0.41453951416822543,
+          -0.909931121446936,
+          0.013503533444729161
+        ]
+      ],
+      "control_planning_directional_density": [
+        39.97077433273735,
+        26.72483496340457
+      ],
+      "direction_ok": true,
+      "carrier_rank": 0,
+      "smooth_normal_alignment_abs": 0.9999999625724553,
+      "core_control_only": false
+    },
+    {
+      "context": "leading_edge",
+      "stage": "physical_target_directions",
+      "facet": 16121,
+      "vertex": 4220,
+      "point": [
+        0.3002360963089399,
+        0.5200453571311154,
+        4.33501118322811e-17
+      ],
+      "curvatures": [
+        114.3568918337668,
+        3.9787933264619437
+      ],
+      "directions": [
+        [
+          0.023762745050465228,
+          0.04115995946926819,
+          -0.9988699563427438
+        ],
+        [
+          0.49941970989591394,
+          0.8650555722331578,
+          0.0475269430517597
+        ]
+      ],
+      "control_planning_directional_density": [
+        105.07480706864014,
+        28.437710983538675
+      ],
+      "direction_ok": true,
+      "carrier_rank": 0,
+      "smooth_normal_alignment_abs": 0.9999999999999996,
+      "core_control_only": false
+    },
+    {
+      "context": "leading_edge",
+      "stage": "physical_target_directions",
+      "facet": 16122,
+      "vertex": 8041,
+      "point": [
+        0.3174504599914978,
+        0.5464102864298412,
+        0.006247298778510074
+      ],
+      "curvatures": [
+        67.04980568791032,
+        -0.047262143069098574
+      ],
+      "directions": [
+        [
+          -0.38732855527595095,
+          0.2513641118967521,
+          -0.8870133446111178
+        ],
+        [
+          0.5098507595157631,
+          0.860004658183997,
+          0.02107583742170135
+        ]
+      ],
+      "control_planning_directional_density": [
+        124.14005255306867,
+        35.244342456173044
+      ],
+      "direction_ok": true,
+      "carrier_rank": 0,
+      "smooth_normal_alignment_abs": 0.9999439837019557,
+      "core_control_only": false
+    },
+    {
+      "context": "leading_edge",
+      "stage": "physical_target_directions",
+      "facet": 35412,
+      "vertex": 18547,
+      "point": [
+        0.3096281277347569,
+        0.5328396443956417,
+        -0.006286045178726608
+      ],
+      "curvatures": [
+        57.86581261440444,
+        -0.054767861402240235
+      ],
+      "directions": [
+        [
+          0.41589048330400546,
+          -0.20170172690665172,
+          -0.886764635774361
+        ],
+        [
+          0.4868329153575875,
+          0.8729881637666496,
+          0.029755309572673257
+        ]
+      ],
+      "control_planning_directional_density": [
+        108.00797548584192,
+        33.2713344789464
+      ],
+      "direction_ok": true,
+      "carrier_rank": 0,
+      "smooth_normal_alignment_abs": 0.9999439828860187,
+      "core_control_only": false
+    },
+    {
+      "context": "leading_edge",
+      "stage": "physical_target_directions",
+      "facet": 29952,
+      "vertex": 4221,
+      "point": [
+        0.3081239399717753,
+        0.533708059667764,
+        3.585627612765475e-17
+      ],
+      "curvatures": [
+        88.59020791197918,
+        -0.324376458249989
+      ],
+      "directions": [
+        [
+          0.030199361316128593,
+          0.0523089603134023,
+          -0.9981742188851748
+        ],
+        [
+          0.4990718517981943,
+          0.8644530397828155,
+          0.06040056914443094
+        ]
+      ],
+      "control_planning_directional_density": [
+        108.2478980394921,
+        30.227657763918064
+      ],
+      "direction_ok": true,
+      "carrier_rank": 0,
+      "smooth_normal_alignment_abs": 0.9999999999999999,
+      "core_control_only": false
+    },
+    {
+      "context": "leading_edge",
+      "stage": "physical_target_directions",
+      "facet": 10672,
+      "vertex": 4221,
+      "point": [
+        0.3081239399717753,
+        0.533708059667764,
+        3.585627612765475e-17
+      ],
+      "curvatures": [
+        115.06209600111177,
+        -0.24620474153953886
+      ],
+      "directions": [
+        [
+          0.02310313394509607,
+          0.040017432951590215,
+          -0.9989318546637102
+        ],
+        [
+          0.49945065810657135,
+          0.8651091782999373,
+          0.04620768051006319
+        ]
+      ],
+      "control_planning_directional_density": [
+        108.26500632199266,
+        30.16632443569688
+      ],
+      "direction_ok": true,
+      "carrier_rank": 0,
+      "smooth_normal_alignment_abs": 0.9999999999999998,
+      "core_control_only": false
+    },
+    {
+      "context": "leading_edge",
+      "stage": "physical_target_directions",
+      "facet": 29962,
+      "vertex": 18547,
+      "point": [
+        0.3096281277347569,
+        0.5328396443956417,
+        -0.006286045178726608
+      ],
+      "curvatures": [
+        57.86523301656109,
+        -1.4970133280676412
+      ],
+      "directions": [
+        [
+          0.4156195116946773,
+          -0.20218748615494656,
+          -0.8867810563724403
+        ],
+        [
+          0.4870642699655556,
+          0.8728757879309866,
+          0.029261848314479533
+        ]
+      ],
+      "control_planning_directional_density": [
+        108.01276341657203,
+        33.25578755119653
+      ],
+      "direction_ok": true,
+      "carrier_rank": 0,
+      "smooth_normal_alignment_abs": 0.9999439828860187,
+      "core_control_only": false
+    },
+    {
+      "context": "leading_edge",
+      "stage": "physical_target_directions",
+      "facet": 10662,
+      "vertex": 4222,
+      "point": [
+        0.3159555442090149,
+        0.5472733486937511,
+        2.83788453073701e-17
+      ],
+      "curvatures": [
+        115.7761382191809,
+        -0.24821566549309224
+      ],
+      "directions": [
+        [
+          0.023125599098427183,
+          0.04005634532501561,
+          -0.9989297752422549
+        ],
+        [
+          0.4994496184241015,
+          0.8651073774518174,
+          0.04625261219064364
+        ]
+      ],
+      "control_planning_directional_density": [
+        116.95086610139967,
+        34.1475785889936
+      ],
+      "direction_ok": true,
+      "carrier_rank": 0,
+      "smooth_normal_alignment_abs": 0.9999999999999994,
+      "core_control_only": false
+    },
+    {
+      "context": "leading_edge",
+      "stage": "physical_target_directions",
+      "facet": 35411,
+      "vertex": 4220,
+      "point": [
+        0.3002360963089399,
+        0.5200453571311154,
+        4.33501118322811e-17
+      ],
+      "curvatures": [
+        114.35689183377222,
+        3.978793326462895
+      ],
+      "directions": [
+        [
+          -0.023762745050497556,
+          -0.04115995946927777,
+          -0.9988699563427426
+        ],
+        [
+          0.4994197098959202,
+          0.8650555722331528,
+          -0.04752694305178416
+        ]
+      ],
+      "control_planning_directional_density": [
+        104.8466244963383,
+        29.26779489884202
+      ],
+      "direction_ok": true,
+      "carrier_rank": 0,
+      "smooth_normal_alignment_abs": 0.9999999999999996,
+      "core_control_only": false
+    },
+    {
+      "context": "leading_edge",
+      "stage": "physical_target_directions",
+      "facet": 29972,
+      "vertex": 4220,
+      "point": [
+        0.3002360963089399,
+        0.5200453571311154,
+        4.33501118322811e-17
+      ],
+      "curvatures": [
+        114.35177766776496,
+        -0.24421333441997622
+      ],
+      "directions": [
+        [
+          -0.023080911088880378,
+          -0.03997894026609603,
+          -0.9989339096649522
+        ],
+        [
+          0.4994516855794591,
+          0.8651109579992292,
+          -0.04616323343845056
+        ]
+      ],
+      "control_planning_directional_density": [
+        104.85612753569372,
+        29.23373059902085
+      ],
+      "direction_ok": true,
+      "carrier_rank": 0,
+      "smooth_normal_alignment_abs": 0.9999999999999994,
+      "core_control_only": false
+    },
+    {
+      "context": "leading_edge",
+      "stage": "physical_target_directions",
+      "facet": 10682,
+      "vertex": 8059,
+      "point": [
+        0.3017496226344942,
+        0.5191715504108375,
+        0.006325069808505389
+      ],
+      "curvatures": [
+        57.50801914441859,
+        -1.4849020459201085
+      ],
+      "directions": [
+        [
+          -0.41560603379828454,
+          0.20221156573373,
+          -0.8867818826261464
+        ],
+        [
+          0.487075744725698,
+          0.8728702052761301,
+          -0.02923736720556678
+        ]
+      ],
+      "control_planning_directional_density": [
+        108.22986225318722,
+        33.038165018035514
+      ],
+      "direction_ok": true,
+      "carrier_rank": 0,
+      "smooth_normal_alignment_abs": 0.9999439821334482,
+      "core_control_only": false
+    },
+    {
+      "context": "symmetry_wall_interface",
+      "stage": "physical_target_directions",
+      "facet": 25773,
+      "vertex": 7026,
+      "point": [
+        0.5615742175271673,
+        0.007124243529465375,
+        0.02687138758824466
+      ],
+      "curvatures": [
+        4.6998665978773815,
+        3.773403325332428
+      ],
+      "directions": [
+        [
+          0.2905083064679873,
+          -0.9557987152543596,
+          -0.045318205957625465
+        ],
+        [
+          -0.9531488189529945,
+          -0.29322722476345287,
+          0.07433117506157852
+        ]
+      ],
+      "control_planning_directional_density": [
+        57.32498804517224,
+        53.01288384528194
+      ],
+      "direction_ok": true,
+      "carrier_rank": 0,
+      "smooth_normal_alignment_abs": 0.9999988047282533,
+      "core_control_only": false
+    },
+    {
+      "context": "symmetry_wall_interface",
+      "stage": "physical_target_directions",
+      "facet": 25815,
+      "vertex": 7026,
+      "point": [
+        0.5615742175271673,
+        0.007124243529465375,
+        0.02687138758824466
+      ],
+      "curvatures": [
+        4.206377905786702,
+        -0.9733577009674729
+      ],
+      "directions": [
+        [
+          0.4617999699620988,
+          0.8867616002100779,
+          -0.01986585351467871
+        ],
+        [
+          0.8829657609111417,
+          -0.461722052556755,
+          -0.08475972652967756
+        ]
+      ],
+      "control_planning_directional_density": [
+        58.60058549226321,
+        51.59933612099513
+      ],
+      "direction_ok": true,
+      "carrier_rank": 0,
+      "smooth_normal_alignment_abs": 0.9999988047282535,
+      "core_control_only": false
+    },
+    {
+      "context": "symmetry_wall_interface",
+      "stage": "physical_target_directions",
+      "facet": 25855,
+      "vertex": 234,
+      "point": [
+        0.5378422597265216,
+        -1.062527844e-13,
+        0.02868898147462427
+      ],
+      "curvatures": [
+        0.6228453754329513,
+        -10.216209287870605
+      ],
+      "directions": [
+        [
+          -0.9765273608793282,
+          0.2002951997496651,
+          0.07922213334224161
+        ],
+        [
+          0.19964948190005313,
+          0.9797355856444323,
+          -0.016070675125883293
+        ]
+      ],
+      "control_planning_directional_density": [
+        55.1830475275321,
+        71.61723705219723
+      ],
+      "direction_ok": true,
+      "carrier_rank": 1,
+      "smooth_normal_alignment_abs": 0.9999999923602084,
+      "core_control_only": false
+    },
+    {
+      "context": "symmetry_wall_interface",
+      "stage": "physical_target_directions",
+      "facet": 25814,
+      "vertex": 7028,
+      "point": [
+        0.5518248613231003,
+        0.007057493348038688,
+        0.02768746591821043
+      ],
+      "curvatures": [
+        4.537355518292523,
+        3.5718891486874287
+      ],
+      "directions": [
+        [
+          -0.02511447423502253,
+          0.9994158018706243,
+          0.023180124141069725
+        ],
+        [
+          0.9962549819730643,
+          0.02694063036787759,
+          -0.08215968189587144
+        ]
+      ],
+      "control_planning_directional_density": [
+        59.01932378405086,
+        50.58858330587137
+      ],
+      "direction_ok": true,
+      "carrier_rank": 0,
+      "smooth_normal_alignment_abs": 0.9999987343007551,
+      "core_control_only": false
+    },
+    {
+      "context": "symmetry_wall_interface",
+      "stage": "physical_target_directions",
+      "facet": 25856,
+      "vertex": 233,
+      "point": [
+        0.5474055045498185,
+        -1.062527844e-13,
+        0.02790522829330755
+      ],
+      "curvatures": [
+        -2.7294658826982134,
+        -10.764929586295327
+      ],
+      "directions": [
+        [
+          -0.9965969732555005,
+          -0.004674118168077431,
+          0.082295962946709
+        ],
+        [
+          -0.004658262904643754,
+          0.9999890762500113,
+          0.000384665257556752
+        ]
+      ],
+      "control_planning_directional_density": [
+        51.855002320701225,
+        63.73869243634114
+      ],
+      "direction_ok": true,
+      "carrier_rank": 1,
+      "smooth_normal_alignment_abs": 0.9999999860670151,
+      "core_control_only": false
+    },
+    {
+      "context": "sharp_edge_candidate",
+      "stage": "physical_target_directions",
+      "facet": 11271,
+      "vertex": 4497,
+      "point": [
+        0.974451208784387,
+        0.5964069288921643,
+        0.0004443673460527464
+      ],
+      "curvatures": [
+        8.220048179067072e-11,
+        -0.012862729438516303
+      ],
+      "directions": [
+        [
+          0.2720354354287861,
+          0.9622872116416455,
+          -0.00021019518943180115
+        ],
+        [
+          0.9544238890224811,
+          -0.26984035439544973,
+          -0.1275195012652607
+        ]
+      ],
+      "control_planning_directional_density": [
+        66.59529681814978,
+        2250.305044386957
+      ],
+      "direction_ok": true,
+      "carrier_rank": 0,
+      "smooth_normal_alignment_abs": 0.7508388539334914,
+      "core_control_only": false
+    },
+    {
+      "context": "sharp_edge_candidate",
+      "stage": "physical_target_directions",
+      "facet": 16294,
+      "vertex": 9395,
+      "point": [
+        0.976780913392584,
+        0.6054573892875162,
+        0.0004707148835119
+      ],
+      "curvatures": [
+        7.182932240906371e-10,
+        -0.012881608494448735
+      ],
+      "directions": [
+        [
+          0.2721176508397785,
+          0.9622639633597144,
+          -0.00022118023097950478
+        ],
+        [
+          0.9544001000861592,
+          -0.26992314843290466,
+          -0.1275223231265706
+        ]
+      ],
+      "control_planning_directional_density": [
+        70.85342580311294,
+        2154.5626526985643
+      ],
+      "direction_ok": true,
+      "carrier_rank": 0,
+      "smooth_normal_alignment_abs": 0.9999999999989707,
+      "core_control_only": false
+    },
+    {
+      "context": "sharp_edge_candidate",
+      "stage": "physical_target_directions",
+      "facet": 28747,
+      "vertex": 13719,
+      "point": [
+        0.974451208755795,
+        0.5964069289011036,
+        0.0002221836734861427
+      ],
+      "curvatures": [
+        3.358436376615137e-09,
+        -0.0006292255353730405
+      ],
+      "directions": [
+        [
+          -0.27195912382539017,
+          -0.9623087666547545,
+          0.00026942073301025257
+        ],
+        [
+          7.333386041491125e-05,
+          0.00025924829893635376,
+          0.9999999637062316
+        ]
+      ],
+      "control_planning_directional_density": [
+        66.09730058439105,
+        2250.383072441148
+      ],
+      "direction_ok": true,
+      "carrier_rank": 0,
+      "smooth_normal_alignment_abs": 0.9999999999999976,
+      "core_control_only": false
+    },
+    {
+      "context": "sharp_edge_candidate",
+      "stage": "physical_target_directions",
+      "facet": 11208,
+      "vertex": 4498,
+      "point": [
+        0.9718978068484031,
+        0.5873718907108885,
+        0.0004462451295771399
+      ],
+      "curvatures": [
+        7.943845432979607e-11,
+        -0.012808916050799821
+      ],
+      "directions": [
+        [
+          0.27203582222086176,
+          0.962287102285422,
+          -0.00021024686781897335
+        ],
+        [
+          0.954423779494831,
+          -0.2698407445759254,
+          -0.1275194953782063
+        ]
+      ],
+      "control_planning_directional_density": [
+        61.441045223293486,
+        2240.8348810485377
+      ],
+      "direction_ok": true,
+      "carrier_rank": 0,
+      "smooth_normal_alignment_abs": 0.7508388506756005,
+      "core_control_only": false
+    },
+    {
+      "context": "sharp_edge_candidate",
+      "stage": "physical_target_directions",
+      "facet": 28762,
+      "vertex": 13725,
+      "point": [
+        0.9693318473406123,
+        0.5782924185281786,
+        0.000224066074338225
+      ],
+      "curvatures": [
+        9.369164270542398e-09,
+        -0.0006054531843822427
+      ],
+      "directions": [
+        [
+          -0.27195910702591514,
+          -0.9623087072500872,
+          0.00044278248914682533
+        ],
+        [
+          0.00012047934602382951,
+          0.0004260763591692241,
+          0.9999999019718269
+        ]
+      ],
+      "control_planning_directional_density": [
+        56.31232767499352,
+        2231.472660932127
+      ],
+      "direction_ok": true,
+      "carrier_rank": 0,
+      "smooth_normal_alignment_abs": 0.9999999999999978,
+      "core_control_only": false
+    },
+    {
+      "context": "sharp_edge_candidate",
+      "stage": "physical_target_directions",
+      "facet": 28763,
+      "vertex": 13725,
+      "point": [
+        0.9693318473406123,
+        0.5782924185281786,
+        0.000224066074338225
+      ],
+      "curvatures": [
+        4.1699731500343354e-09,
+        -0.0006066087350832419
+      ],
+      "directions": [
+        [
+          -0.2719591258357394,
+          -0.9623087737605223,
+          0.00024045411279830796
+        ],
+        [
+          6.5454296192911e-05,
+          0.0002313739817648052,
+          0.9999999710909074
+        ]
+      ],
+      "control_planning_directional_density": [
+        56.09564536788145,
+        2231.4781184915178
+      ],
+      "direction_ok": true,
+      "carrier_rank": 0,
+      "smooth_normal_alignment_abs": 0.9999999999999977,
+      "core_control_only": false
+    },
+    {
+      "context": "sharp_edge_candidate",
+      "stage": "physical_target_directions",
+      "facet": 16295,
+      "vertex": 8741,
+      "point": [
+        0.9742391301221203,
+        0.5964668705618561,
+        0.0004727026155417022
+      ],
+      "curvatures": [
+        7.179674711823061e-10,
+        -0.012827724992448638
+      ],
+      "directions": [
+        [
+          0.27211804795725253,
+          0.9622638510469808,
+          -0.00022123328974997373
+        ],
+        [
+          0.954399987563414,
+          -0.2699235490197024,
+          -0.12752231735489888
+        ]
+      ],
+      "control_planning_directional_density": [
+        66.71903931812098,
+        2145.5009222516005
+      ],
+      "direction_ok": true,
+      "carrier_rank": 0,
+      "smooth_normal_alignment_abs": 0.9999999999987645,
+      "core_control_only": false
+    },
+    {
+      "context": "sharp_edge_candidate",
+      "stage": "physical_target_directions",
+      "facet": 28754,
+      "vertex": 13722,
+      "point": [
+        0.9718978068200954,
+        0.587371890719794,
+        0.00022312256510304
+      ],
+      "curvatures": [
+        6.221826025026242e-09,
+        -0.0006195964078931871
+      ],
+      "directions": [
+        [
+          -0.27195911583390886,
+          -0.9623087384066097,
+          0.0003623549609220746
+        ],
+        [
+          9.860729253653174e-05,
+          0.00034867997311947916,
+          0.999999934349437
+        ]
+      ],
+      "control_planning_directional_density": [
+        61.09200361651251,
+        2240.911032894283
+      ],
+      "direction_ok": true,
+      "carrier_rank": 0,
+      "smooth_normal_alignment_abs": 0.9999999999999977,
+      "core_control_only": false
+    },
+    {
+      "context": "sharp_edge_candidate",
+      "stage": "physical_target_directions",
+      "facet": 28755,
+      "vertex": 13722,
+      "point": [
+        0.9718978068200954,
+        0.587371890719794,
+        0.00022312256510304
+      ],
+      "curvatures": [
+        3.2962061654855e-09,
+        -0.0006183444773070972
+      ],
+      "directions": [
+        [
+          -0.27195912244621795,
+          -0.9623087617862214,
+          0.000287589555748406
+        ],
+        [
+          7.82741576299856e-05,
+          0.0002767325656911735,
+          0.9999999586461208
+        ]
+      ],
+      "control_planning_directional_density": [
+        61.017709671135535,
+        2240.913057072873
+      ],
+      "direction_ok": true,
+      "carrier_rank": 0,
+      "smooth_normal_alignment_abs": 0.9999999999999976,
+      "core_control_only": false
+    },
+    {
+      "context": "sharp_edge_candidate",
+      "stage": "physical_target_directions",
+      "facet": 11606,
+      "vertex": 4497,
+      "point": [
+        0.974451208784387,
+        0.5964069288921643,
+        0.0004443673460527464
+      ],
+      "curvatures": [
+        2.3859018762883706e-11,
+        -0.0128972731166693
+      ],
+      "directions": [
+        [
+          0.272001214724197,
+          0.9622968860532252,
+          -0.00020562302277359832
+        ],
+        [
+          0.9544336423468107,
+          -0.2698058518128872,
+          -0.12751950707292894
+        ]
+      ],
+      "control_planning_directional_density": [
+        66.5629002419121,
+        2250.306002894509
+      ],
+      "direction_ok": true,
+      "carrier_rank": 0,
+      "smooth_normal_alignment_abs": 0.750838852836825,
+      "core_control_only": false
+    }
+  ],
+  "contribution_samples": [
+    {
+      "context": "actual_failed_chord",
+      "stage": "saved_target_contributions",
+      "vertex": 18866,
+      "flow_principal_density": [
+        67.9822260707395,
+        40.135438588559815
+      ],
+      "combined_principal_density": [
+        73.49041878222702,
+        54.08775021830241
+      ],
+      "combined_normal_density": 500000.00000009255,
+      "wall_profile_with_core_floor_principal_density": [
+        58.69120569712289,
+        51.57535354730229
+      ],
+      "components_additive": false,
+      "physical_height_placement_verified": false
+    },
+    {
+      "context": "actual_failed_chord",
+      "stage": "saved_target_contributions",
+      "vertex": 65,
+      "flow_principal_density": [
+        57.07459923094091,
+        73.81124031545447
+      ],
+      "combined_principal_density": [
+        81.61324240638417,
+        74.61071365781667
+      ],
+      "combined_normal_density": 500000.0000217075,
+      "wall_profile_with_core_floor_principal_density": [
+        13917.559474535758,
+        8046.386597504653
+      ],
+      "components_additive": false,
+      "physical_height_placement_verified": false
+    },
+    {
+      "context": "actual_failed_chord",
+      "stage": "saved_target_contributions",
+      "vertex": 66,
+      "flow_principal_density": [
+        46.681947550743715,
+        63.65266955662582
+      ],
+      "combined_principal_density": [
+        95.17309280207084,
+        63.67976607016202
+      ],
+      "combined_normal_density": 500000.00000218896,
+      "wall_profile_with_core_floor_principal_density": [
+        94.52520546111523,
+        47.00701562007666
+      ],
+      "components_additive": false,
+      "physical_height_placement_verified": false
+    },
+    {
+      "context": "actual_failed_chord",
+      "stage": "saved_target_contributions",
+      "vertex": 18865,
+      "flow_principal_density": [
+        84.32600336304391,
+        46.7957013892513
+      ],
+      "combined_principal_density": [
+        89.98854579729965,
+        64.51014121268642
+      ],
+      "combined_normal_density": 500000.00002012233,
+      "wall_profile_with_core_floor_principal_density": [
+        65.11397080062449,
+        63.35489086798205
+      ],
+      "components_additive": false,
+      "physical_height_placement_verified": false
+    },
+    {
+      "context": "actual_failed_chord",
+      "stage": "saved_target_contributions",
+      "vertex": 4184,
+      "flow_principal_density": [
+        78.28331116661427,
+        48.82792774343094
+      ],
+      "combined_principal_density": [
+        78.28362737520085,
+        54.90313063969104
+      ],
+      "combined_normal_density": 500000.0001553567,
+      "wall_profile_with_core_floor_principal_density": [
+        63.900039847343855,
+        54.77587913638121
+      ],
+      "components_additive": false,
+      "physical_height_placement_verified": false
+    },
+    {
+      "context": "actual_failed_chord",
+      "stage": "saved_target_contributions",
+      "vertex": 18865,
+      "flow_principal_density": [
+        82.47556308248991,
+        49.98493779052142
+      ],
+      "combined_principal_density": [
+        85.11924048530503,
+        70.81109795221543
+      ],
+      "combined_normal_density": 500000.00002012233,
+      "wall_profile_with_core_floor_principal_density": [
+        56.9385796157596,
+        70.79314616347988
+      ],
+      "components_additive": false,
+      "physical_height_placement_verified": false
+    },
+    {
+      "context": "actual_failed_chord",
+      "stage": "saved_target_contributions",
+      "vertex": 18863,
+      "flow_principal_density": [
+        80.8852855827599,
+        44.27902065413946
+      ],
+      "combined_principal_density": [
+        89.46540130415232,
+        56.1600659819293
+      ],
+      "combined_normal_density": 500000.00001082657,
+      "wall_profile_with_core_floor_principal_density": [
+        68.57700559441605,
+        51.12458498187134
+      ],
+      "components_additive": false,
+      "physical_height_placement_verified": false
+    },
+    {
+      "context": "smooth_upper",
+      "stage": "saved_target_contributions",
+      "vertex": 5984,
+      "flow_principal_density": [
+        44.12345813498378,
+        27.03766484660073
+      ],
+      "combined_principal_density": [
+        44.12345813865341,
+        27.037664849728593
+      ],
+      "combined_normal_density": 500000.00037153164,
+      "wall_profile_with_core_floor_principal_density": [
+        23.897159625666774,
+        22.336265974467032
+      ],
+      "components_additive": false,
+      "physical_height_placement_verified": false
+    },
+    {
+      "context": "smooth_upper",
+      "stage": "saved_target_contributions",
+      "vertex": 5924,
+      "flow_principal_density": [
+        41.89823470492693,
+        25.74266422539753
+      ],
+      "combined_principal_density": [
+        41.89823471403781,
+        25.742664225353884
+      ],
+      "combined_normal_density": 500000.0010136915,
+      "wall_profile_with_core_floor_principal_density": [
+        22.265721010846097,
+        21.98895467605381
+      ],
+      "components_additive": false,
+      "physical_height_placement_verified": false
+    },
+    {
+      "context": "smooth_upper",
+      "stage": "saved_target_contributions",
+      "vertex": 5950,
+      "flow_principal_density": [
+        39.55412641402832,
+        26.012137021969025
+      ],
+      "combined_principal_density": [
+        39.55412642754318,
+        26.012137022192274
+      ],
+      "combined_normal_density": 500000.00067680894,
+      "wall_profile_with_core_floor_principal_density": [
+        24.05184106129714,
+        21.638293722977902
+      ],
+      "components_additive": false,
+      "physical_height_placement_verified": false
+    },
+    {
+      "context": "smooth_upper",
+      "stage": "saved_target_contributions",
+      "vertex": 5950,
+      "flow_principal_density": [
+        39.377904986089284,
+        26.278142775568224
+      ],
+      "combined_principal_density": [
+        39.377904999655485,
+        26.27814277580293
+      ],
+      "combined_normal_density": 500000.00067680894,
+      "wall_profile_with_core_floor_principal_density": [
+        24.053820792271313,
+        21.6360929689255
+      ],
+      "components_additive": false,
+      "physical_height_placement_verified": false
+    },
+    {
+      "context": "smooth_upper",
+      "stage": "saved_target_contributions",
+      "vertex": 5922,
+      "flow_principal_density": [
+        36.82060311886242,
+        23.29946056237304
+      ],
+      "combined_principal_density": [
+        36.8206031321477,
+        23.29946056231587
+      ],
+      "combined_normal_density": 500000.00084336253,
+      "wall_profile_with_core_floor_principal_density": [
+        22.647130315984253,
+        21.780627340474144
+      ],
+      "components_additive": false,
+      "physical_height_placement_verified": false
+    },
+    {
+      "context": "smooth_upper",
+      "stage": "saved_target_contributions",
+      "vertex": 5984,
+      "flow_principal_density": [
+        44.21816989913701,
+        26.882491121877585
+      ],
+      "combined_principal_density": [
+        44.218169902661764,
+        26.882491125248897
+      ],
+      "combined_normal_density": 500000.0003715316,
+      "wall_profile_with_core_floor_principal_density": [
+        23.917702328686385,
+        22.314267435310683
+      ],
+      "components_additive": false,
+      "physical_height_placement_verified": false
+    },
+    {
+      "context": "smooth_upper",
+      "stage": "saved_target_contributions",
+      "vertex": 5925,
+      "flow_principal_density": [
+        42.99586455740704,
+        25.550923834509298
+      ],
+      "combined_principal_density": [
+        42.99586456393032,
+        25.550923836895414
+      ],
+      "combined_normal_density": 500000.00080407417,
+      "wall_profile_with_core_floor_principal_density": [
+        22.214791742963833,
+        21.29125633039989
+      ],
+      "components_additive": false,
+      "physical_height_placement_verified": false
+    },
+    {
+      "context": "smooth_upper",
+      "stage": "saved_target_contributions",
+      "vertex": 5948,
+      "flow_principal_density": [
+        36.17809578767503,
+        23.98355117549325
+      ],
+      "combined_principal_density": [
+        36.1780958025518,
+        23.98355117602301
+      ],
+      "combined_normal_density": 500000.0008853423,
+      "wall_profile_with_core_floor_principal_density": [
+        21.86892599947015,
+        22.153124739222662
+      ],
+      "components_additive": false,
+      "physical_height_placement_verified": false
+    },
+    {
+      "context": "smooth_upper",
+      "stage": "saved_target_contributions",
+      "vertex": 5949,
+      "flow_principal_density": [
+        40.177934549736506,
+        26.41236790918702
+      ],
+      "combined_principal_density": [
+        40.17793456194061,
+        26.412367910294897
+      ],
+      "combined_normal_density": 500000.00083711656,
+      "wall_profile_with_core_floor_principal_density": [
+        24.961615323120427,
+        22.99552549355735
+      ],
+      "components_additive": false,
+      "physical_height_placement_verified": false
+    },
+    {
+      "context": "smooth_upper",
+      "stage": "saved_target_contributions",
+      "vertex": 5949,
+      "flow_principal_density": [
+        39.970774317428614,
+        26.72483496148012
+      ],
+      "combined_principal_density": [
+        39.970774329529846,
+        26.724834962823508
+      ],
+      "combined_normal_density": 500000.0008371165,
+      "wall_profile_with_core_floor_principal_density": [
+        24.960837204453085,
+        22.996370111610066
+      ],
+      "components_additive": false,
+      "physical_height_placement_verified": false
+    },
+    {
+      "context": "leading_edge",
+      "stage": "saved_target_contributions",
+      "vertex": 4220,
+      "flow_principal_density": [
+        105.05533126589627,
+        27.323864661212976
+      ],
+      "combined_principal_density": [
+        105.07480706019028,
+        28.437709966071903
+      ],
+      "combined_normal_density": 500000.00063667545,
+      "wall_profile_with_core_floor_principal_density": [
+        73.74715544193761,
+        28.43711680705851
+      ],
+      "components_additive": false,
+      "physical_height_placement_verified": false
+    },
+    {
+      "context": "leading_edge",
+      "stage": "saved_target_contributions",
+      "vertex": 8041,
+      "flow_principal_density": [
+        124.14005253320072,
+        35.24434234343364
+      ],
+      "combined_principal_density": [
+        124.14005253918843,
+        35.244342446785154
+      ],
+      "combined_normal_density": 500000.00083214167,
+      "wall_profile_with_core_floor_principal_density": [
+        73.90365119080438,
+        31.095469513062802
+      ],
+      "components_additive": false,
+      "physical_height_placement_verified": false
+    },
+    {
+      "context": "leading_edge",
+      "stage": "saved_target_contributions",
+      "vertex": 18547,
+      "flow_principal_density": [
+        105.15678561320414,
+        27.957870746529967
+      ],
+      "combined_principal_density": [
+        108.00797542013107,
+        33.27133390624514
+      ],
+      "combined_normal_density": 500000.0001442553,
+      "wall_profile_with_core_floor_principal_density": [
+        72.53086825009241,
+        32.96933766403367
+      ],
+      "components_additive": false,
+      "physical_height_placement_verified": false
+    },
+    {
+      "context": "leading_edge",
+      "stage": "saved_target_contributions",
+      "vertex": 4221,
+      "flow_principal_density": [
+        108.24789795071203,
+        30.227657625053425
+      ],
+      "combined_principal_density": [
+        108.24789803934065,
+        30.227657615708946
+      ],
+      "combined_normal_density": 500000.0010388036,
+      "wall_profile_with_core_floor_principal_density": [
+        74.15836572266441,
+        28.755753419446325
+      ],
+      "components_additive": false,
+      "physical_height_placement_verified": false
+    },
+    {
+      "context": "leading_edge",
+      "stage": "saved_target_contributions",
+      "vertex": 4221,
+      "flow_principal_density": [
+        108.26500623331967,
+        30.1663242962146
+      ],
+      "combined_principal_density": [
+        108.26500632190387,
+        30.166324286960887
+      ],
+      "combined_normal_density": 500000.00103880354,
+      "wall_profile_with_core_floor_principal_density": [
+        74.20636858780318,
+        28.631650712427625
+      ],
+      "components_additive": false,
+      "physical_height_placement_verified": false
+    },
+    {
+      "context": "leading_edge",
+      "stage": "saved_target_contributions",
+      "vertex": 18547,
+      "flow_principal_density": [
+        105.15935074627426,
+        27.94822083430592
+      ],
+      "combined_principal_density": [
+        108.01276335082498,
+        33.25578697873759
+      ],
+      "combined_normal_density": 500000.0001442553,
+      "wall_profile_with_core_floor_principal_density": [
+        72.54075747389967,
+        32.94757320680306
+      ],
+      "components_additive": false,
+      "physical_height_placement_verified": false
+    },
+    {
+      "context": "leading_edge",
+      "stage": "saved_target_contributions",
+      "vertex": 4222,
+      "flow_principal_density": [
+        116.95086603907416,
+        34.14757835848418
+      ],
+      "combined_principal_density": [
+        116.95086610132756,
+        34.147578472996386
+      ],
+      "combined_normal_density": 500000.00094094424,
+      "wall_profile_with_core_floor_principal_density": [
+        74.66388608423514,
+        28.838226095370526
+      ],
+      "components_additive": false,
+      "physical_height_placement_verified": false
+    },
+    {
+      "context": "leading_edge",
+      "stage": "saved_target_contributions",
+      "vertex": 4220,
+      "flow_principal_density": [
+        104.8102352046452,
+        28.249438999004404
+      ],
+      "combined_principal_density": [
+        104.84662447855735,
+        29.26779394322427
+      ],
+      "combined_normal_density": 500000.00063667545,
+      "wall_profile_with_core_floor_principal_density": [
+        73.74715544193754,
+        28.437116807058686
+      ],
+      "components_additive": false,
+      "physical_height_placement_verified": false
+    },
+    {
+      "context": "leading_edge",
+      "stage": "saved_target_contributions",
+      "vertex": 4220,
+      "flow_principal_density": [
+        104.8200164144234,
+        28.21312400801315
+      ],
+      "combined_principal_density": [
+        104.85612751807483,
+        29.23372964169786
+      ],
+      "combined_normal_density": 500000.0006366754,
+      "wall_profile_with_core_floor_principal_density": [
+        73.75118422371119,
+        28.42666659472193
+      ],
+      "components_additive": false,
+      "physical_height_placement_verified": false
+    },
+    {
+      "context": "leading_edge",
+      "stage": "saved_target_contributions",
+      "vertex": 8059,
+      "flow_principal_density": [
+        105.57977536975908,
+        28.120035407492303
+      ],
+      "combined_principal_density": [
+        108.22986211781394,
+        33.038164331087096
+      ],
+      "combined_normal_density": 500000.0002802106,
+      "wall_profile_with_core_floor_principal_density": [
+        72.09416961806355,
+        32.71280873740436
+      ],
+      "components_additive": false,
+      "physical_height_placement_verified": false
+    },
+    {
+      "context": "symmetry_wall_interface",
+      "stage": "saved_target_contributions",
+      "vertex": 7026,
+      "flow_principal_density": [
+        50.45540419442823,
+        30.242418413680394
+      ],
+      "combined_principal_density": [
+        57.32498804378592,
+        53.01288384205719
+      ],
+      "combined_normal_density": 499999.9999999996,
+      "wall_profile_with_core_floor_principal_density": [
+        57.32498804919487,
+        53.012883848133605
+      ],
+      "components_additive": false,
+      "physical_height_placement_verified": false
+    },
+    {
+      "context": "symmetry_wall_interface",
+      "stage": "saved_target_contributions",
+      "vertex": 7026,
+      "flow_principal_density": [
+        47.28299000667564,
+        34.99529311150067
+      ],
+      "combined_principal_density": [
+        58.60058549209366,
+        51.59933611448378
+      ],
+      "combined_normal_density": 499999.99999999965,
+      "wall_profile_with_core_floor_principal_density": [
+        58.60058549372167,
+        51.599336126413846
+      ],
+      "components_additive": false,
+      "physical_height_placement_verified": false
+    },
+    {
+      "context": "symmetry_wall_interface",
+      "stage": "saved_target_contributions",
+      "vertex": 234,
+      "flow_principal_density": [
+        29.447266619246918,
+        57.20541418949344
+      ],
+      "combined_principal_density": [
+        55.1830475275321,
+        71.61722066765212
+      ],
+      "combined_normal_density": 499999.99999999965,
+      "wall_profile_with_core_floor_principal_density": [
+        120.47564761571165,
+        159.3200434083955
+      ],
+      "components_additive": false,
+      "physical_height_placement_verified": false
+    },
+    {
+      "context": "symmetry_wall_interface",
+      "stage": "saved_target_contributions",
+      "vertex": 7028,
+      "flow_principal_density": [
+        53.83003284483547,
+        27.228643034561024
+      ],
+      "combined_principal_density": [
+        59.01932377811354,
+        50.588583303059075
+      ],
+      "combined_normal_density": 499999.99999999953,
+      "wall_profile_with_core_floor_principal_density": [
+        59.019323786846016,
+        50.5885833102088
+      ],
+      "components_additive": false,
+      "physical_height_placement_verified": false
+    },
+    {
+      "context": "symmetry_wall_interface",
+      "stage": "saved_target_contributions",
+      "vertex": 233,
+      "flow_principal_density": [
+        26.25933631795049,
+        57.045443760438246
+      ],
+      "combined_principal_density": [
+        101.96426337131749,
+        84.5717402079377
+      ],
+      "combined_normal_density": 499999.98920247104,
+      "wall_profile_with_core_floor_principal_density": [
+        102.48381973389716,
+        97.20922068012102
+      ],
+      "components_additive": false,
+      "physical_height_placement_verified": false
+    },
+    {
+      "context": "sharp_edge_candidate",
+      "stage": "saved_target_contributions",
+      "vertex": 4497,
+      "flow_principal_density": [
+        60.90113364148688,
+        152.88776294493238
+      ],
+      "combined_principal_density": [
+        77.39412769416501,
+        495918.12501481595
+      ],
+      "combined_normal_density": 63798.71138116303,
+      "wall_profile_with_core_floor_principal_density": [
+        66.5073724811958,
+        495918.1250022284
+      ],
+      "components_additive": false,
+      "physical_height_placement_verified": false
+    },
+    {
+      "context": "sharp_edge_candidate",
+      "stage": "saved_target_contributions",
+      "vertex": 9395,
+      "flow_principal_density": [
+        65.48919230616221,
+        155.9004977442632
+      ],
+      "combined_principal_density": [
+        70.8534258028207,
+        2154.562652698319
+      ],
+      "combined_normal_density": 500000.000020445,
+      "wall_profile_with_core_floor_principal_density": [
+        53.72505799788538,
+        2154.5532727681953
+      ],
+      "components_additive": false,
+      "physical_height_placement_verified": false
+    },
+    {
+      "context": "sharp_edge_candidate",
+      "stage": "saved_target_contributions",
+      "vertex": 13719,
+      "flow_principal_density": [
+        60.336759753549146,
+        163.51778773172802
+      ],
+      "combined_principal_density": [
+        66.09730052812527,
+        2250.3830724411414
+      ],
+      "combined_normal_density": 500000.0000123997,
+      "wall_profile_with_core_floor_principal_density": [
+        53.57691622665692,
+        2250.3829934995374
+      ],
+      "components_additive": false,
+      "physical_height_placement_verified": false
+    },
+    {
+      "context": "sharp_edge_candidate",
+      "stage": "saved_target_contributions",
+      "vertex": 4498,
+      "flow_principal_density": [
+        55.267261363956194,
+        147.0183120585274
+      ],
+      "combined_principal_density": [
+        73.10451852724289,
+        495918.12449786183
+      ],
+      "combined_normal_density": 63798.38197430299,
+      "wall_profile_with_core_floor_principal_density": [
+        66.4180707169815,
+        495918.1244862222
+      ],
+      "components_additive": false,
+      "physical_height_placement_verified": false
+    },
+    {
+      "context": "sharp_edge_candidate",
+      "stage": "saved_target_contributions",
+      "vertex": 13725,
+      "flow_principal_density": [
+        49.35241745304222,
+        148.67010151613775
+      ],
+      "combined_principal_density": [
+        56.31232765809388,
+        2231.4726609321124
+      ],
+      "combined_normal_density": 500000.0000075957,
+      "wall_profile_with_core_floor_principal_density": [
+        53.250598065829756,
+        2231.4726344834976
+      ],
+      "components_additive": false,
+      "physical_height_placement_verified": false
+    },
+    {
+      "context": "sharp_edge_candidate",
+      "stage": "saved_target_contributions",
+      "vertex": 13725,
+      "flow_principal_density": [
+        49.35113492270771,
+        148.67052725781932
+      ],
+      "combined_principal_density": [
+        56.095645350916534,
+        2231.478118491503
+      ],
+      "combined_normal_density": 500000.0000075957,
+      "wall_profile_with_core_floor_principal_density": [
+        53.02142902032592,
+        2231.478091469359
+      ],
+      "components_additive": false,
+      "physical_height_placement_verified": false
+    },
+    {
+      "context": "sharp_edge_candidate",
+      "stage": "saved_target_contributions",
+      "vertex": 8741,
+      "flow_principal_density": [
+        61.046780518186004,
+        151.53863469900662
+      ],
+      "combined_principal_density": [
+        66.71903931804091,
+        2145.5009222502954
+      ],
+      "combined_normal_density": 500000.00001800206,
+      "wall_profile_with_core_floor_principal_density": [
+        53.46217819978869,
+        2145.4933546212064
+      ],
+      "components_additive": false,
+      "physical_height_placement_verified": false
+    },
+    {
+      "context": "sharp_edge_candidate",
+      "stage": "saved_target_contributions",
+      "vertex": 13722,
+      "flow_principal_density": [
+        54.77088289171217,
+        158.58766944602738
+      ],
+      "combined_principal_density": [
+        61.09200350273351,
+        2240.9110328942825
+      ],
+      "combined_normal_density": 500000.0000110501,
+      "wall_profile_with_core_floor_principal_density": [
+        53.420239299071596,
+        2240.910953828319
+      ],
+      "components_additive": false,
+      "physical_height_placement_verified": false
+    },
+    {
+      "context": "sharp_edge_candidate",
+      "stage": "saved_target_contributions",
+      "vertex": 13722,
+      "flow_principal_density": [
+        54.77038624721135,
+        158.5878409695777
+      ],
+      "combined_principal_density": [
+        61.017709557219284,
+        2240.9130570728726
+      ],
+      "combined_normal_density": 500000.00001105,
+      "wall_profile_with_core_floor_principal_density": [
+        53.335284734762986,
+        2240.9129774171906
+      ],
+      "components_additive": false,
+      "physical_height_placement_verified": false
+    },
+    {
+      "context": "sharp_edge_candidate",
+      "stage": "saved_target_contributions",
+      "vertex": 4497,
+      "flow_principal_density": [
+        60.901277458608085,
+        152.88770561112327
+      ],
+      "combined_principal_density": [
+        69.96777832342818,
+        495918.1262240486
+      ],
+      "combined_normal_density": 63798.71055826422,
+      "wall_profile_with_core_floor_principal_density": [
+        57.69626997877679,
+        495918.1262114711
+      ],
+      "components_additive": false,
+      "physical_height_placement_verified": false
+    }
+  ],
+  "saved_patch_reports": [
+    {
+      "context": "saved_prepared_repair_before",
+      "status": "measured",
+      "tangent_metric_factor": 0.24999999999999983,
+      "cells": 25,
+      "positive_cells": 25,
+      "nonpositive_cells": 0,
+      "strict_geometry_pass": true,
+      "geometry_bad_faces": 0,
+      "maximum_surface_error": 6.403653663051911e-07,
+      "geometry_reason": "",
+      "strict_first_height_pass": true,
+      "first_height_max_relative_error": 0.0017452666483291877,
+      "first_height_reason": "",
+      "wall_adjacent_cells": 5,
+      "wall_q_bad": 5,
+      "wall_J_bad": 5,
+      "wall_min_q": 0.06125369333206747,
+      "wall_min_J": 0.006744836944058418,
+      "other_cells": 20,
+      "other_q_bad": 20,
+      "other_J_bad": 20,
+      "other_min_q": 0.00041328798473359705,
+      "other_min_J": 9.547966221230824e-06,
+      "edge_occurrences": 150,
+      "metric_edge_centroid_constant_min": 0.07281117443703446,
+      "metric_edge_centroid_constant_max": 21.963735851387643,
+      "metric_edge_endpoint_tensor_average_min": 0.0773555451177989,
+      "metric_edge_endpoint_tensor_average_max": 6931.430499273217,
+      "metric_edge_approximation": "cell centroid tensor constant and endpoint tensor average",
+      "exact_edge_quadrature": false,
+      "complete_target_checkpoint": true,
+      "actual_original_sourcecore": true,
+      "target_mutated": false,
+      "quality_measurement": "cell-centroid target tensor",
+      "production_normalized_or_accepted": false
+    },
+    {
+      "context": "saved_prepared_repair_before_plus_neighbor_star",
+      "status": "measured",
+      "tangent_metric_factor": 0.24999999999999983,
+      "cells": 84,
+      "positive_cells": 84,
+      "nonpositive_cells": 0,
+      "strict_geometry_pass": true,
+      "geometry_bad_faces": 0,
+      "maximum_surface_error": 5.420184690580433e-05,
+      "geometry_reason": "",
+      "strict_first_height_pass": false,
+      "first_height_max_relative_error": 9812.92006514541,
+      "first_height_reason": "Native3D prescribed height fails at facet 24894 cell 105477 relative error 9812.920065 > tolerance 0.100000",
+      "wall_adjacent_cells": 39,
+      "wall_q_bad": 39,
+      "wall_J_bad": 39,
+      "wall_min_q": 0.001388036213928585,
+      "wall_min_J": 1.8284022797376146e-05,
+      "other_cells": 45,
+      "other_q_bad": 29,
+      "other_J_bad": 29,
+      "other_min_q": 0.00041328798473359705,
+      "other_min_J": 9.547966221230824e-06,
+      "edge_occurrences": 504,
+      "metric_edge_centroid_constant_min": 0.07026799673623206,
+      "metric_edge_centroid_constant_max": 22.22436575411643,
+      "metric_edge_endpoint_tensor_average_min": 0.0773555451177989,
+      "metric_edge_endpoint_tensor_average_max": 8992.548935232026,
+      "metric_edge_approximation": "cell centroid tensor constant and endpoint tensor average",
+      "exact_edge_quadrature": false,
+      "complete_target_checkpoint": true,
+      "actual_original_sourcecore": true,
+      "target_mutated": false,
+      "quality_measurement": "cell-centroid target tensor",
+      "production_normalized_or_accepted": false
+    },
+    {
+      "context": "saved_neighbor_height_delta",
+      "neighbor_only_wall_adjacent_cells": 34,
+      "neighbor_only_other_cells": 25,
+      "row_wall_faces": 5,
+      "union_wall_faces": 39,
+      "row_height_failures": 0,
+      "union_height_failures": 34,
+      "row_missing_cells": 0,
+      "union_missing_cells": 0,
+      "union_worst_cell": 105477,
+      "height_delta_available": true,
+      "worst_cell_is_neighbor_only": true
+    }
+  ],
+  "original_context_quality": [
+    {
+      "context": "actual_failed_chord",
+      "stage": "saved_target_centroids_complete",
+      "q_bad_centroid": 20,
+      "J_bad_centroid": 20,
+      "q_centroid_min": 0.002507006630740441,
+      "J_centroid_min": 4.490564130288227e-05
+    },
+    {
+      "context": "smooth_upper",
+      "stage": "saved_target_centroids_complete",
+      "q_bad_centroid": 14,
+      "J_bad_centroid": 12,
+      "q_centroid_min": 0.01996258614464062,
+      "J_centroid_min": 0.000998566354003063
+    },
+    {
+      "context": "leading_edge",
+      "stage": "saved_target_centroids_complete",
+      "q_bad_centroid": 24,
+      "J_bad_centroid": 23,
+      "q_centroid_min": 0.01266335864040023,
+      "J_centroid_min": 0.0005192336668356495
+    },
+    {
+      "context": "symmetry_wall_interface",
+      "stage": "saved_target_centroids_complete",
+      "q_bad_centroid": 11,
+      "J_bad_centroid": 11,
+      "q_centroid_min": 0.014691725331323298,
+      "J_centroid_min": 0.0006300912813406783
+    },
+    {
+      "context": "sharp_edge_candidate",
+      "stage": "saved_target_centroids_complete",
+      "q_bad_centroid": 23,
+      "J_bad_centroid": 23,
+      "q_centroid_min": 0.020147601058680333,
+      "J_centroid_min": 0.0011369171007910297
+    }
+  ],
+  "target_mutated": false,
+  "identity_guard_preserved": true,
+  "first_height_preloaded_adoption": "Shared PrepareReference applies same AdoptRecorded rule as fresh branch; local failure follows collective ceiling agreement.",
+  "CFD_advanced": false,
+  "metric_recomputed": false,
+  "production_metric_changed": false,
+  "construction_attempted": false,
+  "usable_BL": false,
+  "limits": [
+    "Local curvature/tolerance proxies are not certified bounds or proof a new geometry metric is needed.",
+    "Saved358coordinates were created under an older control target; this is not a new mesh or current production trajectory.",
+    "Current assessment uses qualified original P1 source field on saved coordinates; does not reconstruct later evolving transported nodal tensors of old358.",
+    "q/J uses cell-centroid target; edge statistics are endpoint/centroid approximations, not exact conformity certificates.",
+    "Neighbor34height failures are incomplete neighboring layers, not loss of the five saved accepted first-height constraints.",
+    "No admissible replacement, physical progression/coverage/transition or nativeMPIBLgeneration qualification."
+  ],
+  "outputs_sha256": {
+    "actual_bl_front.jsonl": "821265f16a3d6ea8892334dc95a11c34aae2d8267209045a38893ff3f14954e9",
+    "actual_bl_saved_tangent.jsonl": "f71a31b4c6e8c6a4ee72e1bf577e362ec948e41a3e98891ea5ca16e303279c0b",
+    "run.log": "88a7d41ed6c24c01d5e5b40e9c7ed665313808619e2bd87a02606f39edca3e1c"
+  }
+}

@@ -90,7 +90,9 @@
           transfer_memory::Mul(pointCount,sizeof(std::pair<const std::array<double,3>,Tensor>)+4*sizeof(void*)));
       const size_t extra=transfer_memory::Add(savedInputBytes,patchBytes(patch),queryScratch);
       if(patch.cells.empty()||patch.cells.size()>MaximumReplacementCells||transfer_memory::Add(savedCaller,extra)>ceiling) {
-        saved<<"{\"context\":"<<std::quoted(label)<<",\"status\":\"limited\",\"reason\":\"patch size/storage admission\",\"cells\":"<<patch.cells.size()<<"}"<<std::endl;return FirstHeightReport{};
+        saved<<"{\"context\":"<<std::quoted(label)<<",\"status\":\"limited\",\"reason\":\"patch size/storage admission\",\"cells\":"<<patch.cells.size()<<"}"<<std::endl;
+        if(checkpointTarget)throw std::length_error("Saved checkpoint patch exceeds storage admission.");
+        return FirstHeightReport{};
       }
       budget.caller_bytes=transfer_memory::Add(savedCaller,extra);
       struct RestoreCaller {SU2NativeGeometry::AtlasBudget& budget;size_t bytes;~RestoreCaller(){budget.caller_bytes=bytes;}} restoreCaller{budget,savedCaller};
@@ -121,10 +123,11 @@
       };
       const double originalScale=policy->full->GetTangentialScale();
       try {
-       policy->full->SelectTangentialScale(1);policy->Update(9.9999999999999734e-5,SU2_TYPE::GetValue(config.GetAdap_Hgrad()));
+       if(!checkpointTarget){policy->full->SelectTangentialScale(1);policy->Update(9.9999999999999734e-5,SU2_TYPE::GetValue(config.GetAdap_Hgrad()));}
        for(const auto& c:patch.cells){ensurePoint(Centroid(c));for(const auto& n:c.v)ensurePoint(n.p);}
-       for(double factor:{1.,.75,.5}) {
-        policy->full->SelectTangentialScale(factor);policy->Update(9.9999999999999734e-5,SU2_TYPE::GetValue(config.GetAdap_Hgrad()));
+       const auto factors=checkpointTarget?std::vector<double>{originalScale}:std::vector<double>{1.,.75,.5};
+       for(double factor:factors) {
+        if(!checkpointTarget){policy->full->SelectTangentialScale(factor);policy->Update(9.9999999999999734e-5,SU2_TYPE::GetValue(config.GetAdap_Hgrad()));}
         std::map<std::array<double,3>,Tensor> targets;
         for(auto& row:samples) {
           auto& q=row.second;
@@ -137,9 +140,16 @@
           for(auto& s:q.full)policy->full->RecomposeTangentialSample(s.wall,s.sample,policy->core);
           for(auto& s:q.base)policy->base->RecomposeTangentialSample(s.wall,s.sample,policy->core);
           q.weight=policy->A->Weight(junction_wp0::Of(q.p));
-          CBoundaryLayerMetric::Tensor m;for(unsigned k=0;k<3;++k)m.m[k][k]=policy->core;
+          CBoundaryLayerMetric::Tensor m;
+          SU2NativeBLPipeline3D::TargetPolicy::Unpack(savedSensorAt(q.p),m);
           policy->ApplySamples(q.full,q.base,q.weight,m);
-          targets.emplace(row.first,SU2NativeBLPipeline3D::TargetPolicy::Pack(m));
+          const auto target=SU2NativeBLPipeline3D::TargetPolicy::Pack(m);
+          if(checkpointTarget) {
+            const auto direct=policy->Composition()(q.p,savedSensorAt(q.p));
+            CHECK(target.xx==direct.xx);CHECK(target.xy==direct.xy);CHECK(target.xz==direct.xz);
+            CHECK(target.yy==direct.yy);CHECK(target.yz==direct.yz);CHECK(target.zz==direct.zz);
+          }
+          targets.emplace(row.first,target);
         }
         size_t positive=0,nonpositive=0,wallCells=0,otherCells=0,qBadWall=0,jBadWall=0,qBadOther=0,jBadOther=0;
         double minQWall=INFINITY,minJWall=INFINITY,minQOther=INFINITY,minJOther=INFINITY;
@@ -149,7 +159,7 @@
           const Tetrahedron tet{{c.v[0].p,c.v[1].p,c.v[2].p,c.v[3].p}};
           if(!(Orientation(tet[0],tet[1],tet[2],tet[3])>0)){++nonpositive;continue;}++positive;
           const auto cp=Centroid(c);CBoundaryLayerMetric::Tensor applied;
-          for(unsigned k=0;k<3;++k)applied.m[k][k]=policy->core;
+          SU2NativeBLPipeline3D::TargetPolicy::Unpack(savedSensorAt(cp),applied);
           policy->ApplyPoint(cp,applied);
           const Tensor center=SU2NativeBLPipeline3D::TargetPolicy::Pack(applied);
           const auto measured=Measure(tet,center);bool wallAdjacent=false;
@@ -183,13 +193,16 @@
              <<",\"edge_occurrences\":"<<edgeSamples<<",\"metric_edge_centroid_constant_min\":"<<(std::isfinite((double)centroidLengthMin)?(double)centroidLengthMin:0)
              <<",\"metric_edge_centroid_constant_max\":"<<(double)centroidLengthMax<<",\"metric_edge_endpoint_tensor_average_min\":"<<(std::isfinite((double)endpointLengthMin)?(double)endpointLengthMin:0)
              <<",\"metric_edge_endpoint_tensor_average_max\":"<<(double)endpointLengthMax
-             <<",\"metric_edge_approximation\":\"cell centroid tensor constant and endpoint tensor average\",\"exact_edge_quadrature\":false,\"production_normalized_or_accepted\":false}"<<std::endl;
+             <<",\"metric_edge_approximation\":\"cell centroid tensor constant and endpoint tensor average\",\"exact_edge_quadrature\":false,\"complete_target_checkpoint\":"<<checkpointTarget
+             <<",\"actual_original_sourcecore\":"<<checkpointTarget<<",\"target_mutated\":"<<!checkpointTarget
+             <<",\"quality_measurement\":\"cell-centroid target tensor\",\"production_normalized_or_accepted\":false}"<<std::endl;
         CHECK(nonpositive==0);
        }
       } catch(const std::exception& e) {
         saved<<"{\"context\":"<<std::quoted(label)<<",\"status\":\"limited\",\"reason\":"<<std::quoted(e.what())<<",\"factor_measurement_complete\":false}"<<std::endl;
+        if(checkpointTarget)throw;
       }
-      policy->full->SelectTangentialScale(originalScale);policy->Update(9.9999999999999734e-5,SU2_TYPE::GetValue(config.GetAdap_Hgrad()));
+      if(!checkpointTarget){policy->full->SelectTangentialScale(originalScale);policy->Update(9.9999999999999734e-5,SU2_TYPE::GetValue(config.GetAdap_Hgrad()));}
       REQUIRE(geometryPass);
       if(std::string(label)=="saved_prepared_repair_before")CHECK(heightPass);
       return height;

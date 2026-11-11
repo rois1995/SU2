@@ -1,11 +1,14 @@
-// Included inside the existing actual-M6 loader; saved-target mode reads exact371 core values, no CFD/generation.
+// Existing actual-M6 loader; checkpoint mode retains the complete saved policy and original P1 source field.
 using namespace junction_wp0;
 SU2NativeBLPipeline3D::detail::PipelineScope pipeline;
 const bool exclusionOnly=std::string(std::getenv("SU2_NATIVE_BL_FRONT_PROBE"))=="saved_target_exclusion";
 const bool accuracyOnly=std::string(std::getenv("SU2_NATIVE_BL_FRONT_PROBE"))=="saved_target_accuracy";
 const bool stabilityOnly=std::string(std::getenv("SU2_NATIVE_BL_FRONT_PROBE"))=="saved_target_stability";
 const bool panelsOnly=std::string(std::getenv("SU2_NATIVE_BL_FRONT_PROBE"))=="saved_target_panels";
-const bool savedTarget=panelsOnly||stabilityOnly||accuracyOnly||exclusionOnly||std::string(std::getenv("SU2_NATIVE_BL_FRONT_PROBE"))=="saved_target_geometry";
+const bool checkpointTarget=std::getenv("SU2_NATIVE_TARGET_CHECKPOINT3D")!=nullptr;
+const bool contributionsOnly=std::string(std::getenv("SU2_NATIVE_BL_FRONT_PROBE"))=="checkpoint_target_contributions";
+REQUIRE(checkpointTarget==contributionsOnly);
+const bool savedTarget=checkpointTarget||panelsOnly||stabilityOnly||accuracyOnly||exclusionOnly||std::string(std::getenv("SU2_NATIVE_BL_FRONT_PROBE"))=="saved_target_geometry";
 double selectedCore=1e-4,tangentScale=1;
 std::map<Id,std::pair<Point,Tensor>> savedCore;
 if(savedTarget) {
@@ -33,9 +36,22 @@ if(savedTarget) {
   }
   REQUIRE(source.peek()==std::char_traits<char>::eof());
 }
-auto policy=SU2NativeBLPipeline3D::MakeTargetPolicy(config,*reference,1e-4,-1);
-if(savedTarget)policy->full->SelectTangentialScale(tangentScale);
-policy->Update(selectedCore,SU2_TYPE::GetValue(config.GetAdap_Hgrad()));
+std::shared_ptr<SU2NativeBLPipeline3D::TargetPolicy> policy;
+if(checkpointTarget) {
+  const auto sourceBytes=transfer_memory::Mul(savedCore.size(),sizeof(decltype(savedCore)::value_type)+4*sizeof(void*));
+  auto restored=SU2NativeTargetCheckpoint3D::Read(std::getenv("SU2_NATIVE_TARGET_CHECKPOINT3D"),*reference,config,
+      ceiling,transfer_memory::Add(budget.caller_bytes,sourceBytes));
+  policy=restored.family->first_row;
+  REQUIRE(policy->core==selectedCore);REQUIRE(policy->inherited_tangent_scale==tangentScale);
+  // Rank0 carries the common policy; complete source values were separately admitted/validated above.
+} else {
+  policy=SU2NativeBLPipeline3D::MakeTargetPolicy(config,*reference,1e-4,-1);
+  if(savedTarget)policy->full->SelectTangentialScale(tangentScale);
+  policy->Update(selectedCore,SU2_TYPE::GetValue(config.GetAdap_Hgrad()));
+}
+const auto initialFullProfile=SU2NativeTargetCheckpoint3D::detail::State(*policy->full);
+const auto initialBaseProfile=SU2NativeTargetCheckpoint3D::detail::State(*policy->base);
+const auto initialRadius=policy->A->radius;
 auto geometryLease=policy->ReserveGeometry(budget);
 dc10::optionA=policy->A;dc10::probeBase=policy->base;dc10::probeFull=policy->full;
 dc9::validityOnlyConstruction=true;dc9::markerRoles=policy->roles;
@@ -165,6 +181,7 @@ for(size_t index=0;index<count;++index) {
       }
       frontLog<<"{\"context\":"<<std::quoted(label)<<",\"stage\":\"saved_target_centroids_complete\",\"q_bad_centroid\":"<<qb
               <<",\"J_bad_centroid\":"<<jb<<",\"q_centroid_min\":"<<minq<<",\"J_centroid_min\":"<<minj<<"}"<<std::endl;
+      if(!contributionsOnly) {
       const auto a=NodePoint(*state,edge[0]),b=NodePoint(*state,edge[1]);
       const auto sensorLength=state->field->SensorEdgeLength(a,b);
       frontLog<<"{\"context\":"<<std::quoted(label)<<",\"stage\":\"saved_target_chord_begin\",\"a\":";pointJSON(a);
@@ -219,6 +236,7 @@ for(size_t index=0;index<count;++index) {
               <<",\"sensor_edge_length\":"<<sensorLength<<",\"composed_edge_length\":"<<fullLength
               <<",\"construction_attempted\":false,\"complete_checkpoint\":false}"<<std::endl;
       }
+    }
     }
     if(savedTarget||std::string(std::getenv("SU2_NATIVE_BL_FRONT_PROBE"))=="target_geometry_only") {
       budget.CheckTime();REQUIRE_FALSE(budget.work_exhausted);
@@ -403,6 +421,14 @@ for(size_t index=0;index<count;++index) {
             <<",\"memo_direct_misses\":"<<stats.memo_direct_misses<<"}"<<std::endl;
   }
   REQUIRE_FALSE(budget.time_exhausted);REQUIRE_FALSE(budget.work_exhausted);REQUIRE_FALSE(state->publication_failed);
+}
+if(checkpointTarget) {
+  auto savedSensorAt=[&](Point p){return state->field->Sensor(p);};
+#include "native_actual_bl_saved_tangent_probe.inc"
+  REQUIRE(SU2NativeTargetCheckpoint3D::detail::State(*policy->full)==initialFullProfile);
+  REQUIRE(SU2NativeTargetCheckpoint3D::detail::State(*policy->base)==initialBaseProfile);
+  REQUIRE(policy->core==selectedCore);REQUIRE(policy->A->radius==initialRadius);
+  REQUIRE(policy->inherited_tangent_scale==tangentScale);
 }
 frontLog<<"{\"complete\":true,\"contexts\":"<<count<<",\"constructed\":"<<built<<",\"clear_preserved_candidates\":"<<admitted
         <<",\"production_target_certified\":false,\"mesh_published\":false,\"geometry_work\":"<<budget.work<<"}"<<std::endl;

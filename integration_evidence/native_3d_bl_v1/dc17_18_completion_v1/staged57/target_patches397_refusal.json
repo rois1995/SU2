@@ -1,0 +1,51 @@
+{
+  "scope": "Preserved exact-target diagnostic identity refusal; no target measurements or mesh attempted.",
+  "status": {
+    "state": "terminal",
+    "exit_code": 1,
+    "seconds": 96.12353658676147,
+    "pins_verified": true,
+    "changed": [],
+    "largest_sampled_individual_process_rss_bytes": 1236738048,
+    "rss_note": "sampled process RSS; not a whole-job peak"
+  },
+  "terminal": {
+    "actual_host_proc": true,
+    "all_owned_handles_terminal": true,
+    "live_owned_handles": [],
+    "sampled_identities": [
+      {
+        "pid": 3390671,
+        "start_ticks": 48060094
+      },
+      {
+        "pid": 3390672,
+        "start_ticks": 48060095
+      },
+      {
+        "pid": 3390673,
+        "start_ticks": 48060095
+      },
+      {
+        "pid": 3390681,
+        "start_ticks": 48060095
+      }
+    ],
+    "wrapper_excluded": {
+      "pid": 3390581,
+      "start_ticks": 48059829
+    },
+    "checked_unix": 1794436325.3857138
+  },
+  "exception": "Checkpoint geometry/association authority differs from source.",
+  "completed_contexts": 0,
+  "metadata_difference_confirmed": {
+    "original_legacy_reference_has_height_record": false,
+    "embedded_runtime_reference_height_tolerance": 0.1,
+    "embedded_reference_sha256": "9cdbc63cb6853f2c8b052bb0549f7b561299bfe82cd21fd6b792d2600dadf7e9"
+  },
+  "source_cause": "PrepareReference initialized/preloaded branch prepared mobility but omitted AdoptRecorded(first_height_tol); fresh branch already applied it.",
+  "selected_connected_correction": "Apply same adoption/validation in preloaded branch; perform collective memory-ceiling agreement before local failure; preserve exact identity check.",
+  "remaining_uncertainty": "Other authority differences are not excluded until corrected loader passes exact codec comparison.",
+  "target_checkpoint396_fidelity_still_qualified": true
+}

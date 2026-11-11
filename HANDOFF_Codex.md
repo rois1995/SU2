@@ -12,8 +12,42 @@ preserves detailed394/396provenance; earlier histories remain linked there.
 
 ## Source/build/owned workload — authoritative
 
-Current workload NONE. All396producer/reload/build/serial/MPIhandles actual-host
-terminal; full source/binary/input/runtime pins verified BEFORE any next C++edits.
+Current workload NONE. All398build/serial/MPI/actual handlesactual-host terminal;
+full source/binary/input/runtime pins verified BEFORE any next edits.398actualcase
+R/cases/curved398_checkpoint_target_patches_20261111T224341_3423337 PASS115.252s,
+5contexts/42physical+contribution samples,25-cell row and84-cell union measured,
+frozen full/base profiles/core/radius all unchanged, no CFD/metric recompute/construction.
+R/target_patches398_assessment.json (22.6Massertions mostly repeated source-coordinate
+checks; NOT a mesh capability claim). Source reference identity guard now PASSES.
+Shared PrepareReference fix adopts/validates preloaded legacy first_height_tol like
+fresh path; compute collective memory ceiling before local failure. No tolerance/
+physical metric/operator/config change. Build398PASS210.270s; CFD307c62b04384cbf7f2d7ace740d540e0c64edac30ed66dfa76902701225080a0;
+test2e0b4d16c1a3a7285f824d7f0dd1e31ebc8cdb18a992d8b3ceaae85ecb57fec8.
+Focusedserial6cases/237assertions4.451s; MPI6SAME6/237EVERYrank4.437s. Not nativeMPI
+BLgeneration. Qualified396source/fidelity remains valid where fresh path/codecs/
+metric evaluation unchanged. Source/evidence2652ccf84aPUSHED;398checkpoint pendingpush.
+
+398row25positive/geometrypass(max6.404e-7)/firstheightpass(maxrel.001745), but5/5wall
+and20/20other centroid q/Jbad (minq.06125wall/.000413other,minJ.006745wall/9.55e-6other).
+Union84positive/geometrypass(max5.420e-5),39wall+29other centroid q/Jbad;34neighbor-only
+heightfailures from incomplete adjacent layers. Approximate endpoint/centroid edge
+statistics are NOT exact conformity. No usableBL or admissible new replacement.
+Original5context planning maxima .836/1.158/.963/.516/1.714: not surface readiness.
+397failure preservedR/target_patches397_refusal.json; no contexts measured there.
+
+Next ONE bounded hypothesis: distinguish fixed-face placement limitations from target/
+surface-resolution mismatch and insufficient coupled connectivity. Reuse existing
+metric-frame capture format/independent saved_row369 quality algebra on CURRENT398
+centroid tensors. Add only missing diagnostic frame output (no extra geometryqueries),
+then compute a frozen-centroid-metric optimal-apex upper control under prescribed
+plane-height interval, and orientation/tangent controls. These are NOT full-field
+feasibility proofs or a new metric policy. Existing raw358frames used uniformcontrol
+and cannot substitute current field. Do not select curvature/tangent metric from
+local proxy or fitted q improvements alone. Before actual repair trials use existing
+complete dependencies, transported nodal authority and global clearance; do not treat
+partial saved84union as complete generated BL. See current assessment design.
+All396producer/reload/build/serial/MPIhandles actual-host terminal; full pins verified
+BEFORE edits. Qualified396 source/evidence2652ccf84aPUSHED; sourceimplementationb2d18d8f30.
 Qualified complete target checkpoint396, R/target_checkpoint396_qualification.json:
 producer ...T214613_3294100 terminal0/733.225s; freshreload ...T220013_3323327 terminal0/
 546.920s.61330/61330owned composed tensors BITEXACT, same full/base profiles/reference/

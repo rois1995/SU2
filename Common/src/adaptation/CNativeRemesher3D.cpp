@@ -104,7 +104,12 @@ void PrepareMobility(const CConfig& config,ReferenceState& state,size_t ceiling,
 void CNativeRemesher3D::PrepareReference(const CConfig& config,const CGeometry& geometry) {
   if(reference->original) {
     CLocalFailure failure;auto pending=*reference;
-    try{PrepareMobility(config,pending,NativeMemoryCeiling(config,geometry,options.memory_ceiling,false,SU2_MPI::GetComm()),options.caller_bytes);}
+    const auto ceiling=NativeMemoryCeiling(config,geometry,options.memory_ceiling,false,SU2_MPI::GetComm());
+    try {
+      pending.first_height_tol=SU2NativeFirstHeight::AdoptRecorded(pending.first_height_tol,
+          SU2_TYPE::GetValue(config.GetAdap_BL_FirstHeightTol()));
+      PrepareMobility(config,pending,ceiling,options.caller_bytes);
+    }
     catch(const std::exception& e){failure.Set(2,0,e.what());}
     CollectiveFailure(failure,CURRENT_FUNCTION);*reference=std::move(pending);return;
   }

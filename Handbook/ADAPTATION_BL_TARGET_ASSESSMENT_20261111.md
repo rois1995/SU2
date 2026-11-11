@@ -55,3 +55,65 @@ movement, connectivity and conservative certification. A new curvature demand wo
 need valid global majorants for transition support/chord preparation, sample/version
 invalidation and checkpoint replay; do not promote local samples into those bounds.
 Preserve source metric transport, noCAD authority and one connected implementation.
+
+
+##397 refused identity and connected preparation fix
+
+397diagnostic build passed206.221s/CFDbyte-identical396. Actualcase terminal1/96.124s,
+pins intact/allactual owned handles terminal; zero contexts measured. Exact codec
+identity guard correctly refused. The embedded runtime native_ref9 ends with
+BL_FIRST_HEIGHT_TOL .1; original legacy native_ref7 has no record. Serial fixture
+preloads its reference before PrepareReference. That branch prepared curved mobility
+but omitted AdoptRecorded, unlike the fresh-reference branch used by the saved-CFD
+producer/consumer. Curved mobility counts/work match. This supports a shared metadata
+preparation fix, not removing the equality guard; other differences would still refuse.
+
+Audit callers: CSinglezoneDriver::MakeRemesher/new/continuation paths, actual surface
+fixture and native normalization fixture. PrepareReference will apply the SAME
+AdoptRecorded rule on preloaded references before publishing its pending copy.
+Compute the collective memory ceiling BEFORE local adoption can throw, preserving
+rank alignment. Existing recorded mismatch remains rejection; no tolerance/gate changes.
+Add a preloaded legacy/adopt/repeated/sidecar-roundtrip regression. Focused serial
+and ONE relevant MPI policy/reference milestone, then retry bounded actual assessment.
+Production fresh-reference setup used by396 is unchanged; reuse its qualified target,
+source-field and no-CFD results. Never recompute the metric merely for loader metadata.
+
+
+##398 terminal result — exact policy baseline, not a usable BL
+
+Build398PASS210.270s, focusedserial6cases/237assertions4.451s and ONEconnectedMPI6
+6cases/237assertions EVERYrank4.437s. ActualcasePASS115.252s; allowned actual-host
+handles terminal, fullpins intact. R/target_patches398_assessment.json. All5contexts/
+42physical andcontribution samples completed; target profiles/core/OptionA radius
+unchanged before/after. No CFD/recovery/new construction. Exact codec authority guard
+passes after shared preloaded-height-policy correction; no equality waiver.
+
+Saved25-cell row is positive, strictgeometrypasses(max6.404e-7), firstheightpasses
+(maxrelative.001745), but all5wall+20other centroid q/Jbad. Wall minq.06125/J.006745;
+other minq.000413/J9.55e-6.84-cell union positive/geometrypasses(max5.420e-5) with
+39wall+29other q/Jbad and34neighbor-only height failures from incomplete surrounding
+layers. These coordinates came from older358control construction; current evaluation
+uses396original P1source field and does not recreate old evolved nodal tensors.
+Approximate centroid/endpoint lengths differ enormously and are not exact conformity.
+
+The target/planning baseline does not establish accepted shape or coherent coverage.
+Local curvature proxy deficiency remains a hypothesis, not proof that a new geometry
+metric is necessary. No production target correction is selected from these results.
+
+## Next bounded discrimination, still stage2
+
+The missing data are the CURRENT actual centroid metric frames of the saved cells;
+old358frame tensors came from a different uniform control. Reuse the existing compact
+frame format while writing already-computed tensors/geometry samples (no extra queries).
+Then reuse independent extended-precision saved_row369 q/J algebra to verify baseline.
+For each wall cell, assess the best possible mean-ratio at fixed base triangle and
+allowed plane-height interval in the FROZEN centroid tensor, plus existing orientation/
+tangent controls. This can distinguish a poor current apex from a fixed-face/metric
+mismatch in that local model. It is not a bound for position-dependent actual field,
+geometry/footprint/neighbor constraints, nor an admissible candidate/newtarget.
+
+Do not add curvature/height demand merely to fit failed cells. If actual repair is
+needed, reuse existing coupled connectivity/relocation with complete relevant support,
+current nodal transport and global clearance. Partial savedunion already has incomplete
+height obligations; weakening those to pass a repair is not permitted. Coordinate
+controls and local proxy do not justify a new scheduler, larger cavity or policy.

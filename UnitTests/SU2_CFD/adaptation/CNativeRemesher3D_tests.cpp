@@ -107,6 +107,21 @@ void CheckTransport(const RemeshStats& s) {
 }
 }  // namespace
 
+TEST_CASE("Preloaded native reference adopts and preserves its requested height policy", "[NativePreloadedHeightPolicy3D][NativeReferenceBudget3D]") {
+  auto config=MakeConfig(3,"SOLVER= EULER\nCOMPUTE_METRIC= YES\nADAP_SENSOR= MACH\n"
+      "ADAP_REMESHER= NATIVE_CAVITY\nADAP_SURFACE= YES\nADAP_BL_FIRST_HEIGHT_TOL= .125\n");
+  MeshSolution source(config.get(),BoxMesh(3,1,false),0);
+  auto reference=std::make_shared<ReferenceState>();ImportedGeometry imported;BridgeStats stats;std::string why;
+  REQUIRE(ImportGeometry(*config,source.Fine(),nullptr,*reference,imported,why,stats,size_t(1)<<28,0));
+  REQUIRE(reference->original);reference->first_height_tol=0;
+  CNativeRemesher3D remesher(reference);remesher.PrepareReference(*config,source.Fine());
+  CHECK(reference->first_height_tol==.125);
+  const auto encoded=EncodeReference(*reference);
+  CHECK(DecodeReference(encoded).first_height_tol==.125);
+  remesher.PrepareReference(*config,source.Fine());
+  CHECK(EncodeReference(*reference)==encoded);
+}
+
 TEST_CASE("Native3D default ownership survives rejection after private accepted edits", "[NativeDefault3D][NativeReferenceBudget3D]") {
   World world;
   auto config = MakeConfig(3,

@@ -855,3 +855,18 @@ is not total MPIwait. Largest sampled individualRSS642265088B, not wholejobpeak.
 Complete target reconstruction is now qualified; physical target/mesh suitability
 remains unqualified. Offline directional inspection/coreallocation1.811s are analysis,
 not generation timings. No requested complexity/node-count equivalence is implied.
+
+
+##398 bounded actual target-patch diagnosis
+
+397diagnostic-only build206.221s; actual loader identity refusal96.124s BEFORE any
+context. Shared preloaded-reference first-height policy adoption fixed in398;
+build210.270s, serial6/237/4.451s, ONE MPI6 6/237EVERYrank/4.437s. Actual398diagnostic
+PASS115.252s:5contexts/42physical+contribution samples, saved25-cell row and84-cell
+neighbor union. No construction/CFD/metric recompute; original policy stays frozen.
+Context measured work/time:failedchord17210/.845s,smooth9149/.597s,LE23226/1.290s,
+root3979/.249s,feature-candidate19330/1.145s. Shared atlaswork146337 excludes earlier
+runtime-authority preparation/self-validation. Largest sampled singleRSS1473630208B,
+not wholejobpeak.22.6Massertions mostly repeated sourcecoordinate checks are not
+quality progress. All25saved-row cells remain centroid q/Jbad despite geometry/height
+passing; union68/84q/Jbad,34incomplete-neighbor height failures. No acceptedmesh time.
