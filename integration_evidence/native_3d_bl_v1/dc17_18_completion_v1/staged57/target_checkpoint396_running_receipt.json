@@ -1,0 +1,91 @@
+{
+  "checked_unix": 1794433808.615977,
+  "implementation_commit": "b2d18d8f30",
+  "pushed_to": "origin/codex/native-3d-bl",
+  "state": {
+    "state": "running",
+    "pid": 3294184,
+    "started_at": 1794433573.9872363
+  },
+  "source_binary_input_runtime_pins_verified": true,
+  "changed": [],
+  "resource_snapshot": {
+    "elapsed_seconds": 231.26159930229187,
+    "processes": [
+      {
+        "pid": 3294184,
+        "rss_bytes": 1536000,
+        "name": "time",
+        "start_ticks": 47801547,
+        "user_cpu_ticks": 0,
+        "system_cpu_ticks": 0
+      },
+      {
+        "pid": 3294185,
+        "rss_bytes": 2093056,
+        "name": "timeout",
+        "start_ticks": 47801547,
+        "user_cpu_ticks": 0,
+        "system_cpu_ticks": 0
+      },
+      {
+        "pid": 3294186,
+        "rss_bytes": 15691776,
+        "name": "mpirun",
+        "start_ticks": 47801547,
+        "user_cpu_ticks": 1,
+        "system_cpu_ticks": 2
+      },
+      {
+        "pid": 3294194,
+        "rss_bytes": 557756416,
+        "name": "test_driver",
+        "start_ticks": 47801551,
+        "user_cpu_ticks": 22463,
+        "system_cpu_ticks": 55
+      },
+      {
+        "pid": 3294193,
+        "rss_bytes": 571256832,
+        "name": "test_driver",
+        "start_ticks": 47801550,
+        "user_cpu_ticks": 22420,
+        "system_cpu_ticks": 59
+      },
+      {
+        "pid": 3294192,
+        "rss_bytes": 615276544,
+        "name": "test_driver",
+        "start_ticks": 47801550,
+        "user_cpu_ticks": 22448,
+        "system_cpu_ticks": 63
+      },
+      {
+        "pid": 3294191,
+        "rss_bytes": 623718400,
+        "name": "test_driver",
+        "start_ticks": 47801550,
+        "user_cpu_ticks": 22414,
+        "system_cpu_ticks": 62
+      },
+      {
+        "pid": 3294190,
+        "rss_bytes": 545828864,
+        "name": "test_driver",
+        "start_ticks": 47801550,
+        "user_cpu_ticks": 22440,
+        "system_cpu_ticks": 59
+      },
+      {
+        "pid": 3294189,
+        "rss_bytes": 524402688,
+        "name": "test_driver",
+        "start_ticks": 47801550,
+        "user_cpu_ticks": 22403,
+        "system_cpu_ticks": 59
+      }
+    ],
+    "sampled_process_tree_rss_bytes": 3457560576
+  },
+  "note": "LIVE snapshot; elapsed work is not completion or peak memory. Keep sources/helper/inputs frozen until terminal. Actual fidelity and target suitability pending."
+}

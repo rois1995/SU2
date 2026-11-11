@@ -33,6 +33,9 @@ R/check_metric_stage396.py reload <producerdirectory>. Require every owned compo
 tensor bitexact; norm alone can hide tangential error. If mismatch, refuse fidelity
 qualification pending directional analysis. Producer saves checkpoint BEFOREchord;
 failed chord cannot discard upstream state. No surface generation/CFDadvance.
+Implementation/focused evidence b2d18d8f30 PUSHED to authorized fork.
+R/target_checkpoint396_running_receipt.json is a LIVE pin/resource snapshot, not
+completion or peak memory.
 Design Handbook/ADAPTATION_BL_TARGET_CHECKPOINT_20261111.md; next physical/directional
 reasonableness before stage3, no speculative query optimization/full workflow retry.
 All394build/serial/MPI/3pointsets/originaledge/accuracy
