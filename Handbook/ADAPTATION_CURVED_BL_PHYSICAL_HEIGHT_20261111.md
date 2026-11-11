@@ -294,3 +294,61 @@ operators, change metric policy or blindly extend refinement from these data. Ch
 ONE connected production readiness/construction correction after this evidence;
 qualify affected behavior and return to the full same-seed RANS workflow. Current
 production remains346 (qualified affected callers347), with native1 FIRST_ROW guard.
+
+## Existing repair/growth interpretation356 (pending)
+
+Source audit confirms CURRENT RunEvent runs R1/R2→completion→PhaseG, then provisional
+validity/A3 and native AdaptMetric. It does NOT call legacy V13 frozen-column quality.
+Native quality receives geometry, metrics and heights without row registry freezes.
+During PhaseG, apex stars protect the stack; columns originate in rows.lift/copies.
+355's one lifted vertex/five partial faces therefore supplies ONE growth column,
+not five fully growing columns. Progression/coverage/outer transition remain unproven.
+
+356 applies the selected355 candidate privately to the real full mesh, recreates the
+current Directory, then uses existing RepairMetricConnectivity (default64 trials)
+and native OptimizeMetricMesh (four sweeps/64trials/30s diagnostic bound). Only real
+unbound cavity-interface vertices are fixed; no first-child/apex/column freeze or
+artificial sliding. Every returned proposal gets complete strict positivity, geometry,
+height, prescribed interface and global contact checks. It is an improved proposal,
+not final acceptance; no new operator, scheduler, target/config or production budget.
+
+Selected patch binaries/parameter payload reuse NativeTransactionCapture. Additional
+centroid metric/q/J/base-wall0 frames are bounded inspection data, not production-
+target or integrated-edge certificates. Repair interface hints capture actual full
+neighbor stars only within64cells. Local fixed-interface refusal is NOT global
+infeasibility. This assessment must precede changing metric policy or adding operators.
+
+##356 terminal repair evidence and357 connected normal correction
+
+356 is terminal1/356.111s with pins intact and actual owned identities absent.
+Existing connectivity repair removed one apex and reduced q/J-bad25→20 in36.070s;
+51 trials refused loss, none refused the outer height/geometry screen. Native
+optimization then exhausted the shared300s curved-geometry deadline, so no optimizer
+result or infeasibility conclusion exists. Actual patch/parameter/current-neighbor-star
+binaries and centroid frames are retained; front356_assessment.json seals scope.
+
+The existing five-point replay at wall-child centroids passed in11.576s; a second
+bounded replay at2e-15 instead of2e-12 distance tolerance passed in11.573s. Physical
+surface normals remain stable, while current BL metric axes differ by.009–.413deg.
+ClosestCurved certifies distance, not the angle of query minus its candidate foot.
+Independent Cholesky recomputation matches all25 recorded q/J values. Rigid rotation
+of the five wall tensors improves q/J substantially in several cells, but NONE
+clears both gates; it is sensitivity evidence, not a recomposed metric/replacement.
+See front356_normal_frame_diagnostic.json and the exact point-replay inputs/receipts.
+
+357 changes the shared evaluator to retain differential normals on smooth curved
+support. Physical edge/corner support retains its existing off-wall direction
+behavior; distance certification and distance-direction profile calculations remain
+unchanged. 357 audit found PhysicalSupport alone does not classify cubic seams: cubic charts
+are facet-local.358 instead reuses retained MobilityDimension when a policy exists;
+production PrepareReference already prepares and validates this immutable policy.
+Ordinary smooth seams then use differential normals, while genuine features retain
+the existing behavior. Missing policy keeps ambiguous edge support conservative.
+No policy rebuild or allocation is added per query.357 serial passed4380assertions/
+20cases in304.690s; this does not qualify the subsequent358 policy correction.
+A focused prepared-policy curved-seam regression was added for358.
+No advancement-direction, target norm/sensor, height or construction policy changes.
+Acceptance: focused curved/cache/resource/feature checks, actual point and complete
+surface-volume patch response, one connected MPI milestone, then return to the same
+saved303 full workflow. This does not resolve unproven coverage/progression/transition
+or the provisional complexity excess.

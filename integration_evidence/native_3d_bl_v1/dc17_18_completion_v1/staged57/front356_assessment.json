@@ -1,0 +1,165 @@
+{
+  "scope": "Actual smooth M6 private cavity under composed 1e-4 control target; not production normalization, accepted mesh, grown BL or publication.",
+  "status": {
+    "state": "terminal",
+    "exit_code": 1,
+    "seconds": 356.1109519004822,
+    "pins_verified": true,
+    "changed": [],
+    "largest_sampled_individual_process_rss_bytes": 1957371904,
+    "rss_note": "sampled process RSS; not a whole-job peak"
+  },
+  "terminal_handles": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved356_front_smooth_upper_20261111T041732_797468/terminal_handles_actual.json",
+  "results": [
+    {
+      "context": "smooth_upper",
+      "stage": "prepared_row_result",
+      "attempted": true,
+      "seed": 61340,
+      "constructed": true,
+      "geometry_pass": true,
+      "passing_rows_preserved": true,
+      "external_clearance": true,
+      "complete_patch_height": true,
+      "columns": 5,
+      "passing_columns": 5,
+      "old_q_bad": 5,
+      "old_J_bad": 5,
+      "old_unknown": 0,
+      "fresh_q_bad": 25,
+      "fresh_J_bad": 25,
+      "fresh_unknown": 0,
+      "shape_measured": true,
+      "composed_control_target_only": true,
+      "class": "",
+      "reason": "",
+      "check_reason": "",
+      "geometry_work": 22866,
+      "seconds": 1.5737424340000001,
+      "accepted": false,
+      "production_target_certified": false,
+      "mesh_published": false
+    },
+    {
+      "context": "smooth_upper",
+      "stage": "prepared_connectivity_repair",
+      "improved": true,
+      "geometry_height_contact": true,
+      "trials": 64,
+      "flips": 0,
+      "moves": 0,
+      "removals": 1,
+      "coordinated": 0,
+      "height_rejections": 0,
+      "geometry_rejections": 0,
+      "loss_rejections": 51,
+      "before_loss": 46.720631002012084,
+      "after_loss": 38.36273107266506,
+      "blocked_vertex": 39424,
+      "q_bad": 20,
+      "J_bad": 20,
+      "unknown": 0,
+      "reason": "",
+      "geometry_work": 560869,
+      "seconds": 36.070324922000005,
+      "accepted": false
+    },
+    {
+      "context": "smooth_upper",
+      "stage": "repair_interface_hint",
+      "vertex": 39424,
+      "global_star_cells": 64,
+      "outside_candidate_cells": 59,
+      "support_exported": true
+    },
+    {
+      "context": "smooth_upper",
+      "stage": "refusal",
+      "reason": "Curved atlas elapsed-time budget exhausted.",
+      "geometry_work": 3933841,
+      "seconds": 295.58290265
+    },
+    {
+      "context": "smooth_upper",
+      "stage": "existing_counters",
+      "field": {
+        "queries": 1846,
+        "query_misses": 1529,
+        "compositions": 2341,
+        "edge_integrations": 9,
+        "edge_compositions": 495,
+        "edge_pieces": 13
+      },
+      "edge_failures": 4,
+      "edge_geometry_seconds": 158.592429631,
+      "edge_composition_seconds": 9.854520805999995,
+      "edge_seconds": 168.4484424,
+      "cumulative_perf": {
+        "ops": {
+          "Transaction": {
+            "count": 8,
+            "seconds": 60.502434,
+            "ms_per_op": 7562.8043
+          },
+          "PlanLift": {
+            "count": 26,
+            "seconds": 54.872831,
+            "ms_per_op": 2110.4935
+          },
+          "Column directions": {
+            "count": 17,
+            "seconds": 6.2503201,
+            "ms_per_op": 367.66589
+          },
+          "ConeColumn": {
+            "count": 106,
+            "seconds": 5.5234207,
+            "ms_per_op": 52.107743
+          },
+          "DC15 CavityFirstChild": {
+            "count": 1,
+            "seconds": 0.74687745,
+            "ms_per_op": 746.87745
+          },
+          "D.2 invariant": {
+            "count": 21,
+            "seconds": 0.56263393,
+            "ms_per_op": 26.792092
+          },
+          "V12 FirstRowInsert": {
+            "count": 1,
+            "seconds": 0.078826645,
+            "ms_per_op": 78.826645
+          },
+          "V12 ApexRelocate": {
+            "count": 1,
+            "seconds": 0.002739873,
+            "ms_per_op": 2.739873
+          }
+        },
+        "caches": {
+          "length_hits": 0,
+          "length_misses": 0,
+          "length_failures": 0,
+          "shape_hits": 0,
+          "shape_misses": 0,
+          "height_hits": 0,
+          "height_misses": 0,
+          "rejection_cache_skips": 0,
+          "geometry_length_hits": 0
+        }
+      }
+    }
+  ],
+  "captures": {
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved356_front_smooth_upper_20261111T041732_797468/prepared_repair_neighbor_star_frames.jsonl": "d980ab0a5dd1129d75995fb07e2622f415a019c24c656a3ef09a43c6f924d563",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved356_front_smooth_upper_20261111T041732_797468/prepared_repair_before.bin": "97f054241fffc01bcbc0a20f21bda4aa337bc69d8edc9277e63ddb23ca21d2b8",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved356_front_smooth_upper_20261111T041732_797468/prepared_repair_connectivity.bin": "df6e53a855732274777c07a23798388be2cc9f023302d5f13d4b880e41d0c89c",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved356_front_smooth_upper_20261111T041732_797468/prepared_repair_neighbor_star.bin": "5257f9019512bd38e585c297004990bf05b3740fd620c0eda3e3cbe68e163468",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved356_front_smooth_upper_20261111T041732_797468/prepared_repair_parameters.bin": "bf929ab579e1e29fd07f61233b0bf01529af01082ac1ef3a66ae1d16ff2672da",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved356_front_smooth_upper_20261111T041732_797468/prepared_repair_connectivity_frames.jsonl": "8b543e294d582114ff334d7b1408c96efd8d911c7ebdd013d45f1e6f6e0119b2",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved356_front_smooth_upper_20261111T041732_797468/prepared_repair_before_frames.jsonl": "0ae3e767951005b79b92118a13376d5db33ed92a72144f326c2643a754556c5b"
+  },
+  "next": "Verify smooth-curved metric normal accuracy before interpreting repair failures; preserve complete surface-volume construction obligations.",
+  "timer_note": "Nested/overlapping Transaction, PlanLift and edge times are not additive."
+}

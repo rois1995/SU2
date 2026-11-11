@@ -7,32 +7,57 @@ Read AGENTS.md and [HowToProceed.md](HowToProceed.md). Historical statuses are i
 
 ## Current owned workload — authoritative
 
-Current owned workload: NONE.355 actual TERMINAL0/191.838s; all5 actual PID/start
-identities absent, pins intact. Existing LOW-band coordinated Transaction after the
-same16-split preparation constructs5columns in1.502s/22866geometry work:5old/25fresh
-cells, strict complete geometry/height, all5column heights, old-row preservation
-and current full-mesh contact PASS. Geometry-bad0; maximum relative height error
-.00174527. NO accepted mesh: composed-control q-bad/J-bad BOTH5→25, unknown0.
-No additional lift-edge integration (prefix remains5edges/495compositions), but no
-full-workflow speedup or high/low trajectory equivalence is claimed.
-`R/front355_assessment.json`/four exact source snapshots seal this narrow scope.
-NEXT: construction/repair power. Reuse existing coupled optimizer/growth facilities
-on this actual complete candidate before adding operators, changing metrics, or
-blindly adding refinement. Capture bounded candidate coordinates/metrics using
-existing diagnostic exports if needed. Distinguish temporary interface/registration
-restrictions from unavailable useful connectivity/placement. Then select ONE connected
-production readiness/construction correction, qualify and return to full SAME303.
-355 build passed186.156s/all10 actual handles absent; test SHA
-4f88916889a185c08653e573666379a02ecf86da995a1dde1dae2ed0bd277172.
-Production CFD remains346 SHA9be6aacb8ec55a637cef71da89bdc9d03c03ca0ef3e382e98264ee42453d533c;
-NO production implementation changed since qualified347. All22Euler293 payloads and
-same303 seed/mesh/authority/config rehashed unchanged355 in preservation receipts.
-354 high-band comparison TERMINAL1/355.939s at unchanged300s geometry deadline,
-all5 actual handles absent. One additional lift edge/7532extra compositions; no
-prepared-row result. `R/front354_assessment.json` preserves scope, CPU/RAM and timer
-attribution. Composition contains BL geometry; keep overlapping timers separate.
-This checkpoint contains the completed355 diagnosis, exact source snapshots and current
-handoff together; git HEAD identifies the revision. Prior pushed31ad6bfdc9 is preserved.
+Current owned workload:358 focused serial RUNNING, tool session39078. Source/tests
+FROZEN.358 build TERMINAL0/62.171s/all observed actual handles absent, pins intact.
+CFD SHAc52027cd43e5c1d75283a76e459d5489253c6bbce08ed448d14d794a2a4b4e9b;
+test SHAb365ab240eb6a15724c1634e0ba72ee10f48d4da0bb4e68abc272b8b59723656.
+358 same five M6 points TERMINAL0/11.607s, actual handles absent, pins intact;
+all five metric normal axes now agree with direct differential normals to rounding.
+See R/normal358_actual_points_assessment.json. No mesh/repair benefit proven yet.
+357 serial TERMINAL0/304.690s/4380assertions/20cases; no signal sent before its
+natural completion. Source audit found PhysicalSupport alone conflates cubic
+chart seams and physical features.358 uses retained MobilityDimension when present,
+otherwise conservative ambiguous-support fallback. Production PrepareReference
+already prepares/validates that immutable policy; no per-query rebuild. Added
+prepared-policy curved-seam regression. Read-only final source review found no
+further concrete issue. Await358 serial, actual patch and ONE MPI milestone.
+356 actual repair TERMINAL1/356.111s; all sampled
+PID/start identities including wrapper absent on actual host, pins intact. Connectivity
+repair reduced q/J-bad25→20, then native optimizer exhausted the shared300s geometry
+deadline; this is not proof of infeasible repair. Saved patch/parameter binaries and
+centroid metric frames retain the actual candidate and complete neighbor star.
+Five-point existing356 replay and tighter-distance replay both TERMINAL0/~11.57s,
+actual handles absent. Smooth curved local normals differ from returned metric
+normal axes by.009–.413degrees. Rigid tensor-rotation sensitivity improves q/J but
+NONE clears both gates. This is diagnostic, not a recomposed target or acceptance.
+Next357 connected correction: use differential normals on smooth curved supports;
+retain physical-feature direction behavior. No target/construction-policy change.
+356 build TERMINAL0/188.199s/all10 actual handles absent; test SHA
+5fb1c0a45abf477b91b48d2f08270cd7433d91fcfe39003285d68fefef917378, CFD identical346.
+356 extends355 candidate with RepairMetricConnectivity, then native OptimizeMetricMesh
+under requested heights and real fixed cavity interface, no registry/first-child freezes
+or artificial sliding. Complete strict geometry/height/interface/current global contact
+are rechecked. Selected patch/parameter binaries reuse NativeTransactionCapture;
+centroid tensor/q/J/base-wall0 frames supplement them. Dependency hints export actual
+complete neighbor stars within64 only. No larger cavity/operator/config/policy/budget.
+No production/target/BL acceptance follows from diagnostic repair success alone.
+
+355 actual TERMINAL0/191.838s/all5 actual handles absent, pins intact. After the same
+16-split preparation, existing LOW-band Transaction constructs5columns on5old→25fresh
+cells in1.502s/22866work; complete strict geometry/height, old-row preservation and
+current global contact PASS, max height error.00174527. BUT composed-control centroid
+q-bad/J-bad BOTH5→25, unknown0; NOT accepted/production-target/growth qualification.
+No additional lift-edge integration (prefix5edges/495compositions), no full-workflow
+speedup or high/low trajectory equivalence claim. `R/front355_assessment.json` plus
+four exact snapshots seal scope.355 test SHA4f88916889a185c08653e573666379a02ecf86da995a1dde1dae2ed0bd277172;
+CFD unchanged346 SHA9be6aacb8ec55a637cef71da89bdc9d03c03ca0ef3e382e98264ee42453d533c.
+Latest pushed3e443a77cf is remote verified; current356 diagnostics LOCAL.
+
+Read-only audit: CURRENT RunEvent R1/R2→completion→PhaseG then AdaptMetric quality;
+legacy V13 frozen columns are NOT the current quality path. Growth starts from
+rows.lift/copies, so one lifted vertex/five partial faces is ONE growth column, not
+five complete growing columns. Native quality has geometry/metrics/heights, no row
+registry freeze.356 assesses existing repair under that interpretation, not V13.
 
 352 actual TERMINAL0/189.824s; all5 actual PID/start identities absent, pins intact.
 16 complete-star splits passed geometry/row/contact/support/direction checks.
@@ -44,7 +69,7 @@ seal scope. No coherent first-row/front yet; geometry-target deficiency is unpro
 352 build passed188.199s, all10 observed handles absent; CFD identical346, test SHA
 7026455e087d7f124e897758c945b09f49deeeb6d1bfb25a0bbf3b3bb6fa1cb2.
 351 partial first split/Directory API failure preserved in `R/front351_assessment.json`.
-Latest pushed31ad6bfdc9 remains remote verified; current diagnostics/docs LOCAL.
+Historical31ad6bfdc9 checkpoint is preserved; see current workload above.
 
 ## Preserved completion and qualified production
 

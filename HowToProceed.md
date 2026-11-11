@@ -50,7 +50,12 @@ Actual355's existing LOW-band branch constructs a5-column/25-cell replacement in
 1.502s with strict complete-patch geometry/height and global contact. But q/J BOTH
 worsen5→25 under the composed control target. No usable/admissible BL mesh exists.
 
-The next target is construction/repair power, not another performance campaign or
+356 confirms partial existing repair (q/J-bad25→20), followed by geometry deadline,
+not infeasibility. Existing point replay exposes a material curved-normal accuracy
+issue;357 corrects smooth-support normal selection before further repair conclusions.
+See the physical-height topic for the bounded evidence and remaining gates.
+
+The next target remains complete construction/repair capability, not another performance campaign or
 blind surface refinement: assess existing coupled optimizer/growth on this complete
 actual cavity, including temporary interface/row-registration restrictions and
 candidate coordinates/metric frames where diagnostics need them. This is still an

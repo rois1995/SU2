@@ -364,6 +364,7 @@ struct CBoundaryLayerMetric::WallProjection {
   size_t face=0;
   SU2Native3D::Point bary{};
   std::array<SU2Native3D::Point,2> candidate_bounds{};
+  bool physical_support=false;
 };
 
 bool CBoundaryLayerMetric::CurvedWall(unsigned short wall)const {
@@ -424,6 +425,10 @@ CBoundaryLayerMetric::WallProjection CBoundaryLayerMetric::ProjectWall(
     throw std::logic_error("Curved BL closest foot escaped retained component.");
   out.face=where-wall.authority_facets.begin();
   out.bary=geometry.SurfaceCoordinates(closest.facet,closest.binding);
+  const auto* mobility=wall.authority->Mobility();
+  // Without a prepared policy, keep ambiguous chart-edge support conservative.
+  out.physical_support=mobility ? geometry.MobilityDimension(closest.binding,*mobility)<2 :
+      geometry.PhysicalSupport(closest.binding);
   auto& surface=out.surface;surface.point=closest.point;surface.normal=closest.normal;
   surface.direction={query.x-surface.point.x,query.y-surface.point.y,query.z-surface.point.z};
   const std::array<double,3> displacement{surface.direction.x,surface.direction.y,surface.direction.z};
@@ -2187,8 +2192,9 @@ CBoundaryLayerMetric::Sample CBoundaryLayerMetric::EvaluateImpl(unsigned short i
     if (nZero == 1) n = d.edgeNormal[id][kMin];
     if (nZero >= 2) n = d.vertexNormal[t[kMax]];
     if(wall.authority)n={smooth.normal.x,smooth.normal.y,smooth.normal.z};
-    // A distance interval containing the wall does not resolve the direction of its tiny candidate displacement.
-    if (sample.distance > d.tolerance && (!CurvedWall(iWall) || projection.lower>d.tolerance)) {
+    // Distance accuracy does not certify a candidate displacement's angle; smooth curved walls use their differential normal.
+    if (sample.distance > d.tolerance && (!CurvedWall(iWall) ||
+        (projection.physical_support && projection.lower>d.tolerance))) {
       if(wall.authority)n={smooth.direction.x,smooth.direction.y,smooth.direction.z};
       else for (unsigned short iDim = 0; iDim < 3; ++iDim) n[iDim] = radial[iDim] / sample.distance;
     }

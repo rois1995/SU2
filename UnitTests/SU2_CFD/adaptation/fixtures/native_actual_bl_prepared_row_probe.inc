@@ -66,4 +66,7 @@ if(seed==UINT64_MAX) {
           <<",\"reason\":"<<std::quoted(prepared.witness)<<",\"check_reason\":"<<std::quoted(why)
           <<",\"geometry_work\":"<<budget.work-workAt<<",\"seconds\":"<<std::chrono::duration<double>(std::chrono::steady_clock::now()-start).count()
           <<",\"accepted\":false,\"production_target_certified\":false,\"mesh_published\":false}"<<std::endl;
+  if(prepared.ok&&geometryPass&&preserved&&contact&&completeHeight) {
+#include "native_actual_bl_row_repair_probe.inc"
+  }
 }

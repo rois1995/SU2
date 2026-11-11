@@ -1,0 +1,47 @@
+NATIVE3D_REFERENCE_CACHE host_ranks=1 host_quota_bytes=4294967296 rank_quota_bytes=4294967296
+Filters: [NativeActualCubicBLPolicy3D]
+{"probe":"actual_cubic_bl","stage":"reference_loaded","count":48954,"elapsed_seconds":6.7589953080000003,"geometry_work":0,"peak_bytes":4625561376}
+{"probe":"actual_cubic_bl","stage":"policy_built","count":23456452,"elapsed_seconds":7.0916316070000001,"geometry_work":0,"peak_bytes":4625561376}
+{"point_query":0,"old_initial_cube_candidates_at_least":2}
+{"point_query":0,"returned_facet":25037,"lower":1.87971801780441655539e-07,"upper":1.87971802313829207974e-07,"candidate_position":[0.652440527866283592751,0.604932193639159843102,0.0294911188840420515622],"candidate_normal":[-0.0363579860295339396536,0.00190058500216215542876,-0.999337022544709685512],"candidate_distance_not_certificate":1.87971802323202686326e-07,"work":451}
+{"point_evaluation":0,"extra_geometry_work":329,"distance_not_certificate":1.87973298168032180046e-07,"normal":[0.0328176841135101315938,-0.00373734427796217853063,0.999454367075943039822],"full_tensor_eigenvalues":[1832.15582271627545197,2054.01705172916217634,249999999999.999725342]}
+{"point_query":1,"old_initial_cube_candidates_at_least":3}
+{"point_query":1,"returned_facet":25037,"lower":1.82103349305238878933e-07,"upper":1.82103350474477256562e-07,"candidate_position":[0.653254180739410328371,0.606915021161116063908,0.0294652615180192208044],"candidate_normal":[-0.0363116427673631503303,0.00185320989312004837969,-0.999338796511287097424],"candidate_distance_not_certificate":1.82103350481569992825e-07,"work":489}
+{"point_evaluation":1,"extra_geometry_work":419,"distance_not_certificate":1.82103913043873635902e-07,"normal":[0.0380869322318474062827,-0.00359524069780925350365,0.999267961978913543675],"full_tensor_eigenvalues":[1830.03241996107476552,2035.40668926024727625,249999999999.999725342]}
+{"point_query":2,"old_initial_cube_candidates_at_least":2}
+{"point_query":2,"returned_facet":25037,"lower":5.2654576044337729031e-08,"upper":5.26545761453239880877e-08,"candidate_position":[0.650615855045898250353,0.605210615633248405487,0.0295570425974319948847],"candidate_normal":[-0.0353433324547522409453,0.00143434215851771557255,-0.999374199943927399303],"candidate_distance_not_certificate":5.26545761551911542996e-08,"work":507}
+{"point_evaluation":2,"extra_geometry_work":395,"distance_not_certificate":5.26559459319079092383e-08,"normal":[0.0407206107159978902832,0.00336903358937648382543,0.999164892035138363369],"full_tensor_eigenvalues":[1825.85242986700518486,2038.27411718897928949,249999999999.999664307]}
+{"point_query":3,"old_initial_cube_candidates_at_least":2}
+{"point_query":3,"returned_facet":25037,"lower":1.77263672691364219386e-07,"upper":1.77263674413242043671e-07,"candidate_position":[0.650500840317270734303,0.60335529264295006957,0.0295582922087372496067],"candidate_normal":[-0.0357245876506294343655,0.00162309083466915583284,-0.999360355133890099211],"candidate_distance_not_certificate":1.77263674420319983327e-07,"work":487}
+{"point_evaluation":3,"extra_geometry_work":363,"distance_not_certificate":1.7726557568708555931e-07,"normal":[0.0329177568191779193474,0.00206242461166648849424,0.999455935842453513374],"full_tensor_eigenvalues":[1828.85389453773382229,2061.21481807941745501,249999999999.999694824]}
+{"point_query":4,"old_initial_cube_candidates_at_least":3}
+{"point_query":4,"returned_facet":25037,"lower":1.46107117474383872819e-07,"upper":1.46107119346546226603e-07,"candidate_position":[0.651856927573375322105,0.606660011156943901334,0.0295151309979454871957],"candidate_normal":[-0.035645509379694344243,0.00155332276486601882082,-0.99936328972473775778],"candidate_distance_not_certificate":1.46107119353717419293e-07,"work":329}
+{"point_evaluation":4,"extra_geometry_work":332,"distance_not_certificate":1.46107119353717445762e-07,"normal":[0.0356871719372462148367,-0.00170762825705782195738,0.999361551073913001453],"full_tensor_eigenvalues":[1826.47836771429206237,2028.89846539514746837,249999999999.999725342]}
+{"probe":"actual_cubic_bl","stage":"point_replay_complete","count":5,"elapsed_seconds":7.4245042430000003,"geometry_work":4101,"peak_bytes":4625561376}
+7.527 s: Actual retained cubic wall policy probe without CFD
+===============================================================================
+All tests passed (115 assertions in 1 test case)
+
+	Command being timed: "timeout 600 /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver [NativeActualCubicBLPolicy3D] --durations yes"
+	User time (seconds): 7.42
+	System time (seconds): 0.15
+	Percent of CPU this job got: 96%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 0:07.85
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 332796
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 0
+	Minor (reclaiming a frame) page faults: 91794
+	Voluntary context switches: 1041
+	Involuntary context switches: 78
+	Swaps: 0
+	File system inputs: 0
+	File system outputs: 40
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0

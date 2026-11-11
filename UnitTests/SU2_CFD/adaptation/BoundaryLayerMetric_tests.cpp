@@ -1270,6 +1270,30 @@ TEST_CASE("Native3D complexity reference does not rebase the wall on the adapted
   const double norm=std::hypot(normal[0],normal[1],normal[2]);
   for(auto& n:normal)n/=norm;
   {
+    SU2NativeGeometry::AtlasBudget budget;budget.maximum_work=1000000;budget.maximum_bytes=size_t(64)<<20;
+    std::map<int,int> roles;for(size_t marker=0;marker<state.marker_names.size();++marker)roles.emplace(int(marker),2);
+    const auto mobile=parameters->WithMobilityPolicy(SU2_TYPE::GetValue(test.config->GetAdap_Angle()),roles,budget);
+    auto mobileState=state;mobileState.original=PlanarReference::WithParameters(state.original,mobile);
+    auto mobileLayers=CBoundaryLayerMetric::FromNativeReference(mobileState,*test.config);
+    size_t smoothSeams=0;
+    for(unsigned k=0;k<3;++k) {
+      Edge edge{f.v[k].id,f.v[(k+1)%3].id};std::sort(edge.begin(),edge.end());
+      const auto binding=curved->EdgePoint(edge,.5);
+      if(curved->MobilityDimension(binding,mobile->Mobility())!=2)continue;
+      ++smoothSeams;CHECK(curved->PhysicalSupport(binding));
+      const auto surface=curved->EvaluateSurface(f.id,binding);
+      const Point query{surface.point.x+1e-7*surface.normal.x,surface.point.y+1e-7*surface.normal.y,
+                        surface.point.z+1e-7*surface.normal.z};
+      const auto closest=curved->ClosestCurved(f.id,query,1e-9,MappedFacetReference::ClearanceWork,size_t(64)<<20);
+      REQUIRE(curved->MobilityDimension(closest.binding,mobile->Mobility())==2);
+      const su2double x[3]={query.x,query.y,query.z};const auto sample=mobileLayers->Evaluate(0,x,1.);
+      const double alignment=SU2_TYPE::GetValue(sample.normal[0])*closest.normal.x+
+          SU2_TYPE::GetValue(sample.normal[1])*closest.normal.y+SU2_TYPE::GetValue(sample.normal[2])*closest.normal.z;
+      CHECK(std::abs(alignment)==Approx(1).margin(1e-12));
+    }
+    CHECK(smoothSeams>0);
+  }
+  {
     auto associatedLayers=CBoundaryLayerMetric::FromNativeReference(state,*test.config);
     const auto binding=curved->FacetPoint(f.id,v,w);
     const auto before=curved->GeometryStatsSnapshot();
@@ -1310,13 +1334,13 @@ TEST_CASE("Native3D complexity reference does not rebase the wall on the adapted
     CBoundaryLayerMetric::Tensor target;for(unsigned j=0;j<3;++j)target.m[j][j]=1;
     CHECK_THROWS(associatedLayers->ApplySample(0,intrinsic,target,.0001,nullptr,false));
   }
-  for(double offset:{0.,.0001,.002}) {
+  for(double offset:{0.,1e-7,1e-6,.0001,.002}) {
     su2double query[3];for(unsigned j=0;j<3;++j)query[j]=foot[j]+offset*normal[j];
     const auto sample=layers->Evaluate(0,query,1.);
     CHECK(sample.distance==Approx(offset).margin(2e-9));
     CHECK(sample.hn==Approx(SU2_TYPE::GetValue(NormalSize(.001,1.2,offset))).margin(2e-9));
     double alignment=0;for(unsigned j=0;j<3;++j)alignment+=SU2_TYPE::GetValue(sample.normal[j])*normal[j];
-    CHECK(std::abs(alignment)==Approx(1).margin(2e-5));
+    CHECK(std::abs(alignment)==Approx(1).margin(1e-10));
     CHECK(layers->MarkerDistance(0,{{SU2_TYPE::GetValue(query[0]),SU2_TYPE::GetValue(query[1]),SU2_TYPE::GetValue(query[2])}})==Approx(offset).margin(2e-9));
     CBoundaryLayerMetric::Tensor flow;for(unsigned j=0;j<3;++j)flow.m[j][j]=1e8;
     layers->ApplyPoint(query,flow,1.,nullptr,false);

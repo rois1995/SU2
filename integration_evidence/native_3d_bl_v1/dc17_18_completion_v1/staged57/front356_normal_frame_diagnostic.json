@@ -1,0 +1,79 @@
+{
+  "recomputed_cells": 25,
+  "all_qJ_match": true,
+  "wall_cells": [
+    {
+      "cell": 303428,
+      "angle_degrees": 0.22861816312476912,
+      "q": 0.0009333621882386062,
+      "J": 1.75174255349152e-05,
+      "diagnostic_rotated_q": 0.14423772730122802,
+      "diagnostic_rotated_J": 0.02598775230588079,
+      "not_production_metric": true,
+      "tight_distance_radial_angle_degrees": 0.004316008634630373,
+      "differential_normal_change_norm": 2.9671337380562775e-10,
+      "default_distance_gap": 1.4963857269461441e-12,
+      "tight_distance_gap": 5.333875524352288e-16
+    },
+    {
+      "cell": 303432,
+      "angle_degrees": 0.14256573930989036,
+      "q": 0.035697410074278034,
+      "J": 0.003517210227593278,
+      "diagnostic_rotated_q": 0.0940540004356965,
+      "diagnostic_rotated_J": 0.012746668454682713,
+      "not_production_metric": true,
+      "tight_distance_radial_angle_degrees": 0.006492457605498038,
+      "differential_normal_change_norm": 2.733508062201311e-10,
+      "default_distance_gap": 5.637340833048356e-13,
+      "tight_distance_gap": 1.169238377628985e-15
+    },
+    {
+      "cell": 303436,
+      "angle_degrees": 0.41329116654925585,
+      "q": 0.0006533696919281124,
+      "J": 5.925857724701957e-06,
+      "diagnostic_rotated_q": 0.20438185801656591,
+      "diagnostic_rotated_J": 0.03486452476703102,
+      "not_production_metric": true,
+      "tight_distance_radial_angle_degrees": 0.0035471759124038934,
+      "differential_normal_change_norm": 9.711159830350224e-11,
+      "default_distance_gap": 1.3698787305576047e-12,
+      "tight_distance_gap": 1.0098625905675268e-16
+    },
+    {
+      "cell": 303440,
+      "angle_degrees": 0.26548728301999536,
+      "q": 0.004629580969886978,
+      "J": 0.00012121914661819537,
+      "diagnostic_rotated_q": 0.14499386377739445,
+      "diagnostic_rotated_J": 0.02453434823279764,
+      "not_production_metric": true,
+      "tight_distance_radial_angle_degrees": 0.007985849210548112,
+      "differential_normal_change_norm": 4.416482976675738e-10,
+      "default_distance_gap": 1.902988595225269e-12,
+      "tight_distance_gap": 1.7218778242850016e-15
+    },
+    {
+      "cell": 303444,
+      "angle_degrees": 0.009158184450872287,
+      "q": 0.07234606670191818,
+      "J": 0.009623544525949684,
+      "diagnostic_rotated_q": 0.09252654671244585,
+      "diagnostic_rotated_J": 0.01292188865104785,
+      "not_production_metric": true,
+      "tight_distance_radial_angle_degrees": 0.009158184457866083,
+      "differential_normal_change_norm": 0.0,
+      "default_distance_gap": 1.8721623537840202e-15,
+      "tight_distance_gap": 1.8721623537840202e-15
+    }
+  ],
+  "scope": "Rigid rotation sensitivity only; not recomposed target or accepted replacement.",
+  "inputs_sha256": {
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved356_front_smooth_upper_20261111T041732_797468/prepared_repair_before.bin": "97f054241fffc01bcbc0a20f21bda4aa337bc69d8edc9277e63ddb23ca21d2b8",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved356_front_smooth_upper_20261111T041732_797468/prepared_repair_before_frames.jsonl": "0ae3e767951005b79b92118a13376d5db33ed92a72144f326c2643a754556c5b",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved356_actual_point_frames_20261111T042927_828436/run.log": "007aa78ec4f87263f594d2594b71abcefa2b5acc5738eb0180050c1ca682975c",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved356_actual_point_frames_tight_20261111T043039_831627/run.log": "cefcd2465ef11d1476320bca33b57c709ba015b2567d0716ee6628e3bf244475"
+  },
+  "method": "Native patch little-endian u64 cell count, u64 cell ID plus four (u64 node ID, three binary64 coordinates); centroid tensor six entries xx,xy,xz,yy,yz,zz. Cholesky metric transform; q=12*(abs(det)/2)^(2/3)/sum6edgeSquared; J=minCorner(sqrt(2)*abs(det)/product3incidentEdges). Rigid Rodrigues rotation maps current sample.normal to differential normal with dyadic sign chosen consistently. Rotation is a sensitivity calculation, not full target recomposition."
+}
