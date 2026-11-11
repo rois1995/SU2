@@ -1,0 +1,43 @@
+{
+  "argv": [
+    "nice",
+    "-n",
+    "19",
+    "/usr/bin/time",
+    "-v",
+    "timeout",
+    "--signal=TERM",
+    "--kill-after=20s",
+    "14400",
+    "mpirun",
+    "--output-filename",
+    "rank_output",
+    "-n",
+    "6",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+    "[NativeSelectedFailureWorkflow3D]",
+    "--durations",
+    "yes"
+  ],
+  "wrapper": {
+    "pid": 1466577,
+    "start_ticks": 43035039
+  },
+  "saved_checkpoint": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_bl_inputs/rans_curved_surface_ready_v1",
+  "source_attempt": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/rans_curved314_v1",
+  "initial_available_bytes": 46616674304,
+  "loadavg": "2.43 4.05 3.68 2/4762 1467058\n",
+  "environment": {
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1",
+    "OMPI_MCA_osc": "pt2pt",
+    "TMPDIR": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/compile-tmp",
+    "OMPI_MCA_orte_tmpdir_base": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/compile-tmp/rans-curved364-vjti8ul8",
+    "SU2_NATIVE_FROZEN_CONFIG": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/rans_curved364_v1/run.cfg"
+  },
+  "expected_events": 2,
+  "outer_seconds_total": 14400,
+  "qualification": "364 unchanged published-census batch surface planning: affected serial and MPI caller checks qualified; usable curved BL, native MPI FIRST_ROW and complete workflow unproven",
+  "scope": "Same saved303 RANS/SA seed, Mach-only L1,500k and unchanged heights/gates/native5400/outer14400. Existing DOUBLE volume output only. Qualified364 measures each existing published census batch once, then extracts exact per-cell edges and requested-face maxima. Private old/fresh trial guidance still recomputes. Existing incremental seeding is retained. Full readiness, final certification, metric policy and budgets remain unchanged; no persistent guidance cache or larger batch. Previous full362 reached14commits but only16.27percent census coverage before the unchanged surface deadline. Bounded364 comparisons preserve exact cell measurements and reduce repeated guidance; full surface readiness, coherent layers and complete strict mesh remain unproven. Full CFD to mesh to CFD to mesh is the capability attempt, not a timing baseline. Conservative turbulence transfer, finite CFD and isolated disk restart require independent evidence. Rejected-state capture enabled."
+}

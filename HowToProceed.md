@@ -85,7 +85,7 @@ child-budget flag failure is preserved. Connected364 (affected serial/actual/MPI
 uses the existing multi-cell planner once per existing published measurement batch,
 extracting exact per-cell edges/requested-face maxima; private trials are unchanged.
 No persistent cache or larger batch. Cached-versus-single equivalence and all5actual contexts pass; ONE MPI milestone
-passes17cases on every rank. Immediately return to same303 full workflow. See
+passes17cases on every rank. Full same303 workflow364 is now RUNNING/FROZEN; exact handles are in HANDOFF_Codex.md. See
 HANDOFF_Codex.md for current handles and qualification; no improvement is yet proven.
  First assess whether surface preparation reaches useful operators and a
 complete readiness census within the unchanged window. Then judge actual first-layer,

@@ -662,3 +662,10 @@ pins intact/all10actual identities absent. qualification364.json pins serial/act
 MPI scopes and exact-source support-invariance proof. This qualifies affected
 measurement behavior only; no accepted BL or native-MPI FIRST_ROW claim. Immediately
 full same303 two-event workflow after checkpoint, with unchanged target/constraints.
+
+
+Full same303 workflow364 launched after qualified checkpoint87d0be3905. All10actual
+PID/start identities verified live,1639pins intact,84mapped ELF files match. First
+metric stage running. See HANDOFF_Codex.md and R/m6_runs/rans_curved364_v1/
+start_verified_actual.json. Keep compiled/executing sources frozen. No remesh
+outcome or full-run speedup established yet; all BL/RANS obligations remain.

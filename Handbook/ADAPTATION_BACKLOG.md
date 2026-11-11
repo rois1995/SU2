@@ -993,8 +993,8 @@ or other causes. Keep all convergence, geometry, height and resource gates.
 
 ### Deferred closest-query alternatives —2026-11-10
 
-The ACTIVE319 hypothesis reuses immutable cubic region geometry; preserve its
-frozen actual-cell replay and judge its complete outcome before selecting more work.
+The historical319 hypothesis reused immutable cubic region geometry. Its run/status
+notes are historical; use HANDOFF_Codex.md for the current cycle and owned workload.
 
 - Exact closest-result memoization: same binary64 query/support and a completed
   interval meeting the new precision could be reusable, but repeated-query frequency
@@ -1007,3 +1007,16 @@ frozen actual-cell replay and judge its complete outcome before selecting more w
   unmeasured; any use must validate finite in-domain barycentrics and retain fresh
   complete support, distance/clearance traversal and strict final gates. No CAD
   dependency or replacement of a certificate by numerical minimization.
+
+
+### Deferred after364: raw core caches / repeated SPD work
+
+Read-only363 audit found current-nodal point caching bypassed and an explicit SPD
+check before MetricNorm repeats its own SPD check in surface planning. No prepared
+validated-metric frame API exists. Actual363/364 contexts show core/edge/overlay work
+is tiny and sided guidance is98–99%ofdirect planner time. Do not open a competing
+cache/kernel cycle from those source opportunities. Revisit only if later measured
+work makes them material; retain finite/SPD checks, exact norm fallbacks, immutable
+sample lifetime, exact field/endpoint identity and memory admission. No production
+change selected for these alternatives. See surface362_reuse_audit.json and
+seed364_assessment.json. Active work remains full frozen364 and its actual outcome.
