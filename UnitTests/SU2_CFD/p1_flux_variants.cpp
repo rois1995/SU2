@@ -8095,8 +8095,8 @@ TEST_CASE("P1 SST matched SPLIT boundary: hat nodal flux + k_b m, k jump, unifor
 }
 
 TEST_CASE("BC_ENTROPY_P1 Jacobian: pressure flux faces and the scalar Ismail-Roe Jacobian", "[P1Flux]") {
-  /*--- The wall branch of EsFaceJacobian (not used by the solver, which keeps the approximate wall Jacobian) and the
-   * port of ismailRoeProjJac, which must equal the vectorized one to round-off. ---*/
+  /*--- The pressure-flux branch of EsFaceJacobian (Euler walls and symmetry planes, used by the solver since
+   * JST_P1ES_JACOBIAN_DIAG.md 8.1) and the port of ismailRoeProjJac, which must equal the vectorized one to round-off. ---*/
   std::mt19937 gen(9404);
   su2double worstWall = 0.0, worstPort = 0.0;
   for (int nDim : {2, 3}) {
@@ -8108,6 +8108,8 @@ TEST_CASE("BC_ENTROPY_P1 Jacobian: pressure flux faces and the scalar Ismail-Roe
       for (int k = 0; k < nDim; ++k) states[k] = JacPerturb(gen, nDim, base, (trial % 2) ? 0.2 : 0.02);
       pbc::EsBoundaryData data;
       data.kind = EULER_WALL;
+      worstWall = std::max(worstWall, FaceJacobianError(nDim, &data, N, states));
+      data.kind = SYMMETRY_PLANE;
       worstWall = std::max(worstWall, FaceJacobianError(nDim, &data, N, states));
       worstWall = std::max(worstWall, FaceJacobianError(nDim, nullptr, N, states));
     }

@@ -5016,12 +5016,13 @@ void CSolver::Weak_BC_Residual(CGeometry *geometry, CSolver **solver_container,
         su2double subNormal[4][3];
         P1Mixed::QuadSubNormals(faceCoord, savedNormal, subNormal);
 
-        /*--- (6,1,1)/24 of the triangle path, also the weights of the approximate Jacobian of closure C at walls and
-         * symmetry planes; far field, inlets and outlets get the exact one of each sub-triangle (EsFaceJacobian). ---*/
+        /*--- (6,1,1)/24 of the triangle path, the weights of the approximate Jacobian of the weak nodal fluxes; closure C
+         * gets the exact Jacobian of each sub-triangle (EsFaceJacobian), also at walls and symmetry planes (pressure flux,
+         * JST_P1ES_JACOBIAN_DIAG.md 8.1: the approximate wall Jacobian made the implicit iteration diverge). ---*/
         const su2double omegaSelf = 0.25, omegaOther = 1.0 / 24.0;
         const bool exactJac = bcEntropyP1 && implicit &&
                               ((KindBC == FAR_FIELD) || (KindBC == INLET_FLOW) || (KindBC == OUTLET_FLOW) ||
-                               (KindBC == CUSTOM_BOUNDARY));
+                               (KindBC == CUSTOM_BOUNDARY) || (KindBC == EULER_WALL) || (KindBC == SYMMETRY_PLANE));
 
         for (unsigned short tri = 0; tri < 4; ++tri) {
           const auto* local = P1Mixed::QuadTriangles[tri];
@@ -5115,7 +5116,8 @@ void CSolver::Weak_BC_Residual(CGeometry *geometry, CSolver **solver_container,
                 for (jVar = 0; jVar < nVar; ++jVar) jac[nVar - 1][jVar] += dkTri[a][jVar];
               }
               if (b == a) Jacobian.AddBlock2Diag(pointA, jac);
-              else if (geometry->nodes->GetDomain(pointB)) Jacobian.AddBlock(pointA, pointB, jac);
+              /*--- Halo columns too: the residual of the owned row uses every face state (MPI = serial). ---*/
+              else Jacobian.AddBlock(pointA, pointB, jac);
             }
           }
         }
@@ -5134,10 +5136,11 @@ void CSolver::Weak_BC_Residual(CGeometry *geometry, CSolver **solver_container,
       P1CustomViscousOnly = false;
 
       /*--- BC_ENTROPY_P1: residual of closure C from the nodal primitives (halo nodes included, as above), added to
-       * the owned nodes only. Far field, inlets and outlets on static meshes: the exact Jacobian of the face residual
-       * (EsFaceJacobian, P1_BOUNDARY.md, 11). Walls, symmetry planes and closure C-ALE: the approximate one of the
-       * 5:1 / 6:1:1 closure of the nodal boundary fluxes in "buffer" (pressure flux at walls, ghost fluxes at the far
-       * field), the linearization of closure C in its linear analog (Thm B9 iv). Same sparsity as the path below. ---*/
+       * the owned nodes only. Static meshes: the exact Jacobian of the face residual (EsFaceJacobian, P1_BOUNDARY.md,
+       * 11) at far field, inlets, outlets, custom markers, Euler walls and symmetry planes (pressure flux; the
+       * approximate wall Jacobian made the implicit iteration diverge, JST_P1ES_JACOBIAN_DIAG.md 8.1). Closure C-ALE:
+       * the approximate one of the 5:1 / 6:1:1 closure of the nodal boundary fluxes in "buffer", the linearization of
+       * closure C in its linear analog (Thm B9 iv). Same sparsity as the path below. ---*/
       if (bcEntropyP1) {
         su2double faceRes[3][ES_NVAR] = {{0.0}};
         su2double faceJac[3][3][ES_NVAR][ES_NVAR];
@@ -5174,6 +5177,7 @@ void CSolver::Weak_BC_Residual(CGeometry *geometry, CSolver **solver_container,
           setFaceData(iMarker, nNodes, facePoints);
           EsFaceResidual(nDim, nNodes, config->GetGamma(), &esData, element->getNormal(), faceStates, faceRes);
           exactJac = implicit && ((KindBC == FAR_FIELD) || (KindBC == INLET_FLOW) || (KindBC == OUTLET_FLOW) ||
+                                  (KindBC == EULER_WALL) || (KindBC == SYMMETRY_PLANE) ||
                                   (KindBC == CUSTOM_BOUNDARY));
           if (exactJac) {
             EsFaceJacobian(nDim, nNodes, config->GetGamma(), &esData, element->getNormal(), faceStates, faceJac);
@@ -5240,7 +5244,8 @@ void CSolver::Weak_BC_Residual(CGeometry *geometry, CSolver **solver_container,
               for (jVar = 0; jVar < nVar; ++jVar) jac[nVar - 1][jVar] += dkIn[a][jVar];
             }
             if (b == a) Jacobian.AddBlock2Diag(pointA, jac);
-            else if (geometry->nodes->GetDomain(pointB)) Jacobian.AddBlock(pointA, pointB, jac);
+            /*--- Halo columns too: the residual of the owned row uses every face state (MPI = serial). ---*/
+            else Jacobian.AddBlock(pointA, pointB, jac);
           }
         }
         continue;
