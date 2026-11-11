@@ -8,8 +8,13 @@ Read AGENTS.md and [HowToProceed.md](HowToProceed.md). Historical states are in
 
 ## Current owned workload — authoritative
 
-Current owned workload: NONE after qualified362 milestone. Full same303 runner362
-is prepared, not yet launched. Build362 TERMINAL0/70.163s, pins intact,9observed build
+Current owned workload: full same303 workflow362 RUNNING/FROZEN, tool session6695.
+Folder `R/m6_runs/rans_curved362_v1`; wrapper1251081/start42532701,
+timeout1251565/start42533873, MPI1251566/start42533873; actual10PID/start identities
+verified live in start_verified_actual.json,1623pins intact, runtime mapping recorded.
+Started2026-11-11T07:08:19UTC. Initial setup running; no outcome yet. Compiled C++/tests
+and pinned helpers remain unchanged until verified terminal or preserved failure
+justifies authorized stop. Qualified change pushed2e151415c8 before launch. Build362 TERMINAL0/70.163s, pins intact,9observed build
 PIDs absent. Serial362 TERMINAL0/4.426s,741assertions/9cases, pins intact/all actual
 identities absent. MPI362 TERMINAL0/369.066s,17cases on EVERYrank,4062–4217assertions/rank,
 pins intact/all10actual identities absent. `R/qualification362.json` scopes affected

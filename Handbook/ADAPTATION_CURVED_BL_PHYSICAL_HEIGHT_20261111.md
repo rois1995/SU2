@@ -548,3 +548,8 @@ failed only new large-star setup mistakes (donor cap then128-cell metric cap).
 existing streamed320-cell engine cases. No production bound changed. Qualification
 is LIMITED to affected behavior. Immediately retry actual same303 full workflow;
 no useful M6 progress, speedup or usable BL claimed from these checks.
+
+Full same303 workflow362 launched after the qualification push. Actual10owned
+PID/start identities verified live,1623pins intact, same inputs/gates/budgets.
+See HANDOFF_Codex.md and R/m6_runs/rans_curved362_v1/start_verified_actual.json.
+Keep sources frozen; no M6 outcome or speedup is yet established.

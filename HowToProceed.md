@@ -70,8 +70,8 @@ in369.066s, pins intact/all actual handles absent. Follow HANDOFF_Codex.md for i
 setups are preserved; production patch bounds remain unchanged. Strict normal serial360
 passed independently, although that campaign as a whole failed its separate new fixture.
 
-Checkpoint the qualified change and immediately retry the full SAME303
-workflow. First assess whether surface preparation reaches useful operators and a
+Qualified change pushed2e151415c8. Full SAME303 workflow362 is RUNNING/FROZEN;
+its exact live handles and start receipt are in HANDOFF_Codex.md. First assess whether surface preparation reaches useful operators and a
 complete readiness census within the unchanged window. Then judge actual first-layer,
 growth and transition results; useful operators or test passes are not usable BL.
 See the [physical-height topic](Handbook/ADAPTATION_CURVED_BL_PHYSICAL_HEIGHT_20261111.md)
