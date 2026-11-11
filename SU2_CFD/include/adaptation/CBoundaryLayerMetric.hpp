@@ -27,6 +27,7 @@
 #pragma once
 
 #include <memory>
+#include <atomic>
 #include <functional>
 #include <stdexcept>
 #include <array>
@@ -239,6 +240,18 @@ class CBoundaryLayerMetric {
   void RecomposeTangentialSample(unsigned short wall, Sample& sample, su2double coreEigenvalue) const;
   uint64_t GetSupportVersion() const { return supportVersion; }
   double GetOuterTransitionCore() const { return transitionCore; }
+  struct EdgeExclusionStats {
+    size_t attempts=0,proven=0,fallbacks=0,wall_preparations_avoided=0,edge_preparations_avoided=0,evaluations_avoided=0;
+  };
+  /*! Whole closed straight segment, including rounded metric queries; no precise distance/normal queries.
+   * additionalRadius covers independently blended BL policy support. False means use the existing evaluator. */
+  bool ExcludesEdge(const std::array<double,3>& a,const std::array<double,3>& b,double additionalRadius=0,
+                    const std::array<double,3>& metricPadding={}) const;
+  static bool MatchesChordPoint(const std::array<double,3>& a,const std::array<double,3>& b,
+                                long double t,const std::array<double,3>& point);
+  EdgeExclusionStats GetEdgeExclusionStats() const;
+  void RecordExcludedEdge() const {excludedEdgePreparations.fetch_add(1,std::memory_order_relaxed);}
+  void RecordExcludedEvaluation() const {excludedEvaluations.fetch_add(1,std::memory_order_relaxed);}
 
 
   /*!
@@ -404,6 +417,8 @@ class CBoundaryLayerMetric {
   struct WallProjection;
   WallProjection ProjectWall(unsigned short wall,const std::array<double,3>& point,double absoluteError=-1,size_t transientBytes=0)const;
   bool CurvedWall(unsigned short wall)const;
+  bool OutsideWallEdge(unsigned short wall,const std::array<double,3>& a,const std::array<double,3>& b,
+                       double additionalRadius,const std::array<double,3>& metricPadding) const;
   bool MayIntersectBand3D(const std::array<std::array<double,3>,4>& tetrahedron,unsigned short wall)const;
   Sample EvaluateImpl(unsigned short wall, const su2double* coord, su2double coreEigenvalue, bool distanceOnly,
                       unsigned long pinned = ChordOwners::NoFacet,const WallProjection* associated=nullptr);
@@ -478,4 +493,6 @@ class CBoundaryLayerMetric {
   std::vector<Wall> walls;
   SU2NativeGeometry::AtlasBudget* geometryReservation=nullptr;
   std::vector<std::unique_ptr<WallData>> data;
+  mutable std::atomic<size_t> exclusionAttempts{0},exclusionProven{0},exclusionFallbacks{0};
+  mutable std::atomic<size_t> excludedWallPreparations{0},excludedEdgePreparations{0},excludedEvaluations{0};
 };

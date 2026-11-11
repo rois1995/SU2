@@ -4350,3 +4350,127 @@ TEST_CASE("Native BL normalization adjusts inherited tangents independently of H
   a->layers->SelectTangentialScale(1);CHECK_FALSE(a->Compatible(*first.config));
   a->layers->SelectTangentialScale(a->inherited_tangent_scale);CHECK(a->Compatible(*first.config));
 }
+
+namespace {
+CBoundaryLayerMetric::Wall ExclusionPlane(double height=0) {
+  CBoundaryLayerMetric::Wall wall;wall.layer={"wall",.002,1.2,.02};
+  wall.coord={0,0,height,1,0,height,0,1,height};wall.conn={0,1,2,2};return wall;
+}
+struct CurvedExclusionFixture {
+  std::shared_ptr<SU2NativeGeometry::MappedFacetReference> geometry;
+  std::shared_ptr<CBoundaryLayerMetric> layers;
+  std::vector<SU2Native3D::Facet> facets;
+  CurvedExclusionFixture() {
+    using namespace SU2Native3D;using SU2NativeGeometry::MappedFacetReference;
+    const Node a{0,{0,0,0}},b{1,{1,0,0}},c{2,{0,1,0}},d{3,{0,0,1}};
+    facets={{0,0,{a,b,c}},{1,1,{a,d,b}},{2,1,{b,d,c}},{3,1,{c,d,a}}};
+    auto original=std::make_shared<PlanarReference>(facets);MappedFacetReference::CurvedNets nets;std::map<Id,double> errors;
+    const unsigned powers[10][3]={{3,0,0},{0,3,0},{0,0,3},{2,1,0},{1,2,0},{0,2,1},{0,1,2},{1,0,2},{2,0,1},{1,1,1}};
+    for(const auto& f:facets) {
+      errors[f.id]=1e-12;
+      for(unsigned q=0;q<10;++q) {
+        Point p{};for(unsigned k=0;k<3;++k){p.x+=powers[q][k]*f.v[k].p.x/3;p.y+=powers[q][k]*f.v[k].p.y/3;p.z+=powers[q][k]*f.v[k].p.z/3;}
+        nets[f.id][q]=p;
+      }
+    }
+    nets.at(0)[9].z=-.03;
+    geometry=std::make_shared<MappedFacetReference>(original,errors,381,SIZE_MAX,false,nets);
+    BoundaryPoints points;std::vector<SurfaceFace> skin;
+    for(const auto& f:facets){for(const auto& n:f.v)points.emplace(n.id,BoundaryPoint{n,geometry->Vertex(n.id)});skin.push_back({{f.v[0].id,f.v[1].id,f.v[2].id},f.id});}
+    auto parameters=std::make_shared<BoundaryParameterState>(geometry,points,skin);
+    auto wall=ExclusionPlane();wall.authority=PlanarReference::WithParameters(original,parameters);
+    wall.authority_facet=0;wall.authority_facets={0};wall.surface_tolerance=1e-4;
+    layers=std::make_shared<CBoundaryLayerMetric>(3,std::vector<CBoundaryLayerMetric::Wall>{wall});
+  }
+};
+void SameNativeTensor(SU2Native3D::Tensor a,SU2Native3D::Tensor b) {
+  CHECK(a.xx==b.xx);CHECK(a.xy==b.xy);CHECK(a.xz==b.xz);CHECK(a.yy==b.yy);CHECK(a.yz==b.yz);CHECK(a.zz==b.zz);
+}
+}
+
+TEST_CASE("Whole-edge BL exclusion rejects crossings and preserves the exact background target", "[NativeBLEdgeExclusion3D]") {
+  using namespace SU2Native3D;
+  auto layers=std::make_shared<CBoundaryLayerMetric>(3,std::vector<CBoundaryLayerMetric::Wall>{ExclusionPlane()});
+  const SU2Native3D::Tensor sensor{3,.1,.2,2,.05,4};
+  const std::array<double,3> a{-100,103,0},b{100,-97,0}; // AABB overlaps the wall, but the whole segment is separated.
+  REQUIRE(layers->ExcludesEdge(a,b));CHECK(layers->ExcludesEdge(b,a));
+  auto geometry=SU2NativeBL3D::EdgeGeometry(layers,1.)({a[0],a[1],a[2]},{b[0],b[1],b[2]});
+  REQUIRE((geometry.cuts==std::vector<double>{0,1}));REQUIRE(bool(geometry.pinned));
+  for(double t:{0.,.25,.5,.75,1.}) {
+    Point p{(1-t)*a[0]+t*b[0],(1-t)*a[1]+t*b[1],0};
+    SameNativeTensor(geometry.pinned(t,p,sensor),SU2NativeBL3D::Compose(*layers,1.,p,sensor));
+  }
+  CHECK(layers->GetEdgeExclusionStats().evaluations_avoided==5);
+  CHECK_FALSE(layers->ExcludesEdge({.2,.2,-.1},{.2,.2,.1})); // Both endpoint distances exceed the thickness.
+  CHECK(layers->EdgeBreakpoints({.2,.2,-.1},{.2,.2,.1}).size()>2);
+  CHECK_FALSE(layers->ExcludesEdge({.2,.2,.02},{.3,.2,.02}));
+  CHECK_FALSE(layers->ExcludesEdge({.2,.2,std::nextafter(.02,INFINITY)},{.3,.2,std::nextafter(.02,INFINITY)}));
+  CHECK(layers->ExcludesEdge({.2,.2,.02001},{.3,.2,.02001}));
+  CHECK_FALSE(layers->ExcludesEdge(a,b,0,{INFINITY,0,0}));
+  const auto inside=geometry.pinned(.5,{.2,.2,0},sensor);CHECK(inside.zz>sensor.zz); // Changed coordinates cannot borrow exclusion.
+  const auto old=geometry;layers->ConfigureOuterTransition(.01,1.3);
+  CHECK_FALSE(layers->ExcludesEdge({.2,.2,.1},{.3,.2,.1}));
+  CHECK_THROWS(old.pinned(.5,{0,3,0},sensor));
+}
+
+TEST_CASE("Whole-edge exclusion covers curved authority without closest refinement", "[NativeBLEdgeExclusion3D]") {
+  using namespace SU2Native3D;CurvedExclusionFixture fixture;
+  const auto before=fixture.geometry->GeometryStatsSnapshot();
+  REQUIRE(fixture.layers->ExcludesEdge({-100,103,0},{100,-97,0}));
+  CHECK_FALSE(fixture.layers->ExcludesEdge({-.1,.2,-.005},{1.1,.2,-.005}));
+  CHECK_FALSE(fixture.layers->ExcludesEdge({.2,.2,-.004},{.4,.2,-.004}));
+  const auto cuts=fixture.layers->EdgeBreakpoints({-100,103,0},{100,-97,0});
+  CHECK((cuts==std::vector<double>{0,1}));
+  const auto after=fixture.geometry->GeometryStatsSnapshot();
+  CHECK(after.closest_region_hits==before.closest_region_hits);CHECK(after.closest_region_misses==before.closest_region_misses);
+  CHECK(after.closest_answer_hits==before.closest_answer_hits);CHECK(after.closest_answer_misses==before.closest_answer_misses);
+  const SU2Native3D::Tensor sensor{3,.1,.2,2,.05,4};
+  const auto edge=SU2NativeBL3D::EdgeGeometry(fixture.layers,1.)({2,2,2},{3,2,2});
+  for(double t:{0.,.5,1.})SameNativeTensor(edge.pinned(t,{2+t,2,2},sensor),SU2NativeBL3D::Compose(*fixture.layers,1.,{2+t,2,2},sensor));
+  const auto fast=fixture.geometry->GeometryStatsSnapshot();
+  const auto fallback=fixture.layers->EdgeBreakpoints({2,2,2},{3,2,2},1.5,16,nullptr,{INFINITY,INFINITY,INFINITY});
+  CHECK(fallback==edge.cuts);
+  const auto detailed=fixture.geometry->GeometryStatsSnapshot();
+  CHECK(detailed.closest_answer_misses>fast.closest_answer_misses);
+  CHECK(detailed.closest_region_hits+detailed.closest_region_misses>fast.closest_region_hits+fast.closest_region_misses);
+  CHECK(fixture.layers->GetEdgeExclusionStats().wall_preparations_avoided>0);
+}
+
+TEST_CASE("Whole-edge exclusion includes every wall blend and evolving support", "[NativeBLEdgeExclusion3D]") {
+  using namespace SU2Native3D;
+  auto first=ExclusionPlane(),second=ExclusionPlane();second.layer.marker="other";
+  for(size_t k=0;k<second.coord.size();k+=3)second.coord[k]+=5;
+  CBoundaryLayerMetric both(3,{first,second});
+  CHECK_FALSE(both.ExcludesEdge({5.2,.2,.001},{5.3,.2,.001}));
+  CHECK(both.ExcludesEdge({5.2,.2,1},{5.3,.2,1}));
+  CBoundaryLayerMetric::FeatureOptions features;features.hgrad=1.3;
+  CBoundaryLayerMetric ridge(3,Ridge(.002,.002,1.2,true),45.,features);
+  REQUIRE(ridge.GetFeatures().segments>0);
+  CHECK_FALSE(ridge.ExcludesEdge({.001,3,.001},{.001,4,.001}));
+  CHECK(ridge.ExcludesEdge({100,3,100},{100,4,100}));
+  CurvedExclusionFixture full,base;
+  auto A=dc10::BuildOptionA(full.facets,{{0,1},{1,2}},45.,.5,.002);A->distanceLayers=base.layers;A->core=1;
+  const SU2Native3D::Tensor sensor{3,.1,.2,2,.05,4};
+  auto factory=dc10::EdgeGeometryA(base.layers,full.layers,1.,A);
+  const auto edge=factory({2,2,2},{3,2,2});
+  SameNativeTensor(edge.pinned(.5,{2.5,2,2},sensor),A->Compose(*base.layers,*full.layers,1.,{2.5,2,2},sensor,nullptr,0));
+  const auto avoided=full.layers->GetEdgeExclusionStats().edge_preparations_avoided;
+  const auto near=factory({.2,-.15,-.15},{.3,-.15,-.15});
+  CHECK(full.layers->GetEdgeExclusionStats().edge_preparations_avoided==avoided); // Include the independent crease blend reach.
+  const Point p{.25,-.15,-.15};SameNativeTensor(near.pinned(.5,p,sensor),A->Compose(*base.layers,*full.layers,1.,p,sensor,nullptr,0));
+  A->ConfigureRadius(1.);CHECK_THROWS(edge.pinned(.5,{2.5,2,2},sensor));
+}
+
+TEST_CASE("Uncertain or exhausted edge exclusions always fall back", "[NativeBLEdgeExclusion3D]") {
+  CurvedExclusionFixture fixture;auto& layers=*fixture.layers;
+  SU2NativeGeometry::AtlasBudget budget;budget.maximum_work=100000;budget.maximum_bytes=size_t(1)<<28;budget.caller_bytes=layers.StorageBytes();
+  CBoundaryLayerMetric::GeometryReservationScope scope(layers,budget);
+  SECTION("No remaining work") {budget.maximum_work=0;}
+  SECTION("No remaining memory") {budget.maximum_bytes=budget.caller_bytes;}
+  SECTION("Expired deadline") {budget.within_time=[](){return false;};}
+  SECTION("Unknown metric reconstruction") {
+    CHECK_FALSE(layers.ExcludesEdge({2,2,2},{3,2,2},0,{INFINITY,0,0}));return;
+  }
+  CHECK_FALSE(layers.ExcludesEdge({2,2,2},{3,2,2}));
+  const auto counters=layers.GetEdgeExclusionStats();CHECK(counters.proven==0);CHECK(counters.fallbacks>0);
+}

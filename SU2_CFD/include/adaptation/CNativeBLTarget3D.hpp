@@ -204,9 +204,26 @@ inline MetricComposition CompositionA(std::shared_ptr<CBoundaryLayerMetric> base
 }
 inline MetricEdgeBreakpoints EdgeGeometryA(std::shared_ptr<CBoundaryLayerMetric> base,std::shared_ptr<CBoundaryLayerMetric> full,double core,std::shared_ptr<OptionA> A) {
   return [base,full,core,A](Point a,Point b) {
-    auto owners=std::make_shared<CBoundaryLayerMetric::ChordOwners>();
-    SU2Native3D::EdgeGeometry geometry(full->EdgeBreakpoints({a.x,a.y,a.z},{b.x,b.y,b.z},1.5,16,owners.get()));
-    geometry.pinned=[base,full,core,A,owners](long double t,Point p,Tensor sensor){return A->Compose(*base,*full,core,p,sensor,owners.get(),t);};
+    const auto fp=full->GetSampleVersion(),fs=full->GetSupportVersion(),bp=base->GetSampleVersion(),bs=base->GetSupportVersion();
+    const auto radius=A->radius;
+    const double extra=radius>0?std::nextafter(double(radius),INFINITY):double(radius);
+    const auto ft=full->GetOuterTransitionCore(),bt=base->GetOuterTransitionCore();
+    // The crease segments lie on original wall edges; include their complete radial blend reach too.
+    const bool outside=(!(ft>0)||core>=ft*(1-1e-12))&&(!(bt>0)||core>=bt*(1-1e-12))&&
+        full->ExcludesEdge({a.x,a.y,a.z},{b.x,b.y,b.z},extra)&&base->ExcludesEdge({a.x,a.y,a.z},{b.x,b.y,b.z},extra);
+    std::shared_ptr<CBoundaryLayerMetric::ChordOwners> owners;
+    SU2Native3D::EdgeGeometry geometry;
+    if(outside){geometry.cuts={0,1};full->RecordExcludedEdge();}
+    else {owners=std::make_shared<CBoundaryLayerMetric::ChordOwners>();
+      geometry.cuts=full->EdgeBreakpoints({a.x,a.y,a.z},{b.x,b.y,b.z},1.5,16,owners.get());}
+    geometry.pinned=[base,full,core,A,owners,a,b,fp,fs,bp,bs,radius,outside](long double t,Point p,Tensor sensor){
+      if(fp!=full->GetSampleVersion()||fs!=full->GetSupportVersion()||bp!=base->GetSampleVersion()||bs!=base->GetSupportVersion()||radius!=A->radius)
+        throw std::runtime_error("Stale composed BL edge context; rebuild target integration geometry.");
+      if(outside&&CBoundaryLayerMetric::MatchesChordPoint({a.x,a.y,a.z},{b.x,b.y,b.z},t,{p.x,p.y,p.z})) {
+        full->RecordExcludedEvaluation();return sensor;
+      }
+      return A->Compose(*base,*full,core,p,sensor,owners.get(),t);
+    };
     return geometry;
   };
 }

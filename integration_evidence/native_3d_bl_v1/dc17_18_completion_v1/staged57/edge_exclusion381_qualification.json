@@ -1,0 +1,273 @@
+{
+  "state": "qualified_focused_capability",
+  "build": {
+    "state": "terminal",
+    "exit_code": 0,
+    "seconds": 444.5049705505371,
+    "pins_verified": true,
+    "changed": [],
+    "completed_build": true,
+    "binaries": {
+      "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver": "bdc390e1571f07dd68d4b43cab54531ca471b2817f83c4642a858bf76cd4b753",
+      "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/SU2_CFD/src/SU2_CFD": "9afcca7d61ac69a6ff45fcad84f151a0bd8cf95f80b2e9cf8fc4cf0af85bf3f9"
+    }
+  },
+  "qualification": {
+    "serial": {
+      "path": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved381_joint_serial_20261111T145625_2394101",
+      "status": {
+        "state": "terminal",
+        "exit_code": 0,
+        "seconds": 5.264277219772339,
+        "pins_verified": true,
+        "changed": [],
+        "largest_sampled_individual_process_rss_bytes": 864256,
+        "rss_note": "sampled process RSS; not a whole-job peak"
+      },
+      "tests": [
+        [
+          "2589",
+          "17"
+        ]
+      ],
+      "terminal": {
+        "actual_host_proc": true,
+        "all_owned_handles_terminal": true,
+        "live_owned_handles": [],
+        "sampled_identities": [
+          {
+            "pid": 2394251,
+            "start_ticks": 45342711
+          }
+        ],
+        "wrapper_excluded": {
+          "pid": 2394101,
+          "start_ticks": 45342466
+        },
+        "checked_unix": 1794409006.3286602,
+        "wrapper_verified_terminal": true
+      }
+    },
+    "mpi6": {
+      "path": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved381_closest_mpi6_20261111T145646_2395189",
+      "status": {
+        "state": "terminal",
+        "exit_code": 0,
+        "seconds": 5.7922327518463135,
+        "pins_verified": true,
+        "changed": [],
+        "largest_sampled_individual_process_rss_bytes": 41910272,
+        "rss_note": "sampled process RSS; not a whole-job peak"
+      },
+      "tests": [
+        [
+          "2892",
+          "24"
+        ],
+        [
+          "2812",
+          "24"
+        ],
+        [
+          "2815",
+          "24"
+        ],
+        [
+          "2813",
+          "24"
+        ],
+        [
+          "2834",
+          "24"
+        ],
+        [
+          "3015",
+          "24"
+        ]
+      ],
+      "terminal": {
+        "actual_host_proc": true,
+        "all_owned_handles_terminal": true,
+        "live_owned_handles": [],
+        "sampled_identities": [
+          {
+            "pid": 2395271,
+            "start_ticks": 45344794
+          },
+          {
+            "pid": 2395272,
+            "start_ticks": 45344795
+          },
+          {
+            "pid": 2395273,
+            "start_ticks": 45344795
+          },
+          {
+            "pid": 2395291,
+            "start_ticks": 45344808
+          },
+          {
+            "pid": 2395290,
+            "start_ticks": 45344808
+          },
+          {
+            "pid": 2395289,
+            "start_ticks": 45344808
+          },
+          {
+            "pid": 2395288,
+            "start_ticks": 45344808
+          },
+          {
+            "pid": 2395287,
+            "start_ticks": 45344808
+          },
+          {
+            "pid": 2395286,
+            "start_ticks": 45344808
+          }
+        ],
+        "wrapper_excluded": {
+          "pid": 2395189,
+          "start_ticks": 45344593
+        },
+        "checked_unix": 1794409027.452609,
+        "wrapper_verified_terminal": true
+      }
+    },
+    "actual": {
+      "path": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved381_target_exclusion_20261111T145707_2396197",
+      "status": {
+        "state": "terminal",
+        "exit_code": 0,
+        "seconds": 82.02390933036804,
+        "pins_verified": true,
+        "changed": [],
+        "largest_sampled_individual_process_rss_bytes": 1462628352,
+        "rss_note": "sampled process RSS; not a whole-job peak"
+      },
+      "tests": [],
+      "terminal": {
+        "actual_host_proc": true,
+        "all_owned_handles_terminal": true,
+        "live_owned_handles": [],
+        "sampled_identities": [
+          {
+            "pid": 2396327,
+            "start_ticks": 45346907
+          },
+          {
+            "pid": 2396329,
+            "start_ticks": 45346907
+          },
+          {
+            "pid": 2396331,
+            "start_ticks": 45346907
+          },
+          {
+            "pid": 2396342,
+            "start_ticks": 45346908
+          }
+        ],
+        "wrapper_excluded": {
+          "pid": 2396197,
+          "start_ticks": 45346704
+        },
+        "checked_unix": 1794409141.179101,
+        "wrapper_verified_terminal": true
+      }
+    }
+  },
+  "actual_saved_edges": [
+    {
+      "context": "actual_failed_chord",
+      "stage": "saved_edge_exclusion",
+      "full_outside": false,
+      "base_outside": false,
+      "complete_transition_extent": true,
+      "composed_length_measured": false
+    },
+    {
+      "context": "smooth_upper",
+      "stage": "saved_edge_exclusion",
+      "full_outside": false,
+      "base_outside": false,
+      "complete_transition_extent": true,
+      "composed_length_measured": false
+    },
+    {
+      "context": "leading_edge",
+      "stage": "saved_edge_exclusion",
+      "full_outside": false,
+      "base_outside": false,
+      "complete_transition_extent": true,
+      "composed_length_measured": false
+    },
+    {
+      "context": "symmetry_wall_interface",
+      "stage": "saved_edge_exclusion",
+      "full_outside": false,
+      "base_outside": false,
+      "complete_transition_extent": true,
+      "composed_length_measured": false
+    },
+    {
+      "context": "sharp_edge_candidate",
+      "stage": "saved_edge_exclusion",
+      "full_outside": false,
+      "base_outside": false,
+      "complete_transition_extent": true,
+      "composed_length_measured": false
+    }
+  ],
+  "outside_controls": [
+    {
+      "context": "actual_failed_chord",
+      "stage": "actual_authority_outside_control",
+      "translated_synthetic_control": true,
+      "original_cfd_edge": false,
+      "maximum_tensor_difference": 0,
+      "flow_tensor_from_original_node": true
+    },
+    {
+      "context": "smooth_upper",
+      "stage": "actual_authority_outside_control",
+      "translated_synthetic_control": true,
+      "original_cfd_edge": false,
+      "maximum_tensor_difference": 0,
+      "flow_tensor_from_original_node": true
+    },
+    {
+      "context": "leading_edge",
+      "stage": "actual_authority_outside_control",
+      "translated_synthetic_control": true,
+      "original_cfd_edge": false,
+      "maximum_tensor_difference": 0,
+      "flow_tensor_from_original_node": true
+    },
+    {
+      "context": "symmetry_wall_interface",
+      "stage": "actual_authority_outside_control",
+      "translated_synthetic_control": true,
+      "original_cfd_edge": false,
+      "maximum_tensor_difference": 0,
+      "flow_tensor_from_original_node": true
+    },
+    {
+      "context": "sharp_edge_candidate",
+      "stage": "actual_authority_outside_control",
+      "translated_synthetic_control": true,
+      "original_cfd_edge": false,
+      "maximum_tensor_difference": 0,
+      "flow_tensor_from_original_node": true
+    }
+  ],
+  "scope": "Whole-edge exclusion in both production factories; no precise nearest/normal query required for proof. No target, constraint, tolerance or configured budget changes.",
+  "work_evidence": "Curved focused check: fast exclusion leaves closest counters unchanged; forced existing fallback has positive closest work and identical cuts. Per-wall attempts/proofs/fallback/preparation/evaluation counters exist. Actual-success continue skips cumulative diagnostic counter dump; fix with next accuracy diagnostic, not inferred totals.",
+  "limitations": [
+    "Five original M6 edges ambiguous under complete transition support, so full evaluation retained. No difficult-chord saving established.",
+    "Distant actual-authority controls are translated synthetic segments, not original CFD edges or generated mesh.",
+    "No final composed chord, target checkpoint, surface/BL generation, or accepted BL mesh established.",
+    "MPI selected milestone passes; unchanged planar automatic-repair fixed-count failure380 remains separately unresolved. Native MPI BL generation still unqualified."
+  ]
+}

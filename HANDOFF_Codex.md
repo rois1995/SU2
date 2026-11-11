@@ -12,7 +12,18 @@ construction validity-first; intermediate quality debt is provisional, not accep
 
 ## Current state — authoritative
 
-No owned heavy workload. Actual380 TERMINAL1/362.580s, pins intact; all4children+
+Current workload: NONE; build381 and all three qualifications TERMINAL, actual-host
+owned identities verified absent. R/edge_exclusion381_qualification.json.
+Build381passed444.505s, pins intact; serial2589assertions/17cases/5.264s;
+MPI6passed24cases EVERYrank (2812–3015assertions/rank)/5.792s. Saved5M6contexts
+passed82.024s: all original edges remain ambiguous/full path; five translated
+outside controls have exact zero tensor difference. No difficult-edge speedup.
+CFD SHA9afcca7d61ac69a6ff45fcad84f151a0bd8cf95f80b2e9cf8fc4cf0af85bf3f9.
+Next ACTIVE: purpose-aware measurement investigation described in the exclusion
+handbook. Production accuracy unchanged; G7/K15 error estimator is NOT a certified
+interval. Existing scalar dependencies and composed-gradation gap audited.
+
+Actual380 TERMINAL1/362.580s, pins intact; all4children+
 wrapper rechecked absent on actual host. R/geometry_target380_assessment.json.
 Preparation191.679s (375242.075),4534integrand evaluations (3751925),composition100.308s
 before the unchanged300s atlas deadline. Contextwork4350564 (3754268956), different
@@ -20,13 +31,16 @@ progress/positions, not identical-work comparison. Shared certs6272hits/9969miss
 1551insufficient-accuracy refinements,9968stores/0refusals; region rebuild12.056s.
 Final chord/usable BL/complete target remain unavailable. No full-adaptation speedup.
 
-Next connected investigation: cheaper MISS certification, not another cache-counter
-optimization. Reuse existing bounded numerical/native model projection machinery
-as a possible better actual candidate/upper bound; preserve complete global lower
-traversal, exact support/body/association, work/memory admission and fallback. Assess
-candidate/normal accuracy versus repeated quadrature costs from saved point/chord
-before selecting a correction. Local derivative/seed opportunities remain hypotheses;
-no new geometry/constraint/tolerance policy or implementation is selected yet.
+ACTIVE correction per latest explicit user request: safe whole-edge out-of-BL
+exclusion. [Design/input/output/acceptance and queued accuracy investigation](Handbook/ADAPTATION_BL_EDGE_EXCLUSION_20261111.md).
+Qualified381 implementation: reuse complete geometry bounds and existing indices,
+full support+blend extent, all-wall proof and explicit background callback in BOTH
+production factories. Ambiguous/resource/stale cases preserve existing evaluation
+or refuse a stale integration context for rebuild. No precise nearest queries for
+exclusion. Projection-seed idea is deferred, not a competing implementation.
+After exclusion qualification, investigate purpose-aware edge accuracy and diagnostic
+~10point quadrature as explicitly requested. Keep classification/ranking/placement/
+conformity/final measurements distinct; no inaccurate final acceptance or new config.
 
 Build380passed60.141s; CFD SHA33b13e8f0844aeb6be4631fe942deb063c376979cda484615c19d4f355d3a7be
 is byte-identical378. Serial380passed1879assertions/6cases/10.836s (cold/cached dual

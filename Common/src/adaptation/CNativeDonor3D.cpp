@@ -87,7 +87,7 @@ DonorRegion PointBounds(const PointRequest& query) {
   auto upper=[](double x){const auto y=std::nextafter(x,INFINITY);return std::isfinite(y)?y:x;};
   return {lower(p.x),lower(p.y),lower(p.z),upper(p.x),upper(p.y),upper(p.z)};
 }
-bool SegmentMayIntersectBox(Point from, Point to, const double* box) {
+bool SegmentMayIntersectBoxImpl(Point from, Point to, const double* box) {
   // Binary64 differences/products stay normal and finite only with this wider exponent range.
   if constexpr (std::numeric_limits<long double>::digits < std::numeric_limits<double>::digits ||
                 std::numeric_limits<long double>::max_exponent < 2*std::numeric_limits<double>::max_exponent+4 ||
@@ -134,6 +134,7 @@ bool Outside(const Tetrahedron& a, const Tetrahedron& b, KernelStats* stats) {
 }
 size_t MapBytes(size_t count, size_t value) { return transfer_memory::Mul(count, value + 4 * sizeof(void*)); }
 }  // namespace
+bool SegmentMayIntersectBox(Point from, Point to, const double* box) {return SegmentMayIntersectBoxImpl(from,to,box);}
 DonorImport::DonorImport(World& group, bool enabled) : world(group), timings(enabled) {}
 DonorImport::~DonorImport() = default;
 bool DonorImport::Vote(const CLocalFailure& failure, std::string& reason) {

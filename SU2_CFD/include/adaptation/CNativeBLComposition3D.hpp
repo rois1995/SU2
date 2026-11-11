@@ -39,9 +39,21 @@ inline SU2Native3D::MetricComposition Composition(std::shared_ptr<CBoundaryLayer
  *  ownership is a deterministic function of the replicated wall geometry and the chord, identical on every rank. */
 inline SU2Native3D::MetricEdgeBreakpoints EdgeGeometry(std::shared_ptr<CBoundaryLayerMetric> layers, double core) {
   return [layers, core](SU2Native3D::Point a, SU2Native3D::Point b) {
-    auto owners = std::make_shared<CBoundaryLayerMetric::ChordOwners>();
-    SU2Native3D::EdgeGeometry geometry(layers->EdgeBreakpoints({a.x, a.y, a.z}, {b.x, b.y, b.z}, 1.5, 16, owners.get()));
-    geometry.pinned = [layers, core, owners](long double t, SU2Native3D::Point p, SU2Native3D::Tensor sensor) {
+    const auto profile=layers->GetSampleVersion(),support=layers->GetSupportVersion();
+    const auto transition=layers->GetOuterTransitionCore();
+    const bool outside=(!(transition>0)||core>=transition*(1-1e-12)) &&
+        layers->ExcludesEdge({a.x,a.y,a.z},{b.x,b.y,b.z});
+    std::shared_ptr<CBoundaryLayerMetric::ChordOwners> owners;
+    SU2Native3D::EdgeGeometry geometry;
+    if(outside){geometry.cuts={0,1};layers->RecordExcludedEdge();}
+    else {owners=std::make_shared<CBoundaryLayerMetric::ChordOwners>();
+      geometry.cuts=layers->EdgeBreakpoints({a.x,a.y,a.z},{b.x,b.y,b.z},1.5,16,owners.get());}
+    geometry.pinned = [layers, core, owners, a, b, profile, support, outside](long double t, SU2Native3D::Point p, SU2Native3D::Tensor sensor) {
+      if(profile!=layers->GetSampleVersion()||support!=layers->GetSupportVersion())
+        throw std::runtime_error("Stale BL edge context; rebuild target integration geometry.");
+      if(outside && CBoundaryLayerMetric::MatchesChordPoint({a.x,a.y,a.z},{b.x,b.y,b.z},t,{p.x,p.y,p.z})) {
+        layers->RecordExcludedEvaluation();return sensor;
+      }
       return Compose(*layers, core, p, sensor, owners.get(), t);
     };
     return geometry;

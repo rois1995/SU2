@@ -13,6 +13,8 @@
 #include <limits>
 class CADTElemClass;
 namespace SU2Native3D {
+/*! Conservative projected segment/box rejection; touching or unresolved arithmetic returns true. */
+bool SegmentMayIntersectBox(Point from, Point to, const double* box);
 using DonorRegion = std::array<double, 6>;  // Closed lower/upper corners; may be a point or an edge box.
 struct DonorPatch {
   std::vector<DonorCell> cells;

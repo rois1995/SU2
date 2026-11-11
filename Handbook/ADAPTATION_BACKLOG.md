@@ -1062,3 +1062,10 @@ Triage whether the fixed-count expectation is stale or reflects unwanted existin
 construction behavior; do not silently delete it or report the whole campaign green.
 Do not start an unrelated repair implementation during the active curved-BL target
 cycle. Revisit before declaring the eventual broad integrated regression complete.
+
+
+###381 projection seed deferred by explicit user reprioritization
+Existing bounded native numerical projection remains a possible upper-bound candidate
+seed (source locations in normalization handbook). User explicitly prioritizes safe
+whole-edge exclusion first, then purpose-aware metric-edge measurement precision.
+Do not implement the projection seed in parallel or treat its speedup as established.

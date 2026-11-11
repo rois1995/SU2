@@ -1,7 +1,8 @@
 // Included inside the existing actual-M6 loader; saved-target mode reads exact371 core values, no CFD/generation.
 using namespace junction_wp0;
 SU2NativeBLPipeline3D::detail::PipelineScope pipeline;
-const bool savedTarget=std::string(std::getenv("SU2_NATIVE_BL_FRONT_PROBE"))=="saved_target_geometry";
+const bool exclusionOnly=std::string(std::getenv("SU2_NATIVE_BL_FRONT_PROBE"))=="saved_target_exclusion";
+const bool savedTarget=exclusionOnly||std::string(std::getenv("SU2_NATIVE_BL_FRONT_PROBE"))=="saved_target_geometry";
 double selectedCore=1e-4,tangentScale=1;
 std::map<Id,std::pair<Point,Tensor>> savedCore;
 if(savedTarget) {
@@ -144,6 +145,29 @@ for(size_t index=0;index<count;++index) {
       const auto sensorLength=state->field->SensorEdgeLength(a,b);
       frontLog<<"{\"context\":"<<std::quoted(label)<<",\"stage\":\"saved_target_chord_begin\",\"a\":";pointJSON(a);
       frontLog<<",\"b\":";pointJSON(b);frontLog<<",\"sensor_edge_length\":"<<sensorLength<<"}"<<std::endl;
+      if(exclusionOnly) {
+        const auto reach=policy->A->radius;
+        const double extra=reach>0?std::nextafter(double(reach),INFINITY):double(reach);
+        const bool fullOutside=policy->full->ExcludesEdge({a.x,a.y,a.z},{b.x,b.y,b.z},extra),
+                   baseOutside=policy->base->ExcludesEdge({a.x,a.y,a.z},{b.x,b.y,b.z},extra);
+        frontLog<<"{\"context\":"<<std::quoted(label)<<",\"stage\":\"saved_edge_exclusion\",\"full_outside\":"<<fullOutside
+                <<",\"base_outside\":"<<baseOutside<<",\"complete_transition_extent\":true,\"composed_length_measured\":false}"<<std::endl;
+        const Point farA{a.x+1e8,a.y,a.z},farB{b.x+1e8,b.y,b.z};
+        const auto incoming=coreAt({edge[0],a});
+        REQUIRE(policy->full->ExcludesEdge({farA.x,farA.y,farA.z},{farB.x,farB.y,farB.z},extra));
+        REQUIRE(policy->base->ExcludesEdge({farA.x,farA.y,farA.z},{farB.x,farB.y,farB.z},extra));
+        const auto resolved=policy->Edges()(farA,farB);
+        double maximumDifference=0;
+        for(double t:{0.,.5,1.}) {
+          const Point p{(1-t)*farA.x+t*farB.x,(1-t)*farA.y+t*farB.y,(1-t)*farA.z+t*farB.z};
+          const auto fast=resolved.pinned(t,p,incoming),old=policy->Composition()(p,incoming);
+          for(const auto difference:{fast.xx-old.xx,fast.xy-old.xy,fast.xz-old.xz,fast.yy-old.yy,fast.yz-old.yz,fast.zz-old.zz})
+            maximumDifference=std::max(maximumDifference,std::abs(difference));
+        }
+        CHECK(maximumDifference==0);
+        frontLog<<"{\"context\":"<<std::quoted(label)<<",\"stage\":\"actual_authority_outside_control\",\"translated_synthetic_control\":true"
+                <<",\"original_cfd_edge\":false,\"maximum_tensor_difference\":"<<maximumDifference<<",\"flow_tensor_from_original_node\":true}"<<std::endl;
+      } else {
       const auto fullLength=state->field->TargetEdgeLength(a,b);
       REQUIRE(sensorLength>0);REQUIRE(fullLength>0);REQUIRE(std::isfinite(fullLength));
       frontLog<<"{\"context\":"<<std::quoted(label)<<",\"stage\":\"saved_target_patch\",\"core\":"<<selectedCore
@@ -151,6 +175,7 @@ for(size_t index=0;index<count;++index) {
               <<",\"q_centroid_min\":"<<minq<<",\"J_centroid_min\":"<<minj
               <<",\"sensor_edge_length\":"<<sensorLength<<",\"composed_edge_length\":"<<fullLength
               <<",\"construction_attempted\":false,\"complete_checkpoint\":false}"<<std::endl;
+      }
     }
     if(savedTarget||std::string(std::getenv("SU2_NATIVE_BL_FRONT_PROBE"))=="target_geometry_only") {
       budget.CheckTime();REQUIRE_FALSE(budget.work_exhausted);
@@ -318,6 +343,10 @@ for(size_t index=0;index<count;++index) {
           <<",\"edge_seconds\":"<<state->field->Statistics().edge_seconds-beforeRawField.edge_seconds
           <<",\"cumulative_perf\":"<<dc9::JsonPerf()<<"}"<<std::endl;
   if(savedTarget) {
+    const auto exclusion=policy->full->GetEdgeExclusionStats();
+    frontLog<<"{\"context\":"<<std::quoted(label)<<",\"stage\":\"edge_exclusion_counters\",\"cumulative\":true,\"attempts\":"<<exclusion.attempts
+            <<",\"proven\":"<<exclusion.proven<<",\"fallbacks\":"<<exclusion.fallbacks<<",\"wall_preparations_avoided\":"<<exclusion.wall_preparations_avoided
+            <<",\"edge_preparations_avoided\":"<<exclusion.edge_preparations_avoided<<",\"evaluations_avoided\":"<<exclusion.evaluations_avoided<<"}"<<std::endl;
     const auto stats=state->reference->Parameters()->Geometry().GeometryStatsSnapshot();
     frontLog<<"{\"context\":"<<std::quoted(label)<<",\"stage\":\"existing_geometry_counters\",\"closest_region_hits\":"<<stats.closest_region_hits
             <<",\"closest_region_misses\":"<<stats.closest_region_misses<<",\"closest_region_build_seconds\":"<<stats.closest_region_build_seconds

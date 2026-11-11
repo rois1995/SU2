@@ -18,7 +18,7 @@ class PlanarReference;
 constexpr size_t MaximumDonors = MaximumSegmentDonors, MaximumSensorSamples = 2048, MaximumGeometricEdgeCuts = 65536;
 // Per-edge pinned chord ownership during one composed integration, bounded to 65,536 pieces like the cuts: the
 // reserved retained pieces (32 B), the transient per-wall Ownership() copy (32 B) and feature->facet map (8 B).
-constexpr size_t MaximumEdgeOwnerBytes = MaximumGeometricEdgeCuts * (32 + 32 + 8);
+constexpr size_t MaximumEdgeOwnerBytes = MaximumGeometricEdgeCuts * (32 + 32 + 8) + 512; // Versioned exclusion closure.
 // Imported records/indexes, sensor cache, exact segment scratch, global edge heap/growth and chord ownership;
 // excludes CFD/RSS.
 constexpr size_t MaximumFrozenFieldBytes = MaximumDonors * 12288 + MaximumSensorSamples * 256 +

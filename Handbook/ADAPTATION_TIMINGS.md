@@ -336,6 +336,26 @@ certificate too wide for the new request. Other misses combine new/absent/evicte
 entries; do not label them all nearby trials.9968stores/0refusals. Prepared regions
 3836771hits/339648misses,216044768Bretained. Successful closest queries still lack
 seed/root/refinement timing split; normal-candidate jitter vs true quadrature
-variation is unresolved. Next assess cheaper fresh certification using existing
-bounded projection seeds, retaining the full proof. More cache counters alone
+variation is unresolved. Latest user ordering defers projection seeds: qualify whole-edge exclusion first,
+then investigate purpose-aware measurement precision, retaining the full proof. More cache counters alone
 will not close this case. No target/constraint/budget change or new baseline campaign.
+
+
+##381 — whole-edge exclusion qualification
+
+R/edge_exclusion381_qualification.json. Build444.505s; serial5.264s (2589assertions/
+17cases); MPI6selected milestone5.792s (24cases/rank,2812–3015assertions/rank);
+actual saved5-context diagnostic82.024s, all terminal/pins intact. No full CFD,
+normalization or generation repeated. Actual largest sampled individual RSS
+1462628352B, not whole-job peak. Qualification window wall times include launch and
+resource sampling; these are not production edge timings or fixed-work speedups.
+
+All5original saved edges remain on detailed path when complete transition/blend
+support is considered. All5translated distant controls using actual M6 authority
+agree exactly with the existing background tensor (three sample positions each).
+These are explicitly synthetic controls, not original flow edges. Curved unit check
+shows0closest-query work for the excluded path versus positive work for forced
+existing fallback with identical cuts. Counters record attempts/proofs/fallbacks,
+wall/edge preparation avoided and composed samples bypassed; current actual-success
+`continue` skips the cumulative dump, to correct in the next diagnostic.
+No saving on the blocked original chord, no accepted-mesh/time improvement claimed.

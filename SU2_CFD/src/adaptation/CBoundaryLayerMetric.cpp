@@ -28,11 +28,13 @@
 #include "../../include/adaptation/CNativeBLComposition3D.hpp"
 #include "../../../Common/include/adaptation/CNativeSupport3D.hpp"
 #include "../../../Common/include/adaptation/CNativePointConstruction3D.hpp"
+#include "../../../Common/include/adaptation/CNativeDonor3D.hpp"
 
 #include <algorithm>
 #include <array>
 #include <cmath>
 #include <chrono>
+#include <cfenv>
 #include <cstring>
 #include <limits>
 #include <iterator>
@@ -340,6 +342,7 @@ su2double FadeWeight(su2double distance, su2double full, su2double width) {
 struct CBoundaryLayerMetric::WallData {
   su2double h0 = 0.0, growth = 1.0, full = 0.0, width = 0.0, thickness = 0.0;
   double support = 0;
+  std::array<double,6> modelBounds{}; // Immutable complete geometry envelope, without target/profile radius.
   su2double low[3] = {0.0}, high[3] = {0.0}; /*!< \brief Bounding box of the wall grown by the thickness. */
   su2double tolerance = 0.0;                 /*!< \brief Distance below which a point is on the wall (3D). */
   std::vector<unsigned long> elem;           /*!< \brief Segments (2D) or triangles (3D) of the ADT. */
@@ -878,6 +881,7 @@ void CBoundaryLayerMetric::Build() {
         maxAbs = max(maxAbs, fabs(x));
       }
     for (unsigned short iDim = 0; iDim < nDim; ++iDim) extent = max(extent, d->high[iDim] - d->low[iDim]);
+    for(unsigned j=0;j<nDim;++j){d->modelBounds[j]=SU2_TYPE::GetValue(d->low[j]);d->modelBounds[j+3]=SU2_TYPE::GetValue(d->high[j]);}
     const su2double eps = std::numeric_limits<passivedouble>::epsilon();
     const su2double padding = 64 * eps * max(maxAbs, d->thickness);
     for (unsigned short iDim = 0; iDim < nDim; ++iDim) {
@@ -1102,7 +1106,9 @@ void CBoundaryLayerMetric::Build() {
         }
       }
       if(actual!=expected || actual.size()!=d->elem.size()/3)throw std::invalid_argument("Native3D analytic BL proxy must cover exactly its complete original component.");
-      for(unsigned j=0;j<3;++j){d->low[j]-=d->proxy_error;d->high[j]+=d->proxy_error;}
+      for(unsigned j=0;j<3;++j){d->low[j]-=d->proxy_error;d->high[j]+=d->proxy_error;
+        d->modelBounds[j]=BLDoubleDown((long double)d->modelBounds[j]-d->proxy_error);
+        d->modelBounds[j+3]=BLDoubleUp((long double)d->modelBounds[j+3]+d->proxy_error);}
       double bound=1/std::pow(SU2_TYPE::GetValue(d->h0),2);
       for(const auto& logarithm:d->vertexLog) {
         su2double vectors[3][3],values[3],workspace[3];CBlasStructure::EigenDecomposition(logarithm.m,vectors,values,3,workspace);
@@ -1138,6 +1144,8 @@ void CBoundaryLayerMetric::Build() {
         for(unsigned k=0;k<10;++k) {
           const long double control[3]={net[k].x,net[k].y,net[k].z};long double delta[3]{};
           for(unsigned j=0;j<3;++j) {
+            d->modelBounds[j]=std::min(d->modelBounds[j],double(control[j]));
+            d->modelBounds[j+3]=std::max(d->modelBounds[j+3],double(control[j]));
             long double linear=0,scale=std::abs(control[j]);
             for(unsigned v=0;v<3;++v) {const auto value=SU2_TYPE::GetValue(x(wall.conn[4*face+v])[j]);
               linear+=powers[k][v]*(long double)value/3;scale+=std::abs((long double)value);}
@@ -3627,6 +3635,106 @@ std::vector<double> CBoundaryLayerMetric::EdgeBreakpoints(
   return EdgeBreakpointsImpl(a,b,bandRatio,fadeBands,true,owners,metricPadding);
 }
 
+namespace {
+long double BLEdgeCoordinatePadding(double a,double b) {
+  return BLUp(BLUp(64.L*std::numeric_limits<double>::epsilon()*BLUp(std::abs((long double)a)+std::abs((long double)b)))+
+      16.L*std::numeric_limits<double>::denorm_min());
+}
+}
+
+bool CBoundaryLayerMetric::MatchesChordPoint(const std::array<double,3>& a,const std::array<double,3>& b,
+                                            long double t,const std::array<double,3>& point) {
+  if(!std::isfinite(t)||t<0||t>1)return false;
+  for(unsigned j=0;j<3;++j) {
+    if(!std::isfinite(point[j]))return false;
+    const auto expected=(1-t)*(long double)a[j]+t*(long double)b[j];
+    if(!std::isfinite(expected)||std::abs((long double)point[j]-expected)>BLEdgeCoordinatePadding(a[j],b[j]))return false;
+  }
+  return true;
+}
+
+CBoundaryLayerMetric::EdgeExclusionStats CBoundaryLayerMetric::GetEdgeExclusionStats() const {
+  return {exclusionAttempts.load(std::memory_order_relaxed),exclusionProven.load(std::memory_order_relaxed),
+      exclusionFallbacks.load(std::memory_order_relaxed),excludedWallPreparations.load(std::memory_order_relaxed),
+      excludedEdgePreparations.load(std::memory_order_relaxed),excludedEvaluations.load(std::memory_order_relaxed)};
+}
+
+bool CBoundaryLayerMetric::OutsideWallEdge(unsigned short wall,const std::array<double,3>& a,
+    const std::array<double,3>& b,double additionalRadius,const std::array<double,3>& metricPadding) const {
+  exclusionAttempts.fetch_add(1,std::memory_order_relaxed);
+  auto finish=[&](bool excluded){(excluded?exclusionProven:exclusionFallbacks).fetch_add(1,std::memory_order_relaxed);return excluded;};
+  const auto& d=*data[wall];const auto& w=walls[wall];
+  if(!d.adt || std::fegetround()!=FE_TONEAREST || !(additionalRadius>=0) || !std::isfinite(additionalRadius))return finish(false);
+  auto* reservation=geometryReservation?geometryReservation:(w.authority?w.authority->AtlasReservation():nullptr);
+  auto admit=[&](size_t scratch) {
+    if(transfer_memory::Add(StorageBytes(),scratch)>w.geometry_ceiling)return false;
+    if(reservation) {
+      reservation->CheckTime();
+      if(reservation->work_exhausted || reservation->work>=reservation->maximum_work ||
+          transfer_memory::Add(reservation->caller_bytes,scratch)>reservation->maximum_bytes)return false;
+      reservation->peak_bytes=std::max(reservation->peak_bytes,transfer_memory::Add(reservation->caller_bytes,scratch));
+    }
+    return true;
+  };
+  try {
+    if(!admit(512) || (reservation && !reservation->ChargeWork()))return finish(false);
+    const auto influence=std::max((long double)d.support,additionalRadius>0?BLUp((long double)additionalRadius+d.proxy_error):0.L);
+    const auto radius=BLUp(BLUp(influence+d.maximum_realization_error)+
+        BLUp(1e-6L*SU2_TYPE::GetValue(d.h0)+4.L*SU2_TYPE::GetValue(d.tolerance)));
+    if(!(radius>=0)||!std::isfinite(radius))return finish(false);
+    std::array<double,6> box{};std::array<long double,3> padding{};
+    for(unsigned j=0;j<3;++j) {
+      const double first=j<nDim?a[j]:0,last=j<nDim?b[j]:0;
+      if(!std::isfinite(first)||!std::isfinite(last)||!std::isfinite(metricPadding[j])||metricPadding[j]<0)return finish(false);
+      padding[j]=BLUp(BLEdgeCoordinatePadding(first,last)+metricPadding[j]);
+      box[j]=BLDoubleDown(BLDown((long double)d.modelBounds[j]-radius)-padding[j]);
+      box[j+3]=BLDoubleUp(BLUp((long double)d.modelBounds[j+3]+radius)+padding[j]);
+      if(!std::isfinite(box[j])||!std::isfinite(box[j+3]))return finish(false);
+    }
+    const SU2Native3D::Point first{a[0],a[1],nDim==3?a[2]:0},last{b[0],b[1],nDim==3?b[2]:0};
+    const double lo[3]={std::min(first.x,last.x),std::min(first.y,last.y),std::min(first.z,last.z)},
+                 hi[3]={std::max(first.x,last.x),std::max(first.y,last.y),std::max(first.z,last.z)};
+    for(unsigned j=0;j<3;++j)if(hi[j]<box[j]||lo[j]>box[j+3])return finish(true);
+    if(!SU2Native3D::SegmentMayIntersectBox(first,last,box.data()))return finish(true);
+    su2double queryLow[3]{},queryHigh[3]{};
+    const auto proxy=CurvedWall(wall)?0.L:(long double)d.proxy_error;
+    for(unsigned j=0;j<3;++j) {
+      queryLow[j]=BLDoubleDown(BLDown((long double)lo[j]-radius-proxy)-padding[j]);
+      queryHigh[j]=BLDoubleUp(BLUp((long double)hi[j]+radius+proxy)+padding[j]);
+      if(!std::isfinite(SU2_TYPE::GetValue(queryLow[j]))||!std::isfinite(SU2_TYPE::GetValue(queryHigh[j])))return finish(false);
+    }
+    bool coversModel=true;for(unsigned j=0;j<3;++j)
+      coversModel=coversModel&&queryLow[j]<=d.modelBounds[j]&&queryHigh[j]>=d.modelBounds[j+3];
+    if(coversModel)return finish(false); // The index cannot be empty; do not gather a whole wall for a broad transition.
+    const auto count=CurvedWall(wall)?w.authority_facets.size():d.elem.size()/nDim;
+    if(!admit(transfer_memory::Add(512,transfer_memory::Mul(count,4*sizeof(SU2Native3D::Id)))) ||
+        (reservation && !reservation->ChargeWork()))return finish(false);
+    bool empty=false;
+    if(CurvedWall(wall)) {
+      const std::array<SU2Native3D::Point,2> query{{{SU2_TYPE::GetValue(queryLow[0]),SU2_TYPE::GetValue(queryLow[1]),SU2_TYPE::GetValue(queryLow[2])},
+          {SU2_TYPE::GetValue(queryHigh[0]),SU2_TYPE::GetValue(queryHigh[1]),SU2_TYPE::GetValue(queryHigh[2])}}};
+      empty=w.authority->Parameters()->Geometry().NearbySurfaceFacets(w.authority_facet,query,reservation).empty();
+    } else {
+      std::vector<unsigned long> candidates;d.adt->DetermineIntersectingElements(queryLow,queryHigh,candidates);empty=candidates.empty();
+    }
+    if(reservation)reservation->CheckTime();
+    return finish(empty);
+  } catch(const std::length_error&) {return finish(false);}
+    catch(const std::bad_alloc&) {return finish(false);}
+}
+
+bool CBoundaryLayerMetric::ExcludesEdge(const std::array<double,3>& a,const std::array<double,3>& b,
+    double additionalRadius,const std::array<double,3>& metricPadding) const {
+  if(!(additionalRadius>=0)||!std::isfinite(additionalRadius))return false;
+  for(auto value:metricPadding)if(!(value>=0)||!std::isfinite(value))return false;
+  bool nonzero=false;for(unsigned j=0;j<nDim;++j) {
+    if(!std::isfinite(a[j])||!std::isfinite(b[j]))return false;nonzero=nonzero||a[j]!=b[j];
+  }
+  if(!nonzero)return false;
+  for(unsigned short wall=0;wall<walls.size();++wall)if(!OutsideWallEdge(wall,a,b,additionalRadius,metricPadding))return false;
+  return true;
+}
+
 std::vector<double> CBoundaryLayerMetric::EdgeBreakpointsImpl(
     const std::array<double,3>& a,const std::array<double,3>& b,double bandRatio,unsigned fadeBands,bool featureTransitions,
     ChordOwners* owners,const std::array<double,3>& metricPadding) {
@@ -3671,6 +3779,9 @@ std::vector<double> CBoundaryLayerMetric::EdgeBreakpointsImpl(
   for (unsigned short wall = 0; wall < walls.size(); ++wall) {
     const auto& d = *data[wall];
     if (!d.adt) continue;
+    if(OutsideWallEdge(wall,a,b,0,metricPadding)) {
+      excludedWallPreparations.fetch_add(1,std::memory_order_relaxed);continue;
+    }
     const double h0 = SU2_TYPE::GetValue(d.h0), full = SU2_TYPE::GetValue(d.full);
     const double thickness = d.support;
     std::vector<double> levels{0,.5*h0};
