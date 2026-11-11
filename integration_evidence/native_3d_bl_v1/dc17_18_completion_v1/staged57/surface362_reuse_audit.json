@@ -1,0 +1,28 @@
+{
+  "created_unix": 1794383280.0852087,
+  "scope": "Read-only primary and bounded second-opinion audit after terminal362; no production change or new workload.",
+  "source_sha256": {
+    "Common/src/adaptation/CNativeMetric3D.cpp": "a6a0a8552b016e75e749b9654920a44f395600654bf03220812cd83424f014be",
+    "Common/src/adaptation/CNativeEngine3D.cpp": "a76797ad0357bb46eac110aefed766c0b9dec2e0f863e99fe6641fde7346aff1",
+    "Common/src/adaptation/CNativeField3D.cpp": "95afbfef154ec335c3e707902e2cfd59cd4b6ec64e2e2096833803af6bec141b",
+    "Common/include/adaptation/CNativeMetricTransport3D.hpp": "cb9a45c0b8a990e1e58514fe7335ba970aecc4a6240401bf0120a308c62b3494",
+    "Common/src/adaptation/CNativeBoundaryParameters3D.cpp": "314dec6b4a4758ae6355e641274cc1be6711923945b6eacb4ed6a26acf0f91fb",
+    "SU2_CFD/include/adaptation/CNativeBLTarget3D.hpp": "2a4d873d09c27bde568e9f783e022bc6a2589c4638d1c4703223d822d9675b62"
+  },
+  "confirmed": [
+    "Surface planning calls MeasureMetricEdges without existing reuse/campaign arguments, then adds maximum sided guidance to returned edge lengths.",
+    "Engine selection caches those guided lengths; they cannot safely substitute for raw core lengths.",
+    "Current-nodal point queries bypass the bounded sample cache but matching donor vertices take an exact scan fast path.",
+    "Current-nodal edge integration uses one direct endpoint P1 interval, not the original-donor segment tracing route.",
+    "PrivateParameters copies an overlay view, not the entire accepted state.",
+    "BoundaryGuidance repeats associated-facet evaluation and strip processing; its actual cost share is not established."
+  ],
+  "next": "One bounded actual published-census context check using existing counters/timers to distinguish core integration/search, private context preparation and sided guidance. Reuse existing actual-context facilities; no baseline/perf/GDB campaign. Then select one connected correction from observed work.",
+  "safety": [
+    "Raw core edge reuse needs exact endpoints, frozen field identity and complete donor support.",
+    "Published census and private old/fresh candidate guidance must remain separate.",
+    "Guidance reuse requires exact coordinates, sensor, authority/support, binding, coverage, profile and dependent constraints; uncertain contexts recompute.",
+    "Memory admission, active references, work/time budgets, full readiness and all final strict gates remain unchanged."
+  ],
+  "production_change_selected": false
+}

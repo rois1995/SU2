@@ -599,3 +599,14 @@ report does not separate core search/integration, context preparation and guidan
 cost. Need a connected safe reuse hypothesis with exact identity/association/core
 invalidation and admitted transient memory; uncertain/private contexts must recompute.
 No further correction, target policy, scheduler or increased budget selected yet.
+
+
+Read-only primary/second-opinion audit after terminal362 is sealed in
+surface362_reuse_audit.json. Current-nodal vertex lookup has an exact scan fast path;
+its edge integration is one direct P1 interval, not original-donor trace. Zero hits
+therefore do not establish dominant core cost. PrivateParameters copies an overlay,
+not whole accepted state. Associated-facet guidance/strip processing is repeated,
+but its measured share is missing. Next: bounded actual published-census context
+cost split using existing counters/timers and helpers, not a new baseline/perf/GDB
+campaign, before selecting one connected production correction. Private trial
+contexts must not inherit published-node guidance without full dependency proof.

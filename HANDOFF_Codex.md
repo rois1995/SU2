@@ -39,7 +39,10 @@ R/qualification362.json scopes affected behavior only, NOT native MPI BL generat
 Failed360/361 fixture setups preserved; whole-patch128 cap and streamed320-cell
 engine coverage retained. Production CFD360–362 byte-identical SHA
 37d822060736776a92d3cd0091b433245a9b1d94c6d8c9bda4a62f40a521eb22.
-No sources edited after this terminal outcome yet. Detailed history is in
+Read-only audit R/surface362_reuse_audit.json: zero current-nodal hits do not prove
+expensive core work (exact-vertex/direct-P1 fast paths). PrivateParameters copies
+overlays, not whole state. Next bounded actual-census check should split existing
+core/context/guidance costs before choosing reuse. No sources edited after terminal yet. Detailed history is in
 [physical-height topic](Handbook/ADAPTATION_CURVED_BL_PHYSICAL_HEIGHT_20261111.md).
 
 Same saved303 reasonable coarse RANS+SA seed, Mach-only L1,500k metric complexity;
