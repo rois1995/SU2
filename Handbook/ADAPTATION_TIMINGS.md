@@ -113,7 +113,7 @@ only after matching work/progress and scope are demonstrated.
 |370connected MPI6|5.4247 wrapper;1.12 test process|841assertions/16cases EACH rank; synthetic joint-scalar solve is serial-only, so this is not a speed comparison.|
 |370actual saved-CFD metric-only|65.9329 wrapper;61.85 process tree|Failed first coarse trial: D1 intersection sum not SPD; pins intact, no CFD advance/construction. No credible target/checkpoint.|
 |371endpoint correction serial|68.6061 wrapper|1096assertions/16cases, pass; production CSolver-only correction. No speedup attribution from this test.|
-|371actual saved-CFD metric-only|RUNNING|Same AF7/Mach-L1/nominal500k; native5400s/outer14400s/12GiB unchanged; no CFD advance/construction.|
+|371actual saved-CFD metric-only|RUNNING; no terminal timing|At~529s provenance check:1601pins/84mappedELFs unchanged,6live ranks. Sampled tree RSS~3.2GiB earlier; not peak or useful-work attribution. Same AF7/Mach-L1/nominal500k and unchanged budgets; no CFD advance/construction.|
 
 369 measured context work/time: failing-chord79units/0.12217s, smooth-upper129/0.17698s,
 leading-edge130/0.20864s, symmetry-interface59/0.08340s and sharp-edge candidate130/0.20092s.

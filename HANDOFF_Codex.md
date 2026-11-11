@@ -17,6 +17,9 @@ session15803; R/cases/curved371_saved_cfd_metric_stage_20261111T111921_1888531.
 Wrapper1888531; time1888611. Exact AF7seed/MPI6/Mach-only L1/nominal500k,
 unchanged normal/geometry/budgets; no CFD advance or construction. Do not edit
 pinned sources until actual-host terminal. R/joint371_qualification.json.
+Read-only frozen receipt verified1601pins,84mappedELFs and6live ranks at
+~529s: no changes/unknown runtimes; current case/frozen_provenance_receipt.json.
+CPU includes possible MPI polling; no stop condition or accepted target established.
 Build371 TERMINAL0/58.132s,14owned identities absent, pins intact;
 CFD SHA7cf80707d006eb2c5d80afa1143b730e8502e1458e1f9fe0bfd6fbc68ef24cd8;
 test SHAf13261de51726d5fb72bc606b920a45899395994ad491e7756bb24cb0580b92e.
@@ -132,6 +135,11 @@ complexity. Preserve constrained/blended directions. Continuous hn versus actual
 NextLayer progression must be assessed separately, including oblique/outer behavior.
 No new operator, larger cavity, scheduler, geometry representation or depth law is
 selected. Queued Coulaud/MAdLib hypotheses remain inside this investigation.
+
+Frozen371source audit confirms monotone support/broad-phase history is missing
+from config+scale+final-core reconstruction; see stage cadence checkpoint audit.
+The current JSON remains diagnostic, not a complete checkpoint. No source edits
+were made during the run.
 
 After target reasonableness, establish fresh-process reconstruction of the SAME
 composed target and geometry, reusing existing .native_ref, RecordStream/donor and

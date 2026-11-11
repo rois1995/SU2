@@ -131,3 +131,34 @@ current bounded target/row investigation finishes first. Use stage checkpoints
 only when credible; a failed or partial diagnostic is evidence, not a resumable
 successful stage. Full retries are now integration milestones, not the default
 next action after every correction.
+
+## Frozen371 checkpoint audit — no implementation change
+
+Source audit while371runs confirms a specific reconstruction gap. The native3D
+reference sidecar preserves geometry/control curves, marker/facet identity and
+parameter/mobility records. RecordStream can encode explicit scalar/array records;
+it does not serialize runtime metric pointers or vectors automatically. The
+current diagnostic writes exact selected tensors and Mach, but omits original
+frames/eigenvalues and full/base transition state. It remains explicitly incomplete.
+
+ConfigureOuterTransition monotonically retains each wall's support and expands
+its low/high broad-phase bounds. A later finer core may leave these bounds intact;
+feature reindexing and outer-profile changes also affect the transition identity.
+Therefore final config + selected tangent scale + final core alone does not
+reconstruct the same retained state. This is confirmed source behavior, not an
+observed discrepancy in371 (which is still frozen).
+
+The smallest candidate persistence path is the existing encoded reference plus
+explicit family records keyed by global ID/coordinates, selected and original
+frames/eigenvalues, normalization/bounds/normal and tangential policy, and the
+ordered policy/transition updates needed to reproduce support history. New caches
+must start empty; accepted associations are not reusable distance certificates.
+Alternatively, exact effective support/bounds could be persisted only with a safe
+restore/revalidation API, which does not currently exist. Do not silently choose
+final-core reconstruction or treat the diagnostic export as that API.
+
+Choose and qualify the persistence change only after the target result is credible.
+Fresh-process reload must validate identities/config/authority, complete record
+counts, storage/time admission, requested controls and actual M6 point/chord/tensor
+agreement, including seams, features, competing walls and stale-state refusal.
+Stage3must not consume the current sensor-only diagnostic as a complete target.
