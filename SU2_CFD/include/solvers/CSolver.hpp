@@ -626,6 +626,9 @@ public:
    *        metric, before the boundary-layer metric), and of the final metric (with the boundary-layer metric).
    */
   std::shared_ptr<const CNativeMetricFamily3D> GetNativeMetricFamily3D()const {return nativeMetricFamily3D;}
+  /*! Collective. Caller verifies saved CFD/input provenance; all-rank preparation precedes atomic publication. */
+  void RestoreNativeMetricFamily3D(CGeometry*,const CConfig&,const SU2Native3D::ReferenceState&,
+      std::shared_ptr<CNativeMetricFamily3D>,double preComplexity,double finalComplexity,bool bracketed);
   /*! Rebuild bounds/gradation from original frames without Hessian recovery or publishing trial metrics. */
   bool RecomputeMetricFamily3D(CGeometry* geometry,const CConfig* config,CNativeMetricEvaluation3D& replay,
                               const SU2Native3D::ReferenceState* reference,std::string& reason);

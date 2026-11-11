@@ -22,6 +22,10 @@ struct CNativeMetricFamily3D {
   const CGeometry* geometry=nullptr;
   std::vector<Node> nodes; // Sorted global IDs; local indices include halos.
   std::vector<CBoundaryLayerMetric::Tensor> frames,selected;
+  // Fixed-coordinate checkpoint witnesses only; never interpolate these as the sensor/transport authority.
+  std::vector<CBoundaryLayerMetric::Tensor> composed_witnesses;
+  std::array<uint64_t,2> witness_versions{};
+  double witness_core=0,witness_radius=0;
   std::vector<su2double> eigenvalues;
   std::shared_ptr<CBoundaryLayerMetric> layers;
   std::shared_ptr<SU2NativeBLPipeline3D::TargetPolicy> first_row;
@@ -31,6 +35,8 @@ struct CNativeMetricFamily3D {
   double feature_angle=0;      // ADAP_ANGLE of the D1 feature set of the retained layers.
   uint64_t feature_identity=0; // D1 feature identity (canonical feature list and law parameters).
   bool Compatible(const CConfig& config)const;
+  /*! Validate a private checkpoint family; optional source binds the original IDs, ownership and coordinates. */
+  void ValidateCheckpoint(const CConfig&,const SU2Native3D::ReferenceState&,const CGeometry* source=nullptr)const;
   std::vector<CAdapBoundaryLayer> layer_controls;
   bool boundary_layer=false;
   std::array<double,8> controls{}; // hmin, hmax, ARmax, hgrad, budget, BL policy enabled/protected distance/outer growth.
@@ -42,7 +48,7 @@ struct CNativeMetricFamily3D {
   uint64_t node_span=0;
   size_t ResidentBytes()const {
     return transfer_memory::Add(sizeof(*this),transfer_memory::Bytes(nodes),transfer_memory::Bytes(frames),
-        target_extra_bytes,transfer_memory::Bytes(selected),transfer_memory::Bytes(eigenvalues),transfer_memory::Bytes(layer_controls),layers?layers->StorageBytes():0);
+        target_extra_bytes,transfer_memory::Bytes(selected),transfer_memory::Bytes(composed_witnesses),transfer_memory::Bytes(eigenvalues),transfer_memory::Bytes(layer_controls),layers?layers->StorageBytes():0);
   }
   size_t LocalNode(SU2Native3D::Id sourceNode,uint64_t sourceSpan=0)const {
     if(!node_span)throw std::runtime_error("Original metric family has no node identity range.");

@@ -223,8 +223,16 @@ class CBoundaryLayerMetric {
   };
   void ConfigureOuterNormal(double protectedDistance,double maximumGrowth);
   void SelectOuterNormal(double parameter);
-  void FreezeOuterNormal() { outerNormal.frozen=true; }
+  void FreezeOuterNormal();
   const OuterNormalProfile& GetOuterNormal() const { return outerNormal; }
+  /*! Successful profile changes, replayed through the same validated APIs on a fresh private instance. */
+  struct ProfileChange {
+    uint64_t operation=0;double first=0,second=0;
+    template<class Stream> void Fields(Stream& stream) {stream(operation,first,second);}
+  };
+  const std::vector<ProfileChange>& GetProfileHistory() const { return profileHistory; }
+  /*! Failure leaves the private reconstruction unusable; callers publish only after complete replay/validation. */
+  void ReplayProfile(const std::vector<ProfileChange>& history);
   /*! Native normal-ray tensor transport beyond the full-strength band. Configure after outer-normal limits.
    * Support covers all points that can exceed this core; subsequent queries may use this core or a finer one.
    * Returns true when cached geometry samples/support must be rebuilt. MMG retains its legacy fade. */
@@ -487,6 +495,8 @@ class CBoundaryLayerMetric {
   double transitionCore=0, transitionSlope=0;
   uint64_t transitionFeatureIdentity=0;
   uint64_t sampleVersion=0, supportVersion=0, geometrySampleVersion=0;
+  std::vector<ProfileChange> profileHistory;
+  void PrepareProfileChange();
   double tangentialScale=1;
   unsigned short nDim = 0;
   su2double cornerAngle = 0.0; /*!< \brief D1 feature angle (degrees): convex edges/vertices turning by more. */

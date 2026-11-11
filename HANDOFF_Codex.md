@@ -14,9 +14,30 @@ next-action text is superseded by this live state.
 
 ## Actual source/build/owned workload — authoritative
 
-Current workload: NONE. All394build/serial/MPI/3pointsets/originaledge/accuracy
+Current workload: build396 SAMEsavedCFD MPI6 complete-target producer RUNNING;
+C++/helper/input FROZEN. Actual-host wrapper3294100/start47801356,
+root3294184/start47801547; execsession20205. Attempt:
+R/cases/curved396_saved_cfd_metric_stage_20261111T214613_3294100; see status,
+resources/pins/live_handles_actual. Native5400s/outer14400s,12GiB/rank unchanged.
+Earlier launcherfailed BEFOREsolver: ...T214537_3292799 (sourcevariable shadow);
+receipt preserved; wrapperterminal/no command/no resources verified, helperfixed.
+Build396PASS208.210s/pins intact; CFD01fcb08eb89209f69e50bb1b6b1efc684092703c252d99c0928208d6773f215e;
+testbb3223c1ea5330b3b72836fcd5ddb143d4cd811b8096dda006362a7c22cdcec1.
+Final serial4cases/221assertions4.373s; broader395serial25/3120/65.497s reused for
+unchanged behavior. MPI6 25cases/2866assertions EVERYrank4.445swrapper/.58sprocess;
+fast MPIrank RSS missed by1s sampler, no peak claim. Allprior handlesactual-host
+terminal. R/target_checkpoint396_focused_qualification.json. Complete profilehistory/
+family/reference checkpoint focused-qualified, actual fidelity and target suitability
+PENDING. After producerterminal/pin verification, freshprocess via
+R/check_metric_stage396.py reload <producerdirectory>. Require every owned composed
+tensor bitexact; norm alone can hide tangential error. If mismatch, refuse fidelity
+qualification pending directional analysis. Producer saves checkpoint BEFOREchord;
+failed chord cannot discard upstream state. No surface generation/CFDadvance.
+Design Handbook/ADAPTATION_BL_TARGET_CHECKPOINT_20261111.md; next physical/directional
+reasonableness before stage3, no speculative query optimization/full workflow retry.
+All394build/serial/MPI/3pointsets/originaledge/accuracy
 identities reverified terminal on actual host; full source/build/input pins intact.
-R/prepared394_qualification.json.394source/evidence in this reviewable checkpoint.
+R/prepared394_qualification.json; qualified394checkpoint28700bc1b3PUSHED.
 Previous393checkpoint7689c8a942PUSHED; earlier failures preserved in linked history.
 Build394PASS36.244s. CFD260fa2887c808d9d94828a1052a63634f7397b9303d26bf01ae912bfdec24c6c;
 testb5fd5e2657570bc4aa9e2185f222ed289e691a68431848bf371dfc6f6deaa428.
@@ -95,7 +116,7 @@ This is CORE-only, NOT a complete composed-target checkpoint. Fresh diagnostic r
 SelectTangentialScale→Update(final core) omits original family and monotone support/
 bounds history. Need credible physical/directional/height/gradation assessment, then
 complete disk reconstruction and fresh-process agreement before stage3surface work.
-Reuse native_ref/record/donor persistence first; no complete codec implemented yet.
+Complete codec now locally implemented/focused-qualified; actual fresh-process fidelity remains pending.
 
 Full364ended before first row: surface391.619s/18commits/122work and shared deadline;
 partial capture61312used nodes/303310tets, incomplete strict census. No usable curved

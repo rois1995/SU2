@@ -490,7 +490,7 @@ size_t CBoundaryLayerMetric::GeometryWorkspaceBytes()const {
 }
 size_t CBoundaryLayerMetric::StorageBytes() const {
   using namespace transfer_memory;
-  size_t bytes=Add(sizeof(*this),Bytes(walls),Bytes(data));
+  size_t bytes=Add(sizeof(*this),Bytes(walls),Bytes(data),Bytes(profileHistory));
   for(const auto& wall:walls)bytes=Add(bytes,wall.layer.marker.capacity()+1,Bytes(wall.coord),Bytes(wall.conn),Bytes(wall.authority_facets));
   for(const auto& ptr:data)if(ptr) {
     const auto& d=*ptr;
@@ -1958,22 +1958,54 @@ bool CBoundaryLayerMetric::FeatureRefinement2D(const std::array<std::array<doubl
   return false;
 }
 
+void CBoundaryLayerMetric::PrepareProfileChange() {
+  if(profileHistory.size()<profileHistory.capacity())return;
+  const auto capacity=std::max(size_t(1),transfer_memory::Mul(profileHistory.capacity(),2));
+  CheckProfileScratch(transfer_memory::Mul(capacity,sizeof(ProfileChange)));
+  profileHistory.reserve(capacity);
+}
+
+void CBoundaryLayerMetric::ReplayProfile(const std::vector<ProfileChange>& history) {
+  if(!profileHistory.empty() || sampleVersion || supportVersion || geometrySampleVersion || outerNormal.frozen)
+    throw std::invalid_argument("BL profile replay requires a fresh private metric.");
+  CheckProfileScratch(transfer_memory::Mul(history.size(),2*sizeof(ProfileChange)));
+  for(const auto& change:history) {
+    const auto before=profileHistory.size();
+    if(change.operation==1)ConfigureOuterNormal(change.first,change.second);
+    else if(change.operation==2 && change.second==0)SelectOuterNormal(change.first);
+    else if(change.operation==3 && change.first==0 && change.second==0)FreezeOuterNormal();
+    else if(change.operation==4 && change.second==0)SelectTangentialScale(change.first);
+    else if(change.operation==5)ConfigureOuterTransition(change.first,change.second);
+    else throw std::invalid_argument("Unknown or malformed BL profile change.");
+    if(profileHistory.size()!=before+1)throw std::invalid_argument("BL profile history contains a redundant change.");
+  }
+}
+
 void CBoundaryLayerMetric::ConfigureOuterNormal(double protectedDistance,double maximumGrowth) {
   if(nDim!=3 || outerNormal.frozen || outerNormal.version || transitionCore>0 || sampleVersion==UINT64_MAX || !(protectedDistance>0) || !std::isfinite(protectedDistance) ||
       !(maximumGrowth>=1) || !std::isfinite(maximumGrowth))
     throw std::invalid_argument("Invalid or already-frozen outer-normal BL limits.");
   for(const auto& wall:walls)if(protectedDistance<wall.layer.firstHeight || maximumGrowth<wall.layer.growth)
     throw std::invalid_argument("Outer-normal BL limits must preserve original first height and growth.");
+  PrepareProfileChange();
   outerNormal.protected_distance=protectedDistance;outerNormal.maximum_growth=maximumGrowth;outerNormal.version=1;++sampleVersion;++geometrySampleVersion;
   // The outer growth limit raises the largest normal size inside the band, hence the exact D1 support radius.
   IndexFeatures();
+  profileHistory.push_back({1,protectedDistance,maximumGrowth});
 }
 void CBoundaryLayerMetric::SelectOuterNormal(double parameter) {
   if(outerNormal.frozen || !outerNormal.version || !(parameter>=0 && parameter<=1) || !std::isfinite(parameter))
     throw std::invalid_argument("Invalid or frozen outer-normal BL selection.");
   if(parameter==outerNormal.parameter)return;
   if(outerNormal.version==UINT64_MAX || sampleVersion==UINT64_MAX)throw std::runtime_error("BL profile identity exhausted.");
+  PrepareProfileChange();
   outerNormal.parameter=parameter;++outerNormal.version;++sampleVersion;++geometrySampleVersion;
+  profileHistory.push_back({2,parameter,0});
+}
+
+void CBoundaryLayerMetric::FreezeOuterNormal() {
+  if(outerNormal.frozen)return;
+  PrepareProfileChange();outerNormal.frozen=true;profileHistory.push_back({3,0,0});
 }
 
 void CBoundaryLayerMetric::CheckProfileScratch(size_t bytes) const {
@@ -1998,6 +2030,7 @@ void CBoundaryLayerMetric::SelectTangentialScale(double scale) {
     throw std::invalid_argument("Inherited BL tangent scale must be finite in (0,1].");
   if(scale==tangentialScale)return;
   if(sampleVersion==UINT64_MAX)throw std::runtime_error("BL sample identity exhausted.");
+  PrepareProfileChange();
   // Rebuild the existing finite index: coarsening can make previously redundant D1 constraints/images relevant.
   const auto count=transfer_memory::Mul(baseFeatures.size(),transfer_memory::Add(featurePlanes.size(),1));
   CheckProfileScratch(TangentialProfileWorkspaceBytes());
@@ -2007,6 +2040,7 @@ void CBoundaryLayerMetric::SelectTangentialScale(double scale) {
   try {IndexFeatures();}
   catch(...) {tangentialScale=previous;IndexFeatures();throw;}
   ++sampleVersion;
+  profileHistory.push_back({4,scale,0});
 }
 
 void CBoundaryLayerMetric::RecomposeTangentialSample(unsigned short wall,Sample& sample,su2double core) const {
@@ -2079,12 +2113,14 @@ bool CBoundaryLayerMetric::ConfigureOuterTransition(double core,double hgrad) {
     support[w]=std::max(d.support,support[w]);
     if(!std::isfinite(support[w]))throw std::runtime_error("Unrepresentable native BL outer transition support.");
   }
+  PrepareProfileChange();
   for(size_t w=0;w<data.size();++w) {
     auto& d=*data[w];const double extra=support[w]-d.support;
     for(unsigned j=0;j<nDim;++j){d.low[j]-=extra;d.high[j]+=extra;}
     d.support=support[w];
   }
   transitionCore=core;transitionSlope=slope;transitionFeatureIdentity=featureSummary.identity;++sampleVersion;++geometrySampleVersion;++supportVersion;
+  profileHistory.push_back({5,core,hgrad});
   return true;
 }
 

@@ -4518,3 +4518,5 @@ TEST_CASE("Proven outside BL chords use analytic sensor integration with fresh d
   FrozenField stale({donor},composition,true,{},[cached](Point,Point){return cached;});
   CHECK_THROWS(stale.TargetEdgeLength(a,b));
 }
+
+#include "fixtures/native_bl_profile_replay.inc"

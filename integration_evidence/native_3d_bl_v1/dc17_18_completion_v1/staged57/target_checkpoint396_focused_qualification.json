@@ -1,0 +1,122 @@
+{
+  "state": "focused_qualified_actual_fidelity_pending",
+  "checked_unix": 1794433666.8463612,
+  "build395": {
+    "state": "terminal",
+    "exit_code": 0,
+    "seconds": 544.7197408676147,
+    "pins_verified": true,
+    "changed": [],
+    "completed_build": true,
+    "binaries": {
+      "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver": "fe48d55cd7dd009f364d65fb979aaaa818ab84d2082d7c4395121890387552f1",
+      "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/SU2_CFD/src/SU2_CFD": "9127a08a9f4f06234a134d6a7ec83131052133997a48c66cc5bc14ec8ea6e561"
+    }
+  },
+  "build396": {
+    "state": "terminal",
+    "exit_code": 0,
+    "seconds": 208.20979833602905,
+    "pins_verified": true,
+    "changed": [],
+    "completed_build": true,
+    "binaries": {
+      "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver": "bb3223c1ea5330b3b72836fcd5ddb143d4cd811b8096dda006362a7c22cdcec1",
+      "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/SU2_CFD/src/SU2_CFD": "01fcb08eb89209f69e50bb1b6b1efc684092703c252d99c0928208d6773f215e"
+    }
+  },
+  "tests": [
+    {
+      "attempt": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved395_prepared_serial_20261111T213752_3275399",
+      "status": {
+        "state": "terminal",
+        "exit_code": 0,
+        "seconds": 65.4967827796936,
+        "pins_verified": true,
+        "changed": [],
+        "largest_sampled_individual_process_rss_bytes": 89649152,
+        "rss_note": "sampled process RSS; not a whole-job peak"
+      },
+      "passing_counts": [
+        [
+          "3120",
+          "25"
+        ]
+      ],
+      "terminal_receipt": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved395_prepared_serial_20261111T213752_3275399/terminal_handles_actual.json",
+      "scope": "focused codec/profile/composition; not native MPI BL generation"
+    },
+    {
+      "attempt": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved396_prepared_serial_20261111T214404_3289476",
+      "status": {
+        "state": "terminal",
+        "exit_code": 0,
+        "seconds": 4.373229503631592,
+        "pins_verified": true,
+        "changed": [],
+        "largest_sampled_individual_process_rss_bytes": 864256,
+        "rss_note": "sampled process RSS; not a whole-job peak"
+      },
+      "passing_counts": [
+        [
+          "221",
+          "4"
+        ]
+      ],
+      "terminal_receipt": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved396_prepared_serial_20261111T214404_3289476/terminal_handles_actual.json",
+      "scope": "focused codec/profile/composition; not native MPI BL generation"
+    },
+    {
+      "attempt": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved396_prepared_mpi6_20261111T214436_3290595",
+      "status": {
+        "state": "terminal",
+        "exit_code": 0,
+        "seconds": 4.444502830505371,
+        "pins_verified": true,
+        "changed": [],
+        "largest_sampled_individual_process_rss_bytes": 532480,
+        "rss_note": "sampled process RSS; not a whole-job peak"
+      },
+      "passing_counts": [
+        [
+          "2866",
+          "25"
+        ],
+        [
+          "2866",
+          "25"
+        ],
+        [
+          "2866",
+          "25"
+        ],
+        [
+          "2866",
+          "25"
+        ],
+        [
+          "2866",
+          "25"
+        ],
+        [
+          "2866",
+          "25"
+        ]
+      ],
+      "terminal_receipt": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved396_prepared_mpi6_20261111T214436_3290595/terminal_handles_actual.json",
+      "scope": "focused codec/profile/composition; not native MPI BL generation"
+    }
+  ],
+  "actual_target_checkpoint_qualified": false,
+  "target_suitability_established": false,
+  "usable_BL": false,
+  "native_MPI_BL_generation_qualified": false,
+  "actual_producer": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved396_saved_cfd_metric_stage_20261111T214613_3294100",
+  "failed_prelaunch_preserved": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved396_saved_cfd_metric_stage_20261111T214537_3292799",
+  "limitations": [
+    "395 broader serial applies to unchanged behavior;396 added only a shared core-consistency refusal and test",
+    "MPI0.58s test process was shorter than1s resource sampling; tree sample missed worker RSS, not a whole-job peak",
+    "Require every owned composed tensor bitexact on fresh reload; whole-tensor norm alone may mask tangential disagreement",
+    "Actual profile/chord reconstruction and physical target assessment pending"
+  ]
+}

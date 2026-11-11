@@ -811,3 +811,17 @@ is not a conservative bound and is not used for decisions/acceptance. No ten-poi
 replacement, tolerance relaxation or budget increase. All394owned handles terminal;
 source/build/input provenance in prepared394_qualification.json. Return to complete
 stage2target reasonableness/checkpoint, then ordered surface/front/growth workflow.
+
+
+## Complete-target checkpoint development396 (not production timing)
+
+Build395544.720s and final shared consistency-guard build396208.210s, nice19/j3;
+source pins intact.395broaderfocusedserial25cases/3120assertions65.497swrapper
+(61.68stest process,61.33userCPU). Final396codec/profile serial4cases/221assertions
+4.373swrapper/.34stest process. ConnectedMPI6focused milestone25cases/2866assertions
+on EACHrank4.445swrapper/.58sMPIprocess,1.31userCPUaggregate launcher receipt.
+The1s resource sampler missed short-lived MPIworkers, so its sampled RSS is not
+meaningful as whole-job memory. Existing Euler/BL source coverage is reused where
+unchanged. Actual same-seed producer is RUNNING: no completed target-stage or I/O
+saving yet. Complete checkpoint/fresh-process fidelity and physical target suitability
+remain unqualified. R/target_checkpoint396_focused_qualification.json.

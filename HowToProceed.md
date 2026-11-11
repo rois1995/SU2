@@ -34,6 +34,13 @@ state. Selected core/scales alone still omit policy state. Prove fresh-process
 point/chord/authority agreement. No speculative query optimization or full workflow
 retry before this stage output is credible. Handoff owns current handles/provenance.
 
+The connected [complete checkpoint implementation](Handbook/ADAPTATION_BL_TARGET_CHECKPOINT_20261111.md)
+now passes focused serial/MPI396 checks. Actual same-seed MPI target production is
+frozen and running; see the handoff for owned handles. Preserve its outcome, then
+run the fresh-process consumer. Every owned tensor must reproduce bit for bit,
+along with profile/reference identity and representative chord agreement. Focused
+codec success does not establish physical target suitability or a usable BL.
+
 ## Preserved workflow and construction history
 
 Euler293 completed TWO strictly accepted Euler50k adaptations, conservative

@@ -28,6 +28,7 @@
 #include "../../../SU2_CFD/include/adaptation/ConvexClipping.hpp"
 #include "../../../SU2_CFD/include/solvers/CSolver.hpp"
 #include "../../../SU2_CFD/include/adaptation/CNativeBLComposition3D.hpp"
+#include "../../../SU2_CFD/include/adaptation/CNativeTargetCheckpoint3D.hpp"
 // DC-14: the BL pipeline of the first-row harnesses is production code (inline headers, before the using-directives).
 #include "../../../SU2_CFD/include/adaptation/CNativeBLPipeline3D.hpp"
 #include "fixtures/native_bl_test_roles.inc"
@@ -39,6 +40,7 @@ using namespace SU2Native3D;
 #include "fixtures/native_actual_bl_surface_cavities.inc"
 #include "fixtures/native_bl_direction_invalidation.inc"
 #include "fixtures/native_saved_cfd_metric_stage.inc"
+#include "fixtures/native_target_checkpoint.inc"
 
 TEST_CASE("FIRST_ROW wall measurement honors exhausted budgets before querying", "[NativeWallPreparation3D]") {
   SU2NativeBLPipeline3D::detail::PipelineScope scope;

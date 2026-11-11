@@ -28,6 +28,7 @@
 
 #include "../../../Common/include/adaptation/CNativeRuntimeProfile3D.hpp"
 #include "../../../Common/include/adaptation/CNativeImport3D.hpp"
+#include "../../../Common/include/adaptation/CNativeReferenceIO3D.hpp"
 #include "../../include/solvers/CSolver.hpp"
 #include "../../include/adaptation/CNativeBLTarget3D.hpp"
 #include "../../../Common/include/adaptation/CMeshGather.hpp"
@@ -37,6 +38,7 @@
 
 #include <limits>
 #include <queue>
+#include <type_traits>
 
 #include "../../include/gradients/computeGradientsGreenGauss.hpp"
 #include "../../include/gradients/computeGradientsLeastSquares.hpp"
@@ -2648,6 +2650,83 @@ bool CNativeMetricFamily3D::Compatible(const CConfig& config)const {
   }return true;
 }
 
+void CNativeMetricFamily3D::ValidateCheckpoint(const CConfig& config,const SU2Native3D::ReferenceState& reference,
+    const CGeometry* source)const {
+  if(!first_row || !layers || !first_row->full || !first_row->base || !first_row->A ||
+      !Compatible(config) || layers!=first_row->full || authority!=reference.original || first_row->authority!=authority ||
+      !node_span || owned>nodes.size() || frames.size()!=owned || eigenvalues.size()!=transfer_memory::Mul(owned,3) ||
+      selected.size()!=nodes.size() || composed_witnesses.size()!=nodes.size())
+    throw std::invalid_argument("Incomplete or incompatible checkpoint metric family.");
+  const auto& p=*first_row;double height=INFINITY;
+  for(const auto& layer:layer_controls)height=std::min(height,SU2_TYPE::GetValue(layer.firstHeight));
+  if(p.roles!=SU2NativeBLPipeline3D::MarkerRoles(config,reference) || p.h0!=height || p.A->distanceLayers!=p.base ||
+      !(p.core>0) || !std::isfinite(p.core) || core!=p.core || p.A->core!=p.core || p.inherited_tangent_scale!=inherited_tangent_scale ||
+      p.core<p.full->GetOuterTransitionCore() || p.core<p.base->GetOuterTransitionCore() ||
+      p.full->GetFeatures().identity!=feature_identity || p.base->GetFeatures().segments)
+    throw std::invalid_argument("Inconsistent checkpoint BL composition.");
+  if(witness_versions!=std::array<uint64_t,2>{{first_row->full->GetSampleVersion(),first_row->base->GetSampleVersion()}} ||
+      witness_core!=first_row->core || witness_radius!=first_row->A->radius)
+    throw std::invalid_argument("Checkpoint witnesses belong to a stale target profile.");
+  if(source && (source->GetnDim()!=3 || source->GetnPoint()!=nodes.size() || source->GetnPointDomain()!=owned ||
+      (geometry && geometry!=source)))throw std::invalid_argument("Checkpoint source ownership/geometry differs.");
+  std::vector<bool> seen(nodes.size(),false);
+  SU2Native3D::Id previous=0;bool first=true;
+  for(const auto& node:nodes) {
+    if(node.local>=nodes.size() || seen[node.local] || node.id>=node_span || (!first && node.id<=previous) ||
+        !std::isfinite(node.point.x)||!std::isfinite(node.point.y)||!std::isfinite(node.point.z))
+      throw std::invalid_argument("Invalid checkpoint metric node identity.");
+    first=false;previous=node.id;seen[node.local]=true;
+    if(source) {
+      const auto* p=source->nodes->GetCoord(node.local);
+      if(node.id!=source->nodes->GetGlobalIndex(node.local) || node.point.x!=SU2_TYPE::GetValue(p[0]) ||
+          node.point.y!=SU2_TYPE::GetValue(p[1]) || node.point.z!=SU2_TYPE::GetValue(p[2]))
+        throw std::invalid_argument("Checkpoint source node coordinates/IDs differ.");
+    }
+    const auto& m=selected[node.local];
+    const auto& witness=composed_witnesses[node.local];
+    for(unsigned i=0;i<3;++i)for(unsigned j=0;j<3;++j)
+      if(m.m[i][j]!=m.m[j][i] || witness.m[i][j]!=witness.m[j][i])
+        throw std::invalid_argument("Asymmetric checkpoint tensor.");
+    SU2Native3D::ValidateTensor(SU2NativeBLPipeline3D::TargetPolicy::Pack(m));
+    SU2Native3D::ValidateTensor(SU2NativeBLPipeline3D::TargetPolicy::Pack(composed_witnesses[node.local]));
+    if(node.local<owned) {
+      const auto& frame=frames[node.local];
+      for(unsigned i=0;i<3;++i)for(unsigned j=0;j<3;++j) {
+        double dot=0;for(unsigned k=0;k<3;++k)dot+=SU2_TYPE::GetValue(frame.m[k][i]*frame.m[k][j]);
+        if(!std::isfinite(dot)||std::abs(dot-double(i==j))>1e-8)throw std::invalid_argument("Invalid checkpoint metric frame.");
+      }
+      for(unsigned k=0;k<3;++k)if(!(eigenvalues[3*node.local+k]>=0) || !std::isfinite(SU2_TYPE::GetValue(eigenvalues[3*node.local+k])))
+        throw std::invalid_argument("Invalid checkpoint original eigenvalue.");
+    }
+  }
+}
+
+void CSolver::RestoreNativeMetricFamily3D(CGeometry* geometry,const CConfig& config,
+    const SU2Native3D::ReferenceState& reference,std::shared_ptr<CNativeMetricFamily3D> family,
+    double preComplexity,double finalComplexity,bool bracketed) {
+  using MetricStorage=std::decay_t<decltype(base_nodes->GetMetric())>;
+  static_assert(std::is_nothrow_move_assignable<MetricStorage>::value,"Checkpoint publication requires a nonthrowing metric move.");
+  std::unique_ptr<MetricStorage> restored;CLocalFailure failure;
+  try {
+    if(!geometry || !family || !base_nodes || !(preComplexity>=0) || !std::isfinite(preComplexity) ||
+        !(finalComplexity>0) || !std::isfinite(finalComplexity))throw std::invalid_argument("Invalid native target restore.");
+    const auto ceiling=config.GetAdap_Native_MemoryLimit()?config.GetAdap_Native_MemoryLimit():SU2Native3D::ReferenceStorageLimit3D;
+    const auto scratch=transfer_memory::Add(128,transfer_memory::Mul(family->nodes.size(),6*sizeof(su2double)+1));
+    if(transfer_memory::Add(family->ResidentBytes(),SU2Native3D::ReferenceStorageBytes(reference),scratch)>ceiling)
+      throw std::length_error("Native target publication exceeds storage admission.");
+    family->ValidateCheckpoint(config,reference,geometry);
+    if(base_nodes->GetMetric().rows()!=family->nodes.size() || (family->nodes.size() && base_nodes->GetMetric().cols()!=6))
+      throw std::invalid_argument("Flow solver has no matching metric storage.");
+    restored=std::make_unique<MetricStorage>(base_nodes->GetMetric());
+    for(size_t p=0;p<family->selected.size();++p)for(unsigned a=0,k=0;a<3;++a)for(unsigned b=a;b<3;++b,++k)
+      (*restored)(p,k)=family->selected[p].m[a][b];
+  }catch(const std::exception& e){failure.Set(3,0,e.what());}
+  const auto elected=ElectFailure(failure,SU2_MPI::GetComm());
+  if(elected.any)throw std::runtime_error(elected.message);
+  family->geometry=geometry;base_nodes->GetMetric()=std::move(*restored);nativeMetricFamily3D=std::move(family);
+  metricComplexityPreBL=preComplexity;metricComplexityFinal=finalComplexity;metricComplexityBracketed=bracketed;
+}
+
 void CSolver::ComputeMetric(CGeometry *geometry, const CConfig *config, const vector<su2double>* givenMetric,
                             bool boundaryLayer, const SU2NativeBoundary2D::ReferenceState* nativeReference,
                             const SU2Native3D::ReferenceState* nativeReference3D,CNativeMetricEvaluation3D* replay) {
@@ -3671,6 +3750,7 @@ void CSolver::ComputeMetric(CGeometry *geometry, const CConfig *config, const ve
   if (nativeMetric && evaluatedLogScale != logScale) error = complexityError(logScale);
   passivedouble composedViolation = 1;
   unsigned long sensorBadEdges = 0, composedBadEdges = 0;
+  vector<CBoundaryLayerMetric::Tensor> composedWitnesses;
   if (nativeMetric) {
     syncSensor();
     vector<CBoundaryLayerMetric::Tensor> composed = blMetric;
@@ -3714,6 +3794,7 @@ void CSolver::ComputeMetric(CGeometry *geometry, const CConfig *config, const ve
     CPassiveComm::Allreduce(localBad,globalBad,2,CPassiveComm::Op::SUM);
     gradationViolation = globalRatio[0]; composedViolation = globalRatio[1];
     sensorBadEdges = globalBad[0]; composedBadEdges = globalBad[1];
+    if(nDim==3 && firstRowTarget && !replay)composedWitnesses=std::move(composed);
   }
 
 
@@ -3982,12 +4063,17 @@ void CSolver::ComputeMetric(CGeometry *geometry, const CConfig *config, const ve
         replay->normalization=normalized;replay->core=SU2_TYPE::GetValue(frozenCore);
       } else {
         const auto bytes=transfer_memory::Add(transfer_memory::Mul(nPoint,sizeof(CNativeMetricFamily3D::Node)+sizeof(CBoundaryLayerMetric::Tensor)),
-            transfer_memory::Bytes(blFrames),transfer_memory::Bytes(eigenvalues),firstRowTarget?firstRowTarget->StorageBytes():(nativeLayers?nativeLayers->StorageBytes():0));
+            transfer_memory::Bytes(blFrames),transfer_memory::Bytes(eigenvalues),transfer_memory::Bytes(composedWitnesses),firstRowTarget?firstRowTarget->StorageBytes():(nativeLayers?nativeLayers->StorageBytes():0));
         if(bytes>nativeMemoryLimit)throw std::runtime_error("Original metric family exceeds native working-storage ceiling.");
         auto family=std::make_shared<CNativeMetricFamily3D>();family->geometry=geometry;family->owned=nPointDomain;
         family->frames=std::move(blFrames);family->eigenvalues=std::move(eigenvalues);family->layers=nativeLayers;
         family->first_row=firstRowTarget;family->target_extra_bytes=firstRowTarget?firstRowTarget->StorageBytes()-nativeLayers->StorageBytes():0;
         family->selected.resize(nPoint);family->nodes.reserve(nPoint);
+        family->composed_witnesses=std::move(composedWitnesses);
+        if(firstRowTarget) {
+          family->witness_versions={{firstRowTarget->full->GetSampleVersion(),firstRowTarget->base->GetSampleVersion()}};
+          family->witness_core=firstRowTarget->core;family->witness_radius=double(firstRowTarget->A->radius);
+        }
         for(size_t i=0;i<nPoint;++i) {
           const auto id=geometry->nodes->GetGlobalIndex(i);const auto* p=geometry->nodes->GetCoord(i);
           family->nodes.push_back({id,{SU2_TYPE::GetValue(p[0]),SU2_TYPE::GetValue(p[1]),SU2_TYPE::GetValue(p[2])},i});
