@@ -331,16 +331,22 @@ CNativeComplexity3D::Assessment CNativeComplexity3D::Assess(const std::vector<CB
     if(version!=profileVersion || target!=cachedTarget) {
       const auto refreshStart=world.seconds();size_t bytes=transfer_memory::Add(transfer_memory::Bytes(source),
           transfer_memory::Bytes(queries),transfer_memory::Bytes(volumes),transfer_memory::Bytes(backgroundSensor),preparation?preparation->Bytes():0);
+      const bool reuse=cachedTarget==target && geometryProfileVersion==layers.GetGeometrySampleVersion() &&
+          (!target || baseGeometryProfileVersion==target->base->GetGeometrySampleVersion());
       for(auto& q:queries) {
-        q.geometry=layers.SamplePoints({q.point.x,q.point.y,q.point.z});++statistics.profileGeometryQueries;
+        if(reuse)for(auto& sample:q.geometry)layers.RecomposeTangentialSample(sample.wall,sample.sample,core);
+        else {q.geometry=layers.SamplePoints({q.point.x,q.point.y,q.point.z});++statistics.profileGeometryQueries;}
         if(target) {
-          q.baseGeometry=target->base->SamplePoints({q.point.x,q.point.y,q.point.z});++statistics.profileGeometryQueries;
+          if(reuse)for(auto& sample:q.baseGeometry)target->base->RecomposeTangentialSample(sample.wall,sample.sample,core);
+          else {q.baseGeometry=target->base->SamplePoints({q.point.x,q.point.y,q.point.z});++statistics.profileGeometryQueries;}
           q.weight=target->A->Weight(junction_wp0::Of(q.point));
         } else q.baseGeometry.clear();
         bytes=transfer_memory::Add(bytes,transfer_memory::Bytes(q.geometry),transfer_memory::Bytes(q.baseGeometry));
         if(bytes>ceiling)throw std::runtime_error("Refreshed BL profile samples exceed storage ceiling.");
       }
-      statistics.retainedBytes=bytes;profileVersion=version;cachedTarget=target;++statistics.profileRefreshes;
+      statistics.retainedBytes=bytes;profileVersion=version;cachedTarget=target;
+      geometryProfileVersion=layers.GetGeometrySampleVersion();
+      baseGeometryProfileVersion=target?target->base->GetGeometrySampleVersion():UINT64_MAX;++statistics.profileRefreshes;
       statistics.preparationSeconds+=world.seconds()-refreshStart;
     }
     const auto backgroundStart=world.seconds();

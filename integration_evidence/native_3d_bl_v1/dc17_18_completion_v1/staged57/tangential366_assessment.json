@@ -1,0 +1,373 @@
+{
+  "scope": "Experimental shared tangent-profile API and retained same-point recomposition; NOT production normalization, generated BL acceptance or exact metric-edge qualification. Original saved actual contexts use uniform1e-4 sensor-core witness, not complete target replay.",
+  "build": "build366",
+  "exact_source_snapshot": "source_snapshots366/manifest.json",
+  "validation": {
+    "serial": {
+      "path": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved366_tangential_serial_20261111T093946_1632291",
+      "status": {
+        "state": "terminal",
+        "exit_code": 0,
+        "seconds": 4.862178325653076,
+        "pins_verified": true,
+        "changed": [],
+        "largest_sampled_individual_process_rss_bytes": 585728,
+        "rss_note": "sampled process RSS; not a whole-job peak"
+      },
+      "terminal": {
+        "actual_host_proc": true,
+        "all_owned_handles_terminal": true,
+        "live_owned_handles": [],
+        "sampled_identities": [
+          {
+            "pid": 1632396,
+            "start_ticks": 43442831
+          }
+        ],
+        "wrapper_excluded": {
+          "pid": 1632291,
+          "start_ticks": 43442623
+        },
+        "checked_unix": 1794390187.919018
+      },
+      "assertions": 393,
+      "cases": 8
+    },
+    "actual": {
+      "path": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved366_tangential_actual_20261111T094032_1634124",
+      "status": {
+        "state": "terminal",
+        "exit_code": 0,
+        "seconds": 103.9693021774292,
+        "pins_verified": true,
+        "changed": [],
+        "largest_sampled_individual_process_rss_bytes": 1286049792,
+        "rss_note": "sampled process RSS; not a whole-job peak"
+      },
+      "terminal": {
+        "actual_host_proc": true,
+        "all_owned_handles_terminal": true,
+        "live_owned_handles": [],
+        "sampled_identities": [
+          {
+            "pid": 1634217,
+            "start_ticks": 43447378
+          },
+          {
+            "pid": 1634218,
+            "start_ticks": 43447378
+          },
+          {
+            "pid": 1634219,
+            "start_ticks": 43447378
+          },
+          {
+            "pid": 1634222,
+            "start_ticks": 43447379
+          }
+        ],
+        "wrapper_excluded": {
+          "pid": 1634124,
+          "start_ticks": 43447178
+        },
+        "checked_unix": 1794390187.9188235
+      },
+      "assertions": 306735,
+      "cases": 1
+    }
+  },
+  "results": [
+    {
+      "context": "actual_failed_chord",
+      "tangent_eigenvalue_scale": 1,
+      "cells": 20,
+      "centroid_control_q_bad": 20,
+      "centroid_control_J_bad": 19,
+      "centroid_density_sum": 1144297437.332835,
+      "centroid_control_min_edge": 0.9335567811378772,
+      "centroid_control_max_edge": 102.42482293049834,
+      "normal_hn_ratio_in_full_band": 1,
+      "geometry_work": 29622,
+      "exact_edge_quadrature": false,
+      "production_acceptance": false
+    },
+    {
+      "context": "actual_failed_chord",
+      "tangent_eigenvalue_scale": 0.75,
+      "cells": 20,
+      "centroid_control_q_bad": 20,
+      "centroid_control_J_bad": 19,
+      "centroid_density_sum": 858223077.8430687,
+      "centroid_control_min_edge": 0.8086410357536683,
+      "centroid_control_max_edge": 102.42444644845789,
+      "normal_hn_ratio_in_full_band": 1,
+      "geometry_work": 50163,
+      "exact_edge_quadrature": false,
+      "production_acceptance": false
+    },
+    {
+      "context": "actual_failed_chord",
+      "tangent_eigenvalue_scale": 0.5,
+      "cells": 20,
+      "centroid_control_q_bad": 20,
+      "centroid_control_J_bad": 20,
+      "centroid_density_sum": 572148718.603428,
+      "centroid_control_min_edge": 0.6605091867651308,
+      "centroid_control_max_edge": 102.42406996503344,
+      "normal_hn_ratio_in_full_band": 1,
+      "geometry_work": 69690,
+      "exact_edge_quadrature": false,
+      "production_acceptance": false
+    },
+    {
+      "context": "actual_failed_chord",
+      "tangent_eigenvalue_scale": 0.25,
+      "cells": 20,
+      "centroid_control_q_bad": 20,
+      "centroid_control_J_bad": 20,
+      "centroid_density_sum": 286074360.0265124,
+      "centroid_control_min_edge": 0.4675943187179988,
+      "centroid_control_max_edge": 102.42369348022532,
+      "normal_hn_ratio_in_full_band": 1,
+      "geometry_work": 87836,
+      "exact_edge_quadrature": false,
+      "production_acceptance": false
+    },
+    {
+      "context": "smooth_upper",
+      "tangent_eigenvalue_scale": 1,
+      "cells": 14,
+      "centroid_control_q_bad": 14,
+      "centroid_control_J_bad": 12,
+      "centroid_density_sum": 25841755.86031528,
+      "centroid_control_min_edge": 0.7608170379743908,
+      "centroid_control_max_edge": 22.248569294657862,
+      "normal_hn_ratio_in_full_band": 1,
+      "geometry_work": 18210,
+      "exact_edge_quadrature": false,
+      "production_acceptance": false
+    },
+    {
+      "context": "smooth_upper",
+      "tangent_eigenvalue_scale": 0.75,
+      "cells": 14,
+      "centroid_control_q_bad": 14,
+      "centroid_control_J_bad": 12,
+      "centroid_density_sum": 19381316.89523655,
+      "centroid_control_min_edge": 0.6900663398510625,
+      "centroid_control_max_edge": 22.23892582481594,
+      "normal_hn_ratio_in_full_band": 1,
+      "geometry_work": 31120,
+      "exact_edge_quadrature": false,
+      "production_acceptance": false
+    },
+    {
+      "context": "smooth_upper",
+      "tangent_eigenvalue_scale": 0.5,
+      "cells": 14,
+      "centroid_control_q_bad": 14,
+      "centroid_control_J_bad": 12,
+      "centroid_density_sum": 12920877.93015778,
+      "centroid_control_min_edge": 0.5980299194375189,
+      "centroid_control_max_edge": 22.22927817145979,
+      "normal_hn_ratio_in_full_band": 1,
+      "geometry_work": 42874,
+      "exact_edge_quadrature": false,
+      "production_acceptance": false
+    },
+    {
+      "context": "smooth_upper",
+      "tangent_eigenvalue_scale": 0.25,
+      "cells": 14,
+      "centroid_control_q_bad": 14,
+      "centroid_control_J_bad": 14,
+      "centroid_density_sum": 6460438.965078915,
+      "centroid_control_min_edge": 0.42287138792203677,
+      "centroid_control_max_edge": 22.21962632913998,
+      "normal_hn_ratio_in_full_band": 1,
+      "geometry_work": 54050,
+      "exact_edge_quadrature": false,
+      "production_acceptance": false
+    },
+    {
+      "context": "leading_edge",
+      "tangent_eigenvalue_scale": 1,
+      "cells": 24,
+      "centroid_control_q_bad": 23,
+      "centroid_control_J_bad": 21,
+      "centroid_density_sum": 397948986.7957775,
+      "centroid_control_min_edge": 0.893936341662311,
+      "centroid_control_max_edge": 30.218108390868437,
+      "normal_hn_ratio_in_full_band": 1,
+      "geometry_work": 43728,
+      "exact_edge_quadrature": false,
+      "production_acceptance": false
+    },
+    {
+      "context": "leading_edge",
+      "tangent_eigenvalue_scale": 0.75,
+      "cells": 24,
+      "centroid_control_q_bad": 24,
+      "centroid_control_J_bad": 22,
+      "centroid_density_sum": 298461740.096784,
+      "centroid_control_min_edge": 0.7742019644192801,
+      "centroid_control_max_edge": 30.21155395398937,
+      "normal_hn_ratio_in_full_band": 1,
+      "geometry_work": 73680,
+      "exact_edge_quadrature": false,
+      "production_acceptance": false
+    },
+    {
+      "context": "leading_edge",
+      "tangent_eigenvalue_scale": 0.5,
+      "cells": 24,
+      "centroid_control_q_bad": 24,
+      "centroid_control_J_bad": 22,
+      "centroid_density_sum": 198974493.39771676,
+      "centroid_control_min_edge": 0.6321828694901336,
+      "centroid_control_max_edge": 30.204998094807934,
+      "normal_hn_ratio_in_full_band": 1,
+      "geometry_work": 103499,
+      "exact_edge_quadrature": false,
+      "production_acceptance": false
+    },
+    {
+      "context": "leading_edge",
+      "tangent_eigenvalue_scale": 0.25,
+      "cells": 24,
+      "centroid_control_q_bad": 24,
+      "centroid_control_J_bad": 23,
+      "centroid_density_sum": 99487246.69884418,
+      "centroid_control_min_edge": 0.44712602165714743,
+      "centroid_control_max_edge": 30.198440812397717,
+      "normal_hn_ratio_in_full_band": 1,
+      "geometry_work": 132057,
+      "exact_edge_quadrature": false,
+      "production_acceptance": false
+    },
+    {
+      "context": "symmetry_wall_interface",
+      "tangent_eigenvalue_scale": 1,
+      "cells": 11,
+      "centroid_control_q_bad": 11,
+      "centroid_control_J_bad": 10,
+      "centroid_density_sum": 311265240.0051452,
+      "centroid_control_min_edge": 0.8757953684067459,
+      "centroid_control_max_edge": 21.808814269407886,
+      "normal_hn_ratio_in_full_band": 1,
+      "geometry_work": 7696,
+      "exact_edge_quadrature": false,
+      "production_acceptance": false
+    },
+    {
+      "context": "symmetry_wall_interface",
+      "tangent_eigenvalue_scale": 0.75,
+      "cells": 11,
+      "centroid_control_q_bad": 11,
+      "centroid_control_J_bad": 10,
+      "centroid_density_sum": 233448930.0038587,
+      "centroid_control_min_edge": 0.7600705579950514,
+      "centroid_control_max_edge": 21.807913368394534,
+      "normal_hn_ratio_in_full_band": 1,
+      "geometry_work": 12520,
+      "exact_edge_quadrature": false,
+      "production_acceptance": false
+    },
+    {
+      "context": "symmetry_wall_interface",
+      "tangent_eigenvalue_scale": 0.5,
+      "cells": 11,
+      "centroid_control_q_bad": 11,
+      "centroid_control_J_bad": 10,
+      "centroid_density_sum": 155632620.00257212,
+      "centroid_control_min_edge": 0.6232150342691606,
+      "centroid_control_max_edge": 21.80701243016275,
+      "normal_hn_ratio_in_full_band": 1,
+      "geometry_work": 17278,
+      "exact_edge_quadrature": false,
+      "production_acceptance": false
+    },
+    {
+      "context": "symmetry_wall_interface",
+      "tangent_eigenvalue_scale": 0.25,
+      "cells": 11,
+      "centroid_control_q_bad": 11,
+      "centroid_control_J_bad": 11,
+      "centroid_density_sum": 77816310.00128591,
+      "centroid_control_min_edge": 0.44619133199482114,
+      "centroid_control_max_edge": 21.80611145470793,
+      "normal_hn_ratio_in_full_band": 1,
+      "geometry_work": 22446,
+      "exact_edge_quadrature": false,
+      "production_acceptance": false
+    },
+    {
+      "context": "sharp_edge_candidate",
+      "tangent_eigenvalue_scale": 1,
+      "cells": 23,
+      "centroid_control_q_bad": 23,
+      "centroid_control_J_bad": 22,
+      "centroid_density_sum": 47032962808.793945,
+      "centroid_control_min_edge": 0.9627115586439711,
+      "centroid_control_max_edge": 24.059235218474928,
+      "normal_hn_ratio_in_full_band": 1,
+      "geometry_work": 97074,
+      "exact_edge_quadrature": false,
+      "production_acceptance": false
+    },
+    {
+      "context": "sharp_edge_candidate",
+      "tangent_eigenvalue_scale": 0.75,
+      "cells": 23,
+      "centroid_control_q_bad": 23,
+      "centroid_control_J_bad": 23,
+      "centroid_density_sum": 37984583624.91189,
+      "centroid_control_min_edge": 0.8337326663026562,
+      "centroid_control_max_edge": 22.59099677320508,
+      "normal_hn_ratio_in_full_band": 1,
+      "geometry_work": 164594,
+      "exact_edge_quadrature": false,
+      "production_acceptance": false
+    },
+    {
+      "context": "sharp_edge_candidate",
+      "tangent_eigenvalue_scale": 0.5,
+      "cells": 23,
+      "centroid_control_q_bad": 23,
+      "centroid_control_J_bad": 23,
+      "centroid_density_sum": 28677857408.9802,
+      "centroid_control_min_edge": 0.6807398714439638,
+      "centroid_control_max_edge": 21.841402514941986,
+      "normal_hn_ratio_in_full_band": 1,
+      "geometry_work": 230118,
+      "exact_edge_quadrature": false,
+      "production_acceptance": false
+    },
+    {
+      "context": "sharp_edge_candidate",
+      "tangent_eigenvalue_scale": 0.25,
+      "cells": 23,
+      "centroid_control_q_bad": 23,
+      "centroid_control_J_bad": 23,
+      "centroid_density_sum": 18360860575.845146,
+      "centroid_control_min_edge": 0.4996737805352869,
+      "centroid_control_max_edge": 21.825874406424234,
+      "normal_hn_ratio_in_full_band": 1,
+      "geometry_work": 295193,
+      "exact_edge_quadrature": false,
+      "production_acceptance": false
+    }
+  ],
+  "confirmed": [
+    "Original-wall tangential demands are adjustable independently of in-band prescribed hn in these samples.",
+    "Retained/direct composed tensors agree bitwise at all tested fixed points across scales.",
+    "Inherited tangent density can dominate these pointwise controls. This is not a global integral attribution."
+  ],
+  "limitations": [
+    "Original unlayered cell q/J does not improve under coarsening; leading-edge centroid q/J counts slightly worsen.",
+    "No actual generated row, complete-neighbor metric edge quadrature, discrete progression, coverage or transition qualification yet.",
+    "Candidate complexity blending-weight refresh was missing in366; local next change fixes and tests it.",
+    "Full/base support may require genuine geometry refresh when reflected-feature/support dependencies change.",
+    "No production selector enabled; density reduction alone does not select a target."
+  ]
+}

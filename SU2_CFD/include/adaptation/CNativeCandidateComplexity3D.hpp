@@ -22,7 +22,7 @@ class CNativeCandidateComplexity3D {
     long double weight=0;
   };
   const CNativeMetricFamily3D& family;
-  uint64_t count,profileVersion=0;
+  uint64_t count,profileVersion=0,geometryProfileVersion=UINT64_MAX,baseGeometryProfileVersion=UINT64_MAX;
   bool currentNodal=false;
   size_t storageCeiling=0,callerBytes=0;
   std::vector<Query> queries;
@@ -87,6 +87,8 @@ class CNativeCandidateComplexity3D {
     const auto total=CPassiveComm::Allreduce(uint64_t(queries.size()),CPassiveComm::Op::SUM,world.comm);
     if(total!=count)failure.Set(2,0,"Incomplete original candidate integration partition.");vote();
     profileVersion=family.layers? family.layers->GetSampleVersion():0;
+    geometryProfileVersion=family.layers?family.layers->GetGeometrySampleVersion():UINT64_MAX;
+    baseGeometryProfileVersion=family.first_row?family.first_row->base->GetGeometrySampleVersion():UINT64_MAX;
     stats.preparation_seconds=world.seconds()-start;
   }
   SU2Complexity::Estimate Assess(const std::vector<CBoundaryLayerMetric::Tensor>& current,su2double& core) {
@@ -108,13 +110,22 @@ class CNativeCandidateComplexity3D {
       if(family.first_row)family.first_row->Update(SU2_TYPE::GetValue(core),family.controls[3]);
       if(family.layers && profileVersion!=family.layers->GetSampleVersion()) {
         size_t bytes=transfer_memory::Add(callerBytes,sizeof(*this),transfer_memory::Bytes(queries));
+        const bool reuse=geometryProfileVersion==family.layers->GetGeometrySampleVersion() &&
+            (!family.first_row || baseGeometryProfileVersion==family.first_row->base->GetGeometrySampleVersion());
         for(auto& q:queries) {
-          q.geometry=family.layers->SamplePoints({q.point.x,q.point.y,q.point.z});++stats.geometry_queries;
-          if(family.first_row){q.baseGeometry=family.first_row->base->SamplePoints({q.point.x,q.point.y,q.point.z});++stats.geometry_queries;}
+          if(reuse)for(auto& sample:q.geometry)family.layers->RecomposeTangentialSample(sample.wall,sample.sample,core);
+          else {q.geometry=family.layers->SamplePoints({q.point.x,q.point.y,q.point.z});++stats.geometry_queries;}
+          if(family.first_row) {
+            if(reuse)for(auto& sample:q.baseGeometry)family.first_row->base->RecomposeTangentialSample(sample.wall,sample.sample,core);
+            else {q.baseGeometry=family.first_row->base->SamplePoints({q.point.x,q.point.y,q.point.z});++stats.geometry_queries;}
+          }
+          if(family.first_row)q.weight=family.first_row->A->Weight(junction_wp0::Of(q.point));
           bytes=transfer_memory::Add(bytes,transfer_memory::Bytes(q.geometry),transfer_memory::Bytes(q.baseGeometry));
           if(bytes>storageCeiling)throw std::runtime_error("Refreshed original candidate geometry exceeds storage ceiling.");
         }
         profileVersion=family.layers->GetSampleVersion();
+        geometryProfileVersion=family.layers->GetGeometrySampleVersion();
+        baseGeometryProfileVersion=family.first_row?family.first_row->base->GetGeometrySampleVersion():UINT64_MAX;
       }
       for(const auto& q:queries) {
         DonorCell values;

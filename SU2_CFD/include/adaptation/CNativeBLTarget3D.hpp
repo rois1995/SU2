@@ -74,7 +74,7 @@ struct OptionA {
   struct GridHash{size_t operator()(const GridKey& k)const{return size_t(k[0]*73856093LL^k[1]*19349663LL^k[2]*83492791LL);}};
   std::unordered_map<GridKey,std::vector<size_t>,GridHash> grid;long double cell=0;
   GridKey KeyAt(V x)const{return {(long long)std::floor(x.x/cell),(long long)std::floor(x.y/cell),(long long)std::floor(x.z/cell)};}
-  void IndexCreases() {
+  void IndexCreases(const std::function<void(size_t)>& admit={}) {
     grid.clear();cell=0;if(creases.empty()||!(radius>0)||!std::isfinite((double)radius))return;
     // DC-15: buckets of radius/k (k = 8, 4, 2, 1, the finest within 2^23 registrations): every segment is registered in
     // every bucket its box grown by R_f meets, so the candidate list of a point still holds every segment closer than
@@ -86,6 +86,7 @@ struct OptionA {
         boxes.push_back({KeyAt(lo),KeyAt(hi)});const auto& b=boxes.back();
         buckets+=(long double)(b[1][0]-b[0][0]+1)*(long double)(b[1][1]-b[0][1]+1)*(long double)(b[1][2]-b[0][2]+1);}
       if(buckets>(long double)(size_t(1)<<23))continue;
+      if(admit)admit(transfer_memory::Mul(size_t(buckets),256));
       for(size_t i=0;i<creases.size();++i){const auto& b=boxes[i];
         for(long long u=b[0][0];u<=b[1][0];++u)for(long long v=b[0][1];v<=b[1][1];++v)for(long long w=b[0][2];w<=b[1][2];++w)grid[{u,v,w}].push_back(i);}
       return;
@@ -142,7 +143,7 @@ struct OptionA {
 // face-normal angle > ADAP_ANGLE; symmetry and cut facets are continuations), keeping the two facets.
 // Marker roles from the loader (configuration kinds / fixture metadata): 1 BL wall, 2 non-reflective physical partner,
 // 0 continuation (reflective carrier or artificial cut boundary). No marker name is read here.
-inline std::shared_ptr<OptionA> BuildOptionA(const std::vector<Facet>& facets,const std::map<int,int>& roles,double angle,double radius,double h0) {
+inline std::shared_ptr<OptionA> BuildOptionA(const std::vector<Facet>& facets,const std::map<int,int>& roles,double angle,double radius,double h0,const std::function<void(size_t)>& admit={}) {
   auto A=std::make_shared<OptionA>();A->radius=radius;A->r0=h0/10;
   {long double scale=1;for(const auto& f:facets)for(auto x:f.v)scale=std::max({scale,std::abs((long double)x.p.x),std::abs((long double)x.p.y),std::abs((long double)x.p.z)});A->onLine=1e-9L*scale;}
   auto kind=[&](const Facet& f){return roles.at(f.marker);};
@@ -191,7 +192,7 @@ inline std::shared_ptr<OptionA> BuildOptionA(const std::vector<Facet>& facets,co
       A->strips.push_back({i,j,Unit(ni+nj)});
     }
   }
-  A->IndexCreases();
+  A->IndexCreases(admit);
   return A;
 }
 inline MetricComposition CompositionA(std::shared_ptr<CBoundaryLayerMetric> base,std::shared_ptr<CBoundaryLayerMetric> full,double core,std::shared_ptr<OptionA> A) {
@@ -216,7 +217,7 @@ struct TargetPolicy {
   std::shared_ptr<CBoundaryLayerMetric> full, base;
   std::shared_ptr<const PlanarReference> authority;
   std::shared_ptr<dc10::OptionA> A;
-  double core = 0, h0 = 0, outer_parameter = -1;
+  double core = 0, h0 = 0, outer_parameter = -1, inherited_tangent_scale=1;
   std::map<int, int> roles;  // marker -> 1 BL wall, 0 reflective continuation (MARKER_SYM), 2 other physical partner
   MetricComposition Composition() const { return dc10::CompositionA(base, full, core, A); }
   MetricEdgeBreakpoints Edges() const { return dc10::EdgeGeometryA(base, full, core, A); }
@@ -238,6 +239,20 @@ struct TargetPolicy {
     return bytes;
   }
   void Update(double trialCore,double hgrad) {
+    base->SelectTangentialScale(full->GetTangentialScale());
+    if(A && inherited_tangent_scale!=full->GetTangentialScale() && A->radius!=full->GetFeatures().maximumRadius) {
+      if(!authority)throw std::runtime_error("A tangent target update needs its original geometry authority.");
+      // Pre-admit construction scratch; IndexCreases separately admits its actual bounded registration count.
+      const auto scratch=transfer_memory::Add(transfer_memory::Mul(authority->Facets().size(),1024),
+          transfer_memory::Mul(transfer_memory::Mul(A->creases.size(),A->creases.size()),4*sizeof(dc10::StripPair)));
+      full->CheckProfileScratch(transfer_memory::Add(StorageBytes(),scratch));
+      std::vector<Facet> facets;facets.reserve(authority->Facets().size());
+      for(const auto& facet:authority->Facets())facets.push_back(facet.second);
+      auto updated=dc10::BuildOptionA(facets,roles,full->GetFeatures().angle,full->GetFeatures().maximumRadius,h0,
+          [&](size_t gridBytes){full->CheckProfileScratch(transfer_memory::Add(StorageBytes(),scratch,gridBytes));});
+      updated->distanceLayers=base;*A=std::move(*updated);
+    }
+    inherited_tangent_scale=full->GetTangentialScale();
     const auto& profile=full->GetOuterNormal();
     if(profile.version) {
       if(!base->GetOuterNormal().version)base->ConfigureOuterNormal(profile.protected_distance,profile.maximum_growth);

@@ -49,5 +49,30 @@ same303 full workflow. Other ideas remain in the backlog.
 
 ## Implementation status
 
-No production normalization change yet. Physical-demand attribution, admissible
+CSolver normalization is unchanged. Experimental shared tangent selection/recomposition
+is local and UNQUALIFIED.365 compile failed at one new test (mixed float/double
+initializer list); exact source/status and47terminal identities preserved.366 passed build308.338s,393assertions/8serial cases and306735assertions/1actual
+case across5contexts (103.969s). Exact source is sealed in source_snapshots366;
+current local367 follow-ups remain UNBUILT. The candidate scales inherited covariance before geometry caps
+and D1 intersection, retaining the prescribed hn law. Samples retain exact same-point
+owner/wall/profile inputs; support/non-tangent changes refuse reuse. Full/base agree.
+
+Review found original featureHmax-dependent redundancy radius must grow when
+coarsening.366 rebuilds existing feature grid/reflected images, refreshes native
+support conservatively and rebuilds the existing Option-A policy when its active
+radius changes; new buffers require existing ledger admission. No envelope facility
+or larger budget. A future sample-profile refresh can still require real geometry.
+Pending before qualification: refresh candidate-complexity q.weight when Option-A
+changes; exercise synthetic/full-base cached/direct tangential trials and actual
+patches, then choose normalization policy. Physical-demand attribution, admissible
 actual-patch replacements and discrete progression remain unresolved.
+
+
+The five unchanged original contexts confirm strong inherited-tangent contribution
+and bitwise retained/direct tensors, with unchanged sampled in-band hn. Halving the
+inherited eigenvalues roughly halves centroid density sums in smooth/LE/root
+contexts. These sums are NOT integrals. Original unlayered shape does not improve;
+LE q-bad23→24/J-bad21→22. This does not select a production target or establish an
+admissible replacement. Use the preserved358 generated row and full-neighbor capture
+next, plus independent physical-progression checks. One unqualified candidate-cache
+weight dependency and prospective grid-admission refinement are local367 edits.

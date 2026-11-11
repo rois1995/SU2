@@ -1338,7 +1338,7 @@ double CBoundaryLayerMetric::FeatureRadius(unsigned short wall, double h0) const
     const double limit = 2 * (1 - 2 / (outerNormal.maximum_growth + 1));
     hn = std::max(hn, anchor + limit * (T - p));
   }
-  const double hmax = std::max(featureHmax.at(wall), hn) * (1 + 1e-12);
+  const double hmax = std::max(featureHmax.at(wall)/std::sqrt(tangentialScale), hn) * (1 + 1e-12);
   return std::max(0.0, (hmax - h0) / featureSlope);
 }
 
@@ -1942,7 +1942,7 @@ void CBoundaryLayerMetric::ConfigureOuterNormal(double protectedDistance,double 
     throw std::invalid_argument("Invalid or already-frozen outer-normal BL limits.");
   for(const auto& wall:walls)if(protectedDistance<wall.layer.firstHeight || maximumGrowth<wall.layer.growth)
     throw std::invalid_argument("Outer-normal BL limits must preserve original first height and growth.");
-  outerNormal.protected_distance=protectedDistance;outerNormal.maximum_growth=maximumGrowth;outerNormal.version=1;++sampleVersion;
+  outerNormal.protected_distance=protectedDistance;outerNormal.maximum_growth=maximumGrowth;outerNormal.version=1;++sampleVersion;++geometrySampleVersion;
   // The outer growth limit raises the largest normal size inside the band, hence the exact D1 support radius.
   IndexFeatures();
 }
@@ -1951,7 +1951,62 @@ void CBoundaryLayerMetric::SelectOuterNormal(double parameter) {
     throw std::invalid_argument("Invalid or frozen outer-normal BL selection.");
   if(parameter==outerNormal.parameter)return;
   if(outerNormal.version==UINT64_MAX || sampleVersion==UINT64_MAX)throw std::runtime_error("BL profile identity exhausted.");
-  outerNormal.parameter=parameter;++outerNormal.version;++sampleVersion;
+  outerNormal.parameter=parameter;++outerNormal.version;++sampleVersion;++geometrySampleVersion;
+}
+
+void CBoundaryLayerMetric::CheckProfileScratch(size_t bytes) const {
+  for(const auto& wall:walls)if(transfer_memory::Add(StorageBytes(),bytes)>wall.geometry_ceiling)
+    throw std::length_error("BL profile update exceeds storage ceiling.");
+  if(geometryReservation) {
+    geometryReservation->CheckTime();
+    if(transfer_memory::Add(geometryReservation->caller_bytes,bytes)>geometryReservation->maximum_bytes)
+      throw std::length_error("BL profile update exceeds caller reservation.");
+  }
+}
+
+void CBoundaryLayerMetric::SelectTangentialScale(double scale) {
+  if(nDim!=3 || !(scale>0 && scale<=1) || !std::isfinite(scale))
+    throw std::invalid_argument("Inherited BL tangent scale must be finite in (0,1].");
+  if(scale==tangentialScale)return;
+  if(sampleVersion==UINT64_MAX)throw std::runtime_error("BL sample identity exhausted.");
+  // Rebuild the existing finite index: coarsening can make previously redundant D1 constraints/images relevant.
+  using namespace transfer_memory;
+  const auto count=Mul(baseFeatures.size(),Add(featurePlanes.size(),1));
+  const auto scratch=Mul(count,Add(2*sizeof(Feature),Mul(walls.size(),4*sizeof(unsigned)),
+      Mul(125,sizeof(decltype(featureGrid)::value_type)+6*sizeof(void*)+4*sizeof(unsigned))));
+  CheckProfileScratch(scratch);
+  if(geometryReservation && !geometryReservation->ChargeWork(count))
+    throw std::length_error("BL tangent feature-index update exceeds work reservation.");
+  const auto previous=tangentialScale;tangentialScale=scale;
+  try {IndexFeatures();}
+  catch(...) {tangentialScale=previous;IndexFeatures();throw;}
+  ++sampleVersion;
+}
+
+void CBoundaryLayerMetric::RecomposeTangentialSample(unsigned short wall,Sample& sample,su2double core) const {
+  if(nDim!=3 || wall>=walls.size() || sample.owner!=this || sample.wall_index!=wall || sample.geometry_version!=geometrySampleVersion)
+    throw std::runtime_error("Stale BL geometry input for tangent recomposition.");
+  sample.profile_version=sampleVersion;
+  if(!(sample.weight>0))return;
+  sample.hn=sample.anchor_hn;
+  su2double size[3][3];
+  for(unsigned i=0;i<3;++i)for(unsigned j=0;j<3;++j)size[i][j]=sample.tangent_size.m[i][j]/tangentialScale;
+  WallMetric3D(size,sample,sample.curvature,sample.directional_curvature?&sample.curvature_direction:nullptr);
+  ApplyFeatures(wall,sample.anchor.data(),sample);
+  if(sample.outward>0) {
+    su2double normalMetric=0;
+    for(unsigned i=0;i<3;++i)for(unsigned j=0;j<3;++j)
+      normalMetric+=sample.distance_direction[i]*sample.full.m[i][j]*sample.distance_direction[j];
+    const auto scale=1+transitionSlope*sample.outward*sqrt(normalMetric);
+    for(unsigned i=0;i<3;++i)for(unsigned j=0;j<3;++j) {
+      sample.full.m[i][j]/=scale*scale;
+      if(i==j)sample.logarithm.m[i][j]-=2*log(scale);
+    }
+    sample.hn*=scale;
+  }
+  if(sample.weight<1)
+    Spectral(3,sample.logarithm.m,sample.metric.m,[&](su2double v){return exp(sample.weight*v+(1-sample.weight)*log(core));});
+  else sample.metric=sample.full;
 }
 
 std::array<double,6> CBoundaryLayerMetric::WallBounds() const {
@@ -1973,7 +2028,7 @@ bool CBoundaryLayerMetric::ConfigureOuterTransition(double core,double hgrad) {
     throw std::invalid_argument("Native BL outer transition requires finite core > 0 and ADAP_HGRAD > 1.");
   const double slope=std::log(hgrad);
   // Scale trials share the original family. Enlarged support must remain valid after a rejected trial.
-  if(transitionCore>0 && transitionSlope==slope && core>=transitionCore)return false;
+  if(transitionCore>0 && transitionSlope==slope && transitionFeatureIdentity==featureSummary.identity && core>=transitionCore)return false;
   if(sampleVersion==UINT64_MAX || supportVersion==UINT64_MAX)
     throw std::runtime_error("Native BL sample identity exhausted.");
   std::vector<double> support(data.size());
@@ -1995,6 +2050,7 @@ bool CBoundaryLayerMetric::ConfigureOuterTransition(double core,double hgrad) {
       hn=std::max(hn,anchor+2*(1-2/(outerNormal.maximum_growth+1))*(full-p));
     }
     support[w]=std::max(SU2_TYPE::GetValue(d.thickness),full+std::max(0.,std::sqrt(bound/core)-1)*hn/slope)*(1+1e-12);
+    support[w]=std::max(d.support,support[w]);
     if(!std::isfinite(support[w]))throw std::runtime_error("Unrepresentable native BL outer transition support.");
   }
   for(size_t w=0;w<data.size();++w) {
@@ -2002,7 +2058,7 @@ bool CBoundaryLayerMetric::ConfigureOuterTransition(double core,double hgrad) {
     for(unsigned j=0;j<nDim;++j){d.low[j]-=extra;d.high[j]+=extra;}
     d.support=support[w];
   }
-  transitionCore=core;transitionSlope=slope;++sampleVersion;++supportVersion;
+  transitionCore=core;transitionSlope=slope;transitionFeatureIdentity=featureSummary.identity;++sampleVersion;++geometrySampleVersion;++supportVersion;
   return true;
 }
 
@@ -2053,7 +2109,7 @@ CBoundaryLayerMetric::Sample CBoundaryLayerMetric::EvaluateImpl(unsigned short i
                                                                unsigned long pinned,const WallProjection* associated) {
   const auto& wall = walls[iWall];
   auto& d = *data[iWall];
-  Sample sample;sample.profile_version=sampleVersion;
+  Sample sample;sample.profile_version=sampleVersion;sample.owner=this;sample.wall_index=iWall;sample.geometry_version=geometrySampleVersion;
   if (!d.adt) return sample;
   auto x = [&](unsigned long iPoint) { return &wall.coord[iPoint * nDim]; };
 
@@ -2267,7 +2323,15 @@ CBoundaryLayerMetric::Sample CBoundaryLayerMetric::EvaluateImpl(unsigned short i
         }
       }
     }
-    WallMetric3D(tangentSize,sample,curvature,curvedDirection);
+    sample.anchor_hn=sample.hn;sample.curvature=curvature;sample.directional_curvature=curvedDirection!=nullptr;
+    if(curvedDirection)sample.curvature_direction=*curvedDirection;
+    sample.outward=transitionCore>0 ? max(su2double(0),sample.distance-d.full) : su2double(0);
+    for(unsigned i=0;i<3;++i) {
+      sample.distance_direction[i]=distanceDirection[i];sample.anchor[i]=X[i]-sample.outward*distanceDirection[i];
+      for(unsigned j=0;j<3;++j)sample.tangent_size.m[i][j]=tangentSize[i][j];
+    }
+    RecomposeTangentialSample(iWall,sample,coreEigenvalue);
+    return sample;
   }
 
   /*--- Continue the band-end tensor by normal-ray metric transport, preserving anisotropy.

@@ -4176,6 +4176,7 @@ TEST_CASE("FIRST_ROW crease policy is shared by candidate integration across pro
       const auto id=nodes.emplace(p,nodes.size()).first->second;f.v[j]={id,{p[0],p[1],p[2]}};}
     facets.push_back(f);
   }
+  target->authority=std::make_shared<PlanarReference>(facets);target->roles={{0,1}};target->h0=1e-3;
   target->A=dc10::BuildOptionA(facets,{{0,1}},45,target->full->GetFeatures().maximumRadius,1e-3);
   target->A->distanceLayers=target->base;REQUIRE(!target->A->creases.empty());
   DonorCell donor;donor.cell.id=0;
@@ -4223,6 +4224,15 @@ TEST_CASE("FIRST_ROW crease policy is shared by candidate integration across pro
   checked=integral.Assess(family.selected,.5,true,target.get());CHECK(checked.directChecks>32);
   target->Update(.25,1.3);checked=integral.Assess(family.selected,.25,true,target.get());CHECK(checked.directChecks>32);
   CHECK_THROWS(integral.Assess(family.selected,.5,true,target.get()));
+  for(double scale:{.75,.5,1.}) {
+    target->full->SelectTangentialScale(scale);target->Update(.25,1.3);su2double core=.25;
+    const auto result=assess.Assess(family.selected,core);long double direct=0;
+    for(const auto& q:cloud.points)direct+=MetricDensity(target->Composition()(q.point,donor.sensor[0]))/cloud.count;
+    direct=CPassiveComm::Allreduce(direct,CPassiveComm::Op::SUM);
+    CHECK(result.value==Approx(double(direct)).epsilon(2e-12));
+    const auto checked=integral.Assess(family.selected,.25,true,target.get());CHECK(checked.directChecks>32);
+    CHECK(target->base->GetTangentialScale()==scale);CHECK(target->A->radius==target->full->GetFeatures().maximumRadius);
+  }
 }
 
 TEST_CASE("Logarithmic FIRST_ROW blending preserves fine anisotropic sensor directions", "[NativeBLTargetNormalization]") {
@@ -4237,4 +4247,53 @@ TEST_CASE("Logarithmic FIRST_ROW blending preserves fine anisotropic sensor dire
   for(unsigned i=0;i<3;++i)for(unsigned j=0;j<3;++j)lb[i][j]=.5L*(lb[i][j]+lf[i][j]);
   CHECK(minimum(dc10::ToTensor(dc10::Function3(lb,dc10::ExpL)))<-.1L);
   for(long double weight:{0.L,.1L,.5L,.9L,1.L})CHECK(minimum(dc10::OptionA::Blend(base,full,weight,sensor))>-1e-11L);
+}
+
+TEST_CASE("Inherited BL tangent trials preserve prescribed normal law and invalidate dependent samples", "[NativeBLTangentialNormalization3D]") {
+  CBoundaryLayerMetric::Wall wall;wall.layer={"wall",.01,1.2,.1};
+  wall.coord={0,0,0,.01,0,0,.01,1,0,0,1,0};wall.conn={0,1,2,2,0,2,3,3};
+  CBoundaryLayerMetric layers(3,{wall}),other(3,{wall});
+  REQUIRE(layers.ConfigureOuterTransition(1.,1.3));
+  std::vector<CBoundaryLayerMetric::Sample> retained;
+  const std::vector<double> depths{0.,.01,.05,.09,.095,.2};
+  for(double z:depths){const su2double p[]={.005,.5,z};retained.push_back(layers.Evaluate(0,p,1.));}
+  const auto support=layers.GetSupportVersion(),geometry=layers.GetGeometrySampleVersion();
+  const auto version=layers.GetSampleVersion();
+  layers.SelectTangentialScale(.25);
+  CHECK(layers.GetSampleVersion()>version);CHECK(layers.GetGeometrySampleVersion()==geometry);CHECK(layers.GetSupportVersion()==support);
+  for(size_t k=0;k<depths.size();++k) {
+    const auto original=retained[k];auto cached=original;
+    Tensor sensor;for(unsigned j=0;j<3;++j)sensor.m[j][j]=1;
+    auto invalid=sensor;CHECK_THROWS(layers.ApplySample(0,cached,invalid,1.,nullptr,false));
+    layers.RecomposeTangentialSample(0,cached,1.);
+    const su2double p[]={.005,.5,depths[k]};const auto direct=layers.Evaluate(0,p,1.);
+    CHECK(cached.hn==original.hn);CHECK(cached.distance==original.distance);
+    for(unsigned i=0;i<3;++i)for(unsigned j=0;j<3;++j)CHECK(cached.full.m[i][j]==direct.full.m[i][j]);
+    CHECK(cached.full.m[2][2]==Approx(SU2_TYPE::GetValue(original.full.m[2][2])).epsilon(1e-12));
+    CHECK(cached.full.m[0][0]==Approx(.25*SU2_TYPE::GetValue(original.full.m[0][0])).epsilon(1e-12));
+    CHECK(cached.full.m[1][1]==Approx(.25*SU2_TYPE::GetValue(original.full.m[1][1])).epsilon(1e-12));
+    CHECK_THROWS(other.RecomposeTangentialSample(0,cached,1.));
+    retained[k]=cached;
+  }
+  REQUIRE(layers.ConfigureOuterTransition(.1,1.3));
+  CHECK_THROWS(layers.RecomposeTangentialSample(0,retained[0],.1));
+  for(double bad:{0.,-1.,1.01,double(INFINITY)})CHECK_THROWS(layers.SelectTangentialScale(bad));
+  layers.SelectTangentialScale(1.);
+  const su2double p[]={.005,.5,.05};CHECK(layers.Evaluate(0,p,.1).full.m[2][2]==Approx(1/std::pow(2*(.01+.2*.05)/2.2,2)));
+}
+
+
+TEST_CASE("Tangent coarsening rebuilds D1 support before same-point recomposition", "[NativeBLTangentialNormalization3D]") {
+  CBoundaryLayerMetric::FeatureOptions options;options.hgrad=1.3;
+  CBoundaryLayerMetric layers(3,Ridge(),45.,options);
+  REQUIRE(layers.GetFeatures().segments>0);
+  const auto radius=layers.GetFeatures().maximumRadius;
+  const su2double p[]={.15,4.,.01};auto cached=layers.Evaluate(0,p,1.);
+  layers.SelectTangentialScale(.25);
+  CHECK(layers.GetFeatures().maximumRadius>=radius*1.99);
+  layers.RecomposeTangentialSample(0,cached,1.);const auto direct=layers.Evaluate(0,p,1.);
+  for(unsigned i=0;i<3;++i)for(unsigned j=0;j<3;++j)CHECK(cached.full.m[i][j]==direct.full.m[i][j]);
+  SU2NativeGeometry::AtlasBudget budget;budget.maximum_bytes=1;budget.maximum_work=10000;
+  CBoundaryLayerMetric::GeometryReservationScope reservation(layers,budget);
+  CHECK_THROWS(layers.SelectTangentialScale(.5));CHECK(layers.GetTangentialScale()==.25);
 }

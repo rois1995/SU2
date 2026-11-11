@@ -67,7 +67,7 @@ class CNativeComplexity3D {
   std::vector<long double> volumes;
   std::vector<Query> queries;
   size_t sourceNodes,ceiling;
-  uint64_t profileVersion=0;
+  uint64_t profileVersion=0, geometryProfileVersion=UINT64_MAX, baseGeometryProfileVersion=UINT64_MAX;
   const SU2NativeBLPipeline3D::TargetPolicy* cachedTarget=nullptr;
   bool domainProposal=false;
   std::vector<CBoundaryLayerMetric::Tensor> backgroundSensor;

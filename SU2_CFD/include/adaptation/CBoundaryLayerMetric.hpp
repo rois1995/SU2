@@ -116,6 +116,16 @@ class CBoundaryLayerMetric {
     su2double weight = 0.0;     /*!< \brief Strength in [0,1] (1 in the full band, 0 beyond the thickness). */
     su2double normal[3] = {0.0}; /*!< \brief Unit wall-normal direction. */
     su2double hn = 0.0;         /*!< \brief Wall-normal size. */
+    // Geometry-dependent input retained for scalar tangent trials; never a distance certificate at another point.
+    const CBoundaryLayerMetric* owner=nullptr;
+    uint64_t geometry_version=0;
+    unsigned short wall_index=0;
+    Tensor tangent_size;
+    std::array<su2double,3> anchor{},distance_direction{};
+    std::array<double,3> curvature_direction{};
+    su2double anchor_hn=0,outward=0;
+    double curvature=0;
+    bool directional_curvature=false;
     Tensor full;                /*!< \brief Wall metric at full strength. */
     Tensor logarithm;           /*!< \brief 3D log metric formed before mixing normal/tangent scales. */
     Tensor metric;              /*!< \brief Wall metric with the fade (equal to full where weight is 1). */
@@ -219,6 +229,13 @@ class CBoundaryLayerMetric {
    * Returns true when cached geometry samples/support must be rebuilt. MMG retains its legacy fade. */
   bool ConfigureOuterTransition(double coreEigenvalue, double hgrad);
   uint64_t GetSampleVersion() const { return sampleVersion; }
+  /*! Scale only inherited 3D tangent eigenvalues; normal, geometry and feature constraints are recomposed unchanged. */
+  void SelectTangentialScale(double scale);
+  void CheckProfileScratch(size_t bytes) const;
+  double GetTangentialScale() const { return tangentialScale; }
+  uint64_t GetGeometrySampleVersion() const { return geometrySampleVersion; }
+  /*! Exact same-point/support reuse after a tangent-only change; stale geometry/profile input is refused. */
+  void RecomposeTangentialSample(unsigned short wall, Sample& sample, su2double coreEigenvalue) const;
   uint64_t GetSupportVersion() const { return supportVersion; }
   double GetOuterTransitionCore() const { return transitionCore; }
 
@@ -452,7 +469,9 @@ class CBoundaryLayerMetric {
 
   OuterNormalProfile outerNormal;
   double transitionCore=0, transitionSlope=0;
-  uint64_t sampleVersion=0, supportVersion=0;
+  uint64_t transitionFeatureIdentity=0;
+  uint64_t sampleVersion=0, supportVersion=0, geometrySampleVersion=0;
+  double tangentialScale=1;
   unsigned short nDim = 0;
   su2double cornerAngle = 0.0; /*!< \brief D1 feature angle (degrees): convex edges/vertices turning by more. */
   std::vector<Wall> walls;

@@ -8,7 +8,17 @@ Read AGENTS.md and [HowToProceed.md](HowToProceed.md). Historical states are in
 
 ## Current owned workload — authoritative
 
-Current owned workload: NONE. Full same303 workflow364 TERMINAL1/1972.886s.
+Current owned workload: NONE. Build366 TERMINAL0/308.338s;53observed actual
+identities absent. Serial366 PASSED393assertions/8cases/4.862s; actual366 PASSED
+306735assertions/1case/103.969s across5preserved contexts. Pins intact and all
+observed owned handles terminal. Exact9-file build366 source snapshot is verified
+against pins in R/source_snapshots366/manifest.json (current worktree has later edits).
+R/tangential366_assessment.json seals LIMITED tensor behavior, NOT usable BL,
+production normalization, physical progression or accepted-patch qualification.
+Next local367 edits are UNBUILT: candidate q.weight refresh + full/base integration
+checks, exact prospective Option-A grid admission, analytic NextLayer audit and
+reuse of saved358 generated-row/neighbor captures. No competing cycle.
+Full same303 workflow364 TERMINAL1/1972.886s.
 All10 actual owned identities absent in terminal_handles_actual.json;1639pins and
 mapped runtime verified unchanged. Preserved first-event report/log before the
 verified owned SIGTERM: surface preparation391.619s,18commits/122work,
@@ -23,7 +33,14 @@ Active next correction: distinguish composed-volume complexity accounting (alrea
 present) from adjustable normalization degrees of freedom (currently flow-only).
 Audit inherited wall-tangent sizing versus geometry/features/height feasibility,
 then implement ONE demonstrated connected correction preserving h0/g/T and normal
-progression. No new normalization implementation yet. See
+progression. Experimental tangent-profile/recomposition candidate is LOCAL/UNQUALIFIED;
+production CSolver normalization is still unchanged.365 failed only a new test
+initializer-list float/double compile error; exact failed source/status preserved.
+366 corrects it and addresses newly found D1 support/image/index dependencies;
+393focused and306735actual assertions pass within their stated tensor scope.
+Review pending before qualification: candidate complexity q.weight must refresh
+when Option-A radius changes (regular complexity and actual diagnostic already do).
+See
 [normalization scope](Handbook/ADAPTATION_CURVED_BL_NORMALIZATION_20261111.md).
 
 Build364 TERMINAL0/206.222s,pins intact/all22observed handles absent. Serial364 passed

@@ -87,6 +87,10 @@ TEST_CASE("Actual curved BL surface cavities preserve complete dependencies", "[
        <<",\"first_height_reference_clearance_failures\":"<<report.reference_clearance_failures
        <<",\"first_height_reason\":"<<std::quoted(why)<<",\"production_metric_certified\":false}"<<std::endl;
   };
+  if(const auto* mode=std::getenv("SU2_NATIVE_BL_FRONT_PROBE");mode&&std::string(mode)=="tangential_target") {
+#include "native_actual_bl_tangential_target_probe.inc"
+    return;
+  }
   if(const auto* mode=std::getenv("SU2_NATIVE_BL_FRONT_PROBE");mode&&std::string(mode)=="seed_measurement") {
 #include "native_actual_bl_seed_measurement.inc"
     return;

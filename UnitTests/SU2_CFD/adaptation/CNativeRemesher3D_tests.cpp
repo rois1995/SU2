@@ -946,3 +946,26 @@ TEST_CASE("Unchanged normalization cannot publish an over-budget candidate", "[N
     CHECK(stats.normalization.reason=="normalization_storage_limited");
   }
 }
+
+TEST_CASE("BL unit-metric advancement is distinct from prescribed physical progression", "[NativeBLTangentialProgression3D]") {
+  // Analytic control: an oblique carrier direction plus a finer flow tangent can shorten the physical normal interval.
+  CBoundaryLayerMetric::Wall wall;wall.layer={"wall",2e-6,1.2,.01};
+  wall.coord={-1,-1,0,1,-1,0,1,1,0,-1,1,0};wall.conn={0,1,2,2,0,2,3,3};
+  auto layers=std::make_shared<CBoundaryLayerMetric>(3,std::vector<CBoundaryLayerMetric::Wall>{wall});
+  layers->ConfigureOuterTransition(1e-4,1.3);
+  DonorCell donor;donor.cell.id=0;
+  donor.cell.v={{{0,{0,0,.005}},{1,{2,0,.005}},{2,{0,2,.005}},{3,{0,0,2}}}};
+  donor.sensor.fill({1e6,0,0,1e-4,0,1e-4});
+  for(double scale:{1.,.5,.25}) {
+    layers->SelectTangentialScale(scale);
+    junction_wp0::State state;state.layers=layers;state.mesh[0].cell=donor.cell;state.vertex_cells[0]={0};
+    state.field=std::make_unique<FrozenField>(std::vector<DonorCell>{donor},SU2NativeBL3D::Composition(layers,1e-4));
+    dc12::Column column;column.top=0;column.walls={0};column.dir={0,0,1};
+    const auto normal=dc12::NextLayer(state,column);REQUIRE(normal.ok);
+    const auto requested=2e-6L+.2L*normal.d;
+    CHECK(std::abs((normal.next-normal.d)/requested-1)<.02L);
+    column.dir={std::sqrt(.96L),0,.2L};const auto oblique=dc12::NextLayer(state,column);REQUIRE(oblique.ok);
+    CHECK(oblique.next-oblique.d<.5L*requested);
+    const su2double x[]={0,0,.005};CHECK(layers->Evaluate(0,x,1e-4).hn==Approx(2*(2e-6+.2*.005)/2.2));
+  }
+}
