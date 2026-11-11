@@ -1,0 +1,30 @@
+{
+  "scope": "371 CSolver-only endpoint correction, focused serial correctness;370MPI primitive/publication evidence reused, changed solver collective integration to be exercised by actual371MPI6 metric stage.",
+  "build": {
+    "state": "terminal",
+    "exit_code": 0,
+    "seconds": 58.132160902023315,
+    "pins_verified": true,
+    "changed": [],
+    "completed_build": true,
+    "binaries": {
+      "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver": "f13261de51726d5fb72bc606b920a45899395994ad491e7756bb24cb0580b92e",
+      "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/SU2_CFD/src/SU2_CFD": "7cf80707d006eb2c5d80afa1143b730e8502e1458e1f9fe0bfd6fbc68ef24cd8"
+    }
+  },
+  "serial_case": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved371_joint_serial_20261111T111740_1884344",
+  "serial_status": {
+    "state": "terminal",
+    "exit_code": 0,
+    "seconds": 68.60607314109802,
+    "pins_verified": true,
+    "changed": [],
+    "largest_sampled_individual_process_rss_bytes": 89985024,
+    "rss_note": "sampled process RSS; not a whole-job peak"
+  },
+  "serial_assertions": 1096,
+  "serial_cases": 16,
+  "actual_host_handles_terminal": true,
+  "reuse": "joint370_qualification.json; MPI16cases with joint scalar test skipped, primitive/publication sources unchanged.",
+  "production_target_accepted": false
+}

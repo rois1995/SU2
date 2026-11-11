@@ -12,11 +12,25 @@ construction validity-first; intermediate quality debt is provisional, not accep
 
 ## Current state — authoritative
 
-Current owned workload:370actual saved-CFD METRIC-ONLY stage RUNNING/FROZEN,
-session51171; R/cases/curved370_saved_cfd_metric_stage_20261111T111101_1866897.
-Wrapper1866897; time1866985. Exact AF7metric-entry seed, MPI6, unchanged Mach-only
-L1/nominal500k/normal controls/budgets; no CFD advance or construction. Do not edit
-pinned sources until actual-host terminal. Resource/command/pins receipts in case.
+Current owned workload:371actual saved-CFD METRIC-ONLY stage RUNNING/FROZEN,
+session15803; R/cases/curved371_saved_cfd_metric_stage_20261111T111921_1888531.
+Wrapper1888531; time1888611. Exact AF7seed/MPI6/Mach-only L1/nominal500k,
+unchanged normal/geometry/budgets; no CFD advance or construction. Do not edit
+pinned sources until actual-host terminal. R/joint371_qualification.json.
+Build371 TERMINAL0/58.132s,14owned identities absent, pins intact;
+CFD SHA7cf80707d006eb2c5d80afa1143b730e8502e1458e1f9fe0bfd6fbc68ef24cd8;
+test SHAf13261de51726d5fb72bc606b920a45899395994ad491e7756bb24cb0580b92e.
+Serial371terminal0/68.606s,1096assertions/16cases, actual-host handles terminal.
+371changes ONLY CSolver: remove the obsolete unconditional coarse endpoint
+preflight for fixed-normal joint normalization; existing local bracket expansion/
+24assessments/budgets retained. Optional ADAP_BL_BUDGET outer-profile mode keeps its
+original tangent policy. No numerical/geometry floor added. A needed extreme may
+still fail representation. Actual target assessment/checkpoint still outstanding.
+
+370actual saved-CFD metric-only TERMINAL1/65.933s, pins intact; all10owned actual-host
+identities terminal. R/cases/curved370_saved_cfd_metric_stage_20261111T111101_1866897.
+Error: D1 intersection sum not positive definite in first coarse trial. This is
+NOT complexity overshoot rejection; no CFD advance or construction occurred.
 Serial370terminal0/75.753s,1096assertions/16cases; MPI6terminal0/5.425s,
 841assertions/16cases on EACH rank. All owned identities actual-host terminal;
 pins intact. R/joint370_qualification.json owns limited qualification scope.
@@ -24,7 +38,9 @@ Build370 TERMINAL0/352.424s,58owned identities absent, all pins intact;
 CFD SHAd0872a42bd3354bf3f49515db26dc097005fef921cf0ebecbee28b0d1d141a6f;
 test SHAcb71dd694496b148b1fd1552463ee1a521cdde440b48183adc2a67f1b0c40d08.
 Joint normalization passed focused serial and connected MPI checks; actual saved-CFD
-metric stage is running. Not a selected reasonable target or speedup.
+metric stage failed at an unnecessary extreme endpoint. Not a selected reasonable
+target or speedup.371passed serial; actual metric-only MPI6 is running. Reuse370MPI
+primitive/publication evidence; no second fixture campaign for CSolver-only change.
 369target-only actual diagnostic TERMINAL0/78.391s,
 303453assertions/1case; all owned actual-host identities verified terminal and pins
 intact in R/geometry369_assessment.json.42samples across5actual M6 contexts, no CFD
@@ -62,8 +78,9 @@ WITHOUT another CFD advance. Original303 seed remains intact for full integratio
 Stage2 target/normalization is ACTIVE: finish physical geometry/directional/height-
 feasibility attribution, select a justified connected correction, then qualify a
 complete composed-target disk checkpoint. Sensor-only files are insufficient.
-Production CSolver selector now has the UNVALIDATED370joint flow/inherited-tangent
-normalization candidate; frozen replay retains its selected scale. Crease geometry
+Production CSolver selector now has the371joint flow/inherited-tangent candidate
+for fixed-normal policies; focused serial is qualified, actual M6 target remains
+unqualified. Frozen replay retains its selected scale. Crease geometry
 is reused during radius refresh; feature/index transient storage is pre-admitted.
 Nominal complexity-only refusals are diagnostic; physical/resource gates remain.
 This is not an established reasonable target or speedup. No new operators/scheduler.

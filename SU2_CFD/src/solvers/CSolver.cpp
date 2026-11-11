@@ -2954,8 +2954,8 @@ void CSolver::ComputeMetric(CGeometry *geometry, const CConfig *config, const ve
         firstRowTarget=SU2NativeBLPipeline3D::MakeTargetPolicy(*config,*nativeReference3D,SU2_TYPE::GetValue(eigMin),-1,nativeLayers);
       }
       const auto geometryScratch=firstRowTarget
-          ? std::max({firstRowTarget->full->GeometryWorkspaceBytes(),firstRowTarget->base->GeometryWorkspaceBytes(),firstRowTarget->CoarseningWorkspaceBytes()})
-          : std::max(nativeLayers->GeometryWorkspaceBytes(),nDim==3?nativeLayers->TangentialProfileWorkspaceBytes():size_t(0));
+          ? std::max({firstRowTarget->full->GeometryWorkspaceBytes(),firstRowTarget->base->GeometryWorkspaceBytes(),budgetBL?size_t(0):firstRowTarget->CoarseningWorkspaceBytes()})
+          : std::max(nativeLayers->GeometryWorkspaceBytes(),nDim==3 && !budgetBL?nativeLayers->TangentialProfileWorkspaceBytes():size_t(0));
       if(geometryScratch) {
         if(geometryScratch>=nativeMemoryLimit)throw std::length_error("Native target geometry scratch exceeds memory ceiling.");
         metric_geometry_budget.maximum_bytes=nativeMemoryLimit;
@@ -3202,7 +3202,7 @@ void CSolver::ComputeMetric(CGeometry *geometry, const CConfig *config, const ve
       SU2_MPI::Allreduce(&localSmallest, &frozenCore, 1, MPI_DOUBLE, MPI_MIN, SU2_MPI::GetComm());
       CLocalFailure transitionFailure;
       try {
-        if(nativeLayers && nDim==3 && !replay)
+        if(nativeLayers && nDim==3 && !replay && !budgetBL)
           nativeLayers->SelectTangentialScale(std::exp(std::min(0.,SU2_TYPE::GetValue(logScale)-tangentialAnchor)));
         const bool hadTransition=nativeLayers && nativeLayers->GetOuterTransitionCore()>0;
         if(nativeLayers && nativeLayers->ConfigureOuterTransition(SU2_TYPE::GetValue(frozenCore),SU2_TYPE::GetValue(config->GetAdap_Hgrad()))) {
@@ -3386,7 +3386,7 @@ void CSolver::ComputeMetric(CGeometry *geometry, const CConfig *config, const ve
     const su2double absoluteLow = log(eigMin / globalValues[1]);
     const su2double absoluteHigh = log(eigMax / fmin(smallest, globalValues[1]));
     familyLower=SU2_TYPE::GetValue(absoluteLow);familyUpper=SU2_TYPE::GetValue(absoluteHigh);
-    if(nativeLayers && nDim==3 && !replay)
+    if(nativeLayers && nDim==3 && !replay && !budgetBL)
       tangentialAnchor=SU2_TYPE::GetValue(fmin(fmax(log(complexity/globalValues[0])*2.0/nDim,absoluteLow),absoluteHigh));
     // Corner updates perturb the previous solve: start from its scale, retaining the same safeguarded bracket.
     if(replay)logScale=replay->family->normalization.logScale;
@@ -3452,6 +3452,14 @@ void CSolver::ComputeMetric(CGeometry *geometry, const CConfig *config, const ve
           if(rank==MASTER_NODE)cout<<"Nominal complexity overshoot: "<<why.str()<<endl;
         }
         nativeLayers->FreezeOuterNormal();
+      }
+      // Joint tangential trials must start at the flow estimate, not an unnecessary ill-conditioned extreme.
+      if(nativeLayers && nDim==3 && !replay && !budgetBL && absoluteLow<absoluteHigh) {
+        normalization=SU2Complexity::Normalize(SU2_TYPE::GetValue(complexity),SU2_TYPE::GetValue(absoluteLow),
+            SU2_TYPE::GetValue(absoluteHigh),SU2_TYPE::GetValue(logScale),SU2_TYPE::GetValue(tol),24,assess);
+        logScale=normalization.logScale;error=log(integratedComplexity/complexity);
+        bracketed=normalization.status!=SU2Complexity::Status::OutsideBracket;
+        return;
       }
       // A BL budget may already be unattainable at the coarsest permitted sensor; test that before expensive grading.
       const auto coarse=assess(SU2_TYPE::GetValue(absoluteLow),0);

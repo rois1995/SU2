@@ -9,7 +9,8 @@ Latest complete production observation: same-seed curved BL/RANS364, terminal wi
 preserved surface-preparation deadline failure. No usable BL or accepted RANS mesh.
 Stage2 tangential-profile development is active; build370 joint-normalization candidate
 passed compilation in352.424s and focused serial/MPI checks; actual saved-CFD
-metric-only stage is running. There is no validated production result.500k is nominal complexity, not a
+metric-only stage failed;371endpoint correction passed serial and its actual
+MPI6metric-only evaluation is frozen/running. No validated production result.500k is nominal complexity, not a
 node count or acceptance gate. Euler293's completed workflow remains preserved.
 
 ## Current runtime by stage
@@ -110,7 +111,9 @@ only after matching work/progress and scope are demonstrated.
 |369target-only current geometry/directions|78.3906|303453 assertions/1case, pass;42surface samples across5actual M6 contexts; no construction or CFD advance. Uniform-core diagnostic, not the normalized CFD target.|
 |370joint-normalization focused serial|75.7528 wrapper;71.33 test process|1096assertions/16cases, pass;70.94s userCPU includes synthetic planar normalization. No production timing claim.|
 |370connected MPI6|5.4247 wrapper;1.12 test process|841assertions/16cases EACH rank; synthetic joint-scalar solve is serial-only, so this is not a speed comparison.|
-|370actual saved-CFD metric-only|RUNNING|Same AF7entry/Mach-L1/nominal500k; no CFD advance or construction; no final timing/target qualification yet.|
+|370actual saved-CFD metric-only|65.9329 wrapper;61.85 process tree|Failed first coarse trial: D1 intersection sum not SPD; pins intact, no CFD advance/construction. No credible target/checkpoint.|
+|371endpoint correction serial|68.6061 wrapper|1096assertions/16cases, pass; production CSolver-only correction. No speedup attribution from this test.|
+|371actual saved-CFD metric-only|RUNNING|Same AF7/Mach-L1/nominal500k; native5400s/outer14400s/12GiB unchanged; no CFD advance/construction.|
 
 369 measured context work/time: failing-chord79units/0.12217s, smooth-upper129/0.17698s,
 leading-edge130/0.20864s, symmetry-interface59/0.08340s and sharp-edge candidate130/0.20092s.

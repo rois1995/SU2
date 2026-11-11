@@ -211,3 +211,18 @@ insufficient. No new curvature floor or construction policy is selected.
 841assertions/16cases EACH rank. Actual saved-CFD metric-only evaluation is frozen
 and running; no actual target reasonableness, generated BL or speedup is established.
 Qualification details: R/joint370_qualification.json. Native FIRST_ROW1 guard remains.
+
+
+370 actual metric-only stage TERMINAL1/65.933s, pins intact, all10owned actual-host
+identities terminal. No CFD advance/construction. Error: D1 intersection sum not
+positive definite during the first coarse trial. Source review: the old unconditional
+flow-only coarse-endpoint preflight now also drives inherited tangents near zero;
+very fine fixed normal demands can swamp those tangents in binary64. The existing
+Normalize helper ALREADY starts at the flow proposal and expands only as needed.
+371 therefore removes that unnecessary extreme preflight for fixed-normal joint
+normalization, using the same24assessment maximum. No numeric/geometry floor or
+physical relaxation is added. Optional ADAP_BL_BUDGET outer-profile selection keeps
+its original tangent policy and old preflight; its separate profile selection is
+not converted to a second joint search. It remains nominal, not a rejection gate.
+An actually needed extreme trial could still expose representability limits; do
+not claim that issue generally solved. Actual target reasonableness remains open.
