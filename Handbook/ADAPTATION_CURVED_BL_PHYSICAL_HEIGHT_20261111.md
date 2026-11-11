@@ -553,3 +553,14 @@ Full same303 workflow362 launched after the qualification push. Actual10owned
 PID/start identities verified live,1623pins intact, same inputs/gates/budgets.
 See HANDOFF_Codex.md and R/m6_runs/rans_curved362_v1/start_verified_actual.json.
 Keep sources frozen; no M6 outcome or speedup is yet established.
+
+
+Read-only359 coverage audit (surface359_seeding_coverage.json) reproduces manifest
+17540/303359 cache-valid cells(5.78%);4243cached surface/13297cached interior cells.
+The285819uncached rows have UNKNOWN location in this diagnostic, not interior.
+No q/J was measured; zero flagged q/J failures does not establish shape. Guidance
+edge-occurrence bins repeat shared/unrequested edges and are not demand counts.
+Composed tensors/component contributions are not serialized; these exports cannot
+apportion948k among original wall tangential spacing, height, features and gradation.
+Use this limited authoritative coverage baseline against362 existing counters; no
+new CFD, geometry query, baseline or profiling campaign was launched.

@@ -12,7 +12,9 @@ Current owned workload: full same303 workflow362 RUNNING/FROZEN, tool session669
 Folder `R/m6_runs/rans_curved362_v1`; wrapper1251081/start42532701,
 timeout1251565/start42533873, MPI1251566/start42533873; actual10PID/start identities
 verified live in start_verified_actual.json,1623pins intact, runtime mapping recorded.
-Started2026-11-11T07:08:19UTC. Initial setup running; no outcome yet. Compiled C++/tests
+Started2026-11-11T07:08:19UTC. Initial same-seed CFD finite CL.155731/CD.050268;
+first composed metric evaluation running, actual10identities reverified live in
+metric_live_observation.json. No remesh outcome yet. Compiled C++/tests
 and pinned helpers remain unchanged until verified terminal or preserved failure
 justifies authorized stop. Qualified change pushed2e151415c8 before launch. Build362 TERMINAL0/70.163s, pins intact,9observed build
 PIDs absent. Serial362 TERMINAL0/4.426s,741assertions/9cases, pins intact/all actual
@@ -40,7 +42,10 @@ seed/measurement/field counters. Normal unit assertions now use explicit absolut
 bounds (Approx's default relative epsilon no longer masks their margin).
 Affected serial checks and ONE connected MPI milestone passed; next immediately full
 same303 workflow. No new diagnostic loader/config, new CFD seed or target change.
-Passing checks will not establish usable BL. Full359 failure remains active evidence:
+Passing checks will not establish usable BL. Read-only surface359_seeding_coverage.json
+confirms17540/303359 measured(5.78%),285819 location/measurement UNKNOWN; zero q/J
+measurements. Partial exports lack composed tensors/component contributions, so cannot
+apportion complexity excess. Full359 failure remains active evidence:
 391.593s surface seeding,0work/commits,geometry_work273738. All10actual handles absent,
 pins/runtime intact; first-event report/log/core preserved under R/m6_runs/rans_curved359_v1.
 Exact entry sensor core1e-4I at all61330points to2.304e-15relative, Float64 association;

@@ -1,0 +1,48 @@
+{
+  "scope": "Read-only analysis of preserved359 partial construction census; no new baseline or query campaign. For comparison with362 surface preparation only.",
+  "created_unix": 1794381118.935753,
+  "source_sha256": {
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/rans_curved359_v1/adapted_mesh_inspection_rank0_manifest.json": "052562994d06cd60be941683eb7ab7a83cfe758fbfb6852dffcb5cfd365fb019",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/rans_curved359_v1/adapted_mesh_inspection_rank0_metrics.compact.jsonl": "7ff50e577d637bfd8a4f1655f53874a7e3f9cb7b6f71a532f0740cadeebada47",
+    "Common/include/adaptation/CNativeFailureCapture3D.hpp": "345c9614913415d2a24cf0db02f732d5e39f5f09dbfe429e801e8af638474a7d"
+  },
+  "manifest_progress": {
+    "owned": 303359,
+    "measured": 17540,
+    "q_bad": 0,
+    "j_bad": 0,
+    "geometry_bad": 0,
+    "size_bad": 2
+  },
+  "counts": {
+    "rows": 303359,
+    "cache_valid_rows": 17540,
+    "measured_surface_rows": 4243,
+    "q_measured": 0,
+    "J_measured": 0,
+    "geometry_measured": 17540,
+    "q_bad": 0,
+    "J_bad": 0,
+    "geometry_bad": 0,
+    "size_bad": 2,
+    "measured_interior_rows": 13297,
+    "unmeasured_location_unknown_rows": 285819
+  },
+  "coverage": 0.05781928342327078,
+  "measured_edge_occurrences": 105240,
+  "edge_occurrence_bins": {
+    "above_1.8": 4901,
+    "0.9_to_1.8": 19589,
+    "0.5_to_0.9": 6700,
+    "below_0.5": 74050
+  },
+  "caveats": [
+    "Surface/interior classification is available only for cache-valid rows; absent flags on unmeasured rows do not classify their location.",
+    "Surface flag includes every physical boundary, not specifically requested no-slip wall or leading edge.",
+    "Lengths are surface-planning guidance, not full BL-target edge certificates; shared edges counted once per measured incident cell.",
+    "The capture is partial: no whole-field q/J closure or metric allocation can be inferred.",
+    "The export does not serialize composed tensors or component contributions; it cannot apportion the948069.856 complexity estimate among inherited wall spacing, height, features and gradation.",
+    "391.593seconds is whole surface-preparation window; dividing by measured rows gives mixed work, not isolated query cost.",
+    "Edge occurrence bins include unrequested edges and repeated shared edges; above1.8 does not mean that many active requested-wall demands."
+  ]
+}
