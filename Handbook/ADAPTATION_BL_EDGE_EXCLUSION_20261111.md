@@ -193,3 +193,41 @@ remain on full evaluation. The whole-edge capability is qualified in this scope;
 BLsuitability, actual patch generation and full workflow remain unaccepted.
 Production numerical precision is unchanged. Continue stage2attribution/checkpoint
 work rather than launching surface generation from an unqualified target.
+
+
+##383 point replay — demonstrated candidate-normal discretization
+
+Existing <=12point replay on saved382refusal passed248assertions/12points in
+12.861swrapper (7.615sprobe),2870geometry work. Actual-host identities terminal,
+source/binary/input pins intact. R/edge_accuracy383_point_assessment.json.
+At the same physical point,2e-12→2e-14distance request changes foot3.8065e-8,
+normal2.7683e-6 and normal-only chord metric speed4.8824e-5relatively. Two nearby
+coarse queries share EXACTLY the same foot/normal; a third jumps. Repeated identical
+requests are exact one-work cache hits. Tight answers can later satisfy coarse
+requests, so candidate-dependent metric samples can also depend on cache history.
+The target normal is not certified by a distance-width certificate alone. The
+replay's original tangential policy is not the selected371complete target; only
+geometry/normal and prescribed normal-law attribution are authoritative here.
+
+Missing capability: a smooth accurate upper witness for the immutable cubic model,
+while preserving the existing certified distance/clearance search. ClosestCurved
+currently proposes only vertices and dyadic subdivision points, then returns the
+winning candidate's normal. The existing bounded MinimizeTriangle/normalization
+facilities are already used by the geometry backend and can propose a better foot.
+
+Selected connected hypothesis384: use that existing minimizer before traversal
+and on its final winning facet. At most64charged optional callbacks per proposal,
+inside the ORIGINAL total work/time/byte budget; no cap increase. Ambiguous or
+nonconverged proposals keep existing candidates/search. Every proposed witness
+uses its canonical binding's outward ParameterBox/Blossom enclosure, not raw
+floating barycentric triples. Full allowed-component lower traversal, clearance,
+body/feature identity and certificate criteria remain. Returned associations are
+not made into distance certificates by the proposal. Admit its stack scratch and
+record attempt/success/work counters in existing geometry stats.
+
+Acceptance before claiming improvement: existing serial geometry/cache/height/
+resource behavior, one connected MPI milestone, same12-point replay demonstrates
+normal stability/work differences, and the original saved full chord completes
+within unchanged bounds with finite consistent tensor/length/insertion behavior.
+No ten-point replacement or tolerance change. If the actual chord still refuses,
+preserve it and reassess the connected hypothesis; passing fixtures are insufficient.

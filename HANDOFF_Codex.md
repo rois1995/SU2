@@ -23,12 +23,17 @@ checked sensor identity selects existing analytic P1edge integral/inverse. All5
 outside controls show exact target/background length agreement and0composed samples.
 All5original M6edges remain ambiguous/full path. No hard-edge/workflow speedup.
 
-NEXT within active stage2: resolve measured local metric/certification difficulty,
-not a blanket tolerance change. Reuse saved382refusing point with existing bounded
-<=12point replay to distinguish identical/nearby distance/normal behavior at current
-and tighter requests, if needed. This is analysis first; no projection seed, new
-quadrature policy or action bound is selected. No new baseline/perf/GDB campaign.
-Then finish reasonable target +complete faithful composed checkpoint before stage3.
+NEXT active stage2hypothesis: bounded accurate upper witnesses using existing
+MinimizeTriangle, retaining full global lower/clearance certification. Actual383
+12point replay TERMINAL0/12.861s,248assertions,2870work; all owned identities absent.
+R/edge_accuracy383_point_assessment.json. Same point2e-12vs2e-14request moves foot
+3.8065e-8, normal2.7683e-6; normal-only chord speed differs4.8824e-5relative.
+Nearby coarse queries share a discrete candidate then jump. This demonstrates
+candidate-normal discretization; repeated exact requests hit once. Geometry-only
+replay uses original tangent policy, not full selected371composed target.
+Hypothesis384design/acceptance is in the exclusion/accuracy handbook. No source
+change yet; preserve full search, canonical interval witness, original budgets.
+No tolerance relaxation, fixed-rule replacement, new scheduler or target-policy option.
 
 Diagnostic382 TERMINAL1/359.211s, pins intact/all5actual-host identities terminal.
 Build382passed238.253s, serialpassed4.632s; production CFD byte-identical381.
