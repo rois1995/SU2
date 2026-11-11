@@ -5,14 +5,12 @@ integration result. [Current handoff](../HANDOFF_Codex.md) owns live handles;
 [stage inputs/outputs and acceptance](ADAPTATION_CURVED_BL_STAGE_INTEGRATION_20261111.md)
 own the development sequence. R=`integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57`.
 
-Latest stage-2 diagnostic: build394 completes the saved difficult M6 edge under
-the original budget. The evaluator takes147.517s/6375evaluations; total wrapper
-207.818s includes setup. An independent numerical reference agrees to1.116e-10
-relative; ten-point quadrature underestimates this edge by6.82%. No new mesh was
-constructed. Full composed normalization is still only measured at371(1739.083s
-wrapper); its target remains provisional. Latest construction is364's preserved
-surface deadline failure.500k is nominal complexity, not a node count or acceptance
-gate. Euler293's completed workflow/checkpoints remain preserved.
+Latest completed stage-2 producer:396metric531.649s maxrank, complete wrapper733.225s
+including checkpoint/chord. Saved complete-target files~304MB; fresh-process fidelity
+now PASSES61330/61330bitexact tensors/chord. Physical suitability remains unqualified. Actual mesh
+is unchanged61330points/303359tets. Current composed estimate461495.991 with empirical
+indicator47864.008, not a proven bound; nominal500k. Euler293 preserved.394saved-edge
+and independent ten-point evidence remain below. See current handoff for owned handles.
 
 This is the maintained timing/work record requested by the user. Update current
 stage rows and the efficiency table after each meaningful completed result; retain
@@ -825,3 +823,35 @@ meaningful as whole-job memory. Existing Euler/BL source coverage is reused wher
 unchanged. Actual same-seed producer is RUNNING: no completed target-stage or I/O
 saving yet. Complete checkpoint/fresh-process fidelity and physical target suitability
 remain unqualified. R/target_checkpoint396_focused_qualification.json.
+
+
+##396 actual same-seed complete-target producer
+
+R/metric_stage396_assessment.json and target_checkpoint396_producer.json. Producer
+terminal0/733.225s,6passing rank summaries429418assertions, allactual-host handles
+terminal/fullpins intact; no CFDadvance/construction. Complete-target files303787984B
+including chord witnesses. Metric max531.649s (setup50.307/hessian.394/build480.941);
+checkpoint write+join41.695s; chord owner5busy152.860s/4635evaluations/6258743work,
+length42.06659984296543. Chord result_join excludes earlier election wait and is NOT
+total MPIwait. Producer largest sampled singleRSS852037632B, not whole-job peak.
+
+Relative to371metric1732.127s, observed wall ratio~3.26, NOT fixed-target speedup:
+same saved CFD/config but tangent factor.287174589→.25/core.004726358→.004607250;
+2distinct field trials versus3. Composed estimate461495.991±47864.008empiricalindicator
+replaces504040.450±48545.704, both integration-limited/not bounds. Geometrywork total
+45356241vs71299713. Preparation140.557svs612.375s with same6516geometryquery counts/
+8192proposals/1026donor batches; not proof every query/result is identical. Assessment
+69.335svs510.418s also includes fewer profile refreshes (12vs18). Timers nested,
+rankCPU~522s includes possible MPIpolling. No accepted-BL or workflow-speedup claim.
+Fresh-process reconstruction must pass before treating the checkpoint as reusable;
+physical/directional target qualification remains separate.
+
+
+396freshprocess reload terminal0/546.920swrapper. No CFDadvance/metric recompute;
+load42.681smax, ownedpoint queries+finalelection293.775smax, all61330tensors BITEXACT;
+chord owner5busy151.447s/4635evals/6205073work, same length BITEXACT. Decoder identity/
+profiles/sourcefields unchanged. Query+join is not pure busy time; chord result_join
+is not total MPIwait. Largest sampled individualRSS642265088B, not wholejobpeak.
+Complete target reconstruction is now qualified; physical target/mesh suitability
+remains unqualified. Offline directional inspection/coreallocation1.811s are analysis,
+not generation timings. No requested complexity/node-count equivalence is implied.

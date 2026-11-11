@@ -2,10 +2,13 @@
 
 2026-11-11. Read HANDOFF_Codex.md for authoritative provenance/handles.
 Euler293 workflow/checkpoints remain preserved. Full364 is terminal; no usable BL.
-371actual saved-CFD metric-only evaluation passed (terminal0/1739.083s).370failed its
-coarsest preflight;371uses the existing locally expanding solve. Serial371passes;
-370MPI primitive/publication checks are reused. Actual target suitability, complete
-composed-target checkpoint and generated BL remain unproven. Handles live in HANDOFF.
+Latest396actual saved-CFD producer passed733.225s; fresh-process complete target
+reconstruction passed546.920s,61330/61330tensors and chord BITEXACT, no CFDadvance/
+metric recompute. Provisional461495.991±47864.008empiricalindicator (not bound),
+tangent.25/core.004607250072048262, nominal500k. Original61330points/303359tets unchanged.
+Physical target suitability/generatedBL remain unproven. Read current handoff and
+[actual patch assessment](ADAPTATION_BL_TARGET_ASSESSMENT_20261111.md). Historical
+365–394findings below retain their original scope; handles live in HANDOFF.
 
 ## Confirmed evidence
 
@@ -432,3 +435,23 @@ uses dependent third weight, so a new candidate must preserve the same actual
 surface point/support enclosure. No inference of a unique foot/normal follows from
 scalar distance certification. Existing SU2_NATIVE_BL_POINT_REPLAY can inspect exact
 380points without a new baseline/perf/GDB campaign; no seed speedup is established.
+
+
+##396 read-only normal-profile versus physical-growth contract
+
+R/normal_progression396_source_review.json quantifies the existing warning without
+changing pinned sources. For an isolated planar wall, advancement in its exact
+normal, no other demand, and d>=h0 inside the full-strength band, integrating one
+unit of the current continuous profile multiplies h0+(g-1)d by exp(2(g-1)/(g+1)).
+For g=1.2 that factor is1.199396102, rather than exactly1.2. Independently replaying
+UnitStep's existing1/8-local-size trapezoid gives1.199402677. Starting at explicit
+first row d=h0=2e-6,35such growth steps end at.006955571, versus.007078019for exact
+physical h0*g^k intervals (about1.73%lower). This is a conditional analytic control,
+NOT actual M6 growth or a new acceptance tolerance. It does not invalidate retaining
+the configured normal profile, nor establish that the realized progression is usable.
+
+Stage5must compare actual wall-normal distances/intervals and coverage against the
+requested law, distinguishing denser intervals required by other composed demands
+from numerical/placement error. Curvature, oblique constrained directions, other
+walls and post-transaction projection require their own actual checks. No new profile,
+operator, gate/config/budget change is selected during frozen396checkpoint work.

@@ -1,0 +1,318 @@
+{
+  "scope": "Complete target files from actual same-seed MPI6 production metric stage; fresh-process fidelity still pending",
+  "producer": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved396_saved_cfd_metric_stage_20261111T214613_3294100",
+  "status": {
+    "state": "terminal",
+    "exit_code": 0,
+    "seconds": 733.2253909111023,
+    "pins_verified": true,
+    "changed": [],
+    "largest_sampled_individual_process_rss_bytes": 852037632,
+    "rss_note": "sampled process RSS; not a whole-job peak"
+  },
+  "terminal": {
+    "actual_host_proc": true,
+    "all_owned_handles_terminal": true,
+    "live_owned_handles": [],
+    "sampled_identities": [
+      {
+        "pid": 3294184,
+        "start_ticks": 47801547
+      },
+      {
+        "pid": 3294185,
+        "start_ticks": 47801547
+      },
+      {
+        "pid": 3294186,
+        "start_ticks": 47801547
+      },
+      {
+        "pid": 3294194,
+        "start_ticks": 47801551
+      },
+      {
+        "pid": 3294193,
+        "start_ticks": 47801550
+      },
+      {
+        "pid": 3294192,
+        "start_ticks": 47801550
+      },
+      {
+        "pid": 3294191,
+        "start_ticks": 47801550
+      },
+      {
+        "pid": 3294190,
+        "start_ticks": 47801550
+      },
+      {
+        "pid": 3294189,
+        "start_ticks": 47801550
+      }
+    ],
+    "wrapper_excluded": {
+      "pid": 3294100,
+      "start_ticks": 47801356
+    },
+    "checked_unix": 1794434402.5289757
+  },
+  "source_binary_input_runtime_pins_verified": true,
+  "passing_by_rank": [
+    [
+      "69822",
+      "1"
+    ],
+    [
+      "74554",
+      "1"
+    ],
+    [
+      "73035",
+      "1"
+    ],
+    [
+      "74771",
+      "1"
+    ],
+    [
+      "62871",
+      "1"
+    ],
+    [
+      "74365",
+      "1"
+    ]
+  ],
+  "files": {
+    "target_rank0.bin": {
+      "bytes": 50701221,
+      "sha256": "e25519ad876fbaace4e8f5e10504620b85dbf3d13eb64e91799cb3bafd0c1a65"
+    },
+    "target_witness_rank0.txt": {
+      "bytes": 19,
+      "sha256": "cae5877ec40c70334d8e51c73ff8214b0870c7baca3573e7b929e06c3d62cb4f"
+    },
+    "target_rank1.bin": {
+      "bytes": 50707589,
+      "sha256": "69369a62707cff18e71d8f545f1303190f76bc28aa87cf1610e47e4963c18a32"
+    },
+    "target_witness_rank1.txt": {
+      "bytes": 19,
+      "sha256": "cae5877ec40c70334d8e51c73ff8214b0870c7baca3573e7b929e06c3d62cb4f"
+    },
+    "target_rank2.bin": {
+      "bytes": 50683693,
+      "sha256": "b42c184c7966c8f99d19b37bcd748b1f887b10126c312bc1d93b5f197c1a9068"
+    },
+    "target_witness_rank2.txt": {
+      "bytes": 19,
+      "sha256": "cae5877ec40c70334d8e51c73ff8214b0870c7baca3573e7b929e06c3d62cb4f"
+    },
+    "target_rank3.bin": {
+      "bytes": 50586613,
+      "sha256": "3c5d26a54172bc12671a96d3584c45a2419d1ca5373b7b18bff7d18ff88c3102"
+    },
+    "target_witness_rank3.txt": {
+      "bytes": 19,
+      "sha256": "cae5877ec40c70334d8e51c73ff8214b0870c7baca3573e7b929e06c3d62cb4f"
+    },
+    "target_rank4.bin": {
+      "bytes": 50844341,
+      "sha256": "bb7f0e32670af0aec2ce2d0de7280f43a4deeae753269f48c83482510702c983"
+    },
+    "target_witness_rank4.txt": {
+      "bytes": 19,
+      "sha256": "cae5877ec40c70334d8e51c73ff8214b0870c7baca3573e7b929e06c3d62cb4f"
+    },
+    "target_rank5.bin": {
+      "bytes": 50264413,
+      "sha256": "8feb12360d3c81cf9a4d8a47c55d840a5fe362fc773ff8f08feeee4ba4e87fd2"
+    },
+    "target_witness_rank5.txt": {
+      "bytes": 19,
+      "sha256": "cae5877ec40c70334d8e51c73ff8214b0870c7baca3573e7b929e06c3d62cb4f"
+    }
+  },
+  "records": [
+    {
+      "rank": 0,
+      "metadata": {
+        "stage": "metric_only",
+        "provisional": true,
+        "complete_checkpoint": true,
+        "checkpoint_qualified": false,
+        "cfd_advanced": false,
+        "requested_complexity": 500000,
+        "estimated_complexity": 461495.9909405714,
+        "indicator": 47864.00778005183,
+        "core": 0.004607250072048262,
+        "tangential_scale": 0.24999999999999983,
+        "anchor": 5.921189464667498e-16,
+        "mach_error": 4.440892098500626e-16,
+        "owned_nodes": 10679,
+        "checkpoint_bytes": 50701221,
+        "checkpoint_write_and_join_seconds": 41.694817511
+      },
+      "chord": {
+        "stage": "checkpoint_chord",
+        "owner": 5,
+        "length": 42.06659984296543,
+        "local_evaluations": 0,
+        "local_geometry_work": 0,
+        "local_busy_seconds": 0,
+        "result_join_seconds": 1.7721999938657973e-05
+      }
+    },
+    {
+      "rank": 1,
+      "metadata": {
+        "stage": "metric_only",
+        "provisional": true,
+        "complete_checkpoint": true,
+        "checkpoint_qualified": false,
+        "cfd_advanced": false,
+        "requested_complexity": 500000,
+        "estimated_complexity": 461495.9909405714,
+        "indicator": 47864.00778005183,
+        "core": 0.004607250072048262,
+        "tangential_scale": 0.24999999999999983,
+        "anchor": 5.921189464667498e-16,
+        "mach_error": 4.440892098500626e-16,
+        "owned_nodes": 10431,
+        "checkpoint_bytes": 50707589,
+        "checkpoint_write_and_join_seconds": 41.69484705800005
+      },
+      "chord": {
+        "stage": "checkpoint_chord",
+        "owner": 5,
+        "length": 42.06659984296543,
+        "local_evaluations": 0,
+        "local_geometry_work": 0,
+        "local_busy_seconds": 0,
+        "result_join_seconds": 2.092800002628792e-05
+      }
+    },
+    {
+      "rank": 2,
+      "metadata": {
+        "stage": "metric_only",
+        "provisional": true,
+        "complete_checkpoint": true,
+        "checkpoint_qualified": false,
+        "cfd_advanced": false,
+        "requested_complexity": 500000,
+        "estimated_complexity": 461495.9909405714,
+        "indicator": 47864.00778005183,
+        "core": 0.004607250072048262,
+        "tangential_scale": 0.24999999999999983,
+        "anchor": 5.921189464667498e-16,
+        "mach_error": 4.440892098500626e-16,
+        "owned_nodes": 10621,
+        "checkpoint_bytes": 50683693,
+        "checkpoint_write_and_join_seconds": 41.694857877000004
+      },
+      "chord": {
+        "stage": "checkpoint_chord",
+        "owner": 5,
+        "length": 42.06659984296543,
+        "local_evaluations": 0,
+        "local_geometry_work": 0,
+        "local_busy_seconds": 0,
+        "result_join_seconds": 2.1252000010463235e-05
+      }
+    },
+    {
+      "rank": 3,
+      "metadata": {
+        "stage": "metric_only",
+        "provisional": true,
+        "complete_checkpoint": true,
+        "checkpoint_qualified": false,
+        "cfd_advanced": false,
+        "requested_complexity": 500000,
+        "estimated_complexity": 461495.9909405714,
+        "indicator": 47864.00778005183,
+        "core": 0.004607250072048262,
+        "tangential_scale": 0.24999999999999983,
+        "anchor": 5.921189464667498e-16,
+        "mach_error": 4.440892098500626e-16,
+        "owned_nodes": 9972,
+        "checkpoint_bytes": 50586613,
+        "checkpoint_write_and_join_seconds": 41.694311922
+      },
+      "chord": {
+        "stage": "checkpoint_chord",
+        "owner": 5,
+        "length": 42.06659984296543,
+        "local_evaluations": 0,
+        "local_geometry_work": 0,
+        "local_busy_seconds": 0,
+        "result_join_seconds": 2.5672999981907196e-05
+      }
+    },
+    {
+      "rank": 4,
+      "metadata": {
+        "stage": "metric_only",
+        "provisional": true,
+        "complete_checkpoint": true,
+        "checkpoint_qualified": false,
+        "cfd_advanced": false,
+        "requested_complexity": 500000,
+        "estimated_complexity": 461495.9909405714,
+        "indicator": 47864.00778005183,
+        "core": 0.004607250072048262,
+        "tangential_scale": 0.24999999999999983,
+        "anchor": 5.921189464667498e-16,
+        "mach_error": 4.440892098500626e-16,
+        "owned_nodes": 10648,
+        "checkpoint_bytes": 50844341,
+        "checkpoint_write_and_join_seconds": 41.69479566900009
+      },
+      "chord": {
+        "stage": "checkpoint_chord",
+        "owner": 5,
+        "length": 42.06659984296543,
+        "local_evaluations": 0,
+        "local_geometry_work": 0,
+        "local_busy_seconds": 0,
+        "result_join_seconds": 2.810800003771874e-05
+      }
+    },
+    {
+      "rank": 5,
+      "metadata": {
+        "stage": "metric_only",
+        "provisional": true,
+        "complete_checkpoint": true,
+        "checkpoint_qualified": false,
+        "cfd_advanced": false,
+        "requested_complexity": 500000,
+        "estimated_complexity": 461495.9909405714,
+        "indicator": 47864.00778005183,
+        "core": 0.004607250072048262,
+        "tangential_scale": 0.24999999999999983,
+        "anchor": 5.921189464667498e-16,
+        "mach_error": 4.440892098500626e-16,
+        "owned_nodes": 8979,
+        "checkpoint_bytes": 50264413,
+        "checkpoint_write_and_join_seconds": 41.69482966099997
+      },
+      "chord": {
+        "stage": "checkpoint_chord",
+        "owner": 5,
+        "length": 42.06659984296543,
+        "local_evaluations": 4635,
+        "local_geometry_work": 6258743,
+        "local_busy_seconds": 152.86036190100003,
+        "result_join_seconds": 3.395599992472853e-05
+      }
+    }
+  ],
+  "actual_target_checkpoint_qualified": false,
+  "target_suitability_established": false,
+  "mesh_generation": false,
+  "CFD_advanced": false
+}

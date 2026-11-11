@@ -34,12 +34,19 @@ state. Selected core/scales alone still omit policy state. Prove fresh-process
 point/chord/authority agreement. No speculative query optimization or full workflow
 retry before this stage output is credible. Handoff owns current handles/provenance.
 
-The connected [complete checkpoint implementation](Handbook/ADAPTATION_BL_TARGET_CHECKPOINT_20261111.md)
-now passes focused serial/MPI396 checks. Actual same-seed MPI target production is
-frozen and running; see the handoff for owned handles. Preserve its outcome, then
-run the fresh-process consumer. Every owned tensor must reproduce bit for bit,
-along with profile/reference identity and representative chord agreement. Focused
-codec success does not establish physical target suitability or a usable BL.
+The [complete checkpoint implementation](Handbook/ADAPTATION_BL_TARGET_CHECKPOINT_20261111.md)
+now passes actual fresh-process MPI reconstruction:61330/61330owned composed tensors
+and the difficult chord reproduce bit for bit, without CFD/metric recomputation.
+Producer733.225s/reload546.920s; source mesh61330points/303359tets unchanged. Current
+provisional estimate461495.991 with47864.008empirical indicator, nominal500k. Both
+source/checkpoint ownership and full/base reference/profile identity must match.
+
+Next use the [bounded physical patch assessment](Handbook/ADAPTATION_BL_TARGET_ASSESSMENT_20261111.md)
+with the actual saved policy and complete original sourcecore. Original-coordinate
+leadingedge density108/32 vs localgeometryproxy640/34 motivates investigation, not a
+certified curvature metric or feasible replacement. Existing reconstructed-scalar/
+uniform-core diagnostics must not masquerade as this target. Preserve unchanged
+physical controls/gates and inspect actual generated row plus complete neighbors.
 
 ## Preserved workflow and construction history
 

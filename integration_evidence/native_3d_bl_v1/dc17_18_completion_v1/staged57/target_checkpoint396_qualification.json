@@ -1,0 +1,253 @@
+{
+  "scope": "Actual same-seed complete composed-target checkpoint/fresh-process reconstruction at unchanged original CFD ownership; not target suitability or mesh acceptance.",
+  "state": "checkpoint_fidelity_qualified",
+  "producer": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved396_saved_cfd_metric_stage_20261111T214613_3294100",
+  "reload": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved396_saved_target_reload_20261111T220013_3323327",
+  "producer_receipt_sha256": "6fa170cac891b882c1946581a855b9b846db78ee8c747db68f0885d33b4709e1",
+  "status": {
+    "state": "terminal",
+    "exit_code": 0,
+    "seconds": 546.9204907417297,
+    "pins_verified": true,
+    "changed": [],
+    "largest_sampled_individual_process_rss_bytes": 642265088,
+    "rss_note": "sampled process RSS; not a whole-job peak"
+  },
+  "terminal": {
+    "actual_host_proc": true,
+    "all_owned_handles_terminal": true,
+    "live_owned_handles": [],
+    "sampled_identities": [
+      {
+        "pid": 3323444,
+        "start_ticks": 47885523
+      },
+      {
+        "pid": 3323445,
+        "start_ticks": 47885523
+      },
+      {
+        "pid": 3323446,
+        "start_ticks": 47885523
+      },
+      {
+        "pid": 3323454,
+        "start_ticks": 47885527
+      },
+      {
+        "pid": 3323453,
+        "start_ticks": 47885527
+      },
+      {
+        "pid": 3323452,
+        "start_ticks": 47885526
+      },
+      {
+        "pid": 3323451,
+        "start_ticks": 47885526
+      },
+      {
+        "pid": 3323450,
+        "start_ticks": 47885526
+      },
+      {
+        "pid": 3323449,
+        "start_ticks": 47885526
+      }
+    ],
+    "wrapper_excluded": {
+      "pid": 3323327,
+      "start_ticks": 47885275
+    },
+    "checked_unix": 1794435158.753884
+  },
+  "pins_verified": true,
+  "owned_nodes": 61330,
+  "owned_bit_identical": 61330,
+  "maximum_tensor_relative_difference": 0,
+  "chord_bit_identical": true,
+  "passing_by_rank": [
+    [
+      "49875",
+      "1"
+    ],
+    [
+      "53255",
+      "1"
+    ],
+    [
+      "53410",
+      "1"
+    ],
+    [
+      "52170",
+      "1"
+    ],
+    [
+      "53120",
+      "1"
+    ],
+    [
+      "44910",
+      "1"
+    ]
+  ],
+  "records": [
+    {
+      "rank": 0,
+      "metadata": {
+        "stage": "fresh_process_reload",
+        "complete_checkpoint": true,
+        "cfd_advanced": false,
+        "metric_recomputed": false,
+        "load_seconds": 42.672632175000004,
+        "owned_queries": 10679,
+        "bit_identical": 10679,
+        "maximum_tensor_relative_difference": 0,
+        "geometry_work": 5803329,
+        "query_and_join_seconds": 293.775046118
+      },
+      "chord": {
+        "stage": "checkpoint_chord",
+        "owner": 5,
+        "length": 42.06659984296543,
+        "local_evaluations": 0,
+        "local_geometry_work": 0,
+        "local_busy_seconds": 0,
+        "result_join_seconds": 1.7118999949161662e-05
+      }
+    },
+    {
+      "rank": 1,
+      "metadata": {
+        "stage": "fresh_process_reload",
+        "complete_checkpoint": true,
+        "cfd_advanced": false,
+        "metric_recomputed": false,
+        "load_seconds": 42.65791384599999,
+        "owned_queries": 10431,
+        "bit_identical": 10431,
+        "maximum_tensor_relative_difference": 0,
+        "geometry_work": 6019353,
+        "query_and_join_seconds": 293.77504051
+      },
+      "chord": {
+        "stage": "checkpoint_chord",
+        "owner": 5,
+        "length": 42.06659984296543,
+        "local_evaluations": 0,
+        "local_geometry_work": 0,
+        "local_busy_seconds": 0,
+        "result_join_seconds": 2.053899993370578e-05
+      }
+    },
+    {
+      "rank": 2,
+      "metadata": {
+        "stage": "fresh_process_reload",
+        "complete_checkpoint": true,
+        "cfd_advanced": false,
+        "metric_recomputed": false,
+        "load_seconds": 42.676972434999996,
+        "owned_queries": 10621,
+        "bit_identical": 10621,
+        "maximum_tensor_relative_difference": 0,
+        "geometry_work": 5451766,
+        "query_and_join_seconds": 293.775052025
+      },
+      "chord": {
+        "stage": "checkpoint_chord",
+        "owner": 5,
+        "length": 42.06659984296543,
+        "local_evaluations": 0,
+        "local_geometry_work": 0,
+        "local_busy_seconds": 0,
+        "result_join_seconds": 1.9382000004952715e-05
+      }
+    },
+    {
+      "rank": 3,
+      "metadata": {
+        "stage": "fresh_process_reload",
+        "complete_checkpoint": true,
+        "cfd_advanced": false,
+        "metric_recomputed": false,
+        "load_seconds": 42.678517408,
+        "owned_queries": 9972,
+        "bit_identical": 9972,
+        "maximum_tensor_relative_difference": 0,
+        "geometry_work": 7358590,
+        "query_and_join_seconds": 293.775047212
+      },
+      "chord": {
+        "stage": "checkpoint_chord",
+        "owner": 5,
+        "length": 42.06659984296543,
+        "local_evaluations": 0,
+        "local_geometry_work": 0,
+        "local_busy_seconds": 0,
+        "result_join_seconds": 2.226099991275987e-05
+      }
+    },
+    {
+      "rank": 4,
+      "metadata": {
+        "stage": "fresh_process_reload",
+        "complete_checkpoint": true,
+        "cfd_advanced": false,
+        "metric_recomputed": false,
+        "load_seconds": 42.598636281000005,
+        "owned_queries": 10648,
+        "bit_identical": 10648,
+        "maximum_tensor_relative_difference": 0,
+        "geometry_work": 5652266,
+        "query_and_join_seconds": 293.775046336
+      },
+      "chord": {
+        "stage": "checkpoint_chord",
+        "owner": 5,
+        "length": 42.06659984296543,
+        "local_evaluations": 0,
+        "local_geometry_work": 0,
+        "local_busy_seconds": 0,
+        "result_join_seconds": 2.6641999966159347e-05
+      }
+    },
+    {
+      "rank": 5,
+      "metadata": {
+        "stage": "fresh_process_reload",
+        "complete_checkpoint": true,
+        "cfd_advanced": false,
+        "metric_recomputed": false,
+        "load_seconds": 42.680942257,
+        "owned_queries": 8979,
+        "bit_identical": 8979,
+        "maximum_tensor_relative_difference": 0,
+        "geometry_work": 4580962,
+        "query_and_join_seconds": 293.775052348
+      },
+      "chord": {
+        "stage": "checkpoint_chord",
+        "owner": 5,
+        "length": 42.06659984296543,
+        "local_evaluations": 4635,
+        "local_geometry_work": 6205073,
+        "local_busy_seconds": 151.44746331800002,
+        "result_join_seconds": 3.143699996144278e-05
+      }
+    }
+  ],
+  "actual_target_checkpoint_qualified": true,
+  "target_suitability_established": false,
+  "mesh_generation": false,
+  "CFD_advanced": false,
+  "native_MPI_BL_generation_qualified": false,
+  "limitations": [
+    "Original mesh and ownership layout must match; this is not arbitrary source repartitioning support.",
+    "Profiling query_and_join includes final election wait and is not pure busy time.",
+    "Chord result_join excludes preceding election wait and is not total MPIwait.",
+    "Original-node witnesses are comparison data, never interpolated transport authority.",
+    "Physical directional target allocation, actual generated first height/progression/coverage and complete mesh gates remain outstanding."
+  ]
+}

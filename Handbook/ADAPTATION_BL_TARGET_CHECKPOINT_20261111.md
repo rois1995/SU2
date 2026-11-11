@@ -92,3 +92,20 @@ Frobenius-relative tolerance alone can hide tangential discrepancies in strongly
 anisotropic tensors. If any are not exact, preserve them and assess directional
 agreement rather than accepting on the norm statistic alone. Actual chord agreement
 also remains mandatory. Resource sampler missed very fast MPIworkers; no peak claim.
+
+
+## Actual396 reconstruction qualified
+
+R/target_checkpoint396_qualification.json: producer terminal0/733.225s, freshconsumer
+terminal0/546.920s, allactual-host handles terminal and pins intact.61330/61330owned
+composed tensors BITEXACT; same profiles/reference/complete sourcecore and chord
+42.06659984296543BITEXACT. No CFDadvance/metric recompute. Load42.681smax, query+
+finalelection293.775smax, chord151.447sowner5busy/4635evals/6205073work. Query+join
+includes election wait; chord result_join excludes its previous election. Memory
+receipts sampled singleprocess only. All12files303787984B hashed/local preserved.
+
+This qualifies reconstruction at unchanged source layout, not arbitrary repartition,
+physical target suitability, generated BL, nativeMPIBLgeneration or accepted RANS.
+Next bounded [actual patch assessment](ADAPTATION_BL_TARGET_ASSESSMENT_20261111.md)
+uses this policy and originalsourcefield; the original-coordinate witness statistics
+are comparison data, never interpolation/transport authority.

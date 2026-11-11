@@ -1,0 +1,798 @@
+{
+  "scope": "Read-only actual396 core allocation and exact selected-core export; the separate complete checkpoint carries the full target.",
+  "status": {
+    "state": "terminal",
+    "exit_code": 0,
+    "seconds": 733.2253909111023,
+    "pins_verified": true,
+    "changed": [],
+    "largest_sampled_individual_process_rss_bytes": 852037632,
+    "rss_note": "sampled process RSS; not a whole-job peak"
+  },
+  "metadata": {
+    "stage": "metric_only",
+    "provisional": true,
+    "complete_checkpoint": true,
+    "checkpoint_qualified": false,
+    "cfd_advanced": false,
+    "requested_complexity": 500000,
+    "estimated_complexity": 461495.9909405714,
+    "indicator": 47864.00778005183,
+    "core": 0.004607250072048262,
+    "tangential_scale": 0.24999999999999983,
+    "anchor": 5.921189464667498e-16,
+    "mach_error": 4.440892098500626e-16,
+    "owned_nodes": 10679,
+    "checkpoint_bytes": 50701221,
+    "checkpoint_write_and_join_seconds": 41.694817511
+  },
+  "nodes": 61330,
+  "tetrahedra": 303359,
+  "mach_error_independent": 6.661338147750939e-16,
+  "core_nodal_complexity": 119826.62602925906,
+  "core_allocation": {
+    "radius_le_2": {
+      "nodes": 54368,
+      "core_nodal_complexity": 30007.196908578353,
+      "fraction": 0.25042177939026045
+    },
+    "radius_2_20": {
+      "nodes": 2347,
+      "core_nodal_complexity": 30475.023306298488,
+      "fraction": 0.2543259734181045
+    },
+    "radius_gt_20": {
+      "nodes": 4615,
+      "core_nodal_complexity": 59344.40581438221,
+      "fraction": 0.49525224719163496
+    }
+  },
+  "core_eigenvalue_range": [
+    0.004607250072048292,
+    648756.9652863871
+  ],
+  "maximum_core_aspect_ratio": 20.09377815975266,
+  "actual_surface_samples_flow_contribution_only": [
+    {
+      "context": "actual_failed_chord",
+      "node": 18866,
+      "point": [
+        0.01512062227998561,
+        0.01202475892583987,
+        -0.0137755477945289
+      ],
+      "principal_curvatures_local": [
+        44.05994937033062,
+        -0.02175994513771711
+      ],
+      "flow_core_spacing_in_principal_directions": [
+        0.014709727200745695,
+        0.024915636533869585
+      ]
+    },
+    {
+      "context": "actual_failed_chord",
+      "node": 65,
+      "point": [
+        0.002380958890740337,
+        -1.062527844e-13,
+        -0.007634829294804406
+      ],
+      "principal_curvatures_local": [
+        340.5653210962137,
+        27.626565104021328
+      ],
+      "flow_core_spacing_in_principal_directions": [
+        0.01752092898547917,
+        0.013548072024344803
+      ]
+    },
+    {
+      "context": "actual_failed_chord",
+      "node": 66,
+      "point": [
+        0.008499375416377727,
+        -1.062527844e-13,
+        -0.01405010452510511
+      ],
+      "principal_curvatures_local": [
+        299.1333225162171,
+        15.183966803558745
+      ],
+      "flow_core_spacing_in_principal_directions": [
+        0.021421556992946587,
+        0.015710260181788508
+      ]
+    },
+    {
+      "context": "actual_failed_chord",
+      "node": 18865,
+      "point": [
+        0.005985127462594315,
+        0.006749924753011305,
+        -0.007145077741415979
+      ],
+      "principal_curvatures_local": [
+        49.6259043373032,
+        -1.661435510488186
+      ],
+      "flow_core_spacing_in_principal_directions": [
+        0.011858738231607602,
+        0.021369484168682513
+      ]
+    },
+    {
+      "context": "actual_failed_chord",
+      "node": 4184,
+      "point": [
+        0.004052326190574358,
+        0.007019120774940143,
+        2.219979883720242e-16
+      ],
+      "principal_curvatures_local": [
+        97.02924732762543,
+        -124.93015752034039
+      ],
+      "flow_core_spacing_in_principal_directions": [
+        0.012774114751886903,
+        0.0204800827357359
+      ]
+    },
+    {
+      "context": "actual_failed_chord",
+      "node": 18865,
+      "point": [
+        0.005985127462594315,
+        0.006749924753011305,
+        -0.007145077741415979
+      ],
+      "principal_curvatures_local": [
+        74.0785191995402,
+        -107.87199213738165
+      ],
+      "flow_core_spacing_in_principal_directions": [
+        0.012124803549383788,
+        0.020006026699299576
+      ]
+    },
+    {
+      "context": "actual_failed_chord",
+      "node": 18863,
+      "point": [
+        0.01036330070343628,
+        0.01416515067555235,
+        -0.007298158238992362
+      ],
+      "principal_curvatures_local": [
+        74.71466565247229,
+        0.0218185193497154
+      ],
+      "flow_core_spacing_in_principal_directions": [
+        0.012363188097751398,
+        0.022584058663151895
+      ]
+    },
+    {
+      "context": "smooth_upper",
+      "node": 5984,
+      "point": [
+        0.6373447139923842,
+        0.5846660431892228,
+        0.02998996949648403
+      ],
+      "principal_curvatures_local": [
+        0.5862235355273845,
+        -0.04537768863964391
+      ],
+      "flow_core_spacing_in_principal_directions": [
+        0.022663681458075444,
+        0.03698544255480419
+      ]
+    },
+    {
+      "context": "smooth_upper",
+      "node": 5924,
+      "point": [
+        0.6541210346949083,
+        0.6279860383171693,
+        0.02945678230467321
+      ],
+      "principal_curvatures_local": [
+        0.6398720823643214,
+        -0.0032819025841188945
+      ],
+      "flow_core_spacing_in_principal_directions": [
+        0.0238673540076954,
+        0.03884601808282949
+      ]
+    },
+    {
+      "context": "smooth_upper",
+      "node": 5950,
+      "point": [
+        0.6583834126400382,
+        0.5895255236454423,
+        0.02920382037994782
+      ],
+      "principal_curvatures_local": [
+        0.5809401070876647,
+        -0.03328589393777939
+      ],
+      "flow_core_spacing_in_principal_directions": [
+        0.025281812307838984,
+        0.038443592664279436
+      ]
+    },
+    {
+      "context": "smooth_upper",
+      "node": 5950,
+      "point": [
+        0.6583834126400382,
+        0.5895255236454423,
+        0.02920382037994782
+      ],
+      "principal_curvatures_local": [
+        0.6046948967248377,
+        0.018422143599092104
+      ],
+      "flow_core_spacing_in_principal_directions": [
+        0.025394951822684877,
+        0.038054439712145005
+      ]
+    },
+    {
+      "context": "smooth_upper",
+      "node": 5922,
+      "point": [
+        0.6670538731764631,
+        0.6106544784693566,
+        0.02893303824509885
+      ],
+      "principal_curvatures_local": [
+        0.5839748834247488,
+        -0.028084074230358608
+      ],
+      "flow_core_spacing_in_principal_directions": [
+        0.027158707769447725,
+        0.04291944859937781
+      ]
+    },
+    {
+      "context": "smooth_upper",
+      "node": 5984,
+      "point": [
+        0.6373447139923842,
+        0.5846660431892228,
+        0.02998996949648403
+      ],
+      "principal_curvatures_local": [
+        0.6591408656876896,
+        -0.04415393666056591
+      ],
+      "flow_core_spacing_in_principal_directions": [
+        0.022615137674875066,
+        0.03719893351647672
+      ]
+    },
+    {
+      "context": "smooth_upper",
+      "node": 5925,
+      "point": [
+        0.644721230848695,
+        0.6065782031192788,
+        0.02975625691877816
+      ],
+      "principal_curvatures_local": [
+        0.6419915440603384,
+        0.012797961111840587
+      ],
+      "flow_core_spacing_in_principal_directions": [
+        0.02325805075194672,
+        0.039137528117452705
+      ]
+    },
+    {
+      "context": "smooth_upper",
+      "node": 5948,
+      "point": [
+        0.6796397198235864,
+        0.5925277716578916,
+        0.02820941343814351
+      ],
+      "principal_curvatures_local": [
+        0.48440824382755243,
+        -0.04852507964875101
+      ],
+      "flow_core_spacing_in_principal_directions": [
+        0.02764103467105847,
+        0.04169524323911693
+      ]
+    },
+    {
+      "context": "smooth_upper",
+      "node": 5949,
+      "point": [
+        0.6702718218716456,
+        0.5748019501017945,
+        0.02854323987869356
+      ],
+      "principal_curvatures_local": [
+        0.5365172334468123,
+        0.00728328234554727
+      ],
+      "flow_core_spacing_in_principal_directions": [
+        0.024889283414061367,
+        0.037861050680434064
+      ]
+    },
+    {
+      "context": "smooth_upper",
+      "node": 5949,
+      "point": [
+        0.6702718218716456,
+        0.5748019501017945,
+        0.02854323987869356
+      ],
+      "principal_curvatures_local": [
+        0.525573791540274,
+        -0.006937818255763828
+      ],
+      "flow_core_spacing_in_principal_directions": [
+        0.02501827940731101,
+        0.037418378876477684
+      ]
+    },
+    {
+      "context": "leading_edge",
+      "node": 4220,
+      "point": [
+        0.3002360963089399,
+        0.5200453571311154,
+        4.33501118322811e-17
+      ],
+      "principal_curvatures_local": [
+        114.3568918337668,
+        3.9787933264619437
+      ],
+      "flow_core_spacing_in_principal_directions": [
+        0.009518793458172897,
+        0.03659804395896928
+      ]
+    },
+    {
+      "context": "leading_edge",
+      "node": 8041,
+      "point": [
+        0.3174504599914978,
+        0.5464102864298412,
+        0.006247298778510074
+      ],
+      "principal_curvatures_local": [
+        67.04980568791032,
+        -0.047262143069098574
+      ],
+      "flow_core_spacing_in_principal_directions": [
+        0.008055417889665822,
+        0.028373348274047448
+      ]
+    },
+    {
+      "context": "leading_edge",
+      "node": 18547,
+      "point": [
+        0.3096281277347569,
+        0.5328396443956417,
+        -0.006286045178726608
+      ],
+      "principal_curvatures_local": [
+        57.86581261440444,
+        -0.054767861402240235
+      ],
+      "flow_core_spacing_in_principal_directions": [
+        0.009509609809473235,
+        0.03576810298130862
+      ]
+    },
+    {
+      "context": "leading_edge",
+      "node": 4221,
+      "point": [
+        0.3081239399717753,
+        0.533708059667764,
+        3.585627612765475e-17
+      ],
+      "principal_curvatures_local": [
+        88.59020791197918,
+        -0.324376458249989
+      ],
+      "flow_core_spacing_in_principal_directions": [
+        0.009238054677563577,
+        0.033082285514944285
+      ]
+    },
+    {
+      "context": "leading_edge",
+      "node": 4221,
+      "point": [
+        0.3081239399717753,
+        0.533708059667764,
+        3.585627612765475e-17
+      ],
+      "principal_curvatures_local": [
+        115.06209600111177,
+        -0.24620474153953886
+      ],
+      "flow_core_spacing_in_principal_directions": [
+        0.009236594859145167,
+        0.03314954749476998
+      ]
+    },
+    {
+      "context": "leading_edge",
+      "node": 18547,
+      "point": [
+        0.3096281277347569,
+        0.5328396443956417,
+        -0.006286045178726608
+      ],
+      "principal_curvatures_local": [
+        57.86523301656109,
+        -1.4970133280676412
+      ],
+      "flow_core_spacing_in_principal_directions": [
+        0.009509377843276857,
+        0.03578045292859996
+      ]
+    },
+    {
+      "context": "leading_edge",
+      "node": 4222,
+      "point": [
+        0.3159555442090149,
+        0.5472733486937511,
+        2.83788453073701e-17
+      ],
+      "principal_curvatures_local": [
+        115.7761382191809,
+        -0.24821566549309224
+      ],
+      "flow_core_spacing_in_principal_directions": [
+        0.008550599357390758,
+        0.029284653497296784
+      ]
+    },
+    {
+      "context": "leading_edge",
+      "node": 4220,
+      "point": [
+        0.3002360963089399,
+        0.5200453571311154,
+        4.33501118322811e-17
+      ],
+      "principal_curvatures_local": [
+        114.35689183377222,
+        3.978793326462895
+      ],
+      "flow_core_spacing_in_principal_directions": [
+        0.009541052913844428,
+        0.035398933056165933
+      ]
+    },
+    {
+      "context": "leading_edge",
+      "node": 4220,
+      "point": [
+        0.3002360963089399,
+        0.5200453571311154,
+        4.33501118322811e-17
+      ],
+      "principal_curvatures_local": [
+        114.35177766776496,
+        -0.24421333441997622
+      ],
+      "flow_core_spacing_in_principal_directions": [
+        0.009540162596868268,
+        0.03544449738057998
+      ]
+    },
+    {
+      "context": "leading_edge",
+      "node": 8059,
+      "point": [
+        0.3017496226344942,
+        0.5191715504108375,
+        0.006325069808505389
+      ],
+      "principal_curvatures_local": [
+        57.50801914441859,
+        -1.4849020459201085
+      ],
+      "flow_core_spacing_in_principal_directions": [
+        0.009471510964082115,
+        0.035561832889213225
+      ]
+    },
+    {
+      "context": "symmetry_wall_interface",
+      "node": 7026,
+      "point": [
+        0.5615742175271673,
+        0.007124243529465375,
+        0.02687138758824466
+      ],
+      "principal_curvatures_local": [
+        4.6998665978773815,
+        3.773403325332428
+      ],
+      "flow_core_spacing_in_principal_directions": [
+        0.01981948249084544,
+        0.03306613863749872
+      ]
+    },
+    {
+      "context": "symmetry_wall_interface",
+      "node": 7026,
+      "point": [
+        0.5615742175271673,
+        0.007124243529465375,
+        0.02687138758824466
+      ],
+      "principal_curvatures_local": [
+        4.206377905786702,
+        -0.9733577009674729
+      ],
+      "flow_core_spacing_in_principal_directions": [
+        0.02114925472900117,
+        0.028575271446186726
+      ]
+    },
+    {
+      "context": "symmetry_wall_interface",
+      "node": 234,
+      "point": [
+        0.5378422597265216,
+        -1.062527844e-13,
+        0.02868898147462427
+      ],
+      "principal_curvatures_local": [
+        0.6228453754329513,
+        -10.216209287870605
+      ],
+      "flow_core_spacing_in_principal_directions": [
+        0.03395900926663237,
+        0.01748086285482509
+      ]
+    },
+    {
+      "context": "symmetry_wall_interface",
+      "node": 7028,
+      "point": [
+        0.5518248613231003,
+        0.007057493348038688,
+        0.02768746591821043
+      ],
+      "principal_curvatures_local": [
+        4.537355518292523,
+        3.5718891486874287
+      ],
+      "flow_core_spacing_in_principal_directions": [
+        0.018576990337020413,
+        0.03672603143427716
+      ]
+    },
+    {
+      "context": "symmetry_wall_interface",
+      "node": 233,
+      "point": [
+        0.5474055045498185,
+        -1.062527844e-13,
+        0.02790522829330755
+      ],
+      "principal_curvatures_local": [
+        -2.7294658826982134,
+        -10.764929586295327
+      ],
+      "flow_core_spacing_in_principal_directions": [
+        0.038081693607633756,
+        0.017529883792288294
+      ]
+    },
+    {
+      "context": "sharp_edge_candidate",
+      "node": 4497,
+      "point": [
+        0.974451208784387,
+        0.5964069288921643,
+        0.0004443673460527464
+      ],
+      "principal_curvatures_local": [
+        8.220048179067072e-11,
+        -0.012862729438516303
+      ],
+      "flow_core_spacing_in_principal_directions": [
+        0.01642005559185163,
+        0.006540745843473315
+      ]
+    },
+    {
+      "context": "sharp_edge_candidate",
+      "node": 9395,
+      "point": [
+        0.976780913392584,
+        0.6054573892875162,
+        0.0004707148835119
+      ],
+      "principal_curvatures_local": [
+        7.182932240906371e-10,
+        -0.012881608494448735
+      ],
+      "flow_core_spacing_in_principal_directions": [
+        0.015269695117401913,
+        0.0064143477055498875
+      ]
+    },
+    {
+      "context": "sharp_edge_candidate",
+      "node": 13719,
+      "point": [
+        0.974451208755795,
+        0.5964069289011036,
+        0.0002221836734861427
+      ],
+      "principal_curvatures_local": [
+        3.358436376615137e-09,
+        -0.0006292255353730405
+      ],
+      "flow_core_spacing_in_principal_directions": [
+        0.016573644393311618,
+        0.006115542619990853
+      ]
+    },
+    {
+      "context": "sharp_edge_candidate",
+      "node": 4498,
+      "point": [
+        0.9718978068484031,
+        0.5873718907108885,
+        0.0004462451295771399
+      ],
+      "principal_curvatures_local": [
+        7.943845432979607e-11,
+        -0.012808916050799821
+      ],
+      "flow_core_spacing_in_principal_directions": [
+        0.018093894564715534,
+        0.00680187376659517
+      ]
+    },
+    {
+      "context": "sharp_edge_candidate",
+      "node": 13725,
+      "point": [
+        0.9693318473406123,
+        0.5782924185281786,
+        0.000224066074338225
+      ],
+      "principal_curvatures_local": [
+        9.369164270542398e-09,
+        -0.0006054531843822427
+      ],
+      "flow_core_spacing_in_principal_directions": [
+        0.020262431945739613,
+        0.0067263019921423315
+      ]
+    },
+    {
+      "context": "sharp_edge_candidate",
+      "node": 13725,
+      "point": [
+        0.9693318473406123,
+        0.5782924185281786,
+        0.000224066074338225
+      ],
+      "principal_curvatures_local": [
+        4.1699731500343354e-09,
+        -0.0006066087350832419
+      ],
+      "flow_core_spacing_in_principal_directions": [
+        0.020262958522963465,
+        0.006726282730307631
+      ]
+    },
+    {
+      "context": "sharp_edge_candidate",
+      "node": 8741,
+      "point": [
+        0.9742391301221203,
+        0.5964668705618561,
+        0.0004727026155417022
+      ],
+      "principal_curvatures_local": [
+        7.179674711823061e-10,
+        -0.012827724992448638
+      ],
+      "flow_core_spacing_in_principal_directions": [
+        0.016380880228435587,
+        0.006598977231029225
+      ]
+    },
+    {
+      "context": "sharp_edge_candidate",
+      "node": 13722,
+      "point": [
+        0.9718978068200954,
+        0.587371890719794,
+        0.00022312256510304
+      ],
+      "principal_curvatures_local": [
+        6.221826025026242e-09,
+        -0.0006195964078931871
+      ],
+      "flow_core_spacing_in_principal_directions": [
+        0.018257876214577477,
+        0.006305660481001854
+      ]
+    },
+    {
+      "context": "sharp_edge_candidate",
+      "node": 13722,
+      "point": [
+        0.9718978068200954,
+        0.587371890719794,
+        0.00022312256510304
+      ],
+      "principal_curvatures_local": [
+        3.2962061654855e-09,
+        -0.0006183444773070972
+      ],
+      "flow_core_spacing_in_principal_directions": [
+        0.018258041772544833,
+        0.00630565366100061
+      ]
+    },
+    {
+      "context": "sharp_edge_candidate",
+      "node": 4497,
+      "point": [
+        0.974451208784387,
+        0.5964069288921643,
+        0.0004443673460527464
+      ],
+      "principal_curvatures_local": [
+        2.3859018762883706e-11,
+        -0.0128972731166693
+      ],
+      "flow_core_spacing_in_principal_directions": [
+        0.016420016816226162,
+        0.006540748296292345
+      ]
+    }
+  ],
+  "core_native_export": {
+    "path": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved396_saved_cfd_metric_stage_20261111T214613_3294100/selected_core_native.bin",
+    "sha256": "a0e067e6e4f37623af30de7809499d871907e87e123cc7c78e28dad0c5e377af",
+    "layout": "Existing NativeFrozenVolume3D: uint64 count then globalID/xyz/9double tensor",
+    "complete_composed_checkpoint": false
+  },
+  "source_audit": "SA restart refreshes primitives before SetAuxVar_Adapt; runtime conserved values unchanged and Mach comparison passed on each rank.",
+  "limits": [
+    "Only flow/core contribution; no recreated full BL metric or physical geometry certification.",
+    "No constructed mesh, height/progression/coverage/transition or target reasonableness acceptance.",
+    "Nodal median-dual core allocation is not an additive decomposition of composed complexity.",
+    "Local curvature directions are reused from369 verified original-coordinate samples, not global certified curvature bounds."
+  ],
+  "input_output_sha256": {
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_bl_inputs/rans_metric_entry364_v1/m6.su2": "8c839170eb5e359f7de6a41434aa6a9c2d620053f37de6d9360bd04d2a63088b",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_bl_inputs/rans_metric_entry364_v1/m6.su2.native_ref": "2e99fb7870e2c718f110da8509e4c0f7e746ce138e7f27ab57aa0dedbb6c42de",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_bl_inputs/rans_metric_entry364_v1/baseline_sa_seed.dat": "af7ade468dc40cd39dbe9238248e50057cdd151a64fef92fda957677aa3f6cae",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_bl_inputs/rans_metric_entry364_v1/run.cfg": "0a7de022729f69b170deaee2eaabbd5347550da8134cbdaa39587f7173e78742",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved396_saved_cfd_metric_stage_20261111T214613_3294100/saved_cfd_metric_rank0.jsonl": "92e7af9ddb9431890dd23feea45caf0bc0bc8f6a3bda403af4cea42343e38814",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved396_saved_cfd_metric_stage_20261111T214613_3294100/saved_cfd_metric_rank1.jsonl": "977baf5fec63b85b4045eab52055596c31277a44c6b547ae0703459fb98a1ab8",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved396_saved_cfd_metric_stage_20261111T214613_3294100/saved_cfd_metric_rank2.jsonl": "5ac7f7d389814d525d28739d6c40b50d4ab88c040d51384ba9ab671fb92ba977",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved396_saved_cfd_metric_stage_20261111T214613_3294100/saved_cfd_metric_rank3.jsonl": "6e87fb5e73cc14140c0d23f0253e8a9e00619aa8b496386a9c7da5b6ae6935dd",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved396_saved_cfd_metric_stage_20261111T214613_3294100/saved_cfd_metric_rank4.jsonl": "4fa97757d080157b853e2d1ff7446c2221e38aabdf087cbd17950c915fd783c5",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved396_saved_cfd_metric_stage_20261111T214613_3294100/saved_cfd_metric_rank5.jsonl": "3e238e5f14baa5c917c540839bf84dd20e29e479f0c0fb9915b9876b20fe1ddd"
+  },
+  "helper_sha256": "e7114dfd120411d34d658ffdabc48d7acd17802e885d2445bcdcdd63c86fd402",
+  "seconds": 1.8109350660233758
+}

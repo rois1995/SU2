@@ -1,0 +1,34 @@
+{
+  "scope": "Read-only analytic isolated planar-normal control of the existing continuous profile and UnitStep formula; NOT actual M6 growth or a target-policy change.",
+  "h0": 2e-06,
+  "growth": 1.2,
+  "thickness": 0.01,
+  "continuous_profile": "max(h0,2*(h0+(g-1)*normal_distance)/(g+1))",
+  "assumptions": [
+    "isolated planar wall",
+    "unconstrained unit normal advancement",
+    "no competing wall, flow or feature demand",
+    "begin at explicit first row d=h0",
+    "all35growth steps stay in full-strength band"
+  ],
+  "exact_unit_step_asymptotic_growth": 1.1993961020353858,
+  "source_unitstep_growth_range": [
+    1.1994026771825868,
+    1.1994026771825876
+  ],
+  "metric_length_of_prescribed_geometric_interval": 1.0027685623667506,
+  "first_computed_growth_step": 2.392832126191048e-06,
+  "requested_first_growth_step": 2.4e-06,
+  "end_distance_after35growthsteps": 0.006955571142065482,
+  "requested_end_distance": 0.007078018749850911,
+  "relative_end_distance_difference": -0.017299700963353426,
+  "source_sha256": {
+    "SU2_CFD/include/adaptation/native_bl3d/BLGrowth12.inl": "f4488abdb8637497be02fe08b173576dca86b197ad3a2921afc5dd3c68f17e61",
+    "SU2_CFD/src/adaptation/CBoundaryLayerMetric.cpp": "aca2d5976b29329df72cca94a4b5964104061c54a2881720873a44299d585ec6"
+  },
+  "limitations": [
+    "Independent Python arithmetic replay of existing1/8-local-size trapezoid, not a C++NextLayer test.",
+    "Not an authorization to change the profile or growth operators in the current frozen cycle.",
+    "Actual curvature, oblique direction, intersections, projection, transactions and later operators still require physical interval/coverage verification."
+  ]
+}

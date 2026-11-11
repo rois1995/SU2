@@ -1100,3 +1100,12 @@ existing `CubicRegionGeometry`: millions of prepared-region hits still recompute
 geometric separation work. Reuse prepared data first; no new representation or
 speedup is established. Any experiment must preserve outward bounds, exact support,
 cache quotas/active references, cached-vs-recomputed agreement and resource refusal.
+
+
+- Stage5 physical progression contract: retain the ordered curved-BL cycle.396read-only
+  source review quantifies the existing UnitStep approximation: planar isolated g=1.2
+  produces~1.199402677interval growth and~1.73%lower distance after35growth steps from
+  h0, before oblique/flow/feature/projection effects. See normalization handbook and
+  staged57/normal_progression396_source_review.json. Test actual physical intervals/
+  coverage at the growth stage; do not infer them from unchanged profile settings or
+  introduce a competing growth-policy correction before current checkpoint fidelity.
