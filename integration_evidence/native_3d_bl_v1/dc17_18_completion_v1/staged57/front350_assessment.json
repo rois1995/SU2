@@ -1,0 +1,313 @@
+{
+  "checked_unix": 1794366003.0292401,
+  "scope": "Actual original smooth M6 first lift-refusal face; explicit1e-4 isotropic control core. Existing no-CAD physical-foot proposals only; not production saved-CFD target, prepared surface or coherent BL qualification.",
+  "completed_diagnostic": true,
+  "status": {
+    "state": "terminal",
+    "exit_code": 0,
+    "seconds": 122.96151924133301,
+    "pins_verified": true,
+    "changed": [],
+    "largest_sampled_individual_process_rss_bytes": 1418059776,
+    "rss_note": "sampled process RSS; not a whole-job peak"
+  },
+  "source_build": {
+    "state": "terminal",
+    "exit_code": 0,
+    "seconds": 186.19654035568237,
+    "pins_verified": true,
+    "changed": [],
+    "completed_build": true,
+    "binaries": {
+      "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver": "8c572a9c66c4c724a4b6d70f882a134f3414d72487daebebd89cda4252a9790c",
+      "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/SU2_CFD/src/SU2_CFD": "9be6aacb8ec55a637cef71da89bdc9d03c03ca0ef3e382e98264ee42453d533c"
+    }
+  },
+  "evidence_path": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved350_front_smooth_upper_20261111T025656_586065",
+  "results": [
+    {
+      "context": "smooth_upper",
+      "stage": "first_row_result",
+      "constructed": false,
+      "closure_vertices": 10,
+      "old_cells": 65,
+      "fresh_cells": 0,
+      "external_clearance": false,
+      "passing_rows_preserved": false,
+      "external_clearance_attempted": false,
+      "external_reason": "",
+      "class": "cap",
+      "reason": "cap-bound closure: 65 old cells",
+      "geometry_work": 964477,
+      "seconds": 60.866215946000004,
+      "mesh_published": false
+    },
+    {
+      "context": "smooth_upper",
+      "stage": "existing_completion",
+      "face": [
+        5922,
+        5925,
+        5950
+      ],
+      "first_row_route_succeeded": false,
+      "cavity": false,
+      "strict_height": false,
+      "external_clearance": false,
+      "external_clearance_attempted": false,
+      "old_cells": 0,
+      "fresh_cells": 0,
+      "height_reason": "",
+      "external_reason": "",
+      "cavity_reason": "D.2: wall face 5922,5925,5950 loses a passing first child",
+      "rejections": {
+        "insert: Native#D geometry-height incompatibility of the normal-row proposal at facet # cell # clearance/h#=-#: positiv": 1,
+        "relocate: no admissible candidate": 1
+      },
+      "geometry_work": 9844,
+      "seconds": 0.8224941760000001,
+      "production_target_certified": false,
+      "mesh_published": false
+    },
+    {
+      "context": "smooth_upper",
+      "stage": "physical_foot_proposal",
+      "face": [
+        5922,
+        5925,
+        5950
+      ],
+      "foot": 0,
+      "positive_cone": true,
+      "strict_height": false,
+      "external_clearance": false,
+      "plane_height_ratio": 13.404467024214952,
+      "height_relative_error": 12.404467024215021,
+      "height_measured": true,
+      "reason": "Native3D prescribed height fails at facet 25037 cell 303359 relative error 12.404467 > tolerance 0.100000",
+      "geometry_work": 161,
+      "production_target_certified": false,
+      "mesh_published": false
+    },
+    {
+      "context": "smooth_upper",
+      "stage": "physical_foot_proposal",
+      "face": [
+        5922,
+        5925,
+        5950
+      ],
+      "foot": 1,
+      "positive_cone": true,
+      "strict_height": false,
+      "external_clearance": false,
+      "plane_height_ratio": 9.910180106964297,
+      "height_relative_error": 8.910180106964257,
+      "height_measured": true,
+      "reason": "Native3D prescribed height fails at facet 25037 cell 303359 relative error 8.910180 > tolerance 0.100000",
+      "geometry_work": 157,
+      "production_target_certified": false,
+      "mesh_published": false
+    },
+    {
+      "context": "smooth_upper",
+      "stage": "physical_foot_proposal",
+      "face": [
+        5922,
+        5925,
+        5950
+      ],
+      "foot": 2,
+      "positive_cone": true,
+      "strict_height": false,
+      "external_clearance": false,
+      "plane_height_ratio": 14.547189507155604,
+      "height_relative_error": 13.547189507155585,
+      "height_measured": true,
+      "reason": "Native3D prescribed height fails at facet 25037 cell 303359 relative error 13.547190 > tolerance 0.100000",
+      "geometry_work": 189,
+      "production_target_certified": false,
+      "mesh_published": false
+    },
+    {
+      "context": "smooth_upper",
+      "stage": "physical_foot_proposal",
+      "face": [
+        5922,
+        5925,
+        5950
+      ],
+      "foot": 3,
+      "positive_cone": true,
+      "strict_height": false,
+      "external_clearance": false,
+      "plane_height_ratio": 9.801879159881143,
+      "height_relative_error": 8.801879159881144,
+      "height_measured": true,
+      "reason": "Native3D prescribed height fails at facet 25037 cell 303359 relative error 8.801879 > tolerance 0.100000",
+      "geometry_work": 185,
+      "production_target_certified": false,
+      "mesh_published": false
+    },
+    {
+      "context": "smooth_upper",
+      "stage": "physical_foot_proposal",
+      "face": [
+        5922,
+        5925,
+        5950
+      ],
+      "foot": 4,
+      "positive_cone": true,
+      "strict_height": false,
+      "external_clearance": false,
+      "plane_height_ratio": 15.124825602434512,
+      "height_relative_error": 14.124825602434521,
+      "height_measured": true,
+      "reason": "Native3D prescribed height fails at facet 25037 cell 303359 relative error 14.124826 > tolerance 0.100000",
+      "geometry_work": 197,
+      "production_target_certified": false,
+      "mesh_published": false
+    },
+    {
+      "context": "smooth_upper",
+      "stage": "physical_foot_proposal",
+      "face": [
+        5922,
+        5925,
+        5950
+      ],
+      "foot": 5,
+      "positive_cone": true,
+      "strict_height": false,
+      "external_clearance": false,
+      "plane_height_ratio": 5.909431123326413,
+      "height_relative_error": 4.909431123326472,
+      "height_measured": true,
+      "reason": "Native3D prescribed height fails at facet 25037 cell 303359 relative error 4.909431 > tolerance 0.100000",
+      "geometry_work": 161,
+      "production_target_certified": false,
+      "mesh_published": false
+    },
+    {
+      "context": "smooth_upper",
+      "stage": "physical_foot_proposal",
+      "face": [
+        5922,
+        5925,
+        5950
+      ],
+      "foot": 6,
+      "positive_cone": true,
+      "strict_height": false,
+      "external_clearance": false,
+      "plane_height_ratio": 14.62049656969404,
+      "height_relative_error": 13.620496569693996,
+      "height_measured": true,
+      "reason": "Native3D prescribed height fails at facet 25037 cell 303359 relative error 13.620497 > tolerance 0.100000",
+      "geometry_work": 169,
+      "production_target_certified": false,
+      "mesh_published": false
+    },
+    {
+      "context": "smooth_upper",
+      "stage": "existing_counters",
+      "field": {
+        "queries": 0,
+        "query_misses": 0,
+        "compositions": 495,
+        "edge_integrations": 5,
+        "edge_compositions": 495,
+        "edge_pieces": 5
+      },
+      "edge_failures": 0,
+      "edge_geometry_seconds": 44.87598721,
+      "edge_composition_seconds": 10.122491408000007,
+      "edge_seconds": 54.999516066,
+      "cumulative_perf": {
+        "ops": {
+          "Transaction": {
+            "count": 7,
+            "seconds": 60.369393,
+            "ms_per_op": 8624.199
+          },
+          "PlanLift": {
+            "count": 25,
+            "seconds": 55.000132,
+            "ms_per_op": 2200.0053
+          },
+          "ConeColumn": {
+            "count": 101,
+            "seconds": 5.3438272,
+            "ms_per_op": 52.90918
+          },
+          "DC15 CavityFirstChild": {
+            "count": 1,
+            "seconds": 0.74800162,
+            "ms_per_op": 748.00162
+          },
+          "D.2 invariant": {
+            "count": 21,
+            "seconds": 0.55925212,
+            "ms_per_op": 26.631053
+          },
+          "Column directions": {
+            "count": 1,
+            "seconds": 0.375428,
+            "ms_per_op": 375.428
+          },
+          "V12 FirstRowInsert": {
+            "count": 1,
+            "seconds": 0.074472479,
+            "ms_per_op": 74.472479
+          },
+          "V12 ApexRelocate": {
+            "count": 1,
+            "seconds": 0.002762786,
+            "ms_per_op": 2.762786
+          }
+        },
+        "caches": {
+          "length_hits": 0,
+          "length_misses": 0,
+          "length_failures": 0,
+          "shape_hits": 0,
+          "shape_misses": 0,
+          "height_hits": 0,
+          "height_misses": 0,
+          "rejection_cache_skips": 0,
+          "geometry_length_hits": 0
+        }
+      }
+    }
+  ],
+  "confirmed": [
+    "First refusing face5922/5925/5950, facet25037, still has no replacement from existing insertion/relocation/cavity completion.",
+    "All seven existing feet projected to the current private reference and advanced by local physical normal h0 admit positive cones, but all fail strict requested height.",
+    "Plane-height ratios5.9094311233\u201315.1248256024 alone exceed unchanged0.9\u20131.1 admissible band.",
+    "This demonstrates sampled wall/height compatibility obstruction in addition to the old planar-placement failure; no accepted row/publication/external contact test."
+  ],
+  "next_hypothesis": "Test existing coupled surface refinement/relocation on this actual complete context for a replacement satisfying both physical and planar first-height obligations before choosing a readiness/geometry-guidance correction.",
+  "limitations": [
+    "Seven proposals do not prove global infeasibility or necessity of uniform refinement.",
+    "Local physical-normal proposals are diagnostic only; no replacement of carrier-constrained/blended direction policy.",
+    "No target complexity, geometry tolerance, height tolerance or resource limit changed.",
+    "No full metric q/J or target-allocation conclusion; physical point proposals are not certified nearest-foot constructions."
+  ],
+  "receipts": {
+    "terminal_handles.json": "a0e6a22837e06165d207ee5b944721ea661fc3de5490eb2d729f522a44be7cad",
+    "command.json": "36c32f4beab6402f53bfdcb7ccf07242d62ae7445bd880ef5676af81e64086f8",
+    "pins.json": "e9db580680dc8303279eae6888566a945942e36c42ab7cdd0212e14b486322e1",
+    "run.log": "11097020e1ca79d0c85e75a47ba71c47ab38a81e1bb6a90107508405b59956e7",
+    "actual_bl_surface_cavities.jsonl": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "status.json": "bd4e8ffe8171119229844e7dddaa4c991c2d59915cab96481cb78118e6b9d46d",
+    "terminal_handles_actual.json": "8a6ea86e5cf3c3844ae46e5f05af02b87c11e17dac5a22a7079370e7ecb8a3cc",
+    "actual_bl_front.jsonl": "49af9db7b1ab0d73d4d925326a5d61c03061a38d8facf0d7512f37a63fd2ab3b",
+    "resources.jsonl": "c57c00c9d0a2b8102e6af18ee09ee808b34fd6f46c73e27c954bdcb35de6521a"
+  },
+  "diagnostic_source_snapshot": {
+    "path": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/front350_source_snapshot.inc",
+    "sha256": "4c6e08491cc22ce02f0af5301fad91d47cc080defd2b0465e41669ddb5a45496",
+    "matches_build_pin": true
+  }
+}

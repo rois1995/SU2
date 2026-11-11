@@ -13,13 +13,26 @@ Build347 TERMINAL0 (test-only, CFD identical346). Focused347 PASSED340asserts/
 MPI6 milestone PASSED23cases on EVERY rank (2558–2683asserts/rank),5.411s wrapper,
 pins intact; all10 observed MPI identities including wrapper rechecked absent.
 This qualifies affected constraint/caller/migration checks, NOT native MPI FIRST_ROW.
-Current owned workload: NONE. Actual smooth347 TERMINAL0/121.825s wrapper;
-all5 actual PID/start identities absent, pins intact. NO row built/published;
-closure65old against64cap after repeated physical-height refusals. Existing5lift
-edge integrations succeed,54.849s total (45.036geometry,9.812composition), contained
-in PlanLift54.850/Transaction60.228s; keep overlapping timers separate.
-Focused/actual scope sealed in `R/height347_qualification.json`. The corrected
-production and actual diagnostic work are checkpoint-ready, incomplete curved BL.
+Current owned workload: NONE. Actual smooth350 TERMINAL0/122.962s, all5 actual
+PID/start identities absent; pins intact. The FIRST lift-refusal face5922/5925/5950
+(facet25037) also refuses existing first-child insertion/relocation/cavity completion.
+Seven current-reference physical-foot/normal proposals produce positive cones but
+ALL fail requested height: plane-height ratios5.909–15.125 exceed0.9–1.1. No row,
+external-contact attempt or mesh publication. `R/front350_assessment.json` seals
+scope/results. This demonstrates sampled surface/height compatibility obstruction,
+NOT global infeasibility or need for uniform refinement. NEXT: test existing
+coupled surface refinement/relocation on complete actual context for a replacement
+satisfying BOTH height obligations; then choose connected readiness/guidance fix.
+No new scheduler, config, cavity/budget/gate change. Preserve constrained/blended
+production directions; independent physical-normal proposals are diagnostics only.
+350 test-only build TERMINAL0/186.197s, all10 actual handles absent;
+test SHA8c572a9c66c4c724a4b6d70f882a134f3414d72487daebebd89cda4252a9790c.
+CFD is identical346.349 failed18.132s at unqualified Outward; all5 handles absent
+before correction.348 smooth TERMINAL0/122.815s, all5 handles absent; neighboring
+face also refuses existing completion. `R/front348_assessment.json` preserves scope.
+Pusheddff3d221ac preserves the qualified production correction; current test-only
+348–350 diagnosis/docs are checkpoint-ready. `R/height347_qualification.json`
+remains the production affected-caller scope, not usable BL/MPI generation.
 Current test SHAfa7ac7fc6fa743a6f458423d8ab129e815e9bb49f799c3115991c6379a275313.
 346 build TERMINAL0/388.372s, all153 observed identities absent; focused physical
 height/resource/cone/analytic/preservation/planar-entry checks PASSED329asserts/

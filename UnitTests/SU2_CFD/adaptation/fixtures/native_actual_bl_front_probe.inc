@@ -82,8 +82,10 @@ for(size_t index=0;index<count;++index) {
               <<(direction.ok?std::abs(Dot(direction.d,Of(physical.normal))):0.)<<",\"core_control_only\":true}"<<std::endl;
     }
     dc9::Rows rows;std::set<Id> moving{edge[0]};dc9::Tx tx;bool low=false;
+    Face firstFail{};bool haveFail=false;
     for(unsigned grow=0;grow<20;++grow) {
       budget.CheckTime();tx=dc9::Transaction(*state,rows,moving,low);
+      if(!haveFail&&!tx.failing.empty()){firstFail=dc9::Sorted(tx.failing.front());haveFail=true;}
       frontLog<<"{\"context\":"<<std::quoted(label)<<",\"stage\":\"row_trial\",\"trial\":"<<grow
               <<",\"low_band\":"<<low<<",\"closure_vertices\":"<<moving.size()<<",\"constructed\":"<<tx.ok
               <<",\"old_cells\":"<<tx.old_cells<<",\"fresh_cells\":"<<tx.fresh_cells
@@ -140,6 +142,81 @@ for(size_t index=0;index<count;++index) {
             <<",\"class\":"<<std::quoted(tx.cls)<<",\"reason\":"<<std::quoted(tx.witness)
             <<",\"geometry_work\":"<<budget.work-beforeWork<<",\"seconds\":"
             <<std::chrono::duration<double>(std::chrono::steady_clock::now()-t0).count()<<",\"mesh_published\":false}"<<std::endl;
+    if(!tx.ok) {
+      // Test existing completion on the original failed face before attributing refusal to surface resolution.
+      const auto face=std::find_if(old.surface.begin(),old.surface.end(),[&](const SurfaceFace& f){
+        return heights.count(state->reference->Get(f.facet).marker)&&(haveFail?dc9::Sorted(f.v)==firstFail:
+            std::find(f.v.begin(),f.v.end(),edge[0])!=f.v.end());});
+      REQUIRE(face!=old.surface.end());const auto key=dc9::Sorted(face->v);
+      REQUIRE(state->wall_index.count(key));const Id owner=state->wall_index.at(key);
+      dc10::Rows10 completionRows;dc12::FirstRowStats completion;std::set<Face> certified;
+      const auto completionWork=budget.work;const auto completionStart=std::chrono::steady_clock::now();
+      bool inserted=dc12::FirstRowInsert(*state,completionRows,owner,key,completion,certified);
+      std::string cavityReason;bool cavity=false;
+      if(!inserted)cavity=dc15::CavityFirstChild(*state,completionRows,owner,key,certified,cavityReason);
+      bool strict=false,external=false;std::string heightReason,externalReason;FirstHeightReport height;
+      Patch removed,fresh;
+      if(inserted||cavity) {
+        std::set<Id> retired;
+        for(const auto& row:imported.cells)if(!state->mesh.count(row.first))retired.insert(row.first);
+        removed=patchOf(retired);std::vector<Id> created;
+        for(const auto& row:state->mesh)if(!imported.cells.count(row.first))created.push_back(row.first);
+        fresh=PatchOf(*state,created);REQUIRE_FALSE(removed.cells.empty());REQUIRE_FALSE(fresh.cells.empty());
+        strict=CheckFirstHeight(fresh,heights,*state->reference,height,heightReason);
+        external=true;REQUIRE(directory.Clearance(imported.cells,removed,fresh,external,externalReason,ceiling,retained));
+        describe(label,"existing_completion_old",removed);describe(label,"existing_completion_fresh",fresh);
+      }
+      frontLog<<"{\"context\":"<<std::quoted(label)<<",\"stage\":\"existing_completion\",\"face\":["<<key[0]<<','<<key[1]<<','<<key[2]
+              <<"],\"first_row_route_succeeded\":"<<inserted<<",\"cavity\":"<<cavity<<",\"strict_height\":"<<strict
+              <<",\"external_clearance\":"<<external<<",\"external_clearance_attempted\":"<<(inserted||cavity)
+              <<",\"old_cells\":"<<removed.cells.size()<<",\"fresh_cells\":"<<fresh.cells.size()
+              <<",\"height_reason\":"<<std::quoted(heightReason)<<",\"external_reason\":"<<std::quoted(externalReason)
+              <<",\"cavity_reason\":"<<std::quoted(cavityReason)<<",\"rejections\":{";
+      bool comma=false;for(const auto& rejection:completion.why){if(comma)frontLog<<',';comma=true;
+        frontLog<<std::quoted(rejection.first)<<':'<<rejection.second;}
+      frontLog<<"},\"geometry_work\":"<<budget.work-completionWork<<",\"seconds\":"
+              <<std::chrono::duration<double>(std::chrono::steady_clock::now()-completionStart).count()
+              <<",\"production_target_certified\":false,\"mesh_published\":false}"<<std::endl;
+      if(!inserted&&!cavity) {
+        const Patch originalChild=PatchOf(*state,{owner});
+        auto privateWall=state->reference->PrivateParameters(originalChild,&budget);
+        const auto& wallContext=privateWall?*privateWall:*state->reference;
+        const auto& geometry=wallContext.Parameters()->Geometry();
+        std::array<Point,3> corners;for(unsigned k=0;k<3;++k)corners[k]=NodePoint(*state,face->v[k]);
+        const auto outward=dc9::Outward(Of(corners[0]),Of(corners[1]),Of(corners[2]));
+        const auto h0=heights.at(wallContext.Get(face->facet).marker);
+        const std::array<std::array<long double,3>,7> feet{{{1.L/3,1.L/3,1.L/3},{.6L,.2L,.2L},{.2L,.6L,.2L},{.2L,.2L,.6L},
+            {.45L,.45L,.1L},{.45L,.1L,.45L},{.1L,.45L,.45L}}};
+        for(size_t foot=0;foot<feet.size();++foot) {
+          budget.CheckTime();std::string why;bool positive=false,heightPass=false,contact=false;FirstHeightReport measured;
+          double planeRatio=0;const auto workAt=budget.work;
+          try {
+            const auto w=feet[foot];const auto flat=w[0]*Of(corners[0])+w[1]*Of(corners[1])+w[2]*Of(corners[2]);
+            const auto projected=wallContext.Project(face->facet,Pt(flat));const auto* binding=wallContext.Parameter(projected);REQUIRE(binding);
+            REQUIRE(budget.ChargeWork(1));const auto surface=geometry.EvaluateSurface(face->facet,binding->binding);
+            auto normal=Unit(Of(surface.normal));if(Dot(normal,outward)>0)normal=-1.L*normal;
+            const Node apex{state->next_node,Pt(Of(projected)+h0*normal)};
+            planeRatio=double(-Dot(Of(apex.p)-Of(corners[0]),outward)/h0);
+            Patch candidate;candidate.surface=originalChild.surface;candidate.parameters=originalChild.parameters;
+            candidate.coverage=originalChild.coverage;
+            positive=Cone(originalChild.cells,apex,state->next_cell,candidate.cells,why);
+            if(positive) {
+              heightPass=CheckFirstHeight(candidate,heights,wallContext,measured,why);
+              if(heightPass) {
+                contact=true;REQUIRE(directory.Clearance(imported.cells,originalChild,candidate,contact,why,ceiling,retained));
+                describe(label,"physical_foot_old",originalChild);describe(label,"physical_foot_candidate",candidate);
+              }
+            }
+          }catch(const std::exception& e){why=e.what();}
+          frontLog<<"{\"context\":"<<std::quoted(label)<<",\"stage\":\"physical_foot_proposal\",\"face\":["<<key[0]<<','<<key[1]<<','<<key[2]
+                  <<"],\"foot\":"<<foot<<",\"positive_cone\":"<<positive<<",\"strict_height\":"<<heightPass
+                  <<",\"external_clearance\":"<<contact<<",\"plane_height_ratio\":"<<planeRatio
+                  <<",\"height_relative_error\":"<<measured.maximum_relative_error<<",\"height_measured\":"<<measured.measured
+                  <<",\"reason\":"<<std::quoted(why)<<",\"geometry_work\":"<<budget.work-workAt
+                  <<",\"production_target_certified\":false,\"mesh_published\":false}"<<std::endl;
+        }
+      }
+    }
   } catch(const std::exception& e) {
     frontLog<<"{\"context\":"<<std::quoted(label)<<",\"stage\":\"refusal\",\"reason\":"<<std::quoted(e.what())
             <<",\"geometry_work\":"<<budget.work-beforeWork<<",\"seconds\":"

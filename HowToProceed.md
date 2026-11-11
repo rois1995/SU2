@@ -48,6 +48,14 @@ Next choose a demonstrated placement/readiness/connectivity correction, rather
 than a speculative performance cycle. No full attempt until this connected
 surface/front capability is checked on actual M6 contexts.
 
+Actual350 narrows the blocker further: on the first refusing face5922/5925/5950,
+existing insertion/relocation/cavity completion fails. Seven reference-projected
+normal proposals form positive cones, but plane heights5.9–15.1h0 violate the
+unchanged height band. Test an admissible coupled surface replacement using existing
+splitting/relocation first; do not add placement retries or uniformly tighten wall
+resolution from seven probes. Require BOTH height obligations, geometry, complete
+neighbor validity, conformity and measured cost. See staged57/front350_assessment.json.
+
 1. Qualify the newly connected native construction lifecycle with its explicitly provisional
    requested-wall preparation phase. Reuse splitting, collapse, relocation,
    reconnection, complete supports, reservations, dependency invalidation, migration

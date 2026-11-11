@@ -1,0 +1,158 @@
+{
+  "checked_unix": 1794365541.552713,
+  "scope": "Existing original smooth M6 neighboring-face completion routes, control core1e-4; no production target or prepared surface qualification.",
+  "completed_diagnostic": true,
+  "status": {
+    "state": "terminal",
+    "exit_code": 0,
+    "seconds": 122.814617395401,
+    "pins_verified": true,
+    "changed": [],
+    "largest_sampled_individual_process_rss_bytes": 1417957376,
+    "rss_note": "sampled process RSS; not a whole-job peak"
+  },
+  "evidence_path": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved348_front_smooth_upper_20261111T024657_562747",
+  "results": [
+    {
+      "context": "smooth_upper",
+      "stage": "first_row_result",
+      "constructed": false,
+      "closure_vertices": 10,
+      "old_cells": 65,
+      "fresh_cells": 0,
+      "external_clearance": false,
+      "passing_rows_preserved": false,
+      "external_clearance_attempted": false,
+      "external_reason": "",
+      "class": "cap",
+      "reason": "cap-bound closure: 65 old cells",
+      "geometry_work": 964477,
+      "seconds": 60.98169954,
+      "mesh_published": false
+    },
+    {
+      "context": "smooth_upper",
+      "stage": "existing_completion",
+      "face": [
+        5925,
+        5952,
+        5984
+      ],
+      "inserted": false,
+      "cavity": false,
+      "strict_height": false,
+      "external_clearance": false,
+      "external_clearance_attempted": false,
+      "old_cells": 0,
+      "fresh_cells": 0,
+      "height_reason": "",
+      "external_reason": "",
+      "cavity_reason": "D.2: wall face 5925,5952,5984 loses a passing first child",
+      "rejections": {
+        "insert: Native#D geometry-height incompatibility of the normal-row proposal at facet # cell # clearance/h#=-#: positiv": 1,
+        "relocate: no admissible candidate": 1
+      },
+      "geometry_work": 10693,
+      "seconds": 0.877549566,
+      "production_target_certified": false,
+      "mesh_published": false
+    },
+    {
+      "context": "smooth_upper",
+      "stage": "existing_counters",
+      "field": {
+        "queries": 0,
+        "query_misses": 0,
+        "compositions": 495,
+        "edge_integrations": 5,
+        "edge_compositions": 495,
+        "edge_pieces": 5
+      },
+      "edge_failures": 0,
+      "edge_geometry_seconds": 45.208595848,
+      "edge_composition_seconds": 9.851680540000011,
+      "edge_seconds": 55.06133751699999,
+      "cumulative_perf": {
+        "ops": {
+          "Transaction": {
+            "count": 7,
+            "seconds": 60.460375,
+            "ms_per_op": 8637.1964
+          },
+          "PlanLift": {
+            "count": 25,
+            "seconds": 55.062008,
+            "ms_per_op": 2202.4803
+          },
+          "ConeColumn": {
+            "count": 101,
+            "seconds": 5.371717,
+            "ms_per_op": 53.185317
+          },
+          "DC15 CavityFirstChild": {
+            "count": 1,
+            "seconds": 0.8005249,
+            "ms_per_op": 800.5249
+          },
+          "D.2 invariant": {
+            "count": 21,
+            "seconds": 0.60742805,
+            "ms_per_op": 28.925145
+          },
+          "Column directions": {
+            "count": 1,
+            "seconds": 0.37300273,
+            "ms_per_op": 373.00273
+          },
+          "V12 FirstRowInsert": {
+            "count": 1,
+            "seconds": 0.076997228,
+            "ms_per_op": 76.997228
+          },
+          "V12 ApexRelocate": {
+            "count": 1,
+            "seconds": 0.002840108,
+            "ms_per_op": 2.840108
+          }
+        },
+        "caches": {
+          "length_hits": 0,
+          "length_misses": 0,
+          "length_failures": 0,
+          "shape_hits": 0,
+          "shape_misses": 0,
+          "height_hits": 0,
+          "height_misses": 0,
+          "rejection_cache_skips": 0,
+          "geometry_length_hits": 0
+        }
+      }
+    }
+  ],
+  "confirmed": [
+    "FirstRowInsert including relocation and bounded CavityFirstChild return no candidate on face5925/5952/5984; no external clearance test was attempted.",
+    "The selected face is adjacent to the tested seed edge vertex; it is not the first face that refused the coordinated lift.",
+    "Refusals include smooth-reference clearance, no admissible relocated candidate, and first-child preservation."
+  ],
+  "limitations": [
+    "No infeasibility proof over all admissible points or connectivities.",
+    "The inserted JSON key means FirstRowInsert route success, which can include relocation; both were false here.",
+    "Next349 records the first failing face explicitly and tests physical-foot proposals from existing geometry; diagnostic raw normals do not replace the production constrained/blended direction policy."
+  ],
+  "receipts": {
+    "terminal_handles.json": "f07d72a76dad403b4f261f1b4dd02d009eee663bb5d02786d57512f733204061",
+    "command.json": "795b7d78e25a9cfe327dad58c5d2a2ae119f9be051c520cdaa005f0a6f74d520",
+    "pins.json": "a5b6fe2d897454e72d4b40557fe49ccc0819980841515aa8bf1bf279b1809219",
+    "run.log": "b66856a2b5c6a6398bc5c81dcaf099c907de2f502f6ce7b61d8f701200a918a1",
+    "actual_bl_surface_cavities.jsonl": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "status.json": "fe0fc5b6e7f5e3d837e451405d44aa660ddd28a23c8e103283293d7e474eac26",
+    "terminal_handles_actual.json": "9fea0c6d90c56c0ad4a3ddc91a300e76b2fd6773820f05be6805e6c4769c97ea",
+    "actual_bl_front.jsonl": "5d9fd2ce4be2b5e9e0fdd719ec06e5cb9682346090703d63023ce505503eb0d1",
+    "resources.jsonl": "77f87d2f744456f964087fc9e0833460a4df8ab01971db54ec7fad327cf3b2f7"
+  },
+  "diagnostic_source_snapshot": {
+    "path": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/front348_source_snapshot.inc",
+    "sha256": "b0e3889bb355e9862c20b49e5649bc088706fad13415728e259801c46512feeb",
+    "matches_build_pin": true
+  }
+}
