@@ -691,3 +691,63 @@ capability improvement; it does not validate ten-point substitution, a precision
 relaxation or whole-edge speedup. No production accuracy policy changed. Preserve
 R/edge_accuracy392_assessment.json, prepared392_qualification.json and raw logs.
 All392owned handles terminal/pins intact. Stay stage2; no new frozen workload.
+
+
+## Residual-work localization and invariant-preparation audit (pending)
+
+Reusing saved_target_panels at unchanged392source/target and300s/600s limits to locate
+remaining work after original root witnesses were corrected. This is one bounded
+existing trace, not a new baseline/perf/GDB campaign. Preserve its terminal outcome
+before any C++ edit. Exact sampled speeds/cuts can compare later unchanged decisions.
+
+Source identifies query-independent work still repeated on every region-cache HIT:
+prepare() computes the same midpoint Blossom twice, and PositiveNormalClearance()
+rebuilds CubicNormalControls(net) plus its maximum normal length for every query.
+392originaledge had4014218regionhits versus580982misses. The invariant midpoint
+bound and normal controls depend only on immutable facet/net and exact dyadic region
+parameters. Existing cache already has that key, reference lifetime and admission.
+This is a concrete repeated-work lead; time benefit not established yet.
+
+Potential ONEconnected correction after frozen outcome: retain those existing
+invariants in CubicRegionGeometry and reuse identical outward arithmetic. Fresh
+query-dependent distance, separating projections, candidate comparison, lower search,
+clearance and final normal remain fresh. Preserve exact candidate binding, authority/
+body identity, complete proof, maxwork/deadline and all final length tolerances.
+Resident/transient accounting already uses sizeof(CubicRegionGeometry); audit every
+caller including cache-disabled/tiny/exhausted paths and rounding environment. Larger
+entries may reduce cache coverage, so report memory/evictions and measure actual
+useful edge completion, not hit counters. Do not add a separate cache/representation.
+
+Acceptance before editing: cached/fresh complete closest results must agree in the
+supported environment (binding, point, normal, distance interval, candidate bounds,
+clearance and curvature); actual M6 cuts/sampled-speed prefix must agree with frozen
+392trace. Focused serial constraints/resources and ONE MPI integration milestone,
+then same original edge within original budgets. A faster unmeasurable edge is not
+stage completion. This is not a classification-precision shortcut.
+
+
+##393qualification and next measured accuracy blocker
+
+Implemented immutable region reuse, source audit and focused serial/MPI pass;
+R/prepared393_qualification.json. Actual trace is numerically identical to392for
+ALL8936shared samples and cuts;16831successfulsamples under same300s deadline,
+prep71.699s vs105.153s. Edge STILLrefuses; estimatederror5.199e-8>4.207e-8allowance.
+Prepared1.253GB and sampled individualRSS2.600GB within existing cap, higher than392.
+No claimed whole-edge/BL completion or exact matching-prefix CPU benchmark.
+
+Existing12point replay61.694s/7116work/.22661sevaluation isolates remaining noise:
+worst residual samples0/3 default→tighter certificate change foot3.78e-9/5.34e-9,
+normal~2e-7, chord speed4.52e-6/5.57e-6relative; both are facet35672interior dyadic
+witnesses. Other2residual nodes and2smooth controls agree exactly. Same actual nets
+and existinglocal solver at ORIGINAL64callbacks ONLY:35672samples0/3cap despite
+firstmeeting current KKT at callback9; othersconverge25–44.30335converges22–43.
+This is not evidence to raise caps, change seeds or loosen quadrature.
+
+Next ONEconnected correction hypothesis (NOTimplemented): use existing identical
+KKT criterion inside strict-interior Newton iterations once positive Gram determinant
+is established, reusing derivatives/residuals already computed. Preserve existing
+near-boundary snap/active-edge logic; local KKT only supplies a candidate, all global
+interval upper/lower/clearance/support proof remains mandatory. Audit every generic
+MinimizeTriangle caller, exact actual root/residual queries and invalid/singular/
+near-feature controls. If actualfield stability does not improve, preserve that
+failure rather than accumulate variants. All393handles terminal/pins intact.

@@ -1,0 +1,24 @@
+{
+  "scope": "Primary source review plus bounded read-only delegated audit; model review is not qualification.",
+  "changed_callers": [
+    "ClosestCurved::prepare",
+    "PositiveNormalClearance",
+    "ClosestCurved::candidate",
+    "CubicRegionGeometry retention/Bytes",
+    "CurvedQueryWorkspaceBytes"
+  ],
+  "invariants": [
+    "Same binary64 v expression/order and Exact/Blossom construction; supplied candidate enclosure only at noncanonical region center.",
+    "Canonical proposal still builds ParameterBox and fresh Blossom.",
+    "Same local subpatch normal controls, maximum NormBound order, query-specific control projections and final outward division.",
+    "Immutable facet/region-bit key and per-authority cache; no cross-authority reuse.",
+    "PreparedFacet bytes/retention/cacheScratch use new sizeof; local region now additionally admitted even with cache disabled.",
+    "No change to distance/work/deadline/normal law/metric/quadrature/acceptance policies."
+  ],
+  "risks": [
+    "Larger cache entries reduce retained coverage and may increase misses/evictions.",
+    "More conservative transient admission can refuse a previously marginal memory ceiling.",
+    "No benefit established until actual edge replay; focused tests do not establish BL construction."
+  ],
+  "delegated_review": "curved_region_reuse_audit393 read-only; no concrete defect found; primary reviewed exact code and callers."
+}

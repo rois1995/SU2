@@ -1,0 +1,160 @@
+{
+  "rows": [
+    {
+      "facet": 30335,
+      "point": 0,
+      "cap": 64,
+      "work": 31,
+      "first_stationary_work": 12,
+      "converged": 1,
+      "capped": 0,
+      "u": 0.9627559717195137,
+      "v": 0.03724402828048634
+    },
+    {
+      "facet": 30335,
+      "point": 1,
+      "cap": 64,
+      "work": 22,
+      "first_stationary_work": 12,
+      "converged": 1,
+      "capped": 0,
+      "u": 0.9627472873063135,
+      "v": 0.03725271269368646
+    },
+    {
+      "facet": 30335,
+      "point": 2,
+      "cap": 64,
+      "work": 22,
+      "first_stationary_work": 12,
+      "converged": 1,
+      "capped": 0,
+      "u": 0.9627646561633151,
+      "v": 0.03723534383668492
+    },
+    {
+      "facet": 30335,
+      "point": 3,
+      "cap": 64,
+      "work": 36,
+      "first_stationary_work": 12,
+      "converged": 1,
+      "capped": 0,
+      "u": 0.958250165892308,
+      "v": 0.04174983410769195
+    },
+    {
+      "facet": 30335,
+      "point": 4,
+      "cap": 64,
+      "work": 43,
+      "first_stationary_work": 21,
+      "converged": 1,
+      "capped": 0,
+      "u": 0.28889457457976453,
+      "v": 0.7111054254202355
+    },
+    {
+      "facet": 30335,
+      "point": 5,
+      "cap": 64,
+      "work": 37,
+      "first_stationary_work": 21,
+      "converged": 1,
+      "capped": 0,
+      "u": 0.4332702237021153,
+      "v": 0.5667297762978847
+    },
+    {
+      "facet": 35672,
+      "point": 0,
+      "cap": 64,
+      "work": 64,
+      "first_stationary_work": 9,
+      "converged": 0,
+      "capped": 1,
+      "u": 0.03718804666385153,
+      "v": 0.9627600117949653
+    },
+    {
+      "facet": 35672,
+      "point": 1,
+      "cap": 64,
+      "work": 44,
+      "first_stationary_work": 9,
+      "converged": 1,
+      "capped": 0,
+      "u": 0.03719670401369988,
+      "v": 0.9627513292801156
+    },
+    {
+      "facet": 35672,
+      "point": 2,
+      "cap": 64,
+      "work": 25,
+      "first_stationary_work": 9,
+      "converged": 1,
+      "capped": 0,
+      "u": 0.03717938930308005,
+      "v": 0.9627686943244677
+    },
+    {
+      "facet": 35672,
+      "point": 3,
+      "cap": 64,
+      "work": 64,
+      "first_stationary_work": 9,
+      "converged": 0,
+      "capped": 1,
+      "u": 0.041678862569409704,
+      "v": 0.9582552611402853
+    },
+    {
+      "facet": 35672,
+      "point": 4,
+      "cap": 64,
+      "work": 42,
+      "first_stationary_work": 21,
+      "converged": 1,
+      "capped": 0,
+      "u": 0.7023851575984016,
+      "v": 0.2901039530585966
+    },
+    {
+      "facet": 35672,
+      "point": 5,
+      "cap": 64,
+      "work": 33,
+      "first_stationary_work": 15,
+      "converged": 1,
+      "capped": 0,
+      "u": 0.5575219957429645,
+      "v": 0.43416383938064207
+    }
+  ],
+  "seconds": 0.001424446003511548,
+  "command": [
+    "nice",
+    "-n",
+    "19",
+    "g++",
+    "-std=c++17",
+    "-O2",
+    "-fno-fast-math",
+    "-fno-unsafe-math-optimizations",
+    "-ffp-contract=off",
+    "-ICommon/include/adaptation",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_bl_inputs/residual393_point_frames_v1/minimizer_attribution.cpp",
+    "-o",
+    "integration_evidence/build-integrated-v2/compile-tmp/residual393_minimizer"
+  ],
+  "source_pins": {
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_bl_inputs/residual393_point_frames_v1/minimizer_attribution.cpp": "e47b3ff1d2235d718bbb19181a5ac27a130805f351ab0c8fd61b286559f913bc",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_bl_inputs/residual393_point_frames_v1/points.txt": "96471322310c89ace735a952af29deeaf379d2ccc6b12b42fdf222b207908297",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_bl_inputs/refusal391_point_frames_v1/minimizer_attribution.cpp": "92c80b92541a348e18cc1428013ca6ad31c1c6aa89d3f2d712cf97e28244495a",
+    "Common/include/adaptation/CNativeCurvedReference.hpp": "b551885c8d73bfa3d6ad58cfad3c3e07c2be54cc938ef5af180361a1cf1a9a29",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_bl_inputs/rans_curved303_v1/m6.su2.native_ref": "2e99fb7870e2c718f110da8509e4c0f7e746ce138e7f27ab57aa0dedbb6c42de"
+  },
+  "scope": "Existing numerical local solver on exact twofacet nets and six actual residual/control queries, ORIGINAL64callbacks only; no raised cap or new solver/seed. No global distance/normal acceptance claim."
+}

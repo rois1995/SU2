@@ -1,0 +1,23 @@
+{
+  "status": "Read-only next stage2 checkpoint audit; no persistence implementation or target selection claim.",
+  "existing_facilities": {
+    "reference": "CNativeReferenceIO3D EncodeReference/DecodeReference/WriteReference/LoadReference; curved authority and boundary parameters/mobility, not metric policy.",
+    "boundary_parameters": "BoundaryParameterState Snapshot/Payload/FromPayload; geometry state only.",
+    "records": "SU2NativeBoundary2D::RecordStream scalar/double/array/Fields; existing binary helpers, explicit framing/validation needed.",
+    "policy": "CNativeBLTarget3D TargetPolicy/MakeTargetPolicy derive full/base, OptionA, roles, core, h0 and profiles."
+  },
+  "required_state": [
+    "Original source geometry authority/IDs/mobility and exact source CFD/metric family tensors/coordinates.",
+    "Full/base original WallData::vertexLog and wall/tangent maximum eigenvalues, or exact complete original inputs plus reproducible history.",
+    "Tangential scale; normal profile limits/selection/frozen state; core/hgrad; complete monotone transition support/bounds history or validated final state.",
+    "OptionA feature/role/geometry identity, radius and derivation controls; preserve scale/radius and full/base consistency."
+  ],
+  "hard_gaps": [
+    "No complete target serializer found. WallData is private and no public snapshot for vertexLog/eigenvalue maxima.",
+    "Selected core + scale + config omit original tensor family and monotone ConfigureOuterTransition support/bounds history.",
+    "Existing getters omit transitionSlope/transitionFeatureIdentity and per-wall support/maxima.",
+    "A reconstruction recipe must prove same full composed tensor/authority at saved points/chords and fresh-process reload before stage3."
+  ],
+  "constraint": "Reuse existing native_ref and record formats; do not add a generic persistence framework or start competing implementation while393is frozen. Stage2 target reasonableness still required.",
+  "primary_clarification": "Source shows WallData::vertexLog and maxima are constructed from immutable original wall geometry (cpp1038\u20131187), not mutable flow tensors. They may be deterministically rebuilt rather than serialized raw. Fixed selected core can supply flow contribution; exact full/base profile/transition support/history state and fresh-process agreement remain missing. Do not infer a need for a generic private-state serializer."
+}

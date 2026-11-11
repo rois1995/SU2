@@ -10,40 +10,24 @@ reserved for integration milestones or failures not reproducible at a stage boun
 ## Current stage2 blocker
 
 Current active work is [whole-edge exclusion and bounded accuracy diagnosis](Handbook/ADAPTATION_BL_EDGE_EXCLUSION_20261111.md).
-381qualified all-wall/support exclusion in both factories; original5M6edges remain
-ambiguous, while translated outside controls match the original background tensor.
-383qualifies the existing analytic P1integration bypass for those exact-identity
-edges:23serial cases,25cases on EVERYMPI6rank,5saved-context controls pass. All
-owned handles are terminal; see handoff for source/build/provenance.
+383whole-edge exclusion qualified in bothfactories.392two bounded witness opportunities
+stabilize both old saved6pair pointsets but originaledge still refuses.393now reuses
+immutable midpoint enclosures and cubic normal controls/maxnorm in the existing
+exact-key region cache; focused53serialcases/MPI6 55cases perrank pass.
 
-382diagnostic retained the original geometry deadline:186.895spreparation/296cuts;
-whole GL10estimate39.19917, but widest retained interval's numerical reference
-refuses after7384evaluations. Actual error UNKNOWN; ten points are not a replacement.
-383bounded point replay now confirms dyadic candidate-normal variation: same point,
-tighter distance request shifts normal2.77e-6 and normal-only speed4.9e-5relative.
-385bounded witnesses stabilize midpoint normals and cut preparation to137.985s,
-but the full chord still refuses near the root: all root proposals hit64cap.
-386qualifies outward Newton handoff to EXISTING edge/KKT and flat initialization:
-51serial cases,53cases per MPI6rank, stable root/midpoint probes. Preparation drops
-to106.972s, but the complete chord STILLrefuses the same deadline. No live workload.
-Prepared387revealed exact-binding side ambiguity;388fixes it and passes52serialcases
-and54cases on EVERYMPI6rank, but the original chord still refuses the same deadline.
-389now localizes the remaining bottleneck:258initial panels/3870samples, another
-4275complete refinement samples; one small root interval takes81%of refinement
-samples and82%of remaining estimated error. At two actual hotspot points, tighter
-certificates change near-seam interior to edge bindings and alter the fulltensor2.53%.
-These are DIFFERENTbindings; do not extend canonicalization by coordinate coincidence.
+Actual393edge does31.8%less preparation and16831successfulevaluations vs3928936 under
+same300s deadline. ALLshared speeds/positions/cuts match exactly. However it STILL
+refuses: error5.199e-8 >4.207e-8allowance. Memory rises within unchanged cap. No
+acceptededge or BLcapability. Residual12point probe is terminal: twoactualpoints retain4.5–5.6ppm speed sensitivity
+to certificate accuracy, controls agree. On exact samefacet nets, original64callback
+local solves hit cap despite meeting EXISTINGinterior KKT at callback9. Next assess
+using that unchanged criterion during strict-interior Newton iterations, reusing
+alreadycomputed derivatives/residuals and preserving active-edge snapping. No new
+seeds/caps/tolerances or global certification changes; NOTimplemented yet.
 
-Build392completes both original distinct upper-witness opportunities. Focusedserial
-53cases and MPI6 55cases EVERYrank pass; both saved6pair pointsets now agree exactly.
-Yet originalchord STILLrefuses SAME300s deadline:105.522spreparation/8907evaluations,
-no scalar or demonstrated performancegain. All original392handles terminal.
-Do not add more speculative witness/minimizer variants. The existing bounded
-GL10versusG7/K15 diagnostic is now terminal: widest interval completes195evaluations
-but GL10 differs.3186%; whole reference still exhausts300s, so whole error remains
-UNKNOWN. No lower-precision production path is enabled. All392handles terminal;
-use saved results and caller dependencies to select the next demonstrated correction. Classification, ranking, insertion and final measurement are
-separate contracts; an unproved numerical error estimate is not an action bound.
+A threshold bound must remain distinct from scalar ranking/insertion/final values.
+GL10differs.3186%on one completed interval; wholeerror UNKNOWN. No safe lower-
+precision construction path is enabled. Handoff owns current handles and provenance.
 
 Stage2still needs a reasonable target and faithful composed checkpoint/reload before
 surface generation. Bounded accurate witnesses and active-edge handling are qualified, but still require

@@ -684,3 +684,69 @@ whole reference leaves ranking/insertion/final numerical agreement unproven.
 CPU350.00user+1.08system; no MPIwait attribution. Prepared495758080B; largest
 sampled individual RSS1856221184B, not whole-job peak.
 R/edge_accuracy392_assessment.json. All392owned handles terminal; no running job.
+
+
+##392residual trace and393invariant geometry reuse (qualification pending)
+
+Existing bounded panel trace TERMINAL1/354.907s, same300s atlas/600souter; source/
+build/input pins intact and actual-host identities terminal before edits.105.1526s
+preparation;8937integrand attempts,188.9710scomposition. Offline source-matched
+reconstruction:8936successful samples,3870initial-panel/5055refinement samples,
+maxdepth11. Last complete partition42.0689957042/error7.80673e-8 versus4.20700e-8
+allowance is NOT a converged/certified scalar.4545/5055refinement samples(89.91%)
+now lie above t=.94. Old root interval now15samples/0refinement and estimatederror
+1.21e-14, so previous root instability was retired at this sampled stage. No whole
+edge success. R/target_panels392_assessment.json (reuses tested389offline parser).
+
+Region4021364hits/582025misses; build18.3971s nested. Source shows each region hit
+still rebuilt two identical midpoint Blossoms and cubic normal controls/maxnorm.
+393retains these invariants in existing exact-key region cache; query-dependent
+projections/candidate comparison/full traversal remain fresh. Potential saved
+kernel constructions follow from hit/miss counts, not a CPUtime claim. Larger
+records remain under same cache cap and may reduce hit coverage. Local region
+transient is admitted even without cache. Build393PASS36.118s; focused serial then
+ONE MPI milestone and same original M6edge qualification pending. Same constraints,
+quadrature precision, work/deadline budgets and strict gates. No new target policy.
+
+
+393focusedserial PASS53cases/5349assertions62.354s; ONE MPI6PASS55cases EACHrank,
+5511–5714assertions/rank67.467s, pins intact/owned handles terminal. These checks
+qualify exact cached/recomputed certificate behavior and constraints/resources,
+not native MPI BLgeneration. Original saved M6chord (existingpaneltrace) is frozen
+and running under same300s/600s. Await useful completion and numerical-prefix check.
+393closest_region_build_seconds now includes cold midpoint/normal preparation as
+well as net/hull; do not compare that nested counter directly with392net/hull-only
+build timer as though its scope were unchanged. Total prep/composition/edge timers
+retain their meaning. Kernel work-unit charging is unchanged; avoided invariant
+arithmetic must be distinguished from the existing query-work counter.
+
+
+393actual originaledge TERMINAL1/355.918s, same300s atlas/600souter. Preparation
+71.6993s vs392trace105.1526s (31.82%less). Integrand16832attempts/16831successful
+vs3928937/8936; ALL8936shared parameter/speed/position samples and ALLcuts identical.
+Composition222.4416s covers more/different positions vs392188.9710s; averages are
+not a matching-work CPU benchmark. Totaledge294.1529s vs294.1317s both deadline-
+limited.393last complete numerical partition42.0689957056/error5.19907e-8 remains
+above4.20700e-8allowance; no converged scalar/acceptededge. Improvement is more
+identical useful measurement work within same time, NOT whole-edge completion.
+
+Region6502017hits/683709misses; build36.3774s now includes more invariants, different
+scope than392build counter. Prepared1252716336B vs488602624B; sampled individualRSS
+2600288256B vs1848348672B. Same cache/storagecap, higher retained/resident use; not
+whole-job peaks. Geometrywork14066136vs~9.1M includes additional usefulqueries and
+cache maintenance. There is no per-sample CPU/timestamp in existingtrace, so exact
+shared-prefix CPU speedup is unmeasured. Scalar estimate changes1.45e-9 despite
+7895extra samples and persistent error estimate; classify remaining variation with
+one existing prepared-point replay before selecting further correction.
+
+
+393residual12point replay PASS61.694s;7116querywork/.226607sevaluation. Four actual
+residualnodes+two smooth controls paired at default/tighter certificate. Twoactual
+nodes retain4.5–5.6ppm chord-speed sensitivity; all controls agree. Reused standalone
+solver on same twoactualnets at ORIGINAL64callbacks only identifies two35672solves
+hitting cap while existing KKT already holds at callback9; numerical attribution,
+not globalcertificate. This explains one residual measurement-noise mechanism; it
+does not prove all variation is noise. Next SAMEcriterion strict-interior stopping
+assessment, not another cap/seed/tolerance campaign. All393handles terminal.
+
+393actualedge CPU350.15user+1.23system; no MPIwait inference from this serial run.

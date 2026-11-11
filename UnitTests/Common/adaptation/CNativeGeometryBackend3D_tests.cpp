@@ -729,7 +729,8 @@ TEST_CASE("Closest cubic queries reuse complete certificates and immutable regio
     CHECK(a.candidate_bounds[0].y<=a.candidate_bounds[1].y);
     CHECK(a.candidate_bounds[0].z<=a.candidate_bounds[1].z);
   };
-  for(unsigned repeat=0;repeat<2;++repeat)for(const Point query:{Point{.25,.25,-.03},Point{.5,.5,-.01},Point{10.25,.25,-.03}}) {
+  for(unsigned repeat=0;repeat<2;++repeat)for(const Point query:{Point{.25,.25,-.03},Point{.251,.249,-.0301},
+      Point{.000123,.000123,-.0001},Point{.5,.5,-.01},Point{10.25,.25,-.03}}) {
     const Id hint=query.x>5?100:0;
     const auto expected=fresh->ClosestCurved(hint,query,1e-7,16384);
     compare(cached->ClosestCurved(hint,query,1e-7,16384),expected);

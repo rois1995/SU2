@@ -6,84 +6,76 @@ Read AGENTS.md, [ordered stages](Handbook/ADAPTATION_CURVED_BL_STAGE_INTEGRATION
 [current accuracy/exclusion design](Handbook/ADAPTATION_BL_EDGE_EXCLUSION_20261111.md),
 [normalization](Handbook/ADAPTATION_CURVED_BL_NORMALIZATION_20261111.md),
 [timing/work ledger](Handbook/ADAPTATION_TIMINGS.md), [HowToProceed](HowToProceed.md).
-History [pre388](Handbook/ADAPTATION_HANDOFF_HISTORY_PRE_388_20261111.md)/
+History [pre393](Handbook/ADAPTATION_HANDOFF_HISTORY_PRE_393_20261111.md)/
+[pre388](Handbook/ADAPTATION_HANDOFF_HISTORY_PRE_388_20261111.md)/
 [pre384](Handbook/ADAPTATION_HANDOFF_HISTORY_PRE_384_20261111.md); historical RUNNING/
 next-action text is superseded by this live state.
 
 ## Actual source/build/owned workload — authoritative
 
-Current workload: NONE. Original392chord and existing392accuracy diagnostic both
-TERMINAL1; actual-host PID/start identities reverified absent, source/build/input
-pins intact. R/prepared392_qualification.json and edge_accuracy392_assessment.json.
-Original392chord TERMINAL1/355.013s, actual-host identities verified terminal before
-this diagnostic. SAME300s atlas/600souter:105.5218spreparation,8907evaluations,
-188.2862scomposition,9091472contextwork. NOlength/newmesh or performance gain.
-R/geometry_target392_assessment.json. Refusal moved near t=.9968, not proof of
-whole-edge convergence or fixed-work improvement. CPU349.74user+1.06system;
-prepared486963232B, sampled individual RSS1846362112B (not whole-job peak).
-392build PASS36.155s; focused witness PASS4cases/105assertions7.405s;
-focusedserial PASS53cases/5029assertions61.350s; MPI6PASS55cases EVERYrank,
-5191–5394assertions/rank65.526s. Relevant handles terminal/pins intact.
-Oldhotspot392PASS60.712s/12112pointwork; newrefusal392PASS60.729s/11092pointwork:
-ALLsixpairs in EACHset bit-identical foot/normal/FULLtensor/chordspeed/scalarhn.
-Work rises vs391; no per-query speedup claim. Initial missing-receipt launcher guard
-refused BEFOREanyworkload (point_launch392_guard_failure.json).
-Current392finishes both original distinct64callback opportunities after upper
-improvement; no caps/geometry/target/gates changed. CFD SHA710ff0bd4cd4d66adb846e07ead33859cef13a6174aa6056fd91657f73c1fd81;
-testSHA8b96514a0773a03c618bd0368e8999aef315fe9ad2e498999346dbbdb97050e7.
-All391build/eligibility/hotspot/serial/MPI/chord/newrefusal
-checks TERMINAL;52actual-host PID/start identities reverified absent, allpins intact.
-R/prepared391_qualification.json. Source6c73e637e0 PUSHED; terminal391evidence is
-saved in this checkpoint with the next demonstrated gap.
-Build39136.159s; CFD SHAa41ba8138afb0e5e93919418f1e6fafe068547a6f147ae7c48e06f1fea585aa1;
-testSHAd2fc0b53779174933832d0cf1d70721da0dbd95c7655cc6cce3cbd3a3cb9f287.
-Eligibility19assertionsPASS5.307s. Serial53cases/7307assertionsPASS252.571s; MPI6passes
-55cases EVERYrank/6805–7110assertions/rank305.851s. Native MPI BLgeneration remains
-UNQUALIFIED; FIRST_ROWnative1guard remains. Original6hotspot pairs bit-identical in
-391; exact390regression/patch preserved in prepared390_{source.patch,review.json}.
+Current workload: NONE. All393build/serial/MPI/actual/residual-point identities
+reverified terminal on actual host; source/build/input pins intact.
+R/prepared393_qualification.json. 393source/evidence preserved in this reviewable checkpoint.
+Original393M6edge TERMINAL1/355.918s; actual-host identities reverified absent.
+Build393PASS36.118s; serial53cases/5349assertions62.354s and MPI6 55cases EACHrank/
+5511–5714assertions67.467s pass. Pins intact/handles terminal. Buildidentity:
+CFDc3702db870ef6dd2fad3998993f9042b28e282243ecc6df9fcc17dcde080adb7;
+test2eab76daf1994411dfd865973850267622cc732fa892f67148a7f3391ef59ddb.
+Source393localuncommitted. Previous392checkpoint6ed8ceee96PUSHED; complete391/392
+results/qualification/failedguards preserved, history linked above. Native MPI BL
+GENERATION remains unqualified; FIRST_ROWnative1guard stays. BroadMPI38084/85cases
+perrank: unchanged planar fixedcount3vs6failure retained in backlog, no fullgreenclaim.
 
-Original391chord FAILED SAME300s atlas/600souter:356.014swrapper,109.4728sprep,
-8491evaluations,184.3615scomposition,5903245contextwork. NOlength/mesh/workflowspeedup.
-R/geometry_target391_assessment.json. Newrefusalq=[.0024597140053985514,
-.00014749340572871503,-.0076241276755620781],hint10154/wall0,error2e-12,t≈.02185.
-A different refusalinterval alone does NOTestablish rootclosure.
-
-New12point probe PASS61.778s/8960pointwork/.31849spoint eval. Actualquery+3nearcontrols
-still show1.22%fulltensor/~3.54e-5relative-speed change at default/tighter requests,
-foot~5.5e-9 and edge361→facet35672interior binding. Twofarthercontrolsagree. Scalarhn
-changes~3e-9relative. R/refusal_points391_assessment.json; input/provenance/exactlocal
-nets in R/m6_bl_inputs/refusal391_point_frames_v1. Do NOTpromote different bindings.
+393retains immutable midpoint interval and cubic normal controls/maxnorm in EXISTING
+exact-key region cache. All query-dependent projections/candidate comparison/full
+traversal remain fresh. Cache/retention/transient admission uses new sizeof; local
+region explicitly admitted even cacheOFF. Same maxwork/deadline/target/normal laws,
+canonical witness proof and strict gates. No lower-precision measurement route.
+Larger cache entries reduce potential coverage; source review found no defect but
+is not qualification. R/prepared393_source_review.json.
 
 ## ACTIVE accuracy diagnosis — remain stage2
 
-392completed the demonstrated two-witness gap and stabilized BOTHsaved actual point
-sets, but originalchord still refuses. Do not continue speculative seed/minimizer
-variants or increase caps. Existing GL10/G7-K15 diagnostic also TERMINAL1/355.988s at unchanged300s atlas.
-Preparation107.785s/259cuts. Widest interval [.1788552525,.4608000905] now completes
-195reference evaluations/2.913s:GL10=1.551897632 versus1.556857441, relative.3186%,
-no split/coarsen decision difference ON THIS INTERVAL. WholeGL10=39.19932377 is
-unproved; whole reference refuses after8821evaluations/182.953s. Error/ranking/
-insertion consequences on completeedge remain UNKNOWN. R/edge_accuracy392_assessment.json.
-No accurate scalar/usable BL/checkpoint or whole-edge speedup. Do not add further
-speculative witness variants or relax tolerances. Next attribute residual integration
-work using existing facilities, then select a proven purpose-specific correction.
-Scalar reparameterization is diagnostic, not an acceptance value or action bound.
-No full workflow before credible stage2target/checkpoint.
+393originaledge with existing paneltrace: SAME300s atlas/600souter. Preparation
+71.699s vs392trace105.153s.16831successfulsamples vs8936; ALL8936shared parameter/
+speed/position samples and ALLcuts identical. Different later query mix prevents
+an exact matching-work CPU claim. Lastpartition estimate42.0689957056/error
+5.19907e-8 still above4.20700e-8allowance. NO converged scalar/usableBL/checkpoint.
+Prepared1252716336B; largest sampled individualRSS2600288256B, higher but within
+unchanged limits, not wholejob peak. R/target_panels393_assessment.json.
+
+392trace had89.91%of refinement samples above t=.94; old dominant root interval now
+15samples/zero refinement/error1.21e-14.393adds7895samples but error falls modestly.
+Residual12point probe PASS61.694s/7116pointwork/.22661spoint eval: twoactual
+residuals change speed4.52e-6/5.57e-6relative, normal~2e-7 and foot3.78e-9/5.34e-9
+at default2e-12→2e-14. Other2residuals and BOTHsmooth controls agree exactly.
+Bothunstableanswers are interior35672dyadic subdivision witnesses. Inputs/results:
+R/m6_bl_inputs/residual393_point_frames_v1 and residual_points393_assessment.json.
+Existing unchanged local solver on exact twofacet nets, original64callbacks ONLY,
+confirms35672points0/3cap64 although EXISTING KKT is met at callback9; otherpoints
+converge25–44.30335allconverge22–43. No cap/seed variant was tested.
+Next demonstrated correction: evaluate the SAME existing KKT criterion during the
+strict-interior Newton iterations using already computed derivatives/residuals,
+rather than continue roundoff line searches until cap. Preserve positive derivative
+Gram determinant and near-edge snapping/active-edge logic; do not promote features.
+This is not implemented yet. Audit all shared MinimizeTriangle callers; qualify
+old+new actualqueries and originaledge after serial/ONE MPI milestone. No global
+upper/lower/clearance proof, geometry/height/metric/quad tolerance or budget change.
 
 Classification/ranking/balanced insertion/conformity/final accuracy stay distinct.
 Sensor-only length.388is inconclusive; no composedaction enclosure established.
-G7/K15difference is NOTa conservative integral bound.382GL10controls have up to1.7%
-error; actualGL10errorUNKNOWN without convergedsame-targetreference. No replacement.
-Core nodal gradation excludes BLtensors; fixed-ray/profile continuation is not global
-composed gradation. Distancewidth does NOTbound normal/tensorerror. Physicalh0/g/T
-and allstrictgeometry/q/J/size/height gates unchanged.
+G7/K15difference is NOT a conservative integral bound.392GL10widest-interval
+comparison completes195referenceevals: .3186%error/no split-coarsen difference
+there. WholeGL10=39.19932377 has UNKNOWNerror without converged whole reference.
+Core nodal gradation excludes BLtensors; fixed-ray/profile continuation is not a
+continuous global composed gradation proof. Distancewidth does NOT bound normal/
+tensorerror. h0/g/T and all strict geometry/q/J/size/height gates unchanged.
 
 383whole-edge exclusion QUALIFIED in BOTHfactories, exactP1integral/inverse/versioned
-identity; original5M6edges nonexcluded, translatedcontrols exactbackground/0composed
-samples. R/edge_exclusion383_qualification.json.380cache/385boundedwitness/386active-
-edge/KKT/388exactbinding side/391preparedsupport improvements preserved. BroadMPI380
-NOTwhollygreen:84/85cases EACHrank, unchanged planar fixed-count3vs6failure remains
-inbacklog for finalintegration, not a competing cycle. QueuedCoulaud/MAdLib work remains.
+identity. Original5M6edges nonexcluded; translatedcontrols exactbackground/0composed
+samples. R/edge_exclusion383_qualification.json. Earlier caching/witness/construction
+improvements preserved. Queued Coulaud/MAdLib geometry/target/realized BL investigation
+remains in this cycle; do not start a competing scheduler/geometry representation.
 
 ## Stage inputs and credible-output requirements
 

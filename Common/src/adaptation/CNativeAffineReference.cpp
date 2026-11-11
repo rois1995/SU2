@@ -127,11 +127,10 @@ std::array<Box,15> CubicNormalControls(const std::array<Box,10>& net) {
     }
   return coefficients;
 }
-double PositiveNormalClearance(const std::array<Box,10>& net,Point query) {
-  long double projection=-INFINITY;double length=0;
+double PositiveNormalClearance(const std::array<Box,10>& net,const std::array<Box,15>& normals,double length,Point query) {
+  long double projection=-INFINITY;
   // Keep each control point intact: a coordinate box loses tilted-plane cancellation.
-  for(const auto& normal:CubicNormalControls(net)) {
-    length=std::max(length,NormBound(normal));
+  for(const auto& normal:normals) {
     for(const auto& point:net)projection=std::max(projection,DotBox(Difference(Exact(query),point),normal).hi);
   }
   if(!(projection<0 && std::isfinite(length) && length>0))return 0;
@@ -1096,7 +1095,10 @@ struct MappedFacetReference::ComponentData {
 struct MappedFacetReference::GeometryStatsState {std::mutex mutex;GeometryStats value;};
 struct MappedFacetReference::CurvedSearch {
   struct Entry {std::vector<Id> facets;std::shared_ptr<CADTElemClass> index;};
-  struct CubicRegionGeometry {std::array<Box,10> net;Box hull;};
+  struct CubicRegionGeometry {
+    std::array<Box,10> net;Box hull,midpoint;
+    std::array<Box,15> normals;double maximum_normal=0;
+  };
   struct PreparedFacet {
     std::vector<UnionTriangle> triangles;std::unique_ptr<TriangleUnion> target;
     std::unique_ptr<CubicRegionGeometry> cubic;
@@ -1572,7 +1574,7 @@ size_t MappedFacetReference::CurvedQueryWorkspaceBytes(size_t maximum_work)const
   size_t facets=0;for(const auto& row:curved_search->entries)facets=std::max(facets,row.second.facets.size());
   const auto cacheScratch=curved_search->prepared_limit?transfer_memory::Add(sizeof(CurvedSearch::PreparedFacet),
       sizeof(CurvedSearch::CubicRegionGeometry),512,44*sizeof(uint64_t)):0;
-  return transfer_memory::Add(4096,transfer_memory::Mul(facets,2*sizeof(unsigned long)),
+  return transfer_memory::Add(4096,sizeof(CurvedSearch::CubicRegionGeometry),transfer_memory::Mul(facets,2*sizeof(unsigned long)),
       transfer_memory::Mul(maximum_work,4*sizeof(CurvedQueryRegion)),cacheScratch);
 }
 Id MappedFacetReference::CurvedComponent(Id facet)const {
@@ -1644,11 +1646,11 @@ MappedFacetReference::CurvedClosest MappedFacetReference::ClosestCurved(
     }
     return FacetPoint(id,r.y,r.z);
   };
-  auto candidate=[&](Id id,Point r,bool canonical=false) {
+  auto candidate=[&](Id id,Point r,bool canonical=false,const Box* enclosure=nullptr) {
     SurfaceBinding foot;
     auto a=Exact(r);
     if(canonical){foot=binding(id,r);a=ParameterBox(FacetParameters(id,foot));}
-    const auto box=Blossom(curves.at(id),{a,a,a});
+    const auto box=enclosure?*enclosure:Blossom(curves.at(id),{a,a,a});
     const auto upper=NormBound(Difference(box,Exact(query)));
     if(upper<result.upper) {
       if(!canonical)foot=binding(id,r);
@@ -1734,7 +1736,10 @@ MappedFacetReference::CurvedClosest MappedFacetReference::ClosestCurved(
   const size_t regionAllowance=answerKey.empty()?cacheAllowance:cacheAllowance-2;
   struct CacheWork {decltype(consume)& charge;void Work(){charge(3);}} cacheWork{consume};
   auto prepare=[&](Id id,const std::array<Point,3>& parameter,unsigned depth) {
-    consume(depth?2:1);std::array<Box,10> net;Box hull{};
+    consume(depth?2:1);CurvedSearch::CubicRegionGeometry region;
+    auto& net=region.net;auto& hull=region.hull;
+    Point r{};auto v=Values(r);
+    for(unsigned d=0;d<3;++d)v[d]=.25*Values(parameter[0])[d]+.25*Values(parameter[1])[d]+.5*Values(parameter[2])[d];
     std::vector<uint64_t> key;
     std::shared_ptr<CurvedSearch::PreparedFacet> prepared;
     const auto limit=curved_search->prepared_limit-curved_search->prepared_limit/2;
@@ -1747,7 +1752,7 @@ MappedFacetReference::CurvedClosest MappedFacetReference::ClosestCurved(
     const bool hit=bool(prepared);double buildSeconds=0;bool refused=false;
     if(hit) {
       if(!prepared->cubic)throw std::logic_error("Cubic preparation key collided with a union scope.");
-      net=prepared->cubic->net;hull=prepared->cubic->hull;
+      region=*prepared->cubic;
     } else {
       const auto started=std::chrono::steady_clock::now();
       for(unsigned d=0;d<3;++d)hull[d]={INFINITY,-INFINITY};
@@ -1757,12 +1762,17 @@ MappedFacetReference::CurvedClosest MappedFacetReference::ClosestCurved(
         net[q]=Blossom(curves.at(id),args);
         for(unsigned d=0;d<3;++d){hull[d].lo=std::min(hull[d].lo,net[q][d].lo);hull[d].hi=std::max(hull[d].hi,net[q][d].hi);}
       }
+      // These outward geometry enclosures depend on the exact region key, never the query or metric scale.
+      const auto midpoint=Exact(ToPoint(v));
+      region.midpoint=Blossom(curves.at(id),{midpoint,midpoint,midpoint});
+      region.normals=CubicNormalControls(net);
+      for(const auto& normal:region.normals)region.maximum_normal=std::max(region.maximum_normal,NormBound(normal));
       buildSeconds=std::chrono::duration<double>(std::chrono::steady_clock::now()-started).count();
       const auto bytes=transfer_memory::Add(sizeof(CurvedSearch::PreparedFacet),sizeof(CurvedSearch::CubicRegionGeometry),
           12*sizeof(void*),transfer_memory::Mul(key.capacity(),2*sizeof(uint64_t)),256);
       if(limit && bytes<=limit) {
         prepared=std::make_shared<CurvedSearch::PreparedFacet>();
-        prepared->cubic=std::make_unique<CurvedSearch::CubicRegionGeometry>(CurvedSearch::CubicRegionGeometry{net,hull});
+        prepared->cubic=std::make_unique<CurvedSearch::CubicRegionGeometry>(region);
         std::lock_guard<std::mutex> lock(curved_search->prepared_mutex);
         // A simultaneous query may have published the same immutable geometry while it was constructed.
         if(!curved_search->scopes.Find(key)) {
@@ -1776,9 +1786,7 @@ MappedFacetReference::CurvedClosest MappedFacetReference::ClosestCurved(
     {std::lock_guard<std::mutex> lock(geometry_stats->mutex);auto& stats=geometry_stats->value;
       stats.closest_region_hits+=hit;stats.closest_region_misses+=!hit;
       stats.closest_region_build_seconds+=buildSeconds;stats.closest_region_retention_refusals+=refused;}
-    Point r{};auto v=Values(r);
-    for(unsigned d=0;d<3;++d)v[d]=.25*Values(parameter[0])[d]+.25*Values(parameter[1])[d]+.5*Values(parameter[2])[d];
-    candidate(id,ToPoint(v));
+    candidate(id,ToPoint(v),false,&region.midpoint);
     Range squared;
     for(unsigned d=0;d<3;++d) {
       const auto diff=Subtract({Values(query)[d],Values(query)[d]},hull[d]);
@@ -1796,10 +1804,10 @@ MappedFacetReference::CurvedClosest MappedFacetReference::ClosestCurved(
         for(const auto& control:net){const auto projection=DotBox(Difference(Exact(query),control),exact);lo=std::min(lo,projection.lo);hi=std::max(hi,projection.hi);}
         lower=std::max(lower,std::nextafter(std::max({0.L,lo,-hi})/length,-INFINITY));
       }
-      direction=Difference(Exact(query),Blossom(curves.at(id),{Exact(ToPoint(v)),Exact(ToPoint(v)),Exact(ToPoint(v))}));
+      direction=Difference(Exact(query),region.midpoint);
     }
     const double bound=std::max(0.,std::nextafter(double(lower),-INFINITY));
-    pending.push_back({id,parameter,bound,PositiveNormalClearance(net,query),depth});
+    pending.push_back({id,parameter,bound,PositiveNormalClearance(net,region.normals,region.maximum_normal,query),depth});
     std::push_heap(pending.begin(),pending.end(),compare);++completed[depth?1:0];
   };
   for(auto index:candidates) { const auto facet=entry.facets.at(index);
