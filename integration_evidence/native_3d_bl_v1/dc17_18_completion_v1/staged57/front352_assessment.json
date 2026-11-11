@@ -1,0 +1,82 @@
+{
+  "checked_unix": 1794367896.5406957,
+  "scope": "Bounded actual original-M6 smooth surface region,16 existing complete-star splits; explicit1e-4 control core/composed BL target, not saved-CFD metric or coherent BL/front qualification.",
+  "completed_diagnostic": true,
+  "status": {
+    "state": "terminal",
+    "exit_code": 0,
+    "seconds": 189.82394909858704,
+    "pins_verified": true,
+    "changed": [],
+    "largest_sampled_individual_process_rss_bytes": 2053345280,
+    "rss_note": "sampled process RSS; not a whole-job peak"
+  },
+  "build": {
+    "state": "terminal",
+    "exit_code": 0,
+    "seconds": 188.19925165176392,
+    "pins_verified": true,
+    "changed": [],
+    "completed_build": true,
+    "binaries": {
+      "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver": "7026455e087d7f124e897758c945b09f49deeeb6d1bfb25a0bbf3b3bb6fa1cb2",
+      "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/SU2_CFD/src/SU2_CFD": "9be6aacb8ec55a637cef71da89bdc9d03c03ca0ef3e382e98264ee42453d533c"
+    }
+  },
+  "evidence_path": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved352_front_smooth_upper_20261111T032150_652734",
+  "summary": {
+    "applied_splits": 16,
+    "first_window": {
+      "context": "smooth_upper",
+      "stage": "surface_height_window",
+      "generation": 0,
+      "descendants": 1,
+      "feasible_children": 0,
+      "all_proposals_measured": true,
+      "worst_sampled_plane_miss": 4.909431123326413,
+      "mesh_published": false
+    },
+    "last_window": {
+      "context": "smooth_upper",
+      "stage": "surface_height_window",
+      "generation": 16,
+      "descendants": 21,
+      "feasible_children": 14,
+      "all_proposals_measured": true,
+      "worst_sampled_plane_miss": 0.30501079859168145,
+      "mesh_published": false
+    },
+    "final_measured_positive_feet": 147,
+    "final_total_feet": 147,
+    "net_composed_control_q_bad": 32,
+    "net_composed_control_J_bad": 32,
+    "unknown_old_fresh": 0,
+    "split_seconds": 48.21920981,
+    "geometry_work": 1422168
+  },
+  "confirmed": [
+    "All16 applied complete-star splits satisfy exact positive replacement, strict complete-patch geometry, global current-mesh contact and old passing-row preservation. Expected descendants/current directions were checked after each private Apply.",
+    "Zero original feasible child becomes14/21 descendants with at least one positive, certified strict-height, external-contact-clear candidate among the seven tested feet.",
+    "All147 final positive foot proposals were height-measured; the raw all_proposals_measured label alone is not a completeness proof.",
+    "Splitting introduces net32q-bad and32J-bad cells in the centroid-composed CONTROL target, with zero unknown shape measurements."
+  ],
+  "limitations": [
+    "No coherent coordinated first-row candidate or growth/coverage/transition has been tested after preparation.",
+    "No full actual saved-CFD target, integrated size or whole-field quality acceptance.",
+    "Sampling ranks trials only and supplies no global infeasibility/necessity proof.",
+    "This does not establish that a geometry metric is deficient; shape may improve when the coordinated volume row is built."
+  ],
+  "next": "353 reuses existing coordinated Transaction at one new vertex whose complete current incident wall star has feasible child candidates; measure full affected-patch geometry, heights, contact and composed-control q/J before selecting production correction.",
+  "source_snapshot": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/front352_source_snapshot",
+  "receipts": {
+    "terminal_handles.json": "36eb12cc4a1766e745fd8c6ac95d45bbf4c80604d9fe814ffc29eb104412eba9",
+    "command.json": "d2bd09cf1a767a0d34222dc4d3cb0481a6b34ec32f2263513df9c3216c620872",
+    "pins.json": "934be5828e331ab5f01525d1a7b6bb88b0ec8d3a7e6deebf3308156b595bd1ed",
+    "run.log": "84b6b03752ed6d9569dbafcecc0e625df3cd0b3e6dc28898874632618808b340",
+    "actual_bl_surface_cavities.jsonl": "7f46e75ea9b9a786076b940e2d3cd0d58c6982c31724fe0f79c3b48979598621",
+    "status.json": "36fd34cb140ac4e4a3087199bd48f8ddad503bcba9fdb89a76dc227ce0cbdc12",
+    "terminal_handles_actual.json": "3f2bce9af0319e10cfa6f0523c9375881b978a859eef368041fe4884781f3b3f",
+    "actual_bl_front.jsonl": "cc858a0fcdab9f4b147e3af84685de68778ae64c1fb16d0de5ca31db3c971b18",
+    "resources.jsonl": "c6b0c3021c924de806b97c327114763d8ae50c775af17568f55069706832c362"
+  }
+}

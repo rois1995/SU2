@@ -104,7 +104,7 @@ for(size_t index=0;index<count;++index) {
     std::string externalReason;
     if(tx.ok) {
       ++built;rowsPreserved=PreservePassingFirstHeights(tx.old,tx.fresh,heights,*state->reference,reason);
-      external=true;REQUIRE(directory.Clearance(imported.cells,tx.old,tx.fresh,external,externalReason,ceiling,retained));
+      external=true;REQUIRE(directory->Clearance(imported.cells,tx.old,tx.fresh,external,externalReason,ceiling,retained));
       std::set<Id> replaced(tx.ids.begin(),tx.ids.end()),unchanged;
       for(Id id:selected)if(!replaced.count(id))unchanged.insert(id);
       const auto surrounding=patchOf(unchanged);
@@ -163,7 +163,7 @@ for(size_t index=0;index<count;++index) {
         for(const auto& row:state->mesh)if(!imported.cells.count(row.first))created.push_back(row.first);
         fresh=PatchOf(*state,created);REQUIRE_FALSE(removed.cells.empty());REQUIRE_FALSE(fresh.cells.empty());
         strict=CheckFirstHeight(fresh,heights,*state->reference,height,heightReason);
-        external=true;REQUIRE(directory.Clearance(imported.cells,removed,fresh,external,externalReason,ceiling,retained));
+        external=true;REQUIRE(directory->Clearance(imported.cells,removed,fresh,external,externalReason,ceiling,retained));
         describe(label,"existing_completion_old",removed);describe(label,"existing_completion_fresh",fresh);
       }
       frontLog<<"{\"context\":"<<std::quoted(label)<<",\"stage\":\"existing_completion\",\"face\":["<<key[0]<<','<<key[1]<<','<<key[2]
@@ -178,7 +178,12 @@ for(size_t index=0;index<count;++index) {
               <<std::chrono::duration<double>(std::chrono::steady_clock::now()-completionStart).count()
               <<",\"production_target_certified\":false,\"mesh_published\":false}"<<std::endl;
       if(!inserted&&!cavity) {
-        const Patch originalChild=PatchOf(*state,{owner});
+        auto physicalProposals=[&](const Face& target,unsigned generation) {
+        const auto at=state->wall_index.find(target);REQUIRE(at!=state->wall_index.end());
+        const Patch originalChild=PatchOf(*state,{at->second});
+        const auto targetFace=std::find_if(originalChild.surface.begin(),originalChild.surface.end(),[&](const SurfaceFace& f){return dc9::Sorted(f.v)==target;});
+        REQUIRE(targetFace!=originalChild.surface.end());const auto* face=&*targetFace;
+        bool feasible=false;double best=std::numeric_limits<double>::infinity();
         auto privateWall=state->reference->PrivateParameters(originalChild,&budget);
         const auto& wallContext=privateWall?*privateWall:*state->reference;
         const auto& geometry=wallContext.Parameters()->Geometry();
@@ -203,18 +208,23 @@ for(size_t index=0;index<count;++index) {
             if(positive) {
               heightPass=CheckFirstHeight(candidate,heights,wallContext,measured,why);
               if(heightPass) {
-                contact=true;REQUIRE(directory.Clearance(imported.cells,originalChild,candidate,contact,why,ceiling,retained));
+                contact=true;REQUIRE(directory->Clearance(state->mesh,originalChild,candidate,contact,why,ceiling,retained));
                 describe(label,"physical_foot_old",originalChild);describe(label,"physical_foot_candidate",candidate);
               }
             }
           }catch(const std::exception& e){why=e.what();}
-          frontLog<<"{\"context\":"<<std::quoted(label)<<",\"stage\":\"physical_foot_proposal\",\"face\":["<<key[0]<<','<<key[1]<<','<<key[2]
-                  <<"],\"foot\":"<<foot<<",\"positive_cone\":"<<positive<<",\"strict_height\":"<<heightPass
+          frontLog<<"{\"context\":"<<std::quoted(label)<<",\"stage\":\"physical_foot_proposal\",\"face\":["<<target[0]<<','<<target[1]<<','<<target[2]
+                  <<"],\"generation\":"<<generation<<",\"foot\":"<<foot<<",\"positive_cone\":"<<positive<<",\"strict_height\":"<<heightPass
                   <<",\"external_clearance\":"<<contact<<",\"plane_height_ratio\":"<<planeRatio
                   <<",\"height_relative_error\":"<<measured.maximum_relative_error<<",\"height_measured\":"<<measured.measured
                   <<",\"reason\":"<<std::quoted(why)<<",\"geometry_work\":"<<budget.work-workAt
                   <<",\"production_target_certified\":false,\"mesh_published\":false}"<<std::endl;
+          if(positive&&measured.measured)best=std::min(best,std::abs(planeRatio-1));
+          feasible=feasible||(positive&&heightPass&&contact);
         }
+        return std::make_pair(feasible,best);
+        };
+#include "native_actual_bl_surface_height_probe.inc"
       }
     }
   } catch(const std::exception& e) {

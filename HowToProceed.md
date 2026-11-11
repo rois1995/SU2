@@ -11,7 +11,7 @@ admissible transfers, finite continued adapted CFD and an actual isolated adapte
 disk restart. Actual meshes:149051points/736323tets and172001points/870422tets.
 50k is metric complexity, not point count. Continued CFD was one iteration per
 adapted mesh, not a convergence claim. All22 saved payloads/384685699bytes were
-rechecked unchanged in staged57/euler293_preservation_during_bl339.json.
+rechecked unchanged in staged57/euler293_preservation_during_bl355.json.
 Qualified296 is archived; its small wall-time difference establishes no further
 Euler performance cycle. Preserve both293 checkpoints and the restart baseline.
 
@@ -35,26 +35,28 @@ passed340assertions/9cases; serial caller regression passed1911assertions/14case
 one connected MPI6 milestone passed23cases on every rank. This does NOT qualify
 native MPI BL generation; its native1 guard remains.
 
-The actual smooth346 original-wall/control-core patch constructs NO row: strict
-screening grows closure to65old cells against64cap. Transaction59.9999s includes
-PlanLift54.6304s and ConeColumn5.3442s. Do not add overlapping timers, enlarge bounds
-or treat the harness pass as mesh acceptance. Terminal smooth347 bounded replay confirms this trajectory and adds rejection
-evidence without changing decisions. Five lift-edge integrations have zero failures;
-54.849s includes45.036s geometry and9.812s composition. Preparation currently lacks
-prospective physical-height feasibility as a readiness obligation. This is a
-confirmed information gap, not proof that surface refinement is necessary. See the
+Current preparation closes tangential/Hausdorff demand but does not establish
+physical-height-compatible surface readiness. The actual evidence below connects
+that gap to existing surface and row operators; no production policy is selected
+from a passing private candidate alone. See the
 [physical-height diagnosis](Handbook/ADAPTATION_CURVED_BL_PHYSICAL_HEIGHT_20261111.md).
-Next choose a demonstrated placement/readiness/connectivity correction, rather
-than a speculative performance cycle. No full attempt until this connected
-surface/front capability is checked on actual M6 contexts.
 
-Actual350 narrows the blocker further: on the first refusing face5922/5925/5950,
-existing insertion/relocation/cavity completion fails. Seven reference-projected
-normal proposals form positive cones, but plane heights5.9–15.1h0 violate the
-unchanged height band. Test an admissible coupled surface replacement using existing
-splitting/relocation first; do not add placement retries or uniformly tighten wall
-resolution from seven probes. Require BOTH height obligations, geometry, complete
-neighbor validity, conformity and measured cost. See staged57/front350_assessment.json.
+Actual352 demonstrates16 existing, geometry/contact/row-preserving coupled splits:
+original first-refusal face becomes21descendants,14 with certified height-feasible
+positive/contact-clear candidates. Composed-control q/J failures increase32each.
+Actual354 high-band coordinated lift exhausts the unchanged300s geometry window in
+one additional composed edge (7532extra compositions), without a row result.
+Actual355's existing LOW-band branch constructs a5-column/25-cell replacement in
+1.502s with strict complete-patch geometry/height and global contact. But q/J BOTH
+worsen5→25 under the composed control target. No usable/admissible BL mesh exists.
+
+The next target is construction/repair power, not another performance campaign or
+blind surface refinement: assess existing coupled optimizer/growth on this complete
+actual cavity, including temporary interface/row-registration restrictions and
+candidate coordinates/metric frames where diagnostics need them. This is still an
+explicit1e-4 CONTROL core, not the actual saved-CFD target. Metric deficiency is
+unproven. Use one connected correction, retain every strict final gate, then qualify
+and promptly return to the full SAME303 workflow. See staged57/front355_assessment.json.
 
 1. Qualify the newly connected native construction lifecycle with its explicitly provisional
    requested-wall preparation phase. Reuse splitting, collapse, relocation,

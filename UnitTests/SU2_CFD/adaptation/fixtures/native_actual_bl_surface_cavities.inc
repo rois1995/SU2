@@ -43,8 +43,8 @@ TEST_CASE("Actual curved BL surface cavities preserve complete dependencies", "[
   const double seconds=std::min(300.,SU2_TYPE::GetValue(config.GetAdap_Native_Max_Time()));REQUIRE(seconds>0);
   budget.within_time=[&](){return std::chrono::duration<double>(std::chrono::steady_clock::now()-started).count()<seconds;};
   auto scope=reference->original->WithAtlasReservation(budget);
-  Directory directory(world);REQUIRE(directory.Build(imported.cells,reason,ceiling,budget.caller_bytes));
-  budget.caller_bytes=transfer_memory::Add(budget.caller_bytes,directory.ResidentBytes());REQUIRE(budget.caller_bytes<ceiling);
+  auto directory=std::make_unique<Directory>(world);REQUIRE(directory->Build(imported.cells,reason,ceiling,budget.caller_bytes));
+  budget.caller_bytes=transfer_memory::Add(budget.caller_bytes,directory->ResidentBytes());REQUIRE(budget.caller_bytes<ceiling);
   WallHeights heights;heights.tolerance=SU2_TYPE::GetValue(config.GetAdap_BL_FirstHeightTol());
   for(unsigned short w=0;w<config.GetnAdap_BL();++w) {
     const auto& wall=config.GetAdap_BL(w);const auto at=std::find(reference->marker_names.begin(),reference->marker_names.end(),wall.marker);
@@ -121,7 +121,7 @@ TEST_CASE("Actual curved BL surface cavities preserve complete dependencies", "[
         else if(trial==6){op="split";built=SplitEdge(operationOld,edge,{nextNode,middle},nextCell,*scope,fresh,why);}
         else {op="surface_strip";built=SplitSurfaceStrip(operationOld,edge,{nextNode,middle},{},nextCell,*scope,fresh,why);}
         if(built){
-          clear=true;REQUIRE(directory.Clearance(imported.cells,operationOld,fresh,clear,why,ceiling,budget.caller_bytes));
+          clear=true;REQUIRE(directory->Clearance(imported.cells,operationOld,fresh,clear,why,ceiling,budget.caller_bytes));
           const auto rest=patchOf(unchangedCells);Patch affected=fresh;
           affected.cells.insert(affected.cells.end(),rest.cells.begin(),rest.cells.end());
           affected.surface.insert(affected.surface.end(),rest.surface.begin(),rest.surface.end());

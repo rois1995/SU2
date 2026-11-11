@@ -1,0 +1,159 @@
+{
+  "checked_unix": 1794369342.1366794,
+  "scope": "Actual original-M6 smooth prepared surface plus existing low-band coordinated transaction; explicit1e-4 control core/composed BL target. NOT saved-CFD target or usable/global BL qualification.",
+  "completed_diagnostic": true,
+  "status": {
+    "state": "terminal",
+    "exit_code": 0,
+    "seconds": 191.83781051635742,
+    "pins_verified": true,
+    "changed": [],
+    "largest_sampled_individual_process_rss_bytes": 2089488384,
+    "rss_note": "sampled process RSS; not a whole-job peak"
+  },
+  "build": {
+    "state": "terminal",
+    "exit_code": 0,
+    "seconds": 186.15594792366028,
+    "pins_verified": true,
+    "changed": [],
+    "completed_build": true,
+    "binaries": {
+      "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver": "4f88916889a185c08653e573666379a02ecf86da995a1dde1dae2ed0bd277172",
+      "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/SU2_CFD/src/SU2_CFD": "9be6aacb8ec55a637cef71da89bdc9d03c03ca0ef3e382e98264ee42453d533c"
+    }
+  },
+  "evidence_path": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved355_front_smooth_upper_20261111T034922_724526",
+  "prepared_row": {
+    "context": "smooth_upper",
+    "stage": "prepared_row_result",
+    "attempted": true,
+    "seed": 61340,
+    "constructed": true,
+    "geometry_pass": true,
+    "passing_rows_preserved": true,
+    "external_clearance": true,
+    "complete_patch_height": true,
+    "columns": 5,
+    "passing_columns": 5,
+    "old_q_bad": 5,
+    "old_J_bad": 5,
+    "old_unknown": 0,
+    "fresh_q_bad": 25,
+    "fresh_J_bad": 25,
+    "fresh_unknown": 0,
+    "shape_measured": true,
+    "composed_control_target_only": true,
+    "class": "",
+    "reason": "",
+    "check_reason": "",
+    "geometry_work": 22866,
+    "seconds": 1.5017996,
+    "accepted": false,
+    "production_target_certified": false,
+    "mesh_published": false
+  },
+  "counters": {
+    "context": "smooth_upper",
+    "stage": "existing_counters",
+    "field": {
+      "queries": 126,
+      "query_misses": 92,
+      "compositions": 621,
+      "edge_integrations": 5,
+      "edge_compositions": 495,
+      "edge_pieces": 5
+    },
+    "edge_failures": 0,
+    "edge_geometry_seconds": 43.098573167,
+    "edge_composition_seconds": 9.400345462,
+    "edge_seconds": 52.500039046,
+    "cumulative_perf": {
+      "ops": {
+        "Transaction": {
+          "count": 8,
+          "seconds": 57.925952,
+          "ms_per_op": 7240.7441
+        },
+        "PlanLift": {
+          "count": 26,
+          "seconds": 52.500787,
+          "ms_per_op": 2019.261
+        },
+        "Column directions": {
+          "count": 17,
+          "seconds": 6.2845006,
+          "ms_per_op": 369.67651
+        },
+        "ConeColumn": {
+          "count": 106,
+          "seconds": 5.3224737,
+          "ms_per_op": 50.212016
+        },
+        "DC15 CavityFirstChild": {
+          "count": 1,
+          "seconds": 0.72954337,
+          "ms_per_op": 729.54337
+        },
+        "D.2 invariant": {
+          "count": 21,
+          "seconds": 0.54116128,
+          "ms_per_op": 25.769585
+        },
+        "V12 FirstRowInsert": {
+          "count": 1,
+          "seconds": 0.071753192,
+          "ms_per_op": 71.753192
+        },
+        "V12 ApexRelocate": {
+          "count": 1,
+          "seconds": 0.002701707,
+          "ms_per_op": 2.701707
+        }
+      },
+      "caches": {
+        "length_hits": 0,
+        "length_misses": 0,
+        "length_failures": 0,
+        "shape_hits": 0,
+        "shape_misses": 0,
+        "height_hits": 0,
+        "height_misses": 0,
+        "rejection_cache_skips": 0,
+        "geometry_length_hits": 0
+      }
+    }
+  },
+  "matching_prefix": {
+    "same16split_edges_as352": true,
+    "descendants": 21,
+    "feasible_children": 14,
+    "net_control_q_bad": 32,
+    "net_control_J_bad": 32
+  },
+  "confirmed": [
+    "Five current coordinated columns on a5old/25fresh complete patch satisfy strict geometry, complete requested heights, old-row preservation and current full-mesh contact.",
+    "Existing low-band branch returns the candidate on first trial in1.502s/22866geometry work with no additional edge integrations beyond the unchanged5edge/495composition prefix.",
+    "Composed-control centroid q-bad/J-bad both increase5to25 (net+20 each), zero unknown; candidate is NOT accepted.",
+    "Geometry-bad faces remain0; complete first-height maximum relative error0.00174527, compared unchanged0.1 tolerance."
+  ],
+  "limitations": [
+    "No shape/size closure or final saved-CFD metric acceptance.",
+    "No progression, coverage, outer transition or native MPI BL generation.",
+    "High-band deadline failure does not prove candidate/trajectory equivalence or full-workflow speedup.",
+    "Tangent-from-face-centroid height-report tilt is not a standalone column-alignment test."
+  ],
+  "next_target": "Construction/repair power: reuse existing coupled optimizer and layer/growth facilities on complete actual candidate; capture its bounded coordinates/metrics if needed, before new operators or metric policy. Keep readiness and low-band results connected, then qualify one production correction and promptly run full same303 workflow.",
+  "source_snapshot": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/front355_source_snapshot",
+  "receipts": {
+    "terminal_handles.json": "919881bde496912947639d8fcc59dc46a10673f81b67aff742e9591bd51787ae",
+    "command.json": "a84b1d7ca57f415dbbba95e97928051502af62a5dd3e19beccc0a07936fb1e2a",
+    "pins.json": "4121c63149ed4334e76a64587b5baef906a23c63eb824c91e0c041b0290e30eb",
+    "run.log": "5e619190781b52b41fe926fc6a8e44a3fad6dac894e98afb325dd679e63e42b4",
+    "actual_bl_surface_cavities.jsonl": "16f2dfc91cb782fc291941ab6e62b01e63ce730d1f575082581c8123bb16fbdd",
+    "status.json": "1c9808bbfd153347c4184900d7fbb44c8af1067bdc68af9edea3cfd7ceac7f7d",
+    "terminal_handles_actual.json": "b18436572fc0ad90e139f73b2b9c909a4e3f2821b59c70707dd6fe42c30bdb96",
+    "actual_bl_front.jsonl": "821f3241a14bf02308bdfb106103c3527fa3fe32d28bb6752cf201db7f46f554",
+    "resources.jsonl": "77f4d95e2b6617d9c68fea23e63864c0e05df7e505f305ac730e565421fba493"
+  }
+}

@@ -188,3 +188,109 @@ CAD optionality and requested500k target unchanged; quantify feasibility explici
 Diagnostic348, failed349 and corrected350 source snapshots are preserved as
 `front348_source_snapshot.inc`, `front349_source_snapshot.inc` and
 `front350_source_snapshot.inc`; ALL hashes match their original build source pins.
+
+## Bounded coupled-surface hypothesis351 (pending)
+
+Missing capability: a measured-ready wall region compatible with physical and planar
+first-height obligations.350 shows current tangential/Hausdorff readiness is insufficient
+on its first refusing face. Test whether existing complete-star SplitEdge can produce
+height-compatible descendants before selecting a production readiness/guidance change.
+
+351 performs at most16 private splits under the SAME300s diagnostic geometry window.
+It ranks failing descendants using sampled plane mismatch and edges using existing
+reference-projected midpoint bow. Those samples select trials only, never certify
+geometry or infer infeasibility. Every applied edit requires exact positive replacement,
+strict complete-patch geometry, existing passing-height preservation, exact descendant
+support/marker and global Directory clearance against the CURRENT mesh. Private State
+publication updates parameters/nodal cores; the existing directory is rebuilt and
+relevant direction data refreshed. No legacy collision index is reused after Apply.
+Composed-control q/J is measured independently without a construction veto; final
+q/J/size/height acceptance is unchanged. All successful descendants still need coupled
+front placement, progression/coverage/transition and production-target qualification.
+No new production operator, scheduler, configuration or budget is introduced.
+
+351 compiles188.211s, production CFD unchanged, all10 build identities absent.
+Actual351 terminates1/122.830s with pins intact and all5 actual identities absent.
+Its first complete split old2/fresh4 cells passes geometry, row preservation and
+external clearance before private Apply; both old/fresh have zero Euclidean-control
+q/J failures, maximum geometry error3.97176e-5/3.65788e-5. Then the diagnostic wrongly
+calls Build on the initialized Directory (explicit API refusal), so no descendant
+height feasibility was measured. This is a harness lifecycle error, not geometric
+refusal. `front351_assessment.json` and three source snapshots preserve it.
+352 recreates the directory before Build, as the existing initial-only API requires;
+production code, target, constraints, resources and bounded hypothesis are unchanged.
+
+## Coupled surface result352 and coordinated-row follow-up353
+
+352 compiles188.199s, CFD unchanged346, all10 build handles absent. Actual smooth352
+terminates0/189.824s with pins intact and all5 actual identities absent. All16 splits
+pass geometry/passing-row/contact checks and exact descendant/direction refresh.
+Child proposals improve0/1→14/21feasible descendants. All147 final positive foot
+proposals were measured. The aggregate all_proposals_measured label was too broad;
+completeness comes from per-foot receipts.353 corrects that receipt label.
+
+Net composed-control centroid q-bad+32/J-bad+32 across complete changed stars, zero
+unknown shapes. Splits are validity-first; no q/J gate/veto was added. This does not
+prove target deficiency: coordinated row/volume construction may resolve the shape
+problem. No actual saved-CFD target, integrated size, coherent front, growth, coverage
+or final mesh acceptance follows. `front352_assessment.json` seals evidence and
+`front352_source_snapshot` retains exact sources matching the original build pins.
+
+353 tests ONE new vertex with a complete incident wall star of feasible descendant
+candidates. It reuses the existing coordinated Transaction and normal/low-band/
+closure protocol, with unchanged20-trial/cavity and shared300s diagnostic window.
+Fresh contexts certify complete affected-patch geometry, old-row preservation,
+physical first heights and current global contact. New columns' height compliance
+is separate from complete-patch height debt. Whole affected composed-control q/J is
+measured, not used for construction admission. No state is published as a mesh.
+The purpose is to test the connected prepared-surface→coordinated-row capability
+before selecting ONE production readiness/geometry/construction correction.
+
+354 compiles188.181s, production unchanged, all10 build handles absent. Actual354
+TERMINAL1/355.939s (all5 actual handles absent, pins intact): identical16-split/
+14of21 feasible prefix finishes, then the FIRST high-band lift edge exhausts the
+shared300s geometry deadline before any prepared_row_trial/result. Compared352,
+one additional edge attempt fails with7532extra composition calls. Total edge
+217.941s includes57.013direct geometry and160.920composition; the latter includes
+BL geometry evaluation and is not pure arithmetic. Timers overlap with PlanLift/
+Transaction. CPU99%, no swaps, sampled largest individual RSS~2.05GB; not a resource
+or MPI-wait conclusion. `front354_assessment.json`/four exact source snapshots retain
+failure and completed prefix.353 compile namespaces were corrected after all5 build
+handles absent, with failed source retained.
+
+355 tests the existing low-band prepared branch: PlanLift caps H<=1.1h0, so its
+H>1.3h0 metric-cap loop is skipped. This is a bounded diagnostic of an existing
+candidate path, not a production ordering change, budget increase or speedup claim.
+All eventual geometry, height, current contact and composed-control shape measurements
+remain. High/low trajectories may differ; assess the actual complete candidate.
+
+## Existing low-band coordinated candidate355: heights close, shape does not
+
+355 compiles186.156s, all10 actual build handles absent, CFD identical346. Actual
+smooth355 terminates0/191.838s, pins intact and all5 actual identities absent. Its
+16 split edges exactly match352. At new seed61340 the EXISTING low-band Transaction
+returns on trial0 in1.5018s/22866work:5old cells→25fresh,5columns. Complete strict
+geometry, all5column and complete-patch first heights, old passing-row preservation
+and current global contact PASS. Geometry-bad0/max error6.40365e-7; maximum first-
+height relative error.00174527 against unchanged.1. This is the first demonstrated
+coupled curved M6 first-row candidate in this bounded investigation, NOT a mesh.
+
+Shape is the blocker: composed-control centroid q-bad5→25 and J-bad5→25, unknown0.
+The 16 prior surface edits add32each. No full-target/integrated-size acceptance,
+progression, coverage, outer transition or native MPI generation follows. Height-
+report tangent-from-face-centroid tilt1724 is not a standalone column-alignment
+criterion. Do not infer metric deficiency or claim a full-workflow speedup:354 never
+returned a completed high-band candidate.355 adds NO lift-edge integration beyond
+the unchanged5edge/495composition prefix, whereas354 attempted one additional failed
+edge with7532extra compositions. Keep composition's nested geometry costs separate
+from direct edge-breakpoint time and overlapping PlanLift/Transaction totals.
+
+`front355_assessment.json` and four exact source snapshots seal scope. Same303 CFD
+seed/mesh/reference/config and all22Euler293 payloads remain unchanged355. NEXT is
+construction/repair power: use existing coupled optimizer/growth on the complete
+actual candidate, investigate interface/registration restrictions, and inspect its
+bounded coordinates/metrics through existing diagnostics if needed. Do not add new
+operators, change metric policy or blindly extend refinement from these data. Choose
+ONE connected production readiness/construction correction after this evidence;
+qualify affected behavior and return to the full same-seed RANS workflow. Current
+production remains346 (qualified affected callers347), with native1 FIRST_ROW guard.

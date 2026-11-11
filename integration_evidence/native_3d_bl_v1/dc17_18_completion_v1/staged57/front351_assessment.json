@@ -1,0 +1,21 @@
+{
+  "checked_unix": 1794367073.0583515,
+  "scope": "Partial actual M6 existing split diagnostic, not completed surface/height qualification.",
+  "completed_diagnostic": false,
+  "status": {
+    "state": "terminal",
+    "exit_code": 1,
+    "seconds": 122.82984185218811,
+    "pins_verified": true,
+    "changed": [],
+    "largest_sampled_individual_process_rss_bytes": 1541271552,
+    "rss_note": "sampled process RSS; not a whole-job peak"
+  },
+  "failure": "Diagnostic called Directory::Build on initialized directory after first private Apply; API explicitly requires new instance.",
+  "confirmed": [
+    "First split old2/fresh4 cells has zero Euclidean-control q/J failures and zero geometry-bad faces; global clearance and old-row preservation passed before private Apply.",
+    "Descendant height feasibility not reached; no geometry-refusal or global infeasibility conclusion."
+  ],
+  "evidence_path": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved351_front_smooth_upper_20261111T031318_630092",
+  "source_snapshot": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/front351_source_snapshot"
+}

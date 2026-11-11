@@ -1,0 +1,133 @@
+{
+  "checked_unix": 1794368871.7041306,
+  "scope": "Same prepared actual-M6 smooth patch, high-band coordinated Transaction; explicit control core, not production target or BL acceptance.",
+  "completed_diagnostic": false,
+  "status": {
+    "state": "terminal",
+    "exit_code": 1,
+    "seconds": 355.93915724754333,
+    "pins_verified": true,
+    "changed": [],
+    "largest_sampled_individual_process_rss_bytes": 2054766592,
+    "rss_note": "sampled process RSS; not a whole-job peak"
+  },
+  "build": {
+    "state": "terminal",
+    "exit_code": 0,
+    "seconds": 188.1814374923706,
+    "pins_verified": true,
+    "changed": [],
+    "completed_build": true,
+    "binaries": {
+      "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver": "5f7c64467f32923b05facd713c99effe4b02c3d41c5b5cca64474a6a6f91341c",
+      "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/SU2_CFD/src/SU2_CFD": "9be6aacb8ec55a637cef71da89bdc9d03c03ca0ef3e382e98264ee42453d533c"
+    }
+  },
+  "evidence_path": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved354_front_smooth_upper_20261111T033727_693429",
+  "prepared_surface": {
+    "context": "smooth_upper",
+    "stage": "surface_height_result",
+    "splits": 16,
+    "descendants": 21,
+    "feasible_children": 14,
+    "outcome": "split_limit",
+    "coherent_front_certified": false,
+    "production_target_certified": false,
+    "mesh_published": false
+  },
+  "counters": {
+    "context": "smooth_upper",
+    "stage": "existing_counters",
+    "field": {
+      "queries": 96,
+      "query_misses": 67,
+      "compositions": 8123,
+      "edge_integrations": 6,
+      "edge_compositions": 8027,
+      "edge_pieces": 6
+    },
+    "edge_failures": 1,
+    "edge_geometry_seconds": 57.01291077100001,
+    "edge_composition_seconds": 160.9196049989993,
+    "edge_seconds": 217.941428801,
+    "cumulative_perf": {
+      "ops": {
+        "Transaction": {
+          "count": 8,
+          "seconds": 223.36146,
+          "ms_per_op": 27920.183
+        },
+        "PlanLift": {
+          "count": 26,
+          "seconds": 217.94209,
+          "ms_per_op": 8382.3881
+        },
+        "Column directions": {
+          "count": 17,
+          "seconds": 6.1643049,
+          "ms_per_op": 362.60617
+        },
+        "ConeColumn": {
+          "count": 102,
+          "seconds": 5.3934769,
+          "ms_per_op": 52.877224
+        },
+        "DC15 CavityFirstChild": {
+          "count": 1,
+          "seconds": 0.7336592,
+          "ms_per_op": 733.6592
+        },
+        "D.2 invariant": {
+          "count": 21,
+          "seconds": 0.55463251,
+          "ms_per_op": 26.411072
+        },
+        "V12 FirstRowInsert": {
+          "count": 1,
+          "seconds": 0.077047573,
+          "ms_per_op": 77.047573
+        },
+        "V12 ApexRelocate": {
+          "count": 1,
+          "seconds": 0.002671889,
+          "ms_per_op": 2.671889
+        }
+      },
+      "caches": {
+        "length_hits": 0,
+        "length_misses": 0,
+        "length_failures": 0,
+        "shape_hits": 0,
+        "shape_misses": 0,
+        "height_hits": 0,
+        "height_misses": 0,
+        "rejection_cache_skips": 0,
+        "geometry_length_hits": 0
+      }
+    }
+  },
+  "confirmed": [
+    "The same16-split/14of21 feasible-descendant prefix completed.",
+    "The first high-band prepared Transaction exhausted unchanged shared300s geometry deadline before a prepared_row_trial or result.",
+    "Compared with352, one additional edge integration attempted and failed, with7532 additional edge composition calls; CPU99percent, no swap and about2.05GB sampled maximum individual RSS.",
+    "Total edge time217.941s contains direct geometry57.013s and composition160.920s. Composition includes nested BL geometry evaluation, so this is not pure arithmetic or total geometry attribution."
+  ],
+  "next": "355 tests the existing low-band branch that skips PlanLift metric-cap loop; fresh geometry/height/contact/shape checks remain mandatory. No production ordering change or speedup claim.",
+  "limitations": [
+    "No prepared row feasibility conclusion from deadline failure.",
+    "No extra perf/GDB/baseline campaign or raised budget.",
+    "High/low branches can produce different candidates/quality; no trajectory equivalence assumed."
+  ],
+  "source_snapshot": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/front354_source_snapshot",
+  "receipts": {
+    "terminal_handles.json": "9e9da00d3476417f940b3763e022bf8543edf33d5049c47daf93086399522a09",
+    "command.json": "9a9da170024ec59769bedbfc10817f980d12f33d5622d58f4f3c1620ef58ed83",
+    "pins.json": "9e15d77e70f8b9edac762891a1c44c5bbe1782d67a8fb8e5416ebfed7f75ea43",
+    "run.log": "e579ade6c26a00880ede5c677cf5023d1135b80848e08ea5a00de89b02a8c87f",
+    "actual_bl_surface_cavities.jsonl": "7f46e75ea9b9a786076b940e2d3cd0d58c6982c31724fe0f79c3b48979598621",
+    "status.json": "487eafb3bbeb5dfd580dbe8eecf3cd14f2b837e59d4400cd14a43bc9519bb6e4",
+    "terminal_handles_actual.json": "d6547d0b1ec927f7001d2ad49a65521c8ab1dc1c351d48d2a789171af9d175de",
+    "actual_bl_front.jsonl": "daed458be9a1eb8b6f2c5792d942b81428ec2f7cece4db4cb2817c0b273203c0",
+    "resources.jsonl": "7fd6772c145b348e5fe1ac170d1efe194fd77bb1538c56e65fcfc84b8419d4aa"
+  }
+}
