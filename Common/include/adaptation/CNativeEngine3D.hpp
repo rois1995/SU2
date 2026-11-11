@@ -281,6 +281,7 @@ struct EngineResult {
   std::vector<SplitRecord> splits;
   std::vector<Edge> collapses;  // Directed {retained, removed}; no split-history requirement.
   bool valid = false;
+  bool surface_prepared = false;  // Explicit provisional wall guidance/geometry closure; never CFD acceptance.
   // A complete metric-driven domain replacement includes both refinement and coarsening.
   bool rebuilt_domain = false;
   std::string reason;
@@ -293,6 +294,11 @@ struct EngineResult {
  * makes the private result valid. All worker ranks call together. */
 EngineResult AdaptMetric(World& world, const Owned& accepted, const std::vector<DonorCell>& original,
                     const PlanarReference& geometry, MetricComposition composition = {}, EngineOptions options = {});
+/*! Requested-wall preparation using the existing construction/reservation/publication lifecycle.
+ * Leaves full-target q/J/size/heights to subsequent BL construction and strict adaptation.
+ * A successful provisional result sets surface_prepared, never valid. */
+EngineResult PrepareSurface(World&,const Owned&,const std::vector<DonorCell>&,const PlanarReference&,
+                           BoundaryMetric,EngineOptions);
 /*! Refinement construction uses the same staged quality closure and unchanged final gates. */
 EngineResult Refine(World& world, const Owned& accepted, const std::vector<DonorCell>& original,
                     const PlanarReference& geometry, MetricComposition composition = {}, EngineOptions options = {});

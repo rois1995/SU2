@@ -30,6 +30,7 @@
 #include "../../../Common/include/adaptation/CNativeSupport3D.hpp"
 #include "../../../Common/include/adaptation/CNativeImport3D.hpp"
 #include "../../../Common/include/adaptation/CNativeMetric3D.hpp"
+#include "../../../Common/include/adaptation/CNativeCurvedAtlas3D.hpp"
 #include "../../../Common/include/adaptation/CNativeChordEnvelope.hpp"
 #include "../../../Common/include/adaptation/CNativeOptimize3D.hpp"
 #include "../../../Common/include/linear_algebra/blas_structure.hpp"
@@ -173,6 +174,7 @@ struct EventControls {
   size_t memory_ceiling = size_t(2) << 30, caller_bytes=0;
   SU2NativeGeometry::AtlasBudget* geometry_budget=nullptr;
   size_t maximum_work = SIZE_MAX;  // Shared event allowance; construction is charged before distributed improvement.
+  const EngineOptions* engine_controls=nullptr;  // Borrowed synchronously from the remesher's frozen event.
   std::string report_prefix;   // <prefix>_bl_report.json (and <prefix>_final.mesh when export_mesh)
   bool export_mesh = false;
   double intermediate_v_seconds = 1800;  // DC-15: V cap of an intermediate (ramped-h0) event (DC-16: 1800, the full-M6 x32 event 0 takes 34 of its 60 min with 900); the final cycle uses the budget
@@ -185,12 +187,14 @@ namespace detail {
 inline size_t StateBytes(const junction_wp0::State& s, size_t caller = 0, size_t donors = 0) {
   return s.mesh.size() * 640 + s.wall_index.size() * 80 + s.box_grid.size() * 96 + s.lengths.size() * 112 +
          dc9::shapeCache.size() * 48 + dc9::heightCache.size() * 48 + dc9::geometryLengths.size() * 104 +
-         dc9::balancedCache.size() * 120 + s.overlay.size() * 160 + donors * (sizeof(DonorCell) + 64) + caller;
+         dc9::balancedCache.size() * 120 + s.overlay.size() * 160 + donors * (sizeof(DonorCell) + 64) + caller +
+         (s.live_parameters?s.live_parameters->ResidentBytes():0)+(s.reference?s.reference->ParameterOverlayBytes():0);
 }
 /*! Restores every pipeline-global switch and cache on exit (also on exceptions). */
 struct PipelineScope {
   dc12::Policies policies;
   PipelineScope() {
+    dc9::ensureDirectionField={};
     dc9::perf = dc9::Perf{}; dc9::ResetCaches(); dc9::cachesOn = true; dc9::balancedCache.clear();
     dc9::firstChildDiagnostics = 0; dc9::geometryHits = 0;
     dc10::reflectiveByRole = false; dc10::reflectiveMarkers.clear(); dc9::artificialMarkers.clear();
@@ -200,6 +204,7 @@ struct PipelineScope {
     dc9::validityOnlyConstruction = false; dc13::v13DemandQueue = false; dc16::roomStep = true; dc9::markerRoles.clear(); dc13::eventTensors = dc13::VertexTensors{};
   }
   ~PipelineScope() {
+    dc9::ensureDirectionField={};
     dc9::ResetCaches(); dc9::balancedCache.clear(); dc9::cachesOn = true; dc12::layerOfMarker.clear();
     dc10::optionA.reset(); dc10::probeBase.reset(); dc10::probeFull.reset();
     dc13::v13R2Retry = true; dc13::v13AttemptsPerSweep = 1024; dc9::directionField = nullptr; dc9::directionFieldUses = 0;
@@ -224,6 +229,10 @@ inline EngineResult RunEvent(World& world, const Owned& cells, const std::vector
   SetShapeAdmission(ShapeAdmission::ValidityOnly);
   SU2NativeGeometry::AtlasBudget local_geometry_budget;
   auto& geometry_budget=ctl.geometry_budget?*ctl.geometry_budget:local_geometry_budget;
+  struct RestoreGeometryWindow {
+    SU2NativeGeometry::AtlasBudget& budget;size_t caller,bits;
+    ~RestoreGeometryWindow(){budget.caller_bytes=caller;budget.maximum_integer_bits=bits;}
+  } restore_geometry_window{geometry_budget,geometry_budget.caller_bytes,geometry_budget.maximum_integer_bits};
   const auto geometry_work_initial=geometry_budget.work;
   std::shared_ptr<void> geometry_lease;
   std::ostringstream json;
@@ -244,11 +253,13 @@ inline EngineResult RunEvent(World& world, const Owned& cells, const std::vector
     const double budget = ctl.seconds > 0 ? ctl.seconds : 7200.0;
     const double reserve = std::min(.5*budget,std::max(120.0,.1*budget)), usable = budget-reserve;
     auto elapsed = [&] { return std::chrono::duration<double>(Clock::now() - t0).count(); };
-    const auto queryScratch=std::max(policy.full->GeometryWorkspaceBytes(),policy.base->GeometryWorkspaceBytes());
+    constexpr size_t atlasScratch=16u<<20;
+    const auto queryScratch=transfer_memory::Add(std::max(policy.full->GeometryWorkspaceBytes(),policy.base->GeometryWorkspaceBytes()),atlasScratch);
     size_t stateCeiling=ctl.memory_ceiling;
     if(queryScratch) {
       if(queryScratch>=stateCeiling)return finish("FIRST_ROW geometry scratch exceeds shared memory ceiling.");
       stateCeiling-=queryScratch;
+      geometry_budget.caller_bytes=stateCeiling;
       if(!ctl.geometry_budget){geometry_budget.maximum_bytes=ctl.memory_ceiling;geometry_budget.caller_bytes=stateCeiling;}
       const auto work=ctl.maximum_work==SIZE_MAX?std::max(size_t(4096),transfer_memory::Mul(cells.size(),64)):ctl.maximum_work;
       const auto allowance=transfer_memory::Mul(transfer_memory::Add(cells.size(),work),SU2NativeGeometry::MappedFacetReference::ClearanceWork);
@@ -256,6 +267,11 @@ inline EngineResult RunEvent(World& world, const Owned& cells, const std::vector
       if(!ctl.geometry_budget){geometry_budget.maximum_work=allowance;
         geometry_budget.within_time=[t0,budget] {return std::chrono::duration<double>(Clock::now()-t0).count()<budget;};}
       geometry_lease=policy.ReserveGeometry(geometry_budget);
+      size_t low=0,high=atlasScratch*8;
+      while(low<high){const auto bits=low+(high-low+1)/2;
+        if(transfer_memory::Mul(2,SU2NativeGeometry::CurvedAtlasWorkspaceBytes(bits))<=atlasScratch/2)low=bits;else high=bits-1;}
+      if(!low)return finish("FIRST_ROW has no admitted atlas integer workspace.");
+      geometry_budget.maximum_integer_bits=geometry_budget.maximum_integer_bits?std::min(geometry_budget.maximum_integer_bits,low):low;
     }
     detail::PipelineScope scope;
     dc10::optionA = policy.A; dc10::probeBase = policy.base; dc10::probeFull = policy.full;
@@ -302,19 +318,23 @@ inline EngineResult RunEvent(World& world, const Owned& cells, const std::vector
     s->mesh = cells;
     if(detail::StateBytes(*s,callerBytes,donors.size())>stateCeiling)
       return finish("FIRST_ROW input/state leaves no admitted geometry workspace.");
+    std::vector<DonorCell> surface_source;
+    size_t directionBytes=0;
+    const std::vector<DonorCell>* fieldDonors=&donors;
     auto makeField = [&](const junction_wp0::State& x) {
-      return std::make_unique<FrozenField>(donors, policy.Composition(), true, AssociatedExtensions(donors, *x.reference),
+      return std::make_unique<FrozenField>(*fieldDonors, policy.Composition(), true, AssociatedExtensions(*fieldDonors, *x.reference),
                                            policy.Edges(), std::make_shared<const FrozenMetricIdentity>(), true,
-                                           std::max(MaximumDonors, donors.size()));  // whole original domain (admitted by StateBytes)
+                                           std::max(MaximumDonors, fieldDonors->size()));  // whole stage domain (admitted by StateBytes)
     };
     s->field = makeField(*s);
     Prepare(*s);
     ApplyWallPolicies(*s);
+    s->heights.tolerance=SU2_TYPE::GetValue(config.GetAdap_BL_FirstHeightTol());
     DetectCreases(*s, policy.roles);  // DC-15: crease roles from the configuration marker kinds
     json << ",\"authority\":{\"mapped_input\":" << state.original->Mapped() << ",\"declared_error\":" << declared << ",\"fitted_planes\":" << fittedPlanes << ",\"affine\":" << s->reference->Affine().size()
          << "},\"wall_faces\":" << WallFaces(*s).size() << ",\"h0_min\":" << s->h0;
     auto memoryOk = [&](const char* where, std::string& why, size_t extra = 0) {
-      const auto bytes = detail::StateBytes(*s, callerBytes + extra, donors.size());
+      const auto bytes = detail::StateBytes(*s, transfer_memory::Add(callerBytes,extra,transfer_memory::Bytes(surface_source),directionBytes), fieldDonors->size());
       out.stats.maximum_work_bytes=std::max(out.stats.maximum_work_bytes,bytes);
       out.stats.maximum_owned=std::max(out.stats.maximum_owned,s->mesh.size());
       if (bytes <= stateCeiling) return true;
@@ -322,13 +342,56 @@ inline EngineResult RunEvent(World& world, const Owned& cells, const std::vector
             std::to_string(bytes) + " > " + std::to_string(stateCeiling) + " bytes after geometry reservation)";
       return false;
     };
-    // continuation: the committed registry of the previous accepted event, digest-matched to this mesh
+    size_t wallEdges=0,wallVertices=0;
+    {std::set<Edge> edges;std::set<Id> vertices;
+      for(const auto& wall:WallFaces(*s))for(unsigned k=0;k<3;++k) {
+        Edge edge{wall.second[k],wall.second[(k+1)%3]};std::sort(edge.begin(),edge.end());edges.insert(edge);vertices.insert(wall.second[k]);
+      }
+      wallEdges=edges.size();wallVertices=vertices.size();}
+    const size_t wWork=std::min(ctl.maximum_work,std::max<size_t>(8192,4*wallEdges));
+    const size_t r1Work=std::min(ctl.maximum_work,std::max<size_t>(4096,2*wallVertices));
+    EngineOptions preparation=ctl.engine_controls?*ctl.engine_controls:EngineOptions{};
+    preparation.maximum_seconds=std::min(.08*usable,budget-elapsed());preparation.maximum_work=wWork;
+    preparation.memory_ceiling=ctl.memory_ceiling;
+    preparation.caller_bytes=detail::StateBytes(*s,callerBytes,donors.size());
+    preparation.surface_tolerance=SU2_TYPE::GetValue(config.GetAdap_Hausd());preparation.wall_heights=s->heights;
+    preparation.shared_geometry_budget=&geometry_budget;preparation.geometry_workspace_bytes=queryScratch;
+    if(queryScratch)preparation.geometry_reservation=[&policy](SU2NativeGeometry::AtlasBudget& budget){return policy.ReserveGeometry(budget);};
+    preparation.timings=true;
+    if(!(preparation.maximum_seconds>0))return finish("FIRST_ROW deadline exhausted before surface preparation.");
+    const auto preparation_started=elapsed();
+    auto prepared=PrepareSurface(world,s->mesh,donors,*s->reference,
+        [&](Node node,const PlanarReference& geometry,Tensor core){return policy.BoundaryGuidance(node,geometry,core,state.marker_names);},preparation);
+    const auto preparation_work=prepared.stats.global_work;
+    out.stats=prepared.stats;
+    json << ",\"surface_preparation\":{\"prepared\":" << prepared.surface_prepared << ",\"final_acceptance\":false"
+         << ",\"seconds\":" << elapsed()-preparation_started << ",\"work\":" << preparation_work
+         << ",\"commits\":" << prepared.stats.accepted << ",\"geometry_work\":" << prepared.stats.atlas_work
+         << ",\"field_compositions\":" << prepared.stats.field_compositions << ",\"reason\":" << junction_wp0::Json(prepared.reason) << '}';
+    if(!prepared.surface_prepared) {
+      out.cells=std::move(prepared.cells);out.reference=std::move(prepared.reference);
+      return finish("FIRST_ROW surface preparation failed: "+prepared.reason);
+    }
+    s->field.reset();s->mesh=std::move(prepared.cells);if(prepared.reference)s->reference=std::move(prepared.reference);
+    s->live_parameters=std::move(prepared.parameters);s->memory_ceiling=ctl.memory_ceiling;
+    if(s->live_parameters)s->reference=std::shared_ptr<PlanarReference>(s->reference->WithAtlasReservation(geometry_budget));
+    s->retained_bytes=[&](){return detail::StateBytes(*s,transfer_memory::Add(callerBytes,transfer_memory::Bytes(surface_source),directionBytes),fieldDonors->size());};
+    s->admit_scratch=[&](size_t extra){std::string why;if(!memoryOk("private transaction",why,extra))throw std::length_error(why);};
+    if(detail::StateBytes(*s,callerBytes,s->mesh.size())+transfer_memory::Mul(s->mesh.size(),sizeof(DonorCell))>stateCeiling)
+      return finish("FIRST_ROW prepared core snapshot exceeds native storage admission.");
+    surface_source.reserve(s->mesh.size());
+    for(const auto& row:s->mesh) {
+      if(!row.second.sensor_present)throw std::runtime_error("Surface preparation omitted transported core values.");
+      DonorCell donor;donor.cell=row.second.cell;donor.sensor=row.second.sensor;surface_source.push_back(donor);
+    }
+    fieldDonors=&surface_source;s->field=makeField(*s);Prepare(*s);
+    // The registry must match the input checkpoint; surviving entries are remapped after owned preparation edits.
     Rows10 rows;
     size_t mapped = 0, dropped = 0;
     const auto digest = CoordinateDigest(s->mesh);
     std::string continuation = "none";
     if (cont.committed) {
-      if (cont.committed->digest != digest) continuation = "digest mismatch (" + cont.source + ")";
+      if (cont.committed->digest != CoordinateDigest(cells)) continuation = "digest mismatch (" + cont.source + ")";
       else {
         std::map<std::array<double, 3>, Id> byPoint;
         for (const auto& row : s->mesh) for (const auto& n : row.second.cell.v) byPoint.emplace(std::array<double, 3>{n.p.x, n.p.y, n.p.z}, n.id);
@@ -355,12 +418,6 @@ inline EngineResult RunEvent(World& world, const Owned& cells, const std::vector
     json << ",\"continuation\":{\"source\":" << junction_wp0::Json(continuation) << ",\"mapped\":" << mapped << ",\"dropped\":" << dropped
          << ",\"chain_step\":" << chain << "}";
     // budgets relative to the problem (the DC-13 cut limits are the lower bounds)
-    size_t wallEdges = 0, wallVertices = 0;
-    { std::set<Edge> e; std::set<Id> v;
-      for (const auto& wf : WallFaces(*s)) for (int i = 0; i < 3; ++i) { e.insert({std::min(wf.second[i], wf.second[(i + 1) % 3]), std::max(wf.second[i], wf.second[(i + 1) % 3])}); v.insert(wf.second[i]); }
-      wallEdges = e.size(); wallVertices = v.size(); }
-    const size_t wWork = std::min(ctl.maximum_work,std::max<size_t>(8192, 4 * wallEdges));
-    const size_t r1Work = std::min(ctl.maximum_work,std::max<size_t>(4096, 2 * wallVertices));
     // Every ramp event returns provisional geometry; the distributed engine owns all shape improvement.
     dc9::validityOnlyConstruction = true; v13DemandQueue = false;
     json << ",\"dc16\":{\"validity_only_construction\":" << dc9::validityOnlyConstruction << ",\"v_demand_queue\":0,\"room_step\":" << dc16::roomStep << "}";
@@ -374,9 +431,10 @@ inline EngineResult RunEvent(World& world, const Owned& cells, const std::vector
     // JSON to <prefix>_bl_report.partial.json (a killed run keeps its phase receipts)
     std::ofstream logFile;
     if (!ctl.report_prefix.empty()) logFile.open(ctl.report_prefix + "_bl.log");
-    uint64_t workDone = 0;
+    uint64_t workDone = preparation_work;
     double phaseStart = elapsed();
     auto phase = [&](const char* name, const std::string& extra = "") {
+      if(s->publication_failed)throw std::runtime_error("FIRST_ROW private publication failed during this phase.");
       const double now = elapsed();
       std::cout << "DC15 phase " << name << " seconds=" << std::setprecision(6) << now - phaseStart << " elapsed=" << now << " cells=" << s->mesh.size()
                 << " rss_kB=" << dc9::PeakKB() << (extra.empty() ? "" : " ") << extra << std::endl;
@@ -393,18 +451,32 @@ inline EngineResult RunEvent(World& world, const Owned& cells, const std::vector
     Growth G;
     std::set<Face> certified;
     std::map<Face, std::array<Id, 4>> snapshot;  // A3: first children after R2 + completion
+    dc12::DirField directions;
+    struct ReleaseDirections {~ReleaseDirections(){dc9::ensureDirectionField={};dc9::directionField=nullptr;}} release_directions;
+    dc9::ensureDirectionField=[&](State& current) {
+      if(&current!=s.get())throw std::logic_error("BL direction refresh changed its private state.");
+      if(current.publication_failed)throw std::runtime_error("BL direction refresh follows a failed private publication.");
+      if(current.direction_revision==current.boundary_revision)return;
+      if(elapsed()>=budget)throw std::length_error("BL direction refresh exhausted the shared deadline.");
+      size_t stars=0;
+      for(const auto& face:current.wall_index)for(Id vertex:face.first) {
+        const auto found=current.vertex_cells.find(vertex);
+        if(found!=current.vertex_cells.end())stars=transfer_memory::Add(stars,found->second.size());
+      }
+      const auto scratch=transfer_memory::Add(transfer_memory::Mul(current.wall_index.size(),3*1024),transfer_memory::Mul(stars,1024));
+      std::string why;if(!memoryOk("direction field",why,scratch))throw std::length_error(why);
+      directions=ComputeDirectionField(current);current.direction_revision=current.boundary_revision;
+      directionBytes=transfer_memory::Add(sizeof(directions),transfer_memory::Mul(directions.d.size(),sizeof(decltype(directions.d)::value_type)+4*sizeof(void*)),
+          transfer_memory::Bytes(directions.witnesses));
+      for(const auto& witness:directions.witnesses)directionBytes=transfer_memory::Add(directionBytes,witness.capacity()+1);
+      if(!memoryOk("retained direction field",why))throw std::length_error(why);
+      dc9::directionField=&directions.d;
+    };
+    dc9::ensureDirectionField(*s);dc9::directionFieldUses=0;
     if (!chain) {
-      // DC-16: W selects its long wall edges by the vertex-tensor estimate (exact integration only above 1.2)
-      dc10::wallPrefilter = true; dc10::wallEstimate = [&](Id a, Id b) { return dc13::EstimateLength(*s, dc13::eventTensors, a, b); };
-      const auto w = dc10::PhaseW10(*s, wWork, .08 * usable, log);workDone += w.work;
-      dc10::wallPrefilter = false; dc10::wallEstimate = nullptr;
-      json << ",\"W_prefiltered\":" << w.prefiltered;
-      json << ",\"W\":" << JsonStage(w);
-      phase("W", "splits=" + std::to_string(w.splits) + " outcome=" + w.outcome);
+      phase("W", "surface_prepared=1");
       if (!memoryOk("W", why)) return finish(why);
-      auto field = ComputeDirectionField(*s);
-      dc9::directionField = &field.d; dc9::directionFieldUses = 0;
-      json << ",\"directions\":" << JsonDirections(field);
+      json << ",\"directions\":" << JsonDirections(directions);
       const auto r1 = dc9::PhaseR1(*s, rows, std::min(r1Work,ctl.maximum_work-workDone), .05 * usable, log);workDone += r1.work;
       json << ",\"R1\":" << JsonStage(r1);
       phase("R1", "accepted=" + std::to_string(r1.accepted) + " outcome=" + r1.outcome);
@@ -428,11 +500,8 @@ inline EngineResult RunEvent(World& world, const Owned& cells, const std::vector
       phase("G", "lifted=" + std::to_string(G.lifted) + " refused=" + std::to_string(G.refused) + " clear_moves=" + std::to_string(G.clear_moves) +
                  " clear_collapses=" + std::to_string(G.clear_collapses) + " retries_accepted=" + std::to_string(G.clear_retry_accepted));
       if (!memoryOk("G", why)) return finish(why);
-      dc9::directionField = nullptr;
     } else {
       MapLayers(*s);
-      auto field = ComputeDirectionField(*s);
-      dc9::directionField = &field.d; dc9::directionFieldUses = 0;
       snapshot = FirstChildren(*s);
       // DC-17: shared height-constrained lids, lateral flips and prism rebuild; DC-16 cone split as fallback.
       HalveStats hv;
@@ -457,7 +526,6 @@ inline EngineResult RunEvent(World& world, const Owned& cells, const std::vector
       json << ",\"completion\":" << dc15::JsonCompletion(cp);
       phase("completion", "failing=" + std::to_string(cp.failing_before) + "->" + std::to_string(cp.failing_after));
       if (!memoryOk("completion", why)) return finish(why);
-      dc9::directionField = nullptr;
     }
     json << ",\"work\":" << workDone << ",\"construction_seconds\":" << elapsed();
     if(workDone>ctl.maximum_work)return finish("FIRST_ROW construction exhausted shared native work.");
@@ -477,8 +545,11 @@ inline EngineResult RunEvent(World& world, const Owned& cells, const std::vector
       json << ",\"export_acceptance\":\"provisional construction\"";
       phase("export");
     }
-    // boundary parameters of the final skin: accepted private bindings, else the authority's own binding
-    if (s->mapped) {
+    // Live private publication retained the same geometry, mobility, coverage and active references.
+    if(s->live_parameters) {
+      out.parameters=s->live_parameters;
+      out.reference=s->reference->WithParameterState(s->live_parameters); // Unleased; the event budget cannot escape.
+    } else if (s->mapped) {
       BoundaryPoints points;
       std::vector<SurfaceFace> surface;
       const auto* params = s->reference->Parameters();

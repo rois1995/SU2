@@ -429,6 +429,65 @@ bool CheckFirstHeight(const Patch& patch,const WallHeights& heights,const Planar
   }catch(const std::exception& error){reason=error.what();return false;}
 }
 
+bool PreservePassingFirstHeights(const Patch& old,const Patch& fresh,const WallHeights& heights,
+                                const PlanarReference& reference,std::string& reason) {
+  try {
+    if(heights.empty()){reason.clear();return true;}
+    SU2NativeFirstHeight::Checked(heights.tolerance);
+    for(const auto& height:heights)if(!(height.second>0)||!std::isfinite(height.second))
+      throw std::invalid_argument("Native3D wall height must be finite and positive.");
+    auto old_context=reference.PrivateParameters(old),fresh_context=reference.PrivateParameters(fresh);
+    const auto& before=old_context?*old_context:reference;
+    const auto& after=fresh_context?*fresh_context:reference;
+    const auto old_nodes=Nodes(old.cells),fresh_nodes=Nodes(fresh.cells);
+    auto child=[](const Patch& patch,const SurfaceFace& face) {
+      Patch result;result.surface.push_back(face);
+      for(const auto& cell:patch.cells) {
+        unsigned count=0;for(auto node:cell.v)count+=std::find(face.v.begin(),face.v.end(),node.id)!=face.v.end();
+        if(count==3)result.cells.push_back(cell);
+      }
+      return result;
+    };
+    auto same_binding=[](const BoundaryPoint* a,const BoundaryPoint* b) {
+      return a&&b&&a->binding.dimension==b->binding.dimension&&a->binding.feature==b->binding.feature&&
+          a->binding.version==b->binding.version&&a->binding.u==b->binding.u&&a->binding.v==b->binding.v;
+    };
+    for(const auto& face:old.surface) {
+      if(!heights.count(before.Get(face.facet).marker))continue;
+      FirstHeightReport measured;std::string why;
+      if(!CheckFirstHeight(child(old,face),heights,before,measured,why)) {
+        if(!measured.measured||measured.missing_cells||measured.reference_clearance_failures)
+          throw std::invalid_argument("Requested-row preservation cannot resolve old child: "+why);
+        continue;
+      }
+      // shortcut: protected support must stay identical, add certified region correspondence when redistributing it.
+      const SurfaceFace* replacement=nullptr;
+      for(const auto& candidate:fresh.surface) {
+        if(candidate.facet!=face.facet)continue;
+        for(unsigned rotation=0;rotation<3;++rotation) {
+          bool same=true;
+          for(unsigned k=0;k<3&&same;++k) {
+            const auto a=old_nodes.at(face.v[k]),b=fresh_nodes.at(candidate.v[(k+rotation)%3]);
+            same=a.p.x==b.p.x&&a.p.y==b.p.y&&a.p.z==b.p.z;
+            if(same&&reference.Mapped()) {
+              const auto* pa=before.Parameter(a.p);const auto* pb=after.Parameter(b.p);
+              same=same_binding(pa,pb)&&pa->node.id==a.id&&pb->node.id==b.id;
+            }
+          }
+          if(same){
+            if(replacement)throw std::invalid_argument("Requested-row preservation has duplicate protected support.");
+            replacement=&candidate;break;
+          }
+        }
+      }
+      if(!replacement)throw std::invalid_argument("Requested-row preservation has unresolved correspondence for edited protected surface support.");
+      if(!CheckFirstHeight(child(fresh,*replacement),heights,after,measured,why))
+        throw std::invalid_argument("Requested-row preservation loses a passing child: "+why);
+    }
+    reason.clear();return true;
+  }catch(const std::exception& e){reason=e.what();return false;}
+}
+
 namespace {
 bool AdmitFirstHeight(const Patch& patch,const WallHeights& heights,const PlanarReference& reference,
                       FirstHeightReport& report,std::string& reason,KernelStats* stats=nullptr) {

@@ -76,6 +76,9 @@ class BoundaryParameterState {
     std::set<std::pair<Id,Face>> facet_faces_added,facet_faces_removed,vertex_faces_added,vertex_faces_removed;
     uint64_t before=0,after=0;
     bool valid=false;
+   private:
+    friend class BoundaryParameterState;
+    const BoundaryParameterState* prepared_for=nullptr;
   };
   BoundaryParameterState(std::shared_ptr<const SU2NativeGeometry::MappedFacetReference> geometry,
       const BoundaryPoints& points,const std::vector<SurfaceFace>& surface,
@@ -140,6 +143,9 @@ class BoundaryParameterState {
   bool CheckReplacement(const Patch& old,const Patch& fresh,std::string& reason,size_t ceiling=SIZE_MAX,
       size_t caller_bytes=0,SU2NativeGeometry::AtlasBudget* reservation=nullptr)const;
   static std::vector<BoundaryParameterEdit> Changes(const Patch& old,const Patch& fresh,uint64_t revision);
+  /*! Owned unpublished single-worker construction only; distributed state still publishes through Directory.
+   * Refuses foreign/stale/unprepared receipts before the existing allocation-free commit. */
+  void CommitPrivate(Publication&& publication);
  private:
   void ValidateEntityFeatures(SU2NativeGeometry::AtlasBudget&)const;
   friend class Directory;

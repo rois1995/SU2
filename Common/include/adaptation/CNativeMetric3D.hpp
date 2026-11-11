@@ -10,6 +10,9 @@
 #include <map>
 #include <limits>
 namespace SU2Native3D {
+struct Patch;
+struct WallHeights;
+struct MetricStats;
 constexpr double MaximumMetricEdge = 1.8;
 constexpr double CoarseningMetricEdge = .9;  // Candidate hysteresis, never a minimum-edge acceptance gate.
 /*! Signed planar cross product with fma compensation, compiled in the strict-arithmetic library. */
@@ -38,6 +41,18 @@ struct PatchMetric {
   long double maximum_length = 0;
   std::map<Edge, EdgeMeasure> edges;
 };
+struct BoundaryMetricSample {
+  Tensor tensor;Point normal;
+  Point strip_rule{};  // Existing thin-strip construction demand: |chord dot strip_rule|.
+};
+using BoundaryMetric = std::function<std::vector<BoundaryMetricSample>(Node,const PlanarReference&,Tensor)>;
+/*! Construction guidance only: maximum endpoint tangent norm on each requested wall side.
+ * Edge guidance is independent of the measuring cell; maximum_length covers requested wall edges only.
+ * It is NOT a measured full-target length or a final mesh certificate.
+ * Geometry/positivity, row preservation and final full-target certification remain independent.
+ * No face/edge reuse: current private associations and core values are evaluated on every call. */
+PatchMetric MeasureSurfacePlanning(const Patch&,FrozenField& core,const PlanarReference&,
+                                  const WallHeights&,const BoundaryMetric&,MetricStats* stats=nullptr);
 /*! Sum of normalized squared q/J deficits for one measured cell. */
 long double NormalizedShapeHingeDebt(double mean_ratio,double scaled_jacobian);
 /*! Strict relative progress, including closure of a small positive measured deficit. */

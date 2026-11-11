@@ -388,6 +388,7 @@ std::unique_ptr<CRemesher> CSinglezoneDriver::MakeRemesher() {
           const auto* config=config_container[ZONE_0];
           if(!*slot)throw std::runtime_error("FIRST_ROW construction without its target policy.");
           SU2NativeBLPipeline3D::EventControls ctl;
+          ctl.engine_controls=&kernel;
           ctl.seconds=kernel.maximum_seconds;ctl.memory_ceiling=kernel.memory_ceiling;ctl.maximum_work=kernel.maximum_work;ctl.caller_bytes=kernel.caller_bytes;ctl.geometry_budget=kernel.shared_geometry_budget;
           ctl.final_cycle=config->GetAdap_BL_RampFinal();ctl.event=config->GetAdap_BL_RampEvent();ctl.ramp_factor=config->GetAdap_BL_RampFactor();
           ctl.report_prefix=nativeConstructionPrefix.empty()?config->GetMesh_Out_FileName()+"_bl_event"+std::to_string(ctl.event):nativeConstructionPrefix;

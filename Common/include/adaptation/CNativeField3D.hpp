@@ -25,7 +25,11 @@ constexpr size_t MaximumFrozenFieldBytes = MaximumDonors * 12288 + MaximumSensor
                                            MaximumGeometricEdgeCuts * (sizeof(double)+64) + MaximumEdgeOwnerBytes;
 /*! Identity of one immutable original sensor, geometry, composition and edge-accuracy policy.
  * Share only between complete imports of that same field; a new normalization stage needs a new identity. */
-struct FrozenMetricIdentity {};
+struct FrozenMetricIdentity {
+  enum class Scope { FullTarget, SurfacePlanning };
+  const Scope scope;
+  explicit FrozenMetricIdentity(Scope scope=Scope::FullTarget):scope(scope) {}
+};
 using Metric = std::function<Tensor(Point)>;
 using MetricComposition = std::function<Tensor(Point, Tensor)>;
 /*! Geometric resolution of one chord a..b: sorted cuts {0,...,1}. Optional `pinned` evaluates the composed target at

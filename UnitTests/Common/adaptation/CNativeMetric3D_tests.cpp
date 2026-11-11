@@ -20,6 +20,58 @@ DonorCell Donor(Tensor metric) {
   return d;
 }
 }  // namespace
+TEST_CASE("Surface planning separates sided tangent demand from full-target certificates", "[NativeSurfacePlanning3D]") {
+  Patch patch;patch.cells={Single()};std::vector<Facet> facets;
+  for(auto face:Incidence(patch.cells).Boundary()) {
+    const int marker=std::find(face.begin(),face.end(),Id(3))==face.end()?7:9;
+    Facet facet;facet.id=facets.size();facet.marker=marker;
+    for(unsigned k=0;k<3;++k)facet.v[k]=Single().v[face[k]];
+    patch.surface.push_back({face,facet.id});facets.push_back(facet);
+  }
+  PlanarReference geometry(facets);const WallHeights walls{{7,.001}};
+  auto identity=std::make_shared<const FrozenMetricIdentity>(FrozenMetricIdentity::Scope::SurfacePlanning);
+  FrozenField core({Donor({})},{},true,{},{},identity);
+  const BoundaryMetric target=[](Node node,const PlanarReference&,Tensor) {
+    return node.p.z==0?std::vector<BoundaryMetricSample>{{{4,0,0,1,0,1e12},{0,0,1}}}:
+        std::vector<BoundaryMetricSample>{};
+  };
+  const auto planned=MeasureSurfacePlanning(patch,core,geometry,walls,target);
+  CHECK(planned.edges.at({0,1}).length==Approx(2));
+  CHECK(planned.edges.at({0,3}).length==Approx(1));
+  CHECK(planned.maximum_length==Approx(std::sqrt(5.)));
+  CHECK_FALSE(planned.shape_measured);CHECK(core.Statistics().compositions==0);
+  auto other=patch;other.surface.erase(std::remove_if(other.surface.begin(),other.surface.end(),[&](const SurfaceFace& face){return geometry.Get(face.facet).marker==7;}),other.surface.end());
+  const auto adjacent=MeasureSurfacePlanning(other,core,geometry,walls,target);
+  CHECK(adjacent.maximum_length==0);
+  for(const auto& edge:planned.edges)CHECK(edge.second.length==adjacent.edges.at(edge.first).length);
+  PatchMetric measured;std::string reason;
+  CHECK_FALSE(ValidateMetricPatch(patch.cells,core,measured,reason));
+  CHECK(reason.find("Surface planning")!=std::string::npos);
+  FrozenField full({Donor({})});
+  CHECK_THROWS(MeasureSurfacePlanning(patch,full,geometry,walls,target));
+  const BoundaryMetric bad=[](Node,const PlanarReference&,Tensor){return std::vector<BoundaryMetricSample>{{{},{0,0,0}}};};
+  CHECK_THROWS(MeasureSurfacePlanning(patch,core,geometry,walls,bad));
+  const BoundaryMetric exhausted=[](Node,const PlanarReference&,Tensor){return std::vector<BoundaryMetricSample>(4*MaximumCavityCells+1);};
+  CHECK_THROWS(MeasureSurfacePlanning(patch,core,geometry,walls,exhausted));
+  auto duplicate=patch;duplicate.surface.push_back(patch.surface.front());
+  CHECK_THROWS(MeasureSurfacePlanning(duplicate,core,geometry,walls,target));
+}
+
+TEST_CASE("Surface merit accounts for changed boundary roles on unchanged coordinates", "[NativeSurfacePlanning3D]") {
+  struct Restore {ShapeAdmission previous=GetShapeAdmission();~Restore(){SetShapeAdmission(previous);}} restore;
+  SetShapeAdmission(ShapeAdmission::ValidityOnly);
+  auto identity=std::make_shared<const FrozenMetricIdentity>(FrozenMetricIdentity::Scope::SurfacePlanning);
+  FrozenField core({Donor({})},{},false,{},{},identity);
+  auto before=MeasureMetricEdges({Single()},core),after=before;
+  for(auto& edge:before.edges)edge.second.length=1;
+  for(auto& edge:after.edges)edge.second.length=1;
+  before.edges.at({0,1}).length=2.1;
+  std::string reason;MetricDiagnosis diagnosis;
+  REQUIRE(ValidateMetricChange(1,before,1,after,MetricChange::GeometryRepair,reason,&diagnosis));
+  CHECK(diagnosis.size_progress);CHECK(diagnosis.removed_excess>0);CHECK(diagnosis.added_excess==0);
+  CHECK_FALSE(diagnosis.shape_measured);
+}
+
 TEST_CASE("Native 3D final metric gate requires length, shape and sliver criteria", "[NativeMesh3D]") {
   PatchMetric measured;
   MetricStats stats;

@@ -37,6 +37,7 @@ using namespace SU2Native3D;
 #include "fixtures/native_failure202_witness.inc"
 #include "fixtures/native_current219_witness.inc"
 #include "fixtures/native_actual_bl_surface_cavities.inc"
+#include "fixtures/native_bl_direction_invalidation.inc"
 
 TEST_CASE("FIRST_ROW wall measurement honors exhausted budgets before querying", "[NativeWallPreparation3D]") {
   SU2NativeBLPipeline3D::detail::PipelineScope scope;

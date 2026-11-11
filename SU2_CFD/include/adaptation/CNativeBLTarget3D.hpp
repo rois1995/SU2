@@ -7,6 +7,7 @@
 #include "CNativeBLVector3D.hpp"
 #include "../../../Common/include/adaptation/CNativeImport3D.hpp"
 #include "../../../Common/include/adaptation/CNativeField3D.hpp"
+#include "../../../Common/include/adaptation/CNativeMetric3D.hpp"
 #include "CNativeBLComposition3D.hpp"
 #include "../../../Common/include/CConfig.hpp"
 #include "../../../Common/include/adaptation/CTransferMemory.hpp"
@@ -278,6 +279,61 @@ struct TargetPolicy {
     }
     return {Pack(metric),{SU2_TYPE::GetValue(associated.normal[0]),SU2_TYPE::GetValue(associated.normal[1]),
         SU2_TYPE::GetValue(associated.normal[2])}};
+  }
+  std::vector<BoundaryMetricSample> BoundaryGuidance(Node node,const PlanarReference& context,Tensor sensor,
+                                                   const std::vector<std::string>& marker_names) const {
+    if(!authority||!base||!A)throw std::invalid_argument("Boundary guidance needs an initialized native target.");
+    ValidateTensor(sensor);
+    std::vector<BoundaryMetricSample> result;
+    auto append=[&](BoundaryMetricSample sample) {
+      if(result.size()==4*MaximumCavityCells)throw std::length_error("Requested-wall sided guidance exceeds cavity admission.");
+      result.push_back(sample);
+    };
+    auto side=[&](Id facet) {
+      const auto& face=authority->Get(facet);const auto role=roles.find(face.marker);
+      if(role==roles.end()||role->second!=1)return;
+      bool found=false;
+      for(unsigned short wall=0;wall<base->GetnWall();++wall) {
+        if(!base->OwnsNativeFacet(wall,facet,marker_names.at(face.marker)))continue;
+        if(found)throw std::logic_error("Requested-wall facet has ambiguous component ownership.");
+        found=true;SurfaceGuidance guidance;
+        if(authority->Mapped()&&authority->Parameters()->Geometry().Curves().count(facet))
+          guidance=IntrinsicSurfaceGuidance(wall,facet,node,context,sensor);
+        else {
+          const su2double x[3]={node.p.x,node.p.y,node.p.z};
+          const auto own=base->Evaluate(wall,x,core);CBoundaryLayerMetric::Tensor metric;Unpack(sensor,metric);
+          for(unsigned short w=0;w<base->GetnWall();++w)
+            base->ApplySample(w,w==wall?own:base->Evaluate(w,x,core),metric,core,nullptr,false);
+          guidance={Pack(metric),{SU2_TYPE::GetValue(own.normal[0]),SU2_TYPE::GetValue(own.normal[1]),SU2_TYPE::GetValue(own.normal[2])}};
+        }
+        BoundaryMetricSample sample{guidance.tensor,guidance.normal};append(sample);
+        for(const auto& strip:A->strips) {
+          long double width=0;dc10::V direction;
+          if(!A->InStrip(strip,dc10::Of(node.p),width,direction))continue;
+          // The existing four-cells-across strip rule is construction demand, not a changed flow/BL target.
+          const auto scale=4*MaximumMetricEdge/(1.05L*width);
+          sample.strip_rule={double(scale*direction.x),double(scale*direction.y),double(scale*direction.z)};append(sample);
+        }
+      }
+      if(!found)throw std::invalid_argument("Requested-wall binding has no retained metric component.");
+    };
+    if(context.Parameters()) {
+      if(authority->Mapped()&&authority->Parameters()->Authority()!=context.Parameters()->Authority())
+        throw std::invalid_argument("Boundary guidance changed its immutable geometry authority.");
+      const auto* point=context.Parameter(node.p);
+      if(!point)return result;
+      if(point->node.id!=node.id)throw std::invalid_argument("Boundary guidance coordinate has a different node identity.");
+      context.Parameters()->Geometry().ForFacets(point->binding,side);
+    } else {
+      std::set<Id> components;
+      for(const auto& face:authority->Facets()) {
+        const auto role=roles.find(face.second.marker);
+        if(role==roles.end()||role->second!=1)continue;
+        const auto component=authority->Canonical(face.first);
+        if(!components.count(component)&&context.Contains(face.first,node.p)){side(face.first);components.insert(component);}
+      }
+    }
+    return result;
   }
   void ApplyPoint(Point p,CBoundaryLayerMetric::Tensor& m) const {
     Unpack(A->Compose(*base,*full,core,p,Pack(m),nullptr,0),m);

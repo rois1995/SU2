@@ -2005,6 +2005,14 @@ CBoundaryLayerMetric::Sample CBoundaryLayerMetric::Evaluate(unsigned short iWall
                                                             su2double coreEigenvalue) {
   return EvaluateImpl(iWall,X,coreEigenvalue,false);
 }
+bool CBoundaryLayerMetric::OwnsNativeFacet(unsigned short index,uint64_t facet,const std::string& marker) const {
+  const auto& wall=walls.at(index);
+  if(wall.layer.marker!=marker)return false;
+  if(!wall.authority_facets.empty())return std::binary_search(wall.authority_facets.begin(),wall.authority_facets.end(),facet);
+  if(wall.authority)return wall.authority->Facets().count(facet)&&
+      wall.authority->Canonical(facet)==wall.authority->Canonical(wall.authority_facet);
+  return true; // Native faceted walls are the factory's single group per marker.
+}
 
 CBoundaryLayerMetric::Sample CBoundaryLayerMetric::EvaluateAtSurfaceAssociation(
     unsigned short index,uint64_t facet,const SU2NativeGeometry::SurfaceBinding& binding,su2double coreEigenvalue) {

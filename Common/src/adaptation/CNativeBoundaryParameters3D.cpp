@@ -607,7 +607,7 @@ std::vector<BoundaryParameterEdit> BoundaryParameterState::Changes(const Patch& 
 }
 BoundaryParameterState::Publication BoundaryParameterState::Prepare(const std::vector<BoundaryParameterEdit>& edits,
     const std::vector<BoundaryFaceChange>& faces,std::string& reason,size_t ceiling,size_t caller,const BoundaryCoverage& delta,AtlasBudget* reservation)const {
-  Publication staged;staged.before=staged.after=revision;
+  Publication staged;staged.before=staged.after=revision;staged.prepared_for=this;
   try {
     size_t inherited_bytes=0,old_pieces=0,new_pieces=0;
     for(const auto& row:delta.faces)new_pieces=transfer_memory::Add(new_pieces,row.second.pieces.size());
@@ -938,6 +938,11 @@ bool BoundaryParameterState::CheckReplacement(const Patch& old,const Patch& fres
     const auto prepared=Prepare(edits,faces,reason,limit,Add(base,scratch),fresh.coverage,reservation);
     return prepared.valid;
   }catch(const std::exception& e){reason=e.what();return false;}
+}
+void BoundaryParameterState::CommitPrivate(Publication&& staged) {
+  if(!staged.valid||staged.prepared_for!=this||staged.before!=revision)
+    throw std::invalid_argument("Private boundary publication is unprepared, foreign or stale.");
+  Commit(std::move(staged));
 }
 void BoundaryParameterState::Commit(Publication&& staged)noexcept {
   if(!staged.valid || staged.before!=revision)std::terminate();

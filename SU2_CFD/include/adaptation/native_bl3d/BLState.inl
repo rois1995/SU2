@@ -13,6 +13,7 @@
 // insertion through the existing operators and unchanged gates. (DC-14: production.)
 // Outcomes per target: 1 single, 2 bounded compound, 3 blocked (witness kept), 0 not needed (no long edge sees it).
 #include "../CNativeBLVector3D.hpp"
+#include "../../../../Common/include/adaptation/CNativeMetricTransport3D.hpp"
 #include <chrono>
 #include <functional>
 #include <numeric>
@@ -67,6 +68,10 @@ inline MetricEdgeBreakpoints Bands(std::shared_ptr<CBoundaryLayerMetric> layers)
 struct State {
   std::string name;
   std::shared_ptr<const PlanarReference> reference;
+  std::shared_ptr<BoundaryParameterState> live_parameters;
+  size_t memory_ceiling=SIZE_MAX;
+  std::function<size_t()> retained_bytes;
+  std::function<void(size_t)> admit_scratch;
   std::vector<Facet> facets;  // Physical authority facets, oriented like the outward skin.
   std::vector<std::string> markers;
   std::set<int> walls;
@@ -90,8 +95,51 @@ struct State {
     return size_t(k[0]*2654435761LL^k[1]*73856093LL^k[2]*19349663LL^k[3]*83492791LL);}};
   std::unordered_map<std::array<long long,4>,std::vector<Id>,BoxKeyHash> box_grid;std::map<int,size_t> box_levels;
   bool box_indexed=false;  // built lazily by the first Locate
+  struct DirectionDependency {
+    std::tuple<double,double,double,unsigned,Id,uint64_t,double,double> point;
+    std::set<std::pair<Id,Face>> walls;
+    std::set<std::tuple<Id,long double,long double,long double>> carriers;
+    bool operator==(const DirectionDependency& other)const {
+      return point==other.point&&walls==other.walls&&carriers==other.carriers;
+    }
+  };
+  uint64_t boundary_revision=0,direction_revision=UINT64_MAX;
+  bool publication_failed=false;
 };
 inline bool IsWall(const State& s,Id facet){return s.walls.count(s.reference->Get(facet).marker);}
+inline State::DirectionDependency DirectionDependencyAt(const State& s,Id vertex) {
+  State::DirectionDependency out;
+  const auto star=s.vertex_cells.find(vertex);if(star==s.vertex_cells.end()||!s.reference)return out;
+  Node node;
+  for(Id id:star->second) {
+    const auto& row=s.mesh.at(id);const auto faces=CellFaces(row.cell);
+    for(auto n:row.cell.v)if(n.id==vertex)node=n;
+    for(unsigned k=0;k<4;++k)if(row.physical[k].present&&
+        std::find(faces[k].begin(),faces[k].end(),vertex)!=faces[k].end()) {
+      const Id facet=row.physical[k].facet;
+      if(IsWall(s,facet))out.walls.emplace(s.reference->Canonical(facet),Sorted(faces[k]));
+      else {
+        std::array<V,3> p;
+        for(unsigned j=0;j<3;++j)for(auto n:row.cell.v)if(n.id==faces[k][j])p[j]=Of(n.p);
+        const auto sign=Orientation({0,0,0},{1,0,0},{0,1,0},{0,0,1})>0?1.L:-1.L;
+        const auto normal=sign*Unit(Cross(p[1]-p[0],p[2]-p[0]));
+        out.carriers.emplace(s.reference->Canonical(facet),normal.x,normal.y,normal.z);
+      }
+    }
+  }
+  if(!out.walls.empty()) {
+    const auto local=s.overlay.find(vertex);
+    const auto* associated=local==s.overlay.end()?s.reference->Parameter(node.p):&local->second;
+    SU2NativeGeometry::SurfaceBinding binding;
+    if(associated)binding=associated->binding;
+    out.point={node.p.x,node.p.y,node.p.z,binding.dimension,binding.feature,binding.version,binding.u,binding.v};
+  }
+  return out;
+}
+inline void InvalidateDirectionField(State& s) {
+  if(s.boundary_revision==UINT64_MAX)throw std::overflow_error("BL boundary direction revision exhausted.");
+  ++s.boundary_revision;
+}
 // Box grid of cell bounding boxes: level l has buckets of size 2^l * 2^-40 >= twice the box extent, so a box meets at
 // most 2 buckets per axis; a query visits one bucket per populated level (exact broad phase of Locate).
 inline int BoxLevel(const Cell& c,std::array<long double,3>& lo,std::array<long double,3>& hi) {
@@ -122,6 +170,7 @@ inline void Index(State& s) {
   for(const auto& f:s.facets)for(auto n:f.v)s.next_node=std::max(s.next_node,n.id+1);
   s.wall_index.clear();s.box_grid.clear();s.box_levels.clear();s.box_indexed=false;s.wall_indexed=bool(s.reference);
   if(s.wall_indexed)for(const auto& row:s.mesh)IndexRow(s,row.first,row.second,true);
+  InvalidateDirectionField(s);  // Explicit whole-state replacement has no retained pre-edit dependency snapshot.
 }
 inline void Prepare(State& s) {
   for(const auto& f:s.facets)s.component[f.id]=s.reference->Canonical(f.id);
@@ -151,17 +200,90 @@ inline Patch PatchOf(const State& s,const std::vector<Id>& ids) {
   return p;
 }
 inline void Apply(State& s,const std::vector<Id>& old,const Patch& fresh) {
+  if(s.publication_failed)throw std::logic_error("BL private publication previously failed.");
+  size_t stars=0,largest=0;
+  auto count_star=[&](Id vertex) {
+    const auto found=s.vertex_cells.find(vertex);const auto count=found==s.vertex_cells.end()?0:found->second.size();
+    stars=transfer_memory::Add(stars,count);largest=std::max(largest,count);
+  };
+  for(Id id:old)for(auto node:s.mesh.at(id).cell.v)count_star(node.id);
+  for(const auto& cell:fresh.cells)for(auto node:cell.v)count_star(node.id);
+  const auto touched_bound=transfer_memory::Mul(4,transfer_memory::Add(old.size(),fresh.cells.size()));
+  const auto dependency_node=std::max(sizeof(std::pair<Id,Face>),sizeof(std::tuple<Id,long double,long double,long double>))+4*sizeof(void*);
+  const auto scratch=transfer_memory::Add(
+      transfer_memory::Mul(touched_bound,sizeof(Id)+4*sizeof(void*)+sizeof(std::pair<const Id,State::DirectionDependency>)+4*sizeof(void*)),
+      transfer_memory::Mul(transfer_memory::Mul(3,transfer_memory::Add(stars,largest,fresh.cells.size())),dependency_node),
+      transfer_memory::Mul(transfer_memory::Add(old.size(),fresh.cells.size()),8192),
+      transfer_memory::Mul(3,transfer_memory::Add(BoundaryCoverageBytes(fresh.coverage),
+          s.live_parameters?BoundaryCoverageBytes(s.live_parameters->Coverage()):0,s.reference->ParameterOverlayBytes())),
+      transfer_memory::Mul(fresh.parameters.size(),sizeof(BoundaryPoint)+5*sizeof(void*)));
+  const auto retained=s.retained_bytes?s.retained_bytes():0;
+  if(scratch==SIZE_MAX||transfer_memory::Add(retained,scratch)>s.memory_ceiling)
+    throw std::length_error("BL publication exceeds working-storage admission.");
+  if(s.admit_scratch)s.admit_scratch(scratch);
+  std::set<Id> touched;
+  for(Id id:old)for(auto node:s.mesh.at(id).cell.v)touched.insert(node.id);
+  for(const auto& cell:fresh.cells)for(auto node:cell.v)touched.insert(node.id);
+  std::map<Id,State::DirectionDependency> dependencies;
+  for(Id vertex:touched) {
+    auto dependency=DirectionDependencyAt(s,vertex);
+    if(!dependency.walls.empty())dependencies.emplace(vertex,std::move(dependency));
+  }
+  Patch published;const Patch* next=&fresh;
+  BoundaryParameterState::Publication parameters;
+  if(s.live_parameters) {
+    if(s.reference->Parameters()!=s.live_parameters.get())throw std::logic_error("BL publication changed its live parameter authority.");
+    auto previous=PatchOf(s,old);published=fresh;
+    // Parameter topology stores canonical component anchors, as does CheckSurface.
+    for(auto& face:previous.surface)face.facet=s.reference->Canonical(face.facet);
+    for(auto& face:published.surface)face.facet=s.reference->Canonical(face.facet);
+    s.reference->ExportParameters(published);next=&published;
+    const auto edits=BoundaryParameterState::Changes(previous,published,s.live_parameters->Revision());
+    std::vector<BoundaryFaceChange> faces;faces.reserve(previous.surface.size()+published.surface.size());
+    // Retained faces participate too, as in CheckReplacement's feature/interface preflight.
+    for(const auto& face:previous.surface)faces.push_back({face.v,face.facet,false});
+    for(const auto& face:published.surface)faces.push_back({face.v,face.facet,true});
+    if(!edits.empty()||!faces.empty()||!published.coverage.faces.empty()||!published.coverage.traces.empty()) {
+      std::string why;
+      parameters=s.live_parameters->Prepare(edits,faces,why,s.memory_ceiling,
+          transfer_memory::Add(retained,scratch),published.coverage,s.reference->AtlasReservation());
+      if(!parameters.valid)throw std::runtime_error("BL parameter publication refused: "+why);
+    }
+  }
+  std::vector<OwnedCell> old_rows,new_rows;old_rows.reserve(old.size());new_rows.reserve(next->cells.size());
+  for(Id id:old)old_rows.push_back(s.mesh.at(id));
+  std::map<Face,Id> physical;for(const auto& f:next->surface)physical.emplace(Sorted(f.v),f.facet);
+  for(const auto& cell:next->cells) {
+    OwnedCell row;row.cell=cell;const auto faces=CellFaces(cell);
+    for(unsigned k=0;k<4;++k){const auto found=physical.find(Sorted(faces[k]));if(found!=physical.end())row.physical[k]={true,found->second};}
+    new_rows.push_back(row);
+  }
+  if(!old_rows.empty()&&std::all_of(old_rows.begin(),old_rows.end(),[](const OwnedCell& row){return row.sensor_present;}))
+    PublishMetrics(old_rows,new_rows);
+  // Trial wrappers may catch exceptions; a partially mutated private state must never be published.
+  struct PublicationGuard {bool& failed;bool complete=false;~PublicationGuard(){if(!complete)failed=true;}} guard{s.publication_failed};
   for(Id id:old){IndexRow(s,id,s.mesh.at(id),false);for(auto n:s.mesh.at(id).cell.v){auto& star=s.vertex_cells[n.id];star.erase(id);if(star.empty())s.vertex_cells.erase(n.id);}s.mesh.erase(id);}
-  std::map<Face,Id> physical;for(const auto& f:fresh.surface)physical.emplace(Sorted(f.v),f.facet);
-  for(const auto& c:fresh.cells) {
-    OwnedCell row;row.cell=c;const auto f=CellFaces(c);
-    for(unsigned k=0;k<4;++k){const auto found=physical.find(Sorted(f[k]));if(found!=physical.end())row.physical[k]={true,found->second};}
+  for(const auto& row:new_rows) {
+    const auto& c=row.cell;
     if(!s.mesh.emplace(c.id,row).second)throw std::runtime_error("WP0B repeated cell identity.");
     IndexRow(s,c.id,row,true);
     for(auto n:c.v){s.vertex_cells[n.id].insert(c.id);s.next_node=std::max(s.next_node,n.id+1);}
     s.next_cell=std::max(s.next_cell,c.id+1);
   }
-  for(const auto& r:fresh.parameters)s.overlay.insert_or_assign(r.first,r.second);
+  if(parameters.valid) {
+    auto* budget=s.reference->AtlasReservation();
+    s.live_parameters->CommitPrivate(std::move(parameters));
+    s.reference=s.reference->WithParameterState(s.live_parameters);
+    if(budget)s.reference=s.reference->WithAtlasReservation(*budget);
+  }
+  if(!s.live_parameters)for(const auto& r:fresh.parameters)s.overlay.insert_or_assign(r.first,r.second);
+  for(Id vertex:touched) {
+    const auto next=DirectionDependencyAt(s,vertex);const auto prior=dependencies.find(vertex);
+    if(prior==dependencies.end()? !next.walls.empty():!(prior->second==next)) {
+      InvalidateDirectionField(s);break;
+    }
+  }
+  guard.complete=true;
 }
 inline std::vector<Id> Locate(const State& cs,Point p) {
   std::vector<Id> found;

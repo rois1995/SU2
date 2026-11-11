@@ -8,13 +8,39 @@ ONE connected curved-BL cycle. R=`integration_evidence/native_3d_bl_v1/dc17_18_c
 
 ## Current owned workload — authoritative
 
-NONE. Build339 and test-only correction340 are TERMINAL0; focused339 serial
-wrapper TERMINAL1 with ONE incorrect new test expectation; corrected340 serial
-TERMINAL0. All116 observed339 build identities,9 observed340 build identities,
-5 actual339 serial identities and2 observed340 short-check identities absent.
-All pins verified at their respective completion;70 actual339 mapped ELFs matched.
-`R/surface340_qualification.json` seals scope and evidence reuse.
+NONE. Build344 TERMINAL0/72.170s; all18 observed build identities absent.
+Focused344 PASSED160asserts/7cases; planar production entry344 PASSED69asserts/
+1case (fresh row/growth plus continuation). All actual check wrappers/observed
+children ABSENT; source/build/runtime/input pins intact. `R/surface344_qualification.json`
+seals this LIMITED scope. Current CFD SHA2701e681ef84de143ea40bcd7ddec0d2796fc6fc1234f088a17d78da6e1cc773;
+test SHA9f34e3055020fbf24d991930af4b89801df4c4668e221c61448830623e828357.
+All22 Euler293 payloads/384685699bytes and same303 inputs rechecked unchanged344.
+No MPI/full M6 attempt launched. Next actual curved patch/front qualification in
+this same cycle; don't reinterpret planar provisional validity as full acceptance.
 
+Preserved failures:341 missing declaration (all132handles absent);342 raw versus
+canonical facet publication plus refinement stall;343 fixes canonical seam and
+passes69assert planar entry but refinement still stalls after4splits (6/7cases,
+149/150asserts).344 requested-wall-only generation/ownership demand fixes that
+scope mismatch; unchanged difficult refinement case now passes.343 all22 build
+identities absent. Every failed case has terminal/pin receipts preserved.
+
+Connected surface/front integration is LOCAL and focused-qualified only (21 tracked
+source/test files plus native_bl_direction_invalidation.inc). It adds provisional
+requested-wall preparation through the existing engine, sided tangent guidance
+with no full-target acceptance authority, passing-row preservation, checked
+private parameter publication/transported cores, direction-dependency refresh and
+stale-front refusal. Retained direction maps are admitted; failed partial private
+mutation poisons the event even if a trial wrapper catches the exception.
+Next: actual curved M6 patch/front measurements and production-entry qualification,
+then ONE connected MPI milestone and full SAME303 workflow. Physical curved first
+height, progression/coverage, usable fronts and native MPI BL generation remain
+UNPROVEN. RunEvent still has the existing native1 guard. No budgets/gates changed.
+
+341 terminal1/126.175s from missing MetricStats forward declaration/cascading types;
+all132 observed build identities absent before the declaration fix.342 compiled it.
+
+Historical prerequisite evidence (not current consumer qualification):
 339/340 prerequisite implementation is compiled and focused-qualified; source and
 sealed evidence are included in this reviewable checkpoint:
 FrozenField::Sensor shares QueryImpl donor/cache/current-nodal rules and skips
@@ -22,7 +48,7 @@ composition only for explicit core-only calls. TargetPolicy::IntrinsicSurfaceGui
 requires exact authority identity, node/coordinate association and sided wall support;
 other walls are evaluated freshly. Tensor STILL includes own h0 normal demand;
 consumer must restrict directions to its current own-wall tangent plane. It is NOT
-a distance or integrated-edge certificate. No production tangent consumer enabled.
+a distance or integrated-edge certificate. At339/340 no production tangent consumer was enabled; connected344 is described above.
 W checks its EXISTING work/time allowance during initial wall scanning and stops
 before derivative expired queries/strip work. Zero-allowance tests prove no queries
 start; actual whole-wall speed/feasibility is unproven. No limits/gates changed.
@@ -34,7 +60,7 @@ immutable-donor queries reject instead. Production lookup was unchanged. Test-on
 curved-guidance and deadline cases: only core-test TU changed, production CFD
 byte-identical339, other test sources/runtime/flags unchanged. Do not report339 as
 an all-pass run. No MPI/full M6 milestone launched. Short340 sampling misses some
-brief children and does not establish whole-job RSS. Current CFD SHA
+brief children and does not establish whole-job RSS. Historical339/340 CFD SHA
 6b899641e0b61a1dd72afbf518ce2786da0a69852bc170d5465df4b5927afb1d;
 test SHA3e11b1c6228dfab1f399a509a36522999881b544bd51cb60f33cf5f1aaed4fde.
 
@@ -75,8 +101,8 @@ forms, not exact edge quadrature/global complexity. Euler293's22saved payloads
 ## Active connected curved-BL strategy
 
 [Strategy, audit and acceptance conditions](Handbook/ADAPTATION_CURVED_BL_CONSTRUCTION_STRATEGY_20261110.md).
-Next: connect the measured tangential surface demand to existing TargetPolicy and
-native coupled cavity operators; 337 demonstrates geometry-eligible replacements in bounded actual contexts, but
+Connected344 now consumes the measured tangential demand through existing TargetPolicy
+and native cavity operators, with limited focused qualification; 337 demonstrates geometry-eligible replacements in bounded actual contexts, but
 actual target conformity remains unproven. Keep final full-target size/geometry and
 first-child clearance separate from selection. Quantify actual flow/inherited/geometry/height contributions
 and global provisional complexity excess BEFORE changing target policy. Preserve
@@ -94,13 +120,12 @@ next authorized full workflow. Verify Float64 types/counts and exact node mappin
 before reuse. Core output is not the BL-composed target: reconstruct with unchanged
 geometry/associations/profile/composition. No new exporter/config knob required.
 
-Next connected source work: consume the qualified Sensor/intrinsic-guidance APIs in
-an explicit provisional requested-wall phase of the existing engine. Cover selection,
-seed/update and streamed/nonstreamed candidate paths, and preserve passing rows by
-complete replacement coverage. Do not substitute a planning composition for the full
-target, enable shape-weighted repair during construction, or reuse distance certificates.
-Complete geometry/tangential readiness, constrained-field refresh and coordinated
-front/transition integration remain required before full attempt/MPI milestone.
+Connected344 covers seed/update and streamed/nonstreamed candidate paths using
+explicit provisional planning scope; full-target acceptance cannot consume it.
+Passing-row support with unresolved correspondence is refused conservatively.
+Complete curved first-child/normal-height feasibility, front/progression/transition
+and appropriate MPI qualification remain required before the full M6 attempt.
+See [current connected integration evidence](Handbook/ADAPTATION_CURVED_BL_SURFACE_INTEGRATION_20261111.md).
 
 The original bad root/LE geometry and geometry-refused smooth collapses show why
 readiness must include complete-patch certification. Existing native engine already

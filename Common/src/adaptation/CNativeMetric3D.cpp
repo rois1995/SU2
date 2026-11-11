@@ -5,6 +5,7 @@
  * SU2 is free software under the GNU Lesser General Public License, version 2.1 or later.
  */
 #include "../../include/adaptation/CNativeMetric3D.hpp"
+#include "../../include/adaptation/CNativeBoundary3D.hpp"
 #include "../../include/adaptation/CNativeFma.hpp"
 #include <algorithm>
 #include <atomic>
@@ -323,6 +324,8 @@ static PatchMetric MeasureMetricCellsImpl(const std::vector<Cell>& cells, Frozen
   return result;
 }
 double MetricShapeQuality(const std::vector<Cell>& cells,FrozenField& target) {
+  if(target.Identity()->scope!=FrozenMetricIdentity::Scope::FullTarget)
+    throw std::invalid_argument("Surface planning does not supply shape-ranking authority.");
   const auto shape=MeasureMetricCellsImpl(cells,target,nullptr,nullptr,false,nullptr,true,nullptr);
   return std::min(shape.minimum_mean_ratio/MinimumMeanRatio,shape.minimum_scaled_jacobian/MinimumScaledJacobian);
 }
@@ -333,8 +336,62 @@ PatchMetric MeasureMetricEdges(const std::vector<Cell>& cells,FrozenField& targe
 PatchMetric MeasureMetricCells(const std::vector<Cell>& cells,FrozenField& target,MetricStats* stats,
                                const std::map<Edge,EdgeMeasure>* reuse,bool require_shape,MetricDiagnosis* diagnosis,
                                std::map<Edge,EdgeMeasure>* campaign) {
+  if(target.Identity()->scope!=FrozenMetricIdentity::Scope::FullTarget)
+    throw std::invalid_argument("Surface planning cannot certify full-target shape or acceptance.");
   return MeasureMetricCellsImpl(cells,target,stats,reuse,require_shape,diagnosis,false,campaign,true);
 }
+PatchMetric MeasureSurfacePlanning(const Patch& patch,FrozenField& core,const PlanarReference& geometry,
+                                  const WallHeights& walls,const BoundaryMetric& target,MetricStats* stats) {
+  if(!target || walls.empty() || !core.SensorOnly() ||
+      core.Identity()->scope!=FrozenMetricIdentity::Scope::SurfacePlanning)
+    throw std::invalid_argument("Surface planning needs an explicit core-only planning field and requested walls.");
+  auto result=MeasureMetricEdges(patch.cells,core,stats);
+  std::map<Id,Node> nodes;
+  for(const auto& cell:patch.cells)for(auto node:cell.v)nodes.emplace(node.id,node);
+  auto order=[](Face f){std::rotate(f.begin(),std::min_element(f.begin(),f.end()),f.end());return f;};
+  std::set<Face> skin,seen;std::set<Edge> requested;
+  for(auto face:Incidence(patch.cells).Boundary())skin.insert(order(face));
+  auto parameters=geometry.PrivateParameters(patch);
+  const auto& context=parameters?*parameters:geometry;
+  for(const auto& face:patch.surface) {
+    const auto key=order(face.v);
+    if(!skin.count(key)||!seen.insert(key).second)
+      throw std::invalid_argument("Surface planning face is duplicate or not an oriented cavity skin.");
+    if(!walls.count(context.Get(face.facet).marker))continue;
+    for(unsigned k=0;k<3;++k) {
+      Edge edge{face.v[k],face.v[(k+1)%3]};std::sort(edge.begin(),edge.end());requested.insert(edge);
+    }
+  }
+  auto tangent_norm=[](Point a,Point b,const BoundaryMetricSample& sample) {
+    ValidateTensor(sample.tensor);
+    const long double n[3]={sample.normal.x,sample.normal.y,sample.normal.z};
+    const long double e[3]={static_cast<long double>(b.x)-a.x,static_cast<long double>(b.y)-a.y,
+                          static_cast<long double>(b.z)-a.z};
+    long double nn=0,en=0;for(unsigned k=0;k<3;++k){nn+=n[k]*n[k];en+=e[k]*n[k];}
+    if(!(std::isfinite(nn)&&nn>0&&std::isfinite(en)))
+      throw std::invalid_argument("Surface planning has an invalid sided normal.");
+    const Point tangent{double(e[0]-en/nn*n[0]),double(e[1]-en/nn*n[1]),double(e[2]-en/nn*n[2])};
+    const auto rule=std::abs(e[0]*sample.strip_rule.x+e[1]*sample.strip_rule.y+e[2]*sample.strip_rule.z);
+    if(!std::isfinite(rule))throw std::invalid_argument("Surface planning has a nonfinite strip rule.");
+    return std::max(MetricNorm({0,0,0},tangent,sample.tensor),rule);
+  };
+  result.maximum_length=0;
+  for(auto& edge:result.edges) {
+    auto& value=edge.second;
+    // Sided support depends on the current binding, not the incident cell. Keep only one bounded endpoint list alive.
+    for(Id id:edge.first) {
+      const auto node=nodes.at(id);const auto samples=target(node,context,core.Sensor(node.p));
+      if(samples.size()>4*MaximumCavityCells)throw std::length_error("Surface planning sided support exceeds cavity admission.");
+      if(requested.count(edge.first)&&samples.empty())throw std::invalid_argument("Requested-wall edge lacks current sided guidance.");
+      for(const auto& sample:samples)value.length=std::max(value.length,tangent_norm(value.a,value.b,sample));
+    }
+    if(requested.count(edge.first)&&value.length>result.maximum_length) {
+      result.maximum_length=value.length;result.longest_edge=edge.first;
+    }
+  }
+  return result;
+}
+
 namespace {
 void Shape(const PatchMetric& m) {
   if (!m.shape_measured) throw std::invalid_argument("Native 3D final shape was not measured.");
@@ -353,7 +410,11 @@ long double Excess(long double length) {
 }
 bool Shared(const std::map<Edge, EdgeMeasure>& others, const std::pair<const Edge, EdgeMeasure>& edge) {
   const auto old = others.find(edge.first);
-  return old != others.end() && Same(old->second.a, edge.second.a) && Same(old->second.b, edge.second.b);
+  if(old==others.end()||!Same(old->second.a,edge.second.a)||!Same(old->second.b,edge.second.b))return false;
+  if((edge.second.identity&&edge.second.identity->scope==FrozenMetricIdentity::Scope::SurfacePlanning)||
+      (old->second.identity&&old->second.identity->scope==FrozenMetricIdentity::Scope::SurfacePlanning))
+    return edge.second.identity==old->second.identity&&edge.second.length==old->second.length;
+  return true;
 }
 }  // namespace
 bool ValidateMetricPatch(const std::vector<Cell>& cells, FrozenField& target, PatchMetric& measured,

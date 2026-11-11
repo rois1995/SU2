@@ -815,6 +815,47 @@ void EngineReport(const EngineResult& result, World& world, const std::string& l
   Log(world,line.str());
 }
 }
+TEST_CASE("Requested-wall preparation uses construction ownership without claiming final quality", "[NativeSurfacePreparationEngine3D]") {
+  World world;const double strength=GENERATE(1.,4.);
+  auto fixture=Box(2);
+  for(auto& facet:fixture.facets) {
+    const bool bottom=std::all_of(facet.v.begin(),facet.v.end(),[](Node node){return node.p.z==0;});
+    if(bottom)facet.marker=7;
+  }
+  PlanarReference geometry(fixture.facets);
+  Owned input;if(world.rank==0)for(auto row:Rows(fixture.patch))input.emplace(row.cell.id,row);
+  input=WithUniformSensor(std::move(input),{});const auto saved=Bytes(input);
+  EngineOptions options;options.maximum_work=1024;options.maximum_seconds=30;options.wall_heights[7]=.01;
+  options.phase_ownership=PhaseOwnership::DiagnosticAlways;
+  std::map<std::string,size_t> refusals;
+  options.rejected_trial=[&](const Patch&,const Patch&,Feature,const MetricDiagnosis&,bool,const std::string& reason) {
+    if(refusals.size()<16||refusals.count(reason))++refusals[reason];
+  };
+  bool construction_only=true;
+  options.stage_observer=[&](const StageProgressView& view) {
+    construction_only=construction_only&&view.phase==EnginePhase::Construction&&view.progress.q_measured_cells==0&&
+        view.progress.j_measured_cells==0&&view.stats.unique_long_interior==0;
+  };
+  const BoundaryMetric target=[=](Node node,const PlanarReference&,Tensor) {
+    return node.p.z==0?std::vector<BoundaryMetricSample>{{{strength,0,0,strength,0,1e12},{0,0,1}}}:
+        std::vector<BoundaryMetricSample>{};
+  };
+  const auto prepared=PrepareSurface(world,input,Uniform(input,{}),geometry,target,options);
+  INFO("strength "<<strength<<", accepted "<<prepared.stats.accepted<<", splits "<<prepared.stats.length_splits
+      <<", stall handoffs "<<prepared.stats.construction_stall_handoffs<<", generations "<<prepared.stats.length_split_passes);
+  std::ostringstream refusal_summary;for(const auto& refusal:refusals)refusal_summary<<refusal.second<<": "<<refusal.first<<'\n';
+  INFO(refusal_summary.str());
+  INFO(prepared.reason);REQUIRE(prepared.surface_prepared);CHECK_FALSE(prepared.valid);
+  CHECK(construction_only);CHECK(prepared.stats.quality_stages==0);CHECK(Bytes(input)==saved);
+  CHECK(prepared.stats.cached_invalid_cells==0);CHECK(prepared.stats.field_compositions==0);
+  if(strength>1)CHECK(world.sum(int(prepared.stats.length_splits))>0);
+  if(strength>1) {
+    options.maximum_work=1;
+    const auto limited=PrepareSurface(world,input,Uniform(input,{}),geometry,target,options);
+    CHECK_FALSE(limited.surface_prepared);CHECK_FALSE(limited.valid);CHECK(Bytes(input)==saved);
+  }
+}
+
 TEST_CASE("Native incremental MPI refinement reaches complete frozen metric gates", "[NativeDistributed3D]") {
   World world;
   const auto fixture=Box();

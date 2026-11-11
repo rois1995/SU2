@@ -1,0 +1,90 @@
+{
+  "checked_unix": 1794360897.1800084,
+  "scope": "Focused connected surface-preparation primitives and planar production BL entry only; not curved M6 suitability, native MPI BL generation or RANS workflow completion.",
+  "qualified_focused_scope": true,
+  "build": {
+    "state": "terminal",
+    "exit_code": 0,
+    "seconds": 72.16994214057922,
+    "pins_verified": true,
+    "changed": [],
+    "completed_build": true,
+    "binaries": {
+      "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver": "9f34e3055020fbf24d991930af4b89801df4c4668e221c61448830623e828357",
+      "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/SU2_CFD/src/SU2_CFD": "2701e681ef84de143ea40bcd7ddec0d2796fc6fc1234f088a17d78da6e1cc773"
+    }
+  },
+  "cases": [
+    {
+      "path": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved344_construction_20261111T013305_389577",
+      "cases": 7,
+      "assertions": 160,
+      "status": {
+        "state": "terminal",
+        "exit_code": 0,
+        "seconds": 4.404355764389038,
+        "pins_verified": true,
+        "changed": [],
+        "largest_sampled_individual_process_rss_bytes": 864256,
+        "rss_note": "sampled process RSS; not a whole-job peak"
+      },
+      "receipts": {
+        "run.log": "028a8c9ca585f943e6f122dee3e5e14a6005fd07966432e5dbcdf103dbdff01c",
+        "pins.json": "7c66b81531cfaa14f511fdcbcbe19b8328eaa6b1be4e417b2de437c6df0ce209",
+        "command.json": "1bb50705a49941211bc7f5b46b377b1d6ab87ac93ad89d98458ab3d4e6e10e22",
+        "status.json": "d1a3c4ff0abd3021cfd7b78b409c04174edee50728ba53acfb6beb77bdc81245",
+        "terminal_handles_actual.json": "f987e6dd3f71d619de8140498840138c0d29760519cd66a0fbb2ddba252934ca"
+      }
+    },
+    {
+      "path": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved344_entry_20261111T013353_391416",
+      "cases": 1,
+      "assertions": 69,
+      "status": {
+        "state": "terminal",
+        "exit_code": 0,
+        "seconds": 6.3801891803741455,
+        "pins_verified": true,
+        "changed": [],
+        "largest_sampled_individual_process_rss_bytes": 55549952,
+        "rss_note": "sampled process RSS; not a whole-job peak"
+      },
+      "receipts": {
+        "run.log": "75de7a19f411e20e833ec6e52dba8a23466e3afc55cf5fcb1e6dfd88e1c5176d",
+        "pins.json": "7c66b81531cfaa14f511fdcbcbe19b8328eaa6b1be4e417b2de437c6df0ce209",
+        "command.json": "3d5fad6c057c8dc7bc1529f3a14fa79af4b15fe8b7d0dd7e3b1ae6d3dab56408",
+        "status.json": "1cdc797b898d2f708e3d1570838866a49eb5d4168b777f6517947794a41f9562",
+        "terminal_handles_actual.json": "f477b4059630bf83fe97e0f0910090ad0e6033c951c8e1040a744c8570008ba0"
+      }
+    }
+  ],
+  "preserved_failures": [
+    {
+      "build": 341,
+      "reason": "Missing MetricStats forward declaration."
+    },
+    {
+      "build": 342,
+      "reason": "Requested-wall refinement stalls; planar BL publication raw/canonical anchor mismatch."
+    },
+    {
+      "build": 343,
+      "reason": "Six focused cases pass; refinement stops after four split commits. Planar production entry passes69 assertions."
+    }
+  ],
+  "corrections": [
+    "Canonicalize publication/dependency facet anchors through the same current authority; retain exact orientation/support checks.",
+    "Restrict planning generation and ownership edge demand to requested physical wall edges; keep raw support guidance separately."
+  ],
+  "limitations": [
+    "No actual curved surface-first BL generated or qualified.",
+    "Native FIRST_ROW generation remains serial; native1 guard retained.",
+    "No new MPI milestone or full M6 attempt yet.",
+    "Actual curved-normal first-height, alignment, progression, coverage and transition remain unproven.",
+    "Passing-row edits with unresolved protected-region correspondence are conservatively refused.",
+    "Growth safely refuses stale fronts rather than reconstructing already advanced fronts after wall changes.",
+    "Provisional complexity1.1745M versus500k and inherited tangential contributions remain unresolved; target/constraints unchanged."
+  ],
+  "preserved_euler": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/euler293_preservation_during_bl344.json",
+  "preserved_inputs": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/surface344_input_preservation.json"
+}

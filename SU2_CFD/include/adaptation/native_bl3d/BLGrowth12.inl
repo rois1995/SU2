@@ -329,17 +329,39 @@ namespace dc12 {
 inline Growth PhaseG(State& s,Rows10& rows,double seconds,std::ostream& log,const std::set<Id>& forceStop={},size_t maximum_work=std::numeric_limits<size_t>::max()) {
   Scope scope("PhaseG");
   Growth G;G.forceStop=forceStop;const auto t0=Clock::now();MapLayers(s);
+  auto wall_components=[&](Id vertex) {
+    std::set<unsigned short> result;
+    for(const auto& face:PhysicalOf(s,StarOf(s,vertex),true))if(Has(face.key,vertex))
+      for(unsigned short w=0;w<s.layers->GetnWall();++w)
+        if(s.layers->OwnsNativeFacet(w,face.facet,s.markers.at(face.marker)))result.insert(w);
+    return result;
+  };
   for(const auto& r:rows.lift){const Id w=r.first;if(Rim(s,w))continue;Column c;c.wall=w;c.top=c.lid=r.second;
-    const V x=Of(NodePoint(s,w)),y=Of(NodePoint(s,r.second));c.dir=Unit(y-x);
-    for(const auto& f:PhysicalOf(s,StarOf(s,w),true))if(Has(f.key,w)){const auto it=layerOfMarker.find(f.marker);if(it!=layerOfMarker.end())c.walls.insert(it->second);}
+    const V y=Of(NodePoint(s,r.second));const auto direction=DirectionAt(s,w);
+    if(!direction.ok){c.stopped=true;c.stop="s3 current constrained direction: "+direction.why;
+      ++G.stops["s3"];++G.stop_reasons["current constrained direction"];}else c.dir=direction.d;
+    c.walls=wall_components(w);
     c.lidDistance=INFINITY;for(unsigned short wl:c.walls)c.lidDistance=std::min(c.lidDistance,WallDistanceTo(s,wl,y));
     if(forceStop.count(w)){c.stopped=true;c.stop="forced (test)";}
     G.columns.push_back(c);}
-  for(const auto& r:rows.copies)for(size_t j=0;j<r.second.ids.size();++j){if(Rim(s,r.first)||!s.vertex_cells.count(r.second.ids[j]))continue;
-    Column c;c.wall=r.first;c.top=c.lid=r.second.ids[j];c.dir=r.second.dirs[j];
-    for(const auto& f:PhysicalOf(s,StarOf(s,r.first),true))if(Has(f.key,r.first)){const auto it=layerOfMarker.find(f.marker);if(it!=layerOfMarker.end())c.walls.insert(it->second);}
+  for(const auto& r:rows.copies) {
+    const auto classification=ClassifyVertex(s,r.first);const auto direction=DirectionAt(s,r.first);
+    Sides sides;if(classification.kind==1&&direction.ok)sides=RidgeSides(s,r.first,classification,direction);
+    const bool compatible=classification.kind==1&&classification.chain==r.second.chain&&sides.ok&&
+        r.second.ids.size()==size_t(optionA->chains.at(classification.chain).k+2);
+    for(size_t j=0;j<r.second.ids.size();++j){if(Rim(s,r.first)||!s.vertex_cells.count(r.second.ids[j]))continue;
+    Column c;c.wall=r.first;c.top=c.lid=r.second.ids[j];
+    if(!compatible){c.stopped=true;c.stop="s3 current sector direction is unresolved";
+      ++G.stops["s3"];++G.stop_reasons["current sector direction"];
+    } else c.dir=j==0?sides.d[0]:j+1==r.second.ids.size()?sides.d[1]:Slerp(sides.d[0],sides.d[1],static_cast<long double>(j)/(r.second.ids.size()-1));
+    c.walls=wall_components(r.first);
     c.lidDistance=INFINITY;for(unsigned short wl:c.walls)c.lidDistance=std::min(c.lidDistance,WallDistanceTo(s,wl,Of(NodePoint(s,c.top))));
-    G.columns.push_back(c);}
+    G.columns.push_back(c);}}
+  const auto front_revision=s.boundary_revision;
+  auto current_front=[&]() {
+    if(s.boundary_revision!=front_revision)
+      throw std::runtime_error("BL growth surface dependencies changed; current fronts need reconstruction before advancement.");
+  };
   std::set<Id> stackCells=ColumnCells(s,rows);for(Id id:FanCells(s,rows))stackCells.insert(id);
   auto below=[&](Id id){return stackCells.count(id)||G.layerKeys.count(CellKey(s.mesh.at(id).cell));};
   // DC-16: stop texts are bounded (an exception text can be megabytes) and the census keys keep the reason class
@@ -355,6 +377,7 @@ inline Growth PhaseG(State& s,Rows10& rows,double seconds,std::ostream& log,cons
     for(const auto& l:tx.lifted){auto& c=G.columns[owner.at(l.first)];c.stack.push_back(l.second);c.top=l.second;G.current[l.second]=l.second;++G.lifted;}
     ++G.transactions;G.max_old=std::max(G.max_old,tx.old_cells);G.max_fresh=std::max(G.max_fresh,tx.fresh_cells);};
   for(unsigned k=0;k<48;++k) {
+    current_front();
     if(Seconds(t0)>=seconds){G.outcome="limit";break;}if(G.work>=maximum_work){G.outcome="limit:work";break;}BoundCaches(s);
     std::vector<size_t> active;for(size_t i=0;i<G.columns.size();++i)if(!G.columns[i].stopped&&G.columns[i].stack.size()==k)active.push_back(i);
     if(active.empty())break;
@@ -389,6 +412,7 @@ inline Growth PhaseG(State& s,Rows10& rows,double seconds,std::ostream& log,cons
     if(plan.empty())break;
     // DC-16: room for the layer (deformation of the free volume above the active front, one-unit commit)
     if(dc16::roomStep)dc16::MakeRoom(s,below,fixed,plan,log);  // review 2: commit failures propagate (event fails)
+    current_front();
     std::vector<Id> tops;for(const auto& p:plan)tops.push_back(p.first);
     std::set<Id> done,refusedNow;
     auto aboveOf=[&](Id t){std::set<Id> out;for(Id id:StarOf(s,t))if(!below(id))out.insert(id);return out;};
@@ -399,6 +423,7 @@ inline Growth PhaseG(State& s,Rows10& rows,double seconds,std::ostream& log,cons
       std::map<Id,V> targets;for(Id t:T)targets[t]=plan.at(t);
       LTx tx;bool jointTried=false;
       for(unsigned round=0;;++round){
+        current_front();
         if(G.work>=maximum_work || Seconds(t0)>=seconds){G.outcome=G.work>=maximum_work?"limit:work":"limit:time";return false;}
         ++G.work;
         try{tx=LayerTransaction(s,below,targets);}catch(const std::exception& e){tx.ok=false;tx.cls="exception";tx.witness=e.what();}

@@ -31,9 +31,16 @@ in staged57/surface340_qualification.json: two passing339 cases retained, correc
 core-policy case passed38 assertions. The original339 test expectation failure is
 preserved; no production policy changed to satisfy it. All observed owned handles
 are terminal. Core-only lookup and association-aware intrinsic guidance are
-implemented; NO production tangential consumer is enabled yet.
+implemented and their connected production consumer is now local work in progress.
+Build344 compiles it and passes160assertions/7focused cases plus69assertions in
+the planar two-event provisional production entry.344 fixes a generation-progress
+scope mismatch that stopped wall refinement after4splits;343 fixes strict publication
+of equivalent canonical facet anchors. Source/build/check handles are terminal and
+qualified only for staged57/surface344_qualification.json's scope. None establishes
+curved M6 normal heights/progression/coverage, final target acceptance or native MPI
+generation. Continue actual curved patch/front qualification in the SAME cycle.
 
-1. Extend the existing native construction lifecycle with an explicitly provisional
+1. Qualify the newly connected native construction lifecycle with its explicitly provisional
    requested-wall preparation phase. Reuse splitting, collapse, relocation,
    reconnection, complete supports, reservations, dependency invalidation, migration
    and atomic publication. Do not call AdaptMetric as a black-box prepass: it still

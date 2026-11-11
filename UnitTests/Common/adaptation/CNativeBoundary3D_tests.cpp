@@ -1137,6 +1137,64 @@ TEST_CASE("Coordinated surface strip preserves geometry while rejecting the old 
   }
 }
 
+TEST_CASE("Native provisional surface preparation preserves passing requested children", "[NativeFirstHeightPreservation3D]") {
+  auto old=Single(.1);
+  old.cells.front().v[3].p={.25,.25,.1};
+  old.surface.erase(std::remove_if(old.surface.begin(),old.surface.end(),[](const SurfaceFace& face) {
+    return std::find(face.v.begin(),face.v.end(),Id(3))!=face.v.end();
+  }),old.surface.end());
+  REQUIRE(old.surface.size()==1);
+  const auto facets=Facets(old);const PlanarReference reference(facets);
+  const WallHeights heights{{{facets.front().marker,.1}},.01};std::string reason;
+  FirstHeightReport measured;
+  REQUIRE(CheckFirstHeight(old,heights,reference,measured,reason));
+  auto fresh=old;
+  CHECK(PreservePassingFirstHeights(old,fresh,heights,reference,reason));
+  fresh.cells.front().v[3].id=99;fresh.cells.front().v[3].p.z=.1005;
+  CHECK(PreservePassingFirstHeights(old,fresh,heights,reference,reason));
+  fresh.cells.front().v[3].p.z=.12;
+  CHECK_FALSE(PreservePassingFirstHeights(old,fresh,heights,reference,reason));
+  CHECK(reason.find("loses a passing child")!=std::string::npos);
+
+  SECTION("Exact support may be renumbered") {
+    fresh=old;
+    for(auto& cell:fresh.cells)for(auto& node:cell.v)node.id+=10;
+    for(auto& face:fresh.surface)for(auto& id:face.v)id+=10;
+    CHECK(PreservePassingFirstHeights(old,fresh,heights,reference,reason));
+  }
+  SECTION("A neighboring absent row does not become a demand") {
+    Patch neighbor;
+    neighbor.cells={{10,{{{1,{1,0,0}},{0,{0,0,0}},{10,{0,-1,0}},{13,{.25,-.25,.2}}}}}};
+    for(auto face:Incidence(neighbor.cells).Boundary())
+      if(std::find(face.begin(),face.end(),Id(13))==face.end())neighbor.surface.push_back({face,100});
+    auto both=old;both.cells.push_back(neighbor.cells.front());both.surface.push_back(neighbor.surface.front());
+    auto two_facets=Facets(both);for(auto& facet:two_facets)facet.marker=facets.front().marker;
+    const PlanarReference two_reference(two_facets);
+    CHECK_FALSE(CheckFirstHeight(both,heights,two_reference,measured,reason));
+    REQUIRE(measured.measured);
+    CHECK(PreservePassingFirstHeights(both,both,heights,two_reference,reason));
+  }
+  SECTION("Deleted protected support is unresolved") {
+    fresh=old;fresh.surface.clear();
+    CHECK_FALSE(PreservePassingFirstHeights(old,fresh,heights,reference,reason));
+    CHECK(reason.find("unresolved correspondence")!=std::string::npos);
+  }
+  SECTION("Retriangulated protected support is unresolved") {
+    fresh=old;const auto v=old.cells.front().v;const Node midpoint{4,{.5,0,0}};
+    fresh.cells={{10,{v[0],midpoint,v[2],v[3]}},{11,{midpoint,v[1],v[2],v[3]}}};
+    fresh.surface.clear();
+    for(auto face:Incidence(fresh.cells).Boundary())
+      if(std::find(face.begin(),face.end(),Id(3))==face.end())fresh.surface.push_back({face,old.surface.front().facet});
+    CHECK_FALSE(PreservePassingFirstHeights(old,fresh,heights,reference,reason));
+    CHECK(reason.find("unresolved correspondence")!=std::string::npos);
+  }
+  SECTION("Unknown old children refuse") {
+    auto unknown=old;unknown.cells.clear();
+    CHECK_FALSE(PreservePassingFirstHeights(unknown,old,heights,reference,reason));
+    CHECK(reason.find("cannot resolve old child")!=std::string::npos);
+  }
+}
+
 TEST_CASE("Native first-height insertion retains an oblique wall cell without an auxiliary background", "[NativeFirstLayer3D]") {
   Cell cell;cell.id=0;
   cell.v[0]={0,{7.7406976324811783e-30,-1.9842809994703025e-29,-3.7224373965116495e-29}};

@@ -235,6 +235,10 @@ struct FirstHeightReport {
  *  separately. Metric quality/lengths and global coverage are caller duties. */
 bool CheckFirstHeight(const Patch& patch,const WallHeights& heights,const PlanarReference& reference,
                       FirstHeightReport& report,std::string& reason,KernelStats* stats=nullptr);
+/*! Provisional construction preserves already passing requested children; measured absent rows remain debt.
+ * Edited protected surface support refuses unresolved correspondence. Topology/contact are caller duties. */
+bool PreservePassingFirstHeights(const Patch& old,const Patch& fresh,const WallHeights& heights,
+                                const PlanarReference& reference,std::string& reason);
 /*! Joint fixed-interface background reconnection and wall-child carving. All new identities/ranges are
  *  caller-reserved; complete cavity dependencies, target metric, external clearance and commit are separate.
  *  Wall apices use face-centroid normal placement at prescribed altitude; obstruction requires another

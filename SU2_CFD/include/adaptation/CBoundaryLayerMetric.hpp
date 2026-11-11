@@ -227,6 +227,8 @@ class CBoundaryLayerMetric {
    * \brief Number of walls (sorted by marker name).
    */
   unsigned short GetnWall() const { return walls.size(); }
+  /*! Immutable native component membership only; not a point association or distance certificate. */
+  bool OwnsNativeFacet(unsigned short wall,uint64_t facet,const std::string& marker) const;
   /*! Marker policy distance across its independent connected wall components. */
   double MarkerDistance(unsigned short wall,const std::array<double,3>& point)const;
   /*! Bounds of the immutable physical wall coordinates, without metric support padding. */

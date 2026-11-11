@@ -234,7 +234,15 @@ inline bool MinNormAny(const std::vector<V>& n,V& out) {
 struct Dir { bool ok=false;V d;long double s=0;std::set<Id> carriers,bind;int rank=0;Id seam=UINT64_MAX;std::string why;std::vector<V> normals; };
 // DC-12 (OPTIMIZE_PLAN rev 5): precomputed column directions (boundary tangency + smooth blend); null = unchanged.
 inline std::map<Id,V>* directionField=nullptr;inline size_t directionFieldUses=0;
+// Synchronous refresh only; the callback must not call DirectionAt or retain borrowed state.
+inline std::function<void(State&)> ensureDirectionField;
 inline Dir DirectionAt(State& s,Id v) {
+  if(ensureDirectionField) {
+    static bool refreshing=false;
+    if(refreshing)throw std::logic_error("BL direction refresh recursively calls DirectionAt.");
+    struct RefreshScope {bool& active;~RefreshScope(){active=false;}} scope{refreshing};
+    refreshing=true;ensureDirectionField(s);
+  }
   Dir out;const auto star=StarOf(s,v);std::vector<V> cn;
   for(const auto& f:PhysicalOf(s,star,true))if(Has(f.key,v)){const V n=-1.L*Outward(Of(NodePoint(s,f.out[0])),Of(NodePoint(s,f.out[1])),Of(NodePoint(s,f.out[2])));
     bool dup=false;for(const auto& x:out.normals)dup=dup||Dot(x,n)>1-1e-14L;if(!dup)out.normals.push_back(n);}
