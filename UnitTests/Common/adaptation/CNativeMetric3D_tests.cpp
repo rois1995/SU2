@@ -31,19 +31,27 @@ TEST_CASE("Surface planning separates sided tangent demand from full-target cert
   PlanarReference geometry(facets);const WallHeights walls{{7,.001}};
   auto identity=std::make_shared<const FrozenMetricIdentity>(FrozenMetricIdentity::Scope::SurfacePlanning);
   FrozenField core({Donor({})},{},true,{},{},identity);
-  const BoundaryMetric target=[](Node node,const PlanarReference&,Tensor) {
-    return node.p.z==0?std::vector<BoundaryMetricSample>{{{4,0,0,1,0,1e12},{0,0,1}}}:
+  size_t guidance_calls=0;double strength=4;
+  const BoundaryMetric target=[&](Node node,const PlanarReference&,Tensor) {
+    ++guidance_calls;
+    return node.p.z==0?std::vector<BoundaryMetricSample>{{{strength,0,0,1,0,1e12},{0,0,1}}}:
         std::vector<BoundaryMetricSample>{};
   };
   const auto planned=MeasureSurfacePlanning(patch,core,geometry,walls,target);
+  CHECK(guidance_calls==4);
   CHECK(planned.edges.at({0,1}).length==Approx(2));
   CHECK(planned.edges.at({0,3}).length==Approx(1));
   CHECK(planned.maximum_length==Approx(std::sqrt(5.)));
   CHECK_FALSE(planned.shape_measured);CHECK(core.Statistics().compositions==0);
   auto other=patch;other.surface.erase(std::remove_if(other.surface.begin(),other.surface.end(),[&](const SurfaceFace& face){return geometry.Get(face.facet).marker==7;}),other.surface.end());
   const auto adjacent=MeasureSurfacePlanning(other,core,geometry,walls,target);
+  CHECK(guidance_calls==8);
   CHECK(adjacent.maximum_length==0);
   for(const auto& edge:planned.edges)CHECK(edge.second.length==adjacent.edges.at(edge.first).length);
+  strength=16;
+  const auto changed=MeasureSurfacePlanning(patch,core,geometry,walls,target);
+  CHECK(guidance_calls==12);CHECK(changed.maximum_length==Approx(std::sqrt(17.)));
+  strength=4;
   PatchMetric measured;std::string reason;
   CHECK_FALSE(ValidateMetricPatch(patch.cells,core,measured,reason));
   CHECK(reason.find("Surface planning")!=std::string::npos);

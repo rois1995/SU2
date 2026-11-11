@@ -7,6 +7,7 @@
 #include "../../include/adaptation/CNativeMetric3D.hpp"
 #include "../../include/adaptation/CNativeBoundary3D.hpp"
 #include "../../include/adaptation/CNativeFma.hpp"
+#include "../../include/adaptation/CTransferMemory.hpp"
 #include <algorithm>
 #include <atomic>
 #include <cmath>
@@ -340,6 +341,9 @@ PatchMetric MeasureMetricCells(const std::vector<Cell>& cells,FrozenField& targe
     throw std::invalid_argument("Surface planning cannot certify full-target shape or acceptance.");
   return MeasureMetricCellsImpl(cells,target,stats,reuse,require_shape,diagnosis,false,campaign,true);
 }
+size_t SurfacePlanningScratchBytes(size_t cells) {
+  return transfer_memory::Mul(cells,24*sizeof(std::pair<Id,void*>));
+}
 PatchMetric MeasureSurfacePlanning(const Patch& patch,FrozenField& core,const PlanarReference& geometry,
                                   const WallHeights& walls,const BoundaryMetric& target,MetricStats* stats) {
   if(!target || walls.empty() || !core.SensorOnly() ||
@@ -375,16 +379,28 @@ PatchMetric MeasureSurfacePlanning(const Patch& patch,FrozenField& core,const Pl
     if(!std::isfinite(rule))throw std::invalid_argument("Surface planning has a nonfinite strip rule.");
     return std::max(MetricNorm({0,0,0},tangent,sample.tensor),rule);
   };
-  result.maximum_length=0;
-  for(auto& edge:result.edges) {
-    auto& value=edge.second;
-    // Sided support depends on the current binding, not the incident cell. Keep only one bounded endpoint list alive.
-    for(Id id:edge.first) {
-      const auto node=nodes.at(id);const auto samples=target(node,context,core.Sensor(node.p));
-      if(samples.size()>4*MaximumCavityCells)throw std::length_error("Surface planning sided support exceeds cavity admission.");
+  using PlanningEdge=decltype(result.edges)::value_type;
+  using Endpoint=std::pair<Id,PlanningEdge*>;
+  static_assert(sizeof(Endpoint)<=sizeof(std::pair<Id,void*>),"Planning incidence bound needs updating.");
+  std::vector<Endpoint> incidence;incidence.reserve(2*result.edges.size());
+  if(transfer_memory::Bytes(incidence)>SurfacePlanningScratchBytes(patch.cells.size()))
+    throw std::length_error("Surface planning incidence exceeds scratch admission.");
+  for(auto& edge:result.edges)for(Id id:edge.first)incidence.emplace_back(id,&edge);
+  std::sort(incidence.begin(),incidence.end(),[](const Endpoint& a,const Endpoint& b){return a.first<b.first;});
+  // Context, coordinates and core are unchanged within this call; retain only one sided endpoint list at a time.
+  for(size_t first=0;first<incidence.size();) {
+    const Id id=incidence[first].first;const auto node=nodes.at(id);
+    const auto samples=target(node,context,core.Sensor(node.p));
+    if(samples.size()>4*MaximumCavityCells)throw std::length_error("Surface planning sided support exceeds cavity admission.");
+    do {
+      auto& edge=*incidence[first++].second;auto& value=edge.second;
       if(requested.count(edge.first)&&samples.empty())throw std::invalid_argument("Requested-wall edge lacks current sided guidance.");
       for(const auto& sample:samples)value.length=std::max(value.length,tangent_norm(value.a,value.b,sample));
-    }
+    }while(first<incidence.size()&&incidence[first].first==id);
+  }
+  result.maximum_length=0;
+  for(const auto& edge:result.edges) {
+    const auto& value=edge.second;
     if(requested.count(edge.first)&&value.length>result.maximum_length) {
       result.maximum_length=value.length;result.longest_edge=edge.first;
     }

@@ -2580,7 +2580,9 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
   constexpr size_t MeasurementBatch=16;
   // Construction requests missing edges only; improvement also imports centroid support.
   auto measure=[&](const std::vector<Id>& ids,bool seed,double* enclosing_seconds) {
-    const auto plan_scratch=transfer_memory::Mul(3*MaximumCampaignEdges,sizeof(std::pair<const Edge,EdgeMeasure>)+6*sizeof(void*));
+    const auto plan_scratch=transfer_memory::Add(
+        transfer_memory::Mul(3*MaximumCampaignEdges,sizeof(std::pair<const Edge,EdgeMeasure>)+6*sizeof(void*)),
+        surface_target?SurfacePlanningScratchBytes(1):0);
     if(!admit(transfer_memory::Add(plan_scratch,transfer_memory::Mul(MeasurementBatch,sizeof(Cell)+sizeof(unsigned char)))))return false;
     selection.census_started=true;
     const size_t count=CPassiveComm::Allreduce(ids.size(),CPassiveComm::Op::MAX,world.comm);
@@ -2661,8 +2663,8 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
   size_t seed_slot=0;
   auto seed_next=[&]() {
     Timer timer(stats.seed_seconds,options.timings);
-    // Composed edges are expensive; never measure pending topology merely to let a complete cavity remove it.
-    if(!composition || phase==Phase::Improvement) {const bool measured=measure(initial,true,&stats.seed_seconds);if(measured)seed_slot=initial.size();return measured;}
+    // Composed or sided planning is expensive; a complete cavity may remove still-unmeasured topology.
+    if((!composition && !surface_target) || phase==Phase::Improvement) {const bool measured=measure(initial,true,&stats.seed_seconds);if(measured)seed_slot=initial.size();return measured;}
     if(options.maximum_seconds && world.maximum(std::chrono::duration<double>(Clock::now()-started).count()>=options.maximum_seconds)) {
       stats.stop=EngineStop::TimeBudget;result.reason="Native3D metric seeding exhausts elapsed-time budget.";return false;
     }
@@ -3744,6 +3746,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     const bool coordinate_only=repairing && imported.coordinate_star.count==1 && imported.cells.size()>MaximumCavityCells;
     const size_t private_scratch=transfer_memory::Add(transfer_memory::Bytes(imported.cells),
         transfer_memory::Mul(std::max(MaximumReplacementCells,imported.cells.size()),8192),
+        surface_target?SurfacePlanningScratchBytes(std::max(MaximumReplacementCells,imported.cells.size())):0,
         transfer_memory::Mul(selection.geometry_repairs?2:1,MaximumFrozenFieldBytes),MetricPatchSolveScratchBytes,
         transfer_memory::Mul(3*MaximumCampaignEdges,sizeof(std::pair<const Edge,EdgeMeasure>)+6*sizeof(void*)),
         transfer_memory::Mul(8*MaximumReplacementCells,64)); // Bounded optimizer rejected-star set.

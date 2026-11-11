@@ -8,35 +8,39 @@ Read AGENTS.md and [HowToProceed.md](HowToProceed.md). Historical states are in
 
 ## Current owned workload — authoritative
 
-Current owned workload: NONE. Full359 was stopped under existing authorization
-AFTER confirmed first-adaptation construction failure. Terminal1/2346.932s,1623 pins
-intact/mapped runtime verified; all10 actual PID/start identities absent. Tool19959
-is TERMINAL. `R/m6_runs/rans_curved359_v1/assessment.json` and
-first_event_surface_failure_report.json/first_event_failure_run.log preserve outcome.
-Surface preparation:391.593s,work0,commits0,geometry_work273738,field_compositions0;
-metric seeding exhausted its existing phase deadline. No first row or accepted mesh.
-Cached2metric/height-cell demands and84metric-edge demands are NOT measured-query counts.
-Second CFD/metric evaluation had begun on retained CFD; no second adaptation result
-is claimed. No accepted progress discarded. Frozen source lock released ONLY after
-terminal_handles_actual.json verified all recorded identities absent.
-
-First metric stage:1220.616s total; geometry work IDENTICAL on all6ranks to330,
-no demonstrated speedup. Composed estimate948069.856 vs500k, indicator77214.161,
-provisional/no proven bound. Initial sensor core1e-4I at ALL61330points within
-2.304e-15relative, exact Float64 coordinate association. Sensor core .npz/assessment
-and metric359_first_stage_comparison.json preserve data, NOT a composed-target export.
-
-Next connected correction: production surface-planning seeding/work reuse. Current
-seed_next takes whole-census route because composition is empty despite nonempty
-surface_target; existing composed-target incremental seeding is the starting point.
-MeasureSurfacePlanning reevaluates endpoint guidance per incident edge (2E calls vs
-V unique nodes) with fixed patch context. Reuse locally without stale association
-or persistent-certificate assumptions; preserve existing scratch admission/limits.
-Audit all callers/phase modes and keep complete final surface readiness/census.
-Do not merely change one predicate without checking coarsening/refill/ownership.
-Add already-existing seed/field/measurement counters to the BL report before relying
-on operation counts. No new scheduler/config/budgets or target policy selected.
-Current source/qualification checkpointb089d978f2 remains; no new C++ edits yet.
+Current owned workload: NONE after qualified362 milestone. Full same303 runner362
+is prepared, not yet launched. Build362 TERMINAL0/70.163s, pins intact,9observed build
+PIDs absent. Serial362 TERMINAL0/4.426s,741assertions/9cases, pins intact/all actual
+identities absent. MPI362 TERMINAL0/369.066s,17cases on EVERYrank,4062–4217assertions/rank,
+pins intact/all10actual identities absent. `R/qualification362.json` scopes affected
+planning/seeding/height/curved/ownership/resource behavior only, NOT usable BL.
+Attempts: `R/cases/curved362_height_callers_serial_20261111T065906_1229092` and
+`R/cases/curved362_height_callers_mpi6_20261111T065929_1230143`.
+362 is a fixture-only successor.360 serial
+9/10cases passed incl strict normal bounds; new320-cell fixture hit default donor
+cap.361 admitted donor count then exposed existing whole-metric patch128 limit.
+Both failures/pins/actual-terminal receipts preserved; neither campaign passed.
+362 uses supported80-cell planning star, keeps320 whole-patch refusal, and retains
+existing large-star streamed engine tests in MPI. NO production limit raised.
+361 production CFD byte-identical360; new build changes only fixture source.
+C++/tests frozen during362 build/validation; source CFD360hash
+37d822060736776a92d3cd0091b433245a9b1d94c6d8c9bda4a62f40a521eb22.
+359 terminal receipts and source snapshots verified before edits.
+360 connected change: fixed-patch planning guidance once per unique node via sorted
+linear incidence, one sided sample list live, no cross-call cache. Additional scratch
+is dynamically admitted for actual imported size, including imported large coordinate stars (streamed measurement where required); no new global cache/cavity bound. Existing incremental construction
+seeding now recognizes nonempty surface_target with empty ordinary composition.
+Improvement/full readiness/ownership guards remain. BL reports expose existing
+seed/measurement/field counters. Normal unit assertions now use explicit absolute
+bounds (Approx's default relative epsilon no longer masks their margin).
+Affected serial checks and ONE connected MPI milestone passed; next immediately full
+same303 workflow. No new diagnostic loader/config, new CFD seed or target change.
+Passing checks will not establish usable BL. Full359 failure remains active evidence:
+391.593s surface seeding,0work/commits,geometry_work273738. All10actual handles absent,
+pins/runtime intact; first-event report/log/core preserved under R/m6_runs/rans_curved359_v1.
+Exact entry sensor core1e-4I at all61330points to2.304e-15relative, Float64 association;
+composed estimate948069.856 versus500k remains provisional/no proven bound. No
+accepted BL/RANS mesh, transfer or disk restart. See current physical-height topic.
 
 Same saved303 reasonable coarse RANS+SA seed, Mach-only L1,500k metric complexity;
 not500k points. Native5400s/outer14400s,12GiB per rank, CFD MPI6/native FIRST_ROW1.

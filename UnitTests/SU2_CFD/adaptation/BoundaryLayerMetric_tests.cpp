@@ -1289,7 +1289,7 @@ TEST_CASE("Native3D complexity reference does not rebase the wall on the adapted
       const su2double x[3]={query.x,query.y,query.z};const auto sample=mobileLayers->Evaluate(0,x,1.);
       const double alignment=SU2_TYPE::GetValue(sample.normal[0])*closest.normal.x+
           SU2_TYPE::GetValue(sample.normal[1])*closest.normal.y+SU2_TYPE::GetValue(sample.normal[2])*closest.normal.z;
-      CHECK(std::abs(alignment)==Approx(1).margin(1e-12));
+      CHECK(std::abs(std::abs(alignment)-1)<1e-12);
     }
     CHECK(smoothSeams>0);
   }
@@ -1340,7 +1340,7 @@ TEST_CASE("Native3D complexity reference does not rebase the wall on the adapted
     CHECK(sample.distance==Approx(offset).margin(2e-9));
     CHECK(sample.hn==Approx(SU2_TYPE::GetValue(NormalSize(.001,1.2,offset))).margin(2e-9));
     double alignment=0;for(unsigned j=0;j<3;++j)alignment+=SU2_TYPE::GetValue(sample.normal[j])*normal[j];
-    CHECK(std::abs(alignment)==Approx(1).margin(1e-10));
+    CHECK(std::abs(std::abs(alignment)-1)<1e-10);
     CHECK(layers->MarkerDistance(0,{{SU2_TYPE::GetValue(query[0]),SU2_TYPE::GetValue(query[1]),SU2_TYPE::GetValue(query[2])}})==Approx(offset).margin(2e-9));
     CBoundaryLayerMetric::Tensor flow;for(unsigned j=0;j<3;++j)flow.m[j][j]=1e8;
     layers->ApplyPoint(query,flow,1.,nullptr,false);

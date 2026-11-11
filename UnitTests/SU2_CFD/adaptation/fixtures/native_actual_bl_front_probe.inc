@@ -54,6 +54,7 @@ for(size_t index=0;index<count;++index) {
   const auto beforeField=dc9::CountersOf(*state);
   const auto beforeRawField=state->field->Statistics();
   try {
+    state->admit_scratch(SurfacePlanningScratchBytes(old.cells.size()));
     const auto plan=MeasureSurfacePlanning(old,core,*state->reference,heights,
         [&](Node node,const PlanarReference& context,Tensor sensor){return policy->BoundaryGuidance(node,context,sensor,reference->marker_names);});
     frontLog<<"{\"context\":"<<std::quoted(label)<<",\"stage\":\"surface_planning\",\"maximum_requested_length\":"<<plan.maximum_length

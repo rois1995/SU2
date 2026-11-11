@@ -367,7 +367,15 @@ inline EngineResult RunEvent(World& world, const Owned& cells, const std::vector
     json << ",\"surface_preparation\":{\"prepared\":" << prepared.surface_prepared << ",\"final_acceptance\":false"
          << ",\"seconds\":" << elapsed()-preparation_started << ",\"work\":" << preparation_work
          << ",\"commits\":" << prepared.stats.accepted << ",\"geometry_work\":" << prepared.stats.atlas_work
-         << ",\"field_compositions\":" << prepared.stats.field_compositions << ",\"reason\":" << junction_wp0::Json(prepared.reason) << '}';
+         << ",\"field_compositions\":" << prepared.stats.field_compositions
+         << ",\"seed_cells\":" << prepared.stats.initial_cells << ",\"seed_batches\":" << prepared.stats.seed_batches
+         << ",\"cached_measured_cells\":" << prepared.stats.cached_measured_cells
+         << ",\"seed_seconds\":" << prepared.stats.seed_seconds
+         << ",\"measurement_cpu_seconds\":" << prepared.stats.measurement_cpu_seconds
+         << ",\"field_requests\":" << prepared.stats.field_requests << ",\"field_hits\":" << prepared.stats.field_hits
+         << ",\"field_misses\":" << prepared.stats.field_misses
+         << ",\"edge_evaluations\":" << prepared.stats.edge_evaluations << ",\"edge_reused\":" << prepared.stats.edge_reused
+         << ",\"reason\":" << junction_wp0::Json(prepared.reason) << '}';
     if(!prepared.surface_prepared) {
       out.cells=std::move(prepared.cells);out.reference=std::move(prepared.reference);
       return finish("FIRST_ROW surface preparation failed: "+prepared.reason);

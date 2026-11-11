@@ -56,17 +56,28 @@ issue;358 corrects smooth-support normal selection using retained mobility polic
 Serial358 passes4387assertions/20cases; one connected MPI milestone359 passes29cases
 on every rank after correcting a rank-local constant-sensor fixture witness. The
 production CFD binary is unchanged in359. Same actual prepared patch now has24q-bad/
-25J-bad and no admissible repaired replacement. Full same303 workflow359 is now RUNNING and frozen; follow HANDOFF_Codex.md
-for exact owned handles. No usable BL or performance gain is claimed.
-See the physical-height topic for the bounded evidence and remaining gates.
+25J-bad and no admissible repaired replacement. Full same303 workflow359 is
+TERMINAL: first metric1220.616s, then surface seeding391.593s with0work/0commits.
+All actual owned handles are absent; complete failure and target evidence is saved.
+The initial sensor-only core is1e-4I at all61330points; the composed estimate948069.856
+versus500k remains provisional, not an infeasibility proof.
 
-The next target remains complete construction/repair capability, not another performance campaign or
-blind surface refinement: assess existing coupled optimizer/growth on this complete
-actual cavity, including temporary interface/row-registration restrictions and
-candidate coordinates/metric frames where diagnostics need them. This is still an
-explicit1e-4 CONTROL core, not the actual saved-CFD target. Metric deficiency is
-unproven. Use one connected correction, retain every strict final gate, then qualify
-and promptly return to the full SAME303 workflow. See staged57/front355_assessment.json.
+The connected360–362 correction removes duplicated sided guidance within each fixed
+planning patch and reuses existing incremental construction seeding for surface targets.
+No cross-call cache, target policy, scheduler, limit or acceptance change. Build362
+passed; serial362 passed741assertions/9cases; the ONE connected MPI6 milestone passed17cases on EVERYrank
+in369.066s, pins intact/all actual handles absent. Follow HANDOFF_Codex.md for its exact handles. Failed360/361 new-fixture
+setups are preserved; production patch bounds remain unchanged. Strict normal serial360
+passed independently, although that campaign as a whole failed its separate new fixture.
+
+Checkpoint the qualified change and immediately retry the full SAME303
+workflow. First assess whether surface preparation reaches useful operators and a
+complete readiness census within the unchanged window. Then judge actual first-layer,
+growth and transition results; useful operators or test passes are not usable BL.
+See the [physical-height topic](Handbook/ADAPTATION_CURVED_BL_PHYSICAL_HEIGHT_20261111.md)
+for counters, target caveats and construction/repair evidence. The queued physical
+curvature versus tangential target and realized conformity investigation stays inside
+this same cycle; source facts alone do not apportion the complexity excess.
 
 1. Qualify the newly connected native construction lifecycle with its explicitly provisional
    requested-wall preparation phase. Reuse splitting, collapse, relocation,

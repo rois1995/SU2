@@ -514,3 +514,37 @@ increase or gate relaxation selected. Metric-allocation and physical curvature
 investigations remain queued within this BL cycle; original wall tangent demand
 survives useTangentialFloor=false and cubic sampling has no analytic-curvature cap,
 but source facts alone cannot apportion948k or prove500k feasibility.
+
+###360–362 connected planning/seeding change — affected behavior qualified
+
+Missing capability: production requested-wall planning must reach useful operators
+within the existing phase window and still complete its final readiness census.
+359 demonstrated a391.593s seed failure before operators.360 visits each fixed-patch
+node once, applying current sided guidance to its incident edges; no guidance is
+retained across calls/publications. Sorted incidence is linear storage, one sample
+list remains live, and added workspace is admitted against actual imported size.
+Existing imported >128-cell coordinate stars remain supported through their streamed
+measurement paths; whole-patch metric measurement retains its128-cell limit. Ordinary
+full-target edge/shape certification is unchanged. Incremental construction seeding
+now handles an expensive surface_target even when ordinary composition is empty;
+complete improvement/readiness/ownership checks remain. BL reports expose already
+existing seed/measurement/field counters. No scheduler/config/target/budget change.
+
+Scope: Metric3D implementation/header, engine seeding/admission, BL report, actual
+front-probe scratch admission and focused tests. Tests verify once-per-node values,
+fresh cross-call demand, complete multi-batch preparation with empty MPI ranks,
+80-cell planning, existing streamed320-cell coordinate-star support, and explicit normal accuracy thresholds. Tightening
+normal assertions fixes the preserved Approx-margin validation gap, not production.
+Acceptance: affected serial checks, ONE connected MPI milestone, then promptly full
+same-seed M6 workflow. No new CFD/metric baseline or new diagnostic data loader.
+Useful production progress and eventual complete strict mesh remain the actual test.
+
+
+362 qualification: build70.163s, serial741assertions/9cases, MPI6 17cases on EVERYrank
+(4062–4217assertions/rank),369.066s. All pins intact and actual identities absent.
+Serial360 strict normal case passed independently; its campaign and361 campaign
+failed only new large-star setup mistakes (donor cap then128-cell metric cap).
+362 uses80-cell whole planning and preserves320-cell whole-planning refusal plus
+existing streamed320-cell engine cases. No production bound changed. Qualification
+is LIMITED to affected behavior. Immediately retry actual same303 full workflow;
+no useful M6 progress, speedup or usable BL claimed from these checks.

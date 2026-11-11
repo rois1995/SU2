@@ -856,6 +856,41 @@ TEST_CASE("Requested-wall preparation uses construction ownership without claimi
   }
 }
 
+TEST_CASE("Surface preparation closes the complete census across incremental seeds and empty ranks", "[NativeSurfacePreparationEngine3D]") {
+  World world;Fixture fixture;
+  for(Id copy=0;copy<10;++copy) {
+    auto box=Box();
+    for(auto& cell:box.patch.cells) {
+      cell.id+=6*copy;
+      for(auto& node:cell.v){node.id+=8*copy;node.p.x+=3*copy;}
+      fixture.patch.cells.push_back(cell);
+    }
+    for(auto face:box.patch.surface) {
+      face.facet+=12*copy;for(auto& vertex:face.v)vertex+=8*copy;
+      fixture.patch.surface.push_back(face);
+    }
+    for(auto facet:box.facets) {
+      facet.id+=12*copy;
+      facet.marker=std::all_of(facet.v.begin(),facet.v.end(),[](Node n){return n.p.z==0;})?7:9;
+      for(auto& node:facet.v){node.id+=8*copy;node.p.x+=3*copy;}
+      fixture.facets.push_back(facet);
+    }
+  }
+  PlanarReference geometry(fixture.facets);Owned input;
+  if(!world.rank)for(auto row:Rows(fixture.patch))input.emplace(row.cell.id,row);
+  input=WithUniformSensor(std::move(input),{});const auto saved=Bytes(input);
+  EngineOptions options;options.maximum_work=1024;options.maximum_seconds=30;options.wall_heights[7]=.01;
+  const BoundaryMetric target=[](Node node,const PlanarReference&,Tensor) {
+    return node.p.z==0?std::vector<BoundaryMetricSample>{{{1,0,0,1,0,1e12},{0,0,1}}}:
+        std::vector<BoundaryMetricSample>{};
+  };
+  const auto result=PrepareSurface(world,input,Uniform(input,{}),geometry,target,options);
+  INFO(result.reason);REQUIRE(result.surface_prepared);CHECK_FALSE(result.valid);
+  CHECK(CPassiveComm::Allreduce(result.cells.size(),CPassiveComm::Op::SUM,world.comm)==60);
+  CHECK(CPassiveComm::Allreduce(result.stats.cached_measured_cells,CPassiveComm::Op::SUM,world.comm)==60);
+  CHECK(result.stats.quality_stages==0);CHECK(result.stats.field_compositions==0);CHECK(Bytes(input)==saved);
+}
+
 TEST_CASE("Native incremental MPI refinement reaches complete frozen metric gates", "[NativeDistributed3D]") {
   World world;
   const auto fixture=Box();
@@ -3776,6 +3811,32 @@ Fixture AxisWheel(unsigned sectors) {
   return result;
 }
 }  // namespace
+
+TEST_CASE("Surface planning reuses each node on an admitted complete large coordinate star", "[NativeSurfacePlanning3D][NativeCoordinateStar3D]") {
+  const auto fixture=IcosphereStar();REQUIRE(fixture.patch.cells.size()>MaximumCavityCells);
+  REQUIRE(fixture.patch.cells.size()<=MaximumReplacementCells);
+  const PlanarReference geometry(fixture.facets);std::vector<DonorCell> donors;std::set<Id> nodes;
+  for(const auto& cell:fixture.patch.cells) {
+    DonorCell donor;donor.cell=cell;donor.sensor.fill({});donors.push_back(donor);
+    for(auto node:cell.v)nodes.insert(node.id);
+  }
+  auto identity=std::make_shared<const FrozenMetricIdentity>(FrozenMetricIdentity::Scope::SurfacePlanning);
+  FrozenField core(donors,{},false,{},{},identity,true,std::max(MaximumDonors,donors.size()));size_t calls=0;
+  const BoundaryMetric target=[&](Node,const PlanarReference&,Tensor) {
+    ++calls;return std::vector<BoundaryMetricSample>{{{},{0,0,1}}};
+  };
+  const auto planned=MeasureSurfacePlanning(fixture.patch,core,geometry,WallHeights{{1,.01}},target);
+  CHECK(calls==nodes.size());CHECK_FALSE(planned.shape_measured);
+  const auto recomputed=MeasureMetricEdges(fixture.patch.cells,core);
+  REQUIRE(planned.edges.size()==recomputed.edges.size());
+  for(const auto& edge:planned.edges)
+    CHECK(double(edge.second.length)==Approx(double(recomputed.edges.at(edge.first).length)).epsilon(1e-12).margin(1e-14));
+  const auto oversized=IcosphereStar(2);const auto queries=core.Statistics().requests;
+  CHECK_THROWS_WITH(MeasureSurfacePlanning(oversized.patch,core,geometry,WallHeights{{1,.01}},target),
+                    "Native 3D metric patch exceeds budget or is empty.");
+  CHECK(core.Statistics().requests==queries);
+  CHECK(SurfacePlanningScratchBytes(SIZE_MAX)==SIZE_MAX);
+}
 
 TEST_CASE("Complete coordinate stars cross payload pages and publish atomically", "[NativeDistributed3D][NativeCoordinateStar3D]") {
   World world;

@@ -1,0 +1,81 @@
+{
+  "state": "terminal",
+  "build": "build362",
+  "passed": true,
+  "created_unix": 1794380794.6108036,
+  "scope": "Affected fixed-patch sided-guidance reuse, bounded scratch, incremental requested-wall construction seeding, complete readiness, height, curved association, feature, publication, dependency invalidation, empty-rank and resource contracts. NOT usable curved M6 BL, native MPI FIRST_ROW or full RANS workflow qualification.",
+  "production_cfd_sha256": "37d822060736776a92d3cd0091b433245a9b1d94c6d8c9bda4a62f40a521eb22",
+  "focused": {
+    "attempt": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved362_height_callers_serial_20261111T065906_1229092",
+    "passed": true,
+    "expected_exit_code": 0,
+    "assertions": 741,
+    "cases": 9
+  },
+  "mpi6": {
+    "attempt": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved362_height_callers_mpi6_20261111T065929_1230143",
+    "passed": true,
+    "expected_exit_code": 0,
+    "all_six_ranks_pass": true,
+    "summary_counts_in_output_order": [
+      {
+        "assertions": 4062,
+        "cases": 17
+      },
+      {
+        "assertions": 4217,
+        "cases": 17
+      },
+      {
+        "assertions": 4084,
+        "cases": 17
+      },
+      {
+        "assertions": 4062,
+        "cases": 17
+      },
+      {
+        "assertions": 4064,
+        "cases": 17
+      },
+      {
+        "assertions": 4165,
+        "cases": 17
+      }
+    ],
+    "cases_per_rank": 17,
+    "seconds": 369.06550097465515
+  },
+  "independently_reused_serial_case": {
+    "attempt": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved360_height_callers_serial_20261111T064322_1184345",
+    "case": "Native3D complexity reference does not rebase the wall on the adapted surface",
+    "passed": true,
+    "whole_campaign_passed": false,
+    "unchanged_test_source_sha256": "177913b89db8885d112000be10bd0257820670595cfd06df2704725ec5fce553",
+    "unchanged_production_cfd_sha256": "37d822060736776a92d3cd0091b433245a9b1d94c6d8c9bda4a62f40a521eb22",
+    "reason": "The strict normal case passed independently in serial360. Its campaign failed only the separate new large-star fixture setup; build362 MPI re-executes the normal case. No serial360 whole-campaign pass is claimed."
+  },
+  "preserved_failures": [
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved360_height_callers_serial_20261111T064322_1184345",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved361_height_callers_serial_20261111T065340_1214313"
+  ],
+  "limits_unchanged": true,
+  "next": "Immediately full same303 two-event RANS/SA BL workflow at500k with unchanged strict gates and budgets; evaluate useful surface operations and complete readiness, then first layer/growth/transition. No speedup or BL capability inferred.",
+  "evidence_sha256": {
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved362_height_callers_serial_20261111T065906_1229092/run.log": "773c0efc0517b2c9a1bef5e502b2fdb3c0bf5423d9fd26b18e19dcbd63798cba",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved362_height_callers_serial_20261111T065906_1229092/status.json": "796a555de5306843ee7d84a7612110391971d13ebc3883b234818fa36cc52ad8",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved362_height_callers_serial_20261111T065906_1229092/terminal_handles_actual.json": "83bf8d447f5b2f283711758cbc8e42aba6e580703baed324694680ad66e9a9de",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved362_height_callers_serial_20261111T065906_1229092/pins.json": "f825a7a5e37c2c75194a70657acf304f4fee9e7a86689b756fb7366a53aecd3b",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved362_height_callers_serial_20261111T065906_1229092/command.json": "a6c130e5240ab2dbb409bd37775b52ba574ae39e366b4a4b824a98afc67c6696",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved362_height_callers_mpi6_20261111T065929_1230143/run.log": "6d1223764f7b517dd7eaa9ed39350116fc81bcad6cb4a74a0288a9c34f9f451f",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved362_height_callers_mpi6_20261111T065929_1230143/status.json": "f24d79bfda07afc90f19b1d18b0cfc446c9b4600030274b9d34163ec089da7ba",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved362_height_callers_mpi6_20261111T065929_1230143/terminal_handles_actual.json": "d942fab3f56fd3ad81073ccbd22543bb1eb1c7a5a71b5bf6cbad7b26bec54053",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved362_height_callers_mpi6_20261111T065929_1230143/pins.json": "f825a7a5e37c2c75194a70657acf304f4fee9e7a86689b756fb7366a53aecd3b",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved362_height_callers_mpi6_20261111T065929_1230143/command.json": "cc018390dab2c57a9319a7ac354607cb1d89827f1c345c4d65e71e8ac1276b95",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved360_height_callers_serial_20261111T064322_1184345/run.log": "55f44ac285d39da9cf5d0de42a20a58563132f5848db8b912be98071813b9a85",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved360_height_callers_serial_20261111T064322_1184345/status.json": "d08bc7236640de8ec8f6e1f84c8d54e2530f5cfefa5ec094fdffab56df128ecc",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved360_height_callers_serial_20261111T064322_1184345/terminal_handles_actual.json": "70d049c3ef12c954b01060e10a310d409ada8c2f928c097bf33a311792543287",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved360_height_callers_serial_20261111T064322_1184345/pins.json": "a0fc648472ae07483d06480d8fb11bc6fd10abb7e40058ef82643587cb259539",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved360_height_callers_serial_20261111T064322_1184345/command.json": "dfb42285c9af6aa94fdd0bb615c8f6886d3e2b56800b402f528b91d1767ec5a3"
+  }
+}
