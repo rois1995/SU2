@@ -1,0 +1,43 @@
+{
+  "argv": [
+    "nice",
+    "-n",
+    "19",
+    "/usr/bin/time",
+    "-v",
+    "timeout",
+    "--signal=TERM",
+    "--kill-after=20s",
+    "14400",
+    "mpirun",
+    "--output-filename",
+    "rank_output",
+    "-n",
+    "6",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+    "[NativeSelectedFailureWorkflow3D]",
+    "--durations",
+    "yes"
+  ],
+  "wrapper": {
+    "pid": 950213,
+    "start_ticks": 41858666
+  },
+  "saved_checkpoint": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_bl_inputs/rans_curved_surface_ready_v1",
+  "source_attempt": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/rans_curved314_v1",
+  "initial_available_bytes": 46982881280,
+  "loadavg": "1.48 4.25 4.17 1/4714 950811\n",
+  "environment": {
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1",
+    "OMPI_MCA_osc": "pt2pt",
+    "TMPDIR": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/compile-tmp",
+    "OMPI_MCA_orte_tmpdir_base": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/compile-tmp/rans-curved359-37g0zgvd",
+    "SU2_NATIVE_FROZEN_CONFIG": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/rans_curved359_v1/run.cfg"
+  },
+  "expected_events": 2,
+  "outer_seconds_total": 14400,
+  "qualification": "359 smooth curved metric normals: affected serial and MPI caller checks qualified; usable curved BL, native MPI FIRST_ROW and complete workflow unproven",
+  "scope": "Same saved303 RANS/SA seed, Mach-only L1,500k and unchanged heights/gates/native5400/outer14400. Existing DOUBLE volume output only. Qualified359 smooth-normal correction preserves differential geometry and retained mobility-policy feature classification. Complete affected actual patch remains shape-bad; strict repair-height rejection and geometry deadline preserved. Full CFD to mesh to CFD to mesh is the capability attempt, not a timing baseline. Conservative turbulence transfer, finite CFD and isolated disk restart require independent evidence. Rejected-state capture enabled."
+}

@@ -402,3 +402,20 @@ Full runner359 is prepared, not launched; same seed/Mach-only L1/500k/h0=2e-6/
 g=1.2/T=.01/height tolerance.1/hausd1e-4/q.2/J.05/maxedge1.8/native5400/outer14400,
 with existing DOUBLE output setting only. Full workflow and true native-MPI BL
 construction remain unproven; the native1 FIRST_ROW guard is unchanged.
+
+### Full359 launch and preserved validation limit
+
+MPI359 passes29cases on EVERYrank (4321–4547assertions/rank),362.286s; all actual
+owned identities absent and pins intact. qualification359.json records limited
+scope and explicit serial358 reuse for unchanged production CFD. Full same303
+RANS359 is now frozen/live; current handles are in HANDOFF_Codex.md. Initial seed
+continuation is finite (CL.155731/CD.050268), then composed BL target evaluation.
+No adapted mesh, transfer, usable BL or restart is established by this observation.
+
+Validation note queued until frozen run terminates: Catch2 Approx retains its
+relative default epsilon even when margin is specified (externals/catch2/catch.hpp:
+7879). Thus the new normal tests' margin1e-10/1e-12 alone is not an absolute angular
+accuracy proof. Existing independent point assessment uses a direct1e-14 dot bound
+and all five358 normal axes agree exactly; it supplies the stricter saved-point
+check. Tighten those unit assertions explicitly after terminal without interrupting
+this frozen workflow. This does not establish a production failure/stop condition.

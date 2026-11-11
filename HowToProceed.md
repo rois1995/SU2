@@ -56,8 +56,8 @@ issue;358 corrects smooth-support normal selection using retained mobility polic
 Serial358 passes4387assertions/20cases; one connected MPI milestone359 passes29cases
 on every rank after correcting a rank-local constant-sensor fixture witness. The
 production CFD binary is unchanged in359. Same actual prepared patch now has24q-bad/
-25J-bad and no admissible repaired replacement. Full same303 workflow is next; no
-usable BL or performance gain is claimed.
+25J-bad and no admissible repaired replacement. Full same303 workflow359 is now RUNNING and frozen; follow HANDOFF_Codex.md
+for exact owned handles. No usable BL or performance gain is claimed.
 See the physical-height topic for the bounded evidence and remaining gates.
 
 The next target remains complete construction/repair capability, not another performance campaign or
