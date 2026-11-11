@@ -1,0 +1,10 @@
+--- original_CNativeCurvedReference.hpp
++++ active_edge_variant.hpp
+@@ -403,6 +403,7 @@
+       const double det = a * c - b * b;
+       if (!(det > 0)) return false;
+       const double du = -(c * gu - b * gv) / det, dv = -(a * gv - b * gu) / det, f0 = Dot<3>(r, r);
++      if ((u<=1e-10 && du<0) || (v<=1e-10 && dv<0) || (1-u-v<=1e-10 && du+dv>0)) break;
+       double lambda = 1, nu = u, nv = v;
+       bool descent = false;
+       for (int ls = 0; ls < 40; ++ls, lambda *= .5) {

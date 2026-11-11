@@ -1,0 +1,74 @@
+{
+  "case": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved385_root_point_frames_20261111T160544_2575874",
+  "status": {
+    "state": "terminal",
+    "exit_code": 0,
+    "seconds": 11.537824153900146,
+    "pins_verified": true,
+    "changed": [],
+    "largest_sampled_individual_process_rss_bytes": 305623040,
+    "rss_note": "sampled process RSS; not a whole-job peak"
+  },
+  "terminal": {
+    "actual_host_proc": true,
+    "all_owned_handles_terminal": true,
+    "live_owned_handles": [],
+    "sampled_identities": [
+      {
+        "pid": 2575969,
+        "start_ticks": 45758578
+      },
+      {
+        "pid": 2575970,
+        "start_ticks": 45758579
+      },
+      {
+        "pid": 2575971,
+        "start_ticks": 45758579
+      },
+      {
+        "pid": 2575972,
+        "start_ticks": 45758579
+      }
+    ],
+    "wrapper_excluded": {
+      "pid": 2575874,
+      "start_ticks": 45758363
+    },
+    "checked_unix": 1794413243.4103196,
+    "wrapper_verified_terminal": true
+  },
+  "pairs": [
+    {
+      "a": 0,
+      "b": 4,
+      "normal_difference": 3.66156617893523e-07,
+      "foot_difference": 1.3118141893181466e-09
+    },
+    {
+      "a": 2,
+      "b": 6,
+      "normal_difference": 2.565098281380221e-07,
+      "foot_difference": 1.064012476108752e-09
+    },
+    {
+      "a": 3,
+      "b": 7,
+      "normal_difference": 4.803258738443381e-07,
+      "foot_difference": 1.62648908123677e-09
+    },
+    {
+      "a": 8,
+      "b": 10,
+      "normal_difference": 2.056858155643768e-07,
+      "foot_difference": 9.816864404942218e-10
+    },
+    {
+      "a": 9,
+      "b": 11,
+      "normal_difference": 5.9634644929927e-07,
+      "foot_difference": 1.976343280563838e-09
+    }
+  ],
+  "interpretation": "Remaining near-root candidate-normal variation under current bounded minimizer; inspect initialization/convergence using existing fixed facet before changing limits or target."
+}

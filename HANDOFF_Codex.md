@@ -12,20 +12,26 @@ RUNNING/next-action notes there are not live instructions.
 
 ## Current source and owned workload — authoritative
 
-Original saved-target chord385 RUNNING/FROZEN, session15094;
-R/cases/curved385_target_geometry_20261111T155709_2553462, child2553546.
-Do NOT edit pinned C++until actual-host terminal verification.
-Serial385passed4977assertions/50cases/63.635s; MPI6passed29cases EVERYrank
-(3925–4128assertions/rank)/12.602s; owned identities terminal/pins intact.
-Same12points385passed12.894s/3180work (383:2870work). Matched coarse/tight normals
-now differ5.55e-17–1.67e-16 (383:up to4.62e-6), feet≤1.99e-18;10successful proposal
-improvements/310extra work. This is accuracy progress, NOT fresh-query speedup.
-R/edge_accuracy385_point_assessment.json. Initial roots are vertices and skip polish
-for these points; only final polish runs. Assess full-chord result before any change.
-Build385passed28.110s, pins intact/owned handles terminal. CFD
-SHA3a65b4b43d0f844365a4ffe669a6da7cd790b2223e572c6216346e0b53394f9b.
-384failed466.488s(private test API), terminal/all155identities absent; exact failure
-preserved3d1866448b.385only fixes test with independent Bernstein evaluation.
+Current workload: NONE; actual385and near-root point replay TERMINAL, all owned
+actual-host identities verified absent. Source385primitive-qualified, actual chord
+still refuses at unchanged deadline. R/geometry_target385_assessment.json.
+Preparation137.985s (380191.679),6219integrand evaluations (3804534),composition
+153.566s; no length. More progress/different trajectory, not accepted-edge speedup.
+Refusal near root q=[.0023856979606071641,8.8753797110671701e-6,-.0076341853274697422].
+Near-root replay12points passed11.538s; all10fresh proposals hit64cap/0improvements,
+normal variation2.06e-7–5.96e-7 remains. R/edge_accuracy385_root_assessment.json.
+Bounded saved-facet numerical test demonstrates outward2Dbacktracking against an
+active constraint. Existing edge/KKT phase handoff converges22–31calls versus
+original64cap fails3/3 (stock full87–166calls). Next connected386fix: early handoff
+when Newton points outward from an active constraint, same existing snap/KKT criteria,
+and reuse backend flat-triangle initialization in polisher. No cap increase, no
+capped iterate retention. Preserve full global certification.
+
+Serial385passed4977assertions/50cases; MPI6passed29cases EACHrank; midpoint12point
+normals stabilized to~1e-16 at3180work. Root-specific failure above narrows blocker.
+Build385passed28.110s; CFD SHA3a65b4b43d0f844365a4ffe669a6da7cd790b2223e572c6216346e0b53394f9b.
+Qualified primitive checkpointb86c50be50 pushed;384compile-test failure3d1866448b
+preserved. No usable BLmesh or complete target checkpoint yet.
 
 Implementation384hypothesis: reuse existing normalized MinimizeTriangle to improve
 upper witnesses before and after the complete distance traversal. At most64charged

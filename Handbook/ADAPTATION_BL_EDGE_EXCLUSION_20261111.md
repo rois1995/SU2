@@ -231,3 +231,32 @@ normal stability/work differences, and the original saved full chord completes
 within unchanged bounds with finite consistent tensor/length/insertion behavior.
 No ten-point replacement or tolerance change. If the actual chord still refuses,
 preserve it and reassess the connected hypothesis; passing fixtures are insufficient.
+
+
+##385 actual outcome and demonstrated active-constraint blocker
+
+Actual full chord TERMINAL1/358.142s, pins intact/all owned handles terminal.
+Preparation137.985s versus380191.679s;6219integrand evaluations versus4534before
+same deadline; still no length. Projection10705attempts/6987improvements/430653work.
+Source/budget/seed controls same, but changed trajectory; no fixed-work speedup.
+New near-root refusal point preserved in R/geometry_target385_assessment.json.
+
+Existing12point root replay passed11.538s/5696work:10fresh proposals hit64cap and
+NONEimproves; coarse/tight normal discrepancy2.06e-7–5.96e-7. Saved exactfacet30335
+probe reuses stock MinimizeTriangle:64cap fails3/3starts; full existing loop needs
+87–166callbacks. Outward2Dsteps projected against active simplex boundary cause
+backtracking before edge phase. Bounded numerical comparison handing that step to
+EXISTING edge/KKT phase converges22–31calls/3of3starts. Post-step boundary breaking
+alone fails one start; rejected. Diagnostics/patch/results/provenance saved alongside
+accuracy385_root_point_frames_v1. No point/clearance certificate comes from that test.
+
+Connected386correction: reuse backend flat-triangle initialization, and hand an
+outward Newton direction at an active constraint to existing edge/KKT refinement
+before line-searching a projected2Dstep. SAME existing1e-10snap and KKT criteria;
+interior/edge iteration limits unchanged,64proposal cap unchanged. Do not retain
+nonconverged/capped iterates. Affects shared MinimizeTriangle callers: PNsurface,
+native geometry backend and ClosestCurved witness; audit/test all relevant geometry
+paths. Full global lower/clearance proof, canonical interval witness, support/body/
+feature and all physical gates remain. Validate capturedroot bounded convergence,
+focused serial/appropriate MPI, same midpoint+root points, then original full chord.
+No competing implementation or new operator/geometry representation/config.
