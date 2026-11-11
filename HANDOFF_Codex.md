@@ -12,6 +12,7 @@ construction validity-first; intermediate quality debt is provisional, not accep
 
 ## Current state — authoritative
 
+Qualified production checkpointb597d15fd8 PUSHED.
 Current workload: NONE. Build383and all three qualifications TERMINAL; all actual-
 host owned identities verified absent. R/edge_exclusion383_qualification.json.
 Build383passed434.447s/pins intact; serial2664assertions/23cases/4.648s;
@@ -37,9 +38,9 @@ refuses at original geometry deadline after7384evaluations/106.016s; actual GL10
 errors UNKNOWN, no completed whole chord. Analytic planar profile controls show
 up to1.7%whole-rule error and threshold decision differences near gates; not M6.
 No production tolerance, placement, final measurement or gate changes. Commit
-74ccc7f601preserves exact diagnostic source/failure; latest push remains3ce85033c3.
+74ccc7f601preserves exact diagnostic source/failure; superseded by qualified383.
 
-Qualified exclusion checkpoint3ce85033c3 PUSHED. Build381 and all three qualifications
+Prior381factory-only qualification checkpoint3ce85033c3 PUSHED (superseded by383). Build381 and all three qualifications
 TERMINAL, actual-host owned identities verified absent.
 R/edge_exclusion381_qualification.json. Build381passed444.505s, pins intact;
 serial2589assertions/17cases/5.264s; MPI6passed24cases EVERYrank
