@@ -44,7 +44,7 @@ is only a hypothesis; preserve explicit sides, genuine features, bodies and heig
 initialization and existing active-edge/KKT phase before outward projected2Dline
 search. No new operator, iteration/callback cap, numerical tolerance, target policy,
 geometry representation or configuration. All global certification/gates retained.
-Latest pushed86ec45767dpreserves385failure/design;386checkpoint now ready to push.
+Qualified386source/evidence checkpoint9b6e552ed1 PUSHED. Full chord remains refused.
 
 Actual385TERMINAL1/358.142s, pins intact/all owned actual-host identities terminal.
 Preparation137.985s (380191.679),6219integrand evaluations (3804534),composition
@@ -73,10 +73,9 @@ Optional pre-search work CAN reduce remaining traversal budget; actual benefit a
 availability must be measured, not assumed. No numerical tolerance, gate, target
 policy, normal law, new config/scheduler or CAD dependency changed.
 
-NEXT validation scripts use386suffix: check_witness_serial, replay_accuracy_points,
-replay_root_points, check_witness_mpi, check_witness_actual. Preserve every terminal/failure receipt. A stable normal
-or lower query count alone is insufficient: require useful full-chord progress under
-unchanged bounds. Production384source checkpoint3d1866448bis unqualified; test fix local. 86ec45767dpreserves385actual/root failure and measured correction. Production383checkpointb597d15fd8 remains preserved.
+Completed386validation scripts/receipts are preserved; reuse passing evidence until
+affected code or inputs change. Do not repeat them as a baseline campaign. The next
+work is the prepared complete-target sensitivity analysis above.
 
 ## Demonstrated blocker and prior qualification
 
