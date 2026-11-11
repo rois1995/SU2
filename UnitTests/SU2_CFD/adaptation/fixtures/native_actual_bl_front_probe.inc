@@ -3,7 +3,8 @@ using namespace junction_wp0;
 SU2NativeBLPipeline3D::detail::PipelineScope pipeline;
 const bool exclusionOnly=std::string(std::getenv("SU2_NATIVE_BL_FRONT_PROBE"))=="saved_target_exclusion";
 const bool accuracyOnly=std::string(std::getenv("SU2_NATIVE_BL_FRONT_PROBE"))=="saved_target_accuracy";
-const bool savedTarget=accuracyOnly||exclusionOnly||std::string(std::getenv("SU2_NATIVE_BL_FRONT_PROBE"))=="saved_target_geometry";
+const bool stabilityOnly=std::string(std::getenv("SU2_NATIVE_BL_FRONT_PROBE"))=="saved_target_stability";
+const bool savedTarget=stabilityOnly||accuracyOnly||exclusionOnly||std::string(std::getenv("SU2_NATIVE_BL_FRONT_PROBE"))=="saved_target_geometry";
 double selectedCore=1e-4,tangentScale=1;
 std::map<Id,std::pair<Point,Tensor>> savedCore;
 if(savedTarget) {
@@ -183,6 +184,8 @@ for(size_t index=0;index<count;++index) {
                 <<",\"translated_synthetic_control\":true}"<<std::endl;
         frontLog<<"{\"context\":"<<std::quoted(label)<<",\"stage\":\"actual_authority_outside_control\",\"translated_synthetic_control\":true"
                 <<",\"original_cfd_edge\":false,\"maximum_tensor_difference\":"<<maximumDifference<<",\"flow_tensor_from_original_node\":true}"<<std::endl;
+      } else if(stabilityOnly) {
+#include "native_actual_bl_target_stability_probe.inc"
       } else if(accuracyOnly) {
 #include "native_actual_bl_accuracy_probe.inc"
       } else {

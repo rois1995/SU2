@@ -26,14 +26,21 @@ but the full chord still refuses near the root: all root proposals hit64cap.
 386qualifies outward Newton handoff to EXISTING edge/KKT and flat initialization:
 51serial cases,53cases per MPI6rank, stable root/midpoint probes. Preparation drops
 to106.972s, but the complete chord STILLrefuses the same deadline. No live workload.
-A new near-endpoint probe shows same-foot/different-sided-normal ambiguity, but its
-unprepared mobility masks that change in the wall sample. Next reproduce exact
-prepared mobility and COMPLETEcomposed target at that point before another fix.
-No tolerance or target-policy change is selected; see handoff for full evidence.
+Prepared387production-mobility/full-target replay now demonstrates the near-endpoint
+cause: same exact dim1binding/foot, different closest differential sides,2.53%tensor
+change and.015%chord-speed change.388implements deterministic exact-supported-side
+selection only on prepared released seams, within the same wall/component/body.
+Current build/check handle is in handoff; serial, prepared replay, one MPI milestone
+and original chord must establish behavior and useful progress before claiming gain.
+Explicit association sides, genuine features, first-height profile and all gates
+remain. A separate same-facet interior-foot discrepancy is still unresolved.
+No tolerance or ten-point replacement is justified. Analytic sensor-only lower
+length .388on the hard edge cannot resolve splitting/coarsening; ranking, insertion
+and final acceptance still require composed measurements.
 
 Stage2still needs a reasonable target and faithful composed checkpoint/reload before
-surface generation. The accurate-witness hypothesis is now selected from383point evidence; require
-actual chord progress before claiming success. Native MPI BL generation remains unqualified; the separate unchanged
+surface generation. Bounded accurate witnesses and active-edge handling are qualified, but still require
+actual chord completion before claiming capability. Native MPI BL generation remains unqualified; the separate unchanged
 planar fixed-count failure380stays in the backlog. Historical construction notes
 below are capability evidence, not current live-job instructions.
 

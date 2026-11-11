@@ -12,7 +12,23 @@ RUNNING/next-action notes there are not live instructions.
 
 ## Current source and owned workload — authoritative
 
-Current workload: NONE. Build386and all serial/MPI/point/actual checks TERMINAL;
+Current workload: ONE connected388MPI6 milestone RUNNING; C++ PINNED.
+R/cases/curved388_seam_mpi6_*/status.json/pins.json own live handle.
+Actual prepared388target replay TERMINAL0/61.718s,5738work/.35924spoint eval:
+all exact same-binding/foot pairs now have bit-identical FULLtensor, normals and
+chord speeds; scalar requested height unchanged. Raw certificate sides still differ
+(as allowed), interior-foot residual remains. R/target_stability388_assessment.json.
+Focused388serial TERMINAL0/251.554s, pins intact/owned identities terminal.
+Build388TERMINAL0/64.133s, actual-host handles terminal; pins intact.
+CFD SHA035ec27fda7abeb7b1b9c0ffb6e9b048e5feaf8f8904aaab35db4dce330be209.
+387diagnostic TERMINAL0/61.793s, all actual-host handles terminal, pins intact.
+Confirmed exact same released-seam binding/foot selects two sides and changes full
+BLtarget2.53%, chord speed.015%; R/target_stability387_assessment.json.388selects
+minimum immutable exact supported facet within SAMEwall/component/body only for
+prepared mobility-dimension2seams. Explicit sides/features/unprepared unchanged.
+Focused serial +actual prepared replay PASS. ONE MPI milestone running; original chord pending.
+Build387test-only passed196.243s; CFD binary byte-identical386.
+Build386and all serial/MPI/point/actual checks TERMINAL;
 all actual-host owned identities verified absent, source/input/binary pins intact.
 R/witness386_qualification.json and geometry_target386_assessment.json.
 Build38.121s; serial51cases/5001assertions59.336s; MPI6passed53cases EVERYrank

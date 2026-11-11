@@ -287,3 +287,77 @@ identity on released seams, but no such production correction is selected yet.
 Explicit side requests, genuine features and bodies must never be averaged or
 silently changed. Do not add more numerical seed variants or raise caps without
 new evidence. All budgets/final gates and stage order remain unchanged.
+
+
+##387 prepared-target diagnostic — test-only, no new production correction
+
+Input: original371nodal tensors and final core/tangent scales, original no-CAD
+reference with the actual PrepareReference/PrepareMobility pipeline, one existing
+20cell context and12saved endpoint386query records. Output: complete composed
+six-component tensor and original-chord speed before/repeated/after each requested
+certificate, full/base normals/profile, exact binding/support/mobility and work.
+Acceptance for diagnostic credibility: prepared policy present; inputs finite and
+SPD; original source edge verified; reconstructed interpolation parameter within
+rounding envelope; work/bytes charged within unchanged300s/600s limits; complete
+records and source/build/input pins. Equality is measured, not asserted away.
+It does not integrate an edge, construct cells or establish target acceptance.
+
+Only existing front-probe fixture and a bounded included diagnostic are changed.
+No production config, tolerance, target or geometry policy changes. Build387must
+leave CFD binary byte-identical386. Reuse386production serial/MPI qualification
+if production pins/binary agree; no redundant MPI campaign for a test-only probe.
+Do not start a new production correction before this exact prepared-target effect
+is known. If different candidates have coincident realized coordinates, that alone
+does not establish identical exact support or authorize smoothing genuine features.
+
+
+Read-only387caller follow-up: existing SensorEdgeLength analytically integrates
+P1sensor demand, preserved by standard intersections and Option-A PreserveSensor.
+It provides a mathematical lower-bound route only: sensor>1.8 can establish
+oversize and sensor>=.9 can rule out a coarsen candidate, subject to explicit
+floating-point margin/error handling before treating it as a conservative proof.
+It supplies neither a composed upper bound nor a ranking/insertion/final scalar.
+Saved hard edge sensor length .38800674301702197 is inconclusive for both actions.
+No ready complete composed spectral/derivative upper bound was found. Therefore
+adding a broad classification API now would not address this demonstrated edge.
+Queue priority, size-excess progress, balanced insertion, candidate conformity and
+final census still require the accurate composed value. This finding is retained;
+no production classification shortcut has been selected or implemented.
+
+
+##387 demonstrated prepared-target instability and selected388correction
+
+Prepared actual-M6 probe TERMINAL0/61.793s, pins intact/owned identities terminal.
+12points,5519point geometrywork/.34441spoint evaluation; no edge integration,
+construction or accepted-target claim. R/target_stability387_assessment.json.
+At identical query, exact binding[dim1,feature361,version18,u=.0005230164164378159],
+identical foot and mobility-dimension2, returned facets35672/30335change the
+COMPLETEtarget by2.5306% (six-component norm) and original-chord speed by.0149648%.
+Second exact edge binding gives2.5369%/.0151072%. First-height scalar unchanged.
+A separate dimension2same-facet pair still has9.82e-10foot difference and2.50e-7
+relative speed change. Do not conflate it with the demonstrated side ambiguity.
+
+Missing capability: repeated BL evaluation at one released-seam association must
+have a stable differential side, independent of distance-query refinement/cache
+history. Global closest-distance certificate permits several sides of the SAME
+exact binding; it need not define a unique metric target. All ProjectWall callers
+were audited: marker distance, point/geometry preparation, composed full/base wall
+samples and chord/profile bounds use the component query. Explicit forward surface
+association uses EvaluateAtSurfaceAssociation separately and remains sided.
+
+388selects minimum immutable facet ID only among exact ForFacets(binding) supports
+owned by the requested wall, same curved component and prepared body; only when
+binding.dimension<2 and prepared MobilityDimension==2. No coordinate coincidence,
+normal averaging, promotion of interior binding, geometry change or cross-body/
+feature merging. Re-evaluate normal and barycentric interpolation on that side;
+retain identical point, candidate box, lower/upper distance and clearance authority.
+No closest-cache change. Unprepared/genuine-feature/explicit-side behavior remains.
+Support visits/extra differential evaluation are charged against existing work.
+No new retained cache/storage/config/tolerance/budget; no physical-height law change.
+
+Acceptance: focused shared curved wall, explicit sided association, height, feature,
+separate-body, cache/stale/resource checks; one connected MPI milestone with empty
+ranks/migration; prepared12point replay must eliminate side-only full-target change
+without hiding the remaining interior-foot difference. Then measure original whole
+chord under SAME300s atlas/600s outer and report work/integral outcome. Fewer queries
+or passing primitives alone do not establish useful construction improvement.

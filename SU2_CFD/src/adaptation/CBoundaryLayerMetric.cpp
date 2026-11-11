@@ -423,16 +423,30 @@ CBoundaryLayerMetric::WallProjection CBoundaryLayerMetric::ProjectWall(
   if(reservation && !reservation->ChargeWork(attempted))throw std::length_error("Curved BL geometry work exhausted.");
   out.lower=closest.lower;out.upper=closest.upper;
   out.candidate_bounds=closest.candidate_bounds;
-  const auto where=std::lower_bound(wall.authority_facets.begin(),wall.authority_facets.end(),closest.facet);
-  if(where==wall.authority_facets.end() || *where!=closest.facet)
-    throw std::logic_error("Curved BL closest foot escaped retained component.");
-  out.face=where-wall.authority_facets.begin();
-  out.bary=geometry.SurfaceCoordinates(closest.facet,closest.binding);
   const auto* mobility=wall.authority->Mobility();
   // Without a prepared policy, keep ambiguous chart-edge support conservative.
   out.physical_support=mobility ? geometry.MobilityDimension(closest.binding,*mobility)<2 :
       geometry.PhysicalSupport(closest.binding);
-  auto& surface=out.surface;surface.point=closest.point;surface.normal=closest.normal;
+  auto facet=closest.facet;auto normal=closest.normal;
+  if(mobility && !out.physical_support && closest.binding.dimension<2) {
+    // An exact released-seam binding has several differential sides; query accuracy must not select the BL target.
+    geometry.ForFacets(closest.binding,[&](SU2Native3D::Id side) {
+      if(reservation && !reservation->ChargeWork(1))throw std::length_error("Curved BL seam support work exhausted.");
+      if(side<facet && std::binary_search(wall.authority_facets.begin(),wall.authority_facets.end(),side) &&
+          geometry.CurvedComponent(side)==geometry.CurvedComponent(closest.facet) &&
+          mobility->bodies.at(side)==mobility->bodies.at(closest.facet))facet=side;
+    });
+    if(facet!=closest.facet) {
+      if(reservation && !reservation->ChargeWork(1))throw std::length_error("Curved BL seam evaluation work exhausted.");
+      normal=geometry.EvaluateSurface(facet,closest.binding).normal;
+    }
+  }
+  const auto where=std::lower_bound(wall.authority_facets.begin(),wall.authority_facets.end(),facet);
+  if(where==wall.authority_facets.end() || *where!=facet)
+    throw std::logic_error("Curved BL closest foot escaped retained component.");
+  out.face=where-wall.authority_facets.begin();
+  out.bary=geometry.SurfaceCoordinates(facet,closest.binding);
+  auto& surface=out.surface;surface.point=closest.point;surface.normal=normal;
   surface.direction={query.x-surface.point.x,query.y-surface.point.y,query.z-surface.point.z};
   const std::array<double,3> displacement{surface.direction.x,surface.direction.y,surface.direction.z};
   const auto norm=BLDisplacementNormBounds(displacement);

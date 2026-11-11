@@ -1281,14 +1281,27 @@ TEST_CASE("Native3D complexity reference does not rebase the wall on the adapted
       const auto binding=curved->EdgePoint(edge,.5);
       if(curved->MobilityDimension(binding,mobile->Mobility())!=2)continue;
       ++smoothSeams;CHECK(curved->PhysicalSupport(binding));
+      curved->ForFacets(binding,[&](Id side) {
+        if(curved->CurvedComponent(side)!=curved->CurvedComponent(f.id))return;
+        const auto sided=mobileLayers->EvaluateAtSurfaceAssociation(0,side,binding,1.);
+        const auto expected=curved->EvaluateSurface(side,binding);
+        CHECK(SU2_TYPE::GetValue(sided.normal[0])==expected.normal.x);
+        CHECK(SU2_TYPE::GetValue(sided.normal[1])==expected.normal.y);
+        CHECK(SU2_TYPE::GetValue(sided.normal[2])==expected.normal.z);
+      });
       const auto surface=curved->EvaluateSurface(f.id,binding);
       const Point query{surface.point.x+1e-7*surface.normal.x,surface.point.y+1e-7*surface.normal.y,
                         surface.point.z+1e-7*surface.normal.z};
       const auto closest=curved->ClosestCurved(f.id,query,1e-9,MappedFacetReference::ClearanceWork,size_t(64)<<20);
       REQUIRE(curved->MobilityDimension(closest.binding,mobile->Mobility())==2);
       const su2double x[3]={query.x,query.y,query.z};const auto sample=mobileLayers->Evaluate(0,x,1.);
-      const double alignment=SU2_TYPE::GetValue(sample.normal[0])*closest.normal.x+
-          SU2_TYPE::GetValue(sample.normal[1])*closest.normal.y+SU2_TYPE::GetValue(sample.normal[2])*closest.normal.z;
+      Id side=closest.facet;
+      if(closest.binding.dimension<2)curved->ForFacets(closest.binding,[&](Id candidate) {
+        if(curved->CurvedComponent(candidate)==curved->CurvedComponent(f.id))side=std::min(side,candidate);
+      });
+      const auto canonical=curved->EvaluateSurface(side,closest.binding);
+      const double alignment=SU2_TYPE::GetValue(sample.normal[0])*canonical.normal.x+
+          SU2_TYPE::GetValue(sample.normal[1])*canonical.normal.y+SU2_TYPE::GetValue(sample.normal[2])*canonical.normal.z;
       CHECK(std::abs(std::abs(alignment)-1)<1e-12);
     }
     CHECK(smoothSeams>0);

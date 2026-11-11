@@ -499,3 +499,29 @@ has2.06e-7normal discrepancy. Thus primitive side ambiguity is confirmed, but fu
 production target impact remains unproven; prepared mobility differs from this
 probe. Next measure complete actual tensor/directional sensitivity and integration
 error, rather than optimizing more query variants from counters alone.
+
+
+##387 prepared production-target attribution (bounded stage2diagnostic)
+
+R/target_stability387_assessment.json. Test-only build196.243s; CFD binary identical
+386. Actual loader+prepared mobility+selected371target12point diagnostic61.793s,
+5519point geometrywork/.344410spoint evaluations. Total context17407work includes
+surface planning/directions/centroid diagnostics; timers are nested, not additive.
+Largest sampled individual RSS1408823296B, not whole-job peak. CPU ticks retained
+perprocess in assessment; no MPI wait claim from this serial diagnostic.
+
+Useful result is causal attribution, not measured speedup: same exact released
+edge binding and foot changes complete tensor2.5306–2.5369% and chord speed
+.0149648–.0151072% when certified closest chooses a different incident side.
+Another dimension2same-facet pair has2.50e-7relative speed discrepancy. No complete
+chord, target checkpoint, new surface or BLmesh was produced.388tests deterministic
+exact-supported-side selection; no increased budget or relaxed accuracy.
+
+
+388build64.133s; focusedserial52cases/7288assertions251.554s includes existing
+curved mapped-authority test191.873s plus other focused cases. Prepared12point
+M6replay61.718s,5738point geometrywork vs3875519(+3.97%),.35924spoint evaluation
+vs.34441s. Additional exact-support visits are charged, so no per-query savings
+claim: useful output is removal of the2.53%side-only tensor ambiguity, with exact
+same-binding normals/tensors/chord speeds now bit-identical. Interior-foot residual
+unchanged. MPI and original whole-chord outcome pending; no workflow speedup yet.
