@@ -7534,7 +7534,81 @@ su2double IsmailRoeScalarVersusVectorized(std::mt19937& gen) {
   return err / ref;
 }
 
+/*--- JST_P1ES_JACOBIAN_DIAG.md 8.2: the centered kernel's Jacobian of the P1 edge form, inviscidProjJac on n_ik -+ 2E_ik with
+ * the factor 0.5 (the call of CCenteredBase::ComputeFlux), equals the derivative of 0.5 (F_i + F_k).n_ik + (F_k - F_i).E_ik
+ * with respect to U_i and U_k. Relative error of the worst entry. ---*/
+template <size_t nDim>
+su2double EdgeFormJacobianError(std::mt19937& gen) {
+  constexpr size_t nVar = nDim + 2;
+  std::uniform_real_distribution<double> u(-1.0, 1.0);
+  const pbc::EsState S[2] = {JacRandomState(gen, nDim, 0.5, 0.8), JacRandomState(gen, nDim, 0.5, 0.8)};
+  su2double n[3] = {0.0, 0.0, 0.0}, E[3] = {0.0, 0.0, 0.0};
+  for (size_t d = 0; d < nDim; ++d) {
+    n[d] = u(gen);
+    E[d] = 0.5 * u(gen);
+  }
+  auto flux = [&](const pbc::EsState& s, const su2double* a, su2double* f) {
+    su2double un = 0.0, v2 = 0.0;
+    for (size_t d = 0; d < nDim; ++d) {
+      un += s.vel[d] * a[d];
+      v2 += s.vel[d] * s.vel[d];
+    }
+    const su2double H = kGamma * s.p / ((kGamma - 1.0) * s.rho) + 0.5 * v2;
+    f[0] = s.rho * un;
+    for (size_t d = 0; d < nDim; ++d) f[d + 1] = s.rho * s.vel[d] * un + s.p * a[d];
+    f[nDim + 1] = s.rho * H * un;
+  };
+  auto edge = [&](const pbc::EsState& si, const pbc::EsState& sk, su2double* out) {
+    su2double fi[pbc::ES_NVAR], fk[pbc::ES_NVAR], ei[pbc::ES_NVAR], ek[pbc::ES_NVAR];
+    flux(si, n, fi);
+    flux(sk, n, fk);
+    flux(si, E, ei);
+    flux(sk, E, ek);
+    for (size_t v = 0; v < nVar; ++v) out[v] = 0.5 * (fi[v] + fk[v]) + ek[v] - ei[v];
+  };
+  su2double err = 0.0, ref = 0.0;
+  for (int side = 0; side < 2; ++side) {
+    VectorDbl<nDim> normal;
+    for (size_t d = 0; d < nDim; ++d) normal(d) = n[d] + ((side == 0) ? -2.0 : 2.0) * E[d];
+    const auto V = TeCNOAdjointChecks::Primitives<nDim>(S[side].rho, S[side].vel, S[side].p);
+    const auto U = compressibleConservatives(V);
+    const auto jac = inviscidProjJac(Double(kGamma), V.velocity(), U.energy(), normal, Double(0.5));
+    su2double U0[pbc::ES_NVAR] = {0.0};
+    pbc::EsConservative(nDim, kGamma, S[side], U0);
+    for (size_t c = 0; c < nVar; ++c) {
+      const su2double h = 1e-6 * std::max(su2double(1.0), su2double(fabs(U0[c])));
+      su2double Up[pbc::ES_NVAR], Um[pbc::ES_NVAR];
+      for (size_t v = 0; v < nVar; ++v) Up[v] = Um[v] = U0[v];
+      Up[c] += h;
+      Um[c] -= h;
+      pbc::EsState a[2] = {S[0], S[1]}, b[2] = {S[0], S[1]};
+      a[side] = JacStateOf(nDim, Up);
+      b[side] = JacStateOf(nDim, Um);
+      su2double rp[pbc::ES_NVAR], rm[pbc::ES_NVAR];
+      edge(a[0], a[1], rp);
+      edge(b[0], b[1], rm);
+      for (size_t v = 0; v < nVar; ++v) {
+        const su2double fd = (rp[v] - rm[v]) / (2.0 * h);
+        err = std::max(err, su2double(fabs(fd - jac(v, c)[0])));
+        ref = std::max(ref, su2double(fabs(fd)));
+      }
+    }
+  }
+  return err / ref;
+}
+
 }  // namespace
+
+TEST_CASE("EDGE_FORM_P1 centered Jacobian: form coefficients 0.5 A (n_ik -+ 2E_ik) against finite differences", "[P1Flux]") {
+  std::mt19937 gen(9505);
+  su2double worst = 0.0;
+  for (int trial = 0; trial < 100; ++trial) {
+    worst = std::max(worst, EdgeFormJacobianError<2>(gen));
+    worst = std::max(worst, EdgeFormJacobianError<3>(gen));
+  }
+  INFO("worst relative error " << worst);
+  CHECK(worst < 1e-6);
+}
 
 TEST_CASE("BC_ENTROPY_P1 Jacobian: far field faces in the four characteristic regimes against finite differences", "[P1Flux]") {
   /*--- Free stream normal Mach number -1.6 (supersonic inflow), -0.5 (subsonic inflow), 0.5 (subsonic outflow), 1.6

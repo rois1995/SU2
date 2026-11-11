@@ -1835,7 +1835,7 @@ void CConfig::SetConfig_Options() {
   addBoolOption("BC_WEAK_P1", BC_Weak_P1, false);
   /*!\brief EDGE_FORM_P1 \n DESCRIPTION: Variant C, central flux 0.5(F_i+F_k).n_ik + (F_k-F_i).E_ik on the modified dual, requires MOD_CENTROIDS \ingroup Config \default false */
   addBoolOption("EDGE_FORM_P1", Edge_Form_P1, false);
-  /*!\brief EDGE_FORM_EXACT_JACOBIAN \n DESCRIPTION: Central Jacobian of EDGE_FORM_P1 or SPLIT_EDGE_FLUX with the coefficients of the form, not the normal of the dual. \ingroup Config*/
+  /*!\brief EDGE_FORM_EXACT_JACOBIAN \n DESCRIPTION: Central Jacobian of EDGE_FORM_P1 or SPLIT_EDGE_FLUX with the coefficients of the form, not the normal of the dual. Always on for the centered schemes with EDGE_FORM_P1. \ingroup Config*/
   addBoolOption("EDGE_FORM_EXACT_JACOBIAN", Edge_Form_Exact_Jacobian, false);
   /*!\brief EDGE_FORM_POSITIVE_DISS \n DESCRIPTION: Part of the extra Roe dissipation of EDGE_FORM_P1 up to the positivity bound 0.5 rho(n_ik) + rho(E_ik), on the reconstructed jump. 0 is off, 1 is the full bound. \ingroup Config*/
   addDoubleOption("EDGE_FORM_POSITIVE_DISS", Edge_Form_Positive_Diss, 0.0);
@@ -6847,9 +6847,9 @@ void CConfig::CheckP1FluxOptions() const {
     if (Time_Domain) SU2_MPI::Error(name + "steady problems only, the mass of the split operator is not the dual volume.", CURRENT_FUNCTION);
     if (GetDynamic_Grid() || GetGrid_Movement() || GCL_Exact_P1 || Grid_Entropy_P1)
       SU2_MPI::Error(name + "not available with grid motion, GCL_EXACT_P1 or GRID_ENTROPY_P1.", CURRENT_FUNCTION);
-    if (Edge_Form_Exact_Jacobian || (Edge_Form_Positive_Diss != 0.0) || Edge_Form_Entropy_Diss || Edge_Form_ES_Diss ||
+    if ((Edge_Form_Positive_Diss != 0.0) || Edge_Form_Entropy_Diss || Edge_Form_ES_Diss ||
         Edge_Form_TeCNO || Split_Edge_Flux || Edge_Diss_Projected) {
-      SU2_MPI::Error(name + "only with EDGE_FORM_EC_FLUX, EDGE_FORM_ES_BLEND, BC_WEAK_P1, BC_ENTROPY_P1, VISC_P1_ENTROPY, "
+      SU2_MPI::Error(name + "only with EDGE_FORM_EC_FLUX, EDGE_FORM_ES_BLEND, EDGE_FORM_EXACT_JACOBIAN, BC_WEAK_P1, BC_ENTROPY_P1, VISC_P1_ENTROPY, "
                      "VISC_P1_ENTROPY_MOVED and BC_WALL_ENTROPY_P1 among the P1 options.", CURRENT_FUNCTION);
     }
     if (nMarker_PerBound > 0) SU2_MPI::Error(name + "not available with periodic boundaries.", CURRENT_FUNCTION);
