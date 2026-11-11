@@ -19,7 +19,7 @@ Unrelated host Python collector left untouched. R/target_patches399_qualificatio
 Build399210.225s; CFD BYTE-IDENTICAL398:
 307c62b04384cbf7f2d7ace740d540e0c64edac30ed66dfa76902701225080a0;
 test6b81a43a4c3755a8c5d4e60749b01d0d691fd939371553d6bea73b31d08d0558.
-Source/evidence398eeeb02f562PUSHED;399diagnostic checkpoint pending push.
+Source/evidence398eeeb02f562PUSHED;399diagnostic checkpoint798db15fffPUSHED.
 Actualcase R/cases/curved399_checkpoint_target_patches_20261111T231039_3485346
 PASS115.188s. Single fixture adds bounded25+84 current metric-frame export using
 ALREADYcomputed tensors/samples; no added geometry queries. Saved patch measurements
