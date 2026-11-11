@@ -8,16 +8,24 @@ Read AGENTS.md and [HowToProceed.md](HowToProceed.md). Historical states are in
 
 ## Current owned workload — authoritative
 
-Current owned workload: full same303 workflow364 RUNNING/FROZEN,tool session31990.
-Folder `R/m6_runs/rans_curved364_v1`; wrapper1466577/start43035039,
-timeout1467060/start43036402,MPI1467061/start43036403. All10actual identities verified
-live,1639pins intact,84mapped ELF files match in start_verified_actual.json.
-Started2026-11-11T08:32:04.384512+00:00. First metric COMPLETE1199.666s,metric_build1199.254s; per-rank geometry work and
-provisional complexity948069.856 IDENTICAL to362. Metric-entry CFD restart byte-identical.
-No metric work reduction. Now in native surface preparation; no remesh outcome yet.
-See R/metric364_first_stage_comparison.json and immutable entry log.
-Do not edit pinned C++/tests/helpers until verified terminal or preserved failure
-justifies the standing authorized stop. Qualified checkpoint pushed87d0be3905 before launch.
+Current owned workload: NONE. Full same303 workflow364 TERMINAL1/1972.886s.
+All10 actual owned identities absent in terminal_handles_actual.json;1639pins and
+mapped runtime verified unchanged. Preserved first-event report/log before the
+verified owned SIGTERM: surface preparation391.619s,18commits/122work,
+51891cached of303310cells, seed311.796s. Deadline exhausted before first row;
+q/J UNKNOWN and incomplete geometry/size census. NOT a usable BL or infeasibility proof.
+Stop was for preserved construction deadline failure, NOT complexity overshoot.
+First metric1199.666s, same work and provisional estimate948069.856 as362;
+empirical uncertainty indicator77214.161, no proven bound. Flow-only2.08846.
+No metric speedup; nominal requested500k is NOT a strict gate or node count.
+
+Active next correction: distinguish composed-volume complexity accounting (already
+present) from adjustable normalization degrees of freedom (currently flow-only).
+Audit inherited wall-tangent sizing versus geometry/features/height feasibility,
+then implement ONE demonstrated connected correction preserving h0/g/T and normal
+progression. No new normalization implementation yet. See
+[normalization scope](Handbook/ADAPTATION_CURVED_BL_NORMALIZATION_20261111.md).
+
 Build364 TERMINAL0/206.222s,pins intact/all22observed handles absent. Serial364 passed
 3442assertions/9cases,4.451s; actual364 passed315957assertions/1case,67.798s,ALL5actual
 contexts; MPI364 passed17cases on EVERYrank,4063–6918assertions/rank,365.101s.
@@ -31,7 +39,7 @@ persistent cache or private-trial reuse. Extra scratch admitted. Binding/ForFace
 support invariant under batch overlay; cached-vs-single edges/flags pass. Matching
 root20-cell seed.55455→.37551s, smooth14-cell.30381→.11588s; not a full-run speedup.
 Production CFD364 SHA5fbb3f5ce343b6259bb41911e3243605db2207ca4e9a3f973d196afa8c13ef65.
-Now running same303 two-event workflow with run_rans_curved364.py,
+Terminal same303 two-event workflow used run_rans_curved364.py,
 unchanged500k/gates/budgets. Native1 guard remains; native MPI FIRST_ROW unqualified.
 363 diagnostic failure/source snapshots preserved; sticky child-budget flag corrected
 only in diagnostic fixture. No production budget, target or certification change.
@@ -126,7 +134,7 @@ contributions and realized leading-edge conformity. Inherited tangential contrib
 to historical1.174528M/current948070 versus500k remains unquantified; do not call it infeasible,
 raise complexity or weaken heights. Exact330 core was not saved; no baseline campaign.
 
-Use frozen364 outcome to select the next connected correction. Completion remains
+Use preserved364 outcome for the active normalization correction above. Completion remains
 TWO strictly accepted RANS500k adaptations, conservative admissible flow+SA transfer,
 finite continued adapted CFD and actual isolated adapted disk restart, plus dedicated
 BL/native-MPI constraint qualification. Passing fixtures/private patches are not

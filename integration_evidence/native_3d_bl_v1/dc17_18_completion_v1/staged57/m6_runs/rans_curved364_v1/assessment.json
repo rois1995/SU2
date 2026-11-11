@@ -1,0 +1,139 @@
+{
+  "state": "terminal",
+  "workflow_accepted": false,
+  "strict_bl_accepted": false,
+  "stop_reason": "Preserved first-event surface construction deadline failure; not complexity overshoot.",
+  "status": {
+    "state": "terminal",
+    "exit_code": 1,
+    "seconds": 1972.886034488678,
+    "pins_verified": true,
+    "changed": [],
+    "mapped_runtime_verified": true,
+    "unknown_or_changed_mapped_elf": [],
+    "disk_restart_validated": false,
+    "reasonable_flow_qualified": false,
+    "expected_events": 2,
+    "workflow_accepted": false,
+    "qualification": "Requires independent event/transfer/turbulence/CFD/restart assessment; exit zero alone is insufficient"
+  },
+  "surface": {
+    "event": 0,
+    "ramp_factor": 1,
+    "final_cycle": 1,
+    "input_cells": 303359,
+    "authority": {
+      "mapped_input": 1,
+      "declared_error": 0,
+      "fitted_planes": 0,
+      "affine": 8094
+    },
+    "wall_faces": 38800,
+    "h0_min": 2e-06,
+    "surface_preparation": {
+      "prepared": 0,
+      "final_acceptance": false,
+      "seconds": 391.618777755,
+      "work": 122,
+      "commits": 18,
+      "geometry_work": 2213641,
+      "field_compositions": 0,
+      "seed_cells": 51808,
+      "seed_batches": 6476,
+      "cached_measured_cells": 51891,
+      "seed_seconds": 311.796340489,
+      "measurement_cpu_seconds": 311.904662,
+      "field_requests": 181894,
+      "field_hits": 0,
+      "field_misses": 181894,
+      "edge_evaluations": 284869,
+      "edge_reused": 0,
+      "reason": "Native 3D kernel elapsed-time budget exhausted; feasibility is undetermined. Local cached demands: geometry_cells=0, metric_or_height_cells=12, geometry_edges=0, metric_edges=0. Last local rejection: edge 13685,13682: Native 3D collapse obstructed at cell 73354."
+    },
+    "construction_valid": 0,
+    "final_acceptance": "deferred to distributed stages",
+    "reason": "FIRST_ROW surface preparation failed: Native 3D kernel elapsed-time budget exhausted; feasibility is undetermined. Local cached demands: geometry_cells=0, metric_or_height_cells=12, geometry_edges=0, metric_edges=0. Last local rejection: edge 13685,13682: Native 3D collapse obstructed at cell 73354."
+  },
+  "requested_nominal_complexity": 500000,
+  "estimated_composed_complexity": 948069.856022055,
+  "empirical_uncertainty_indicator": 77214.16146419593,
+  "proven_complexity_error_bound": false,
+  "flow_only_complexity": 2.0884618106155486,
+  "metric_seconds": 1199.666317491,
+  "whole_workflow_seconds": 1972.886034488678,
+  "capture": {
+    "schema": "native_failure3d_v2",
+    "rank": 0,
+    "ranks": 1,
+    "event": 1,
+    "metrics_encoding": "compact-array-v1",
+    "private_diagnostic": true,
+    "final_mesh_accepted": false,
+    "complete_shard": true,
+    "owned_complete": true,
+    "metrics_complete": false,
+    "reference_complete": true,
+    "rejections_complete": true,
+    "working_rows": 303310,
+    "written_rows": 303310,
+    "owned_record_bytes": 416,
+    "byte_order": "little",
+    "cap_bytes": 134217728,
+    "composition_serialized": false,
+    "edge_breakpoints_serialized": false,
+    "reason": "Native 3D kernel elapsed-time budget exhausted; feasibility is undetermined. Local cached demands: geometry_cells=0, metric_or_height_cells=12, geometry_edges=0, metric_edges=0. Last local rejection: edge 13685,13682: Native 3D collapse obstructed at cell 73354.",
+    "cache_consistent": true,
+    "census_complete": false,
+    "shape_complete": false,
+    "geometry_complete": false,
+    "round": 122,
+    "progress": {
+      "owned": 303310,
+      "measured": 51891,
+      "q_bad": 0,
+      "j_bad": 0,
+      "geometry_bad": 0,
+      "size_bad": 12
+    },
+    "files": {
+      "owned": "adapted_mesh_inspection_rank0_owned.bin",
+      "metrics": "adapted_mesh_inspection_rank0_metrics.compact.jsonl",
+      "reference": "adapted_mesh_inspection_rank0_reference.jsonl",
+      "rejections": "adapted_mesh_inspection_rank0_rejections.jsonl"
+    },
+    "marker_names": [
+      "FARFIELD",
+      "SYMMETRY",
+      "WING3D"
+    ],
+    "geometry_excess_definition": "sqrt(sum(max(physical_face_error-surface_tolerance,0)^2))",
+    "policies": {
+      "surface_tolerance": 0.0001,
+      "q_min": 0.2,
+      "j_min": 0.05,
+      "max_edge": 1.8,
+      "height_tolerance": 0.1,
+      "wall_heights": [
+        [
+          2,
+          2e-06
+        ]
+      ],
+      "region_walls": [
+        [
+          2,
+          2e-06,
+          1.2,
+          0.01
+        ]
+      ]
+    }
+  },
+  "actual_partial_mesh": {
+    "used_nodes": 61312,
+    "tetrahedra": 303310,
+    "source": "complete owned binary capture; exact serialized node/cell identities",
+    "accepted": false,
+    "shape_census_complete": false
+  }
+}

@@ -1,0 +1,35 @@
+{
+  "authorized_by": "Standing AGENTS stop/fix/retry instruction for preserved demonstrated M6 construction failure; no accepted adapted state discarded.",
+  "checked_unix": 1794387891.2065797,
+  "pid": 1467061,
+  "start_ticks": 43036403,
+  "cmd": "mpirun --output-filename rank_output -n 6 /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver [NativeSelectedFailureWorkflow3D] --durations yes ",
+  "reason": "FIRST_ROW surface preparation failed: Native 3D kernel elapsed-time budget exhausted; feasibility is undetermined. Local cached demands: geometry_cells=0, metric_or_height_cells=12, geometry_edges=0, metric_edges=0. Last local rejection: edge 13685,13682: Native 3D collapse obstructed at cell 73354.",
+  "surface_preparation": {
+    "prepared": 0,
+    "final_acceptance": false,
+    "seconds": 391.618777755,
+    "work": 122,
+    "commits": 18,
+    "geometry_work": 2213641,
+    "field_compositions": 0,
+    "seed_cells": 51808,
+    "seed_batches": 6476,
+    "cached_measured_cells": 51891,
+    "seed_seconds": 311.796340489,
+    "measurement_cpu_seconds": 311.904662,
+    "field_requests": 181894,
+    "field_hits": 0,
+    "field_misses": 181894,
+    "edge_evaluations": 284869,
+    "edge_reused": 0,
+    "reason": "Native 3D kernel elapsed-time budget exhausted; feasibility is undetermined. Local cached demands: geometry_cells=0, metric_or_height_cells=12, geometry_edges=0, metric_edges=0. Last local rejection: edge 13685,13682: Native 3D collapse obstructed at cell 73354."
+  },
+  "pins_verified": true,
+  "pin_count": 1639,
+  "preserved_sha256": {
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/rans_curved364_v1/first_event_surface_failure_report.json": "e8ace3dcdb3105b7627df81c3172f43b1b0e2a413ff5be0edab88b3b66a75ebb",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/rans_curved364_v1/first_event_failure_run.log": "b0269f0ed558e6671c71f26c895f7a56a54af06c4f95c84ed1c8f7805bd7ffed"
+  },
+  "signal": "SIGTERM"
+}

@@ -1,5 +1,9 @@
 # Implementation and validation cadence
 
+User clarification, 2026-11-11: RANS500k is a NOMINAL metric-complexity target,
+not an acceptance gate or exact node count. Explain overshoot and uncertainty;
+preserve requested normal heights/progression and all strict acceptance/resource gates.
+
 User clarification, 2026-10-30: the 500k adaptation target was intended for RANS,
 not Euler. Use a much smaller Euler target; the current functional-loop attempt
 uses 50k (an implementation choice), with 500k reserved for RANS. Keep all geometry,

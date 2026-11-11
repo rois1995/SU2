@@ -85,8 +85,8 @@ child-budget flag failure is preserved. Connected364 (affected serial/actual/MPI
 uses the existing multi-cell planner once per existing published measurement batch,
 extracting exact per-cell edges/requested-face maxima; private trials are unchanged.
 No persistent cache or larger batch. Cached-versus-single equivalence and all5actual contexts pass; ONE MPI milestone
-passes17cases on every rank. Full same303 workflow364 is now RUNNING/FROZEN; exact handles are in HANDOFF_Codex.md. See
-HANDOFF_Codex.md for current handles and qualification; no improvement is yet proven.
+passes17cases on every rank. Full same303 workflow364 is TERMINAL; authoritative evidence is in HANDOFF_Codex.md. See
+HANDOFF_Codex.md for current handles and qualification; no accepted BL is proven. The active next task is the connected normalization audit/correction in [normalization scope](Handbook/ADAPTATION_CURVED_BL_NORMALIZATION_20261111.md). RANS500k is nominal, not a rejection gate.
  First assess whether surface preparation reaches useful operators and a
 complete readiness census within the unchanged window. Then judge actual first-layer,
 growth and transition results; useful operators or test passes are not usable BL.
