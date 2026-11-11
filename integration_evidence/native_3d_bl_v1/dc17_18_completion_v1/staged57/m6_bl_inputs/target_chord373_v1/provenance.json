@@ -1,0 +1,102 @@
+{
+  "scope": "Failed373exact saved371 target on first original20-cell M6 context; not accepted BL or complete target checkpoint.",
+  "case": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved373_target_geometry_20261111T121307_2003454",
+  "status": {
+    "state": "terminal",
+    "exit_code": 1,
+    "seconds": 355.99901485443115,
+    "pins_verified": true,
+    "changed": [],
+    "largest_sampled_individual_process_rss_bytes": 1655656448,
+    "rss_note": "sampled process RSS; not a whole-job peak"
+  },
+  "actual_host_handles_terminal": true,
+  "first_context": "actual_failed_chord",
+  "source_cells": 20,
+  "a_node": 65,
+  "b_node": 18865,
+  "a": [
+    0.002380958890740337,
+    -1.062527844e-13,
+    -0.007634829294804406
+  ],
+  "b": [
+    0.005985127462594315,
+    0.006749924753011305,
+    -0.007145077741415979
+  ],
+  "policy_recipe": [
+    {
+      "MakeTargetPolicy_core": 0.0001
+    },
+    {
+      "SelectTangentialScale": 0.28717458874925855
+    },
+    {
+      "Update_core": 0.0047263575870155755,
+      "hgrad": 1.3
+    }
+  ],
+  "band_ratio": 1.5,
+  "fade_bands": 16,
+  "metric_padding": [
+    0,
+    0,
+    0
+  ],
+  "refusal": {
+    "context": "actual_failed_chord",
+    "stage": "refusal",
+    "reason": "Curved atlas elapsed-time budget exhausted.",
+    "geometry_work": 4836754,
+    "seconds": 294.875275342
+  },
+  "existing_counters": {
+    "context": "actual_failed_chord",
+    "stage": "existing_counters",
+    "field": {
+      "queries": 20,
+      "query_misses": 20,
+      "compositions": 20,
+      "edge_integrations": 2,
+      "edge_compositions": 0,
+      "edge_pieces": 2
+    },
+    "edge_failures": 1,
+    "edge_geometry_seconds": 293.942566004,
+    "edge_composition_seconds": 0,
+    "edge_seconds": 293.943018969,
+    "cumulative_perf": {
+      "ops": {
+        "Column directions": {
+          "count": 1,
+          "seconds": 0.37039791,
+          "ms_per_op": 370.39791
+        }
+      },
+      "caches": {
+        "length_hits": 0,
+        "length_misses": 0,
+        "length_failures": 0,
+        "shape_hits": 0,
+        "shape_misses": 0,
+        "height_hits": 0,
+        "height_misses": 0,
+        "rejection_cache_skips": 0,
+        "geometry_length_hits": 0
+      }
+    }
+  },
+  "wall_samples": 7,
+  "complete_contexts": 0,
+  "confirmed": "Edge breakpoint geometry preparation consumes293.942566s before any composed edge integrand evaluation;20centroid queries completed.",
+  "unresolved": "Exact active interval/query/error and repeated support versus conservative subdivision are not preserved by generic timeout. No optimization selected.",
+  "sha256": {
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_bl_inputs/seed_measurement363_v1/contexts.dat": "547db3852e04166e2e50cce9fe85f3688215bce2ddc620b5561ce34bcf7d9cae",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved371_saved_cfd_metric_stage_20261111T111921_1888531/selected_core_native.bin": "25f03abdbe5e3406af6725e093bedd94c8b1d05cd32586d35d74829e1f1b9cae",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved373_target_geometry_20261111T121307_2003454/actual_bl_front.jsonl": "2f45e113c76c883f7e79c2484ffa457014b34ed2427cb5b8e54f597b9274bb50",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved373_target_geometry_20261111T121307_2003454/run.log": "8a49b506e8dd508482e4134b891d14f698fe9f7158f3aa3b2325d7600e0dc77c",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved373_target_geometry_20261111T121307_2003454/pins.json": "de3be61c3b2f5a64189b83366f90a188755b2b3c1e43bf61f70c4641482a7449",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_bl_inputs/target_chord373_v1/contexts.dat": "0bad2aaefac9f0e41d47de2e7270ceaf983fe991e42e5401dcbb49e620788f95"
+  }
+}

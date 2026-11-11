@@ -290,3 +290,24 @@ finite positive queries and repeated-query agreement in the fresh policy must ho
 This does not establish cold-cache equivalence or restore371support history. Retain all outputs
 if geometry/edge work exhausts the existing bound; unresolved work is not approval.
 No final whole-mesh shape gate is applied to these unlayered diagnostic inputs.
+
+##373 outcome and next connected blocker
+
+Actual saved-core diagnostic failed its existing300s atlas deadline in the FIRST
+context (wrapper355.999s); all5actual-host handles terminal, pins intact. It completed
+7associated wall-point contributions and20centroid field queries, then spent
+293.942566s in edge_geometry, with0edge integrand compositions and1edge failure.
+Context geometrywork4836754. This identifies EdgeBreakpoints preparation as the
+measured blocker. It does NOT identify repeated query/support work versus necessary
+conservative subdivision. The other4contexts and chord result remain unmeasured.
+
+The existing chord replay record covers internal work/adjacency failures, but elapsed
+refusals can bypass it. ProjectWall checks the deadline before its point wrapper;
+optional endpoint handling may also rethrow a generic budget message. The selected
+next step is a diagnostic correction only: preserve current chord interval, point,
+requested accuracy, query counts/cost and existing geometry-cache counters on budget
+failure; journal completed centroid output BEFORE the chord. Preserve exception
+types, bounds, work/time budgets, acceptance and repair decisions. Use the exact
+single failed20-cell context with saved371data, not a new baseline/perf/GDB campaign.
+Focused resource-replay checks precede that replay. No caching/bound optimization
+is selected until this distinguishes the responsible work.

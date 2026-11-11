@@ -102,8 +102,8 @@ for(size_t index=0;index<count;++index) {
       const auto guidance=policy->BoundaryGuidance({vertex,p},*state->reference,coreAt({vertex,p}),reference->marker_names);
       const auto direction=dc9::DirectionAt(*state,vertex);
       if(savedTarget) {
-        const auto flow=coreAt({vertex,p});auto combined=flow;policy->ApplyPoint(p,combined);
-        auto repeated=flow;policy->ApplyPoint(p,repeated);
+        const auto flow=coreAt({vertex,p});const auto combined=policy->Composition()(p,flow);
+        const auto repeated=policy->Composition()(p,flow);
         CHECK(combined.xx==repeated.xx);CHECK(combined.xy==repeated.xy);CHECK(combined.xz==repeated.xz);
         CHECK(combined.yy==repeated.yy);CHECK(combined.yz==repeated.yz);CHECK(combined.zz==repeated.zz);
         const auto wall=policy->BoundaryGuidance({vertex,p},*state->reference,control,reference->marker_names);
@@ -138,8 +138,13 @@ for(size_t index=0;index<count;++index) {
         const auto m=Measure(tet,state->field->evaluate(center));qb+=m.mean_ratio<MinimumMeanRatio;jb+=m.minimum_scaled_jacobian<MinimumScaledJacobian;
         minq=std::min(minq,m.mean_ratio);minj=std::min(minj,m.minimum_scaled_jacobian);
       }
+      frontLog<<"{\"context\":"<<std::quoted(label)<<",\"stage\":\"saved_target_centroids_complete\",\"q_bad_centroid\":"<<qb
+              <<",\"J_bad_centroid\":"<<jb<<",\"q_centroid_min\":"<<minq<<",\"J_centroid_min\":"<<minj<<"}"<<std::endl;
       const auto a=NodePoint(*state,edge[0]),b=NodePoint(*state,edge[1]);
-      const auto sensorLength=state->field->SensorEdgeLength(a,b),fullLength=state->field->TargetEdgeLength(a,b);
+      const auto sensorLength=state->field->SensorEdgeLength(a,b);
+      frontLog<<"{\"context\":"<<std::quoted(label)<<",\"stage\":\"saved_target_chord_begin\",\"a\":";pointJSON(a);
+      frontLog<<",\"b\":";pointJSON(b);frontLog<<",\"sensor_edge_length\":"<<sensorLength<<"}"<<std::endl;
+      const auto fullLength=state->field->TargetEdgeLength(a,b);
       REQUIRE(sensorLength>0);REQUIRE(fullLength>0);REQUIRE(std::isfinite(fullLength));
       frontLog<<"{\"context\":"<<std::quoted(label)<<",\"stage\":\"saved_target_patch\",\"core\":"<<selectedCore
               <<",\"tangent_scale\":"<<tangentScale<<",\"q_bad_centroid\":"<<qb<<",\"J_bad_centroid\":"<<jb
@@ -312,6 +317,13 @@ for(size_t index=0;index<count;++index) {
           <<",\"edge_composition_seconds\":"<<state->field->Statistics().edge_composition_seconds-beforeRawField.edge_composition_seconds
           <<",\"edge_seconds\":"<<state->field->Statistics().edge_seconds-beforeRawField.edge_seconds
           <<",\"cumulative_perf\":"<<dc9::JsonPerf()<<"}"<<std::endl;
+  if(savedTarget) {
+    const auto stats=state->reference->Parameters()->Geometry().GeometryStatsSnapshot();
+    frontLog<<"{\"context\":"<<std::quoted(label)<<",\"stage\":\"existing_geometry_counters\",\"closest_region_hits\":"<<stats.closest_region_hits
+            <<",\"closest_region_misses\":"<<stats.closest_region_misses<<",\"closest_region_build_seconds\":"<<stats.closest_region_build_seconds
+            <<",\"prepared_bytes\":"<<stats.prepared_bytes<<",\"memo_direct_hits\":"<<stats.memo_direct_hits
+            <<",\"memo_direct_misses\":"<<stats.memo_direct_misses<<"}"<<std::endl;
+  }
   REQUIRE_FALSE(budget.time_exhausted);REQUIRE_FALSE(budget.work_exhausted);REQUIRE_FALSE(state->publication_failed);
 }
 frontLog<<"{\"complete\":true,\"contexts\":"<<count<<",\"constructed\":"<<built<<",\"clear_preserved_candidates\":"<<admitted

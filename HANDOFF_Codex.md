@@ -12,9 +12,39 @@ construction validity-first; intermediate quality debt is provisional, not accep
 
 ## Current state — authoritative
 
-Current owned workload: build372 RUNNING/FROZEN, session58881;
-wrapper1989463/start44323786,ninja1989487/start44323811. Test-only saved-target
-diagnostic, production sources unchanged. Do not edit pinned sources until terminal.
+Current owned workload:374single saved-target chord diagnostic RUNNING/FROZEN,
+session63570, wrapper2083233; case
+R/cases/curved374_target_geometry_20261111T124950_2083233.
+No CFD/global metric solve or construction. Existing300s atlas/600s outer limits.
+Do not edit pinned sources until actual-host terminal. Build374 TERMINAL0/202.232s;
+22owned handles terminal. Focused serial374 TERMINAL0/257.590s,
+424assertions/4cases, pins intact;4child identities and wrapper rechecked absent on
+actual host before replay. Diagnostic counters/context only; no bound, threshold,
+repair decision or budget change.
+
+373actual saved-target diagnostic TERMINAL1/355.999s, pins intact, all5owned
+actual-host identities terminal. R/geometry_target373_assessment.json. FIRST
+20-cell context only:7associated wall-point contributions and20centroid queries
+complete, then293.942566s in edge_geometry,0edge integrand compositions,1edge failure,
+contextgeometrywork4836754. Existing300s atlas deadline exhausted. Normal metric
+density≈500000 agrees with h0; physical placement/progression remain unverified.
+Other4contexts and the actual chord length remain unmeasured. Source identifies
+curved EdgeBreakpoints preparation, not Mach recovery/integrand evaluation. It does
+not distinguish repeated preparation from conservative refinement yet.
+
+374closes the timeout replay gap: current interval/point/error, projection counts/
+cost and existing geometry counters; journals completed centroids before the chord.
+First run focused [NativeCubicChordSpan3D],[NativeBLTangentialNormalization3D] via
+R/check_chord_serial374.py, then exact single failed context using
+R/check_chord_capture374.py. R/m6_bl_inputs/target_chord373_v1 preserves its20cells,
+endpoints65/18865 and exact fresh-policy recipe from371selected core. No new global
+metric/CFD/baseline/perf/GDB run. No optimization selected before those counters.
+
+Build373 TERMINAL0/198.222s,10owned handles terminal; CFD byte-identical371,
+test SHAedfcb725e02b092de88e98d0e137be297793ca8795e79b76700db85d38a1c591.
+372failed only the new test's Tensor/ApplyPoint type mismatch (terminal1/18.146s,
+all5owned handles absent; source_snapshots372 preserves it);373uses Composition().
+
 
 371actual saved-CFD METRIC-ONLY stage TERMINAL0/
 1739.083s,429364assertions total across6ranks. All10owned actual-host identities
@@ -42,9 +72,12 @@ flow-direction diagnostics: current case/{selected_core_native.bin,
 core_allocation_assessment.json,saved_cfd_metric_rank*.jsonl}. These are CORE-only,
 NOT a complete composed-target checkpoint or original-family persistence.
 
-Next: use those exact saved tensors with existing bounded actual-M6 contexts to
-inspect full/flow/BL/physical geometry demands, normal law and directional/chord
-conformity; localize farfield core allocation before selecting target reasonableness.
+Next target diagnosis is limited by the373chord-preparation failure above. Reuse
+the exact saved tensors for all further full/flow/BL/geometry/height checks.
+Farfield localization in R/farfield371_allocation_report.json shows distributed
+core demand and large outer volume: top32nodes account for12%ofr>20core demand,
+none directly boundary-incident; this does not prove a corner/recovery bug or
+justify changing sensors/norms/gradation. Target reasonableness remains unselected.
 Do not repeat CFD or launch surface generation merely because total≈500k. Complete
 composed-target reconstruction/reload remains required before stage3.
 

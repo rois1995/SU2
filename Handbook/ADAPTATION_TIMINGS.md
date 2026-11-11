@@ -9,8 +9,13 @@ Latest completed target observation:371same saved-CFD MPI6 metric-only stage,
 terminal0/1739.083s. Target remains provisional; no surface construction or usable
 BL followed. Latest construction result remains364's preserved surface deadline
 failure. Requested500k is nominal complexity, not a node count or acceptance gate.
-Euler293's completed workflow remains preserved. Build372is frozen/running for a
-test-only bounded saved-target diagnostic; no new global metric or CFD run.
+Euler293's completed workflow remains preserved. 373bounded saved-target diagnostic failed in chord preparation;374diagnostic
+capture build and focused checks passed; the single saved-target chord replay is running. No new global metric or CFD run.
+
+This is the maintained timing/work record requested by the user. Update current
+stage rows and the efficiency table after each meaningful completed result; retain
+matched historical comparisons. Running work belongs in the handoff and must not
+be presented as a completed timing. Missing counters remain explicitly unmeasured.
 
 ## Current runtime by stage
 
@@ -144,6 +149,27 @@ established production speedup or accepted-mesh benefit. Successful cache reuse
 counters and lower estimated complexity are not efficiency milestones. Add a gain
 only after matching work/progress and scope are demonstrated.
 
+## Preserved Euler comparison — no material speedup established
+
+Euler293 remains the completed workflow baseline. The296 boundary-reuse replay
+is retained as a useful negative performance result, not credited as a major gain.
+At complete census round24512, both have733163cells,10q-bad,4J-bad,945geometry-bad
+and0size-bad, with matching complete/cache flags:
+
+| Measure |293|296| Interpretation |
+|---|---:|---:|---|
+| Quality elapsed s |2006.0965|1972.9508|1.65% lower wall, contention-sensitive |
+| Net q-bad removed/s |13.4799|13.7064|Same census trajectory; no material causal speedup proved |
+| Charged upper-query work |1135505146|1135505146|No work reduction |
+| Certification traversal work |1002244651|1002244651|No traversal reduction |
+| Boundary candidates / accepted moves |374616/16416|374616/16416|Identical work/output at this census |
+
+Source: R/m6_runs/euler_build296_boundary_reuse_mach_only_real_cfd50k/
+quality_comparison293.json, whose hashed source prefixes identify the compared
+complete windows. This census is before final closure; it is not a whole accepted
+adaptation timing. The preserved Euler293 completion and disk-restart evidence
+remain authoritative for acceptance. Join timers are not total MPI wait.
+
 ## Development checks — separate from production timings
 
 | Check | Wall s | Scope/result |
@@ -159,6 +185,11 @@ only after matching work/progress and scope are demonstrated.
 |370actual saved-CFD metric-only|65.9329 wrapper;61.85 process tree|Failed first coarse trial: D1 intersection sum not SPD; pins intact, no CFD advance/construction. No credible target/checkpoint.|
 |371endpoint correction serial|68.6061 wrapper|1096assertions/16cases, pass; production CSolver-only correction. No speedup attribution from this test.|
 |371actual saved-CFD metric-only|1739.083 wrapper;1732.127 metric|429364assertions across6ranks, pass; exact conserved values unchanged and independent Mach error6.66e-16. Provisional target, not accepted BL.|
+|372test-only diagnostic build|18.1463|Failed Tensor/ApplyPoint type mismatch; no production source change.|
+|373test-only diagnostic build|198.2218|Pass; production CFD binary byte-identical371.|
+|374diagnostic-only build|202.2323|Pass; diagnostic replay context/counters only, no algorithmic speedup.|
+|374focused chord/normalization serial|257.5903 wrapper|424assertions/4cases, pass; includes expired-budget replay and existing curved chord cases. Not production performance.|
+|373actual saved-field target diagnostic|355.9990 wrapper;294.8753 first context|Failed atlas deadline;20centroid queries/compositions complete;2edge integrations,2source pieces,293.9426s edge geometry,0edge compositions.7associated wall samples; no construction.|
 
 369 measured context work/time: failing-chord79units/0.12217s, smooth-upper129/0.17698s,
 leading-edge130/0.20864s, symmetry-interface59/0.08340s and sharp-edge candidate130/0.20092s.
@@ -192,3 +223,12 @@ Full364 sampled summed process-tree RSS maximum5784432640B(≈5.39GiB), not a tr
 physical-memory/whole-job peak; shared pages can be counted more than once.
 Geometry reservation12879626240B is ledger admission, not physical RSS. These
 quantities must remain distinct when judging resource pressure or performance.
+
+
+Latest demonstrated stage2blocker (373): the FIRST20-cell chord-preparation query
+consumes293.94s before any edge integrand composition,4.836754Mcontext geometrywork,
+under the existing300s atlas deadline. This is a direct section measurement, not
+an MPI wait attribution. Wrapper CPU350.34s/user +1.00s/system versus351.67sprocess
+wall; serial probe, no memory pressure. The measured cost lies in geometric cut
+preparation; exact repeated queries versus conservative refinement remain unknown.
+374adds bounded failure-only context/counters; no optimization or timing gain yet.

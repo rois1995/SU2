@@ -3705,6 +3705,28 @@ std::vector<double> CBoundaryLayerMetric::EdgeBreakpointsImpl(
     if(CurvedWall(wall)) {
       // Keep certified excluded intervals excluded; only unresolved leaves consume further geometry work.
       struct Interval {double left,right;long double uncertainty,metric;};
+      struct ProjectionStats {
+        size_t calls=0,work=0;
+        double seconds=0,maximum_seconds=0,error=0,maximum_error=0;
+        std::array<double,3> point{},maximum_point{};
+        const char* step="none";
+      } projections;
+      auto project=[&](const std::array<double,3>& point,double error,size_t scratch,const char* step) {
+        ++projections.calls;projections.point=point;projections.error=error;projections.step=step;
+        auto* reservation=geometryReservation?geometryReservation:walls[wall].authority->AtlasReservation();
+        const auto workBefore=reservation?reservation->work:0;
+        const auto begin=std::chrono::steady_clock::now();
+        auto record=[&]() {
+          const auto seconds=std::chrono::duration<double>(std::chrono::steady_clock::now()-begin).count();
+          projections.seconds+=seconds;
+          if(seconds>projections.maximum_seconds) {
+            projections.maximum_seconds=seconds;projections.maximum_point=point;projections.maximum_error=error;
+          }
+          if(reservation)projections.work=transfer_memory::Add(projections.work,reservation->work-workBefore);
+        };
+        try {auto result=ProjectWall(wall,point,error,scratch);record();return result;}
+        catch(...){record();throw;}
+      };
       static_assert(sizeof(Interval)<=4*sizeof(long double),"Curved frontier exceeds reserved workspace.");
       auto admit=[&](size_t scratch) {
         if(transfer_memory::Add(StorageBytes(),scratch)>walls[wall].geometry_ceiling)
@@ -3717,7 +3739,7 @@ std::vector<double> CBoundaryLayerMetric::EdgeBreakpointsImpl(
         }
       };
       constexpr size_t endpointScratch=2048;
-      static_assert(3*sizeof(WallProjection)<=endpointScratch,"Endpoint projections exceed reserved scratch.");
+      static_assert(3*sizeof(WallProjection)+sizeof(ProjectionStats)<=endpointScratch,"Endpoint projections exceed reserved scratch.");
       const auto frontierBytes=transfer_memory::Add(transfer_memory::Mul(16384,sizeof(Interval)),endpointScratch);
       admit(transfer_memory::Add(frontierBytes,transfer_memory::Bytes(levels),transfer_memory::Bytes(cuts),
           transfer_memory::Mul(retained.size(),sizeof(double)+4*sizeof(void*))));
@@ -3743,7 +3765,7 @@ std::vector<double> CBoundaryLayerMetric::EdgeBreakpointsImpl(
         const auto width=std::nextafter((long double)right-left,INFINITY);
         return std::nextafter(std::nextafter(width*lengthBound,INFINITY)*bound,INFINITY);
       };
-      auto fail=[&](const char* category,const char* reason,const Interval& extra,long double incrementalTotal) {
+      auto replayContext=[&](const char* category,const char* reason,const Interval& extra,long double incrementalTotal) {
         long double freshTotal=0,adjacentTotal=0,splittableTotal=0,largestSplittable=0;
         size_t adjacent=0,splittable=0;
         auto collect=[&](const Interval& leaf) {
@@ -3775,12 +3797,21 @@ std::vector<double> CBoundaryLayerMetric::EdgeBreakpointsImpl(
             <<",\"incremental_total\":"<<incrementalTotal<<",\"fresh_total\":"<<freshTotal
             <<",\"adjacent_total\":"<<adjacentTotal<<",\"splittable_total\":"<<splittableTotal
             <<",\"adjacent\":"<<adjacent<<",\"splittable\":"<<splittable<<",\"largest_splittable\":"<<largestSplittable
-            <<",\"work\":"<<work<<",\"leaves\":"<<(frontier.size()+1)<<",\"tolerance\":1e-8}";
-        throw std::runtime_error(context.str());
+            <<",\"work\":"<<work<<",\"leaves\":"<<(frontier.size()+1)<<",\"tolerance\":1e-8"
+            <<",\"projection_calls\":"<<projections.calls<<",\"projection_work\":"<<projections.work
+            <<",\"projection_seconds\":"<<projections.seconds<<",\"maximum_projection_seconds\":"<<projections.maximum_seconds
+            <<",\"projection_step\":\""<<projections.step<<"\",\"query_point\":["<<projections.point[0]<<','<<projections.point[1]<<','<<projections.point[2]
+            <<"],\"requested_point_error\":"<<projections.error<<",\"maximum_projection_point\":["<<projections.maximum_point[0]<<','<<projections.maximum_point[1]<<','<<projections.maximum_point[2]
+            <<"],\"maximum_projection_error\":"<<projections.maximum_error<<"}";
+        return context.str();
+      };
+      auto fail=[&](const char* category,const char* reason,const Interval& extra,long double incrementalTotal) {
+        throw std::runtime_error(replayContext(category,reason,extra,incrementalTotal));
       };
       Interval pending{0,1,intervalUncertainty(0,1,metricBound),metricBound};
       auto classify=[&](double left,double right,long double effectiveBound) {
         if(left==right)return;
+        pending={left,right,intervalUncertainty(left,right,effectiveBound),effectiveBound};
         if(++work>16384)fail("work_budget","Cubic BL distance crossings exceed work budget.",pending,
             std::nextafter(unresolved+pending.uncertainty,INFINITY));
         // Coordinate enclosures bound level exclusion; only ideal chord span contributes integration measure.
@@ -3806,8 +3837,8 @@ std::vector<double> CBoundaryLayerMetric::EdgeBreakpointsImpl(
         }
         const size_t scratch=transfer_memory::Add(transfer_memory::Bytes(frontier),transfer_memory::Bytes(levels),
             transfer_memory::Bytes(cuts),transfer_memory::Mul(retained.size(),sizeof(double)+4*sizeof(void*)));
-        const auto projection=ProjectWall(wall,point,std::max(std::numeric_limits<double>::min(),
-            std::min(1e-6*h0,double(radius)*.125)),scratch);
+        const auto projection=project(point,std::max(std::numeric_limits<double>::min(),
+            std::min(1e-6*h0,double(radius)*.125)),scratch,"midpoint");
         auto lower=std::nextafter((long double)projection.lower-radius,-INFINITY),upper=std::nextafter((long double)projection.upper+radius,INFINITY);
         if(std::none_of(levels.begin(),levels.end(),[&](double level){return level>=lower && level<=upper;}))return;
         if(std::all_of(metricPadding.begin(),metricPadding.end(),[](double x){return std::isfinite(x);})) {
@@ -3823,9 +3854,11 @@ std::vector<double> CBoundaryLayerMetric::EdgeBreakpointsImpl(
                   BLUp(4.L*std::numeric_limits<double>::denorm_min()+metricPadding[j]));
               roundingSquared=BLUp(roundingSquared+BLUp(error*error));
             }
+            unsigned endpointIndex=0;
             for(const auto& endpoint:{low,high}) {
               const auto& x=endpoint[0];
-              const auto end=ProjectWall(wall,{x.x,x.y,x.z},precision,transfer_memory::Add(scratch,endpointScratch));
+              const auto end=project({x.x,x.y,x.z},precision,transfer_memory::Add(scratch,endpointScratch),
+                  endpointIndex++?"right_endpoint":"left_endpoint");
               long double queryErrorSquared=0,maximumSquared=0;
               const double lo[3]={endpoint[0].x,endpoint[0].y,endpoint[0].z},hi[3]={endpoint[1].x,endpoint[1].y,endpoint[1].z};
               const auto& foot=projection.candidate_bounds;
@@ -3924,27 +3957,32 @@ std::vector<double> CBoundaryLayerMetric::EdgeBreakpointsImpl(
         frontier.push_back({left,right,boundedUncertainty,effectiveBound});std::push_heap(frontier.begin(),frontier.end(),larger);
         unresolved=std::nextafter(unresolved+boundedUncertainty,INFINITY);
       };
-      classify(0,1,metricBound);
-      while(unresolved>1e-8 && !frontier.empty()) {
-        const auto incrementalTotal=unresolved;
-        std::pop_heap(frontier.begin(),frontier.end(),larger);const auto parent=frontier.back();frontier.pop_back();
-        unresolved=std::max(0.L,std::nextafter(unresolved-parent.uncertainty,INFINITY));
-        const auto middle=.5*(parent.left+parent.right);
-        if(middle==parent.left || middle==parent.right) {
-          fail("adjacent","Unresolved cubic BL distance crossing; adjacent interval exceeds total uncertainty allowance.",parent,incrementalTotal);
+      try {
+        classify(0,1,metricBound);
+        while(unresolved>1e-8 && !frontier.empty()) {
+          const auto incrementalTotal=unresolved;
+          std::pop_heap(frontier.begin(),frontier.end(),larger);const auto parent=frontier.back();frontier.pop_back();
+          unresolved=std::max(0.L,std::nextafter(unresolved-parent.uncertainty,INFINITY));
+          const auto middle=.5*(parent.left+parent.right);
+          if(middle==parent.left || middle==parent.right) {
+            fail("adjacent","Unresolved cubic BL distance crossing; adjacent interval exceeds total uncertainty allowance.",parent,incrementalTotal);
+          }
+          // Include both unprocessed children in failure diagnostics until the first child is classified.
+          pending=parent;classify(parent.left,middle,parent.metric);
+          pending={middle,parent.right,intervalUncertainty(middle,parent.right,parent.metric),parent.metric};classify(middle,parent.right,parent.metric);
         }
-        // Include both unprocessed children in failure diagnostics until the first child is classified.
-        pending=parent;classify(parent.left,middle,parent.metric);
-        pending={middle,parent.right,intervalUncertainty(middle,parent.right,parent.metric),parent.metric};classify(middle,parent.right,parent.metric);
-      }
-      if(frontier.empty())unresolved=0; // Every interval was excluded by a certificate.
-      if(unresolved>1e-8)throw std::runtime_error("Cubic BL total crossing uncertainty exceeds edge tolerance.");
-      for(const auto& leaf:frontier)for(double t:{leaf.left,leaf.right})if(t>0 && t<1 && !retained.count(t)) {
-        if(cuts.size()>=65536)throw std::runtime_error("Cubic BL edge cuts exceed work budget.");
-        admit(transfer_memory::Add(frontierBytes,transfer_memory::Bytes(levels),
-            transfer_memory::Mul(2*std::max(cuts.capacity(),cuts.size()+1),sizeof(double)),
-            transfer_memory::Mul(retained.size()+1,sizeof(double)+4*sizeof(void*))));
-        retained.insert(t);cuts.push_back(t);
+        if(frontier.empty())unresolved=0; // Every interval was excluded by a certificate.
+        if(unresolved>1e-8)throw std::runtime_error("Cubic BL total crossing uncertainty exceeds edge tolerance.");
+        for(const auto& leaf:frontier)for(double t:{leaf.left,leaf.right})if(t>0 && t<1 && !retained.count(t)) {
+          if(cuts.size()>=65536)throw std::runtime_error("Cubic BL edge cuts exceed work budget.");
+          admit(transfer_memory::Add(frontierBytes,transfer_memory::Bytes(levels),
+              transfer_memory::Mul(2*std::max(cuts.capacity(),cuts.size()+1),sizeof(double)),
+              transfer_memory::Mul(retained.size()+1,sizeof(double)+4*sizeof(void*))));
+          retained.insert(t);cuts.push_back(t);
+        }
+      }catch(const std::length_error& failure) {
+        throw std::length_error(replayContext("resource_budget",failure.what(),pending,
+            std::nextafter(unresolved+pending.uncertainty,INFINITY)));
       }
       continue;
     }
