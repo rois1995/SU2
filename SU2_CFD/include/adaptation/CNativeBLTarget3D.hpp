@@ -216,9 +216,13 @@ inline MetricEdgeBreakpoints EdgeGeometryA(std::shared_ptr<CBoundaryLayerMetric>
     if(outside){geometry.cuts={0,1};full->RecordExcludedEdge();}
     else {owners=std::make_shared<CBoundaryLayerMetric::ChordOwners>();
       geometry.cuts=full->EdgeBreakpoints({a.x,a.y,a.z},{b.x,b.y,b.z},1.5,16,owners.get());}
-    geometry.pinned=[base,full,core,A,owners,a,b,fp,fs,bp,bs,radius,outside](long double t,Point p,Tensor sensor){
+    auto validate=[base,full,A,fp,fs,bp,bs,radius]() {
       if(fp!=full->GetSampleVersion()||fs!=full->GetSupportVersion()||bp!=base->GetSampleVersion()||bs!=base->GetSupportVersion()||radius!=A->radius)
         throw std::runtime_error("Stale composed BL edge context; rebuild target integration geometry.");
+    };
+    if(outside)geometry.sensor_only=[validate](){validate();return true;};
+    geometry.pinned=[base,full,core,A,owners,a,b,validate,outside](long double t,Point p,Tensor sensor){
+      validate();
       if(outside&&CBoundaryLayerMetric::MatchesChordPoint({a.x,a.y,a.z},{b.x,b.y,b.z},t,{p.x,p.y,p.z})) {
         full->RecordExcludedEvaluation();return sensor;
       }

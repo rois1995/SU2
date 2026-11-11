@@ -9,19 +9,27 @@ reserved for integration milestones or failures not reproducible at a stage boun
 
 ## Current stage2 blocker
 
-Build380shares complete closest-distance certificates in the existing bounded
-immutable geometry pool, replacing375's local chord memo. Same saved target recipe:
-preparation191.679s,4534integrand evaluations before the unchanged deadline; final
-chord still unavailable. All owned handles terminal. See
-[normalization/qualification evidence](Handbook/ADAPTATION_CURVED_BL_NORMALIZATION_20261111.md)
-and [timings](Handbook/ADAPTATION_TIMINGS.md). Cheaper fresh certification is the
-next investigation; existing bounded numerical projection may supply a better
-valid candidate/upper bound while complete lower-bound proof/fallback remains.
-No such seed correction is selected/implemented yet. MPIchanged-path checks pass;
-one unrelated planar fixed-count test fails and is preserved in backlog. Native
-MPI BL generation remains unqualified. Stage2still needs a reasonable target and
-faithful composed checkpoint/reload before surface generation. Construction notes
-below are historical capability evidence, not current live-job instructions.
+Current active work is [whole-edge exclusion and bounded accuracy diagnosis](Handbook/ADAPTATION_BL_EDGE_EXCLUSION_20261111.md).
+381qualified all-wall/support exclusion in both factories; original5M6edges remain
+ambiguous, while translated outside controls match the original background tensor.
+383qualifies the existing analytic P1integration bypass for those exact-identity
+edges:23serial cases,25cases on EVERYMPI6rank,5saved-context controls pass. All
+owned handles are terminal; see handoff for source/build/provenance.
+
+382diagnostic preserved the original geometry deadline:186.895spreparation/296cuts;
+whole GL10estimate39.19917, but even the widest retained interval's unchanged
+numerical reference refuses after7384evaluations. Actual error remains UNKNOWN.
+This demonstrates both substantial geometric partition work and a difficult local
+integrand; true variation, geometry-query jitter and unnecessarily tight tolerance
+are not yet separated. Do not replace production measurements with ten points or
+promote embedded-rule error estimates to conservative bounds.
+
+Stage2still needs a reasonable target and faithful composed checkpoint/reload before
+surface generation. Cheaper projection-seed alternatives remain deferred; use the
+above diagnosis to choose one measured blocker after the exact exclusion capability
+is qualified. Native MPI BL generation remains unqualified; the separate unchanged
+planar fixed-count failure380stays in the backlog. Historical construction notes
+below are capability evidence, not current live-job instructions.
 
 ## Preserved completion and current blocker
 

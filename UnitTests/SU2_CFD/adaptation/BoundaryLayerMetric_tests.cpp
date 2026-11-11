@@ -4458,7 +4458,8 @@ TEST_CASE("Whole-edge exclusion includes every wall blend and evolving support",
   const auto near=factory({.2,-.15,-.15},{.3,-.15,-.15});
   CHECK(full.layers->GetEdgeExclusionStats().edge_preparations_avoided==avoided); // Include the independent crease blend reach.
   const Point p{.25,-.15,-.15};SameNativeTensor(near.pinned(.5,p,sensor),A->Compose(*base.layers,*full.layers,1.,p,sensor,nullptr,0));
-  A->ConfigureRadius(1.);CHECK_THROWS(edge.pinned(.5,{2.5,2,2},sensor));
+  REQUIRE(bool(edge.sensor_only));CHECK(edge.sensor_only());
+  A->ConfigureRadius(1.);CHECK_THROWS(edge.pinned(.5,{2.5,2,2},sensor));CHECK_THROWS(edge.sensor_only());
 }
 
 TEST_CASE("Uncertain or exhausted edge exclusions always fall back", "[NativeBLEdgeExclusion3D]") {
@@ -4473,4 +4474,30 @@ TEST_CASE("Uncertain or exhausted edge exclusions always fall back", "[NativeBLE
   }
   CHECK_FALSE(layers.ExcludesEdge({2,2,2},{3,2,2}));
   const auto counters=layers.GetEdgeExclusionStats();CHECK(counters.proven==0);CHECK(counters.fallbacks>0);
+}
+
+TEST_CASE("Proven outside BL chords use analytic sensor integration with fresh dependencies", "[NativeBLEdgeExclusion3D]") {
+  using namespace SU2Native3D;
+  auto layers=std::make_shared<CBoundaryLayerMetric>(3,std::vector<CBoundaryLayerMetric::Wall>{ExclusionPlane()});
+  DonorCell donor;donor.cell.id=0;
+  donor.cell.v={Node{0,{2,2,2}},Node{1,{3,2,2}},Node{2,{2,3,2}},Node{3,{2,2,3}}};
+  donor.sensor={SU2Native3D::Tensor{4,0,0,1,0,10000},SU2Native3D::Tensor{9,0,0,4,0,2500},SU2Native3D::Tensor{4,0,0,1,0,10000},SU2Native3D::Tensor{4,0,0,1,0,10000}};
+  auto factory=SU2NativeBL3D::EdgeGeometry(layers,1.);
+  auto composition=SU2NativeBL3D::Composition(layers,1.);
+  const Point a=donor.cell.v[0].p,b=donor.cell.v[1].p;
+  FrozenField analytic({donor},composition,true,{},factory);
+  const auto sensor=analytic.SensorEdgeLength(a,b),target=analytic.TargetEdgeLength(a,b);
+  CHECK(target==sensor);CHECK(target==Approx(38./15).epsilon(1e-14));
+  CHECK(analytic.Statistics().edge_compositions==0);
+  const auto split=analytic.BalancedSplitPoint(a,b);
+  CHECK(analytic.TargetEdgeLength(a,split)==Approx(target/2).epsilon(1e-8));
+  CHECK(analytic.Statistics().edge_compositions==0);
+  FrozenField numerical({donor},composition,true,{},[factory](Point x,Point y){auto geometry=factory(x,y);geometry.sensor_only={};return geometry;});
+  CHECK(numerical.TargetEdgeLength(a,b)==Approx(target).epsilon(1e-12));
+  CHECK(numerical.Statistics().edge_compositions>0);
+  const auto cached=factory(a,b);REQUIRE(bool(cached.sensor_only));CHECK(cached.sensor_only());
+  layers->ConfigureOuterTransition(.01,1.3);
+  CHECK_THROWS(cached.sensor_only());
+  FrozenField stale({donor},composition,true,{},[cached](Point,Point){return cached;});
+  CHECK_THROWS(stale.TargetEdgeLength(a,b));
 }

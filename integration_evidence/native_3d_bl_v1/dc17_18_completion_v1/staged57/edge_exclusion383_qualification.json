@@ -1,0 +1,244 @@
+{
+  "state": "focused_connected_capability_qualified",
+  "build": {
+    "state": "terminal",
+    "exit_code": 0,
+    "seconds": 434.4469585418701,
+    "pins_verified": true,
+    "changed": [],
+    "completed_build": true,
+    "binaries": {
+      "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver": "f448887261bfa8d04a78290ccd3131a7c3ea03d90ede8ce135865e9560ad7acd",
+      "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/SU2_CFD/src/SU2_CFD": "a0c14c47d7a5f65578da0781748ca1b2beab2aaad09f7e38a45f046603bbf654"
+    }
+  },
+  "qualification": {
+    "serial": {
+      "path": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved383_joint_serial_20261111T152357_2466922",
+      "status": {
+        "state": "terminal",
+        "exit_code": 0,
+        "seconds": 4.64826226234436,
+        "pins_verified": true,
+        "changed": [],
+        "largest_sampled_individual_process_rss_bytes": 864256,
+        "rss_note": "sampled process RSS; not a whole-job peak"
+      },
+      "tests": [
+        [
+          "2664",
+          "23"
+        ]
+      ],
+      "terminal": {
+        "actual_host_proc": true,
+        "all_owned_handles_terminal": true,
+        "live_owned_handles": [],
+        "sampled_identities": [
+          {
+            "pid": 2467027,
+            "start_ticks": 45507880
+          }
+        ],
+        "wrapper_excluded": {
+          "pid": 2466922,
+          "start_ticks": 45507687
+        },
+        "checked_unix": 1794410671.577475,
+        "wrapper_verified_terminal": true
+      }
+    },
+    "mpi6": {
+      "path": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved383_closest_mpi6_20261111T152431_2468409",
+      "status": {
+        "state": "terminal",
+        "exit_code": 0,
+        "seconds": 5.522984981536865,
+        "pins_verified": true,
+        "changed": [],
+        "largest_sampled_individual_process_rss_bytes": 43024384,
+        "rss_note": "sampled process RSS; not a whole-job peak"
+      },
+      "tests": [
+        [
+          "2827",
+          "25"
+        ],
+        [
+          "2829",
+          "25"
+        ],
+        [
+          "2906",
+          "25"
+        ],
+        [
+          "2826",
+          "25"
+        ],
+        [
+          "3029",
+          "25"
+        ],
+        [
+          "2848",
+          "25"
+        ]
+      ],
+      "terminal": {
+        "actual_host_proc": true,
+        "all_owned_handles_terminal": true,
+        "live_owned_handles": [],
+        "sampled_identities": [
+          {
+            "pid": 2468491,
+            "start_ticks": 45511302
+          },
+          {
+            "pid": 2468492,
+            "start_ticks": 45511302
+          },
+          {
+            "pid": 2468493,
+            "start_ticks": 45511302
+          },
+          {
+            "pid": 2468505,
+            "start_ticks": 45511306
+          },
+          {
+            "pid": 2468500,
+            "start_ticks": 45511306
+          },
+          {
+            "pid": 2468499,
+            "start_ticks": 45511306
+          },
+          {
+            "pid": 2468498,
+            "start_ticks": 45511306
+          },
+          {
+            "pid": 2468497,
+            "start_ticks": 45511305
+          },
+          {
+            "pid": 2468496,
+            "start_ticks": 45511305
+          }
+        ],
+        "wrapper_excluded": {
+          "pid": 2468409,
+          "start_ticks": 45511119
+        },
+        "checked_unix": 1794410694.691505,
+        "wrapper_verified_terminal": true
+      }
+    },
+    "actual": {
+      "path": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved383_target_exclusion_20261111T152454_2469481",
+      "status": {
+        "state": "terminal",
+        "exit_code": 0,
+        "seconds": 78.98971390724182,
+        "pins_verified": true,
+        "changed": [],
+        "largest_sampled_individual_process_rss_bytes": 1462792192,
+        "rss_note": "sampled process RSS; not a whole-job peak"
+      },
+      "tests": [],
+      "terminal": {
+        "actual_host_proc": true,
+        "all_owned_handles_terminal": true,
+        "live_owned_handles": [],
+        "sampled_identities": [
+          {
+            "pid": 2469583,
+            "start_ticks": 45513645
+          },
+          {
+            "pid": 2469584,
+            "start_ticks": 45513645
+          },
+          {
+            "pid": 2469585,
+            "start_ticks": 45513646
+          },
+          {
+            "pid": 2469586,
+            "start_ticks": 45513646
+          }
+        ],
+        "wrapper_excluded": {
+          "pid": 2469481,
+          "start_ticks": 45513429
+        },
+        "checked_unix": 1794410857.7620118,
+        "wrapper_verified_terminal": true
+      }
+    }
+  },
+  "outside_integral_controls": [
+    {
+      "context": "actual_failed_chord",
+      "stage": "outside_analytic_integral",
+      "background_length": 0.39809795067068204,
+      "target_length": 0.39809795067068204,
+      "edge_compositions": 0,
+      "translated_synthetic_control": true
+    },
+    {
+      "context": "smooth_upper",
+      "stage": "outside_analytic_integral",
+      "background_length": 0.8856071193308674,
+      "target_length": 0.8856071193308674,
+      "edge_compositions": 0,
+      "translated_synthetic_control": true
+    },
+    {
+      "context": "leading_edge",
+      "stage": "outside_analytic_integral",
+      "background_length": 0.4473164796833289,
+      "target_length": 0.4473164796833289,
+      "edge_compositions": 0,
+      "translated_synthetic_control": true
+    },
+    {
+      "context": "symmetry_wall_interface",
+      "stage": "outside_analytic_integral",
+      "background_length": 0.24745050401283228,
+      "target_length": 0.24745050401283228,
+      "edge_compositions": 0,
+      "translated_synthetic_control": true
+    },
+    {
+      "context": "sharp_edge_candidate",
+      "stage": "outside_analytic_integral",
+      "background_length": 0.5900502267699472,
+      "target_length": 0.5900502267699472,
+      "edge_compositions": 0,
+      "translated_synthetic_control": true
+    }
+  ],
+  "last_full_counters": {
+    "context": "sharp_edge_candidate",
+    "stage": "edge_exclusion_counters",
+    "cumulative": true,
+    "attempts": 20,
+    "proven": 15,
+    "fallbacks": 5,
+    "wall_preparations_avoided": 0,
+    "edge_preparations_avoided": 10,
+    "evaluations_avoided": 15
+  },
+  "implemented": "Freshness-checked exact sensor identity per chord selects existing analytic P1integration/inverse. Both production factories; stale dependencies refuse; ambiguous/full BL paths unchanged.",
+  "memory": "Existing512-byte versioned-closure admission covers pinned and sensor-identity callbacks together; no configured budget raised.",
+  "measured_savings": "Excluded controls: zero BLdistance/normal/certification calls for exclusion, no owner construction, zero composed edge samples. Equal analytic target/background length. Forced-existing-numerical unit reference has positive composed samples and agrees numerically.",
+  "limitations": [
+    "Original five M6edges remain nonexcluded; no current difficult-edge or complete workflow speedup claimed.",
+    "Actual-authority outside controls are translated synthetic constant-core donors, not original flow edges or generated surface/volume replacements.",
+    "Diagnostic382fixed10errors remain unknown on actual chord; no approximate classification/tolerance change selected.",
+    "Selected MPI milestone is not dedicated native-MPI BLgeneration qualification. Unchanged planar automatic-repair count failure380 remains preserved.",
+    "No new BLmesh, full composed-target checkpoint, RANSadaptation/transfer/restart completion."
+  ]
+}

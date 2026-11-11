@@ -48,9 +48,13 @@ inline SU2Native3D::MetricEdgeBreakpoints EdgeGeometry(std::shared_ptr<CBoundary
     if(outside){geometry.cuts={0,1};layers->RecordExcludedEdge();}
     else {owners=std::make_shared<CBoundaryLayerMetric::ChordOwners>();
       geometry.cuts=layers->EdgeBreakpoints({a.x,a.y,a.z},{b.x,b.y,b.z},1.5,16,owners.get());}
-    geometry.pinned = [layers, core, owners, a, b, profile, support, outside](long double t, SU2Native3D::Point p, SU2Native3D::Tensor sensor) {
+    auto validate=[layers,profile,support]() {
       if(profile!=layers->GetSampleVersion()||support!=layers->GetSupportVersion())
         throw std::runtime_error("Stale BL edge context; rebuild target integration geometry.");
+    };
+    if(outside)geometry.sensor_only=[validate](){validate();return true;};
+    geometry.pinned = [layers, core, owners, a, b, validate, outside](long double t, SU2Native3D::Point p, SU2Native3D::Tensor sensor) {
+      validate();
       if(outside && CBoundaryLayerMetric::MatchesChordPoint({a.x,a.y,a.z},{b.x,b.y,b.z},t,{p.x,p.y,p.z})) {
         layers->RecordExcludedEvaluation();return sensor;
       }

@@ -12,15 +12,32 @@ construction validity-first; intermediate quality debt is provisional, not accep
 
 ## Current state — authoritative
 
-Current workload: saved-M6 accuracy diagnostic382 RUNNING/FROZEN, session40592.
-R/cases/curved382_target_accuracy_* latest status/command/resources own handles.
-Build382 TERMINAL0/238.253s, pins intact/all actual-host identities terminal;
-production CFD byte-identical381. Serial382 TERMINAL0/4.632s, pins intact/all owned
-handles terminal. No production accuracy/decision changes; two test-only includes
-compare GL10with existing G7/K15engine on the physical integrand, retaining cuts.
-One saved difficult context, original300s geometry deadline. Do not edit pinned C++
-until actual-host terminal. MPI381production milestone remains applicable if source,
-loaded libraries and production binary unchanged; no diagnostic-only MPI campaign.
+Current workload: NONE. Build383and all three qualifications TERMINAL; all actual-
+host owned identities verified absent. R/edge_exclusion383_qualification.json.
+Build383passed434.447s/pins intact; serial2664assertions/23cases/4.648s;
+MPI6passed25cases EVERYrank (2826–3029assertions/rank)/5.523s; actual5M6contexts
+passed78.990s, pins intact. CFD SHAa0c14c47d7a5f65578da0781748ca1b2beab2aaad09f7e38a45f046603bbf654.
+Completed connected exclusion: full-support/all-wall proof plus exact freshness-
+checked sensor identity selects existing analytic P1edge integral/inverse. All5
+outside controls show exact target/background length agreement and0composed samples.
+All5original M6edges remain ambiguous/full path. No hard-edge/workflow speedup.
+
+NEXT within active stage2: resolve measured local metric/certification difficulty,
+not a blanket tolerance change. Reuse saved382refusing point with existing bounded
+<=12point replay to distinguish identical/nearby distance/normal behavior at current
+and tighter requests, if needed. This is analysis first; no projection seed, new
+quadrature policy or action bound is selected. No new baseline/perf/GDB campaign.
+Then finish reasonable target +complete faithful composed checkpoint before stage3.
+
+Diagnostic382 TERMINAL1/359.211s, pins intact/all5actual-host identities terminal.
+Build382passed238.253s, serialpassed4.632s; production CFD byte-identical381.
+R/edge_accuracy382_assessment.json. Geometry preparation186.895s/296cuts, whole
+GL10estimate39.19917in.298s/3634work. Widest cut interval numerical reference
+refuses at original geometry deadline after7384evaluations/106.016s; actual GL10
+errors UNKNOWN, no completed whole chord. Analytic planar profile controls show
+up to1.7%whole-rule error and threshold decision differences near gates; not M6.
+No production tolerance, placement, final measurement or gate changes. Commit
+74ccc7f601preserves exact diagnostic source/failure; latest push remains3ce85033c3.
 
 Qualified exclusion checkpoint3ce85033c3 PUSHED. Build381 and all three qualifications
 TERMINAL, actual-host owned identities verified absent.

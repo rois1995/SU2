@@ -148,3 +148,48 @@ existing numerical reference and matching length. Stale profile/support/radius
 contexts still refuse; actual-authority distant controls verify the same full edge
 behavior. Requalify the connected production milestone after this caller correction.
 No demonstrated saving on the five nonexcluded M6edges is assumed.
+
+
+##382 measured result and correction selection
+
+Original300s geometry budget is preserved; terminal1/359.211swrapper. Preparation
+completes186.895s/296cuts, whole GL10=39.19917in.2981s, but widest retained interval's
+production-engine reference refuses after7384evaluations/106.016s. Neither actual
+GL10error is known. Initial many-panel work and difficult within-panel refinement
+both exist. The small scalar reparameterization is a diagnostic, with extra rounding,
+not a replacement acceptance measurement. No trustworthy action enclosure was
+established; keep existing construction/ranking/placement/final accuracy unchanged.
+Analytic profile controls show threshold differences and up to1.7%error. No blanket
+fixed-rule substitution or tolerance change is selected.
+
+Selected connected correction383is ONLY the demonstrated exact-identity caller gap:
+reuse existing analytic P1integration for proven whole-edge background targets,
+checking captured dependencies before selecting it. Six changed files; no new
+numeric operator, config or gate. Focused serial and appropriate MPI milestone plus
+actual-authority controls must show matching lengths and zero composed evaluations.
+The current five original M6edges do not qualify for this bypass; difficult local
+metric/certification convergence and complete stage2target remain open.
+
+
+Diagnostic limitation: scalar unit-chord reparameterization introduces binary64
+parameter rounding in addition to original physical-coordinate rounding. Its
+refusal demonstrates difficulty in that cut-preserving diagnostic, not equality of
+the production adaptive trajectory or proof that geometry noise caused the failure.
+No final integral or classification certificate follows from it. Further attribution
+should reuse the saved refusing point and existing <=12point replay facility before
+adding instrumentation or selecting another correction. Compare repeated and nearby
+query distance/normal outputs at existing versus tighter requested errors, with
+unchanged physical target and support; those are geometry primitive diagnostics,
+not another complete baseline or permission to change target/profile accuracy.
+
+
+##383 terminal qualification
+
+Build and focused serial/MPI6/actual5-context checks PASS. Exact target/background
+integrals and zero composed evaluations demonstrated for every translated outside
+control; varying anisotropic core/inverse and stale-context refusal covered serially.
+R/edge_exclusion383_qualification.json owns the receipts. Original five M6edges
+remain on full evaluation. The whole-edge capability is qualified in this scope;
+BLsuitability, actual patch generation and full workflow remain unaccepted.
+Production numerical precision is unchanged. Continue stage2attribution/checkpoint
+work rather than launching surface generation from an unqualified target.

@@ -166,6 +166,21 @@ for(size_t index=0;index<count;++index) {
             maximumDifference=std::max(maximumDifference,std::abs(difference));
         }
         CHECK(maximumDifference==0);
+        DonorCell controlDonor;controlDonor.cell.id=0;
+        const double delta[3]={farB.x-farA.x,farB.y-farA.y,farB.z-farA.z};
+        unsigned axis=0;for(unsigned j=1;j<3;++j)if(std::abs(delta[j])>std::abs(delta[axis]))axis=j;
+        Point c=farA,d=farA;
+        if((axis+1)%3==0)c.x+=1;else if((axis+1)%3==1)c.y+=1;else c.z+=1;
+        if((axis+2)%3==0)d.x+=1;else if((axis+2)%3==1)d.y+=1;else d.z+=1;
+        if(Orientation(farA,farB,c,d)<0)std::swap(c,d);
+        controlDonor.cell.v={Node{0,farA},Node{1,farB},Node{2,c},Node{3,d}};
+        for(auto& sensor:controlDonor.sensor)sensor=incoming;
+        FrozenField outsideField({controlDonor},policy->Composition(),true,{},policy->Edges());
+        const auto backgroundLength=outsideField.SensorEdgeLength(farA,farB),outsideLength=outsideField.TargetEdgeLength(farA,farB);
+        CHECK(outsideLength==backgroundLength);CHECK(outsideField.Statistics().edge_compositions==0);
+        frontLog<<"{\"context\":"<<std::quoted(label)<<",\"stage\":\"outside_analytic_integral\",\"background_length\":"<<backgroundLength
+                <<",\"target_length\":"<<outsideLength<<",\"edge_compositions\":"<<outsideField.Statistics().edge_compositions
+                <<",\"translated_synthetic_control\":true}"<<std::endl;
         frontLog<<"{\"context\":"<<std::quoted(label)<<",\"stage\":\"actual_authority_outside_control\",\"translated_synthetic_control\":true"
                 <<",\"original_cfd_edge\":false,\"maximum_tensor_difference\":"<<maximumDifference<<",\"flow_tensor_from_original_node\":true}"<<std::endl;
       } else if(accuracyOnly) {

@@ -359,3 +359,59 @@ existing fallback with identical cuts. Counters record attempts/proofs/fallbacks
 wall/edge preparation avoided and composed samples bypassed; current actual-success
 `continue` skips the cumulative dump, to correct in the next diagnostic.
 No saving on the blocked original chord, no accepted-mesh/time improvement claimed.
+
+
+##382 — bounded edge-accuracy diagnosis, no production policy change
+
+R/edge_accuracy382_assessment.json and edge_accuracy382_profile_controls.json.
+Build238.253s; production CFD byte-identical381. Serial regression4.632s.
+Saved difficult context TERMINAL1/359.211s, all owned handles terminal/pins intact;
+original300s geometry deadline,600s outer timeout. Test process354.35swall,
+352.70suser+1.15ssystem; single-rank99%CPU, so this sample does not exhibit a large
+CPU/wall contention loss. It is instrumented test work, not production stage speed.
+Largest sampled individual RSS1798021120B, not whole-job peak.
+
+| Phase | Wall s | Charged geometry work | Useful output |
+|---|---:|---:|---|
+| Geometry preparation |186.895|2842933|296cuts, completed |
+| Diagnostic whole GL10 |.2981|3634|estimate39.19917; uncertified |
+| Widest cut interval, unchanged integration engine |106.016|1692736|7384evaluations; deadline refusal, no reference scalar |
+
+The whole GL10error and widest-interval GL10error remain UNKNOWN. No accepted edge,
+insertion point, complete patch or BLmesh was produced. Prepared geometry rebuild
+15.254s is nested in geometry query work, not additive. Existing complete answers
+6069hits/13042misses/1551too-wide refinements; prepared regions3789254hits/440129misses,
+436550592Bretained. More samples/cache hits do not establish useful convergence.
+
+296cuts imply295initial G7/K15panels/4425samples for one source piece. This helps
+explain substantial minimum integration work, but the widest interval alone also
+refuses after7384samples: adaptive local difficulty is demonstrated. Its cause
+(true variation, certified-point/normal jitter or numerical tolerance) remains
+unresolved. Do not attribute all work to initial panels or deep refinement alone.
+Comparison with380is diagnostic trajectory/progress, not a fixed-work timing gain.
+
+Cheap analytic pure-normal hn controls: GL10whole error reaches1.701%; retaining
+its known clamp break still gives1.472%at1mm. Near0.9/1.8threshold controls can change
+action classification when cuts are omitted. Exact profile formulas do not cover
+curvature/metric intersections/Option-A/fade or prove a usable M6action bound.
+
+
+##383 — complete exact outside-edge integration bypass
+
+R/edge_exclusion383_qualification.json. Build434.447s; focused serial4.648s
+(2664assertions/23cases); MPI6selected connected milestone5.523s
+(25cases EACHrank,2826–3029assertions/rank); actual5-context qualification78.990s.
+All pins intact/owned actual-host identities terminal. Largest sampled individual
+actual RSS1462792192B, not whole-job peak. These are qualification window timings;
+78.990versus38182.024does not establish a speedup under varying setup/contention.
+
+Proven-outside identity now reaches EXISTING analytic P1sensor integration/inverse,
+rather than G7/K15identity samples. All5translated actual-authority controls have
+exact target/background length equality and0composed edge samples. Focused varying-
+anisotropic control agrees with forced numerical reference and preserves balanced
+insertion; stale versions refuse. Final full-policy counters:20wall attempts,
+15proofs/5fallbacks,10edge preparations skipped,15direct sample compositions bypassed.
+Counts include explicit synthetic-control calls and are not original-flow savings;
+analytic samples are not performed and therefore do not increment sample counter.
+All5original actual edges stay on detailed path. No complete-mesh/time improvement
+or accepted curved BL claimed. No gate, profile, configured limit or normal law changed.

@@ -299,12 +299,14 @@ long double FrozenField::EdgeLength(Point a, Point b, bool composed, LengthInver
     Timer timer(stats.edge_integral_seconds, timings);
     std::vector<double> cuts;
     std::function<Tensor(long double, Point, Tensor)> pinned;
+    bool sensor_only=false;
     if (composed) {
       {
         Timer geometry(stats.edge_geometry_seconds,timings);
         auto resolved = edge_breakpoints(a,b);
         cuts = std::move(resolved.cuts);
         pinned = std::move(resolved.pinned);
+        sensor_only=resolved.sensor_only && resolved.sensor_only();
       }
       if (cuts.size() < 2 || cuts.size() > MaximumGeometricEdgeCuts || cuts.front() != 0 || cuts.back() != 1)
         throw std::invalid_argument("Invalid native 3D geometric edge coverage.");
@@ -363,7 +365,7 @@ long double FrozenField::EdgeLength(Point a, Point b, bool composed, LengthInver
         inverse->parameter = std::numeric_limits<long double>::quiet_NaN();
       }
     };
-    if (composed) {
+    if (composed && !sensor_only) {
       struct Panel {
         size_t piece;
         long double low, high, value, error;

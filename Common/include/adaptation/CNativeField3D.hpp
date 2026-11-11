@@ -39,6 +39,8 @@ using MetricComposition = std::function<Tensor(Point, Tensor)>;
 struct EdgeGeometry {
   std::vector<double> cuts;
   std::function<Tensor(long double, Point, Tensor)> pinned;
+  // Optional exact identity proof for this chord; checks current dependencies before allowing analytic P1 integration.
+  std::function<bool()> sensor_only;
   EdgeGeometry() = default;
   EdgeGeometry(std::vector<double> c) : cuts(std::move(c)) {}  // NOLINT: cut-only geometry converts implicitly.
 };
