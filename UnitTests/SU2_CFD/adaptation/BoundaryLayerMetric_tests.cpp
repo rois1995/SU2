@@ -4179,6 +4179,20 @@ TEST_CASE("FIRST_ROW crease policy is shared by candidate integration across pro
   target->authority=std::make_shared<PlanarReference>(facets);target->roles={{0,1}};target->h0=1e-3;
   target->A=dc10::BuildOptionA(facets,{{0,1}},45,target->full->GetFeatures().maximumRadius,1e-3);
   target->A->distanceLayers=target->base;REQUIRE(!target->A->creases.empty());
+  const auto admitted=target->CoarseningWorkspaceBytes();CHECK(admitted>=target->StorageBytes());
+  const auto creases=target->A->creases;const auto chains=target->A->chainOf;
+  for(double factor:{.5,.25,1.}) {
+    target->full->SelectTangentialScale(factor);target->Update(1.,1.3);
+    auto fresh=dc10::BuildOptionA(facets,{{0,1}},45,target->full->GetFeatures().maximumRadius,1e-3);
+    fresh->distanceLayers=target->base;fresh->core=1.;
+    CHECK(target->A->chainOf==chains);CHECK(target->A->creases.size()==creases.size());
+    for(size_t k=0;k<creases.size();++k) {
+      CHECK(target->A->creases[k].f1==creases[k].f1);CHECK(target->A->creases[k].f2==creases[k].f2);
+    }
+    CHECK(target->A->strips.size()==fresh->strips.size());
+    for(auto p:{dc10::V{.02,4.,.01},dc10::V{.2,4.,.1}})CHECK(target->A->Weight(p)==fresh->Weight(p));
+    CHECK(target->StorageBytes()<=admitted);
+  }
   DonorCell donor;donor.cell.id=0;
   const Point points[]={{-.2,3.5,0},{.2,3.5,0},{-.2,4.5,0},{-.2,3.5,.4}};
   for(unsigned k=0;k<4;++k){donor.cell.v[k]={k,points[k]};donor.sensor[k]={1,0,0,2,0,3};}
@@ -4296,4 +4310,26 @@ TEST_CASE("Tangent coarsening rebuilds D1 support before same-point recompositio
   SU2NativeGeometry::AtlasBudget budget;budget.maximum_bytes=1;budget.maximum_work=10000;
   CBoundaryLayerMetric::GeometryReservationScope reservation(layers,budget);
   CHECK_THROWS(layers.SelectTangentialScale(.5));CHECK(layers.GetTangentialScale()==.25);
+}
+
+TEST_CASE("Native BL normalization adjusts inherited tangents independently of Hessian amplitude", "[NativeBLJointNormalization3D]") {
+  if(SU2_MPI::GetSize()!=1)return;
+  const auto mesh=simplex_test::MakeSimplexMesh(3,2,[](const passivedouble* x){return x[2]==0?"wall":"far";});
+  const std::string options="MARKER_HEATFLUX= (wall,0)\nMARKER_FAR= (far)\nADAP_REMESHER= NATIVE_CAVITY\n"
+      "ADAP_SURFACE= YES\nADAP_ISO_CORNER= NO\nADAP_HGRAD= 1.3\nADAP_HMIN= 1e-6\nADAP_HMAX= 10\n"
+      "ADAP_ARMAX= 1e6\nADAP_COMPLEXITY= 1\nADAP_BL_MARKER= (wall)\nADAP_BL_FIRST_HEIGHT= (.001)\n"
+      "ADAP_BL_GROWTH= (1.2)\nADAP_BL_THICKNESS= (.01)\n";
+  MetricTest first(mesh,options,{1,0,0,2,0,3}),second(mesh,options,{9,0,0,18,0,27});
+  INFO(first.ComputeMetric());INFO(second.ComputeMetric());
+  const auto a=first.solver[FLOW_SOL]->GetNativeMetricFamily3D(),b=second.solver[FLOW_SOL]->GetNativeMetricFamily3D();
+  REQUIRE(a);REQUIRE(b);REQUIRE(a->layers);REQUIRE(b->layers);
+  CHECK(a->inherited_tangent_scale>0);CHECK(a->inherited_tangent_scale<1);
+  CHECK(a->inherited_tangent_scale==Approx(b->inherited_tangent_scale).epsilon(1e-8));
+  CHECK(first.solver[FLOW_SOL]->GetMetricComplexityFinal()==Approx(second.solver[FLOW_SOL]->GetMetricComplexityFinal()).epsilon(1e-8));
+  for(size_t p=0;p<a->selected.size();++p)CheckTensor(3,a->selected[p],b->selected[p],1e-8);
+  const su2double x[]={.25,.25,.005};const auto sample=a->layers->Evaluate(0,x,a->core);
+  CHECK(sample.hn==Approx(2*(.001+.2*.005)/2.2));
+  REQUIRE(a->Compatible(*first.config));
+  a->layers->SelectTangentialScale(1);CHECK_FALSE(a->Compatible(*first.config));
+  a->layers->SelectTangentialScale(a->inherited_tangent_scale);CHECK(a->Compatible(*first.config));
 }

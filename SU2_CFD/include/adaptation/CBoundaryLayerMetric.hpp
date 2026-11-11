@@ -231,6 +231,7 @@ class CBoundaryLayerMetric {
   uint64_t GetSampleVersion() const { return sampleVersion; }
   /*! Scale only inherited 3D tangent eigenvalues; normal, geometry and feature constraints are recomposed unchanged. */
   void SelectTangentialScale(double scale);
+  size_t TangentialProfileWorkspaceBytes() const;
   void CheckProfileScratch(size_t bytes) const;
   double GetTangentialScale() const { return tangentialScale; }
   uint64_t GetGeometrySampleVersion() const { return geometrySampleVersion; }

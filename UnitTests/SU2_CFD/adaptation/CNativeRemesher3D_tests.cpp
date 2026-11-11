@@ -38,6 +38,7 @@ using namespace SU2Native3D;
 #include "fixtures/native_current219_witness.inc"
 #include "fixtures/native_actual_bl_surface_cavities.inc"
 #include "fixtures/native_bl_direction_invalidation.inc"
+#include "fixtures/native_saved_cfd_metric_stage.inc"
 
 TEST_CASE("FIRST_ROW wall measurement honors exhausted budgets before querying", "[NativeWallPreparation3D]") {
   SU2NativeBLPipeline3D::detail::PipelineScope scope;
@@ -907,7 +908,7 @@ TEST_CASE("Reference output counts shared continuation storage once", "[NativeRe
   state.committed.reset();CHECK(state.ResidentBytes()==empty);
 }
 
-TEST_CASE("Unchanged normalization cannot publish an over-budget candidate", "[NativeNormalizationPublication3D]") {
+TEST_CASE("Nominal complexity overshoot does not veto an otherwise admissible candidate", "[NativeNormalizationPublication3D]") {
   const auto target=GENERATE(1u,16u);
   auto config=MakeConfig(3,"SOLVER= EULER\nCOMPUTE_METRIC= YES\nADAP_SENSOR= PRESSURE\n"
       "ADAP_REMESHER= NATIVE_CAVITY\nADAP_SURFACE= YES\nADAP_HESSIAN_NOISE= 0\n"
@@ -937,14 +938,8 @@ TEST_CASE("Unchanged normalization cannot publish an over-budget candidate", "[N
   const auto result=remesher.Remesh(*config,donor.Fine(),sensor);const auto& stats=remesher.Statistics();
   REQUIRE(corrections==1);REQUIRE(stats.complexity.estimated);CHECK(stats.complexity.value==Approx(8).epsilon(1e-12));
   CHECK(Snapshot(donor)==before);CHECK_FALSE(reference->original);CHECK(stats.normalization_stages==1);
-  if(target==1) {
-    CHECK(result.status!=CRemeshResult::Status::COMPLETE);CHECK_FALSE(result.onAccepted);
-    CHECK(stats.returned.tracked_calls==0);
-    CHECK(stats.normalization.reason=="estimated_budget_incompatible_after_bounded_normalization_stage: normalization_storage_limited");
-  } else {
-    CHECK(result.status==CRemeshResult::Status::COMPLETE);CHECK(bool(result.onAccepted));
-    CHECK(stats.normalization.reason=="normalization_storage_limited");
-  }
+  CHECK(result.status==CRemeshResult::Status::COMPLETE);CHECK(bool(result.onAccepted));
+  CHECK(stats.normalization.reason==(target==1?"nominal_complexity_overshoot: normalization_storage_limited":"normalization_storage_limited"));
 }
 
 TEST_CASE("BL unit-metric advancement is distinct from prescribed physical progression", "[NativeBLTangentialProgression3D]") {

@@ -1,0 +1,81 @@
+{
+  "scope": "Connected joint inherited-tangent/flow normalization development. Focused correctness only; not selected actual target, BL generation, final geometry/shape/height closure or efficiency gain.",
+  "checks": {
+    "serial": {
+      "path": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved370_joint_serial_20261111T110821_1860935",
+      "status": {
+        "state": "terminal",
+        "exit_code": 0,
+        "seconds": 75.75275325775146,
+        "pins_verified": true,
+        "changed": [],
+        "largest_sampled_individual_process_rss_bytes": 90210304,
+        "rss_note": "sampled process RSS; not a whole-job peak"
+      },
+      "rank_assertions_cases": [
+        [
+          "1096",
+          "16"
+        ]
+      ],
+      "actual_host_handles_terminal": true
+    },
+    "mpi6": {
+      "path": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved370_joint_mpi6_20261111T111005_1864867",
+      "status": {
+        "state": "terminal",
+        "exit_code": 0,
+        "seconds": 5.424699068069458,
+        "pins_verified": true,
+        "changed": [],
+        "largest_sampled_individual_process_rss_bytes": 52629504,
+        "rss_note": "sampled process RSS; not a whole-job peak"
+      },
+      "rank_assertions_cases": [
+        [
+          "841",
+          "16"
+        ],
+        [
+          "841",
+          "16"
+        ],
+        [
+          "841",
+          "16"
+        ],
+        [
+          "841",
+          "16"
+        ],
+        [
+          "841",
+          "16"
+        ],
+        [
+          "841",
+          "16"
+        ]
+      ],
+      "actual_host_handles_terminal": true
+    }
+  },
+  "build": {
+    "state": "terminal",
+    "exit_code": 0,
+    "seconds": 352.42433285713196,
+    "pins_verified": true,
+    "changed": [],
+    "completed_build": true,
+    "binaries": {
+      "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver": "cb71dd694496b148b1fd1552463ee1a521cdde440b48183adc2a67f1b0c40d08",
+      "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/SU2_CFD/src/SU2_CFD": "d0872a42bd3354bf3f49515db26dc097005fef921cf0ebecbee28b0d1d141a6f"
+    }
+  },
+  "limitations": [
+    "Synthetic CSolver joint-normalization test is serial-only; actual saved-CFD target assessment runs MPI6 separately.",
+    "Empty-rank candidate integration, full/base recomposition, D1 radius rebuilding, stale direction/publication dependencies and resource rejection covered by existing focused cases.",
+    "Native FIRST_ROW1 generation guard remains; no dedicated native-MPI BL generation qualification.",
+    "New M6 field remains provisional; no complete composed-target checkpoint/reload yet."
+  ]
+}

@@ -82,6 +82,13 @@ for(size_t index=0;index<count;++index) {
               <<",\"carrier_rank\":"<<direction.rank<<",\"smooth_normal_alignment_abs\":"
               <<(direction.ok?std::abs(Dot(direction.d,Of(physical.normal))):0.)<<",\"core_control_only\":true}"<<std::endl;
     }
+    if(std::string(std::getenv("SU2_NATIVE_BL_FRONT_PROBE"))=="target_geometry_only") {
+      budget.CheckTime();REQUIRE_FALSE(budget.work_exhausted);
+      frontLog<<"{\"context\":"<<std::quoted(label)<<",\"stage\":\"target_geometry_only_complete\",\"geometry_work\":"<<budget.work-beforeWork
+              <<",\"seconds\":"<<std::chrono::duration<double>(std::chrono::steady_clock::now()-t0).count()
+              <<",\"construction_attempted\":false,\"production_target_certified\":false}"<<std::endl;
+      continue;
+    }
     dc9::Rows rows;std::set<Id> moving{edge[0]};dc9::Tx tx;bool low=false;
     Face firstFail{};bool haveFail=false;
     for(unsigned grow=0;grow<20;++grow) {

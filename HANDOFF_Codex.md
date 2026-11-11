@@ -12,7 +12,28 @@ construction validity-first; intermediate quality debt is provisional, not accep
 
 ## Current state — authoritative
 
-Current owned workload: NONE.368focused/actual checks TERMINAL; all5actual
+Current owned workload:370actual saved-CFD METRIC-ONLY stage RUNNING/FROZEN,
+session51171; R/cases/curved370_saved_cfd_metric_stage_20261111T111101_1866897.
+Wrapper1866897; time1866985. Exact AF7metric-entry seed, MPI6, unchanged Mach-only
+L1/nominal500k/normal controls/budgets; no CFD advance or construction. Do not edit
+pinned sources until actual-host terminal. Resource/command/pins receipts in case.
+Serial370terminal0/75.753s,1096assertions/16cases; MPI6terminal0/5.425s,
+841assertions/16cases on EACH rank. All owned identities actual-host terminal;
+pins intact. R/joint370_qualification.json owns limited qualification scope.
+Build370 TERMINAL0/352.424s,58owned identities absent, all pins intact;
+CFD SHAd0872a42bd3354bf3f49515db26dc097005fef921cf0ebecbee28b0d1d141a6f;
+test SHAcb71dd694496b148b1fd1552463ee1a521cdde440b48183adc2a67f1b0c40d08.
+Joint normalization passed focused serial and connected MPI checks; actual saved-CFD
+metric stage is running. Not a selected reasonable target or speedup.
+369target-only actual diagnostic TERMINAL0/78.391s,
+303453assertions/1case; all owned actual-host identities verified terminal and pins
+intact in R/geometry369_assessment.json.42samples across5actual M6 contexts, no CFD
+advance or construction. Local context costs/work are recorded in the timing ledger;
+these exclude shared setup and do not establish a production speedup.
+Build369 TERMINAL0/244.469s, all10observed build identities absent; CFD byte-identical368.
+Test SHA95b87517866c53256deac8e41ad8e0d035c1723c1f737f98ba0bcdd2f9f6e088.
+
+368focused/actual checks TERMINAL; all5actual
 identities absent in EACH case and pins intact. Build368 TERMINAL0/68.130s;
 all10observed build identities absent. CFD SHA6297c7f82411e15cd95ae36c6ad5f0529d7dac5c1bdbd9e94c91e5a5ed67283f;
 test SHA57978caec389405d8966fc3e56179b50d968511b4e8a41e5d08b5ac6638e965f.
@@ -41,8 +62,11 @@ WITHOUT another CFD advance. Original303 seed remains intact for full integratio
 Stage2 target/normalization is ACTIVE: finish physical geometry/directional/height-
 feasibility attribution, select a justified connected correction, then qualify a
 complete composed-target disk checkpoint. Sensor-only files are insufficient.
-Production CSolver selector is STILL UNCHANGED; experimental shared profile API
-is not an established reasonable target or speedup. No new operators/scheduler.
+Production CSolver selector now has the UNVALIDATED370joint flow/inherited-tangent
+normalization candidate; frozen replay retains its selected scale. Crease geometry
+is reused during radius refresh; feature/index transient storage is pre-admitted.
+Nominal complexity-only refusals are diagnostic; physical/resource gates remain.
+This is not an established reasonable target or speedup. No new operators/scheduler.
 
 ## Production outcome and provenance
 
@@ -77,6 +101,11 @@ normal/geometry/D1 composition; exact owner/wall/support/profile dependencies go
 same-point recomposition. Changed feature radius requires index/images/Option-A
 refresh and memory admission. Scoped source and limited checks are preserved; this
 is not yet a justified production selection or efficiency gain.
+
+Read-only saved_row369_sensitivity.json independently matches saved q/J within
+1.67e-16. Finer tangent-only CONTROL factor8 closes5wall q/J cells;20outer cells
+remain bad. Aligning metric normal to flat face alone does not close wall quality.
+This is not a justified target policy or a mesh change. No finer floor selected.
 
 Next distinguish physical curvature/tolerance and first-layer-feasibility demands
 from inherited tangent sizing and point-placement/connectivity obstruction, using

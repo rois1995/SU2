@@ -127,3 +127,87 @@ progression. Full/base integration and blend-weight refresh checks pass; useful
 production improvement, native-MPI qualification and reasonable final target remain
 unproven. Stage1 verified metric-entry CFD/authority is now reusable without another
 CFD advance; that is not a composed-target checkpoint.
+
+
+##369 bounded evidence and next target diagnostic
+
+Read-only assess_saved_row369.py parses the existing25-cell capture and independently
+reproduces saved q/J (maximum absolute difference1.67e-16). With the SAME coordinates,
+adding a finer tangent-only tensor control (normal quadratic form unchanged) changes
+wall q/J-bad4/5→0/0 at factor8; all20outer cells stay bad. A face-normal-aligned tensor
+control alone does not close the wall cells. Neither control is a justified target
+policy, actual remesh or geometry certificate. No production metric change selected.
+
+Existing358records show original smooth-wall planning length1.10177 but no sampled
+height-feasible child.16coupled splits create21descendants,14sample-feasible, then
+five generated first children. This demonstrates a mismatch between inherited
+planning scale and height-feasible construction, not a unique cause or mandatory
+refinement law. Reuse those records; do not repeat construction to rediscover it.
+
+Older345leading-edge curvature/density records suggest a geometric-directional
+mismatch but use an older diagnostic/metric path. Reproduce on the current build
+before treating them as authoritative.369adds only a diagnostic early exit after
+existing surface derivatives, sided tangent guidance and constrained directions,
+covering the5saved original contexts. No cavity construction/generation, CFD solve,
+new metric policy, bounds, budgets or final gate change. Expected output: current
+physical-curvature/principal-direction/tangent-demand records with per-context work
+and wall time. These remain local samples, not global curvature bounds/certification.
+
+Acceptance of this diagnostic: all contexts complete under existing300s envelope,
+valid associations and finite nonzero sided metric demands; no generation is
+attempted. Then compare physical geometry demand, original inheritance and height
+feasibility before choosing the connected production normalization correction.
+
+
+Source audit confirms that CurvedClosest already returns principal curvature and
+directions at its candidate binding; ProjectWall currently drops them. These are
+explicitly LOCAL differential data, not global curvature bounds. The cubic authority
+has positional/control-hull/embedding certificates but no existing certified global
+curvature or positive surface-Jacobian lower-bound API. Therefore simply copying
+sample curvature into a new global chord/support bound is unsafe. Existing tangent/
+normal majorants feed outer-transition support, chord cuts and quadrature; any new
+geometry guidance must stay within a proved algorithmic envelope or qualify its
+new bound across all affected consumers. No curvature floor has been implemented.
+
+Coulaud2025 supporting reference (https://coulaudolivier.fr/docs/Articles/Coulaud_2025.pdf),
+§§3.1–3.3 and4.1–4.3: local physical tangent-plane gap model, separate curve treatment,
+complexity-scaled surface metric and retained CAD parameters. Its 3D surface-normal
+extension uses the largest tangent eigenvalue; it is NOT a BL height prescription.
+The local chart/error model does not establish our global physical certification.
+No CAD dependence, high-order elements, norm switch or new geometry representation
+is selected from it. Curve-exponent OCR is ambiguous and is not used in this work.
+
+## Connected stage2 correction370 — implementation scope and acceptance
+
+369 is terminal:42current surface samples/5contexts,303453assertions,78.391s.
+It confirms local directional differences, not a certified global curvature floor.
+The selected hypothesis is joint flow/inherited-tangent normalization, NOT fitting
+metrics to the failed358cells. The inherited tangential covariance is adjustable;
+normal h0/g/T, analytic geometry and D1 constraints remain composed independently.
+Use the existing flow-only normalization proposal as an amplitude-independent
+anchor; below that anchor scale inherited tangent eigenvalues by the same scalar,
+never finer than original inheritance. Evaluate the FULL composed3D field with the
+existing bounded integration/root solve. Estimates remain heuristic and500k nominal.
+A target is not credible just because it is cheaper or closer to500k.
+
+Affected production scope: CSolver initial native3D BL normalization; retained
+metric-family identity and frozen replay; target full/base synchronization and
+radius-dependent Option-A data; transient-memory admission; complexity-only
+publication/normalization refusals. Existing2D, construction operators, physical
+controls, source transport and strict final gates are unchanged. No new config.
+Reuse immutable crease/chains on profile changes, rebuilding only radius-dependent
+strips/index. Reserve bounded feature/index scratch before lending query memory.
+
+Acceptance: focused tests must establish amplitude-independent selection, unchanged
+normal controls, stale-family rejection, recomposed/fresh agreement, bounded index
+admission and nominal-overshoot handling without bypassing physical/resource gates.
+Then ONE connected MPI milestone and actual saved-CFD metric-only stage evaluation
+without a CFD advance. Inspect directional demands, geometry/height feasibility,
+allocation/gradation and cost before selecting the target. A complete composed
+checkpoint/reload is still required before stage3; existing sensor exports are
+insufficient. No new curvature floor or construction policy is selected.
+
+370 build passed352.424s, focused serial1096assertions/16cases and connected MPI6
+841assertions/16cases EACH rank. Actual saved-CFD metric-only evaluation is frozen
+and running; no actual target reasonableness, generated BL or speedup is established.
+Qualification details: R/joint370_qualification.json. Native FIRST_ROW1 guard remains.

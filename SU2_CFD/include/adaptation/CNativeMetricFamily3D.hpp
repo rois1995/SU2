@@ -37,6 +37,7 @@ struct CNativeMetricFamily3D {
   SU2Complexity::Normalization normalization;
   SU2Complexity::ProfileSelection budget_selection;
   double lower=0,upper=0,core=0;
+  double inherited_tangent_scale=1,tangential_anchor=0;
   size_t owned=0;
   uint64_t node_span=0;
   size_t ResidentBytes()const {

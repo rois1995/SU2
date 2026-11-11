@@ -2637,6 +2637,9 @@ bool CNativeMetricFamily3D::Compatible(const CConfig& config)const {
       SU2_TYPE::GetValue(config.GetAdap_BL_ProtectDistance()),SU2_TYPE::GetValue(config.GetAdap_BL_OuterGrowthMax())}};
   if(current!=controls || config.GetnAdap_BL()!=layer_controls.size() || surface_tolerance!=SU2_TYPE::GetValue(config.GetAdap_Hausd()))return false;
   if(bool(first_row)!=(boundary_layer && !layer_controls.empty() && config.GetKind_Adap_BL_Method()==ADAP_BL_METHOD::FIRST_ROW))return false;
+  if(layers && layers->GetTangentialScale()!=inherited_tangent_scale)return false;
+  if(first_row && (first_row->full->GetTangentialScale()!=inherited_tangent_scale ||
+      first_row->base->GetTangentialScale()!=inherited_tangent_scale))return false;
   // The D1 feature set of the retained layers depends on ADAP_ANGLE (and ADAP_HGRAD, already in the controls).
   if(feature_angle!=SU2_TYPE::GetValue(config.GetAdap_Angle()))return false;
   for(unsigned i=0;i<layer_controls.size();++i) {
@@ -2951,8 +2954,8 @@ void CSolver::ComputeMetric(CGeometry *geometry, const CConfig *config, const ve
         firstRowTarget=SU2NativeBLPipeline3D::MakeTargetPolicy(*config,*nativeReference3D,SU2_TYPE::GetValue(eigMin),-1,nativeLayers);
       }
       const auto geometryScratch=firstRowTarget
-          ? std::max(firstRowTarget->full->GeometryWorkspaceBytes(),firstRowTarget->base->GeometryWorkspaceBytes())
-          : nativeLayers->GeometryWorkspaceBytes();
+          ? std::max({firstRowTarget->full->GeometryWorkspaceBytes(),firstRowTarget->base->GeometryWorkspaceBytes(),firstRowTarget->CoarseningWorkspaceBytes()})
+          : std::max(nativeLayers->GeometryWorkspaceBytes(),nDim==3?nativeLayers->TangentialProfileWorkspaceBytes():size_t(0));
       if(geometryScratch) {
         if(geometryScratch>=nativeMemoryLimit)throw std::length_error("Native target geometry scratch exceeds memory ceiling.");
         metric_geometry_budget.maximum_bytes=nativeMemoryLimit;
@@ -3163,6 +3166,7 @@ void CSolver::ComputeMetric(CGeometry *geometry, const CConfig *config, const ve
 
   /*--- Logarithm of the final complexity over the target, for the logarithm of the global factor. ---*/
 
+  double tangentialAnchor=replay?replay->family->tangential_anchor:0;
   su2double evaluatedLogScale = std::numeric_limits<passivedouble>::quiet_NaN();
   auto complexityError = [&](su2double logScale) {
     ++complexityTrials;
@@ -3198,6 +3202,8 @@ void CSolver::ComputeMetric(CGeometry *geometry, const CConfig *config, const ve
       SU2_MPI::Allreduce(&localSmallest, &frozenCore, 1, MPI_DOUBLE, MPI_MIN, SU2_MPI::GetComm());
       CLocalFailure transitionFailure;
       try {
+        if(nativeLayers && nDim==3 && !replay)
+          nativeLayers->SelectTangentialScale(std::exp(std::min(0.,SU2_TYPE::GetValue(logScale)-tangentialAnchor)));
         const bool hadTransition=nativeLayers && nativeLayers->GetOuterTransitionCore()>0;
         if(nativeLayers && nativeLayers->ConfigureOuterTransition(SU2_TYPE::GetValue(frozenCore),SU2_TYPE::GetValue(config->GetAdap_Hgrad()))) {
           if(!hadTransition)boundedComplexity.reset();
@@ -3380,6 +3386,8 @@ void CSolver::ComputeMetric(CGeometry *geometry, const CConfig *config, const ve
     const su2double absoluteLow = log(eigMin / globalValues[1]);
     const su2double absoluteHigh = log(eigMax / fmin(smallest, globalValues[1]));
     familyLower=SU2_TYPE::GetValue(absoluteLow);familyUpper=SU2_TYPE::GetValue(absoluteHigh);
+    if(nativeLayers && nDim==3 && !replay)
+      tangentialAnchor=SU2_TYPE::GetValue(fmin(fmax(log(complexity/globalValues[0])*2.0/nDim,absoluteLow),absoluteHigh));
     // Corner updates perturb the previous solve: start from its scale, retaining the same safeguarded bracket.
     if(replay)logScale=replay->family->normalization.logScale;
     else if (!nativeMetric || !reuseScale) {
@@ -3441,7 +3449,7 @@ void CSolver::ComputeMetric(CGeometry *geometry, const CConfig *config, const ve
             <<" mandatory_indicator="<<boundedAssessment.mandatory.uncertainty
             <<" protected_minimum_exceeds_budget="<<(boundedAssessment.mandatory.value-boundedAssessment.mandatory.uncertainty>complexity)
             <<". No mandatory height/geometry/protected/finer requirement was relaxed; estimates are heuristic, not proof of continuum infeasibility.";
-          SU2_MPI::Error(why.str(),CURRENT_FUNCTION);
+          if(rank==MASTER_NODE)cout<<"Nominal complexity overshoot: "<<why.str()<<endl;
         }
         nativeLayers->FreezeOuterNormal();
       }
@@ -3789,6 +3797,8 @@ void CSolver::ComputeMetric(CGeometry *geometry, const CConfig *config, const ve
         cout<<std::setprecision(17)<<"Native3D complexity normalization: status="<<statuses[unsigned(normalization.status)]
             <<" estimate="<<metricComplexityFinal<<" uncertainty_indicator="<<integrationUncertainty
             <<" requested_rtol="<<tol<<" trials="<<normalization.trials<<" log_scale="<<SU2_TYPE::GetValue(logScale)
+            <<" inherited_tangent_scale="<<(nativeLayers?nativeLayers->GetTangentialScale():1)
+            <<" tangential_anchor="<<tangentialAnchor
             <<" frozen_core="<<SU2_TYPE::GetValue(frozenCore)
             <<" provisional="<<(normalization.status!=SU2Complexity::Status::EstimatedTolerance)
             <<" proven_error_bound=0; target remains frozen during remeshing."<<std::setprecision(6)<<endl;
@@ -3796,7 +3806,8 @@ void CSolver::ComputeMetric(CGeometry *geometry, const CConfig *config, const ve
       if(budgetBL && nativeLayers) {
         const auto& selected=nativeLayers->GetOuterNormal();
         cout<<std::setprecision(17)<<"Native3D BL budget selection: status="
-          <<(budgetSelection.status==SU2Complexity::BudgetStatus::EstimatedAttainable?"estimated_attainable":"integration_limited")
+          <<(budgetSelection.status==SU2Complexity::BudgetStatus::EstimatedAttainable?"estimated_attainable":
+              budgetSelection.status==SU2Complexity::BudgetStatus::EstimatedIncompatible?"nominal_overshoot":"integration_limited")
           <<" parameter="<<selected.parameter<<" profile_version="<<selected.version<<" trials="<<budgetSelection.trials
           <<" grid_resolution=0.125 continuous_minimum_proven=0 support_changed=0 frozen="<<selected.frozen
           <<" selection_seconds="<<budgetSelectionSeconds<<" replay="<<bool(replay)<<std::setprecision(6)<<endl;
@@ -3986,6 +3997,7 @@ void CSolver::ComputeMetric(CGeometry *geometry, const CConfig *config, const ve
         family->feature_identity=nativeLayers?nativeLayers->GetFeatures().identity:0;
         for(unsigned i=0;i<config->GetnAdap_BL();++i)family->layer_controls.push_back(config->GetAdap_BL(i));
         family->budget_selection=budgetSelection;
+        family->inherited_tangent_scale=nativeLayers?nativeLayers->GetTangentialScale():1;family->tangential_anchor=tangentialAnchor;
         family->normalization=normalized;family->lower=familyLower;family->upper=familyUpper;family->core=SU2_TYPE::GetValue(frozenCore);
         nativeMetricFamily3D=std::move(family);
       }

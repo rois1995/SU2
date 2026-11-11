@@ -771,14 +771,10 @@ CRemeshResult CNativeRemesher3D::Remesh(const CConfig& config, const CGeometry& 
     if(repartition)migrate_source(transfer_memory::Add(held(),OwnedStorageBytes(working),transfer_memory::Bytes(imported.original)));
     phase(6);
     }
-    // A storage-limited or unchanged correction must satisfy the same publication budget as every other exit.
-    if(ready && config.GetAdap_BL_Budget() && stats.complexity.estimated &&
+    // Nominal complexity overshoot is diagnostic; physical and resource gates still govern publication.
+    if(ready && stats.complexity.estimated &&
         stats.complexity.value-stats.complexity.uncertainty>SU2_TYPE::GetValue(config.GetAdap_Complexity())) {
-      ready=false;
-      reason=normalizer.propose?"estimated_budget_incompatible_after_bounded_normalization_stage":
-                                "estimated_budget_incompatible_without_original_family_correction";
-      if(!stats.normalization.reason.empty())reason+=": "+stats.normalization.reason;
-      stats.normalization.reason=reason;
+      stats.normalization.reason="nominal_complexity_overshoot: "+stats.normalization.reason;
     }
     // Transport only the original P1 sensor; geometric BL is recomposed at each subsequent query.
     if (ready) {

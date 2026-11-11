@@ -1964,17 +1964,21 @@ void CBoundaryLayerMetric::CheckProfileScratch(size_t bytes) const {
   }
 }
 
+size_t CBoundaryLayerMetric::TangentialProfileWorkspaceBytes() const {
+  using namespace transfer_memory;
+  const auto count=Mul(baseFeatures.size(),Add(featurePlanes.size(),1));
+  return Mul(count,Add(2*sizeof(Feature),Mul(walls.size(),4*sizeof(unsigned)),
+      Mul(125,sizeof(decltype(featureGrid)::value_type)+6*sizeof(void*)+4*sizeof(unsigned))));
+}
+
 void CBoundaryLayerMetric::SelectTangentialScale(double scale) {
   if(nDim!=3 || !(scale>0 && scale<=1) || !std::isfinite(scale))
     throw std::invalid_argument("Inherited BL tangent scale must be finite in (0,1].");
   if(scale==tangentialScale)return;
   if(sampleVersion==UINT64_MAX)throw std::runtime_error("BL sample identity exhausted.");
   // Rebuild the existing finite index: coarsening can make previously redundant D1 constraints/images relevant.
-  using namespace transfer_memory;
-  const auto count=Mul(baseFeatures.size(),Add(featurePlanes.size(),1));
-  const auto scratch=Mul(count,Add(2*sizeof(Feature),Mul(walls.size(),4*sizeof(unsigned)),
-      Mul(125,sizeof(decltype(featureGrid)::value_type)+6*sizeof(void*)+4*sizeof(unsigned))));
-  CheckProfileScratch(scratch);
+  const auto count=transfer_memory::Mul(baseFeatures.size(),transfer_memory::Add(featurePlanes.size(),1));
+  CheckProfileScratch(TangentialProfileWorkspaceBytes());
   if(geometryReservation && !geometryReservation->ChargeWork(count))
     throw std::length_error("BL tangent feature-index update exceeds work reservation.");
   const auto previous=tangentialScale;tangentialScale=scale;

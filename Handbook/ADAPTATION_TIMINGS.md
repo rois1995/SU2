@@ -7,7 +7,9 @@ own the development sequence. R=`integration_evidence/native_3d_bl_v1/dc17_18_co
 
 Latest complete production observation: same-seed curved BL/RANS364, terminal with
 preserved surface-preparation deadline failure. No usable BL or accepted RANS mesh.
-Stage2 tangential-profile development is active.500k is nominal complexity, not a
+Stage2 tangential-profile development is active; build370 joint-normalization candidate
+passed compilation in352.424s and focused serial/MPI checks; actual saved-CFD
+metric-only stage is running. There is no validated production result.500k is nominal complexity, not a
 node count or acceptance gate. Euler293's completed workflow remains preserved.
 
 ## Current runtime by stage
@@ -104,10 +106,22 @@ only after matching work/progress and scope are demonstrated.
 |366five actual original contexts|103.9693|306735assertions/1case, pass; density/shape controls, not normalized target or BL acceptance|
 |368focused serial|5.8376|420assertions/9cases, pass; includes refreshed full/base integration and analytic oblique-advancement distinction|
 |368saved actual row/neighbor comparison|138.1867|306789assertions/1case, pass within diagnosis scope;25-cell row/84-cell union, not a usable BL|
+|369read-only saved-row sensitivity|0.0349|Reuses25cells/tensors; independent q/J agreement1.67e-16. Controls only, not production timing.|
+|369target-only current geometry/directions|78.3906|303453 assertions/1case, pass;42surface samples across5actual M6 contexts; no construction or CFD advance. Uniform-core diagnostic, not the normalized CFD target.|
+|370joint-normalization focused serial|75.7528 wrapper;71.33 test process|1096assertions/16cases, pass;70.94s userCPU includes synthetic planar normalization. No production timing claim.|
+|370connected MPI6|5.4247 wrapper;1.12 test process|841assertions/16cases EACH rank; synthetic joint-scalar solve is serial-only, so this is not a speed comparison.|
+|370actual saved-CFD metric-only|RUNNING|Same AF7entry/Mach-L1/nominal500k; no CFD advance or construction; no final timing/target qualification yet.|
+
+369 measured context work/time: failing-chord79units/0.12217s, smooth-upper129/0.17698s,
+leading-edge130/0.20864s, symmetry-interface59/0.08340s and sharp-edge candidate130/0.20092s.
+These local timers exclude shared setup and direction preparation and do not account
+for the full78.3906s wrapper. No matched production speedup is established.
+Receipt: `R/geometry369_assessment.json` (terminal0, source/input pins intact,
+owned handles terminal). Sampled largest individual RSS1.35GiB is not whole-job peak.
 
 Build times are not adaptation timings:365failed294.321s(test compile type),
 366passed308.338s,367failed270.292s(test-only unsupported reduction type),
-368passed68.130s(incremental test correction). No full workflow was repeated for
+368passed68.130s(incremental test correction),369passed244.469s(test-only diagnostic exit). No full workflow was repeated for
 these development checks. Current handles remain in HANDOFF_Codex.md.
 
 ## Comparison and maintenance rules

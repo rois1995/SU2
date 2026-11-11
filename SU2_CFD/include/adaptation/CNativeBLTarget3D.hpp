@@ -93,6 +93,21 @@ struct OptionA {
     }
     grid.clear();cell=0;  // bounded index; otherwise the exact full loop
   }
+  void ConfigureRadius(double value,const std::function<void(size_t)>& admit={}) {
+    radius=value;strips.clear();const long double pi=std::acos(-1.L);
+    // thin strips: parallel creases (|t_i.t_j| >= cos 30) with a coplanar face each (normals within 10 deg) bounding the
+    // strip from both sides, width <= the D1 feature radius
+    for(size_t i=0;i<creases.size();++i)for(size_t j=i+1;j<creases.size();++j) {
+      const auto& ci=creases[i];const auto& cj=creases[j];if(std::abs(Dot(ci.t,cj.t))<std::cos(pi/6))continue;
+      for(int si=0;si<2;++si)for(int sj=0;sj<2;++sj) {
+        const V ni=si?ci.n2:ci.n1,nj=sj?cj.n2:cj.n1,mi=si?ci.m2:ci.m1,mj=sj?cj.m2:cj.m1;if(Dot(ni,nj)<std::cos(pi/18))continue;
+        const V mid=ci.a+(ci.L/2)*ci.t,q=cj.a+Dot(mid-cj.a,cj.t)*cj.t,e=q-mid;const auto width=Norm(e);
+        if(!(width>0)||width>radius||std::abs(Dot(ni,e))>.1L*width||!(Dot(mi,e)>0)||!(Dot(mj,-1.L*e)>0))continue;
+        strips.push_back({i,j,Unit(ni+nj)});
+      }
+    }
+    IndexCreases(admit);
+  }
   long double Weight(V x) const {
     const long double pi=std::acos(-1.L),c0=std::cos(pi/8);
     thread_local std::vector<std::pair<long double,long double>> cand;cand.clear();  // (radial factor, r_c)
@@ -181,18 +196,7 @@ inline std::shared_ptr<OptionA> BuildOptionA(const std::vector<Facet>& facets,co
     std::vector<long double> turns;for(size_t c:ch.segments)turns.push_back(A->creases[c].turn);std::sort(turns.begin(),turns.end());
     ch.median=turns[turns.size()/2];ch.k=std::max(0,int(std::ceil(ch.median*180/pi/49.5L-1e-12L))-1);A->chains.push_back(ch);
   }
-  // thin strips: parallel creases (|t_i.t_j| >= cos 30) with a coplanar face each (normals within 10 deg) bounding the
-  // strip from both sides, width <= the D1 feature radius
-  for(size_t i=0;i<A->creases.size();++i)for(size_t j=i+1;j<A->creases.size();++j) {
-    const auto& ci=A->creases[i];const auto& cj=A->creases[j];if(std::abs(Dot(ci.t,cj.t))<std::cos(pi/6))continue;
-    for(int si=0;si<2;++si)for(int sj=0;sj<2;++sj) {
-      const V ni=si?ci.n2:ci.n1,nj=sj?cj.n2:cj.n1,mi=si?ci.m2:ci.m1,mj=sj?cj.m2:cj.m1;if(Dot(ni,nj)<std::cos(pi/18))continue;
-      const V mid=ci.a+(ci.L/2)*ci.t,q=cj.a+Dot(mid-cj.a,cj.t)*cj.t,e=q-mid;const auto width=Norm(e);
-      if(!(width>0)||width>radius||std::abs(Dot(ni,e))>.1L*width||!(Dot(mi,e)>0)||!(Dot(mj,-1.L*e)>0))continue;
-      A->strips.push_back({i,j,Unit(ni+nj)});
-    }
-  }
-  A->IndexCreases(admit);
+  A->ConfigureRadius(radius,admit);
   return A;
 }
 inline MetricComposition CompositionA(std::shared_ptr<CBoundaryLayerMetric> base,std::shared_ptr<CBoundaryLayerMetric> full,double core,std::shared_ptr<OptionA> A) {
@@ -238,19 +242,32 @@ struct TargetPolicy {
     for(const auto& c:A->grid)bytes=transfer_memory::Add(bytes,sizeof(c)+2*sizeof(void*),transfer_memory::Bytes(c.second));
     return bytes;
   }
+  // Radius only grows when inherited tangents coarsen from scale1; crease geometry stays fixed.
+  size_t CoarseningWorkspaceBytes() const {
+    using namespace transfer_memory;
+    if(full->GetTangentialScale()!=1 || base->GetTangentialScale()!=1)
+      throw std::logic_error("Coarsening workspace must be admitted before profile selection.");
+    size_t registrations=0;
+    if(A->radius>0)for(const auto& c:A->creases) {
+      size_t count=1;
+      for(auto span:{std::abs(c.b.x-c.a.x),std::abs(c.b.y-c.a.y),std::abs(c.b.z-c.a.z)}) {
+        const auto extent=std::ceil(8*span/A->radius)+20;
+        count=Mul(count,std::isfinite(extent) && extent<SIZE_MAX?size_t(extent):SIZE_MAX);
+      }
+      registrations=Add(registrations,count);
+    }
+    registrations=std::min(registrations,size_t(1)<<23);
+    const auto option=Add(StorageBytes(),GrowthBound(Mul(A->creases.size(),A->creases.size()),8*sizeof(dc10::StripPair)),
+        Mul(registrations,512),GrowthBound(A->creases.size(),2*sizeof(dc10::OptionA::GridKey)));
+    return std::max({full->TangentialProfileWorkspaceBytes(),base->TangentialProfileWorkspaceBytes(),option});
+  }
   void Update(double trialCore,double hgrad) {
     base->SelectTangentialScale(full->GetTangentialScale());
     if(A && inherited_tangent_scale!=full->GetTangentialScale() && A->radius!=full->GetFeatures().maximumRadius) {
-      if(!authority)throw std::runtime_error("A tangent target update needs its original geometry authority.");
-      // Pre-admit construction scratch; IndexCreases separately admits its actual bounded registration count.
-      const auto scratch=transfer_memory::Add(transfer_memory::Mul(authority->Facets().size(),1024),
-          transfer_memory::Mul(transfer_memory::Mul(A->creases.size(),A->creases.size()),4*sizeof(dc10::StripPair)));
+      const auto scratch=transfer_memory::GrowthBound(transfer_memory::Mul(A->creases.size(),A->creases.size()),4*sizeof(dc10::StripPair));
       full->CheckProfileScratch(transfer_memory::Add(StorageBytes(),scratch));
-      std::vector<Facet> facets;facets.reserve(authority->Facets().size());
-      for(const auto& facet:authority->Facets())facets.push_back(facet.second);
-      auto updated=dc10::BuildOptionA(facets,roles,full->GetFeatures().angle,full->GetFeatures().maximumRadius,h0,
+      A->ConfigureRadius(full->GetFeatures().maximumRadius,
           [&](size_t gridBytes){full->CheckProfileScratch(transfer_memory::Add(StorageBytes(),scratch,gridBytes));});
-      updated->distanceLayers=base;*A=std::move(*updated);
     }
     inherited_tangent_scale=full->GetTangentialScale();
     const auto& profile=full->GetOuterNormal();

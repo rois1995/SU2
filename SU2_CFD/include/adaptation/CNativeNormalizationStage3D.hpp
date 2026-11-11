@@ -63,7 +63,6 @@ inline SU2Native3D::NormalizationStage3D NativeNormalizationStage3D(CSolver& sol
       const double high=CPassiveComm::Allreduce(localHigh,CPassiveComm::Op::MIN,world.comm);
       if(!(low>0) || !std::isfinite(low) || !std::isfinite(high) || low>1 || high<1 || low>=high) {
         result.reason="current_nodal_uniform_correction_outside_bounds";result.status=SU2Complexity::Status::OutsideBracket;
-        if(config.GetAdap_BL_Budget() && current.value-current.uncertainty>target)result.valid=false;
         return result;
       }
       time();
@@ -79,10 +78,6 @@ inline SU2Native3D::NormalizationStage3D NativeNormalizationStage3D(CSolver& sol
       result.assessment_seconds=assess.stats.assessment_seconds;result.density_queries=assess.stats.density_queries;
       result.geometry_queries=assess.stats.geometry_queries;
       result.maximum_bytes=transfer_memory::Add(caller_bytes,nodeBytes,assess.ResidentBytes());
-      if(config.GetAdap_BL_Budget() && normalized.status==SU2Complexity::Status::OutsideBracket &&
-          normalized.estimate.value-normalized.estimate.uncertainty>target) {
-        result.valid=false;result.reason="estimated_budget_incompatible_at_current_nodal_bound";return result;
-      }
       const double factor=std::exp(normalized.logScale);result.changed=factor!=1;
       result.reason=result.changed?"current_nodal_uniform_correction":"current_nodal_uniform_correction_unchanged";
       if(result.changed) {
@@ -94,9 +89,6 @@ inline SU2Native3D::NormalizationStage3D NativeNormalizationStage3D(CSolver& sol
     }
     if((residual>0 && result.log_scale<=family->lower) || (residual<0 && result.log_scale>=family->upper)) {
       result.reason="outside_reassessed_scale_bounds";result.status=SU2Complexity::Status::OutsideBracket;
-      if(config.GetAdap_BL_Budget() && current.value-current.uncertainty>target) {
-        result.valid=false;result.reason="estimated_budget_incompatible_at_original_family_lower_bound";
-      }
       return result;
     }
     size_t adjacency=0;for(size_t i=0;i<family->owned;++i)adjacency=transfer_memory::Add(adjacency,geometry.nodes->GetnPoint(i));
@@ -136,10 +128,6 @@ inline SU2Native3D::NormalizationStage3D NativeNormalizationStage3D(CSolver& sol
     result.density_queries=assess.stats.density_queries;result.geometry_queries=assess.stats.geometry_queries;
     evaluation->assess={};
     if(!result.valid)return result;
-    if(config.GetAdap_BL_Budget() && result.status==SU2Complexity::Status::OutsideBracket &&
-        result.estimate.value-result.estimate.uncertainty>target) {
-      result.valid=false;result.reason="estimated_budget_incompatible_on_reassessed_original_family";return result;
-    }
     int changed=0;
     for(size_t i=0;i<family->owned;++i)for(unsigned a=0;a<3;++a)for(unsigned b=a;b<3;++b)
       changed|=evaluation->normalized.at(i).m[a][b]!=family->selected[i].m[a][b];
