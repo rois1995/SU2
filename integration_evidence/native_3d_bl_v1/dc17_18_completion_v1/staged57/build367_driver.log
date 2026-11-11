@@ -1,0 +1,31 @@
+ninja: Entering directory `integration_evidence/build-integrated-v3-currenthost'
+[1/9] Compiling C++ object SU2_CFD/src/libSU2core.a.p/adaptation_CNativeComplexity3D.cpp.o
+[2/9] Compiling C++ object UnitTests/test_driver.p/SU2_CFD_adaptation_BoundaryLayerMetric_tests.cpp.o
+FAILED: [code=1] UnitTests/test_driver.p/SU2_CFD_adaptation_BoundaryLayerMetric_tests.cpp.o 
+c++ -IUnitTests/test_driver.p -IUnitTests -I../../UnitTests -ISU2_CFD/src -I../../SU2_CFD/src -ICommon/src -I../../Common/src -I../../externals/CLI11 -I../../externals/eigen -I../../externals/cgns/adf -I../../externals/cgns/adfh -Iexternals/cgns -I../../externals/cgns -Iexternals/cgns/hdf5 -I../../externals/cgns/hdf5 -I../../externals/metis/include -I../../externals/metis/GKlib -I../../externals/metis/libmetis -I../../externals/parmetis/include -I../../externals/parmetis/libparmetis -I../../externals/mel -I../../externals/catch2 -I/usr/lib/x86_64-linux-gnu/openmpi/include -I/usr/lib/x86_64-linux-gnu/openmpi/include/openmpi -fdiagnostics-color=always -D_GLIBCXX_ASSERTIONS=1 -D_FILE_OFFSET_BITS=64 -std=c++17 -O2 -g -pthread -fPIC -Wno-empty-body -Wno-ignored-qualifiers -Wno-unused-parameter -Wno-deprecated-declarations -Wno-error=cast-function-type -Wno-cast-function-type -Wno-error=stringop-truncation -Wno-stringop-truncation -Wno-error=missing-field-initializers -Wno-missing-field-initializers -Wno-error=class-memaccess -Wno-class-memaccess -Wno-overloaded-virtual -Wno-array-bounds -Wno-dangling-pointer -march=native -ffast-math -fno-finite-math-only -DHAVE_CGNS -DHAVE_MPI -DHAVE_METIS -DHAVE_PARMETIS -DHAVE_MMG -MD -MQ UnitTests/test_driver.p/SU2_CFD_adaptation_BoundaryLayerMetric_tests.cpp.o -MF UnitTests/test_driver.p/SU2_CFD_adaptation_BoundaryLayerMetric_tests.cpp.o.d -o UnitTests/test_driver.p/SU2_CFD_adaptation_BoundaryLayerMetric_tests.cpp.o -c ../../UnitTests/SU2_CFD/adaptation/BoundaryLayerMetric_tests.cpp
+In file included from ../../UnitTests/SU2_CFD/adaptation/../../../SU2_CFD/include/adaptation/../../../Common/include/adaptation/CDistributedSearch.hpp:38,
+                 from ../../UnitTests/SU2_CFD/adaptation/../../../SU2_CFD/include/adaptation/../../../Common/include/adaptation/CNativeDistributed2D.hpp:12,
+                 from ../../UnitTests/SU2_CFD/adaptation/../../../SU2_CFD/include/adaptation/../../../Common/include/adaptation/CNativeDistributed3D.hpp:9,
+                 from ../../UnitTests/SU2_CFD/adaptation/../../../SU2_CFD/include/adaptation/../../../Common/include/adaptation/CNativeDonor3D.hpp:8,
+                 from ../../UnitTests/SU2_CFD/adaptation/../../../SU2_CFD/include/adaptation/../../../Common/include/adaptation/CNativeImport3D.hpp:8,
+                 from ../../UnitTests/SU2_CFD/adaptation/../../../SU2_CFD/include/adaptation/CNativeBLTarget3D.hpp:8,
+                 from ../../UnitTests/SU2_CFD/adaptation/../../../SU2_CFD/include/adaptation/CNativeCandidateComplexity3D.hpp:8,
+                 from ../../UnitTests/SU2_CFD/adaptation/BoundaryLayerMetric_tests.cpp:29:
+../../UnitTests/SU2_CFD/adaptation/../../../SU2_CFD/include/adaptation/../../../Common/include/adaptation/../parallelization/CPassiveComm.hpp: In instantiation of ‘static ompi_datatype_t* CPassiveComm::NativeType() [with T = long double; MPI_Datatype = ompi_datatype_t*]’:
+../../UnitTests/SU2_CFD/adaptation/../../../SU2_CFD/include/adaptation/../../../Common/include/adaptation/../parallelization/CPassiveComm.hpp:220:94:   required from ‘static void CPassiveComm::Allreduce(const T*, T*, size_t, Op, Communicator) [with T = long double; size_t = long unsigned int; Communicator = ompi_communicator_t*]’
+../../UnitTests/SU2_CFD/adaptation/../../../SU2_CFD/include/adaptation/../../../Common/include/adaptation/../parallelization/CPassiveComm.hpp:231:14:   required from ‘static T CPassiveComm::Allreduce(T, Op, Communicator) [with T = long double; Communicator = ompi_communicator_t*]’
+../../UnitTests/SU2_CFD/adaptation/BoundaryLayerMetric_tests.cpp:4231:35:   required from here
+../../UnitTests/SU2_CFD/adaptation/../../../SU2_CFD/include/adaptation/../../../Common/include/adaptation/../parallelization/CPassiveComm.hpp:337:34: error: static assertion failed: CPassiveComm::Allreduce: no native MPI type for this type.
+  337 |     else static_assert(sizeof(T) == 0, "CPassiveComm::Allreduce: no native MPI type for this type.");
+      |                        ~~~~~~~~~~^~~~
+../../UnitTests/SU2_CFD/adaptation/../../../SU2_CFD/include/adaptation/../../../Common/include/adaptation/../parallelization/CPassiveComm.hpp:337:34: note: the comparison reduces to ‘(16 == 0)’
+../../UnitTests/SU2_CFD/adaptation/../../../SU2_CFD/include/adaptation/../../../Common/include/adaptation/../parallelization/CPassiveComm.hpp:338:3: warning: no return statement in function returning non-void [-Wreturn-type]
+  338 |   }
+      |   ^
+[3/9] Compiling C++ object SU2_CFD/src/libSU2core.a.p/solvers_CSolver.cpp.o
+[4/9] Compiling C++ object SU2_CFD/src/libSU2core.a.p/drivers_CSinglezoneDriver.cpp.o
+[5/9] Linking static target SU2_CFD/src/libSU2core.a
+[6/9] Linking target SU2_CFD/src/SU2_CFD
+[7/9] Compiling C++ object UnitTests/test_driver.p/SU2_CFD_adaptation_CNativeImport3D_tests.cpp.o
+[8/9] Compiling C++ object UnitTests/test_driver.p/SU2_CFD_adaptation_CNativeRemesher3D_tests.cpp.o
+ninja: build stopped: cannot make progress due to previous errors.

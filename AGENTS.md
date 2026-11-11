@@ -1,5 +1,23 @@
 # Implementation and validation cadence
 
+User clarification, 2026-11-11 (LATEST CADENCE; supersedes earlier immediate-full-run retries):
+Use incremental, stage-based integration. Establish the execution sequence/timing
+from source and existing evidence. Work in order: saved CFD/geometry; composed
+metric/normalization (finish tangential-profile investigation); coupled surface
+preparation; constrained directions/first row; successive growth; outer transition
+and strict closure; transfer/continued CFD/second adaptation/isolated restart.
+Define each stage's input/output/acceptance before changes. Save credible reusable
+stage outputs with complete provenance and enough state to reconstruct the SAME
+composed target and geometry; sensor tensors alone are insufficient. Preserve
+validity-first provisional outputs with diagnosed quality debt; final gates still
+apply before mesh acceptance. Use focused checks and meaningful MPI integration
+milestones. Reserve full M6 retries for integration milestones or failures that
+cannot be reproduced at a stage boundary. Keep one cycle, one owned heavy job,
+budgets, source freezing and the complete final objective unchanged.
+Maintain Handbook/ADAPTATION_TIMINGS.md with current per-stage timings/work and
+evidence-backed major computational efficiency improvements; keep nested timers,
+contention and attribution gaps explicit.
+
 User clarification, 2026-11-11: RANS500k is a NOMINAL metric-complexity target,
 not an acceptance gate or exact node count. Explain overshoot and uncertainty;
 preserve requested normal heights/progression and all strict acceptance/resource gates.

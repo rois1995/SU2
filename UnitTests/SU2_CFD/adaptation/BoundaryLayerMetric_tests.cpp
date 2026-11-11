@@ -4228,7 +4228,7 @@ TEST_CASE("FIRST_ROW crease policy is shared by candidate integration across pro
     target->full->SelectTangentialScale(scale);target->Update(.25,1.3);su2double core=.25;
     const auto result=assess.Assess(family.selected,core);long double direct=0;
     for(const auto& q:cloud.points)direct+=MetricDensity(target->Composition()(q.point,donor.sensor[0]))/cloud.count;
-    direct=CPassiveComm::Allreduce(direct,CPassiveComm::Op::SUM);
+    long double globalDirect=0;SU2_MPI::Allreduce(&direct,&globalDirect,1,MPI_LONG_DOUBLE,MPI_SUM,world.comm);direct=globalDirect;
     CHECK(result.value==Approx(double(direct)).epsilon(2e-12));
     const auto checked=integral.Assess(family.selected,.25,true,target.get());CHECK(checked.directChecks>32);
     CHECK(target->base->GetTangentialScale()==scale);CHECK(target->A->radius==target->full->GetFeatures().maximumRadius);

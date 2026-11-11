@@ -48,3 +48,5 @@ for(size_t index=0;index<count;++index) {
        <<",\"geometry_work\":"<<budget.work-workBefore<<",\"exact_edge_quadrature\":false,\"production_acceptance\":false}"<<std::endl;
   }
 }
+
+#include "native_actual_bl_saved_tangent_probe.inc"

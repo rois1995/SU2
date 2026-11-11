@@ -1,0 +1,33 @@
+{
+  "build": "build368",
+  "case": "curved368_tangential_serial",
+  "ranks": 1,
+  "argv": [
+    "nice",
+    "-n",
+    "19",
+    "/usr/bin/time",
+    "-v",
+    "timeout",
+    "600",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+    "[NativeBLTangentialNormalization3D],[NativeBLOuterTransition],[NativeBLTargetNormalization],[NativeBLTangentialProgression3D]",
+    "--durations",
+    "yes"
+  ],
+  "environment": {
+    "OMPI_MCA_osc": "pt2pt",
+    "OMPI_MCA_orte_tmpdir_base": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/compile-tmp/curved368_tangential_serial-fqmbweqt",
+    "SU2_NATIVE_BL_FRONT_PROBE": "tangential_target",
+    "SU2_NATIVE_FROZEN_CONFIG": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_bl_inputs/surface_cavities335_v1/run.cfg",
+    "SU2_NATIVE_BL_REFERENCE": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_bl_inputs/rans_curved303_v1/m6.su2.native_ref",
+    "SU2_NATIVE_BL_CAVITY_CONTEXTS": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_bl_inputs/seed_measurement363_v1/contexts.dat",
+    "SU2_NATIVE_BL_SAVED_PATCH": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved358_front_smooth_upper_20261111T045033_884933/prepared_repair_before.bin",
+    "SU2_NATIVE_BL_SAVED_NEIGHBORS": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved358_front_smooth_upper_20261111T045033_884933/prepared_repair_neighbor_star.bin",
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1",
+    "TMPDIR": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/compile-tmp"
+  },
+  "timeout_seconds": 600
+}

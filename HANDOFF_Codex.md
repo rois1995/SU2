@@ -1,159 +1,121 @@
 # Native adaptation — current handoff
 
-Updated2026-11-11 Europe/Rome. Goal ACTIVE. ONE connected curved-BL cycle;
+Updated2026-11-11 Europe/Rome. Goal ACTIVE. ONE connected curved-BL cycle and
 one owned heavy workload. R=`integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57`.
-Read AGENTS.md and [HowToProceed.md](HowToProceed.md). Historical states are in
-[pre359 history](Handbook/ADAPTATION_HANDOFF_HISTORY_PRE_359_RUN_20261111.md) and
-[pre352 history](Handbook/ADAPTATION_HANDOFF_HISTORY_PRE_352_20261111.md), NOT live state.
+Read AGENTS.md, [HowToProceed.md](HowToProceed.md), the current
+[stage cadence/sequence](Handbook/ADAPTATION_CURVED_BL_STAGE_INTEGRATION_20261111.md),
+[normalization evidence](Handbook/ADAPTATION_CURVED_BL_NORMALIZATION_20261111.md)
+and maintained [timing/work ledger](Handbook/ADAPTATION_TIMINGS.md).
+Latest user cadence supersedes immediate-full-run retries: finish credible ordered
+stages with reconstructible checkpoints, then full integration milestones. Keep
+construction validity-first; intermediate quality debt is provisional, not acceptance.
 
-## Current owned workload — authoritative
+## Current state — authoritative
 
-Current owned workload: NONE. Build366 TERMINAL0/308.338s;53observed actual
-identities absent. Serial366 PASSED393assertions/8cases/4.862s; actual366 PASSED
-306735assertions/1case/103.969s across5preserved contexts. Pins intact and all
-observed owned handles terminal. Exact9-file build366 source snapshot is verified
-against pins in R/source_snapshots366/manifest.json (current worktree has later edits).
-R/tangential366_assessment.json seals LIMITED tensor behavior, NOT usable BL,
-production normalization, physical progression or accepted-patch qualification.
-Next local367 edits are UNBUILT: candidate q.weight refresh + full/base integration
-checks, exact prospective Option-A grid admission, analytic NextLayer audit and
-reuse of saved358 generated-row/neighbor captures. No competing cycle.
-Full same303 workflow364 TERMINAL1/1972.886s.
-All10 actual owned identities absent in terminal_handles_actual.json;1639pins and
-mapped runtime verified unchanged. Preserved first-event report/log before the
-verified owned SIGTERM: surface preparation391.619s,18commits/122work,
-51891cached of303310cells, seed311.796s. Deadline exhausted before first row;
-q/J UNKNOWN and incomplete geometry/size census. NOT a usable BL or infeasibility proof.
-Stop was for preserved construction deadline failure, NOT complexity overshoot.
-First metric1199.666s, same work and provisional estimate948069.856 as362;
-empirical uncertainty indicator77214.161, no proven bound. Flow-only2.08846.
-No metric speedup; nominal requested500k is NOT a strict gate or node count.
+Current owned workload: NONE.368focused/actual checks TERMINAL; all5actual
+identities absent in EACH case and pins intact. Build368 TERMINAL0/68.130s;
+all10observed build identities absent. CFD SHA6297c7f82411e15cd95ae36c6ad5f0529d7dac5c1bdbd9e94c91e5a5ed67283f;
+test SHA57978caec389405d8966fc3e56179b50d968511b4e8a41e5d08b5ac6638e965f.
+367 failed ONLY a new test's unsupported long-double CPassiveComm reduction;
+exact failing source preserved.368 uses existing explicit MPI_LONG_DOUBLE call.
+Production byte-identical367. No full M6 retry has been launched.
 
-Active next correction: distinguish composed-volume complexity accounting (already
-present) from adjustable normalization degrees of freedom (currently flow-only).
-Audit inherited wall-tangent sizing versus geometry/features/height feasibility,
-then implement ONE demonstrated connected correction preserving h0/g/T and normal
-progression. Experimental tangent-profile/recomposition candidate is LOCAL/UNQUALIFIED;
-production CSolver normalization is still unchanged.365 failed only a new test
-initializer-list float/double compile error; exact failed source/status preserved.
-366 corrects it and addresses newly found D1 support/image/index dependencies;
-393focused and306735actual assertions pass within their stated tensor scope.
-Review pending before qualification: candidate complexity q.weight must refresh
-when Option-A radius changes (regular complexity and actual diagnostic already do).
-See
-[normalization scope](Handbook/ADAPTATION_CURVED_BL_NORMALIZATION_20261111.md).
+368serial PASSED420assertions/9cases/5.838s. Actual PASSED306789assertions/1case/
+138.187s:5original contexts + saved358generated row and84-cell neighbor union.
+R/tangential368_assessment.json seals LIMITED target diagnosis, not accepted BL.
+25-cell row keeps strict geometry/height/positivity at factors1,.75,.5, but wall
+q-bad4→5/J-bad5→5;20outer cells remain q/J-bad.84-cell union geometry/positivity
+passes;34neighbor-only wall cells retain height debt (previously unlayered).
+Coarsening alone is NOT selected. Analytic NextLayer control separately shows
+metric-unit advancement does not prove physical progression with oblique/fine-
+tangent demand. Actual progression/coverage/transition remain unqualified.
 
-Build364 TERMINAL0/206.222s,pins intact/all22observed handles absent. Serial364 passed
-3442assertions/9cases,4.451s; actual364 passed315957assertions/1case,67.798s,ALL5actual
-contexts; MPI364 passed17cases on EVERYrank,4063–6918assertions/rank,365.101s.
-All validation pins intact/check process identities terminal. R/qualification364.json scopes
-AFFECTED BEHAVIOR ONLY, not accepted BL/native MPI generation/full RANS qualification.
-See R/seed364_assessment.json for exact context results and timing caveats.
+CURRENT CADENCE: ordered stage integration (latest user instruction), NOT immediate
+full-workflow retry after each fix. Stage1 verified/reusable input is
+R/m6_bl_inputs/rans_metric_entry364_v1 (provenance+qualification): exact first
+metric-entry restart from364, byte-identical362, mesh/ref unchanged303. All9fields
+finite, positive rho/internal energy, SA>=1e-16 with exact wall floor. SHA
+ af7ade468dc40cd39dbe9238248e50057cdd151a64fef92fda957677aa3f6cae.
+This includes the old first pre-remesh CFD step; stage2 comparisons must load it
+WITHOUT another CFD advance. Original303 seed remains intact for full integration.
+Stage2 target/normalization is ACTIVE: finish physical geometry/directional/height-
+feasibility attribution, select a justified connected correction, then qualify a
+complete composed-target disk checkpoint. Sensor-only files are insufficient.
+Production CSolver selector is STILL UNCHANGED; experimental shared profile API
+is not an established reasonable target or speedup. No new operators/scheduler.
 
-364 correction uses existing multi-cell planner once per existing <=10-cell published
-measurement batch, then exact per-cell6edges/requested-face max. No larger batch,
-persistent cache or private-trial reuse. Extra scratch admitted. Binding/ForFacets
-support invariant under batch overlay; cached-vs-single edges/flags pass. Matching
-root20-cell seed.55455→.37551s, smooth14-cell.30381→.11588s; not a full-run speedup.
-Production CFD364 SHA5fbb3f5ce343b6259bb41911e3243605db2207ca4e9a3f973d196afa8c13ef65.
-Terminal same303 two-event workflow used run_rans_curved364.py,
-unchanged500k/gates/budgets. Native1 guard remains; native MPI FIRST_ROW unqualified.
-363 diagnostic failure/source snapshots preserved; sticky child-budget flag corrected
-only in diagnostic fixture. No production budget, target or certification change.
+## Production outcome and provenance
 
-Preserved full362 TERMINAL1/1810.658s: first surface prep391.600s,14commits/99work,
-49346cached/303320cells(16.27%); seed327.416s dominated. No q/J or complete geometry/size
-census, no first row or accepted mesh. Verified owned stop,pins/runtime intact,all10
-actual identities absent. R/m6_runs/rans_curved362_v1/assessment.json and lossless
-capture_archive preserve the complete partial state. That outcome selected363/364
-attribution/batching above; old audit next-step notes are historical. Full359/362
-metric stages shared exact work/target; none established metric speedup.359 Float64
-sensor core1e-4I at all61330points within2.304e-15relative, not composed target or proof
-of no later drift. Detailed evidence/history is in the linked physical-height topic.
+Full364 TERMINAL1/1972.886s. Preserved first surface failure before verified owned
+stop:391.619s,18commits/122work,51891cached of303310tets, no first row. All10actual
+identities absent;1639source/build/input pins and mapped runtime unchanged. Stop
+was for construction deadline, NOT complexity overshoot. Lossless rejected capture
+in R/m6_runs/rans_curved364_v1/capture_archive; exact partial mesh61312used nodes/
+303310tets. Shape/geometry/size census incomplete. No usable BL/infeasibility claim.
 
-Same saved303 reasonable coarse RANS+SA seed, Mach-only L1,500k metric complexity;
-not500k points. Native5400s/outer14400s,12GiB per rank, CFD MPI6/native FIRST_ROW1.
-The native1 guard remains: this run does NOT qualify native-MPI BL generation.
-Geometry1e-4,q>=.2,J>=.05,maxedge1.8; h0=2e-6,g=1.2,T=.01,height tolerance.1.
-Keep positivity, body separation and original no-CAD authority strict; CAD optional.
+Metric1199.666s, same geometry work and provisional948069.856estimate as362;
+empirical indicator77214.161, no proven bound; flow-only2.08846.500k is NOMINAL,
+not a node count or strict gate. Work/timing attribution and confirmed efficiencies
+are in the ledger; no metric work speedup is established. Raw CPU includes MPI polling.
 
-Inputs `R/m6_bl_inputs/rans_curved_surface_ready_v1`: SAME303 mesh/reference/seed,
-only existing DOUBLE volume-output setting. Config SHA
-0a7de022729f69b170deaee2eaabbd5347550da8134cbdaa39587f7173e78742.
-Seed SHAc90000ea804c7e08a54dbec93f218b5bd3ae3dce3db8c287db6783fd138f1c78;
+Original303 inputs remain R/m6_bl_inputs/rans_curved_surface_ready_v1:
 mesh SHA8c839170eb5e359f7de6a41434aa6a9c2d620053f37de6d9360bd04d2a63088b;
-reference SHA2e99fb7870e2c718f110da8509e4c0f7e746ce138e7f27ab57aa0dedbb6c42de.
-Canonical/prepared payloads rehashed unchanged in rans303_preservation_during_bl358.json.
+reference SHA2e99fb7870e2c718f110da8509e4c0f7e746ce138e7f27ab57aa0dedbb6c42de;
+original seed SHAc90000ea804c7e08a54dbec93f218b5bd3ae3dce3db8c287db6783fd138f1c78;
+config SHA0a7de022729f69b170deaee2eaabbd5347550da8134cbdaa39587f7173e78742.
+The separate metric-entry checkpoint above uses AF7...field without repeating CFD.
+None is a complete composed-target disk checkpoint. Same Mach-only L1 constraints.
+Native5400s/outer14400s,12GiB per rank; nice19,j3,OMP/BLAS/MKL1,4TB compile-tmp.
+Check actual host load/RAM and owned PID/start identities before heavy jobs/edits.
 
-## Pinned implementation and qualification
+## Active stage2 and next bounded work
 
-Build359 TERMINAL0/62.118s, actual build handles absent, pins intact.
-CFD SHAc52027cd43e5c1d75283a76e459d5489253c6bbce08ed448d14d794a2a4b4e9b
-(byte-identical358); test SHA53702def233891ee7b8a5c146cdb2dab2f8987010d2bae91a0919fd235bd2e04.
-358 fixes shared smooth-curved BL metric frames: differential surface normal,
-not query-minus-approximate-foot direction. Distance accuracy does not certify that
-angle. Retained MobilityDimension distinguishes smooth seams from genuine features;
-absent policy retains conservative ambiguous-support fallback. No per-query policy
-build, advancement-direction replacement, sensor/norm/construction-policy/gate change.
+Full composed3D complexity ALREADY counts BL volume/outer continuation. Existing
+normalization adjusts only flow while wall covariance preserves inherited triangle
+spacing. The experimental shared API can vary inherited tangents before protected
+normal/geometry/D1 composition; exact owner/wall/support/profile dependencies govern
+same-point recomposition. Changed feature radius requires index/images/Option-A
+refresh and memory admission. Scoped source and limited checks are preserved; this
+is not yet a justified production selection or efficiency gain.
 
-Serial358:4387assertions/20cases. MPI359:29cases on EVERYrank,4321–4547assertions/rank,
-362.286s, pins intact/all actual identities absent. qualification359.json scopes
-LIMITED normal/feature/resource/caller behavior, NOT usable BL or full workflow.
-359 changes only a fixture's constant-sensor witness to a local donor; all MPI checks
-remain. Failed358 MPI/global-point-through-local-donor exception and exact verified
-owned stop are preserved. Serial358 reused with explicit unchanged-production proof
-and test-source snapshot; MPI359 supersedes its fixture-only sampling change.
+Next distinguish physical curvature/tolerance and first-layer-feasibility demands
+from inherited tangent sizing and point-placement/connectivity obstruction, using
+existing physical surface derivatives and saved358/368whole-patch evidence. Uniform
+coarsening worsens these fixed generated cells; do not enable it solely for lower
+complexity. Preserve constrained/blended directions. Continuous hn versus actual
+NextLayer progression must be assessed separately, including oblique/outer behavior.
+No new operator, larger cavity, scheduler, geometry representation or depth law is
+selected. Queued Coulaud/MAdLib hypotheses remain inside this investigation.
 
-Qualified346/347 physical-height/resource contracts and surface344 operators remain.
-347 serial/MPI scope and evidence are linked from the physical-height topic below.
+After target reasonableness, establish fresh-process reconstruction of the SAME
+composed target and geometry, reusing existing .native_ref, RecordStream/donor and
+stage-capture formats first. Include selected core/original family as needed,
+normal/tangent/feature/Option-A/outer policy and complete provenance; sensor-only
+exports are insufficient. Stage3surface work waits for credible stage2output.
+Run focused checks and meaningful MPI ownership/publication/integration milestones;
+new profile MPI qualification is still pending. Native FIRST_ROW1 guard remains.
+No full M6 baseline/perf/GDB campaign or full retry is currently authorized merely
+because a local check passes; latest stage cadence controls.
 
-## Actual M6 result and active blocker
+## Preserved completion and strict remaining objective
 
-[Physical-height, normal and repair evidence](Handbook/ADAPTATION_CURVED_BL_PHYSICAL_HEIGHT_20261111.md).
-Same5 saved wall-child points now have metric axes equal to differential normals
-(to rounding), unchanged query work. Prior angular error.009–.413degrees was real;
-rigid tensor rotation was sensitivity evidence, NOT an accepted target/replacement.
+Euler293 COMPLETE: TWO strict Euler50k meshes149051points/736323tets and172001/
+870422, conservative admissible transfer, finite continued CFD and actual isolated
+adapted disk restart. Continued CFD was one iteration, not convergence. Preserve
+R/m6_inputs/euler_adapted293_event{1,2}_v1 and
+R/m6_runs/euler_build293_adapted_event1_disk_restart_v1. All22payloads384685699B
+rehash receipt euler293_preservation_during_bl358.json remains valid; no payload edits.
 
-Actual358 patch TERMINAL1/356.018s/pins intact/actual handles absent:
-SAME16splits and byte-identical5-column/25-cell candidate as356. Strict initial
-geometry/height/contact PASS, q-bad24/J-bad25 (356:25/25), unknown0. Existing repair
-improves loss but full strict height check rejects21.2111% error>10%; original
-candidate retained. Native optimizer again exhausts the shared300s geometry window.
-front358_assessment.json seals captures/counters. No admissible repair, usable BL
-or speedup proven. Read-only shape decomposition is in front358_shape_decomposition.json:
-4/5wall q/J-bad plus20/20above-row q/J-bad. Above-row cells still await growth/transition;
-control-target evidence alone cannot diagnose the production target. Private interface
-fixes5of6wallvertices; this is not a permanent production boundary freeze. Remaining construction/repair capability is the next target.
-Provisional AdmitFirstHeight under validity-only construction is not final height
-admission; later nonprovisional cell/completion gates remain strict. Keep all gates.
+Remaining: usable strictly accepted curved BL, dedicated native-MPI constraint
+qualification, then TWO accepted RANS adaptations, conservative admissible flow+SA
+transfer, finite continued adapted CFD and actual isolated adapted disk restart.
+Geometry1e-4,exact positivity/body separation,q>=.2,J>=.05,maxedge1.8;
+h0=2e-6,g1.2,T=.01,height tolerance.1. CAD optional; original no-CAD authority
+sufficient. Never weaken heights for complexity, raise budgets or freeze columns.
+Maintain source freezing, resumable evidence, pushed checkpoints and the timing
+ledger. Unrelated alternatives go in [backlog](Handbook/ADAPTATION_BACKLOG.md).
 
-Do not infer infeasibility from a timeout, better debt or helper success. Current
-quality has no permanent row/column registry freeze. Complete actual neighbor star
-at blocked vertex39424 has64cells (59outside candidate), exported within existing bound.
-No larger cavity/operator/scheduler/config selected. Keep coupled surface/volume
-operators and constrained/blended ComputeDirectionField/DirectionAt directions.
-
-## Preserved completion and remaining obligations
-
-Euler293 COMPLETE: TWO strictly accepted Euler50k meshes149051points/736323tets and
-172001points/870422tets; conservative admissible transfers, finite continued CFD,
-actual isolated adapted disk restart. Continued CFD was one iteration, not convergence.
-All22 payloads/384685699bytes rehashed unchanged358 in euler293_preservation_during_bl358.json.
-Preserve checkpoints `R/m6_inputs/euler_adapted293_event{1,2}_v1` and restart baseline
-`R/m6_runs/euler_build293_adapted_event1_disk_restart_v1`. No new Euler cycle selected.
-
-[Construction strategy](Handbook/ADAPTATION_CURVED_BL_CONSTRUCTION_STRATEGY_20261110.md):
-measured-ready tangential surface, constrained/blended directions, coordinated first
-row, successive fronts, outer transition and complete strict closure. Progression,
-coverage, transition and true native-MPI BL construction remain UNPROVEN. Preserve
-queued Coulaud/MAdLib audit of physical curvature/tolerance demand, separate target
-contributions and realized leading-edge conformity. Inherited tangential contribution
-to historical1.174528M/current948070 versus500k remains unquantified; do not call it infeasible,
-raise complexity or weaken heights. Exact330 core was not saved; no baseline campaign.
-
-Use preserved364 outcome for the active normalization correction above. Completion remains
-TWO strictly accepted RANS500k adaptations, conservative admissible flow+SA transfer,
-finite continued adapted CFD and actual isolated adapted disk restart, plus dedicated
-BL/native-MPI constraint qualification. Passing fixtures/private patches are not
-completion. Keep resource receipts, source freezing, resumable evidence and pushed
-checkpoints. Unrelated ideas stay in [backlog](Handbook/ADAPTATION_BACKLOG.md).
+Detailed prior provenance/qualification: [pre369snapshot](Handbook/ADAPTATION_HANDOFF_HISTORY_PRE_369_20261111.md),
+[physical-height evidence](Handbook/ADAPTATION_CURVED_BL_PHYSICAL_HEIGHT_20261111.md),
+[construction strategy](Handbook/ADAPTATION_CURVED_BL_CONSTRUCTION_STRATEGY_20261110.md).
+Historical RUNNING/next-action notes there are not live instructions.

@@ -1,0 +1,42 @@
+{
+  "stage": 1,
+  "scope": "Reproducible CFD/geometry INPUT checkpoint only; NOT composed-BL target or stage2 success.",
+  "files": {
+    "m6.su2": {
+      "sha256": "8c839170eb5e359f7de6a41434aa6a9c2d620053f37de6d9360bd04d2a63088b",
+      "bytes": 16374745,
+      "source": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/rans_curved364_v1/m6.su2",
+      "source_sha256": "8c839170eb5e359f7de6a41434aa6a9c2d620053f37de6d9360bd04d2a63088b"
+    },
+    "m6.su2.native_ref": {
+      "sha256": "2e99fb7870e2c718f110da8509e4c0f7e746ce138e7f27ab57aa0dedbb6c42de",
+      "bytes": 46610856,
+      "source": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/rans_curved364_v1/m6.su2.native_ref",
+      "source_sha256": "2e99fb7870e2c718f110da8509e4c0f7e746ce138e7f27ab57aa0dedbb6c42de"
+    },
+    "baseline_sa_seed.dat": {
+      "sha256": "af7ade468dc40cd39dbe9238248e50057cdd151a64fef92fda957677aa3f6cae",
+      "bytes": 4416077,
+      "source": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/rans_curved364_v1/restart_flow_adap_00000.dat",
+      "source_sha256": "af7ade468dc40cd39dbe9238248e50057cdd151a64fef92fda957677aa3f6cae"
+    },
+    "run.cfg": {
+      "sha256": "0a7de022729f69b170deaee2eaabbd5347550da8134cbdaa39587f7173e78742",
+      "bytes": 4990,
+      "source": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_bl_inputs/rans_curved_surface_ready_v1/run.cfg",
+      "source_sha256": "0a7de022729f69b170deaee2eaabbd5347550da8134cbdaa39587f7173e78742"
+    }
+  },
+  "exact_metric_entry362_and364": true,
+  "original303_seed_preserved": true,
+  "load_without_advancing_CFD_for_metric_stage": true,
+  "normalization": "Mach-only L1; nominal500k; original config/bounds/height controls unchanged",
+  "producer_pins": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/rans_curved364_v1/pins.json",
+  "producer_status": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/rans_curved364_v1/status.json",
+  "qualification": "qualification.json",
+  "limitations": [
+    "Not converged or wall/shock-resolution-qualified.",
+    "Do not StartSolver for same-field metric comparisons: this checkpoint already includes the first pre-remesh CFD continuation.",
+    "No target codec, constructed BL or adapted-state restart qualification."
+  ]
+}

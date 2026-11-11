@@ -3,6 +3,9 @@
 Updated2026-11-11 Europe/Rome. [HANDOFF_Codex.md](HANDOFF_Codex.md) is the current
 source/build/input/owned-handle authority. Keep ONE connected curved-BL cycle and
 one owned heavy workload. Goal remains ACTIVE.
+Use the [stage integration cadence](Handbook/ADAPTATION_CURVED_BL_STAGE_INTEGRATION_20261111.md)
+and maintained [timing/work ledger](Handbook/ADAPTATION_TIMINGS.md). Full retries are
+reserved for integration milestones or failures not reproducible at a stage boundary.
 
 ## Preserved completion and current blocker
 
@@ -87,9 +90,16 @@ extracting exact per-cell edges/requested-face maxima; private trials are unchan
 No persistent cache or larger batch. Cached-versus-single equivalence and all5actual contexts pass; ONE MPI milestone
 passes17cases on every rank. Full same303 workflow364 is TERMINAL; authoritative evidence is in HANDOFF_Codex.md. See
 HANDOFF_Codex.md for current handles and qualification; no accepted BL is proven. The active next task is the connected normalization audit/correction in [normalization scope](Handbook/ADAPTATION_CURVED_BL_NORMALIZATION_20261111.md). RANS500k is nominal, not a rejection gate.
- First assess whether surface preparation reaches useful operators and a
-complete readiness census within the unchanged window. Then judge actual first-layer,
-growth and transition results; useful operators or test passes are not usable BL.
+364 still exhausted surface preparation before first row:18commits,51891/303310
+cells cached. Its complete rejected capture and unchanged provenance are preserved.
+The active connected correction now concerns adjustable inherited tangent resolution
+within the already composed3D complexity integral, preserving prescribed normal law.
+366 passes focused and5actual-context tensor checks; CSolver selection is not yet
+connected. Assess the saved generated358 row and complete neighbor support, discrete
+normal progression and cached/full-base integration before selecting the correction.
+Use meaningful connected MPI milestones, then progress through credible saved stages
+before the full same303 integration workflow. Do not
+start another baseline or unrelated geometry-cache implementation.
 See the [physical-height topic](Handbook/ADAPTATION_CURVED_BL_PHYSICAL_HEIGHT_20261111.md)
 for counters, target caveats and construction/repair evidence. The queued physical
 curvature versus tangential target and realized conformity investigation stays inside
@@ -138,7 +148,7 @@ inherited tangential allocation before changing policy. Do not weaken heights or
 silently increase complexity. Exact330 core was not saved; use existing DOUBLE
 output during the next authorized workflow, not a new baseline/capture campaign.
 
-Then return immediately to staged57/m6_bl_inputs/rans_curved_surface_ready_v1:
+For the eventual full integration milestone, use staged57/m6_bl_inputs/rans_curved_surface_ready_v1:
 SAME saved303 SA seed/mesh/reference, Mach-only L1,500k, unchanged constraints and
 budgets. Its sole configuration difference is existing VOLUME_OUTPUT_PRECISION=
 DOUBLE. Verify exact node/field association; saved bare core is not composed BL
@@ -170,7 +180,8 @@ only by endpoints. Existing seed counters need to survive into the BL failure re
 
 Validate affected serial behavior and one connected MPI milestone including empty
 ranks and support/association invalidation, then replay the actual failed surface
-stage from saved exact core/authority and promptly return to full same303 workflow.
+stage from saved exact core/authority, establish credible reusable stage outputs,
+then run the full same303 integration workflow at a meaningful milestone.
 Do not re-solve the seed or start another metric/perf baseline campaign. Target
 allocation/curvature/inherited-tangent hypotheses remain unresolved and must not be
 used to bypass this computational blocker or silently change500k/heights/gates.
