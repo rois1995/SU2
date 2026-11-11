@@ -23,7 +23,8 @@ Test-only wrapper returns same callback tensor, streams<=65536samples/64KiBadmis
 Reuse388production qualification: serial52cases/7288assertions251.554s; MPI6passes
 54cases EVERYrank/6786–7091assertions/rank305.900s. No redundant389MPIcampaign.
 Native MPI BLgeneration still UNQUALIFIED; FIRST_ROWnative1guard remains.
-Latest pushed source/evidence checkpoint11fc02fd95;389evidence checkpoint follows.
+Latest pushed source/evidence checkpoint1ed41abea9; production388qualification remains
+11fc02fd95. No production metric/geometry code changed in389.
 
 ##389demonstrated attribution — no complete edge/target/BL yet
 
