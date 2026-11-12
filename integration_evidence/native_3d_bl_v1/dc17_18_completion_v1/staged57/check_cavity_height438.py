@@ -4,9 +4,9 @@ from pathlib import Path
 import run_cases as checks
 R=Path(__file__).resolve().parent
 mode='surface'
-assert json.loads((R/'build438c_terminal_handles.json').read_text())['all_owned_handles_terminal']
+assert json.loads((R/'build440_terminal_handles.json').read_text())['all_owned_handles_terminal']
 selected='checkpoint_target_surface'
-case='curved438_cavity_height_continuation'
+case='curved440_cavity_height_continuation'
 checks.CASES[case]=(1,'[NativeActualCavityHeightContinuation3D]')
 scratch=R.parents[3]/'integration_evidence/build-integrated-v2/compile-tmp'
 os.environ.update(OMPI_MCA_osc='pt2pt',OMPI_MCA_orte_tmpdir_base=tempfile.mkdtemp(prefix=case+'-',dir=scratch))
@@ -71,7 +71,7 @@ def save_pinned(path,value):
             p=producer/name;assert checks.sha(p)==info['sha256'];value[str(p)]=info['sha256']
     original_save(path,value)
 checks.save=save_pinned
-sys.argv=['run_cases.py','build438c',case]
+sys.argv=['run_cases.py','build440',case]
 try:checks.main()
 except SystemExit as e:code=e.code or 0
 attempt=sorted((R/'cases').glob(case+'_*'),key=lambda p:p.stat().st_mtime)[-1]

@@ -1,0 +1,5715 @@
+{
+  "case": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved440_cavity_height_continuation_20261112T120931_1211699",
+  "status": {
+    "state": "terminal",
+    "exit_code": 0,
+    "seconds": 284.5548439025879,
+    "pins_verified": true,
+    "changed": [],
+    "largest_sampled_individual_process_rss_bytes": 2164195328,
+    "rss_note": "sampled process RSS; not a whole-job peak"
+  },
+  "owned_records_byte_identical": 301171,
+  "records": 461,
+  "raw_JSON_control_characters_normalized": true,
+  "N": 5,
+  "final_h0": 2e-06,
+  "growth": 1.2,
+  "thickness": 0.01,
+  "fixed_current_core_and_tangential_scale": true,
+  "normalized_for_each_height": false,
+  "height_records": [
+    {
+      "stage": "height_continuation_patch",
+      "k": 0,
+      "N": 5,
+      "factor": 32,
+      "h0": 6.4e-05,
+      "growth": 1.2,
+      "thickness": 0.01,
+      "ideal_geometric_rows_to_T": 20,
+      "context": "recorded_geometry_refusal",
+      "operator": "CollapseVertex",
+      "side": "old",
+      "strict_height": false,
+      "height_measured": true,
+      "shape_measured": true,
+      "q_bad": 6,
+      "J_bad": 6,
+      "minimum_q": 0.020662098434854892,
+      "minimum_J": 0.001051950314739668,
+      "final_tensor_checked": false,
+      "final_tensor_relative_difference": 0,
+      "geometry_work": 6,
+      "seconds": 0.091809927,
+      "reason": "Native3D prescribed height fails at facet 36832 cell 264071 relative error 220.158447 > tolerance 0.100000",
+      "fixed_core_tangents": true,
+      "generated_BL": false,
+      "mesh_accepted": false
+    },
+    {
+      "stage": "height_continuation_patch",
+      "k": 0,
+      "N": 5,
+      "factor": 32,
+      "h0": 6.4e-05,
+      "growth": 1.2,
+      "thickness": 0.01,
+      "ideal_geometric_rows_to_T": 20,
+      "context": "recorded_geometry_refusal",
+      "operator": "CollapseVertex",
+      "side": "fresh",
+      "strict_height": false,
+      "height_measured": true,
+      "shape_measured": true,
+      "q_bad": 4,
+      "J_bad": 4,
+      "minimum_q": 0.020351228505277836,
+      "minimum_J": 0.0010297073052688414,
+      "final_tensor_checked": false,
+      "final_tensor_relative_difference": 0,
+      "geometry_work": 4,
+      "seconds": 0.057477770000000004,
+      "reason": "Native3D prescribed height fails at facet 30237 cell 7461125 relative error 224.310721 > tolerance 0.100000",
+      "fixed_core_tangents": true,
+      "generated_BL": false,
+      "mesh_accepted": false
+    },
+    {
+      "stage": "height_continuation_patch",
+      "k": 0,
+      "N": 5,
+      "factor": 32,
+      "h0": 6.4e-05,
+      "growth": 1.2,
+      "thickness": 0.01,
+      "ideal_geometric_rows_to_T": 20,
+      "context": "recorded_visibility_obstruction",
+      "operator": "ReconnectCollapse_apex27313",
+      "side": "old",
+      "strict_height": false,
+      "height_measured": true,
+      "shape_measured": true,
+      "q_bad": 16,
+      "J_bad": 16,
+      "minimum_q": 0.021441758834615354,
+      "minimum_J": 0.0011115726900473256,
+      "final_tensor_checked": false,
+      "final_tensor_relative_difference": 0,
+      "geometry_work": 6,
+      "seconds": 0.079813456,
+      "reason": "Native3D prescribed height fails at facet 14532 cell 51730 relative error 61.265751 > tolerance 0.100000",
+      "fixed_core_tangents": true,
+      "generated_BL": false,
+      "mesh_accepted": false
+    },
+    {
+      "stage": "height_continuation_patch",
+      "k": 0,
+      "N": 5,
+      "factor": 32,
+      "h0": 6.4e-05,
+      "growth": 1.2,
+      "thickness": 0.01,
+      "ideal_geometric_rows_to_T": 20,
+      "context": "recorded_visibility_obstruction",
+      "operator": "ReconnectCollapse_apex27313",
+      "side": "fresh",
+      "strict_height": false,
+      "height_measured": true,
+      "shape_measured": true,
+      "q_bad": 13,
+      "J_bad": 12,
+      "minimum_q": 0.02110798698106216,
+      "minimum_J": 0.0010867044386133826,
+      "final_tensor_checked": false,
+      "final_tensor_relative_difference": 0,
+      "geometry_work": 4,
+      "seconds": 0.06952770800000001,
+      "reason": "Native3D prescribed height fails at facet 14681 cell 7462162 relative error 55.217197 > tolerance 0.100000",
+      "fixed_core_tangents": true,
+      "generated_BL": false,
+      "mesh_accepted": false
+    },
+    {
+      "stage": "height_continuation_patch",
+      "k": 0,
+      "N": 5,
+      "factor": 32,
+      "h0": 6.4e-05,
+      "growth": 1.2,
+      "thickness": 0.01,
+      "ideal_geometric_rows_to_T": 20,
+      "context": "recorded_visibility_obstruction_b",
+      "operator": "PrescribedCollapseCone_apex13788",
+      "side": "old",
+      "strict_height": false,
+      "height_measured": true,
+      "shape_measured": true,
+      "q_bad": 11,
+      "J_bad": 11,
+      "minimum_q": 0.02206389885700621,
+      "minimum_J": 0.0011610399538295787,
+      "final_tensor_checked": false,
+      "final_tensor_relative_difference": 0,
+      "geometry_work": 7,
+      "seconds": 0.078286346,
+      "reason": "Native3D prescribed height fails at facet 28922 cell 171165 relative error 72.388362 > tolerance 0.100000",
+      "fixed_core_tangents": true,
+      "generated_BL": false,
+      "mesh_accepted": false
+    },
+    {
+      "stage": "height_continuation_patch",
+      "k": 0,
+      "N": 5,
+      "factor": 32,
+      "h0": 6.4e-05,
+      "growth": 1.2,
+      "thickness": 0.01,
+      "ideal_geometric_rows_to_T": 20,
+      "context": "recorded_visibility_obstruction_b",
+      "operator": "PrescribedCollapseCone_apex13788",
+      "side": "fresh",
+      "strict_height": false,
+      "height_measured": true,
+      "shape_measured": true,
+      "q_bad": 9,
+      "J_bad": 9,
+      "minimum_q": 0.004655963825859273,
+      "minimum_J": 0.00011286548696948196,
+      "final_tensor_checked": false,
+      "final_tensor_relative_difference": 0,
+      "geometry_work": 5,
+      "seconds": 0.070940533,
+      "reason": "Native3D prescribed height fails at facet 28931 cell 7463047 relative error 74.043276 > tolerance 0.100000",
+      "fixed_core_tangents": true,
+      "generated_BL": false,
+      "mesh_accepted": false
+    },
+    {
+      "stage": "height_continuation_patch",
+      "k": 0,
+      "N": 5,
+      "factor": 32,
+      "h0": 6.4e-05,
+      "growth": 1.2,
+      "thickness": 0.01,
+      "ideal_geometric_rows_to_T": 20,
+      "context": "unchanged_wall_control",
+      "operator": "CollapseVertex",
+      "side": "old",
+      "strict_height": false,
+      "height_measured": true,
+      "shape_measured": true,
+      "q_bad": 10,
+      "J_bad": 9,
+      "minimum_q": 0.01841793637994987,
+      "minimum_J": 0.0008846987332360724,
+      "final_tensor_checked": false,
+      "final_tensor_relative_difference": 0,
+      "geometry_work": 6,
+      "seconds": 0.064999918,
+      "reason": "Native3D prescribed height fails at facet 24704 cell 177136 relative error 269.373465 > tolerance 0.100000",
+      "fixed_core_tangents": true,
+      "generated_BL": false,
+      "mesh_accepted": false
+    },
+    {
+      "stage": "height_continuation_patch",
+      "k": 0,
+      "N": 5,
+      "factor": 32,
+      "h0": 6.4e-05,
+      "growth": 1.2,
+      "thickness": 0.01,
+      "ideal_geometric_rows_to_T": 20,
+      "context": "unchanged_wall_control",
+      "operator": "CollapseVertex",
+      "side": "fresh",
+      "strict_height": false,
+      "height_measured": true,
+      "shape_measured": true,
+      "q_bad": 8,
+      "J_bad": 7,
+      "minimum_q": 0.010179660516207906,
+      "minimum_J": 0.0011044643532054157,
+      "final_tensor_checked": false,
+      "final_tensor_relative_difference": 0,
+      "geometry_work": 4,
+      "seconds": 0.053224039,
+      "reason": "Native3D prescribed height fails at facet 24704 cell 7463945 relative error 269.373465 > tolerance 0.100000",
+      "fixed_core_tangents": true,
+      "generated_BL": false,
+      "mesh_accepted": false
+    },
+    {
+      "stage": "height_continuation_patch",
+      "k": 0,
+      "N": 5,
+      "factor": 32,
+      "h0": 6.4e-05,
+      "growth": 1.2,
+      "thickness": 0.01,
+      "ideal_geometric_rows_to_T": 20,
+      "context": "leading_edge",
+      "operator": "CollapseVertex",
+      "side": "old",
+      "strict_height": false,
+      "height_measured": true,
+      "shape_measured": true,
+      "q_bad": 12,
+      "J_bad": 12,
+      "minimum_q": 0.016524328712686814,
+      "minimum_J": 0.0007743063743877004,
+      "final_tensor_checked": false,
+      "final_tensor_relative_difference": 0,
+      "geometry_work": 6,
+      "seconds": 0.069057274,
+      "reason": "Native3D prescribed height fails at facet 35410 cell 286389 relative error 204.521000 > tolerance 0.100000",
+      "fixed_core_tangents": true,
+      "generated_BL": false,
+      "mesh_accepted": false
+    },
+    {
+      "stage": "height_continuation_patch",
+      "k": 0,
+      "N": 5,
+      "factor": 32,
+      "h0": 6.4e-05,
+      "growth": 1.2,
+      "thickness": 0.01,
+      "ideal_geometric_rows_to_T": 20,
+      "context": "leading_edge",
+      "operator": "CollapseVertex",
+      "side": "fresh",
+      "strict_height": false,
+      "height_measured": true,
+      "shape_measured": true,
+      "q_bad": 9,
+      "J_bad": 9,
+      "minimum_q": 0.01802599636544905,
+      "minimum_J": 0.0008576095235776804,
+      "final_tensor_checked": false,
+      "final_tensor_relative_difference": 0,
+      "geometry_work": 4,
+      "seconds": 0.059076683000000005,
+      "reason": "Native3D prescribed height fails at facet 35410 cell 7464711 relative error 204.520999 > tolerance 0.100000",
+      "fixed_core_tangents": true,
+      "generated_BL": false,
+      "mesh_accepted": false
+    },
+    {
+      "stage": "height_continuation_patch",
+      "k": 1,
+      "N": 5,
+      "factor": 16,
+      "h0": 3.2e-05,
+      "growth": 1.2,
+      "thickness": 0.01,
+      "ideal_geometric_rows_to_T": 23,
+      "context": "recorded_geometry_refusal",
+      "operator": "CollapseVertex",
+      "side": "old",
+      "strict_height": false,
+      "height_measured": true,
+      "shape_measured": true,
+      "q_bad": 6,
+      "J_bad": 6,
+      "minimum_q": 0.019512541161277853,
+      "minimum_J": 0.0009652812959050493,
+      "final_tensor_checked": false,
+      "final_tensor_relative_difference": 0,
+      "geometry_work": 6,
+      "seconds": 0.077641955,
+      "reason": "Native3D prescribed height fails at facet 36832 cell 264071 relative error 441.316894 > tolerance 0.100000",
+      "fixed_core_tangents": true,
+      "generated_BL": false,
+      "mesh_accepted": false
+    },
+    {
+      "stage": "height_continuation_patch",
+      "k": 1,
+      "N": 5,
+      "factor": 16,
+      "h0": 3.2e-05,
+      "growth": 1.2,
+      "thickness": 0.01,
+      "ideal_geometric_rows_to_T": 23,
+      "context": "recorded_geometry_refusal",
+      "operator": "CollapseVertex",
+      "side": "fresh",
+      "strict_height": false,
+      "height_measured": true,
+      "shape_measured": true,
+      "q_bad": 4,
+      "J_bad": 4,
+      "minimum_q": 0.01921470549497848,
+      "minimum_J": 0.0009444344023180519,
+      "final_tensor_checked": false,
+      "final_tensor_relative_difference": 0,
+      "geometry_work": 4,
+      "seconds": 0.061366867000000005,
+      "reason": "Native3D prescribed height fails at facet 30237 cell 7461125 relative error 449.621442 > tolerance 0.100000",
+      "fixed_core_tangents": true,
+      "generated_BL": false,
+      "mesh_accepted": false
+    },
+    {
+      "stage": "height_continuation_patch",
+      "k": 1,
+      "N": 5,
+      "factor": 16,
+      "h0": 3.2e-05,
+      "growth": 1.2,
+      "thickness": 0.01,
+      "ideal_geometric_rows_to_T": 23,
+      "context": "recorded_visibility_obstruction",
+      "operator": "ReconnectCollapse_apex27313",
+      "side": "old",
+      "strict_height": false,
+      "height_measured": true,
+      "shape_measured": true,
+      "q_bad": 16,
+      "J_bad": 16,
+      "minimum_q": 0.01778487111909334,
+      "minimum_J": 0.0008394180082460722,
+      "final_tensor_checked": false,
+      "final_tensor_relative_difference": 0,
+      "geometry_work": 6,
+      "seconds": 0.074986095,
+      "reason": "Native3D prescribed height fails at facet 14532 cell 51730 relative error 123.531502 > tolerance 0.100000",
+      "fixed_core_tangents": true,
+      "generated_BL": false,
+      "mesh_accepted": false
+    },
+    {
+      "stage": "height_continuation_patch",
+      "k": 1,
+      "N": 5,
+      "factor": 16,
+      "h0": 3.2e-05,
+      "growth": 1.2,
+      "thickness": 0.01,
+      "ideal_geometric_rows_to_T": 23,
+      "context": "recorded_visibility_obstruction",
+      "operator": "ReconnectCollapse_apex27313",
+      "side": "fresh",
+      "strict_height": false,
+      "height_measured": true,
+      "shape_measured": true,
+      "q_bad": 13,
+      "J_bad": 12,
+      "minimum_q": 0.01751316851150393,
+      "minimum_J": 0.0008208180988336663,
+      "final_tensor_checked": false,
+      "final_tensor_relative_difference": 0,
+      "geometry_work": 4,
+      "seconds": 0.068539314,
+      "reason": "Native3D prescribed height fails at facet 14681 cell 7462162 relative error 111.434394 > tolerance 0.100000",
+      "fixed_core_tangents": true,
+      "generated_BL": false,
+      "mesh_accepted": false
+    },
+    {
+      "stage": "height_continuation_patch",
+      "k": 1,
+      "N": 5,
+      "factor": 16,
+      "h0": 3.2e-05,
+      "growth": 1.2,
+      "thickness": 0.01,
+      "ideal_geometric_rows_to_T": 23,
+      "context": "recorded_visibility_obstruction_b",
+      "operator": "PrescribedCollapseCone_apex13788",
+      "side": "old",
+      "strict_height": false,
+      "height_measured": true,
+      "shape_measured": true,
+      "q_bad": 11,
+      "J_bad": 11,
+      "minimum_q": 0.018955492288011418,
+      "minimum_J": 0.0009237826691300047,
+      "final_tensor_checked": false,
+      "final_tensor_relative_difference": 0,
+      "geometry_work": 7,
+      "seconds": 0.076698106,
+      "reason": "Native3D prescribed height fails at facet 28922 cell 171165 relative error 145.776725 > tolerance 0.100000",
+      "fixed_core_tangents": true,
+      "generated_BL": false,
+      "mesh_accepted": false
+    },
+    {
+      "stage": "height_continuation_patch",
+      "k": 1,
+      "N": 5,
+      "factor": 16,
+      "h0": 3.2e-05,
+      "growth": 1.2,
+      "thickness": 0.01,
+      "ideal_geometric_rows_to_T": 23,
+      "context": "recorded_visibility_obstruction_b",
+      "operator": "PrescribedCollapseCone_apex13788",
+      "side": "fresh",
+      "strict_height": false,
+      "height_measured": true,
+      "shape_measured": true,
+      "q_bad": 9,
+      "J_bad": 9,
+      "minimum_q": 0.004241937890724154,
+      "minimum_J": 9.813676643790778e-05,
+      "final_tensor_checked": false,
+      "final_tensor_relative_difference": 0,
+      "geometry_work": 5,
+      "seconds": 0.07627808600000001,
+      "reason": "Native3D prescribed height fails at facet 28931 cell 7463047 relative error 149.086551 > tolerance 0.100000",
+      "fixed_core_tangents": true,
+      "generated_BL": false,
+      "mesh_accepted": false
+    },
+    {
+      "stage": "height_continuation_patch",
+      "k": 1,
+      "N": 5,
+      "factor": 16,
+      "h0": 3.2e-05,
+      "growth": 1.2,
+      "thickness": 0.01,
+      "ideal_geometric_rows_to_T": 23,
+      "context": "unchanged_wall_control",
+      "operator": "CollapseVertex",
+      "side": "old",
+      "strict_height": false,
+      "height_measured": true,
+      "shape_measured": true,
+      "q_bad": 10,
+      "J_bad": 9,
+      "minimum_q": 0.017490838988753043,
+      "minimum_J": 0.0008187662427168812,
+      "final_tensor_checked": false,
+      "final_tensor_relative_difference": 0,
+      "geometry_work": 6,
+      "seconds": 0.066472063,
+      "reason": "Native3D prescribed height fails at facet 24704 cell 177136 relative error 539.746931 > tolerance 0.100000",
+      "fixed_core_tangents": true,
+      "generated_BL": false,
+      "mesh_accepted": false
+    },
+    {
+      "stage": "height_continuation_patch",
+      "k": 1,
+      "N": 5,
+      "factor": 16,
+      "h0": 3.2e-05,
+      "growth": 1.2,
+      "thickness": 0.01,
+      "ideal_geometric_rows_to_T": 23,
+      "context": "unchanged_wall_control",
+      "operator": "CollapseVertex",
+      "side": "fresh",
+      "strict_height": false,
+      "height_measured": true,
+      "shape_measured": true,
+      "q_bad": 8,
+      "J_bad": 7,
+      "minimum_q": 0.009922983191594325,
+      "minimum_J": 0.0010181412731272818,
+      "final_tensor_checked": false,
+      "final_tensor_relative_difference": 0,
+      "geometry_work": 4,
+      "seconds": 0.057495186000000004,
+      "reason": "Native3D prescribed height fails at facet 24704 cell 7463945 relative error 539.746931 > tolerance 0.100000",
+      "fixed_core_tangents": true,
+      "generated_BL": false,
+      "mesh_accepted": false
+    },
+    {
+      "stage": "height_continuation_patch",
+      "k": 1,
+      "N": 5,
+      "factor": 16,
+      "h0": 3.2e-05,
+      "growth": 1.2,
+      "thickness": 0.01,
+      "ideal_geometric_rows_to_T": 23,
+      "context": "leading_edge",
+      "operator": "CollapseVertex",
+      "side": "old",
+      "strict_height": false,
+      "height_measured": true,
+      "shape_measured": true,
+      "q_bad": 12,
+      "J_bad": 12,
+      "minimum_q": 0.014500005335135952,
+      "minimum_J": 0.0006363233372447295,
+      "final_tensor_checked": false,
+      "final_tensor_relative_difference": 0,
+      "geometry_work": 6,
+      "seconds": 0.06758372700000001,
+      "reason": "Native3D prescribed height fails at facet 35410 cell 286389 relative error 410.042000 > tolerance 0.100000",
+      "fixed_core_tangents": true,
+      "generated_BL": false,
+      "mesh_accepted": false
+    },
+    {
+      "stage": "height_continuation_patch",
+      "k": 1,
+      "N": 5,
+      "factor": 16,
+      "h0": 3.2e-05,
+      "growth": 1.2,
+      "thickness": 0.01,
+      "ideal_geometric_rows_to_T": 23,
+      "context": "leading_edge",
+      "operator": "CollapseVertex",
+      "side": "fresh",
+      "strict_height": false,
+      "height_measured": true,
+      "shape_measured": true,
+      "q_bad": 9,
+      "J_bad": 9,
+      "minimum_q": 0.01574817149365937,
+      "minimum_J": 0.0007000503999867883,
+      "final_tensor_checked": false,
+      "final_tensor_relative_difference": 0,
+      "geometry_work": 4,
+      "seconds": 0.061412829,
+      "reason": "Native3D prescribed height fails at facet 35410 cell 7464711 relative error 410.041998 > tolerance 0.100000",
+      "fixed_core_tangents": true,
+      "generated_BL": false,
+      "mesh_accepted": false
+    },
+    {
+      "stage": "height_continuation_patch",
+      "k": 2,
+      "N": 5,
+      "factor": 8,
+      "h0": 1.6e-05,
+      "growth": 1.2,
+      "thickness": 0.01,
+      "ideal_geometric_rows_to_T": 27,
+      "context": "recorded_geometry_refusal",
+      "operator": "CollapseVertex",
+      "side": "old",
+      "strict_height": false,
+      "height_measured": true,
+      "shape_measured": true,
+      "q_bad": 6,
+      "J_bad": 6,
+      "minimum_q": 0.018943868328315877,
+      "minimum_J": 0.0009233401709934566,
+      "final_tensor_checked": false,
+      "final_tensor_relative_difference": 0,
+      "geometry_work": 6,
+      "seconds": 0.072404987,
+      "reason": "Native3D prescribed height fails at facet 36832 cell 264071 relative error 883.633788 > tolerance 0.100000",
+      "fixed_core_tangents": true,
+      "generated_BL": false,
+      "mesh_accepted": false
+    },
+    {
+      "stage": "height_continuation_patch",
+      "k": 2,
+      "N": 5,
+      "factor": 8,
+      "h0": 1.6e-05,
+      "growth": 1.2,
+      "thickness": 0.01,
+      "ideal_geometric_rows_to_T": 27,
+      "context": "recorded_geometry_refusal",
+      "operator": "CollapseVertex",
+      "side": "fresh",
+      "strict_height": false,
+      "height_measured": true,
+      "shape_measured": true,
+      "q_bad": 4,
+      "J_bad": 4,
+      "minimum_q": 0.018652403005557906,
+      "minimum_J": 0.000903174734278056,
+      "final_tensor_checked": false,
+      "final_tensor_relative_difference": 0,
+      "geometry_work": 4,
+      "seconds": 0.05448933,
+      "reason": "Native3D prescribed height fails at facet 30237 cell 7461125 relative error 900.242883 > tolerance 0.100000",
+      "fixed_core_tangents": true,
+      "generated_BL": false,
+      "mesh_accepted": false
+    },
+    {
+      "stage": "height_continuation_patch",
+      "k": 2,
+      "N": 5,
+      "factor": 8,
+      "h0": 1.6e-05,
+      "growth": 1.2,
+      "thickness": 0.01,
+      "ideal_geometric_rows_to_T": 27,
+      "context": "recorded_visibility_obstruction",
+      "operator": "ReconnectCollapse_apex27313",
+      "side": "old",
+      "strict_height": false,
+      "height_measured": true,
+      "shape_measured": true,
+      "q_bad": 16,
+      "J_bad": 16,
+      "minimum_q": 0.016021085270151607,
+      "minimum_J": 0.0007175880072978456,
+      "final_tensor_checked": false,
+      "final_tensor_relative_difference": 0,
+      "geometry_work": 6,
+      "seconds": 0.068150608,
+      "reason": "Native3D prescribed height fails at facet 14532 cell 51730 relative error 248.063005 > tolerance 0.100000",
+      "fixed_core_tangents": true,
+      "generated_BL": false,
+      "mesh_accepted": false
+    },
+    {
+      "stage": "height_continuation_patch",
+      "k": 2,
+      "N": 5,
+      "factor": 8,
+      "h0": 1.6e-05,
+      "growth": 1.2,
+      "thickness": 0.01,
+      "ideal_geometric_rows_to_T": 27,
+      "context": "recorded_visibility_obstruction",
+      "operator": "ReconnectCollapse_apex27313",
+      "side": "fresh",
+      "strict_height": false,
+      "height_measured": true,
+      "shape_measured": true,
+      "q_bad": 13,
+      "J_bad": 13,
+      "minimum_q": 0.015778403840781767,
+      "minimum_J": 0.0007017563718985645,
+      "final_tensor_checked": false,
+      "final_tensor_relative_difference": 0,
+      "geometry_work": 4,
+      "seconds": 0.058621167,
+      "reason": "Native3D prescribed height fails at facet 14681 cell 7462162 relative error 223.868787 > tolerance 0.100000",
+      "fixed_core_tangents": true,
+      "generated_BL": false,
+      "mesh_accepted": false
+    },
+    {
+      "stage": "height_continuation_patch",
+      "k": 2,
+      "N": 5,
+      "factor": 8,
+      "h0": 1.6e-05,
+      "growth": 1.2,
+      "thickness": 0.01,
+      "ideal_geometric_rows_to_T": 27,
+      "context": "recorded_visibility_obstruction_b",
+      "operator": "PrescribedCollapseCone_apex13788",
+      "side": "old",
+      "strict_height": false,
+      "height_measured": true,
+      "shape_measured": true,
+      "q_bad": 11,
+      "J_bad": 11,
+      "minimum_q": 0.01681238615411079,
+      "minimum_J": 0.0007714837709652718,
+      "final_tensor_checked": false,
+      "final_tensor_relative_difference": 0,
+      "geometry_work": 7,
+      "seconds": 0.06944393800000001,
+      "reason": "Native3D prescribed height fails at facet 28922 cell 171165 relative error 292.553449 > tolerance 0.100000",
+      "fixed_core_tangents": true,
+      "generated_BL": false,
+      "mesh_accepted": false
+    },
+    {
+      "stage": "height_continuation_patch",
+      "k": 2,
+      "N": 5,
+      "factor": 8,
+      "h0": 1.6e-05,
+      "growth": 1.2,
+      "thickness": 0.01,
+      "ideal_geometric_rows_to_T": 27,
+      "context": "recorded_visibility_obstruction_b",
+      "operator": "PrescribedCollapseCone_apex13788",
+      "side": "fresh",
+      "strict_height": false,
+      "height_measured": true,
+      "shape_measured": true,
+      "q_bad": 9,
+      "J_bad": 9,
+      "minimum_q": 0.004028576570919152,
+      "minimum_J": 9.082064750241832e-05,
+      "final_tensor_checked": false,
+      "final_tensor_relative_difference": 0,
+      "geometry_work": 5,
+      "seconds": 0.062584181,
+      "reason": "Native3D prescribed height fails at facet 28931 cell 7463047 relative error 299.173103 > tolerance 0.100000",
+      "fixed_core_tangents": true,
+      "generated_BL": false,
+      "mesh_accepted": false
+    },
+    {
+      "stage": "height_continuation_patch",
+      "k": 2,
+      "N": 5,
+      "factor": 8,
+      "h0": 1.6e-05,
+      "growth": 1.2,
+      "thickness": 0.01,
+      "ideal_geometric_rows_to_T": 27,
+      "context": "unchanged_wall_control",
+      "operator": "CollapseVertex",
+      "side": "old",
+      "strict_height": false,
+      "height_measured": true,
+      "shape_measured": true,
+      "q_bad": 10,
+      "J_bad": 9,
+      "minimum_q": 0.01700902170091995,
+      "minimum_J": 0.0007851323275690844,
+      "final_tensor_checked": false,
+      "final_tensor_relative_difference": 0,
+      "geometry_work": 6,
+      "seconds": 0.07226189000000001,
+      "reason": "Native3D prescribed height fails at facet 24704 cell 177136 relative error 1080.493862 > tolerance 0.100000",
+      "fixed_core_tangents": true,
+      "generated_BL": false,
+      "mesh_accepted": false
+    },
+    {
+      "stage": "height_continuation_patch",
+      "k": 2,
+      "N": 5,
+      "factor": 8,
+      "h0": 1.6e-05,
+      "growth": 1.2,
+      "thickness": 0.01,
+      "ideal_geometric_rows_to_T": 27,
+      "context": "unchanged_wall_control",
+      "operator": "CollapseVertex",
+      "side": "fresh",
+      "strict_height": false,
+      "height_measured": true,
+      "shape_measured": true,
+      "q_bad": 8,
+      "J_bad": 7,
+      "minimum_q": 0.0097951892848227,
+      "minimum_J": 0.0009762848092937486,
+      "final_tensor_checked": false,
+      "final_tensor_relative_difference": 0,
+      "geometry_work": 4,
+      "seconds": 0.056972993000000006,
+      "reason": "Native3D prescribed height fails at facet 24704 cell 7463945 relative error 1080.493862 > tolerance 0.100000",
+      "fixed_core_tangents": true,
+      "generated_BL": false,
+      "mesh_accepted": false
+    },
+    {
+      "stage": "height_continuation_patch",
+      "k": 2,
+      "N": 5,
+      "factor": 8,
+      "h0": 1.6e-05,
+      "growth": 1.2,
+      "thickness": 0.01,
+      "ideal_geometric_rows_to_T": 27,
+      "context": "leading_edge",
+      "operator": "CollapseVertex",
+      "side": "old",
+      "strict_height": false,
+      "height_measured": true,
+      "shape_measured": true,
+      "q_bad": 12,
+      "J_bad": 12,
+      "minimum_q": 0.013512821809339612,
+      "minimum_J": 0.0005723974144340035,
+      "final_tensor_checked": false,
+      "final_tensor_relative_difference": 0,
+      "geometry_work": 6,
+      "seconds": 0.064705289,
+      "reason": "Native3D prescribed height fails at facet 35410 cell 286389 relative error 821.083999 > tolerance 0.100000",
+      "fixed_core_tangents": true,
+      "generated_BL": false,
+      "mesh_accepted": false
+    },
+    {
+      "stage": "height_continuation_patch",
+      "k": 2,
+      "N": 5,
+      "factor": 8,
+      "h0": 1.6e-05,
+      "growth": 1.2,
+      "thickness": 0.01,
+      "ideal_geometric_rows_to_T": 27,
+      "context": "leading_edge",
+      "operator": "CollapseVertex",
+      "side": "fresh",
+      "strict_height": false,
+      "height_measured": true,
+      "shape_measured": true,
+      "q_bad": 9,
+      "J_bad": 9,
+      "minimum_q": 0.01463793189091792,
+      "minimum_J": 0.0006272365107515627,
+      "final_tensor_checked": false,
+      "final_tensor_relative_difference": 0,
+      "geometry_work": 4,
+      "seconds": 0.060205518000000006,
+      "reason": "Native3D prescribed height fails at facet 35410 cell 7464711 relative error 821.083996 > tolerance 0.100000",
+      "fixed_core_tangents": true,
+      "generated_BL": false,
+      "mesh_accepted": false
+    },
+    {
+      "stage": "height_continuation_patch",
+      "k": 3,
+      "N": 5,
+      "factor": 4,
+      "h0": 8e-06,
+      "growth": 1.2,
+      "thickness": 0.01,
+      "ideal_geometric_rows_to_T": 31,
+      "context": "recorded_geometry_refusal",
+      "operator": "CollapseVertex",
+      "side": "old",
+      "strict_height": false,
+      "height_measured": true,
+      "shape_measured": true,
+      "q_bad": 6,
+      "J_bad": 6,
+      "minimum_q": 0.018661086763891763,
+      "minimum_J": 0.0009027180489563102,
+      "final_tensor_checked": false,
+      "final_tensor_relative_difference": 0,
+      "geometry_work": 6,
+      "seconds": 0.087346001,
+      "reason": "Native3D prescribed height fails at facet 36832 cell 264071 relative error 1768.267576 > tolerance 0.100000",
+      "fixed_core_tangents": true,
+      "generated_BL": false,
+      "mesh_accepted": false
+    },
+    {
+      "stage": "height_continuation_patch",
+      "k": 3,
+      "N": 5,
+      "factor": 4,
+      "h0": 8e-06,
+      "growth": 1.2,
+      "thickness": 0.01,
+      "ideal_geometric_rows_to_T": 31,
+      "context": "recorded_geometry_refusal",
+      "operator": "CollapseVertex",
+      "side": "fresh",
+      "strict_height": false,
+      "height_measured": true,
+      "shape_measured": true,
+      "q_bad": 4,
+      "J_bad": 4,
+      "minimum_q": 0.01837277111546843,
+      "minimum_J": 0.0008828892295454158,
+      "final_tensor_checked": false,
+      "final_tensor_relative_difference": 0,
+      "geometry_work": 4,
+      "seconds": 0.058728742,
+      "reason": "Native3D prescribed height fails at facet 30237 cell 7461125 relative error 1801.485767 > tolerance 0.100000",
+      "fixed_core_tangents": true,
+      "generated_BL": false,
+      "mesh_accepted": false
+    },
+    {
+      "stage": "height_continuation_patch",
+      "k": 3,
+      "N": 5,
+      "factor": 4,
+      "h0": 8e-06,
+      "growth": 1.2,
+      "thickness": 0.01,
+      "ideal_geometric_rows_to_T": 31,
+      "context": "recorded_visibility_obstruction",
+      "operator": "ReconnectCollapse_apex27313",
+      "side": "old",
+      "strict_height": false,
+      "height_measured": true,
+      "shape_measured": true,
+      "q_bad": 16,
+      "J_bad": 16,
+      "minimum_q": 0.015156428265691087,
+      "minimum_J": 0.0006602402824590814,
+      "final_tensor_checked": false,
+      "final_tensor_relative_difference": 0,
+      "geometry_work": 6,
+      "seconds": 0.078402393,
+      "reason": "Native3D prescribed height fails at facet 14532 cell 51730 relative error 497.126009 > tolerance 0.100000",
+      "fixed_core_tangents": true,
+      "generated_BL": false,
+      "mesh_accepted": false
+    },
+    {
+      "stage": "height_continuation_patch",
+      "k": 3,
+      "N": 5,
+      "factor": 4,
+      "h0": 8e-06,
+      "growth": 1.2,
+      "thickness": 0.01,
+      "ideal_geometric_rows_to_T": 31,
+      "context": "recorded_visibility_obstruction",
+      "operator": "ReconnectCollapse_apex27313",
+      "side": "fresh",
+      "strict_height": false,
+      "height_measured": true,
+      "shape_measured": true,
+      "q_bad": 13,
+      "J_bad": 13,
+      "minimum_q": 0.01492776877424912,
+      "minimum_J": 0.0006457036450633596,
+      "final_tensor_checked": false,
+      "final_tensor_relative_difference": 0,
+      "geometry_work": 4,
+      "seconds": 0.074357062,
+      "reason": "Native3D prescribed height fails at facet 14681 cell 7462162 relative error 448.737574 > tolerance 0.100000",
+      "fixed_core_tangents": true,
+      "generated_BL": false,
+      "mesh_accepted": false
+    },
+    {
+      "stage": "height_continuation_patch",
+      "k": 3,
+      "N": 5,
+      "factor": 4,
+      "h0": 8e-06,
+      "growth": 1.2,
+      "thickness": 0.01,
+      "ideal_geometric_rows_to_T": 31,
+      "context": "recorded_visibility_obstruction_b",
+      "operator": "PrescribedCollapseCone_apex13788",
+      "side": "old",
+      "strict_height": false,
+      "height_measured": true,
+      "shape_measured": true,
+      "q_bad": 11,
+      "J_bad": 11,
+      "minimum_q": 0.015765010199821648,
+      "minimum_J": 0.0007004622965671734,
+      "final_tensor_checked": false,
+      "final_tensor_relative_difference": 0,
+      "geometry_work": 7,
+      "seconds": 0.098215513,
+      "reason": "Native3D prescribed height fails at facet 28922 cell 171165 relative error 586.106898 > tolerance 0.100000",
+      "fixed_core_tangents": true,
+      "generated_BL": false,
+      "mesh_accepted": false
+    },
+    {
+      "stage": "height_continuation_patch",
+      "k": 3,
+      "N": 5,
+      "factor": 4,
+      "h0": 8e-06,
+      "growth": 1.2,
+      "thickness": 0.01,
+      "ideal_geometric_rows_to_T": 31,
+      "context": "recorded_visibility_obstruction_b",
+      "operator": "PrescribedCollapseCone_apex13788",
+      "side": "fresh",
+      "strict_height": false,
+      "height_measured": true,
+      "shape_measured": true,
+      "q_bad": 9,
+      "J_bad": 9,
+      "minimum_q": 0.003920178253105597,
+      "minimum_J": 8.717710967425131e-05,
+      "final_tensor_checked": false,
+      "final_tensor_relative_difference": 0,
+      "geometry_work": 5,
+      "seconds": 0.072197167,
+      "reason": "Native3D prescribed height fails at facet 28931 cell 7463047 relative error 599.346206 > tolerance 0.100000",
+      "fixed_core_tangents": true,
+      "generated_BL": false,
+      "mesh_accepted": false
+    },
+    {
+      "stage": "height_continuation_patch",
+      "k": 3,
+      "N": 5,
+      "factor": 4,
+      "h0": 8e-06,
+      "growth": 1.2,
+      "thickness": 0.01,
+      "ideal_geometric_rows_to_T": 31,
+      "context": "unchanged_wall_control",
+      "operator": "CollapseVertex",
+      "side": "old",
+      "strict_height": false,
+      "height_measured": true,
+      "shape_measured": true,
+      "q_bad": 10,
+      "J_bad": 9,
+      "minimum_q": 0.016769334717953697,
+      "minimum_J": 0.0007685775770075719,
+      "final_tensor_checked": false,
+      "final_tensor_relative_difference": 0,
+      "geometry_work": 6,
+      "seconds": 0.065648077,
+      "reason": "Native3D prescribed height fails at facet 24704 cell 177136 relative error 2161.987723 > tolerance 0.100000",
+      "fixed_core_tangents": true,
+      "generated_BL": false,
+      "mesh_accepted": false
+    },
+    {
+      "stage": "height_continuation_patch",
+      "k": 3,
+      "N": 5,
+      "factor": 4,
+      "h0": 8e-06,
+      "growth": 1.2,
+      "thickness": 0.01,
+      "ideal_geometric_rows_to_T": 31,
+      "context": "unchanged_wall_control",
+      "operator": "CollapseVertex",
+      "side": "fresh",
+      "strict_height": false,
+      "height_measured": true,
+      "shape_measured": true,
+      "q_bad": 8,
+      "J_bad": 7,
+      "minimum_q": 0.009731430092380538,
+      "minimum_J": 0.0009556831395048804,
+      "final_tensor_checked": false,
+      "final_tensor_relative_difference": 0,
+      "geometry_work": 4,
+      "seconds": 0.056239524000000006,
+      "reason": "Native3D prescribed height fails at facet 24704 cell 7463945 relative error 2161.987723 > tolerance 0.100000",
+      "fixed_core_tangents": true,
+      "generated_BL": false,
+      "mesh_accepted": false
+    },
+    {
+      "stage": "height_continuation_patch",
+      "k": 3,
+      "N": 5,
+      "factor": 4,
+      "h0": 8e-06,
+      "growth": 1.2,
+      "thickness": 0.01,
+      "ideal_geometric_rows_to_T": 31,
+      "context": "leading_edge",
+      "operator": "CollapseVertex",
+      "side": "old",
+      "strict_height": false,
+      "height_measured": true,
+      "shape_measured": true,
+      "q_bad": 12,
+      "J_bad": 12,
+      "minimum_q": 0.013025745909806803,
+      "minimum_J": 0.0005417013445379973,
+      "final_tensor_checked": false,
+      "final_tensor_relative_difference": 0,
+      "geometry_work": 6,
+      "seconds": 0.068087877,
+      "reason": "Native3D prescribed height fails at facet 35410 cell 286389 relative error 1643.167999 > tolerance 0.100000",
+      "fixed_core_tangents": true,
+      "generated_BL": false,
+      "mesh_accepted": false
+    },
+    {
+      "stage": "height_continuation_patch",
+      "k": 3,
+      "N": 5,
+      "factor": 4,
+      "h0": 8e-06,
+      "growth": 1.2,
+      "thickness": 0.01,
+      "ideal_geometric_rows_to_T": 31,
+      "context": "leading_edge",
+      "operator": "CollapseVertex",
+      "side": "fresh",
+      "strict_height": false,
+      "height_measured": true,
+      "shape_measured": true,
+      "q_bad": 9,
+      "J_bad": 9,
+      "minimum_q": 0.014090320317502732,
+      "minimum_J": 0.0005923226649839754,
+      "final_tensor_checked": false,
+      "final_tensor_relative_difference": 0,
+      "geometry_work": 4,
+      "seconds": 0.058331337000000004,
+      "reason": "Native3D prescribed height fails at facet 35410 cell 7464711 relative error 1643.167992 > tolerance 0.100000",
+      "fixed_core_tangents": true,
+      "generated_BL": false,
+      "mesh_accepted": false
+    },
+    {
+      "stage": "height_continuation_patch",
+      "k": 4,
+      "N": 5,
+      "factor": 2,
+      "h0": 4e-06,
+      "growth": 1.2,
+      "thickness": 0.01,
+      "ideal_geometric_rows_to_T": 35,
+      "context": "recorded_geometry_refusal",
+      "operator": "CollapseVertex",
+      "side": "old",
+      "strict_height": false,
+      "height_measured": true,
+      "shape_measured": true,
+      "q_bad": 6,
+      "J_bad": 6,
+      "minimum_q": 0.018520088362509388,
+      "minimum_J": 0.000892494109587955,
+      "final_tensor_checked": false,
+      "final_tensor_relative_difference": 0,
+      "geometry_work": 6,
+      "seconds": 0.069091003,
+      "reason": "Native3D prescribed height fails at facet 36832 cell 264071 relative error 3537.535151 > tolerance 0.100000",
+      "fixed_core_tangents": true,
+      "generated_BL": false,
+      "mesh_accepted": false
+    },
+    {
+      "stage": "height_continuation_patch",
+      "k": 4,
+      "N": 5,
+      "factor": 2,
+      "h0": 4e-06,
+      "growth": 1.2,
+      "thickness": 0.01,
+      "ideal_geometric_rows_to_T": 35,
+      "context": "recorded_geometry_refusal",
+      "operator": "CollapseVertex",
+      "side": "fresh",
+      "strict_height": false,
+      "height_measured": true,
+      "shape_measured": true,
+      "q_bad": 4,
+      "J_bad": 4,
+      "minimum_q": 0.01823333882717459,
+      "minimum_J": 0.0008728325758365307,
+      "final_tensor_checked": false,
+      "final_tensor_relative_difference": 0,
+      "geometry_work": 4,
+      "seconds": 0.053575255,
+      "reason": "Native3D prescribed height fails at facet 30237 cell 7461125 relative error 3603.971533 > tolerance 0.100000",
+      "fixed_core_tangents": true,
+      "generated_BL": false,
+      "mesh_accepted": false
+    },
+    {
+      "stage": "height_continuation_patch",
+      "k": 4,
+      "N": 5,
+      "factor": 2,
+      "h0": 4e-06,
+      "growth": 1.2,
+      "thickness": 0.01,
+      "ideal_geometric_rows_to_T": 35,
+      "context": "recorded_visibility_obstruction",
+      "operator": "ReconnectCollapse_apex27313",
+      "side": "old",
+      "strict_height": false,
+      "height_measured": true,
+      "shape_measured": true,
+      "q_bad": 16,
+      "J_bad": 16,
+      "minimum_q": 0.014728558733007933,
+      "minimum_J": 0.000632458871034993,
+      "final_tensor_checked": false,
+      "final_tensor_relative_difference": 0,
+      "geometry_work": 6,
+      "seconds": 0.068491198,
+      "reason": "Native3D prescribed height fails at facet 14532 cell 51730 relative error 995.252018 > tolerance 0.100000",
+      "fixed_core_tangents": true,
+      "generated_BL": false,
+      "mesh_accepted": false
+    },
+    {
+      "stage": "height_continuation_patch",
+      "k": 4,
+      "N": 5,
+      "factor": 2,
+      "h0": 4e-06,
+      "growth": 1.2,
+      "thickness": 0.01,
+      "ideal_geometric_rows_to_T": 35,
+      "context": "recorded_visibility_obstruction",
+      "operator": "ReconnectCollapse_apex27313",
+      "side": "fresh",
+      "strict_height": false,
+      "height_measured": true,
+      "shape_measured": true,
+      "q_bad": 13,
+      "J_bad": 13,
+      "minimum_q": 0.0145067895802227,
+      "minimum_J": 0.0006185477195520141,
+      "final_tensor_checked": false,
+      "final_tensor_relative_difference": 0,
+      "geometry_work": 4,
+      "seconds": 0.058088893,
+      "reason": "Native3D prescribed height fails at facet 14681 cell 7462162 relative error 898.475149 > tolerance 0.100000",
+      "fixed_core_tangents": true,
+      "generated_BL": false,
+      "mesh_accepted": false
+    },
+    {
+      "stage": "height_continuation_patch",
+      "k": 4,
+      "N": 5,
+      "factor": 2,
+      "h0": 4e-06,
+      "growth": 1.2,
+      "thickness": 0.01,
+      "ideal_geometric_rows_to_T": 35,
+      "context": "recorded_visibility_obstruction_b",
+      "operator": "PrescribedCollapseCone_apex13788",
+      "side": "old",
+      "strict_height": false,
+      "height_measured": true,
+      "shape_measured": true,
+      "q_bad": 11,
+      "J_bad": 11,
+      "minimum_q": 0.015247608234000678,
+      "minimum_J": 0.0006662343004016834,
+      "final_tensor_checked": false,
+      "final_tensor_relative_difference": 0,
+      "geometry_work": 7,
+      "seconds": 0.07142180000000001,
+      "reason": "Native3D prescribed height fails at facet 28922 cell 171165 relative error 1173.213796 > tolerance 0.100000",
+      "fixed_core_tangents": true,
+      "generated_BL": false,
+      "mesh_accepted": false
+    },
+    {
+      "stage": "height_continuation_patch",
+      "k": 4,
+      "N": 5,
+      "factor": 2,
+      "h0": 4e-06,
+      "growth": 1.2,
+      "thickness": 0.01,
+      "ideal_geometric_rows_to_T": 35,
+      "context": "recorded_visibility_obstruction_b",
+      "operator": "PrescribedCollapseCone_apex13788",
+      "side": "fresh",
+      "strict_height": false,
+      "height_measured": true,
+      "shape_measured": true,
+      "q_bad": 9,
+      "J_bad": 9,
+      "minimum_q": 0.0038655299528616866,
+      "minimum_J": 8.535928358140652e-05,
+      "final_tensor_checked": false,
+      "final_tensor_relative_difference": 0,
+      "geometry_work": 5,
+      "seconds": 0.060833911000000004,
+      "reason": "Native3D prescribed height fails at facet 28931 cell 7463047 relative error 1199.692412 > tolerance 0.100000",
+      "fixed_core_tangents": true,
+      "generated_BL": false,
+      "mesh_accepted": false
+    },
+    {
+      "stage": "height_continuation_patch",
+      "k": 4,
+      "N": 5,
+      "factor": 2,
+      "h0": 4e-06,
+      "growth": 1.2,
+      "thickness": 0.01,
+      "ideal_geometric_rows_to_T": 35,
+      "context": "unchanged_wall_control",
+      "operator": "CollapseVertex",
+      "side": "old",
+      "strict_height": false,
+      "height_measured": true,
+      "shape_measured": true,
+      "q_bad": 10,
+      "J_bad": 9,
+      "minimum_q": 0.016649799547787572,
+      "minimum_J": 0.0007603657822555458,
+      "final_tensor_checked": false,
+      "final_tensor_relative_difference": 0,
+      "geometry_work": 6,
+      "seconds": 0.057312176000000006,
+      "reason": "Native3D prescribed height fails at facet 24704 cell 177136 relative error 4324.975447 > tolerance 0.100000",
+      "fixed_core_tangents": true,
+      "generated_BL": false,
+      "mesh_accepted": false
+    },
+    {
+      "stage": "height_continuation_patch",
+      "k": 4,
+      "N": 5,
+      "factor": 2,
+      "h0": 4e-06,
+      "growth": 1.2,
+      "thickness": 0.01,
+      "ideal_geometric_rows_to_T": 35,
+      "context": "unchanged_wall_control",
+      "operator": "CollapseVertex",
+      "side": "fresh",
+      "strict_height": false,
+      "height_measured": true,
+      "shape_measured": true,
+      "q_bad": 8,
+      "J_bad": 7,
+      "minimum_q": 0.009699585135162598,
+      "minimum_J": 0.0009454639810668451,
+      "final_tensor_checked": false,
+      "final_tensor_relative_difference": 0,
+      "geometry_work": 4,
+      "seconds": 0.051103584,
+      "reason": "Native3D prescribed height fails at facet 24704 cell 7463945 relative error 4324.975447 > tolerance 0.100000",
+      "fixed_core_tangents": true,
+      "generated_BL": false,
+      "mesh_accepted": false
+    },
+    {
+      "stage": "height_continuation_patch",
+      "k": 4,
+      "N": 5,
+      "factor": 2,
+      "h0": 4e-06,
+      "growth": 1.2,
+      "thickness": 0.01,
+      "ideal_geometric_rows_to_T": 35,
+      "context": "leading_edge",
+      "operator": "CollapseVertex",
+      "side": "old",
+      "strict_height": false,
+      "height_measured": true,
+      "shape_measured": true,
+      "q_bad": 12,
+      "J_bad": 12,
+      "minimum_q": 0.012783873604530479,
+      "minimum_J": 0.0005266700910659157,
+      "final_tensor_checked": false,
+      "final_tensor_relative_difference": 0,
+      "geometry_work": 6,
+      "seconds": 0.061172210000000005,
+      "reason": "Native3D prescribed height fails at facet 35410 cell 286389 relative error 3287.335998 > tolerance 0.100000",
+      "fixed_core_tangents": true,
+      "generated_BL": false,
+      "mesh_accepted": false
+    },
+    {
+      "stage": "height_continuation_patch",
+      "k": 4,
+      "N": 5,
+      "factor": 2,
+      "h0": 4e-06,
+      "growth": 1.2,
+      "thickness": 0.01,
+      "ideal_geometric_rows_to_T": 35,
+      "context": "leading_edge",
+      "operator": "CollapseVertex",
+      "side": "fresh",
+      "strict_height": false,
+      "height_measured": true,
+      "shape_measured": true,
+      "q_bad": 9,
+      "J_bad": 9,
+      "minimum_q": 0.013818437557440576,
+      "minimum_J": 0.0005752392164141349,
+      "final_tensor_checked": false,
+      "final_tensor_relative_difference": 0,
+      "geometry_work": 4,
+      "seconds": 0.051255672,
+      "reason": "Native3D prescribed height fails at facet 35410 cell 7464711 relative error 3287.335983 > tolerance 0.100000",
+      "fixed_core_tangents": true,
+      "generated_BL": false,
+      "mesh_accepted": false
+    },
+    {
+      "stage": "height_continuation_patch",
+      "k": 5,
+      "N": 5,
+      "factor": 1,
+      "h0": 2e-06,
+      "growth": 1.2,
+      "thickness": 0.01,
+      "ideal_geometric_rows_to_T": 38,
+      "context": "recorded_geometry_refusal",
+      "operator": "CollapseVertex",
+      "side": "old",
+      "strict_height": false,
+      "height_measured": true,
+      "shape_measured": true,
+      "q_bad": 6,
+      "J_bad": 6,
+      "minimum_q": 0.018449687723204017,
+      "minimum_J": 0.0008874039217444678,
+      "final_tensor_checked": true,
+      "final_tensor_relative_difference": 0,
+      "geometry_work": 12,
+      "seconds": 0.07953262900000001,
+      "reason": "Native3D prescribed height fails at facet 36832 cell 264071 relative error 7076.070303 > tolerance 0.100000",
+      "fixed_core_tangents": true,
+      "generated_BL": false,
+      "mesh_accepted": false
+    },
+    {
+      "stage": "height_continuation_patch",
+      "k": 5,
+      "N": 5,
+      "factor": 1,
+      "h0": 2e-06,
+      "growth": 1.2,
+      "thickness": 0.01,
+      "ideal_geometric_rows_to_T": 38,
+      "context": "recorded_geometry_refusal",
+      "operator": "CollapseVertex",
+      "side": "fresh",
+      "strict_height": false,
+      "height_measured": true,
+      "shape_measured": true,
+      "q_bad": 4,
+      "J_bad": 4,
+      "minimum_q": 0.018163719082203773,
+      "minimum_J": 0.0008678257756669445,
+      "final_tensor_checked": true,
+      "final_tensor_relative_difference": 0,
+      "geometry_work": 8,
+      "seconds": 0.059185787000000004,
+      "reason": "Native3D prescribed height fails at facet 30237 cell 7461125 relative error 7208.943067 > tolerance 0.100000",
+      "fixed_core_tangents": true,
+      "generated_BL": false,
+      "mesh_accepted": false
+    },
+    {
+      "stage": "height_continuation_patch",
+      "k": 5,
+      "N": 5,
+      "factor": 1,
+      "h0": 2e-06,
+      "growth": 1.2,
+      "thickness": 0.01,
+      "ideal_geometric_rows_to_T": 38,
+      "context": "recorded_visibility_obstruction",
+      "operator": "ReconnectCollapse_apex27313",
+      "side": "old",
+      "strict_height": false,
+      "height_measured": true,
+      "shape_measured": true,
+      "q_bad": 16,
+      "J_bad": 16,
+      "minimum_q": 0.014515758637366543,
+      "minimum_J": 0.0006187913540760112,
+      "final_tensor_checked": true,
+      "final_tensor_relative_difference": 0,
+      "geometry_work": 40,
+      "seconds": 0.075069866,
+      "reason": "Native3D prescribed height fails at facet 14532 cell 51730 relative error 1991.504036 > tolerance 0.100000",
+      "fixed_core_tangents": true,
+      "generated_BL": false,
+      "mesh_accepted": false
+    },
+    {
+      "stage": "height_continuation_patch",
+      "k": 5,
+      "N": 5,
+      "factor": 1,
+      "h0": 2e-06,
+      "growth": 1.2,
+      "thickness": 0.01,
+      "ideal_geometric_rows_to_T": 38,
+      "context": "recorded_visibility_obstruction",
+      "operator": "ReconnectCollapse_apex27313",
+      "side": "fresh",
+      "strict_height": false,
+      "height_measured": true,
+      "shape_measured": true,
+      "q_bad": 13,
+      "J_bad": 13,
+      "minimum_q": 0.014297404665886864,
+      "minimum_J": 0.0006051874749626113,
+      "final_tensor_checked": true,
+      "final_tensor_relative_difference": 0,
+      "geometry_work": 36,
+      "seconds": 0.066481434,
+      "reason": "Native3D prescribed height fails at facet 14681 cell 7462162 relative error 1797.950297 > tolerance 0.100000",
+      "fixed_core_tangents": true,
+      "generated_BL": false,
+      "mesh_accepted": false
+    },
+    {
+      "stage": "height_continuation_patch",
+      "k": 5,
+      "N": 5,
+      "factor": 1,
+      "h0": 2e-06,
+      "growth": 1.2,
+      "thickness": 0.01,
+      "ideal_geometric_rows_to_T": 38,
+      "context": "recorded_visibility_obstruction_b",
+      "operator": "PrescribedCollapseCone_apex13788",
+      "side": "old",
+      "strict_height": false,
+      "height_measured": true,
+      "shape_measured": true,
+      "q_bad": 11,
+      "J_bad": 11,
+      "minimum_q": 0.014990511196648846,
+      "minimum_J": 0.0006494410768751332,
+      "final_tensor_checked": true,
+      "final_tensor_relative_difference": 0,
+      "geometry_work": 38,
+      "seconds": 0.081263572,
+      "reason": "Native3D prescribed height fails at facet 28922 cell 171165 relative error 2347.427592 > tolerance 0.100000",
+      "fixed_core_tangents": true,
+      "generated_BL": false,
+      "mesh_accepted": false
+    },
+    {
+      "stage": "height_continuation_patch",
+      "k": 5,
+      "N": 5,
+      "factor": 1,
+      "h0": 2e-06,
+      "growth": 1.2,
+      "thickness": 0.01,
+      "ideal_geometric_rows_to_T": 38,
+      "context": "recorded_visibility_obstruction_b",
+      "operator": "PrescribedCollapseCone_apex13788",
+      "side": "fresh",
+      "strict_height": false,
+      "height_measured": true,
+      "shape_measured": true,
+      "q_bad": 9,
+      "J_bad": 9,
+      "minimum_q": 0.0038380907278096196,
+      "minimum_J": 8.445139345689846e-05,
+      "final_tensor_checked": true,
+      "final_tensor_relative_difference": 0,
+      "geometry_work": 31,
+      "seconds": 0.074357856,
+      "reason": "Native3D prescribed height fails at facet 28931 cell 7463047 relative error 2400.384823 > tolerance 0.100000",
+      "fixed_core_tangents": true,
+      "generated_BL": false,
+      "mesh_accepted": false
+    },
+    {
+      "stage": "height_continuation_patch",
+      "k": 5,
+      "N": 5,
+      "factor": 1,
+      "h0": 2e-06,
+      "growth": 1.2,
+      "thickness": 0.01,
+      "ideal_geometric_rows_to_T": 38,
+      "context": "unchanged_wall_control",
+      "operator": "CollapseVertex",
+      "side": "old",
+      "strict_height": false,
+      "height_measured": true,
+      "shape_measured": true,
+      "q_bad": 10,
+      "J_bad": 9,
+      "minimum_q": 0.016590109411780882,
+      "minimum_J": 0.0007562762835730274,
+      "final_tensor_checked": true,
+      "final_tensor_relative_difference": 0,
+      "geometry_work": 26,
+      "seconds": 0.066142646,
+      "reason": "Native3D prescribed height fails at facet 24704 cell 177136 relative error 8650.950894 > tolerance 0.100000",
+      "fixed_core_tangents": true,
+      "generated_BL": false,
+      "mesh_accepted": false
+    },
+    {
+      "stage": "height_continuation_patch",
+      "k": 5,
+      "N": 5,
+      "factor": 1,
+      "h0": 2e-06,
+      "growth": 1.2,
+      "thickness": 0.01,
+      "ideal_geometric_rows_to_T": 38,
+      "context": "unchanged_wall_control",
+      "operator": "CollapseVertex",
+      "side": "fresh",
+      "strict_height": false,
+      "height_measured": true,
+      "shape_measured": true,
+      "q_bad": 8,
+      "J_bad": 7,
+      "minimum_q": 0.009683671341294525,
+      "minimum_J": 0.0009403748254080792,
+      "final_tensor_checked": true,
+      "final_tensor_relative_difference": 0,
+      "geometry_work": 20,
+      "seconds": 0.058028531,
+      "reason": "Native3D prescribed height fails at facet 24704 cell 7463945 relative error 8650.950894 > tolerance 0.100000",
+      "fixed_core_tangents": true,
+      "generated_BL": false,
+      "mesh_accepted": false
+    },
+    {
+      "stage": "height_continuation_patch",
+      "k": 5,
+      "N": 5,
+      "factor": 1,
+      "h0": 2e-06,
+      "growth": 1.2,
+      "thickness": 0.01,
+      "ideal_geometric_rows_to_T": 38,
+      "context": "leading_edge",
+      "operator": "CollapseVertex",
+      "side": "old",
+      "strict_height": false,
+      "height_measured": true,
+      "shape_measured": true,
+      "q_bad": 12,
+      "J_bad": 12,
+      "minimum_q": 0.01266335864040023,
+      "minimum_J": 0.0005192336668356495,
+      "final_tensor_checked": true,
+      "final_tensor_relative_difference": 0,
+      "geometry_work": 18,
+      "seconds": 0.064338738,
+      "reason": "Native3D prescribed height fails at facet 35410 cell 286389 relative error 6575.671995 > tolerance 0.100000",
+      "fixed_core_tangents": true,
+      "generated_BL": false,
+      "mesh_accepted": false
+    },
+    {
+      "stage": "height_continuation_patch",
+      "k": 5,
+      "N": 5,
+      "factor": 1,
+      "h0": 2e-06,
+      "growth": 1.2,
+      "thickness": 0.01,
+      "ideal_geometric_rows_to_T": 38,
+      "context": "leading_edge",
+      "operator": "CollapseVertex",
+      "side": "fresh",
+      "strict_height": false,
+      "height_measured": true,
+      "shape_measured": true,
+      "q_bad": 9,
+      "J_bad": 9,
+      "minimum_q": 0.013682982923037317,
+      "minimum_J": 0.000566790885002613,
+      "final_tensor_checked": true,
+      "final_tensor_relative_difference": 0,
+      "geometry_work": 13,
+      "seconds": 0.05960138,
+      "reason": "Native3D prescribed height fails at facet 35410 cell 7464711 relative error 6575.671967 > tolerance 0.100000",
+      "fixed_core_tangents": true,
+      "generated_BL": false,
+      "mesh_accepted": false
+    }
+  ],
+  "edge_records": [
+    {
+      "stage": "height_continuation_edge",
+      "k": 0,
+      "N": 5,
+      "h0": 6.4e-05,
+      "a": 6032,
+      "b": 6072,
+      "complete": true,
+      "length": 0.9943139649742233,
+      "profile_preparation_seconds": 1.116987764,
+      "edge_seconds": 10.346493952000001,
+      "edge_geometry_seconds_nested": 9.987394899,
+      "edge_integral_seconds": 10.346375892,
+      "edge_composition_seconds_nested": 0.358852371,
+      "compositions": 45,
+      "stage_geometry_work": 329646,
+      "cpu_seconds_total": 12.101965,
+      "reason": "",
+      "fixed_core_tangents": true,
+      "renormalized": false
+    },
+    {
+      "stage": "height_continuation_edge",
+      "k": 1,
+      "N": 5,
+      "h0": 3.2e-05,
+      "a": 6032,
+      "b": 6072,
+      "complete": false,
+      "length": -1,
+      "profile_preparation_seconds": 0.862691882,
+      "edge_seconds": 20.000158647000003,
+      "edge_geometry_seconds_nested": 20.000081916,
+      "edge_integral_seconds": 20.000082432,
+      "edge_composition_seconds_nested": 0,
+      "compositions": 0,
+      "stage_geometry_work": 872346,
+      "cpu_seconds_total": 21.521887,
+      "reason": "Curved atlas elapsed-time budget exhausted.\nCubic BL point replay: {\"point\":[0.71424199043572711,0.51860739378109733,0.024884569214641501],\"wall\":0,\"hint\":10154,\"component\":10154,\"component_facets\":38800,\"absolute_error\":3.1999999999999999e-11,\"maximum_work\":16384,\"attempted_work\":16,\"available_bytes\":6897512536}\nCubic BL chord replay: {\"a\":[0.726356079891918748892,0.509005392281916435593,0.0237702598841729312307],\"b\":[0.708550539881468099956,0.523118613295542878028,0.0254080948563701891629],\"failure_type\":\"resource_budget\",\"band_ratio\":1.5,\"fade_bands\":16,\"feature_transitions\":1,\"wall\":0,\"authority_facet\":10154,\"metric_padding\":[0,0,0],\"transition_core\":0.00460725007204826168816,\"transition_slope\":0.262364264467491059563,\"full\":0.00900000000000000105471,\"support\":437316.900949276983738,\"h0\":3.19999999999999985519e-05,\"global_eigenvalue\":496093750000,\"eigenvalue\":4311020694.94599773502,\"metric_bound\":65658.3634805650462525,\"length_bound\":0.0227794373468568857822,\"left\":0.68035125732421875,\"right\":0.68035888671875,\"width\":7.62939453125e-06,\"parent_uncertainty\":0.0114109846283164037955,\"incremental_total\":0.148342806721234733938,\"fresh_total\":0.148342806720895509305,\"adjacent_total\":0,\"splittable_total\":0.148342806720895509305,\"adjacent\":0,\"splittable\":9,\"largest_splittable\":0.0228219692564708435716,\"work\":4739,\"leaves\":9,\"tolerance\":1e-8,\"projection_calls\":13905,\"projection_work\":871742,\"projection_seconds\":19.2121567230000103166,\"maximum_projection_seconds\":0.0300914800000000003111,\"projection_step\":\"midpoint\",\"query_point\":[0.714241990435727114317,0.518607393781097325558,0.0248845692146415012336],\"requested_point_error\":3.19999999999999993564e-11,\"maximum_projection_point\":[0.726347385780585441672,0.509012283503114448813,0.0237710596082804474782],\"maximum_projection_error\":3.19999999999999993564e-11}",
+      "fixed_core_tangents": true,
+      "renormalized": false
+    },
+    {
+      "stage": "height_continuation_edge",
+      "k": 2,
+      "N": 5,
+      "h0": 1.6e-05,
+      "a": 6032,
+      "b": 6072,
+      "complete": false,
+      "length": -1,
+      "profile_preparation_seconds": 0.698193158,
+      "edge_seconds": 20.000209827000003,
+      "edge_geometry_seconds_nested": 20.000095556,
+      "edge_integral_seconds": 20.000096223,
+      "edge_composition_seconds_nested": 0,
+      "compositions": 0,
+      "stage_geometry_work": 701527,
+      "cpu_seconds_total": 21.336168,
+      "reason": "Curved atlas elapsed-time budget exhausted.\nCubic BL point replay: {\"point\":[0.71097402341560534,0.52119768538658362,0.025185171761399491],\"wall\":0,\"hint\":10154,\"component\":10154,\"component_facets\":38800,\"absolute_error\":1.6e-11,\"maximum_work\":16384,\"attempted_work\":3,\"available_bytes\":6897512536}\nCubic BL chord replay: {\"a\":[0.726356079891918748892,0.509005392281916435593,0.0237702598841729312307],\"b\":[0.708550539881468099956,0.523118613295542878028,0.0254080948563701891629],\"failure_type\":\"resource_budget\",\"band_ratio\":1.5,\"fade_bands\":16,\"feature_transitions\":1,\"wall\":0,\"authority_facet\":10154,\"metric_padding\":[0,0,0],\"transition_core\":0.00460725007204826168816,\"transition_slope\":0.262364264467491059563,\"full\":0.00900000000000000105471,\"support\":866995.076187504339032,\"h0\":1.5999999999999999276e-05,\"global_eigenvalue\":1984375000000,\"eigenvalue\":16029769985.6060062516,\"metric_bound\":126608.727920337333479,\"length_bound\":0.0227794373468568857822,\"left\":0.86376953125,\"right\":0.864013671875,\"width\":0.000244140625,\"parent_uncertainty\":0.704120015924456637353,\"incremental_total\":724.004541328425248237,\"fresh_total\":724.004541328424318258,\"adjacent_total\":0,\"splittable_total\":724.004541328424318258,\"adjacent\":0,\"splittable\":585,\"largest_splittable\":1.40824003176551719842,\"work\":4496,\"leaves\":585,\"tolerance\":1e-8,\"projection_calls\":13186,\"projection_work\":700923,\"projection_seconds\":19.1268704860000013923,\"maximum_projection_seconds\":0.0292119599999999986217,\"projection_step\":\"midpoint\",\"query_point\":[0.71097402341560533845,0.521197685386583620115,0.0251851717613994913192],\"requested_point_error\":1.59999999999999996782e-11,\"maximum_projection_point\":[0.726351732836252095282,0.509008837892515386692,0.0237706597462266876197],\"maximum_projection_error\":1.59999999999999996782e-11}",
+      "fixed_core_tangents": true,
+      "renormalized": false
+    },
+    {
+      "stage": "height_continuation_edge",
+      "k": 3,
+      "N": 5,
+      "h0": 8e-06,
+      "a": 6032,
+      "b": 6072,
+      "complete": false,
+      "length": -1,
+      "profile_preparation_seconds": 0.789828643,
+      "edge_seconds": 20.000131364,
+      "edge_geometry_seconds_nested": 20.000018071,
+      "edge_integral_seconds": 20.000018321,
+      "edge_composition_seconds_nested": 0,
+      "compositions": 0,
+      "stage_geometry_work": 721711,
+      "cpu_seconds_total": 21.491283,
+      "reason": "Curved atlas elapsed-time budget exhausted.\nCubic BL point replay: {\"point\":[0.71163912293259723,0.52067050696493211,0.025123992867174351],\"wall\":0,\"hint\":10154,\"component\":10154,\"component_facets\":38800,\"absolute_error\":7.9999999999999998e-12,\"maximum_work\":16384,\"attempted_work\":14,\"available_bytes\":6897490232}\nCubic BL chord replay: {\"a\":[0.726356079891918748892,0.509005392281916435593,0.0237702598841729312307],\"b\":[0.708550539881468099956,0.523118613295542878028,0.0254080948563701891629],\"failure_type\":\"resource_budget\",\"band_ratio\":1.5,\"fade_bands\":16,\"feature_transitions\":1,\"wall\":0,\"authority_facet\":10154,\"metric_padding\":[0,0,0],\"transition_core\":0.00460725007204826168816,\"transition_slope\":0.262364264467491059563,\"full\":0.00900000000000000105471,\"support\":1726351.42658079927787,\"h0\":7.99999999999999963798e-06,\"global_eigenvalue\":7937500000000,\"eigenvalue\":49955831485.6133684888,\"metric_bound\":223508.012128454510332,\"length_bound\":0.0227794373468568857822,\"left\":0.826416015625,\"right\":0.82666015625,\"width\":0.000244140625,\"parent_uncertainty\":1.24301434541031700703,\"incremental_total\":1902.25140222883930941,\"fresh_total\":1902.25140222883689434,\"adjacent_total\":0,\"splittable_total\":1902.25140222883689434,\"adjacent\":0,\"splittable\":1007,\"largest_splittable\":2.48583223733956132232,\"work\":5531,\"leaves\":1007,\"tolerance\":1e-8,\"projection_calls\":16297,\"projection_work\":721107,\"projection_seconds\":18.8380397450000423021,\"maximum_projection_seconds\":0.0312541569999999976903,\"projection_step\":\"midpoint\",\"query_point\":[0.711639122932597234517,0.520670506964932111593,0.0251239928671743509292],\"requested_point_error\":7.99999999999999983909e-12,\"maximum_projection_point\":[0.726353906364085366576,0.509007115087215855631,0.0237704598151998076905],\"maximum_projection_error\":7.99999999999999983909e-12}",
+      "fixed_core_tangents": true,
+      "renormalized": false
+    },
+    {
+      "stage": "height_continuation_edge",
+      "k": 4,
+      "N": 5,
+      "h0": 4e-06,
+      "a": 6032,
+      "b": 6072,
+      "complete": false,
+      "length": -1,
+      "profile_preparation_seconds": 0.732422129,
+      "edge_seconds": 20.000152166000003,
+      "edge_geometry_seconds_nested": 20.000078464,
+      "edge_integral_seconds": 20.000078784,
+      "edge_composition_seconds_nested": 0,
+      "compositions": 0,
+      "stage_geometry_work": 757679,
+      "cpu_seconds_total": 21.32483,
+      "reason": "Curved atlas elapsed-time budget exhausted.\nCubic BL point replay: {\"point\":[0.70934279077670848,0.52249065076386958,0.025335219997072594],\"wall\":0,\"hint\":10154,\"component\":10154,\"component_facets\":38800,\"absolute_error\":3.9999999999999999e-12,\"maximum_work\":16384,\"attempted_work\":109,\"available_bytes\":6897490232}\nCubic BL chord replay: {\"a\":[0.726356079891918748892,0.509005392281916435593,0.0237702598841729312307],\"b\":[0.708550539881468099956,0.523118613295542878028,0.0254080948563701891629],\"failure_type\":\"resource_budget\",\"band_ratio\":1.5,\"fade_bands\":16,\"feature_transitions\":1,\"wall\":0,\"authority_facet\":10154,\"metric_padding\":[0,0,0],\"transition_core\":0.00460725007204826168816,\"transition_slope\":0.262364264467491059563,\"full\":0.00900000000000000105471,\"support\":3445064.12732580956072,\"h0\":3.99999999999999981899e-06,\"global_eigenvalue\":31750000000000,\"eigenvalue\":250404769642.937320024,\"metric_bound\":500404.605936973086159,\"length_bound\":0.0227794373468568857822,\"left\":0.9554443359375,\"right\":0.95556640625,\"width\":0.0001220703125,\"parent_uncertainty\":1.39147160266356050245,\"incremental_total\":2251.59365721365451063,\"fresh_total\":2251.59365721364939628,\"adjacent_total\":0,\"splittable_total\":2251.59365721364939628,\"adjacent\":0,\"splittable\":994,\"largest_splittable\":2.78294320532192456007,\"work\":6667,\"leaves\":994,\"tolerance\":1e-8,\"projection_calls\":19833,\"projection_work\":757075,\"projection_seconds\":18.7748818360000235828,\"maximum_projection_seconds\":0.0289648500000000003185,\"projection_step\":\"midpoint\",\"query_point\":[0.70934279077670847613,0.52249065076386957962,0.0253352199970725937284],\"requested_point_error\":3.99999999999999991955e-12,\"maximum_projection_point\":[0.726350646072335459635,0.509009699295165152222,0.0237707597117401275844],\"maximum_projection_error\":3.99999999999999991955e-12}",
+      "fixed_core_tangents": true,
+      "renormalized": false
+    },
+    {
+      "stage": "height_continuation_edge",
+      "k": 5,
+      "N": 5,
+      "h0": 2e-06,
+      "a": 6032,
+      "b": 6072,
+      "complete": false,
+      "length": -1,
+      "profile_preparation_seconds": 0.8578708570000001,
+      "edge_seconds": 20.000226129,
+      "edge_geometry_seconds_nested": 20.000137566,
+      "edge_integral_seconds": 20.000137811,
+      "edge_composition_seconds_nested": 0,
+      "compositions": 0,
+      "stage_geometry_work": 718150,
+      "cpu_seconds_total": 21.532215,
+      "reason": "Curved atlas elapsed-time budget exhausted.\nCubic BL point replay: {\"point\":[0.72425319171319424,0.51067220640919708,0.023963693152678892],\"wall\":0,\"hint\":10154,\"component\":10154,\"component_facets\":38800,\"absolute_error\":2e-12,\"maximum_work\":16384,\"attempted_work\":153,\"available_bytes\":6897490232}\nCubic BL chord replay: {\"a\":[0.726356079891918748892,0.509005392281916435593,0.0237702598841729312307],\"b\":[0.708550539881468099956,0.523118613295542878028,0.0254080948563701891629],\"failure_type\":\"resource_budget\",\"band_ratio\":1.5,\"fade_bands\":16,\"feature_transitions\":1,\"wall\":0,\"authority_facet\":10154,\"metric_padding\":[0,0,0],\"transition_core\":0.00460725007204826168816,\"transition_slope\":0.262364264467491059563,\"full\":0.00900000000000000105471,\"support\":6882489.52879503928125,\"h0\":1.9999999999999999095e-06,\"global_eigenvalue\":127000000000000,\"eigenvalue\":476786579614.316754937,\"metric_bound\":690497.342221037629201,\"length_bound\":0.0227794373468568857822,\"left\":0.1180419921875,\"right\":0.1181640625,\"width\":0.0001220703125,\"parent_uncertainty\":1.92006115054874566849,\"incremental_total\":3551.45761210451301992,\"fresh_total\":3551.4576121045030781,\"adjacent_total\":0,\"splittable_total\":3551.4576121045030781,\"adjacent\":0,\"splittable\":1299,\"largest_splittable\":3.83766589245381451877,\"work\":7939,\"leaves\":1299,\"tolerance\":1e-8,\"projection_calls\":23815,\"projection_work\":717546,\"projection_seconds\":18.4113140419999794517,\"maximum_projection_seconds\":0.0199602109999999985379,\"projection_step\":\"midpoint\",\"query_point\":[0.724253191713194244272,0.510672206409197082522,0.0239636931526788915514],\"requested_point_error\":1.99999999999999995977e-12,\"maximum_projection_point\":[0.724981323537352007058,0.510095066633859617333,0.0238967162586742436214],\"maximum_projection_error\":1.99999999999999995977e-12}",
+      "fixed_core_tangents": true,
+      "renormalized": false
+    }
+  ],
+  "tangential_records": [
+    {
+      "stage": "height_continuation_tangential_edges",
+      "k": 0,
+      "context": "recorded_geometry_refusal",
+      "side": "old",
+      "edge_evaluations": 19,
+      "edges": [
+        [
+          18766,
+          18767,
+          0.798175795419073
+        ],
+        [
+          18766,
+          18774,
+          0.7130739285518223
+        ],
+        [
+          18766,
+          18775,
+          0.5152687744880637
+        ],
+        [
+          18767,
+          18775,
+          0.7087782263127312
+        ],
+        [
+          18767,
+          18783,
+          0.5212504420749383
+        ],
+        [
+          18774,
+          18775,
+          0.7331817726733822
+        ],
+        [
+          18774,
+          18781,
+          0.5160397768817617
+        ],
+        [
+          18775,
+          18781,
+          0.677684269743375
+        ],
+        [
+          18775,
+          18782,
+          0.5157811290652929
+        ],
+        [
+          18775,
+          18783,
+          0.7938597621243569
+        ],
+        [
+          18781,
+          18782,
+          0.7507772934587764
+        ],
+        [
+          18782,
+          18783,
+          0.6958784881572604
+        ]
+      ],
+      "full_combined_edge_certificate": false
+    },
+    {
+      "stage": "height_continuation_tangential_edges",
+      "k": 0,
+      "context": "recorded_geometry_refusal",
+      "side": "fresh",
+      "edge_evaluations": 15,
+      "edges": [
+        [
+          18766,
+          18767,
+          0.798175795419073
+        ],
+        [
+          18766,
+          18774,
+          0.7130739285518223
+        ],
+        [
+          18766,
+          18783,
+          1.146437852364169
+        ],
+        [
+          18767,
+          18783,
+          0.5212504420749383
+        ],
+        [
+          18774,
+          18781,
+          0.5160397768817617
+        ],
+        [
+          18774,
+          18783,
+          1.6315119190128475
+        ],
+        [
+          18781,
+          18782,
+          0.7507772934587764
+        ],
+        [
+          18781,
+          18783,
+          1.4584632864307865
+        ],
+        [
+          18782,
+          18783,
+          0.6958784881572604
+        ]
+      ],
+      "full_combined_edge_certificate": false
+    },
+    {
+      "stage": "height_continuation_tangential_edges",
+      "k": 0,
+      "context": "recorded_visibility_obstruction",
+      "side": "old",
+      "edge_evaluations": 44,
+      "edges": [
+        [
+          11885,
+          11886,
+          0.5012668549962718
+        ],
+        [
+          11885,
+          11990,
+          0.5244029761102753
+        ],
+        [
+          11885,
+          12115,
+          0.5108891771707863
+        ],
+        [
+          11886,
+          11990,
+          0.5108887684368764
+        ],
+        [
+          11886,
+          11991,
+          0.5244029839909521
+        ],
+        [
+          11990,
+          11991,
+          0.5012641620115869
+        ],
+        [
+          11990,
+          12115,
+          0.5012654375584226
+        ],
+        [
+          11990,
+          12116,
+          0.5244027156084897
+        ],
+        [
+          11990,
+          12231,
+          0.5108931068347035
+        ],
+        [
+          11991,
+          12116,
+          0.5108926966186447
+        ],
+        [
+          12115,
+          12231,
+          0.52440270681847
+        ],
+        [
+          12116,
+          12231,
+          0.5012627219717135
+        ]
+      ],
+      "full_combined_edge_certificate": false
+    },
+    {
+      "stage": "height_continuation_tangential_edges",
+      "k": 0,
+      "context": "recorded_visibility_obstruction",
+      "side": "fresh",
+      "edge_evaluations": 41,
+      "edges": [
+        [
+          11885,
+          11886,
+          0.5012668549962718
+        ],
+        [
+          11885,
+          12115,
+          0.5108891771707863
+        ],
+        [
+          11886,
+          11991,
+          0.5244029839909521
+        ],
+        [
+          11886,
+          12115,
+          0.8706646274109622
+        ],
+        [
+          11886,
+          12116,
+          0.951031646609275
+        ],
+        [
+          11886,
+          12231,
+          1.0469432689880178
+        ],
+        [
+          11991,
+          12116,
+          0.5108926966186447
+        ],
+        [
+          12115,
+          12231,
+          0.52440270681847
+        ],
+        [
+          12116,
+          12231,
+          0.5012627219717135
+        ]
+      ],
+      "full_combined_edge_certificate": false
+    },
+    {
+      "stage": "height_continuation_tangential_edges",
+      "k": 0,
+      "context": "recorded_visibility_obstruction_b",
+      "side": "old",
+      "edge_evaluations": 30,
+      "edges": [
+        [
+          4518,
+          4519,
+          0.5011985742766704
+        ],
+        [
+          4518,
+          13782,
+          1.7142857623201444
+        ],
+        [
+          4518,
+          13785,
+          1.692369916483882
+        ],
+        [
+          4519,
+          4520,
+          0.5011970045710782
+        ],
+        [
+          4519,
+          13785,
+          1.7142857629984094
+        ],
+        [
+          4519,
+          13788,
+          1.6923587821849135
+        ],
+        [
+          4520,
+          13788,
+          1.7142857619598586
+        ],
+        [
+          13781,
+          13782,
+          1.714285784647603
+        ],
+        [
+          13781,
+          13785,
+          1.7216223302930307
+        ],
+        [
+          13781,
+          13787,
+          0.8705831310914005
+        ],
+        [
+          13782,
+          13785,
+          0.5011986251273691
+        ],
+        [
+          13785,
+          13787,
+          1.70697679063849
+        ],
+        [
+          13785,
+          13788,
+          0.5011970554917367
+        ],
+        [
+          13787,
+          13788,
+          1.7142857850212885
+        ]
+      ],
+      "full_combined_edge_certificate": false
+    },
+    {
+      "stage": "height_continuation_tangential_edges",
+      "k": 0,
+      "context": "recorded_visibility_obstruction_b",
+      "side": "fresh",
+      "edge_evaluations": 26,
+      "edges": [
+        [
+          4518,
+          4519,
+          0.5011985742766704
+        ],
+        [
+          4518,
+          13782,
+          1.7142857623201444
+        ],
+        [
+          4518,
+          13788,
+          1.6705363756148555
+        ],
+        [
+          4519,
+          4520,
+          0.5011970045710782
+        ],
+        [
+          4519,
+          13788,
+          1.6923587821849135
+        ],
+        [
+          4520,
+          13788,
+          1.7142857619598586
+        ],
+        [
+          13781,
+          13782,
+          1.714285784647603
+        ],
+        [
+          13781,
+          13787,
+          0.8705831310914005
+        ],
+        [
+          13781,
+          13788,
+          1.7289940344722727
+        ],
+        [
+          13782,
+          13788,
+          1.0047989996638784
+        ],
+        [
+          13787,
+          13788,
+          1.7142857850212885
+        ]
+      ],
+      "full_combined_edge_certificate": false
+    },
+    {
+      "stage": "height_continuation_tangential_edges",
+      "k": 0,
+      "context": "unchanged_wall_control",
+      "side": "old",
+      "edge_evaluations": 27,
+      "edges": [
+        [
+          6032,
+          6070,
+          0.7145965218236425
+        ],
+        [
+          6032,
+          6072,
+          0.823786725766898
+        ],
+        [
+          6032,
+          6105,
+          0.4711707028670142
+        ],
+        [
+          6070,
+          6071,
+          0.8811425923674338
+        ],
+        [
+          6070,
+          6072,
+          0.5243276245058701
+        ],
+        [
+          6070,
+          6104,
+          0.5420185538786897
+        ],
+        [
+          6070,
+          6105,
+          0.6454704112924629
+        ],
+        [
+          6070,
+          6132,
+          0.6847191625184541
+        ],
+        [
+          6071,
+          6072,
+          0.7716660750343521
+        ],
+        [
+          6071,
+          6132,
+          0.5583564294146584
+        ],
+        [
+          6104,
+          6105,
+          0.5170612460630437
+        ],
+        [
+          6104,
+          6132,
+          0.8362136977733245
+        ]
+      ],
+      "full_combined_edge_certificate": false
+    },
+    {
+      "stage": "height_continuation_tangential_edges",
+      "k": 0,
+      "context": "unchanged_wall_control",
+      "side": "fresh",
+      "edge_evaluations": 23,
+      "edges": [
+        [
+          6032,
+          6072,
+          0.823786725766898
+        ],
+        [
+          6032,
+          6105,
+          0.4711707028670142
+        ],
+        [
+          6071,
+          6072,
+          0.7716660750343521
+        ],
+        [
+          6071,
+          6132,
+          0.5583564294146584
+        ],
+        [
+          6072,
+          6104,
+          1.07166592563449
+        ],
+        [
+          6072,
+          6105,
+          0.9949093912527351
+        ],
+        [
+          6072,
+          6132,
+          0.9463174789958418
+        ],
+        [
+          6104,
+          6105,
+          0.5170612460630437
+        ],
+        [
+          6104,
+          6132,
+          0.8362136977733245
+        ]
+      ],
+      "full_combined_edge_certificate": false
+    },
+    {
+      "stage": "height_continuation_tangential_edges",
+      "k": 0,
+      "context": "leading_edge",
+      "side": "old",
+      "edge_evaluations": 31,
+      "edges": [
+        [
+          4218,
+          4219,
+          0.45000733116481256
+        ],
+        [
+          4218,
+          8070,
+          0.8329293002485504
+        ],
+        [
+          4218,
+          18565,
+          0.8790191363942448
+        ],
+        [
+          4219,
+          4220,
+          0.4520933968976758
+        ],
+        [
+          4219,
+          8059,
+          0.8069394368812173
+        ],
+        [
+          4219,
+          8070,
+          0.7003463395769093
+        ],
+        [
+          4219,
+          18554,
+          0.8331754944912326
+        ],
+        [
+          4219,
+          18565,
+          0.7017225673015209
+        ],
+        [
+          4220,
+          8059,
+          0.7137638777763219
+        ],
+        [
+          4220,
+          18554,
+          0.699250804189646
+        ],
+        [
+          8059,
+          8070,
+          0.514156029224712
+        ],
+        [
+          18554,
+          18565,
+          0.523569489255108
+        ]
+      ],
+      "full_combined_edge_certificate": false
+    },
+    {
+      "stage": "height_continuation_tangential_edges",
+      "k": 0,
+      "context": "leading_edge",
+      "side": "fresh",
+      "edge_evaluations": 26,
+      "edges": [
+        [
+          4218,
+          4220,
+          0.9074300536584756
+        ],
+        [
+          4218,
+          8059,
+          1.1497486977106697
+        ],
+        [
+          4218,
+          8070,
+          0.8329293002485504
+        ],
+        [
+          4218,
+          18554,
+          1.1675118715123483
+        ],
+        [
+          4218,
+          18565,
+          0.8790191363942448
+        ],
+        [
+          4220,
+          8059,
+          0.7137638777763219
+        ],
+        [
+          4220,
+          18554,
+          0.699250804189646
+        ],
+        [
+          8059,
+          8070,
+          0.514156029224712
+        ],
+        [
+          18554,
+          18565,
+          0.523569489255108
+        ]
+      ],
+      "full_combined_edge_certificate": false
+    },
+    {
+      "stage": "height_continuation_tangential_edges",
+      "k": 1,
+      "context": "recorded_geometry_refusal",
+      "side": "old",
+      "edge_evaluations": 19,
+      "edges": [
+        [
+          18766,
+          18767,
+          0.7981757953468235
+        ],
+        [
+          18766,
+          18774,
+          0.713073925293082
+        ],
+        [
+          18766,
+          18775,
+          0.5152687759541162
+        ],
+        [
+          18767,
+          18775,
+          0.7087782254770152
+        ],
+        [
+          18767,
+          18783,
+          0.5212504326151262
+        ],
+        [
+          18774,
+          18775,
+          0.7331817734086561
+        ],
+        [
+          18774,
+          18781,
+          0.5160397802590274
+        ],
+        [
+          18775,
+          18781,
+          0.6776842643404856
+        ],
+        [
+          18775,
+          18782,
+          0.5157811291023116
+        ],
+        [
+          18775,
+          18783,
+          0.7938597469228871
+        ],
+        [
+          18781,
+          18782,
+          0.7507772934086443
+        ],
+        [
+          18782,
+          18783,
+          0.6958784963574169
+        ]
+      ],
+      "full_combined_edge_certificate": false
+    },
+    {
+      "stage": "height_continuation_tangential_edges",
+      "k": 1,
+      "context": "recorded_geometry_refusal",
+      "side": "fresh",
+      "edge_evaluations": 15,
+      "edges": [
+        [
+          18766,
+          18767,
+          0.7981757953468235
+        ],
+        [
+          18766,
+          18774,
+          0.713073925293082
+        ],
+        [
+          18766,
+          18783,
+          1.1464378180722616
+        ],
+        [
+          18767,
+          18783,
+          0.5212504326151262
+        ],
+        [
+          18774,
+          18781,
+          0.5160397802590274
+        ],
+        [
+          18774,
+          18783,
+          1.6315118894939888
+        ],
+        [
+          18781,
+          18782,
+          0.7507772934086443
+        ],
+        [
+          18781,
+          18783,
+          1.45846328169105
+        ],
+        [
+          18782,
+          18783,
+          0.6958784963574169
+        ]
+      ],
+      "full_combined_edge_certificate": false
+    },
+    {
+      "stage": "height_continuation_tangential_edges",
+      "k": 1,
+      "context": "recorded_visibility_obstruction",
+      "side": "old",
+      "edge_evaluations": 44,
+      "edges": [
+        [
+          11885,
+          11886,
+          0.5012668549962772
+        ],
+        [
+          11885,
+          11990,
+          0.5244029761102826
+        ],
+        [
+          11885,
+          12115,
+          0.5108891771707763
+        ],
+        [
+          11886,
+          11990,
+          0.5108887684370087
+        ],
+        [
+          11886,
+          11991,
+          0.5244029839909633
+        ],
+        [
+          11990,
+          11991,
+          0.5012641620116737
+        ],
+        [
+          11990,
+          12115,
+          0.5012654375584386
+        ],
+        [
+          11990,
+          12116,
+          0.5244027156085025
+        ],
+        [
+          11990,
+          12231,
+          0.5108931068348338
+        ],
+        [
+          11991,
+          12116,
+          0.5108926966187888
+        ],
+        [
+          12115,
+          12231,
+          0.5244027068184665
+        ],
+        [
+          12116,
+          12231,
+          0.5012627219719116
+        ]
+      ],
+      "full_combined_edge_certificate": false
+    },
+    {
+      "stage": "height_continuation_tangential_edges",
+      "k": 1,
+      "context": "recorded_visibility_obstruction",
+      "side": "fresh",
+      "edge_evaluations": 41,
+      "edges": [
+        [
+          11885,
+          11886,
+          0.5012668549962772
+        ],
+        [
+          11885,
+          12115,
+          0.5108891771707763
+        ],
+        [
+          11886,
+          11991,
+          0.5244029839909633
+        ],
+        [
+          11886,
+          12115,
+          0.8706646274110647
+        ],
+        [
+          11886,
+          12116,
+          0.9510316466094013
+        ],
+        [
+          11886,
+          12231,
+          1.0469432689882834
+        ],
+        [
+          11991,
+          12116,
+          0.5108926966187888
+        ],
+        [
+          12115,
+          12231,
+          0.5244027068184665
+        ],
+        [
+          12116,
+          12231,
+          0.5012627219719116
+        ]
+      ],
+      "full_combined_edge_certificate": false
+    },
+    {
+      "stage": "height_continuation_tangential_edges",
+      "k": 1,
+      "context": "recorded_visibility_obstruction_b",
+      "side": "old",
+      "edge_evaluations": 30,
+      "edges": [
+        [
+          4518,
+          4519,
+          0.5011985742990657
+        ],
+        [
+          4518,
+          13782,
+          1.7142857623201444
+        ],
+        [
+          4518,
+          13785,
+          1.692369916483882
+        ],
+        [
+          4519,
+          4520,
+          0.5011970045822028
+        ],
+        [
+          4519,
+          13785,
+          1.7142857629984094
+        ],
+        [
+          4519,
+          13788,
+          1.6923587821849135
+        ],
+        [
+          4520,
+          13788,
+          1.7142857619598586
+        ],
+        [
+          13781,
+          13782,
+          1.714285784647603
+        ],
+        [
+          13781,
+          13785,
+          1.7216223302930307
+        ],
+        [
+          13781,
+          13787,
+          0.8705831311080191
+        ],
+        [
+          13782,
+          13785,
+          0.5011986251474254
+        ],
+        [
+          13785,
+          13787,
+          1.70697679063849
+        ],
+        [
+          13785,
+          13788,
+          0.5011970554961943
+        ],
+        [
+          13787,
+          13788,
+          1.7142857850212885
+        ]
+      ],
+      "full_combined_edge_certificate": false
+    },
+    {
+      "stage": "height_continuation_tangential_edges",
+      "k": 1,
+      "context": "recorded_visibility_obstruction_b",
+      "side": "fresh",
+      "edge_evaluations": 26,
+      "edges": [
+        [
+          4518,
+          4519,
+          0.5011985742990657
+        ],
+        [
+          4518,
+          13782,
+          1.7142857623201444
+        ],
+        [
+          4518,
+          13788,
+          1.6705363756148555
+        ],
+        [
+          4519,
+          4520,
+          0.5011970045822028
+        ],
+        [
+          4519,
+          13788,
+          1.6923587821849135
+        ],
+        [
+          4520,
+          13788,
+          1.7142857619598586
+        ],
+        [
+          13781,
+          13782,
+          1.714285784647603
+        ],
+        [
+          13781,
+          13787,
+          0.8705831311080191
+        ],
+        [
+          13781,
+          13788,
+          1.7289940344722727
+        ],
+        [
+          13782,
+          13788,
+          1.0047989997040874
+        ],
+        [
+          13787,
+          13788,
+          1.7142857850212885
+        ]
+      ],
+      "full_combined_edge_certificate": false
+    },
+    {
+      "stage": "height_continuation_tangential_edges",
+      "k": 1,
+      "context": "unchanged_wall_control",
+      "side": "old",
+      "edge_evaluations": 27,
+      "edges": [
+        [
+          6032,
+          6070,
+          0.714595913396541
+        ],
+        [
+          6032,
+          6072,
+          0.8237863404632461
+        ],
+        [
+          6032,
+          6105,
+          0.47117071418032225
+        ],
+        [
+          6070,
+          6071,
+          0.8811423718481012
+        ],
+        [
+          6070,
+          6072,
+          0.5243276230224162
+        ],
+        [
+          6070,
+          6104,
+          0.5420186088089035
+        ],
+        [
+          6070,
+          6105,
+          0.6454698834758598
+        ],
+        [
+          6070,
+          6132,
+          0.6847188336893445
+        ],
+        [
+          6071,
+          6072,
+          0.7716658443629562
+        ],
+        [
+          6071,
+          6132,
+          0.5583564495536081
+        ],
+        [
+          6104,
+          6105,
+          0.5170606613049866
+        ],
+        [
+          6104,
+          6132,
+          0.8362133351616088
+        ]
+      ],
+      "full_combined_edge_certificate": false
+    },
+    {
+      "stage": "height_continuation_tangential_edges",
+      "k": 1,
+      "context": "unchanged_wall_control",
+      "side": "fresh",
+      "edge_evaluations": 23,
+      "edges": [
+        [
+          6032,
+          6072,
+          0.8237863404632461
+        ],
+        [
+          6032,
+          6105,
+          0.47117071418032225
+        ],
+        [
+          6071,
+          6072,
+          0.7716658443629562
+        ],
+        [
+          6071,
+          6132,
+          0.5583564495536081
+        ],
+        [
+          6072,
+          6104,
+          1.0716660551498236
+        ],
+        [
+          6072,
+          6105,
+          0.9949086792443282
+        ],
+        [
+          6072,
+          6132,
+          0.9463173080422314
+        ],
+        [
+          6104,
+          6105,
+          0.5170606613049866
+        ],
+        [
+          6104,
+          6132,
+          0.8362133351616088
+        ]
+      ],
+      "full_combined_edge_certificate": false
+    },
+    {
+      "stage": "height_continuation_tangential_edges",
+      "k": 1,
+      "context": "leading_edge",
+      "side": "old",
+      "edge_evaluations": 31,
+      "edges": [
+        [
+          4218,
+          4219,
+          0.45000732566190066
+        ],
+        [
+          4218,
+          8070,
+          0.8329292970933534
+        ],
+        [
+          4218,
+          18565,
+          0.8790191363942448
+        ],
+        [
+          4219,
+          4220,
+          0.4520933644158844
+        ],
+        [
+          4219,
+          8059,
+          0.8069394368812173
+        ],
+        [
+          4219,
+          8070,
+          0.7003463395769093
+        ],
+        [
+          4219,
+          18554,
+          0.8331753826241532
+        ],
+        [
+          4219,
+          18565,
+          0.7017225673015209
+        ],
+        [
+          4220,
+          8059,
+          0.7137638777763219
+        ],
+        [
+          4220,
+          18554,
+          0.6992508132387781
+        ],
+        [
+          8059,
+          8070,
+          0.5141560165394243
+        ],
+        [
+          18554,
+          18565,
+          0.5235694887756664
+        ]
+      ],
+      "full_combined_edge_certificate": false
+    },
+    {
+      "stage": "height_continuation_tangential_edges",
+      "k": 1,
+      "context": "leading_edge",
+      "side": "fresh",
+      "edge_evaluations": 26,
+      "edges": [
+        [
+          4218,
+          4220,
+          0.9074299884618726
+        ],
+        [
+          4218,
+          8059,
+          1.1497486043791896
+        ],
+        [
+          4218,
+          8070,
+          0.8329292970933534
+        ],
+        [
+          4218,
+          18554,
+          1.1675118762978642
+        ],
+        [
+          4218,
+          18565,
+          0.8790191363942448
+        ],
+        [
+          4220,
+          8059,
+          0.7137638777763219
+        ],
+        [
+          4220,
+          18554,
+          0.6992508132387781
+        ],
+        [
+          8059,
+          8070,
+          0.5141560165394243
+        ],
+        [
+          18554,
+          18565,
+          0.5235694887756664
+        ]
+      ],
+      "full_combined_edge_certificate": false
+    },
+    {
+      "stage": "height_continuation_tangential_edges",
+      "k": 2,
+      "context": "recorded_geometry_refusal",
+      "side": "old",
+      "edge_evaluations": 19,
+      "edges": [
+        [
+          18766,
+          18767,
+          0.798175795331235
+        ],
+        [
+          18766,
+          18774,
+          0.7130739244814258
+        ],
+        [
+          18766,
+          18775,
+          0.5152687763271994
+        ],
+        [
+          18767,
+          18775,
+          0.7087782252732305
+        ],
+        [
+          18767,
+          18783,
+          0.5212504302597643
+        ],
+        [
+          18774,
+          18775,
+          0.7331817735955747
+        ],
+        [
+          18774,
+          18781,
+          0.5160397811128082
+        ],
+        [
+          18775,
+          18781,
+          0.6776842629923645
+        ],
+        [
+          18775,
+          18782,
+          0.5157811291141796
+        ],
+        [
+          18775,
+          18783,
+          0.7938597431239452
+        ],
+        [
+          18781,
+          18782,
+          0.7507772933962394
+        ],
+        [
+          18782,
+          18783,
+          0.6958784984137577
+        ]
+      ],
+      "full_combined_edge_certificate": false
+    },
+    {
+      "stage": "height_continuation_tangential_edges",
+      "k": 2,
+      "context": "recorded_geometry_refusal",
+      "side": "fresh",
+      "edge_evaluations": 15,
+      "edges": [
+        [
+          18766,
+          18767,
+          0.798175795331235
+        ],
+        [
+          18766,
+          18774,
+          0.7130739244814258
+        ],
+        [
+          18766,
+          18783,
+          1.1464378095060812
+        ],
+        [
+          18767,
+          18783,
+          0.5212504302597643
+        ],
+        [
+          18774,
+          18781,
+          0.5160397811128082
+        ],
+        [
+          18774,
+          18783,
+          1.6315118821170889
+        ],
+        [
+          18781,
+          18782,
+          0.7507772933962394
+        ],
+        [
+          18781,
+          18783,
+          1.4584632805101911
+        ],
+        [
+          18782,
+          18783,
+          0.6958784984137577
+        ]
+      ],
+      "full_combined_edge_certificate": false
+    },
+    {
+      "stage": "height_continuation_tangential_edges",
+      "k": 2,
+      "context": "recorded_visibility_obstruction",
+      "side": "old",
+      "edge_evaluations": 44,
+      "edges": [
+        [
+          11885,
+          11886,
+          0.5012668549972724
+        ],
+        [
+          11885,
+          11990,
+          0.5244029761102984
+        ],
+        [
+          11885,
+          12115,
+          0.5108891771714724
+        ],
+        [
+          11886,
+          11990,
+          0.510888768437515
+        ],
+        [
+          11886,
+          11991,
+          0.5244029839909773
+        ],
+        [
+          11990,
+          11991,
+          0.5012641620114409
+        ],
+        [
+          11990,
+          12115,
+          0.5012654375589228
+        ],
+        [
+          11990,
+          12116,
+          0.5244027156085067
+        ],
+        [
+          11990,
+          12231,
+          0.5108931068346704
+        ],
+        [
+          11991,
+          12116,
+          0.5108926966198679
+        ],
+        [
+          12115,
+          12231,
+          0.5244027068185484
+        ],
+        [
+          12116,
+          12231,
+          0.5012627219725323
+        ]
+      ],
+      "full_combined_edge_certificate": false
+    },
+    {
+      "stage": "height_continuation_tangential_edges",
+      "k": 2,
+      "context": "recorded_visibility_obstruction",
+      "side": "fresh",
+      "edge_evaluations": 41,
+      "edges": [
+        [
+          11885,
+          11886,
+          0.5012668549972724
+        ],
+        [
+          11885,
+          12115,
+          0.5108891771714724
+        ],
+        [
+          11886,
+          11991,
+          0.5244029839909773
+        ],
+        [
+          11886,
+          12115,
+          0.8706646274119693
+        ],
+        [
+          11886,
+          12116,
+          0.9510316466096298
+        ],
+        [
+          11886,
+          12231,
+          1.04694326898923
+        ],
+        [
+          11991,
+          12116,
+          0.5108926966198679
+        ],
+        [
+          12115,
+          12231,
+          0.5244027068185484
+        ],
+        [
+          12116,
+          12231,
+          0.5012627219725323
+        ]
+      ],
+      "full_combined_edge_certificate": false
+    },
+    {
+      "stage": "height_continuation_tangential_edges",
+      "k": 2,
+      "context": "recorded_visibility_obstruction_b",
+      "side": "old",
+      "edge_evaluations": 30,
+      "edges": [
+        [
+          4518,
+          4519,
+          0.5011985743786924
+        ],
+        [
+          4518,
+          13782,
+          1.7142857623201444
+        ],
+        [
+          4518,
+          13785,
+          1.692369916483882
+        ],
+        [
+          4519,
+          4520,
+          0.5011970047091304
+        ],
+        [
+          4519,
+          13785,
+          1.7142857629984094
+        ],
+        [
+          4519,
+          13788,
+          1.6923587821849135
+        ],
+        [
+          4520,
+          13788,
+          1.7142857619598586
+        ],
+        [
+          13781,
+          13782,
+          1.714285784647603
+        ],
+        [
+          13781,
+          13785,
+          1.7216223302930307
+        ],
+        [
+          13781,
+          13787,
+          0.8705831311635969
+        ],
+        [
+          13782,
+          13785,
+          0.501198625300825
+        ],
+        [
+          13785,
+          13787,
+          1.70697679063849
+        ],
+        [
+          13785,
+          13788,
+          0.5011970557187094
+        ],
+        [
+          13787,
+          13788,
+          1.7142857850212885
+        ]
+      ],
+      "full_combined_edge_certificate": false
+    },
+    {
+      "stage": "height_continuation_tangential_edges",
+      "k": 2,
+      "context": "recorded_visibility_obstruction_b",
+      "side": "fresh",
+      "edge_evaluations": 26,
+      "edges": [
+        [
+          4518,
+          4519,
+          0.5011985743786924
+        ],
+        [
+          4518,
+          13782,
+          1.7142857623201444
+        ],
+        [
+          4518,
+          13788,
+          1.6705363756148555
+        ],
+        [
+          4519,
+          4520,
+          0.5011970047091304
+        ],
+        [
+          4519,
+          13788,
+          1.6923587821849135
+        ],
+        [
+          4520,
+          13788,
+          1.7142857619598586
+        ],
+        [
+          13781,
+          13782,
+          1.714285784647603
+        ],
+        [
+          13781,
+          13787,
+          0.8705831311635969
+        ],
+        [
+          13781,
+          13788,
+          1.7289940344722727
+        ],
+        [
+          13782,
+          13788,
+          1.0047990000116216
+        ],
+        [
+          13787,
+          13788,
+          1.7142857850212885
+        ]
+      ],
+      "full_combined_edge_certificate": false
+    },
+    {
+      "stage": "height_continuation_tangential_edges",
+      "k": 2,
+      "context": "unchanged_wall_control",
+      "side": "old",
+      "edge_evaluations": 27,
+      "edges": [
+        [
+          6032,
+          6070,
+          0.7145957612906345
+        ],
+        [
+          6032,
+          6072,
+          0.8237862441366675
+        ],
+        [
+          6032,
+          6105,
+          0.47117071700879753
+        ],
+        [
+          6070,
+          6071,
+          0.8811423167184017
+        ],
+        [
+          6070,
+          6072,
+          0.5243276226531203
+        ],
+        [
+          6070,
+          6104,
+          0.5420186225414665
+        ],
+        [
+          6070,
+          6105,
+          0.6454697515217322
+        ],
+        [
+          6070,
+          6132,
+          0.6847187514822994
+        ],
+        [
+          6071,
+          6072,
+          0.771665786695369
+        ],
+        [
+          6071,
+          6132,
+          0.5583564545885905
+        ],
+        [
+          6104,
+          6105,
+          0.5170605151171367
+        ],
+        [
+          6104,
+          6132,
+          0.8362132445084037
+        ]
+      ],
+      "full_combined_edge_certificate": false
+    },
+    {
+      "stage": "height_continuation_tangential_edges",
+      "k": 2,
+      "context": "unchanged_wall_control",
+      "side": "fresh",
+      "edge_evaluations": 23,
+      "edges": [
+        [
+          6032,
+          6072,
+          0.8237862441366675
+        ],
+        [
+          6032,
+          6105,
+          0.47117071700879753
+        ],
+        [
+          6071,
+          6072,
+          0.771665786695369
+        ],
+        [
+          6071,
+          6132,
+          0.5583564545885905
+        ],
+        [
+          6072,
+          6104,
+          1.0716660875288218
+        ],
+        [
+          6072,
+          6105,
+          0.9949085012391252
+        ],
+        [
+          6072,
+          6132,
+          0.9463172653048143
+        ],
+        [
+          6104,
+          6105,
+          0.5170605151171367
+        ],
+        [
+          6104,
+          6132,
+          0.8362132445084037
+        ]
+      ],
+      "full_combined_edge_certificate": false
+    },
+    {
+      "stage": "height_continuation_tangential_edges",
+      "k": 2,
+      "context": "leading_edge",
+      "side": "old",
+      "edge_evaluations": 31,
+      "edges": [
+        [
+          4218,
+          4219,
+          0.4500073243592611
+        ],
+        [
+          4218,
+          8070,
+          0.8329292963855908
+        ],
+        [
+          4218,
+          18565,
+          0.8790191363942448
+        ],
+        [
+          4219,
+          4220,
+          0.45209335656190025
+        ],
+        [
+          4219,
+          8059,
+          0.8069394368812173
+        ],
+        [
+          4219,
+          8070,
+          0.7003463395769093
+        ],
+        [
+          4219,
+          18554,
+          0.8331753546889289
+        ],
+        [
+          4219,
+          18565,
+          0.7017225673015209
+        ],
+        [
+          4220,
+          8059,
+          0.7137638777763219
+        ],
+        [
+          4220,
+          18554,
+          0.6992508154992064
+        ],
+        [
+          8059,
+          8070,
+          0.5141560134344658
+        ],
+        [
+          18554,
+          18565,
+          0.5235694886749337
+        ]
+      ],
+      "full_combined_edge_certificate": false
+    },
+    {
+      "stage": "height_continuation_tangential_edges",
+      "k": 2,
+      "context": "leading_edge",
+      "side": "fresh",
+      "edge_evaluations": 26,
+      "edges": [
+        [
+          4218,
+          4220,
+          0.9074299726975609
+        ],
+        [
+          4218,
+          8059,
+          1.149748581138837
+        ],
+        [
+          4218,
+          8070,
+          0.8329292963855908
+        ],
+        [
+          4218,
+          18554,
+          1.1675118776921813
+        ],
+        [
+          4218,
+          18565,
+          0.8790191363942448
+        ],
+        [
+          4220,
+          8059,
+          0.7137638777763219
+        ],
+        [
+          4220,
+          18554,
+          0.6992508154992064
+        ],
+        [
+          8059,
+          8070,
+          0.5141560134344658
+        ],
+        [
+          18554,
+          18565,
+          0.5235694886749337
+        ]
+      ],
+      "full_combined_edge_certificate": false
+    },
+    {
+      "stage": "height_continuation_tangential_edges",
+      "k": 3,
+      "context": "recorded_geometry_refusal",
+      "side": "old",
+      "edge_evaluations": 19,
+      "edges": [
+        [
+          18766,
+          18767,
+          0.7981757953640177
+        ],
+        [
+          18766,
+          18774,
+          0.7130739242937305
+        ],
+        [
+          18766,
+          18775,
+          0.5152687764374462
+        ],
+        [
+          18767,
+          18775,
+          0.7087782252273168
+        ],
+        [
+          18767,
+          18783,
+          0.5212504297672265
+        ],
+        [
+          18774,
+          18775,
+          0.7331817736517477
+        ],
+        [
+          18774,
+          18781,
+          0.5160397813508317
+        ],
+        [
+          18775,
+          18781,
+          0.6776842626570156
+        ],
+        [
+          18775,
+          18782,
+          0.5157811291366926
+        ],
+        [
+          18775,
+          18783,
+          0.7938597422243469
+        ],
+        [
+          18781,
+          18782,
+          0.7507772933999083
+        ],
+        [
+          18782,
+          18783,
+          0.6958784989589547
+        ]
+      ],
+      "full_combined_edge_certificate": false
+    },
+    {
+      "stage": "height_continuation_tangential_edges",
+      "k": 3,
+      "context": "recorded_geometry_refusal",
+      "side": "fresh",
+      "edge_evaluations": 15,
+      "edges": [
+        [
+          18766,
+          18767,
+          0.7981757953640177
+        ],
+        [
+          18766,
+          18774,
+          0.7130739242937305
+        ],
+        [
+          18766,
+          18783,
+          1.1464378074829118
+        ],
+        [
+          18767,
+          18783,
+          0.5212504297672265
+        ],
+        [
+          18774,
+          18781,
+          0.5160397813508317
+        ],
+        [
+          18774,
+          18783,
+          1.6315118803751614
+        ],
+        [
+          18781,
+          18782,
+          0.7507772933999083
+        ],
+        [
+          18781,
+          18783,
+          1.4584632802837918
+        ],
+        [
+          18782,
+          18783,
+          0.6958784989589547
+        ]
+      ],
+      "full_combined_edge_certificate": false
+    },
+    {
+      "stage": "height_continuation_tangential_edges",
+      "k": 3,
+      "context": "recorded_visibility_obstruction",
+      "side": "old",
+      "edge_evaluations": 44,
+      "edges": [
+        [
+          11885,
+          11886,
+          0.5012668549999598
+        ],
+        [
+          11885,
+          11990,
+          0.5244029761105505
+        ],
+        [
+          11885,
+          12115,
+          0.5108891771749582
+        ],
+        [
+          11886,
+          11990,
+          0.5108887684410306
+        ],
+        [
+          11886,
+          11991,
+          0.5244029839910801
+        ],
+        [
+          11990,
+          11991,
+          0.5012641620132329
+        ],
+        [
+          11990,
+          12115,
+          0.5012654375601372
+        ],
+        [
+          11990,
+          12116,
+          0.5244027156087687
+        ],
+        [
+          11990,
+          12231,
+          0.5108931068362
+        ],
+        [
+          11991,
+          12116,
+          0.510892696623496
+        ],
+        [
+          12115,
+          12231,
+          0.5244027068189702
+        ],
+        [
+          12116,
+          12231,
+          0.5012627219748829
+        ]
+      ],
+      "full_combined_edge_certificate": false
+    },
+    {
+      "stage": "height_continuation_tangential_edges",
+      "k": 3,
+      "context": "recorded_visibility_obstruction",
+      "side": "fresh",
+      "edge_evaluations": 41,
+      "edges": [
+        [
+          11885,
+          11886,
+          0.5012668549999598
+        ],
+        [
+          11885,
+          12115,
+          0.5108891771749582
+        ],
+        [
+          11886,
+          11991,
+          0.5244029839910801
+        ],
+        [
+          11886,
+          12115,
+          0.8706646274154373
+        ],
+        [
+          11886,
+          12116,
+          0.9510316466118216
+        ],
+        [
+          11886,
+          12231,
+          1.0469432689961389
+        ],
+        [
+          11991,
+          12116,
+          0.510892696623496
+        ],
+        [
+          12115,
+          12231,
+          0.5244027068189702
+        ],
+        [
+          12116,
+          12231,
+          0.5012627219748829
+        ]
+      ],
+      "full_combined_edge_certificate": false
+    },
+    {
+      "stage": "height_continuation_tangential_edges",
+      "k": 3,
+      "context": "recorded_visibility_obstruction_b",
+      "side": "old",
+      "edge_evaluations": 30,
+      "edges": [
+        [
+          4518,
+          4519,
+          0.5011985750112952
+        ],
+        [
+          4518,
+          13782,
+          1.7142857623201444
+        ],
+        [
+          4518,
+          13785,
+          1.692369916483882
+        ],
+        [
+          4519,
+          4520,
+          0.5011970048527873
+        ],
+        [
+          4519,
+          13785,
+          1.7142857629984094
+        ],
+        [
+          4519,
+          13788,
+          1.6923587821849135
+        ],
+        [
+          4520,
+          13788,
+          1.7142857619598586
+        ],
+        [
+          13781,
+          13782,
+          1.714285784647603
+        ],
+        [
+          13781,
+          13785,
+          1.7216223302930307
+        ],
+        [
+          13781,
+          13787,
+          0.8705831316726091
+        ],
+        [
+          13782,
+          13785,
+          0.5011986256919779
+        ],
+        [
+          13785,
+          13787,
+          1.70697679063849
+        ],
+        [
+          13785,
+          13788,
+          0.5011970561401254
+        ],
+        [
+          13787,
+          13788,
+          1.7142857850212885
+        ]
+      ],
+      "full_combined_edge_certificate": false
+    },
+    {
+      "stage": "height_continuation_tangential_edges",
+      "k": 3,
+      "context": "recorded_visibility_obstruction_b",
+      "side": "fresh",
+      "edge_evaluations": 26,
+      "edges": [
+        [
+          4518,
+          4519,
+          0.5011985750112952
+        ],
+        [
+          4518,
+          13782,
+          1.7142857623201444
+        ],
+        [
+          4518,
+          13788,
+          1.6705363756148555
+        ],
+        [
+          4519,
+          4520,
+          0.5011970048527873
+        ],
+        [
+          4519,
+          13788,
+          1.6923587821849135
+        ],
+        [
+          4520,
+          13788,
+          1.7142857619598586
+        ],
+        [
+          13781,
+          13782,
+          1.714285784647603
+        ],
+        [
+          13781,
+          13787,
+          0.8705831316726091
+        ],
+        [
+          13781,
+          13788,
+          1.7289940344722727
+        ],
+        [
+          13782,
+          13788,
+          1.0047990007958016
+        ],
+        [
+          13787,
+          13788,
+          1.7142857850212885
+        ]
+      ],
+      "full_combined_edge_certificate": false
+    },
+    {
+      "stage": "height_continuation_tangential_edges",
+      "k": 3,
+      "context": "unchanged_wall_control",
+      "side": "old",
+      "edge_evaluations": 27,
+      "edges": [
+        [
+          6032,
+          6070,
+          0.7145957232646595
+        ],
+        [
+          6032,
+          6072,
+          0.8237862200639284
+        ],
+        [
+          6032,
+          6105,
+          0.47117071771715363
+        ],
+        [
+          6070,
+          6071,
+          0.8811423029382877
+        ],
+        [
+          6070,
+          6072,
+          0.5243276225613985
+        ],
+        [
+          6070,
+          6104,
+          0.5420186259815996
+        ],
+        [
+          6070,
+          6105,
+          0.6454697185334135
+        ],
+        [
+          6070,
+          6132,
+          0.6847187309360794
+        ],
+        [
+          6071,
+          6072,
+          0.7716657722821857
+        ],
+        [
+          6071,
+          6132,
+          0.5583564558492149
+        ],
+        [
+          6104,
+          6105,
+          0.51706047857112
+        ],
+        [
+          6104,
+          6132,
+          0.8362132218479792
+        ]
+      ],
+      "full_combined_edge_certificate": false
+    },
+    {
+      "stage": "height_continuation_tangential_edges",
+      "k": 3,
+      "context": "unchanged_wall_control",
+      "side": "fresh",
+      "edge_evaluations": 23,
+      "edges": [
+        [
+          6032,
+          6072,
+          0.8237862200639284
+        ],
+        [
+          6032,
+          6105,
+          0.47117071771715363
+        ],
+        [
+          6071,
+          6072,
+          0.7716657722821857
+        ],
+        [
+          6071,
+          6132,
+          0.5583564558492149
+        ],
+        [
+          6072,
+          6104,
+          1.071666095637647
+        ],
+        [
+          6072,
+          6105,
+          0.9949084567418938
+        ],
+        [
+          6072,
+          6132,
+          0.9463172546258743
+        ],
+        [
+          6104,
+          6105,
+          0.51706047857112
+        ],
+        [
+          6104,
+          6132,
+          0.8362132218479792
+        ]
+      ],
+      "full_combined_edge_certificate": false
+    },
+    {
+      "stage": "height_continuation_tangential_edges",
+      "k": 3,
+      "context": "leading_edge",
+      "side": "old",
+      "edge_evaluations": 31,
+      "edges": [
+        [
+          4218,
+          4219,
+          0.4500073245473061
+        ],
+        [
+          4218,
+          8070,
+          0.8329292971856764
+        ],
+        [
+          4218,
+          18565,
+          0.8790191363942448
+        ],
+        [
+          4219,
+          4220,
+          0.4520933546717523
+        ],
+        [
+          4219,
+          8059,
+          0.8069394368812173
+        ],
+        [
+          4219,
+          8070,
+          0.7003463395769093
+        ],
+        [
+          4219,
+          18554,
+          0.8331753479654772
+        ],
+        [
+          4219,
+          18565,
+          0.7017225673015209
+        ],
+        [
+          4220,
+          8059,
+          0.7137638777763219
+        ],
+        [
+          4220,
+          18554,
+          0.6992508161337808
+        ],
+        [
+          8059,
+          8070,
+          0.5141560130555561
+        ],
+        [
+          18554,
+          18565,
+          0.5235694891635582
+        ]
+      ],
+      "full_combined_edge_certificate": false
+    },
+    {
+      "stage": "height_continuation_tangential_edges",
+      "k": 3,
+      "context": "leading_edge",
+      "side": "fresh",
+      "edge_evaluations": 26,
+      "edges": [
+        [
+          4218,
+          4220,
+          0.9074299689037053
+        ],
+        [
+          4218,
+          8059,
+          1.1497485757873587
+        ],
+        [
+          4218,
+          8070,
+          0.8329292971856764
+        ],
+        [
+          4218,
+          18554,
+          1.1675118804464286
+        ],
+        [
+          4218,
+          18565,
+          0.8790191363942448
+        ],
+        [
+          4220,
+          8059,
+          0.7137638777763219
+        ],
+        [
+          4220,
+          18554,
+          0.6992508161337808
+        ],
+        [
+          8059,
+          8070,
+          0.5141560130555561
+        ],
+        [
+          18554,
+          18565,
+          0.5235694891635582
+        ]
+      ],
+      "full_combined_edge_certificate": false
+    },
+    {
+      "stage": "height_continuation_tangential_edges",
+      "k": 4,
+      "context": "recorded_geometry_refusal",
+      "side": "old",
+      "edge_evaluations": 19,
+      "edges": [
+        [
+          18766,
+          18767,
+          0.7981757953729086
+        ],
+        [
+          18766,
+          18774,
+          0.7130739242422001
+        ],
+        [
+          18766,
+          18775,
+          0.5152687763668685
+        ],
+        [
+          18767,
+          18775,
+          0.7087782252687506
+        ],
+        [
+          18767,
+          18783,
+          0.5212504296442707
+        ],
+        [
+          18774,
+          18775,
+          0.7331817737394608
+        ],
+        [
+          18774,
+          18781,
+          0.5160397814207607
+        ],
+        [
+          18775,
+          18781,
+          0.677684262700146
+        ],
+        [
+          18775,
+          18782,
+          0.5157811293005335
+        ],
+        [
+          18775,
+          18783,
+          0.793859741951904
+        ],
+        [
+          18781,
+          18782,
+          0.7507772934585085
+        ],
+        [
+          18782,
+          18783,
+          0.695878499112085
+        ]
+      ],
+      "full_combined_edge_certificate": false
+    },
+    {
+      "stage": "height_continuation_tangential_edges",
+      "k": 4,
+      "context": "recorded_geometry_refusal",
+      "side": "fresh",
+      "edge_evaluations": 15,
+      "edges": [
+        [
+          18766,
+          18767,
+          0.7981757953729086
+        ],
+        [
+          18766,
+          18774,
+          0.7130739242422001
+        ],
+        [
+          18766,
+          18783,
+          1.1464378069060466
+        ],
+        [
+          18767,
+          18783,
+          0.5212504296442707
+        ],
+        [
+          18774,
+          18781,
+          0.5160397814207607
+        ],
+        [
+          18774,
+          18783,
+          1.631511879846201
+        ],
+        [
+          18781,
+          18782,
+          0.7507772934585085
+        ],
+        [
+          18781,
+          18783,
+          1.4584632801949116
+        ],
+        [
+          18782,
+          18783,
+          0.695878499112085
+        ]
+      ],
+      "full_combined_edge_certificate": false
+    },
+    {
+      "stage": "height_continuation_tangential_edges",
+      "k": 4,
+      "context": "recorded_visibility_obstruction",
+      "side": "old",
+      "edge_evaluations": 44,
+      "edges": [
+        [
+          11885,
+          11886,
+          0.501266854996958
+        ],
+        [
+          11885,
+          11990,
+          0.5244029761110887
+        ],
+        [
+          11885,
+          12115,
+          0.510889177173505
+        ],
+        [
+          11886,
+          11990,
+          0.5108887684569382
+        ],
+        [
+          11886,
+          11991,
+          0.5244029839913809
+        ],
+        [
+          11990,
+          11991,
+          0.5012641620313378
+        ],
+        [
+          11990,
+          12115,
+          0.5012654375752821
+        ],
+        [
+          11990,
+          12116,
+          0.5244027156099299
+        ],
+        [
+          11990,
+          12231,
+          0.5108931068548648
+        ],
+        [
+          11991,
+          12116,
+          0.5108926966343598
+        ],
+        [
+          12115,
+          12231,
+          0.5244027068197668
+        ],
+        [
+          12116,
+          12231,
+          0.5012627219816455
+        ]
+      ],
+      "full_combined_edge_certificate": false
+    },
+    {
+      "stage": "height_continuation_tangential_edges",
+      "k": 4,
+      "context": "recorded_visibility_obstruction",
+      "side": "fresh",
+      "edge_evaluations": 41,
+      "edges": [
+        [
+          11885,
+          11886,
+          0.501266854996958
+        ],
+        [
+          11885,
+          12115,
+          0.510889177173505
+        ],
+        [
+          11886,
+          11991,
+          0.5244029839913809
+        ],
+        [
+          11886,
+          12115,
+          0.8706646274540879
+        ],
+        [
+          11886,
+          12116,
+          0.9510316466199294
+        ],
+        [
+          11886,
+          12231,
+          1.046943269026976
+        ],
+        [
+          11991,
+          12116,
+          0.5108926966343598
+        ],
+        [
+          12115,
+          12231,
+          0.5244027068197668
+        ],
+        [
+          12116,
+          12231,
+          0.5012627219816455
+        ]
+      ],
+      "full_combined_edge_certificate": false
+    },
+    {
+      "stage": "height_continuation_tangential_edges",
+      "k": 4,
+      "context": "recorded_visibility_obstruction_b",
+      "side": "old",
+      "edge_evaluations": 30,
+      "edges": [
+        [
+          4518,
+          4519,
+          0.5011985748034721
+        ],
+        [
+          4518,
+          13782,
+          1.7142857623201444
+        ],
+        [
+          4518,
+          13785,
+          1.692369916483882
+        ],
+        [
+          4519,
+          4520,
+          0.5011970046750736
+        ],
+        [
+          4519,
+          13785,
+          1.7142857629984094
+        ],
+        [
+          4519,
+          13788,
+          1.6923587821849135
+        ],
+        [
+          4520,
+          13788,
+          1.7142857619598586
+        ],
+        [
+          13781,
+          13782,
+          1.714285784647603
+        ],
+        [
+          13781,
+          13785,
+          1.7216223302930307
+        ],
+        [
+          13781,
+          13787,
+          0.8705831315033211
+        ],
+        [
+          13782,
+          13785,
+          0.5011986271413288
+        ],
+        [
+          13785,
+          13787,
+          1.70697679063849
+        ],
+        [
+          13785,
+          13788,
+          0.5011970584471904
+        ],
+        [
+          13787,
+          13788,
+          1.7142857850212885
+        ]
+      ],
+      "full_combined_edge_certificate": false
+    },
+    {
+      "stage": "height_continuation_tangential_edges",
+      "k": 4,
+      "context": "recorded_visibility_obstruction_b",
+      "side": "fresh",
+      "edge_evaluations": 26,
+      "edges": [
+        [
+          4518,
+          4519,
+          0.5011985748034721
+        ],
+        [
+          4518,
+          13782,
+          1.7142857623201444
+        ],
+        [
+          4518,
+          13788,
+          1.6705363756148555
+        ],
+        [
+          4519,
+          4520,
+          0.5011970046750736
+        ],
+        [
+          4519,
+          13788,
+          1.6923587821849135
+        ],
+        [
+          4520,
+          13788,
+          1.7142857619598586
+        ],
+        [
+          13781,
+          13782,
+          1.714285784647603
+        ],
+        [
+          13781,
+          13787,
+          0.8705831315033211
+        ],
+        [
+          13781,
+          13788,
+          1.7289940344722727
+        ],
+        [
+          13782,
+          13788,
+          1.0047990037014487
+        ],
+        [
+          13787,
+          13788,
+          1.7142857850212885
+        ]
+      ],
+      "full_combined_edge_certificate": false
+    },
+    {
+      "stage": "height_continuation_tangential_edges",
+      "k": 4,
+      "context": "unchanged_wall_control",
+      "side": "old",
+      "edge_evaluations": 27,
+      "edges": [
+        [
+          6032,
+          6070,
+          0.7145957137961576
+        ],
+        [
+          6032,
+          6072,
+          0.8237862140530138
+        ],
+        [
+          6032,
+          6105,
+          0.4711707179087751
+        ],
+        [
+          6070,
+          6071,
+          0.8811422995132593
+        ],
+        [
+          6070,
+          6072,
+          0.5243276225717434
+        ],
+        [
+          6070,
+          6104,
+          0.5420186268521971
+        ],
+        [
+          6070,
+          6105,
+          0.6454697103121143
+        ],
+        [
+          6070,
+          6132,
+          0.6847187258056188
+        ],
+        [
+          6071,
+          6072,
+          0.7716657686954193
+        ],
+        [
+          6071,
+          6132,
+          0.5583564561818831
+        ],
+        [
+          6104,
+          6105,
+          0.5170604694518827
+        ],
+        [
+          6104,
+          6132,
+          0.8362132161948145
+        ]
+      ],
+      "full_combined_edge_certificate": false
+    },
+    {
+      "stage": "height_continuation_tangential_edges",
+      "k": 4,
+      "context": "unchanged_wall_control",
+      "side": "fresh",
+      "edge_evaluations": 23,
+      "edges": [
+        [
+          6032,
+          6072,
+          0.8237862140530138
+        ],
+        [
+          6032,
+          6105,
+          0.4711707179087751
+        ],
+        [
+          6071,
+          6072,
+          0.7716657686954193
+        ],
+        [
+          6071,
+          6132,
+          0.5583564561818831
+        ],
+        [
+          6072,
+          6104,
+          1.0716660976867858
+        ],
+        [
+          6072,
+          6105,
+          0.9949084456626519
+        ],
+        [
+          6072,
+          6132,
+          0.9463172519720888
+        ],
+        [
+          6104,
+          6105,
+          0.5170604694518827
+        ],
+        [
+          6104,
+          6132,
+          0.8362132161948145
+        ]
+      ],
+      "full_combined_edge_certificate": false
+    },
+    {
+      "stage": "height_continuation_tangential_edges",
+      "k": 4,
+      "context": "leading_edge",
+      "side": "old",
+      "edge_evaluations": 31,
+      "edges": [
+        [
+          4218,
+          4219,
+          0.4500073255993718
+        ],
+        [
+          4218,
+          8070,
+          0.8329292975734076
+        ],
+        [
+          4218,
+          18565,
+          0.8790191363942448
+        ],
+        [
+          4219,
+          4220,
+          0.4520933547507114
+        ],
+        [
+          4219,
+          8059,
+          0.8069394368812173
+        ],
+        [
+          4219,
+          8070,
+          0.7003463395769093
+        ],
+        [
+          4219,
+          18554,
+          0.8331753466421834
+        ],
+        [
+          4219,
+          18565,
+          0.7017225673015209
+        ],
+        [
+          4220,
+          8059,
+          0.7137638777763219
+        ],
+        [
+          4220,
+          18554,
+          0.69925081652004
+        ],
+        [
+          8059,
+          8070,
+          0.5141560127058266
+        ],
+        [
+          18554,
+          18565,
+          0.5235694911440494
+        ]
+      ],
+      "full_combined_edge_certificate": false
+    },
+    {
+      "stage": "height_continuation_tangential_edges",
+      "k": 4,
+      "context": "leading_edge",
+      "side": "fresh",
+      "edge_evaluations": 26,
+      "edges": [
+        [
+          4218,
+          4220,
+          0.90742996906219
+        ],
+        [
+          4218,
+          8059,
+          1.149748574708535
+        ],
+        [
+          4218,
+          8070,
+          0.8329292975734076
+        ],
+        [
+          4218,
+          18554,
+          1.1675118815516587
+        ],
+        [
+          4218,
+          18565,
+          0.8790191363942448
+        ],
+        [
+          4220,
+          8059,
+          0.7137638777763219
+        ],
+        [
+          4220,
+          18554,
+          0.69925081652004
+        ],
+        [
+          8059,
+          8070,
+          0.5141560127058266
+        ],
+        [
+          18554,
+          18565,
+          0.5235694911440494
+        ]
+      ],
+      "full_combined_edge_certificate": false
+    },
+    {
+      "stage": "height_continuation_tangential_edges",
+      "k": 5,
+      "context": "recorded_geometry_refusal",
+      "side": "old",
+      "edge_evaluations": 19,
+      "edges": [
+        [
+          18766,
+          18767,
+          0.7981757956725122
+        ],
+        [
+          18766,
+          18774,
+          0.7130739242573699
+        ],
+        [
+          18766,
+          18775,
+          0.515268777079918
+        ],
+        [
+          18767,
+          18775,
+          0.7087782254426385
+        ],
+        [
+          18767,
+          18783,
+          0.5212504302267652
+        ],
+        [
+          18774,
+          18775,
+          0.7331817738329105
+        ],
+        [
+          18774,
+          18781,
+          0.5160397816888587
+        ],
+        [
+          18775,
+          18781,
+          0.6776842627401923
+        ],
+        [
+          18775,
+          18782,
+          0.5157811294521228
+        ],
+        [
+          18775,
+          18783,
+          0.7938597421697176
+        ],
+        [
+          18781,
+          18782,
+          0.7507772938906845
+        ],
+        [
+          18782,
+          18783,
+          0.6958784994622873
+        ]
+      ],
+      "full_combined_edge_certificate": false
+    },
+    {
+      "stage": "height_continuation_tangential_edges",
+      "k": 5,
+      "context": "recorded_geometry_refusal",
+      "side": "fresh",
+      "edge_evaluations": 15,
+      "edges": [
+        [
+          18766,
+          18767,
+          0.7981757956725122
+        ],
+        [
+          18766,
+          18774,
+          0.7130739242573699
+        ],
+        [
+          18766,
+          18783,
+          1.1464378073219363
+        ],
+        [
+          18767,
+          18783,
+          0.5212504302267652
+        ],
+        [
+          18774,
+          18781,
+          0.5160397816888587
+        ],
+        [
+          18774,
+          18783,
+          1.6315118803057385
+        ],
+        [
+          18781,
+          18782,
+          0.7507772938906845
+        ],
+        [
+          18781,
+          18783,
+          1.4584632807804185
+        ],
+        [
+          18782,
+          18783,
+          0.6958784994622873
+        ]
+      ],
+      "full_combined_edge_certificate": false
+    },
+    {
+      "stage": "height_continuation_tangential_edges",
+      "k": 5,
+      "context": "recorded_visibility_obstruction",
+      "side": "old",
+      "edge_evaluations": 44,
+      "edges": [
+        [
+          11885,
+          11886,
+          0.5012668550103222
+        ],
+        [
+          11885,
+          11990,
+          0.5244029761142008
+        ],
+        [
+          11885,
+          12115,
+          0.5108891771725873
+        ],
+        [
+          11886,
+          11990,
+          0.5108887684350477
+        ],
+        [
+          11886,
+          11991,
+          0.5244029839982992
+        ],
+        [
+          11990,
+          11991,
+          0.5012641620608118
+        ],
+        [
+          11990,
+          12115,
+          0.5012654376203355
+        ],
+        [
+          11990,
+          12116,
+          0.5244027156158678
+        ],
+        [
+          11990,
+          12231,
+          0.5108931068910496
+        ],
+        [
+          11991,
+          12116,
+          0.5108926966772236
+        ],
+        [
+          12115,
+          12231,
+          0.524402706817725
+        ],
+        [
+          12116,
+          12231,
+          0.5012627220720389
+        ]
+      ],
+      "full_combined_edge_certificate": false
+    },
+    {
+      "stage": "height_continuation_tangential_edges",
+      "k": 5,
+      "context": "recorded_visibility_obstruction",
+      "side": "fresh",
+      "edge_evaluations": 41,
+      "edges": [
+        [
+          11885,
+          11886,
+          0.5012668550103222
+        ],
+        [
+          11885,
+          12115,
+          0.5108891771725873
+        ],
+        [
+          11886,
+          11991,
+          0.5244029839982992
+        ],
+        [
+          11886,
+          12115,
+          0.8706646275755897
+        ],
+        [
+          11886,
+          12116,
+          0.9510316466211352
+        ],
+        [
+          11886,
+          12231,
+          1.0469432689862106
+        ],
+        [
+          11991,
+          12116,
+          0.5108926966772236
+        ],
+        [
+          12115,
+          12231,
+          0.524402706817725
+        ],
+        [
+          12116,
+          12231,
+          0.5012627220720389
+        ]
+      ],
+      "full_combined_edge_certificate": false
+    },
+    {
+      "stage": "height_continuation_tangential_edges",
+      "k": 5,
+      "context": "recorded_visibility_obstruction_b",
+      "side": "old",
+      "edge_evaluations": 30,
+      "edges": [
+        [
+          4518,
+          4519,
+          0.5011985824278703
+        ],
+        [
+          4518,
+          13782,
+          1.7142857623201444
+        ],
+        [
+          4518,
+          13785,
+          1.692369916483882
+        ],
+        [
+          4519,
+          4520,
+          0.5011970150264946
+        ],
+        [
+          4519,
+          13785,
+          1.7142857629984094
+        ],
+        [
+          4519,
+          13788,
+          1.6923587821849135
+        ],
+        [
+          4520,
+          13788,
+          1.7142857619598586
+        ],
+        [
+          13781,
+          13782,
+          1.714285784647603
+        ],
+        [
+          13781,
+          13785,
+          1.7216223302930307
+        ],
+        [
+          13781,
+          13787,
+          0.8705831391381598
+        ],
+        [
+          13782,
+          13785,
+          0.501198628584647
+        ],
+        [
+          13785,
+          13787,
+          1.70697679063849
+        ],
+        [
+          13785,
+          13788,
+          0.5011970697532908
+        ],
+        [
+          13787,
+          13788,
+          1.7142857850212885
+        ]
+      ],
+      "full_combined_edge_certificate": false
+    },
+    {
+      "stage": "height_continuation_tangential_edges",
+      "k": 5,
+      "context": "recorded_visibility_obstruction_b",
+      "side": "fresh",
+      "edge_evaluations": 26,
+      "edges": [
+        [
+          4518,
+          4519,
+          0.5011985824278703
+        ],
+        [
+          4518,
+          13782,
+          1.7142857623201444
+        ],
+        [
+          4518,
+          13788,
+          1.6705363756148555
+        ],
+        [
+          4519,
+          4520,
+          0.5011970150264946
+        ],
+        [
+          4519,
+          13788,
+          1.6923587821849135
+        ],
+        [
+          4520,
+          13788,
+          1.7142857619598586
+        ],
+        [
+          13781,
+          13782,
+          1.714285784647603
+        ],
+        [
+          13781,
+          13787,
+          0.8705831391381598
+        ],
+        [
+          13781,
+          13788,
+          1.7289940344722727
+        ],
+        [
+          13782,
+          13788,
+          1.0047990065950017
+        ],
+        [
+          13787,
+          13788,
+          1.7142857850212885
+        ]
+      ],
+      "full_combined_edge_certificate": false
+    },
+    {
+      "stage": "height_continuation_tangential_edges",
+      "k": 5,
+      "context": "unchanged_wall_control",
+      "side": "old",
+      "edge_evaluations": 27,
+      "edges": [
+        [
+          6032,
+          6070,
+          0.7145957115118395
+        ],
+        [
+          6032,
+          6072,
+          0.8237862125965012
+        ],
+        [
+          6032,
+          6105,
+          0.4711707181009956
+        ],
+        [
+          6070,
+          6071,
+          0.8811422986342172
+        ],
+        [
+          6070,
+          6072,
+          0.5243276226857347
+        ],
+        [
+          6070,
+          6104,
+          0.5420186271120403
+        ],
+        [
+          6070,
+          6105,
+          0.645469708329566
+        ],
+        [
+          6070,
+          6132,
+          0.6847187246018002
+        ],
+        [
+          6071,
+          6072,
+          0.7716657677790496
+        ],
+        [
+          6071,
+          6132,
+          0.5583564562996489
+        ],
+        [
+          6104,
+          6105,
+          0.5170604672474917
+        ],
+        [
+          6104,
+          6132,
+          0.8362132148654022
+        ]
+      ],
+      "full_combined_edge_certificate": false
+    },
+    {
+      "stage": "height_continuation_tangential_edges",
+      "k": 5,
+      "context": "unchanged_wall_control",
+      "side": "fresh",
+      "edge_evaluations": 23,
+      "edges": [
+        [
+          6032,
+          6072,
+          0.8237862125965012
+        ],
+        [
+          6032,
+          6105,
+          0.4711707181009956
+        ],
+        [
+          6071,
+          6072,
+          0.7716657677790496
+        ],
+        [
+          6071,
+          6132,
+          0.5583564562996489
+        ],
+        [
+          6072,
+          6104,
+          1.0716660982755313
+        ],
+        [
+          6072,
+          6105,
+          0.9949084431214813
+        ],
+        [
+          6072,
+          6132,
+          0.9463172513998052
+        ],
+        [
+          6104,
+          6105,
+          0.5170604672474917
+        ],
+        [
+          6104,
+          6132,
+          0.8362132148654022
+        ]
+      ],
+      "full_combined_edge_certificate": false
+    },
+    {
+      "stage": "height_continuation_tangential_edges",
+      "k": 5,
+      "context": "leading_edge",
+      "side": "old",
+      "edge_evaluations": 31,
+      "edges": [
+        [
+          4218,
+          4219,
+          0.4500073334282552
+        ],
+        [
+          4218,
+          8070,
+          0.8329293085096834
+        ],
+        [
+          4218,
+          18565,
+          0.8790191363942448
+        ],
+        [
+          4219,
+          4220,
+          0.4520933641377047
+        ],
+        [
+          4219,
+          8059,
+          0.8069394368812173
+        ],
+        [
+          4219,
+          8070,
+          0.7003463395769093
+        ],
+        [
+          4219,
+          18554,
+          0.8331753495845808
+        ],
+        [
+          4219,
+          18565,
+          0.7017225673015209
+        ],
+        [
+          4220,
+          8059,
+          0.7137638777763219
+        ],
+        [
+          4220,
+          18554,
+          0.6992508175254081
+        ],
+        [
+          8059,
+          8070,
+          0.5141560246904636
+        ],
+        [
+          18554,
+          18565,
+          0.5235694949075937
+        ]
+      ],
+      "full_combined_edge_certificate": false
+    },
+    {
+      "stage": "height_continuation_tangential_edges",
+      "k": 5,
+      "context": "leading_edge",
+      "side": "fresh",
+      "edge_evaluations": 26,
+      "edges": [
+        [
+          4218,
+          4220,
+          0.9074299879035176
+        ],
+        [
+          4218,
+          8059,
+          1.1497485884973524
+        ],
+        [
+          4218,
+          8070,
+          0.8329293085096834
+        ],
+        [
+          4218,
+          18554,
+          1.1675119075414364
+        ],
+        [
+          4218,
+          18565,
+          0.8790191363942448
+        ],
+        [
+          4220,
+          8059,
+          0.7137638777763219
+        ],
+        [
+          4220,
+          18554,
+          0.6992508175254081
+        ],
+        [
+          8059,
+          8070,
+          0.5141560246904636
+        ],
+        [
+          18554,
+          18565,
+          0.5235694949075937
+        ]
+      ],
+      "full_combined_edge_certificate": false
+    }
+  ],
+  "maximum_tangent_edge_relative_difference": 1.5062346249682689e-06,
+  "sampled_tangent_threshold_classification_changes": 0,
+  "final_stage_centroid_target_tensors_bit_identical_to_original": true,
+  "strict_height_passes": 0,
+  "constructed_height_stages": 0,
+  "actual_layer_progression_verified": false,
+  "new_MPI_cavity_capability": false,
+  "mesh_accepted": false,
+  "reconstructed_diagnostic_config": {
+    "path": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved440_cavity_height_continuation_20261112T120931_1211699/diagnostic_ramp5_config_reconstructed.cfg",
+    "sha256": "47465112c03706bb137af73e3becb138b81e65750ef6ae8b5709b094030f4e9a"
+  }
+}

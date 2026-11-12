@@ -1,0 +1,34 @@
+{
+  "stage": "verified saved CFD + original no-CAD authority + explicit proposed stage0 metadata",
+  "scope": "Only existing ADAP_BL_H0_RAMP=5 and ADAP_SUBITER=(7) change; growth/thickness/final h0/sensor/norm/budgets unchanged. Five intermediate events plus two final-height events are not proof of construction.",
+  "files": {
+    "m6.su2": {
+      "sha256": "8c839170eb5e359f7de6a41434aa6a9c2d620053f37de6d9360bd04d2a63088b"
+    },
+    "m6.su2.native_ref": {
+      "sha256": "2e99fb7870e2c718f110da8509e4c0f7e746ce138e7f27ab57aa0dedbb6c42de"
+    },
+    "baseline_sa_seed.dat": {
+      "sha256": "af7ade468dc40cd39dbe9238248e50057cdd151a64fef92fda957677aa3f6cae"
+    },
+    "run.cfg": {
+      "sha256": "47465112c03706bb137af73e3becb138b81e65750ef6ae8b5709b094030f4e9a"
+    },
+    "m6.su2.native_rows": {
+      "sha256": "9018e0a1be716e54b759e9a2affb6fbe7a29f4695d79de47a09c7f65c29d1a48"
+    }
+  },
+  "original_seed_provenance": {
+    "path": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_bl_inputs/rans_metric_entry364_v1/provenance.json",
+    "sha256": "2984e9d4b7f0e4b82bd4a73b333d871cc2dd1e6d340683f8d3f4aa2f33da6381"
+  },
+  "source_seed_stage_report_sha256": "26e96e27a5f8aa8570a295ec65411add5b99ffcceee9b005518bde8806e59e37",
+  "assessment_helper": {
+    "path": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/assess_seed_stage441.py",
+    "sha256": "60be9f8e41c86f9454324a979045a4a34daf304f85c1355806b335dd25ea085d"
+  },
+  "target_normalized": false,
+  "mesh_accepted": false,
+  "CFD_advanced": false,
+  "original303_seed_preserved": true
+}

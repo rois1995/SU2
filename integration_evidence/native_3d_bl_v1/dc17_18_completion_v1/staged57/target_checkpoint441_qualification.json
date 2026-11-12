@@ -1,0 +1,248 @@
+{
+  "scope": "Qualify actual complete stage0 target reconstruction; never imply BL/mesh suitability.",
+  "state": "checkpoint_fidelity_qualified",
+  "producer": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved441_ramp5_metric_stage_20261112T124340_1300487",
+  "reload": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved441_ramp5_target_reload_20261112T125829_1338941",
+  "producer_receipt_sha256": "ba2bf09206b3e40a42d1c140d3b29eb48d7522811153c8ae0af51e9fcb356251",
+  "status": {
+    "state": "terminal",
+    "exit_code": 0,
+    "seconds": 435.5426256656647,
+    "pins_verified": true,
+    "changed": [],
+    "largest_sampled_individual_process_rss_bytes": 641069056,
+    "rss_note": "sampled process RSS; not a whole-job peak"
+  },
+  "terminal": {
+    "actual_host_proc": true,
+    "all_owned_handles_terminal": true,
+    "live_owned_handles": [],
+    "sampled_identities": [
+      {
+        "pid": 1339051,
+        "start_ticks": 53275205
+      },
+      {
+        "pid": 1339052,
+        "start_ticks": 53275205
+      },
+      {
+        "pid": 1339053,
+        "start_ticks": 53275205
+      },
+      {
+        "pid": 1339061,
+        "start_ticks": 53275209
+      },
+      {
+        "pid": 1339060,
+        "start_ticks": 53275209
+      },
+      {
+        "pid": 1339059,
+        "start_ticks": 53275209
+      },
+      {
+        "pid": 1339058,
+        "start_ticks": 53275209
+      },
+      {
+        "pid": 1339057,
+        "start_ticks": 53275209
+      },
+      {
+        "pid": 1339056,
+        "start_ticks": 53275208
+      }
+    ],
+    "wrapper_excluded": {
+      "pid": 1338941,
+      "start_ticks": 53274947
+    },
+    "checked_unix": 1794489439.9271107,
+    "wrapper_verified_terminal": true
+  },
+  "pins_verified": true,
+  "owned_nodes": 61330,
+  "owned_bit_identical": 61330,
+  "maximum_tensor_relative_difference": 0,
+  "chord_bit_identical": true,
+  "passing_by_rank": [
+    [
+      "53410",
+      "1"
+    ],
+    [
+      "53120",
+      "1"
+    ],
+    [
+      "52170",
+      "1"
+    ],
+    [
+      "44910",
+      "1"
+    ],
+    [
+      "53255",
+      "1"
+    ],
+    [
+      "49875",
+      "1"
+    ]
+  ],
+  "records": [
+    {
+      "rank": 0,
+      "metadata": {
+        "stage": "fresh_process_reload",
+        "complete_checkpoint": true,
+        "cfd_advanced": false,
+        "metric_recomputed": false,
+        "load_seconds": 57.285761474,
+        "owned_queries": 10679,
+        "bit_identical": 10679,
+        "maximum_tensor_relative_difference": 0,
+        "geometry_work": 4794263,
+        "query_and_join_seconds": 275.578916396
+      },
+      "chord": {
+        "stage": "checkpoint_chord",
+        "owner": 5,
+        "length": 9.648055340210275,
+        "local_evaluations": 0,
+        "local_geometry_work": 0,
+        "local_busy_seconds": 0,
+        "result_join_seconds": 2.5483999991138262e-05
+      }
+    },
+    {
+      "rank": 1,
+      "metadata": {
+        "stage": "fresh_process_reload",
+        "complete_checkpoint": true,
+        "cfd_advanced": false,
+        "metric_recomputed": false,
+        "load_seconds": 57.288776984,
+        "owned_queries": 10431,
+        "bit_identical": 10431,
+        "maximum_tensor_relative_difference": 0,
+        "geometry_work": 4866451,
+        "query_and_join_seconds": 275.57890665599996
+      },
+      "chord": {
+        "stage": "checkpoint_chord",
+        "owner": 5,
+        "length": 9.648055340210275,
+        "local_evaluations": 0,
+        "local_geometry_work": 0,
+        "local_busy_seconds": 0,
+        "result_join_seconds": 2.9530000006161572e-05
+      }
+    },
+    {
+      "rank": 2,
+      "metadata": {
+        "stage": "fresh_process_reload",
+        "complete_checkpoint": true,
+        "cfd_advanced": false,
+        "metric_recomputed": false,
+        "load_seconds": 57.284627054,
+        "owned_queries": 10621,
+        "bit_identical": 10621,
+        "maximum_tensor_relative_difference": 0,
+        "geometry_work": 4414315,
+        "query_and_join_seconds": 275.578923001
+      },
+      "chord": {
+        "stage": "checkpoint_chord",
+        "owner": 5,
+        "length": 9.648055340210275,
+        "local_evaluations": 0,
+        "local_geometry_work": 0,
+        "local_busy_seconds": 0,
+        "result_join_seconds": 7.904099999223035e-05
+      }
+    },
+    {
+      "rank": 3,
+      "metadata": {
+        "stage": "fresh_process_reload",
+        "complete_checkpoint": true,
+        "cfd_advanced": false,
+        "metric_recomputed": false,
+        "load_seconds": 57.28814444299999,
+        "owned_queries": 9972,
+        "bit_identical": 9972,
+        "maximum_tensor_relative_difference": 0,
+        "geometry_work": 6028100,
+        "query_and_join_seconds": 275.578917621
+      },
+      "chord": {
+        "stage": "checkpoint_chord",
+        "owner": 5,
+        "length": 9.648055340210275,
+        "local_evaluations": 0,
+        "local_geometry_work": 0,
+        "local_busy_seconds": 0,
+        "result_join_seconds": 8.194500003355643e-05
+      }
+    },
+    {
+      "rank": 4,
+      "metadata": {
+        "stage": "fresh_process_reload",
+        "complete_checkpoint": true,
+        "cfd_advanced": false,
+        "metric_recomputed": false,
+        "load_seconds": 57.29203761699999,
+        "owned_queries": 10648,
+        "bit_identical": 10648,
+        "maximum_tensor_relative_difference": 0,
+        "geometry_work": 4686502,
+        "query_and_join_seconds": 275.578917754
+      },
+      "chord": {
+        "stage": "checkpoint_chord",
+        "owner": 5,
+        "length": 9.648055340210275,
+        "local_evaluations": 0,
+        "local_geometry_work": 0,
+        "local_busy_seconds": 0,
+        "result_join_seconds": 8.381300000337433e-05
+      }
+    },
+    {
+      "rank": 5,
+      "metadata": {
+        "stage": "fresh_process_reload",
+        "complete_checkpoint": true,
+        "cfd_advanced": false,
+        "metric_recomputed": false,
+        "load_seconds": 57.285461365,
+        "owned_queries": 8979,
+        "bit_identical": 8979,
+        "maximum_tensor_relative_difference": 0,
+        "geometry_work": 3829973,
+        "query_and_join_seconds": 275.57892314900005
+      },
+      "chord": {
+        "stage": "checkpoint_chord",
+        "owner": 5,
+        "length": 9.648055340210275,
+        "local_evaluations": 795,
+        "local_geometry_work": 1114764,
+        "local_busy_seconds": 32.692368499000054,
+        "result_join_seconds": 9.599400004844938e-05
+      }
+    }
+  ],
+  "actual_target_checkpoint_qualified": true,
+  "physical_target_suitability_qualified": false,
+  "mesh_generation_qualified": false,
+  "native_MPI_BL_generation_qualified": false,
+  "CFD_advanced": false,
+  "actual_adapted_disk_restart": false
+}

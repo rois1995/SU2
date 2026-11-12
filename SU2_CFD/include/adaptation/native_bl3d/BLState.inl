@@ -693,7 +693,15 @@ inline bool Compound(State& s,std::vector<Target>& targets,size_t at,const std::
   }
   (void)columns;return false;
 }
-inline std::string Json(const std::string& text){std::ostringstream o;o<<std::quoted(text);return o.str();}
+inline std::string Json(const std::string& text) {
+  constexpr char hex[]="0123456789abcdef";std::ostringstream out;out<<'"';
+  for(unsigned char c:text) {
+    if(c=='"'||c=='\\')out<<'\\'<<char(c);
+    else if(c<32)out<<"\\u00"<<hex[c>>4]<<hex[c&15];
+    else out<<char(c);
+  }
+  out<<'"';return out.str();
+}
 // Engine-like existing first-row construction (centroid apices) for wall faces lacking a valid first child.
 inline std::pair<size_t,size_t> FirstRow(State& s,std::ostringstream& log) {
   size_t built=0,failed=0;std::set<Id> refused;

@@ -246,14 +246,6 @@ inline Checkpoint DecodeRestoringStage(const std::vector<char>& bytes,const Refe
   catch(...){config.SetAdap_BL_RampEvent(previous);throw;}
 }
 
-inline void WriteInitialContinuation(const std::string& path,const std::string& meshPath,
-    const Checkpoint& checkpoint,const ReferenceState& reference,const CGeometry& source,const CConfig& config) {
-  if(!checkpoint.family || checkpoint.stage.event!=0 || !checkpoint.stage.Matches(config))
-    throw std::invalid_argument("Seed continuation needs a validated event-0 target checkpoint matching this configuration.");
-  checkpoint.family->ValidateCheckpoint(config,reference,&source);
-  SU2NativeBLPipeline3D::WriteInitialContinuation(path,meshPath,checkpoint.stage,config);
-}
-
 inline void Write(const std::string& path,const std::vector<char>& bytes) {
   if(std::filesystem::exists(path))throw std::runtime_error("Refusing to overwrite a native target checkpoint.");
   const auto temporary=path+".tmp";std::ofstream out(temporary,std::ios::binary|std::ios::trunc);

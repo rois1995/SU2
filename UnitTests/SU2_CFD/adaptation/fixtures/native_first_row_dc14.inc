@@ -312,3 +312,34 @@ TEST_CASE("First-row cavities retain registered column vertices and neighbouring
     CHECK(FirstRowAudit(*s,children,certified).violations==0);
   }
 }
+
+TEST_CASE("BL diagnostic reasons escape JSON control characters", "[NativeBLJsonReasons]") {
+  CHECK(junction_wp0::Json("failure\n{\"point\":[1,2,3]}\t")==R"JSON("failure\u000a{\"point\":[1,2,3]}\u0009")JSON");
+  CHECK(junction_wp0::Json(std::string(1,char(0)))==R"JSON("\u0000")JSON");
+  CHECK(junction_wp0::Json("quote\" slash\\")==R"JSON("quote\" slash\\")JSON");
+}
+
+TEST_CASE("Explicitly initialize the recorded first-height stage of a verified saved seed", "[.][NativeBLInitializeSeedStage3D]") {
+  using namespace SU2NativeBLPipeline3D;
+  World world;REQUIRE(world.size==1);
+  const auto* path=std::getenv("SU2_NATIVE_FROZEN_CONFIG");REQUIRE(path);
+  std::ifstream input(path);REQUIRE(bool(input));std::unique_ptr<CConfig> config;
+  {Mute mute;config=std::make_unique<CConfig>(input,SU2_COMPONENT::SU2_CFD,false);}
+  REQUIRE(config->GetKind_Adap_BL_Method()==ADAP_BL_METHOD::FIRST_ROW);
+  REQUIRE(config->GetAdap_BL_H0Ramp()>0);REQUIRE(config->GetAdap_BL_RampEvent()==0);
+  const auto mesh=config->GetMesh_FileName();
+  REQUIRE(std::filesystem::exists(mesh+".native_ref"));
+  const auto before=FileFingerprint(mesh);
+  WriteInitialContinuation(mesh+".native_rows",mesh,MakeRampStage(*config,0),*config);
+  Continuation restored;std::string why;
+  REQUIRE(LoadContinuation(mesh+".native_rows",restored,why,mesh));
+  REQUIRE(restored.has_committed_stage);CHECK(restored.committed_stage.Matches(*config));
+  CHECK(restored.committed_stage.event==0);CHECK(restored.committed->lift.empty());
+  CHECK(FileFingerprint(mesh)==before);
+  std::ofstream report("height_seed_stage.json");REQUIRE(bool(report));
+  report<<std::setprecision(17)<<"{\"stage\":\"verified_saved_seed_initialization\",\"N\":"<<config->GetAdap_BL_H0Ramp()
+        <<",\"event\":0,\"factor\":"<<config->GetAdap_BL_RampFactor()<<",\"effective_h0\":"<<SU2_TYPE::GetValue(config->GetAdap_BL(0).firstHeight)
+        <<",\"final_h0\":"<<SU2_TYPE::GetValue(config->GetAdap_BL_True(0).firstHeight)<<",\"growth\":"<<SU2_TYPE::GetValue(config->GetAdap_BL(0).growth)
+        <<",\"thickness\":"<<SU2_TYPE::GetValue(config->GetAdap_BL(0).thickness)<<",\"mesh_unchanged\":true,\"CFD_advanced\":false,\"BL_generated\":false}\n";
+  REQUIRE(bool(report));
+}

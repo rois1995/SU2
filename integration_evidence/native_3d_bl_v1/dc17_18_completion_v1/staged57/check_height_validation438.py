@@ -5,7 +5,7 @@ import run_cases as checks
 R=Path(__file__).resolve().parent
 mode=sys.argv[1] if len(sys.argv)>1 else 'serial'
 assert mode in ('serial','mpi6')
-assert json.loads((R/'build438c_terminal_handles.json').read_text())['all_owned_handles_terminal']
+assert json.loads((R/'build439_terminal_handles.json').read_text())['all_owned_handles_terminal']
 selected='tangential_target'
 case='curved438_height_continuation_validation_'+mode
 tags='[NativeBLContinuationPersistence],[NativeTargetCheckpoint3D],[NativeTargetRampCheckpoint],[ConfigBLRamp],[NativeFirstHeightPreservation3D],[NativeCurvedTransaction3D],[NativeBLDirectionInvalidation3D]'
@@ -31,7 +31,7 @@ def save_pinned(path,value):
     if Path(path).name=='pins.json':value[str(Path(__file__).resolve())]=checks.sha(Path(__file__))
     original_save(path,value)
 checks.save=save_pinned
-sys.argv=['run_cases.py','build438c',case]
+sys.argv=['run_cases.py','build439',case]
 try:checks.main()
 except SystemExit as e:code=e.code or 0
 attempt=sorted((R/'cases').glob(case+'_*'),key=lambda p:p.stat().st_mtime)[-1]

@@ -1,0 +1,64 @@
+{
+  "sha256": "af7ade468dc40cd39dbe9238248e50057cdd151a64fef92fda957677aa3f6cae",
+  "fields": [
+    "x",
+    "y",
+    "z",
+    "Density",
+    "Momentum_x",
+    "Momentum_y",
+    "Momentum_z",
+    "Energy",
+    "Nu_Tilde"
+  ],
+  "all_finite": true,
+  "coordinates_exact": true,
+  "density_range": [
+    0.1490634736919159,
+    1.5386073794422008
+  ],
+  "internal_energy_density_range": [
+    156707.11432034124,
+    364946.1643278558
+  ],
+  "derived_pressure_range": [
+    62682.8457281365,
+    145978.46573114232
+  ],
+  "sa_range": [
+    1e-16,
+    0.000569572304277539
+  ],
+  "sa_zero_count": 0,
+  "sa_below_floor_count": 0,
+  "sa_floor_count": 19506,
+  "wall_vertices": 19506,
+  "sa_floor_on_wall": 19506,
+  "sa_floor_off_wall": 0,
+  "wall_sa_range": [
+    1e-16,
+    1e-16
+  ],
+  "scope": "Saved metric-entry CFD state from364, byte-identical362, before first remeshing; not a composed-target checkpoint or convergence/wall-resolution claim.",
+  "mesh_sha256": "8c839170eb5e359f7de6a41434aa6a9c2d620053f37de6d9360bd04d2a63088b",
+  "reference_sha256": "2e99fb7870e2c718f110da8509e4c0f7e746ce138e7f27ab57aa0dedbb6c42de",
+  "original303_seed_sha256": "c90000ea804c7e08a54dbec93f218b5bd3ae3dce3db8c287db6783fd138f1c78",
+  "source": "Existing validate_rans_continuation303.state/read_su2/read_restart helpers reused; no CFD recomputation.",
+  "validation_helpers": {
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/validate_rans_continuation303.py": "03d0be959f11966e5f4eea7a9a48c17e3f4686dd9c8748cb7005d4fb49c7d81a",
+    "TestCases/adaptation/capability/capcheck.py": "38ee0fe9fc60d7b29ab796303d8c5cec2770ad1beb06e2e5b76d5c687d495f92"
+  },
+  "configuration_sha256": "0a7de022729f69b170deaee2eaabbd5347550da8134cbdaa39587f7173e78742",
+  "stage": "explicit proposed first-height continuation stage0",
+  "N": 5,
+  "event": 0,
+  "effective_h0": 6.4e-05,
+  "final_h0": 2e-06,
+  "CFD_advanced": false,
+  "BL_generated": false,
+  "target_normalized": false,
+  "source_qualification": {
+    "path": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_bl_inputs/rans_metric_entry364_v1/qualification.json",
+    "sha256": "4658257505d2a21d03bb5c6e7caffcc13e6d511993c2dad5b0a54bb70e504808"
+  }
+}

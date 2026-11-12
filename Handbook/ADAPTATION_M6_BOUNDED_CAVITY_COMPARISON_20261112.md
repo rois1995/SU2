@@ -1,9 +1,12 @@
 # Actual M6 bounded cavity correction comparison
 
-Active user-requested capability investigation, not an architectural survey or a
-production enlargement implementation. Current437 diagnostic run is frozen; corrected
-candidate outcomes and MPI qualification remain unestablished. Previous434 source/build/
-input pins and actual terminal identities were reverified before changes. All six
+Active user-requested capability investigation, not an architectural survey.437
+has demonstrated useful private replacements on actual visibility failures; no
+production growth/MPI publication capability is integrated.441common32h0 target is
+now reconstructibly qualified; physical BL/growth acceptance remains unproven.
+HANDOFF_Codex.md owns live workload/source state; numbered435–440notes below are
+preserved evidence, not current job handles.
+All six
 434 geometry parameter payloads have identical SHA256
 `a708cb68fce20ea0ace10e013a931e56823b118c5c2133ee250635719215fd3e`.
 
