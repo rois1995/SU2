@@ -1491,3 +1491,17 @@ estimate486914.722±empirical41525.003(notbound), requested500k; achievednewmesh
 composedcomplexityUNMEASURED. R/surface_stage447_assessment.json/surface_scope447_outcome.json.
 Scopequalified, performanceunproven. Nexttargetsurfacecompletion/geometrycost+skew;
 noanotherbaselinecampaign. Existingprivatecoarseningalreadyremovestrialcollectives.
+
+448connectedphase-service correction under qualification:447/445never completed the
+initialoptionalcoarseninggeneration despiteknownrequiredsurface debt. Source confirms
+refill waits for!any andcollapse→split waits for!any+completecensus. Existingfinite
+generationhandoff nowservicesknownsurface debt atquiescentboundary; no time/work
+threshold/config/budget change. DoesNOTclaimcompletedcoarsenpass orreadiness.
+Expectedprogress/cost onmatching441target remainsunproven untilactualstageoutcome.
+Entry R/required_surface448_entry.json verifies74actualterminalidentities/1476pins.
+
+448buildPASS424.980s/all63observedactualhandles terminal/newbinary/cleanNinja/pins.
+FocusedserialPASS4.548s16cases/1912assertions; MPI6PASS4.594s16casesonEVERYrank,
+915–1513assertions/rank; allobservedactualhandles terminal/1679pinsverified percase.
+ShortcaseRSSsamplingmisses actualchildpeaks. Same441target M6 surface replay frozen;
+no speedup, surface readiness or BLcapability claim before its outcome.

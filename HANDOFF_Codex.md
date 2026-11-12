@@ -13,7 +13,23 @@ preserves earlier evidence/handles, NOT live workload state.
 
 ## Live state and provenance
 
-No owned heavy workload live.447actualM6surface replay TERMINAL516.743s wrapper/
+Build448PASS424.980s/all63observedactualidentitiesterminal/pinsverified/newbinary/
+cleanNinja. R/build448_status.json/source_pins.json/terminal_handles.json.
+CurrenttestSHA0ee1405e9301f17235c48b5555857fdfccafd80e8db81a855e17e1792f1706a0;
+CFDSHA2e1baf3b4546d107680b91e3a2d534d5d7e8ebbf488f2d663e919bfd3fd6b176.
+FocusedserialPASS4.548s/16cases1912assertions; MPI6PASS4.594s/16casesEVERYrank,
+915–1513assertions/rank; observedactualhandles terminal/1679pinsverified percase.
+R/surface_required448_qualification.json. ShortRSSsamples miss actualchildpeaks.
+Same441target M6 stage3 is the ONE owned heavy workload(session59462;
+R/check_saved_surface448.py; actualcase/statusunderR/cases). Freeze all compiled/
+pinned sources until terminal. Outcome/performance pending.
+Connected correction qualified for affected facilities: at a quiescent SurfacePlanning boundary,
+known required construction debt invokes existing begin_length_generation(false)
+before exhaustive optional coarsening. No pass-completion claim; unchanged validity-
+first admission, full support/publication, target, constraints and budgets.
+R/required_surface448_entry.json verifies74actualterminalidentities/1476sourcepins.
+Focusedserial/ONE MPI milestone PASS; actualstagefrozen, no acceptedBL claim.
+447actualM6surface replay TERMINAL516.743s wrapper/
 389.174s native; all10actualidentities terminal, source/runtime/inputpinsverified:
 R/cases/curved447_wall_scope_saved_target_surface_mpi6_20261112T160942_1839218
 (session3827terminal). R/surface_stage447_assessment.json and surface_scope447_outcome.json.

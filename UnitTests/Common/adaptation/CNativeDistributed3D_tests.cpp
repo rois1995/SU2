@@ -894,6 +894,62 @@ TEST_CASE("Requested-wall preparation uses construction ownership without claimi
   }
 }
 
+TEST_CASE("Known required surface debt precedes a feasible optional collapse", "[NativeSurfacePreparationEngine3D]") {
+  World world;auto fine=Box();
+  for(auto& cell:fine.patch.cells)for(auto& n:cell.v){n.p.x*=.25;n.p.y*=.25;n.p.z*=.25;}
+  for(auto& f:fine.facets) {
+    for(auto& n:f.v){n.p.x*=.25;n.p.y*=.25;n.p.z*=.25;}
+    if(std::all_of(f.v.begin(),f.v.end(),[](Node n){return n.p.z==0;}))f.marker=7;
+  }
+  const PlanarReference fineReference(fine.facets);std::vector<OwnedCell> edgeStar,rest;
+  for(const auto& row:Rows(fine.patch)) {
+    unsigned ends=0;for(auto n:row.cell.v)ends+=n.id==0||n.id==1;
+    (ends==2?edgeStar:rest).push_back(row);
+  }
+  Patch split;std::string reason;
+  REQUIRE(SplitEdge(PatchOf(edgeStar),{0,1},{8,{.125,0,0}},100,fineReference,split,reason));
+  auto refined=PatchOf(rest);refined.cells.insert(refined.cells.end(),split.cells.begin(),split.cells.end());
+  refined.surface.insert(refined.surface.end(),split.surface.begin(),split.surface.end());
+  Owned input;if(!world.rank)for(auto row:Rows(refined))input.emplace(row.cell.id,row);
+  input=WithUniformSensor(std::move(input),{});const auto saved=Bytes(input);
+  EngineOptions options;options.maximum_work=1024;options.maximum_rounds=1;options.maximum_seconds=30;
+  options.wall_heights[7]=.01;
+  const BoundaryMetric target=[](Node n,const PlanarReference&,Tensor) {
+    return n.p.z==0?std::vector<BoundaryMetricSample>{{{4,0,0,4,0,1e12},{0,0,1}}}:std::vector<BoundaryMetricSample>{};
+  };
+  // The clean control must retain a real coarsening opportunity, not merely a short-edge queue.
+  const auto clean=PrepareSurface(world,input,Uniform(input,{}),fineReference,target,options);
+  INFO(clean.reason);CHECK(world.sum(int(clean.stats.length_collapses))>0);
+  CHECK(clean.stats.surface_required_handoffs==0);CHECK(Bytes(input)==saved);
+  auto coarse=Box();
+  for(auto& cell:coarse.patch.cells){cell.id+=200;for(auto& n:cell.v){n.id+=32;n.p.x+=3;}}
+  for(auto& face:coarse.patch.surface){face.facet+=32;for(auto& id:face.v)id+=32;}
+  for(auto& facet:coarse.facets) {
+    facet.id+=32;for(auto& n:facet.v){n.id+=32;n.p.x+=3;}
+    if(std::all_of(facet.v.begin(),facet.v.end(),[](Node n){return n.p.z==0;}))facet.marker=7;
+  }
+  auto facets=fine.facets;facets.insert(facets.end(),coarse.facets.begin(),coarse.facets.end());
+  const PlanarReference geometry(facets);
+  if(!world.rank)for(auto row:Rows(coarse.patch)){row.sensor_present=true;row.sensor.fill({});input.emplace(row.cell.id,row);}
+  const auto mixedSaved=Bytes(input);bool observed=false;
+  options.stage_observer=[&](const StageProgressView& view) {
+    if(std::string(view.stage)!="surface_required_entry")return;
+    observed=true;CHECK(view.stats.surface_required_handoffs==1);CHECK(view.stats.split_lane==1);
+    CHECK(world.sum(int(view.progress.construction_invalid_cells))>0);
+    CHECK(view.stats.length_collapses==0);CHECK(view.stats.length_collapse_passes==0);
+    CHECK(view.progress.q_measured_cells==0);CHECK(view.progress.j_measured_cells==0);
+    CHECK(view.progress.cache_consistent);
+  };
+  const auto required=PrepareSurface(world,input,Uniform(input,{}),geometry,target,options);
+  INFO(required.reason);CHECK(observed);CHECK(required.stats.surface_required_handoffs==1);
+  CHECK(world.sum(int(required.stats.length_splits))>0);CHECK(required.stats.length_collapses==0);
+  CHECK(Bytes(input)==mixedSaved);CHECK_FALSE(required.valid);
+  for(const auto& row:required.cells) {
+    const auto& v=row.second.cell.v;CHECK(Orientation(v[0].p,v[1].p,v[2].p,v[3].p)>0);
+    CHECK(row.second.sensor_present);
+  }
+}
+
 TEST_CASE("Surface preparation closes requested-wall coverage without certifying unrelated volume", "[NativeSurfacePreparationEngine3D]") {
   World world;Fixture fixture;
   for(Id copy=0;copy<10;++copy) {

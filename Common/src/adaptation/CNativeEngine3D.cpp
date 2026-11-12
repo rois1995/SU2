@@ -1831,6 +1831,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
           <<" quality_progress="<<stats.quality_progress<<" accepted="<<stats.accepted
           <<" updated_cells="<<stats.updated_cells<<" update_seconds="<<stats.update_seconds
           <<" surface_measurement_skipped="<<stats.surface_measurement_skipped
+          <<" surface_required_handoffs="<<stats.surface_required_handoffs
           <<" surface_demand_required="<<stats.surface_demand_required_cells<<" surface_demand_measured="<<stats.surface_demand_measured_cells
           <<" surface_demand_complete="<<stats.surface_demand_census_complete<<" surface_geometry_complete="<<stats.surface_demand_geometry_complete
           <<" seed_cell_classes="<<stats.seed_cell_classes[0]<<','<<stats.seed_cell_classes[1]<<','<<stats.seed_cell_classes[2]
@@ -3196,6 +3197,14 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     if(options.maximum_seconds && world.maximum(std::chrono::duration<double>(Clock::now()-started).count()>=options.maximum_seconds)) {
       stats.stop=EngineStop::TimeBudget;result.reason="Native 3D kernel elapsed-time budget exhausted; feasibility is undetermined.";
       return finish();
+    }
+    if(surface_target && phase==Phase::Construction && !repairing && coarsening &&
+        world.maximum(selection.construction_invalid!=0)) {
+      // Required surface debt must not wait for an exhaustive optional short-edge sweep.
+      if(!begin_length_generation(false))return finish();
+      ++stats.surface_required_handoffs;
+      if(!observe_progress("surface_required_entry"))return finish();
+      continue;
     }
     // Before its first strict checkpoint, coarsening must finish the edge-only entry census.
     // A size/geometry-valid input can then establish its checkpoint in the quality phase before

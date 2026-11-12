@@ -163,3 +163,41 @@ SummedrankCPU2162.028s includespolling; sampled tree4.858GB/individual.940GB are
 true peaks. Saved CFD, complete target, constraints and budgets remain unchanged.
 Next blocker is surface completion with expensive/skewed geometry work, not remote
 donor preparation or established deficient shape repair (shape remains unmeasured).
+
+##448 required-surface service correction — actual outcome pending
+
+**Input:** same saved441target/CFD and full transported nodal/geometry state.
+**Missing capability:** required surface work can receive no service within the
+budget while the initial optional short-edge sweep remains active. PrepareSurface
+starts bidirectional coarsening; .9 is proposal hysteresis, not a minimum-edge gate.
+Geometry queues are populated only when not coarsening. Refill waits for !any;
+collapse→split waits for !any AND complete scoped census.447/445 both stop before
+that boundary despite known geometry/size debt. This is finite-budget exclusion,
+not proof of infinite starvation or sufficient refinement/repair power.
+
+**Correction:** after the existing time check, at a synchronized iteration boundary
+without a live transaction, SurfacePlanning construction coarsening with globally
+known construction_invalid invokes existing begin_length_generation(false). That
+helper changes direction-specific blocks, queues, current immutable frontier,
+Directory pass claims, surface lane and window bookkeeping together. It does not
+count the unfinished collapse sweep as a completed pass. Clean fields retain real
+coarsening opportunities. No timing threshold, new config, batch/scheduler change,
+new operator, altered target or raised budget. This changes operation service order;
+validity-first admission and every physical/final gate remain unchanged.
+
+**Expected output/acceptance:** known required work reaches its lane; incomplete
+census is still explicit and cannot imply readiness. Clean subdivided wall control
+must actually collapse; adding a separated coarse wall must hand off and split
+before that optional collapse. Empty MPI ranks remain aligned, all affected cells
+positive/current-nodal, complete constraints and rejection/resource preservation
+unchanged. Actual curved M6 must establish useful required coverage/geometry/size
+progress, not merely more splits or fewer points. First row, BL progression and
+strict acceptance remain separate. Qualification then matching-stage comparison
+against447 under the same441target/388.8s/233220work/12GiB is pending.
+
+448buildPASS424.980s/all63observedactualidentitiesterminal/pinsverified/newbinary+
+cleanNinja. Focusedserial16cases1912assertionsPASS4.548s; MPI6same16casesEVERYrank
+915–1513assertions PASS4.594s. Allobservedactualhandles terminal/1679pinsverified
+percase. R/surface_required448_qualification.json. Tests demonstrate real clean
+coarsening and required-demand precedence with complete constraints, not actual
+curvedM6surface readiness. Same441target stage3 replay is frozen; outcome pending.

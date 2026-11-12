@@ -1,0 +1,49 @@
+{
+  "surface_required_mpi_qualified": true,
+  "cases": [
+    {
+      "mode": "serial",
+      "case": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved448_surface_required_handoff_serial_20261112T164355_1934224",
+      "status": {
+        "state": "terminal",
+        "exit_code": 0,
+        "seconds": 4.548438549041748,
+        "pins_verified": true,
+        "changed": [],
+        "largest_sampled_individual_process_rss_bytes": 864256,
+        "rss_note": "sampled process RSS; not a whole-job peak"
+      },
+      "passed": [
+        "All tests passed (1912 assertions in 16 test cases)"
+      ],
+      "verified_pins": 1679,
+      "all_actual_handles_terminal": true
+    },
+    {
+      "mode": "mpi6",
+      "case": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved448_surface_required_handoff_mpi6_20261112T164415_1935004",
+      "status": {
+        "state": "terminal",
+        "exit_code": 0,
+        "seconds": 4.593655109405518,
+        "pins_verified": true,
+        "changed": [],
+        "largest_sampled_individual_process_rss_bytes": 868352,
+        "rss_note": "sampled process RSS; not a whole-job peak"
+      },
+      "passed": [
+        "All tests passed (999 assertions in 16 test cases)",
+        "All tests passed (915 assertions in 16 test cases)",
+        "All tests passed (1020 assertions in 16 test cases)",
+        "All tests passed (1067 assertions in 16 test cases)",
+        "All tests passed (1020 assertions in 16 test cases)",
+        "All tests passed (1513 assertions in 16 test cases)"
+      ],
+      "verified_pins": 1679,
+      "all_actual_handles_terminal": true
+    }
+  ],
+  "scope": "Known required surface debt handoff, real clean coarsening control, positive full replacements/current metrics, empty ranks, ownership, curved/height and resource regressions.",
+  "limits": "Focused facilities; actual saved-target M6 stage and generated BL/final closure remain separate obligations.",
+  "script_sha256": "cf185077f9ee2d6e11dce20becd1203c057aa5b1d639593afe6bf5c254cb1705"
+}
