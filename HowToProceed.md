@@ -9,9 +9,16 @@ reserved for integration milestones or failures not reproducible at a stage boun
 
 ## Current next step — staged height and useful cavity replacement
 
-434 improves private-collapse throughput but surface readiness remains incomplete:
-789points removed,4016/37227required wall cells measured,0complete passes. Preserve
-its six current-nodal-core/mesh/association shards and full396 target policy.
+441 common32h0 stage0 target is complete/fresh-reload qualified, estimate486914.722
+at nominal500k; original seed and true finalh0 remain unchanged. Surface attempt is
+terminal:876pointsremoved/300958positive tets,4720/37053wallcells measured,0complete
+passes. NOT surface-ready; partialgeometrybad197 and allq/J unknown. Preserve all six
+currentnodalcore/association shards and the complete441 composed target. The bounded replay has confirmed earlier useful cavity alternatives on this ACTUAL
+new surface/field: grow16/reconnect27313→14, qbad14→10/J13→10 and geometrybad0→0.
+Allsavedcellbytesunchanged;16exactOLDedges/0completepatchaudits beforedeadline.
+Next integrate only demonstrated bounded visibility correction, including discovery
+before reservation and complete owner/version/publication support. Read HANDOFF for
+terminal handles and exactevidence. Leading-edge geometry refusals remain unresolved.
 
 437 corrected the diagnostic interface ordering and selected surviving actual
 visibility failures. Direct collapses fail exact positivity; bounded corrected
@@ -23,11 +30,12 @@ Leading-edge contractions still fail geometry guidance; no outside-tolerance
 witness has been established from those numeric scores alone. Three exact edges,
 zero complete full-target patches were measured before bounded resource refusal.
 
-The active saved config omits existing ADAP_BL_H0_RAMP (default0), so it imposes
-final2e-6 immediately. Finish ONE connected correction: stage-aware persistence of
-existing N/k controls and exact composed-target reconstruction, then the bounded
-same-cavity comparison2^(N-k)h0,k=0..N. N5/x32 is a diagnostic continuation, not a
-newly normalized selected production target. Growth1.2/thickness.01/finalh0 unchanged.
+Original364 omitted ADAP_BL_H0_RAMP(default0), imposing final2e-6 immediately.
+Stage-aware persistence and exact composed-target reconstruction are implemented and
+qualified through441; the derived seed records N5/stage0/32h0. Growth1.2/thickness.01/
+finalh0 remain unchanged. This is not a chosen shrink-ratio policy. Compare halving
+32→16→8→4→2→1 with factor10 32→3.2→1 only on a usable generated patch, measuring
+whole-band progression/coverage and total work. Do not change initialheight as well.
 Normal-law evaluation, actual advancement intervals and final BL suitability remain
 separate obligations. A coarser-stage success is not final-height feasibility.
 

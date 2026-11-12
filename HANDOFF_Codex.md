@@ -9,9 +9,35 @@ Read AGENTS.md, [ordered stages](Handbook/ADAPTATION_CURVED_BL_STAGE_INTEGRATION
 [backlog](Handbook/ADAPTATION_BACKLOG.md). [History through440](Handbook/ADAPTATION_HANDOFF_HISTORY_PRE_441_20261112.md)
 retains compiler failures, previous handles,434 surface results and older qualified improvements.
 
-## Live workload: preserve frozen source
+## Live workload and source state
 
-No owned heavy job currently.441 producer/reload BOTH TERMINALPASS, allactualhandles verified.
+441 bounded stage3 surface TERMINALPASS507.070s; all9workers+wrapper actual identities terminal.
+R/cases/curved441_ramp5_saved_target_surface_mpi6_20261112T132736_1419501.
+R/surface_stage441_assessment.json:60454points/300958positive tets,876collapses;
+4720/37053requestedwallcells measured,0completepasses, surface NOTready.
+197known geometrybad/8knownsizebad are PARTIAL; allq/J UNKNOWN (not shape-certified).
+Stage389.088s/load49.382s, geometrywork45271499,6.737rankworkratio,
+summedrankCPU2224.367s includesMPIpolling; sampledtreerRSS4.850GB nottruepeak.
+Parsed exit counters show1488rounds,172451electioncalls on3ranks; others interleaved/unattributable.
+Collective/query timers overlap; no claim that these measure totalwait.
+No owned heavy workload live. Same-target cavity diagnostic TERMINALPASS441.027s:
+R/cases/curved441_surface_cavity_correction_20261112T134017_1450957 (exec82557terminal).
+All4actualworker/launcher identities+wrapper terminal, source/runtime/inputpins verified.
+R/cavity_surface441_assessment.json:354strictJSONrecords/9privatefeasiblealternatives;
+all300958Owned records byte-identical441surface;16exactedges/0completepatchaudits.
+11990→11886direct7starfails79130; grow16/reconnectapex27313→14positivecells,
+privateqbad14→10/Jbad13→10, geometrybad0→0; grow9/apex44664→7,q9→7/J8→6.
+13785retainedcone11→9stillallbad; unchanged-supportreconnectapex34552 8→7stillallbad.
+LE contractions STILLgeometry-guidancerefusal; no outside-tolerance witness proven.
+Useful replacement onexact441field confirmed, not MPIpublication/finalmeshcertificate.
+Unchanged old16edges measured, max14.3748normal/tangentcombined; remainingold/freshUNKNOWN
+at300selapseddeadline. Transientsizeviolations expected; no inaccurate scalar accepted.
+SampletreeRSS1.872GB/individual1.853GB, nottruepeak. Source441bytes unchanged.
+Nextconnectedimplementation: bounded visibility-corrected surfacecoarsening using existing
+Reconnect→Collapse; discoverybeforeFIRSTreserve, completefinalsupport, properowner-routing,
+clearanceevenunchangedskin, invalidation/atomicpublish. Focusedserial+ONEactualMPI milestone
+beforestage3retry. See designhandbook; no new scheduler/options/budgets or q/Jconstructionveto.
+441producer/reload BOTH TERMINALPASS, allactualhandles verified.
 Freshreload R/cases/curved441_ramp5_target_reload_20261112T125829_1338941 exec14080terminal:
 435.543s; all61330tensors BITIDENTICAL and chord9.6480553402102753 BITIDENTICAL.
 R/target_checkpoint441_qualification.json / target_checkpoint441_producer.json;
@@ -19,9 +45,9 @@ complete303788608bytes/12payloads locally retained. Fidelityqualified, not physi
 Source pins R/build441_source_pins.json. Build441PASS288.295s, all17actualhandles terminal.
 TestSHAb806f7d8195e1c2018170ff340a39f1bc2305e5f2f9feb15e911c2e6ecfbff32;
 CFDSHAefd55973195fa6751e5261ffbf6d01ffbac2263a243d5213bc7693fc52cd5495.
-Next one bounded stage3 saved-newtarget surface integration (check_saved_surface441.py),
-only after host/owned-handle verification; no fullCFD workflow retry.441source bytes unchanged.
-Qualified task source/evidence is being checkpointed; use git HEAD for commit identity.
+Stage3 uses check_saved_surface441.py, same388.8s/233220work/12GiB limits.
+No fullCFD workflow retry;441source bytes unchanged.
+Qualified task source/evidence pushed6f87a81a43 to authorized origin fork.
 Preserve unrelated P1/FEM/.orig/log/submodule working changes.
 
 ## Current stage2: common starting field, not a chosen shrink ratio
@@ -121,7 +147,7 @@ V2directionalinspector assess_target_directions441.py crosschecked61330JSON/tens
 samples retain stage normaldensity~15625, tangent densities~11–23%higher than396 because
 normalization reallocates freed normal budget. Curvature proxies NOT certificates. Complete
 checkpoint and original/current geometry remain necessary; no396core with new target.
-3.Once target is credible, coupled surface preparation under unchanged budgets/gates.434 was NOT
+3.Common32h0 target441 surface attempt and same-target cavity replay TERMINAL as above.434 was NOT
 ready (789points removed,4016/37227requiredwallrows,0completepasses); no new firstrow/full retry
 from a speed counter. Use demonstrated cavity correction only if active residuals justify it,
 with serial+ONE meaningful cross-rank growth/conflict/stale/empty/capacity/publication milestone.

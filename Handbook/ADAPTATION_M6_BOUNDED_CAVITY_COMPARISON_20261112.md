@@ -248,3 +248,66 @@ rampOFF and refuses ambiguous rampON. These are implemented, NOT YET qualified.
 Only an explicit verified seed may initialize stage0; no input-class/case-name guessing.
 438b follows a stopped timestamp-only global-header rebuild; source bytes unchanged.
 See handoff for live handles. Serial/MPI checks and actual-height comparison next.
+
+## Current441 stage boundary and minimal integration scope
+
+The common32h0 target441 is independently reconstructible, but stage3 finished
+its unchanged388.8s budget without surface readiness:876collapses,4720/37053wall
+rows measured,0completepasses. All300958saved tets are positive;197geometrybad
+and8sizebad are PARTIAL counts and q/J remain UNKNOWN. Full assessment and exact
+payload hashes: R/surface_stage441_assessment.json. The same-target bounded replay
+uses this new saved surface/currentnodal field and target441, rather than assuming
+437 candidates on434/396 remain admissible. All selected vertices/stars survived.
+Read HANDOFF for its actual live/terminal identities; sources remain441frozen.
+
+If the new replay confirms useful replacements, implement only the demonstrated
+surface-target non-repair coarsening route. This is already single-candidate for
+curved/composed geometry; no optimizer/scheduler redesign is needed. The connected
+scope includes ALL of the following; a local primitive alone is incomplete:
+
+- Let orientation-obstructed candidates reach bounded correction without weakening
+  contraction/body/feature/height restrictions. Ordinary collapse filters remain.
+- Discover before FIRST reservation, using Directory::Lookup on the original
+  removed-vertex feature plus accumulated blocked-face features. It already merges
+  duplicates and checks owner/version; Fetch validates payloads. Empty ranks enter
+  the same bounded collective steps. Existing union/cell/work/memory/deadline limits
+  cause safe refusal; private callbacks contain no Directory collectives.
+- Reuse Reconnect plus complete-substar CollapseVertex and exact prescribed-interface
+  validation. Preserve physical skin, association parameters and coverage. Retained-
+  apex collapsed-skin construction is a distinct variant, not implied by Reconnect.
+  Include only variants that actually provide useful candidates in the saved evidence.
+- Reserve/version-check the COMPLETE final support. Route every old removal and fresh
+  addition deterministically; current direct-collapse parent-count correspondence is
+  not valid after reconnection/growth. Reuse PublishMetrics/current transported nodal
+  authority, changed-row measurement, publication notifications and front invalidation.
+- Preserve clearance for the changed complex even when its exterior skin is unchanged,
+  parameter preflight and atomic publication/rollback. No grown proposal may publish
+  against the seed footprint, and no unresolved final measurement implies acceptance.
+
+Acceptance: actual saved useful serial replacements, focused refusal/constraint/
+resource checks, then ONE MPI milestone with cross-rank support, complete reservation
+conflicts, stale versions/parameters, empty ranks, routing, rejection restoration and
+publication failure. This qualifies the bounded capability, not BL or RANS completion.
+Then resume stage3; first-row shrink-ratio tests require a usable initial-row patch.
+
+
+441 same-target actual cavity replay TERMINALPASS441.027s, exactpins/all5actual
+identities terminal. R/cavity_surface441_assessment.json.354strictJSONrecords,
+9private-feasible alternatives, all300958Owned records byte-identicalsourcecapture.
+Direct11990collapse7star fails79130; grown16/apex27313→14positivecells has qbad14→10,
+Jbad13→10,geometrybad0→0; grown9/apex44664→7 givesq9→7/J8→6. Private geometry,
+passing-height preservation, tangent admission, parameter preflight and serial
+clearance pass. Construction takes1.090s/29605geometrywork and.794s/19295 respectively,
+including diagnostic measurements; do not extrapolate to production throughput.
+13785retainedcone11→9 and unchanged-supportapex34552 8→7 remainallbad. This is no
+basis for a quality veto during construction. Smooth directcontrol10→8passes.
+Leading-edge collapse still fails frozengeometry guidance; SplitEdge3→6passes
+refinement intent but raisesgeometrybad2→3/qJbad3→6. Less total excess does not
+imply fewer failing cells. Do not infer final mesh improvement from these counters.
+Fulltarget audit completed16OLDedges(max14.3748393);0completepatchaudits. Preparation/
+integration consumed remaining281.807s and the original300s diagnostic window.
+Fresh edges remain UNKNOWN. No publication, final certificate or MPI capability.
+The useful visibility-case result survives the actual newtarget, supporting the
+narrow connected production scope above. No reduction/search expansion is justified.
+MPI rollback controls must use actual geometry/height/contact/stale/resource refusals;
+all-qbad candidates alone are not invalidity refusals in validity-first construction.

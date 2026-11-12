@@ -69,7 +69,7 @@ fields on the same node IDs. Preserve existing hashes in HANDOFF; no CFD recompu
 without demonstrated reason. Coarse CL.15573/CD.05027 does not prove wall/shock
 resolution or convergence. Keep that limitation explicit.
 
-2. **Combined target (ACTIVE).** Input: stage1, Mach-only L1, nominal500k, h0=2e-6,
+2. **Combined target.** Input: stage1, Mach-only L1, nominal500k, h0=2e-6,
 g1.2,T=.01 and unchanged bounds/geometry/features. Output: reasonable composed
 field and a reconstructible target checkpoint. Require directional allocation,
 physical curvature/tolerance/feature and first-row-feasibility attribution; normal
@@ -80,7 +80,7 @@ Use saved actual original contexts AND358 generated row/neighbor capture. No new
 surface-generation attempt until target reasonableness and checkpoint fidelity are
 established. Geometry or quality debt in these diagnosis inputs is reported honestly.
 
-3. **Coupled surface preparation.** Input: credible stage2 checkpoint. Output:
+3. **Coupled surface preparation (ACTIVE).** Input: credible stage2 checkpoint. Output:
 transported core + current mesh/associations/coverage meeting measured tangential
 readiness, geometry/body/feature constraints and positive adjacent cells. Preserve
 passing heights; identify missing row obligations. Quality debt remains provisional;
@@ -206,3 +206,12 @@ complete396policy and original authority pins. This diagnostic capture is not de
 a reusable successful checkpoint until fresh-process reconstruction/target agreement
 and stage acceptance are checked. Save useful progress; never label partial readiness
 as successful upstream reuse. No production metric, stage allocation or gate changes.
+
+
+Current441 stage boundary: complete32h0 target passes exact fresh-process reload;
+physical BL suitability is still unproven. The bounded stage3 attempt has saved
+300958positive tets with transported core/associations but is NOT ready after876
+collapses and4720/37053requestedwallrows measured. No first row is inferred from
+this output. Preserve as a diagnosed provisional failure capture, not a credible
+successful stage checkpoint. See HANDOFF and surface_stage441_assessment.json for
+source/input/runtime pins, actual terminal handles, partial census and work/timing.

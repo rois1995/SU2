@@ -1373,3 +1373,27 @@ Build438 stopped after80.211s: reverted/hash-identical global CConfig.hpp timest
 441 buildPASS288.295s; all17actual handles terminal. JSONreason exporter1case/3assertionsPASS4.845s; explicit seedstage1casePASS5.661s, allactual handles terminal. Stage0 metric producerPASS624.400s: actual metricmax529.708s/construction462.297s/setup66.9s/Hessian~.5s. Nominal500k/estimate486914.722±empirical41525.003 NOTbound; original61330points/303359tets, no mesh generated. Old396 metric531.651s/construction480.951s/setup50.305s, different field+contention; no overall speed claim. Stage0 checkpoint chord9.6480553402102753, fresh reload pending. SampleindividualRSS.852GB notjobpeak, reservedgeometry10.67GB notresident.
 
 441 fresh fulltarget reloadPASS435.543s; all61330owned tensors/chordBITIDENTICAL, all9actual handles terminal. Fulltarget303788608B/12payloads locally retained, not acceptedBL. Source/core analysis1.815s: selectedcore median-dualcomplexity192875.685,52.066%core beyondr20 (notcomposed allocation). Newprofile normaldensity~15625 at42samples; normalizedtangent demands11–23%higher vs396. No walltime claim from changed fields; no CFD advance.
+
+
+441 stage3 surface MPI6 terminal507.070s wrapper/389.088s native/load49.382s (overlap not additive).
+60454points/300958positive tets,876pointsremoved,4720/37053requestedwallcensus,0completepasses;
+NOT surface-ready. Partialgeometrybad197/sizebad8, q/JALLUNKNOWN. Geometrywork45271499,
+max/minrankwork6.737,48023fieldrequests; rankCPUtotal2224.367s includesMPIpolling.
+Parsed3exitrecords1488rounds/172451electioncalls each; other3interleaved/unattributable; electionseconds~298–339 on parsed ranks
+are overlapping collectivejoin timers, not totalwait or standalone protocol overhead.
+Updatedcellmeasurements~52.4s/rank overlap these joins. SampledtreeRSS4.850GB/individual.939GB,
+nottruepeak. Versus434789→876collapses and4016→4720measuredwallcells atsamebudget, buttarget
+andoperationtrajectory differ; no isolated efficiency gain or stage readiness established.
+R/surface_stage441_assessment.json retains exactshards/hashes/allterminalidentities.
+
+
+441same-targetactualcavitycomparisonTERMINAL441.027s;354strictJSONrecords/9privatefeasible,
+300958Ownedrecordsbyte-identicalsaved441surface. Usefulgrown16→14replacement1.090s/
+29605geometrywork and9→7 .794s/19295 includeprivatefullpatchdiagnostics, notproductionrate.
+Fulltarget OLDedgeaudit16completed/max14.3748393,281.807sremainingwindow/11260221geometrywork;
+0completepatchaudits/freshedgesUNKNOWN atoriginal300sdiagnosticdeadline. Otherauditcalls
+refusedimmediatelyafterdeadline; do notsumthemasindependentcosts. Wrapper441.027includes
+geometry/fulltargetreconstruction/import beforeboundedprivatework. SampledtreeRSS1.872GB/
+individual1.853GB,nottruepeak. All5actualidentitiesterminal/pinsverified. This identifies
+usefulboundedreplacementcapacity, no meshthroughputgainorfinalgeometry/sizequalification.
+R/cavity_surface441_assessment.json preservesstrictrecords/outputhashes.
