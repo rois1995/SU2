@@ -14,8 +14,8 @@ provenance and failures. This file supersedes historical live handles.
 
 NO owned heavy workload. Build404, serial, MPI6 and actual404 PID/start identities
 are verified terminal on the actual host. All 1,656 actual404 source/binary/input/helper
-pins were reverified before documentation/checkpoint work. Source/evidence pending push;
-previous checkpoints 798db15fff and ef3dd43e0d are pushed. Preserve unrelated working changes.
+pins were reverified before documentation/checkpoint work. Qualified404 source/evidence f4ba305a3c is PUSHED.
+Earlier798db15fff/ef3dd43e0d remain preserved. Keep unrelated working changes intact.
 
 Build403 (production fix) passed in 418.466 s; build404 (test only) in 40.123 s.
 CFD is identical between403/404:
