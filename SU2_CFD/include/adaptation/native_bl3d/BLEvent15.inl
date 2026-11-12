@@ -186,6 +186,8 @@ inline SurfaceFeedback PrepareFirstRowSurface(State& s,Rows10& rows,World& world
   Scope scope("DC15 physical surface feedback");SurfaceFeedback out;const auto start=Clock::now();
   struct Timer {SurfaceFeedback& out;Clock::time_point start;~Timer(){out.seconds=Seconds(start);}} timer{out,start};
   if(world.size!=1){out.why="physical surface feedback requires the native serial ownership guard";return out;}
+  if(auto* b=s.reference?s.reference->AtlasReservation():nullptr)
+    if(!b->geometry_failure.empty())throw std::runtime_error(b->geometry_failure);
   if(!(std::isfinite(tolerance)&&tolerance>=0&&std::isfinite(seconds)&&seconds>0)||!maximum_work){out.why="physical surface feedback has no admitted work/time";return out;}
   const auto owner=s.wall_index.find(Sorted(key));
   if(owner==s.wall_index.end()||!s.mesh.count(owner->second)){out.why="physical surface feedback target is no longer present";return out;}
@@ -222,7 +224,7 @@ inline SurfaceFeedback PrepareFirstRowSurface(State& s,Rows10& rows,World& world
         if(!std::isfinite(gap))throw std::invalid_argument("physical surface feedback nonfinite edge guidance");
         candidates.emplace_back(-gap,edge);
       } catch(const std::exception& e) {
-        if(budget&&(budget->work_exhausted||budget->time_exhausted))throw;
+        if(budget&&(budget->work_exhausted||budget->time_exhausted||!budget->geometry_failure.empty()))throw;
         out.why=std::string("physical surface feedback edge preparation: ")+e.what();
       }
     }
@@ -290,7 +292,7 @@ inline SurfaceFeedback PrepareFirstRowSurface(State& s,Rows10& rows,World& world
     }
     if(out.why.empty())out.why="physical surface feedback has no curved edge proposal";
   } catch(const std::exception& e) {
-    if(s.publication_failed||s.next_node!=initialNode)throw;
+    if(s.publication_failed||s.next_node!=initialNode||(budget&&!budget->geometry_failure.empty()))throw;
     out.why=e.what();
   }
   out.old={};out.fresh={};return out;

@@ -730,3 +730,31 @@ Actual operator proposals are rebuilt and independently certified. CheckBinding,
 geometry/support identity, physical heights, body separation and budgets unchanged.
 This is an edge-query caller correction, not projection-tolerance or geometry-authority
 relaxation.417build/serial/actual LE validation pending; no competing implementation.
+
+417build PASS214.242s, affected serial passes with old Growth12only. Before actual
+LE retry, source review identifies fatal-state propagation gap: ProjectEntitySurface
+sets AtlasBudget.geometry_failure for backend Failure (not Unavailable); per-edge
+catch could suppress this, outer catch could return ordinary refusal, and RunEvent
+finish had no fatal election.418propagates sticky failure, checks it at shared Apply
+entry/pre-mutation and final RunEvent validity/pending-continuation status. Regression
+injects failure and requires no mesh or accepted-state mutation. Optional-backend
+Unavailable/native fallback stays allowed. This is connected geometry/publication
+safety, not a change to distance/height tolerances, metric, geometry authority or budgets.
+Final affected serial and MPI checks are needed because shared publication changes.
+
+418build PASS218.234s, CPP production guards compile. Serial29/30cases7925/7926
+assertions exercises new fatal status but early-return SECTION hides normal feedback
+scenarios (no Completion section in log; assertion countdrops). Do not claim complete
+affected serial qualification.419changes only fixture: guard check restores prior
+status and allows existing scenarios to be discovered. Exact418fixture archived.
+Rebuild/recheck normal+fatal paths before actual LE; production binary must match418.
+
+##419 leading-edge interpretation
+
+The complete-support midpoint fix enables all three edge trials; none admits a
+replacement because strict whole-patch geometry fails. Actual case terminal138.170s;
+0edits/rows. This probe starts from original wall triangulation, omitting mandatory
+production PrepareSurface. Reproduce the existing surface stage from complete396target
+before treating this refusal as a production first-row blocker. Do not relax geometry,
+height or cavity bounds. Fatal backend guards and complete419serial/MPIcoverage are
+recorded in R/surface_feedback419_qualification.json; old Growth12remains open.

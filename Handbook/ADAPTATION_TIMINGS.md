@@ -1109,6 +1109,19 @@ restriction. No speedup/coverage/quality improvement established. The diagnostic
 rebuilds an external contact Directory after each helper call as well; this lies
 outside helper timer. No separated index/build CPU/wall counter; attribution gap.
 Nested timers overlap; do not sum into wrapper. Largest sampled individualRSS
-2047160320B is not whole-job peak. Actual leading-edge validation is pending inhandoff.
+2047160320B is not whole-job peak. Actual leading-edge validation419 is terminal below.
 Evidence R/surface_feedback415_assessment.json, surface_feedback416_qualification.json,
 front416_assessment.json. Qualified preparation is not complete BL generation.
+
+## Shared publication qualification and original leading-edge result419
+
+Build419214.199s, serial9.400s29/30cases8751/8752assertions (oldGrowth12only);
+MPI6PASS6.426s/28cases perrank, not nativeMPIgeneration. CFD identical418.
+Actual leading-edge138.170s, total1795628geometrywork. Existing closure34.868s/
+1757085work refuses82oldcells>64; shared surface helper.763s/32487work executes
+3edge trials and admits0, strict whole-patch geometry refusal. No rows, no netq/J
+improvement or speedup claim. SampledindividualRSS1973174272B, notwholepeak.
+This original-mesh probe skips mandatory production surface preparation: its cost
+and refusal do not characterize first-row construction from a prepared surface.
+Next measurement is the saved396target production surface stage, preserving upstream
+seed/checkpoint and production budgets. Nested timings remain overlapping.

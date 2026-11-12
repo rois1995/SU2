@@ -242,7 +242,11 @@ inline EngineResult RunEvent(World& world, const Owned& cells, const std::vector
     out.stats.atlas_work=geometry_budget.work-geometry_work_initial;out.stats.atlas_peak_bytes=geometry_budget.peak_bytes;
     out.stats.maximum_work_bytes=std::max(out.stats.maximum_work_bytes,geometry_budget.peak_bytes);
     out.reason = reason;
-    json << ",\"construction_valid\":" << out.valid << ",\"final_acceptance\":\"deferred to distributed stages\",\"reason\":" << junction_wp0::Json(reason) << "}\n";
+    if(!geometry_budget.geometry_failure.empty()) {
+      out.valid=false;cont.pending.reset();
+      out.reason+=(out.reason.empty()?"":"; ")+std::string("FIRST_ROW geometry backend failure: ")+geometry_budget.geometry_failure;
+    }
+    json << ",\"construction_valid\":" << out.valid << ",\"final_acceptance\":\"deferred to distributed stages\",\"reason\":" << junction_wp0::Json(out.reason) << "}\n";
     report = json.str();
     if (!ctl.report_prefix.empty()) { std::ofstream(ctl.report_prefix + "_bl_report.json") << report; }
     return out;

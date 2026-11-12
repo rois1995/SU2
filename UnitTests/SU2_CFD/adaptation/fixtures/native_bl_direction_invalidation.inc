@@ -220,6 +220,14 @@ TEST_CASE("First-row surface feedback commits bounded curved edits with current 
     CHECK(state.live_parameters->Snapshot()==snapshot);CHECK(state.live_parameters->Revision()==revision);
     CHECK(state.boundary_revision==direction_revision);CHECK_FALSE(state.publication_failed);CHECK(state.field.get()==frozen);
   };
+  { // Check the fatal guard without an early-return SECTION hiding the normal scenarios.
+    const auto previousFailure=budget.geometry_failure;budget.geometry_failure="injected fatal backend status";
+    const auto old=PatchOf(state,{cell.id});
+    CHECK_THROWS_WITH(Apply(state,{cell.id},old),Catch::Matchers::Contains("injected fatal backend status"));
+    if(world.size==1)CHECK_THROWS_WITH(dc15::PrepareFirstRowSurface(state,rows,world,target,.01,10,16),Catch::Matchers::Contains("injected fatal backend status"));
+    else CHECK_FALSE(dc15::PrepareFirstRowSurface(state,rows,world,target,.01,10,16).changed);
+    unchanged();budget.geometry_failure=previousFailure;
+  }
   if(world.size!=1) {
     const auto result=dc15::PrepareFirstRowSurface(state,rows,world,target,.01,10,16);
     CHECK_FALSE(result.changed);unchanged();return;

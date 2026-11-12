@@ -12,10 +12,34 @@ all prior failures/provenance. This handoff overrides historical live handles/ne
 
 ## Current source/build/workload
 
-Build417 is the ONE owned heavy workload, frozen. Execsession95488;
-actual-host wrapper4167812/start50093294, ninja4167813/start50093310.
-R/build417_status.json/source_pins/log/resources/observed_handles. DO NOT EDIT pinned sources.
-Only BLEvent15 midpoint ranking changed after416LE actual handles were verified terminal.
+NO owned heavy workload.419build/serial/MPI6/actual LE are TERMINAL; actual-host
+handles verified absent before further edits.419build PASS214.199s/pins; CFD
+`a606f2d56ffa96bd370e2dcbbac56d530768f121fcc756c980f6ddd9183b4e81`;
+test `7403414e50039ec8e6d7188795813dcb9b00dfada46394f38f9688f9b96332a7`.
+Serial9.400s29/30cases8751/8752assertions: affected checks PASS, old Growth12only.
+ONE MPI6PASS6.426s/28cases EVERYrank1681–6391assertions; guard/shared constraint
+coverage, NOT nativeMPI BL generation.419fixes418test discovery masking; CFD identical.
+418build PASS218.234s; serial normal sections were masked by fatal SECTION return;
+only fatal checks valid there. Exact417/418sources retained. Fatal backend status now
+propagates through helper, sharedApply and RunEvent validity/pending guards.
+
+419actual LE TERMINAL/PASS138.170s, case
+R/cases/curved419_checkpoint_le_20261112T043628_39623. Complete396target/seed pins intact.
+Three edge trials now execute (32487geometrywork/.763s), all refuse strict whole-patch
+geometry;0edits/rows. Closure still82cells>64. Total1795628geometrywork; sampledindividual
+RSS1973174272B is not whole-job peak. R/surface_feedback419_qualification.json.
+IMPORTANT: this diagnostic begins from ORIGINAL mesh and skips mandatory production
+PrepareSurface W. Its refusal is not proof of failure after surface preparation.
+Next: reuse complete396target to exercise existing coupled surface stage under existing
+production limits; save complete provisional state/provenance. No new metric/gate/operator
+selected from the original-mesh refusal. Do not repeat fixed25cell polish.
+
+417build PASS214.242s; serial29/30cases8451/8452 (old Growth12only), handles terminal.
+No actual417run: review found sticky backend Failure could be swallowed.418propagates
+it through helper entry/catch, guards shared BL Apply entry/pre-mutation and final
+RunEvent validity/pending continuation. Optional Unavailable/native fallback remains.
+This changes shared publication: final MPI guard/constraint checks are justified.
+Exact417BLEvent/source_snapshot417 retained. Current support fix remains active.
 416LE TERMINAL/PASS137.224s, case R/cases/curved416_checkpoint_le_20261112T035824_4145858;
 R/leading_edge416_assessment.json. Planning max.963397<1.8 but R2closure82oldcells.
 Feedback aborts BEFORE any edge trial with 'Invalid mapped facet interior binding'.
@@ -77,7 +101,7 @@ are retained. Actual saved-context probe now invokes production feedback, not DI
 
 Bounded qualification: affected serial direct/integrated checks pass; ONE415MPI
 milestone passes,416smooth actual preparation matches412. Source review found no
-concrete production acceptance defect. Leading-edge actual validation remains frozen.
+concrete production acceptance defect. Leading-edge actual validation419 is terminal as above.
 Full RunEvent coverage/high-band trajectory is NOT established; the five-column
 trial is the historical low-band diagnostic. Growth12failure stays OPEN; no full
 workflow retry before credible stage outputs. Next integration should exercise actual

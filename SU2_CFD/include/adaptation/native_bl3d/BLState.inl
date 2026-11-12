@@ -201,6 +201,11 @@ inline Patch PatchOf(const State& s,const std::vector<Id>& ids) {
 }
 inline void Apply(State& s,const std::vector<Id>& old,const Patch& fresh) {
   if(s.publication_failed)throw std::logic_error("BL private publication previously failed.");
+  auto geometryReady=[&] {
+    const auto* budget=s.reference?s.reference->AtlasReservation():nullptr;
+    if(budget&&!budget->geometry_failure.empty())throw std::runtime_error("BL geometry backend failed: "+budget->geometry_failure);
+  };
+  geometryReady();
   size_t stars=0,largest=0;
   auto count_star=[&](Id vertex) {
     const auto found=s.vertex_cells.find(vertex);const auto count=found==s.vertex_cells.end()?0:found->second.size();
@@ -260,6 +265,7 @@ inline void Apply(State& s,const std::vector<Id>& old,const Patch& fresh) {
   }
   if(!old_rows.empty()&&std::all_of(old_rows.begin(),old_rows.end(),[](const OwnedCell& row){return row.sensor_present;}))
     PublishMetrics(old_rows,new_rows);
+  geometryReady();
   // Trial wrappers may catch exceptions; a partially mutated private state must never be published.
   struct PublicationGuard {bool& failed;bool complete=false;~PublicationGuard(){if(!complete)failed=true;}} guard{s.publication_failed};
   for(Id id:old){IndexRow(s,id,s.mesh.at(id),false);for(auto n:s.mesh.at(id).cell.v){auto& star=s.vertex_cells[n.id];star.erase(id);if(star.empty())s.vertex_cells.erase(n.id);}s.mesh.erase(id);}
