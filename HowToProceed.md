@@ -35,14 +35,26 @@ certified outside-distance witnesses. This is not solely conservative certificat
 Eightfull-face triple and16pair candidates add no geometrybad-retiring replacement;
 no numerical-tolerance or uniformsplit production correction is selected.
 
-Next test ONE connected topology hypothesis using EXISTING operators: after three
-edge splits, change the inherited long physicaldiagonal with Reconnect followed by
-ShellBoundaryCell. Sequential split-only skin is not necessarily the standard red
-subdivision. Demonstrate actual positive, constrained, complete-patch improvement;
-source presence is not capability. Discover complete original support before global
-reservation, and prove generated-edge stars remain inside it; no post-reservation
-growth with stale claims. This is still unproven and requires meaningful MPIqualification
-before any production claim. R5/R4adjacent and physical-height construction remainopen.
+462/463have now tested the diagonal hypothesis. Existing Reconnect→Shell constructs
+5changes; a direct2tet replacement constructs the4physical-skin-obstructed cases and
+passes complete current construction guards. But all4geometrybad counts3→6, so
+none provides complete-patch retirement. Do NOT integrate single-level red refinement
+based on lower debt or positive candidate construction. Production remains451.
+
+Next ONE bounded construction hypothesis: anisotropic surface/volume replacement.
+Keep one triangle edge (long tangential direction) and put quarterpoints on the other
+two sides using existing projected SplitSurfaceStrip transactions. Prescribe7surface
+triangles and reconnect their actual descendant volume to the retained common fluid
+apex only when exact positivity/interface/body/feature/height/metric/contact checks
+allpass. Test3basechoices on4dominant actualfaces plus a geometry-passing control,
+within existing24trial/64old/128private/300s/12GiB limits. Capture exact directional
+metric lengths, complete-patch badretirement/churn and pointgrowth. This is UNTESTED,
+not a selected production correction; no target/norm/sensor/gate/budget change.
+
+Discover and reserve COMPLETE original edge stars BEFOREconstruction. All later
+quarteredges include newly generated points and remain in the complete private support;
+prove that actual support and refuse stale/incomplete/capacity cases. A passing local
+proposal still needs meaningful MPIqualification and the actual ordered stage workflow.
 Read [geometry/cavity evidence](Handbook/ADAPTATION_SURFACE_GEOMETRY_BOUNDS_20261112.md).
 
 Keep complete441target/savedCFD/current nodal authority, L1/nominal500k, stage32h0 and

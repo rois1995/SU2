@@ -5,6 +5,27 @@ integration result. [Current handoff](../HANDOFF_Codex.md) owns live handles;
 [stage inputs/outputs and acceptance](ADAPTATION_CURVED_BL_STAGE_INTEGRATION_20261111.md)
 own the development sequence. R=`integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57`.
 
+463direct coupled diagnostic: buildPASS309.814s; actualPASS192.110swrapper/1757pins/
+allactualhandles terminal/303622Owned unchanged451.9diagonal changes (5existing
+Reconnect→Shell,4direct where physical-skin Cone failed),4construction-admissible but
+ZEROcomplete-patch geometrybad-retiring. Candidate sum6.07034swall/6.06848CPU/651015work;
+old geometrybad3→6 in those4cases despite lower debt. No production speedup/closure.
+Sampled individualRSS1.503GB is not whole-job peak. One-level red refinement rejected
+for production; next bounded hypothesis preserves a long tangential direction while
+refining across curvature. Timers include shared geometry-cache effects/order.
+
+460checker compileFAIL29.819s (Catch2syntax);461buildPASS346.006s, actualFAIL184.286s
+on noncanonical expectedskin vector after a local controlcap success. All actual handles
+terminal/sourcepins preserved; no operator-incapability or mesh-acceptance inference.
+462corrects only that caller ordering: buildPASS299.998s; actualPASS187.968s/1756pins/
+allactualterminal/303622Owned unchanged451;8split-only baselines exactly match459.
+22primitiveattempts include13Conecalls;5diagonal changes but0admissible complete-patch
+geometrybad-retiring candidates. Small-face split-only7bad→reconnected5bad still
+worsens original4bad. Fourdominant neighborfaces have exact physical-skin visibility
+obstructions. Sampled individualRSS1.370GB is not whole-job peak. No production speedup
+or closure claim; production remains451.463tests direct coupled2tet replacement under
+samefixedinterface/admission/budget conditions, still unproven.
+
 459complete-face/witness diagnostic: buildPASS301.797s; actualPASS184.835swrapper/
 1752pins/allactualhandles terminal/303622Owned unchanged451.24trials(8triples/16pairs)
 sum6.16139swall/6.16038CPU/759621geometrywork;10construction-admissible but0geometrybad-

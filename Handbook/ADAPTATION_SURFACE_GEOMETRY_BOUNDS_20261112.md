@@ -307,3 +307,120 @@ MeshOptimizer::ShellBoundary is guarded by shape merit/progress and CoupledBound
 requires a suitable existing two-wall-face cell. Their source presence does not prove
 construction can create the needed cap. Test the primitives and exact support first;
 do not call a q/J-ranked optimizer from validity-first construction to bypass eligibility.
+
+##460 bounded existing reconnect/shell composition: declared contract
+
+Input: exactly459's saved451mesh/parameters/transported nodal field and complete441
+stage32h0 target. Reproduce the same first4perimeter transaction, then test threeedge
+splits on all8failingfaces plus ONEgeometry-clean adjacent face as control (q/Jnot
+assumedclean). No parameter/target/configuration/gate/budget change. No productioncode.
+
+Output: existing SplitSurfaceStrip candidates followed by directShellBoundaryCell or
+Reconnect from either of the other two newmidpoints, then ShellBoundaryCell. The
+local support is the complete private star of the inherited midpoint/opposite-vertex
+diagonal plus the new midpoint/midpoint diagonal. All three newly generated vertex
+stars lie in the complete globally discovered original three-edge support, fetched
+and FULLreserved before ANY split. No postreservation dependency extension occurs.
+Reference/cavity context is rebuilt for current private parameters at every operation.
+
+A merge must preserve the exact oriented artificialinterface and pass existing
+ValidatePrescribedInterface with the documented128private-intermediate bound; accepted
+oldcavity remains64. No larger accepted cavity, work/time/memory budget, newoperator,
+scheduler orconfig. Complete final old/fresh metric/geometry/qJ, parameter/contact and
+preserved/provisionalheight checks remain. q/Jobservational during construction.
+Useful geometrybad retirement with admissibility is needed to select production work.
+A positive cap or named flip alone is not success; no distributed claim before MPI.
+Reject this composition on samples where no useful replacement is demonstrated.
+
+460compile failed29.819s on a Catch2 assertion-expression syntax error, all5actual
+handles terminal; no runtime/capability inference. Exact original helper source/hash
+is preserved in R/surface_diagonal460_source_snapshot.json.461adds only the missing
+assertion parentheses; buildPASS346.006s/all10actualhandles terminal/pins/newbinary/
+cleanNinja. Actual diagonal case then starts under the same declared contract.
+Attempt0 in diagonal_construction is direct shell (support-ready, no Reconnect call);
+attempts1/2 try the two other generated midpoints as Reconnect apices. Do not count
+attempt0's logged reconnected=true as a cone success. Failed construction's zero
+q/Jcount fields are UNMEASURED, not known clean cells. Runtime/wholepatch acceptance
+and support checks still decide whether the composition is useful.
+
+461actual failed184.286swrapper/all5actualhandles terminal/1755pins, at the newfull
+expectedskin assertion. The first badface Cone-from-midpoint attempts have actual
+visibility obstructions. The geometry-passing control produced a reconnect/shell,
+and the fullartificial-interface equality passed, but expectedskin was assembled as
+sortedartificialfaces THEN physicalfaces. Native ValidatePrescribedInterface compares
+canonical rotated/sorted vectors; production Finish builds SkinVector from an ordered
+map.462uses that exact caller pattern and emits refusalreason on assertion. No native
+checker or gate change. Preserve461source snapshot and failure; fullcandidate merit
+unmeasured and no original Owned export reached. Do not infer method incapability.
+Public API's canonical-vector requirement is implicit; documenting/normalizing it is
+a separate robustness item, not a reason to weaken oriented-interface validation.
+
+##462 actual outcome and463 direct coupled replacement hypothesis
+
+462buildPASS299.998s; actualPASS187.968s/allactualhandles terminal/1756pins/303622Owned
+records unchanged451.8split-only baselines exactly reproduce459.22primitive attempts,
+13actualCone calls,5reconnect/shell diagonal changes; ZEROcomplete-patch geometrybad-
+retiring/admissible candidates. Controls and4original-parent children construct;
+4dominant neighboring faces fail Cone visibility against their PHYSICAL skin faces.
+The small-child cases can retire failures relative to split-only (7→5), but still
+worsen the complete original patch (4→5). No production integration is selected.
+R/surface_diagonal462_assessment.json/outcome.json; exact helper snapshot retained.
+
+463tests ONE bounded response to that actual limitation: replace the two private tets
+adjacent to the inherited diagonal directly by two tets with the retained common
+apex and the alternative physical diagonal. Existing fixed-skin Cone requires an
+admissible intermediate cap; the direct coupled edit can change the physical skin
+without that intermediate. No all-wall cap cell is added. It reuses the SAME complete
+original support/reservation, newmidpoints, fixedinterface and every later guard.
+The replacement is proposed only for a two-cell/two-physical-face local star with one
+retained common apex. Newface orientation follows retained quad edges, exact positive
+newtets are mandatory (no sign-swapping to force visibility), current ContainsFace
+must pass, and a shared merge checks oriented artificialinterface and canonical full
+prescribedskin/ball topology. Invalid proposals safely refuse; no native gate changes.
+
+This is TEST-ONLY construction before production machinery. Same9face contexts,
+300s/600souter/12GiB/64old/128private limits, target/height/sensor/norm unchanged.
+Useful complete old/fresh geometrybad retirement and all existing admissions are
+required before extracting a production primitive. DirectCone obstruction by a
+physical wall cannot be repaired by absorbing interior neighbors alone. Do not start
+unrestricted cavitygrowth or a numerical-threshold campaign on this evidence.
+
+##463 actual result: direct construction exists, complete closure does not
+
+BuildPASS309.814s/all10actualhandles terminal/pins/newbinary/cleanNinja. ActualPASS
+192.110swrapper/1757pins/all5actualhandles terminal;303622Owned records independently
+unchanged451.8original split baselines match459. R/surface_diagonal463_assessment.json
+and surface_diagonal463_outcome.json. All9contexts construct a changed diagonal:
+5existing Reconnect→Shell,4newdirect proposals where physical-skin Cone was obstructed.
+Those4direct proposals pass complete existing construction guards, but geometrybad
+3→6, q/J5–6→12–14; allreduce squared excess without net retirement. ZEROuseful complete-
+patch geometrybad-retiring replacements. No production integration is selected.
+Candidate sums6.07034swall/6.06848CPU/651015geometrywork; sampled processRSS1.503GB is
+not whole-job peak. Timings do not demonstrate production speedup or strict mesh.
+
+This distinguishes missing candidate construction from final utility: fixed-skin
+reconnection was narrower, but direct output still needs stronger, directionally
+appropriate geometry resolution. One-level full-face red refinement is not an endorsed
+correction. Do not keep adding diagonal variants or integrate just because all guards
+except netbad counts pass. The normal firstheight remains provisional and q/Jstrict
+closure belongs downstream; no evidence here supports quality-ranked construction.
+
+Selected NEXT TEST-ONLY hypothesis: a coupled anisotropic surface/common-apex volume
+replacement. For an oriented triangleABC keep AB unsplit; generate midpoints of AC/BC
+and quarterpoints along their halves with existing SplitSurfaceStrip. Prescribe three
+quad bands plus the final Ctriangle (7faces/6newpoints), then connect them to the
+retained original fluidapex only if every exact tetrahedron is positive. Original
+three-edge globalstar support remains complete; generated-edge stars cannot escape
+it. Neighboring cells receive the SAME projected boundarypoints; artificial skin,
+feature traces/body/parameter state must match before full publication. Use current
+metrics, finalcavity contact and height checks, not merely targetface improvement.
+
+Test all3choices of retained base on4dominant actualfaces and one geometry-passing
+face-control, staying under24trials and original64/128/300s/600souter/12GiB. Compare
+complete geometrybad/debt, q/Jchurn, exact metric edge distribution and direction,
+point/cell counts, physical constraints/work/memory. Quarter width is a hypothesis
+motivated by still-failing one-level children, not an asserted quadratic curvature
+law. It adds fewer points than uniformtwo-level red refinement and retains a long
+surface direction; neither benefit is assumed before actual measurement. No new
+metric/norm/sensor/geometry representation, scheduler, config orraisedbudget. If no
+useful actual replacement is demonstrated, reject this too and reconsider construction.

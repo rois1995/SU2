@@ -1,0 +1,62 @@
+{
+  "case": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved463_surface_diagonal_serial_20261112T221002_695744",
+  "status": {
+    "state": "terminal",
+    "exit_code": 0,
+    "seconds": 192.1098837852478,
+    "pins_verified": true,
+    "changed": [],
+    "largest_sampled_individual_process_rss_bytes": 1503191040,
+    "rss_note": "sampled process RSS; not a whole-job peak"
+  },
+  "verified_pins": 1757,
+  "all_actual_handles_terminal": true,
+  "owned_records_unchanged": 303622,
+  "matched_split_baselines": 8,
+  "private_diagonal_candidates": 9,
+  "existing_reconnect_shell_changes": 5,
+  "direct_replacements": [
+    {
+      "stage": "diagonal_direct",
+      "trial": 0,
+      "local_cells": 2,
+      "constructed": true,
+      "reason": ""
+    },
+    {
+      "stage": "diagonal_direct",
+      "trial": 4,
+      "local_cells": 2,
+      "constructed": true,
+      "reason": ""
+    },
+    {
+      "stage": "diagonal_direct",
+      "trial": 5,
+      "local_cells": 2,
+      "constructed": true,
+      "reason": ""
+    },
+    {
+      "stage": "diagonal_direct",
+      "trial": 8,
+      "local_cells": 2,
+      "constructed": true,
+      "reason": ""
+    }
+  ],
+  "construction_admissible_candidates": 4,
+  "admissible_geometrybad_retirement_candidates": 0,
+  "candidate_seconds": 6.07034258,
+  "candidate_cpu_seconds": 6.06848,
+  "candidate_geometry_work": 651015,
+  "production_changed": false,
+  "confirmed": [
+    "Direct2tet replacement bypasses the actual fixed-skin intermediate-cap obstruction on4dominant neighboring faces.",
+    "All4direct replacements pass complete geometry-progress/metric/parameter/contact/preserved/provisionalheight guards, but geometrybad3\u21926 and q/Jbad increase.",
+    "No complete-patch net geometrybad retirement, usable BL, strict firstheight or MPI qualification is demonstrated."
+  ],
+  "decision": "Do not integrate single-level full-face red refinement on debt reduction alone.",
+  "next_hypothesis": "A bounded anisotropic prescribed-surface/common-apex volume cavity can refine across high curvature without also quartering the long tangential direction. Test actual complete patches first; unchanged target and gates.",
+  "goal_complete": false
+}

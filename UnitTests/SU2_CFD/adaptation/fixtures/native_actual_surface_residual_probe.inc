@@ -1,6 +1,6 @@
 if(residualProbe) {
   std::map<Id,Node> positions;for(const auto& c:publishedPatch.cells)for(auto n:c.v)positions.emplace(n.id,n);
-  std::map<Edge,long double> demanded;std::vector<std::vector<Edge>> faceGroups;
+  std::map<Edge,long double> demanded;std::vector<std::vector<Edge>> faceGroups;bool cleanControl=false;
   for(const auto& face:publishedPatch.surface) {
     std::array<Point,3> points;std::array<SU2NativeGeometry::SurfaceBinding,3> bindings;
     bool direct=true;const auto& authority=trial.live_parameters->Geometry();
@@ -14,6 +14,7 @@ if(residualProbe) {
     log<<"],\"reference_controls\":[";const auto curve=authority.Curves().find(face.facet);
     if(curve!=authority.Curves().end())for(unsigned k=0;k<10;++k){if(k)log<<',';const auto p=curve->second[k];log<<'['<<p.x<<','<<p.y<<','<<p.z<<']';}
     log<<"],\"final_certificate\":false}"<<std::endl;
+    if(diagonalProbe&&!cleanControl&&bound<=SU2_TYPE::GetValue(config.GetAdap_Hausd())){faceGroups.push_back(group);cleanControl=true;}
     if(bound>SU2_TYPE::GetValue(config.GetAdap_Hausd())) {
       faceGroups.push_back(group);
       const auto entity=trial.live_parameters->Entity(face.facet);
@@ -45,8 +46,8 @@ if(residualProbe) {
   auto add=[&](std::vector<Edge> e){std::sort(e.begin(),e.end());if(candidates.size()<24&&seen.insert(e).second)candidates.push_back(std::move(e));};
   // Singles were measured in458; cover complete-face alternatives first under the SAME trial cap.
   for(auto group:faceGroups)add(group);
-  for(auto group:faceGroups)for(unsigned k=0;k<3;++k)add({group[k],group[(k+1)%3]});
-  for(auto e:ordered)add({e.second});
+  if(!diagonalProbe){for(auto group:faceGroups)for(unsigned k=0;k<3;++k)add({group[k],group[(k+1)%3]});
+    for(auto e:ordered)add({e.second});}
   REQUIRE_FALSE(candidates.empty());
   const auto committedParameters=trial.live_parameters->Payload();unsigned candidateIndex=0;
   for(const auto& selected:candidates) {
@@ -64,6 +65,10 @@ if(residualProbe) {
       Node point{nextNode+completed+splits,{double(((long double)a.x+b.x)/2),double(((long double)a.y+b.y)/2),double(((long double)a.z+b.z)/2)}};
       Patch replacement;if(!SplitSurfaceStrip(candidate,e,point,{},nextCell+(candidateIndex+1)*MaximumReplacementCells,*trial.reference,replacement,rejection)){constructed=false;break;}
       candidate=std::move(replacement);++splits;
+    }
+    const bool splitConstructed=constructed;bool diagonalChanged=false;long double splitExcess=-1;
+    if(diagonalProbe&&constructed) {
+#include "native_actual_surface_red_reconnect.inc"
     }
     bool admissible=false,geometryProgress=false,metricOK=false,parameterOK=false,contactOK=true,contactProtocol=false,heightOK=false,preserveOK=false;
     size_t q0=0,q1=0,j0=0,j1=0,bad0=0,bad1=0;long double score0=-1,score1=-1;double length0=-1,length1=-1;
@@ -87,7 +92,7 @@ if(residualProbe) {
     }
     log<<"{\"stage\":\"residual_candidate\",\"trial\":"<<candidateIndex<<",\"edges\":[";
     for(size_t k=0;k<selected.size();++k){if(k)log<<',';log<<'['<<selected[k][0]<<','<<selected[k][1]<<']';}
-    log<<"],\"constructed\":"<<constructed<<",\"old_cells\":"<<previous.cells.size()<<",\"new_cells\":"<<(constructed?candidate.cells.size():0)
+    log<<"],\"split_constructed\":"<<splitConstructed<<",\"diagonal_changed\":"<<diagonalChanged<<",\"split_excess\":"<<splitExcess<<",\"constructed\":"<<constructed<<",\"old_cells\":"<<previous.cells.size()<<",\"new_cells\":"<<(constructed?candidate.cells.size():0)
        <<",\"old_geometry_excess\":"<<score0<<",\"new_geometry_excess\":"<<score1<<",\"old_geometry_bad\":"<<bad0<<",\"new_geometry_bad\":"<<bad1
        <<",\"old_q_bad\":"<<q0<<",\"new_q_bad\":"<<q1<<",\"old_J_bad\":"<<j0<<",\"new_J_bad\":"<<j1<<",\"old_planning_max\":"<<length0<<",\"new_planning_max\":"<<length1
        <<",\"admissible\":"<<admissible<<",\"geometry_progress\":"<<geometryProgress<<",\"metric\":"<<metricOK<<",\"parameters\":"<<parameterOK
