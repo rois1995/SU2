@@ -1,0 +1,141 @@
+{
+  "status": "Worker checks passed; independent source-gate acceptance pending",
+  "lean": "Lean (version 4.19.0, x86_64-unknown-linux-gnu, commit 6caaee842e94, Release)",
+  "candidate_lock_sha256": "706cd3f470951c91c1a18b1233aafecf759a73e1a142649ac475dcb0ac78338e",
+  "fresh_gate_build": true,
+  "dependency_builds": "Existing pinned artifacts; cold rebuild recipe documented separately",
+  "explicit_theorems": [
+    "SU2Source.Generated.original_parsed",
+    "SU2Source.Generated.subtract_parsed",
+    "SU2Source.Generated.currentRead_parsed",
+    "SU2Source.Generated.wrongTarget_parsed",
+    "SU2Source.Generated.refactored_parsed",
+    "SU2Source.original_ir",
+    "SU2Source.refactored_ir",
+    "SU2Source.source_update_correct",
+    "SU2Source.refactor_equivalent",
+    "SU2Source.refactored_update_correct",
+    "SU2Source.source_real_update",
+    "SU2Source.original_witness",
+    "SU2Source.subtract_ir",
+    "SU2Source.currentRead_ir",
+    "SU2Source.wrongTarget_ir",
+    "SU2Source.subtract_rejected",
+    "SU2Source.currentRead_rejected",
+    "SU2Source.wrongTarget_rejected",
+    "SU2Source.reject_branch",
+    "SU2Source.reject_trailing",
+    "SU2Source.reject_macro",
+    "SU2Source.reject_shadow",
+    "SU2Source.reject_duplicate_parameter",
+    "SU2Source.reject_keyword_parameter",
+    "SU2Source.scalarUpdateIR_exec",
+    "SU2Source.store_contract",
+    "SU2Source.scalarUpdateIR_correct",
+    "SU2Source.row_major_bound",
+    "SU2Source.byte_offset_bound",
+    "SU2Source.real_component_bridge"
+  ],
+  "audit_inventory": "Audited 318 SU2Source logical declarations (105 theorem declarations)",
+  "contract_trials": {
+    "currentRead": {
+      "expected_exit": 1,
+      "trial_sha256": "a4d996064b7269c227ffc372fb5b968a17a72c1f5a64fa423c26346c0b089fc1",
+      "log_sha256": "38d9a85283485fda95f14d56588b479d20f9314962eb2286c1e69efee7468350"
+    },
+    "original": {
+      "expected_exit": 0,
+      "trial_sha256": "42274a72a96124a92d8bf0f4e89229a14948013e94a64c0527672188695f41b6",
+      "log_sha256": "055ad4f869a78689c820907d793d191bf8315c3fe85e65665dba5775dd868264"
+    },
+    "refactored": {
+      "expected_exit": 0,
+      "trial_sha256": "07a4c4c1d455fd59d07579b827ae0a52679c67c23cd304bde438dd5ff1725522",
+      "log_sha256": "be23b10ced67ef9d2197c921d2b928398e8ada722e5c0000248fa23e672781cf"
+    },
+    "subtract": {
+      "expected_exit": 1,
+      "trial_sha256": "695727adfcbd933ffb6a7e13cea8d15509bc53ed149142f5dfc155c92c69b48a",
+      "log_sha256": "225249e4e27fa48b2f31de92891b8b6cbd8d343b92ab6c03dbfbefbe8a7fdcb7"
+    },
+    "wrongTarget": {
+      "expected_exit": 1,
+      "trial_sha256": "edfacd240a106de62e7fd6d9e0e5e604de7ebcae92c3d0ac61ace580db22713f",
+      "log_sha256": "a5508dc25e9fa02967741d36276a4c249b3f7c2ababa2dc2995f11f8dbda146a"
+    }
+  },
+  "native": {
+    "compiler": "g++ (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0",
+    "configuration": "C++17 LP64 passive double, -O2 -DNDEBUG, serial",
+    "scope": "Actual inherited AddSolution and C2DContainer; fixtures allocate state through a derived class. No full solver or IEEE semantics proof.",
+    "variants": {
+      "original": {
+        "expected_exit": 0,
+        "source_header_sha256": "b3af8664633fd30417bfbbf7dbaef1a73094c7b1407b8ad40bb5d1097b745b25",
+        "preprocessed_sha256": "94fc44181279732551fe65780ed47ea06daa05a54f2630321ae18675ea4a67b4",
+        "preprocessed_method_sha256": "1eaccb2fab9d819534290b71b25c6bb57b83ef49d25a42cb7ace6670dbf76329",
+        "binary_sha256": "d8016aa802014a876b9ead094b4455af1862f4d0a62882c1517b23f077756c68",
+        "log_sha256": "2bda43bc42fa0f543142a1b0884674a04a6ba20fce0998e9bc327770c2f3b3cb"
+      },
+      "subtract": {
+        "expected_exit": 1,
+        "source_header_sha256": "e5bde3c4c1c95de1c252f273873c2e37e9267d7b05c45a6ea1788146f43b7463",
+        "preprocessed_sha256": "c4b1d5d1fd1fbc111a7393c088886e42252e48165e7b5ae062b3c106dca11fba",
+        "preprocessed_method_sha256": "41676fc214061da836dabd8c844817fa7d606a46143aa94f8d40fbabb1a5bde5",
+        "binary_sha256": "37fe562f46c18cb2add829fb46e023f10fc9f12324530df6ec9d0511471c35b7",
+        "log_sha256": "e99d31ee0b817cc33bfdfd152e6622a5ff57296bb978d0fb60845b124907b1e2"
+      },
+      "currentRead": {
+        "expected_exit": 1,
+        "source_header_sha256": "9fc28a8fb7a311cda7138e0d38f513a980ad1634195acc67ef9b1c1b9829a2b7",
+        "preprocessed_sha256": "13bf0cbbebf1f7346520c11d660b163a2811e61cc01eff44cdb8da280204135c",
+        "preprocessed_method_sha256": "261775d3edf1de4611eca9bef808218107417ca97ed708104259cc0df2955a73",
+        "binary_sha256": "c59c3c0f520fe0ef5cb4628dbf2a733a7f5475c7ada884a7f16fe40944158ebd",
+        "log_sha256": "74607accf8b426595b3c9198dd6824e7c261ca4822bd914f75a96d0db4053348"
+      },
+      "wrongTarget": {
+        "expected_exit": 1,
+        "source_header_sha256": "80fc96150c8a538123426cc6945a726efaf2354ad18f6458a07a72e4b6956777",
+        "preprocessed_sha256": "6ce6f24a6ac0a6db488ad3d44b28bda11f69d7cda8ac5d46a29c3bbc3f1e23e6",
+        "preprocessed_method_sha256": "386afa5a275196a02ef7622e8f3834f1de0d7926e6d377004f6a5994424e5e23",
+        "binary_sha256": "8ddb50d5bf58712aaa66152a8e4327c1cf4d4e8665cfe786e66236f4787e507f",
+        "log_sha256": "16df6b58a12d8531cfcbd94e8a448f5f946097565785431379aff30da3135159"
+      },
+      "refactored": {
+        "expected_exit": 0,
+        "source_header_sha256": "1b2b5012bd9e0f3869baa959390262bf7f3376cdb322273fb2d80bb544c93b77",
+        "preprocessed_sha256": "525cfca833f903ba8b11937efdea1a6744e2bbb7412fd0197fa834493e67d74d",
+        "preprocessed_method_sha256": "eb54d417cb6a7d96fdb78797ddb9f8d15321fe90b6bae14077895ea42d220b62",
+        "binary_sha256": "d8016aa802014a876b9ead094b4455af1862f4d0a62882c1517b23f077756c68",
+        "log_sha256": "04705751b6315d799eb73bda9e53dc76009282764524dcf7d068b41e236d101c"
+      }
+    }
+  },
+  "limitations": "Restricted-source semantics only; source/context extraction and C++ correspondence remain unverified. No IEEE-754 rounding proof.",
+  "logs": {
+    "audit.log": "1bdf3b0265d58430ed618b9be1782f50e9dc1b036edf2265887e552d470fa59d",
+    "build.log": "dc091509d06275b3de4f849dd9760ab489febe93ee2195dbb27aeb3e7cf05906",
+    "currentRead-contract.log": "38d9a85283485fda95f14d56588b479d20f9314962eb2286c1e69efee7468350",
+    "native-currentRead-build.log": "1c5016387a29e7bc6355704dc2cbf7ec00130f36e46af1dff35f625861c9d129",
+    "native-currentRead.log": "74607accf8b426595b3c9198dd6824e7c261ca4822bd914f75a96d0db4053348",
+    "native-original-build.log": "7efbb7b05fe9548dc2deb71860481dfb6022336567761ed7f3b981d9fa799bfd",
+    "native-original.log": "2bda43bc42fa0f543142a1b0884674a04a6ba20fce0998e9bc327770c2f3b3cb",
+    "native-refactored-build.log": "bcf7a871e915b5befdc9392cc303e6633282055984870cd9874c2ec0bb6126ce",
+    "native-refactored.log": "04705751b6315d799eb73bda9e53dc76009282764524dcf7d068b41e236d101c",
+    "native-subtract-build.log": "dc3a460f9561c161387bb9ec1adf532ca20de88c30be631f67737cc5363eda3e",
+    "native-subtract.log": "e99d31ee0b817cc33bfdfd152e6622a5ff57296bb978d0fb60845b124907b1e2",
+    "native-wrongTarget-build.log": "5ac073086167d5f582a4f651fb0819d9a7f295f8f15066c2f0baba61fac76e9a",
+    "native-wrongTarget.log": "16df6b58a12d8531cfcbd94e8a448f5f946097565785431379aff30da3135159",
+    "negative-audit.log": "542e9cb4c9f71715c8f6356567b8f556b5cd3e1604dd42821a9cda5e063a9666",
+    "original-contract.log": "055ad4f869a78689c820907d793d191bf8315c3fe85e65665dba5775dd868264",
+    "preprocess-currentRead.log": "119fc6c801d4037c1542c15a2402726c0deee45b9d86c9597248ef4a1eef9c40",
+    "preprocess-original.log": "499a23654c275a8e2251b297d6bd16073c8798abfcabadd65f08af417cd3f1ff",
+    "preprocess-refactored.log": "3eb74196705e44ac4f2cb681a4042bc806c7ea2d3880efe1a05e21345a7ea06b",
+    "preprocess-subtract.log": "e34b05e48955e52a47d57860244e8eb27e3a27bd6f5ba03efb2c3f0c96948f89",
+    "preprocess-wrongTarget.log": "e8ab5e77b33f9824ff2c11b54a9ed5d59f9f9b16784d9019bd4df87889f78a02",
+    "refactored-contract.log": "be23b10ced67ef9d2197c921d2b928398e8ada722e5c0000248fa23e672781cf",
+    "subtract-contract.log": "225249e4e27fa48b2f31de92891b8b6cbd8d343b92ab6c03dbfbefbe8a7fdcb7",
+    "types.log": "08421e2dd387540bf19ca17bcf893e301862805dfc87f6db8a303d5eb0913a46",
+    "wrongTarget-contract.log": "a5508dc25e9fa02967741d36276a4c249b3f7c2ababa2dc2995f11f8dbda146a"
+  }
+}

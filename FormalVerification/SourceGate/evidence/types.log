@@ -1,0 +1,136 @@
+$ lake env lean -DwarningAsError=true /media/rausa/4TB/SU2_Versions/SU2_Lean_gate_portability/validation/TheoremTypes.lean
+SU2Source.Generated.original_parsed :
+  SU2Source.parse SU2Source.Generated.originalSource = some SU2Source.Generated.originalProgram
+'SU2Source.Generated.original_parsed' depends on axioms: [propext]
+SU2Source.Generated.subtract_parsed :
+  SU2Source.parse SU2Source.Generated.subtractSource = some SU2Source.Generated.subtractProgram
+'SU2Source.Generated.subtract_parsed' depends on axioms: [propext]
+SU2Source.Generated.currentRead_parsed :
+  SU2Source.parse SU2Source.Generated.currentReadSource = some SU2Source.Generated.currentReadProgram
+'SU2Source.Generated.currentRead_parsed' depends on axioms: [propext]
+SU2Source.Generated.wrongTarget_parsed :
+  SU2Source.parse SU2Source.Generated.wrongTargetSource = some SU2Source.Generated.wrongTargetProgram
+'SU2Source.Generated.wrongTarget_parsed' depends on axioms: [propext]
+SU2Source.Generated.refactored_parsed :
+  SU2Source.parse SU2Source.Generated.refactoredSource = some SU2Source.Generated.refactoredProgram
+'SU2Source.Generated.refactored_parsed' depends on axioms: [propext]
+SU2Source.original_ir : SU2Source.Generated.originalProgram = SU2Source.scalarUpdateIR
+'SU2Source.original_ir' depends on axioms: [propext]
+SU2Source.refactored_ir :
+  SU2Source.Generated.refactoredProgram =
+    [SU2Source.Statement.bind "previous" (SU2Source.Expr.load SU2Source.oldCell),
+      SU2Source.Statement.store SU2Source.currentCell
+        ((SU2Source.Expr.localValue "previous").add SU2Source.Expr.argument)]
+'SU2Source.refactored_ir' depends on axioms: [propext]
+SU2Source.source_update_correct {α : Type} (ops : SU2Source.Operations α) (layout : SU2Source.Layout)
+  (args : SU2Source.Inputs α) (memory : SU2Source.Memory α) (dest source : SU2Source.Address) (x : α)
+  (hd : SU2Source.address layout args SU2Source.currentCell = some dest)
+  (hs : SU2Source.address layout args SU2Source.oldCell = some source) (hx : memory source = some x) :
+  ∃ after,
+    SU2Source.execute ops layout args SU2Source.Generated.originalProgram memory = some after ∧
+      SU2Source.UpdateContract ops.add memory after dest source x args.increment
+'SU2Source.source_update_correct' depends on axioms: [propext, Quot.sound]
+SU2Source.refactor_equivalent {α : Type} (ops : SU2Source.Operations α) (layout : SU2Source.Layout)
+  (args : SU2Source.Inputs α) (memory : SU2Source.Memory α) :
+  SU2Source.execute ops layout args SU2Source.Generated.refactoredProgram memory =
+    SU2Source.execute ops layout args SU2Source.Generated.originalProgram memory
+'SU2Source.refactor_equivalent' depends on axioms: [propext, Quot.sound]
+SU2Source.refactored_update_correct {α : Type} (ops : SU2Source.Operations α) (layout : SU2Source.Layout)
+  (args : SU2Source.Inputs α) (memory : SU2Source.Memory α) (dest source : SU2Source.Address) (x : α)
+  (hd : SU2Source.address layout args SU2Source.currentCell = some dest)
+  (hs : SU2Source.address layout args SU2Source.oldCell = some source) (hx : memory source = some x) :
+  ∃ after,
+    SU2Source.execute ops layout args SU2Source.Generated.refactoredProgram memory = some after ∧
+      SU2Source.UpdateContract ops.add memory after dest source x args.increment
+'SU2Source.refactored_update_correct' depends on axioms: [propext, Quot.sound]
+SU2Source.source_real_update {d : ℕ} (U delta : SU2.State d) (alpha : ℝ) (channel : SU2.Channel d)
+  (layout : SU2Source.Layout) (point component : ℕ) (memory : SU2Source.Memory ℝ) (dest source : SU2Source.Address)
+  (hd :
+    SU2Source.address layout { point := point, component := component, increment := alpha * delta channel }
+        SU2Source.currentCell =
+      some dest)
+  (hs :
+    SU2Source.address layout { point := point, component := component, increment := alpha * delta channel }
+        SU2Source.oldCell =
+      some source)
+  (hx : memory source = some (U channel)) :
+  ∃ after,
+    SU2Source.execute SU2Source.realOperations layout
+          { point := point, component := component, increment := alpha * delta channel }
+          SU2Source.Generated.originalProgram memory =
+        some after ∧
+      after dest = some (SU2.conservativeUpdate U delta alpha channel) ∧
+        ∀ (other : SU2Source.Address), other ≠ dest → after other = memory other
+'SU2Source.source_real_update' depends on axioms: [propext, Classical.choice, Quot.sound]
+SU2Source.original_witness : SU2Source.WitnessContract SU2Source.Generated.originalProgram
+'SU2Source.original_witness' depends on axioms: [propext, Quot.sound]
+SU2Source.subtract_ir :
+  SU2Source.Generated.subtractProgram =
+    [SU2Source.Statement.store SU2Source.currentCell
+        ((SU2Source.Expr.load SU2Source.oldCell).sub SU2Source.Expr.argument)]
+'SU2Source.subtract_ir' depends on axioms: [propext]
+SU2Source.currentRead_ir :
+  SU2Source.Generated.currentReadProgram =
+    [SU2Source.Statement.store SU2Source.currentCell
+        ((SU2Source.Expr.load SU2Source.currentCell).add SU2Source.Expr.argument)]
+'SU2Source.currentRead_ir' depends on axioms: [propext]
+SU2Source.wrongTarget_ir :
+  SU2Source.Generated.wrongTargetProgram =
+    [SU2Source.Statement.store SU2Source.oldCell ((SU2Source.Expr.load SU2Source.oldCell).add SU2Source.Expr.argument)]
+'SU2Source.wrongTarget_ir' depends on axioms: [propext]
+SU2Source.subtract_rejected : ¬SU2Source.WitnessContract SU2Source.Generated.subtractProgram
+'SU2Source.subtract_rejected' depends on axioms: [propext, Quot.sound]
+SU2Source.currentRead_rejected : ¬SU2Source.WitnessContract SU2Source.Generated.currentReadProgram
+'SU2Source.currentRead_rejected' depends on axioms: [propext, Quot.sound]
+SU2Source.wrongTarget_rejected : ¬SU2Source.WitnessContract SU2Source.Generated.wrongTargetProgram
+'SU2Source.wrongTarget_rejected' depends on axioms: [propext, Classical.choice, Quot.sound]
+SU2Source.reject_branch :
+  SU2Source.parse
+      "inline void AddSolution(unsigned long p, unsigned long v, su2double x) { if (x) { Solution(p,v) = x; } }" =
+    none
+'SU2Source.reject_branch' depends on axioms: [propext]
+SU2Source.reject_trailing :
+  SU2Source.parse (SU2Source.Generated.originalSource ++ " Solution(iPoint,iVar) = solution;") = none
+'SU2Source.reject_trailing' depends on axioms: [propext]
+SU2Source.reject_macro :
+  SU2Source.parse "inline void AddSolution(unsigned long p, unsigned long v, su2double x) { UPDATE(p,v,x); }" = none
+'SU2Source.reject_macro' depends on axioms: [propext]
+SU2Source.reject_shadow :
+  SU2Source.parse "inline void AddSolution(unsigned long p, unsigned long v, su2double x) { const su2double x = x; }" =
+    none
+'SU2Source.reject_shadow' depends on axioms: [propext]
+SU2Source.reject_duplicate_parameter :
+  SU2Source.parse "inline void AddSolution(unsigned long p, unsigned long p, su2double x) { Solution(p,p) = x; }" = none
+'SU2Source.reject_duplicate_parameter' depends on axioms: [propext]
+SU2Source.reject_keyword_parameter :
+  SU2Source.parse "inline void AddSolution(unsigned long if, unsigned long v, su2double x) { Solution(if,v) = x; }" =
+    none
+'SU2Source.reject_keyword_parameter' depends on axioms: [propext]
+SU2Source.scalarUpdateIR_exec {α : Type} (ops : SU2Source.Operations α) (layout : SU2Source.Layout)
+  (args : SU2Source.Inputs α) (memory : SU2Source.Memory α) (dest source : SU2Source.Address) (x : α)
+  (hd : SU2Source.address layout args SU2Source.currentCell = some dest)
+  (hs : SU2Source.address layout args SU2Source.oldCell = some source) (hx : memory source = some x) :
+  SU2Source.execute ops layout args SU2Source.scalarUpdateIR memory =
+    some (Function.update memory dest (some (ops.add x args.increment)))
+'SU2Source.scalarUpdateIR_exec' depends on axioms: [propext, Quot.sound]
+SU2Source.store_contract {α : Type} (ops : SU2Source.Operations α) (memory : SU2Source.Memory α)
+  (dest source : SU2Source.Address) (x delta : α) (hx : memory source = some x) :
+  SU2Source.UpdateContract ops.add memory (Function.update memory dest (some (ops.add x delta))) dest source x delta
+'SU2Source.store_contract' depends on axioms: [propext]
+SU2Source.scalarUpdateIR_correct {α : Type} (ops : SU2Source.Operations α) (layout : SU2Source.Layout)
+  (args : SU2Source.Inputs α) (memory : SU2Source.Memory α) (dest source : SU2Source.Address) (x : α)
+  (hd : SU2Source.address layout args SU2Source.currentCell = some dest)
+  (hs : SU2Source.address layout args SU2Source.oldCell = some source) (hx : memory source = some x) :
+  ∃ after,
+    SU2Source.execute ops layout args SU2Source.scalarUpdateIR memory = some after ∧
+      SU2Source.UpdateContract ops.add memory after dest source x args.increment
+'SU2Source.scalarUpdateIR_correct' depends on axioms: [propext, Quot.sound]
+SU2Source.row_major_bound (rows cols row col : ℕ) (hr : row < rows) (hc : col < cols) : row * cols + col < rows * cols
+'SU2Source.row_major_bound' depends on axioms: [propext]
+SU2Source.byte_offset_bound (rows cols row col : ℕ) (hr : row < rows) (hc : col < cols)
+  (hs : 8 * (rows * cols) ≤ 2 ^ 64) : 8 * (row * cols + col) + 7 < 2 ^ 64
+'SU2Source.byte_offset_bound' depends on axioms: [propext, Quot.sound]
+SU2Source.real_component_bridge {d : ℕ} (U delta : SU2.State d) (alpha : ℝ) (channel : SU2.Channel d) :
+  SU2Source.realOperations.add (U channel) (alpha * delta channel) = SU2.conservativeUpdate U delta alpha channel
+'SU2Source.real_component_bridge' depends on axioms: [propext, Classical.choice, Quot.sound]
+EXIT 0
