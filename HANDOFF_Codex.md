@@ -23,7 +23,7 @@ complete selected P1 field on ONE existing smooth_upper context. This is NOT an 
 358geometry replay.16 seed/checkpoint payloads371194652B rehashed unchanged.
 408 passed212.223s but was not executed: review caught sentinel-returning Shape in
 new diagnostic; exact408 fixture archived.409 uses direct ShapeOf so query failures
-propagate as explicit refusals. New diagnostic/evidence checkpoint is pending push.
+propagate as explicit refusals. Diagnostic/evidence checkpoint7e3b9382ee is PUSHED to the authorized fork.
 
 409 planning maximum1.15822<1.8, yet original first-row trials fail physical height/
 clearance and reach existing65cell closure cap in20.467s/1027758work. Existing completion
