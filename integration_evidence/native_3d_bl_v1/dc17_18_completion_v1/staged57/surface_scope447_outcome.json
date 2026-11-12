@@ -1,0 +1,43 @@
+{
+  "case": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved447_wall_scope_saved_target_surface_mpi6_20261112T160942_1839218",
+  "comparison445": {
+    "commits": {
+      "before": 834,
+      "after": 747,
+      "relative_change": -0.10431654676258995
+    },
+    "geometry_work": {
+      "before": 48669770,
+      "after": 42672007,
+      "relative_change": -0.12323384721152375
+    },
+    "field_requests": {
+      "before": 51368,
+      "after": 42017,
+      "relative_change": -0.18203940196231116
+    },
+    "measured_wall_cells": {
+      "before": 4499,
+      "after": 3873,
+      "relative_change": -0.13914203156256943
+    },
+    "geometry_work_per_commit": {
+      "before": 58357.03836930456,
+      "after": 57124.50736278447,
+      "limitation": "Different admitted trajectories; counters are work, not strict mesh closure."
+    },
+    "field_requests_per_commit": {
+      "before": 61.592326139088726,
+      "after": 56.24765729585007,
+      "limitation": "Different admitted trajectories; counters are work, not strict mesh closure."
+    }
+  },
+  "all_actual_handles_terminal": true,
+  "source_assessment_sha256": "a723c3194158062538d5aa8c2daf3fa897d5260f379c9d34fa165e2adb1f25be",
+  "scope_effect_confirmed": "3201 published nonrequested row occurrences skipped; zero nonrequested updated measurement classes. Complete saved mesh remains positive/current-nodal consistent.",
+  "performance_outcome": "No demonstrated improvement in useful stage progress: fewer commits and measured requested-wall rows at same native deadline; neither run completes a pass.",
+  "contention_limits": "Contention was not controlled. Rank CPU includes polling, timers overlap, and nodal-transport/proposal trajectories differ. No isolated hardware-normalized speed inference or new baseline campaign.",
+  "interpretation": "Provisional census scope is qualified; performance gain and surface readiness remain unproven. Lower partial bad counts cannot prove closure.",
+  "next_target": "Surface readiness/completion speed. Existing private surface-collapse evaluation already avoids local trial collectives; do not implement that facility again. Geometry query cost/rank skew remains material, while donor preparation is negligible.",
+  "goal_complete": false
+}

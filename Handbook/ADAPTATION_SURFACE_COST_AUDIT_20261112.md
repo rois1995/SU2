@@ -85,7 +85,7 @@ new full baseline/profiling campaign. A production correction requires demonstra
 avoidable work and unchanged complete-patch decisions. Keep the ordered stages,
 final physical height/progression and all strict final gates unchanged.
 
-##447 connected correction — qualification pending
+##447 connected correction — qualified scope, no demonstrated stage speedup
 
 **Input:** same complete441target/savedCFD and current transported nodal tensors;
 no sensor/norm/height/normalization/construction-policy change.
@@ -116,4 +116,50 @@ Build447PASS484.425s; all64observed actual handles terminal, sourcepins unchange
 newbinary and clean Ninja dry-run. Focusedserial15cases/1862assertionsPASS5.314s;
 MPI6same15casesonEVERYrank/897–1391assertions PASS5.117s; observed actualhandles
 terminal and1678pinsverified each. R/surface_scope447_qualification.json.
-Same-target actual M6 stage3 replay frozen; outcome and performance pending.
+Same-target actual M6 stage3 replay is terminal; all10actual identities terminal,
+source/runtime/input pins verified. R/surface_stage447_assessment.json and
+surface_scope447_outcome.json, case
+R/cases/curved447_wall_scope_saved_target_surface_mpi6_20261112T160942_1839218.
+
+| Metric |445|447|
+|---|---:|---:|
+| Native stage wall seconds |389.055|389.174|
+| Wrapper seconds |492.521|516.743|
+| Commits |834|747|
+| Requested wall rows measured/required |4499/37137|3873/37310|
+| Completed collapse/split passes |0/0|0/0|
+| Nodes/tetrahedra |60495/301194|60582/301412|
+| Field requests |51368|42017|
+| Geometry work |48669770|42672007|
+| Partial known geometry/size bad |171/9|129/7|
+| q/J measured |0/0|0/0|
+
+All301412saved tets positive,1145066exact shared nodal coordinate/tensor checks.
+447skips3201nonrequested row occurrences; seedclasses[0,0,1536], updateclasses[0,0,3099].
+All3873cached rows are requested-wall demand owners.297539volume rows stayUNKNOWN.
+Surface readiness is FALSE, both requested coverage flags false. Stage output remains
+provisional failure evidence, not a successful reusable surface checkpoint.
+Initial composed estimate486914.722±empirical41525.003(notbound), requested500k;
+new-mesh achieved composed complexity is NOT measured. No heights/growth/target change.
+
+No useful-stage performance gain demonstrated: commits-10.4%, measuredwallrows-13.9%,
+zero passes both. Fieldrequests-18.2%, geometrywork-12.3% do not establish useful closure.
+Percommit fieldrequests61.59→56.25, geomwork58357→57125. Missing local prefilter data
+can change trajectories; nodaltransport then changes evolving pointwise demands.
+Host contention was not controlled; no isolated timing causality is established. Do not launch another baseline merely to resolve that confound.
+The correction is qualified for scope/constraints, not validated as a speedup.
+
+Structured counters now executed on every rank: donor_secondsmax.07223s,
+update_secondsmax43.288s. MeasurementCPU12.984–20.817s/rank includes seed+update and
+is not the same interval as updatewall. Rank5upperqueries51.248s/15.428Mwork versus
+rank0 5.203s/2.265M. Rank5facetbuild17.112/scopebuild6.579/traversal27.253s are nested
+and cannot be added to upper/native time. Geometrywork rankmax/min5.391. Fiveexit
+records parseable;910rounds/276102Worldelectioncollectivecalls. Directory113975elections
+and24.26–33.09s are different wrappers; none establishes total MPIwait. Existing
+private surface coarsening already guards zero trial collectives when callbacks
+are absent; do not implement that again.
+
+SummedrankCPU2162.028s includespolling; sampled tree4.858GB/individual.940GB are not
+true peaks. Saved CFD, complete target, constraints and budgets remain unchanged.
+Next blocker is surface completion with expensive/skewed geometry work, not remote
+donor preparation or established deficient shape repair (shape remains unmeasured).

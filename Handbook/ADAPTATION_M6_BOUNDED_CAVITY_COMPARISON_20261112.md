@@ -1,11 +1,12 @@
 # Actual M6 bounded cavity correction comparison
 
-Active user-requested capability investigation, not an architectural survey.437
-has demonstrated useful private replacements on actual visibility failures; no
-production growth/MPI publication capability is integrated.441common32h0 target is
-now reconstructibly qualified; physical BL/growth acceptance remains unproven.
-HANDOFF_Codex.md owns live workload/source state; numbered435–440notes below are
-preserved evidence, not current job handles.
+Current capability: bounded visibility-corrected ReconnectCollapse is integrated and
+serial/MPI qualified through445, including full cross-rank support discovery before
+reservation and atomic publication. It is not reference equivalence or an accepted BL.
+441common32h0 target is reload-qualified. Surface stage remains unready through447;
+see [current cost/scope outcome](ADAPTATION_SURFACE_COST_AUDIT_20261112.md).
+The detailed435–441investigation below is preserved historical evidence; HANDOFF_Codex.md
+owns current source/build/input and actual workload state.
 All six
 434 geometry parameter payloads have identical SHA256
 `a708cb68fce20ea0ace10e013a931e56823b118c5c2133ee250635719215fd3e`.

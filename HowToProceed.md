@@ -7,25 +7,30 @@ Use the [stage integration cadence](Handbook/ADAPTATION_CURVED_BL_STAGE_INTEGRAT
 and maintained [timing/work ledger](Handbook/ADAPTATION_TIMINGS.md). Full retries are
 reserved for integration milestones or failures not reproducible at a stage boundary.
 
-## Current next step — staged height and useful cavity replacement
+## Current next step — complete surface readiness
 
-441 common32h0 stage0 target is complete/fresh-reload qualified, estimate486914.722
-at nominal500k; original seed and true finalh0 remain unchanged. Surface attempt is
-terminal:876pointsremoved/300958positive tets,4720/37053wallcells measured,0complete
-passes. NOT surface-ready; partialgeometrybad197 and allq/J unknown. Preserve all six
-currentnodalcore/association shards and the complete441 composed target. The bounded correction is now implemented and serial/MPI qualified: grow16/reconnect27313→14,
-privateqbad14→10/J13→10/geometry0→0, with full support/version/reservation/publication.
-See R/cavity_correction445_qualification.json. Strictheight is stillFALSE; this is not a BL.
-The full stage3 integration remains unready:834commits/4499wallrows measured at the same
-budget versus441876/4720. All301194tetspositive; q/J remainUNKNOWN globally, and partial
-geometrycounts have different coverage. No global progress/speedup claim is justified.
+The complete44132h0 target is reload-qualified. Surface preparation remains unready
+through447; preserve its positive provisional shards and all upstream checkpoints.
+See [current surface-cost assessment](Handbook/ADAPTATION_SURFACE_COST_AUDIT_20261112.md).
+445bounded cavity correction is serial/MPI qualified, but neither it nor447scope
+filter establishes a usable surface/BL.447skips3201nonrequested measurement occurrences
+and retains full private cavity admission/transport/publication. Yet same-budget
+progress is747commits/3873wallrows versus445834/4499,0passesboth; no speedup claim.
+Partialgeometry129/171 counts differ in coverage, allq/JUNKNOWN. No new full baseline.
 
-Next assess census-service/measurement speed and rank/certification work from current evidence,
-not more cavity variants. Queue-driven seeding processes16rows/rank only when no chosen work
-remains:1920seededwallrows(20MPIchunks) versus2208(23). Fullcoverage scans alreadyshort-circuit
-when known debt proves unreadiness. This confirms ordering, not that a new policy will work.
-Keep one cycle; select a measured correction before another stage3 run, preserve budgets/gates.
-Read HANDOFF for terminal handles and current source/build/input provenance.
+The next correction must address demonstrated geometry-query cost/rank skew or
+surface completion, using saved actual cavities and current counters. Donor preparation
+is alreadylocal/negligible(max.073s/rank). Boundary guidance is deduplicated withinbatch.
+Existing unchanged-face memo givesZERO reuse on the sampled coarsening stars; do not
+integrate it from warmcachework differences. Private surface-collapse evaluation
+already avoids local trial collectives. Do not duplicate those facilities, broaden
+batches/scheduling or add operators without measured justification. Preserve complete
+support/reservation/invalidation and all constraints. Keep CAD optional.
+
+Use HANDOFF for exact current source/build/runtime/inputs and terminal handles.
+Lower field requests or committime under contention are not surface readiness. Once
+credible readiness exists, proceed to directions/firstrow/growth/strict closure and
+complete RANS workflow; retain physical progression and actual disk restart obligations.
 
 437 corrected the diagnostic interface ordering and selected surviving actual
 visibility failures. Direct collapses fail exact positivity; bounded corrected

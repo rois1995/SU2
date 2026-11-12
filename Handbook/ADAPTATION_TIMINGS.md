@@ -1473,3 +1473,21 @@ RSSsampling missed actualchildpeaks; do not use602KB/1.07MBsamples as process/jo
 Casepins1678eachverified; R/surface_scope447_qualification.json. Qualified scope is
 provisional requested-wall measurement, not actualBLgeneration/finalquality.
 Same441target M6 stage3 replay frozen next; no performance gain established yet.
+
+447actualM6stage3TERMINAL516.743swrapper/native389.174s/load44.976/import.470;
+all10actualhandles terminal/pinsverified. Scopefilter skips3201rowOCCURRENCES;
+measuredclasses seed[0,0,1536]/update[0,0,3099].3873/37310wallrows,747commits,0passes;
+NOTready vs4454499/37137,834commits,0passes.60582nodes/301412positive tets,
+1145066exactshared nodal checks. Partialgeometrybad129/sizebad7, q/JALLUNKNOWN.
+Fieldrequests42017(-18.2%),geomwork42672007(-12.3%) vs445; NOusefulstage speedup.
+Percommitfieldrequests56.25vs61.59,geomwork57125vs58357; trajectory/contention differ.
+NewstructuredcountersEXECUTED: updatewallmax43.288s, donorwallmax.07223s; measurement
+CPU12.984–20.817s/rank includesseed+update. Rank5upper51.248s/15.428Mwork vsrank0
+5.203s/2.265M; rank5facet17.112/scope6.579/traversal27.253s NESTED, notadditive.
+Fiveexitrecordsparseable:910rounds/276102Worldelectioncollectivecalls; Directory
+113975elections/24.26–33.09s separate wrappers; nottotalMPIwait. SumCPU2162.028s
+includespolling. SampletreeRSS4.858GB/individual.940GB/nottruepeaks. Initialtarget
+estimate486914.722±empirical41525.003(notbound), requested500k; achievednewmesh
+composedcomplexityUNMEASURED. R/surface_stage447_assessment.json/surface_scope447_outcome.json.
+Scopequalified, performanceunproven. Nexttargetsurfacecompletion/geometrycost+skew;
+noanotherbaselinecampaign. Existingprivatecoarseningalreadyremovestrialcollectives.
