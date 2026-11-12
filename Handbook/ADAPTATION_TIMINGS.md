@@ -1545,3 +1545,13 @@ SumCPU2296.573includespolling; sampletreeRSS4.212GB/individual.861GB/nottruepeak
 Nominal500k/initial486914.722±empirical41525.003(notbound); achievednewmeshcomplexity
 UNMEASURED. R/surface_stage449_assessment.json/surface_idle449_outcome.json.
 Nextboundedtargetnon-coreboundarycontext cost+refusalpower, notanother serviceframework.
+
+450 bounded actual boundary components (same441target/449mesh): build389.149s;
+serial wrapper159.197s/time142.22s,140.21user+.59system,608989assertions; allpins/
+actualhandles verified. Fourstars, two opposite-order repeats: complete guidance
+.117–.141s/14nodecalls perstar, intrinsic.00358–.00380s/82–84sidecalls; accounting
+.0000122–.0000217s. These are separate nested invocations, NOT additive phasecosts.
+All303493Owned records byte-identical449. No mesh accepted; no MPI polling in this
+serial query diagnostic. Storage-accounting optimization rejected for samples.
+451tests position-only thin-strip scan reuse inside one BoundaryGuidance call;
+qualified performance/progress pending. See current surface cost audit.

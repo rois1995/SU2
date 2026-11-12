@@ -7,7 +7,15 @@ Use the [stage integration cadence](Handbook/ADAPTATION_CURVED_BL_STAGE_INTEGRAT
 and maintained [timing/work ledger](Handbook/ADAPTATION_TIMINGS.md). Full retries are
 reserved for integration milestones or failures not reproducible at a stage boundary.
 
-## Current next step — isolate boundary planning/context cost and split refusals
+## Current next step — finish scoped strip-reuse qualification and stage comparison
+
+450actualcomponentdiagnostic passed: StorageBytes is tiny, no caching justified.
+CompleteBoundaryGuidance repeats position-only OptionA strip discovery for each
+reference side;451nowreuses the firstside's already-stored rules within ONEcall.
+No persistentcache/allocation/targetchange. Build451 and22case serial/MPI6 milestone
+pass. Actualsaved449stars compareexact old/new guidance and cost; then replaystage3
+withsame441target/CFD/32h0/constraints/budgets. FollowHANDOFFforlivehandles. Do not
+select a secondoptimization from speculativegeometry work orfewerqueriesalone.
 
 The complete44132h0 target remains reload-qualified.448unblocked requiredsurface
 work fromoptionalcoarsening;449nowletsidleworkers advanceoneexistingcensusbatch

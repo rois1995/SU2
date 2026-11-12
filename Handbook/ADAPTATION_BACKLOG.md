@@ -1200,3 +1200,8 @@ and contribution versus MPIjoining areUNMEASURED. If dominanttargetcompute ispro
 using savedcontexts/counters, audit invariant accounting reuse and allmutation/
 invalidation callers before adding caching. No production change selected; current
 cycle is boundedidle census service.
+450actual449stars also REJECT this accounting optimization: .0000122–.0000217s
+for82–84StorageBytescalls percontext versus.117–.141s completeguidance. No cache
+implemented.451insteadtests repeated position-only thin-strip screening inside
+ONEboundaryguidancecall; see currentcost audit. Do not reopen accounting without
+new material contrary evidence.

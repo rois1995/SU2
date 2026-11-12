@@ -381,6 +381,7 @@ struct TargetPolicy {
       if(result.size()==4*MaximumCavityCells)throw std::length_error("Requested-wall sided guidance exceeds cavity admission.");
       result.push_back(sample);
     };
+    size_t stripBegin=0,stripEnd=0;bool stripsReady=false;
     auto side=[&](Id facet) {
       const auto& face=authority->Get(facet);const auto role=roles.find(face.marker);
       if(role==roles.end()||role->second!=1)return;
@@ -399,12 +400,19 @@ struct TargetPolicy {
           guidance={Pack(metric),{SU2_TYPE::GetValue(own.normal[0]),SU2_TYPE::GetValue(own.normal[1]),SU2_TYPE::GetValue(own.normal[2])}};
         }
         BoundaryMetricSample sample{guidance.tensor,guidance.normal};append(sample);
-        for(const auto& strip:A->strips) {
-          long double width=0;dc10::V direction;
-          if(!A->InStrip(strip,dc10::Of(node.p),width,direction))continue;
-          // The existing four-cells-across strip rule is construction demand, not a changed flow/BL target.
-          const auto scale=4*MaximumMetricEdge/(1.05L*width);
-          sample.strip_rule={double(scale*direction.x),double(scale*direction.y),double(scale*direction.z)};append(sample);
+        if(stripsReady) {
+          // Strip membership depends only on this call's fixed point and policy, not its reference side.
+          for(size_t i=stripBegin;i<stripEnd;++i){sample.strip_rule=result[i].strip_rule;append(sample);}
+        } else {
+          stripBegin=result.size();
+          for(const auto& strip:A->strips) {
+            long double width=0;dc10::V direction;
+            if(!A->InStrip(strip,dc10::Of(node.p),width,direction))continue;
+            // The existing four-cells-across strip rule is construction demand, not a changed flow/BL target.
+            const auto scale=4*MaximumMetricEdge/(1.05L*width);
+            sample.strip_rule={double(scale*direction.x),double(scale*direction.y),double(scale*direction.z)};append(sample);
+          }
+          stripEnd=result.size();stripsReady=true;
         }
       }
       if(!found)throw std::invalid_argument("Requested-wall binding has no retained metric component.");

@@ -1,0 +1,32 @@
+{
+  "build": "build451",
+  "case": "curved451_boundary_strip_qualification_mpi6",
+  "ranks": 6,
+  "argv": [
+    "nice",
+    "-n",
+    "19",
+    "/usr/bin/time",
+    "-v",
+    "timeout",
+    "600",
+    "mpirun",
+    "--bind-to",
+    "none",
+    "-n",
+    "6",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+    "[NativeBoundaryStripReuse3D],[NativeBLDirectionInvalidation3D],[NativeTargetCheckpoint3D],[NativeSurfacePreparationEngine3D],[NativeSurfacePlanning3D],[NativeCollapseCorrection3D],[NativeFirstHeightPreservation3D],[NativeCurvedTransaction3D],[NativeConcurrentComposed3D],Native incremental MPI refinement reaches complete frozen metric gates,Native proposal and clock budgets reject collectively without publishing input,Native tetrahedral MPI rejected versions rank veto budgets and shared coordinates preserve both stores",
+    "--durations",
+    "yes"
+  ],
+  "environment": {
+    "OMPI_MCA_osc": "pt2pt",
+    "OMPI_MCA_orte_tmpdir_base": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/compile-tmp/curved451_boundary_strip_qualification_mpi6-fru8gi8t",
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1",
+    "TMPDIR": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/compile-tmp"
+  },
+  "timeout_seconds": 600
+}

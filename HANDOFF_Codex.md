@@ -13,7 +13,34 @@ preserves earlier evidence/handles, NOT live workload state.
 
 ## Live state and provenance
 
-No owned heavy workload live.449actualM6surface replay TERMINAL492.422s wrapper/
+ONE owned actual451querycomparisonlive (session2923):
+R/cases/curved451_boundary_strip_reuse_serial_20261112T185336_111955.
+Preserve pinned code; actual PID/startticks in resources.jsonl/status.json.
+Build451PASS407.947s/all36actualidentities terminal/pins/newbinary/cleanNinja.
+CurrenttestSHA3d68c30ce14a4afe1e3b2eabd94e5e8a73b899ce5fabb0e381a556d3dc4fe03d;
+CFDSHAf15bc306e1558ed5d9e8ee804ecc03155f4aecc55b754634ee2398f79fa5509a.
+SerialPASS4.783s/22cases11679assertions; MPI6PASS4.658s/22casesEVERYrank,
+1146–11258assertions;1684pins/case/actualidentities+wrappers terminal.
+R/boundary_strip451_qualification.json. Actualold/new and stageprogresspending.
+450diagnostic TERMINAL PASS159.197s wrapper/608989assertions, all5actualhandles
+terminal/1736pinsverified/all303493Owned recordsbyte-identical449.
+R/planning_cost450_assessment.json. ProductionCFD remained byte-identical449.
+Storage accounting is tiny on actual samples; do NOT implement its speculativecache.
+Mapped/associated/intrinsic costs~.002s per41–42sides; completeBoundaryGuidance
+~.058–.062s per7nodes. Independent invocations/nested—not additive phasecosts.
+Source identifies repeated position-only OptionA strip scan perincidentreference side.
+451reuses firstside striprulevalues ALREADY in result, onlywithin samecall, preserving
+fresh side-specific metric/normals, exact outputorder and existing256samplecap.
+No persistentcache/allocation/config/target/gate/budgetchange. Independent frozenold
+implementation + focusedposition/policy/limit tests and sameactualstars willcompare
+exactresults/times. Focusedruntimequalified; actualquery benefit and stageprogress NOT establishedyet.
+450buildPASS389.149s/all10actualterminal/pins/newbinary/cleanNinja; previous testSHA
+3d18f0f012570219b2b9da3a72ffa38400a184b8eb0b170eefc4b11293246d87.
+450 uses SAME complete441target/449transportedmesh+parameters, four completevertexstars
+4247,7907,smoothcontrol,4219. Not exactfailedsplitreproduction orheightdiagnosis.
+Sourceentry:1478pins/32prioractualterminal R/planning_cost450_entry.json.
+
+449actualM6surface replay TERMINAL492.422s wrapper/
 389.092s native; all10actualidentities terminal, source/runtime/inputpinsverified:
 R/cases/curved449_idle_census_saved_target_surface_mpi6_20261112T171923_2017200
 (session40009terminal). R/surface_stage449_assessment.json and surface_idle449_outcome.json.

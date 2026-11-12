@@ -332,3 +332,50 @@ andrefusalpower, beforefurtherproductionchanges. Existing StorageBytes feature-g
 scan hypothesis remainsunproven; donotcacheaccounting ornormaldata withoutmeasured
 costand allmutator/identity/invalidation/resource audits. Keepthequalified service
 changes, latestEuler/BLconstruction, original noCAD authority andeveryfinalgate.
+
+##450 actual component diagnosis and451 in-call strip reuse
+
+Input: complete441 stage0 target, saved449 complete evolved Owned/parameter shards,
+current transported nodal metrics and unchanged authority. Output: four actual
+complete vertex-star query comparisons, without mesh publication. Acceptance:
+exact ordered repeat guidance, unchanged parameter payload and independent byte
+identity of every Owned record; separate nested invocations, not summed timers.
+These are stars around recorded failed-split vertices4247/7907, smooth control and
+leading edge4219, not exact reproduction of their failed edge cavities.
+
+450buildPASS389.149s/all10actualhandles terminal/newbinary/cleanNinja/pins; CFD binary
+unchanged449. DiagnosticPASS159.197s wrapper/608989assertions, all5actualidentities
+terminal/1736pinsverified/all303493Owned records independently byte-identical449.
+R/planning_cost450_assessment.json. Sampled largest process.661GB, notjobpeak.
+Reported time command142.22s/user140.21s/system.59s; wrapper includes pinning/setup.
+No MPI polling inference from serial cost and no accepted mesh claim.
+
+Across two opposite-order repetitions per context, complete boundary guidance
+costs.117–.141s for14nodecalls, versus intrinsic.00358–.00380s for82–84sidecalls.
+Mapped differentials.00339–.00391s; associated samples.00357–.00412s. StorageBytes
+.0000122–.0000217s per82–84calls: reject its proposed accounting cache for these
+samples. Each component is a SEPARATE INVOCATION of a nested function; do not add
+these times or treat subtraction as an exclusive production-time decomposition.
+
+The remaining source path repeats OptionA::InStrip for the same point/policy once
+per incident reference side. Its position-only predicate and rule do not depend on
+the side-specific tensor/normal.451 uses existing result entries from the first
+side for later sides WITHIN ONE CALL, retaining order, duplicate rules, fresh
+side-specific evaluations and the existing256sample admission. No persistentcache,
+extra allocation, support/association reuse, new config or target/gate/budget change.
+It reaches production SurfacePlanning through the shared BoundaryGuidance callback;
+Composition/Edges/full-target certification and private/publication paths unchanged.
+
+451acceptance: exact old/new ordered tensors/normals/striprules against frozen
+pre-change implementation on actual stars and focused zero/multiple/many-hit,
+changing-position/policy and admission-exhaustion cases; meaningful MPI ownership/
+constraint milestone. Compare directly timed old/new query work separately from
+wall effects. Then same-target stage3 replay judges actual requested-wall coverage,
+complete passes, geometry/size and positive transported output under unchanged
+budgets. Successful query reuse alone is not surface readiness or a usable BL.
+Build451PASS407.947s/all36actualidentities terminal/newbinary/cleanNinja/pins.
+Focusedserial22cases/11679assertions PASS4.783s; MPI6same22casesEVERYrank,
+1146–11258assertions PASS4.658s.1684pins/case, actualhandles/wrappers terminal.
+R/boundary_strip451_qualification.json. SampledRSS missesshortchildren, not truepeaks.
+Actualold/newquerycomparison and same-target stageprogress pending; no production
+speedup established yet.

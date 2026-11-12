@@ -1,0 +1,49 @@
+{
+  "boundary_strip_mpi_qualified": true,
+  "cases": [
+    {
+      "mode": "serial",
+      "case": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved451_boundary_strip_qualification_serial_20261112T185248_110139",
+      "status": {
+        "state": "terminal",
+        "exit_code": 0,
+        "seconds": 4.782734394073486,
+        "pins_verified": true,
+        "changed": [],
+        "largest_sampled_individual_process_rss_bytes": 602112,
+        "rss_note": "sampled process RSS; not a whole-job peak"
+      },
+      "passed": [
+        "All tests passed (11679 assertions in 22 test cases)"
+      ],
+      "verified_pins": 1684,
+      "all_actual_handles_terminal": true
+    },
+    {
+      "mode": "mpi6",
+      "case": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved451_boundary_strip_qualification_mpi6_20261112T185314_111169",
+      "status": {
+        "state": "terminal",
+        "exit_code": 0,
+        "seconds": 4.657885789871216,
+        "pins_verified": true,
+        "changed": [],
+        "largest_sampled_individual_process_rss_bytes": 581632,
+        "rss_note": "sampled process RSS; not a whole-job peak"
+      },
+      "passed": [
+        "All tests passed (1146 assertions in 22 test cases)",
+        "All tests passed (11258 assertions in 22 test cases)",
+        "All tests passed (10602 assertions in 22 test cases)",
+        "All tests passed (10523 assertions in 22 test cases)",
+        "All tests passed (10418 assertions in 22 test cases)",
+        "All tests passed (10523 assertions in 22 test cases)"
+      ],
+      "verified_pins": 1684,
+      "all_actual_handles_terminal": true
+    }
+  ],
+  "scope": "Scoped strip reuse exact old/new output and bounded admission, changing node positions/policy, empty rank plus existing direction/publication, target, curved/height/ownership/full-target regressions.",
+  "limits": "Focused facilities; actual saved-target M6 stage and generated BL/final closure remain separate obligations.",
+  "script_sha256": "65faedab23b1e3ebf584d9a4f7298c56a69d02323814d72d7adc8083bd2a9eac"
+}
