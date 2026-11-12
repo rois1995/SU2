@@ -1,0 +1,72 @@
+[
+  {
+    "id": "A01",
+    "kind": "selected configuration",
+    "statement": "2D serial passive-double fixed-grid inviscid ideal-gas Euler, first-order Roe, explicit Euler, zero periodic volume, no turbulence.",
+    "evidence": "Preserved configuration/source trace; actual-method and full native cases.",
+    "status": "Disclosed specialization; full caller dispatch not formally refined."
+  },
+  {
+    "id": "A02",
+    "kind": "memory correspondence",
+    "statement": "Abstract blocks correspond to separate live C++ allocations with actual 4/11-column layouts and valid real decoding.",
+    "evidence": "Address bounds/separation proved in the model; native row-stride checks.",
+    "status": "Concrete object layout, allocator and pointer lifetimes remain assumed."
+  },
+  {
+    "id": "A03",
+    "kind": "pre-boundary initialization",
+    "statement": "BoundaryRep holds for m0: old/residual/truncation and eleven primitive fields initialized; known logical cache entries agree.",
+    "evidence": "Explicit principal-theorem premise; no post-boundary memory premise.",
+    "status": "Constructor/preprocessing/interior generation/old-copy memory paths remain unverified."
+  },
+  {
+    "id": "A04",
+    "kind": "getter inputs",
+    "statement": "GeometryRep initializes volume, zero periodic volume and timestep in m0.",
+    "evidence": "Boundary preservation and actual abstract getter loads proved.",
+    "status": "Geometry, volume positivity and timestep computation/storage origins remain unverified."
+  },
+  {
+    "id": "A05",
+    "kind": "geometry and traversal",
+    "statement": "Supplied ordered far/wall visits encode actual marker/vertex/point identities, ownership, unit normals and positive area. Bounds fit allocations and machine index widths.",
+    "evidence": "Finite indices, byte bounds and arbitrary repeated-list execution proved; no no-duplicates premise.",
+    "status": "Source list generation, GetDomain/owned-prefix relationship and normal construction remain manual caller interfaces."
+  },
+  {
+    "id": "A06",
+    "kind": "thermodynamic bridge",
+    "statement": "FarReady requires nonzero inside and reconstructed density and inside stored-enthalpy consistency for owned far visits. IdealGas has gamma>1 and gasConstant>0.",
+    "evidence": "Preserved explicit hypotheses and conditional refinement; previous ghost-admissibility lemma available.",
+    "status": "Primitive/current compatibility and physically admissible finite arithmetic domains still require caller proofs."
+  },
+  {
+    "id": "A07",
+    "kind": "source translation",
+    "statement": "Closed characteristic/scalar boundary Roe arithmetic, primitive loads, branch selection and scratch residual view reflect the selected C++ routines.",
+    "evidence": "Pinned source/manual trace, restricted parsed fragments, actual-method native checks.",
+    "status": "Unverified translation, not certified C++ semantics; interior SIMD Roe excluded."
+  },
+  {
+    "id": "A08",
+    "kind": "arithmetic/compiler",
+    "statement": "Lean computations use exact reals, including total division and mathematical sqrt/rpow.",
+    "evidence": "Kernel-checked real proofs only; native compiler flags recorded.",
+    "status": "No IEEE/rounding/NaN/library/fast-math/compiler theorem. Zero-volume real equality does not license a machine execution."
+  },
+  {
+    "id": "A09",
+    "kind": "literature approval",
+    "statement": "Existing far-field/Roe specifications remain provisional pending independently approved CFDLean requirements.",
+    "evidence": "Local Agent A request and pinned M1 status.",
+    "status": "No CFDLean dependency imported or authoritative literature claim made."
+  },
+  {
+    "id": "A10",
+    "kind": "trust and acceptance",
+    "statement": "Pinned Lean 4.19.0 kernel, pinned dependencies, only propext/Classical.choice/Quot.sound in proof dependencies.",
+    "evidence": "Transitive audit and bad-external-axiom rejection; frozen predecessor identities.",
+    "status": "Worker checks support external review; previous and new independent acceptance remain pending."
+  }
+]

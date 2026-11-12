@@ -1,0 +1,28 @@
+{
+  "checked_utc": "2026-11-12T21:05:54.313675+00:00",
+  "observed_upstream_develop": "103442f30ca2fba1ff48ef12aa1ae93480256a30",
+  "selected_source_baseline": "d162016382f0c122433000c114e88d808b48f7a7",
+  "decision": "Retain pinned numerical baseline; complete Git comparison shows only two CI workflow changes",
+  "changed_files": [
+    ".github/workflows/regression.yml",
+    ".github/workflows/release-management.yml"
+  ],
+  "production_patches": [],
+  "numerical_tree_ids": {
+    "SU2_CFD": {
+      "d162016382f0c122433000c114e88d808b48f7a7": "8afe98b2516834612432879456f60c5b4769c515",
+      "103442f30ca2fba1ff48ef12aa1ae93480256a30": "8afe98b2516834612432879456f60c5b4769c515"
+    },
+    "Common": {
+      "d162016382f0c122433000c114e88d808b48f7a7": "5b77b6ee1d6e5cfd0f4f18ad5ca711d02bf28c3f",
+      "103442f30ca2fba1ff48ef12aa1ae93480256a30": "5b77b6ee1d6e5cfd0f4f18ad5ca711d02bf28c3f"
+    },
+    "externals": {
+      "d162016382f0c122433000c114e88d808b48f7a7": "3e11c79dca00fe3a9e2a3e55b09612e9d518dd92",
+      "103442f30ca2fba1ff48ef12aa1ae93480256a30": "3e11c79dca00fe3a9e2a3e55b09612e9d518dd92"
+    }
+  },
+  "frozen_boundary_commit": "73a322b640f45505e8d8fb70fbce46e6ccffd206",
+  "investigation_commit": "5a6d3a578a4a348b91ef6ce8dcd259e142f60d37",
+  "external_acceptance": "Prior BoundaryPath/EulerPath acceptance remains pending"
+}

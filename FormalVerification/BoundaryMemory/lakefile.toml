@@ -1,0 +1,13 @@
+name = "su2boundarymemory"
+version = "0.1.0"
+defaultTargets = ["SU2BoundaryMemory", "MemoryAudit"]
+[leanOptions]
+autoImplicit = false
+warningAsError = true
+[[require]]
+name = "su2boundarypath"
+path = "../BoundaryPath"
+[[lean_lib]]
+name = "SU2BoundaryMemory"
+[[lean_lib]]
+name = "MemoryAudit"

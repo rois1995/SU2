@@ -1,0 +1,667 @@
+$ lake env lean -DwarningAsError=true /media/rausa/4TB/SU2_Versions/SU2_Lean_boundary_memory_development/preflight/TheoremTypes.lean
+SU2BoundaryMemory.cache_columns_complete (c : Fin 6) : Membership.mem.{0, 0} SU2BoundaryMemory.cacheColumns c
+'SU2BoundaryMemory.cache_columns_complete' depends on axioms: [propext, Classical.choice, Quot.sound]
+SU2BoundaryMemory.cache_column_injective {K : Nat} {vertices : Fin K → Nat}
+  (site : SU2BoundaryMemory.CacheSite K vertices) :
+  Function.Injective.{1, 1} fun c =>
+    SU2BoundaryMemory.cacheAddr ↑(SU2BoundaryMemory.CacheSite.marker site) ↑(SU2BoundaryMemory.CacheSite.vertex site) ↑c
+'SU2BoundaryMemory.cache_column_injective' depends on axioms: [propext]
+SU2BoundaryMemory.write_cache_fields {K : Nat} {vertices : Fin K → Nat} (site : SU2BoundaryMemory.CacheSite K vertices)
+  (g : SU2Boundary.Ghost) (m : SU2BoundaryMemory.Mem) :
+  Eq.{1} (SU2BoundaryMemory.writeCache SU2BoundaryMemory.CacheMode.normal false site g m)
+    (SU2BoundaryMemory.writeFields
+      (fun c =>
+        SU2BoundaryMemory.cacheAddr ↑(SU2BoundaryMemory.CacheSite.marker site)
+          ↑(SU2BoundaryMemory.CacheSite.vertex site) ↑c)
+      (SU2BoundaryMemory.ghostField g) SU2BoundaryMemory.cacheColumns m)
+'SU2BoundaryMemory.write_cache_fields' depends on axioms: [propext, Classical.choice, Quot.sound]
+SU2BoundaryMemory.write_cache_value {K : Nat} {vertices : Fin K → Nat} (site : SU2BoundaryMemory.CacheSite K vertices)
+  (g : SU2Boundary.Ghost) (m : SU2BoundaryMemory.Mem) (c : Fin 6) :
+  Eq.{1}
+    (SU2BoundaryMemory.writeCache SU2BoundaryMemory.CacheMode.normal false site g m
+      (SU2BoundaryMemory.cacheAddr ↑(SU2BoundaryMemory.CacheSite.marker site) ↑(SU2BoundaryMemory.CacheSite.vertex site)
+        ↑c))
+    (some.{0} (SU2BoundaryMemory.ghostField g c))
+'SU2BoundaryMemory.write_cache_value' depends on axioms: [propext, Classical.choice, Quot.sound]
+SU2BoundaryMemory.write_cache_frame {K : Nat} {vertices : Fin K → Nat} (site : SU2BoundaryMemory.CacheSite K vertices)
+  (g : SU2Boundary.Ghost) (m : SU2BoundaryMemory.Mem) :
+  SU2BoundaryMemory.Frame (SU2BoundaryMemory.cacheFootprint site) m
+    (SU2BoundaryMemory.writeCache SU2BoundaryMemory.CacheMode.normal false site g m)
+'SU2BoundaryMemory.write_cache_frame' depends on axioms: [propext, Classical.choice, Quot.sound]
+SU2BoundaryMemory.cache_other_row {K : Nat} {vertices : Fin K → Nat} (s t : SU2BoundaryMemory.CacheSite K vertices)
+  (i j : Fin 6)
+  (h :
+    Ne.{1} (SU2BoundaryMemory.cacheKey ↑(SU2BoundaryMemory.CacheSite.marker t) ↑(SU2BoundaryMemory.CacheSite.vertex t))
+      (SU2BoundaryMemory.cacheKey ↑(SU2BoundaryMemory.CacheSite.marker s) ↑(SU2BoundaryMemory.CacheSite.vertex s))) :
+  Ne.{1}
+    (SU2BoundaryMemory.cacheAddr ↑(SU2BoundaryMemory.CacheSite.marker t) ↑(SU2BoundaryMemory.CacheSite.vertex t) ↑i)
+    (SU2BoundaryMemory.cacheAddr ↑(SU2BoundaryMemory.CacheSite.marker s) ↑(SU2BoundaryMemory.CacheSite.vertex s) ↑j)
+'SU2BoundaryMemory.cache_other_row' depends on axioms: [propext, Quot.sound]
+SU2BoundaryMemory.cache_tail_frame {K : Nat} {vertices : Fin K → Nat} (site : SU2BoundaryMemory.CacheSite K vertices)
+  (g : SU2Boundary.Ghost) (m : SU2BoundaryMemory.Mem) (c : Fin 11) (hc : LE.le.{0} 6 ↑c) :
+  Eq.{1}
+    (SU2BoundaryMemory.writeCache SU2BoundaryMemory.CacheMode.normal false site g m
+      (SU2BoundaryMemory.cacheAddr ↑(SU2BoundaryMemory.CacheSite.marker site) ↑(SU2BoundaryMemory.CacheSite.vertex site)
+        ↑c))
+    (m
+      (SU2BoundaryMemory.cacheAddr ↑(SU2BoundaryMemory.CacheSite.marker site) ↑(SU2BoundaryMemory.CacheSite.vertex site)
+        ↑c))
+'SU2BoundaryMemory.cache_tail_frame' depends on axioms: [propext, Classical.choice, Quot.sound]
+SU2BoundaryMemory.cache_memory_rep {N K : Nat} {vertices : Fin K → Nat} (m : SU2BoundaryMemory.Mem)
+  (s : SU2Boundary.BoundaryState N) (P : SU2BoundaryMemory.Primitives N) (site : SU2BoundaryMemory.CacheSite K vertices)
+  (g : SU2Boundary.Ghost) (h : SU2BoundaryMemory.BoundaryRep vertices m s P) :
+  SU2BoundaryMemory.BoundaryRep vertices
+    (SU2BoundaryMemory.writeCache SU2BoundaryMemory.CacheMode.normal false site g m)
+    (SU2BoundaryMemory.cachedState s site g) P
+'SU2BoundaryMemory.cache_memory_rep' depends on axioms: [propext, Classical.choice, Quot.sound]
+SU2BoundaryMemory.read_cached_written {K : Nat} {vertices : Fin K → Nat} (m : SU2BoundaryMemory.Mem)
+  (site : SU2BoundaryMemory.CacheSite K vertices) (g : SU2Boundary.Ghost) :
+  Eq.{1}
+    (SU2BoundaryMemory.readCached SU2BoundaryMemory.CacheMode.normal site
+      (SU2BoundaryMemory.writeCache SU2BoundaryMemory.CacheMode.normal false site g m))
+    (some.{0} (Prod.mk.{0, 0} (SU2Boundary.Ghost.primitive g) (SU2Boundary.Ghost.enthalpy g)))
+'SU2BoundaryMemory.read_cached_written' depends on axioms: [propext, Classical.choice, Quot.sound]
+SU2BoundaryMemory.fars_memory_refines {N M K : Nat} {vertices : Fin K → Nat}
+  (far : List.{0} (SU2BoundaryMemory.FarSite N K vertices)) (m : SU2BoundaryMemory.Mem)
+  (s : SU2Boundary.BoundaryState N) (P : SU2BoundaryMemory.Primitives N) (g : SU2.IdealGas) (free : SU2.Primitive 2)
+  (bounds : SU2BoundaryMemory.Bounds N M K vertices) (h : SU2BoundaryMemory.BoundaryRep vertices m s P) :
+  ∃ after,
+    And (Eq.{1} (SU2BoundaryMemory.executeFars M SU2BoundaryMemory.farCode g free far m) (some.{0} after))
+      (And
+        (SU2BoundaryMemory.BoundaryRep vertices after
+          (List.foldl.{0, 0}
+            (fun acc v =>
+              SU2Boundary.farImpl SU2Boundary.Generated.farAdd_original g free (SU2BoundaryMemory.farVisit P v) acc)
+            s far)
+          P)
+        (SU2BoundaryMemory.Frame (List.flatMap.{0, 0} SU2BoundaryMemory.farFootprint far) m after))
+'SU2BoundaryMemory.fars_memory_refines' depends on axioms: [propext, Classical.choice, Quot.sound]
+SU2BoundaryMemory.walls_memory_refines {N M K : Nat} {vertices : Fin K → Nat}
+  (walls : List.{0} (SU2Boundary.WallVisit N)) (m : SU2BoundaryMemory.Mem) (s : SU2Boundary.BoundaryState N)
+  (P : SU2BoundaryMemory.Primitives N) (bounds : SU2BoundaryMemory.Bounds N M K vertices)
+  (h : SU2BoundaryMemory.BoundaryRep vertices m s P) :
+  ∃ after,
+    And (Eq.{1} (SU2BoundaryMemory.executeWalls M SU2BoundaryMemory.wallCode walls m) (some.{0} after))
+      (And
+        (SU2BoundaryMemory.BoundaryRep vertices after
+          (List.foldl.{0, 0} (fun acc v => SU2Boundary.wallSpec v acc) s walls) P)
+        (SU2BoundaryMemory.Frame (List.flatMap.{0, 0} SU2BoundaryMemory.wallFootprint walls) m after))
+'SU2BoundaryMemory.walls_memory_refines' depends on axioms: [propext, Classical.choice, Quot.sound]
+SU2BoundaryMemory.boundary_memory_refines {N M K : Nat} {vertices : Fin K → Nat}
+  (far : List.{0} (SU2BoundaryMemory.FarSite N K vertices)) (walls : List.{0} (SU2Boundary.WallVisit N))
+  (m0 : SU2BoundaryMemory.Mem) (s0 : SU2Boundary.BoundaryState N) (P : SU2BoundaryMemory.Primitives N)
+  (g : SU2.IdealGas) (free : SU2.Primitive 2) (bounds : SU2BoundaryMemory.Bounds N M K vertices)
+  (h0 : SU2BoundaryMemory.BoundaryRep vertices m0 s0 P)
+  (ready : SU2Boundary.FarReady g free (List.map.{0, 0} (SU2BoundaryMemory.farVisit P) far)) :
+  ∃ mb,
+    And
+      (Eq.{1}
+        (SU2BoundaryMemory.executeBoundary M SU2BoundaryMemory.farCode SU2BoundaryMemory.wallCode g free far walls m0)
+        (some.{0} mb))
+      (And
+        (SU2BoundaryMemory.BoundaryRep vertices mb
+          (SU2Boundary.boundarySpec g free (List.map.{0, 0} (SU2BoundaryMemory.farVisit P) far) walls s0) P)
+        (SU2BoundaryMemory.Frame (SU2BoundaryMemory.boundaryFootprint far walls) m0 mb))
+'SU2BoundaryMemory.boundary_memory_refines' depends on axioms: [propext, Classical.choice, Quot.sound]
+SU2BoundaryMemory.boundary_protected {N K : Nat} {vertices : Fin K → Nat}
+  (far : List.{0} (SU2BoundaryMemory.FarSite N K vertices)) (walls : List.{0} (SU2Boundary.WallVisit N))
+  (a : SU2Source.Address) (h1 : Ne.{1} a.1 1) (h5 : Ne.{1} a.1 5) (h6 : Ne.{1} a.1 6) (hc : LT.lt.{0} a.1 9) :
+  a ∉ SU2BoundaryMemory.boundaryFootprint far walls
+'SU2BoundaryMemory.boundary_protected' depends on axioms: [propext, Classical.choice, Quot.sound]
+SU2BoundaryMemory.boundary_geometry_frame {N K : Nat} {vertices : Fin K → Nat}
+  (far : List.{0} (SU2BoundaryMemory.FarSite N K vertices)) (walls : List.{0} (SU2Boundary.WallVisit N))
+  (m0 mb : SU2BoundaryMemory.Mem) (vol per dt : Fin N → Real)
+  (h : SU2BoundaryMemory.Frame (SU2BoundaryMemory.boundaryFootprint far walls) m0 mb)
+  (hg : SU2BoundaryMemory.GeometryRep m0 vol per dt) : SU2BoundaryMemory.GeometryRep mb vol per dt
+'SU2BoundaryMemory.boundary_geometry_frame' depends on axioms: [propext, Classical.choice, Quot.sound]
+SU2BoundaryMemory.owned_readiness {N M : Nat} (owned : LE.le.{0} N M) (m : SU2BoundaryMemory.Mem)
+  (s : SU2Boundary.BoundaryState M) (vol per dt : Fin M → Real) (h : SU2BoundaryMemory.BuffersRep m s)
+  (hg : SU2BoundaryMemory.GeometryRep m vol per dt) :
+  SU2Boundary.InputsReady m (SU2BoundaryMemory.ownedState owned s) (fun p => vol (Fin.castLE owned p))
+    (fun p => per (Fin.castLE owned p)) fun p => dt (Fin.castLE owned p)
+'SU2BoundaryMemory.owned_readiness' depends on axioms: [propext, Classical.choice, Quot.sound]
+SU2BoundaryMemory.boundary_to_complete_update {N M K : Nat} {vertices : Fin K → Nat} (owned : LE.le.{0} N M)
+  (bounds : SU2BoundaryMemory.Bounds M M K vertices) (g : SU2.IdealGas) (free : SU2.Primitive 2)
+  (P : SU2BoundaryMemory.Primitives M) (far : List.{0} (SU2BoundaryMemory.FarSite M K vertices))
+  (walls : List.{0} (SU2Boundary.WallVisit M)) (s0 : SU2Boundary.BoundaryState M) (m0 : SU2BoundaryMemory.Mem)
+  (vol dt : Fin M → Real) (h0 : SU2BoundaryMemory.BoundaryRep vertices m0 s0 P)
+  (hg0 : SU2BoundaryMemory.GeometryRep m0 vol (fun x => 0) dt)
+  (farReady : SU2Boundary.FarReady g free (List.map.{0, 0} (SU2BoundaryMemory.farVisit P) far)) :
+  let sb := SU2Boundary.boundarySpec g free (List.map.{0, 0} (SU2BoundaryMemory.farVisit P) far) walls s0;
+  let so := SU2BoundaryMemory.ownedState owned sb;
+  let vo := fun p => vol (Fin.castLE owned p);
+  let dto := fun p => dt (Fin.castLE owned p);
+  ∃ mb mu,
+    And
+      (Eq.{1}
+        (SU2BoundaryMemory.executeBoundary M SU2BoundaryMemory.farCode SU2BoundaryMemory.wallCode g free far walls m0)
+        (some.{0} mb))
+      (And (SU2BoundaryMemory.BoundaryRep vertices mb sb P)
+        (And (SU2Boundary.InputsReady mb so vo (fun x => 0) dto)
+          (And
+            (Eq.{1}
+              (SU2Boundary.executeLoop M SU2Boundary.Generated.volume_original SU2Boundary.Generated.periodic_original
+                SU2Boundary.Generated.timestep_original SU2Boundary.Generated.points_original
+                SU2Boundary.Generated.components_original mb)
+              (some.{0} mu))
+            (And (SU2Boundary.LoopContract so vo dto mb mu)
+              (SU2BoundaryMemory.Frame
+                (HAppend.hAppend.{0, 0, 0} (SU2BoundaryMemory.boundaryFootprint far walls)
+                  (List.map.{0, 0} SU2Boundary.destination (SU2Boundary.visits N)))
+                m0 mu)))))
+'SU2BoundaryMemory.boundary_to_complete_update' depends on axioms: [propext, Classical.choice, Quot.sound]
+SU2BoundaryMemory.initial_rep :
+  SU2BoundaryMemory.BoundaryRep SU2BoundaryMemory.testVertices SU2BoundaryMemory.initialMemory
+    SU2BoundaryMemory.initialState fun x x => 0
+'SU2BoundaryMemory.initial_rep' depends on axioms: [propext, Classical.choice, Quot.sound]
+SU2BoundaryMemory.test_bounds : SU2BoundaryMemory.Bounds 1 1 2 SU2BoundaryMemory.testVertices
+'SU2BoundaryMemory.test_bounds' depends on axioms: [propext, Classical.choice, Quot.sound]
+SU2BoundaryMemory.wall_memory_positive : SU2BoundaryMemory.WallMemoryContract SU2BoundaryMemory.wallCode false
+'SU2BoundaryMemory.wall_memory_positive' depends on axioms: [propext, Classical.choice, Quot.sound]
+SU2BoundaryMemory.bad_wall_observation (code : SU2BoundaryMemory.WallCode) (discard : Bool) (c : Fin 4)
+  (bad :
+    Ne.{1}
+      (Option.bind.{0, 0} (SU2BoundaryMemory.wallTrial code discard SU2BoundaryMemory.initialMemory) fun m =>
+        m (SU2BoundaryMemory.flowAddr 1 0 c))
+      (some.{0}
+        (SU2Boundary.BoundaryState.old
+          (SU2Boundary.wallSpec SU2BoundaryMemory.obliqueVisit SU2BoundaryMemory.initialState) 0
+          (SU2Boundary.channel c)))) :
+  Not (SU2BoundaryMemory.WallMemoryContract code discard)
+'SU2BoundaryMemory.bad_wall_observation' depends on axioms: [propext, Classical.choice, Quot.sound]
+SU2BoundaryMemory.discarded_writes_rejected : Not (SU2BoundaryMemory.WallMemoryContract SU2BoundaryMemory.wallCode true)
+'SU2BoundaryMemory.discarded_writes_rejected' depends on axioms: [propext, Classical.choice, Quot.sound]
+SU2BoundaryMemory.source_mutants_admitted :
+  And (Eq.{1} SU2BoundaryMemory.Generated.oldBinding_wrongBuffer 0)
+    (And
+      (Eq.{1} SU2BoundaryMemory.Generated.wallOld_refresh { op := SU2Euler.Op.sub, refresh := true, reverse := false })
+      (And
+        (Eq.{1} SU2BoundaryMemory.Generated.wallRes_refresh
+          { op := SU2Euler.Op.sub, refresh := true, reverse := false })
+        (And
+          (Eq.{1} SU2BoundaryMemory.Generated.wallTrunc_refresh
+            { op := SU2Euler.Op.sub, refresh := true, reverse := false })
+          (And
+            (Eq.{1} SU2BoundaryMemory.Generated.wallOld_refactored
+              { op := SU2Euler.Op.sub, refresh := false, reverse := true })
+            (And
+              (Eq.{1} SU2BoundaryMemory.Generated.wallRes_refactored
+                { op := SU2Euler.Op.sub, refresh := false, reverse := true })
+              (And
+                (Eq.{1} SU2BoundaryMemory.Generated.wallTrunc_refactored
+                  { op := SU2Euler.Op.sub, refresh := false, reverse := true })
+                (And (Eq.{1} SU2BoundaryMemory.Generated.primitiveExtra_shortStride 4)
+                  (And
+                    (Eq.{1} SU2BoundaryMemory.Generated.cacheLookup_firstMarker SU2BoundaryMemory.CacheMode.firstMarker)
+                    (And
+                      (Eq.{1} SU2BoundaryMemory.Generated.cacheLookup_firstVertex
+                        SU2BoundaryMemory.CacheMode.firstVertex)
+                      (Eq.{1} SU2BoundaryMemory.Generated.cacheWrites_eraseTail true))))))))))
+'SU2BoundaryMemory.source_mutants_admitted' depends on axioms: [propext]
+SU2BoundaryMemory.wrong_buffer_rejected :
+  Not (SU2BoundaryMemory.WallMemoryContract SU2BoundaryMemory.wrongBufferCode false)
+'SU2BoundaryMemory.wrong_buffer_rejected' depends on axioms: [propext, Classical.choice, Quot.sound]
+SU2BoundaryMemory.refreshed_projection_rejected :
+  Not (SU2BoundaryMemory.WallMemoryContract SU2BoundaryMemory.refreshedCode false)
+'SU2BoundaryMemory.refreshed_projection_rejected' depends on axioms: [propext, Classical.choice, Quot.sound]
+SU2BoundaryMemory.wall_refactor_memory {N : Nat} (rows : Nat) (v : SU2Boundary.WallVisit N)
+  (m : SU2BoundaryMemory.Mem) :
+  Eq.{1} (SU2BoundaryMemory.executeWall rows SU2BoundaryMemory.reversedCode v m)
+    (SU2BoundaryMemory.executeWall rows SU2BoundaryMemory.wallCode v m)
+'SU2BoundaryMemory.wall_refactor_memory' depends on axioms: [propext, Classical.choice, Quot.sound]
+SU2BoundaryMemory.wall_refactor_positive : SU2BoundaryMemory.WallMemoryContract SU2BoundaryMemory.reversedCode false
+'SU2BoundaryMemory.wall_refactor_positive' depends on axioms: [propext, Classical.choice, Quot.sound]
+SU2BoundaryMemory.cache_memory_positive : SU2BoundaryMemory.CacheMemoryContract SU2BoundaryMemory.CacheMode.normal false
+'SU2BoundaryMemory.cache_memory_positive' depends on axioms: [propext, Classical.choice, Quot.sound]
+SU2BoundaryMemory.cache_stride_rejected :
+  Not (SU2BoundaryMemory.CacheMemoryContract SU2BoundaryMemory.CacheMode.shortStride false)
+'SU2BoundaryMemory.cache_stride_rejected' depends on axioms: [propext, Classical.choice, Quot.sound]
+SU2BoundaryMemory.cache_marker_rejected :
+  Not (SU2BoundaryMemory.CacheMemoryContract SU2BoundaryMemory.CacheMode.firstMarker false)
+'SU2BoundaryMemory.cache_marker_rejected' depends on axioms: [propext, Classical.choice, Quot.sound]
+SU2BoundaryMemory.cache_vertex_rejected :
+  Not (SU2BoundaryMemory.CacheMemoryContract SU2BoundaryMemory.CacheMode.firstVertex false)
+'SU2BoundaryMemory.cache_vertex_rejected' depends on axioms: [propext, Classical.choice, Quot.sound]
+SU2BoundaryMemory.untouched_cache_rejected :
+  Not (SU2BoundaryMemory.CacheMemoryContract SU2BoundaryMemory.CacheMode.normal true)
+'SU2BoundaryMemory.untouched_cache_rejected' depends on axioms: [propext, Classical.choice, Quot.sound]
+SU2BoundaryMemory.uniform_inside :
+  Eq.{1} (SU2BoundaryMemory.inside SU2BoundaryMemory.uniformP 0) SU2BoundaryMemory.uniform
+'SU2BoundaryMemory.uniform_inside' depends on axioms: [propext, Classical.choice, Quot.sound]
+SU2BoundaryMemory.uniform_enthalpy :
+  Eq.{1} (SU2Boundary.totalEnthalpy SU2BoundaryMemory.testGas SU2BoundaryMemory.uniform) (9 / 8)
+'SU2BoundaryMemory.uniform_enthalpy' depends on axioms: [propext, Classical.choice, Quot.sound]
+SU2BoundaryMemory.uniform_reconstruction :
+  Eq.{1}
+    (SU2Boundary.farPrimitiveImpl SU2BoundaryMemory.testGas (SU2.UnitNormal.vector SU2Boundary.axis)
+      SU2BoundaryMemory.uniform SU2BoundaryMemory.uniform)
+    SU2BoundaryMemory.uniform
+'SU2BoundaryMemory.uniform_reconstruction' depends on axioms: [propext, Classical.choice, Quot.sound]
+SU2BoundaryMemory.uniform_roe :
+  Eq.{1}
+    (SU2Boundary.roeImplementation SU2BoundaryMemory.testGas (SU2.UnitNormal.vector SU2Boundary.axis) 1
+      SU2BoundaryMemory.uniform SU2BoundaryMemory.uniform (9 / 8) (9 / 8))
+    (Matrix.vecCons.{0} (1 / 2)
+      (Matrix.vecCons.{0} (3 / 4) (Matrix.vecCons.{0} 0 (Matrix.vecCons.{0} (9 / 16) Matrix.vecEmpty.{0}))))
+'SU2BoundaryMemory.uniform_roe' depends on axioms: [propext, Classical.choice, Quot.sound]
+SU2BoundaryMemory.repeat_initial_rep :
+  SU2BoundaryMemory.BoundaryRep SU2BoundaryMemory.testVertices SU2BoundaryMemory.repeatMemory
+    SU2BoundaryMemory.repeatState SU2BoundaryMemory.uniformP
+'SU2BoundaryMemory.repeat_initial_rep' depends on axioms: [propext, Classical.choice, Quot.sound]
+SU2BoundaryMemory.repeat_far_ready :
+  SU2Boundary.FarReady SU2BoundaryMemory.testGas SU2BoundaryMemory.uniform
+    (List.map.{0, 0} (SU2BoundaryMemory.farVisit SU2BoundaryMemory.uniformP)
+      (List.cons.{0} SU2BoundaryMemory.repeatedVisit (List.cons.{0} SU2BoundaryMemory.repeatedVisit List.nil.{0})))
+'SU2BoundaryMemory.repeat_far_ready' depends on axioms: [propext, Classical.choice, Quot.sound]
+SU2BoundaryMemory.one_visit_mass :
+  Eq.{1}
+    (SU2Boundary.BoundaryState.residual
+      (SU2Boundary.farImpl SU2Boundary.Generated.farAdd_original SU2BoundaryMemory.testGas SU2BoundaryMemory.uniform
+        (SU2BoundaryMemory.farVisit SU2BoundaryMemory.uniformP SU2BoundaryMemory.repeatedVisit)
+        SU2BoundaryMemory.repeatState)
+      0 SU2.Channel.mass)
+    (1 / 2)
+'SU2BoundaryMemory.one_visit_mass' depends on axioms: [propext, Classical.choice, Quot.sound]
+SU2BoundaryMemory.two_visit_mass :
+  Eq.{1}
+    (SU2Boundary.BoundaryState.residual
+      (SU2Boundary.boundarySpec SU2BoundaryMemory.testGas SU2BoundaryMemory.uniform
+        (List.map.{0, 0} (SU2BoundaryMemory.farVisit SU2BoundaryMemory.uniformP)
+          (List.cons.{0} SU2BoundaryMemory.repeatedVisit (List.cons.{0} SU2BoundaryMemory.repeatedVisit List.nil.{0})))
+        List.nil.{0} SU2BoundaryMemory.repeatState)
+      0 SU2.Channel.mass)
+    1
+'SU2BoundaryMemory.two_visit_mass' depends on axioms: [propext, Classical.choice, Quot.sound]
+SU2BoundaryMemory.repeated_visits_positive : SU2BoundaryMemory.RepeatedVisitContract false
+'SU2BoundaryMemory.repeated_visits_positive' depends on axioms: [propext, Classical.choice, Quot.sound]
+SU2BoundaryMemory.repeated_visit_omission_rejected : Not (SU2BoundaryMemory.RepeatedVisitContract true)
+'SU2BoundaryMemory.repeated_visit_omission_rejected' depends on axioms: [propext, Classical.choice, Quot.sound]
+SU2BoundaryMemory.accumulate_execution {N : Nat} (op : SU2Euler.Op) (p : Fin N) (r f : Fin 4 → Real)
+  (m : SU2BoundaryMemory.Mem) (h : ∀ (c : Fin 4), Eq.{1} (m (SU2BoundaryMemory.flowAddr 5 p c)) (some.{0} (r c))) :
+  Eq.{1} (SU2BoundaryMemory.accumulateResidual op p f m) (some.{0} (SU2BoundaryMemory.residualWrites op p r f m))
+'SU2BoundaryMemory.accumulate_execution' depends on axioms: [propext, Classical.choice, Quot.sound]
+SU2BoundaryMemory.accumulate_frame {N : Nat} (op : SU2Euler.Op) (p : Fin N) (r f : Fin 4 → Real)
+  (m : SU2BoundaryMemory.Mem) :
+  SU2BoundaryMemory.Frame (SU2BoundaryMemory.residualFootprint p) m (SU2BoundaryMemory.residualWrites op p r f m)
+'SU2BoundaryMemory.accumulate_frame' depends on axioms: [propext, Classical.choice, Quot.sound]
+SU2BoundaryMemory.accumulated_buffers {N : Nat} (m : SU2BoundaryMemory.Mem) (s : SU2Boundary.BoundaryState N)
+  (p : Fin N) (op : SU2Euler.Op) (f : Fin 4 → Real) (h : SU2BoundaryMemory.BuffersRep m s) :
+  SU2BoundaryMemory.BuffersRep
+    (SU2BoundaryMemory.residualWrites op p (SU2Boundary.components (SU2Boundary.BoundaryState.residual s p)) f m)
+    (SU2BoundaryMemory.accumulatedState op p f s)
+'SU2BoundaryMemory.accumulated_buffers' depends on axioms: [propext, Classical.choice, Quot.sound]
+SU2BoundaryMemory.accumulate_memory_refines {N K : Nat} {vertices : Fin K → Nat} (m : SU2BoundaryMemory.Mem)
+  (s : SU2Boundary.BoundaryState N) (P : SU2BoundaryMemory.Primitives N) (p : Fin N) (op : SU2Euler.Op)
+  (f : Fin 4 → Real) (h : SU2BoundaryMemory.BoundaryRep vertices m s P) :
+  ∃ after,
+    And (Eq.{1} (SU2BoundaryMemory.accumulateResidual op p f m) (some.{0} after))
+      (And (SU2BoundaryMemory.BoundaryRep vertices after (SU2BoundaryMemory.accumulatedState op p f s) P)
+        (SU2BoundaryMemory.Frame (SU2BoundaryMemory.residualFootprint p) m after))
+'SU2BoundaryMemory.accumulate_memory_refines' depends on axioms: [propext, Classical.choice, Quot.sound]
+SU2BoundaryMemory.far_memory_refines {N M K : Nat} {vertices : Fin K → Nat} (m : SU2BoundaryMemory.Mem)
+  (s : SU2Boundary.BoundaryState N) (P : SU2BoundaryMemory.Primitives N) (g : SU2.IdealGas) (free : SU2.Primitive 2)
+  (v : SU2BoundaryMemory.FarSite N K vertices) (bounds : SU2BoundaryMemory.Bounds N M K vertices)
+  (h : SU2BoundaryMemory.BoundaryRep vertices m s P) :
+  ∃ after,
+    And (Eq.{1} (SU2BoundaryMemory.executeFar M SU2BoundaryMemory.farCode g free v m) (some.{0} after))
+      (And
+        (SU2BoundaryMemory.BoundaryRep vertices after
+          (SU2Boundary.farImpl SU2Boundary.Generated.farAdd_original g free (SU2BoundaryMemory.farVisit P v) s) P)
+        (SU2BoundaryMemory.Frame (SU2BoundaryMemory.farFootprint v) m after))
+'SU2BoundaryMemory.far_memory_refines' depends on axioms: [propext, Classical.choice, Quot.sound]
+SU2BoundaryMemory.Generated.oldBinding_original_parsed :
+  Eq.{1} (SU2BoundaryMemory.parseOldBinding SU2BoundaryMemory.Generated.oldBinding_originalSource)
+    (some.{0} SU2BoundaryMemory.Generated.oldBinding_original)
+'SU2BoundaryMemory.Generated.oldBinding_original_parsed' depends on axioms: [propext]
+SU2BoundaryMemory.Generated.oldBinding_wrongBuffer_parsed :
+  Eq.{1} (SU2BoundaryMemory.parseOldBinding SU2BoundaryMemory.Generated.oldBinding_wrongBufferSource)
+    (some.{0} SU2BoundaryMemory.Generated.oldBinding_wrongBuffer)
+'SU2BoundaryMemory.Generated.oldBinding_wrongBuffer_parsed' depends on axioms: [propext]
+SU2BoundaryMemory.Generated.primitiveExtra_original_parsed :
+  Eq.{1} (SU2BoundaryMemory.parsePrimitiveExtra SU2BoundaryMemory.Generated.primitiveExtra_originalSource)
+    (some.{0} SU2BoundaryMemory.Generated.primitiveExtra_original)
+'SU2BoundaryMemory.Generated.primitiveExtra_original_parsed' depends on axioms: [propext]
+SU2BoundaryMemory.Generated.primitiveExtra_shortStride_parsed :
+  Eq.{1} (SU2BoundaryMemory.parsePrimitiveExtra SU2BoundaryMemory.Generated.primitiveExtra_shortStrideSource)
+    (some.{0} SU2BoundaryMemory.Generated.primitiveExtra_shortStride)
+'SU2BoundaryMemory.Generated.primitiveExtra_shortStride_parsed' depends on axioms: [propext]
+SU2BoundaryMemory.Generated.cacheLookup_original_parsed :
+  Eq.{1} (SU2BoundaryMemory.parseCacheLookup SU2BoundaryMemory.Generated.cacheLookup_originalSource)
+    (some.{0} SU2BoundaryMemory.Generated.cacheLookup_original)
+'SU2BoundaryMemory.Generated.cacheLookup_original_parsed' depends on axioms: [propext]
+SU2BoundaryMemory.Generated.cacheLookup_firstMarker_parsed :
+  Eq.{1} (SU2BoundaryMemory.parseCacheLookup SU2BoundaryMemory.Generated.cacheLookup_firstMarkerSource)
+    (some.{0} SU2BoundaryMemory.Generated.cacheLookup_firstMarker)
+'SU2BoundaryMemory.Generated.cacheLookup_firstMarker_parsed' depends on axioms: [propext]
+SU2BoundaryMemory.Generated.cacheLookup_firstVertex_parsed :
+  Eq.{1} (SU2BoundaryMemory.parseCacheLookup SU2BoundaryMemory.Generated.cacheLookup_firstVertexSource)
+    (some.{0} SU2BoundaryMemory.Generated.cacheLookup_firstVertex)
+'SU2BoundaryMemory.Generated.cacheLookup_firstVertex_parsed' depends on axioms: [propext]
+SU2BoundaryMemory.Generated.cacheWrites_original_parsed :
+  Eq.{1} (SU2BoundaryMemory.parseCacheWrites SU2BoundaryMemory.Generated.cacheWrites_originalSource)
+    (some.{0} SU2BoundaryMemory.Generated.cacheWrites_original)
+'SU2BoundaryMemory.Generated.cacheWrites_original_parsed' depends on axioms: [propext]
+SU2BoundaryMemory.Generated.cacheWrites_eraseTail_parsed :
+  Eq.{1} (SU2BoundaryMemory.parseCacheWrites SU2BoundaryMemory.Generated.cacheWrites_eraseTailSource)
+    (some.{0} SU2BoundaryMemory.Generated.cacheWrites_eraseTail)
+'SU2BoundaryMemory.Generated.cacheWrites_eraseTail_parsed' depends on axioms: [propext]
+SU2BoundaryMemory.Generated.wallOld_original_parsed :
+  Eq.{1}
+    (SU2BoundaryMemory.parseProjectionPlan SU2Boundary.WallBuffer.old
+      SU2BoundaryMemory.Generated.wallOld_originalSource)
+    (some.{0} SU2BoundaryMemory.Generated.wallOld_original)
+'SU2BoundaryMemory.Generated.wallOld_original_parsed' depends on axioms: [propext]
+SU2BoundaryMemory.Generated.wallOld_refresh_parsed :
+  Eq.{1}
+    (SU2BoundaryMemory.parseProjectionPlan SU2Boundary.WallBuffer.old SU2BoundaryMemory.Generated.wallOld_refreshSource)
+    (some.{0} SU2BoundaryMemory.Generated.wallOld_refresh)
+'SU2BoundaryMemory.Generated.wallOld_refresh_parsed' depends on axioms: [propext]
+SU2BoundaryMemory.Generated.wallOld_refactored_parsed :
+  Eq.{1}
+    (SU2BoundaryMemory.parseProjectionPlan SU2Boundary.WallBuffer.old
+      SU2BoundaryMemory.Generated.wallOld_refactoredSource)
+    (some.{0} SU2BoundaryMemory.Generated.wallOld_refactored)
+'SU2BoundaryMemory.Generated.wallOld_refactored_parsed' depends on axioms: [propext]
+SU2BoundaryMemory.Generated.wallRes_original_parsed :
+  Eq.{1}
+    (SU2BoundaryMemory.parseProjectionPlan SU2Boundary.WallBuffer.residual
+      SU2BoundaryMemory.Generated.wallRes_originalSource)
+    (some.{0} SU2BoundaryMemory.Generated.wallRes_original)
+'SU2BoundaryMemory.Generated.wallRes_original_parsed' depends on axioms: [propext]
+SU2BoundaryMemory.Generated.wallRes_refresh_parsed :
+  Eq.{1}
+    (SU2BoundaryMemory.parseProjectionPlan SU2Boundary.WallBuffer.residual
+      SU2BoundaryMemory.Generated.wallRes_refreshSource)
+    (some.{0} SU2BoundaryMemory.Generated.wallRes_refresh)
+'SU2BoundaryMemory.Generated.wallRes_refresh_parsed' depends on axioms: [propext]
+SU2BoundaryMemory.Generated.wallRes_refactored_parsed :
+  Eq.{1}
+    (SU2BoundaryMemory.parseProjectionPlan SU2Boundary.WallBuffer.residual
+      SU2BoundaryMemory.Generated.wallRes_refactoredSource)
+    (some.{0} SU2BoundaryMemory.Generated.wallRes_refactored)
+'SU2BoundaryMemory.Generated.wallRes_refactored_parsed' depends on axioms: [propext]
+SU2BoundaryMemory.Generated.wallTrunc_original_parsed :
+  Eq.{1}
+    (SU2BoundaryMemory.parseProjectionPlan SU2Boundary.WallBuffer.truncation
+      SU2BoundaryMemory.Generated.wallTrunc_originalSource)
+    (some.{0} SU2BoundaryMemory.Generated.wallTrunc_original)
+'SU2BoundaryMemory.Generated.wallTrunc_original_parsed' depends on axioms: [propext]
+SU2BoundaryMemory.Generated.wallTrunc_refresh_parsed :
+  Eq.{1}
+    (SU2BoundaryMemory.parseProjectionPlan SU2Boundary.WallBuffer.truncation
+      SU2BoundaryMemory.Generated.wallTrunc_refreshSource)
+    (some.{0} SU2BoundaryMemory.Generated.wallTrunc_refresh)
+'SU2BoundaryMemory.Generated.wallTrunc_refresh_parsed' depends on axioms: [propext]
+SU2BoundaryMemory.Generated.wallTrunc_refactored_parsed :
+  Eq.{1}
+    (SU2BoundaryMemory.parseProjectionPlan SU2Boundary.WallBuffer.truncation
+      SU2BoundaryMemory.Generated.wallTrunc_refactoredSource)
+    (some.{0} SU2BoundaryMemory.Generated.wallTrunc_refactored)
+'SU2BoundaryMemory.Generated.wallTrunc_refactored_parsed' depends on axioms: [propext]
+SU2BoundaryMemory.Generated.setBlock_original_parsed :
+  Eq.{1} (SU2BoundaryMemory.parseSetBlock SU2BoundaryMemory.Generated.setBlock_originalSource)
+    (some.{0} SU2BoundaryMemory.Generated.setBlock_original)
+'SU2BoundaryMemory.Generated.setBlock_original_parsed' depends on axioms: [propext]
+SU2BoundaryMemory.Generated.primitiveGetter_original_parsed :
+  Eq.{1} (SU2BoundaryMemory.parsePrimitiveGetter SU2BoundaryMemory.Generated.primitiveGetter_originalSource)
+    (some.{0} SU2BoundaryMemory.Generated.primitiveGetter_original)
+'SU2BoundaryMemory.Generated.primitiveGetter_original_parsed' depends on axioms: [propext]
+SU2BoundaryMemory.Generated.addBlock_original_parsed :
+  Eq.{1} (SU2BoundaryMemory.parseAddBlock SU2BoundaryMemory.Generated.addBlock_originalSource)
+    (some.{0} SU2BoundaryMemory.Generated.addBlock_original)
+'SU2BoundaryMemory.Generated.addBlock_original_parsed' depends on axioms: [propext]
+SU2BoundaryMemory.Generated.cacheAllocation_original_parsed :
+  Eq.{1} (SU2BoundaryMemory.parseCacheAllocation SU2BoundaryMemory.Generated.cacheAllocation_originalSource)
+    (some.{0} SU2BoundaryMemory.Generated.cacheAllocation_original)
+'SU2BoundaryMemory.Generated.cacheAllocation_original_parsed' depends on axioms: [propext]
+SU2BoundaryMemory.Generated.primitiveAllocation_original_parsed :
+  Eq.{1} (SU2BoundaryMemory.parsePrimitiveAllocation SU2BoundaryMemory.Generated.primitiveAllocation_originalSource)
+    (some.{0} SU2BoundaryMemory.Generated.primitiveAllocation_original)
+'SU2BoundaryMemory.Generated.primitiveAllocation_original_parsed' depends on axioms: [propext]
+SU2BoundaryMemory.Generated.rowPointer_original_parsed :
+  Eq.{1} (SU2BoundaryMemory.parseRowPointer SU2BoundaryMemory.Generated.rowPointer_originalSource)
+    (some.{0} SU2BoundaryMemory.Generated.rowPointer_original)
+'SU2BoundaryMemory.Generated.rowPointer_original_parsed' depends on axioms: [propext]
+SU2BoundaryMemory.buffer_block_bound (b : SU2BoundaryMemory.Buffer) : LT.lt.{0} (SU2BoundaryMemory.Buffer.block b) 8
+'SU2BoundaryMemory.buffer_block_bound' does not depend on any axioms
+SU2BoundaryMemory.buffer_block_injective {a b : SU2BoundaryMemory.Buffer}
+  (h : Eq.{1} (SU2BoundaryMemory.Buffer.block a) (SU2BoundaryMemory.Buffer.block b)) : Eq.{1} a b
+'SU2BoundaryMemory.buffer_block_injective' depends on axioms: [propext]
+SU2BoundaryMemory.readiness_of_rep {N : Nat} (m : SU2BoundaryMemory.Mem) (s : SU2Boundary.BoundaryState N)
+  (vol per dt : Fin N → Real) (h : SU2BoundaryMemory.BuffersRep m s) (hg : SU2BoundaryMemory.GeometryRep m vol per dt) :
+  SU2Boundary.InputsReady m s vol per dt
+'SU2BoundaryMemory.readiness_of_rep' depends on axioms: [propext, Classical.choice, Quot.sound]
+SU2BoundaryMemory.valid_point_primitive {N M K : Nat} {vertices : Fin K → Nat}
+  (bounds : SU2BoundaryMemory.Bounds N M K vertices) (p : Fin N) : SU2BoundaryMemory.validRow M 11 ↑p
+'SU2BoundaryMemory.valid_point_primitive' depends on axioms: [propext]
+SU2BoundaryMemory.valid_point_flow {N M K : Nat} {vertices : Fin K → Nat}
+  (bounds : SU2BoundaryMemory.Bounds N M K vertices) (p : Fin N) : SU2BoundaryMemory.validRow M 4 ↑p
+'SU2BoundaryMemory.valid_point_flow' depends on axioms: [propext, Quot.sound]
+SU2BoundaryMemory.valid_cache {N M K : Nat} {vertices : Fin K → Nat} (bounds : SU2BoundaryMemory.Bounds N M K vertices)
+  (s : SU2BoundaryMemory.CacheSite K vertices) :
+  SU2BoundaryMemory.validRow (vertices (SU2BoundaryMemory.CacheSite.marker s)) 11
+    ↑(SU2BoundaryMemory.CacheSite.vertex s)
+'SU2BoundaryMemory.valid_cache' depends on axioms: [propext]
+SU2BoundaryMemory.primitive_bounds {N M K : Nat} {vertices : Fin K → Nat}
+  (bounds : SU2BoundaryMemory.Bounds N M K vertices) (p : Fin N) (c : Fin 11) :
+  And (LT.lt.{0} (HAdd.hAdd.{0, 0, 0} (HMul.hMul.{0, 0, 0} (↑p) 11) ↑c) (HMul.hMul.{0, 0, 0} M 11))
+    (LT.lt.{0} (HAdd.hAdd.{0, 0, 0} (HMul.hMul.{0, 0, 0} 8 (HAdd.hAdd.{0, 0, 0} (HMul.hMul.{0, 0, 0} (↑p) 11) ↑c)) 7)
+      (HPow.hPow.{0, 0, 0} 2 64))
+'SU2BoundaryMemory.primitive_bounds' depends on axioms: [propext, Quot.sound]
+SU2BoundaryMemory.cache_bounds {N M K : Nat} {vertices : Fin K → Nat} (bounds : SU2BoundaryMemory.Bounds N M K vertices)
+  (s : SU2BoundaryMemory.CacheSite K vertices) (c : Fin 11) :
+  And
+    (LT.lt.{0} (HAdd.hAdd.{0, 0, 0} (HMul.hMul.{0, 0, 0} (↑(SU2BoundaryMemory.CacheSite.vertex s)) 11) ↑c)
+      (HMul.hMul.{0, 0, 0} (vertices (SU2BoundaryMemory.CacheSite.marker s)) 11))
+    (And
+      (LT.lt.{0}
+        (HAdd.hAdd.{0, 0, 0}
+          (HMul.hMul.{0, 0, 0} 8
+            (HAdd.hAdd.{0, 0, 0} (HMul.hMul.{0, 0, 0} (↑(SU2BoundaryMemory.CacheSite.vertex s)) 11) ↑c))
+          7)
+        (HPow.hPow.{0, 0, 0} 2 64))
+      (LT.lt.{0} (↑(SU2BoundaryMemory.CacheSite.marker s)) (HPow.hPow.{0, 0, 0} 2 16)))
+'SU2BoundaryMemory.cache_bounds' depends on axioms: [propext, Quot.sound]
+SU2BoundaryMemory.read_primitive_correct {N M K : Nat} {vertices : Fin K → Nat} (m : SU2BoundaryMemory.Mem)
+  (P : SU2BoundaryMemory.Primitives N) (p : Fin N) (bounds : SU2BoundaryMemory.Bounds N M K vertices)
+  (h : SU2BoundaryMemory.PrimitiveRep m P) :
+  Eq.{1} (SU2BoundaryMemory.readPrimitive M m p) (some.{0} (Prod.mk.{0, 0} (SU2BoundaryMemory.inside P p) (P p 5)))
+'SU2BoundaryMemory.read_primitive_correct' depends on axioms: [propext, Classical.choice, Quot.sound]
+SU2BoundaryMemory.read_interior_correct {N M K : Nat} {vertices : Fin K → Nat} (m : SU2BoundaryMemory.Mem)
+  (P : SU2BoundaryMemory.Primitives N) (p : Fin N) (bounds : SU2BoundaryMemory.Bounds N M K vertices)
+  (h : SU2BoundaryMemory.PrimitiveRep m P) :
+  Eq.{1} (SU2BoundaryMemory.readInterior M m p) (some.{0} (SU2BoundaryMemory.inside P p))
+'SU2BoundaryMemory.read_interior_correct' depends on axioms: [propext, Classical.choice, Quot.sound]
+SU2BoundaryMemory.source_old_plan :
+  Eq.{1} SU2BoundaryMemory.Generated.wallOld_original { op := SU2Euler.Op.sub, refresh := false, reverse := false }
+'SU2BoundaryMemory.source_old_plan' depends on axioms: [propext]
+SU2BoundaryMemory.source_residual_plan :
+  Eq.{1} SU2BoundaryMemory.Generated.wallRes_original { op := SU2Euler.Op.sub, refresh := false, reverse := false }
+'SU2BoundaryMemory.source_residual_plan' depends on axioms: [propext]
+SU2BoundaryMemory.source_truncation_plan :
+  Eq.{1} SU2BoundaryMemory.Generated.wallTrunc_original { op := SU2Euler.Op.sub, refresh := false, reverse := false }
+'SU2BoundaryMemory.source_truncation_plan' depends on axioms: [propext]
+SU2BoundaryMemory.source_wall_connection : Eq.{1} SU2BoundaryMemory.sourceWallCode SU2BoundaryMemory.wallCode
+'SU2BoundaryMemory.source_wall_connection' depends on axioms: [propext]
+SU2BoundaryMemory.source_far_connection : Eq.{1} SU2BoundaryMemory.sourceFarCode SU2BoundaryMemory.farCode
+'SU2BoundaryMemory.source_far_connection' depends on axioms: [propext]
+SU2BoundaryMemory.source_wall_supported :
+  Eq.{1}
+    (SU2BoundaryMemory.wallFrom SU2BoundaryMemory.Generated.oldBinding_original
+      SU2BoundaryMemory.Generated.wallOld_original SU2BoundaryMemory.Generated.wallRes_original
+      SU2BoundaryMemory.Generated.wallTrunc_original)
+    (some.{0} SU2BoundaryMemory.sourceWallCode)
+'SU2BoundaryMemory.source_wall_supported' depends on axioms: [propext]
+SU2BoundaryMemory.source_far_supported :
+  Eq.{1}
+    (SU2BoundaryMemory.farFrom SU2BoundaryMemory.Generated.primitiveExtra_original
+      SU2BoundaryMemory.Generated.cacheLookup_original SU2BoundaryMemory.Generated.cacheWrites_original
+      SU2BoundaryMemory.Generated.setBlock_original)
+    (some.{0} SU2BoundaryMemory.sourceFarCode)
+'SU2BoundaryMemory.source_far_supported' depends on axioms: [propext]
+SU2BoundaryMemory.source_storage_stride :
+  Eq.{1} (HAdd.hAdd.{0, 0, 0} 2 SU2BoundaryMemory.Generated.primitiveExtra_original) 11
+'SU2BoundaryMemory.source_storage_stride' depends on axioms: [propext]
+SU2BoundaryMemory.source_cache_address {K : Nat} {vertices : Fin K → Nat}
+  (site : SU2BoundaryMemory.CacheSite K vertices) (column : Fin 11) :
+  Eq.{1}
+    (SU2BoundaryMemory.cacheAddr ↑(SU2BoundaryMemory.CacheSite.marker site) ↑(SU2BoundaryMemory.CacheSite.vertex site)
+      ↑column)
+    (Prod.mk.{0, 0} (HAdd.hAdd.{0, 0, 0} 9 ↑(SU2BoundaryMemory.CacheSite.marker site))
+      (HAdd.hAdd.{0, 0, 0}
+        (HMul.hMul.{0, 0, 0} (↑(SU2BoundaryMemory.CacheSite.vertex site))
+          (HAdd.hAdd.{0, 0, 0} 2 SU2BoundaryMemory.Generated.primitiveExtra_original))
+        ↑column))
+'SU2BoundaryMemory.source_cache_address' depends on axioms: [propext]
+SU2BoundaryMemory.source_primitive_address {N : Nat} (p : Fin N) (column : Fin 11) :
+  Eq.{1} (SU2BoundaryMemory.primitiveAddr p column)
+    (Prod.mk.{0, 0} 8
+      (HAdd.hAdd.{0, 0, 0}
+        (HMul.hMul.{0, 0, 0} (↑p) (HAdd.hAdd.{0, 0, 0} 2 SU2BoundaryMemory.Generated.primitiveExtra_original)) ↑column))
+'SU2BoundaryMemory.source_primitive_address' depends on axioms: [propext]
+SU2BoundaryMemory.extra_statement_rejected :
+  Eq.{1}
+    (SU2BoundaryMemory.parseOldBinding
+      (HAppend.hAppend.{0, 0, 0} SU2BoundaryMemory.Generated.oldBinding_originalSource " solutionOld[0] = 9;"))
+    none.{0}
+'SU2BoundaryMemory.extra_statement_rejected' depends on axioms: [propext]
+SU2BoundaryMemory.unknown_cache_write_rejected :
+  Eq.{1}
+    (SU2BoundaryMemory.parseCacheWrites
+      (HAppend.hAppend.{0, 0, 0} SU2BoundaryMemory.Generated.cacheWrites_originalSource " V_infty[10] = Density;"))
+    none.{0}
+'SU2BoundaryMemory.unknown_cache_write_rejected' depends on axioms: [propext]
+SU2BoundaryMemory.unsupported_stride_rejected :
+  Eq.{1} (SU2BoundaryMemory.parsePrimitiveExtra "nPrimVar = nDim + 8;") none.{0}
+'SU2BoundaryMemory.unsupported_stride_rejected' depends on axioms: [propext]
+SU2BoundaryMemory.source_boundary_to_complete_update {N M K : Nat} {vertices : Fin K → Nat} (owned : LE.le.{0} N M)
+  (bounds : SU2BoundaryMemory.Bounds M M K vertices) (g : SU2.IdealGas) (free : SU2.Primitive 2)
+  (P : SU2BoundaryMemory.Primitives M) (far : List.{0} (SU2BoundaryMemory.FarSite M K vertices))
+  (walls : List.{0} (SU2Boundary.WallVisit M)) (s0 : SU2Boundary.BoundaryState M) (m0 : SU2BoundaryMemory.Mem)
+  (vol dt : Fin M → Real) (h0 : SU2BoundaryMemory.BoundaryRep vertices m0 s0 P)
+  (hg0 : SU2BoundaryMemory.GeometryRep m0 vol (fun x => 0) dt)
+  (farReady : SU2Boundary.FarReady g free (List.map.{0, 0} (SU2BoundaryMemory.farVisit P) far)) :
+  let sb := SU2Boundary.boundarySpec g free (List.map.{0, 0} (SU2BoundaryMemory.farVisit P) far) walls s0;
+  let so := SU2BoundaryMemory.ownedState owned sb;
+  let vo := fun p => vol (Fin.castLE owned p);
+  let dto := fun p => dt (Fin.castLE owned p);
+  ∃ mb mu,
+    And (Eq.{1} (SU2BoundaryMemory.executeSourceBoundary M g free far walls m0) (some.{0} mb))
+      (And (SU2BoundaryMemory.BoundaryRep vertices mb sb P)
+        (And (SU2Boundary.InputsReady mb so vo (fun x => 0) dto)
+          (And
+            (Eq.{1}
+              (SU2Boundary.executeLoop M SU2Boundary.Generated.volume_original SU2Boundary.Generated.periodic_original
+                SU2Boundary.Generated.timestep_original SU2Boundary.Generated.points_original
+                SU2Boundary.Generated.components_original mb)
+              (some.{0} mu))
+            (And (SU2Boundary.LoopContract so vo dto mb mu)
+              (SU2BoundaryMemory.Frame
+                (HAppend.hAppend.{0, 0, 0} (SU2BoundaryMemory.boundaryFootprint far walls)
+                  (List.map.{0, 0} SU2Boundary.destination (SU2Boundary.visits N)))
+                m0 mu)))))
+'SU2BoundaryMemory.source_boundary_to_complete_update' depends on axioms: [propext, Classical.choice, Quot.sound]
+SU2BoundaryMemory.frame_refl (as : List.{0} SU2Source.Address) (m : SU2BoundaryMemory.Mem) :
+  SU2BoundaryMemory.Frame as m m
+'SU2BoundaryMemory.frame_refl' depends on axioms: [propext, Classical.choice, Quot.sound]
+SU2BoundaryMemory.frame_trans {xs ys : List.{0} SU2Source.Address} {a b c : SU2BoundaryMemory.Mem}
+  (h : SU2BoundaryMemory.Frame xs a b) (k : SU2BoundaryMemory.Frame ys b c) :
+  SU2BoundaryMemory.Frame (HAppend.hAppend.{0, 0, 0} xs ys) a c
+'SU2BoundaryMemory.frame_trans' depends on axioms: [propext, Classical.choice, Quot.sound]
+SU2BoundaryMemory.put_frame (m : SU2BoundaryMemory.Mem) (a : SU2Source.Address) (x : Real) :
+  SU2BoundaryMemory.Frame (List.cons.{0} a List.nil.{0}) m (SU2BoundaryMemory.put m a x)
+'SU2BoundaryMemory.put_frame' depends on axioms: [propext, Classical.choice, Quot.sound]
+SU2BoundaryMemory.cache_key_injective {a b c d : Nat}
+  (h : Eq.{1} (SU2BoundaryMemory.cacheKey a b) (SU2BoundaryMemory.cacheKey c d)) : And (Eq.{1} a c) (Eq.{1} b d)
+'SU2BoundaryMemory.cache_key_injective' depends on axioms: [propext, Classical.choice, Quot.sound]
+SU2BoundaryMemory.flow_addr_injective {N : Nat} (block : Nat) {p q : Fin N} {i j : Fin 4}
+  (h : Eq.{1} (SU2BoundaryMemory.flowAddr block p i) (SU2BoundaryMemory.flowAddr block q j)) :
+  And (Eq.{1} p q) (Eq.{1} i j)
+'SU2BoundaryMemory.flow_addr_injective' depends on axioms: [propext, Quot.sound]
+SU2BoundaryMemory.cache_addr_injective {a b c d : Nat} {i j : Fin 11}
+  (h : Eq.{1} (SU2BoundaryMemory.cacheAddr a b ↑i) (SU2BoundaryMemory.cacheAddr c d ↑j)) :
+  And (Eq.{1} a c) (And (Eq.{1} b d) (Eq.{1} i j))
+'SU2BoundaryMemory.cache_addr_injective' depends on axioms: [propext, Quot.sound]
+SU2BoundaryMemory.primitive_cache_separate {N : Nat} (p : Fin N) (c : Fin 11) (k v j : Nat) :
+  Ne.{1} (SU2BoundaryMemory.primitiveAddr p c) (SU2BoundaryMemory.cacheAddr k v j)
+'SU2BoundaryMemory.primitive_cache_separate' depends on axioms: [propext, Quot.sound]
+SU2BoundaryMemory.flow_primitive_separate {N : Nat} (b : Nat) (hb : LT.lt.{0} b 8) (p q : Fin N) (i : Fin 4)
+  (j : Fin 11) : Ne.{1} (SU2BoundaryMemory.flowAddr b p i) (SU2BoundaryMemory.primitiveAddr q j)
+'SU2BoundaryMemory.flow_primitive_separate' depends on axioms: [propext, Quot.sound]
+SU2BoundaryMemory.cache_flow_separate {N : Nat} (b : Nat) (hb : LE.le.{0} b 8) (p : Fin N) (i : Fin 4) (k v j : Nat) :
+  Ne.{1} (SU2BoundaryMemory.cacheAddr k v j) (SU2BoundaryMemory.flowAddr b p i)
+'SU2BoundaryMemory.cache_flow_separate' depends on axioms: [propext, Quot.sound]
+SU2BoundaryMemory.flow_addr_eq {N : Nat} (b d : Nat) (p q : Fin N) (i j : Fin 4) :
+  Iff (Eq.{1} (SU2BoundaryMemory.flowAddr b p i) (SU2BoundaryMemory.flowAddr d q j))
+    (And (Eq.{1} b d) (And (Eq.{1} p q) (Eq.{1} i j)))
+'SU2BoundaryMemory.flow_addr_eq' depends on axioms: [propext, Quot.sound]
+SU2BoundaryMemory.primitive_addr_eq {N : Nat} (p q : Fin N) (i j : Fin 11) :
+  Iff (Eq.{1} (SU2BoundaryMemory.primitiveAddr p i) (SU2BoundaryMemory.primitiveAddr q j))
+    (And (Eq.{1} p q) (Eq.{1} i j))
+'SU2BoundaryMemory.primitive_addr_eq' depends on axioms: [propext, Quot.sound]
+SU2BoundaryMemory.write_fields_value {L : Nat} (addr : Fin L → SU2Source.Address) (inj : Function.Injective.{1, 1} addr)
+  (value : Fin L → Real) (cs : List.{0} (Fin L)) (m : SU2BoundaryMemory.Mem) (c : Fin L) :
+  Eq.{1} (SU2BoundaryMemory.writeFields addr value cs m (addr c))
+    (ite.{1} (Membership.mem.{0, 0} cs c) (some.{0} (value c)) (m (addr c)))
+'SU2BoundaryMemory.write_fields_value' depends on axioms: [propext, Classical.choice, Quot.sound]
+SU2BoundaryMemory.write_fields_frame {L : Nat} (addr : Fin L → SU2Source.Address) (value : Fin L → Real)
+  (cs : List.{0} (Fin L)) (m : SU2BoundaryMemory.Mem) :
+  SU2BoundaryMemory.Frame (List.map.{0, 0} addr cs) m (SU2BoundaryMemory.writeFields addr value cs m)
+'SU2BoundaryMemory.write_fields_frame' depends on axioms: [propext, Classical.choice, Quot.sound]
+SU2BoundaryMemory.project_execution {N : Nat} (m : SU2BoundaryMemory.Mem) (b : Nat) (p : Fin N) (n : SU2.Vec 2)
+  (op : SU2Euler.Op) (x y : Real) (hx : Eq.{1} (m (SU2BoundaryMemory.flowAddr b p 1)) (some.{0} x))
+  (hy : Eq.{1} (m (SU2BoundaryMemory.flowAddr b p 2)) (some.{0} y)) :
+  Eq.{1} (SU2BoundaryMemory.projectMemory b p n op false false m)
+    (some.{0} (SU2BoundaryMemory.projectionWrites b p n op x y m))
+'SU2BoundaryMemory.project_execution' depends on axioms: [propext, Classical.choice, Quot.sound]
+SU2BoundaryMemory.projection_writes_frame {N : Nat} (m : SU2BoundaryMemory.Mem) (b : Nat) (p : Fin N) (n : SU2.Vec 2)
+  (op : SU2Euler.Op) (x y : Real) :
+  SU2BoundaryMemory.Frame (SU2BoundaryMemory.projectionFootprint b p) m
+    (SU2BoundaryMemory.projectionWrites b p n op x y m)
+'SU2BoundaryMemory.projection_writes_frame' depends on axioms: [propext, Classical.choice, Quot.sound]
+SU2BoundaryMemory.projection_refactor {N : Nat} (m : SU2BoundaryMemory.Mem) (b : Nat) (p : Fin N) (n : SU2.Vec 2)
+  (op : SU2Euler.Op) :
+  Eq.{1} (SU2BoundaryMemory.projectMemory b p n op false false m)
+    (SU2BoundaryMemory.projectMemory b p n op false true m)
+'SU2BoundaryMemory.projection_refactor' depends on axioms: [propext, Classical.choice, Quot.sound]
+SU2BoundaryMemory.projected_cache {N : Nat} (b : SU2BoundaryMemory.Buffer) (p : Fin N) (n : SU2.Vec 2)
+  (op : SU2Euler.Op) (s : SU2Boundary.BoundaryState N) :
+  Eq.{1} (SU2Boundary.BoundaryState.cache (SU2BoundaryMemory.projectedState b p n op s))
+    (SU2Boundary.BoundaryState.cache s)
+'SU2BoundaryMemory.projected_cache' depends on axioms: [propext, Classical.choice, Quot.sound]
+SU2BoundaryMemory.projected_buffers {N : Nat} (m : SU2BoundaryMemory.Mem) (s : SU2Boundary.BoundaryState N)
+  (b : SU2BoundaryMemory.Buffer) (p : Fin N) (n : SU2.Vec 2) (op : SU2Euler.Op) (h : SU2BoundaryMemory.BuffersRep m s) :
+  SU2BoundaryMemory.BuffersRep
+    (SU2BoundaryMemory.projectionWrites (SU2BoundaryMemory.Buffer.block b) p n op
+      (SU2BoundaryMemory.Buffer.get b s p (SU2.Channel.momentum 0))
+      (SU2BoundaryMemory.Buffer.get b s p (SU2.Channel.momentum 1)) m)
+    (SU2BoundaryMemory.projectedState b p n op s)
+'SU2BoundaryMemory.projected_buffers' depends on axioms: [propext, Classical.choice, Quot.sound]
+SU2BoundaryMemory.projected_rep {N K : Nat} {vertices : Fin K → Nat} (m : SU2BoundaryMemory.Mem)
+  (s : SU2Boundary.BoundaryState N) (P : SU2BoundaryMemory.Primitives N) (b : SU2BoundaryMemory.Buffer) (p : Fin N)
+  (n : SU2.Vec 2) (op : SU2Euler.Op) (h : SU2BoundaryMemory.BoundaryRep vertices m s P) :
+  SU2BoundaryMemory.BoundaryRep vertices
+    (SU2BoundaryMemory.projectionWrites (SU2BoundaryMemory.Buffer.block b) p n op
+      (SU2BoundaryMemory.Buffer.get b s p (SU2.Channel.momentum 0))
+      (SU2BoundaryMemory.Buffer.get b s p (SU2.Channel.momentum 1)) m)
+    (SU2BoundaryMemory.projectedState b p n op s) P
+'SU2BoundaryMemory.projected_rep' depends on axioms: [propext, Classical.choice, Quot.sound]
+SU2BoundaryMemory.project_memory_refines {N K : Nat} {vertices : Fin K → Nat} (m : SU2BoundaryMemory.Mem)
+  (s : SU2Boundary.BoundaryState N) (P : SU2BoundaryMemory.Primitives N) (b : SU2BoundaryMemory.Buffer) (p : Fin N)
+  (n : SU2.Vec 2) (op : SU2Euler.Op) (h : SU2BoundaryMemory.BoundaryRep vertices m s P) :
+  ∃ after,
+    And
+      (Eq.{1} (SU2BoundaryMemory.projectMemory (SU2BoundaryMemory.Buffer.block b) p n op false false m)
+        (some.{0} after))
+      (And (SU2BoundaryMemory.BoundaryRep vertices after (SU2BoundaryMemory.projectedState b p n op s) P)
+        (SU2BoundaryMemory.Frame (SU2BoundaryMemory.projectionFootprint (SU2BoundaryMemory.Buffer.block b) p) m after))
+'SU2BoundaryMemory.project_memory_refines' depends on axioms: [propext, Classical.choice, Quot.sound]
+SU2BoundaryMemory.wall_memory_refines {N M K : Nat} {vertices : Fin K → Nat} (m : SU2BoundaryMemory.Mem)
+  (s : SU2Boundary.BoundaryState N) (P : SU2BoundaryMemory.Primitives N) (v : SU2Boundary.WallVisit N)
+  (bounds : SU2BoundaryMemory.Bounds N M K vertices) (h : SU2BoundaryMemory.BoundaryRep vertices m s P) :
+  ∃ after,
+    And (Eq.{1} (SU2BoundaryMemory.executeWall M SU2BoundaryMemory.wallCode v m) (some.{0} after))
+      (And (SU2BoundaryMemory.BoundaryRep vertices after (SU2Boundary.wallSpec v s) P)
+        (SU2BoundaryMemory.Frame (SU2BoundaryMemory.wallFootprint v) m after))
+'SU2BoundaryMemory.wall_memory_refines' depends on axioms: [propext, Classical.choice, Quot.sound]
+EXIT 0

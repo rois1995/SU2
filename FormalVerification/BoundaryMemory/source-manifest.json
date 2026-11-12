@@ -1,0 +1,252 @@
+{
+  "source_commit": "d162016382f0c122433000c114e88d808b48f7a7",
+  "production_patches": [],
+  "selections": {
+    "oldBinding": {
+      "path": "SU2_CFD/include/solvers/CFVMFlowSolverBase.inl",
+      "span_bytes": [
+        49399,
+        49455
+      ],
+      "sha256": "81bb6a512e0d62297388344432a3560a4008ff8711f7250e80b61c09dda5626d",
+      "variants": {
+        "original": {
+          "sha256": "81bb6a512e0d62297388344432a3560a4008ff8711f7250e80b61c09dda5626d",
+          "full_file_sha256": "ef228099073057584c196405b674ff8dbf246a3fa325e636e36eff2a423c4e68"
+        },
+        "wrongBuffer": {
+          "sha256": "1e1d335a3cd6583f4fa92ef996851554b53539c753ef4f732e77f47b935cc594",
+          "full_file_sha256": "12ea0c010ceafc022b163ad8d20a3fc83b62bebb62b76e06f07699bd3e2e180e"
+        }
+      }
+    },
+    "primitiveExtra": {
+      "path": "SU2_CFD/src/solvers/CEulerSolver.cpp",
+      "span_bytes": [
+        4762,
+        4782
+      ],
+      "sha256": "51cad5ec0622bdab287820b06ec8a19c66cf7e2283cbd015350ac058760add19",
+      "variants": {
+        "original": {
+          "sha256": "51cad5ec0622bdab287820b06ec8a19c66cf7e2283cbd015350ac058760add19",
+          "full_file_sha256": "a02047d187aeb4dcd5dffadbce9c21243ace41df79f806e58091b99b3465dc20"
+        },
+        "shortStride": {
+          "sha256": "5c00aa601e36eb83edba398214298892cc7b846d4fad562d6cc5232a0782f7e3",
+          "full_file_sha256": "3b9f758b816328a3b9904fdba42c8c9ddcfc5e9d6c765dafd09fdb64c9a19565"
+        }
+      }
+    },
+    "cacheLookup": {
+      "path": "SU2_CFD/include/solvers/CFVMFlowSolverBase.hpp",
+      "span_bytes": [
+        93440,
+        93589
+      ],
+      "sha256": "9372d2bc91166da068c1970e90cd71afd16b9fdfa0e6e33b42ee168ce9f2ce7f",
+      "variants": {
+        "original": {
+          "sha256": "9372d2bc91166da068c1970e90cd71afd16b9fdfa0e6e33b42ee168ce9f2ce7f",
+          "full_file_sha256": "496938310d2c746ad0e31222d23fd9478ab98ced6795f76c8c7ff85aa3f2d063"
+        },
+        "firstMarker": {
+          "sha256": "eb6eb22ac44d96a98bc83487c990d3985c66f517698c88950c634c62f967193a",
+          "full_file_sha256": "b2bc0dc0908fa7f72c51e86d3b0217b96dbd03647f9cf2d906cc0dcb46ac3ac5"
+        },
+        "firstVertex": {
+          "sha256": "bd201d31c43248f2dc94b83a99c434dd55a70f0718724e02bbc2c2e46701386d",
+          "full_file_sha256": "2e13a269daa69956a322cd5947507dad3b716562a2f39dad2bfe2703c91fb041"
+        }
+      }
+    },
+    "cacheWrites": {
+      "path": "SU2_CFD/src/solvers/CEulerSolver.cpp",
+      "span_bytes": [
+        224142,
+        224389
+      ],
+      "sha256": "8c9d9b00d2dd494fc96c5a3c644446aa24eebc1fa8298357e14cbe3061f68cb5",
+      "variants": {
+        "original": {
+          "sha256": "8c9d9b00d2dd494fc96c5a3c644446aa24eebc1fa8298357e14cbe3061f68cb5",
+          "full_file_sha256": "a02047d187aeb4dcd5dffadbce9c21243ace41df79f806e58091b99b3465dc20"
+        },
+        "eraseTail": {
+          "sha256": "39de74240333f60d6a3861b4f5ebb4af9ddd288e0b723de477abb3e01d10ebcf",
+          "full_file_sha256": "4eb8dbc82e642b5f0687e97121d5cc61a51e7e91b34d4058b4a9965a27e6db37"
+        }
+      }
+    },
+    "wallOld": {
+      "path": "SU2_CFD/include/solvers/CFVMFlowSolverBase.inl",
+      "span_bytes": [
+        49919,
+        50178
+      ],
+      "sha256": "b2e0245b7ce9b42e4ccd560c518f54bb28771794b611e4f8d1f55361dd1ea7e7",
+      "variants": {
+        "original": {
+          "sha256": "b2e0245b7ce9b42e4ccd560c518f54bb28771794b611e4f8d1f55361dd1ea7e7",
+          "full_file_sha256": "ef228099073057584c196405b674ff8dbf246a3fa325e636e36eff2a423c4e68"
+        },
+        "refresh": {
+          "sha256": "057f90460336c61100f43e0f874d62609396cdd9cb84ac8bdd477aa1cbc95e22",
+          "full_file_sha256": "2e82ae9d28258187acd5455f815149de3c69c065049dce7bc14a710631cc9077"
+        },
+        "refactored": {
+          "sha256": "1ba3f20070c8de6cac475ee8b2e4871b91b4beeec9e96ac55bea17f8c03fc951",
+          "full_file_sha256": "981684ebd410e5b79aca305ab972ef7292abcb0f97058247f40901e1490a31fe"
+        }
+      }
+    },
+    "wallRes": {
+      "path": "SU2_CFD/include/solvers/CFVMFlowSolverBase.inl",
+      "span_bytes": [
+        50257,
+        50531
+      ],
+      "sha256": "194fa84ec0fed3b83e469d5d34d0e46c8a1ff8cbc7b1cce1bd405394f5202094",
+      "variants": {
+        "original": {
+          "sha256": "194fa84ec0fed3b83e469d5d34d0e46c8a1ff8cbc7b1cce1bd405394f5202094",
+          "full_file_sha256": "ef228099073057584c196405b674ff8dbf246a3fa325e636e36eff2a423c4e68"
+        },
+        "refresh": {
+          "sha256": "b8630423d1cad209cf25290581259c24b5867459d66056682688a3171ea0c9d8",
+          "full_file_sha256": "75539b040ebc4648f0fbcc465530be4eec0646306b8898bb19970bb1f5060386"
+        },
+        "refactored": {
+          "sha256": "02e89287b4020c782bdd2fe57dc9c688ddd58a351ec165262c79913529a28a05",
+          "full_file_sha256": "5f1da575ea027ecb3cc0ca0e95a930f33467f5c802aa9fd6d89e3d3730eeacda"
+        }
+      }
+    },
+    "wallTrunc": {
+      "path": "SU2_CFD/include/solvers/CFVMFlowSolverBase.inl",
+      "span_bytes": [
+        51842,
+        52165
+      ],
+      "sha256": "354daa3c1f996a3602f33af9507f4ba07648f98146940a72b7d79f68a93603bd",
+      "variants": {
+        "original": {
+          "sha256": "354daa3c1f996a3602f33af9507f4ba07648f98146940a72b7d79f68a93603bd",
+          "full_file_sha256": "ef228099073057584c196405b674ff8dbf246a3fa325e636e36eff2a423c4e68"
+        },
+        "refresh": {
+          "sha256": "1dfda47146398cd4d59e00105c95614b0321aa706e977a48f9da72a3e0c61815",
+          "full_file_sha256": "e59d58be900e966ed78d523030253bb05663a896a0e3d74c39241fa4101c3eec"
+        },
+        "refactored": {
+          "sha256": "2b8998c9e6ebdcf7b3b560d7e991826f9d340a1c17ea9429a1c657b39d9fe3d8",
+          "full_file_sha256": "142a3a6c26df89e2ae7d513b37f5995511c16318e75a74498c86f14df4e9d516"
+        }
+      }
+    },
+    "setBlock": {
+      "path": "Common/include/linear_algebra/CSysVector.hpp",
+      "span_bytes": [
+        24430,
+        24798
+      ],
+      "sha256": "d2b7f332a6562523ebbd90ef272e6d0c03f688f150b851143f7ebac299d947e6",
+      "variants": {
+        "original": {
+          "sha256": "d2b7f332a6562523ebbd90ef272e6d0c03f688f150b851143f7ebac299d947e6",
+          "full_file_sha256": "eb73b0ee97814e549c457dbab32060cbfbe69f60202874839aa08825aaea475f"
+        }
+      }
+    },
+    "primitiveGetter": {
+      "path": "SU2_CFD/include/variables/CFlowVariable.hpp",
+      "span_bytes": [
+        4390,
+        4478
+      ],
+      "sha256": "215f583474c8f9406bbc38a537b58e34de6800d8ce7fbc42d5ee4b62086a810e",
+      "variants": {
+        "original": {
+          "sha256": "215f583474c8f9406bbc38a537b58e34de6800d8ce7fbc42d5ee4b62086a810e",
+          "full_file_sha256": "0e6d113b3d5f9d15ca2f677aa21137cafdfb2167509ceedf5467ebada06e7bbe"
+        }
+      }
+    },
+    "addBlock": {
+      "path": "Common/include/linear_algebra/CSysVector.hpp",
+      "span_bytes": [
+        24867,
+        25052
+      ],
+      "sha256": "a5f4af756aabbd8adc550b25d5177eaf60d6ab51cd8f58c810da7358d25ff51b",
+      "variants": {
+        "original": {
+          "sha256": "a5f4af756aabbd8adc550b25d5177eaf60d6ab51cd8f58c810da7358d25ff51b",
+          "full_file_sha256": "eb73b0ee97814e549c457dbab32060cbfbe69f60202874839aa08825aaea475f"
+        }
+      }
+    },
+    "cacheAllocation": {
+      "path": "SU2_CFD/include/solvers/CFVMFlowSolverBase.inl",
+      "span_bytes": [
+        3291,
+        3347
+      ],
+      "sha256": "bd37141c8c9e67e2e8ec9267b0a99505cba013fedbe29913487b8e645e772891",
+      "variants": {
+        "original": {
+          "sha256": "bd37141c8c9e67e2e8ec9267b0a99505cba013fedbe29913487b8e645e772891",
+          "full_file_sha256": "ef228099073057584c196405b674ff8dbf246a3fa325e636e36eff2a423c4e68"
+        }
+      }
+    },
+    "primitiveAllocation": {
+      "path": "SU2_CFD/src/variables/CFlowVariable.cpp",
+      "span_bytes": [
+        1968,
+        2020
+      ],
+      "sha256": "b895616f93ec1daa20ddb53219d0c924d7589d201e96f539326d447f6a8da67e",
+      "variants": {
+        "original": {
+          "sha256": "b895616f93ec1daa20ddb53219d0c924d7589d201e96f539326d447f6a8da67e",
+          "full_file_sha256": "3eafc3870ba1dd08fc3ca18734e06f612f8baf8e0678bd005a74716cdd04d0ac"
+        }
+      }
+    },
+    "rowPointer": {
+      "path": "Common/include/containers/C2DContainer.hpp",
+      "span_bytes": [
+        9096,
+        9118
+      ],
+      "sha256": "5ce39e8088ad1bdc3482da69542cea5d43c32b6efd0e7a6b5bd21c67aec53972",
+      "variants": {
+        "original": {
+          "sha256": "5ce39e8088ad1bdc3482da69542cea5d43c32b6efd0e7a6b5bd21c67aec53972",
+          "full_file_sha256": "86c1173fe5dabddb258b50263344fafcfb078aa325d17028ba63df6d35394fe2"
+        }
+      }
+    }
+  },
+  "full_source_sha256": {
+    "SU2_CFD/include/solvers/CFVMFlowSolverBase.inl": "ef228099073057584c196405b674ff8dbf246a3fa325e636e36eff2a423c4e68",
+    "SU2_CFD/include/solvers/CFVMFlowSolverBase.hpp": "496938310d2c746ad0e31222d23fd9478ab98ced6795f76c8c7ff85aa3f2d063",
+    "SU2_CFD/src/solvers/CEulerSolver.cpp": "a02047d187aeb4dcd5dffadbce9c21243ace41df79f806e58091b99b3465dc20",
+    "Common/include/geometry/dual_grid/CPoint.hpp": "e441f89ce302a1156ea1596e32aaf4f6b0b2876df551762008e2da7082df136b",
+    "SU2_CFD/include/variables/CVariable.hpp": "5b137ccdd34c14816ea0bde9993690c49da7ad925b6dda166afe873b4264f40b",
+    "SU2_CFD/src/numerics/flow/convection/roe.cpp": "c559dc9a76ee10e607917a42aba810ddaac0b3897277ac974723e4e9f4d20f22",
+    "SU2_CFD/include/numerics/CNumerics.hpp": "9a6ff6facf1f4a26e421754230a8977ba53bd5eca6a04eb381dfd27ae14988b5",
+    "SU2_CFD/src/numerics/CNumerics.cpp": "095b68b75fbc4a9f598fa5abcfdc30e28faa5d94435ae67507d1a2482b7064f5",
+    "SU2_CFD/src/drivers/CDriver.cpp": "a384328e069d9c62fe7ba860be5cf52be63b7032f75b4df26081827fb5a63e64",
+    "SU2_CFD/src/integration/CIntegration.cpp": "b00c94749cc04fbefcf4f780316a94e76b619f600f0fd07c161132bc67b1e755",
+    "SU2_CFD/src/integration/CMultiGridIntegration.cpp": "9d24b1f2e715e390029a840cbafdf6cc76ad60c8745da27eb182fd3580bdf368",
+    "Common/src/geometry/dual_grid/CPoint.cpp": "5159aefe645ff75daa7d871715949b9390e73f5d7b29e93c9e89bef84c4b5a03",
+    "SU2_CFD/src/variables/CVariable.cpp": "ecc1128dbdfeaa3e0862fe117a0d548355a418706a717139afbdd66fe3c72c5c",
+    "SU2_CFD/src/variables/CFlowVariable.cpp": "3eafc3870ba1dd08fc3ca18734e06f612f8baf8e0678bd005a74716cdd04d0ac",
+    "SU2_CFD/include/variables/CFlowVariable.hpp": "0e6d113b3d5f9d15ca2f677aa21137cafdfb2167509ceedf5467ebada06e7bbe",
+    "Common/include/linear_algebra/CSysVector.hpp": "eb73b0ee97814e549c457dbab32060cbfbe69f60202874839aa08825aaea475f",
+    "Common/include/containers/C2DContainer.hpp": "86c1173fe5dabddb258b50263344fafcfb078aa325d17028ba63df6d35394fe2"
+  },
+  "scope": "Closed source fragments only; selection, caller enumeration, characteristic/Roe translation, C++ object/pointer semantics and compilation remain unverified."
+}

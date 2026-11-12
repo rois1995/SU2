@@ -1,0 +1,1 @@
+AllocVectorOfMatrices(nVertex, nPrimVar, CharacPrimVar);
