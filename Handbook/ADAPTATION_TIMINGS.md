@@ -982,3 +982,28 @@ The earlier edge audit separates69.487 s preparation and78.026 s composition nes
 in147.517 s total; finer discovery/distance/normal attribution is incomplete.
 248 tiny ownership intervals cost3720/6375 evaluations, but reduced quadrature is
 unproved. Ten-point error6.82% and zero net quality gains prohibit a speedup claim.
+
+
+##409 current-target construction, not an efficiency campaign
+
+408 diagnostic build212.223s;409 reporting fix build212.197s. CFD unchanged. Actual
+one-context original-M6 replay250.233s (test243.942s, time-command wall244.33s);
+user CPU239.30s/system4.74s. Serial only: no MPI synchronization attribution. Largest
+sampled individual RSS2050588672B, not whole-job peak.16 immutable input/checkpoint
+payloads371194652B verified. Source/input pins1660/1660 intact.
+
+Initial first-row failure20.467s/1027758work;16 surface splits reach14/21sampled-feasible
+faces. Prepared5-column row.542s/17368work; q/J-bad5→25 (construction is validity-first).
+Existing repair10.610s/464813work,64trials/30moves, ZERO net bad-cell retirement.
+Optimizer63.691s, rejected for oriented-interface change; no useful accepted progress.
+
+Six full-edge integrations/1995integrand evaluations/zero edge failures. Edge77.633s
+contains geometry58.005s and composition19.625s; it overlaps transaction/optimizer.
+Transaction19.972s includes PlanLift18.294s; directions6.198s is also nested work.
+Do not sum these to wrapper time.12 exclusion attempts/12fallbacks/0proven: no outside
+BL bypass saving on these near-wall edges. Prepared-region2499298hits/141940misses,
+build7.527s; counts alone do not prove useful progress or a speedup. Initial geometry/
+import setup and later surface trial subcosts are not fully attributed.
+
+Next is physical first-row readiness during coupled surface preparation, not another
+query or scalar-precision optimization. No accepted full BL or wall-time gain claimed.

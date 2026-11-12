@@ -361,3 +361,77 @@ identities terminal. Both binaries match405 exactly. R/restoration407_qualificat
 binds reuse of404 serial/MPI and405 actual evidence. No406 production proposal-release
 change remains. Preserve its exact archived source and negative actual result; do not
 rerun a baseline merely to re-establish restored identity. No usable BL is established.
+
+
+##408 current-target construction discrimination — before execution
+
+Missing evidence:405/406 repair old358 coordinates under the396 target, rather than
+constructing from the original mesh with that target. Reuse the existing actual front
+diagnostic and coordinated transaction, completion and surface-height paths. Connect
+ONE hidden checkpoint-front mode; no production operator/selection/target change.
+Input: exact396 complete policy, complete selected P1 source, original364 metric-entry
+mesh/reference/config and the existing smooth_upper context. No CFD advance, target
+recompute, cavity enlargement or new baseline. Producer/reload fidelity remains reused.
+
+Output: actual transaction outcomes, complete affected patch and neighbors, physical
+height intervals, positivity, strict geometry, global clearance and preserved rows.
+Measure q/J freshly in the actual composed field, reporting counts as provisional debt.
+Capture only the selected constructed old/fresh patch through existing transaction
+helpers. Check full/base profile stamps, core, radius and tangent scale unchanged.
+No global publication, exact full-edge conformity, multilayer/transition or nativeMPI
+acceptance claim. Diagnostic geometry300s/outer600s remain; failure is preserved.
+
+Acceptance of this diagnostic requires intact input/source/binary pins and complete
+requested measurements or an explicitly recorded bounded refusal. A constructed
+positive/height/geometry-clear patch is stage evidence, never final mesh acceptance.
+Reuse qualified404/396 production serial/MPI while shared code remains identical;
+no redundant MPI campaign for this diagnostic-only mode. Its result selects the next
+physical-target or coherent-construction blocker, not another fixed-skin repair.
+
+
+408build passed212.223s, CFD byte-identical407, pins intact/actual handles terminal.
+Read-only review found new shapes() used dc9::Shape, whose caught exceptions become
+{-1,-1}; finite checks cannot distinguish unresolved evaluation. Before any actual
+run,409changes this diagnostic to direct layer2d::ShapeOf, propagating failures into
+the existing explicit refusal path. Exact408source archived. No production change
+or actual result yet; no acceptance claim from compiling the diagnostic.
+
+
+##409 current-target original-mesh result
+
+Build409 PASS212.197s, production CFD byte-identical407. Actual PASS250.233s,
+8,078,815 assertions/one hidden case, all1660 pins intact, actual owned handles
+terminal. R/front409_assessment.json. Same complete396policy/original selected P1
+field, original M6 geometry and saved CFD; no metric recompute or CFD advance.
+
+Tangential planning maximum1.15822 is below1.8, yet physical first-row trials fail
+height/clearance then reach existing65-cell closure cap (20.467s/1027758work).
+Completion refuses a passing-child/interface obligation.16 existing coupled splits
+preserve strict geometry/positive surrounding volume/clearance/rows.21 descendant
+faces result;14 have sampled feasible feet. Seven tested feet do not prove the
+remaining7 infeasible, and this is incomplete surface readiness.
+
+A prepared subpatch constructs five passing columns/25 cells from five cells:
+.542s/17368work, strict geometry max6.404e-7, maximum height relative error.001745,
+positive cells, global clearance and old passing rows preserved. All25cells q/J-bad
+versus5previously; no unknown shapes. Independent saved-tensor q/J error≤1.665e-16.
+The current target therefore permits a valid local first row after surface edits,
+but neither suitable shape nor complete coverage is established. This repeats the
+construction difficulty under the real saved policy, rather than assuming that
+old358 coordinates describe its output.
+
+Existing private repair:64trials,30moves,5coordinated,59geometryrejections,464813work,
+10.610s, ZERO net q/J retirement. Final optimizer takes63.691s and changes its
+oriented interface; proposal is refused. Preserve its evidence but never expose it
+as an admitted checkpoint. Valid selected row is prepared_repair_before.bin with
+prepared_repair_parameters.bin and complete pinned target/reference provenance.
+It is a provisional local patch, not a resumable successful whole stage or BL.
+
+Confirmed next capability gap: tangential edge readiness does not establish physical
+height/clearance-compatible construction. Investigate connecting existing candidate
+feasibility and coupled surface transactions to readiness; do not call the unlayered
+original volume apex a failed already-constructed row. No blanket short-edge/curvature
+policy, larger cavity or new scheduler is selected. Leading edge/root/features and
+actual direction alignment/progression/coverage/transition remain unproven. Maximum
+reported tilt is centroid-to-apex tangent offset/h0, not a column alignment angle.
+No nativeMPI generation qualification or accepted-mesh claim follows.

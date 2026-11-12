@@ -9,7 +9,8 @@ const bool checkpointTarget=std::getenv("SU2_NATIVE_TARGET_CHECKPOINT3D")!=nullp
 const bool contributionsOnly=std::string(std::getenv("SU2_NATIVE_BL_FRONT_PROBE"))=="checkpoint_target_contributions";
 const bool checkpointRepair=std::string(std::getenv("SU2_NATIVE_BL_FRONT_PROBE"))=="checkpoint_target_repair";
 const bool checkpointNeighborRepair=std::string(std::getenv("SU2_NATIVE_BL_FRONT_PROBE"))=="checkpoint_target_neighbor_repair";
-REQUIRE(checkpointTarget==(contributionsOnly||checkpointRepair||checkpointNeighborRepair));
+const bool checkpointFront=std::string(std::getenv("SU2_NATIVE_BL_FRONT_PROBE"))=="checkpoint_target_front";
+REQUIRE(checkpointTarget==(contributionsOnly||checkpointRepair||checkpointNeighborRepair||checkpointFront));
 if(checkpointRepair||checkpointNeighborRepair)REQUIRE(std::getenv("SU2_NATIVE_BL_SAVED_PATCH"));
 if(checkpointNeighborRepair)REQUIRE(std::getenv("SU2_NATIVE_BL_SAVED_NEIGHBORS"));
 const bool savedTarget=checkpointTarget||panelsOnly||stabilityOnly||accuracyOnly||exclusionOnly||std::string(std::getenv("SU2_NATIVE_BL_FRONT_PROBE"))=="saved_target_geometry";
@@ -185,7 +186,7 @@ for(size_t index=0;index<count;++index) {
       }
       frontLog<<"{\"context\":"<<std::quoted(label)<<",\"stage\":\"saved_target_centroids_complete\",\"q_bad_centroid\":"<<qb
               <<",\"J_bad_centroid\":"<<jb<<",\"q_centroid_min\":"<<minq<<",\"J_centroid_min\":"<<minj<<"}"<<std::endl;
-      if(!contributionsOnly&&!checkpointRepair&&!checkpointNeighborRepair) {
+      if(!contributionsOnly&&!checkpointRepair&&!checkpointNeighborRepair&&!checkpointFront) {
       const auto a=NodePoint(*state,edge[0]),b=NodePoint(*state,edge[1]);
       const auto sensorLength=state->field->SensorEdgeLength(a,b);
       frontLog<<"{\"context\":"<<std::quoted(label)<<",\"stage\":\"saved_target_chord_begin\",\"a\":";pointJSON(a);
@@ -242,7 +243,7 @@ for(size_t index=0;index<count;++index) {
       }
     }
     }
-    if(savedTarget||std::string(std::getenv("SU2_NATIVE_BL_FRONT_PROBE"))=="target_geometry_only") {
+    if((savedTarget&&!checkpointFront)||std::string(std::getenv("SU2_NATIVE_BL_FRONT_PROBE"))=="target_geometry_only") {
       budget.CheckTime();REQUIRE_FALSE(budget.work_exhausted);
       frontLog<<"{\"context\":"<<std::quoted(label)<<",\"stage\":\"target_geometry_only_complete\",\"geometry_work\":"<<budget.work-beforeWork
               <<",\"seconds\":"<<std::chrono::duration<double>(std::chrono::steady_clock::now()-t0).count()
@@ -284,6 +285,25 @@ for(size_t index=0;index<count;++index) {
       };
       describe(label,"first_row_complete_old",complete(tx.old));
       describe(label,"first_row_complete_fresh",complete(tx.fresh));
+      if(checkpointFront) {
+        auto shapes=[&](const Patch& patch) {
+          size_t qbad=0,jbad=0;double qmin=1,jmin=1;
+          for(const auto& cell:patch.cells) {
+            const auto shape=layer2d::ShapeOf(*state,cell);
+            REQUIRE(std::isfinite(shape.q));REQUIRE(std::isfinite(shape.J));
+            qbad+=shape.q<MinimumMeanRatio;jbad+=shape.J<MinimumScaledJacobian;
+            qmin=std::min(qmin,shape.q);jmin=std::min(jmin,shape.J);
+          }
+          return std::make_tuple(qbad,jbad,qmin,jmin);
+        };
+        const auto before=shapes(complete(tx.old)),after=shapes(complete(tx.fresh));
+        frontLog<<"{\"context\":"<<std::quoted(label)<<",\"stage\":\"checkpoint_front_shapes\",\"old_q_bad\":"<<std::get<0>(before)
+                <<",\"old_J_bad\":"<<std::get<1>(before)<<",\"fresh_q_bad\":"<<std::get<0>(after)<<",\"fresh_J_bad\":"<<std::get<1>(after)
+                <<",\"fresh_q_min\":"<<std::get<2>(after)<<",\"fresh_J_min\":"<<std::get<3>(after)
+                <<",\"original_saved_target\":true,\"shape_used_for_admission\":false}"<<std::endl;
+        NativeTransactionCapture::Write("checkpoint_front_old.bin",NativeTransactionCapture::PatchBytes(complete(tx.old)));
+        NativeTransactionCapture::Write("checkpoint_front_fresh.bin",NativeTransactionCapture::PatchBytes(complete(tx.fresh)));
+      }
       // Actual physical distance enclosures, not planar altitude or a uniqueness claim for the nearest foot.
       std::map<Id,Point> points;for(const auto& c:tx.fresh.cells)for(auto node:c.v)points.emplace(node.id,node.p);
       for(const auto& apex:tx.apices) {
@@ -426,11 +446,17 @@ for(size_t index=0;index<count;++index) {
   }
   REQUIRE_FALSE(budget.time_exhausted);REQUIRE_FALSE(budget.work_exhausted);REQUIRE_FALSE(state->publication_failed);
 }
-if(checkpointTarget) {
+if(checkpointTarget&&!checkpointFront) {
   auto savedSensorAt=[&](Point p){return state->field->Sensor(p);};
   auto* savedRepairField=(checkpointRepair||checkpointNeighborRepair)?state->field.get():nullptr;
   const bool savedRepairNeighbors=checkpointNeighborRepair;
 #include "native_actual_bl_saved_tangent_probe.inc"
+  REQUIRE(SU2NativeTargetCheckpoint3D::detail::State(*policy->full)==initialFullProfile);
+  REQUIRE(SU2NativeTargetCheckpoint3D::detail::State(*policy->base)==initialBaseProfile);
+  REQUIRE(policy->core==selectedCore);REQUIRE(policy->A->radius==initialRadius);
+  REQUIRE(policy->inherited_tangent_scale==tangentScale);
+}
+if(checkpointFront) {
   REQUIRE(SU2NativeTargetCheckpoint3D::detail::State(*policy->full)==initialFullProfile);
   REQUIRE(SU2NativeTargetCheckpoint3D::detail::State(*policy->base)==initialBaseProfile);
   REQUIRE(policy->core==selectedCore);REQUIRE(policy->A->radius==initialRadius);

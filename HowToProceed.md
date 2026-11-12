@@ -273,3 +273,18 @@ The edge-measurement audit remains current: outside-BL exclusion383 is qualified
 edge. Tiny ownership intervals are expensive but have no conservative composed-speed
 enclosure. Keep classification, ranking, insertion and final-acceptance contracts
 separate; no approximate scalar or unsafe early acceptance has been introduced.
+
+
+409 now runs the existing constructor on ORIGINAL M6 geometry with complete396target.
+Smooth planning length1.158<1.8 still leads to height/clearance failure and the existing
+closure bound.16 coupled splits create21descendants with14sampled-feasible faces; a
+five-column subpatch passes geometry/height/positivity/globalclearance, but q/J-bad
+5→25. Repair still retires ZERO net failures; optimizer's interface-changing proposal
+is rejected. R/front409_assessment.json distinguishes valid row from rejected output.
+
+The next connected correction must establish physical first-row readiness alongside
+tangential surface preparation, using existing coupled operators/candidate checks.
+Original unlayered volume apices are not already-constructed requested rows. Do not
+turn sampling into an infeasibility proof, add a curvature metric from proxies, enlarge
+cavities or repeat fixed-skin polish. Qualify representative actual patches and the
+affected ownership/publication milestone, then resume ordered stages.

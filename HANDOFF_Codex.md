@@ -12,12 +12,41 @@ provenance and failures. This file supersedes historical live handles.
 
 ## Current source, build and workload
 
-No owned heavy workload is running. Build407 TERMINAL/PASS418.714 s; actual-host
-wrapper3743790/start48978718 and root3743791/start48978735 plus sampled descendants
-are verified terminal in R/build407_terminal_handles.json. All1429 pins intact.
-Both binaries match405 BYTE-FOR-BYTE (CFD16d88dd0…, test57668bfa…); see
-R/restoration407_qualification.json. Reuse404 serial/MPI and405 actual evidence;
-no redundant baseline was launched.
+No owned heavy workload is running. Actual409 TERMINAL/PASS250.233s, all1660 pins
+intact and actual-host wrapper/root/descendants verified terminal. Case:
+R/cases/curved409_checkpoint_front_20261112T012159_3789220; execsession87502 ended.
+R/front409_assessment.json independently verifies q/J to1.665e-16.
+Build409 terminal PASS212.197s; source pins intact and actual handles terminal.
+CFD remains16d88dd0…; test9bf32ae9…. Production code unchanged. Hidden diagnostic
+checkpoint_target_front connects original-mesh construction to exact396policy and
+complete selected P1 field on ONE existing smooth_upper context. This is NOT an old
+358geometry replay.16 seed/checkpoint payloads371194652B rehashed unchanged.
+408 passed212.223s but was not executed: review caught sentinel-returning Shape in
+new diagnostic; exact408 fixture archived.409 uses direct ShapeOf so query failures
+propagate as explicit refusals. New diagnostic/evidence checkpoint is pending push.
+
+409 planning maximum1.15822<1.8, yet original first-row trials fail physical height/
+clearance and reach existing65cell closure cap in20.467s/1027758work. Existing completion
+also refuses.16 coupled surface splits preserve geometry/body/constraints, yielding
+21descendants;14 have sampled feasible feet (seven-point sampling does NOT prove the
+other7 infeasible). Existing prepared transaction creates5columns/25cells from5cells
+in.542s/17368work: positive, global clearance, strict geometry(max6.404e-7), height
+maxerror.001745 pass. But q/J-bad5→25. Private repair64trials/30moves/5coordinated,
+10.610s/464813work gives ZERO net q/J retirement. Optimizer proposal is NOT admitted:
+oriented interface changed,25q/Jbad remain. No usable BL, full coverage or final mesh.
+
+Next demonstrated blocker: surface tangential size alone does not establish physical
+first-row readiness. Reuse existing coupled operators and coordinated construction
+checks to connect this readiness to surface preparation, without testing original
+unlayered volume apices as though they were prescribed first children. Do not select
+new metric/larger cavities or return to fixed-skin polishing. Other actual contexts,
+normal alignment, growth, transition, nativeMPI and strict closure remain unqualified.
+
+407 is TERMINAL/PASS418.714 s; actual-host sampled identities verified terminal in
+R/build407_terminal_handles.json. All1429 pins intact. Both binaries match405 BYTE-
+FOR-BYTE (CFD16d88dd0…, test57668bfa…); R/restoration407_qualification.json. Reuse404
+serial/MPI and405 actual evidence; no redundant baseline was launched.
+
 406 proposal-release experiment is REJECTED for production: correct mobility diagnosis,
 but zero net M6 q/J retirement and more work. Exact406 source archived in
 R/source_snapshots406 (manifest R/source_snapshot406.json); results in
@@ -35,12 +64,11 @@ loss improves only112.22684→112.14234. Allpositive/geometrypass, fivepassing r
 preserved,34height/33footprint failures remain. No useful M6 closure established.
 Don't promote a broader default from fixtures or newly available motion alone.
 
-Next target: coherent construction/surface-target feasibility, not fixed-skin polish,
-another star expansion or a speed cycle. The saved geometry has34 uncreated rows;
-quality-only motion is not a substitute for surface preparation/first-row/growth.
-Finish stage2 physical target assessment using actual seed/complete396policy and
-existing coupled construction facilities; proxies/constant-tensor controls do not
-prove target infeasibility or justify a newmetric. Read queued Coulaud/MAdLib context
+409 now confirms current-target physical first-row readiness is missing despite
+acceptable tangential size on the smooth context. Preserve staged construction and
+full coverage obligations; local passing five columns do not qualify a usable BL.
+Complete the coupled readiness capability using actual seed/complete396policy;
+proxies/constant-tensor controls do not justify a new metric. Read queued Coulaud/MAdLib context
 as hypotheses. Source audit: PrepareSurface deliberately clears full BL edge policy
 and uses transported core + sided tangential guidance, projecting normal components;
 it does not run full normal-BL chord quadrature as a surface-readiness metric.

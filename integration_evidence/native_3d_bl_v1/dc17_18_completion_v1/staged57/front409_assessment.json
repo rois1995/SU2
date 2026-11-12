@@ -1,0 +1,321 @@
+{
+  "scope": "Current-target construction on original M6 geometry; provisional patch evidence only.",
+  "case": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved409_checkpoint_front_20261112T012159_3789220",
+  "status": {
+    "state": "terminal",
+    "exit_code": 0,
+    "seconds": 250.23317527770996,
+    "pins_verified": true,
+    "changed": [],
+    "largest_sampled_individual_process_rss_bytes": 2050588672,
+    "rss_note": "sampled process RSS; not a whole-job peak"
+  },
+  "planning": {
+    "context": "smooth_upper",
+    "stage": "surface_planning",
+    "maximum_requested_length": 1.1582202991042867,
+    "core_control_only": false,
+    "full_target_certified": false,
+    "geometry_work": 61
+  },
+  "initial_front": {
+    "context": "smooth_upper",
+    "stage": "first_row_result",
+    "constructed": false,
+    "closure_vertices": 10,
+    "old_cells": 65,
+    "fresh_cells": 0,
+    "external_clearance": false,
+    "passing_rows_preserved": false,
+    "external_clearance_attempted": false,
+    "external_reason": "",
+    "class": "cap",
+    "reason": "cap-bound closure: 65 old cells",
+    "geometry_work": 1027758,
+    "seconds": 20.466552692,
+    "mesh_published": false
+  },
+  "surface": {
+    "context": "smooth_upper",
+    "stage": "surface_height_result",
+    "splits": 16,
+    "descendants": 21,
+    "feasible_children": 14,
+    "outcome": "split_limit",
+    "coherent_front_certified": false,
+    "production_target_certified": false,
+    "mesh_published": false
+  },
+  "prepared_front": {
+    "context": "smooth_upper",
+    "stage": "prepared_row_result",
+    "attempted": true,
+    "seed": 61340,
+    "constructed": true,
+    "geometry_pass": true,
+    "passing_rows_preserved": true,
+    "external_clearance": true,
+    "complete_patch_height": true,
+    "columns": 5,
+    "passing_columns": 5,
+    "old_q_bad": 5,
+    "old_J_bad": 5,
+    "old_unknown": 0,
+    "fresh_q_bad": 25,
+    "fresh_J_bad": 25,
+    "fresh_unknown": 0,
+    "shape_measured": true,
+    "composed_control_target_only": true,
+    "class": "",
+    "reason": "",
+    "check_reason": "",
+    "geometry_work": 17368,
+    "seconds": 0.54203321,
+    "accepted": false,
+    "production_target_certified": false,
+    "mesh_published": false
+  },
+  "prepared_geometry_height": {
+    "context": "smooth_upper",
+    "operation": "prepared_row_fresh",
+    "cells": 25,
+    "points": 13,
+    "euclidean_control_q_bad": 22,
+    "euclidean_control_J_bad": 25,
+    "euclidean_control_q": 6.146331225106947e-05,
+    "euclidean_control_J": 1.7036512315189048e-07,
+    "geometry_bad_faces": 0,
+    "maximum_geometry_error": 6.40367737170469e-07,
+    "requested_first_height_pass": true,
+    "first_height_maximum_relative_error": 0.0017452671172468392,
+    "first_height_maximum_tilt": 1724.2417132046396,
+    "first_height_reference_clearance_failures": 0,
+    "first_height_reason": "",
+    "production_metric_certified": false
+  },
+  "independent": {
+    "before": {
+      "cells": 25,
+      "points": 13,
+      "q_bad": 25,
+      "J_bad": 25,
+      "maximum_independent_error": 1.6653345369377348e-16
+    },
+    "connectivity": {
+      "cells": 25,
+      "points": 13,
+      "q_bad": 25,
+      "J_bad": 25,
+      "maximum_independent_error": 1.6653345369377348e-16
+    },
+    "optimizer": {
+      "cells": 25,
+      "points": 13,
+      "q_bad": 25,
+      "J_bad": 25,
+      "maximum_independent_error": 1.6653345369377348e-16
+    }
+  },
+  "repair": {
+    "context": "smooth_upper",
+    "stage": "prepared_connectivity_repair",
+    "improved": true,
+    "geometry_height_contact": true,
+    "trials": 64,
+    "flips": 0,
+    "moves": 30,
+    "removals": 0,
+    "coordinated": 5,
+    "height_rejections": 0,
+    "geometry_rejections": 59,
+    "loss_rejections": 0,
+    "before_loss": 43.06597426878547,
+    "after_loss": 42.98384855635122,
+    "blocked_vertex": 39424,
+    "q_bad": 25,
+    "J_bad": 25,
+    "unknown": 0,
+    "reason": "",
+    "geometry_work": 464813,
+    "seconds": 10.609625674,
+    "accepted": false
+  },
+  "optimizer": {
+    "context": "smooth_upper",
+    "stage": "prepared_optimizer",
+    "changed": true,
+    "geometry_height_contact": false,
+    "trials": 21,
+    "moves": 3,
+    "swaps": 0,
+    "collapses": 0,
+    "insertions": 0,
+    "rejected_frozen": 0,
+    "rejected_interface": 0,
+    "rejected_quality": 20,
+    "rejected_edge": 0,
+    "q_bad": 25,
+    "J_bad": 25,
+    "unknown": 0,
+    "stop": "limit",
+    "reason": "Native 3D cavity oriented interface changed.",
+    "seconds": 63.690605773,
+    "accepted": false
+  },
+  "churn": {
+    "q": {
+      "retired_bad": 25,
+      "introduced_bad": 25,
+      "unchanged_fixed": 0,
+      "unchanged_new_bad": 0,
+      "net_removed": 0
+    },
+    "J": {
+      "retired_bad": 25,
+      "introduced_bad": 25,
+      "unchanged_fixed": 0,
+      "unchanged_new_bad": 0,
+      "net_removed": 0
+    }
+  },
+  "counters": {
+    "context": "smooth_upper",
+    "stage": "existing_counters",
+    "field": {
+      "queries": 2035,
+      "query_misses": 1629,
+      "compositions": 4030,
+      "edge_integrations": 6,
+      "edge_compositions": 1995,
+      "edge_pieces": 6
+    },
+    "edge_failures": 0,
+    "edge_geometry_seconds": 58.00479691300001,
+    "edge_composition_seconds": 19.62500162600001,
+    "edge_seconds": 77.632521198,
+    "cumulative_perf": {
+      "ops": {
+        "Transaction": {
+          "count": 8,
+          "seconds": 19.971688,
+          "ms_per_op": 2496.461
+        },
+        "PlanLift": {
+          "count": 26,
+          "seconds": 18.294414,
+          "ms_per_op": 703.63131
+        },
+        "Column directions": {
+          "count": 17,
+          "seconds": 6.1979287,
+          "ms_per_op": 364.58404
+        },
+        "ConeColumn": {
+          "count": 106,
+          "seconds": 1.6510744,
+          "ms_per_op": 15.576174
+        },
+        "DC15 CavityFirstChild": {
+          "count": 1,
+          "seconds": 0.19846125,
+          "ms_per_op": 198.46125
+        },
+        "V12 FirstRowInsert": {
+          "count": 1,
+          "seconds": 0.027755349,
+          "ms_per_op": 27.755349
+        },
+        "D.2 invariant": {
+          "count": 21,
+          "seconds": 0.026192583,
+          "ms_per_op": 1.2472659
+        },
+        "V12 ApexRelocate": {
+          "count": 1,
+          "seconds": 0.002742591,
+          "ms_per_op": 2.742591
+        }
+      },
+      "caches": {
+        "length_hits": 0,
+        "length_misses": 0,
+        "length_failures": 0,
+        "shape_hits": 0,
+        "shape_misses": 0,
+        "height_hits": 0,
+        "height_misses": 0,
+        "rejection_cache_skips": 0,
+        "geometry_length_hits": 0
+      }
+    }
+  },
+  "exclusion": {
+    "context": "smooth_upper",
+    "stage": "edge_exclusion_counters",
+    "cumulative": true,
+    "attempts": 12,
+    "proven": 0,
+    "fallbacks": 12,
+    "wall_preparations_avoided": 0,
+    "edge_preparations_avoided": 0,
+    "evaluations_avoided": 0
+  },
+  "geometry_counters": {
+    "context": "smooth_upper",
+    "stage": "existing_geometry_counters",
+    "closest_region_hits": 2499298,
+    "closest_region_misses": 141940,
+    "closest_region_build_seconds": 7.526896027000017,
+    "closest_answer_hits": 5122,
+    "closest_answer_misses": 8936,
+    "closest_answer_refinements": 1027,
+    "closest_answer_stores": 8936,
+    "closest_answer_refusals": 0,
+    "closest_projection_attempts": 8326,
+    "closest_projection_improvements": 8123,
+    "closest_projection_work": 79377,
+    "prepared_bytes": 246105056,
+    "memo_direct_hits": 174,
+    "memo_direct_misses": 68
+  },
+  "complete": {
+    "complete": true,
+    "contexts": 1,
+    "constructed": 0,
+    "clear_preserved_candidates": 0,
+    "production_target_certified": false,
+    "mesh_published": false,
+    "geometry_work": 4814532
+  },
+  "production_code_changed": false,
+  "source_CFD_recomputed": false,
+  "usable_BL": false,
+  "next": "Coupled surface readiness must account for actual first-row height/clearance feasibility; tangential size alone is insufficient. Reuse existing operators. Do not select a new metric or larger cavities from this one context.",
+  "limits": [
+    "One smooth-upper context, not leading-edge/root/feature qualification.",
+    "Original saved396 P1 field during private construction, not accepted evolved nodal transport.",
+    "14/21 descendant faces have sampled feasible feet; seven-point sampling is not a proof that others are infeasible.",
+    "Five passing columns are a local candidate, not full wall coverage, growth, transition or final q/J/size acceptance.",
+    "Optimizer proposal fails oriented interface and was never admitted.",
+    "Maximum tilt is apex offset from triangle centroid divided by h0; it is not independently a column-alignment angle.",
+    "Nested timers overlap. No speedup or native-MPI BL generation claim."
+  ],
+  "input_sha256": {
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved409_checkpoint_front_20261112T012159_3789220/prepared_repair_before.bin": "0cfdeace223967d8d311d5b8eaaa0a23de664e30b8995a5041d9339c586fd1c4",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved409_checkpoint_front_20261112T012159_3789220/prepared_repair_before_frames.jsonl": "2a23ecbb38c84baeb73478e98f22ef1fc94cab22311f6abafcd54c2a08ece7f3",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved409_checkpoint_front_20261112T012159_3789220/prepared_repair_connectivity.bin": "0f23db0e25e47d967e8c0ebf10d09d5d8c36660ff4d192e8cb5f90abe68a404f",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved409_checkpoint_front_20261112T012159_3789220/prepared_repair_connectivity_frames.jsonl": "eebd90642628a70f8f546bb4c9b5825e133486df84b49791232c2344e2d71b1d",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved409_checkpoint_front_20261112T012159_3789220/prepared_repair_optimizer.bin": "53f218b1c75ec7a97caeb5d6fd8385330109db863e23743536094d6bc47a010f",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved409_checkpoint_front_20261112T012159_3789220/prepared_repair_optimizer_frames.jsonl": "88a662ced2ce9bd5937a73cbd1476473c77c803610df56df9397cacea0c0624c",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved409_checkpoint_front_20261112T012159_3789220/pins.json": "6c5a89cb17d72673f279abd4ba6fc9a192d79434cd94bd04139dfbd6d7e4ed79",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved409_checkpoint_front_20261112T012159_3789220/command.json": "d770414069a4b7bb57cd2e1d9737d200de1085128d83facf644171c1af71f4a6",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved409_checkpoint_front_20261112T012159_3789220/status.json": "a579aab8a5fd1df731565f2cefafd4d6373f2a05383edc00795df0c7afbeeef6",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved409_checkpoint_front_20261112T012159_3789220/terminal_handles_actual.json": "3a3baf665b4a65b06a162e8a8442251b9618fa3ac129f80418ce3a240ea01412",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved409_checkpoint_front_20261112T012159_3789220/actual_bl_front.jsonl": "89b9c77a5293902ca753a6cd6cea3de195274157d40416be61c466c84a378ef4",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved409_checkpoint_front_20261112T012159_3789220/actual_bl_surface_cavities.jsonl": "f30534e51bdb7dbc1faa5c7cfc65bcc8344bce5e832e4483ca5d814a7107486d",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved409_checkpoint_front_20261112T012159_3789220/prepared_repair_parameters.bin": "d27e3bac52ae29b1376451f35d248c09057e66741c39fbe2a39003ec6d38da30",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/assess_front409.py": "3d2b9b36d5c29beaebf67ee269f320600a17f9ccfefdd67e00779ac2b5798c77",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/assess_neighbor405.py": "dd209ac7a1b8c16c0931e40c4a5e552c6fabeca67a3f0ac1ca49ec593194b441",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/assess_saved_row369.py": "b445720f4a0f62b21db278ea94eb264b10f652c5cd1e2e7d096e60aa8ee44167"
+  }
+}
