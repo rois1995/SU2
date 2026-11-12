@@ -311,3 +311,28 @@ The useful visibility-case result survives the actual newtarget, supporting the
 narrow connected production scope above. No reduction/search expansion is justified.
 MPI rollback controls must use actual geometry/height/contact/stale/resource refusals;
 all-qbad candidates alone are not invalidity refusals in validity-first construction.
+
+
+## Connected implementation442 (unbuilt/unqualified)
+
+ReconnectCollapse now composes existing reconnection and complete-substar contraction,
+then rebuilds the FULL original-to-final correspondence and exact prescribed skin.
+Directory::CorrectCollapse discovers bounded blocked-face neighbors and verifies all
+vanished-vertex stars BEFORE reservation. It tests only the two demonstrated ranked
+alternate apexes; retained-apex cones and speculative reduction policies are not added.
+Engine enables this only for non-repair curved SurfacePlanning coarsening, preserves
+constraint filters, freshly rebuilds the chosen candidate, and uses full-support
+clearance/final reservation, generic owner routing and existing atomic publication.
+
+A source audit corrected the preliminary assumption: unbatched does NOT imply a
+single global proposal. Bidirectional curved coarsening can have one candidate PER
+rank concurrently. Discovery therefore advances matching collectives for all ranks,
+charges summed pending steps against the shared remaining work/deadline, preserves
+already completed plans while peers finish, and resolves overlap at the existing
+full-vertex reservation. No new scheduler/slots/configuration or budget is introduced.
+Empty workers participate in every common discovery/fetch/vote phase. Private geometry
+is rebuilt at use; accepted chart association alone is not a distance certificate.
+
+Focused guard checks and saved actual serial+MPI publication tests are being connected
+before the first build. These changes are implemented only, NOT validated or a usable
+BL. HANDOFF owns current source/build/handle state. No previous acceptance gate changes.

@@ -211,6 +211,28 @@ void Report(const char* label, World& world, const Directory& directory) {
             << " election_nested_s=" << s.election_seconds << " world_transport_partial_s=" << world.collective_seconds << '\n';
 }
 }  // namespace
+TEST_CASE("Bounded collapse discovery retains seed support on refusal and empty ranks", "[NativeCollapseCorrection3D]") {
+  World world;const auto fixture=Box();const PlanarReference geometry(fixture.facets);
+  Owned owned;for(auto row:Rows(fixture.patch))if(world.rank==0)owned.emplace(row.cell.id,row);
+  const auto original=Bytes(owned);Directory directory(world,true);std::string reason;
+  REQUIRE(directory.Build(owned,reason));
+  const auto seed=directory.Lookup(Query(world,Feature{{1,0,0},1}));REQUIRE(seed.valid);
+  const auto imported=directory.Fetch(seed,owned);REQUIRE(imported.valid);
+  const auto before=directory.Snapshot();
+  const auto plan=directory.CorrectCollapse(seed,imported,owned,1,0,world.rank==0,geometry,0,{},SIZE_MAX,0);
+  INFO(plan.reason);REQUIRE(plan.valid);CHECK_FALSE(plan.corrected);CHECK(plan.work==0);
+  CHECK(plan.dependencies.cells.size()==seed.cells.size());CHECK(Bytes(owned)==original);CHECK(directory.Snapshot()==before);
+  auto stale=seed;if(world.rank==0){REQUIRE_FALSE(stale.cells.empty());++stale.cells.front().version;}
+  const auto rejected=directory.CorrectCollapse(stale,imported,owned,1,0,world.rank==0,geometry,128,{},SIZE_MAX,0);
+  CHECK_FALSE(rejected.valid);CHECK(Bytes(owned)==original);CHECK(directory.Snapshot()==before);
+  const auto exhausted=directory.CorrectCollapse(seed,imported,owned,1,0,world.rank==0,geometry,128,{},1,0);
+  CHECK_FALSE(exhausted.valid);CHECK(Bytes(owned)==original);CHECK(directory.Snapshot()==before);
+  const auto deadline=directory.CorrectCollapse(seed,imported,owned,1,0,world.rank==0,geometry,128,[](){return false;});
+  REQUIRE(deadline.valid);CHECK_FALSE(deadline.corrected);CHECK(Bytes(owned)==original);
+  Patch untouched;untouched.cells.push_back(fixture.patch.cells.front());const auto saved=untouched.cells.front().id;
+  CHECK_FALSE(ReconnectCollapse(fixture.patch,1,0,1,100,geometry,untouched,reason));
+  REQUIRE(untouched.cells.size()==1);CHECK(untouched.cells.front().id==saved);
+}
 TEST_CASE("Native tetrahedral MPI scalar records preserve physical bindings and high IDs", "[NativeDistributed3D]") {
   auto row = Rows(Box().patch).front();
   row.cell.id = UINT64_MAX;

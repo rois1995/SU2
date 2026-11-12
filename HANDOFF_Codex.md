@@ -11,6 +11,18 @@ retains compiler failures, previous handles,434 surface results and older qualif
 
 ## Live workload and source state
 
+CURRENT:443 TEST-ONLY retry build FROZEN RUNNING exec92633; no other owned heavy job.
+Wrapper1572116/start53811906,ninja1572117/start53811923;
+R/build443_status.json / resources/source_pins. Only MPItestsource differs from442.
+442buildFAILED386.487s: RecordStream snapshot passedconst OwnedCell; productionlibraries/
+CFDlinked but FULLBUILDNOTPASS. All153actualbuildidentities terminal beforetestfix.
+R/build442_failed_test_source.json/source_snapshots442 preserve exactfailedsourcehash.
+Also fixedMPItestmissingproduction surface_merit neutralization beforeexecution.
+Currentproduction Boundary/Directory/Engine/Remesher unchanged442; no runtimevalidationyet.
+Source frozenuntilactual443handles terminal. MemAvailable39.614GB/load2.95,j3,nice19,libs1.
+Staticproductionreview foundnoconcreteblocker, but noexecutablequalificationyet.
+The following441runs are TERMINAL preserved evidence; original checkpoints remainintact.
+
 441 bounded stage3 surface TERMINALPASS507.070s; all9workers+wrapper actual identities terminal.
 R/cases/curved441_ramp5_saved_target_surface_mpi6_20261112T132736_1419501.
 R/surface_stage441_assessment.json:60454points/300958positive tets,876collapses;
@@ -32,7 +44,7 @@ LE contractions STILLgeometry-guidancerefusal; no outside-tolerance witness prov
 Useful replacement onexact441field confirmed, not MPIpublication/finalmeshcertificate.
 Unchanged old16edges measured, max14.3748normal/tangentcombined; remainingold/freshUNKNOWN
 at300selapseddeadline. Transientsizeviolations expected; no inaccurate scalar accepted.
-SampletreeRSS1.872GB/individual1.853GB, nottruepeak. Source441bytes unchanged.
+SampletreeRSS1.872GB/individual1.853GB, nottruepeak. Source441bytes were verified unchanged during that completed replay.
 Nextconnectedimplementation: bounded visibility-corrected surfacecoarsening using existing
 Reconnect→Collapse; discoverybeforeFIRSTreserve, completefinalsupport, properowner-routing,
 clearanceevenunchangedskin, invalidation/atomicpublish. Focusedserial+ONEactualMPI milestone
@@ -127,7 +139,11 @@ NO layers generated. Stage0 exact6032–6072length.9943139649742233 in10.346s (g
 Normal severity affects preparation, but no fine-stage cost/full-run speedup or row progression proven.
 Raw malformed JSON retained; normalized copy has same values. No approximate final measurements.
 
-No production cavity growth implemented/MPI-qualified. Read-only seam audit: preserve contraction,
+442production bounded correction is implemented;443test-onlybuildFROZEN asabove/UNQUALIFIED.
+ChangedBoundary/Directory/Engine/Remesher and focused serial/actualMPI tests are pinned.
+Correction supports concurrent per-rank unbatched proposals (not sole-global election),
+common bounded discovery beforefirstreservation, freshfullgeometry, fullowner-routing/clearance.
+No production cavity growth MPI qualification yet. Read-only seam audit: preserve contraction,
 feature/body/height filters; direct orientation prefilter can retire salvageable choices before
 operator. Discover full support collectively between Lookup/Fetch and FIRST reservation on the
 unbatched curved/composed SurfacePlanning coarsening route. No Directory calls in private repair/

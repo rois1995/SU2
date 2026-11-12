@@ -57,6 +57,14 @@ struct Imported {
   std::string reason;
   Feature coordinate_star{};
 };
+struct CollapseSupport {
+  Dependencies dependencies;
+  Imported imported;
+  Id apex=0;
+  size_t work=0;  // Common discovery/build steps, charged to the caller's remaining proposal budget.
+  bool valid=false,corrected=false;
+  std::string reason;
+};
 struct ImportedBatch {
   std::vector<Imported> candidates;
   bool valid = false;
@@ -113,6 +121,13 @@ class Directory {
   DependencyBatch PlanBatch(const std::vector<Feature>& features, std::vector<size_t>& slots,
                            size_t ceiling = SIZE_MAX, size_t caller_bytes = 0);
   Imported Fetch(const Dependencies& dependencies, const Owned& owned, size_t ceiling = SIZE_MAX, size_t caller_bytes = 0);
+  /*! One local surface contraction: bounded visibility discovery BEFORE any reservation.
+   * Empty ranks participate; refusal retains seed support. A corrected result still needs fresh
+   * geometry/metric/height checks, complete reservation, clearance and atomic publication. */
+  CollapseSupport CorrectCollapse(const Dependencies& seed, const Imported& imported, const Owned& owned,
+                                 Id point, Id neighbor, bool active, const PlanarReference& geometry,
+                                 size_t maximum_work, const std::function<bool()>& within_time,
+                                 size_t ceiling=SIZE_MAX, size_t caller_bytes=0);
   /*! Shared cells are fetched once; a stale payload refuses every candidate that requires it.
    * Common protocol/storage failures refuse the batch. Neither method mutates the accepted stores. */
   ImportedBatch FetchBatch(const DependencyBatch& dependencies, const Owned& owned,

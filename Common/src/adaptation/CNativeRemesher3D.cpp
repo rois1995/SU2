@@ -1004,6 +1004,8 @@ CRemeshResult CNativeRemesher3D::Remesh(const CConfig& config, const CGeometry& 
              << " compositions=" << e.field_compositions << " edge_evaluations=" << e.edge_evaluations
              << " collapse_geometry_checks=" << e.collapse_geometry_checks << " collapse_filtered=" << e.collapse_filtered
              << " collapse_orientation_checks=" << e.collapse_orientation_checks << " collapse_orientation_filtered=" << e.collapse_orientation_filtered
+             << " collapse_correction_plans=" << e.collapse_corrections << " collapse_correction_cells=" << e.collapse_correction_cells
+             << " collapse_correction_global_work=" << e.collapse_correction_work << " nested_collapse_correction=" << e.collapse_correction_seconds
              << " blocked_queue_skips=" << e.blocked_queue_skips << " blocked_unmeasured=" << e.blocked_unmeasured
              << " collapse_reactivated=" << e.collapse_reactivated << " changed_star_scans=" << e.changed_star_scans
              << " changed_vertices_sent=" << e.changed_vertices_sent << " changed_vertices_received=" << e.changed_vertices_received

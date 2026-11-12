@@ -382,6 +382,12 @@ bool UndoEdgeSplit(const Patch& old, Id point, Edge endpoints, Id first_cell, co
  * cell order excluding cells containing both endpoints. Rejection leaves both output vectors unchanged. */
 bool CollapseVertex(const Patch& old, Id point, Id neighbor, Id first_cell, const PlanarReference& reference,
                     Patch& fresh, std::string& reason, KernelStats* stats = nullptr);
+/*! Bounded reconnect-then-contract on an enlarged cavity containing the complete removed star.
+ * The caller must discover/reserve every final dependency and verify all removed vertex stars.
+ * Exact prescribed skin, geometry and positivity are checked; metric/height/clearance remain caller duties. */
+bool ReconnectCollapse(const Patch& old, Id point, Id neighbor, Id apex, Id first_cell,
+                       const PlanarReference& reference, Patch& fresh, std::string& reason,
+                       KernelStats* stats = nullptr);
 /*! Moves one complete vertex star, replacing its vertex by a caller-reserved distinct identity.
  * Vertex/cell counts are unchanged. Analytic boundary proposals are projected to their incident chart;
  * positive endpoint determinants and chart-oriented faces are required; global clearance remains a caller duty;

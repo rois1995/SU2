@@ -282,6 +282,23 @@ for(const auto& entry:contexts) {
     return feasible;
   };
   const Id neighbor=entry.first=="recorded_geometry_refusal"?18783:entry.first=="recorded_visibility_obstruction"?11886:entry.first=="recorded_visibility_obstruction_b"?13788:shortest[0]==vertex?shortest[1]:shortest[0];
+  if(cavityCorrection&&!heightContinuation) {
+    const auto dependencies=directory.Lookup({Feature{{vertex,0,0},1}},ceiling,retained);REQUIRE(dependencies.valid);
+    const auto rows=directory.Fetch(dependencies,current.mesh,ceiling,retained);REQUIRE(rows.valid);
+    const auto plan=directory.CorrectCollapse(dependencies,rows,current.mesh,vertex,neighbor,true,*current.reference,
+        2*MaximumCavityCells,budget.within_time,ceiling,retained);
+    INFO(plan.reason);REQUIRE(plan.valid);
+    log<<"{\"stage\":\"production_correction_support\",\"context\":"<<std::quoted(entry.first)
+       <<",\"corrected\":"<<plan.corrected<<",\"apex\":"<<plan.apex<<",\"old_cells\":"<<plan.imported.cells.size()
+       <<",\"work\":"<<plan.work<<"}"<<std::endl;
+    if(entry.first=="recorded_visibility_obstruction")REQUIRE(plan.corrected);
+    if(plan.corrected) {
+      std::vector<Id> ids;for(const auto& c:plan.imported.cells)ids.push_back(c.cell.id);
+      test("ProductionReconnectCollapse",ids,MetricChange::Coarsen,[&](const Patch& old,Patch& fresh,std::string& why){
+        return ReconnectCollapse(old,vertex,neighbor,plan.apex,nextCell,*current.reference,fresh,why);
+      });
+    }
+  }
   test("CollapseVertex",entry.second,MetricChange::Coarsen,[&](const Patch& old,Patch& fresh,std::string& why){
     return CollapseVertex(old,vertex,entry.first=="recorded_geometry_refusal"?18783:neighbor,nextCell,*current.reference,fresh,why);
   });
@@ -308,7 +325,7 @@ for(const auto& entry:contexts) {
 if(heightContinuation) {
 #include "native_actual_cavity_height_continuation.inc"
 }
-if(cavityCorrection&&!heightContinuation) {
+if(cavityCorrection&&!heightContinuation&&!productionCorrection) {
   for(const auto& audit:correctionAudits)for(unsigned side=0;side<2;++side) {
     const auto& patch=side?audit.fresh:audit.old;std::string why;PatchMetric metric;bool complete=false;
     const auto t=std::chrono::steady_clock::now();const auto cpu=std::clock();const auto workBefore=budget.work;
@@ -335,7 +352,6 @@ if(cavityCorrection&&!heightContinuation) {
        <<",\"seconds\":"<<std::chrono::duration<double>(std::chrono::steady_clock::now()-t).count()<<",\"edges\":[";
     bool first=true;for(const auto& e:metric.edges){if(!first)log<<',';first=false;log<<'['<<e.first[0]<<','<<e.first[1]<<','<<e.second.length<<']';}log<<"]}"<<std::endl;
   }
-  NativeStageCapture::WriteOwned("correction_unchanged_owned.bin",current.mesh);
 }
 
-if(heightContinuation)NativeStageCapture::WriteOwned("correction_unchanged_owned.bin",current.mesh);
+if(cavityCorrection)NativeStageCapture::WriteOwned("correction_unchanged_owned.bin",current.mesh);

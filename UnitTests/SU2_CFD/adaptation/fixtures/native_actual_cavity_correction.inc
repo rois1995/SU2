@@ -18,36 +18,8 @@ auto prescribed=[&](const Patch& old) {
 // Exercise the prescribed-interface contract on the existing primitive before judging compound failures.
 {Patch control;std::string why;if(CollapseVertex(vertexPatch,vertex,neighbor,nextCell,*current.reference,control,why))
   REQUIRE(ValidatePrescribedInterface(vertexPatch.cells,control.cells,prescribed(vertexPatch),why));}
-auto subset=[](const Patch& whole,const std::set<Id>& ids) {
-  Patch part;std::set<Face> faces;std::set<Id> boundary;std::set<Edge> edges;
-  for(const auto& c:whole.cells)if(ids.count(c.id)){part.cells.push_back(c);for(auto f:junction_wp0::CellFaces(c)){std::sort(f.begin(),f.end());faces.insert(f);}}
-  for(const auto& f:whole.surface){auto key=f.v;std::sort(key.begin(),key.end());if(!faces.count(key))continue;part.surface.push_back(f);
-    boundary.insert(f.v.begin(),f.v.end());for(unsigned k=0;k<3;++k){Edge e{f.v[k],f.v[(k+1)%3]};std::sort(e.begin(),e.end());edges.insert(e);}}
-  for(Id id:boundary){const auto p=whole.parameters.find(id);if(p!=whole.parameters.end())part.parameters.emplace(*p);}
-  for(const auto& f:whole.coverage.faces){auto key=f.first;std::sort(key.begin(),key.end());if(faces.count(key))part.coverage.faces.emplace(f);}
-  for(const auto& e:whole.coverage.traces)if(edges.count(e.first))part.coverage.traces.emplace(e);
-  return part;
-};
 auto compound=[&](const Patch& old,Id apex,Patch& fresh,std::string& why) {
-  Patch reconnected;
-  if(!Reconnect(old,apex,nextCell,*current.reference,reconnected,why))return false;
-  std::set<Id> starIds;for(const auto& c:reconnected.cells)for(auto n:c.v)if(n.id==vertex){starIds.insert(c.id);break;}
-  if(starIds.empty()){why="Reconnection removed the mandatory boundary vertex before contraction.";return false;}
-  const auto starPatch=subset(reconnected,starIds);Patch collapsed;
-  if(!CollapseVertex(starPatch,vertex,neighbor,nextCell+MaximumReplacementCells,*current.reference,collapsed,why))return false;
-  fresh=reconnected;
-  fresh.cells.erase(std::remove_if(fresh.cells.begin(),fresh.cells.end(),[&](const Cell& c){return starIds.count(c.id);}),fresh.cells.end());
-  fresh.cells.insert(fresh.cells.end(),collapsed.cells.begin(),collapsed.cells.end());
-  if(fresh.cells.empty()||fresh.cells.size()>MaximumReplacementCells){why="Compound replacement exceeds existing cell budget.";return false;}
-  std::set<Face> removedFaces;for(auto f:starPatch.surface){std::sort(f.v.begin(),f.v.end());removedFaces.insert(f.v);}
-  fresh.surface.erase(std::remove_if(fresh.surface.begin(),fresh.surface.end(),[&](SurfaceFace f){std::sort(f.v.begin(),f.v.end());return removedFaces.count(f.v);}),fresh.surface.end());
-  fresh.surface.insert(fresh.surface.end(),collapsed.surface.begin(),collapsed.surface.end());
-  fresh.parameters.erase(vertex);for(const auto& p:collapsed.parameters)fresh.parameters.insert_or_assign(p.first,p.second);
-  for(const auto& f:collapsed.coverage.faces)fresh.coverage.faces.insert_or_assign(f.first,f.second);
-  for(const auto& e:collapsed.coverage.traces)fresh.coverage.traces.insert_or_assign(e.first,e.second);
-  for(size_t i=0;i<fresh.cells.size();++i)fresh.cells[i].id=nextCell+i;
-  std::set<Id> all;for(const auto& c:fresh.cells)all.insert(c.id);fresh=subset(fresh,all);
-  return ValidatePrescribedInterface(old.cells,fresh.cells,prescribed(old),why);
+  return ReconnectCollapse(old,vertex,neighbor,apex,nextCell,*current.reference,fresh,why);
 };
 std::vector<std::pair<size_t,Id>> ordered;
 for(const auto& n:nodes)if(n.first!=vertex&&n.first!=neighbor) {

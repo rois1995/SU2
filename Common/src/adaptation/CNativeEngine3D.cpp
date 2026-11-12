@@ -623,6 +623,8 @@ class Selection {
       for (auto& node:v) if (node.id==choice.edge[1]) node={choice.edge[0],apex};
       ++stats.collapse_orientation_checks;
       if (!(Orientation(v[0].p,v[1].p,v[2].p,v[3].p)>0)) {
+        // Surface planning may repair connectivity before contracting; all final validity checks remain.
+        if(surface_planning && !geometry.ExtensionComponents().empty())return false;
         Block(choice.edge,{},false); ++stats.collapse_orientation_filtered; return true;
       }
     }
@@ -1823,6 +1825,8 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
           <<" face_pieces="<<face_pieces<<" trace_pieces="<<trace_pieces<<" maximum_ratio_limbs="<<limbs
           <<" atlas_work="<<atlas_budget.work<<" atlas_bytes="<<atlas_budget.peak_bytes<<" global_work="<<stats.global_work
           <<" rounds="<<stats.rounds<<" batch_rounds="<<stats.batch_rounds
+          <<" collapse_corrections="<<stats.collapse_corrections<<" collapse_correction_cells="<<stats.collapse_correction_cells
+          <<" collapse_correction_work="<<stats.collapse_correction_work<<" collapse_correction_seconds="<<stats.collapse_correction_seconds
           <<" batch_candidates="<<stats.batch_candidates<<" batch_reserved="<<stats.batch_reserved
           <<" quality_progress="<<stats.quality_progress<<" accepted="<<stats.accepted
           <<" updated_cells="<<stats.updated_cells<<" update_seconds="<<stats.update_seconds
@@ -3742,7 +3746,8 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     for (size_t slot=0;slot<(repairing?choices.size():slots);++slot) {
     Dependencies dependencies;
     Imported imported;
-    bool chosen=false,pass_deferred=false;
+    bool chosen=false,pass_deferred=false,collapse_corrected=false;Id collapse_apex=0;
+    std::string collapse_correction_refusal;
     auto reserve_dependencies=[&](const Imported& rows,bool active,std::string& why,size_t ceiling,size_t caller,unsigned priority) {
       const bool selected=directory->Reserve(rows,active,why,ceiling,caller,priority);
       if(chosen && directory->PassDeferred())++stats.length_expansion_deferrals;
@@ -3788,6 +3793,19 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
       }
       if (!dependencies.valid || !imported.valid) {
         result.reason=dependencies.valid ? imported.reason : dependencies.reason; return finish();
+      }
+      if(surface_target && curved && coarsening && !repairing) {
+        Timer timer(stats.collapse_correction_seconds,options.timings);
+        const size_t seed_cells=imported.cells.size();
+        auto correction=directory->CorrectCollapse(dependencies,imported,working,choice.edge[1],choice.edge[0],
+            choice.active,geometry,stats.work_limit-stats.global_work,atlas_budget.within_time,
+            options.memory_ceiling,transfer_memory::Add(bytes(),source.ResidentBytes()));
+        stats.global_work+=correction.work;stats.collapse_correction_work+=correction.work;
+        if(!correction.valid){result.reason=correction.reason;return finish();}
+        collapse_corrected=correction.corrected;collapse_apex=correction.apex;
+        if(!collapse_corrected)collapse_correction_refusal=std::move(correction.reason);
+        if(collapse_corrected){++stats.collapse_corrections;stats.collapse_correction_cells+=correction.imported.cells.size()-seed_cells;}
+        dependencies=std::move(correction.dependencies);imported=std::move(correction.imported);
       }
       {
         Timer timer(stats.reservation_seconds,options.timings);
@@ -4062,7 +4080,9 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
             if(!geometry.EntityGeometry()&&CollapseOutsideTolerance(old,choice.edge[1],choice.edge[0],geometry,options.surface_tolerance)) {
               result.reason="Native3D collapsed boundary leaves an original geometry sample outside tolerance.";
               approved=guarded_geometry(false,"CollapseVertex");
-            } else approved=guarded_geometry(CollapseVertex(old,choice.edge[1],choice.edge[0],maximum_cell+1+offset,
+            } else if(collapse_corrected)approved=guarded_geometry(ReconnectCollapse(old,choice.edge[1],choice.edge[0],
+              collapse_apex,maximum_cell+1+offset,geometry,fresh,result.reason),"ReconnectCollapse");
+            else approved=guarded_geometry(CollapseVertex(old,choice.edge[1],choice.edge[0],maximum_cell+1+offset,
               geometry,fresh,result.reason),"CollapseVertex");
           }
           else if (!repairing) {
@@ -5434,11 +5454,14 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
         local.Set(2,0,"Native3D private surface collapse performed collective or unreserved operator work.");
       if(!(ready=vote(local)))return finish();
     } else if(!evaluate_candidate())return finish();
+    if(chosen&&!approved&&!collapse_correction_refusal.empty())
+      result.reason+=" Bounded correction: "+collapse_correction_refusal;
     // Successful peer contact/reservation votes must not erase this worker's construction refusal.
     const std::string pending_rejection=chosen && !approved ? result.reason : std::string{};
     const bool surface_edit=approved && !SameSkin(old,fresh);
     if(timed_lane==2&&surface_edit&&!physical_edge)++stats.interior_boundary_discoveries;
-    if((curved && world.maximum(surface_edit)) || world.maximum(coordinate_only && approved)) {
+    if((curved && world.maximum(surface_edit)) || world.maximum(coordinate_only && approved) ||
+        world.maximum(collapse_corrected && approved)) {
       const bool prior=approved;bool deferred=false;
       if(!directory->Clearance(working,old,fresh,approved,result.reason,options.memory_ceiling,
           transfer_memory::Add(bytes(),source.ResidentBytes(),private_scratch),&deferred,choice.reservation_priority,
@@ -5446,7 +5469,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
       if(deferred){chosen=false;++stats.conflicts;++stats.rejected;++stats.proposal_deferred;}
       else if(prior && !approved)geometry_trial(false);
     }
-    if(concurrent && world.maximum(approved)) {
+    if((concurrent || world.maximum(collapse_corrected)) && world.maximum(approved)) {
       Timer timer(stats.reservation_seconds,options.timings);CLocalFailure final_failure;
       // Every approved proposal claims its final old footprint together, including completed peers.
       if(approved)try {
@@ -5508,7 +5531,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
           if(coordinate_only) {
             if(fresh.cells.size()!=old.cells.size())throw std::logic_error("Native coordinate-star movement changed cell count.");
             for(const auto& cell:fresh.cells)parents.push_back(cell.id);
-          } else if (repair_approved || cavity_inserted) {
+          } else if (repair_approved || cavity_inserted || collapse_corrected) {
             for (size_t i=0;i<fresh.cells.size();++i) parents.push_back(old.cells[i%old.cells.size()].id);
           } else for (const auto& cell:old.cells) {
             bool keep=false;

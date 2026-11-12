@@ -1397,3 +1397,9 @@ geometry/fulltargetreconstruction/import beforeboundedprivatework. SampledtreeRS
 individual1.853GB,nottruepeak. All5actualidentitiesterminal/pinsverified. This identifies
 usefulboundedreplacementcapacity, no meshthroughputgainorfinalgeometry/sizequalification.
 R/cavity_surface441_assessment.json preservesstrictrecords/outputhashes.
+
+
+442 connected-correction buildFAILED386.487s; productionlibraries/CFDlinked, fullbuildNOTPASS.
+All153actualidentitiesterminal; test-onlyconstRecordStream snapshotcompileerror. SampledtreeRSS
+max5.639GB(nottruepeak).443test-onlyretryfrozen; alsoalignsMPItestmeritwithproductionrequested-
+wallprojection beforeexecution. No productionperformance/acceptedBL evidence from this build.

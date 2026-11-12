@@ -3146,6 +3146,57 @@ bool CollapseVertex(const Patch& old, Id point, Id neighbor, Id first, const Pla
     return false;
   }
 }
+bool ReconnectCollapse(const Patch& old, Id point, Id neighbor, Id apex, Id first,
+                       const PlanarReference& base_reference, Patch& fresh, std::string& reason, KernelStats* stats) {
+  try {
+    Bounds(old);
+    if(point==neighbor || apex==point || apex==neighbor)
+      throw std::invalid_argument("Native3D reconnect contraction repeats an endpoint/apex.");
+    auto context=base_reference.PrivateParameters(old);
+    const auto& reference=context?*context:base_reference;
+    if(!reference.ContractionAllowed(point,neighbor))
+      throw std::invalid_argument("Native3D reconnect contraction leaves its physical body or feature.");
+    auto skin=SkinMap(Incidence(old.cells,stats).Boundary());
+    auto physical=CheckSurface(old,skin,reference,stats);
+    const auto prior=skin;
+    for(const auto& face:prior)if(Has(face.second,point)) {
+      const auto found=physical.find(face.first);
+      if(found==physical.end())throw std::invalid_argument("Native3D reconnect contraction lacks the complete removed star.");
+      const Id facet=found->second.facet;physical.erase(found);skin.erase(face.first);
+      if(Has(face.second,neighbor))continue;
+      auto replacement=face.second;for(auto& id:replacement)if(id==point)id=neighbor;
+      replacement=Oriented(replacement);const auto key=Key(replacement);
+      if(!skin.emplace(key,replacement).second || !physical.emplace(key,SurfaceFace{replacement,facet}).second)
+        throw std::invalid_argument("Native3D reconnect contraction repeats a prescribed face.");
+    }
+    Patch reconnected;
+    if(!Reconnect(old,apex,first,reference,reconnected,reason,stats))return false;
+    Patch star;std::set<Face> faces;std::set<Edge> edges;std::set<Id> boundary;
+    for(const auto& c:reconnected.cells)if(std::any_of(c.v.begin(),c.v.end(),[&](Node n){return n.id==point;})) {
+      star.cells.push_back(c);
+    }
+    if(star.cells.empty())throw std::invalid_argument("Native3D reconnection removed the contraction vertex prematurely.");
+    for(auto f:Incidence(star.cells,stats).Boundary())faces.insert(Key(f));
+    for(const auto& f:reconnected.surface)if(faces.count(Key(f.v))) {
+      star.surface.push_back(f);boundary.insert(f.v.begin(),f.v.end());
+      for(unsigned k=0;k<3;++k){Edge e{f.v[k],f.v[(k+1)%3]};std::sort(e.begin(),e.end());edges.insert(e);}
+    }
+    for(Id id:boundary){const auto p=reconnected.parameters.find(id);if(p!=reconnected.parameters.end())star.parameters.emplace(*p);}
+    for(const auto& f:reconnected.coverage.faces)if(faces.count(Key(f.first)))star.coverage.faces.emplace(f);
+    for(const auto& e:reconnected.coverage.traces)if(edges.count(e.first))star.coverage.traces.emplace(e);
+    Patch collapsed;
+    if(!CollapseVertex(star,point,neighbor,first,reference,collapsed,reason,stats))return false;
+    Patch proposal;
+    for(const auto& c:reconnected.cells)if(std::none_of(c.v.begin(),c.v.end(),[&](Node n){return n.id==point;}))proposal.cells.push_back(c);
+    proposal.cells.insert(proposal.cells.end(),collapsed.cells.begin(),collapsed.cells.end());
+    if(proposal.cells.empty() || proposal.cells.size()>MaximumReplacementCells || first>UINT64_MAX-proposal.cells.size())
+      throw std::invalid_argument("Native3D reconnect contraction exceeds replacement/identity capacity.");
+    for(size_t k=0;k<proposal.cells.size();++k)proposal.cells[k].id=first+k;
+    // Rebuild the complete correspondence from the original cavity, not intermediate chart certificates.
+    Finish(old,proposal,skin,physical,reference,stats);
+    fresh=std::move(proposal);reason.clear();return true;
+  }catch(const std::exception& e){reason=e.what();return false;}
+}
 struct PreparedVertexMove::Data {
   Patch patch;
   std::unique_ptr<PlanarReference> reference;

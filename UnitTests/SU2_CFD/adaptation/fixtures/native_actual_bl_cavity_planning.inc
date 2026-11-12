@@ -1,7 +1,7 @@
 #include "../../../../Common/include/adaptation/CNativeMetricTransport3D.hpp"
 #include <ctime>
 // Complete saved actual cavities, transported current nodal core and associations; diagnostic only.
-namespace {void RunSavedActualCavities(bool cavityCorrection,bool heightContinuation=false) {
+namespace {void RunSavedActualCavities(bool cavityCorrection,bool heightContinuation=false,bool productionCorrection=false) {
   World world;REQUIRE(world.size==1);
   const auto* cfg=std::getenv("SU2_NATIVE_FROZEN_CONFIG");
   const auto* ref=std::getenv("SU2_NATIVE_BL_REFERENCE");
@@ -30,7 +30,12 @@ TEST_CASE("Saved actual BL cavities compare cellwise and complete planning", "[.
 TEST_CASE("Saved actual M6 cavities test bounded correction candidates", "[.][NativeActualCavityCorrection3D]") {
   RunSavedActualCavities(true);
 }
+#include "native_actual_cavity_correction_mpi.inc"
 
 TEST_CASE("Saved actual M6 cavities compare explicit first-height stages", "[.][NativeActualCavityHeightContinuation3D]") {
   RunSavedActualCavities(true,true);
+}
+
+TEST_CASE("Saved M6 production correction preserves complete patch admission", "[.][NativeActualCavityCorrectionProduction3D]") {
+  RunSavedActualCavities(true,false,true);
 }

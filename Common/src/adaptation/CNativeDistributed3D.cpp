@@ -762,6 +762,145 @@ bool Directory::LookupImpl(const std::vector<Feature>& features, Dependencies* m
   };
   return footprints?lookup(FootprintReply{}):lookup(Reply{});
 }
+CollapseSupport Directory::CorrectCollapse(const Dependencies& seed,const Imported& imported,const Owned& owned,
+    Id point,Id neighbor,bool active,const PlanarReference& geometry,size_t maximum_work,
+    const std::function<bool()>& within_time,size_t ceiling,size_t caller_bytes) {
+  CollapseSupport result;CLocalFailure failure;
+  const auto scratch=transfer_memory::Mul(MaximumReplacementCells,16384);
+  const auto retained=transfer_memory::Add(caller_bytes,scratch,
+      transfer_memory::Mul(4,transfer_memory::Add(transfer_memory::Bytes(seed.cells),transfer_memory::Bytes(imported.cells))));
+  const auto peak=transfer_memory::Add(retained,ResidentBytes());stats.maximum_work_bytes=std::max(stats.maximum_work_bytes,peak);
+  if(peak==SIZE_MAX || peak>ceiling)
+    failure.Set(3,0,"Native3D collapse correction exceeds bounded private storage.");
+  if(seed.cells.size()>MaximumCavityCells || imported.cells.size()>MaximumCavityCells)
+    failure.Set(2,0,"Native3D collapse correction seed exceeds cavity admission.");
+  ParameterAtlasScope atlas_scope(geometry.AtlasReservation());
+  if(auto* budget=geometry.AtlasReservation())try {
+    atlas_scope.Refresh(std::max(peak,transfer_memory::Add(budget->caller_bytes,retained-caller_bytes)),ceiling);
+  }catch(const std::exception& e){failure.Set(3,0,e.what());}
+  maximum_work=CPassiveComm::Allreduce(uint64_t(maximum_work),CPassiveComm::Op::MIN,world.comm);
+  if(!Vote(failure,result.reason))return result;
+  auto patch_of=[&](const Imported& input) {
+    Patch patch;
+    for(const auto& row:input.cells) {
+      patch.cells.push_back(row.cell);const auto& v=row.cell.v;
+      const std::array<Face,4> faces{{{v[1].id,v[2].id,v[3].id},{v[0].id,v[3].id,v[2].id},
+          {v[0].id,v[1].id,v[3].id},{v[0].id,v[2].id,v[1].id}}};
+      for(unsigned k=0;k<4;++k)if(row.physical[k].present)patch.surface.push_back({faces[k],row.physical[k].facet});
+    }
+    geometry.ExportParameters(patch);return patch;
+  };
+  auto nodes_of=[](const Patch& p){std::map<Id,Node> nodes;for(const auto& c:p.cells)for(auto n:c.v)nodes.emplace(n.id,n);return nodes;};
+  auto key=[](Face f){std::sort(f.begin(),f.end());return f;};
+  std::vector<std::pair<size_t,Id>> apexes;std::string rejection;
+  try {
+    result.dependencies=seed;result.imported=imported;
+    if(active) {
+      if(!seed.valid || !imported.valid || seed.cells.size()!=imported.cells.size() || imported.cells.empty())
+        throw std::invalid_argument("Native3D collapse correction lacks admitted seed dependencies.");
+      std::set<Id> identities;
+      for(const auto& c:imported.cells) {
+        const auto d=std::find_if(seed.cells.begin(),seed.cells.end(),[&](const auto& row){return row.cell==c.cell.id;});
+        if(!identities.insert(c.cell.id).second || d==seed.cells.end() || d->version!=c.version || d->owner<0 || d->owner>=world.size)
+          throw std::invalid_argument("Native3D collapse correction seed lost versioned identity.");
+      }
+      const auto patch=patch_of(imported);const auto nodes=nodes_of(patch);
+      bool obstructed=false,boundary_edge=false;
+      for(const auto& f:patch.surface)boundary_edge=boundary_edge||
+          (std::find(f.v.begin(),f.v.end(),point)!=f.v.end()&&std::find(f.v.begin(),f.v.end(),neighbor)!=f.v.end());
+      for(const auto& c:patch.cells) {
+        auto v=c.v;bool removed=false,kept=false;
+        for(auto& n:v){kept=kept||n.id==neighbor;if(n.id==point){removed=true;n=nodes.at(neighbor);}}
+        if(!removed)throw std::invalid_argument("Native3D collapse correction seed is not the removed vertex star.");
+        if(!kept)obstructed=obstructed||Orientation(v[0].p,v[1].p,v[2].p,v[3].p)<=0;
+      }
+      if(boundary_edge&&obstructed&&geometry.ContractionAllowed(point,neighbor)) {
+        const auto skin=Incidence(patch.cells).Boundary();
+        for(const auto& n:nodes)if(n.first!=point&&n.first!=neighbor) {
+          size_t unseen=0;for(const auto& f:skin)if(std::find(f.begin(),f.end(),n.first)==f.end())
+            unseen+=Orientation(n.second.p,nodes.at(f[0]).p,nodes.at(f[1]).p,nodes.at(f[2]).p)<=0;
+          apexes.push_back({unseen,n.first});
+        }
+        std::sort(apexes.begin(),apexes.end());if(apexes.size()>2)apexes.resize(2);
+      }
+    }
+  }catch(const std::exception& e){failure.Set(2,0,e.what());}
+  if(!Vote(failure,result.reason))return result;
+  for(size_t trial=0;trial<2;++trial) {
+    Dependencies dependencies;Imported candidate;std::vector<Feature> features;
+    bool pending=active&&!result.corrected&&trial<apexes.size();const Id apex=pending?apexes[trial].second:0;
+    try {dependencies=seed;candidate=imported;if(pending)features.push_back({{point,0,0},1});}
+    catch(const std::exception& e){failure.Set(2,0,e.what());}
+    if(!Vote(failure,result.reason))return result;
+    for(size_t step=0;step<MaximumCavityCells;++step) {
+      const size_t step_work=world.sum(int(pending));
+      if(!step_work)break;
+      if(step_work>maximum_work-result.work) {if(pending)rejection="Native3D collapse correction exhausted remaining work.";break;}
+      if(world.maximum(pending&&within_time&&!within_time())) {if(pending)rejection="Native3D collapse correction exhausted the shared deadline.";break;}
+      result.work+=step_work;
+      bool needs=false,built=false;Patch fresh;std::vector<Feature> removed_features;
+      try {if(pending) {
+        const auto old=patch_of(candidate);const auto nodes=nodes_of(old);std::set<Face> physical;
+        for(auto f:old.surface)physical.insert(key(f.v));
+        Face blocked{};bool obstruction=false;
+        for(auto f:Incidence(old.cells).Boundary()) {
+          if(std::find(f.begin(),f.end(),apex)!=f.end())continue;
+          if(Orientation(nodes.at(apex).p,nodes.at(f[0]).p,nodes.at(f[1]).p,nodes.at(f[2]).p)>0)continue;
+          blocked=key(f);obstruction=true;break;
+        }
+        if(obstruction) {
+          if(physical.count(blocked)) {pending=false;rejection="Native3D correction apex cannot see the physical boundary; no outside-body absorption.";}
+          else if(candidate.cells.size()==MaximumCavityCells || features.size()==MaximumDirectoryFeatures) {
+            pending=false;rejection="Native3D correction exceeds existing support capacity.";
+          }
+          else {features.push_back({blocked,3});needs=true;}
+        } else {
+          std::string why;
+          built=ReconnectCollapse(old,point,neighbor,apex,0,geometry,fresh,why);
+          if(!built)rejection=why;
+          pending=false;
+          if(built) {
+            std::set<Id> after;for(const auto& c:fresh.cells)for(auto n:c.v)after.insert(n.id);
+            for(const auto& n:nodes)if(!after.count(n.first))removed_features.push_back({{n.first,0,0},1});
+          }
+        }
+      }}catch(const std::exception& e){failure.Set(2,0,e.what());}
+      if(!Vote(failure,result.reason))return result;
+      if(world.maximum(built)) {
+        const auto required=Lookup(removed_features,ceiling,retained);
+        if(!required.valid){result.reason=required.reason;return result;}
+        bool complete=built;
+        try {if(built) {
+          for(const auto& d:required.cells) {
+            const auto prior=std::find_if(dependencies.cells.begin(),dependencies.cells.end(),[&](const auto& row){return row.cell==d.cell;});
+            complete=complete&&prior!=dependencies.cells.end()&&prior->owner==d.owner&&prior->version==d.version;
+          }
+          if(complete){result.dependencies=std::move(dependencies);result.imported=std::move(candidate);result.apex=apex;result.corrected=true;}
+          else rejection="Native3D correction omits complete removed-vertex support.";
+        }}catch(const std::exception& e){failure.Set(2,0,e.what());}
+        if(!Vote(failure,result.reason))return result;
+      }
+      if(!world.maximum(needs))break;
+      auto next=Lookup(needs?features:std::vector<Feature>{},ceiling,retained);
+      if(!next.valid){result.reason=next.reason;return result;}
+      auto rows=Fetch(next,owned,ceiling,retained);
+      if(!rows.valid){result.reason=rows.reason;return result;}
+      try {if(needs) {
+        bool changed=next.cells.size()>dependencies.cells.size();
+        for(const auto& prior:dependencies.cells) {
+          const auto found=std::find_if(next.cells.begin(),next.cells.end(),[&](const auto& d){return d.cell==prior.cell;});
+          if(found==next.cells.end()||found->owner!=prior.owner||found->version!=prior.version)
+            throw std::invalid_argument("Native3D collapse correction changed a discovered dependency.");
+        }
+        if(!changed)rejection="Native3D correction obstruction has no additional current neighbor.";
+        pending=changed;dependencies=std::move(next);candidate=std::move(rows);
+      }}catch(const std::exception& e){failure.Set(2,0,e.what());}
+      if(!Vote(failure,result.reason))return result;
+    }
+  }
+  if(!result.corrected)result.reason=std::move(rejection);
+  result.valid=true;return result;
+}
 Imported Directory::Fetch(const Dependencies& dependencies, const Owned& owned, size_t ceiling, size_t caller_bytes) {
   Timer timer(stats.fetch_seconds);
   ++stats.fetches;
