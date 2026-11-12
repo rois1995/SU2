@@ -12,7 +12,34 @@ all prior failures/provenance. This handoff overrides historical live handles/ne
 
 ## Current source/build/workload
 
-NO owned heavy workload.422build TERMINAL/PASS214.225s/pins/actual handles verified.
+NO owned heavy workload.423correction QUALIFIED, all build/check/case pins and actual
+handles terminal. R/rejected_collapse423_comparison.json. Serial32cases8456assertions
+PASS9.473s; ONE MPI6PASS6.394s/28cases everyrank1681–6391assertions. Not nativeMPI
+BL generation. Known Growth12dependency failure not rerun (growth unchanged).
+Build423 PASS64.169s; CFD9d34b427cde6fced1af51be947044086bf56f4c449b66539bf6e61a72d9c8f82,
+test5c64208fac681aec0e38e7f4f00b237a46b4eaa23e2afecd61a7e06825122dc1.
+Actual64prefix case R/cases/curved423_surface_prefix64_20261112T054046_187313,
+wrapper129.268s/stage29.159s,23collapses. Fullowned/donor/parameter payloads BYTEIDENTICAL422.
+Fieldrequests3830→3438(−10.2%), geometrywork975766→974248, metric13.299→11.401s,
+stage31.188→29.159s(−6.5%) and CPU30.817→28.778s. Shortsingleprefix, not majorwhole-stage
+speedup or readiness. No new fullsurface replay solely on this saving.
+One-line correction: no old-patch measurement for already rejected surface collapse
+with no later repair route. GenericEuler, viable/repair/split measurements, empty-rank
+collective participation and sticky-failure votes unchanged. No inaccurateedgeaccepted.
+Next remains stage3: remaining metric evaluation dominates boundedprefix. Source shows
+IntrinsicSurfaceGuidance calls StorageBytes per sample; that walks feature metadata/
+featureGrid (d.segments is2D-only and empty for M6). Audit unchanged-storage vs profile-dependent accounting and measure on saved
+actual target before selecting another production change. This is analysis, not a new
+implementation. Initialcoarsening/census still incomplete; no stage4/growth from failedW.
+422bounded64prefix TERMINAL132.198s/PASS/pins/actual handles. Stage31.188s/64work,
+23collapses; metric13.299s, reconstruction4.048s, initialization4.583s, selection.0018s,
+publication.058s, collision.531s/onebuild, other5.491s. Output stillsurface_unprepared;
+61307points/303295positive tets. Complete target unchanged. Source review disproves
+repeated fullmesh FilterCollapse scan; it checks a cached localstar. Recorded421last
+obstruction is exactorientation on complete10cellstar, not evidence for relaxedgeometry.
+R/surface_prefix422_assessment.json; boundedprefix is diagnostic, not raisedstagebudget.
+
+Prior422build TERMINAL/PASS214.225s/pins/actual handles verified.
 CFD remains a606f2d56ffa96bd370e2dcbbac56d530768f121fcc756c980f6ddd9183b4e81;
 test31c797a572dd0ee1bf3b31af568fec0722a873a6ce057eace0ae0bf458cc5510.
 422focused surface/capture6cases2860assertions PASS4.436s; actual handles terminal.

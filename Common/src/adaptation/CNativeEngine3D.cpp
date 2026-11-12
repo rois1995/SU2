@@ -4023,7 +4023,8 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
       ready=vote(failure);
     }
     if (!ready) return false;
-    const bool metric_needed=chosen && (approved || repairing || !coarsening || bad_field);
+    // A rejected surface collapse has no later repair route; unrelated debt needs no old-patch measurement.
+    const bool metric_needed=chosen && (approved || repairing || !coarsening || (bad_field && !surface_target));
     DonorPatch sensors;sensors.valid=true;
     bool streamed=ready;
     if (!ready || (!sensors.valid && !streamed)) { if (ready) result.reason=sensors.reason; return false; }

@@ -1165,3 +1165,42 @@ not another normalization, fixed25cell polishing or fullworkflow retry.
 production/decision changes. Build214.225s/PASS; focused6cases2860assertions4.436s/PASS.
 CFD byte-identical419/421. No additional full replay:421missing values stay unknown.
 No extraMPI for this diagnostic-only export;419shared-production qualification retained.
+
+## Bounded surface prefix422 — phase attribution
+
+Single64work prefix on same complete396target and originalCFD. Diagnostic worklimit
+reduced to64; no physical change, no fullbaselinecampaign. Wrapper132.198s, native
+31.188s,23collapses/0splits,61307points/303295positive tets. Readiness false, q/Junknown.
+Metric13.299s, reconstruction4.048s, initialization4.583s, seed1.239s, publication.058s,
+selection.0018s, collision.531s/onebuild/29696candidates/11735checks, other5.491s.
+CPU30.817s/native total30.830s before postcapture checks; not MPIwait attribution.
+Tracked collective.144s is partial. Phase/detail timers may overlap; do not sum them.
+975766geometrywork,1638edgeevaluations,3830fieldrequests,0fulltargetcompositions.
+R/surface_prefix422_assessment.json. This localizes cost to metric validation, not
+scheduler or broadphase.423tests skipping obsolete old-side measurements on already
+refused surface collapses; no measured saving established until exact-prefix comparison.
+
+##423 rejected surface-collapse measurement — qualified bounded saving
+
+Serial32cases8456assertions PASS9.473s; MPI6one milestone PASS6.394s/28cases everyrank.
+NativeMPIgeneration still unqualified; Growth12known failure unchanged/notrerun.
+Build64.169s/PASS, all pins/actual handles terminal. Fullsurface not repeated.
+
+| Same64work complete396target prefix |422before|423after|
+|---|---:|---:|
+| Stagewall |31.188s|29.159s|
+| NativeCPU |30.817s|28.778s|
+| Metricphase (nested)|13.299s|11.401s|
+| Fieldrequests |3830|3438|
+| Geometrywork |975766|974248|
+| Commits /points /tets |23 /61307 /303295|Same|
+| Collisionbuilds /checks |1 /11735|Same|
+
+Complete owned/donor/parameter files BYTEIDENTICAL (R/rejected_collapse423_comparison.json).
+The correction removes oldmeasurement after a rejected surfacecollapse with no later
+repair route; all potentially admitted/repair/split measurements stay. Work saving10.2%
+fieldrequests is demonstrated. Singleprefixwall−6.5%/CPU−6.6% is not a major fullstage
+speedup or readiness. Keep timing scopes/initialization/contention explicit.
+Remaining metricphase11.401s invites bounded accounting-cost diagnosis, not another
+fullreplay: EvaluateAtSurfaceAssociation invokes StorageBytes, which scans unchanged
+feature structures (segment-row scanning is2D-only, not M6). Safety/actual cost and invalidation need evidence before change.

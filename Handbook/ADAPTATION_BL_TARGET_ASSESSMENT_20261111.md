@@ -772,3 +772,29 @@ blocker cannot simply be assigned to fullBL edge quadrature. Upperqueries47.648s
 Next examine initialcoarsening/census behavior and affected actual cavities, using
 existing timers/counters before selecting one correction. No construction policy,
 metric, strict gate or budget change justified yet. See R/surface_stage421_assessment.json.
+
+## Rejected-collapse measurement correction423 (validation pending)
+
+Missing capability: discard irreversibly refused surface-collapse work before old-side
+metric evaluation. Bounded422prefix64 from the same complete target shows metric13.299s
+of31.188s, collision.531s/onebuild, publication.058s,23collapses. Selection.0018s does
+not support a scheduling fix. Counters narrow the actual cost beyond421attribution gap.
+
+Audit: metric_needed included global bad_field even after local CollapseVertex refusal.
+In surface coarsening there is no later joint/strip route (requires !coarsening) or
+repair fallback (requires repairing). Skip old-side measurement only in that refused
+surface-coarsening case; keep generic Euler behavior and every viable/repair/split
+measurement. Empty collective participation through existing measure_private remains.
+
+Acceptance: focused serial and one shared MPI milestone; actual64work prefix against422
+with identical complete target and constraints must retain exact owned/donor/parameter
+outputs and commits while reducing measurement work. Any trajectory discrepancy needs
+explanation before performance claims. Strict final gates remain; this never accepts an
+unmeasured edge. Only after qualification consider another surface integration milestone.
+
+423qualification: actual64prefix keeps owned/donor/parameter payloads byte-identical,
+23commits.392fieldrequests avoided(10.2%), metric13.299→11.401s, stage31.188→29.159s.
+Serial32cases8456assertions and MPI6/28cases perrank pass. This is qualified dead-work
+removal, not a major whole-stage speedup; no further fullreplay on this result alone.
+Remaining metriccost11.401s and repeated feature-metadata StorageBytes scans perintrinsicquery are
+next bounded diagnostic (segmentrows are2D-only, empty on M6); no cache implemented without mutator/accounting audit.
