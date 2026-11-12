@@ -5,6 +5,22 @@ integration result. [Current handoff](../HANDOFF_Codex.md) owns live handles;
 [stage inputs/outputs and acceptance](ADAPTATION_CURVED_BL_STAGE_INTEGRATION_20261111.md)
 own the development sequence. R=`integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57`.
 
+Actual bounded-cavity comparison:435 diagnostic build242.223s, experiment450.464s,
+allpins/actualhandles terminal.13operatorpreflights plus81records. Smooth collapse
+10→8 cells passed1.083s; LE split3→6 passed.665s but q/Jbad3→6. Compounds unqualified
+because diagnostic expected-interface ordering was wrong, not a production failure.
+Full composed-edge old audit186.386s hit distance-crossing work, fresh102.009s hit
+shared300s atlas deadline; no complete full-target edge conformity. These nested
+costs are not added to wrapper time. Largest sampled processRSS2.508GB, notjobpeak.
+436 fixes checker; build288.281s passed. Actual436failed143.862s on a retired sample
+before operator testing; source/input preserved, not a production/capability failure.
+437 buildPASS242.220s; actualPASS463.922s.9private-feasible alternatives/346records,
+301171Owned records unchanged. Successful corrected alternatives17→16 in1.876s,
+10→8 in1.211s,11→9 in2.801s. Fulltarget3edges/zero complete patches, shared300s
+geometry deadline/work refusals. Candidate times include nested checks, not accepted-
+mesh throughput or proof of BL speedup. Actual handles/pins terminal.
+[Inputs/acceptance/status](ADAPTATION_M6_BOUNDED_CAVITY_COMPARISON_20261112.md).
+
 434 private collapse scope:433unqualifiedbuild94.184s then434finalbuild72.144s;
 no runtime campaign between the connected scope/deadline changes. Serial40cases/
 8831assertions9.505s; ONE MPI6 milestone36cases/rank2785–5625assertions8.063s.
@@ -1339,3 +1355,11 @@ Qualifiedprefixwork saving remains valid, but capability bottleneck is stillsurf
 construction progression. Align controlprobe with current CavityMetricSource before
 actualrefinement/operator tests; evaluate existingMPIcapacity before policy changes.
 No newlimits/scheduler/operator/geometrytarget selected from this alone.
+
+2026-11-12 build437 test-only canonical-interface/current-star diagnostic compiled242.220s; actual437 running, no candidate or timing conclusion yet. Production CFD unchanged434. First-height ramp is present but disabled in saved364cfg; cost effects remain unmeasured.
+
+Actual437 bounded cavity diagnostic terminal463.922s, 346records;9private-feasible alternatives, 301171Owned records unchanged. Successful enlarged replacements:17→16 in1.876s,10→8 in1.211s,11→9 in2.801s (nested geometry/certification included). Full target audit completed3edges/zero complete patches before300s geometry deadline/work refusals. These are candidate costs, not accepted-mesh throughput or BL speedup.
+
+Build438 stopped after80.211s: reverted/hash-identical global CConfig.hpp timestamp caused309tasks. All85actual handles terminal; wrapperexit0/oldbinaries is explicitly NOT a buildPASS. Restoring only unchanged header timestamp reduced retry438b dry-run to9tasks; no compiled source bytes changed. Evidence R/build438_timestamp_stop.json. This is avoided redundant build work, not CFD/mesh runtime improvement.
+
+438b buildFAILED96.168s: shared stage type declared too late for independent checkpoint include; all22actual handles terminal. Same-cycle438c moves that definition to existing shared target header, no policy change/runtime campaign. Compile/qualification pending.

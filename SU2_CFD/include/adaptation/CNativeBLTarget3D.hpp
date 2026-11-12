@@ -12,6 +12,8 @@
 #include "../../../Common/include/CConfig.hpp"
 #include "../../../Common/include/adaptation/CTransferMemory.hpp"
 #include <deque>
+#include <iomanip>
+#include <sstream>
 #include <unordered_map>
 namespace dc10 {
 using namespace junction_wp0;
@@ -234,6 +236,43 @@ inline MetricEdgeBreakpoints EdgeGeometryA(std::shared_ptr<CBoundaryLayerMetric>
 
 }  // namespace dc10
 namespace SU2NativeBLPipeline3D {
+/*! Ramp provenance shared by the mesh continuation and complete target checkpoint. */
+struct RampStage {
+  uint64_t transitions=0,event=0,cycles=0,signature=0;
+  template<class S> void Fields(S& s){s(transitions,event,cycles,signature);}
+  bool Matches(const CConfig& config)const;
+};
+
+inline uint64_t RampSignature(const CConfig& config) {
+  std::ostringstream text;text<<std::setprecision(17)<<config.GetnAdap_BL()<<'\n';
+  for(unsigned short b=0;b<config.GetnAdap_BL();++b) {
+    const auto& wall=config.GetAdap_BL_True(b);
+    text<<wall.marker<<'\n'<<SU2_TYPE::GetValue(wall.firstHeight)<<'\n'
+        <<SU2_TYPE::GetValue(wall.growth)<<'\n'<<SU2_TYPE::GetValue(wall.thickness)<<'\n';
+  }
+  text<<SU2_TYPE::GetValue(config.GetAdap_BL_ProtectDistance())/config.GetAdap_BL_RampFactor()<<'\n'
+      <<SU2_TYPE::GetValue(config.GetAdap_Hgrad())<<'\n'<<SU2_TYPE::GetValue(config.GetAdap_Hausd())<<'\n'
+      <<SU2_TYPE::GetValue(config.GetAdap_Angle())<<'\n'<<config.GetnAdap_Levels()<<'\n';
+  for(unsigned short i=0;i<config.GetnAdap_Levels();++i) {
+    const auto& level=config.GetAdap_Level(i);
+    text<<level.complexity<<'\n'<<level.subIter<<'\n'<<SU2_TYPE::GetValue(level.hmax)<<'\n'
+        <<SU2_TYPE::GetValue(level.hmin)<<'\n'<<SU2_TYPE::GetValue(level.norm)<<'\n'
+        <<SU2_TYPE::GetValue(level.armax)<<'\n'<<level.flowIter<<'\n'
+        <<SU2_TYPE::GetValue(level.flowCFL)<<'\n'<<SU2_TYPE::GetValue(level.residualReduction)<<'\n'
+        <<level.adjIter<<'\n'<<SU2_TYPE::GetValue(level.adjResidualReduction)<<'\n';
+  }
+  uint64_t hash=1469598103934665603ULL;
+  for(const unsigned char byte:text.str()){hash^=byte;hash*=1099511628211ULL;}
+  return hash;
+}
+inline RampStage MakeRampStage(const CConfig& config,unsigned long event) {
+  return {config.GetAdap_BL_H0Ramp(),event,config.GetnAdap_Cycles(),RampSignature(config)};
+}
+inline bool RampStage::Matches(const CConfig& config)const {
+  return transitions==config.GetAdap_BL_H0Ramp() && cycles==config.GetnAdap_Cycles() &&
+      signature==RampSignature(config);
+}
+
 using namespace SU2Native3D;
 /*! One immutable per-event target: full layers (production D1), base layers (no D1 feature), option A blending them
  *  (D1 kept off the wall), the frozen sensor core. The same object gives the composition of the remesher's

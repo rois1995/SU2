@@ -51,6 +51,44 @@ TEST_CASE("DC-14 FIRST_ROW registry: exact coordinate encoding, digest, sidecar 
   Continuation missing; CHECK_FALSE(LoadContinuation(path, missing, why)); CHECK(why == "missing");
 }
 
+TEST_CASE("FIRST_ROW event continuation binds the absolute ramp stage to the saved mesh", "[NativeBLContinuationPersistence]") {
+  using namespace SU2NativeBLPipeline3D;
+  World world;
+  const auto suffix=std::to_string(world.rank);
+  const auto mesh="dc14_stage_mesh_"+suffix+".su2";
+  const auto path=mesh+".native_rows";
+  auto config=dc14::BoxConfig("ADAP_LOOP= YES\nADAP_SIZES= (100, 100, 100)\nADAP_BL_H0_RAMP= 2\nADAP_BL_PROTECT_DISTANCE= .02\n");
+  const auto signature=RampSignature(*config);
+  for(unsigned long event=0;event<=4;++event) {
+    config->SetAdap_BL_RampEvent(event);CHECK(RampSignature(*config)==signature);
+  }
+  config->SetAdap_BL_RampEvent(0);
+  {std::ofstream out(mesh,std::ios::binary);out<<"seed mesh bytes\n";REQUIRE(bool(out));}
+  WriteInitialContinuation(path,mesh,MakeRampStage(*config,0),*config);
+  Continuation loaded;std::string why;REQUIRE(LoadContinuation(path,loaded,why,mesh));
+  REQUIRE(loaded.has_committed_stage);CHECK(loaded.committed_stage.event==0);
+  CHECK(loaded.committed_stage.transitions==2);CHECK(loaded.committed_stage.Matches(*config));
+  CHECK(loaded.committed->digest==0);  // no first-row registry is required for a verified seed-stage stamp
+  std::ifstream seedIn(path,std::ios::binary);std::stringstream seedText;seedText<<seedIn.rdbuf();
+  CHECK_THROWS(WriteInitialContinuation(path,mesh,MakeRampStage(*config,0),*config));
+  std::ifstream afterSeedIn(path,std::ios::binary);std::stringstream afterSeedText;afterSeedText<<afterSeedIn.rdbuf();
+  CHECK(afterSeedText.str()==seedText.str());
+
+  loaded.committed_stage=MakeRampStage(*config,3);  // next absolute cycle remains 3, beyond the two halvings
+  loaded.committed->digest=456;
+  WriteContinuation(path,loaded,mesh);
+  Continuation resumed;REQUIRE(LoadContinuation(path,resumed,why,mesh));
+  CHECK(resumed.committed_stage.event==3);CHECK(resumed.committed_stage.Matches(*config));
+  auto changed=dc14::BoxConfig("ADAP_LOOP= YES\nADAP_SIZES= (100, 100, 100)\nADAP_SUBITER= (2, 1, 1)\nADAP_BL_H0_RAMP= 2\nADAP_BL_PROTECT_DISTANCE= .02\n");
+  CHECK_FALSE(resumed.committed_stage.Matches(*changed));
+  auto prior=std::make_shared<RowRegistry>();prior->digest=789;
+  Continuation preserved;preserved.committed=prior;preserved.source="unchanged";
+  {std::ofstream out(mesh,std::ios::binary|std::ios::trunc);out<<"changed mesh bytes\n";REQUIRE(bool(out));}
+  CHECK_FALSE(LoadContinuation(path,preserved,why,mesh));CHECK(why=="adapted mesh bytes differ from continuation");
+  CHECK(preserved.committed==prior);CHECK(preserved.source=="unchanged");CHECK_FALSE(preserved.has_committed_stage);
+  std::remove(path.c_str());std::remove((path+".tmp").c_str());std::remove(mesh.c_str());
+}
+
 TEST_CASE("DC-14 FIRST_ROW entry: two wall markers, two symmetry planes, fresh event then halving event", "[NativeBL14Entry]") {
   using namespace dc14;
   using namespace SU2NativeBLPipeline3D;
@@ -112,6 +150,8 @@ TEST_CASE("DC-14 FIRST_ROW entry: two wall markers, two symmetry planes, fresh e
     // Exercise construction lineage privately; production commits only after distributed/CFD acceptance.
     if (!result.valid) break;  // only an accepted event continues
     cont.committed = cont.pending; cont.source = "memory";
+    if(cont.has_pending_stage){cont.committed_stage=cont.pending_stage;cont.has_committed_stage=true;}
+    cont.has_pending_stage=false;
     current = result.cells; state.original = result.reference;
   }
 }
@@ -184,7 +224,7 @@ TEST_CASE("DC-14 frozen-field FIRST_ROW event through the production driver back
     MeshSolution candidate(&config, result.slices, 0);
     CMeshOutput::WriteMesh(&config, &candidate.Fine(), out);
     SU2Native3D::WriteReference(out + ".su2.native_ref", driver.Reference());
-    SU2NativeBLPipeline3D::WriteContinuation(out + ".su2.native_rows", driver.Rows());
+    SU2NativeBLPipeline3D::WriteContinuation(out + ".su2.native_rows", driver.Rows(),out+".su2");
     written = true;
   }
   if (world.rank == 0) {

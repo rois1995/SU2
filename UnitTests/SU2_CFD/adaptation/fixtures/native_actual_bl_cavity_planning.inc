@@ -1,6 +1,7 @@
 #include "../../../../Common/include/adaptation/CNativeMetricTransport3D.hpp"
+#include <ctime>
 // Complete saved actual cavities, transported current nodal core and associations; diagnostic only.
-TEST_CASE("Saved actual BL cavities compare cellwise and complete planning", "[.][NativeActualBLCavityPlanning3D]") {
+namespace {void RunSavedActualCavities(bool cavityCorrection,bool heightContinuation=false) {
   World world;REQUIRE(world.size==1);
   const auto* cfg=std::getenv("SU2_NATIVE_FROZEN_CONFIG");
   const auto* ref=std::getenv("SU2_NATIVE_BL_REFERENCE");
@@ -21,4 +22,15 @@ TEST_CASE("Saved actual BL cavities compare cellwise and complete planning", "[.
   const auto restored=SU2NativeTargetCheckpoint3D::Read(target,*reference,config,ceiling,size_t(128)<<20);
   const auto& policy=*restored.family->first_row;
 #include "native_actual_bl_cavity_planning_body.inc"
+}
+}
+TEST_CASE("Saved actual BL cavities compare cellwise and complete planning", "[.][NativeActualBLCavityPlanning3D]") {
+  RunSavedActualCavities(false);
+}
+TEST_CASE("Saved actual M6 cavities test bounded correction candidates", "[.][NativeActualCavityCorrection3D]") {
+  RunSavedActualCavities(true);
+}
+
+TEST_CASE("Saved actual M6 cavities compare explicit first-height stages", "[.][NativeActualCavityHeightContinuation3D]") {
+  RunSavedActualCavities(true,true);
 }

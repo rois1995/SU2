@@ -12,7 +12,9 @@
 #include <array>
 #include <chrono>
 #include <cmath>
+#include <cstdio>
 #include <deque>
+#include <filesystem>
 #include <fstream>
 #include <functional>
 #include <iomanip>
@@ -121,6 +123,8 @@ struct RowRegistry {
 /*! Committed registry (after an accepted replacement) and the pending one of the running event. */
 struct Continuation {
   std::shared_ptr<RowRegistry> committed, pending;
+  RampStage committed_stage, pending_stage;
+  bool has_committed_stage=false,has_pending_stage=false;
   std::string source;  // where `committed` came from (sidecar path or "memory")
   size_t ResidentBytes() const {
     using transfer_memory::Add;
@@ -151,19 +155,96 @@ inline uint64_t CoordinateDigest(const Owned& cells) {
   return h;
 }
 /*! Sidecar next to an adapted mesh (<mesh>.native_rows); a missing file is no continuation. */
-inline bool LoadContinuation(const std::string& path, Continuation& c, std::string& why) {
+inline std::pair<uint64_t,uint64_t> FileFingerprint(const std::string& path) {
+  std::ifstream in(path,std::ios::binary);
+  if(!in)throw std::runtime_error("Cannot open adapted mesh for FIRST_ROW continuation fingerprint: "+path);
+  std::array<char,65536> buffer{};uint64_t bytes=0,hash=1469598103934665603ULL;
+  while(in) {
+    in.read(buffer.data(),buffer.size());const auto count=in.gcount();
+    for(std::streamsize i=0;i<count;++i){hash^=static_cast<unsigned char>(buffer[size_t(i)]);hash*=1099511628211ULL;}
+    bytes+=uint64_t(count);
+  }
+  if(!in.eof())throw std::runtime_error("Failed to read adapted mesh for FIRST_ROW continuation fingerprint: "+path);
+  return {bytes,hash};
+}
+inline uint64_t ContinuationChecksum(const std::string& bytes) {
+  uint64_t hash=1469598103934665603ULL;
+  for(const unsigned char byte:bytes){hash^=byte;hash*=1099511628211ULL;}
+  return hash;
+}
+inline bool LoadContinuation(const std::string& path, Continuation& c, std::string& why,
+                             const std::string& meshPath={}) {
   std::ifstream in(path);
   if (!in) { why = "missing"; return false; }
   std::stringstream text; text << in.rdbuf();
   auto r = std::make_shared<RowRegistry>();
-  if (!RowRegistry::Decode(text.str(), *r, why)) return false;
-  c.committed = r; c.source = path;
+  const auto encoded=text.str();
+  RampStage stageRecord;bool hasStage=false;
+  if(encoded.rfind("SU2_NATIVE_ROWS_CONTINUATION ",0)==0) {
+    const auto footer=encoded.rfind("\nchecksum ");uint64_t checksum=0;
+    if(footer==std::string::npos) {why="missing continuation checksum";return false;}
+    std::istringstream checksumLine(encoded.substr(footer+10));
+    std::string trailing;
+    if(!(checksumLine>>checksum) || (checksumLine>>trailing) ||
+       checksum!=ContinuationChecksum(encoded.substr(0,footer+1))) {
+      why="damaged continuation metadata";return false;
+    }
+    std::istringstream in(encoded);std::string magic,stage;int version=0;
+    uint64_t expectedBytes=0,expectedHash=0;
+    in>>magic>>version>>stage>>expectedBytes>>expectedHash;
+    if(magic!="SU2_NATIVE_ROWS_CONTINUATION"||version!=1||stage!="mesh" ||
+       !in || meshPath.empty()) {
+      why="invalid continuation mesh binding";return false;
+    }
+    try {
+      const auto actual=FileFingerprint(meshPath);
+      if(actual.first!=expectedBytes || actual.second!=expectedHash){why="adapted mesh bytes differ from continuation";return false;}
+    } catch(const std::exception& e){why=e.what();return false;}
+    in>>stage;
+    if(stage!="stage" ||
+       !(in>>stageRecord.transitions>>stageRecord.event>>stageRecord.cycles>>stageRecord.signature)) {
+      why="invalid continuation stage";return false;
+    }
+    in.ignore(std::numeric_limits<std::streamsize>::max(),'\n');
+    const auto rowPosition=in.tellg();
+    if(rowPosition==std::streampos(-1)){why="invalid continuation row offset";return false;}
+    const auto rowOffset=static_cast<size_t>(static_cast<std::streamoff>(rowPosition));
+    if(rowOffset>footer+1){why="invalid continuation row offset";return false;}
+    const auto rowBytes=encoded.substr(rowOffset,footer+1-rowOffset);
+    const auto& rows=rowBytes;
+    if(!RowRegistry::Decode(rows,*r,why))return false;
+    hasStage=true;
+  } else if (!RowRegistry::Decode(encoded, *r, why)) return false;
+  c.committed = r; c.source = path;c.committed_stage=stageRecord;c.has_committed_stage=hasStage;
   return true;
 }
-inline void WriteContinuation(const std::string& path, const Continuation& c) {
+inline void WriteContinuation(const std::string& path, const Continuation& c,const std::string& meshPath={}) {
   if (!c.committed) return;
-  std::ofstream out(path); out << c.committed->Encode();
-  if (!out) throw std::runtime_error("Cannot write the FIRST_ROW continuation " + path);
+  std::ostringstream encoded;
+  if(c.has_committed_stage) {
+    if(meshPath.empty())throw std::invalid_argument("FIRST_ROW continuation stage needs its adapted mesh path.");
+    const auto fingerprint=FileFingerprint(meshPath);
+    const auto rows=c.committed->Encode();
+    encoded<<"SU2_NATIVE_ROWS_CONTINUATION 1\nmesh "<<fingerprint.first<<' '<<fingerprint.second<<"\nstage "
+       <<c.committed_stage.transitions<<' '<<c.committed_stage.event<<' '<<c.committed_stage.cycles<<' '
+       <<c.committed_stage.signature<<'\n'<<rows;
+    const auto payload=encoded.str();encoded.str(std::string());encoded.clear();
+    encoded<<payload<<"checksum "<<ContinuationChecksum(payload)<<'\n';
+  } else encoded<<c.committed->Encode();
+  const auto temporary=path+".tmp";std::ofstream out(temporary,std::ios::trunc);
+  out<<encoded.str();out.close();
+  if(!out || std::rename(temporary.c_str(),path.c_str())!=0)
+    throw std::runtime_error("Cannot write the FIRST_ROW continuation " + path);
+}
+inline void WriteInitialContinuation(const std::string& path,const std::string& meshPath,const RampStage& stage,
+                                    const CConfig& config) {
+  if(stage.event!=0 || !stage.Matches(config))
+    throw std::invalid_argument("A seed continuation must carry the matching event-0 ramp stage.");
+  if(std::filesystem::exists(path))
+    throw std::runtime_error("Refusing to replace an existing FIRST_ROW continuation with a seed-stage stamp.");
+  Continuation initial;initial.committed=std::make_shared<RowRegistry>();
+  initial.committed_stage=stage;initial.has_committed_stage=true;
+  WriteContinuation(path,initial,meshPath);
 }
 
 struct EventControls {
@@ -614,6 +695,7 @@ inline EngineResult RunEvent(World& world, const Owned& cells, const std::vector
     reg->unsupported = rows.copies.size() + rows.fan.size();
     reg->digest = CoordinateDigest(s->mesh);
     cont.pending = reg;
+    cont.pending_stage=MakeRampStage(config,ctl.event+1);cont.has_pending_stage=true;
     json << ",\"registry\":{\"lift\":" << reg->lift.size() << ",\"apex\":" << reg->apex.size() << ",\"overrides\":" << reg->overrides.size()
          << ",\"unsupported\":" << reg->unsupported << "},\"perf\":" << JsonPerf() << ",\"peak_rss_kB\":" << dc9::PeakKB()
          << ",\"total_seconds\":" << elapsed();

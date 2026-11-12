@@ -11,11 +11,47 @@ retains all failures, prior handles, normalization and rejected alternatives. Th
 
 ## Current frozen workload and provenance
 
+LATEST USER TASK: actual bounded cavity enlargement/reduction comparison, ONE active
+cycle. [Design/input/acceptance/MPI protocol](Handbook/ADAPTATION_M6_BOUNDED_CAVITY_COMPARISON_20261112.md).
+437 test-only buildPASS242.220s; actual437PASS463.922s, allpins/actualhandles terminal.
+R/cavity_correction437_assessment.json:301171Owned records byte-identical434,9private
+feasible alternatives, zero oriented-interface refusals. Actual visibility failures
+now yield useful bounded11→9 and17→16 replacements; serial only, not final/MPI.
+Fulltarget3edges complete/zero complete patches; unknown conformity remains unknown.
+One ownedheavyjob: build438c FROZEN RUNNING exec79935, wrapper1167122/start52879072,
+ninja1167140/start52879094; pins R/build438c_source_pins.json. No pinned edits.
+438bFAILED96.168s (shared RampStage declared after checkpoint include), all22actual
+handles terminal. Moved unchanged stage type to shared Target header; no runtime run.
+438 was evidence-backed stopped for timestamp-only309task rebuild; actual85handles
+terminal, no source bytes changed. Exit0 wrapper is NOT a passing build (old binaries).
+Hash-identical CConfig.hpp timestamp restored; retry9tasks. Latest steering:
+reference faithfulness AND first-height continuation. Existing ADAP_BL_H0_RAMP=N
+uses2^(N-k)h0,k=0..N; active364cfg omits(default0). Confirmed stage-resume metadata gap.
+438c: bounded same-cavity N5 stage comparison (test-only fixed core/tangents, not
+normalization) plus reviewed row/target/driver stage persistence and focused tests.
+Original396codec/rampOFF retained; ramp-enabled restart requires explicit envelope,
+including stage0 for verified saved CFD seed. Strict final gates unchanged. No production
+cavity growth integrated; demonstrated support/publication design remains necessary.
+435buildPASS242.223s, actualcasePASS450.464s as diagnostic, allpins/actualhandles terminal.
+435 preliminary shows expected controls, but corrected interface vector ordering was
+wrong: no compound capability claim.301171Owned records byte-identical/params unchanged.
+Fulltarget edges unresolved at work/time; raw multiline JSON normalized with raw retained.
+436buildPASS288.281s, pins/allactualhandles terminal. Actual436FAILED143.862s before
+candidate tests: logged9676had retired, final star empty. No capability inference.
+437 uses current-membership-verified11990→11886 and13785→13788 (8cell stars/2edgecells),
+fixes checker contract and tests prescribed-skin cone. No production operator
+change before useful replacement evidence. Actual434 shards/current nodal core/current
+parameters + complete396 policy; no CFD/normalization recompute. LE4219, geometry-refusal
+18775→18783, smooth control. Existing Reconnect→Collapse composition, prescribed cone, exact visibility
+growth<=64cells and mandatory-star-preserving reduction; complete patch validation.
+MPI final dependency/reservation/publication protocol specified; serial diagnostics
+alone will not qualify a capability. Verify terminal build handles before edits/jobs.
+
 ACTIVE434 [private surface-collapse evaluation](Handbook/ADAPTATION_SURFACE_PRIVATE_COLLAPSE_20261112.md)
 passed focused serial/MPI qualification. Actual saved-target surface replay TERMINAL:
 R/cases/curved434_saved_target_surface_mpi6_20261112T095336_826002; execsession57312,
 wrapper826002/start52165585, MPI826162/start52165928 and allworkers verifiedterminal.
-Same396target/original6partitions/388.8s/233220work/12GiB; allpins intact. NO ownedheavyjob.
+Same396target/original6partitions/388.8s/233220work/12GiB; allpins intact. Historical job terminal.
 Wrapper504.070s/native max389.097s. R/surface_stage434_assessment.json validates
 60,541unique points/301,171positive tets/core;1,144,143sharednodalchecks exact.
 299,270common retained Owned records BYTEIDENTICAL432; not equality of complete meshes.

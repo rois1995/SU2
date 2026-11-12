@@ -1,11 +1,11 @@
 // Tiny complete composed authority: the saved sensor is only one input to the replayed live policy.
 namespace native_target_checkpoint_test {
-std::unique_ptr<CConfig> Config(double hmin=1e-6) {
+std::unique_ptr<CConfig> Config(double hmin=1e-6,const std::string& extra={}) {
   std::ostringstream text;
   text<<"SOLVER= NAVIER_STOKES\nMESH_FORMAT= BOX\nINIT_OPTION= TD_CONDITIONS\nREYNOLDS_NUMBER= 1e6\n"
       <<"MARKER_HEATFLUX= (wall,0)\nMARKER_FAR= (far)\nCOMPUTE_METRIC= YES\nADAP_SENSOR= MACH\n"
       <<"ADAP_REMESHER= NATIVE_CAVITY\nADAP_BL_METHOD= FIRST_ROW\nADAP_HMIN= "<<hmin<<"\nADAP_HMAX= 10\n"
-      <<"ADAP_BL_MARKER= (wall)\nADAP_BL_FIRST_HEIGHT= (.01)\nADAP_BL_GROWTH= (1.2)\nADAP_BL_THICKNESS= (.1)\nADAP_ANGLE= 60\n";
+      <<"ADAP_BL_MARKER= (wall)\nADAP_BL_FIRST_HEIGHT= (.01)\nADAP_BL_GROWTH= (1.2)\nADAP_BL_THICKNESS= (.1)\nADAP_ANGLE= 60\n"<<extra;
   std::stringstream input(text.str());Mute mute;
   return std::make_unique<CConfig>(input,SU2_COMPONENT::SU2_CFD,false);
 }
@@ -42,6 +42,14 @@ CNativeMetricFamily3D Family(const CConfig& config,const ReferenceState& referen
 void Rechecksum(std::vector<char>& bytes) {
   const auto sum=SU2NativeTargetCheckpoint3D::detail::Checksum(bytes,bytes.size()-8);
   std::memcpy(bytes.data()+bytes.size()-8,&sum,8);
+}
+std::vector<char> Version1(const std::vector<char>& bytes) {
+  SU2NativeTargetCheckpoint3D::detail::Header h;
+  SU2NativeBoundary2D::RecordStream input(static_cast<const std::vector<char>&>(bytes));input(h);
+  const auto payload=input.Size();h.version=1;
+  std::vector<char> legacy;SU2NativeBoundary2D::RecordStream header(legacy);header(h);
+  legacy.insert(legacy.end(),bytes.begin()+payload,bytes.end()-8);legacy.resize(legacy.size()+8);
+  Rechecksum(legacy);return legacy;
 }
 }
 
@@ -89,6 +97,28 @@ TEST_CASE("Complete native target checkpoint preserves live composition and reje
   const auto emptyOwned=Encode(family,reference,*config,2.,3.,false);
   const auto emptyRestored=Decode(emptyOwned,reference,*config);
   CHECK(emptyRestored.family->owned==0);CHECK(emptyRestored.family->frames.empty());CHECK_FALSE(emptyRestored.bracketed);
+  const auto legacy=Version1(bytes);CHECK(Decode(legacy,reference,*config).family!=nullptr);
+}
+
+TEST_CASE("Native target checkpoint restores the exact ramp event and rejects legacy ramp state", "[NativeTargetRampCheckpoint]") {
+  using namespace native_target_checkpoint_test;
+  const std::string schedule="ADAP_LOOP= YES\nADAP_SIZES= (100, 100, 100)\nADAP_BL_H0_RAMP= 2\n";
+  auto config=Config(1e-6,schedule);config->SetAdap_BL_RampEvent(3);
+  auto reference=Reference();auto family=Family(*config,reference);
+  const auto bytes=SU2NativeTargetCheckpoint3D::Encode(family,reference,*config,2.,3.,true);
+  auto resumed=Config(1e-6,schedule);REQUIRE(resumed->GetAdap_BL_RampEvent()==0);
+  const auto restored=SU2NativeTargetCheckpoint3D::DecodeRestoringStage(bytes,reference,*resumed);
+  CHECK(resumed->GetAdap_BL_RampEvent()==3);CHECK(restored.stage.event==3);
+  auto changed=Config(1e-6,"ADAP_LOOP= YES\nADAP_SIZES= (100, 100, 100)\nADAP_SUBITER= (2, 1, 1)\nADAP_BL_H0_RAMP= 2\n");
+  CHECK_THROWS(SU2NativeTargetCheckpoint3D::DecodeRestoringStage(bytes,reference,*changed));
+  CHECK(changed->GetAdap_BL_RampEvent()==0);
+  auto wrongGeometry=reference;for(auto& facet:wrongGeometry.facets)for(auto& node:facet.v)node.p.y+=.125;
+  wrongGeometry.original=std::make_shared<PlanarReference>(wrongGeometry.facets);
+  auto rollback=Config(1e-6,schedule);
+  CHECK_THROWS(SU2NativeTargetCheckpoint3D::DecodeRestoringStage(bytes,wrongGeometry,*rollback));
+  CHECK(rollback->GetAdap_BL_RampEvent()==0);
+  auto noRamp=Config();const auto legacy=Version1(SU2NativeTargetCheckpoint3D::Encode(Family(*noRamp,reference),reference,*noRamp,2.,3.,true));
+  CHECK_THROWS(SU2NativeTargetCheckpoint3D::Decode(legacy,reference,*resumed));
 }
 
 TEST_CASE("Saved actual BL target isolates storage-accounting cost", "[.][NativeActualBLStorageAccounting3D]") {

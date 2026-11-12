@@ -339,10 +339,40 @@ std::unique_ptr<CRemesher> CSinglezoneDriver::MakeRemesher() {
         /*--- FIRST_ROW uses the retained option-A target throughout normalization, construction and reassessment. ---*/
         if(!nativeFirstRow3D) {
           nativeFirstRow3D=std::make_shared<SU2NativeBLPipeline3D::Continuation>();
-          const auto* config=config_container[ZONE_0];
+          auto* config=config_container[ZONE_0];
           std::string why;
-          if(SU2NativeBLPipeline3D::LoadContinuation(config->GetMesh_FileName()+".native_rows",*nativeFirstRow3D,why) && rank==MASTER_NODE)
-            cout<<"FIRST_ROW: continuing the first row of "<<config->GetMesh_FileName()<<".native_rows."<<endl;
+          const auto rowsPath=config->GetMesh_FileName()+".native_rows";
+          bool loaded=false;CLocalFailure continuationFailure;
+          try {
+            loaded=SU2NativeBLPipeline3D::LoadContinuation(rowsPath,*nativeFirstRow3D,why,config->GetMesh_FileName());
+            if(loaded) {
+              if(config->GetAdap_BL_H0Ramp() && !nativeFirstRow3D->has_committed_stage)
+                continuationFailure.Set(1,0,"ADAP_BL_H0_RAMP cannot resume a legacy FIRST_ROW continuation without its event stage.");
+              if(nativeFirstRow3D->has_committed_stage &&
+                  (!nativeFirstRow3D->committed_stage.Matches(*config) ||
+                   nativeFirstRow3D->committed_stage.event>nativeFirstRow3D->committed_stage.cycles))
+                continuationFailure.Set(1,0,"FIRST_ROW continuation ramp/schedule differs from the active adaptation configuration.");
+            } else if(why!="missing") {
+              continuationFailure.Set(1,0,"Invalid FIRST_ROW continuation "+rowsPath+": "+why);
+            } else if(config->GetAdap_BL_H0Ramp() && config->GetRestart()) {
+              continuationFailure.Set(1,0,"ADAP_BL_H0_RAMP restart needs an explicit .native_rows stage envelope, including event 0 for a verified seed mesh.");
+            }
+          } catch(const std::exception& e) { continuationFailure.Set(1,0,e.what()); }
+          const auto loadedMin=CPassiveComm::Allreduce(int(loaded),CPassiveComm::Op::MIN);
+          const auto loadedMax=CPassiveComm::Allreduce(int(loaded),CPassiveComm::Op::MAX);
+          if(loadedMin!=loadedMax)continuationFailure.Set(1,0,"FIRST_ROW continuation presence differs across CFD ranks.");
+          const int hasStage=nativeFirstRow3D->has_committed_stage;
+          const auto hasStageMin=CPassiveComm::Allreduce(hasStage,CPassiveComm::Op::MIN);
+          const auto hasStageMax=CPassiveComm::Allreduce(hasStage,CPassiveComm::Op::MAX);
+          if(hasStageMin!=hasStageMax)continuationFailure.Set(1,0,"FIRST_ROW ramp stage presence differs across CFD ranks.");
+          const auto& stage=nativeFirstRow3D->committed_stage;
+          for(const auto value:{stage.transitions,stage.event,stage.cycles,stage.signature})
+            if(CPassiveComm::Allreduce(value,CPassiveComm::Op::MIN)!=CPassiveComm::Allreduce(value,CPassiveComm::Op::MAX))
+              continuationFailure.Set(1,0,"FIRST_ROW ramp stage differs across CFD ranks.");
+          CollectiveFailure(continuationFailure,CURRENT_FUNCTION);
+          if(loaded && nativeFirstRow3D->has_committed_stage)
+            config->SetAdap_BL_RampEvent(nativeFirstRow3D->committed_stage.event);
+          if(loaded && rank==MASTER_NODE)cout<<"FIRST_ROW: continuing the first row of "<<rowsPath<<"."<<endl;
         }
         auto slot=std::make_shared<std::shared_ptr<SU2NativeBLPipeline3D::TargetPolicy>>();
         auto firstRowTarget=[this,slot](const CConfig& config,const SU2Native3D::ReferenceState& state,double core,
@@ -381,7 +411,7 @@ std::unique_ptr<CRemesher> CSinglezoneDriver::MakeRemesher() {
         };
         auto remesher=std::make_unique<CNativeRemesher3D>(nativeReference3D,SU2Native3D::EngineOptions{},std::move(firstRowTarget),std::move(normalization));
         auto continuation=nativeFirstRow3D;
-        continuation->pending.reset();
+        continuation->pending.reset();continuation->has_pending_stage=false;
         remesher->SetConstruction([this,slot,continuation](SU2Native3D::World& world,const SU2Native3D::Owned& cells,
             const std::vector<SU2Native3D::DonorCell>& donors,const SU2Native3D::ReferenceState& state,SU2Native3D::MetricComposition,
             const SU2Native3D::EngineOptions& kernel,std::string& report) {
@@ -394,13 +424,19 @@ std::unique_ptr<CRemesher> CSinglezoneDriver::MakeRemesher() {
           ctl.report_prefix=nativeConstructionPrefix.empty()?config->GetMesh_Out_FileName()+"_bl_event"+std::to_string(ctl.event):nativeConstructionPrefix;
           ctl.export_mesh=nativeConstructionExport;
           auto stage=*continuation;
-          if(stage.pending){stage.committed=stage.pending;stage.source="private normalization stage";}
-          stage.pending.reset();
+          if(stage.pending){stage.committed=stage.pending;stage.source="private normalization stage";
+            if(stage.has_pending_stage){stage.committed_stage=stage.pending_stage;stage.has_committed_stage=true;}}
+          stage.pending.reset();stage.has_pending_stage=false;
           const auto result=SU2NativeBLPipeline3D::RunEvent(world,cells,donors,state,**slot,*config,stage,ctl,report);
-          continuation->pending=stage.pending;
+          continuation->pending=stage.pending;continuation->pending_stage=stage.pending_stage;
+          continuation->has_pending_stage=stage.has_pending_stage;
           return result;
         },[continuation]() {
           continuation->committed=continuation->pending;continuation->source="memory";
+          if(continuation->has_pending_stage) {
+            continuation->committed_stage=continuation->pending_stage;continuation->has_committed_stage=true;
+          }
+          continuation->has_pending_stage=false;
         });
         remesher->PrepareReference(*config_container[ZONE_0],*geometry_container[ZONE_0][INST_0][MESH_0]);
         return remesher;
@@ -481,9 +517,10 @@ void CSinglezoneDriver::RunAdaptationLoop() {
   /*--- Stop before the first solve if the problem or the build cannot be adapted. ---*/
 
   CheckMeshAdaptation();
-  if (config->GetAdap_Mesh_Output()) CheckAdaptedMeshNames();
 
   auto remesher = MakeRemesher();
+  /*--- A validated native continuation tells us which output cycles are still in the future. ---*/
+  if (config->GetAdap_Mesh_Output()) CheckAdaptedMeshNames();
 
   std::unique_ptr<CSolutionTransfer> transfer;
   switch (config->GetKind_Adap_Transfer()) {
@@ -493,6 +530,18 @@ void CSinglezoneDriver::RunAdaptationLoop() {
   }
 
   const auto nCycles = config->GetnAdap_Cycles();
+  unsigned long firstCycle=0;
+  if(nativeFirstRow3D && nativeFirstRow3D->has_committed_stage)
+    firstCycle=nativeFirstRow3D->committed_stage.event;
+  if(firstCycle>nCycles)throw std::invalid_argument("FIRST_ROW continuation event exceeds ADAP_SUBITER schedule.");
+  if(firstCycle>0) {
+    const auto levelIndex=config->GetAdap_CycleLevel(firstCycle);
+    const auto& level=config->GetAdap_Level(levelIndex);
+    config->SetAdap_FlowLevel(levelIndex);
+    output->SetResidualReduction(level.residualReduction);
+    initialRunState.SetCFL(level.flowCFL);
+    for(unsigned short mesh=0;mesh<=config->GetnMGLevels();++mesh)config->SetCFL(mesh,level.flowCFL);
+  }
 
   struct CycleSummary {
     unsigned long complexity, nPoint, nIter;
@@ -501,16 +550,16 @@ void CSinglezoneDriver::RunAdaptationLoop() {
   vector<CycleSummary> summary;
   unsigned long iterOffset = 0;
 
-  for (unsigned long iCycle = 0; iCycle <= nCycles; iCycle++) {
+  for (unsigned long iCycle = firstCycle; iCycle <= nCycles; iCycle++) {
 
     /*--- The metric of this solve makes the mesh of the next cycle (the last solve keeps the last level). ---*/
 
     config->SetAdap_MetricLevel(config->GetAdap_CycleLevel(min(iCycle + 1, nCycles)));
     output->SetAdaptationCycle(iCycle, iterOffset);
     /*--- ADAP_BL_H0_RAMP: the metric of this solve (made in its postprocessing) and the remesh use h0_k of event k. ---*/
-    if (config->GetAdap_BL_H0Ramp() && iCycle < nCycles) {
+    if (config->GetKind_Adap_BL_Method()==ADAP_BL_METHOD::FIRST_ROW) {
       config->SetAdap_BL_RampEvent(iCycle);
-      if (rank == MASTER_NODE)
+      if (rank == MASTER_NODE && iCycle<nCycles && config->GetAdap_BL_H0Ramp())
         cout << "First-height ramp: remesh event " << iCycle << " uses " << config->GetAdap_BL_RampFactor()
              << " x ADAP_BL_FIRST_HEIGHT" << (config->GetAdap_BL_RampFinal() ? " (true height: final gates)." : " (intermediate).") << endl;
     }
@@ -584,11 +633,12 @@ void CSinglezoneDriver::RunAdaptationLoop() {
     table.AddColumn("Solve [s]", 12);
     table.AddColumn("Adapt [s]", 12);
     table.PrintHeader();
-    for (unsigned long iCycle = 0; iCycle < summary.size(); iCycle++) {
-      const auto& row = summary[iCycle];
+    for (unsigned long i = 0; i < summary.size(); i++) {
+      const auto iCycle=firstCycle+i;
+      const auto& row = summary[i];
       table << iCycle << (iCycle == 0 ? string("input mesh") : to_string(row.complexity)) << row.nPoint << row.nIter
             << row.solveTime;
-      if (iCycle + 1 < summary.size()) table << row.adaptTime;
+      if (i + 1 < summary.size()) table << row.adaptTime;
       else table << "-";
     }
     table.PrintFooter();
@@ -1723,7 +1773,10 @@ void CSinglezoneDriver::CheckAdaptedMeshNames() const {
     for (auto timeIter = firstTimeIter; timeIter + 1 < config->GetnTime_Iter(); timeIter++)
       if (config->GetAdap_TimeWindowEnd(timeIter)) check((timeIter + 1) / config->GetAdap_Freq(), timeIter + 1);
   } else {
-    for (unsigned long iCycle = 1; iCycle <= config->GetnAdap_Cycles(); iCycle++) check(iCycle, 0);
+    const auto firstFutureCycle = nativeFirstRow3D && nativeFirstRow3D->has_committed_stage
+                                      ? nativeFirstRow3D->committed_stage.event + 1
+                                      : 1;
+    for (unsigned long iCycle = firstFutureCycle; iCycle <= config->GetnAdap_Cycles(); iCycle++) check(iCycle, 0);
   }
 
   /*--- The volume and surface files of the loop have the same cycle numbers. ---*/
@@ -1772,7 +1825,8 @@ void CSinglezoneDriver::WriteAdaptedMesh(unsigned long iCycle, unsigned long fir
       if(nativeFirstRow3D)caller_bytes=transfer_memory::Add(caller_bytes,nativeFirstRow3D->ResidentBytes());
       SU2Native3D::WriteReference(fileName+config->GetMesh_Out_FileExtension()+".native_ref",*nativeReference3D,ceiling,caller_bytes);
       if(nativeFirstRow3D && nativeFirstRow3D->committed && rank==MASTER_NODE)
-        SU2NativeBLPipeline3D::WriteContinuation(fileName+config->GetMesh_Out_FileExtension()+".native_rows",*nativeFirstRow3D);
+        SU2NativeBLPipeline3D::WriteContinuation(fileName+config->GetMesh_Out_FileExtension()+".native_rows",*nativeFirstRow3D,
+                                                 fileName+config->GetMesh_Out_FileExtension());
       profile.Mark(1);
       profile.Report(config->GetTimeIter(), {{"mesh", "reference"}});
       return;

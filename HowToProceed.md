@@ -7,40 +7,40 @@ Use the [stage integration cadence](Handbook/ADAPTATION_CURVED_BL_STAGE_INTEGRAT
 and maintained [timing/work ledger](Handbook/ADAPTATION_TIMINGS.md). Full retries are
 reserved for integration milestones or failures not reproducible at a stage boundary.
 
-## Current next step — surface construction progression
+## Current next step — staged height and useful cavity replacement
 
-Read currenthandoff before historical sections.428batchplanning is qualified/pushed
-55a3ec818d: exact64prefix output bytes unchanged,49%fewerrequests/22%lowernativecost.
-Fullsame-target surface integration still fails388.8s:647collapses,0splits,12352cached/
-289194unknown. Better throughput has not produced credible surface readiness.
+434 improves private-collapse throughput but surface readiness remains incomplete:
+789points removed,4016/37227required wall cells measured,0complete passes. Preserve
+its six current-nodal-core/mesh/association shards and full396 target policy.
 
-430aligned the isolated probe with transported CURRENT nodal CavityMetricSource;
-427original-P1 field remains a control, not productionauthority.430uses localimports
-with complete current-cavity rows and their sensor values, matching admitted batches,
-SurfacePlanning scope, current parameters and complete396policy. Do not bootstrap
-evolved cells from old original-P1 donors.428actualprefix already uses realauthority
-and passesexactoutputs.431has tested existing nativeMPI surface-stage capacity;
-read the handoff for actual frozen handles and current evidence.
-No newoperator/scheduler, raisedbudget, skippedcleanup or relaxedgate
-from this outcome alone. No firstrow/growth/fullworkflow from incomplete W.
+437 corrected the diagnostic interface ordering and selected surviving actual
+visibility failures. Direct collapses fail exact positivity; bounded corrected
+cavities yield private-feasible11→9 and17→16 replacements with fewer q/J-bad cells.
+See [bounded evidence and MPI design](Handbook/ADAPTATION_M6_BOUNDED_CAVITY_COMPARISON_20261112.md).
+This establishes useful serial search capacity absent from the current collapse
+branch. It is not reference equivalence, MPI publication or final certification.
+Leading-edge contractions still fail geometry guidance; no outside-tolerance
+witness has been established from those numeric scores alone. Three exact edges,
+zero complete full-target patches were measured before bounded resource refusal.
 
-430completed that current-field alignment and bounded operator test. Existing smooth
-collapse and LE split pass private preflights; the saved refused collapse reproduces
-its geometry regression. No missing primitive is established. LE split adds q/Jdebt
-and strict heights remain absent; no accepted BL. The tested move's constrained
-proposal is zero, so it says nothing general about motion.431MPI6 gives784collapses
-versus647serial at the same surface deadline, but still no completed census/pass or
-split. AllnativeMPI output shards preserve positivity/currentcore/sharednodal values;
-not usableBL. Next localize seed/update work and remaining initial IDs by requested
-wall, other boundary and interior, plus queue-refill events, before changing the
-whole-owned census/eligibility contract. Seedtime22.543s alone does not establish
-interiorwork as the389s bottleneck. No newoperator/scheduler or gatechange. See
-[actual cavity evidence](Handbook/ADAPTATION_SURFACE_RESIDUAL_CAVITIES_20261112.md).
+The active saved config omits existing ADAP_BL_H0_RAMP (default0), so it imposes
+final2e-6 immediately. Finish ONE connected correction: stage-aware persistence of
+existing N/k controls and exact composed-target reconstruction, then the bounded
+same-cavity comparison2^(N-k)h0,k=0..N. N5/x32 is a diagnostic continuation, not a
+newly normalized selected production target. Growth1.2/thickness.01/finalh0 unchanged.
+Normal-law evaluation, actual advancement intervals and final BL suitability remain
+separate obligations. A coarser-stage success is not final-height feasibility.
 
-One latest full rejected mesh+core/composednodalwitness VTU is in full428case/inspection,
-linked byhandoff, with knownflags0/NaN q/J/geometry. Pointwisejoin verified; no VTKreader
-available. Nativefailedstate plus full396policy retained. This is not acceptedBL or
-a reusable successfulstage.
+Use measured height/metric/certification cost and candidate admission to choose the
+next production integration. Any useful bounded growth must discover complete cross-
+rank dependencies BEFORE final reservation, then reuse exact versions/all-vertex
+conflict exclusion/clearance/atomic publication, including rollback and empty ranks.
+Do not publish a grown cavity against a seed reservation. Do not implement broader
+reference search or reduction without additional useful evidence. Keep one cycle.
+
+Latest VTU remains428 inspection, with current core/composednodal witnesses and
+known0/NaN q/J/geometry; no VTK reader was available. Do not create per-trial full
+meshes or call this output a usable BL. Read HANDOFF for live code/build/handles.
 
 ## Preserved stage2 evidence
 

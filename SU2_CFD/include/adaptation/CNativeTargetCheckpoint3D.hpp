@@ -17,6 +17,7 @@ using SU2Native3D::ReferenceState;
 struct Checkpoint {
   std::shared_ptr<CNativeMetricFamily3D> family;
   double pre_complexity=0,final_complexity=0;bool bracketed=false;
+  SU2NativeBLPipeline3D::RampStage stage;
 };
 namespace detail {
 inline uint64_t Checksum(const std::vector<char>& bytes,size_t count) {
@@ -36,7 +37,7 @@ inline Stamp State(const CBoundaryLayerMetric& m) {
           {{m.GetTangentialScale(),m.GetOuterTransitionCore(),n.protected_distance,n.maximum_growth,n.parameter,f.angle,f.slope,f.maximumRadius}}};
 }
 struct Header {
-  uint64_t magic=0x4e424c5441524731ULL,version=1,reference_bytes=0,nodes=0,owned=0,span=0,layers=0,roles=0;
+  uint64_t magic=0x4e424c5441524731ULL,version=2,reference_bytes=0,nodes=0,owned=0,span=0,layers=0,roles=0;
   std::array<double,8> controls{};
   std::array<double,8> family{}; // surface tolerance, angle, lower, upper, core, tangent scale, anchor, log scale
   uint64_t feature=0,status=0,trials=0,budget_status=0,budget_trials=0,budget_refinements=0,bracketed=0;
@@ -45,9 +46,11 @@ struct Header {
   std::array<double,5> policy{}; // core, h0, outer parameter, inherited scale, Option-A radius
   Stamp full,base;
   std::array<uint64_t,2> witness_versions{};std::array<double,2> witness_policy{};
+  SU2NativeBLPipeline3D::RampStage stage;
   template<class S> void Fields(S& s){s(magic,version,reference_bytes,nodes,owned,span,layers,roles,controls,family,
       feature,status,trials,budget_status,budget_trials,budget_refinements,bracketed,estimate,budget_estimate,
-      budget_parameter,pre,final,policy,full,base,witness_versions,witness_policy);}
+      budget_parameter,pre,final,policy,full,base,witness_versions,witness_policy);
+    if(version>=2)s(stage);}
 };
 inline void String(RecordStream& stream,std::string& value,bool read,size_t maximum) {
   uint64_t n=value.size();stream(n);
@@ -68,8 +71,19 @@ inline void History(RecordStream& stream,std::vector<CBoundaryLayerMetric::Profi
   if(read)changes.resize(size_t(n));
   for(auto& change:changes)stream(change);
 }
+inline void CheckStage(const Header& h,const CConfig& config,bool exactEvent) {
+  if(h.version==1) {
+    if(config.GetAdap_BL_H0Ramp())throw std::invalid_argument("Legacy native target checkpoint has no first-height ramp stage.");
+  } else {
+    const auto current=SU2NativeBLPipeline3D::MakeRampStage(config,h.stage.event);
+    if(h.stage.transitions!=current.transitions || h.stage.cycles!=current.cycles ||
+       h.stage.signature!=current.signature || h.stage.event>h.stage.cycles ||
+       (exactEvent && h.stage.event!=config.GetAdap_BL_RampEvent()))
+      throw std::invalid_argument("Native target checkpoint first-height stage/schedule differs from configuration.");
+  }
+}
 inline void CheckHeader(const Header& h,const CConfig& config,size_t bytes,size_t roles) {
-  if(h.magic!=0x4e424c5441524731ULL || h.version!=1 || !h.span || h.owned>h.nodes || h.nodes>bytes/184 ||
+  if(h.magic!=0x4e424c5441524731ULL || (h.version!=1 && h.version!=2) || !h.span || h.owned>h.nodes || h.nodes>bytes/184 ||
       h.layers!=config.GetnAdap_BL() || !h.layers || h.roles!=roles || h.reference_bytes>bytes ||
       h.status>3 || h.budget_status>2 || h.trials>UINT_MAX || h.budget_trials>UINT_MAX || h.budget_refinements>UINT_MAX || h.bracketed>1)
     throw std::invalid_argument("Invalid native BL target checkpoint header.");
@@ -81,7 +95,21 @@ inline void CheckHeader(const Header& h,const CConfig& config,size_t bytes,size_
       !(h.budget_estimate[0]>=0) || !std::isfinite(h.budget_estimate[0]) || !(h.budget_estimate[1]>=0) ||
       !(h.budget_estimate[2]>=0) || !std::isfinite(h.budget_estimate[2]) || !std::isfinite(h.budget_parameter) || h.policy[4]<0)
     throw std::invalid_argument("Invalid native target normalization state.");
+  CheckStage(h,config,true);
 }
+}
+
+inline SU2NativeBLPipeline3D::RampStage InspectStage(const std::vector<char>& bytes,const CConfig& config) {
+  using namespace detail;
+  if(bytes.size()<24)throw std::invalid_argument("Truncated native target checkpoint.");
+  uint64_t checksum=0;std::memcpy(&checksum,bytes.data()+bytes.size()-8,8);
+  if(checksum!=Checksum(bytes,bytes.size()-8))throw std::invalid_argument("Damaged native target checkpoint.");
+  SU2NativeBoundary2D::RecordStream stream(bytes);Header h;stream(h);
+  if(h.magic!=0x4e424c5441524731ULL || (h.version!=1 && h.version!=2))
+    throw std::invalid_argument("Invalid native BL target checkpoint header.");
+  CheckStage(h,config,false);
+  if(h.version==1)return SU2NativeBLPipeline3D::MakeRampStage(config,0);
+  return h.stage;
 }
 
 inline std::vector<char> Encode(const CNativeMetricFamily3D& f,const ReferenceState& reference,const CConfig& config,
@@ -105,6 +133,7 @@ inline std::vector<char> Encode(const CNativeMetricFamily3D& f,const ReferenceSt
   if(static_cast<long double>(radius)!=p.A->radius)throw std::invalid_argument("Native target radius is not a binary64 profile value.");
   h.policy={{p.core,p.h0,p.outer_parameter,p.inherited_tangent_scale,radius}};h.full=State(*p.full);h.base=State(*p.base);
   h.witness_versions=f.witness_versions;h.witness_policy={{f.witness_core,f.witness_radius}};
+  h.stage=SU2NativeBLPipeline3D::MakeRampStage(config,config.GetAdap_BL_RampEvent());
   if(Add(retained,SU2Native3D::ReferenceStorageBytes(reference),authority.capacity(),
       Bytes(p.full->GetProfileHistory()),Bytes(p.base->GetProfileHistory()))>ceiling)
     throw std::length_error("Native profile history copying exceeds storage admission.");
@@ -148,7 +177,8 @@ inline Checkpoint Decode(const std::vector<char>& bytes,const ReferenceState& re
       GrowthBound(h.owned,sizeof(CBoundaryLayerMetric::Tensor)+3*sizeof(su2double)),Mul(reference.facets.size(),16384));
   if(Add(caller_bytes,SU2Native3D::ReferenceStorageBytes(reference),Mul(bytes.size(),6),allocation)>ceiling)
     throw std::length_error("Native target reconstruction exceeds storage admission.");
-  Checkpoint result;auto f=std::make_shared<CNativeMetricFamily3D>();
+  Checkpoint result;result.stage=h.version>=2?h.stage:SU2NativeBLPipeline3D::MakeRampStage(config,0);
+  auto f=std::make_shared<CNativeMetricFamily3D>();
   f->controls=h.controls;f->surface_tolerance=h.family[0];f->feature_angle=h.family[1];f->lower=h.family[2];f->upper=h.family[3];
   f->core=h.family[4];f->inherited_tangent_scale=h.family[5];f->tangential_anchor=h.family[6];f->normalization.logScale=h.family[7];
   f->normalization.status=SU2Complexity::Status(h.status);f->normalization.trials=unsigned(h.trials);
@@ -208,6 +238,22 @@ inline Checkpoint Decode(const std::vector<char>& bytes,const ReferenceState& re
   return result;
 }
 
+inline Checkpoint DecodeRestoringStage(const std::vector<char>& bytes,const ReferenceState& reference,CConfig& config,
+    size_t ceiling=SU2Native3D::ReferenceStorageLimit3D,size_t caller_bytes=0) {
+  const auto stage=InspectStage(bytes,config);const auto previous=config.GetAdap_BL_RampEvent();
+  config.SetAdap_BL_RampEvent(stage.event);
+  try{return Decode(bytes,reference,config,ceiling,caller_bytes);}
+  catch(...){config.SetAdap_BL_RampEvent(previous);throw;}
+}
+
+inline void WriteInitialContinuation(const std::string& path,const std::string& meshPath,
+    const Checkpoint& checkpoint,const ReferenceState& reference,const CGeometry& source,const CConfig& config) {
+  if(!checkpoint.family || checkpoint.stage.event!=0 || !checkpoint.stage.Matches(config))
+    throw std::invalid_argument("Seed continuation needs a validated event-0 target checkpoint matching this configuration.");
+  checkpoint.family->ValidateCheckpoint(config,reference,&source);
+  SU2NativeBLPipeline3D::WriteInitialContinuation(path,meshPath,checkpoint.stage,config);
+}
+
 inline void Write(const std::string& path,const std::vector<char>& bytes) {
   if(std::filesystem::exists(path))throw std::runtime_error("Refusing to overwrite a native target checkpoint.");
   const auto temporary=path+".tmp";std::ofstream out(temporary,std::ios::binary|std::ios::trunc);
@@ -223,5 +269,15 @@ inline Checkpoint Read(const std::string& path,const ReferenceState& reference,c
   std::vector<char> bytes(size_t(length),char(0));input.seekg(0);input.read(bytes.data(),bytes.size());
   if(!input)throw std::runtime_error("Truncated native target checkpoint read.");
   return Decode(bytes,reference,config,ceiling,caller_bytes);
+}
+inline Checkpoint ReadRestoringStage(const std::string& path,const ReferenceState& reference,CConfig& config,
+    size_t ceiling=SU2Native3D::ReferenceStorageLimit3D,size_t caller_bytes=0) {
+  std::ifstream input(path,std::ios::binary|std::ios::ate);if(!input)throw std::runtime_error("Missing native target checkpoint.");
+  const auto length=input.tellg();if(length<0 || uint64_t(length)>ceiling ||
+      transfer_memory::Add(caller_bytes,SU2Native3D::ReferenceStorageBytes(reference),transfer_memory::Mul(size_t(length),6))>ceiling)
+    throw std::length_error("Native target file exceeds storage admission.");
+  std::vector<char> bytes(size_t(length),char(0));input.seekg(0);input.read(bytes.data(),bytes.size());
+  if(!input)throw std::runtime_error("Truncated native target checkpoint read.");
+  return DecodeRestoringStage(bytes,reference,config,ceiling,caller_bytes);
 }
 }  // namespace SU2NativeTargetCheckpoint3D

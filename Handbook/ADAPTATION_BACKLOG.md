@@ -1165,3 +1165,14 @@ part of qualification, even though serial-only guard prevents MPI6 from running 
   Physical-apex proposals safely refuse this case; no acceptance bypass. If actual
   residual evidence shows this blocker, reuse incident same-entity differential support
   rather than treating a CAD seam as a feature. Not demonstrated on current M6 patch.
+
+-437 bounded cavity comparison now demonstrates useful visibility-corrected native
+replacements, but not reference equivalence or MPI publication. Full reference-style
+proposal/reduction/surface restarts remain unproven alternatives, not selected work.
+The tested optional reductions lose visibility; do not implement generic reduction
+machinery from operation names. Preserve the narrower useful candidates and final-
+support MPI protocol in ADAPTATION_M6_BOUNDED_CAVITY_COMPARISON_20261112.md. First finish
+active staged-height continuation/cost assessment. Geometry-guidance refusals still
+need an outside witness or conservative-refusal classification before larger-cavity
+work is attributed to geometry. Private centroid q/J must be recomputed after nodal
+transport/publication; current437 counts are not whole-field retirement.
