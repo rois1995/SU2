@@ -1,0 +1,165 @@
+{
+  "case": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved451_strip_reuse_saved_target_surface_mpi6_20261112T185700_120424",
+  "source_assessment_sha256": "54e8418d01bdb8a86dacda8d55fa144c7946a4cb96e8b6f00ef2e4ea594dbd8a",
+  "all_actual_handles_terminal": true,
+  "source_checkpoint": "dd4614949f",
+  "confirmed": [
+    "Same saved seed, target441, original partitions and constraints/budgets; no CFD advance or target recomputation.",
+    "Exact query output agreement independently qualified on actual449 stars; local query speedup3.70\u20135.79x is separate from stage progress.",
+    "All saved cells positive; exact shared nodal coordinate/tensor consistency; still no complete surface pass or usable BL."
+  ],
+  "comparison449": {
+    "nodes": {
+      "before": 61384,
+      "after": 61437
+    },
+    "tets": {
+      "before": 303493,
+      "after": 303622
+    },
+    "commits": {
+      "before": 54,
+      "after": 107
+    },
+    "global_work": {
+      "before": 1662,
+      "after": 4180
+    },
+    "measured_wall_cells": {
+      "before": 5890,
+      "after": 13779
+    },
+    "required_wall_cells": {
+      "before": 38908,
+      "after": 39014
+    },
+    "known_geometry_bad": {
+      "before": 179,
+      "after": 486
+    },
+    "known_size_bad": {
+      "before": 8,
+      "after": 23
+    },
+    "geometry_work": {
+      "before": 7546542,
+      "after": 16268111
+    },
+    "field_requests": {
+      "before": 139500,
+      "after": 335734
+    },
+    "summed_rank_cpu_seconds": {
+      "before": 2296.5731,
+      "after": 2284.098793
+    },
+    "stage_seconds_max": {
+      "before": 389.09191135900005,
+      "after": 389.12473193
+    },
+    "update_seconds_max": {
+      "before": 2.05947151,
+      "after": 2.1443215390000017
+    },
+    "target_load_seconds_max": {
+      "before": 42.826109162,
+      "after": 45.541571219000005
+    }
+  },
+  "measured_wall_ratio": 2.339388794567063,
+  "measured_wall_per_summed_cpu_ratio": 2.352165060683583,
+  "rank_counters": [
+    {
+      "rank": 0,
+      "local_commits": 0,
+      "surface_demand_required": 7613,
+      "surface_demand_measured": 4672,
+      "metric_seconds": 0.014019267000000014,
+      "metric_cpu_seconds": 0.0030490000000000642,
+      "seed_seconds": 35.035770354999975,
+      "measurement_cpu_seconds": 29.64986800000003,
+      "geometry_work": 79846,
+      "geometry_guidance_seconds": 0,
+      "reason": "Native3D geometry/private work exhausts elapsed-time budget; feasibility is undetermined. Local cached demands: geometry_cells=0, metric_or_height_cells=0, geometry_edges=0, metric_edges=0."
+    },
+    {
+      "rank": 1,
+      "local_commits": 7,
+      "surface_demand_required": 10005,
+      "surface_demand_measured": 4629,
+      "metric_seconds": 0.1406531589999992,
+      "metric_cpu_seconds": 0.1287710000000029,
+      "seed_seconds": 35.03439355400003,
+      "measurement_cpu_seconds": 29.598914000000008,
+      "geometry_work": 219016,
+      "geometry_guidance_seconds": 0.24094812799999998,
+      "reason": "Native3D geometry/private work exhausts elapsed-time budget; feasibility is undetermined. Local cached demands: geometry_cells=0, metric_or_height_cells=21, geometry_edges=0, metric_edges=0."
+    },
+    {
+      "rank": 2,
+      "local_commits": 51,
+      "surface_demand_required": 7024,
+      "surface_demand_measured": 1574,
+      "metric_seconds": 4.574466072000008,
+      "metric_cpu_seconds": 4.433754000000289,
+      "seed_seconds": 35.03131487599998,
+      "measurement_cpu_seconds": 11.223621000000001,
+      "geometry_work": 2356037,
+      "geometry_guidance_seconds": 7.811492334000001,
+      "reason": "Native3D geometry/private work exhausts elapsed-time budget; feasibility is undetermined. Local cached demands: geometry_cells=165, metric_or_height_cells=0, geometry_edges=2, metric_edges=0. Last local rejection: edge 23953,23956: Native 3D cavity deferred to the next construction pass."
+    },
+    {
+      "rank": 3,
+      "local_commits": 1,
+      "surface_demand_required": 1670,
+      "surface_demand_measured": 1670,
+      "metric_seconds": 0.028081670000000114,
+      "metric_cpu_seconds": 0.02023400000000229,
+      "seed_seconds": 35.031068625,
+      "measurement_cpu_seconds": 9.224155000000001,
+      "geometry_work": 29040,
+      "geometry_guidance_seconds": 0.048938927,
+      "reason": "Native3D geometry/private work exhausts elapsed-time budget; feasibility is undetermined. Local cached demands: geometry_cells=0, metric_or_height_cells=2, geometry_edges=0, metric_edges=0."
+    },
+    {
+      "rank": 4,
+      "local_commits": 31,
+      "surface_demand_required": 7523,
+      "surface_demand_measured": 591,
+      "metric_seconds": 98.3603802570008,
+      "metric_cpu_seconds": 96.53310999999545,
+      "seed_seconds": 35.030864709999975,
+      "measurement_cpu_seconds": 5.553750000000001,
+      "geometry_work": 5763539,
+      "geometry_guidance_seconds": 23.592249169999995,
+      "reason": "Native3D geometry/private work exhausts elapsed-time budget; feasibility is undetermined. Local cached demands: geometry_cells=168, metric_or_height_cells=0, geometry_edges=3, metric_edges=0. Last local rejection: feature 2:23829: Native3D geometry-height incompatibility of the normal-row proposal at facet 47732 cell 2083141 clearance/h0=-4.970417: positive smooth-reference clearance is not certified; reconsider the wall/row proposal."
+    },
+    {
+      "rank": 5,
+      "local_commits": 17,
+      "surface_demand_required": 5179,
+      "surface_demand_measured": 643,
+      "metric_seconds": 97.58198364899965,
+      "metric_cpu_seconds": 95.62523399999498,
+      "seed_seconds": 35.03308250199998,
+      "measurement_cpu_seconds": 5.499580999999999,
+      "geometry_work": 7820633,
+      "geometry_guidance_seconds": 25.884299785000007,
+      "reason": "Native3D geometry/private work exhausts elapsed-time budget; feasibility is undetermined. Local cached demands: geometry_cells=153, metric_or_height_cells=0, geometry_edges=9, metric_edges=0. Last local rejection: edge 7907,7908: Native3D geometry-height incompatibility of the normal-row proposal at facet 10515 cell 2077984 clearance/h0=-3.742569: positive smooth-reference clearance is not certified; reconsider the wall/row proposal."
+    }
+  ],
+  "next_blocker": "Required surface replacement feasibility and incomplete census, especially rank4/5 uncertified smooth-reference clearance. Reproduce final actual edge7907,7908 and vertex23829 complete contexts before attributing refusal to a true geometric violation or selecting target/operator/certificate changes.",
+  "limits": [
+    "Known geometry/size bad sets differ in coverage; no whole-field bad-cell removal conclusion.",
+    "q/J all unmeasured; no shape closure or generated BL suitability.",
+    "CPU may include polling; nested metric/guidance/collective timers not additive; sampled memory not a true peak.",
+    "No separate build451 baseline campaign or new perf/GDB profiling; source policy, physical heights, budgets and final gates unchanged."
+  ],
+  "complexity": {
+    "requested_nominal": 500000,
+    "initial_estimate": 486914.722,
+    "empirical_indicator_not_bound": 41525.003,
+    "new_mesh_achieved": null
+  },
+  "goal_complete": false
+}

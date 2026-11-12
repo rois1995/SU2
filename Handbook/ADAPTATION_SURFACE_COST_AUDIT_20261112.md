@@ -377,5 +377,54 @@ Build451PASS407.947s/all36actualidentities terminal/newbinary/cleanNinja/pins.
 Focusedserial22cases/11679assertions PASS4.783s; MPI6same22casesEVERYrank,
 1146–11258assertions PASS4.658s.1684pins/case, actualhandles/wrappers terminal.
 R/boundary_strip451_qualification.json. SampledRSS missesshortchildren, not truepeaks.
-Actualold/newquerycomparison and same-target stageprogress pending; no production
-speedup established yet.
+Actual query and stage results follow; no accepted-BL speedup established.
+
+451actualpairedqueryPASS136.695s wrapper/610055assertions; allactualidentities terminal,
+1738pinsverified/all303493Ownedrecordsbyte-identical449. R/strip_reuse451_assessment.json.
+39,140strippairs, geometrywork identical; exactorderedtensor/normal/striprulesmatch.
+Leadingedge old/new.123378/.022227s (5.55x), recordedvertexA.123213/.021283s(5.79x),
+vertexB.113035/.030544s(3.70x), smoothcontrol.126492/.022352s(5.66x). Two repeats
+percontext,14nodecalls each. CPUtracks pairedwall closely; oldimplementation always
+runsfirst, so caching/order/contention stilllimitisolated timingcausality. The loop
+counts imply10,880,920avoidedstrip predicates across theseeightcontextrepetitions;
+this is DERIVED from39,140pairs*(sidecalls-nodecalls), not a newproductioncounter.
+No wall/geometrytargetaltered and no geometrytraversal saving claimed. Production
+source checkpointdd4614949f pushed. SAMEtarget stage3 comparison is terminal; result follows.
+
+###451 same-target surface-stage outcome
+
+Wrapper498.966s/native389.125s, all10actualidentities terminal/1712pinsverified.
+R/surface_stage451_assessment.json and boundary_strip451_outcome.json. All303622tets
+positive/61437nodes/1153051exact shared nodal coordinate/tensor checks. Same original
+partitions, savedCFD/complete441target/32h0/388.8s/233220work/12GiB; no target/physical
+policy change. Requested500k nominal; initial486914.722±empirical41525.003(notbound),
+achieved new-mesh complexity unmeasured. Sampled treeRSS4.336GB/individual.899GB,
+not true peaks. More stage progress, not strict surface readiness or accepted BL.
+
+| Matching native stage |449|451|
+|---|---:|---:|
+| Requested wall rows measured/required |5890/38908|13779/39014|
+| Commits / proposal work |54 /1662|107 /4180|
+| Complete collapse/split passes |0/0|0/0|
+| SummedrankCPU(possible polling),s |2296.573|2284.099|
+| Partial known geometry/size bad |179/8|486/23|
+| Geometrywork |7546542|16268111|
+| Fieldrequests |139500|335734|
+| Max updatewall,s |2.059|2.144|
+
+Coverage2.34x, coverage per summedCPU2.35x. Partial bad counts refer to different
+sets and do NOT establish whole-field removal/churn. q/J remain ALLUNKNOWN;
+289843volume rows unmeasured. R3 completes its1670local requested rows. R0/1 now
+measure4672/4629; R2/4/5 measure1574/591/643. No complete global pass or surface.
+R4/5 metricwrapper98.360/97.582s versus163.599/171.997s, while nested guidance
+23.592/25.884s versus12.028/14.306s. More trials now fit the budget; no geometry
+traversal saving claimed. Only2clean exit counters:290rounds/223844World elections;
+3attribution gaps. Election/join/CPU are not totalMPIwait and timers overlap.
+
+Next blocker is required-surface replacement feasibility alongside incomplete census.
+R5 last edge7907,7908/facet10515/privatecell2077984 clearance/h0=-3.742569; R4 last
+feature2:23829/facet47732/privatecell2083141 clearance/h0=-4.970417. These are
+uncertified positive smooth-reference clearance, not independentlyproved physical
+penetrations. Reproduce exact complete current trials with a successful control and
+separate geometry/height violation, conservative certification, placement/connectivity
+and missing support before choosing a correction. No second speculativeoptimization.

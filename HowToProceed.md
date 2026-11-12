@@ -7,46 +7,35 @@ Use the [stage integration cadence](Handbook/ADAPTATION_CURVED_BL_STAGE_INTEGRAT
 and maintained [timing/work ledger](Handbook/ADAPTATION_TIMINGS.md). Full retries are
 reserved for integration milestones or failures not reproducible at a stage boundary.
 
-## Current next step — finish scoped strip-reuse qualification and stage comparison
+## Current next step — reproduce remaining required-surface clearance refusals
 
-450actualcomponentdiagnostic passed: StorageBytes is tiny, no caching justified.
-CompleteBoundaryGuidance repeats position-only OptionA strip discovery for each
-reference side;451nowreuses the firstside's already-stored rules within ONEcall.
-No persistentcache/allocation/targetchange. Build451 and22case serial/MPI6 milestone
-pass. Actualsaved449stars compareexact old/new guidance and cost; then replaystage3
-withsame441target/CFD/32h0/constraints/budgets. FollowHANDOFFforlivehandles. Do not
-select a secondoptimization from speculativegeometry work orfewerqueriesalone.
+451completed one measured optimization: reuse position-only thin-strip rules within
+ONE boundary-guidance call. Exact old/new actual-M6 outputs and22case serial/MPI6
+qualification pass. At the same389s native budget, requested-wall coverage rises
+5890→13779(2.34x), commits54→107, with similar summedrankCPU. The local query gain
+is3.70–5.79x; this is not accepted-mesh speedup. Source dd4614949f is pushed.
+See [cost and service evidence](Handbook/ADAPTATION_SURFACE_COST_AUDIT_20261112.md).
 
-The complete44132h0 target remains reload-qualified.448unblocked requiredsurface
-work fromoptionalcoarsening;449nowletsidleworkers advanceoneexistingcensusbatch
-withoutdraining aheadofbusyrounds. Serial/MPI17casequalification passes. Actual449
-matchedbudgetwallcoverage5890vs4481257(4.69x),requiredlanecommits54vs35. Seedrows
-R0/3=1600vs192, busyrank4still192. Thisis demonstrated serviceopportunity/progress,
-notstrictclosure or anisolatedwalltime speedup.0passes, surfaceNOTready, q/JALLUNKNOWN.
-See [current cost/service evidence](Handbook/ADAPTATION_SURFACE_COST_AUDIT_20261112.md).
+Surface preparation remains NOT ready:0completepasses,13779/39014requested rows,
+61437nodes/303622positive tets; partial486geometry/23sizebad, q/J ALL UNKNOWN.
+Requested500k is nominal; initial estimate486914.722±empirical41525.003(notbound),
+achieved new-mesh composed complexity unmeasured. Saved shards/current nodal metrics,
+geometry and complete441target remain available. No CFD/sensor/norm/height change.
 
-RecordedFrozenFieldtimers aretiny: R4build.029s/query.027s/edgeintegral
-.051s whilebroadmetricwrapper163.599s; R5wrapper171.997s. Wrappersincludeboundary
-guidance/context/geometry ANDpossiblejoins; CPU canpoll. Do notattributeallresidual
-toonefunction. Isolateactualsaved split contexts serially/boundedusingexisting
-diagnostics, repeatedunchanged-old-side vs changedcandidatework, andclassifyheight/
-geometryrefusals. Lastnegativeclearancevalues arenotprovedphysicalpenetrations.
-StorageBytes feature-grid scan isunproven/source-only inbacklog; no caching without
-actualcost + allmutator/authority/invalidation/resource audit. No anotherbaseline,
-perf/GDBcampaign, scheduler/config/operator or gatebypass. Keeponeactivecycle.
+Next use actual451saved contexts around edge7907,7908 and vertex23829, with a clean
+control. Reproduce the required split/normal-row trial on complete current support.
+Distinguish real smooth-reference clearance/height violation, conservative refusal,
+placement/connectivity and unavailable support. Negative certificate values alone
+are not proved penetrations. Evaluate complete affected patches before choosing a
+connected correction; retain existing bounds, reservations and publication machinery.
+Do not start another speculative optimization or new scheduler/geometry policy.
 
-Preserve449positiveprovisional61384node/303493tetshards/current nodal metrics, all
-upstreamprofiles/geometry/CFD andEuler293checkpoints.179partialgeometrybad/8sizebad
-countscoverdifferentsets from448132/1; cannotinferwholefield churn/closure. Requested
-500k is nominal; initialestimate486914.722±empirical41525.003(notbound), achievednewmesh
-composedcomplexitystillUNMEASURED. No firstrow orusableBLclaim.
-
-446unchangedface memo hadZERO actualcoarsening hits;447scopefilterqualifiedwithout
-usefulspeedup. Donor preparationalready local; privatecoarsening alreadyavoids trial
-collectives. Do notduplicate thosefacilities oradd speculativealternatives.
-Oncecredible surface readiness exists, verify directions/firstrow, physicalalignment/
-height/progression/coverage and strictclosure, then completeRANStransfer/continuedCFD/
-secondadaptation/isolatedrestart. UseHANDOFF forcurrentpins/actualterminalhandles.
+450ruled out StorageBytes as a material cost on sampled actual stars.446unchanged-face
+memo hadZERO coarsening hits;447scope filtering did not establish useful speedup.
+Donors already use current local tensors; do not duplicate these facilities.
+Keep ordered stages: credible surface readiness, then constrained directions/firstrow,
+physical height/alignment/progression/coverage, growth and strict closure, followed by
+full RANS transfer/continuedCFD/second adaptation/isolatedrestart. Full goal remains open.
 
 437 corrected the diagnostic interface ordering and selected surviving actual
 visibility failures. Direct collapses fail exact positivity; bounded corrected

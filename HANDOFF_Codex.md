@@ -13,101 +13,76 @@ preserves earlier evidence/handles, NOT live workload state.
 
 ## Live state and provenance
 
-ONE owned actual451querycomparisonlive (session2923):
-R/cases/curved451_boundary_strip_reuse_serial_20261112T185336_111955.
-Preserve pinned code; actual PID/startticks in resources.jsonl/status.json.
-Build451PASS407.947s/all36actualidentities terminal/pins/newbinary/cleanNinja.
-CurrenttestSHA3d68c30ce14a4afe1e3b2eabd94e5e8a73b899ce5fabb0e381a556d3dc4fe03d;
-CFDSHAf15bc306e1558ed5d9e8ee804ecc03155f4aecc55b754634ee2398f79fa5509a.
-SerialPASS4.783s/22cases11679assertions; MPI6PASS4.658s/22casesEVERYrank,
-1146–11258assertions;1684pins/case/actualidentities+wrappers terminal.
-R/boundary_strip451_qualification.json. Actualold/new and stageprogresspending.
-450diagnostic TERMINAL PASS159.197s wrapper/608989assertions, all5actualhandles
-terminal/1736pinsverified/all303493Owned recordsbyte-identical449.
-R/planning_cost450_assessment.json. ProductionCFD remained byte-identical449.
-Storage accounting is tiny on actual samples; do NOT implement its speculativecache.
-Mapped/associated/intrinsic costs~.002s per41–42sides; completeBoundaryGuidance
-~.058–.062s per7nodes. Independent invocations/nested—not additive phasecosts.
-Source identifies repeated position-only OptionA strip scan perincidentreference side.
-451reuses firstside striprulevalues ALREADY in result, onlywithin samecall, preserving
-fresh side-specific metric/normals, exact outputorder and existing256samplecap.
-No persistentcache/allocation/config/target/gate/budgetchange. Independent frozenold
-implementation + focusedposition/policy/limit tests and sameactualstars willcompare
-exactresults/times. Focusedruntimequalified; actualquery benefit and stageprogress NOT establishedyet.
-450buildPASS389.149s/all10actualterminal/pins/newbinary/cleanNinja; previous testSHA
-3d18f0f012570219b2b9da3a72ffa38400a184b8eb0b170eefc4b11293246d87.
-450 uses SAME complete441target/449transportedmesh+parameters, four completevertexstars
-4247,7907,smoothcontrol,4219. Not exactfailedsplitreproduction orheightdiagnosis.
-Sourceentry:1478pins/32prioractualterminal R/planning_cost450_entry.json.
+No owned heavy workload is live. Build451 and every validation/replay wrapper are
+terminal; actual PID/start-tick receipts were rechecked before recording outcomes.
+Source checkpoint **dd4614949f** is pushed to origin/codex/native-3d-bl; consult git
+log for a later evidence-only checkpoint. Preserve unrelated working changes.
 
-449actualM6surface replay TERMINAL492.422s wrapper/
-389.092s native; all10actualidentities terminal, source/runtime/inputpinsverified:
-R/cases/curved449_idle_census_saved_target_surface_mpi6_20261112T171923_2017200
-(session40009terminal). R/surface_stage449_assessment.json and surface_idle449_outcome.json.
-61384nodes/303493tets, allpositive;1152588exact shared-coordinate/tensor checks.
-54commits/1662globalproposalwork;5890/38908wallrows measured,0completepasses,NOTready.
-Partialgeometrybad179/sizebad8; q/JALLUNKNOWN;297603unmeasuredcells. Handoff1EVERYrank.
-Same savedCFD/complete441target/original6partitions,388.8s/233220work/12GiB limits,
-noCFDadvance/metricrecompute/sensor/norm/height change. Onlyboundedcensus service changed.
-Saved output provisional failure evidence, not successfulsurface stage/generatedBL.
-Requested500k/INITIALestimate486914.722±empirical41525.003(notbound); achievednewmesh
-composedcomplexityUNMEASURED. SampletreeRSS4.212GB/individual.861GB/nottruepeaks;
-rankCPUtotal2296.573 includesMPIpolling. Original61330nodes/303359tets.
+Build451 PASS407.947s, all36observed actual identities terminal, source pins unchanged,
+new test binary and clean Ninja dry-run. R/build451_status.json/source_pins.json/
+terminal_handles.json. Current test SHA:
+3d68c30ce14a4afe1e3b2eabd94e5e8a73b899ce5fabb0e381a556d3dc4fe03d;
+CFD SHA f15bc306e1558ed5d9e8ee804ecc03155f4aecc55b754634ee2398f79fa5509a.
+Serial22cases/11679assertions PASS4.783s; MPI6 same22cases on EVERYrank,
+1146–11258assertions PASS4.658s,1684pins/case and actual handles terminal.
+R/boundary_strip451_qualification.json. This is not generated-BL qualification.
 
-Build449PASS241.715s/all22observedactualidentities terminal/pins/newbinary/cleanNinja.
-R/build449_status.json/source_pins.json/terminal_handles.json. CurrenttestSHA
-189beafbc9299b0d7c54f00e9737c4a3bc7ed33223ebacfc7c1fa75918513c2f;
-CFDSHA79e13a54f00af63d858655760d401700f6afede18e69e8a7b7d28a2a84336d39.
-Source checkpoint252b8b8490pushed; usegitlog for lateroutcome checkpoint.
-Preserve unrelated P1/FEM/.orig/log/submodule working changes. Authorized fork origin,
-branch codex/native-3d-bl. Git sharedmetadata needs escalation; explicit staging only.
+Latest actual stage3 output:
+R/cases/curved451_strip_reuse_saved_target_surface_mpi6_20261112T185700_120424
+(session10685terminal). Wrapper498.966s/native389.125s; all10actual identities terminal,
+1712source/runtime/input pins verified. R/surface_stage451_assessment.json and
+boundary_strip451_outcome.json. All303622tets positive,61437nodes,1153051exact shared
+nodal coordinate/tensor checks.107commits/4180proposalwork;13779/39014requested-wall
+rows measured,0completepasses, NOT surface-ready. Partial486geometry/23sizebad;
+q/J ALL UNKNOWN,289843unmeasuredcells. Failure shards retained, not a credible
+successful surface checkpoint or usable BL. Same savedCFD/complete441target/original
+six partitions/32h0,388.8s/233220work/12GiB limits; no CFDadvance, metric recomputation,
+sensor/norm/height/normalization/gate change. Requested nominal500k, INITIAL estimate
+486914.722±empirical41525.003(notbound); achieved new-mesh complexity UNMEASURED.
+Sampled treeRSS4.336GB/individual.899GB are not true peaks; rankCPU2284.099s includes
+possible MPIpolling. Euler293 and original396target remain intact.
 
-## Current correction and demonstrated next blocker
+## Connected correction and demonstrated remaining blocker
 
-Boundedidle census: SurfacePlanning construction withactiveglobalwork permits one
-existing<=16rowcensusbatch onlyonlocalidleworkers. Busy cursorsstayfixed. Everyrank
-keepsadmission/deadline/vote/measure collectives, thenrepicks andrefreshesbad_field/
-complete/refill andexecutes SAME active iteration. No censusdrain aheadofoperators,
-no graphpublication duringmeasurement. Globalemptyrefill/fulltargetpaths unchanged;
-frontier/blockedhistory/fullsupport/claims/publication andconstraints preserved.
-No new scheduler/config/batches/target/gate/budget. Sourceentryverification:
-R/idle_census449_entry.json (73actualterminalidentities/1477prior sourcepins).
+450actual diagnostic rejected the StorageBytes accounting-cache hypothesis:
+.0000122–.0000217s per82–84calls versus.117–.141s complete guidance per14nodes.
+R/planning_cost450_assessment.json:608989assertions,1736pins, all303493Owned records
+byte-identical449, all actual handles terminal. Do not reopen without contrary evidence.
 
-SerialPASS4.430s/17cases2194assertions; MPI6PASS4.446s/17casesEVERYrank/933–1773assertions,
-observedactualhandles terminal/1680pinsverified percase. R/surface_idle449_qualification.json.
-MPIfixture idleowner seeds20vsbusy2;busycommits inoneoperatorround; hidden demand,
-exactprepublicationworkrefusal snapshots, emptyranks/ownership/curved/height/fulltarget
-regressions pass. ShortRSSsamples miss children; no generatedBL MPIclaim.
+451reuses position-only OptionA thin-strip results from the first side ALREADY in
+the result vector, only within ONE BoundaryGuidance call. Fresh side-specific metric/
+normal evaluations, exact output order/duplicates and256sample cap remain. No extra
+allocation, persistent cache, configuration, target, scheduler or publication change.
+Actual449 star comparison PASS136.695s/610055assertions,1738pins/all actual handles
+terminal/all303493Owned records byte-identical. Exact ordered tensors/normals/rules
+and geometrywork agree with a frozen pre-change implementation.39140strip pairs;
+paired local guidance3.70–5.79x faster,10,880,920derived avoided predicate calls.
+Old runs first; timing/order/contention limits explicit. R/strip_reuse451_assessment.json.
 
-Actual449vs448 matchednativebudget:5890vs1257wallrows(4.69xcoverage),54vs35required-
-lanecommits;0passesboth. Seedrows/rank[1600,1568,528,1600,192,240] vs448all192.
-Thuspreviousidle exclusion isremoved; notfullreadiness orisolatedwalltime speedup.
-Knownbadcounts179/8vs132/1coverdifferentsets andcannotprovewholefield closure/churn.
-Geometrywork7546542/rankratio127.96; fieldrequests139500/compositions0. R4/5stillhot:
-metricwrapper163.599/171.997s, metricCPU161.094/169.502s(possiblepolling), guidance
-12.028/14.306s NESTED. R4fieldbuild.0292/query.0266/search.0138/edgeintegral.0511s;
-R5build.0309/query.0251/edgeintegral.0502s. RecordedFrozenFieldtimers are tiny; theseexclude
-boundaryguidance/context costs. Wrapperincludespossiblejoins; cannotassignallresidual
-seconds tooneboundaryoperation. Existingcounterexport EXECUTED, notnewprofilingcampaign.
-Seedwallmax45.628s, measurementCPU R0/3=43.197/36.378s includesseed+update. seed_batches
-200onallranks counts commonmeasurementslots(includingempty), NOTlocalnonemptybatches.
-Only4exitprefixesparseable(11attributiongaps); 3completeprefixes99rounds/80358World
-collectiveelectioncalls. DoNOTinterpretjointimers/CPUas totalMPIwait/usefulwork.
+At matched389s stage budgets,451vs449 requested-wall coverage13779vs5890(2.34x),
+commits107vs54, summedCPU2284.099vs2296.573s. No completed pass in either run. Different
+partial bad sets(486/23vs179/8) cannot establish whole-field closure or churn.
+R4/5 metric wrappers98.360/97.582s versus163.599/171.997s; nested guidance23.592/25.884s
+versus12.028/14.306s. More useful stage work, not accepted-mesh time or totalMPIwait.
+Geometrywork16.268Mvs7.547M reflects more trials; do not call it traversal savings.
+Rank3 now measures all1670local requested rows; global readiness remains false.
 
-Nextactiveblocker: non-coreboundaryplanning/context cost AND requiredsplit refusal
-power. LastR4/5samples again positive smooth-reference clearance notcertified,
-clearance/h0−3.4376/−2.5566. These are not independentlyproved physicalpenetrations.
-Useactual saved splitcontexts toseparateexact repeatedoldsidework, changedpositions,
-geometry/height evidence andjoining. StorageBytes feature-grid scan is SOURCE-ONLY
-hypothesis inbacklog, notprovenbottleneck. No nextproductioncorrection selected.
-No new full baseline/perf/GDBcampaign, scheduler or gatebypass. Keeponeconnectedcycle.
+Next investigate actual required-surface replacement feasibility, not another
+speculative performance cycle. Final R5 rejection is edge7907,7908/facet10515,
+privatecell2077984, clearance/h0=-3.742569; R4 feature2:23829/facet47732,
+privatecell2083141, clearance/h0=-4.970417. Positive smooth-reference clearance was
+not certified; these numbers do NOT independently prove physical penetration.
+Reconstruct complete final saved contexts with current associations/nodal metrics,
+including a successful control. Separate actual geometry/height violation, conservative
+certificate refusal, placement/connectivity obstruction and incomplete support before
+selecting a correction. Existing four vertex-star query samples are NOT exact failed
+split-cavity reproductions. No new baseline/perf/GDB campaign or raised budget.
 
-448required-debt handoff remains: knownsurface debt atquiescentboundary usesexisting
-begin_length_generation(false), no falsecompletedoptionalcollapse pass. Serial/MPI
-qualified andactualM6serviceproved, but35commits/1257wallrows/0passesunready output
-preserved. 447publishedmeasurement scopefilter alsoqualified withnousefulspeedup;
-allcompleteprivatecavity/transport/publication retained, nonrequestedcensusUNKNOWN.
-Existing privatecoarsening alreadyavoidstrialcollectives; donorcurrenttensors alreadylocal.
+Qualified447wall-only published measurement,448required-debt handoff and449bounded
+idle census remain. Busy cursors are not drained; all ranks keep aligned admission/
+vote/measurement; repick precedes the same active iteration. No upfront full census.
+Full private cavity support/validity/transport/publication remain mandatory. Earlier
+counter attribution/handle details are in the linked cost audit and449outcome receipts.
 
 ## Reuse conclusions and bounded cavity capability
 

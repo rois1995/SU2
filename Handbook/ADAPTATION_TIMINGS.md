@@ -1554,4 +1554,28 @@ actualhandles verified. Fourstars, two opposite-order repeats: complete guidance
 All303493Owned records byte-identical449. No mesh accepted; no MPI polling in this
 serial query diagnostic. Storage-accounting optimization rejected for samples.
 451tests position-only thin-strip scan reuse inside one BoundaryGuidance call;
-qualified performance/progress pending. See current surface cost audit.
+qualified query/stage progress follows. See current surface cost audit.
+
+451stripreuse: build407.947s/all36actualidentitiesterminal; serial22cases11679assertions
+4.783s, MPI6same22casesEVERYrank4.658s/1146–11258assertions. Actualsame449stars
+136.695s wrapper/610055assertions,1738pins/allactualhandlesterminal/303493Ownedrecords
+unchanged. Directold/newguidance pairedwall.123378/.022227LE,.123213/.021283vertexA,
+.113035/.030544vertexB,.126492/.022352smoothseconds. Geometrywork identical/exact
+samplesmatch; 39,140strippairs/10,880,920derivedavoidedpredicates. No persistentcache
+oradditionalstorage. These3.70–5.79xlocalratios are NOTwhole-stage speedups; cacheorder
+andcontention remain. Samebudgetstage3comparison terminal below; nofinalBL/meshacceptanceclaim.
+
+451actualstage3 TERMINAL: wrapper498.966s/native389.125s,10actualidentities terminal,
+1712pinsverified. Same441target/CFD/originalpartitions/32h0/budgets. Requested-wall
+coverage13779/39014 vs4495890/38908(2.34x), commits107vs54, work4180vs1662;
+summedrankCPU2284.099vs2296.573(possiblepolling). Coverage per summedCPU2.35x.
+No completepasses/surface readiness. Partialgeometry/sizebad486/23vs179/8 differ in
+coverage; no whole-field closure/churn inference. q/JALLUNKNOWN.61437nodes/303622
+positive tets, achieved composedcomplexityUNMEASURED; initialestimate unchanged.
+Geometrywork16.268Mvs7.547M, fieldrequests335734vs139500: more trials, not traversal
+savings. R4/5metricwrapper98.360/97.582s vs163.599/171.997s; nestedguidance23.592/
+25.884s vs12.028/14.306s. Maxupdatewall2.144vs2.059s; targetload45.542vs42.826s.
+All overlapping wrappers keptseparate. Only2clean exitrows/3gaps;290rounds/223844World
+collectiveelections, not totalMPIwait. SampletreeRSS4.336GB/individual.899GB/notpeaks.
+Remaining blocker includes uncertified smooth-reference clearance in actual required
+split trials. See boundary_strip451_outcome.json and currentcost audit; no newbaseline.
