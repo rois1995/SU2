@@ -1,0 +1,77 @@
+{
+  "evaluator": "independent local g++ compilation and execution",
+  "variants": {
+    "original": {
+      "compile": "PASS",
+      "exit": 0,
+      "expected_exit": 0,
+      "contract_status": "PASS",
+      "stdout": "PASS selected boundary/getter/loop fragments, 3 points x 4 components",
+      "stderr": ""
+    },
+    "refactored": {
+      "compile": "PASS",
+      "exit": 0,
+      "expected_exit": 0,
+      "contract_status": "PASS",
+      "stdout": "PASS selected boundary/getter/loop fragments, 3 points x 4 components",
+      "stderr": ""
+    },
+    "wallOldSign": {
+      "compile": "PASS",
+      "exit": 1,
+      "expected_exit": 1,
+      "contract_status": "PASS",
+      "stdout": "",
+      "stderr": "contract failed: three-buffer projection/frame"
+    },
+    "wallResidualSign": {
+      "compile": "PASS",
+      "exit": 1,
+      "expected_exit": 1,
+      "contract_status": "PASS",
+      "stdout": "",
+      "stderr": "contract failed: three-buffer projection/frame"
+    },
+    "wallTruncationSign": {
+      "compile": "PASS",
+      "exit": 1,
+      "expected_exit": 1,
+      "contract_status": "PASS",
+      "stdout": "",
+      "stderr": "contract failed: three-buffer projection/frame"
+    },
+    "farSign": {
+      "compile": "PASS",
+      "exit": 1,
+      "expected_exit": 1,
+      "contract_status": "PASS",
+      "stdout": "",
+      "stderr": "contract failed: far-field addition"
+    },
+    "skipPoint": {
+      "compile": "PASS",
+      "exit": 1,
+      "expected_exit": 1,
+      "contract_status": "PASS",
+      "stdout": "",
+      "stderr": "contract failed: complete update/frame"
+    },
+    "skipEnergy": {
+      "compile": "PASS",
+      "exit": 1,
+      "expected_exit": 1,
+      "contract_status": "PASS",
+      "stdout": "",
+      "stderr": "contract failed: complete update/frame"
+    },
+    "wrongTimestep": {
+      "compile": "PASS",
+      "exit": 1,
+      "expected_exit": 1,
+      "contract_status": "PASS",
+      "stdout": "",
+      "stderr": "contract failed: complete update/frame"
+    }
+  }
+}

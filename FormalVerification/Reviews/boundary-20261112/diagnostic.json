@@ -1,0 +1,35 @@
+{
+  "status": "PASS exact-rational diagnostic; NOT a Lean theorem, C++ test or discovered SU2 defect",
+  "purpose": "Distinguish executed boundary writes from discarded/stale boundary memory; propose future semantic mutation controls",
+  "normal": [
+    "3/5",
+    "4/5"
+  ],
+  "old_momentum": [
+    "3",
+    "4"
+  ],
+  "residual_momentum": [
+    "5",
+    "12"
+  ],
+  "truncation_momentum": [
+    "1",
+    "0"
+  ],
+  "dt_over_volume": "1/10",
+  "proper_result": [
+    "24/125",
+    "-18/125"
+  ],
+  "proper_normal_momentum": "0",
+  "stale_memory_result": [
+    "12/5",
+    "14/5"
+  ],
+  "stale_normal_momentum": "92/25",
+  "recompute_projection_after_each_store_result": [
+    "0",
+    "36/25"
+  ]
+}

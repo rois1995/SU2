@@ -1,0 +1,32 @@
+{
+  "evaluation_date": "2026-11-12",
+  "uploaded_archive": "SU2_Lean_boundary_loop_20261112.zip",
+  "archive_sha256": "a7b5115deca59e7c938632157a5eb0255f21736e107aa05a4bdb5d1d72b24879",
+  "candidate_commit": "73a322b640f45505e8d8fb70fbce46e6ccffd206",
+  "candidate_lock_sha256": "7c6a795c2dc8ef748bd4cdd9cdba3dc31330e55decb4b504b947d592654ef37e",
+  "production_baseline": "d162016382f0c122433000c114e88d808b48f7a7",
+  "current_upstream_when_checked": "103442f30ca2fba1ff48ef12aa1ae93480256a30",
+  "checks": {
+    "zip_crc": "pass",
+    "internal_sha256_members": 527,
+    "source_selections": 11,
+    "source_file_count": 5,
+    "source_hash_check": "pass",
+    "candidate_only_formal_verification": "pass",
+    "explicit_theorems_source_count": 81,
+    "native_cxx_fragment_original": "pass",
+    "native_cxx_fragment_refactor": "pass",
+    "native_cxx_fragment_semantic_mutants": "seven failures as expected, all compiled",
+    "cold_lean_rebuild": "not completed; external proof validation outstanding",
+    "native_full_SU2_boundary_methods": "worker reported only",
+    "full_euler_integration": "worker reported only"
+  },
+  "verdict": "provisional technical review; not independently accepted as a fully recompiled proof candidate",
+  "disclosed_gap": "post-boundary memory readiness is assumed by the complete-loop theorem; production boundary-to-memory transition remains unproved",
+  "files": {
+    "CFD_Lean_new_agent_instructions_20261112.md": "aa1339be98c33129db0f72f6698e957648e38ebd8a1b5b72c36703f283d0b77d",
+    "SU2_Lean_boundary_loop_independent_review_20261112.md": "9491e03c49e78a36795e40e066c09b37611218ae36931c4d52223e9e3712a9f8",
+    "SU2_Lean_next_agent_instructions_after_boundary_20261112.md": "acdb7959b44507aaf03a362067c79b820c28b841a85b6016a0f6037db337ff0e",
+    "evaluator_result.json": "1dc9be7e033d82347dc418bbdcbac7c5663673aa6e1e8ddfade16a4c24b85e38"
+  }
+}

@@ -1,0 +1,550 @@
+{
+  "status": "Pinned source-reading evidence; not a certified translation",
+  "selections": [
+    {
+      "id": "memory_semantics",
+      "path": "FormalVerification/SourceGate/SU2Source/Semantics.lean",
+      "revision": "73a322b640f45505e8d8fb70fbce46e6ccffd206",
+      "file_sha256": "bd758262732717aa0533af075892d4db54ac27b8acf96a825422ea31b7b5a479",
+      "git_blob": "151f3018bc8a9e119f351ab7fd2fc0e1096cfcf1",
+      "spans": [
+        {
+          "first_line": 27,
+          "last_line": 55,
+          "sha256": "dde585b2af2c98c2b7611bc71bd5b0ede336f1f7e436d3fae66250aac4b6980d"
+        },
+        {
+          "first_line": 76,
+          "last_line": 103,
+          "sha256": "de7137bc9b4b3f6a386583408444b83019849f678799930a79193f0919bf281f"
+        }
+      ],
+      "observation": "Option-valued logical memory, bounds, execute and stores",
+      "evidence_level": "BY READING; source identity checked, no new semantic proof"
+    },
+    {
+      "id": "current_gap",
+      "path": "FormalVerification/BoundaryPath/SU2Boundary/Loop.lean",
+      "revision": "73a322b640f45505e8d8fb70fbce46e6ccffd206",
+      "file_sha256": "9efdfe53cda80588136e9dcc87bb20b79d12a5800ebd8b1a32a268c269712e7f",
+      "git_blob": "77040d243ea98de8cc0bceeeb1489a4c1adfdd11",
+      "spans": [
+        {
+          "first_line": 87,
+          "last_line": 108,
+          "sha256": "14db04b338fe0eced9c685dfea0927106080aac815ce659334e93f9cfe16d64f"
+        },
+        {
+          "first_line": 210,
+          "last_line": 261,
+          "sha256": "83b92168e9565272202875eecb7114eb73a7615f8e9a2bd628cbb42588e7ca15"
+        }
+      ],
+      "observation": "Post-boundary InputsReady premise and update-only frame",
+      "evidence_level": "BY READING; source identity checked, no new semantic proof"
+    },
+    {
+      "id": "boundary_value_model",
+      "path": "FormalVerification/BoundaryPath/SU2Boundary/Boundary.lean",
+      "revision": "73a322b640f45505e8d8fb70fbce46e6ccffd206",
+      "file_sha256": "89af06822be7af227e831b8c614d56ee1b44bc8befb8b51311fff44490eed4ea",
+      "git_blob": "579bf1f17c50d2b1c7235d92b510c2f3c73a7b92",
+      "spans": [
+        {
+          "first_line": 14,
+          "last_line": 44,
+          "sha256": "ed810708009c983e30dfc277b9b4cbd673e7b7e97c76f8c73399767b9001bd1f"
+        },
+        {
+          "first_line": 179,
+          "last_line": 228,
+          "sha256": "b4ef8cf028549a8b1e29fb7de3ffc2af1f8882560f19d605134979a84e1b58c0"
+        }
+      ],
+      "observation": "Value-level wall/far transformations and refinement",
+      "evidence_level": "BY READING; source identity checked, no new semantic proof"
+    },
+    {
+      "id": "boundary_spec_storage",
+      "path": "FormalVerification/BoundaryPath/SU2Boundary/Spec.lean",
+      "revision": "73a322b640f45505e8d8fb70fbce46e6ccffd206",
+      "file_sha256": "a75fe93223e3c0f5ed56fbbe3c9a5231c07b5b3d3c2b8d947b9081022e6fdfca",
+      "git_blob": "7909a8e29074c84a0640423ef2428ee6e8c0f18b",
+      "spans": [
+        {
+          "first_line": 115,
+          "last_line": 163,
+          "sha256": "7c87b22c926bf97c3beec7e32c503a553ed559ca2c969910fa92aa6333b4cf5d"
+        }
+      ],
+      "observation": "State buffers, arbitrary cacheIndex, ordered folds",
+      "evidence_level": "BY READING; source identity checked, no new semantic proof"
+    },
+    {
+      "id": "pinned_case",
+      "path": "FormalVerification/EulerPath/tests/integration/euler.cfg",
+      "revision": "73a322b640f45505e8d8fb70fbce46e6ccffd206",
+      "file_sha256": "8e9c70578281e2f50cd8d6081cf5517da5789f2534f8a300a284dc909656ce29",
+      "git_blob": "3ed3fe0b0df4322fd9304917786c0d4eb314f510",
+      "spans": [
+        {
+          "first_line": 1,
+          "last_line": 43,
+          "sha256": "8e9c70578281e2f50cd8d6081cf5517da5789f2534f8a300a284dc909656ce29"
+        }
+      ],
+      "observation": "Selected stationary 2D four-component explicit Euler configuration",
+      "evidence_level": "BY READING; source identity checked, no new semantic proof"
+    },
+    {
+      "id": "newton_and_rk_defaults",
+      "path": "Common/src/CConfig.cpp",
+      "revision": "d162016382f0c122433000c114e88d808b48f7a7",
+      "file_sha256": "17cbab1350fe9d5f24cb61e8084d9a21fd7f749b5c1cc6776f148a17bf4ad1bf",
+      "git_blob": "f2b171c9571f86c343050e38a7403ef1deda0290",
+      "spans": [
+        {
+          "first_line": 1904,
+          "last_line": 1908,
+          "sha256": "5dc34fe39fd557e294049a544206a3072d4a889251cdd41569b034a02ab32d09"
+        },
+        {
+          "first_line": 5180,
+          "last_line": 5184,
+          "sha256": "bf46603be66410a454ad4c2f53086a2204c5343c75e901411b4c0032c48243b0"
+        }
+      ],
+      "observation": "Default Newton disabled and fallback one RK step",
+      "evidence_level": "BY READING; source identity checked, no new semantic proof"
+    },
+    {
+      "id": "flow_factory",
+      "path": "SU2_CFD/src/solvers/CSolverFactory.cpp",
+      "revision": "d162016382f0c122433000c114e88d808b48f7a7",
+      "file_sha256": "2de362d9e095cf53941173e283b15373a62f5086ba2bce527179148d52d31cb6",
+      "git_blob": "5f7b5aa7b523596dae5cf4f03d986f3862b516ff",
+      "spans": [
+        {
+          "first_line": 273,
+          "last_line": 285,
+          "sha256": "9e62319fda29fc0a544ab42528bb70b76221c5474810adddd14add8011ab9715"
+        }
+      ],
+      "observation": "Direct Euler selects multigrid integration unless Newton enabled",
+      "evidence_level": "BY READING; source identity checked, no new semantic proof"
+    },
+    {
+      "id": "integration_factory",
+      "path": "SU2_CFD/src/integration/CIntegrationFactory.cpp",
+      "revision": "d162016382f0c122433000c114e88d808b48f7a7",
+      "file_sha256": "d18f86cdd2bd49e0975c53bf05e535c13fe294e8bbd0fdf33383a9f89865ccd2",
+      "git_blob": "5cd04a10b78cead05a488efed7e253243a700d43",
+      "spans": [
+        {
+          "first_line": 35,
+          "last_line": 46,
+          "sha256": "48bc6bd10cb6566c908b26aba7ac92fc1f7075ed0aefe86cccfea7434483c2d1"
+        },
+        {
+          "first_line": 51,
+          "last_line": 69,
+          "sha256": "871c7e97ec3d9d78d23b1279a351eefd8b8e6ecdd8f8b9d906974752b5e1ab13"
+        }
+      ],
+      "observation": "Solver metadata selects CMultiGridIntegration",
+      "evidence_level": "BY READING; source identity checked, no new semantic proof"
+    },
+    {
+      "id": "flow_caller",
+      "path": "SU2_CFD/src/iteration/CFluidIteration.cpp",
+      "revision": "d162016382f0c122433000c114e88d808b48f7a7",
+      "file_sha256": "127bcf641915da25ad73b9035d36f05509050257ff19890daaa29169a7ef79e4",
+      "git_blob": "725fa8112d629e3867cde4a29ad66e872113d8a7",
+      "spans": [
+        {
+          "first_line": 75,
+          "last_line": 83,
+          "sha256": "f9e3c841da0c806a9c8582d20ae105ea405ceaecf51669aab29ecc2525a05d2d"
+        }
+      ],
+      "observation": "Selected flow calls MultiGrid_Iteration",
+      "evidence_level": "BY READING; source identity checked, no new semantic proof"
+    },
+    {
+      "id": "multigrid_sequence",
+      "path": "SU2_CFD/src/integration/CMultiGridIntegration.cpp",
+      "revision": "d162016382f0c122433000c114e88d808b48f7a7",
+      "file_sha256": "9d24b1f2e715e390029a840cbafdf6cc76ad60c8745da27eb182fd3580bdf368",
+      "git_blob": "89d3d95ea596dd07bbaecb15cc9d6261984ba026",
+      "spans": [
+        {
+          "first_line": 437,
+          "last_line": 440,
+          "sha256": "52d75c64202890508e1776bd4eee335616b6802c03e1a144fe3c124ab960e838"
+        },
+        {
+          "first_line": 600,
+          "last_line": 610,
+          "sha256": "496fe9883f5ba57c1498a2e21f7b1ae0213e029d8811c51aec473fbd8d2b3034"
+        },
+        {
+          "first_line": 720,
+          "last_line": 770,
+          "sha256": "e8ee0bb329b8e405d1aec16da1f12591051047d630c4f713da9a12e043f4c5c7"
+        }
+      ],
+      "observation": "MGLEVEL zero still executes PreSmoothing, preprocess/copy/timestep/space/time",
+      "evidence_level": "BY READING; source identity checked, no new semantic proof"
+    },
+    {
+      "id": "space_time_order",
+      "path": "SU2_CFD/src/integration/CIntegration.cpp",
+      "revision": "d162016382f0c122433000c114e88d808b48f7a7",
+      "file_sha256": "b00c94749cc04fbefcf4f780316a94e76b619f600f0fd07c161132bc67b1e755",
+      "git_blob": "95c84e45c151bc302e7b70fa6a5792f5c94f7900",
+      "spans": [
+        {
+          "first_line": 38,
+          "last_line": 104,
+          "sha256": "6b9a06683093936d2168ce535c041aab7ef3c2f845dae90c9681278b353d6c95"
+        },
+        {
+          "first_line": 137,
+          "last_line": 142,
+          "sha256": "6bc1af2fd682a97bd09380215b215609c6291d8e8b7cd14ae25604b9c646d1a3"
+        },
+        {
+          "first_line": 181,
+          "last_line": 221,
+          "sha256": "db6005720afcd92b6f0ff3668fd35832c210ccc0790694f2385116470d0102f6"
+        }
+      ],
+      "observation": "Interior/source calls, far-field pass, final wall pass, explicit dispatch",
+      "evidence_level": "BY READING; source identity checked, no new semantic proof"
+    },
+    {
+      "id": "wall_and_cache",
+      "path": "SU2_CFD/include/solvers/CFVMFlowSolverBase.inl",
+      "revision": "d162016382f0c122433000c114e88d808b48f7a7",
+      "file_sha256": "ef228099073057584c196405b674ff8dbf246a3fa325e636e36eff2a423c4e68",
+      "git_blob": "9f1637b2b7819c4d4340f3e4aae13d887a00ebd1",
+      "spans": [
+        {
+          "first_line": 78,
+          "last_line": 109,
+          "sha256": "2a10ce1bef88d4d451131af9c77a7f9853856fc3dc93a0a28f2362d8e5d47ef1"
+        },
+        {
+          "first_line": 1150,
+          "last_line": 1186,
+          "sha256": "b83c68246f889e56aa6b1bfe9b08991e0fddb91e33f4b1222ec11a4a6578764c"
+        },
+        {
+          "first_line": 1238,
+          "last_line": 1276,
+          "sha256": "5bab9aa7207588e31304be714b337c5bd7ac2936e9d5f8275d363b6209d5064c"
+        },
+        {
+          "first_line": 1305,
+          "last_line": 1318,
+          "sha256": "2a7e9ce3ffc45b2eac9f1c22fd601cf811be8c20fc39914e644a2506cf87dbcc"
+        }
+      ],
+      "observation": "Cache allocation, ownership, normal choice, old/residual/truncation writes",
+      "evidence_level": "BY READING; source identity checked, no new semantic proof"
+    },
+    {
+      "id": "flow_storage_and_update",
+      "path": "SU2_CFD/include/solvers/CFVMFlowSolverBase.hpp",
+      "revision": "d162016382f0c122433000c114e88d808b48f7a7",
+      "file_sha256": "496938310d2c746ad0e31222d23fd9478ab98ced6795f76c8c7ff85aa3f2d063",
+      "git_blob": "e0c24506a5e5ca67e2b5cc6cd7d2d23770d28c80",
+      "spans": [
+        {
+          "first_line": 182,
+          "last_line": 186,
+          "sha256": "225c60e655824f4bc4c6025dde7bb7b54364a683dfbc6b8fce24d74cbf0e8ef0"
+        },
+        {
+          "first_line": 207,
+          "last_line": 216,
+          "sha256": "7e0a5ad7b825ebb05780d4fb953b5712111553b9fff69416b33c14b0cf050e0f"
+        },
+        {
+          "first_line": 853,
+          "last_line": 954,
+          "sha256": "596ecd5caffe1609a4d8f05658362a036d429cc5d83d777faf3a6363fc468e86"
+        },
+        {
+          "first_line": 1154,
+          "last_line": 1158,
+          "sha256": "527e4f3afd4e8ee4753ae52b7bf4b3cf8ebbc123bde7145ac96abc497d441aa0"
+        },
+        {
+          "first_line": 2132,
+          "last_line": 2134,
+          "sha256": "a57e68a2099f015e50664f4532b5239a36e6f782751c7d847aa3bcdbf418ed4d"
+        }
+      ],
+      "observation": "Storage types, no-OMP reducer false, explicit loop, wall forwarding, cache pointer",
+      "evidence_level": "BY READING; source identity checked, no new semantic proof"
+    },
+    {
+      "id": "euler_source",
+      "path": "SU2_CFD/src/solvers/CEulerSolver.cpp",
+      "revision": "d162016382f0c122433000c114e88d808b48f7a7",
+      "file_sha256": "a02047d187aeb4dcd5dffadbce9c21243ace41df79f806e58091b99b3465dc20",
+      "git_blob": "8380bfdf60dfaddaab8f29e3c07fec0c9f3c39f0",
+      "spans": [
+        {
+          "first_line": 115,
+          "last_line": 125,
+          "sha256": "ec5cb14a557dd90d5ebe434faddb739ea17e8938c64aa146bd85fcdecaf94e07"
+        },
+        {
+          "first_line": 1626,
+          "last_line": 1632,
+          "sha256": "8456ec6cbd6de910be55994131d319bcb8c17455acaad1fe10aeff2574f7607a"
+        },
+        {
+          "first_line": 1685,
+          "last_line": 1693,
+          "sha256": "9576d79f287c419a63155a18b4363f6d78fbaaa4cc33ed6c629122987f3ae0cc"
+        },
+        {
+          "first_line": 1730,
+          "last_line": 1756,
+          "sha256": "d0884a230e152aac9135e8d79674f52499c44e01e907ecaa4b588af7041f3aa0"
+        },
+        {
+          "first_line": 2512,
+          "last_line": 2516,
+          "sha256": "2bf51711716a3dd8752725fa8c453f5a07737eb7320461f2cb7bf5ce3c3a0314"
+        },
+        {
+          "first_line": 5026,
+          "last_line": 5052,
+          "sha256": "a4f8450f655734c6155e430002a37e3948e6a11b8c82300131bfe8dfdde9108f"
+        },
+        {
+          "first_line": 5180,
+          "last_line": 5215,
+          "sha256": "cc94b1099eae7398469d5944d0217a12f87e2c927d4728d2dc802e73c35dda9f"
+        }
+      ],
+      "observation": "Primitive stride, residual zeroing, primitive preprocessing, actual explicit method, far-field loads/cache stores/AddBlock",
+      "evidence_level": "BY READING; source identity checked, no new semantic proof"
+    },
+    {
+      "id": "old_buffer",
+      "path": "SU2_CFD/src/variables/CVariable.cpp",
+      "revision": "d162016382f0c122433000c114e88d808b48f7a7",
+      "file_sha256": "ecc1128dbdfeaa3e0862fe117a0d548355a418706a717139afbdd66fe3c72c5c",
+      "git_blob": "2bfa324574d5aa3c1e4e8bac904c182b983f9a54",
+      "spans": [
+        {
+          "first_line": 65,
+          "last_line": 80,
+          "sha256": "8009d2c07855dbac66bb585d5db8b72865fa3c645e8684b057ae5623b0d30100"
+        },
+        {
+          "first_line": 104,
+          "last_line": 107,
+          "sha256": "e5a6984e3c6b95ccaf668c23a6890b6574f6250b941e41719b63c99dece5daab"
+        }
+      ],
+      "observation": "Distinct matrix allocation and old copy",
+      "evidence_level": "BY READING; source identity checked, no new semantic proof"
+    },
+    {
+      "id": "old_pointer_truncation",
+      "path": "SU2_CFD/include/variables/CVariable.hpp",
+      "revision": "d162016382f0c122433000c114e88d808b48f7a7",
+      "file_sha256": "5b137ccdd34c14816ea0bde9993690c49da7ad925b6dda166afe873b4264f40b",
+      "git_blob": "377a0c8188817dd230049e5cb5019b0e23670d4d",
+      "spans": [
+        {
+          "first_line": 544,
+          "last_line": 544,
+          "sha256": "abbf8e55bd8722b2f876e40340aea3fa817fdd46b756c14f03ca0edf19da2a9b"
+        },
+        {
+          "first_line": 759,
+          "last_line": 759,
+          "sha256": "ef5fa2fe0820fbc723e3b99094c2f1ee6a6e2d2b9fc35ce06611375f9cf0edc3"
+        }
+      ],
+      "observation": "Old and truncation row pointers",
+      "evidence_level": "BY READING; source identity checked, no new semantic proof"
+    },
+    {
+      "id": "variable_initialization",
+      "path": "SU2_CFD/src/variables/CFlowVariable.cpp",
+      "revision": "d162016382f0c122433000c114e88d808b48f7a7",
+      "file_sha256": "3eafc3870ba1dd08fc3ca18734e06f612f8baf8e0678bd005a74716cdd04d0ac",
+      "git_blob": "579265c39abc2d1ac92886bf526b438121f515ce",
+      "spans": [
+        {
+          "first_line": 30,
+          "last_line": 52,
+          "sha256": "7f8069983f91faef30309717a72d31f812384c794a1e75d6101f934fc11efc54"
+        },
+        {
+          "first_line": 79,
+          "last_line": 86,
+          "sha256": "14285ce528c2399d43b2488e6023e91bb336b0a30aec5f25b28189824f1ef57b"
+        }
+      ],
+      "observation": "Truncation, primitive, timestep and CFL storage initialization",
+      "evidence_level": "BY READING; source identity checked, no new semantic proof"
+    },
+    {
+      "id": "primitive_pointer",
+      "path": "SU2_CFD/include/variables/CFlowVariable.hpp",
+      "revision": "d162016382f0c122433000c114e88d808b48f7a7",
+      "file_sha256": "0e6d113b3d5f9d15ca2f677aa21137cafdfb2167509ceedf5467ebada06e7bbe",
+      "git_blob": "945e6cab24f899dd07c4ff0877b97fdc83397bef",
+      "spans": [
+        {
+          "first_line": 95,
+          "last_line": 105,
+          "sha256": "d2481a746d4369d6910a6e0420fd0f09b1f57b6b369c0d8c1132d4125c4142e1"
+        }
+      ],
+      "observation": "Primitive matrix scalar and row reads",
+      "evidence_level": "BY READING; source identity checked, no new semantic proof"
+    },
+    {
+      "id": "primitive_fallback",
+      "path": "SU2_CFD/src/variables/CEulerVariable.cpp",
+      "revision": "d162016382f0c122433000c114e88d808b48f7a7",
+      "file_sha256": "9ab7e8aa43e362782a1d9249a89d2f233df70259d7927b8d0e00b9bd89d12034",
+      "git_blob": "7bc13eb675c037238f59c22141d9bda1d3198f08",
+      "spans": [
+        {
+          "first_line": 112,
+          "last_line": 164,
+          "sha256": "5126d4c84e0ed7dad4c3d03722d5b0f71a7ea5d675131bfe433ec55f1393b7b6"
+        }
+      ],
+      "observation": "Invalid-state fallback writes current from old before recomputing primitives",
+      "evidence_level": "BY READING; source identity checked, no new semantic proof"
+    },
+    {
+      "id": "residual_block",
+      "path": "Common/include/linear_algebra/CSysVector.hpp",
+      "revision": "d162016382f0c122433000c114e88d808b48f7a7",
+      "file_sha256": "eb73b0ee97814e549c457dbab32060cbfbe69f60202874839aa08825aaea475f",
+      "git_blob": "1371156899a48bfb682a664174496d8af8e7dcff",
+      "spans": [
+        {
+          "first_line": 600,
+          "last_line": 601,
+          "sha256": "d2e2784c8abba9758f10e3c2147320cfdddac37d5694a263d66fcf16f015727c"
+        },
+        {
+          "first_line": 617,
+          "last_line": 633,
+          "sha256": "240b09c28ba4a3a636bf9cfbcef042608339e1a3667968d642595cbf18d2699b"
+        }
+      ],
+      "observation": "Four-component residual AddBlock -> SetBlock<false>",
+      "evidence_level": "BY READING; source identity checked, no new semantic proof"
+    },
+    {
+      "id": "cache_allocation",
+      "path": "Common/include/containers/container_decorators.hpp",
+      "revision": "d162016382f0c122433000c114e88d808b48f7a7",
+      "file_sha256": "a4816b7d922eee85397db24263ab31613791bb92298aaa141883c8ebabe9de1e",
+      "git_blob": "a80b1f71ad64d142198a2e8c4b8ff80316891905",
+      "spans": [
+        {
+          "first_line": 302,
+          "last_line": 318,
+          "sha256": "0e04e1bc0a1ec3310b74e1636c66999194472d0cbecfb7af4284511507c995ad"
+        }
+      ],
+      "observation": "Per-marker matrix allocation and zero initialization",
+      "evidence_level": "BY READING; source identity checked, no new semantic proof"
+    },
+    {
+      "id": "row_major_layout",
+      "path": "Common/include/containers/C2DContainer.hpp",
+      "revision": "d162016382f0c122433000c114e88d808b48f7a7",
+      "file_sha256": "86c1173fe5dabddb258b50263344fafcfb078aa325d17028ba63df6d35394fe2",
+      "git_blob": "680629136d53ae3c573f15cd8586de74e36f0ecd",
+      "spans": [
+        {
+          "first_line": 164,
+          "last_line": 190,
+          "sha256": "0dc1effb07c0893597c8004aebe3e83cc5c403636bbfbb516be3ddc1f6384b93"
+        },
+        {
+          "first_line": 624,
+          "last_line": 630,
+          "sha256": "5aa6160d6a916417bf4bac92528a0b5fe0905b9a9f47a7a06fb1ea59cd46beea"
+        }
+      ],
+      "observation": "Row-major pointer stride and su2activematrix alias",
+      "evidence_level": "BY READING; source identity checked, no new semantic proof"
+    },
+    {
+      "id": "geometry_initialization",
+      "path": "Common/src/geometry/dual_grid/CPoint.cpp",
+      "revision": "d162016382f0c122433000c114e88d808b48f7a7",
+      "file_sha256": "5159aefe645ff75daa7d871715949b9390e73f5d7b29e93c9e89bef84c4b5a03",
+      "git_blob": "96d202ef513f2677f838d28ee723c5e355da2fc9",
+      "spans": [
+        {
+          "first_line": 52,
+          "last_line": 60,
+          "sha256": "069c93d53c5448f5130709f51f929f3dd7a4e3b776b7d0d44f8d9d5471dc0335"
+        }
+      ],
+      "observation": "Volume and periodic-volume zero initialization",
+      "evidence_level": "BY READING; source identity checked, no new semantic proof"
+    },
+    {
+      "id": "numerics_borrowed_views",
+      "path": "SU2_CFD/include/numerics/CNumerics.hpp",
+      "revision": "d162016382f0c122433000c114e88d808b48f7a7",
+      "file_sha256": "9a6ff6facf1f4a26e421754230a8977ba53bd5eca6a04eb381dfd27ae14988b5",
+      "git_blob": "1b22ed12a63d614a92988752c2cb60e6481d93a3",
+      "spans": [
+        {
+          "first_line": 213,
+          "last_line": 238,
+          "sha256": "8d5ca7315ff7ce0053bb1351d1541b912cc47f6f2760cfc3481f5732e665c587"
+        },
+        {
+          "first_line": 303,
+          "last_line": 306,
+          "sha256": "704b9e856d380b0a5d3e7ba1235b2662a7868a7a7462653ea4e51fec0ca206b1"
+        },
+        {
+          "first_line": 1100,
+          "last_line": 1100,
+          "sha256": "e21f035b6babaff13cc0a35e7c0aed66f5886ad85c2f874619524ef25098eeb1"
+        }
+      ],
+      "observation": "Residual view and borrowed primitive/normal pointers",
+      "evidence_level": "BY READING; source identity checked, no new semantic proof"
+    },
+    {
+      "id": "scalar_boundary_reads",
+      "path": "SU2_CFD/src/numerics/flow/convection/roe.cpp",
+      "revision": "d162016382f0c122433000c114e88d808b48f7a7",
+      "file_sha256": "c559dc9a76ee10e607917a42aba810ddaac0b3897277ac974723e4e9f4d20f22",
+      "git_blob": "9021393b3897fed3a89ad3af72f5b50c50fb79e6",
+      "spans": [
+        {
+          "first_line": 95,
+          "last_line": 165,
+          "sha256": "6e88f563e839b9809cc1ca91fadbd538d3228ea9f53b4e1536700b0291e4f619"
+        }
+      ],
+      "observation": "Scalar Roe input reads and early zero flux branch; scratch writes are outside persistent-buffer model",
+      "evidence_level": "BY READING; source identity checked, no new semantic proof"
+    }
+  ]
+}
