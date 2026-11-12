@@ -842,3 +842,11 @@ current sensor; a cache keyed only bynodeID/coordinate is insufficient. Require 
 samples/edges and comparable work/cost, successful/clean control, stale-state/resource
 refusal. Bulk context must not silently introduce/remove support at seams/features/
 competingwalls. This is a diagnostic hypothesis; no batching/cache/operator change yet.
+
+Scope correction during frozen428fullW:427original-P1 field is a CONTROL on evolved
+geometry, not actualproductionfield. CavityMetricSource ImportMetricSamples→ImportCells
+uses current transported nodal rows/topology. Originaldonors bootstrap only. Earlier
+next-control instructions to keep originalP1 duringW were incorrect.428actualprefix
+runs the correctproductionpath and savedpayloads are byte-identical, so qualification
+there is unaffected. Align isolateddiagnostic with same current-cavity import after
+fullW terminal. No production change, frozenrun stop or nodal-authority replacement.

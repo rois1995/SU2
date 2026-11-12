@@ -3,6 +3,17 @@
 Current source/build/handles in [handoff](../HANDOFF_Codex.md). This stays within
 the active stage3 curved-BL cycle. No new target, geometryrepresentation or scheduler.
 
+## Scope clarification during frozen428integration
+
+427uses original-P1 CONTROL field on evolved421geometry; it is not the production
+currentfield. CavityMetricSource::ImportMetricSamples delegates to current nodal
+ImportCells; originaldonors bootstrap only. Do NOT freeze originalP1 as production
+authority or change nodal transport.427proves control-field equality/work.428actual
+same64prefix runs the real currentfield and keeps all saved outputs byte-identical;
+that is authoritative production validation. After current frozenfullW terminal,
+align the isolated probe to the same current-cavity imports for faithful reuse.
+No production/source edit or interruption is justified by this diagnostic limitation.
+
 ## Missing capability and evidence
 
 Private measurement calls MeasureSurfacePlanning once per cell despite already
@@ -52,3 +63,9 @@ metric11.401→4.093s, nativewall29.159→22.711s, CPU28.778→22.306s.
 R/surface_batch428_comparison.json. Substantialstagework saving; surface readiness
 and complete workflow remain outstanding. Return to full same-target W under original
 budgets; no further optimization selected before its outcome.
+
+Full428integration outcome:389.594s budgetexit,647collapses/0splits,12352cachedcells
+(421:349/5680). Surface_prepared=false,289194cells unmeasured, allq/Junknown.
+Work efficiency improvement is real; required surface output still absent. Current
+initialcoarsening/census progression is nextcapability blocker; no further local
+optimization or newoperator from timings alone. R/surface_stage428_assessment.json.

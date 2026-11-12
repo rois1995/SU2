@@ -11,7 +11,29 @@ retains all failures, prior handles, normalization and rejected alternatives. Th
 
 ## Current frozen workload and provenance
 
-NO owned heavy workload.428batch planning QUALIFIED: allbuild/check/prefix pins and
+NO owned heavy workload.428fullW TERMINAL/PASS491.507s as diagnostic, NOT readiness.
+All pins and actual PID/start identities terminal. Case
+R/cases/curved428_checkpoint_surface_20261112T064413_336601;
+R/surface_stage428_assessment.json. Native389.594s at388.8limit,3650work/647collapses,
+0splits/0completedpasses.60683points/301546positive tets/transportedcore present.
+Census12352measured/289194unknown/cacheconsistent;98knowngeometrybad/1sizebad are
+PARTIAL, allq/Junknown. No firstrow/growth. Prior421349commits/5680cached atsametime;
+progress improved but no complete requiredsurface output. Metric107.622s,reconstruct
+105.631s,seed48.536s,other71.488s; upper77.127s/guidance68.535s overlap. Collision6s/
+9builds notdominant. SampledindividualRSS3.687GB notwholepeak; admission11.257GB<12GiB.
+Next blocker is initialcoarsening/census before refinement, not proven missingoperators.
+Do not raisebudgets, skipconstraints or launch another microoptimization. After aligning
+cavityprobe to currentnodal authority, test existing operators on actual residuals;
+assess existing nativeMPI surface-stage capacity before selecting ordering changes.
+
+ONE latest inspection artifact saved: case/inspection/rejected_surface428_nodal_witness.vtu
+(37.693MB/60683points/301546tets), script/README/manifest alongside. ALLcoords/cores match
+396pointwise; relevantpolicy/source/profileprovenance verified. ComposedNODALWITNESS is
+visualization, not arbitrarypoint/current-field certificate. q/J/geometry NaN+known0.
+Serializedarrays/topology/SPDtensors checked; VTK/pvpython unavailable, no reader/render
+validation. VTU local/hashtracked; do not generate pertrial VTUs. Complete failed native
+owned/donor/parameter payloads retained, not a successful stagecheckpoint.
+428batch planning QUALIFIED and PUSHED55a3ec818d: allbuild/check/prefix pins and
 actual handles terminal. Production CFD34901d2b7c0ad64653c1d54b8d9b61c8c9db3683b8f1079d511cccd66ac769b8,
 test79ca00a01391811b2594b579ef307c769c9d1081df1e81e2ebf0ff27bcb2c4c5.
 Build66.129s; serial35cases9053assertions PASS9.409s; ONE MPI6PASS7.589s everyrank.
@@ -19,9 +41,9 @@ Actual64prefix owned/donor/parameters BYTEIDENTICAL423/same23commits. Requests34
 metric11.401→4.093s, nativewall29.159→22.711s/CPU28.778→22.306s. Substantial−49%work/
 −22%stagecost, notwholeworkflow speedup. R/surface_batch428_comparison.json.
 [Design/acceptance](Handbook/ADAPTATION_SURFACE_PLANNING_BATCH_20261112.md).
-NEXT is complete same396target W integration under unchanged388.8s/native5400s/12GiB,
+RUNNING complete same396target W integration under unchanged388.8s/native5400s/12GiB,
 launcher R/check_checkpoint_surface428.py. No moreoptimization before outcome. Preserve
-any new frozen handles. No newcache/import/scheduler/config, freshcoordinates/associations,
+current frozen handles. No newcache/import/scheduler/config, freshcoordinates/associations,
 strict finalgates, genericfulltarget paths and empty-rank votes unchanged.
 427build PASS216.195s; actualdiagnosticPASS136.228s/allpins/actualhandles terminal.
 Allfouractualcontexts exactsample/edgeagreement; repeatedwallguidance40→10, LE48→11,
@@ -65,9 +87,16 @@ collision small in prefix. Dedicated nativeMPI BL construction remains unqualifi
 source-authority check; exact fixture archived.425uses existing geometryfactory +
 PrepareReference, no CFD solve/guard relaxation.3DM6 d.segments is empty (2D-only).
 
+IMPORTANT scope correction while428fullW frozen:427isolated probe uses original-P1
+CONTROL field, not production currentfield. CavityMetricSource::ImportMetricSamples
+uses transported current nodal rows/topology; originaldonors bootstrap only.428actual
+64prefix uses that real production path and remains byte-identical, authoritative
+validation. FullW is now terminal; align isolated probe with current-cavity imports and loaded
+Owned.sensor, not old-donor rebootstrap. No production authority change. Do not freeze originalP1 production authority.
+
 427diagnostic loads complete421currentOwned/originalDonors/parameter payload against
-prepared immutable authority plus complete396policy. Original P1 donor field stays
-original (do not interpolate it anew on coarsened cells). Compare cellwise vs wholepatch
+prepared immutable authority plus complete396policy. Original P1 in this probe is a CONTROL only; production uses transported current
+nodal field. Compare cellwise vs wholepatch
 planning in ABBAorder, exact edge/tensor/normal/strip values and work/timing. Contexts:
 complete10cellstar remove21292 (recorded exactorientation refusal retain21543, witness
 102519), unchanged wallcontrol, interiorcontrol. No application or mesh acceptance.

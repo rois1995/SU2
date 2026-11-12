@@ -1,0 +1,66 @@
+NATIVE3D_REFERENCE_CACHE host_ranks=1 host_quota_bytes=4294967296 rank_quota_bytes=4294967296
+Filters: [NativeActualBLSurfaceCavity3D]
+Three dimensional problem.
+61330 grid points.
+303359 volume elements.
+3 surface markers.
+2060 boundary elements in index 0 (Marker = FARFIELD).
+8094 boundary elements in index 1 (Marker = SYMMETRY).
+38800 boundary elements in index 2 (Marker = WING3D).
+303359 tetrahedra.
+Setting point connectivity.
+Renumbering points (Reverse Cuthill McKee Ordering).
+Recomputing point connectivity.
+Setting element connectivity.
+Checking the numerical grid orientation.
+All volume elements are correctly oriented.
+All surface elements are correctly oriented.
+Identifying edges and vertices.
+Setting the control volume structure.
+Volume of the computational grid: 2.08846e+06.
+Searching for the closest normal neighbors to the surfaces.
+Storing a mapping from global to local point index.
+Compute the surface curvature.
+Max K: 72103.8. Mean K: 541.635. Standard deviation K: 3508.42.
+Computing mesh quality statistics for the dual control volumes.
++--------------------------------------------------------------+
+|           Mesh Quality Metric|        Minimum|        Maximum|
++--------------------------------------------------------------+
+|    Orthogonality Angle (deg.)|        6.83474|        84.2921|
+|     CV Face Area Aspect Ratio|        1.05639|        157.983|
+|           CV Sub-Volume Ratio|        1.00915|        1864.59|
+|                     CV Volume|    4.23004e-13|        1347.01|
++--------------------------------------------------------------+
+Finding max control volume width.
+NATIVE3D_STAGE stage=cfd_geometry_return rank=0 ranks=1 time_iter=0 total=3.8358627679999993 other=1.9039999994419077e-06 cpu=3.8356849999999998 cpu_other=2.0000000002795559e-06 process_peak_rss=437944320 partition=4.917000000048688e-06 partition_cpu=3.9999999999999998e-06 migration=1.1854068250000003 migration_cpu=1.1853309999999999 preprocess=2.6504491219999995 preprocess_cpu=2.6503479999999997
+CFD geometry seconds partition/migration/preprocess (maximum across ranks): 2.837e-06 1.18541 2.65047
+Native3D curved mobility: protected_edges=674 corners=2 fixed_points=2 curve_points=671 surface_points=23806 setup_work=181938600
+NATIVE3D_STORAGE rank=0 stage=exit authority_plus_memo_bytes=53184784 prepared_reserved_bytes=3204054800 facet_live_bytes=290871248 scope_live_bytes=1216662752 private_cells_bytes=135092608 selection_bytes=54608472 directory_bytes=365600752 metric_source_bytes=332482208 parameter_bytes=47512936 caller_reservation_bytes=5405796160 native_peak_bytes=11257032440
+NATIVE3D_STAGE rank=0 stage=exit phase=construction cells=301546 measured=12352 cache_consistent=1 census_complete=0 shape_complete=0 geometry_complete=0 q_measured=0 j_measured=0 q_bad=0 j_bad=0 size_bad=1 geometry_bad=98 q_debt=0 j_debt=0 size_debt=0.17752876765711713 geometry_debt=1.2880170118922561e-05 associations=23832 working_faces=47660 face_pieces=0 trace_pieces=674 maximum_ratio_limbs=1 atlas_work=31704659 atlas_bytes=10038647020 global_work=3650 rounds=3650 batch_rounds=0 batch_candidates=0 batch_reserved=0 quality_progress=0 accepted=647 updated_cells=4779 update_seconds=41.393021429000022 geometry_trials=2361 geometry_rejected=1244 guidance_trials=1117 guidance_rejected=466 guidance_faces=7045 guidance_early_rejected=466 guidance_seconds=68.534994416000018 collective_calls=166997 collective_seconds=0.23241586999306207 election_calls=318413 election_seconds=0.029017118994005386 direct_calls=5067 direct_exceptions=0 direct_work=0 direct_seconds=0.39804551300000079 upper_calls=5793 union_exceptions=0 upper_refusals=569 upper_work=25266789 upper_seconds=77.126965977000054 full_calls=0 full_work=0 full_seconds=0 facet_hits=813490 facet_misses=37936 scope_hits=916 scope_misses=3225 scope_attempts=3225 scope_builds=3225 scope_build_work=504573 scope_build_seconds=9.7752392719999985 support_calls=5639 support_facets=1287657 support_seconds=0.81916238200000224 facet_build_work=826508 facet_build_seconds=30.277321370000159 piece_selection_work=1380918 piece_selection_seconds=0.36746392500000152 traversal_work=21699223 traversal_seconds=36.351113948999917 selected_pieces=385833 support_pieces=8083190 smooth_boundary_stars=0 smooth_boundary_reused=0 smooth_boundary_candidates=0 smooth_boundary_rejects=0,0,0,0 smooth_boundary_guidance=0 smooth_boundary_upper_queries=0 smooth_boundary_move_contexts=0 smooth_boundary_prepared_trials=0 smooth_boundary_guidance_reused_faces=0 smooth_boundary_guidance_faces=0 smooth_boundary_guidance_early_rejected=0 smooth_boundary_moves=0 smooth_boundary_debt_reduction=0 smooth_boundary_seconds=0 smooth_interior_stars=0 smooth_interior_reused=0 smooth_interior_candidates=0 smooth_interior_rejects=0,0,0,0 smooth_interior_guidance=0 smooth_interior_upper_queries=0 smooth_interior_moves=0 smooth_interior_debt_reduction=0 smooth_interior_seconds=0 retention_refusals=0 prepared_bytes=1507534000 prepared_limit=3204054800 facet_bytes=290871248 scope_bytes=1216662752 facet_entries=37936 scope_entries=257189 cache_evictions=0 cache_evicted_bytes=0 memo_direct_hits=672 memo_direct_misses=4395 memo_union_hits=1652 memo_union_misses=4141 memo_stores=8536 memo_evictions=6291 memo_evicted_bytes=5359256 memo_retention_refusals=0 memo_maintenance_work=1931231 memo_bytes=4193832 memo_limit=4194304 memo_direct_entries=448 memo_union_entries=1797 length_splits=0 length_collapses=647 split_passes=0 collapse_passes=0 quality_stages=0 split_generation=0 split_lane=0 surface_rounds=0 interior_rounds=0 surface_seconds=0 interior_seconds=0 surface_conflicts=0 interior_conflicts=0 interior_boundary_discoveries=0 unique_long_surface=0 unique_long_interior=0 unique_edge_debt=0 maximum_edge=0 edge_census_round=18446744073709551615 edge_census_current=0 edge_histogram=0,0,0 child_parent_max=0 child_ratio_measured=0 elapsed=388.86407465500002
+485.856 s: Actual curved BL surface cavities preserve complete dependencies
+===============================================================================
+All tests passed (8376217 assertions in 1 test case)
+
+	Command being timed: "timeout 600 /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver [NativeActualBLSurfaceCavity3D] --durations yes"
+	User time (seconds): 483.24
+	System time (seconds): 2.43
+	Percent of CPU this job got: 99%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 8:06.33
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 3605872
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 0
+	Minor (reclaiming a frame) page faults: 1843670
+	Voluntary context switches: 1171
+	Involuntary context switches: 14503
+	Swaps: 0
+	File system inputs: 0
+	File system outputs: 458600
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0

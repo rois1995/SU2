@@ -1250,3 +1250,32 @@ unchanged decisions/output. Wholewrapper126.348s includes setup/capture; not a22
 wholeworkflow speedup. Nestedtimers overlap. No newcache, donorimport, collective,
 accuracysetting, budget or acceptance shortcut. Fullsurface integration justified
 under unchanged388.8s to assess readiness/progress, not another optimization cycle.
+
+427scope clarification: its globaloriginalP1 field is a CONTROL, not production
+currentfield. CavityMetricSource uses transportedcurrentnodal rows/topology duringW.
+Primitive427timings cannot be production timings; actual42864prefix already measures
+the correct path and exactpayloadagreement. FullW remains frozen. Align isolated
+probe after terminal; no production authority change or stop.
+
+##428complete surface integration — faster work, readiness still absent
+
+Same complete396policy and saved CFD, original388.8s stage/native5400s/12GiB budgets.
+Wrapper491.507s; native389.594s (recordednativeCPU388.952s), timeout during metricupdate.
+3650work/647collapses/0splits/0completedpasses versus4211390work/349collapses.
+60683points/301546positive tets withcore present. Geometrycached12352/unknown289194
+versus4215680cached.98knowngeometrybad/1sizebad are partial; ALLq/Junknown. No fullfield
+quality/debt removal rate is established. Do not describe it as accepted or shape-clean.
+
+Metric107.622s,reconstruction105.631s,seed48.536s,other71.488s,publication1.615s,
+selection1.246s,collision6.005s/9builds/337484checks. MeasurementCPU89.679s is nested.
+Upper77.127s/guidance68.535s overlap; facetbuild30.277s/scope9.775s/traversal36.351s
+nested.31704659geometrywork,60204fieldrequests,64548edgeevaluations,0fullcompositions.
+Trackedcollective.232s is partial, native1. SampledindividualRSS3686944768B notwholepeak;
+ledger11257032440B<12GiB, no observedpressure. Same stage cannot reach refinement
+because initialcoarsening generation and completecensus are not exhausted.
+
+R/surface_stage428_assessment.json plus full failed state and one inspectionVTU.
+Qualifiedprefixwork saving remains valid, but capability bottleneck is stillsurface
+construction progression. Align controlprobe with current CavityMetricSource before
+actualrefinement/operator tests; evaluate existingMPIcapacity before policy changes.
+No newlimits/scheduler/operator/geometrytarget selected from this alone.

@@ -7,22 +7,30 @@ Use the [stage integration cadence](Handbook/ADAPTATION_CURVED_BL_STAGE_INTEGRAT
 and maintained [timing/work ledger](Handbook/ADAPTATION_TIMINGS.md). Full retries are
 reserved for integration milestones or failures not reproducible at a stage boundary.
 
-## Current next step — coupled surface prerequisite
+## Current next step — surface construction progression
 
-Read the current handoff before historical sections below. Complete396target fidelity
-is qualified;421now replays production PrepareSurface from that saved target. It
-exhausts388.8s with349collapses, no splits and incomplete census: surface readiness
-not established. Preserve full positive provisional capture and complete external
-policy; it is not a successful checkpoint. Diagnose the initial coarsening/census
-work before another full workflow or first-row campaign. Bounded422prefix exported
-existing phase timers: metric13.299s dominates31.188s. Qualified423removes old-patch
-measurement after an already refused surfacecollapse: exactoutputsame,10.2%fewerfield
-requests, singleprefixstage6.5%lowerwall. Pushed8a2b8779ea; not a majorwholestagespeedup
-or surface readiness. 425accounting-only probe rules out featureStorageBytes as meaningful remaining cost:
-2048fullcalls2.840ms/basecalls.041ms; no cache implemented. Next is saved actual
-complete-cavity planning control using421owned/originaldonors/currentparameters and
-complete396policy, exact sample/edge agreement and successful/clean control. No
-fullreplay or next-layer attempt from incomplete surface readiness.
+Read currenthandoff before historical sections.428batchplanning is qualified/pushed
+55a3ec818d: exact64prefix output bytes unchanged,49%fewerrequests/22%lowernativecost.
+Fullsame-target surface integration still fails388.8s:647collapses,0splits,12352cached/
+289194unknown. Better throughput has not produced credible surface readiness.
+
+Next align isolatedcavityprobe with transported CURRENT nodal CavityMetricSource;
+427original-P1 field is a control, not productionauthority.428actualprefix already
+uses realauthority and passesexactoutputs. Then test existing split/collapse/relocation/
+reconnection on representative currentresiduals and inspect initialcoarsening blocking
+required geometry/refinement. Assess existing nativeMPI surface-stage capacity before
+changing ordering. For a faithful cavity test, instantiate CavityMetricSource on the loaded current
+Owned map and use existing ImportMetricSamplesLocal/ImportCellsLocal with complete
+current-cavity rows; keep their sensor values. Do not bootstrap/reinterpolate from
+old original-P1 donors. Then use the SAME imported batch and existing FrozenField
+SurfacePlanning scope, current parameters and original full396policy.
+No newoperator/scheduler, raisedbudget, skippedcleanup or relaxedgate
+from this outcome alone. No firstrow/growth/fullworkflow from incomplete W.
+
+One latest full rejected mesh+core/composednodalwitness VTU is in full428case/inspection,
+linked byhandoff, with knownflags0/NaN q/J/geometry. Pointwisejoin verified; no VTKreader
+available. Nativefailedstate plus full396policy retained. This is not acceptedBL or
+a reusable successfulstage.
 
 ## Next stage2 output
 
