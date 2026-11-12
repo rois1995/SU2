@@ -1,0 +1,244 @@
+$ lake env lean -DwarningAsError=true /media/rausa/4TB/SU2_Versions/SU2_Lean_boundary_frozen_check/preserved/SU2Euler-types.lean
+SU2Euler.migrated_update_unchanged : Eq.{1} SU2Euler.Generated.update_originalCode SU2Source.Generated.originalProgram
+'SU2Euler.migrated_update_unchanged' depends on axioms: [propext]
+SU2Euler.migrated_refactor_unchanged :
+  Eq.{1} SU2Euler.Generated.update_refactoredCode SU2Source.Generated.refactoredProgram
+'SU2Euler.migrated_refactor_unchanged' depends on axioms: [propext]
+SU2Euler.scatter_source_ir :
+  Eq.{1} SU2Euler.Generated.scatter_originalCode { skipZero := true, left := SU2Euler.Op.add, right := SU2Euler.Op.sub }
+'SU2Euler.scatter_source_ir' depends on axioms: [propext]
+SU2Euler.scatter_refactor_ir : Eq.{1} SU2Euler.Generated.scatter_refactoredCode SU2Euler.Generated.scatter_originalCode
+'SU2Euler.scatter_refactor_ir' depends on axioms: [propext]
+SU2Euler.apply_source_ir : Eq.{1} SU2Euler.Generated.apply_originalCode SU2Euler.Op.add
+'SU2Euler.apply_source_ir' depends on axioms: [propext]
+SU2Euler.call_source_ir : Eq.{1} SU2Euler.Generated.call_originalCode true
+'SU2Euler.call_source_ir' depends on axioms: [propext]
+SU2Euler.scale_source_ir : Eq.{1} SU2Euler.Generated.scale_originalCode Unit.unit
+'SU2Euler.scale_source_ir' depends on axioms: [propext]
+SU2Euler.migrated_update_correct {α : Type} (ops : SU2Source.Operations α) (layout : SU2Source.Layout)
+  (args : SU2Source.Inputs α) (memory : SU2Source.Memory α) (dest source : SU2Source.Address) (x : α)
+  (hd : Eq.{1} (SU2Source.address layout args SU2Source.currentCell) (some.{0} dest))
+  (hs : Eq.{1} (SU2Source.address layout args SU2Source.oldCell) (some.{0} source))
+  (hx : Eq.{1} (memory source) (some.{0} x)) :
+  ∃ after,
+    And (Eq.{1} (SU2Source.execute ops layout args SU2Euler.Generated.update_originalCode memory) (some.{0} after))
+      (SU2Source.UpdateContract (SU2Source.Operations.add ops) memory after dest source x
+        (SU2Source.Inputs.increment args))
+'SU2Euler.migrated_update_correct' depends on axioms: [propext, Quot.sound]
+SU2Euler.migrated_refactor_equivalent {α : Type} (ops : SU2Source.Operations α) (layout : SU2Source.Layout)
+  (args : SU2Source.Inputs α) (memory : SU2Source.Memory α) :
+  Eq.{1} (SU2Source.execute ops layout args SU2Euler.Generated.update_refactoredCode memory)
+    (SU2Source.execute ops layout args SU2Euler.Generated.update_originalCode memory)
+'SU2Euler.migrated_refactor_equivalent' depends on axioms: [propext, Quot.sound]
+SU2Euler.scatter_lane_correct {N d : Nat} (R : SU2.Residual N d) (lane : SU2Euler.Lane N d) :
+  Eq.{1} (SU2Euler.scatterLane SU2Euler.Generated.scatter_originalCode R lane)
+    (ite.{1} (Eq.{1} lane.1 true) (SU2.scatter lane.2.1 lane.2.2 R) R)
+'SU2Euler.scatter_lane_correct' depends on axioms: [propext, Classical.choice, Quot.sound]
+SU2Euler.masked_assembly_correct {N d : Nat} (lanes : List.{0} (SU2Euler.Lane N d)) (R : SU2.Residual N d) :
+  Eq.{1} (SU2Euler.scatterLoop SU2Euler.Generated.scatter_originalCode lanes R)
+    (HAdd.hAdd.{0, 0, 0} R (SU2.assemble (SU2Euler.activeEvents lanes)))
+'SU2Euler.masked_assembly_correct' depends on axioms: [propext, Classical.choice, Quot.sound]
+SU2Euler.composed_step_correct {N d : Nat} (volumes : Fin N → SU2.ControlVolume d) (dt : Fin N → Real)
+  (old initial trunc : SU2.Residual N d) (lanes : List.{0} (SU2Euler.Lane N d))
+  (finish : SU2.Residual N d → SU2.Residual N d) :
+  Eq.{1}
+    (SU2Euler.runStep SU2Euler.Generated.scatter_originalCode SU2Euler.Generated.apply_originalCode
+      SU2Euler.Generated.call_originalCode volumes dt old initial trunc lanes finish)
+    (SU2Euler.stepSpec volumes dt old initial trunc (SU2Euler.activeEvents lanes) finish)
+'SU2Euler.composed_step_correct' depends on axioms: [propext, Classical.choice, Quot.sound]
+SU2Euler.local_balance {N d : Nat} (volumes : Fin N → SU2.ControlVolume d) (dt : Fin N → Real)
+  (old initial trunc : SU2.Residual N d) (events : List.{0} (SU2.Event N d))
+  (finish : SU2.Residual N d → SU2.Residual N d) (c : SU2.Channel d) :
+  Eq.{1}
+    (∑ i,
+      HMul.hMul.{0, 0, 0} (SU2.ControlVolume.measure (volumes i))
+        (SU2Euler.stepSpec volumes dt old initial trunc events finish i c))
+    (HSub.hSub.{0, 0, 0} (∑ i, HMul.hMul.{0, 0, 0} (SU2.ControlVolume.measure (volumes i)) (old i c))
+      (∑ i,
+        HMul.hMul.{0, 0, 0} (dt i)
+          (HAdd.hAdd.{0, 0, 0} (finish (HAdd.hAdd.{0, 0, 0} initial (SU2.assemble events)) i c) (trunc i c))))
+'SU2Euler.local_balance' depends on axioms: [propext, Classical.choice, Quot.sound]
+SU2Euler.uniform_interior_conservation {N d : Nat} (volumes : Fin N → SU2.ControlVolume d) (dt : Real)
+  (old : SU2.Residual N d) (lanes : List.{0} (SU2Euler.Lane N d)) (c : SU2.Channel d) :
+  Eq.{1}
+    (∑ i,
+      HMul.hMul.{0, 0, 0} (SU2.ControlVolume.measure (volumes i))
+        (SU2Euler.runStep SU2Euler.Generated.scatter_originalCode SU2Euler.Generated.apply_originalCode
+          SU2Euler.Generated.call_originalCode volumes (fun x => dt) old 0 0 lanes id.{1} i c))
+    (∑ i, HMul.hMul.{0, 0, 0} (SU2.ControlVolume.measure (volumes i)) (old i c))
+'SU2Euler.uniform_interior_conservation' depends on axioms: [propext, Classical.choice, Quot.sound]
+SU2Euler.component_bound {d : Nat} (c : SU2.Channel d) : LT.lt.{0} (SU2Euler.componentIndex c) (HAdd.hAdd.{0, 0, 0} d 2)
+'SU2Euler.component_bound' depends on axioms: [propext, Classical.choice, Quot.sound]
+SU2Euler.caller_addresses {N d : Nat} (i : Fin N) (c : SU2.Channel d) (increment : Real)
+  (size :
+    LE.le.{0} (HMul.hMul.{0, 0, 0} 8 (HMul.hMul.{0, 0, 0} N (HAdd.hAdd.{0, 0, 0} d 2))) (HPow.hPow.{0, 0, 0} 2 64)) :
+  And
+    (Eq.{1}
+      (SU2Source.address (SU2Euler.stateLayout N d)
+        { point := ↑i, component := SU2Euler.componentIndex c, increment := increment } SU2Source.currentCell)
+      (some.{0}
+        (Prod.mk.{0, 0} 0
+          (HAdd.hAdd.{0, 0, 0} (HMul.hMul.{0, 0, 0} (↑i) (HAdd.hAdd.{0, 0, 0} d 2)) (SU2Euler.componentIndex c)))))
+    (Eq.{1}
+      (SU2Source.address (SU2Euler.stateLayout N d)
+        { point := ↑i, component := SU2Euler.componentIndex c, increment := increment } SU2Source.oldCell)
+      (some.{0}
+        (Prod.mk.{0, 0} 1
+          (HAdd.hAdd.{0, 0, 0} (HMul.hMul.{0, 0, 0} (↑i) (HAdd.hAdd.{0, 0, 0} d 2)) (SU2Euler.componentIndex c)))))
+'SU2Euler.caller_addresses' depends on axioms: [propext, Classical.choice, Quot.sound]
+SU2Euler.composed_source_cell {N d : Nat} (volumes : Fin N → SU2.ControlVolume d) (dt : Fin N → Real)
+  (old initial trunc : SU2.Residual N d) (lanes : List.{0} (SU2Euler.Lane N d))
+  (finish : SU2.Residual N d → SU2.Residual N d) (i : Fin N) (c : SU2.Channel d) (memory : SU2Source.Memory Real)
+  (size :
+    LE.le.{0} (HMul.hMul.{0, 0, 0} 8 (HMul.hMul.{0, 0, 0} N (HAdd.hAdd.{0, 0, 0} d 2))) (HPow.hPow.{0, 0, 0} 2 64))
+  (initialized :
+    Eq.{1}
+      (memory
+        (Prod.mk.{0, 0} 1
+          (HAdd.hAdd.{0, 0, 0} (HMul.hMul.{0, 0, 0} (↑i) (HAdd.hAdd.{0, 0, 0} d 2)) (SU2Euler.componentIndex c))))
+      (some.{0} (old i c))) :
+  let R := finish (SU2Euler.scatterLoop SU2Euler.Generated.scatter_originalCode lanes initial);
+  let increment :=
+    HMul.hMul.{0, 0, 0} (Neg.neg.{0} (SU2Euler.opReal SU2Euler.Generated.apply_originalCode (R i c) (trunc i c)))
+      (HDiv.hDiv.{0, 0, 0} (dt i) (HAdd.hAdd.{0, 0, 0} (SU2.ControlVolume.measure (volumes i)) 0));
+  ∃ after,
+    And
+      (Eq.{1}
+        (SU2Source.execute SU2Source.realOperations (SU2Euler.stateLayout N d)
+          { point := ↑i, component := SU2Euler.componentIndex c, increment := increment }
+          SU2Euler.Generated.update_originalCode memory)
+        (some.{0} after))
+      (And
+        (Eq.{1}
+          (after
+            (Prod.mk.{0, 0} 0
+              (HAdd.hAdd.{0, 0, 0} (HMul.hMul.{0, 0, 0} (↑i) (HAdd.hAdd.{0, 0, 0} d 2)) (SU2Euler.componentIndex c))))
+          (some.{0} (SU2Euler.stepSpec volumes dt old initial trunc (SU2Euler.activeEvents lanes) finish i c)))
+        (∀ (other : Prod.{0, 0} Nat Nat),
+          Ne.{1} other
+              (Prod.mk.{0, 0} 0
+                (HAdd.hAdd.{0, 0, 0} (HMul.hMul.{0, 0, 0} (↑i) (HAdd.hAdd.{0, 0, 0} d 2))
+                  (SU2Euler.componentIndex c))) →
+            Eq.{1} (after other) (memory other)))
+'SU2Euler.composed_source_cell' depends on axioms: [propext, Classical.choice, Quot.sound]
+SU2Euler.positive_control :
+  SU2Euler.TestContract SU2Euler.Generated.scatter_originalCode SU2Euler.Generated.apply_originalCode
+    SU2Euler.Generated.call_originalCode
+'SU2Euler.positive_control' depends on axioms: [propext, Classical.choice, Quot.sound]
+SU2Euler.refactor_control :
+  SU2Euler.TestContract SU2Euler.Generated.scatter_refactoredCode SU2Euler.Generated.apply_originalCode
+    SU2Euler.Generated.call_originalCode
+'SU2Euler.refactor_control' depends on axioms: [propext, Classical.choice, Quot.sound]
+SU2Euler.wrong_sign_ir :
+  Eq.{1} SU2Euler.Generated.scatter_wrongSignCode
+    { skipZero := true, left := SU2Euler.Op.add, right := SU2Euler.Op.add }
+'SU2Euler.wrong_sign_ir' depends on axioms: [propext]
+SU2Euler.wrong_mask_ir :
+  Eq.{1} SU2Euler.Generated.scatter_wrongMaskCode
+    { skipZero := false, left := SU2Euler.Op.add, right := SU2Euler.Op.sub }
+'SU2Euler.wrong_mask_ir' depends on axioms: [propext]
+SU2Euler.wrong_trunc_ir : Eq.{1} SU2Euler.Generated.apply_subtractTruncCode SU2Euler.Op.sub
+'SU2Euler.wrong_trunc_ir' depends on axioms: [propext]
+SU2Euler.wrong_call_ir : Eq.{1} SU2Euler.Generated.call_wrongSignCode false
+'SU2Euler.wrong_call_ir' depends on axioms: [propext]
+SU2Euler.wrong_sign_rejected :
+  Not
+    (SU2Euler.TestContract SU2Euler.Generated.scatter_wrongSignCode SU2Euler.Generated.apply_originalCode
+      SU2Euler.Generated.call_originalCode)
+'SU2Euler.wrong_sign_rejected' depends on axioms: [propext, Classical.choice, Quot.sound]
+SU2Euler.wrong_mask_rejected :
+  Not
+    (SU2Euler.TestContract SU2Euler.Generated.scatter_wrongMaskCode SU2Euler.Generated.apply_originalCode
+      SU2Euler.Generated.call_originalCode)
+'SU2Euler.wrong_mask_rejected' depends on axioms: [propext, Classical.choice, Quot.sound]
+SU2Euler.wrong_trunc_rejected :
+  Not
+    (SU2Euler.TestContract SU2Euler.Generated.scatter_originalCode SU2Euler.Generated.apply_subtractTruncCode
+      SU2Euler.Generated.call_originalCode)
+'SU2Euler.wrong_trunc_rejected' depends on axioms: [propext, Classical.choice, Quot.sound]
+SU2Euler.wrong_call_rejected :
+  Not
+    (SU2Euler.TestContract SU2Euler.Generated.scatter_originalCode SU2Euler.Generated.apply_originalCode
+      SU2Euler.Generated.call_wrongSignCode)
+'SU2Euler.wrong_call_rejected' depends on axioms: [propext, Classical.choice, Quot.sound]
+SU2Euler.local_time_not_conservation :
+  Ne.{1}
+    (∑ i,
+      HMul.hMul.{0, 0, 0} (SU2.ControlVolume.measure (SU2Euler.testVolumes i))
+        (SU2Euler.runStep SU2Euler.Generated.scatter_originalCode SU2Euler.Generated.apply_originalCode
+          SU2Euler.Generated.call_originalCode SU2Euler.testVolumes (fun i => ite.{1} (Eq.{1} i 0) 1 2) SU2Euler.testOld
+          0 0 SU2Euler.testLanes id.{1} i SU2.Channel.mass))
+    (∑ i,
+      HMul.hMul.{0, 0, 0} (SU2.ControlVolume.measure (SU2Euler.testVolumes i)) (SU2Euler.testOld i SU2.Channel.mass))
+'SU2Euler.local_time_not_conservation' depends on axioms: [propext, Classical.choice, Quot.sound]
+SU2Euler.reject_extra_write :
+  Eq.{1}
+    (SU2Euler.parseScatter (HAppend.hAppend.{0, 0, 0} SU2Euler.Generated.scatter_originalSource " vec_val[0] = 0;"))
+    none.{0}
+'SU2Euler.reject_extra_write' depends on axioms: [propext]
+SU2Euler.reject_directive :
+  Eq.{1} (SU2Euler.parseScatter (HAppend.hAppend.{0, 0, 0} "#define BAD\n" SU2Euler.Generated.scatter_originalSource))
+    none.{0}
+'SU2Euler.reject_directive' depends on axioms: [propext]
+SU2Euler.reject_unclosed_comment : Eq.{1} (SU2Euler.lex "/* unfinished") none.{0}
+'SU2Euler.reject_unclosed_comment' depends on axioms: [propext]
+SU2Euler.reject_caller_branch :
+  Eq.{1} (SU2Euler.parseCall "case EULER_EXPLICIT: if(Res) nodes->AddSolution(iPoint,iVar,-Res*Delta); break;") none.{0}
+'SU2Euler.reject_caller_branch' depends on axioms: [propext]
+SU2Euler.migrated_subtract_rejected : Not (SU2Source.WitnessContract SU2Euler.Generated.update_subtractCode)
+'SU2Euler.migrated_subtract_rejected' depends on axioms: [propext, Quot.sound]
+SU2Euler.migrated_current_rejected : Not (SU2Source.WitnessContract SU2Euler.Generated.update_currentReadCode)
+'SU2Euler.migrated_current_rejected' depends on axioms: [propext, Quot.sound]
+SU2Euler.migrated_target_rejected : Not (SU2Source.WitnessContract SU2Euler.Generated.update_wrongTargetCode)
+'SU2Euler.migrated_target_rejected' depends on axioms: [propext, Classical.choice, Quot.sound]
+SU2Euler.Generated.update_original_parsed :
+  Eq.{1} (SU2Source.parse SU2Euler.Generated.update_originalSource) (some.{0} SU2Euler.Generated.update_originalCode)
+'SU2Euler.Generated.update_original_parsed' depends on axioms: [propext]
+SU2Euler.Generated.update_subtract_parsed :
+  Eq.{1} (SU2Source.parse SU2Euler.Generated.update_subtractSource) (some.{0} SU2Euler.Generated.update_subtractCode)
+'SU2Euler.Generated.update_subtract_parsed' depends on axioms: [propext]
+SU2Euler.Generated.update_currentRead_parsed :
+  Eq.{1} (SU2Source.parse SU2Euler.Generated.update_currentReadSource)
+    (some.{0} SU2Euler.Generated.update_currentReadCode)
+'SU2Euler.Generated.update_currentRead_parsed' depends on axioms: [propext]
+SU2Euler.Generated.update_wrongTarget_parsed :
+  Eq.{1} (SU2Source.parse SU2Euler.Generated.update_wrongTargetSource)
+    (some.{0} SU2Euler.Generated.update_wrongTargetCode)
+'SU2Euler.Generated.update_wrongTarget_parsed' depends on axioms: [propext]
+SU2Euler.Generated.update_refactored_parsed :
+  Eq.{1} (SU2Source.parse SU2Euler.Generated.update_refactoredSource)
+    (some.{0} SU2Euler.Generated.update_refactoredCode)
+'SU2Euler.Generated.update_refactored_parsed' depends on axioms: [propext]
+SU2Euler.Generated.scatter_original_parsed :
+  Eq.{1} (SU2Euler.parseScatter SU2Euler.Generated.scatter_originalSource)
+    (some.{0} SU2Euler.Generated.scatter_originalCode)
+'SU2Euler.Generated.scatter_original_parsed' depends on axioms: [propext]
+SU2Euler.Generated.scatter_refactored_parsed :
+  Eq.{1} (SU2Euler.parseScatter SU2Euler.Generated.scatter_refactoredSource)
+    (some.{0} SU2Euler.Generated.scatter_refactoredCode)
+'SU2Euler.Generated.scatter_refactored_parsed' depends on axioms: [propext]
+SU2Euler.Generated.scatter_wrongSign_parsed :
+  Eq.{1} (SU2Euler.parseScatter SU2Euler.Generated.scatter_wrongSignSource)
+    (some.{0} SU2Euler.Generated.scatter_wrongSignCode)
+'SU2Euler.Generated.scatter_wrongSign_parsed' depends on axioms: [propext]
+SU2Euler.Generated.scatter_wrongMask_parsed :
+  Eq.{1} (SU2Euler.parseScatter SU2Euler.Generated.scatter_wrongMaskSource)
+    (some.{0} SU2Euler.Generated.scatter_wrongMaskCode)
+'SU2Euler.Generated.scatter_wrongMask_parsed' depends on axioms: [propext]
+SU2Euler.Generated.apply_original_parsed :
+  Eq.{1} (SU2Euler.parseApply SU2Euler.Generated.apply_originalSource) (some.{0} SU2Euler.Generated.apply_originalCode)
+'SU2Euler.Generated.apply_original_parsed' depends on axioms: [propext]
+SU2Euler.Generated.apply_subtractTrunc_parsed :
+  Eq.{1} (SU2Euler.parseApply SU2Euler.Generated.apply_subtractTruncSource)
+    (some.{0} SU2Euler.Generated.apply_subtractTruncCode)
+'SU2Euler.Generated.apply_subtractTrunc_parsed' depends on axioms: [propext]
+SU2Euler.Generated.scale_original_parsed :
+  Eq.{1} (SU2Euler.parseScale SU2Euler.Generated.scale_originalSource) (some.{0} SU2Euler.Generated.scale_originalCode)
+'SU2Euler.Generated.scale_original_parsed' depends on axioms: [propext]
+SU2Euler.Generated.call_original_parsed :
+  Eq.{1} (SU2Euler.parseCall SU2Euler.Generated.call_originalSource) (some.{0} SU2Euler.Generated.call_originalCode)
+'SU2Euler.Generated.call_original_parsed' depends on axioms: [propext]
+SU2Euler.Generated.call_wrongSign_parsed :
+  Eq.{1} (SU2Euler.parseCall SU2Euler.Generated.call_wrongSignSource) (some.{0} SU2Euler.Generated.call_wrongSignCode)
+'SU2Euler.Generated.call_wrongSign_parsed' depends on axioms: [propext]
+EXIT 0

@@ -1,0 +1,13 @@
+name = "su2boundarypath"
+version = "0.1.0"
+defaultTargets = ["SU2Boundary", "BoundaryAudit"]
+[leanOptions]
+autoImplicit = false
+warningAsError = true
+[[require]]
+name = "su2eulerpath"
+path = "../EulerPath"
+[[lean_lib]]
+name = "SU2Boundary"
+[[lean_lib]]
+name = "BoundaryAudit"

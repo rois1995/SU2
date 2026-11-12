@@ -1,0 +1,41 @@
+{
+  "status": "PASS frozen worker validation; independent specification approval and cold acceptance pending",
+  "recorded_utc": "2026-11-12T16:39:57.291544+00:00",
+  "candidate_lock_sha256": "7c6a795c2dc8ef748bd4cdd9cdba3dc31330e55decb4b504b947d592654ef37e",
+  "preserved_euler_commit": "15ee28adf032a866e292926502a5f022e38199c8",
+  "preserved_euler_lock_sha256": "0a5781dad650c8de5bf24ef57804c6a422dbef3aa2be3f373b7ebc21371ccac6",
+  "upstream_baseline": "d162016382f0c122433000c114e88d808b48f7a7",
+  "production_patches": [],
+  "new_explicit_theorems": 81,
+  "logical_declarations": 427,
+  "theorem_declarations": 200,
+  "allowed_axioms": [
+    "propext",
+    "Classical.choice",
+    "Quot.sound"
+  ],
+  "proof_environment": "Pinned Lean 4.19.0; fresh project builds, existing pinned dependency artifacts; not independent cold acceptance",
+  "native_actual_method_checks": 7747,
+  "new_semantic_native_mutants_rejected": 7,
+  "native_positive_and_refactor": "PASS",
+  "preserved_native_variants": 11,
+  "integration": "Two identical 20-iteration runs; native observations, not positivity or stability proofs",
+  "primary_theorem": "SU2Boundary.assembled_boundary_complete_update",
+  "scope": "Closed exact-real selected boundary transformations and complete owned-point/four-component numerical solution-update loop",
+  "open_obligations": [
+    "Interior SIMD Roe",
+    "Geometry and edge/boundary traversal",
+    "Initialization and preprocessing",
+    "C++ semantic/object correspondence",
+    "Floating-point and compiler behavior",
+    "Independent approval and cold evaluation"
+  ],
+  "results": {
+    "baseline/result.json": "4122172b4bef1c9be1ba1317e88bfdf5f2cf9171cce573752dbd54d384e09dbd",
+    "integration/result.json": "a87f877d8ed707ea60cb37aec9fb6466defe1cc57ab877fb806a3273de0e966d",
+    "lean/preserved/result.json": "16466baf64c397b181543f5d7a4cb5ff097db9815fd330b7ed0d325a49dd06be",
+    "lean/result.json": "c4d9e2741477c7dd93f1086e092af6b93cf5fa7f9b09863d369b756938683d10",
+    "native/result.json": "56eda418649f0a516f3626116569f8aed4f28294abb5289189ef7b43b7d6798c",
+    "preserved-native/result.json": "16de8b471a9e233d0181293556b862adf2b8de7ee44a4e58c85c5599cea697f2"
+  }
+}

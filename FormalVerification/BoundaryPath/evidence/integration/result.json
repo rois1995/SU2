@@ -1,0 +1,26 @@
+{
+  "status": "PASS native integration only",
+  "source_commit": "d162016382f0c122433000c114e88d808b48f7a7",
+  "binary_sha256": "5f8f69aab9e675fba37a11ed6ed156beae472244c713cc969afdddd1fab0afa7",
+  "config_sha256": "8e9c70578281e2f50cd8d6081cf5517da5789f2534f8a300a284dc909656ce29",
+  "mesh_sha256": "9216c4a3b423af68f760afaf1332140b5bd50d34f776834684434a6e1ea14d92",
+  "runs": [
+    {
+      "restart_sha256": "5d254928d6df41a79d2de3f69c650d0f96724746fb2dfd982241db4c10a3dc60",
+      "history_sha256": "1e5d5333e5fd801a2934d5b47923c514dfe9251aac341927250bbf2db431afba",
+      "iterations": 20,
+      "points": 20,
+      "min_density": 0.9968326336627771,
+      "min_internal_energy_density": 19.75401209085727
+    },
+    {
+      "restart_sha256": "5d254928d6df41a79d2de3f69c650d0f96724746fb2dfd982241db4c10a3dc60",
+      "history_sha256": "1e5d5333e5fd801a2934d5b47923c514dfe9251aac341927250bbf2db431afba",
+      "iterations": 20,
+      "points": 20,
+      "min_density": 0.9968326336627771,
+      "min_internal_energy_density": 19.75401209085727
+    }
+  ],
+  "limitation": "No physical accuracy, convergence, general positivity or IEEE semantics proof; mathematical boundary/flux correspondence remains open."
+}
