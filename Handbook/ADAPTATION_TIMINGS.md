@@ -8,10 +8,19 @@ own the development sequence. R=`integration_evidence/native_3d_bl_v1/dc17_18_co
 434 private collapse scope:433unqualifiedbuild94.184s then434finalbuild72.144s;
 no runtime campaign between the connected scope/deadline changes. Serial40cases/
 8831assertions9.505s; ONE MPI6 milestone36cases/rank2785–5625assertions8.063s.
-All pins/actualhandles terminal for checks. Actual same396target surface replay
-FROZEN/RUNNING. No production timing/progress improvement established yet. Existing
-World call counters will test work savings; broad election timings still include
-wait/overlap. [Design and receipt](ADAPTATION_SURFACE_PRIVATE_COLLAPSE_20261112.md).
+All pins/actualhandles terminal for checks and actual replay. Actual same396target
+surface replay wrapper504.070s/native max389.097s; still not ready/no completedpass.
+Versus432 sameallowance: net points removed525→789 (+50.3%), requiredwallcoverage
+2394/37753→4016/37227, seeds864→1728, operatorwork2589→5865, rounds543→1166.
+Failure elections75108→140209/perrank but perproposal29.01→23.91 (−17.6%). SummedCPU
+1798.320→2187.461s includespolling; points removed/CPU +23.6%. Geometrywork25.194M→41.020M.
+This is increased stage work/progress against432, not accepted-BL speedup; versus431
+784commits,434789mostly restores throughput. Surface coverage still only10.8%.
+Separate targetload48.664s; sampled treeRSS4.878GB/individual.937GB, nottruepeak.
+Counter-only historical432 rank attribution repaired by rejecting duplicate-key MPI
+stdout; aggregate/per-rank JSON unchanged. Four clean432/two clean434 exit rows remain.
+Broad election timings still include wait/overlap, not totalMPIwait.
+[Design and receipt](ADAPTATION_SURFACE_PRIVATE_COLLAPSE_20261112.md).
 
 Read-only cavity review2026-11-12: verified431 binary,9 serial cases/86 assertions;
 8 cases/85 assertions pass, growth fails with stale front dependency exception.

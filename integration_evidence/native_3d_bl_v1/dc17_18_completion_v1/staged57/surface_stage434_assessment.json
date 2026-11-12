@@ -1,0 +1,837 @@
+{
+  "scope": "Actual M6 requested-wall surface-demand census; provisional construction, not final BL acceptance.",
+  "case": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved434_saved_target_surface_mpi6_20261112T095336_826002",
+  "status": {
+    "state": "terminal",
+    "exit_code": 0,
+    "seconds": 504.06996989250183,
+    "pins_verified": true,
+    "changed": [],
+    "largest_sampled_individual_process_rss_bytes": 937385984,
+    "rss_note": "sampled process RSS; not a whole-job peak"
+  },
+  "all_case_pins_verified": 1686,
+  "all_actual_handles_terminal": true,
+  "aggregate": {
+    "nodes": 60541,
+    "tets": 301171,
+    "positive_tets": 301171,
+    "physical_cells": 47114,
+    "exact_shared_nodal_checks": 1144143,
+    "commits": 789,
+    "global_work": 5865,
+    "cached_cells": 6712,
+    "unmeasured_cells": 294459,
+    "known_geometry_bad": 153,
+    "known_size_bad": 2,
+    "q_measured": 0,
+    "J_measured": 0,
+    "geometry_work": 41019935,
+    "geometry_rank_max_min": 7.436343358961023,
+    "field_requests": 41333,
+    "field_compositions": 0,
+    "summed_rank_cpu_seconds": 2187.4609179999998,
+    "stage_seconds_max": 389.097417034,
+    "target_load_seconds_max": 48.664137519,
+    "import_seconds_max": 0.5130419510000053,
+    "largest_sampled_tree_RSS_bytes": 4878237696,
+    "largest_sampled_individual_RSS_bytes": 937385984,
+    "surface_prepared": false,
+    "required_wall_cells": 37227,
+    "measured_wall_cells": 4016,
+    "requested_wall_census_complete": false,
+    "requested_wall_geometry_complete": false,
+    "seed_cell_classes": [
+      0,
+      0,
+      1728
+    ],
+    "updated_cell_classes": [
+      2670,
+      26,
+      3088
+    ],
+    "collapse_passes": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "split_passes": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ]
+  },
+  "common_retained_cell_comparison": {
+    "shared_cell_ids": 299270,
+    "different_record_count": 0,
+    "different_ids_bounded": [],
+    "baseline_cells_retired": 2638,
+    "new_cell_ids": 1901,
+    "limitation": "Common retained records only, not equality of whole meshes or a complete operation trace."
+  },
+  "ranks": [
+    {
+      "rank": 0,
+      "ranks": 6,
+      "surface_prepared": false,
+      "final_mesh_accepted": false,
+      "fresh_reload_qualified": false,
+      "cfd_advanced": false,
+      "metric_recomputed": false,
+      "target_policy_unchanged": true,
+      "load_seconds": 48.590225982999996,
+      "import_seconds": 0.5130419510000053,
+      "stage_seconds": 389.097257155,
+      "maximum_seconds": 388.8,
+      "maximum_work": 233220,
+      "local_nodes": 10925,
+      "local_tets": 49663,
+      "positive_cells": 49663,
+      "transported_core_cells": 49663,
+      "global_work": 5865,
+      "local_commits": 169,
+      "collapse_passes": 0,
+      "split_passes": 0,
+      "geometry_work": 3409260,
+      "cached_measured_cells": 1312,
+      "field_requests": 6214,
+      "field_compositions": 0,
+      "surface_demand_required": 7275,
+      "surface_demand_measured": 776,
+      "surface_demand_complete": false,
+      "surface_geometry_complete": false,
+      "seed_cell_classes": [
+        0,
+        0,
+        288
+      ],
+      "updated_cell_classes": [
+        527,
+        9,
+        658
+      ],
+      "process_cpu_seconds": 362.83135,
+      "metric_cpu_seconds": 23.41969999999989,
+      "reconstruction_cpu_seconds": 19.935246999999993,
+      "seed_seconds": 11.357528490000002,
+      "metric_seconds": 25.311209959999687,
+      "reconstruction_seconds": 21.334193622999845,
+      "tracked_collective_seconds": 1.9537252890046943,
+      "tracked_calls": 65849,
+      "maximum_work_bytes": 1915018992,
+      "reason": "Native3D geometry/private work exhausts elapsed-time budget; feasibility is undetermined. Prior failure: Native3D geometry/private work exhausts elapsed-time budget; feasibility is undetermined. Original failure: Curved atlas elapsed-time budget exhausted. Local cached demands: geometry_cells=0, metric_or_height_cells=0, geometry_edges=0, metric_edges=6. Last local rejection: edge 9856,9676: Native 3D collapse obstructed at cell 13360."
+    },
+    {
+      "rank": 1,
+      "ranks": 6,
+      "surface_prepared": false,
+      "final_mesh_accepted": false,
+      "fresh_reload_qualified": false,
+      "cfd_advanced": false,
+      "metric_recomputed": false,
+      "target_policy_unchanged": true,
+      "load_seconds": 48.604718144,
+      "import_seconds": 0.5129942669999963,
+      "stage_seconds": 389.09132224,
+      "maximum_seconds": 388.8,
+      "maximum_work": 233220,
+      "local_nodes": 10987,
+      "local_tets": 49173,
+      "positive_cells": 49173,
+      "transported_core_cells": 49173,
+      "global_work": 5865,
+      "local_commits": 159,
+      "collapse_passes": 0,
+      "split_passes": 0,
+      "geometry_work": 4908753,
+      "cached_measured_cells": 1256,
+      "field_requests": 6188,
+      "field_compositions": 0,
+      "surface_demand_required": 9677,
+      "surface_demand_measured": 771,
+      "surface_demand_complete": false,
+      "surface_geometry_complete": false,
+      "seed_cell_classes": [
+        0,
+        0,
+        288
+      ],
+      "updated_cell_classes": [
+        485,
+        0,
+        642
+      ],
+      "process_cpu_seconds": 362.640391,
+      "metric_cpu_seconds": 22.312073999999964,
+      "reconstruction_cpu_seconds": 26.388290000000012,
+      "seed_seconds": 11.329361379999996,
+      "metric_seconds": 24.085829591999847,
+      "reconstruction_seconds": 28.46786134199989,
+      "tracked_collective_seconds": 2.1375013799909652,
+      "tracked_calls": 65849,
+      "maximum_work_bytes": 1910774992,
+      "reason": "Native3D geometry/private work exhausts elapsed-time budget; feasibility is undetermined. Prior failure: Native3D geometry/private work exhausts elapsed-time budget; feasibility is undetermined. Original failure: Curved atlas elapsed-time budget exhausted. Local cached demands: geometry_cells=0, metric_or_height_cells=1, geometry_edges=0, metric_edges=16. Last local rejection: edge 11886,11990: Native 3D collapse obstructed at cell 79130."
+    },
+    {
+      "rank": 2,
+      "ranks": 6,
+      "surface_prepared": false,
+      "final_mesh_accepted": false,
+      "fresh_reload_qualified": false,
+      "cfd_advanced": false,
+      "metric_recomputed": false,
+      "target_policy_unchanged": true,
+      "load_seconds": 48.570368821,
+      "import_seconds": 0.5129069729999998,
+      "stage_seconds": 389.095634217,
+      "maximum_seconds": 388.8,
+      "maximum_work": 233220,
+      "local_nodes": 10887,
+      "local_tets": 54620,
+      "positive_cells": 54620,
+      "transported_core_cells": 54620,
+      "global_work": 5865,
+      "local_commits": 151,
+      "collapse_passes": 0,
+      "split_passes": 0,
+      "geometry_work": 4558652,
+      "cached_measured_cells": 1274,
+      "field_requests": 8323,
+      "field_compositions": 0,
+      "surface_demand_required": 6622,
+      "surface_demand_measured": 729,
+      "surface_demand_complete": false,
+      "surface_geometry_complete": false,
+      "seed_cell_classes": [
+        0,
+        0,
+        288
+      ],
+      "updated_cell_classes": [
+        545,
+        0,
+        595
+      ],
+      "process_cpu_seconds": 366.034771,
+      "metric_cpu_seconds": 33.64142099999995,
+      "reconstruction_cpu_seconds": 23.614648000000003,
+      "seed_seconds": 11.310631274999999,
+      "metric_seconds": 35.667041055999874,
+      "reconstruction_seconds": 24.889497442999886,
+      "tracked_collective_seconds": 2.017887792003876,
+      "tracked_calls": 65849,
+      "maximum_work_bytes": 1954432608,
+      "reason": "Native3D geometry/private work exhausts elapsed-time budget; feasibility is undetermined. Prior failure: Native3D geometry/private work exhausts elapsed-time budget; feasibility is undetermined. Original failure: Curved atlas elapsed-time budget exhausted. Local cached demands: geometry_cells=32, metric_or_height_cells=0, geometry_edges=0, metric_edges=26. Last local rejection: edge 24134,13193: Native 3D coarsening removes no cells or fails changed-edge size admission."
+    },
+    {
+      "rank": 3,
+      "ranks": 6,
+      "surface_prepared": false,
+      "final_mesh_accepted": false,
+      "fresh_reload_qualified": false,
+      "cfd_advanced": false,
+      "metric_recomputed": false,
+      "target_policy_unchanged": true,
+      "load_seconds": 48.536903767999995,
+      "import_seconds": 0.5129765370000001,
+      "stage_seconds": 389.097417034,
+      "maximum_seconds": 388.8,
+      "maximum_work": 233220,
+      "local_nodes": 10632,
+      "local_tets": 49972,
+      "positive_cells": 49972,
+      "transported_core_cells": 49972,
+      "global_work": 5865,
+      "local_commits": 57,
+      "collapse_passes": 0,
+      "split_passes": 0,
+      "geometry_work": 2253292,
+      "cached_measured_cells": 593,
+      "field_requests": 2778,
+      "field_compositions": 0,
+      "surface_demand_required": 1554,
+      "surface_demand_measured": 433,
+      "surface_demand_complete": false,
+      "surface_geometry_complete": false,
+      "seed_cell_classes": [
+        0,
+        0,
+        288
+      ],
+      "updated_cell_classes": [
+        160,
+        0,
+        205
+      ],
+      "process_cpu_seconds": 363.901008,
+      "metric_cpu_seconds": 7.881297000000164,
+      "reconstruction_cpu_seconds": 11.167624000000004,
+      "seed_seconds": 11.306239387999998,
+      "metric_seconds": 8.615043115000072,
+      "reconstruction_seconds": 12.568942388000014,
+      "tracked_collective_seconds": 2.2416529259942877,
+      "tracked_calls": 65849,
+      "maximum_work_bytes": 1914051912,
+      "reason": "Native3D geometry/private work exhausts elapsed-time budget; feasibility is undetermined. Prior failure: Native3D geometry/private work exhausts elapsed-time budget; feasibility is undetermined. Original failure: Curved atlas elapsed-time budget exhausted. Local cached demands: geometry_cells=0, metric_or_height_cells=1, geometry_edges=0, metric_edges=0. Last local rejection: edge 13788,13785: Native 3D collapse obstructed at cell 169448."
+    },
+    {
+      "rank": 4,
+      "ranks": 6,
+      "surface_prepared": false,
+      "final_mesh_accepted": false,
+      "fresh_reload_qualified": false,
+      "cfd_advanced": false,
+      "metric_recomputed": false,
+      "target_policy_unchanged": true,
+      "load_seconds": 48.528357674,
+      "import_seconds": 0.5129297480000048,
+      "stage_seconds": 389.09390539799995,
+      "maximum_seconds": 388.8,
+      "maximum_work": 233220,
+      "local_nodes": 11545,
+      "local_tets": 54081,
+      "positive_cells": 54081,
+      "transported_core_cells": 54081,
+      "global_work": 5865,
+      "local_commits": 131,
+      "collapse_passes": 0,
+      "split_passes": 0,
+      "geometry_work": 9133725,
+      "cached_measured_cells": 1137,
+      "field_requests": 9159,
+      "field_compositions": 0,
+      "surface_demand_required": 7195,
+      "surface_demand_measured": 666,
+      "surface_demand_complete": false,
+      "surface_geometry_complete": false,
+      "seed_cell_classes": [
+        0,
+        0,
+        288
+      ],
+      "updated_cell_classes": [
+        471,
+        0,
+        509
+      ],
+      "process_cpu_seconds": 365.145752,
+      "metric_cpu_seconds": 39.152574999999814,
+      "reconstruction_cpu_seconds": 41.139340999999966,
+      "seed_seconds": 11.305985433999997,
+      "metric_seconds": 41.511579348999916,
+      "reconstruction_seconds": 43.47576819000008,
+      "tracked_collective_seconds": 2.287535279001645,
+      "tracked_calls": 65849,
+      "maximum_work_bytes": 1949840808,
+      "reason": "Native3D geometry/private work exhausts elapsed-time budget; feasibility is undetermined. Prior failure: Native3D geometry/private work exhausts elapsed-time budget; feasibility is undetermined. Original failure: Curved atlas elapsed-time budget exhausted. Local cached demands: geometry_cells=66, metric_or_height_cells=0, geometry_edges=0, metric_edges=32. Last local rejection: edge 7829,7830: Native3D candidate does not preserve/improve its frozen geometry error."
+    },
+    {
+      "rank": 5,
+      "ranks": 6,
+      "surface_prepared": false,
+      "final_mesh_accepted": false,
+      "fresh_reload_qualified": false,
+      "cfd_advanced": false,
+      "metric_recomputed": false,
+      "target_policy_unchanged": true,
+      "load_seconds": 48.664137519,
+      "import_seconds": 0.5129656310000001,
+      "stage_seconds": 389.09027677299997,
+      "maximum_seconds": 388.8,
+      "maximum_work": 233220,
+      "local_nodes": 9413,
+      "local_tets": 43662,
+      "positive_cells": 43662,
+      "transported_core_cells": 43662,
+      "global_work": 5865,
+      "local_commits": 122,
+      "collapse_passes": 0,
+      "split_passes": 0,
+      "geometry_work": 16756253,
+      "cached_measured_cells": 1140,
+      "field_requests": 8671,
+      "field_compositions": 0,
+      "surface_demand_required": 4904,
+      "surface_demand_measured": 641,
+      "surface_demand_complete": false,
+      "surface_geometry_complete": false,
+      "seed_cell_classes": [
+        0,
+        0,
+        288
+      ],
+      "updated_cell_classes": [
+        482,
+        17,
+        479
+      ],
+      "process_cpu_seconds": 366.907646,
+      "metric_cpu_seconds": 37.844795999999825,
+      "reconstruction_cpu_seconds": 37.800045999999995,
+      "seed_seconds": 11.300863633000006,
+      "metric_seconds": 39.95338465999996,
+      "reconstruction_seconds": 40.03850815299992,
+      "tracked_collective_seconds": 2.135109071996908,
+      "tracked_calls": 65849,
+      "maximum_work_bytes": 1863760208,
+      "reason": "Native3D geometry/private work exhausts elapsed-time budget; feasibility is undetermined. Prior failure: Native3D geometry/private work exhausts elapsed-time budget; feasibility is undetermined. Original failure: Curved atlas elapsed-time budget exhausted. Local cached demands: geometry_cells=55, metric_or_height_cells=0, geometry_edges=0, metric_edges=25. Last local rejection: edge 18521,18531: Native3D candidate does not preserve/improve its frozen geometry error."
+    }
+  ],
+  "censuses": [
+    {
+      "owned_cells": 49663,
+      "measured_cells": 1312,
+      "unmeasured_cells": 48351,
+      "shape_measured_cells": 0,
+      "invalid_cells": 0,
+      "construction_invalid_cells": 0,
+      "quality_invalid_cells": 1312,
+      "remaining_edges": 6,
+      "remaining_repairs": 0,
+      "shape_unmeasured_cells": 49663,
+      "q_measured_cells": 0,
+      "j_measured_cells": 0,
+      "height_measured_cells": 0,
+      "height_unmeasured_cells": 49663,
+      "geometry_measured_cells": 1312,
+      "geometry_unmeasured_cells": 48351,
+      "height_unresolved_cells": 0,
+      "q_bad_cells": 0,
+      "j_bad_cells": 0,
+      "size_bad_cells": 0,
+      "height_bad_cells": 0,
+      "geometry_bad_cells": 0,
+      "q_hinge_squared": 0,
+      "j_hinge_squared": 0,
+      "size_hinge_squared": 0,
+      "height_hinge_squared": 0,
+      "geometry_excess_squared": 0,
+      "height_requested": true,
+      "surface_error_requested": true,
+      "census_complete": false,
+      "shape_complete": false,
+      "height_complete": false,
+      "geometry_complete": false,
+      "cache_consistent": true
+    },
+    {
+      "owned_cells": 49173,
+      "measured_cells": 1256,
+      "unmeasured_cells": 47917,
+      "shape_measured_cells": 0,
+      "invalid_cells": 1,
+      "construction_invalid_cells": 1,
+      "quality_invalid_cells": 1256,
+      "remaining_edges": 16,
+      "remaining_repairs": 0,
+      "shape_unmeasured_cells": 49173,
+      "q_measured_cells": 0,
+      "j_measured_cells": 0,
+      "height_measured_cells": 0,
+      "height_unmeasured_cells": 49173,
+      "geometry_measured_cells": 1256,
+      "geometry_unmeasured_cells": 47917,
+      "height_unresolved_cells": 0,
+      "q_bad_cells": 0,
+      "j_bad_cells": 0,
+      "size_bad_cells": 1,
+      "height_bad_cells": 0,
+      "geometry_bad_cells": 0,
+      "q_hinge_squared": 0,
+      "j_hinge_squared": 0,
+      "size_hinge_squared": 0.17752876765711714,
+      "height_hinge_squared": 0,
+      "geometry_excess_squared": 0,
+      "height_requested": true,
+      "surface_error_requested": true,
+      "census_complete": false,
+      "shape_complete": false,
+      "height_complete": false,
+      "geometry_complete": false,
+      "cache_consistent": true
+    },
+    {
+      "owned_cells": 54620,
+      "measured_cells": 1274,
+      "unmeasured_cells": 53346,
+      "shape_measured_cells": 0,
+      "invalid_cells": 32,
+      "construction_invalid_cells": 32,
+      "quality_invalid_cells": 1274,
+      "remaining_edges": 26,
+      "remaining_repairs": 0,
+      "shape_unmeasured_cells": 54620,
+      "q_measured_cells": 0,
+      "j_measured_cells": 0,
+      "height_measured_cells": 0,
+      "height_unmeasured_cells": 54620,
+      "geometry_measured_cells": 1274,
+      "geometry_unmeasured_cells": 53346,
+      "height_unresolved_cells": 0,
+      "q_bad_cells": 0,
+      "j_bad_cells": 0,
+      "size_bad_cells": 0,
+      "height_bad_cells": 0,
+      "geometry_bad_cells": 32,
+      "q_hinge_squared": 0,
+      "j_hinge_squared": 0,
+      "size_hinge_squared": 0,
+      "height_hinge_squared": 0,
+      "geometry_excess_squared": 9.80434963926765e-07,
+      "height_requested": true,
+      "surface_error_requested": true,
+      "census_complete": false,
+      "shape_complete": false,
+      "height_complete": false,
+      "geometry_complete": false,
+      "cache_consistent": true
+    },
+    {
+      "owned_cells": 49972,
+      "measured_cells": 593,
+      "unmeasured_cells": 49379,
+      "shape_measured_cells": 0,
+      "invalid_cells": 1,
+      "construction_invalid_cells": 1,
+      "quality_invalid_cells": 593,
+      "remaining_edges": 0,
+      "remaining_repairs": 0,
+      "shape_unmeasured_cells": 49972,
+      "q_measured_cells": 0,
+      "j_measured_cells": 0,
+      "height_measured_cells": 0,
+      "height_unmeasured_cells": 49972,
+      "geometry_measured_cells": 593,
+      "geometry_unmeasured_cells": 49379,
+      "height_unresolved_cells": 0,
+      "q_bad_cells": 0,
+      "j_bad_cells": 0,
+      "size_bad_cells": 1,
+      "height_bad_cells": 0,
+      "geometry_bad_cells": 0,
+      "q_hinge_squared": 0,
+      "j_hinge_squared": 0,
+      "size_hinge_squared": 8.997832138524173e-05,
+      "height_hinge_squared": 0,
+      "geometry_excess_squared": 0,
+      "height_requested": true,
+      "surface_error_requested": true,
+      "census_complete": false,
+      "shape_complete": false,
+      "height_complete": false,
+      "geometry_complete": false,
+      "cache_consistent": true
+    },
+    {
+      "owned_cells": 54081,
+      "measured_cells": 1137,
+      "unmeasured_cells": 52944,
+      "shape_measured_cells": 0,
+      "invalid_cells": 66,
+      "construction_invalid_cells": 66,
+      "quality_invalid_cells": 1137,
+      "remaining_edges": 32,
+      "remaining_repairs": 0,
+      "shape_unmeasured_cells": 54081,
+      "q_measured_cells": 0,
+      "j_measured_cells": 0,
+      "height_measured_cells": 0,
+      "height_unmeasured_cells": 54081,
+      "geometry_measured_cells": 1137,
+      "geometry_unmeasured_cells": 52944,
+      "height_unresolved_cells": 0,
+      "q_bad_cells": 0,
+      "j_bad_cells": 0,
+      "size_bad_cells": 0,
+      "height_bad_cells": 0,
+      "geometry_bad_cells": 66,
+      "q_hinge_squared": 0,
+      "j_hinge_squared": 0,
+      "size_hinge_squared": 0,
+      "height_hinge_squared": 0,
+      "geometry_excess_squared": 9.175818747389718e-06,
+      "height_requested": true,
+      "surface_error_requested": true,
+      "census_complete": false,
+      "shape_complete": false,
+      "height_complete": false,
+      "geometry_complete": false,
+      "cache_consistent": true
+    },
+    {
+      "owned_cells": 43662,
+      "measured_cells": 1140,
+      "unmeasured_cells": 42522,
+      "shape_measured_cells": 0,
+      "invalid_cells": 55,
+      "construction_invalid_cells": 55,
+      "quality_invalid_cells": 1140,
+      "remaining_edges": 25,
+      "remaining_repairs": 0,
+      "shape_unmeasured_cells": 43662,
+      "q_measured_cells": 0,
+      "j_measured_cells": 0,
+      "height_measured_cells": 0,
+      "height_unmeasured_cells": 43662,
+      "geometry_measured_cells": 1140,
+      "geometry_unmeasured_cells": 42522,
+      "height_unresolved_cells": 0,
+      "q_bad_cells": 0,
+      "j_bad_cells": 0,
+      "size_bad_cells": 0,
+      "height_bad_cells": 0,
+      "geometry_bad_cells": 55,
+      "q_hinge_squared": 0,
+      "j_hinge_squared": 0,
+      "size_hinge_squared": 0,
+      "height_hinge_squared": 0,
+      "geometry_excess_squared": 9.62232284450137e-06,
+      "height_requested": true,
+      "surface_error_requested": true,
+      "census_complete": false,
+      "shape_complete": false,
+      "height_complete": false,
+      "geometry_complete": false,
+      "cache_consistent": true
+    }
+  ],
+  "existing_exit_counters": [
+    {
+      "rank": 4.0,
+      "rounds": 1166.0,
+      "updated_cells": 980.0,
+      "update_seconds": 50.42240859199995,
+      "election_calls": 140209.0,
+      "election_seconds": 237.7257074629997,
+      "geometry_trials": 848.0,
+      "geometry_rejected": 461.0,
+      "guidance_trials": 387.0,
+      "guidance_rejected": 253.0,
+      "guidance_seconds": 34.636439682,
+      "upper_calls": 1407.0,
+      "upper_work": 7518920.0,
+      "upper_seconds": 38.63620396100002,
+      "scope_misses": 919.0,
+      "scope_build_seconds": 6.489419993999998,
+      "facet_build_seconds": 17.718916202000067,
+      "traversal_seconds": 14.119073271000028,
+      "retention_refusals": 186.0,
+      "cache_evictions": 15238.0
+    },
+    {
+      "rank": 2.0,
+      "rounds": 1166.0,
+      "updated_cells": 1140.0,
+      "update_seconds": 50.397238764999955,
+      "election_calls": 140209.0,
+      "election_seconds": 285.7014848910073,
+      "geometry_trials": 658.0,
+      "geometry_rejected": 339.0,
+      "guidance_trials": 319.0,
+      "guidance_rejected": 167.0,
+      "guidance_seconds": 13.492727879999991,
+      "upper_calls": 1455.0,
+      "upper_work": 3268808.0,
+      "upper_seconds": 14.632529626000006,
+      "scope_misses": 853.0,
+      "scope_build_seconds": 2.967734961000006,
+      "facet_build_seconds": 5.499372126000007,
+      "traversal_seconds": 5.964660623000008,
+      "retention_refusals": 77.0,
+      "cache_evictions": 6760.0
+    }
+  ],
+  "counter_attribution_gaps": [
+    "Duplicate keys in interleaved exit line: discarded all counters.",
+    "Interleaved exit line: counters cannot be assigned safely to a rank."
+  ],
+  "payloads": {
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved434_saved_target_surface_mpi6_20261112T095336_826002/stage_surface_rank0_owned.bin": {
+      "bytes": 20659816,
+      "sha256": "71a2ebbf18ff97828a8b26add31ab13bbc87faa8a7eccf80e4cd13778aef9e31"
+    },
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved434_saved_target_surface_mpi6_20261112T095336_826002/stage_surface_rank0_donors.bin": {
+      "bytes": 17243008,
+      "sha256": "10b53231343f0114c367d2cabbc3c5ebec6aa9d01b9aa96c6bfb7e950ee4d22c"
+    },
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved434_saved_target_surface_mpi6_20261112T095336_826002/stage_surface_rank0_parameters.bin": {
+      "bytes": 4945312,
+      "sha256": "a708cb68fce20ea0ace10e013a931e56823b118c5c2133ee250635719215fd3e"
+    },
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved434_saved_target_surface_mpi6_20261112T095336_826002/saved_target_surface_rank0.jsonl": {
+      "bytes": 1603,
+      "sha256": "97b0030dbb35b816d458ed4c05b0dc974ce9db0f5b8600c9d4d052533312882d"
+    },
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved434_saved_target_surface_mpi6_20261112T095336_826002/stage_surface_rank0_manifest.json": {
+      "bytes": 2850,
+      "sha256": "5a1ff05fd56b8af0f3b445e2daac19c2ef7ebd00081cb61c72287d006af35870"
+    },
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved434_saved_target_surface_mpi6_20261112T095336_826002/stage_surface_rank1_owned.bin": {
+      "bytes": 20455976,
+      "sha256": "37800a427a97d4c96d1f7860f5411dfce88c127a7d52a555e56e50d7ac41b39e"
+    },
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved434_saved_target_surface_mpi6_20261112T095336_826002/stage_surface_rank1_donors.bin": {
+      "bytes": 17071008,
+      "sha256": "135ad0455909c939b3896bed005dedb4d5bca330041b2d7611ca3ef0eadc60ee"
+    },
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved434_saved_target_surface_mpi6_20261112T095336_826002/stage_surface_rank1_parameters.bin": {
+      "bytes": 4945312,
+      "sha256": "a708cb68fce20ea0ace10e013a931e56823b118c5c2133ee250635719215fd3e"
+    },
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved434_saved_target_surface_mpi6_20261112T095336_826002/saved_target_surface_rank1.jsonl": {
+      "bytes": 1606,
+      "sha256": "fc61a46b5ccddae9f03785c895a1c071c3a5c00b7ac4f1f9ef28567c2aeb679d"
+    },
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved434_saved_target_surface_mpi6_20261112T095336_826002/stage_surface_rank1_manifest.json": {
+      "bytes": 2872,
+      "sha256": "a2a4da36db3b2aa098a0decb0d1f6445bcafecdd314b7a16cac6600cf1e284f4"
+    },
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved434_saved_target_surface_mpi6_20261112T095336_826002/stage_surface_rank2_owned.bin": {
+      "bytes": 22721928,
+      "sha256": "3229ad18619806243786319ed6fce5b0cb61b997b7a246d05c5e8d094ed8b897"
+    },
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved434_saved_target_surface_mpi6_20261112T095336_826002/stage_surface_rank2_donors.bin": {
+      "bytes": 18932736,
+      "sha256": "24cc243f01232e17800b9e4e24be1b08bfc8c7bc11b128105d9d24864882e776"
+    },
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved434_saved_target_surface_mpi6_20261112T095336_826002/stage_surface_rank2_parameters.bin": {
+      "bytes": 4945312,
+      "sha256": "a708cb68fce20ea0ace10e013a931e56823b118c5c2133ee250635719215fd3e"
+    },
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved434_saved_target_surface_mpi6_20261112T095336_826002/saved_target_surface_rank2.jsonl": {
+      "bytes": 1633,
+      "sha256": "0c093638d8313c47a0597f8248ba2fd450a0fd4ba1d0e3236aab659f35443621"
+    },
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved434_saved_target_surface_mpi6_20261112T095336_826002/stage_surface_rank2_manifest.json": {
+      "bytes": 2910,
+      "sha256": "e8ab42288ea382fa3b8240c593afb0f05325ee96cf6f31887c2cf7f2052b99b2"
+    },
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved434_saved_target_surface_mpi6_20261112T095336_826002/stage_surface_rank3_owned.bin": {
+      "bytes": 20788360,
+      "sha256": "57bf4096b7769f7fdff60248281a0d5acdd63b9b4d753c9fa12a263f51a91472"
+    },
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved434_saved_target_surface_mpi6_20261112T095336_826002/stage_surface_rank3_donors.bin": {
+      "bytes": 17240944,
+      "sha256": "9d3c7489b80679cab9261185fb575d761516e105ad3bcba0fb0a237e050cc661"
+    },
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved434_saved_target_surface_mpi6_20261112T095336_826002/stage_surface_rank3_parameters.bin": {
+      "bytes": 4945312,
+      "sha256": "a708cb68fce20ea0ace10e013a931e56823b118c5c2133ee250635719215fd3e"
+    },
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved434_saved_target_surface_mpi6_20261112T095336_826002/saved_target_surface_rank3.jsonl": {
+      "bytes": 1604,
+      "sha256": "b390c48ee19fb6107353367729cfb1ec3a8234a83e33b6f18ba399cac460169d"
+    },
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved434_saved_target_surface_mpi6_20261112T095336_826002/stage_surface_rank3_manifest.json": {
+      "bytes": 2864,
+      "sha256": "99de093783eff550914ddf49f74ce61637218a107e05c6d4b07e033c14326882"
+    },
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved434_saved_target_surface_mpi6_20261112T095336_826002/stage_surface_rank4_owned.bin": {
+      "bytes": 22497704,
+      "sha256": "b016d10ad82820feb541f2bf914034caac263f6a856ea5c3ef077e0b7f203188"
+    },
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved434_saved_target_surface_mpi6_20261112T095336_826002/stage_surface_rank4_donors.bin": {
+      "bytes": 18730120,
+      "sha256": "eeb8c2c6851b6814642d7874a20b943c93d6cc3603bb75ba37cf48c591300f41"
+    },
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved434_saved_target_surface_mpi6_20261112T095336_826002/stage_surface_rank4_parameters.bin": {
+      "bytes": 4945312,
+      "sha256": "a708cb68fce20ea0ace10e013a931e56823b118c5c2133ee250635719215fd3e"
+    },
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved434_saved_target_surface_mpi6_20261112T095336_826002/saved_target_surface_rank4.jsonl": {
+      "bytes": 1631,
+      "sha256": "e38315bad6ad56df060422f837d133737782a03410e77321394a92918199915f"
+    },
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved434_saved_target_surface_mpi6_20261112T095336_826002/stage_surface_rank4_manifest.json": {
+      "bytes": 2899,
+      "sha256": "462127f6212d14a0f75aac3931c23ebcd8157fdec43dba5e290b99f0123491ba"
+    },
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved434_saved_target_surface_mpi6_20261112T095336_826002/stage_surface_rank5_owned.bin": {
+      "bytes": 18163400,
+      "sha256": "82589197b8a46caa3bd0b2b2e4f591e31ebc655af5800724760d76324d69b654"
+    },
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved434_saved_target_surface_mpi6_20261112T095336_826002/stage_surface_rank5_donors.bin": {
+      "bytes": 15137728,
+      "sha256": "f3f51495bfbf6206c27a9b253d5b2cf827b523188cebc2f620924658ddaada72"
+    },
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved434_saved_target_surface_mpi6_20261112T095336_826002/stage_surface_rank5_parameters.bin": {
+      "bytes": 4945312,
+      "sha256": "a708cb68fce20ea0ace10e013a931e56823b118c5c2133ee250635719215fd3e"
+    },
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved434_saved_target_surface_mpi6_20261112T095336_826002/saved_target_surface_rank5.jsonl": {
+      "bytes": 1627,
+      "sha256": "46c420abcaa91124996419a493df07b676145e6fbce2483e11107a029ea7168f"
+    },
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved434_saved_target_surface_mpi6_20261112T095336_826002/stage_surface_rank5_manifest.json": {
+      "bytes": 2907,
+      "sha256": "ec63f969e22be4ad2073c8bbaf51b4bafc86c99f408fa623a6dd9e3624c94e1a"
+    }
+  },
+  "comparison432": {
+    "commits": {
+      "before": 525,
+      "after": 789
+    },
+    "global_work": {
+      "before": 2589,
+      "after": 5865
+    },
+    "cached_cells": {
+      "before": 4221,
+      "after": 6712
+    },
+    "unmeasured_cells": {
+      "before": 297687,
+      "after": 294459
+    },
+    "known_geometry_bad": {
+      "before": 68,
+      "after": 153
+    },
+    "known_size_bad": {
+      "before": 0,
+      "after": 2
+    },
+    "geometry_work": {
+      "before": 25194164,
+      "after": 41019935
+    },
+    "geometry_rank_max_min": {
+      "before": 6.9390006329695595,
+      "after": 7.436343358961023
+    },
+    "field_requests": {
+      "before": 24351,
+      "after": 41333
+    },
+    "summed_rank_cpu_seconds": {
+      "before": 1798.32049,
+      "after": 2187.4609179999998
+    },
+    "stage_seconds_max": {
+      "before": 389.35295201099996,
+      "after": 389.097417034
+    }
+  },
+  "baseline_assessment_sha256": "734c521de756adde1817b8161fce6322a952d89a4511153cc41e77f94bb349cf",
+  "confirmed": [
+    "Same saved396 composed target and CFD seed, original six partitions; no target recomputation or CFD advancement.",
+    "Every saved cell positive with transported core; globally unique cell IDs and exact shared nodal coordinates/tensors.",
+    "No unrelated volume rows seeded; complete changed-cell rows remain measured. Full-volume unknown flags remain explicit."
+  ],
+  "limits": [
+    "No q/J or complete BL suitability claim. Known geometry/size counts are partial if their generic coverage remains incomplete.",
+    "Changed coverage/ownership/operation trajectory; no byte-identical mesh expectation or baseline CPU-dominance attribution.",
+    "CPU can include MPI polling; nested/query/collective timers overlap and are not total wait. Sampled RSS is not true physical peak.",
+    "This is nativeMPI surface preparation, not nativeMPI FIRST_ROW/layer generation. Failure captures are not credible reusable successful stages."
+  ],
+  "assessment_script_sha256": "01d0d0979746f8b123ee5e13b045fd97627299552e31a2eb6569ab13edaa6374",
+  "goal_complete": false
+}

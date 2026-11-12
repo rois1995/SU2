@@ -640,46 +640,6 @@
       "cache_evictions": 4545.0
     },
     {
-      "rank": 4.0,
-      "rounds": 543.0,
-      "updated_cells": 737.0,
-      "update_seconds": 42.13118832399999,
-      "election_calls": 75108.0,
-      "election_seconds": 271.0230806119934,
-      "geometry_trials": 266.0,
-      "geometry_rejected": 157.0,
-      "guidance_trials": 109.0,
-      "guidance_rejected": 5.0,
-      "guidance_seconds": 4.552159183000001,
-      "upper_calls": 839.0,
-      "upper_work": 1820936.0,
-      "upper_seconds": 5.636765027999997,
-      "scope_misses": 438.0,
-      "scope_build_seconds": 0.5506344069999999,
-      "facet_build_seconds": 1.3278331439999977,
-      "traversal_seconds": 3.5455377540000024
-    },
-    {
-      "rank": 2.0,
-      "rounds": 543.0,
-      "updated_cells": 642.0,
-      "update_seconds": 42.22505513600001,
-      "election_calls": 75108.0,
-      "election_seconds": 218.77950664099762,
-      "geometry_trials": 453.0,
-      "geometry_rejected": 244.0,
-      "guidance_trials": 208.0,
-      "guidance_rejected": 122.0,
-      "guidance_seconds": 31.905431816000018,
-      "upper_calls": 849.0,
-      "upper_work": 4407473.0,
-      "upper_seconds": 34.883616247999996,
-      "scope_misses": 530.0,
-      "scope_build_seconds": 4.060973717000003,
-      "facet_build_seconds": 20.914830253999934,
-      "traversal_seconds": 9.671806905000002
-    },
-    {
       "rank": 2.0,
       "rounds": 543.0,
       "updated_cells": 738.0,
@@ -725,10 +685,8 @@
     }
   ],
   "counter_attribution_gaps": [
-    "Unavailable exit counter retention_refusals on prefix rank 4",
-    "Unavailable exit counter cache_evictions on prefix rank 4",
-    "Unavailable exit counter retention_refusals on prefix rank 2",
-    "Unavailable exit counter cache_evictions on prefix rank 2"
+    "Interleaved/duplicate-key exit line discarded.",
+    "Interleaved/duplicate-key exit line discarded."
   ],
   "payloads": {
     "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved432_saved_target_surface_mpi6_20261112T092307_730261/stage_surface_rank0_owned.bin": {
@@ -911,5 +869,11 @@
     "This is nativeMPI surface preparation, not nativeMPI FIRST_ROW/layer generation. Failure captures are not credible reusable successful stages."
   ],
   "assessment_script_sha256": "565223cbec4ac8d5d635ab758f6b9b76d8d18a68d8ba55f417be3e90025ce217",
-  "goal_complete": false
+  "goal_complete": false,
+  "counter_parser_correction434": {
+    "reason": "Reject duplicate keys caused by MPI stdout interleaving; original rank labels could be overwritten. Per-rank JSON aggregate and payload validation unchanged.",
+    "original_assessment_sha256": "eb61598fb52af74ae7609a3a8b8a538b88f4472154c487393112f1d557ef8d93",
+    "raw_log_sha256": "ea876095d7251d07aae073bb6723ba8d209dbea8f13cdbed3ffcf4e9bc385071",
+    "script_sha256": "1c58a365e34235d2f0e157d5508f4f44923b75041b05bb741384fa071393386b"
+  }
 }
