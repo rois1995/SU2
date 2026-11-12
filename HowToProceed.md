@@ -7,35 +7,34 @@ Use the [stage integration cadence](Handbook/ADAPTATION_CURVED_BL_STAGE_INTEGRAT
 and maintained [timing/work ledger](Handbook/ADAPTATION_TIMINGS.md). Full retries are
 reserved for integration milestones or failures not reproducible at a stage boundary.
 
-## Current next step — reproduce remaining required-surface clearance refusals
+## Current next step — resolve compatible curved surface/volume construction
 
-451completed one measured optimization: reuse position-only thin-strip rules within
-ONE boundary-guidance call. Exact old/new actual-M6 outputs and22case serial/MPI6
-qualification pass. At the same389s native budget, requested-wall coverage rises
-5890→13779(2.34x), commits54→107, with similar summedrankCPU. The local query gain
-is3.70–5.79x; this is not accepted-mesh speedup. Source dd4614949f is pushed.
-See [cost and service evidence](Handbook/ADAPTATION_SURFACE_COST_AUDIT_20261112.md).
+451's qualified strip-query reuse improves same-budget wall coverage2.34x; it remains
+the latest production source.452/453made NO production change. Their actual saved451
+cavity results are in [clearance evidence](Handbook/ADAPTATION_SURFACE_CLEARANCE_20261112.md).
 
-Surface preparation remains NOT ready:0completepasses,13779/39014requested rows,
-61437nodes/303622positive tets; partial486geometry/23sizebad, q/J ALL UNKNOWN.
-Requested500k is nominal; initial estimate486914.722±empirical41525.003(notbound),
-achieved new-mesh composed complexity unmeasured. Saved shards/current nodal metrics,
-geometry and complete441target remain available. No CFD/sensor/norm/height change.
+The generic coupled paths' flat-face-offset apices provably miss physical first height
+on measured curved faces. Existing projected-foot alternatives certify physical h0 and
+positive clearance; actual complete Cone candidates pass positivity, split-interface,
+parameter, contact and existing-height preservation. But plane heights remain5.31h0
+on recorded R5edge/6.34h0 at LE, and surface/size/quality debt remains. A placement-only
+patch is insufficient; no useful production-admitted replacement or accepted BL proved.
+Do not drop a height gate or infer that reference cavity methods are ineffective.
 
-Next use actual451saved contexts around edge7907,7908 and vertex23829, with a clean
-control. Reproduce the required split/normal-row trial on complete current support.
-Distinguish real smooth-reference clearance/height violation, conservative refusal,
-placement/connectivity and unavailable support. Negative certificate values alone
-are not proved penetrations. Evaluate complete affected patches before choosing a
-connected correction; retain existing bounds, reservations and publication machinery.
-Do not start another speculative optimization or new scheduler/geometry policy.
+Next diagnose actual parent/child geometry-bound regression: R5simple split2→4positive
+cells raises certified geometry-excess score3.143e-7→4.972e-5. Check exact current support/
+associations and distinguish real geometry failure from conservative certification.
+Then test ONE compatible complete surface/volume replacement using existing operators,
+projected-foot and constrained-direction facilities. Include the original complete old
+patch's q/J/metric baseline—453's paired candidate counts alone are not net retirement.
+R4secondendpoint is absent from logs: adjacent samples are not exact reproductions.
 
-450ruled out StorageBytes as a material cost on sampled actual stars.446unchanged-face
-memo hadZERO coarsening hits;447scope filtering did not establish useful speedup.
-Donors already use current local tensors; do not duplicate these facilities.
-Keep ordered stages: credible surface readiness, then constrained directions/firstrow,
-physical height/alignment/progression/coverage, growth and strict closure, followed by
-full RANS transfer/continuedCFD/second adaptation/isolatedrestart. Full goal remains open.
+Keep complete441target/savedCFD/current nodal authority, L1/nominal500k, stage32h0 and
+all constraints/budgets. Surface451stillnotready (13779/39014wallrows,0passes); q/J
+wholefield unknown. No new full baseline/perf/GDB or scheduler campaign. Qualify any
+actual production correction at the established serial/MPI cadence, then replaystage3.
+Ordered remaining stages and full BL/RANS workflow stay unchanged; see HANDOFFforpins,
+actual terminal handles, preserved Euler293 and complete checkpoint locations.
 
 437 corrected the diagnostic interface ordering and selected surviving actual
 visibility failures. Direct collapses fail exact positivity; bounded corrected

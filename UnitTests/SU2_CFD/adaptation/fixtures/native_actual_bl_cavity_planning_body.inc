@@ -60,6 +60,10 @@ REQUIRE(contexts.size()==(cavityCorrection?6:4));
 std::ofstream log("actual_bl_cavity_planning.jsonl");REQUIRE(bool(log));log<<std::setprecision(17)<<std::boolalpha;
 auto samePoint=[](Point a,Point b){return a.x==b.x&&a.y==b.y&&a.z==b.z;};
 auto sameTensor=[](Tensor a,Tensor b){return a.xx==b.xx&&a.xy==b.xy&&a.xz==b.xz&&a.yy==b.yy&&a.yz==b.yz&&a.zz==b.zz;};
+if(clearanceProbe) {
+#include "native_actual_surface_clearance.inc"
+  return;
+}
 if(planningCost) {
   contexts={{"recorded_split_vertex_a",star(4247)},{"recorded_split_vertex_b",star(7907)},
       {"unchanged_wall_control",star(smooth)},{"leading_edge",star(4219)}};

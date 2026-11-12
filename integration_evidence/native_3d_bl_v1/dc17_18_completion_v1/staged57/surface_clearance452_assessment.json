@@ -1,0 +1,883 @@
+{
+  "case": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved452_surface_clearance_serial_20261112T192339_209179",
+  "status": {
+    "state": "terminal",
+    "exit_code": 0,
+    "seconds": 140.86200261116028,
+    "pins_verified": true,
+    "changed": [],
+    "largest_sampled_individual_process_rss_bytes": 1304035328,
+    "rss_note": "sampled process RSS; not a whole-job peak"
+  },
+  "all_source_runtime_input_pins_verified": 1740,
+  "all_actual_handles_terminal": true,
+  "records": [
+    {
+      "stage": "height",
+      "context": "recorded_edge_r5",
+      "edge": [
+        7907,
+        7908
+      ],
+      "operator": "input",
+      "side": "old",
+      "cells": 2,
+      "strict_height": false,
+      "measured": true,
+      "height_failures": 2,
+      "clearance_failures": 0,
+      "minimum_clearance_ratio": 146.52798,
+      "facet": 10523,
+      "cell": 279734,
+      "apex": [
+        0.4226866863950001,
+        0.741489447850812,
+        0.01324693163962485
+      ],
+      "geometry_work": 1573,
+      "seconds": 0.051892374000000005,
+      "cpu_seconds": 0.051885,
+      "reason": "Native3D prescribed height fails at facet 10514 cell 263253 relative error 149.906514 > tolerance 0.100000"
+    },
+    {
+      "stage": "patch_measurement",
+      "context": "recorded_edge_r5",
+      "operator": "input",
+      "side": "old",
+      "geometry_complete": true,
+      "geometry_excess": 3.143448494680035e-07,
+      "planning_min_edge": 0.6918367851432909,
+      "planning_max_edge": 1.766963961188959,
+      "short_edges": 2,
+      "tiny_edges": 0,
+      "long_edges": 0,
+      "full_target_certificate": false,
+      "mesh_accepted": false
+    },
+    {
+      "stage": "operator",
+      "context": "recorded_edge_r5",
+      "edge": [
+        7907,
+        7908
+      ],
+      "operator": "SplitEdge",
+      "old_cells": 2,
+      "new_cells": 4,
+      "constructed": true,
+      "seconds": 0.001633653,
+      "reason": ""
+    },
+    {
+      "stage": "height",
+      "context": "recorded_edge_r5",
+      "edge": [
+        7907,
+        7908
+      ],
+      "operator": "SplitEdge",
+      "side": "fresh",
+      "cells": 4,
+      "strict_height": false,
+      "measured": true,
+      "height_failures": 4,
+      "clearance_failures": 0,
+      "minimum_clearance_ratio": 146.52798,
+      "facet": 10523,
+      "cell": 1982728,
+      "apex": [
+        0.4226866863950001,
+        0.741489447850812,
+        0.01324693163962485
+      ],
+      "geometry_work": 4,
+      "seconds": 0.000665711,
+      "cpu_seconds": 0.000665,
+      "reason": "Native3D prescribed height fails at facet 10523 cell 1982728 relative error 146.771025 > tolerance 0.100000"
+    },
+    {
+      "stage": "patch_measurement",
+      "context": "recorded_edge_r5",
+      "operator": "SplitEdge",
+      "side": "fresh",
+      "geometry_complete": true,
+      "geometry_excess": 4.971879462848273e-05,
+      "planning_min_edge": 0.4795963473339221,
+      "planning_max_edge": 1.766963961188959,
+      "short_edges": 6,
+      "tiny_edges": 1,
+      "long_edges": 0,
+      "full_target_certificate": false,
+      "mesh_accepted": false
+    },
+    {
+      "stage": "operator",
+      "context": "recorded_edge_r5",
+      "edge": [
+        7907,
+        7908
+      ],
+      "operator": "InsertEdgeCavity",
+      "old_cells": 2,
+      "new_cells": 0,
+      "constructed": false,
+      "seconds": 4.4391e-05,
+      "reason": "Native 3D insertion cannot change an immutable facet or marker junction."
+    },
+    {
+      "stage": "operator",
+      "context": "recorded_edge_r5",
+      "edge": [
+        7907,
+        7908
+      ],
+      "operator": "RefitWallSplit",
+      "old_cells": 32,
+      "new_cells": 0,
+      "constructed": false,
+      "seconds": 0.04487137,
+      "reason": "Native3D retained apex has incompatible height planes; different connectivity is required."
+    },
+    {
+      "stage": "operator",
+      "context": "recorded_edge_r5",
+      "edge": [
+        7907,
+        7908
+      ],
+      "operator": "ReconstructWallSplit",
+      "old_cells": 32,
+      "new_cells": 0,
+      "constructed": false,
+      "seconds": 0.043905595000000006,
+      "reason": "Native3D geometry-height incompatibility of the normal-row proposal at facet 16436 cell 1983137 clearance/h0=-3.321894: positive smooth-reference clearance is not certified; reconsider the wall/row proposal."
+    },
+    {
+      "stage": "operator",
+      "context": "recorded_edge_r5",
+      "edge": [
+        7907,
+        7908
+      ],
+      "operator": "ReconstructSplitPatch",
+      "old_cells": 32,
+      "new_cells": 0,
+      "constructed": false,
+      "seconds": 0.008278114000000001,
+      "reason": "Native3D geometry-height incompatibility of the normal-row proposal at facet 16436 cell 1983265 clearance/h0=-3.321894: positive smooth-reference clearance is not certified; reconsider the wall/row proposal."
+    },
+    {
+      "stage": "height",
+      "context": "r4_adjacent_candidate_0",
+      "edge": [
+        4303,
+        23829
+      ],
+      "operator": "input",
+      "side": "old",
+      "cells": 2,
+      "strict_height": false,
+      "measured": true,
+      "height_failures": 2,
+      "clearance_failures": 0,
+      "minimum_clearance_ratio": 131.282945,
+      "facet": 48011,
+      "cell": 238559,
+      "apex": [
+        0.848498468943002,
+        1.200123884741682,
+        0.0301795575511532
+      ],
+      "geometry_work": 885,
+      "seconds": 0.034996998,
+      "cpu_seconds": 0.03499,
+      "reason": "Native3D prescribed height fails at facet 48011 cell 238559 relative error 132.875267 > tolerance 0.100000"
+    },
+    {
+      "stage": "patch_measurement",
+      "context": "r4_adjacent_candidate_0",
+      "operator": "input",
+      "side": "old",
+      "geometry_complete": true,
+      "geometry_excess": 3.365993638413033e-07,
+      "planning_min_edge": 0.6109234463680507,
+      "planning_max_edge": 1.3677277604132854,
+      "short_edges": 5,
+      "tiny_edges": 0,
+      "long_edges": 0,
+      "full_target_certificate": false,
+      "mesh_accepted": false
+    },
+    {
+      "stage": "operator",
+      "context": "r4_adjacent_candidate_0",
+      "edge": [
+        4303,
+        23829
+      ],
+      "operator": "SplitEdge",
+      "old_cells": 2,
+      "new_cells": 4,
+      "constructed": true,
+      "seconds": 0.003405519,
+      "reason": ""
+    },
+    {
+      "stage": "height",
+      "context": "r4_adjacent_candidate_0",
+      "edge": [
+        4303,
+        23829
+      ],
+      "operator": "SplitEdge",
+      "side": "fresh",
+      "cells": 4,
+      "strict_height": false,
+      "measured": true,
+      "height_failures": 4,
+      "clearance_failures": 0,
+      "minimum_clearance_ratio": 131.282945,
+      "facet": 48011,
+      "cell": 1983367,
+      "apex": [
+        0.848498468943002,
+        1.200123884741682,
+        0.0301795575511532
+      ],
+      "geometry_work": 4,
+      "seconds": 0.001006839,
+      "cpu_seconds": 0.001001,
+      "reason": "Native3D prescribed height fails at facet 48011 cell 1983367 relative error 130.681189 > tolerance 0.100000"
+    },
+    {
+      "stage": "patch_measurement",
+      "context": "r4_adjacent_candidate_0",
+      "operator": "SplitEdge",
+      "side": "fresh",
+      "geometry_complete": true,
+      "geometry_excess": 3.127243339649814e-05,
+      "planning_min_edge": 0.37208951462718565,
+      "planning_max_edge": 1.3677277604132854,
+      "short_edges": 8,
+      "tiny_edges": 2,
+      "long_edges": 0,
+      "full_target_certificate": false,
+      "mesh_accepted": false
+    },
+    {
+      "stage": "operator",
+      "context": "r4_adjacent_candidate_0",
+      "edge": [
+        4303,
+        23829
+      ],
+      "operator": "InsertEdgeCavity",
+      "old_cells": 2,
+      "new_cells": 0,
+      "constructed": false,
+      "seconds": 4.5812e-05,
+      "reason": "Native 3D insertion cannot change an immutable facet or marker junction."
+    },
+    {
+      "stage": "operator",
+      "context": "r4_adjacent_candidate_0",
+      "edge": [
+        4303,
+        23829
+      ],
+      "operator": "RefitWallSplit",
+      "old_cells": 28,
+      "new_cells": 0,
+      "constructed": false,
+      "seconds": 0.023850001000000003,
+      "reason": "Native3D retained apex has incompatible height planes; different connectivity is required."
+    },
+    {
+      "stage": "operator",
+      "context": "r4_adjacent_candidate_0",
+      "edge": [
+        4303,
+        23829
+      ],
+      "operator": "ReconstructWallSplit",
+      "old_cells": 28,
+      "new_cells": 0,
+      "constructed": false,
+      "seconds": 0.046092342,
+      "reason": "Native3D geometry-height incompatibility of the normal-row proposal at facet 47715 cell 1983777 clearance/h0=-2.999605: positive smooth-reference clearance is not certified; reconsider the wall/row proposal."
+    },
+    {
+      "stage": "operator",
+      "context": "r4_adjacent_candidate_0",
+      "edge": [
+        4303,
+        23829
+      ],
+      "operator": "ReconstructSplitPatch",
+      "old_cells": 28,
+      "new_cells": 0,
+      "constructed": false,
+      "seconds": 0.008612225000000001,
+      "reason": "Native3D geometry-height incompatibility of the normal-row proposal at facet 47715 cell 1983905 clearance/h0=-2.999605: positive smooth-reference clearance is not certified; reconsider the wall/row proposal."
+    },
+    {
+      "stage": "height",
+      "context": "r4_adjacent_candidate_1",
+      "edge": [
+        4304,
+        23829
+      ],
+      "operator": "input",
+      "side": "old",
+      "cells": 2,
+      "strict_height": false,
+      "measured": true,
+      "height_failures": 2,
+      "clearance_failures": 0,
+      "minimum_clearance_ratio": 131.282945,
+      "facet": 48011,
+      "cell": 238559,
+      "apex": [
+        0.848498468943002,
+        1.200123884741682,
+        0.0301795575511532
+      ],
+      "geometry_work": 2,
+      "seconds": 0.000190637,
+      "cpu_seconds": 0.00018899999999999999,
+      "reason": "Native3D prescribed height fails at facet 47637 cell 228419 relative error 135.393195 > tolerance 0.100000"
+    },
+    {
+      "stage": "patch_measurement",
+      "context": "r4_adjacent_candidate_1",
+      "operator": "input",
+      "side": "old",
+      "geometry_complete": true,
+      "geometry_excess": 1.630901648076677e-07,
+      "planning_min_edge": 0.5795572027263002,
+      "planning_max_edge": 1.3677277604132854,
+      "short_edges": 5,
+      "tiny_edges": 0,
+      "long_edges": 0,
+      "full_target_certificate": false,
+      "mesh_accepted": false
+    },
+    {
+      "stage": "operator",
+      "context": "r4_adjacent_candidate_1",
+      "edge": [
+        4304,
+        23829
+      ],
+      "operator": "SplitEdge",
+      "old_cells": 2,
+      "new_cells": 4,
+      "constructed": true,
+      "seconds": 0.0019525010000000001,
+      "reason": ""
+    },
+    {
+      "stage": "height",
+      "context": "r4_adjacent_candidate_1",
+      "edge": [
+        4304,
+        23829
+      ],
+      "operator": "SplitEdge",
+      "side": "fresh",
+      "cells": 4,
+      "strict_height": false,
+      "measured": true,
+      "height_failures": 4,
+      "clearance_failures": 0,
+      "minimum_clearance_ratio": 131.282945,
+      "facet": 48011,
+      "cell": 1984007,
+      "apex": [
+        0.848498468943002,
+        1.200123884741682,
+        0.0301795575511532
+      ],
+      "geometry_work": 4,
+      "seconds": 0.000722844,
+      "cpu_seconds": 0.000723,
+      "reason": "Native3D prescribed height fails at facet 48011 cell 1984008 relative error 132.121036 > tolerance 0.100000"
+    },
+    {
+      "stage": "patch_measurement",
+      "context": "r4_adjacent_candidate_1",
+      "operator": "SplitEdge",
+      "side": "fresh",
+      "geometry_complete": true,
+      "geometry_excess": 8.696803527105577e-06,
+      "planning_min_edge": 0.32306376907995554,
+      "planning_max_edge": 1.3677277604132854,
+      "short_edges": 8,
+      "tiny_edges": 3,
+      "long_edges": 0,
+      "full_target_certificate": false,
+      "mesh_accepted": false
+    },
+    {
+      "stage": "operator",
+      "context": "r4_adjacent_candidate_1",
+      "edge": [
+        4304,
+        23829
+      ],
+      "operator": "InsertEdgeCavity",
+      "old_cells": 2,
+      "new_cells": 0,
+      "constructed": false,
+      "seconds": 5.4575000000000005e-05,
+      "reason": "Native 3D insertion cannot change an immutable facet or marker junction."
+    },
+    {
+      "stage": "operator",
+      "context": "r4_adjacent_candidate_1",
+      "edge": [
+        4304,
+        23829
+      ],
+      "operator": "RefitWallSplit",
+      "old_cells": 28,
+      "new_cells": 0,
+      "constructed": false,
+      "seconds": 0.00416441,
+      "reason": "Native3D retained apex has incompatible height planes; different connectivity is required."
+    },
+    {
+      "stage": "operator",
+      "context": "r4_adjacent_candidate_1",
+      "edge": [
+        4304,
+        23829
+      ],
+      "operator": "ReconstructWallSplit",
+      "old_cells": 28,
+      "new_cells": 0,
+      "constructed": false,
+      "seconds": 0.033711244,
+      "reason": "Native3D geometry-height incompatibility of the normal-row proposal at facet 47715 cell 1984417 clearance/h0=-2.999605: positive smooth-reference clearance is not certified; reconsider the wall/row proposal."
+    },
+    {
+      "stage": "operator",
+      "context": "r4_adjacent_candidate_1",
+      "edge": [
+        4304,
+        23829
+      ],
+      "operator": "ReconstructSplitPatch",
+      "old_cells": 28,
+      "new_cells": 0,
+      "constructed": false,
+      "seconds": 0.0092561,
+      "reason": "Native3D geometry-height incompatibility of the normal-row proposal at facet 47715 cell 1984545 clearance/h0=-2.999605: positive smooth-reference clearance is not certified; reconsider the wall/row proposal."
+    },
+    {
+      "stage": "height",
+      "context": "smooth_control",
+      "edge": [
+        6032,
+        6070
+      ],
+      "operator": "input",
+      "side": "old",
+      "cells": 2,
+      "strict_height": false,
+      "measured": true,
+      "height_failures": 2,
+      "clearance_failures": 0,
+      "minimum_clearance_ratio": 230.830676,
+      "facet": 22530,
+      "cell": 160975,
+      "apex": [
+        0.7108785211002426,
+        0.5116077404735816,
+        0.0398445804074895
+      ],
+      "geometry_work": 724,
+      "seconds": 0.026509725,
+      "cpu_seconds": 0.026501999999999998,
+      "reason": "Native3D prescribed height fails at facet 22530 cell 160975 relative error 229.947979 > tolerance 0.100000"
+    },
+    {
+      "stage": "patch_measurement",
+      "context": "smooth_control",
+      "operator": "input",
+      "side": "old",
+      "geometry_complete": true,
+      "geometry_excess": 0,
+      "planning_min_edge": 0.5797253942273226,
+      "planning_max_edge": 2.018475305348217,
+      "short_edges": 4,
+      "tiny_edges": 0,
+      "long_edges": 2,
+      "full_target_certificate": false,
+      "mesh_accepted": false
+    },
+    {
+      "stage": "operator",
+      "context": "smooth_control",
+      "edge": [
+        6032,
+        6070
+      ],
+      "operator": "SplitEdge",
+      "old_cells": 2,
+      "new_cells": 4,
+      "constructed": true,
+      "seconds": 0.0016646850000000002,
+      "reason": ""
+    },
+    {
+      "stage": "height",
+      "context": "smooth_control",
+      "edge": [
+        6032,
+        6070
+      ],
+      "operator": "SplitEdge",
+      "side": "fresh",
+      "cells": 4,
+      "strict_height": false,
+      "measured": true,
+      "height_failures": 4,
+      "clearance_failures": 0,
+      "minimum_clearance_ratio": 230.830676,
+      "facet": 22530,
+      "cell": 1984645,
+      "apex": [
+        0.7108785211002426,
+        0.5116077404735816,
+        0.0398445804074895
+      ],
+      "geometry_work": 4,
+      "seconds": 0.0006932100000000001,
+      "cpu_seconds": 0.0006929999999999999,
+      "reason": "Native3D prescribed height fails at facet 22530 cell 1984646 relative error 229.900650 > tolerance 0.100000"
+    },
+    {
+      "stage": "patch_measurement",
+      "context": "smooth_control",
+      "operator": "SplitEdge",
+      "side": "fresh",
+      "geometry_complete": true,
+      "geometry_excess": 0,
+      "planning_min_edge": 0.39843970237915144,
+      "planning_max_edge": 2.018475305348217,
+      "short_edges": 7,
+      "tiny_edges": 2,
+      "long_edges": 2,
+      "full_target_certificate": false,
+      "mesh_accepted": false
+    },
+    {
+      "stage": "operator",
+      "context": "smooth_control",
+      "edge": [
+        6032,
+        6070
+      ],
+      "operator": "InsertEdgeCavity",
+      "old_cells": 2,
+      "new_cells": 0,
+      "constructed": false,
+      "seconds": 4.4805e-05,
+      "reason": "Native 3D insertion cannot change an immutable facet or marker junction."
+    },
+    {
+      "stage": "operator",
+      "context": "smooth_control",
+      "edge": [
+        6032,
+        6070
+      ],
+      "operator": "RefitWallSplit",
+      "old_cells": 24,
+      "new_cells": 0,
+      "constructed": false,
+      "seconds": 0.018472444,
+      "reason": "Native3D retained apex has incompatible height planes; different connectivity is required."
+    },
+    {
+      "stage": "operator",
+      "context": "smooth_control",
+      "edge": [
+        6032,
+        6070
+      ],
+      "operator": "ReconstructWallSplit",
+      "old_cells": 24,
+      "new_cells": 44,
+      "constructed": true,
+      "seconds": 0.026072779,
+      "reason": ""
+    },
+    {
+      "stage": "height",
+      "context": "smooth_control",
+      "edge": [
+        6032,
+        6070
+      ],
+      "operator": "ReconstructWallSplit",
+      "side": "fresh",
+      "cells": 44,
+      "strict_height": false,
+      "measured": true,
+      "height_failures": 4,
+      "clearance_failures": 0,
+      "minimum_clearance_ratio": 0.781503,
+      "facet": 26617,
+      "cell": 1985061,
+      "apex": [
+        0.7009139103612346,
+        0.5144989865961604,
+        0.02586864251103979
+      ],
+      "geometry_work": 6,
+      "seconds": 0.0008408070000000001,
+      "cpu_seconds": 0.000841,
+      "reason": "Native3D prescribed height fails at facet 26617 cell 1985061 relative error 0.218383 > tolerance 0.100000"
+    },
+    {
+      "stage": "patch_measurement",
+      "context": "smooth_control",
+      "operator": "ReconstructWallSplit",
+      "side": "fresh",
+      "geometry_complete": true,
+      "geometry_excess": 0,
+      "planning_min_edge": 0.17580498037658285,
+      "planning_max_edge": 2.900202962359412,
+      "short_edges": 30,
+      "tiny_edges": 17,
+      "long_edges": 13,
+      "full_target_certificate": false,
+      "mesh_accepted": false
+    },
+    {
+      "stage": "operator",
+      "context": "smooth_control",
+      "edge": [
+        6032,
+        6070
+      ],
+      "operator": "ReconstructSplitPatch",
+      "old_cells": 24,
+      "new_cells": 47,
+      "constructed": true,
+      "seconds": 0.011589795,
+      "reason": ""
+    },
+    {
+      "stage": "height",
+      "context": "smooth_control",
+      "edge": [
+        6032,
+        6070
+      ],
+      "operator": "ReconstructSplitPatch",
+      "side": "fresh",
+      "cells": 47,
+      "strict_height": false,
+      "measured": true,
+      "height_failures": 4,
+      "clearance_failures": 0,
+      "minimum_clearance_ratio": 0.781503,
+      "facet": 26617,
+      "cell": 1985188,
+      "apex": [
+        0.7009139103612346,
+        0.5144989865961604,
+        0.02586864251103979
+      ],
+      "geometry_work": 6,
+      "seconds": 0.0007710050000000001,
+      "cpu_seconds": 0.000771,
+      "reason": "Native3D prescribed height fails at facet 26617 cell 1985188 relative error 0.218383 > tolerance 0.100000"
+    },
+    {
+      "stage": "patch_measurement",
+      "context": "smooth_control",
+      "operator": "ReconstructSplitPatch",
+      "side": "fresh",
+      "geometry_complete": true,
+      "geometry_excess": 0,
+      "planning_min_edge": 0.17580498037658285,
+      "planning_max_edge": 2.8448751306704594,
+      "short_edges": 30,
+      "tiny_edges": 18,
+      "long_edges": 21,
+      "full_target_certificate": false,
+      "mesh_accepted": false
+    },
+    {
+      "stage": "height",
+      "context": "leading_edge_control",
+      "edge": [
+        4218,
+        4219
+      ],
+      "operator": "input",
+      "side": "old",
+      "cells": 3,
+      "strict_height": false,
+      "measured": true,
+      "height_failures": 2,
+      "clearance_failures": 0,
+      "minimum_clearance_ratio": 118.436827,
+      "facet": 29982,
+      "cell": 292003,
+      "apex": [
+        0.2813715184386628,
+        0.4993412449307689,
+        -0.007682230009994825
+      ],
+      "geometry_work": 1164,
+      "seconds": 0.047737364000000004,
+      "cpu_seconds": 0.047715999999999995,
+      "reason": "Native3D prescribed height fails at facet 10692 cell 276260 relative error 134.132058 > tolerance 0.100000"
+    },
+    {
+      "stage": "patch_measurement",
+      "context": "leading_edge_control",
+      "operator": "input",
+      "side": "old",
+      "geometry_complete": true,
+      "geometry_excess": 4.7272664616598286e-07,
+      "planning_min_edge": 0.5528203814830401,
+      "planning_max_edge": 1.326170202639566,
+      "short_edges": 3,
+      "tiny_edges": 0,
+      "long_edges": 0,
+      "full_target_certificate": false,
+      "mesh_accepted": false
+    },
+    {
+      "stage": "operator",
+      "context": "leading_edge_control",
+      "edge": [
+        4218,
+        4219
+      ],
+      "operator": "SplitEdge",
+      "old_cells": 3,
+      "new_cells": 6,
+      "constructed": true,
+      "seconds": 0.0017807550000000002,
+      "reason": ""
+    },
+    {
+      "stage": "height",
+      "context": "leading_edge_control",
+      "edge": [
+        4218,
+        4219
+      ],
+      "operator": "SplitEdge",
+      "side": "fresh",
+      "cells": 6,
+      "strict_height": false,
+      "measured": true,
+      "height_failures": 4,
+      "clearance_failures": 0,
+      "minimum_clearance_ratio": 118.436827,
+      "facet": 29982,
+      "cell": 1985289,
+      "apex": [
+        0.2813715184386628,
+        0.4993412449307689,
+        -0.007682230009994825
+      ],
+      "geometry_work": 4,
+      "seconds": 0.000721122,
+      "cpu_seconds": 0.000721,
+      "reason": "Native3D prescribed height fails at facet 10692 cell 1985287 relative error 134.132058 > tolerance 0.100000"
+    },
+    {
+      "stage": "patch_measurement",
+      "context": "leading_edge_control",
+      "operator": "SplitEdge",
+      "side": "fresh",
+      "geometry_complete": true,
+      "geometry_excess": 9.454531764421485e-07,
+      "planning_min_edge": 0.27535382200847175,
+      "planning_max_edge": 1.326170202639566,
+      "short_edges": 6,
+      "tiny_edges": 2,
+      "long_edges": 0,
+      "full_target_certificate": false,
+      "mesh_accepted": false
+    },
+    {
+      "stage": "operator",
+      "context": "leading_edge_control",
+      "edge": [
+        4218,
+        4219
+      ],
+      "operator": "InsertEdgeCavity",
+      "old_cells": 3,
+      "new_cells": 0,
+      "constructed": false,
+      "seconds": 0.000144795,
+      "reason": "Native 3D insertion cannot change an immutable facet or marker junction."
+    },
+    {
+      "stage": "operator",
+      "context": "leading_edge_control",
+      "edge": [
+        4218,
+        4219
+      ],
+      "operator": "RefitWallSplit",
+      "old_cells": 37,
+      "new_cells": 0,
+      "constructed": false,
+      "seconds": 0.06617993,
+      "reason": "Native3D retained height planes leave no normal-foot freedom."
+    },
+    {
+      "stage": "operator",
+      "context": "leading_edge_control",
+      "edge": [
+        4218,
+        4219
+      ],
+      "operator": "ReconstructWallSplit",
+      "old_cells": 37,
+      "new_cells": 0,
+      "constructed": false,
+      "seconds": 0.069627638,
+      "reason": "Native3D geometry-height incompatibility of the normal-row proposal at facet 10692 cell 1985707 clearance/h0=-4.357005: positive smooth-reference clearance is not certified; reconsider the wall/row proposal."
+    },
+    {
+      "stage": "operator",
+      "context": "leading_edge_control",
+      "edge": [
+        4218,
+        4219
+      ],
+      "operator": "ReconstructSplitPatch",
+      "old_cells": 37,
+      "new_cells": 0,
+      "constructed": false,
+      "seconds": 0.010241411,
+      "reason": "Native3D geometry-height incompatibility of the normal-row proposal at facet 10692 cell 1985828 clearance/h0=-4.357005: positive smooth-reference clearance is not certified; reconsider the wall/row proposal."
+    }
+  ],
+  "clearance_summary": [],
+  "owned_records_byte_identical_to_saved451": 303622,
+  "owned_export_sha256": "cb38984c1ea274d02fc22ecae8f100951d435f8632558f334ec8d5014f876c3a",
+  "script_sha256": "156deb087d9312821bbeb028a8d2b4c3c623bebb702b3dee31fa9c92b1876fbc",
+  "limits": [
+    "Reproduced recorded R5 edge on terminal451state, not an unavailable exact private trial payload.",
+    "R4log retains only first endpoint23829: its two actual adjacent edges are candidates, not identity-qualified reproductions.",
+    "Signed returned-candidate values are local witnesses, not sign certificates or proof of body penetration.",
+    "SurfacePlanning metrics and fitting guidance are not final composed-edge or geometry acceptance.",
+    "No q/J, transfer, generated BL or MPI production qualification is claimed by this serial diagnostic."
+  ],
+  "production_changed": false,
+  "goal_complete": false
+}

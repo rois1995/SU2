@@ -1579,3 +1579,26 @@ All overlapping wrappers keptseparate. Only2clean exitrows/3gaps;290rounds/22384
 collectiveelections, not totalMPIwait. SampletreeRSS4.336GB/individual.899GB/notpeaks.
 Remaining blocker includes uncertified smooth-reference clearance in actual required
 split trials. See boundary_strip451_outcome.json and currentcost audit; no newbaseline.
+
+452/453 bounded actual surface-clearance investigation (NO production change):
+452build344.929s,453build271.790s; all10actual identities terminal for each, pins/
+newtestbinary/cleanNinja, productionCFD remains BYTE-IDENTICAL451.452serial140.862s/
+607519assertions/1740pins;453serial146.676s/607626assertions/1742pins. Each exports
+all303622Ownedrecords independently byte-identical451; actual worker/wrapper handles
+terminal.45249records/25existingoperatortrials/7constructed;453121records plus10paired
+flat/projected Cone candidates. These counts do not establish accepted progress.
+
+Time-command spans:452133.38s wall/132.20user+.82system;453139.60wall/137.93user+.95system.
+Enclosing runs include geometry/target reconstruction, not just operators.453point
+probes7511work across30independent queries; not additive to nested height/candidate
+work. Sampled processRSS1.304GB/1.095GB vs time-reported maxRSS~1.378GB/process;
+neither establishes whole-job peak. No newperf/GDB or redundant MPI campaign.
+
+Confirmed construction/compatibility blocker: flat-offset apex distance3.322stageh0
+on actual R5edge and4.357stageh0 at LE;1e4tighter distance precision does not prove
+positive clearance. Existing projected-foot point certifies physicalstageh0/positive
+clearance, but planar altitude5.310/6.335stageh0 and other geometry/size/qJdebt remain.
+Actual positive replacements pass interface/parameter/contact/protected-height checks,
+not final height/mesh acceptance. No useful admitted production correction selected.
+Next inspect actual parent/child geometry-bound regression with exact complete old/
+new baselines; see ADAPTATION_SURFACE_CLEARANCE_20261112.md and surface_apex453_outcome.json.

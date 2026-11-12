@@ -6,6 +6,7 @@ Read AGENTS.md, [ordered stages](Handbook/ADAPTATION_CURVED_BL_STAGE_INTEGRATION
 [current cost/scope evidence](Handbook/ADAPTATION_SURFACE_COST_AUDIT_20261112.md),
 [bounded cavities](Handbook/ADAPTATION_M6_BOUNDED_CAVITY_COMPARISON_20261112.md),
 [first-height continuation](Handbook/ADAPTATION_FIRST_HEIGHT_CONTINUATION_20261112.md),
+[current clearance investigation](Handbook/ADAPTATION_SURFACE_CLEARANCE_20261112.md),
 [timing ledger](Handbook/ADAPTATION_TIMINGS.md), [HowToProceed](HowToProceed.md),
 [backlog](Handbook/ADAPTATION_BACKLOG.md).
 [History through447 qualification](Handbook/ADAPTATION_HANDOFF_HISTORY_PRE_447_OUTCOME_20261112.md)
@@ -13,14 +14,48 @@ preserves earlier evidence/handles, NOT live workload state.
 
 ## Live state and provenance
 
-No owned heavy workload is live. Build451 and every validation/replay wrapper are
-terminal; actual PID/start-tick receipts were rechecked before recording outcomes.
+No owned heavy workload is live.453build and actual diagnostic are terminal, all
+actual identities rechecked. Test-only452/453evidence extends the current stage3
+cycle; productionCFD is BYTE-IDENTICAL451, no production correction selected.
+Build453PASS271.790s/all10actualterminal/pins/newbinary/cleanNinja. CurrenttestSHA
+ a6fbd2426dabff74cf8be26e3b56f9de21b6eb43d723931921fd222e2e7b8c5c.
+Actual453case:
+R/cases/curved453_surface_apex_serial_20261112T193917_248639
+(session19562terminal), PASS146.676s/607626assertions,1742pins/all5actualterminal/
+all303622Ownedrecordsbyte-identical451. R/surface_apex453_assessment.json and
+surface_apex453_outcome.json.452PASS140.862s/607519assertions,1740pins/allactualterminal;
+R/surface_clearance452_assessment.json. Priorentry R/surface_clearance452_entry.json.
+Read [current clearance evidence](Handbook/ADAPTATION_SURFACE_CLEARANCE_20261112.md).
+
+Confirmed on actual recordedR5edge7907–7908 and LE/control contexts: flat-offset
+apices fail requested PHYSICAL distance (R5~3.322h0,LE~4.357h0); tightening distance
+precision1e4times does not prove positive clearance. Existing projected-foot points
+certify distance~h0 and positive clearance. Actual complete Cone replacements pass
+positivity/fixedsplitinterface/parameter/contact/passingheight preservation.
+BUT their flat-face altitudes are5.310h0(R5),6.335h0(LE); geometry/size/qJdebt remains.
+No final BL or production-admitted useful replacement proved; do NOT integrate a
+placement-only patch or weaken flat/physical height checks. R4samples are adjacent
+candidates, not exact loggededge(secondendpointmissing). No negative-side certificate
+or bodypenetration claim. Fulloriginalcoupled old-patch qJ baseline remains unmeasured;
+paired flat/projected complete candidates alone do not establish net bad-cell removal.
+
+Next investigate parent/child surface geometry-bound regression on actual contexts,
+including exact support/associations and full old-patch metric/qJ baseline. R5simple
+split2→4positive cells raises geometryexcess3.143e-7→4.972e-5 despite no clearance
+failures. Refit sees incompatible height planes; coupledflatapex fails. Projected
+point fixes clearance but leaves the surface/height-compatibility issue. Reuse existing
+cavity/surface, projected-foot and constrained-direction facilities; select ONE
+complete useful replacement, not another speculative optimization or larger scheduler.
+No newMPIcampaign for test-only diagnostics; production integration still requires
+focused checks and the appropriate MPI milestone before a stage retry.
+
+Build451 and prior wrappers are terminal; their receipts remain below.
 Source checkpoint **dd4614949f** is pushed to origin/codex/native-3d-bl; consult git
 log for a later evidence-only checkpoint. Preserve unrelated working changes.
 
-Build451 PASS407.947s, all36observed actual identities terminal, source pins unchanged,
+Historical451 build PASS407.947s, all36observed actual identities terminal, source pins unchanged,
 new test binary and clean Ninja dry-run. R/build451_status.json/source_pins.json/
-terminal_handles.json. Current test SHA:
+terminal_handles.json. Historical451 test SHA:
 3d68c30ce14a4afe1e3b2eabd94e5e8a73b899ce5fabb0e381a556d3dc4fe03d;
 CFD SHA f15bc306e1558ed5d9e8ee804ecc03155f4aecc55b754634ee2398f79fa5509a.
 Serial22cases/11679assertions PASS4.783s; MPI6 same22cases on EVERYrank,
@@ -67,17 +102,11 @@ versus12.028/14.306s. More useful stage work, not accepted-mesh time or totalMPI
 Geometrywork16.268Mvs7.547M reflects more trials; do not call it traversal savings.
 Rank3 now measures all1670local requested rows; global readiness remains false.
 
-Next investigate actual required-surface replacement feasibility, not another
-speculative performance cycle. Final R5 rejection is edge7907,7908/facet10515,
-privatecell2077984, clearance/h0=-3.742569; R4 feature2:23829/facet47732,
-privatecell2083141, clearance/h0=-4.970417. Positive smooth-reference clearance was
-not certified; these numbers do NOT independently prove physical penetration.
-Reconstruct complete final saved contexts with current associations/nodal metrics,
-including a successful control. Separate actual geometry/height violation, conservative
-certificate refusal, placement/connectivity obstruction and incomplete support before
-selecting a correction. Existing four vertex-star query samples are NOT exact failed
-split-cavity reproductions. No new baseline/perf/GDB campaign or raised budget.
-
+The surface-readiness blocker is now more specific: incompatible flat/physical
+height placement AND surface-split geometry-score regression. The live-state section
+and linked clearance record supersede the earlier generic refusal diagnosis. Earlier
+451lastrejections remain preserved in boundary_strip451_outcome.json. No newbaseline/
+perf/GDB campaign, raised budget, changed target or relaxed gate.
 Qualified447wall-only published measurement,448required-debt handoff and449bounded
 idle census remain. Busy cursors are not drained; all ranks keep aligned admission/
 vote/measurement; repick precedes the same active iteration. No upfront full census.

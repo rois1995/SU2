@@ -1,0 +1,3104 @@
+{
+  "case": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved453_surface_apex_serial_20261112T193917_248639",
+  "status": {
+    "state": "terminal",
+    "exit_code": 0,
+    "seconds": 146.6763916015625,
+    "pins_verified": true,
+    "changed": [],
+    "largest_sampled_individual_process_rss_bytes": 1094582272,
+    "rss_note": "sampled process RSS; not a whole-job peak"
+  },
+  "all_source_runtime_input_pins_verified": 1742,
+  "all_actual_handles_terminal": true,
+  "records": [
+    {
+      "stage": "height",
+      "context": "recorded_edge_r5",
+      "edge": [
+        7907,
+        7908
+      ],
+      "operator": "input",
+      "side": "old",
+      "cells": 2,
+      "strict_height": false,
+      "measured": true,
+      "height_failures": 2,
+      "clearance_failures": 0,
+      "minimum_clearance_ratio": 146.52798,
+      "facet": 10523,
+      "cell": 279734,
+      "apex": [
+        0.4226866863950001,
+        0.741489447850812,
+        0.01324693163962485
+      ],
+      "geometry_work": 1573,
+      "seconds": 0.050008958000000006,
+      "cpu_seconds": 0.050003,
+      "reason": "Native3D prescribed height fails at facet 10514 cell 263253 relative error 149.906514 > tolerance 0.100000"
+    },
+    {
+      "stage": "patch_measurement",
+      "context": "recorded_edge_r5",
+      "operator": "input",
+      "side": "old",
+      "geometry_complete": true,
+      "geometry_excess": 3.143448494680035e-07,
+      "planning_min_edge": 0.6918367851432909,
+      "planning_max_edge": 1.766963961188959,
+      "short_edges": 2,
+      "tiny_edges": 0,
+      "centroid_q_bad": 2,
+      "centroid_J_bad": 2,
+      "long_edges": 0,
+      "full_target_certificate": false,
+      "mesh_accepted": false
+    },
+    {
+      "stage": "apex_probe",
+      "context": "recorded_edge_r5",
+      "operator": "FlatFootCone",
+      "facet": 16436,
+      "point": [
+        0.434116976842208,
+        0.7460929476840463,
+        0.007350771933924974
+      ],
+      "precision_over_h": 0.0001,
+      "plane_height_ratio": 1.0000000000001619,
+      "distance_lower_over_h": 3.321807079658544,
+      "distance_upper_over_h": 3.321893524298288,
+      "clearance_lower_over_h": -3.321893524298288,
+      "signed_candidate_over_h": -3.321893524297975,
+      "candidate_is_sign_certificate": false,
+      "work": 220
+    },
+    {
+      "stage": "apex_probe",
+      "context": "recorded_edge_r5",
+      "operator": "FlatFootCone",
+      "facet": 16436,
+      "point": [
+        0.434116976842208,
+        0.7460929476840463,
+        0.007350771933924974
+      ],
+      "precision_over_h": 1e-06,
+      "plane_height_ratio": 1.0000000000001619,
+      "distance_lower_over_h": 3.3218929006664055,
+      "distance_upper_over_h": 3.321893524298288,
+      "clearance_lower_over_h": -3.321893524298288,
+      "signed_candidate_over_h": -3.321893524297975,
+      "candidate_is_sign_certificate": false,
+      "work": 271
+    },
+    {
+      "stage": "apex_probe",
+      "context": "recorded_edge_r5",
+      "operator": "FlatFootCone",
+      "facet": 16436,
+      "point": [
+        0.434116976842208,
+        0.7460929476840463,
+        0.007350771933924974
+      ],
+      "precision_over_h": 1e-08,
+      "plane_height_ratio": 1.0000000000001619,
+      "distance_lower_over_h": 3.3218935166237693,
+      "distance_upper_over_h": 3.321893524298288,
+      "clearance_lower_over_h": -3.321893524298288,
+      "signed_candidate_over_h": -3.321893524297975,
+      "candidate_is_sign_certificate": false,
+      "work": 423
+    },
+    {
+      "stage": "height",
+      "context": "recorded_edge_r5",
+      "edge": [
+        7907,
+        7908
+      ],
+      "operator": "FlatFootCone",
+      "side": "fresh",
+      "cells": 37,
+      "strict_height": false,
+      "measured": true,
+      "height_failures": 6,
+      "clearance_failures": 1,
+      "minimum_clearance_ratio": -3.321894,
+      "facet": 16436,
+      "cell": 1982886,
+      "apex": [
+        0.434116976842208,
+        0.7460929476840463,
+        0.007350771933924974
+      ],
+      "geometry_work": 6,
+      "seconds": 0.000776732,
+      "cpu_seconds": 0.000776,
+      "reason": "Native3D geometry-height incompatibility of the normal-row proposal at facet 16436 cell 1982886 clearance/h0=-3.321894: positive smooth-reference clearance is not certified; reconsider the wall/row proposal."
+    },
+    {
+      "stage": "clearance_refinement",
+      "context": "recorded_edge_r5",
+      "operator": "FlatFootCone",
+      "side": "fresh",
+      "precision_over_h": 0.0001,
+      "lower": 0.00021260118506392123,
+      "upper": 0.00021260118555509045,
+      "clearance_lower_over_h": -3.3218935242982885,
+      "signed_candidate_over_h": -3.321893524297975,
+      "candidate_is_sign_certificate": false,
+      "work": 1,
+      "seconds": 7.522e-06
+    },
+    {
+      "stage": "clearance_refinement",
+      "context": "recorded_edge_r5",
+      "operator": "FlatFootCone",
+      "side": "fresh",
+      "precision_over_h": 1e-06,
+      "lower": 0.00021260118506392123,
+      "upper": 0.00021260118555509045,
+      "clearance_lower_over_h": -3.3218935242982885,
+      "signed_candidate_over_h": -3.321893524297975,
+      "candidate_is_sign_certificate": false,
+      "work": 1,
+      "seconds": 3.2130000000000004e-06
+    },
+    {
+      "stage": "clearance_refinement",
+      "context": "recorded_edge_r5",
+      "operator": "FlatFootCone",
+      "side": "fresh",
+      "precision_over_h": 1e-08,
+      "lower": 0.00021260118506392123,
+      "upper": 0.00021260118555509045,
+      "clearance_lower_over_h": -3.3218935242982885,
+      "signed_candidate_over_h": -3.321893524297975,
+      "candidate_is_sign_certificate": false,
+      "work": 1,
+      "seconds": 2.7430000000000002e-06
+    },
+    {
+      "stage": "patch_measurement",
+      "context": "recorded_edge_r5",
+      "operator": "FlatFootCone",
+      "side": "fresh",
+      "geometry_complete": true,
+      "geometry_excess": 5.0033174982264735e-05,
+      "planning_min_edge": 0.3807551850859714,
+      "planning_max_edge": 2.409486282893671,
+      "short_edges": 17,
+      "tiny_edges": 5,
+      "centroid_q_bad": 25,
+      "centroid_J_bad": 23,
+      "long_edges": 13,
+      "full_target_certificate": false,
+      "mesh_accepted": false
+    },
+    {
+      "stage": "apex_candidate",
+      "context": "recorded_edge_r5",
+      "operator": "FlatFootCone",
+      "positive": true,
+      "fixed_split_interface": true,
+      "parameter_preflight": true,
+      "contact_protocol": true,
+      "contact": true,
+      "passing_heights_preserved": true,
+      "old_cells": 32,
+      "new_cells": 37,
+      "reason": "",
+      "interface_reason": "",
+      "parameter_reason": "",
+      "contact_reason": "",
+      "preservation_reason": "",
+      "production_admitted": false,
+      "mesh_accepted": false
+    },
+    {
+      "stage": "apex_probe",
+      "context": "recorded_edge_r5",
+      "operator": "ProjectedFootCone",
+      "facet": 16436,
+      "point": [
+        0.43392364819646223,
+        0.746204917453107,
+        0.007514014768123418
+      ],
+      "precision_over_h": 0.0001,
+      "plane_height_ratio": 5.309773741010792,
+      "distance_lower_over_h": 0.9999611530018488,
+      "distance_upper_over_h": 1.000000000000674,
+      "clearance_lower_over_h": 0.9997235568900584,
+      "signed_candidate_over_h": 1.0000000000008906,
+      "candidate_is_sign_certificate": false,
+      "work": 195
+    },
+    {
+      "stage": "apex_probe",
+      "context": "recorded_edge_r5",
+      "operator": "ProjectedFootCone",
+      "facet": 16436,
+      "point": [
+        0.43392364819646223,
+        0.746204917453107,
+        0.007514014768123418
+      ],
+      "precision_over_h": 1e-06,
+      "plane_height_ratio": 5.309773741010792,
+      "distance_lower_over_h": 0.9999993934853928,
+      "distance_upper_over_h": 1.000000000000674,
+      "clearance_lower_over_h": 0.999942352061911,
+      "signed_candidate_over_h": 1.0000000000008906,
+      "candidate_is_sign_certificate": false,
+      "work": 355
+    },
+    {
+      "stage": "apex_probe",
+      "context": "recorded_edge_r5",
+      "operator": "ProjectedFootCone",
+      "facet": 16436,
+      "point": [
+        0.43392364819646223,
+        0.746204917453107,
+        0.007514014768123418
+      ],
+      "precision_over_h": 1e-08,
+      "plane_height_ratio": 5.309773741010792,
+      "distance_lower_over_h": 0.9999999905264446,
+      "distance_upper_over_h": 1.000000000000674,
+      "clearance_lower_over_h": 0.9999931608948767,
+      "signed_candidate_over_h": 1.0000000000008906,
+      "candidate_is_sign_certificate": false,
+      "work": 514
+    },
+    {
+      "stage": "height",
+      "context": "recorded_edge_r5",
+      "edge": [
+        7907,
+        7908
+      ],
+      "operator": "ProjectedFootCone",
+      "side": "fresh",
+      "cells": 37,
+      "strict_height": false,
+      "measured": true,
+      "height_failures": 6,
+      "clearance_failures": 0,
+      "minimum_clearance_ratio": 0.999993,
+      "facet": 16436,
+      "cell": 1983142,
+      "apex": [
+        0.43392364819646223,
+        0.746204917453107,
+        0.007514014768123418
+      ],
+      "geometry_work": 6,
+      "seconds": 0.000735218,
+      "cpu_seconds": 0.000735,
+      "reason": "Native3D prescribed height fails at facet 16435 cell 1983124 relative error 149.906511 > tolerance 0.100000"
+    },
+    {
+      "stage": "patch_measurement",
+      "context": "recorded_edge_r5",
+      "operator": "ProjectedFootCone",
+      "side": "fresh",
+      "geometry_complete": true,
+      "geometry_excess": 5.0033174982264735e-05,
+      "planning_min_edge": 0.38528331659187265,
+      "planning_max_edge": 2.409486282893671,
+      "short_edges": 17,
+      "tiny_edges": 5,
+      "centroid_q_bad": 25,
+      "centroid_J_bad": 23,
+      "long_edges": 13,
+      "full_target_certificate": false,
+      "mesh_accepted": false
+    },
+    {
+      "stage": "apex_candidate",
+      "context": "recorded_edge_r5",
+      "operator": "ProjectedFootCone",
+      "positive": true,
+      "fixed_split_interface": true,
+      "parameter_preflight": true,
+      "contact_protocol": true,
+      "contact": true,
+      "passing_heights_preserved": true,
+      "old_cells": 32,
+      "new_cells": 37,
+      "reason": "",
+      "interface_reason": "",
+      "parameter_reason": "",
+      "contact_reason": "",
+      "preservation_reason": "",
+      "production_admitted": false,
+      "mesh_accepted": false
+    },
+    {
+      "stage": "operator",
+      "context": "recorded_edge_r5",
+      "edge": [
+        7907,
+        7908
+      ],
+      "operator": "SplitEdge",
+      "old_cells": 2,
+      "new_cells": 4,
+      "constructed": true,
+      "seconds": 0.001613038,
+      "reason": ""
+    },
+    {
+      "stage": "height",
+      "context": "recorded_edge_r5",
+      "edge": [
+        7907,
+        7908
+      ],
+      "operator": "SplitEdge",
+      "side": "fresh",
+      "cells": 4,
+      "strict_height": false,
+      "measured": true,
+      "height_failures": 4,
+      "clearance_failures": 0,
+      "minimum_clearance_ratio": 146.52798,
+      "facet": 10523,
+      "cell": 1983240,
+      "apex": [
+        0.4226866863950001,
+        0.741489447850812,
+        0.01324693163962485
+      ],
+      "geometry_work": 4,
+      "seconds": 0.000656323,
+      "cpu_seconds": 0.000656,
+      "reason": "Native3D prescribed height fails at facet 10523 cell 1983240 relative error 146.771025 > tolerance 0.100000"
+    },
+    {
+      "stage": "patch_measurement",
+      "context": "recorded_edge_r5",
+      "operator": "SplitEdge",
+      "side": "fresh",
+      "geometry_complete": true,
+      "geometry_excess": 4.971879462848273e-05,
+      "planning_min_edge": 0.4795963473339221,
+      "planning_max_edge": 1.766963961188959,
+      "short_edges": 6,
+      "tiny_edges": 1,
+      "centroid_q_bad": 4,
+      "centroid_J_bad": 4,
+      "long_edges": 0,
+      "full_target_certificate": false,
+      "mesh_accepted": false
+    },
+    {
+      "stage": "operator",
+      "context": "recorded_edge_r5",
+      "edge": [
+        7907,
+        7908
+      ],
+      "operator": "InsertEdgeCavity",
+      "old_cells": 2,
+      "new_cells": 0,
+      "constructed": false,
+      "seconds": 5.4983000000000005e-05,
+      "reason": "Native 3D insertion cannot change an immutable facet or marker junction."
+    },
+    {
+      "stage": "operator",
+      "context": "recorded_edge_r5",
+      "edge": [
+        7907,
+        7908
+      ],
+      "operator": "RefitWallSplit",
+      "old_cells": 32,
+      "new_cells": 0,
+      "constructed": false,
+      "seconds": 0.00429122,
+      "reason": "Native3D retained apex has incompatible height planes; different connectivity is required."
+    },
+    {
+      "stage": "operator",
+      "context": "recorded_edge_r5",
+      "edge": [
+        7907,
+        7908
+      ],
+      "operator": "ReconstructWallSplit",
+      "old_cells": 32,
+      "new_cells": 0,
+      "constructed": false,
+      "seconds": 0.032994307,
+      "reason": "Native3D geometry-height incompatibility of the normal-row proposal at facet 16436 cell 1983649 clearance/h0=-3.321894: positive smooth-reference clearance is not certified; reconsider the wall/row proposal."
+    },
+    {
+      "stage": "operator",
+      "context": "recorded_edge_r5",
+      "edge": [
+        7907,
+        7908
+      ],
+      "operator": "ReconstructSplitPatch",
+      "old_cells": 32,
+      "new_cells": 0,
+      "constructed": false,
+      "seconds": 0.008277818000000001,
+      "reason": "Native3D geometry-height incompatibility of the normal-row proposal at facet 16436 cell 1983777 clearance/h0=-3.321894: positive smooth-reference clearance is not certified; reconsider the wall/row proposal."
+    },
+    {
+      "stage": "height",
+      "context": "r4_adjacent_candidate_0",
+      "edge": [
+        4303,
+        23829
+      ],
+      "operator": "input",
+      "side": "old",
+      "cells": 2,
+      "strict_height": false,
+      "measured": true,
+      "height_failures": 2,
+      "clearance_failures": 0,
+      "minimum_clearance_ratio": 131.282945,
+      "facet": 48011,
+      "cell": 238559,
+      "apex": [
+        0.848498468943002,
+        1.200123884741682,
+        0.0301795575511532
+      ],
+      "geometry_work": 885,
+      "seconds": 0.030919585000000003,
+      "cpu_seconds": 0.03092,
+      "reason": "Native3D prescribed height fails at facet 48011 cell 238559 relative error 132.875267 > tolerance 0.100000"
+    },
+    {
+      "stage": "patch_measurement",
+      "context": "r4_adjacent_candidate_0",
+      "operator": "input",
+      "side": "old",
+      "geometry_complete": true,
+      "geometry_excess": 3.365993638413033e-07,
+      "planning_min_edge": 0.6109234463680507,
+      "planning_max_edge": 1.3677277604132854,
+      "short_edges": 5,
+      "tiny_edges": 0,
+      "centroid_q_bad": 2,
+      "centroid_J_bad": 2,
+      "long_edges": 0,
+      "full_target_certificate": false,
+      "mesh_accepted": false
+    },
+    {
+      "stage": "apex_probe",
+      "context": "r4_adjacent_candidate_0",
+      "operator": "FlatFootCone",
+      "facet": 47715,
+      "point": [
+        0.84300402943797,
+        1.2016179226440034,
+        0.021070442022713454
+      ],
+      "precision_over_h": 0.0001,
+      "plane_height_ratio": 1.0000000000002554,
+      "distance_lower_over_h": 2.9995094809699174,
+      "distance_upper_over_h": 2.9996053662321716,
+      "clearance_lower_over_h": -2.9996053662321716,
+      "signed_candidate_over_h": -2.9996053662309325,
+      "candidate_is_sign_certificate": false,
+      "work": 220
+    },
+    {
+      "stage": "apex_probe",
+      "context": "r4_adjacent_candidate_0",
+      "operator": "FlatFootCone",
+      "facet": 47715,
+      "point": [
+        0.84300402943797,
+        1.2016179226440034,
+        0.021070442022713454
+      ],
+      "precision_over_h": 1e-06,
+      "plane_height_ratio": 1.0000000000002554,
+      "distance_lower_over_h": 2.9996047206759417,
+      "distance_upper_over_h": 2.9996053662321716,
+      "clearance_lower_over_h": -2.9996053662321716,
+      "signed_candidate_over_h": -2.9996053662309325,
+      "candidate_is_sign_certificate": false,
+      "work": 304
+    },
+    {
+      "stage": "apex_probe",
+      "context": "r4_adjacent_candidate_0",
+      "operator": "FlatFootCone",
+      "facet": 47715,
+      "point": [
+        0.84300402943797,
+        1.2016179226440034,
+        0.021070442022713454
+      ],
+      "precision_over_h": 1e-08,
+      "plane_height_ratio": 1.0000000000002554,
+      "distance_lower_over_h": 2.9996053603566635,
+      "distance_upper_over_h": 2.9996053662321716,
+      "clearance_lower_over_h": -2.9996053662321716,
+      "signed_candidate_over_h": -2.9996053662309325,
+      "candidate_is_sign_certificate": false,
+      "work": 329
+    },
+    {
+      "stage": "height",
+      "context": "r4_adjacent_candidate_0",
+      "edge": [
+        4303,
+        23829
+      ],
+      "operator": "FlatFootCone",
+      "side": "fresh",
+      "cells": 33,
+      "strict_height": false,
+      "measured": true,
+      "height_failures": 6,
+      "clearance_failures": 1,
+      "minimum_clearance_ratio": -2.999605,
+      "facet": 47715,
+      "cell": 1984034,
+      "apex": [
+        0.84300402943797,
+        1.2016179226440034,
+        0.021070442022713454
+      ],
+      "geometry_work": 6,
+      "seconds": 0.000873567,
+      "cpu_seconds": 0.000873,
+      "reason": "Native3D geometry-height incompatibility of the normal-row proposal at facet 47715 cell 1984034 clearance/h0=-2.999605: positive smooth-reference clearance is not certified; reconsider the wall/row proposal."
+    },
+    {
+      "stage": "clearance_refinement",
+      "context": "r4_adjacent_candidate_0",
+      "operator": "FlatFootCone",
+      "side": "fresh",
+      "precision_over_h": 0.0001,
+      "lower": 0.00019197474306282647,
+      "upper": 0.00019197474343885898,
+      "clearance_lower_over_h": -2.9996053662321716,
+      "signed_candidate_over_h": -2.9996053662309325,
+      "candidate_is_sign_certificate": false,
+      "work": 1,
+      "seconds": 7.898000000000001e-06
+    },
+    {
+      "stage": "clearance_refinement",
+      "context": "r4_adjacent_candidate_0",
+      "operator": "FlatFootCone",
+      "side": "fresh",
+      "precision_over_h": 1e-06,
+      "lower": 0.00019197474306282647,
+      "upper": 0.00019197474343885898,
+      "clearance_lower_over_h": -2.9996053662321716,
+      "signed_candidate_over_h": -2.9996053662309325,
+      "candidate_is_sign_certificate": false,
+      "work": 1,
+      "seconds": 3.3530000000000003e-06
+    },
+    {
+      "stage": "clearance_refinement",
+      "context": "r4_adjacent_candidate_0",
+      "operator": "FlatFootCone",
+      "side": "fresh",
+      "precision_over_h": 1e-08,
+      "lower": 0.00019197474306282647,
+      "upper": 0.00019197474343885898,
+      "clearance_lower_over_h": -2.9996053662321716,
+      "signed_candidate_over_h": -2.9996053662309325,
+      "candidate_is_sign_certificate": false,
+      "work": 1,
+      "seconds": 3.028e-06
+    },
+    {
+      "stage": "patch_measurement",
+      "context": "r4_adjacent_candidate_0",
+      "operator": "FlatFootCone",
+      "side": "fresh",
+      "geometry_complete": true,
+      "geometry_excess": 3.1609032760339446e-05,
+      "planning_min_edge": 0.35870278965833147,
+      "planning_max_edge": 2.038413627797619,
+      "short_edges": 25,
+      "tiny_edges": 7,
+      "centroid_q_bad": 24,
+      "centroid_J_bad": 25,
+      "long_edges": 1,
+      "full_target_certificate": false,
+      "mesh_accepted": false
+    },
+    {
+      "stage": "apex_candidate",
+      "context": "r4_adjacent_candidate_0",
+      "operator": "FlatFootCone",
+      "positive": true,
+      "fixed_split_interface": true,
+      "parameter_preflight": true,
+      "contact_protocol": true,
+      "contact": true,
+      "passing_heights_preserved": true,
+      "old_cells": 28,
+      "new_cells": 33,
+      "reason": "",
+      "interface_reason": "",
+      "parameter_reason": "",
+      "contact_reason": "",
+      "preservation_reason": "",
+      "production_admitted": false,
+      "mesh_accepted": false
+    },
+    {
+      "stage": "apex_probe",
+      "context": "r4_adjacent_candidate_0",
+      "operator": "ProjectedFootCone",
+      "facet": 47715,
+      "point": [
+        0.8429992265115479,
+        1.2016921040892432,
+        0.021315997281915952
+      ],
+      "precision_over_h": 0.0001,
+      "plane_height_ratio": 4.9921159416560315,
+      "distance_lower_over_h": 0.9999083139472204,
+      "distance_upper_over_h": 0.9999999999986068,
+      "clearance_lower_over_h": 0.9991270919148989,
+      "signed_candidate_over_h": 0.9999999999993472,
+      "candidate_is_sign_certificate": false,
+      "work": 151
+    },
+    {
+      "stage": "apex_probe",
+      "context": "r4_adjacent_candidate_0",
+      "operator": "ProjectedFootCone",
+      "facet": 47715,
+      "point": [
+        0.8429992265115479,
+        1.2016921040892432,
+        0.021315997281915952
+      ],
+      "precision_over_h": 1e-06,
+      "plane_height_ratio": 4.9921159416560315,
+      "distance_lower_over_h": 0.9999990897295244,
+      "distance_upper_over_h": 0.9999999999986068,
+      "clearance_lower_over_h": 0.9999058342265181,
+      "signed_candidate_over_h": 0.9999999999993472,
+      "candidate_is_sign_certificate": false,
+      "work": 402
+    },
+    {
+      "stage": "apex_probe",
+      "context": "r4_adjacent_candidate_0",
+      "operator": "ProjectedFootCone",
+      "facet": 47715,
+      "point": [
+        0.8429992265115479,
+        1.2016921040892432,
+        0.021315997281915952
+      ],
+      "precision_over_h": 1e-08,
+      "plane_height_ratio": 4.9921159416560315,
+      "distance_lower_over_h": 0.9999999931777401,
+      "distance_upper_over_h": 0.9999999999986068,
+      "clearance_lower_over_h": 0.999995513708864,
+      "signed_candidate_over_h": 0.9999999999993472,
+      "candidate_is_sign_certificate": false,
+      "work": 647
+    },
+    {
+      "stage": "height",
+      "context": "r4_adjacent_candidate_0",
+      "edge": [
+        4303,
+        23829
+      ],
+      "operator": "ProjectedFootCone",
+      "side": "fresh",
+      "cells": 33,
+      "strict_height": false,
+      "measured": true,
+      "height_failures": 6,
+      "clearance_failures": 0,
+      "minimum_clearance_ratio": 0.999996,
+      "facet": 47715,
+      "cell": 1984290,
+      "apex": [
+        0.8429992265115479,
+        1.2016921040892432,
+        0.021315997281915952
+      ],
+      "geometry_work": 6,
+      "seconds": 0.00083447,
+      "cpu_seconds": 0.0008179999999999999,
+      "reason": "Native3D prescribed height fails at facet 47637 cell 1984274 relative error 135.393195 > tolerance 0.100000"
+    },
+    {
+      "stage": "patch_measurement",
+      "context": "r4_adjacent_candidate_0",
+      "operator": "ProjectedFootCone",
+      "side": "fresh",
+      "geometry_complete": true,
+      "geometry_excess": 3.1609032760339446e-05,
+      "planning_min_edge": 0.3612073945608468,
+      "planning_max_edge": 2.038413627797619,
+      "short_edges": 25,
+      "tiny_edges": 6,
+      "centroid_q_bad": 24,
+      "centroid_J_bad": 24,
+      "long_edges": 1,
+      "full_target_certificate": false,
+      "mesh_accepted": false
+    },
+    {
+      "stage": "apex_candidate",
+      "context": "r4_adjacent_candidate_0",
+      "operator": "ProjectedFootCone",
+      "positive": true,
+      "fixed_split_interface": true,
+      "parameter_preflight": true,
+      "contact_protocol": true,
+      "contact": true,
+      "passing_heights_preserved": true,
+      "old_cells": 28,
+      "new_cells": 33,
+      "reason": "",
+      "interface_reason": "",
+      "parameter_reason": "",
+      "contact_reason": "",
+      "preservation_reason": "",
+      "production_admitted": false,
+      "mesh_accepted": false
+    },
+    {
+      "stage": "operator",
+      "context": "r4_adjacent_candidate_0",
+      "edge": [
+        4303,
+        23829
+      ],
+      "operator": "SplitEdge",
+      "old_cells": 2,
+      "new_cells": 4,
+      "constructed": true,
+      "seconds": 0.002018057,
+      "reason": ""
+    },
+    {
+      "stage": "height",
+      "context": "r4_adjacent_candidate_0",
+      "edge": [
+        4303,
+        23829
+      ],
+      "operator": "SplitEdge",
+      "side": "fresh",
+      "cells": 4,
+      "strict_height": false,
+      "measured": true,
+      "height_failures": 4,
+      "clearance_failures": 0,
+      "minimum_clearance_ratio": 131.282945,
+      "facet": 48011,
+      "cell": 1984391,
+      "apex": [
+        0.848498468943002,
+        1.200123884741682,
+        0.0301795575511532
+      ],
+      "geometry_work": 4,
+      "seconds": 0.000710226,
+      "cpu_seconds": 0.00071,
+      "reason": "Native3D prescribed height fails at facet 48011 cell 1984391 relative error 130.681189 > tolerance 0.100000"
+    },
+    {
+      "stage": "patch_measurement",
+      "context": "r4_adjacent_candidate_0",
+      "operator": "SplitEdge",
+      "side": "fresh",
+      "geometry_complete": true,
+      "geometry_excess": 3.127243339649814e-05,
+      "planning_min_edge": 0.37208951462718565,
+      "planning_max_edge": 1.3677277604132854,
+      "short_edges": 8,
+      "tiny_edges": 2,
+      "centroid_q_bad": 4,
+      "centroid_J_bad": 4,
+      "long_edges": 0,
+      "full_target_certificate": false,
+      "mesh_accepted": false
+    },
+    {
+      "stage": "operator",
+      "context": "r4_adjacent_candidate_0",
+      "edge": [
+        4303,
+        23829
+      ],
+      "operator": "InsertEdgeCavity",
+      "old_cells": 2,
+      "new_cells": 0,
+      "constructed": false,
+      "seconds": 0.00015557800000000002,
+      "reason": "Native 3D insertion cannot change an immutable facet or marker junction."
+    },
+    {
+      "stage": "operator",
+      "context": "r4_adjacent_candidate_0",
+      "edge": [
+        4303,
+        23829
+      ],
+      "operator": "RefitWallSplit",
+      "old_cells": 28,
+      "new_cells": 0,
+      "constructed": false,
+      "seconds": 0.005133009,
+      "reason": "Native3D retained apex has incompatible height planes; different connectivity is required."
+    },
+    {
+      "stage": "operator",
+      "context": "r4_adjacent_candidate_0",
+      "edge": [
+        4303,
+        23829
+      ],
+      "operator": "ReconstructWallSplit",
+      "old_cells": 28,
+      "new_cells": 0,
+      "constructed": false,
+      "seconds": 0.037323652000000006,
+      "reason": "Native3D geometry-height incompatibility of the normal-row proposal at facet 47715 cell 1984801 clearance/h0=-2.999605: positive smooth-reference clearance is not certified; reconsider the wall/row proposal."
+    },
+    {
+      "stage": "operator",
+      "context": "r4_adjacent_candidate_0",
+      "edge": [
+        4303,
+        23829
+      ],
+      "operator": "ReconstructSplitPatch",
+      "old_cells": 28,
+      "new_cells": 0,
+      "constructed": false,
+      "seconds": 0.010574899,
+      "reason": "Native3D geometry-height incompatibility of the normal-row proposal at facet 47715 cell 1984929 clearance/h0=-2.999605: positive smooth-reference clearance is not certified; reconsider the wall/row proposal."
+    },
+    {
+      "stage": "height",
+      "context": "r4_adjacent_candidate_1",
+      "edge": [
+        4304,
+        23829
+      ],
+      "operator": "input",
+      "side": "old",
+      "cells": 2,
+      "strict_height": false,
+      "measured": true,
+      "height_failures": 2,
+      "clearance_failures": 0,
+      "minimum_clearance_ratio": 131.282945,
+      "facet": 48011,
+      "cell": 238559,
+      "apex": [
+        0.848498468943002,
+        1.200123884741682,
+        0.0301795575511532
+      ],
+      "geometry_work": 2,
+      "seconds": 6.8868e-05,
+      "cpu_seconds": 6.8e-05,
+      "reason": "Native3D prescribed height fails at facet 47637 cell 228419 relative error 135.393195 > tolerance 0.100000"
+    },
+    {
+      "stage": "patch_measurement",
+      "context": "r4_adjacent_candidate_1",
+      "operator": "input",
+      "side": "old",
+      "geometry_complete": true,
+      "geometry_excess": 1.630901648076677e-07,
+      "planning_min_edge": 0.5795572027263002,
+      "planning_max_edge": 1.3677277604132854,
+      "short_edges": 5,
+      "tiny_edges": 0,
+      "centroid_q_bad": 2,
+      "centroid_J_bad": 2,
+      "long_edges": 0,
+      "full_target_certificate": false,
+      "mesh_accepted": false
+    },
+    {
+      "stage": "apex_probe",
+      "context": "r4_adjacent_candidate_1",
+      "operator": "FlatFootCone",
+      "facet": 47715,
+      "point": [
+        0.84300402943797,
+        1.2016179226440034,
+        0.021070442022713454
+      ],
+      "precision_over_h": 0.0001,
+      "plane_height_ratio": 1.0000000000002554,
+      "distance_lower_over_h": 2.9996053603566635,
+      "distance_upper_over_h": 2.9996053662321716,
+      "clearance_lower_over_h": -2.9996053662321716,
+      "signed_candidate_over_h": -2.9996053662309325,
+      "candidate_is_sign_certificate": false,
+      "work": 1
+    },
+    {
+      "stage": "apex_probe",
+      "context": "r4_adjacent_candidate_1",
+      "operator": "FlatFootCone",
+      "facet": 47715,
+      "point": [
+        0.84300402943797,
+        1.2016179226440034,
+        0.021070442022713454
+      ],
+      "precision_over_h": 1e-06,
+      "plane_height_ratio": 1.0000000000002554,
+      "distance_lower_over_h": 2.9996053603566635,
+      "distance_upper_over_h": 2.9996053662321716,
+      "clearance_lower_over_h": -2.9996053662321716,
+      "signed_candidate_over_h": -2.9996053662309325,
+      "candidate_is_sign_certificate": false,
+      "work": 1
+    },
+    {
+      "stage": "apex_probe",
+      "context": "r4_adjacent_candidate_1",
+      "operator": "FlatFootCone",
+      "facet": 47715,
+      "point": [
+        0.84300402943797,
+        1.2016179226440034,
+        0.021070442022713454
+      ],
+      "precision_over_h": 1e-08,
+      "plane_height_ratio": 1.0000000000002554,
+      "distance_lower_over_h": 2.9996053603566635,
+      "distance_upper_over_h": 2.9996053662321716,
+      "clearance_lower_over_h": -2.9996053662321716,
+      "signed_candidate_over_h": -2.9996053662309325,
+      "candidate_is_sign_certificate": false,
+      "work": 1
+    },
+    {
+      "stage": "height",
+      "context": "r4_adjacent_candidate_1",
+      "edge": [
+        4304,
+        23829
+      ],
+      "operator": "FlatFootCone",
+      "side": "fresh",
+      "cells": 33,
+      "strict_height": false,
+      "measured": true,
+      "height_failures": 6,
+      "clearance_failures": 1,
+      "minimum_clearance_ratio": -2.999605,
+      "facet": 47715,
+      "cell": 1985186,
+      "apex": [
+        0.84300402943797,
+        1.2016179226440034,
+        0.021070442022713454
+      ],
+      "geometry_work": 6,
+      "seconds": 0.0007877320000000001,
+      "cpu_seconds": 0.0007869999999999999,
+      "reason": "Native3D geometry-height incompatibility of the normal-row proposal at facet 47715 cell 1985186 clearance/h0=-2.999605: positive smooth-reference clearance is not certified; reconsider the wall/row proposal."
+    },
+    {
+      "stage": "clearance_refinement",
+      "context": "r4_adjacent_candidate_1",
+      "operator": "FlatFootCone",
+      "side": "fresh",
+      "precision_over_h": 0.0001,
+      "lower": 0.00019197474306282647,
+      "upper": 0.00019197474343885898,
+      "clearance_lower_over_h": -2.9996053662321716,
+      "signed_candidate_over_h": -2.9996053662309325,
+      "candidate_is_sign_certificate": false,
+      "work": 1,
+      "seconds": 5.7050000000000004e-06
+    },
+    {
+      "stage": "clearance_refinement",
+      "context": "r4_adjacent_candidate_1",
+      "operator": "FlatFootCone",
+      "side": "fresh",
+      "precision_over_h": 1e-06,
+      "lower": 0.00019197474306282647,
+      "upper": 0.00019197474343885898,
+      "clearance_lower_over_h": -2.9996053662321716,
+      "signed_candidate_over_h": -2.9996053662309325,
+      "candidate_is_sign_certificate": false,
+      "work": 1,
+      "seconds": 3.2110000000000003e-06
+    },
+    {
+      "stage": "clearance_refinement",
+      "context": "r4_adjacent_candidate_1",
+      "operator": "FlatFootCone",
+      "side": "fresh",
+      "precision_over_h": 1e-08,
+      "lower": 0.00019197474306282647,
+      "upper": 0.00019197474343885898,
+      "clearance_lower_over_h": -2.9996053662321716,
+      "signed_candidate_over_h": -2.9996053662309325,
+      "candidate_is_sign_certificate": false,
+      "work": 1,
+      "seconds": 2.9520000000000003e-06
+    },
+    {
+      "stage": "patch_measurement",
+      "context": "r4_adjacent_candidate_1",
+      "operator": "FlatFootCone",
+      "side": "fresh",
+      "geometry_complete": true,
+      "geometry_excess": 9.206912089980516e-06,
+      "planning_min_edge": 0.32306376907995554,
+      "planning_max_edge": 2.038413627797619,
+      "short_edges": 25,
+      "tiny_edges": 8,
+      "centroid_q_bad": 24,
+      "centroid_J_bad": 25,
+      "long_edges": 1,
+      "full_target_certificate": false,
+      "mesh_accepted": false
+    },
+    {
+      "stage": "apex_candidate",
+      "context": "r4_adjacent_candidate_1",
+      "operator": "FlatFootCone",
+      "positive": true,
+      "fixed_split_interface": true,
+      "parameter_preflight": true,
+      "contact_protocol": true,
+      "contact": true,
+      "passing_heights_preserved": true,
+      "old_cells": 28,
+      "new_cells": 33,
+      "reason": "",
+      "interface_reason": "",
+      "parameter_reason": "",
+      "contact_reason": "",
+      "preservation_reason": "",
+      "production_admitted": false,
+      "mesh_accepted": false
+    },
+    {
+      "stage": "apex_probe",
+      "context": "r4_adjacent_candidate_1",
+      "operator": "ProjectedFootCone",
+      "facet": 47715,
+      "point": [
+        0.8429992265115479,
+        1.2016921040892432,
+        0.021315997281915952
+      ],
+      "precision_over_h": 0.0001,
+      "plane_height_ratio": 4.9921159416560315,
+      "distance_lower_over_h": 0.9999999931777401,
+      "distance_upper_over_h": 0.9999999999986068,
+      "clearance_lower_over_h": 0.999995513708864,
+      "signed_candidate_over_h": 0.9999999999993472,
+      "candidate_is_sign_certificate": false,
+      "work": 1
+    },
+    {
+      "stage": "apex_probe",
+      "context": "r4_adjacent_candidate_1",
+      "operator": "ProjectedFootCone",
+      "facet": 47715,
+      "point": [
+        0.8429992265115479,
+        1.2016921040892432,
+        0.021315997281915952
+      ],
+      "precision_over_h": 1e-06,
+      "plane_height_ratio": 4.9921159416560315,
+      "distance_lower_over_h": 0.9999999931777401,
+      "distance_upper_over_h": 0.9999999999986068,
+      "clearance_lower_over_h": 0.999995513708864,
+      "signed_candidate_over_h": 0.9999999999993472,
+      "candidate_is_sign_certificate": false,
+      "work": 1
+    },
+    {
+      "stage": "apex_probe",
+      "context": "r4_adjacent_candidate_1",
+      "operator": "ProjectedFootCone",
+      "facet": 47715,
+      "point": [
+        0.8429992265115479,
+        1.2016921040892432,
+        0.021315997281915952
+      ],
+      "precision_over_h": 1e-08,
+      "plane_height_ratio": 4.9921159416560315,
+      "distance_lower_over_h": 0.9999999931777401,
+      "distance_upper_over_h": 0.9999999999986068,
+      "clearance_lower_over_h": 0.999995513708864,
+      "signed_candidate_over_h": 0.9999999999993472,
+      "candidate_is_sign_certificate": false,
+      "work": 1
+    },
+    {
+      "stage": "height",
+      "context": "r4_adjacent_candidate_1",
+      "edge": [
+        4304,
+        23829
+      ],
+      "operator": "ProjectedFootCone",
+      "side": "fresh",
+      "cells": 33,
+      "strict_height": false,
+      "measured": true,
+      "height_failures": 6,
+      "clearance_failures": 0,
+      "minimum_clearance_ratio": 0.999996,
+      "facet": 47715,
+      "cell": 1985442,
+      "apex": [
+        0.8429992265115479,
+        1.2016921040892432,
+        0.021315997281915952
+      ],
+      "geometry_work": 6,
+      "seconds": 0.000829766,
+      "cpu_seconds": 0.000828,
+      "reason": "Native3D prescribed height fails at facet 48011 cell 1985431 relative error 132.121036 > tolerance 0.100000"
+    },
+    {
+      "stage": "patch_measurement",
+      "context": "r4_adjacent_candidate_1",
+      "operator": "ProjectedFootCone",
+      "side": "fresh",
+      "geometry_complete": true,
+      "geometry_excess": 9.206912089980516e-06,
+      "planning_min_edge": 0.32306376907995554,
+      "planning_max_edge": 2.038413627797619,
+      "short_edges": 25,
+      "tiny_edges": 7,
+      "centroid_q_bad": 24,
+      "centroid_J_bad": 24,
+      "long_edges": 1,
+      "full_target_certificate": false,
+      "mesh_accepted": false
+    },
+    {
+      "stage": "apex_candidate",
+      "context": "r4_adjacent_candidate_1",
+      "operator": "ProjectedFootCone",
+      "positive": true,
+      "fixed_split_interface": true,
+      "parameter_preflight": true,
+      "contact_protocol": true,
+      "contact": true,
+      "passing_heights_preserved": true,
+      "old_cells": 28,
+      "new_cells": 33,
+      "reason": "",
+      "interface_reason": "",
+      "parameter_reason": "",
+      "contact_reason": "",
+      "preservation_reason": "",
+      "production_admitted": false,
+      "mesh_accepted": false
+    },
+    {
+      "stage": "operator",
+      "context": "r4_adjacent_candidate_1",
+      "edge": [
+        4304,
+        23829
+      ],
+      "operator": "SplitEdge",
+      "old_cells": 2,
+      "new_cells": 4,
+      "constructed": true,
+      "seconds": 0.0021189240000000003,
+      "reason": ""
+    },
+    {
+      "stage": "height",
+      "context": "r4_adjacent_candidate_1",
+      "edge": [
+        4304,
+        23829
+      ],
+      "operator": "SplitEdge",
+      "side": "fresh",
+      "cells": 4,
+      "strict_height": false,
+      "measured": true,
+      "height_failures": 4,
+      "clearance_failures": 0,
+      "minimum_clearance_ratio": 131.282945,
+      "facet": 48011,
+      "cell": 1985543,
+      "apex": [
+        0.848498468943002,
+        1.200123884741682,
+        0.0301795575511532
+      ],
+      "geometry_work": 4,
+      "seconds": 0.000800406,
+      "cpu_seconds": 0.0007999999999999999,
+      "reason": "Native3D prescribed height fails at facet 48011 cell 1985544 relative error 132.121036 > tolerance 0.100000"
+    },
+    {
+      "stage": "patch_measurement",
+      "context": "r4_adjacent_candidate_1",
+      "operator": "SplitEdge",
+      "side": "fresh",
+      "geometry_complete": true,
+      "geometry_excess": 8.696803527105577e-06,
+      "planning_min_edge": 0.32306376907995554,
+      "planning_max_edge": 1.3677277604132854,
+      "short_edges": 8,
+      "tiny_edges": 3,
+      "centroid_q_bad": 4,
+      "centroid_J_bad": 4,
+      "long_edges": 0,
+      "full_target_certificate": false,
+      "mesh_accepted": false
+    },
+    {
+      "stage": "operator",
+      "context": "r4_adjacent_candidate_1",
+      "edge": [
+        4304,
+        23829
+      ],
+      "operator": "InsertEdgeCavity",
+      "old_cells": 2,
+      "new_cells": 0,
+      "constructed": false,
+      "seconds": 5.9011e-05,
+      "reason": "Native 3D insertion cannot change an immutable facet or marker junction."
+    },
+    {
+      "stage": "operator",
+      "context": "r4_adjacent_candidate_1",
+      "edge": [
+        4304,
+        23829
+      ],
+      "operator": "RefitWallSplit",
+      "old_cells": 28,
+      "new_cells": 0,
+      "constructed": false,
+      "seconds": 0.004156464,
+      "reason": "Native3D retained apex has incompatible height planes; different connectivity is required."
+    },
+    {
+      "stage": "operator",
+      "context": "r4_adjacent_candidate_1",
+      "edge": [
+        4304,
+        23829
+      ],
+      "operator": "ReconstructWallSplit",
+      "old_cells": 28,
+      "new_cells": 0,
+      "constructed": false,
+      "seconds": 0.028943898000000003,
+      "reason": "Native3D geometry-height incompatibility of the normal-row proposal at facet 47715 cell 1985953 clearance/h0=-2.999605: positive smooth-reference clearance is not certified; reconsider the wall/row proposal."
+    },
+    {
+      "stage": "operator",
+      "context": "r4_adjacent_candidate_1",
+      "edge": [
+        4304,
+        23829
+      ],
+      "operator": "ReconstructSplitPatch",
+      "old_cells": 28,
+      "new_cells": 0,
+      "constructed": false,
+      "seconds": 0.008327284,
+      "reason": "Native3D geometry-height incompatibility of the normal-row proposal at facet 47715 cell 1986081 clearance/h0=-2.999605: positive smooth-reference clearance is not certified; reconsider the wall/row proposal."
+    },
+    {
+      "stage": "height",
+      "context": "smooth_control",
+      "edge": [
+        6032,
+        6070
+      ],
+      "operator": "input",
+      "side": "old",
+      "cells": 2,
+      "strict_height": false,
+      "measured": true,
+      "height_failures": 2,
+      "clearance_failures": 0,
+      "minimum_clearance_ratio": 230.830676,
+      "facet": 22530,
+      "cell": 160975,
+      "apex": [
+        0.7108785211002426,
+        0.5116077404735816,
+        0.0398445804074895
+      ],
+      "geometry_work": 724,
+      "seconds": 0.025402478000000003,
+      "cpu_seconds": 0.025407,
+      "reason": "Native3D prescribed height fails at facet 22530 cell 160975 relative error 229.947979 > tolerance 0.100000"
+    },
+    {
+      "stage": "patch_measurement",
+      "context": "smooth_control",
+      "operator": "input",
+      "side": "old",
+      "geometry_complete": true,
+      "geometry_excess": 0,
+      "planning_min_edge": 0.5797253942273226,
+      "planning_max_edge": 2.018475305348217,
+      "short_edges": 4,
+      "tiny_edges": 0,
+      "centroid_q_bad": 2,
+      "centroid_J_bad": 2,
+      "long_edges": 2,
+      "full_target_certificate": false,
+      "mesh_accepted": false
+    },
+    {
+      "stage": "apex_probe",
+      "context": "smooth_control",
+      "operator": "FlatFootCone",
+      "facet": 26617,
+      "point": [
+        0.7009139103612346,
+        0.5144989865961604,
+        0.02586864251103979
+      ],
+      "precision_over_h": 0.0001,
+      "plane_height_ratio": 1.000000000000032,
+      "distance_lower_over_h": 0.7816171158766839,
+      "distance_upper_over_h": 0.7817092589930426,
+      "clearance_lower_over_h": 0.7815027926974104,
+      "signed_candidate_over_h": 0.7817092589932522,
+      "candidate_is_sign_certificate": false,
+      "work": 74
+    },
+    {
+      "stage": "apex_probe",
+      "context": "smooth_control",
+      "operator": "FlatFootCone",
+      "facet": 26617,
+      "point": [
+        0.7009139103612346,
+        0.5144989865961604,
+        0.02586864251103979
+      ],
+      "precision_over_h": 1e-06,
+      "plane_height_ratio": 1.000000000000032,
+      "distance_lower_over_h": 0.781708577797251,
+      "distance_upper_over_h": 0.7817092589930426,
+      "clearance_lower_over_h": 0.7817031284880352,
+      "signed_candidate_over_h": 0.7817092589932522,
+      "candidate_is_sign_certificate": false,
+      "work": 157
+    },
+    {
+      "stage": "apex_probe",
+      "context": "smooth_control",
+      "operator": "FlatFootCone",
+      "facet": 26617,
+      "point": [
+        0.7009139103612346,
+        0.5144989865961604,
+        0.02586864251103979
+      ],
+      "precision_over_h": 1e-08,
+      "plane_height_ratio": 1.000000000000032,
+      "distance_lower_over_h": 0.781709252332912,
+      "distance_upper_over_h": 0.7817092589930426,
+      "clearance_lower_over_h": 0.781709234647761,
+      "signed_candidate_over_h": 0.7817092589932522,
+      "candidate_is_sign_certificate": false,
+      "work": 363
+    },
+    {
+      "stage": "height",
+      "context": "smooth_control",
+      "edge": [
+        6032,
+        6070
+      ],
+      "operator": "FlatFootCone",
+      "side": "fresh",
+      "cells": 29,
+      "strict_height": false,
+      "measured": true,
+      "height_failures": 6,
+      "clearance_failures": 0,
+      "minimum_clearance_ratio": 0.781709,
+      "facet": 26617,
+      "cell": 1986334,
+      "apex": [
+        0.7009139103612346,
+        0.5144989865961604,
+        0.02586864251103979
+      ],
+      "geometry_work": 6,
+      "seconds": 0.0009094530000000001,
+      "cpu_seconds": 0.00091,
+      "reason": "Native3D prescribed height fails at facet 24449 cell 1986316 relative error 230.093451 > tolerance 0.100000"
+    },
+    {
+      "stage": "patch_measurement",
+      "context": "smooth_control",
+      "operator": "FlatFootCone",
+      "side": "fresh",
+      "geometry_complete": true,
+      "geometry_excess": 0,
+      "planning_min_edge": 0.3779898962051927,
+      "planning_max_edge": 2.900202962359412,
+      "short_edges": 15,
+      "tiny_edges": 4,
+      "centroid_q_bad": 16,
+      "centroid_J_bad": 17,
+      "long_edges": 12,
+      "full_target_certificate": false,
+      "mesh_accepted": false
+    },
+    {
+      "stage": "apex_candidate",
+      "context": "smooth_control",
+      "operator": "FlatFootCone",
+      "positive": true,
+      "fixed_split_interface": true,
+      "parameter_preflight": true,
+      "contact_protocol": true,
+      "contact": true,
+      "passing_heights_preserved": true,
+      "old_cells": 24,
+      "new_cells": 29,
+      "reason": "",
+      "interface_reason": "",
+      "parameter_reason": "",
+      "contact_reason": "",
+      "preservation_reason": "",
+      "production_admitted": false,
+      "mesh_accepted": false
+    },
+    {
+      "stage": "apex_probe",
+      "context": "smooth_control",
+      "operator": "ProjectedFootCone",
+      "facet": 26617,
+      "point": [
+        0.7009149786862373,
+        0.5144987756860884,
+        0.025882570750385515
+      ],
+      "precision_over_h": 0.0001,
+      "plane_height_ratio": 1.218289445499996,
+      "distance_lower_over_h": 0.999907845687635,
+      "distance_upper_over_h": 0.9999999999998292,
+      "clearance_lower_over_h": 0.9997934572539604,
+      "signed_candidate_over_h": 0.9999999999999584,
+      "candidate_is_sign_certificate": false,
+      "work": 58
+    },
+    {
+      "stage": "apex_probe",
+      "context": "smooth_control",
+      "operator": "ProjectedFootCone",
+      "facet": 26617,
+      "point": [
+        0.7009149786862373,
+        0.5144987756860884,
+        0.025882570750385515
+      ],
+      "precision_over_h": 1e-06,
+      "plane_height_ratio": 1.218289445499996,
+      "distance_lower_over_h": 0.9999993196088424,
+      "distance_upper_over_h": 0.9999999999998292,
+      "clearance_lower_over_h": 0.9999938546799839,
+      "signed_candidate_over_h": 0.9999999999999584,
+      "candidate_is_sign_certificate": false,
+      "work": 143
+    },
+    {
+      "stage": "apex_probe",
+      "context": "smooth_control",
+      "operator": "ProjectedFootCone",
+      "facet": 26617,
+      "point": [
+        0.7009149786862373,
+        0.5144987756860884,
+        0.025882570750385515
+      ],
+      "precision_over_h": 1e-08,
+      "plane_height_ratio": 1.218289445499996,
+      "distance_lower_over_h": 0.9999999933588053,
+      "distance_upper_over_h": 0.9999999999998292,
+      "clearance_lower_over_h": 0.9999999747338004,
+      "signed_candidate_over_h": 0.9999999999999584,
+      "candidate_is_sign_certificate": false,
+      "work": 394
+    },
+    {
+      "stage": "height",
+      "context": "smooth_control",
+      "edge": [
+        6032,
+        6070
+      ],
+      "operator": "ProjectedFootCone",
+      "side": "fresh",
+      "cells": 29,
+      "strict_height": false,
+      "measured": true,
+      "height_failures": 6,
+      "clearance_failures": 0,
+      "minimum_clearance_ratio": 1.0,
+      "facet": 26617,
+      "cell": 1986590,
+      "apex": [
+        0.7009149786862373,
+        0.5144987756860884,
+        0.025882570750385515
+      ],
+      "geometry_work": 6,
+      "seconds": 0.000782515,
+      "cpu_seconds": 0.0007819999999999999,
+      "reason": "Native3D prescribed height fails at facet 24449 cell 1986572 relative error 230.093451 > tolerance 0.100000"
+    },
+    {
+      "stage": "patch_measurement",
+      "context": "smooth_control",
+      "operator": "ProjectedFootCone",
+      "side": "fresh",
+      "geometry_complete": true,
+      "geometry_excess": 0,
+      "planning_min_edge": 0.3779880743205501,
+      "planning_max_edge": 2.900202962359412,
+      "short_edges": 15,
+      "tiny_edges": 4,
+      "centroid_q_bad": 16,
+      "centroid_J_bad": 17,
+      "long_edges": 12,
+      "full_target_certificate": false,
+      "mesh_accepted": false
+    },
+    {
+      "stage": "apex_candidate",
+      "context": "smooth_control",
+      "operator": "ProjectedFootCone",
+      "positive": true,
+      "fixed_split_interface": true,
+      "parameter_preflight": true,
+      "contact_protocol": true,
+      "contact": true,
+      "passing_heights_preserved": true,
+      "old_cells": 24,
+      "new_cells": 29,
+      "reason": "",
+      "interface_reason": "",
+      "parameter_reason": "",
+      "contact_reason": "",
+      "preservation_reason": "",
+      "production_admitted": false,
+      "mesh_accepted": false
+    },
+    {
+      "stage": "operator",
+      "context": "smooth_control",
+      "edge": [
+        6032,
+        6070
+      ],
+      "operator": "SplitEdge",
+      "old_cells": 2,
+      "new_cells": 4,
+      "constructed": true,
+      "seconds": 0.001697453,
+      "reason": ""
+    },
+    {
+      "stage": "height",
+      "context": "smooth_control",
+      "edge": [
+        6032,
+        6070
+      ],
+      "operator": "SplitEdge",
+      "side": "fresh",
+      "cells": 4,
+      "strict_height": false,
+      "measured": true,
+      "height_failures": 4,
+      "clearance_failures": 0,
+      "minimum_clearance_ratio": 230.830676,
+      "facet": 22530,
+      "cell": 1986693,
+      "apex": [
+        0.7108785211002426,
+        0.5116077404735816,
+        0.0398445804074895
+      ],
+      "geometry_work": 4,
+      "seconds": 0.000678662,
+      "cpu_seconds": 0.0006789999999999999,
+      "reason": "Native3D prescribed height fails at facet 22530 cell 1986694 relative error 229.900650 > tolerance 0.100000"
+    },
+    {
+      "stage": "patch_measurement",
+      "context": "smooth_control",
+      "operator": "SplitEdge",
+      "side": "fresh",
+      "geometry_complete": true,
+      "geometry_excess": 0,
+      "planning_min_edge": 0.39843970237915144,
+      "planning_max_edge": 2.018475305348217,
+      "short_edges": 7,
+      "tiny_edges": 2,
+      "centroid_q_bad": 4,
+      "centroid_J_bad": 4,
+      "long_edges": 2,
+      "full_target_certificate": false,
+      "mesh_accepted": false
+    },
+    {
+      "stage": "operator",
+      "context": "smooth_control",
+      "edge": [
+        6032,
+        6070
+      ],
+      "operator": "InsertEdgeCavity",
+      "old_cells": 2,
+      "new_cells": 0,
+      "constructed": false,
+      "seconds": 5.3982000000000006e-05,
+      "reason": "Native 3D insertion cannot change an immutable facet or marker junction."
+    },
+    {
+      "stage": "operator",
+      "context": "smooth_control",
+      "edge": [
+        6032,
+        6070
+      ],
+      "operator": "RefitWallSplit",
+      "old_cells": 24,
+      "new_cells": 0,
+      "constructed": false,
+      "seconds": 0.0036514290000000003,
+      "reason": "Native3D retained apex has incompatible height planes; different connectivity is required."
+    },
+    {
+      "stage": "operator",
+      "context": "smooth_control",
+      "edge": [
+        6032,
+        6070
+      ],
+      "operator": "ReconstructWallSplit",
+      "old_cells": 24,
+      "new_cells": 44,
+      "constructed": true,
+      "seconds": 0.019990547,
+      "reason": ""
+    },
+    {
+      "stage": "height",
+      "context": "smooth_control",
+      "edge": [
+        6032,
+        6070
+      ],
+      "operator": "ReconstructWallSplit",
+      "side": "fresh",
+      "cells": 44,
+      "strict_height": false,
+      "measured": true,
+      "height_failures": 4,
+      "clearance_failures": 0,
+      "minimum_clearance_ratio": 0.781709,
+      "facet": 26617,
+      "cell": 1987109,
+      "apex": [
+        0.7009139103612346,
+        0.5144989865961604,
+        0.02586864251103979
+      ],
+      "geometry_work": 6,
+      "seconds": 0.000893215,
+      "cpu_seconds": 0.0008929999999999999,
+      "reason": "Native3D prescribed height fails at facet 26617 cell 1987109 relative error 0.218291 > tolerance 0.100000"
+    },
+    {
+      "stage": "patch_measurement",
+      "context": "smooth_control",
+      "operator": "ReconstructWallSplit",
+      "side": "fresh",
+      "geometry_complete": true,
+      "geometry_excess": 0,
+      "planning_min_edge": 0.17580498037658285,
+      "planning_max_edge": 2.900202962359412,
+      "short_edges": 30,
+      "tiny_edges": 17,
+      "centroid_q_bad": 26,
+      "centroid_J_bad": 27,
+      "long_edges": 13,
+      "full_target_certificate": false,
+      "mesh_accepted": false
+    },
+    {
+      "stage": "operator",
+      "context": "smooth_control",
+      "edge": [
+        6032,
+        6070
+      ],
+      "operator": "ReconstructSplitPatch",
+      "old_cells": 24,
+      "new_cells": 47,
+      "constructed": true,
+      "seconds": 0.012848222000000001,
+      "reason": ""
+    },
+    {
+      "stage": "height",
+      "context": "smooth_control",
+      "edge": [
+        6032,
+        6070
+      ],
+      "operator": "ReconstructSplitPatch",
+      "side": "fresh",
+      "cells": 47,
+      "strict_height": false,
+      "measured": true,
+      "height_failures": 4,
+      "clearance_failures": 0,
+      "minimum_clearance_ratio": 0.781709,
+      "facet": 26617,
+      "cell": 1987236,
+      "apex": [
+        0.7009139103612346,
+        0.5144989865961604,
+        0.02586864251103979
+      ],
+      "geometry_work": 6,
+      "seconds": 0.0008068620000000001,
+      "cpu_seconds": 0.000808,
+      "reason": "Native3D prescribed height fails at facet 26617 cell 1987236 relative error 0.218291 > tolerance 0.100000"
+    },
+    {
+      "stage": "patch_measurement",
+      "context": "smooth_control",
+      "operator": "ReconstructSplitPatch",
+      "side": "fresh",
+      "geometry_complete": true,
+      "geometry_excess": 0,
+      "planning_min_edge": 0.17580498037658285,
+      "planning_max_edge": 2.8448751306704594,
+      "short_edges": 30,
+      "tiny_edges": 18,
+      "centroid_q_bad": 30,
+      "centroid_J_bad": 31,
+      "long_edges": 21,
+      "full_target_certificate": false,
+      "mesh_accepted": false
+    },
+    {
+      "stage": "height",
+      "context": "leading_edge_control",
+      "edge": [
+        4218,
+        4219
+      ],
+      "operator": "input",
+      "side": "old",
+      "cells": 3,
+      "strict_height": false,
+      "measured": true,
+      "height_failures": 2,
+      "clearance_failures": 0,
+      "minimum_clearance_ratio": 118.436827,
+      "facet": 29982,
+      "cell": 292003,
+      "apex": [
+        0.2813715184386628,
+        0.4993412449307689,
+        -0.007682230009994825
+      ],
+      "geometry_work": 1164,
+      "seconds": 0.047387386000000004,
+      "cpu_seconds": 0.047194,
+      "reason": "Native3D prescribed height fails at facet 10692 cell 276260 relative error 134.132058 > tolerance 0.100000"
+    },
+    {
+      "stage": "patch_measurement",
+      "context": "leading_edge_control",
+      "operator": "input",
+      "side": "old",
+      "geometry_complete": true,
+      "geometry_excess": 4.7272664616598286e-07,
+      "planning_min_edge": 0.5528203814830401,
+      "planning_max_edge": 1.326170202639566,
+      "short_edges": 3,
+      "tiny_edges": 0,
+      "centroid_q_bad": 3,
+      "centroid_J_bad": 3,
+      "long_edges": 0,
+      "full_target_certificate": false,
+      "mesh_accepted": false
+    },
+    {
+      "stage": "apex_probe",
+      "context": "leading_edge_control",
+      "operator": "FlatFootCone",
+      "facet": 10692,
+      "point": [
+        0.28874513177469807,
+        0.4990926127930897,
+        0.0021385030899870095
+      ],
+      "precision_over_h": 0.0001,
+      "plane_height_ratio": 0.9999999999997354,
+      "distance_lower_over_h": 4.356999261276159,
+      "distance_upper_over_h": 4.357005479351481,
+      "clearance_lower_over_h": -4.357005479351481,
+      "signed_candidate_over_h": -4.35700547935158,
+      "candidate_is_sign_certificate": false,
+      "work": 270
+    },
+    {
+      "stage": "apex_probe",
+      "context": "leading_edge_control",
+      "operator": "FlatFootCone",
+      "facet": 10692,
+      "point": [
+        0.28874513177469807,
+        0.4990926127930897,
+        0.0021385030899870095
+      ],
+      "precision_over_h": 1e-06,
+      "plane_height_ratio": 0.9999999999997354,
+      "distance_lower_over_h": 4.357005376720484,
+      "distance_upper_over_h": 4.357005479351481,
+      "clearance_lower_over_h": -4.357005479351481,
+      "signed_candidate_over_h": -4.35700547935158,
+      "candidate_is_sign_certificate": false,
+      "work": 322
+    },
+    {
+      "stage": "apex_probe",
+      "context": "leading_edge_control",
+      "operator": "FlatFootCone",
+      "facet": 10692,
+      "point": [
+        0.28874513177469807,
+        0.4990926127930897,
+        0.0021385030899870095
+      ],
+      "precision_over_h": 1e-08,
+      "plane_height_ratio": 0.9999999999997354,
+      "distance_lower_over_h": 4.357005478981365,
+      "distance_upper_over_h": 4.357005479351481,
+      "clearance_lower_over_h": -4.357005479351481,
+      "signed_candidate_over_h": -4.35700547935158,
+      "candidate_is_sign_certificate": false,
+      "work": 382
+    },
+    {
+      "stage": "height",
+      "context": "leading_edge_control",
+      "edge": [
+        4218,
+        4219
+      ],
+      "operator": "FlatFootCone",
+      "side": "fresh",
+      "cells": 43,
+      "strict_height": false,
+      "measured": true,
+      "height_failures": 7,
+      "clearance_failures": 1,
+      "minimum_clearance_ratio": -4.357005,
+      "facet": 10692,
+      "cell": 1987501,
+      "apex": [
+        0.28874513177469807,
+        0.4990926127930897,
+        0.0021385030899870095
+      ],
+      "geometry_work": 7,
+      "seconds": 0.000842583,
+      "cpu_seconds": 0.000843,
+      "reason": "Native3D geometry-height incompatibility of the normal-row proposal at facet 10692 cell 1987501 clearance/h0=-4.357005: positive smooth-reference clearance is not certified; reconsider the wall/row proposal."
+    },
+    {
+      "stage": "clearance_refinement",
+      "context": "leading_edge_control",
+      "operator": "FlatFootCone",
+      "side": "fresh",
+      "precision_over_h": 0.0001,
+      "lower": 0.0002788483506548073,
+      "upper": 0.0002788483506784948,
+      "clearance_lower_over_h": -4.357005479351481,
+      "signed_candidate_over_h": -4.35700547935158,
+      "candidate_is_sign_certificate": false,
+      "work": 1,
+      "seconds": 7.173000000000001e-06
+    },
+    {
+      "stage": "clearance_refinement",
+      "context": "leading_edge_control",
+      "operator": "FlatFootCone",
+      "side": "fresh",
+      "precision_over_h": 1e-06,
+      "lower": 0.0002788483506548073,
+      "upper": 0.0002788483506784948,
+      "clearance_lower_over_h": -4.357005479351481,
+      "signed_candidate_over_h": -4.35700547935158,
+      "candidate_is_sign_certificate": false,
+      "work": 1,
+      "seconds": 3.5510000000000004e-06
+    },
+    {
+      "stage": "clearance_refinement",
+      "context": "leading_edge_control",
+      "operator": "FlatFootCone",
+      "side": "fresh",
+      "precision_over_h": 1e-08,
+      "lower": 0.0002788483506548073,
+      "upper": 0.0002788483506784948,
+      "clearance_lower_over_h": -4.357005479351481,
+      "signed_candidate_over_h": -4.35700547935158,
+      "candidate_is_sign_certificate": false,
+      "work": 1,
+      "seconds": 2.9130000000000003e-06
+    },
+    {
+      "stage": "patch_measurement",
+      "context": "leading_edge_control",
+      "operator": "FlatFootCone",
+      "side": "fresh",
+      "geometry_complete": true,
+      "geometry_excess": 1.6318548303876658e-06,
+      "planning_min_edge": 0.27535382200847175,
+      "planning_max_edge": 2.2788687827233014,
+      "short_edges": 18,
+      "tiny_edges": 5,
+      "centroid_q_bad": 35,
+      "centroid_J_bad": 36,
+      "long_edges": 12,
+      "full_target_certificate": false,
+      "mesh_accepted": false
+    },
+    {
+      "stage": "apex_candidate",
+      "context": "leading_edge_control",
+      "operator": "FlatFootCone",
+      "positive": true,
+      "fixed_split_interface": true,
+      "parameter_preflight": true,
+      "contact_protocol": true,
+      "contact": true,
+      "passing_heights_preserved": true,
+      "old_cells": 37,
+      "new_cells": 43,
+      "reason": "",
+      "interface_reason": "",
+      "parameter_reason": "",
+      "contact_reason": "",
+      "preservation_reason": "",
+      "production_admitted": false,
+      "mesh_accepted": false
+    },
+    {
+      "stage": "apex_probe",
+      "context": "leading_edge_control",
+      "operator": "ProjectedFootCone",
+      "facet": 10692,
+      "point": [
+        0.288452920231519,
+        0.49926161021756316,
+        0.002198898139643433
+      ],
+      "precision_over_h": 0.0001,
+      "plane_height_ratio": 6.335224610315437,
+      "distance_lower_over_h": 0.9999994756760598,
+      "distance_upper_over_h": 0.9999999999998693,
+      "clearance_lower_over_h": 0.9999213146510505,
+      "signed_candidate_over_h": 0.9999999999998115,
+      "candidate_is_sign_certificate": false,
+      "work": 483
+    },
+    {
+      "stage": "apex_probe",
+      "context": "leading_edge_control",
+      "operator": "ProjectedFootCone",
+      "facet": 10692,
+      "point": [
+        0.288452920231519,
+        0.49926161021756316,
+        0.002198898139643433
+      ],
+      "precision_over_h": 1e-06,
+      "plane_height_ratio": 6.335224610315437,
+      "distance_lower_over_h": 0.9999994756760598,
+      "distance_upper_over_h": 0.9999999999998693,
+      "clearance_lower_over_h": 0.9999213146510505,
+      "signed_candidate_over_h": 0.9999999999998115,
+      "candidate_is_sign_certificate": false,
+      "work": 1
+    },
+    {
+      "stage": "apex_probe",
+      "context": "leading_edge_control",
+      "operator": "ProjectedFootCone",
+      "facet": 10692,
+      "point": [
+        0.288452920231519,
+        0.49926161021756316,
+        0.002198898139643433
+      ],
+      "precision_over_h": 1e-08,
+      "plane_height_ratio": 6.335224610315437,
+      "distance_lower_over_h": 0.9999999999245327,
+      "distance_upper_over_h": 0.9999999999998693,
+      "clearance_lower_over_h": 0.9999994444610115,
+      "signed_candidate_over_h": 0.9999999999998115,
+      "candidate_is_sign_certificate": false,
+      "work": 827
+    },
+    {
+      "stage": "height",
+      "context": "leading_edge_control",
+      "edge": [
+        4218,
+        4219
+      ],
+      "operator": "ProjectedFootCone",
+      "side": "fresh",
+      "cells": 43,
+      "strict_height": false,
+      "measured": true,
+      "height_failures": 7,
+      "clearance_failures": 0,
+      "minimum_clearance_ratio": 0.999999,
+      "facet": 10692,
+      "cell": 1987757,
+      "apex": [
+        0.288452920231519,
+        0.49926161021756316,
+        0.002198898139643433
+      ],
+      "geometry_work": 7,
+      "seconds": 0.000815911,
+      "cpu_seconds": 0.000816,
+      "reason": "Native3D prescribed height fails at facet 10692 cell 1987729 relative error 134.132058 > tolerance 0.100000"
+    },
+    {
+      "stage": "patch_measurement",
+      "context": "leading_edge_control",
+      "operator": "ProjectedFootCone",
+      "side": "fresh",
+      "geometry_complete": true,
+      "geometry_excess": 1.6318548303876658e-06,
+      "planning_min_edge": 0.27535382200847175,
+      "planning_max_edge": 2.2788687827233014,
+      "short_edges": 18,
+      "tiny_edges": 5,
+      "centroid_q_bad": 35,
+      "centroid_J_bad": 36,
+      "long_edges": 12,
+      "full_target_certificate": false,
+      "mesh_accepted": false
+    },
+    {
+      "stage": "apex_candidate",
+      "context": "leading_edge_control",
+      "operator": "ProjectedFootCone",
+      "positive": true,
+      "fixed_split_interface": true,
+      "parameter_preflight": true,
+      "contact_protocol": true,
+      "contact": true,
+      "passing_heights_preserved": true,
+      "old_cells": 37,
+      "new_cells": 43,
+      "reason": "",
+      "interface_reason": "",
+      "parameter_reason": "",
+      "contact_reason": "",
+      "preservation_reason": "",
+      "production_admitted": false,
+      "mesh_accepted": false
+    },
+    {
+      "stage": "operator",
+      "context": "leading_edge_control",
+      "edge": [
+        4218,
+        4219
+      ],
+      "operator": "SplitEdge",
+      "old_cells": 3,
+      "new_cells": 6,
+      "constructed": true,
+      "seconds": 0.0017864030000000002,
+      "reason": ""
+    },
+    {
+      "stage": "height",
+      "context": "leading_edge_control",
+      "edge": [
+        4218,
+        4219
+      ],
+      "operator": "SplitEdge",
+      "side": "fresh",
+      "cells": 6,
+      "strict_height": false,
+      "measured": true,
+      "height_failures": 4,
+      "clearance_failures": 0,
+      "minimum_clearance_ratio": 118.436827,
+      "facet": 29982,
+      "cell": 1987849,
+      "apex": [
+        0.2813715184386628,
+        0.4993412449307689,
+        -0.007682230009994825
+      ],
+      "geometry_work": 4,
+      "seconds": 0.000716709,
+      "cpu_seconds": 0.000716,
+      "reason": "Native3D prescribed height fails at facet 10692 cell 1987847 relative error 134.132058 > tolerance 0.100000"
+    },
+    {
+      "stage": "patch_measurement",
+      "context": "leading_edge_control",
+      "operator": "SplitEdge",
+      "side": "fresh",
+      "geometry_complete": true,
+      "geometry_excess": 9.454531764421485e-07,
+      "planning_min_edge": 0.27535382200847175,
+      "planning_max_edge": 1.326170202639566,
+      "short_edges": 6,
+      "tiny_edges": 2,
+      "centroid_q_bad": 6,
+      "centroid_J_bad": 6,
+      "long_edges": 0,
+      "full_target_certificate": false,
+      "mesh_accepted": false
+    },
+    {
+      "stage": "operator",
+      "context": "leading_edge_control",
+      "edge": [
+        4218,
+        4219
+      ],
+      "operator": "InsertEdgeCavity",
+      "old_cells": 3,
+      "new_cells": 0,
+      "constructed": false,
+      "seconds": 5.1554e-05,
+      "reason": "Native 3D insertion cannot change an immutable facet or marker junction."
+    },
+    {
+      "stage": "operator",
+      "context": "leading_edge_control",
+      "edge": [
+        4218,
+        4219
+      ],
+      "operator": "RefitWallSplit",
+      "old_cells": 37,
+      "new_cells": 0,
+      "constructed": false,
+      "seconds": 0.0044662420000000005,
+      "reason": "Native3D retained height planes leave no normal-foot freedom."
+    },
+    {
+      "stage": "operator",
+      "context": "leading_edge_control",
+      "edge": [
+        4218,
+        4219
+      ],
+      "operator": "ReconstructWallSplit",
+      "old_cells": 37,
+      "new_cells": 0,
+      "constructed": false,
+      "seconds": 0.050477643,
+      "reason": "Native3D geometry-height incompatibility of the normal-row proposal at facet 10692 cell 1988267 clearance/h0=-4.357005: positive smooth-reference clearance is not certified; reconsider the wall/row proposal."
+    },
+    {
+      "stage": "operator",
+      "context": "leading_edge_control",
+      "edge": [
+        4218,
+        4219
+      ],
+      "operator": "ReconstructSplitPatch",
+      "old_cells": 37,
+      "new_cells": 0,
+      "constructed": false,
+      "seconds": 0.009315876,
+      "reason": "Native3D geometry-height incompatibility of the normal-row proposal at facet 10692 cell 1988388 clearance/h0=-4.357005: positive smooth-reference clearance is not certified; reconsider the wall/row proposal."
+    }
+  ],
+  "clearance_summary": [
+    {
+      "context": "leading_edge_control",
+      "operator": "FlatFootCone",
+      "refinements": [
+        {
+          "stage": "apex_probe",
+          "context": "leading_edge_control",
+          "operator": "FlatFootCone",
+          "facet": 10692,
+          "point": [
+            0.28874513177469807,
+            0.4990926127930897,
+            0.0021385030899870095
+          ],
+          "precision_over_h": 0.0001,
+          "plane_height_ratio": 0.9999999999997354,
+          "distance_lower_over_h": 4.356999261276159,
+          "distance_upper_over_h": 4.357005479351481,
+          "clearance_lower_over_h": -4.357005479351481,
+          "signed_candidate_over_h": -4.35700547935158,
+          "candidate_is_sign_certificate": false,
+          "work": 270
+        },
+        {
+          "stage": "apex_probe",
+          "context": "leading_edge_control",
+          "operator": "FlatFootCone",
+          "facet": 10692,
+          "point": [
+            0.28874513177469807,
+            0.4990926127930897,
+            0.0021385030899870095
+          ],
+          "precision_over_h": 1e-06,
+          "plane_height_ratio": 0.9999999999997354,
+          "distance_lower_over_h": 4.357005376720484,
+          "distance_upper_over_h": 4.357005479351481,
+          "clearance_lower_over_h": -4.357005479351481,
+          "signed_candidate_over_h": -4.35700547935158,
+          "candidate_is_sign_certificate": false,
+          "work": 322
+        },
+        {
+          "stage": "apex_probe",
+          "context": "leading_edge_control",
+          "operator": "FlatFootCone",
+          "facet": 10692,
+          "point": [
+            0.28874513177469807,
+            0.4990926127930897,
+            0.0021385030899870095
+          ],
+          "precision_over_h": 1e-08,
+          "plane_height_ratio": 0.9999999999997354,
+          "distance_lower_over_h": 4.357005478981365,
+          "distance_upper_over_h": 4.357005479351481,
+          "clearance_lower_over_h": -4.357005479351481,
+          "signed_candidate_over_h": -4.35700547935158,
+          "candidate_is_sign_certificate": false,
+          "work": 382
+        },
+        {
+          "stage": "clearance_refinement",
+          "context": "leading_edge_control",
+          "operator": "FlatFootCone",
+          "side": "fresh",
+          "precision_over_h": 0.0001,
+          "lower": 0.0002788483506548073,
+          "upper": 0.0002788483506784948,
+          "clearance_lower_over_h": -4.357005479351481,
+          "signed_candidate_over_h": -4.35700547935158,
+          "candidate_is_sign_certificate": false,
+          "work": 1,
+          "seconds": 7.173000000000001e-06
+        },
+        {
+          "stage": "clearance_refinement",
+          "context": "leading_edge_control",
+          "operator": "FlatFootCone",
+          "side": "fresh",
+          "precision_over_h": 1e-06,
+          "lower": 0.0002788483506548073,
+          "upper": 0.0002788483506784948,
+          "clearance_lower_over_h": -4.357005479351481,
+          "signed_candidate_over_h": -4.35700547935158,
+          "candidate_is_sign_certificate": false,
+          "work": 1,
+          "seconds": 3.5510000000000004e-06
+        },
+        {
+          "stage": "clearance_refinement",
+          "context": "leading_edge_control",
+          "operator": "FlatFootCone",
+          "side": "fresh",
+          "precision_over_h": 1e-08,
+          "lower": 0.0002788483506548073,
+          "upper": 0.0002788483506784948,
+          "clearance_lower_over_h": -4.357005479351481,
+          "signed_candidate_over_h": -4.35700547935158,
+          "candidate_is_sign_certificate": false,
+          "work": 1,
+          "seconds": 2.9130000000000003e-06
+        }
+      ],
+      "has_positive_clearance_certificate": false,
+      "candidate_positive_only": false
+    },
+    {
+      "context": "leading_edge_control",
+      "operator": "ProjectedFootCone",
+      "refinements": [
+        {
+          "stage": "apex_probe",
+          "context": "leading_edge_control",
+          "operator": "ProjectedFootCone",
+          "facet": 10692,
+          "point": [
+            0.288452920231519,
+            0.49926161021756316,
+            0.002198898139643433
+          ],
+          "precision_over_h": 0.0001,
+          "plane_height_ratio": 6.335224610315437,
+          "distance_lower_over_h": 0.9999994756760598,
+          "distance_upper_over_h": 0.9999999999998693,
+          "clearance_lower_over_h": 0.9999213146510505,
+          "signed_candidate_over_h": 0.9999999999998115,
+          "candidate_is_sign_certificate": false,
+          "work": 483
+        },
+        {
+          "stage": "apex_probe",
+          "context": "leading_edge_control",
+          "operator": "ProjectedFootCone",
+          "facet": 10692,
+          "point": [
+            0.288452920231519,
+            0.49926161021756316,
+            0.002198898139643433
+          ],
+          "precision_over_h": 1e-06,
+          "plane_height_ratio": 6.335224610315437,
+          "distance_lower_over_h": 0.9999994756760598,
+          "distance_upper_over_h": 0.9999999999998693,
+          "clearance_lower_over_h": 0.9999213146510505,
+          "signed_candidate_over_h": 0.9999999999998115,
+          "candidate_is_sign_certificate": false,
+          "work": 1
+        },
+        {
+          "stage": "apex_probe",
+          "context": "leading_edge_control",
+          "operator": "ProjectedFootCone",
+          "facet": 10692,
+          "point": [
+            0.288452920231519,
+            0.49926161021756316,
+            0.002198898139643433
+          ],
+          "precision_over_h": 1e-08,
+          "plane_height_ratio": 6.335224610315437,
+          "distance_lower_over_h": 0.9999999999245327,
+          "distance_upper_over_h": 0.9999999999998693,
+          "clearance_lower_over_h": 0.9999994444610115,
+          "signed_candidate_over_h": 0.9999999999998115,
+          "candidate_is_sign_certificate": false,
+          "work": 827
+        }
+      ],
+      "has_positive_clearance_certificate": true,
+      "candidate_positive_only": false
+    },
+    {
+      "context": "r4_adjacent_candidate_0",
+      "operator": "FlatFootCone",
+      "refinements": [
+        {
+          "stage": "apex_probe",
+          "context": "r4_adjacent_candidate_0",
+          "operator": "FlatFootCone",
+          "facet": 47715,
+          "point": [
+            0.84300402943797,
+            1.2016179226440034,
+            0.021070442022713454
+          ],
+          "precision_over_h": 0.0001,
+          "plane_height_ratio": 1.0000000000002554,
+          "distance_lower_over_h": 2.9995094809699174,
+          "distance_upper_over_h": 2.9996053662321716,
+          "clearance_lower_over_h": -2.9996053662321716,
+          "signed_candidate_over_h": -2.9996053662309325,
+          "candidate_is_sign_certificate": false,
+          "work": 220
+        },
+        {
+          "stage": "apex_probe",
+          "context": "r4_adjacent_candidate_0",
+          "operator": "FlatFootCone",
+          "facet": 47715,
+          "point": [
+            0.84300402943797,
+            1.2016179226440034,
+            0.021070442022713454
+          ],
+          "precision_over_h": 1e-06,
+          "plane_height_ratio": 1.0000000000002554,
+          "distance_lower_over_h": 2.9996047206759417,
+          "distance_upper_over_h": 2.9996053662321716,
+          "clearance_lower_over_h": -2.9996053662321716,
+          "signed_candidate_over_h": -2.9996053662309325,
+          "candidate_is_sign_certificate": false,
+          "work": 304
+        },
+        {
+          "stage": "apex_probe",
+          "context": "r4_adjacent_candidate_0",
+          "operator": "FlatFootCone",
+          "facet": 47715,
+          "point": [
+            0.84300402943797,
+            1.2016179226440034,
+            0.021070442022713454
+          ],
+          "precision_over_h": 1e-08,
+          "plane_height_ratio": 1.0000000000002554,
+          "distance_lower_over_h": 2.9996053603566635,
+          "distance_upper_over_h": 2.9996053662321716,
+          "clearance_lower_over_h": -2.9996053662321716,
+          "signed_candidate_over_h": -2.9996053662309325,
+          "candidate_is_sign_certificate": false,
+          "work": 329
+        },
+        {
+          "stage": "clearance_refinement",
+          "context": "r4_adjacent_candidate_0",
+          "operator": "FlatFootCone",
+          "side": "fresh",
+          "precision_over_h": 0.0001,
+          "lower": 0.00019197474306282647,
+          "upper": 0.00019197474343885898,
+          "clearance_lower_over_h": -2.9996053662321716,
+          "signed_candidate_over_h": -2.9996053662309325,
+          "candidate_is_sign_certificate": false,
+          "work": 1,
+          "seconds": 7.898000000000001e-06
+        },
+        {
+          "stage": "clearance_refinement",
+          "context": "r4_adjacent_candidate_0",
+          "operator": "FlatFootCone",
+          "side": "fresh",
+          "precision_over_h": 1e-06,
+          "lower": 0.00019197474306282647,
+          "upper": 0.00019197474343885898,
+          "clearance_lower_over_h": -2.9996053662321716,
+          "signed_candidate_over_h": -2.9996053662309325,
+          "candidate_is_sign_certificate": false,
+          "work": 1,
+          "seconds": 3.3530000000000003e-06
+        },
+        {
+          "stage": "clearance_refinement",
+          "context": "r4_adjacent_candidate_0",
+          "operator": "FlatFootCone",
+          "side": "fresh",
+          "precision_over_h": 1e-08,
+          "lower": 0.00019197474306282647,
+          "upper": 0.00019197474343885898,
+          "clearance_lower_over_h": -2.9996053662321716,
+          "signed_candidate_over_h": -2.9996053662309325,
+          "candidate_is_sign_certificate": false,
+          "work": 1,
+          "seconds": 3.028e-06
+        }
+      ],
+      "has_positive_clearance_certificate": false,
+      "candidate_positive_only": false
+    },
+    {
+      "context": "r4_adjacent_candidate_0",
+      "operator": "ProjectedFootCone",
+      "refinements": [
+        {
+          "stage": "apex_probe",
+          "context": "r4_adjacent_candidate_0",
+          "operator": "ProjectedFootCone",
+          "facet": 47715,
+          "point": [
+            0.8429992265115479,
+            1.2016921040892432,
+            0.021315997281915952
+          ],
+          "precision_over_h": 0.0001,
+          "plane_height_ratio": 4.9921159416560315,
+          "distance_lower_over_h": 0.9999083139472204,
+          "distance_upper_over_h": 0.9999999999986068,
+          "clearance_lower_over_h": 0.9991270919148989,
+          "signed_candidate_over_h": 0.9999999999993472,
+          "candidate_is_sign_certificate": false,
+          "work": 151
+        },
+        {
+          "stage": "apex_probe",
+          "context": "r4_adjacent_candidate_0",
+          "operator": "ProjectedFootCone",
+          "facet": 47715,
+          "point": [
+            0.8429992265115479,
+            1.2016921040892432,
+            0.021315997281915952
+          ],
+          "precision_over_h": 1e-06,
+          "plane_height_ratio": 4.9921159416560315,
+          "distance_lower_over_h": 0.9999990897295244,
+          "distance_upper_over_h": 0.9999999999986068,
+          "clearance_lower_over_h": 0.9999058342265181,
+          "signed_candidate_over_h": 0.9999999999993472,
+          "candidate_is_sign_certificate": false,
+          "work": 402
+        },
+        {
+          "stage": "apex_probe",
+          "context": "r4_adjacent_candidate_0",
+          "operator": "ProjectedFootCone",
+          "facet": 47715,
+          "point": [
+            0.8429992265115479,
+            1.2016921040892432,
+            0.021315997281915952
+          ],
+          "precision_over_h": 1e-08,
+          "plane_height_ratio": 4.9921159416560315,
+          "distance_lower_over_h": 0.9999999931777401,
+          "distance_upper_over_h": 0.9999999999986068,
+          "clearance_lower_over_h": 0.999995513708864,
+          "signed_candidate_over_h": 0.9999999999993472,
+          "candidate_is_sign_certificate": false,
+          "work": 647
+        }
+      ],
+      "has_positive_clearance_certificate": true,
+      "candidate_positive_only": false
+    },
+    {
+      "context": "r4_adjacent_candidate_1",
+      "operator": "FlatFootCone",
+      "refinements": [
+        {
+          "stage": "apex_probe",
+          "context": "r4_adjacent_candidate_1",
+          "operator": "FlatFootCone",
+          "facet": 47715,
+          "point": [
+            0.84300402943797,
+            1.2016179226440034,
+            0.021070442022713454
+          ],
+          "precision_over_h": 0.0001,
+          "plane_height_ratio": 1.0000000000002554,
+          "distance_lower_over_h": 2.9996053603566635,
+          "distance_upper_over_h": 2.9996053662321716,
+          "clearance_lower_over_h": -2.9996053662321716,
+          "signed_candidate_over_h": -2.9996053662309325,
+          "candidate_is_sign_certificate": false,
+          "work": 1
+        },
+        {
+          "stage": "apex_probe",
+          "context": "r4_adjacent_candidate_1",
+          "operator": "FlatFootCone",
+          "facet": 47715,
+          "point": [
+            0.84300402943797,
+            1.2016179226440034,
+            0.021070442022713454
+          ],
+          "precision_over_h": 1e-06,
+          "plane_height_ratio": 1.0000000000002554,
+          "distance_lower_over_h": 2.9996053603566635,
+          "distance_upper_over_h": 2.9996053662321716,
+          "clearance_lower_over_h": -2.9996053662321716,
+          "signed_candidate_over_h": -2.9996053662309325,
+          "candidate_is_sign_certificate": false,
+          "work": 1
+        },
+        {
+          "stage": "apex_probe",
+          "context": "r4_adjacent_candidate_1",
+          "operator": "FlatFootCone",
+          "facet": 47715,
+          "point": [
+            0.84300402943797,
+            1.2016179226440034,
+            0.021070442022713454
+          ],
+          "precision_over_h": 1e-08,
+          "plane_height_ratio": 1.0000000000002554,
+          "distance_lower_over_h": 2.9996053603566635,
+          "distance_upper_over_h": 2.9996053662321716,
+          "clearance_lower_over_h": -2.9996053662321716,
+          "signed_candidate_over_h": -2.9996053662309325,
+          "candidate_is_sign_certificate": false,
+          "work": 1
+        },
+        {
+          "stage": "clearance_refinement",
+          "context": "r4_adjacent_candidate_1",
+          "operator": "FlatFootCone",
+          "side": "fresh",
+          "precision_over_h": 0.0001,
+          "lower": 0.00019197474306282647,
+          "upper": 0.00019197474343885898,
+          "clearance_lower_over_h": -2.9996053662321716,
+          "signed_candidate_over_h": -2.9996053662309325,
+          "candidate_is_sign_certificate": false,
+          "work": 1,
+          "seconds": 5.7050000000000004e-06
+        },
+        {
+          "stage": "clearance_refinement",
+          "context": "r4_adjacent_candidate_1",
+          "operator": "FlatFootCone",
+          "side": "fresh",
+          "precision_over_h": 1e-06,
+          "lower": 0.00019197474306282647,
+          "upper": 0.00019197474343885898,
+          "clearance_lower_over_h": -2.9996053662321716,
+          "signed_candidate_over_h": -2.9996053662309325,
+          "candidate_is_sign_certificate": false,
+          "work": 1,
+          "seconds": 3.2110000000000003e-06
+        },
+        {
+          "stage": "clearance_refinement",
+          "context": "r4_adjacent_candidate_1",
+          "operator": "FlatFootCone",
+          "side": "fresh",
+          "precision_over_h": 1e-08,
+          "lower": 0.00019197474306282647,
+          "upper": 0.00019197474343885898,
+          "clearance_lower_over_h": -2.9996053662321716,
+          "signed_candidate_over_h": -2.9996053662309325,
+          "candidate_is_sign_certificate": false,
+          "work": 1,
+          "seconds": 2.9520000000000003e-06
+        }
+      ],
+      "has_positive_clearance_certificate": false,
+      "candidate_positive_only": false
+    },
+    {
+      "context": "r4_adjacent_candidate_1",
+      "operator": "ProjectedFootCone",
+      "refinements": [
+        {
+          "stage": "apex_probe",
+          "context": "r4_adjacent_candidate_1",
+          "operator": "ProjectedFootCone",
+          "facet": 47715,
+          "point": [
+            0.8429992265115479,
+            1.2016921040892432,
+            0.021315997281915952
+          ],
+          "precision_over_h": 0.0001,
+          "plane_height_ratio": 4.9921159416560315,
+          "distance_lower_over_h": 0.9999999931777401,
+          "distance_upper_over_h": 0.9999999999986068,
+          "clearance_lower_over_h": 0.999995513708864,
+          "signed_candidate_over_h": 0.9999999999993472,
+          "candidate_is_sign_certificate": false,
+          "work": 1
+        },
+        {
+          "stage": "apex_probe",
+          "context": "r4_adjacent_candidate_1",
+          "operator": "ProjectedFootCone",
+          "facet": 47715,
+          "point": [
+            0.8429992265115479,
+            1.2016921040892432,
+            0.021315997281915952
+          ],
+          "precision_over_h": 1e-06,
+          "plane_height_ratio": 4.9921159416560315,
+          "distance_lower_over_h": 0.9999999931777401,
+          "distance_upper_over_h": 0.9999999999986068,
+          "clearance_lower_over_h": 0.999995513708864,
+          "signed_candidate_over_h": 0.9999999999993472,
+          "candidate_is_sign_certificate": false,
+          "work": 1
+        },
+        {
+          "stage": "apex_probe",
+          "context": "r4_adjacent_candidate_1",
+          "operator": "ProjectedFootCone",
+          "facet": 47715,
+          "point": [
+            0.8429992265115479,
+            1.2016921040892432,
+            0.021315997281915952
+          ],
+          "precision_over_h": 1e-08,
+          "plane_height_ratio": 4.9921159416560315,
+          "distance_lower_over_h": 0.9999999931777401,
+          "distance_upper_over_h": 0.9999999999986068,
+          "clearance_lower_over_h": 0.999995513708864,
+          "signed_candidate_over_h": 0.9999999999993472,
+          "candidate_is_sign_certificate": false,
+          "work": 1
+        }
+      ],
+      "has_positive_clearance_certificate": true,
+      "candidate_positive_only": false
+    },
+    {
+      "context": "recorded_edge_r5",
+      "operator": "FlatFootCone",
+      "refinements": [
+        {
+          "stage": "apex_probe",
+          "context": "recorded_edge_r5",
+          "operator": "FlatFootCone",
+          "facet": 16436,
+          "point": [
+            0.434116976842208,
+            0.7460929476840463,
+            0.007350771933924974
+          ],
+          "precision_over_h": 0.0001,
+          "plane_height_ratio": 1.0000000000001619,
+          "distance_lower_over_h": 3.321807079658544,
+          "distance_upper_over_h": 3.321893524298288,
+          "clearance_lower_over_h": -3.321893524298288,
+          "signed_candidate_over_h": -3.321893524297975,
+          "candidate_is_sign_certificate": false,
+          "work": 220
+        },
+        {
+          "stage": "apex_probe",
+          "context": "recorded_edge_r5",
+          "operator": "FlatFootCone",
+          "facet": 16436,
+          "point": [
+            0.434116976842208,
+            0.7460929476840463,
+            0.007350771933924974
+          ],
+          "precision_over_h": 1e-06,
+          "plane_height_ratio": 1.0000000000001619,
+          "distance_lower_over_h": 3.3218929006664055,
+          "distance_upper_over_h": 3.321893524298288,
+          "clearance_lower_over_h": -3.321893524298288,
+          "signed_candidate_over_h": -3.321893524297975,
+          "candidate_is_sign_certificate": false,
+          "work": 271
+        },
+        {
+          "stage": "apex_probe",
+          "context": "recorded_edge_r5",
+          "operator": "FlatFootCone",
+          "facet": 16436,
+          "point": [
+            0.434116976842208,
+            0.7460929476840463,
+            0.007350771933924974
+          ],
+          "precision_over_h": 1e-08,
+          "plane_height_ratio": 1.0000000000001619,
+          "distance_lower_over_h": 3.3218935166237693,
+          "distance_upper_over_h": 3.321893524298288,
+          "clearance_lower_over_h": -3.321893524298288,
+          "signed_candidate_over_h": -3.321893524297975,
+          "candidate_is_sign_certificate": false,
+          "work": 423
+        },
+        {
+          "stage": "clearance_refinement",
+          "context": "recorded_edge_r5",
+          "operator": "FlatFootCone",
+          "side": "fresh",
+          "precision_over_h": 0.0001,
+          "lower": 0.00021260118506392123,
+          "upper": 0.00021260118555509045,
+          "clearance_lower_over_h": -3.3218935242982885,
+          "signed_candidate_over_h": -3.321893524297975,
+          "candidate_is_sign_certificate": false,
+          "work": 1,
+          "seconds": 7.522e-06
+        },
+        {
+          "stage": "clearance_refinement",
+          "context": "recorded_edge_r5",
+          "operator": "FlatFootCone",
+          "side": "fresh",
+          "precision_over_h": 1e-06,
+          "lower": 0.00021260118506392123,
+          "upper": 0.00021260118555509045,
+          "clearance_lower_over_h": -3.3218935242982885,
+          "signed_candidate_over_h": -3.321893524297975,
+          "candidate_is_sign_certificate": false,
+          "work": 1,
+          "seconds": 3.2130000000000004e-06
+        },
+        {
+          "stage": "clearance_refinement",
+          "context": "recorded_edge_r5",
+          "operator": "FlatFootCone",
+          "side": "fresh",
+          "precision_over_h": 1e-08,
+          "lower": 0.00021260118506392123,
+          "upper": 0.00021260118555509045,
+          "clearance_lower_over_h": -3.3218935242982885,
+          "signed_candidate_over_h": -3.321893524297975,
+          "candidate_is_sign_certificate": false,
+          "work": 1,
+          "seconds": 2.7430000000000002e-06
+        }
+      ],
+      "has_positive_clearance_certificate": false,
+      "candidate_positive_only": false
+    },
+    {
+      "context": "recorded_edge_r5",
+      "operator": "ProjectedFootCone",
+      "refinements": [
+        {
+          "stage": "apex_probe",
+          "context": "recorded_edge_r5",
+          "operator": "ProjectedFootCone",
+          "facet": 16436,
+          "point": [
+            0.43392364819646223,
+            0.746204917453107,
+            0.007514014768123418
+          ],
+          "precision_over_h": 0.0001,
+          "plane_height_ratio": 5.309773741010792,
+          "distance_lower_over_h": 0.9999611530018488,
+          "distance_upper_over_h": 1.000000000000674,
+          "clearance_lower_over_h": 0.9997235568900584,
+          "signed_candidate_over_h": 1.0000000000008906,
+          "candidate_is_sign_certificate": false,
+          "work": 195
+        },
+        {
+          "stage": "apex_probe",
+          "context": "recorded_edge_r5",
+          "operator": "ProjectedFootCone",
+          "facet": 16436,
+          "point": [
+            0.43392364819646223,
+            0.746204917453107,
+            0.007514014768123418
+          ],
+          "precision_over_h": 1e-06,
+          "plane_height_ratio": 5.309773741010792,
+          "distance_lower_over_h": 0.9999993934853928,
+          "distance_upper_over_h": 1.000000000000674,
+          "clearance_lower_over_h": 0.999942352061911,
+          "signed_candidate_over_h": 1.0000000000008906,
+          "candidate_is_sign_certificate": false,
+          "work": 355
+        },
+        {
+          "stage": "apex_probe",
+          "context": "recorded_edge_r5",
+          "operator": "ProjectedFootCone",
+          "facet": 16436,
+          "point": [
+            0.43392364819646223,
+            0.746204917453107,
+            0.007514014768123418
+          ],
+          "precision_over_h": 1e-08,
+          "plane_height_ratio": 5.309773741010792,
+          "distance_lower_over_h": 0.9999999905264446,
+          "distance_upper_over_h": 1.000000000000674,
+          "clearance_lower_over_h": 0.9999931608948767,
+          "signed_candidate_over_h": 1.0000000000008906,
+          "candidate_is_sign_certificate": false,
+          "work": 514
+        }
+      ],
+      "has_positive_clearance_certificate": true,
+      "candidate_positive_only": false
+    },
+    {
+      "context": "smooth_control",
+      "operator": "FlatFootCone",
+      "refinements": [
+        {
+          "stage": "apex_probe",
+          "context": "smooth_control",
+          "operator": "FlatFootCone",
+          "facet": 26617,
+          "point": [
+            0.7009139103612346,
+            0.5144989865961604,
+            0.02586864251103979
+          ],
+          "precision_over_h": 0.0001,
+          "plane_height_ratio": 1.000000000000032,
+          "distance_lower_over_h": 0.7816171158766839,
+          "distance_upper_over_h": 0.7817092589930426,
+          "clearance_lower_over_h": 0.7815027926974104,
+          "signed_candidate_over_h": 0.7817092589932522,
+          "candidate_is_sign_certificate": false,
+          "work": 74
+        },
+        {
+          "stage": "apex_probe",
+          "context": "smooth_control",
+          "operator": "FlatFootCone",
+          "facet": 26617,
+          "point": [
+            0.7009139103612346,
+            0.5144989865961604,
+            0.02586864251103979
+          ],
+          "precision_over_h": 1e-06,
+          "plane_height_ratio": 1.000000000000032,
+          "distance_lower_over_h": 0.781708577797251,
+          "distance_upper_over_h": 0.7817092589930426,
+          "clearance_lower_over_h": 0.7817031284880352,
+          "signed_candidate_over_h": 0.7817092589932522,
+          "candidate_is_sign_certificate": false,
+          "work": 157
+        },
+        {
+          "stage": "apex_probe",
+          "context": "smooth_control",
+          "operator": "FlatFootCone",
+          "facet": 26617,
+          "point": [
+            0.7009139103612346,
+            0.5144989865961604,
+            0.02586864251103979
+          ],
+          "precision_over_h": 1e-08,
+          "plane_height_ratio": 1.000000000000032,
+          "distance_lower_over_h": 0.781709252332912,
+          "distance_upper_over_h": 0.7817092589930426,
+          "clearance_lower_over_h": 0.781709234647761,
+          "signed_candidate_over_h": 0.7817092589932522,
+          "candidate_is_sign_certificate": false,
+          "work": 363
+        }
+      ],
+      "has_positive_clearance_certificate": true,
+      "candidate_positive_only": false
+    },
+    {
+      "context": "smooth_control",
+      "operator": "ProjectedFootCone",
+      "refinements": [
+        {
+          "stage": "apex_probe",
+          "context": "smooth_control",
+          "operator": "ProjectedFootCone",
+          "facet": 26617,
+          "point": [
+            0.7009149786862373,
+            0.5144987756860884,
+            0.025882570750385515
+          ],
+          "precision_over_h": 0.0001,
+          "plane_height_ratio": 1.218289445499996,
+          "distance_lower_over_h": 0.999907845687635,
+          "distance_upper_over_h": 0.9999999999998292,
+          "clearance_lower_over_h": 0.9997934572539604,
+          "signed_candidate_over_h": 0.9999999999999584,
+          "candidate_is_sign_certificate": false,
+          "work": 58
+        },
+        {
+          "stage": "apex_probe",
+          "context": "smooth_control",
+          "operator": "ProjectedFootCone",
+          "facet": 26617,
+          "point": [
+            0.7009149786862373,
+            0.5144987756860884,
+            0.025882570750385515
+          ],
+          "precision_over_h": 1e-06,
+          "plane_height_ratio": 1.218289445499996,
+          "distance_lower_over_h": 0.9999993196088424,
+          "distance_upper_over_h": 0.9999999999998292,
+          "clearance_lower_over_h": 0.9999938546799839,
+          "signed_candidate_over_h": 0.9999999999999584,
+          "candidate_is_sign_certificate": false,
+          "work": 143
+        },
+        {
+          "stage": "apex_probe",
+          "context": "smooth_control",
+          "operator": "ProjectedFootCone",
+          "facet": 26617,
+          "point": [
+            0.7009149786862373,
+            0.5144987756860884,
+            0.025882570750385515
+          ],
+          "precision_over_h": 1e-08,
+          "plane_height_ratio": 1.218289445499996,
+          "distance_lower_over_h": 0.9999999933588053,
+          "distance_upper_over_h": 0.9999999999998292,
+          "clearance_lower_over_h": 0.9999999747338004,
+          "signed_candidate_over_h": 0.9999999999999584,
+          "candidate_is_sign_certificate": false,
+          "work": 394
+        }
+      ],
+      "has_positive_clearance_certificate": true,
+      "candidate_positive_only": false
+    }
+  ],
+  "owned_records_byte_identical_to_saved451": 303622,
+  "owned_export_sha256": "cb38984c1ea274d02fc22ecae8f100951d435f8632558f334ec8d5014f876c3a",
+  "script_sha256": "86e65ae32e78ddd16257751eecc4b4c20eaecddde8911bf6530b016ae0d2bae4",
+  "limits": [
+    "Reproduced recorded R5 edge on terminal451state, not an unavailable exact private trial payload.",
+    "R4log retains only first endpoint23829: its two actual adjacent edges are candidates, not identity-qualified reproductions.",
+    "Signed returned-candidate values are local witnesses, not sign certificates or proof of body penetration.",
+    "SurfacePlanning metrics and fitting guidance are not final composed-edge or geometry acceptance.",
+    "No q/J, transfer, generated BL or MPI production qualification is claimed by this serial diagnostic."
+  ],
+  "production_changed": false,
+  "goal_complete": false
+}
