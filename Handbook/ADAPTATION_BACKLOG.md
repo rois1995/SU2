@@ -1184,3 +1184,10 @@ CNativeRemesher3D_tests.cpp translation unit:443 took260.213s;445 has sampled co
 RSS~4.5GB. Investigate existing test partitioning at a later development milestone if
 this remains material. No compiler/config change, new profiling campaign or test-TU
 reorganization is authorized as part of the active bounded-cavity correction.
+
+###446 actual coarsening unchanged-face memo result
+Five saved441actual removed-vertexstar replacements had zero unchanged-face memo
+hits, including feasible production reconnect-collapse and smoothcontrol. Reject
+integration for these samples. Largerpatches/smoothing may differ; existing smoothing
+memo remains. Do not infer newmemo benefit from warmgeometryquerywork or add a new
+cache without complete dependencies. See ADAPTATION_SURFACE_COST_AUDIT_20261112.md.

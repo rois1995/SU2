@@ -1440,3 +1440,28 @@ traversal timers nested. No algorithmic speedup established. Completecorrectionq
 has not resolved surface readiness. Source seed_next<=16rows/rank/queue-driven refill gives
 1920entrywallmeasurements(20MPIchunks) vs2208(23chunks); this explains execution ordering,
 not a proven improved pacing policy. Nextanalysis targets census-service/measurement speed.
+
+
+446 attribution audit (diagnostic pending): all1474build445sourcepins match; actual20
+build/stage445processidentities recheckedterminal in R/review446_terminal_recheck.json.
+Published measurement's CavityMetricSource::ImportCells already reads localcurrent
+nodaltensors; no remote donor exchange to eliminate there. SurfacePlanning already
+deduplicates endpoints within a batch. Its existing cachededge scalar includes sided
+guidance and lacks association/policy dependencies, so blindly enabling it is unsafe.
+Existing445counters do NOT establish identical repeated BoundaryGuidance work;
+geometry_guidance_seconds is a separate surface-error operation. Fourinterleavedexit
+records prevent complete rank attribution. Build446 only instruments savedactual
+replacement comparisons using existing GeometryGuidanceMemo and persists existing
+EngineStats perrank; no production change or efficiency claim. This is bounded
+stage-boundary evidence, not a new wholecase baseline/profiling campaign.
+
+446test-onlybuildPASS281.844s/newbinary/cleanNinjadryrun/all10actualhandlesterminal.
+ActualsavedM6guidancereusecomparisonPASS167.118s/602428assertions/1case/all5actual
+handles terminal/1731pinsverified. Fiveconstructedcontexts, exactfullscores/facecounts/
+completionagreement; all300958Ownedrecordsbyte-identical441. ZERO memoreusedfaces
+inall5; doNOTintegrate unchanged-face memo for these removed-vertexstarcoarsenings.
+Warm/cold workchanges180928→817,10295→2582,2670→470,147998→324,95999→944occur
+withzero hits; existingcachewarming/order, not newmemo benefit. Fullscorediagnostic
+isnotproductionearlyreject path; no speedup claim. SampletreeRSS1.235GB/nottruepeak.
+Detailedlimits: ADAPTATION_SURFACE_COST_AUDIT_20261112.md / R/guidance_reuse446_assessment.json.
+ProductionCFDbinaryunchanged; counterexportcompiledbutnotyetexecutedatnextstage.

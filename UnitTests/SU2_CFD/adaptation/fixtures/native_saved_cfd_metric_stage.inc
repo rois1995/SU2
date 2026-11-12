@@ -230,6 +230,22 @@ TEST_CASE("Saved complete target drives the existing native MPI surface stage wi
      <<",\"process_cpu_seconds\":"<<s.process_cpu_seconds<<",\"metric_cpu_seconds\":"<<s.metric_cpu_seconds<<",\"reconstruction_cpu_seconds\":"<<s.reconstruction_cpu_seconds
      <<",\"seed_seconds\":"<<s.seed_seconds<<",\"metric_seconds\":"<<s.metric_seconds<<",\"reconstruction_seconds\":"<<s.reconstruction_seconds
      <<",\"tracked_collective_seconds\":"<<s.tracked_collective_seconds<<",\"tracked_calls\":"<<s.tracked_calls<<",\"maximum_work_bytes\":"<<s.maximum_work_bytes
+     <<",\"updated_cells\":"<<s.updated_cells
+     <<",\"update_seconds\":"<<s.update_seconds
+     <<",\"measurement_cpu_seconds\":"<<s.measurement_cpu_seconds
+     <<",\"donor_seconds\":"<<s.donor_seconds
+     <<",\"edge_evaluations\":"<<s.edge_evaluations
+     <<",\"edge_reused\":"<<s.edge_reused
+     <<",\"directory_elections\":"<<s.directory_elections<<",\"directory_election_seconds\":"<<s.directory_election_seconds
+     <<",\"geometry_guidance_trials\":"<<s.geometry_guidance_trials
+     <<",\"geometry_guidance_seconds\":"<<s.geometry_guidance_seconds
+     <<",\"geometry_guidance_faces\":"<<s.geometry_guidance_faces
+     <<",\"geometry_guidance_rejected\":"<<s.geometry_guidance_rejected
+     <<",\"geometry_guidance_early_rejections\":"<<s.geometry_guidance_early_rejections
+     <<",\"collapse_corrections\":"<<s.collapse_corrections
+     <<",\"collapse_correction_cells\":"<<s.collapse_correction_cells
+     <<",\"collapse_correction_work\":"<<s.collapse_correction_work
+     <<",\"collapse_correction_seconds\":"<<s.collapse_correction_seconds
      <<",\"reason\":"<<std::quoted(prepared.reason)<<"}\n";out.close();
   failure=CLocalFailure{};if(!out)failure.Set(3,0,"Cannot save nativeMPI surface stage receipt.");
   elected=world.elect(failure);if(elected.any)throw std::runtime_error(elected.message);

@@ -174,6 +174,7 @@ for(const auto& entry:contexts) {
     if(edge.second.length>longLength){longLength=edge.second.length;longest=edge.first;}
   }
   REQUIRE(std::isfinite(shortLength));REQUIRE(longLength>0);
+  bool guidanceReplayed=false;
   auto test=[&](const char* name,const std::vector<Id>& ids,MetricChange kind,auto construct) {
     const auto old=junction_wp0::PatchOf(current,ids);std::vector<OwnedCell> rows;for(Id id:ids)rows.push_back(current.mesh.at(id));
     const auto acceptedParameters=current.live_parameters->Payload();
@@ -201,9 +202,33 @@ for(const auto& entry:contexts) {
         FirstHeightReport height;std::string heightReason;heightStrict=CheckFirstHeight(fresh,heights,*current.reference,height,heightReason);
         heightMeasured=height.measured;heightProvisional=heightStrict||(height.measured&&!height.reference_clearance_failures&&!height.missing_cells);
         if(why.empty()&&!heightProvisional)why=heightReason;
+        const auto uncachedWork=budget.work;const auto guidanceStart=std::chrono::steady_clock::now();
         const auto before=GeometryGuidanceExcess(old,*current.reference,SU2_TYPE::GetValue(config.GetAdap_Hausd()));
         const auto after=GeometryGuidanceExcess(fresh,*current.reference,SU2_TYPE::GetValue(config.GetAdap_Hausd()));
+        const auto uncachedDelta=budget.work-uncachedWork;
+        const auto uncachedSeconds=std::chrono::duration<double>(std::chrono::steady_clock::now()-guidanceStart).count();
         oldExcess=before.excess;newExcess=after.excess;
+        if(guidanceReuse&&!guidanceReplayed) {
+          guidanceReplayed=true;GeometryGuidanceMemo memo;
+          const auto caller=budget.caller_bytes;
+          struct RestoreCaller {SU2NativeGeometry::AtlasBudget& budget;size_t caller;~RestoreCaller(){budget.caller_bytes=caller;}} restore{budget,caller};
+          const auto work=budget.work;const auto start=std::chrono::steady_clock::now();
+          const auto tolerance=SU2_TYPE::GetValue(config.GetAdap_Hausd());
+          const bool prepared=memo.Prepare(fresh,*current.reference,tolerance);
+          if(prepared)budget.caller_bytes=transfer_memory::Add(caller,memo.ResidentBytes());
+          REQUIRE(budget.caller_bytes<=budget.maximum_bytes);
+          // Coarsening evaluates the new surface first; preserve that production order.
+          const auto recorded=GeometryGuidanceExcess(fresh,*current.reference,tolerance,INFINITY,prepared?&memo:nullptr);
+          const auto reused=GeometryGuidanceExcess(old,*current.reference,tolerance,INFINITY,prepared?&memo:nullptr);
+          REQUIRE(recorded.excess==after.excess);REQUIRE(recorded.complete==after.complete);
+          REQUIRE(reused.excess==before.excess);REQUIRE(reused.complete==before.complete);
+          REQUIRE(recorded.evaluated_faces==after.evaluated_faces);REQUIRE(reused.evaluated_faces==before.evaluated_faces);
+          log<<"{\"stage\":\"guidance_reuse_comparison\",\"context\":"<<std::quoted(entry.first)<<",\"operator\":"<<std::quoted(name)
+             <<",\"prepared\":"<<prepared<<",\"old_faces\":"<<before.evaluated_faces<<",\"fresh_faces\":"<<after.evaluated_faces
+             <<",\"reused_faces\":"<<reused.reused_faces<<",\"uncached_work\":"<<uncachedDelta<<",\"memo_work\":"<<budget.work-work
+             <<",\"uncached_seconds\":"<<uncachedSeconds<<",\"memo_seconds\":"<<std::chrono::duration<double>(std::chrono::steady_clock::now()-start).count()
+             <<",\"memo_bytes\":"<<memo.ResidentBytes()<<",\"scores_identical\":true,\"published\":false}"<<std::endl;
+        }
         if(cavityCorrection) {
           auto badCells=[&](const Patch& p) {
             auto privateGeometry=current.reference->PrivateParameters(p);const auto& g=privateGeometry?*privateGeometry:*current.reference;

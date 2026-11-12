@@ -12,7 +12,25 @@ preserves earlier handles, failures and all stage2/cavity details; it is NOT liv
 
 ## Live workload — preserve frozen sources
 
-No owned heavy workload live.445 stage3 corrected-cavity surface integration TERMINAL:
+No owned heavy workload live. Build446 test-only PASS281.844s/all10actualhandles terminal;
+newtestbinary2266ca5f7202a78d6e3f83f24fd72278ce9ca1af97fa51335579f6cea6b9ed7b,
+CFDunchanged e07680f987ae334734f3b4efdf9a90cc23c9afb34b496d57adb5e16084c50914.
+Saved actual-M6 guidance comparison TERMINAL167.118s/PASS602428assertions/1case,
+all5actualhandles terminal/1731casepinsverified. Case:
+R/cases/curved446_surface_guidance_reuse_serial_20261112T154721_1780067.
+R/guidance_reuse446_assessment.json via assess_guidance_reuse446.py verifies all300958
+Ownedrecordsbyte-identical441. Fivecontexts/scores+completion+facecountsidentical,
+BUT ZERO reusedfaces in all5: removed-vertexstarschangeeveryphysicalface. Threeprivate
+feasiblecontrols/corrections; LE/recordedgeometryrefusalstillfailnewgeometry. Do NOT
+integrate guidance memo into coarsening from this evidence. Hugewarm/coldquerywork
+changes occur withzeromemoreuse, so existinggeometrycachewarming—not newmemo reuse—
+accounts for that comparison; queryorder/walltimeconfounded. No production speedup.
+Production remains445. No new production correction selected. Stage JSON now compiles
+with existing update/donor/edge/geometryguidance/directory/correctioncounters, avoiding
+interleavedexit loss; its runtimeexport awaits next meaningfulstageintegration.
+Focusedserialdiagnostic only; no redundantMPIcampaign for unchangedproductionpaths.
+[446 bounded attribution assessment](Handbook/ADAPTATION_SURFACE_COST_AUDIT_20261112.md).
+445 stage3 corrected-cavity surface integration TERMINAL:
 R/cases/curved445_corrected_cavity_saved_target_surface_mpi6_20261112T150225_1658069
 (exec27929terminal). Wrapper492.521s/native389.055s; all10actualidentitiesterminal/pinsverified.
 R/surface_stage445_assessment.json via assess_surface445.py.60495points/301194positive tets,
