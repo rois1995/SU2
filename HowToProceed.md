@@ -21,13 +21,20 @@ on recorded R5edge/6.34h0 at LE, and surface/size/quality debt remains. A placem
 patch is insufficient; no useful production-admitted replacement or accepted BL proved.
 Do not drop a height gate or infer that reference cavity methods are ineffective.
 
-Next diagnose actual parent/child geometry-bound regression: R5simple split2→4positive
-cells raises certified geometry-excess score3.143e-7→4.972e-5. Check exact current support/
-associations and distinguish real geometry failure from conservative certification.
-Then test ONE compatible complete surface/volume replacement using existing operators,
-projected-foot and constrained-direction facilities. Include the original complete old
-patch's q/J/metric baseline—453's paired candidate counts alone are not net retirement.
-R4secondendpoint is absent from logs: adjacent samples are not exact reproductions.
+454reproduces strict geometry bounds; a threshold-only fix is unsupported.455/457
+find a positive LEperimeter replacement halving geometrydebt while geometrybad6→8
+andqJ9→19.457transports current nodal metrics, privately publishes through Directory,
+and verifies committed-context geometry/qJ/planning and height status. The next eight
+descendant splits pass all other guards but increase geometrydebt and geometrybad
+8→12, so are safely refused. Do NOT integrate this uniform refinement pattern as
+closure.456's disconnected-support failure was a corrected diagnostic omission.
+
+Next localize surviving/new failing faces after the first replacement with exact
+bindings/support and neighboring cells. Assess existing edge/topology choices against
+that measured demand; newly created internal-edge obstruction is an unproven hypothesis.
+No new scheduler, unrestricted growth, threshold/height relaxation or speculative
+production fallback. R5/R4adjacent remain unresolved. Read
+[geometry-bound/cavity evidence](Handbook/ADAPTATION_SURFACE_GEOMETRY_BOUNDS_20261112.md).
 
 Keep complete441target/savedCFD/current nodal authority, L1/nominal500k, stage32h0 and
 all constraints/budgets. Surface451stillnotready (13779/39014wallrows,0passes); q/J

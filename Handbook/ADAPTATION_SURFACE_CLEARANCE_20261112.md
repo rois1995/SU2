@@ -141,8 +141,9 @@ smoothboth16/17; LEboth35/36. These observations use the full composed target at
 centroids and are NOT construction vetoes. They do not establish net retirement
 against the original complete old patch: only the smaller edge-star input was measured
 there. Next useful-replacement comparison must include that exact complete old baseline.
-SurfacePlanning maximum edges remain2.409/2.038/2.900/2.279 respectively (guidance,
-not final full-target edge certificates). No candidate qualifies final BL acceptance.
+The earlier diagnostic maximum over its WHOLE mixed edge map is2.409/2.038/2.900/
+2.279 respectively, including interior-core edges. This is NOT the engine
+SurfacePlanning wall-only maximum_length and not final composed-edge certification. No candidate qualifies final BL acceptance.
 
 Therefore reject a placement-only production integration as a complete correction
 for these samples. It repairs one demonstrated clearance problem but does not establish

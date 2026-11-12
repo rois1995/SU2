@@ -60,6 +60,18 @@ REQUIRE(contexts.size()==(cavityCorrection?6:4));
 std::ofstream log("actual_bl_cavity_planning.jsonl");REQUIRE(bool(log));log<<std::setprecision(17)<<std::boolalpha;
 auto samePoint=[](Point a,Point b){return a.x==b.x&&a.y==b.y&&a.z==b.z;};
 auto sameTensor=[](Tensor a,Tensor b){return a.xx==b.xx&&a.xy==b.xy&&a.xz==b.xz&&a.yy==b.yy&&a.yz==b.yz&&a.zz==b.zz;};
+if(splitContinuation) {
+#include "native_actual_surface_split_continuation.inc"
+  return;
+}
+if(compoundSplit) {
+#include "native_actual_surface_compound_split.inc"
+  return;
+}
+if(geometryProbe) {
+#include "native_actual_surface_geometry_probe.inc"
+  return;
+}
 if(clearanceProbe) {
 #include "native_actual_surface_clearance.inc"
   return;

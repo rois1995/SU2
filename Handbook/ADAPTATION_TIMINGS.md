@@ -5,6 +5,35 @@ integration result. [Current handoff](../HANDOFF_Codex.md) owns live handles;
 [stage inputs/outputs and acceptance](ADAPTATION_CURVED_BL_STAGE_INTEGRATION_20261111.md)
 own the development sequence. R=`integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57`.
 
+457corrected continuation: buildPASS283.800s; actualPASS179.667swrapper/171.885stest,
+607654assertions/1749pins/allactualhandles terminal;303622Owned records unchanged451.
+Firstprivate publication5.75684swall/5.75617CPU/519121geometrywork includes transport,
+publication and committed-context remeasurement; geometrybad6→8 despite debt−48.1%.
+Nextcandidate4.44261swall/4.44174CPU/236102work raises debt and geometrybad8→12,
+safely refused. Uniform descendant refinement is not a demonstrated closure path;
+no production efficiency improvement claimed. Summed affected-patch deltas are not a
+whole-field census. Sampled individualRSS1.418GB is not whole-job peak; childGNUtime
+max1692212KiB is separate. Production remains451/no new MPI campaign.
+
+456bounded continuation diagnostic: buildPASS281.826s; actualFAIL172.635s,1748pins/
+all actual handles terminal. First trial2.26503swall/2.26488CPU/55geometrywork fails
+before constructing any split because diagnostic omitted mandatory retained seed
+support (8disconnectedcells). No performance/capability comparison justified.
+Sampled individualRSS1.302GB is not whole-job peak.457corrects support and adds
+postpublication same-patch measurement agreement; production remains451.
+
+Latest bounded surface diagnostics (production remains451):454build267.787s,
+actual144.693s;455build271.864s, actual148.661s. All actual handles terminal and
+1744/1746pins verified respectively;303622Owned records byte-identical451 in each.
+454strict bounds exactly reproduce production; no tested single split improves
+complete geometry score even with best valid measured per-face bounds.45532trials
+find one useful LEperimeter pattern:4splits9→19cells, geometrydebt−48.1%, but
+geometrybad6→8/qJ9→19. Cost.50055swall/.50038CPU/55685geometrywork is a private
+candidate cost, not accepted-mesh throughput. Full diagnostic includes saved-target
+loading; nested candidate timings are not added to wrapper time. Largest sampled
+455processRSS1.304GB is not whole-job peak. No new baseline or MPI campaign.
+[Bounds and complete-cavity evidence](ADAPTATION_SURFACE_GEOMETRY_BOUNDS_20261112.md).
+
 Actual bounded-cavity comparison:435 diagnostic build242.223s, experiment450.464s,
 allpins/actualhandles terminal.13operatorpreflights plus81records. Smooth collapse
 10→8 cells passed1.083s; LE split3→6 passed.665s but q/Jbad3→6. Compounds unqualified

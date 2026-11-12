@@ -1,0 +1,55 @@
+{
+  "case": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved454_surface_geometry_serial_20261112T195940_300741",
+  "all_actual_handles_terminal": true,
+  "verified_pins": 1744,
+  "owned_unchanged": 303622,
+  "source_assessment_sha256": "ec9bea45239bb5f568c37ecc4a8d78ca4af8ddbdc815242df1a04e41f99cd12c",
+  "production_changed": false,
+  "best_per_face_comparisons": [
+    {
+      "context": "leading_edge_control",
+      "best_valid_measured_scores": {
+        "old": 9.468216280608643e-07,
+        "fresh": 1.2348774393782055e-06
+      },
+      "improves": false
+    },
+    {
+      "context": "r4_adjacent_candidate",
+      "best_valid_measured_scores": {
+        "old": 4.322048714148785e-07,
+        "fresh": 5.132191898356784e-07
+      },
+      "improves": false
+    },
+    {
+      "context": "recorded_edge_r5",
+      "best_valid_measured_scores": {
+        "old": 5.363589441839487e-07,
+        "fresh": 6.292716460884846e-07
+      },
+      "improves": false
+    },
+    {
+      "context": "smooth_control",
+      "best_valid_measured_scores": {
+        "old": 0,
+        "fresh": 0
+      },
+      "improves": false
+    }
+  ],
+  "confirmed": [
+    "Exact reconstructed strict bounds and scores match production on all selected old/fresh faces.",
+    "Some cross-patch child bounds are conservative and query-threshold sensitive; no tested uniform threshold or per-face minimum yields complete-cavity geometry-score improvement.",
+    "Complete original/fresh centroid q/J measurements show net introduced bad cells for each tested single-edge split.",
+    "Selected requested-wall planning maxima are <=1.3304, so these samples are geometry demands, not oversized wall-edge demands."
+  ],
+  "next_hypothesis": "Test bounded compositions of existing splits on adjacent/perimeter edges with complete union discovery/reservation, including omitting the unhelpful selected diagonal while retaining its mandatory old cells. No production scheduling or acceptance change.",
+  "limits": [
+    "No physical surface distance lower/witness here proves every geometry regression real; the current upper-bound merit still refuses all tested single-edge replacements.",
+    "Private centroid q/J before publication transport, not a final or whole-field quality census.",
+    "No production correction or new MPI qualification; strict final BL/RANS workflow remains incomplete."
+  ],
+  "goal_complete": false
+}

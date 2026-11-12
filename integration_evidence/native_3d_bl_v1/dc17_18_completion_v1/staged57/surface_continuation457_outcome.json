@@ -1,0 +1,48 @@
+{
+  "case": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved457_surface_continuation_serial_20261112T204201_415173",
+  "build_seconds": 283.80025124549866,
+  "wrapper_seconds": 179.66702342033386,
+  "assertions": 607654,
+  "verified_pins": 1749,
+  "all_actual_handles_terminal": true,
+  "owned_records_unchanged": 303622,
+  "production_changed": false,
+  "postpublication_exact_geometry_qJ_planning_and_height_status_agree": true,
+  "postpublication_numeric_height_report_equality_unchecked": true,
+  "private_first_step": {
+    "old_cells": 9,
+    "new_cells": 19,
+    "old_geometry_bad": 6,
+    "new_geometry_bad": 8,
+    "old_q_bad": 9,
+    "new_q_bad": 19,
+    "geometry_excess_before": 1.4252969287666982e-06,
+    "geometry_excess_after": 7.39800211459262e-07,
+    "wall_seconds": 5.756841119,
+    "cpu_seconds": 5.756167,
+    "geometry_work": 519121
+  },
+  "second_step": {
+    "old_cells": 19,
+    "new_cells": 39,
+    "old_geometry_bad": 8,
+    "new_geometry_bad": 12,
+    "old_q_bad": 19,
+    "new_q_bad": 39,
+    "geometry_excess_before": 7.39800211459262e-07,
+    "geometry_excess_after": 8.216602638943088e-07,
+    "wall_seconds": 4.442613532,
+    "cpu_seconds": 4.441742,
+    "geometry_work": 236102,
+    "published": false,
+    "refusal": "unchanged geometry-progress guard"
+  },
+  "conclusion": "Uniform refinement of perimeter descendants does not demonstrate geometry closure; do not integrate it as a production correction.",
+  "next_step": "Localize surviving/new failing faces after the useful first replacement and test existing edge/topology choices against their exact complete support; retain constraints and do not assume a new operator is necessary.",
+  "limits": [
+    "Single actual leading-edge patch with existing455 smooth/R5/R4 controls; not MPI continuation qualification.",
+    "Affected-patch sequential deltas, not a measured whole-field census.",
+    "Q/J observational during validity-first construction; no generated usable BL or final acceptance."
+  ],
+  "goal_complete": false
+}

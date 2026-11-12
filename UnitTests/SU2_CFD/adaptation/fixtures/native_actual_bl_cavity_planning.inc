@@ -1,7 +1,7 @@
 #include "../../../../Common/include/adaptation/CNativeMetricTransport3D.hpp"
 #include <ctime>
 // Complete saved actual cavities, transported current nodal core and associations; diagnostic only.
-namespace {void RunSavedActualCavities(bool cavityCorrection,bool heightContinuation=false,bool productionCorrection=false,bool guidanceReuse=false,bool planningCost=false,bool clearanceProbe=false) {
+namespace {void RunSavedActualCavities(bool cavityCorrection,bool heightContinuation=false,bool productionCorrection=false,bool guidanceReuse=false,bool planningCost=false,bool clearanceProbe=false,bool geometryProbe=false,bool compoundSplit=false,bool splitContinuation=false) {
   World world;REQUIRE(world.size==1);
   const auto* cfg=std::getenv("SU2_NATIVE_FROZEN_CONFIG");
   const auto* ref=std::getenv("SU2_NATIVE_BL_REFERENCE");
@@ -50,4 +50,16 @@ TEST_CASE("Saved M6 boundary planning separates actual guidance components", "[.
 
 TEST_CASE("Saved M6 surface splits distinguish physical clearance from unresolved bounds", "[.][NativeActualSurfaceClearance3D]") {
   RunSavedActualCavities(true,false,true,false,false,true);
+}
+
+TEST_CASE("Saved M6 parent child geometry bounds preserve exact supports", "[.][NativeActualSurfaceGeometry3D]") {
+  RunSavedActualCavities(true,false,true,false,false,false,true);
+}
+
+TEST_CASE("Saved M6 bounded adjacent edge splits compare complete replacement", "[.][NativeActualCompoundSurfaceSplit3D]") {
+  RunSavedActualCavities(true,false,true,false,false,false,false,true);
+}
+
+TEST_CASE("Saved M6 perimeter refinement tests bounded continuation after metric transport", "[.][NativeActualSurfaceSplitContinuation3D]") {
+  RunSavedActualCavities(true,false,true,false,false,false,false,false,true);
 }

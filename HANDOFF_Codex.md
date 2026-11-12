@@ -7,6 +7,7 @@ Read AGENTS.md, [ordered stages](Handbook/ADAPTATION_CURVED_BL_STAGE_INTEGRATION
 [bounded cavities](Handbook/ADAPTATION_M6_BOUNDED_CAVITY_COMPARISON_20261112.md),
 [first-height continuation](Handbook/ADAPTATION_FIRST_HEIGHT_CONTINUATION_20261112.md),
 [current clearance investigation](Handbook/ADAPTATION_SURFACE_CLEARANCE_20261112.md),
+[current geometry-bound probe](Handbook/ADAPTATION_SURFACE_GEOMETRY_BOUNDS_20261112.md),
 [timing ledger](Handbook/ADAPTATION_TIMINGS.md), [HowToProceed](HowToProceed.md),
 [backlog](Handbook/ADAPTATION_BACKLOG.md).
 [History through447 qualification](Handbook/ADAPTATION_HANDOFF_HISTORY_PRE_447_OUTCOME_20261112.md)
@@ -14,40 +15,43 @@ preserves earlier evidence/handles, NOT live workload state.
 
 ## Live state and provenance
 
-No owned heavy workload is live.453build and actual diagnostic are terminal, all
-actual identities rechecked. Test-only452/453evidence extends the current stage3
-cycle; productionCFD is BYTE-IDENTICAL451, no production correction selected.
-Build453PASS271.790s/all10actualterminal/pins/newbinary/cleanNinja. CurrenttestSHA
- a6fbd2426dabff74cf8be26e3b56f9de21b6eb43d723931921fd222e2e7b8c5c.
-Actual453case:
-R/cases/curved453_surface_apex_serial_20261112T193917_248639
-(session19562terminal), PASS146.676s/607626assertions,1742pins/all5actualterminal/
-all303622Ownedrecordsbyte-identical451. R/surface_apex453_assessment.json and
-surface_apex453_outcome.json.452PASS140.862s/607519assertions,1740pins/allactualterminal;
-R/surface_clearance452_assessment.json. Priorentry R/surface_clearance452_entry.json.
-Read [current clearance evidence](Handbook/ADAPTATION_SURFACE_CLEARANCE_20261112.md).
+NO owned heavy workload live.457build and actual diagnostic TERMINAL; all actual
+PID/starttick identities verified before any next edit. Production still451, CFD SHA
+f15bc306e1558ed5d9e8ee804ecc03155f4aecc55b754634ee2398f79fa5509a.
+Build457PASS283.800s/all10actualhandles terminal/pins/newbinary/cleanNinja.
+CurrenttestSHAb0ff4f70d70acae08e7fdf653722ac582398bbe0c9c67bbbb972708647e0f49c.
+Actual R/cases/curved457_surface_continuation_serial_20261112T204201_415173
+(session21144terminal), PASS179.667swrapper/171.885stest/607654assertions,
+1749pins/all5actualhandles terminal/all303622Owned records byte-identical451.
+R/surface_continuation457_assessment.json and surface_continuation457_outcome.json.
 
-Confirmed on actual recordedR5edge7907–7908 and LE/control contexts: flat-offset
-apices fail requested PHYSICAL distance (R5~3.322h0,LE~4.357h0); tightening distance
-precision1e4times does not prove positive clearance. Existing projected-foot points
-certify distance~h0 and positive clearance. Actual complete Cone replacements pass
-positivity/fixedsplitinterface/parameter/contact/passingheight preservation.
-BUT their flat-face altitudes are5.310h0(R5),6.335h0(LE); geometry/size/qJdebt remains.
-No final BL or production-admitted useful replacement proved; do NOT integrate a
-placement-only patch or weaken flat/physical height checks. R4samples are adjacent
-candidates, not exact loggededge(secondendpointmissing). No negative-side certificate
-or bodypenetration claim. Fulloriginalcoupled old-patch qJ baseline remains unmeasured;
-paired flat/projected complete candidates alone do not establish net bad-cell removal.
+454strict parent/child bounds exactly reproduce production; numerical threshold
+changes do NOT make any sampled single-edge cavity improve complete geometry debt.
+455tests32compounds acrossR5/R4adjacent/smooth/LE: onlyLEperimeters yield private
+progress.456continuation omitted mandatory retained nose seed, producing disconnected
+8cell support BEFORE construction; preserved failure is a diagnostic defect, not
+cavity incapability.457corrects support and checks exact postpublication geometry/
+qJ/planning agreement and firstheight STATUS against committed private parameters.
+Numeric height-report equality remains unchecked; no distributed continuation claim.
 
-Next investigate parent/child surface geometry-bound regression on actual contexts,
-including exact support/associations and full old-patch metric/qJ baseline. R5simple
-split2→4positive cells raises geometryexcess3.143e-7→4.972e-5 despite no clearance
-failures. Refit sees incompatible height planes; coupledflatapex fails. Projected
-point fixes clearance but leaves the surface/height-compatibility issue. Reuse existing
-cavity/surface, projected-foot and constrained-direction facilities; select ONE
-complete useful replacement, not another speculative optimization or larger scheduler.
-No newMPIcampaign for test-only diagnostics; production integration still requires
-focused checks and the appropriate MPI milestone before a stage retry.
+457first fourperimeter splits9→19cells halve geometrydebt1.42530e-6→7.39800e-7,
+but geometrybad6→8/qJ9→19. Existing PublishMetrics + atomic Directory publication
+succeeds on PRIVATE clone. Descendant eightedge split19→39 is positive, parameter/
+contact/metric/preservedheight compliant, BUT geometrydebt rises8.21660e-7 and
+geometrybad8→12/qJ19→39. Unchanged geometry-progress guard safely REFUSES it.
+Thus uniform perimeter-descendant refinement is NOT a demonstrated closure path;
+do not integrate based on initial debt decrease. All original seed/checkpoints intact.
+
+Next bounded investigation: localize the surviving/new failing faces after the useful
+first replacement, including exact support/bindings; assess existing edge/topology
+choices on COMPLETE connected surface/volume support. The hypothesis that newly
+created interior surface edges carry unaddressed curvature is UNPROVEN; do not assume
+it or add another operator/variant without measured face evidence. R5/R4adjacent
+remain unresolved. Flat-offset versus physical-height incompatibility remains in
+linked clearance record. Keep one cycle, no new baseline/perf/GDB/scheduler/limits.
+Read [geometry-bound/compound record](Handbook/ADAPTATION_SURFACE_GEOMETRY_BOUNDS_20261112.md)
+for454–457evidence and limits. No newMPIcampaign for test-only diagnostics; any
+production correction still requires focused checks and meaningful MPI qualification.
 
 Build451 and prior wrappers are terminal; their receipts remain below.
 Source checkpoint **dd4614949f** is pushed to origin/codex/native-3d-bl; consult git
