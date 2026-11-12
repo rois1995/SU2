@@ -313,3 +313,13 @@ geometry demands, sampled infeasibility or fixed-skin q polishing. Retain strict
 height/clearance, body/features, directions and source/ownership/memory contracts.
 Use credible first-row output to resolve the saved stage5front-reconstruction failure;
 do not ignore its guard. Full BL/RANS workflow remains incomplete.
+
+412 integrates the existing seven physical-apex proposals into production fallbacks
+and requires strict target-child success for completion. Focused affected checks/MPI
+pass, expanded serial retains the Growth12 dependency exception. Actual412 is terminal
+with identical411patches and ZERO net q/J/coverage gain; do not add more fixed-skin
+polishing or call sub-second timing variation a speedup. Continue coupling measured
+physical first-row failures to existing surface/volume preparation and coordinated
+row retries. Preserve registrations, passing rows, complete global clearance and
+direction invalidation; no new target, positional allowance or larger cavity.
+See current handoff/evidence for exact provenance and remaining stage obligations.

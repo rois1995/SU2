@@ -580,7 +580,7 @@ blanket geometric allowance does not address it. Preserve metric/normal law/500k
 and directions. Resolve PhaseG's preserved reconstruction failure at stage5, with
 actual first-row output and relevant dependencies; do not disable the guard.
 
-## Connected physical-apex integration412 — before qualification
+## Connected physical-apex integration412 — measured outcome
 
 Input: unchanged saved396 complete target, original M6 authority and requested heights;
 qualified411 preservation predicate. Evidence409/411 separates acceptable tangential
@@ -608,3 +608,15 @@ resource refusals and strict-child checks; one connected MPI milestone; same sav
 M6 context with complete patch/neighbor evidence. This change alone does not implement
 physical surface-edit feedback or qualify coherent coverage, growth or a usable BL.
 Open411 Growth12 dependency failure must remain visible.
+
+412 build PASS416.422s, serial28/29cases7873/7874assertions: affected proposal/strict
+checks pass, same Growth12 dependency exception remains OPEN. MPI6 passes27cases on
+EVERYrank1581–6291assertions. Actual terminal PASS253.347s/all1663pins/owned handles
+terminal. Same16splits/21descendants/14sampled-feasible/fivecolumns/25qJbad; all seven
+repair payloads BYTEIDENTICAL411, independent q/Jerror<=1.665e-16. Net retirement0.
+Original closure still65oldcells>64; strict target check now refuses unresolved
+completion success. Initial geometry work1027961 vs4111027758; prepared17373same.
+No coverage or speed improvement is established. Shared proposal semantics/private
+state are qualified within these checks, not full BL readiness/growth/nativeMPI.
+Continue physical surface-edit feedback with actual failed faces and existing
+transactions; no new target or positional allowance is justified by this result.

@@ -12,17 +12,49 @@ provenance and failures. This file supersedes historical live handles.
 
 ## Current source, build and workload
 
-Build412 is the ONE owned heavy workload, frozen while compiling. Execsession17916;
-actual-host wrapper3992006/start49633935, ninja3992008/start49633953. Pinned source
-receipt R/build412_source_pins.json; status/resources/log in matching412 files.
-All411 owned handles were terminal before edits. Eight-file connected change shares
-seven private projected physical-foot/normal apex proposals with ConeColumn and
-completion fallbacks; insertion/relocation/cavity success requires strict target-child
-height/positivity. Other provisional debt and constrained/blended column advancement
-are unchanged. Qualification PENDING. Read assessment412 section before further edits.
-Do not edit pinned sources/helpers until actual handles are terminal.
+No owned heavy workload is running. Actual412 TERMINAL/PASS253.347s, all1663pins
+intact and actual-host wrapper/root/descendants terminal. Execsession55318 ended.
+Case R/cases/curved412_checkpoint_front_20261112T030005_4010875;
+R/front412_assessment.json and physical_apex412_qualification.json bind evidence.
+Build412 PASS416.422s, pins/actual terminal handles verified. CFD SHA
+`e6f718576a0164a4831b5d0e536a4c2b5ffeeee8568e1a42f4061987e695bcb9`;
+test `b19843f9306dc41f2d5b97178f702f79424bb536abdd0ecde6a81f3de66e97ee`.
+Implementation525ee0458a is PUSHED to the authorized fork; completed evidence follows.
+Serial412 terminal6.473s:28/29cases,7873/7874assertions. New proposal/strict-child checks
+pass; same Growth12 'surface dependencies changed' exception remains OPEN. Do not
+claim expanded-suite success or infer unrelated causality. ONE MPI6 milestone PASS
+6.383s:27cases EVERYrank,1581–6291assertions/rank, pins/actual handles terminal.
+This does NOT qualify native-MPI BL generation.
 
-Previous completed state follows; its411 binary hashes are not the in-progress412 build.
+Active412 change retains411 preservation and shares seven private projected physical-
+foot/normal apex proposals with ConeColumn, ApexRelocate and CavityFirstChild, after
+existing candidates fail. Insertion/relocation/cavity success requires strict target-
+child height/positivity; other resolved provisional debt remains allowed. Constrained/
+blended advancement, target/normal law, gates and budgets unchanged. Private parameter
+state/resource tests pass. Safe cross-chart differential-support refusal remains a
+recorded limitation, not an established M6 blocker. Review found no acceptance hole.
+
+Actual412: same16splits→21descendants/14sampled-feasible, same5passingcolumns/25cells,
+all25q/Jbad and repair net0. All seven saved repair payloads are BYTE-IDENTICAL411;
+independent q/J error<=1.665e-16. Initial refusal21.330s/1027961work (41121.260s/
+1027758work); prepared row.557s/17373work (411.565s/samework). Full query compositions
+4030/edge1995 unchanged; edge80.965s (geometry60.423+composition20.539, nested).
+Whole diagnostic253.347s vs411254.235s is NOT an established speedup. Largest sampled
+individual RSS2100097024B is not whole-job peak. No usable BL/coverage/quality gain.
+Original face still fails finite physical candidates; sampling does not prove
+infeasibility. Completion now explicitly refuses a nonpassing target child.
+
+Next: complete the SAME connected physical surface-readiness/first-row integration.
+Use demonstrated failed physical trials to feed existing coupled surface transactions
+and coordinated row retry, preserving passing rows/registrations/global clearance and
+invalidation. Shared physical proposals are now available; they alone are insufficient.
+No blanket tighter positional gate (410 rejected), larger cavity/trial campaign,
+new metric policy or fixed-skin polishing. Keep old411Growth12 failure for stage5;
+rebuild fronts/dependencies correctly rather than weakening its guard. Full target
+readiness, actual LE/root/features, full coverage/growth/transition/nativeMPI/strict
+closure remain due. No full-M6 retry until credible stage outputs.
+
+Historical completed411 state follows;412 is the current source/build.
 Actual411 TERMINAL/PASS254.235s, all1662 pins
 intact and actual-host wrapper/root/descendants terminal. Case:
 R/cases/curved411_checkpoint_front_20261112T021109_3902682; execsession95134 ended.

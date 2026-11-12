@@ -1,0 +1,181 @@
+{
+  "state": "focused_physical_proposals_pass_with_open_growth_failure",
+  "implementation_commit": "525ee0458a",
+  "build": {
+    "state": "terminal",
+    "exit_code": 0,
+    "seconds": 416.42249488830566,
+    "pins_verified": true,
+    "changed": [],
+    "completed_build": true,
+    "binaries": {
+      "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver": "b19843f9306dc41f2d5b97178f702f79424bb536abdd0ecde6a81f3de66e97ee",
+      "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/SU2_CFD/src/SU2_CFD": "e6f718576a0164a4831b5d0e536a4c2b5ffeeee8568e1a42f4061987e695bcb9"
+    }
+  },
+  "checks": {
+    "curved412_prepared_serial_20261112T025854_4008203": {
+      "summary": [
+        "test cases:   29 |   28 passed | 1 failed",
+        "assertions: 7874 | 7873 passed | 1 failed"
+      ],
+      "status": {
+        "state": "terminal",
+        "exit_code": 1,
+        "seconds": 6.473031759262085,
+        "pins_verified": true,
+        "changed": [],
+        "largest_sampled_individual_process_rss_bytes": 43376640,
+        "rss_note": "sampled process RSS; not a whole-job peak"
+      },
+      "terminal": {
+        "actual_host_proc": true,
+        "all_owned_handles_terminal": true,
+        "live_owned_handles": [],
+        "sampled_identities": [
+          {
+            "pid": 4008245,
+            "start_ticks": 49677600
+          },
+          {
+            "pid": 4008246,
+            "start_ticks": 49677600
+          },
+          {
+            "pid": 4008247,
+            "start_ticks": 49677600
+          },
+          {
+            "pid": 4008248,
+            "start_ticks": 49677600
+          }
+        ],
+        "wrapper_excluded": {
+          "pid": 4008203,
+          "start_ticks": 49677420
+        },
+        "checked_unix": 1794452361.7067904
+      }
+    },
+    "curved412_prepared_mpi6_20261112T025933_4009656": {
+      "summary": [
+        "All tests passed (1813 assertions in 27 test cases)",
+        "All tests passed (6291 assertions in 27 test cases)",
+        "All tests passed (2173 assertions in 27 test cases)",
+        "All tests passed (1796 assertions in 27 test cases)",
+        "All tests passed (2247 assertions in 27 test cases)",
+        "All tests passed (1581 assertions in 27 test cases)"
+      ],
+      "status": {
+        "state": "terminal",
+        "exit_code": 0,
+        "seconds": 6.38274621963501,
+        "pins_verified": true,
+        "changed": [],
+        "largest_sampled_individual_process_rss_bytes": 44969984,
+        "rss_note": "sampled process RSS; not a whole-job peak"
+      },
+      "terminal": {
+        "actual_host_proc": true,
+        "all_owned_handles_terminal": true,
+        "live_owned_handles": [],
+        "sampled_identities": [
+          {
+            "pid": 4009744,
+            "start_ticks": 49681512
+          },
+          {
+            "pid": 4009745,
+            "start_ticks": 49681513
+          },
+          {
+            "pid": 4009746,
+            "start_ticks": 49681513
+          },
+          {
+            "pid": 4009754,
+            "start_ticks": 49681516
+          },
+          {
+            "pid": 4009753,
+            "start_ticks": 49681516
+          },
+          {
+            "pid": 4009752,
+            "start_ticks": 49681516
+          },
+          {
+            "pid": 4009751,
+            "start_ticks": 49681516
+          },
+          {
+            "pid": 4009750,
+            "start_ticks": 49681516
+          },
+          {
+            "pid": 4009749,
+            "start_ticks": 49681515
+          }
+        ],
+        "wrapper_excluded": {
+          "pid": 4009656,
+          "start_ticks": 49681335
+        },
+        "checked_unix": 1794452401.8544323
+      },
+      "rank_count": 6,
+      "cases_each_rank": 27,
+      "assertion_range": [
+        1581,
+        6291
+      ]
+    }
+  },
+  "actual_case": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved412_checkpoint_front_20261112T030005_4010875",
+  "actual_assessment_sha256": "06d3e560e97e2f484422b0f671c76cdbfa20bdc28680b0fff165e991fc907c34",
+  "actual_pins": 1663,
+  "matching_payloads": {
+    "prepared_repair_before.bin": {
+      "current": "0cfdeace223967d8d311d5b8eaaa0a23de664e30b8995a5041d9339c586fd1c4",
+      "previous": "0cfdeace223967d8d311d5b8eaaa0a23de664e30b8995a5041d9339c586fd1c4",
+      "identical": true
+    },
+    "prepared_repair_before_frames.jsonl": {
+      "current": "2a23ecbb38c84baeb73478e98f22ef1fc94cab22311f6abafcd54c2a08ece7f3",
+      "previous": "2a23ecbb38c84baeb73478e98f22ef1fc94cab22311f6abafcd54c2a08ece7f3",
+      "identical": true
+    },
+    "prepared_repair_connectivity.bin": {
+      "current": "0f23db0e25e47d967e8c0ebf10d09d5d8c36660ff4d192e8cb5f90abe68a404f",
+      "previous": "0f23db0e25e47d967e8c0ebf10d09d5d8c36660ff4d192e8cb5f90abe68a404f",
+      "identical": true
+    },
+    "prepared_repair_connectivity_frames.jsonl": {
+      "current": "eebd90642628a70f8f546bb4c9b5825e133486df84b49791232c2344e2d71b1d",
+      "previous": "eebd90642628a70f8f546bb4c9b5825e133486df84b49791232c2344e2d71b1d",
+      "identical": true
+    },
+    "prepared_repair_optimizer.bin": {
+      "current": "53f218b1c75ec7a97caeb5d6fd8385330109db863e23743536094d6bc47a010f",
+      "previous": "53f218b1c75ec7a97caeb5d6fd8385330109db863e23743536094d6bc47a010f",
+      "identical": true
+    },
+    "prepared_repair_optimizer_frames.jsonl": {
+      "current": "88a662ced2ce9bd5937a73cbd1476473c77c803610df56df9397cacea0c0624c",
+      "previous": "88a662ced2ce9bd5937a73cbd1476473c77c803610df56df9397cacea0c0624c",
+      "identical": true
+    },
+    "prepared_repair_parameters.bin": {
+      "current": "d27e3bac52ae29b1376451f35d248c09057e66741c39fbe2a39003ec6d38da30",
+      "previous": "d27e3bac52ae29b1376451f35d248c09057e66741c39fbe2a39003ec6d38da30",
+      "identical": true
+    }
+  },
+  "whole_BL_qualified": false,
+  "native_MPI_generation_qualified": false,
+  "speedup_established": false,
+  "coverage_improvement": false,
+  "net_qJ_retirement": 0,
+  "open_failure": "NativeGrowthLayer12: surface dependencies changed; current fronts need reconstruction before advancement (same symptom411; causality unestablished).",
+  "next": "Complete connected physical surface-readiness feedback using existing bounded transactions and coordinated first-row construction; do not add a blanket positional allowance, larger cavity, target change or more polishing trials."
+}

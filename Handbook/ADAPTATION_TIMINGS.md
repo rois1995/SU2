@@ -1,6 +1,6 @@
 # Adaptation timings and computational work
 
-Updated2026-11-11. Maintain this file after each completed meaningful stage or
+Updated2026-11-12. Maintain this file after each completed meaningful stage or
 integration result. [Current handoff](../HANDOFF_Codex.md) owns live handles;
 [stage inputs/outputs and acceptance](ADAPTATION_CURVED_BL_STAGE_INTEGRATION_20261111.md)
 own the development sequence. R=`integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57`.
@@ -1049,3 +1049,29 @@ contains60.468sgeometry/20.417scomposition, nested within construction/optimizer
 do not sum overlapping timers. No outside-BL exclusion on these near-wall edges.
 Largest sampled individual actual RSS2117890048B is not whole-job peak. Strict
 preservation semantics improved; timing differences do not show useful speedup.
+
+## Physical-apex integration412 (same saved396target, original M6 context)
+
+Build416.422s. Serial6.473s,28/29cases: new checks pass, Growth12 dependency exception
+remains open. ONE MPI6 milestone6.383s/27cases everyrank, not nativeMPI generation.
+Actual wrapper253.347s vs411254.235s, all1663pins/owned terminal handles verified.
+Seven repair captures/frames/parameters BYTEIDENTICAL411. No timing speedup, coverage
+or net q/J gain is established. Evidence: R/physical_apex412_qualification.json and
+R/front412_assessment.json.
+
+| Matching work |412|411|
+|---|---:|---:|
+| Initial first-row refusal |21.330s /1027961geometrywork|21.260s /1027758|
+| Prepared5column/25cell row |.557s /17373work|.565s /17373|
+| Private connectivity repair |10.910s /464813work|same work /net0|
+| Exact edge diagnostic total |80.965s|80.887s|
+| Edge geometry preparation (nested) |60.423s|60.468s|
+| Edge composition (nested) |20.539s|20.417s|
+| Compositions /edgeevaluations |4030/1995|4030/1995|
+| Complete inspected-row q/Jbad net retirement |0/0|0/0|
+
+Same16surface edits→21descendants,14sampled-feasible,5passingcolumns,25q/Jbad.
+Largest sampled individual RSS2100097024B is not whole-job peak. CPU/wall and RSS
+receipts remain in the case; no rank-wait attribution from these serial timings.
+Strict target-child success and shared physical proposals correct/reuse semantics;
+useful construction and performance benefit remain unproved.
