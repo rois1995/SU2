@@ -435,3 +435,115 @@ policy, larger cavity or new scheduler is selected. Leading edge/root/features a
 actual direction alignment/progression/coverage/transition remain unproven. Maximum
 reported tilt is centroid-to-apex tangent offset/h0, not a column alignment angle.
 No nativeMPI generation qualification or accepted-mesh claim follows.
+
+
+##410 preparation positional-demand hypothesis — REJECTED after actual evidence
+
+Missing capability:409's current-target smooth patch has tangential maximum1.158<1.8
+but fails physical first height/clearance; surface readiness ignores this resolution
+component. SurfaceDeviation/SurfaceError already conservatively bounds face-to-authority
+correspondence displacement. Reuse that bound, not sampled curvature or a new tensor.
+Input remains complete396 target, original saved CFD/geometry and existing wall law.
+
+One connected hypothesis: requested-wall preparation additionally uses
+min(configured geometry tolerance, downward-rounded h0*height tolerance). This controls
+only a positional discrepancy component. A direct correspondence bound controls
+distance change against its corresponding patch; cross-support EntityFaceError may
+instead return a ONE-SIDED physical-to-model bound. It does NOT prove
+placement/footprint/direction compatibility, positive visibility, competing-wall
+clearance, coherent columns or final quality. Placement can consume additional height
+error; all existing strict first-height checks remain mandatory. Nonwalls/default
+callers/final tolerance/target metrics/heights/growth/normalization are unchanged.
+
+Affected production path: Selection::Add geometry demand, existing midpoint prediction
+allowance, GeometryGuidanceExcess candidate progress, coupled geometry failure counts
+and final complete prepared-surface census. The midpoint predictor remains advisory;
+its existing requested-wall activation policy has not been changed. Existing selection,
+full-star reservation, publication, invalidation and migrated census flags are reused.
+No new scheduler, configuration, geometry representation or larger cavity.
+
+Memo stores geometry bounds, not policy-dependent excess. Keep existing authority/
+coordinate/association/revision/global-tolerance keys; recompute excess for changed
+height allowance. Valid unchanged geometry bounds may survive a height-policy change.
+No extra permanent storage. Unresolved geometry/resource exhaustion remains refusal.
+
+Qualification: focused law/cache/curved-debt checks; bounded engine test with old
+geometry ceiling satisfied but new positional debt remaining, preserving no q/J
+measurement. ONE connected MPI milestone includes empty ranks, migration, feature
+publication, cached/recomputed agreement, stale contracts and resource expiry. Then
+actual same396 smooth context using existing coupled splits/front, unchanged16split/
+300s/600s limits, separating positional readiness from sampled feasible feet and
+actual constructed columns. Record complete-patch geometry, heights, q/J, work/memory.
+A bound above allowance is unresolved preparation demand, NOT infeasibility proof.
+
+Risk to test: sufficient positional allowance may be unnecessarily conservative and
+refine already constructible faces, especially leading-edge spanwise directions.
+Do not promote it from unit tests or smaller error alone; compare actual useful
+construction/coverage and cost. No complete BL or stage success is claimed.
+
+
+### Queued Coulaud comparison, reviewed during410build
+
+[Coulaud, High-order CAD-based surface mesh adaptation](https://coulaudolivier.fr/docs/Articles/Coulaud_2025.pdf),
+§§3,4.1–4.3,5.1; relevant pages15,16,19 visually reviewed. The method builds geometric
+demand in a physical tangent frame, combines separate curve and adjacent-surface
+demands, and retains/interpolates geometry parameters to reduce projection. Its3D
+extension sets the normal eigenvalue from tangential eigenvalues; that is not a BL
+first-height prescription. Its reported quadrature-based L2 geometric error differs
+from our strict certification.
+
+Comparison here: retained no-CAD bindings, genuine-feature constraints and independent
+physical height already exist.410 reuses certified positional bounds; it does not
+implement the paper's metric or high-order mesh. The paper does not prove that
+h0*heighttol is necessary, sufficient for complete construction, or computationally
+useful. Test directional over-refinement and actual coverage before promoting it.
+No new geometry representation, CAD requirement or sensor/norm policy follows.
+
+
+410audit attribution gap before execution: EntityFaceError uses direct correspondence
+when supported; its cross-support/fallback BoundPhysicalSurface query uses the fixed
+ordinary state.GeometryTolerance(), not the smaller requested allowance. Such an
+upper bound remains conservative but may be too coarse, and is one-sided. Keep
+independent strict first-height/body/visibility/complete two-sided geometry checks.
+Do not claim a two-sided height guarantee, infeasibility or justified over-refinement
+from this allowance alone. Assess actual query/debt/coverage behavior; resolution-aware
+reuse is part of this same hypothesis if demonstrated necessary, not a new campaign.
+
+
+410terminal: build418.437s; serial27cases/8126assertions PASS7.443s. Actual173.264s,
+all1661 pins intact/actual handles terminal.16splits produce24descendants;17 have
+certified sampled positive/height/contact candidates but only2 satisfy the additional
+allowance.15 known-feasible faces are excluded by it; no complete new incident star
+is eligible, versus409's five passing columns. Shorter time omits subsequent work,
+not an efficiency gain. R/front410_assessment.json and exact source_snapshots410.
+Reject the added policy; all8 affected files restored exactly e38af16082. No MPI
+campaign was run for this unselected hypothesis. No new target/geometry policy remains.
+
+##411 strict first-child preservation — connected correction before qualification
+
+The actual409completion refusal names D.2, but it propagates from ANY old face sharing
+two IDs; the exact protecting parent is not yet isolated. Static audit confirms the
+underlying predicate bug independently: FirstChildPasses and Transaction's duplicate
+unrebuilt check call provisional HeightConstruct. In validity-only mode this admits
+resolved height/footprint debt as a passing child, both protecting uncreated background
+rows and allowing a genuinely passing row to degrade. HeightT is also unsuitable
+for preservation because its fallback can accept globalT despite tighter configuredT.
+
+Use one strict geometric predicate: unique child, CheckFirstHeight with actuals.heights,
+exact positivity, fresh private parameter/coverage data; no metric/q/J queries. Measured
+debt is distinguishable from unresolved old measurements, which refuse D.2. Apply
+D2Ok once to the complete Transaction patch instead of the duplicate provisional
+unrebuilt-only check. All other D2 callers (surface, separation, relocation/completion,
+growth/OptionA/volume) share the correction. Provisional construction admission and
+all final gates stay unchanged; background cells are not inferred to be built rows.
+
+Input: exact409 production plus this BL predicate/Transaction change; complete396
+target/CFD unchanged. Expected output: preserve actually passing heights without
+artificially freezing resolved background debt; validate mapped associations and
+coverage at use. Focused tests cover both construction modes, height/footprint debt,
+strict-to-debt refusal, metric-bad yet geometrically passing cells, configured tighterT,
+positivity and unresolved old child refusal. Then serial construction/growth controls,
+ONE appropriate MPI ownership/feature/empty-rank milestone, and same original-M6
+current-target front. Judge actual strictly passing coverage and complete-patch
+validity/geometry/height/q/J/work; neither predicate tests nor a passing local child
+proves the full BL/RANS objective. Preserve failed outcomes; do not raise limits.

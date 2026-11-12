@@ -1007,3 +1007,19 @@ import setup and later surface trial subcosts are not fully attributed.
 
 Next is physical first-row readiness during coupled surface preparation, not another
 query or scalar-precision optimization. No accepted full BL or wall-time gain claimed.
+
+
+##410 rejected positional-demand hypothesis
+
+Build418.437s; serial27cases/8126assertions7.443s. Actual one-context M6 test173.264s,
+all1661pins intact/actual handles terminal. Same CFD/396target and16split cap.
+24descendants,17with sampled positive/height/contact constructions, only2extra-bound
+ready:15known feasible candidates excluded. No complete incident star/firstrow versus
+409fivecolumns. Shorter wrapper omits later construction/repair; NOT a speedup.
+Extra allowance rejected and all8affected files restored; no MPI campaign for it.
+Exact source/evidence archived. Largest sampled individual RSS1942614016B is not
+whole-job peak. No sensor, target, normal law, budgets or final gates changed.
+
+Next connected411 fixes a demonstrated strict-versus-provisional predicate bug in
+D2firstchild preservation. Build/development cost remains pending; no runtime gain
+or construction improvement claimed before actual qualification.

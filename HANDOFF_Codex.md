@@ -12,7 +12,34 @@ provenance and failures. This file supersedes historical live handles.
 
 ## Current source, build and workload
 
-No owned heavy workload is running. Actual409 TERMINAL/PASS250.233s, all1660 pins
+Current owned heavy workload: build411 RUNNING; C++/helpers FROZEN.
+Actual-host wrapper3879402/start49329298, root3879403/start49329317; execsession49405.
+R/build411_status/source_pins/resources. Verify actual terminal handles before edits
+or next heavy job. No actual/native case running alongside the build.
+
+Active correction: strict first-child preservation in BLFirstRow9.inl. FirstChildPasses
+previously used provisional HeightConstruct, treating resolved background debt as a
+passing row and permitting loss of actual strict height. It now uses configured
+CheckFirstHeight + unique child + exact positivity, copies parameter/coverage data,
+and exposes unresolved measurement so D2 fails closed. Transaction uses the same
+D2Ok instead of a duplicate provisional unrebuilt predicate. No q/J, target or gate
+change. New NativeFirstChildPreservation3D tests cover both modes/debt/strict/failures.
+Read-only review found no concrete defect; NOT yet runtime qualified.
+After build: R/check_first_child411.py serial; then ONE connectedMPI milestone and
+same396 original-M6 front via R/check_checkpoint_front411.py. Preserve frozen cadence.
+
+410 positional-allowance hypothesis REJECTED. Build PASS418.437s; serial27cases/8126
+PASS7.443s. Actual terminal PASS173.264s, all1661 pins/actual terminal handles verified:
+R/cases/curved410_checkpoint_front_20261112T015033_3855685; front410_assessment.json.
+16splits→24descendants,17sampled-feasible but only2 meet extra allowance;15 known
+feasible candidates excluded, no complete eligible incident star/columns versus409five.
+Faster wall time omits construction/repair, not a speedup. Cross-support bounds may
+be one-sided/coarse; never imply necessary height resolution. Exact8files archived
+in source_snapshots410/source_snapshot410.json, then restored EXACT e38af16082. No
+extra preparation allowance API, tests or policy remains active. No MPI campaign for
+that unselected policy. This negative result selected the direct predicate correction.
+
+Previous actual409 is TERMINAL/PASS250.233s, all1660 pins
 intact and actual-host wrapper/root/descendants verified terminal. Case:
 R/cases/curved409_checkpoint_front_20261112T012159_3789220; execsession87502 ended.
 R/front409_assessment.json independently verifies q/J to1.665e-16.

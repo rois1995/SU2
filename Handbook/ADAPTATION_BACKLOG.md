@@ -1121,3 +1121,15 @@ distance width and GL10samples are not such bounds. Classification-only lower bo
 cannot substitute ranking/insertion/conformity/final scalars. No policy selected;
 remain in current stage2target/coupled-patch assessment. See
 ADAPTATION_BL_EDGE_ACCURACY_20261112.md and staged57/edge_measurement399_audit.json.
+
+
+###410 rejected height-scaled positional allowance
+
+Do not activate h0*heighttol as a universal surface-preparation requirement. Actual
+same396 smooth context excluded15 known feasible sampled constructions and produced
+no eligible column star after16splits, versus409fivepassingcolumns. Conservative
+one-sided cross-support bounds at ordinary resolution can mimic physical demand.
+Resolution-aware directed queries and a two-sided coverage argument are unproven
+alternatives, not selected work or necessary BL resolution. R/front410_assessment.json
+and source_snapshots410 retain the experiment. Active cycle instead corrects the
+demonstrated strict/provisional first-child preservation predicate (411).

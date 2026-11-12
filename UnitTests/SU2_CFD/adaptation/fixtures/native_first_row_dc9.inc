@@ -159,6 +159,62 @@ std::unique_ptr<State> LoadM6Cut(const std::string& path) {
 }
 }  // namespace dc9
 
+TEST_CASE("First-child preservation distinguishes strict rows from provisional construction debt", "[NativeFirstChildPreservation3D]") {
+  using namespace dc9;
+  struct Restore {bool previous=validityOnlyConstruction;~Restore(){validityOnlyConstruction=previous;}} restore;
+  validityOnlyConstruction=GENERATE(false,true);
+  const double h0=.125;
+  Cell cell{10,{{Node{0,{0,0,0}},Node{1,{1,0,0}},Node{2,{0,1,0}},Node{3,{.25,.25,h0}}}}};
+  if(!Positive(cell.v))std::swap(cell.v[1],cell.v[2]);
+  SurfaceFace wall;
+  for(auto face:CellFaces(cell))if(!Has(face,Id(3)))wall={face,100};
+  Facet facet;facet.id=wall.facet;facet.marker=7;
+  for(unsigned k=0;k<3;++k)for(auto node:cell.v)if(node.id==wall.v[k])facet.v[k]=node;
+  State state;state.reference=std::make_shared<PlanarReference>(std::vector<Facet>{facet});
+  state.walls.insert(7);state.heights[7]=h0;state.heights.tolerance=.1;
+  Patch strict;strict.cells={cell};strict.surface={wall};
+  auto withApex=[&](Point p) {auto patch=strict;for(auto& node:patch.cells.front().v)if(node.id==3)node.p=p;return patch;};
+  std::string reason;bool measured=false;
+  REQUIRE(FirstChildPasses(state,strict,wall,&measured));REQUIRE(measured);
+  REQUIRE(D2Ok(state,strict,strict,reason));
+
+  SECTION("Measured height and footprint debt are not already passing rows") {
+    const auto heightDebt=withApex({.25,.25,2*h0});
+    const auto footprintDebt=withApex({2,2,h0});
+    for(const auto& debt:{heightDebt,footprintDebt}) {
+      measured=false;CHECK_FALSE(FirstChildPasses(state,debt,wall,&measured));CHECK(measured);
+      CHECK_FALSE(D2Ok(state,strict,debt,reason));
+      CHECK(D2Ok(state,debt,strict,reason));
+      FirstHeightReport report;CHECK(HeightConstruct(debt,state.heights,*state.reference,&report)==validityOnlyConstruction);
+      CHECK(report.measured);
+    }
+  }
+  SECTION("Strict geometry does not query or require metric shape") {
+    const auto& v=cell.v;
+    const auto shape=Measure({v[0].p,v[1].p,v[2].p,v[3].p},Tensor{1,0,0,1,0,1e-12});
+    REQUIRE(shape.mean_ratio<MinimumMeanRatio);REQUIRE(shape.minimum_scaled_jacobian<MinimumScaledJacobian);
+    REQUIRE_FALSE(state.field);CHECK(FirstChildPasses(state,strict,wall));CHECK(D2Ok(state,strict,strict,reason));
+  }
+  SECTION("Configured height tolerance remains authoritative") {
+    state.heights.tolerance=.01;const auto outside=withApex({.25,.25,h0*1.05});
+    measured=false;CHECK_FALSE(FirstChildPasses(state,outside,wall,&measured));CHECK(measured);
+    CHECK_FALSE(D2Ok(state,strict,outside,reason));
+  }
+  SECTION("Nonpositive children never pass") {
+    auto reversed=strict;std::swap(reversed.cells.front().v[0],reversed.cells.front().v[1]);
+    CHECK_FALSE(FirstChildPasses(state,reversed,wall));CHECK_FALSE(D2Ok(state,strict,reversed,reason));
+  }
+  SECTION("Missing ambiguous and unresolved old children refuse preservation") {
+    auto missing=strict;missing.cells.clear();
+    auto ambiguous=strict;ambiguous.cells.push_back(cell);ambiguous.cells.back().id++;
+    auto unresolved=withApex({.25,.25,0});
+    for(const auto& unknown:{missing,ambiguous,unresolved}) {
+      measured=true;CHECK_FALSE(FirstChildPasses(state,unknown,wall,&measured));CHECK_FALSE(measured);
+      CHECK_FALSE(D2Ok(state,unknown,strict,reason));
+    }
+  }
+}
+
 TEST_CASE("DC-9 W(crease strips, chain pass) -> R1 -> R2(sector order, lazy certificate) -> V(ApexMove, ColumnSplit incl. junction)", "[.][NativeFirstRowDC9]") {
   dc9::sectorFirst=std::getenv("SU2_DC9_SECTOR_FIRST")!=nullptr;struct SectorReset{~SectorReset(){dc9::sectorFirst=false;}} sectorReset;  // DC-14: env -> switch
   // Evidence of this harness was produced under the former production default: keep StrictExcess pinned.

@@ -288,3 +288,13 @@ Original unlayered volume apices are not already-constructed requested rows. Do 
 turn sampling into an infeasibility proof, add a curvature metric from proxies, enlarge
 cavities or repeat fixed-skin polish. Qualify representative actual patches and the
 affected ownership/publication milestone, then resume ordered stages.
+
+
+410tested a sufficient positional allowance derived from h0*heighttol. Reject it:
+15 known feasible sampled candidates were excluded and no eligible star constructed;
+no blanket tighter positional preparation gate remains. Exact evidence is archived.
+411 instead fixes the first-child preservation predicate: provisional resolved
+height/footprint debt must not count as an already passing child. Preserve actual
+strict children under configuredT, refuse unresolved old measurements, and keep
+construction validity-first without q/J gates. Build411/serial/MPI/actual validation
+is tracked by the current handoff. Do not claim this resolves M6 until measured.

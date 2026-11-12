@@ -369,16 +369,23 @@ inline Skin ColumnSkin(const Face& f,const std::function<Id(Id)>& L,Id ovV=UINT6
 // Cone of one column skin (skin[0] = wall face, outward) from an apex of the exact LP; best first child, then column q.
 // spread: fixed grid of feet x heights inside the T window when the LP points fail geometric validity.
 // D.2 parent/child invariant (Prepare kind and unrebuilt faces): a fresh wall face may not lose an already passing geometric first child.
-inline bool FirstChildPasses(State& s,const Patch& p,const SurfaceFace& sf) {
+inline bool FirstChildPasses(State& s,const Patch& p,const SurfaceFace& sf,bool* measured=nullptr) {
+  if(measured)*measured=false;
   Patch one;const auto key=Sorted(sf.v);for(const auto& c:p.cells){unsigned k=0;for(auto n:c.v)k+=Has(key,n.id);if(k==3)one.cells.push_back(c);}
-  if(one.cells.size()!=1)return false;one.surface={sf};one.parameters=p.parameters;std::string why;
-  bool ok=false;try{FirstHeightReport h;ok=validityOnlyConstruction?HeightConstruct(one,s.heights,*s.reference,&h,&why):HeightT(s,one,why);}catch(const std::exception&){ok=false;}
-  return ok&&Positive(one.cells.front().v);
+  if(one.cells.size()!=1)return false;one.surface={sf};one.parameters=p.parameters;one.coverage=p.coverage;
+  FirstHeightReport height;std::string why;bool passing=false;
+  try {passing=CheckFirstHeight(one,s.heights,*s.reference,height,why);}catch(const std::exception&){return false;}
+  if(measured)*measured=height.measured&&!height.missing_cells;
+  return passing&&Positive(one.cells.front().v);
 }
 inline bool D2Ok(State& s,const Patch& old,const Patch& fresh,std::string& why) {
   Scope scope("D.2 invariant");
   std::vector<std::pair<Face,bool>> parents;std::set<Face> oldKeys;
-  for(const auto& sf:old.surface)if(s.walls.count(s.reference->Get(sf.facet).marker)){parents.push_back({Sorted(sf.v),FirstChildPasses(s,old,sf)});oldKeys.insert(Sorted(sf.v));}
+  for(const auto& sf:old.surface)if(s.walls.count(s.reference->Get(sf.facet).marker)) {
+    bool measured=false;const bool passing=FirstChildPasses(s,old,sf,&measured);
+    if(!measured){why="D.2: old first-child height is unresolved";return false;}
+    parents.push_back({Sorted(sf.v),passing});oldKeys.insert(Sorted(sf.v));
+  }
   for(const auto& sf:fresh.surface){if(!s.walls.count(s.reference->Get(sf.facet).marker))continue;const auto key=Sorted(sf.v);
     bool anyPass=false;for(const auto& p:parents){unsigned k=0;for(Id x:p.first)k+=Has(key,x);if(k>=2&&p.second)anyPass=true;}
     if(!anyPass)continue;
@@ -783,16 +790,10 @@ inline Tx Transaction(State& s,const Rows& rows,const std::set<Id>& V0,bool low)
   if(!ValidatePrescribedInterface(tx.old.cells,fresh,newSkin,reason,nullptr,MaximumCavityCells)){tx.cls="topology";tx.witness=reason;return tx;}
   try{ref.ExportParameters(out);}catch(const std::exception& e){tx.cls="carrier";tx.witness=std::string("parameters: ")+e.what();return tx;}
   {FirstHeightReport r;WallHeights none;none.tolerance=HeightTolerance;if(!CheckFirstHeight(out,none,*s.reference,r,reason)){tx.cls="carrier";tx.witness="surface: "+reason;return tx;}}
+  if(!D2Ok(s,tx.old,out,reason)){tx.cls="invariant";tx.witness=reason;return tx;}
   for(const auto& sf:out.surface){const auto key=Sorted(sf.v);if(!s.walls.count(s.reference->Get(sf.facet).marker))continue;
     const bool rowed=rows.apex.count(key)&&std::all_of(key.begin(),key.end(),[&](Id x){return rows.lift.count(x);});
-    if(!tx.rebuilt.count(key)&&!rowed) {
-      Patch before,after;for(const auto& c:tx.old.cells){unsigned k=0;for(auto n:c.v)k+=Has(key,n.id);if(k==3)before.cells.push_back(c);}
-      for(const auto& c:fresh){unsigned k=0;for(auto n:c.v)k+=Has(key,n.id);if(k==3)after.cells.push_back(c);}
-      before.surface=after.surface={sf};before.parameters=tx.old.parameters;after.parameters=out.parameters;
-      FirstHeightReport r0,r1;std::string w0,w1;
-      const bool was=before.cells.size()==1&&HeightConstruct(before,s.heights,*s.reference,&r0)&&Positive(before.cells.front().v);
-      if(was&&!(after.cells.size()==1&&HeightConstruct(after,s.heights,*s.reference,&r1)&&Positive(after.cells.front().v))){tx.failing.push_back(key);tx.cls="invariant";tx.witness="unrebuilt wall face loses its passing geometric first child: "+w1;}
-      continue;}
+    if(!tx.rebuilt.count(key)&&!rowed)continue;
     Patch one;for(const auto& c:fresh){unsigned k=0;for(auto n:c.v)k+=Has(key,n.id);if(k==3)one.cells.push_back(c);}
     one.surface={sf};for(const auto& c:one.cells)for(auto n:c.v){const auto pr=out.parameters.find(n.id);if(pr!=out.parameters.end())one.parameters.insert(*pr);}
     FirstHeightReport r;if(one.cells.size()!=1||!(validityOnlyConstruction?HeightConstruct(one,s.heights,*s.reference,&r,&reason):CheckFirstHeight(one,s.heights,*s.reference,r,reason))){tx.failing.push_back(key);tx.cls="height";tx.witness="face "+std::to_string(key[0])+": "+reason;continue;}
