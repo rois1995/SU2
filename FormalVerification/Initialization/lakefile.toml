@@ -1,0 +1,17 @@
+name = "su2initialization"
+version = "0.1.0"
+defaultTargets = ["SU2Initialization", "InitializationAudit"]
+[leanOptions]
+autoImplicit = false
+warningAsError = true
+[[require]]
+name = "su2boundarymemory"
+path = "../BoundaryMemory"
+[[require]]
+name = "cfdlean"
+git = "https://github.com/rois1995/CFD_Lean.git"
+rev = "0a88e36b3810cd5adc3881db526ca8a35f81afbb"
+[[lean_lib]]
+name = "SU2Initialization"
+[[lean_lib]]
+name = "InitializationAudit"
