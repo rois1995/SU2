@@ -1,0 +1,18 @@
+name = "su2lean"
+version = "0.1.0"
+defaultTargets = ["SU2", "Integrity"]
+
+[leanOptions]
+autoImplicit = false
+warningAsError = true
+
+[[require]]
+name = "mathlib"
+git = "https://github.com/leanprover-community/mathlib4.git"
+rev = "c44e0c8ee63ca166450922a373c7409c5d26b00b"
+
+[[lean_lib]]
+name = "SU2"
+
+[[lean_lib]]
+name = "Integrity"

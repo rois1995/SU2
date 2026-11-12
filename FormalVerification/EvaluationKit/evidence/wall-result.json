@@ -1,0 +1,14 @@
+{
+  "status": "local supplementary production C++ test; not formal certification",
+  "source_commit": "e0d3ee8d72598767227e62a9be5834a4554532b6",
+  "parent": "371fcae6f2d408f881f9db130f9feedd6a791e9d",
+  "fixed_binary_sha256": "86cdef05e8836a6bbdd9e04093948e46e4dadec55e30200e58cc25eb6dd355ae",
+  "compiler": "c++ (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0\nCopyright (C) 2023 Free Software Foundation, Inc.\nThis is free software; see the source for copying conditions.  There is NO\nwarranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n\n",
+  "test_filter": "[HLLC-wall]",
+  "configuration": "serial, double, release; MPI/OpenMP/AD/CGNS/TecIO disabled",
+  "fast_math": "SU2 default -ffast-math -fno-finite-math-only retained",
+  "parent_binary_sha256": "244cccf7cccc76275c464cd60e9000b101becc8b28b5ac361f133c46e9d0b574",
+  "fixed_test": "pass",
+  "parent_with_identical_test_fixture": "fail (expected)",
+  "retained_binary": "parent negative-control binary; source restored to fixed commit"
+}

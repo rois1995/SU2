@@ -1,0 +1,299 @@
+$ lean --version
+Lean (version 4.19.0, x86_64-unknown-linux-gnu, commit 6caaee842e94, Release)
+
+$ git -C /media/rausa/4TB/SU2_Versions/SU2_Lean/.lake/packages/mathlib rev-parse HEAD
+c44e0c8ee63ca166450922a373c7409c5d26b00b
+
+$ git -C /media/rausa/4TB/SU2_Versions/SU2_Lean/.lake/packages/mathlib diff --exit-code HEAD --
+
+$ git -C /media/rausa/4TB/SU2_Versions/SU2_Lean/.lake/packages/plausible rev-parse HEAD
+77e08eddc486491d7b9e470926b3dbe50319451a
+
+$ git -C /media/rausa/4TB/SU2_Versions/SU2_Lean/.lake/packages/plausible diff --exit-code HEAD --
+
+$ git -C /media/rausa/4TB/SU2_Versions/SU2_Lean/.lake/packages/LeanSearchClient rev-parse HEAD
+25078369972d295301f5a1e53c3e5850cf6d9d4c
+
+$ git -C /media/rausa/4TB/SU2_Versions/SU2_Lean/.lake/packages/LeanSearchClient diff --exit-code HEAD --
+
+$ git -C /media/rausa/4TB/SU2_Versions/SU2_Lean/.lake/packages/importGraph rev-parse HEAD
+e6a9f0f5ee3ccf7443a0070f92b62f8db12ae82b
+
+$ git -C /media/rausa/4TB/SU2_Versions/SU2_Lean/.lake/packages/importGraph diff --exit-code HEAD --
+
+$ git -C /media/rausa/4TB/SU2_Versions/SU2_Lean/.lake/packages/proofwidgets rev-parse HEAD
+c4919189477c3221e6a204008998b0d724f49904
+
+$ git -C /media/rausa/4TB/SU2_Versions/SU2_Lean/.lake/packages/proofwidgets diff --exit-code HEAD --
+
+$ git -C /media/rausa/4TB/SU2_Versions/SU2_Lean/.lake/packages/aesop rev-parse HEAD
+5d50b08dedd7d69b3d9b3176e0d58a23af228884
+
+$ git -C /media/rausa/4TB/SU2_Versions/SU2_Lean/.lake/packages/aesop diff --exit-code HEAD --
+
+$ git -C /media/rausa/4TB/SU2_Versions/SU2_Lean/.lake/packages/Qq rev-parse HEAD
+fa4f7f15d97591a9cf3aa7724ba371c7fc6dda02
+
+$ git -C /media/rausa/4TB/SU2_Versions/SU2_Lean/.lake/packages/Qq diff --exit-code HEAD --
+
+$ git -C /media/rausa/4TB/SU2_Versions/SU2_Lean/.lake/packages/batteries rev-parse HEAD
+f5d04a9c4973d401c8c92500711518f7c656f034
+
+$ git -C /media/rausa/4TB/SU2_Versions/SU2_Lean/.lake/packages/batteries diff --exit-code HEAD --
+
+$ git -C /media/rausa/4TB/SU2_Versions/SU2_Lean/.lake/packages/Cli rev-parse HEAD
+02dbd02bc00ec4916e99b04b2245b30200e200d0
+
+$ git -C /media/rausa/4TB/SU2_Versions/SU2_Lean/.lake/packages/Cli diff --exit-code HEAD --
+
+Removed project .lake/build; retained pinned dependency builds.
+$ lake build
+✔ [930/940] Built SU2.Spec
+✔ [931/940] Built SU2.Algebra
+✔ [932/940] Built SU2.Assembly
+✔ [933/940] Built SU2.Wall
+✔ [934/940] Built SU2.Thermodynamics
+✔ [935/940] Built SU2.Implementation
+✔ [936/940] Built SU2.Examples
+✔ [937/940] Built SU2
+ℹ [939/940] Built Integrity
+info: ././././Integrity.lean:6:0: AUDIT SU2.wall_project_idempotent: [propext, Quot.sound, Classical.choice]
+info: ././././Integrity.lean:6:0: AUDIT SU2.assembled_update_conserves: [propext, Quot.sound, Classical.choice]
+info: ././././Integrity.lean:6:0: AUDIT SU2.Implementation.rename_preserves_model: [propext, Quot.sound, Classical.choice]
+info: ././././Integrity.lean:6:0: AUDIT SU2.energy.eq_1: [propext, Quot.sound, Classical.choice]
+info: ././././Integrity.lean:6:0: AUDIT SU2.Channel.mass.sizeOf_spec: []
+info: ././././Integrity.lean:6:0: AUDIT SU2.rho_state: [propext, Quot.sound, Classical.choice]
+info: ././././Integrity.lean:6:0: AUDIT SU2.temperature_positive: [propext, Quot.sound, Classical.choice]
+info: ././././Integrity.lean:6:0: AUDIT SU2.edge_conservation: [propext, Quot.sound, Classical.choice]
+info: ././././Integrity.lean:6:0: AUDIT SU2.wall_update_preserves: [propext, Quot.sound, Classical.choice]
+info: ././././Integrity.lean:6:0: AUDIT SU2.wall_project_fixed: [propext, Quot.sound, Classical.choice]
+info: ././././Integrity.lean:6:0: AUDIT SU2.Primitive.mk.sizeOf_spec: [propext, Quot.sound, Classical.choice]
+info: ././././Integrity.lean:6:0: AUDIT SU2.Examples.repaired_update_impermeable: [propext, Quot.sound, Classical.choice]
+info: ././././Integrity.lean:6:0: AUDIT SU2.Primitive.ext: [propext, Quot.sound, Classical.choice]
+info: ././././Integrity.lean:6:0: AUDIT SU2.Channel.momentum.sizeOf_spec: []
+info: ././././Integrity.lean:6:0: AUDIT SU2.Implementation.residualProjection.eq_1: [propext, Quot.sound, Classical.choice]
+info: ././././Integrity.lean:6:0: AUDIT SU2.Examples.initial._proof_2: []
+info: ././././Integrity.lean:6:0: AUDIT SU2.Channel.momentum.injEq: [propext]
+info: ././././Integrity.lean:6:0: AUDIT SU2.Channel.momentum.inj: []
+info: ././././Integrity.lean:6:0: AUDIT SU2.IdealGas.mk.sizeOf_spec: [propext, Quot.sound, Classical.choice]
+info: ././././Integrity.lean:6:0: AUDIT SU2.Implementation.legacyResidualProjection.eq_1: [propext, Quot.sound, Classical.choice]
+info: ././././Integrity.lean:6:0: AUDIT SU2.accumulation_permutation: [propext, Quot.sound, Classical.choice]
+info: ././././Integrity.lean:6:0: AUDIT SU2.pressure_specific_energy: [propext, Quot.sound, Classical.choice]
+info: ././././Integrity.lean:6:0: AUDIT SU2.UnitNormal.mk.injEq: [propext, Quot.sound, Classical.choice]
+info: ././././Integrity.lean:6:0: AUDIT SU2.ControlVolume.positive: [propext, Quot.sound, Classical.choice]
+info: ././././Integrity.lean:6:0: AUDIT SU2.accumulation_correct: [propext, Quot.sound, Classical.choice]
+info: ././././Integrity.lean:6:0: AUDIT SU2.assembly_conservation: [propext, Quot.sound, Classical.choice]
+info: ././././Integrity.lean:6:0: AUDIT SU2.Implementation.dotLoop_correct: [propext, Quot.sound, Classical.choice]
+info: ././././Integrity.lean:6:0: AUDIT SU2.conservativeUpdate.eq_1: [propext, Quot.sound, Classical.choice]
+info: ././././Integrity.lean:6:0: AUDIT SU2.Examples.nonunit_normal_counterexample: [propext, Quot.sound, Classical.choice]
+info: ././././Integrity.lean:6:0: AUDIT SU2.dot_add_left: [propext, Quot.sound, Classical.choice]
+info: ././././Integrity.lean:6:0: AUDIT SU2.ControlVolume.mk.sizeOf_spec: [propext, Quot.sound, Classical.choice]
+info: ././././Integrity.lean:6:0: AUDIT SU2.Implementation.residualProjection_correct: [propext, Quot.sound, Classical.choice]
+info: ././././Integrity.lean:6:0: AUDIT SU2.internalDensity._proof_11: []
+info: ././././Integrity.lean:6:0: AUDIT SU2.dot_sub_left: [propext, Quot.sound, Classical.choice]
+info: ././././Integrity.lean:6:0: AUDIT SU2.primitive_roundtrip: [propext, Quot.sound, Classical.choice]
+info: ././././Integrity.lean:6:0: AUDIT SU2.InteriorEdge.distinct: [propext, Quot.sound, Classical.choice]
+info: ././././Integrity.lean:6:0: AUDIT SU2.Implementation.factored_satisfies_spec: [propext, Quot.sound, Classical.choice]
+info: ././././Integrity.lean:6:0: AUDIT SU2.wall_internal_energy: [propext, Quot.sound, Classical.choice]
+info: ././././Integrity.lean:6:0: AUDIT SU2.dot_scale_left: [propext, Quot.sound, Classical.choice]
+info: ././././Integrity.lean:6:0: AUDIT SU2.Implementation.sumLoop_correct: [propext, Quot.sound, Classical.choice]
+info: ././././Integrity.lean:6:0: AUDIT SU2.Implementation.renamed_satisfies_spec: [propext, Quot.sound, Classical.choice]
+info: ././././Integrity.lean:6:0: AUDIT SU2.Primitive.ext_iff: [propext, Quot.sound, Classical.choice]
+info: ././././Integrity.lean:6:0: AUDIT SU2.IdealGas.mk.inj: [propext, Quot.sound, Classical.choice]
+info: ././././Integrity.lean:6:0: AUDIT SU2.toConservative.eq_1: [propext, Quot.sound, Classical.choice]
+info: ././././Integrity.lean:6:0: AUDIT SU2.Examples.initial.eq_1: [propext, Quot.sound, Classical.choice]
+info: ././././Integrity.lean:6:0: AUDIT SU2.volume_update_balance: [propext, Quot.sound, Classical.choice]
+info: ././././Integrity.lean:6:0: AUDIT SU2.Examples.legacy_update_not_impermeable: [propext, Quot.sound, Classical.choice]
+info: ././././Integrity.lean:6:0: AUDIT SU2.dot_sub_right: [propext, Quot.sound, Classical.choice]
+info: ././././Integrity.lean:6:0: AUDIT SU2.dot_scale_right: [propext, Quot.sound, Classical.choice]
+info: ././././Integrity.lean:6:0: AUDIT SU2.Impermeable.eq_1: [propext, Quot.sound, Classical.choice]
+info: ././././Integrity.lean:6:0: AUDIT SU2.Examples.wall2._proof_1: []
+info: ././././Integrity.lean:6:0: AUDIT SU2.state.eq_3: [propext, Quot.sound, Classical.choice]
+info: ././././Integrity.lean:6:0: AUDIT SU2.state.eq_2: [propext, Quot.sound, Classical.choice]
+info: ././././Integrity.lean:6:0: AUDIT SU2.edgeContribution.eq_1: [propext, Quot.sound, Classical.choice]
+info: ././././Integrity.lean:6:0: AUDIT SU2.wallProject.eq_1: [propext, Quot.sound, Classical.choice]
+info: ././././Integrity.lean:6:0: AUDIT SU2.Implementation.model_satisfies_contract: [propext, Quot.sound, Classical.choice]
+info: ././././Integrity.lean:6:0: AUDIT SU2.Primitive.mk.inj: [propext, Quot.sound, Classical.choice]
+info: ././././Integrity.lean:6:0: AUDIT SU2.Primitive.mk.injEq: [propext, Quot.sound, Classical.choice]
+info: ././././Integrity.lean:6:0: AUDIT SU2.assemble.eq_1: [propext, Quot.sound, Classical.choice]
+info: ././././Integrity.lean:6:0: AUDIT SU2.InteriorEdge.mk.inj: [propext, Quot.sound, Classical.choice]
+info: ././././Integrity.lean:6:0: AUDIT SU2.Examples.normal2.eq_1: [propext, Quot.sound, Classical.choice]
+info: ././././Integrity.lean:6:0: AUDIT SU2.Implementation.corrected_update_impermeable: [propext, Quot.sound, Classical.choice]
+info: ././././Integrity.lean:6:0: AUDIT SU2.conservative_roundtrip: [propext, Quot.sound, Classical.choice]
+info: ././././Integrity.lean:6:0: AUDIT SU2.Admissible.eq_1: [propext, Quot.sound, Classical.choice]
+info: ././././Integrity.lean:6:0: AUDIT SU2.wall_defect_update: [propext, Quot.sound, Classical.choice]
+info: ././././Integrity.lean:6:0: AUDIT SU2.Examples.normal2_unit: [propext, Quot.sound, Classical.choice]
+info: ././././Integrity.lean:6:0: AUDIT SU2.mom.eq_1: [propext, Quot.sound, Classical.choice]
+info: ././././Integrity.lean:6:0: AUDIT SU2.Channel.energy.sizeOf_spec: []
+info: ././././Integrity.lean:6:0: AUDIT SU2.ControlVolume.mk.injEq: [propext, Quot.sound, Classical.choice]
+info: ././././Integrity.lean:6:0: AUDIT SU2.Examples.repaired_defect_detected: [propext, Quot.sound, Classical.choice]
+info: ././././Integrity.lean:6:0: AUDIT SU2.rho.eq_1: [propext, Quot.sound, Classical.choice]
+info: ././././Integrity.lean:6:0: AUDIT SU2.primitive_admissible: [propext, Quot.sound, Classical.choice]
+info: ././././Integrity.lean:6:0: AUDIT SU2.Examples.wall2.eq_1: [propext, Quot.sound, Classical.choice]
+info: ././././Integrity.lean:6:0: AUDIT SU2.IdealGas.gasConstant_pos: [propext, Quot.sound, Classical.choice]
+info: ././././Integrity.lean:6:0: AUDIT SU2.UnitNormal.mk.sizeOf_spec: [propext, Quot.sound, Classical.choice]
+info: ././././Integrity.lean:6:0: AUDIT SU2.Implementation.factoredResidualProjection.eq_1: [propext, Quot.sound, Classical.choice]
+info: ././././Integrity.lean:6:0: AUDIT SU2.Examples.legacy_result_admissible: [propext, Quot.sound, Classical.choice]
+info: ././././Integrity.lean:6:0: AUDIT SU2.Implementation.stateProjection_correct: [propext, Quot.sound, Classical.choice]
+info: ././././Integrity.lean:6:0: AUDIT SU2.scatter.eq_1: [propext, Quot.sound, Classical.choice]
+info: ././././Integrity.lean:6:0: AUDIT SU2.IdealGas.gamma_gt_one: [propext, Quot.sound, Classical.choice]
+info: ././././Integrity.lean:6:0: AUDIT SU2.scatter_correct: [propext, Quot.sound, Classical.choice]
+info: ././././Integrity.lean:6:0: AUDIT SU2.Examples.increment.eq_1: [propext, Quot.sound, Classical.choice]
+info: ././././Integrity.lean:6:0: AUDIT SU2.wallDefect.eq_1: [propext, Quot.sound, Classical.choice]
+info: ././././Integrity.lean:6:0: AUDIT SU2.dot_comm: [propext, Quot.sound, Classical.choice]
+info: ././././Integrity.lean:6:0: AUDIT SU2.impermeable_velocity: [propext, Quot.sound, Classical.choice]
+info: ././././Integrity.lean:6:0: AUDIT SU2.UnitNormal.mk.inj: [propext, Quot.sound, Classical.choice]
+info: ././././Integrity.lean:6:0: AUDIT SU2.InteriorEdge.area_pos: [propext, Quot.sound, Classical.choice]
+info: ././././Integrity.lean:6:0: AUDIT SU2.Implementation.normalMomentum_correct: [propext, Quot.sound, Classical.choice]
+info: ././././Integrity.lean:6:0: AUDIT SU2.IdealGas.mk.injEq: [propext, Quot.sound, Classical.choice]
+info: ././././Integrity.lean:6:0: AUDIT SU2.Implementation.sumLoop.eq_1: [propext, Quot.sound, Classical.choice]
+info: ././././Integrity.lean:6:0: AUDIT SU2.assembleLoop.eq_1: [propext, Quot.sound, Classical.choice]
+info: ././././Integrity.lean:6:0: AUDIT SU2.state.eq_1: [propext, Quot.sound, Classical.choice]
+info: ././././Integrity.lean:6:0: AUDIT SU2.explicitUpdate.eq_1: [propext, Quot.sound, Classical.choice]
+info: ././././Integrity.lean:6:0: AUDIT SU2.toPrimitive.eq_1: [propext, Quot.sound, Classical.choice]
+info: ././././Integrity.lean:6:0: AUDIT SU2.Examples.initial_impermeable: [propext, Quot.sound, Classical.choice]
+info: ././././Integrity.lean:6:0: AUDIT SU2.UnitNormal.unit: [propext, Quot.sound, Classical.choice]
+info: ././././Integrity.lean:6:0: AUDIT SU2.ControlVolume.mk.inj: [propext, Quot.sound, Classical.choice]
+info: ././././Integrity.lean:6:0: AUDIT SU2.internalDensity.eq_1: [propext, Quot.sound, Classical.choice]
+info: ././././Integrity.lean:6:0: AUDIT SU2.Implementation.dotLoop.eq_1: [propext, Quot.sound, Classical.choice]
+info: ././././Integrity.lean:6:0: AUDIT SU2.wall_project_contract: [propext, Quot.sound, Classical.choice]
+info: ././././Integrity.lean:6:0: AUDIT SU2.Examples.initial_admissible: [propext, Quot.sound, Classical.choice]
+info: ././././Integrity.lean:6:0: AUDIT SU2.wall_contract_unique: [propext, Quot.sound, Classical.choice]
+info: ././././Integrity.lean:6:0: AUDIT SU2.wall_project_impermeable: [propext, Quot.sound, Classical.choice]
+info: ././././Integrity.lean:6:0: AUDIT SU2.dot_self_nonneg: [propext, Quot.sound, Classical.choice]
+info: ././././Integrity.lean:6:0: AUDIT SU2.energy_state: [propext, Quot.sound, Classical.choice]
+info: ././././Integrity.lean:6:0: AUDIT SU2.state_ext: [propext, Quot.sound, Classical.choice]
+info: ././././Integrity.lean:6:0: AUDIT SU2.wall_preserves_admissibility: [propext, Quot.sound, Classical.choice]
+info: ././././Integrity.lean:6:0: AUDIT SU2.InteriorEdge.mk.sizeOf_spec: [propext, Quot.sound, Classical.choice]
+info: ././././Integrity.lean:6:0: AUDIT SU2.InteriorEdge.mk.injEq: [propext, Quot.sound, Classical.choice]
+info: ././././Integrity.lean:6:0: AUDIT SU2.mom_state: [propext, Quot.sound, Classical.choice]
+info: ././././Integrity.lean:6:0: AUDIT SU2.dot.eq_1: [propext, Quot.sound, Classical.choice]
+info: ././././Integrity.lean:6:0: AUDIT SU2.Implementation.stateProjection.eq_1: [propext, Quot.sound, Classical.choice]
+info: ././././Integrity.lean:6:0: AUDIT SU2.orientation_consistency: [propext, Quot.sound, Classical.choice]
+info: ././././Integrity.lean:6:0: Excluded 92 internal unsafe compiler-runtime declarations; no proof dependencies exempted.
+info: ././././Integrity.lean:6:0: Audited 231 SU2 logical declarations (113 theorem declarations); standard logical axioms only.
+Build completed successfully.
+
+$ lake env lean -DwarningAsError=true Integrity.lean
+AUDIT SU2.wall_project_idempotent: [propext, Quot.sound, Classical.choice]
+AUDIT SU2.assembled_update_conserves: [propext, Quot.sound, Classical.choice]
+AUDIT SU2.Implementation.rename_preserves_model: [propext, Quot.sound, Classical.choice]
+AUDIT SU2.energy.eq_1: [propext, Quot.sound, Classical.choice]
+AUDIT SU2.Channel.mass.sizeOf_spec: []
+AUDIT SU2.rho_state: [propext, Quot.sound, Classical.choice]
+AUDIT SU2.temperature_positive: [propext, Quot.sound, Classical.choice]
+AUDIT SU2.edge_conservation: [propext, Quot.sound, Classical.choice]
+AUDIT SU2.wall_update_preserves: [propext, Quot.sound, Classical.choice]
+AUDIT SU2.wall_project_fixed: [propext, Quot.sound, Classical.choice]
+AUDIT SU2.Primitive.mk.sizeOf_spec: [propext, Quot.sound, Classical.choice]
+AUDIT SU2.Examples.repaired_update_impermeable: [propext, Quot.sound, Classical.choice]
+AUDIT SU2.Primitive.ext: [propext, Quot.sound, Classical.choice]
+AUDIT SU2.Channel.momentum.sizeOf_spec: []
+AUDIT SU2.Implementation.residualProjection.eq_1: [propext, Quot.sound, Classical.choice]
+AUDIT SU2.Examples.initial._proof_2: []
+AUDIT SU2.Channel.momentum.injEq: [propext]
+AUDIT SU2.Channel.momentum.inj: []
+AUDIT SU2.IdealGas.mk.sizeOf_spec: [propext, Quot.sound, Classical.choice]
+AUDIT SU2.Implementation.legacyResidualProjection.eq_1: [propext, Quot.sound, Classical.choice]
+AUDIT SU2.accumulation_permutation: [propext, Quot.sound, Classical.choice]
+AUDIT SU2.pressure_specific_energy: [propext, Quot.sound, Classical.choice]
+AUDIT SU2.UnitNormal.mk.injEq: [propext, Quot.sound, Classical.choice]
+AUDIT SU2.ControlVolume.positive: [propext, Quot.sound, Classical.choice]
+AUDIT SU2.accumulation_correct: [propext, Quot.sound, Classical.choice]
+AUDIT SU2.assembly_conservation: [propext, Quot.sound, Classical.choice]
+AUDIT SU2.Implementation.dotLoop_correct: [propext, Quot.sound, Classical.choice]
+AUDIT SU2.conservativeUpdate.eq_1: [propext, Quot.sound, Classical.choice]
+AUDIT SU2.Examples.nonunit_normal_counterexample: [propext, Quot.sound, Classical.choice]
+AUDIT SU2.dot_add_left: [propext, Quot.sound, Classical.choice]
+AUDIT SU2.ControlVolume.mk.sizeOf_spec: [propext, Quot.sound, Classical.choice]
+AUDIT SU2.Implementation.residualProjection_correct: [propext, Quot.sound, Classical.choice]
+AUDIT SU2.internalDensity._proof_11: []
+AUDIT SU2.dot_sub_left: [propext, Quot.sound, Classical.choice]
+AUDIT SU2.primitive_roundtrip: [propext, Quot.sound, Classical.choice]
+AUDIT SU2.InteriorEdge.distinct: [propext, Quot.sound, Classical.choice]
+AUDIT SU2.Implementation.factored_satisfies_spec: [propext, Quot.sound, Classical.choice]
+AUDIT SU2.wall_internal_energy: [propext, Quot.sound, Classical.choice]
+AUDIT SU2.dot_scale_left: [propext, Quot.sound, Classical.choice]
+AUDIT SU2.Implementation.sumLoop_correct: [propext, Quot.sound, Classical.choice]
+AUDIT SU2.Implementation.renamed_satisfies_spec: [propext, Quot.sound, Classical.choice]
+AUDIT SU2.Primitive.ext_iff: [propext, Quot.sound, Classical.choice]
+AUDIT SU2.IdealGas.mk.inj: [propext, Quot.sound, Classical.choice]
+AUDIT SU2.toConservative.eq_1: [propext, Quot.sound, Classical.choice]
+AUDIT SU2.Examples.initial.eq_1: [propext, Quot.sound, Classical.choice]
+AUDIT SU2.volume_update_balance: [propext, Quot.sound, Classical.choice]
+AUDIT SU2.Examples.legacy_update_not_impermeable: [propext, Quot.sound, Classical.choice]
+AUDIT SU2.dot_sub_right: [propext, Quot.sound, Classical.choice]
+AUDIT SU2.dot_scale_right: [propext, Quot.sound, Classical.choice]
+AUDIT SU2.Impermeable.eq_1: [propext, Quot.sound, Classical.choice]
+AUDIT SU2.Examples.wall2._proof_1: []
+AUDIT SU2.state.eq_3: [propext, Quot.sound, Classical.choice]
+AUDIT SU2.state.eq_2: [propext, Quot.sound, Classical.choice]
+AUDIT SU2.edgeContribution.eq_1: [propext, Quot.sound, Classical.choice]
+AUDIT SU2.wallProject.eq_1: [propext, Quot.sound, Classical.choice]
+AUDIT SU2.Implementation.model_satisfies_contract: [propext, Quot.sound, Classical.choice]
+AUDIT SU2.Primitive.mk.inj: [propext, Quot.sound, Classical.choice]
+AUDIT SU2.Primitive.mk.injEq: [propext, Quot.sound, Classical.choice]
+AUDIT SU2.assemble.eq_1: [propext, Quot.sound, Classical.choice]
+AUDIT SU2.InteriorEdge.mk.inj: [propext, Quot.sound, Classical.choice]
+AUDIT SU2.Examples.normal2.eq_1: [propext, Quot.sound, Classical.choice]
+AUDIT SU2.Implementation.corrected_update_impermeable: [propext, Quot.sound, Classical.choice]
+AUDIT SU2.conservative_roundtrip: [propext, Quot.sound, Classical.choice]
+AUDIT SU2.Admissible.eq_1: [propext, Quot.sound, Classical.choice]
+AUDIT SU2.wall_defect_update: [propext, Quot.sound, Classical.choice]
+AUDIT SU2.Examples.normal2_unit: [propext, Quot.sound, Classical.choice]
+AUDIT SU2.mom.eq_1: [propext, Quot.sound, Classical.choice]
+AUDIT SU2.Channel.energy.sizeOf_spec: []
+AUDIT SU2.ControlVolume.mk.injEq: [propext, Quot.sound, Classical.choice]
+AUDIT SU2.Examples.repaired_defect_detected: [propext, Quot.sound, Classical.choice]
+AUDIT SU2.rho.eq_1: [propext, Quot.sound, Classical.choice]
+AUDIT SU2.primitive_admissible: [propext, Quot.sound, Classical.choice]
+AUDIT SU2.Examples.wall2.eq_1: [propext, Quot.sound, Classical.choice]
+AUDIT SU2.IdealGas.gasConstant_pos: [propext, Quot.sound, Classical.choice]
+AUDIT SU2.UnitNormal.mk.sizeOf_spec: [propext, Quot.sound, Classical.choice]
+AUDIT SU2.Implementation.factoredResidualProjection.eq_1: [propext, Quot.sound, Classical.choice]
+AUDIT SU2.Examples.legacy_result_admissible: [propext, Quot.sound, Classical.choice]
+AUDIT SU2.Implementation.stateProjection_correct: [propext, Quot.sound, Classical.choice]
+AUDIT SU2.scatter.eq_1: [propext, Quot.sound, Classical.choice]
+AUDIT SU2.IdealGas.gamma_gt_one: [propext, Quot.sound, Classical.choice]
+AUDIT SU2.scatter_correct: [propext, Quot.sound, Classical.choice]
+AUDIT SU2.Examples.increment.eq_1: [propext, Quot.sound, Classical.choice]
+AUDIT SU2.wallDefect.eq_1: [propext, Quot.sound, Classical.choice]
+AUDIT SU2.dot_comm: [propext, Quot.sound, Classical.choice]
+AUDIT SU2.impermeable_velocity: [propext, Quot.sound, Classical.choice]
+AUDIT SU2.UnitNormal.mk.inj: [propext, Quot.sound, Classical.choice]
+AUDIT SU2.InteriorEdge.area_pos: [propext, Quot.sound, Classical.choice]
+AUDIT SU2.Implementation.normalMomentum_correct: [propext, Quot.sound, Classical.choice]
+AUDIT SU2.IdealGas.mk.injEq: [propext, Quot.sound, Classical.choice]
+AUDIT SU2.Implementation.sumLoop.eq_1: [propext, Quot.sound, Classical.choice]
+AUDIT SU2.assembleLoop.eq_1: [propext, Quot.sound, Classical.choice]
+AUDIT SU2.state.eq_1: [propext, Quot.sound, Classical.choice]
+AUDIT SU2.explicitUpdate.eq_1: [propext, Quot.sound, Classical.choice]
+AUDIT SU2.toPrimitive.eq_1: [propext, Quot.sound, Classical.choice]
+AUDIT SU2.Examples.initial_impermeable: [propext, Quot.sound, Classical.choice]
+AUDIT SU2.UnitNormal.unit: [propext, Quot.sound, Classical.choice]
+AUDIT SU2.ControlVolume.mk.inj: [propext, Quot.sound, Classical.choice]
+AUDIT SU2.internalDensity.eq_1: [propext, Quot.sound, Classical.choice]
+AUDIT SU2.Implementation.dotLoop.eq_1: [propext, Quot.sound, Classical.choice]
+AUDIT SU2.wall_project_contract: [propext, Quot.sound, Classical.choice]
+AUDIT SU2.Examples.initial_admissible: [propext, Quot.sound, Classical.choice]
+AUDIT SU2.wall_contract_unique: [propext, Quot.sound, Classical.choice]
+AUDIT SU2.wall_project_impermeable: [propext, Quot.sound, Classical.choice]
+AUDIT SU2.dot_self_nonneg: [propext, Quot.sound, Classical.choice]
+AUDIT SU2.energy_state: [propext, Quot.sound, Classical.choice]
+AUDIT SU2.state_ext: [propext, Quot.sound, Classical.choice]
+AUDIT SU2.wall_preserves_admissibility: [propext, Quot.sound, Classical.choice]
+AUDIT SU2.InteriorEdge.mk.sizeOf_spec: [propext, Quot.sound, Classical.choice]
+AUDIT SU2.InteriorEdge.mk.injEq: [propext, Quot.sound, Classical.choice]
+AUDIT SU2.mom_state: [propext, Quot.sound, Classical.choice]
+AUDIT SU2.dot.eq_1: [propext, Quot.sound, Classical.choice]
+AUDIT SU2.Implementation.stateProjection.eq_1: [propext, Quot.sound, Classical.choice]
+AUDIT SU2.orientation_consistency: [propext, Quot.sound, Classical.choice]
+Excluded 92 internal unsafe compiler-runtime declarations; no proof dependencies exempted.
+Audited 231 SU2 logical declarations (113 theorem declarations); standard logical axioms only.
+
+$ lake env lean /media/rausa/4TB/SU2_Versions/SU2_Lean/artifacts/audit-negative-pti1lmu2/Rejected.lean
+/media/rausa/4TB/SU2_Versions/SU2_Lean/artifacts/audit-negative-pti1lmu2/Rejected.lean:8:0: error: Unapproved axiom SU2.RejectedAuditProbe in SU2.RejectedAuditProbe
+
+$ python3 scripts/source_experiment.py
+source residual slice: old defect=-1, repaired defect=0; 1000 finite 2D/3D cases; renamed and helper-factored slices bitwise equal
+
