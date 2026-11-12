@@ -223,6 +223,10 @@ TEST_CASE("Saved complete target drives the existing native MPI surface stage wi
      <<",\"local_nodes\":"<<points.size()<<",\"local_tets\":"<<prepared.cells.size()<<",\"positive_cells\":"<<positive<<",\"transported_core_cells\":"<<sensors
      <<",\"global_work\":"<<s.global_work<<",\"local_commits\":"<<s.accepted<<",\"collapse_passes\":"<<s.length_collapse_passes<<",\"split_passes\":"<<s.length_split_passes
      <<",\"geometry_work\":"<<s.atlas_work<<",\"cached_measured_cells\":"<<s.cached_measured_cells<<",\"field_requests\":"<<s.field_requests<<",\"field_compositions\":"<<s.field_compositions
+     <<",\"surface_demand_required\":"<<s.surface_demand_required_cells<<",\"surface_demand_measured\":"<<s.surface_demand_measured_cells
+     <<",\"surface_demand_complete\":"<<s.surface_demand_census_complete<<",\"surface_geometry_complete\":"<<s.surface_demand_geometry_complete
+     <<",\"seed_cell_classes\":["<<s.seed_cell_classes[0]<<','<<s.seed_cell_classes[1]<<','<<s.seed_cell_classes[2]
+     <<"],\"updated_cell_classes\":["<<s.updated_cell_classes[0]<<','<<s.updated_cell_classes[1]<<','<<s.updated_cell_classes[2]<<']'
      <<",\"process_cpu_seconds\":"<<s.process_cpu_seconds<<",\"metric_cpu_seconds\":"<<s.metric_cpu_seconds<<",\"reconstruction_cpu_seconds\":"<<s.reconstruction_cpu_seconds
      <<",\"seed_seconds\":"<<s.seed_seconds<<",\"metric_seconds\":"<<s.metric_seconds<<",\"reconstruction_seconds\":"<<s.reconstruction_seconds
      <<",\"tracked_collective_seconds\":"<<s.tracked_collective_seconds<<",\"tracked_calls\":"<<s.tracked_calls<<",\"maximum_work_bytes\":"<<s.maximum_work_bytes

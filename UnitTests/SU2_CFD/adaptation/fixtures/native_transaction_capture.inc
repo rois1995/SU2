@@ -260,7 +260,9 @@ struct NativeStageCapture {
     trace<<",\"cache_consistent\":"<<(p.cache_consistent?"true":"false")<<",\"census_complete\":"
       <<(p.census_complete?"true":"false")<<",\"shape_complete\":"
       <<(p.shape_complete?"true":"false")<<",\"height_complete\":"<<(p.height_complete?"true":"false")
-      <<",\"geometry_complete\":"<<(p.geometry_complete?"true":"false")<<"}}\n";
+      <<",\"geometry_complete\":"<<(p.geometry_complete?"true":"false")<<"},\"surface_demand\":{\"required\":"<<s.surface_demand_required_cells
+      <<",\"measured\":"<<s.surface_demand_measured_cells<<",\"census_complete\":"<<(s.surface_demand_census_complete?"true":"false")
+      <<",\"geometry_complete\":"<<(s.surface_demand_geometry_complete?"true":"false")<<"}}\n";
     trace.close();if(!trace)throw std::runtime_error("Cannot close native stage progress trace.");
     if(stage=="quality_entry"&&!quality_saved){Save(view,rank,"quality_entry");quality_saved=true;}
     if(stage=="exit"&&!view.valid&&!rejected_saved){Save(view,rank,"rejected_exit");rejected_saved=true;}
@@ -322,6 +324,10 @@ struct NativeStageCapture {
        <<",\"shape_complete\":"<<(p.shape_complete?"true":"false")<<",\"height_complete\":"
        <<(p.height_complete?"true":"false")<<",\"geometry_complete\":"<<(p.geometry_complete?"true":"false")
        <<",\"cache_consistent\":"<<(p.cache_consistent?"true":"false")<<'}'
+       <<",\"surface_demand\":{\"required\":"<<s.surface_demand_required_cells<<",\"measured\":"<<s.surface_demand_measured_cells
+       <<",\"census_complete\":"<<(s.surface_demand_census_complete?"true":"false")<<",\"geometry_complete\":"<<(s.surface_demand_geometry_complete?"true":"false")
+       <<",\"seed_cell_classes\":["<<s.seed_cell_classes[0]<<','<<s.seed_cell_classes[1]<<','<<s.seed_cell_classes[2]
+       <<"],\"updated_cell_classes\":["<<s.updated_cell_classes[0]<<','<<s.updated_cell_classes[1]<<','<<s.updated_cell_classes[2]<<"]}"
        <<",\"work\":{\"stop\":"<<std::quoted(EngineStopName(s.stop))<<",\"global\":"<<s.global_work
        <<",\"limit\":"<<s.work_limit<<",\"rounds\":"<<s.rounds<<",\"accepted\":"<<s.accepted
        <<",\"rejected\":"<<s.rejected<<",\"moved\":"<<s.moved<<",\"reconnected\":"<<s.reconnected

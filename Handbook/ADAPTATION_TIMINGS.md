@@ -12,6 +12,14 @@ comparison or complete growth timing. No production edits/newMPI/fullM6 campaign
 Receipts R/reviews/cavity_operator_20261112; findings in
 [review](ADAPTATION_CAVITY_OPERATOR_REVIEW_20261112.md). All actual handles terminal.
 
+432 connected surface-demand census: build392.920s; serial39cases8801assertions
+11.468s, ONE MPI6 milestone35cases/rank2774–5595assertions17.977s. All pins/actual
+handles terminal for these checks. Actual saved396target surface replay now frozen;
+no demonstrated stage speedup/readiness result yet. Seed/update class work counts
+distinguish interior, other physical boundary and requested wall; they do not
+apportion nested wall timers. Design/receipts:
+[surface demand](ADAPTATION_SURFACE_DEMAND_CENSUS_20261112.md).
+
 Latest completed stage-2 producer:396metric531.649s maxrank, complete wrapper733.225s
 including checkpoint/chord. Saved complete-target files~304MB; fresh-process fidelity
 now PASSES61330/61330bitexact tensors/chord. Physical suitability remains unqualified. Actual mesh

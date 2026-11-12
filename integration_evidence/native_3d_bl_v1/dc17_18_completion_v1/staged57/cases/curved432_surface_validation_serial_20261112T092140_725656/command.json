@@ -1,0 +1,27 @@
+{
+  "build": "build432",
+  "case": "curved432_surface_validation_serial",
+  "ranks": 1,
+  "argv": [
+    "nice",
+    "-n",
+    "19",
+    "/usr/bin/time",
+    "-v",
+    "timeout",
+    "600",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+    "[NativeSurfacePlanning3D],[NativeFirstRowSurfaceFeedback3D],[NativePhysicalFirstHeightProposals3D],[NativeFirstChildPreservation3D],[NativeCurvedFirstChild3D],[NativeBLDirectionInvalidation3D],[NativeFirstHeightPreservation3D],[NativeSurfacePreparationEngine3D],[NativeCurvedTransaction3D],[NativeFeaturePublication3D],[NativePartition3D],[NativeDeadline3D],[NativePhaseOwnership3D],[NativeStagedConstruction3D],[NativeStageCapture3D]",
+    "--durations",
+    "yes"
+  ],
+  "environment": {
+    "OMPI_MCA_osc": "pt2pt",
+    "OMPI_MCA_orte_tmpdir_base": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/compile-tmp/curved432_surface_validation_serial-0yy7o4t3",
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1",
+    "TMPDIR": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/compile-tmp"
+  },
+  "timeout_seconds": 600
+}

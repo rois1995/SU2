@@ -377,6 +377,23 @@ class Selection {
     debt.size_hinge_squared+=sign*d.size;debt.height_hinge_squared+=sign*d.height;
     debt.geometry_excess_squared+=sign*d.geometry;
   }
+  bool RequestedWall(const OwnedCell& owned)const {
+    if(heights.empty())return false;
+    return std::any_of(owned.physical.begin(),owned.physical.end(),[&](const FacetBinding& f) {
+      return f.present && heights.count(geometry.Get(f.facet).marker);
+    });
+  }
+  // Demand coverage only: unmeasured volume rows remain unknown in the public full-mesh census.
+  std::array<size_t,3> SurfaceCensus(const Owned& owned)const {
+    std::array<size_t,3> count{}; // required, current measured, current geometry measured
+    for(const auto& item:owned)if(RequestedWall(item.second)) {
+      ++count[0];const auto found=cells.find(item.first);
+      if(found!=cells.end()&&found->second.version==item.second.version) {
+        ++count[1];count[2]+=found->second.debt.geometry_measured;
+      }
+    }
+    return count;
+  }
   StageProgress Progress(size_t owned)const {
     StageProgress result=progress_consistent?debt:StageProgress{};
     result.cache_consistent=progress_consistent;result.owned_cells=owned;
@@ -1273,6 +1290,20 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
       repairs ? 4096u : 0u,
       (coarsening || bidirectional) ? (repairs ? 8192u : 5120u) : (repairs ? 6144u : 3072u)); };
   std::vector<Id> initial,eligible_extensions;
+  size_t seed_slot=0;
+  auto scope_census_complete=[&]() {
+    if(!surface_target)return selection.Progress(working.size()).census_complete;
+    if(!selection.progress_consistent||!selection.census_started)return false;
+    const auto count=selection.SurfaceCensus(working);return count[0]==count[1];
+  };
+  auto refresh_surface_census=[&]() {
+    if(!surface_target)return;
+    const auto count=selection.SurfaceCensus(working);
+    stats.surface_demand_required_cells=count[0];
+    stats.surface_demand_measured_cells=selection.progress_consistent?count[1]:0;
+    stats.surface_demand_census_complete=selection.progress_consistent&&selection.census_started&&count[0]==count[1];
+    stats.surface_demand_geometry_complete=stats.surface_demand_census_complete&&count[0]==count[2];
+  };
   bool private_repair=false;
   size_t private_optimizer_allowance=0;
   auto elect_trial_failure=[&](const CLocalFailure& local) {
@@ -1544,7 +1575,12 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     GenerationDebt d;d.edges=edge_progress.hinge_squared;d.maximum=edge_progress.max_length;
     const auto p=selection.Progress(working.size());
     d.geometry=CPassiveComm::Allreduce(double(p.geometry_excess_squared),CPassiveComm::Op::SUM,world.comm);
-    d.geometry_complete=!world.maximum(!p.geometry_complete);return d;
+    bool geometry_complete=p.geometry_complete;
+    if(surface_target) {
+      const auto count=selection.SurfaceCensus(working);
+      geometry_complete=selection.progress_consistent&&selection.census_started&&count[0]==count[1]&&count[0]==count[2];
+    }
+    d.geometry_complete=!world.maximum(!geometry_complete);return d;
   };
   auto consider_fixed_metric_row=[&](const OwnedCell& row) {
     if(!fixed_metric_available)return;
@@ -1744,6 +1780,12 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     previous_quality_ownership=stats.ownership_changes;++quality_census_serial;
   };
   auto observe_progress=[&](const char* stage) {
+    if(surface_target) {
+      CLocalFailure failure;
+      try{refresh_surface_census();}catch(const std::exception& e){failure.Set(2,0,e.what());}
+      const auto elected=world.elect(failure);
+      if(elected.any){result.valid=result.surface_prepared=false;result.reason=elected.message;return false;}
+    }
     if(phase==Phase::Improvement) {
       const auto census=selection.Progress(working.size());
       const bool complete=!world.maximum(!census.census_complete||!census.shape_complete||!census.geometry_complete);
@@ -1784,6 +1826,10 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
           <<" batch_candidates="<<stats.batch_candidates<<" batch_reserved="<<stats.batch_reserved
           <<" quality_progress="<<stats.quality_progress<<" accepted="<<stats.accepted
           <<" updated_cells="<<stats.updated_cells<<" update_seconds="<<stats.update_seconds
+          <<" surface_demand_required="<<stats.surface_demand_required_cells<<" surface_demand_measured="<<stats.surface_demand_measured_cells
+          <<" surface_demand_complete="<<stats.surface_demand_census_complete<<" surface_geometry_complete="<<stats.surface_demand_geometry_complete
+          <<" seed_cell_classes="<<stats.seed_cell_classes[0]<<','<<stats.seed_cell_classes[1]<<','<<stats.seed_cell_classes[2]
+          <<" updated_cell_classes="<<stats.updated_cell_classes[0]<<','<<stats.updated_cell_classes[1]<<','<<stats.updated_cell_classes[2]
           <<" geometry_trials="<<stats.geometry_trials<<" geometry_rejected="<<stats.geometry_rejected
           <<" guidance_trials="<<stats.geometry_guidance_trials<<" guidance_rejected="<<stats.geometry_guidance_rejected
           <<" guidance_faces="<<stats.geometry_guidance_faces<<" guidance_early_rejected="<<stats.geometry_guidance_early_rejections
@@ -2101,7 +2147,8 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
         for(auto node:donor.cell.v)maximum_node=std::max(maximum_node,node.id);
       }
       for (const auto& row : working) {
-        initial.push_back(row.first); maximum_cell=std::max(maximum_cell,row.first);
+        if(!surface_target||selection.RequestedWall(row.second))initial.push_back(row.first);
+        maximum_cell=std::max(maximum_cell,row.first);
         for (auto node : row.second.cell.v) maximum_node=std::max(maximum_node,node.id);
       }
     } catch (const std::exception& e) { failure.Set(2,0,e.what()); }
@@ -2311,7 +2358,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     region_rebuilt=changed;stats.global_work=CPassiveComm::Allreduce(stats.global_work,CPassiveComm::Op::MAX,world.comm);
     if(changed)try {
       initial.clear();initial.reserve(working.size());
-      for(const auto& row:working){initial.push_back(row.first);maximum_cell=std::max(maximum_cell,row.first);
+      for(const auto& row:working){if(!surface_target||selection.RequestedWall(row.second))initial.push_back(row.first);maximum_cell=std::max(maximum_cell,row.first);
         for(auto node:row.second.cell.v)maximum_node=std::max(maximum_node,node.id);}
     }catch(const std::exception& e){failure.Set(2,0,e.what());}
     if(!vote(failure))return finish();
@@ -2569,7 +2616,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     }
     try {
       initial.clear();initial.reserve(working.size());
-      for(const auto& row:working){initial.push_back(row.first);maximum_cell=std::max(maximum_cell,row.first);for(auto n:row.second.cell.v)maximum_node=std::max(maximum_node,n.id);}
+      for(const auto& row:working){if(!surface_target||selection.RequestedWall(row.second))initial.push_back(row.first);maximum_cell=std::max(maximum_cell,row.first);for(auto n:row.second.cell.v)maximum_node=std::max(maximum_node,n.id);}
     }catch(const std::exception& e){failure.Set(2,0,e.what());}
     if(!vote(failure))return finish();
     maximum_node=CPassiveComm::Allreduce(maximum_node,CPassiveComm::Op::MAX,world.comm);
@@ -2672,6 +2719,9 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
           stats.edge_evaluations+=counted.edge_evaluations;
           stats.edge_reused+=counted.edge_reused;
           if (seed) ++stats.initial_cells; else ++stats.updated_cells;
+          const auto& owned=working.at(ids[i]);
+          const unsigned category=selection.RequestedWall(owned)?2:selection.cells.at(ids[i]).surface?1:0;
+          ++(seed?stats.seed_cell_classes:stats.updated_cell_classes)[category];
         }
       } catch (const std::exception& e) { failure.Set(2,0,e.what()); }
       if (!vote(failure)) return false;
@@ -2679,7 +2729,6 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     }
     return true;
   };
-  size_t seed_slot=0;
   auto seed_next=[&]() {
     Timer timer(stats.seed_seconds,options.timings);
     // Composed or sided planning is expensive; a complete cavity may remove still-unmeasured topology.
@@ -2724,7 +2773,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     if(!quality){ownership_evaluated[boundary]=true;++stats.ownership_evaluations;}
     // The checkpoint's ownership is part of its rollback contract. Its enclosing speculative
     // coarsening cycle retains that ownership until it is explicitly retired.
-    if(world.maximum(checkpoint.valid || selection.cells.size()!=working.size() || (quality&&!selection.repair_zero.empty())))return true;
+    if(world.maximum(checkpoint.valid || !scope_census_complete() || (quality&&!selection.repair_zero.empty())))return true;
     if(quality&&world.maximum(!selection.Progress(working.size()).complete))return true;
     const auto global_cells=CPassiveComm::Allreduce(uint64_t(working.size()),CPassiveComm::Op::SUM,world.comm);
     // Optional migration cannot populate one graph part per rank with fewer cells than ranks.
@@ -2747,6 +2796,10 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
       costs.reserve(working.size());geometry_costs.reserve(working.size());weights.reserve(working.size());geometric.reserve(working.size());
       if(quality){quality_debts.reserve(working.size());quality_weights.reserve(working.size());}
       for(const auto& owned:working) {
+        if(surface_target&&!quality&&!selection.RequestedWall(owned.second)) {
+          // Untouched volume has no independent wall demand; it still migrates with the complete mesh.
+          costs.push_back(1);geometry_costs.push_back(0);local_demand+=1;continue;
+        }
         const auto& row=selection.cells.at(owned.first);double demand=1;
         if(quality) {
           if(!row.shape_measured)throw std::logic_error("Quality ownership requires the permitted complete shape census.");
@@ -2848,10 +2901,16 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     try {
       outgoing.resize(world.size);size_t slot=0;
       for(const auto& row:working) {
-        Selection::CachedRow record;record.id=row.first;record.state=selection.cells.at(row.first);
+        const auto destination=partition.destinations.at(slot++);
+        const auto found=selection.cells.find(row.first);
+        if(found==selection.cells.end()) {
+          if(surface_target&&!quality&&!selection.RequestedWall(row.second))continue;
+          throw std::logic_error("Phase migration lacks a required cached row.");
+        }
+        Selection::CachedRow record;record.id=row.first;record.state=found->second;
         for(unsigned i=0;i<6;++i)record.lengths[i]=selection.edges.at(record.state.edges[i]).measure.length;
         if(quality)selection.SaveRepairState(record);
-        outgoing.at(partition.destinations.at(slot++)).push_back(std::move(record));
+        outgoing.at(destination).push_back(std::move(record));
       }
     }catch(const std::exception& e){failure.Set(2,0,e.what());}
     if(!vote(failure))return false;
@@ -2868,9 +2927,13 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     if(!built)return false;
     try {
       pending_initial.reserve(pending.size());
-      for(const auto& row:pending)pending_initial.push_back(row.first);
+      for(const auto& row:pending)if(!surface_target||pending_selection.RequestedWall(row.second))pending_initial.push_back(row.first);
       for(const auto& record:records)pending_selection.Restore(pending.at(record.id),record,field_identity);
-      if(records.size()!=pending.size())throw std::logic_error("Incomplete migrated phase census.");
+      if(surface_target&&!quality) {
+        const auto count=pending_selection.SurfaceCensus(pending);
+        if(!pending_selection.progress_consistent||!pending_selection.census_started||count[0]!=count[1])
+          throw std::logic_error("Incomplete migrated surface demand census.");
+      } else if(records.size()!=pending.size())throw std::logic_error("Incomplete migrated phase census.");
       if(quality)pending_selection.RestoreRepairState(records);
       else pending_selection.ChangePhase(false,pending,field_identity);
     }catch(const std::exception& e){failure.Set(2,0,e.what());}
@@ -2913,7 +2976,8 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     return true;
   };
   auto surface_ready=[&]() {
-    return !world.maximum(selection.cells.size()!=working.size() || selection.construction_invalid!=0);
+    // Known debt already proves unreadiness; scan coverage only at a possible readiness boundary.
+    return !world.maximum(selection.construction_invalid!=0 || !scope_census_complete());
   };
   auto enter_phase=[&](Phase next,bool refine_geometry=false) {
     if(surface_target && next==Phase::Improvement) {
@@ -3090,21 +3154,23 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     {
       Timer timer(stats.selection_seconds,options.timings);
       ++stats.selections;
+      // The surface cursor covers only demand owners. Complete versioned coverage is checked at quiescent boundaries.
+      const bool pending_census=surface_target ? seed_slot<initial.size()||!selection.progress_consistent : selection.cells.size()!=working.size();
       int dirty=world.maximum(selection.invalid ? 2 :
-          (selection.cells.size()!=working.size() || (coarsening && !selection.queue.empty()) ? 1 : 0));
+          (pending_census || (coarsening && !selection.queue.empty()) ? 1 : 0));
       bad_field=dirty==2;
       if (coarsening && !repairing && (!bad_field||bidirectional) && !selection.prune_collapses) {
         // Joint construction filters necessary validity constraints even while target debt remains.
         CLocalFailure failure;
         try { selection.EnableCollapseFilter(); } catch (const std::exception& e) { failure.Set(2,0,e.what()); }
         ready=vote(failure);
-        if (ready) dirty=world.maximum(selection.cells.size()!=working.size() || !selection.queue.empty());
+        if (ready) dirty=world.maximum(pending_census || !selection.queue.empty());
       }
       if (ready) {
         complete=dirty==0;
         pick();
         if (ready && coarsening && !repairing && !bad_field && !any)
-          complete=!world.maximum(selection.cells.size()!=working.size() || !selection.queue.empty());
+          complete=!world.maximum(pending_census || !selection.queue.empty());
         if(ready && !complete && !any)refill=world.maximum(seed_slot<initial.size());
       }
     }
@@ -3190,7 +3256,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
       continue;
     }
     if(bidirectional&&phase==Phase::Construction&&!repairing&&!coarsening&&!any&&selection.lane==Selection::Lane::Surface&&
-        !world.maximum(!selection.Progress(working.size()).census_complete)) {
+        !world.maximum(!scope_census_complete())) {
       if(!generation_census()||!observe_progress("split_surface_exit"))return finish();
       // Interior publications can reopen surface demand after the full-vertex claims end.
       selection.geometry_split_priorities.clear();selection.geometry_priority_mode=false;
@@ -3208,7 +3274,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
       continue;
     }
     if(bidirectional && phase==Phase::Construction && !repairing && !any &&
-        !world.maximum(!selection.Progress(working.size()).census_complete)) {
+        !world.maximum(!scope_census_complete())) {
       const bool productive=world.maximum(construction_generation_changed);
       if(!generation_census())return finish();
       const auto current_debt=generation_debt();bool progressing=true;

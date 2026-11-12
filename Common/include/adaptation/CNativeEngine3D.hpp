@@ -257,6 +257,11 @@ struct EngineStats {
   uint64_t changed_star_scans = 0, changed_vertices_sent = 0, changed_vertices_received = 0;
   double collapse_orientation_seconds = 0, change_notification_seconds = 0;  // Nested in selection/publication.
   double collapse_geometry_seconds = 0;  // Nested in selection, seed and update, not metric queries.
+  // Surface demand coverage is separate from the unmodified full-volume StageProgress census.
+  uint64_t surface_demand_required_cells=0,surface_demand_measured_cells=0;
+  bool surface_demand_census_complete=false,surface_demand_geometry_complete=false;
+  // Measurement work counts: interior, other physical boundary, requested wall. Never timing apportionments.
+  std::array<uint64_t,3> seed_cell_classes{},updated_cell_classes{};
   double process_cpu_seconds = 0, reconstruction_cpu_seconds = 0, metric_cpu_seconds = 0, measurement_cpu_seconds = 0;
   // Nested query detail; never add to the exclusive engine phases below.
   double field_build_seconds = 0, field_query_seconds = 0, field_cache_seconds = 0, field_search_seconds = 0;

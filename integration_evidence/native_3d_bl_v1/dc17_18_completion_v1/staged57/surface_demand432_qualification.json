@@ -1,0 +1,56 @@
+{
+  "build": 432,
+  "build_pass": true,
+  "serial_and_mpi_pass": true,
+  "cases": [
+    {
+      "mode": "serial",
+      "case": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved432_surface_validation_serial_20261112T092140_725656",
+      "seconds": 11.468445539474487,
+      "passes": [
+        [
+          "8801",
+          "39"
+        ]
+      ],
+      "all_handles_terminal": true,
+      "pins_verified": true
+    },
+    {
+      "mode": "mpi6",
+      "case": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved432_surface_validation_mpi6_20261112T092209_727072",
+      "seconds": 17.97734308242798,
+      "passes": [
+        [
+          "3493",
+          "35"
+        ],
+        [
+          "2968",
+          "35"
+        ],
+        [
+          "2774",
+          "35"
+        ],
+        [
+          "3020",
+          "35"
+        ],
+        [
+          "5595",
+          "35"
+        ],
+        [
+          "3426",
+          "35"
+        ]
+      ],
+      "all_handles_terminal": true,
+      "pins_verified": true
+    }
+  ],
+  "actual_M6_surface_stage": "running",
+  "final_BL_accepted": false,
+  "goal_complete": false
+}

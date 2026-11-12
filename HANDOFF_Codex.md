@@ -11,11 +11,19 @@ retains all failures, prior handles, normalization and rejected alternatives. Th
 
 ## Current frozen workload and provenance
 
-REVIEW HOLD (latest user request): findings before fixes. See
+Review delivered before fixes; subsequent goal continuation resumes stage3. See
 [cavity-operator review](Handbook/ADAPTATION_CAVITY_OPERATOR_REVIEW_20261112.md).
-No production edits after that request. Earlier432 changes in Engine.cpp/.hpp
-remain LOCAL/UNBUILT/UNVALIDATED; held diff SHA256
-a13e8db65d110ad6b45ab73a78cd1f45b44f219b2d051ad3cfa173cde3c49e97.
+Current432 connected [surface-demand census](Handbook/ADAPTATION_SURFACE_DEMAND_CENSUS_20261112.md)
+has passed focused qualification; actual saved-target surface stage is FROZEN/RUNNING.
+Five affected compiled files pinned in R/build432_source_pins.json. Build432PASS392.920s,
+allpins/actualhandles terminal. SerialPASS39cases8801assertions/11.468s; ONE MPI6PASS
+35cases/rank2774–5595assertions/17.977s. Casepins/actualhandles terminal. Receipt
+R/surface_demand432_qualification.json. NativeMPI BL generation still unqualified.
+Currentcase R/cases/curved432_saved_target_surface_mpi6_20261112T092307_730261;
+execsession30161, wrapper730261/start51982678, MPI730472/start51983011. Same396target,
+original6partitions,388.8s/233220work/12GiB. Verify actual handles before edits/nextjob.
+Pre-review held diff is preserved in the review manifest; readiness now tests known
+debt first, and checks/JSON distinguish required-wall coverage from full-volume unknowns.
 Build431 review checks TERMINAL:8/9 cases pass,85/86 assertions; growth throws stale
 front dependency exception. Wrapper/child actual PID+start handles terminal;
 build431 binaries and current source freeze verified. Receipts:
@@ -24,7 +32,7 @@ Review distinguishes observed growth failure, missing full-BL suitability contra
 mapped-surface proposal overconstraint and an unbuilt432 per-round census scan.
 No new MPI/fullM6/perf campaign; preserve431/430 evidence and Euler293 checkpoints.
 
-NO owned heavy workload.431 nativeMPI6 surface stage TERMINAL/PASS490.279s diagnostic,
+431 nativeMPI6 surface stage TERMINAL/PASS490.279s diagnostic,
 surface_prepared=false. Saved396target → existingPrepareSurface, no production change.
 Case R/cases/curved431_saved_target_surface_mpi6_20261112T080701_534595;
 launcher R/check_saved_surface431.py; execsession82847 TERMINAL; allactualworkers and

@@ -856,7 +856,7 @@ TEST_CASE("Requested-wall preparation uses construction ownership without claimi
   }
 }
 
-TEST_CASE("Surface preparation closes the complete census across incremental seeds and empty ranks", "[NativeSurfacePreparationEngine3D]") {
+TEST_CASE("Surface preparation closes requested-wall coverage without certifying unrelated volume", "[NativeSurfacePreparationEngine3D]") {
   World world;Fixture fixture;
   for(Id copy=0;copy<10;++copy) {
     auto box=Box();
@@ -885,11 +885,19 @@ TEST_CASE("Surface preparation closes the complete census across incremental see
         std::vector<BoundaryMetricSample>{};
   };
   size_t guidanceCalls=0;
+  options.phase_ownership=PhaseOwnership::DiagnosticAlways;
   const BoundaryMetric target=[&](Node node,const PlanarReference& current,Tensor sensor) {
     ++guidanceCalls;return samples(node,current,sensor);
   };
   options.stage_observer_bytes=size_t(1)<<20;
   options.stage_observer=[&](const StageProgressView& view) {
+    if(std::string(view.stage)=="exit") {
+      CHECK(view.stats.surface_demand_census_complete);CHECK(view.stats.surface_demand_geometry_complete);
+      CHECK(view.progress.measured_cells==view.stats.surface_demand_measured_cells);
+      CHECK(view.progress.unmeasured_cells==view.working.size()-view.stats.surface_demand_measured_cells);
+      CHECK(view.progress.q_measured_cells==0);CHECK(view.progress.j_measured_cells==0);
+      if(view.progress.unmeasured_cells)CHECK_FALSE(view.progress.census_complete);
+    }
     for(const auto& row:view.working) {
       CellDiagnostic cached;if(!view.cell_diagnostic(row.first,cached))continue;
       Patch patch;patch.cells.push_back(row.second.cell);
@@ -908,9 +916,14 @@ TEST_CASE("Surface preparation closes the complete census across incremental see
   const auto result=PrepareSurface(world,input,Uniform(input,{}),geometry,target,options);
   INFO(result.reason);REQUIRE(result.surface_prepared);CHECK_FALSE(result.valid);
   CHECK(CPassiveComm::Allreduce(result.cells.size(),CPassiveComm::Op::SUM,world.comm)==60);
-  CHECK(CPassiveComm::Allreduce(result.stats.cached_measured_cells,CPassiveComm::Op::SUM,world.comm)==60);
+  CHECK(CPassiveComm::Allreduce(result.stats.cached_measured_cells,CPassiveComm::Op::SUM,world.comm)==20);
+  CHECK(CPassiveComm::Allreduce(result.stats.surface_demand_required_cells,CPassiveComm::Op::SUM,world.comm)==20);
+  CHECK(CPassiveComm::Allreduce(result.stats.surface_demand_measured_cells,CPassiveComm::Op::SUM,world.comm)==20);
+  CHECK(result.stats.surface_demand_census_complete);CHECK(result.stats.surface_demand_geometry_complete);
+  CHECK(CPassiveComm::Allreduce(result.stats.seed_cell_classes[0]+result.stats.seed_cell_classes[1],CPassiveComm::Op::SUM,world.comm)==0);
   CHECK(CPassiveComm::Allreduce(guidanceCalls,CPassiveComm::Op::SUM,world.comm)<4*60);
   CHECK(result.stats.quality_stages==0);CHECK(result.stats.field_compositions==0);CHECK(Bytes(input)==saved);
+  if(world.size>1)CHECK(result.stats.ownership_changes>0);
 }
 
 TEST_CASE("Native incremental MPI refinement reaches complete frozen metric gates", "[NativeDistributed3D]") {
