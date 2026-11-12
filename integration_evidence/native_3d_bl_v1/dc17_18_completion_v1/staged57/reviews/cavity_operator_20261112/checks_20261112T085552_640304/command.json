@@ -1,0 +1,27 @@
+{
+  "argv": [
+    "nice",
+    "-n",
+    "19",
+    "/usr/bin/time",
+    "-v",
+    "timeout",
+    "120",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+    "Native 3D cone*,Native 3D fixed interface*,Native 3D cavity rejects*,Native 3D orientation*,Native 3D metric admission*,[NativeGrowthLayer12]",
+    "--durations",
+    "yes"
+  ],
+  "baseline": "e4d3ca7618",
+  "build": 431,
+  "binary_sha256": "1f96caa91a56dc0322b380c7ec24f59dbed13634fa43e71ee8a8f5b84d9366c7",
+  "unbuilt_432_not_tested": [
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/Common/include/adaptation/CNativeEngine3D.hpp",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/Common/src/adaptation/CNativeEngine3D.cpp"
+  ],
+  "source_pins_sha256": "12eb8fb064fd856f13b1257d687f8077500c68bf50b5e4f491458bdb5975e7dc",
+  "frozen_current_source_sha256": {
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/Common/include/adaptation/CNativeEngine3D.hpp": "eed8322cff09d479b3d6ba01c93ad069e8f7976335c0e7890374c30b81da6f92",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/Common/src/adaptation/CNativeEngine3D.cpp": "d0396a80e3eeadbaa63bfeebe16ed7ae6af469bd0ecf571f21a68e1d60b54dd5"
+  }
+}

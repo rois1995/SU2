@@ -11,6 +11,19 @@ retains all failures, prior handles, normalization and rejected alternatives. Th
 
 ## Current frozen workload and provenance
 
+REVIEW HOLD (latest user request): findings before fixes. See
+[cavity-operator review](Handbook/ADAPTATION_CAVITY_OPERATOR_REVIEW_20261112.md).
+No production edits after that request. Earlier432 changes in Engine.cpp/.hpp
+remain LOCAL/UNBUILT/UNVALIDATED; held diff SHA256
+a13e8db65d110ad6b45ab73a78cd1f45b44f219b2d051ad3cfa173cde3c49e97.
+Build431 review checks TERMINAL:8/9 cases pass,85/86 assertions; growth throws stale
+front dependency exception. Wrapper/child actual PID+start handles terminal;
+build431 binaries and current source freeze verified. Receipts:
+R/reviews/cavity_operator_20261112/checks_20261112T085552_640304.
+Review distinguishes observed growth failure, missing full-BL suitability contract,
+mapped-surface proposal overconstraint and an unbuilt432 per-round census scan.
+No new MPI/fullM6/perf campaign; preserve431/430 evidence and Euler293 checkpoints.
+
 NO owned heavy workload.431 nativeMPI6 surface stage TERMINAL/PASS490.279s diagnostic,
 surface_prepared=false. Saved396target → existingPrepareSurface, no production change.
 Case R/cases/curved431_saved_target_surface_mpi6_20261112T080701_534595;

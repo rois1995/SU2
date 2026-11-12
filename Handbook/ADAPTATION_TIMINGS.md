@@ -5,6 +5,13 @@ integration result. [Current handoff](../HANDOFF_Codex.md) owns live handles;
 [stage inputs/outputs and acceptance](ADAPTATION_CURVED_BL_STAGE_INTEGRATION_20261111.md)
 own the development sequence. R=`integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57`.
 
+Read-only cavity review2026-11-12: verified431 binary,9 serial cases/86 assertions;
+8 cases/85 assertions pass, growth fails with stale front dependency exception.
+Native wall.56s/CPU.26s/maxRSS37540kB; wrapper2.706s. Diagnostic only, no efficiency
+comparison or complete growth timing. No production edits/newMPI/fullM6 campaign.
+Receipts R/reviews/cavity_operator_20261112; findings in
+[review](ADAPTATION_CAVITY_OPERATOR_REVIEW_20261112.md). All actual handles terminal.
+
 Latest completed stage-2 producer:396metric531.649s maxrank, complete wrapper733.225s
 including checkpoint/chord. Saved complete-target files~304MB; fresh-process fidelity
 now PASSES61330/61330bitexact tensors/chord. Physical suitability remains unqualified. Actual mesh
