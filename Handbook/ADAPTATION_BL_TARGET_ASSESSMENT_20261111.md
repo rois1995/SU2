@@ -657,3 +657,76 @@ then shared production feedback on existing actual M6 context(s), complete patch
 neighbor measurements. Compare q/J, geometry, requested heights, target conformity,
 work/time/memory and coverage. No claim of usable BL from fixtures or local columns.
 Growth12dependency failure remains open until separately resolved at its stage.
+
+413production compiles; whole build fails66.135s on a new fixture namespace error.
+Exact six source files archived before correcting test namespace/mapped-state flag.
+414build passes214.188s but integrated fixture then exposes missing marker metadata;
+serial28/30cases8404/8406, including old Growth12failure.415test-only marker fix
+passes214.195s; CFD BYTEIDENTICAL414. Serial new surface feedback/integrated retry
+checks PASS; expanded29/30cases8445/8446, old Growth12stillOPEN. ONE MPI6 milestone
+passes6.469s. Actual same396target M6 stage currently frozen; outcome pending.
+
+Read-only cavity audit: ordinary ColumnSplit collects parent-apex/lid stars; although
+not explicit edge-star union, both incident wall-face owners and existing old-cavity
+ball/manifold validation reject a missing intervening edge-star portion before the
+physical callback. This relies on valid conforming manifold input; contact alone is
+not the proof, particularly for a projected split point. No extra admission bypass.
+
+### Actual415 rejects a new progress veto;416corrects it
+
+Actual415 terminal PASS145.229s, all pins/owned handles terminal. It made4strictly
+admitted splits→5descendants, zero sampled feasible feet, then refused all3edges
+solely for 'no complete geometry descent'. No row/repair was attempted; shorter
+wall time is NOT a speedup.412with the same target reached14sampled-feasible faces
+after16splits. Thus the added monotonic guidance veto demonstrably excludes the
+known useful refinement path.415source is retained in implementation9abbe04670
+and the exact pre416BLEvent snapshot. This policy is NOT qualified for production.
+
+416removes that extra descent veto. Geometry-guidance scores remain complete
+telemetry; strict ContainsFace/SurfaceError, exact positivity, preserving passing
+heights, supported registrations and global contact remain the admission gates.
+A failed requested curved row with resolved nonzero geometry demand may refine
+under unchanged operation/time/memory budgets even when the diagnostic score rises.
+No shape merit, target or physical constraint is weakened. Reuse415MPIguard and
+shared migration/constraint evidence: only native-serial admission changes; no
+MPIcollective/publication/geometryauthority path changes. Focused serial and actual
+M6 must qualify the corrected admission before any capability claim.
+
+416 build PASS216.226s; serial29/30cases8451/8452assertions, affected feedback checks
+pass and old Growth12failure remains.415MPI6one milestone28cases EVERYrank1631–6341
+assertions reused only for unchanged guarded/shared paths; not nativeMPI generation.
+Smooth actual416 TERMINAL/PASS281.331s/all1667pins/owned handles terminal. Shared
+production preparation reaches16edits/21descendants/14sampled-feasible/fivecolumns/
+25centroidq/Jbad. Seven repair payloads BYTEIDENTICAL412; independent error<=1.665e-16;
+net q/Jretirement0. Six admitted edits have nondecreasing geometry guidance despite
+passing independent strict certificates: direct evidence against the415extra veto.
+
+Preparation helper16calls44.623s/59216geometrywork/16nativeedgeattempts; these include
+contact Directory preparation. Diagnostic post-edit directory rebuilding/probing is
+outside this helper timer. No separated index time is available; do not attribute
+the whole281vs253wrapperdifference solely to geometry. Same4030compositions/1995edge
+evaluations, edge76.936s (geometry57.394+composition19.539 nested). Largest sampled
+individualRSS2047160320B is not whole-job peak. No speed/coverage/quality gain claimed.
+Full RunEvent high-then-low R2 trajectory is still untested on actual M6; this is
+shared production preparation plus the historical low-band five-column diagnostic.
+Leading-edge saved context now runs separately with SAME binary/seed/target/bounds.
+
+### Actual leading edge416 — new demonstrated support blocker
+
+Bounded same-binary/same396target leading-edge validation TERMINAL/PASS137.224s, owned
+handles/pins verified. Planning maximum.963397<1.8, but coordinated closure82oldcells
+refuses at64cap. Seven physical feet have positive cones but fail strict height
+(plane/h0about71.8–187); no sampling-based infeasibility claim. Surface preparation
+tries ZEROedges: midpoint ranking aborts with 'Invalid mapped facet interior binding'.
+R/leading_edge416_assessment.json retains full records. No first row, speed or final
+mesh acceptance. Curvature/demand samples remain diagnostics, not a physical minimum.
+
+Source: ParameterProject calls ProposedBinding with one facet, selecting an open-facet
+parameter; a midpoint on a boundary stratum may fail that exact interior predicate.
+Existing BindNewPoint with complete incident-edge support already handles canonical
+strata/features.417uses that API for midpoint guidance, with complete bounded edge
+stars/private scopes; one unresolved edge need not abort all other preparations.
+Actual operator proposals are rebuilt and independently certified. CheckBinding,
+geometry/support identity, physical heights, body separation and budgets unchanged.
+This is an edge-query caller correction, not projection-tolerance or geometry-authority
+relaxation.417build/serial/actual LE validation pending; no competing implementation.

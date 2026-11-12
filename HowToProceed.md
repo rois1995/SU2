@@ -347,3 +347,29 @@ Concrete next integration scope, still requiring implementation/qualification:
 - Make the existing actual surface-height probe exercise shared production feedback,
   comparing complete patches/neighbors, coverage, heights, q/J, directional lengths
   and work. Do not spend another cycle only polishing the same fixed25cell row.
+
+413–416 now IMPLEMENTS the previously listed physical-feedback scope: coupled surface
+transactions, registration-preserving column paths, strict configured completion,
+affected-support R2 retry/certification and no growth on incomplete first row, with
+provisional rejected output retained.415extra monotonic geometry-guidance veto was
+REJECTED on actual M6;416keeps guidance as telemetry and strict independent gates.
+Shared production preparation reproduces the16edits/14sampled-feasible/fivecolumns
+from412, with identical25cell repair captures and zero net q/Jgain. Affected serial
+checks/MPI milestone pass; Growth12dependency exception remains OPEN.
+
+After frozen leading-edge validation, select the next action from that outcome.
+Do not repeat fixed25cell quality polishing or add a target/curvature/norm policy
+without evidence. The next connected integration must exercise actual production
+RunEvent first-row coordination using the SAME saved396target (without CFD advance
+or normalization recomputation), rather than infer its high-then-low behavior from
+the old low-band diagnostic. Keep stage validation bounded and inspect representative
+actual contexts before a full workflow. Native RunEvent signature is in
+SU2_CFD/include/adaptation/CNativeBLPipeline3D.hpp; reuse existing actual fixture
+loaders, ReferenceState, Owned/Donor payloads and TargetPolicy/checkpoint helpers.
+Capture stage work/time, full provisional positivity/geometry/height/coverage and
+target provenance. A partial rejected output is not a successful resumable stage.
+A credible checkpoint must also preserve the exact frozen source field/transport
+state used by that stage (including post-surface-preparation donor state), not just
+its final node tensors. Preserve full native resource limits/source freezing and
+Euler293 payloads. Then resolve growth/front dependencies at its stage and pursue
+outer closure, nativeMPI and the complete RANS workflow.

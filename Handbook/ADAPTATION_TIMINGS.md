@@ -1075,3 +1075,40 @@ Largest sampled individual RSS2100097024B is not whole-job peak. CPU/wall and RS
 receipts remain in the case; no rank-wait attribution from these serial timings.
 Strict target-child success and shared physical proposals correct/reuse semantics;
 useful construction and performance benefit remain unproved.
+
+## Connected physical surface feedback413–416
+
+413compile failure66.135s was new fixture namespace/setup, exact sources retained.
+414build214.188s, serial6.386s28/30cases: missing fixture marker table plus oldGrowth12.
+415test-only fixbuild214.195s; serial8.400s29/30, oldGrowth12only. ONE MPI6milestone
+6.469s/28cases everyrank1631–6341assertions (guard/shared paths, not nativeMPIgeneration).
+415smooth actual145.229s stops at4edits/zero sampled-feasible/zero rows due NEWextra
+monotonic-guidance veto. REJECTED policy; shorter wall time omits downstream work.
+
+416removes that veto; build216.226s, serial9.415s29/30 (oldGrowth12stillopen). Reuse
+415MPIevidence for unchanged reachable paths. Smooth actual281.331s/all1667pins/actual
+handles terminal. Source61330points/303359tets unchanged as input; inspected output
+is a local provisional patch, not a full mesh checkpoint. Nominal500k/current complete
+target estimate461495.991, empirical indicator47864.008 (not bound) unchanged.
+
+| Work |416smooth|412matching control|
+|---|---:|---:|
+| Initial row refusal |21.218s/1027961geometrywork|21.330s/samework|
+| Shared preparation |16calls/44.623s/59216geometrywork|DIYsplit path, different timer scope|
+| Prepared5column/25cell row |.529s/17373work|.557s/17373|
+| Connectivity repair |10.393s/464813work/net0|10.910s/samework/net0|
+| Exact edge diagnostic total |76.936s|80.965s|
+| Edge geometry (nested) |57.394s|60.423s|
+| Edge composition (nested) |19.539s|20.539s|
+| Compositions/edgeevaluations |4030/1995|4030/1995|
+
+Same16edits→21descendants/14sampled-feasible/5passingcolumns/all25centroidq/Jbad.
+Seven repair payloads byte-identical412; net bad-cell retirement0. Six independently
+certified edits have nondecreasing guidance, demonstrating the415veto's unnecessary
+restriction. No speedup/coverage/quality improvement established. The diagnostic
+rebuilds an external contact Directory after each helper call as well; this lies
+outside helper timer. No separated index/build CPU/wall counter; attribution gap.
+Nested timers overlap; do not sum into wrapper. Largest sampled individualRSS
+2047160320B is not whole-job peak. Actual leading-edge validation is pending inhandoff.
+Evidence R/surface_feedback415_assessment.json, surface_feedback416_qualification.json,
+front416_assessment.json. Qualified preparation is not complete BL generation.

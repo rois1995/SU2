@@ -1,0 +1,440 @@
+{
+  "state": "shared_physical_surface_feedback_qualified_on_bounded_scope_with_open_growth_failure",
+  "base_implementation_commit": "9abbe04670",
+  "build": {
+    "state": "terminal",
+    "exit_code": 0,
+    "seconds": 216.22610211372375,
+    "pins_verified": true,
+    "changed": [],
+    "completed_build": true,
+    "binaries": {
+      "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver": "8c6f4ab7dc86bf58485f9af6dbb0e96934a0e3fb07260f8c0254d54836a7f8cc",
+      "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/SU2_CFD/src/SU2_CFD": "0539b4371abc454fede0b50b76b8fa507eee6ce857174afc3adc9db34f1ce886"
+    }
+  },
+  "build415": {
+    "state": "terminal",
+    "exit_code": 0,
+    "seconds": 214.1954584121704,
+    "pins_verified": true,
+    "changed": [],
+    "completed_build": true,
+    "binaries": {
+      "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver": "e8b5ff838c73fdef0686e309e72a3bada250212d1fb555279bb9daa211b87154",
+      "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/SU2_CFD/src/SU2_CFD": "e336de4365c99c62eb0e4bb9c52c062d9706f9e762eb262729c060924eda2f2b"
+    }
+  },
+  "checks": {
+    "curved414_prepared_serial_20261112T033116_4083184": {
+      "status": {
+        "state": "terminal",
+        "exit_code": 2,
+        "seconds": 6.385564088821411,
+        "pins_verified": true,
+        "changed": [],
+        "largest_sampled_individual_process_rss_bytes": 41721856,
+        "rss_note": "sampled process RSS; not a whole-job peak"
+      },
+      "terminal": {
+        "actual_host_proc": true,
+        "all_owned_handles_terminal": true,
+        "live_owned_handles": [],
+        "sampled_identities": [
+          {
+            "pid": 4083273,
+            "start_ticks": 49871772
+          },
+          {
+            "pid": 4083274,
+            "start_ticks": 49871773
+          },
+          {
+            "pid": 4083275,
+            "start_ticks": 49871773
+          },
+          {
+            "pid": 4083276,
+            "start_ticks": 49871773
+          }
+        ],
+        "wrapper_excluded": {
+          "pid": 4083184,
+          "start_ticks": 49871597
+        },
+        "checked_unix": 1794454306.8938813
+      },
+      "summary": [
+        "test cases:   30 |   28 passed | 2 failed",
+        "assertions: 8406 | 8404 passed | 2 failed"
+      ]
+    },
+    "curved415_prepared_serial_20261112T033656_4096456": {
+      "status": {
+        "state": "terminal",
+        "exit_code": 1,
+        "seconds": 8.400348424911499,
+        "pins_verified": true,
+        "changed": [],
+        "largest_sampled_individual_process_rss_bytes": 41910272,
+        "rss_note": "sampled process RSS; not a whole-job peak"
+      },
+      "terminal": {
+        "actual_host_proc": true,
+        "all_owned_handles_terminal": true,
+        "live_owned_handles": [],
+        "sampled_identities": [
+          {
+            "pid": 4096529,
+            "start_ticks": 49905782
+          },
+          {
+            "pid": 4096530,
+            "start_ticks": 49905782
+          },
+          {
+            "pid": 4096531,
+            "start_ticks": 49905782
+          },
+          {
+            "pid": 4096532,
+            "start_ticks": 49905783
+          }
+        ],
+        "wrapper_excluded": {
+          "pid": 4096456,
+          "start_ticks": 49905606
+        },
+        "checked_unix": 1794454640.1438396
+      },
+      "summary": [
+        "test cases:   30 |   29 passed | 1 failed",
+        "assertions: 8446 | 8445 passed | 1 failed"
+      ]
+    },
+    "curved415_prepared_mpi6_20261112T033722_4097473": {
+      "status": {
+        "state": "terminal",
+        "exit_code": 0,
+        "seconds": 6.468674182891846,
+        "pins_verified": true,
+        "changed": [],
+        "largest_sampled_individual_process_rss_bytes": 45297664,
+        "rss_note": "sampled process RSS; not a whole-job peak"
+      },
+      "terminal": {
+        "actual_host_proc": true,
+        "all_owned_handles_terminal": true,
+        "live_owned_handles": [],
+        "sampled_identities": [
+          {
+            "pid": 4097530,
+            "start_ticks": 49908382
+          },
+          {
+            "pid": 4097531,
+            "start_ticks": 49908382
+          },
+          {
+            "pid": 4097532,
+            "start_ticks": 49908382
+          },
+          {
+            "pid": 4097567,
+            "start_ticks": 49908386
+          },
+          {
+            "pid": 4097566,
+            "start_ticks": 49908386
+          },
+          {
+            "pid": 4097565,
+            "start_ticks": 49908386
+          },
+          {
+            "pid": 4097564,
+            "start_ticks": 49908386
+          },
+          {
+            "pid": 4097563,
+            "start_ticks": 49908386
+          },
+          {
+            "pid": 4097562,
+            "start_ticks": 49908386
+          }
+        ],
+        "wrapper_excluded": {
+          "pid": 4097473,
+          "start_ticks": 49908205
+        },
+        "checked_unix": 1794454668.632322
+      },
+      "summary": [
+        "All tests passed (1863 assertions in 28 test cases)",
+        "All tests passed (2297 assertions in 28 test cases)",
+        "All tests passed (1631 assertions in 28 test cases)",
+        "All tests passed (1846 assertions in 28 test cases)",
+        "All tests passed (6341 assertions in 28 test cases)",
+        "All tests passed (2223 assertions in 28 test cases)"
+      ],
+      "cases_each_rank": [
+        28,
+        28,
+        28,
+        28,
+        28,
+        28
+      ],
+      "assertion_range": [
+        1631,
+        6341
+      ]
+    },
+    "curved416_prepared_serial_20261112T034704_4119981": {
+      "status": {
+        "state": "terminal",
+        "exit_code": 1,
+        "seconds": 9.414824485778809,
+        "pins_verified": true,
+        "changed": [],
+        "largest_sampled_individual_process_rss_bytes": 42192896,
+        "rss_note": "sampled process RSS; not a whole-job peak"
+      },
+      "terminal": {
+        "actual_host_proc": true,
+        "all_owned_handles_terminal": true,
+        "live_owned_handles": [],
+        "sampled_identities": [
+          {
+            "pid": 4120068,
+            "start_ticks": 49966623
+          },
+          {
+            "pid": 4120069,
+            "start_ticks": 49966624
+          },
+          {
+            "pid": 4120070,
+            "start_ticks": 49966624
+          },
+          {
+            "pid": 4120071,
+            "start_ticks": 49966624
+          }
+        ],
+        "wrapper_excluded": {
+          "pid": 4119981,
+          "start_ticks": 49966447
+        },
+        "checked_unix": 1794455272.3106027
+      },
+      "summary": [
+        "test cases:   30 |   29 passed | 1 failed",
+        "assertions: 8452 | 8451 passed | 1 failed"
+      ]
+    }
+  },
+  "MPI_reused_from": "build415",
+  "MPI_reuse_scope": "416changes only native-serial admission after world.size guard. Shared MPI ownership/publication/geometry authority and empty-rank guard unchanged; first nativeMPI generation remains unqualified.",
+  "actual_case": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved416_checkpoint_front_20261112T034756_4121979",
+  "actual_pins": 1667,
+  "actual_assessment_sha256": "46eb387eb4c23be6e3c211bea1ae6b287ce95a4a93c43ca0bdf684e9325bfe6d",
+  "matching_payloads": {
+    "prepared_repair_before.bin": {
+      "current": "0cfdeace223967d8d311d5b8eaaa0a23de664e30b8995a5041d9339c586fd1c4",
+      "previous": "0cfdeace223967d8d311d5b8eaaa0a23de664e30b8995a5041d9339c586fd1c4",
+      "identical": true
+    },
+    "prepared_repair_before_frames.jsonl": {
+      "current": "2a23ecbb38c84baeb73478e98f22ef1fc94cab22311f6abafcd54c2a08ece7f3",
+      "previous": "2a23ecbb38c84baeb73478e98f22ef1fc94cab22311f6abafcd54c2a08ece7f3",
+      "identical": true
+    },
+    "prepared_repair_connectivity.bin": {
+      "current": "0f23db0e25e47d967e8c0ebf10d09d5d8c36660ff4d192e8cb5f90abe68a404f",
+      "previous": "0f23db0e25e47d967e8c0ebf10d09d5d8c36660ff4d192e8cb5f90abe68a404f",
+      "identical": true
+    },
+    "prepared_repair_connectivity_frames.jsonl": {
+      "current": "eebd90642628a70f8f546bb4c9b5825e133486df84b49791232c2344e2d71b1d",
+      "previous": "eebd90642628a70f8f546bb4c9b5825e133486df84b49791232c2344e2d71b1d",
+      "identical": true
+    },
+    "prepared_repair_optimizer.bin": {
+      "current": "53f218b1c75ec7a97caeb5d6fd8385330109db863e23743536094d6bc47a010f",
+      "previous": "53f218b1c75ec7a97caeb5d6fd8385330109db863e23743536094d6bc47a010f",
+      "identical": true
+    },
+    "prepared_repair_optimizer_frames.jsonl": {
+      "current": "88a662ced2ce9bd5937a73cbd1476473c77c803610df56df9397cacea0c0624c",
+      "previous": "88a662ced2ce9bd5937a73cbd1476473c77c803610df56df9397cacea0c0624c",
+      "identical": true
+    },
+    "prepared_repair_parameters.bin": {
+      "current": "d27e3bac52ae29b1376451f35d248c09057e66741c39fbe2a39003ec6d38da30",
+      "previous": "d27e3bac52ae29b1376451f35d248c09057e66741c39fbe2a39003ec6d38da30",
+      "identical": true
+    }
+  },
+  "nonmonotone_certified_edits": [
+    {
+      "context": "smooth_upper",
+      "stage": "surface_height_split",
+      "generation": 4,
+      "edge": [
+        5922,
+        61331
+      ],
+      "constructed": true,
+      "applied_private": true,
+      "geometry_pass": true,
+      "passing_rows_preserved": true,
+      "external_clearance": true,
+      "old_cells": 2,
+      "fresh_cells": 4,
+      "reason": "",
+      "seconds": 2.821969734,
+      "geometry_work": 4175,
+      "native_work": 1,
+      "geometry_guidance_before": 9.397446917403544e-10,
+      "geometry_guidance_after": 2.1601909774342673e-09,
+      "shared_production_feedback": true,
+      "mesh_published": false
+    },
+    {
+      "context": "smooth_upper",
+      "stage": "surface_height_split",
+      "generation": 5,
+      "edge": [
+        5922,
+        61330
+      ],
+      "constructed": true,
+      "applied_private": true,
+      "geometry_pass": true,
+      "passing_rows_preserved": true,
+      "external_clearance": true,
+      "old_cells": 2,
+      "fresh_cells": 4,
+      "reason": "",
+      "seconds": 2.652648465,
+      "geometry_work": 3178,
+      "native_work": 1,
+      "geometry_guidance_before": 2.365555460689997e-10,
+      "geometry_guidance_after": 2.6464027219680724e-10,
+      "shared_production_feedback": true,
+      "mesh_published": false
+    },
+    {
+      "context": "smooth_upper",
+      "stage": "surface_height_split",
+      "generation": 6,
+      "edge": [
+        5950,
+        61330
+      ],
+      "constructed": true,
+      "applied_private": true,
+      "geometry_pass": true,
+      "passing_rows_preserved": true,
+      "external_clearance": true,
+      "old_cells": 2,
+      "fresh_cells": 4,
+      "reason": "",
+      "seconds": 2.6698335060000002,
+      "geometry_work": 2980,
+      "native_work": 1,
+      "geometry_guidance_before": 8.108029139032738e-10,
+      "geometry_guidance_after": 1.5185987646435516e-09,
+      "shared_production_feedback": true,
+      "mesh_published": false
+    },
+    {
+      "context": "smooth_upper",
+      "stage": "surface_height_split",
+      "generation": 12,
+      "edge": [
+        61331,
+        61334
+      ],
+      "constructed": true,
+      "applied_private": true,
+      "geometry_pass": true,
+      "passing_rows_preserved": true,
+      "external_clearance": true,
+      "old_cells": 2,
+      "fresh_cells": 4,
+      "reason": "",
+      "seconds": 2.8443060040000003,
+      "geometry_work": 3827,
+      "native_work": 1,
+      "geometry_guidance_before": 6.393698006819109e-10,
+      "geometry_guidance_after": 7.131238036092471e-10,
+      "shared_production_feedback": true,
+      "mesh_published": false
+    },
+    {
+      "context": "smooth_upper",
+      "stage": "surface_height_split",
+      "generation": 14,
+      "edge": [
+        5922,
+        61334
+      ],
+      "constructed": true,
+      "applied_private": true,
+      "geometry_pass": true,
+      "passing_rows_preserved": true,
+      "external_clearance": true,
+      "old_cells": 2,
+      "fresh_cells": 4,
+      "reason": "",
+      "seconds": 2.7012624450000002,
+      "geometry_work": 3057,
+      "native_work": 1,
+      "geometry_guidance_before": 1.4493137390125754e-09,
+      "geometry_guidance_after": 2.225048673478568e-09,
+      "shared_production_feedback": true,
+      "mesh_published": false
+    },
+    {
+      "context": "smooth_upper",
+      "stage": "surface_height_split",
+      "generation": 15,
+      "edge": [
+        5922,
+        61335
+      ],
+      "constructed": true,
+      "applied_private": true,
+      "geometry_pass": true,
+      "passing_rows_preserved": true,
+      "external_clearance": true,
+      "old_cells": 2,
+      "fresh_cells": 4,
+      "reason": "",
+      "seconds": 2.659854298,
+      "geometry_work": 3421,
+      "native_work": 1,
+      "geometry_guidance_before": 2.3035089638853495e-11,
+      "geometry_guidance_after": 4.437711383378927e-11,
+      "shared_production_feedback": true,
+      "mesh_published": false
+    }
+  ],
+  "preparation_seconds": 44.622743585,
+  "preparation_geometry_work": 59216,
+  "preparation_native_work": 16,
+  "whole_BL_qualified": false,
+  "native_MPI_generation_qualified": false,
+  "speedup_established": false,
+  "coverage_gain_over412": false,
+  "net_qJ_retirement": 0,
+  "open_failure": "Growth12 surface dependencies changed; current fronts need reconstruction. Predates413, causality unestablished.",
+  "next": "Replay actual production RunEvent first-row stage from saved396target without CFD or normalization recomputation; bound resources and preserve provisional geometry/height/coverage and target provenance. No further fixed25cell polishing.",
+  "limits": [
+    "Actual416 shares production preparation, but its selected five-column trial remains the old low-band diagnostic; this is not actual full-M6 RunEvent or proof of full production high-then-low trajectory.",
+    "Native complete height coverage, growth, transition, full q/J/size closure, conservative RANS+SA transfer, continued CFD and isolated disk restart remain unproved."
+  ]
+}

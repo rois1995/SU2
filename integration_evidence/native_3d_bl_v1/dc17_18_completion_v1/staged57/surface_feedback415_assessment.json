@@ -1,0 +1,230 @@
+{
+  "scope": "Actual same396 target M6 shared-production feedback rejects an added monotonic guidance veto",
+  "case": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved415_checkpoint_front_20261112T033751_4098575",
+  "status": {
+    "state": "terminal",
+    "exit_code": 0,
+    "seconds": 145.2290074825287,
+    "pins_verified": true,
+    "changed": [],
+    "largest_sampled_individual_process_rss_bytes": 1905053696,
+    "rss_note": "sampled process RSS; not a whole-job peak"
+  },
+  "terminal": {
+    "actual_host_proc": true,
+    "all_owned_handles_terminal": true,
+    "live_owned_handles": [],
+    "sampled_identities": [
+      {
+        "pid": 4098667,
+        "start_ticks": 49911326
+      },
+      {
+        "pid": 4098668,
+        "start_ticks": 49911327
+      },
+      {
+        "pid": 4098669,
+        "start_ticks": 49911327
+      },
+      {
+        "pid": 4098670,
+        "start_ticks": 49911327
+      }
+    ],
+    "wrapper_excluded": {
+      "pid": 4098575,
+      "start_ticks": 49911064
+    },
+    "checked_unix": 1794454868.2705567
+  },
+  "source_commit": "9abbe04670",
+  "planning": {
+    "context": "smooth_upper",
+    "stage": "surface_planning",
+    "maximum_requested_length": 1.1582202991042867,
+    "core_control_only": false,
+    "full_target_certified": false,
+    "geometry_work": 61
+  },
+  "initial": {
+    "context": "smooth_upper",
+    "stage": "first_row_result",
+    "constructed": false,
+    "closure_vertices": 10,
+    "old_cells": 65,
+    "fresh_cells": 0,
+    "external_clearance": false,
+    "passing_rows_preserved": false,
+    "external_clearance_attempted": false,
+    "external_reason": "",
+    "class": "cap",
+    "reason": "cap-bound closure: 65 old cells",
+    "geometry_work": 1027961,
+    "seconds": 21.218360360000002,
+    "mesh_published": false
+  },
+  "surface": {
+    "context": "smooth_upper",
+    "stage": "surface_height_result",
+    "splits": 4,
+    "descendants": 5,
+    "feasible_children": 0,
+    "outcome": "all_existing_splits_refused",
+    "coherent_front_certified": false,
+    "production_target_certified": false,
+    "mesh_published": false
+  },
+  "row": {
+    "context": "smooth_upper",
+    "stage": "prepared_row_result",
+    "attempted": false,
+    "reason": "No new vertex has a completely feasible incident wall star.",
+    "mesh_published": false
+  },
+  "edits": [
+    {
+      "context": "smooth_upper",
+      "stage": "surface_height_split",
+      "generation": 0,
+      "edge": [
+        5925,
+        5950
+      ],
+      "constructed": true,
+      "applied_private": true,
+      "geometry_pass": true,
+      "passing_rows_preserved": true,
+      "external_clearance": true,
+      "old_cells": 2,
+      "fresh_cells": 4,
+      "reason": "",
+      "seconds": 3.023348083,
+      "geometry_work": 5858,
+      "native_work": 1,
+      "geometry_guidance_before": 3.1549775265993436e-09,
+      "geometry_guidance_after": 2.5903995329684185e-09,
+      "shared_production_feedback": true,
+      "mesh_published": false
+    },
+    {
+      "context": "smooth_upper",
+      "stage": "surface_height_split",
+      "generation": 1,
+      "edge": [
+        5922,
+        5925
+      ],
+      "constructed": true,
+      "applied_private": true,
+      "geometry_pass": true,
+      "passing_rows_preserved": true,
+      "external_clearance": true,
+      "old_cells": 2,
+      "fresh_cells": 4,
+      "reason": "",
+      "seconds": 2.894178858,
+      "geometry_work": 4891,
+      "native_work": 1,
+      "geometry_guidance_before": 2.7097965152396476e-09,
+      "geometry_guidance_after": 1.684352933882831e-09,
+      "shared_production_feedback": true,
+      "mesh_published": false
+    },
+    {
+      "context": "smooth_upper",
+      "stage": "surface_height_split",
+      "generation": 2,
+      "edge": [
+        5925,
+        61330
+      ],
+      "constructed": true,
+      "applied_private": true,
+      "geometry_pass": true,
+      "passing_rows_preserved": true,
+      "external_clearance": true,
+      "old_cells": 2,
+      "fresh_cells": 4,
+      "reason": "",
+      "seconds": 2.933488868,
+      "geometry_work": 4137,
+      "native_work": 1,
+      "geometry_guidance_before": 5.459751780216623e-10,
+      "geometry_guidance_after": 3.957773567871138e-10,
+      "shared_production_feedback": true,
+      "mesh_published": false
+    },
+    {
+      "context": "smooth_upper",
+      "stage": "surface_height_split",
+      "generation": 3,
+      "edge": [
+        5925,
+        61331
+      ],
+      "constructed": true,
+      "applied_private": true,
+      "geometry_pass": true,
+      "passing_rows_preserved": true,
+      "external_clearance": true,
+      "old_cells": 2,
+      "fresh_cells": 4,
+      "reason": "",
+      "seconds": 2.8739854240000002,
+      "geometry_work": 3961,
+      "native_work": 1,
+      "geometry_guidance_before": 7.256513359671603e-10,
+      "geometry_guidance_after": 1.6624760927833413e-10,
+      "shared_production_feedback": true,
+      "mesh_published": false
+    },
+    {
+      "context": "smooth_upper",
+      "stage": "surface_height_split",
+      "generation": 4,
+      "edge": [
+        0,
+        0
+      ],
+      "constructed": false,
+      "applied_private": false,
+      "geometry_pass": false,
+      "passing_rows_preserved": false,
+      "external_clearance": false,
+      "old_cells": 0,
+      "fresh_cells": 0,
+      "reason": "physical surface feedback has no complete geometry descent",
+      "seconds": 0.012506087,
+      "geometry_work": 1543,
+      "native_work": 3,
+      "geometry_guidance_before": 0,
+      "geometry_guidance_after": 0,
+      "shared_production_feedback": true,
+      "mesh_published": false
+    }
+  ],
+  "summary": {
+    "complete": true,
+    "contexts": 1,
+    "constructed": 0,
+    "clear_preserved_candidates": 0,
+    "production_target_certified": false,
+    "mesh_published": false,
+    "geometry_work": 1068945
+  },
+  "pins": 1666,
+  "useful_row_gain": false,
+  "usable_BL": false,
+  "speedup_established": false,
+  "decision": "Reject monotonic geometry-guidance veto;416retains independent strict certificates and records complete guidance scores.",
+  "comparison": "412same target reached14sampled feasible descendants and5passing columns after16edits;415stopped at4edits/zero feasible/zero columns. Shorter runtime omitted downstream work.",
+  "files": {
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved415_checkpoint_front_20261112T033751_4098575/status.json": "e63c79bc24c3364dac3f3dbaa5a6e289101dde0b37bdc91e11d252bfcab8a086",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved415_checkpoint_front_20261112T033751_4098575/pins.json": "33d215197966f3b523677d960cbfbde442fdbfb68a3a02cdc188481834c91607",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved415_checkpoint_front_20261112T033751_4098575/terminal_handles_actual.json": "18568e086e199c0d2c0ffbe67defdf3edc49f53442657f0b761f6ad770e0a025",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved415_checkpoint_front_20261112T033751_4098575/actual_bl_front.jsonl": "34b6257a7b13cbec8c91ccd73808336f427a2080d3cb67f43c2e50c559383d04",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved415_checkpoint_front_20261112T033751_4098575/actual_bl_surface_cavities.jsonl": "b514e3e127e5e73523a7d26fb2c284c5d852fd5c2f6f713d246dd110e996063a",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/source_snapshot415.json": "69a791a2220d1fa170576e12a3e481d46da96bfb4d73c48973c68d179b09f2cf"
+  }
+}

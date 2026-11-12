@@ -180,7 +180,7 @@ struct SurfaceFeedback {
   long double geometry_before=0,geometry_after=0;std::string why;
 };
 /*! A failed physical first row may request a coupled surface edit even when tangential edges are short.
- * Absolute geometry guidance only selects progress; complete certificates and contact admit the edit. */
+ * Geometry guidance is diagnostic; complete certificates and contact admit the edit. */
 inline SurfaceFeedback PrepareFirstRowSurface(State& s,Rows10& rows,World& world,const Face& key,
     double tolerance,double seconds,size_t maximum_work=SIZE_MAX) {
   Scope scope("DC15 physical surface feedback");SurfaceFeedback out;const auto start=Clock::now();
@@ -210,10 +210,21 @@ inline SurfaceFeedback PrepareFirstRowSurface(State& s,Rows10& rows,World& world
     for(unsigned k=0;k<3;++k) {
       Edge edge{key[k],key[(k+1)%3]};std::sort(edge.begin(),edge.end());
       const auto midpoint=dc10::Mid(NodePoint(s,edge[0]),NodePoint(s,edge[1]));
-      const auto projected=reference.Project(target->facet,midpoint);
-      const auto gap=Norm(Of(projected)-Of(midpoint));
-      if(!std::isfinite(gap))throw std::invalid_argument("physical surface feedback nonfinite edge guidance");
-      candidates.emplace_back(-gap,edge);
+      try {
+        const auto ids=Star(s,edge);
+        if(ids.empty()||ids.size()>MaximumCavityCells){out.why="physical surface feedback complete edge star exceeds bounds";continue;}
+        const auto support=PatchOf(s,ids);auto privateEdge=s.reference->PrivateParameters(support);
+        const auto& edgeReference=privateEdge?*privateEdge:*s.reference;
+        std::set<Id> incident;for(const auto& sf:support.surface)if(Has(sf.v,edge[0])&&Has(sf.v,edge[1]))incident.insert(sf.facet);
+        // A midpoint is an edge query, not an open-facet parameter. Preserve its exact incident support.
+        const auto projected=privateEdge?edgeReference.BindNewPoint({s.next_node,midpoint},incident,&edge).p:reference.Project(target->facet,midpoint);
+        const auto gap=Norm(Of(projected)-Of(midpoint));
+        if(!std::isfinite(gap))throw std::invalid_argument("physical surface feedback nonfinite edge guidance");
+        candidates.emplace_back(-gap,edge);
+      } catch(const std::exception& e) {
+        if(budget&&(budget->work_exhausted||budget->time_exhausted))throw;
+        out.why=std::string("physical surface feedback edge preparation: ")+e.what();
+      }
     }
     std::sort(candidates.begin(),candidates.end());
     for(const auto& candidate:candidates) {
@@ -242,8 +253,8 @@ inline SurfaceFeedback PrepareFirstRowSurface(State& s,Rows10& rows,World& world
         }
         if(!PreservePassingFirstHeights(old,fresh,s.heights,*s.reference,why))return false;
         const auto before=GeometryGuidanceExcess(old,*s.reference,0);
-        const auto next=GeometryGuidanceExcess(fresh,geometry,0,before.excess);
-        if(!before.complete||!next.complete||!(next.excess<before.excess)){why="physical surface feedback has no complete geometry descent";return false;}
+        const auto next=GeometryGuidanceExcess(fresh,geometry,0);
+        if(!before.complete||!next.complete||!(before.excess>0)){why="physical surface feedback lacks resolved nonplanar geometry demand";return false;}
         if(Seconds(start)>=seconds){why="physical surface feedback time limit before publication";return false;}
         // Private Apply does not update a Directory: rebuild from current cells and release before Apply.
         {Directory directory(world);bool clear=true;

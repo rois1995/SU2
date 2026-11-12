@@ -1,0 +1,855 @@
+{
+  "state": "actual_leading_edge_support_preparation_refusal",
+  "case": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved416_checkpoint_le_20261112T035824_4145858",
+  "status": {
+    "state": "terminal",
+    "exit_code": 0,
+    "seconds": 137.223539352417,
+    "pins_verified": true,
+    "changed": [],
+    "largest_sampled_individual_process_rss_bytes": 1761693696,
+    "rss_note": "sampled process RSS; not a whole-job peak"
+  },
+  "terminal": {
+    "actual_host_proc": true,
+    "all_owned_handles_terminal": true,
+    "live_owned_handles": [],
+    "sampled_identities": [
+      {
+        "pid": 4145970,
+        "start_ticks": 50034676
+      },
+      {
+        "pid": 4145971,
+        "start_ticks": 50034676
+      },
+      {
+        "pid": 4145972,
+        "start_ticks": 50034676
+      },
+      {
+        "pid": 4145973,
+        "start_ticks": 50034677
+      }
+    ],
+    "wrapper_excluded": {
+      "pid": 4145858,
+      "start_ticks": 50034408
+    },
+    "checked_unix": 1794456236.7139673
+  },
+  "pins": 1667,
+  "planning": {
+    "context": "leading_edge",
+    "stage": "surface_planning",
+    "maximum_requested_length": 0.9633974862098685,
+    "core_control_only": false,
+    "full_target_certified": false,
+    "geometry_work": 60
+  },
+  "initial": {
+    "context": "leading_edge",
+    "stage": "first_row_result",
+    "constructed": false,
+    "closure_vertices": 9,
+    "old_cells": 82,
+    "fresh_cells": 0,
+    "external_clearance": false,
+    "passing_rows_preserved": false,
+    "external_clearance_attempted": false,
+    "external_reason": "",
+    "class": "cap",
+    "reason": "cap-bound closure: 82 old cells",
+    "geometry_work": 1757085,
+    "seconds": 34.778383105,
+    "mesh_published": false
+  },
+  "completion": {
+    "context": "leading_edge",
+    "stage": "existing_completion",
+    "face": [
+      4219,
+      4220,
+      8059
+    ],
+    "first_row_route_succeeded": false,
+    "cavity": false,
+    "strict_height": false,
+    "external_clearance": false,
+    "external_clearance_attempted": false,
+    "old_cells": 0,
+    "fresh_cells": 0,
+    "height_reason": "",
+    "external_reason": "",
+    "cavity_reason": "target first child fails strict height or positivity",
+    "rejections": {
+      "insert: Native#D geometry-height incompatibility of the normal-row proposal at facet # cell # clearance/h#=-#: positiv": 1,
+      "relocate: no admissible candidate": 1
+    },
+    "geometry_work": 6042,
+    "seconds": 0.358978846,
+    "production_target_certified": false,
+    "mesh_published": false
+  },
+  "refusal": {
+    "context": "leading_edge",
+    "stage": "surface_height_split",
+    "generation": 0,
+    "edge": [
+      0,
+      0
+    ],
+    "constructed": false,
+    "applied_private": false,
+    "geometry_pass": false,
+    "passing_rows_preserved": false,
+    "external_clearance": false,
+    "old_cells": 0,
+    "fresh_cells": 0,
+    "reason": "Invalid mapped facet interior binding.",
+    "seconds": 0.000414774,
+    "geometry_work": 1,
+    "native_work": 0,
+    "geometry_guidance_before": 0,
+    "geometry_guidance_after": 0,
+    "shared_production_feedback": true,
+    "mesh_published": false
+  },
+  "surface": {
+    "context": "leading_edge",
+    "stage": "surface_height_result",
+    "splits": 0,
+    "descendants": 1,
+    "feasible_children": 0,
+    "outcome": "all_existing_splits_refused",
+    "coherent_front_certified": false,
+    "production_target_certified": false,
+    "mesh_published": false
+  },
+  "row": {
+    "context": "leading_edge",
+    "stage": "prepared_row_result",
+    "attempted": false,
+    "reason": "No new vertex has a completely feasible incident wall star.",
+    "mesh_published": false
+  },
+  "summary": {
+    "complete": true,
+    "contexts": 1,
+    "constructed": 0,
+    "clear_preserved_candidates": 0,
+    "production_target_certified": false,
+    "mesh_published": false,
+    "geometry_work": 1763142
+  },
+  "physical_foot_trials": [
+    {
+      "context": "leading_edge",
+      "stage": "physical_foot_proposal",
+      "face": [
+        4219,
+        4220,
+        8059
+      ],
+      "generation": 0,
+      "foot": 0,
+      "positive_cone": true,
+      "strict_height": false,
+      "external_clearance": false,
+      "plane_height_ratio": 169.08619370965766,
+      "height_relative_error": 168.08619370965766,
+      "height_measured": true,
+      "reason": "Native3D prescribed height fails at facet 10682 cell 303359 relative error 168.086194 > tolerance 0.100000",
+      "geometry_work": 1,
+      "production_target_certified": false,
+      "mesh_published": false
+    },
+    {
+      "context": "leading_edge",
+      "stage": "physical_foot_proposal",
+      "face": [
+        4219,
+        4220,
+        8059
+      ],
+      "generation": 0,
+      "foot": 1,
+      "positive_cone": true,
+      "strict_height": false,
+      "external_clearance": false,
+      "plane_height_ratio": 174.2906744504121,
+      "height_relative_error": 173.2906744504121,
+      "height_measured": true,
+      "reason": "Native3D prescribed height fails at facet 10682 cell 303359 relative error 173.290674 > tolerance 0.100000",
+      "geometry_work": 1,
+      "production_target_certified": false,
+      "mesh_published": false
+    },
+    {
+      "context": "leading_edge",
+      "stage": "physical_foot_proposal",
+      "face": [
+        4219,
+        4220,
+        8059
+      ],
+      "generation": 0,
+      "foot": 2,
+      "positive_cone": true,
+      "strict_height": false,
+      "external_clearance": false,
+      "plane_height_ratio": 126.16886594711299,
+      "height_relative_error": 125.16886594711299,
+      "height_measured": true,
+      "reason": "Native3D prescribed height fails at facet 10682 cell 303359 relative error 125.168866 > tolerance 0.100000",
+      "geometry_work": 1,
+      "production_target_certified": false,
+      "mesh_published": false
+    },
+    {
+      "context": "leading_edge",
+      "stage": "physical_foot_proposal",
+      "face": [
+        4219,
+        4220,
+        8059
+      ],
+      "generation": 0,
+      "foot": 3,
+      "positive_cone": true,
+      "strict_height": false,
+      "external_clearance": false,
+      "plane_height_ratio": 126.10315622548623,
+      "height_relative_error": 125.10315622548623,
+      "height_measured": true,
+      "reason": "Native3D prescribed height fails at facet 10682 cell 303359 relative error 125.103156 > tolerance 0.100000",
+      "geometry_work": 1,
+      "production_target_certified": false,
+      "mesh_published": false
+    },
+    {
+      "context": "leading_edge",
+      "stage": "physical_foot_proposal",
+      "face": [
+        4219,
+        4220,
+        8059
+      ],
+      "generation": 0,
+      "foot": 4,
+      "positive_cone": true,
+      "strict_height": false,
+      "external_clearance": false,
+      "plane_height_ratio": 187.0030777648756,
+      "height_relative_error": 186.0030777648756,
+      "height_measured": true,
+      "reason": "Native3D prescribed height fails at facet 10682 cell 303359 relative error 186.003078 > tolerance 0.100000",
+      "geometry_work": 1,
+      "production_target_certified": false,
+      "mesh_published": false
+    },
+    {
+      "context": "leading_edge",
+      "stage": "physical_foot_proposal",
+      "face": [
+        4219,
+        4220,
+        8059
+      ],
+      "generation": 0,
+      "foot": 5,
+      "positive_cone": true,
+      "strict_height": false,
+      "external_clearance": false,
+      "plane_height_ratio": 186.7088012426976,
+      "height_relative_error": 185.7088012426976,
+      "height_measured": true,
+      "reason": "Native3D prescribed height fails at facet 10682 cell 303359 relative error 185.708801 > tolerance 0.100000",
+      "geometry_work": 1,
+      "production_target_certified": false,
+      "mesh_published": false
+    },
+    {
+      "context": "leading_edge",
+      "stage": "physical_foot_proposal",
+      "face": [
+        4219,
+        4220,
+        8059
+      ],
+      "generation": 0,
+      "foot": 6,
+      "positive_cone": true,
+      "strict_height": false,
+      "external_clearance": false,
+      "plane_height_ratio": 71.76278965264694,
+      "height_relative_error": 70.76278965264694,
+      "height_measured": true,
+      "reason": "Native3D prescribed height fails at facet 10682 cell 303359 relative error 70.762790 > tolerance 0.100000",
+      "geometry_work": 1,
+      "production_target_certified": false,
+      "mesh_published": false
+    }
+  ],
+  "target_contributions": [
+    {
+      "context": "leading_edge",
+      "stage": "saved_target_contributions",
+      "vertex": 4220,
+      "flow_principal_density": [
+        105.05533126589627,
+        27.323864661212976
+      ],
+      "combined_principal_density": [
+        105.07480706019028,
+        28.437709966071903
+      ],
+      "combined_normal_density": 500000.00063667545,
+      "wall_profile_with_core_floor_principal_density": [
+        73.74715544193761,
+        28.43711680705851
+      ],
+      "components_additive": false,
+      "physical_height_placement_verified": false
+    },
+    {
+      "context": "leading_edge",
+      "stage": "physical_target_directions",
+      "facet": 16121,
+      "vertex": 4220,
+      "point": [
+        0.3002360963089399,
+        0.5200453571311154,
+        4.33501118322811e-17
+      ],
+      "curvatures": [
+        114.3568918337668,
+        3.9787933264619437
+      ],
+      "directions": [
+        [
+          0.023762745050465228,
+          0.04115995946926819,
+          -0.9988699563427438
+        ],
+        [
+          0.49941970989591394,
+          0.8650555722331578,
+          0.0475269430517597
+        ]
+      ],
+      "control_planning_directional_density": [
+        105.07480706864014,
+        28.437710983538675
+      ],
+      "direction_ok": true,
+      "carrier_rank": 0,
+      "smooth_normal_alignment_abs": 0.9999999999999996,
+      "core_control_only": false
+    },
+    {
+      "context": "leading_edge",
+      "stage": "saved_target_contributions",
+      "vertex": 8041,
+      "flow_principal_density": [
+        124.14005253320072,
+        35.24434234343364
+      ],
+      "combined_principal_density": [
+        124.14005253918843,
+        35.244342446785154
+      ],
+      "combined_normal_density": 500000.00083214167,
+      "wall_profile_with_core_floor_principal_density": [
+        73.90365119080438,
+        31.095469513062802
+      ],
+      "components_additive": false,
+      "physical_height_placement_verified": false
+    },
+    {
+      "context": "leading_edge",
+      "stage": "physical_target_directions",
+      "facet": 16122,
+      "vertex": 8041,
+      "point": [
+        0.3174504599914978,
+        0.5464102864298412,
+        0.006247298778510074
+      ],
+      "curvatures": [
+        67.04980568791032,
+        -0.047262143069098574
+      ],
+      "directions": [
+        [
+          -0.38732855527595095,
+          0.2513641118967521,
+          -0.8870133446111178
+        ],
+        [
+          0.5098507595157631,
+          0.860004658183997,
+          0.02107583742170135
+        ]
+      ],
+      "control_planning_directional_density": [
+        124.14005255306867,
+        35.244342456173044
+      ],
+      "direction_ok": true,
+      "carrier_rank": 0,
+      "smooth_normal_alignment_abs": 0.9999439837019557,
+      "core_control_only": false
+    },
+    {
+      "context": "leading_edge",
+      "stage": "saved_target_contributions",
+      "vertex": 18547,
+      "flow_principal_density": [
+        105.15678561320414,
+        27.957870746529967
+      ],
+      "combined_principal_density": [
+        108.00797542013107,
+        33.27133390624514
+      ],
+      "combined_normal_density": 500000.0001442553,
+      "wall_profile_with_core_floor_principal_density": [
+        72.53086825009241,
+        32.96933766403367
+      ],
+      "components_additive": false,
+      "physical_height_placement_verified": false
+    },
+    {
+      "context": "leading_edge",
+      "stage": "physical_target_directions",
+      "facet": 35412,
+      "vertex": 18547,
+      "point": [
+        0.3096281277347569,
+        0.5328396443956417,
+        -0.006286045178726608
+      ],
+      "curvatures": [
+        57.86581261440444,
+        -0.054767861402240235
+      ],
+      "directions": [
+        [
+          0.41589048330400546,
+          -0.20170172690665172,
+          -0.886764635774361
+        ],
+        [
+          0.4868329153575875,
+          0.8729881637666496,
+          0.029755309572673257
+        ]
+      ],
+      "control_planning_directional_density": [
+        108.00797548584192,
+        33.2713344789464
+      ],
+      "direction_ok": true,
+      "carrier_rank": 0,
+      "smooth_normal_alignment_abs": 0.9999439828860187,
+      "core_control_only": false
+    },
+    {
+      "context": "leading_edge",
+      "stage": "saved_target_contributions",
+      "vertex": 4221,
+      "flow_principal_density": [
+        108.24789795071203,
+        30.227657625053425
+      ],
+      "combined_principal_density": [
+        108.24789803934065,
+        30.227657615708946
+      ],
+      "combined_normal_density": 500000.0010388036,
+      "wall_profile_with_core_floor_principal_density": [
+        74.15836572266441,
+        28.755753419446325
+      ],
+      "components_additive": false,
+      "physical_height_placement_verified": false
+    },
+    {
+      "context": "leading_edge",
+      "stage": "physical_target_directions",
+      "facet": 29952,
+      "vertex": 4221,
+      "point": [
+        0.3081239399717753,
+        0.533708059667764,
+        3.585627612765475e-17
+      ],
+      "curvatures": [
+        88.59020791197918,
+        -0.324376458249989
+      ],
+      "directions": [
+        [
+          0.030199361316128593,
+          0.0523089603134023,
+          -0.9981742188851748
+        ],
+        [
+          0.4990718517981943,
+          0.8644530397828155,
+          0.06040056914443094
+        ]
+      ],
+      "control_planning_directional_density": [
+        108.2478980394921,
+        30.227657763918064
+      ],
+      "direction_ok": true,
+      "carrier_rank": 0,
+      "smooth_normal_alignment_abs": 0.9999999999999999,
+      "core_control_only": false
+    },
+    {
+      "context": "leading_edge",
+      "stage": "saved_target_contributions",
+      "vertex": 4221,
+      "flow_principal_density": [
+        108.26500623331967,
+        30.1663242962146
+      ],
+      "combined_principal_density": [
+        108.26500632190387,
+        30.166324286960887
+      ],
+      "combined_normal_density": 500000.00103880354,
+      "wall_profile_with_core_floor_principal_density": [
+        74.20636858780318,
+        28.631650712427625
+      ],
+      "components_additive": false,
+      "physical_height_placement_verified": false
+    },
+    {
+      "context": "leading_edge",
+      "stage": "physical_target_directions",
+      "facet": 10672,
+      "vertex": 4221,
+      "point": [
+        0.3081239399717753,
+        0.533708059667764,
+        3.585627612765475e-17
+      ],
+      "curvatures": [
+        115.06209600111177,
+        -0.24620474153953886
+      ],
+      "directions": [
+        [
+          0.02310313394509607,
+          0.040017432951590215,
+          -0.9989318546637102
+        ],
+        [
+          0.49945065810657135,
+          0.8651091782999373,
+          0.04620768051006319
+        ]
+      ],
+      "control_planning_directional_density": [
+        108.26500632199266,
+        30.16632443569688
+      ],
+      "direction_ok": true,
+      "carrier_rank": 0,
+      "smooth_normal_alignment_abs": 0.9999999999999998,
+      "core_control_only": false
+    },
+    {
+      "context": "leading_edge",
+      "stage": "saved_target_contributions",
+      "vertex": 18547,
+      "flow_principal_density": [
+        105.15935074627426,
+        27.94822083430592
+      ],
+      "combined_principal_density": [
+        108.01276335082498,
+        33.25578697873759
+      ],
+      "combined_normal_density": 500000.0001442553,
+      "wall_profile_with_core_floor_principal_density": [
+        72.54075747389967,
+        32.94757320680306
+      ],
+      "components_additive": false,
+      "physical_height_placement_verified": false
+    },
+    {
+      "context": "leading_edge",
+      "stage": "physical_target_directions",
+      "facet": 29962,
+      "vertex": 18547,
+      "point": [
+        0.3096281277347569,
+        0.5328396443956417,
+        -0.006286045178726608
+      ],
+      "curvatures": [
+        57.86523301656109,
+        -1.4970133280676412
+      ],
+      "directions": [
+        [
+          0.4156195116946773,
+          -0.20218748615494656,
+          -0.8867810563724403
+        ],
+        [
+          0.4870642699655556,
+          0.8728757879309866,
+          0.029261848314479533
+        ]
+      ],
+      "control_planning_directional_density": [
+        108.01276341657203,
+        33.25578755119653
+      ],
+      "direction_ok": true,
+      "carrier_rank": 0,
+      "smooth_normal_alignment_abs": 0.9999439828860187,
+      "core_control_only": false
+    },
+    {
+      "context": "leading_edge",
+      "stage": "saved_target_contributions",
+      "vertex": 4222,
+      "flow_principal_density": [
+        116.95086603907416,
+        34.14757835848418
+      ],
+      "combined_principal_density": [
+        116.95086610132756,
+        34.147578472996386
+      ],
+      "combined_normal_density": 500000.00094094424,
+      "wall_profile_with_core_floor_principal_density": [
+        74.66388608423514,
+        28.838226095370526
+      ],
+      "components_additive": false,
+      "physical_height_placement_verified": false
+    },
+    {
+      "context": "leading_edge",
+      "stage": "physical_target_directions",
+      "facet": 10662,
+      "vertex": 4222,
+      "point": [
+        0.3159555442090149,
+        0.5472733486937511,
+        2.83788453073701e-17
+      ],
+      "curvatures": [
+        115.7761382191809,
+        -0.24821566549309224
+      ],
+      "directions": [
+        [
+          0.023125599098427183,
+          0.04005634532501561,
+          -0.9989297752422549
+        ],
+        [
+          0.4994496184241015,
+          0.8651073774518174,
+          0.04625261219064364
+        ]
+      ],
+      "control_planning_directional_density": [
+        116.95086610139967,
+        34.1475785889936
+      ],
+      "direction_ok": true,
+      "carrier_rank": 0,
+      "smooth_normal_alignment_abs": 0.9999999999999994,
+      "core_control_only": false
+    },
+    {
+      "context": "leading_edge",
+      "stage": "saved_target_contributions",
+      "vertex": 4220,
+      "flow_principal_density": [
+        104.8102352046452,
+        28.249438999004404
+      ],
+      "combined_principal_density": [
+        104.84662447855735,
+        29.26779394322427
+      ],
+      "combined_normal_density": 500000.00063667545,
+      "wall_profile_with_core_floor_principal_density": [
+        73.74715544193754,
+        28.437116807058686
+      ],
+      "components_additive": false,
+      "physical_height_placement_verified": false
+    },
+    {
+      "context": "leading_edge",
+      "stage": "physical_target_directions",
+      "facet": 35411,
+      "vertex": 4220,
+      "point": [
+        0.3002360963089399,
+        0.5200453571311154,
+        4.33501118322811e-17
+      ],
+      "curvatures": [
+        114.35689183377222,
+        3.978793326462895
+      ],
+      "directions": [
+        [
+          -0.023762745050497556,
+          -0.04115995946927777,
+          -0.9988699563427426
+        ],
+        [
+          0.4994197098959202,
+          0.8650555722331528,
+          -0.04752694305178416
+        ]
+      ],
+      "control_planning_directional_density": [
+        104.8466244963383,
+        29.26779489884202
+      ],
+      "direction_ok": true,
+      "carrier_rank": 0,
+      "smooth_normal_alignment_abs": 0.9999999999999996,
+      "core_control_only": false
+    },
+    {
+      "context": "leading_edge",
+      "stage": "saved_target_contributions",
+      "vertex": 4220,
+      "flow_principal_density": [
+        104.8200164144234,
+        28.21312400801315
+      ],
+      "combined_principal_density": [
+        104.85612751807483,
+        29.23372964169786
+      ],
+      "combined_normal_density": 500000.0006366754,
+      "wall_profile_with_core_floor_principal_density": [
+        73.75118422371119,
+        28.42666659472193
+      ],
+      "components_additive": false,
+      "physical_height_placement_verified": false
+    },
+    {
+      "context": "leading_edge",
+      "stage": "physical_target_directions",
+      "facet": 29972,
+      "vertex": 4220,
+      "point": [
+        0.3002360963089399,
+        0.5200453571311154,
+        4.33501118322811e-17
+      ],
+      "curvatures": [
+        114.35177766776496,
+        -0.24421333441997622
+      ],
+      "directions": [
+        [
+          -0.023080911088880378,
+          -0.03997894026609603,
+          -0.9989339096649522
+        ],
+        [
+          0.4994516855794591,
+          0.8651109579992292,
+          -0.04616323343845056
+        ]
+      ],
+      "control_planning_directional_density": [
+        104.85612753569372,
+        29.23373059902085
+      ],
+      "direction_ok": true,
+      "carrier_rank": 0,
+      "smooth_normal_alignment_abs": 0.9999999999999994,
+      "core_control_only": false
+    },
+    {
+      "context": "leading_edge",
+      "stage": "saved_target_contributions",
+      "vertex": 8059,
+      "flow_principal_density": [
+        105.57977536975908,
+        28.120035407492303
+      ],
+      "combined_principal_density": [
+        108.22986211781394,
+        33.038164331087096
+      ],
+      "combined_normal_density": 500000.0002802106,
+      "wall_profile_with_core_floor_principal_density": [
+        72.09416961806355,
+        32.71280873740436
+      ],
+      "components_additive": false,
+      "physical_height_placement_verified": false
+    },
+    {
+      "context": "leading_edge",
+      "stage": "physical_target_directions",
+      "facet": 10682,
+      "vertex": 8059,
+      "point": [
+        0.3017496226344942,
+        0.5191715504108375,
+        0.006325069808505389
+      ],
+      "curvatures": [
+        57.50801914441859,
+        -1.4849020459201085
+      ],
+      "directions": [
+        [
+          -0.41560603379828454,
+          0.20221156573373,
+          -0.8867818826261464
+        ],
+        [
+          0.487075744725698,
+          0.8728702052761301,
+          -0.02923736720556678
+        ]
+      ],
+      "control_planning_directional_density": [
+        108.22986225318722,
+        33.038165018035514
+      ],
+      "direction_ok": true,
+      "carrier_rank": 0,
+      "smooth_normal_alignment_abs": 0.9999439821334482,
+      "core_control_only": false
+    }
+  ],
+  "usable_BL": false,
+  "next": "Use complete incident-edge binding for midpoint guidance instead of facet-interior projection; do not relax binding validation, height, geometry or cavity limits.",
+  "files": {
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved416_checkpoint_le_20261112T035824_4145858/status.json": "3c0b7f5d8837e41700e21b37b208c599467961547e24c089d173bd49fa9883d4",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved416_checkpoint_le_20261112T035824_4145858/pins.json": "77833e23a1bfa7b7dec8fd685c19d72121e96033ff7d8c557bfa9e1c3ca96036",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved416_checkpoint_le_20261112T035824_4145858/terminal_handles_actual.json": "7d7fad8c19f162406ad2876a5ba37c0f82a09b8955d9ef8cd7779c04b8dc0be4",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved416_checkpoint_le_20261112T035824_4145858/actual_bl_front.jsonl": "55c73ba8151bbf6fc400468520094334d42c84f06cd986d9deac9632ec9a8a1d",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved416_checkpoint_le_20261112T035824_4145858/actual_bl_surface_cavities.jsonl": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

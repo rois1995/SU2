@@ -12,24 +12,55 @@ all prior failures/provenance. This handoff overrides historical live handles/ne
 
 ## Current source/build/workload
 
-Build415 is the ONE owned heavy workload, frozen. Execsession33651;
-actual-host wrapper4086160/start49878944, ninja4086172/start49878963.
-R/build415_status.json, source_pins/log/resources/observed_handles receipts.
-414 terminal PASS214.188s/pins/actual handles verified; CFD e336de43…/testd028a97d… .
-414serial terminal6.386s:28/30cases8404/8406assertions. Direct feedback passes, but
-integrated retry hit missing fixture marker-name table; old Growth12 failure recurs.
-All actual handles terminal before adding marker table in fixture for415. Only fixture
-setup changed; production source unchanged. Exact414fixture archived with manifest.
-413 terminal FAILED66.135s/pins intact; its new fixture needed layer2d::WallFaces and
-state.mapped=true. Exact six-file413sources in R/source_snapshots413/source_snapshot413.json.
-DO NOT EDIT until actual owned415 compilation is terminal. Do not run old binaries.
-All412 build/case handles terminal before413 edits. No MPI/actual stage run yet for413.
+Build417 is the ONE owned heavy workload, frozen. Execsession95488;
+actual-host wrapper4167812/start50093294, ninja4167813/start50093310.
+R/build417_status.json/source_pins/log/resources/observed_handles. DO NOT EDIT pinned sources.
+Only BLEvent15 midpoint ranking changed after416LE actual handles were verified terminal.
+416LE TERMINAL/PASS137.224s, case R/cases/curved416_checkpoint_le_20261112T035824_4145858;
+R/leading_edge416_assessment.json. Planning max.963397<1.8 but R2closure82oldcells.
+Feedback aborts BEFORE any edge trial with 'Invalid mapped facet interior binding'.
+417uses existing BindNewPoint with complete incident-edge support for midpoint guidance,
+not single-facet interior Project. Per-edge preparation refuses independently unless
+resource exhaustion; strict actual split/geometry/height/body gates stay. No binding
+validation relaxation or new metric. Exact416BLEvent snapshot/source_snapshot416 retained.
+Smooth416 TERMINAL/PASS281.331s/all1667pins/actual handles verified; case
+R/cases/curved416_checkpoint_front_20261112T034756_4121979. Shared production helper
+restores16edits→21descendants/14sampled-feasible/5passingcolumns/25cells, all25q/Jbad,
+repair net0. Seven repair payloads BYTEIDENTICAL412; independent q/Jerror<=1.665e-16.
+Six certified edits have nondecreasing geometry guidance:415veto was unjustified.
+This qualifies bounded shared preparation, not full RunEvent coverage/high-band path,
+usable BL or a speedup. R/front416_assessment.json/surface_feedback416_qualification.json.
+Build416 PASS216.226s/pins/actual handles terminal; CFD
+`0539b4371abc454fede0b50b76b8fa507eee6ce857174afc3adc9db34f1ce886`;
+test `8c6f4ab7dc86bf58485f9af6dbb0e96934a0e3fb07260f8c0254d54836a7f8cc`.
+Serial41629/30cases8451/8452assertions: affected direct/integrated checks PASS,
+old Growth12dependency exception OPEN.415MPI6one milestone reused for unchanged
+serial guard/shared constraint paths; not nativeMPI BL generation.
 
-Active413: connect failed physical first-row construction to existing bounded coupled
+415actual TERMINAL/PASS145.229s, all pins/actual handles terminal; case
+R/cases/curved415_checkpoint_front_20261112T033751_4098575. Negative outcome:
+4edits→5descendants,0sampled-feasible/0columns; all further candidates refused solely
+by added geometry-guidance descent veto. R/surface_feedback415_assessment.json.
+This veto is REJECTED:412same target reached14sampled-feasible/5columns after16edits.
+Shorter wall time omitted construction/repair, NOT a speedup. Source9abbe04670 and
+exact pre416BLEvent snapshot/source_snapshot415 retained.416removes only the extra
+monotonic veto; guidance stays telemetry, strict certificates/budgets unchanged.
+
+Build415 PASS214.195s, pins/actual handles verified; CFD e336de43…/teste8b5ff83… .
+Serial41529/30cases8445/8446assertions: new direct/integrated feedback checks PASS;
+old Growth12dependency failure persists. ONE MPI6PASS6.469s everyrank, reused for
+unchanged guarded/shared paths in416; no nativeMPI BL-generation qualification.
+Implementation9abbe04670 PUSHED but monotonic-veto variant NOT production-qualified.
+Preserved413compilefailure66.135s/test namespace+mapped flag, exact six sources.
+414buildPASS214.188s/serialFAIL6.386s28/30cases (missing fixture marker table plus
+Growth12); exact fixture archived.415corrected only fixture metadata, CFD bitidentical414.
+All old actual handles terminal before each edit. No extra MPI/actual campaign for414.
+
+Active413–416: connect failed physical first-row construction to existing bounded coupled
 surface edits and affected-support coordinated R2 retry. New PrepareFirstRowSurface
 shares actual diagnostic operations with production. Ranked midpoint projection gap
-is only ordering; zero-gap edges remain eligible. Complete geometry-guidance descent
-selects progress, but full patch geometry/positive cells/passing heights/registered
+is only ordering; zero-gap edges remain eligible. Complete geometry guidance is telemetry (the415descent veto was rejected);
+full patch geometry/positive cells/passing heights/registered
 identities/global Directory contact/resource admission independently authorize Apply.
 Both existing ColumnSplit paths accept this physical preparation admission; default
 callers retain metric admission. Sector/fan cases outside supported transactions
@@ -44,14 +75,15 @@ RunEvent retains rejected provisional mesh/unleased geometry and stops before gr
 if first-row coverage is incomplete. Shared publication/field transport/directions
 are retained. Actual saved-context probe now invokes production feedback, not DIYsplit.
 
-Qualification PENDING: source review found no concrete production acceptance defect;
-new serial checks require a successful constrained curved edit and a bounded completion
-route that reaches feedback+R2. Test namespace/mapped flag need correction after frozen
-build. Then focused serial, ONE MPI milestone and SAME saved-target actual M6 stage.
-Keep open411/412Growth12 'surface dependencies changed' failure; do not weaken guard or
-infer causality without evidence. No full retry before credible stage outputs.
+Bounded qualification: affected serial direct/integrated checks pass; ONE415MPI
+milestone passes,416smooth actual preparation matches412. Source review found no
+concrete production acceptance defect. Leading-edge actual validation remains frozen.
+Full RunEvent coverage/high-band trajectory is NOT established; the five-column
+trial is the historical low-band diagnostic. Growth12failure stays OPEN; no full
+workflow retry before credible stage outputs. Next integration should exercise actual
+production first-row coordination from the saved target, not repeat fixed25cell polish.
 
-## Last completed evidence (412)
+## Saved regression comparison (412)
 
 Implementation525ee0458a, evidence17da23a97c, handoff0aa1607653 PUSHED to authorized
 fork origin github.com/rois1995/SU2.git, branch codex/native-3d-bl.
