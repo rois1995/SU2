@@ -11,7 +11,29 @@ retains all failures, prior handles, normalization and rejected alternatives. Th
 
 ## Current frozen workload and provenance
 
-NO owned heavy workload.430 actual cavity diagnostic TERMINAL/PASS146.812s/608082assertions.
+NO owned heavy workload.431 nativeMPI6 surface stage TERMINAL/PASS490.279s diagnostic,
+surface_prepared=false. Saved396target → existingPrepareSurface, no production change.
+Case R/cases/curved431_saved_target_surface_mpi6_20261112T080701_534595;
+launcher R/check_saved_surface431.py; execsession82847 TERMINAL; allactualworkers and
+wrapper verifiedterminal, allcasepins verified. Build431PASS212.186s,
+allpins/actualhandles terminal; production CFD unchanged428, test
+1f96caa91a56dc0322b380c7ec24f59dbed13634fa43e71ee8a8f5b84d9366c7.
+Original6partitions, same233220work/388.8s/12GiB,600s wrapper; noCFD/metric recompute.
+Input/output/acceptance in residualcavityhandbook's nativeMPI431section.
+R/surface_stage431_assessment.json:60546points/301183positive tets/corepresent,
+globalIDunique/sharednodalcoords+tensorsbitexact. Stage389.056s,784collapses,
+5104work,15980cached/285203unknown,0split/0passes.134geometrybad/3sizebad PARTIAL,
+allq/J/heightsunmeasured. Targetload42.048s/import.472s; summedrankCPU2321.204s
+includespolling, collective/electiontimers overlap and are nottotalwait. Largest
+sampled treeRSS4.879GB/individual.941GB, nottruephysicalpeak; no resourcepressure.
+MPI gave1.212x commits versusserial428, notsurface readiness. Geometryworkmax/min13.23.
+Sourceaudit confirms fullcensus+drainedfrontier required beforecoarsen→refine;
+geometryqueue unavailablewhilecoarsening. Seed<=16IDs/rank on global!any; immediate
+changed-cell updates are notwholemeshrescans. Seed22.543s/rank does NOTprove interior
+measurement dominated389s. Next localize seed/update work by wall/otherboundary/
+interior and queue-refill/remaininginitialIDs before changing census/eligibility.
+Do not addoperators/scheduler, raisebudgets or relaxgates from partialcounts.
+430 actual cavity diagnostic TERMINAL/PASS146.812s/608082assertions.
 Case R/cases/curved430_cavity_planning_20261112T074752_490678;
 launcher R/check_cavity_planning430.py; execsession20185 TERMINAL. Allactualhandles
 includingwrapper and allcasepins verified. Build430PASS236.191s,
@@ -30,8 +52,8 @@ Smoothcollapse and LE split pass selectedprivatepreflights, not published/accept
 Recordedcollapse's geometry regression reproduced. LE split reducesgeometrydebt but
 q/J-bad3→6; laterqualityclosure remains. LEcollapse reducesdebt but currentCoarsen
 zero-debtgate refuses. Moveproposalconstrainedtozero is INCONCLUSIVE, not a general
-movementfailure. No newoperator/admissionchange justified. Next test existingnativeMPI
-surfacecapacity from396on original6partitions before selecting phase-order changes.
+movementfailure. No newoperator/admissionchange justified.431tested nativeMPI surface
+capacity; its incomplete census/phase progression is the active blocker above.
 428fullW TERMINAL/PASS491.507s as diagnostic, NOT readiness.
 All pins and actual PID/start identities terminal. Case
 R/cases/curved428_checkpoint_surface_20261112T064413_336601;
@@ -43,9 +65,9 @@ progress improved but no complete requiredsurface output. Metric107.622s,reconst
 105.631s,seed48.536s,other71.488s; upper77.127s/guidance68.535s overlap. Collision6s/
 9builds notdominant. SampledindividualRSS3.687GB notwholepeak; admission11.257GB<12GiB.
 Next blocker is initialcoarsening/census before refinement, not proven missingoperators.
-Do not raisebudgets, skipconstraints or launch another microoptimization. After aligning
-cavityprobe to currentnodal authority, test existing operators on actual residuals;
-assess existing nativeMPI surface-stage capacity before selecting ordering changes.
+Do not raisebudgets, skipconstraints or launch another microoptimization.430aligned
+the probe to currentnodal authority and demonstrated existing operator preflights;
+431tested nativeMPI capacity and remains blocked before refinement; see currentaudit.
 
 ONE latest inspection artifact saved: case/inspection/rejected_surface428_nodal_witness.vtu
 (37.693MB/60683points/301546tets), script/README/manifest alongside. ALLcoords/cores match

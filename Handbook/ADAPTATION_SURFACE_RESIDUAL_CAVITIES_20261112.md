@@ -100,3 +100,74 @@ Do not add an operator or infer that surface repair is impossible. Next use exis
 nativeMPI surface preparation from the complete396 target/original6partitions to
 measure construction/census capacity before selecting an ordering change. Keep
 388.8s/233220work/12GiB and all constraints; no CFD/normalization or full-workflow retry.
+
+## NativeMPI surface-stage integration431
+
+Input is the original six CFD partitions and all six qualified396 checkpoint files,
+not the evolved serial428 mesh. Existing checkpoint layout checks must match each
+rank before restoration. Restore selected CORE into solver metric storage, retain
+the full/base/history/Option-A policy, then call collective ImportGeometry and
+the existing PrepareSurface directly. No ComputeMetric, StartSolver, normalizer,
+serial FIRST_ROW State or RunEvent. No production transition mode or config option.
+
+Use the existing RunEvent surface work/time formula, deriving wall edges from the
+replicated immutable requested facets (avoids halo edge overcounting). Original
+case values remain233220work/388.8s/native5400s and12GiB per rank; the existing600s
+stage wrapper stays unchanged. Engine owns its surface atlas deadline and admits
+the retained policy/reference/input maps/donors plus geometry scratch and capture.
+Do not accidentally impose the separate300s diagnostic chord budget.
+
+All ranks enter setup/import/failure votes and PrepareSurface, including empty
+owners. Save one rank-named exit NativeStageCapture, local timings/counters and
+readiness flags. Verify exact positivity and transported core, immutable target
+profile/core/radius/tangent scale and unchanged CFD state. Keep local point counts
+separate from a later union of saved global IDs; summed local counts duplicate
+partition-interface points. Tracked collectives and CPU are not total MPI wait.
+
+A passing test wrapper may contain a failed surface stage. Credible stage3 output
+requires surface_prepared=true and complete native readiness evidence, then an
+independent current-state reload with the external complete396 policy/authority.
+Neither that provisional output nor MPI engine execution proves first height,
+layers, strict final quality, transfer or nativeMPI BL generation. This milestone
+tests existing distributed surface capacity before changing ordering or operators.
+
+Actual431 TERMINAL/PASS490.279s diagnostic, everyrank6assertions; surface_prepared=false.
+Allsource/build/input pins/actualhandles verified, including wrapper. Offline union
+checks60546globalpoints/301183uniquecells,1144186bitexact repeatednodal coordinate/
+tensor checks. Everycell remains positive with currentcore. Complete six native
+owned/donor/parameter shards retained with hashes; no successful stage checkpoint.
+
+At389.056s surface time:784collapses/5104work/15980cachedcells,285203unknown,
+0completedpasses/0splits. Serial428 at389.594s:647/3650/12352. This is only1.212x more
+collapses with six ranks and2321.204summedrankCPU seconds, versus388.952serialCPU;
+CPU includes polling and the ownership/queue trajectories differ. Geometry134bad/
+size3bad are PARTIAL, not net churn or proof of deterioration. Allq/J/heights unknown.
+Nominal500k target and prior396 estimate461495.991 remain unchanged input policy;
+no post-construction complexity assessment or BL coverage is claimed.
+
+Targetload42.048s/import.472s maxima; other setup/output is not separately attributed.
+Geometryworkmax/min13.23 (15.756M versus1.191M). Reconstruction wall118.31s/rank has
+different timer coverage from localCPU7.10–37.88s; subtraction is not total wait.
+Upper43.695s/guidance36.834s on rank5 overlap; scope4.928/facet15.090/traversal23.493s
+are nested. Partial tracked collective timers and broad elections also overlap.
+Sampled process-treeRSS4.879GB, individual.941GB; not a true physical memory peak.
+
+The source requires every owned cell's cached row and a complete census before the
+coarsening direction changes. seed_next refills<=16IDs/rank at globalqueue exhaustion;
+geometry-demand queue insertion requires !coarsening. Current exit queues are empty,
+but the actual stop is a geometry/private-work deadline; this does not prove an idle
+last round or that interior seeding caused the timeout. Seed22.543s and updates46.4s
+perrank are nested phase costs;5780changed-cell updates are not repeated global scans.
+Requested-wall action eligibility differs from the whole-owned census contract.
+Before changing it, localize existing seed/update work and remaining initial IDs
+by requested wall, other boundary and interior. Omitting rows or neutralizing shared
+edge values without adapting that contract is unsafe. No ordering fix is selected.
+
+The connected design question is whether surface readiness can use a complete
+requested-wall census with complete adjacent cavities obtained from the existing
+Directory, instead of inheriting the full-volume length census. This needs a proof
+through Selection's incidence/shared-edge cache, changed-cell invalidation, complete
+publication and the independent full geometry/height checks. It must remain a
+SurfacePlanning-only contract; full-target acceptance still measures the whole mesh.
+Establish coverage and actual work attribution before implementing this hypothesis;
+do not merely skip interior IDs, forge neutral shared lengths or mark them certified.

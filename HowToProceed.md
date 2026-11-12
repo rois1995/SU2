@@ -14,16 +14,13 @@ Read currenthandoff before historical sections.428batchplanning is qualified/pus
 Fullsame-target surface integration still fails388.8s:647collapses,0splits,12352cached/
 289194unknown. Better throughput has not produced credible surface readiness.
 
-Next align isolatedcavityprobe with transported CURRENT nodal CavityMetricSource;
-427original-P1 field is a control, not productionauthority.428actualprefix already
-uses realauthority and passesexactoutputs. Then test existing split/collapse/relocation/
-reconnection on representative currentresiduals and inspect initialcoarsening blocking
-required geometry/refinement. Assess existing nativeMPI surface-stage capacity before
-changing ordering. For a faithful cavity test, instantiate CavityMetricSource on the loaded current
-Owned map and use existing ImportMetricSamplesLocal/ImportCellsLocal with complete
-current-cavity rows; keep their sensor values. Do not bootstrap/reinterpolate from
-old original-P1 donors. Then use the SAME imported batch and existing FrozenField
-SurfacePlanning scope, current parameters and original full396policy.
+430aligned the isolated probe with transported CURRENT nodal CavityMetricSource;
+427original-P1 field remains a control, not productionauthority.430uses localimports
+with complete current-cavity rows and their sensor values, matching admitted batches,
+SurfacePlanning scope, current parameters and complete396policy. Do not bootstrap
+evolved cells from old original-P1 donors.428actualprefix already uses realauthority
+and passesexactoutputs.431has tested existing nativeMPI surface-stage capacity;
+read the handoff for actual frozen handles and current evidence.
 No newoperator/scheduler, raisedbudget, skippedcleanup or relaxedgate
 from this outcome alone. No firstrow/growth/fullworkflow from incomplete W.
 
@@ -31,9 +28,13 @@ from this outcome alone. No firstrow/growth/fullworkflow from incomplete W.
 collapse and LE split pass private preflights; the saved refused collapse reproduces
 its geometry regression. No missing primitive is established. LE split adds q/Jdebt
 and strict heights remain absent; no accepted BL. The tested move's constrained
-proposal is zero, so it says nothing general about motion. Next assess existing
-nativeMPI surface-stage capacity from complete396/original6partitions before an
-ordering or admission-policy change. See
+proposal is zero, so it says nothing general about motion.431MPI6 gives784collapses
+versus647serial at the same surface deadline, but still no completed census/pass or
+split. AllnativeMPI output shards preserve positivity/currentcore/sharednodal values;
+not usableBL. Next localize seed/update work and remaining initial IDs by requested
+wall, other boundary and interior, plus queue-refill events, before changing the
+whole-owned census/eligibility contract. Seedtime22.543s alone does not establish
+interiorwork as the389s bottleneck. No newoperator/scheduler or gatechange. See
 [actual cavity evidence](Handbook/ADAPTATION_SURFACE_RESIDUAL_CAVITIES_20261112.md).
 
 One latest full rejected mesh+core/composednodalwitness VTU is in full428case/inspection,
@@ -41,7 +42,7 @@ linked byhandoff, with knownflags0/NaN q/J/geometry. Pointwisejoin verified; no 
 available. Nativefailedstate plus full396policy retained. This is not acceptedBL or
 a reusable successfulstage.
 
-## Next stage2 output
+## Preserved stage2 evidence
 
 The difficult-edge measurement blocker is resolved by build394. Existing region
 reuse plus earlier use of the unchanged interior stationarity criterion lets the

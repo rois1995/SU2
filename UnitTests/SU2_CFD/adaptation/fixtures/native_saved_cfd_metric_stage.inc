@@ -154,3 +154,80 @@ TEST_CASE("Saved native target reloads in a fresh process without recomputing CF
   CHECK(std::abs(actual-expected)<=2e-9*expected+2e-12);
   out.close();REQUIRE(bool(out));driver.Finalize();
 }
+
+TEST_CASE("Saved complete target drives the existing native MPI surface stage without CFD advancement", "[.][NativeSavedTargetSurfaceStage3D]") {
+  const auto* path=std::getenv("SU2_NATIVE_FROZEN_CONFIG");const auto* directory=std::getenv("SU2_NATIVE_FROZEN_SENSOR3D");REQUIRE(path);REQUIRE(directory);
+  std::string configPath(path);SavedNativeMetricDriver driver(configPath.data(),1,SU2_MPI::GetComm());World world;
+  auto& config=driver.Config();auto& flow=driver.Flow();auto& geometry=driver.Geometry();auto& reference=driver.Reference();
+  const auto ceiling=config.GetAdap_Native_MemoryLimit();CLocalFailure failure;SU2NativeTargetCheckpoint3D::Checkpoint checkpoint;
+  std::vector<std::array<double,5>> before(geometry.GetnPointDomain());
+  for(size_t p=0;p<before.size();++p)for(unsigned k=0;k<5;++k)before[p][k]=SU2_TYPE::GetValue(flow.GetNodes()->GetSolution(p,k));
+  const auto loadStart=world.seconds();
+  try {checkpoint=SU2NativeTargetCheckpoint3D::Read(std::string(directory)+"/target_rank"+std::to_string(world.rank)+".bin",reference,config,ceiling);}
+  catch(const std::exception& e){failure.Set(3,0,e.what());}
+  auto elected=world.elect(failure);if(elected.any)throw std::runtime_error(elected.message);
+  flow.RestoreNativeMetricFamily3D(&geometry,config,reference,checkpoint.family,checkpoint.pre_complexity,checkpoint.final_complexity,checkpoint.bracketed);
+  const auto family=flow.GetNativeMetricFamily3D();REQUIRE(family);CheckSavedProfileAgreement(*family);
+  const double loadSeconds=world.seconds()-loadStart;const auto policy=family->first_row;
+  const auto fullProfile=SU2NativeTargetCheckpoint3D::detail::State(*policy->full),baseProfile=SU2NativeTargetCheckpoint3D::detail::State(*policy->base);
+  const double radius=double(policy->A->radius),core=policy->core,tangentScale=policy->inherited_tangent_scale;
+  const auto caller=transfer_memory::Add(ReferenceStorageBytes(reference),family->ResidentBytes(),size_t(128)<<20);
+  ImportedGeometry imported;BridgeStats importStats;std::string reason;
+  const auto importStart=world.seconds();
+  const bool importedOK=ImportGeometry(config,geometry,&flow.GetNodes()->GetMetric(),reference,imported,reason,importStats,ceiling,caller);
+  if(!importedOK)throw std::runtime_error(reason); // ImportGeometry has already elected its collective failure.
+  const double importSeconds=world.seconds()-importStart;
+  const auto retained=transfer_memory::Add(caller,OwnedStorageBytes(imported.cells),transfer_memory::Bytes(imported.original));
+  EngineOptions options;options.memory_ceiling=ceiling;options.caller_bytes=retained;options.timings=true;
+  options.surface_tolerance=SU2_TYPE::GetValue(config.GetAdap_Hausd());options.wall_heights.tolerance=SU2_TYPE::GetValue(config.GetAdap_BL_FirstHeightTol());
+  for(unsigned short w=0;w<config.GetnAdap_BL();++w) {
+    const auto& spec=config.GetAdap_BL(w);auto marker=std::find(reference.marker_names.begin(),reference.marker_names.end(),spec.marker);
+    if(marker==reference.marker_names.end())failure.Set(3,0,"Saved surface stage lacks requested wall marker.");
+    else options.wall_heights[int(marker-reference.marker_names.begin())]=SU2_TYPE::GetValue(spec.firstHeight);
+  }
+  std::set<Edge> wallEdges;
+  for(const auto& face:reference.facets)if(options.wall_heights.count(face.marker))for(unsigned k=0;k<3;++k) {
+    Edge edge{face.v[k].id,face.v[(k+1)%3].id};std::sort(edge.begin(),edge.end());wallEdges.insert(edge);
+  }
+  // Same global surface work/time policy as RunEvent; replicated immutable facets avoid halo-edge overcounting.
+  const auto globalCells=CPassiveComm::Allreduce(uint64_t(imported.cells.size()),CPassiveComm::Op::SUM,world.comm);
+  const auto configuredWork=size_t(config.GetAdap_Native_Max_Work());
+  const auto eventWork=configuredWork?configuredWork:std::max(size_t(4096),transfer_memory::Mul(size_t(globalCells),64));
+  options.maximum_work=std::min(eventWork,std::max(size_t(8192),transfer_memory::Mul(wallEdges.size(),4)));
+  const double eventSeconds=SU2_TYPE::GetValue(config.GetAdap_Native_Max_Time());
+  const double reserve=std::min(.5*eventSeconds,std::max(120.,.1*eventSeconds));options.maximum_seconds=.08*(eventSeconds-reserve);
+  options.geometry_workspace_bytes=transfer_memory::Add(std::max(policy->full->GeometryWorkspaceBytes(),policy->base->GeometryWorkspaceBytes()),size_t(16)<<20);
+  options.geometry_reservation=[&](SU2NativeGeometry::AtlasBudget& budget){return policy->ReserveGeometry(budget);};
+  NativeStageCapture capture;bool captured=false;options.stage_observer_bytes=NativeStageCapture::limit;
+  options.stage_observer=[&](const StageProgressView& view){if(std::string(view.stage)=="exit"){capture.Save(view,world.rank,"surface");captured=true;}};
+  elected=world.elect(failure);if(elected.any)throw std::runtime_error(elected.message);
+  const auto started=world.seconds();
+  const auto prepared=PrepareSurface(world,imported.cells,imported.original,*reference.original,
+      [&](Node node,const PlanarReference& g,Tensor sensor){return policy->BoundaryGuidance(node,g,sensor,reference.marker_names);},options);
+  const double stageSeconds=world.seconds()-started;std::set<Id> points;uint64_t positive=0,sensors=0;
+  failure=CLocalFailure{};
+  for(const auto& row:prepared.cells) {
+    const auto& v=row.second.cell.v;
+    if(Orientation(v[0].p,v[1].p,v[2].p,v[3].p)>0)++positive;
+    sensors+=row.second.sensor_present;for(auto n:v)points.insert(n.id);
+  }
+  if(!captured||positive!=prepared.cells.size()||sensors!=prepared.cells.size())failure.Set(3,0,"Surface stage lacks complete valid captured current nodal state.");
+  for(size_t p=0;p<before.size();++p)for(unsigned k=0;k<5;++k)if(SU2_TYPE::GetValue(flow.GetNodes()->GetSolution(p,k))!=before[p][k])failure.Set(3,0,"Surface stage changed the saved CFD seed.");
+  if(!(SU2NativeTargetCheckpoint3D::detail::State(*policy->full)==fullProfile)||!(SU2NativeTargetCheckpoint3D::detail::State(*policy->base)==baseProfile)||double(policy->A->radius)!=radius||policy->core!=core||policy->inherited_tangent_scale!=tangentScale)
+    failure.Set(3,0,"Surface stage changed the saved target profile.");
+  elected=world.elect(failure);if(elected.any)throw std::runtime_error(elected.message);
+  const auto& s=prepared.stats;std::ofstream out("saved_target_surface_rank"+std::to_string(world.rank)+".jsonl");out<<std::setprecision(17)<<std::boolalpha;
+  out<<"{\"rank\":"<<world.rank<<",\"ranks\":"<<world.size<<",\"surface_prepared\":"<<prepared.surface_prepared<<",\"final_mesh_accepted\":false,\"fresh_reload_qualified\":false"
+     <<",\"cfd_advanced\":false,\"metric_recomputed\":false,\"target_policy_unchanged\":true,\"load_seconds\":"<<loadSeconds<<",\"import_seconds\":"<<importSeconds
+     <<",\"stage_seconds\":"<<stageSeconds<<",\"maximum_seconds\":"<<options.maximum_seconds<<",\"maximum_work\":"<<options.maximum_work
+     <<",\"local_nodes\":"<<points.size()<<",\"local_tets\":"<<prepared.cells.size()<<",\"positive_cells\":"<<positive<<",\"transported_core_cells\":"<<sensors
+     <<",\"global_work\":"<<s.global_work<<",\"local_commits\":"<<s.accepted<<",\"collapse_passes\":"<<s.length_collapse_passes<<",\"split_passes\":"<<s.length_split_passes
+     <<",\"geometry_work\":"<<s.atlas_work<<",\"cached_measured_cells\":"<<s.cached_measured_cells<<",\"field_requests\":"<<s.field_requests<<",\"field_compositions\":"<<s.field_compositions
+     <<",\"process_cpu_seconds\":"<<s.process_cpu_seconds<<",\"metric_cpu_seconds\":"<<s.metric_cpu_seconds<<",\"reconstruction_cpu_seconds\":"<<s.reconstruction_cpu_seconds
+     <<",\"seed_seconds\":"<<s.seed_seconds<<",\"metric_seconds\":"<<s.metric_seconds<<",\"reconstruction_seconds\":"<<s.reconstruction_seconds
+     <<",\"tracked_collective_seconds\":"<<s.tracked_collective_seconds<<",\"tracked_calls\":"<<s.tracked_calls<<",\"maximum_work_bytes\":"<<s.maximum_work_bytes
+     <<",\"reason\":"<<std::quoted(prepared.reason)<<"}\n";out.close();
+  failure=CLocalFailure{};if(!out)failure.Set(3,0,"Cannot save nativeMPI surface stage receipt.");
+  elected=world.elect(failure);if(elected.any)throw std::runtime_error(elected.message);
+  driver.Finalize();
+}

@@ -29,12 +29,24 @@ Seven independent operator trials: two private preflights pass, no publication.
 No full surface/BL output; q/J and strict-height debt remain. Largest sampled
 individualRSS1.241GB is not whole-job peak. R/cavity_planning430_assessment.json.
 
+Latest connected MPI stage431:build212.186s; wrapper490.279s; target reload42.048s
+maxrank/import.472s; native389.056s at unchanged388.8limit.784collapses versus428's
+647(1.212x), no completed pass or split.15980cached/285203unknown,60546points/
+301183positive tets. This is no accepted-output speedup. SummedrankCPU2321.204s
+versus388.952serial includes polling. Per-rank geometrywork3.590/5.719/4.261/1.191/
+8.948/15.756million (max/min13.23); complete-profile and sharednodal identity checks
+pass. Seed22.543s and changed-cell update46.4s are nested; no proof that interior
+seeding dominated. Reconstruction118.31s wall has different coverage from7.10–37.88s
+CPU; tracked collective20.97–28.38s/election231.46–338.11s overlap and are not totalwait.
+Largest sampled process-treeRSS4.879GB, individual.941GB, not true physical peaks.
+R/surface_stage431_assessment.json retains rank counters and all six native shards.
+
 | Section | Latest measured wall time | CPU / synchronization | Work and useful output |
 |---|---:|---|---|
 | 1. Saved CFD seed and geometry | Initial geometry max1.4644s; CFD solve not separately attributed here | Geometry maxCPU≈1.3871s/rank; includes partition/migration/preprocessing | Saved303 RANS+SA mesh/reference/restart reused;61330source points/303359input tets; coarse reasonable coefficients, not convergence/wall-resolution proof |
 | 2. Complete metric construction/normalization |396max531.649s metric;733.225s producer wrapper;546.920s fresh reload wrapper | Includes checkpoint/chord work; no new CPU/wait decomposition here | Complete target reload61330/61330tensors and chord bitexact; estimate461495.991, empirical indicator47864.008, not a bound; nominal500k; physical suitability remains incompletely established |
 | 2. Saved difficult-edge measurement (394) |147.517s evaluator;207.818s with setup |202.49s user+1.10s system; serial, no MPIwait attribution |6375evaluations; converged numerical length42.06899590894; no construction/checkpoint |
-| 3. Coupled surface preparation |428native389.594s; wrapper491.507s | CPU388.952s includes possible polling; tracked collective.232s is partial, not total wait |3650work/647collapses/0splits;60683points/301546positive tets;12352measured/289194unknown; allq/Junknown; readiness incomplete |
+| 3. Coupled surface preparation |431MPI6native389.056s; wrapper490.279s | SummedrankCPU2321.204s includes polling; collective/election scopes overlap, no totalwait estimate |5104work/784collapses/0splits/0passes;60546points/301183positive tets;15980measured/285203unknown; allq/J/heightsunknown; readiness incomplete |
 | 4. Directions and first row | Not reached by full364 | Not measured for complete stage | Saved bounded358 row exists:5columns/25cells, strict initial geometry/height/contact pass, q-bad24/J-bad25; not a usable BL |
 | 5. Successive growth | Not reached by full364 | Not measured | Physical progression/coverage on actual generated complete BL unqualified |
 | 6. Outer transition and full closure | Not reached by full364 | Not measured | Metric continuation exists; usable mesh transition and strict complete closure remain unproven |
