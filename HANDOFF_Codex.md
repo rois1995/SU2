@@ -17,7 +17,7 @@ intact and actual-host wrapper/root/descendants terminal. Case:
 R/cases/curved411_checkpoint_front_20261112T021109_3902682; execsession95134 ended.
 R/front411_assessment.json and first_child411_qualification.json bind evidence.
 Build411 terminal PASS418.415s, all pins/actual handles verified. CFD86405086…,
-testdb93c7ce…. Implementation/negative410 evidence checkpoint121767c1b1 is PUSHED.
+testdb93c7ce…. Implementation121767c1b1 and completed evidenceafb417662e are PUSHED to the authorized fork.
 Expanded serial411 FAILED5.455s:26/27cases,7711/7712assertions. New strict-child,
 curved-child, preservation, direction and cavity checks pass. Synthetic Growth12 throws
 'surface dependencies changed; current fronts need reconstruction'. Causality with411
