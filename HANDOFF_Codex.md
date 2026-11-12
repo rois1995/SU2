@@ -12,7 +12,24 @@ preserves earlier handles, failures and all stage2/cavity details; it is NOT liv
 
 ## Live workload — preserve frozen sources
 
-No owned heavy workload live. Build446 test-only PASS281.844s/all10actualhandles terminal;
+Build447PASS484.425s/all64actualidentitiesterminal/pinsverified/newbinary+cleanNinjadryrun.
+FocusedserialPASS5.314s/15cases1862assertions; MPI6PASS5.117s/15casesonEVERYrank,
+897–1391assertions/rank; actualobservedhandles terminal/1678pinsverified percase.
+R/surface_scope447_qualification.json. Shortchecks sampling missed childRSS peaks;
+GNUtime/processspecificRSSisnotwholejobpeak. No generatedBL claim.
+Same441target stage3 M6 replay is the ONE owned heavy workload(session3827;
+R/check_saved_surface447.py; actualcase/statusunderR/cases). Freeze all compiled/
+pinned sources until terminal. Same388.8s/233220work/12GiB; original6partitions,
+no metricrecompute/CFDadvance/sensor/norm/height change. Outcome/performance pending.
+Connected correction: restrict published SurfacePlanning measurement centrally to
+RequestedWall rows BEFORE global batch sizing. Initial/migration/readiness already
+use that scope; private complete cavity gates, transport and publication unchanged.
+445updatedclasses3505interior/27other/3435requested demonstrate avoidable censuswork.
+Newcounter surface_measurement_skipped counts rowOCCURRENCES, not unique cells.
+Focusedserial/ONE MPIconstraintmilestone PASS; matching441target stage3 is frozen.
+No timing/progress gain established yet. Entryreceipt R/measurement_scope447_entry.json
+verified15actualterminalidentities and all1475build446sourcepins before edits.
+Build446 test-only PASS281.844s/all10actualhandles terminal;
 newtestbinary2266ca5f7202a78d6e3f83f24fd72278ce9ca1af97fa51335579f6cea6b9ed7b,
 CFDunchanged e07680f987ae334734f3b4efdf9a90cc23c9afb34b496d57adb5e16084c50914.
 Saved actual-M6 guidance comparison TERMINAL167.118s/PASS602428assertions/1case,

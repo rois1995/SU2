@@ -1,0 +1,49 @@
+{
+  "surface_scope_mpi_qualified": true,
+  "cases": [
+    {
+      "mode": "serial",
+      "case": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved447_surface_census_scope_serial_20261112T160749_1834196",
+      "status": {
+        "state": "terminal",
+        "exit_code": 0,
+        "seconds": 5.314033269882202,
+        "pins_verified": true,
+        "changed": [],
+        "largest_sampled_individual_process_rss_bytes": 602112,
+        "rss_note": "sampled process RSS; not a whole-job peak"
+      },
+      "passed": [
+        "All tests passed (1862 assertions in 15 test cases)"
+      ],
+      "verified_pins": 1678,
+      "all_actual_handles_terminal": true
+    },
+    {
+      "mode": "mpi6",
+      "case": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved447_surface_census_scope_mpi6_20261112T160817_1835431",
+      "status": {
+        "state": "terminal",
+        "exit_code": 0,
+        "seconds": 5.117229223251343,
+        "pins_verified": true,
+        "changed": [],
+        "largest_sampled_individual_process_rss_bytes": 1069056,
+        "rss_note": "sampled process RSS; not a whole-job peak"
+      },
+      "passed": [
+        "All tests passed (1085 assertions in 15 test cases)",
+        "All tests passed (1002 assertions in 15 test cases)",
+        "All tests passed (897 assertions in 15 test cases)",
+        "All tests passed (1017 assertions in 15 test cases)",
+        "All tests passed (1002 assertions in 15 test cases)",
+        "All tests passed (1391 assertions in 15 test cases)"
+      ],
+      "verified_pins": 1678,
+      "all_actual_handles_terminal": true
+    }
+  ],
+  "scope": "Requested-wall published census, positive full replacement/retained metrics, empty ranks, ownership migration, curved/height constraint regressions.",
+  "limits": "Focused facilities; actual saved-target M6 stage and generated BL/final closure remain separate obligations.",
+  "script_sha256": "e2498facc71798aa059d0c7ab916804451d7b7d91e51fdb6ad9793936a9a4279"
+}

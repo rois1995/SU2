@@ -875,7 +875,18 @@ TEST_CASE("Requested-wall preparation uses construction ownership without claimi
   CHECK(Bytes(private_prepared.cells)==Bytes(prepared.cells));CHECK(private_prepared.stats.global_work==prepared.stats.global_work);
   CHECK(construction_only);CHECK(prepared.stats.quality_stages==0);CHECK(Bytes(input)==saved);
   CHECK(prepared.stats.cached_invalid_cells==0);CHECK(prepared.stats.field_compositions==0);
-  if(strength>1)CHECK(world.sum(int(prepared.stats.length_splits))>0);
+  CHECK(prepared.stats.updated_cell_classes[0]==0);CHECK(prepared.stats.updated_cell_classes[1]==0);
+  CHECK(private_prepared.stats.updated_cell_classes[0]==0);CHECK(private_prepared.stats.updated_cell_classes[1]==0);
+  CHECK(prepared.stats.surface_demand_census_complete);CHECK(prepared.stats.surface_demand_geometry_complete);
+  for(const auto& row:prepared.cells) {
+    const auto& v=row.second.cell.v;CHECK(Orientation(v[0].p,v[1].p,v[2].p,v[3].p)>0);
+    CHECK(row.second.sensor_present);
+    for(const auto& tensor:row.second.sensor)CHECK(tensor.xx==1);
+  }
+  if(strength>1) {
+    CHECK(world.sum(int(prepared.stats.length_splits))>0);
+    CHECK(world.sum(int(prepared.stats.surface_measurement_skipped))>0);
+  }
   if(strength>1) {
     options.maximum_work=1;
     const auto limited=PrepareSurface(world,input,Uniform(input,{}),geometry,target,options);

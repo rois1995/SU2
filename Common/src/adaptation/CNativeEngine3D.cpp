@@ -1830,6 +1830,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
           <<" batch_candidates="<<stats.batch_candidates<<" batch_reserved="<<stats.batch_reserved
           <<" quality_progress="<<stats.quality_progress<<" accepted="<<stats.accepted
           <<" updated_cells="<<stats.updated_cells<<" update_seconds="<<stats.update_seconds
+          <<" surface_measurement_skipped="<<stats.surface_measurement_skipped
           <<" surface_demand_required="<<stats.surface_demand_required_cells<<" surface_demand_measured="<<stats.surface_demand_measured_cells
           <<" surface_demand_complete="<<stats.surface_demand_census_complete<<" surface_geometry_complete="<<stats.surface_demand_geometry_complete
           <<" seed_cell_classes="<<stats.seed_cell_classes[0]<<','<<stats.seed_cell_classes[1]<<','<<stats.seed_cell_classes[2]
@@ -2630,12 +2631,25 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
   }
   constexpr size_t MeasurementBatch=16;
   // Construction requests missing edges only; improvement also imports centroid support.
-  auto measure=[&](const std::vector<Id>& ids,bool seed,double* enclosing_seconds) {
-    const auto plan_scratch=transfer_memory::Add(
+  auto measure=[&](const std::vector<Id>& requested_ids,bool seed,double* enclosing_seconds) {
+    std::vector<Id> demand;
+    const auto demand_bytes=surface_target?transfer_memory::GrowthBound(requested_ids.size(),sizeof(Id)):0;
+    const auto plan_scratch=transfer_memory::Add(demand_bytes,
         transfer_memory::Mul(3*MaximumCampaignEdges,sizeof(std::pair<const Edge,EdgeMeasure>)+6*sizeof(void*)),
         surface_target?transfer_memory::Add(SurfacePlanningScratchBytes(MeasurementBatch),
             transfer_memory::Mul(MeasurementBatch,sizeof(OwnedCell))):0);
     if(!admit(transfer_memory::Add(plan_scratch,transfer_memory::Mul(MeasurementBatch,sizeof(Cell)+sizeof(unsigned char)))))return false;
+    if(surface_target) {
+      CLocalFailure failure;
+      try {
+        demand.reserve(requested_ids.size());
+        for(Id id:requested_ids)if(selection.RequestedWall(working.at(id)))demand.push_back(id);
+        stats.surface_measurement_skipped+=requested_ids.size()-demand.size();
+      }catch(const std::exception& e){failure.Set(2,0,e.what());}
+      if(!vote(failure))return false;
+    }
+    // Publication keeps the complete cavity; only requested walls own this provisional census.
+    const auto& ids=surface_target?demand:requested_ids;
     selection.census_started=true;
     const size_t count=CPassiveComm::Allreduce(ids.size(),CPassiveComm::Op::MAX,world.comm);
     for (size_t slot=0; slot<count;) {

@@ -1465,3 +1465,11 @@ withzero hits; existingcachewarming/order, not newmemo benefit. Fullscorediagnos
 isnotproductionearlyreject path; no speedup claim. SampletreeRSS1.235GB/nottruepeak.
 Detailedlimits: ADAPTATION_SURFACE_COST_AUDIT_20261112.md / R/guidance_reuse446_assessment.json.
 ProductionCFDbinaryunchanged; counterexportcompiledbutnotyetexecutedatnextstage.
+
+447connected requested-wall publishedmeasurement buildPASS484.425s/all64actual
+observedhandles terminal/newbinary+cleanNinja/sourcepins. SerialPASS5.314s15cases/
+1862assertions; MPI6PASS5.117s15casesEVERYrank/897–1391assertions/rank. Shortcase
+RSSsampling missed actualchildpeaks; do not use602KB/1.07MBsamples as process/jobpeak.
+Casepins1678eachverified; R/surface_scope447_qualification.json. Qualified scope is
+provisional requested-wall measurement, not actualBLgeneration/finalquality.
+Same441target M6 stage3 replay frozen next; no performance gain established yet.

@@ -194,6 +194,7 @@ struct EngineStats {
   // Nested in layer_seconds; source/geometry/metric/publication remain distinct from metadata and residual work.
   double layer_metadata_seconds=0,layer_donor_seconds=0,layer_geometry_seconds=0,layer_metric_seconds=0,layer_publication_seconds=0;
   double layer_seconds = 0;  // Exclusive first-row initialization before metric seeding.
+  uint64_t surface_measurement_skipped=0;  // Published nonrequested rows remain unknown in the provisional surface census.
   uint64_t geometry_trials = 0, geometry_rejected = 0, metric_trials = 0;
   uint64_t geometry_guidance_trials = 0, geometry_guidance_rejected = 0;
   uint64_t geometry_guidance_faces=0,geometry_guidance_early_rejections=0;

@@ -84,3 +84,36 @@ queries. Reuse existing per-rank counters and representative saved cavities; no
 new full baseline/profiling campaign. A production correction requires demonstrated
 avoidable work and unchanged complete-patch decisions. Keep the ordered stages,
 final physical height/progression and all strict final gates unchanged.
+
+##447 connected correction — qualification pending
+
+**Input:** same complete441target/savedCFD and current transported nodal tensors;
+no sensor/norm/height/normalization/construction-policy change.
+**Output:** requested-wall published census with every changed volume row still
+positive, fully transported and atomically published; unrelated rows stay unknown.
+**Acceptance:** complete current requested-wall census/readiness unaffected; full
+private cavity constraints unchanged; no nonrequested updated measurement classes;
+empty filtered ranks aligned; migration preserves scope/certificates; ordinary
+full-target path unchanged; work/storage/time exhaustion remains safe. Actual M6
+progress/cost must be measured before claiming an efficiency gain.
+
+445already seeds only RequestedWall rows, but updates measured3505interior+27other-
+boundary+3435requested rows. Existing update timers~45s/rank overlap MPIjoins.
+A central measure-entry filter now uses RequestedWall BEFORE global batch sizing
+and donor/planning work. Its bounded IDvector is admitted and kept in scratch
+accounting. New surface_measurement_skipped counts skipped OCCURRENCES, not unique
+rows. This reaches initial, phase and immediate/accumulated publication callers;
+surface repair retains Construction phase, so it receives the same scope.
+
+Full Directory support, reservation, private old/fresh measurement, geometry,
+height/body/feature checks, complete publication and metric transport are unchanged.
+Nonrequested rows were already optional at initial census/migration and do not own
+surface demand. Their missing local prefilter information can change proposal
+ordering/refusal yield; only the same-target actual stage comparison can establish
+net useful progress. No upfront fullcensus, new scheduler or increased budget.
+
+Build447PASS484.425s; all64observed actual handles terminal, sourcepins unchanged,
+newbinary and clean Ninja dry-run. Focusedserial15cases/1862assertionsPASS5.314s;
+MPI6same15casesonEVERYrank/897–1391assertions PASS5.117s; observed actualhandles
+terminal and1678pinsverified each. R/surface_scope447_qualification.json.
+Same-target actual M6 stage3 replay frozen; outcome and performance pending.
