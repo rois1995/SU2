@@ -1,0 +1,107 @@
+{
+  "state": "focused_preservation_checks_pass_with_open_growth_regression",
+  "build": {
+    "state": "terminal",
+    "exit_code": 0,
+    "seconds": 418.4150826931,
+    "pins_verified": true,
+    "changed": [],
+    "completed_build": true,
+    "binaries": {
+      "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver": "db93c7ce34ff69d4c55b1df05de803979d097579669ad055614fe6eba68c510e",
+      "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/SU2_CFD/src/SU2_CFD": "864050863af9a21fba3b0a3fce293a0d1447402fdbc2303eeb367bf59494f515"
+    }
+  },
+  "serial": {
+    "case": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved411_prepared_serial_20261112T020813_3895910",
+    "status": {
+      "state": "terminal",
+      "exit_code": 1,
+      "seconds": 5.454874515533447,
+      "pins_verified": true,
+      "changed": [],
+      "largest_sampled_individual_process_rss_bytes": 41140224,
+      "rss_note": "sampled process RSS; not a whole-job peak"
+    },
+    "cases_passed": 26,
+    "cases_total": 27,
+    "assertions_passed": 7711,
+    "assertions_total": 7712,
+    "open_failure": "NativeGrowthLayer12: BL growth surface dependencies changed; current fronts need reconstruction before advancement",
+    "causality_with_change_established": false
+  },
+  "mpi6": {
+    "case": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved411_prepared_mpi6_20261112T021028_3901080",
+    "status": {
+      "state": "terminal",
+      "exit_code": 0,
+      "seconds": 5.416368722915649,
+      "pins_verified": true,
+      "changed": [],
+      "largest_sampled_individual_process_rss_bytes": 43458560,
+      "rss_note": "sampled process RSS; not a whole-job peak"
+    },
+    "every_rank_cases": 25,
+    "summaries": [
+      "All tests passed\u001b[0m (2085 assertions in 25 test cases)",
+      "All tests passed\u001b[0m (1419 assertions in 25 test cases)",
+      "All tests passed\u001b[0m (1651 assertions in 25 test cases)",
+      "All tests passed\u001b[0m (6129 assertions in 25 test cases)",
+      "All tests passed\u001b[0m (1634 assertions in 25 test cases)",
+      "All tests passed\u001b[0m (2011 assertions in 25 test cases)"
+    ],
+    "native_MPI_BL_generation_qualified": false
+  },
+  "actual": {
+    "case": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved411_checkpoint_front_20261112T021109_3902682",
+    "assessment": "front411_assessment.json",
+    "status": {
+      "state": "terminal",
+      "exit_code": 0,
+      "seconds": 254.2345187664032,
+      "pins_verified": true,
+      "changed": [],
+      "largest_sampled_individual_process_rss_bytes": 2117890048,
+      "rss_note": "sampled process RSS; not a whole-job peak"
+    }
+  },
+  "byte_identical_selected_outputs_to_409": {
+    "prepared_repair_before.bin": {
+      "equal": true,
+      "sha256": "0cfdeace223967d8d311d5b8eaaa0a23de664e30b8995a5041d9339c586fd1c4"
+    },
+    "prepared_repair_before_frames.jsonl": {
+      "equal": true,
+      "sha256": "2a23ecbb38c84baeb73478e98f22ef1fc94cab22311f6abafcd54c2a08ece7f3"
+    },
+    "prepared_repair_connectivity.bin": {
+      "equal": true,
+      "sha256": "0f23db0e25e47d967e8c0ebf10d09d5d8c36660ff4d192e8cb5f90abe68a404f"
+    },
+    "prepared_repair_parameters.bin": {
+      "equal": true,
+      "sha256": "d27e3bac52ae29b1376451f35d248c09057e66741c39fbe2a39003ec6d38da30"
+    }
+  },
+  "strict_preservation_corrected": true,
+  "actual_coverage_improvement": false,
+  "performance_gain_claimed": false,
+  "usable_BL": false,
+  "complete_workflow": false,
+  "input_sha256": {
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/front411_assessment.json": "c77b2626955c6938ca08af992d95c597efd3b1ff90f9f255d94a7bf0c3da608f",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/source_snapshot410.json": "98e3a9ccdf583c9f23dda8e6b29ab09b551723510259a41e67a39da3816ee7c6",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/front410_assessment.json": "c56ff2a9a66f83efb2a8cd88ac1bbfb31aff0527218460289c09c089972c7d20",
+    "SU2_CFD/include/adaptation/native_bl3d/BLFirstRow9.inl": "cf290af5469eaff4a9ec0ac223480dd005ac9a46ac162cd1d8abe69d35e57510",
+    "UnitTests/SU2_CFD/adaptation/fixtures/native_first_row_dc9.inc": "fb75f55375c6f19be977b4a7cbea3f3ed02a93afc8a55cf70d9bcdd2fcef7aff",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved411_checkpoint_front_20261112T021109_3902682/pins.json": "be85c07a230b9246fc84ed0f16c39d04bb8ded2c457ed1b336d9642d20bd017a",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved411_checkpoint_front_20261112T021109_3902682/status.json": "c05069d6a668778f6c7193aef16ed4ac8234b202ee0814476afbae9de666b96e",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved411_checkpoint_front_20261112T021109_3902682/terminal_handles_actual.json": "46ef056a52c7f8be2424c81276fd81e97190793786cfedce3ab2a473a397c960",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved411_prepared_serial_20261112T020813_3895910/pins.json": "f5894042481f41fa1aea1193a79bc3eae02bc3593cd23c9a807b5ef44acc0d2e",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved411_prepared_serial_20261112T020813_3895910/status.json": "b708c0a4aab909c89b53f8a8551188518ab989ed5374b1c35b239cd439206a39",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved411_prepared_serial_20261112T020813_3895910/terminal_handles_actual.json": "8748fe599750084d0f586cafdc2813a06492c8576ec3b045023f63b268bff13c",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved411_prepared_mpi6_20261112T021028_3901080/pins.json": "f5894042481f41fa1aea1193a79bc3eae02bc3593cd23c9a807b5ef44acc0d2e",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved411_prepared_mpi6_20261112T021028_3901080/status.json": "f47fa4952626c84c88a16e547331b9479854bf82230521f034a52cf4f82ea555",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved411_prepared_mpi6_20261112T021028_3901080/terminal_handles_actual.json": "2279657218804ea83ba12eb8a7370a7a493fb909af595f0cc2d882c6d00018cf"
+  }
+}

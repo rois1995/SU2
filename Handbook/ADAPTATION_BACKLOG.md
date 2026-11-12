@@ -1133,3 +1133,16 @@ Resolution-aware directed queries and a two-sided coverage argument are unproven
 alternatives, not selected work or necessary BL resolution. R/front410_assessment.json
 and source_snapshots410 retain the experiment. Active cycle instead corrects the
 demonstrated strict/provisional first-child preservation predicate (411).
+
+
+###411 expanded serial growth failure — required stage5 obligation
+
+NativeGrowthLayer12 throws 'BL growth surface dependencies changed; current fronts
+need reconstruction before advancement' in expanded serial411. New strict-child,
+curved-child and cavity checks pass, but causality of this growth failure with411
+is not established. PhaseG pins boundary_revision and rejects subsequent changes;
+its own carrier/surface edits may need coordinated reconstruction or more precise
+dependency classification. Do not ignore the guard, freeze columns or claim earlier
+layers preserved. Reproduce at the stage5 boundary after credible first-row output,
+using existing direction/front machinery and complete constraints. Failure remains
+part of qualification, even though serial-only guard prevents MPI6 from running it.

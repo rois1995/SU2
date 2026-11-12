@@ -547,3 +547,35 @@ ONE appropriate MPI ownership/feature/empty-rank milestone, and same original-M6
 current-target front. Judge actual strictly passing coverage and complete-patch
 validity/geometry/height/q/J/work; neither predicate tests nor a passing local child
 proves the full BL/RANS objective. Preserve failed outcomes; do not raise limits.
+
+
+411build PASS418.415s, all pins/actual terminal handles verified. Expanded serial
+terminal1/5.455s:26/27cases and7711/7712assertions. Strict-child predicate, configured
+height, curved-child/direction and CavityFirstChild tests pass. NativeGrowthLayer12
+throws the unchanged PhaseG surface-dependency guard during its synthetic run; its
+causality with411 is not yet established. Preserve this failed regression. It is a
+stage5 blocker, not evidence to weaken invalidation or declare generation qualified.
+ONE MPI6 milestone passes25cases EVERYrank/1419–6129assertions in5.416s, pins intact
+owned handles terminal. It excludes serial-only cavity/growth cases with native1
+guards and is NOT nativeMPI BL generation qualification. Actual same-seed411 front
+is now frozen/running; handoff owns identities. Do not launch another heavy workload.
+
+
+411actual terminal PASS254.235s, all1662 pins/actual handles intact and terminal.
+Same16splits,21descendants,14sampled-feasible faces and five passing columns/25cells.
+Selected before capture/tensor frames/connectivity output/parameter payload all BYTE-
+IDENTICAL409; independent q/J error≤1.665e-16,25bad remain after repair. No coverage
+or performance gain. R/front411_assessment.json and first_child411_qualification.json.
+
+The original completion now passes D2 and reaches Admit12; it refuses actual curved
+clearance/h0=-12.57049. This demonstrates removal of the false protection in the
+actual path, not a feasible replacement. Prepared subpatch geometry/height/positive/
+contact pass as before; rejected optimizer still changes oriented interface.
+
+Retain the strict predicate fix as affected-behavior evidence with the explicit OPEN
+serial growth regression, not whole-cycle qualification. Next capability must combine
+physical-height/clearance feasibility feedback with existing coupled surface/volume
+construction and complete incident-wall coverage. More frozen-star polishing or a
+blanket geometric allowance does not address it. Preserve metric/normal law/500knominal
+and directions. Resolve PhaseG's preserved reconstruction failure at stage5, with
+actual first-row output and relevant dependencies; do not disable the guard.

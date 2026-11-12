@@ -1023,3 +1023,29 @@ whole-job peak. No sensor, target, normal law, budgets or final gates changed.
 Next connected411 fixes a demonstrated strict-versus-provisional predicate bug in
 D2firstchild preservation. Build/development cost remains pending; no runtime gain
 or construction improvement claimed before actual qualification.
+
+
+##411 strict first-child preservation (constraint fix, no speedup)
+
+Build418.415s. Expanded serial5.455s:26/27cases,7711/7712assertions; Growth12surface-
+dependency guard fails, other affected cases pass. ONE MPI6 milestone5.416s:25cases
+everyrank/1419–6129assertions. These are wrapper times, not summed rank CPU or native
+MPI BL generation evidence. All handles terminal and case pins intact.
+
+| Same original-M6/396target smooth context |409 |411 |
+|---|---:|---:|
+| Diagnostic wall |250.233s |254.235s |
+| Initial first-row refusal |20.467s |21.260s |
+| Coupled surface splits / descendants / sampled feasible |16/21/14 |16/21/14 |
+| Passing prepared columns / cells |5/25 |5/25 |
+| Prepared-row work / seconds |17368/.542 |17373/.565 |
+| Complete geometry work |4814532 |4814537 |
+| Compositions / edge integrand evaluations |4030/1995 |4030/1995 |
+| Net repair q/J-bad removal |0/0 |0/0 |
+
+Selected before/frames/connectivity/parameters are byte-identical. D2false-protection
+refusal is replaced by actual curved clearance admission failure. Full-edge80.887s
+contains60.468sgeometry/20.417scomposition, nested within construction/optimizer;
+do not sum overlapping timers. No outside-BL exclusion on these near-wall edges.
+Largest sampled individual actual RSS2117890048B is not whole-job peak. Strict
+preservation semantics improved; timing differences do not show useful speedup.

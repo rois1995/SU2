@@ -12,10 +12,19 @@ provenance and failures. This file supersedes historical live handles.
 
 ## Current source, build and workload
 
-Current owned heavy workload: build411 RUNNING; C++/helpers FROZEN.
-Actual-host wrapper3879402/start49329298, root3879403/start49329317; execsession49405.
-R/build411_status/source_pins/resources. Verify actual terminal handles before edits
-or next heavy job. No actual/native case running alongside the build.
+No owned heavy workload is running. Actual411 TERMINAL/PASS254.235s, all1662 pins
+intact and actual-host wrapper/root/descendants terminal. Case:
+R/cases/curved411_checkpoint_front_20261112T021109_3902682; execsession95134 ended.
+R/front411_assessment.json and first_child411_qualification.json bind evidence.
+Build411 terminal PASS418.415s, all pins/actual handles verified. CFD86405086…,
+testdb93c7ce…. Implementation/negative410 evidence checkpoint121767c1b1 is PUSHED.
+Expanded serial411 FAILED5.455s:26/27cases,7711/7712assertions. New strict-child,
+curved-child, preservation, direction and cavity checks pass. Synthetic Growth12 throws
+'surface dependencies changed; current fronts need reconstruction'. Causality with411
+is unestablished. Keep this open failure; full generation/growth is NOT qualified.
+ONE connectedMPI6 PASS5.416s:25cases EVERYrank,1419–6129assertions/rank; pins/actual
+terminal handles intact. Serial-only growth/cavity excluded by native1 guards in MPI
+scope; this does NOT qualify nativeMPI BL generation. No new heavy job queued yet.
 
 Active correction: strict first-child preservation in BLFirstRow9.inl. FirstChildPasses
 previously used provisional HeightConstruct, treating resolved background debt as a
@@ -24,9 +33,25 @@ CheckFirstHeight + unique child + exact positivity, copies parameter/coverage da
 and exposes unresolved measurement so D2 fails closed. Transaction uses the same
 D2Ok instead of a duplicate provisional unrebuilt predicate. No q/J, target or gate
 change. New NativeFirstChildPreservation3D tests cover both modes/debt/strict/failures.
-Read-only review found no concrete defect; NOT yet runtime qualified.
-After build: R/check_first_child411.py serial; then ONE connectedMPI milestone and
-same396 original-M6 front via R/check_checkpoint_front411.py. Preserve frozen cadence.
+Read-only review found no concrete defect. Focused affected checks/MPI pass, but
+expanded serial growth fails as above. Actual411 confirms no coverage/quality gain; do not claim
+whole-cycle qualification. Preserve frozen cadence and the failed growth evidence.
+
+Actual411 comparison: same 16splits→21descendants,14sampled-feasible; same five passing
+columns/25cells, all25q/Jbad, repair net0. Selected before/frames/connectivity/parameters
+are BYTE-IDENTICAL409. D2false-protection refusal is gone; same completion now reaches
+Admit12 and refuses curved-wall clearance/h0=-12.57049. Geometry/height/positivity/
+clearance on selected prepared row still pass. Strict predicate semantics corrected,
+NOT a speedup, usable BL or coverage improvement. Expanded growth failure remains.
+
+Next substantial capability: couple physical first-row feasibility feedback to surface
+preparation using existing surface/volume transactions, instead of a blanket tighter
+positional gate or another fixed-skin quality-polish campaign. Strict height/clearance
+refusals and complete incident-wall coverage must drive the affected cavity. Preserve
+constrained/blended directions, current metric/normal law, ownership/support/invalidation
+and passing rows. Stage5front-reconstruction failure must be resolved at its boundary;
+do not weaken its guard or infer it is unrelated without evidence. No full retry until
+credible stage outputs. Other actual contexts/nativeMPI/growth/transition remain due.
 
 410 positional-allowance hypothesis REJECTED. Build PASS418.437s; serial27cases/8126
 PASS7.443s. Actual terminal PASS173.264s, all1661 pins/actual terminal handles verified:

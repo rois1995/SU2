@@ -298,3 +298,18 @@ height/footprint debt must not count as an already passing child. Preserve actua
 strict children under configuredT, refuse unresolved old measurements, and keep
 construction validity-first without q/J gates. Build411/serial/MPI/actual validation
 is tracked by the current handoff. Do not claim this resolves M6 until measured.
+
+
+411retains the strict first-child predicate correction. Actual original-M6 replay
+now reaches real curved-clearance refusal instead of false D2protection; selected
+five-column output and tensor frames are byte-identical409, with zero quality gain.
+Expanded serial has an open Growth12front-dependency failure (26/27pass); MPI6passes
+25cases/rank but does not qualify native MPI generation. Preserve those exact limits.
+
+Next implement the connected physical-feasibility feedback between requested-wall
+surface preparation and coordinated first-row transactions. Use actual failure faces/
+complete existing supports and valid candidate certificates, not blanket h0-scaled
+geometry demands, sampled infeasibility or fixed-skin q polishing. Retain strict
+height/clearance, body/features, directions and source/ownership/memory contracts.
+Use credible first-row output to resolve the saved stage5front-reconstruction failure;
+do not ignore its guard. Full BL/RANS workflow remains incomplete.
