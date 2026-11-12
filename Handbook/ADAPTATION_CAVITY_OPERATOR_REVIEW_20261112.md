@@ -4,6 +4,8 @@ What this change does: this is a review of the existing adaptation implementatio
 
 Reviewed 2026-11-12. Baseline: `e4d3ca7618`, branch `codex/native-3d-bl`, build431 test binary. Two earlier, unbuilt432 census edits in `CNativeEngine3D.cpp/.hpp` remain held and unchanged; they are reviewed separately below. Working-tree line numbers refer to the reviewed files and can move after later edits. Evidence root R is `integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57`.
 
+This report records the review delivered at `10a694e43c`, before fixes. Subsequent goal continuation qualified the scoped-census implementation and addressed finding4's scan ordering; see [432 implementation/outcome](ADAPTATION_SURFACE_DEMAND_CENSUS_20261112.md). Findings1–3 remain unimplemented. The historical source/line references below describe the reviewed state.
+
 ## Scope and evidence
 
 The attached `CAVITY_OPERATOR_REVIEW_HANDOFF.md` and its three supporting notes were read in the requested order. Their pyAMG claims are static reverse-engineering findings about one wheel, not independent runtime qualification. Optional raw decompilations are available locally, but this review did not reverify assembly. None of the proposed fixes depends on copying that implementation or its constants.

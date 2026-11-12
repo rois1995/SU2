@@ -14,8 +14,16 @@ Receipts R/reviews/cavity_operator_20261112; findings in
 
 432 connected surface-demand census: build392.920s; serial39cases8801assertions
 11.468s, ONE MPI6 milestone35cases/rank2774–5595assertions17.977s. All pins/actual
-handles terminal for these checks. Actual saved396target surface replay now frozen;
-no demonstrated stage speedup/readiness result yet. Seed/update class work counts
+handles terminal for these checks. Actual saved396target surface replay TERMINAL,
+allpins/actualhandles verified; wrapper532.794s/native max389.353s. Surface not ready:
+525commits/2589work/0passes;2,394of37,753requested-wall cells measured. Seed864allwall;
+updates1806interior/21otherboundary/2062wall.60,805points/301,908positive tets.
+Versus431 at389.056s: commits784→525;requests77,727→24,351;geometrywork39.465M→25.194M;
+summedCPU2321.204→1798.320s includespolling. This does NOT demonstrate speedup or
+better construction: both timed out before refinement, trajectories/coverage differ,
+and load stage61.265s versus42.048s varies outside the native timer. Scoped coverage
+is qualified, but reducing call counts alone is not delivery improvement.
+Largest sampled treeRSS4.665GB/individual.922GB, nottruephysicalpeak. Seed/update class work counts
 distinguish interior, other physical boundary and requested wall; they do not
 apportion nested wall timers. Design/receipts:
 [surface demand](ADAPTATION_SURFACE_DEMAND_CENSUS_20261112.md).

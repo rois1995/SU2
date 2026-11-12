@@ -14,23 +14,35 @@ retains all failures, prior handles, normalization and rejected alternatives. Th
 Review delivered before fixes; subsequent goal continuation resumes stage3. See
 [cavity-operator review](Handbook/ADAPTATION_CAVITY_OPERATOR_REVIEW_20261112.md).
 Current432 connected [surface-demand census](Handbook/ADAPTATION_SURFACE_DEMAND_CENSUS_20261112.md)
-has passed focused qualification; actual saved-target surface stage is FROZEN/RUNNING.
+has passed focused qualification; actual saved-target stage TERMINAL, surface_prepared=false.
+NO owned heavy workload. All432 build/check/M6 actual worker+wrapper handles terminal.
 Five affected compiled files pinned in R/build432_source_pins.json. Build432PASS392.920s,
 allpins/actualhandles terminal. SerialPASS39cases8801assertions/11.468s; ONE MPI6PASS
 35cases/rank2774–5595assertions/17.977s. Casepins/actualhandles terminal. Receipt
 R/surface_demand432_qualification.json. NativeMPI BL generation still unqualified.
 Currentcase R/cases/curved432_saved_target_surface_mpi6_20261112T092307_730261;
-execsession30161, wrapper730261/start51982678, MPI730472/start51983011. Same396target,
-original6partitions,388.8s/233220work/12GiB. Verify actual handles before edits/nextjob.
+execsession30161 terminal532.794s; wrapper730261/start51982678, MPI730472/start51983011
+verified terminal. Allpins unchanged, same396target/original6partitions/388.8s/233220work/12GiB.
+R/surface_stage432_assessment.json validates60,805unique points/301,908positive tets/core,
+1,146,827sharednodalchecks exact. Native389.353s;525commits/2589work/0completedpasses.
+Requiredwall2,394/37,753measured;4,221cached/297,687genericunknown; q/Jallunknown.
+Seed864allrequestedwall; updates1806interior/21otherboundary/2062wall. Knowngeometrybad68/
+sizebad0 are PARTIAL, not whole-field repair. Requests24,351/geometrywork25.194M/rankCPU
+sum1798.320s; fewer than431 but commits also lower784→525: NO demonstrated speedup or
+surface delivery improvement. TreeRSSsample4.665GB/individual.922GB nottruepeak.
+Next bounded diagnosis: requested-wall coarsening/refusal/preflight and existing
+collective/accounting paths; no second implementation selected from partial counters.
+Do not repeat fullW or raisebudgets merely for more census rows. Failedcapture+396policy
+retained, not a qualified successfulsurfacecheckpoint/searchcontinuation; latestVTU stays428.
 Pre-review held diff is preserved in the review manifest; readiness now tests known
 debt first, and checks/JSON distinguish required-wall coverage from full-volume unknowns.
-Build431 review checks TERMINAL:8/9 cases pass,85/86 assertions; growth throws stale
+Historical build431 review checks TERMINAL:8/9 cases pass,85/86 assertions; growth throws stale
 front dependency exception. Wrapper/child actual PID+start handles terminal;
-build431 binaries and current source freeze verified. Receipts:
+build431 binaries and then-current source freeze verified at review time. Receipts:
 R/reviews/cavity_operator_20261112/checks_20261112T085552_640304.
 Review distinguishes observed growth failure, missing full-BL suitability contract,
 mapped-surface proposal overconstraint and an unbuilt432 per-round census scan.
-No new MPI/fullM6/perf campaign; preserve431/430 evidence and Euler293 checkpoints.
+That review ran no MPI/fullM6/perf campaign; preserve431/430 and Euler293 checkpoints.
 
 431 nativeMPI6 surface stage TERMINAL/PASS490.279s diagnostic,
 surface_prepared=false. Saved396target → existingPrepareSurface, no production change.

@@ -1,6 +1,6 @@
 # Requested-wall coverage in surface preparation
 
-Active connected stage3 change, build432. Status: focused serial and connected MPI6 checks passed; actual saved-target M6 surface stage is frozen/running. The cavity review has been delivered and pushed; the subsequent goal continuation resumes this existing change. Growth and semantic movement findings remain queued for their affected stage, not competing implementations.
+Active connected stage3 change, build432. Status: focused serial and connected MPI6 checks passed; actual saved-target M6 surface stage TERMINAL with valid provisional cells but surface_prepared=false. The cavity review has been delivered and pushed; the subsequent goal continuation resumes this existing change. Growth and semantic movement findings remain queued for their affected stage, not competing implementations.
 
 ## Missing capability and evidence
 
@@ -45,6 +45,53 @@ curved transactions/features, height/direction preservation, deadlines and full-
 ownership/census regressions. They do not qualify nativeMPI FIRST_ROW generation.
 
 Actual integration: `R/cases/curved432_saved_target_surface_mpi6_20261112T092307_730261`,
-execsession30161, wrapper730261/start51982678, MPI730472/start51983011. Unchanged
-396target/original6partitions and388.8s/233220work/12GiB. Preserve until terminal or
-an evidence-backed authorized stop; no pinned source edits while this runs.
+execsession30161 TERMINAL; wrapper730261/start51982678 and MPI730472/start51983011
+plus actual worker identities verified terminal. Unchanged396target/original6partitions
+and388.8s/233220work/12GiB. Wrapper532.794s, native max389.353s at the same deadline.
+Complete payload validation:60,805unique points/301,908positive tetrahedra with core,
+1,146,827exact shared coordinate/tensor checks. All pins/target profiles/CFD unchanged.
+
+`R/surface_stage432_assessment.json` and `R/assess_surface432.py` own the assessment.
+The first assessment attempt failed on an interleaved stdout counter; the diagnostic
+did not fail. The parser now explicitly records missing rank2/4 retention/cache
+fields. Separate rank JSON and all saved manifests/payloads validated. No replacement
+campaign was launched.
+
+| Matching surface allowance |431 |432 |
+|---|---:|---:|
+| Native wall, maximum rank |389.056s |389.353s |
+| Commits |784 |525 |
+| Global work |5104 |2589 |
+| Field requests |77,727 |24,351 |
+| Geometry work |39,465,074 |25,194,164 |
+| Summed rank CPU, includes polling |2321.204s |1798.320s |
+| Geometry-work max/min rank |13.23 |6.94 |
+| Cached/full-volume unknown cells |15,980/285,203 |4,221/297,687 |
+| Completed collapse/split passes |0/0 |0/0 |
+
+432 required-wall coverage is2,394/37,753cells. Only864initial rows were seeded,
+all requested wall:9 batches of16perrank. Changed-cell measurement remains complete:
+1806interior/21otherboundary/2062requested-wall evaluations. Partial known geometry
+bad68/sizebad0 are not whole-field improvement; all q/J remain unknown. No final
+first-height/layer claim. Largest sampled treeRSS4.665GB/individual.922GB, not true
+physical peak. Targetload max61.265s versus43142.048s; not part of native stage.
+
+This is a qualified coverage-contract correction, **not an established performance
+or construction success**. Fewer calls and lower geometry work/CPU did not deliver
+more accepted surface work. Timed trajectories and coverage differ; contention and
+MPI polling prevent a causal wall-time claim. Do not count the smaller known-bad set
+as net repair.
+
+The remaining blocker is within requested-wall processing: coarsening service and
+coverage advance too slowly to reach a direction change/refinement. Removing unrelated
+initial rows does not resolve it. Next localize the existing coarsening private-work,
+refusal and collective/accounting paths on this saved outcome. Existing upper-query
+work is uneven; broad election timers are overlapping and are not total MPI wait.
+Do not select another optimization, change eligibility or increase budgets from
+commit counts alone. Reuse430 actual cavity evidence and432 captures to distinguish
+geometric refusal, preflight work and synchronization before a further correction.
+
+This failed preparation capture plus complete396 policy is retained for diagnostics;
+it is not a credible successful surface checkpoint or exact search continuation.
+No new VTU was generated:432 has not demonstrated substantial mesh-delivery progress
+over the existing428 inspection artifact.
