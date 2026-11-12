@@ -579,3 +579,32 @@ construction and complete incident-wall coverage. More frozen-star polishing or 
 blanket geometric allowance does not address it. Preserve metric/normal law/500knominal
 and directions. Resolve PhaseG's preserved reconstruction failure at stage5, with
 actual first-row output and relevant dependencies; do not disable the guard.
+
+## Connected physical-apex integration412 — before qualification
+
+Input: unchanged saved396 complete target, original M6 authority and requested heights;
+qualified411 preservation predicate. Evidence409/411 separates acceptable tangential
+size (maximum1.15822) from failed physical first-row height/clearance. Existing seven
+projected physical-foot proposals found14 sampled feasible descendants after16surface
+edits. This is not a proof that all failed faces are infeasible.
+
+Missing production capability: ConeColumn and completion proposals are primarily
+flat-face-based, while physical proposals exist only in the diagnostic. Also
+provisional Admit12 may allow resolved debt, so success of a completion route alone
+does not prove its requested child passes.412 shares the bounded proposal routine
+with ConeColumn, ApexRelocate and CavityFirstChild, retaining existing candidates
+first. Insertion/relocation/cavity success now requires the specific target child
+to pass configured physical height and exact positivity before publication. Other
+resolved provisional debt remains allowed; passing neighbors remain protected.
+
+Expected output: strict target-child successes or explicit bounded refusal; private
+projection never changes accepted parameters. Physical-normal apex proposals do not
+replace constrained/blended column advancement. Fresh whole-cavity geometry, topology,
+height preservation and clearance remain mandatory in existing admission. No metric,
+normal law, q/J construction admission, gate or budget change.
+
+Acceptance: focused planar/analytic/mapped proposals, private state/invalidation,
+resource refusals and strict-child checks; one connected MPI milestone; same saved
+M6 context with complete patch/neighbor evidence. This change alone does not implement
+physical surface-edit feedback or qualify coherent coverage, growth or a usable BL.
+Open411 Growth12 dependency failure must remain visible.

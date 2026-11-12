@@ -373,21 +373,18 @@ for(size_t index=0;index<count;++index) {
         bool feasible=false;double best=std::numeric_limits<double>::infinity();
         auto privateWall=state->reference->PrivateParameters(originalChild,&budget);
         const auto& wallContext=privateWall?*privateWall:*state->reference;
-        const auto& geometry=wallContext.Parameters()->Geometry();
         std::array<Point,3> corners;for(unsigned k=0;k<3;++k)corners[k]=NodePoint(*state,face->v[k]);
         const auto outward=dc9::Outward(Of(corners[0]),Of(corners[1]),Of(corners[2]));
         const auto h0=heights.at(wallContext.Get(face->facet).marker);
-        const std::array<std::array<long double,3>,7> feet{{{1.L/3,1.L/3,1.L/3},{.6L,.2L,.2L},{.2L,.6L,.2L},{.2L,.2L,.6L},
-            {.45L,.45L,.1L},{.45L,.1L,.45L},{.1L,.45L,.45L}}};
-        for(size_t foot=0;foot<feet.size();++foot) {
+        const auto physicalWork=budget.work;
+        const auto proposals=PhysicalFirstHeightProposals(face->facet,corners,h0,wallContext);
+        frontLog<<"{\"context\":"<<std::quoted(label)<<",\"stage\":\"physical_foot_preparation\",\"generation\":"<<generation
+                <<",\"geometry_work\":"<<budget.work-physicalWork<<",\"proposals\":"<<proposals.size()<<"}"<<std::endl;
+        for(size_t foot=0;foot<proposals.size();++foot) {
           budget.CheckTime();std::string why;bool positive=false,heightPass=false,contact=false;FirstHeightReport measured;
           double planeRatio=0;const auto workAt=budget.work;
           try {
-            const auto w=feet[foot];const auto flat=w[0]*Of(corners[0])+w[1]*Of(corners[1])+w[2]*Of(corners[2]);
-            const auto projected=wallContext.Project(face->facet,Pt(flat));const auto* binding=wallContext.Parameter(projected);REQUIRE(binding);
-            REQUIRE(budget.ChargeWork(1));const auto surface=geometry.EvaluateSurface(face->facet,binding->binding);
-            auto normal=Unit(Of(surface.normal));if(Dot(normal,outward)>0)normal=-1.L*normal;
-            const Node apex{state->next_node,Pt(Of(projected)+h0*normal)};
+            const Node apex{state->next_node,proposals[foot]};
             planeRatio=double(-Dot(Of(apex.p)-Of(corners[0]),outward)/h0);
             Patch candidate;candidate.surface=originalChild.surface;candidate.parameters=originalChild.parameters;
             candidate.coverage=originalChild.coverage;

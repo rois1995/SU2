@@ -1146,3 +1146,9 @@ dependency classification. Do not ignore the guard, freeze columns or claim earl
 layers preserved. Reproduce at the stage5 boundary after credible first-row output,
 using existing direction/front machinery and complete constraints. Failure remains
 part of qualification, even though serial-only guard prevents MPI6 from running it.
+
+- 412 bounded review: entity projection may return another chart of the same semantic
+  sheet, while direct EvaluateSurface(originalfacet,binding) requires incident support.
+  Physical-apex proposals safely refuse this case; no acceptance bypass. If actual
+  residual evidence shows this blocker, reuse incident same-entity differential support
+  rather than treating a CAD seam as a feature. Not demonstrated on current M6 patch.

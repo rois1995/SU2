@@ -554,14 +554,26 @@ inline bool ApexRelocate(State& s,Rows10& rows,Id cell,const Face& key,FirstRowS
   Face out{};for(auto f:CellFaces(c))if(Sorted(f)==Sorted(key))out=f;
   const V a=Of(NodePoint(s,out[0])),b=Of(NodePoint(s,out[1])),cc=Of(NodePoint(s,out[2]));const V n=-1.L*Outward(a,b,cc);const long double h0=FaceH0(s,key);
   const std::array<std::array<long double,3>,7> feet{{{1.L/3,1.L/3,1.L/3},{.6L,.2L,.2L},{.2L,.6L,.2L},{.2L,.2L,.6L},{.45L,.45L,.1L},{.45L,.1L,.45L},{.1L,.45L,.45L}}};
+  std::vector<Point> candidates;
+  for(long double eta:{1.L,.92L,1.08L})for(const auto& w:feet)candidates.push_back(Pt(w[0]*a+w[1]*b+w[2]*cc+(eta*h0)*n));
   Patch chosen;bool found=false;
-  for(long double eta:{1.L,.92L,1.08L})for(const auto& w:feet) {
-    Node node{s.next_node,Pt(w[0]*a+w[1]*b+w[2]*cc+(eta*h0)*n)};
+  for(unsigned phase=0;phase<2&&!found;++phase) {
+  if(phase==1) {
+    // Interior-apex fallback; constrained/blended lid advancement is unchanged.
+    candidates.clear();for(const auto& sf:old.surface)if(Sorted(sf.v)==Sorted(key)) {
+      try{for(const auto p:PhysicalFirstHeightProposals(sf.facet,{Pt(a),Pt(b),Pt(cc)},double(h0),ref))candidates.push_back(p);}
+      catch(const std::exception& x){++st.why["relocate physical proposal: "+Key(x.what())];}
+      break;
+    }
+  }
+  for(const auto p:candidates) {
+    Node node{s.next_node,p};
     try{if(!carriers.empty())node=Constrain(s,priv.get(),node,carriers,carriers);}catch(const std::exception&){continue;}
     Patch fresh;std::string why;bool ok=false;try{ok=MoveVertex(old,v,node,s.next_cell,ref,fresh,why);if(ok)ref.ExportParameters(fresh);}catch(const std::exception&){ok=false;}
-    if(!ok)continue;{std::string d2;if(!D2Ok(s,old,fresh,d2))continue;}
+    if(!ok||!FirstChildPasses(s,fresh,key))continue;{std::string d2;if(!D2Ok(s,old,fresh,d2))continue;}
     const auto d=Admit12(s,old,fresh,FirstRowKind(s,old));if(!d.ok)continue;
     chosen=std::move(fresh);found=true;break;
+  }
   }
   if(!found){++st.why["relocate: no admissible candidate"];return false;}
   for(const auto& sf:old.surface)if(s.walls.count(s.reference->Get(sf.facet).marker))certified.insert(Sorted(sf.v));
@@ -575,6 +587,7 @@ inline bool FirstRowInsert(State& s,Rows10& rows,Id cell,const Face& key,FirstRo
   unsigned walls=0;for(const auto& sf:old.surface)walls+=s.walls.count(s.reference->Get(sf.facet).marker);
   auto admit=[&](Patch& fresh)->bool{bool added=false;for(const auto& c:fresh.cells)for(auto n:c.v)added=added||!before.count(n.id);
     if(!added)return false;  // retained child: not an insertion
+    if(!FirstChildPasses(s,fresh,key)){++st.why["insert: target first height"];return false;}
     std::string d2;if(!D2Ok(s,old,fresh,d2)){++st.why["insert: D.2"];return false;}
     const auto d=Admit12(s,old,fresh,Kind::Layer);if(!d.ok){++st.why["insert: "+Key(d.reason)];return false;}return true;};
   Patch fresh;FirstHeightReport report;std::string why;bool ok=false;

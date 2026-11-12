@@ -378,6 +378,11 @@ inline bool FirstChildPasses(State& s,const Patch& p,const SurfaceFace& sf,bool*
   if(measured)*measured=height.measured&&!height.missing_cells;
   return passing&&Positive(one.cells.front().v);
 }
+inline bool FirstChildPasses(State& s,const Patch& p,const Face& key) {
+  const SurfaceFace* target=nullptr;
+  for(const auto& sf:p.surface)if(Sorted(sf.v)==Sorted(key)){if(target)return false;target=&sf;}
+  return target&&FirstChildPasses(s,p,*target);
+}
 inline bool D2Ok(State& s,const Patch& old,const Patch& fresh,std::string& why) {
   Scope scope("D.2 invariant");
   std::vector<std::pair<Face,bool>> parents;std::set<Face> oldKeys;
@@ -408,7 +413,8 @@ inline ConeOut ConeColumn(State& s,const std::vector<Face>& skin,const std::map<
     w<<"A_f empty (exact LP) with "<<skin.size()<<" skin faces; inradius/h0="<<double(r/h0)<<"; free-height LP slack="<<double(ApexLP(tris,a,b,c,n,h0,0.9L,false).slack);
     {const V p0=(1.L/3)*(a+b+c)+h0*n;w<<"; violated at centroid+h0:";for(size_t k=0;k<tris.size();++k){const V N=Cross(tris[k][1]-tris[k][0],tris[k][2]-tris[k][0]);const auto nn=Norm(N);if(!(nn>0))continue;
        const auto d=Sigma()*Dot(N,p0-tris[k][0])/nn/h0;if(d>-1e-9L)w<<" ("<<skin[k+1][0]<<","<<skin[k+1][1]<<","<<skin[k+1][2]<<")="<<double(d);}}
-    out.witness=w.str();return out;}
+    out.witness=w.str();
+    if(!((reference.Mapped()&&reference.Parameters()->Geometry().Curves().count(facet))||reference.CompleteAnalytic(facet)))return out;}
   cand.push_back((1.L/3)*(a+b+c)+h0*n);
   bool found=false,heightDenied=false;
   auto evaluate=[&](const std::vector<V>& list){
@@ -433,6 +439,11 @@ inline ConeOut ConeColumn(State& s,const std::vector<Face>& skin,const std::map<
     std::vector<V> grid;const std::array<std::array<long double,3>,7> feet{{{1.L/3,1.L/3,1.L/3},{.6L,.2L,.2L},{.2L,.6L,.2L},{.2L,.2L,.6L},{.45L,.45L,.1L},{.45L,.1L,.45L},{.1L,.45L,.45L}}};
     for(long double eta:{.92L,1.L,1.08L})for(const auto& w:feet)grid.push_back(w[0]*a+w[1]*b+w[2]*c+(eta*h0)*n);
     evaluate(grid);
+  }
+  if(!found&&((reference.Mapped()&&reference.Parameters()->Geometry().Curves().count(facet))||reference.CompleteAnalytic(facet))) {
+    std::vector<V> physical;
+    for(const auto p:PhysicalFirstHeightProposals(facet,{Pt(a),Pt(b),Pt(c)},double(h0),reference))physical.push_back(Of(p));
+    evaluate(physical);
   }
   if(out.cells.empty()){out.cls=heightDenied?"height":"partial-state";
     if(!heightDenied)out.witness="LP apex rounds outside its column";return out;}

@@ -1551,6 +1551,48 @@ TEST_CASE("Curved geometry error probes use projected associations without publi
   CHECK(accepted->Snapshot()==snapshot);CHECK(accepted->Records().size()==points.size());
 }
 
+TEST_CASE("Physical first-height proposals keep mapped projection private and retain geometry refusals", "[NativePhysicalFirstHeightProposals3D][NativeCurvedAtlas3D]") {
+  using namespace SU2Native3D;
+  const CurvedAtlasFixture fixture;const auto& g=*fixture.geometry;auto budget=GeometryAtlasBudget();
+  BoundaryPoints points;std::vector<SurfaceFace> skin;std::map<int,int> roles;
+  for(const auto& f:fixture.facets){skin.push_back({{f.v[0].id,f.v[1].id,f.v[2].id},f.id});roles.emplace(f.marker,2);
+    for(auto n:f.v)points.emplace(n.id,BoundaryPoint{n,g.Vertex(n.id)});}
+  auto accepted=std::make_shared<BoundaryParameterState>(fixture.geometry,points,skin);
+  accepted=accepted->WithMobilityPolicy(60,roles,budget);
+  const std::shared_ptr<const PlanarReference> definition(fixture.geometry,&g.Reference());
+  auto reference=PlanarReference::WithParameters(definition,accepted);auto scoped=reference->WithAtlasReservation(budget);
+  const auto snapshot=accepted->Snapshot();const auto revision=accepted->Revision(),overlay=scoped->ParameterOverlayBytes();
+  const auto& face=fixture.facets[0];const std::array<Point,3> triangle{face.v[0].p,face.v[1].p,face.v[2].p};
+  const double h0=.001;const auto proposals=PhysicalFirstHeightProposals(face.id,triangle,h0,*scoped);
+  const auto repeated=PhysicalFirstHeightProposals(face.id,triangle,h0,*scoped);
+  auto probe=scoped->PrivateParameters(Patch{},&budget);REQUIRE(probe);
+  const std::array<std::array<long double,3>,7> feet{{{1.L/3,1.L/3,1.L/3},{.6L,.2L,.2L},{.2L,.6L,.2L},{.2L,.2L,.6L},
+      {.45L,.45L,.1L},{.45L,.1L,.45L},{.1L,.45L,.45L}}};
+  for(size_t i=0;i<feet.size();++i) {
+    Point flat{};for(unsigned k=0;k<3;++k){flat.x+=double(feet[i][k]*triangle[k].x);flat.y+=double(feet[i][k]*triangle[k].y);flat.z+=double(feet[i][k]*triangle[k].z);}
+    const auto foot=probe->Project(face.id,flat);const auto* binding=probe->Parameter(foot);REQUIRE(binding);
+    const auto physical=g.EvaluateSurface(face.id,binding->binding);const auto p=proposals[i];
+    const double dx=p.x-foot.x,dy=p.y-foot.y,dz=p.z-foot.z;
+    CHECK(std::hypot(dx,dy,dz)==Approx(h0).margin(1e-12));
+    CHECK(std::abs(dx*physical.normal.x+dy*physical.normal.y+dz*physical.normal.z)==Approx(h0).margin(1e-12));
+    CHECK(p.z>foot.z);
+    CHECK(p.x==repeated[i].x);CHECK(p.y==repeated[i].y);CHECK(p.z==repeated[i].z);
+  }
+  auto cyclic=triangle;std::rotate(cyclic.begin(),cyclic.begin()+1,cyclic.end());
+  const auto rotated=PhysicalFirstHeightProposals(face.id,cyclic,h0,*scoped);
+  for(const auto p:proposals)CHECK(std::any_of(rotated.begin(),rotated.end(),[&](Point q){return std::hypot(p.x-q.x,p.y-q.y,p.z-q.z)<1e-12;}));
+  CHECK(accepted->Snapshot()==snapshot);CHECK(accepted->Revision()==revision);CHECK(scoped->ParameterOverlayBytes()==overlay);
+  auto exhausted=GeometryAtlasBudget();exhausted.maximum_work=0;
+  auto exhausted_scope=reference->WithAtlasReservation(exhausted);
+  CHECK_THROWS(PhysicalFirstHeightProposals(face.id,triangle,h0,*exhausted_scope));
+  auto expired=GeometryAtlasBudget();expired.within_time=[](){return false;};
+  auto expired_scope=reference->WithAtlasReservation(expired);
+  CHECK_THROWS(PhysicalFirstHeightProposals(face.id,triangle,h0,*expired_scope));
+  Patch stale;stale.parameters=points;stale.parameters.at(face.v[0].id).binding.version++;
+  CHECK_THROWS(PhysicalFirstHeightProposals(face.id,triangle,h0,*scoped->PrivateParameters(stale,&budget)));
+  CHECK(accepted->Snapshot()==snapshot);CHECK(accepted->Revision()==revision);CHECK(budget.peak_bytes<=budget.maximum_bytes);
+}
+
 TEST_CASE("Accepted face certificates require complete unchanged contracts", "[NativeCurvedAtlas3D][NativeAcceptedFaceCertificate3D]") {
   using namespace SU2Native3D;
   const CurvedAtlasFixture fixture;const auto& g=*fixture.geometry;auto budget=GeometryAtlasBudget();std::string reason;

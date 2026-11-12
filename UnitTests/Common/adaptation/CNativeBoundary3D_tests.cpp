@@ -1824,6 +1824,35 @@ TEST_CASE("Native interior insertion leaves the old diagonal only with a complet
   CHECK(Connectivity(fresh)==unchanged);CHECK(reason.find("complete edge star")!=std::string::npos);
 }
 
+TEST_CASE("Physical first-height proposals retain planar and analytic height checks", "[NativePhysicalFirstHeightProposals3D]") {
+  const auto plain=Facets(Cube());const PlanarReference planar(plain);
+  const auto analytic=JointReference();
+  for(const auto* reference:{&planar,&analytic}) {
+    const Id id=reference==&planar?plain.front().id:analytic.Canonical(0);
+    const auto& face=reference->Get(id);
+    const std::array<Point,3> triangle{face.v[0].p,face.v[1].p,face.v[2].p};
+    const double h0=.01;const auto proposals=PhysicalFirstHeightProposals(id,triangle,h0,*reference);
+    const auto repeated=PhysicalFirstHeightProposals(id,triangle,h0,*reference);
+    WallHeights heights;heights[face.marker]=h0;heights.tolerance=.01;
+    for(size_t i=0;i<proposals.size();++i) {
+      INFO(i);const auto p=proposals[i];
+      CHECK(p.x==repeated[i].x);CHECK(p.y==repeated[i].y);CHECK(p.z==repeated[i].z);
+      Cell cell{100,{{face.v[0],face.v[1],face.v[2],Node{100000,p}}}};
+      if(Orientation(cell.v[0].p,cell.v[1].p,cell.v[2].p,cell.v[3].p)<0)std::swap(cell.v[0],cell.v[1]);
+      REQUIRE(Orientation(cell.v[0].p,cell.v[1].p,cell.v[2].p,cell.v[3].p)>0);
+      Patch child;child.cells={cell};child.surface={{{face.v[0].id,face.v[1].id,face.v[2].id},id}};
+      FirstHeightReport measured;std::string reason;
+      INFO(reason);CHECK(CheckFirstHeight(child,heights,*reference,measured,reason));CHECK(measured.measured);
+    }
+    for(double invalid:{0.,-1.,double(INFINITY),double(NAN)})
+      CHECK_THROWS(PhysicalFirstHeightProposals(id,triangle,invalid,*reference));
+    auto degenerate=triangle;degenerate[2]=degenerate[1];
+    CHECK_THROWS(PhysicalFirstHeightProposals(id,degenerate,h0,*reference));
+    auto nonfinite=triangle;nonfinite[0].x=NAN;
+    CHECK_THROWS(PhysicalFirstHeightProposals(id,nonfinite,h0,*reference));
+  }
+}
+
 TEST_CASE("Finite tilted cylinder and disk queries preserve authority near the axis", "[NativeSmoothClosest3D]") {
   const auto reference=JointReference();const Id wall=reference.Canonical(8);REQUIRE(reference.CompleteAnalytic(wall));
   const double q=1/std::sqrt(3.),v=1/std::sqrt(2.);const long double root=std::sqrt(3.L);

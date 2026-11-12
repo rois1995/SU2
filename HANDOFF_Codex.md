@@ -12,7 +12,18 @@ provenance and failures. This file supersedes historical live handles.
 
 ## Current source, build and workload
 
-No owned heavy workload is running. Actual411 TERMINAL/PASS254.235s, all1662 pins
+Build412 is the ONE owned heavy workload, frozen while compiling. Execsession17916;
+actual-host wrapper3992006/start49633935, ninja3992008/start49633953. Pinned source
+receipt R/build412_source_pins.json; status/resources/log in matching412 files.
+All411 owned handles were terminal before edits. Eight-file connected change shares
+seven private projected physical-foot/normal apex proposals with ConeColumn and
+completion fallbacks; insertion/relocation/cavity success requires strict target-child
+height/positivity. Other provisional debt and constrained/blended column advancement
+are unchanged. Qualification PENDING. Read assessment412 section before further edits.
+Do not edit pinned sources/helpers until actual handles are terminal.
+
+Previous completed state follows; its411 binary hashes are not the in-progress412 build.
+Actual411 TERMINAL/PASS254.235s, all1662 pins
 intact and actual-host wrapper/root/descendants terminal. Case:
 R/cases/curved411_checkpoint_front_20261112T021109_3902682; execsession95134 ended.
 R/front411_assessment.json and first_child411_qualification.json bind evidence.

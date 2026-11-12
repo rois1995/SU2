@@ -105,8 +105,18 @@ inline bool CavityFirstChild(State& s,Rows10& rows,Id cell,const Face& key,std::
   const Cell c=s.mesh.at(cell).cell;Face out{};for(auto f:CellFaces(c))if(Sorted(f)==key)out=f;
   const V a=Of(NodePoint(s,out[0])),b=Of(NodePoint(s,out[1])),cc=Of(NodePoint(s,out[2]));const V n=-1.L*Outward(a,b,cc);const long double h=FaceH0(s,key);
   const std::array<std::array<long double,3>,7> feet{{{1.L/3,1.L/3,1.L/3},{.6L,.2L,.2L},{.2L,.6L,.2L},{.2L,.2L,.6L},{.45L,.45L,.1L},{.45L,.1L,.45L},{.1L,.45L,.45L}}};
-  for(long double eta:{1.L,.95L,1.05L})for(const auto& w:feet) {
-    const Point p=Pt(w[0]*a+w[1]*b+w[2]*cc+(eta*h)*n);
+  std::vector<Point> candidates;
+  for(long double eta:{1.L,.95L,1.05L})for(const auto& w:feet)candidates.push_back(Pt(w[0]*a+w[1]*b+w[2]*cc+(eta*h)*n));
+  for(unsigned phase=0;phase<2;++phase) {
+  if(phase==1) {
+    candidates.clear();const auto parent=PatchOf(s,{cell});
+    for(const auto& sf:parent.surface)if(Sorted(sf.v)==Sorted(key)) {
+      try{for(const auto p:PhysicalFirstHeightProposals(sf.facet,{Pt(a),Pt(b),Pt(cc)},double(h),*s.reference))candidates.push_back(p);}
+      catch(const std::exception& x){why=x.what();}
+      break;
+    }
+  }
+  for(const auto p:candidates) {
     std::set<Id> in{cell};bool ok=true;
     for(Id id:Locate(s,p)){if(id!=cell&&WallChild(s,id)){ok=false;why="target inside another first child";break;}in.insert(id);}
     // star-shaped visibility cavity of p (hidden faces are crossed)
@@ -148,6 +158,7 @@ inline bool CavityFirstChild(State& s,Rows10& rows,Id cell,const Face& key,std::
     {std::set<Id> before,after;for(const auto& x:old.cells)for(auto nn:x.v)if(registered.count(nn.id))before.insert(nn.id);
      for(const auto& x:fresh.cells)for(auto nn:x.v)after.insert(nn.id);bool kept=true;for(Id x:before)kept=kept&&after.count(x);
      if(!kept){why="the cone would remove a registered identity";continue;}}
+    if(!FirstChildPasses(s,fresh,key)){why="target first child fails strict height or positivity";continue;}
     {std::string d2;if(!D2Ok(s,old,fresh,d2)){why=d2;continue;}}
     const auto d=Admit12(s,old,fresh,Kind::Layer);if(!d.ok){why="admission: "+d.reason;continue;}
     for(const auto& sf:old.surface)if(s.walls.count(s.reference->Get(sf.facet).marker))certified.insert(Sorted(sf.v));
@@ -159,6 +170,7 @@ inline bool CavityFirstChild(State& s,Rows10& rows,Id cell,const Face& key,std::
       else {rows.apex.erase(face);rows.overrides.erase(face);rows.extras.erase(face);}
     }
     certified.insert(key);return true;
+  }
   }
   return false;
 }

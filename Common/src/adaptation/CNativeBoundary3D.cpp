@@ -338,6 +338,44 @@ void Endpoints(Edge& edge) {
   std::sort(edge.begin(), edge.end());
 }
 }  // namespace
+std::array<Point,7> PhysicalFirstHeightProposals(Id facet,const std::array<Point,3>& triangle,double height,
+                                               const PlanarReference& base_reference) {
+  if(!(height>0 && std::isfinite(height)))throw std::invalid_argument("Invalid physical first-height proposal height.");
+  for(const auto p:triangle)if(!std::isfinite(p.x)||!std::isfinite(p.y)||!std::isfinite(p.z))
+    throw std::invalid_argument("Nonfinite physical first-height proposal triangle.");
+  const auto outward=Cross(Delta(triangle[1],triangle[0]),Delta(triangle[2],triangle[0]));
+  const auto area=Norm(outward);
+  if(!(area>0 && std::isfinite(area)))throw std::invalid_argument("Degenerate physical first-height proposal triangle.");
+  auto context=base_reference.PrivateParameters(Patch{});
+  const auto& reference=context?*context:base_reference;
+  const std::array<std::array<long double,3>,7> feet{{{1.L/3,1.L/3,1.L/3},{.6L,.2L,.2L},{.2L,.6L,.2L},
+      {.2L,.2L,.6L},{.45L,.45L,.1L},{.45L,.1L,.45L},{.1L,.45L,.45L}}};
+  std::array<Point,7> result;
+  for(size_t i=0;i<feet.size();++i) {
+    Point flat{};for(unsigned k=0;k<3;++k) {
+      flat.x+=double(feet[i][k]*triangle[k].x);flat.y+=double(feet[i][k]*triangle[k].y);flat.z+=double(feet[i][k]*triangle[k].z);
+    }
+    const auto foot=reference.Project(facet,flat);Vector normal=outward;
+    if(reference.Mapped()&&reference.Parameters()->Geometry().Curves().count(facet)) {
+      auto* budget=reference.AtlasReservation();
+      if(!budget||!budget->ChargeWork(1))throw std::length_error("Physical first-height proposal geometry work exhausted.");
+      const auto* parameter=reference.Parameter(foot);
+      if(!parameter)throw std::invalid_argument("Physical first-height proposal lacks a projected binding.");
+      const auto n=reference.Parameters()->Geometry().EvaluateSurface(facet,parameter->binding).normal;
+      normal={n.x,n.y,n.z};
+    } else if(reference.CompleteAnalytic(facet)) {
+      const auto n=reference.ClosestAnalytic(facet,foot).normal;normal={n.x,n.y,n.z};
+    }
+    const auto length=Norm(normal),side=Dot(normal,outward);
+    if(!(length>0 && std::isfinite(length) && std::isfinite(side) && side!=0))
+      throw std::invalid_argument("Physical first-height proposal has an unresolved inward normal.");
+    const long double scale=(side>0?-1.L:1.L)*height/length;
+    result[i]={double(foot.x+scale*normal[0]),double(foot.y+scale*normal[1]),double(foot.z+scale*normal[2])};
+    if(!std::isfinite(result[i].x)||!std::isfinite(result[i].y)||!std::isfinite(result[i].z))
+      throw std::invalid_argument("Nonfinite physical first-height proposal.");
+  }
+  return result;
+}
 bool CheckFirstHeight(const Patch& patch,const WallHeights& heights,const PlanarReference& reference,
                       FirstHeightReport& report,std::string& reason,KernelStats* stats) {
   report={};
