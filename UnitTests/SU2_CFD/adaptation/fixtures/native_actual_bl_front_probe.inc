@@ -8,8 +8,10 @@ const bool panelsOnly=std::string(std::getenv("SU2_NATIVE_BL_FRONT_PROBE"))=="sa
 const bool checkpointTarget=std::getenv("SU2_NATIVE_TARGET_CHECKPOINT3D")!=nullptr;
 const bool contributionsOnly=std::string(std::getenv("SU2_NATIVE_BL_FRONT_PROBE"))=="checkpoint_target_contributions";
 const bool checkpointRepair=std::string(std::getenv("SU2_NATIVE_BL_FRONT_PROBE"))=="checkpoint_target_repair";
-REQUIRE(checkpointTarget==(contributionsOnly||checkpointRepair));
-if(checkpointRepair)REQUIRE(std::getenv("SU2_NATIVE_BL_SAVED_PATCH"));
+const bool checkpointNeighborRepair=std::string(std::getenv("SU2_NATIVE_BL_FRONT_PROBE"))=="checkpoint_target_neighbor_repair";
+REQUIRE(checkpointTarget==(contributionsOnly||checkpointRepair||checkpointNeighborRepair));
+if(checkpointRepair||checkpointNeighborRepair)REQUIRE(std::getenv("SU2_NATIVE_BL_SAVED_PATCH"));
+if(checkpointNeighborRepair)REQUIRE(std::getenv("SU2_NATIVE_BL_SAVED_NEIGHBORS"));
 const bool savedTarget=checkpointTarget||panelsOnly||stabilityOnly||accuracyOnly||exclusionOnly||std::string(std::getenv("SU2_NATIVE_BL_FRONT_PROBE"))=="saved_target_geometry";
 double selectedCore=1e-4,tangentScale=1;
 std::map<Id,std::pair<Point,Tensor>> savedCore;
@@ -183,7 +185,7 @@ for(size_t index=0;index<count;++index) {
       }
       frontLog<<"{\"context\":"<<std::quoted(label)<<",\"stage\":\"saved_target_centroids_complete\",\"q_bad_centroid\":"<<qb
               <<",\"J_bad_centroid\":"<<jb<<",\"q_centroid_min\":"<<minq<<",\"J_centroid_min\":"<<minj<<"}"<<std::endl;
-      if(!contributionsOnly&&!checkpointRepair) {
+      if(!contributionsOnly&&!checkpointRepair&&!checkpointNeighborRepair) {
       const auto a=NodePoint(*state,edge[0]),b=NodePoint(*state,edge[1]);
       const auto sensorLength=state->field->SensorEdgeLength(a,b);
       frontLog<<"{\"context\":"<<std::quoted(label)<<",\"stage\":\"saved_target_chord_begin\",\"a\":";pointJSON(a);
@@ -426,7 +428,8 @@ for(size_t index=0;index<count;++index) {
 }
 if(checkpointTarget) {
   auto savedSensorAt=[&](Point p){return state->field->Sensor(p);};
-  auto* savedRepairField=checkpointRepair?state->field.get():nullptr;
+  auto* savedRepairField=(checkpointRepair||checkpointNeighborRepair)?state->field.get():nullptr;
+  const bool savedRepairNeighbors=checkpointNeighborRepair;
 #include "native_actual_bl_saved_tangent_probe.inc"
   REQUIRE(SU2NativeTargetCheckpoint3D::detail::State(*policy->full)==initialFullProfile);
   REQUIRE(SU2NativeTargetCheckpoint3D::detail::State(*policy->base)==initialBaseProfile);

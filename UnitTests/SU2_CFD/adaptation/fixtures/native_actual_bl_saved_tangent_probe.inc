@@ -232,21 +232,21 @@
     FirstHeightReport rowHeight;
     if(row)rowHeight=assess("saved_prepared_repair_before",*row);
     else saved<<"{\"context\":\"saved_prepared_repair_before\",\"status\":\"limited\",\"reason\":\"SU2_NATIVE_BL_SAVED_PATCH absent\"}"<<std::endl;
-    if(savedRepairField&&row) {
+    auto repair=[&](const std::string& label,const Patch& input,bool requireWholeHeight) {
       // A private fixed-skin feasibility test, not a globally admitted replacement or a transported-nodal replay.
       const size_t savedCaller=budget.caller_bytes;
       const size_t repairBytes=transfer_memory::Add(savedInputBytes,MetricPatchSolveScratchBytes,
-          transfer_memory::Mul(3,patchBytes(*row)));
+          transfer_memory::Mul(3,patchBytes(input)));
       REQUIRE(transfer_memory::Add(savedCaller,repairBytes)<=ceiling);
       budget.caller_bytes=transfer_memory::Add(savedCaller,repairBytes);
       struct RestoreRepairCaller {SU2NativeGeometry::AtlasBudget& b;size_t old;~RestoreRepairCaller(){b.caller_bytes=old;}} restoreRepairCaller{budget,savedCaller};
-      Id firstCell=0;for(const auto& c:row->cells){REQUIRE(c.id<UINT64_MAX);firstCell=std::max(firstCell,c.id+1);}
+      Id firstCell=0;for(const auto& c:input.cells){REQUIRE(c.id<UINT64_MAX);firstCell=std::max(firstCell,c.id+1);}
       const auto started=std::chrono::steady_clock::now();const auto workAt=budget.work;
       const auto beforeField=savedRepairField->Statistics();
       ConnectivityRepairReport report;Patch repaired;std::string reason;
-      const bool improved=RepairMetricConnectivity(*row,*savedRepairField,*scope,heights,firstCell,repaired,report,reason);
+      const bool improved=RepairMetricConnectivity(input,*savedRepairField,*scope,heights,firstCell,repaired,report,reason);
       budget.CheckTime();
-      saved<<"{\"context\":\"saved_row_actual_field_repair\",\"improved\":"<<improved
+      saved<<"{\"context\":"<<std::quoted(label+"_repair")<<",\"improved\":"<<improved
            <<",\"trials\":"<<report.trials<<",\"moves\":"<<report.moves<<",\"vertex_moves\":"<<report.vertex_moves
            <<",\"flips\":"<<report.flips<<",\"removals\":"<<report.removals<<",\"coordinated\":"<<report.coordinated
            <<",\"linearizations\":"<<report.linearizations<<",\"metric_probes\":"<<report.metric_probes
@@ -263,11 +263,17 @@
       REQUIRE(bool(saved));
       if(improved) {
         REQUIRE_FALSE(repaired.cells.empty());REQUIRE(repaired.cells.size()<=MaximumReplacementCells);
-        std::string interfaceReason;REQUIRE(ValidateFixedInterface(row->cells,repaired.cells,interfaceReason));
-        const auto height=assess("saved_row_actual_field_replacement",repaired);CHECK(height.maximum_relative_error<=heights.tolerance);
-        NativeTransactionCapture::Write("saved_row_actual_field_replacement.bin",NativeTransactionCapture::PatchBytes(repaired));
+        std::string interfaceReason;REQUIRE(ValidateFixedInterface(input.cells,repaired.cells,interfaceReason,nullptr,MaximumReplacementCells));
+        std::string heightReason;const bool preserved=PreservePassingFirstHeights(input,repaired,heights,*scope,heightReason);
+        saved<<"{\"context\":"<<std::quoted(label+"_preservation")<<",\"passing_children_preserved\":"<<preserved
+             <<",\"reason\":"<<std::quoted(heightReason)<<",\"whole_height_required\":"<<requireWholeHeight<<"}"<<std::endl;
+        REQUIRE(preserved);
+        const auto height=assess((label+"_replacement").c_str(),repaired);
+        if(requireWholeHeight)CHECK(height.maximum_relative_error<=heights.tolerance);
+        NativeTransactionCapture::Write(label+"_replacement.bin",NativeTransactionCapture::PatchBytes(repaired));
       }
-    }
+    };
+    if(savedRepairField&&row&&!savedRepairNeighbors)repair("saved_row_actual_field",*row,true);
     if(row&&neighbors) {
       std::string why;
       const size_t unionScratch=transfer_memory::GrowthBound(row->cells.size()+neighbors->cells.size(),sizeof(std::pair<const Id,Cell>)+4*sizeof(void*));
@@ -275,7 +281,9 @@
           transfer_memory::Mul(2,patchBytes(*neighbors)),unionScratch)>ceiling)why="union inputs exceed storage admission";
       Patch joined;
       if(why.empty())joined=*row;
-      if(why.empty() && merge(joined,*neighbors,why)) {
+      const bool merged=why.empty() && merge(joined,*neighbors,why);
+      if(savedRepairNeighbors)REQUIRE(merged);
+      if(merged) {
         std::map<Id,bool> rowIds;for(const auto& c:row->cells)rowIds[c.id]=true;
         size_t neighborWall=0,neighborOther=0;
         for(const auto& c:joined.cells)if(!rowIds.count(c.id)) {
@@ -293,6 +301,11 @@
              <<",\"union_missing_cells\":"<<joinedHeight.missing_cells<<",\"union_worst_cell\":"<<joinedHeight.worst_cell
              <<",\"height_delta_available\":"<<(rowHeight.measured&&joinedHeight.measured)
              <<",\"worst_cell_is_neighbor_only\":"<<(joinedHeight.height_failures+joinedHeight.missing_cells>0&&!rowIds.count(joinedHeight.worst_cell))<<"}"<<std::endl;
+        if(savedRepairField&&savedRepairNeighbors) {
+          REQUIRE(joined.cells.size()<=MaximumReplacementCells);
+          NativeTransactionCapture::Write("saved_neighbor_actual_field_before.bin",NativeTransactionCapture::PatchBytes(joined));
+          repair("saved_neighbor_actual_field",joined,false);
+        }
       } else saved<<"{\"context\":\"saved_prepared_repair_before_plus_neighbor_star\",\"status\":\"limited\",\"reason\":"<<std::quoted(why)<<"}"<<std::endl;
     } else saved<<"{\"context\":\"saved_prepared_repair_before_plus_neighbor_star\",\"status\":\"limited\",\"reason\":\"both saved patch paths are required\"}"<<std::endl;
     saved.close();REQUIRE(bool(saved));

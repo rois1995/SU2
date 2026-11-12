@@ -2,6 +2,7 @@
 auto policy=SU2NativeBLPipeline3D::MakeTargetPolicy(config,*reference,1e-4,-1);
 const bool checkpointTarget=false;
 FrozenField* savedRepairField=nullptr;
+const bool savedRepairNeighbors=false;
 auto savedSensorAt=[&](Point){return Tensor{policy->core,0,0,policy->core,0,policy->core};};
 auto lease=policy->ReserveGeometry(budget);
 std::ofstream out("actual_bl_tangential_target.jsonl");REQUIRE(bool(out));out<<std::setprecision(17);

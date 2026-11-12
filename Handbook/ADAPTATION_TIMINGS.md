@@ -926,3 +926,59 @@ now reject, changing the trajectory; timing and query differences are NOT a spee
 claim. All25 cells remain q/J-bad. Largest sampled individual actual RSS1,501,868,032 B
 is not whole-job peak. Next target: repair power/coupled construction, not another
 precision or performance cycle. Physical constraints and budgets are unchanged.
+
+##405 existing neighbor support: zero net quality progress
+
+Diagnostic-only build210.228 s (CFD byte-identical404). Actual127.291 s; repair12.085 s,
+64 trials/6 coordinated steps/36 vertex moves,1501 compositions/540714 geometry work.
+The84-cell/41-point patch remains68 q-bad and68 J-bad. Churn:25 bad cells retired and25
+introduced for both gates. No points or cells removed. Five passing rows and strict
+geometry/positivity preserved; unfinished neighbor rows remain debt. No speedup claim
+against404: patch support differs and net useful quality progress is zero.
+
+All1050 metric probes remain the same count as the25-cell test (7 linearizations×25
+cells×6 spatial probes). Only61346–61351 move. The newly interior39424 is still an apex
+of34 failed rows constrained by the proposal path. Source/support audit selects
+certified constraint eligibility for406; native axis-proposal trace will test that
+mechanism. The new build is development cost, not established computational gain.
+
+
+##406 proposal-release experiment: no useful M6 benefit, production restored
+
+Build418.423 s; serial15/468/4.490 s; MPI6 fifteen cases/rank328–349/4.398 s.
+Actual149.159 s. Direct native probe confirms39424 freezes under legacy proposals
+and gains3 directions when only passing rows constrain it. This does not prove benefit.
+
+| Same84-cell context |405 baseline |406 release experiment |
+|---|---:|---:|
+| Repair time |12.085 s |34.544 s |
+| Geometry work |540714 |1651945 |
+| Compositions |1501 |3654 |
+| Metric probes |1050 |2664 |
+| Trials / coordinated steps / vertex moves |64 /6 /36 |64 /5 /35 |
+| q/J-bad before → after |68 →68 |68 →68 |
+| Bad cells retired / introduced |25 /25 |68 /68 |
+| Points / cells |41 /84 |41 /84 |
+
+Both preserve positivity/geometry and the five passing rows.406 retains34height and
+33footprint failures, with lower minimum other-cell q/J. More cost and no net closure:
+no speedup, no accepted capability gain. Do not activate this default based on fixture
+success. Exact406 source/evidence archived;407 restores exact qualified production404
+and diagnostic405 and verifies binary identity before reusing evidence. No new baseline
+or profiling campaign. Next target: coherent construction and target feasibility.
+
+
+##407 exact restoration and evidence reuse
+
+Build407 passed418.714 s, all1429 pins intact and actual owned handles terminal.
+CFD and test binaries are byte-identical405; reuse404 serial/MPI and405 actual
+qualification. No repeated baseline or profiler run. This rebuild is development
+cost, not an efficiency gain.406 remains an archived negative experiment.
+
+Surface preparation clears full BL edge-breakpoint policy and measures transported
+core plus sided tangential guidance (MeasureSurfacePlanning). Thus the historical
+311.8 s surface seed cannot simply be attributed to full normal-BL chord integration.
+The earlier edge audit separates69.487 s preparation and78.026 s composition nested
+in147.517 s total; finer discovery/distance/normal attribution is incomplete.
+248 tiny ownership intervals cost3720/6375 evaluations, but reduced quadrature is
+unproved. Ten-point error6.82% and zero net quality gains prohibit a speedup claim.

@@ -253,12 +253,23 @@ falls from29.7% to8.40% under the unchanged10% tolerance; all25 cells stay posit
 and geometry-valid. Net q/J retirement is ZERO. This is a constraint fix, not closure
 or a speed gain.
 
-Next reuse the saved complete neighbor star of blocked vertex39424 (84-cell union
-inside the existing128-cell constructed-patch bound) for ONE private actual-field
-test. Protect five passing rows while diagnosing34 unfinished neighbors. No cavity
-campaign or new operator. Compare complete-patch bad counts, geometry, heights and
-work. If boundary shape remains blocked, test coupled surface feasibility versus
-physical geometry/height target delivery using the retained Coulaud/MAdLib comparison.
-Proxies and frozen-matrix controls alone do not justify a new metric. Preserve the
-396 policy and CFD seed; qualify live nodal transport and global publication at the
-proper stage boundary. Handoff owns current handles, source and the remaining goal.
+The one complete-neighbor test405 is now finished:84 cells/41 points,68 q/J-bad
+before and after,25 retired/25 introduced, five passing rows preserved.406 confirmed
+that failed-row proposal constraints freeze the interior apex, but releasing them
+still removed ZERO net bad cells and increased repair12.085→34.544 s. Its exact source
+and evidence are archived; do not activate that default or chase another star.
+407 restores qualified404 production +405 diagnostic, with BOTH binaries byte-identical
+405 and all1429 pins/actual terminal handles verified. Reuse existing qualification.
+
+Next assess coherent coupled surface/volume construction and physical target delivery
+with the saved396 policy and actual seed. The old358 geometry has34 uncreated rows;
+quality-only fixed-skin motion cannot establish target suitability or construct a BL.
+Audit existing tangential planning and row transactions at stage boundaries. Preserve
+all physical constraints and passing rows. Do not select a new metric from frozen
+matrix controls or paper proxies. No new baseline/profiling campaign is justified.
+
+The edge-measurement audit remains current: outside-BL exclusion383 is qualified;
+394 resolves the difficult geometry query. GL10 underestimates6.82% on the saved
+edge. Tiny ownership intervals are expensive but have no conservative composed-speed
+enclosure. Keep classification, ranking, insertion and final-acceptance contracts
+separate; no approximate scalar or unsafe early acceptance has been introduced.

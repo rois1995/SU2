@@ -12,10 +12,57 @@ provenance and failures. This file supersedes historical live handles.
 
 ## Current source, build and workload
 
-NO owned heavy workload. Build404, serial, MPI6 and actual404 PID/start identities
-are verified terminal on the actual host. All 1,656 actual404 source/binary/input/helper
-pins were reverified before documentation/checkpoint work. Qualified404 source/evidence f4ba305a3c is PUSHED.
-Earlier798db15fff/ef3dd43e0d remain preserved. Keep unrelated working changes intact.
+No owned heavy workload is running. Build407 TERMINAL/PASS418.714 s; actual-host
+wrapper3743790/start48978718 and root3743791/start48978735 plus sampled descendants
+are verified terminal in R/build407_terminal_handles.json. All1429 pins intact.
+Both binaries match405 BYTE-FOR-BYTE (CFD16d88dd0…, test57668bfa…); see
+R/restoration407_qualification.json. Reuse404 serial/MPI and405 actual evidence;
+no redundant baseline was launched.
+406 proposal-release experiment is REJECTED for production: correct mobility diagnosis,
+but zero net M6 q/J retirement and more work. Exact406 source archived in
+R/source_snapshots406 (manifest R/source_snapshot406.json); results in
+R/neighbor_patch406_assessment.json. Active source is EXACT qualified404 production
+plus405 diagnostic. No proposal-release API or selection change remains.404 passing-
+height preservation stays.405 diagnostic and405–407 evidence are ready for checkpoint.
+
+406 build passed418.423 s; serial15/468 PASS4.490 s; MPI6 fifteen cases/rank328–349 PASS
+4.398 s. Actual PASS149.159 s/all1658 pins intact/owned handles terminal. Native39424
+legacy steps[0,0,0], passing-only[1,1,1] confirms freeze. Still84cells/41points,68qbad/
+68Jbad before/after; churn68bad retired/68introduced.64trials/35vertexmoves/5coordinated
+steps,59geometry rejections;2664probes/3654compositions/1651945work/34.544s repair.
+Compare40512.085s/540714work, also zero retirement. Minimum other-cell q/J worsens;
+loss improves only112.22684→112.14234. Allpositive/geometrypass, fivepassing rows
+preserved,34height/33footprint failures remain. No useful M6 closure established.
+Don't promote a broader default from fixtures or newly available motion alone.
+
+Next target: coherent construction/surface-target feasibility, not fixed-skin polish,
+another star expansion or a speed cycle. The saved geometry has34 uncreated rows;
+quality-only motion is not a substitute for surface preparation/first-row/growth.
+Finish stage2 physical target assessment using actual seed/complete396policy and
+existing coupled construction facilities; proxies/constant-tensor controls do not
+prove target infeasibility or justify a newmetric. Read queued Coulaud/MAdLib context
+as hypotheses. Source audit: PrepareSurface deliberately clears full BL edge policy
+and uses transported core + sided tangential guidance, projecting normal components;
+it does not run full normal-BL chord quadrature as a surface-readiness metric.
+
+405 actual terminal PASS127.291 s, all1657 pins intact/actual-host handles terminal.
+R/cases/curved405_checkpoint_neighbor_repair_20261112T002408_3656509.
+84 cells/41 points;68 q-bad/J-bad BEFORE and AFTER.64 trials/6 coordinated steps/
+36 vertex moves/1501 compositions/540714 geometry work/12.085 s. Churn25 bad retired,
+25 introduced; net0. Geometry/positivity and five passing rows preserved; unfinished
+neighbors remain debt. R/neighbor_patch405_assessment.json and neighbor_support405_audit.json.
+Capture is correct:39424's64-cell star closes it (zero skin/physical faces), but it is
+apex of34 failed rows and never moves; only61346–61351 move. Current-face normal
+singular values5.830886/.026908/.006658 suggest rank3; canonical native rank was not
+measured in405. Source unconditionally constrained all34 failed rows and protected
+all their apices from retirement.39425 remains on skin; do not start another star
+expansion campaign. Exact405 fixtures in R/source_snapshots405; source_snapshot405.json.
+Build405 passed210.228 s, CFD byte-identical404. All405 handles terminal.
+
+Qualified production source/evidence f4ba305a3c and prior handoff c396929091 are PUSHED.
+The405–407 diagnostic/negative-result checkpoint is being consolidated separately. All404
+build/serial/MPI/actual handles verified terminal; all1656 actual404 pins intact before
+405 edits. Preserve unrelated working changes. Full goal remains active.
 
 Build403 (production fix) passed in 418.466 s; build404 (test only) in 40.123 s.
 CFD is identical between403/404:
@@ -69,16 +116,12 @@ BL are not. Estimated complexity461495.99094, empirical indicator47864.00778 (NO
 bound); tangent factor.25, core.004607250072048262. Source61330 points/303359 tets.
 Core nodal complexity119826.626;49.525% beyond radius20 concerns CORE only.
 
-Next target: repair power/coupled construction and target delivery, not another speed
-cycle. The fixed25-cell patch retires no q/J failures and reports blocked interior
-vertex39424. Its existing saved complete neighbor star forms an84-cell union inside
-the current128-cell constructed-patch bound. Reuse that ONE support for a private
-actual-field test, preserving five passing rows while retaining34 unfinished neighbor
-rows as debt. Do not raise limits, start a cavity campaign or publish from incomplete
-saved ownership state. Compare complete-patch net q/J, geometry, passing heights and
-work; lower loss alone is insufficient. If wall shape remains blocked, distinguish
-coupled surface modification from physical geometry/height target deficiencies using
-the queued Coulaud/MAdLib assessment. No new metric is selected from proxies alone.
+Current stage2 result:405 support import alone and406 proposal release both give ZERO
+net bad-cell removal on unfinished fixed-skin geometry.406 is archived, not selected.
+407 restoration is verified; return to coherent coupled construction/target feasibility
+with the actual seed and existing stage facilities. No more larger-star chasing or
+more trials. Target geometry contributions still need independent actual evidence;
+no new curvature metric or Lp/sensor change is selected.
 
 Current controls use original396 P1 on older358 coordinates, NOT evolved nodal metric
 transport.402 shows all five unrestricted optimal feet outside their triangles;

@@ -1,0 +1,37 @@
+{
+  "build": "build405",
+  "case": "curved405_checkpoint_neighbor_repair",
+  "ranks": 1,
+  "argv": [
+    "nice",
+    "-n",
+    "19",
+    "/usr/bin/time",
+    "-v",
+    "timeout",
+    "600",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+    "[NativeActualBLSurfaceCavity3D]",
+    "--durations",
+    "yes"
+  ],
+  "environment": {
+    "OMPI_MCA_osc": "pt2pt",
+    "OMPI_MCA_orte_tmpdir_base": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/compile-tmp/curved405_checkpoint_neighbor_repair-_vsw2_jv",
+    "SU2_NATIVE_BL_FRONT_PROBE": "checkpoint_target_neighbor_repair",
+    "SU2_NATIVE_BL_REFERENCE": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_bl_inputs/rans_metric_entry364_v1/m6.su2.native_ref",
+    "SU2_NATIVE_BL_CAVITY_CONTEXTS": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_bl_inputs/seed_measurement363_v1/contexts.dat",
+    "SU2_NATIVE_TARGET_CHECKPOINT3D": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved396_saved_cfd_metric_stage_20261111T214613_3294100/target_rank0.bin",
+    "SU2_NATIVE_FROZEN_SENSOR3D": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved396_saved_cfd_metric_stage_20261111T214613_3294100/selected_core_native.bin",
+    "SU2_NATIVE_FROZEN_CORE3D": "0.004607250072048262",
+    "SU2_NATIVE_FROZEN_TANGENT_SCALE3D": "0.24999999999999983",
+    "SU2_NATIVE_BL_SAVED_PATCH": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved358_front_smooth_upper_20261111T045033_884933/prepared_repair_before.bin",
+    "SU2_NATIVE_BL_SAVED_NEIGHBORS": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved358_front_smooth_upper_20261111T045033_884933/prepared_repair_neighbor_star.bin",
+    "SU2_NATIVE_FROZEN_CONFIG": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved405_checkpoint_neighbor_repair_20261112T002408_3656509/run.cfg",
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1",
+    "TMPDIR": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/compile-tmp"
+  },
+  "timeout_seconds": 600
+}

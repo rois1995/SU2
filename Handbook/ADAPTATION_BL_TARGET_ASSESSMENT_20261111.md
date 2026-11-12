@@ -258,3 +258,106 @@ unfinishedneighborheightdebt explicitly. This is not a new cavity limit/campaign
 globalpublication. Netwholepatchq/J and geometry/heights/work determine whethervolume
 support is the obstruction. Remainingwallshape still needs actualcoupledsurface versus
 physicalgeometry/heighttarget discrimination, not a policy change from proxy alone.
+
+##405 existing neighbor-support test — input, output and acceptance
+
+Input: the exact396 saved target/original P1 field and existing358 row plus captured
+complete star of blocked vertex39424. Reuse the existing merge helper; no new support
+search, operator, cavity limit or metric policy. The existing84-cell union fits the
+128-cell constructed-private bound. Construction/publication machinery is unchanged.
+
+Hypothesis: admitting that already captured volume support improves net whole-patch
+q/J retirement beyond the fixed25-cell result. Reuse RepairMetricConnectivity's
+same default64 trials. Preserve all initially passing children with the qualified
+403 rule;34 unfinished neighbor rows remain diagnosed debt, not a new premature gate.
+
+Refactor only the shared diagnostic call so it can assess either patch. Reuse existing
+transaction capture for ONE input and selected replacement, exact target-frame output,
+strict geometry/positivity/interface and PreservePassingFirstHeights checks. Report
+full before/after q/J counts and churn, point/cell changes, old passing-height
+preservation, new height debt, queries/work/time. No approximate edge or global
+clearance/publication claim. All policy/profile/core/radius stamps must remain unchanged.
+Uncertain geometry, incomplete input or exhausted resources must fail/refuse; retain
+all evidence. Diagnostic300 s/outer600 s and all production budgets stay.
+
+This is diagnostic plumbing, not a production behavior change; reuse404's connected
+serial/MPI qualification while affected code remains unchanged. One actual bounded
+M6 neighbor test follows the build. Use its result to select the demonstrated
+surface/volume or target limitation, rather than another scheduler or speed cycle.
+
+##405 outcome and selected proposal-constraint correction
+
+405 actual passed127.291 s, all1657 pins intact and owned handles terminal.84 cells/
+41 points remain;68 q-bad and68 J-bad before AND after.64 trials/6 coordinated steps/
+36 vertex moves,1501 compositions/540714 geometry work/12.085 s. Exactly25 bad cells
+retire and25 bad cells are introduced; no net benefit. All positive/strict geometry
+pass; five passing rows preserved. Neighbor debt remains unaccepted.
+
+Capture provenance is correct:358 exported the64-cell star of39424,59 outside the
+25-cell row. The union makes39424 interior (zero skin/physical faces);39425 remains
+on the artificial skin.39424 is apex of34 requested but failed wall rows and does
+not move. Only61346–61351 move. Current-face apex normals have singular values
+5.830886/.026908/.006658; native canonical-normal rank still needs direct probing.
+R/neighbor_support405_audit.json records the distinction.
+
+Source mechanism: ConstrainMovePoint adds a height normal for EVERY requested apex,
+regardless of whether it is a passing row; CoupledMetricDirection similarly adds all
+footprint constraints and retirement protects all such apices. Thus unfinished coarse
+volume can become a frozen layer. This is a proposal restriction, not proof of an
+admissible alternative. No next-star expansion campaign is selected.
+
+406 connected correction: only private RepairMetricConnectivity derives a certified
+passing-face subset for its current working patch in validity-only partial-row mode.
+Unknown measurements refuse; measured failed rows may release their proposal-only
+height/footprint constraints. Reuse that SAME subset across movement frames, trial
+projection, footprint fitting and apex retirement. Rebuild after accepted changes.
+Full physical boundary constraints and404 independent admission/preservation remain.
+Initially height-clean and all other production callers retain existing all-height
+proposal behavior. No target, gate, budget, scheduler, construction policy or CAD change.
+Audit all ConstrainMovePoint callers: engine geometry/split/move/smoothing defaults
+remain conservative; they do not receive an uncertified subset. Default API behavior
+must be unchanged. The subset is local, bounded, and never an acceptance certificate.
+
+Validate a competing-wall fixture with passing bottom rows and unfinished other walls:
+default proposals freeze the shared apex; certified-subset proposals permit tangential
+motion while preserving the bottom rows and all physical corners. Then focused serial,
+ONE connected MPI milestone and same405 M6 neighbor replay. Add a native default/subset
+proposal trace on the captured star center to confirm the actual mechanism. Judge net
+whole-patch bad-cell retirement and constraints, not newly available motion alone.
+
+##406 negative experiment — do not promote proposal release
+
+Build418.423 s; focused serial15/468 and MPI6 fifteen cases/rank328–349 all pass.
+Actual149.159 s, all1658 pins intact/owned handles terminal. Native probe confirms
+legacy39424 motion is zero in all axes; passing-only proposals permit unit steps.
+However SAME84-cell target context still retires ZERO q/J-bad cells (68 remain),
+with68 bad cells retired and68 introduced.64 trials,35 vertex moves/5 coordinated
+steps,59 geometry rejections,2664 metric probes/3654 compositions/1651945 geometry
+work/34.544 s.405 used12.085 s/540714 work with zero retirement. Minimum other-cell
+q/J deteriorate; loss improves only112.22684→112.14234. All positive/geometry-valid,
+five passing children preserved,34 height failures/33 footprint failures remain.
+No point/cell reduction, flips or removals. R/neighbor_patch406_assessment.json.
+
+This establishes a proposal restriction but NOT useful actual M6 closure from removing
+it. Do not promote a broader, more expensive default based on the fixture/probe alone.
+Exact406 source and results are archived in R/source_snapshots406/source_snapshot406.json.
+Restore exact qualified404 production and405 diagnostic source;407 verifies the
+restored build/runtime identity before reusing qualification.404's demonstrated
+passing-height preservation fix stays. Do not raise trials or chase another star.
+
+Next target is coherent construction/surface-target feasibility, not another fixed-skin
+polish. The union contains34 uncreated rows, metric size debt and untouched wall shape;
+a mobility-only experiment cannot substitute surface preparation and coordinated first
+row/growth. Use the exact saved policy and actual seed geometry to assess existing
+coupled construction at its stage boundary. Frozen tensor foot controls and paper
+proxies do not prove target infeasibility or justify a new metric. Keep stage2 physical
+target assessment explicit before a full surface-generation attempt.
+
+
+##407 restoration verified
+
+Build407 terminal PASS418.714 s, all1429 pins intact; actual wrapper/root/descendant
+identities terminal. Both binaries match405 exactly. R/restoration407_qualification.json
+binds reuse of404 serial/MPI and405 actual evidence. No406 production proposal-release
+change remains. Preserve its exact archived source and negative actual result; do not
+rerun a baseline merely to re-establish restored identity. No usable BL is established.
