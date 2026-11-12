@@ -11,7 +11,28 @@ retains all failures, prior handles, normalization and rejected alternatives. Th
 
 ## Current frozen workload and provenance
 
-NO owned heavy workload.428fullW TERMINAL/PASS491.507s as diagnostic, NOT readiness.
+NO owned heavy workload.430 actual cavity diagnostic TERMINAL/PASS146.812s/608082assertions.
+Case R/cases/curved430_cavity_planning_20261112T074752_490678;
+launcher R/check_cavity_planning430.py; execsession20185 TERMINAL. Allactualhandles
+includingwrapper and allcasepins verified. Build430PASS236.191s,
+pinsintact/actualhandles terminal. CFD34901d2b7c0ad64653c1d54b8d9b61c8c9db3683b8f1079d511cccd66ac769b8
+UNCHANGED428; test6b42b98bd055e0c516ac025632a7b9c4bc544e92cf2b03f2b13af9f36b4d7863.
+R/build430_status.json/terminal_handles and case status/resources ownreceipts.
+429failed20.111s on test assertion treating geometry_failure
+string as bool; failedsource archived in source_snapshots430, allhandles terminal.
+430also corrects review-found contact candidate flag and production repair-progress
+preflight. No production change. Input/output/acceptance:
+[residual cavities](Handbook/ADAPTATION_SURFACE_RESIDUAL_CAVITIES_20261112.md).
+Actual run uses saved428Owned/current parameters and complete396policy;
+no new CFD/normalization/fullsurface attempt.
+R/cavity_planning430_assessment.json: allfourcurrentfieldABBAcontexts exactlyagree.
+Smoothcollapse and LE split pass selectedprivatepreflights, not published/acceptedBL.
+Recordedcollapse's geometry regression reproduced. LE split reducesgeometrydebt but
+q/J-bad3→6; laterqualityclosure remains. LEcollapse reducesdebt but currentCoarsen
+zero-debtgate refuses. Moveproposalconstrainedtozero is INCONCLUSIVE, not a general
+movementfailure. No newoperator/admissionchange justified. Next test existingnativeMPI
+surfacecapacity from396on original6partitions before selecting phase-order changes.
+428fullW TERMINAL/PASS491.507s as diagnostic, NOT readiness.
 All pins and actual PID/start identities terminal. Case
 R/cases/curved428_checkpoint_surface_20261112T064413_336601;
 R/surface_stage428_assessment.json. Native389.594s at388.8limit,3650work/647collapses,

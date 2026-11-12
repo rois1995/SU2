@@ -27,6 +27,15 @@ SurfacePlanning scope, current parameters and original full396policy.
 No newoperator/scheduler, raisedbudget, skippedcleanup or relaxedgate
 from this outcome alone. No firstrow/growth/fullworkflow from incomplete W.
 
+430completed that current-field alignment and bounded operator test. Existing smooth
+collapse and LE split pass private preflights; the saved refused collapse reproduces
+its geometry regression. No missing primitive is established. LE split adds q/Jdebt
+and strict heights remain absent; no accepted BL. The tested move's constrained
+proposal is zero, so it says nothing general about motion. Next assess existing
+nativeMPI surface-stage capacity from complete396/original6partitions before an
+ordering or admission-policy change. See
+[actual cavity evidence](Handbook/ADAPTATION_SURFACE_RESIDUAL_CAVITIES_20261112.md).
+
 One latest full rejected mesh+core/composednodalwitness VTU is in full428case/inspection,
 linked byhandoff, with knownflags0/NaN q/J/geometry. Pointwisejoin verified; no VTKreader
 available. Nativefailedstate plus full396policy retained. This is not acceptedBL or

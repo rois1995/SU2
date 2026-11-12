@@ -1,4 +1,5 @@
-// Complete saved actual cavities, original P1 core and current associations; diagnostic only.
+#include "../../../../Common/include/adaptation/CNativeMetricTransport3D.hpp"
+// Complete saved actual cavities, transported current nodal core and associations; diagnostic only.
 TEST_CASE("Saved actual BL cavities compare cellwise and complete planning", "[.][NativeActualBLCavityPlanning3D]") {
   World world;REQUIRE(world.size==1);
   const auto* cfg=std::getenv("SU2_NATIVE_FROZEN_CONFIG");

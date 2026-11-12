@@ -21,6 +21,14 @@ be presented as a completed timing. Missing counters remain explicitly unmeasure
 
 These are observed times, not forecasts. “Not reached” is not zero cost.
 
+Latest bounded stage3 diagnostic430:236.191s test build; actual146.812s wrapper,
+132.56s user+.82s system. Four current-field contexts give exact ABBA planning
+agreement; smooth control guidance40→10/coreedges60→27, LE48→15/72→36 (two batches).
+Warm per-cell/batched planning.192/.057s and.219/.079s; not whole-stage timing.
+Seven independent operator trials: two private preflights pass, no publication.
+No full surface/BL output; q/J and strict-height debt remain. Largest sampled
+individualRSS1.241GB is not whole-job peak. R/cavity_planning430_assessment.json.
+
 | Section | Latest measured wall time | CPU / synchronization | Work and useful output |
 |---|---:|---|---|
 | 1. Saved CFD seed and geometry | Initial geometry max1.4644s; CFD solve not separately attributed here | Geometry maxCPU≈1.3871s/rank; includes partition/migration/preprocessing | Saved303 RANS+SA mesh/reference/restart reused;61330source points/303359input tets; coarse reasonable coefficients, not convergence/wall-resolution proof |
