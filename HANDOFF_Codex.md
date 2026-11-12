@@ -23,7 +23,7 @@ but zero net M6 q/J retirement and more work. Exact406 source archived in
 R/source_snapshots406 (manifest R/source_snapshot406.json); results in
 R/neighbor_patch406_assessment.json. Active source is EXACT qualified404 production
 plus405 diagnostic. No proposal-release API or selection change remains.404 passing-
-height preservation stays.405 diagnostic and405–407 evidence are ready for checkpoint.
+height preservation stays.405 diagnostic and405–407 evidence are PUSHED in28f944d722.
 
 406 build passed418.423 s; serial15/468 PASS4.490 s; MPI6 fifteen cases/rank328–349 PASS
 4.398 s. Actual PASS149.159 s/all1658 pins intact/owned handles terminal. Native39424
@@ -60,7 +60,7 @@ expansion campaign. Exact405 fixtures in R/source_snapshots405; source_snapshot4
 Build405 passed210.228 s, CFD byte-identical404. All405 handles terminal.
 
 Qualified production source/evidence f4ba305a3c and prior handoff c396929091 are PUSHED.
-The405–407 diagnostic/negative-result checkpoint is being consolidated separately. All404
+The405–407 diagnostic/negative-result checkpoint28f944d722 is PUSHED to the authorized fork. All404
 build/serial/MPI/actual handles verified terminal; all1656 actual404 pins intact before
 405 edits. Preserve unrelated working changes. Full goal remains active.
 
