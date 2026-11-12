@@ -21,81 +21,44 @@ for(unsigned generation=0;generation<=16;++generation) {
           <<(std::isfinite(worstMiss)?worstMiss:-1)<<",\"mesh_published\":false}"<<std::endl;
   if(readyFaces==descendants.size()){surfaceOutcome="sampled_children_feasible";break;}
   if(generation==16)break;
-  const auto ownerAt=state->wall_index.find(worst);REQUIRE(ownerAt!=state->wall_index.end());
-  auto parent=PatchOf(*state,{ownerAt->second});auto priv=state->reference->PrivateParameters(parent,&budget);
-  const auto& context=priv?*priv:*state->reference;
-  const auto parentFace=std::find_if(parent.surface.begin(),parent.surface.end(),[&](const SurfaceFace& f){return dc9::Sorted(f.v)==worst;});
-  REQUIRE(parentFace!=parent.surface.end());
-  std::vector<std::pair<double,Edge>> candidates;
-  for(unsigned k=0;k<3;++k) {
-    Edge split{worst[k],worst[(k+1)%3]};std::sort(split.begin(),split.end());
-    const auto midpoint=dc10::Mid(NodePoint(*state,split[0]),NodePoint(*state,split[1]));
-    const auto projected=context.Project(parentFace->facet,midpoint);REQUIRE(budget.ChargeWork(1));
-    candidates.emplace_back(-double(Norm(Of(projected)-Of(midpoint))),split);
-  }
-  std::sort(candidates.begin(),candidates.end());bool changed=false;
-  for(const auto& ranked:candidates) {
-    budget.CheckTime();const auto split=ranked.second;const auto ids=Star(*state,split);
-    const auto workAt=budget.work;const auto splitStart=std::chrono::steady_clock::now();
-    const auto newNode=state->next_node;Patch before,after;std::string why;bool made=false,contact=false,geometryPass=false,preserved=false;
+  const auto workAt=budget.work;const auto revision=state->boundary_revision;
+  directory.reset(); // Shared production feedback builds contact against the current private mesh.
+  auto feedback=dc15::PrepareFirstRowSurface(*state,completionRows,world,worst,
+      SU2_TYPE::GetValue(config.GetAdap_Hausd()),std::max(0.,300.-std::chrono::duration<double>(std::chrono::steady_clock::now()-t0).count()),3);
+  const bool changed=feedback.changed;const auto split=feedback.split.edge;const auto newNode=feedback.split.point.id;
+  if(changed) {
     std::set<Face> expected=descendants;
-    try {
-      if(ids.empty()||ids.size()>MaximumCavityCells)throw std::length_error("Complete split edge star exceeds existing cavity bounds.");
-      before=PatchOf(*state,ids);
-      made=SplitEdge(before,split,{newNode,dc10::Mid(NodePoint(*state,split[0]),NodePoint(*state,split[1]))},
-          state->next_cell,*state->reference,after,why);
-      if(!made)throw std::invalid_argument(why);
-      auto freshContext=state->reference->PrivateParameters(after,&budget);const auto& freshReference=freshContext?*freshContext:*state->reference;
-      std::map<Id,Point> coordinates;for(const auto& cell:after.cells) {
-        if(!dc9::Positive(cell.v))throw std::invalid_argument("Split has a nonpositive cell.");
-        for(auto node:cell.v)coordinates.emplace(node.id,node.p);
-      }
-      const auto tolerance=SU2_TYPE::GetValue(config.GetAdap_Hausd());geometryPass=true;
-      for(const auto& f:after.surface) {
-        const std::array<Point,3> points{coordinates.at(f.v[0]),coordinates.at(f.v[1]),coordinates.at(f.v[2])};
-        geometryPass=geometryPass&&freshReference.ContainsFace(f.facet,points)&&freshReference.SurfaceError(f.facet,points)<=tolerance;
-      }
-      if(!geometryPass)throw std::invalid_argument("Split lacks strict whole-patch geometry certification.");
-      preserved=PreservePassingFirstHeights(before,after,heights,*state->reference,why);
-      if(!preserved)throw std::invalid_argument(why);
-      for(const auto& child:descendants)if(std::find(child.begin(),child.end(),split[0])!=child.end()&&
-          std::find(child.begin(),child.end(),split[1])!=child.end()) {
-        expected.erase(child);auto left=child,right=child;
-        std::replace(left.begin(),left.end(),split[0],newNode);std::replace(right.begin(),right.end(),split[1],newNode);
-        left=dc9::Sorted(left);right=dc9::Sorted(right);expected.insert(left);expected.insert(right);
-        for(const auto& required:{left,right}) {
-          const auto actual=std::find_if(after.surface.begin(),after.surface.end(),[&](const SurfaceFace& f){return dc9::Sorted(f.v)==required;});
-          if(actual==after.surface.end())throw std::invalid_argument("Split lost expected descendant surface coverage.");
-          if(freshReference.Canonical(actual->facet)!=context.Canonical(parentFace->facet)||
-              freshReference.Get(actual->facet).marker!=context.Get(parentFace->facet).marker)
-            throw std::invalid_argument("Split changed descendant geometry authority or marker.");
-        }
-      }
-      contact=true;if(!directory->Clearance(state->mesh,before,after,contact,why,ceiling,retained)||!contact)
-        throw std::invalid_argument("Split external clearance: "+why);
-      describe(label,"surface_height_split_old",before);describe(label,"surface_height_split_fresh",after);
-      const auto oldShape=composedShapes(before),freshShape=composedShapes(after);const auto revision=state->boundary_revision;
-      Apply(*state,ids,after);descendants=std::move(expected);++surfaceEdits;changed=true;
-      REQUIRE(state->boundary_revision>revision);dc9::ensureDirectionField(*state);
-      REQUIRE(state->direction_revision==state->boundary_revision);
-      // Legacy private Apply does not publish additions to Directory's collision index.
-      directory.reset();directory=std::make_unique<Directory>(world);
-      REQUIRE(directory->Build(state->mesh,why,ceiling,retained));
-      for(const auto& child:descendants)REQUIRE(state->wall_index.count(child));
-      frontLog<<"{\"context\":"<<std::quoted(label)<<",\"stage\":\"surface_height_split_shapes\",\"generation\":"<<generation
-              <<",\"old_q_bad\":"<<oldShape[0]<<",\"old_J_bad\":"<<oldShape[1]<<",\"old_unknown\":"<<oldShape[2]
-              <<",\"fresh_q_bad\":"<<freshShape[0]<<",\"fresh_J_bad\":"<<freshShape[1]<<",\"fresh_unknown\":"<<freshShape[2]
-              <<",\"composed_control_target_only\":true,\"shape_used_for_admission\":false}"<<std::endl;
-    }catch(const std::exception& e){if(changed)throw;why=e.what();}
-    frontLog<<"{\"context\":"<<std::quoted(label)<<",\"stage\":\"surface_height_split\",\"generation\":"<<generation
-            <<",\"edge\":["<<split[0]<<','<<split[1]<<"],\"constructed\":"<<made<<",\"applied_private\":"<<changed
-            <<",\"geometry_pass\":"<<geometryPass<<",\"passing_rows_preserved\":"<<preserved<<",\"external_clearance\":"<<contact
-            <<",\"old_cells\":"<<before.cells.size()<<",\"fresh_cells\":"<<after.cells.size()<<",\"reason\":"<<std::quoted(why)
-            <<",\"seconds\":"<<std::chrono::duration<double>(std::chrono::steady_clock::now()-splitStart).count()
-            <<",\"geometry_work\":"<<budget.work-workAt<<",\"mesh_published\":false}"<<std::endl;
-    if(state->publication_failed)throw std::runtime_error("Surface-height diagnostic private publication failed.");
-    if(changed)break;
+    for(const auto& child:descendants)if(std::find(child.begin(),child.end(),split[0])!=child.end()&&
+        std::find(child.begin(),child.end(),split[1])!=child.end()) {
+      expected.erase(child);auto left=child,right=child;
+      std::replace(left.begin(),left.end(),split[0],newNode);std::replace(right.begin(),right.end(),split[1],newNode);
+      expected.insert(dc9::Sorted(left));expected.insert(dc9::Sorted(right));
+    }
+    descendants=std::move(expected);++surfaceEdits;
+    REQUIRE(state->boundary_revision>revision);REQUIRE(state->direction_revision==state->boundary_revision);
+    for(const auto& child:descendants)REQUIRE(state->wall_index.count(child));
+    const auto reportBytes=transfer_memory::Add(transfer_memory::Mul(feedback.old.cells.size()+feedback.fresh.cells.size(),32768),
+        transfer_memory::Mul(6,transfer_memory::Add(BoundaryCoverageBytes(feedback.old.coverage),BoundaryCoverageBytes(feedback.fresh.coverage))));
+    state->admit_scratch(reportBytes);budget.caller_bytes=transfer_memory::Add(retained,reportBytes);
+    describe(label,"surface_height_split_old",feedback.old);describe(label,"surface_height_split_fresh",feedback.fresh);
+    const auto oldShape=composedShapes(feedback.old),freshShape=composedShapes(feedback.fresh);
+    frontLog<<"{\"context\":"<<std::quoted(label)<<",\"stage\":\"surface_height_split_shapes\",\"generation\":"<<generation
+            <<",\"old_q_bad\":"<<oldShape[0]<<",\"old_J_bad\":"<<oldShape[1]<<",\"old_unknown\":"<<oldShape[2]
+            <<",\"fresh_q_bad\":"<<freshShape[0]<<",\"fresh_J_bad\":"<<freshShape[1]<<",\"fresh_unknown\":"<<freshShape[2]
+            <<",\"composed_control_target_only\":true,\"shape_used_for_admission\":false}"<<std::endl;
   }
+  frontLog<<"{\"context\":"<<std::quoted(label)<<",\"stage\":\"surface_height_split\",\"generation\":"<<generation
+          <<",\"edge\":["<<split[0]<<','<<split[1]<<"],\"constructed\":"<<changed<<",\"applied_private\":"<<changed
+          <<",\"geometry_pass\":"<<changed<<",\"passing_rows_preserved\":"<<changed<<",\"external_clearance\":"<<changed
+          <<",\"old_cells\":"<<feedback.old.cells.size()<<",\"fresh_cells\":"<<feedback.fresh.cells.size()<<",\"reason\":"<<std::quoted(feedback.why)
+          <<",\"seconds\":"<<feedback.seconds<<",\"geometry_work\":"<<budget.work-workAt<<",\"native_work\":"<<feedback.work
+          <<",\"geometry_guidance_before\":"<<double(feedback.geometry_before)<<",\"geometry_guidance_after\":"<<double(feedback.geometry_after)
+          <<",\"shared_production_feedback\":true,\"mesh_published\":false}"<<std::endl;
+  feedback.old={};feedback.fresh={};budget.caller_bytes=retained;
+  directory=std::make_unique<Directory>(world);std::string rebuildReason;
+  REQUIRE(directory->Build(state->mesh,rebuildReason,ceiling,retained));
+  budget.caller_bytes=transfer_memory::Add(retained,directory->ResidentBytes());REQUIRE(budget.caller_bytes<ceiling);
+  if(state->publication_failed)throw std::runtime_error("Surface-height diagnostic private publication failed.");
   if(!changed){surfaceOutcome="all_existing_splits_refused";break;}
 }
 frontLog<<"{\"context\":"<<std::quoted(label)<<",\"stage\":\"surface_height_result\",\"splits\":"<<surfaceEdits

@@ -620,3 +620,40 @@ No coverage or speed improvement is established. Shared proposal semantics/priva
 state are qualified within these checks, not full BL readiness/growth/nativeMPI.
 Continue physical surface-edit feedback with actual failed faces and existing
 transactions; no new target or positional allowance is justified by this result.
+
+## Connected physical surface feedback413 — implementation contract
+
+Input: same saved396 complete target, original no-CAD M6 authority, requested normal
+law and existing strict child/row registries.412 repeats16coupled surface edits before
+five local columns are constructible despite tangential maximum1.15822<1.8. Sharing
+physical-apex proposals alone produced byte-identical output and zero net q/J gain.
+Missing capability: production first-row failure cannot request the demonstrated
+surface/volume preparation or retry coordination from the changed support.
+
+413 reuses bounded edge split/visibility/strip operators and registered-column
+split/junction transactions. Actual failed first-row requests select surface work;
+projected-midpoint gaps rank edges (zero gaps remain eligible). Complete absolute
+geometry-guidance descent selects useful provisional edits, while strict full-patch
+geometry, exact positivity, passing heights, supported identities/features, body
+contact and resource admission independently authorize publication. Finite candidate
+failure is not an infeasibility proof. No positional allowance, new metric or q/J
+construction requirement is added. Unsupported sector/fan cases refuse explicitly.
+
+Current native serial ownership guard stays. A current Directory is built only for
+contact, with retained/candidate/index storage admission, and released before private
+Apply. Both existing column transaction paths can use this physical preparation
+admission; default callers retain previous metric admission. Coordinate/parameter
+publication and direction invalidation reuse Apply. CompleteFirstRow recensuses after
+a surface change and retries existing PhaseR2 on affected wall vertices; closure may
+still import its ordinary neighbors. Oldest/native/global scheduling is unchanged.
+Strict first-row completion blocks growth when coverage is still missing; provisional
+mesh and unleased geometry are retained as rejected stage evidence.
+
+Expected output: positive geometry-certified intermediate mesh with measured coverage/
+height debt, coherent row bookkeeping and bounded retry counters. Acceptance before
+claiming benefit: affected serial checks (including a successful actual curved edit
+and integrated failure-feedback route), one meaningful MPI constraint milestone,
+then shared production feedback on existing actual M6 context(s), complete patch and
+neighbor measurements. Compare q/J, geometry, requested heights, target conformity,
+work/time/memory and coverage. No claim of usable BL from fixtures or local columns.
+Growth12dependency failure remains open until separately resolved at its stage.

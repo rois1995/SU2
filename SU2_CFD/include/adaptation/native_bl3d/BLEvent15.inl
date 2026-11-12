@@ -175,27 +175,146 @@ inline bool CavityFirstChild(State& s,Rows10& rows,Id cell,const Face& key,std::
   return false;
 }
 
+struct SurfaceFeedback {
+  bool changed=false;size_t work=0;SplitRecord split;Patch old,fresh;double seconds=0;
+  long double geometry_before=0,geometry_after=0;std::string why;
+};
+/*! A failed physical first row may request a coupled surface edit even when tangential edges are short.
+ * Absolute geometry guidance only selects progress; complete certificates and contact admit the edit. */
+inline SurfaceFeedback PrepareFirstRowSurface(State& s,Rows10& rows,World& world,const Face& key,
+    double tolerance,double seconds,size_t maximum_work=SIZE_MAX) {
+  Scope scope("DC15 physical surface feedback");SurfaceFeedback out;const auto start=Clock::now();
+  struct Timer {SurfaceFeedback& out;Clock::time_point start;~Timer(){out.seconds=Seconds(start);}} timer{out,start};
+  if(world.size!=1){out.why="physical surface feedback requires the native serial ownership guard";return out;}
+  if(!(std::isfinite(tolerance)&&tolerance>=0&&std::isfinite(seconds)&&seconds>0)||!maximum_work){out.why="physical surface feedback has no admitted work/time";return out;}
+  const auto owner=s.wall_index.find(Sorted(key));
+  if(owner==s.wall_index.end()||!s.mesh.count(owner->second)){out.why="physical surface feedback target is no longer present";return out;}
+  const auto original=PatchOf(s,{owner->second});
+  if(FirstChildPasses(s,original,key)){out.why="target already has a strict passing child";return out;}
+  auto* budget=s.reference->AtlasReservation();const size_t prior=budget?budget->caller_bytes:0;
+  struct Restore {SU2NativeGeometry::AtlasBudget* b;size_t prior;~Restore(){if(b)b->caller_bytes=prior;}} restore{budget,prior};
+  const auto retained=std::max(prior,s.retained_bytes?s.retained_bytes():transfer_memory::Mul(s.mesh.size(),8192));
+  const auto ceiling=budget?std::min(s.memory_ceiling,budget->maximum_bytes):s.memory_ceiling;
+  const auto scratch=transfer_memory::Add(transfer_memory::Mul(MaximumCavityCells+MaximumReplacementCells,32768),
+      transfer_memory::Mul(6,BoundaryCoverageBytes(original.coverage)),transfer_memory::Mul(original.parameters.size(),3072));
+  auto held=transfer_memory::Add(retained,scratch);
+  if(held==SIZE_MAX||held>ceiling){out.why="physical surface feedback exceeds transient storage admission";return out;}
+  if(budget){budget->caller_bytes=held;budget->peak_bytes=std::max(budget->peak_bytes,held);}
+  const auto initialNode=s.next_node;
+  try {
+    if(s.admit_scratch)s.admit_scratch(scratch);
+    auto context=s.reference->PrivateParameters(original);const auto& reference=context?*context:*s.reference;
+    const auto target=std::find_if(original.surface.begin(),original.surface.end(),[&](const SurfaceFace& f){return Sorted(f.v)==Sorted(key);});
+    if(target==original.surface.end())throw std::invalid_argument("physical surface feedback lacks target support");
+    std::vector<std::pair<long double,Edge>> candidates;
+    for(unsigned k=0;k<3;++k) {
+      Edge edge{key[k],key[(k+1)%3]};std::sort(edge.begin(),edge.end());
+      const auto midpoint=dc10::Mid(NodePoint(s,edge[0]),NodePoint(s,edge[1]));
+      const auto projected=reference.Project(target->facet,midpoint);
+      const auto gap=Norm(Of(projected)-Of(midpoint));
+      if(!std::isfinite(gap))throw std::invalid_argument("physical surface feedback nonfinite edge guidance");
+      candidates.emplace_back(-gap,edge);
+    }
+    std::sort(candidates.begin(),candidates.end());
+    for(const auto& candidate:candidates) {
+      if(out.work>=maximum_work||Seconds(start)>=seconds){out.why="physical surface feedback work/time limit";break;}
+      if(budget)budget->CheckTime();++out.work;const Edge edge=candidate.second;
+      auto admit=[&](const Patch& old,const Patch& fresh,std::string& why) {
+        if(old.cells.empty()||old.cells.size()>MaximumCavityCells||fresh.cells.empty()||fresh.cells.size()>MaximumReplacementCells){why="physical surface feedback cavity bounds";return false;}
+        const auto extra=transfer_memory::Add(scratch,transfer_memory::Mul(6,transfer_memory::Add(BoundaryCoverageBytes(old.coverage),BoundaryCoverageBytes(fresh.coverage))),
+            transfer_memory::Mul(transfer_memory::Add(old.parameters.size(),fresh.parameters.size()),3072));
+        held=transfer_memory::Add(retained,extra);
+        if(held==SIZE_MAX||held>ceiling){why="physical surface feedback candidate storage admission";return false;}
+        if(s.admit_scratch)s.admit_scratch(extra);
+        if(budget){budget->caller_bytes=held;budget->peak_bytes=std::max(budget->peak_bytes,held);}
+        std::map<Id,Point> points;std::set<Id> after;
+        for(const auto& cell:fresh.cells){if(!Positive(cell.v)){why="physical surface feedback nonpositive replacement";return false;}
+          for(const auto n:cell.v){points.emplace(n.id,n.p);after.insert(n.id);}}
+        // Unchanged registrations must survive; column splitting updates only the incident parent apices.
+        std::set<Id> protectedIds;for(const auto& r:rows.lift)protectedIds.insert(r.second);
+        for(const auto& r:rows.copies)protectedIds.insert(r.second.ids.begin(),r.second.ids.end());
+        for(const auto& r:rows.apex)if(!(Has(r.first,edge[0])&&Has(r.first,edge[1])))protectedIds.insert(r.second);
+        for(const auto& cell:old.cells)for(const auto n:cell.v)if(protectedIds.count(n.id)&&!after.count(n.id)){why="physical surface feedback loses a registered identity";return false;}
+        auto privateFresh=s.reference->PrivateParameters(fresh);const auto& geometry=privateFresh?*privateFresh:*s.reference;
+        for(const auto& face:fresh.surface) {
+          const std::array<Point,3> p{points.at(face.v[0]),points.at(face.v[1]),points.at(face.v[2])};
+          if(!geometry.ContainsFace(face.facet,p)||!(geometry.SurfaceError(face.facet,p)<=tolerance)){why="physical surface feedback lacks strict whole-patch geometry";return false;}
+        }
+        if(!PreservePassingFirstHeights(old,fresh,s.heights,*s.reference,why))return false;
+        const auto before=GeometryGuidanceExcess(old,*s.reference,0);
+        const auto next=GeometryGuidanceExcess(fresh,geometry,0,before.excess);
+        if(!before.complete||!next.complete||!(next.excess<before.excess)){why="physical surface feedback has no complete geometry descent";return false;}
+        if(Seconds(start)>=seconds){why="physical surface feedback time limit before publication";return false;}
+        // Private Apply does not update a Directory: rebuild from current cells and release before Apply.
+        {Directory directory(world);bool clear=true;
+          if(!directory.Build(s.mesh,why,ceiling,held)||!directory.Clearance(s.mesh,old,fresh,clear,why,ceiling,held)||!clear)return false;}
+        out.old=old;out.fresh=fresh;out.geometry_before=before.excess;out.geometry_after=next.excess;return true;
+      };
+      bool rowed=false,unsupported=false;
+      for(const auto& r:rows.apex)if(Has(r.first,edge[0])&&Has(r.first,edge[1])) {
+        rowed=true;unsupported=unsupported||rows.overrides.count(r.first)||rows.extras.count(r.first);
+      }
+      for(const auto& r:rows.overrides)unsupported=unsupported||(Has(r.first,edge[0])&&Has(r.first,edge[1]));
+      for(const auto& r:rows.extras)unsupported=unsupported||(Has(r.first,edge[0])&&Has(r.first,edge[1]));
+      for(const auto& fan:rows.fan)unsupported=unsupported||(std::find(fan.begin(),fan.end(),edge[0])!=fan.end()&&std::find(fan.begin(),fan.end(),edge[1])!=fan.end());
+      if(unsupported){out.why="physical surface feedback needs supported joint sector transaction";continue;}
+      if(rowed) {
+        VStage stage;std::set<std::vector<Id>> rejected;
+        out.changed=ColumnSplit(s,rows,edge,stage,out.why,rejected,admit);
+      } else {
+        const auto ids=Star(s,edge);
+        if(ids.empty()||ids.size()>MaximumCavityCells){out.why="physical surface feedback complete edge star exceeds bounds";continue;}
+        const auto old=PatchOf(s,ids);Patch fresh;
+        Node point{s.next_node,dc10::Mid(NodePoint(s,edge[0]),NodePoint(s,edge[1]))};
+        bool made=SplitEdge(old,edge,point,s.next_cell,*s.reference,fresh,out.why);
+        if(!made)made=InsertEdgeCavity(old,edge,point,s.next_cell,*s.reference,fresh,out.why);
+        if(!made)made=SplitSurfaceStrip(old,edge,point,{},s.next_cell,*s.reference,fresh,out.why);
+        if(!made||!admit(old,fresh,out.why))continue;
+        Apply(s,ids,fresh);out.changed=true;
+      }
+      if(out.changed) {
+        out.split.edge=edge;out.split.point={initialNode,NodePoint(s,initialNode)};
+        if(ensureDirectionField)ensureDirectionField(s);out.why.clear();return out;
+      }
+    }
+    if(out.why.empty())out.why="physical surface feedback has no curved edge proposal";
+  } catch(const std::exception& e) {
+    if(s.publication_failed||s.next_node!=initialNode)throw;
+    out.why=e.what();
+  }
+  out.old={};out.fresh={};return out;
+}
+
 /*! Row completion (DC15_PLAN sect. 3): every wall face whose first child fails the first-height rule or the validity
  *  check gets the certified first-child routes of V without V's per-face try limit: a registered column re-places its
  *  apex (ApexPlace, then ApexMove); an unregistered face gets FirstRowInsert (InsertFirstWallPoint / ConstructFirstLayer
  *  / ApexRelocate); a refused face whose cell carries several wall faces or a foreign physical face (a corner cell where
  *  creases meet another wall, symmetry or other plane) is separated first (SplitCell, the R2 Prepare operator) and
  *  retried. Every route is admitted by its own checks (D.2, Admit12, validity); faces are certified for the A3 audit. */
-struct Completion { size_t work=0,failing_before=0,failing_after=0,apex_placed=0,inserted=0,separated=0,refused=0,passes=0,cavity=0;double seconds=0;std::string outcome;
+struct Completion { size_t work=0,failing_before=0,failing_after=0,apex_placed=0,inserted=0,separated=0,refused=0,passes=0,cavity=0,surface_work=0,surface_edits=0,row_retry_work=0,row_retry_commits=0;double seconds=0,surface_seconds=0,row_retry_seconds=0;std::string outcome;
   std::map<std::string,size_t> why;std::vector<std::string> witnesses; };
-inline Completion CompleteFirstRow(State& s,Rows10& rows,double seconds,std::set<Face>& certified,std::ostream& log,size_t maximum_work=SIZE_MAX) {
+inline Completion CompleteFirstRow(State& s,Rows10& rows,World& world,double surface_tolerance,double seconds,std::set<Face>& certified,std::ostream& log,size_t maximum_work=SIZE_MAX) {
   Scope scope("DC15 CompleteFirstRow");
   Completion st;const auto t0=Clock::now();
-  auto failing=[&]{std::vector<Face> out;for(const auto& wf:WallFaces(s)){if(!s.mesh.count(wf.first))continue;
-      if(HeightOk(s,wf.first)&&(GetShapeAdmission()==ShapeAdmission::ValidityOnly || !Invalid(MeshShape(s,wf.first))))continue;out.push_back(wf.second);}return out;};
+  auto passes=[&](Id cell){
+    if(!s.mesh.count(cell)||!Positive(s.mesh.at(cell).cell.v))return false;
+    // HeightT's legacy fallback cannot relax requests at least as wide as its own tolerance.
+    if(s.heights.tolerance>=HeightTolerance){if(!HeightOk(s,cell))return false;}
+    else {
+      FirstHeightReport report;std::string why;
+      try{if(!CheckFirstHeight(PatchOf(s,{cell}),s.heights,*s.reference,report,why))return false;}
+      catch(const std::exception&){return false;}
+    }
+    return GetShapeAdmission()==ShapeAdmission::ValidityOnly||!Invalid(MeshShape(s,cell));
+  };
+  auto failing=[&]{std::vector<Face> out;for(const auto& wf:WallFaces(s))if(!passes(wf.first))out.push_back(wf.second);return out;};
   auto owner=[&](const Face& key,Id& cell){const auto w=s.wall_index.find(key);if(w==s.wall_index.end()||!s.mesh.count(w->second))return false;cell=w->second;return true;};
-  auto passes=[&](Id cell){return HeightOk(s,cell)&&(GetShapeAdmission()==ShapeAdmission::ValidityOnly || !Invalid(MeshShape(s,cell)));};
   // a completed first child is certified but not a column: its registration stays only when the face is a full column
   // (all three vertices lifted), as the column routes assume (review item 3)
   auto settle=[&](const Face& key){certified.insert(key);if(!std::all_of(key.begin(),key.end(),[&](Id x){return rows.lift.count(x)>0;})){rows.apex.erase(key);rows.overrides.erase(key);rows.extras.erase(key);}};
   auto list=failing();st.failing_before=list.size();
-  for(unsigned pass=0;pass<3&&!list.empty();++pass) {
-    ++st.passes;bool any=false;
+  for(unsigned pass=0;pass<3&&!list.empty();) {
+    ++st.passes;bool any=false,surfaceChanged=false;
     for(const auto& key:list) {
       if(st.work>=maximum_work || Seconds(t0)>=seconds){st.outcome=st.work>=maximum_work?"limit:work":"limit:time";break;}
       ++st.work;
@@ -215,11 +334,29 @@ inline Completion CompleteFirstRow(State& s,Rows10& rows,double seconds,std::set
           if(owner(key,c2)&&!passes(c2)){FirstRowStats f2;if(FirstRowInsert(s,rows,c2,key,f2,certified)){settle(key);++st.inserted;}else for(const auto& w:f2.why)++st.why["after separation: "+w.first];}
           continue;}
         ++st.why["separation: "+Key(sw)];}
+      if(st.work<maximum_work&&Seconds(t0)<seconds) {
+        auto feedback=PrepareFirstRowSurface(s,rows,world,key,surface_tolerance,seconds-Seconds(t0),maximum_work-st.work);
+        st.work+=feedback.work;st.surface_work+=feedback.work;st.surface_seconds+=feedback.seconds;
+        if(feedback.changed) {
+          ++st.surface_edits;surfaceChanged=true;any=true;
+          std::set<Id> affected;
+          for(const auto& sf:feedback.old.surface)if(s.walls.count(s.reference->Get(sf.facet).marker))certified.insert(Sorted(sf.v));
+          for(const auto& sf:feedback.fresh.surface)if(s.walls.count(s.reference->Get(sf.facet).marker)) {
+            affected.insert(sf.v.begin(),sf.v.end());certified.insert(Sorted(sf.v));
+          }
+          feedback.old={};feedback.fresh={};  // Release diagnostic copies before another transaction.
+          const auto retry=PhaseR2(s,static_cast<Rows&>(rows),std::max(0.,seconds-Seconds(t0)),log,maximum_work-st.work,&affected,&certified);
+          st.work+=retry.work;st.row_retry_work+=retry.work;st.row_retry_commits+=retry.accepted;st.row_retry_seconds+=retry.seconds;
+          break;  // Surface identities changed: reconstruct demand from the current physical faces.
+        }
+        ++st.why["surface feedback: "+Key(feedback.why)];
+      }
       if(pass==2||st.witnesses.size()<16){std::ostringstream w;w<<"face "<<key[0]<<","<<key[1]<<","<<key[2]<<" cell "<<cell<<" walls="<<walls<<" others="<<others<<" registered="<<registered;
         if(!fr.why.empty())w<<" first-row: "<<fr.why.rbegin()->first;if(st.witnesses.size()<16)st.witnesses.push_back(w.str());log<<"DC15 completion refused "<<w.str()<<"\n";}
     }
     if(!st.outcome.empty()||!any)break;
     list=failing();
+    if(surfaceChanged)pass=0;else ++pass;
   }
   st.failing_after=failing().size();st.refused=st.failing_after;if(st.outcome.empty())st.outcome=st.failing_after?"incomplete":"complete";
   st.seconds=Seconds(t0);
@@ -228,7 +365,8 @@ inline Completion CompleteFirstRow(State& s,Rows10& rows,double seconds,std::set
 }
 inline std::string JsonCompletion(const Completion& c) {
   std::ostringstream o;o<<std::setprecision(8)<<"{\"outcome\":\""<<c.outcome<<"\",\"failing_before\":"<<c.failing_before<<",\"failing_after\":"<<c.failing_after<<",\"work\":"<<c.work<<",\"inserted\":"<<c.inserted
-   <<",\"apex_placed\":"<<c.apex_placed<<",\"cavity\":"<<c.cavity<<",\"separated\":"<<c.separated<<",\"passes\":"<<c.passes<<",\"seconds\":"<<c.seconds<<",\"why\":{";
+   <<",\"apex_placed\":"<<c.apex_placed<<",\"cavity\":"<<c.cavity<<",\"separated\":"<<c.separated<<",\"passes\":"<<c.passes<<",\"surface_work\":"<<c.surface_work<<",\"surface_edits\":"<<c.surface_edits<<",\"surface_seconds\":"<<c.surface_seconds
+   <<",\"row_retry_work\":"<<c.row_retry_work<<",\"row_retry_commits\":"<<c.row_retry_commits<<",\"row_retry_seconds\":"<<c.row_retry_seconds<<",\"seconds\":"<<c.seconds<<",\"why\":{";
   {bool k=false;for(const auto& r:c.why){o<<(k?",":"")<<junction_wp0::Json(r.first)<<':'<<r.second;k=true;}}
   o<<"},\"witnesses\":[";for(size_t i=0;i<c.witnesses.size();++i)o<<(i?",":"")<<junction_wp0::Json(c.witnesses[i]);o<<"]}";return o.str();
 }

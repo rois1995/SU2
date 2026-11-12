@@ -481,6 +481,39 @@ inline EngineResult RunEvent(World& world, const Owned& cells, const std::vector
       dc9::directionField=&directions.d;
     };
     dc9::ensureDirectionField(*s);dc9::directionFieldUses=0;
+    auto saveGeometry=[&]() {
+    // Live private publication retained the same geometry, mobility, coverage and active references.
+    if(s->live_parameters) {
+      out.parameters=s->live_parameters;
+      out.reference=s->reference->WithParameterState(s->live_parameters); // Unleased; the event budget cannot escape.
+    } else if (s->mapped) {
+      BoundaryPoints points;
+      std::vector<SurfaceFace> surface;
+      const auto* params = s->reference->Parameters();
+      for (const auto& row : s->mesh) {
+        const auto faces = CellFaces(row.second.cell);
+        for (unsigned k = 0; k < 4; ++k) {
+          if (!row.second.physical[k].present) continue;
+          surface.push_back({faces[k], row.second.physical[k].facet});
+          for (Id v : faces[k]) {
+            if (points.count(v)) continue;
+            const auto o = s->overlay.find(v);
+            if (o != s->overlay.end()) { points.emplace(v, o->second); continue; }
+            const auto* b = params ? params->Find(v) : nullptr;
+            if (!b) throw std::runtime_error("FIRST_ROW: skin vertex " + std::to_string(v) + " has no boundary binding.");
+            points.emplace(v, *b);
+          }
+        }
+      }
+      auto parameters = std::make_shared<BoundaryParameterState>(params->Authority(), points, surface);
+      out.reference = s->reference->WithParameterState(parameters);
+      out.parameters = parameters;
+    } else out.reference = s->reference;
+    };
+    auto incompleteFirstRow=[&](const std::string& reason) {
+      saveGeometry();out.cells.swap(s->mesh);out.stats.final_owned_cells=out.cells.size();
+      out.stats.global_work=workDone;return finish(reason);
+    };
     if (!chain) {
       phase("W", "surface_prepared=1");
       if (!memoryOk("W", why)) return finish(why);
@@ -495,11 +528,12 @@ inline EngineResult RunEvent(World& world, const Owned& cells, const std::vector
                   " untried=" + std::to_string(r2.untried) + " outcome=" + r2.outcome);
       if (!memoryOk("R2", why)) return finish(why);
       MapLayers(*s);
-      const auto cp = dc15::CompleteFirstRow(*s, rows, std::min(std::max(60., .1 * usable),budget-elapsed()), certified, log,ctl.maximum_work-workDone);
+      const auto cp = dc15::CompleteFirstRow(*s, rows, world, preparation.surface_tolerance, std::min(std::max(60., .1 * usable),budget-elapsed()), certified, log,ctl.maximum_work-workDone);
       workDone += cp.work;
       json << ",\"completion\":" << dc15::JsonCompletion(cp);
       phase("completion", "failing=" + std::to_string(cp.failing_before) + "->" + std::to_string(cp.failing_after) + " inserted=" +
                           std::to_string(cp.inserted) + " cavity=" + std::to_string(cp.cavity) + " separated=" + std::to_string(cp.separated) + " outcome=" + cp.outcome);
+      if(cp.failing_after)return incompleteFirstRow("FIRST_ROW physical surface/row preparation remains incomplete: "+cp.outcome);
       snapshot = FirstChildren(*s);
       certified.clear();  // code review 3: the A3 audit covers only the certified operations after the snapshot
       MapLayers(*s);
@@ -529,11 +563,12 @@ inline EngineResult RunEvent(World& world, const Owned& cells, const std::vector
       phase("halving", "split=" + std::to_string(hv.split) + " refused=" + std::to_string(hv.refused) + " inserted=" + std::to_string(cs.inserted));
       if (!memoryOk("halving", why)) return finish(why);
       // Current height requests must be completed independently of the optional volume-optimization budget.
-      const auto cp = dc15::CompleteFirstRow(*s, rows, std::min(std::max(60., .1 * usable),budget-elapsed()), certified, log,ctl.maximum_work-workDone);
+      const auto cp = dc15::CompleteFirstRow(*s, rows, world, preparation.surface_tolerance, std::min(std::max(60., .1 * usable),budget-elapsed()), certified, log,ctl.maximum_work-workDone);
       workDone += cp.work;
       json << ",\"completion\":" << dc15::JsonCompletion(cp);
       phase("completion", "failing=" + std::to_string(cp.failing_before) + "->" + std::to_string(cp.failing_after));
       if (!memoryOk("completion", why)) return finish(why);
+      if(cp.failing_after)return incompleteFirstRow("FIRST_ROW physical surface/row preparation remains incomplete: "+cp.outcome);
     }
     json << ",\"work\":" << workDone << ",\"construction_seconds\":" << elapsed();
     if(workDone>ctl.maximum_work)return finish("FIRST_ROW construction exhausted shared native work.");
@@ -553,33 +588,7 @@ inline EngineResult RunEvent(World& world, const Owned& cells, const std::vector
       json << ",\"export_acceptance\":\"provisional construction\"";
       phase("export");
     }
-    // Live private publication retained the same geometry, mobility, coverage and active references.
-    if(s->live_parameters) {
-      out.parameters=s->live_parameters;
-      out.reference=s->reference->WithParameterState(s->live_parameters); // Unleased; the event budget cannot escape.
-    } else if (s->mapped) {
-      BoundaryPoints points;
-      std::vector<SurfaceFace> surface;
-      const auto* params = s->reference->Parameters();
-      for (const auto& row : s->mesh) {
-        const auto faces = CellFaces(row.second.cell);
-        for (unsigned k = 0; k < 4; ++k) {
-          if (!row.second.physical[k].present) continue;
-          surface.push_back({faces[k], row.second.physical[k].facet});
-          for (Id v : faces[k]) {
-            if (points.count(v)) continue;
-            const auto o = s->overlay.find(v);
-            if (o != s->overlay.end()) { points.emplace(v, o->second); continue; }
-            const auto* b = params ? params->Find(v) : nullptr;
-            if (!b) return finish("FIRST_ROW: skin vertex " + std::to_string(v) + " has no boundary binding.");
-            points.emplace(v, *b);
-          }
-        }
-      }
-      auto parameters = std::make_shared<BoundaryParameterState>(params->Authority(), points, surface);
-      out.reference = s->reference->WithParameterState(parameters);
-      out.parameters = parameters;
-    } else out.reference = s->reference;
+    saveGeometry();
     // pending continuation (committed only after the replacement succeeds)
     auto reg = std::make_shared<RowRegistry>();
     auto P = [&](Id v) { const auto p = NodePoint(*s, v); return RowRegistry::P{p.x, p.y, p.z}; };

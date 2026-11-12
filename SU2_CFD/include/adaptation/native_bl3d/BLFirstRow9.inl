@@ -1129,14 +1129,15 @@ inline bool SplitLinkEdge(State& s,const Rows& rows,Edge e,std::string& why,Id w
   if(!FreshValid(s,fresh.cells)){why="validity";return false;}
   Apply(s,star,fresh);return true;
 }
-inline R2Stage PhaseR2(State& s,Rows& rows,double seconds,std::ostream& log,size_t maximum_work=std::numeric_limits<size_t>::max()) {
+inline R2Stage PhaseR2(State& s,Rows& rows,double seconds,std::ostream& log,size_t maximum_work=std::numeric_limits<size_t>::max(),
+    const std::set<Id>* affected_vertices=nullptr,std::set<Face>* certified_first_children=nullptr) {
   Scope scope("PhaseR2");
   R2Stage g;Begin(s,g);const auto t0=Clock::now();std::set<Id> tried;  // DC-15: vertices with at least one transaction
   for(unsigned pass=0;pass<2;++pass) {
     // (c) canonical order by lift-direction quality: smooth vertices (s* = 1) first, crease and corner vertices last,
     // so a crease vertex is lifted when its neighbours already are (full instead of skewed partial column states)
     std::vector<std::pair<long double,Id>> order;std::set<Id> sectorVertices;
-    for(Id v:WallVertices(s)){if(rows.lift.count(v)||Rim(s,v))continue;const auto d=DirectionAt(s,v);order.emplace_back(d.ok?-std::round(d.s*1e6L)/1e6L:1.L,v);
+    for(Id v:WallVertices(s)){if((affected_vertices&&!affected_vertices->count(v))||rows.lift.count(v)||Rim(s,v))continue;const auto d=DirectionAt(s,v);order.emplace_back(d.ok?-std::round(d.s*1e6L)/1e6L:1.L,v);
       std::set<Id> charts;for(Id f:d.carriers)charts.insert(s.reference->Canonical(f));if(charts.size()>=2)sectorVertices.insert(v);}
     std::sort(order.begin(),order.end());
     // DC-9 (c) iteration 1 (sector vertices before their wall neighbours) is kept as an option only: on A1 it turned the
@@ -1164,7 +1165,10 @@ inline R2Stage PhaseR2(State& s,Rows& rows,double seconds,std::ostream& log,size
         {const auto& f=tx.failing.front();for(Id x:f)if(!rows.lift.count(x)&&!V0.count(x)&&!Rim(s,x)){V0.insert(x);added=true;}}
         if(!added){tx.witness="no growth: "+tx.witness;break;}
       }
-      if(tx.ok){ApplyTx(s,rows,tx);++g.accepted;++g.transactions;g.low_band+=low;g.sector_tx+=tx.sectors>0;g.gaps+=tx.gaps;g.max_closure=std::max(g.max_closure,V0.size());
+      if(tx.ok){
+        if(certified_first_children)for(const auto* patch:{&tx.old,&tx.fresh})for(const auto& sf:patch->surface)
+          if(s.walls.count(s.reference->Get(sf.facet).marker))certified_first_children->insert(Sorted(sf.v));
+        ApplyTx(s,rows,tx);++g.accepted;++g.transactions;g.low_band+=low;g.sector_tx+=tx.sectors>0;g.gaps+=tx.gaps;g.max_closure=std::max(g.max_closure,V0.size());
         g.max_old=std::max(g.max_old,tx.old_cells);g.max_fresh=std::max(g.max_fresh,tx.fresh_cells);g.first_q=std::min(g.first_q,tx.first_q);g.first_J=std::min(g.first_J,tx.first_J);g.height_error=std::max(g.height_error,tx.height_error);}
       else{++g.rejected;++g.classes[tx.cls];++g.reasons[tx.cls+": "+Key(tx.witness)];g.last="vertex "+std::to_string(v)+" ["+tx.cls+"] "+tx.witness;}
     }
@@ -1324,7 +1328,8 @@ inline bool ApexMove(State& s,Rows& rows,const Face& key,VStage& g,std::string& 
 // interface and the other wall faces unchanged, f replaced by its halves, every new carrier face inside its marker's
 // authority (FindFace), the carrier boundary loop unchanged up to the inserted junction point m (L-C), prescribed
 // ball topology, first height of both halves; D.1 Refine admission.
-inline bool ColumnSplitJunction(State& s,Rows& rows,Edge ab,const Face& f,VStage& g,std::string& why,std::set<std::vector<Id>>& rejected) {
+inline bool ColumnSplitJunction(State& s,Rows& rows,Edge ab,const Face& f,VStage& g,std::string& why,std::set<std::vector<Id>>& rejected,
+    const std::function<bool(const Patch&,const Patch&,std::string&)>& physical_admission={}) {
   Scope scope("V ColumnSplit junction");
   const Id a=ab[0],b=ab[1];const Id as=rows.lift.at(a),bs=rows.lift.at(b);const Id oldApex=rows.apex.at(f);
   std::set<Id> cavity;{const auto st=StarOf(s,oldApex);cavity.insert(st.begin(),st.end());}
@@ -1397,19 +1402,22 @@ inline bool ColumnSplitJunction(State& s,Rows& rows,Edge ab,const Face& f,VStage
   for(const Face& h:{f1,f2}){Patch one;const auto k=Sorted(h);for(const auto& c:fresh){unsigned n=0;for(auto x:c.v)n+=Has(k,x.id);if(n==3)one.cells.push_back(c);}
     for(const auto& sf:outPatch.surface)if(Sorted(sf.v)==k)one.surface={sf};for(const auto& c:one.cells)for(auto x:c.v){const auto pr=outPatch.parameters.find(x.id);if(pr!=outPatch.parameters.end())one.parameters.insert(*pr);}
     FirstHeightReport r;if(one.cells.size()!=1||!CheckFirstHeight(one,s.heights,*s.reference,r,reason)){why="ColumnSplit junction height: "+reason;return false;}}
-  const auto d=Admit8(s,old,outPatch,Kind::Refine);
+  Decision d;
+  if(physical_admission){d.ok=physical_admission(old,outPatch,d.reason);}
+  else d=Admit8(s,old,outPatch,Kind::Refine);
   if(!d.ok){++g.rejected;++g.reasons["ColumnSplit junction ["+std::to_string(d.category)+"] "+Key(d.reason)];why="ColumnSplit junction: "+d.reason;return false;}
   guard.keep=false;Apply(s,ids,outPatch);rows.lift[m.id]=ms.id;rows.apex.erase(f);for(const auto& r:newApex)rows.apex[r.first]=r.second;
   ++g.accepted;++g.column_splits;++g.junction_splits;return true;
 }
 // ColumnSplit(a,b): cavity col(f) U col(g) U edge star of the lid edge (a*,b*); wall point m on (a,b) bound to both wall
 // charts, m* on the lid edge; upper cells split at m*, four columns coned from LP apices; D.1 Refine admission.
-inline bool ColumnSplit(State& s,Rows& rows,Edge ab,VStage& g,std::string& why,std::set<std::vector<Id>>& rejected) {
+inline bool ColumnSplit(State& s,Rows& rows,Edge ab,VStage& g,std::string& why,std::set<std::vector<Id>>& rejected,
+    const std::function<bool(const Patch&,const Patch&,std::string&)>& physical_admission={}) {
   Scope scope("V ColumnSplit");
   const Id a=ab[0],b=ab[1];const auto la=rows.lift.find(a),lb=rows.lift.find(b);if(la==rows.lift.end()||lb==rows.lift.end()){why="unlifted wall edge";return false;}
   std::vector<Face> faces;for(const auto& r:rows.apex)if(Has(r.first,a)&&Has(r.first,b))faces.push_back(r.first);
   for(const auto& f:faces)if(rows.overrides.count(f)){why="ColumnSplit: sector column (junction override)";return false;}
-  if(faces.size()==1)return ColumnSplitJunction(s,rows,ab,faces.front(),g,why,rejected);
+  if(faces.size()==1)return ColumnSplitJunction(s,rows,ab,faces.front(),g,why,rejected,physical_admission);
   if(faces.size()!=2){why="ColumnSplit needs two rowed faces on the wall edge (unrowed neighbour)";return false;}
   std::set<Id> cavity;for(const auto& f:faces){const auto st=StarOf(s,rows.apex.at(f));cavity.insert(st.begin(),st.end());}
   for(Id id:Star(s,{std::min(la->second,lb->second),std::max(la->second,lb->second)}))cavity.insert(id);
@@ -1460,7 +1468,9 @@ inline bool ColumnSplit(State& s,Rows& rows,Edge ab,VStage& g,std::string& why,s
   for(const auto& w:newWall){Patch one;const auto key=Sorted(w);for(const auto& c:fresh){unsigned k=0;for(auto n:c.v)k+=Has(key,n.id);if(k==3)one.cells.push_back(c);}
     for(const auto& sf:out.surface)if(Sorted(sf.v)==key)one.surface={sf};for(const auto& c:one.cells)for(auto n:c.v){const auto pr=out.parameters.find(n.id);if(pr!=out.parameters.end())one.parameters.insert(*pr);}
     FirstHeightReport r;if(one.cells.size()!=1||!CheckFirstHeight(one,s.heights,*s.reference,r,reason)){why="ColumnSplit height: "+reason;return false;}}
-  const auto d=Admit8(s,old,out,Kind::Refine);
+  Decision d;
+  if(physical_admission){d.ok=physical_admission(old,out,d.reason);}
+  else d=Admit8(s,old,out,Kind::Refine);
   if(!d.ok){++g.rejected;++g.reasons["ColumnSplit ["+std::to_string(d.category)+"] "+Key(d.reason)];why="ColumnSplit: "+d.reason;return false;}
   guard.keep=false;Apply(s,ids,out);rows.lift[m.id]=ms.id;for(const auto& f:faces)rows.apex.erase(f);for(const auto& r:newApex)rows.apex[r.first]=r.second;
   ++g.accepted;++g.column_splits;return true;

@@ -174,6 +174,129 @@ TEST_CASE("A curved first-child cone tries a physically admissible existing LP c
   }
 }
 
+TEST_CASE("First-row surface feedback commits bounded curved edits with current constraints", "[NativeFirstRowSurfaceFeedback3D]") {
+  using namespace junction_wp0;using namespace SU2NativeGeometry;
+  struct Restore {bool validity=dc9::validityOnlyConstruction,caches=dc9::cachesOn;ShapeAdmission shape=GetShapeAdmission();
+    ~Restore(){dc9::validityOnlyConstruction=validity;dc9::cachesOn=caches;SetShapeAdmission(shape);}} restore;
+  dc9::validityOnlyConstruction=true;dc9::cachesOn=false;SetShapeAdmission(ShapeAdmission::ValidityOnly);
+  World world;AtlasBudget budget{size_t(1)<<24,size_t(1)<<28,4096};
+  const std::array<Node,4> nodes{{{0,{0,0,0}},{1,{1,0,0}},{2,{0,1,0}},{3,{.25,.25,.2}}}};
+  const Cell cell{0,nodes};std::vector<SurfaceFace> surface;State state;Face target{};Id wall=UINT64_MAX;
+  for(const auto& face:Incidence({cell}).Boundary()) {
+    std::array<Node,3> triangle;bool bottom=true;
+    for(unsigned k=0;k<3;++k){triangle[k]=nodes.at(face[k]);bottom=bottom&&triangle[k].p.z==0;}
+    const Id id=state.facets.size();state.facets.push_back({id,bottom?7:8,triangle});surface.push_back({face,id});
+    if(bottom){wall=id;target=Sorted(face);}
+  }
+  REQUIRE(wall!=UINT64_MAX);auto definition=std::make_shared<PlanarReference>(state.facets);
+  MappedFacetReference::CurvedNets nets;std::map<Id,double> errors;
+  const unsigned powers[10][3]={{3,0,0},{0,3,0},{0,0,3},{2,1,0},{1,2,0},{0,2,1},{0,1,2},{1,0,2},{2,0,1},{1,1,1}};
+  for(const auto& facet:state.facets) {
+    errors[facet.id]=1e-12;auto& net=nets[facet.id];
+    for(unsigned q=0;q<10;++q){V p{};for(unsigned k=0;k<3;++k)p=p+(powers[q][k]/3.L)*Of(facet.v[k].p);net[q]=Pt(p);}
+  }
+  const double bulge=GENERATE(.006,-.006);nets.at(wall)[9].z+=bulge;
+  auto authority=std::make_shared<MappedFacetReference>(definition,errors,7,SIZE_MAX,false,nets);
+  BoundaryPoints points;for(auto node:nodes)points.emplace(node.id,BoundaryPoint{node,authority->Vertex(node.id)});
+  state.live_parameters=std::make_shared<BoundaryParameterState>(authority,points,surface);
+  state.reference=PlanarReference::WithParameters(definition,state.live_parameters)->WithAtlasReservation(budget);state.mapped=true;
+  state.markers.resize(9,"carrier");state.markers[7]="wall";
+  state.memory_ceiling=size_t(1)<<28;state.walls.insert(7);state.heights[7]=.02;state.h0=.02;
+  auto sensor=[](Point p){return Tensor{2+p.x,0,0,3+p.y,0,4+p.z};};
+  OwnedCell original;original.cell=cell;original.sensor_present=true;
+  const auto faces=CellFaces(cell);
+  for(unsigned k=0;k<4;++k){original.sensor[k]=sensor(cell.v[k].p);
+    for(const auto& sf:surface)if(Sorted(faces[k])==Sorted(sf.v))original.physical[k]={true,sf.facet};}
+  state.mesh.emplace(cell.id,original);DonorCell donor;donor.cell=cell;donor.sensor=original.sensor;
+  state.field=std::make_unique<FrozenField>(std::vector<DonorCell>{donor});auto* frozen=state.field.get();
+  state.retained_bytes=[&](){return state.live_parameters->ResidentBytes()+authority->ResidentBytes();};
+  Prepare(state);dc10::Rows10 rows;
+  const auto snapshot=state.live_parameters->Snapshot();const auto revision=state.live_parameters->Revision();
+  const auto direction_revision=state.boundary_revision;
+  auto unchanged=[&]() {
+    CHECK(state.mesh.size()==1);REQUIRE(state.mesh.count(cell.id));
+    for(unsigned k=0;k<4;++k){const auto a=state.mesh.at(cell.id).cell.v[k],b=cell.v[k];
+      CHECK(a.id==b.id);CHECK(a.p.x==b.p.x);CHECK(a.p.y==b.p.y);CHECK(a.p.z==b.p.z);}
+    CHECK(state.live_parameters->Snapshot()==snapshot);CHECK(state.live_parameters->Revision()==revision);
+    CHECK(state.boundary_revision==direction_revision);CHECK_FALSE(state.publication_failed);CHECK(state.field.get()==frozen);
+  };
+  if(world.size!=1) {
+    const auto result=dc15::PrepareFirstRowSurface(state,rows,world,target,.01,10,16);
+    CHECK_FALSE(result.changed);unchanged();return;
+  }
+  SECTION("Planar control has no geometric progress demand") {
+    State flat;flat.facets=state.facets;flat.reference=definition;flat.walls=state.walls;flat.heights=state.heights;
+    flat.mesh=state.mesh;flat.field=std::make_unique<FrozenField>(std::vector<DonorCell>{donor});Prepare(flat);
+    const auto before=flat.boundary_revision;
+    CHECK_FALSE(dc15::PrepareFirstRowSurface(flat,rows,world,target,.01,10,16).changed);
+    CHECK(flat.mesh.size()==1);CHECK(flat.mesh.count(0)==1);CHECK(flat.boundary_revision==before);unchanged();
+  }
+  SECTION("A curved surface split preserves authority features and transported target input") {
+    REQUIRE_FALSE(dc9::FirstChildPasses(state,PatchOf(state,{0}),target));
+    const auto result=dc15::PrepareFirstRowSurface(state,rows,world,target,.01,10,16);
+    INFO(result.why);REQUIRE(result.changed);CHECK(result.work>0);CHECK(result.work<=16);
+    CHECK(result.geometry_before>0);CHECK(result.geometry_after<result.geometry_before);
+    REQUIRE_FALSE(result.old.cells.empty());REQUIRE_FALSE(result.fresh.cells.empty());
+    CHECK(state.live_parameters->Revision()>revision);CHECK(state.boundary_revision>direction_revision);
+    CHECK(state.reference->Parameters()==state.live_parameters.get());CHECK(state.live_parameters->Authority()==authority);
+    CHECK(state.field.get()==frozen);CHECK_FALSE(state.publication_failed);
+    std::string reason;CHECK(PreservePassingFirstHeights(result.old,result.fresh,state.heights,*state.reference,reason));
+    auto current=state.reference->PrivateParameters(result.fresh,&budget);REQUIRE(current);
+    std::map<Id,Point> positions;
+    for(const auto& row:state.mesh){const auto& c=row.second.cell;
+      CHECK(Orientation(c.v[0].p,c.v[1].p,c.v[2].p,c.v[3].p)>0);REQUIRE(row.second.sensor_present);
+      for(unsigned k=0;k<4;++k){positions[c.v[k].id]=c.v[k].p;const auto expected=sensor(c.v[k].p),actual=row.second.sensor[k];
+        CHECK(actual.xx==Approx(expected.xx).margin(1e-12));CHECK(actual.yy==Approx(expected.yy).margin(1e-12));CHECK(actual.zz==Approx(expected.zz).margin(1e-12));}}
+    for(const auto& sf:result.fresh.surface){const std::array<Point,3> tri{positions.at(sf.v[0]),positions.at(sf.v[1]),positions.at(sf.v[2])};
+      CHECK(current->ContainsFace(sf.facet,tri));CHECK(current->SurfaceError(sf.facet,tri)<=.01);}
+    const auto* binding=state.reference->Parameter(result.split.point.p);REQUIRE(binding);
+    CHECK(binding->binding.dimension==1);CHECK(binding->node.id==result.split.point.id);
+    CHECK(rows.lift.empty());CHECK(rows.apex.empty());CHECK(budget.peak_bytes<=budget.maximum_bytes);
+  }
+  SECTION("Completion feeds an outward physical obstruction back into a coordinated row retry") {
+    if(bulge>0)return;
+    state.h0=state.heights[7]=2e-6;
+    REQUIRE_FALSE(dc9::FirstChildPasses(state,PatchOf(state,{0}),target));
+    std::set<Face> certified;std::ostringstream log;
+    const auto result=dc15::CompleteFirstRow(state,rows,world,.01,10,certified,log,32);
+    INFO(log.str());INFO(result.outcome);
+    CHECK(result.work<=32);REQUIRE(result.surface_work>0);REQUIRE(result.surface_edits>0);
+    CHECK(result.row_retry_work>0);CHECK(state.live_parameters->Revision()>revision);
+    CHECK(state.boundary_revision>direction_revision);CHECK_FALSE(state.publication_failed);
+    CHECK(state.reference->Parameters()==state.live_parameters.get());CHECK(state.field.get()==frozen);
+    std::vector<Id> ids;for(const auto& row:state.mesh)ids.push_back(row.first);
+    const auto final=PatchOf(state,ids);auto current=state.reference->PrivateParameters(final,&budget);REQUIRE(current);
+    std::map<Id,Point> positions;for(const auto& c:final.cells) {
+      CHECK(Orientation(c.v[0].p,c.v[1].p,c.v[2].p,c.v[3].p)>0);
+      for(auto n:c.v)positions[n.id]=n.p;
+    }
+    for(const auto& sf:final.surface){const std::array<Point,3> tri{positions.at(sf.v[0]),positions.at(sf.v[1]),positions.at(sf.v[2])};
+      CHECK(current->ContainsFace(sf.facet,tri));CHECK(current->SurfaceError(sf.facet,tri)<=.01);}
+    size_t strictFailures=0;
+    for(const auto& wf:layer2d::WallFaces(state))strictFailures+=!dc9::FirstChildPasses(state,PatchOf(state,{wf.first}),wf.second);
+    if(strictFailures){CHECK(result.outcome!="complete");CHECK(result.failing_after>0);}
+    for(const auto& row:rows.apex){CHECK(state.wall_index.count(row.first));CHECK(state.vertex_cells.count(row.second));}
+    CHECK(budget.peak_bytes<=budget.maximum_bytes);
+  }
+  SECTION("An already passing child is retained") {
+    state.heights[7]=.2;REQUIRE(dc9::FirstChildPasses(state,PatchOf(state,{0}),target));
+    CHECK_FALSE(dc15::PrepareFirstRowSurface(state,rows,world,target,.01,10,16).changed);unchanged();
+  }
+  SECTION("Missing face and invalid or exhausted budgets refuse before publication") {
+    CHECK_FALSE(dc15::PrepareFirstRowSurface(state,rows,world,Face{90,91,92},.01,10,16).changed);unchanged();
+    CHECK_FALSE(dc15::PrepareFirstRowSurface(state,rows,world,target,.01,10,0).changed);unchanged();
+    CHECK_FALSE(dc15::PrepareFirstRowSurface(state,rows,world,target,.01,0,16).changed);unchanged();
+    CHECK_FALSE(dc15::PrepareFirstRowSurface(state,rows,world,target,-1,10,16).changed);unchanged();
+    state.memory_ceiling=1;
+    CHECK_FALSE(dc15::PrepareFirstRowSurface(state,rows,world,target,.01,10,16).changed);unchanged();
+  }
+  SECTION("Registered dependencies are not retired by an ordinary wall split") {
+    rows.apex[target]=3;const auto registered=rows.apex;
+    CHECK_FALSE(dc15::PrepareFirstRowSurface(state,rows,world,target,.01,10,16).changed);
+    CHECK(rows.apex==registered);unchanged();
+  }
+}
+
 TEST_CASE("BL private publication uses the parameter state's canonical component anchors", "[NativeBLDirectionInvalidation3D]") {
   using namespace junction_wp0;
   State s;
