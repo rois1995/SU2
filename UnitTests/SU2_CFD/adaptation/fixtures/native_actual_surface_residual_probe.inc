@@ -42,6 +42,9 @@ if(residualProbe) {
       }
     }
   }
+  if(patchTrajectory) {
+#include "native_actual_surface_patch_trajectory.inc"
+  } else {
   std::vector<std::pair<long double,Edge>> ordered;for(auto e:demanded)ordered.push_back({-e.second,e.first});std::sort(ordered.begin(),ordered.end());
   std::vector<std::vector<Edge>> candidates;std::set<std::vector<Edge>> seen;
   auto add=[&](std::vector<Edge> e){std::sort(e.begin(),e.end());if(candidates.size()<24&&seen.insert(e).second)candidates.push_back(std::move(e));};
@@ -120,5 +123,6 @@ if(residualProbe) {
        <<",\"seconds\":"<<std::chrono::duration<double>(std::chrono::steady_clock::now()-candidateStart).count()<<",\"cpu_seconds\":"<<double(std::clock()-candidateCpu)/CLOCKS_PER_SEC
        <<",\"geometry_work\":"<<budget.work-candidateWork<<",\"published\":false,\"mesh_accepted\":false}"<<std::endl;REQUIRE(bool(log));
     REQUIRE(trial.live_parameters->Payload()==committedParameters);++candidateIndex;
+  }
   }
 }

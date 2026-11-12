@@ -491,3 +491,153 @@ Candidate work9.628984wall/9.625960CPU/967110geometrywork; enclosing continuatio
 16.029617s includes the probe (not additive). SampledindividualRSS1.298GB versus
 process time-commandmax1.579GB; neither is whole-job peak. This is capability evidence,
 not performance improvement. All original Euler293 and complete441target preserved.
+
+
+##465 connected trajectory contract — before build, NOT qualified
+
+Input is complete451 current nodal Owned+associations and full441 stage0 composed
+BL target, same saved CFD and physical normal law. Reproduce the already-published
+four perimeter cuts, then discover the complete union of all25edges of the14-face
+residual patch BEFORE reservation. Independent serialized topology preflight finds
+33cells/26vertices (surface_patch465_support_preflight.json); runtime Directory must
+confirm complete support<=64 and reserve it, including all neighboring volume cells.
+Original saved mesh/checkpoints remain immutable. Diagnostic private maximum128,
+24operation attempts/300s shared geometry window/600souter/12GiB unchanged.
+
+Trajectory and operation roles:
+1. Recompute whole reserved patch face bounds, current nodal/composed centroid q/J,
+   exact production planning edge lengths and constraints after each attempted step.
+   Q/J is observed, never ranked/vetoed during construction. Keep individual face/edge
+   identities so failures introduced in neighbors remain visible.
+2. Geometry refinement uses existing projected SplitSurfaceStrip on a proven outside
+   midpoint, worst lower-distance first. Midpoint witness selects work; only existing
+   complete-face conservative bounds can establish mesh-to-model guidance closure.
+   Do not retain a knowninvalid chord for anisotropy. Never infer acceptance from
+   absence of sampled witnesses. Alloriginaledges require admitted complete stars;
+   generated-endpoint edge stars cannot escape the already-private cavity.
+3. Reassess tangential target and realized lengths after each cut. Splitting provides
+   geometric resolution, not surface redistribution or firstrow suitability. Existing
+   collapse removes redundant vertices only with a complete removed star and no
+   geometry/feature/height regression; relocation redistributes positions on the
+   authority; reconnection changes obstructive volume/surface connectivity without
+   changing prescribed interfaces. These are conditional repair mechanisms, NOT an
+   automatic extra ladder in465. A demonstrated need for one must select its existing
+   facility and complete support, rather than add arbitrary variants. Shortedge count
+   is diagnostic; no blanket minimum-edge gate or automatic geometry-required collapse.
+4. If complete mesh-to-model guidance closes and the unchanged maxplanningedge gate
+   passes, publish the complete private transaction through Directory, rebuild the
+   full current-node field/geometry and constrained/blended direction field, then
+   use existing coordinated PhaseR2 restricted to affected wall vertices, sharing
+   the remaining24work/300s. Recheck every target face's physical strict firstheight,
+   not merely row-registration counts. This is first-row readiness assessment, not
+   full surface/BL acceptance. Bidirectional final certification, directional
+   suitability, coverage/neighbor transitions and wholemesh final gates remain required.
+
+Every cut must remain exactpositive/interface-preserving, current-association-valid,
+contact/body-safe, preserve passing heights and satisfy unchanged metric-change
+admission. Partial face-count rises alone are not a veto. Reject unsafe candidates
+without changing the current provisional patch. No post-reservation support growth.
+
+Stalls/reconsideration: stop with preserved wholepatch history at24attempts, native
+64complete-edge-star input/128complete-private replacement bound, shared time/work/memory exhaustion, all supported
+witnessed-edge operations refused, or remaining face debt with no demonstrated
+supported outside midpoint. Report which condition, unresolved faces and unavailable
+support separately; none proves geometric impossibility. If cuts merely proliferate
+small failing children, or a complete bounded patch cannot reach prerequisites,
+reconsider coordinated surface placement/connectivity/support policy before another
+local variant. Do not raise budgets or proceed to layer growth with known failure.
+Firstrow failure after credible surface closure identifies the next construction
+blocker; do not restart upstream CFD/metric computation or claim stage completion.
+
+Source audit before465build avoids an artificial diagnostic limit: sequential cuts
+extract the complete local edge star (<=64), reuse SplitSurfaceStrip, then merge
+and check the full private patch (<=128). Passing the whole grown private patch
+back as a64-cell kernel input would falsely stop a valid production-style sequence.
+Local descriptor trimming and canonical prescribed-skin merge reuse463's pattern;
+complete original Directory reservation remains unchanged throughout.
+
+Frozen465 source-review caveats, to apply to runtime interpretation: raw
+`tangential_stage_reached` means the geometry prerequisite closed, not suitable
+anisotropic tangential distribution. The exported edge lengths/coordinates enable
+attribution, but no new curvature/profile acceptance gate was added. Raw
+`first_row_ready` only summarizes strict heights on retained target face keys;
+coverage/alignment/transition and final bidirectional geometry need independent
+qualification. The assessor explicitly labels tangential suitability and usable
+checkpoint FALSE. Do not promote these diagnostic booleans into stage acceptance.
+This preserves frozen sources and prevents successful counters being overstated.
+
+
+##465 diagnostic defect and connected466 correction
+
+465buildPASS325.885s/all10actualterminal/pins/newbinary/cleanNinja. ActualPASS
+186.215swrapper/178.112stest/608094assertions/1761pins/all5actualterminal/all303622
+Ownedunchanged451. All10projectedsplit trials refused sphere/disk connectivity;
+0cuts,16geometrybad remain, later stages UNREACHED. This is NOT a demonstrated
+operator limitation. R/surface_patch465_assessment.json/outcome.json.
+
+Independent replay of the exact serialized current topology and four known prefix
+cuts proves the33-cell complete edge-star union has connected closed boundary
+V26/E78/F52/Euler0, with annular vertexlinks at4218/4219 (Euler0, expect1). Every
+selected original localedge star passes the independent sphere/disk preflight.
+Thus full-union prescribed-interface validation rejects an already non-ball input,
+not evidence of a geometrically inadmissible cut. Missing the input identity test
+was a diagnostic error. Exact frozen465source archived before correction.
+
+Complete the two defective original vertex stars through existing Directory queries
+BEFORE reservation:3additionalcells,36total, boundaryV26/E72/F48/Euler2, no failing
+vertexlinks in independent preflight. Querying the retained nose edge alone adds
+nothing and does not fix the annulus. Native untouched-input ValidatePrescribed-
+Interface must pass in466 before testing anything, plus retention of every mandatory
+published-prefix cell. No production checker/gate changed. Sources only test helper.
+R/surface_patch465_topology_audit.py/json and support_correction.json preserve proof.
+
+465trajectory1.317897wall/1.317611CPU/73655work mostly repeated rejected aggregate
+checks and measurements, not useful refinement. No efficiency/yield claim.466also
+renames raw milestone booleans: geometry_prerequisite_closed and target_first_height_
+coverage, neither tangential suitability nor usable BL. Same24/64/128/300s/600s/
+12GiB, same field/target/authority. Preserve frozen466 until actual terminal.
+
+
+##466 actual connected trajectory: progress, no closure
+
+BuildPASS327.858s/all10actualterminal/pins/newbinary/cleanNinja. ActualPASS
+204.693swrapper/195.527stest/610648assertions/1762pins/all5actualterminal/303622Owned
+byte-identical451. Native identity topology of36-cell completed input PASS before
+24trials.20projectedcuts admitted through all unchanged provisional guards;4refused
+inheritedvolume inversion (4217–3879270 three times,18571–3879273 once).
+R/surface_patch466_assessment/outcome/source_snapshot.json and fullcase records.
+No production C++ change or originalcheckpoint mutation.
+
+Completepatch36→84cells/26→46points, guidance geometrybad16→14, squaredexcess
+2.5053863646e-6→1.5937420553e-6 (36.387%decrease). qbad36→84/Jbad35→83 is observed,
+not a construction veto. Planningmax1.106559 unchanged; shortwall edges<.5 rise7→68.
+Originalcore anchors bad8→2 while neighboringbad8→12: useful core improvement
+partly offset by neighbor introduction. This is exactly why neither commits nor
+excess alone proves closure. The24operation diagnostic bound is reached with14bad;
+geometry prerequisite remains false and later tangential/firstrow stages UNREACHED.
+No claim of final bidirectional certification, usable stage checkpoint or full BL.
+
+Remaining faces and edges include neighbor originalchords without admitted complete
+stars. Independent preflight adding all originalneighbor bad-face edge demands needs
+57cells, but its boundary has a nonmanifoldedge/annularlinks. Simple completion of
+four affected vertexstars needs80cells, above64. No actual replacement on that80cell
+support is tested or admitted. This does NOT prove a smaller corrected cavity fails;
+it identifies the need for bounded topology-correct support/reduction and/or coupled
+placement/connectivity, rather than continuing unrestricted splits. Exact records:
+R/surface_patch466_neighbor_support_preflight.json. Never extend an old reservation
+or weaken native ball gates to accept that57-cell union.
+
+Selected next assessment: replay actual inversion and neighbor-support obstructions
+with existing relocation/reconnection and bounded corrected cavities, preserving
+mandatory cells, full removedstars and complete association/height/body constraints.
+Compare completepatch net failure counts, directional conformity and point growth;
+then follow the SAME geometry→tangential→directions→strictfirstrow trajectory. Do
+not integrate split-only progress as a proven construction capability or add another
+unrelated isolated pattern. Keep all bounds and sourcefreeze discipline.
+
+Measuredtrajectory12.030241wall/11.981368CPU/999484geometrywork, nested inside
+19.181614scontinuation prefix. Time-command194.12user+1.12system/196.56wall includes
+source/geometry/target setup and checking; not just operators. SampledindividualRSS
+1.432GB versus time-processmax1.577GB are not whole-job peaks. No production speedup
+or rankwait claim (serial test). Main blocker here is constructive closure/support,
+not a demonstrated timing improvement. Euler293 and full441target remain intact.

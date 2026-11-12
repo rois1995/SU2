@@ -1,0 +1,115 @@
+{
+  "case": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved466_surface_patch_serial_20261112T231636_919935",
+  "terminal": true,
+  "pins": 1762,
+  "owned_unchanged": 303622,
+  "status": {
+    "state": "terminal",
+    "exit_code": 0,
+    "seconds": 204.69278597831726,
+    "pins_verified": true,
+    "changed": [],
+    "largest_sampled_individual_process_rss_bytes": 1432072192,
+    "rss_note": "sampled process RSS; not a whole-job peak"
+  },
+  "input": {
+    "stage": "trajectory_state",
+    "pass": 0,
+    "cells": 36,
+    "cuts": 0,
+    "attempts": 0,
+    "q_bad": 36,
+    "J_bad": 35,
+    "geometry_bad": 16,
+    "geometry_excess": 2.5053863646277914e-06,
+    "wall_edges": 39,
+    "below_half": 7,
+    "planning_max": 1.1065593564354395,
+    "seconds": 0.790229713,
+    "geometry_work": 24898,
+    "mesh_accepted": false
+  },
+  "output": {
+    "stage": "trajectory_state",
+    "pass": 24,
+    "cells": 84,
+    "cuts": 20,
+    "attempts": 24,
+    "q_bad": 84,
+    "J_bad": 83,
+    "geometry_bad": 14,
+    "geometry_excess": 1.5937420552800656e-06,
+    "wall_edges": 99,
+    "below_half": 68,
+    "planning_max": 1.1065593564354395,
+    "seconds": 12.030051162000001,
+    "geometry_work": 999484,
+    "mesh_accepted": false
+  },
+  "result": {
+    "stage": "trajectory_result",
+    "old_cells": 36,
+    "new_cells": 84,
+    "attempts": 24,
+    "cuts": 20,
+    "geometry_bad": 14,
+    "mesh_to_model_guidance_closed": false,
+    "geometry_prerequisite_closed": false,
+    "surface_geometry_certified": false,
+    "first_row_reached": false,
+    "target_first_height_coverage": false,
+    "stop": "unchanged 24-operation bound",
+    "seconds": 12.030240712000001,
+    "cpu_seconds": 11.981368,
+    "geometry_work": 999484,
+    "published": false,
+    "mesh_accepted": false
+  },
+  "core_neighbor_attribution": [
+    {
+      "pass_index": 0,
+      "core_bad": 8,
+      "neighbor_bad": 8,
+      "faces": 22,
+      "core_faces": 14
+    },
+    {
+      "pass_index": 24,
+      "core_bad": 2,
+      "neighbor_bad": 12,
+      "faces": 62,
+      "core_faces": 32
+    }
+  ],
+  "excess_fraction_removed": 0.3638737410799163,
+  "rejection_reasons": {
+    "Native3D surface strip inverts inherited volume connectivity.": 4
+  },
+  "rejected_edges": [
+    [
+      4217,
+      3879270
+    ],
+    [
+      4217,
+      3879270
+    ],
+    [
+      4217,
+      3879270
+    ],
+    [
+      18571,
+      3879273
+    ]
+  ],
+  "decision": "Do not integrate split-only progression as a demonstrated surface-to-first-row capability. Corrected topology permits real progress, but20cuts leave14geometrybad,4volume inversions occur and extra neighbor debt appears. Next address demonstrated complete-support/placement/connectivity obstruction using existing operators; do not raise bounds or repeat isolated variants.",
+  "limits": [
+    "No strict bidirectional geometry closure, tangential suitability or first-row reached.",
+    "Initial bound_bad-face anchor attribution separates core from affected neighbors, not exact cell ancestry or final geometry truth.",
+    "The raw firstheight failure reasons on admitted cuts refer to provisional admission; strict height did not pass.",
+    "Fullstar closure of all newly exposed neighbor demand requires80cells by the simple rule, beyond64. This does not prove a smaller valid corrected cavity impossible.",
+    "No production source change; no usable stage checkpoint or MPI qualification."
+  ],
+  "goal_complete": false
+}

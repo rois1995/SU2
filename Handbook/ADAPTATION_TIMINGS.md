@@ -1,9 +1,28 @@
 # Adaptation timings and computational work
 
-Updated2026-11-12. Maintain this file after each completed meaningful stage or
+Updated2026-11-13. Maintain this file after each completed meaningful stage or
 integration result. [Current handoff](../HANDOFF_Codex.md) owns live handles;
 [stage inputs/outputs and acceptance](ADAPTATION_CURVED_BL_STAGE_INTEGRATION_20261111.md)
 own the development sequence. R=`integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57`.
+
+Latest466connectedtrajectory TERMINAL: build327.858s; actual204.693swrapper/
+195.527stest/610648assertions/1762pins/allactualterminal/303622Ownedunchanged451.
+36-cell input nativeidentity topologyPASS;24attempts/20cuts/4inversions. Privatecells
+36→84,geometrybad16→14,corebad8→2/neighbors8→12. No geometryclosure or firstrow.
+Trajectory12.030241wall/11.981368CPU/999484geometrywork nested in19.181614sprefix;
+do notsum. Time-command194.12user+1.12system/196.56wall includes setup. Sampled
+individualRSS1.432GB/time-processmax1.577GB, neither wholejobpeak. No production
+speedup/fullfield removal-rate/MPIwait claim. ProductionCFD unchanged451.
+465invaliddiagnostic predecessor: build325.885s/runtime186.215s;33-cell original
+supportnotball,all10trials rejected. Exact source/evidence retained;466corrected
+support BEFOREreservation, not native topology gates. No owned heavyjob remains.
+
+Earlier464diagnostic: build289.810s; actual189.912swrapper/182.568stest,
+608133assertions/1759pins/allhandles terminal/303622Ownedunchanged.15valid private
+replacements but0wholepatch geometrybad-retiring. Candidate9.628984wall/9.625960CPU/
+967110geometrywork nested in16.029617scontinuation. No production speedup selected.
+465coherent-patch trajectory build running/pinned; no465runtime timings yet.
+Read the end of this ledger and currenthandoff for detailed current qualification.
 
 463direct coupled diagnostic: buildPASS309.814s; actualPASS192.110swrapper/1757pins/
 allactualhandles terminal/303622Owned unchanged451.9diagonal changes (5existing

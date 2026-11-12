@@ -1,0 +1,98 @@
+{
+  "additional_original_neighbor_demand_edges": 14,
+  "complete_proposed_support_cells": 57,
+  "combinatorial_topology": {
+    "cells": 57,
+    "boundary": {
+      "vertices": 42,
+      "edges": 128,
+      "faces": 86,
+      "euler": 0,
+      "face_components": 1,
+      "edge_multiplicities": {
+        "2": 127,
+        "4": 1
+      }
+    },
+    "bad_vertex_links": [
+      {
+        "vertex": 18565,
+        "expected_euler": 1,
+        "vertices": 11,
+        "edges": 22,
+        "faces": 11,
+        "euler": 0,
+        "face_components": 1,
+        "edge_multiplicities": {
+          "1": 11,
+          "2": 11
+        }
+      },
+      {
+        "vertex": 8070,
+        "expected_euler": 1,
+        "vertices": 10,
+        "edges": 20,
+        "faces": 10,
+        "euler": 0,
+        "face_components": 1,
+        "edge_multiplicities": {
+          "1": 10,
+          "2": 10
+        }
+      },
+      {
+        "vertex": 55226,
+        "expected_euler": 1,
+        "vertices": 7,
+        "edges": 10,
+        "faces": 4,
+        "euler": 1,
+        "face_components": 2,
+        "edge_multiplicities": {
+          "2": 2,
+          "1": 8
+        }
+      },
+      {
+        "vertex": 18554,
+        "expected_euler": 1,
+        "vertices": 12,
+        "edges": 23,
+        "faces": 11,
+        "euler": 0,
+        "face_components": 1,
+        "edge_multiplicities": {
+          "2": 10,
+          "1": 13
+        }
+      }
+    ]
+  },
+  "within_64": true,
+  "full_star_closure_vertices": [
+    8070,
+    18554,
+    18565,
+    55226
+  ],
+  "full_star_closure_cells": 80,
+  "full_star_closure_topology": {
+    "cells": 80,
+    "boundary": {
+      "vertices": 46,
+      "edges": 132,
+      "faces": 88,
+      "euler": 2,
+      "face_components": 1,
+      "edge_multiplicities": {
+        "2": 132
+      }
+    },
+    "bad_vertex_links": []
+  },
+  "full_star_closure_within_64": false,
+  "assessment_sha256": "2af89814515ea7d11cbdfbedc0b383f789b82f3d0d74bdf2593def013664c2b0",
+  "script_sha256": "c7a46b203a3cc61cc96c37507909d19db5637cd7d41ee80e23a219ff35b94933",
+  "scope": "Original neighboring-demand support preflight only. No replacement feasibility, native acceptance, permission to enlarge a reservation or proof that every smaller corrected cavity fails."
+}

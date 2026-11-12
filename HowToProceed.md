@@ -474,3 +474,35 @@ per-face/edge attribution through the trajectory. Stay within64old/128private/24
 rather than silently enlarge it. Strictheight remains unachieved. The firstheight
 factor10schedule comparison stays queued for a usable generatedpatch, same32h0start.
 See current HANDOFF and surface_strip464_outcome.json for terminal/provenance details.
+
+465active test now follows a connected residual patch: complete runtime discovery/
+reservation of33originalcells (independentpreflight), repeated existing projectedcuts
+on complete localedge stars, checked mergeinto<=128privatepatch, complete old/fresh
+measurements eachstep. If prerequisites close, existing constrained directions and
+PhaseR2 are exercised with the remaining work/time; otherwise preserve the exact
+first unmet prerequisite. No first-row readiness inferred from row/commit counts.
+There is no new production operator/scheduler orbudget. For the full before-test
+strategy, operation roles/stalls/reconsideration, read465contract in the current
+geometry-bounds handbook. Preserve frozenbuild465 before changes.
+
+465 runtime exposed a diagnostic support defect, not an operator limitation: the
+33-cell original edge-star union has a handle/annular links; its aggregate identity
+must fail ball topology.466 completes vertex stars4218/4219 before reservation,
+adding3cells (36total<=64), and checks untouched input with the native topology
+validator before any trial. Independent replay proves the combinatorial correction;
+actual native qualification/outcome still pending. Preserve frozen466 build/session
+in HANDOFF. No topology weakening, largerbudget or new operator is authorized by
+465's refusal. Source465 snapshot and all receipts are retained.
+
+
+466is terminal and supersedes earlierpending465/466notes. Corrected36-cell native
+inputPASS;20cuts within24attempts give corebad8→2 but neighbors8→12 (whole16→14),
+36→84cells and7→68wall edges<.5. Fourcut attempts invert inheritedvolume. Geometry
+closure remains false; tangential andfirstrow stages UNREACHED. This is not a usable
+stagecheckpoint. Keep original441target/451Owned/Euler293 payloads untouched.
+Next ONE connected correction must test existing coupled relocation/reconnection or
+bounded corrected support on those actual inversions/neighbors, then run the ENTIRE
+trajectory through the same downstream prerequisites. Do not just add split trials.
+Allneighbor-demand union57cells is not a ball; naive fullstarcompletion80 exceeds64.
+A smaller valid corrected cavity is unresolved, not ruled out. No raised limits,
+postreservation enlargement, relaxedgates or newframework. See HANDOFF and466outcome.

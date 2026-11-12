@@ -1,0 +1,19 @@
+{
+  "runtime_assertions_passed": true,
+  "case": "cases/curved465_surface_patch_serial_20261112T230404_876248",
+  "wrapper_seconds": 186.2154347896576,
+  "test_seconds": 178.112,
+  "assertions": 608094,
+  "all_actual_handles_terminal": true,
+  "pins": 1761,
+  "owned_unchanged": 303622,
+  "trajectory_seconds": 1.317896971,
+  "trajectory_cpu_seconds": 1.317611,
+  "trajectory_geometry_work": 73655,
+  "cuts": 0,
+  "reason": "Diagnostic topology defect: full original33-cell edge-star union has boundary Euler0 and annular links at4218/4219. Aggregated prescribed-interface validator expects a ball and rejects before measuring useful replacement.",
+  "classification": "Invalid capability comparison, not evidence against existing refinement operators.",
+  "correction": "Complete vertex stars at two demonstrated defective vertices add3cells.36-cell union has Euler2 and no failing link in independent combinatorial preflight. Native identity topology validation now required before trials.",
+  "production_changed": false,
+  "goal_complete": false
+}
