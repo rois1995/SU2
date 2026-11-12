@@ -4216,17 +4216,26 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
               const auto components=AssociatedExtensions(donors.cells,geometry);
               observe_transaction("support_donors",donors.valid,&donors);
               target=std::make_unique<FrozenField>(std::move(donors.cells),composition,options.timings,components,options.edge_breakpoints,field_identity,true,MaximumDonors,true);
-              for (size_t i=slot;i<std::min(slot+batch,cells.size());++i) {
-                Patch local_surface;
-                if(surface_target) {
-                  if(!surface_context)throw std::logic_error("Surface planning lacks its current private cavity.");
-                  local_surface.cells={cells[i]};local_surface.parameters=surface_context->parameters;local_surface.coverage=surface_context->coverage;
-                  const auto faces=Faces(cells[i]);
-                  for(const auto& face:surface_context->surface)
-                    if(std::any_of(faces.begin(),faces.end(),[&](Face f){return Key(f)==Key(face.v);}))local_surface.surface.push_back(face);
+              PatchMetric planned;
+              if(surface_target) {
+                if(!surface_context)throw std::logic_error("Surface planning lacks its current private cavity.");
+                Patch local_surface;std::set<Face> faces;
+                local_surface.parameters=surface_context->parameters;local_surface.coverage=surface_context->coverage;
+                for(size_t i=slot;i<std::min(slot+batch,cells.size());++i) {
+                  local_surface.cells.push_back(cells[i]);for(auto face:Faces(cells[i]))faces.insert(Key(face));
                 }
-                const auto part=surface_target?MeasureSurfacePlanning(local_surface,*target,geometry,options.wall_heights,surface_target,&counted):
-                    measure_shape ? MeasureMetricCells({cells[i]},*target,&counted,&reuse,shape,shape ? &certified : nullptr,&campaign_edges) :
+                for(const auto& face:surface_context->surface)if(faces.count(Key(face.v)))local_surface.surface.push_back(face);
+                // Guidance is cell-independent; use the same admitted source batch and current private associations once.
+                planned=MeasureSurfacePlanning(local_surface,*target,geometry,options.wall_heights,surface_target,&counted);
+              }
+              for (size_t i=slot;i<std::min(slot+batch,cells.size());++i) {
+                PatchMetric part;
+                if(surface_target) {
+                  for(unsigned a=0;a<4;++a)for(unsigned b=a+1;b<4;++b) {
+                    Edge edge{cells[i].v[a].id,cells[i].v[b].id};std::sort(edge.begin(),edge.end());
+                    part.edges.emplace(edge,planned.edges.at(edge));
+                  }
+                } else part=measure_shape ? MeasureMetricCells({cells[i]},*target,&counted,&reuse,shape,shape ? &certified : nullptr,&campaign_edges) :
                     MeasureMetricEdges({cells[i]},*target,&counted,&reuse,&campaign_edges);
                 if (measure_shape && part.minimum_mean_ratio<measured.minimum_mean_ratio) {
                   measured.minimum_mean_ratio=part.minimum_mean_ratio; measured.weakest_cell=part.weakest_cell;

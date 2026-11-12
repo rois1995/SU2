@@ -1220,3 +1220,33 @@ geometryfactory+PrepareReference restores source identity without guard relaxati
 CFD byte-identical423. No extraMPI/fullsurface campaign for diagnostic-only code.
 R/storage_accounting425_assessment.json. Remaining next is actualcavity planning reuse
 analysis with exact support/association/edge controls, not another globalbaseline.
+
+##427actual cavity comparison and428batch planning qualification
+
+427loads complete current421geometry/owned data +originaldonors+396fullpolicy.
+Exactedge/sampleagreement in four ABBAcontexts: recorded10cellrefusal, smoothwall10,
+interior1, LE4219star12. Wall guidance40→10/coreedges60→27; LE48→11/72→31.
+WarmLE.304→.077s, wall.340→.108s; interior unchanged. These fullglobaldonorfield
+diagnostic times do not substitute for productionimport timing. Wrapper136.228s.
+426controlselection failed129.129s because originalvertex bindingdimension0 can be
+physicallymobile;427uses genuinefeature/corner policy, no production constraintchange.
+
+428production reuses planner once per SAME admitted <=10cell donor batch. Build66.129s;
+serial35cases9053assertions PASS9.409s; ONE MPI6PASS7.589s, not nativeMPIBLgeneration.
+Actual matching64work prefix against423 keeps owned/donor/parameter files BYTEIDENTICAL,
+23commits/61307points/303295positive tets. R/surface_batch428_comparison.json.
+
+| Matching64work |423|428|
+|---|---:|---:|
+| Fieldrequests |3438|1752|
+| Metricphase |11.401s|4.093s|
+| Stagewall |29.159s|22.711s|
+| NativeCPU |28.778s|22.306s|
+| Geometrywork |974248|968297|
+| Collisionbuild/checks |1 /11735|Same|
+
+Work−49%, metric−64%, nativewall/CPU−22%: substantial bounded-stage saving with
+unchanged decisions/output. Wholewrapper126.348s includes setup/capture; not a22%
+wholeworkflow speedup. Nestedtimers overlap. No newcache, donorimport, collective,
+accuracysetting, budget or acceptance shortcut. Fullsurface integration justified
+under unchanged388.8s to assess readiness/progress, not another optimization cycle.

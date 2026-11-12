@@ -135,3 +135,5 @@ TEST_CASE("Saved actual BL target isolates storage-accounting cost", "[.][Native
   };
   measure("full",*policy.full);measure("base",*policy.base);
 }
+
+#include "native_actual_bl_cavity_planning.inc"
