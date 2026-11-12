@@ -15,43 +15,48 @@ preserves earlier evidence/handles, NOT live workload state.
 
 ## Live state and provenance
 
-NO owned heavy workload live.457build and actual diagnostic TERMINAL; all actual
-PID/starttick identities verified before any next edit. Production still451, CFD SHA
+NO owned heavy workload live.459build/actual TERMINAL; all actual PID/starttick
+identities checked. Diagnostic458/459source/evidence is included in this checkpoint; consult current
+git HEAD/origin tracking ref for the pushed revision. Production still451, CFD SHA
 f15bc306e1558ed5d9e8ee804ecc03155f4aecc55b754634ee2398f79fa5509a.
-Build457PASS283.800s/all10actualhandles terminal/pins/newbinary/cleanNinja.
-CurrenttestSHAb0ff4f70d70acae08e7fdf653722ac582398bbe0c9c67bbbb972708647e0f49c.
-Actual R/cases/curved457_surface_continuation_serial_20261112T204201_415173
-(session21144terminal), PASS179.667swrapper/171.885stest/607654assertions,
-1749pins/all5actualhandles terminal/all303622Owned records byte-identical451.
-R/surface_continuation457_assessment.json and surface_continuation457_outcome.json.
+459buildPASS301.797s/all10actualhandles terminal/pins/newbinary/cleanNinja;
+currenttestSHA624aa4fb517931585fa92aeeed3abc02498f0e94e544118ac3b08a3525b1b979.
+Actual R/cases/curved459_surface_residual_serial_20261112T211141_505608
+(session43436terminal), PASS184.835swrapper/1752pins/all5actualhandles terminal/
+303622Ownedrecords byte-identical451. R/surface_residual459_assessment.json/outcome.json.
+458PASS185.817s/1751pins/allactualterminal/Ownedunchanged; exact replaced helper
+archived in R/surface_residual458_source_snapshot.json with its pinned source SHA.
 
-454strict parent/child bounds exactly reproduce production; numerical threshold
-changes do NOT make any sampled single-edge cavity improve complete geometry debt.
-455tests32compounds acrossR5/R4adjacent/smooth/LE: onlyLEperimeters yield private
-progress.456continuation omitted mandatory retained nose seed, producing disconnected
-8cell support BEFORE construction; preserved failure is a diagnostic defect, not
-cavity incapability.457corrects support and checks exact postpublication geometry/
-qJ/planning agreement and firstheight STATUS against committed private parameters.
-Numeric height-report equality remains unchecked; no distributed continuation claim.
+Confirmed:14current physicalfaces after the useful457firstperimeter replacement.
+FourneighborORIGINALfacets16119/35409/35410/16120 carry99.1602%of remaining squared
+guidance excess. New interior-edge obstruction is NOT the dominant measured debt.
+459's32distance samples yield21outside witnesses on ALL8failingfaces, including
+original-parent children(lower~1.16e-4 vs strict1e-4). Thus these face failures are
+not solely conservative upper-bound artifacts. Witnesswork4934/.108881s; no sampled
+face acceptance. Entity support completeness follows validated mobility/curved-search
+constructor invariants (linked record). Threshold-only correction remains unsupported.
 
-457first fourperimeter splits9→19cells halve geometrydebt1.42530e-6→7.39800e-7,
-but geometrybad6→8/qJ9→19. Existing PublishMetrics + atomic Directory publication
-succeeds on PRIVATE clone. Descendant eightedge split19→39 is positive, parameter/
-contact/metric/preservedheight compliant, BUT geometrydebt rises8.21660e-7 and
-geometrybad8→12/qJ19→39. Unchanged geometry-progress guard safely REFUSES it.
-Thus uniform perimeter-descendant refinement is NOT a demonstrated closure path;
-do not integrate based on initial debt decrease. All original seed/checkpoints intact.
+458tested17single/6pair/1triple;459uses SAME24cap for8triples/16pairs. Ten459candidates
+pass existing construction guards but ZEROretire geometrybadcells. Allfirstheight
+admissions remain provisional/preserved-existing-height only. Source unchanged451;
+noMPIqualification, usableBL or finalquality closure.457private publication and
+committed-context agreement remain valid; numericheightreport equality unchecked.
 
-Next bounded investigation: localize the surviving/new failing faces after the useful
-first replacement, including exact support/bindings; assess existing edge/topology
-choices on COMPLETE connected surface/volume support. The hypothesis that newly
-created interior surface edges carry unaddressed curvature is UNPROVEN; do not assume
-it or add another operator/variant without measured face evidence. R5/R4adjacent
-remain unresolved. Flat-offset versus physical-height incompatibility remains in
-linked clearance record. Keep one cycle, no new baseline/perf/GDB/scheduler/limits.
-Read [geometry-bound/compound record](Handbook/ADAPTATION_SURFACE_GEOMETRY_BOUNDS_20261112.md)
-for454–457evidence and limits. No newMPIcampaign for test-only diagnostics; any
-production correction still requires focused checks and meaningful MPI qualification.
+Next ONE bounded capability test: sequential three-edge splitting preserves an
+inherited diagonal; it is not necessarily the standard fourtriangle red subdivision.
+Investigate existing Reconnect + ShellBoundaryCell to change that diagonal while
+replacing adjacent volume consistently. This is an UNPROVEN replacement hypothesis,
+not a selected production change. Reuse complete edge-star discovery, exact support/
+versions, full reservation BEFORE construction and atomic publication. Generated-
+vertex edge stars are contained in the complete original split support; prove the
+actual chosen support, do not silently enlarge after reservation. Check wholepatch
+geometrybad/debt, positive topology, metric/qJobservations, feature/body/height/contact
+constraints and work. No newoperator/scheduler/config/gate/budget or CADrequirement.
+If existing composition cannot yield useful actual replacements, reconsider the
+construction strategy; do not keep adding split variants or numerical thresholds.
+Read [current geometry/cavity evidence](Handbook/ADAPTATION_SURFACE_GEOMETRY_BOUNDS_20261112.md).
+R5/R4adjacent and flat/physical height incompatibility remain unresolved. Any production
+correction needs focused serial checks and meaningful MPIqualification before stage3.
 
 Build451 and prior wrappers are terminal; their receipts remain below.
 Source checkpoint **dd4614949f** is pushed to origin/codex/native-3d-bl; consult git

@@ -5,6 +5,25 @@ integration result. [Current handoff](../HANDOFF_Codex.md) owns live handles;
 [stage inputs/outputs and acceptance](ADAPTATION_CURVED_BL_STAGE_INTEGRATION_20261111.md)
 own the development sequence. R=`integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57`.
 
+459complete-face/witness diagnostic: buildPASS301.797s; actualPASS184.835swrapper/
+1752pins/allactualhandles terminal/303622Owned unchanged451.24trials(8triples/16pairs)
+sum6.16139swall/6.16038CPU/759621geometrywork;10construction-admissible but0geometrybad-
+retiring.32Closest samples cost.108881s/4934work(max384/query),21outside samples certify
+physical violation on all8badfaces. No numerical-precision production fix supported.
+Initial continuation12.7829s INCLUDES this probe; these overlapping times are not
+additive. Sampled individualRSS1.316GB is not whole-job peak. No speedup/closure/MPIclaim.
+Production remains451. Next bounded capability is existing reconnect→boundary-shell
+composition, still unproven on actual residuals.
+
+458residual-face replay: buildPASS283.986s; actualPASS185.817swrapper/1751pins/
+allactualhandles terminal/303622Owned unchanged451.14faces/24private trials,7admissible
+by existing construction guards but0geometrybad-retiring. Candidate sums5.67432swall/5.67305CPU/775306geometrywork
+(R/surface_residual458_assessment.json) are nested in the replay,
+not additive to wrapper/initial continuation time. Fourneighbororiginalfacets carry
+99.1602%of squared guidance excess. No production change, no closure or speedup claim.
+The24cap covered17singles/6pairs/1triple;459reuses that evidence while prioritizing
+omitted full-face combinations within the SAME cap, plus bounded distance witnesses.
+
 457corrected continuation: buildPASS283.800s; actualPASS179.667swrapper/171.885stest,
 607654assertions/1749pins/allactualhandles terminal;303622Owned records unchanged451.
 Firstprivate publication5.75684swall/5.75617CPU/519121geometrywork includes transport,

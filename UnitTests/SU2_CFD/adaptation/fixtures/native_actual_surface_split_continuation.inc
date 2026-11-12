@@ -92,6 +92,7 @@ for(unsigned round=0;round<4;++round) {
       REQUIRE(CheckFirstHeight(publishedPatch,heights,*trial.reference,publishedHeight,publishedHeightReason)==strict);
       REQUIRE(publishedHeight.measured==height.measured);REQUIRE(publishedHeight.reference_clearance_failures==height.reference_clearance_failures);
       REQUIRE(publishedHeight.missing_cells==height.missing_cells);
+#include "native_actual_surface_residual_probe.inc"
       netQ+=long(newQ)-long(oldQ);netJ+=long(newJ)-long(oldJ);netGeometry+=long(newBad)-long(oldBad);++committed;
     }
   }
@@ -106,7 +107,7 @@ for(unsigned round=0;round<4;++round) {
      <<",\"parameter_reason\":"<<junction_wp0::Json(parameterReason)<<",\"contact_reason\":"<<junction_wp0::Json(contactReason)<<",\"height_reason\":"<<junction_wp0::Json(heightReason)
      <<",\"seconds\":"<<std::chrono::duration<double>(std::chrono::steady_clock::now()-start).count()<<",\"cpu_seconds\":"<<double(std::clock()-cpu)/CLOCKS_PER_SEC
      <<",\"geometry_work\":"<<budget.work-work<<",\"mesh_accepted\":false}"<<std::endl;REQUIRE(bool(log));
-  if(!published)break;
+  if(!published||residualProbe)break;
   nextNode+=completed;nextCell+=MaximumReplacementCells;edges=std::move(children);
 }
 REQUIRE(committed>0);REQUIRE(current.live_parameters->Payload()==acceptedParameters);

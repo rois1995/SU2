@@ -29,12 +29,21 @@ descendant splits pass all other guards but increase geometrydebt and geometryba
 8→12, so are safely refused. Do NOT integrate this uniform refinement pattern as
 closure.456's disconnected-support failure was a corrected diagnostic omission.
 
-Next localize surviving/new failing faces after the first replacement with exact
-bindings/support and neighboring cells. Assess existing edge/topology choices against
-that measured demand; newly created internal-edge obstruction is an unproven hypothesis.
-No new scheduler, unrestricted growth, threshold/height relaxation or speculative
-production fallback. R5/R4adjacent remain unresolved. Read
-[geometry-bound/cavity evidence](Handbook/ADAPTATION_SURFACE_GEOMETRY_BOUNDS_20261112.md).
+458/459have localized the remaining geometry:99.1602%of squared debt is on four
+neighborORIGINALfacets. All8badfaces—including near-threshold parentchildren—have
+certified outside-distance witnesses. This is not solely conservative certification.
+Eightfull-face triple and16pair candidates add no geometrybad-retiring replacement;
+no numerical-tolerance or uniformsplit production correction is selected.
+
+Next test ONE connected topology hypothesis using EXISTING operators: after three
+edge splits, change the inherited long physicaldiagonal with Reconnect followed by
+ShellBoundaryCell. Sequential split-only skin is not necessarily the standard red
+subdivision. Demonstrate actual positive, constrained, complete-patch improvement;
+source presence is not capability. Discover complete original support before global
+reservation, and prove generated-edge stars remain inside it; no post-reservation
+growth with stale claims. This is still unproven and requires meaningful MPIqualification
+before any production claim. R5/R4adjacent and physical-height construction remainopen.
+Read [geometry/cavity evidence](Handbook/ADAPTATION_SURFACE_GEOMETRY_BOUNDS_20261112.md).
 
 Keep complete441target/savedCFD/current nodal authority, L1/nominal500k, stage32h0 and
 all constraints/budgets. Surface451stillnotready (13779/39014wallrows,0passes); q/J

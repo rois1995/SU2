@@ -1,0 +1,132 @@
+{
+  "case": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved459_surface_residual_serial_20261112T211141_505608",
+  "all_actual_handles_terminal": true,
+  "verified_pins": 1752,
+  "owned_records_unchanged": 303622,
+  "production_changed": false,
+  "requested_height_stage": 6.4e-05,
+  "true_final_height": 2e-06,
+  "trial_count": 24,
+  "triple_trials": 8,
+  "pair_trials": 16,
+  "construction_admissible_candidates": 10,
+  "geometrybad_retirement_candidates": 0,
+  "distance_samples": 32,
+  "outside_samples": 21,
+  "outside_faces": 8,
+  "witness_seconds": 0.108880788,
+  "witness_work": 4934,
+  "face_witnesses": [
+    {
+      "facet": 16119,
+      "face": [
+        3879251,
+        8076,
+        4218
+      ],
+      "bound": 0.000589818207258827,
+      "outside_samples": 3,
+      "maximum_sample_lower": 0.0003820100609729124,
+      "maximum_sample_upper": 0.0003820329683596053
+    },
+    {
+      "facet": 10692,
+      "face": [
+        4218,
+        4219,
+        3879251
+      ],
+      "bound": 0.00013971925728692097,
+      "outside_samples": 3,
+      "maximum_sample_lower": 0.00011685420173013215,
+      "maximum_sample_upper": 0.0001168616468885497
+    },
+    {
+      "facet": 10692,
+      "face": [
+        3879251,
+        4219,
+        3879253
+      ],
+      "bound": 0.00013909843938860137,
+      "outside_samples": 2,
+      "maximum_sample_lower": 0.00011695927826852164,
+      "maximum_sample_upper": 0.00011696548350089198
+    },
+    {
+      "facet": 35410,
+      "face": [
+        18554,
+        4219,
+        3879254
+      ],
+      "bound": 0.0004561908508163958,
+      "outside_samples": 3,
+      "maximum_sample_lower": 0.000377857393982868,
+      "maximum_sample_upper": 0.00037870657581450505
+    },
+    {
+      "facet": 35409,
+      "face": [
+        3879252,
+        4218,
+        18571
+      ],
+      "bound": 0.0005898182072588752,
+      "outside_samples": 3,
+      "maximum_sample_lower": 0.0003820100609729298,
+      "maximum_sample_upper": 0.00038203296835954433
+    },
+    {
+      "facet": 29982,
+      "face": [
+        3879252,
+        4219,
+        4218
+      ],
+      "bound": 0.00013971925728693658,
+      "outside_samples": 2,
+      "maximum_sample_lower": 0.0001160614122274021,
+      "maximum_sample_upper": 0.00011686164688865811
+    },
+    {
+      "facet": 29982,
+      "face": [
+        3879254,
+        4219,
+        3879252
+      ],
+      "bound": 0.0001390984393886011,
+      "outside_samples": 2,
+      "maximum_sample_lower": 0.00011695927826851494,
+      "maximum_sample_upper": 0.00011696548350084398
+    },
+    {
+      "facet": 16120,
+      "face": [
+        3879253,
+        4219,
+        8059
+      ],
+      "bound": 0.00045619085081639274,
+      "outside_samples": 3,
+      "maximum_sample_lower": 0.00037785739398286684,
+      "maximum_sample_upper": 0.0003787065758144626
+    }
+  ],
+  "candidate_seconds": 6.161389420000001,
+  "candidate_cpu_seconds": 6.160379,
+  "candidate_geometry_work": 759621,
+  "confirmed": [
+    "All8residual faces have rigorous outside-distance witnesses against the same entity authority; not solely conservative-bound refusals.",
+    "No complete-face split/pair tested retires geometrybadcells;10only reduce guidance debt under current construction guards.",
+    "Existing fixed-skin Reconnect cannot by itself change a physical diagonal."
+  ],
+  "next_hypothesis": "Test existing Reconnect followed by ShellBoundaryCell on the inherited long diagonal after a complete three-edge split; demonstrate actual positive constrained surface/volume replacements before production integration.",
+  "limits": [
+    "No final firstheight admission/generated BL/wholefield census/MPI continuation qualification.",
+    "Samples prove outside at those points only; no sampling-based face acceptance.",
+    "The diagonal-change composition remains a source-level hypothesis, not a demonstrated useful replacement."
+  ],
+  "goal_complete": false
+}

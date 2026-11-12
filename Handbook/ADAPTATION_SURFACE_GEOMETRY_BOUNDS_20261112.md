@@ -197,3 +197,113 @@ face diagnostics and existing edge/reconnection facilities before choosing a fur
 candidate. No evidence here supports a threshold-only, placement-only or unrestricted
 cavity-growth correction. R5/R4adjacent remain unresolved. Preserve original451state,
 441target, final gates and stage workflow; factor10 still awaits usable generated BL.
+
+##458 bounded residual-face capability comparison (input/output/acceptance)
+
+Input: SAME saved451mesh/associations, complete441target, stage32h0 and nodaltransport.
+Reproduce457first private publication exactly. Then export each current physicalface's
+bound, coordinates, parameter bindings, direct-facet support flag, original cubic
+controls and exact SurfacePlanning edge lengths. From failingfaces, enumerate at most
+24unique single-edge and same-face two/three-edge split sets. Single-edge advisory
+PredictGeometrySplit values are compared with actual complete-cavity outcomes.
+
+Each trial discovers/fetches/reserves its complete current edge-star union BEFORE
+construction, reuses SplitSurfaceStrip/PublishMetrics/private contexts, then evaluates
+complete old/fresh geometry/qJ/planning/contact/parameter/preservedheight results.
+Candidate trials do NOT publish or select a production policy. Fixed24trial diagnostic
+bound,64old/128new,300s/600souter/12GiB remain. q/J observational only. Original saved
+inputs must independently remain byte-identical; allpins/actualhandles preserved.
+Evidence of useful geometrybad retirement and admissibility—not prediction/debt alone—
+is needed before selecting production work. Fixed-skin Reconnect alone cannot alter
+a failing physical face's geometry; coupled placement/connectivity remains a separate
+hypothesis if these replacements do not demonstrate useful delivery. No new operator,
+scheduler/config/metric/gate or full baseline campaign is introduced.
+
+##458 outcome and459 bounded classification/coverage correction
+
+458buildPASS283.986s; actualPASS185.817s/allactualhandles terminal/1751pins and303622
+Owned records unchanged451.14current physicalfaces,24private candidates (17single,
+6pair,1triple),7construction-admissible by existing guards, ZEROgeometrybad-retiring.
+No production change. Fourneighboring ORIGINALfacets16119/35409/35410/16120 account
+99.1602%of the squared remaining guidance excess; the originally selected twofacets
+10692/29982 account.8398%. Thus new internal-edge obstruction is not the dominant
+measured debt source. Original-parent children still include small above-threshold
+upper bounds≈1.39e-4. Neither fact proves actual physical distance violates tolerance.
+Candidate cap omitted most complete-face combinations: no general incapability claim.
+R/surface_residual458_assessment.json / surface_residual458_outcome.json.
+
+459keeps the SAME24trial cap, target/mesh/gates/budgets, but tests all failing-face
+three-edge sets first, then pairs, reusing458single-edge evidence. It adds fourdyadic
+sample distance queries per failingface with existing ClosestCurved on the complete
+same-entity curved component. Certified LOWERdistance greater than1e-4 PLUS a16eps
+coordinate-rounding envelope proves an actual outside witness; upper/sample agreement
+alone never accepts a face. Per-query16384work/1e-6accuracy and shared300s/12GiB
+limits remain; attempted work charged even on unresolved queries. Exhaustion/uncertainty
+is recorded, not treated as a witness or acceptance. No extra perf/GDB/baseline campaign.
+Purpose: separate demonstrated physical failures from unresolved conservative refusals,
+and complete bounded search coverage before selecting one production correction.
+
+Witness support proof from current production source: EntityGeometry requires a
+nonzero mobility policy (BoundaryParameterState ctor), whose FULL recomputed policy
+must byte-match immutable geometry/configuration. Mobility sheets initialize singleton
+facets and join only across unprotected same-marker edges. MappedFacetReference rejects
+curved/flat edge adjacency, and its curved-search roots join all same-marker curved
+edges. Therefore each valid curved entity sheet is wholly contained in one curved
+search component; the entity predicate selects its complete support. Equality of the
+larger component and entity is unnecessary. Facet-local Canonical is singleton when
+curved controls exist. API scope alone would not establish this; the constructor/
+policy invariants do. No sampling-based acceptance or different-body distance used.
+An explicit inventory assertion would improve checker diagnostics but is not required
+by this source proof for the validated current entity authority.
+
+##459 outcome: all eight residual faces have actual outside witnesses
+
+BuildPASS301.797s; actualPASS184.835swrapper/1752pins/all5actualhandles terminal,
+303622Owned records independently unchanged451. R/surface_residual459_assessment.json
+and surface_residual459_outcome.json. Production unchanged451; all strictgates remain.
+All32Closestsamples resolve,21are outside witnesses on ALL8badfaces. Maxsamplelower
+≈3.82010e-4 on16119/35409,≈3.77857e-4 on35410/16120, and≈1.16061–1.16959e-4 on
+10692/29982children, each above1e-4 plus roundoff. Thus even near-threshold children
+are genuinely outside at sampled points, not solely conservative refusals. Work4934,
+wall.108881s, max384work/query. No sampling-based acceptance or normal-sign claim.
+
+Complete-face coverage:8triples/16pairs within SAME24cap. Tenconstruction-admissible
+candidates reduce guidance debt but ZEROretire geometrybadcells. Candidate sum
+6.16139swall/6.16038CPU/759621work. This is bounded local evidence, not a full census,
+accepted BL or published distributed correction. Sampled individualRSS1.316GB is
+not whole-job peak. Initial private continuation timer12.7829s INCLUDES the nested
+face/witness/candidate probe; do not add it to those times or compare it directly
+with457's5.75684s. Exact458changed helper preserved in source snapshot JSON/hash.
+
+Next connected hypothesis follows actual operator construction, not literature names:
+SplitSurfaceStrip bisects inherited tets/skin sequentially. Splitting allthree edges
+of ABC need not yield the standard fourtriangle red pattern: the first midpoint D
+can remain connected to opposite originalvertex C. Existing fixed-skin Reconnect
+alone preserves physicalfaces, but may introduce a boundarycap tetrahedron; existing
+ShellBoundaryCell can remove a positive two-wall-face cap and replace its physical
+diagonal while retaining artificialinterface and genuinefeature paths. It already
+supports same-entity curved faces. Production optimization callers exist, but this
+composition has NOT been demonstrated on these actual cavities or qualified in MPI.
+
+Test complete original three-edge support first, then use the generated diagonal's
+complete private star. New-midpoint stars cannot extend outside the globally complete
+original split support; retained old-old diagonals must additionally discover every
+original star BEFORE reservation. A reduced local patch must retain mandatory cells,
+all interface orientations, parameter/trace support and positivity. Reconnect→shell
+must produce an actual replacement and improve complete old/fresh geometrybad counts
+under existing admission—not merely a named flip or smaller cellcount. Reuse current
+metric transport and contact/height checks. No automatic production integration or
+new scheduler/operator/representation is justified yet.
+
+Existing-bound audit: ResolveCoverage + SurfaceError(FaceCoverage) provides a rigorous
+outward Bernstein correspondence bound only with complete valid coverage. EntityGeometry
+forbids stored face partitions; ResolveCoverage falls back to ResolveSingleChart,
+which requires all current bindings in one nondegenerate original chart. Production
+already uses the equivalent direct-support CubicDeviation route. Thus this is not a
+general unused solution for cross-facet entity faces; do not add multi-piece coverage
+or a geometry representation merely on that basis. All eight sampled failures now
+have actual outside witnesses anyway. Existing Reconnect remains fixed-skin;
+MeshOptimizer::ShellBoundary is guarded by shape merit/progress and CoupledBoundary
+requires a suitable existing two-wall-face cell. Their source presence does not prove
+construction can create the needed cap. Test the primitives and exact support first;
+do not call a q/J-ranked optimizer from validity-first construction to bypass eligibility.
