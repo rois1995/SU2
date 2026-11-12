@@ -13,78 +13,69 @@ preserves earlier evidence/handles, NOT live workload state.
 
 ## Live state and provenance
 
-Build448PASS424.980s/all63observedactualidentitiesterminal/pinsverified/newbinary/
-cleanNinja. R/build448_status.json/source_pins.json/terminal_handles.json.
-CurrenttestSHA0ee1405e9301f17235c48b5555857fdfccafd80e8db81a855e17e1792f1706a0;
-CFDSHA2e1baf3b4546d107680b91e3a2d534d5d7e8ebbf488f2d663e919bfd3fd6b176.
-FocusedserialPASS4.548s/16cases1912assertions; MPI6PASS4.594s/16casesEVERYrank,
-915–1513assertions/rank; observedactualhandles terminal/1679pinsverified percase.
-R/surface_required448_qualification.json. ShortRSSsamples miss actualchildpeaks.
-Same441target M6 stage3 is the ONE owned heavy workload(session59462;
-R/check_saved_surface448.py; actualcase/statusunderR/cases). Freeze all compiled/
-pinned sources until terminal. Outcome/performance pending.
-Connected correction qualified for affected facilities: at a quiescent SurfacePlanning boundary,
-known required construction debt invokes existing begin_length_generation(false)
-before exhaustive optional coarsening. No pass-completion claim; unchanged validity-
-first admission, full support/publication, target, constraints and budgets.
-R/required_surface448_entry.json verifies74actualterminalidentities/1476sourcepins.
-Focusedserial/ONE MPI milestone PASS; actualstagefrozen, no acceptedBL claim.
-447actualM6surface replay TERMINAL516.743s wrapper/
-389.174s native; all10actualidentities terminal, source/runtime/inputpinsverified:
-R/cases/curved447_wall_scope_saved_target_surface_mpi6_20261112T160942_1839218
-(session3827terminal). R/surface_stage447_assessment.json and surface_scope447_outcome.json.
-60582nodes/301412tets, allpositive;1145066exact shared-coordinate/tensor checks.
-747commits/12258globalwork;3873/37310requestedwallrows measured,0completepasses,
-NOT surface-ready. Partialgeometrybad129/sizebad7; q/JALLUNKNOWN.297539unmeasuredcells.
-3201nonrequested measurementOCCURRENCES skipped; updatedclasses[0,0,3099],
-seedclasses[0,0,1536]. No CFDadvance/metricrecompute/targetpolicychange; same441target,
-original6partitions,388.8s/233220work/12GiB limits. Capture is provisional failure evidence,
-not a successful reusable surface stage or generated BL. Achieved composed complexity
-NOTreassessed; requested500k/initialestimate486914.722±empirical41525.003 NOTbound.
-SampletreeRSS4.858GB/individual.940GB, not true peaks; rankCPUtotal2162.028 includespolling.
+No owned heavy workload live.448actualM6surface replay TERMINAL514.446s wrapper/
+389.050s native; all10actualidentities terminal, source/runtime/inputpinsverified:
+R/cases/curved448_required_surface_saved_target_surface_mpi6_20261112T164513_1937306
+(session59462terminal). R/surface_stage448_assessment.json and surface_required448_outcome.json.
+61365nodes/303446tets, allpositive;1152419exact shared-coordinate/tensor checks.
+35commits/1360globalwork;1257/38870wallrows measured,0completepasses, NOTready.
+Partialgeometrybad132/sizebad1; q/JALLUNKNOWN;302189unmeasuredcells. Handoffcount1
+onEVERYrank;112surface-lane rounds. Same savedCFD/complete441target/original6partitions,
+388.8s/233220work/12GiB, noCFDadvance/metricrecompute/sensor/norm/height change.
+Operationserviceorderchanged, validity-first admission unchanged. Saved output is
+provisional failure evidence, not a credible successful surface stage/generatedBL.
+Requested500k/INITIALestimate486914.722±empirical41525.003(notbound); achievednewmesh
+composedcomplexityUNMEASURED. SampletreeRSS4.161GB/individual.855GB/nottruepeaks;
+rankCPUtotal2235.880 includesMPIpolling. Original61330nodes,303359tets.
 
-Build447PASS484.425s/all64observedactualidentities terminal/pins/newbinary/cleanNinja.
-R/build447_status.json, source_pins.json, terminal_handles.json. CurrenttestSHA
-f1cbaec134273861ce9770fe0ef6b70c1c0772f9b100b595e62ca07d2d0fa9d9;
-CFDSHA6989b1a4a0bb7dc56c6b131cffb9033aab465aec5331036d055c9b715d98122a.
-Source checkpointf6a19ec9afpushed; use gitlog for later outcome checkpoint.
+Build448PASS424.980s/all63observedactualidentities terminal/pins/newbinary/cleanNinja.
+R/build448_status.json/source_pins.json/terminal_handles.json. CurrenttestSHA
+0ee1405e9301f17235c48b5555857fdfccafd80e8db81a855e17e1792f1706a0;
+CFDSHA2e1baf3b4546d107680b91e3a2d534d5d7e8ebbf488f2d663e919bfd3fd6b176.
+Source checkpointdb266299e1pushed; use gitlog for later outcome checkpoint.
 Preserve unrelated P1/FEM/.orig/log/submodule working changes. Authorized fork origin,
 branch codex/native-3d-bl. Git sharedmetadata needs escalation; explicit staging only.
 
-## Current correction and measured outcome
+## Current correction and demonstrated next blocker
 
-Central SurfacePlanning published measurement now filters RequestedWall BEFORE global
-batch sizing/import/planning, consistent with initial/migration/readiness scope.
-The bounded IDvector is admitted; skipped count is occurrences, not unique rows.
-Private complete old/fresh cavity checks, positivity/topology, heights/features/body,
-geometry, Directory/reservation/publication and current nodal transport remain intact.
-Ordinary full-target AdaptMetric is unchanged. Nonrequested census rows stayUNKNOWN;
-full final gates still apply later. Missing local prefilter data may alter trajectories.
+SurfacePlanning starts optional short-edge coarsening; previous queue-driven refill
+and direction switch delayed required work until no proposals AND complete census.
+447/445hitdeadline before that boundary despite known geometry/size debt. Now, at a
+quiescent timed iteration boundary, globallyknown construction_invalid triggers existing
+begin_length_generation(false). It rebuilds directionblocks/queues/finitefrontier/pass
+claims/lane/window coherently; no false completed-collapse pass. No new scheduler,
+config, batch, operators, target/gate/budget change. Clean surfaces retain real coarsening.
 
-FocusedserialPASS5.314s/15cases1862assertions; MPI6PASS5.117s/15casesEVERYrank,
-897–1391assertions/rank; observedactualhandles terminal/1678pinsverified percase.
-R/surface_scope447_qualification.json. Includes actual published splitting/skippedrows,
-positive retained metrics, empty ranks, construction ownership, curved/height and
-budget refusals, observer/private agreement and ordinary fulltarget refinement.
-ShortcheckRSSsamples missed actualchildren; do not call tiny samples process/job peaks.
+SerialPASS4.548s/16cases1912assertions; MPI6PASS4.594s/16casesEVERYrank/915–1513assertions,
+observedactualhandles terminal/1679pinsverified percase. R/surface_required448_qualification.json.
+Real clean subdividedwall collapse control vs separated coarse-wall required debt:
+required lane precedes optionalcollapse, stillpositive/currentnodal, emptyranksaligned;
+ordinaryfulltarget/curved/height/budget regression paths pass. ShortcheckRSSsamples
+miss children; do not call tiny samples process/job peaks. DedicatedgeneratedBL MPI remainsOPEN.
 
-NO useful-stage speedup established vs445 atsame native deadline:747vs834commits,
-3873vs4499wallrows,0passesboth. Fieldrequests42017vs51368(-18.2%), geometrywork
-42672007vs48669770(-12.3%); percommit56.25vs61.59fieldrequests,57125vs58357geomwork.
-Lowerquerycounts/partialbadcounts doNOTprove closure or improved time. Host contention
-and evolving nodaltransport/proposal trajectories confound isolated timing inference.
-Keep qualification distinct from performance success; no repeat baseline campaign.
+448confirms actual requiredlane service, not closure. Comparing35required-lanecommits
+with447747optionalcollapsecommits isNOTa throughput comparison. Geometrywork5758290,
+rankmax/min746.36, fieldrequests106457/compositions0. Rank4/5fieldrequests58247/43704;
+metricwrapper185.660/145.272s, geometryguidance12.604/12.146s NESTED. Geometrytrialcounts
+2063/1628 with1973/1557refusals on parsedexits. Lastsamples include positive smooth-
+reference clearance notcertified (clearance/h0−2.9648/−3.8265) and geometryguidance.
+These are not independently proved physical penetrations. Rank0/3do no committedwork
+and spendmosttimejoining; electiontimers are NOTtotalMPIwait. All6exitrecordsparseable.
 
-Structured perrank counters nowEXECUTED/validated. Updatewallmax43.288s, donorwallmax
-.07223s, measurementCPU12.98–20.82s/rank includesseed+update. Rank5upperqueries51.25s/
-15.43Mwork vsrank0 5.20s/2.27M; rank5facetbuild17.11/scopebuild6.58/traversal27.25s
-are NESTED, not additive to upper/native time. Geometryrankworkmax/min5.391. Fiveof6
-exitrecords parseable:910rounds/276102Worldelectioncollectivecalls; join timers are
-NOTtotalMPIwait. Directoryelections113975/rank are a different counter. Coarsening
-private evaluation ALREADY removes trial collectives when opaque callbacks absent;
-do not implement it again. Source/donor exchange is not the demonstrated bottleneck.
-Nexttarget remains surface completion speed/geometry cost and rank skew, not a claim
-of deficient quality repair (q/Junmeasured). No next production correction selected.
+Nextactiveblocker is required-split trial COST+YIELD and census service, not optional
+coarsening throughput. Rank0/3 remain at192seededrows: refill waits for noGLOBAL
+proposal, so localidle capacity cannot discover remaining demand. Audit exact repeated
+old-side work and classify height/geometry refusals on saved split contexts. Do not assume memo
+speedup, add operators or bypass constraints. Metric wrapper includes geometry AND collectivejoins; CPU canpoll. It is not an
+isolated target-compute/MachHessian timing. Attribution gaps remain. No next production correction selected.
+No new full baseline/perf/GDB campaign. Retain one connected cycle.
+
+447requested-wall-only published measurement remains qualified: central filter before
+batching; allcompleteprivatecavity/transport/publication retained, nonrequestedcensus
+UNKNOWN. Runtime skips3201rowOCCURRENCES; no useful stage speedup vs445 established.
+447same-target capture remains preserved (747commits/3873wallrows/0passes). Existing
+private surface-collapse evaluation ALREADY avoids trial collectives; do not duplicate.
+CavityMetricSource already reads localcurrent tensors; donor work was negligible.
 
 ## Reuse conclusions and bounded cavity capability
 

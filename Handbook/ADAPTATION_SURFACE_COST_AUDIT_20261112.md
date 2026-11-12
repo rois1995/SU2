@@ -201,3 +201,49 @@ cleanNinja. Focusedserial16cases1912assertionsPASS4.548s; MPI6same16casesEVERYra
 percase. R/surface_required448_qualification.json. Tests demonstrate real clean
 coarsening and required-demand precedence with complete constraints, not actual
 curvedM6surface readiness. Same441target stage3 replay is frozen; outcome pending.
+
+###448 actual outcome: service barrier removed, surface still unready
+
+Case R/cases/curved448_required_surface_saved_target_surface_mpi6_20261112T164513_1937306
+TERMINAL514.446swrapper/389.050snative; source/runtime/inputpins andall10actual
+terminalidentitiesverified. R/surface_stage448_assessment.json, surface_required448_outcome.json.
+Handoffcount1onEVERYrank,112surface-lanerounds. No collapsepass falselycompleted.
+35commits,61365nodes/303446positive tets,1152419exactshared nodal checks.1257/38870
+requestedwallrowsmeasured,0completepasses,NOTready;132geometrybad/1sizebad on
+partialcoverage, allq/JUNKNOWN. Sameoriginal61330node/303359tetCFDseed/441target.
+Initialestimatedcomplexity486914.722±empirical41525.003(notbound), nominal500k;
+new-mesh composedcomplexityUNMEASURED. No firstrow/layergeneration/acceptance claim.
+
+Do not compare35required-lanecommits with447747optionalcollapsecommits as throughput.
+The demonstrated barrier is removed; adequacy of the surfaced construction is not
+established. Actualmetric/candidate workload is markedly different:
+
+| Rank | Commits | Field requests | Metric wrapper s | Geometry guidance s | Geometry trials/refused |
+|---|---:|---:|---:|---:|---:|
+|0|0|763|.003|0|0/0|
+|1|1|785|.096|.078|1/0|
+|2|13|2201|5.087|2.730|54/37|
+|3|0|757|.004|0|0/0|
+|4|15|58247|185.660|12.604|2063/1973|
+|5|6|43704|145.272|12.146|1628/1557|
+
+All6exitrecordsparseable. Metric wrappers include geometryguidance AND collective
+joins; CPU includes possible polling. These are NOT isolated target-compute timings,
+not MachHessian cost, and not additive. Fieldcompositions0, geometrywork5758290/
+rankratio746.36. Rank0/3 have only192seededwallrows and no committedwork; current
+refill waits for noGLOBALproposal, so localidle capacity cannot discover remaining
+demand. This is confirmed service ordering, not proof that a different cadence or
+migration would improve completion. Do not add a scheduler or repeat a baseline.
+
+Lastsample refusals onrank4/5 include positive smooth-reference clearance notcertified,
+clearance/h0−2.9648/−3.8265. A negative lower/certification value is not independently
+proved penetration; distinguish genuine violation from conservative refusal. Other
+trials refuse frozengeometryguidance. No height/geometry gate may be bypassed.
+Next bounded investigation should separate exact repeated unchanged-old-side context/
+target evaluation from changed candidate work and collectivewaiting, and classify
+these actualsplit failures. Existing counters and saved patches are the startingpoint;
+no speculative operator/cavity growth, target change or larger-batch campaign.
+
+SampletreeRSS4.161GB/individual.855GB/nottruepeaks; sumrankCPU2235.880s includespolling.
+All upstream and Euler293checkpoints preserved. Requireddebtservice is qualified,
+but surface readiness, fullBL suitability and completeRANS workflow remainOPEN.

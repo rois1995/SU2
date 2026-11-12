@@ -1505,3 +1505,18 @@ FocusedserialPASS4.548s16cases/1912assertions; MPI6PASS4.594s16casesonEVERYrank,
 915–1513assertions/rank; allobservedactualhandles terminal/1679pinsverified percase.
 ShortcaseRSSsamplingmisses actualchildpeaks. Same441target M6 surface replay frozen;
 no speedup, surface readiness or BLcapability claim before its outcome.
+
+448actualM6TERMINAL514.446swrapper/native389.050/load49.915/import.702; all10actual
+identities terminal/pinsverified. Handoff1EVERYrank/112surface-lanerounds,35commits/
+1360proposalwork;0completepasses/NOTready.1257/38870wallrows;61365nodes/303446positive
+tets/1152419sharednodalchecks. Partialgeometrybad132/sizebad1,q/JALLUNKNOWN.
+Fieldrequests106457/compositions0; geomwork5758290/rankratio746.36. Metricwrapper
+rank4/5=185.660/145.272s, guidance12.604/12.146 NESTED pluspossiblecollectivejoins;
+CPUcanpoll. Trials2063/1628, refusals1973/1557. No isolated target-compute timing.
+R0/3zero commits/192seedrows; refill waits for noGLOBALproposal. LastR4/5height
+clearance refusalsare notindependentlyprovedpenetration. Nexttargetcost/yield+census
+service, notgenericcaches oroptionalcommitcounts.35vs747commitsisnotthroughputcomparison
+acrossdifferentwork. SumCPU2235.880includespolling; sampletreeRSS4.161GB/individual
+.855GB/nottruepeaks. Requested500k/initialestimate486914.722±empirical41525.003(notbound);
+achievednewmeshcomplexityUNMEASURED. R/surface_stage448_assessment.json and
+surface_required448_outcome.json. Source/gates/budgets remainedfrozen/unchanged.

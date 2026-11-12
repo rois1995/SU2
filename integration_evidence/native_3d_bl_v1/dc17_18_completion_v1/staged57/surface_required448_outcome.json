@@ -1,0 +1,120 @@
+{
+  "case": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved448_required_surface_saved_target_surface_mpi6_20261112T164513_1937306",
+  "source_assessment_sha256": "e26ce66b32cbdd005d2a05ab57902d9a41b90b5e270bbd3dea254b17c0a509f5",
+  "all_actual_handles_terminal": true,
+  "confirmed": [
+    "Known required-debt handoff occurred exactly once on every rank. Actual surface lane received112rounds, rather than waiting for an optional collapse pass.",
+    "Every saved cell positive;1152419exact shared nodal coordinate/tensor checks. Same CFD/complete441target and constraints/budgets.",
+    "Surface not ready;1257/38870requestedwallrows measured;0completepasses;132knowngeometrybad/1knownsizebad on partial coverage; q/J entirelyunknown."
+  ],
+  "measured": {
+    "aggregate": {
+      "nodes": 61365,
+      "tets": 303446,
+      "positive_tets": 303446,
+      "physical_cells": 48754,
+      "exact_shared_nodal_checks": 1152419,
+      "commits": 35,
+      "global_work": 1360,
+      "cached_cells": 1257,
+      "unmeasured_cells": 302189,
+      "known_geometry_bad": 132,
+      "known_size_bad": 1,
+      "q_measured": 0,
+      "J_measured": 0,
+      "geometry_work": 5758290,
+      "geometry_rank_max_min": 746.3578008059874,
+      "field_requests": 106457,
+      "field_compositions": 0,
+      "summed_rank_cpu_seconds": 2235.879781,
+      "stage_seconds_max": 389.049560245,
+      "target_load_seconds_max": 49.915313473,
+      "import_seconds_max": 0.7015398320000088,
+      "largest_sampled_tree_RSS_bytes": 4161359872,
+      "largest_sampled_individual_RSS_bytes": 855363584,
+      "surface_prepared": false,
+      "required_wall_cells": 38870,
+      "measured_wall_cells": 1257,
+      "requested_wall_census_complete": false,
+      "requested_wall_geometry_complete": false,
+      "seed_cell_classes": [
+        0,
+        0,
+        1152
+      ],
+      "updated_cell_classes": [
+        0,
+        0,
+        140
+      ],
+      "collapse_passes": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "split_passes": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "surface_measurement_skipped": 34,
+      "surface_required_handoffs": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ],
+      "update_seconds_max": 1.551163600999999,
+      "donor_seconds_max": 3.7641707390000003
+    },
+    "rank_metric_seconds": [
+      0.003432233999999995,
+      0.09648837400000011,
+      5.086858320000007,
+      0.004020788000000006,
+      185.66028538299977,
+      145.27155609200062
+    ],
+    "rank_reconstruction_seconds": [
+      49.10986025399991,
+      48.86399563800006,
+      48.95620547200001,
+      48.78308290100003,
+      48.648370693999944,
+      48.66585072599996
+    ],
+    "rank_geometry_trials": {
+      "3": 0.0,
+      "2": 54.0,
+      "4": 2063.0,
+      "1": 1.0,
+      "0": 0.0,
+      "5": 1628.0
+    },
+    "field_requests_per_rank": [
+      763,
+      785,
+      2201,
+      757,
+      58247,
+      43704
+    ]
+  },
+  "limits": [
+    "35required-lane commits and747optional-collapse commits are different work; commit totals are not a performance comparison.",
+    "Partial bad-cell counts have different coverage; no net whole-surface or q/J closure claim.",
+    "Metric wrapper includes geometry-guidance and collective joins; CPU includes possible polling. These are not isolated target-compute timings or Mach Hessian/full composed integration cost.",
+    "Negative reported clearance/h0 is a certification refusal, not independently proved physical penetration. No gate may be bypassed.",
+    "No new-mesh composed complexity integral measured; initial486914.722\u00b1empirical41525.003 is not achieved final complexity or a bound."
+  ],
+  "next_target": "Required-split trial cost/yield and census service on actual saved contexts. Idle ranks0/3 remain at192seededrows because refill waits for no GLOBAL proposal. Audit exact repeated old-side target/context work and classify height/geometry refusals; wrapper timings alone do not establish useful compute versus waiting. No new scheduler/baseline campaign or gate bypass.",
+  "goal_complete": false
+}
