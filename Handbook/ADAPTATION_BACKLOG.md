@@ -1176,3 +1176,11 @@ active staged-height continuation/cost assessment. Geometry-guidance refusals st
 need an outside witness or conservative-refusal classification before larger-cavity
 work is attributed to geometry. Private centroid q/J must be recomputed after nodal
 transport/publication; current437 counts are not whole-field retirement.
+
+### Qualification build cost (queued; not this implementation cycle)
+
+Repeated test-only edits in native_actual_cavity_correction_mpi.inc rebuild the large
+CNativeRemesher3D_tests.cpp translation unit:443 took260.213s;445 has sampled compiler
+RSS~4.5GB. Investigate existing test partitioning at a later development milestone if
+this remains material. No compiler/config change, new profiling campaign or test-TU
+reorganization is authorized as part of the active bounded-cavity correction.

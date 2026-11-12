@@ -1,197 +1,142 @@
 # Native adaptation — current handoff
 
-Updated2026-11-12 Europe/Rome. Goal ACTIVE; ONE connected curved-BL cycle/one heavy job.
+Updated2026-11-12 Europe/Rome. Goal ACTIVE. ONE connected curved-BL cycle/one heavy job.
 R=`integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57`.
 Read AGENTS.md, [ordered stages](Handbook/ADAPTATION_CURVED_BL_STAGE_INTEGRATION_20261111.md),
-[first-height implementation/evidence](Handbook/ADAPTATION_FIRST_HEIGHT_CONTINUATION_20261112.md),
-[actual cavity comparison/MPI design](Handbook/ADAPTATION_M6_BOUNDED_CAVITY_COMPARISON_20261112.md),
-[timings](Handbook/ADAPTATION_TIMINGS.md), [HowToProceed](HowToProceed.md),
-[backlog](Handbook/ADAPTATION_BACKLOG.md). [History through440](Handbook/ADAPTATION_HANDOFF_HISTORY_PRE_441_20261112.md)
-retains compiler failures, previous handles,434 surface results and older qualified improvements.
+[bounded cavity correction/evidence](Handbook/ADAPTATION_M6_BOUNDED_CAVITY_COMPARISON_20261112.md),
+[first-height continuation](Handbook/ADAPTATION_FIRST_HEIGHT_CONTINUATION_20261112.md),
+[timing/work ledger](Handbook/ADAPTATION_TIMINGS.md), [HowToProceed](HowToProceed.md),
+[backlog](Handbook/ADAPTATION_BACKLOG.md).
+[History through445 qualification](Handbook/ADAPTATION_HANDOFF_HISTORY_PRE_445_20261112.md)
+preserves earlier handles, failures and all stage2/cavity details; it is NOT live state.
 
-## Live workload and source state
+## Live workload — preserve frozen sources
 
-CURRENT:443 TEST-ONLY retry build FROZEN RUNNING exec92633; no other owned heavy job.
-Wrapper1572116/start53811906,ninja1572117/start53811923;
-R/build443_status.json / resources/source_pins. Only MPItestsource differs from442.
-442buildFAILED386.487s: RecordStream snapshot passedconst OwnedCell; productionlibraries/
-CFDlinked but FULLBUILDNOTPASS. All153actualbuildidentities terminal beforetestfix.
-R/build442_failed_test_source.json/source_snapshots442 preserve exactfailedsourcehash.
-Also fixedMPItestmissingproduction surface_merit neutralization beforeexecution.
-Currentproduction Boundary/Directory/Engine/Remesher unchanged442; no runtimevalidationyet.
-Source frozenuntilactual443handles terminal. MemAvailable39.614GB/load2.95,j3,nice19,libs1.
-Staticproductionreview foundnoconcreteblocker, but noexecutablequalificationyet.
-The following441runs are TERMINAL preserved evidence; original checkpoints remainintact.
+No owned heavy workload live.445 stage3 corrected-cavity surface integration TERMINAL:
+R/cases/curved445_corrected_cavity_saved_target_surface_mpi6_20261112T150225_1658069
+(exec27929terminal). Wrapper492.521s/native389.055s; all10actualidentitiesterminal/pinsverified.
+R/surface_stage445_assessment.json via assess_surface445.py.60495points/301194positive tets,
+834commits/15352globalwork;4499/37137requestedwallrowsmeasured,0completepasses, NOTready.
+Partialgeometrybad171/sizebad9; allq/J UNKNOWN.8031cached/293163unmeasuredcells,
+geometrywork48669770/rankratio5.012,51368fieldrequests; CPUtotal2297.775includesMPIpolling.
+SampletreeRSS4.893GB/nottruepeak. Same saved CFD/complete441target/original6partitions,
+388.8s/233220work/12GiB limits; no CFDadvance/metricrecompute/policychange.
+Sourcecodeoperator qualified, but NO improved stageprogress vs441:834vs876commits,
+4499vs4720wallrows; partialbadcountscoverdifferentsets and areNOTa closurecomparison.
+Parsedonly2exitlines(ranks4/5):1165rounds,340845electioncalls, commoncorrectionwork9602,
+~33scorrectiontimer (includes synchronization). Plans266/256; notcommitcounts.
+Other4linesinterleaved/unattributable. Timersoverlap; electiontimeisNOTtotalwait.
+Nexttarget is completion speed/census service, NOT more cavity variants or a mesh acceptance claim.
+No next correction selected yet. Analyze existing counters/source before a new code change.
 
-441 bounded stage3 surface TERMINALPASS507.070s; all9workers+wrapper actual identities terminal.
-R/cases/curved441_ramp5_saved_target_surface_mpi6_20261112T132736_1419501.
-R/surface_stage441_assessment.json:60454points/300958positive tets,876collapses;
-4720/37053requestedwallcells measured,0completepasses, surface NOTready.
-197known geometrybad/8knownsizebad are PARTIAL; allq/J UNKNOWN (not shape-certified).
-Stage389.088s/load49.382s, geometrywork45271499,6.737rankworkratio,
-summedrankCPU2224.367s includesMPIpolling; sampledtreerRSS4.850GB nottruepeak.
-Parsed exit counters show1488rounds,172451electioncalls on3ranks; others interleaved/unattributable.
-Collective/query timers overlap; no claim that these measure totalwait.
-No owned heavy workload live. Same-target cavity diagnostic TERMINALPASS441.027s:
-R/cases/curved441_surface_cavity_correction_20261112T134017_1450957 (exec82557terminal).
-All4actualworker/launcher identities+wrapper terminal, source/runtime/inputpins verified.
-R/cavity_surface441_assessment.json:354strictJSONrecords/9privatefeasiblealternatives;
-all300958Owned records byte-identical441surface;16exactedges/0completepatchaudits.
-11990→11886direct7starfails79130; grow16/reconnectapex27313→14positivecells,
-privateqbad14→10/Jbad13→10, geometrybad0→0; grow9/apex44664→7,q9→7/J8→6.
-13785retainedcone11→9stillallbad; unchanged-supportreconnectapex34552 8→7stillallbad.
-LE contractions STILLgeometry-guidancerefusal; no outside-tolerance witness proven.
-Useful replacement onexact441field confirmed, not MPIpublication/finalmeshcertificate.
-Unchanged old16edges measured, max14.3748normal/tangentcombined; remainingold/freshUNKNOWN
-at300selapseddeadline. Transientsizeviolations expected; no inaccurate scalar accepted.
-SampletreeRSS1.872GB/individual1.853GB, nottruepeak. Source441bytes were verified unchanged during that completed replay.
-Nextconnectedimplementation: bounded visibility-corrected surfacecoarsening using existing
-Reconnect→Collapse; discoverybeforeFIRSTreserve, completefinalsupport, properowner-routing,
-clearanceevenunchangedskin, invalidation/atomicpublish. Focusedserial+ONEactualMPI milestone
-beforestage3retry. See designhandbook; no new scheduler/options/budgets or q/Jconstructionveto.
-441producer/reload BOTH TERMINALPASS, allactualhandles verified.
-Freshreload R/cases/curved441_ramp5_target_reload_20261112T125829_1338941 exec14080terminal:
-435.543s; all61330tensors BITIDENTICAL and chord9.6480553402102753 BITIDENTICAL.
-R/target_checkpoint441_qualification.json / target_checkpoint441_producer.json;
-complete303788608bytes/12payloads locally retained. Fidelityqualified, not physicalBL/mesh acceptance.
-Source pins R/build441_source_pins.json. Build441PASS288.295s, all17actualhandles terminal.
-TestSHAb806f7d8195e1c2018170ff340a39f1bc2305e5f2f9feb15e911c2e6ecfbff32;
-CFDSHAefd55973195fa6751e5261ffbf6d01ffbac2263a243d5213bc7693fc52cd5495.
-Stage3 uses check_saved_surface441.py, same388.8s/233220work/12GiB limits.
-No fullCFD workflow retry;441source bytes unchanged.
-Qualified task source/evidence pushed6f87a81a43 to authorized origin fork.
-Preserve unrelated P1/FEM/.orig/log/submodule working changes.
+Build445PASS315.965s, all10actualidentitiesterminal/sourcepinsverified/newtestbinary/
+Ninjadryrunclean. R/build445_status.json/source_pins/terminal_handles/dryrun_completion.
+TestSHA42642a3a5e81548b3a44560148a754e0a2fd808cf3c427fe027c7a44627d5595;
+CFDSHAe07680f987ae334734f3b4efdf9a90cc23c9afb34b496d57adb5e16084c50914.
+Production unchanged442/443; checkpointc0b2b3ef42pushed with validation-pending label.
+Qualification/outcome receipts and MPI-test-only fixes are included in this checkpoint; use git log for latest HEAD.
+Preserve unrelated P1/FEM/.orig/log/submodule working changes. Authorized fork is origin,
+branch codex/native-3d-bl. No remote named fork. Git shared metadata needs escalation.
 
-## Current stage2: common starting field, not a chosen shrink ratio
+## Connected correction: implemented and qualified, not a usable BL
 
-Latest USER asks factor10 instead ofhalving. Answered: test, do not switch blindly.
-Compare SAME start32h0:32→16→8→4→2→1 versus32→3.2→1(finalcap).100→10→1 changes initial
-height too. No production ratio change yet. Default production dc17::RebuildFirstRow
-accepts arbitrary requestedh (no exacthalf assumption); Halve+ColumnInsert branch is
-test-only. CompleteFirstRow does NOT establish full shrink-band g/T progression/coverage.
-Use actual generated patches after credible surface; fewer events alone is insufficient.
-The32h0 initial target is common upstream work while this choice is evaluated.
+Actual441 same-target evidence proved direct11990→11886 fails positivity, but bounded
+reconnect/contraction admits useful replacements. New ReconnectCollapse composes existing
+Reconnect/complete-substar CollapseVertex, then reconstructs FULL original-to-final surface
+correspondence and exact prescribed skin. No q/J construction veto/new scheduler/config.
+Directory::CorrectCollapse discovers neighboring blocked-face support BEFORE first reservation,
+keeps complete removed-vertex stars and exact owner/version identities, charges bounded common
+work and geometry scratch. Two demonstrated ranked alternate apexes; no unproductive reduction
+or retained-apex cone machinery. Engine enables this only on curved non-repair SurfacePlanning
+coarsening, rebuilds private geometry at use, retains all height/geometry/tangent/contact gates,
+full final reservation, generic owner routing, metric transport and atomic publication/invalidation.
+Unbatched can still mean concurrent local proposals; successful/empty ranks remain aligned.
 
-Explicit proposed stage0 seed saved/qualified metadata:
-R/cases/curved441_ramp5_seed_stage_20261112T123956_1290282,
-R/ramp5_seed_stage441.json. Original mesh/ref/CFD bytes unchanged; original364 inputs intact.
-Derived cfg ONLY adds existing ADAP_BL_H0_RAMP=5 and SUBITER7; finalh0=2e-6,g1.2,T.01,
-stage0h0=6.4e-5. Seven remesh events would include five intermediate and TWO final-height
-events; this is baseline metadata, not proof that this schedule is preferable/constructible.
-Stage0 initializer uses existing sidecar format and refuses overwriting progress; no CFD advance.
-Seed helperPASS5.661s, JSON-export regressionPASS3assertions/1case4.845s, allactualhandles terminal.
+443serialguardsPASS20cases1374assertions5.532s/all5actualhandlesterminal:
+R/cases/curved443_correction_guards_serial_20261112T143405_1587329.
+Actual443serialPASS156.584s/602393assertions/all5actualhandlesterminal:
+R/cases/curved443_surface_cavity_correction_serial_20261112T143447_1589098.
+R/cavity_correction443_serial_assessment.json:382records/11privatefeasible,
+all300958Owned records byte-identical441input. Production11990plan grows7→16 in10steps,
+apex27313, replaces16→14, privateqbad14→10/J13→10/geometry0→0.13785apex34552
+usesunchanged8support/1step, replaces8→7stillallbad. StrictheightFALSE; provisional
+height preservationTRUE. Leading-edge contractions still refuse geometry guidance.
+Unchanged OLD fulltargetedge campaign omitted; prior16edges/0completepatches remainUNKNOWN
+for complete combined conformity. Shorter diagnostic is NOT a production speedup.
 
-Stage0 metric producer TERMINALPASS624.400s; allpins/actual9handles terminal:
-R/cases/curved441_ramp5_metric_stage_20261112T124340_1300487 (exec31528terminal).
-SourceCFD unchanged/no flow step, Mach error4.44e-16; original61330nodes/303359tets.
-Requested500000; estimated486914.7222, empirical indicator41525.0034 NOT a bound,
-bracketed1; core.0054996988679568166,tangent.37775074746138892.
-Metric max529.708s, construction462.297s, Hessian~.5s, setup~66.9s. Old396 metric531.651s,
-construction480.951s/setup50.305s: walltotal similar; different target/contention, no speed claim.
-Complete target payloads and fresh reload now independently fidelity-qualified; see above.
-Checkpoint chord9.6480553402102753 (different field from396's42.0666, not an accuracy comparison).
-Producer sampled individualRSS.852GB, notwhole-job peak; metric reserved10.67GB is admission,
-notresidentmemory. Geometry/gradation/collective timers overlap; CPU can include MPI polling.
+445MPI6PASS177.701s/10cases perrank,297–120820assertions/rank; all10actualhandlesterminal:
+R/cases/curved445_surface_cavity_correction_mpi6_20261112T145233_1633856.
+R/cavity_correction445_qualification.json via qualify_correction445.py. Actual migrated
+owners(id%5) and emptyrank5; concurrent10stepgrowth/1stepreconnect; final-support conflict
+against real published neighbor; stale/resource refusal restoration; fresh associations,
+height preservation, tangent admission, cached/recomputed agreement and atomic publication.
+Published300956positive tets; corrected14cells retain10qbad/10Jbad AFTER nodaltransport.
+StrictfirstheightFALSE; no generatedBL, progression/coverage or finalmesh acceptance.
+443serialevidence reused: ONLY unusedMPItestsource/testbinary changed; production source,
+CFDbinary, buildcommand and all other input/helper/runtime pins unchanged.445executes shared
+operators/transport/constraint paths. Dedicated complete BL/MPI qualification remains required.
 
-## Connected correction implemented and focused qualification
+Fixture failures preserved:442buildFAILED386.487s(constRecordStream);443MPIFAILED15.312s
+beforeops(rank/count mistaken for zone/count).444buildauthorizedSTOP162.182s after exact
+saved proof no grownrow is disjoint from seed, while67publishedneighbors are suitable.
+R/correction443_peer_reservation_witness.json; source_snapshots442/443/444 and stopreceipt.
+444rawwrapperexit0/oldbinary explicitly NOTPASS; rawretained.445requires newbinary+cleanNinja.
+All actual stopped/failed handles verified terminal before fixes. Production unchanged after442.
+No pyAMG runtime/equivalence/superiority claim; native search is narrower than static references.
 
-Existing ADAP_BL_H0_RAMP=N already implements h(k)=2^(N-k)h0,k=0..N; Nhalvings/N+1heights.
-Saved364cfg omitted it(default0), so396/434/437 imposed final2e-6 immediately.
-Existing resume reset event0 and stored no stage. Fixed using existing .native_rows envelope:
-NEXT absolute event + N/true-request/schedule signature + final saved mesh fingerprint/checksum.
-Row topology digest remains independent and may invalidate after optimization. Pending metadata
-promotes only on accepted replacement. Driver elects rank errors/agreement before reference setup,
-restores effective height/flow controls and absolute cycles, checks only FUTURE output names.
-Target checkpointv2 stores CURRENT event; explicit restoring read rolls config back on refusal.
-Legacy396v1 still reads rampOFF, refuses ambiguous rampON. Seed restart requires explicit event0
-stamp, not case-name/mesh-class inference. No new config/scheduler/gate/budget policy.
-Existing Json(string)=std::quoted produced invalid replay JSON for C0 characters;441 fixes actual
-shared serializer (native failure-capture escaping pattern) and tests nested replay/newline/NUL.
+## Reusable upstream state and current comparison
 
-438dproduction qualified serial11cases367assertions6.731s. MPI439numeric alias =exact438d:
-60/61cases passed/rank; ninefailures/rank ONLY obsolete count==3 assertion despite valid6-cell
-repair/full independent strict AuditPASS.440 removes only fixedcount assumption, keeps bounded
-count/topology/geometry/q/J/metric gates. RetryONLY failedcasePASS10.117s,1512–2996assertions/rank;
-production CFD binary identical438d. Combined milestone complete by reuse; original failure retained.
-R/height_continuation440_qualification.json. Scope: codecs/persistence and existing constraints/
-ownership guards. NOT actual generated-BL continuation, new MPI cavities or adapted CFD restart.
-
-## Actual bounded evidence: do not overclaim
-
-437 fixed diagnostic prescribed-interface ordering and stale/retired sample selection.
-R/cavity_correction437_assessment.json:301171Owned records unchanged434;9private-feasible
-alternatives, zero oriented-interface refusals.11990→11886 direct8star fails positivity;
-apex27313 coupled reconnect/collapse after growth to17 gives16cells, privateq/Jbad16→13.
-Another10→8 alternative;13785 retained cone grows8→11 then9cells (all9q/Jbad; smaller alone
-is not shape closure). Geometry/height-preservation/tangent-metric/parameter/clearance pass;
-no publication/final certificate. Fulltarget3edges/zero complete patches before work/time refusal.
-Leading-edge contractions still refuse geometry guidance; no outside-tolerance witness established.
-Reference decompiled production has broader proposal/reduction/surface/restart logic; this native
-bounded composition is NOT equivalent, and no pyAMG runtime/superiority comparison was performed.
-
-440 matching-cavity height diagnosticPASS284.555s, allpins/actualhandles terminal:
-R/cases/curved440_cavity_height_continuation_20261112T120931_1211699.
-R/height_continuation440_assessment.json:461records,301171Owned records unchanged.
-Finalk5centroid tensors BITIDENTICAL396. Tangent edge maxrelativechange1.506e-6/no sampled
-.5/.9/1.6/1.8classification change. All60strictheightchecks fail: positions were held fixed,
-NO layers generated. Stage0 exact6032–6072length.9943139649742233 in10.346s (geometry9.987nested,
-45integrand evaluations); stages1–5each20s censored in PREPARATION before integrand/0evaluations.
-Normal severity affects preparation, but no fine-stage cost/full-run speedup or row progression proven.
-Raw malformed JSON retained; normalized copy has same values. No approximate final measurements.
-
-442production bounded correction is implemented;443test-onlybuildFROZEN asabove/UNQUALIFIED.
-ChangedBoundary/Directory/Engine/Remesher and focused serial/actualMPI tests are pinned.
-Correction supports concurrent per-rank unbatched proposals (not sole-global election),
-common bounded discovery beforefirstreservation, freshfullgeometry, fullowner-routing/clearance.
-No production cavity growth MPI qualification yet. Read-only seam audit: preserve contraction,
-feature/body/height filters; direct orientation prefilter can retire salvageable choices before
-operator. Discover full support collectively between Lookup/Fetch and FIRST reservation on the
-unbatched curved/composed SurfacePlanning coarsening route. No Directory calls in private repair/
-MeshOptimizer. Whole final old rows/vertices must be reserved/versioned, mapped params validated,
-clearance checked and atomically published. Current coarsening parent-owner mapping assumes retained
-endpoint star and must be generalized for expanded reconnect outputs. Reuse PublishMetrics and
-complete changed-vertex notification/front invalidation; never publish against the seed footprint.
-
-## Next actions in order
-
-1.Freshreload/actualhandles/fidelity qualification DONE. Preserve complete stage0 files. Existing
-check_metric_stage441.py supports producer/reload; no CFD step. Source remains441.
-2.New coreexport DONE with assess_metric_stage441.py; producer/core_allocation_assessment.json
-and selected_core_native.bin are CORE ONLY, never fulltarget replacement. Flow/core median-dual
-complexity192875.685 (old396119826.626); corefraction r>20 .52066 (old.49525), NOT composed fraction.
-V2directionalinspector assess_target_directions441.py crosschecked61330JSON/tensors;42local
-samples retain stage normaldensity~15625, tangent densities~11–23%higher than396 because
-normalization reallocates freed normal budget. Curvature proxies NOT certificates. Complete
-checkpoint and original/current geometry remain necessary; no396core with new target.
-3.Common32h0 target441 surface attempt and same-target cavity replay TERMINAL as above.434 was NOT
-ready (789points removed,4016/37227requiredwallrows,0completepasses); no new firstrow/full retry
-from a speed counter. Use demonstrated cavity correction only if active residuals justify it,
-with serial+ONE meaningful cross-rank growth/conflict/stale/empty/capacity/publication milestone.
-4.Then constrained/blended directions/firstrow, actual half-vs10 shrink comparison, successive
-fronts/fullphysical progression+coverage, outer transition/strict closure. Known Growth12 stale
-boundary/front dependency failure remainsOPEN; do not bypass guard/freeze columns. Then transfer/
-continuedCFD/second FINAL-height adaptation/isolated adapted disk restart.
-Queued Coulaud/MAdLib physicalcurvature/target/delivery investigation remains; CAD optional.
-Latest inspection VTU remains428 known0/NaN q/J/geometry, not accepted BL; no pertrial VTUs.
-
-## Preserved input, objective and resource gates
-
-Original same303 RANS+SA entry R/m6_bl_inputs/rans_metric_entry364_v1: Mach-onlyL1,
-nominal500k,h0=2e-6,g1.2,T.01,heighttol.1. Ninefields finite/admissible; CL.15573/CD.05027
-not convergence/shock-resolution proof. MeshSHA8c839170eb5e359f7de6a41434aa6a9c2d620053f37de6d9360bd04d2a63088b;
+Original saved RANS+SA CFD/mesh/reference:
+R/m6_bl_inputs/rans_metric_entry364_v1, Mach-onlyL1, nominal500k, trueh0=2e-6,g1.2,T.01,
+heighttol.1. Ninefinite/admissiblefields; CL.15573/CD.05027 does not prove shock resolution.
+MeshSHA8c839170eb5e359f7de6a41434aa6a9c2d620053f37de6d9360bd04d2a63088b;
 ref2e99fb7870e2c718f110da8509e4c0f7e746ce138e7f27ab57aa0dedbb6c42de;
 fieldaf7ade468dc40cd39dbe9238248e50057cdd151a64fef92fda957677aa3f6cae;
 originalcfg0a7de022729f69b170deaee2eaabbd5347550da8134cbdaa39587f7173e78742.
-Original396 fulltarget independentlyqualified/reloadbitexact preserved (304MB/12payloads);
-estimate461495.991±empirical47864.008,core.00460725,tangent.25. Current nodal transport authority
-must be preserved after topology changes; original donors bootstrap only, not a pointwise frozen field.
+Derived explicit stage0 seed:
+R/cases/curved441_ramp5_seed_stage_20261112T123956_1290282. Original data bytes unchanged;
+existing RAMP5/SUBITER7 records stage0h=6.4e-5, not a chosen shrink ratio.
+Complete target441 producer R/cases/curved441_ramp5_metric_stage_20261112T124340_1300487:
+nominal500000/estimate486914.722±empirical41525.003 NOTbound; selectedcore.0054996988679568166,
+tangent.37775074746138892. Estimate is INITIAL target integral, not a reassessed new-mesh
+complexity; current achieved composed complexity remains unmeasured. 303788608B/12payloads locally preserved; freshreload61330owned
+tensors/chord9.6480553402102753 BITIDENTICAL. R/target_checkpoint441_qualification.json.
+Policy+geometry+currentOwned tensors needed together; sensor/core export alone is insufficient.
+Original396 fulltarget and Euler293 checkpoints remain intact. Current nodal transport authority
+must remain; original P1 donors bootstrap only, not a pointwise-frozen replacement field.
 
-Euler293 COMPLETE: two strictEuler50k meshes149051/736323 and172001/870422points/tets,
-conservative admissible transfer, finite continuedCFD(ONEiteration) and isolated adaptedrestart.
-Preserve22payloads/384685699B. Remaining: usable STRICTcurvedBL, dedicated nativeMPI BL constraints,
-TWOaccepted FINAL-height RANS adaptations with conservative admissible flow+SA transfer, finite
-continuedadaptedCFD and ACTUALisolated adapteddiskrestart.500k nominal, not nodecount/rejectiongate.
-Strictgeometry1e-4, positivity/bodyseparation,q>=.2,J>=.05,maxedge1.8,requestedheight/progression
-and resources unchanged. Intermediate quality debt provisional. One heavy job,nice19,j3,libs1,
-4TBcompile-tmp; native5400s/outer14400s/12GiBperrank; surface388.8s; patch300s/outer600s.
-Reuse passing provenance/counters, bounded work/memory/time, exactsourcefreezing, checkpoints/pushes.
+441 surface comparator TERMINAL/notready:60454points/300958positive tets,876collapses,
+4720/37053requestedwallrows measured,0completepasses. Partialgeometrybad197/sizebad8,
+allq/J UNKNOWN. Native389.088s/wrapper507.070s; geometrywork45271499/rankratio6.737,
+CPUtotal2224.367 includesMPIpolling; sampled treeRSS4.850GB nottruepeak.
+R/surface_stage441_assessment.json. Parsed3exitrecords only; other3interleaved.
+445 must be compared at matching work/stages under same target, not commits alone.
+
+## Next steps and completion obligations
+
+1.445outcome/handles/assessment preserved. Surface readiness remains OPEN; this is a provisional
+failure capture, not a successful stage checkpoint. Source seed_next measures <=16rows/rank;
+refill is queue-driven(!any) on bidirectional SurfacePlanning, not an upfront complete census.
+445seeded1920wallrows vs4412208 (20vs23full96-rowMPIchunks), while foreground proposals
+continued. Full source SurfaceCensus scans are already short-circuited when known debt proves
+unreadiness; do not add an optimization for a cost not demonstrated. Assess census pacing,
+rank/work skew and repeated measurement/certification using existing data first. Do NOT infer
+more repair power or choose a policy merely to lower nodecount. Keep all budgets/gates.
+Save/reuse credible outputs only after their stage conditions and target/geometry provenance hold.
+2.Then constrained/blended directions/firstrow and complete physical progression/coverage,
+outer transition and strict closure. Known Growth12 stale front/boundary dependency guard remains
+OPEN; do not bypass it or freeze columns. Queued Coulaud/MAdLib physical-curvature/target/delivery
+investigation remains; CAD optional. No speculative new metric/geometry/scheduler.
+3.Factor10 remains an experiment on a usable generated patch: compare SAME start32h0,
+32→16→8→4→2→1 against32→3.2→1(finalcap), not100→10→1. Rebuild supports arbitraryh;
+CompleteFirstRow does NOT prove full shrink-band progression. No production ratio/config change.
+4.Euler293 COMPLETED two strict50k meshes149051/736323 then172001/870422points/tets,
+admissible conservative transfer, finitecontinuedCFD(ONEiteration) and isolated adaptedrestart.
+Preserve22payloads/384685699B. Remaining: usable STRICTcurvedBL, dedicated nativeMPI BL
+constraint qualification, TWOaccepted FINAL-height RANS adaptations, conservative admissible
+flow+SA transfer, finitecontinuedadaptedCFD and ACTUALisolated adapteddiskrestart.
+500k is NOMINAL complexity, not nodecount/rejectiongate. Strictgeometry1e-4,positivity/body
+separation,q>=.2,J>=.05,maxedge1.8,heights/progression and all resources remain unchanged.
+Intermediate quality debt provisional; passing fixtures/balancedweights/smallmemory are not completion.
+One heavyjob,nice19,j3,libs1,4TBcompile-tmp; native5400s/outer14400s/12GiBperrank,
+surface388.8s,patch300s/outer600s. Push reviewable checkpoints; goal remainsACTIVE.

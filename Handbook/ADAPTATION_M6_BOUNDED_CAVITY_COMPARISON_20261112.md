@@ -336,3 +336,53 @@ is rebuilt at use; accepted chart association alone is not a distance certificat
 Focused guard checks and saved actual serial+MPI publication tests are being connected
 before the first build. These changes are implemented only, NOT validated or a usable
 BL. HANDOFF owns current source/build/handle state. No previous acceptance gate changes.
+
+
+443 production preflight PASS156.584s/602393assertions, all300958published cellrecords
+byte-identical441input. Production discovery picks27313 after7→16support/10worksteps;
+16→14replacement passes topology/positivity/geometry/height-preservation/tangent/parameters/
+clearance, with privateq14→10/J13→10.13785picks34552 at8unchangedsupport/1workstep,
+8→7replacementstillallbad. No shape veto, finalheightpass or meshacceptance implied.
+FulltargetOLDedgeaudit omitted as explained; this is not an algorithmic speedup.
+
+443MPI fixture failed15.312s in geometry loading before operators: rank/count were
+mistakenly used as zone/count. Corrected to existing MPI constructor convention(0,1).
+The next static premise was checked from the saved complete-patch records: none of
+16growncellsisvertex-disjointfrom7seedcells'8vertices. Requiring such a peer cell
+inside the cavity was a test defect. Exactpublishedrowscontain67appropriate neighbors
+(e.g.50970 shares grown-only27314, noseedvertex); receipt
+R/correction443_peer_reservation_witness.json. The fixture now scans actual migrated
+owner rows and routes one such published cell to the competing proposal. Seed claims
+are disjoint; expanded claims conflict. No synthetic mesh or lowered acceptance gate.
+Build444 was stopped only after this proof and exact owned process-group verification;
+allhandles terminal before editing. Rawwrapperexit0/oldbinary was explicitly corrected
+to STOPPED/NOTPASS.445adds binary-change/Ninja-clean checks to build completion.
+Source snapshots443/444 retain each failed/unqualified fixture. Productionunchanged.
+
+
+## Integrated445 outcome — qualification is not stage completion
+
+445MPI qualification passed177.701s,10cases/rank,297–120820assertions/rank; actualowner
+migration with rank5empty, concurrentgrowth/earlysuccess, realneighbor vertexconflict,
+stale/resource rollback and atomic publication. Posttransport replacement has10qbad/10Jbad,
+strictfirstheightFALSE. R/cavity_correction445_qualification.json. Production sourceunchanged
+since442; 443serialsource/command/input/runtime evidence reused with explicit MPItest-only delta.
+
+The same-target stage3 replay then completedits388.8swindow (native389.055/wrapper492.521).
+All301194tetspositive,60495nodes,834commits, but4499/37137wallrowsmeasured/0completepasses.
+NOTsurface-ready. R/surface_stage445_assessment.json validates fullshards/pins/actualhandles.
+Versus441876commits/4720wallrows, no global progress improvement is established. Geometrybad
+171vs197isPARTIALonchangedcoverage; allq/Junknown. Lowerbadcount is not closure evidence.
+Newcommoncorrectionsteps9602areincludedin15352globalwork; rawwork is not comparable with
+7393oldproposals alone. Two parseable exit records show ~33scorrectiontime; remainingrank
+linesinterleaved. Timersoverlap/CPUincludesMPIpolling. No speedupclaim from successful reuse,
+geometrywork balance or shorterwrapper setup. Keep demonstrated admissible operator capability;
+do not add more cavity variants on this evidence.
+
+Next diagnostic target is stage completion SPEED/CENSUS SERVICE, not asserted lack of repair
+power (whole-field q/J not measured). Existing queue-driven seeding measures16rows/rank when
+no selected work remains;445seeded1920wallrows/20MPIchunks versus4412208/23, while foreground
+proposals consumed the stage. Full SurfaceCensus scans already short-circuit on known debt.
+This confirms execution sequence, not that a different pacing policy will succeed. Assess
+representative actual costs/ownership/certification from saved counters before selecting one
+connected correction. No policy change, new scheduler, config or larger budget has been made.

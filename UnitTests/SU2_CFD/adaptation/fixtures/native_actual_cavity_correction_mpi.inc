@@ -14,7 +14,7 @@ TEST_CASE("Saved M6 visibility correction publishes across actual owners", "[.][
   struct GeometryOwner { CGeometry** levels=nullptr;unsigned count=0;
     ~GeometryOwner(){if(levels){for(unsigned i=0;i<count;++i)delete levels[i];delete[] levels;}} } geometryOwner;
   geometryOwner.count=config.GetnMGLevels()+1;
-  CDriver::BuildGeometryFVM(&config,new CPhysicalGeometry(&config,world.rank,world.size),geometryOwner.levels,true);
+  CDriver::BuildGeometryFVM(&config,new CPhysicalGeometry(&config,0,1),geometryOwner.levels,true);
   CNativeRemesher3D prepare(reference);prepare.PrepareReference(config,*geometryOwner.levels[MESH_0]);
   SU2NativeBLPipeline3D::detail::PipelineScope pipeline;
   const std::string targetRoot(targetPath);const auto slash=targetRoot.find_last_of('/');REQUIRE(slash!=std::string::npos);
@@ -99,15 +99,24 @@ TEST_CASE("Saved M6 visibility correction publishes across actual owners", "[.][
   }catch(const std::exception& e){localFailure.Set(2,point,e.what());}
   const auto election=world.elect(localFailure);REQUIRE_FALSE(election.any);
 
-  std::set<Id> seedVertices;for(const auto& row:seedRows.cells)for(const auto& n:row.cell.v)seedVertices.insert(n.id);
-  Id peerCell=UINT64_MAX;if(active)for(const auto& row:correction.imported.cells) {
-    if(std::any_of(seedRows.cells.begin(),seedRows.cells.end(),[&](const OwnedCell& seedRow){return seedRow.cell.id==row.cell.id;}))continue;
-    const bool disjoint=std::none_of(row.cell.v.begin(),row.cell.v.end(),[&](const Node& n){return seedVertices.count(n.id);});
-    if(disjoint){peerCell=row.cell.id;break;}}
+  std::set<Id> seedVertices,grownOnly;
+  for(const auto& row:seedRows.cells)for(const auto& n:row.cell.v)seedVertices.insert(n.id);
+  if(active)for(const auto& row:correction.imported.cells)for(auto n:row.cell.v)if(!seedVertices.count(n.id))grownOnly.insert(n.id);
+  std::vector<std::vector<Id>> seedTo(world.size),grownTo(world.size);
+  if(active)for(int rank=0;rank<world.size;++rank){seedTo[rank].assign(seedVertices.begin(),seedVertices.end());grownTo[rank].assign(grownOnly.begin(),grownOnly.end());}
+  bool witnessAdmitted=false;const auto commonSeed=world.exchange(seedTo,&witnessAdmitted,ceiling,budget.caller_bytes);REQUIRE(witnessAdmitted);
+  const auto commonGrown=world.exchange(grownTo,&witnessAdmitted,ceiling,budget.caller_bytes);REQUIRE(witnessAdmitted);
+  seedVertices=std::set<Id>(commonSeed.begin(),commonSeed.end());grownOnly=std::set<Id>(commonGrown.begin(),commonGrown.end());
+  // A real neighboring cell can touch a newly reserved vertex without touching the seed footprint.
+  Id peerCell=UINT64_MAX;
+  for(const auto& row:owned) {
+    const bool disjoint=std::none_of(row.second.cell.v.begin(),row.second.cell.v.end(),[&](Node n){return seedVertices.count(n.id);});
+    const bool touches=std::any_of(row.second.cell.v.begin(),row.second.cell.v.end(),[&](Node n){return grownOnly.count(n.id);});
+    if(disjoint&&touches)peerCell=std::min(peerCell,row.first);
+  }
   peerCell=CPassiveComm::Allreduce(peerCell,CPassiveComm::Op::MIN,world.comm);REQUIRE(peerCell!=UINT64_MAX);
   std::vector<std::vector<OwnedCell>> peerOutgoing(world.size);
-  if(active){const auto row=std::find_if(correction.imported.cells.begin(),correction.imported.cells.end(),[&](const OwnedCell& c){return c.cell.id==peerCell;});
-    if(row==correction.imported.cells.end())localFailure.Set(2,point,"Growth-only peer row is missing.");else peerOutgoing[1].push_back(*row);}
+  const auto peerOwned=owned.find(peerCell);if(peerOwned!=owned.end())peerOutgoing[1].push_back(peerOwned->second);
   const auto peerElection=world.elect(localFailure);REQUIRE_FALSE(peerElection.any);
   bool admitted=false;const auto peerRows=world.exchange(peerOutgoing,&admitted,ceiling,budget.caller_bytes);REQUIRE(admitted);
   Imported peer;peer.valid=world.rank==1;for(const auto& row:peerRows)peer.cells.push_back(row);

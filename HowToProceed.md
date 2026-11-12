@@ -13,12 +13,19 @@ reserved for integration milestones or failures not reproducible at a stage boun
 at nominal500k; original seed and true finalh0 remain unchanged. Surface attempt is
 terminal:876pointsremoved/300958positive tets,4720/37053wallcells measured,0complete
 passes. NOT surface-ready; partialgeometrybad197 and allq/J unknown. Preserve all six
-currentnodalcore/association shards and the complete441 composed target. The bounded replay has confirmed earlier useful cavity alternatives on this ACTUAL
-new surface/field: grow16/reconnect27313→14, qbad14→10/J13→10 and geometrybad0→0.
-Allsavedcellbytesunchanged;16exactOLDedges/0completepatchaudits beforedeadline.
-Next integrate only demonstrated bounded visibility correction, including discovery
-before reservation and complete owner/version/publication support. Read HANDOFF for
-terminal handles and exactevidence. Leading-edge geometry refusals remain unresolved.
+currentnodalcore/association shards and the complete441 composed target. The bounded correction is now implemented and serial/MPI qualified: grow16/reconnect27313→14,
+privateqbad14→10/J13→10/geometry0→0, with full support/version/reservation/publication.
+See R/cavity_correction445_qualification.json. Strictheight is stillFALSE; this is not a BL.
+The full stage3 integration remains unready:834commits/4499wallrows measured at the same
+budget versus441876/4720. All301194tetspositive; q/J remainUNKNOWN globally, and partial
+geometrycounts have different coverage. No global progress/speedup claim is justified.
+
+Next assess census-service/measurement speed and rank/certification work from current evidence,
+not more cavity variants. Queue-driven seeding processes16rows/rank only when no chosen work
+remains:1920seededwallrows(20MPIchunks) versus2208(23). Fullcoverage scans alreadyshort-circuit
+when known debt proves unreadiness. This confirms ordering, not that a new policy will work.
+Keep one cycle; select a measured correction before another stage3 run, preserve budgets/gates.
+Read HANDOFF for terminal handles and current source/build/input provenance.
 
 437 corrected the diagnostic interface ordering and selected surviving actual
 visibility failures. Direct collapses fail exact positivity; bounded corrected

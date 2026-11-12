@@ -1,0 +1,218 @@
+{
+  "operator_mpi_qualified": true,
+  "goal_complete": false,
+  "production_checkpoint": "c0b2b3ef42",
+  "build": {
+    "state": "terminal",
+    "exit_code": 0,
+    "seconds": 315.9654049873352,
+    "pins_verified": true,
+    "changed": [],
+    "completed_build": true,
+    "binaries": {
+      "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver": "42642a3a5e81548b3a44560148a754e0a2fd808cf3c427fe027c7a44627d5595",
+      "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/SU2_CFD/src/SU2_CFD": "e07680f987ae334734f3b4efdf9a90cc23c9afb34b496d57adb5e16084c50914"
+    },
+    "test_binary_changed": true,
+    "authorized_stop": false
+  },
+  "receipts": [
+    {
+      "case": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved443_correction_guards_serial_20261112T143405_1587329",
+      "status": {
+        "state": "terminal",
+        "exit_code": 0,
+        "seconds": 5.532262802124023,
+        "pins_verified": true,
+        "changed": [],
+        "largest_sampled_individual_process_rss_bytes": 35581952,
+        "rss_note": "sampled process RSS; not a whole-job peak"
+      },
+      "reused_scope_differences": [
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/UnitTests/SU2_CFD/adaptation/fixtures/native_actual_cavity_correction_mpi.inc",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver"
+      ],
+      "status_sha256": "6944365c3d3b8229e75b92e7d26f0d29f2358f4afdd590e6ca445a445dddcad9"
+    },
+    {
+      "case": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved443_surface_cavity_correction_serial_20261112T143447_1589098",
+      "status": {
+        "state": "terminal",
+        "exit_code": 0,
+        "seconds": 156.58353281021118,
+        "pins_verified": true,
+        "changed": [],
+        "largest_sampled_individual_process_rss_bytes": 1073856512,
+        "rss_note": "sampled process RSS; not a whole-job peak"
+      },
+      "reused_scope_differences": [
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/UnitTests/SU2_CFD/adaptation/fixtures/native_actual_cavity_correction_mpi.inc",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver"
+      ],
+      "status_sha256": "b1d5cc88f5384ca2cf31ab7c2a943777d392e5497aa90a8f11f0a22ae7808a59"
+    },
+    {
+      "case": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved445_surface_cavity_correction_mpi6_20261112T145233_1633856",
+      "status": {
+        "state": "terminal",
+        "exit_code": 0,
+        "seconds": 177.70097184181213,
+        "pins_verified": true,
+        "changed": [],
+        "largest_sampled_individual_process_rss_bytes": 581353472,
+        "rss_note": "sampled process RSS; not a whole-job peak"
+      },
+      "reused_scope_differences": [],
+      "status_sha256": "86cab92fd8be0d386d14cbcef63eea8c614088c72b2881532de79f06e0a01d20"
+    }
+  ],
+  "ranks": [
+    {
+      "rank": 0,
+      "owned_after": 60112,
+      "candidate_owner": true,
+      "support_cells": 16,
+      "replacement_cells": 14,
+      "apex": 27313,
+      "metric_accepted": true,
+      "height_accepted": true,
+      "height_strict": false,
+      "geometry_accepted": true,
+      "parameters_accepted": true,
+      "q_bad_observed": 10,
+      "j_bad_observed": 10,
+      "concurrent_discovery_verified": true,
+      "empty_rank_verified": true,
+      "cached_recomputed_agree": true,
+      "stale_publish_rejected": true,
+      "published": true
+    },
+    {
+      "rank": 1,
+      "owned_after": 60227,
+      "candidate_owner": false,
+      "support_cells": 0,
+      "replacement_cells": 0,
+      "apex": 0,
+      "metric_accepted": true,
+      "height_accepted": true,
+      "height_strict": true,
+      "geometry_accepted": true,
+      "parameters_accepted": true,
+      "q_bad_observed": 0,
+      "j_bad_observed": 0,
+      "concurrent_discovery_verified": true,
+      "empty_rank_verified": true,
+      "cached_recomputed_agree": true,
+      "stale_publish_rejected": true,
+      "published": true
+    },
+    {
+      "rank": 2,
+      "owned_after": 60191,
+      "candidate_owner": false,
+      "support_cells": 0,
+      "replacement_cells": 0,
+      "apex": 0,
+      "metric_accepted": true,
+      "height_accepted": true,
+      "height_strict": true,
+      "geometry_accepted": true,
+      "parameters_accepted": true,
+      "q_bad_observed": 0,
+      "j_bad_observed": 0,
+      "concurrent_discovery_verified": true,
+      "empty_rank_verified": true,
+      "cached_recomputed_agree": true,
+      "stale_publish_rejected": true,
+      "published": true
+    },
+    {
+      "rank": 3,
+      "owned_after": 60240,
+      "candidate_owner": false,
+      "support_cells": 0,
+      "replacement_cells": 0,
+      "apex": 0,
+      "metric_accepted": true,
+      "height_accepted": true,
+      "height_strict": true,
+      "geometry_accepted": true,
+      "parameters_accepted": true,
+      "q_bad_observed": 0,
+      "j_bad_observed": 0,
+      "concurrent_discovery_verified": true,
+      "empty_rank_verified": true,
+      "cached_recomputed_agree": true,
+      "stale_publish_rejected": true,
+      "published": true
+    },
+    {
+      "rank": 4,
+      "owned_after": 60186,
+      "candidate_owner": false,
+      "support_cells": 0,
+      "replacement_cells": 0,
+      "apex": 0,
+      "metric_accepted": true,
+      "height_accepted": true,
+      "height_strict": true,
+      "geometry_accepted": true,
+      "parameters_accepted": true,
+      "q_bad_observed": 0,
+      "j_bad_observed": 0,
+      "concurrent_discovery_verified": true,
+      "empty_rank_verified": true,
+      "cached_recomputed_agree": true,
+      "stale_publish_rejected": true,
+      "published": true
+    },
+    {
+      "rank": 5,
+      "owned_after": 0,
+      "candidate_owner": false,
+      "support_cells": 0,
+      "replacement_cells": 0,
+      "apex": 0,
+      "metric_accepted": true,
+      "height_accepted": true,
+      "height_strict": true,
+      "geometry_accepted": true,
+      "parameters_accepted": true,
+      "q_bad_observed": 0,
+      "j_bad_observed": 0,
+      "concurrent_discovery_verified": true,
+      "empty_rank_verified": true,
+      "cached_recomputed_agree": true,
+      "stale_publish_rejected": true,
+      "published": true
+    }
+  ],
+  "mpi_cases_per_rank": 10,
+  "mpi_assertion_counts_unordered": [
+    120811,
+    120820,
+    120712,
+    120640,
+    120672,
+    297
+  ],
+  "sampled_tree_RSS_max_bytes": 3340767232,
+  "serial_actual_assessment": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cavity_correction443_serial_assessment.json",
+  "proof_scope": [
+    "Actual saved M6 curved cavity support crosses migrated owners; rank5 remains empty.",
+    "Concurrent 10-step growth and 1-step unchanged-support correction stay aligned.",
+    "Complete grown reservation conflicts with an actual published neighbor that was disjoint from seed support.",
+    "Exact geometry, current associations, provisional height preservation and surface tangential admission retained.",
+    "Retained nodal tensors and recomputed post-transport planning agree; stale publication and resource refusal restore accepted bytes.",
+    "Atomic owner-routed publication produces 300956 positive tets; q/J remain observational."
+  ],
+  "reused_serial_evidence": "Only the unused MPI-test fixture and linked test binary differ from443 serial receipts. Production sources, command, input/helper/runtime pins and CFD binary are unchanged; current445 MPI execution confirms the shared operator/transport behavior.",
+  "limits": [
+    "Not strict first-height success, generated BL coverage/progression, complete combined-edge conformity or accepted mesh.",
+    "The original serial published mesh stays unchanged; the MPI publication is a bounded test case, not the RANS workflow.",
+    "Sampled RSS is not true peak; CPU/collective timers cannot separate useful work from MPI polling.",
+    "No pyAMG runtime/software-equivalence comparison."
+  ],
+  "qualification_script_sha256": "a4ac93ebde2b2d5fe8b2fa9dd669f14c6e63fd65c8f8c38a2aff3beea76d0ba8"
+}

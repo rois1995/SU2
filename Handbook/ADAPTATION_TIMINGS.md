@@ -1403,3 +1403,40 @@ R/cavity_surface441_assessment.json preservesstrictrecords/outputhashes.
 All153actualidentitiesterminal; test-onlyconstRecordStream snapshotcompileerror. SampledtreeRSS
 max5.639GB(nottruepeak).443test-onlyretryfrozen; alsoalignsMPItestmeritwithproductionrequested-
 wallprojection beforeexecution. No productionperformance/acceptedBL evidence from this build.
+
+
+443test-onlybuildPASS260.213s/all10actualidentitiesterminal/pinsverified. ProductionCFD SHA
+unchanged442partiallinkedbinary; fulltestbinaryqualifiedforruntimechecks, notmeshacceptance.
+FocusedserialguardsPASS20cases1374assertions5.532s,all5actualidentitiesterminal.
+SavedM6production-correctionserialpreflightactive; same441field/surface, noCFDadvance.
+This tag omits unchangedfulltargetOLDedgecampaign; a shorter diagnostic is NOT a production
+speedup and remainingfullcombinedconformity is stillUNKNOWN untilappropriatefinalstage.
+
+
+443actualproduction-correctionserialPASS156.584s/602393assertions/382records/all5actual
+handles terminal.11privatefeasible,300958Ownedrecordsbyte-identical441surface; firstplan
+7→16in10worksteps,16→14privateconstruction1.117s/29667geometrywork; secondplan8→7at1step.
+PriorfulltargetOLDedgecampaignisomitted, so156.584vs441.027isNOTproductionefficiencygain.
+443MPIsetupFAILED15.312sbeforecavityops(zone/rankargumenterror),all10actualhandlesterminal.
+444buildauthorizedSTOP162.182sonexacttest-premisedefect;all5actualhandlesterminal.
+Rawexit0/unchangedtestbinaryisNOTPASS.445test-onlyrebuildpending,productionunchanged.
+
+
+445test-onlybuildPASS315.965s/all10actualhandles terminal, newtestbinary+cleanNinjadryrun.
+MPI connected actualowner qualificationPASS177.701s/10cases/rank297–120820assertions;
+all10actualhandles terminal. Actual16→14publication, q/Jobserved10/10, strictheightFALSE.
+SampledtreeRSS3.341GB/nottruepeak. No BLgeneration or finalmesh claim.
+
+445stage3same441targetreplayTERMINAL492.521swrapper/native389.055/load43.252/import.478;
+all10actualhandles terminal/source/runtime/inputpins verified.834commits vs441876;
+wallcensus4499/37137 vs4720/37053,0completepassesboth. Globalwork15352 includes9602NEW
+commoncorrectionsteps, not directlycomparable with7393oldproposals. Geometrywork48669770
+vs45271499; fieldrequests51368vs48023; CPUtotal2297.775vs2224.367includesMPIpolling.
+301194positive tets/60495nodes,8031cachedcells/293163unknown. Partialgeometrybad171/sizebad9;
+allq/JUNKNOWN. Lowerpartialbadcounts cannotprove closure. SampledtreeRSS4.893GB/nottruepeak.
+Only2exitrecordsparseable:1165rounds/340845electioncalls, correctiontimer~33s(calls+waiting),
+plans266/256 onprefixranks4/5. Others interleaved; electiontime isNOTtotalwait. Scope/facet/
+traversal timers nested. No algorithmic speedup established. Completecorrectionqualification
+has not resolved surface readiness. Source seed_next<=16rows/rank/queue-driven refill gives
+1920entrywallmeasurements(20MPIchunks) vs2208(23chunks); this explains execution ordering,
+not a proven improved pacing policy. Nextanalysis targets census-service/measurement speed.
