@@ -11,11 +11,26 @@ retains all failures, prior handles, normalization and rejected alternatives. Th
 
 ## Current frozen workload and provenance
 
+ACTIVE434 [private surface-collapse evaluation](Handbook/ADAPTATION_SURFACE_PRIVATE_COLLAPSE_20261112.md)
+passed focused serial/MPI qualification. Actual saved-target surface replay FROZEN/RUNNING:
+R/cases/curved434_saved_target_surface_mpi6_20261112T095336_826002; execsession57312,
+wrapper826002/start52165585, MPI826162/start52165928 verifiedlive. Same396target,
+original6partitions/388.8s/233220work/12GiB. No other heavy job. Do not edit pinned
+source or start another heavy job before terminal evidence/authorized stop.
+433buildPASS94.184s, allactualhandles terminal, no runtime campaign; archived433
+Engine source in R/source_snapshots434 before explicit scope-exit deadline refresh.
+434buildPASS72.144s, pins/allactualhandles terminal. Serial40cases8831assertions
+PASS9.505s; ONE MPI6PASS8.063s,36cases/rank2785–5625assertions, pins/actualhandles
+terminal. R/surface_private434_qualification.json. Existing private eval/imports
+only for complete reserved surface collapses without opaque callbacks; selection,
+clearance/publication unchanged. Runtime no-collective/no-extra-work guards and
+common failure/deadline join. No demonstrated actual M6 gain yet; wait for outcome.
+
 Review delivered before fixes; subsequent goal continuation resumes stage3. See
 [cavity-operator review](Handbook/ADAPTATION_CAVITY_OPERATOR_REVIEW_20261112.md).
 Current432 connected [surface-demand census](Handbook/ADAPTATION_SURFACE_DEMAND_CENSUS_20261112.md)
 has passed focused qualification; actual saved-target stage TERMINAL, surface_prepared=false.
-NO owned heavy workload. All432 build/check/M6 actual worker+wrapper handles terminal.
+All432 build/check/M6 actual worker+wrapper handles terminal.
 Five affected compiled files pinned in R/build432_source_pins.json. Build432PASS392.920s,
 allpins/actualhandles terminal. SerialPASS39cases8801assertions/11.468s; ONE MPI6PASS
 35cases/rank2774–5595assertions/17.977s. Casepins/actualhandles terminal. Receipt

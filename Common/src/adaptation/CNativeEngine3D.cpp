@@ -3805,7 +3805,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
       }
       if (!ready) return finish();
     }
-    // Private repair evaluation uses the same operators with local reductions and explicit cavity data.
+    // Private cavity evaluation uses the same operators with local reductions and explicit cavity data.
     auto trial_maximum=[&](int value){return private_repair?value:world.maximum(value);};
     auto trial_reduce=[&](auto value,CPassiveComm::Op op) {
       return private_repair?value:CPassiveComm::Allreduce(value,op,world.comm);
@@ -5422,7 +5422,18 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
       }catch(const std::exception& e){private_failure.Set(2,0,e.what());break;}
       continue;
     }
-    if(!evaluate_candidate())return finish();
+    if(surface_target && coarsening && !repairing && !observe_rejections) {
+      // The complete reserved collapse cavity supplies every retained node. Opaque callbacks keep the collective path.
+      const auto elections=world.election_collective_calls,collectives=world.collective_calls,work=stats.global_work;
+      CLocalFailure local;bool evaluated=false;private_repair=true;
+      try{evaluated=evaluate_candidate();}catch(const std::exception& e){result.reason=e.what();}
+      if(atlas_budget.within_time && !atlas_budget.within_time())atlas_budget.time_exhausted=true;
+      private_repair=false;
+      if(!evaluated)local.Set(2,0,result.reason.empty()?"Native3D private surface collapse evaluation failed.":result.reason);
+      if(world.election_collective_calls!=elections || world.collective_calls!=collectives || stats.global_work!=work)
+        local.Set(2,0,"Native3D private surface collapse performed collective or unreserved operator work.");
+      if(!(ready=vote(local)))return finish();
+    } else if(!evaluate_candidate())return finish();
     // Successful peer contact/reservation votes must not erase this worker's construction refusal.
     const std::string pending_rejection=chosen && !approved ? result.reason : std::string{};
     const bool surface_edit=approved && !SameSkin(old,fresh);

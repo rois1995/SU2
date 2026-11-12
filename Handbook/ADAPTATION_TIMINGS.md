@@ -5,6 +5,14 @@ integration result. [Current handoff](../HANDOFF_Codex.md) owns live handles;
 [stage inputs/outputs and acceptance](ADAPTATION_CURVED_BL_STAGE_INTEGRATION_20261111.md)
 own the development sequence. R=`integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57`.
 
+434 private collapse scope:433unqualifiedbuild94.184s then434finalbuild72.144s;
+no runtime campaign between the connected scope/deadline changes. Serial40cases/
+8831assertions9.505s; ONE MPI6 milestone36cases/rank2785–5625assertions8.063s.
+All pins/actualhandles terminal for checks. Actual same396target surface replay
+FROZEN/RUNNING. No production timing/progress improvement established yet. Existing
+World call counters will test work savings; broad election timings still include
+wait/overlap. [Design and receipt](ADAPTATION_SURFACE_PRIVATE_COLLAPSE_20261112.md).
+
 Read-only cavity review2026-11-12: verified431 binary,9 serial cases/86 assertions;
 8 cases/85 assertions pass, growth fails with stale front dependency exception.
 Native wall.56s/CPU.26s/maxRSS37540kB; wrapper2.706s. Diagnostic only, no efficiency

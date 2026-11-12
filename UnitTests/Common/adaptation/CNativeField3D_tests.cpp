@@ -729,12 +729,16 @@ TEST_CASE("Native 3D local metric transport requires its explicit complete cavit
   Owned current{{old.cell.id,old}};World world;CavityMetricSource source(world,current);
   auto replacement=old;replacement.cell.v[3]={9,{.8,.8,-.1}};
   const std::vector<OwnedCell> cavity{old};
+  source.SetCavity(&cavity);
+  const auto collective=source.ImportMetricSamples({replacement.cell});REQUIRE(collective.valid);
   const auto collective_before=world.collective_calls,election_before=world.election_collective_calls;
   if(world.rank==0) {
     const auto imported=source.ImportMetricCellsLocal({replacement.cell},cavity);
     CHECK(imported.valid);if(imported.valid&&!imported.cells.empty())CHECK(imported.cells[0].sensor[3].xx==Approx(2.5));
     const auto alias=source.ImportMetricSamplesLocal({replacement.cell},cavity);
     CHECK(alias.valid);if(alias.valid&&!alias.cells.empty())CHECK(alias.cells[0].sensor[3].yy==Approx(3.5));
+    auto bytes=[](const std::vector<DonorCell>& cells){std::vector<char> result;RecordStream stream(result);for(auto row:cells)stream(row);return result;};
+    CHECK(bytes(alias.cells)==bytes(collective.cells));
     const Point sample{.2,.3,.1};
     const auto sampled=source.SamplePointsLocal({sample},cavity);
     CHECK(sampled.valid);if(sampled.valid&&!sampled.samples.empty())CHECK(sampled.samples[0].sensor.xx==Approx(2.2));

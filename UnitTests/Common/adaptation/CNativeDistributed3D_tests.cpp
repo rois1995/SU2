@@ -846,6 +846,11 @@ TEST_CASE("Requested-wall preparation uses construction ownership without claimi
   std::ostringstream refusal_summary;for(const auto& refusal:refusals)refusal_summary<<refusal.second<<": "<<refusal.first<<'\n';
   INFO(refusal_summary.str());
   INFO(prepared.reason);REQUIRE(prepared.surface_prepared);CHECK_FALSE(prepared.valid);
+  // Observation callbacks retain collective evaluation; the private path must publish the same replacement.
+  options.rejected_trial={};
+  const auto private_prepared=PrepareSurface(world,input,Uniform(input,{}),geometry,target,options);
+  INFO(private_prepared.reason);REQUIRE(private_prepared.surface_prepared);CHECK_FALSE(private_prepared.valid);
+  CHECK(Bytes(private_prepared.cells)==Bytes(prepared.cells));CHECK(private_prepared.stats.global_work==prepared.stats.global_work);
   CHECK(construction_only);CHECK(prepared.stats.quality_stages==0);CHECK(Bytes(input)==saved);
   CHECK(prepared.stats.cached_invalid_cells==0);CHECK(prepared.stats.field_compositions==0);
   if(strength>1)CHECK(world.sum(int(prepared.stats.length_splits))>0);
