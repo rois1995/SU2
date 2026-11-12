@@ -41,9 +41,9 @@ Actual64prefix owned/donor/parameters BYTEIDENTICAL423/same23commits. Requests34
 metric11.401→4.093s, nativewall29.159→22.711s/CPU28.778→22.306s. Substantial−49%work/
 −22%stagecost, notwholeworkflow speedup. R/surface_batch428_comparison.json.
 [Design/acceptance](Handbook/ADAPTATION_SURFACE_PLANNING_BATCH_20261112.md).
-RUNNING complete same396target W integration under unchanged388.8s/native5400s/12GiB,
-launcher R/check_checkpoint_surface428.py. No moreoptimization before outcome. Preserve
-current frozen handles. No newcache/import/scheduler/config, freshcoordinates/associations,
+Complete same396target W integration is TERMINAL as recorded above, under unchanged
+388.8s/native5400s/12GiB; launcher R/check_checkpoint_surface428.py.
+No newcache/import/scheduler/config, freshcoordinates/associations,
 strict finalgates, genericfulltarget paths and empty-rank votes unchanged.
 427build PASS216.195s; actualdiagnosticPASS136.228s/allpins/actualhandles terminal.
 Allfouractualcontexts exactsample/edgeagreement; repeatedwallguidance40→10, LE48→11,
@@ -51,7 +51,7 @@ coreedges60→27/72→31. ABBAwarm LE.304→.077s, wall.340→.108s; interiorunc
 R/cavity_planning427_assessment.json. Fullglobaldonorfield timings are not production
 performance. No meshapplication/acceptance. Source426control-selector failure preserved;
 427uses mobilityfeatures/corners, not originalchartbinding.dimension.
-428qualification above is complete; fullsurface integration is next. Genericfulltarget/
+428qualification and failed fullsurface integration above are complete. Genericfulltarget/
 CFD paths and finalstrictgates unchanged.
 Prior qualified423baseline pushed8a2b8779ea; prior evidence8abe01c943 pushed.
 Branch codex/native-3d-bl, authorized fork origin github.com/rois1995/SU2.git.
@@ -61,6 +61,15 @@ test `7dfbef22bb51d198924e0380a59d69570c406645bc6e2c0cf8e52c43f3bb77c4`.
 All pre426 build/check/actual handles terminal and pins verified.
 
 ## Active stage3 investigation
+
+Latest requested edge-accuracy follow-up reuses existing399 investigation:
+R/edge_measurement428_review.json and Handbook/ADAPTATION_BL_EDGE_ACCURACY_20261112.md.
+All1453 currentbuild source pins/both binaries/raw394+399inputs verified. No new
+production precision change or campaign. Main scalar consumers need ranking/merit/
+insertion/final lengths; two boolean-only firstrow/sector checks are downstream,
+not demonstrated bottlenecks. CurrentW fullcompositions0 rules out assigning this
+surfacefailure to expensive composed quadrature. Keep existing current-cavity
+diagnosis active; conservative bounds remain unproved, not a selected implementation.
 
 Full421existing PrepareSurface failed deadline:389.644s at388.8limit,1390work,
 349collapses/0splits.60981points/302382positive tets with transportedcore. Only5680

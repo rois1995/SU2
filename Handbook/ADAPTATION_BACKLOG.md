@@ -1127,6 +1127,14 @@ cannot substitute ranking/insertion/conformity/final scalars. No policy selected
 remain in current stage2target/coupled-patch assessment. See
 ADAPTATION_BL_EDGE_ACCURACY_20261112.md and staged57/edge_measurement399_audit.json.
 
+Current428 caller review also identifies two boolean-only downstream queries:
+BLFirstRow7::PlanLift(length<=1.5) and BLState sector clustering(length<=1).
+Unlike Engine ordering/merit, these could consume a proven action interval without
+using its scalar elsewhere. They are not measured surface-stage blockers. No bound
+API or correction selected; preserve accurate fan-count, placement and final lengths.
+Current surface planning uses no full composed quadrature. Revisit only if downstream
+stage evidence demonstrates material work here; do not launch a competing cycle.
+
 
 ###410 rejected height-scaled positional allowance
 

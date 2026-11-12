@@ -1,6 +1,10 @@
 # Curved BL edge measurement: decision accuracy audit
 
 Same connected curved-BL cycle; source/build/handles in HANDOFF_Codex.md.
+Current-source review after terminal428: see `R/edge_measurement428_review.json`.
+All1453 build428 source pins and both binaries match. The retained raw394/399
+diagnostic inputs also match their recorded hashes. No new baseline or profiling
+campaign was launched, and no production measurement precision was changed.
 Whole-edge outside-BL exclusion qualified383 in both production factories. Ambiguous,
 stale, exhausted or incomplete bounds fall back. Outside controls use exact background
 P1 integration with zero BL compositions. This is not evidence that the original
@@ -47,6 +51,14 @@ is not an integration error bound under strong anisotropy.
 | Candidate conformity | ValidateMetricChange/MeasurePatch/MeasureSurfacePlanning | Complete affected patch size excess/max and retained-edge comparisons, not one split classification. |
 | Final size gate | Cell/census/final certification and regional field service | Existing complete numerical measurement; unresolved remains failure. |
 
+Two direct boolean-only uses were found in the current source:
+`SU2_CFD/include/adaptation/native_bl3d/BLFirstRow7.inl:147` caps a proposed lift
+using length<=1.5; `BLState.inl:488` clusters normal sectors using length<=1.
+They discard the scalar. The nearby fan query at `BLState.inl:509` needs its
+magnitude because ceil(length) sets the fan count. Neither boolean-only check is a
+demonstrated current bottleneck; both occur downstream of the unfinished surface
+stage. A future action-bound implementation must distinguish them explicitly.
+
 Audit reaches Common/src/adaptation/CNativeField3D.cpp, CNativeMetric3D.cpp,
 CNativeEngine3D.cpp, CNativeRegionField3D.cpp, both BL composition factories,
 CBoundaryLayerMetric.cpp and CSolver::ComputeMetric. Exact unchanged-coordinate/target
@@ -72,6 +84,26 @@ feature switches, insufficient combined gradation and geometry-query noise causa
 Distance error alone never bounds normal/tensor error. Preserve h0/growth/thickness.
 
 ## Disposition
+
+Current428 surface preparation uses analytic core edge integration plus sided
+tangential/strip guidance, with ZERO full composed-field evaluations. Its shared
+lengths still drive ordering and whole-patch merit. Therefore the full-BL quadrature
+precision hypothesis does not explain the present surface-stage failure.
+
+The connected428 reuse correction is already qualified: the same64work production
+prefix retains identical owned/donor/parameter bytes and23commits, while requests
+fall3438→1752, metric time11.401→4.093s, stage wall29.159→22.711s and CPU28.778→22.306s.
+This removes repeated unchanged context, not precision. Full428 still exits at its
+388.8s allocation with647collapses,0splits and an incomplete census. It establishes
+neither surface readiness nor complete mesh/BL acceptance. Keep the active
+current-cavity/operator investigation; do not start another quadrature cycle from
+these historical edge timings.
+
+Historical394 and current428 are not source-identical qualification campaigns:
+CBoundaryLayerMetric gained admitted profile-history persistence/replay for396;
+the integrator, target edge factory and shared curved-reference files match394.
+Retain396 checkpoint qualification and428 integration evidence separately; do not
+claim that the old edge timing was reproduced on the saved396 target.
 
 The demonstrated geometry work correction394 is qualified and retained. The general
 hypothesis that construction pays excessive scalar precision remains partly unresolved:
