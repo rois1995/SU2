@@ -7,38 +7,38 @@ Use the [stage integration cadence](Handbook/ADAPTATION_CURVED_BL_STAGE_INTEGRAT
 and maintained [timing/work ledger](Handbook/ADAPTATION_TIMINGS.md). Full retries are
 reserved for integration milestones or failures not reproducible at a stage boundary.
 
-## Current next step — required split cost, yield and census service
+## Current next step — isolate boundary planning/context cost and split refusals
 
-The complete44132h0 target remains reload-qualified.448fixed a demonstrated service
-barrier: optionalcoarsening no longer excludes knownrequiredsurface work until its
-entire sweep/census finishes. Existing finite-generation helper switches claims,
-blocks/frontier/lane coherently, with no target/gate/budget change. Serial/MPI16case
-qualification passes; actualM6entersrequiredlane onEVERYrank. This is not surface closure.
+The complete44132h0 target remains reload-qualified.448unblocked requiredsurface
+work fromoptionalcoarsening;449nowletsidleworkers advanceoneexistingcensusbatch
+withoutdraining aheadofbusyrounds. Serial/MPI17casequalification passes. Actual449
+matchedbudgetwallcoverage5890vs4481257(4.69x),requiredlanecommits54vs35. Seedrows
+R0/3=1600vs192, busyrank4still192. Thisis demonstrated serviceopportunity/progress,
+notstrictclosure or anisolatedwalltime speedup.0passes, surfaceNOTready, q/JALLUNKNOWN.
+See [current cost/service evidence](Handbook/ADAPTATION_SURFACE_COST_AUDIT_20261112.md).
 
-448same-target result:35required-lanecommits,1257/38870wallrows,0passes,NOTready;
-61365nodes/303446positive tets.132partialgeometrybad/1sizebad, q/JALLUNKNOWN. Do NOT
-compare35required-lanecommits to447747optionalcollapsecommits as a speed benchmark.
-See [actual service/cost outcome](Handbook/ADAPTATION_SURFACE_COST_AUDIT_20261112.md).
+RecordedFrozenFieldtimers aretiny: R4build.029s/query.027s/edgeintegral
+.051s whilebroadmetricwrapper163.599s; R5wrapper171.997s. Wrappersincludeboundary
+guidance/context/geometry ANDpossiblejoins; CPU canpoll. Do notattributeallresidual
+toonefunction. Isolateactualsaved split contexts serially/boundedusingexisting
+diagnostics, repeatedunchanged-old-side vs changedcandidatework, andclassifyheight/
+geometryrefusals. Lastnegativeclearancevalues arenotprovedphysicalpenetrations.
+StorageBytes feature-grid scan isunproven/source-only inbacklog; no caching without
+actualcost + allmutator/authority/invalidation/resource audit. No anotherbaseline,
+perf/GDBcampaign, scheduler/config/operator or gatebypass. Keeponeactivecycle.
 
-The next bounded investigation must explain requiredsplit trial cost/yield and census
-service. Ranks4/5try2063/1628geometry trials withmanygeometry refusals; lastheight-clearance
-samples remainunclassified;
-metricwrappers185.660/145.272s includegeometry+collectivejoins, NOT isolated compute.
-Rank0/3remain at192seedrows/no commits whileglobalproposal-gated refill delays their
-remaining census. Use saved actualsplit contexts and existing counters; distinguish
-exact repeatedold context/target work, changedcandidate work and waiting. Negative
-reported clearance is not independent proof of physicalpenetration. Do not bypass
-height gates, add schedulers/operators, broadenbatches or repeat a baseline campaign.
+Preserve449positiveprovisional61384node/303493tetshards/current nodal metrics, all
+upstreamprofiles/geometry/CFD andEuler293checkpoints.179partialgeometrybad/8sizebad
+countscoverdifferentsets from448132/1; cannotinferwholefield churn/closure. Requested
+500k is nominal; initialestimate486914.722±empirical41525.003(notbound), achievednewmesh
+composedcomplexitystillUNMEASURED. No firstrow orusableBLclaim.
 
-447scopefilter is qualified but didnot demonstrate usefulstage speedup.446unchanged-
-face memo hadZERO hits on actualcoarsening stars; no integration fromwarmcachework.
-Donor preparation already local/negligible in447; privatecoarsening alreadyavoids
-trialcollectives. Do not duplicate those facilities. Keep oneconnectedcycle.
-
-Surface stage remainsprovisional. Oncecredible readiness exists, verify directions/
-firstrow, physicalalignment/height/progression/coverage and strictclosure, then the
-completeRANS transfer/continuedCFD/secondadaptation/isolatedrestart. Use HANDOFF for
-actualsource/build/inputprovenance and terminalhandles. Allupstream/Euler293kept.
+446unchangedface memo hadZERO actualcoarsening hits;447scopefilterqualifiedwithout
+usefulspeedup. Donor preparationalready local; privatecoarsening alreadyavoids trial
+collectives. Do notduplicate thosefacilities oradd speculativealternatives.
+Oncecredible surface readiness exists, verify directions/firstrow, physicalalignment/
+height/progression/coverage and strictclosure, then completeRANStransfer/continuedCFD/
+secondadaptation/isolatedrestart. UseHANDOFF forcurrentpins/actualterminalhandles.
 
 437 corrected the diagnostic interface ordering and selected surviving actual
 visibility failures. Direct collapses fail exact positivity; bounded corrected

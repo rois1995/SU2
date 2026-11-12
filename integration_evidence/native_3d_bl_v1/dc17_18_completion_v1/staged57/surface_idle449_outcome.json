@@ -1,0 +1,132 @@
+{
+  "case": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved449_idle_census_saved_target_surface_mpi6_20261112T171923_2017200",
+  "source_assessment_sha256": "6f0d96ff7472ae5e5075a906e6f26081e466cc988c193f982e4448340361fd73",
+  "all_actual_handles_terminal": true,
+  "confirmed": [
+    "Localidle census advances while peers retain active work; ranks0/3seed1600rows each versus192in448. Busy rank4 retains192seedrows.",
+    "Atmatchingnative389s:5890measuredrequestedrows versus1257;54required-lanecommits versus35. No completepass/surface readiness.",
+    "Every303493saved tetpositive and1152588sharednodal coordinate/tensor checks; same CFD/441target/constraints/budgets."
+  ],
+  "comparison448": {
+    "measured_wall_ratio": 4.685759745425616,
+    "commits": [
+      35,
+      54
+    ],
+    "measured_wall_cells": [
+      1257,
+      5890
+    ],
+    "seeded_rows_by_rank_before": [
+      192,
+      192,
+      192,
+      192,
+      192,
+      192
+    ],
+    "seeded_rows_by_rank_after": [
+      1600,
+      1568,
+      528,
+      1600,
+      192,
+      240
+    ]
+  },
+  "counters": [
+    {
+      "rank": 0,
+      "metric_seconds": 0.0031030270000000004,
+      "metric_cpu_seconds": 0.0008490000000000137,
+      "field_requests": 6368,
+      "field_build_seconds": 0.002252741000000002,
+      "field_query_seconds": 0.004120244000000003,
+      "field_search_seconds": 0.002352460000000001,
+      "field_composition_seconds": 0,
+      "edge_integral_seconds": 0.004939909999999997,
+      "measurement_cpu_seconds": 43.196759,
+      "seed_seconds": 45.614364182999964,
+      "seed_batches": 200
+    },
+    {
+      "rank": 1,
+      "metric_seconds": 0.21718226299999954,
+      "metric_cpu_seconds": 0.21503900000000095,
+      "field_requests": 6309,
+      "field_build_seconds": 0.0022678689999999996,
+      "field_query_seconds": 0.004097212999999997,
+      "field_search_seconds": 0.0023271880000000004,
+      "field_composition_seconds": 0,
+      "edge_integral_seconds": 0.003553909000000002,
+      "measurement_cpu_seconds": 41.734150000000014,
+      "seed_seconds": 45.61433254000002,
+      "seed_batches": 200
+    },
+    {
+      "rank": 2,
+      "metric_seconds": 16.278127463999997,
+      "metric_cpu_seconds": 16.097546999999906,
+      "field_requests": 8229,
+      "field_build_seconds": 0.0038075559999999962,
+      "field_query_seconds": 0.004021377999999997,
+      "field_search_seconds": 0.0021159290000000008,
+      "field_composition_seconds": 0,
+      "edge_integral_seconds": 0.006638863999999999,
+      "measurement_cpu_seconds": 15.370906999999997,
+      "seed_seconds": 45.62837470400001,
+      "seed_batches": 200
+    },
+    {
+      "rank": 3,
+      "metric_seconds": 0.07767190100000028,
+      "metric_cpu_seconds": 0.07578900000000073,
+      "field_requests": 5203,
+      "field_build_seconds": 0.0020481930000000002,
+      "field_query_seconds": 0.003280333,
+      "field_search_seconds": 0.0018382790000000006,
+      "field_composition_seconds": 0,
+      "edge_integral_seconds": 0.003306644999999999,
+      "measurement_cpu_seconds": 36.37777600000003,
+      "seed_seconds": 45.62243210399999,
+      "seed_batches": 200
+    },
+    {
+      "rank": 4,
+      "metric_seconds": 163.5992886690005,
+      "metric_cpu_seconds": 161.09383299999809,
+      "field_requests": 57232,
+      "field_build_seconds": 0.029166378000000014,
+      "field_query_seconds": 0.026570200999999946,
+      "field_search_seconds": 0.013765234000000019,
+      "field_composition_seconds": 0,
+      "edge_integral_seconds": 0.05107132999999994,
+      "measurement_cpu_seconds": 6.22189,
+      "seed_seconds": 45.62330162599999,
+      "seed_batches": 200
+    },
+    {
+      "rank": 5,
+      "metric_seconds": 171.9974173989996,
+      "metric_cpu_seconds": 169.5018969999981,
+      "field_requests": 56159,
+      "field_build_seconds": 0.030886435000000004,
+      "field_query_seconds": 0.02509615400000004,
+      "field_search_seconds": 0.013030664999999999,
+      "field_composition_seconds": 0,
+      "edge_integral_seconds": 0.05024174200000004,
+      "measurement_cpu_seconds": 7.392326,
+      "seed_seconds": 45.62743966600003,
+      "seed_batches": 200
+    }
+  ],
+  "limits": [
+    "Coverage/operationtrajectory/contention differ: matched-budget progress, not isolated algorithmic walltime speedup.",
+    "179knowngeometrybad/8knownsizebad are partial coverage versus132/1; no wholefield bad-cell churn or closure inference. q/J remainunknown.",
+    "Field/edge timers exclude some boundary guidance/context/geometry work; metric wrapper includes possible collective joins and CPU maypoll. Tiny fieldtimers do not identify which remaining boundary operation dominates.",
+    "seed_batches counts common measurement slots, including empty workers, not local nonempty16rowbatches.",
+    "Initialestimate486914.722\u00b1empirical41525.003(notbound) is not achieved newmesh composedcomplexity."
+  ],
+  "next_target": "Isolate non-core boundary planning/context and height/geometry refusal yield on saved actual split contexts. Use existing counters and bounded replay; invariant accounting scans remain an unproven source hypothesis. No further scheduler/config/target changes selected.",
+  "goal_complete": false
+}

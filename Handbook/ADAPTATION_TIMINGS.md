@@ -1527,3 +1527,21 @@ MPI6PASS4.446s17casesEVERYrank933–1773assertions/rank,1680pinsverified percase
 ShortRSSsamplingmisses childpeaks. Actualsame441target stage3 replay frozen; no
 performanceclaim before outcome. Existingfield/edge subtimers exported only, no
 newprofiling campaign/timers. Scope/gates/resourcesunchanged.
+
+449actualM6TERMINAL492.422swrapper/native389.092/load42.826/import.540; all10actual
+handles terminal/pinsverified.54requiredlanecommits vs44835;5890/38908wallrows vs
+1257/38870(4.69xcoverage);0passesboth/NOTready. Seedrows[1600,1568,528,1600,192,240]
+vsall192. Thisconfirmsboundedidle discovery, notisolatedwalltime speedup.
+61384nodes/303493positive tets/1152588sharednodalchecks. Partialgeometrybad179/size8
+vs132/1differentcoverage, q/JALLUNKNOWN. Fieldrequests139500/compositions0; geomwork
+7546542/rankratio127.96. R4/5metricwrapper163.599/171.997s, guidance12.028/14.306s
+NESTED/possiblejoins; metricCPU161.094/169.502s canpoll. Existingfieldsubtimers R4
+build.02917/query.02657/search.01377/edgeintegral.05107s, R5build.03089/query.02510/
+edgeintegral.05024s. Corefieldworktiny, residualboundary/context+joiningnotisolated.
+Seedwallmax45.628s; measurementCPU R0/3=43.197/36.378s includesseed+update. Common
+seed_batches200includesemptyworkers—notlocalnonemptybatches. Fourexitprefixes/one
+incomplete(11gaps), threecomplete99rounds/80358Worldelectioncollectives; notMPIwait.
+SumCPU2296.573includespolling; sampletreeRSS4.212GB/individual.861GB/nottruepeaks.
+Nominal500k/initial486914.722±empirical41525.003(notbound); achievednewmeshcomplexity
+UNMEASURED. R/surface_stage449_assessment.json/surface_idle449_outcome.json.
+Nextboundedtargetnon-coreboundarycontext cost+refusalpower, notanother serviceframework.

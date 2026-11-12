@@ -13,85 +13,74 @@ preserves earlier evidence/handles, NOT live workload state.
 
 ## Live state and provenance
 
-Build449PASS241.715s/all22observedactualidentitiesterminal/pins/newbinary+cleanNinja.
+No owned heavy workload live.449actualM6surface replay TERMINAL492.422s wrapper/
+389.092s native; all10actualidentities terminal, source/runtime/inputpinsverified:
+R/cases/curved449_idle_census_saved_target_surface_mpi6_20261112T171923_2017200
+(session40009terminal). R/surface_stage449_assessment.json and surface_idle449_outcome.json.
+61384nodes/303493tets, allpositive;1152588exact shared-coordinate/tensor checks.
+54commits/1662globalproposalwork;5890/38908wallrows measured,0completepasses,NOTready.
+Partialgeometrybad179/sizebad8; q/JALLUNKNOWN;297603unmeasuredcells. Handoff1EVERYrank.
+Same savedCFD/complete441target/original6partitions,388.8s/233220work/12GiB limits,
+noCFDadvance/metricrecompute/sensor/norm/height change. Onlyboundedcensus service changed.
+Saved output provisional failure evidence, not successfulsurface stage/generatedBL.
+Requested500k/INITIALestimate486914.722±empirical41525.003(notbound); achievednewmesh
+composedcomplexityUNMEASURED. SampletreeRSS4.212GB/individual.861GB/nottruepeaks;
+rankCPUtotal2296.573 includesMPIpolling. Original61330nodes/303359tets.
+
+Build449PASS241.715s/all22observedactualidentities terminal/pins/newbinary/cleanNinja.
 R/build449_status.json/source_pins.json/terminal_handles.json. CurrenttestSHA
 189beafbc9299b0d7c54f00e9737c4a3bc7ed33223ebacfc7c1fa75918513c2f;
 CFDSHA79e13a54f00af63d858655760d401700f6afede18e69e8a7b7d28a2a84336d39.
-SerialPASS4.430s/17cases2194assertions; MPI6PASS4.446s/same17casesEVERYrank,
-933–1773assertions/rank. Observedactualhandles terminal/1680pinsverified percase;
-R/surface_idle449_qualification.json. ShortRSSsamplingmisses actualchildpeaks.
-Same441target M6 stage3 is the ONE owned heavy workload(session40009;
-R/check_saved_surface449.py; actualcase/statusunderR/cases). Freeze all compiled/
-pinned sources until terminal. Outcome/performance pending.
-Connected change qualified for affected facilities: one existing censusbatch on localidle Surface-
-Planning workers while peers haveproposals, thenrepick and execute SAME active round.
-Busy cursors stayfixed, no censusdrain ahead of operators. Newdata refreshes complete/
-refill state; globalempty refill unchanged. No new scheduler/config/batch/gate/target.
-R/idle_census449_entry.json verifies73actualterminalidentities/1477sourcepins beforeedit.
-Focusedserial/ONE MPI milestone PASS; actualstagefrozen, no speedup/BLclaim.
-448actualM6surface replay TERMINAL514.446s wrapper/
-389.050s native; all10actualidentities terminal, source/runtime/inputpinsverified:
-R/cases/curved448_required_surface_saved_target_surface_mpi6_20261112T164513_1937306
-(session59462terminal). R/surface_stage448_assessment.json and surface_required448_outcome.json.
-61365nodes/303446tets, allpositive;1152419exact shared-coordinate/tensor checks.
-35commits/1360globalwork;1257/38870wallrows measured,0completepasses, NOTready.
-Partialgeometrybad132/sizebad1; q/JALLUNKNOWN;302189unmeasuredcells. Handoffcount1
-onEVERYrank;112surface-lane rounds. Same savedCFD/complete441target/original6partitions,
-388.8s/233220work/12GiB, noCFDadvance/metricrecompute/sensor/norm/height change.
-Operationserviceorderchanged, validity-first admission unchanged. Saved output is
-provisional failure evidence, not a credible successful surface stage/generatedBL.
-Requested500k/INITIALestimate486914.722±empirical41525.003(notbound); achievednewmesh
-composedcomplexityUNMEASURED. SampletreeRSS4.161GB/individual.855GB/nottruepeaks;
-rankCPUtotal2235.880 includesMPIpolling. Original61330nodes,303359tets.
-
-Build448PASS424.980s/all63observedactualidentities terminal/pins/newbinary/cleanNinja.
-R/build448_status.json/source_pins.json/terminal_handles.json. CurrenttestSHA
-0ee1405e9301f17235c48b5555857fdfccafd80e8db81a855e17e1792f1706a0;
-CFDSHA2e1baf3b4546d107680b91e3a2d534d5d7e8ebbf488f2d663e919bfd3fd6b176.
-Source checkpointdb266299e1pushed; use gitlog for later outcome checkpoint.
+Source checkpoint252b8b8490pushed; usegitlog for lateroutcome checkpoint.
 Preserve unrelated P1/FEM/.orig/log/submodule working changes. Authorized fork origin,
 branch codex/native-3d-bl. Git sharedmetadata needs escalation; explicit staging only.
 
 ## Current correction and demonstrated next blocker
 
-SurfacePlanning starts optional short-edge coarsening; previous queue-driven refill
-and direction switch delayed required work until no proposals AND complete census.
-447/445hitdeadline before that boundary despite known geometry/size debt. Now, at a
-quiescent timed iteration boundary, globallyknown construction_invalid triggers existing
-begin_length_generation(false). It rebuilds directionblocks/queues/finitefrontier/pass
-claims/lane/window coherently; no false completed-collapse pass. No new scheduler,
-config, batch, operators, target/gate/budget change. Clean surfaces retain real coarsening.
+Boundedidle census: SurfacePlanning construction withactiveglobalwork permits one
+existing<=16rowcensusbatch onlyonlocalidleworkers. Busy cursorsstayfixed. Everyrank
+keepsadmission/deadline/vote/measure collectives, thenrepicks andrefreshesbad_field/
+complete/refill andexecutes SAME active iteration. No censusdrain aheadofoperators,
+no graphpublication duringmeasurement. Globalemptyrefill/fulltargetpaths unchanged;
+frontier/blockedhistory/fullsupport/claims/publication andconstraints preserved.
+No new scheduler/config/batches/target/gate/budget. Sourceentryverification:
+R/idle_census449_entry.json (73actualterminalidentities/1477prior sourcepins).
 
-SerialPASS4.548s/16cases1912assertions; MPI6PASS4.594s/16casesEVERYrank/915–1513assertions,
-observedactualhandles terminal/1679pinsverified percase. R/surface_required448_qualification.json.
-Real clean subdividedwall collapse control vs separated coarse-wall required debt:
-required lane precedes optionalcollapse, stillpositive/currentnodal, emptyranksaligned;
-ordinaryfulltarget/curved/height/budget regression paths pass. ShortcheckRSSsamples
-miss children; do not call tiny samples process/job peaks. DedicatedgeneratedBL MPI remainsOPEN.
+SerialPASS4.430s/17cases2194assertions; MPI6PASS4.446s/17casesEVERYrank/933–1773assertions,
+observedactualhandles terminal/1680pinsverified percase. R/surface_idle449_qualification.json.
+MPIfixture idleowner seeds20vsbusy2;busycommits inoneoperatorround; hidden demand,
+exactprepublicationworkrefusal snapshots, emptyranks/ownership/curved/height/fulltarget
+regressions pass. ShortRSSsamples miss children; no generatedBL MPIclaim.
 
-448confirms actual requiredlane service, not closure. Comparing35required-lanecommits
-with447747optionalcollapsecommits isNOTa throughput comparison. Geometrywork5758290,
-rankmax/min746.36, fieldrequests106457/compositions0. Rank4/5fieldrequests58247/43704;
-metricwrapper185.660/145.272s, geometryguidance12.604/12.146s NESTED. Geometrytrialcounts
-2063/1628 with1973/1557refusals on parsedexits. Lastsamples include positive smooth-
-reference clearance notcertified (clearance/h0−2.9648/−3.8265) and geometryguidance.
-These are not independently proved physical penetrations. Rank0/3do no committedwork
-and spendmosttimejoining; electiontimers are NOTtotalMPIwait. All6exitrecordsparseable.
+Actual449vs448 matchednativebudget:5890vs1257wallrows(4.69xcoverage),54vs35required-
+lanecommits;0passesboth. Seedrows/rank[1600,1568,528,1600,192,240] vs448all192.
+Thuspreviousidle exclusion isremoved; notfullreadiness orisolatedwalltime speedup.
+Knownbadcounts179/8vs132/1coverdifferentsets andcannotprovewholefield closure/churn.
+Geometrywork7546542/rankratio127.96; fieldrequests139500/compositions0. R4/5stillhot:
+metricwrapper163.599/171.997s, metricCPU161.094/169.502s(possiblepolling), guidance
+12.028/14.306s NESTED. R4fieldbuild.0292/query.0266/search.0138/edgeintegral.0511s;
+R5build.0309/query.0251/edgeintegral.0502s. RecordedFrozenFieldtimers are tiny; theseexclude
+boundaryguidance/context costs. Wrapperincludespossiblejoins; cannotassignallresidual
+seconds tooneboundaryoperation. Existingcounterexport EXECUTED, notnewprofilingcampaign.
+Seedwallmax45.628s, measurementCPU R0/3=43.197/36.378s includesseed+update. seed_batches
+200onallranks counts commonmeasurementslots(includingempty), NOTlocalnonemptybatches.
+Only4exitprefixesparseable(11attributiongaps); 3completeprefixes99rounds/80358World
+collectiveelectioncalls. DoNOTinterpretjointimers/CPUas totalMPIwait/usefulwork.
 
-Nextactiveblocker is required-split trial COST+YIELD and census service, not optional
-coarsening throughput. Rank0/3 remain at192seededrows: refill waits for noGLOBAL
-proposal, so localidle capacity cannot discover remaining demand. Audit exact repeated
-old-side work and classify height/geometry refusals on saved split contexts. Do not assume memo
-speedup, add operators or bypass constraints. Metric wrapper includes geometry AND collectivejoins; CPU canpoll. It is not an
-isolated target-compute/MachHessian timing. Attribution gaps remain. No next production correction selected.
-No new full baseline/perf/GDB campaign. Retain one connected cycle.
+Nextactiveblocker: non-coreboundaryplanning/context cost AND requiredsplit refusal
+power. LastR4/5samples again positive smooth-reference clearance notcertified,
+clearance/h0−3.4376/−2.5566. These are not independentlyproved physicalpenetrations.
+Useactual saved splitcontexts toseparateexact repeatedoldsidework, changedpositions,
+geometry/height evidence andjoining. StorageBytes feature-grid scan is SOURCE-ONLY
+hypothesis inbacklog, notprovenbottleneck. No nextproductioncorrection selected.
+No new full baseline/perf/GDBcampaign, scheduler or gatebypass. Keeponeconnectedcycle.
 
-447requested-wall-only published measurement remains qualified: central filter before
-batching; allcompleteprivatecavity/transport/publication retained, nonrequestedcensus
-UNKNOWN. Runtime skips3201rowOCCURRENCES; no useful stage speedup vs445 established.
-447same-target capture remains preserved (747commits/3873wallrows/0passes). Existing
-private surface-collapse evaluation ALREADY avoids trial collectives; do not duplicate.
-CavityMetricSource already reads localcurrent tensors; donor work was negligible.
+448required-debt handoff remains: knownsurface debt atquiescentboundary usesexisting
+begin_length_generation(false), no falsecompletedoptionalcollapse pass. Serial/MPI
+qualified andactualM6serviceproved, but35commits/1257wallrows/0passesunready output
+preserved. 447publishedmeasurement scopefilter alsoqualified withnousefulspeedup;
+allcompleteprivatecavity/transport/publication retained, nonrequestedcensusUNKNOWN.
+Existing privatecoarsening alreadyavoidstrialcollectives; donorcurrenttensors alreadylocal.
 
 ## Reuse conclusions and bounded cavity capability
 

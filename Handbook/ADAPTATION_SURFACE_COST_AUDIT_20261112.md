@@ -248,7 +248,7 @@ SampletreeRSS4.161GB/individual.855GB/nottruepeaks; sumrankCPU2235.880s includes
 All upstream and Euler293checkpoints preserved. Requireddebtservice is qualified,
 but surface readiness, fullBL suitability and completeRANS workflow remainOPEN.
 
-##449 bounded idle census service — actual outcome pending
+##449 bounded idle census service — service improvement, readiness still open
 
 **Input:** same savedCFD/441target/geometry and current transported metrics,448required
 work handoff retained. **Missing service:**448ranks0/3hadno commits butonly192seeded
@@ -283,3 +283,52 @@ PASS4.446s. Allobservedactualhandles terminal/1680pinsverified percase;
 R/surface_idle449_qualification.json. MPI idleowner seeds20vsbusy2, busycommits
 inoneoperatorround; hidden-demand+exactcompleteworkrefusal snapshots pass. Actual
 M6same441target surface replay frozen; no performance or readiness claim yet.
+
+###449 actualM6 outcome
+
+R/cases/curved449_idle_census_saved_target_surface_mpi6_20261112T171923_2017200
+TERMINAL492.422swrapper/389.092snative; all10actualhandles terminal/source/runtime/
+inputpinsverified. R/surface_stage449_assessment.json and surface_idle449_outcome.json.
+61384nodes/303493positive tets,1152588exactshared nodal coordinate/tensor checks.
+54commits/1662proposalwork,5890/38908wallrows,0completepasses,NOTready;179known
+geometrybad/8sizebad onpartialcoverage; q/JALLUNKNOWN. SameCFD/complete441target,
+constraints/limits. Nominal500k/initial486914.722±empirical41525.003(notbound);
+achievednewmesh composedcomplexity remainsUNMEASURED. No firstrow oracceptedBL.
+
+Matchednativebudget coverage5890vs4481257(4.69x),required-lanecommits54vs35. Seedrows
+[1600,1568,528,1600,192,240] vs448all192. Thusidlecapacity can discoverdemand while
+busyworkers retaincursors; rank3nowcommits once andrank2commits27vs13. Contention
+andadmitted/evolving nodal trajectories differ: this is matched-budget usefulprogress,
+notan isolated walltime speedup. Badcounts179/8vs132/1coverdifferentsets; no netwhole-
+field retirement/creation orclosure inference. No repeatbaselinecampaign.
+
+Existing sub-timers nowpersist perrank:
+
+| Rank | Metric wrapper s | Field build s | Field query s | Edge integral s | Measurement CPU s |
+|---|---:|---:|---:|---:|---:|
+|0|.0031|.00225|.00412|.00494|43.197|
+|1|.217|.00227|.00410|.00355|41.734|
+|2|16.278|.00381|.00402|.00664|15.371|
+|3|.0777|.00205|.00328|.00331|36.378|
+|4|163.599|.02917|.02657|.05107|6.222|
+|5|171.997|.03089|.02510|.05024|7.392|
+
+These are nested/different intervals, NOT additive. Fieldtimersmeasure FrozenField
+core/source work and exclude some boundaryguidance/context/geometry processing.
+Metric wrapper includespossiblecollectivejoins; CPU maypoll. RecordedFrozenFieldtimers aretiny; theMachHessian isabsentfromthissavedtarget
+replay. Untimedmetricalgebra/boundary/contextwork andjoining stillneedisolation. R4/5geometryguidance12.028/14.306s is nested; broadmetricCPU
+161.094/169.502s is not byitself usefulcompute proof. Seedwallmax45.628s; measurement
+CPUincludesseed+update and excludes surroundingvotes. seed_batches200onEVERYrank
+counts commonmeasurementslots, includingemptyworkers, not200localnonemptybatches.
+
+Fieldrequests139500/compositions0; geomwork7546542/rankratio127.96. SampletreeRSS
+4.212GB/individual.861GB/nottruepeaks; sumrankCPU2296.573includespolling. Fourexit
+prefixes parseable butoneincomplete(11gaps); threecompleteprefixes99rounds/80358
+Worldelectioncollectivecalls. No totalMPIwait claim. LastR4/5samples clearance/h0
+−3.4376/−2.5566 remaincertificationrefusals, notprovedphysicalpenetration.
+
+Nexttarget: bounded actualsplitcontext isolation of non-coreboundaryplanning/context
+andrefusalpower, beforefurtherproductionchanges. Existing StorageBytes feature-grid
+scan hypothesis remainsunproven; donotcacheaccounting ornormaldata withoutmeasured
+costand allmutator/identity/invalidation/resource audits. Keepthequalified service
+changes, latestEuler/BLconstruction, original noCAD authority andeveryfinalgate.
