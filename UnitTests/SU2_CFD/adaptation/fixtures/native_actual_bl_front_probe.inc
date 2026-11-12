@@ -9,8 +9,9 @@ const bool checkpointTarget=std::getenv("SU2_NATIVE_TARGET_CHECKPOINT3D")!=nullp
 const bool contributionsOnly=std::string(std::getenv("SU2_NATIVE_BL_FRONT_PROBE"))=="checkpoint_target_contributions";
 const bool checkpointRepair=std::string(std::getenv("SU2_NATIVE_BL_FRONT_PROBE"))=="checkpoint_target_repair";
 const bool checkpointNeighborRepair=std::string(std::getenv("SU2_NATIVE_BL_FRONT_PROBE"))=="checkpoint_target_neighbor_repair";
+const bool checkpointSurface=std::string(std::getenv("SU2_NATIVE_BL_FRONT_PROBE"))=="checkpoint_target_surface";
 const bool checkpointFront=std::string(std::getenv("SU2_NATIVE_BL_FRONT_PROBE"))=="checkpoint_target_front";
-REQUIRE(checkpointTarget==(contributionsOnly||checkpointRepair||checkpointNeighborRepair||checkpointFront));
+REQUIRE(checkpointTarget==(contributionsOnly||checkpointRepair||checkpointNeighborRepair||checkpointFront||checkpointSurface));
 if(checkpointRepair||checkpointNeighborRepair)REQUIRE(std::getenv("SU2_NATIVE_BL_SAVED_PATCH"));
 if(checkpointNeighborRepair)REQUIRE(std::getenv("SU2_NATIVE_BL_SAVED_NEIGHBORS"));
 const bool savedTarget=checkpointTarget||panelsOnly||stabilityOnly||accuracyOnly||exclusionOnly||std::string(std::getenv("SU2_NATIVE_BL_FRONT_PROBE"))=="saved_target_geometry";
@@ -106,6 +107,10 @@ state->field=std::make_unique<FrozenField>(std::move(donors),policy->Composition
 state->retained_bytes=[&]{return retained;};
 state->admit_scratch=[&](size_t bytes){if(transfer_memory::Add(retained,bytes)>ceiling)
     throw std::length_error("Actual front probe exceeds working-storage admission.");};
+if(checkpointSurface) {
+#include "native_actual_bl_surface_stage.inc"
+  return;
+}
 dc12::DirField directions;
 struct ResetDirections {~ResetDirections(){dc9::ensureDirectionField={};dc9::directionField=nullptr;}} resetDirections;
 dc9::ensureDirectionField=[&](State& current) {

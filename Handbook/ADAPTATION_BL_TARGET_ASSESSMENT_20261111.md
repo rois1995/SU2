@@ -758,3 +758,17 @@ production PrepareSurface. Reproduce the existing surface stage from complete396
 before treating this refusal as a production first-row blocker. Do not relax geometry,
 height or cavity bounds. Fatal backend guards and complete419serial/MPIcoverage are
 recorded in R/surface_feedback419_qualification.json; old Growth12remains open.
+
+##421 production surface prerequisite
+
+Existing W now replayed from complete396policy/globalcore: deadline389.644s,
+1390work/349collapses/0splits; surface_prepared=false.60981points/302382positive tets,
+only5680geometrycached/296702unknown; allq/Junknown. This confirms the surface stage
+is not yet credible input to firstrow; it does not prove physical target infeasibility.
+Full provisional capture~235MB retained with external complete target pins. Freshreload
+not qualified. W fieldcompositions0; core-only integration/sided guidance means its
+blocker cannot simply be assigned to fullBL edge quadrature. Upperqueries47.648s
+(traversal17.073 nested) against389s stage; othermainphase attribution remains missing.
+Next examine initialcoarsening/census behavior and affected actual cavities, using
+existing timers/counters before selecting one correction. No construction policy,
+metric, strict gate or budget change justified yet. See R/surface_stage421_assessment.json.

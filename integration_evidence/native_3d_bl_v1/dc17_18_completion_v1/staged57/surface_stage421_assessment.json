@@ -1,0 +1,88 @@
+{
+  "stage": "3 coupled surface preparation",
+  "build": "421",
+  "source_commit_before_test_adapter": "971b45014d",
+  "input_complete_target": "396",
+  "same_saved_CFD": true,
+  "production_changed": false,
+  "stage_output": {
+    "surface_prepared": false,
+    "final_mesh_accepted": false,
+    "fresh_reload_qualified": false,
+    "reason": "Native 3D kernel elapsed-time budget exhausted; feasibility is undetermined. Local cached demands: geometry_cells=39, metric_or_height_cells=0, geometry_edges=0, metric_edges=17. Last local rejection: edge 21543,21292: Native 3D collapse obstructed at cell 102519.",
+    "seconds": 389.643721583,
+    "maximum_seconds": 388.8,
+    "maximum_work": 233220,
+    "captured": true,
+    "nodes": 60981,
+    "tets": 302382,
+    "positive_cells": 302382,
+    "transported_core_cells": 302382,
+    "work": 1390,
+    "commits": 349,
+    "geometry_work": 15121862,
+    "seed_seconds": 20.585642769000007,
+    "measurement_cpu_seconds": 42.119496000000034,
+    "cached_measured_cells": 5680,
+    "edge_evaluations": 28702,
+    "edge_reused": 0,
+    "field_requests": 66308,
+    "field_compositions": 0,
+    "target_policy_unchanged": true,
+    "source_checkpoint_required": true
+  },
+  "wrapper": {
+    "state": "terminal",
+    "exit_code": 0,
+    "seconds": 490.53621530532837,
+    "pins_verified": true,
+    "changed": [],
+    "largest_sampled_individual_process_rss_bytes": 3067150336,
+    "rss_note": "sampled process RSS; not a whole-job peak"
+  },
+  "all_handles_terminal": true,
+  "capture": {
+    "stage_surface_rank0_owned.bin": {
+      "sha256": "749d25a1ac3454db4b41b1a407c8d8c2e36117ecc9ddabde8ab4073e45e1ee31",
+      "bytes": 125790920
+    },
+    "stage_surface_rank0_donors.bin": {
+      "sha256": "4ee991bb002098e65502c4f6e5276e14faefd1e14db0a1870837a13444ba28a7",
+      "bytes": 104355504
+    },
+    "stage_surface_rank0_parameters.bin": {
+      "sha256": "1a929231315f0c6b3e28d423c8b0dc7c36bada6d7c7fbc5a6548030604e97988",
+      "bytes": 5005296
+    },
+    "stage_surface_rank0_manifest.json": {
+      "sha256": "3741d088008fcdb8857b8902d2bc1d3e21e20bf01b44a9ae5f7675871b9df949",
+      "bytes": 2543
+    }
+  },
+  "record_sizes_checked": true,
+  "successful_checkpoint": false,
+  "fresh_reload_qualified": false,
+  "final_accepted": false,
+  "target_checkpoint_external_required": "target_checkpoint396_producer.json + all12complete payloads + original authority + global selected core; post-W original donor source can be reconstructed from owned transported sensors, but no downstream reuse qualified",
+  "confirmed": [
+    "349collapses,0splits; deadline during first coarsening generation",
+    "All302382 retainedcells exactpositive and have transportedcore",
+    "Incomplete census:5680geometrymeasured/296702unknown; allq/Junknown",
+    "SurfacePlanning uses core-only edgeintegration and sided tangential endpoint guidance; field_compositions=0",
+    "Fine full-BL quadrature is not the measured work in this W stage"
+  ],
+  "timing_attribution": {
+    "stage_seconds": 389.643721583,
+    "initial_seed_seconds_nested": 20.585642769,
+    "measurement_cpu_nested": 42.119496000000034,
+    "changed_cell_update_seconds_nested": 21.626981683,
+    "geometry_guidance_seconds_nested": 43.563894136,
+    "upper_query_seconds_nested": 47.648284737,
+    "facet_build_seconds_nested": 26.369577088,
+    "scope_build_seconds_nested": 3.859967142,
+    "certification_traversal_seconds_nested": 17.072878816,
+    "tracked_collective_seconds_partial": 0.17441352800331344,
+    "note": "Nested timers overlap; no summation. Main selection/dependency/donor/reconstruction/publication/collision timers exist in EngineStats but were not exported by this diagnostic. No dominant whole-stage cost attributed."
+  },
+  "next": "Remain at coupled surface stage. Review initial coarsening/census progression and export existing full EngineStats costs on the next justified bounded validation; use captured actual cavities to select one correction. Do not start firstrow/growth from this failure or repeat another full baseline/perf/GDB campaign."
+}

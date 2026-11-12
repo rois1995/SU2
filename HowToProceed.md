@@ -7,6 +7,17 @@ Use the [stage integration cadence](Handbook/ADAPTATION_CURVED_BL_STAGE_INTEGRAT
 and maintained [timing/work ledger](Handbook/ADAPTATION_TIMINGS.md). Full retries are
 reserved for integration milestones or failures not reproducible at a stage boundary.
 
+## Current next step — coupled surface prerequisite
+
+Read the current handoff before historical sections below. Complete396target fidelity
+is qualified;421now replays production PrepareSurface from that saved target. It
+exhausts388.8s with349collapses, no splits and incomplete census: surface readiness
+not established. Preserve full positive provisional capture and complete external
+policy; it is not a successful checkpoint. Diagnose the initial coarsening/census
+work before another full workflow or first-row campaign. Geometry timers explain
+only part of389s; main EngineStats phase timers must be exported on the next justified
+bounded validation. No evidence yet supports another quadrature/cache change for W.
+
 ## Next stage2 output
 
 The difficult-edge measurement blocker is resolved by build394. Existing region

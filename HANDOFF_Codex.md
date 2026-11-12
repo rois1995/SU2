@@ -12,7 +12,39 @@ all prior failures/provenance. This handoff overrides historical live handles/ne
 
 ## Current source/build/workload
 
-NO owned heavy workload.419build/serial/MPI6/actual LE are TERMINAL; actual-host
+NO owned heavy workload.422build TERMINAL/PASS214.225s/pins/actual handles verified.
+CFD remains a606f2d56ffa96bd370e2dcbbac56d530768f121fcc756c980f6ddd9183b4e81;
+test31c797a572dd0ee1bf3b31af568fec0722a873a6ce057eace0ae0bf458cc5510.
+422focused surface/capture6cases2860assertions PASS4.436s; actual handles terminal.
+Only existing EngineStats phase/collision/CPU export added; no decisions changed.
+NO further full surface replay for this telemetry-only edit;421timing gaps remain.
+Exact421test sources archived in R/source_snapshots421; manifest R/source_snapshot421.json.
+421surface-stage replay TERMINAL490.536s/PASS as a diagnostic,
+NOT surface readiness. All source/input pins and actual-host handles verified terminal.
+Case R/cases/curved421_checkpoint_surface_20261112T051236_121725; execsession70682 ended.
+R/surface_stage421_assessment.json records complete source/target/capture hashes.
+Existing PrepareSurface deadline389.644s (limit388.8),1390work/349collapses/0splits.
+60981points/302382tets, all exactpositive with transportedcore. Only5680geometrycached,
+296702unknown; allq/Junknown.39geometrybad is PARTIAL, not whole-field. No usableBL.
+Native stage accounting peaks11.254GB admitted; sampledindividualRSS3.067GB notwholepeak.
+House streamed owned/donor/parameter capture~235MB local+hashes, original396fulltarget
+required. This is FAILED provisional progress, not a fresh-reload-qualified checkpoint.
+Field_compositions0: W uses core-only integration/sided tangential guidance, not expensive
+fullBLedgequadrature. Seed20.586s, update21.627s, upper47.648s includingfacetbuild26.370s/
+scope3.860s/traversal17.073s; guidance43.564s overlaps. Whole-stage attribution incomplete:
+selection/dependency/reconstruction/publication/collision timers exist but were not exported.
+Do not claim geometry traversal dominates389s or select a marginal cache change from this.
+Next remain at stage3: analyze initialcoarsening/census blockage on saved actual cavities;
+export existing complete phase costs at next justified bounded validation. No new baseline/
+perf/GDBcampaign, raisedbudgets, skippedcoarsening or geometry/qJgate relaxation selected.
+Do not proceed to firstrow/growth from incomplete surface readiness.
+
+Build421 PASS214.208s; CFD unchanged a606…/testba85b856e3ee8b5eac4acac18f0a6c6e710c13b0f61f53cc9ac77914e58b5b36.
+Focused421surface/capture6cases2860assertions PASS4.420s; handles terminal.
+Test-only adapter uses complete396policy/globaloriginalcore and existing productionW,
+no production change.420compile failure18.145s (missing layer2d qualifier) preserved,
+actualhandles verified terminal before421correction. No extraMPI: production identical419.
+419build/serial/MPI6/actual LE are TERMINAL; actual-host
 handles verified absent before further edits.419build PASS214.199s/pins; CFD
 `a606f2d56ffa96bd370e2dcbbac56d530768f121fcc756c980f6ddd9183b4e81`;
 test `7403414e50039ec8e6d7188795813dcb9b00dfada46394f38f9688f9b96332a7`.
@@ -104,8 +136,8 @@ milestone passes,416smooth actual preparation matches412. Source review found no
 concrete production acceptance defect. Leading-edge actual validation419 is terminal as above.
 Full RunEvent coverage/high-band trajectory is NOT established; the five-column
 trial is the historical low-band diagnostic. Growth12failure stays OPEN; no full
-workflow retry before credible stage outputs. Next integration should exercise actual
-production first-row coordination from the saved target, not repeat fixed25cell polish.
+workflow retry before credible stage outputs. 421replay now confirms the mandatory surface prerequisite is incomplete. Remain at
+stage3 before actual production first-row coordination; do not repeat fixed25cell polish.
 
 ## Saved regression comparison (412)
 

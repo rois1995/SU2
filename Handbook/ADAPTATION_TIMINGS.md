@@ -1125,3 +1125,43 @@ This original-mesh probe skips mandatory production surface preparation: its cos
 and refusal do not characterize first-row construction from a prepared surface.
 Next measurement is the saved396target production surface stage, preserving upstream
 seed/checkpoint and production budgets. Nested timings remain overlapping.
+
+## Saved-target production surface-stage replay421
+
+Same complete396target, saved CFD/authority, no CFD or normalization recompute.
+Test-only stage adapter; CFD binary byte-identical419. Build214.208s; focused surface/
+capture6cases2860assertions PASS4.420s. No extraMPI for diagnostic-only caller.
+Actual wrapper490.536s; existing productionW389.644s at388.8limit. All pins and
+actual handles terminal. R/surface_stage421_assessment.json, complete case capture.
+
+| Measured work | Result | Interpretation |
+|---|---:|---|
+| Native work / commits |1390 /349|All commits collapses; no completed collapse pass or split|
+| Retained points / tets |60981 /302382|All cells exactpositive and transportedcore present|
+| Geometry census |5680measured /296702unknown|39knownbad is partial; no whole-field closure|
+| q/J/height census |Allunknown|Construction correctly omits shape measurement|
+| Initialseed /changed update |20.586s /21.627s|Nested in stage|
+| Measurement CPU |42.119s|Nested; not total useful work or MPIwait|
+| Guidance /upperqueries |43.564s /47.648s|Overlap, do not add|
+| Facetbuild /scopebuild /traversal |26.370s /3.860s /17.073s|Nested in geometry work|
+| Geometry work |15121862|Uppercertification12250290, traversal10186955 nested|
+| Fieldrequests /edgeevaluations |66308 /28702|0fulltargetcompositions: W uses core-only/sided planning|
+| Tracked collective calls time |.174s|Partial wrappers, not total MPIwait; native1|
+| SampledindividualRSS |3067150336B|Not whole-jobpeak; no observed resourcepressure|
+| Ledgeradmissionpeak |11253964648B|Reservation, not RSS; under12GiB|
+
+Surface_prepared=false, deadline exhausted; entire stage NOT accepted. Captured full
+owned/donor/parameter payloads are failed-progress evidence, not a successful reusable
+checkpoint. Full396policy/authority required; freshreload unqualified.
+
+Mainphase timers exist in EngineStats but were not exported by this first diagnostic.
+Selection/dependency/reconstruction/publication/collision attribution remains missing.
+The47.648s upperquery measurement does not establish dominant geometry cost in389s.
+Do not infer a full-target quadrature bottleneck here. No speedup claim versus364:
+target/source/capture scope differs. Next is coupled-surface coarsening/census diagnosis,
+not another normalization, fixed25cell polishing or fullworkflow retry.
+
+422adds existing complete phase/collision/CPU counters to future stage JSON, no
+production/decision changes. Build214.225s/PASS; focused6cases2860assertions4.436s/PASS.
+CFD byte-identical419/421. No additional full replay:421missing values stay unknown.
+No extraMPI for this diagnostic-only export;419shared-production qualification retained.

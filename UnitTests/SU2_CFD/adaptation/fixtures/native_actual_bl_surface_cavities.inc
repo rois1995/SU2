@@ -40,7 +40,11 @@ TEST_CASE("Actual curved BL surface cavities preserve complete dependencies", "[
   const auto work=config.GetAdap_Native_Max_Work()?size_t(config.GetAdap_Native_Max_Work()):std::max(size_t(4096),transfer_memory::Mul(imported.cells.size(),64));
   budget.maximum_work=transfer_memory::Mul(transfer_memory::Add(imported.cells.size(),work),SU2NativeGeometry::MappedFacetReference::ClearanceWork);
   const auto started=std::chrono::steady_clock::now();
-  const double seconds=std::min(300.,SU2_TYPE::GetValue(config.GetAdap_Native_Max_Time()));REQUIRE(seconds>0);
+  const bool surfaceStage=std::getenv("SU2_NATIVE_BL_FRONT_PROBE")&&
+      std::string(std::getenv("SU2_NATIVE_BL_FRONT_PROBE"))=="checkpoint_target_surface";
+  // The separate production-stage replay uses the existing event ledger, not the 300s patch diagnostic.
+  const double seconds=surfaceStage?SU2_TYPE::GetValue(config.GetAdap_Native_Max_Time()):
+      std::min(300.,SU2_TYPE::GetValue(config.GetAdap_Native_Max_Time()));REQUIRE(seconds>0);
   budget.within_time=[&](){return std::chrono::duration<double>(std::chrono::steady_clock::now()-started).count()<seconds;};
   auto scope=reference->original->WithAtlasReservation(budget);
   auto directory=std::make_unique<Directory>(world);REQUIRE(directory->Build(imported.cells,reason,ceiling,budget.caller_bytes));

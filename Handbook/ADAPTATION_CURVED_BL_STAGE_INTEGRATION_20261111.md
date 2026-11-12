@@ -185,3 +185,24 @@ evidence, while zeroq/Jbad retirement remains. No newpolicy/operator/globalpubli
 Handoff owns currentterminal/live handles.
 Do not rerun metric/checkpoint upstream for this stage test. Do not confuse a private
 improvement or incomplete transition with final complete-mesh acceptance.
+
+## Surface-stage boundary replay420/421 (diagnostic)
+
+The419original leading-edge probe does not call production PrepareSurface. Test-only
+checkpoint_target_surface mode reuses the complete396policy and global saved original
+core at the stage boundary, builds current parameter/marker state, then calls the
+existing PrepareSurface with its production .08*usable time/work formula, same height,
+geometry and memory controls. Native5400 gives388.8s for W. This separately bounded
+production-stage diagnostic is not an extension of the old300s patch probe.
+
+Input: original303/364 mesh/reference and qualified full396target. Expected provisional
+output: complete owned/core transport, matching authority/parameters/coverage, wall
+planning readiness and positive cells. The existing surface_prepared flag supplies
+readiness, not fullq/J or finalmesh acceptance. If it fails, preserve rejected progress
+and select the next correction from the failure; do not attempt growth on it.
+
+Reuse NativeStageCapture's streaming owned/donor/parameter files at exit, with external
+complete396policy and original authority pins. This diagnostic capture is not declared
+a reusable successful checkpoint until fresh-process reconstruction/target agreement
+and stage acceptance are checked. Save useful progress; never label partial readiness
+as successful upstream reuse. No production metric, stage allocation or gate changes.
