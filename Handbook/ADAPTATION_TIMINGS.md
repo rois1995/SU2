@@ -1671,3 +1671,16 @@ Actual positive replacements pass interface/parameter/contact/protected-height c
 not final height/mesh acceptance. No useful admitted production correction selected.
 Next inspect actual parent/child geometry-bound regression with exact complete old/
 new baselines; see ADAPTATION_SURFACE_CLEARANCE_20261112.md and surface_apex453_outcome.json.
+
+
+464 test-only directional actualpatch comparison TERMINAL PASS: build289.810s;
+wrapper189.912s/test182.568s/608133assertions/1759pins/allactualhandles terminal.
+15positive privatecandidates,6points each, zero completepatch geometrybad-retiring
+replacements; original303622Ownedrecords unchanged451. Candidate9.628984wall/
+9.625960CPU/967110geometrywork nested within16.029617scontinuation wrapper: DO NOT
+sum. Command user181.60+system.96 versus182.98wall includes setup/geometry/target,
+not just candidatecost. SampledindividualRSS1.298GB versus processmax1.579GB; neither
+whole-job peak. No MPIwait decomposition, accepted-stage time or production speedup.
+R/surface_strip464_assessment.json/outcome.json. ProductionCFD remains451 unchanged.
+Eightof12bad-facebasechoices retain known outside chords; fewer queries/triangles
+or lower excess alone would not establish closure. No efficiency gain selected.

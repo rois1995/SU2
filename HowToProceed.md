@@ -460,3 +460,17 @@ state used by that stage (including post-surface-preparation donor state), not j
 its final node tensors. Preserve full native resource limits/source freezing and
 Euler293 payloads. Then resolve growth/front dependencies at its stage and pursue
 outer closure, nativeMPI and the complete RANS workflow.
+
+
+Current464assessment supersedes single-face strip optimism: all15construct, none
+retires completepatch geometrybad. Eightof12bad-facebasechoices deliberately retain
+proveninvalidchords. Do not integrate or keep adding arbitrary common-apex variants.
+Also do not reject all progressive refinement because a single step increases bad
+counts: validity-first construction allows provisional debt. Next bounded question is
+whether existing operators can close the COHERENT actual residual patch with complete
+originaledge-star support reserved up front, no knowninvalidchord held fixed, and
+per-face/edge attribution through the trajectory. Stay within64old/128private/24trials/
+300s and existing resources; if support cannot be admitted, report the actual bound
+rather than silently enlarge it. Strictheight remains unachieved. The firstheight
+factor10schedule comparison stays queued for a usable generatedpatch, same32h0start.
+See current HANDOFF and surface_strip464_outcome.json for terminal/provenance details.

@@ -1,6 +1,6 @@
 if(residualProbe) {
   std::map<Id,Node> positions;for(const auto& c:publishedPatch.cells)for(auto n:c.v)positions.emplace(n.id,n);
-  std::map<Edge,long double> demanded;std::vector<std::vector<Edge>> faceGroups;bool cleanControl=false;
+  std::map<Edge,long double> demanded;std::vector<std::vector<Edge>> faceGroups;bool cleanControl=false;std::map<std::vector<Edge>,double> groupBounds;
   for(const auto& face:publishedPatch.surface) {
     std::array<Point,3> points;std::array<SU2NativeGeometry::SurfaceBinding,3> bindings;
     bool direct=true;const auto& authority=trial.live_parameters->Geometry();
@@ -11,6 +11,7 @@ if(residualProbe) {
     log<<"],\"planning_lengths\":[";std::vector<Edge> group;
     for(unsigned k=0;k<3;++k){Edge e{face.v[k],face.v[(k+1)%3]};std::sort(e.begin(),e.end());group.push_back(e);if(k)log<<',';log<<newMetric.edges.at(e).length;
       if(bound>SU2_TYPE::GetValue(config.GetAdap_Hausd()))demanded[e]=std::max(demanded[e],(long double)bound);}
+    auto groupKey=group;std::sort(groupKey.begin(),groupKey.end());groupBounds.emplace(groupKey,bound);
     log<<"],\"reference_controls\":[";const auto curve=authority.Curves().find(face.facet);
     if(curve!=authority.Curves().end())for(unsigned k=0;k<10;++k){if(k)log<<',';const auto p=curve->second[k];log<<'['<<p.x<<','<<p.y<<','<<p.z<<']';}
     log<<"],\"final_certificate\":false}"<<std::endl;
@@ -48,6 +49,14 @@ if(residualProbe) {
   for(auto group:faceGroups)add(group);
   if(!diagonalProbe){for(auto group:faceGroups)for(unsigned k=0;k<3;++k)add({group[k],group[(k+1)%3]});
     for(auto e:ordered)add({e.second});}
+  if(stripProbe) {
+    std::vector<std::pair<double,std::vector<Edge>>> ranked;std::vector<Edge> control;
+    for(auto group:faceGroups){std::sort(group.begin(),group.end());const auto bound=groupBounds.at(group);
+      if(bound>SU2_TYPE::GetValue(config.GetAdap_Hausd()))ranked.push_back({-bound,group});else if(control.empty())control=group;}
+    std::sort(ranked.begin(),ranked.end());REQUIRE(ranked.size()>=4);REQUIRE_FALSE(control.empty());candidates.clear();
+    for(unsigned k=0;k<4;++k)for(unsigned base=0;base<3;++base)candidates.push_back(ranked[k].second);
+    for(unsigned base=0;base<3;++base)candidates.push_back(control);
+  }
   REQUIRE_FALSE(candidates.empty());
   const auto committedParameters=trial.live_parameters->Payload();unsigned candidateIndex=0;
   for(const auto& selected:candidates) {
@@ -60,14 +69,16 @@ if(residualProbe) {
     const auto previous=junction_wp0::PatchOf(trial,cellIds);Patch candidate=previous;bool constructed=true;std::string rejection;
     unsigned splits=0;GeometrySplitPrediction prediction;
     if(selected.size()==1)prediction=PredictGeometrySplit(selected[0],{localNodes.at(selected[0][0]).p,localNodes.at(selected[0][1]).p},*trial.reference,SU2_TYPE::GetValue(config.GetAdap_Hausd()));
-    for(auto e:selected) {
+    if(stripProbe) {
+#include "native_actual_surface_strip_cavity.inc"
+    } else for(auto e:selected) {
       const auto a=localNodes.at(e[0]).p,b=localNodes.at(e[1]).p;
       Node point{nextNode+completed+splits,{double(((long double)a.x+b.x)/2),double(((long double)a.y+b.y)/2),double(((long double)a.z+b.z)/2)}};
       Patch replacement;if(!SplitSurfaceStrip(candidate,e,point,{},nextCell+(candidateIndex+1)*MaximumReplacementCells,*trial.reference,replacement,rejection)){constructed=false;break;}
       candidate=std::move(replacement);++splits;
     }
     const bool splitConstructed=constructed;bool diagonalChanged=false;long double splitExcess=-1;
-    if(diagonalProbe&&constructed) {
+    if(diagonalProbe&&!stripProbe&&constructed) {
 #include "native_actual_surface_red_reconnect.inc"
     }
     bool admissible=false,geometryProgress=false,metricOK=false,parameterOK=false,contactOK=true,contactProtocol=false,heightOK=false,preserveOK=false;
@@ -87,12 +98,18 @@ if(residualProbe) {
       contactProtocol=directory.Clearance(trial.mesh,previous,candidate,contactOK,contactWhy,ceiling,held);
       const auto oldPlan=measure(previous,rows.cells,*trial.reference,q0,j0,bad0);
       const auto newPlan=measure(candidate,metricRows,g,q1,j1,bad1);length0=oldPlan.maximum_length;length1=newPlan.maximum_length;
+      if(stripProbe)for(unsigned side=0;side<2;++side) {
+        const auto& patch=side?candidate:previous;const auto& plan=side?newPlan:oldPlan;std::set<Edge> wallEdges;
+        for(auto face:patch.surface)if(heights.count(g.Get(face.facet).marker))for(unsigned k=0;k<3;++k){Edge e{face.v[k],face.v[(k+1)%3]};std::sort(e.begin(),e.end());wallEdges.insert(e);}
+        for(auto e:wallEdges){const auto& m=plan.edges.at(e);log<<"{\"stage\":\"strip_edge\",\"trial\":"<<candidateIndex<<",\"side\":"<<std::quoted(side?"fresh":"old")
+          <<",\"edge\":["<<e[0]<<','<<e[1]<<"],\"a\":["<<m.a.x<<','<<m.a.y<<','<<m.a.z<<"],\"b\":["<<m.b.x<<','<<m.b.y<<','<<m.b.z<<"],\"length\":"<<m.length<<"}"<<std::endl;}
+      }
       metricOK=ValidateMetricChange(previous.cells.size(),oldPlan,candidate.cells.size(),newPlan,MetricChange::GeometryRefine,metricWhy);
       admissible=geometryProgress&&preserveOK&&heightOK&&parameterOK&&contactProtocol&&contactOK&&metricOK;
     }
     log<<"{\"stage\":\"residual_candidate\",\"trial\":"<<candidateIndex<<",\"edges\":[";
     for(size_t k=0;k<selected.size();++k){if(k)log<<',';log<<'['<<selected[k][0]<<','<<selected[k][1]<<']';}
-    log<<"],\"split_constructed\":"<<splitConstructed<<",\"diagonal_changed\":"<<diagonalChanged<<",\"split_excess\":"<<splitExcess<<",\"constructed\":"<<constructed<<",\"old_cells\":"<<previous.cells.size()<<",\"new_cells\":"<<(constructed?candidate.cells.size():0)
+    log<<"],\"strip_mode\":"<<stripProbe<<",\"base_choice\":"<<(candidateIndex%3)<<",\"new_points\":"<<splits<<",\"split_constructed\":"<<splitConstructed<<",\"diagonal_changed\":"<<diagonalChanged<<",\"split_excess\":"<<splitExcess<<",\"constructed\":"<<constructed<<",\"old_cells\":"<<previous.cells.size()<<",\"new_cells\":"<<(constructed?candidate.cells.size():0)
        <<",\"old_geometry_excess\":"<<score0<<",\"new_geometry_excess\":"<<score1<<",\"old_geometry_bad\":"<<bad0<<",\"new_geometry_bad\":"<<bad1
        <<",\"old_q_bad\":"<<q0<<",\"new_q_bad\":"<<q1<<",\"old_J_bad\":"<<j0<<",\"new_J_bad\":"<<j1<<",\"old_planning_max\":"<<length0<<",\"new_planning_max\":"<<length1
        <<",\"admissible\":"<<admissible<<",\"geometry_progress\":"<<geometryProgress<<",\"metric\":"<<metricOK<<",\"parameters\":"<<parameterOK

@@ -424,3 +424,70 @@ law. It adds fewer points than uniformtwo-level red refinement and retains a lon
 surface direction; neither benefit is assumed before actual measurement. No new
 metric/norm/sensor/geometry representation, scheduler, config orraisedbudget. If no
 useful actual replacement is demonstrated, reject this too and reconsider construction.
+
+##464 directional cavity experiment: fixed contract
+
+Input: SAME451currentOwned/currentassociations and441complete32h0target. Reproduce
+same4perimeter private publication, choose4highest-bound physicalfaces plus1passing-
+face control. For each, test3retained baseedges (15trials, below prior24cap). Alloriginal
+threeedge stars are discovered/fetched/FULLreserved before six recursive projected
+midpoint cuts. Quarterpoints mean recursive physical proposals/projections, not exact
+modelarc fractions. No idempotent projection or curvature-scaling assumption.
+
+Use the original wall owner's retained fluidapex only for a single-wall sourcecell.
+Identify its seven descendant wallfaces/owner cells by the original3vertices plus
+sixgenerated vertexIDs; every retired cell must retain that apex. Propose seven
+oriented bandtriangles and positive tets to that apex, preserve complete neighbor
+cuts, and require exact original artificialinterface/canonical prescribedskin/ball
+topology. Newface current-association checks precede unchanged fullmetric/geometry/
+parameter/contact/height admission. Multiple-wall sourcecells safely refuse pending
+separate junction capability; that limitation is not masked as clean geometry.
+
+Output includes all exact old/fresh requestedwall planningedge lengths and endpoints,
+basechoice/apex/newpointcount, completepatch q/J andgeometryfailures/excess, constraint
+refusals, CPU/wall/work. Failedconstruction q/Jzero fields remain UNKNOWN. No candidate
+publishes; originalOwned must remain independently byte-identical. Sourcefreeze,
+64old/128private/300s/600souter/12GiB and every final gate unchanged. No newproduction
+operator/config/target/quality-aware-construction policy or MPIclaim before usefulness.
+
+##464 terminal: directional single-face replacement is insufficient
+
+Build289.810s PASS;10actualidentities terminal; runtime189.912swrapper/182.568stest,
+608133assertions/1759pins/all5actualidentities terminal. All303622Ownedrecords
+independently byte-identical451. ProductionCFD unchanged451. Exact receipts:
+R/surface_strip464_assessment.json, surface_strip464_outcome.json and case directory
+curved464_surface_strip_serial_20261112T223803_782707.15/15private constructions pass
+exact positivity/interface/current-association checks; no published original changes.
+
+For fourbad faces, allthreebasechoices change completepatch geometrybad3→4..8;
+the clean FACE control has an already bad neighboring support2→5..8. Every candidate
+adds6points and cells5..6→17..24; q/Jbad follow those cellcounts. These q/Jcentroid
+measurements are observational, not a validity veto or finalquality certification.
+Strictheight fails; provisional heightmeasurement/contact/passingheight preservation
+must not be called requested-height compliance. Eightcandidates improve complete
+squaredgeometryexcess and pass provisional guards; zero retire wholepatch badcounts.
+
+New attribution from EXISTING witness+edge records, without rerunning:8of12bad-face
+orientations retain an edge whose midpoint has a certified lower distance bound
+1.1606e-4..3.8201e-4>1e-4. Retaining that straight edge prevents a strictly geometry-
+clean incident triangle. The other4bases have no outside witness at that midpoint;
+this does NOT certify their edge or triangle. Retainededge coordinates and production
+planninglengths agree exactly before/after. Newwall minimumlengths~.104..134 with
+many below.5. These are production planning lengths with current boundaryguidance,
+not final full-target volume quadrature or a reason to forbid necessary shortedges.
+
+Decision: no demonstrated production closure correction from a SINGLE-face strip.
+A bad-count increase during refinement does not itself establish failure: intermediates
+may need more yet-smaller failing triangles before closure. Do not silently turn net
+bad retirement into a per-edit construction gate. Existing tests stop too early to
+establish whether a coordinated complete patch can close. Diagnose that trajectory
+using existing operators and complete support; avoid another arbitrary local variant.
+Any proposed bounded next experiment must report per-face/chord attribution after
+each step and final closure/obstruction under unchanged64old/128fresh/24trial/300s/
+600souter/12GiB limits. No quality-ranked construction, largerbudget, geometrytol
+change, targetchange or MPIcapability claim is justified.
+
+Candidate work9.628984wall/9.625960CPU/967110geometrywork; enclosing continuation
+16.029617s includes the probe (not additive). SampledindividualRSS1.298GB versus
+process time-commandmax1.579GB; neither is whole-job peak. This is capability evidence,
+not performance improvement. All original Euler293 and complete441target preserved.

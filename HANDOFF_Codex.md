@@ -15,52 +15,50 @@ preserves earlier evidence/handles, NOT live workload state.
 
 ## Live state and provenance
 
-NO owned heavy workload live.463build/actual TERMINAL; all actual PID/starttick
-identities checked. Diagnostic460–463source/evidence is included in this checkpoint;
-consult current git HEAD/origin tracking ref for pushed revision. Production still451,
-CFD SHAf15bc306e1558ed5d9e8ee804ecc03155f4aecc55b754634ee2398f79fa5509a.
-463buildPASS309.814s/all10actualhandles terminal/pins/newbinary/cleanNinja;
-currenttestSHA42a56734c3fe31c189266693b2e561b121f2aa0fe3d9ce4b3ffac1a794faa17e.
-Actual R/cases/curved463_surface_diagonal_serial_20261112T221002_695744
-(session51416terminal), PASS192.110swrapper/1757pins/all5actualhandles terminal/
-303622Ownedrecords byte-identical451;8split-only baselines exactly reproduce459.
-R/surface_diagonal463_assessment.json/outcome.json.462PASS187.968s/1756pins/full
-unchangedOwned;460compile/461expectedskin-caller failures preserved with exact source
-snapshots.462resolved caller ordering, not native gates. No original checkpoints changed.
+464 test-only directional surface/volume comparison is TERMINAL PASS. Build289.810s,
+all10actualhandles terminal, pins/newtestbinary/cleanNinja. Actual
+R/cases/curved464_surface_strip_serial_20261112T223803_782707 (session19317terminal):
+189.912swrapper/182.568stest/608133assertions,1759pins unchanged, all5actual
+PID/starttick identities terminal,303622Ownedrecords independently byte-identical451.
+Current testSHA44b55086128b23484c995de5058b0f139ddbc5a5fb472eda513f38e74f3e878c.
+Production remains451; CFD SHAf15bc306e1558ed5d9e8ee804ecc03155f4aecc55b754634ee2398f79fa5509a.
+No owned heavy job remains. Check git HEAD/origin for the latest pushed checkpoint.
+R/surface_strip464_assessment.json and surface_strip464_outcome.json preserve results.
 
-Confirmed:all8sampled residualfaces have genuine outside-distance witnesses (459),
-including near-threshold parentchildren.99.1602%of squared debt is on4neighboring
-ORIGINALfacets. No threshold-only correction is justified by these samples.
-462existing Reconnect→Shell constructed5diagonal changes but no useful completepatch.
-Fourdominantfaces failed exact visibility against physicalwallskin, not an artificial
-support boundary.463directcoupled2tet replacement with retained commonapex succeeds
-on those4faces without an intermediate cap; full interface/positivity/association/
-contact/metric/preserved+provisionalheight guards pass. All9contexts nowconstruct.
-BUT those4cases geometrybad3→6/qJbad5–6→12–14. Guidance debt falls but ZEROcomplete-
-patch geometrybad-retiring replacements. Do NOT integrate single-level full-face red
-refinement on debt alone. Strictfirstheight/generatedBL/MPI/fullfield closure unproved.
+All15private replacements construct positive, oriented interface-preserving cavities.
+None retires complete-patch geometrybad cells: fourbad-face contexts3→4..8, passing-
+face control's COMPLETE support2→5..8. q/Jbad increase5..6→17..24, observational
+only; strict firstheight FALSE (only provisional measurement/preservation passes).
+Each adds6points; originalOwned and accepted geometry state remain unchanged.
+Eight of12bad-face basechoices retain an edge with an existing proven outside
+witness (distance lower1.1606e-4..3.8201e-4>1e-4). Fourother bases have no sampled
+outside witness; that is NOT a certificate. Retainedbase endpoints/planninglength
+are exactly unchanged. Fresh wall lengths reach.104..134, many below.5; geometry
+can require short edges, so this is not evidence for a blanket minimum-edge gate.
+Candidate sums9.628984wall/9.625960CPU/967110geometrywork nested in16.029617s
+continuation wrapper; sampledindividualRSS1.298GB and time-processmax~1.579GB are
+not whole-job peaks. No speedup, surface-ready, MPI or usableBL claim.
 
-Next ONE bounded hypothesis: anisotropic prescribedsurface+adjacentvolume cavity.
-Single-level red width reduction still leaves above-tolerance faces and also refines
-an already short span direction. Test quarter-spacing across two triangle sides while
-retaining the third (long) direction, with a retained common interiorapex and complete
-neighboringvolume conformity. Compare3baseedge orientations on4dominant actualfaces
-plus geometry-passing control, within existing24trial/64old/128private/300s/12GiB bounds.
-No guaranteed curvature-scaling claim. Use existing SplitSurfaceStrip to obtain all
-projected boundarypoints and conform neighborcells, then propose a complete oriented
-surface fan/common-apex replacement; every newtet must be positive and all original
-artificialinterface/feature/body/height/metric/contact gates remain. No q/Jconstruction
-veto, CADrequirement, newtarget/scheduler/config/raisedbudget. This hypothesis is NOT
-implemented/validated yet. Actual output must retire complete-patch geometrybad cells,
-show directional conformity and avoid gratuitous point growth before production work.
+Do NOT integrate single-face red/strip common-apex construction on debt decrease
+alone. Also do NOT require each validity-first refinement to retire more bad cells
+than it introduces: provisional counts can rise before a coherent patch closes.
+Next bounded assessment should follow coordinated geometry resolution on the WHOLE
+actual connected residual patch, avoiding retention of proven-invalid chords. Reuse
+existing complete edge-star discovery/reservation and SplitSurfaceStrip/cavity
+transactions; do not add another arbitrary local diagonal variant or raise limits.
+Before changes establish complete original support<=64, private<=128 and remaining
+24trial/300s/600souter/12GiB admission; generated-endpoint stars stay private. Record
+per-face/edge residuals at each step, final closure or exact obstruction, current
+transported metrics and complete neighboring patch. This is a hypothesis, not a
+selected production correction. Existing no-CAD authority/final gates remain.
 
-Original edge-star union must be discovered/fetched/FULLreserved before construction;
-all later quarter-edge stars contain newly generated points, hence lie in that complete
-private support. Prove this for actual chosen support and refuse capacity/visibility
-or stale dependencies; no postreservation enlargement. Any production correction needs
-focused serial and meaningful MPI qualification before stage3 replay. R5/R4adjacent,
-flat/physicalheight compatibility and the remaining BL/RANS workflow stay OPEN.
-Read [current geometry/cavity evidence](Handbook/ADAPTATION_SURFACE_GEOMETRY_BOUNDS_20261112.md).
+Prior460compile/461canonicalexpectedskin diagnostic failures are preserved;462fixed
+caller ordering, not native gates.463all9diagonal changes construct, but zero useful
+wholepatch retirement; actual192.110s/1757pins/Ownedunchanged. See linked detailed
+geometry record for exact provenance and limitations. No original checkpoints changed.
+R5/R4adjacent and flat/physicalheight compatibility remain unresolved. Any demonstrated
+production correction still needs focused serial and meaningful MPI qualification
+before stage3 integration. No new baseline/perf/GDB/config/scheduler/target change.
 
 Build451 and prior wrappers are terminal; their receipts remain below.
 Source checkpoint **dd4614949f** is pushed to origin/codex/native-3d-bl; consult git
