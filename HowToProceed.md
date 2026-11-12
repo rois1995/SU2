@@ -14,9 +14,15 @@ is qualified;421now replays production PrepareSurface from that saved target. It
 exhausts388.8s with349collapses, no splits and incomplete census: surface readiness
 not established. Preserve full positive provisional capture and complete external
 policy; it is not a successful checkpoint. Diagnose the initial coarsening/census
-work before another full workflow or first-row campaign. Geometry timers explain
-only part of389s; main EngineStats phase timers must be exported on the next justified
-bounded validation. No evidence yet supports another quadrature/cache change for W.
+work before another full workflow or first-row campaign. Bounded422prefix exported
+existing phase timers: metric13.299s dominates31.188s. Qualified423removes old-patch
+measurement after an already refused surfacecollapse: exactoutputsame,10.2%fewerfield
+requests, singleprefixstage6.5%lowerwall. Pushed8a2b8779ea; not a majorwholestagespeedup
+or surface readiness. 425accounting-only probe rules out featureStorageBytes as meaningful remaining cost:
+2048fullcalls2.840ms/basecalls.041ms; no cache implemented. Next is saved actual
+complete-cavity planning control using421owned/originaldonors/currentparameters and
+complete396policy, exact sample/edge agreement and successful/clean control. No
+fullreplay or next-layer attempt from incomplete surface readiness.
 
 ## Next stage2 output
 

@@ -1204,3 +1204,19 @@ speedup or readiness. Keep timing scopes/initialization/contention explicit.
 Remaining metricphase11.401s invites bounded accounting-cost diagnosis, not another
 fullreplay: EvaluateAtSurfaceAssociation invokes StorageBytes, which scans unchanged
 feature structures (segment-row scanning is2D-only, not M6). Safety/actual cost and invalidation need evidence before change.
+
+##425 actual policy storage-accounting hypothesis rejected
+
+Accounting-only probe, no mesh adaptation or CFD solve. Same complete396policy plus
+production geometry/mobility/height preparation. Wrapper94.248s; preparation/loading
+is separate from the tiny timed loops. All pins/actual handles terminal. Four2048call
+blocks: fullStorage2.840ms/CPU2.839ms; baseStorage.041ms/CPU.041ms; geometry workspace
+.029/.028ms. Constantbytes and unchangedprofile checks pass. Intrinsicguidance usesbase.
+No material share of remaining11.401s metricphase explained: do NOT implement cache.
+
+424build214.227s/PASS then actual20.144s/FAIL: diagnostic skipped source mobility/height
+preparation, authority guard correctly refused.425build216.191s/PASS; existingproduction
+geometryfactory+PrepareReference restores source identity without guard relaxation.
+CFD byte-identical423. No extraMPI/fullsurface campaign for diagnostic-only code.
+R/storage_accounting425_assessment.json. Remaining next is actualcavity planning reuse
+analysis with exact support/association/edge controls, not another globalbaseline.

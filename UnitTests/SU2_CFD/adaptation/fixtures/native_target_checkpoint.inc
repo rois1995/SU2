@@ -90,3 +90,48 @@ TEST_CASE("Complete native target checkpoint preserves live composition and reje
   const auto emptyRestored=Decode(emptyOwned,reference,*config);
   CHECK(emptyRestored.family->owned==0);CHECK(emptyRestored.family->frames.empty());CHECK_FALSE(emptyRestored.bracketed);
 }
+
+TEST_CASE("Saved actual BL target isolates storage-accounting cost", "[.][NativeActualBLStorageAccounting3D]") {
+  World world;REQUIRE(world.size==1);
+  const auto* cfg=std::getenv("SU2_NATIVE_FROZEN_CONFIG");
+  const auto* ref=std::getenv("SU2_NATIVE_BL_REFERENCE");
+  const auto* target=std::getenv("SU2_NATIVE_TARGET_CHECKPOINT3D");REQUIRE(cfg);REQUIRE(ref);REQUIRE(target);
+  std::ifstream configFile(cfg);REQUIRE(bool(configFile));CConfig config(configFile,SU2_COMPONENT::SU2_CFD,false);
+  const auto ceiling=config.GetAdap_Native_MemoryLimit();
+  auto reference=std::make_shared<ReferenceState>();bool loaded=false;std::string reason;size_t peak=0;
+  REQUIRE(LoadReference(ref,*reference,loaded,reason,ceiling,0,peak));REQUIRE(loaded);
+  struct GeometryOwner {
+    CGeometry** levels=nullptr;unsigned count=0;
+    ~GeometryOwner(){if(levels){for(unsigned i=0;i<count;++i)delete levels[i];delete[] levels;}}
+  } geometryOwner;
+  geometryOwner.count=config.GetnMGLevels()+1;
+  CDriver::BuildGeometryFVM(&config,new CPhysicalGeometry(&config,0,1),geometryOwner.levels,true);
+  const auto& mesh=*geometryOwner.levels[MESH_0];
+  CNativeRemesher3D prepare(reference);prepare.PrepareReference(config,mesh);
+  SU2NativeBLPipeline3D::detail::PipelineScope pipeline;
+  const auto restored=SU2NativeTargetCheckpoint3D::Read(target,*reference,config,ceiling,size_t(128)<<20);
+  const auto& policy=*restored.family->first_row;
+  std::ofstream out("actual_bl_storage_accounting.jsonl");REQUIRE(bool(out));out<<std::setprecision(17)<<std::boolalpha;
+  auto measure=[&](const char* label,const CBoundaryLayerMetric& metric) {
+    const auto stamp=SU2NativeTargetCheckpoint3D::detail::State(metric);
+    const size_t storage=metric.StorageBytes(),workspace=metric.GeometryWorkspaceBytes();
+    for(bool geometryOnly:{false,true}) {
+      size_t calls=0,minimum=SIZE_MAX,maximum=0;volatile size_t checksum=0;
+      const auto started=std::chrono::steady_clock::now();const auto cpu=std::clock();
+      for(;calls<2048;++calls) {
+        if(calls%64==0&&std::chrono::duration<double>(std::chrono::steady_clock::now()-started).count()>30)break;
+        const auto bytes=geometryOnly?metric.GeometryWorkspaceBytes():metric.StorageBytes();
+        minimum=std::min(minimum,bytes);maximum=std::max(maximum,bytes);checksum+=bytes;
+      }
+      const auto seconds=std::chrono::duration<double>(std::chrono::steady_clock::now()-started).count();
+      const auto cpuSeconds=double(std::clock()-cpu)/CLOCKS_PER_SEC;
+      CHECK(calls>0);CHECK(minimum==(geometryOnly?workspace:storage));CHECK(maximum==minimum);
+      CHECK(SU2NativeTargetCheckpoint3D::detail::State(metric)==stamp);
+      out<<"{\"policy\":"<<std::quoted(label)<<",\"operation\":"<<std::quoted(geometryOnly?"geometry_workspace":"storage")
+         <<",\"calls\":"<<calls<<",\"bytes\":"<<minimum<<",\"seconds\":"<<seconds<<",\"CPU_seconds\":"<<cpuSeconds
+         <<",\"checksum\":"<<checksum<<",\"target_unchanged\":true,\"mesh_adaptation_performed\":false}"<<std::endl;
+      REQUIRE(bool(out));
+    }
+  };
+  measure("full",*policy.full);measure("base",*policy.base);
+}

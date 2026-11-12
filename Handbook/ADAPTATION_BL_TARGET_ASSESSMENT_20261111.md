@@ -798,3 +798,47 @@ Serial32cases8456assertions and MPI6/28cases perrank pass. This is qualified dea
 removal, not a major whole-stage speedup; no further fullreplay on this result alone.
 Remaining metriccost11.401s and repeated feature-metadata StorageBytes scans perintrinsicquery are
 next bounded diagnostic (segmentrows are2D-only, empty on M6); no cache implemented without mutator/accounting audit.
+
+## Unchanged feature-storage accounting audit (diagnostic424pending)
+
+EvaluateAtSurfaceAssociation:2150 and ProjectWall:388 invoke StorageBytes. In3DM6,
+d.segments is empty (filled only in2DBuild909–924); do not attribute a3Dcost to thatloop.
+StorageBytes491still traverses baseFeatures/features nested walllists and featureGrid
+buckets for every query. Their fraction of remaining11.401s metriccost is unmeasured.
+
+Mutation audit: wall/data arrays are constructor/Build-owned. BuildFeatures1367creates
+basefeatures, carrierplanes and featurelimits. IndexFeatures1769updates activefeatures/
+grid at construction, ConfigureOuterNormal and SelectTangentialScale, including rollback.
+PrepareProfileChange/successfulchanges can grow profileHistory; transition changes
+bounds/scalars without resizing thesecontainers. ADTquery workspace capacities may grow.
+
+If cost justifies it, only feature-metadata bytes are a narrow cachecandidate. Invalidate
+before mutation; refresh after success; preserve exact fallback on partialfailure/rollback.
+Leave ADT workspace and profileHistory live.424hiddenactual-policy test only times
+2048calls per operation/policy,30s boundperblock, checking constantbytes/unchangedprofile;
+no mesh adaptation or cache implementation. Timing result required before selection.
+
+425result rejects the storage-cache hypothesis: full2048Storagecalls2.840ms, base2048
+.041ms; intrinsicguidance usesbase. Workspaceaccounting also negligible. Stablebytes/
+profiles, allhandles/pins terminal; no production cache implemented.424shortcut failed
+sourceidentity as expected;425uses production geometryfactory/PrepareReference, no CFD
+solve. R/storage_accounting425_assessment.json owns timings/provenance.
+
+### Next actual-cavity control (analysis, no implementation selected)
+
+Use421streamed Owned416B rows and OriginalDonor344B rows with current5MBparameter
+payload restored against immutable prepared authority. Keep complete396policy external.
+Known failed collapse retain21543/remove21292 complete removed-starIDs:
+2082,3450,13869,31657,68017,102519,113744,146723,146738,146739. Six physicalcells;
+102519 nodes[21292,30002,21152,30023] gives exactorientation refusal. Complete Directory
+validation cannot be dropped: cachedselectionstar may omit unmeasured cells.
+
+Compare Engine's exact per-cell MeasureSurfacePlanning path (fullprivate parameters/
+coverage copied, per-cell skin) with complete-cavity/unchanged-context controls. Use
+captured original donor field during W, not reinterpolated post-W source. Policy
+authority stays original; current parameter view supplies evolved coordinates/bindings.
+BoundaryGuidance depends on exact forward association, complete wall/body support and
+current sensor; a cache keyed only bynodeID/coordinate is insufficient. Require exact
+samples/edges and comparable work/cost, successful/clean control, stale-state/resource
+refusal. Bulk context must not silently introduce/remove support at seams/features/
+competingwalls. This is a diagnostic hypothesis; no batching/cache/operator change yet.

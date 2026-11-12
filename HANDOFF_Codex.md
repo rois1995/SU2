@@ -12,7 +12,23 @@ all prior failures/provenance. This handoff overrides historical live handles/ne
 
 ## Current source/build/workload
 
-NO owned heavy workload.423correction QUALIFIED, all build/check/case pins and actual
+NO owned heavy workload.425storage diagnostic TERMINAL/PASS94.248s, all source/input
+pins and actual handles terminal. R/storage_accounting425_assessment.json; case
+R/cases/curved425_storage_accounting_20261112T055930_230135. Four2048call blocks:
+fullStorage2.840ms, baseStorage.041ms; workspace.029/.028ms. Bytes/profile unchanged.
+Intrinsicguidance usesbase, so repeated feature-storage accounting is NOT the11.401s
+metric bottleneck. REJECT cache optimization; no new production cache/metric/gate change.
+425build PASS216.191s/CFDidentical423; test7dfbef22bb51d198924e0380a59d69570c406645bc6e2c0cf8e52c43f3bb77c4.
+424build PASS214.227s/actualFAIL20.144s: shortcut omitted source PrepareReference
+mobility/height; guard correctly refused. Exact424fixture archived;425reuses production
+geometryfactory+PrepareReference. No CFD solve or source-authority relaxation.
+Next stage3 bounded diagnosis: use saved421complete actual cavities/current parameter
+payload + original donors + original396complete policy; compare cellwise planning to
+complete-patch/unchanged-context controls, exact sample/edge agreement before any change.
+Known421last obstruction retain21543/remove21292 has complete10cellstar including
+cell102519, exact orientation refusal. Include a successful/clean control; no gate,
+policy, larger-cavity or scheduler change justified by current evidence. See assessment.
+423correction QUALIFIED and PUSHED8a2b8779ea, all build/check/case pins and actual
 handles terminal. R/rejected_collapse423_comparison.json. Serial32cases8456assertions
 PASS9.473s; ONE MPI6PASS6.394s/28cases everyrank1681–6391assertions. Not nativeMPI
 BL generation. Known Growth12dependency failure not rerun (growth unchanged).
@@ -26,11 +42,9 @@ speedup or readiness. No new fullsurface replay solely on this saving.
 One-line correction: no old-patch measurement for already rejected surface collapse
 with no later repair route. GenericEuler, viable/repair/split measurements, empty-rank
 collective participation and sticky-failure votes unchanged. No inaccurateedgeaccepted.
-Next remains stage3: remaining metric evaluation dominates boundedprefix. Source shows
-IntrinsicSurfaceGuidance calls StorageBytes per sample; that walks feature metadata/
-featureGrid (d.segments is2D-only and empty for M6). Audit unchanged-storage vs profile-dependent accounting and measure on saved
-actual target before selecting another production change. This is analysis, not a new
-implementation. Initialcoarsening/census still incomplete; no stage4/growth from failedW.
+Remaining metric evaluation dominates boundedprefix;425rules out storage accounting.
+Initialcoarsening/census still incomplete; no stage4/growth from failedW. Next analysis
+uses actual complete cavities/controls as above; no new implementation selected.
 422bounded64prefix TERMINAL132.198s/PASS/pins/actual handles. Stage31.188s/64work,
 23collapses; metric13.299s, reconstruction4.048s, initialization4.583s, selection.0018s,
 publication.058s, collision.531s/onebuild, other5.491s. Output stillsurface_unprepared;

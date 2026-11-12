@@ -5,6 +5,11 @@ Current cycle: [curved BL integration](ADAPTATION_CURVED_BL_INTEGRATION_20261109
 Keep one active cycle; pursue another item only when the target run demonstrates
 its relevance or the user explicitly reprioritizes it.
 
+-425measured and REJECTED for current same396policy: cache featureStorageBytes.2048calls
+  full2.840ms/base.041ms (intrinsicguidance usesbase), workspacealso negligible. Keep
+  dynamic ADT/profileHistory accounting; no production cache. Reopen only if materially
+  different evidence/profile shows bulk accountingcost. See current targetassessment.
+
 - User-queued2026-11-10: [leading-edge tangent geometry/combined target/delivery
   audit](ADAPTATION_LEADING_EDGE_TANGENT_METRIC_QUEUE_20261110.md), triggered by the
   first representative saved BL result in the CURRENT cycle. Coulaud2025 physical
