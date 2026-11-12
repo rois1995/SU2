@@ -1,0 +1,23 @@
+$ /media/rausa/4TB/SU2_Versions/SU2_Lean_supplement_artifacts/wall-validation-complete/SU2/build/UnitTests/test_driver [HLLC-wall] --abort
+Filters: [HLLC-wall]
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+test_driver is a Catch v2.13.9 host application.
+Run with -? for options
+
+-------------------------------------------------------------------------------
+Compressible wall projection commutes with a Galilean boost
+-------------------------------------------------------------------------------
+../UnitTests/SU2_CFD/solvers/moving_wall_tests.cpp:34
+...............................................................................
+
+../UnitTests/SU2_CFD/solvers/moving_wall_tests.cpp:136: FAILED:
+  CHECK( m->LinSysRes(p, i) == Approx(residual).margin(1e-8) )
+with expansion:
+  0.0 == Approx( 6.0 )
+
+===============================================================================
+test cases:  1 |  0 passed | 1 failed
+assertions: 67 | 66 passed | 1 failed
+
+EXIT 1

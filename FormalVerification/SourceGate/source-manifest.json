@@ -1,0 +1,49 @@
+{
+  "source_commit": "e0d3ee8d72598767227e62a9be5834a4554532b6",
+  "source_files": {
+    "SU2_CFD/include/variables/CVariable.hpp": {
+      "sha256": "b3af8664633fd30417bfbbf7dbaef1a73094c7b1407b8ad40bb5d1097b745b25",
+      "blob": "739a1af75fa5cfd3a17838fd64f8d498ddcb5398"
+    },
+    "Common/include/containers/C2DContainer.hpp": {
+      "sha256": "79044b6f281c0d6bc6b068e9fd11c07aef9a57769d0b3a7ad6e1ecdef7ad6ff1",
+      "blob": "380e43cfba7bc5ef3d2363baeba745ce1d6839c6"
+    },
+    "Common/include/code_config.hpp": {
+      "sha256": "8552d844e1616153d3d270d7bfe0afb89ce2c35e6fc5ce40f4a139ea7d3953a3",
+      "blob": "61d143f40a7b23966d4b1b52414d27f0d649cfa9"
+    },
+    "SU2_CFD/include/solvers/CFVMFlowSolverBase.inl": {
+      "sha256": "2405c79707b899fa61b37dc41361b88adaaed41a5bae53152903503fac08e074",
+      "blob": "650b26b91e7faa46c9b0b83af5ee8a2bd82f3249"
+    }
+  },
+  "source_span_bytes": [
+    13971,
+    14130
+  ],
+  "variants": {
+    "original": {
+      "method_sha256": "9dc1c290e8596478bfd14bc5c071e9e176f6b9f35e04e81ed700ed909d4d8df7",
+      "header_sha256": "b3af8664633fd30417bfbbf7dbaef1a73094c7b1407b8ad40bb5d1097b745b25"
+    },
+    "subtract": {
+      "method_sha256": "2bdb77d58ea7b83431595865fa76ae6de55acb10b51ecef7a223cbb3da5d3ffb",
+      "header_sha256": "e5bde3c4c1c95de1c252f273873c2e37e9267d7b05c45a6ea1788146f43b7463"
+    },
+    "currentRead": {
+      "method_sha256": "4b6c078a9f9a86e0784c5ff1699c10bddfe26052b52269cfdf2f4334bb7de1a0",
+      "header_sha256": "9fc28a8fb7a311cda7138e0d38f513a980ad1634195acc67ef9b1c1b9829a2b7"
+    },
+    "wrongTarget": {
+      "method_sha256": "8bca441fc290c446f570356045c087cbef37e09c48496056872734c638d18e7b",
+      "header_sha256": "80fc96150c8a538123426cc6945a726efaf2354ad18f6458a07a72e4b6956777"
+    },
+    "refactored": {
+      "method_sha256": "ef4e682c40663b6c4df27285ead44e0ca276feb8b62c790b38ef36da24463654",
+      "header_sha256": "1b2b5012bd9e0f3869baa959390262bf7f3376cdb322273fb2d80bb544c93b77"
+    }
+  },
+  "configuration": "C++17, LP64, serial passive double; no AD, single precision, volatile or concurrent access",
+  "evidence": "Kernel parses the complete selected source text into the restricted language. Extraction and mapping of C++ member/accessor semantics remain explicit trust boundaries."
+}

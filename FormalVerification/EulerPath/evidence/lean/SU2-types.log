@@ -1,0 +1,188 @@
+$ lake env lean -DwarningAsError=true /media/rausa/4TB/SU2_Versions/SU2_Lean_upstream/FormalVerification/EulerPath/artifacts/final-lean-v2/SU2-types.lean
+SU2.dot_add_left {d : Nat} (u v n : SU2.Vec d) :
+  Eq.{1} (SU2.dot (fun i => HAdd.hAdd.{0, 0, 0} (u i) (v i)) n) (HAdd.hAdd.{0, 0, 0} (SU2.dot u n) (SU2.dot v n))
+'SU2.dot_add_left' depends on axioms: [propext, Classical.choice, Quot.sound]
+SU2.dot_sub_left {d : Nat} (u v n : SU2.Vec d) :
+  Eq.{1} (SU2.dot (fun i => HSub.hSub.{0, 0, 0} (u i) (v i)) n) (HSub.hSub.{0, 0, 0} (SU2.dot u n) (SU2.dot v n))
+'SU2.dot_sub_left' depends on axioms: [propext, Classical.choice, Quot.sound]
+SU2.dot_scale_left {d : Nat} (a : Real) (u n : SU2.Vec d) :
+  Eq.{1} (SU2.dot (fun i => HMul.hMul.{0, 0, 0} a (u i)) n) (HMul.hMul.{0, 0, 0} a (SU2.dot u n))
+'SU2.dot_scale_left' depends on axioms: [propext, Classical.choice, Quot.sound]
+SU2.dot_comm {d : Nat} (u v : SU2.Vec d) : Eq.{1} (SU2.dot u v) (SU2.dot v u)
+'SU2.dot_comm' depends on axioms: [propext, Classical.choice, Quot.sound]
+SU2.dot_scale_right {d : Nat} (a : Real) (u n : SU2.Vec d) :
+  Eq.{1} (SU2.dot u fun i => HMul.hMul.{0, 0, 0} a (n i)) (HMul.hMul.{0, 0, 0} a (SU2.dot u n))
+'SU2.dot_scale_right' depends on axioms: [propext, Classical.choice, Quot.sound]
+SU2.dot_sub_right {d : Nat} (u v n : SU2.Vec d) :
+  Eq.{1} (SU2.dot u fun i => HSub.hSub.{0, 0, 0} (v i) (n i)) (HSub.hSub.{0, 0, 0} (SU2.dot u v) (SU2.dot u n))
+'SU2.dot_sub_right' depends on axioms: [propext, Classical.choice, Quot.sound]
+SU2.dot_self_nonneg {d : Nat} (u : SU2.Vec d) : LE.le.{0} 0 (SU2.dot u u)
+'SU2.dot_self_nonneg' depends on axioms: [propext, Classical.choice, Quot.sound]
+SU2.rho_state {d : Nat} (r : Real) (m : SU2.Vec d) (E : Real) : Eq.{1} (SU2.rho (SU2.state r m E)) r
+'SU2.rho_state' depends on axioms: [propext, Classical.choice, Quot.sound]
+SU2.mom_state {d : Nat} (r : Real) (m : SU2.Vec d) (E : Real) : Eq.{1} (SU2.mom (SU2.state r m E)) m
+'SU2.mom_state' depends on axioms: [propext, Classical.choice, Quot.sound]
+SU2.energy_state {d : Nat} (r : Real) (m : SU2.Vec d) (E : Real) : Eq.{1} (SU2.energy (SU2.state r m E)) E
+'SU2.energy_state' depends on axioms: [propext, Classical.choice, Quot.sound]
+SU2.state_ext {d : Nat} (U V : SU2.State d) (hr : Eq.{1} (SU2.rho U) (SU2.rho V))
+  (hm : ∀ (i : Fin d), Eq.{1} (SU2.mom U i) (SU2.mom V i)) (hE : Eq.{1} (SU2.energy U) (SU2.energy V)) : Eq.{1} U V
+'SU2.state_ext' depends on axioms: [propext, Classical.choice, Quot.sound]
+SU2.edge_conservation {N d : Nat} (e : SU2.InteriorEdge N d) (F : SU2.State d) :
+  Eq.{1} (∑ i, SU2.edgeContribution e F i) 0
+'SU2.edge_conservation' depends on axioms: [propext, Classical.choice, Quot.sound]
+SU2.orientation_consistency {N d : Nat} (e : SU2.InteriorEdge N d) (F : SU2.State d) (i : Fin N) :
+  Eq.{1}
+    (HSub.hSub.{0, 0, 0} (ite.{1} (Eq.{1} i (SU2.InteriorEdge.right e)) (Neg.neg.{0} F) 0)
+      (ite.{1} (Eq.{1} i (SU2.InteriorEdge.left e)) (Neg.neg.{0} F) 0))
+    (SU2.edgeContribution e F i)
+'SU2.orientation_consistency' depends on axioms: [propext, Classical.choice, Quot.sound]
+SU2.assembly_conservation {N d : Nat} (events : List.{0} (SU2.Event N d)) : Eq.{1} (∑ i, SU2.assemble events i) 0
+'SU2.assembly_conservation' depends on axioms: [propext, Classical.choice, Quot.sound]
+SU2.scatter_correct {N d : Nat} (e : SU2.InteriorEdge N d) (F : SU2.State d) (R : SU2.Residual N d) :
+  Eq.{1} (SU2.scatter e F R) (HAdd.hAdd.{0, 0, 0} R (SU2.edgeContribution e F))
+'SU2.scatter_correct' depends on axioms: [propext, Classical.choice, Quot.sound]
+SU2.accumulation_correct {N d : Nat} (events : List.{0} (SU2.Event N d)) (R : SU2.Residual N d) :
+  Eq.{1} (SU2.assembleLoop events R) (HAdd.hAdd.{0, 0, 0} R (SU2.assemble events))
+'SU2.accumulation_correct' depends on axioms: [propext, Classical.choice, Quot.sound]
+SU2.accumulation_permutation {N d : Nat} (xs ys : List.{0} (SU2.Event N d)) (h : List.Perm.{0} xs ys)
+  (R : SU2.Residual N d) : Eq.{1} (SU2.assembleLoop xs R) (SU2.assembleLoop ys R)
+'SU2.accumulation_permutation' depends on axioms: [propext, Classical.choice, Quot.sound]
+SU2.volume_update_balance {N d : Nat} (volumes : Fin N → SU2.ControlVolume d) (dt : Real) (U R : SU2.Residual N d)
+  (c : SU2.Channel d) :
+  Eq.{1} (∑ i, HMul.hMul.{0, 0, 0} (SU2.ControlVolume.measure (volumes i)) (SU2.explicitUpdate volumes dt U R i c))
+    (HSub.hSub.{0, 0, 0} (∑ i, HMul.hMul.{0, 0, 0} (SU2.ControlVolume.measure (volumes i)) (U i c))
+      (HMul.hMul.{0, 0, 0} dt (∑ i, R i c)))
+'SU2.volume_update_balance' depends on axioms: [propext, Classical.choice, Quot.sound]
+SU2.assembled_update_conserves {N d : Nat} (volumes : Fin N → SU2.ControlVolume d) (dt : Real) (U : SU2.Residual N d)
+  (events : List.{0} (SU2.Event N d)) (c : SU2.Channel d) :
+  Eq.{1}
+    (∑ i,
+      HMul.hMul.{0, 0, 0} (SU2.ControlVolume.measure (volumes i))
+        (SU2.explicitUpdate volumes dt U (SU2.assemble events) i c))
+    (∑ i, HMul.hMul.{0, 0, 0} (SU2.ControlVolume.measure (volumes i)) (U i c))
+'SU2.assembled_update_conserves' depends on axioms: [propext, Classical.choice, Quot.sound]
+SU2.Examples.normal2_unit : Eq.{1} (SU2.dot SU2.Examples.normal2 SU2.Examples.normal2) 1
+'SU2.Examples.normal2_unit' depends on axioms: [propext, Classical.choice, Quot.sound]
+SU2.Examples.initial_admissible : SU2.Admissible SU2.Examples.initial
+'SU2.Examples.initial_admissible' depends on axioms: [propext, Classical.choice, Quot.sound]
+SU2.Examples.initial_impermeable : SU2.Impermeable SU2.Examples.normal2 SU2.Examples.wall2 SU2.Examples.initial
+'SU2.Examples.initial_impermeable' depends on axioms: [propext, Classical.choice, Quot.sound]
+SU2.Examples.repaired_defect_detected :
+  Eq.{1}
+    (SU2.wallDefect SU2.Examples.normal2 SU2.Examples.wall2
+      (SU2.conservativeUpdate SU2.Examples.initial
+        (SU2.Implementation.legacyResidualProjection SU2.Examples.normal2 SU2.Examples.increment) 1))
+    (-1)
+'SU2.Examples.repaired_defect_detected' depends on axioms: [propext, Classical.choice, Quot.sound]
+SU2.Examples.legacy_update_not_impermeable :
+  Not
+    (SU2.Impermeable SU2.Examples.normal2 SU2.Examples.wall2
+      (SU2.conservativeUpdate SU2.Examples.initial
+        (SU2.Implementation.legacyResidualProjection SU2.Examples.normal2 SU2.Examples.increment) 1))
+'SU2.Examples.legacy_update_not_impermeable' depends on axioms: [propext, Classical.choice, Quot.sound]
+SU2.Examples.repaired_update_impermeable :
+  SU2.Impermeable SU2.Examples.normal2 SU2.Examples.wall2
+    (SU2.conservativeUpdate SU2.Examples.initial
+      (SU2.Implementation.residualProjection SU2.Examples.normal2 SU2.Examples.wall2 SU2.Examples.increment) 1)
+'SU2.Examples.repaired_update_impermeable' depends on axioms: [propext, Classical.choice, Quot.sound]
+SU2.Examples.legacy_result_admissible :
+  SU2.Admissible
+    (SU2.conservativeUpdate SU2.Examples.initial
+      (SU2.Implementation.legacyResidualProjection SU2.Examples.normal2 SU2.Examples.increment) 1)
+'SU2.Examples.legacy_result_admissible' depends on axioms: [propext, Classical.choice, Quot.sound]
+SU2.Examples.nonunit_normal_counterexample :
+  Not
+    (SU2.Impermeable (Matrix.vecCons.{0} 2 (Matrix.vecCons.{0} 0 Matrix.vecEmpty.{0})) SU2.Examples.wall2
+      (SU2.wallProject (Matrix.vecCons.{0} 2 (Matrix.vecCons.{0} 0 Matrix.vecEmpty.{0})) SU2.Examples.wall2
+        (SU2.state 1 (Matrix.vecCons.{0} 0 (Matrix.vecCons.{0} 0 Matrix.vecEmpty.{0})) 5)))
+'SU2.Examples.nonunit_normal_counterexample' depends on axioms: [propext, Classical.choice, Quot.sound]
+SU2.Implementation.sumLoop_correct (xs : List.{0} Real) (acc : Real) :
+  Eq.{1} (SU2.Implementation.sumLoop xs acc) (HAdd.hAdd.{0, 0, 0} acc (List.sum.{0} xs))
+'SU2.Implementation.sumLoop_correct' depends on axioms: [propext, Classical.choice, Quot.sound]
+SU2.Implementation.dotLoop_correct {d : Nat} (a b : SU2.Vec d) : Eq.{1} (SU2.Implementation.dotLoop a b) (SU2.dot a b)
+'SU2.Implementation.dotLoop_correct' depends on axioms: [propext, Classical.choice, Quot.sound]
+SU2.Implementation.stateProjection_correct {d : Nat} (n w : SU2.Vec d) (U : SU2.State d) :
+  Eq.{1} (SU2.Implementation.stateProjection n w U) (SU2.wallProject n w U)
+'SU2.Implementation.stateProjection_correct' depends on axioms: [propext, Classical.choice, Quot.sound]
+SU2.Implementation.residualProjection_correct {d : Nat} (n w : SU2.Vec d) (U : SU2.State d) :
+  Eq.{1} (SU2.Implementation.residualProjection n w U) (SU2.wallProject n w U)
+'SU2.Implementation.residualProjection_correct' depends on axioms: [propext, Classical.choice, Quot.sound]
+SU2.Implementation.model_satisfies_contract {d : Nat} (n w : SU2.Vec d) (hn : Eq.{1} (SU2.dot n n) 1)
+  (U : SU2.State d) : SU2.WallContract n w U (SU2.Implementation.stateProjection n w U)
+'SU2.Implementation.model_satisfies_contract' depends on axioms: [propext, Classical.choice, Quot.sound]
+SU2.Implementation.corrected_update_impermeable {d : Nat} (n w : SU2.Vec d) (hn : Eq.{1} (SU2.dot n n) 1)
+  (U D : SU2.State d) (alpha : Real) :
+  SU2.Impermeable n w
+    (SU2.conservativeUpdate (SU2.Implementation.stateProjection n w U) (SU2.Implementation.residualProjection n w D)
+      alpha)
+'SU2.Implementation.corrected_update_impermeable' depends on axioms: [propext, Classical.choice, Quot.sound]
+SU2.Implementation.rename_preserves_model {d : Nat} (n w : SU2.Vec d) (U : SU2.State d) :
+  Eq.{1} (SU2.Implementation.renamedResidualProjection n w U) (SU2.Implementation.residualProjection n w U)
+'SU2.Implementation.rename_preserves_model' depends on axioms: [propext, Classical.choice, Quot.sound]
+SU2.Implementation.renamed_satisfies_spec {d : Nat} (n w : SU2.Vec d) (U : SU2.State d) :
+  Eq.{1} (SU2.Implementation.renamedResidualProjection n w U) (SU2.wallProject n w U)
+'SU2.Implementation.renamed_satisfies_spec' depends on axioms: [propext, Classical.choice, Quot.sound]
+SU2.Implementation.normalMomentum_correct {d : Nat} (n : SU2.Vec d) (U : SU2.State d) :
+  Eq.{1} (SU2.Implementation.normalMomentum n U) (SU2.dot (SU2.mom U) n)
+'SU2.Implementation.normalMomentum_correct' depends on axioms: [propext, Classical.choice, Quot.sound]
+SU2.Implementation.factored_satisfies_spec {d : Nat} (n w : SU2.Vec d) (U : SU2.State d) :
+  Eq.{1} (SU2.Implementation.factoredResidualProjection n w U) (SU2.wallProject n w U)
+'SU2.Implementation.factored_satisfies_spec' depends on axioms: [propext, Classical.choice, Quot.sound]
+SU2.primitive_roundtrip {d : Nat} (g : SU2.IdealGas) (W : SU2.Primitive d) (hr : Ne.{1} (SU2.Primitive.density W) 0) :
+  Eq.{1} (SU2.toPrimitive g (SU2.toConservative g W)) W
+'SU2.primitive_roundtrip' depends on axioms: [propext, Classical.choice, Quot.sound]
+SU2.conservative_roundtrip {d : Nat} (g : SU2.IdealGas) (U : SU2.State d) (hr : Ne.{1} (SU2.rho U) 0) :
+  Eq.{1} (SU2.toConservative g (SU2.toPrimitive g U)) U
+'SU2.conservative_roundtrip' depends on axioms: [propext, Classical.choice, Quot.sound]
+SU2.primitive_admissible {d : Nat} (g : SU2.IdealGas) (U : SU2.State d) (h : SU2.Admissible U) :
+  SU2.PrimitiveAdmissible (SU2.toPrimitive g U)
+'SU2.primitive_admissible' depends on axioms: [propext, Classical.choice, Quot.sound]
+SU2.temperature_positive {d : Nat} (g : SU2.IdealGas) (W : SU2.Primitive d) (h : SU2.PrimitiveAdmissible W) :
+  LT.lt.{0} 0 (SU2.temperature g W)
+'SU2.temperature_positive' depends on axioms: [propext, Classical.choice, Quot.sound]
+SU2.pressure_specific_energy {d : Nat} (g : SU2.IdealGas) (U : SU2.State d) (hr : Ne.{1} (SU2.rho U) 0) :
+  Eq.{1}
+    (HMul.hMul.{0, 0, 0} (HMul.hMul.{0, 0, 0} (HSub.hSub.{0, 0, 0} (SU2.IdealGas.gamma g) 1) (SU2.rho U))
+      (HSub.hSub.{0, 0, 0} (HDiv.hDiv.{0, 0, 0} (SU2.energy U) (SU2.rho U))
+        (HDiv.hDiv.{0, 0, 0}
+          (SU2.dot (fun i => HDiv.hDiv.{0, 0, 0} (SU2.mom U i) (SU2.rho U)) fun i =>
+            HDiv.hDiv.{0, 0, 0} (SU2.mom U i) (SU2.rho U))
+          2)))
+    (SU2.Primitive.pressure (SU2.toPrimitive g U))
+'SU2.pressure_specific_energy' depends on axioms: [propext, Classical.choice, Quot.sound]
+SU2.wall_project_impermeable {d : Nat} (n w : SU2.Vec d) (hn : Eq.{1} (SU2.dot n n) 1) (U : SU2.State d) :
+  SU2.Impermeable n w (SU2.wallProject n w U)
+'SU2.wall_project_impermeable' depends on axioms: [propext, Classical.choice, Quot.sound]
+SU2.wall_project_contract {d : Nat} (n w : SU2.Vec d) (hn : Eq.{1} (SU2.dot n n) 1) (U : SU2.State d) :
+  SU2.WallContract n w U (SU2.wallProject n w U)
+'SU2.wall_project_contract' depends on axioms: [propext, Classical.choice, Quot.sound]
+SU2.wall_contract_unique {d : Nat} (n w : SU2.Vec d) (hn : Eq.{1} (SU2.dot n n) 1) (U V : SU2.State d)
+  (h : SU2.WallContract n w U V) : Eq.{1} V (SU2.wallProject n w U)
+'SU2.wall_contract_unique' depends on axioms: [propext, Classical.choice, Quot.sound]
+SU2.wall_project_fixed {d : Nat} (n w : SU2.Vec d) (U : SU2.State d) (h : SU2.Impermeable n w U) :
+  Eq.{1} (SU2.wallProject n w U) U
+'SU2.wall_project_fixed' depends on axioms: [propext, Classical.choice, Quot.sound]
+SU2.wall_project_idempotent {d : Nat} (n w : SU2.Vec d) (hn : Eq.{1} (SU2.dot n n) 1) (U : SU2.State d) :
+  Eq.{1} (SU2.wallProject n w (SU2.wallProject n w U)) (SU2.wallProject n w U)
+'SU2.wall_project_idempotent' depends on axioms: [propext, Classical.choice, Quot.sound]
+SU2.wall_defect_update {d : Nat} (n w : SU2.Vec d) (U D : SU2.State d) (alpha : Real) :
+  Eq.{1} (SU2.wallDefect n w (SU2.conservativeUpdate U D alpha))
+    (HAdd.hAdd.{0, 0, 0} (SU2.wallDefect n w U) (HMul.hMul.{0, 0, 0} alpha (SU2.wallDefect n w D)))
+'SU2.wall_defect_update' depends on axioms: [propext, Classical.choice, Quot.sound]
+SU2.wall_update_preserves {d : Nat} (n w : SU2.Vec d) (U D : SU2.State d) (alpha : Real) (hU : SU2.Impermeable n w U)
+  (hD : SU2.Impermeable n w D) : SU2.Impermeable n w (SU2.conservativeUpdate U D alpha)
+'SU2.wall_update_preserves' depends on axioms: [propext, Classical.choice, Quot.sound]
+SU2.impermeable_velocity {d : Nat} (n w : SU2.Vec d) (U : SU2.State d) (hr : Ne.{1} (SU2.rho U) 0) :
+  Iff (SU2.Impermeable n w U)
+    (Eq.{1} (SU2.dot (fun i => HSub.hSub.{0, 0, 0} (HDiv.hDiv.{0, 0, 0} (SU2.mom U i) (SU2.rho U)) (w i)) n) 0)
+'SU2.impermeable_velocity' depends on axioms: [propext, Classical.choice, Quot.sound]
+SU2.wall_internal_energy {d : Nat} (n w : SU2.Vec d) (hn : Eq.{1} (SU2.dot n n) 1) (U : SU2.State d)
+  (hr : Ne.{1} (SU2.rho U) 0) :
+  Eq.{1} (SU2.internalDensity (SU2.wallProject n w U))
+    (HAdd.hAdd.{0, 0, 0} (SU2.internalDensity U)
+      (HDiv.hDiv.{0, 0, 0} (HPow.hPow.{0, 0, 0} (SU2.wallDefect n w U) 2) (HMul.hMul.{0, 0, 0} 2 (SU2.rho U))))
+'SU2.wall_internal_energy' depends on axioms: [propext, Classical.choice, Quot.sound]
+SU2.wall_preserves_admissibility {d : Nat} (n w : SU2.Vec d) (hn : Eq.{1} (SU2.dot n n) 1) (U : SU2.State d)
+  (h : SU2.Admissible U) : SU2.Admissible (SU2.wallProject n w U)
+'SU2.wall_preserves_admissibility' depends on axioms: [propext, Classical.choice, Quot.sound]
+EXIT 0

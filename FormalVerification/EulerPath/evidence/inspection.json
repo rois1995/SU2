@@ -1,0 +1,33 @@
+{
+  "status": "Manual inspection plus native evidence; not certified C++ correspondence",
+  "source_commit": "d162016382f0c122433000c114e88d808b48f7a7",
+  "upstream_checked_utc_date": "2026-11-12",
+  "production_patches": [],
+  "scalar_overload": "CVariable::AddSolution(unsigned long,unsigned long,su2double), unique selected complete definition",
+  "scalar_method_unchanged": true,
+  "layout": "CVariable::MatrixType is C2DContainer<unsigned long,su2double,RowMajor,64,DynamicSize,DynamicSize>; Solution/Solution_Old use it. MATRIX_ACCESSORS returns m_data[i*N+j]. Allocation/aliasing refinement is still open.",
+  "component_count": "CEulerSolver constructor sets nVar=nDim+2; selected nDim=2, nVar=4",
+  "explicit_caller": "CEulerSolver::ExplicitEuler_Iteration -> Explicit_Iteration<EULER_EXPLICIT> -> Identity apply -> Explicit_Iteration_impl -> scalar AddSolution; fixed mesh/no periodic gives physical volume plus zero periodic volume",
+  "old_buffer": "Set_OldSolution copies through parallelCopy; stationary wall later projects Solution_Old. The theorem consumes the post-boundary buffer.",
+  "simd_dispatch": "ideal gas, no low-Mach correction, ROE -> EdgeFluxResidual -> CRoeScheme<CNoViscousFlux<2>>; no HAVE_OMP gives ReducerStrategy=false -> COLORING -> SIMD UpdateBlocks",
+  "mask": "Caller assigns Boolean in-range comparison to floating mask; inactive lanes duplicate an existing edge",
+  "host_simd_lanes": 2,
+  "boundary_order": "CIntegration Space_Integration applies weak far-field before final Euler-wall projection, then Time_Integration; finish and post-boundary state/truncation relations remain open",
+  "upstream_pr2945": {
+    "url": "https://github.com/su2code/SU2/pull/2945",
+    "state": "open",
+    "merged": false,
+    "head_sha": "de29b5852ac35eb2cb14a52d0ee20575315865c4",
+    "commits_reviewed": 25,
+    "review_evidence": "Full PR metadata, comments/reviews, REST timeline and commit list read; includes historical repair e0d3ee8. No public interaction."
+  },
+  "deferred": [
+    "full C++ semantics",
+    "IEEE-754/fast-math",
+    "allocation/heap",
+    "UnpackBlock translation",
+    "Roe flux refinement",
+    "boundary refinement",
+    "full configured Euler path"
+  ]
+}

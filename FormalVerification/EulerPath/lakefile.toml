@@ -1,0 +1,17 @@
+name = "su2eulerpath"
+version = "0.1.0"
+defaultTargets = ["SU2Euler", "EulerAudit"]
+
+[leanOptions]
+autoImplicit = false
+warningAsError = true
+
+[[require]]
+name = "su2sourcegate"
+path = "../SourceGate"
+
+[[lean_lib]]
+name = "SU2Euler"
+
+[[lean_lib]]
+name = "EulerAudit"

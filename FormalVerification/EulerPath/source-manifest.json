@@ -1,0 +1,203 @@
+{
+  "source_commit": "d162016382f0c122433000c114e88d808b48f7a7",
+  "production_patches": [],
+  "selections": {
+    "update": {
+      "path": "SU2_CFD/include/variables/CVariable.hpp",
+      "span_bytes": [
+        13971,
+        14130
+      ],
+      "sha256": "9dc1c290e8596478bfd14bc5c071e9e176f6b9f35e04e81ed700ed909d4d8df7",
+      "variants": {
+        "original": {
+          "sha256": "9dc1c290e8596478bfd14bc5c071e9e176f6b9f35e04e81ed700ed909d4d8df7",
+          "full_file_sha256": "5b137ccdd34c14816ea0bde9993690c49da7ad925b6dda166afe873b4264f40b"
+        },
+        "subtract": {
+          "sha256": "2bdb77d58ea7b83431595865fa76ae6de55acb10b51ecef7a223cbb3da5d3ffb",
+          "full_file_sha256": "e92c4b479614ba003ac083b50121398e2388253f0b9f26438bb30b068d6be8a9"
+        },
+        "currentRead": {
+          "sha256": "4b6c078a9f9a86e0784c5ff1699c10bddfe26052b52269cfdf2f4334bb7de1a0",
+          "full_file_sha256": "02e692c8aadf3e15b9578e3e73a60e94f2cd50324b5bca5ea097205827395ebb"
+        },
+        "wrongTarget": {
+          "sha256": "8bca441fc290c446f570356045c087cbef37e09c48496056872734c638d18e7b",
+          "full_file_sha256": "7d21b2aab4e31d79eea6235b5c047c4cf542b2e3b2b9684c5332b2f341963029"
+        },
+        "refactored": {
+          "sha256": "ef4e682c40663b6c4df27285ead44e0ca276feb8b62c790b38ef36da24463654",
+          "full_file_sha256": "5f29d1157719ed2edcc282c310349d879408713f3294a78c2dc88bc960574a1c"
+        }
+      }
+    },
+    "scatter": {
+      "path": "Common/include/linear_algebra/CSysVector.hpp",
+      "span_bytes": [
+        26671,
+        27427
+      ],
+      "sha256": "a6d0ff2efbb45a6224b8aafba6174b2825970ae3f6584883b6c962bfcc0c25b9",
+      "variants": {
+        "original": {
+          "sha256": "a6d0ff2efbb45a6224b8aafba6174b2825970ae3f6584883b6c962bfcc0c25b9",
+          "full_file_sha256": "eb73b0ee97814e549c457dbab32060cbfbe69f60202874839aa08825aaea475f"
+        },
+        "refactored": {
+          "sha256": "2e82359f2ddb75792261376eed98d66dae041617fc58ac81998301b40a5d6b36",
+          "full_file_sha256": "8b735349b8f605ba21464debe7fb4c7214834e43d0c92d28c8eab197cd637325"
+        },
+        "wrongSign": {
+          "sha256": "8abf88458e754a9654fd950ba48b169c4c13bedf550c0469b962ed410d2bfadc",
+          "full_file_sha256": "88d8f8747c0ec73978996f0a949f660c2fb9547fb9746ec0210ad443563d3fc3"
+        },
+        "wrongMask": {
+          "sha256": "bd77f2ae59d6cfa817f9e1909a11d9ab422c983d1527a8b8f607cdeadc080d2b",
+          "full_file_sha256": "e760f90ea161b719129f39b73022acbeacb106526be9e3b494ef47589d32e22e"
+        }
+      }
+    },
+    "unpack": {
+      "path": "Common/include/linear_algebra/CSysVector.hpp",
+      "span_bytes": [
+        9299,
+        9707
+      ],
+      "sha256": "55e92bdb9ae0cb1043842152e8f2032d3caba3d25a3ff88c63ecc0591c9e7a2d"
+    },
+    "apply": {
+      "path": "SU2_CFD/include/solvers/CFVMFlowSolverBase.hpp",
+      "span_bytes": [
+        41378,
+        41528
+      ],
+      "sha256": "397d6210faa7696e946085b8eb0795cd8e7aa178124ff782604a17abcc14264f",
+      "variants": {
+        "original": {
+          "sha256": "397d6210faa7696e946085b8eb0795cd8e7aa178124ff782604a17abcc14264f",
+          "full_file_sha256": "496938310d2c746ad0e31222d23fd9478ab98ced6795f76c8c7ff85aa3f2d063"
+        },
+        "subtractTrunc": {
+          "sha256": "62d01efd197a662734d6b200f1182e404779183d64c64389df5d632dfddcf708",
+          "full_file_sha256": "223a643906e1cff2c0189f5036f52b5474f059cc7aaf8a49a6087e4eaf1a1283"
+        }
+      }
+    },
+    "scale": {
+      "path": "SU2_CFD/include/solvers/CFVMFlowSolverBase.hpp",
+      "span_bytes": [
+        38853,
+        39011
+      ],
+      "sha256": "977b7412d5b5163ead493cbcca90dd6fe10f0bd19829c12b3b22872a3f1e647a",
+      "variants": {
+        "original": {
+          "sha256": "977b7412d5b5163ead493cbcca90dd6fe10f0bd19829c12b3b22872a3f1e647a",
+          "full_file_sha256": "496938310d2c746ad0e31222d23fd9478ab98ced6795f76c8c7ff85aa3f2d063"
+        }
+      }
+    },
+    "call": {
+      "path": "SU2_CFD/include/solvers/CFVMFlowSolverBase.hpp",
+      "span_bytes": [
+        39475,
+        39575
+      ],
+      "sha256": "ad07aea438fa9780fc15c5952f4f2f3747cc50e8df342ffe0873a5ccb06e9f02",
+      "variants": {
+        "original": {
+          "sha256": "ad07aea438fa9780fc15c5952f4f2f3747cc50e8df342ffe0873a5ccb06e9f02",
+          "full_file_sha256": "496938310d2c746ad0e31222d23fd9478ab98ced6795f76c8c7ff85aa3f2d063"
+        },
+        "wrongSign": {
+          "sha256": "c05e1af44aef26ac6b94d9cfed437a5911616ba7ebf77cad0f8619fa8691b44a",
+          "full_file_sha256": "7dde92ac8cb2e5191ca61966546e83ea5dc112babad8c1f2590093c2edeeee7b"
+        }
+      }
+    }
+  },
+  "source_files": {
+    "SU2_CFD/include/variables/CVariable.hpp": {
+      "sha256": "5b137ccdd34c14816ea0bde9993690c49da7ad925b6dda166afe873b4264f40b",
+      "git_blob": "377a0c8188817dd230049e5cb5019b0e23670d4d"
+    },
+    "Common/include/linear_algebra/CSysVector.hpp": {
+      "sha256": "eb73b0ee97814e549c457dbab32060cbfbe69f60202874839aa08825aaea475f",
+      "git_blob": "1371156899a48bfb682a664174496d8af8e7dcff"
+    },
+    "SU2_CFD/include/solvers/CFVMFlowSolverBase.hpp": {
+      "sha256": "496938310d2c746ad0e31222d23fd9478ab98ced6795f76c8c7ff85aa3f2d063",
+      "git_blob": "e0c24506a5e5ca67e2b5cc6cd7d2d23770d28c80"
+    },
+    "Common/include/containers/C2DContainer.hpp": {
+      "sha256": "86c1173fe5dabddb258b50263344fafcfb078aa325d17028ba63df6d35394fe2",
+      "git_blob": "680629136d53ae3c573f15cd8586de74e36f0ecd"
+    },
+    "Common/include/code_config.hpp": {
+      "sha256": "723381d8a7a37ad5ea0c52deef79577b0e90340abcc83656af5f770c26b0f5d5",
+      "git_blob": "019d1d2cac082f0b1c46d95819eccc1089386dcf"
+    },
+    "Common/include/parallelization/vectorization.hpp": {
+      "sha256": "2bf9def949c1586a7fea7a2773f8a17a409df07561d37df65a2a9b7748990a89",
+      "git_blob": "6356625d2466fa9ee4cbf73c844eb7503da8d5ec"
+    },
+    "Common/include/parallelization/omp_structure.hpp": {
+      "sha256": "bb0d269d299a379da12ce9e5f801f6378fac2570272ff2492e8333b1cc4c9267",
+      "git_blob": "82c5ab5b7495656de22f055ceff78b6a65488e66"
+    },
+    "Common/src/linear_algebra/CSysVector.cpp": {
+      "sha256": "e4ebb40f42f7747ff68ae7164b845244d837bea9b9ebd99c6f48eb4fe3c0efc9",
+      "git_blob": "0b178e421f8c181f92815f996a2d4efdb3add8bf"
+    },
+    "SU2_CFD/src/variables/CVariable.cpp": {
+      "sha256": "ecc1128dbdfeaa3e0862fe117a0d548355a418706a717139afbdd66fe3c72c5c",
+      "git_blob": "2bfa324574d5aa3c1e4e8bac904c182b983f9a54"
+    },
+    "SU2_CFD/src/solvers/CEulerSolver.cpp": {
+      "sha256": "a02047d187aeb4dcd5dffadbce9c21243ace41df79f806e58091b99b3465dc20",
+      "git_blob": "8380bfdf60dfaddaab8f29e3c07fec0c9f3c39f0"
+    },
+    "SU2_CFD/include/solvers/CFVMFlowSolverBase.inl": {
+      "sha256": "ef228099073057584c196405b674ff8dbf246a3fa325e636e36eff2a423c4e68",
+      "git_blob": "9f1637b2b7819c4d4340f3e4aae13d887a00ebd1"
+    },
+    "SU2_CFD/include/numerics/util.hpp": {
+      "sha256": "34f6e16bc6bd730553f9a31d165a9d8fcc4da3b83579b0d55e2d13101a573bfe",
+      "git_blob": "fbc38e826fb3d27f87b84fe41059b4b9362bc2e9"
+    },
+    "SU2_CFD/include/numerics_simd/CNumericsSIMD.cpp": {
+      "sha256": "df4e67d5cd6f375085d3df07cca89888ea52c41978b7fc1501fe49544e735f96",
+      "git_blob": "e9ce737e05f419d7fdd2300dfdecbccf9643e58b"
+    },
+    "SU2_CFD/include/numerics_simd/flow/convection/upwind.hpp": {
+      "sha256": "50ee1ffa2d3bb97cac79a4e00b98aa5bfb5b9a08b2ff070ff963461a2d35c8f4",
+      "git_blob": "f4cb098028d647eaa01aa33c5132fd871bd629b8"
+    },
+    "SU2_CFD/src/integration/CSingleGridIntegration.cpp": {
+      "sha256": "03cfdb23faeb7c010a3e5fbb53bd68c041a373fd352d30b9c297e6988fe84eca",
+      "git_blob": "5862672185f237837d6c88ae0f5e53e7454fe9bd"
+    },
+    "SU2_CFD/src/integration/CMultiGridIntegration.cpp": {
+      "sha256": "9d24b1f2e715e390029a840cbafdf6cc76ad60c8745da27eb182fd3580bdf368",
+      "git_blob": "89d3d95ea596dd07bbaecb15cc9d6261984ba026"
+    },
+    "SU2_CFD/src/integration/CIntegration.cpp": {
+      "sha256": "b00c94749cc04fbefcf4f780316a94e76b619f600f0fd07c161132bc67b1e755",
+      "git_blob": "95c84e45c151bc302e7b70fa6a5792f5c94f7900"
+    },
+    "SU2_CFD/src/integration/CIntegrationFactory.cpp": {
+      "sha256": "d18f86cdd2bd49e0975c53bf05e535c13fe294e8bbd0fdf33383a9f89865ccd2",
+      "git_blob": "5cd04a10b78cead05a488efed7e253243a700d43"
+    },
+    "SU2_CFD/src/solvers/CSolverFactory.cpp": {
+      "sha256": "2de362d9e095cf53941173e283b15373a62f5086ba2bce527179148d52d31cb6",
+      "git_blob": "5f7b5aa7b523596dae5cf4f03d986f3862b516ff"
+    },
+    "SU2_CFD/src/iteration/CFluidIteration.cpp": {
+      "sha256": "127bcf641915da25ad73b9035d36f05509050257ff19890daaa29169a7ef79e4",
+      "git_blob": "725fa8112d629e3867cde4a29ad66e872113d8a7"
+    }
+  },
+  "scope": "Restricted syntax and manually assigned serial exact-real semantics; no certified C++ frontend, heap refinement or IEEE-754 proof."
+}
