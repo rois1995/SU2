@@ -19,7 +19,7 @@ R/front412_assessment.json and physical_apex412_qualification.json bind evidence
 Build412 PASS416.422s, pins/actual terminal handles verified. CFD SHA
 `e6f718576a0164a4831b5d0e536a4c2b5ffeeee8568e1a42f4061987e695bcb9`;
 test `b19843f9306dc41f2d5b97178f702f79424bb536abdd0ecde6a81f3de66e97ee`.
-Implementation525ee0458a is PUSHED to the authorized fork; completed evidence follows.
+Implementation525ee0458a and completed evidence17da23a97c are PUSHED to the authorized fork.
 Serial412 terminal6.473s:28/29cases,7873/7874assertions. New proposal/strict-child checks
 pass; same Growth12 'surface dependencies changed' exception remains OPEN. Do not
 claim expanded-suite success or infer unrelated causality. ONE MPI6 milestone PASS

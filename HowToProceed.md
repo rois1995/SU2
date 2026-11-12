@@ -323,3 +323,27 @@ physical first-row failures to existing surface/volume preparation and coordinat
 row retries. Preserve registrations, passing rows, complete global clearance and
 direction invalidation; no new target, positional allowance or larger cavity.
 See current handoff/evidence for exact provenance and remaining stage obligations.
+
+Concrete next integration scope, still requiring implementation/qualification:
+- Audit CompleteFirstRow and its three callers (both RunEvent branches and DC13
+  fixture). Feed actual failed strict-child attempts into existing surface/volume
+  transactions, then retry coordinated PhaseR2 within remaining shared work/time.
+  Finite candidate failure is evidence for search feedback, never infeasibility proof.
+- Reuse complete edge stars and projected-midpoint geometry-gap ordering from the
+  actual probe. Keep64old/128fresh bounds, exact positivity, features, authority,
+  strict geometry, passing-child preservation and whole-mesh external clearance.
+  Geometry-descent merit can rank progress; do not revive410h0positional gate.
+- Unrowed supports can use existing SplitEdge/InsertEdgeCavity/SplitSurfaceStrip.
+  Registered rows require existing ColumnSplit/ColumnSplitJunction and intact
+  lift/apex/override/extras/copies bookkeeping; plain SplitEdge is not a safe substitute.
+  Unsupported mixed cases must refuse explicitly, not erase registry or freeze columns.
+- Native private Apply does not publish Directory additions: a rebuilt current
+  Directory must include retained/temporary memory admission and be discarded before
+  committing. Fresh private contexts, full dependency checks and direction refresh
+  remain necessary. Reuse existing publication instead where its contract suffices.
+- Require specific strict target-child success for completion, retain provisional
+  unrelated quality debt, and do not advance PhaseG on a known incomplete first row.
+  Preserve actual low-band diagnostic versus production high-then-low policy distinction.
+- Make the existing actual surface-height probe exercise shared production feedback,
+  comparing complete patches/neighbors, coverage, heights, q/J, directional lengths
+  and work. Do not spend another cycle only polishing the same fixed25cell row.
