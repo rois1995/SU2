@@ -222,7 +222,7 @@
       if(checkpointTarget){frames.close();REQUIRE(bool(frames));}
       if(!checkpointTarget){policy->full->SelectTangentialScale(originalScale);policy->Update(9.9999999999999734e-5,SU2_TYPE::GetValue(config.GetAdap_Hgrad()));}
       REQUIRE(geometryPass);
-      if(std::string(label)=="saved_prepared_repair_before")CHECK(heightPass);
+      if(std::string(label)=="saved_prepared_repair_before"||std::string(label)=="saved_row_actual_field_replacement")CHECK(heightPass);
       return height;
     };
     std::unique_ptr<Patch> row,neighbors;
@@ -232,6 +232,42 @@
     FirstHeightReport rowHeight;
     if(row)rowHeight=assess("saved_prepared_repair_before",*row);
     else saved<<"{\"context\":\"saved_prepared_repair_before\",\"status\":\"limited\",\"reason\":\"SU2_NATIVE_BL_SAVED_PATCH absent\"}"<<std::endl;
+    if(savedRepairField&&row) {
+      // A private fixed-skin feasibility test, not a globally admitted replacement or a transported-nodal replay.
+      const size_t savedCaller=budget.caller_bytes;
+      const size_t repairBytes=transfer_memory::Add(savedInputBytes,MetricPatchSolveScratchBytes,
+          transfer_memory::Mul(3,patchBytes(*row)));
+      REQUIRE(transfer_memory::Add(savedCaller,repairBytes)<=ceiling);
+      budget.caller_bytes=transfer_memory::Add(savedCaller,repairBytes);
+      struct RestoreRepairCaller {SU2NativeGeometry::AtlasBudget& b;size_t old;~RestoreRepairCaller(){b.caller_bytes=old;}} restoreRepairCaller{budget,savedCaller};
+      Id firstCell=0;for(const auto& c:row->cells){REQUIRE(c.id<UINT64_MAX);firstCell=std::max(firstCell,c.id+1);}
+      const auto started=std::chrono::steady_clock::now();const auto workAt=budget.work;
+      const auto beforeField=savedRepairField->Statistics();
+      ConnectivityRepairReport report;Patch repaired;std::string reason;
+      const bool improved=RepairMetricConnectivity(*row,*savedRepairField,*scope,heights,firstCell,repaired,report,reason);
+      budget.CheckTime();
+      saved<<"{\"context\":\"saved_row_actual_field_repair\",\"improved\":"<<improved
+           <<",\"trials\":"<<report.trials<<",\"moves\":"<<report.moves<<",\"vertex_moves\":"<<report.vertex_moves
+           <<",\"flips\":"<<report.flips<<",\"removals\":"<<report.removals<<",\"coordinated\":"<<report.coordinated
+           <<",\"linearizations\":"<<report.linearizations<<",\"metric_probes\":"<<report.metric_probes
+           <<",\"linear_iterations\":"<<report.linear_iterations<<",\"solve_trials\":"<<report.solve_trials
+           <<",\"solve_rejected\":"<<report.solve_rejected<<",\"geometry_rejections\":"<<report.move_geometry_rejected
+           <<",\"height_rejections\":"<<report.move_height_rejected<<",\"loss_rejections\":"<<report.move_loss_rejected
+           <<",\"before_loss\":"<<report.before_loss<<",\"after_loss\":"<<report.after_loss
+           <<",\"blocked_vertex\":"<<report.blocked_interior_vertex<<",\"reason\":"<<std::quoted(reason)
+           <<",\"queries\":"<<savedRepairField->Statistics().requests-beforeField.requests
+           <<",\"compositions\":"<<savedRepairField->Statistics().compositions-beforeField.compositions
+           <<",\"geometry_work\":"<<budget.work-workAt<<",\"seconds\":"
+           <<std::chrono::duration<double>(std::chrono::steady_clock::now()-started).count()
+           <<",\"fixed_skin\":true,\"exact_edge_conformity_measured\":false,\"external_clearance_measured\":false,\"accepted\":false}"<<std::endl;
+      REQUIRE(bool(saved));
+      if(improved) {
+        REQUIRE_FALSE(repaired.cells.empty());REQUIRE(repaired.cells.size()<=MaximumReplacementCells);
+        std::string interfaceReason;REQUIRE(ValidateFixedInterface(row->cells,repaired.cells,interfaceReason));
+        const auto height=assess("saved_row_actual_field_replacement",repaired);CHECK(height.maximum_relative_error<=heights.tolerance);
+        NativeTransactionCapture::Write("saved_row_actual_field_replacement.bin",NativeTransactionCapture::PatchBytes(repaired));
+      }
+    }
     if(row&&neighbors) {
       std::string why;
       const size_t unionScratch=transfer_memory::GrowthBound(row->cells.size()+neighbors->cells.size(),sizeof(std::pair<const Id,Cell>)+4*sizeof(void*));

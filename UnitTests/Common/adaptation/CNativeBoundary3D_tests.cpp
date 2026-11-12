@@ -1173,6 +1173,15 @@ TEST_CASE("Native provisional surface preparation preserves passing requested ch
     CHECK_FALSE(CheckFirstHeight(both,heights,two_reference,measured,reason));
     REQUIRE(measured.measured);
     CHECK(PreservePassingFirstHeights(both,both,heights,two_reference,reason));
+    struct Restore {ShapeAdmission previous=GetShapeAdmission();~Restore(){SetShapeAdmission(previous);}} restore;
+    SetShapeAdmission(ShapeAdmission::ValidityOnly);
+    std::vector<DonorCell> source;
+    for(const auto& cell:both.cells){DonorCell donor;donor.cell=cell;donor.sensor.fill(Tensor{1,0,0,1,0,1e6});source.push_back(donor);}
+    FrozenField target(source);Patch sentinel=both;ConnectivityRepairReport report;
+    CHECK_FALSE(RepairMetricConnectivity(both,target,two_reference,heights,2000,sentinel,report,reason,0));
+    CHECK(report.before_loss>0);  // Resolved neighboring height debt was admitted before the no-trial return.
+    CHECK(Connectivity(sentinel)==Connectivity(both));
+    CHECK(PreservePassingFirstHeights(both,sentinel,heights,two_reference,reason));
   }
   SECTION("Deleted protected support is unresolved") {
     fresh=old;fresh.surface.clear();
@@ -1626,6 +1635,7 @@ TEST_CASE("Actual-field repair identifies a sliver point fixed on an artificial 
 }
 
 TEST_CASE("Private interior repair retains prescribed wall height despite admissible geometric collapse", "[NativeConnectivityHeight3D]") {
+  struct Restore {ShapeAdmission previous=GetShapeAdmission();~Restore(){SetShapeAdmission(previous);}} restore;
   const auto seed=Cube();const PlanarReference reference(Facets(seed));WallHeights heights;
   for(const auto& f:Facets(seed))if(std::all_of(f.v.begin(),f.v.end(),[](Node n){return n.p.z==0;}))heights[f.marker]=.01;
   Patch aligned;FirstHeightReport height;std::string reason;
@@ -1641,11 +1651,33 @@ TEST_CASE("Private interior repair retains prescribed wall height despite admiss
   unchecked.cells.insert(unchecked.cells.end(),collapsed.cells.begin(),collapsed.cells.end());
   REQUIRE_FALSE(CheckFirstHeight(unchecked,heights,reference,height,reason));
   std::vector<DonorCell> source;for(const auto& c:seed.cells){DonorCell d;d.cell=c;d.sensor.fill(Tensor{});source.push_back(d);}
-  FrozenField target(source);Patch repaired=aligned;ConnectivityRepairReport report;
-  const bool progress=RepairMetricConnectivity(aligned,target,reference,heights,20000,repaired,report,reason,256);
-  INFO(reason);REQUIRE(CheckFirstHeight(repaired,heights,reference,height,reason));
-  CHECK(ValidateFixedInterface(aligned.cells,repaired.cells,reason));
-  if(!progress)CHECK(Connectivity(repaired)==Connectivity(aligned));
+  FrozenField target(source);
+  for(auto mode:{ShapeAdmission::Absolute,ShapeAdmission::ValidityOnly}) {
+    SetShapeAdmission(mode);Patch repaired=aligned;ConnectivityRepairReport report;
+    const bool progress=RepairMetricConnectivity(aligned,target,reference,heights,20000,repaired,report,reason,256);
+    INFO(reason);REQUIRE(CheckFirstHeight(repaired,heights,reference,height,reason));
+    CHECK(ValidateFixedInterface(aligned.cells,repaired.cells,reason));
+    if(!progress)CHECK(Connectivity(repaired)==Connectivity(aligned));
+  }
+  SECTION("Resolved neighboring row debt retains the passing children during trials") {
+    SetShapeAdmission(ShapeAdmission::ValidityOnly);auto partial=aligned;
+    for(auto& cell:partial.cells)for(auto& node:cell.v) {
+      if(node.id==101)node.p.z=.02;
+      if(node.id==100)node.p.x=.6;
+    }
+    for(const auto& cell:partial.cells)REQUIRE(Orientation(cell.v[0].p,cell.v[1].p,cell.v[2].p,cell.v[3].p)>0);
+    REQUIRE_FALSE(CheckFirstHeight(partial,heights,reference,height,reason));
+    REQUIRE(height.measured);REQUIRE(height.height_failures==1);
+    auto partial_source=source;for(auto& donor:partial_source)donor.sensor.fill(Tensor{1,0,0,1,0,1e4});
+    FrozenField partial_target(partial_source);Patch repaired=partial;ConnectivityRepairReport report;
+    const bool progress=RepairMetricConnectivity(partial,partial_target,reference,heights,30000,repaired,report,reason,64);
+    INFO(reason);CHECK(report.trials>0);
+    CHECK(report.move_height_rejected+report.moves+report.flips+report.removals>0);
+    CHECK(PreservePassingFirstHeights(partial,repaired,heights,reference,reason));
+    CHECK(ValidateFixedInterface(partial.cells,repaired.cells,reason));
+    if(!progress)CHECK(Connectivity(repaired)==Connectivity(partial));
+  }
+
 }
 
 TEST_CASE("Native wall split inserts coordinated height points without a common background", "[NativeWallReconstruction3D]") {

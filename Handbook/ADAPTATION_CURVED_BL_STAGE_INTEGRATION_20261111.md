@@ -114,7 +114,7 @@ Reuse existing WriteReference/LoadReference (.native_ref), RecordStream/OwnedCel
 and donor payloads, exact transaction/stage captures and CFD restart formats before
 adding a codec. Existing in-memory CNativeMetricFamily3D retains original frames,
 eigenvalues, selected nodal core, normalization metadata, full/base layer policies
-and geometry. There is no demonstrated persistent codec for that complete family.
+and geometry. Complete codec395/396 now preserves that family; see the current checkpoint section below.
 A sensor-only file or Float64 visualization is NOT a complete target checkpoint.
 
 A credible stage2 checkpoint must bind original CFD node/donor identities and exact
@@ -126,13 +126,13 @@ binary/source/input/helper hashes and resource/acceptance receipts. Reload in a
 fresh process and verify actual M6 point/chord/tensor/authority agreement before
 claiming upstream reuse; do not substitute sensor-only reconstruction.
 
-No new persistence mechanism or stage dispatch has been implemented yet. The
-current bounded target/row investigation finishes first. Use stage checkpoints
+Complete target persistence is now implemented/qualified396; stage dispatch remains unchanged.
+The current bounded target/row investigation finishes first. Use stage checkpoints
 only when credible; a failed or partial diagnostic is evidence, not a resumable
 successful stage. Full retries are now integration milestones, not the default
 next action after every correction.
 
-##371 checkpoint audit — no implementation change
+## Historical371 checkpoint audit — resolved by395/396
 
 Source audit during371 confirmed a specific reconstruction gap. The native3D
 reference sidecar preserves geometry/control curves, marker/facet identity and
@@ -162,3 +162,26 @@ Fresh-process reload must validate identities/config/authority, complete record
 counts, storage/time admission, requested controls and actual M6 point/chord/tensor
 agreement, including seams, features, competing walls and stale-state refusal.
 Stage3must not consume the current sensor-only diagnostic as a complete target.
+
+
+## Current checkpoint and physical assessment status (399/404)
+
+The historical371gap above is resolved by complete target codec/profile replay395/396.
+Same sourceCFD/authority, complete original family and originalselected core, both
+full/base profile histories/transition support and OptionAstate are preserved.
+FreshMPI6reload reproduces61330owned composed tensors and difficult chord BITEXACT
+without CFDadvance or metric recomputation. Payloads/receipts are in currenthandoff;
+originalsource61330points/303359tets. Nominal500k, composed estimate461495.991 with
+47864.008empirical indicator, not bound. Checkpoint fidelity is qualified; physical
+suitability remains bounded to measured controls, not yet a credible usableBL.
+
+398/399measure exact-policy original contexts and saved25row/84neighbor coordinates.
+25rowpositive/geometry/height pass, all25centroidq/Jbad. Frozen-metric controls do not
+prove fixedface/height target incompatibility.399composed nodal transport localization
+reproduces123186bad/core0; notcontinuousgradation/noisecausality.402/404test existing
+private fixedskin interior motion/reconnection under fresh changed-position queries.
+402exposed passingheightloss;403/404fix qualifies preservation with serial/MPI/actual
+evidence, while zeroq/Jbad retirement remains. No newpolicy/operator/globalpublication.
+Handoff owns currentterminal/live handles.
+Do not rerun metric/checkpoint upstream for this stage test. Do not confuse a private
+improvement or incomplete transition with final complete-mesh acceptance.

@@ -1,0 +1,236 @@
+{
+  "scope": "Connected passing-height preservation during private validity-only quality repair; focused serial/MPI and same actual-M6 patch qualified.",
+  "build403": {
+    "state": "terminal",
+    "exit_code": 0,
+    "seconds": 418.4664399623871,
+    "pins_verified": true,
+    "changed": [],
+    "completed_build": true,
+    "binaries": {
+      "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver": "622af6eac0ec5ca48a284561b67172fb25985ff650565cbbede3679a1c47319d",
+      "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/SU2_CFD/src/SU2_CFD": "16d88dd02469c169aa852e444719c960bb97cd114f16e4bb746c85818eb73dbd"
+    }
+  },
+  "build404": {
+    "state": "terminal",
+    "exit_code": 0,
+    "seconds": 40.123042583465576,
+    "pins_verified": true,
+    "changed": [],
+    "completed_build": true,
+    "binaries": {
+      "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver": "e8859478926642bd0accad875c497782dd23b06c9f2bfa948b1b7db1cb05e2e7",
+      "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/SU2_CFD/src/SU2_CFD": "16d88dd02469c169aa852e444719c960bb97cd114f16e4bb746c85818eb73dbd"
+    }
+  },
+  "cases": {
+    "serial": {
+      "case": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved404_prepared_serial_20261112T000344_3610435",
+      "status": {
+        "state": "terminal",
+        "exit_code": 0,
+        "seconds": 4.45955491065979,
+        "pins_verified": true,
+        "changed": [],
+        "largest_sampled_individual_process_rss_bytes": 561152,
+        "rss_note": "sampled process RSS; not a whole-job peak"
+      },
+      "terminal": {
+        "actual_host_proc": true,
+        "all_owned_handles_terminal": true,
+        "live_owned_handles": [],
+        "sampled_identities": [
+          {
+            "pid": 3610521,
+            "start_ticks": 48626542
+          }
+        ],
+        "wrapper_excluded": {
+          "pid": 3610435,
+          "start_ticks": 48626359
+        },
+        "checked_unix": 1794441842.3899882
+      },
+      "summaries": [
+        "All tests passed (390 assertions in 11 test cases)"
+      ]
+    },
+    "mpi6": {
+      "case": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved404_prepared_mpi6_20261112T000402_3611130",
+      "status": {
+        "state": "terminal",
+        "exit_code": 0,
+        "seconds": 4.4552905559539795,
+        "pins_verified": true,
+        "changed": [],
+        "largest_sampled_individual_process_rss_bytes": 712704,
+        "rss_note": "sampled process RSS; not a whole-job peak"
+      },
+      "terminal": {
+        "actual_host_proc": true,
+        "all_owned_handles_terminal": true,
+        "live_owned_handles": [],
+        "sampled_identities": [
+          {
+            "pid": 3611219,
+            "start_ticks": 48628379
+          }
+        ],
+        "wrapper_excluded": {
+          "pid": 3611130,
+          "start_ticks": 48628200
+        },
+        "checked_unix": 1794441880.7107205
+      },
+      "summaries": [
+        "All tests passed\u001b[0m (255 assertions in 11 test cases)",
+        "All tests passed\u001b[0m (250 assertions in 11 test cases)",
+        "All tests passed\u001b[0m (255 assertions in 11 test cases)",
+        "All tests passed\u001b[0m (271 assertions in 11 test cases)",
+        "All tests passed\u001b[0m (250 assertions in 11 test cases)",
+        "All tests passed\u001b[0m (250 assertions in 11 test cases)"
+      ]
+    }
+  },
+  "actual_case": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved404_checkpoint_target_repair_20261112T000440_3612660",
+  "actual_status": {
+    "state": "terminal",
+    "exit_code": 0,
+    "seconds": 127.1726279258728,
+    "pins_verified": true,
+    "changed": [],
+    "largest_sampled_individual_process_rss_bytes": 1501868032,
+    "rss_note": "sampled process RSS; not a whole-job peak"
+  },
+  "actual_terminal": {
+    "actual_host_proc": true,
+    "all_owned_handles_terminal": true,
+    "live_owned_handles": [],
+    "sampled_identities": [
+      {
+        "pid": 3612765,
+        "start_ticks": 48632301
+      },
+      {
+        "pid": 3612766,
+        "start_ticks": 48632302
+      },
+      {
+        "pid": 3612767,
+        "start_ticks": 48632302
+      },
+      {
+        "pid": 3612768,
+        "start_ticks": 48632302
+      }
+    ],
+    "wrapper_excluded": {
+      "pid": 3612660,
+      "start_ticks": 48632028
+    },
+    "checked_unix": 1794442069.775779
+  },
+  "comparison": {
+    "same_original_patch_and_target": true,
+    "before": {
+      "case": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved402_checkpoint_target_repair_20261111T234404_3565227",
+      "trial": {
+        "context": "saved_row_actual_field_repair",
+        "improved": true,
+        "trials": 64,
+        "moves": 36,
+        "vertex_moves": 0,
+        "flips": 0,
+        "removals": 0,
+        "coordinated": 6,
+        "linearizations": 7,
+        "metric_probes": 1050,
+        "linear_iterations": 91,
+        "solve_trials": 64,
+        "solve_rejected": 0,
+        "geometry_rejections": 57,
+        "height_rejections": 0,
+        "loss_rejections": 1,
+        "before_loss": 43.06596771991895,
+        "after_loss": 41.1648690951345,
+        "blocked_vertex": 39424,
+        "reason": "",
+        "queries": 1467,
+        "compositions": 1467,
+        "geometry_work": 551454,
+        "seconds": 12.823276971,
+        "fixed_skin": true,
+        "exact_edge_conformity_measured": false,
+        "external_clearance_measured": false,
+        "accepted": false
+      },
+      "maximum_relative_height_error": 0.29708275473881496,
+      "height_pass": false,
+      "net": {
+        "q_bad_removed": 0,
+        "J_bad_removed": 0,
+        "cells_removed": 0,
+        "q_bad_removed_per_second": 0.0,
+        "J_bad_removed_per_second": 0.0
+      }
+    },
+    "after": {
+      "case": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved404_checkpoint_target_repair_20261112T000440_3612660",
+      "trial": {
+        "context": "saved_row_actual_field_repair",
+        "improved": true,
+        "trials": 64,
+        "moves": 36,
+        "vertex_moves": 0,
+        "flips": 0,
+        "removals": 0,
+        "coordinated": 6,
+        "linearizations": 7,
+        "metric_probes": 1050,
+        "linear_iterations": 91,
+        "solve_trials": 64,
+        "solve_rejected": 0,
+        "geometry_rejections": 56,
+        "height_rejections": 2,
+        "loss_rejections": 0,
+        "before_loss": 43.06596771991895,
+        "after_loss": 41.892636387447496,
+        "blocked_vertex": 39424,
+        "reason": "",
+        "queries": 1442,
+        "compositions": 1442,
+        "geometry_work": 540608,
+        "seconds": 11.873764659,
+        "fixed_skin": true,
+        "exact_edge_conformity_measured": false,
+        "external_clearance_measured": false,
+        "accepted": false
+      },
+      "maximum_relative_height_error": 0.08396830382970527,
+      "height_pass": true,
+      "net": {
+        "q_bad_removed": 0,
+        "J_bad_removed": 0,
+        "cells_removed": 0,
+        "q_bad_removed_per_second": 0.0,
+        "J_bad_removed_per_second": 0.0
+      }
+    },
+    "interpretation": "Constraint preservation fixed on actual curved patch. Two now-rejected height candidates alter the trajectory. Zero netq/Jbad removal before/after; no speedup, closure or global acceptance claim."
+  },
+  "preservation_fix_qualified": true,
+  "usable_BL": false,
+  "native_MPI_BL_generation_qualified": false,
+  "final_edge_conformity_measured": false,
+  "global_clearance_measured": false,
+  "target_policy_changed": false,
+  "normal_law_changed": false,
+  "next_target": "Repair power / coupled construction and surface-target delivery, not another speed cycle: zero net q/J retirement with fixed skin; blocked interior vertex39424 has an existing saved complete neighbor star. No new metric policy selected.",
+  "evidence_sha256": {
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/patch_repair402_assessment.json": "e049e06608d2aaa3a2c0361d94fa7daddb0227d107e05095d9d3a194a66470c3",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/patch_repair404_assessment.json": "51beab7b8aaba020aa260957c6ef387415b8323dc31ebf279adfcaa5279254c3",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/row_footprint402_assessment.json": "f804820983a3943ebf445dc88589bf280a6ee3f0e80a25c6cfffd9ee40376d96",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/source_snapshot402.json": "26c11ec4c2b980f649fa571c6dcc23de0c0d44eac84deeb0ca22deaf16576bc3"
+  }
+}

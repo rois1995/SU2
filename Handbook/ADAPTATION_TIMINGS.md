@@ -887,3 +887,42 @@ consume3720/6375evaluations. Initialtotal4185,refinement2190; prep69.487s,compos
 78.026s nested within147.517s edge total. We have evaluation attribution, not per-tiny-
 interval timing or a proved dispensability bound. No query/time saving claimed from
 this observation. See edge accuracy audit; no precision or final-gate change.
+
+
+##402 actual-field repair failure (403 fix qualification pending)
+
+400compile failure18.155s;401compile212.224s;402guardcompile208.213s. 401/402production
+CFDbyte-identical399. These are development costs, not computational improvements.
+402actual diagnostic terminal2/129.280s, fullpins intact. Private repair12.823s,
+64trials/6coordinatedsteps/36vertexmoves/7linearizations/1050metricprobes/1467fresh
+compositions/551454geometrywork;57geometryrejections/0heightrejections/1lossrejection.
+Loss43.06597→41.16487, ZERO netq/Jbad removal,25badremain. Positive/geometrypass but
+heighterror.297083>.1. Therefore no useful accepted progress or performance gain.
+Largest sampled individualRSS1505755136B, notwholejobpeak. 403addresses passingheight
+preservation within existing repair, pending source-frozen serial/MPI/actual qualification.
+
+
+##404 passing-height preservation qualified (not a speedup)
+
+Development cost:403 production build418.466 s;404 test-only rebuild40.123 s.
+Serial:11 cases/390 assertions/4.460 s. ONE MPI6 milestone:11 cases on every rank,
+250–271 assertions/rank,4.455 s. Fast workers escaped the RSS sampler; no whole-job
+memory claim. The same baseline patch and target are byte-identical.
+
+| Measurement |402 before fix |404 after fix |
+|---|---:|---:|
+| Whole diagnostic wall time |129.280 s |127.173 s |
+| Private repair time |12.823 s |11.874 s |
+| Fresh compositions |1467 |1442 |
+| Geometry work |551454 |540608 |
+| Trials / coordinated steps / vertex moves |64 /6 /36 |64 /6 /36 |
+| Height rejections |0 |2 |
+| Final repair loss, starting43.06597 |41.16487 |41.89264 |
+| Maximum relative first-height error |29.708% FAIL |8.397% PASS |
+| Net q-bad / J-bad retirement |0 /0 |0 /0 |
+
+The repair timer is nested in whole diagnostic time. Two height-damaging candidates
+now reject, changing the trajectory; timing and query differences are NOT a speedup
+claim. All25 cells remain q/J-bad. Largest sampled individual actual RSS1,501,868,032 B
+is not whole-job peak. Next target: repair power/coupled construction, not another
+precision or performance cycle. Physical constraints and budgets are unchanged.

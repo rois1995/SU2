@@ -1,0 +1,89 @@
+{
+  "scope": "Bounded saved-target patch feasibility evidence; no accepted-mesh or global-publication claim.",
+  "case": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved402_checkpoint_target_repair_20261111T234404_3565227",
+  "status": {
+    "state": "terminal",
+    "exit_code": 2,
+    "seconds": 129.27953553199768,
+    "pins_verified": true,
+    "changed": [],
+    "largest_sampled_individual_process_rss_bytes": 1505755136,
+    "rss_note": "sampled process RSS; not a whole-job peak"
+  },
+  "trial": {
+    "context": "saved_row_actual_field_repair",
+    "improved": true,
+    "trials": 64,
+    "moves": 36,
+    "vertex_moves": 0,
+    "flips": 0,
+    "removals": 0,
+    "coordinated": 6,
+    "linearizations": 7,
+    "metric_probes": 1050,
+    "linear_iterations": 91,
+    "solve_trials": 64,
+    "solve_rejected": 0,
+    "geometry_rejections": 57,
+    "height_rejections": 0,
+    "loss_rejections": 1,
+    "before_loss": 43.06596771991895,
+    "after_loss": 41.1648690951345,
+    "blocked_vertex": 39424,
+    "reason": "",
+    "queries": 1467,
+    "compositions": 1467,
+    "geometry_work": 551454,
+    "seconds": 12.823276971,
+    "fixed_skin": true,
+    "exact_edge_conformity_measured": false,
+    "external_clearance_measured": false,
+    "accepted": false
+  },
+  "patches": [
+    {
+      "context": "saved_prepared_repair_before",
+      "cells": 25,
+      "q_bad": 25,
+      "J_bad": 25,
+      "independent_max_absolute_error": 1.942890293094024e-16,
+      "strict_geometry_pass": true,
+      "strict_first_height_pass": true,
+      "positive": true
+    },
+    {
+      "context": "saved_row_actual_field_replacement",
+      "cells": 25,
+      "q_bad": 25,
+      "J_bad": 25,
+      "independent_max_absolute_error": 1.249000902703301e-16,
+      "strict_geometry_pass": true,
+      "strict_first_height_pass": false,
+      "positive": true
+    }
+  ],
+  "net": {
+    "q_bad_removed": 0,
+    "J_bad_removed": 0,
+    "cells_removed": 0,
+    "q_bad_removed_per_second": 0.0,
+    "J_bad_removed_per_second": 0.0
+  },
+  "helper_sha256": "1316265981de9fac0bbabcdb2d2b4acfc14444d49db64a50246ad10ab8a8e635",
+  "input_sha256": {
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved402_checkpoint_target_repair_20261111T234404_3565227/status.json": "2b7f581a13f8fd6151eff11e9f7da106808d3d17b003bd02cf8e020c1576ebf4",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved402_checkpoint_target_repair_20261111T234404_3565227/command.json": "e8c6830d78475bd5a23eb11e7d7e074b10325ad6eeb6cb626783bbd8d6de6d1e",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved402_checkpoint_target_repair_20261111T234404_3565227/actual_bl_saved_tangent.jsonl": "86a7997cbde6ea77b49db8b7d0a3e6346b4008dda146373000cf273971aade5c",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved402_checkpoint_target_repair_20261111T234404_3565227/actual_bl_front.jsonl": "966bbf163593569a0dc6285023b06e73b599005fd895e51f760b78d35a253fe8",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved358_front_smooth_upper_20261111T045033_884933/prepared_repair_before.bin": "97f054241fffc01bcbc0a20f21bda4aa337bc69d8edc9277e63ddb23ca21d2b8",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved402_checkpoint_target_repair_20261111T234404_3565227/saved_prepared_repair_before_frames.jsonl": "74e90fe35c9d082430da8c81ddc8317e52d368b27aee6635bad825c2ba95fbe4",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved402_checkpoint_target_repair_20261111T234404_3565227/saved_row_actual_field_replacement_frames.jsonl": "6c37dff105670eaee33439a020d9002eabad27ec256e547611ccb5046de02693",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved402_checkpoint_target_repair_20261111T234404_3565227/saved_row_actual_field_replacement.bin": "dafa02cf2fca929228edd78668e58567c1bbbf7830c6f61ffb6243fc2e3ca782"
+  },
+  "limits": [
+    "Original396P1field on saved358geometry, not generated-node transported metric reconstruction.",
+    "Fixed-skin private feasibility; no global clearance, distributed ownership/version admission or exact metric-edge conformity measured.",
+    "Centroid q/J net changes are useful patch diagnostics, not whole-field stage/final acceptance.",
+    "No production target/operator/normal law/acceptance gate changed."
+  ]
+}

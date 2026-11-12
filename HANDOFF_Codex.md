@@ -1,156 +1,134 @@
 # Native adaptation — current handoff
 
-Updated2026-11-12Europe/Rome. Goal ACTIVE. One connected curved-BLcycle/one heavy job.
-R=`integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57`.
+Updated 2026-11-12, Europe/Rome. Goal ACTIVE. One connected curved-BL cycle and one owned heavy job.
+R = `integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57`.
 Read AGENTS.md, [ordered stages](Handbook/ADAPTATION_CURVED_BL_STAGE_INTEGRATION_20261111.md),
-[checkpoint](Handbook/ADAPTATION_BL_TARGET_CHECKPOINT_20261111.md),
-[current target assessment](Handbook/ADAPTATION_BL_TARGET_ASSESSMENT_20261111.md),
+[complete checkpoint](Handbook/ADAPTATION_BL_TARGET_CHECKPOINT_20261111.md),
+[current assessment](Handbook/ADAPTATION_BL_TARGET_ASSESSMENT_20261111.md),
 [normalization](Handbook/ADAPTATION_CURVED_BL_NORMALIZATION_20261111.md),
-[timings/work](Handbook/ADAPTATION_TIMINGS.md), [HowToProceed](HowToProceed.md).
-Historical live handles are superseded by this file; [pre397history](Handbook/ADAPTATION_HANDOFF_HISTORY_PRE_397_20261111.md)
-preserves detailed394/396provenance; earlier histories remain linked there.
+[timing ledger](Handbook/ADAPTATION_TIMINGS.md), and [HowToProceed](HowToProceed.md).
+[Pre404 history](Handbook/ADAPTATION_HANDOFF_HISTORY_PRE_404_20261112.md) preserves older
+provenance and failures. This file supersedes historical live handles.
 
-## Source/build/owned workload — authoritative
+## Current source, build and workload
 
-No owned heavy workload. Build399 and actual399 diagnostic are terminal/PASS;
-actual-host PID+start identities rechecked in R/terminal_recheck399.json. All1652
-actual-case source/binary/input/helper pins reverified before documentation edits.
-Unrelated host Python collector left untouched. R/target_patches399_qualification.json.
-Build399210.225s; CFD BYTE-IDENTICAL398:
-307c62b04384cbf7f2d7ace740d540e0c64edac30ed66dfa76902701225080a0;
-test6b81a43a4c3755a8c5d4e60749b01d0d691fd939371553d6bea73b31d08d0558.
-Source/evidence398eeeb02f562PUSHED;399diagnostic checkpoint798db15fffPUSHED.
-Actualcase R/cases/curved399_checkpoint_target_patches_20261111T231039_3485346
-PASS115.188s. Single fixture adds bounded25+84 current metric-frame export using
-ALREADYcomputed tensors/samples; no added geometry queries. Saved patch measurements
-BYTE-IDENTICAL398, same146337atlaswork. Reuse398MPIpolicy qualification; no new
-MPIcampaign for diagnostic output. NativeMPI BLgeneration remains unqualified.
+NO owned heavy workload. Build404, serial, MPI6 and actual404 PID/start identities
+are verified terminal on the actual host. All 1,656 actual404 source/binary/input/helper
+pins were reverified before documentation/checkpoint work. Source/evidence pending push;
+previous checkpoints 798db15fff and ef3dd43e0d are pushed. Preserve unrelated working changes.
 
-Independent R/saved_row399_sensitivity.json reproduces centroid q/J to1.943e-16.
-All25saved-row cells remain q/Jbad despite positivity/geometry/firstheight passing.
-All5wall cells have frozen-centroid fixed-face/allowed-plane-height optimum q>.2:
-this CONTROL does NOT prove target incompatibility. Existing apex normal alignment
->.99999992. Rotating only tensor frame toward face normal remains insufficient;
-finer tangent tensor controls improve wall cells but20other cells staybad. Controls
-are NOT position-dependent target evaluations, actual moves or admissible replacements.
-Saved coordinates are older358construction, original396P1source is a controlled field,
-not a reconstruction of old generated-node transported tensors. Union84has incomplete
-adjacent layer heights; do not relax them. Existing MoveVertex handles one fullstar;
-RepairMetricConnectivity fixes cavity skin, so cannot test coordinated wall motion.
-Reuse existing SplitSurfaceStrip/RefitWallSplit/rowtransactions for any justified
-coupled proposal, with live complete support/current nodal transport/globalclearance.
+Build403 (production fix) passed in 418.466 s; build404 (test only) in 40.123 s.
+CFD is identical between403/404:
+`16d88dd02469c169aa852e444719c960bb97cd114f16e4bb746c85818eb73dbd`.
+Test404: `e8859478926642bd0accad875c497782dd23b06c9f2bfa948b1b7db1cb05e2e7`.
+Serial: 11 cases/390 assertions, 4.460 s. ONE connected MPI6 milestone: 11 cases on
+EVERY rank, 250–271 assertions/rank, 4.455 s. Covers preservation beside unfinished
+rows, migration, empty ranks, curved geometry and deterministic resource expiry.
+This does NOT qualify native MPI BL generation.
 
-NEW read-only R/composed_gradation399_assessment.json independently reproduces ALL
-123186nodal composed transport violations/max3115659.1964465; core0bad. Wall→wall52955,
-wall→nonwall2145, reverse5780, nonwall→nonwall62306. Nonwall includes otherboundary.
-52945wall→wallbad pairs have eigenratio>1e4 at bothends; median dominant-axis change
-.29975degrees, maximum89.4494. Worst ratio pair64→4184 turns30.08degrees nearroot/LE.
-Dominant axis is not a certified normal; no continuous gradation/causal noise proof.
-No target correction selected from counts or local curvature proxies alone.
+Actual404 passed in127.173 s:
+R/cases/curved404_checkpoint_target_repair_20261112T000440_3612660.
+R/height_preservation404_qualification.json binds the comparison and qualification.
+Same402 baseline patch/target repeats exactly. Repair:64 trials,6 coordinated steps,
+36 vertex moves,1,442 fresh compositions,540,608 geometry work,11.874 s; two height
+rejections. All25 cells positive; strict geometry passes (max6.404e-7); first height
+passes (max relative error.0839683<=.1). BUT all25 remain centroid q/J-bad: net retirement0/0.
+Independent q/J error<=1.388e-16. No speedup, closure or accepted-mesh claim. Exact edge
+conformity, external clearance and publication remain unmeasured. Largest sampled
+individual RSS1,501,868,032 B is not whole-job peak.
 
-Edge investigation disposition:383whole-edge exclusion remains qualified in BOTH
-factories.394shared projection fix already resolves original measurement deadline;
-no lower-precision/classification scalar substituted. R/edge_measurement399_audit.json
-and Handbook/ADAPTATION_BL_EDGE_ACCURACY_20261112.md audit classification/ranking/
-insertion/conformity/final callers.394saved trace has248/279initial intervals narrower
-than1e-10parameter consuming3720/6375evaluations; cuts retain ownership/transition
-information. G7/K15difference is not a conservative interval. No exposed conservative
-composed-speed bound justifies skipping these samples or early classification yet.
-No extra baseline/perf/GDB or new scheduler/config/limit. Remain in ordered stage2.
+## Qualified correction and preserved failure
 
-All396producer/reload/build/serial/MPIhandles actual-host terminal; full pins verified
-BEFORE edits. Qualified396 source/evidence2652ccf84aPUSHED; sourceimplementationb2d18d8f30.
-Qualified complete target checkpoint396, R/target_checkpoint396_qualification.json:
-producer ...T214613_3294100 terminal0/733.225s; freshreload ...T220013_3323327 terminal0/
-546.920s.61330/61330owned composed tensors BITEXACT, same full/base profiles/reference/
-sourcecore, no metric recompute/CFDadvance. Same chord42.06659984296543BITEXACT,
-4635evals; producer6258743work/152.860sbusy, reload6205073/151.447sbusy(owner5).
-Fullpaths under R/cases/curved396_saved_{cfd_metric_stage,target_reload}_... .
-All12target/chord files303787984B local and hashed in target_checkpoint396_producer.json.
-Checkpoint controls/family/source ownership/reference must match. Witness tensors
-are comparison data, NEVER interpolation/transport authority. Original CFD/mesh
-payloads intact. Replay uses the five successful profile mutations, not finalscale recipe.
+RepairMetricConnectivity used provisional AdmitFirstHeight for every quality trial.
+ValidityOnly intentionally allows resolved height/footprint debt, so repair could
+undo passing rows. Actual402 returned lower loss43.06597→41.16487 but height error
+.297083>.1 and zero net q/J retirement. It failed two independent checks and was
+never published. Terminal129.280 s; all1,654 pins/actual-host handles preserved in
+R/patch_repair402_assessment.json. Exact fixtures: R/source_snapshots402.
 
-Build396CFD01fcb08eb89209f69e50bb1b6b1efc684092703c252d99c0928208d6773f215e;
-testbb3223c1ea5330b3b72836fcd5ddb143d4cd811b8096dda006362a7c22cdcec1.
-Sourceimplementation/focused evidence b2d18d8f30PUSHED; previouslivehandoff b78730fc18.
-Build396PASS208.210s; serial4cases/221assertions4.373s, broader39525/3120/65.497s reused
-for unchanged behavior. MPI6 25cases/2866assertions EACHrank4.445s. Short MPIworkers
-missed by1s sampler: no memory peak claim. Actual producer/reload are separate MPI6
-stage evidence, NOT native MPI BL GENERATION (FIRST_ROWnative1guard stays).
+403 fixes all FIVE candidate paths: initially height-clean inputs use strict checks;
+partial resolved debt uses existing admission PLUS PreservePassingFirstHeights
+(working,proposal). The working baseline also protects children repaired during
+previous steps. Final independent checking remains; no extra final height check for
+empty-height Euler inputs. Unfinished layers remain diagnosed debt. No target,
+normal law, construction policy, operator, scheduler, config, gate or budget changed.
+404 ends at loss41.89264, with height preserved. Its changed trajectory is not a speedup.
 
-## Current stage2 output and next bounded check
+Preserved development failures:400 compile include-interface error18.155 s;401 passed
+212.224 s;402 required-input guard build208.213 s (CFD identical399).403 serial failed
+one new fixture reachability assumption (390/391 assertions), with preservation checks
+passing.404 supplies a deliberate interior defect and wall-aligned metric; unchanged
+preservation assertions pass. Exact403 test: R/source_snapshots403. Read-only review
+found no concrete production semantic defect. Full details live in the linked assessment.
 
-Same saved CFD/config, Mach-onlyL1, nominal500k, h0=2e-6,g1.2,T=.01 unchanged.
-396provisional composed estimate461495.99094 with47864.00778empirical indicator,
-NOT bound. Tangent factor.25/core.004607250072048262. Physical target suitability
-UNQUALIFIED. Source61330points/303359tets unchanged; no generated BL. Core nodal
-complexity119826.626;49.525%ofCORE allocation beyondr20 is not a composed decomposition.
-Core directed gradation0bad at1+1e-5 after256cap; composed123186bad/worst3.11566e6.
-Rapid prescribed normal variation is not itself a bug; no continuous combined proof.
+## Active stage2 and next bounded test
 
-Metric531.649smaxrank/setup50.307/build480.941; geometrywork45356241vs37171299713.
-Preparation140.557svs612.375s with same6516query/8192proposal counts.2distinctfield
-trials vs3; selected scale/core differ from371. NOT a fixed-target timing comparison.
-R/metric_stage396_assessment.json and timing ledger retain overlapping timers/gaps.
-Checkpoint write+join41.695s; reload42.681smax/load +293.775squery+election(join includes
-wait), then151.447sowner chord. Chord result_join excludes earlier election wait.
+Same saved CFD, Mach-only L1, nominal500k, h0=2e-6,g=1.2,T=.01,height tolerance.1.
+Complete396 checkpoint fidelity is QUALIFIED; physical target suitability and usable
+BL are not. Estimated complexity461495.99094, empirical indicator47864.00778 (NOT a
+bound); tangent factor.25, core.004607250072048262. Source61330 points/303359 tets.
+Core nodal complexity119826.626;49.525% beyond radius20 concerns CORE only.
 
-Read-only witness inspection checks all61330core/coordinates against producerJSON;
-42actual localcurvature samples/5contexts in R/target_directions396_assessment.json.
-Leadingedge medians combined tangent density108/32 vs local osculating proxy640/34.
-That proxy is NOT a conservative geometry bound, admissible replacement or sufficient
-cause. Mapped BL wall evaluation currently has no analytic curvature cap; final
-geometry certification remains independent. Do NOT add a curvature metric from this
-alone. Existing unproven alternatives remain in Handbook/ADAPTATION_BACKLOG.md.
+Next target: repair power/coupled construction and target delivery, not another speed
+cycle. The fixed25-cell patch retires no q/J failures and reports blocked interior
+vertex39424. Its existing saved complete neighbor star forms an84-cell union inside
+the current128-cell constructed-patch bound. Reuse that ONE support for a private
+actual-field test, preserving five passing rows while retaining34 unfinished neighbor
+rows as debt. Do not raise limits, start a cavity campaign or publish from incomplete
+saved ownership state. Compare complete-patch net q/J, geometry, passing heights and
+work; lower loss alone is insufficient. If wall shape remains blocked, distinguish
+coupled surface modification from physical geometry/height target deficiencies using
+the queued Coulaud/MAdLib assessment. No new metric is selected from proxies alone.
 
-Exact saved-policy5-context/25-cell/84-neighbor assessment completed398/399,
-not pending. Next bound actual coupled placement/construction feasibility using
-complete existing supports and operators; distinguish physical target requirements
-from incomplete transition and constrained skin. Do not choose a new curvature target
-from sampled proxy or matrix controls. The stage2 suitability limitation remains
-explicit before declaring surface input credible. Current diagnostic/control evidence
-and scope are in Handbook/ADAPTATION_BL_TARGET_ASSESSMENT_20261111.md.
+Current controls use original396 P1 on older358 coordinates, NOT evolved nodal metric
+transport.402 shows all five unrestricted optimal feet outside their triangles;
+constrained constant-tensor planar-foot q maxima.11509–.18838 are below.2. This is NOT
+a varying curved-field impossibility proof. R/row_footprint402_assessment.json.
+Local LE density proxy640/34 versus target108/32 is not a conservative geometry bound.
+399 reproduces123186 composed nodal transport violations (max3115659.196), core0.
+Wall-to-wall52955, cross7925, other62306; normal-profile/frame/noise causality is unresolved.
 
-R/cases/curved396_saved_cfd_metric_stage_20261111T214613_3294100/selected_core_native.bin
-is an exact existing-format derived CORE-only export, SHA in core_allocation_assessment.json;
-use together with complete checkpoint, NEVER as complete target by itself. Independent
-Mach error6.66e-16; sourcecoordinates and9flow+SA admissibility stage1 unchanged.
+## Reusable checkpoints and measurement evidence
 
-## Reusable inputs and preserved completion
-
-Stage1 R/m6_bl_inputs/rans_metric_entry364_v1. Load without another CFDadvance.
-Mesh8c839170eb5e359f7de6a41434aa6a9c2d620053f37de6d9360bd04d2a63088b;
+Stage1: R/m6_bl_inputs/rans_metric_entry364_v1. Reuse without another CFD advance.
+Mesh SHA8c839170eb5e359f7de6a41434aa6a9c2d620053f37de6d9360bd04d2a63088b;
 reference2e99fb7870e2c718f110da8509e4c0f7e746ce138e7f27ab57aa0dedbb6c42de;
-entryfieldaf7ade468dc40cd39dbe9238248e50057cdd151a64fef92fda957677aa3f6cae;
+entry fieldaf7ade468dc40cd39dbe9238248e50057cdd151a64fef92fda957677aa3f6cae;
 config0a7de022729f69b170deaee2eaabbd5347550da8134cbdaa39587f7173e78742.
-Original303seedc90000ea804c7e08a54dbec93f218b5bd3ae3dce3db8c287db6783fd138f1c78.
-All9fields finite/admissible, positive rho/internalE, SA>=1e-16wallfloor. Coarse
-CL.15573/CD.05027reasonable, NOT convergence/shock/wall-resolution proof.
+Nine flow/SA fields finite/admissible; CL.15573/CD.05027 is not convergence/shock proof.
 
-Euler293 COMPLETE: TWO strict Euler50k meshes149051points/736323tets and172001/
-870422; conservative admissible transfer, finite continued CFD and isolated adapted
-restart. ContinuedCFD one iteration, not convergence. Preserve original293event1/2
-checkpoints and disk restart, all22payloads/384685699B preservation receipt unchanged.
-Full364 surface stalled before row; saved358row5columns/25cells has geometry/height/
-positivity but q/Jdebt,84-cell union has34neighbor-only height failures. No usable M6BL.
+R/target_checkpoint396_qualification.json: producer733.225 s, fresh reload546.920 s;
+61330/61330 composed tensors BITEXACT, same profiles/reference/source core and chord
+42.06659984296543/4635 evaluations. No CFD advance or metric recomputation. Full/base
+history, OptionA, original family/owned layout and source geometry are required.
+Twelve payloads303787984 B local, hashed in R/target_checkpoint396_producer.json.
+Witness tensors are NEVER transport authority. The producer's selected_core_native.bin
+is CORE ONLY; use WITH the complete policy checkpoint. Full paths in pre404 history.
 
-## Constraints and remaining objective
+383 whole-edge BL exclusion is qualified in BOTH factories; outside controls use exact
+background.394 projection fix resolved the difficult edge:147.517 s/6375 evaluations.
+Ten-point quadrature underestimates6.82%;248 tiny ownership intervals consume3720
+evaluations but lack conservative composed-speed bounds. No approximate classification,
+ranking, insertion or final scalar was enabled. See [edge audit](Handbook/ADAPTATION_BL_EDGE_ACCURACY_20261112.md).
 
-Incremental stages2target→3coupled surface→4directions/firstrow→5growth→6transition/
-strictclosure→7transfer/CFD/second adaptation/restart. Physical progression must be
-measured: isolated current UnitStep gives~1.199402677 at g1.2, not exactly1.2;
-normal_progression396_source_review.json is an analytic control, NOT actual growth.
+## Preserved completion, constraints and remaining goal
 
-One owned heavy workload, nice19/j3(2–4workers), OMP/BLAS/MKL1.4TB compile-tmp;
-verify actual-host PID+start terminal before C++/helper edits or new job. Sourcefreeze,
-bounded active-reference/transient accounting, checkpoints/pushes, CADoptional/noCAD
-authority, validity-first intermediate meshes remain mandatory. Native5400s/outer14400s,
-12GiB/rank; diagnostic atlas300s/outer600s unchanged. No config/scheduler/geometry
-representation/permanentcolumns/raised budgets.500k nominal, NOT node count/gate.
-Strict geometry1e-4, exactpositive/bodyseparation,q>=.2,J>=.05,maxedge1.8,h0/g/T,
-heighttol.1 final gates unchanged. Intermediate diagnosed quality debt allowed.
+Euler293 COMPLETE: two strict Euler50k meshes149051 points/736323 tets and172001/870422;
+conservative admissible transfer, finite continued CFD and actual isolated adapted
+restart. Continued CFD was ONE iteration, not convergence. Preserve22 payloads/384685699 B.
 
-Remaining: strictly accepted usable curved BL, dedicated native-MPI BL generation/
-constraint qualification, TWO accepted RANS adaptations, conservative admissible
-flow+SA transfer, finite continued adapted CFD and actual isolated adapted disk restart.
+Ordered stages:2 target →3 coupled surface →4 directions/first row →5 growth →6 outer
+transition/strict closure →7 transfer/CFD/second adaptation/restart. No usable curved
+BL yet. Actual physical progression remains unproven; isolated metric law~1.199402677
+at configured g1.2. Keep this stage5 obligation.
+
+One heavy job, nice19,j3 (2–4), OMP/BLAS/MKL1,4TB compile-tmp. Verify actual-host handles;
+freeze pinned sources; retain bounded active-reference/transient accounting and pushes.
+Native5400 s/outer14400 s/12GiB per rank; diagnostic atlas300 s/outer600 s unchanged.
+500k is nominal, not node count/gate. Strict geometry1e-4, positivity/body separation,
+q>=.2,J>=.05,max edge1.8 and requested heights remain. CAD optional/no-CAD authority,
+validity-first construction; no new scheduler/config/representation/permanent columns.
+
+Remaining: usable strictly accepted curved BL, dedicated native-MPI BL generation and
+constraint qualification, TWO accepted RANS adaptations, conservative admissible flow/SA
+transfer, finite continued adapted CFD and actual isolated adapted disk restart.

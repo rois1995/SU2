@@ -1,0 +1,108 @@
+{
+  "scope": "Frozen-centroid tensor, planar wall-footprint control only; not curved-field feasibility or acceptance.",
+  "results": [
+    {
+      "cell": 303428,
+      "baseline_q": 0.09950190088676063,
+      "plane_footprint_control": {
+        "q_max": 0.17291522727131872,
+        "plane_height": 1.8e-06,
+        "foot_barycentric": [
+          0.0,
+          0.3468616116703726,
+          0.6531383883296275
+        ]
+      },
+      "unrestricted_plane_optimal_foot_barycentric": [
+        2.753940067612207,
+        2.327526755777161,
+        -4.081466823389368
+      ]
+    },
+    {
+      "cell": 303432,
+      "baseline_q": 0.06206594714853293,
+      "plane_footprint_control": {
+        "q_max": 0.11515690985512085,
+        "plane_height": 1.8e-06,
+        "foot_barycentric": [
+          0.0,
+          1.0,
+          0.0
+        ]
+      },
+      "unrestricted_plane_optimal_foot_barycentric": [
+        2.7940082249711113,
+        1.7226064094498077,
+        -3.516614634420919
+      ]
+    },
+    {
+      "cell": 303436,
+      "baseline_q": 0.13957807061120858,
+      "plane_footprint_control": {
+        "q_max": 0.17594573663546062,
+        "plane_height": 1.8e-06,
+        "foot_barycentric": [
+          1.0,
+          0.0,
+          0.0
+        ]
+      },
+      "unrestricted_plane_optimal_foot_barycentric": [
+        -1.7456806494557853,
+        5.509394045975629,
+        -2.7637133965198437
+      ]
+    },
+    {
+      "cell": 303440,
+      "baseline_q": 0.09897965986021409,
+      "plane_footprint_control": {
+        "q_max": 0.1883802483678261,
+        "plane_height": 1.8e-06,
+        "foot_barycentric": [
+          0.0,
+          1.0,
+          0.0
+        ]
+      },
+      "unrestricted_plane_optimal_foot_barycentric": [
+        2.75080096290852,
+        -0.16331458957698858,
+        -1.5874863733315314
+      ]
+    },
+    {
+      "cell": 303444,
+      "baseline_q": 0.06125369333206747,
+      "plane_footprint_control": {
+        "q_max": 0.11509019423431362,
+        "plane_height": 1.8e-06,
+        "foot_barycentric": [
+          0.0,
+          1.0,
+          0.0
+        ]
+      },
+      "unrestricted_plane_optimal_foot_barycentric": [
+        2.4391891200655365,
+        -0.5235270954291268,
+        -0.9156620246364097
+      ]
+    }
+  ],
+  "input_sha256": {
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved399_checkpoint_target_patches_20261111T231039_3485346/command.json": "9895e72952b86ad855598cdeea3b80c9de8fd27470ec31f8c4ee135c5574a907",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved358_front_smooth_upper_20261111T045033_884933/prepared_repair_before.bin": "97f054241fffc01bcbc0a20f21bda4aa337bc69d8edc9277e63ddb23ca21d2b8",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved399_checkpoint_target_patches_20261111T231039_3485346/saved_prepared_repair_before_frames.jsonl": "74e90fe35c9d082430da8c81ddc8317e52d368b27aee6635bad825c2ba95fbe4",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/assess_saved_row399.py": "313c3da2688a413b7655494bd1bd4b398b4fb04b3a8f70f303a554e632575aa8",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/assess_saved_row369.py": "b445720f4a0f62b21db278ea94eb264b10f652c5cd1e2e7d096e60aa8ee44167"
+  },
+  "helper_sha256": "b1b11806a32db3fed06e4a23377e0e97c54b79ff03387f3a37d30ffe3a8cb877",
+  "limits": [
+    "Optimization is exact active-face algebra in a constant centroid tensor with a flat triangular footprint and plane-height interval.",
+    "Curved nearest-foot support, varying target, neighboring cells and global clearance are not modeled; not a full-field impossibility proof.",
+    "No production metric, operator, position or gate changed."
+  ]
+}

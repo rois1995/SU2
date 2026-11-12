@@ -2656,7 +2656,14 @@ bool RepairMetricConnectivity(const Patch& old,FrozenField& target,const PlanarR
     const auto skin=SkinMap(Incidence(old.cells).Boundary());CheckSurface(old,skin,reference,nullptr);
     FirstHeightReport height;
     if(!AdmitFirstHeight(old,heights,reference,height,reason))throw std::invalid_argument(reason);
+    const bool complete_height=height.measured && !height.height_failures && !height.footprint_failures;
     Patch working=old;
+    auto admit_height=[&](const Patch& proposal,std::string& why) {
+      if(complete_height)return CheckFirstHeight(proposal,heights,reference,height,why);
+      // Provisional debt may remain, but shape improvement must not destroy an already passing child.
+      return AdmitFirstHeight(proposal,heights,reference,height,why) &&
+          PreservePassingFirstHeights(working,proposal,heights,reference,why);
+    };
     std::map<std::array<Id,4>,double> losses;
     // The loss of one cell is a function of its ordered vertex coordinates only (frozen target): `measured` keeps it
     // across the identity-keyed `losses` resets after movement, so unchanged cells are not re-queried. `losses`
@@ -2702,7 +2709,7 @@ bool RepairMetricConnectivity(const Patch& old,FrozenField& target,const PlanarR
           for(auto& c:proposal.cells)for(auto& n:c.v)if(points.count(n.id))n.p=points.at(n.id);
           std::string rejected;
           if(!ValidateFixedInterface(working.cells,proposal.cells,rejected,topology,MaximumReplacementCells)){++report.move_geometry_rejected;continue;}
-          if(!AdmitFirstHeight(proposal,heights,reference,height,rejected)){++report.move_height_rejected;continue;}
+          if(!admit_height(proposal,rejected)){++report.move_height_rejected;continue;}
           losses.clear();double after=0;
           try{after=total(proposal.cells);}catch(const std::exception&){losses.clear();++report.move_loss_rejected;continue;}
           if(!(after==0 || after<report.after_loss*(1-1e-8)-1e-14)){losses.clear();++report.move_loss_rejected;continue;}
@@ -2749,7 +2756,7 @@ bool RepairMetricConnectivity(const Patch& old,FrozenField& target,const PlanarR
           if(proposal.cells.empty() || first>UINT64_MAX-(proposal.cells.size()-1))continue;
           for(size_t i=0;i<proposal.cells.size();++i)proposal.cells[i].id=first+i;
           if(!ValidateFixedInterface(working.cells,proposal.cells,rejected,topology,MaximumReplacementCells) ||
-             !AdmitFirstHeight(proposal,heights,reference,height,rejected))continue;
+             !admit_height(proposal,rejected))continue;
           working=std::move(proposal);rejected_states.clear();++report.removals;
           report.after_loss=total(working.cells);changed=true;break;
         }
@@ -2786,7 +2793,7 @@ bool RepairMetricConnectivity(const Patch& old,FrozenField& target,const PlanarR
         proposal.cells.insert(proposal.cells.end(),replacement.begin(),replacement.end());
         if(proposal.cells.size()>MaximumReplacementCells || first>UINT64_MAX-(proposal.cells.size()-1))return false;
         for(size_t i=0;i<proposal.cells.size();++i)proposal.cells[i].id=first+i;
-        if(!AdmitFirstHeight(proposal,heights,reference,height,rejected))return false;
+        if(!admit_height(proposal,rejected))return false;
         rejected_states.erase(key);
         working=std::move(proposal);++report.flips;report.after_loss=total(working.cells);return true;
       };
@@ -2837,7 +2844,7 @@ bool RepairMetricConnectivity(const Patch& old,FrozenField& target,const PlanarR
           for(auto& c:proposal.cells)for(auto& n:c.v){const auto found=moved.find(n.id);if(found!=moved.end())n.p=found->second;}
           std::string rejected;
           if(!ValidateFixedInterface(old.cells,proposal.cells,rejected,topology,MaximumReplacementCells)){++report.move_geometry_rejected;continue;}
-          if(!AdmitFirstHeight(proposal,heights,reference,height,rejected)){++report.move_height_rejected;continue;}
+          if(!admit_height(proposal,rejected)){++report.move_height_rejected;continue;}
           losses.clear();double after=0;
           try {after=total(proposal.cells);}catch(const std::exception&){losses.clear();++report.move_loss_rejected;continue;}
           if(!(after<report.after_loss*(1-1e-8)-1e-14)){losses.clear();++report.move_loss_rejected;continue;}
@@ -2883,7 +2890,7 @@ bool RepairMetricConnectivity(const Patch& old,FrozenField& target,const PlanarR
             if(proposal.cells.size()>MaximumReplacementCells || first>UINT64_MAX-(proposal.cells.size()-1)){losses.clear();++report.move_geometry_rejected;continue;}
             // Retained cells already use the caller range: renumber before incidence/height validation.
             for(size_t i=0;i<proposal.cells.size();++i)proposal.cells[i].id=first+i;
-            if(!AdmitFirstHeight(proposal,heights,reference,height,rejected)){losses.clear();++report.move_height_rejected;continue;}
+            if(!admit_height(proposal,rejected)){losses.clear();++report.move_height_rejected;continue;}
             working=std::move(proposal);losses.clear();rejected_states.clear();++report.moves;++report.vertex_moves;
             report.after_loss=total(working.cells);changed=true;break;
           }
@@ -2911,6 +2918,7 @@ bool RepairMetricConnectivity(const Patch& old,FrozenField& target,const PlanarR
     for(const auto& f:physical)working.surface.push_back(f.second);
     reference.ExportParameters(working);
     CheckSurface(working,skin,reference,nullptr);
+    if(!heights.empty() && !admit_height(working,reason))throw std::invalid_argument(reason);
     fresh=std::move(working);reason.clear();return true;
   }catch(const std::exception& e){reason=e.what();return false;}
 }

@@ -147,3 +147,114 @@ fourincidentcells each,no extra84union incidence), but old captures lack live ow
 versions/current nodal values/globalclearance for a production admission claim.
 Next admissible feasibility trial must retain complete relevant supports, requested
 heights and private position-dependent evaluation. Do not declare raw controls accepted.
+
+
+##400 bounded actual-field feasibility test (before implementation)
+
+Hypothesis: the existing joint interior movement/reconnection solver can improve
+fixed-skin saved25row under exact396policy; frozen-centroid controls alone cannot
+establish actual feasibility. Inputs are the qualified399row/neighbor captures,
+complete396policy, originalP1source field and unchanged noCADauthority/heightpolicy.
+This is a controlled actual-field patch test, not a new target, surface-generation
+stage, live nodal-transport replay or globally published replacement.
+
+Reuse RepairMetricConnectivity with its existing64trial bound and existing
+MetricPatchSolveScratchBytes admission, immutable
+skin/height checks and fresh Query at changed cellcentroids. Reuse saved-patch assessor
+for complete positivity/strictgeometry/heights/qJ and bounded frame capture. Record
+trials/linearizations/moves/flips/removals/rejections/loss/work/time. Compare net q/J
+failures, not loss alone. Keep exact metric-edge conformity explicitly unmeasured
+unless existing bounded evaluation completes; no acceptance from centroid estimates.
+
+Admit row/neighbor/repair scratch together and retain original patch on refusal.
+Export only the selected private replacement via existing transaction capture if
+improved, never trial files. Recheck complete policy stamps/core/radius unchanged.
+No production operator or target changes, new config or MPIpublication. Existing398
+MPI qualification remains applicable; a production behavior change would require a
+meaningful connected MPI milestone. Diagnostic300s/outer600s stay unchanged. A local
+replacement still lacks fresh global directory/dependency admission and is not an
+accepted stage output. Refusal or no net progress selects the next demonstrated
+placement/connectivity/target obstruction; do not add another fallback by assumption.
+
+
+402read-only constrained-foot control uses the existing399centroid frames. All5
+unrestricted optimum feet have negative barycentric coordinates (outside triangle).
+Enumerating triangle/interior/edge/vertex active sets and stationary/end heights in
+[.9h0,1.1h0] gives constant-tensor planar-foot maxima .172915/.115157/.175946/.188380/
+.115090. Regular-tet selfcheck1 and baseline≤modelmaximum assertions pass. This
+resolves why399unrestricted qmax>.2 cannot imply feasible placement. It remains a
+frozen-centroid/flat-foot model, not a curved-field impossibility or justification
+for a policy change. R/row_footprint402_assessment.json pins all inputs/helper.
+
+Build400 compile failure preserved; shared include interface corrected afterterminal.
+401PASS212.224s, productionCFDbyte-identical399. Read-only review found missing-row
+skip in the new diagnostic mode;402adds required-row guard after401terminal. Production
+operators/policies unchanged. See handoff for current402ownedbuild/run state.
+
+
+##402actual failure and selected connected correction (before production edit)
+
+402terminal2/129.280s, all1654pins intact/allactualhostidentities terminal. Existing
+repair ran64trials,6coordinatedsteps/36vertexmoves in12.823s/1467freshcompositions/
+551454geometrywork. Loss43.06597→41.16487, but netq/Jbad removal0/0;25cells remainbad.
+Allpositive/strictgeometrypass, yet returned child heighterror.297083>.1 (previous
+.001745passing). Failed independent checks preserved, never published/accepted.
+
+Root: AdmitFirstHeight intentionally permits resolved height/footprint DEBT in
+ValidityOnly, but RepairMetricConnectivity uses it for every quality candidate
+without preserving already passing input children. Final sourceold→fresh caller
+checks may reject, but that does not make the private repair preserve its input
+passing rows, especially newly constructed passing children. Do NOT remove the
+provisional debt allowance globally or require all absent rows during construction.
+
+Selected correction: within the EXISTING RepairMetricConnectivity only, capture
+whether its original patch is height-clean. Every candidate must use strict height
+check in that case. For provisional partial-row inputs, retain existing resolved-debt
+admission PLUS existing PreservePassingFirstHeights(working,proposal), protecting
+already passing children without requiring missing layers to be generated. Apply
+across coordinated moves, singlemoves, collapses and flips; keep final independent
+height/interface validation and no publication on refusal. No topology/operator,
+normal law, shape gate, target/scaling or budget changes. Audit productionenginecalls
+and diagnostic callers; keep all existing global admission checks.
+
+Qualification: extend existing planar repair check across Absolute/ValidityOnly,
+retain partial-debt admission regression, focused height/curved/resource serial and
+ONEconnectedMPI height/ownership/empty-rank milestone. Replay the exact402actual
+patch under unchanged policy/budgets, compare netq/J and complete height/geometry/
+positivity. It may still make no useful shape progress; preserving a failed height
+candidate is not useful progress. Then use residual evidence for stage2target versus
+surface/construction selection. No speculative new metric or unrelated optimization.
+
+
+403buildPASS418.466s/allpinsintact/ownedterminal. Focusedserial390/391assertions,
+10/11cases pass; one NEWfixture reachability assertion fails (partial symmetric cube
+had no accepted move/counted height rejection), not a preservation check. Actual
+402failedstrictheight regression is still pending replay. Preserve403test snapshot
+and failedlog.404adds deliberate interiorplacement defect and wallaligned metric
+for the partial-row test; preservation checks unchanged. Productionfix unchanged.
+Currentlivehandles/sourcefreeze in HANDOFF. No extra MPIcampaign before serial passes.
+
+
+##404 qualified preservation result — quality closure still absent
+
+403productionbuild418.466s;404testonlybuild40.123s/CFDbyte-identical403. Focusedserial
+11cases/390assertions4.460s; ONEconnectedMPI6 milestone11cases EVERYrank/250–271assertions
+4.455s. Actual404PASS127.173s, all1656pins intact/actualhostidentities terminal.
+R/height_preservation404_qualification.json binds comparison/source/runtime evidence.
+
+Same402baseline exactly repeats.64trials/6coordinatedsteps/36vertexmoves,2height
+rejections;1442compositions/540608geometrywork/11.874s. Repaired25cells positive,
+strictgeometrypass(max6.404e-7), firstheightpass(maxrel.0839683<=.1) vs402.297083failure.
+Loss43.06597→41.89264; zero netq/Jbad removal,25/25remain. Independent q/J≤1.388e-16
+error. Different rejection/repair trajectory, not a speedup or accepted mesh. Full
+edgeconformity/globalclearance/publication still unmeasured. Preserve failed402;
+do not suppress it merely because404passes its affected preservation behavior.
+
+Next demonstrated target: repairpower/coupledconstruction and target delivery. Existing
+fixed25interface stillblocks vertex39424; existing captured complete neighboringstar
+forms84union within current constructed128bound. Test that ONEsupport using existing
+operators/defaultbounds and exactsavedfield, preserving5passingchildren and retaining
+unfinishedneighborheightdebt explicitly. This is not a new cavity limit/campaign or
+globalpublication. Netwholepatchq/J and geometry/heights/work determine whethervolume
+support is the obstruction. Remainingwallshape still needs actualcoupledsurface versus
+physicalgeometry/heighttarget discrimination, not a policy change from proxy alone.

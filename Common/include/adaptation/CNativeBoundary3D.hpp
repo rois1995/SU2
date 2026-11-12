@@ -361,8 +361,9 @@ struct ConnectivityRepairReport {
 };
 /*! Up to128 constructed private cells; bounded two/three/four-tet flips, unconstrained interior removal and movement in the actual frozen field. Returns a strictly
  * improved private replacement, possibly still inadmissible; unchanged output on failure.
- * Fixed interface coordinates and requested first height/footprints remain mandatory. Caller admits
- * the complete original dependencies and validates full composed edges/progress before publication.
+ * Fixed interface coordinates and already passing requested first heights/footprints are preserved.
+ * Validity-only inputs may retain resolved neighboring row debt. Caller admits the complete original
+ * dependencies and validates full composed edges/progress and final heights before publication.
  * Disable retirement when backtracking a shape repair that destroys frozen size resolution.
  * An optional movable set restricts point displacement/removal, without restricting fixed-skin flips. */
 bool RepairMetricConnectivity(const Patch& old,FrozenField& target,const PlanarReference& reference,

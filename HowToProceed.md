@@ -244,3 +244,21 @@ are measured expensively, but currently lack a conservative composed-speed enclo
 G7/K15differences and GL10samples are not bounds. Preserve accurate scalars for ranking,
 insertion and final acceptance. Keep ordered stage2active instead of speculative
 integration changes or another baseline campaign.
+
+
+404 qualifies passing-height preservation inside existing private quality repair.
+ValidityOnly may carry unfinished rows but must preserve passing children. Serial
+11/390, MPI6 eleven cases per rank, and the same actual M6 patch pass. Height error
+falls from29.7% to8.40% under the unchanged10% tolerance; all25 cells stay positive
+and geometry-valid. Net q/J retirement is ZERO. This is a constraint fix, not closure
+or a speed gain.
+
+Next reuse the saved complete neighbor star of blocked vertex39424 (84-cell union
+inside the existing128-cell constructed-patch bound) for ONE private actual-field
+test. Protect five passing rows while diagnosing34 unfinished neighbors. No cavity
+campaign or new operator. Compare complete-patch bad counts, geometry, heights and
+work. If boundary shape remains blocked, test coupled surface feasibility versus
+physical geometry/height target delivery using the retained Coulaud/MAdLib comparison.
+Proxies and frozen-matrix controls alone do not justify a new metric. Preserve the
+396 policy and CFD seed; qualify live nodal transport and global publication at the
+proper stage boundary. Handoff owns current handles, source and the remaining goal.
