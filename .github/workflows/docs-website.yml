@@ -12,7 +12,7 @@ on:
         default: rois1995/su2code.github.io
       site_ref:
         description: Website commit SHA or branch (use a SHA to reproduce a build)
-        default: docs_site
+        default: docs/developer-guides-site
 
 permissions:
   contents: read
@@ -28,6 +28,7 @@ jobs:
       - name: Checkout SU2
         uses: actions/checkout@v4
         with:
+          ref: docs/developer-guides
           path: su2
           fetch-depth: 0
           filter: blob:none
@@ -38,7 +39,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: ${{ inputs.site_repo || 'rois1995/su2code.github.io' }}
-          ref: ${{ inputs.site_ref || 'docs_site' }}
+          ref: ${{ inputs.site_ref || 'docs/developer-guides-site' }}
           path: site
           fetch-depth: 0
           filter: blob:none
@@ -55,7 +56,7 @@ jobs:
       - name: Build and check website
         env:
           BUNDLE_PATH: ${{ github.workspace }}/site/vendor/bundle
-        run: python3 su2/Docs/website/tools/build_docs.py --su2 su2 --site site --build-dir "$RUNNER_TEMP/docs-site" --baseurl '/${{ github.event.repository.name }}' --mark-changes
+        run: python3 site/developer-docs/tools/build_docs.py --su2 su2 --site site --build-dir "$RUNNER_TEMP/docs-site" --baseurl '/${{ github.event.repository.name }}' --mark-changes
       - name: Upload checked preview
         uses: actions/upload-artifact@v4
         with:
