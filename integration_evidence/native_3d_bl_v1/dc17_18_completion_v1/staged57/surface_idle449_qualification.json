@@ -1,0 +1,49 @@
+{
+  "surface_idle_mpi_qualified": true,
+  "cases": [
+    {
+      "mode": "serial",
+      "case": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved449_surface_idle_census_serial_20261112T171707_2011745",
+      "status": {
+        "state": "terminal",
+        "exit_code": 0,
+        "seconds": 4.430334091186523,
+        "pins_verified": true,
+        "changed": [],
+        "largest_sampled_individual_process_rss_bytes": 536576,
+        "rss_note": "sampled process RSS; not a whole-job peak"
+      },
+      "passed": [
+        "All tests passed (2194 assertions in 17 test cases)"
+      ],
+      "verified_pins": 1680,
+      "all_actual_handles_terminal": true
+    },
+    {
+      "mode": "mpi6",
+      "case": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved449_surface_idle_census_mpi6_20261112T171803_2013976",
+      "status": {
+        "state": "terminal",
+        "exit_code": 0,
+        "seconds": 4.446440935134888,
+        "pins_verified": true,
+        "changed": [],
+        "largest_sampled_individual_process_rss_bytes": 860160,
+        "rss_note": "sampled process RSS; not a whole-job peak"
+      },
+      "passed": [
+        "All tests passed (1038 assertions in 17 test cases)",
+        "All tests passed (1017 assertions in 17 test cases)",
+        "All tests passed (1038 assertions in 17 test cases)",
+        "All tests passed (933 assertions in 17 test cases)",
+        "All tests passed (1117 assertions in 17 test cases)",
+        "All tests passed (1773 assertions in 17 test cases)"
+      ],
+      "verified_pins": 1680,
+      "all_actual_handles_terminal": true
+    }
+  ],
+  "scope": "Bounded idle census advancement alongside a busy trial, hidden demand, empty ranks, exact work-refusal restoration and existing curved/height/ownership/full-target regressions.",
+  "limits": "Focused facilities; actual saved-target M6 stage and generated BL/final closure remain separate obligations.",
+  "script_sha256": "8089af71191e307f4283f420b2b28f49fdc99bb1609fd2fe7b381dd386e7229b"
+}

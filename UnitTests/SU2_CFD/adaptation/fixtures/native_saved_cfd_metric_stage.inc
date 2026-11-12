@@ -230,6 +230,18 @@ TEST_CASE("Saved complete target drives the existing native MPI surface stage wi
      <<",\"process_cpu_seconds\":"<<s.process_cpu_seconds<<",\"metric_cpu_seconds\":"<<s.metric_cpu_seconds<<",\"reconstruction_cpu_seconds\":"<<s.reconstruction_cpu_seconds
      <<",\"seed_seconds\":"<<s.seed_seconds<<",\"metric_seconds\":"<<s.metric_seconds<<",\"reconstruction_seconds\":"<<s.reconstruction_seconds
      <<",\"tracked_collective_seconds\":"<<s.tracked_collective_seconds<<",\"tracked_calls\":"<<s.tracked_calls<<",\"maximum_work_bytes\":"<<s.maximum_work_bytes
+     <<",\"seed_batches\":"<<s.seed_batches
+     <<",\"batch_rounds\":"<<s.batch_rounds
+     <<",\"batch_candidates\":"<<s.batch_candidates
+     <<",\"field_build_seconds\":"<<s.field_build_seconds
+     <<",\"field_query_seconds\":"<<s.field_query_seconds
+     <<",\"field_cache_seconds\":"<<s.field_cache_seconds
+     <<",\"field_search_seconds\":"<<s.field_search_seconds
+     <<",\"field_interpolation_seconds\":"<<s.field_interpolation_seconds
+     <<",\"field_composition_seconds\":"<<s.field_composition_seconds
+     <<",\"edge_integral_seconds\":"<<s.edge_integral_seconds
+     <<",\"edge_geometry_seconds\":"<<s.edge_geometry_seconds
+     <<",\"edge_composition_seconds\":"<<s.edge_composition_seconds
      <<",\"surface_required_handoffs\":"<<s.surface_required_handoffs
      <<",\"surface_measurement_skipped\":"<<s.surface_measurement_skipped
      <<",\"updated_cells\":"<<s.updated_cells

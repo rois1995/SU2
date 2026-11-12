@@ -13,7 +13,23 @@ preserves earlier evidence/handles, NOT live workload state.
 
 ## Live state and provenance
 
-No owned heavy workload live.448actualM6surface replay TERMINAL514.446s wrapper/
+Build449PASS241.715s/all22observedactualidentitiesterminal/pins/newbinary+cleanNinja.
+R/build449_status.json/source_pins.json/terminal_handles.json. CurrenttestSHA
+189beafbc9299b0d7c54f00e9737c4a3bc7ed33223ebacfc7c1fa75918513c2f;
+CFDSHA79e13a54f00af63d858655760d401700f6afede18e69e8a7b7d28a2a84336d39.
+SerialPASS4.430s/17cases2194assertions; MPI6PASS4.446s/same17casesEVERYrank,
+933–1773assertions/rank. Observedactualhandles terminal/1680pinsverified percase;
+R/surface_idle449_qualification.json. ShortRSSsamplingmisses actualchildpeaks.
+Same441target M6 stage3 is the ONE owned heavy workload(session40009;
+R/check_saved_surface449.py; actualcase/statusunderR/cases). Freeze all compiled/
+pinned sources until terminal. Outcome/performance pending.
+Connected change qualified for affected facilities: one existing censusbatch on localidle Surface-
+Planning workers while peers haveproposals, thenrepick and execute SAME active round.
+Busy cursors stayfixed, no censusdrain ahead of operators. Newdata refreshes complete/
+refill state; globalempty refill unchanged. No new scheduler/config/batch/gate/target.
+R/idle_census449_entry.json verifies73actualterminalidentities/1477sourcepins beforeedit.
+Focusedserial/ONE MPI milestone PASS; actualstagefrozen, no speedup/BLclaim.
+448actualM6surface replay TERMINAL514.446s wrapper/
 389.050s native; all10actualidentities terminal, source/runtime/inputpinsverified:
 R/cases/curved448_required_surface_saved_target_surface_mpi6_20261112T164513_1937306
 (session59462terminal). R/surface_stage448_assessment.json and surface_required448_outcome.json.

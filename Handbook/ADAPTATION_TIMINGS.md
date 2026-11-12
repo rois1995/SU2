@@ -1520,3 +1520,10 @@ acrossdifferentwork. SumCPU2235.880includespolling; sampletreeRSS4.161GB/individ
 .855GB/nottruepeaks. Requested500k/initialestimate486914.722±empirical41525.003(notbound);
 achievednewmeshcomplexityUNMEASURED. R/surface_stage448_assessment.json and
 surface_required448_outcome.json. Source/gates/budgets remainedfrozen/unchanged.
+
+449buildPASS241.715s/all22observedactualhandles terminal/pins/newbinary/cleanNinja.
+Boundedidle census+busyround qualificationserialPASS4.430s17cases2194assertions;
+MPI6PASS4.446s17casesEVERYrank933–1773assertions/rank,1680pinsverified percase.
+ShortRSSsamplingmisses childpeaks. Actualsame441target stage3 replay frozen; no
+performanceclaim before outcome. Existingfield/edge subtimers exported only, no
+newprofiling campaign/timers. Scope/gates/resourcesunchanged.

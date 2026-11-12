@@ -950,6 +950,55 @@ TEST_CASE("Known required surface debt precedes a feasible optional collapse", "
   }
 }
 
+TEST_CASE("Idle surface census advances without draining ahead of an active round", "[NativeSurfacePreparationEngine3D]") {
+  World world;const bool hidden=GENERATE(false,true);Fixture fixture;Owned input;
+  const unsigned busy=world.size>1?1:0;
+  for(Id copy=0;copy<11;++copy) {
+    auto box=Box();const bool coarse=copy==10;const double scale=coarse?1.:.5;
+    const Id offset=coarse?1000:16*copy;
+    for(auto& cell:box.patch.cells) {
+      cell.id+=offset;
+      for(auto& n:cell.v){n.id+=offset;n.p={scale*n.p.x+(coarse?100.:3*copy),scale*n.p.y,scale*n.p.z};}
+    }
+    for(auto& face:box.patch.surface){face.facet+=offset;for(auto& id:face.v)id+=offset;}
+    for(auto& facet:box.facets) {
+      facet.id+=offset;
+      for(auto& n:facet.v){n.id+=offset;n.p={scale*n.p.x+(coarse?100.:3*copy),scale*n.p.y,scale*n.p.z};}
+      facet.marker=std::all_of(facet.v.begin(),facet.v.end(),[](Node n){return n.p.z==0;})?7:int(facet.id)+10;
+    }
+    if(unsigned(world.rank)==(coarse?busy:0))for(auto row:Rows(box.patch))input.emplace(row.cell.id,row);
+    fixture.facets.insert(fixture.facets.end(),box.facets.begin(),box.facets.end());
+  }
+  const PlanarReference geometry(fixture.facets);input=WithUniformSensor(std::move(input),{});const auto saved=Bytes(input);
+  EngineOptions options;options.maximum_work=1024;options.maximum_rounds=1;options.maximum_seconds=30;
+  options.wall_heights[7]=.01;options.phase_ownership=PhaseOwnership::Disabled;
+  const BoundaryMetric target=[=](Node n,const PlanarReference&,Tensor) {
+    const double strength=hidden&&n.p.x>26&&n.p.x<50?9:4;
+    return n.p.z==0?std::vector<BoundaryMetricSample>{{{strength,0,0,strength,0,1e12},{0,0,1}}}:std::vector<BoundaryMetricSample>{};
+  };
+  const auto result=PrepareSurface(world,input,Uniform(input,{}),geometry,target,options);
+  INFO(result.reason);CHECK(Bytes(input)==saved);CHECK_FALSE(result.valid);
+  CHECK(world.sum(int(result.stats.length_splits))>0);
+  CHECK(result.stats.surface_demand_census_complete);CHECK(result.stats.surface_required_handoffs==1);
+  if(world.size>1) {
+    if(world.rank==0)CHECK(result.stats.seed_cell_classes[2]==20);
+    if(unsigned(world.rank)==busy) {
+      CHECK(result.stats.seed_cell_classes[2]==2);
+      CHECK(result.stats.length_splits>0);
+    }
+    if(unsigned(world.rank)>busy){CHECK(result.stats.initial_cells==0);CHECK(result.cells.empty());}
+    if(hidden) {
+      options.maximum_work=1;
+      const auto limited=PrepareSurface(world,input,Uniform(input,{}),geometry,target,options);
+      CHECK(limited.stats.stop==EngineStop::WorkBudget);CHECK_FALSE(limited.surface_prepared);
+      CHECK(Bytes(limited.cells)==saved);CHECK(Bytes(input)==saved);
+    }
+  }
+  for(const auto& row:result.cells) {
+    const auto& v=row.second.cell.v;CHECK(Orientation(v[0].p,v[1].p,v[2].p,v[3].p)>0);CHECK(row.second.sensor_present);
+  }
+}
+
 TEST_CASE("Surface preparation closes requested-wall coverage without certifying unrelated volume", "[NativeSurfacePreparationEngine3D]") {
   World world;Fixture fixture;
   for(Id copy=0;copy<10;++copy) {

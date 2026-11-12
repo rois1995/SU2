@@ -247,3 +247,39 @@ no speculative operator/cavity growth, target change or larger-batch campaign.
 SampletreeRSS4.161GB/individual.855GB/nottruepeaks; sumrankCPU2235.880s includespolling.
 All upstream and Euler293checkpoints preserved. Requireddebtservice is qualified,
 but surface readiness, fullBL suitability and completeRANS workflow remainOPEN.
+
+##449 bounded idle census service — actual outcome pending
+
+**Input:** same savedCFD/441target/geometry and current transported metrics,448required
+work handoff retained. **Missing service:**448ranks0/3hadno commits butonly192seeded
+rows because refill required noGLOBALproposal. Localunused capacity could not reveal
+remaining requested demand while ranks4/5continued their costly trials.
+
+**Correction:** whenSurfacePlanning construction has activeglobalwork and a localidle
+worker withpendingcursor, everyrank calls the existing seed_next path; onlylocalidle
+workers scan atmostthe existing16rowbatch. Busyworkers advance no cursor. Allretain
+admission/deadline/vote/measure collectives. Repick everyrank and refreshbad_field/
+complete/refill, then execute an active trial in the SAME iteration. No continue or
+full censusdrain before the busy round. No graphpublication occurs duringmetadata
+measurement. Existing frontier/blockedhistory and fullprivate/support/claim protocols
+remainauthoritative. Ordinaryfulltarget/globalemptyrefill stayunchanged.
+
+**Expected output/acceptance:** an idleworker owning20requestedrows advances beyond
+the16rowinitialbatch while a disjointbusyworker stillcommits within oneoperatorround;
+busyseedcount unchanged, others genuinelyempty. A hidden-demand variant coversnew
+queue population; a commonworkbudget1 mustrefusebeforepublishingtwoactiveproposals
+andpreserveexactOwnedbytes. No prematurecensus/readiness flag, no lostconstraints
+or stalechoices, and actualM6mustshowuseful coverage/progress underunchangedlimits.
+Performance andwholeBL completion areNOTestablished by source review or fixturepass.
+
+Per-rank stage receipts alsoexport EXISTING field/edge sub-timers andbatch/seedcounts
+tohelpseparate computationfrom broadmetricwrapper/join costs. No extra timers, perf
+or GDBcampaign; nestedfields mustnotbeadded. Attribution gaps for boundaryguidance
+remain until measured; do notassume185seconds is isolatedtargetcompute.
+
+449buildPASS241.715s/all22observedactualidentitiesterminal/pins/newbinary+cleanNinja.
+Serial17cases2194assertionsPASS4.430s; MPI6same17casesEVERYrank933–1773assertions
+PASS4.446s. Allobservedactualhandles terminal/1680pinsverified percase;
+R/surface_idle449_qualification.json. MPI idleowner seeds20vsbusy2, busycommits
+inoneoperatorround; hidden-demand+exactcompleteworkrefusal snapshots pass. Actual
+M6same441target surface replay frozen; no performance or readiness claim yet.

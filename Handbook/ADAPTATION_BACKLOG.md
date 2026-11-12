@@ -1191,3 +1191,12 @@ hits, including feasible production reconnect-collapse and smoothcontrol. Reject
 integration for these samples. Largerpatches/smoothing may differ; existing smoothing
 memo remains. Do not infer newmemo benefit from warmgeometryquerywork or add a new
 cache without complete dependencies. See ADAPTATION_SURFACE_COST_AUDIT_20261112.md.
+
+###449 source-only hypothesis: invariant wall-query accounting
+EvaluateAtSurfaceAssociation calls GeometryWorkspaceBytes and StorageBytes on each
+intrinsic sample. StorageBytes traverses feature lists/grid;3Dsegments areempty, so
+do not attribute a20kvertexsegment scan to M6. Actual feature-grid cardinality/cost
+and contribution versus MPIjoining areUNMEASURED. If dominanttargetcompute isproven
+using savedcontexts/counters, audit invariant accounting reuse and allmutation/
+invalidation callers before adding caching. No production change selected; current
+cycle is boundedidle census service.

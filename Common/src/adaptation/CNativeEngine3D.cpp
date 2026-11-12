@@ -2748,7 +2748,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     }
     return true;
   };
-  auto seed_next=[&]() {
+  auto seed_next=[&](bool local_active=true) {
     Timer timer(stats.seed_seconds,options.timings);
     // Composed or sided planning is expensive; a complete cavity may remove still-unmeasured topology.
     if((!composition && !surface_target) || phase==Phase::Improvement) {const bool measured=measure(initial,true,&stats.seed_seconds);if(measured)seed_slot=initial.size();return measured;}
@@ -2759,7 +2759,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     CLocalFailure failure;std::vector<Id> next;
     try {
       size_t scanned=0;next.reserve(MeasurementBatch);
-      while(seed_slot<initial.size() && next.size()<MeasurementBatch && scanned++<MaximumDirectoryScan) {
+      while(local_active && seed_slot<initial.size() && next.size()<MeasurementBatch && scanned++<MaximumDirectoryScan) {
         const auto id=initial[seed_slot++];
         if(working.count(id) && !selection.cells.count(id))next.push_back(id);
       }
@@ -3194,6 +3194,16 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
       }
     }
     if (!ready) return finish();
+    if(surface_target && phase==Phase::Construction && any &&
+        world.maximum(!choice.active && seed_slot<initial.size())) {
+      // One idle-rank census batch must not drain ahead of the active round.
+      if(!seed_next(!choice.active))return finish();
+      bad_field=world.maximum(selection.invalid!=0);
+      if(!pick())return finish();
+      complete=!world.maximum(selection.invalid!=0 || seed_slot<initial.size() ||
+          !selection.progress_consistent || (coarsening&&!selection.queue.empty()));
+      refill=!complete&&!any&&world.maximum(seed_slot<initial.size());
+    }
     if(options.maximum_seconds && world.maximum(std::chrono::duration<double>(Clock::now()-started).count()>=options.maximum_seconds)) {
       stats.stop=EngineStop::TimeBudget;result.reason="Native 3D kernel elapsed-time budget exhausted; feasibility is undetermined.";
       return finish();
