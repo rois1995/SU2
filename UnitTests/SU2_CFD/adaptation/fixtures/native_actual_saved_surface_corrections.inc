@@ -3,7 +3,7 @@
 const size_t captureBytes=NativeStageCapture::limit+NativeStageCapture::streaming_reserve;
 const size_t caller=transfer_memory::Add(held,captureBytes,size_t(32)<<20);
 REQUIRE(caller<ceiling);budget.caller_bytes=caller;
-unsigned slots=0,calls=0,completed=0;
+unsigned slots=0,calls=0,completed=0,activeFeasible=0;
 auto saveWorking=[&]() {
   NativeStageCapture::CheckPayloadBound(trial.live_parameters->PayloadBytes(),captureBytes);
   NativeStageCapture::WriteOwned("trajectory_working_owned.bin",trial.mesh);
@@ -13,7 +13,7 @@ auto saveWorking=[&]() {
   log<<"{\"stage\":\"saved_correction_capture\",\"slots\":"<<slots<<",\"constructor_calls\":"<<calls<<",\"contexts_completed\":"<<completed<<",\"geometry_work\":"<<budget.work<<",\"time_exhausted\":"<<budget.time_exhausted<<",\"work_exhausted\":"<<budget.work_exhausted<<",\"mesh_accepted\":false}"<<std::endl;
 };
 try {
-  REQUIRE(coherentCapture);REQUIRE(current.mesh.size()==304521);
+  REQUIRE(coherentCapture);REQUIRE((!current.mesh.empty()&&current.mesh.size()<=maxRows));
   REQUIRE(current.live_parameters->Payload()==TransactionRead(root+"/trajectory_working_parameters.bin"));
   REQUIRE(restored.stage.event==0);REQUIRE(policy.h0==SU2_TYPE::GetValue(config.GetAdap_BL(0).firstHeight));
   log<<"{\"stage\":\"saved_correction_input\",\"cells\":"<<current.mesh.size()<<",\"stage_height\":"<<policy.h0
@@ -59,7 +59,7 @@ try {
            <<"],\"strip_rule\":["<<sample.strip_rule.x<<','<<sample.strip_rule.y<<','<<sample.strip_rule.z<<"]}"<<std::endl;}
     }
   };
-  struct Winner {Patch old,fresh;std::vector<OwnedCell> rows;Feature support;std::string label,operation;MetricChange kind;long double gain=0;bool active=false;};
+  struct Winner {Patch old,fresh;std::vector<OwnedCell> rows;Feature support;std::string label,operation;MetricChange kind;long double gain=0;bool active=false;long geometry_retired=0;};
   std::unique_ptr<Winner> winner;
   for(size_t context=0;context<seeds.size();++context) {
     const auto& seed=seeds[context];budget.caller_bytes=transfer_memory::Add(caller,directory.ResidentBytes());budget.CheckTime();
@@ -91,7 +91,8 @@ try {
       Patch fresh;std::vector<OwnedCell> freshRows;size_t q0=0,q1=0,j0=0,j1=0,b0=0,b1=0;
       bool built=false,complete=false,geometryOK=false,metricOK=false,parameters=false,protocol=false,contact=true,preserve=false,heightOK=false,strictHeight=false,stars=true,measured=false;
       std::string constructorWhy,certificationWhy,supportWhy,metricWhy,parameterWhy,contactWhy,preserveWhy,heightWhy;long double before=-1,after=-1;Id retainedNode=0;double displacement=0;
-      PatchMetric oldPlan,newPlan;MetricDiagnosis diagnosis;const auto kind=local==6?MetricChange::Coarsen:MetricChange::GeometryRepair;
+      PatchMetric oldPlan,newPlan;MetricDiagnosis diagnosis;
+      const auto kind=local==6&&context==2?MetricChange::Coarsen:MetricChange::GeometryRepair;
       try {
         oldPlan=planning(old,imported.cells,*oldContext,q0,j0,b0);
         REQUIRE(nextCell<UINT64_MAX-25*MaximumReplacementCells);REQUIRE(nextNode<UINT64_MAX-25);
@@ -105,8 +106,8 @@ try {
         } else if(local==6) {
           long double shortest=INFINITY;for(auto edge:oldPlan.edges)if((edge.first[0]==vertex||edge.first[1]==vertex)&&neighbors.count(edge.first[0]==vertex?edge.first[1]:edge.first[0])) {
             bool wall=false;for(auto face:old.surface)if(heights.count(oldContext->Get(face.facet).marker)&&std::find(face.v.begin(),face.v.end(),edge.first[0])!=face.v.end()&&std::find(face.v.begin(),face.v.end(),edge.first[1])!=face.v.end())wall=true;
-            if(wall&&edge.second.length<shortest){shortest=edge.second.length;retainedNode=edge.first[0]==vertex?edge.first[1]:edge.first[0];}}
-          if(retainedNode){++calls;built=CollapseVertex(old,vertex,retainedNode,first,*oldContext,fresh,constructorWhy);}else constructorWhy="No incident requested-wall collapse edge.";
+            if(wall&&(kind!=MetricChange::Coarsen||edge.second.length<CoarseningMetricEdge)&&edge.second.length<shortest){shortest=edge.second.length;retainedNode=edge.first[0]==vertex?edge.first[1]:edge.first[0];}}
+          if(retainedNode){++calls;built=CollapseVertex(old,vertex,retainedNode,first,*oldContext,fresh,constructorWhy);}else constructorWhy="No eligible incident requested-wall collapse edge for this admission kind.";
         } else {++calls;built=Reconnect(old,vertex,first,*oldContext,fresh,constructorWhy);}
         if(built) {
           REQUIRE((!fresh.cells.empty()&&fresh.cells.size()<=MaximumReplacementCells));std::set<Id> kept;
@@ -122,7 +123,7 @@ try {
           newPlan=planning(fresh,freshRows,*newContext,q1,j1,b1);measured=true;
           metricOK=ValidateMetricChange(old.cells.size(),oldPlan,fresh.cells.size(),newPlan,kind,metricWhy,&diagnosis);
           const bool progress=before>0&&after<before*(1-1e-12L);
-          geometryOK=complete&&std::isfinite(after)&&(local==6?after==0:after<=before&&(progress||diagnosis.size_progress));
+          geometryOK=complete&&std::isfinite(after)&&(kind==MetricChange::Coarsen?after==0:after<=before&&(progress||diagnosis.size_progress));
           parameters=trial.live_parameters->CheckReplacement(old,fresh,parameterWhy,ceiling,budget.caller_bytes,&budget);
           protocol=directory.Clearance(trial.mesh,old,fresh,contact,contactWhy,ceiling,caller);
           budget.caller_bytes=transfer_memory::Add(caller,directory.ResidentBytes());
@@ -132,12 +133,20 @@ try {
           const bool feasible=stars&&geometryOK&&metricOK&&parameters&&protocol&&contact&&preserve&&heightOK;
           const bool active=context<2;const auto gain=before-after;
           if(feasible){targetWitness(old,imported.cells,*oldContext,seed.label,"old",slots);targetWitness(fresh,freshRows,*newContext,seed.label,"fresh",slots);}
-          if(feasible&&(!active||progress)&&(!winner||(active&&!winner->active)||(active==winner->active&&gain>winner->gain)))winner=std::make_unique<Winner>(Winner{old,fresh,freshRows,Feature{{vertex,0,0},1},seed.label,operation,kind,gain,active});
+          if(feasible&&active) {
+            ++activeFeasible;const long retired=long(b0)-long(b1);
+            // Private publication tests useful residual work; keep the narrower coarsening control observational.
+            if(retired>=0&&(!winner||retired>winner->geometry_retired||(retired==winner->geometry_retired&&gain>winner->gain)))
+              winner=std::make_unique<Winner>(Winner{old,fresh,freshRows,Feature{{vertex,0,0},1},seed.label,operation,kind,gain,active,retired});
+          }
         }
       }catch(const std::exception& error){certificationWhy=error.what();}
       REQUIRE(trial.live_parameters->Payload()==acceptedParameters);
-      const bool feasible=built&&measured&&complete&&stars&&geometryOK&&metricOK&&parameters&&protocol&&contact&&preserve&&heightOK;
+      const bool feasible=built&&measured&&complete&&stars&&geometryOK&&metricOK&&parameters&&protocol&&contact&&preserve&&heightOK&&certificationWhy.empty();
+      const auto retainedAt=nodes.find(retainedNode);
+      const long apexRank=retainedAt==nodes.end()?-1:std::distance(nodes.begin(),retainedAt);
       log<<"{\"stage\":\"saved_correction_trial\",\"context\":"<<std::quoted(seed.label)<<",\"slot\":"<<slots<<",\"local_slot\":"<<local<<",\"operator\":"<<std::quoted(operation)<<",\"vertex\":"<<vertex<<",\"retained\":"<<retainedNode
+         <<",\"metric_kind\":"<<std::quoted(kind==MetricChange::Coarsen?"Coarsen":"GeometryRepair")<<",\"production_repair_apex_rank\":"<<apexRank
          <<",\"binding_dimension\":"<<binding->binding.dimension<<",\"genuine_corner\":"<<trial.live_parameters->Mobility().corners.count(vertex)<<",\"old_cells\":"<<old.cells.size()<<",\"new_cells\":"<<fresh.cells.size()<<",\"displacement\":"<<displacement
          <<",\"reserved\":"<<reserved<<",\"constructed\":"<<built<<",\"complete_removed_stars\":"<<stars<<",\"measured\":"<<measured<<",\"geometry_complete\":"<<complete<<",\"geometry_pass\":"<<geometryOK<<",\"metric_pass\":"<<metricOK
          <<",\"parameter_pass\":"<<parameters<<",\"contact_protocol\":"<<protocol<<",\"contact_pass\":"<<contact<<",\"passing_heights_preserved\":"<<preserve<<",\"strict_height\":"<<strictHeight<<",\"provisional_height\":"<<heightOK<<",\"private_feasible\":"<<feasible
@@ -166,13 +175,13 @@ try {
     const auto oldGeometry=GeometryGuidanceExcess(winner->old,*originalContext,SU2_TYPE::GetValue(config.GetAdap_Hausd())),newGeometry=GeometryGuidanceExcess(patch,*trial.reference,SU2_TYPE::GetValue(config.GetAdap_Hausd()));
     REQUIRE(oldGeometry.complete);REQUIRE(newGeometry.complete);
     const bool progress=oldGeometry.excess>0&&newGeometry.excess<oldGeometry.excess*(1-1e-12L);
-    if(winner->active)REQUIRE(progress);
+    if(winner->active){REQUIRE((progress||diagnosis.size_progress));REQUIRE(bad<=ob);}
     REQUIRE((winner->kind==MetricChange::Coarsen?newGeometry.excess==0:newGeometry.excess<=oldGeometry.excess&&(progress||diagnosis.size_progress)));
     REQUIRE(PreservePassingFirstHeights(winner->old,patch,heights,*originalContext,why));FirstHeightReport height;
     const bool strict=CheckFirstHeight(patch,heights,*trial.reference,height,why);REQUIRE((strict||(height.measured&&!height.reference_clearance_failures&&!height.missing_cells)));
     log<<"{\"stage\":\"saved_correction_publication_support\",\"removed_cell_ids\":[";bool comma=false;for(auto c:winner->old.cells){if(comma)log<<',';log<<c.id;comma=true;}log<<"],\"added_cell_ids\":[";comma=false;for(auto c:winner->rows){if(comma)log<<',';log<<c.cell.id;comma=true;}log<<"]}"<<std::endl;
     log<<"{\"stage\":\"saved_correction_publication\",\"context\":"<<std::quoted(winner->label)<<",\"operator\":"<<std::quoted(winner->operation)<<",\"active_context\":"<<winner->active<<",\"published\":"<<published<<",\"q_bad\":"<<q<<",\"J_bad\":"<<j<<",\"geometry_bad\":"<<bad<<",\"final_mesh_accepted\":false}"<<std::endl;
   }
-  log<<"{\"stage\":\"saved_correction_result\",\"contexts_completed\":"<<completed<<",\"slots\":"<<slots<<",\"constructor_calls\":"<<calls<<",\"active_feasible\":"<<(winner&&winner->active)<<",\"published\":"<<published<<",\"geometry_work\":"<<budget.work<<",\"stage_height\":"<<policy.h0<<",\"first_row_ready\":false,\"mesh_accepted\":false}"<<std::endl;
+  log<<"{\"stage\":\"saved_correction_result\",\"contexts_completed\":"<<completed<<",\"slots\":"<<slots<<",\"constructor_calls\":"<<calls<<",\"active_feasible\":"<<(activeFeasible>0)<<",\"active_feasible_candidates\":"<<activeFeasible<<",\"published\":"<<published<<",\"geometry_work\":"<<budget.work<<",\"stage_height\":"<<policy.h0<<",\"first_row_ready\":false,\"mesh_accepted\":false}"<<std::endl;
 } catch(...) {saveWorking();throw;}
 saveWorking();

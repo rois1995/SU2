@@ -1,6 +1,6 @@
 # Adaptation timings and computational work
 
-Updated2026-11-13:484affected discovery serial/MPI checks PASS; actual M6surface
+Updated2026-11-13:485/486comparisons TERMINAL; no owned heavy job;484affected discovery serial/MPI PASS; M6surface
 trajectory TERMINAL/notready. No ownedheavyjoblive. Discovery reaches requiredwork
 and86physical split edits; wholefieldclosure and acceptedadaptation cost remainunknown.
 Historical measurements below retain their original scope; currenthandoff owns state.
@@ -8,6 +8,42 @@ Historical measurements below retain their original scope; currenthandoff owns s
 [stage contract](ADAPTATION_CONNECTED_PATCH_TRAJECTORY_20261113.md) owns acceptance/stalls.
 R=`integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57`.
 
+
+##486 data-only comparison and inspection export — complete
+
+Same485build/target/profile/currentrootmove; three contexts26/23/20complete endpoint
+unions, ALL24constructors.178.773souter/4954765geometrywork;1788pins/fiveactualidentities
+verifiedterminal. IndividualsampledRSS1,324,937,216B is notwholejobpeak. Zero active
+feasible/publication; outputOwned ANDparameters EXACT485input. Tippositivecollapse
+6→4geometryscreens but upperexcess+4.50%; free-sidecollapse7→6 but excess+141%.
+Both geometry-admission refusals, not proved physical violations. Cleancontrolprivate
+feasible. Nominatedreverse rootedge never generated; no operator-inability conclusion.
+No comparable walltime speedup claimed across different cavity nominations. Pertrial
+CPU/wall/work retained in actual_bl_cavity_planning.jsonl; no totalwait attribution.
+R/reverse_surface486_assessment.json owns coverage/inputidentity checks.
+
+Requestedinspection export uses no native target queries/build: wing19727points/
+39243triangles, allboundaries24700/49396; allVTUarrays roundtrip checked. Sensor tensor
+only, not fullcomposedtarget; no fabricated globalquality. R/inspection_surface485/.
+Next487decision is exactdirected3candidate coverage, PLANNED/notbuilt.
+
+##485 phase-faithful residual candidate comparison — complete, no netfailureclosure
+
+Same484output303823tets/61550nodes/fullparams/currenttransport and441target/stageh.
+Only diagnosticbinding changed: nonfixturecount, activeGeometryRepaircollapse versus
+stricteligibleCoarsencontrol, publication/admission distinguished; no productionchange.
+24slots across33/10/20currentstars; guard/admission/memory/phase reviewedbeforecompile.
+Launch47.616GBavailable/load4.70/2.42/1.99,nice19/j3/libs1. Laterhostload rose~9.8 with
+availableRAM~42GB; no walltimecomparison/sourceedit whilebuildlive. BuildPASS484.384s/2tasks/1528pins/10actualterminalidentities, cleanNinja/bothbinaries
+verified; CFDhashUNCHANGED484, onlytestbinarychanged. Actualmatrix TERMINAL211.218s/24constructors/all3contexts,1782pins/5actualidentities
+verifiedterminal.4419766geometrywork;4activefeasiblemoves, root6→6pubexcess−8.9243%
+BUTgeometrybad4→4,q6→6,J5→5;66cellhalo unchangedcounts16geometry/52q/49J. No netclosure
+or timinggain. SampleindividualRSS1,319,981,056B notwholepeak. Casepertrialwork/CPU/wall
+retained.485output303823tets/61550nodes,67retired64065077new, allothersensorsunchanged.
+486data-only/SAMEbuild follows evidence ofwrong collapse direction: constrainedroot→
+offcarrier refused, reverse-side capability untested. Newcontexts26/23/20starunions,
+preserve rootmove;24slots/300geometry/600outer/12GiB unchanged. No source/build/norm/
+sensor/constraint changes; no timing comparison acrossdifferentnominatedcavities.
 
 ##484 connected required-demand discovery — physical edits, incomplete closure
 

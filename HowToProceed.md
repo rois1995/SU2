@@ -1,69 +1,34 @@
 # How to proceed
 
-Read [HANDOFF_Codex.md](HANDOFF_Codex.md),
-[484outcome](Handbook/ADAPTATION_SURFACE_DISCOVERY_484_OUTCOME_20261113.md)
-and [timings](Handbook/ADAPTATION_TIMINGS.md). All484jobs terminal, allpins/actualhandles
-verified; no ownedheavyjoblive. BuildPASS85.661s; serial14cases/2621assertions PASS,
-MPI6ALL14cases perrank PASS. Discoverymechanism qualified, completeBLNOTqualified.
+Read [current handoff](HANDOFF_Codex.md), [next construction decision](Handbook/ADAPTATION_DIRECTED_CANDIDATE_DECISION_487_20261113.md)
+and [timings](Handbook/ADAPTATION_TIMINGS.md). All485/486 handles terminal and pins verified.
+No owned heavy job or487build. Production484 unchanged; test-only485 changes are saved as a
+reviewable diagnostic checkpoint. Preserve unrelated working changes.
 
-Actualsame-input484surface trajectory reachesrequiredhandoff42.213s then86splitpubs
-within388.8sclock(388.880nativeexit). Output303823positive tets/61550nodes/fullcurrent
-parameters/transportedmetrics; independentall303606donors matchinput.303389untouched
-cellrows byte-identical;86newboundarynodes and172old/344newphysicalfaces. No surviving
-nodalcoords/tensorschanged. Realphysicalsurface changes, NOTwholegeometryclosure.
-24370/39243wallknown,360geometryscreens/13sizebad,14873unknown; q/J/heightsunmeasured.
-No surface_repair_entry: production relocation/reconnectionyield notestablished.
+Continue from saved_surface485_checkpoint.json, not the older484input. Latest state
+303823positive tets/61550nodes includes86physical surface splits and a mapped root move.
+486published nothing and its output Owned/parameters are exactly485output. Same complete
+441target/authority, transported nodal tensors/current associations and stageh6.4e-5.
+No repeat successful CFD/recovery/normalization.
 
-Preserve latestprogress via R/saved_surface484_checkpoint.json with CURRENToutput
-Owned+params ANDfull441target/authority/config/stageh6.4e-5. Oldsurface483adapter is
-484INPUT, notoutput; do notlose86edits by reusingit. Sensor-onlytargetexport incomplete.
-No oldP1/upstream solve/recovery. Currentoutputenables boundedresidualcomparison,
-notdirection/firstrow. KeepEuler293acceptedworkflow/checkpoints intact.
+Inspect the actual wing in R/inspection_surface485/wing_surface.vtu (Surface With Edges).
+README explains tensor semantics and unknown quality; provenance/readback checks saved.
+This is provisional, no first row or accepted BL. Wholefield closure is not established.
 
-NEXT: review existing actual-cavity diagnostic beforebuild. It hardcodes304521cells;
-current303823must not berelabelled. Useexistingloader/provenance/cap checks to remove
-fixture-specific restriction, auditactualproductionadmission/phase/geometryprogress/
-complete support/heights/memory/publication. Existing fullmesh Directory and fixed
-24constructor/300geometry/600outer matrix can compare mappedmovement/incidentcollapse
-on currentcurvedtip/rootLE/controlsupports; Reconnectskinpreserving isnegativecontrol.
-R/surface_residual484_inventory.json and contexts.dat are onlysupportinventory:
-33/10/20cellunions, priorcleancontrol needsremeasurement, curvedtip pairnotdirectedge,
-last7594edgeonlypartlyidentified, badsmoothmidspanuncovered. Declarecoverage before
-trials; do notrepeatR4untilR5starves or inferineffectiveness from narrowsearch.
+The next decision is whether the exact reverse directed collapse can usefully change
+physical surface. Previous shortest-incident chooser did not test17814→64065077.
+Implement only the minimal diagnostic correction after precompile fidelity review;
+test3 directed candidates, one per active context/control, not the24mean-move matrix.
+State support/reject/unresolved and downstream enablement first. Correct diagnostic
+winner narrowing must not be mistaken for changing production geometry admission.
 
-Support nextstep from actual useful physicalreplacements and COMPLETEpatch+neighbors:
-geometrybad/excess, directionalmetricconformity, q/Jobservational, passingheights, work/
-time. Distinguish constructor, certification/conservativeupper versusprovedviolation,
-association/feature/body/height, missing support, resource andadmission. No useful
-candidate =>reject/revise exactobstruction, no speculativeproductionmachinery. No
-blind split/censusretry, new scheduler/cavitysizes/config, gateorbudgetrelaxation.
+A useful complete-patch replacement may justify one production selection/admission
+correction and affected serial/MPI qualification. A candidate refused by a conservative
+aggregate upper bound is not a proved physical violation. If no useful replacement is
+demonstrated, revise the construction hypothesis using exact obstruction; no growing
+ladder of local variants. Smooth-midspan/generalized/distributed capability remains
+uncovered. No first-row work until surface readiness and directional suitability pass.
 
-481admitted9actual mapped moves, but selected prefix raises geometryscreenbad6→7
-while excess falls29%. Its24split continuation publishesall24 yet geometrybadlocal+4,
-q/J+64each; firstrowunreached,R5no constructor opportunity. Counts include conservative
-screens, not proved physical violations. Source shows production also has mapped
-repair and coarsening omitted by that diagnostic. Do not extend the split variant.
-The original magnitude256MiB distant-support failure is now corrected without
-changing its assertion/budget; cropped upper ignored complete distance upper. No M6
-closure/performance improvement follows from that focused result alone.
-
-The full existing production sequence is now the construction test. Support: complete
-requested-wall geometry/tangential closure or useful netbad/directional progress with
-valid neighboring volume and preserved passing heights. Reject/revise on measured
-stall/harmful debt; resource or incomplete census remains unresolved. No speedup from
-reuse counts or debt decline alone. The old stage fixture resets mesh/coreAt and
-omits region controls, so it is not a faithful resume or matching timing baseline.
-
-Preserve Euler293's completed two-event/checkpoint baseline and all current private
-captures. Geometry/tangential readiness precedes constrained/blended direction rebuild,
-physical firstrow height/alignment/coverage, growth/progression/junctions, transition
-and strict closure. q/J are observational during validity-first construction; final
-geometry1e-4,q>=.2,J>=.05,maxedge1.8,heights/bodyseparation/resources stay strict.
-
-500k is nominal complexity, not nodecount or rejectiongate. Finalh2e-6,growth1.2,
-thickness.01; current RAMP5stage0h32h0=6.4e-5, exact stage stored on resume.
-Completion remains usable strictcurvedBL/nativeMPIconstraints and TWOaccepted
-final-heightRANS adaptations with conservative admissible flow/SAtransfer,
-finitecontinuedCFD and actualisolatedadapted diskrestart. Keep goalACTIVE, oneheavy
-job, sourcefreeze, reviewable pushed checkpoints and ledger. No CADrequirement,
-prisms/frozencolumns/newconfig/scheduler, raised bounds or unrelated optimization.
+Keep q/J observational in validity-first construction; maintain every final gate,
+normal profile, budgets, frozen-run discipline and Euler293baseline. Complete final
+curvedBL/MPI and two-event RANS transfer/CFD/restart objective remains unchanged.

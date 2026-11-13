@@ -1,0 +1,45 @@
+{
+  "checkpoint": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/saved_surface485_checkpoint.json",
+  "checkpoint_sha256": "b61335697875703e7f8c9d8189195bfb762a2c02a933250e2c4b36d771b2d314",
+  "source_owned": {
+    "path": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved485_saved_surface_corrections_serial_20261113T120504_3046999/trajectory_working_owned.bin",
+    "sha256": "30593444427789626616174c71fe44cdb3ecc7f5c8b557328c77b1615122a59c",
+    "bytes": 126390376
+  },
+  "latest_test": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved485_reverse_surface_corrections_serial_20261113T123419_3117385",
+  "latest_test_published": false,
+  "provisional": true,
+  "final_mesh_accepted": false,
+  "first_row_ready": false,
+  "markers": {
+    "0": "FARFIELD",
+    "1": "SYMMETRY",
+    "2": "WING3D"
+  },
+  "outputs": {
+    "all_boundaries.vtu": {
+      "path": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/inspection_surface485/all_boundaries.vtu",
+      "sha256": "40332c2fe4b6ef24867e4b837546f0901fcf2cb0205b3ecf7e43524d1738b1c9",
+      "points": 24700,
+      "triangles": 49396,
+      "bytes": 3228235,
+      "readback_verified": true
+    },
+    "wing_surface.vtu": {
+      "path": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/inspection_surface485/wing_surface.vtu",
+      "sha256": "e0b26977481749a00bdd214e2e211dd29a8344e593ea48ea14594fd09d71b527",
+      "points": 19727,
+      "triangles": 39243,
+      "bytes": 2557475,
+      "readback_verified": true
+    }
+  },
+  "preview_sha256": "651672bbc7536ca0d721e3792e13f11fe2662d8b7a591917af00b8aa13c100b5",
+  "export_script_sha256": "d8dd3c951b9a25dc7af72548b21b7cc696a0489c7d8722277f0bca694558dad4",
+  "metric_semantics": "transported_sensor_tensor is the current 3D nodal Mach-sensor tensor, restricted to surface nodes; NOT the composed flow/BL target or tangential planning tensor. Full policy/target remains in saved_surface485_checkpoint.json.",
+  "quality_semantics": "Global q/J/geometry certification is unavailable for this saved state; no fabricated quality arrays exported.",
+  "stage_height": 6.4e-05,
+  "final_height": 2e-06,
+  "volume_cells": 303823,
+  "volume_nodes": 61550
+}
