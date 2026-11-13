@@ -1,0 +1,42 @@
+{
+  "design": "Handbook/ADAPTATION_PRODUCTION_SURFACE_RESUME_482_20261113.md",
+  "written_unix": 1794563393.8381906,
+  "source_sha256": {
+    "Common/src/adaptation/CNativeAffineReference.cpp": "01c76cd1b44a5d93d39ea0ddc46a0a91b36187d969259945077b2d6304f4a91b",
+    "UnitTests/SU2_CFD/adaptation/fixtures/native_actual_bl_cavity_planning.inc": "5ef9ce74e0bee54425e207fd643e63ae3d2493c4c811987e9eb0d81f2c31be9d",
+    "UnitTests/SU2_CFD/adaptation/fixtures/native_actual_bl_cavity_planning_body.inc": "2f5a15fec28571a42f5d1666fc02fa8b2a8b2ab059b712056b87b97db910e72d",
+    "UnitTests/SU2_CFD/adaptation/fixtures/native_actual_saved_surface_stage.inc": "b111d44ba6135f97578b101ca4fa57751a98b9254b2c2a3e70ef652eb0802ef7"
+  },
+  "blockers": [
+    "481distant-body magnitude query storage refusal256MiB.",
+    "481split-only continuation fails closure despite24publications; diagnostic omits native production repair/coarsening paths.",
+    "Old fullstage fixture resets imported mesh/coreAt and omits production region_walls."
+  ],
+  "hypothesis": "Existing complete point-distance upper plus child diameter gives safe economical covering bounds, and public PrepareSurface on exact saved transported state tests the actual construction sequence.",
+  "support": "Original53case checks and unchanged resource test pass; actual complete stage makes useful geometry/tangential progress or reaches surface-ready state under existing bounds.",
+  "reject": "No useful complete measured closure/progress; do not extend diagnostic cap or raise limits.",
+  "unresolved": "Resource, incomplete support/census or measurement cannot prove physical obstruction.",
+  "downstream": "Credible surface-stage checkpoint, then separately qualified constrained firstrow.",
+  "review": "Primary integrated source/caller review and bounded independent read-only review found no concrete blocker before compile; actual files listed above.",
+  "review_limits": [
+    "No compilation or runtime evidence yet.",
+    "Elapsed/capture overshoot must be measured against safe-point semantics and outer600s guard, not silently ignored or forbidden by an unjustified exact-time assert.",
+    "Post-run independent manifest/payload/donor checks required; capture flag alone is insufficient."
+  ],
+  "fidelity": [
+    "Exact currentOwned+params and SAME441composed policy/authority, stageheight6.4e-5.",
+    "Current-cell/sensor donor rows; no oldP1 fallback, CFD/geometry/metric recomputation.",
+    "Actual driver wall h/growth/thickness forwarded.",
+    "Surface special branch retains Construction; no production phase or scheduling change.",
+    "Existing StateBytes/OwnedStorage accounting plus donor/payload/capture buffers, native private clone/directory/scratch accounting.",
+    "Serial orMPI6 collective publicAPI, existing diagnostic id%5 layout lastempty, rank-specific targets and global geometrywork allowance.",
+    "Classification, final bidirectional gates, all native/resource budgets and CAD optionality unchanged."
+  ],
+  "same_seed": true,
+  "nominal_complexity": 500000,
+  "actual_input_cells": 304585,
+  "actual_input_nodes": 61840,
+  "estimated_evolved_complexity": null,
+  "production_qualified": false,
+  "goal_complete": false
+}

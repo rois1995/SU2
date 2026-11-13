@@ -1,59 +1,56 @@
 # How to proceed
 
 Read [HANDOFF_Codex.md](HANDOFF_Codex.md),
-[481outcome and next decision](Handbook/ADAPTATION_GEOMETRY_MAGNITUDE_481_OUTCOME_20261113.md)
-and [timings](Handbook/ADAPTATION_TIMINGS.md). All current workloads independently
-TERMINAL; one active curved-BL cycle. Source76f10c8310/build481 remains UNQUALIFIED.
+[482decision and fidelity](Handbook/ADAPTATION_PRODUCTION_SURFACE_RESUME_482_20261113.md)
+and [timings](Handbook/ADAPTATION_TIMINGS.md). Build482andfocused53casecheck PASS; serial surface stage and MPI6 are TERMINAL, HANDOFF owns handles. Connected milestone remains UNQUALIFIED. All actual owned handles and pins verified; preserve saved progress.
 
-481demonstrates nine actual admissible surface moves where478admitted none. The
-published move reduces geometryexcess29%BUTincreases badcells6→7. Its correctly
-resumed split-first trajectory publishesall24candidates, yet localgeometrybad+4,
-q/J+64each, no geometryclosure/firstrow. R5gets0calls. More commits/debt decline is
-not useful closure; do not extend this local variant or raise its cap.
+482reuses already-computed complete point-distance upper plus outward physical child
+diameter, magnitude-only, preserving whole-domain conservatism and original limits.
+It also binds public PrepareSurface to exact saved304585tets/61840nodes/current
+transported tensors/parameters and SAME441composed target/authority/stageh6.4e-5.
+Real driver wall h/growth/thickness forwarded; no CFD/import/geometry/Hessian/metric
+normalization or oldP1reset. Sixranktargets verified same prepared authority.
+Existing StateBytes/capture/ownership/publication machinery and388.8s/233220orlower/
+12GiB surface stage, parentnative5400s/outer600s unchanged. No production policy change.
 
-A stale continuation descriptor initially named retired14983 instead of the actual
-replacement28651505. It was correctly refused BEFOREconstruction; source/input
-failure is preserved separately. Corrected complete support and native publication
-succeeded. Do not mistake that diagnostic defect for operator incapability.
+Serial stage independent readback passed: all304585donors match current input,
+303606positive outputtets/61464nodes have consistent shared fields, parameter payload
+and full target references preserved. Only7448/39071requiredwall rows measured;
+zero known geometryfailures is NOTclosure.376collapses/1split, no repair reached.
+MPI6 outertimeout124:314commits observed,3437/39194wall measured, rank5empty/aligned;
+no exitshards, no MPIqualification or firstrowreadiness. All10owned identities terminal.
+Read Handbook/ADAPTATION_SURFACE_482_OUTCOME_20261113.md before another edit/build.
+Next hypothesis: complete existing requested-wall census before optional collapse
+correction so required-demand handoff/physical repair can actually be exercised; serial collapse
+correction170.313s is substantial, upperquery15.645s nested, not dominant alone.
+Do not add local operator variants when native mapped repair was never reached.
 
-Focused53case validation still has ONEresource failure: distant separate-body
-magnitude query exhausts256MiB. Preserve the assertion/budget. Source shows a cropped
-upper witness can stay loose while the already-computed complete-distance upper is
-ignored. Read-only audit supports a minimal shared correction: outward physical
-childdiameter+Distance.upper is a covering bound by the1-Lipschitz distance law;
-minimum with existing upper, magnitude physical-source only. Keep entirequeue,
-exact identity/accounting and all failclosed limits; no extra closest query. Actual
-diff still requires precompile review and unchanged failed check must pass.
+481admitted9actual mapped moves, but selected prefix raises geometryscreenbad6→7
+while excess falls29%. Its24split continuation publishesall24 yet geometrybadlocal+4,
+q/J+64each; firstrowunreached,R5no constructor opportunity. Counts include conservative
+screens, not proved physical violations. Source shows production also has mapped
+repair and coarsening omitted by that diagnostic. Do not extend the split variant.
+The original magnitude256MiB distant-support failure is now corrected without
+changing its assertion/budget; cropped upper ignored complete distance upper. No M6
+closure/performance improvement follows from that focused result alone.
 
-The next construction question concerns the ACTUALproduction surface sequence and
-whether it exercises existing mapped movement, collapse, reconnection and cleanup.
-Trace callers/phase/support/geometryprogress/ownership/publication/memory before
-implementation. PrepareSurface calls Adapt with emptycomposition and boundarytarget.
-Existing fullstage test helper resets mesh/coreAt tensors: it cannot faithfully resume
-the current transported state. Reuse public production PrepareSurface and existing
-checkpoint/Owned/parameter helpers for a faithful stage continuation, with established
-stage budgets. No new scheduler, configuration or construction policy without evidence.
+The full existing production sequence is now the construction test. Support: complete
+requested-wall geometry/tangential closure or useful netbad/directional progress with
+valid neighboring volume and preserved passing heights. Reject/revise on measured
+stall/harmful debt; resource or incomplete census remains unresolved. No speedup from
+reuse counts or debt decline alone. The old stage fixture resets mesh/coreAt and
+omits region controls, so it is not a faithful resume or matching timing baseline.
 
-Group the demonstrated shared-bound correction and faithful integration binding as
-one connected milestone. Define support/reject/unresolved outcomes and downstream
-stage before editing/building. Use affected focused serial checks, actual complete
-patches and ONEmeaningful MPI milestone. Choose useful progress by geometry closure,
-netbad counts, directional conformity, requested heights and neighboring effects.
+Preserve Euler293's completed two-event/checkpoint baseline and all current private
+captures. Geometry/tangential readiness precedes constrained/blended direction rebuild,
+physical firstrow height/alignment/coverage, growth/progression/junctions, transition
+and strict closure. q/J are observational during validity-first construction; final
+geometry1e-4,q>=.2,J>=.05,maxedge1.8,heights/bodyseparation/resources stay strict.
 
-Preserve all current coherent captures; they are provisional diagnostics, not CFD
-restarts or credible prepared surfaces. Current target is SAME441policy/profile/
-no-CAD authority with transported nodal metrics. Stage0h6.4e-5=32*finalh2e-6,
-growth1.2,thickness.01.500k nominal complexity. Do not rebootstrap nodal tensors or
-repeat CFD/Hessian/normalization/geometry preparation without demonstrated reason.
-
-Geometry/tangential readiness precedes constrained/blended direction rebuild and
-firstrow physical height/alignment/coverage; then growth/progression/junctions,
-transition and strict wholefield closure. q/J are observational during validity-first
-construction; finalgeometry1e-4,q>=.2,J>=.05,maxedge1.8,heights/bodyseparation/resources
-remain strict. No CADrequirement/prisms/permanentcolumns/newconfig or raised limits.
-
-Euler293complete two-event workflow/checkpoints remain protected. Completion still
-requires strictcurvedBL/nativeMPIconstraints and TWOaccepted final-heightRANS
-adaptations with conservative admissible flow/SAtransfer, finitecontinuedCFD and
-actualisolatedadapted diskrestart. Keep the goal ACTIVE, one heavyjob/sourcefreeze,
-reviewable pushed checkpoints and timingledger. Record unrelated ideas in backlog.
+500k is nominal complexity, not nodecount or rejectiongate. Finalh2e-6,growth1.2,
+thickness.01; current RAMP5stage0h32h0=6.4e-5, exact stage stored on resume.
+Completion remains usable strictcurvedBL/nativeMPIconstraints and TWOaccepted
+final-heightRANS adaptations with conservative admissible flow/SAtransfer,
+finitecontinuedCFD and actualisolatedadapted diskrestart. Keep goalACTIVE, oneheavy
+job, sourcefreeze, reviewable pushed checkpoints and ledger. No CADrequirement,
+prisms/frozencolumns/newconfig/scheduler, raised bounds or unrelated optimization.

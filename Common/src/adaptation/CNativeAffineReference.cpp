@@ -2309,10 +2309,15 @@ MappedFacetReference::SurfaceUnionBounds MappedFacetReference::QuerySurfaceUnion
         if(!(upper<=tolerance))upper=std::min(upper,target.Upper(controls,op));
       }
       else {std::array<Box,3> points;for(unsigned k=0;k<3;++k)points[k]=LinearPoint(physical.at(domain.facet),Exact(domain.parameter[k]));upper=target.Upper(points,op);
-        if(upper>tolerance&&target.ApproximationError()>0)for(unsigned k=0;k<3;++k)
+        if(upper>tolerance&&(magnitude||target.ApproximationError()>0))for(unsigned k=0;k<3;++k)
           diameter=std::max(diameter,NormBound(Difference(points[k],points[(k+1)%3])));}
       const auto distance_work=budget.work;
-      if(upper>tolerance)lower=std::max(lower,target.Distance(sample(domain,from_model),op).lower);
+      if(upper>tolerance) {
+        const auto distance=target.Distance(sample(domain,from_model),op);lower=std::max(lower,distance.lower);
+        // Distance is 1-Lipschitz; the physical child diameter covers every point from its enclosed sample.
+        if(magnitude&&!from_model)upper=std::min(upper,std::nextafter(double(
+            Add({distance.upper,distance.upper},{diameter,diameter}).hi),INFINITY));
+      }
       if(AtlasOps::Trace()) {
         std::fprintf(stderr,"NATIVE_SURFACE_DOMAIN model=%d facet=%llu depth=%u upper=%.17g lower=%.17g upper_work=%zu distance_work=%zu parameter=",
             int(from_model),static_cast<unsigned long long>(domain.facet),domain.depth,upper,lower,

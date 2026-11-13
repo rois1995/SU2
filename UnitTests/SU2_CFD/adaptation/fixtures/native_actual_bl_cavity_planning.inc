@@ -1,8 +1,8 @@
 #include "../../../../Common/include/adaptation/CNativeMetricTransport3D.hpp"
 #include <ctime>
 // Complete saved actual cavities, transported current nodal core and associations; diagnostic only.
-namespace {void RunSavedActualCavities(bool cavityCorrection,bool heightContinuation=false,bool productionCorrection=false,bool guidanceReuse=false,bool planningCost=false,bool clearanceProbe=false,bool geometryProbe=false,bool compoundSplit=false,bool splitContinuation=false,bool residualProbe=false,bool diagonalProbe=false,bool stripProbe=false,bool patchTrajectory=false,bool currentResidual=false) {
-  World world;REQUIRE(world.size==1);
+namespace {void RunSavedActualCavities(bool cavityCorrection,bool heightContinuation=false,bool productionCorrection=false,bool guidanceReuse=false,bool planningCost=false,bool clearanceProbe=false,bool geometryProbe=false,bool compoundSplit=false,bool splitContinuation=false,bool residualProbe=false,bool diagonalProbe=false,bool stripProbe=false,bool patchTrajectory=false,bool currentResidual=false,bool productionSurface=false) {
+  World world;REQUIRE((world.size==1||(productionSurface&&world.size==6)));
   const auto* cfg=std::getenv("SU2_NATIVE_FROZEN_CONFIG");
   const auto* ref=std::getenv("SU2_NATIVE_BL_REFERENCE");
   const auto* target=std::getenv("SU2_NATIVE_TARGET_CHECKPOINT3D");REQUIRE(cfg);REQUIRE(ref);REQUIRE(target);
@@ -10,6 +10,7 @@ namespace {void RunSavedActualCavities(bool cavityCorrection,bool heightContinua
   const auto ceiling=config.GetAdap_Native_MemoryLimit();
   const auto* captureRoot=std::getenv("SU2_NATIVE_BL_PLANNING_CAPTURE");REQUIRE(captureRoot);
   const bool coherentCapture=bool(std::ifstream(std::string(captureRoot)+"/trajectory_working_owned.bin",std::ios::binary));
+  if(productionSurface)REQUIRE(coherentCapture);
   auto reference=std::make_shared<ReferenceState>();bool loaded=false;std::string reason;size_t peak=0;
   REQUIRE(LoadReference(ref,*reference,loaded,reason,ceiling,0,peak));REQUIRE(loaded);
   struct GeometryOwner {
@@ -27,7 +28,12 @@ namespace {void RunSavedActualCavities(bool cavityCorrection,bool heightContinua
     REQUIRE(reference->original->Mobility());
   }
   SU2NativeBLPipeline3D::detail::PipelineScope pipeline;
-  const auto restored=SU2NativeTargetCheckpoint3D::Read(target,*reference,config,ceiling,size_t(128)<<20);
+  std::string checkpoint=target;
+  if(productionSurface&&world.size>1) {
+    const auto slash=checkpoint.find_last_of('/');REQUIRE(slash!=std::string::npos);
+    checkpoint=checkpoint.substr(0,slash+1)+"target_rank"+std::to_string(world.rank)+".bin";
+  }
+  const auto restored=SU2NativeTargetCheckpoint3D::Read(checkpoint,*reference,config,ceiling,size_t(128)<<20);
   const auto& policy=*restored.family->first_row;
 #include "native_actual_bl_cavity_planning_body.inc"
 }
@@ -94,4 +100,8 @@ TEST_CASE("Saved current M6 residuals classify complete geometry and clearance r
 
 TEST_CASE("Saved current M6 patches follow the complete bounded surface volume trajectory", "[.][NativeActualCurrentTrajectory3D]") {
   RunSavedActualCavities(true,false,true,false,false,false,false,false,false,false,false,false,true,true);
+}
+
+TEST_CASE("Saved transported M6 state resumes the production surface sequence", "[.][NativeActualSavedSurfaceStage3D]") {
+  RunSavedActualCavities(true,false,false,false,false,false,false,false,false,false,false,false,false,true,true);
 }

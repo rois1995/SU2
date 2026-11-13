@@ -1,6 +1,7 @@
 # Adaptation timings and computational work
 
-Updated2026-11-13:481build PASS; focusedserial FAIL; actualcomparison PASS; connected trajectory NOTCLOSED. Allowned workloads independently TERMINAL; HANDOFF owns current state. Previous480/479 terminal receipts verified.
+Updated2026-11-13:482build/focusedserial PASS; actual saved production surface stage
+serial TERMINAL; MPI6 TERMINAL/outertimeout124. HANDOFF owns actual handles.
 Build476642.982s under contention; current-input trajectory228.411s/609828assertions,
 legacy regression264.200s/610217assertions. Bothterminal/pins/actualhandles verified.
 Production473/CFD unchanged. Current trajectory stalls after5pubs/24calls; no readiness.
@@ -12,6 +13,48 @@ Build473305.914s; focused62.658s/52cases/5688assertions; MPI185.914s/41cases eve
 [stage contract](ADAPTATION_CONNECTED_PATCH_TRAJECTORY_20261113.md) owns acceptance/stalls.
 R=`integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57`.
 
+
+##482 connected production-stage continuation — serial complete, MPI timeout
+
+New shared bound reuses already computed point-distance upper plus outward physical
+childdiameter for magnitude physical-source only. Original failed256MiBcheck unchanged.
+New binding exercises public PrepareSurface from current304585tets/61840nodes with
+transported metrics/parameters and SAME441policy/authority/stageheight. No upstream
+CFD/geometry/metric recomputation. Actual driver wallh/growth/thickness forwarded;
+old fixture omitted region controls and reset input, so its timings are NOTa matching
+current-state baseline. Existing388.8s/233220orlower/12GiB, parent5400s/outer600s.
+Stage timers include safe-point return/capture; record overruns and attribution gaps.
+CPU includes MPI polling; tracked collective time is not total wait.
+
+Build482PASS371.770s/5tasks, nice19/j3/libs1; launch50.178GBavailable/load1.33/1.41/2.18.
+All1525pins/18actual identities verified, cleanNinja. Focused53cases/5716assertions
+PASS79.719s/1730pins/5terminal identities. Same256MiBbodycheck unchanged; magnitude
+multi-querycase14.448svs48189.860sFAIL. No query-isolated orM6walltimegain claim:
+setup/contention and case scope differ. Actual serial stage is terminal; work savings,
+netbadcounts/readiness and MPIqualification remain unestablished. FullTarget files
+all6verified SAME47,601,773Bauthority; sourceinput shared coords/tensors consistent.
+R/surface_stage482_fidelity.json and saved_production_surface482_inputs.json.
+
+Serial actual production stage:518.229s outer,389.952s APIreturn,388.895s nativeexit
+(388.8s clock; safe-point/return/capture overruns explicit),369.814s processCPU.
+377commits(376collapses/1split),49913work,17,962,582geometrywork;
+303606positive tets/61464nodes. Only7448/39071requiredwall rows measured: no net
+whole-surface geometry/q/J closure rate or directional conformity established.
+Existing collapse-correction timer170.313s/4661calls/18281cells/35353work is a major
+measured cost (~44%of APIwall). Nested upper-query15.645s/3067calls/7130550work,
+scope1.354s, guidance13.620s, update8.539s overlap; DO NOTadd them.
+Tracked collective .896s plus election .194s are call timers, not totalMPIwait.
+Maximum accounted workbytes10,077,652,824; sampled individual RSS2,177,744,896B,
+not summed-job peak. No speedup claim or comparison to resetting old fixture.
+All1781pins/5actual handles verified. R/saved_production_surface482_serial_assessment.json.
+MPI6 same-input attempt TERMINAL124/600souter (608.145s wrapper), all1781pins and
+10actual owned handles verified. Last common window1856/native306.324s:314commits,
+303786observedcells,3437/39194wall measured, initiallyemptyrank5 aligned. No exit
+capture or qualified MPIcheckpoint; timeoutSIGTERM is not a failed geometry invariant.
+Max sampled process-tree RSS4,044,648,448B (sampled, not exact peak); rank CPU ticks
+and partial per-rank windows retained in R/saved_production_surface482_mpi6_timeout.json.
+Pre-census time lacks target-restore versus engine-setup attribution. No additive timer,
+CPU-usefulness or speedup claim. No upstream CFD/target solve repeated.
 
 ##481 active connected correction — unqualified
 

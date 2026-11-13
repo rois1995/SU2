@@ -12,26 +12,79 @@ preserves details; historical LIVElabels there are NOTcurrent state.
 
 ## Actual handles, source and qualification
 
-NOowned heavy workload live. Build481, focused check, fixed M6comparison and BOTH
-continuation entries independently TERMINAL. Last continuation session71469 exited0;
-all1777runtime pins/5actual PID-start identities verified. Verify actual handles
-again before restarting or editing compiled sources. No observation timeout is termination.
+Build482 PASS371.770s/5tasks; cleanNinja, all1525sourcepins and bothbinaries
+verified. All18actual owned identities independently TERMINAL before focusedcheck.
+Current test SHA `98fb9283b6ffc24fb350db2c8b00fe60403a571f24b56bbbf7863b19dfc05232`,
+CFD SHA `6e861c3a6132c518ccc644be2f4b402778e82631eeb33ba312f3aceab871d7b5`.
+R/build482_status.json, build482_source_pins.json and build482_terminal_handles.json
+own exact provenance.
 
-Source checkpoint76f10c8310 pushed UNQUALIFIED. Build481PASS917.563s/47tasks,
-1523pins/165actual identities, cleanNinja. R/build481_status/source_pins/
-terminal_handles.json own provenance. Current test SHA
-`d4fec3abae29f5a4a6fbb9678e19b01a82a4c0111577e9063671a970e000dbf1`;
+Focused482serial PASS79.719s/53cases/5716assertions. Original256MiBseparate-body
+assertion unchanged; its full multi-query testcase14.448s versus48189.860sFAIL.
+No isolated-query/M6speedclaim: hostload differs and wholecase includesotherqueries.
+All1730pins/5actual identities terminal. R/surface_stage482_focused_assessment.json.
+
+Actual saved serial production stage TERMINAL:518.229s outer/389.952s API return,
+388.895s native exit against388.8s safe-point clock. All1781pins/5actual identities
+verified terminal. Input304585tets/61840nodes →303606positive sensor-bearingtets/
+61464nodes. Independent payload parsing/manifest sizes, globally consistent shared
+coordinates/tensors, ALL304585donors exactly match transported input. Saved parameters
+and full target/authority/config hashes preserved. R/saved_production_surface482_serial_assessment.json.
+376collapses+1split/377commits,49913work;7448/39071requiredwall cells measured,
+no complete surface census, NOTREADY. Geometrybad0 is incomplete-cache knowledge,
+not closure. q/J/heights unmeasured; repair/mapped relocation not reached.
+
+MPI6 milestone TERMINAL124/outertimeout600s(608.145s wrapper), all1781pins and
+10actual owned identities verified terminal. Execsession7624closed. CaseR/cases/
+curved482_saved_production_surface_mpi6_20261113T102543_2774247. No ownedheavyjob live.
+Last common windowround1856/native~306.324s:314commits,303786observedcells,
+3437/39194wall rows measured, rank5empty/aligned. NOexitshards, no qualified MPI
+checkpoint. SIGTERM diagnostics are timeout, not a failed mesh invariant. R/
+saved_production_surface482_mpi6_timeout.json. Max sampled treeRSS4,044,648,448B;
+no whole-job peak claim. Pre-census cost cannot be assigned to targetreload versus
+engine setup from currenttimers. Migration/stale-dependency coverage unestablished.
+Source482 remains UNQUALIFIED as integrated MPIcapability. Source/binaries and saved
+upstream/progress retained; no further implementation/build performed.
+Read [482outcome/next construction decision](Handbook/ADAPTATION_SURFACE_482_OUTCOME_20261113.md).
+
+482connects the demonstrated bound-resource correction with a faithful production
+surface-stage resume. Read [482decision/fidelity](Handbook/ADAPTATION_PRODUCTION_SURFACE_RESUME_482_20261113.md)
+and R/surface_stage482_fidelity.json BEFORE another edit/build. One production change:
+magnitude physical-source queries reuse ALREADYcomputed Distance.upper plus outward
+physicalchilddiameter, minimum with existing covering upper; no extra closest query.
+Distance1-Lipschitz and exactdyadic sample-in-child prove the entire triangle bound.
+Classification/finalbidirectional gates, cacheidentity/accounting and budgets unchanged.
+Original53casechecks/failed256MiBassertion unchanged and now PASS; integrated resultUNQUALIFIED: serial stage incomplete; MPI outertimeout preserved.
+
+Test-only public PrepareSurface binding uses exact current Owned/sensors/parameters
+and SAME441target/geometry/stageh6.4e-5. Current input304585tets/61840nodes, shared
+coords/tensorsconsistent; sixranktargets contain SAME47,601,773Bprepared authority.
+R/saved_production_surface482_inputs.json owns hashes/reconstruction. No CFD/import/
+geometry/Hessian/normalization/oldP1reset. Actual driver region h/growth/thickness
+forwarded. ExistingStateBytes/donor/payload/capture admission; native own clone/source/
+Directory/scratch remains charged by engine. Serial orMPI6 existingdiagnostic id%5
+layout initiallyemptiesrank5, rank-specific targets, globalgeometrywork budget;
+production automaticownership unchanged. Existing388.8s/233220orlower/12GiB,
+parentnative5400s/outer600s. Stageelapsed/capture overrun recorded, no raised bounds.
+Existingcensus trace and ONEexitcapture use current reference/metrics/parameters;
+postrun manifest/readback/donor checks required before checkpoint qualification.
+
+Serial outcome/readback preserved; ONE MPI6 milestone timed out and is NOTqualified. R/check_saved_production_surface482.py supports
+serial/mpi6; verify actualhandles before any new workload. SurfacePrepared alone is provisional stage3;
+firstrowdirections/heights/coverage and all final closure remain downstream. No new
+productionoperator/scheduler/config/representation/heightpolicy or qualitygate change.
+Precompileprimary+bounded read-only review found no concrete blocker. Scope and exact
+sourcehashes in fidelity record; do not confuse review or diagnostic execution with
+construction acceptance. Full existing native sequence is now the construction test,
+not another isolated split variant.
+
+Latest COMPLETEDbuild481 PASS917.563s/47tasks,1523pins/165actual identities, cleanNinja.
+Source76f10c8310 UNQUALIFIED, evidencecheckpoint641af9a67d pushed. 481test SHA
+`d4fec3abae29f5a4a6fbb9678e19b01a82a4c0111577e9063671a970e000dbf1`,
 CFD SHA `46adc4b512ff4c5a958d6849d7b52f3a78d1ea7ed510eec76177b8355915f84f`.
-Explicit runtime_20261113_474/loaded_runtime_pins.json; historical runtime manifests
-preserved. Last qualified production473source35e173b043; do not call481qualified.
-
-481separates fast classification and fixed error-magnitude purpose, with an extra
-exact memo word/accounting. Magnitude retains ALLqueued/finished domains and requires
-U<=tau or L>tau&&U-L<=tau; target approximation refines, exhaustion failsclosed.
-Shared EntityFaceError uses same old/fresh/census policy at physicaltau, replacing
-473's2tauheuristic. Final bidirectional certificate, no-budget direct fallback,
-affine floors, associations, ownership/publication, target and gates unchanged.
-R/geometry_magnitude481_fidelity.json records precompile caller/interval/cache review.
+In-place binaries can change during482build; do not execute/use them before complete
+verification. Explicit runtime_20261113_474/loaded_runtime_pins.json; historical runtime
+manifests preserved. Last qualified production473source35e173b043;481/482notqualified.
 
 Geometrybad counts below are conservative screens, not necessarily independently
 proved physical violations. R/geometry_magnitude481_combined_outcome.json consolidates scope.
@@ -74,39 +127,40 @@ No netclosure or useful-progress/s improvement established. q/J remain observati
 in validity-first construction. Do not infer operator impossibility from this bounded
 split-first prefix; do not extend it or raise limits merely because excess declines.
 
-## Next connected decision, before another edit/build
+## Active decision after482terminal
 
-Primary construction question: does the ACTUALproduction surface-preparation sequence
-use the demonstrated surface freedoms and cleanup, or does the diagnostic prefix
-omit its relevant paths? Trace PrepareSurface/Adapt callers, phase/admission,
-geometry-progress rules, support/version/full reservations, accounting and refusal
-attribution. Reuse production facilities; no new local variant/scheduler/operator.
-Geometry closure/netbad counts, directional tangential conformity, requested heights
-and neighboring cells determine progress, not commits or excess alone.
-PrepareSurface:6005 is the actual Adapt boundary-target path. Existing fullstage
-helper native_actual_bl_surface_stage.inc RESETs imported mesh and coreAt tensors;
-it does NOTresume current transported Owned/parameters. A faithful production-stage
-binding must reuse existing public PrepareSurface/loaders, preserving current state
-and stage budgets; trace/account it before implementation, not another split variant.
+Use [482decision](Handbook/ADAPTATION_PRODUCTION_SURFACE_RESUME_482_20261113.md).
+Source audit confirms PrepareSurface→Adapt uses EMPTYcomposition and current boundary
+callback. Construction coarsening corrections and mapped MoveVertex/Reconnect repair
+are reachable. The special surface branch retains Construction, clears geometry/
+size repair flags and disables later optimizer/geometry-repair split fallbacks.
+Do not infer the complete production route from481's split-only diagnostic.
 
-Known bound-resource gap: cropped upper witness picks arbitrary(leaf0,piece0) if
-empty; complete-support Distance.upper is computed but discarded. Read-only audit
-supports a minimal connected correction: for magnitude PHYSICALsource only, take
-min(existingU, outward(Distance.upper+physicalchilddiameter)). Reuse the ALREADY
-computed interval; sample lies in depth<=48dyadic child and distance-to-union is
-1-Lipschitz. Full triangle bound, NOTsampling-only acceptance. Compute diameter even
-with zero target approximation error. No extra closest query, new bounds facility,
-cache identity change, raised budget or relaxed gate. Actual diff needs precompile
-review; unchanged failed separate-body check must pass within original budget.
-Then affected focused checks, actual complete patches and ONEmeaningful MPI scope.
-Any further construction experiment must state blocker/evidence, connected hypothesis,
-support/reject/unresolved outcomes and downstream stage; choose from actual data.
+The faithful482binding now preserves current Owned/parameters/tensors and forwards
+actual driver region h/growth/thickness. Old fullstage fixture reset imported mesh/
+coreAt and omitted region controls: do not reuse it as current-state resume or call
+its timings a matching baseline. No native scheduling, phase or construction policy
+has been changed. Initial MPI owner layout is diagnostic only; native automatic
+ownership, complete Directory reservations/dependencies/publication remain unchanged.
 
-Preserve all current saved outputs. R/current_saved_trajectory481_resumed_inputs.json
-records SAME441target/profile/no-CAD authority/stageheight and the transported-field
-resume. The comparison24calls/5399586work and continuation24calls/3331834work are
-SEPARATEbounded experiments; failed entry used0calls. All remain DIAGNOSTICcaptures,
-not credible surface-stage output, accepted mesh or CFDrestart.
+Support requires unchanged focused53cases plus actual stage input/target/constraint
+preservation and useful complete geometry/tangential progress. Surface readiness only
+when the native requested-wall census is complete and its demands close; no firstrow
+or final acceptance follows automatically. Reject/revise if complete measured output
+stalls or adds debt without useful progress. Resource/unmeasured remains unresolved.
+Use netbad counts and neighboring effects, not commits/excess alone. Record per-rank
+CPU/work/timers, nested attribution and safe-point/capture overrun explicitly.
+
+Serial independent verification is complete; MPI has no exitshards. Preserve both
+outcomes and all481payloads. The next construction decision is whether completing
+existing requested-wall measurement before optional collapse correction enables the
+existing required-demand handoff and physical surface repair. Source seed_next2751+
+currently batches sided/surface census; surface handoff3211+ waits for measured debt.
+This is a bounded hypothesis, not an implemented scheduling change or proof of closure.
+Predeclare support/reject/unresolved outcomes and audit allcallers/phase/resources
+BEFORE edit/build. Reuse current helper; no local operator variants or raised limits.
+Actual readiness must close geometry/tangential demand with positive neighboring
+volume and preserved heights. No firstrow stage enabled by incomplete census.
 
 ## Inputs, stage order and unchanged completion
 

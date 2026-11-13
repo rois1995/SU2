@@ -7,7 +7,11 @@ junction_wp0::State current;
   auto rows=TransactionVector<OwnedCell>(input,maxRows);REQUIRE(input.End());
   REQUIRE(transfer_memory::Add(reference->original->ResidentBytes(),restored.family->ResidentBytes(),
       transfer_memory::Mul(current.mesh.size()+rows.size(),6*(sizeof(DonorCell)+640)),size_t(256)<<20)<ceiling);
-  for(auto& row:rows)REQUIRE(current.mesh.emplace(row.cell.id,std::move(row)).second);
+  for(auto& row:rows) {
+    // Same bounded diagnostic owner layout as the existing MPI correction control; the last rank starts empty.
+    if(productionSurface&&world.size>1&&row.cell.id%unsigned(world.size-1)!=unsigned(world.rank))continue;
+    REQUIRE(current.mesh.emplace(row.cell.id,std::move(row)).second);
+  }
  }
 }
 const auto retained=transfer_memory::Add(ReferenceStorageBytes(*reference),restored.family->ResidentBytes(),
@@ -15,13 +19,15 @@ const auto retained=transfer_memory::Add(ReferenceStorageBytes(*reference),resto
 current.live_parameters=BoundaryParameterState::FromPayload(reference->original->Parameters()->Authority(),
     TransactionRead(root+(coherentCapture?"/trajectory_working_parameters.bin":"/stage_surface_rank0_parameters.bin")),ceiling,retained);
 SU2NativeGeometry::AtlasBudget budget;budget.maximum_bytes=ceiling;budget.caller_bytes=retained;
-budget.maximum_work=transfer_memory::Mul(current.mesh.size(),SU2NativeGeometry::MappedFacetReference::ClearanceWork);
+const auto geometryCells=productionSurface?CPassiveComm::Allreduce(uint64_t(current.mesh.size()),CPassiveComm::Op::SUM,world.comm):uint64_t(current.mesh.size());
+budget.maximum_work=transfer_memory::Mul(geometryCells,SU2NativeGeometry::MappedFacetReference::ClearanceWork);
 constexpr size_t atlasScratch=size_t(16)<<20;size_t low=0,high=atlasScratch*8;
 while(low<high){const size_t bits=low+(high-low+1)/2;
   if(transfer_memory::Mul(2,SU2NativeGeometry::CurvedAtlasWorkspaceBytes(bits))<=atlasScratch/2)low=bits;else high=bits-1;}
 REQUIRE(low>0);budget.maximum_integer_bits=low;
 const auto begun=std::chrono::steady_clock::now();
-budget.within_time=[&](){return std::chrono::duration<double>(std::chrono::steady_clock::now()-begun).count()<300;};
+const double geometrySeconds=productionSurface?SU2_TYPE::GetValue(config.GetAdap_Native_Max_Time()):300.;
+budget.within_time=[&](){return std::chrono::duration<double>(std::chrono::steady_clock::now()-begun).count()<geometrySeconds;};
 auto lease=policy.ReserveGeometry(budget);
 current.reference=reference->original->WithParameterState(current.live_parameters)->WithAtlasReservation(budget);
 CavityMetricSource source(world,current.mesh,true); // Never bootstrap evolved cells from the original P1 donors.
@@ -31,6 +37,10 @@ WallHeights heights;heights.tolerance=SU2_TYPE::GetValue(config.GetAdap_BL_First
 for(unsigned short w=0;w<config.GetnAdap_BL();++w) {
   const auto& spec=config.GetAdap_BL(w);const auto marker=std::find(reference->marker_names.begin(),reference->marker_names.end(),spec.marker);
   REQUIRE(marker!=reference->marker_names.end());heights[int(marker-reference->marker_names.begin())]=SU2_TYPE::GetValue(spec.firstHeight);
+}
+if(productionSurface) {
+#include "native_actual_saved_surface_stage.inc"
+  return;
 }
 auto star=[&](Id vertex) {std::vector<Id> ids;
   INFO("Current complete star vertex "<<vertex);
