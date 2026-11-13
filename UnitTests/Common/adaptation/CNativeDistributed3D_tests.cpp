@@ -967,6 +967,40 @@ TEST_CASE("Complete wall demand precedes a feasible optional collapse", "[Native
   }
 }
 
+TEST_CASE("Known early wall debt does not wait for the complete entry census", "[NativeSurfacePreparationEngine3D]") {
+  World world;std::vector<Facet> facets;Owned input;
+  for(Id copy=0;copy<31;++copy) {
+    auto box=Box();const double scale=copy?.25:1.;const Id offset=1000*copy;
+    for(auto& cell:box.patch.cells) {
+      cell.id+=offset;for(auto& node:cell.v){node.id+=offset;node.p={scale*node.p.x+3*copy,scale*node.p.y,scale*node.p.z};}
+    }
+    for(auto& face:box.patch.surface){face.facet+=offset;for(auto& id:face.v)id+=offset;}
+    for(auto facet:box.facets) {
+      facet.id+=offset;for(auto& node:facet.v){node.id+=offset;node.p={scale*node.p.x+3*copy,scale*node.p.y,scale*node.p.z};}
+      facet.marker=std::all_of(facet.v.begin(),facet.v.end(),[](Node node){return node.p.z==0;})?7:int(facet.id)+10;
+      facets.push_back(facet);
+    }
+    if(!world.rank)for(auto row:Rows(box.patch))input.emplace(row.cell.id,row);
+  }
+  const PlanarReference geometry(facets);input=WithUniformSensor(std::move(input),{});const auto saved=Bytes(input);
+  EngineOptions options;options.maximum_work=1024;options.maximum_rounds=1;options.maximum_seconds=30;
+  options.wall_heights[7]=.01;options.phase_ownership=PhaseOwnership::Disabled;bool observed=false;
+  options.stage_observer=[&](const StageProgressView& view) {
+    if(std::string(view.stage)!="surface_required_entry")return;
+    observed=true;CHECK(view.stats.surface_required_handoffs==1);CHECK(view.stats.length_collapses==0);
+    CHECK(world.sum(int(view.stats.surface_demand_required_cells))>32);
+    CHECK(world.sum(int(view.stats.surface_demand_measured_cells))<world.sum(int(view.stats.surface_demand_required_cells)));
+    CHECK(view.progress.q_measured_cells==0);CHECK(view.progress.j_measured_cells==0);
+  };
+  const BoundaryMetric target=[](Node node,const PlanarReference&,Tensor) {
+    return node.p.z==0?std::vector<BoundaryMetricSample>{{{4,0,0,4,0,1e12},{0,0,1}}}:std::vector<BoundaryMetricSample>{};
+  };
+  const auto result=PrepareSurface(world,input,Uniform(input,{}),geometry,target,options);
+  INFO(result.reason);CHECK(observed);CHECK(world.sum(int(result.stats.length_splits))>0);
+  CHECK(Bytes(input)==saved);CHECK_FALSE(result.valid);
+  if(result.surface_prepared){CHECK(result.stats.surface_demand_census_complete);CHECK(result.stats.surface_demand_geometry_complete);}
+}
+
 TEST_CASE("Idle surface census advances without draining ahead of an active round", "[NativeSurfacePreparationEngine3D]") {
   World world;const bool hidden=GENERATE(false,true);Fixture fixture;Owned input;
   const unsigned busy=world.size>1?1:0;

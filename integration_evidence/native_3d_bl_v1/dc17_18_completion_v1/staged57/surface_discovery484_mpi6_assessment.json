@@ -1,0 +1,49 @@
+{
+  "schema": "surface_discovery484_mpi6_check_v1",
+  "case": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/surface_discovery484_mpi6_20261113T111711_2916401",
+  "build": "build484",
+  "exit_code": 0,
+  "status": {
+    "state": "terminal",
+    "exit_code": 0,
+    "seconds": 4.666034936904907,
+    "pins_verified": true,
+    "changed": [],
+    "largest_sampled_individual_process_rss_bytes": 1007616,
+    "rss_note": "sampled process RSS; not a whole-job peak"
+  },
+  "terminal_handles": {
+    "actual_host_proc": true,
+    "all_owned_handles_terminal": true,
+    "sampled_identities": [
+      {
+        "pid": 2916654,
+        "start_ticks": 6093966
+      }
+    ],
+    "live_owned_handles": [],
+    "wrapper_excluded": {
+      "pid": 2916401,
+      "start_ticks": 6093457
+    },
+    "checked_unix": 1794568636.3241026
+  },
+  "focused_tags": [
+    "NativeSurfacePreparationEngine3D",
+    "NativeCollapseCorrection3D",
+    "NativeFirstRowSurfaceFeedback3D",
+    "NativeBLDirectionInvalidation3D",
+    "NativeDeadline3D",
+    "NativeAtlasWorkStop3D"
+  ],
+  "filter": "[NativeSurfacePreparationEngine3D],[NativeCollapseCorrection3D],[NativeFirstRowSurfaceFeedback3D],[NativeBLDirectionInvalidation3D],[NativeDeadline3D],[NativeAtlasWorkStop3D]",
+  "ranks": 6,
+  "timeout_seconds": 600,
+  "available_memory_at_launch_bytes": 48035123200,
+  "build484_status_sha256": "db524082f24f1861905d7a9fac4e5e65acb6136cfc4580ec0260893024f4a848",
+  "build484_observed_handles_sha256": "bc6d4deec07733d0f40ca326b4d605c7ada4313a28c93e003668b6925c97a67e",
+  "build484_source_pins_sha256": "5c1af0d6aa40a646e8a81dc8ebf3280d218f5defb2f4a42e35e9795c91b4c8e0",
+  "runtime_pins_sha256": "e2daaed3b3b33a648db277ce13f2172d51eb919f5f36e1c95456fe42af6357d7",
+  "check_script_sha256": "f70d9038aa64d5396f0c0c25dea1d61933af10b43db4c4bb8a87ac650d7fceac",
+  "scope": "Focused MPI6 ownership/publication and constraint checks; not actual M6 readiness or final mesh acceptance."
+}

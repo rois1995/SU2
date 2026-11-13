@@ -1,38 +1,42 @@
 # How to proceed
 
 Read [HANDOFF_Codex.md](HANDOFF_Codex.md),
-[483construction decision](Handbook/ADAPTATION_SURFACE_CENSUS_483_20261113.md)
-and [timings](Handbook/ADAPTATION_TIMINGS.md). Build483 PASS105.973s/5tasks;
-focused13cases/2611assertions PASS9.361s, actualhandles/pins verifiedterminal.
-Actual483serial TERMINAL522.326s, all1782pins/5actualhandles verified.
-36930/39071wallrows measured,0constructor/commits, outputOwned/params unchanged.
-No ownedheavyjob live; preserve current state and both prior outcomes.
+[484outcome](Handbook/ADAPTATION_SURFACE_DISCOVERY_484_OUTCOME_20261113.md)
+and [timings](Handbook/ADAPTATION_TIMINGS.md). All484jobs terminal, allpins/actualhandles
+verified; no ownedheavyjoblive. BuildPASS85.661s; serial14cases/2621assertions PASS,
+MPI6ALL14cases perrank PASS. Discoverymechanism qualified, completeBLNOTqualified.
 
-483uses existing complete requested-wall entry measure before optional collapses.
-Only seedpredicate changes; composedvolume stays incremental,16cell batches andall
-admission/deadline/ownership/publication preserved. No q/J construction veto/measure.
-Late-deficit regression now places real clean collapse opportunities before debt
-beyond first16rows; clean collapse control stillpasses. No actualreadiness claim.
+Actualsame-input484surface trajectory reachesrequiredhandoff42.213s then86splitpubs
+within388.8sclock(388.880nativeexit). Output303823positive tets/61550nodes/fullcurrent
+parameters/transportedmetrics; independentall303606donors matchinput.303389untouched
+cellrows byte-identical;86newboundarynodes and172old/344newphysicalfaces. No surviving
+nodalcoords/tensorschanged. Realphysicalsurface changes, NOTwholegeometryclosure.
+24370/39243wallknown,360geometryscreens/13sizebad,14873unknown; q/J/heightsunmeasured.
+No surface_repair_entry: production relocation/reconnectionyield notestablished.
 
-Continue from482serial's verified303606positive tets/61464nodes, current fullparams
-and transport, SAME441target/authority/config/stageh6.4e-5. Hashedsymlinkadapter reuses
-existingcapture format; no oldP1/upstream recompute or exactscheduler resume.
-Independent exitshards/donors/metrics/params/fulltarget checks complete.
-Monolithic scan consumed stage:6786upperqueries203.070s,0unionexceptions; valid
-upper>tau counts are NOTresourcefailures. No repair/firstrow enabled. Revise within
-samecycle: discover until required debt or full census, then existinghandoff; retain
-cursor/refill and mandatory complete finalcoverage. Reviewbeforeimplementation/build.
-Do not qualify/retry impractical483monolithic path on MPI; use one coherent revised
-capability milestone. No newoperator/scheduler/config/budget change.
-Do not repeat timedout actualMPI482 unchanged if setup+remainingstage cannotfit600s.
-482MPI314commits/3437of39194wall observed; noexitshards/MPIqualification. All482terminal.
+Preserve latestprogress via R/saved_surface484_checkpoint.json with CURRENToutput
+Owned+params ANDfull441target/authority/config/stageh6.4e-5. Oldsurface483adapter is
+484INPUT, notoutput; do notlose86edits by reusingit. Sensor-onlytargetexport incomplete.
+No oldP1/upstream solve/recovery. Currentoutputenables boundedresidualcomparison,
+notdirection/firstrow. KeepEuler293acceptedworkflow/checkpoints intact.
 
-Construction decision: fullcoverage plus useful physical surface/neighbor progress
-supports483; completecensus with no usefuladmissible progress rejects/reviseshypothesis.
-Resource/incompletesupport remains unresolved, notphysicalimpossibility. Existing
-surface388.8s/233220work/12GiB,parent5400s/outer600 unchanged. Different progressed
-input means no identical-input timing/speedup comparison. Repair must actually be
-reached before operator capability/yield can be assessed. No new variant/scheduler.
+NEXT: review existing actual-cavity diagnostic beforebuild. It hardcodes304521cells;
+current303823must not berelabelled. Useexistingloader/provenance/cap checks to remove
+fixture-specific restriction, auditactualproductionadmission/phase/geometryprogress/
+complete support/heights/memory/publication. Existing fullmesh Directory and fixed
+24constructor/300geometry/600outer matrix can compare mappedmovement/incidentcollapse
+on currentcurvedtip/rootLE/controlsupports; Reconnectskinpreserving isnegativecontrol.
+R/surface_residual484_inventory.json and contexts.dat are onlysupportinventory:
+33/10/20cellunions, priorcleancontrol needsremeasurement, curvedtip pairnotdirectedge,
+last7594edgeonlypartlyidentified, badsmoothmidspanuncovered. Declarecoverage before
+trials; do notrepeatR4untilR5starves or inferineffectiveness from narrowsearch.
+
+Support nextstep from actual useful physicalreplacements and COMPLETEpatch+neighbors:
+geometrybad/excess, directionalmetricconformity, q/Jobservational, passingheights, work/
+time. Distinguish constructor, certification/conservativeupper versusprovedviolation,
+association/feature/body/height, missing support, resource andadmission. No useful
+candidate =>reject/revise exactobstruction, no speculativeproductionmachinery. No
+blind split/censusretry, new scheduler/cavitysizes/config, gateorbudgetrelaxation.
 
 481admitted9actual mapped moves, but selected prefix raises geometryscreenbad6→7
 while excess falls29%. Its24split continuation publishesall24 yet geometrybadlocal+4,

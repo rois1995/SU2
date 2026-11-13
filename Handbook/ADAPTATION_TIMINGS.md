@@ -1,18 +1,48 @@
 # Adaptation timings and computational work
 
-Updated2026-11-13:483build PASS; current saved surface trajectory TERMINAL/measurement budget, connected requested-wall census correction.
-482serial TERMINAL; MPI6 TERMINAL/outertimeout124. HANDOFF owns actual handles.
-Build476642.982s under contention; current-input trajectory228.411s/609828assertions,
-legacy regression264.200s/610217assertions. Bothterminal/pins/actualhandles verified.
-Production473/CFD unchanged. Current trajectory stalls after5pubs/24calls; no readiness.
-Host libc updated5pinnedlibraries; historical manifest preserved, runtime_20261113_474
-explicitly bound. No wall-time equivalence claim across runtime/contention changes.
-Build473305.914s; focused62.658s/52cases/5688assertions; MPI185.914s/41cases everyrank.
-473source35e173b043 is pushed; same-target surface integration is terminal and NOT READY.
+Updated2026-11-13:484affected discovery serial/MPI checks PASS; actual M6surface
+trajectory TERMINAL/notready. No ownedheavyjoblive. Discovery reaches requiredwork
+and86physical split edits; wholefieldclosure and acceptedadaptation cost remainunknown.
+Historical measurements below retain their original scope; currenthandoff owns state.
 [Current handoff](../HANDOFF_Codex.md) owns source/build/handle state;
 [stage contract](ADAPTATION_CONNECTED_PATCH_TRAJECTORY_20261113.md) owns acceptance/stalls.
 R=`integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57`.
 
+
+##484 connected required-demand discovery — physical edits, incomplete closure
+
+483monolithic census did notenableconstruction. Revisedinitialentry repeats existing
+16-row batches onlyuntil globalrequired deficit or completecursor, then existing
+handoff/refill/completefinalreadiness. No newstate/config/scheduler/gate/budget.
+Same303606tets/61464nodes;483outputOwned+params EXACTinput, fulltarget/stage unchanged.
+BuildPASS85.661s/5tasks/1527pins/18actualterminalidentities, cleanNinja/bothbinaries
+verified. Launch47.984GBavailable/load2.84/3.56/4.57,nice19/j3/libs1. Focusedserial
+PASS7.616s/14cases/2621assertions/1732pins/5actualterminalidentities.
+Actualsame303606inputserial TERMINAL511.504souter/389.675sAPI/388.880nativeexit
+vs388.8safe-pointclock,1785pins/5actualidentities verified. Requiredhandoff42.213s/
+6384of39071wallrows then86splitpubs/834kernelwork, nooptionalcollapse. Output303823tets/
+61550nodes,86newpoints, physicalfaces172removed/344new, allsurviving303389cellrows
+byte-identical; no survivingnodalcoord/tensorchange.24370/39243wallmeasured, no readiness
+or wholefieldbad-removalrate, q/J/heightsunknown. No surface_repair_entry.
+Geometry33350938work; upper5984queries/31750741work/219.053s; guidance203.630s overlaps.
+Nestedfacet preparation151.745s, scope9.916s, traversal57.054s: not additive toupper.
+Facet3577misses/28131hits,3577retainedentries; scope1690misses/1167hits; prepared
+1,988,502,144Bof3,204,054,800B,0evictions. Exactunionmemo3202hits/2782misses;
+missesalone cannot distinguish nearbypositions/new queries/previouslyevicted identical
+queries (16437memo evictions). Validupper>tau4933,0unionexceptions; notresourcefailure.
+No new profiler campaign or cache mechanism selected from these counters alone.
+CPU388.425s; accountedpeak9,937,462,744B/sampleindividualRSS3,195,957,248B, notwholepeak.
+Serial/MPI mechanism qualification: MPI6ALL14cases perrankPASS4.666s,1732pins verified;
+2sampledactualidentities terminal, fastworkers notcaptured forRSS/CPU, sixworker summaries
+and normalMPIexit0. No worker-resource or speedupclaim. Reuses prior unaffectedgeometry
+checks; not dedicatedfullBLMPIqualification. R/surface_discovery484_outcome.json.
+Relative to483sameinput: moves work frommonolithic measurement to86real edits, but
+DEFERSpartofcensus. Lowergeometrywork is notprovedtotalworksaving; no finalaccepted
+adaptation timingestablished. Nexttarget: useful surface repair/certification power,
+notanother blindsplit/censusretry.
+Physical construction demonstrated; netclosure and complete-workflow speedup unestablished.
+Decisionandcriteria in
+ADAPTATION_SURFACE_DISCOVERY_484_20261113.md; R/surface_discovery484_fidelity.json.
 
 ##483 connected requested-wall census decision — measurement bound, no construction
 
@@ -35,7 +65,7 @@ maxaccounted8,835,972,848B/sampleindividualRSS2,563,235,840B, notwholepeak.
 No readiness, no speedup/usefulconstruction claim; monolithic entry path not practical.
 Nextdecision: yield discovery to existing requiredhandoff oncefirstdeficit known,
 retain censuscursor and complete finalcoverage requirement. No newbaseline/profiler.
-R/surface_census483_fidelity.json; next focused then current-state production surface.
+R/surface_census483_fidelity.json; revised decision executed as484above.
 No timing/work improvement or readiness established; current input differs from482entry.
 
 ##482 connected production-stage continuation — serial complete, MPI timeout
@@ -80,6 +110,17 @@ Max sampled process-tree RSS4,044,648,448B (sampled, not exact peak); rank CPU t
 and partial per-rank windows retained in R/saved_production_surface482_mpi6_timeout.json.
 Pre-census time lacks target-restore versus engine-setup attribution. No additive timer,
 CPU-usefulness or speedup claim. No upstream CFD/target solve repeated.
+
+##Older qualification context (historical, not current source/status)
+
+Build476642.982s under contention; current-input trajectory228.411s/609828assertions,
+legacy regression264.200s/610217assertions, both terminal/pins/actualhandles verified.
+That trajectory had5pubs/24calls, no readiness. Hostlibc changed5pinnedlibraries;
+historical manifests preserved, runtime_20261113_474explicitly bound. No walltime
+comparison across runtime/contention changes. Build473305.914s; focused62.658s/
+52cases/5688assertions; MPI185.914s/41cases everyrank; source35e173b043 pushed.
+Its surface integration was NOTREADY; these are retained historical qualifications,
+not a claim that current484source/CFD equals473or476.
 
 ##481 active connected correction — unqualified
 
