@@ -531,7 +531,10 @@ bool CNSSolver::P1MovedViscousBudget(const CGeometry *geometry, const CConfig *c
   if (simplex.Set(nDim, coord, state, config->GetGas_ConstantND()) == 0.0) {
     SU2_MPI::Error("VISC_P1_ENTROPY_MOVED: degenerate element.", CURRENT_FUNCTION);
   }
-  production = simplex.MovedProduction(geometry->edges->GetBlendY()[iElem]);
+  /*--- EDGE_FORM_ES_BLEND_CV with VISC_P1_ENTROPY alone (P1_ES_BLEND_SWITCH.md, CV1): Y_T = 0, not stored, P^v_T = 0 and
+   * the median wall shares |f|/d of WeakNoSlipWallResidual. VISC_P1_ENTROPY_MOVED is 3D only (the constructor refuses 2D). ---*/
+  const bool moved = config->GetVisc_P1_Entropy_Moved();
+  production = moved ? simplex.MovedProduction(geometry->edges->GetBlendY()[iElem]) : su2double(0.0);
   dissipation = simplex.GalerkinDissipation();
   /*--- SST production P*: D_t,T is spent on the k production (P1_SST_COUPLED.md, step 2), the blend budget keeps the rest. ---*/
   if (config->GetSST_P1_Element_Kine()) dissipation -= simplex.TurbulentDissipation();
@@ -559,7 +562,7 @@ bool CNSSolver::P1MovedViscousBudget(const CGeometry *geometry, const CConfig *c
     /*--- Symmetry faces (BC_ENTROPY_P1, viscous) enter W_T like the walls (P1_NOSLIP.md, 11.3). ---*/
     dissipation -= pve::NoSlipWallProduction(simplex, nDim, faceNodes, faceNormal, record->isothermal,
                                              record->wallTheta, record->nWallFaces, pve::NOSLIP_SIPG,
-                                             pve::NOSLIP_PENALTY, record->share,
+                                             pve::NOSLIP_PENALTY, moved ? record->share : nullptr,
                                              (movingWall && !record->symmetry) ? wallVel : nullptr, record->symmetry);
   }
   return true;

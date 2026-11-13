@@ -80,6 +80,7 @@ private:
   bool Edge_Form_Entropy_Diss; /*!< \brief Energy stable dissipation of the E term of the P1 edge form. */
   bool Edge_Form_ES_Diss;      /*!< \brief Certified entropy stable dissipation of the E part on the nodal jump. */
   bool Edge_Form_ES_Blend;     /*!< \brief Element theta blend of that dissipation, theta_T = P_T^+ / D_T. */
+  bool Edge_Form_ES_Blend_CV;  /*!< \brief Control-volume form of that blend: theta_i = eps_i^+ / D_i over the vertex stars. */
   bool Edge_Form_EC_Flux;      /*!< \brief Entropy conservative central part of the P1 edge form along n_ik - n. */
   bool Edge_Form_TeCNO;        /*!< \brief Entropy stable second order Roe part: Ismail-Roe flux plus TeCNO dissipation. */
   bool Edge_Form_TeCNO_Wide;   /*!< \brief Widest sign-property bound of the TeCNO limiter. */
@@ -10064,6 +10065,12 @@ public:
    * \brief Element theta blend of the Lemma 3 dissipation of the E part: theta_T = P_T^+ / D_T per element.
    */
   bool GetEdge_Form_ES_Blend() const { return Edge_Form_ES_Blend; }
+
+  /*!
+   * \brief EDGE_FORM_ES_BLEND_CV: the budget of EDGE_FORM_ES_BLEND pooled over vertex stars with the shares 1/(d+1),
+   *        theta_i = eps_i^+ / D_i per node and theta_T the mean over the vertices of T (P1_ES_BLEND_SWITCH.md, CV1).
+   */
+  bool GetEdge_Form_ES_Blend_CV() const { return Edge_Form_ES_Blend_CV; }
 
   bool GetEdge_Form_EC_Flux() const { return Edge_Form_EC_Flux; }
 

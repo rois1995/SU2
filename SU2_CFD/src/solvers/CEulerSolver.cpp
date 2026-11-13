@@ -316,6 +316,12 @@ CEulerSolver::CEulerSolver(CGeometry *geometry, CConfig *config,
     if (config->GetEdge_Form_P1() && config->GetEdge_Form_ES_Blend()) {
       nodes->EdgeBlendLambda.resize(geometry->GetnEdge()) = su2double(0.0);
       if (config->GetVisc_P1_Entropy_Moved()) P1MovedThetaV.resize(geometry->GetnElem()) = su2double(0.0);
+      if (config->GetEdge_Form_ES_Blend_CV()) {
+        /*--- EDGE_FORM_ES_BLEND_CV: lam^T per pair (3 in 2D, 6 in 3D), the star budgets and the node factors. ---*/
+        ESBlendCVLambda.resize(geometry->GetnElem(), nDim * (nDim + 1) / 2) = su2double(0.0);
+        ESBlendCVBudget.resize(nPoint, 4) = su2double(0.0);
+        ESBlendCVTheta.resize(nPoint, config->GetVisc_P1_Entropy_Moved() ? 2 : 1) = su2double(0.0);
+      }
     }
     if (config->GetJST_Weak_Wall_Diss()) {
       /*--- JST_WEAK_WALL_DISSIPATION: the weak no-slip walls of BC_WALL_ENTROPY_P1, flags on owned and halo nodes. ---*/
@@ -2156,7 +2162,11 @@ void CEulerSolver::SplitEdgeResidual(const CGeometry *geometry, const CConfig *c
   END_SU2_OMP_SAFE_GLOBAL_ACCESS
 }
 
-void CEulerSolver::SetEdgeBlendLambda(const CGeometry *geometry, const CConfig *config, const CVariable* turbMatched) {
+namespace {
+void CommPointData(CGeometry* geometry, const CConfig* config, su2double* data, unsigned short count);
+}  // namespace
+
+void CEulerSolver::SetEdgeBlendLambda(CGeometry *geometry, const CConfig *config, const CVariable* turbMatched) {
   SU2_ZONE_SCOPED
 
   /*--- EDGE_FORM_ES_BLEND, element theta blend of the Lemma 3 dissipation of the E part (P1_SECOND_ORDER.md, B2).
@@ -2190,11 +2200,27 @@ void CEulerSolver::SetEdgeBlendLambda(const CGeometry *geometry, const CConfig *
    * SetEdgeFormBlend follow the mesh), so the bound P_T <= D_T holds at every instant. ---*/
   const bool relative = config->GetGrid_Entropy_P1() && dynamic_grid;
 
+  /*--- EDGE_FORM_ES_BLEND_CV (P1_ES_BLEND_SWITCH.md, CV1, CV1-MV, section 4): the element budgets go to the vertices with
+   * the shares s = 1/(d+1), P^c_i = sum_{T ni i} s P_T, D_i = sum s D_T, and with VISC_P1_ENTROPY (CNSSolver)
+   * P^v_i = sum s P^v_T (0 without VISC_P1_ENTROPY_MOVED, Y_T = 0) and D^v_i = sum s (D^gal_T - W_T) (SST reservation
+   * kept). Per owned node the one-budget blend of MV5 on the star sums, E_i = P^c_i + P^v_i - D^v_i:
+   * theta_v,i = min(1, E_i/P^v_i) if E_i > 0 and P^v_i > 0, theta_c,i = (E_i - theta_v,i P^v_i)^+ / D_i; with P^v_i = 0
+   * this is theta_i = eps_i^+ / D_i of CV1. The owners' factors go to the halos, then each simplex gets the vertex means
+   * thetabar_T and lamBlend(e) += thetabar_c,T lam^T_e (lam^T stored by the first pass), P1MovedThetaV = thetabar_v,T.
+   * Total production sum_i min(E_i, 0) <= 0 (Theorems CV2, CV2-MV). Non-simplex cells of EDGE_FORM_P1_MIXED (M0, E = 0)
+   * add nothing. MPI: every simplex of an owned node is on this rank and its vertices are owned or first-layer halos, so
+   * the star sums of owned nodes are complete and every simplex with an owned node gets the serial thetabar_T. ---*/
+  const bool cv = config->GetEdge_Form_ES_Blend_CV();
+  const bool cvViscous = cv && config->GetVisc_P1_Entropy();
+  const su2double share = 1.0 / nNodes;
+  const unsigned short nPairs = nNodes * (nNodes - 1) / 2;
+
   BEGIN_SU2_OMP_SAFE_GLOBAL_ACCESS {
     lamBlend = su2double(0.0);
+    if (cv) ESBlendCVBudget = su2double(0.0);
 
     /*--- The wall faces of the budget (W_T), built on first use (collective). ---*/
-    if (movedVisc && config->GetBC_Wall_Entropy_P1()) UpdateP1WallFaces(geometry, config);
+    if ((movedVisc || cvViscous) && config->GetBC_Wall_Entropy_P1()) UpdateP1WallFaces(geometry, config);
 
     for (auto iElem = 0ul; iElem < geometry->GetnElem(); ++iElem) {
       const auto* element = geometry->elem[iElem];
@@ -2287,6 +2313,25 @@ void CEulerSolver::SetEdgeBlendLambda(const CGeometry *geometry, const CConfig *
         }
       }
 
+      /*--- EDGE_FORM_ES_BLEND_CV: lam^T for the second pass and the shares of the element budget to the vertices. ---*/
+
+      if (cv) {
+        su2double viscProduction = 0.0, viscDissipation = 0.0;
+        if (cvViscous && !P1MovedViscousBudget(geometry, config, iElem, viscProduction, viscDissipation)) {
+          /*--- No owned node: only halo sums, which the exchange overwrites. ---*/
+          viscProduction = 0.0;
+          viscDissipation = 0.0;
+        }
+        for (unsigned short iPair = 0; iPair < pair; ++iPair) ESBlendCVLambda(iElem, iPair) = lam[iPair];
+        for (unsigned short a = 0; a < nNodes; ++a) {
+          ESBlendCVBudget(point[a], 0) += share * production;
+          ESBlendCVBudget(point[a], 1) += share * dissipation;
+          ESBlendCVBudget(point[a], 2) += share * viscProduction;
+          ESBlendCVBudget(point[a], 3) += share * viscDissipation;
+        }
+        continue;
+      }
+
       /*--- VISC_P1_ENTROPY_MOVED: one budget with the viscous terms. ---*/
 
       if (movedVisc) {
@@ -2311,6 +2356,47 @@ void CEulerSolver::SetEdgeBlendLambda(const CGeometry *geometry, const CConfig *
 
       for (unsigned short iPair = 0; iPair < pair; ++iPair) {
         lamBlend(blendEdges(iElem, iPair)) += theta * lam[iPair];
+      }
+    }
+
+    /*--- EDGE_FORM_ES_BLEND_CV: the node factors of the owned nodes from the complete star sums, 0 on the halos until
+     * the exchange. min(.,1) in OneBudgetBlend only guards round-off (P^c_i - D^v_i <= D_i by (W) and Lemma 3). ---*/
+    if (cv) {
+      for (unsigned long iPoint = 0; iPoint < nPoint; ++iPoint) {
+        su2double thetaV = 0.0, thetaC = 0.0;
+        if (geometry->nodes->GetDomain(iPoint)) {
+          P1ViscousEntropy::OneBudgetBlend(ESBlendCVBudget(iPoint, 0), ESBlendCVBudget(iPoint, 1),
+                                           ESBlendCVBudget(iPoint, 2), ESBlendCVBudget(iPoint, 3), thetaV, thetaC);
+        }
+        ESBlendCVTheta(iPoint, 0) = thetaC;
+        if (movedVisc) ESBlendCVTheta(iPoint, 1) = thetaV;
+      }
+    }
+  }
+  END_SU2_OMP_SAFE_GLOBAL_ACCESS
+
+  if (!cv) return;
+
+  /*--- The owners' node factors on the halos (all threads, between the two master blocks). ---*/
+  CommPointData(geometry, config, ESBlendCVTheta.data(), movedVisc ? 2 : 1);
+
+  BEGIN_SU2_OMP_SAFE_GLOBAL_ACCESS {
+    for (auto iElem = 0ul; iElem < geometry->GetnElem(); ++iElem) {
+      const auto* element = geometry->elem[iElem];
+      if (element->GetnNodes() != nNodes) continue;
+
+      su2double thetaC = 0.0, thetaV = 0.0;
+      for (unsigned short a = 0; a < nNodes; ++a) {
+        const auto iPoint = element->GetNode(a);
+        thetaC += ESBlendCVTheta(iPoint, 0);
+        if (movedVisc) thetaV += ESBlendCVTheta(iPoint, 1);
+      }
+      thetaC *= share;
+      if (movedVisc) P1MovedThetaV[iElem] = share * thetaV;
+
+      if (thetaC <= 0.0) continue;
+      for (unsigned short iPair = 0; iPair < nPairs; ++iPair) {
+        lamBlend(blendEdges(iElem, iPair)) += thetaC * ESBlendCVLambda(iElem, iPair);
       }
     }
   }

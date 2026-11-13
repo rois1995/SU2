@@ -1847,8 +1847,10 @@ void CConfig::SetConfig_Options() {
   addBoolOption("EDGE_FORM_EC_FLUX", Edge_Form_EC_Flux, false);
   /*!\brief EDGE_FORM_ES_DISS \n DESCRIPTION: Add lam (U_k-U_i), lam = max(0, max(u.e) + max(c)) |E_ik| over the two nodes, which makes the E part of EDGE_FORM_P1 entropy stable for any jump. \ingroup Config \default false */
   addBoolOption("EDGE_FORM_ES_DISS", Edge_Form_ES_Diss, false);
-  /*!\brief EDGE_FORM_ES_BLEND \n DESCRIPTION: Per element T, theta_T = P_T^+ / D_T with P_T the exact entropy production of the E part of EDGE_FORM_P1 in T and D_T that of the Lemma 3 dissipation on the element pieces E^T_ik; adds sum_T theta_T lam^T_ik (U_k-U_i) on each edge. Entropy stable for any states, second order at smooth steady states. \ingroup Config \default false */
+  /*!\brief EDGE_FORM_ES_BLEND \n DESCRIPTION: Per element T, theta_T = P_T^+ / D_T with P_T the exact entropy production of the E part of EDGE_FORM_P1 in T and D_T that of the Lemma 3 dissipation on the element pieces E^T_ik; adds sum_T theta_T lam^T_ik (U_k-U_i) on each edge. Entropy stable for any states, second order at smooth steady unforced inviscid states (B2.6). EDGE_FORM_ES_BLEND_CV: second order for forced, viscous and unsteady smooth states on star-balanced meshes (uniform or alternating splits of structured cells and their smooth images); elsewhere it reduces the removed entropy by a constant factor. \ingroup Config \default false */
   addBoolOption("EDGE_FORM_ES_BLEND", Edge_Form_ES_Blend, false);
+  /*!\brief EDGE_FORM_ES_BLEND_CV \n DESCRIPTION: Control-volume form of EDGE_FORM_ES_BLEND (P1_ES_BLEND_SWITCH.md, CV1): the element budgets eps_T (P_T; with VISC_P1_ENTROPY P_T - D^gal_T + W_T, the SST reservation kept) and D_T go to the vertices with the shares 1/(d+1), theta_i = eps_i^+ / D_i, and each edge gets sum_T thetabar_T lam^T_ik with thetabar_T the mean of theta_i over the vertices of T (theta frozen in the Jacobian). With VISC_P1_ENTROPY_MOVED the one-budget blend per node (CV1-MV): theta_v,i = min(1, E_i/P^v_i), theta_c,i = (E_i - theta_v,i P^v_i)^+ / D_i, vertex means per simplex. Entropy stable for any states (CV2); non-simplex cells of EDGE_FORM_P1_MIXED add nothing. One halo exchange of the node factors per residual. Needs EDGE_FORM_P1 and EDGE_FORM_ES_BLEND; no periodic markers; with VISC_P1_ENTROPY and strong no-slip walls only adiabatic walls. \ingroup Config \default false */
+  addBoolOption("EDGE_FORM_ES_BLEND_CV", Edge_Form_ES_Blend_CV, false);
   /*!\brief BC_ENTROPY_P1 \n DESCRIPTION: Entropy stable weak boundary of BC_WEAK_P1 with EDGE_FORM_P1, or with EDGE_DISS_PROJECTED and EDGE_FORM_EC_FLUX (median dual, JST-PD): degree 2 face rule, entropy projected states at the points, Ismail-Roe coupling to the face nodes; pressure flux at Euler walls and symmetry planes, Ismail-Roe plus Rusanov against the ghost of the far field, inlet (total conditions, mass flow) and outlet built at the points from the projected state, and against the Dirichlet state of the verification solution at the points on custom markers (order studies; their viscous flux stays the one of the exact gradient). EULER, NAVIER_STOKES and RANS with SA; viscous runs need BC_WALL_ENTROPY_P1, symmetry planes then get the SIPG term for u.n = 0 (normal stress only), far field, inlets and outlets the natural (zero) viscous flux. \ingroup Config \default false */
   addBoolOption("BC_ENTROPY_P1", BC_Entropy_P1, false);
   /*!\brief VISC_P1_ENTROPY \n DESCRIPTION: Viscous residual of the flow equations from the P1 Galerkin operator in entropy variables: on each simplex F_T = K(wbar_T) grad(w_h), evaluated with the stress tensor and heat flux of the effective gradients grad(v) = (G_m - v* G_theta)/theta*, grad(T) = -G_theta/(R theta*^2), theta = rho/p, mean of the nodal entropy variables, mean mu + mu_t (mu_t >= 0) and conductivity. Replaces the edge viscous flux and its Jacobian (Picard element Jacobian, frozen K). Triangles and tetrahedra. Entropy dissipative for any state. \ingroup Config \default false */
@@ -6331,6 +6333,7 @@ void CConfig::CheckP1FluxOptions() const {
   if (Edge_Form_EC_Flux) active.push_back("EDGE_FORM_EC_FLUX");
   if (Edge_Form_ES_Diss) active.push_back("EDGE_FORM_ES_DISS");
   if (Edge_Form_ES_Blend) active.push_back("EDGE_FORM_ES_BLEND");
+  if (Edge_Form_ES_Blend_CV) active.push_back("EDGE_FORM_ES_BLEND_CV");
   if (BC_Entropy_P1) active.push_back("BC_ENTROPY_P1");
   if (GCL_Exact_P1) active.push_back("GCL_EXACT_P1");
   if (Grid_Entropy_P1) active.push_back("GRID_ENTROPY_P1");
@@ -6482,6 +6485,23 @@ void CConfig::CheckP1FluxOptions() const {
     if (Split_Edge_Flux) SU2_MPI::Error(name + "needs the simplices of EDGE_FORM_P1, not available with SPLIT_EDGE_FLUX.", CURRENT_FUNCTION);
     if (!idealGas) SU2_MPI::Error(name + "the entropy variables and the bound use an ideal gas.", CURRENT_FUNCTION);
     if (GetDynamic_Grid() && !Grid_Entropy_P1) SU2_MPI::Error(name + "not available with grid motion without GRID_ENTROPY_P1.", CURRENT_FUNCTION);
+  }
+  if (Edge_Form_ES_Blend_CV) {
+    /*--- P1_ES_BLEND_SWITCH.md, 4: the element budgets of EDGE_FORM_ES_BLEND pooled over the vertex stars. The star of a
+     * periodic node is split over its two images (eps_i and D_i would need the sum over both), not implemented. Non-simplex
+     * cells of EDGE_FORM_P1_MIXED have M0 weights (E = 0) and add nothing. With VISC_P1_ENTROPY the budget spends D^gal_T;
+     * at strong no-slip walls there is no W_T and the budget holds for adiabatic walls only (P1_VISCOUS_MOVED.md, MV13). ---*/
+    const string name = "EDGE_FORM_ES_BLEND_CV: ";
+    if (!Edge_Form_P1 || !Edge_Form_ES_Blend)
+      SU2_MPI::Error(name + "needs EDGE_FORM_P1= YES and EDGE_FORM_ES_BLEND= YES, it is the node form of that blend.", CURRENT_FUNCTION);
+    if (nMarker_PerBound > 0) SU2_MPI::Error(name + "not available with periodic boundaries (split vertex stars).", CURRENT_FUNCTION);
+    if (Visc_P1_Entropy && !BC_Wall_Entropy_P1) {
+      bool heated = (nMarker_Isothermal > 0) || (nMarker_HeatTransfer > 0) || (nMarker_CHTInterface > 0);
+      for (unsigned short iMarker = 0; iMarker < nMarker_HeatFlux; ++iMarker) heated |= (Heat_Flux[iMarker] != 0.0);
+      if (heated)
+        SU2_MPI::Error(name + "with VISC_P1_ENTROPY and strong no-slip walls the viscous budget holds for adiabatic walls only, "
+                       "use BC_WALL_ENTROPY_P1= YES for isothermal or heated walls.", CURRENT_FUNCTION);
+    }
   }
   if (Edge_Form_EC_Flux) {
     const string name = "EDGE_FORM_EC_FLUX: ";

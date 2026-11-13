@@ -2946,6 +2946,160 @@ TEST_CASE("EDGE_FORM_P1_MIXED: one theta per cell on the averaged pieces", "[P1F
   }
 }
 
+TEST_CASE("EDGE_FORM_ES_BLEND_CV: vertex-star budgets, theta in [0,1], production sum_i min(E_i, 0)", "[P1Flux]") {
+  /*--- Theorems CV2, CV2-MV and Lemma CV3 (P1_ES_BLEND_SWITCH.md) with the node logic of CEulerSolver::SetEdgeBlendLambda:
+   * the element budgets go to the vertices with s = 1/(d+1), OneBudgetBlend on the star sums, thetabar_T the vertex mean.
+   * Jittered structured simplex meshes (2D random diagonals, 3D Kuhn split), random admissible states, Lemma 3 pieces
+   * E^T_ab of random delta (any E), so P_T <= D_T. Viscous parts synthetic: none (Euler), Y = 0 (P^v_T = 0, D^v_T =
+   * D^gal_T - W_T) or moved (P^v_T of either sign), with W_T <= D^gal_T / c (MV13). ---*/
+  std::mt19937 gen(97531);
+  std::uniform_real_distribution<double> u(-1.0, 1.0), u01(0.0, 1.0);
+  int nFiredC = 0, nFiredV = 0, nNegative = 0;
+
+  for (int nDim : {2, 3}) {
+    const int n = (nDim == 2) ? 8 : 4, np1 = n + 1;
+    const unsigned long nPoint = (nDim == 2) ? np1 * np1 : np1 * np1 * np1;
+    auto id = [&](int i, int j, int k) { return static_cast<unsigned long>((k * np1 + j) * np1 + i); };
+    std::vector<std::array<su2double, 3>> x(nPoint);
+    for (int k = 0; k < ((nDim == 2) ? 1 : np1); ++k)
+      for (int j = 0; j < np1; ++j)
+        for (int i = 0; i < np1; ++i) {
+          const int ijk[3] = {i, j, k};
+          for (int iDim = 0; iDim < 3; ++iDim)
+            x[id(i, j, k)][iDim] = (iDim < nDim) ? (ijk[iDim] + 0.05 * u(gen)) / n : 0.0;
+        }
+
+    std::vector<std::array<unsigned long, 4>> elems;
+    if (nDim == 2) {
+      for (int j = 0; j < n; ++j)
+        for (int i = 0; i < n; ++i) {
+          const auto n00 = id(i, j, 0), n10 = id(i + 1, j, 0), n11 = id(i + 1, j + 1, 0), n01 = id(i, j + 1, 0);
+          if (u(gen) > 0.0) {
+            elems.push_back({n00, n10, n11, 0});
+            elems.push_back({n00, n11, n01, 0});
+          } else {
+            elems.push_back({n00, n10, n01, 0});
+            elems.push_back({n10, n11, n01, 0});
+          }
+        }
+    } else {
+      const int perms[6][3] = {{0, 1, 2}, {0, 2, 1}, {1, 0, 2}, {1, 2, 0}, {2, 0, 1}, {2, 1, 0}};
+      for (int k = 0; k < n; ++k)
+        for (int j = 0; j < n; ++j)
+          for (int i = 0; i < n; ++i)
+            for (const auto& perm : perms) {
+              int c[3] = {i, j, k};
+              std::array<unsigned long, 4> t;
+              t[0] = id(c[0], c[1], c[2]);
+              for (int m = 0; m < 3; ++m) {
+                ++c[perm[m]];
+                t[m + 1] = id(c[0], c[1], c[2]);
+              }
+              elems.push_back(t);
+            }
+    }
+
+    const unsigned short nNodes = nDim + 1;
+    const su2double share = 1.0 / nNodes;
+
+    for (int draw = 0; draw < 6; ++draw) {
+      std::vector<ale::State> state(nPoint);
+      for (auto& S : state) S = RandomAleState(gen, nDim, (draw % 2) ? 0.05 : 0.3);
+
+      /*--- Element budgets: P^c_T, D_T of the pair pieces, synthetic P^v_T and D^v_T = D^gal_T - W_T. ---*/
+      const int visc = draw % 3;  // 0: Euler, 1: Y = 0, 2: moved
+      std::vector<std::array<su2double, 4>> budget(elems.size());
+      for (size_t t = 0; t < elems.size(); ++t) {
+        std::array<const su2double*, 4> coord;
+        for (unsigned short a = 0; a < nNodes; ++a) coord[a] = x[elems[t][a]].data();
+        su2double grad[4][3] = {{0.0}};
+        const su2double vol = fabs(P1Simplex::ShapeGradients(nDim, coord, grad));
+        su2double delta[4] = {0.0}, mean = 0.0;
+        for (unsigned short a = 0; a < nNodes; ++a) {
+          delta[a] = 0.5 * u(gen) * vol / nNodes;
+          mean += delta[a] / nNodes;
+        }
+        for (unsigned short a = 0; a < nNodes; ++a) delta[a] -= mean;
+
+        su2double P = 0.0, D = 0.0;
+        for (unsigned short a = 0; a < nNodes; ++a) {
+          for (unsigned short b = a + 1; b < nNodes; ++b) {
+            su2double E[3] = {0.0, 0.0, 0.0};
+            for (int iDim = 0; iDim < nDim; ++iDim) E[iDim] = 0.5 * (delta[a] * grad[b][iDim] + delta[b] * grad[a][iDim]);
+            su2double p = 0.0, d = 0.0;
+            PairEntropy(nDim, state[elems[t][a]], state[elems[t][b]], E, p, d);
+            CHECK(p <= d * (1.0 + 1e-12) + 1e-300);
+            P += p;
+            D += d;
+          }
+        }
+        su2double Pv = 0.0, Dv = 0.0;
+        if (visc > 0) {
+          const su2double Dgal = D * pow(10.0, 2.0 * u(gen)) * u01(gen);
+          const su2double W = (t % 3 == 0) ? (1.4 * u01(gen) - 1.0) * Dgal / pve::NOSLIP_PENALTY : 0.0;
+          Dv = Dgal - W;
+          if (visc == 2) Pv = 3.0 * u(gen) * Dgal;
+        }
+        budget[t] = {P, D, Pv, Dv};
+      }
+
+      /*--- First pass: star sums. Node factors as in the solver. Second pass: vertex means. ---*/
+      std::vector<std::array<su2double, 4>> node(nPoint, {0.0, 0.0, 0.0, 0.0});
+      for (size_t t = 0; t < elems.size(); ++t)
+        for (unsigned short a = 0; a < nNodes; ++a)
+          for (int q = 0; q < 4; ++q) node[elems[t][a]][q] += share * budget[t][q];
+
+      std::vector<su2double> thetaC(nPoint, 0.0), thetaV(nPoint, 0.0);
+      su2double sumMinE = 0.0, removedNodes = 0.0, sumPplus = 0.0, scale = 0.0;
+      for (unsigned long i = 0; i < nPoint; ++i) {
+        pve::OneBudgetBlend(node[i][0], node[i][1], node[i][2], node[i][3], thetaV[i], thetaC[i]);
+        CHECK(thetaC[i] >= 0.0);
+        CHECK(thetaC[i] <= 1.0);
+        CHECK(thetaV[i] >= 0.0);
+        CHECK(thetaV[i] <= 1.0);
+        if (visc < 2) CHECK(thetaV[i] == 0.0);
+        nFiredC += (thetaC[i] > 0.0);
+        nFiredV += (thetaV[i] > 0.0);
+        const su2double Ei = node[i][0] + node[i][2] - node[i][3];
+        sumMinE += std::min(Ei, su2double(0.0));
+        removedNodes += thetaC[i] * node[i][1];
+        /*--- Node budget (CV2 step 2, CV2-MV step 2): E_i - theta_v P^v_i - theta_c D_i = min(E_i, 0). ---*/
+        const su2double nodeScale = fabs(node[i][0]) + node[i][1] + fabs(node[i][2]) + fabs(node[i][3]) + 1e-300;
+        CHECK(fabs(Ei - thetaV[i] * node[i][2] - thetaC[i] * node[i][1] - std::min(Ei, su2double(0.0))) <= 1e-12 * nodeScale);
+      }
+
+      su2double net = 0.0, removedElems = 0.0;
+      for (size_t t = 0; t < elems.size(); ++t) {
+        su2double barC = 0.0, barV = 0.0;
+        for (unsigned short a = 0; a < nNodes; ++a) {
+          barC += thetaC[elems[t][a]];
+          barV += thetaV[elems[t][a]];
+        }
+        barC *= share;
+        barV *= share;
+        CHECK(barC >= 0.0);
+        CHECK(barC <= 1.0);
+        const auto& B = budget[t];
+        net += B[0] - barC * B[1] + (1.0 - barV) * B[2] - B[3];
+        removedElems += barC * B[1];
+        sumPplus += std::max(B[0], su2double(0.0));
+        scale += fabs(B[0]) + B[1] + fabs(B[2]) + fabs(B[3]);
+      }
+
+      /*--- Linearity (CV2 step 3): sum_T thetabar_T D_T = sum_i theta_i D_i, total production sum_i min(E_i, 0) <= 0. ---*/
+      CHECK(fabs(removedElems - removedNodes) <= 1e-12 * scale);
+      CHECK(fabs(net - sumMinE) <= 1e-12 * scale);
+      CHECK(net <= 1e-12 * scale);
+      nNegative += (sumMinE < 0.0);
+      /*--- Lemma CV3: the total floor never exceeds the B2 one. ---*/
+      CHECK(removedNodes <= sumPplus * (1.0 + 1e-12) + 1e-12 * scale);
+    }
+  }
+  CHECK(nFiredC > 0);
+  CHECK(nFiredV > 0);
+  CHECK(nNegative > 0);
+}
+
 TEST_CASE("EDGE_FORM_P1_MIXED: closure C on quad faces, closed cells are entropy conservative", "[P1Flux]") {
   /*--- Theorem X10: interior Ismail-Roe on the averaged n_ik (E = 0), closure C with the pressure flux on every face,
    * quad faces on their four sub-triangles with A_tau/2 (P1Mixed::QuadSubNormals). The entropy rate is zero (to the

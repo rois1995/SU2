@@ -46,6 +46,11 @@ protected:
 
   su2activevector P1MovedThetaV; /*!< \brief VISC_P1_ENTROPY_MOVED: theta_v of each simplex, set by SetEdgeBlendLambda. */
 
+  /*--- EDGE_FORM_ES_BLEND_CV work arrays (MESH_0, sized only with the option). ---*/
+  su2activematrix ESBlendCVLambda; /*!< \brief lam^T of the pairs of each simplex (iElem, iPair), pair order of BlendEdges. */
+  su2activematrix ESBlendCVBudget; /*!< \brief Star sums with the shares 1/(d+1) (iPoint, 0..3): P^c_i, D_i, P^v_i, D^v_i. */
+  su2activematrix ESBlendCVTheta;  /*!< \brief theta_c,i (and theta_v,i with VISC_P1_ENTROPY_MOVED), owners' values on the halos. */
+
   /*--- EDGE_FORM_TECNO_ADJOINT work arrays (MESH_0, sized only with the option). ---*/
   su2activematrix TeCNOAdjW;       /*!< \brief Nodal entropy variables (iPoint, iVar). */
   CVectorOfMatrix TeCNOAdjY;       /*!< \brief Y_i = Z_i / V_i of the adjoint gradient loop (iPoint, iVar, iDim). */
@@ -86,7 +91,8 @@ protected:
    * \param[in] geometry - Geometrical definition of the problem.
    * \param[in] config - Definition of the particular problem.
    * \param[in] iElem - Local simplex.
-   * \param[out] production - P^v_T, entropy production of the moved part Y_T^T g_a of the viscous test vectors.
+   * \param[out] production - P^v_T, entropy production of the moved part Y_T^T g_a of the viscous test vectors (0 without
+   *                          VISC_P1_ENTROPY_MOVED, Y_T = 0: EDGE_FORM_ES_BLEND_CV with VISC_P1_ENTROPY alone).
    * \param[out] dissipation - D^gal_T - W_T, Galerkin viscous dissipation minus the production of the weak wall terms.
    * \return false if nothing was computed (no owned node, or no viscous term).
    */
@@ -556,10 +562,12 @@ public:
    * \brief EDGE_FORM_ES_BLEND: per simplex theta_T = P_T^+ / D_T from the nodal states, and per edge
    *        sum_T theta_T lam^T_ik, read by the edge loop. Called once per residual, before the edge loop.
    *        With VISC_P1_ENTROPY_MOVED the one-budget blend gives theta_c and theta_v (P1MovedThetaV).
+   *        EDGE_FORM_ES_BLEND_CV: the budgets pooled over the vertex stars, theta per node (one halo exchange, called by
+   *        all threads), sum_T thetabar_T lam^T_ik with thetabar_T the vertex mean.
    * \param[in] geometry - Geometrical definition of the problem.
    * \param[in] config - Definition of the particular problem.
    */
-  void SetEdgeBlendLambda(const CGeometry *geometry, const CConfig *config, const CVariable* turbMatched = nullptr);
+  void SetEdgeBlendLambda(CGeometry *geometry, const CConfig *config, const CVariable* turbMatched = nullptr);
 
   /*!
    * \brief Add the nodal boundary term of the grid flux of GCL_EXACT_P1. With GRID_ENTROPY_P1 the share of the faces of

@@ -171,7 +171,8 @@ private:
 
   /*!
    * \brief VISC_P1_ENTROPY_MOVED: P^v_T and D^gal_T - W_T of a simplex with an owned node, for the one-budget blend
-   *        of SetEdgeBlendLambda (W_T: weak no-slip faces of BC_WALL_ENTROPY_P1).
+   *        of SetEdgeBlendLambda (W_T: weak no-slip faces of BC_WALL_ENTROPY_P1). With EDGE_FORM_ES_BLEND_CV and
+   *        VISC_P1_ENTROPY alone Y_T = 0: P^v_T = 0 and D^gal_T - W_T with the median wall shares.
    */
   bool P1MovedViscousBudget(const CGeometry *geometry, const CConfig *config, unsigned long iElem,
                             su2double& production, su2double& dissipation) const override;
