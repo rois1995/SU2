@@ -1,7 +1,7 @@
 #include "../../../../Common/include/adaptation/CNativeMetricTransport3D.hpp"
 #include <ctime>
 // Complete saved actual cavities, transported current nodal core and associations; diagnostic only.
-namespace {void RunSavedActualCavities(bool cavityCorrection,bool heightContinuation=false,bool productionCorrection=false,bool guidanceReuse=false,bool planningCost=false,bool clearanceProbe=false,bool geometryProbe=false,bool compoundSplit=false,bool splitContinuation=false,bool residualProbe=false,bool diagonalProbe=false,bool stripProbe=false,bool patchTrajectory=false,bool currentResidual=false,bool productionSurface=false) {
+namespace {void RunSavedActualCavities(bool cavityCorrection,bool heightContinuation=false,bool productionCorrection=false,bool guidanceReuse=false,bool planningCost=false,bool clearanceProbe=false,bool geometryProbe=false,bool compoundSplit=false,bool splitContinuation=false,bool residualProbe=false,bool diagonalProbe=false,bool stripProbe=false,bool patchTrajectory=false,bool currentResidual=false,bool productionSurface=false,bool directedCollapse=false) {
   World world;REQUIRE((world.size==1||(productionSurface&&world.size==6)));
   const auto* cfg=std::getenv("SU2_NATIVE_FROZEN_CONFIG");
   const auto* ref=std::getenv("SU2_NATIVE_BL_REFERENCE");
@@ -104,4 +104,8 @@ TEST_CASE("Saved current M6 patches follow the complete bounded surface volume t
 
 TEST_CASE("Saved transported M6 state resumes the production surface sequence", "[.][NativeActualSavedSurfaceStage3D]") {
   RunSavedActualCavities(true,false,false,false,false,false,false,false,false,false,false,false,false,true,true);
+}
+
+TEST_CASE("Saved current M6 nominated directed collapses test the physical surface", "[.][NativeActualDirectedResidual3D]") {
+  RunSavedActualCavities(true,false,false,false,false,false,false,false,false,false,false,false,false,true,false,true);
 }

@@ -3,15 +3,15 @@
 Updated2026-11-13 Europe/Rome. Goal ACTIVE; one curved-BL stage3 cycle.
 R=`integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57`.
 Read AGENTS.md, [ordered stages](Handbook/ADAPTATION_CURVED_BL_STAGE_INTEGRATION_20261111.md),
-[timing ledger](Handbook/ADAPTATION_TIMINGS.md), [next construction decision](Handbook/ADAPTATION_DIRECTED_CANDIDATE_DECISION_487_20261113.md),
+[timing ledger](Handbook/ADAPTATION_TIMINGS.md), [next construction decision](Handbook/ADAPTATION_CORRECTED_CONTRACTION_DECISION_488_20261113.md),
 [HowToProceed](HowToProceed.md), [backlog](Handbook/ADAPTATION_BACKLOG.md).
 [History through486](Handbook/ADAPTATION_HANDOFF_HISTORY_THROUGH_486_20261113.md) preserves detailed earlier evidence; historical LIVE labels are superseded.
 
 ## Actual handles, source and saved progress
 
-NO owned heavy workload live. Build485 and experiments485/486 are terminal; actual
+Build487 TERMINAL/PASS465.248s,1529pins/10actualidentities verified; testSHAcd5bc46b7a8e3c8ab947a50774d96324bf9fcd378a1c6bc9547f74bceff9ee32, CFDunchanged. Actual487 comparison TERMINAL0/173.451s,1794pins/fiveactualidentities independently verified. No owned heavy job live. R/directed_surface487_assessment.json; [487outcome](Handbook/ADAPTATION_DIRECTED_CANDIDATE_OUTCOME_487_20261113.md). ALL3directions tested: root17814→64065077 fails exactpositivity at266950; tip7594→4280 positive14→11 butupperexcess13.84x despitegeometryscreens6→4; clean6070→6072feasible. No publication; lateststate remains485. Build485 and experiments485/486 are terminal; actual
 host identities independently verified. Production remains build484 (checkpoint adbed962ae).
-Test-only485 binding changes are saved as a reviewable diagnostic checkpoint; preserve unrelated changes. No487 implementation/build.
+Test-only485 binding changes are saved as a reviewable diagnostic checkpoint; preserve unrelated changes. 487 diagnostic completed;488 bounded correction design under review, not implemented/built.
 Build485 PASS484.384s/2tasks;1528pins/10identities terminal, cleanNinja.
 TestSHA ff7cde3805c3f0425278d73e9bd1e2f7099f5ee5534b7770ecd18c04c7af850a;
 CFDSHA afec0e20cffc23cf5efc9a83ef6686d20f53457148cf6b878e39ced2b7cc0c3b unchanged484.
@@ -34,7 +34,7 @@ Case R/cases/curved485_reverse_surface_corrections_serial_20261113T123419_311738
 R/reverse_surface486_assessment.json. Output Owned ANDparameters EXACT485input.
 Tip7594→7592 positive, geometryscreens6→4 BUTupperexcess+4.50%; root17814→715498
 positive, screens7→6 BUTexcess+141%. Geometry admission refuses; not proof of physical
-violation. Nominated17814→64065077 untested. Clean6070→6072 Coarsen private feasible,
+violation. Nominated17814→64065077 was untested in486;487now establishes positivity obstruction266950. Clean6070→6072 Coarsen private feasible,
 observational only. No source/build/target/profile/height change in486.
 
 LATEST physical state remains485 output,303823tets/61550nodes, root67retired/64065077new.
@@ -51,9 +51,11 @@ No global q/J/geometry arrays fabricated. Provisional, not accepted/BL-ready.
 
 ## Next construction decision and tightened method
 
-Read487decision BEFORE another edit/build. Exact directed-collapse diagnostic is
-PLANNED ONLY:3existing nominated edges/control, no repeated24move matrix. The prior
-chooser ignored nominated retained point. Native production can try directedCollapse
+Read488decision BEFORE another edit/build;487outcome owns the demonstrated positivity obstruction. Exact directed-collapse diagnostic is
+Completed:3existing nominated edges/control, no repeated24move matrix. The prior
+chooser ignored nominated retained point;487nowtests exact directions. Rootpositivity
+obstruction supports testingexisting bounded CorrectCollapse/reconstruction, not a
+target/height change or gate relaxation. Nextdecision must be written/reviewed first. Native production can try directedCollapse
 in one-vertex GeometryRepair fallback; rank0..15 is necessary, not live selector proof.
 Primary/read-only review found diagnostic winner's bad-count filter narrower than
 production: report all feasible candidates; don't call that filter native admission.

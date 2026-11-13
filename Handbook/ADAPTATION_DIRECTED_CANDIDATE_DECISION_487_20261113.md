@@ -1,6 +1,6 @@
 # Next construction decision: exact directed surface contraction
 
-Status: planned, NOT implemented or built. One connected curved-BL stage3 cycle.
+Status: test-only build487 PASS465.248s;1529pins/10actualidentities/binaries verified terminal. Actual3candidate comparison launching; no production change. One connected curved-BL stage3 cycle.
 
 ## Demonstrated blocker and decision
 
@@ -22,8 +22,9 @@ Repeating the mean moves or shortest-incident chooser cannot answer that questio
 Hypothesis: exact directed contraction of the nominated edge can remove off-carrier
 resolution while retaining the symmetry root, using the existing native operator.
 Test one directed candidate on each existing complete context: tip7594→4280,
-root17814→64065077, clean control6070→6072. No further mean-move matrix. The test must
-check actual current requested-wall adjacency, retain complete removed stars, and
+root17814→64065077, clean control6070→6072. No further mean-move matrix. Independent current-Owned readback verifies14/20/10complete removed stars, two
+physical incidentfaces each, retained apexranks1/15/3 (within production0..15).
+The native test must recheck requested-wall adjacency, retain complete removed stars, and
 report the exact retained vertex/apex rank. Three constructors within existing24-call,
 300s geometry/600s outer/12GiB/64-old/128-new bounds; no redistribution of leftover
 budget into repeated trials. Smooth-midspan residuals and generalized cavity search
@@ -76,3 +77,8 @@ admission and diagnostic failures. Test required invariants; exact identity is
 required for untouched serialized state, not unjustified floating-point bitwise
 agreement. Plan active/control coverage before consuming shared bounds. No additional
 variant or instrumentation without a new construction decision it resolves.
+
+Final read-only review found no concrete blocker. Driver explicitly unsets SAVED_PATCH
+to reach directed dispatch. Static ranks1/15/3 are in range; native results must agree.
+Passing the diagnostic with zero feasible candidates is a negative/unresolved result,
+never capability qualification. Primary pin audit confirms ONLYtwo testincludes changed.

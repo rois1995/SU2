@@ -1,6 +1,6 @@
 # Adaptation timings and computational work
 
-Updated2026-11-13:485/486comparisons TERMINAL; no owned heavy job;484affected discovery serial/MPI PASS; M6surface
+Updated2026-11-13:485/486comparisons TERMINAL; build487 PASS465.248s; actual487comparison TERMINAL173.451s;484affected discovery serial/MPI PASS; M6surface
 trajectory TERMINAL/notready. No ownedheavyjoblive. Discovery reaches requiredwork
 and86physical split edits; wholefieldclosure and acceptedadaptation cost remainunknown.
 Historical measurements below retain their original scope; currenthandoff owns state.
@@ -25,7 +25,7 @@ R/reverse_surface486_assessment.json owns coverage/inputidentity checks.
 Requestedinspection export uses no native target queries/build: wing19727points/
 39243triangles, allboundaries24700/49396; allVTUarrays roundtrip checked. Sensor tensor
 only, not fullcomposedtarget; no fabricated globalquality. R/inspection_surface485/.
-Next487decision is exactdirected3candidate coverage, PLANNED/notbuilt.
+Next487decision is exactdirected3candidate coverage; test-only buildPASS465.248s/2tasks/1529pins/10actualterminalidentities, CFDunchanged. Actual3candidate comparison TERMINAL173.451s (casecurved487_directed_surface_corrections_serial_20261113T131300_3203305),1794pins/fiveactualidentities verified.2067261geometrywork; zeroactivefeasible/publication; Owned/paramsEXACT485input. Rootconstructor exactpositivity fails266950; tipgeometryadmissionfails; cleancontrolfeasible. Trialwork/wall149829/1.582763s,692/.042882s,154428/.606005s. GNUtime164.88user+1.02system/166.22wall; outerwrapper173.451. Restoration/halo/capture remainder notsplit, no waitclaim or speedup. IndividualRSS1,404,796,928B notwholepeak. No ownedheavyjoblive.
 
 ##485 phase-faithful residual candidate comparison — complete, no netfailureclosure
 

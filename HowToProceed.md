@@ -1,8 +1,8 @@
 # How to proceed
 
-Read [current handoff](HANDOFF_Codex.md), [next construction decision](Handbook/ADAPTATION_DIRECTED_CANDIDATE_DECISION_487_20261113.md)
-and [timings](Handbook/ADAPTATION_TIMINGS.md). All485/486 handles terminal and pins verified.
-No owned heavy job or487build. Production484 unchanged; test-only485 changes are saved as a
+Read [current handoff](HANDOFF_Codex.md), [next construction decision](Handbook/ADAPTATION_CORRECTED_CONTRACTION_DECISION_488_20261113.md)
+and [timings](Handbook/ADAPTATION_TIMINGS.md). All485/486/487 handles terminal and pins verified.
+No owned heavy job; build487 passed465.248s, actual487173.451s. Production484 unchanged; test-only485 changes are saved as a
 reviewable diagnostic checkpoint. Preserve unrelated working changes.
 
 Continue from saved_surface485_checkpoint.json, not the older484input. Latest state
@@ -15,12 +15,13 @@ Inspect the actual wing in R/inspection_surface485/wing_surface.vtu (Surface Wit
 README explains tensor semantics and unknown quality; provenance/readback checks saved.
 This is provisional, no first row or accepted BL. Wholefield closure is not established.
 
-The next decision is whether the exact reverse directed collapse can usefully change
-physical surface. Previous shortest-incident chooser did not test17814→64065077.
-Implement only the minimal diagnostic correction after precompile fidelity review;
-test3 directed candidates, one per active context/control, not the24mean-move matrix.
-State support/reject/unresolved and downstream enablement first. Correct diagnostic
-winner narrowing must not be mistaken for changing production geometry admission.
+487tested all3exactdirected candidates. Root17814→64065077 fails positivity at266950;
+tippositive14→11fails geometryupperexcess despite6→4screens; cleancontrolfeasible.
+No publication: lateststate remains485. Read487outcome/assessment for exactrefusals.
+Nextdecision488: test EXISTING bounded CorrectCollapse/ReconnectCollapse against the
+rootconnectivity obstruction, with cleancontrol and tipnegativecontrol. Discovery
+BEFOREreservation, allfinalgrown dependencies/neighborhalo/publication retained.
+Design/review only, no488implementation/build yet. No target/height/gate change.
 
 A useful complete-patch replacement may justify one production selection/admission
 correction and affected serial/MPI qualification. A candidate refused by a conservative

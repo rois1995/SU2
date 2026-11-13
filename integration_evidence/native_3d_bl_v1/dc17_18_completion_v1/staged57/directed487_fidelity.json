@@ -1,0 +1,29 @@
+{
+  "design": "Handbook/ADAPTATION_DIRECTED_CANDIDATE_DECISION_487_20261113.md",
+  "written_unix": 1794574902.888577,
+  "build": "build487",
+  "production_source_changed": false,
+  "test_source_changed": true,
+  "affected_files": [
+    "UnitTests/SU2_CFD/adaptation/fixtures/native_actual_bl_cavity_planning.inc",
+    "UnitTests/SU2_CFD/adaptation/fixtures/native_actual_saved_surface_corrections.inc"
+  ],
+  "blocker": "486shortest-incident chooser missed nominated reverseedge; no useful currentclosure proved.",
+  "hypothesis": "Exact nominated directedge contraction may give useful admissible physical replacement.",
+  "support": "Actual useful completepatch/neighbor replacement passing all unchanged productionguards.",
+  "reject": "Reject only exacttestedcandidate on attributed obstruction.",
+  "unresolved": "Missing/incomplete support, resource/certification exhaustion; unknown final geometry.",
+  "downstream": "Identify missing search opportunity or constructor/admission blocker before any productionchange; surface readiness stillrequired.",
+  "constructors_planned": 3,
+  "constructor_bound": 24,
+  "geometry_seconds": 300,
+  "outer_seconds": 600,
+  "memory_bytes": 12884901888,
+  "input_receipt": "reverse_surface486_inputs.json",
+  "reuses_current_485_output": true,
+  "review": "Primary and bounded read-only finaldiff review completed: no concrete publication/phase/memory blocker. Native adjacency/nomination required; driver unsets SAVED_PATCH. Static apexranks1/15/3 within0..15; native result must confirm.",
+  "uses_existing_directory_reservation_publication": true,
+  "q_J_observational": true,
+  "comparison_complete": false,
+  "goal_complete": false
+}
