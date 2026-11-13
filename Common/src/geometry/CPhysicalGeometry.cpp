@@ -7028,6 +7028,11 @@ void CPhysicalGeometry::SetBoundControlVolume(const CConfig* config, unsigned sh
   END_SU2_OMP_FOR
 
   SU2_OMP_SAFE_GLOBAL_ACCESS(ComputeModifiedSymmetryNormals(config);)
+
+  /*--- Crease groups of the Euler-wall points (ROE_TECNO_PLAN.md 6.11 B, 6.14), only for the options that use them. ---*/
+  if (config->GetBC_Entropy_P1_Strong_Slip() || config->GetEuler_Wall_Crease_Normals()) {
+    SU2_OMP_SAFE_GLOBAL_ACCESS(ComputeCreaseNormals(config);)
+  }
 }
 
 

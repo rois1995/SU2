@@ -47,6 +47,13 @@ class CFVMFlowSolverBase : public CSolver {
   /*!< \brief Object with indices of primitive variables. */
   const typename VariableType::template CIndices<unsigned short> prim_idx;
 
+  /*--- BC_ENTROPY_P1_STRONG_SLIP (static mesh): owned points of the Euler walls and symmetry planes, rank and
+   * orthonormal basis (rows) of their wall normals, built on the first call. ---*/
+  std::vector<unsigned long> slipPointsP1;
+  std::vector<unsigned short> slipRankP1;
+  std::vector<std::array<su2double, 9>> slipBasisP1;
+  bool slipReadyP1 = false;
+
   static constexpr size_t MAXNDIM = 3; /*!< \brief Max number of space dimensions, used in some static arrays. */
   static constexpr size_t MAXNVAR = VariableType::MAXNVAR; /*!< \brief Max number of variables, for static arrays. */
   static constexpr size_t MAXNTUR = 2; /*!< \brief Max number of variables, for static arrays. */
@@ -1220,6 +1227,14 @@ class CFVMFlowSolverBase : public CSolver {
   void BC_Sym_Plane_Residual(CGeometry* geometry, CSolver** solver_container, CNumerics* conv_numerics,
                              CNumerics* visc_numerics, CConfig* config, unsigned short val_marker,
                              unsigned long val_element, unsigned short iNode, su2double* residualBuffer) override;
+
+  /*!
+   * \brief BC_ENTROPY_P1_STRONG_SLIP (ROE_TECNO_PLAN.md 6.8): at every owned point of the Euler walls and symmetry planes
+   *        the momentum of Solution_Old, LinSysRes and Res_TruncError and the momentum rows of the Jacobian row of the
+   *        point are projected with P = I - Q Q^T, Q an orthonormal basis of the point's wall normals (those of
+   *        BC_Sym_Plane: symmetryNormals where present, else the vertex unit normal). Called by Strong_BC.
+   */
+  void BC_Slip_Strong_P1(CGeometry* geometry, const CConfig* config) override;
 
   /*!
    * \brief Impose a periodic boundary condition by summing contributions from the complete control volume.

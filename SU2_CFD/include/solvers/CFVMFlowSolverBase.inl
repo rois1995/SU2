@@ -31,6 +31,8 @@
 #include "../limiters/computeLimiters.hpp"
 #include "../numerics_simd/CNumericsSIMD.hpp"
 #include "CFVMFlowSolverBase.hpp"
+#include <memory>
+#include "../numerics/flow/p1_strong_slip.hpp"
 
 template <class V, ENUM_REGIME R>
 void CFVMFlowSolverBase<V, R>::AeroCoeffsArray::allocate(int size) {
@@ -1346,6 +1348,7 @@ void CFVMFlowSolverBase<V, FlowRegime>::BC_Sym_Plane(CGeometry* geometry, CSolve
                          (config->GetKind_FluidModel() == IDEAL_GAS);
   const auto iVel = prim_idx.Velocity();
   const bool compressibleProjection = FlowRegime == ENUM_REGIME::COMPRESSIBLE && iVel == 1 && nVar == nDim + 2;
+  const bool creaseNormals = config->GetEuler_Wall_Crease_Normals() && !dynamic_grid;
 
 
   /*--- Blazek chapter 8.:
@@ -1374,6 +1377,45 @@ void CFVMFlowSolverBase<V, FlowRegime>::BC_Sym_Plane(CGeometry* geometry, CSolve
     } else {
       const su2double Area = GeometryToolbox::Norm(nDim, Normal);
       for (auto iDim = 0u; iDim < nDim; iDim++) UnitNormal[iDim] = Normal[iDim] / Area;
+    }
+
+    /*--- EULER_WALL_CREASE_NORMALS (ROE_TECNO_PLAN.md 6.14): at a point with crease normals (CGeometry::creaseBasis) the
+     * momentum of Solution_Old, the residual, the Jacobian rows and the truncation error are projected with
+     * P = I - Q Q^T, Q the joint orthonormal basis of the normals of all Euler walls and symmetry planes of the point
+     * (crease-group normals where present). Every marker call at the point applies the same P (idempotent), so the
+     * result does not depend on the marker order. Static grid: no grid-velocity terms. ---*/
+    if (creaseNormals) {
+      const auto itB = geometry->creaseBasis.find(iPoint);
+      if (itB != geometry->creaseBasis.end()) {
+        const auto nq = itB->second.first;
+        su2double Q[3][3] = {{0.0}};
+        for (unsigned short r = 0; r < 3; ++r)
+          for (unsigned short d = 0; d < 3; ++d) Q[r][d] = itB->second.second[r][d];
+
+        su2double* solutionOld = nodes->GetSolution_Old(iPoint);
+        P1StrongSlip::SlipProject(nDim, nq, Q, iVel, solutionOld);
+        su2double res[MAXNVAR] = {0.0};
+        for (auto iVar = 0u; iVar < nVar; ++iVar) res[iVar] = LinSysRes(iPoint, iVar);
+        P1StrongSlip::SlipProject(nDim, nq, Q, iVel, res);
+        for (auto iDim = 0u; iDim < nDim; ++iDim) LinSysRes(iPoint, iVel + iDim) = res[iVel + iDim];
+        if (implicit) {
+          auto projectBlock = [&](unsigned long jPoint) {
+            const auto view = Jacobian.GetBlockView(iPoint, jPoint);
+            if (!view) return;
+            su2double block[MAXNVAR * MAXNVAR];
+            for (auto iVar = 0u; iVar < nVar; ++iVar)
+              for (auto jVar = 0u; jVar < nVar; ++jVar) block[iVar * nVar + jVar] = view(iVar, jVar);
+            P1StrongSlip::SlipProjectRows(nDim, nVar, nq, Q, iVel, block);
+            Jacobian.SetBlock(iPoint, jPoint, block);
+          };
+          projectBlock(iPoint);
+          for (size_t iNeigh = 0; iNeigh < geometry->nodes->GetnPoint(iPoint); ++iNeigh)
+            projectBlock(geometry->nodes->GetPoint(iPoint, iNeigh));
+        }
+        su2double* truncError = nodes->GetResTruncError(iPoint);
+        P1StrongSlip::SlipProject(nDim, nq, Q, iVel, truncError);
+        continue;
+      }
     }
 
     /*--- The classical compressible projection below already supplies wall pressure work. ---*/
@@ -1525,6 +1567,135 @@ void CFVMFlowSolverBase<V, FlowRegime>::BC_Sym_Plane(CGeometry* geometry, CSolve
 
 }
 
+
+template <class V, ENUM_REGIME R>
+void CFVMFlowSolverBase<V, R>::BC_Slip_Strong_P1(CGeometry* geometry, const CConfig* config) {
+  SU2_ZONE_SCOPED
+
+  /*--- ROE_TECNO_PLAN.md 6.8, P1StrongSlip (numerics/flow/p1_strong_slip.hpp). Static mesh: the points and the bases
+   * are built once. Owned points only; the halos receive the owners' solution through the update communication. ---*/
+  const bool implicit = (config->GetKind_TimeIntScheme() == EULER_IMPLICIT);
+  const auto iVel = prim_idx.Velocity();
+
+  BEGIN_SU2_OMP_SAFE_GLOBAL_ACCESS {
+    if (!slipReadyP1) {
+      std::map<unsigned long, std::vector<std::array<su2double, 3>>> normals;
+      const unsigned long nCrease = geometry->nCreasePoints, nCreaseFallback = geometry->nCreaseFallbacks;
+      for (auto iMarker = 0u; iMarker < config->GetnMarker_All(); ++iMarker) {
+        const auto kind = config->GetMarker_All_KindBC(iMarker);
+        if ((kind != EULER_WALL) && (kind != SYMMETRY_PLANE)) continue;
+
+        for (auto iVertex = 0ul; iVertex < geometry->nVertex[iMarker]; ++iVertex) {
+          const auto iPoint = geometry->vertex[iMarker][iVertex]->GetNode();
+          if (!geometry->nodes->GetDomain(iPoint)) continue;
+
+          /*--- Crease groups of an Euler-wall point (CGeometry::ComputeCreaseNormals, ROE_TECNO_PLAN.md 6.11 B / 6.14):
+           * with two or more groups their unit normals replace the vertex normal. ---*/
+          if (kind == EULER_WALL) {
+            const auto itC = geometry->creaseNormals[iMarker].find(iVertex);
+            if (itC != geometry->creaseNormals[iMarker].end()) {
+              for (const auto& unitC : itC->second) normals[iPoint].push_back({unitC[0], unitC[1], unitC[2]});
+              continue;
+            }
+          }
+
+          /*--- The unit normal of BC_Sym_Plane: the modified normal at intersecting symmetries, else the vertex one. ---*/
+          std::array<su2double, 3> unit = {0.0, 0.0, 0.0};
+          const auto it = geometry->symmetryNormals[iMarker].find(iVertex);
+          if (it != geometry->symmetryNormals[iMarker].end()) {
+            for (auto iDim = 0u; iDim < nDim; ++iDim) unit[iDim] = it->second[iDim];
+          } else {
+            su2double normal[MAXNDIM] = {0.0};
+            geometry->vertex[iMarker][iVertex]->GetNormal(normal);
+            const su2double area = GeometryToolbox::Norm(nDim, normal);
+            for (auto iDim = 0u; iDim < nDim; ++iDim) unit[iDim] = normal[iDim] / area;
+          }
+          normals[iPoint].push_back(unit);
+        }
+      }
+      unsigned long local[2] = {nCrease, nCreaseFallback}, global[2] = {0, 0};
+      SU2_MPI::Allreduce(local, global, 2, MPI_UNSIGNED_LONG, MPI_SUM, SU2_MPI::GetComm());
+      if (rank == MASTER_NODE) {
+        std::cout << "BC_ENTROPY_P1_STRONG_SLIP: " << global[0] << " Euler-wall crease points with their face-group normals, "
+                  << global[1] << " crease points kept with the vertex normal (more than " << P1StrongSlip::SLIP_MAX_FACES
+                  << " faces or inconsistent face data)." << std::endl;
+      }
+      slipPointsP1.clear(); slipRankP1.clear(); slipBasisP1.clear();
+      for (const auto& item : normals) {
+        /*--- All normals of the point (SlipBasis stops at full rank). ---*/
+        const auto nNormals = static_cast<unsigned short>(item.second.size());
+        std::unique_ptr<su2double[][3]> list(new su2double[std::max<size_t>(1, nNormals)][3]);
+        su2double Q[3][3] = {{0.0}};
+        for (unsigned short a = 0; a < nNormals; ++a)
+          for (unsigned short d = 0; d < 3; ++d) list[a][d] = item.second[a][d];
+        const auto nq = P1StrongSlip::SlipBasis(nDim, nNormals, list.get(), Q);
+        std::array<su2double, 9> flat = {};
+        for (unsigned short r = 0; r < 3; ++r)
+          for (unsigned short d = 0; d < 3; ++d) flat[3 * r + d] = Q[r][d];
+        slipPointsP1.push_back(item.first);
+        slipRankP1.push_back(nq);
+        slipBasisP1.push_back(flat);
+      }
+      slipReadyP1 = true;
+    }
+
+    su2double penetration = 0.0, reaction[MAXNDIM] = {0.0}, mRef = 0.0;
+    for (auto iDim = 0u; iDim < nDim; ++iDim) mRef += pow(GetDensity_Inf() * GetVelocity_Inf(iDim), 2);
+    mRef = sqrt(mRef);
+    for (size_t k = 0; k < slipPointsP1.size(); ++k) {
+      const auto iPoint = slipPointsP1[k];
+      const auto nq = slipRankP1[k];
+      su2double Q[3][3];
+      for (unsigned short r = 0; r < 3; ++r)
+        for (unsigned short d = 0; d < 3; ++d) Q[r][d] = slipBasisP1[k][3 * r + d];
+
+      /*--- Momentum of the old solution (the update is Solution = Solution_Old + dU), with the diagnostic. ---*/
+      su2double* solutionOld = nodes->GetSolution_Old(iPoint);
+      penetration = max(penetration, P1StrongSlip::SlipPenetration(nDim, nq, Q, iVel, solutionOld, mRef));
+      P1StrongSlip::SlipProject(nDim, nq, Q, iVel, solutionOld);
+
+      /*--- Residual: the removed part is the wall reaction beyond closure C (force-balance diagnostic). ---*/
+      su2double res[MAXNVAR] = {0.0};
+      for (auto iVar = 0u; iVar < nVar; ++iVar) res[iVar] = LinSysRes(iPoint, iVar);
+      P1StrongSlip::SlipProject(nDim, nq, Q, iVel, res);
+      for (auto iDim = 0u; iDim < nDim; ++iDim) reaction[iDim] += LinSysRes(iPoint, iVel + iDim) - res[iVel + iDim];
+      for (auto iDim = 0u; iDim < nDim; ++iDim) LinSysRes(iPoint, iVel + iDim) = res[iVel + iDim];
+
+      su2double* truncError = nodes->GetResTruncError(iPoint);
+      P1StrongSlip::SlipProject(nDim, nq, Q, iVel, truncError);
+
+      /*--- Momentum rows of every block of the row (point-neighbour sparsity: the diagonal and GetPoints). ---*/
+      if (implicit) {
+        auto projectBlock = [&](unsigned long jPoint) {
+          const auto view = Jacobian.GetBlockView(iPoint, jPoint);
+          if (!view) return;
+          su2double block[MAXNVAR * MAXNVAR];
+          for (auto iVar = 0u; iVar < nVar; ++iVar)
+            for (auto jVar = 0u; jVar < nVar; ++jVar) block[iVar * nVar + jVar] = view(iVar, jVar);
+          P1StrongSlip::SlipProjectRows(nDim, nVar, nq, Q, iVel, block);
+          Jacobian.SetBlock(iPoint, jPoint, block);
+        };
+        projectBlock(iPoint);
+        for (size_t iNeigh = 0; iNeigh < geometry->nodes->GetnPoint(iPoint); ++iNeigh)
+          projectBlock(geometry->nodes->GetPoint(iPoint, iNeigh));
+      }
+    }
+
+    const auto iter = config->GetInnerIter();
+    if ((iter <= 2) || (iter % 1000 == 0)) {
+      su2double penGlobal = 0.0, reactGlobal[MAXNDIM] = {0.0};
+      SU2_MPI::Allreduce(&penetration, &penGlobal, 1, MPI_DOUBLE, MPI_MAX, SU2_MPI::GetComm());
+      SU2_MPI::Allreduce(reaction, reactGlobal, MAXNDIM, MPI_DOUBLE, MPI_SUM, SU2_MPI::GetComm());
+      if (rank == MASTER_NODE) {
+        std::cout << "BC_ENTROPY_P1_STRONG_SLIP: inner iteration " << iter << ", max |Q^T m|/max(|m|, |m_inf|) before the projection "
+                  << penGlobal << ", removed momentum residual (" << reactGlobal[0] << ", " << reactGlobal[1];
+        if (nDim == 3) std::cout << ", " << reactGlobal[2];
+        std::cout << ")" << std::endl;
+      }
+    }
+  }
+  END_SU2_OMP_SAFE_GLOBAL_ACCESS
+}
 
 template <class V, ENUM_REGIME R>
 void CFVMFlowSolverBase<V, R>::BC_Sym_Plane_Residual(CGeometry* geometry, CSolver** solver_container,
@@ -3549,6 +3720,23 @@ void CFVMFlowSolverBase<V, FlowRegime>::Friction_Forces(const CGeometry* geometr
         UnitNormal[iDim] = Normal[iDim] / Area;
       }
 
+      /*--- EULER_WALL_CREASE_NORMALS (ROE_TECNO_PLAN.md 6.14): at a crease point of a no-slip wall the unit vertex normal
+       * is a cancellation residue; the local wall outputs (wall shear, skin friction, y+, heat flux) are the averages over
+       * the crease groups weighted by their wetted areas |N_q|, and the heat integral uses the wetted area. The force
+       * integral TauElem * Area = tau . sum N is the dual-face integral of the nodal stress and stays unchanged. ---*/
+      const std::vector<std::array<su2double, MAXNDIM>>* creaseN = nullptr;
+      const std::vector<std::pair<su2double, std::pair<unsigned long, su2double>>>* creaseG = nullptr;
+      su2double areaHF = Area;
+      if (config->GetEuler_Wall_Crease_Normals() && !wallfunctions && (geometry->creaseNormals.size() > iMarker)) {
+        const auto itN = geometry->creaseNormals[iMarker].find(iVertex);
+        const auto itG = geometry->creaseGroups[iMarker].find(iVertex);
+        if ((itN != geometry->creaseNormals[iMarker].end()) && (itG != geometry->creaseGroups[iMarker].end())) {
+          creaseN = &itN->second;
+          creaseG = &itG->second;
+          areaHF = geometry->creaseArea[iMarker].at(iVertex);
+        }
+      }
+
       /*--- Evaluate Tau ---*/
       su2double Tau[3][3] = {{0.0}};
       CNumerics::ComputeStressTensor(nDim, Tau, Grad_Vel, Viscosity);
@@ -3573,6 +3761,15 @@ void CFVMFlowSolverBase<V, FlowRegime>::Friction_Forces(const CGeometry* geometr
       GeometryToolbox::TangentProjection(nDim, Tau, UnitNormal, TauTangent);
 
       WallShearStress[iMarker][iVertex] = GeometryToolbox::Norm(int(MAXNDIM), TauTangent);
+      if (creaseN) {
+        for (unsigned short iDim = 0; iDim < MAXNDIM; iDim++) TauTangent[iDim] = 0.0;
+        for (size_t q = 0; q < creaseN->size(); ++q) {
+          su2double tanQ[MAXNDIM] = {0.0};
+          GeometryToolbox::TangentProjection(nDim, Tau, (*creaseN)[q].data(), tanQ);
+          for (unsigned short iDim = 0; iDim < nDim; iDim++) TauTangent[iDim] += (*creaseG)[q].first * tanQ[iDim] / areaHF;
+        }
+        WallShearStress[iMarker][iVertex] = GeometryToolbox::Norm(int(MAXNDIM), TauTangent);
+      }
 
       /*--- For wall functions, the wall stresses need to be scaled by the wallfunction stress Tau_Wall---*/
       if (wallfunctions && (YPlus[iMarker][iVertex] > minYPlus)){
@@ -3619,8 +3816,22 @@ void CFVMFlowSolverBase<V, FlowRegime>::Friction_Forces(const CGeometry* geometr
           const su2double dist_ij = GeometryToolbox::NormalDistance(nDim, UnitNormal, Coord, Coord_Normal);
           const su2double There = nodes->GetTemperature(iPointNormal);
           HeatFlux[iMarker][iVertex] = thermal_conductivity * (There - Twall_local) / dist_ij * RefHeatFlux;
+          bool stencil = (creaseN != nullptr);
+          if (stencil)
+            for (const auto& grp : *creaseG) stencil = stencil && (grp.second.second > 0.0);
+          if (stencil) {
+            su2double sum = 0.0;
+            for (const auto& grp : *creaseG)
+              sum += grp.first * (nodes->GetTemperature(grp.second.first) - Twall_local) / grp.second.second;
+            HeatFlux[iMarker][iVertex] = thermal_conductivity * sum / areaHF * RefHeatFlux;
+          }  /*--- Without a valid group stencil SU2's flux density is kept (on the wetted area in the integral). ---*/
         } else {
           su2double dTdn = GeometryToolbox::DotProduct(nDim, Grad_Temp, UnitNormal);
+          if (creaseN) {
+            dTdn = 0.0;
+            for (size_t q = 0; q < creaseN->size(); ++q)
+              dTdn += (*creaseG)[q].first * GeometryToolbox::DotProduct(nDim, Grad_Temp, (*creaseN)[q].data()) / areaHF;
+          }
           if (FlowRegime == ENUM_REGIME::INCOMPRESSIBLE && !energy) dTdn = 0.0;
           HeatFlux[iMarker][iVertex] = thermal_conductivity * dTdn * RefHeatFlux;
         }
@@ -3674,8 +3885,24 @@ void CFVMFlowSolverBase<V, FlowRegime>::Friction_Forces(const CGeometry* geometr
         for (unsigned short iDim = 0; iDim < nDim; iDim++) {
           CSkinFriction[iMarker](iVertex, iDim) = (traction[iDim] - tractionNormal * UnitNormal[iDim]) * factorFric;
         }
+        if (creaseN) {
+          /*--- Traction on the wetted area, tangential part: the components along the crease-group normals removed
+           * (orthonormal basis of their span, CreaseGroups::Basis). ---*/
+          su2double list[CreaseGroups::MAX_FACES][3] = {{0.0}}, Q[3][3] = {{0.0}};
+          const auto nList = static_cast<unsigned short>(std::min<size_t>(CreaseGroups::MAX_FACES, creaseN->size()));
+          for (unsigned short a = 0; a < nList; ++a)
+            for (unsigned short d = 0; d < 3; ++d) list[a][d] = (*creaseN)[a][d];
+          const auto rankQ = CreaseGroups::Basis(nDim, nList, list, Q);
+          su2double tr[MAXNDIM] = {0.0};
+          for (unsigned short iDim = 0; iDim < nDim; iDim++) tr[iDim] = wallFlux[iDim + 1] / areaHF;
+          for (unsigned short r = 0; r < rankQ; ++r) {
+            const su2double proj = GeometryToolbox::DotProduct(nDim, Q[r], tr);
+            for (unsigned short iDim = 0; iDim < nDim; iDim++) tr[iDim] -= proj * Q[r][iDim];
+          }
+          for (unsigned short iDim = 0; iDim < nDim; iDim++) CSkinFriction[iMarker](iVertex, iDim) = tr[iDim] * factorFric;
+        }
         P1NodalHeatFlux[iMarker][iVertex] = HeatFlux[iMarker][iVertex];
-        HeatFlux[iMarker][iVertex] = wallFlux[nDim + 1] / Area * RefHeatFlux;
+        HeatFlux[iMarker][iVertex] = wallFlux[nDim + 1] / areaHF * RefHeatFlux;
       }
 
       /*--- Note that heat is computed at the
@@ -3706,7 +3933,7 @@ void CFVMFlowSolverBase<V, FlowRegime>::Friction_Forces(const CGeometry* geometr
         AccumulateMoment(nDim, RefLength, Force, MomentDist, Coord, MomentViscous, MomentX_Force, MomentY_Force,
                          MomentZ_Force);
 
-        HF_Visc_Local += HeatFlux[iMarker][iVertex] * Area;
+        HF_Visc_Local += HeatFlux[iMarker][iVertex] * areaHF;
         MaxHF_Visc_Local += pow(HeatFlux[iMarker][iVertex], MaxNorm);
       }
     }

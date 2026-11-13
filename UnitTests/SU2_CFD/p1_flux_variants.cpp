@@ -50,6 +50,8 @@
 #include "../../SU2_CFD/include/numerics/flow/p1_boundary_ghost.hpp"
 #include "../../SU2_CFD/include/numerics/flow/p1_boundary_closure.hpp"
 #include "../../SU2_CFD/include/numerics/flow/jst_weak_wall.hpp"
+#include "../../SU2_CFD/include/numerics/flow/p1_strong_slip.hpp"
+#include "../../SU2_CFD/include/gradients/correctGradientsSymmetry.hpp"
 #include "../../SU2_CFD/include/numerics/flow/p1_sst_matched.hpp"
 #include "../../SU2_CFD/include/numerics/flow/jst_entropy.hpp"
 #include "../../SU2_CFD/include/numerics_simd/flow/convection/common.hpp"
@@ -3410,12 +3412,19 @@ void TeCNOAdjointLinearizationCase() {
   const auto r = TeCNOAdjointChecks::LinearizationCheck<nDim>(geometry, geometry.GetnPoint(), 8, 9);
   INFO("nDim " << nDim << ": asymmetry " << r.asymmetry << ", negative " << r.negative << ", majorant " << r.majorant
                << ", first ring " << r.firstRing << " (edge part " << r.firstRingEdge << ", spread " << r.firstRingSpread
-               << ")");
+               << "), jumps " << r.jumps << " (ref " << r.jumpsRef << ", alpha " << r.jumpsAlpha << ", row sum "
+               << r.jumpsRowSum << ", asym " << r.jumpsAsym << ", finite " << r.jumpsFinite << ")");
   CHECK(r.asymmetry < 1e-12);
   CHECK(r.negative < 1e-12);
   CHECK(r.majorant < 1e-12);
   CHECK(r.firstRing < 1e-12);
   CHECK(r.firstRingEdge < 1e-12);
+  CHECK(r.jumpsFinite);
+  CHECK(r.jumps < 1e-12);
+  CHECK(r.jumpsRef < 1e-6);
+  CHECK(r.jumpsAlpha < 1e-12);
+  CHECK(r.jumpsRowSum < 1e-12);
+  CHECK(r.jumpsAsym < 1e-12);
 }
 
 template <size_t nDim>
@@ -3717,12 +3726,20 @@ void P1AverageLinearizationCase() {
     const auto r = TeCNOAdjointChecks::LinearizationCheck<nDim>(geometry, geometry.GetnPoint(), 6, 11, &p1);
     INFO("nDim " << nDim << " moved " << moved << ": asymmetry " << r.asymmetry << ", negative " << r.negative
                  << ", majorant " << r.majorant << ", first ring " << r.firstRing << " (edge part " << r.firstRingEdge
-                 << ", spread " << r.firstRingSpread << ")");
+                 << ", spread " << r.firstRingSpread << "), jumps " << r.jumps << " (ref " << r.jumpsRef << ", alpha "
+                 << r.jumpsAlpha << ", row sum " << r.jumpsRowSum << ", asym " << r.jumpsAsym << ", finite "
+                 << r.jumpsFinite << ")");
     CHECK(r.asymmetry < 1e-12);
     CHECK(r.negative < 1e-12);
     CHECK(r.majorant < 1e-12);
     CHECK(r.firstRing < 1e-12);
     CHECK(r.firstRingEdge < 1e-12);
+    CHECK(r.jumpsFinite);
+    CHECK(r.jumps < 1e-12);
+    CHECK(r.jumpsRef < 1e-6);
+    CHECK(r.jumpsAlpha < 1e-12);
+    CHECK(r.jumpsRowSum < 1e-12);
+    CHECK(r.jumpsAsym < 1e-12);
   }
 }
 }  // namespace
@@ -3970,6 +3987,1346 @@ TEST_CASE("TECNO_ADJOINT_LIMITER= EDGE_ENTROPY_VA: phi = 1 for linear data and z
   }
   INFO("L3 smoothness at the origin, worst relative deviation " << worstRatio);
   CHECK(worstRatio < 1e-3);
+}
+
+/*--- TECNO_ADJOINT_LIMITER= EDGE_ENTROPY_TVD (ROE_TECNO_PLAN.md 6.6, P1_TECNO_ADJ_LIMITER.md fourth candidate + freeze):
+ * the solver passes against an independent reference, the frozen-field box of the final values, Theorem A1 with the
+ * stored Phi, own clip = 1 on linear data, uniform states and D = 0, the freeze rule, numbering invariance, the shear
+ * block under rotation, the noise threshold, FIRST_RING_JUMPS with the stored Phi, and MPI (rho and Phi by global
+ * index written for 1/2/4 ranks, compared by the check job). ---*/
+namespace {
+
+namespace tac = TeCNOAdjointChecks;
+
+/*--- Nodal states as a function of the coordinates (a smoothed oblique shock with shear and a vortex-like swirl). ---*/
+template <class Geometry>
+tac::States CoordinateStates(const Geometry& geometry, unsigned short nDim) {
+  tac::States S;
+  const auto nPoint = geometry.GetnPoint();
+  S.rho.resize(nPoint);
+  S.p.resize(nPoint);
+  S.u.resize(nPoint);
+  for (auto i = 0ul; i < nPoint; ++i) {
+    const auto* x = geometry.nodes->GetCoord(i);
+    const double z = (nDim == 3) ? x[2] : 0.0;
+    const double xi = (x[0] + 0.4 * x[1] - 0.25 * z - 0.55) / 0.07;
+    const double step = tanh(xi);
+    S.rho[i] = 1.0 + 0.35 * step + 0.04 * sin(9.0 * x[1] + 3.0 * z);
+    S.p[i] = (1.0 + 0.6 * step) * (1.0 + 0.03 * cos(7.0 * x[0]));
+    S.u[i] = {0.9 - 0.3 * step + 0.1 * sin(5.0 * x[1]), 0.2 * step + 0.15 * cos(6.0 * x[0] + z), 0.0};
+    if (nDim == 3) S.u[i][2] = 0.1 * sin(4.0 * x[0] - 3.0 * x[1]) - 0.05 * step;
+  }
+  return S;
+}
+
+/*--- The same mesh file with the point numbers permuted (elements and markers renumbered). ---*/
+void PermuteSimplexMesh(const std::string& in, const std::string& out, unsigned seed) {
+  if (SU2_MPI::GetRank() != MASTER_NODE) return;
+  std::ifstream f(in);
+  std::vector<std::string> lines;
+  for (std::string line; std::getline(f, line);) lines.push_back(line);
+  unsigned long nPoint = 0;
+  size_t pointStart = 0;
+  for (size_t l = 0; l < lines.size(); ++l) {
+    if (lines[l].rfind("NPOIN=", 0) == 0) {
+      nPoint = std::stoul(lines[l].substr(6));
+      pointStart = l + 1;
+    }
+  }
+  std::vector<unsigned long> perm(nPoint);
+  for (auto i = 0ul; i < nPoint; ++i) perm[i] = i;
+  std::mt19937 gen(seed);
+  std::shuffle(perm.begin(), perm.end(), gen);
+  auto renumber = [&](const std::string& line) {
+    std::istringstream is(line);
+    std::ostringstream os;
+    int type;
+    is >> type;
+    os << type;
+    for (unsigned long node; is >> node;) os << " " << perm[node];
+    return os.str();
+  };
+  std::ofstream o(out);
+  o.precision(17);
+  enum { HEADER, ELEMS, MARKS } mode = HEADER;
+  std::vector<std::string> points(nPoint);
+  for (auto i = 0ul; i < nPoint; ++i) points[perm[i]] = lines[pointStart + i];
+  for (size_t l = 0; l < lines.size(); ++l) {
+    const auto& line = lines[l];
+    if (line.rfind("NELEM=", 0) == 0) { mode = ELEMS; o << line << "\n"; continue; }
+    if (line.rfind("NPOIN=", 0) == 0) {
+      o << line << "\n";
+      for (const auto& pt : points) o << pt << "\n";
+      l += nPoint;
+      mode = HEADER;
+      continue;
+    }
+    if (line.rfind("NMARK=", 0) == 0) { mode = MARKS; o << line << "\n"; continue; }
+    if ((line.rfind("MARKER_", 0) == 0) || (line.rfind("NDIME=", 0) == 0) || (mode == HEADER)) { o << line << "\n"; continue; }
+    o << renumber(line) << "\n";
+  }
+}
+
+/*--- Run the passes on a serial geometry: GG (median or moved dual) or the P1 average. ---*/
+template <size_t nDim, class Geometry>
+tac::TVDData RunTVD(const Geometry& geometry, const tac::States& S, bool projected, const tac::P1Average* p1,
+                    const su2activematrix* wOverride = nullptr) {
+  tac::TVDData d;
+  const auto es = tac::TVDEdgeStates<nDim>(geometry, S, projected);
+  const auto w = wOverride ? *wOverride : tac::EntropyField(S, nDim);
+  const auto grad = tac::TVDGradientOf<nDim>(geometry, w, p1);
+  d.ing = tac::TVDIngredientsOf<nDim>(geometry, w, grad, es);
+  auto noHalo = [](su2activematrix&) {};
+  if (p1) {
+    tac::TVDPasses(geometry, nDim, p1->weights, p1->volume, d, noHalo);
+  } else {
+    auto volume = [&](unsigned long i) { return geometry.nodes->GetVolume(i); };
+    tac::TVDPasses(geometry, nDim, TeCNOAdjoint::GreenGaussWeights<Geometry>{geometry, nDim}, volume, d, noHalo);
+  }
+  return d;
+}
+
+template <size_t nDim>
+void EdgeEntropyTVDCase() {
+  constexpr size_t nVar = nDim + 2;
+  for (const bool moved : {false, true}) {
+    for (const bool p1Average : {false, true}) {
+      const std::string mesh = "tecno_tvd_" + std::to_string(nDim) + "d.su2";
+      WriteSimplexMesh(mesh, nDim, (nDim == 2) ? 7 : 3, 0.4, 0.3, (nDim == 2) ? BendMesh2D : BendMesh3D);
+      MeshCase test(mesh, moved ? P1AverageMoved : "");
+      auto& geometry = *test.geometry;
+      const tac::P1Average p1(geometry);
+      const tac::P1Average* p1p = p1Average ? &p1 : nullptr;
+      const auto nPoint = geometry.GetnPoint();
+      auto volumeV = [&](unsigned long i) { return geometry.nodes->GetVolume(i); };
+      double refDiff = 0.0, box = 0.0, identity = 0.0, production = -1e300, conservation = 0.0, phiMin = 1e300,
+             phiMax = -1e300, activity = 0.0;
+      std::mt19937 gen(71);
+      for (int t = 0; t < 8; ++t) {
+        const auto S = (t < 2) ? CoordinateStates(geometry, nDim) : tac::RandomStates(nPoint, nDim, gen, (t % 2) ? 0.3 : 1.0);
+        const bool projected = (t % 2);
+        const auto d = RunTVD<nDim>(geometry, S, projected, p1p);
+        double act = 0.0;
+        const auto ref = p1p ? tac::TVDReference(geometry, nDim, d.ing, p1.weights, p1.volume, &act)
+                             : tac::TVDReference(geometry, nDim, d.ing, TeCNOAdjoint::GreenGaussWeights<CGeometry>{geometry, nDim},
+                                                 volumeV, &act);
+        activity = std::max(activity, act);
+        for (auto e = 0ul; e < geometry.GetnEdge(); ++e) {
+          for (int c = 0; c < 8; ++c) {
+            refDiff = std::max(refDiff, double(fabs(d.phi(e, c) - ref(e, c))));
+            phiMin = std::min(phiMin, double(d.phi(e, c)));
+            phiMax = std::max(phiMax, double(d.phi(e, c)));
+          }
+        }
+        box = std::max(box, p1p ? tac::TVDBoxViolation(geometry, nDim, d.ing, d.phi, p1.weights, p1.volume)
+                                : tac::TVDBoxViolation(geometry, nDim, d.ing, d.phi,
+                                                       TeCNOAdjoint::GreenGaussWeights<CGeometry>{geometry, nDim}, volumeV));
+        /*--- Theorem A1 with the stored Phi, L^T D L from the ingredient coefficients D. ---*/
+        const auto es = tac::TVDEdgeStates<nDim>(geometry, S, projected);
+        const auto w = tac::EntropyField(S, nDim);
+        const double ramp = (t % 3 == 0) ? 0.6 : 1.0;
+        double sumLDL = 0.0;
+        const auto R = tac::TVDResidual<nDim>(geometry, es, d.phi, w, ramp, p1p, &d.ing, sumLDL);
+        double wR = 0.0, absWR = 0.0, maxR = 0.0, cons[nVar] = {0.0};
+        for (auto i = 0ul; i < nPoint; ++i) {
+          for (size_t v = 0; v < nVar; ++v) {
+            wR += w(i, v) * R(i, v);
+            absWR += fabs(w(i, v) * R(i, v));
+            maxR = std::max(maxR, double(fabs(R(i, v))));
+            cons[v] += R(i, v);
+          }
+        }
+        identity = std::max(identity, fabs(wR - sumLDL) / absWR);
+        production = std::max(production, -sumLDL / absWR);
+        for (size_t v = 0; v < nVar; ++v) conservation = std::max(conservation, fabs(cons[v]) / maxR);
+      }
+      INFO("nDim " << nDim << " moved " << moved << " P1 average " << p1Average << ": |Phi - Phi_ref| " << refDiff
+                   << ", box " << box << ", A1 identity " << identity << ", production " << production
+                   << ", conservation " << conservation << ", Phi in [" << phiMin << ", " << phiMax
+                   << "], largest activity " << activity);
+      CHECK(refDiff < 1e-10);
+      CHECK(box < 1e-12);
+      CHECK(identity < 1e-12);
+      CHECK(production < 0.0);
+      CHECK(conservation < 1e-12);
+      CHECK(phiMin >= 0.0);
+      CHECK(phiMax <= 1.0);
+      CHECK(phiMin < 0.5);  /*--- The shock-like states activate the limiter. ---*/
+      if (SU2_MPI::GetRank() == MASTER_NODE) WARN("EDGE_ENTROPY_TVD nDim " << nDim << " moved " << moved << " P1 "
+                                                  << p1Average << ": largest fraction of limited edge-end fields " << activity);
+
+      /*--- Linear w (P1 average, linear exact at every node): the own clip is 1 wherever the jump is above roundoff;
+       * the node factor activity is reported (the envelope may exceed the box on linear data, model 4). ---*/
+      if (p1Average) {
+        su2activematrix wLin(nPoint, nVar);
+        const double coef[5][3] = {{0.7, -0.4, 0.3}, {0.2, 0.9, -0.5}, {-0.6, 0.3, 0.8}, {0.4, 0.5, -0.7}, {-0.3, -0.8, 0.6}};
+        for (auto i = 0ul; i < nPoint; ++i) {
+          for (size_t v = 0; v < nVar; ++v) {
+            wLin(i, v) = 0.5 * (v + 1);
+            for (size_t dd = 0; dd < nDim; ++dd) wLin(i, v) += coef[v][dd] * geometry.nodes->GetCoord(i)[dd];
+          }
+        }
+        const auto S = CoordinateStates(geometry, nDim);
+        const auto d = RunTVD<nDim>(geometry, S, false, p1p, &wLin);
+        double worstOwn = 0.0;
+        unsigned long limited = 0;
+        const auto ed = tac::TVDRefEdges(geometry, nDim, d.ing);
+        for (auto e = 0ul; e < geometry.GetnEdge(); ++e) {
+          for (int f = 0; f < 4; ++f) {
+            if (!(fabs(ed[e].dy[f]) > 1e3 * ed[e].d[f])) continue;
+            for (int x = 0; x < 2; ++x) worstOwn = std::max(worstOwn, double(fabs(d.clip(e, TeCNOAdjoint::TVD_CLIP_P1 + 4 * x + f) - 1.0)));
+          }
+          for (int c = 0; c < 8; ++c) limited += (d.phi(e, c) < 1.0 - 1e-12);
+        }
+        INFO("nDim " << nDim << " moved " << moved << ": linear w, |P1 - 1| " << worstOwn << ", limited fraction "
+                     << double(limited) / (8.0 * geometry.GetnEdge()));
+        CHECK(worstOwn < 1e-12);
+      }
+
+      /*--- Uniform state: Phi = 1 exactly; D_M = 0 on every edge: rho_M = 1. ---*/
+      {
+        tac::States U;
+        U.rho.assign(nPoint, 1.3);
+        U.p.assign(nPoint, 0.9);
+        U.u.assign(nPoint, {0.4, -0.2, (nDim == 3) ? 0.1 : 0.0});
+        const auto d = RunTVD<nDim>(geometry, U, false, p1p);
+        double dev = 0.0;
+        for (auto e = 0ul; e < geometry.GetnEdge(); ++e)
+          for (int c = 0; c < 8; ++c) dev = std::max(dev, double(fabs(d.phi(e, c) - 1.0)));
+        CHECK(dev == 0.0);
+
+        const auto Sx = CoordinateStates(geometry, nDim);
+        auto dz = RunTVD<nDim>(geometry, Sx, false, p1p);
+        /*--- Both acoustic columns (canonical M is the local P of a flipped edge). ---*/
+        for (auto e = 0ul; e < geometry.GetnEdge(); ++e) {
+          dz.ing(e, TeCNOAdjoint::TVD_D + 0) = 0.0;
+          dz.ing(e, TeCNOAdjoint::TVD_D + 2) = 0.0;
+        }
+        auto noHalo = [](su2activematrix&) {};
+        if (p1p) {
+          tac::TVDPasses(geometry, nDim, p1.weights, p1.volume, dz, noHalo);
+        } else {
+          tac::TVDPasses(geometry, nDim, TeCNOAdjoint::GreenGaussWeights<CGeometry>{geometry, nDim}, volumeV, dz, noHalo);
+        }
+        double devM = 0.0;
+        for (auto i = 0ul; i < nPoint; ++i) devM = std::max(devM, double(fabs(dz.rho(i, 0) - 1.0) + fabs(dz.rho(i, 3) - 1.0)));
+        CHECK(devM == 0.0);
+      }
+    }
+  }
+}
+
+template <size_t nDim>
+void EdgeEntropyTVDInvarianceCase() {
+  constexpr size_t nVar = nDim + 2;
+  /*--- Numbering: the same lattice mesh (ties of the leading coordinates) with permuted point numbers gives the same
+   * canonical Phi on every edge, keyed by the coordinates of the canonical ends. ---*/
+  for (const bool p1Average : {false, true}) {
+    const std::string mesh = "tecno_tvd_num_" + std::to_string(nDim) + "d.su2";
+    const std::string meshPerm = "tecno_tvd_perm_" + std::to_string(nDim) + "d.su2";
+    WriteSimplexMesh(mesh, nDim, (nDim == 2) ? 6 : 3, 0.3, 0.5);
+    PermuteSimplexMesh(mesh, meshPerm, 5);
+    std::map<std::vector<double>, std::array<double, 8>> values[2];
+    for (int m = 0; m < 2; ++m) {
+      MeshCase test(m ? meshPerm : mesh, "");
+      auto& geometry = *test.geometry;
+      const tac::P1Average p1(geometry);
+      const auto S = CoordinateStates(geometry, nDim);
+      const auto d = RunTVD<nDim>(geometry, S, true, p1Average ? &p1 : nullptr);
+      const auto ed = tac::TVDRefEdges(geometry, nDim, d.ing);
+      for (auto e = 0ul; e < geometry.GetnEdge(); ++e) {
+        std::vector<double> key;
+        for (int x = 0; x < 2; ++x)
+          for (size_t dd = 0; dd < nDim; ++dd) key.push_back(geometry.nodes->GetCoord(ed[e].n[x])[dd]);
+        std::array<double, 8> v;
+        for (int x = 0; x < 2; ++x) {
+          for (int f = 0; f < 4; ++f) {
+            const int y = ed[e].flip ? 1 - x : x;
+            const int fl = ed[e].flip ? ((f == 0) ? 3 : ((f == 3) ? 0 : f)) : f;
+            v[4 * x + f] = d.phi(e, 4 * y + fl);
+          }
+        }
+        values[m][key] = v;
+      }
+    }
+    double worst = 0.0;
+    size_t matched = 0;
+    for (const auto& kv : values[0]) {
+      const auto it = values[1].find(kv.first);
+      if (it == values[1].end()) continue;
+      ++matched;
+      for (int c = 0; c < 8; ++c) worst = std::max(worst, fabs(kv.second[c] - it->second[c]));
+    }
+    INFO("nDim " << nDim << " P1 " << p1Average << ": renumbered mesh, " << matched << " of " << values[0].size()
+                 << " edges matched, max |dPhi| " << worst);
+    CHECK(matched == values[0].size());
+    CHECK(worst < 1e-10);
+  }
+
+  /*--- Shear block under rotation, and the scalar ingredients, D and the guards (rotation invariant). ---*/
+  std::mt19937 gen(83);
+  std::uniform_real_distribution<double> r(-1.0, 1.0);
+  double Qr[3][3] = {{1, 0, 0}, {0, 1, 0}, {0, 0, 1}};
+  if (nDim == 2) {
+    Qr[0][0] = cos(0.9); Qr[0][1] = -sin(0.9); Qr[1][0] = sin(0.9); Qr[1][1] = cos(0.9);
+  } else {
+    const double ax[3] = {2.0 / sqrt(29.0), -3.0 / sqrt(29.0), 4.0 / sqrt(29.0)}, c = cos(0.9), sn = sin(0.9);
+    for (int a = 0; a < 3; ++a)
+      for (int b = 0; b < 3; ++b) Qr[a][b] = c * (a == b) + (1.0 - c) * ax[a] * ax[b];
+    Qr[0][1] -= sn * ax[2]; Qr[1][0] += sn * ax[2];
+    Qr[0][2] += sn * ax[1]; Qr[2][0] -= sn * ax[1];
+    Qr[1][2] -= sn * ax[0]; Qr[2][1] += sn * ax[0];
+  }
+  auto rotate = [&](const double* x, double* y) {
+    for (size_t a = 0; a < nDim; ++a) {
+      y[a] = 0.0;
+      for (size_t b = 0; b < nDim; ++b) y[a] += Qr[a][b] * x[b];
+    }
+  };
+  double worst = 0.0;
+  for (int t = 0; t < 50; ++t) {
+    double u[2][3] = {{0.0}}, ur[2][3] = {{0.0}}, n[3] = {0.0}, nr[3] = {0.0}, norm = 0.0;
+    for (size_t dd = 0; dd < nDim; ++dd) {
+      u[0][dd] = 0.6 * r(gen);
+      u[1][dd] = 0.6 * r(gen);
+      n[dd] = r(gen);
+      norm += n[dd] * n[dd];
+    }
+    for (size_t dd = 0; dd < nDim; ++dd) n[dd] /= sqrt(norm);
+    rotate(u[0], ur[0]);
+    rotate(u[1], ur[1]);
+    rotate(n, nr);
+    const double rho[2] = {exp(r(gen)), exp(r(gen))}, p[2] = {exp(r(gen)), exp(r(gen))};
+    VectorDbl<nVar> vec[2][3];
+    for (int a = 0; a < 3; ++a)
+      for (size_t v = 0; v < nVar; ++v) vec[0][a](v) = r(gen);
+    for (int a = 0; a < 3; ++a) {
+      vec[1][a] = vec[0][a];
+      double m[3] = {0.0}, mr[3] = {0.0};
+      for (size_t dd = 0; dd < nDim; ++dd) m[dd] = vec[0][a](dd + 1)[0];
+      rotate(m, mr);
+      for (size_t dd = 0; dd < nDim; ++dd) vec[1][a](dd + 1) = mr[dd];
+    }
+    Double out[2][TeCNOAdjoint::TVD_SHEAR + 9];
+    for (int side = 0; side < 2; ++side) {
+      CPair<CCompressiblePrimitives<nDim, nDim + 4>> V;
+      V.i = tac::Primitives<nDim>(rho[0], side ? ur[0] : u[0], p[0]);
+      V.j = tac::Primitives<nDim>(rho[1], side ? ur[1] : u[1], p[1]);
+      VectorDbl<nDim> unit;
+      for (size_t dd = 0; dd < nDim; ++dd) unit(dd) = side ? nr[dd] : n[dd];
+      const auto avg = roeAveragedVariables(Double(tac::GAMMA), V, unit);
+      tecnoAdjointTVDIngredients(Double(tac::GAMMA), avg, unit, Double(1.1), Double(0.7), Double(1.9), Double(0.5),
+                                 vec[side][0], vec[side][1], vec[side][2], V.i, V.j, out[side]);
+    }
+    /*--- Columns 0..14 invariant; the shear vectors rotate (norms and mutual products invariant). ---*/
+    for (unsigned short c = 0; c < TeCNOAdjoint::TVD_SHEAR; ++c)
+      worst = std::max(worst, double(fabs(out[1][c][0] - out[0][c][0])) / (1.0 + fabs(out[0][c][0])));
+    for (int a = 0; a < 3; ++a) {
+      for (int b = 0; b < 3; ++b) {
+        double dot0 = 0.0, dot1 = 0.0;
+        for (size_t dd = 0; dd < nDim; ++dd) {
+          dot0 += out[0][TeCNOAdjoint::TVD_SHEAR + a * nDim + dd][0] * out[0][TeCNOAdjoint::TVD_SHEAR + b * nDim + dd][0];
+          dot1 += out[1][TeCNOAdjoint::TVD_SHEAR + a * nDim + dd][0] * out[1][TeCNOAdjoint::TVD_SHEAR + b * nDim + dd][0];
+        }
+        worst = std::max(worst, fabs(dot1 - dot0) / (1.0 + fabs(dot0)));
+      }
+    }
+  }
+  INFO("nDim " << nDim << ": rotation of the ingredients, worst relative deviation " << worst);
+  CHECK(worst < 1e-12);
+
+  /*--- tecnoAdjointEdgePhi with Phi = 1: q_i = q_k = q = tecnoDissipation(L), L = dw - 1/2 ramp (p_i + p_k). ---*/
+  {
+    double worstOnes = 0.0;
+    for (int t = 0; t < 50; ++t) {
+      double ui[3] = {0.0}, uk[3] = {0.0}, n[3] = {0.0}, norm = 0.0;
+      for (size_t dd = 0; dd < nDim; ++dd) {
+        ui[dd] = 0.5 * r(gen);
+        uk[dd] = 0.5 * r(gen);
+        n[dd] = r(gen);
+        norm += n[dd] * n[dd];
+      }
+      CPair<CCompressiblePrimitives<nDim, nDim + 4>> V;
+      V.i = tac::Primitives<nDim>(exp(r(gen)), ui, exp(r(gen)));
+      V.j = tac::Primitives<nDim>(exp(r(gen)), uk, exp(r(gen)));
+      VectorDbl<nDim> unit;
+      for (size_t dd = 0; dd < nDim; ++dd) unit(dd) = n[dd] / sqrt(norm);
+      const auto avg = roeAveragedVariables(Double(tac::GAMMA), V, unit);
+      VectorDbl<nVar> dw, pi, pk, L, q, qi, qk;
+      const double ramp = (t % 2) ? 1.0 : 0.6;
+      for (size_t v = 0; v < nVar; ++v) {
+        dw(v) = r(gen);
+        pi(v) = r(gen);
+        pk(v) = r(gen);
+        L(v) = dw(v) - 0.5 * ramp * (pi(v) + pk(v));
+      }
+      Double ones[8];
+      for (int c = 0; c < 8; ++c) ones[c] = 1.0;
+      tecnoAdjointEdgePhi(Double(tac::GAMMA), avg, unit, Double(1.1), Double(0.7), Double(1.9), Double(0.5), dw, pi, pk,
+                          ramp, 0.0, ones, q, qi, qk);
+      const auto ref = tecnoDissipation(Double(tac::GAMMA), avg, unit, Double(1.1), Double(0.7), Double(1.9), Double(0.5), L);
+      double refMax = 1e-300;
+      for (size_t v = 0; v < nVar; ++v) refMax = std::max(refMax, double(fabs(ref(v)[0])));
+      for (size_t v = 0; v < nVar; ++v) {
+        worstOnes = std::max(worstOnes, double(fabs(q(v)[0] - ref(v)[0])) / refMax);
+        worstOnes = std::max(worstOnes, double(fabs(qi(v)[0] - q(v)[0]) + fabs(qk(v)[0] - q(v)[0])) / refMax);
+      }
+    }
+    INFO("nDim " << nDim << ": Phi = 1, |q - D L|, |q_a - q| " << worstOnes);
+    CHECK(worstOnes < 1e-12);
+  }
+
+  /*--- Noise threshold of the shear block: |dy_S| just below / above (nDim + 2) d_S. ---*/
+  {
+    const std::string mesh = "tecno_tvd_noise_" + std::to_string(nDim) + "d.su2";
+    WriteSimplexMesh(mesh, nDim, 2, 0.2, 1.0);
+    MeshCase test(mesh, "");
+    auto& geometry = *test.geometry;
+    const auto S = CoordinateStates(geometry, nDim);
+    auto d = RunTVD<nDim>(geometry, S, false, nullptr);
+    bool ok = true;
+    for (const double factor : {1.0 - 1e-6, 1.0 + 1e-6}) {
+      const double dS = d.ing(0, TeCNOAdjoint::TVD_GUARD + 1);
+      double n2 = 0.0;
+      for (size_t dd = 0; dd < nDim; ++dd) n2 += pow(d.ing(0, TeCNOAdjoint::TVD_SHEAR + dd), 2);
+      if (!(n2 > 0.0)) {
+        d.ing(0, TeCNOAdjoint::TVD_SHEAR) = 1.0;
+        n2 = 1.0;
+      }
+      const double scale = factor * (nDim + 2) * dS / sqrt(n2);
+      for (size_t dd = 0; dd < nDim; ++dd) d.ing(0, TeCNOAdjoint::TVD_SHEAR + dd) *= scale;
+      su2activematrix clip(geometry.GetnEdge(), TeCNOAdjoint::TVD_CLIP_WIDTH);
+      TeCNOAdjoint::TVDEdgeClip(geometry, nDim, d.ing, clip);
+      const bool noise = (clip(0, TeCNOAdjoint::TVD_CLIP_NOISE) != 0.0);
+      ok = ok && (noise == (factor < 1.0));
+      if (noise) ok = ok && (clip(0, TeCNOAdjoint::TVD_CLIP_B + 2) == 0.0);
+    }
+    CHECK(ok);
+  }
+}
+
+template <size_t nDim>
+void EdgeEntropyTVDJumpsCase() {
+  for (const bool p1Average : {false, true}) {
+    const std::string mesh = "tecno_tvd_jumps_" + std::to_string(nDim) + "d.su2";
+    WriteSimplexMesh(mesh, nDim, (nDim == 2) ? 4 : 2, 0.4, 0.3, (nDim == 2) ? BendMesh2D : BendMesh3D);
+    MeshCase test(mesh, P1AverageMoved);
+    auto& geometry = *test.geometry;
+    const tac::P1Average p1(geometry);
+    const tac::P1Average* p1p = p1Average ? &p1 : nullptr;
+    std::mt19937 gen(19);
+    std::uniform_real_distribution<double> r01(0.0, 1.0);
+    tac::TVDJumpsResult worst;
+    for (int t = 0; t < 6; ++t) {
+      const auto S = (t == 0) ? CoordinateStates(geometry, nDim) : tac::RandomStates(geometry.GetnPoint(), nDim, gen, 1.0);
+      const bool projected = (t % 2);
+      const double ramp = (t == 5) ? 0.4 : 1.0;
+      su2activematrix phi;
+      if (t < 2) {
+        phi = RunTVD<nDim>(geometry, S, projected, p1p).phi;  /*--- limiter values ---*/
+      } else {
+        /*--- Prescribed heterogeneous values: random per field in [0, 1], unequal M and P, some ends zero. ---*/
+        phi.resize(geometry.GetnEdge(), 8);
+        for (auto e = 0ul; e < geometry.GetnEdge(); ++e)
+          for (int c = 0; c < 8; ++c) phi(e, c) = ((e + c) % 7 == 0) ? 0.0 : r01(gen);
+        for (auto e = 0ul; e < geometry.GetnEdge(); e += 5)
+          for (int c = 0; c < 4; ++c) phi(e, c) = 0.0;
+      }
+      const auto es = tac::TVDEdgeStates<nDim>(geometry, S, projected);
+      const auto res = tac::TVDJumpsCheck<nDim>(geometry, es, phi, ramp, p1p);
+      worst.jumps = std::max(worst.jumps, res.jumps);
+      worst.rowSum = std::max(worst.rowSum, res.rowSum);
+      worst.asym = std::max(worst.asym, res.asym);
+      worst.ones = std::max(worst.ones, res.ones);
+      worst.finite = worst.finite && res.finite;
+    }
+    INFO("nDim " << nDim << " P1 " << p1Average << ": lambda_min(J - K) " << -worst.jumps << ", row sums " << worst.rowSum
+                 << ", asymmetry " << worst.asym << ", Phi = 1 vs JumpEdge " << worst.ones);
+    CHECK(worst.finite);
+    CHECK(worst.jumps < 1e-12);
+    CHECK(worst.rowSum < 1e-12);
+    CHECK(worst.asym < 1e-12);
+    CHECK(worst.ones < 1e-14);
+  }
+}
+
+/*--- MPI: rho of the owned nodes and Phi of the edges of owned nodes by global index, the halo gradients and the halo
+ * rho from an Allgatherv by global index; cut edges computed on both ranks must agree. Written to
+ * tecno_tvd_mpi_<n>d_np<size>.dat (master), compared across 1/2/4 ranks by the check job. ---*/
+template <size_t nDim>
+void EdgeEntropyTVDMPICase() {
+  constexpr size_t nVar = nDim + 2;
+  const std::string mesh = "tecno_tvd_mpi_" + std::to_string(nDim) + "d.su2";
+  WriteSimplexMesh(mesh, nDim, (nDim == 2) ? 12 : 4, 0.4, 0.3, (nDim == 2) ? BendMesh2D : BendMesh3D);
+  MeshCase test(mesh, P1AverageMoved);
+  auto& geometry = *test.geometry;
+  const tac::P1Average p1(geometry);
+  const auto S = CoordinateStates(geometry, nDim);
+  const auto w = tac::EntropyField(S, nDim);
+  auto grad = tac::TVDGradientOf<nDim>(geometry, w, &p1);
+  su2activematrix flat(geometry.GetnPoint(), nVar * nDim);
+  for (auto i = 0ul; i < geometry.GetnPoint(); ++i)
+    for (size_t v = 0; v < nVar; ++v)
+      for (size_t dd = 0; dd < nDim; ++dd) flat(i, v * nDim + dd) = grad(i, v, dd);
+  tac::TVDHaloCopy(geometry, flat);
+  for (auto i = 0ul; i < geometry.GetnPoint(); ++i)
+    for (size_t v = 0; v < nVar; ++v)
+      for (size_t dd = 0; dd < nDim; ++dd) grad(i, v, dd) = flat(i, v * nDim + dd);
+  tac::TVDData d;
+  const auto es = tac::TVDEdgeStates<nDim>(geometry, S, false);
+  d.ing = tac::TVDIngredientsOf<nDim>(geometry, w, grad, es);
+  tac::TVDPasses(geometry, nDim, p1.weights, p1.volume, d, [&](su2activematrix& rho) { tac::TVDHaloCopy(geometry, rho); });
+
+  /*--- Rows: node (kind 0, global index, 4 rho) and edge (kind 1, canonical global ends, 8 canonical Phi). ---*/
+  std::vector<double> rows;
+  for (auto i = 0ul; i < geometry.GetnPointDomain(); ++i) {
+    rows.insert(rows.end(), {0.0, double(geometry.nodes->GetGlobalIndex(i)), 0.0});
+    for (int f = 0; f < 4; ++f) rows.push_back(d.rho(i, f));
+    for (int f = 0; f < 4; ++f) rows.push_back(0.0);
+  }
+  const auto ed = tac::TVDRefEdges(geometry, nDim, d.ing);
+  for (auto e = 0ul; e < geometry.GetnEdge(); ++e) {
+    const bool owned = (ed[e].n[0] < geometry.GetnPointDomain()) || (ed[e].n[1] < geometry.GetnPointDomain());
+    if (!owned) continue;
+    rows.insert(rows.end(), {1.0, double(geometry.nodes->GetGlobalIndex(ed[e].n[0])),
+                             double(geometry.nodes->GetGlobalIndex(ed[e].n[1]))});
+    for (int x = 0; x < 2; ++x) {
+      for (int f = 0; f < 4; ++f) {
+        const int y = ed[e].flip ? 1 - x : x;
+        const int fl = ed[e].flip ? ((f == 0) ? 3 : ((f == 3) ? 0 : f)) : f;
+        rows.push_back(d.phi(e, 4 * y + fl));
+      }
+    }
+  }
+  const int size = SU2_MPI::GetSize();
+  int count = static_cast<int>(rows.size());
+  std::vector<int> counts(size), displs(size, 0);
+  SU2_MPI::Allgather(&count, 1, MPI_INT, counts.data(), 1, MPI_INT, SU2_MPI::GetComm());
+  for (int rk = 1; rk < size; ++rk) displs[rk] = displs[rk - 1] + counts[rk - 1];
+  std::vector<double> all(displs[size - 1] + counts[size - 1]);
+  SU2_MPI::Allgatherv(rows.data(), count, MPI_DOUBLE, all.data(), counts.data(), displs.data(), MPI_DOUBLE,
+                      SU2_MPI::GetComm());
+  std::map<std::array<double, 3>, std::array<double, 8>> table;
+  double disagree = 0.0;
+  for (size_t p = 0; p < all.size(); p += 11) {
+    const std::array<double, 3> key = {all[p], all[p + 1], all[p + 2]};
+    std::array<double, 8> v;
+    for (int c = 0; c < 8; ++c) v[c] = all[p + 3 + c];
+    const auto it = table.find(key);
+    if (it != table.end()) {
+      for (int c = 0; c < 8; ++c) disagree = std::max(disagree, fabs(it->second[c] - v[c]));
+    } else {
+      table[key] = v;
+    }
+  }
+  if (SU2_MPI::GetRank() == MASTER_NODE) {
+    std::ofstream f("tecno_tvd_mpi_" + std::to_string(nDim) + "d_np" + std::to_string(size) + ".dat");
+    f.precision(17);
+    for (const auto& kv : table) {
+      f << kv.first[0] << " " << kv.first[1] << " " << kv.first[2];
+      for (int c = 0; c < 8; ++c) f << " " << kv.second[c];
+      f << "\n";
+    }
+  }
+  INFO("nDim " << nDim << " ranks " << size << ": " << table.size() << " rows, cut-edge disagreement " << disagree);
+  CHECK(disagree < 1e-13);
+  CHECK(table.size() > 0);
+}
+}  // namespace
+
+TEST_CASE("TECNO_ADJOINT_LIMITER= EDGE_ENTROPY_TVD: reference, frozen-field box, Theorem A1, linear data, uniform state", "[P1Flux]") {
+  if (SU2_MPI::GetSize() > 1) return;
+  EdgeEntropyTVDCase<2>();
+  EdgeEntropyTVDCase<3>();
+}
+
+TEST_CASE("TECNO_ADJOINT_LIMITER= EDGE_ENTROPY_TVD: freeze rule, numbering invariance, shear rotation, noise threshold", "[P1Flux]") {
+  /*--- Freeze rule (TeCNOAdjoint::TVDRecompute): recompute while invalid (also after the limit) or up to LIMITER_ITER. ---*/
+  CHECK(TeCNOAdjoint::TVDRecompute(false, 0, 500));
+  CHECK(TeCNOAdjoint::TVDRecompute(false, 900, 500));
+  CHECK(TeCNOAdjoint::TVDRecompute(true, 500, 500));
+  CHECK(!TeCNOAdjoint::TVDRecompute(true, 501, 500));
+  CHECK(TeCNOAdjoint::TVDRecompute(true, 0, 0));
+  CHECK(!TeCNOAdjoint::TVDRecompute(true, 1, 0));
+  if (SU2_MPI::GetSize() > 1) return;
+  EdgeEntropyTVDInvarianceCase<2>();
+  EdgeEntropyTVDInvarianceCase<3>();
+}
+
+TEST_CASE("TECNO_ADJOINT_LIMITER= EDGE_ENTROPY_TVD: FIRST_RING_JUMPS with the stored Phi, J >= K, J 1 = 0", "[P1Flux]") {
+  if (SU2_MPI::GetSize() > 1) return;
+  EdgeEntropyTVDJumpsCase<2>();
+  EdgeEntropyTVDJumpsCase<3>();
+}
+
+TEST_CASE("TECNO_ADJOINT_LIMITER= EDGE_ENTROPY_TVD: MPI, rho and Phi by global index, cut edges", "[P1Flux]") {
+  EdgeEntropyTVDMPICase<2>();
+  EdgeEntropyTVDMPICase<3>();
+}
+
+/*--- TECNO_ADJOINT_LIMITER= EDGE_ENTROPY_FCT (ROE_TECNO_PLAN.md 6.9, P1_TECNO_ADJ_LIMITER.md candidate 8 + freeze): the
+ * passes against an independent reference, the frozen-field box of the final values at the ramps 0.25/0.5/1, Theorem
+ * A1' with the stored values, bounds, linear w (phi_c = alpha = 1, gamma = 0), uniform state, zero D, zero speeds,
+ * numbering invariance, FIRST_RING_JUMPS with the stored phi_c (J' >= K_r), MPI (values and residual by global index
+ * written for 1/2/4 ranks) and the dump of fixed states for the model parity check (limiter8/su2_parity.py). ---*/
+namespace {
+
+template <size_t nDim, class Geometry>
+tac::FCTData RunFCT(const Geometry& geometry, const tac::States& S, bool projected, const tac::P1Average* p1,
+                    const su2activematrix* wOverride = nullptr, const su2activematrix* ingOverride = nullptr,
+                    unsigned short nPasses = 1, bool nodeInput = false) {
+  tac::FCTData d;
+  const auto w = wOverride ? *wOverride : tac::EntropyField(S, nDim);
+  if (ingOverride) {
+    d.ing = *ingOverride;
+  } else {
+    const auto es = tac::TVDEdgeStates<nDim>(geometry, S, projected);
+    const auto grad = tac::TVDGradientOf<nDim>(geometry, w, p1);
+    d.ing = tac::FCTIngredientsOf<nDim>(geometry, w, grad, es);
+  }
+  auto noHalo = [](su2activematrix&) {};
+  if (p1) {
+    tac::FCTRun(geometry, nDim, p1->weights, p1->volume, w, d, noHalo, nPasses, nodeInput);
+  } else {
+    auto volume = [&](unsigned long i) { return geometry.nodes->GetVolume(i); };
+    tac::FCTRun(geometry, nDim, TeCNOAdjoint::GreenGaussWeights<Geometry>{geometry, nDim}, volume, w, d, noHalo, nPasses,
+                nodeInput);
+  }
+  return d;
+}
+
+template <class Geometry>
+tac::FCTRefResult RefFCT(const Geometry& geometry, unsigned short nDim, const su2activematrix& ing,
+                         const su2activematrix& w, const tac::P1Average* p1, unsigned short nPasses = 1,
+                         bool nodeInput = false, bool swapRows = false) {
+  if (p1) return tac::FCTReference(geometry, nDim, ing, w, p1->weights, p1->volume, nPasses, nodeInput, swapRows);
+  auto volume = [&](unsigned long i) { return geometry.nodes->GetVolume(i); };
+  return tac::FCTReference(geometry, nDim, ing, w, TeCNOAdjoint::GreenGaussWeights<Geometry>{geometry, nDim}, volume,
+                           nPasses, nodeInput, swapRows);
+}
+
+/*--- Largest |stored - reference| over (edge, canonical field, phi_c/alpha/gamma), and finiteness. ---*/
+double FCTRefDiff(const tac::FCTRefResult& ref, const su2activematrix& store, bool& finite) {
+  double worst = 0.0;
+  for (unsigned long e = 0; e < ref.ed.size(); ++e) {
+    const auto& r = ref.ed[e];
+    for (int f = 0; f < 4; ++f) {
+      const double v[3] = {tac::FCTStored(store, e, r.flip, 0, f), tac::FCTStored(store, e, r.flip, 1, f),
+                           tac::FCTStored(store, e, r.flip, 2, f)};
+      const double rv[3] = {r.phic[f], r.alpha[f], r.gam[f]};
+      for (int k = 0; k < 3; ++k) {
+        finite = finite && std::isfinite(v[k]);
+        worst = std::max(worst, std::fabs(v[k] - rv[k]));
+      }
+    }
+  }
+  return worst;
+}
+
+template <size_t nDim>
+void EdgeEntropyFCTCase() {
+  constexpr size_t nVar = nDim + 2;
+  namespace ta = TeCNOAdjoint;
+  for (const bool moved : {false, true}) {
+    for (const bool p1Average : {false, true}) {
+      const std::string mesh = "tecno_fct_" + std::to_string(nDim) + "d.su2";
+      WriteSimplexMesh(mesh, nDim, (nDim == 2) ? 7 : 3, 0.4, 0.3, (nDim == 2) ? BendMesh2D : BendMesh3D);
+      MeshCase test(mesh, moved ? P1AverageMoved : "");
+      auto& geometry = *test.geometry;
+      const tac::P1Average p1(geometry);
+      const tac::P1Average* p1p = p1Average ? &p1 : nullptr;
+      const auto nPoint = geometry.GetnPoint();
+      double refDiff = 0.0, box = 0.0, identity = 0.0, conservation = 0.0, minProd = 1e300, minPhi = 1e300,
+             maxGam = 0.0, sumBound = 0.0, outside = 0.0, monotone = 0.0, gain = 0.0, meanDiff = 0.0;
+      bool finite = true;
+      std::mt19937 gen(73);
+      for (int t = 0; t < 8; ++t) {
+        const auto S = (t < 2) ? CoordinateStates(geometry, nDim) : tac::RandomStates(nPoint, nDim, gen, (t % 2) ? 0.3 : 1.0);
+        const bool projected = (t % 2);
+        const auto w = tac::EntropyField(S, nDim);
+        const auto d1 = RunFCT<nDim>(geometry, S, projected, p1p);
+        const auto ref1 = RefFCT(geometry, nDim, d1.ing, w, p1p);
+        refDiff = std::max(refDiff, FCTRefDiff(ref1, d1.store, finite));
+        for (const double r : {0.25, 0.5, 1.0}) box = std::max(box, tac::FCTBoxViolation(ref1, nDim, d1.store, r));
+        /*--- S4e (ROE_TECNO_PLAN.md 6.11): 4 passes against the reference, the box with the final values, alpha
+         * nondecreasing over the passes; the checks below use the 4-pass store. ---*/
+        /*--- Passes > 1 amplify rounding-level differences of the summation order (the observer ratio Q/Pm' of two
+         * small numbers, D5 class, limiter phase only; ROE_TECNO_PLAN.md 6.11): SU2 and the reference are compared by
+         * the mean of alpha, the box and monotonicity are checked on each. ---*/
+        auto meanAlphaDiff = [&](const tac::FCTRefResult& rf, const su2activematrix& st) {
+          double sum = 0.0;
+          size_t n = 0;
+          for (unsigned long e = 0; e < rf.ed.size(); ++e)
+            for (int f = 0; f < 4; ++f, ++n) sum += tac::FCTStored(st, e, rf.ed[e].flip, 1, f) - rf.ed[e].alpha[f];
+          return std::fabs(sum) / std::max<size_t>(n, 1);
+        };
+        const auto d = RunFCT<nDim>(geometry, S, projected, p1p, nullptr, nullptr, 4);
+        const auto ref = RefFCT(geometry, nDim, d.ing, w, p1p, 4);
+        meanDiff = std::max(meanDiff, meanAlphaDiff(ref, d.store));
+        box = std::max(box, tac::FCTBoxViolation(ref, nDim, d.store, 1.0));
+        for (const double r : {0.25, 0.5, 1.0}) box = std::max(box, tac::FCTBoxViolation(ref, nDim, d.store, r));
+        /*--- Passes 2 and 3: reference and box as well; alpha nondecreasing pass by pass (1 <= 2 <= 3 <= 4). ---*/
+        const su2activematrix* prev = &d1.store;
+        std::vector<tac::FCTData> mid;
+        for (const unsigned short np : {2, 3}) {
+          mid.push_back(RunFCT<nDim>(geometry, S, projected, p1p, nullptr, nullptr, np));
+          const auto refn = RefFCT(geometry, nDim, mid.back().ing, w, p1p, np);
+          meanDiff = std::max(meanDiff, meanAlphaDiff(refn, mid.back().store));
+          box = std::max(box, tac::FCTBoxViolation(refn, nDim, mid.back().store, 1.0));
+        }
+        const su2activematrix* stores[] = {&mid[0].store, &mid[1].store, &d.store};
+        for (const su2activematrix* next : stores) {
+          for (auto e = 0ul; e < geometry.GetnEdge(); ++e)
+            for (int f = 0; f < 4; ++f)
+              monotone = std::min(monotone, double((*next)(e, ta::FCT_ALPHA + f) - (*prev)(e, ta::FCT_ALPHA + f)));
+          prev = next;
+        }
+        for (auto e = 0ul; e < geometry.GetnEdge(); ++e)
+          for (int f = 0; f < 4; ++f) gain += double(d.store(e, ta::FCT_ALPHA + f) - d1.store(e, ta::FCT_ALPHA + f));
+        for (auto e = 0ul; e < geometry.GetnEdge(); ++e) {
+          for (int f = 0; f < 4; ++f) {
+            const double pc = d.store(e, ta::FCT_PHIC + f), al = d.store(e, ta::FCT_ALPHA + f), ga = d.store(e, ta::FCT_GAMMA + f);
+            outside = std::max(outside, std::max({-pc, pc - 1.0, -al, al - 1.0, -ga, ga - 1.0}));
+            sumBound = std::max(sumBound, std::fabs(al + ga - 1.0));
+            minPhi = std::min(minPhi, al * pc);
+            maxGam = std::max(maxGam, ga);
+          }
+        }
+        const auto es = tac::TVDEdgeStates<nDim>(geometry, S, projected);
+        for (const double ramp : {0.25, 0.5, 1.0}) {
+          double prod = 0.0;
+          const auto R = tac::FCTResidual<nDim>(geometry, es, d.store, w, ramp, p1p, &d.ing, prod);
+          double wR = 0.0, absWR = 0.0, maxR = 0.0, cons[nVar] = {0.0};
+          for (auto i = 0ul; i < nPoint; ++i) {
+            for (size_t v = 0; v < nVar; ++v) {
+              wR += w(i, v) * R(i, v);
+              absWR += fabs(w(i, v) * R(i, v));
+              maxR = std::max(maxR, double(fabs(R(i, v))));
+              cons[v] += R(i, v);
+            }
+          }
+          identity = std::max(identity, fabs(wR - prod) / absWR);
+          minProd = std::min(minProd, prod);
+          for (size_t v = 0; v < nVar; ++v) conservation = std::max(conservation, fabs(cons[v]) / maxR);
+        }
+      }
+      INFO("nDim " << nDim << " moved " << moved << " P1 average " << p1Average << ": |stored - reference| " << refDiff
+                   << ", box " << box << ", A1' identity " << identity << ", min production " << minProd
+                   << ", conservation " << conservation << ", outside [0,1] " << outside << ", |alpha + gamma - 1| "
+                   << sumBound << ", min alpha phi_c " << minPhi << ", max gamma " << maxGam
+                   << ", min alpha(4 passes) - alpha(1) " << monotone << ", sum of the gains " << gain
+                   << ", |mean alpha - reference| (2-4 passes) " << meanDiff);
+      CHECK(finite);
+      CHECK(meanDiff < 1e-3);
+      CHECK(monotone >= 0.0);
+      CHECK(gain > 0.0);  /*--- The shock-like states have vetoed entries that the later passes partly recover. ---*/
+      CHECK(refDiff < 1e-10);
+      CHECK(box < 1e-12);
+      CHECK(identity < 1e-12);
+      CHECK(minProd >= 0.0);
+      CHECK(conservation < 1e-12);
+      CHECK(outside <= 0.0);
+      CHECK(sumBound <= 1e-12);  /*--- alpha + gamma = 1 on every entry up to rounding (S4d, ROE_TECNO_PLAN.md 6.10). ---*/
+      CHECK(minPhi < 0.5);  /*--- The shock-like states activate the limiter. ---*/
+      if (SU2_MPI::GetRank() == MASTER_NODE) WARN("EDGE_ENTROPY_FCT nDim " << nDim << " moved " << moved << " P1 "
+                                                  << p1Average << ": min alpha phi_c " << minPhi << ", max gamma " << maxGam);
+
+      /*--- Linear w (P1 average, linear exact at every node): phi_c = alpha = 1, gamma = 0 everywhere. ---*/
+      if (p1Average) {
+        su2activematrix wLin(nPoint, nVar);
+        const double coef[5][3] = {{0.7, -0.4, 0.3}, {0.2, 0.9, -0.5}, {-0.6, 0.3, 0.8}, {0.4, 0.5, -0.7}, {-0.3, -0.8, 0.6}};
+        for (auto i = 0ul; i < nPoint; ++i) {
+          for (size_t v = 0; v < nVar; ++v) {
+            wLin(i, v) = 0.5 * (v + 1);
+            for (size_t dd = 0; dd < nDim; ++dd) wLin(i, v) += coef[v][dd] * geometry.nodes->GetCoord(i)[dd];
+          }
+        }
+        const auto S = CoordinateStates(geometry, nDim);
+        const auto d = RunFCT<nDim>(geometry, S, false, p1p, &wLin);
+        double dev = 0.0;
+        for (auto e = 0ul; e < geometry.GetnEdge(); ++e) {
+          for (int f = 0; f < 4; ++f) {
+            dev = std::max(dev, double(fabs(d.store(e, ta::FCT_PHIC + f) - 1.0) + fabs(d.store(e, ta::FCT_ALPHA + f) - 1.0) +
+                                       fabs(d.store(e, ta::FCT_GAMMA + f))));
+          }
+        }
+        INFO("nDim " << nDim << " moved " << moved << ": linear w, max |phi_c - 1| + |alpha - 1| + |gamma| " << dev);
+        CHECK(dev < 1e-12);
+      }
+
+      /*--- Uniform state: no valid field, (phi_c, alpha, gamma) = (1, 1, 0) exactly. ---*/
+      {
+        tac::States U;
+        U.rho.assign(nPoint, 1.3);
+        U.p.assign(nPoint, 0.9);
+        U.u.assign(nPoint, {0.4, -0.2, (nDim == 3) ? 0.1 : 0.0});
+        const auto d = RunFCT<nDim>(geometry, U, false, p1p);
+        double dev = 0.0;
+        for (auto e = 0ul; e < geometry.GetnEdge(); ++e)
+          for (int f = 0; f < 4; ++f)
+            dev = std::max(dev, double(fabs(d.store(e, ta::FCT_PHIC + f) - 1.0) + fabs(d.store(e, ta::FCT_ALPHA + f) - 1.0) +
+                                       fabs(d.store(e, ta::FCT_GAMMA + f))));
+        CHECK(dev == 0.0);
+      }
+
+      /*--- Zero D of both acoustic fields on every edge: those fields are invalid, contribute no moment, (1, 1, 0);
+       * zero |lambda|_fix on every third edge (D unchanged): the attachment ratio is 0; zero D of the entropy field on
+       * every second edge next to active observers: finite, reference and box. ---*/
+      {
+        const auto S = CoordinateStates(geometry, nDim);
+        const auto w = tac::EntropyField(S, nDim);
+        const auto d0 = RunFCT<nDim>(geometry, S, false, p1p);
+        auto ingA = d0.ing;
+        for (auto e = 0ul; e < geometry.GetnEdge(); ++e) {
+          ingA(e, ta::TVD_D + 0) = 0.0;
+          ingA(e, ta::TVD_D + 2) = 0.0;
+        }
+        const auto dA = RunFCT<nDim>(geometry, S, false, p1p, nullptr, &ingA);
+        double devA = 0.0;
+        bool finA = true;
+        for (auto e = 0ul; e < geometry.GetnEdge(); ++e) {
+          for (const int f : {0, 3}) {
+            finA = finA && std::isfinite(double(dA.store(e, ta::FCT_ALPHA + f)));
+            devA = std::max(devA, double(fabs(dA.store(e, ta::FCT_PHIC + f) - 1.0) + fabs(dA.store(e, ta::FCT_ALPHA + f) - 1.0) +
+                                         fabs(dA.store(e, ta::FCT_GAMMA + f))));
+          }
+        }
+        auto ingB = d0.ing;
+        const unsigned short X = ta::TVDWidth(nDim);
+        for (auto e = 0ul; e < geometry.GetnEdge(); e += 3)
+          for (int c = 0; c < 3; ++c) ingB(e, X + ta::FCT_LAMFIX + c) = 0.0;
+        for (auto e = 1ul; e < geometry.GetnEdge(); e += 2) ingB(e, ta::TVD_D + 1) = 0.0;
+        const auto dB = RunFCT<nDim>(geometry, S, false, p1p, nullptr, &ingB);
+        bool finB = true;
+        const auto refA = RefFCT(geometry, nDim, ingA, w, p1p);
+        const auto refB = RefFCT(geometry, nDim, ingB, w, p1p);
+        const double diffA = FCTRefDiff(refA, dA.store, finA), diffB = FCTRefDiff(refB, dB.store, finB);
+        const double boxB = tac::FCTBoxViolation(refB, nDim, dB.store, 1.0);
+        INFO("nDim " << nDim << " moved " << moved << " P1 " << p1Average << ": zero acoustic D dev " << devA
+                     << ", reference " << diffA << "; zero speeds / zero entropy D reference " << diffB << ", box " << boxB);
+        CHECK(finA);
+        CHECK(finB);
+        CHECK(devA == 0.0);
+        CHECK(diffA < 1e-10);
+        CHECK(diffB < 1e-10);
+        CHECK(boxB < 1e-12);
+      }
+    }
+  }
+}
+
+/*--- TECNO_ADJOINT_FCT_BOUND= NODE_INPUT (S4f, ROE_TECNO_PLAN.md 6.13): the passes against the independent reference
+ * (rows per edge end, bar-state capacity, entropy own bound), the row box with the final values at the ramps 0.25/0.5/1,
+ * the node-input identity with independent contributor weights (unfiltered terms, moved dual: s_a != 0 also at interior
+ * nodes), the row direction (the reference with near and far swapped differs), |l_c| <= |dy| on the valid entries, the
+ * frozen production of the valid entries nonincreasing and alpha nondecreasing pass by pass, A1', bounds,
+ * alpha + gamma = 1, linear w and uniform states. ---*/
+template <size_t nDim>
+void EdgeEntropyFCTNodeInputCase() {
+  constexpr size_t nVar = nDim + 2;
+  namespace ta = TeCNOAdjoint;
+  for (const bool moved : {false, true}) {
+    for (const bool p1Average : {false, true}) {
+      const std::string mesh = "tecno_fct_ni_" + std::to_string(nDim) + "d.su2";
+      WriteSimplexMesh(mesh, nDim, (nDim == 2) ? 7 : 3, 0.4, 0.3, (nDim == 2) ? BendMesh2D : BendMesh3D);
+      MeshCase test(mesh, moved ? P1AverageMoved : "");
+      auto& geometry = *test.geometry;
+      const tac::P1Average p1(geometry);
+      const tac::P1Average* p1p = p1Average ? &p1 : nullptr;
+      const auto nPoint = geometry.GetnPoint();
+      double refDiff = 0.0, meanDiff = 0.0, box = 0.0, identity = 0.0, swapDiff = 0.0, ellExcess = 0.0, prodIncrease = 0.0,
+             monotone = 0.0, a1 = 0.0, minProd = 1e300, outside = 0.0, sumBound = 0.0, minPhi = 1e300;
+      bool finite = true;
+      std::mt19937 gen(91);
+      for (int t = 0; t < 8; ++t) {
+        const auto S = (t < 2) ? CoordinateStates(geometry, nDim) : tac::RandomStates(nPoint, nDim, gen, (t % 2) ? 0.3 : 1.0);
+        const bool projected = (t % 2);
+        const auto w = tac::EntropyField(S, nDim);
+        std::vector<tac::FCTData> runs;
+        for (const unsigned short np : {1, 2, 3, 4}) runs.push_back(RunFCT<nDim>(geometry, S, projected, p1p, nullptr, nullptr, np, true));
+        const auto ref1 = RefFCT(geometry, nDim, runs[0].ing, w, p1p, 1, true);
+        {
+          const double dd = FCTRefDiff(ref1, runs[0].store, finite);
+          if (dd > 1e-10) {  /*--- Diagnostic of the worst entry (pass 1). ---*/
+            for (unsigned long e = 0; e < ref1.ed.size(); ++e)
+              for (int f = 0; f < 4; ++f) {
+                const auto& r = ref1.ed[e];
+                const double al = tac::FCTStored(runs[0].store, e, r.flip, 1, f), pc = tac::FCTStored(runs[0].store, e, r.flip, 0, f);
+                if (std::fabs(al - r.alpha[f]) + std::fabs(pc - r.phic[f]) >= 0.5 * dd)
+                  WARN("NODE_INPUT pass-1 mismatch t " << t << " edge " << e << " f " << f << " valid " << r.valid[f] << " o "
+                       << r.o[f] << " phic " << pc << "/" << r.phic[f] << " alpha " << al << "/" << r.alpha[f] << " rho "
+                       << r.rho[f] << " cap " << r.rowCap[0][f] << " " << r.rowCap[1][f]);
+              }
+          }
+          refDiff = std::max(refDiff, dd);
+        }
+        const auto refSwap = RefFCT(geometry, nDim, runs[0].ing, w, p1p, 1, true, true);
+        swapDiff = std::max(swapDiff, FCTRefDiff(refSwap, runs[0].store, finite));
+        for (size_t n = 0; n < runs.size(); ++n) {
+          const auto ref = (n == 0) ? ref1 : RefFCT(geometry, nDim, runs[n].ing, w, p1p, static_cast<unsigned short>(n + 1), true);
+          double sum = 0.0;
+          size_t cnt = 0;
+          for (unsigned long e = 0; e < ref.ed.size(); ++e)
+            for (int f = 0; f < 4; ++f, ++cnt) sum += tac::FCTStored(runs[n].store, e, ref.ed[e].flip, 1, f) - ref.ed[e].alpha[f];
+          meanDiff = std::max(meanDiff, std::fabs(sum) / std::max<size_t>(cnt, 1));
+          for (const double r : {0.25, 0.5, 1.0}) tac::FCTNodeInputChecks(ref, nDim, runs[n].store, r, gen, box, identity);
+        }
+        /*--- Entropy own bound, production of the valid entries and alpha pass by pass (frozen state, fixed phi_c). ---*/
+        std::vector<double> prev, first;
+        for (size_t n = 0; n < runs.size(); ++n) {
+          std::vector<double> prod;
+          first.clear();
+          for (unsigned long e = 0; e < ref1.ed.size(); ++e) {
+            const auto& r = ref1.ed[e];
+            for (int f = 0; f < 4; ++f) {
+              const double pc = tac::FCTStored(runs[n].store, e, r.flip, 0, f), al = tac::FCTStored(runs[n].store, e, r.flip, 1, f);
+              if (n > 0) monotone = std::min(monotone, al - tac::FCTStored(runs[n - 1].store, e, r.flip, 1, f));
+              if (!r.valid[f]) continue;
+              const double l = r.dy[f] - pc * r.sigma[f];
+              ellExcess = std::max(ellExcess, (std::fabs(l) - std::fabs(r.dy[f])) / (std::fabs(r.dy[f]) + std::fabs(r.sigma[f])));
+              prod.push_back(r.D[f] * (al * l * l + (1 - al) * r.dy[f] * r.dy[f]));
+              first.push_back(r.D[f] * r.dy[f] * r.dy[f]);
+            }
+          }
+          if (!prev.empty())
+            for (size_t q = 0; q < prod.size(); ++q) prodIncrease = std::max(prodIncrease, (prod[q] - prev[q]) / first[q]);
+          prev = prod;
+        }
+        const auto& d = runs.back();
+        for (auto e = 0ul; e < geometry.GetnEdge(); ++e) {
+          for (int f = 0; f < 4; ++f) {
+            const double pc = d.store(e, ta::FCT_PHIC + f), al = d.store(e, ta::FCT_ALPHA + f), ga = d.store(e, ta::FCT_GAMMA + f);
+            outside = std::max(outside, std::max({-pc, pc - 1.0, -al, al - 1.0, -ga, ga - 1.0}));
+            sumBound = std::max(sumBound, std::fabs(al + ga - 1.0));
+            minPhi = std::min(minPhi, al * pc);
+          }
+        }
+        const auto es = tac::TVDEdgeStates<nDim>(geometry, S, projected);
+        for (const double ramp : {0.25, 1.0}) {
+          double prod = 0.0;
+          const auto R = tac::FCTResidual<nDim>(geometry, es, d.store, w, ramp, p1p, &d.ing, prod);
+          double wR = 0.0, absWR = 0.0;
+          for (auto i = 0ul; i < nPoint; ++i)
+            for (size_t v = 0; v < nVar; ++v) {
+              wR += w(i, v) * R(i, v);
+              absWR += fabs(w(i, v) * R(i, v));
+            }
+          a1 = std::max(a1, fabs(wR - prod) / absWR);
+          minProd = std::min(minProd, prod);
+        }
+      }
+      INFO("nDim " << nDim << " moved " << moved << " P1 " << p1Average << ": NODE_INPUT |stored - reference| " << refDiff
+                   << ", mean alpha diff (1-4 passes) " << meanDiff << ", row box " << box << ", node-input identity "
+                   << identity << ", swapped-rows reference diff " << swapDiff << ", |l_c| - |dy| " << ellExcess
+                   << ", production increase pass to pass " << prodIncrease << ", min alpha increase " << monotone
+                   << ", A1' " << a1 << ", outside " << outside << ", |alpha + gamma - 1| " << sumBound);
+      CHECK(finite);
+      CHECK(refDiff < 1e-10);
+      CHECK(meanDiff < 1e-3);
+      CHECK(box < 1e-12);
+      CHECK(identity < 1e-12);
+      CHECK(swapDiff > 1e-3);   /*--- The row direction matters on these states. ---*/
+      CHECK(ellExcess <= 1e-14);
+      CHECK(prodIncrease <= 1e-12);
+      CHECK(monotone >= 0.0);
+      CHECK(a1 < 1e-12);
+      CHECK(minProd >= 0.0);
+      CHECK(outside <= 0.0);
+      CHECK(sumBound <= 1e-12);
+      CHECK(minPhi < 0.5);
+      if (SU2_MPI::GetRank() == MASTER_NODE) WARN("EDGE_ENTROPY_FCT NODE_INPUT nDim " << nDim << " moved " << moved << " P1 "
+                                                  << p1Average << ": identity " << identity << ", swapped " << swapDiff);
+
+      /*--- Linear w (P1 average): phi_c = alpha = 1, gamma = 0 (o = |dy|, the own bound 2|dy|/o = 2 is inactive). ---*/
+      if (p1Average) {
+        su2activematrix wLin(nPoint, nVar);
+        const double coef[5][3] = {{0.7, -0.4, 0.3}, {0.2, 0.9, -0.5}, {-0.6, 0.3, 0.8}, {0.4, 0.5, -0.7}, {-0.3, -0.8, 0.6}};
+        for (auto i = 0ul; i < nPoint; ++i)
+          for (size_t v = 0; v < nVar; ++v) {
+            wLin(i, v) = 0.5 * (v + 1);
+            for (size_t dd = 0; dd < nDim; ++dd) wLin(i, v) += coef[v][dd] * geometry.nodes->GetCoord(i)[dd];
+          }
+        const auto S = CoordinateStates(geometry, nDim);
+        const auto d = RunFCT<nDim>(geometry, S, false, p1p, &wLin, nullptr, 4, true);
+        double dev = 0.0;
+        for (auto e = 0ul; e < geometry.GetnEdge(); ++e)
+          for (int f = 0; f < 4; ++f)
+            dev = std::max(dev, double(fabs(d.store(e, ta::FCT_PHIC + f) - 1.0) + fabs(d.store(e, ta::FCT_ALPHA + f) - 1.0) +
+                                       fabs(d.store(e, ta::FCT_GAMMA + f))));
+        CHECK(dev < 1e-12);
+      }
+      /*--- Uniform state: (1, 1, 0) exactly. ---*/
+      {
+        tac::States U;
+        U.rho.assign(nPoint, 1.3);
+        U.p.assign(nPoint, 0.9);
+        U.u.assign(nPoint, {0.4, -0.2, (nDim == 3) ? 0.1 : 0.0});
+        const auto d = RunFCT<nDim>(geometry, U, false, p1p, nullptr, nullptr, 4, true);
+        double dev = 0.0;
+        for (auto e = 0ul; e < geometry.GetnEdge(); ++e)
+          for (int f = 0; f < 4; ++f)
+            dev = std::max(dev, double(fabs(d.store(e, ta::FCT_PHIC + f) - 1.0) + fabs(d.store(e, ta::FCT_ALPHA + f) - 1.0) +
+                                       fabs(d.store(e, ta::FCT_GAMMA + f))));
+        CHECK(dev == 0.0);
+      }
+    }
+  }
+}
+
+template <size_t nDim>
+void EdgeEntropyFCTInvarianceCase() {
+  /*--- Numbering: the same lattice mesh with permuted point numbers gives the same canonical values on every edge,
+   * keyed by the coordinates of the canonical ends. ---*/
+  for (const bool p1Average : {false, true}) {
+    const std::string mesh = "tecno_fct_num_" + std::to_string(nDim) + "d.su2";
+    const std::string meshPerm = "tecno_fct_perm_" + std::to_string(nDim) + "d.su2";
+    WriteSimplexMesh(mesh, nDim, (nDim == 2) ? 6 : 3, 0.3, 0.5);
+    PermuteSimplexMesh(mesh, meshPerm, 9);
+    std::map<std::vector<double>, std::array<double, 12>> values[2];
+    for (int m = 0; m < 2; ++m) {
+      MeshCase test(m ? meshPerm : mesh, "");
+      auto& geometry = *test.geometry;
+      const tac::P1Average p1(geometry);
+      const auto S = CoordinateStates(geometry, nDim);
+      const auto d = RunFCT<nDim>(geometry, S, true, p1Average ? &p1 : nullptr);
+      for (auto e = 0ul; e < geometry.GetnEdge(); ++e) {
+        const bool flip = TeCNOAdjoint::TVDFlip(geometry, nDim, e);
+        const unsigned long n[2] = {geometry.edges->GetNode(e, flip ? 1 : 0), geometry.edges->GetNode(e, flip ? 0 : 1)};
+        std::vector<double> key;
+        for (int x = 0; x < 2; ++x)
+          for (size_t dd = 0; dd < nDim; ++dd) key.push_back(geometry.nodes->GetCoord(n[x])[dd]);
+        std::array<double, 12> v;
+        for (int which = 0; which < 3; ++which)
+          for (int f = 0; f < 4; ++f) v[4 * which + f] = tac::FCTStored(d.store, e, flip, which, f);
+        values[m][key] = v;
+      }
+    }
+    double worst = 0.0;
+    size_t matched = 0;
+    for (const auto& kv : values[0]) {
+      const auto it = values[1].find(kv.first);
+      if (it == values[1].end()) continue;
+      ++matched;
+      for (int c = 0; c < 12; ++c) worst = std::max(worst, fabs(kv.second[c] - it->second[c]));
+    }
+    INFO("nDim " << nDim << " P1 " << p1Average << ": renumbered mesh, " << matched << " of " << values[0].size()
+                 << " edges matched, max difference " << worst);
+    CHECK(matched == values[0].size());
+    CHECK(worst < 1e-10);
+  }
+}
+
+template <size_t nDim>
+void EdgeEntropyFCTJumpsCase() {
+  namespace ta = TeCNOAdjoint;
+  for (const bool p1Average : {false, true}) {
+    const std::string mesh = "tecno_fct_jumps_" + std::to_string(nDim) + "d.su2";
+    WriteSimplexMesh(mesh, nDim, (nDim == 2) ? 4 : 2, 0.4, 0.3, (nDim == 2) ? BendMesh2D : BendMesh3D);
+    MeshCase test(mesh, P1AverageMoved);
+    auto& geometry = *test.geometry;
+    const tac::P1Average p1(geometry);
+    const tac::P1Average* p1p = p1Average ? &p1 : nullptr;
+    std::mt19937 gen(29);
+    std::uniform_real_distribution<double> r01(0.0, 1.0);
+    tac::TVDJumpsResult worst;
+    for (int t = 0; t < 6; ++t) {
+      const auto S = (t == 0) ? CoordinateStates(geometry, nDim) : tac::RandomStates(geometry.GetnPoint(), nDim, gen, 1.0);
+      const bool projected = (t % 2);
+      su2activematrix store;
+      if (t < 2) {
+        store = RunFCT<nDim>(geometry, S, projected, p1p).store;
+      } else {
+        /*--- Prescribed values: phi_c, alpha, gamma in [0, 1] with alpha + gamma <= 1, some zero. ---*/
+        store.resize(geometry.GetnEdge(), ta::FCT_STORE_WIDTH);
+        for (auto e = 0ul; e < geometry.GetnEdge(); ++e) {
+          for (int f = 0; f < 4; ++f) {
+            const double a = ((e + f) % 5 == 0) ? 0.0 : r01(gen);
+            store(e, ta::FCT_PHIC + f) = ((e + f) % 7 == 0) ? 0.0 : r01(gen);
+            store(e, ta::FCT_ALPHA + f) = a;
+            store(e, ta::FCT_GAMMA + f) = (1.0 - a) * r01(gen);
+          }
+        }
+      }
+      const auto es = tac::TVDEdgeStates<nDim>(geometry, S, projected);
+      for (const double ramp : {1.0, 0.5, 0.25}) {
+        const auto res = tac::FCTJumpsCheck<nDim>(geometry, es, store, ramp, p1p);
+        worst.jumps = std::max(worst.jumps, res.jumps);
+        worst.rowSum = std::max(worst.rowSum, res.rowSum);
+        worst.asym = std::max(worst.asym, res.asym);
+        worst.finite = worst.finite && res.finite;
+      }
+    }
+    INFO("nDim " << nDim << " P1 " << p1Average << ": lambda_min(J' - K_r) " << -worst.jumps << ", row sums "
+                 << worst.rowSum << ", asymmetry " << worst.asym);
+    CHECK(worst.finite);
+    CHECK(worst.jumps < 1e-12);
+    CHECK(worst.rowSum < 1e-12);
+    CHECK(worst.asym < 1e-12);
+  }
+}
+
+/*--- MPI: the stored values of the edges of owned nodes by canonical global ends and the FCT residual of the owned
+ * nodes by global index (ramp 0.7), the halo gradients, the setup rows, the star exchanges and Y through TVDHaloCopy;
+ * cut edges computed on two ranks must agree. Written to tecno_fct_mpi_<n>d_np<size>.dat (master), compared across
+ * 1/2/4 ranks by the check job. ---*/
+template <size_t nDim>
+void EdgeEntropyFCTMPICase() {
+  constexpr size_t nVar = nDim + 2;
+  namespace ta = TeCNOAdjoint;
+  const std::string mesh = "tecno_fct_mpi_" + std::to_string(nDim) + "d.su2";
+  WriteSimplexMesh(mesh, nDim, (nDim == 2) ? 12 : 4, 0.4, 0.3, (nDim == 2) ? BendMesh2D : BendMesh3D);
+  MeshCase test(mesh, P1AverageMoved);
+  auto& geometry = *test.geometry;
+  const tac::P1Average p1(geometry);
+  const auto S = CoordinateStates(geometry, nDim);
+  const auto w = tac::EntropyField(S, nDim);
+  auto grad = tac::TVDGradientOf<nDim>(geometry, w, &p1);
+  su2activematrix flat(geometry.GetnPoint(), nVar * nDim);
+  auto toFlat = [&](const CVectorOfMatrix& g) {
+    for (auto i = 0ul; i < geometry.GetnPoint(); ++i)
+      for (size_t v = 0; v < nVar; ++v)
+        for (size_t dd = 0; dd < nDim; ++dd) flat(i, v * nDim + dd) = g(i, v, dd);
+  };
+  auto fromFlat = [&](CVectorOfMatrix& g) {
+    for (auto i = 0ul; i < geometry.GetnPoint(); ++i)
+      for (size_t v = 0; v < nVar; ++v)
+        for (size_t dd = 0; dd < nDim; ++dd) g(i, v, dd) = flat(i, v * nDim + dd);
+  };
+  toFlat(grad);
+  tac::TVDHaloCopy(geometry, flat);
+  fromFlat(grad);
+  const auto es = tac::TVDEdgeStates<nDim>(geometry, S, false);
+  tac::FCTData d;
+  d.ing = tac::FCTIngredientsOf<nDim>(geometry, w, grad, es);
+  auto halo = [&](su2activematrix& m) { tac::TVDHaloCopy(geometry, m); };
+  tac::FCTRun(geometry, nDim, p1.weights, p1.volume, w, d, halo);
+  /*--- S4e (ROE_TECNO_PLAN.md 6.11): the same with 4 passes (rows of kind 2), exchanges of S, Pm' and rho'. ---*/
+  tac::FCTData d4;
+  d4.ing = d.ing;
+  tac::FCTRun(geometry, nDim, p1.weights, p1.volume, w, d4, halo, 4);
+  /*--- S4f (ROE_TECNO_PLAN.md 6.13): NODE_INPUT with 4 passes (rows of kind 4 values, kind 5 residual). ---*/
+  tac::FCTData dn;
+  dn.ing = d.ing;
+  tac::FCTRun(geometry, nDim, p1.weights, p1.volume, w, dn, halo, 4, true);
+
+  /*--- Residual of the owned nodes with a store (1 pass: R, 4 passes: R4). ---*/
+  const double ramp = 0.7;
+  auto residualOf = [&](const su2activematrix& store) {
+  su2activematrix R(geometry.GetnPoint(), nVar), Q(geometry.GetnEdge(), 2 * nVar);
+  R = su2double(0.0);
+  for (auto e = 0ul; e < geometry.GetnEdge(); ++e) {
+    const auto i = geometry.edges->GetNode(e, 0), k = geometry.edges->GetNode(e, 1);
+    VectorDbl<nVar> dw, p_i, p_k, q, q_m;
+    for (size_t v = 0; v < nVar; ++v) {
+      dw(v) = w(k, v) - w(i, v);
+      p_i(v) = 0.0;
+      p_k(v) = 0.0;
+      for (size_t dd = 0; dd < nDim; ++dd) {
+        const double ed = geometry.nodes->GetCoord(k)[dd] - geometry.nodes->GetCoord(i)[dd];
+        p_i(v) += grad(i, v, dd) * ed;
+        p_k(v) += grad(k, v, dd) * ed;
+      }
+    }
+    Double fct[12];
+    for (int c = 0; c < 12; ++c) fct[c] = store(e, c);
+    const auto& st = es[e];
+    tecnoAdjointEdgeFCT(Double(tac::GAMMA), st.avg, st.unit, st.lamM, st.lam0, st.lamP, st.scale, dw, p_i, p_k, ramp,
+                        fct, q, q_m);
+    for (size_t v = 0; v < nVar; ++v) {
+      R(i, v) -= q(v)[0];
+      R(k, v) += q(v)[0];
+      Q(e, v) = q_m(v)[0];
+      Q(e, nVar + v) = q_m(v)[0];
+    }
+  }
+  CVectorOfMatrix Y(geometry.GetnPoint(), nVar, nDim, 0.0);
+  ta::NodalMomentEnds(geometry, nDim, nVar, Q, p1.volume, Y);
+  toFlat(Y);
+  tac::TVDHaloCopy(geometry, flat);
+  fromFlat(Y);
+  ta::AddTransposeP1(geometry, nDim, nVar, p1.weights, Y, ta::GradientCoefficient(1.0, 0.0), R);
+  return R;
+  };
+  const auto R = residualOf(d.store), R4 = residualOf(d4.store), RN = residualOf(dn.store);
+
+  /*--- Rows: node (kind 0, global index, 0, residual, zeros) and edge (kind 1, canonical global ends, 12 values). ---*/
+  std::vector<double> rows;
+  for (auto i = 0ul; i < geometry.GetnPointDomain(); ++i) {
+    rows.insert(rows.end(), {0.0, double(geometry.nodes->GetGlobalIndex(i)), 0.0});
+    for (int c = 0; c < 12; ++c) rows.push_back((c < int(nVar)) ? double(R(i, c)) : 0.0);
+    rows.insert(rows.end(), {3.0, double(geometry.nodes->GetGlobalIndex(i)), 0.0});
+    for (int c = 0; c < 12; ++c) rows.push_back((c < int(nVar)) ? double(R4(i, c)) : 0.0);
+    rows.insert(rows.end(), {5.0, double(geometry.nodes->GetGlobalIndex(i)), 0.0});
+    for (int c = 0; c < 12; ++c) rows.push_back((c < int(nVar)) ? double(RN(i, c)) : 0.0);
+  }
+  for (auto e = 0ul; e < geometry.GetnEdge(); ++e) {
+    const bool flip = ta::TVDFlip(geometry, nDim, e);
+    const unsigned long n[2] = {geometry.edges->GetNode(e, flip ? 1 : 0), geometry.edges->GetNode(e, flip ? 0 : 1)};
+    if ((n[0] >= geometry.GetnPointDomain()) && (n[1] >= geometry.GetnPointDomain())) continue;
+    rows.insert(rows.end(), {1.0, double(geometry.nodes->GetGlobalIndex(n[0])), double(geometry.nodes->GetGlobalIndex(n[1]))});
+    for (int which = 0; which < 3; ++which)
+      for (int f = 0; f < 4; ++f) rows.push_back(tac::FCTStored(d.store, e, flip, which, f));
+    rows.insert(rows.end(), {2.0, double(geometry.nodes->GetGlobalIndex(n[0])), double(geometry.nodes->GetGlobalIndex(n[1]))});
+    for (int which = 0; which < 3; ++which)
+      for (int f = 0; f < 4; ++f) rows.push_back(tac::FCTStored(d4.store, e, flip, which, f));
+    rows.insert(rows.end(), {4.0, double(geometry.nodes->GetGlobalIndex(n[0])), double(geometry.nodes->GetGlobalIndex(n[1]))});
+    for (int which = 0; which < 3; ++which)
+      for (int f = 0; f < 4; ++f) rows.push_back(tac::FCTStored(dn.store, e, flip, which, f));
+  }
+  const int size = SU2_MPI::GetSize();
+  int count = static_cast<int>(rows.size());
+  std::vector<int> counts(size), displs(size, 0);
+  SU2_MPI::Allgather(&count, 1, MPI_INT, counts.data(), 1, MPI_INT, SU2_MPI::GetComm());
+  for (int rk = 1; rk < size; ++rk) displs[rk] = displs[rk - 1] + counts[rk - 1];
+  std::vector<double> all(displs[size - 1] + counts[size - 1]);
+  SU2_MPI::Allgatherv(rows.data(), count, MPI_DOUBLE, all.data(), counts.data(), displs.data(), MPI_DOUBLE,
+                      SU2_MPI::GetComm());
+  std::map<std::array<double, 3>, std::array<double, 12>> table;
+  double disagree = 0.0;
+  bool finite = true;
+  for (size_t p = 0; p < all.size(); p += 15) {
+    const std::array<double, 3> key = {all[p], all[p + 1], all[p + 2]};
+    std::array<double, 12> v;
+    for (int c = 0; c < 12; ++c) {
+      v[c] = all[p + 3 + c];
+      finite = finite && std::isfinite(v[c]);
+    }
+    const auto it = table.find(key);
+    if (it != table.end()) {
+      for (int c = 0; c < 12; ++c) disagree = std::max(disagree, fabs(it->second[c] - v[c]));
+    } else {
+      table[key] = v;
+    }
+  }
+  if (SU2_MPI::GetRank() == MASTER_NODE) {
+    std::ofstream f("tecno_fct_mpi_" + std::to_string(nDim) + "d_np" + std::to_string(size) + ".dat");
+    f.precision(17);
+    for (const auto& kv : table) {
+      f << kv.first[0] << " " << kv.first[1] << " " << kv.first[2];
+      for (int c = 0; c < 12; ++c) f << " " << kv.second[c];
+      f << "\n";
+    }
+  }
+  INFO("nDim " << nDim << " ranks " << size << ": " << table.size() << " rows, cut-edge disagreement " << disagree);
+  CHECK(finite);
+  CHECK(disagree < 1e-13);
+  CHECK(table.size() > 0);
+}
+
+/*--- Fixed states for the model parity check (serial; median dual, P1 average, dual normals, kernel floor 0.001):
+ * nodes (index, coordinates, rho, u, p), simplices, and per edge the canonical ends, the 12 canonical values and the
+ * guards d_A, d_S (the model takes the guards of SU2: P1_TECNO_ADJ_LIMITER.md, the model's S is a different bound). ---*/
+template <size_t nDim>
+void EdgeEntropyFCTParityDump() {
+  for (int k = 0; k < 2; ++k) {
+    const std::string mesh = "tecno_fct_par_" + std::to_string(nDim) + "d.su2";
+    WriteSimplexMesh(mesh, nDim, (nDim == 2) ? 8 : 4, 0.4, 0.3, (nDim == 2) ? BendMesh2D : BendMesh3D);
+    MeshCase test(mesh, "");
+    auto& geometry = *test.geometry;
+    const tac::P1Average p1(geometry);
+    std::mt19937 gen(91);
+    const auto S = (k == 0) ? CoordinateStates(geometry, nDim) : tac::RandomStates(geometry.GetnPoint(), nDim, gen, 0.3);
+    for (const unsigned short nPasses : {1, 4}) {
+    const auto d = RunFCT<nDim>(geometry, S, false, &p1, nullptr, nullptr, nPasses);
+    std::ofstream f("tecno_fct_parity_" + std::to_string(nDim) + "d_" + std::to_string(k) +
+                    ((nPasses > 1) ? "_p" + std::to_string(nPasses) : std::string("")) + ".dat");
+    f.precision(17);
+    f << "# " << nDim << " " << geometry.GetnPoint() << " " << geometry.GetnElem() << " " << geometry.GetnEdge() << "\n";
+    for (auto i = 0ul; i < geometry.GetnPoint(); ++i) {
+      f << "P " << i;
+      for (size_t dd = 0; dd < nDim; ++dd) f << " " << geometry.nodes->GetCoord(i)[dd];
+      f << " " << S.rho[i];
+      for (size_t dd = 0; dd < nDim; ++dd) f << " " << S.u[i][dd];
+      f << " " << S.p[i] << "\n";
+    }
+    for (auto iElem = 0ul; iElem < geometry.GetnElem(); ++iElem) {
+      f << "E";
+      for (unsigned short m = 0; m < geometry.elem[iElem]->GetnNodes(); ++m) f << " " << geometry.elem[iElem]->GetNode(m);
+      f << "\n";
+    }
+    for (auto e = 0ul; e < geometry.GetnEdge(); ++e) {
+      const bool flip = TeCNOAdjoint::TVDFlip(geometry, nDim, e);
+      f << "F " << geometry.edges->GetNode(e, flip ? 1 : 0) << " " << geometry.edges->GetNode(e, flip ? 0 : 1);
+      for (int which = 0; which < 3; ++which)
+        for (int ff = 0; ff < 4; ++ff) f << " " << tac::FCTStored(d.store, e, flip, which, ff);
+      f << " " << d.ing(e, TeCNOAdjoint::TVD_GUARD) << " " << d.ing(e, TeCNOAdjoint::TVD_GUARD + 1) << "\n";
+    }
+    CHECK(f.good());
+    }
+  }
+}
+}  // namespace
+
+TEST_CASE("TECNO_ADJOINT_LIMITER= EDGE_ENTROPY_FCT: reference, box, Theorem A1', bounds, linear w, uniform, zero D and speeds", "[P1Flux]") {
+  if (SU2_MPI::GetSize() > 1) return;
+  EdgeEntropyFCTCase<2>();
+  EdgeEntropyFCTCase<3>();
+}
+
+TEST_CASE("TECNO_ADJOINT_FCT_BOUND= NODE_INPUT: reference, row box, node-input identity, row direction, entropy own bound", "[P1Flux]") {
+  if (SU2_MPI::GetSize() > 1) return;
+  EdgeEntropyFCTNodeInputCase<2>();
+  EdgeEntropyFCTNodeInputCase<3>();
+}
+
+TEST_CASE("TECNO_ADJOINT_LIMITER= EDGE_ENTROPY_FCT: numbering invariance", "[P1Flux]") {
+  if (SU2_MPI::GetSize() > 1) return;
+  EdgeEntropyFCTInvarianceCase<2>();
+  EdgeEntropyFCTInvarianceCase<3>();
+}
+
+TEST_CASE("TECNO_ADJOINT_LIMITER= EDGE_ENTROPY_FCT: FIRST_RING_JUMPS with the stored phi_c, J' >= K_r, J 1 = 0", "[P1Flux]") {
+  if (SU2_MPI::GetSize() > 1) return;
+  EdgeEntropyFCTJumpsCase<2>();
+  EdgeEntropyFCTJumpsCase<3>();
+}
+
+TEST_CASE("TECNO_ADJOINT_LIMITER= EDGE_ENTROPY_FCT: MPI, values and residual by global index, cut edges", "[P1Flux]") {
+  EdgeEntropyFCTMPICase<2>();
+  EdgeEntropyFCTMPICase<3>();
+}
+
+TEST_CASE("TECNO_ADJOINT_LIMITER= EDGE_ENTROPY_FCT: rev 4 guard of analytically orthogonal pairs", "[P1Flux]") {
+  /*--- pi = g . e' and t . M with an exact zero whose computed value is a rounding residue: FCTPair returns 0 (no veto,
+   * no Pm); the same pairs perturbed by 1e-10 (well resolved) are kept with the sign of the exact value. ---*/
+  namespace ta = TeCNOAdjoint;
+  const double g[3] = {0.1, 0.2, 0.3}, eo[3] = {0.5, 0.5, -0.5};
+  const double residue = g[0] * eo[0] + g[1] * eo[1] + g[2] * eo[2];
+  for (const double pert : {0.0, 1e-10, -1e-10}) {
+    for (const int f : {0, 2}) {
+      ta::FCTNodeStar st;
+      st.view.resize(2);
+      st.edge = {0, 1};
+      st.y = {0, 0};
+      st.sigma = {1.0, 1.0};
+      st.g.assign(2, {0.0, 0.0, 0.0});
+      for (int d = 0; d < 3; ++d) st.g[0][d] = (f == 0) ? g[d] : 0.6 * (d + 1);
+      for (int d = 0; d < 3; ++d) st.view[1].e[d] = (f == 0) ? eo[d] : 1.0;
+      if (f == 0) st.view[1].e[2] = eo[2] * (1.0 - pert);
+      st.view[0].D[f] = 1.0;
+      st.view[0].dy[f] = 1.0;
+      for (int d = 0; d < 3; ++d) st.view[0].t[d] = g[d];
+      su2activematrix ed(2, ta::FCT_E_WIDTH);
+      ed = su2double(0.0);
+      ed(1, ta::FCT_E_MC + 0) = 2.0;
+      for (int d = 0; d < 3; ++d) ed(1, ta::FCT_E_MVEC + d) = eo[d];
+      if (f == 2) ed(1, ta::FCT_E_MVEC + 2) = eo[2] * (1.0 - pert);
+      const double c = ta::FCTPair(3, st, 0, 1, f, ed);
+      INFO("field " << f << " perturbation " << pert << ": rounding residue " << residue << ", c " << c);
+      if (pert == 0.0) {
+        CHECK(c == 0.0);
+      } else {
+        CHECK(c != 0.0);
+        CHECK(((c > 0.0) == (pert > 0.0)));
+      }
+    }
+  }
+}
+
+TEST_CASE("TECNO_ADJOINT_LIMITER= EDGE_ENTROPY_FCT: fixed states for the model parity check", "[P1Flux]") {
+  if (SU2_MPI::GetSize() > 1) return;
+  EdgeEntropyFCTParityDump<2>();
+  EdgeEntropyFCTParityDump<3>();
 }
 
 TEST_CASE("EDGE_FORM_EC_EXACT_JACOBIAN: exact Ismail-Roe Jacobian and dw/dU against finite differences", "[P1Flux]") {
@@ -8016,5 +9373,455 @@ TEST_CASE("P1 SST matched AXISYMMETRIC: S_E = Shat_E + k S_rho in both forms, un
     const su2double rk = rho * k;
     const su2double fd = ((rk + h) / rho * S[0] - (rk - h) / rho * S[0]) / (2 * h);
     CHECK(fd == Approx(S[0] / rho).margin(1e-8));
+  }
+}
+
+/*--- BC_ENTROPY_P1_STRONG_SLIP (ROE_TECNO_PLAN.md 6.8): the per-point projector P = I - Q^T Q of P1StrongSlip. ---*/
+TEST_CASE("Strong slip: wall-normal basis, projector, entropy identity and Jacobian rows", "[P1Flux]") {
+  namespace pss = P1StrongSlip;
+  std::mt19937 gen(4242);
+  std::uniform_real_distribution<double> uni(-1.0, 1.0);
+  const su2double pi = 4.0 * atan(1.0);
+
+  /*--- P as a matrix on the momentum components (iVel = 1 of a 5-vector). ---*/
+  auto projector = [&](unsigned short nDim, unsigned short nq, const su2double (*Q)[3], su2double (*P)[3]) {
+    for (unsigned short c = 0; c < nDim; ++c) {
+      su2double v[5] = {0.0, 0.0, 0.0, 0.0, 0.0};
+      v[1 + c] = 1.0;
+      pss::SlipProject(nDim, nq, Q, 1, v);
+      for (unsigned short r = 0; r < nDim; ++r) P[r][c] = v[1 + r];
+    }
+  };
+
+  struct Case { unsigned short nDim, nNormals, rank; su2double n[4][3]; };
+  const su2double a1 = 1.0 * pi / 180.0, a5 = 5.0 * pi / 180.0;
+  const std::vector<Case> cases = {
+    {2, 1, 1, {{0.0, -1.0, 0.0}}},
+    {2, 2, 2, {{0.0, -1.0, 0.0}, {1.0, 0.0, 0.0}}},
+    {2, 2, 1, {{0.0, -1.0, 0.0}, {sin(a1), -cos(a1), 0.0}}},          /*--- nearly parallel: one direction ---*/
+    {2, 2, 2, {{0.0, -1.0, 0.0}, {sin(a5), -cos(a5), 0.0}}},          /*--- 5 deg: two directions ---*/
+    {3, 2, 2, {{0.3, -0.9, 0.2}, {0.0, 0.0, 1.0}}},                   /*--- oblique wall meeting a symmetry plane ---*/
+    {3, 3, 3, {{1.0, 0.2, 0.0}, {0.1, 1.0, 0.3}, {0.0, 0.4, 1.0}}},
+    {3, 4, 3, {{1.0, 0.0, 0.0}, {0.0, 1.0, 0.0}, {0.0, 0.0, 1.0}, {0.5, 0.5, 0.5}}},
+    {3, 2, 1, {{0.0, 0.0, -1.0}, {0.0, sin(a1), -cos(a1)}}},
+  };
+
+  for (const auto& cs : cases) {
+    su2double n[4][3] = {{0.0}};
+    for (unsigned short a = 0; a < cs.nNormals; ++a) {
+      su2double norm = 0.0;
+      for (unsigned short d = 0; d < 3; ++d) norm += cs.n[a][d] * cs.n[a][d];
+      for (unsigned short d = 0; d < 3; ++d) n[a][d] = cs.n[a][d] / sqrt(norm);
+    }
+    su2double Q[3][3] = {{0.0}};
+    const auto nq = pss::SlipBasis(cs.nDim, cs.nNormals, n, Q);
+    REQUIRE(nq == cs.rank);
+    /*--- Orthonormal rows. ---*/
+    for (unsigned short r = 0; r < nq; ++r)
+      for (unsigned short t = 0; t < nq; ++t) {
+        su2double dot = 0.0;
+        for (unsigned short d = 0; d < cs.nDim; ++d) dot += Q[r][d] * Q[t][d];
+        CHECK(dot == Approx(r == t ? 1.0 : 0.0).margin(1e-14));
+      }
+    su2double P[3][3] = {{0.0}};
+    projector(cs.nDim, nq, Q, P);
+    /*--- Symmetric, idempotent, trace = nDim - rank. ---*/
+    su2double trace = 0.0;
+    for (unsigned short r = 0; r < cs.nDim; ++r) {
+      trace += P[r][r];
+      for (unsigned short c = 0; c < cs.nDim; ++c) {
+        CHECK(P[r][c] == Approx(P[c][r]).margin(1e-14));
+        su2double pp = 0.0;
+        for (unsigned short k = 0; k < cs.nDim; ++k) pp += P[r][k] * P[k][c];
+        CHECK(pp == Approx(P[r][c]).margin(1e-14));
+      }
+    }
+    CHECK(trace == Approx(cs.nDim - nq).margin(1e-13));
+    /*--- The first normal is removed exactly, a dropped (nearly parallel) one up to sin 2.5 deg. ---*/
+    for (unsigned short a = 0; a < cs.nNormals; ++a) {
+      su2double v[5] = {0.0, 0.0, 0.0, 0.0, 0.0};
+      for (unsigned short d = 0; d < cs.nDim; ++d) v[1 + d] = n[a][d];
+      pss::SlipProject(cs.nDim, nq, Q, 1, v);
+      su2double rest = 0.0;
+      for (unsigned short d = 0; d < cs.nDim; ++d) rest += v[1 + d] * v[1 + d];
+      CHECK(sqrt(rest) <= ((a == 0) ? 1e-14 : sqrt(pss::PARALLEL_SIN2) + 1e-14));
+    }
+
+    for (int trial = 0; trial < 20; ++trial) {
+      const unsigned short nVar = cs.nDim + 2;
+      /*--- Entropy identity at a tangent state: w . P(r) = w . r. ---*/
+      P1BoundaryClosure::EsState S;
+      S.rho = exp(0.5 * uni(gen)); S.p = exp(0.5 * uni(gen));
+      su2double m[5] = {0.0, 0.0, 0.0, 0.0, 0.0};
+      for (unsigned short d = 0; d < cs.nDim; ++d) m[1 + d] = uni(gen);
+      CHECK(pss::SlipPenetration(cs.nDim, nq, Q, 1, m, 0.0) <= 1.0 + 1e-14);
+      pss::SlipProject(cs.nDim, nq, Q, 1, m);
+      /*--- After the projection Q m is roundoff; relative to a reference momentum 1 (m may itself be roundoff at
+       * rank = nDim). ---*/
+      CHECK(pss::SlipPenetration(cs.nDim, nq, Q, 1, m, 1.0) <= 1e-14);
+      for (unsigned short d = 0; d < cs.nDim; ++d) S.vel[d] = m[1 + d];
+      su2double w[5] = {0.0};
+      P1BoundaryClosure::EsEntropyVariables(cs.nDim, kGamma, S, w);
+      su2double r[5] = {0.0}, Pr[5] = {0.0};
+      for (unsigned short v = 0; v < nVar; ++v) Pr[v] = r[v] = uni(gen);
+      pss::SlipProject(cs.nDim, nq, Q, 1, Pr);
+      su2double wr = 0.0, wPr = 0.0, scale = 0.0;
+      for (unsigned short v = 0; v < nVar; ++v) {
+        wr += w[v] * r[v]; wPr += w[v] * Pr[v]; scale += fabs(w[v] * r[v]);
+      }
+      CHECK(fabs(wr - wPr) <= 1e-14 * (1.0 + scale));
+      /*--- Non-momentum components untouched. ---*/
+      CHECK(Pr[0] == r[0]);
+      CHECK(Pr[nVar - 1] == r[nVar - 1]);
+
+      /*--- Jacobian rows: P(J) x = P(J x). ---*/
+      su2double J[25] = {0.0}, x[5] = {0.0}, Jx[5] = {0.0}, PJx[5] = {0.0};
+      for (unsigned short v = 0; v < nVar * nVar; ++v) J[v] = uni(gen);
+      for (unsigned short v = 0; v < nVar; ++v) x[v] = uni(gen);
+      for (unsigned short i = 0; i < nVar; ++i)
+        for (unsigned short j = 0; j < nVar; ++j) Jx[i] += J[i * nVar + j] * x[j];
+      pss::SlipProjectRows(cs.nDim, nVar, nq, Q, 1, J);
+      for (unsigned short i = 0; i < nVar; ++i)
+        for (unsigned short j = 0; j < nVar; ++j) PJx[i] += J[i * nVar + j] * x[j];
+      pss::SlipProject(cs.nDim, nq, Q, 1, Jx);
+      for (unsigned short i = 0; i < nVar; ++i) CHECK(PJx[i] == Approx(Jx[i]).margin(1e-14));
+    }
+  }
+  su2double zero[5] = {0.0, 0.0, 0.0, 0.0, 0.0}, Qz[3][3] = {{0.0, 1.0, 0.0}};
+  CHECK(pss::SlipPenetration(2, 1, Qz, 1, zero, 0.0) == 0.0);
+  su2double mz[5] = {0.0, 0.0, 3.0, 0.0, 0.0};
+  CHECK(pss::SlipPenetration(2, 1, Qz, 1, mz, 0.0) == Approx(1.0));
+  CHECK(pss::SlipPenetration(2, 1, Qz, 1, mz, 6.0) == Approx(0.5));
+}
+
+/*--- EULER_WALL_CREASE_NORMALS (ROE_TECNO_PLAN.md 6.14): CreaseGroups::SubspaceGradientCorrection. Rank 1 equals Blazek's
+ * correction (detail::correctGradient); rank 2 does not depend on the basis of the subspace S (two oblique crease normals
+ * and two different orthonormal bases give the same result), is idempotent, removes the normal derivatives of the
+ * scalars along both original normals and makes the velocity gradient invariant under R = I - 2 P_S. ---*/
+TEST_CASE("Euler-wall crease normals: subspace gradient correction", "[P1Flux]") {
+  namespace cg = CreaseGroups;
+  std::mt19937 gen(515);
+  std::uniform_real_distribution<double> uni(-1.0, 1.0);
+  auto unit = [](su2double* v) {
+    const su2double n = GeometryToolbox::Norm(3, v);
+    for (int d = 0; d < 3; ++d) v[d] /= n;
+  };
+  for (int trial = 0; trial < 20; ++trial) {
+    su2double G0[5][3];
+    for (int v = 0; v < 5; ++v)
+      for (int d = 0; d < 3; ++d) G0[v][d] = uni(gen);
+    /*--- Rank 1: Blazek. ---*/
+    su2double n[3] = {uni(gen), uni(gen), uni(gen)};
+    unit(n);
+    su2double A[5][3], B[5][3];
+    for (int v = 0; v < 5; ++v)
+      for (int d = 0; d < 3; ++d) A[v][d] = B[v][d] = G0[v][d];
+    su2double Q1[3][3] = {{n[0], n[1], n[2]}};
+    detail::correctGradient<3>(0, 5, 1, n, A);
+    cg::SubspaceGradientCorrection<3>(0, 5, 1, 1, Q1, B);
+    for (int v = 0; v < 5; ++v)
+      for (int d = 0; d < 3; ++d) CHECK(A[v][d] == Approx(B[v][d]).margin(1e-13));
+    /*--- Rank 2 from two oblique normals (a wedge), two bases (Gram-Schmidt in both orders). ---*/
+    su2double n1[3] = {uni(gen), uni(gen), uni(gen)}, n2[3] = {uni(gen), uni(gen), uni(gen)};
+    unit(n1);
+    unit(n2);
+    su2double L12[2][3] = {{n1[0], n1[1], n1[2]}, {n2[0], n2[1], n2[2]}};
+    su2double L21[2][3] = {{n2[0], n2[1], n2[2]}, {n1[0], n1[1], n1[2]}};
+    su2double Qa[3][3] = {{0.0}}, Qb[3][3] = {{0.0}};
+    REQUIRE(cg::Basis(3, 2, L12, Qa) == 2);
+    REQUIRE(cg::Basis(3, 2, L21, Qb) == 2);
+    su2double C[5][3], D[5][3];
+    for (int v = 0; v < 5; ++v)
+      for (int d = 0; d < 3; ++d) C[v][d] = D[v][d] = G0[v][d];
+    cg::SubspaceGradientCorrection<3>(0, 5, 1, 2, Qa, C);
+    cg::SubspaceGradientCorrection<3>(0, 5, 1, 2, Qb, D);
+    for (int v = 0; v < 5; ++v)
+      for (int d = 0; d < 3; ++d) CHECK(C[v][d] == Approx(D[v][d]).margin(1e-13));
+    /*--- Idempotent. ---*/
+    cg::SubspaceGradientCorrection<3>(0, 5, 1, 2, Qa, D);
+    for (int v = 0; v < 5; ++v)
+      for (int d = 0; d < 3; ++d) CHECK(C[v][d] == Approx(D[v][d]).margin(1e-13));
+    /*--- Scalars: no derivative along either original normal. ---*/
+    for (const int v : {0, 4}) {
+      CHECK(fabs(GeometryToolbox::DotProduct(3, C[v], n1)) < 1e-13);
+      CHECK(fabs(GeometryToolbox::DotProduct(3, C[v], n2)) < 1e-13);
+    }
+    /*--- Velocity gradient invariant under R = I - 2 P_S: R G R = G. ---*/
+    su2double P[3][3] = {{0.0}}, R[3][3], RG[3][3] = {{0.0}};
+    for (int i = 0; i < 3; ++i)
+      for (int j = 0; j < 3; ++j)
+        for (int r = 0; r < 2; ++r) P[i][j] += Qa[r][i] * Qa[r][j];
+    for (int i = 0; i < 3; ++i)
+      for (int j = 0; j < 3; ++j) R[i][j] = ((i == j) ? 1.0 : 0.0) - 2.0 * P[i][j];
+    for (int i = 0; i < 3; ++i)
+      for (int j = 0; j < 3; ++j)
+        for (int k = 0; k < 3; ++k) RG[i][j] += R[i][k] * C[1 + k][j];
+    for (int i = 0; i < 3; ++i)
+      for (int j = 0; j < 3; ++j) {
+        su2double RGR = 0.0;
+        for (int k = 0; k < 3; ++k) RGR += RG[i][k] * R[k][j];
+        CHECK(RGR == Approx(C[1 + i][j]).margin(1e-13));
+      }
+  }
+}
+
+/*--- BC_ENTROPY_P1_STRONG_SLIP crease groups (ROE_TECNO_PLAN.md 6.11, item 2): P1StrongSlip::SlipFaceGroups. ---*/
+TEST_CASE("Strong slip: crease groups of the incident wall faces", "[P1Flux]") {
+  namespace pss = P1StrongSlip;
+  const su2double pi = 4.0 * atan(1.0);
+  /*--- 3D fan of 6 triangles around the point 0 (other nodes 1..6 on a ring), face f = (0, f+1, f+2 mod 6); the ring
+   * node k at angle 60 k deg, height z_k. Returns the groups and checks the summed normal of each group. ---*/
+  auto fan = [&](const su2double* z, su2double (*groupN)[3]) {
+    su2double x[7][3] = {{0.0, 0.0, 0.0}};
+    for (unsigned short k = 0; k < 6; ++k) {
+      x[k + 1][0] = cos(pi * k / 3.0); x[k + 1][1] = sin(pi * k / 3.0); x[k + 1][2] = z[k];
+    }
+    su2double N[6][3];
+    unsigned long other[6][3] = {{0}};
+    unsigned short nOther[6];
+    for (unsigned short f = 0; f < 6; ++f) {
+      const unsigned short a = f + 1, b = (f + 1) % 6 + 1;
+      su2double u[3], v[3];
+      for (unsigned short d = 0; d < 3; ++d) { u[d] = x[a][d]; v[d] = x[b][d]; }
+      N[f][0] = 0.5 * (u[1] * v[2] - u[2] * v[1]);
+      N[f][1] = 0.5 * (u[2] * v[0] - u[0] * v[2]);
+      N[f][2] = 0.5 * (u[0] * v[1] - u[1] * v[0]);
+      other[f][0] = a; other[f][1] = b; nOther[f] = 2;
+    }
+    return pss::SlipFaceGroups(3, 6, N, other, nOther, groupN);
+  };
+  su2double g[32][3];
+  /*--- Flat and gently curved: one group (the vertex normal is kept). ---*/
+  const su2double flat[6] = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0}, bump[6] = {-0.3, -0.2, -0.4, -0.3, -0.1, -0.5};
+  CHECK(fan(flat, g) == 1);
+  CHECK(fan(bump, g) == 1);
+  CHECK(g[0][2] > 0.0);
+  /*--- Sharp edge along the ring nodes 1 and 4 (x axis): the half y > 0 folded down to a thin wedge, the half y < 0
+   * flat: faces 0-2 (y >= 0) and 3-5 fold by more than 90 deg across the edges 0-1 and 0-4 -> two groups with the
+   * normals of the two halves. ---*/
+  const su2double wedge = 164.0 * pi / 180.0;
+  su2double xr[7][3] = {{0.0, 0.0, 0.0}};
+  for (unsigned short k = 0; k < 6; ++k) {
+    const su2double c = cos(pi * k / 3.0), s = sin(pi * k / 3.0);
+    xr[k + 1][0] = c;
+    xr[k + 1][1] = (s > 1e-12) ? s * cos(wedge) : s;
+    xr[k + 1][2] = (s > 1e-12) ? s * sin(wedge) : 0.0;
+  }
+  {
+    su2double N[6][3];
+    unsigned long other[6][3] = {{0}};
+    unsigned short nOther[6];
+    for (unsigned short f = 0; f < 6; ++f) {
+      const unsigned short a = f + 1, b = (f + 1) % 6 + 1;
+      const su2double* u = xr[a]; const su2double* v = xr[b];
+      N[f][0] = 0.5 * (u[1] * v[2] - u[2] * v[1]);
+      N[f][1] = 0.5 * (u[2] * v[0] - u[0] * v[2]);
+      N[f][2] = 0.5 * (u[0] * v[1] - u[1] * v[0]);
+      other[f][0] = a; other[f][1] = b; nOther[f] = 2;
+    }
+    const auto n = pss::SlipFaceGroups(3, 6, N, other, nOther, g);
+    REQUIRE(n == 2);
+    /*--- Each group normal is parallel to the normals of its faces; the two together give rank 2 in SlipBasis, so the
+     * slip velocity is along the edge (x axis). ---*/
+    for (unsigned short q = 0; q < 2; ++q) {
+      const su2double ng = sqrt(g[q][0] * g[q][0] + g[q][1] * g[q][1] + g[q][2] * g[q][2]);
+      unsigned short nPar = 0;
+      for (unsigned short f = 0; f < 6; ++f) {
+        const su2double nf = sqrt(N[f][0] * N[f][0] + N[f][1] * N[f][1] + N[f][2] * N[f][2]);
+        const su2double c = (g[q][0] * N[f][0] + g[q][1] * N[f][1] + g[q][2] * N[f][2]) / (ng * nf);
+        if (c > 1.0 - 1e-12) ++nPar;
+      }
+      CHECK(nPar == 3);
+    }
+    su2double unit[2][3], Q[3][3];
+    for (unsigned short q = 0; q < 2; ++q) {
+      const su2double ng = sqrt(g[q][0] * g[q][0] + g[q][1] * g[q][1] + g[q][2] * g[q][2]);
+      for (unsigned short d = 0; d < 3; ++d) unit[q][d] = g[q][d] / ng;
+    }
+    REQUIRE(pss::SlipBasis(3, 2, unit, Q) == 2);
+    su2double m[5] = {0.0, 0.3, -0.7, 0.4, 0.0};
+    pss::SlipProject(3, 2, Q, 1, m);
+    CHECK(fabs(m[2]) < 1e-14);
+    CHECK(fabs(m[3]) < 1e-14);
+    CHECK(m[1] == Approx(0.3).margin(1e-14));
+    /*--- With the vertex normal alone (sum of all faces, the bisector) the slip plane contains a velocity that crosses
+     * the faces almost normally: t = nbar x e_x, |t . n_f| > 0.9 for the faces of both halves. ---*/
+    su2double S[3] = {0.0, 0.0, 0.0};
+    for (unsigned short f = 0; f < 6; ++f)
+      for (unsigned short d = 0; d < 3; ++d) S[d] += N[f][d];
+    const su2double t[3] = {0.0, S[2], -S[1]}, nt = sqrt(S[1] * S[1] + S[2] * S[2]);
+    for (unsigned short f = 0; f < 6; ++f) {
+      const su2double nf = sqrt(N[f][0] * N[f][0] + N[f][1] * N[f][1] + N[f][2] * N[f][2]);
+      CHECK(fabs(t[0] * N[f][0] + t[1] * N[f][1] + t[2] * N[f][2]) / (nt * nf) > 0.9);
+    }
+  }
+  /*--- A fold of exactly 90 deg or less is not a crease (N_f . N_g > 0 required to join; 90 deg gives 0 -> split). ---*/
+  {
+    su2double N[2][3] = {{0.0, 0.0, 1.0}, {0.0, sin(0.4 * pi), cos(0.4 * pi)}};
+    unsigned long other[2][3] = {{1, 2, 0}, {2, 3, 0}};
+    unsigned short nOther[2] = {2, 2};
+    CHECK(pss::SlipFaceGroups(3, 2, N, other, nOther, g) == 1);
+    N[1][1] = 1.0; N[1][2] = 0.0;
+    CHECK(pss::SlipFaceGroups(3, 2, N, other, nOther, g) == 2);
+    /*--- Not adjacent (no common other node): never joined. ---*/
+    other[1][0] = 5; other[1][1] = 6;
+    N[1][1] = 0.0; N[1][2] = 1.0;
+    CHECK(pss::SlipFaceGroups(3, 2, N, other, nOther, g) == 2);
+  }
+  /*--- Acute chain (Codex review 1 of 6.11): adjacent products positive, N_0 . N_2 < 0. The pairwise rule keeps face 2
+   * apart, and every group normal is inside the dual cone of its faces (n . N_f >= |N_f|^2). ---*/
+  {
+    const su2double r3 = sqrt(3.0);
+    su2double N[3][3] = {{0.0, 0.0, 1.0}, {0.5 * r3, 0.0, 0.5}, {r3, 3.0, -2.0}};
+    unsigned long other[3][3] = {{1, 2, 0}, {2, 3, 0}, {3, 4, 0}};
+    unsigned short nOther[3] = {2, 2, 2};
+    REQUIRE(pss::SlipFaceGroups(3, 3, N, other, nOther, g) == 2);
+    CHECK(g[0][0] == Approx(0.5 * r3));
+    CHECK(g[1][1] == Approx(3.0));
+    for (unsigned short f = 0; f < 3; ++f) {
+      const unsigned short q = (f < 2) ? 0 : 1;
+      const su2double nf2 = N[f][0] * N[f][0] + N[f][1] * N[f][1] + N[f][2] * N[f][2];
+      CHECK(g[q][0] * N[f][0] + g[q][1] * N[f][1] + g[q][2] * N[f][2] >= nf2 - 1e-14);
+    }
+  }
+  /*--- 2D: the two segments of a point; a thin wedge (164 deg fold) splits, a smooth wall does not. ---*/
+  {
+    su2double N[2][3] = {{0.0, -1.0, 0.0}, {sin(0.1), -cos(0.1), 0.0}};
+    unsigned long other[2][3] = {{1, 0, 0}, {2, 0, 0}};
+    unsigned short nOther[2] = {1, 1};
+    CHECK(pss::SlipFaceGroups(2, 2, N, other, nOther, g) == 1);
+    CHECK(g[0][0] == Approx(sin(0.1)).margin(1e-15));
+    N[1][0] = sin(wedge); N[1][1] = -cos(wedge);
+    CHECK(N[0][0] * N[1][0] + N[0][1] * N[1][1] < 0.0);
+    CHECK(pss::SlipFaceGroups(2, 2, N, other, nOther, g) == 2);
+  }
+}
+
+TEST_CASE("Crease groups: order-independent groups at corners", "[P1Flux]") {
+  /*--- Groups of a fan of faces for every permutation of the face order (all n! orders): the partition (canonical: groups
+   * numbered in the order of the first face of the original order) must not depend on the order. Returns it. ---*/
+  auto partition = [&](unsigned short nDim, unsigned short n, const su2double (*N)[3], const unsigned long (*edge)[3],
+                       const unsigned short* nEdge) {
+    std::vector<unsigned short> perm(n), ref;
+    for (unsigned short f = 0; f < n; ++f) perm[f] = f;
+    bool first = true, same = true;
+    do {
+      su2double Np[32][3], g[32][3];
+      unsigned long ep[32][3] = {{0}};
+      unsigned short nep[32], fg[32];
+      for (unsigned short a = 0; a < n; ++a) {
+        for (unsigned short d = 0; d < 3; ++d) Np[a][d] = N[perm[a]][d];
+        for (unsigned short k = 0; k < 3; ++k) ep[a][k] = edge[perm[a]][k];
+        nep[a] = nEdge[perm[a]];
+      }
+      CreaseGroups::FaceGroups(nDim, n, Np, ep, nep, g, fg);
+      std::vector<unsigned short> byFace(n), canon(n), slot(32, 99);
+      for (unsigned short a = 0; a < n; ++a) byFace[perm[a]] = fg[a];
+      unsigned short next = 0;
+      for (unsigned short f = 0; f < n; ++f) {
+        if (slot[byFace[f]] == 99) slot[byFace[f]] = next++;
+        canon[f] = slot[byFace[f]];
+      }
+      if (first) ref = canon;
+      same = same && (canon == ref);
+      first = false;
+    } while (std::next_permutation(perm.begin(), perm.end()));
+    CHECK(same);
+    return ref;
+  };
+  auto rankOf = [&](unsigned short n, const su2double (*N)[3], const std::vector<unsigned short>& part) {
+    su2double unit[32][3] = {{0.0}}, Q[3][3];
+    unsigned short nG = 0;
+    for (auto q : part) nG = std::max<unsigned short>(nG, q + 1);
+    for (unsigned short q = 0; q < nG; ++q) {
+      su2double s[3] = {0.0, 0.0, 0.0};
+      for (unsigned short f = 0; f < n; ++f)
+        if (part[f] == q) for (unsigned short d = 0; d < 3; ++d) s[d] += N[f][d];
+      const su2double l = sqrt(s[0] * s[0] + s[1] * s[1] + s[2] * s[2]);
+      for (unsigned short d = 0; d < 3; ++d) unit[q][d] = s[d] / l;
+    }
+    return CreaseGroups::Basis(3, nG, unit, Q);
+  };
+  /*--- Closed fan of 6 faces around a point, face f adjacent to f + 1 (shared other node f + 1) and face 5 to face 0. ---*/
+  unsigned long ring[6][3] = {{0}};
+  unsigned short nRing[6];
+  for (unsigned short f = 0; f < 6; ++f) {
+    ring[f][0] = f + 1;
+    ring[f][1] = (f + 1) % 6 + 1;
+    nRing[f] = 2;
+  }
+  const su2double pi = 4.0 * atan(1.0);
+  /*--- Box corner: three planes at 90 deg, two faces each (unequal areas): three groups, rank 3. ---*/
+  {
+    const su2double N[6][3] = {{1.0, 0, 0}, {0.4, 0, 0}, {0, 0.7, 0}, {0, 2.0, 0}, {0, 0, 0.3}, {0, 0, 1.1}};
+    const auto part = partition(3, 6, N, ring, nRing);
+    CHECK(part == std::vector<unsigned short>{0, 0, 1, 1, 2, 2});
+    CHECK(rankOf(6, N, part) == 3);
+  }
+  /*--- Wing-tip-like corner: trailing edge along y, upper faces (0, 1) and lower faces (4, 5) of a 10 deg wedge (normals
+   * (sin 5, 0, +-cos 5) tilted by e towards the cap; across the trailing edge between faces 5 and 0 they fold by about
+   * 170 deg) and a cap (2, 3, normal y) at 90 - e deg to both halves. e = 5 deg (cap at 85 deg): the cap is compatible
+   * with both halves, which are incompatible with each other; equal cosines: the cap forms its own group (rank 3). Cap
+   * tilted 1 deg towards the upper half (84 / 86 deg): it joins the upper half (larger cosine; folds below 90 deg are
+   * averaged), rank 2. e = -5 deg (cap at 95 deg to both): three groups, rank 3. Unequal face areas. ---*/
+  for (const su2double capDeg : {85.0, 95.0}) {
+    const su2double w = 5.0 * pi / 180.0, e = (90.0 - capDeg) * pi / 180.0;
+    const su2double U[3] = {sin(w) * cos(e), sin(e), cos(w) * cos(e)};
+    su2double N[6][3] = {{U[0], U[1], U[2]}, {0.6 * U[0], 0.6 * U[1], 0.6 * U[2]}, {0, 0.8, 0}, {0, 0.8, 0},
+                         {0.6 * U[0], 0.6 * U[1], -0.6 * U[2]}, {U[0], U[1], -U[2]}};
+    const auto part = partition(3, 6, N, ring, nRing);
+    CHECK(part == std::vector<unsigned short>{0, 0, 1, 1, 2, 2});
+    CHECK(rankOf(6, N, part) == 3);
+    if (capDeg < 90.0) {
+      const su2double t = pi / 180.0;
+      N[2][1] = N[3][1] = 0.8 * cos(t);
+      N[2][2] = N[3][2] = 0.8 * sin(t);
+      const auto tilted = partition(3, 6, N, ring, nRing);
+      CHECK(tilted == std::vector<unsigned short>{0, 0, 0, 0, 1, 1});
+      CHECK(rankOf(6, N, tilted) == 2);
+    }
+  }
+  /*--- Compatibility threshold: cosine 0.0005 (below COMPATIBLE_COS = 0.001) is a crease, cosine 0.002 is not. ---*/
+  {
+    const su2double t[2] = {0.0005, 0.002};
+    for (unsigned short k = 0; k < 2; ++k) {
+      const su2double N[2][3] = {{0.0, 0.0, 1.0}, {0.0, sqrt(1.0 - t[k] * t[k]), t[k]}};
+      const unsigned long edge[2][3] = {{1, 2, 0}, {2, 3, 0}};
+      const unsigned short nEdge[2] = {2, 2};
+      const auto part = partition(3, 2, N, edge, nEdge);
+      CHECK(part == (k == 0 ? std::vector<unsigned short>{0, 1} : std::vector<unsigned short>{0, 0}));
+    }
+  }
+  /*--- ONERA M6 wing (hybrid mesh, 258969 points), point 46 (tip, trailing edge on the tip ridge z = 0) and point 47 (tip
+   * ridge): corner vectors and other nodes of the incident faces. Lower faces (z component < 0) and upper faces fold by
+   * 108 deg across the trailing edge and by 88 deg across the ridge; groups: lower and upper halves for every face order
+   * (rank 2: the velocity along the sharp edge). The earlier greedy merge in face order gave 2 or 3 groups at point 46
+   * depending on the order (3 for the sorted order: a group across the ridge, rank 3, zero velocity). ---*/
+  {
+    const su2double N[6][3] = {{-3.4527637101296927e-06, 0.00013549416073123523, -0.00015240393609880425},
+                               {-3.425224979111915e-06, 0.00013441347941039864, 0.00023411606631673615},
+                               {-5.6299153361818569e-06, 0.0001216527217636005, -0.00011034177632880386},
+                               {-5.8212976089669138e-06, 0.0001257881612846936, 0.00012987386080468954},
+                               {1.2126984884427711e-05, 0.00012108851495268514, -0.00012929906974200344},
+                               {5.2382358223712074e-05, 0.00012513052349801823, 0.00017125460926028838}};
+    const unsigned long edge[6][3] = {{45, 1441}, {3123, 45}, {1407, 47}, {47, 3121}, {1441, 1407}, {3121, 3123}};
+    const unsigned short nEdge[6] = {2, 2, 2, 2, 2, 2};
+    const auto part = partition(3, 6, N, edge, nEdge);
+    CHECK(part == std::vector<unsigned short>{0, 1, 0, 1, 0, 1});
+    CHECK(rankOf(6, N, part) == 2);
+  }
+  {
+    const su2double N[7][3] = {{-5.6299153361818536e-06, 0.00012165272176360047, -0.00011034177632880187},
+                               {-5.8212976089685045e-06, 0.00012578816128469322, 0.00012987386080468927},
+                               {-5.8941065175494447e-06, 8.69062243930457e-05, -6.1310200144633052e-05},
+                               {-5.53290568833489e-06, 8.158046378434997e-05, 4.8596030875096337e-05},
+                               {7.18835195206529e-06, 9.514498481312483e-05, -7.9450342581273144e-05},
+                               {5.3368426594275388e-05, 5.4546638530220041e-05, 0.00010323437735996845},
+                               {-4.3552878196415469e-05, 9.095605988952612e-05, 0.0001297251427599337}};
+    const unsigned long edge[7][3] = {{46, 1407}, {3121, 46}, {1391, 48}, {48, 3091}, {1407, 1391}, {3091, 3093}, {3093, 3121}};
+    const unsigned short nEdge[7] = {2, 2, 2, 2, 2, 2, 2};
+    const auto part = partition(3, 7, N, edge, nEdge);
+    CHECK(part == std::vector<unsigned short>{0, 1, 0, 1, 0, 1, 1});
+    CHECK(rankOf(7, N, part) == 2);
   }
 }

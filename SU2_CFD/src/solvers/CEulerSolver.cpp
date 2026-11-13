@@ -25,6 +25,7 @@
  * License along with SU2. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <cstring>
 #include "../../include/solvers/CEulerSolver.hpp"
 #include "../../include/variables/CNSVariable.hpp"
 #include "../../../Common/include/toolboxes/geometry_toolbox.hpp"
@@ -346,6 +347,21 @@ CEulerSolver::CEulerSolver(CGeometry *geometry, CConfig *config,
       /*--- TECNO_ADJOINT_LIMITER: B^T q of both edge ends (P1_TECNO_ADJ_LIMITER.md), else q. ---*/
       const bool edgeEnds = (config->GetKind_TeCNO_Adj_Limiter() != TECNO_ADJ_LIMITER::NONE);
       nodes->TeCNOAdjEdgeQ.resize(geometry->GetnEdge(), edgeEnds ? 2 * nVar : nVar) = su2double(0.0);
+      if (config->GetKind_TeCNO_Adj_Limiter() == TECNO_ADJ_LIMITER::EDGE_ENTROPY_TVD) {
+        /*--- EDGE_ENTROPY_TVD: ingredients, own clip, node factors and the per-edge-end values (TeCNOAdjointTVDLimiter). ---*/
+        nodes->TeCNOAdjEdgeTVD.resize(geometry->GetnEdge(), TeCNOAdjoint::TVDWidth(nDim)) = su2double(0.0);
+        nodes->TeCNOAdjEdgePhi.resize(geometry->GetnEdge(), 2 * TeCNOAdjoint::TVD_NFIELD) = su2double(1.0);
+        TeCNOAdjTVDClip.resize(geometry->GetnEdge(), TeCNOAdjoint::TVD_CLIP_WIDTH) = su2double(0.0);
+        TeCNOAdjTVDRho.resize(nPoint, TeCNOAdjoint::TVD_NFIELD) = su2double(1.0);
+      }
+      if (config->GetKind_TeCNO_Adj_Limiter() == TECNO_ADJ_LIMITER::EDGE_ENTROPY_FCT) {
+        /*--- EDGE_ENTROPY_FCT: ingredients with the FCT columns and the store of phi_c, alpha, gamma (TeCNOAdjointTVDLimiter,
+         * initial values of the full-ramp AD term: 1, 1, 0); the work arrays are sized with the setup. ---*/
+        nodes->TeCNOAdjEdgeTVD.resize(geometry->GetnEdge(), TeCNOAdjoint::FCTWidth(nDim)) = su2double(0.0);
+        nodes->TeCNOAdjEdgePhi.resize(geometry->GetnEdge(), TeCNOAdjoint::FCT_STORE_WIDTH) = su2double(1.0);
+        for (auto iEdge = 0ul; iEdge < geometry->GetnEdge(); ++iEdge)
+          for (auto f = 0u; f < TeCNOAdjoint::TVD_NFIELD; ++f) nodes->TeCNOAdjEdgePhi(iEdge, TeCNOAdjoint::FCT_GAMMA + f) = 0.0;
+      }
       TeCNOAdjW.resize(nPoint, nVar) = su2double(0.0);
       TeCNOAdjY.resize(nPoint, nVar, nDim, 0.0);
       if (config->GetEdge_Form_TeCNO_Adjoint_Limiter()) {
@@ -357,10 +373,12 @@ CEulerSolver::CEulerSolver(CGeometry *geometry, CConfig *config,
         nodes->TeCNOAdjEdgeD.resize(geometry->GetnEdge(), nVar * nVar) = su2double(0.0);
         TeCNOAdjP.resize(nPoint, nVar * nVar) = su2double(0.0);
       }
-      if (config->GetKind_TeCNO_Adj_Jacobian() == TECNO_ADJ_JACOBIAN::FIRST_RING) {
+      if (config->GetKind_TeCNO_Adj_Jacobian() != TECNO_ADJ_JACOBIAN::ROE1) {
         nodes->TeCNOAdjEdgeD.resize(geometry->GetnEdge(), nVar * nVar) = su2double(0.0);
         TeCNOAdjP.resize(nPoint, nVar * nVar) = su2double(0.0);
-        TeCNOAdjS.resize(nPoint, nDim + 1 + nDim * nDim) = su2double(0.0);
+        /*--- FIRST_RING: (s, 1/V, T); FIRST_RING_JUMPS: (1/V, E, T, M, margin). ---*/
+        const bool jumps = (config->GetKind_TeCNO_Adj_Jacobian() == TECNO_ADJ_JACOBIAN::FIRST_RING_JUMPS);
+        TeCNOAdjS.resize(nPoint, jumps ? 3 + 2 * nDim * nDim : nDim + 1 + nDim * nDim) = su2double(0.0);
       }
       if (config->GetKind_TeCNO_Adj_Gradient() == TECNO_ADJ_GRADIENT::P1_AVERAGE) {
         /*--- P1 average (P1_TECNO_ADJ_GRADIENT.md, G2): edge weights a and volumes Vhat, fixed (no grid motion). ---*/
@@ -2681,10 +2699,13 @@ void CEulerSolver::TeCNOAdjointResidual(CGeometry *geometry, const CConfig *conf
 
   /*--- EDGE_FORM_TECNO_ADJOINT: gradient part of R_m = sum_e c_{e,m} q_e (TeCNOAdjoint). The edge loop added the
    * Delta part and stored q_e. Y = Z/V on the owned nodes (all their edges are here), copied to the halos, then
-   * R_m += -gam/2 sum_k n_mk.(Y_m + Y_k), gam = -1/2 rho (1-kappa) with the ramp of the edge loop. ---*/
+   * R_m += -gam/2 sum_k n_mk.(Y_m + Y_k), gam = -1/2 rho (1-kappa) with the ramp of the edge loop (EDGE_ENTROPY_FCT:
+   * gam = -1/2, the ramp is applied to the blend weights in the stored moments, tecnoAdjointEdgeFCT). ---*/
 
   const su2double ramp = config->GetMUSCLRampValue() * config->GetNewtonKrylovRelaxation();
-  const su2double gam = TeCNOAdjoint::GradientCoefficient(ramp, config->GetMUSCL_Kappa_Flow());
+  const bool fct = (config->GetKind_TeCNO_Adj_Limiter() == TECNO_ADJ_LIMITER::EDGE_ENTROPY_FCT);
+  const su2double gam = fct ? TeCNOAdjoint::GradientCoefficient(1.0, 0.0)
+                            : TeCNOAdjoint::GradientCoefficient(ramp, config->GetMUSCL_Kappa_Flow());
   const auto& phi = nodes->TeCNOAdjPhi;
 
   /*--- TECNO_ADJOINT_GRADIENT= P1_AVERAGE: Y = Z/Vhat and R_m += gam sum_k (a_km.Y_k - a_mk.Y_m) (G3). ---*/
@@ -2748,12 +2769,18 @@ void CEulerSolver::TeCNOAdjointResidual(CGeometry *geometry, const CConfig *conf
   }
 
   /*--- TECNO_ADJOINT_JACOBIAN= FIRST_RING (TeCNOAdjoint::FirstRingRow): rows of the owned nodes, J_w(m, n) dw/dU_n with
-   * the edge blocks beta_{e,m} beta_{e,n} D_e and the diagonal majorant of the second-ring part, 2 J >= C^T D C. The
-   * edge loop added the central part and stored D_e. ---*/
+   * the edge blocks beta_{e,m} beta_{e,n} D_e and the diagonal majorant of the second-ring part, 2 J >= C^T D C;
+   * FIRST_RING_JUMPS (TeCNOAdjoint::JumpRow): the edge-jump majorant, J >= C^T D C and J 1 = 0. The edge loop added
+   * the central part and stored D_e. ---*/
 
-  if ((config->GetKind_TeCNO_Adj_Jacobian() == TECNO_ADJ_JACOBIAN::FIRST_RING) &&
+  if ((config->GetKind_TeCNO_Adj_Jacobian() != TECNO_ADJ_JACOBIAN::ROE1) &&
       (config->GetKind_TimeIntScheme() == EULER_IMPLICIT)) {
-    TeCNOAdjointFirstRingJacobian(geometry, config);
+    if ((config->GetKind_TeCNO_Adj_Limiter() == TECNO_ADJ_LIMITER::EDGE_ENTROPY_TVD) ||
+        (config->GetKind_TeCNO_Adj_Limiter() == TECNO_ADJ_LIMITER::EDGE_ENTROPY_FCT)) {
+      TeCNOAdjointJumpsTVDJacobian(geometry, config);
+    } else {
+      TeCNOAdjointFirstRingJacobian(geometry, config);
+    }
   }
 }
 
@@ -2773,10 +2800,30 @@ void CEulerSolver::TeCNOAdjointFirstRingJacobian(CGeometry *geometry, const CCon
     TeCNOAdjoint::EntropyHessian(nDim, Gamma, nodes->GetPrimitive(iPoint, nDim + 2), velocity,
                                  nodes->GetPrimitive(iPoint, nDim + 1), H);
   };
+  const bool jumps = (config->GetKind_TeCNO_Adj_Jacobian() == TECNO_ADJ_JACOBIAN::FIRST_RING_JUMPS);
   auto assemble = [&](const auto& weights, const auto& volume) {
-    TeCNOAdjoint::FirstRingNodal(*geometry, nDim, weights, volume, TeCNOAdjS);
-    CommPointData(geometry, config, TeCNOAdjS.data(), nDim + 1 + nDim * nDim);
-    TeCNOAdjoint::FirstRingNodalP(*geometry, nDim, nVar, nodes->TeCNOAdjEdgeD, TeCNOAdjS, phi, gam, TeCNOAdjP);
+    if (jumps) {
+      /*--- FIRST_RING_JUMPS: S = (1/V, E, T, M) and Q on the owned nodes, copied to the halos. Edge weights of E:
+       * w_f = trace(D_f H_f), H_f the mean entropy Hessian of the two nodes. ---*/
+      auto edgeWeight = [&](unsigned long iEdge) {
+        TeCNOAdjoint::Block H0, H1;
+        hessian(geometry->edges->GetNode(iEdge, 0), H0);
+        hessian(geometry->edges->GetNode(iEdge, 1), H1);
+        su2double w = 0.0;
+        for (auto iVar = 0u; iVar < nVar; ++iVar)
+          for (auto jVar = 0u; jVar < nVar; ++jVar)
+            w += nodes->TeCNOAdjEdgeD(iEdge, iVar * nVar + jVar) * (H0(jVar, iVar) + H1(jVar, iVar));
+        return 0.5 * w;
+      };
+      TeCNOAdjoint::JumpNodal(*geometry, nDim, weights, volume, edgeWeight, TeCNOAdjS);
+      CommPointData(geometry, config, TeCNOAdjS.data(), 3 + 2 * nDim * nDim);
+      TeCNOAdjoint::JumpNodalQ(*geometry, nDim, nVar, weights, TeCNOAdjS, phi, coefDelta, gam, nodes->TeCNOAdjEdgeD,
+                               TeCNOAdjP);
+    } else {
+      TeCNOAdjoint::FirstRingNodal(*geometry, nDim, weights, volume, TeCNOAdjS);
+      CommPointData(geometry, config, TeCNOAdjS.data(), nDim + 1 + nDim * nDim);
+      TeCNOAdjoint::FirstRingNodalP(*geometry, nDim, nVar, nodes->TeCNOAdjEdgeD, TeCNOAdjS, phi, gam, TeCNOAdjP);
+    }
     CommPointData(geometry, config, TeCNOAdjP.data(), nVar * nVar);
 
     SU2_OMP_FOR_STAT(omp_chunk_size)
@@ -2794,11 +2841,17 @@ void CEulerSolver::TeCNOAdjointFirstRingJacobian(CGeometry *geometry, const CCon
         }
       };
       TeCNOAdjoint::Block diagW;
-      TeCNOAdjoint::FirstRingRow(*geometry, nDim, nVar, weights, TeCNOAdjS, TeCNOAdjP, nodes->TeCNOAdjEdgeD, phi,
-                                 coefDelta, gam, iPoint, diagW, [&](unsigned long jPoint, const TeCNOAdjoint::Block& offW) {
+      auto addOff = [&](unsigned long jPoint, const TeCNOAdjoint::Block& offW) {
         toCons(offW, jPoint);
         Jacobian.AddBlock(iPoint, jPoint, flat);
-      });
+      };
+      if (jumps) {
+        TeCNOAdjoint::JumpRow(*geometry, nDim, nVar, weights, TeCNOAdjS, TeCNOAdjP, nodes->TeCNOAdjEdgeD, phi,
+                              coefDelta, gam, iPoint, diagW, addOff);
+      } else {
+        TeCNOAdjoint::FirstRingRow(*geometry, nDim, nVar, weights, TeCNOAdjS, TeCNOAdjP, nodes->TeCNOAdjEdgeD, phi,
+                                   coefDelta, gam, iPoint, diagW, addOff);
+      }
       toCons(diagW, iPoint);
       Jacobian.AddBlock(iPoint, iPoint, flat);
     }
@@ -2809,6 +2862,246 @@ void CEulerSolver::TeCNOAdjointFirstRingJacobian(CGeometry *geometry, const CCon
   } else {
     auto volume = [&](unsigned long iPoint) { return geometry->nodes->GetVolume(iPoint); };
     assemble(TeCNOAdjoint::GreenGaussWeights<CGeometry>{*geometry, nDim}, volume);
+  }
+}
+
+void CEulerSolver::TeCNOAdjointJumpsTVDJacobian(CGeometry *geometry, const CConfig *config) {
+  SU2_ZONE_SCOPED
+
+  /*--- TeCNOAdjointFirstRingJacobian (FIRST_RING_JUMPS branch) with JumpNodalQEnds / JumpRowEnds: alpha and phi of each
+   * edge end from the stored Phi of EDGE_ENTROPY_TVD (TeCNOAdjoint, FIRST_RING_JUMPS with EDGE_ENTROPY_TVD). With
+   * EDGE_ENTROPY_FCT: JumpNodalQEndsFCT / JumpRowEndsFCT, the full-ramp constituents (coefDelta 1, gam -1/2) with the
+   * stored phi_c and alphaBar >= 1. ---*/
+  const bool fct = (config->GetKind_TeCNO_Adj_Limiter() == TECNO_ADJ_LIMITER::EDGE_ENTROPY_FCT);
+  const su2double ramp = config->GetMUSCLRampValue() * config->GetNewtonKrylovRelaxation();
+  const su2double gam = TeCNOAdjoint::GradientCoefficient(ramp, config->GetMUSCL_Kappa_Flow());
+  const auto& edgePhi = nodes->TeCNOAdjEdgePhi;
+  const bool p1Average = (config->GetKind_TeCNO_Adj_Gradient() == TECNO_ADJ_GRADIENT::P1_AVERAGE);
+  const su2double coefDelta = 1.0 - ramp * config->GetMUSCL_Kappa_Flow();
+  auto hessian = [&](unsigned long iPoint, TeCNOAdjoint::Block& H) {
+    su2double velocity[MAXNDIM] = {0.0};
+    for (auto iDim = 0u; iDim < nDim; ++iDim) velocity[iDim] = nodes->GetPrimitive(iPoint, iDim + 1);
+    TeCNOAdjoint::EntropyHessian(nDim, Gamma, nodes->GetPrimitive(iPoint, nDim + 2), velocity,
+                                 nodes->GetPrimitive(iPoint, nDim + 1), H);
+  };
+  auto assemble = [&](const auto& weights, const auto& volume) {
+    auto edgeWeight = [&](unsigned long iEdge) {
+      TeCNOAdjoint::Block H0, H1;
+      hessian(geometry->edges->GetNode(iEdge, 0), H0);
+      hessian(geometry->edges->GetNode(iEdge, 1), H1);
+      su2double w = 0.0;
+      for (auto iVar = 0u; iVar < nVar; ++iVar)
+        for (auto jVar = 0u; jVar < nVar; ++jVar)
+          w += nodes->TeCNOAdjEdgeD(iEdge, iVar * nVar + jVar) * (H0(jVar, iVar) + H1(jVar, iVar));
+      return 0.5 * w;
+    };
+    TeCNOAdjoint::JumpNodal(*geometry, nDim, weights, volume, edgeWeight, TeCNOAdjS);
+    CommPointData(geometry, config, TeCNOAdjS.data(), 3 + 2 * nDim * nDim);
+    if (fct) {
+      TeCNOAdjoint::JumpNodalQEndsFCT(*geometry, nDim, nVar, weights, TeCNOAdjS, edgePhi, nodes->TeCNOAdjEdgeD, TeCNOAdjP);
+    } else {
+      TeCNOAdjoint::JumpNodalQEnds(*geometry, nDim, nVar, weights, TeCNOAdjS, edgePhi, coefDelta, gam,
+                                   nodes->TeCNOAdjEdgeD, TeCNOAdjP);
+    }
+    CommPointData(geometry, config, TeCNOAdjP.data(), nVar * nVar);
+
+    SU2_OMP_FOR_STAT(omp_chunk_size)
+    for (auto iPoint = 0ul; iPoint < nPointDomain; ++iPoint) {
+      su2double flat[TeCNOAdjoint::MAXNVAR * TeCNOAdjoint::MAXNVAR];
+      auto toCons = [&](const TeCNOAdjoint::Block& blockW, unsigned long jPoint) {
+        TeCNOAdjoint::Block H;
+        hessian(jPoint, H);
+        for (auto iVar = 0u; iVar < nVar; ++iVar) {
+          for (auto jVar = 0u; jVar < nVar; ++jVar) {
+            su2double d = 0.0;
+            for (auto kVar = 0u; kVar < nVar; ++kVar) d += blockW(iVar, kVar) * H(kVar, jVar);
+            flat[iVar * nVar + jVar] = d;
+          }
+        }
+      };
+      TeCNOAdjoint::Block diagW;
+      auto addOff = [&](unsigned long jPoint, const TeCNOAdjoint::Block& offW) {
+        toCons(offW, jPoint);
+        Jacobian.AddBlock(iPoint, jPoint, flat);
+      };
+      if (fct) {
+        TeCNOAdjoint::JumpRowEndsFCT(*geometry, nDim, nVar, weights, TeCNOAdjS, TeCNOAdjP, nodes->TeCNOAdjEdgeD, edgePhi,
+                                     iPoint, diagW, addOff);
+      } else {
+        TeCNOAdjoint::JumpRowEnds(*geometry, nDim, nVar, weights, TeCNOAdjS, TeCNOAdjP, nodes->TeCNOAdjEdgeD, edgePhi,
+                                  coefDelta, gam, iPoint, diagW, addOff);
+      }
+      toCons(diagW, iPoint);
+      Jacobian.AddBlock(iPoint, iPoint, flat);
+    }
+    END_SU2_OMP_FOR
+  };
+  if (p1Average) {
+    assemble(TeCNOAdjEdgeA, TeCNOAdjVol);
+  } else {
+    auto volume = [&](unsigned long iPoint) { return geometry->nodes->GetVolume(iPoint); };
+    assemble(TeCNOAdjoint::GreenGaussWeights<CGeometry>{*geometry, nDim}, volume);
+  }
+}
+
+void CEulerSolver::TeCNOAdjointTVDLimiter(CGeometry *geometry, CSolver **solver_container, const CConfig *config) {
+  SU2_ZONE_SCOPED
+
+  /*--- TECNO_ADJOINT_LIMITER= EDGE_ENTROPY_TVD (TeCNOAdjoint, EDGE_ENTROPY_TVD block). MPI: (A) ingredients and (B) the
+   * own clip on every local edge, from the current primitives and the copied gradients of w at both ends; (C) rho on the
+   * owned nodes, whose incident edges, gradient weights and volumes are all local, copied to the halos; (D) Phi on every
+   * local edge (a cut edge takes the owner's rho of its halo end). The values of the edges of owned nodes then equal the
+   * serial ones. While TVDRecompute is false the store is frozen; it is compared bitwise with a snapshot at every call. ---*/
+
+  const auto nEdge = geometry->GetnEdge();
+  /*--- EDGE_ENTROPY_FCT (TeCNOAdjoint, EDGE_ENTROPY_FCT block): the same ingredients pass and freeze rule, the passes of
+   * FCTPasses with the star exchanges through CommPointData, the store phi_c, alpha, gamma (12 values per edge). ---*/
+  const bool fct = (config->GetKind_TeCNO_Adj_Limiter() == TECNO_ADJ_LIMITER::EDGE_ENTROPY_FCT);
+  const string limName = fct ? "TECNO_ADJOINT_LIMITER= EDGE_ENTROPY_FCT" : "TECNO_ADJOINT_LIMITER= EDGE_ENTROPY_TVD";
+  const unsigned short width = fct ? TeCNOAdjoint::FCT_STORE_WIDTH : 2 * TeCNOAdjoint::TVD_NFIELD;
+  auto checksum = [&]() {
+    su2double sum = 0.0;
+    for (auto iEdge = 0ul; iEdge < nEdge; ++iEdge)
+      for (auto k = 0u; k < width; ++k) sum += nodes->TeCNOAdjEdgePhi(iEdge, k);
+    return sum;
+  };
+
+  if (!TeCNOAdjoint::TVDRecompute(TeCNOAdjTVDValid, config->GetInnerIter(), config->GetLimiterIter())) {
+    SU2_OMP_MASTER {
+      /*--- The frozen store must be bitwise equal to the snapshot of its last computation. ---*/
+      bool same = true;
+      for (auto iEdge = 0ul; (iEdge < nEdge) && same; ++iEdge) {
+        for (auto k = 0u; k < width; ++k) {
+          const passivedouble a = SU2_TYPE::GetValue(nodes->TeCNOAdjEdgePhi(iEdge, k));
+          const passivedouble b = SU2_TYPE::GetValue(TeCNOAdjTVDSnapshot(iEdge, k));
+          if (std::memcmp(&a, &b, sizeof(passivedouble)) != 0) same = false;
+        }
+      }
+      if (!same) SU2_MPI::Error(limName + ": the frozen store changed.", CURRENT_FUNCTION);
+      if (!TeCNOAdjTVDReported) {
+        const su2double local = checksum();
+        su2double global = 0.0;
+        SU2_MPI::Allreduce(&local, &global, 1, MPI_DOUBLE, MPI_SUM, SU2_MPI::GetComm());
+        if (rank == MASTER_NODE) {
+          cout << limName << ": Phi computed " << TeCNOAdjTVDCount
+               << " times, frozen after inner iteration " << TeCNOAdjTVDLastIter << ", checksum "
+               << setprecision(17) << global << setprecision(6) << endl;
+        }
+        TeCNOAdjTVDReported = true;
+      }
+    }
+    END_SU2_OMP_MASTER
+    SU2_OMP_BARRIER
+    return;
+  }
+
+  SU2_OMP_MASTER
+  if (!TeCNOAdjTVDNumerics) {
+    const CVariable* turbVars = solver_container[TURB_SOL] ? solver_container[TURB_SOL]->GetNodes() : nullptr;
+    TeCNOAdjTVDNumerics.reset(CNumericsSIMD::CreateTeCNOAdjExtNumerics(*config, nDim, MESH_0, turbVars));
+    if (!TeCNOAdjTVDNumerics)
+      SU2_MPI::Error(limName + ": no extended Roe kernel for this gas model.", CURRENT_FUNCTION);
+  }
+  END_SU2_OMP_MASTER
+  SU2_OMP_BARRIER
+
+  /*--- (A) Ingredients of every local edge (per-edge store, no scattering), masked lanes repeat an edge. ---*/
+  SU2_OMP_FOR_STAT(omp_chunk_size)
+  for (auto k = 0ul; k < nEdge; k += Double::Size) {
+    Int iEdge;
+    Double mask;
+    for (auto j = 0ul; j < Double::Size; ++j) {
+      const bool in = (k + j < nEdge);
+      mask[j] = in;
+      iEdge[j] = in ? k + j : k;
+    }
+    TeCNOAdjTVDNumerics->TeCNOAdjEdgeIngredients(iEdge, *config, *geometry, *nodes, mask);
+  }
+  END_SU2_OMP_FOR
+
+  if (fct) {
+    TeCNOAdjointFCTPasses(geometry, config);
+  } else {
+    /*--- (B) Own clip, (C) node factors, (D) per-edge-end values. ---*/
+    TeCNOAdjoint::TVDEdgeClip(*geometry, nDim, nodes->TeCNOAdjEdgeTVD, TeCNOAdjTVDClip);
+    if (config->GetKind_TeCNO_Adj_Gradient() == TECNO_ADJ_GRADIENT::P1_AVERAGE) {
+      TeCNOAdjoint::TVDNodeFactor(*geometry, nDim, TeCNOAdjEdgeA, TeCNOAdjVol, nodes->TeCNOAdjEdgeTVD, TeCNOAdjTVDClip,
+                                  TeCNOAdjTVDRho);
+    } else {
+      auto volume = [&](unsigned long iPoint) { return geometry->nodes->GetVolume(iPoint); };
+      TeCNOAdjoint::TVDNodeFactor(*geometry, nDim, TeCNOAdjoint::GreenGaussWeights<CGeometry>{*geometry, nDim}, volume,
+                                  nodes->TeCNOAdjEdgeTVD, TeCNOAdjTVDClip, TeCNOAdjTVDRho);
+    }
+    CommPointData(geometry, config, TeCNOAdjTVDRho.data(), TeCNOAdjoint::TVD_NFIELD);
+    TeCNOAdjoint::TVDEdgePhi(*geometry, TeCNOAdjTVDClip, TeCNOAdjTVDRho, nodes->TeCNOAdjEdgePhi);
+  }
+
+  SU2_OMP_MASTER {
+    TeCNOAdjTVDSnapshot = nodes->TeCNOAdjEdgePhi;
+    TeCNOAdjTVDLastIter = config->GetInnerIter();
+    TeCNOAdjTVDCount++;
+    TeCNOAdjTVDValid = true;
+  }
+  END_SU2_OMP_MASTER
+  SU2_OMP_BARRIER
+}
+
+void CEulerSolver::TeCNOAdjointFCTPasses(CGeometry *geometry, const CConfig *config) {
+  SU2_ZONE_SCOPED
+
+  /*--- TECNO_ADJOINT_LIMITER= EDGE_ENTROPY_FCT: setup once (static mesh: degrees and sorted neighbour lists of the owned
+   * nodes copied to the halos, star slots, upwind elements), then TeCNOAdjoint::FCTPasses on the ingredients of the
+   * kernel and the entropy variables of SetTeCNOAdjointGradient (halos current), and the activity statistics of the
+   * store (master: iterations 0, 1, 2, every 100 and LIMITER_ITER). ---*/
+  auto comm = [&](su2activematrix& data) { CommPointData(geometry, config, data.data(), data.cols()); };
+  if (!TeCNOAdjFCTSetup.ready) {
+    SU2_OMP_MASTER
+    TeCNOAdjoint::FCTSetupRows(*geometry, TeCNOAdjFCTSetup, TeCNOAdjFCTRows);
+    END_SU2_OMP_MASTER
+    SU2_OMP_BARRIER
+    comm(TeCNOAdjFCTRows);
+    SU2_OMP_MASTER {
+      TeCNOAdjoint::FCTSetupFinish(*geometry, nDim, TeCNOAdjFCTRows, TeCNOAdjFCTSetup);
+      TeCNOAdjFCTRows.resize(0, 0);
+      TeCNOAdjoint::FCTWorkResize(*geometry, TeCNOAdjFCTSetup, TeCNOAdjFCTWork,
+                                  config->GetKind_TeCNO_Adj_FCT_Bound() == TECNO_ADJ_FCT_BOUND::NODE_INPUT);
+    }
+    END_SU2_OMP_MASTER
+    SU2_OMP_BARRIER
+  }
+  const bool nodeInput = (config->GetKind_TeCNO_Adj_FCT_Bound() == TECNO_ADJ_FCT_BOUND::NODE_INPUT);
+  if (config->GetKind_TeCNO_Adj_Gradient() == TECNO_ADJ_GRADIENT::P1_AVERAGE) {
+    TeCNOAdjoint::FCTPasses(*geometry, nDim, TeCNOAdjEdgeA, TeCNOAdjVol, TeCNOAdjFCTSetup, nodes->TeCNOAdjEdgeTVD,
+                            TeCNOAdjW, TeCNOAdjFCTWork, nodes->TeCNOAdjEdgePhi, comm, config->GetTeCNO_Adj_FCT_Passes(),
+                            nodeInput);
+  } else {
+    auto volume = [&](unsigned long iPoint) { return geometry->nodes->GetVolume(iPoint); };
+    TeCNOAdjoint::FCTPasses(*geometry, nDim, TeCNOAdjoint::GreenGaussWeights<CGeometry>{*geometry, nDim}, volume,
+                            TeCNOAdjFCTSetup, nodes->TeCNOAdjEdgeTVD, TeCNOAdjW, TeCNOAdjFCTWork,
+                            nodes->TeCNOAdjEdgePhi, comm, config->GetTeCNO_Adj_FCT_Passes(), nodeInput);
+  }
+
+  const auto iter = config->GetInnerIter();
+  if ((iter <= 2) || (iter % 100 == 0) || (iter == config->GetLimiterIter())) {
+    SU2_OMP_MASTER {
+      su2double local[10], global[10];
+      TeCNOAdjoint::FCTStatistics(*geometry, nDim, nodes->TeCNOAdjEdgeTVD, TeCNOAdjFCTWork.edge, nodes->TeCNOAdjEdgePhi,
+                                  local);
+      SU2_MPI::Allreduce(local, global, 10, MPI_DOUBLE, MPI_SUM, SU2_MPI::GetComm());
+      if (rank == MASTER_NODE) {
+        const su2double n = fmax(global[0], su2double(1.0));
+        cout << "TECNO_ADJOINT_LIMITER= EDGE_ENTROPY_FCT: inner iteration " << iter << ", valid entries " << global[0]
+             << ", Phi_e = alpha phi_c: act " << 100.0 * global[1] / n << " %, zeros " << 100.0 * global[2] / n
+             << " %, mean " << global[3] / n << ", wmean " << global[4] / fmax(global[5], EPS)
+             << "; Phi_eq: act " << 100.0 * global[6] / n << " %, zeros " << 100.0 * global[7] / n << " %, mean "
+             << global[8] / n << ", wmean " << global[9] / fmax(global[5], EPS);
+        if (config->GetTeCNO_Adj_FCT_Passes() > 1) cout << " (" << config->GetTeCNO_Adj_FCT_Passes() << " passes)";
+        if (nodeInput) cout << " (NODE_INPUT)";
+        cout << endl;
+      }
+    }
+    END_SU2_OMP_MASTER
+    SU2_OMP_BARRIER
   }
 }
 
@@ -2826,6 +3119,11 @@ void CEulerSolver::Upwind_Residual(CGeometry *geometry, CSolver **solver_contain
     if (config->GetKind_Upwind_Flow() == UPWIND::ROE || config->GetKind_Upwind_Flow() == UPWIND::MSW ||
         config->GetKind_Upwind_Flow() == UPWIND::ROENEW) {
       if ((iMesh == MESH_0) && config->GetEdge_Form_ES_Blend()) SetEdgeBlendLambda(geometry, config);
+      if ((iMesh == MESH_0) && config->GetEdge_Form_TeCNO_Adjoint() && config->GetMUSCL_Flow() &&
+          ((config->GetKind_TeCNO_Adj_Limiter() == TECNO_ADJ_LIMITER::EDGE_ENTROPY_TVD) ||
+           (config->GetKind_TeCNO_Adj_Limiter() == TECNO_ADJ_LIMITER::EDGE_ENTROPY_FCT))) {
+        TeCNOAdjointTVDLimiter(geometry, solver_container, config);
+      }
       EdgeFluxResidual(geometry, solver_container, config);
       if ((iMesh == MESH_0) && config->GetEdge_Form_TeCNO_Adjoint() && config->GetMUSCL_Flow()) {
         TeCNOAdjointResidual(geometry, config);

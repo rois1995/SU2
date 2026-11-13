@@ -3,7 +3,7 @@
  * \brief Adjoint (dual consistent) entropy dissipation of EDGE_FORM_TECNO (EDGE_FORM_TECNO_ADJOINT): the linear
  *        U-MUSCL jump of the nodal entropy variables, its Green-Gauss gradient, the transpose of that gradient, and
  *        the Lemma A4 majorant of its linearization (P1_TECNO_CONVERGENCE.md, 3.2 and 5.1), and the first-ring
- *        Jacobian of TECNO_ADJOINT_JACOBIAN= FIRST_RING.
+ *        Jacobians of TECNO_ADJOINT_JACOBIAN= FIRST_RING and FIRST_RING_JUMPS.
  * \version 8.6.0 "Harrier"
  *
  * SU2 Project Website: https://su2code.github.io
@@ -29,9 +29,14 @@
 
 #pragma once
 
+#include <algorithm>
+#include <array>
 #include <cmath>
 #include <limits>
+#include <vector>
 #include "../../../../Common/include/basic_types/datatype_structure.hpp"
+#include "../../../../Common/include/containers/C2DContainer.hpp"
+#include "../../../../Common/include/parallelization/mpi_structure.hpp"
 #include "../../../../Common/include/parallelization/omp_structure.hpp"
 
 /*--- Scheme (P1_TECNO_CONVERGENCE.md, 3.2). Ideal gas, w = ((gamma-s)/(gamma-1) - beta|u|^2/2, beta u, -beta) the
@@ -70,6 +75,13 @@ namespace TeCNOAdjoint {
 
 constexpr unsigned short MAXNVAR = 5;
 constexpr unsigned long OMP_CHUNK = 512;
+
+/*--- TECNO_ADJOINT_LIMITER= EDGE_ENTROPY_TVD: columns of the per-edge ingredients (tecnoAdjointTVDIngredients, local
+ * orientation): dy, s_0, s_1 of the fields M, 0, P, the coefficients D of M, 0, P, S, the guards d_A, d_S, then the shear
+ * vectors dy_S, s_0S, s_1S (nDim each). Fields of the limiter values: 0 = M, 1 = 0 (entropy), 2 = S (shear), 3 = P. ---*/
+constexpr unsigned short TVD_DY = 0, TVD_S0 = 3, TVD_S1 = 6, TVD_D = 9, TVD_GUARD = 13, TVD_SHEAR = 15;
+constexpr unsigned short TVD_NFIELD = 4;
+inline unsigned short TVDWidth(unsigned short nDim) { return TVD_SHEAR + 3 * nDim; }
 
 /*!
  * \brief Small dense block, for the su2double users of the templates below.
@@ -644,6 +656,1643 @@ void FirstRingRow(const Geometry& geometry, unsigned short nDim, unsigned short 
     }
     offBlock(jPoint, off);
   }
+}
+
+/*--- TECNO_ADJOINT_JACOBIAN= FIRST_RING_JUMPS (ROE_TECNO_PLAN.md 6.4): a first-ring majorant written in edge jumps, so
+ * that J 1 = 0 as K 1 = 0 (FIRST_RING bounds the second-ring part by a diagonal, J 1 != 0, which acts like an O(1) CFL
+ * pseudo-time term on all modes). With gamma_x = gam phi_x / V_x and the difference form of the gradient,
+ *   L_e = alpha_e Delta_e + u_0 + u_1,   alpha_e = coefDelta + gamma_0 a_01.e - gamma_1 a_10.e,
+ *   u_x = gamma_x sum_{m in N(x), m != x'} (a_xm.e)(w_m - w_x)        (x' the other end, e = x_1 - x_0),
+ * all terms jumps over mesh edges. Pair weights (any positive values are admissible): mu_xm = sqrt(a_xm^T E_x a_xm),
+ * E_x = sum_{f ni x} w_f f f^T / sum_f w_f, the w_f-weighted quadratic mean of |a_xm.f| over the edges f of x (the
+ * per-edge optimum of the Cauchy-Schwarz weight is |a_xm.e|), with w_f = trace(D_f H_f) >= 0 the mean of
+ * delta^T D_f delta over entropy-normalized jumps (E[delta delta^T] = H_f = dw/dU, mean of the two nodes); uniform
+ * weights if all w_f = 0. If E_x a_xm = 0 then a_xm.f = 0 on every edge with w_f > 0, i.e. D_f != 0, so mu_xm = 0 only
+ * where the pair carries no term. Cauchy-Schwarz with D PSD inside u_x, then the three-term weighted Cauchy-Schwarz
+ * with t_0 = |alpha|, t_x = |gamma_x| sqrt(tau nu):
+ *   L^T D L <= S_e [ |alpha| Delta^T D Delta + sum_x r_x sum_{m != x'} mu_xm delta_xm^T D delta_xm ],
+ *   tau_x = e^T T_x e - (a_xx'.e)^2/mu_xx',  nu_x = M_x - mu_xx',  T_x = sum_m a_xm a_xm^T/mu_xm,  M_x = sum_m mu_xm,
+ *   S_e = |alpha| + t_0 + t_1,  r_x = |gamma_x| sqrt(tau_x/nu_x)   (t_x = 0 means u_x = 0: no term).
+ * Regrouped by mesh edges f = (m, j): K <= J = sum_f W_f (x) (e_m - e_j)(e_m - e_j)^T,
+ *   W_f = S_f |alpha_f| D_f + mu_mj (Q_m - S_f r_m^f D_f) + mu_jm (Q_j - S_f r_j^f D_f),   Q_x = sum_{e ni x} S_e r_x^e D_e,
+ * so J >= K, J symmetric, J 1 = 0, first-neighbour blocks only. J is the bound itself (not B/2): C4 (ii) (sufficient,
+ * with its other hypotheses) holds with the margin 2 (S + J) - K >= J + 2 S, i.e. lambda(K, J + S) <= 1 for any S > 0; with J = B/2 only 2 J >= K
+ * holds, lambda reaches 2 where the bound is tight (model T4 225x65: 1.33 P1, 1.99 GG; FIRST_RING 0.98), the margin is
+ * the pseudo-time term alone, and T4 a10 at CFL 1000 diverged (ROE_TECNO_PLAN.md 6.4). The exclusions of the own pair in tau and
+ * nu are subtractions (without them the model needs 1.4-1.8 x more iterations); their rounding error is at most
+ * (n_x + 2) eps (e^T T e + own) and (n_x + 2) eps M (n_x terms in T_x, M_x, one product, one subtraction), and that
+ * margin is added, so tau and nu are not below their exact values and the bound holds in floating point (the sqrt in
+ * t and r turns the margin into a relative O(sqrt(n eps)) excess where the exact tau vanishes). MPI: S = (1/V, E, T, M) and Q on the owned nodes, copied to the halos; mu, tau of a halo end j from E_j,
+ * T_j, M_j and the edge weights a_jm (complete on the edges of owned nodes). ---*/
+
+/*!
+ * \brief S(i, 0) = 1/V_i, S(i, 1 + nDim d + d') = E_i(d, d'), S(i, 1 + nDim^2 + nDim d + d') = T_i(d, d'),
+ *        S(i, 1 + 2 nDim^2) = M_i, S(i, 2 + 2 nDim^2) = (n_i + 2) eps (the roundoff margin factor, n_i the number of
+ *        neighbours) on the owned nodes (FIRST_RING_JUMPS), width 3 + 2 nDim^2.
+ * \param[in] edgeWeight - w_f >= 0 of each edge (callable), trace(D_f H_f) in the solver.
+ */
+template <class Geometry, class WeightType, class VolumeType, class EdgeWeightType, class NodeType>
+void JumpNodal(const Geometry& geometry, unsigned short nDim, const WeightType& weights, const VolumeType& volume,
+               const EdgeWeightType& edgeWeight, NodeType& S) {
+  const unsigned short offT = 1 + nDim * nDim, offM = 1 + 2 * nDim * nDim;
+  SU2_OMP_FOR_STAT(OMP_CHUNK)
+  for (unsigned long iPoint = 0; iPoint < geometry.GetnPointDomain(); ++iPoint) {
+    su2double E[3][3] = {}, T[3][3] = {}, M = 0.0;
+    const auto* xi = geometry.nodes->GetCoord(iPoint);
+    su2double sumWeight = 0.0;
+    for (auto iEdge : geometry.nodes->GetEdges(iPoint)) sumWeight += edgeWeight(iEdge);
+    const bool uniform = !(sumWeight > 0.0);
+    if (uniform) sumWeight = su2double(geometry.nodes->GetnPoint(iPoint));
+    for (auto iEdge : geometry.nodes->GetEdges(iPoint)) {
+      const auto jPoint = geometry.edges->GetNode(iEdge, (geometry.edges->GetNode(iEdge, 0) == iPoint) ? 1 : 0);
+      const auto* xj = geometry.nodes->GetCoord(jPoint);
+      const su2double w = (uniform ? su2double(1.0) : edgeWeight(iEdge)) / sumWeight;
+      for (unsigned short iDim = 0; iDim < nDim; ++iDim)
+        for (unsigned short jDim = 0; jDim < nDim; ++jDim)
+          E[iDim][jDim] += w * (xj[iDim] - xi[iDim]) * (xj[jDim] - xi[jDim]);
+    }
+    for (auto iEdge : geometry.nodes->GetEdges(iPoint)) {
+      const unsigned short own = (geometry.edges->GetNode(iEdge, 0) == iPoint) ? 0 : nDim;
+      su2double a[3] = {}, aEa = 0.0;
+      for (unsigned short iDim = 0; iDim < nDim; ++iDim) a[iDim] = weights(iEdge, own + iDim);
+      for (unsigned short iDim = 0; iDim < nDim; ++iDim)
+        for (unsigned short jDim = 0; jDim < nDim; ++jDim) aEa += a[iDim] * E[iDim][jDim] * a[jDim];
+      const su2double mu = sqrt(fmax(aEa, su2double(0.0)));
+      M += mu;
+      if (mu == 0.0) continue;
+      for (unsigned short iDim = 0; iDim < nDim; ++iDim)
+        for (unsigned short jDim = 0; jDim < nDim; ++jDim) T[iDim][jDim] += a[iDim] * a[jDim] / mu;
+    }
+    S(iPoint, 0) = 1.0 / volume(iPoint);
+    for (unsigned short iDim = 0; iDim < nDim; ++iDim) {
+      for (unsigned short jDim = 0; jDim < nDim; ++jDim) {
+        S(iPoint, 1 + nDim * iDim + jDim) = E[iDim][jDim];
+        S(iPoint, offT + nDim * iDim + jDim) = T[iDim][jDim];
+      }
+    }
+    S(iPoint, offM) = M;
+    S(iPoint, offM + 1) = (geometry.nodes->GetnPoint(iPoint) + 2) * std::numeric_limits<su2double>::epsilon();
+  }
+  END_SU2_OMP_FOR
+}
+
+/*!
+ * \brief Edge quantities of FIRST_RING_JUMPS: alpha_e, S_e, r_0, r_1 and the pair weights mu_01 (end 0), mu_10 (end 1).
+ *        S and phi needed at both nodes.
+ */
+template <class Geometry, class WeightType, class NodeType, class PhiType>
+void JumpEdge(const Geometry& geometry, unsigned short nDim, const WeightType& weights, const NodeType& S,
+              const PhiType& phi, su2double coefDelta, su2double gam, unsigned long iEdge, su2double& alpha,
+              su2double& sumT, su2double* r, su2double* mu) {
+  const unsigned short offT = 1 + nDim * nDim, offM = 1 + 2 * nDim * nDim;
+  const unsigned long node[2] = {geometry.edges->GetNode(iEdge, 0), geometry.edges->GetNode(iEdge, 1)};
+  const auto* x0 = geometry.nodes->GetCoord(node[0]);
+  const auto* x1 = geometry.nodes->GetCoord(node[1]);
+  su2double e[3] = {};
+  for (unsigned short iDim = 0; iDim < nDim; ++iDim) e[iDim] = x1[iDim] - x0[iDim];
+  su2double t[2] = {}, ae[2] = {};
+  for (unsigned short x = 0; x < 2; ++x) {
+    const auto p = node[x];
+    su2double a[3] = {}, aEa = 0.0, eTe = 0.0;
+    for (unsigned short iDim = 0; iDim < nDim; ++iDim) {
+      a[iDim] = weights(iEdge, x * nDim + iDim);
+      ae[x] += a[iDim] * e[iDim];
+    }
+    for (unsigned short iDim = 0; iDim < nDim; ++iDim) {
+      for (unsigned short jDim = 0; jDim < nDim; ++jDim) {
+        aEa += a[iDim] * S(p, 1 + nDim * iDim + jDim) * a[jDim];
+        eTe += e[iDim] * S(p, offT + nDim * iDim + jDim) * e[jDim];
+      }
+    }
+    mu[x] = sqrt(fmax(aEa, su2double(0.0)));
+    const su2double own = (mu[x] > 0.0) ? ae[x] * ae[x] / mu[x] : su2double(0.0);
+    const su2double margin = S(p, offM + 1);
+    const su2double tau = fmax(eTe - own, su2double(0.0)) + margin * (eTe + own);
+    const su2double nu = fmax(S(p, offM) - mu[x], su2double(0.0)) + margin * S(p, offM);
+    const su2double g = fabs(gam * phi(p) * S(p, 0));
+    t[x] = g * sqrt(tau * nu);
+    r[x] = (nu > 0.0) ? g * sqrt(tau / nu) : su2double(0.0);
+  }
+  alpha = coefDelta + gam * (phi(node[0]) * S(node[0], 0) * ae[0] - phi(node[1]) * S(node[1], 0) * ae[1]);
+  sumT = fabs(alpha) + t[0] + t[1];
+}
+
+/*!
+ * \brief Q_i = sum_{e ni i} S_e r_i^e D_e on the owned nodes (FIRST_RING_JUMPS).
+ * \param[in] edgeD - D_e of each edge, row major (iEdge, iVar*nVar + jVar).
+ */
+template <class Geometry, class WeightType, class NodeType, class PhiType, class EdgeType, class NodeTypeQ>
+void JumpNodalQ(const Geometry& geometry, unsigned short nDim, unsigned short nVar, const WeightType& weights,
+                const NodeType& S, const PhiType& phi, su2double coefDelta, su2double gam, const EdgeType& edgeD,
+                NodeTypeQ& Q) {
+  SU2_OMP_FOR_STAT(OMP_CHUNK)
+  for (unsigned long iPoint = 0; iPoint < geometry.GetnPointDomain(); ++iPoint) {
+    su2double sum[MAXNVAR * MAXNVAR] = {};
+    for (auto iEdge : geometry.nodes->GetEdges(iPoint)) {
+      su2double alpha, sumT, r[2], mu[2];
+      JumpEdge(geometry, nDim, weights, S, phi, coefDelta, gam, iEdge, alpha, sumT, r, mu);
+      const su2double coef = sumT * r[(geometry.edges->GetNode(iEdge, 0) == iPoint) ? 0 : 1];
+      for (unsigned short k = 0; k < nVar * nVar; ++k) sum[k] += coef * edgeD(iEdge, k);
+    }
+    for (unsigned short k = 0; k < nVar * nVar; ++k) Q(iPoint, k) = sum[k];
+  }
+  END_SU2_OMP_FOR
+}
+
+/*!
+ * \brief Row of the owned node m of J (in w, FIRST_RING_JUMPS): for each edge f = (m, j) the block W_f on the
+ *        diagonal and -W_f passed to offBlock(j, block) (J = B >= K). S, phi, Q on halos.
+ */
+template <class Geometry, class WeightType, class NodeType, class NodeTypeQ, class EdgeType, class PhiType,
+          class OffFunc>
+void JumpRow(const Geometry& geometry, unsigned short nDim, unsigned short nVar, const WeightType& weights,
+             const NodeType& S, const NodeTypeQ& Q, const EdgeType& edgeD, const PhiType& phi, su2double coefDelta,
+             su2double gam, unsigned long iPoint, Block& diag, OffFunc&& offBlock) {
+  for (unsigned short iVar = 0; iVar < nVar; ++iVar)
+    for (unsigned short jVar = 0; jVar < nVar; ++jVar) diag(iVar, jVar) = 0.0;
+  for (auto iEdge : geometry.nodes->GetEdges(iPoint)) {
+    const unsigned long node[2] = {geometry.edges->GetNode(iEdge, 0), geometry.edges->GetNode(iEdge, 1)};
+    const unsigned long jPoint = (node[0] == iPoint) ? node[1] : node[0];
+    su2double alpha, sumT, r[2], mu[2];
+    JumpEdge(geometry, nDim, weights, S, phi, coefDelta, gam, iEdge, alpha, sumT, r, mu);
+    Block off;
+    for (unsigned short iVar = 0; iVar < nVar; ++iVar) {
+      for (unsigned short jVar = 0; jVar < nVar; ++jVar) {
+        const unsigned short k = iVar * nVar + jVar;
+        const su2double d = edgeD(iEdge, k);
+        su2double w = sumT * fabs(alpha) * d;
+        for (unsigned short x = 0; x < 2; ++x) w += mu[x] * (Q(node[x], k) - sumT * r[x] * d);
+        diag(iVar, jVar) += w;
+        off(iVar, jVar) = -w;
+      }
+    }
+    offBlock(jPoint, off);
+  }
+}
+
+/*--- TECNO_ADJOINT_LIMITER= EDGE_ENTROPY_TVD (P1_TECNO_ADJ_LIMITER.md, fourth candidate (s) with the freeze path;
+ * ROE_TECNO_PLAN.md 6.6). Half-edge h = (edge e, end a), characteristic field f of e (shear: the component along
+ * t = dy_S/|dy_S|, one value for the block). In the canonical orientation of e (end 0 = the end with the
+ * lexicographically smaller coordinates, normal and fields M/P relative to it), with dy, s_a = (R^T G_a w . e)_f,
+ * b_a = 2 s_a - dy (the local far-side jump of the P1 slope), B = 2 minmod(dy, b_0, b_1), d = eps S (S2 guard):
+ *   own clip   P1_h = clip of s_a into [min(0,B) - d, max(0,B) + d] (a factor in [0, 1]),
+ *   moment     s_h(Phi) = Phi_h s_a + sum_{h' at a} pi_hh' Phi_h' D_h' l_e'(Phi) / D_h   (frozen field: field f of every
+ *              edge e' of the node, shear vectors projected on t of e),  pi_hh' = sigma_h (g_a,k(h) . e_e'),
+ *              l_e = dy - 1/2 (Phi_0 s_0 + Phi_1 s_1),  sigma_h = +1 / -1 at canonical end 0 / 1,  g_a,k = a_ak / V_a the
+ *              gradient weight of the other end k in G_a (P1 average: the stored a, Vhat; Green-Gauss: n_ak/2, V),
+ *   envelope   for every rho_a in [0, 1] and every other end Phi_o in [0, P1_o]:
+ *              s_h in rho_a (P + A + [Tm, Tp]) + rho_a^2 Q   (P = P1_h s_a, the sums of model 4),
+ *   factor     G_h = min(1, t_up) H(v), t_up the level |B| + d of the nondecreasing majorant of (P + A + Tp) rho + Q rho^2,
+ *              H(v) = (1 - v)^2 (1 + 2 v) on [0, 1] (0 beyond), v = max(0, -(A + Tm + min(0, Q))) / (P + d), in the
+ *              sign frame of B;  rho_a,f = prod_{h at a} G_h,f;  Phi_h = P1_h rho_a,f.
+ * Then the frozen-field moment of every final value lies in the box (model 4 proof: rho_a <= G_h for every h at a).
+ * Half-edges with D_h = 0 and the shear half-edges of an edge with |dy_S| <= (nDim + 2) d_S (noise: own clip with B = 0
+ * on the magnitude, P1 = min(1, d_S / |s_S|)) have G = 1. Theorem A1 holds for any Phi (S2 machinery). MPI: the
+ * ingredients and the clip on every local edge (halo gradients and primitives are current), rho on the owned nodes
+ * (all their edges, weights and Vhat are local), copied to the halos, Phi on every local edge. ---*/
+
+constexpr unsigned short TVD_CLIP_B = 0, TVD_CLIP_P1 = 4, TVD_CLIP_FLIP = 12, TVD_CLIP_NOISE = 13, TVD_CLIP_WIDTH = 14;
+
+/*!
+ * \brief Freeze rule of EDGE_ENTROPY_TVD: recompute while the store is not valid (first call of a run, e.g. after a
+ *        restart) or while innerIter <= limiterIter (LIMITER_ITER, as the point limiters); frozen afterwards.
+ */
+inline bool TVDRecompute(bool valid, unsigned long innerIter, unsigned long limiterIter) {
+  return !valid || (innerIter <= limiterIter);
+}
+
+/*!
+ * \brief Canonical orientation of EDGE_ENTROPY_TVD: true if node 1 of the edge has the lexicographically smaller
+ *        coordinates (x, then y, then z; the global index only on an exact tie), i.e. the canonical end 0 is node 1.
+ *        Independent of the numbering and of the partition.
+ */
+template <class Geometry>
+inline bool TVDFlip(const Geometry& geometry, unsigned short nDim, unsigned long iEdge) {
+  const auto n0 = geometry.edges->GetNode(iEdge, 0), n1 = geometry.edges->GetNode(iEdge, 1);
+  const auto* x0 = geometry.nodes->GetCoord(n0);
+  const auto* x1 = geometry.nodes->GetCoord(n1);
+  for (unsigned short iDim = 0; iDim < nDim; ++iDim) {
+    if (x0[iDim] < x1[iDim]) return false;
+    if (x0[iDim] > x1[iDim]) return true;
+  }
+  return geometry.nodes->GetGlobalIndex(n0) > geometry.nodes->GetGlobalIndex(n1);
+}
+
+/*!
+ * \brief Local field index of the canonical field f (a flipped edge has the opposite normal: M <-> P).
+ */
+inline unsigned short TVDLocalField(unsigned short f, bool flip) {
+  return flip ? ((f == 0) ? 3 : ((f == 3) ? 0 : f)) : f;
+}
+
+/*!
+ * \brief Canonical data of one edge (EDGE_ENTROPY_TVD): ends, edge vector, dy, s of the canonical ends, D, guards of the
+ *        four fields (shear: projected on t, or the magnitudes for a noise edge), the shear vectors and t.
+ */
+struct TVDEdgeView {
+  unsigned long node[2] = {0, 0};
+  bool flip = false, noise = false;
+  su2double e[3] = {}, dy[TVD_NFIELD] = {}, s[2][TVD_NFIELD] = {}, D[TVD_NFIELD] = {}, d[TVD_NFIELD] = {};
+  su2double dyS[3] = {}, sS[2][3] = {}, t[3] = {};
+};
+
+template <class Geometry, class StoreType>
+inline void TVDLoad(const Geometry& geometry, unsigned short nDim, const StoreType& ing, unsigned long iEdge,
+                    TVDEdgeView& v) {
+  v.flip = TVDFlip(geometry, nDim, iEdge);
+  const unsigned long n0 = geometry.edges->GetNode(iEdge, 0), n1 = geometry.edges->GetNode(iEdge, 1);
+  v.node[0] = v.flip ? n1 : n0;
+  v.node[1] = v.flip ? n0 : n1;
+  const auto* x0 = geometry.nodes->GetCoord(v.node[0]);
+  const auto* x1 = geometry.nodes->GetCoord(v.node[1]);
+  for (unsigned short iDim = 0; iDim < nDim; ++iDim) v.e[iDim] = x1[iDim] - x0[iDim];
+  const su2double sgn = v.flip ? -1.0 : 1.0;
+  auto col = [](unsigned short fl) { return (fl == 3) ? 2 : fl; };                  /*--- M, 0, P columns. ---*/
+  auto dcol = [](unsigned short fl) { return (fl == 3) ? 2 : ((fl == 2) ? 3 : fl); }; /*--- D columns. ---*/
+  for (unsigned short f = 0; f < TVD_NFIELD; ++f) {
+    const unsigned short fl = TVDLocalField(f, v.flip);
+    v.D[f] = ing(iEdge, TVD_D + dcol(fl));
+    if (f == 2) continue;
+    v.dy[f] = sgn * ing(iEdge, TVD_DY + col(fl));
+    for (unsigned short x = 0; x < 2; ++x) {
+      const unsigned short y = v.flip ? 1 - x : x;
+      v.s[x][f] = sgn * ing(iEdge, ((y == 0) ? TVD_S0 : TVD_S1) + col(fl));
+    }
+    v.d[f] = ing(iEdge, TVD_GUARD);
+  }
+  v.d[2] = ing(iEdge, TVD_GUARD + 1);
+  su2double norm = 0.0;
+  for (unsigned short iDim = 0; iDim < nDim; ++iDim) {
+    v.dyS[iDim] = sgn * ing(iEdge, TVD_SHEAR + iDim);
+    norm += v.dyS[iDim] * v.dyS[iDim];
+    for (unsigned short x = 0; x < 2; ++x) {
+      const unsigned short y = v.flip ? 1 - x : x;
+      v.sS[x][iDim] = sgn * ing(iEdge, TVD_SHEAR + (1 + y) * nDim + iDim);
+    }
+  }
+  norm = sqrt(norm);
+  v.noise = !(norm > (nDim + 2) * v.d[2]);
+  for (unsigned short x = 0; x < 2; ++x) {
+    su2double st = 0.0, ss = 0.0;
+    for (unsigned short iDim = 0; iDim < nDim; ++iDim) {
+      v.t[iDim] = v.noise ? su2double(0.0) : v.dyS[iDim] / norm;
+      st += v.sS[x][iDim] * v.t[iDim];
+      ss += v.sS[x][iDim] * v.sS[x][iDim];
+    }
+    v.s[x][2] = v.noise ? su2double(sqrt(ss)) : st;
+  }
+  v.dy[2] = v.noise ? su2double(0.0) : norm;
+}
+
+/*!
+ * \brief minmod of three values (0 unless all have the same strict sign).
+ */
+inline su2double TVDMinmod3(su2double a, su2double b, su2double c) {
+  if ((a > 0.0) && (b > 0.0) && (c > 0.0)) return fmin(a, fmin(b, c));
+  if ((a < 0.0) && (b < 0.0) && (c < 0.0)) return -fmin(-a, fmin(-b, -c));
+  return 0.0;
+}
+
+/*!
+ * \brief Own-slope clip of model 3: the factor that brings s into [lo, hi] (lo <= 0 <= hi), 1 inside.
+ */
+inline su2double TVDOwnClip(su2double s, su2double lo, su2double hi) {
+  if (s > hi) return hi / s;
+  if (s < lo) return lo / s;
+  return 1.0;
+}
+
+/*!
+ * \brief Smooth admissible factor G of one half-edge and field (model 4, factor_env), from the own limited slope
+ *        P = P1 s, the envelope sums A, Q, Tp >= 0 >= Tm, the bound B and the guard d.
+ */
+inline su2double TVDFactor(su2double own, su2double A, su2double Q, su2double Tp, su2double Tm, su2double B,
+                           su2double d) {
+  const su2double sg = (B >= 0.0) ? 1.0 : -1.0;
+  own *= sg;
+  A *= sg;
+  Q *= sg;
+  const su2double tp = (sg > 0.0) ? Tp : -Tm;
+  const su2double tm = (sg > 0.0) ? Tm : -Tp;
+  const su2double hi = fabs(B) + d;
+  const su2double U1 = own + A + tp;
+  /*--- t_up: the largest t with m(rho) <= hi on [0, t], m the nondecreasing majorant of U1 rho + Q rho^2 (the
+   * function up to its peak, then the line rho U1/2 through the peak value). ---*/
+  su2double tUp = std::numeric_limits<su2double>::infinity();
+  if (U1 > 0.0) {
+    tUp = 2.0 * hi / (U1 + sqrt(fmax(su2double(0.0), U1 * U1 + 4.0 * Q * hi)));
+  } else if (Q > 0.0) {
+    tUp = (-U1 + sqrt(U1 * U1 + 4.0 * Q * hi)) / (2.0 * Q);
+  }
+  const su2double md = -(A + tm + fmin(su2double(0.0), Q));
+  const su2double v = fmax(su2double(0.0), md) / fmax(own + d, std::numeric_limits<su2double>::min());
+  const su2double vv = fmin(su2double(1.0), v);
+  const su2double H = (1.0 - vv) * (1.0 - vv) * (1.0 + 2.0 * vv);
+  return fmin(su2double(1.0), tUp) * H;
+}
+
+/*!
+ * \brief Own clip of every local edge (EDGE_ENTROPY_TVD): clip(e, TVD_CLIP_B + f) = B, clip(e, TVD_CLIP_P1 + 4 x + f) =
+ *        P1 of the canonical end x, flip and noise flags.
+ * \param[in] ing - Ingredients (iEdge, TVDWidth(nDim)) of every local edge.
+ */
+template <class Geometry, class StoreType, class ClipType>
+void TVDEdgeClip(const Geometry& geometry, unsigned short nDim, const StoreType& ing, ClipType& clip) {
+  SU2_OMP_FOR_STAT(OMP_CHUNK)
+  for (unsigned long iEdge = 0; iEdge < geometry.GetnEdge(); ++iEdge) {
+    TVDEdgeView v;
+    TVDLoad(geometry, nDim, ing, iEdge, v);
+    for (unsigned short f = 0; f < TVD_NFIELD; ++f) {
+      const su2double dy = v.dy[f];
+      const su2double B = ((f == 2) && v.noise)
+                              ? su2double(0.0)
+                              : 2.0 * TVDMinmod3(dy, 2.0 * v.s[0][f] - dy, 2.0 * v.s[1][f] - dy);
+      const su2double lo = fmin(su2double(0.0), B) - v.d[f], hi = fmax(su2double(0.0), B) + v.d[f];
+      clip(iEdge, TVD_CLIP_B + f) = B;
+      for (unsigned short x = 0; x < 2; ++x) clip(iEdge, TVD_CLIP_P1 + 4 * x + f) = TVDOwnClip(v.s[x][f], lo, hi);
+    }
+    clip(iEdge, TVD_CLIP_FLIP) = v.flip ? 1.0 : 0.0;
+    clip(iEdge, TVD_CLIP_NOISE) = v.noise ? 1.0 : 0.0;
+  }
+  END_SU2_OMP_FOR
+}
+
+/*!
+ * \brief Node factors rho(a, f) = prod_{h at a} G_h,f on the owned nodes (EDGE_ENTROPY_TVD).
+ * \param[in] weights - Gradient weights a of each edge (iEdge, 2 nDim), a_{0,1} then a_{1,0} (P1 average, or
+ *            GreenGaussWeights); volume(a) the volumes of the gradient (Vhat or V).
+ * \param[in] ing, clip - Ingredients and own clip of every local edge.
+ * \param[out] rho - (iPoint, TVD_NFIELD), owned nodes.
+ */
+template <class Geometry, class WeightType, class VolumeType, class StoreType, class ClipType, class RhoType>
+void TVDNodeFactor(const Geometry& geometry, unsigned short nDim, const WeightType& weights, const VolumeType& volume,
+                   const StoreType& ing, const ClipType& clip, RhoType& rho) {
+  std::vector<TVDEdgeView> view;
+  std::vector<unsigned short> end;
+  std::vector<std::array<su2double, 3> > gam;
+  SU2_OMP_FOR_STAT(OMP_CHUNK)
+  for (unsigned long iPoint = 0; iPoint < geometry.GetnPointDomain(); ++iPoint) {
+    const auto range = geometry.nodes->GetEdges(iPoint);
+    const auto* edges = range.begin();
+    const size_t nEdgeNode = range.end() - range.begin();
+    view.resize(nEdgeNode);
+    end.resize(nEdgeNode);
+    gam.resize(nEdgeNode);
+    const su2double invVol = 1.0 / volume(iPoint);
+    for (size_t h = 0; h < nEdgeNode; ++h) {
+      const auto iEdge = edges[h];
+      TVDLoad(geometry, nDim, ing, iEdge, view[h]);
+      end[h] = (view[h].node[0] == iPoint) ? 0 : 1;
+      const unsigned short own = (geometry.edges->GetNode(iEdge, 0) == iPoint) ? 0 : nDim;
+      gam[h] = {0.0, 0.0, 0.0};
+      for (unsigned short iDim = 0; iDim < nDim; ++iDim) gam[h][iDim] = weights(iEdge, own + iDim) * invVol;
+    }
+    su2double rhoNode[TVD_NFIELD] = {1.0, 1.0, 1.0, 1.0};
+    for (size_t h = 0; h < nEdgeNode; ++h) {
+      const auto& vh = view[h];
+      const auto eh = edges[h];
+      const unsigned short x = end[h];
+      const su2double sigma = (x == 0) ? 1.0 : -1.0;
+      for (unsigned short f = 0; f < TVD_NFIELD; ++f) {
+        const su2double Dh = vh.D[f];
+        if (!(Dh > 0.0) || ((f == 2) && vh.noise)) continue;
+        su2double A = 0.0, Q = 0.0, Tp = 0.0, Tm = 0.0;
+        for (size_t k = 0; k < nEdgeNode; ++k) {
+          const auto& vk = view[k];
+          const auto ek = edges[k];
+          su2double pi = 0.0;
+          for (unsigned short iDim = 0; iDim < nDim; ++iDim) pi += gam[h][iDim] * vk.e[iDim];
+          const su2double w = sigma * pi / Dh;
+          const unsigned short xk = end[k], ok = 1 - xk;
+          const su2double P1a = clip(ek, TVD_CLIP_P1 + 4 * xk + f), P1o = clip(ek, TVD_CLIP_P1 + 4 * ok + f);
+          su2double dy = vk.dy[f], sa = vk.s[xk][f], so = vk.s[ok][f];
+          if (f == 2) {
+            dy = sa = so = 0.0;
+            for (unsigned short iDim = 0; iDim < nDim; ++iDim) {
+              dy += vk.dyS[iDim] * vh.t[iDim];
+              sa += vk.sS[xk][iDim] * vh.t[iDim];
+              so += vk.sS[ok][iDim] * vh.t[iDim];
+            }
+          }
+          const su2double D = vk.D[f];
+          const su2double fix = P1a * D * dy;
+          const su2double tt = -0.5 * P1a * D * P1o * so;
+          const su2double q2 = -0.5 * P1a * P1a * D * sa;
+          A += w * fix;
+          Q += w * q2;
+          const su2double wt = w * tt;
+          Tp += fmax(su2double(0.0), wt);
+          Tm += fmin(su2double(0.0), wt);
+        }
+        const su2double own = clip(eh, TVD_CLIP_P1 + 4 * x + f) * vh.s[x][f];
+        rhoNode[f] *= TVDFactor(own, A, Q, Tp, Tm, clip(eh, TVD_CLIP_B + f), vh.d[f]);
+      }
+    }
+    for (unsigned short f = 0; f < TVD_NFIELD; ++f) rho(iPoint, f) = rhoNode[f];
+  }
+  END_SU2_OMP_FOR
+}
+
+/*!
+ * \brief Final values Phi = P1 rho of every local edge (EDGE_ENTROPY_TVD), stored in the local orientation:
+ *        phi(e, 4 y + f) for node y of the edge and the local field f (M, 0, S, P). rho needed on the halos.
+ */
+template <class Geometry, class ClipType, class RhoType, class PhiType>
+void TVDEdgePhi(const Geometry& geometry, const ClipType& clip, const RhoType& rho, PhiType& phi) {
+  SU2_OMP_FOR_STAT(OMP_CHUNK)
+  for (unsigned long iEdge = 0; iEdge < geometry.GetnEdge(); ++iEdge) {
+    const bool flip = (clip(iEdge, TVD_CLIP_FLIP) != 0.0);
+    for (unsigned short x = 0; x < 2; ++x) {
+      const unsigned short y = flip ? 1 - x : x;
+      const auto node = geometry.edges->GetNode(iEdge, y);
+      for (unsigned short f = 0; f < TVD_NFIELD; ++f) {
+        phi(iEdge, 4 * y + TVDLocalField(f, flip)) = clip(iEdge, TVD_CLIP_P1 + 4 * x + f) * rho(node, f);
+      }
+    }
+  }
+  END_SU2_OMP_FOR
+}
+
+/*--- FIRST_RING_JUMPS with EDGE_ENTROPY_TVD (ROE_TECNO_PLAN.md 6.6, rev 3): with the per-edge-end, per-field values
+ * Phi_xf (diagonal in the characteristic basis of the edge, D = R C R^T, C diagonal >= 0 in the same basis) the jump is,
+ * per field f,  y_f(L) = alpha_f y_f(Delta) + Phi_0f y_f(u_0) + Phi_1f y_f(u_1),
+ *   alpha_f = coefDelta + gam (Phi_0f a_01.e / V_0 - Phi_1f a_10.e / V_1),  u_x = (gam / V_x) sum_{m != x'} (a_xm.e) delta_xm,
+ * and the three-term weighted Cauchy-Schwarz per field with the weights (alphaBar, phiBar_0 t'_0, phiBar_1 t'_1),
+ * alphaBar = max_f |alpha_f|, phiBar_x = max_f |Phi_xf|, gives the bound of JumpEdge with |alpha| -> alphaBar and
+ * |gam phi_x / V_x| -> phiBar_x |gam / V_x| (the inner Cauchy-Schwarz of u_x does not involve Phi). So J >= K(Phi),
+ * J 1 = 0, symmetric, first ring, with the same regrouping (JumpNodalQEnds, JumpRowEnds). Phi = 1 everywhere gives
+ * JumpEdge with phi = 1. ---*/
+
+/*!
+ * \brief JumpEdge with per-edge-end limiter values phiAt(x, f) (local orientation) and alphaBar >= alphaFloor
+ *        (JumpEdgeEnds: the store of EDGE_ENTROPY_TVD and floor 0; JumpEdgeEndsFCT).
+ */
+template <class Geometry, class WeightType, class NodeType, class PhiAt>
+void JumpEdgeEndsWith(const Geometry& geometry, unsigned short nDim, const WeightType& weights, const NodeType& S,
+                      const PhiAt& phiAt, su2double alphaFloor, su2double coefDelta, su2double gam, unsigned long iEdge,
+                      su2double& alpha, su2double& sumT, su2double* r, su2double* mu) {
+  const unsigned short offT = 1 + nDim * nDim, offM = 1 + 2 * nDim * nDim;
+  const unsigned long node[2] = {geometry.edges->GetNode(iEdge, 0), geometry.edges->GetNode(iEdge, 1)};
+  const auto* x0 = geometry.nodes->GetCoord(node[0]);
+  const auto* x1 = geometry.nodes->GetCoord(node[1]);
+  su2double e[3] = {};
+  for (unsigned short iDim = 0; iDim < nDim; ++iDim) e[iDim] = x1[iDim] - x0[iDim];
+  su2double t[2] = {}, ae[2] = {}, phiBar[2] = {};
+  for (unsigned short x = 0; x < 2; ++x) {
+    for (unsigned short f = 0; f < TVD_NFIELD; ++f) phiBar[x] = fmax(phiBar[x], fabs(phiAt(x, f)));
+  }
+  for (unsigned short x = 0; x < 2; ++x) {
+    const auto p = node[x];
+    su2double a[3] = {}, aEa = 0.0, eTe = 0.0;
+    for (unsigned short iDim = 0; iDim < nDim; ++iDim) {
+      a[iDim] = weights(iEdge, x * nDim + iDim);
+      ae[x] += a[iDim] * e[iDim];
+    }
+    for (unsigned short iDim = 0; iDim < nDim; ++iDim) {
+      for (unsigned short jDim = 0; jDim < nDim; ++jDim) {
+        aEa += a[iDim] * S(p, 1 + nDim * iDim + jDim) * a[jDim];
+        eTe += e[iDim] * S(p, offT + nDim * iDim + jDim) * e[jDim];
+      }
+    }
+    mu[x] = sqrt(fmax(aEa, su2double(0.0)));
+    const su2double own = (mu[x] > 0.0) ? ae[x] * ae[x] / mu[x] : su2double(0.0);
+    const su2double margin = S(p, offM + 1);
+    const su2double tau = fmax(eTe - own, su2double(0.0)) + margin * (eTe + own);
+    const su2double nu = fmax(S(p, offM) - mu[x], su2double(0.0)) + margin * S(p, offM);
+    const su2double g = phiBar[x] * fabs(gam * S(p, 0));
+    t[x] = g * sqrt(tau * nu);
+    r[x] = (nu > 0.0) ? g * sqrt(tau / nu) : su2double(0.0);
+  }
+  alpha = alphaFloor;
+  for (unsigned short f = 0; f < TVD_NFIELD; ++f) {
+    const su2double af = coefDelta + gam * (phiAt(0, f) * S(node[0], 0) * ae[0] -
+                                            phiAt(1, f) * S(node[1], 0) * ae[1]);
+    alpha = fmax(alpha, fabs(af));
+  }
+  sumT = alpha + t[0] + t[1];
+}
+
+/*!
+ * \brief JumpEdge with the per-edge-end limiter values of the edge store phi(e, 4 x + f) (local orientation).
+ */
+template <class Geometry, class WeightType, class NodeType, class PhiType>
+void JumpEdgeEnds(const Geometry& geometry, unsigned short nDim, const WeightType& weights, const NodeType& S,
+                  const PhiType& edgePhi, su2double coefDelta, su2double gam, unsigned long iEdge, su2double& alpha,
+                  su2double& sumT, su2double* r, su2double* mu) {
+  auto phiAt = [&](unsigned short x, unsigned short f) { return edgePhi(iEdge, 4 * x + f); };
+  JumpEdgeEndsWith(geometry, nDim, weights, S, phiAt, 0.0, coefDelta, gam, iEdge, alpha, sumT, r, mu);
+}
+
+/*!
+ * \brief JumpNodalQ with an edge function edgeFn(iEdge, alpha, sumT, r, mu) (JumpEdgeEnds, JumpEdgeEndsFCT).
+ */
+template <class Geometry, class EdgeType, class NodeTypeQ, class EdgeFunc>
+void JumpNodalQEndsWith(const Geometry& geometry, unsigned short nVar, const EdgeType& edgeD, NodeTypeQ& Q,
+                        const EdgeFunc& edgeFn) {
+  SU2_OMP_FOR_STAT(OMP_CHUNK)
+  for (unsigned long iPoint = 0; iPoint < geometry.GetnPointDomain(); ++iPoint) {
+    su2double sum[MAXNVAR * MAXNVAR] = {};
+    for (auto iEdge : geometry.nodes->GetEdges(iPoint)) {
+      su2double alpha, sumT, r[2], mu[2];
+      edgeFn(iEdge, alpha, sumT, r, mu);
+      const su2double coef = sumT * r[(geometry.edges->GetNode(iEdge, 0) == iPoint) ? 0 : 1];
+      for (unsigned short k = 0; k < nVar * nVar; ++k) sum[k] += coef * edgeD(iEdge, k);
+    }
+    for (unsigned short k = 0; k < nVar * nVar; ++k) Q(iPoint, k) = sum[k];
+  }
+  END_SU2_OMP_FOR
+}
+
+/*!
+ * \brief JumpNodalQ with JumpEdgeEnds (EDGE_ENTROPY_TVD).
+ */
+template <class Geometry, class WeightType, class NodeType, class PhiType, class EdgeType, class NodeTypeQ>
+void JumpNodalQEnds(const Geometry& geometry, unsigned short nDim, unsigned short nVar, const WeightType& weights,
+                    const NodeType& S, const PhiType& edgePhi, su2double coefDelta, su2double gam, const EdgeType& edgeD,
+                    NodeTypeQ& Q) {
+  auto edgeFn = [&](unsigned long iEdge, su2double& alpha, su2double& sumT, su2double* r, su2double* mu) {
+    JumpEdgeEnds(geometry, nDim, weights, S, edgePhi, coefDelta, gam, iEdge, alpha, sumT, r, mu);
+  };
+  JumpNodalQEndsWith(geometry, nVar, edgeD, Q, edgeFn);
+}
+
+/*!
+ * \brief JumpRow with an edge function edgeFn(iEdge, alpha, sumT, r, mu): alpha is alphaBar >= 0 here.
+ */
+template <class Geometry, class NodeTypeQ, class EdgeType, class EdgeFunc, class OffFunc>
+void JumpRowEndsWith(const Geometry& geometry, unsigned short nVar, const NodeTypeQ& Q, const EdgeType& edgeD,
+                     const EdgeFunc& edgeFn, unsigned long iPoint, Block& diag, OffFunc&& offBlock) {
+  for (unsigned short iVar = 0; iVar < nVar; ++iVar)
+    for (unsigned short jVar = 0; jVar < nVar; ++jVar) diag(iVar, jVar) = 0.0;
+  for (auto iEdge : geometry.nodes->GetEdges(iPoint)) {
+    const unsigned long node[2] = {geometry.edges->GetNode(iEdge, 0), geometry.edges->GetNode(iEdge, 1)};
+    const unsigned long jPoint = (node[0] == iPoint) ? node[1] : node[0];
+    su2double alpha, sumT, r[2], mu[2];
+    edgeFn(iEdge, alpha, sumT, r, mu);
+    Block off;
+    for (unsigned short iVar = 0; iVar < nVar; ++iVar) {
+      for (unsigned short jVar = 0; jVar < nVar; ++jVar) {
+        const unsigned short k = iVar * nVar + jVar;
+        const su2double d = edgeD(iEdge, k);
+        su2double w = sumT * alpha * d;
+        for (unsigned short x = 0; x < 2; ++x) w += mu[x] * (Q(node[x], k) - sumT * r[x] * d);
+        diag(iVar, jVar) += w;
+        off(iVar, jVar) = -w;
+      }
+    }
+    offBlock(jPoint, off);
+  }
+}
+
+/*!
+ * \brief JumpRow with JumpEdgeEnds (EDGE_ENTROPY_TVD): alpha is alphaBar >= 0 here.
+ */
+template <class Geometry, class WeightType, class NodeType, class NodeTypeQ, class EdgeType, class PhiType,
+          class OffFunc>
+void JumpRowEnds(const Geometry& geometry, unsigned short nDim, unsigned short nVar, const WeightType& weights,
+                 const NodeType& S, const NodeTypeQ& Q, const EdgeType& edgeD, const PhiType& edgePhi,
+                 su2double coefDelta, su2double gam, unsigned long iPoint, Block& diag, OffFunc&& offBlock) {
+  auto edgeFn = [&](unsigned long iEdge, su2double& alpha, su2double& sumT, su2double* r, su2double* mu) {
+    JumpEdgeEnds(geometry, nDim, weights, S, edgePhi, coefDelta, gam, iEdge, alpha, sumT, r, mu);
+  };
+  JumpRowEndsWith(geometry, nVar, Q, edgeD, edgeFn, iPoint, diag, offBlock);
+}
+
+/*--- TECNO_ADJOINT_LIMITER= EDGE_ENTROPY_FCT (ROE_TECNO_PLAN.md 6.9; P1_TECNO_ADJ_LIMITER.md, candidate 8 + freeze; model
+ * Prove/solver_notes/tecno_adj_limiter_model8.py, limiter9). Per edge e and canonical field f (M, 0, S, P of
+ * EDGE_ENTROPY_TVD, canonical orientation of TVDFlip; the shear block is one field along t_e = dy_S/|dy_S|, its moments
+ * are vectors), frozen field, sg = sign dy (+1 at dy = 0):
+ *  (1) far side of each canonical end a: beta_a = max(0, max_{v in star(a)} sg y(w_a - w_v)) at end 0 and
+ *      max(0, max_v sg y(w_v - w_a)) at end 1, y = R_e^T of the edge (frozen); u_a = sg y(b_a), b_0 = sum mu_v (w_0 - w_v),
+ *      b_1 = sum mu_v (w_v - w_1), mu >= 0 the coordinates of x_a - x_other in the element of the ball of a whose cone
+ *      contains that direction (the upwind element through the edge extension), or u_a = sg (2 s_a - dy) where the
+ *      direction leaves the mesh; A_0 = max(beta_0, u_0, (1 - lambda/|lambda|_fix)|dy|/2), A_1 = max(beta_1, u_1,
+ *      (1 + lambda/|lambda|_fix)|dy|/2), the ratio replaced by 0 where |lambda|_fix = 0 (both ends attachable);
+ *  (2) delta = (max(n_0, n_1) + 2) d (n the global node degrees, d the S2 guard), valid = |dy| > delta and D > 0,
+ *      B = 2 sg min(A_0, A_1), cap = |B| + delta, sigma = (s_0 + s_1)/2, o = sg sigma, phi_c = min(1, cap/o) (valid, o > 0)
+ *      else 1, M_c = phi_c D (dy - phi_c sigma) (shear: the vector phi_c D (dy_S - phi_c sigma_S));
+ *  (3) pairs (observer e at a, contributor e' at a, self included): c = 1/2 sg_e pi M_c,e' / D_e, pi = sigma_a (g_a . e_e')
+ *      the weights of EDGE_ENTROPY_TVD (shear: t_e . M_c,e'), pi and the shear projection = 0 within the rounding bound
+ *      of their dot products (rev 4, FCTPair); Pm_e = sum over both ends of max(0, c) (valid observers),
+ *      R_e = min(1, cap/Pm_e), room = max(0, cap - R_e Pm_e), a_e = min(1, room/(phi_c o)) (valid, phi_c o > 0) else 1;
+ *  (4) rho_e' = min of R_e over the valid observers with c > 0 (1 if none), alpha = min(rho, a_e),
+ *      gamma = 1 - alpha on every entry (S4d, ROE_TECNO_PLAN.md 6.10; S4c had the zero term
+ *      gamma = max(0, 1 - alpha - (room - alpha phi_c o)/|dy|), which leaves central edge fields at vetoed entries);
+ *  (5) TECNO_ADJOINT_FCT_PASSES = n > 1 (S4e, ROE_TECNO_PLAN.md 6.11): n - 1 further passes of (3)-(4) on the remaining
+ *      amounts (1 - alpha) with the remaining capacity Q_e = max(0, cap_e - S_e(alpha) - tau_e) (tau_e the rounding
+ *      bound of that sum), alpha nondecreasing, the box kept.
+ * Residual (tecnoAdjointEdgeFCT): Delta part D (alpha_r l_c + gamma_r dy), moment alpha_r phi_c D l_c at both ends,
+ * l_c = dy - phi_c sigma, (alpha_r, gamma_r) = (r alpha, 1 - r (1 - gamma)) with the MUSCL ramp r, transpose coefficient
+ * GradientCoefficient(1, 0): sum_m w_m.R_m = sum_e sum_f D (alpha_r l_c^2 + gamma_r dy^2) >= 0 for any values (A1');
+ * frozen field: S_e = sg alpha phi_c sigma + sum_pairs alpha_e' c <= cap_e (box), also for every ramp (S scales with r);
+ * frozen edge-field form D (alpha l_c^2 + (1 - alpha) dy^2) >= D (dy - alpha phi_c sigma)^2 (convexity). MPI: A (1) needs the star and the ball of a, the halves of Pm and rho (3, 4) all edges of
+ * a; they are computed by the owner of a for each edge of a and copied to the cut edges of the other ranks through the
+ * star slots (FCTSetup: position of the global index of the other end in the sorted global neighbour list of a). Every
+ * local edge then has the serial values. ---*/
+
+/*--- Extra ingredient columns of EDGE_ENTROPY_FCT after the TVDWidth(nDim) columns of EDGE_ENTROPY_TVD (local orientation):
+ * signed speeds of M, 0, P (u.n - c, u.n, u.n + c), their floored |lambda| (lamM, lam0, lamP of the kernel), the speed of
+ * sound and the total enthalpy of the Roe average, its velocity (nDim) and the unit normal of the dissipation (nDim), so
+ * that R^T of the edge can be applied to any vector (FCTProject, the algebra of tecnoProject). ---*/
+constexpr unsigned short FCT_LAM = 0, FCT_LAMFIX = 3, FCT_SOUND = 6, FCT_ENTHALPY = 7, FCT_VEL = 8;
+inline unsigned short FCTWidth(unsigned short nDim) { return TVDWidth(nDim) + 8 + 2 * nDim; }
+
+/*--- Stored values of EDGE_ENTROPY_FCT (TeCNOAdjEdgePhi, local orientation and local fields M, 0, S, P). ---*/
+constexpr unsigned short FCT_PHIC = 0, FCT_ALPHA = 4, FCT_GAMMA = 8, FCT_STORE_WIDTH = 12;
+
+/*--- Per-edge work values (canonical fields): phi_c, cap, o, valid, M_c (scalar fields), the shear moment vector, R,
+ * room, a_e and alpha (of the current pass). ---*/
+constexpr unsigned short FCT_E_PHIC = 0, FCT_E_CAP = 4, FCT_E_O = 8, FCT_E_VALID = 12, FCT_E_MC = 16, FCT_E_MVEC = 20,
+                         FCT_E_R = 23, FCT_E_ROOM = 27, FCT_E_AOWN = 31, FCT_E_ALPHA = 35, FCT_E_WIDTH = 39;
+
+/*!
+ * \brief Static data of EDGE_ENTROPY_FCT on a partition: global node degrees, star slots of every (edge, local end) and
+ *        the upwind element of every (edge, local end) of an owned node. Index of (iEdge, local end y): 2 iEdge + y.
+ */
+struct FCTSetup {
+  bool ready = false;
+  unsigned short maxDeg = 0;
+  std::vector<unsigned long> degree;
+  std::vector<unsigned short> slot;
+  std::vector<unsigned long> ueNode;  /*!< \brief 3 per (edge, end). */
+  std::vector<su2double> ueMu;        /*!< \brief 3 per (edge, end). */
+  std::vector<char> ueOk;
+};
+
+/*!
+ * \brief Work arrays of EDGE_ENTROPY_FCT: A, the halves of Pm and of rho per (edge, local end y, canonical field f) at
+ *        column 4 y + f, the per-edge values (FCT_E_*) and the exchange buffer (nPoint, 4 maxDeg).
+ */
+struct FCTWork {
+  su2activematrix A, Pm, rho, edge, buf, S, Ssize;
+  /*--- TECNO_ADJOINT_FCT_BOUND= NODE_INPUT (S4f, ROE_TECNO_PLAN.md 6.13), per (edge, local end y) at column 4 y + f: the cap
+   * of the row of end y, the near halves (invalid contributors and the self piece) of Pm, S and its size, and R per row. ---*/
+  su2activematrix rowCap, PmN, SN, SNsize, Rrow;
+};
+
+/*!
+ * \brief Rows of the setup exchange: (degree, sorted global indices of the neighbours) of every owned node, width
+ *        1 + maxDeg (maxDeg the largest degree over all ranks). The caller copies them to the halos.
+ */
+template <class Geometry>
+void FCTSetupRows(const Geometry& geometry, FCTSetup& setup, su2activematrix& rows) {
+  unsigned long localMax = 0, globalMax = 0;
+  for (unsigned long iPoint = 0; iPoint < geometry.GetnPointDomain(); ++iPoint)
+    localMax = std::max<unsigned long>(localMax, geometry.nodes->GetnPoint(iPoint));
+  SU2_MPI::Allreduce(&localMax, &globalMax, 1, MPI_UNSIGNED_LONG, MPI_MAX, SU2_MPI::GetComm());
+  if (4 * globalMax + 1 > std::numeric_limits<unsigned short>::max())
+    SU2_MPI::Error("TECNO_ADJOINT_LIMITER= EDGE_ENTROPY_FCT: node degree too large for the star exchange.", CURRENT_FUNCTION);
+  setup.maxDeg = static_cast<unsigned short>(globalMax);
+  rows.resize(geometry.GetnPoint(), 1 + setup.maxDeg);
+  rows = su2double(0.0);
+  std::vector<unsigned long> list;
+  for (unsigned long iPoint = 0; iPoint < geometry.GetnPointDomain(); ++iPoint) {
+    list.clear();
+    for (auto jPoint : geometry.nodes->GetPoints(iPoint)) list.push_back(geometry.nodes->GetGlobalIndex(jPoint));
+    std::sort(list.begin(), list.end());
+    rows(iPoint, 0) = su2double(list.size());
+    for (size_t k = 0; k < list.size(); ++k) rows(iPoint, 1 + k) = su2double(list[k]);
+  }
+}
+
+/*!
+ * \brief Coordinates mu of a direction in the cone of a simplex at its vertex a, sum_v mu_v (x_v - x_a) = dir (Cramer).
+ * \return false if the simplex is degenerate.
+ */
+inline bool FCTConeCoordinates(unsigned short nDim, const su2double* const* xv, const su2double* xa,
+                               const su2double* dir, su2double* mu) {
+  su2double M[3][3] = {};
+  for (unsigned short c = 0; c < nDim; ++c)
+    for (unsigned short d = 0; d < nDim; ++d) M[d][c] = xv[c][d] - xa[d];
+  auto det = [&](const su2double (&A)[3][3]) {
+    if (nDim == 2) return A[0][0] * A[1][1] - A[0][1] * A[1][0];
+    return A[0][0] * (A[1][1] * A[2][2] - A[1][2] * A[2][1]) - A[0][1] * (A[1][0] * A[2][2] - A[1][2] * A[2][0]) +
+           A[0][2] * (A[1][0] * A[2][1] - A[1][1] * A[2][0]);
+  };
+  const su2double D = det(M);
+  if (!(fabs(D) > 0.0)) return false;
+  for (unsigned short c = 0; c < nDim; ++c) {
+    su2double Mc[3][3];
+    for (unsigned short i = 0; i < 3; ++i)
+      for (unsigned short j = 0; j < 3; ++j) Mc[i][j] = (j == c) ? ((i < nDim) ? dir[i] : su2double(0.0)) : M[i][j];
+    mu[c] = det(Mc) / D;
+  }
+  return true;
+}
+
+/*!
+ * \brief Completes the setup after the exchange of the rows: degrees of all local nodes, star slots of every local
+ *        (edge, end) (error if the other end is not in the list of the node), upwind elements of the ends at owned
+ *        nodes: the element of the ball whose cone at a contains x_a - x_other with the largest min(mu)/sum|mu|,
+ *        accepted if that score is >= -1e-10 (the containment test of the model, l8_geom.upwind_elements).
+ */
+template <class Geometry>
+void FCTSetupFinish(const Geometry& geometry, unsigned short nDim, const su2activematrix& rows, FCTSetup& setup) {
+  const auto nPoint = geometry.GetnPoint(), nEdge = geometry.GetnEdge();
+  setup.degree.assign(nPoint, 0);
+  for (unsigned long iPoint = 0; iPoint < nPoint; ++iPoint)
+    setup.degree[iPoint] = static_cast<unsigned long>(SU2_TYPE::GetValue(rows(iPoint, 0)));
+  setup.slot.assign(2 * nEdge, 0);
+  setup.ueNode.assign(6 * nEdge, 0);
+  setup.ueMu.assign(6 * nEdge, su2double(0.0));
+  setup.ueOk.assign(2 * nEdge, 0);
+  unsigned long missing = 0;
+  for (unsigned long iEdge = 0; iEdge < nEdge; ++iEdge) {
+    for (unsigned short y = 0; y < 2; ++y) {
+      const auto a = geometry.edges->GetNode(iEdge, y), b = geometry.edges->GetNode(iEdge, 1 - y);
+      const unsigned long target = geometry.nodes->GetGlobalIndex(b);
+      unsigned long lo = 0, hi = setup.degree[a];
+      while (lo < hi) {
+        const unsigned long mid = (lo + hi) / 2;
+        if (static_cast<unsigned long>(SU2_TYPE::GetValue(rows(a, 1 + mid))) < target) lo = mid + 1; else hi = mid;
+      }
+      if ((lo < setup.degree[a]) && (static_cast<unsigned long>(SU2_TYPE::GetValue(rows(a, 1 + lo))) == target)) {
+        setup.slot[2 * iEdge + y] = static_cast<unsigned short>(lo);
+      } else {
+        ++missing;
+      }
+      if (a >= geometry.GetnPointDomain()) continue;
+      /*--- Upwind element of the end a: direction x_a - x_b (through the edge extension). ---*/
+      const auto* xa = geometry.nodes->GetCoord(a);
+      const auto* xb = geometry.nodes->GetCoord(b);
+      su2double dir[3] = {};
+      for (unsigned short d = 0; d < nDim; ++d) dir[d] = xa[d] - xb[d];
+      su2double best = -std::numeric_limits<su2double>::infinity();
+      for (unsigned short j = 0; j < geometry.nodes->GetnElem(a); ++j) {
+        const auto* elem = geometry.elem[geometry.nodes->GetElem(a, j)];
+        if (elem->GetnNodes() != nDim + 1) continue;
+        unsigned long vtx[3] = {};
+        const su2double* xv[3] = {};
+        unsigned short n = 0;
+        for (unsigned short k = 0; k < elem->GetnNodes(); ++k) {
+          const auto p = elem->GetNode(k);
+          if ((p == a) || (n == nDim)) continue;
+          vtx[n] = p;
+          xv[n++] = geometry.nodes->GetCoord(p);
+        }
+        if (n != nDim) continue;
+        su2double mu[3] = {};
+        if (!FCTConeCoordinates(nDim, xv, xa, dir, mu)) continue;
+        su2double mn = mu[0], sum = 0.0;
+        for (unsigned short c = 0; c < nDim; ++c) {
+          mn = fmin(mn, mu[c]);
+          sum += fabs(mu[c]);
+        }
+        const su2double score = mn / fmax(sum, std::numeric_limits<su2double>::min());
+        if (score > best) {
+          best = score;
+          for (unsigned short c = 0; c < 3; ++c) {
+            setup.ueNode[3 * (2 * iEdge + y) + c] = (c < nDim) ? vtx[c] : 0;
+            setup.ueMu[3 * (2 * iEdge + y) + c] = (c < nDim) ? mu[c] : su2double(0.0);
+          }
+        }
+      }
+      setup.ueOk[2 * iEdge + y] = (best >= -1e-10) ? 1 : 0;
+    }
+  }
+  if (missing > 0)
+    SU2_MPI::Error("TECNO_ADJOINT_LIMITER= EDGE_ENTROPY_FCT: an edge end is not in the star list of its node.", CURRENT_FUNCTION);
+  setup.ready = true;
+}
+
+/*!
+ * \brief Canonical data of one edge (EDGE_ENTROPY_FCT): as TVDEdgeView with the shear field |dy_S| along t = dy_S/|dy_S|
+ *        (t = 0 where dy_S = 0), the canonical signed speeds and floored |lambda|, and the projection data of the edge.
+ */
+struct FCTEdgeView {
+  unsigned long node[2] = {0, 0};
+  bool flip = false;
+  su2double e[3] = {}, dy[TVD_NFIELD] = {}, s[2][TVD_NFIELD] = {}, D[TVD_NFIELD] = {}, d[TVD_NFIELD] = {};
+  su2double lam[TVD_NFIELD] = {}, lamFix[TVD_NFIELD] = {};
+  su2double dyS[3] = {}, sS[2][3] = {}, t[3] = {};
+  su2double c = 0.0, H = 0.0, u[3] = {}, n[3] = {};
+};
+
+template <class Geometry, class StoreType>
+inline void FCTLoad(const Geometry& geometry, unsigned short nDim, const StoreType& ing, unsigned long iEdge,
+                    FCTEdgeView& v) {
+  v.flip = TVDFlip(geometry, nDim, iEdge);
+  const unsigned long n0 = geometry.edges->GetNode(iEdge, 0), n1 = geometry.edges->GetNode(iEdge, 1);
+  v.node[0] = v.flip ? n1 : n0;
+  v.node[1] = v.flip ? n0 : n1;
+  const auto* x0 = geometry.nodes->GetCoord(v.node[0]);
+  const auto* x1 = geometry.nodes->GetCoord(v.node[1]);
+  for (unsigned short iDim = 0; iDim < nDim; ++iDim) v.e[iDim] = x1[iDim] - x0[iDim];
+  const su2double sgn = v.flip ? -1.0 : 1.0;
+  const unsigned short X = TVDWidth(nDim);
+  auto col = [](unsigned short fl) { return (fl == 3) ? 2 : fl; };                  /*--- M, 0, P columns. ---*/
+  auto dcol = [](unsigned short fl) { return (fl == 3) ? 2 : ((fl == 2) ? 3 : fl); }; /*--- D columns. ---*/
+  for (unsigned short f = 0; f < TVD_NFIELD; ++f) {
+    const unsigned short fl = TVDLocalField(f, v.flip);
+    v.D[f] = ing(iEdge, TVD_D + dcol(fl));
+    v.d[f] = ing(iEdge, TVD_GUARD + ((f == 2) ? 1 : 0));
+    const unsigned short lc = (f == 2) ? 1 : col(fl);  /*--- The shear waves travel with u.n. ---*/
+    v.lam[f] = sgn * ing(iEdge, X + FCT_LAM + lc);
+    v.lamFix[f] = ing(iEdge, X + FCT_LAMFIX + lc);
+    if (f == 2) continue;
+    v.dy[f] = sgn * ing(iEdge, TVD_DY + col(fl));
+    for (unsigned short x = 0; x < 2; ++x) {
+      const unsigned short y = v.flip ? 1 - x : x;
+      v.s[x][f] = sgn * ing(iEdge, ((y == 0) ? TVD_S0 : TVD_S1) + col(fl));
+    }
+  }
+  su2double norm = 0.0;
+  for (unsigned short iDim = 0; iDim < nDim; ++iDim) {
+    v.dyS[iDim] = sgn * ing(iEdge, TVD_SHEAR + iDim);
+    norm += v.dyS[iDim] * v.dyS[iDim];
+    for (unsigned short x = 0; x < 2; ++x) {
+      const unsigned short y = v.flip ? 1 - x : x;
+      v.sS[x][iDim] = sgn * ing(iEdge, TVD_SHEAR + (1 + y) * nDim + iDim);
+    }
+  }
+  norm = sqrt(norm);
+  for (unsigned short iDim = 0; iDim < nDim; ++iDim) v.t[iDim] = (norm > 0.0) ? v.dyS[iDim] / norm : su2double(0.0);
+  v.dy[2] = norm;
+  for (unsigned short x = 0; x < 2; ++x) {
+    su2double st = 0.0;
+    for (unsigned short iDim = 0; iDim < nDim; ++iDim) st += v.sS[x][iDim] * v.t[iDim];
+    v.s[x][2] = st;
+  }
+  v.c = ing(iEdge, X + FCT_SOUND);
+  v.H = ing(iEdge, X + FCT_ENTHALPY);
+  for (unsigned short iDim = 0; iDim < nDim; ++iDim) {
+    v.u[iDim] = ing(iEdge, X + FCT_VEL + iDim);
+    v.n[iDim] = ing(iEdge, X + FCT_VEL + nDim + iDim);
+  }
+}
+
+/*!
+ * \brief Canonical characteristic values y[f] = (R_e^T z)_f of any vector z of entropy variables (tecnoProject on the
+ *        stored average and normal; a flipped edge has M <-> P; the shear vector projected on t of the edge).
+ */
+inline void FCTProject(unsigned short nDim, const FCTEdgeView& v, const su2double* z, su2double* y) {
+  su2double uv = 0.0, nv = 0.0, nq = 0.0, un = 0.0, sq = 0.0, yS[3] = {};
+  for (unsigned short iDim = 0; iDim < nDim; ++iDim) {
+    uv += v.u[iDim] * z[iDim + 1];
+    nv += v.n[iDim] * z[iDim + 1];
+    un += v.u[iDim] * v.n[iDim];
+    sq += v.u[iDim] * v.u[iDim];
+    yS[iDim] = z[iDim + 1] + v.u[iDim] * z[nDim + 1];
+    nq += v.n[iDim] * yS[iDim];
+  }
+  su2double st = 0.0;
+  for (unsigned short iDim = 0; iDim < nDim; ++iDim) st += v.t[iDim] * (yS[iDim] - nq * v.n[iDim]);
+  const su2double yM = z[0] + uv - v.c * nv + (v.H - un * v.c) * z[nDim + 1];
+  const su2double y0 = z[0] + uv + 0.5 * sq * z[nDim + 1];
+  const su2double yP = z[0] + uv + v.c * nv + (v.H + un * v.c) * z[nDim + 1];
+  y[0] = v.flip ? yP : yM;
+  y[1] = y0;
+  y[2] = st;
+  y[3] = v.flip ? yM : yP;
+}
+
+/*!
+ * \brief Pass (1) on the owned nodes: A of every (edge, end) at the node, column 4 y + f of A (y the local end).
+ * \param[in] W - Entropy variables (iPoint, iVar), halos included.
+ */
+template <class Geometry, class StoreType, class FieldType>
+void FCTEndCapacity(const Geometry& geometry, unsigned short nDim, const FCTSetup& setup, const StoreType& ing,
+                    const FieldType& W, su2activematrix& A, bool nodeInput = false) {
+  const unsigned short nVar = nDim + 2;
+  SU2_OMP_FOR_STAT(OMP_CHUNK)
+  for (unsigned long a = 0; a < geometry.GetnPointDomain(); ++a) {
+    for (auto iEdge : geometry.nodes->GetEdges(a)) {
+      FCTEdgeView v;
+      FCTLoad(geometry, nDim, ing, iEdge, v);
+      const unsigned short x = (v.node[0] == a) ? 0 : 1;
+      const unsigned short y = (geometry.edges->GetNode(iEdge, 0) == a) ? 0 : 1;
+      const su2double sx = (x == 0) ? 1.0 : -1.0;  /*--- end 0: w_a - w_v, end 1: w_v - w_a ---*/
+      su2double sg[TVD_NFIELD], cap[TVD_NFIELD];
+      for (unsigned short f = 0; f < TVD_NFIELD; ++f) {
+        sg[f] = (v.dy[f] >= 0.0) ? 1.0 : -1.0;
+        cap[f] = 0.0;
+      }
+      su2double z[MAXNVAR], yv[TVD_NFIELD];
+      for (auto jEdge : geometry.nodes->GetEdges(a)) {
+        const auto b = (geometry.edges->GetNode(jEdge, 0) == a) ? geometry.edges->GetNode(jEdge, 1)
+                                                               : geometry.edges->GetNode(jEdge, 0);
+        for (unsigned short iVar = 0; iVar < nVar; ++iVar) z[iVar] = sx * (W(a, iVar) - W(b, iVar));
+        FCTProject(nDim, v, z, yv);
+        for (unsigned short f = 0; f < TVD_NFIELD; ++f) cap[f] = fmax(cap[f], sg[f] * yv[f]);
+      }
+      const size_t h = 2 * iEdge + y;
+      su2double ub[TVD_NFIELD];
+      if (setup.ueOk[h]) {
+        for (unsigned short iVar = 0; iVar < nVar; ++iVar) {
+          z[iVar] = 0.0;
+          for (unsigned short c = 0; c < nDim; ++c)
+            z[iVar] += setup.ueMu[3 * h + c] * sx * (W(a, iVar) - W(setup.ueNode[3 * h + c], iVar));
+        }
+        FCTProject(nDim, v, z, yv);
+        for (unsigned short f = 0; f < TVD_NFIELD; ++f) ub[f] = sg[f] * yv[f];
+      } else {
+        for (unsigned short f = 0; f < TVD_NFIELD; ++f) ub[f] = sg[f] * (2.0 * v.s[x][f] - v.dy[f]);
+      }
+      for (unsigned short f = 0; f < TVD_NFIELD; ++f) {
+        const su2double ratio = (v.lamFix[f] > 0.0) ? v.lam[f] / v.lamFix[f] : su2double(0.0);
+        const su2double own = 0.5 * (1.0 - sx * ratio) * fabs(v.dy[f]);
+        /*--- NODE_INPUT (S4f, D1): the star (coefficient <= 2 D) and the own jump (first-order coefficient) attach at the
+         * same time, A = max(beta, u) + own (the bar-state bound); TWO_NODE: the larger of the three. ---*/
+        A(iEdge, 4 * y + f) = nodeInput ? fmax(cap[f], ub[f]) + own : fmax(cap[f], fmax(ub[f], own));
+      }
+    }
+  }
+  END_SU2_OMP_FOR
+}
+
+/*!
+ * \brief Copies the (edge, end) values of the owned nodes to the cut edges of the halo nodes through the star slots;
+ *        comm(buf) copies the rows of buf (nPoint, 4 maxDeg) from the owners to the halos. Called by all ranks.
+ */
+template <class Geometry, class Comm>
+void FCTExchange(const Geometry& geometry, const FCTSetup& setup, su2activematrix& end, su2activematrix& buf,
+                 Comm&& comm) {
+  if (SU2_MPI::GetSize() == 1) return;
+  SU2_OMP_FOR_STAT(OMP_CHUNK)
+  for (unsigned long a = 0; a < geometry.GetnPointDomain(); ++a) {
+    for (auto iEdge : geometry.nodes->GetEdges(a)) {
+      const unsigned short y = (geometry.edges->GetNode(iEdge, 0) == a) ? 0 : 1;
+      const unsigned short s = setup.slot[2 * iEdge + y];
+      for (unsigned short f = 0; f < TVD_NFIELD; ++f) buf(a, 4 * s + f) = end(iEdge, 4 * y + f);
+    }
+  }
+  END_SU2_OMP_FOR
+  comm(buf);
+  SU2_OMP_FOR_STAT(OMP_CHUNK)
+  for (unsigned long iEdge = 0; iEdge < geometry.GetnEdge(); ++iEdge) {
+    for (unsigned short y = 0; y < 2; ++y) {
+      const auto a = geometry.edges->GetNode(iEdge, y);
+      if (a < geometry.GetnPointDomain()) continue;
+      const unsigned short s = setup.slot[2 * iEdge + y];
+      for (unsigned short f = 0; f < TVD_NFIELD; ++f) end(iEdge, 4 * y + f) = buf(a, 4 * s + f);
+    }
+  }
+  END_SU2_OMP_FOR
+}
+
+/*!
+ * \brief Pass (2) on every local edge: delta, validity, cap, o, phi_c and the moments M_c (FCT_E_* columns).
+ */
+template <class Geometry, class StoreType>
+void FCTEdgeOwn(const Geometry& geometry, unsigned short nDim, const FCTSetup& setup, const StoreType& ing,
+                const su2activematrix& A, su2activematrix& ed, bool nodeInput = false,
+                su2activematrix* rowCap = nullptr) {
+  SU2_OMP_FOR_STAT(OMP_CHUNK)
+  for (unsigned long iEdge = 0; iEdge < geometry.GetnEdge(); ++iEdge) {
+    FCTEdgeView v;
+    FCTLoad(geometry, nDim, ing, iEdge, v);
+    const su2double nmax = su2double(std::max(setup.degree[v.node[0]], setup.degree[v.node[1]]));
+    const unsigned short y0 = v.flip ? 1 : 0;
+    for (unsigned short f = 0; f < TVD_NFIELD; ++f) {
+      const su2double delta = (nmax + 2.0) * v.d[f];
+      const bool valid = (fabs(v.dy[f]) > delta) && (v.D[f] > 0.0);
+      const su2double sg = (v.dy[f] >= 0.0) ? 1.0 : -1.0;
+      const su2double cap = 2.0 * fmin(A(iEdge, 4 * y0 + f), A(iEdge, 4 * (1 - y0) + f)) + delta;
+      const su2double sigma = 0.5 * (v.s[0][f] + v.s[1][f]);
+      const su2double o = sg * sigma;
+      su2double phic = (valid && (o > 0.0)) ? fmin(su2double(1.0), cap / o) : su2double(1.0);
+      if (nodeInput) {
+        /*--- S4f (D3): the entropy own bound |l_c| <= |dy| of every valid entry, phi_c o <= 2 |dy| (o > 0) and phi_c = 0
+         * (o <= 0), so that its production D (dy^2 + alpha (l_c^2 - dy^2)) is nonincreasing in alpha; the rows of the two
+         * ends get their own caps 2 A_y + delta (D2). ---*/
+        if (valid && (o > 0.0)) phic = fmin(phic, 2.0 * fabs(v.dy[f]) / o);
+        if (valid && !(o > 0.0)) phic = 0.0;
+        for (unsigned short y = 0; y < 2; ++y) (*rowCap)(iEdge, 4 * y + f) = 2.0 * A(iEdge, 4 * y + f) + delta;
+      }
+      ed(iEdge, FCT_E_PHIC + f) = phic;
+      ed(iEdge, FCT_E_CAP + f) = cap;
+      ed(iEdge, FCT_E_O + f) = o;
+      ed(iEdge, FCT_E_VALID + f) = valid ? 1.0 : 0.0;
+      ed(iEdge, FCT_E_MC + f) = (f == 2) ? su2double(0.0) : phic * v.D[f] * (v.dy[f] - phic * sigma);
+    }
+    const su2double phiS = ed(iEdge, FCT_E_PHIC + 2);
+    for (unsigned short iDim = 0; iDim < 3; ++iDim) {
+      ed(iEdge, FCT_E_MVEC + iDim) =
+          (iDim < nDim) ? phiS * v.D[2] * (v.dyS[iDim] - phiS * 0.5 * (v.sS[0][iDim] + v.sS[1][iDim])) : su2double(0.0);
+    }
+  }
+  END_SU2_OMP_FOR
+}
+
+/*!
+ * \brief Edges of a node with their canonical views, ends and gradient weights g = a_{a,other}/V_a (passes 3 and 5).
+ */
+struct FCTNodeStar {
+  std::vector<FCTEdgeView> view;
+  std::vector<unsigned long> edge;
+  std::vector<unsigned short> y;
+  std::vector<std::array<su2double, 3> > g;
+  std::vector<su2double> sigma;
+};
+
+template <class Geometry, class WeightType, class VolumeType, class StoreType>
+inline void FCTLoadStar(const Geometry& geometry, unsigned short nDim, const WeightType& weights, const VolumeType& volume,
+                        const StoreType& ing, unsigned long a, FCTNodeStar& st) {
+  const auto range = geometry.nodes->GetEdges(a);
+  const size_t n = range.end() - range.begin();
+  st.view.resize(n);
+  st.edge.resize(n);
+  st.y.resize(n);
+  st.g.resize(n);
+  st.sigma.resize(n);
+  const su2double invVol = 1.0 / volume(a);
+  size_t h = 0;
+  for (auto iEdge : range) {
+    FCTLoad(geometry, nDim, ing, iEdge, st.view[h]);
+    st.edge[h] = iEdge;
+    st.y[h] = (geometry.edges->GetNode(iEdge, 0) == a) ? 0 : 1;
+    st.sigma[h] = (st.view[h].node[0] == a) ? 1.0 : -1.0;
+    st.g[h] = {0.0, 0.0, 0.0};
+    for (unsigned short iDim = 0; iDim < nDim; ++iDim) st.g[h][iDim] = weights(iEdge, st.y[h] * nDim + iDim) * invVol;
+    ++h;
+  }
+}
+
+/*!
+ * \brief Contribution c of the contributor k to the valid observer h at the node in field f (frozen field).
+ *        Revision 4 (ROE_TECNO_PLAN.md 6.9): the pair weight pi = sigma (g . e') and the shear projection t_e . M_c,e'
+ *        are taken as 0 when they are within the floating-point bound of their dot product of the stored inputs,
+ *        (nDim + 2) eps sum_d |a_d b_d| (an analytically orthogonal pair, whose computed sign is set by rounding), so
+ *        that such a pair neither enters Pm nor vetoes the contributor. Upstream rounding of the stored weights is not
+ *        covered by this bound.
+ */
+inline su2double FCTPair(unsigned short nDim, const FCTNodeStar& st, size_t h, size_t k, unsigned short f,
+                         const su2activematrix& ed) {
+  const auto& vh = st.view[h];
+  su2double pi = 0.0, size = 0.0;
+  for (unsigned short iDim = 0; iDim < nDim; ++iDim) {
+    pi += st.g[h][iDim] * st.view[k].e[iDim];
+    size += fabs(st.g[h][iDim] * st.view[k].e[iDim]);
+  }
+  if (!(fabs(pi) > (nDim + 2) * std::numeric_limits<su2double>::epsilon() * size)) return 0.0;
+  pi *= st.sigma[h];
+  const su2double sg = (vh.dy[f] >= 0.0) ? 1.0 : -1.0;
+  su2double m = 0.0;
+  if (f == 2) {
+    /*--- The projection t_e . M_c,e' of the contributor's shear moment, 0 within the same rounding bound (rev 4). ---*/
+    su2double msize = 0.0;
+    for (unsigned short iDim = 0; iDim < nDim; ++iDim) {
+      m += vh.t[iDim] * ed(st.edge[k], FCT_E_MVEC + iDim);
+      msize += fabs(vh.t[iDim] * ed(st.edge[k], FCT_E_MVEC + iDim));
+    }
+    if (!(fabs(m) > (nDim + 2) * std::numeric_limits<su2double>::epsilon() * msize)) return 0.0;
+  } else {
+    m = ed(st.edge[k], FCT_E_MC + f);
+  }
+  return 0.5 * sg * pi * m / vh.D[f];
+}
+
+/*!
+ * \brief Pass (3) on the owned nodes: the half of Pm of every valid observer at the node, column 4 y + f of Pm.
+ */
+template <class Geometry, class WeightType, class VolumeType, class StoreType>
+void FCTPmHalf(const Geometry& geometry, unsigned short nDim, const WeightType& weights, const VolumeType& volume,
+               const StoreType& ing, const su2activematrix& ed, su2activematrix& Pm) {
+  FCTNodeStar st;
+  SU2_OMP_FOR_STAT(OMP_CHUNK)
+  for (unsigned long a = 0; a < geometry.GetnPointDomain(); ++a) {
+    FCTLoadStar(geometry, nDim, weights, volume, ing, a, st);
+    for (size_t h = 0; h < st.edge.size(); ++h) {
+      for (unsigned short f = 0; f < TVD_NFIELD; ++f) {
+        su2double sum = 0.0;
+        if (ed(st.edge[h], FCT_E_VALID + f) != 0.0) {
+          for (size_t k = 0; k < st.edge.size(); ++k) sum += fmax(su2double(0.0), FCTPair(nDim, st, h, k, f, ed));
+        }
+        Pm(st.edge[h], 4 * st.y[h] + f) = sum;
+      }
+    }
+  }
+  END_SU2_OMP_FOR
+}
+
+/*!
+ * \brief Pass (4) on every local edge: R, room and a_e from Pm = sum of both halves.
+ */
+template <class Geometry>
+void FCTRoom(const Geometry& geometry, const su2activematrix& Pm, su2activematrix& ed) {
+  SU2_OMP_FOR_STAT(OMP_CHUNK)
+  for (unsigned long iEdge = 0; iEdge < geometry.GetnEdge(); ++iEdge) {
+    for (unsigned short f = 0; f < TVD_NFIELD; ++f) {
+      const bool valid = (ed(iEdge, FCT_E_VALID + f) != 0.0);
+      const su2double pm = Pm(iEdge, f) + Pm(iEdge, 4 + f);
+      const su2double cap = ed(iEdge, FCT_E_CAP + f);
+      const su2double R = (valid && (pm > cap)) ? cap / pm : su2double(1.0);
+      const su2double room = fmax(su2double(0.0), cap - R * pm);
+      const su2double den = ed(iEdge, FCT_E_PHIC + f) * ed(iEdge, FCT_E_O + f);
+      ed(iEdge, FCT_E_R + f) = R;
+      ed(iEdge, FCT_E_ROOM + f) = room;
+      ed(iEdge, FCT_E_AOWN + f) = (valid && (den > 0.0)) ? fmin(su2double(1.0), room / den) : su2double(1.0);
+    }
+  }
+  END_SU2_OMP_FOR
+}
+
+/*!
+ * \brief Pass (5) on the owned nodes: the half of rho of every contributor at the node (min of R over the valid
+ *        observers at the node with c > 0, 1 if none), column 4 y + f of rho.
+ */
+template <class Geometry, class WeightType, class VolumeType, class StoreType>
+void FCTObserverMin(const Geometry& geometry, unsigned short nDim, const WeightType& weights, const VolumeType& volume,
+                    const StoreType& ing, const su2activematrix& ed, su2activematrix& rho) {
+  FCTNodeStar st;
+  SU2_OMP_FOR_STAT(OMP_CHUNK)
+  for (unsigned long a = 0; a < geometry.GetnPointDomain(); ++a) {
+    FCTLoadStar(geometry, nDim, weights, volume, ing, a, st);
+    for (size_t k = 0; k < st.edge.size(); ++k) {
+      for (unsigned short f = 0; f < TVD_NFIELD; ++f) {
+        su2double m = 1.0;
+        for (size_t h = 0; h < st.edge.size(); ++h) {
+          if (ed(st.edge[h], FCT_E_VALID + f) == 0.0) continue;
+          if (FCTPair(nDim, st, h, k, f, ed) > 0.0) m = fmin(m, ed(st.edge[h], FCT_E_R + f));
+        }
+        rho(st.edge[k], 4 * st.y[k] + f) = m;
+      }
+    }
+  }
+  END_SU2_OMP_FOR
+}
+
+/*!
+ * \brief Pass (6) on every local edge: alpha = min(rho, a_e) of the first Zalesak pass (FCT_E_ALPHA + f).
+ */
+template <class Geometry>
+void FCTAlpha(const Geometry& geometry, const su2activematrix& rho, su2activematrix& ed) {
+  SU2_OMP_FOR_STAT(OMP_CHUNK)
+  for (unsigned long iEdge = 0; iEdge < geometry.GetnEdge(); ++iEdge) {
+    for (unsigned short f = 0; f < TVD_NFIELD; ++f) {
+      const su2double r = fmin(rho(iEdge, f), rho(iEdge, 4 + f));
+      ed(iEdge, FCT_E_ALPHA + f) = fmin(r, ed(iEdge, FCT_E_AOWN + f));
+    }
+  }
+  END_SU2_OMP_FOR
+}
+
+/*--- Further Zalesak passes on the remaining amounts (TECNO_ADJOINT_FCT_PASSES > 1, S4e, ROE_TECNO_PLAN.md 6.11). With the
+ * current alpha feasible (S_e(alpha) = sg alpha_e phi_c sigma + sum_pairs alpha_e' c <= cap_e at every valid observer),
+ * the remaining capacity Q_e = max(0, cap_e - S_e(alpha)) contains the cancellation of the amounts already accepted.
+ * One pass of steps (3)-(6) on the remaining amounts (1 - alpha_e') c and (1 - alpha_e) phi_c o with the capacity Q_e
+ * gives increments d = (1 - alpha) min(rho', a_e') >= 0 with S_e(alpha + d) <= S_e(alpha) + room' + R' Pm' = cap_e (the
+ * negative remaining amounts only lower S_e). alpha is nondecreasing and bounded by 1; the first pass is S4d. ---*/
+
+/*!
+ * \brief Remaining pass, owned nodes: the halves of S_e(alpha) (pairs only, work S) and of the remaining positive amounts
+ *        Pm' = sum max(0, c) (1 - alpha_k) (work Pm) of every valid observer at the node, column 4 y + f.
+ */
+template <class Geometry, class WeightType, class VolumeType, class StoreType>
+void FCTRemainingHalves(const Geometry& geometry, unsigned short nDim, const WeightType& weights,
+                        const VolumeType& volume, const StoreType& ing, const su2activematrix& ed, su2activematrix& S,
+                        su2activematrix& Ssize, su2activematrix& Pm) {
+  FCTNodeStar st;
+  SU2_OMP_FOR_STAT(OMP_CHUNK)
+  for (unsigned long a = 0; a < geometry.GetnPointDomain(); ++a) {
+    FCTLoadStar(geometry, nDim, weights, volume, ing, a, st);
+    for (size_t h = 0; h < st.edge.size(); ++h) {
+      for (unsigned short f = 0; f < TVD_NFIELD; ++f) {
+        su2double sum = 0.0, size = 0.0, pos = 0.0;
+        if (ed(st.edge[h], FCT_E_VALID + f) != 0.0) {
+          for (size_t k = 0; k < st.edge.size(); ++k) {
+            const su2double c = FCTPair(nDim, st, h, k, f, ed);
+            const su2double alpha = ed(st.edge[k], FCT_E_ALPHA + f);
+            sum += alpha * c;
+            size += fabs(alpha * c);
+            pos += fmax(su2double(0.0), c) * (1.0 - alpha);
+          }
+        }
+        S(st.edge[h], 4 * st.y[h] + f) = sum;
+        Ssize(st.edge[h], 4 * st.y[h] + f) = size;
+        Pm(st.edge[h], 4 * st.y[h] + f) = pos;
+      }
+    }
+  }
+  END_SU2_OMP_FOR
+}
+
+/*!
+ * \brief Remaining pass, every local edge: Q, R', room' and a_e' on the remaining amounts (FCT_E_R, FCT_E_ROOM,
+ *        FCT_E_AOWN are overwritten). Q = max(0, cap - S_e(alpha) - tau), tau = (n_0 + n_1 + 3) eps (cap + |alpha phi_c o|
+ *        + sum |alpha' c|) the rounding bound of that sum (n the node degrees, the number of pairs): a saturated box has
+ *        no remaining capacity (a roundoff Q over a small Pm' would give an arbitrary R'), and Q is continuous.
+ */
+template <class Geometry>
+void FCTRoomRemaining(const Geometry& geometry, const FCTSetup& setup, const su2activematrix& S,
+                      const su2activematrix& Ssize, const su2activematrix& Pm, su2activematrix& ed) {
+  SU2_OMP_FOR_STAT(OMP_CHUNK)
+  for (unsigned long iEdge = 0; iEdge < geometry.GetnEdge(); ++iEdge) {
+    for (unsigned short f = 0; f < TVD_NFIELD; ++f) {
+      const bool valid = (ed(iEdge, FCT_E_VALID + f) != 0.0);
+      const su2double alpha = ed(iEdge, FCT_E_ALPHA + f);
+      const su2double own = ed(iEdge, FCT_E_PHIC + f) * ed(iEdge, FCT_E_O + f);
+      const su2double cap = ed(iEdge, FCT_E_CAP + f);
+      const su2double raw = cap - alpha * own - S(iEdge, f) - S(iEdge, 4 + f);
+      const su2double nPairs = su2double(setup.degree[geometry.edges->GetNode(iEdge, 0)] +
+                                         setup.degree[geometry.edges->GetNode(iEdge, 1)]);
+      const su2double tau = (nPairs + 3.0) * std::numeric_limits<su2double>::epsilon() *
+                            (cap + fabs(alpha * own) + Ssize(iEdge, f) + Ssize(iEdge, 4 + f));
+      const su2double Q = valid ? fmax(su2double(0.0), raw - tau) : su2double(0.0);
+      const su2double pm = Pm(iEdge, f) + Pm(iEdge, 4 + f);
+      const su2double R = (valid && (pm > Q)) ? Q / pm : su2double(1.0);
+      const su2double room = fmax(su2double(0.0), Q - R * pm);
+      const su2double den = own * (1.0 - alpha);
+      ed(iEdge, FCT_E_R + f) = R;
+      ed(iEdge, FCT_E_ROOM + f) = room;
+      ed(iEdge, FCT_E_AOWN + f) = (valid && (den > 0.0)) ? fmin(su2double(1.0), room / den) : su2double(1.0);
+    }
+  }
+  END_SU2_OMP_FOR
+}
+
+/*!
+ * \brief Remaining pass, owned nodes: the half of rho' of every contributor with a remaining amount (alpha < 1), the
+ *        min of R' over the valid observers at the node with c > 0 (1 if none), column 4 y + f of rho.
+ */
+template <class Geometry, class WeightType, class VolumeType, class StoreType>
+void FCTObserverMinRemaining(const Geometry& geometry, unsigned short nDim, const WeightType& weights,
+                             const VolumeType& volume, const StoreType& ing, const su2activematrix& ed,
+                             su2activematrix& rho) {
+  FCTNodeStar st;
+  SU2_OMP_FOR_STAT(OMP_CHUNK)
+  for (unsigned long a = 0; a < geometry.GetnPointDomain(); ++a) {
+    FCTLoadStar(geometry, nDim, weights, volume, ing, a, st);
+    for (size_t k = 0; k < st.edge.size(); ++k) {
+      for (unsigned short f = 0; f < TVD_NFIELD; ++f) {
+        su2double m = 1.0;
+        if (ed(st.edge[k], FCT_E_ALPHA + f) < 1.0) {
+          for (size_t h = 0; h < st.edge.size(); ++h) {
+            if (ed(st.edge[h], FCT_E_VALID + f) == 0.0) continue;
+            if (FCTPair(nDim, st, h, k, f, ed) > 0.0) m = fmin(m, ed(st.edge[h], FCT_E_R + f));
+          }
+        }
+        rho(st.edge[k], 4 * st.y[k] + f) = m;
+      }
+    }
+  }
+  END_SU2_OMP_FOR
+}
+
+/*!
+ * \brief Remaining pass, every local edge: alpha <- min(1, alpha + (1 - alpha) min(rho', a_e')).
+ */
+template <class Geometry>
+void FCTAlphaIncrement(const Geometry& geometry, const su2activematrix& rho, su2activematrix& ed) {
+  SU2_OMP_FOR_STAT(OMP_CHUNK)
+  for (unsigned long iEdge = 0; iEdge < geometry.GetnEdge(); ++iEdge) {
+    for (unsigned short f = 0; f < TVD_NFIELD; ++f) {
+      const su2double alpha = ed(iEdge, FCT_E_ALPHA + f);
+      const su2double r = fmin(rho(iEdge, f), rho(iEdge, 4 + f));
+      ed(iEdge, FCT_E_ALPHA + f) = fmin(su2double(1.0), alpha + (1.0 - alpha) * fmin(r, ed(iEdge, FCT_E_AOWN + f)));
+    }
+  }
+  END_SU2_OMP_FOR
+}
+
+/*--- TECNO_ADJOINT_FCT_BOUND= NODE_INPUT (S4f, ROE_TECNO_PLAN.md 6.13, D2): one box per edge END. The pair fluxes of the
+ * moment of node a (gam a_ab.Y_a on the edges of a) reach the other ends b; at a itself their sum is the self term
+ * -gam s_a.Y_a, s_a = sum_b a_ab. Exact decomposition of the antidiffusive input of node a (frozen field, scalar fields):
+ * the row (e, end at a) holds the own term, the pairs collected at the OTHER end of e (all contributors), the pairs at a of
+ * the contributors that are invalid in the field, and, if e is valid, its self piece c_self = 1/2 sg sigma (s_a . e_e) M_c,e
+ * / D_e (the pair formula with g replaced by s_a). Row box S_{e,y} <= 2 A_y + delta; the selection runs on the rows. ---*/
+
+/*!
+ * \brief Self piece of the edge h of the star in field f (0 within the rounding bound of s_a . e_h, the terms of
+ *        sum_k g_k . e_h; shear: the projection of its own moment vector on its own t with the guard of FCTPair).
+ */
+inline su2double FCTSelf(unsigned short nDim, const FCTNodeStar& st, size_t h, unsigned short f,
+                         const su2activematrix& ed) {
+  const auto& vh = st.view[h];
+  su2double sum[3] = {}, gAbs[3] = {};
+  for (size_t k = 0; k < st.edge.size(); ++k) {
+    for (unsigned short iDim = 0; iDim < nDim; ++iDim) {
+      sum[iDim] += st.g[k][iDim];
+      gAbs[iDim] += fabs(st.g[k][iDim]);
+    }
+  }
+  su2double pi = 0.0, size = 0.0;
+  for (unsigned short iDim = 0; iDim < nDim; ++iDim) {
+    pi += sum[iDim] * vh.e[iDim];
+    size += gAbs[iDim] * fabs(vh.e[iDim]);
+  }
+  const su2double nTerms = su2double(st.edge.size() + nDim + 2);
+  if (!(fabs(pi) > nTerms * std::numeric_limits<su2double>::epsilon() * size)) return 0.0;
+  pi *= st.sigma[h];
+  const su2double sg = (vh.dy[f] >= 0.0) ? 1.0 : -1.0;
+  su2double m = 0.0;
+  if (f == 2) {
+    su2double msize = 0.0;
+    for (unsigned short iDim = 0; iDim < nDim; ++iDim) {
+      m += vh.t[iDim] * ed(st.edge[h], FCT_E_MVEC + iDim);
+      msize += fabs(vh.t[iDim] * ed(st.edge[h], FCT_E_MVEC + iDim));
+    }
+    if (!(fabs(m) > (nDim + 2) * std::numeric_limits<su2double>::epsilon() * msize)) return 0.0;
+  } else {
+    m = ed(st.edge[h], FCT_E_MC + f);
+  }
+  return 0.5 * sg * pi * m / vh.D[f];
+}
+
+/*!
+ * \brief NODE_INPUT halves on the owned nodes, per (edge h at the node a, its local end y_h): with the current alpha
+ *        (pass 1: remaining = 1, weights unused) the far half F = sum over all contributors k at a of the positive parts
+ *        max(0, c) rem_k (work Pm, goes to the row of the other end), the near half N = the same over the invalid
+ *        contributors + max(0, c_self) rem_h (work PmN, row of end y_h); for the remaining passes also the weighted sums
+ *        S_F = sum alpha_k c, S_N = sum_{k invalid} alpha_k c + alpha_h c_self and their sizes. Only valid observers.
+ */
+template <class Geometry, class WeightType, class VolumeType, class StoreType>
+void FCTHalvesNodeInput(const Geometry& geometry, unsigned short nDim, const WeightType& weights,
+                        const VolumeType& volume, const StoreType& ing, const su2activematrix& ed, bool firstPass,
+                        FCTWork& work) {
+  FCTNodeStar st;
+  SU2_OMP_FOR_STAT(OMP_CHUNK)
+  for (unsigned long a = 0; a < geometry.GetnPointDomain(); ++a) {
+    FCTLoadStar(geometry, nDim, weights, volume, ing, a, st);
+    for (size_t h = 0; h < st.edge.size(); ++h) {
+      const auto eh = st.edge[h];
+      const unsigned short col0 = 4 * st.y[h];
+      for (unsigned short f = 0; f < TVD_NFIELD; ++f) {
+        su2double pF = 0.0, pN = 0.0, sF = 0.0, sFz = 0.0, sN = 0.0, sNz = 0.0;
+        if (ed(eh, FCT_E_VALID + f) != 0.0) {
+          for (size_t k = 0; k < st.edge.size(); ++k) {
+            const su2double c = FCTPair(nDim, st, h, k, f, ed);
+            const su2double alpha = firstPass ? su2double(0.0) : ed(st.edge[k], FCT_E_ALPHA + f);
+            const su2double pos = fmax(su2double(0.0), c) * (1.0 - alpha);
+            pF += pos;
+            sF += alpha * c;
+            sFz += fabs(alpha * c);
+            if (ed(st.edge[k], FCT_E_VALID + f) == 0.0) {
+              pN += pos;
+              sN += alpha * c;
+              sNz += fabs(alpha * c);
+            }
+          }
+          const su2double cs = FCTSelf(nDim, st, h, f, ed);
+          const su2double alpha = firstPass ? su2double(0.0) : ed(eh, FCT_E_ALPHA + f);
+          pN += fmax(su2double(0.0), cs) * (1.0 - alpha);
+          sN += alpha * cs;
+          sNz += fabs(alpha * cs);
+        }
+        work.Pm(eh, col0 + f) = pF;
+        work.PmN(eh, col0 + f) = pN;
+        if (!firstPass) {
+          work.S(eh, col0 + f) = sF;
+          work.Ssize(eh, col0 + f) = sFz;
+          work.SN(eh, col0 + f) = sN;
+          work.SNsize(eh, col0 + f) = sNz;
+        }
+      }
+    }
+  }
+  END_SU2_OMP_FOR
+}
+
+/*!
+ * \brief NODE_INPUT rows on every local edge: row y has the load P_y = N(y) + F(1 - y) and the capacity Q_y (pass 1: the
+ *        row cap; later passes: max(0, cap_y - S_y(alpha) - tau_y), S_y = alpha phi_c o + S_N(y) + S_F(1 - y), tau_y the
+ *        rounding bound of that sum as S4e); R_y = min(1, Q_y / P_y) (work Rrow), room_y = max(0, Q_y - R_y P_y),
+ *        a_e = min over the rows of min(1, room_y / (phi_c o (1 - alpha))) (FCT_E_AOWN).
+ */
+template <class Geometry>
+void FCTRowsNodeInput(const Geometry& geometry, const FCTSetup& setup, bool firstPass, FCTWork& work) {
+  auto& ed = work.edge;
+  SU2_OMP_FOR_STAT(OMP_CHUNK)
+  for (unsigned long iEdge = 0; iEdge < geometry.GetnEdge(); ++iEdge) {
+    const su2double nPairs = su2double(setup.degree[geometry.edges->GetNode(iEdge, 0)] +
+                                       setup.degree[geometry.edges->GetNode(iEdge, 1)]);
+    for (unsigned short f = 0; f < TVD_NFIELD; ++f) {
+      const bool valid = (ed(iEdge, FCT_E_VALID + f) != 0.0);
+      const su2double alpha = firstPass ? su2double(0.0) : ed(iEdge, FCT_E_ALPHA + f);
+      const su2double own = ed(iEdge, FCT_E_PHIC + f) * ed(iEdge, FCT_E_O + f);
+      const su2double den = own * (1.0 - alpha);
+      su2double aown = 1.0;
+      for (unsigned short y = 0; y < 2; ++y) {
+        const unsigned short cy = 4 * y + f, cf = 4 * (1 - y) + f;
+        const su2double cap = work.rowCap(iEdge, cy);
+        su2double Q = cap;
+        if (!firstPass) {
+          const su2double raw = cap - alpha * own - work.SN(iEdge, cy) - work.S(iEdge, cf);
+          const su2double tau = (nPairs + 3.0) * std::numeric_limits<su2double>::epsilon() *
+                                (cap + fabs(alpha * own) + work.SNsize(iEdge, cy) + work.Ssize(iEdge, cf));
+          Q = valid ? fmax(su2double(0.0), raw - tau) : su2double(0.0);
+        }
+        const su2double pm = work.PmN(iEdge, cy) + work.Pm(iEdge, cf);
+        const su2double R = (valid && (pm > Q)) ? Q / pm : su2double(1.0);
+        const su2double room = fmax(su2double(0.0), Q - R * pm);
+        work.Rrow(iEdge, cy) = R;
+        if (valid && (den > 0.0)) aown = fmin(aown, fmin(su2double(1.0), room / den));
+      }
+      ed(iEdge, FCT_E_AOWN + f) = aown;
+    }
+  }
+  END_SU2_OMP_FOR
+}
+
+/*!
+ * \brief NODE_INPUT observer minima on the owned nodes: rho of the contributor k at the node a (column 4 y_k + f) = min of
+ *        R of the rows it loads positively: R(h, other end of h) for every valid observer h at a with c_hk > 0, R(h, y_h)
+ *        as well if k is invalid in the field, and R(k, y_k) if k is valid with c_self > 0; 1 if none. Later passes:
+ *        only contributors with alpha < 1 (as S4e).
+ */
+template <class Geometry, class WeightType, class VolumeType, class StoreType>
+void FCTObserverMinNodeInput(const Geometry& geometry, unsigned short nDim, const WeightType& weights,
+                             const VolumeType& volume, const StoreType& ing, const su2activematrix& ed,
+                             const su2activematrix& Rrow, bool firstPass, su2activematrix& rho) {
+  FCTNodeStar st;
+  SU2_OMP_FOR_STAT(OMP_CHUNK)
+  for (unsigned long a = 0; a < geometry.GetnPointDomain(); ++a) {
+    FCTLoadStar(geometry, nDim, weights, volume, ing, a, st);
+    for (size_t k = 0; k < st.edge.size(); ++k) {
+      const auto ek = st.edge[k];
+      for (unsigned short f = 0; f < TVD_NFIELD; ++f) {
+        su2double m = 1.0;
+        if (firstPass || (ed(ek, FCT_E_ALPHA + f) < 1.0)) {
+          const bool kValid = (ed(ek, FCT_E_VALID + f) != 0.0);
+          for (size_t h = 0; h < st.edge.size(); ++h) {
+            const auto eh = st.edge[h];
+            if (ed(eh, FCT_E_VALID + f) == 0.0) continue;
+            if (!(FCTPair(nDim, st, h, k, f, ed) > 0.0)) continue;
+            m = fmin(m, Rrow(eh, 4 * (1 - st.y[h]) + f));
+            if (!kValid) m = fmin(m, Rrow(eh, 4 * st.y[h] + f));
+          }
+          if (kValid && (FCTSelf(nDim, st, k, f, ed) > 0.0)) m = fmin(m, Rrow(ek, 4 * st.y[k] + f));
+        }
+        rho(ek, 4 * st.y[k] + f) = m;
+      }
+    }
+  }
+  END_SU2_OMP_FOR
+}
+
+/*!
+ * \brief Final pass on every local edge: alpha (FCT_E_ALPHA) and gamma = 1 - alpha (S4d), stored with phi_c in the local
+ *        layout (FCT_PHIC, FCT_ALPHA, FCT_GAMMA + local field).
+ */
+template <class Geometry, class StoreType, class PhiType>
+void FCTFinal(const Geometry& geometry, unsigned short nDim, const StoreType& ing, const su2activematrix& ed,
+              PhiType& store) {
+  SU2_OMP_FOR_STAT(OMP_CHUNK)
+  for (unsigned long iEdge = 0; iEdge < geometry.GetnEdge(); ++iEdge) {
+    const bool flip = TVDFlip(geometry, nDim, iEdge);
+    for (unsigned short f = 0; f < TVD_NFIELD; ++f) {
+      const su2double phic = ed(iEdge, FCT_E_PHIC + f);
+      const su2double alpha = ed(iEdge, FCT_E_ALPHA + f);
+      /*--- S4d (ROE_TECNO_PLAN.md 6.10): gamma = 1 - alpha on every entry (no zero term), so that the frozen edge-field
+       * form D (alpha l_c^2 + (1 - alpha) dy^2) >= D (dy - alpha phi_c sigma)^2 dominates the A1 form of Phi_e = alpha
+       * phi_c; the room the veto leaves unused stays unused. ---*/
+      const su2double gam = 1.0 - alpha;
+      const unsigned short fl = TVDLocalField(f, flip);
+      store(iEdge, FCT_PHIC + fl) = phic;
+      store(iEdge, FCT_ALPHA + fl) = alpha;
+      store(iEdge, FCT_GAMMA + fl) = gam;
+    }
+  }
+  END_SU2_OMP_FOR
+}
+
+/*!
+ * \brief All passes of EDGE_ENTROPY_FCT on given ingredients (all local edges, kernel columns FCTWidth(nDim)) and
+ *        entropy variables W (halos included); comm(matrix) copies the rows of matrix from the owners to the halos.
+ *        The setup must be complete and the work arrays sized (FCTWorkResize). Called by all threads and ranks.
+ */
+template <class Geometry, class WeightType, class VolumeType, class StoreType, class FieldType, class PhiType,
+          class Comm>
+void FCTPasses(const Geometry& geometry, unsigned short nDim, const WeightType& weights, const VolumeType& volume,
+               const FCTSetup& setup, const StoreType& ing, const FieldType& W, FCTWork& work, PhiType& store,
+               Comm&& comm, unsigned short nPasses = 1, bool nodeInput = false) {
+  if (nodeInput) {
+    /*--- TECNO_ADJOINT_FCT_BOUND= NODE_INPUT (S4f, ROE_TECNO_PLAN.md 6.13): exchanges in the order A -> {F, N} -> rows on
+     * every local edge -> rho -> alpha; each later pass {S_F, its size, F, S_N, its size, N} -> rows -> rho' -> alpha. ---*/
+    FCTEndCapacity(geometry, nDim, setup, ing, W, work.A, true);
+    FCTExchange(geometry, setup, work.A, work.buf, comm);
+    FCTEdgeOwn(geometry, nDim, setup, ing, work.A, work.edge, true, &work.rowCap);
+    for (unsigned short pass = 0; pass < nPasses; ++pass) {
+      const bool first = (pass == 0);
+      FCTHalvesNodeInput(geometry, nDim, weights, volume, ing, work.edge, first, work);
+      FCTExchange(geometry, setup, work.Pm, work.buf, comm);
+      FCTExchange(geometry, setup, work.PmN, work.buf, comm);
+      if (!first) {
+        FCTExchange(geometry, setup, work.S, work.buf, comm);
+        FCTExchange(geometry, setup, work.Ssize, work.buf, comm);
+        FCTExchange(geometry, setup, work.SN, work.buf, comm);
+        FCTExchange(geometry, setup, work.SNsize, work.buf, comm);
+      }
+      FCTRowsNodeInput(geometry, setup, first, work);
+      FCTObserverMinNodeInput(geometry, nDim, weights, volume, ing, work.edge, work.Rrow, first, work.rho);
+      FCTExchange(geometry, setup, work.rho, work.buf, comm);
+      if (first) FCTAlpha(geometry, work.rho, work.edge);
+      else FCTAlphaIncrement(geometry, work.rho, work.edge);
+    }
+    FCTFinal(geometry, nDim, ing, work.edge, store);
+    return;
+  }
+  FCTEndCapacity(geometry, nDim, setup, ing, W, work.A);
+  FCTExchange(geometry, setup, work.A, work.buf, comm);
+  FCTEdgeOwn(geometry, nDim, setup, ing, work.A, work.edge);
+  FCTPmHalf(geometry, nDim, weights, volume, ing, work.edge, work.Pm);
+  FCTExchange(geometry, setup, work.Pm, work.buf, comm);
+  FCTRoom(geometry, work.Pm, work.edge);
+  FCTObserverMin(geometry, nDim, weights, volume, ing, work.edge, work.rho);
+  FCTExchange(geometry, setup, work.rho, work.buf, comm);
+  FCTAlpha(geometry, work.rho, work.edge);
+  for (unsigned short pass = 1; pass < nPasses; ++pass) {
+    FCTRemainingHalves(geometry, nDim, weights, volume, ing, work.edge, work.S, work.Ssize, work.Pm);
+    FCTExchange(geometry, setup, work.S, work.buf, comm);
+    FCTExchange(geometry, setup, work.Ssize, work.buf, comm);
+    FCTExchange(geometry, setup, work.Pm, work.buf, comm);
+    FCTRoomRemaining(geometry, setup, work.S, work.Ssize, work.Pm, work.edge);
+    FCTObserverMinRemaining(geometry, nDim, weights, volume, ing, work.edge, work.rho);
+    FCTExchange(geometry, setup, work.rho, work.buf, comm);
+    FCTAlphaIncrement(geometry, work.rho, work.edge);
+  }
+  FCTFinal(geometry, nDim, ing, work.edge, store);
+}
+
+/*!
+ * \brief Sizes the work arrays (serial: no exchange buffer).
+ */
+template <class Geometry>
+void FCTWorkResize(const Geometry& geometry, const FCTSetup& setup, FCTWork& work, bool nodeInput = false) {
+  const auto nEdge = geometry.GetnEdge();
+  work.A.resize(nEdge, 8) = su2double(0.0);
+  work.Pm.resize(nEdge, 8) = su2double(0.0);
+  work.rho.resize(nEdge, 8) = su2double(1.0);
+  work.edge.resize(nEdge, FCT_E_WIDTH) = su2double(0.0);
+  work.S.resize(nEdge, 8) = su2double(0.0);
+  work.Ssize.resize(nEdge, 8) = su2double(0.0);
+  if (nodeInput) {
+    work.rowCap.resize(nEdge, 8) = su2double(0.0);
+    work.PmN.resize(nEdge, 8) = su2double(0.0);
+    work.SN.resize(nEdge, 8) = su2double(0.0);
+    work.SNsize.resize(nEdge, 8) = su2double(0.0);
+    work.Rrow.resize(nEdge, 8) = su2double(1.0);
+  }
+  if (SU2_MPI::GetSize() > 1) work.buf.resize(geometry.GetnPoint(), 4 * std::max<unsigned short>(setup.maxDeg, 1)) = su2double(0.0);
+}
+
+/*!
+ * \brief Local sums of the activity statistics of the stored values (each edge once: its canonical end 0 owned), over
+ *        the valid (edge, field) entries: [n, act, zeros, sum Phi_e, sum w min(Phi_e, 1), sum w, act_eq, zeros_eq,
+ *        sum Phi_eq, sum w Phi_eq], Phi_e = alpha phi_c, Phi_eq = 1 - gamma - alpha (1 - phi_c), w = D |dy|; act: |x - 1| >
+ *        1e-6, zeros: x < 1e-6 (the definitions of the model's activity9).
+ */
+template <class Geometry, class StoreType, class PhiType>
+void FCTStatistics(const Geometry& geometry, unsigned short nDim, const StoreType& ing, const su2activematrix& ed,
+                   const PhiType& store, su2double* sums) {
+  for (unsigned short k = 0; k < 10; ++k) sums[k] = 0.0;
+  for (unsigned long iEdge = 0; iEdge < geometry.GetnEdge(); ++iEdge) {
+    FCTEdgeView v;
+    FCTLoad(geometry, nDim, ing, iEdge, v);
+    if (v.node[0] >= geometry.GetnPointDomain()) continue;
+    for (unsigned short f = 0; f < TVD_NFIELD; ++f) {
+      if (ed(iEdge, FCT_E_VALID + f) == 0.0) continue;
+      const unsigned short fl = TVDLocalField(f, v.flip);
+      const su2double phic = store(iEdge, FCT_PHIC + fl), alpha = store(iEdge, FCT_ALPHA + fl);
+      const su2double gam = store(iEdge, FCT_GAMMA + fl);
+      const su2double pe = alpha * phic, peq = 1.0 - gam - alpha * (1.0 - phic), w = v.D[f] * fabs(v.dy[f]);
+      sums[0] += 1.0;
+      sums[1] += (fabs(pe - 1.0) > 1e-6) ? 1.0 : 0.0;
+      sums[2] += (pe < 1e-6) ? 1.0 : 0.0;
+      sums[3] += pe;
+      sums[4] += w * fmin(pe, su2double(1.0));
+      sums[5] += w;
+      sums[6] += (fabs(peq - 1.0) > 1e-6) ? 1.0 : 0.0;
+      sums[7] += (peq < 1e-6) ? 1.0 : 0.0;
+      sums[8] += peq;
+      sums[9] += w * peq;
+    }
+  }
+}
+
+/*!
+ * \brief FIRST_RING_JUMPS with EDGE_ENTROPY_FCT (ROE_TECNO_PLAN.md 6.9, item 3): per field f the blended linearization
+ *        is K = alpha_r K(phi_c) + gamma_r K(0) at full ramp (coefDelta = 1, gam = GradientCoefficient(1, 0)); JumpEdgeEnds
+ *        with Phi_0f = Phi_1f = phi_c,f and alphaBar' = max(1, alphaBar(phi_c)) majorizes K(phi_c) and K(0) per field
+ *        (the bound is nondecreasing in alphaBar and phiBar), so K <= sum_f (alpha_r + gamma_r) J'_f <= J'.
+ */
+template <class Geometry, class WeightType, class NodeType, class PhiType>
+void JumpEdgeEndsFCT(const Geometry& geometry, unsigned short nDim, const WeightType& weights, const NodeType& S,
+                     const PhiType& store, unsigned long iEdge, su2double& alpha, su2double& sumT, su2double* r,
+                     su2double* mu) {
+  auto phiAt = [&](unsigned short /*x*/, unsigned short f) { return store(iEdge, FCT_PHIC + f); };
+  JumpEdgeEndsWith(geometry, nDim, weights, S, phiAt, 1.0, 1.0, GradientCoefficient(1.0, 0.0), iEdge, alpha, sumT, r,
+                   mu);
+}
+
+template <class Geometry, class WeightType, class NodeType, class PhiType, class EdgeType, class NodeTypeQ>
+void JumpNodalQEndsFCT(const Geometry& geometry, unsigned short nDim, unsigned short nVar, const WeightType& weights,
+                       const NodeType& S, const PhiType& store, const EdgeType& edgeD, NodeTypeQ& Q) {
+  auto edgeFn = [&](unsigned long iEdge, su2double& alpha, su2double& sumT, su2double* r, su2double* mu) {
+    JumpEdgeEndsFCT(geometry, nDim, weights, S, store, iEdge, alpha, sumT, r, mu);
+  };
+  JumpNodalQEndsWith(geometry, nVar, edgeD, Q, edgeFn);
+}
+
+template <class Geometry, class WeightType, class NodeType, class NodeTypeQ, class EdgeType, class PhiType,
+          class OffFunc>
+void JumpRowEndsFCT(const Geometry& geometry, unsigned short nDim, unsigned short nVar, const WeightType& weights,
+                    const NodeType& S, const NodeTypeQ& Q, const EdgeType& edgeD, const PhiType& store,
+                    unsigned long iPoint, Block& diag, OffFunc&& offBlock) {
+  auto edgeFn = [&](unsigned long iEdge, su2double& alpha, su2double& sumT, su2double* r, su2double* mu) {
+    JumpEdgeEndsFCT(geometry, nDim, weights, S, store, iEdge, alpha, sumT, r, mu);
+  };
+  JumpRowEndsWith(geometry, nVar, Q, edgeD, edgeFn, iPoint, diag, offBlock);
 }
 
 }  // namespace TeCNOAdjoint

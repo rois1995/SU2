@@ -90,9 +90,13 @@ private:
   bool Edge_Form_TeCNO_A4_Jacobian; /*!< \brief Provable majorant (Lemma A4) of its linearization as the Jacobian. */
   TECNO_ADJ_GRADIENT Kind_TeCNO_Adj_Gradient; /*!< \brief Gradient of w in that dissipation (TECNO_ADJOINT_GRADIENT). */
   TECNO_ADJ_LIMITER Kind_TeCNO_Adj_Limiter;   /*!< \brief Per-edge-end limiter of that dissipation (TECNO_ADJOINT_LIMITER). */
+  unsigned short TeCNO_Adj_FCT_Passes;        /*!< \brief Zalesak passes of EDGE_ENTROPY_FCT (TECNO_ADJOINT_FCT_PASSES). */
+  TECNO_ADJ_FCT_BOUND Kind_TeCNO_Adj_FCT_Bound; /*!< \brief Bound of EDGE_ENTROPY_FCT (TECNO_ADJOINT_FCT_BOUND). */
   TECNO_ADJ_JACOBIAN Kind_TeCNO_Adj_Jacobian; /*!< \brief Jacobian of that dissipation (TECNO_ADJOINT_JACOBIAN). */
   bool Edge_Form_EC_Exact_Jacobian; /*!< \brief Exact Jacobian of the Ismail-Roe central parts of the ROE options. */
   bool BC_Entropy_P1;          /*!< \brief Entropy stable hybridized weak boundary of BC_WEAK_P1 (closure C). */
+  bool BC_Entropy_P1_Strong_Slip; /*!< \brief Strong u.n = 0 at the Euler walls and symmetry planes of closure C. */
+  bool Euler_Wall_Crease_Normals; /*!< \brief Crease-group normals in BC_Euler_Wall and correctGradientsSymmetry. */
   bool Visc_P1_Entropy;        /*!< \brief P1 Galerkin viscous operator in entropy variables, one frozen K per simplex. */
   bool BC_Wall_Entropy_P1;     /*!< \brief Entropy stable weak no-slip walls: closure C plus the SIPG penalty in entropy variables. */
   bool P1_Wall_Forces;         /*!< \brief Wall forces, Cf and heat flux from the boundary fluxes of the P1 entropy walls. */
@@ -557,7 +561,7 @@ private:
   Kind_SlopeLimit_Turb,         /*!< \brief Slope limiter for the turbulence equation.*/
   Kind_SlopeLimit_AdjTurb,      /*!< \brief Slope limiter for the adjoint turbulent equation.*/
   Kind_SlopeLimit_AdjFlow,      /*!< \brief Slope limiter for the adjoint equation.*/
-  Kind_SlopeLimit_Heat,         /*!< \brief Slope limiter for the adjoint equation.*/
+  Kind_SlopeLimit_Heat,         /*!< \brief Slope limiter for the heat equation.*/
   Kind_SlopeLimit_Species;      /*!< \brief Slope limiter for the species equation.*/
   LINEAR_SOLVER_INNER Kind_Linear_Solver_Inner; /*!< \brief Inner solver used in nested Krylov schemes. */
   unsigned short Kind_FluidModel,  /*!< \brief Kind of the Fluid Model: Ideal, van der Waals, etc. */
@@ -5145,6 +5149,12 @@ public:
    * \return Method for limiting the spatial gradients solving the species equation.
    */
   LIMITER GetKind_SlopeLimit_Species() const { return Kind_SlopeLimit_Species; }
+
+  /*!
+   * \brief Get the method for limiting the spatial gradients.
+   * \return Method for limiting the spatial gradients solving the heat equation.
+   */
+  LIMITER GetKind_SlopeLimit_Heat() const { return Kind_SlopeLimit_Heat; }
 
   /*!
    * \brief Get the method for limiting the spatial gradients.
@@ -10117,7 +10127,19 @@ public:
   TECNO_ADJ_LIMITER GetKind_TeCNO_Adj_Limiter() const { return Kind_TeCNO_Adj_Limiter; }
 
   /*!
-   * \brief TECNO_ADJOINT_JACOBIAN: Jacobian of the dissipation of EDGE_FORM_TECNO_ADJOINT, ROE1 (default) or FIRST_RING.
+   * \brief Number of Zalesak passes of TECNO_ADJOINT_LIMITER= EDGE_ENTROPY_FCT (1: S4d; more: passes on the remaining
+   *        amounts, ROE_TECNO_PLAN.md 6.11).
+   */
+  unsigned short GetTeCNO_Adj_FCT_Passes() const { return TeCNO_Adj_FCT_Passes; }
+
+  /*!
+   * \brief Bound of TECNO_ADJOINT_LIMITER= EDGE_ENTROPY_FCT (TWO_NODE: S4c-S4e; NODE_INPUT: S4f, ROE_TECNO_PLAN.md 6.13).
+   */
+  TECNO_ADJ_FCT_BOUND GetKind_TeCNO_Adj_FCT_Bound() const { return Kind_TeCNO_Adj_FCT_Bound; }
+
+  /*!
+   * \brief TECNO_ADJOINT_JACOBIAN: Jacobian of the dissipation of EDGE_FORM_TECNO_ADJOINT, ROE1 (default), FIRST_RING
+   *        or FIRST_RING_JUMPS.
    */
   TECNO_ADJ_JACOBIAN GetKind_TeCNO_Adj_Jacobian() const { return Kind_TeCNO_Adj_Jacobian; }
 
@@ -10144,6 +10166,18 @@ public:
    *        flux plus the SIPG penalty in entropy variables with the K of the wall element.
    */
   bool GetBC_Wall_Entropy_P1() const { return BC_Wall_Entropy_P1; }
+
+  /*!
+   * \brief BC_ENTROPY_P1_STRONG_SLIP: after closure C, u.n = 0 and no normal-momentum equation at the points of the
+   *        Euler walls and symmetry planes (projection of SU2's BC_Sym_Plane, one projector per point).
+   */
+  bool GetBC_Entropy_P1_Strong_Slip() const { return BC_Entropy_P1_Strong_Slip; }
+
+  /*!
+   * \brief EULER_WALL_CREASE_NORMALS: at Euler-wall points with two or more crease groups the group normals replace the
+   *        vertex normal in the symmetry projection of BC_Euler_Wall and in correctGradientsSymmetry (ROE_TECNO_PLAN.md 6.14).
+   */
+  bool GetEuler_Wall_Crease_Normals() const { return Euler_Wall_Crease_Normals; }
 
   /*!
    * \brief JST_WEAK_WALL_DISSIPATION: eps4 = 0 on the edges with exactly one end on a weak no-slip wall of

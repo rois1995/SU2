@@ -27,9 +27,11 @@
 
 #pragma once
 
+#include <memory>
 #include "CFVMFlowSolverBase.hpp"
 #include "../variables/CEulerVariable.hpp"
 #include "../output/CTurboOutput.hpp"
+#include "../numerics/flow/tecno_adjoint.hpp"
 
 /*!
  * \class CEulerSolver
@@ -59,7 +61,20 @@ protected:
   su2activematrix TeCNOAdjEdgeA;   /*!< \brief TECNO_ADJOINT_GRADIENT= P1_AVERAGE: a_{0,1}, a_{1,0} of each edge (iEdge, 2 nDim). */
   su2activevector TeCNOAdjVol;     /*!< \brief Its nodal volumes Vhat_i = sum_T W_i^T. */
   vector<su2double> MMSSourceDual; /*!< \brief MMS_SOURCE_DUAL_QUADRATURE: integral of the MMS source over each dual cell (nPoint x nVar), steady. */
-  su2activematrix TeCNOAdjS;       /*!< \brief TECNO_ADJOINT_JACOBIAN= FIRST_RING: (s_i, 1/V_i, T_i) of each node. */
+  su2activematrix TeCNOAdjS;       /*!< \brief TECNO_ADJOINT_JACOBIAN: FIRST_RING (s_i, 1/V_i, T_i), FIRST_RING_JUMPS (1/V_i, E_i, T_i, M_i). */
+  /*--- TECNO_ADJOINT_LIMITER= EDGE_ENTROPY_TVD (TeCNOAdjointTVDLimiter). ---*/
+  su2activematrix TeCNOAdjTVDClip;  /*!< \brief Own clip of each edge (B, P1 of both canonical ends, flip, noise). */
+  su2activematrix TeCNOAdjTVDRho;   /*!< \brief Node factors rho (iPoint, M, 0, S, P), owned nodes copied to the halos. */
+  std::unique_ptr<CNumericsSIMD> TeCNOAdjTVDNumerics; /*!< \brief Extended kernel used for the ingredients pass. */
+  bool TeCNOAdjTVDValid = false;    /*!< \brief The store holds the values of this run (not restarted). */
+  unsigned long TeCNOAdjTVDCount = 0; /*!< \brief Number of computations of the store in this run. */
+  unsigned long TeCNOAdjTVDLastIter = 0; /*!< \brief Inner iteration of the last computation. */
+  su2activematrix TeCNOAdjTVDSnapshot; /*!< \brief Copy of the stored values at their last computation (freeze check). */
+  bool TeCNOAdjTVDReported = false; /*!< \brief The freeze was reported. */
+  /*--- TECNO_ADJOINT_LIMITER= EDGE_ENTROPY_FCT (TeCNOAdjointTVDLimiter in its FCT mode, TeCNOAdjoint EDGE_ENTROPY_FCT). ---*/
+  TeCNOAdjoint::FCTSetup TeCNOAdjFCTSetup; /*!< \brief Degrees, star slots and upwind elements (static mesh). */
+  TeCNOAdjoint::FCTWork TeCNOAdjFCTWork;   /*!< \brief Work arrays of the passes. */
+  su2activematrix TeCNOAdjFCTRows;         /*!< \brief Rows of the setup exchange (freed after the setup). */
 
   /*!
    * \brief EDGE_FORM_TECNO_ADJOINT: entropy variables, their gradient (TECNO_ADJOINT_GRADIENT: Green-Gauss in difference
@@ -80,11 +95,34 @@ protected:
 
   /*!
    * \brief TECNO_ADJOINT_JACOBIAN= FIRST_RING: the first-ring blocks and the diagonal majorant of the adjoint dissipation
-   *        (TeCNOAdjoint::FirstRingRow), rows of the owned nodes. Called by TeCNOAdjointResidual; not inlined.
+   *        (TeCNOAdjoint::FirstRingRow); FIRST_RING_JUMPS: the edge-jump majorant (TeCNOAdjoint::JumpRow). Rows of the
+   *        owned nodes. Called by TeCNOAdjointResidual; not inlined.
    * \param[in] geometry - Geometrical definition of the problem.
    * \param[in] config - Definition of the particular problem.
    */
   NEVERINLINE void TeCNOAdjointFirstRingJacobian(CGeometry *geometry, const CConfig *config);
+
+  /*!
+   * \brief TECNO_ADJOINT_JACOBIAN= FIRST_RING_JUMPS with TECNO_ADJOINT_LIMITER= EDGE_ENTROPY_TVD: the edge-jump
+   *        majorant with alpha and phi of each edge end from the stored Phi (TeCNOAdjoint::JumpRowEnds). Not inlined.
+   */
+  NEVERINLINE void TeCNOAdjointJumpsTVDJacobian(CGeometry *geometry, const CConfig *config);
+
+  /*!
+   * \brief TECNO_ADJOINT_LIMITER= EDGE_ENTROPY_TVD: ingredients pass of the extended kernel on every local edge, own
+   *        clip, node factors on the owned nodes (copied to the halos) and the per-edge-end values Phi, while
+   *        TeCNOAdjoint::TVDRecompute is true; afterwards the store is frozen (compared bitwise with a snapshot). Called in
+   *        Upwind_Residual before the edge loop. Not inlined. EDGE_ENTROPY_FCT: the same ingredients pass (with the FCT
+   *        columns), then TeCNOAdjoint::FCTPasses (star exchanges through CommPointData) into the per-edge store of
+   *        phi_c, alpha, gamma, with the same freeze rule, snapshot check and report.
+   */
+  NEVERINLINE void TeCNOAdjointTVDLimiter(CGeometry *geometry, CSolver **solver_container, const CConfig *config);
+
+  /*!
+   * \brief TECNO_ADJOINT_LIMITER= EDGE_ENTROPY_FCT: setup on the first call, TeCNOAdjoint::FCTPasses into the store and
+   *        the activity statistics. Called by TeCNOAdjointTVDLimiter after the ingredients pass. Not inlined.
+   */
+  NEVERINLINE void TeCNOAdjointFCTPasses(CGeometry *geometry, const CConfig *config);
 
   /*!
    * \brief VISC_P1_ENTROPY_MOVED: viscous part of the element budget of SetEdgeBlendLambda (Navier-Stokes solver).

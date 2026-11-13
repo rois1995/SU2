@@ -1853,6 +1853,10 @@ void CConfig::SetConfig_Options() {
   addBoolOption("EDGE_FORM_ES_BLEND_CV", Edge_Form_ES_Blend_CV, false);
   /*!\brief BC_ENTROPY_P1 \n DESCRIPTION: Entropy stable weak boundary of BC_WEAK_P1 with EDGE_FORM_P1, or with EDGE_DISS_PROJECTED and EDGE_FORM_EC_FLUX (median dual, JST-PD): degree 2 face rule, entropy projected states at the points, Ismail-Roe coupling to the face nodes; pressure flux at Euler walls and symmetry planes, Ismail-Roe plus Rusanov against the ghost of the far field, inlet (total conditions, mass flow) and outlet built at the points from the projected state, and against the Dirichlet state of the verification solution at the points on custom markers (order studies; their viscous flux stays the one of the exact gradient). EULER, NAVIER_STOKES and RANS with SA; viscous runs need BC_WALL_ENTROPY_P1, symmetry planes then get the SIPG term for u.n = 0 (normal stress only), far field, inlets and outlets the natural (zero) viscous flux. \ingroup Config \default false */
   addBoolOption("BC_ENTROPY_P1", BC_Entropy_P1, false);
+  /*!\brief BC_ENTROPY_P1_STRONG_SLIP \n DESCRIPTION: With BC_WEAK_P1 (closure C of BC_ENTROPY_P1, or the weak mirror-state wall flux, which is the pressure flux at a tangent state): after the boundary fluxes, at every point of the Euler walls and symmetry planes u.n = 0 is imposed strongly and the normal-momentum equations are removed (momentum of the old solution, residual, Jacobian rows and truncation error projected with P = I - Q Q^T, Q an orthonormal basis of the wall normals of the point as used by the symmetry plane), the static-grid projection of the standard symmetry plane. Keeps the weak wall flux. Entropy: the removed part carries no entropy at a tangent state (ROE_TECNO_PLAN.md 6.8). SOLVER= EULER, EULER_IMPLICIT, no LOW_MACH_PREC, no quantized matrices, static meshes. \ingroup Config \default false */
+  addBoolOption("BC_ENTROPY_P1_STRONG_SLIP", BC_Entropy_P1_Strong_Slip, false);
+  /*!\brief EULER_WALL_CREASE_NORMALS \n DESCRIPTION: At Euler-wall points whose incident faces fold by 90 deg or more (a sharp trailing edge), the unit normals of the crease groups (adjacent faces merged only if every pair has N_f . N_g > 0) replace the vertex normal in the symmetry projection of BC_Euler_Wall (rank-2 projection with the normals of the other walls and symmetry planes of the point) and in the symmetry correction of the Green-Gauss / least-squares gradients (ROE_TECNO_PLAN.md 6.14). Static meshes, no multigrid. \ingroup Config \default false */
+  addBoolOption("EULER_WALL_CREASE_NORMALS", Euler_Wall_Crease_Normals, false);
   /*!\brief VISC_P1_ENTROPY \n DESCRIPTION: Viscous residual of the flow equations from the P1 Galerkin operator in entropy variables: on each simplex F_T = K(wbar_T) grad(w_h), evaluated with the stress tensor and heat flux of the effective gradients grad(v) = (G_m - v* G_theta)/theta*, grad(T) = -G_theta/(R theta*^2), theta = rho/p, mean of the nodal entropy variables, mean mu + mu_t (mu_t >= 0) and conductivity. Replaces the edge viscous flux and its Jacobian (Picard element Jacobian, frozen K). Triangles and tetrahedra. Entropy dissipative for any state. \ingroup Config \default false */
   addBoolOption("VISC_P1_ENTROPY", Visc_P1_Entropy, false);
   /*!\brief BC_WALL_ENTROPY_P1 \n DESCRIPTION: Weak no-slip walls (HEAT_FLUX with zero heat flux, ISOTHERMAL): closure C with the pressure flux, plus the SIPG penalty in entropy variables with the K of the wall element, sigma_f = 5/2 (1+s)^2 d m_T/(4 h_f), s = 1, h_f = d|T|/A_f. Needs VISC_P1_ENTROPY and BC_WEAK_P1. \ingroup Config \default false */
@@ -1895,9 +1899,13 @@ void CConfig::SetConfig_Options() {
   addBoolOption("EDGE_FORM_TECNO_A4_JACOBIAN", Edge_Form_TeCNO_A4_Jacobian, false);
   /*!\brief TECNO_ADJOINT_GRADIENT \n DESCRIPTION: Gradient G of the entropy variables in the dissipation of EDGE_FORM_TECNO_ADJOINT. GREEN_GAUSS: Green-Gauss on the dual in difference form (linear exact only at interior nodes of the median dual). P1_AVERAGE: G_i w = sum_T W_i^T grad(w_h)|_T / sum_T W_i^T with the dual shares W of the residual (moved with MOD_CENTROIDS), linear exact at every node, simplices only (P1_TECNO_ADJ_GRADIENT.md). \ingroup Config \default GREEN_GAUSS */
   addEnumOption("TECNO_ADJOINT_GRADIENT", Kind_TeCNO_Adj_Gradient, TeCNO_Adj_Gradient_Map, TECNO_ADJ_GRADIENT::GREEN_GAUSS);
-  /*!\brief TECNO_ADJOINT_LIMITER \n DESCRIPTION: Per-edge-end limiter of the dissipation of EDGE_FORM_TECNO_ADJOINT. EDGE_ENTROPY_VA: for each edge end and characteristic entropy field j (shear as one block), phi = (Delta^2 + a Delta + tau)/(a^2 + Delta^2 + tau) with Delta the nodal jump and a the U-MUSCL slope of that field, unclipped, tau the roundoff floor (eps S_j)^2; the residual applies the transpose, so the entropy identity holds for any values (P1_TECNO_ADJ_LIMITER.md). \ingroup Config \default NONE */
+  /*!\brief TECNO_ADJOINT_LIMITER \n DESCRIPTION: Per-edge-end limiter of the dissipation of EDGE_FORM_TECNO_ADJOINT. EDGE_ENTROPY_VA: for each edge end and characteristic entropy field j (shear as one block), phi = (Delta^2 + a Delta + tau)/(a^2 + Delta^2 + tau) with Delta the nodal jump and a the U-MUSCL slope of that field, unclipped, tau the roundoff floor (eps S_j)^2; the residual applies the transpose, so the entropy identity holds for any values (P1_TECNO_ADJ_LIMITER.md). EDGE_ENTROPY_TVD: per edge end and characteristic field, the own-slope clip to the box [min(0,B) - d, max(0,B) + d], B = 2 minmod(Delta, b_0, b_1), b_a = 2 s_a - Delta, times a smooth node factor (product over the half-edges of the node) that keeps the frozen-field moment of the full AD flux in that box (P1_TECNO_ADJ_LIMITER.md, fourth candidate), recomputed while INNER_ITER <= LIMITER_ITER and frozen afterwards (not in the restart; MUSCL_KAPPA_FLOW= 0). EDGE_ENTROPY_FCT: per edge and characteristic field, the convex combination alpha R(phi_c) + (1 - alpha) R(0) of the A1 terms with the own value phi_c (no zero term, ROE_TECNO_PLAN.md 6.10), the box the two-node LED attachment B = 2 sg min(A_0, A_1) (largest same-sign star jump, upwind-element far side, own jump with the first-order coefficient), alpha from Zalesak's selection on the frozen-field moments (P1_TECNO_ADJ_LIMITER.md, candidate 8), recomputed while INNER_ITER <= LIMITER_ITER and frozen afterwards (not in the restart; MUSCL_KAPPA_FLOW= 0; the MUSCL ramp acts on the weights). \ingroup Config \default NONE */
   addEnumOption("TECNO_ADJOINT_LIMITER", Kind_TeCNO_Adj_Limiter, TeCNO_Adj_Limiter_Map, TECNO_ADJ_LIMITER::NONE);
-  /*!\brief TECNO_ADJOINT_JACOBIAN \n DESCRIPTION: Jacobian of the dissipation of EDGE_FORM_TECNO_ADJOINT. ROE1: first order Roe dissipation on the dissipation normal. FIRST_RING: for frozen D_e and phi, the edge blocks a_e a_e^T D_e of the exact linearization C^T D C (a_e the coefficients of the jump at the two edge nodes, gradient entries included) plus a diagonal majorant of the second-ring part (Young with eps = 1 and Cauchy-Schwarz), so that 2 J >= C^T D C; first-neighbour blocks only (ROE_TECNO_PLAN.md M4, J2). \ingroup Config \default ROE1 */
+  /*!\brief TECNO_ADJOINT_FCT_PASSES \n DESCRIPTION: Number of Zalesak passes of TECNO_ADJOINT_LIMITER= EDGE_ENTROPY_FCT. 1: one pass (candidate 8 / S4d). n > 1: n - 1 further passes on the remaining antidiffusive amounts (1 - alpha) with the remaining capacity cap - S_e(alpha) of every observer, which contains the cancellation of the amounts already accepted; alpha is nondecreasing over the passes, the box S_e <= cap and gamma = 1 - alpha hold after every pass (ROE_TECNO_PLAN.md 6.11). \ingroup Config \default 1 */
+  addUnsignedShortOption("TECNO_ADJOINT_FCT_PASSES", TeCNO_Adj_FCT_Passes, 1);
+  /*!\brief TECNO_ADJOINT_FCT_BOUND \n DESCRIPTION: Bound of TECNO_ADJOINT_LIMITER= EDGE_ENTROPY_FCT. TWO_NODE: one box per edge, S_e <= 2 min(A_0, A_1) + delta, A_a = max(beta_a, u_a, (1 -+ lambda/|lambda|_fix)|dy|/2) (S4c-S4e). NODE_INPUT: one box per edge end with the amounts that reach that node (the own term, the pair fluxes of the moment at the other end, the self piece s_a . e of the moment at the node or, for invalid contributors, their pair weights), cap 2 A_a + delta with A_a = max(beta_a, u_a) + (1 -+ lambda/|lambda|_fix)|dy|/2 (bar-state attachment), and the entropy own bound phi_c o <= 2 |dy| (phi_c = 0 where o <= 0), so that the production of every valid entry is at most first order and nonincreasing in alpha (ROE_TECNO_PLAN.md 6.13). \ingroup Config \default TWO_NODE */
+  addEnumOption("TECNO_ADJOINT_FCT_BOUND", Kind_TeCNO_Adj_FCT_Bound, TeCNO_Adj_FCT_Bound_Map, TECNO_ADJ_FCT_BOUND::TWO_NODE);
+  /*!\brief TECNO_ADJOINT_JACOBIAN \n DESCRIPTION: Jacobian of the dissipation of EDGE_FORM_TECNO_ADJOINT. ROE1: first order Roe dissipation on the dissipation normal. FIRST_RING: for frozen D_e and phi, the edge blocks a_e a_e^T D_e of the exact linearization C^T D C (a_e the coefficients of the jump at the two edge nodes, gradient entries included) plus a diagonal majorant of the second-ring part (Young with eps = 1 and Cauchy-Schwarz), so that 2 J >= C^T D C; first-neighbour blocks only (ROE_TECNO_PLAN.md M4, J2). FIRST_RING_JUMPS: every term of the jump written as a jump over a mesh edge, Cauchy-Schwarz with the pair weights mu_xm = sqrt(a_xm^T E_x a_xm) (E_x the mean of e e^T over the edges of x weighted by trace(D_e H_e), H the entropy Hessian; uniform if all weights vanish) and a three-term weighted Cauchy-Schwarz; J is that bound, so J >= C^T D C (C4 margin independent of the time step) and J 1 = 0 (as C^T D C); first-neighbour blocks only (ROE_TECNO_PLAN.md 6.4). \ingroup Config \default ROE1 */
   addEnumOption("TECNO_ADJOINT_JACOBIAN", Kind_TeCNO_Adj_Jacobian, TeCNO_Adj_Jacobian_Map, TECNO_ADJ_JACOBIAN::ROE1);
   /*!\brief EDGE_FORM_EC_EXACT_JACOBIAN \n DESCRIPTION: ROE with EDGE_FORM_EC_FLUX or EDGE_FORM_TECNO: exact Jacobian of the Ismail-Roe flux of the nodal states (both node blocks) instead of 1/2 A_i, 1/2 A_k. \ingroup Config \default false */
   addBoolOption("EDGE_FORM_EC_EXACT_JACOBIAN", Edge_Form_EC_Exact_Jacobian, false);
@@ -4142,6 +4150,27 @@ void CConfig::SetPostprocessing(SU2_COMPONENT val_software, unsigned short val_i
   if (!MUSCL_AdjFlow || (Kind_ConvNumScheme_AdjFlow == SPACE_CENTERED)) Kind_SlopeLimit_AdjFlow = LIMITER::NONE;
   if (!MUSCL_AdjTurb || (Kind_ConvNumScheme_AdjTurb == SPACE_CENTERED)) Kind_SlopeLimit_AdjTurb = LIMITER::NONE;
 
+  /*--- The SHARP_EDGES and WALL_DISTANCE limiters are first order within a distance proportional to
+   * VENKAT_LIMITER_COEFF * ADJ_SHARP_LIMITER_COEFF, with a zero width they are first order everywhere.
+   * Only the limiters of the active equations are checked. ---*/
+  const bool turb = Kind_Turb_Model != TURB_MODEL::NONE;
+  const bool heat =
+      Weakly_Coupled_Heat || Kind_Solver == MAIN_SOLVER::HEAT_EQUATION || Kind_Solver == MAIN_SOLVER::DISC_ADJ_HEAT;
+  vector<LIMITER> activeLimiters = {Kind_SlopeLimit_Flow};
+  if (turb) activeLimiters.push_back(Kind_SlopeLimit_Turb);
+  if (Kind_Species_Model != SPECIES_MODEL::NONE) activeLimiters.push_back(Kind_SlopeLimit_Species);
+  if (heat) activeLimiters.push_back(Kind_SlopeLimit_Heat);
+  if (ContinuousAdjoint) activeLimiters.push_back(Kind_SlopeLimit_AdjFlow);
+  if (ContinuousAdjoint && turb) activeLimiters.push_back(Kind_SlopeLimit_AdjTurb);
+  for (const auto kind : activeLimiters) {
+    if ((kind == LIMITER::SHARP_EDGES || kind == LIMITER::WALL_DISTANCE) &&
+        !(Venkat_LimiterCoeff > 0.0 && AdjSharp_LimiterCoeff > 0.0)) {
+      SU2_MPI::Error("The SHARP_EDGES and WALL_DISTANCE slope limiters need VENKAT_LIMITER_COEFF > 0 and\n"
+                     "ADJ_SHARP_LIMITER_COEFF > 0 (they set the width of the region limited to first order).",
+                     CURRENT_FUNCTION);
+    }
+  }
+
   /*--- Set the default for thrust in ActDisk ---*/
 
   if ((Kind_ActDisk == NET_THRUST) || (Kind_ActDisk == BC_THRUST)
@@ -6335,6 +6364,7 @@ void CConfig::CheckP1FluxOptions() const {
   if (Edge_Form_ES_Blend) active.push_back("EDGE_FORM_ES_BLEND");
   if (Edge_Form_ES_Blend_CV) active.push_back("EDGE_FORM_ES_BLEND_CV");
   if (BC_Entropy_P1) active.push_back("BC_ENTROPY_P1");
+  if (BC_Entropy_P1_Strong_Slip) active.push_back("BC_ENTROPY_P1_STRONG_SLIP");
   if (GCL_Exact_P1) active.push_back("GCL_EXACT_P1");
   if (Grid_Entropy_P1) active.push_back("GRID_ENTROPY_P1");
   if (Split_Edge_Flux) active.push_back("SPLIT_EDGE_FLUX");
@@ -6355,6 +6385,8 @@ void CConfig::CheckP1FluxOptions() const {
   if (Edge_Form_TeCNO_A4_Jacobian) active.push_back("EDGE_FORM_TECNO_A4_JACOBIAN");
   if (Kind_TeCNO_Adj_Gradient == TECNO_ADJ_GRADIENT::P1_AVERAGE) active.push_back("TECNO_ADJOINT_GRADIENT= P1_AVERAGE");
   if (Kind_TeCNO_Adj_Limiter != TECNO_ADJ_LIMITER::NONE) active.push_back("TECNO_ADJOINT_LIMITER");
+  if (TeCNO_Adj_FCT_Passes != 1) active.push_back("TECNO_ADJOINT_FCT_PASSES");
+  if (Kind_TeCNO_Adj_FCT_Bound != TECNO_ADJ_FCT_BOUND::TWO_NODE) active.push_back("TECNO_ADJOINT_FCT_BOUND");
   if (Kind_TeCNO_Adj_Jacobian != TECNO_ADJ_JACOBIAN::ROE1) active.push_back("TECNO_ADJOINT_JACOBIAN");
   if (Edge_Form_EC_Exact_Jacobian) active.push_back("EDGE_FORM_EC_EXACT_JACOBIAN");
   if (Edge_Form_TeCNO_Wide && !Edge_Form_TeCNO) SU2_MPI::Error("EDGE_FORM_TECNO_WIDE: needs EDGE_FORM_TECNO= YES.", CURRENT_FUNCTION);
@@ -6374,6 +6406,14 @@ void CConfig::CheckP1FluxOptions() const {
   /*--- The grid term of FLUX_CORRECTION does not match the old GCL term, a uniform flow is not kept. ---*/
   if (FluxCorrection && GetDynamic_Grid()) {
     SU2_MPI::Error("FLUX_CORRECTION: not available with grid motion, it does not keep free stream.", CURRENT_FUNCTION);
+  }
+
+  /*--- EULER_WALL_CREASE_NORMALS (ROE_TECNO_PLAN.md 6.14) is a general boundary option (also without the P1 options), so its
+   * refusals come before the return of the P1 family checks. ---*/
+  if (Euler_Wall_Crease_Normals) {
+    const string name = "EULER_WALL_CREASE_NORMALS: ";
+    if (GetDynamic_Grid()) SU2_MPI::Error(name + "not with grid motion.", CURRENT_FUNCTION);
+    if (nMGLevels > 0) SU2_MPI::Error(name + "not with multigrid (MGLEVEL= 0).", CURRENT_FUNCTION);
   }
 
   if (active.empty()) return;
@@ -6561,14 +6601,41 @@ void CConfig::CheckP1FluxOptions() const {
       SU2_MPI::Error(name + "not with EDGE_FORM_TECNO_ADJOINT_LIMITER (the nodal weights), one limiter at a time.", CURRENT_FUNCTION);
     if (Edge_Form_TeCNO_A4_Jacobian)
       SU2_MPI::Error(name + "not with EDGE_FORM_TECNO_A4_JACOBIAN (the majorant with per-edge limiters is not derived).", CURRENT_FUNCTION);
+    if ((Kind_TeCNO_Adj_Limiter == TECNO_ADJ_LIMITER::EDGE_ENTROPY_TVD) ||
+        (Kind_TeCNO_Adj_Limiter == TECNO_ADJ_LIMITER::EDGE_ENTROPY_FCT)) {
+      /*--- The box and the node factor (TVD) or the box and the blend weights (FCT) are derived for the jump
+       * Delta - 1/2 (Phi_0 s_0 + Phi_1 s_1) (kappa = 0); the frozen store is per edge for the whole implicit step. ---*/
+      const string lim = (Kind_TeCNO_Adj_Limiter == TECNO_ADJ_LIMITER::EDGE_ENTROPY_TVD) ? "EDGE_ENTROPY_TVD" : "EDGE_ENTROPY_FCT";
+      if (MUSCL_Kappa_Flow != 0.0) SU2_MPI::Error(name + lim + " needs MUSCL_KAPPA_FLOW= 0.", CURRENT_FUNCTION);
+      if (NewtonKrylov) SU2_MPI::Error(name + lim + " not with NEWTON_KRYLOV.", CURRENT_FUNCTION);
+      if (DiscreteAdjoint) SU2_MPI::Error(name + lim + " not with the discrete adjoint.", CURRENT_FUNCTION);
+    }
   }
+  if (TeCNO_Adj_FCT_Passes != 1) {
+    const string name = "TECNO_ADJOINT_FCT_PASSES: ";
+    if (TeCNO_Adj_FCT_Passes == 0) SU2_MPI::Error(name + "at least 1 pass.", CURRENT_FUNCTION);
+    if (Kind_TeCNO_Adj_Limiter != TECNO_ADJ_LIMITER::EDGE_ENTROPY_FCT)
+      SU2_MPI::Error(name + "needs TECNO_ADJOINT_LIMITER= EDGE_ENTROPY_FCT.", CURRENT_FUNCTION);
+  }
+  if ((Kind_TeCNO_Adj_FCT_Bound != TECNO_ADJ_FCT_BOUND::TWO_NODE) &&
+      (Kind_TeCNO_Adj_Limiter != TECNO_ADJ_LIMITER::EDGE_ENTROPY_FCT))
+    SU2_MPI::Error("TECNO_ADJOINT_FCT_BOUND: needs TECNO_ADJOINT_LIMITER= EDGE_ENTROPY_FCT.", CURRENT_FUNCTION);
   if (Kind_TeCNO_Adj_Jacobian != TECNO_ADJ_JACOBIAN::ROE1) {
-    const string name = "TECNO_ADJOINT_JACOBIAN= FIRST_RING: ";
+    const string name = (Kind_TeCNO_Adj_Jacobian == TECNO_ADJ_JACOBIAN::FIRST_RING) ? "TECNO_ADJOINT_JACOBIAN= FIRST_RING: "
+                                                                                   : "TECNO_ADJOINT_JACOBIAN= FIRST_RING_JUMPS: ";
     if (!Edge_Form_TeCNO_Adjoint) SU2_MPI::Error(name + "needs EDGE_FORM_TECNO_ADJOINT= YES.", CURRENT_FUNCTION);
     if (Edge_Form_TeCNO_A4_Jacobian)
       SU2_MPI::Error(name + "not with EDGE_FORM_TECNO_A4_JACOBIAN, one dissipation Jacobian at a time.", CURRENT_FUNCTION);
-    if (Kind_TeCNO_Adj_Limiter != TECNO_ADJ_LIMITER::NONE)
-      SU2_MPI::Error(name + "not with TECNO_ADJOINT_LIMITER (per-edge limiter matrices are not derived).", CURRENT_FUNCTION);
+    /*--- FIRST_RING_JUMPS is derived for per-edge-end limiter values stored before the edge loop (EDGE_ENTROPY_TVD:
+     * alpha and phi of each edge end from the stored Phi, TeCNOAdjoint::JumpEdgeEnds; EDGE_ENTROPY_FCT: the stored phi_c
+     * at both ends and alpha >= 1, which majorizes both blended terms K(phi_c) and K(0), TeCNOAdjoint::JumpEdgeEndsFCT);
+     * EDGE_ENTROPY_VA has no store. ---*/
+    const bool jumpsTVD = (Kind_TeCNO_Adj_Jacobian == TECNO_ADJ_JACOBIAN::FIRST_RING_JUMPS) &&
+                          ((Kind_TeCNO_Adj_Limiter == TECNO_ADJ_LIMITER::EDGE_ENTROPY_TVD) ||
+                           (Kind_TeCNO_Adj_Limiter == TECNO_ADJ_LIMITER::EDGE_ENTROPY_FCT));
+    if ((Kind_TeCNO_Adj_Limiter != TECNO_ADJ_LIMITER::NONE) && !jumpsTVD)
+      SU2_MPI::Error(name + "not with TECNO_ADJOINT_LIMITER (per-edge limiter matrices are not derived), except "
+                     "FIRST_RING_JUMPS with EDGE_ENTROPY_TVD or EDGE_ENTROPY_FCT.", CURRENT_FUNCTION);
   }
   if (Edge_Form_TeCNO_A4_Jacobian) {
     const string name = "EDGE_FORM_TECNO_A4_JACOBIAN: ";
@@ -6583,6 +6650,19 @@ void CConfig::CheckP1FluxOptions() const {
     if (Edge_Form_P1 && !Edge_Form_TeCNO && !Edge_Form_Exact_Jacobian)
       SU2_MPI::Error(name + "with EDGE_FORM_P1 and without EDGE_FORM_TECNO the Ismail-Roe part (along n_ik - n) is only "
                      "in the Jacobian of EDGE_FORM_EXACT_JACOBIAN, set it to YES.", CURRENT_FUNCTION);
+  }
+  if (BC_Entropy_P1_Strong_Slip) {
+    /*--- ROE_TECNO_PLAN.md 6.8: the tangent-update argument needs a projected Jacobian row with a scalar time diagonal
+     * (EULER_IMPLICIT, no LOW_MACH_PREC, no int8 row rounding of the quantized matrices); the projection has no grid
+     * velocity terms; the viscous symmetry SAT of closure C is not analysed with it. ---*/
+    const string name = "BC_ENTROPY_P1_STRONG_SLIP: ";
+    if (!BC_Weak_P1) SU2_MPI::Error(name + "needs BC_WEAK_P1= YES (Strong_BC is called after the weak boundary fluxes).", CURRENT_FUNCTION);
+    if (Kind_Solver != MAIN_SOLVER::EULER) SU2_MPI::Error(name + "only with SOLVER= EULER.", CURRENT_FUNCTION);
+    if (Kind_TimeIntScheme_Flow != EULER_IMPLICIT) SU2_MPI::Error(name + "only with TIME_DISCRE_FLOW= EULER_IMPLICIT.", CURRENT_FUNCTION);
+    if (Low_Mach_Precon) SU2_MPI::Error(name + "not with LOW_MACH_PREC.", CURRENT_FUNCTION);
+    if ((Kind_Linear_Solver_Prec == Q_LU_SGS) || (Kind_Linear_Solver_Prec == Q_JACOBI) || (Kind_Linear_Solver_Prec == Q_IDENTITY))
+      SU2_MPI::Error(name + "not with the quantized matrices (LINEAR_SOLVER_PREC= Q_LU_SGS, Q_JACOBI, Q_IDENTITY).", CURRENT_FUNCTION);
+    if (GetDynamic_Grid()) SU2_MPI::Error(name + "not with grid motion.", CURRENT_FUNCTION);
   }
   if (BC_Entropy_P1) {
     /*--- Closure C on Euler walls, symmetry planes, far field, inlets and outlets; with NAVIER_STOKES and RANS (SA) the

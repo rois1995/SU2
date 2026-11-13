@@ -705,6 +705,12 @@ public:
   void SetSolution_Limiter(CGeometry *geometry, const CConfig *config);
 
   /*!
+   * \brief Reference value of each variable for the limiters of SetSolution_Limiter, which then use an epsilon
+   *        relative to max(|solution|, |reference|) (see computeLimiters_impl). Null: absolute epsilon.
+   */
+  inline virtual const su2double* GetLimiterReference() const { return nullptr; }
+
+  /*!
    * \brief A virtual member.
    * \param[in] geometry - Geometrical definition of the problem.
    * \param[in] config - Definition of the particular problem.
@@ -1210,6 +1216,12 @@ public:
   inline virtual void BC_Viscous_Wall_Strong(const CGeometry* geometry,
                                              CSolver** solver_container,
                                              const CConfig* config, unsigned short val_marker) {}
+
+  /*!
+   * \brief BC_ENTROPY_P1_STRONG_SLIP: u.n = 0 and no normal-momentum equation at the points of the Euler walls and
+   *        symmetry planes, after closure C (called by Strong_BC).
+   */
+  inline virtual void BC_Slip_Strong_P1(CGeometry* geometry, const CConfig* config) {}
 
  
   /*!

@@ -35,14 +35,29 @@
 
 namespace {
 
+/*!
+ * \brief The extended Roe kernel with the ingredients pass of TECNO_ADJOINT_LIMITER= EDGE_ENTROPY_TVD.
+ */
+template<class Decorator>
+class CRoeSchemeTeCNOExt final : public CRoeScheme<Decorator, true> {
+public:
+  template<class... Ts>
+  CRoeSchemeTeCNOExt(const CConfig& config, Ts&... args) : CRoeScheme<Decorator, true>(config, args...) {}
+
+  void TeCNOAdjEdgeIngredients(Int iEdge, const CConfig& config, const CGeometry& geometry, const CVariable& solution,
+                               Double updateMask) const override {
+    this->tecnoAdjTVDIngredients(iEdge, config, geometry, static_cast<const CEulerVariable&>(solution), updateMask);
+  }
+};
+
 template<int nDim>
 CNumericsSIMD* createTeCNOAdjExt(const CConfig& config, int iMesh, const CVariable* turbVars) {
   const bool ideal_gas = (config.GetKind_FluidModel() == STANDARD_AIR) ||
                          (config.GetKind_FluidModel() == IDEAL_GAS);
   if (!ideal_gas || config.GetKind_ConvNumScheme_Flow() != SPACE_UPWIND || config.GetKind_Upwind_Flow() != UPWIND::ROE)
     return nullptr;
-  if (config.GetViscous()) return new CRoeScheme<CCompressibleViscousFlux<nDim>, true>(config, iMesh, turbVars);
-  return new CRoeScheme<CNoViscousFlux<nDim>, true>(config, iMesh, turbVars);
+  if (config.GetViscous()) return new CRoeSchemeTeCNOExt<CCompressibleViscousFlux<nDim> >(config, iMesh, turbVars);
+  return new CRoeSchemeTeCNOExt<CNoViscousFlux<nDim> >(config, iMesh, turbVars);
 }
 
 } // namespace
