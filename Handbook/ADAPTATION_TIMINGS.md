@@ -1,6 +1,6 @@
 # Adaptation timings and computational work
 
-Updated2026-11-13:481production magnitude correction BUILD LIVE/FROZEN; HANDOFF and R/build481_status.json own actual handles. Previous480/479 terminal receipts verified.
+Updated2026-11-13:481build PASS; focusedserial FAIL; actualcomparison PASS; connected trajectory NOTCLOSED. Allowned workloads independently TERMINAL; HANDOFF owns current state. Previous480/479 terminal receipts verified.
 Build476642.982s under contention; current-input trajectory228.411s/609828assertions,
 legacy regression264.200s/610217assertions. Bothterminal/pins/actualhandles verified.
 Production473/CFD unchanged. Current trajectory stalls after5pubs/24calls; no readiness.
@@ -15,8 +15,20 @@ R=`integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57`.
 
 ##481 active connected correction — unqualified
 
-Build481live nice19/j3/libs1; launch52.335GBavailable, load12.47/10.39/7.13.
-47Ninja tasks planned from the shared header/API change. Costs/results pending;
+Build481PASS917.563s,47Ninja tasks, nice19/j3/libs1; launch52.335GBavailable,
+load12.47/10.39/7.13. All165actual identities terminal, source/binary pins and clean
+Ninja verified. Focusedserial FAIL151.562s:52/53cases,5715/5716assertionspass; new magnitude
+separate-body case89.860s fails256MiBstorage. No incorrect acceptance observed.
+Actual fixedM6 comparison PASS183.704s/1773pins/5terminal identities.24calls across
+all3contexts;9active candidates admitted, one MoveVertex published15→15cells. Geometry
+excess−29.0024%BUTbad6→7,q/J15→15each; strictheightFALSE.5399586geometrywork
+versus4782261666, no efficiency or netclosure gain. First connected entry FAIL157.239s/1775pins before anyconstructor/work: stale retired
+vertex descriptor, NOTproduction failure; mesh/params unchanged. Corrected continuation PASS276.745s/1777pins/5terminal identities.24splitcalls/24pubs,
+R4nested114.166740wall/111.374853CPU/3187979geometrywork; R5.702123wall/.701898CPU/
+143855work,0calls. Total3331834work; retain nested timers separately. Geometrybad
+localdelta+4,q/J+64each despite~89%excess decline. Scope27→121includes30old additions;
+rawgeometry10→31 is not churn. Shortplanning edges<.5grow2/23→72/128. No geometry
+closure/firstrow/heightcoverage or useful-progress/s improvement established;
 no timing, work-saving or useful-construction improvement claimed. Exact sourcepins
 and CPU/RSS samples captured by existing build helper. Preserve frozen sources.
 Shared fixed magnitude-query purpose replaces473's2tauheuristic, keeping physicaltau,

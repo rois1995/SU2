@@ -1,50 +1,59 @@
 # How to proceed
 
-Read [HANDOFF_Codex.md](HANDOFF_Codex.md) for actual handles/provenance and
-[the next construction decision](Handbook/ADAPTATION_GEOMETRY_MAGNITUDE_DECISION_20261113.md)
-for evidence, hypothesis, support/reject/unresolved outcomes and coverage. Goal ACTIVE;
-one curved-BL cycle. Build481 is LIVE/FROZEN; HANDOFF owns handles. All prior workloads terminal, independently verified.
+Read [HANDOFF_Codex.md](HANDOFF_Codex.md),
+[481outcome and next decision](Handbook/ADAPTATION_GEOMETRY_MAGNITUDE_481_OUTCOME_20261113.md)
+and [timings](Handbook/ADAPTATION_TIMINGS.md). All current workloads independently
+TERMINAL; one active curved-BL cycle. Source76f10c8310/build481 remains UNQUALIFIED.
 
-Production473 remains last qualified production. Build479 changes tests only;
-Euler293complete workflow/checkpoints remain preserved. Reuse476coherent saved
-61816node/304521tet state, transported nodal tensors, parameters and SAME441composed
-target/profile/no-CAD authority. Stage0h6.4e-5, finalh2e-6,growth1.2,thickness.01.
-500k is nominal complexity. No CFD, Hessian or successful upstream stage rebuild
-without a demonstrated reason; sensor tensors alone cannot reproduce this target.
+481demonstrates nine actual admissible surface moves where478admitted none. The
+published move reduces geometryexcess29%BUTincreases badcells6→7. Its correctly
+resumed split-first trajectory publishesall24candidates, yet localgeometrybad+4,
+q/J+64each, no geometryclosure/firstrow. R5gets0calls. More commits/debt decline is
+not useful closure; do not extend this local variant or raise its cap.
 
-478completed all3contexts/24distinct constructors: R4/R5active surface-changing moves
-construct but fail geometry guidance; one R5collapse fails body/feature admission.
-Reconnect retains skin and is not an independent surface correction. The clean
-collapse6070→6072publishes10→8cells;479qualifies its saved publication/reload without
-repeating constructors. Preserve stale-epoch guards and independent old/new contexts.
-No active geometry closure, strict BL height, firstrow or new MPI capability follows.
+A stale continuation descriptor initially named retired14983 instead of the actual
+replacement28651505. It was correctly refused BEFOREconstruction; source/input
+failure is preserved separately. Corrected complete support and native publication
+succeeded. Do not mistake that diagnostic defect for operator incapability.
 
-480replays one exact refused split query with unchanged support/coordinates. A valid
-tighter upper would reduce complete fresh excess9.45926e-8 versus preserved old
-1.25704e-6. This demonstrates a conservative fitting-admission issue for that sample,
-not improvement under a common old/fresh policy. Do not infer physical worsening or
-missing operators from the existing loose upper-score refusals.
+Focused53case validation still has ONEresource failure: distant separate-body
+magnitude query exhausts256MiB. Preserve the assertion/budget. Source shows a cropped
+upper witness can stay loose while the already-computed complete-distance upper is
+ignored. Read-only audit supports a minimal shared correction: outward physical
+childdiameter+Distance.upper is a covering bound by the1-Lipschitz distance law;
+minimum with existing upper, magnitude physical-source only. Keep entirequeue,
+exact identity/accounting and all failclosed limits; no extra closest query. Actual
+diff still requires precompile review and unchanged failed check must pass.
 
-Next: preserve481frozenbuild; its ONE shared, purpose-correct geometry error-magnitude policy passed precompile review but remains UNQUALIFIED. Verify actualterminal handles/pins, then use check_geometry_magnitude481.py and check_saved_surface_corrections481.py.
-Keep ordinary classification and final certification unchanged, exact purpose-aware
-memo identity/accounting, complete-domain bounds, prepared geometry reuse and bounded
-refinement/fail-closed exhaustion. Compare BOTHold/fresh/census consistently; no new
-certificate ceiling, target change or config. Follow the linked explicit decision
-and precompile fidelity review. Test actual saved R4/R5/control with planned coverage
-under existing total bounds, then a complete trajectory. If useful, one meaningful
-MPI ownership/publication milestone; otherwise revise/reject using exact obstruction.
+The next construction question concerns the ACTUALproduction surface sequence and
+whether it exercises existing mapped movement, collapse, reconnection and cleanup.
+Trace callers/phase/support/geometryprogress/ownership/publication/memory before
+implementation. PrepareSurface calls Adapt with emptycomposition and boundarytarget.
+Existing fullstage test helper resets mesh/coreAt tensors: it cannot faithfully resume
+the current transported state. Reuse public production PrepareSurface and existing
+checkpoint/Owned/parameter helpers for a faithful stage continuation, with established
+stage budgets. No new scheduler, configuration or construction policy without evidence.
 
-Geometry closure and directional tangential readiness must precede constrained/
-blended direction rebuild and a credible firstrow: physical stageheight, alignment,
-coverage, positive adjoining volume. Growth/progression, junctions/collisions, outer
-transition and strict final whole-field gates remain unproven. Intermediate q/J are
-observational during validity-first construction; final geometry1e-4,q>=.2,J>=.05,
-maxedge1.8,heights,body separation and resource gates remain mandatory.
+Group the demonstrated shared-bound correction and faithful integration binding as
+one connected milestone. Define support/reject/unresolved outcomes and downstream
+stage before editing/building. Use affected focused serial checks, actual complete
+patches and ONEmeaningful MPI milestone. Choose useful progress by geometry closure,
+netbad counts, directional conformity, requested heights and neighboring effects.
 
-Keep one owned heavy job, source freezing, bounded resources, pushed reviewable
-checkpoints and the timing ledger. No new baseline/perf/GDB campaign, scheduler,
-geometry representation, raised budgets or relaxed constraints. Factor10continuation
-and unrelated geometry-target hypotheses remain queued. Completion still requires a
-strict curved BL, dedicated nativeMPI constraint qualification and TWO accepted
-final-height RANS adaptations with conservative admissible flow/SA transfer, finite
-continued CFD and actual isolated adapted disk restart.
+Preserve all current coherent captures; they are provisional diagnostics, not CFD
+restarts or credible prepared surfaces. Current target is SAME441policy/profile/
+no-CAD authority with transported nodal metrics. Stage0h6.4e-5=32*finalh2e-6,
+growth1.2,thickness.01.500k nominal complexity. Do not rebootstrap nodal tensors or
+repeat CFD/Hessian/normalization/geometry preparation without demonstrated reason.
+
+Geometry/tangential readiness precedes constrained/blended direction rebuild and
+firstrow physical height/alignment/coverage; then growth/progression/junctions,
+transition and strict wholefield closure. q/J are observational during validity-first
+construction; finalgeometry1e-4,q>=.2,J>=.05,maxedge1.8,heights/bodyseparation/resources
+remain strict. No CADrequirement/prisms/permanentcolumns/newconfig or raised limits.
+
+Euler293complete two-event workflow/checkpoints remain protected. Completion still
+requires strictcurvedBL/nativeMPIconstraints and TWOaccepted final-heightRANS
+adaptations with conservative admissible flow/SAtransfer, finitecontinuedCFD and
+actualisolatedadapted diskrestart. Keep the goal ACTIVE, one heavyjob/sourcefreeze,
+reviewable pushed checkpoints and timingledger. Record unrelated ideas in backlog.

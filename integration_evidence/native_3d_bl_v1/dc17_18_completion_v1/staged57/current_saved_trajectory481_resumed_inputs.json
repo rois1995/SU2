@@ -1,0 +1,113 @@
+{
+  "scope": "Current476coherent state and prepared reference extracted from SAME441target; no sensor/normalization/geometry re-preparation.",
+  "owned": {
+    "path": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved481_saved_surface_corrections_serial_20261113T083739_2484774/trajectory_working_owned.bin",
+    "sha256": "c8fcf46c38c8463c4faa660118f9a4d6fa40b465b210c68c176aed6285771bba"
+  },
+  "parameters": {
+    "path": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved481_saved_surface_corrections_serial_20261113T083739_2484774/trajectory_working_parameters.bin",
+    "sha256": "e518651379215d98230ee9f017ff4d053697d69dfe08c31849dfabda72d01527"
+  },
+  "target": {
+    "path": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved441_ramp5_metric_stage_20261112T124340_1300487/target_rank0.bin",
+    "sha256": "4093a6a066f26db3360c6732f8853227251eb95ba1ba5e629dc636f6a1badbb7"
+  },
+  "prepared_reference": {
+    "path": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/prepared_reference441.native_ref",
+    "sha256": "9cdbc63cb6853f2c8b052bb0549f7b561299bfe82cd21fd6b792d2600dadf7e9",
+    "bytes": 47601773,
+    "offset": 3099544,
+    "decoder_must_require_exact_target_reference_agreement": true
+  },
+  "contexts": {
+    "path": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/current_saved_trajectory481_resumed_contexts.dat",
+    "sha256": "5779ec38bd6fd0dedc8c739580d6fa2e3a116ea35f237722f34189eeaf3e8e12"
+  },
+  "limits": {
+    "total_slots": 24,
+    "geometry_seconds": 300,
+    "outer_seconds": 600,
+    "old_cells": 64,
+    "new_cells": 128,
+    "bytes": 12884901888
+  },
+  "purpose": "Continue the actually published mapped move from476 baseline under same composed441target and stageheight; test complete existing refinement trajectory, not an isolated query.",
+  "seeds": [
+    {
+      "label": "current_rank4_guidance",
+      "edge": [
+        28651505,
+        24439
+      ],
+      "cells": [
+        [
+          24423,
+          24439,
+          40767,
+          28651505
+        ],
+        [
+          24434,
+          24439,
+          36728,
+          28651505
+        ],
+        [
+          24439,
+          36728,
+          40767,
+          28651505
+        ]
+      ]
+    },
+    {
+      "label": "current_rank5_guidance",
+      "edge": [
+        67,
+        68
+      ],
+      "cells": [
+        [
+          67,
+          68,
+          3342,
+          17814
+        ]
+      ]
+    }
+  ],
+  "limitations": [
+    "Two active contexts share the existing24constructorcap; the completed fixed R4/R5/control comparison supplies representative operator coverage. Any unreached trajectory context must be explicit.",
+    "No upstream CFD/metric/geometry reconstruction; no final acceptance from a provisional stage trajectory."
+  ],
+  "baseline476_owned": {
+    "path": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved476_current_trajectory_serial_20261113T060045_2026184/trajectory_working_owned.bin",
+    "sha256": "612c72fdfda078f8497e2b91b4e61633ece944c8d9fbdfa2e5ef02b6e9679b5f",
+    "rows": 304521
+  },
+  "baseline476_parameters": {
+    "path": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved476_current_trajectory_serial_20261113T060045_2026184/trajectory_working_parameters.bin",
+    "sha256": "6e8149a978ceeb1ff0455a088406b99072f3e512c476e6f74188e70df4ff5c57"
+  },
+  "hypothesis": "The admitted surface move followed by current coupled refinement can reduce remaining geometry failures and approach tangential/first-row readiness within unchanged bounds.",
+  "support": "Complete affected geometry closure or net bad-count/directional progress with valid positive neighbors and preserved passing stage heights.",
+  "reject": "Stall with no net closure, harmful neighboring effects or insufficient useful progress per work; magnitude-debt decline alone is insufficient.",
+  "unresolved": "Measurement or resource exhaustion and unreached contexts are explicit, not physical failure.",
+  "restored_prefix": {
+    "constructor": "MoveVertex",
+    "vertex": 14983,
+    "old_geometry_bad": 6,
+    "new_geometry_bad": 7,
+    "geometry_excess_reduction_fraction": 0.2900237471242172,
+    "published_cells": 15,
+    "source_case": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved481_saved_surface_corrections_serial_20261113T083739_2484774"
+  },
+  "prefix_cost_accounting": "Prefix comes from24comparison trials/5399586geometrywork; new trajectory has existing24constructorcap and300sgeometry/600souter. Report both costs separately, not as24total combined.",
+  "identity_correction": {
+    "retired": 14983,
+    "replacement": 28651505,
+    "complete_replacement_star_cells": 15,
+    "source": "Published target witnesses plus full saved Owned scan; native Directory rechecks support before mutation.",
+    "preserved_failed_input": "current_saved_trajectory481_inputs.json"
+  }
+}

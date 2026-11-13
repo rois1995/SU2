@@ -1,0 +1,24 @@
+{
+  "case": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/geometry_merit481_serial_20261113T083132_2472859",
+  "status": {
+    "state": "terminal",
+    "exit_code": 1,
+    "seconds": 151.56190586090088,
+    "pins_verified": true,
+    "changed": [],
+    "largest_sampled_individual_process_rss_bytes": 169512960,
+    "rss_note": "sampled process RSS; not a whole-job peak"
+  },
+  "all_actual_handles_terminal": true,
+  "pins_verified": 1727,
+  "cases": 53,
+  "passed": 52,
+  "failed": 1,
+  "assertions": 5716,
+  "passed_assertions": 5715,
+  "failed_case": "Geometry magnitude bounds retain complete domains and separate classification memo",
+  "failure": "Different-body ErrorMagnitude query against facet100 exhausted268435456B budget; requested679486088B,caller83894960B,scratch595591128B.",
+  "classification": "Resource refusal; no incorrect accepted bound observed. Mode/policy usefulness remains unqualified.",
+  "decision": "Preserve failure, audit bounds/expectation, assess actual M6 contexts before claiming capability or selecting follow-up correction.",
+  "goal_complete": false
+}
