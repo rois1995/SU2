@@ -3778,9 +3778,11 @@ void CEulerSolver::Source_Residual(CGeometry *geometry, CSolver **solver_contain
             const su2double qw[7] = {w0, w1, w1, w1, w2, w2, w2};
 
             vector<su2double> sq(nVar, 0.0);
+            /*--- areaGiven < 0: the area from the three points; else the given area (exact piece areas). ---*/
             auto addTriangle = [&](unsigned long iPoint, const su2double* P, const su2double* M, const su2double* C,
-                                   su2double weight) {
-              const su2double area = weight * 0.5 * fabs((M[0] - P[0]) * (C[1] - P[1]) - (M[1] - P[1]) * (C[0] - P[0]));
+                                   su2double weight, su2double areaGiven = -1.0) {
+              const su2double area = weight * ((areaGiven >= 0.0) ? areaGiven :
+                  0.5 * fabs((M[0] - P[0]) * (C[1] - P[1]) - (M[1] - P[1]) * (C[0] - P[0])));
               quadVol[iPoint] += area;
               for (int q = 0; q < 7; q++) {
                 const su2double x[2] = {qb[q][0] * P[0] + qb[q][1] * M[0] + qb[q][2] * C[0],
@@ -3798,11 +3800,15 @@ void CEulerSolver::Source_Residual(CGeometry *geometry, CSolver **solver_contain
                   const su2double* X[3];
                   for (unsigned short a = 0; a < 3; a++) X[a] = geometry->nodes->GetCoord(el->GetNode(t.nodes[a]));
                   const su2double Ct[2] = {(X[0][0] + X[1][0] + X[2][0]) / 3.0, (X[0][1] + X[1][1] + X[2][1]) / 3.0};
+                  /*--- Each of the six median pieces has the area |t|/6 exactly. Taking it from the determinant of t
+                   (as FormMass) avoids the cancellation of the midpoint/centroid areas in very thin cells. ---*/
+                  const su2double piece = fabs((X[1][0] - X[0][0]) * (X[2][1] - X[0][1]) -
+                                               (X[1][1] - X[0][1]) * (X[2][0] - X[0][0])) / 12.0;
                   for (unsigned short a = 0; a < 3; a++) {
                     for (unsigned short b = 0; b < 3; b++) {
                       if (b == a) continue;
                       const su2double M[2] = {0.5 * (X[a][0] + X[b][0]), 0.5 * (X[a][1] + X[b][1])};
-                      addTriangle(el->GetNode(t.nodes[a]), X[a], M, Ct, t.weight);
+                      addTriangle(el->GetNode(t.nodes[a]), X[a], M, Ct, t.weight, piece);
                     }
                   }
                 }
