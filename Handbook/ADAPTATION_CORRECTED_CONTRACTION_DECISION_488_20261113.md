@@ -1,6 +1,6 @@
 #488 construction decision — repair the observed root connectivity obstruction
 
-Status: design/review only, no implementation/build yet. Same curved-BL stage3cycle.
+Status: test-only build488 PASS329.814s/2tasks;1530pins/10actualidentities/binaries verified terminal. Actual bounded comparison launching. Same curved-BL stage3cycle.
 
 ## Blocker and connected hypothesis
 
@@ -76,3 +76,11 @@ production caller and qualify representative actual crossrank growth, stale/conf
 finaldependencies, emptyranks, rejection restoration, constraints and resource limits
 at ONEconnected MPI milestone using existing correctionMPI facilities. Do not claim
 MPIcapability merely from calling a distributed helper in serial.
+
+Final review confirms removedstar seed, finalgrown observation/refetched dependencies,
+fullvertexreservation/publication and explicit correctedpayload/winner retention.
+Observation is bound by constreference. Constructorcalls are externalfinal3 plus
+internalupper6, not a false exactinternalcount; same24totalcap. Nativefinalrank may
+grow beyond15; originalseed ranks1/15/3 determine priorselectioncoverage. Root266950
+is in mandatoryremovedstar and notincident toretainedroot; helperpredicate eligible.
+No remaining concrete precompile blocker from primary/bounded read-only review.

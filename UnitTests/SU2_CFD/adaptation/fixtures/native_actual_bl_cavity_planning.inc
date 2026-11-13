@@ -109,3 +109,7 @@ TEST_CASE("Saved transported M6 state resumes the production surface sequence", 
 TEST_CASE("Saved current M6 nominated directed collapses test the physical surface", "[.][NativeActualDirectedResidual3D]") {
   RunSavedActualCavities(true,false,false,false,false,false,false,false,false,false,false,false,false,true,false,true);
 }
+
+TEST_CASE("Saved current M6 directed contractions reuse bounded production support correction", "[.][NativeActualCorrectedDirectedResidual3D]") {
+  RunSavedActualCavities(true,false,true,false,false,false,false,false,false,false,false,false,false,true,false,true);
+}

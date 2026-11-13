@@ -18,7 +18,7 @@ try {
   REQUIRE(current.live_parameters->Payload()==TransactionRead(root+"/trajectory_working_parameters.bin"));
   REQUIRE(restored.stage.event==0);REQUIRE(policy.h0==SU2_TYPE::GetValue(config.GetAdap_BL(0).firstHeight));
   log<<"{\"stage\":\"saved_correction_input\",\"cells\":"<<current.mesh.size()<<",\"stage_height\":"<<policy.h0
-     <<",\"prepared_authority_reused\":true,\"transported_current_field\":true,\"slots_per_context\":"<<slotsPerContext<<",\"total_slots\":"<<expectedSlots<<",\"directed_collapse\":"<<directedCollapse<<"}"<<std::endl;
+     <<",\"prepared_authority_reused\":true,\"transported_current_field\":true,\"slots_per_context\":"<<slotsPerContext<<",\"total_slots\":"<<expectedSlots<<",\"directed_collapse\":"<<directedCollapse<<",\"corrected_support\":"<<(directedCollapse&&productionCorrection)<<"}"<<std::endl;
   Directory directory(world,false,trial.live_parameters.get());REQUIRE(directory.Build(trial.mesh,reason,ceiling,caller));
   budget.caller_bytes=transfer_memory::Add(caller,directory.ResidentBytes());REQUIRE(budget.caller_bytes<ceiling);
   struct Seed {std::string label;Edge vertices;std::set<std::array<Id,4>> expected;};
@@ -60,27 +60,46 @@ try {
            <<"],\"strip_rule\":["<<sample.strip_rule.x<<','<<sample.strip_rule.y<<','<<sample.strip_rule.z<<"]}"<<std::endl;}
     }
   };
-  struct Winner {Patch old,fresh;std::vector<OwnedCell> rows;Feature support;std::string label,operation;MetricChange kind;long double gain=0;bool active=false;long geometry_retired=0;};
+  struct Winner {Patch old,fresh;std::vector<OwnedCell> rows;Dependencies dependencies;std::string label,operation;MetricChange kind;long double gain=0;bool active=false;long geometry_retired=0;};
   std::unique_ptr<Winner> winner;
   for(size_t context=0;context<seeds.size();++context) {
     const auto& seed=seeds[context];budget.caller_bytes=transfer_memory::Add(caller,directory.ResidentBytes());budget.CheckTime();
     const auto unionDeps=directory.Lookup({Feature{{seed.vertices[0],0,0},1},Feature{{seed.vertices[1],0,0},1}},ceiling,caller);REQUIRE(unionDeps.valid);
     const auto unionRows=directory.Fetch(unionDeps,trial.mesh,ceiling,caller);REQUIRE(unionRows.valid);
-    std::vector<Id> unionIds;std::set<Id> haloVertices;for(const auto& row:unionRows.cells){unionIds.push_back(row.cell.id);for(auto n:row.cell.v)haloVertices.insert(n.id);}
+    Dependencies correctedDeps;Imported correctedRows;Id correctionApex=0;size_t correctionBytes=0;bool supportCorrected=false;
+    if(directedCollapse&&productionCorrection) {
+      const auto seedDeps=directory.Lookup({Feature{{seed.vertices[0],0,0},1}},ceiling,caller);REQUIRE(seedDeps.valid);
+      const auto seedRows=directory.Fetch(seedDeps,trial.mesh,ceiling,caller);REQUIRE(seedRows.valid);
+      const auto started=std::chrono::steady_clock::now();const auto work=budget.work;
+      auto correction=directory.CorrectCollapse(seedDeps,seedRows,trial.mesh,seed.vertices[0],seed.vertices[1],true,
+          *trial.reference,2*MaximumCavityCells,budget.within_time,ceiling,caller);
+      log<<"{\"stage\":\"saved_correction_support\",\"context\":"<<std::quoted(seed.label)<<",\"valid\":"<<correction.valid
+         <<",\"corrected\":"<<correction.corrected<<",\"seed_cells\":"<<seedRows.cells.size()<<",\"final_cells\":"<<correction.imported.cells.size()
+         <<",\"apex\":"<<correction.apex<<",\"discovery_work\":"<<correction.work<<",\"geometry_work\":"<<budget.work-work
+         <<",\"seconds\":"<<std::chrono::duration<double>(std::chrono::steady_clock::now()-started).count()
+         <<",\"internal_constructor_upper_bound\":2,\"reason\":"<<junction_wp0::Json(correction.reason)<<"}"<<std::endl;
+      INFO(correction.reason);REQUIRE(correction.valid);
+      if(correction.corrected){supportCorrected=true;correctedDeps=std::move(correction.dependencies);correctedRows=std::move(correction.imported);correctionApex=correction.apex;}
+      correctionBytes=transfer_memory::Mul(4,transfer_memory::Add(transfer_memory::Bytes(correctedDeps.cells),transfer_memory::Bytes(correctedRows.cells)));
+    }
+    const auto trialCaller=transfer_memory::Add(caller,correctionBytes);
+    budget.caller_bytes=transfer_memory::Add(trialCaller,directory.ResidentBytes());REQUIRE(budget.caller_bytes<ceiling);
+    const auto& observation=supportCorrected?correctedRows:unionRows;
+    std::vector<Id> unionIds;std::set<Id> haloVertices;for(const auto& row:observation.cells){unionIds.push_back(row.cell.id);for(auto n:row.cell.v)haloVertices.insert(n.id);}
     std::vector<Id> halo;for(const auto& row:trial.mesh)if(std::any_of(row.second.cell.v.begin(),row.second.cell.v.end(),[&](Node n){return haloVertices.count(n.id);}))halo.push_back(row.first);
     size_t haloQ=0,haloJ=0,haloBad=0;
     for(size_t start=0;start<halo.size();start+=MaximumCavityCells) {
       const auto end=std::min(halo.size(),start+MaximumCavityCells);std::vector<Id> ids(halo.begin()+start,halo.begin()+end);std::vector<OwnedCell> rows;for(Id id:ids)rows.push_back(trial.mesh.at(id));
       size_t bad=0;planning(junction_wp0::PatchOf(trial,ids),rows,*trial.reference,haloQ,haloJ,bad);haloBad+=bad;
     }
-    log<<"{\"stage\":\"saved_correction_context\",\"context\":"<<std::quoted(seed.label)<<",\"endpoint_union_cells\":"<<unionIds.size()<<",\"halo_cells\":"<<halo.size()
+    log<<"{\"stage\":\"saved_correction_context\",\"context\":"<<std::quoted(seed.label)<<",\"endpoint_union_cells\":"<<unionRows.cells.size()<<",\"observation_cells\":"<<unionIds.size()<<",\"halo_cells\":"<<halo.size()
        <<",\"halo_q_bad\":"<<haloQ<<",\"halo_J_bad\":"<<haloJ<<",\"halo_geometry_bad\":"<<haloBad<<",\"reserved_slots\":"<<slotsPerContext<<"}"<<std::endl;
     for(unsigned local=directedCollapse?6:0;local<(directedCollapse?7u:8u);++local) {
       const auto started=std::chrono::steady_clock::now();const auto cpu=std::clock();const auto work=budget.work;
-      ++slots;REQUIRE(slots<=24);budget.caller_bytes=transfer_memory::Add(caller,directory.ResidentBytes());budget.CheckTime();
-      const Id vertex=seed.vertices[local<3?0:local<6?1:0];const char* operation=local<6?"MoveVertex":local==6?"CollapseVertex":"Reconnect";
-      const auto deps=directory.Lookup({Feature{{vertex,0,0},1}},ceiling,caller);REQUIRE(deps.valid);
-      const auto imported=directory.Fetch(deps,trial.mesh,ceiling,caller);REQUIRE(imported.valid);REQUIRE((!imported.cells.empty()&&imported.cells.size()<=MaximumCavityCells));
+      ++slots;REQUIRE(slots<=24);budget.caller_bytes=transfer_memory::Add(trialCaller,directory.ResidentBytes());budget.CheckTime();
+      const Id vertex=seed.vertices[local<3?0:local<6?1:0];const char* operation=local<6?"MoveVertex":local==6?(supportCorrected?"ReconnectCollapse":"CollapseVertex"):"Reconnect";
+      const auto deps=supportCorrected?correctedDeps:directory.Lookup({Feature{{vertex,0,0},1}},ceiling,trialCaller);REQUIRE(deps.valid);
+      const auto imported=supportCorrected?correctedRows:directory.Fetch(deps,trial.mesh,ceiling,trialCaller);REQUIRE(imported.valid);REQUIRE((!imported.cells.empty()&&imported.cells.size()<=MaximumCavityCells));
       std::vector<Id> ids;for(auto row:imported.cells)ids.push_back(row.cell.id);const auto old=junction_wp0::PatchOf(trial,ids);
       auto oldContext=trial.reference->PrivateParameters(old);REQUIRE(oldContext);
       std::map<Id,Node> nodes;for(auto cell:old.cells)for(auto n:cell.v)nodes.emplace(n.id,n);
@@ -88,7 +107,7 @@ try {
       std::string topologyWhy;auto skin=Incidence(old.cells).Boundary();for(auto& f:skin)std::rotate(f.begin(),std::min_element(f.begin(),f.end()),f.end());
       std::sort(skin.begin(),skin.end(),[](Face a,Face b){return junction_wp0::Sorted(a)<junction_wp0::Sorted(b);});REQUIRE(ValidatePrescribedInterface(old.cells,old.cells,skin,topologyWhy));
       const auto* binding=oldContext->Parameter(nodes.at(vertex).p);REQUIRE(binding);
-      const bool reserved=directory.Reserve(imported,true,reason,ceiling,caller);REQUIRE(reserved);
+      const bool reserved=directory.Reserve(imported,true,reason,ceiling,trialCaller);REQUIRE(reserved);
       Patch fresh;std::vector<OwnedCell> freshRows;size_t q0=0,q1=0,j0=0,j1=0,b0=0,b1=0;
       bool built=false,complete=false,geometryOK=false,metricOK=false,parameters=false,protocol=false,contact=true,preserve=false,heightOK=false,strictHeight=false,stars=true,measured=false;
       std::string constructorWhy,certificationWhy,supportWhy,metricWhy,parameterWhy,contactWhy,preserveWhy,heightWhy;long double before=-1,after=-1;Id retainedNode=0;double displacement=0;
@@ -110,13 +129,13 @@ try {
             if(wall&&(!directedCollapse||edge.first[0]==seed.vertices[1]||edge.first[1]==seed.vertices[1])&&
                 (kind!=MetricChange::Coarsen||edge.second.length<CoarseningMetricEdge)&&edge.second.length<shortest){shortest=edge.second.length;retainedNode=edge.first[0]==vertex?edge.first[1]:edge.first[0];}}
           if(directedCollapse){REQUIRE(retainedNode==seed.vertices[1]);}
-          if(retainedNode){++calls;built=CollapseVertex(old,vertex,retainedNode,first,*oldContext,fresh,constructorWhy);}else constructorWhy="No eligible incident requested-wall collapse edge for this admission kind.";
+          if(retainedNode){++calls;built=supportCorrected?ReconnectCollapse(old,vertex,retainedNode,correctionApex,first,*oldContext,fresh,constructorWhy):CollapseVertex(old,vertex,retainedNode,first,*oldContext,fresh,constructorWhy);}else constructorWhy="No eligible incident requested-wall collapse edge for this admission kind.";
         } else {++calls;built=Reconnect(old,vertex,first,*oldContext,fresh,constructorWhy);}
         if(built) {
           REQUIRE((!fresh.cells.empty()&&fresh.cells.size()<=MaximumReplacementCells));std::set<Id> kept;
           for(auto c:fresh.cells){REQUIRE(Orientation(c.v[0].p,c.v[1].p,c.v[2].p,c.v[3].p)>0);for(auto n:c.v)kept.insert(n.id);OwnedCell row;row.cell=c;freshRows.push_back(row);}
           std::vector<Feature> removed;for(auto node:nodes)if(!kept.count(node.first))removed.push_back({{node.first,0,0},1});
-          const auto needed=directory.Lookup(removed,ceiling,caller);stars=needed.valid;std::set<Id> oldIds(ids.begin(),ids.end());for(auto d:needed.cells)stars=stars&&oldIds.count(d.cell);if(!stars)supportWhy="Candidate omits a removed vertex complete current star: "+needed.reason;
+          const auto needed=directory.Lookup(removed,ceiling,trialCaller);stars=needed.valid;std::set<Id> oldIds(ids.begin(),ids.end());for(auto d:needed.cells)stars=stars&&oldIds.count(d.cell);if(!stars)supportWhy="Candidate omits a removed vertex complete current star: "+needed.reason;
           PublishMetrics(imported.cells,freshRows);
           std::map<Id,std::pair<Point,Tensor>> oldNodal;for(auto row:imported.cells)for(unsigned k=0;k<4;++k)oldNodal.emplace(row.cell.v[k].id,std::make_pair(row.cell.v[k].p,row.sensor[k]));
           for(auto row:freshRows)for(unsigned k=0;k<4;++k){const auto at=oldNodal.find(row.cell.v[k].id);if(at!=oldNodal.end()){REQUIRE(samePoint(at->second.first,row.cell.v[k].p));REQUIRE(sameTensor(at->second.second,row.sensor[k]));}}
@@ -128,8 +147,8 @@ try {
           const bool progress=before>0&&after<before*(1-1e-12L);
           geometryOK=complete&&std::isfinite(after)&&(kind==MetricChange::Coarsen?after==0:after<=before&&(progress||diagnosis.size_progress));
           parameters=trial.live_parameters->CheckReplacement(old,fresh,parameterWhy,ceiling,budget.caller_bytes,&budget);
-          protocol=directory.Clearance(trial.mesh,old,fresh,contact,contactWhy,ceiling,caller);
-          budget.caller_bytes=transfer_memory::Add(caller,directory.ResidentBytes());
+          protocol=directory.Clearance(trial.mesh,old,fresh,contact,contactWhy,ceiling,trialCaller);
+          budget.caller_bytes=transfer_memory::Add(trialCaller,directory.ResidentBytes());
           preserve=PreservePassingFirstHeights(old,fresh,heights,*oldContext,preserveWhy);FirstHeightReport h;
           strictHeight=CheckFirstHeight(fresh,heights,*newContext,h,heightWhy);heightOK=strictHeight||(h.measured&&!h.reference_clearance_failures&&!h.missing_cells);
           edges(old,oldPlan,seed.label,"old",slots);edges(fresh,newPlan,seed.label,"fresh",slots);
@@ -140,7 +159,7 @@ try {
             ++activeFeasible;const long retired=long(b0)-long(b1);
             // Private publication tests useful residual work; keep the narrower coarsening control observational.
             if(!winner||retired>winner->geometry_retired||(retired==winner->geometry_retired&&gain>winner->gain))
-              winner=std::make_unique<Winner>(Winner{old,fresh,freshRows,Feature{{vertex,0,0},1},seed.label,operation,kind,gain,active,retired});
+              winner=std::make_unique<Winner>(Winner{old,fresh,freshRows,deps,seed.label,operation,kind,gain,active,retired});
           }
         }
       }catch(const std::exception& error){certificationWhy=error.what();}
@@ -160,17 +179,20 @@ try {
     }
     ++completed;
   }
-  REQUIRE(slots==expectedSlots);REQUIRE(calls<=24);bool published=false;
+  const unsigned internalConstructorBound=directedCollapse&&productionCorrection?2*seeds.size():0;
+  REQUIRE(slots==expectedSlots);REQUIRE(calls+internalConstructorBound<=24);bool published=false;
   if(winner) {
-    auto& publication=directory;budget.caller_bytes=transfer_memory::Add(caller,directory.ResidentBytes());
+    auto& publication=directory;
+    const auto winnerCaller=transfer_memory::Add(caller,transfer_memory::Mul(4,transfer_memory::Add(transfer_memory::Bytes(winner->dependencies.cells),transfer_memory::Bytes(winner->rows))));
+    budget.caller_bytes=transfer_memory::Add(winnerCaller,directory.ResidentBytes());REQUIRE(budget.caller_bytes<ceiling);
     auto originalContext=current.reference->PrivateParameters(winner->old);REQUIRE(originalContext);
-    const auto deps=publication.Lookup({winner->support},ceiling,caller);REQUIRE(deps.valid);
-    const auto rows=publication.Fetch(deps,trial.mesh,ceiling,caller);REQUIRE(rows.valid);
+    const auto& deps=winner->dependencies;REQUIRE(deps.valid);
+    const auto rows=publication.Fetch(deps,trial.mesh,ceiling,winnerCaller);REQUIRE(rows.valid);
     std::set<Id> expected,actual;for(auto c:winner->old.cells)expected.insert(c.id);for(auto c:rows.cells){actual.insert(c.cell.id);REQUIRE(c.version==current.mesh.at(c.cell.id).version);}REQUIRE(actual==expected);
-    REQUIRE(publication.Reserve(rows,true,reason,ceiling,caller));
+    REQUIRE(publication.Reserve(rows,true,reason,ceiling,winnerCaller));
     for(auto& row:winner->rows){const auto faces=junction_wp0::CellFaces(row.cell);for(unsigned k=0;k<4;++k)for(auto f:winner->fresh.surface)if(junction_wp0::Sorted(faces[k])==junction_wp0::Sorted(f.v))row.physical[k]={true,f.facet};}
     const auto changes=BoundaryParameterState::Changes(winner->old,winner->fresh,trial.live_parameters->Revision());
-    published=publication.Publish(trial.mesh,deps.cells,winner->rows,true,reason,ceiling,caller,changes,winner->fresh.coverage,&budget);REQUIRE(published);
+    published=publication.Publish(trial.mesh,deps.cells,winner->rows,true,reason,ceiling,winnerCaller,changes,winner->fresh.coverage,&budget);REQUIRE(published);
     trial.reference=trial.reference->WithParameterState(trial.live_parameters)->WithAtlasReservation(budget);
     std::vector<Id> ids;for(auto row:winner->rows)ids.push_back(row.cell.id);const auto patch=junction_wp0::PatchOf(trial,ids);
     size_t q=0,j=0,bad=0,oq=0,oj=0,ob=0;const auto before=planning(winner->old,rows.cells,*originalContext,oq,oj,ob),after=planning(patch,winner->rows,*trial.reference,q,j,bad);
@@ -185,6 +207,6 @@ try {
     log<<"{\"stage\":\"saved_correction_publication_support\",\"removed_cell_ids\":[";bool comma=false;for(auto c:winner->old.cells){if(comma)log<<',';log<<c.id;comma=true;}log<<"],\"added_cell_ids\":[";comma=false;for(auto c:winner->rows){if(comma)log<<',';log<<c.cell.id;comma=true;}log<<"]}"<<std::endl;
     log<<"{\"stage\":\"saved_correction_publication\",\"context\":"<<std::quoted(winner->label)<<",\"operator\":"<<std::quoted(winner->operation)<<",\"active_context\":"<<winner->active<<",\"published\":"<<published<<",\"q_bad\":"<<q<<",\"J_bad\":"<<j<<",\"geometry_bad\":"<<bad<<",\"final_mesh_accepted\":false}"<<std::endl;
   }
-  log<<"{\"stage\":\"saved_correction_result\",\"contexts_completed\":"<<completed<<",\"slots\":"<<slots<<",\"constructor_calls\":"<<calls<<",\"active_feasible\":"<<(activeFeasible>0)<<",\"active_feasible_candidates\":"<<activeFeasible<<",\"published\":"<<published<<",\"geometry_work\":"<<budget.work<<",\"stage_height\":"<<policy.h0<<",\"first_row_ready\":false,\"mesh_accepted\":false}"<<std::endl;
+  log<<"{\"stage\":\"saved_correction_result\",\"contexts_completed\":"<<completed<<",\"slots\":"<<slots<<",\"constructor_calls\":"<<calls<<",\"constructor_calls_upper_bound\":"<<calls+internalConstructorBound<<",\"active_feasible\":"<<(activeFeasible>0)<<",\"active_feasible_candidates\":"<<activeFeasible<<",\"published\":"<<published<<",\"geometry_work\":"<<budget.work<<",\"stage_height\":"<<policy.h0<<",\"first_row_ready\":false,\"mesh_accepted\":false}"<<std::endl;
 } catch(...) {saveWorking();throw;}
 saveWorking();

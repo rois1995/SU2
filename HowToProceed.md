@@ -1,8 +1,8 @@
 # How to proceed
 
-Read [current handoff](HANDOFF_Codex.md), [next construction decision](Handbook/ADAPTATION_CORRECTED_CONTRACTION_DECISION_488_20261113.md)
+Read [current handoff](HANDOFF_Codex.md), [next construction decision](Handbook/ADAPTATION_GEOMETRY_REFUSAL_ANALYSIS_20261113.md)
 and [timings](Handbook/ADAPTATION_TIMINGS.md). All485/486/487 handles terminal and pins verified.
-No owned heavy job; build487 passed465.248s, actual487173.451s. Production484 unchanged; test-only485 changes are saved as a
+Allworkthrough488TERMINAL/pins/actualhandles verified; no ownedheavyjoblive. Build488329.814s, actual488183.618s; production unchanged. Production484 unchanged; test-only485 changes are saved as a
 reviewable diagnostic checkpoint. Preserve unrelated working changes.
 
 Continue from saved_surface485_checkpoint.json, not the older484input. Latest state
@@ -18,10 +18,16 @@ This is provisional, no first row or accepted BL. Wholefield closure is not esta
 487tested all3exactdirected candidates. Root17814→64065077 fails positivity at266950;
 tippositive14→11fails geometryupperexcess despite6→4screens; cleancontrolfeasible.
 No publication: lateststate remains485. Read487outcome/assessment for exactrefusals.
-Nextdecision488: test EXISTING bounded CorrectCollapse/ReconnectCollapse against the
-rootconnectivity obstruction, with cleancontrol and tipnegativecontrol. Discovery
-BEFOREreservation, allfinalgrown dependencies/neighborhalo/publication retained.
-Design/review only, no488implementation/build yet. No target/height/gate change.
+488tested EXISTINGCorrectCollapse/ReconnectCollapse: rootpositivity resolved inSAME20cells,
+positive20→21replacement; q20→18,J19→16,geometry7→6 butupperexcess+57.793%refuses.
+No activepublication; latestmesh/inspection remain485. No productionintegration/newMPI
+or fullretry justified. See488outcome/assessment forcompletepatch/work/limitations.
+
+NEXT is analysisofgeometryrefusal on these exactphysicalsurfaces, not morevolumecones:
+genuine regression versus affine/correspondence/support/conservativebound uncertainty.
+Read geometryrefusalanalysis and auditexistingmagnitude/closestlowerbound facilities
+before choosing anotherexperiment/build. Physicaltau1e-4/target/stageheight unchanged.
+No tighterbound speedup or admissionfix yetdemonstrated.
 
 A useful complete-patch replacement may justify one production selection/admission
 correction and affected serial/MPI qualification. A candidate refused by a conservative
