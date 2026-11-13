@@ -3746,8 +3746,16 @@ void CEulerSolver::Source_Residual(CGeometry *geometry, CSolver **solver_contain
       /*--- MMS_SOURCE_DUAL_QUADRATURE: the source of node i is the integral of s over the dual cell V_i that the
        residual uses. In 2D, V_i is the union of the triangles (x_i, edge midpoint, element dual point) built by
        CPhysicalGeometry::SetControlVolume; the element dual point is the moved one of MOD_CENTROIDS (or the median
-       one). Each triangle gets the 7-point degree-5 rule. The source is steady, so it is computed once. ---*/
+       one). Each triangle gets the 7-point degree-5 rule. The source is steady, so it is computed once.
+       With EDGE_FORM_P1_MIXED a non-simplex cell acts through its split average (P1_MIXED.md 8.2), so its part of the
+       control volume is sum_t omega_t of the median pieces (x_a, midpoint of a b, centroid of t) of its sub-triangles
+       t, and the pieces must sum to FormMass (P1_MMS_SOURCE_MIXED.md). ---*/
       const bool dualQuad = config->GetMMS_Source_Dual_Quad() && (iMesh == MESH_0);
+      const bool mixed = config->GetEdge_Form_P1_Mixed();
+      if (mixed && !dualQuad)
+        SU2_MPI::Error("A manufactured solution with EDGE_FORM_P1_MIXED needs MMS_SOURCE_DUAL_QUADRATURE= YES (the "
+                       "one-point source scales with the dual volume, the split operator with FormMass).",
+                       CURRENT_FUNCTION);
       if (dualQuad) {
         BEGIN_SU2_OMP_SAFE_GLOBAL_ACCESS {
           if (MMSSourceDual.empty()) {
@@ -3770,8 +3778,9 @@ void CEulerSolver::Source_Residual(CGeometry *geometry, CSolver **solver_contain
             const su2double qw[7] = {w0, w1, w1, w1, w2, w2, w2};
 
             vector<su2double> sq(nVar, 0.0);
-            auto addTriangle = [&](unsigned long iPoint, const su2double* P, const su2double* M, const su2double* C) {
-              const su2double area = 0.5 * fabs((M[0] - P[0]) * (C[1] - P[1]) - (M[1] - P[1]) * (C[0] - P[0]));
+            auto addTriangle = [&](unsigned long iPoint, const su2double* P, const su2double* M, const su2double* C,
+                                   su2double weight) {
+              const su2double area = weight * 0.5 * fabs((M[0] - P[0]) * (C[1] - P[1]) - (M[1] - P[1]) * (C[0] - P[0]));
               quadVol[iPoint] += area;
               for (int q = 0; q < 7; q++) {
                 const su2double x[2] = {qb[q][0] * P[0] + qb[q][1] * M[0] + qb[q][2] * C[0],
@@ -3784,6 +3793,21 @@ void CEulerSolver::Source_Residual(CGeometry *geometry, CSolver **solver_contain
 
             for (auto iElem = 0ul; iElem < geometry->GetnElem(); iElem++) {
               const auto* el = geometry->elem[iElem];
+              if (mixed && (el->GetnNodes() != nDim + 1)) {
+                for (const auto& t : geometry->GetMixedSimplices(el->GetVTK_Type())) {
+                  const su2double* X[3];
+                  for (unsigned short a = 0; a < 3; a++) X[a] = geometry->nodes->GetCoord(el->GetNode(t.nodes[a]));
+                  const su2double Ct[2] = {(X[0][0] + X[1][0] + X[2][0]) / 3.0, (X[0][1] + X[1][1] + X[2][1]) / 3.0};
+                  for (unsigned short a = 0; a < 3; a++) {
+                    for (unsigned short b = 0; b < 3; b++) {
+                      if (b == a) continue;
+                      const su2double M[2] = {0.5 * (X[a][0] + X[b][0]), 0.5 * (X[a][1] + X[b][1])};
+                      addTriangle(el->GetNode(t.nodes[a]), X[a], M, Ct, t.weight);
+                    }
+                  }
+                }
+                continue;
+              }
               const su2double* C = el->GetCG();
               for (unsigned short iFace = 0; iFace < el->GetnFaces(); iFace++) {
                 const auto iPoint = el->GetNode(el->GetFaces(iFace, 0));
@@ -3791,24 +3815,27 @@ void CEulerSolver::Source_Residual(CGeometry *geometry, CSolver **solver_contain
                 const su2double* Pi = geometry->nodes->GetCoord(iPoint);
                 const su2double* Pj = geometry->nodes->GetCoord(jPoint);
                 const su2double M[2] = {0.5 * (Pi[0] + Pj[0]), 0.5 * (Pi[1] + Pj[1])};
-                addTriangle(iPoint, Pi, M, C);
-                addTriangle(jPoint, Pj, M, C);
+                addTriangle(iPoint, Pi, M, C, 1.0);
+                addTriangle(jPoint, Pj, M, C, 1.0);
               }
             }
 
-            /*--- The sub-triangles must rebuild the dual volume of SetControlVolume. ---*/
+            /*--- The sub-triangles must rebuild the dual volume of SetControlVolume, or FormMass with
+             EDGE_FORM_P1_MIXED. ---*/
             passivedouble maxRel = 0.0;
             for (auto iPoint = 0ul; iPoint < nPointDomain; iPoint++) {
-              const su2double V = geometry->nodes->GetVolume(iPoint);
+              const su2double V = mixed ? geometry->edges->GetFormMass()[iPoint] : geometry->nodes->GetVolume(iPoint);
               maxRel = max(maxRel, SU2_TYPE::GetValue(fabs(quadVol[iPoint] - V) / V));
             }
             passivedouble maxRelAll = maxRel;
             SU2_MPI::Allreduce(&maxRel, &maxRelAll, 1, MPI_DOUBLE, MPI_MAX, SU2_MPI::GetComm());
             if (rank == MASTER_NODE)
-              cout << "MMS_SOURCE_DUAL_QUADRATURE: max |sum of sub-triangles - dual volume| / dual volume = "
+              cout << "MMS_SOURCE_DUAL_QUADRATURE: max |sum of sub-triangles - control volume| / control volume"
+                   << (mixed ? " (FormMass)" : " (dual volume)") << " = "
                    << maxRelAll << endl;
             if (maxRelAll > 1e-10)
-              SU2_MPI::Error("MMS_SOURCE_DUAL_QUADRATURE: the sub-triangles do not rebuild the dual volume.",
+              SU2_MPI::Error("MMS_SOURCE_DUAL_QUADRATURE: the sub-triangles do not rebuild the control volume "
+                             "(dual volume, or FormMass with EDGE_FORM_P1_MIXED).",
                              CURRENT_FUNCTION);
           }
         }
