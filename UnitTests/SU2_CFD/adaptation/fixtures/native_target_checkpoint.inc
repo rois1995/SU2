@@ -175,14 +175,15 @@ TEST_CASE("Mapped target checkpoints reject the obsolete curvature law", "[Nativ
   auto config=Config();auto reference=Reference();
   SU2NativeGeometry::MappedFacetReference::CurvedNets nets;
   const auto& face=reference.facets.front();
+  std::map<Id,double> errors;for(const auto& side:reference.facets)errors[side.id]=1e-12;
   const unsigned powers[10][3]={{3,0,0},{0,3,0},{0,0,3},{2,1,0},{1,2,0},{0,2,1},{0,1,2},{1,0,2},{2,0,1},{1,1,1}};
-  for(unsigned q=0;q<10;++q) {
-    auto& p=nets[face.id][q];
-    for(unsigned k=0;k<3;++k){p.x+=powers[q][k]*face.v[k].p.x/3;p.y+=powers[q][k]*face.v[k].p.y/3;p.z+=powers[q][k]*face.v[k].p.z/3;}
+  for(const auto& side:reference.facets)for(unsigned q=0;q<10;++q) {
+    auto& p=nets[side.id][q];
+    for(unsigned k=0;k<3;++k){p.x+=powers[q][k]*side.v[k].p.x/3;p.y+=powers[q][k]*side.v[k].p.y/3;p.z+=powers[q][k]*side.v[k].p.z/3;}
   }
   nets[face.id][9].z-=.03;
   auto geometry=std::make_shared<SU2NativeGeometry::MappedFacetReference>(reference.original,
-      std::map<Id,double>{{face.id,1e-12}},7,SIZE_MAX,false,nets);
+      errors,7,SIZE_MAX,false,nets);
   SU2Native3D::BoundaryPoints points;std::vector<SurfaceFace> skin;
   for(const auto& f:reference.facets) {
     for(auto n:f.v)points.emplace(n.id,SU2Native3D::BoundaryPoint{n,geometry->Vertex(n.id)});

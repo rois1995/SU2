@@ -2126,7 +2126,7 @@ TEST_CASE("Saved M6 entity authority publishes and reloads within its admitted b
 TEST_CASE("Magnitude outside width encloses a known flat-face distance", "[NativeMagnitudeInterval3D]") {
   using namespace SU2Native3D;
   const auto facets=ComponentCube(false);const auto reference=std::make_shared<PlanarReference>(facets);
-  std::map<Id,double> errors;for(const auto& face:facets)errors.emplace(face.id,0.);
+  std::map<Id,double> errors;for(const auto& face:facets)errors.emplace(face.id,1e-12);
   MappedFacetReference geometry(reference,errors,29);
   const auto& face=facets.front();std::vector<std::array<Point,3>> physical(1);
   for(unsigned k=0;k<3;++k){REQUIRE(face.v[k].p.z==0);physical[0][k]=face.v[k].p;physical[0][k].z=.125;}

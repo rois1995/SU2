@@ -1,0 +1,60 @@
+{
+  "schema": "mapped_curvature492_serial_check_v1",
+  "case": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/mapped_curvature492_serial_20261113T160246_3624553",
+  "build": "build493",
+  "exit_code": 1,
+  "status": {
+    "state": "terminal",
+    "exit_code": 1,
+    "seconds": 121.5580883026123,
+    "pins_verified": true,
+    "changed": [],
+    "largest_sampled_individual_process_rss_bytes": 41046016,
+    "rss_note": "sampled process RSS; not a whole-job peak"
+  },
+  "terminal_handles": {
+    "actual_host_proc": true,
+    "all_owned_handles_terminal": true,
+    "sampled_identities": [
+      {
+        "pid": 3624651,
+        "start_ticks": 7807397
+      },
+      {
+        "pid": 3624652,
+        "start_ticks": 7807397
+      },
+      {
+        "pid": 3624653,
+        "start_ticks": 7807397
+      },
+      {
+        "pid": 3624654,
+        "start_ticks": 7807398
+      }
+    ],
+    "live_owned_handles": [],
+    "wrapper_excluded": {
+      "pid": 3624553,
+      "start_ticks": 7807217
+    },
+    "checked_unix": 1794585887.6486712
+  },
+  "focused_tags": [
+    "NativeCurvedMappedGuards3D",
+    "NativeCurvedBL3D",
+    "NativeTargetCheckpoint3D",
+    "NativeTargetCheckpoint",
+    "NativeTargetRampCheckpoint"
+  ],
+  "filter": "[NativeCurvedMappedGuards3D],[NativeCurvedBL3D],[NativeTargetCheckpoint3D],[NativeTargetCheckpoint],[NativeTargetRampCheckpoint]",
+  "ranks": 1,
+  "timeout_seconds": 600,
+  "available_memory_at_launch_bytes": 46660431872,
+  "build493_status_sha256": "46a807f185e83fe9b65f0558cd39f5709e35d7cbd428a5889004a0ab8f2e11d1",
+  "build493_observed_handles_sha256": "cc6cd5293b6c7624531dc5ce6727f4da4e6a3cc8ee11e7e1c643b39cefb33770",
+  "build493_source_pins_sha256": "01c5fb7f48dd7d06bf8d114718a77c76005e38809c15777c5f96563361303149",
+  "runtime_pins_sha256": "e2daaed3b3b33a648db277ce13f2172d51eb919f5f36e1c95456fe42af6357d7",
+  "check_script_sha256": "2bc6856754e2af951bd40c5fa84a2f8c9db6513a2fe8422aeef8407ef3536eb2",
+  "scope": "Focused serial regressions only; no complete M6 capability, publication, mesh acceptance, or production qualification is claimed."
+}

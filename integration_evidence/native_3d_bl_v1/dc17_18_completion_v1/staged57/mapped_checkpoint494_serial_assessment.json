@@ -1,0 +1,46 @@
+{
+  "schema": "mapped_checkpoint494_serial_check_v1",
+  "case": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/mapped_checkpoint494_serial_20261113T161218_3650655",
+  "build": "build494",
+  "exit_code": 0,
+  "status": {
+    "state": "terminal",
+    "exit_code": 0,
+    "seconds": 4.505635738372803,
+    "pins_verified": true,
+    "changed": [],
+    "largest_sampled_individual_process_rss_bytes": 598016,
+    "rss_note": "sampled process RSS; not a whole-job peak"
+  },
+  "terminal_handles": {
+    "actual_host_proc": true,
+    "all_owned_handles_terminal": true,
+    "sampled_identities": [
+      {
+        "pid": 3650703,
+        "start_ticks": 7864675
+      }
+    ],
+    "live_owned_handles": [],
+    "wrapper_excluded": {
+      "pid": 3650655,
+      "start_ticks": 7864496
+    },
+    "checked_unix": 1794586343.3535938
+  },
+  "focused_tags": [
+    "NativeTargetCheckpoint3D",
+    "NativeTargetCheckpoint",
+    "NativeTargetRampCheckpoint"
+  ],
+  "filter": "[NativeTargetCheckpoint3D],[NativeTargetCheckpoint],[NativeTargetRampCheckpoint]",
+  "ranks": 1,
+  "timeout_seconds": 600,
+  "available_memory_at_launch_bytes": 45611524096,
+  "build494_status_sha256": "2c574b6aa07077882bb449ef3d362b9364c1a395c6c4963fd1e41c7a8e01446f",
+  "build494_observed_handles_sha256": "a14e7a0fbc9810a527cd12df21841f3f29475bf67b8a21849d454c0e7b2ec3a7",
+  "build494_source_pins_sha256": "39f309ffb168b5cd267ff72a799fc3b1796cdd25a23f049c589975f976b31bb7",
+  "runtime_pins_sha256": "e2daaed3b3b33a648db277ce13f2172d51eb919f5f36e1c95456fe42af6357d7",
+  "check_script_sha256": "10e898c7b03247197646cccdbcb0bb38ca7c55e71a1bbf3f76c05606f2804c1d",
+  "scope": "Focused serial regressions only; no complete M6 capability, publication, mesh acceptance, or production qualification is claimed."
+}

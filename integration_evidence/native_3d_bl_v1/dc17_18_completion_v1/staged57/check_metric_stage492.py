@@ -4,7 +4,7 @@ from pathlib import Path
 import run_cases as checks
 R=Path(__file__).resolve().parent
 mode='metric_stage'
-assert json.loads((R/'build493_terminal_handles.json').read_text())['all_owned_handles_terminal']
+assert json.loads((R/'build494_terminal_handles.json').read_text())['all_owned_handles_terminal']
 mode=sys.argv[1] if len(sys.argv)>1 else 'produce'
 assert mode in ('produce','reload')
 case='curved492_ramp5_metric_stage' if mode=='produce' else 'curved492_ramp5_target_reload'
@@ -72,7 +72,7 @@ def save_pinned(path,value):
                     file=source/name;value[str(file)]=checks.sha(file)
             value[str(source/'pins.json')]=checks.sha(source/'pins.json')
 
-        for p in (Path(__file__).resolve(),R/'qualify_target492.py',R/'build493_terminal_handles.json',R/'runtime_20261113_474/loaded_runtime_pins.json',inputs/'provenance.json',inputs/'qualification.json'):
+        for p in (Path(__file__).resolve(),R/'qualify_target492.py',R/'build494_terminal_handles.json',R/'runtime_20261113_474/loaded_runtime_pins.json',inputs/'provenance.json',inputs/'qualification.json'):
             value[str(p)]=checks.sha(p)
     if Path(path).name=='command.json':
         assert value['timeout_seconds']==600
@@ -80,7 +80,7 @@ def save_pinned(path,value):
         value['argv'][value['argv'].index('timeout')+1]='14400'
     original_save(path,value)
 checks.save=save_pinned
-sys.argv=['run_cases.py','build493',case]
+sys.argv=['run_cases.py','build494',case]
 try:checks.main(R/'runtime_20261113_474/loaded_runtime_pins.json')
 except SystemExit as e:code=e.code or 0
 attempt=sorted((R/'cases').glob(case+'_*'),key=lambda p:p.stat().st_mtime)[-1]

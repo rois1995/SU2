@@ -9,7 +9,7 @@ if len(sys.argv) not in (3,4):
 producer=Path(sys.argv[1]).resolve();qualification=Path(sys.argv[2]).resolve()
 mode=sys.argv[3] if len(sys.argv)==4 else 'serial'
 assert mode=='serial'
-assert json.loads((R/'build493_terminal_handles.json').read_text())['all_owned_handles_terminal']
+assert json.loads((R/'build494_terminal_handles.json').read_text())['all_owned_handles_terminal']
 receipt=json.loads((R/'target_checkpoint492_producer.json').read_text())
 qualified=json.loads(qualification.read_text())
 assert qualified['actual_target_checkpoint_qualified'] and qualified['recomposed_target_checked_after_reload']
@@ -79,8 +79,8 @@ def save_pinned(path,value):
             else:destination.symlink_to(source)
             value[str(source)]=item['sha256'];value[str(destination)]=item['sha256']
         os.environ['SU2_NATIVE_FROZEN_CONFIG']=str(attempt/'run.cfg')
-        pinned=[R/'nose492_fixed_faces.json',R/'nose492_fixed_facets.dat',R/'prepare_nose492_measurements.py',Path(__file__).resolve(),R/'check_metric_stage492.py',R/'qualify_target492.py',
-            R/'build493_terminal_handles.json',R/'runtime_20261113_474/loaded_runtime_pins.json',
+        pinned=[R/'assess_saved_production_surface492.py',R/'focused_curvature492_fidelity.json',R/'target_reference492_fidelity.json',R/'target492_metadata_summary.json',R/'nose492_fixed_faces.json',R/'nose492_fixed_facets.dat',R/'prepare_nose492_measurements.py',Path(__file__).resolve(),R/'check_metric_stage492.py',R/'qualify_target492.py',
+            R/'build494_terminal_handles.json',R/'runtime_20261113_474/loaded_runtime_pins.json',
             R/'target_checkpoint492_producer.json',qualification,allocation,reference,checkpoint,core,
             producer/'status.json',producer/'terminal_handles_actual.json',producer/'pins.json',
             *(producer/f'saved_cfd_metric_rank{rank}.jsonl' for rank in range(6)),
@@ -99,7 +99,7 @@ def save_pinned(path,value):
         value[str(producer/'pins.json')]=checks.sha(producer/'pins.json')
     original_save(path,value)
 checks.save=save_pinned
-sys.argv=['run_cases.py','build493',case]
+sys.argv=['run_cases.py','build494',case]
 try:checks.main(R/'runtime_20261113_474/loaded_runtime_pins.json')
 except SystemExit as e:code=e.code or 0
 attempt=sorted((R/'cases').glob(case+'_*'),key=lambda p:p.stat().st_mtime)[-1]
