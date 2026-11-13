@@ -1,0 +1,131 @@
+{
+  "checked_unix": 1794544603.4076355,
+  "source_commit": "35e173b043b6061856c9b3bb2c19e4b4bdccc1ed",
+  "case": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved473_geometry_merit_saved_target_surface_mpi6_20261113T041459_1770102",
+  "status": {
+    "state": "terminal",
+    "exit_code": 0,
+    "seconds": 497.7514500617981,
+    "pins_verified": true,
+    "changed": [],
+    "largest_sampled_individual_process_rss_bytes": 1006448640,
+    "rss_note": "sampled process RSS; not a whole-job peak"
+  },
+  "assessment_path": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/surface_stage473_assessment.json",
+  "assessment_sha256": "864d51dedd036f322af270f6419664e9d70a3ef233065da37c6ae5e6e698d2c7",
+  "all_actual_handles_terminal": true,
+  "source_runtime_input_pins_verified": 1743,
+  "build_binaries": {
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver": "fe107f3e4dcd290b2de2f06896e6647b85b079f5308aed48579f15c508f9309f",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/SU2_CFD/src/SU2_CFD": "70c1974cf3f56b7ee6c11a19703f2d6c8d17206a40f223860623228f7429c2f7"
+  },
+  "aggregate": {
+    "nodes": 61811,
+    "tets": 304508,
+    "positive_tets": 304508,
+    "physical_cells": 49644,
+    "exact_shared_nodal_checks": 1156221,
+    "commits": 481,
+    "global_work": 4804,
+    "cached_cells": 39760,
+    "unmeasured_cells": 264748,
+    "known_geometry_bad": 3102,
+    "known_size_bad": 34,
+    "q_measured": 0,
+    "J_measured": 0,
+    "geometry_work": 51309637,
+    "geometry_rank_max_min": 419.53930753564157,
+    "field_requests": 171947,
+    "field_compositions": 0,
+    "summed_rank_cpu_seconds": 2296.784951,
+    "stage_seconds_max": 389.166238073,
+    "target_load_seconds_max": 45.271271171,
+    "import_seconds_max": 0.6843389349999995,
+    "largest_sampled_tree_RSS_bytes": 4641996800,
+    "largest_sampled_individual_RSS_bytes": 1006448640,
+    "surface_prepared": false,
+    "required_wall_cells": 39760,
+    "measured_wall_cells": 39760,
+    "requested_wall_census_complete": true,
+    "requested_wall_geometry_complete": true,
+    "seed_cell_classes": [
+      0,
+      0,
+      38522
+    ],
+    "updated_cell_classes": [
+      0,
+      0,
+      1920
+    ],
+    "collapse_passes": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "split_passes": [
+      1,
+      1,
+      1,
+      1,
+      1,
+      1
+    ],
+    "surface_measurement_skipped": 378,
+    "surface_required_handoffs": [
+      1,
+      1,
+      1,
+      1,
+      1,
+      1
+    ],
+    "update_seconds_max": 10.564740186999993,
+    "donor_seconds_max": 0.6865455520000019
+  },
+  "strict_surface_ready": false,
+  "strict_BL_qualified": false,
+  "goal_complete": false,
+  "requested_complexity": 500000,
+  "complexity_is_nominal": true,
+  "saved_initial_estimated_complexity": 486914.722,
+  "saved_empirical_complexity_uncertainty": 41525.003,
+  "uncertainty_is_certified": false,
+  "evolved_mesh_complexity": null,
+  "stage_height": 6.4e-05,
+  "final_requested_height": 2e-06,
+  "growth": 1.2,
+  "thickness": 0.01,
+  "result": "Complete requested-wall measurement reached; conservative geometry/size closure still fails. Positivity and shared transported nodal identity verified; q/J/height remain unmeasured globally.",
+  "interpretation": [
+    "Compared with470, requested-wall coverage improved77.95%to100%;different measured/evolving sets prohibit rawbad-count churn comparison.",
+    "481commits and lower fitting upper bounds do not establish closure. Geometrywork increases30.089Mto51.310M; no computational-efficiency claim.",
+    "3102geometrybad means failure of current conservative screen, not3102independently proved physical violations.",
+    "Rank4/5hold2614of3102remaininggeometrybad; rank2holds488. Existing refusal/election timings overlap; no totalMPIwait inference.",
+    "Full geometry and height/shape censuses are incomplete; this is not an accepted mesh or usable CFDcheckpoint."
+  ],
+  "next_target": "Coupled geometry-closure construction/repair capability on actual saved residuals, not another speculative timing optimization.",
+  "next_inputs": {
+    "inventory": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/residual473_terminal_inventory.json",
+    "edges": [
+      [
+        24152,
+        24423
+      ],
+      [
+        67,
+        68
+      ]
+    ],
+    "control_vertex": 6070
+  },
+  "next_acceptance": [
+    "Reproduce complete current support and exact associations; do not infer genuinefeatures or impossibility from last rejection text.",
+    "Test complete patch plus neighbors through geometry descent/closure, tangential delivery and constrained first-row prerequisites within same bounds.",
+    "Separate genuine geometry violations, conservative refusal, positivity/visibility, support, feature/body/height restrictions and generation deferral.",
+    "No new ceiling, scheduler, representation, config, raisedbudget or relaxedgate; no operatorvariant before demonstrated useful complete replacement."
+  ]
+}

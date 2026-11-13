@@ -1220,3 +1220,25 @@ benefit. The free current-heap-upper return does not help the relevant root exit
 no optimization cycle from unrelated queries. Preserve the rejected454 evidence.
 See ADAPTATION_CONNECTED_PATCH_TRAJECTORY_20261113.md and staged57/
 residual472_query_replay_assessment.json. No gate, scheduler, target or budget change.
+
+
+###473 terminal: retain construction focus; defer unproved efficiency alternatives
+
+Shared fixed2tau supplemental certificate policy is now implemented35e173b043 and
+serial/MPI-qualified in its stated scope. Actual fullstage completes all requested
+wall measurements, but3102conservative geometry-screen failures remain; no accepted
+BL/firstrow. Other candidate-only/distance-bracket/ceiling variants remain unqualified.
+Do not launch another timing or ceiling cycle from greater commit counts.
+
+Measured remaining geometry-screen demand is84.3%on ranks4/5; nonquality ownership
+migration is currently called at length-generation transitions, and this run has
+only one split pass. Reusing it at another safe complete-census boundary is a
+HYPOTHESIS, not a selected scheduler change or proof of useful closure. First show
+complete actual cavity trajectories retire geometry failures without shifting debt.
+One rank's last pass-deferred message alone does not prove a generation-lifecycle bug.
+
+Additional2tau queries can prepare another resolution of unchanged geometry. Reuse
+of existing fine leaves is only an unproved cost hypothesis; any change must retain
+exact support/resolution identity, cached/recomputed agreement and active memory
+accounting. Current51.310Mwork is not evidence of a computational-efficiency gain.
+No new baseline/perf/GDB campaign. Active work remains actual coupled geometry closure.

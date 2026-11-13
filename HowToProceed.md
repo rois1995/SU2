@@ -1,74 +1,64 @@
 # How to proceed
 
-Read [HANDOFF_Codex.md](HANDOFF_Codex.md) for authoritative handles/provenance and
-[the trajectory contract](Handbook/ADAPTATION_CONNECTED_PATCH_TRAJECTORY_20261113.md)
-for inputs, operation roles, acceptance and stalls. Prior notes are preserved in
-[history](Handbook/ADAPTATION_PROCEED_HISTORY_PRE_470_OUTCOME_20261113.md).
+Read [HANDOFF_Codex.md](HANDOFF_Codex.md) for current handles/provenance and
+[the connected trajectory](Handbook/ADAPTATION_CONNECTED_PATCH_TRAJECTORY_20261113.md)
+for operation roles, readiness and stalls. Goal ACTIVE; one curved-BL cycle.
 
-Last qualified source470 is pushed and serial/MPI-qualified for phase-consistent provisional
-reconstruction. Its jobs are terminal. It fixes premature first-row carving in one
-geometry reconstruction path without removing actual height checks or passing-row
-protection. The actual3→10cell replacement is admissible provisionally; it is not a
-BL or first-row certificate. The rejected469physical-normal fallback is not active.
+473 is pushed as35e173b043 and qualified in focused serial/actual-cavity/MPI scopes.
+Its shared bound refinement corrects demonstrated geometry-merit refusals without
+changing the target, physical request, final gates or budgets. Keep470's valid
+provisional reconstruction and all prior qualified construction/certification work.
 
-The full same-target stage470 is NOT surface-ready:61494nodes/303757positive tets,
-30500/39128wall cells measured,1458known geometry/37sizebad, q/J allUNKNOWN. More
-coverage than451 does not establish better closure. Preserve all six complete saved
-shards, full441target and original CFD; these outputs remain diagnosed failure
-captures, not a qualified successful stage checkpoint. No repeated CFD solve.
+The actual full surface integration is TERMINAL:497.751s wrapper/389.166s native,
+61811nodes/304508positive tets. It reaches100%requested-wall measurement39760/39760,
+compared with470's77.95%. All original source/runtime/input pins and actual owned
+handles verified. Full output and six complete geometry/metric/Owned shards retained.
+No owned heavy workload is live.
 
-The connected saved-input trajectory has been tested and STALLED before first-row
-readiness:24calls/22commits, local geometrybad delta+2 and q/J+63/+63; observation
-36→110 includes11old cells newly observed. Neither more commits nor the positive
-3→10 reconstruction establishes closure. Use the trajectory contract's explicit
-operation roles, readiness and reconsideration rules; do not append another local
-placement or splitting variant.
+This is NOT surface readiness:3102cells fail the conservative geometry screen,
+34sizebad,264748cells unmeasured outside the requested-wall scope; q/J and heights
+are unmeasured globally. No tangential/directional or first-row readiness, accepted
+BL mesh, transfer or RANS workflow follows. Failed screen does not itself prove a
+physical violation. These are failure/diagnostic captures, not a usable CFD restart.
 
-472current-residual diagnostics reproduce current rank4/5 stars with complete native
-associations and transported metrics, plus a geometry-clean control.24private trials;
-only controlcollapse is feasible under all original preflight guards. The historical
-rank5 private clearance failure is not reproduced; its old cell is absent. Existing
-trace plus eight exact query replays demonstrate loose classification upper bounds
-being used numerically as geometry merit. Complete four-child upper-bound excess can
-be tightened below the recorded old score on two existing split candidates. This is
-not strict closure or proof of physical improvement against a comparably tightened
-old patch. All472jobs are terminal. An experimental shared correction473 is now implemented
-locally and building FROZEN (consult handoff): after the strict query, at most ONE
-same-support query at2*GeometryTolerance tightens a valid upper above that ceiling.
-Acceptance stays1e-4. Direct/cross, old/fresh and census use the SAMEfixed policy.
-No target, height, scheduler, API/config or budget change. Extra-query failure stays
-failclosed. The old parents have been replayed natively and matched-policy queries
-validated inputs; full native candidate and trajectory qualification is still OPEN.
+Do not compare rawbadcounts with470's partial, different mesh/census.481commits
+versus164 is not completion. Geometrywork rises30.089M→51.310M; no computational
+speedup is established. The saved451coupled regression still ends24calls/22pubs,
+geometry16→24/localdelta+2 and q/J+63/+63, with firstrow UNREACHED. Four new current470
+residual private candidates pass original guards, but retain geometrybad2→2 and
+introduce q/J debt. Their exact cavities have no isolated MPIpublication evidence.
 
-473build, focused52cases/5688assertions, actualcurrent residualpreflight,
-complete saved451coupled regression, and MPI41cases/everyrank have passed in their
-stated scopes. New R4/R5split and reconstruction candidates pass all privateguards,
-but geometrybad2→2 and q/J2→4or8: no strictclosure. Complete regression still24calls/
-22pubs,geometry16→24/localdelta+2 andfirstrowUNREACHED. New4candidates have no exact
-MPIpublication evidence; the MPIactualcontrol uses existingcoarsening.
+Next target is **coupled geometry-closure capability**, using actual saved473 residuals
+and a clean control. R/residual473_terminal_inventory.json verifies current edges
+24152–24423 (3cells) and67–68 (1cell), endpoint stars12/8 and6/5, plus6070control
+(10cells). All six current parameter payloads are byte-identical. Inventory alone
+does not establish associations, genuine features or geometry cleanliness.
 
-Next run ONE actual same-seed fullsurface integration at the existing stage388.8s/
-233220work limits with the SAME441target and CFDseed. This is the remaining connected
-integration test, not another baseline or fullCFD retry. Judge completewallmeasurement,
-geometrybad/excess, directional conformity, positivity and usable readiness; do not
-claim success from more commits or lower fitting upperbounds. Extraquery work remains
-charged. If no credible surfaceoutput emerges, preserve the complete failed state and
-reconsider coupled placement/connectivity from actual residuals; do not add another
-ceiling, placement or split variant. Keep current source frozen until terminal.
+Reproduce the current COMPLETEpatch/support/transported nodal field natively, then
+test a connected trajectory with existing split, collapse, mapped relocation and
+reconnection according to its measured obstruction. Distinguish geometric violation,
+conservative refusal, positivity/visibility, support, feature/body/height restrictions
+and construction-pass deferral. Reacquire complete reservations before any necessary
+bounded support change; never publish with old dependencies. Judge complete-patch
+and neighboring-cell geometry retirement/introduction, exact tangential conformity,
+q/J observations, heights, work and memory. No isolated placement/split/ceiling variant
+or new scheduler before demonstrated useful complete replacements.
 
-Then qualify actual firstheight/alignment/coverage, successive progression and
-junction/collision behavior, outer transition and strict closure. Keep stage0=32h0
-provisional; finalh0 remains2e-6, growth1.2, thickness.01.500k is nominal complexity,
-not nodecount or a rejection gate. First-height continuation must reach originalh0.
-A factor10 schedule remains a comparison to test after usable output, not current policy.
+Geometry closure and suitable tangential delivery must precede a credible constrained
+first row. Rebuild the existing carrier/symmetry-constrained blended direction field
+after relevant changes; measure physical stageheight, alignment, coverage and positive
+adjoining volume. If blocked, reconsider coupled construction from the failed context,
+not more rounds or raised limits. Keep firstrow/growth/transition/finalclosure gates.
 
-Use current counters/source and existing evidence, focused serial checks, one meaningful
-MPI milestone per connected integration, and full-stage retries at actual milestones.
-Do not add speculative scheduling/geometry facilities or waive constraints. Save each
-credible reusable stage with complete target/geometry/provenance; sensor tensors alone
-are not sufficient. Keep source frozen during runs and one owned heavy job.
+Reuse SAME saved CFD,441composed target/profile/authority and current transported
+nodal metrics. Stage0=32h0=6.4e-5 remains provisional; finalh0=2e-6,growth1.2,
+thickness.01.500k is nominal complexity, not nodecount or rejection. Sensor tensors
+alone cannot reconstruct the target. Factor10 continuation remains unproven/queued.
 
-Euler293workflow/checkpoints remain hash-preserved. Full remaining completion is a
-strictly accepted curved BL, dedicated MPI constraints, TWOaccepted final-height RANS
-adaptations, conservative admissible flow+turbulence transfer, finite continued CFD
-and isolated adapted diskrestart. No accepted BL/RANS mesh exists yet. Keep the goal active.
+Save credible reusable stage outputs with full provenance, and label remaining debt.
+Keep one heavyjob, bounded resources/source freezing and meaningful MPI milestones.
+No new baseline/perf/GDB campaign. Queued Coulaud/MAdLib and Growth12stale-front issues
+remain open; preserve CAD optionality and no-CAD authority. Euler293's completed
+workflow and22payloads are freshly hash-preserved after473. Remaining completion is
+strict curvedBL/nativeMPI constraints and TWO final-height RANS adaptations with
+conservative admissible flow+SAtransfer, finite continuedCFD and isolated diskrestart.

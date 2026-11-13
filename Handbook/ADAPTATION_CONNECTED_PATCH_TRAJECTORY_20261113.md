@@ -18,11 +18,11 @@ saved RANS+SA seed, and the current transported nodal field/associations. Curren
 stage0 first height is6.4e-5 (32 times final2e-6), growth1.2, thickness.01. The
 configuration literal final height is transformed by CConfig's existing event0
 postprocessing; do not silently substitute the final-height target at this stage.
-Source production470 and saved six-partition surface470 state are authoritative.
-Sensor tensors alone cannot reconstruct this input. The completed470 sequential
-trajectory started from the451 capture; the full470 surface capture is the newer
-input for472 residual diagnosis. No new published complete trajectory from the470
-capture is claimed.
+Source473 is pushed35e173b043; the latest six-partition473surface state is now the
+next diagnostic input. Sensor tensors alone cannot reconstruct it. The completed
+470/473 sequential regression starts from451;470capture was used for472/473private
+residual diagnosis. Do not confuse these distinct inputs or claim published complete
+current473residual trajectories from that regression.
 
 The executable route and the conditions for advancing are:
 
@@ -136,14 +136,15 @@ support/census/cache semantics. The mapped diagnostic composition is corrected.
 Focused52cases, actual current complete-candidate preflight and MPI41cases/everyrank
 pass. The saved451complete trajectory still stalls with the SAMEpublished mesh;
 that is a regression result, not evidence that current470residual publication or
-surface closure improved. ONEsame-seed fullsurface integration is now required.
+surface closure improved. The ONEsame-seed fullsurface integration has now reached completewallmeasurement,
+but NOT geometry/tangential/firstrow readiness; see terminal outcome below.
 A candidate-only tighter query or further arbitrary ceiling change is not authorized
 by these results. If comparable assessment
 still yields no useful complete replacements, reconsider coupled placement and
 connectivity using the actual failed contexts; do not blame reference cavity
 methods from this narrower operator composition.
 
-##473 shared correction — full surface integration still pending
+##473 shared correction — terminal integration, closure still OPEN
 
 After terminal-handle and pin verification, native replay validated the four original
 parent faces and reproduced old complete scores. Matched old/fresh same-support
@@ -163,12 +164,50 @@ geometrywork484520→1015819 includes changed control/search/cache effects. No
 performancegain or physical strictclosure is inferred from these upperbound scores.
 The SAMEsaved451bounded trajectory still24calls/22pubs and16→24geometrybad,local+2,
 qJ+63/+63, firstrowUNREACHED. MPI41cases/everyrank pass; actual MPIpublication
-control uses existingcoarsening, not these exact new residual splits. Fullsame-seed
-surfaceintegration is NEXT; no successful surfacecheckpoint or accepted BL exists. The diagnostic mapped control now lets MoveVertex perform its
+control uses existingcoarsening, not these exact new residual splits. Fullsame-seed surface integration is TERMINAL497.751swrapper/389.166snative,
+1743pins/all10actualhandles/304508positive tets/1156221bit-exact shared nodal checks.
+61811nodes. Requested-wall measurement COMPLETE39760/39760, vs47030500/39128.
+3102conservative geometry-screen failures,34sizebad;264748othercells unmeasured;
+q/J/heights UNKNOWN globally. Surface_preparedFALSE; no firstrow or successful
+surfacecheckpoint.481commits/4804work,geometrywork51.310M; no speedup or rawbad-count
+comparison with partial470. R/surface_phase473_outcome.json records constraints and
+next acceptance; current complete failure captures preserve the SAMEcomposed target
+state with current transported metrics/associations. They are not CFD restart files.
+
+The diagnostic mapped control now lets MoveVertex perform its
 own existing mapped association/projection instead of planar preconstraint. No
 production mobility rule changed. R/geometry_merit473_design.json defines affected
-callers, invariants and acceptance before build. Do not advance downstream or call
-this qualified until complete patch/neighbor and meaningful MPI evidence exists.
+callers, invariants and acceptance before build. Affected serial/MPI behavior is
+qualified in the scopes above. Do not claim surface/BL readiness or advance to growth
+until complete patch/neighbor geometry, tangential and first-row conditions pass.
+
+## Next current-state trajectory: resolve the coverage gap before changing operators
+
+The published connected trajectory currently enters through the legacy451 four-cut
+continuation and seeds observation with vertices4218/4219 plus its published skin.
+Source: native_actual_surface_split_continuation.inc and the first six lines of
+native_actual_surface_patch_trajectory.inc. Simply changing its capture directory
+to473 would NOT establish a faithful trajectory for edges24152–24423 or67–68.
+The current473 private residual replay demonstrates admissible candidates, but does
+not publish them or follow the resulting current mesh to readiness.
+
+Reuse the existing complete transaction controller with explicit CURRENT seed
+support, full473Owned/parameters/transported metrics and SAME441profile/authority;
+avoid replaying the unrelated legacy precursor. Preserve its old regression. Keep
+one shared24constructor/300sgeometry/600souter/64old/128new/12GiB allowance across
+whatever representative contexts are actually exercised; do not reset the bound for
+each fallback. Observation unions may span neighboring stars; each transaction must
+still be a complete valid native cavity and acquire its final reservation anew.
+
+The prepared current inventory has edge24152–24423 star3cells, endpointstars12/8,
+edge67–68 star1cell, endpointstars6/5, and6070control10cells. Native code must verify
+current associations/features/control cleanliness; Python inventory is not authority.
+Choose existing operations from the reproduced obstruction. Require complete-patch
+and neighboring-cell retirement/introduction and directional conformity, then actual
+constrained directions/firstheight/coverage when prerequisites pass. Do not select
+a new operator, another certificate ceiling or a scheduling policy from the literature
+or terminal refusal text alone. A stalled current trajectory must reconsider coupled
+construction using that exact failed support, not append another isolated variant.
 
 ## Evidence and corrected interpretation
 
