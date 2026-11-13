@@ -1908,7 +1908,13 @@ TEST_CASE("Representative saved M6 geometry queries preserve exact inputs and ex
       for(const auto& point:q.points){direct=direct&&authority->Supports(q.face.facet,point.binding);
         const auto affine=reference.original->Affine().find(q.face.facet);
         if(affine!=reference.original->Affine().end())plane=std::max(plane,AffineChart(affine->second).ErrorBound(point.node.p));}
-      if(!direct)CHECK(production==std::max(plane,answer));
+      if(!direct) {
+        double expected=answer;
+        if(std::isfinite(2*tolerance)&&expected>2*tolerance) {
+          auto extra=budget();expected=std::min(expected,cached.BoundPhysicalSurface(q.facets,physical,2*tolerance,extra));
+        }
+        CHECK(production==std::max(plane,expected));
+      }
     }
     if(i)out<<',';
     out<<"{\"id\":"<<i<<",\"anchor\":"<<q.face.facet<<",\"facets\":"<<q.facets.size()<<",\"bound\":"<<answer

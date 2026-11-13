@@ -1,0 +1,29 @@
+{
+  "missing_capability": "Comparable old/new conservative geometry fitting guidance when strict tolerance classification exits with a loose upper bound.",
+  "evidence": [
+    "Current M6 residuals reproduce exact old complete-patch scores via existing native query helper.",
+    "Identical2e-4 certificate queries on exact old/fresh supports are terminal and retain strict1e-4 acceptance.",
+    "Old direct correspondence bounds are tighter than the supplemental old-face query bounds; candidate cross-scope upper bounds tighten substantially. Native complete-candidate recomputation remains required."
+  ],
+  "design": "EntityFaceError retains its strict query; if the valid upper exceeds2*GeometryTolerance, make ONE further exact-same-support/physical-triangle query at2*GeometryTolerance and take min valid uppers, preserving maximum floor. Apply shared fixed policy to direct/cross, old/new, census; no new API/config/gate.",
+  "unchanged": [
+    "Final geometry1e-4 and all q/J/size/height/body/resource gates",
+    "Target/profile/saved CFD/continuation stage",
+    "Existing memo identity, prepared geometry, dependency/reservation/publication machinery"
+  ],
+  "failure": "Additional certificate failure propagates through the existing sticky work/time/storage budget; no false pass, reset or partial certificate publication.",
+  "qualification": [
+    "Focused curved/entity/cache/stale/support/height/resource checks including failure in second query.",
+    "Actual current M6 whole-candidate preflight on residuals plus clean control; native old/fresh sums and all admission flags.",
+    "SAMEbounded complete24-call trajectory with complete current dependencies/reservation/publication and affected-neighbor measurements; geometry/tangential/firstrow remain readiness criteria, never commit count.",
+    "Meaningful MPI integration only after demonstrated useful actual serial replacements; then ordered BL stages."
+  ],
+  "scope": [
+    "Common/src/adaptation/CNativeBoundaryParameters3D.cpp: EntityFaceError and its ParameterError/GeometryCertificates callers",
+    "UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp: existing query helper oracle covers fixed shared policy",
+    "UnitTests/Common/adaptation/CNativeGeometryBackend3D_tests.cpp: outside face/cached repeat/second-query exhaustion",
+    "UnitTests/SU2_CFD/adaptation/fixtures/native_actual_bl_cavity_planning_body.inc: mapped control avoids planar preprojection"
+  ],
+  "implementation_qualified": false,
+  "goal_complete": false
+}

@@ -2,7 +2,8 @@
 
 Current curved-BL cycle, ordered stage3→4. Read HANDOFF_Codex.md for actual handles
 and frozen sources. This is one connected diagnostic/integration cycle, not a new
-production scheduler, geometry authority, target or configuration. Production remains470; test-only472 diagnostics do not change construction policy.
+production scheduler, geometry authority, target or configuration. Last qualified production is470; shared473bound correction is now under qualification.
+Construction validity policy and all acceptance gates are unchanged.
 
 ## Current strategy, tested end-to-end within the stage boundary
 
@@ -129,16 +130,45 @@ improvement relative to a comparably tightened old patch, or a published replace
 See R/residual472_query_replay_assessment.json. Query precision is not a changed
 geometry gate. The free current-heap-upper change does not address these root exits.
 
-**Decision:** do not append another placement/split variant or launch another full
-stage yet. The next connected correction must make old/fresh geometry-progress
-assessment comparable, preserve cached/recomputed and census semantics, and then
-retest this COMPLETE trajectory, including neighbor debt, tangential delivery and
-first-row prerequisites. Fix the mapped diagnostic composition when testing
-relocation. A candidate-only tighter query or an arbitrary larger certificate
-ceiling is not yet a qualified production correction. If comparable assessment
+**Decision:** do not append another placement/split variant. The473 shared correction
+below is the selected test of comparable fixed-policy old/fresh bounds, with exact
+support/census/cache semantics. The mapped diagnostic composition is corrected.
+Focused52cases, actual current complete-candidate preflight and MPI41cases/everyrank
+pass. The saved451complete trajectory still stalls with the SAMEpublished mesh;
+that is a regression result, not evidence that current470residual publication or
+surface closure improved. ONEsame-seed fullsurface integration is now required.
+A candidate-only tighter query or further arbitrary ceiling change is not authorized
+by these results. If comparable assessment
 still yields no useful complete replacements, reconsider coupled placement and
 connectivity using the actual failed contexts; do not blame reference cavity
 methods from this narrower operator composition.
+
+##473 shared correction — full surface integration still pending
+
+After terminal-handle and pin verification, native replay validated the four original
+parent faces and reproduced old complete scores. Matched old/fresh same-support
+2e-4 certificate queries retain old direct bounds and tighten candidate cross-scope
+bounds. The experimental shared EntityFaceError policy preserves the strict query
+and, only for a valid upper above2*GeometryTolerance, makes ONE extra same-support
+query at2*GeometryTolerance and takes minvalidbounds, retaining the original maximum
+floor. Direct/cross, old/fresh and census use the SAMEpolicy; acceptance remains1e-4.
+Uncertainty/resource failure retains existing failclosed semantics. No new API/config,
+operator, scheduler, target or geometry representation. Build473 passed305.914s; C++ remains FROZEN through validation/integration.
+
+Actual native recomputation now passes four residual privatecandidates (R4/R5
+SplitSurfaceStrip2→4 andReconstructSplitPatch2→8). Both keep geometrybad2→2;
+q/J2→4or8, strictheightFALSE/provisionalTRUE. Scores R4old1.277010e-7→8.650461e-8,
+R5old2.563259e-7→1.785057e-7 under the SAMEpolicy. They are unpublished. Overall
+geometrywork484520→1015819 includes changed control/search/cache effects. No
+performancegain or physical strictclosure is inferred from these upperbound scores.
+The SAMEsaved451bounded trajectory still24calls/22pubs and16→24geometrybad,local+2,
+qJ+63/+63, firstrowUNREACHED. MPI41cases/everyrank pass; actual MPIpublication
+control uses existingcoarsening, not these exact new residual splits. Fullsame-seed
+surfaceintegration is NEXT; no successful surfacecheckpoint or accepted BL exists. The diagnostic mapped control now lets MoveVertex perform its
+own existing mapped association/projection instead of planar preconstraint. No
+production mobility rule changed. R/geometry_merit473_design.json defines affected
+callers, invariants and acceptance before build. Do not advance downstream or call
+this qualified until complete patch/neighbor and meaningful MPI evidence exists.
 
 ## Evidence and corrected interpretation
 

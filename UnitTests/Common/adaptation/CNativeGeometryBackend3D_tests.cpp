@@ -509,7 +509,16 @@ TEST_CASE("Fresh entity face bounds preserve correspondence and coordinate inval
   const auto bound=entity->EntityFaceError(face.id,binding,actual,&budget);
   CHECK(bound<=.01);CHECK(bound==reference->SurfaceError(face.id,actual));
   auto moved=actual;moved[0].z+=.05;
-  CHECK(entity->EntityFaceError(face.id,binding,moved,&budget)>.01);
+  const auto before=fixture.geometry->GeometryStatsSnapshot();
+  const auto outside=entity->EntityFaceError(face.id,binding,moved,&budget);
+  CHECK(outside>.02);
+  CHECK(fixture.geometry->GeometryStatsSnapshot().upper_calls==before.upper_calls+2);
+  CHECK(entity->EntityFaceError(face.id,binding,moved,&budget)==outside);
+  auto strict=BackendBudget();
+  fixture.geometry->BoundPhysicalSurface({face.id},{moved},.01,strict);
+  auto limited=BackendBudget();limited.maximum_work=strict.work;
+  CHECK_THROWS(entity->EntityFaceError(face.id,binding,moved,&limited));CHECK(limited.work_exhausted);
+  CHECK(entity->EntityFaceError(face.id,binding,moved,&budget)==outside);
   CHECK(entity->EntityFaceError(face.id,binding,actual,&budget)==bound);
   for(const auto& row:entity->GeometryCertificates(budget,true)) {
     CHECK(row.second.within_tolerance);CHECK(row.second.mesh_to_model<=.01);

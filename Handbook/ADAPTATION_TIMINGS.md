@@ -1,10 +1,45 @@
 # Adaptation timings and computational work
 
 Updated2026-11-13 after472 terminal residual and exact-query diagnostics.
-NO owned heavy workload live. Production remains470.
+Build473 TERMINAL305.914s; focused473serial PASS62.658s/52cases/5688assertions.
+Current473M6 candidate replay and coupled regression are terminal; MPI473 qualification is terminal185.914s/41cases everyrank.
+No owned heavy workload live; actual surface integration is next.
+Consult current handoff for handles.
+Last qualified production remains470;473 is an unqualified connected correction.
 [Current handoff](../HANDOFF_Codex.md) owns source/build/handle state;
 [stage contract](ADAPTATION_CONNECTED_PATCH_TRAJECTORY_20261113.md) owns acceptance/stalls.
 R=`integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57`.
+
+##473 active cycle — comparable fitting bounds
+
+Parent-face replay54.988s wrapper, four original faces through production guidance,
+exact prescribed input bindings validated; original complete two-parent scores agree
+up to native longdouble versus Python float summation's last bit. Cold/warm/uncached
+primitive results agree. Five actual host identities terminal before continuing.
+
+Eight MATCHED old/fresh same-support certificate queries at2e-4 took95.376s wrapper,
+including repeated process/authority startup. Each used existing200000work/8GiB cap,
+shared300s;1725unique pins and33actual identities verified terminal. Geometry
+acceptance remained1e-4. Old direct correspondence bounds remain tighter than the
+supplemental query bounds; two candidate cross-scope bounds tighten substantially.
+These are certificate results, not native recomputed complete production merit,
+trajectory improvement or a speed benchmark. New common473 policy must still pass
+complete candidate/trajectory checks. No net bad-cell removal/s claim yet.
+
+Build473 freezes one production and three affected test/fixture files. Its purpose
+is safer/more comparable progress assessment, not an established timing improvement.
+Extra certificate work must count against the SAME limits; tighter upper bounds alone
+are not end-to-end success. No CFD/target recalculation, new baseline/perf/GDB or
+changed construction/height policy. Build PASS305.914s, focused52cases/5688assertions PASS62.658s. Current M6preflight
+PASS148.615s:4new residualprivate-feasible candidates, geometrybad2→2 and q/J2→4or8.
+Geometrywork484520→1015819 (includes changed mappedcontrol and search/cache effects).
+Per-candidate R4split19862→35154work, R5split70009→74752; usefulclosure UNPROVEN.
+The complete saved451transaction regression PASS247.696swrapper:24calls/22pubs,
+SAME36→110observation,geometry16→24/localdelta+2,qJ+63/+63 andfirstrowunreached.
+Trajectory72.709656wall/72.696812CPU/1650973work, vs47074.886533/74.866628/1590930.
+No timinggain from these fewseconds; work is up3.77% and mesh progress unchanged.
+MPI41cases/everyrank PASS185.914s;3642–124194assertions/rank. Actual full-stage
+integration remains OPEN; no speedup, geometry closure or first-row readiness.
 
 ## Latest bounded diagnosis (not a performance baseline)
 

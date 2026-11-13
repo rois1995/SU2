@@ -5,8 +5,8 @@ Read [HANDOFF_Codex.md](HANDOFF_Codex.md) for authoritative handles/provenance a
 for inputs, operation roles, acceptance and stalls. Prior notes are preserved in
 [history](Handbook/ADAPTATION_PROCEED_HISTORY_PRE_470_OUTCOME_20261113.md).
 
-Current source470 is pushed and serial/MPI-qualified for phase-consistent provisional
-reconstruction. All jobs are terminal. It fixes premature first-row carving in one
+Last qualified source470 is pushed and serial/MPI-qualified for phase-consistent provisional
+reconstruction. Its jobs are terminal. It fixes premature first-row carving in one
 geometry reconstruction path without removing actual height checks or passing-row
 protection. The actual3→10cell replacement is admissible provisionally; it is not a
 BL or first-row certificate. The rejected469physical-normal fallback is not active.
@@ -32,20 +32,29 @@ trace plus eight exact query replays demonstrate loose classification upper boun
 being used numerically as geometry merit. Complete four-child upper-bound excess can
 be tightened below the recorded old score on two existing split candidates. This is
 not strict closure or proof of physical improvement against a comparably tightened
-old patch. Production remains470. All472jobs are terminal; no production correction
-has been implemented from these queries.
+old patch. All472jobs are terminal. An experimental shared correction473 is now implemented
+locally and building FROZEN (consult handoff): after the strict query, at most ONE
+same-support query at2*GeometryTolerance tightens a valid upper above that ceiling.
+Acceptance stays1e-4. Direct/cross, old/fresh and census use the SAMEfixed policy.
+No target, height, scheduler, API/config or budget change. Extra-query failure stays
+failclosed. The old parents have been replayed natively and matched-policy queries
+validated inputs; full native candidate and trajectory qualification is still OPEN.
 
-Next select ONE correction only after old and fresh complete-patch bounds are
-comparable. Preserve cache/census semantics, exact support/association identity and
-work/memory limits. Do not merely increase a certificate ceiling or relax geometry.
-The mapped relocation control must also avoid its diagnostic planar preprojection;
-production SmoothBoundary already uses mapped association/projection. Qualify the
-connected correction, then rerun the SAME complete trajectory through geometry
-closure, tangential delivery and first-row prerequisites under shared bounds. If
-neighbor debt, unresolved geometry or point crowding still prevents readiness,
-reconsider coupled placement/connectivity from the actual failed cavity. Save failure
-evidence, not a successful stage checkpoint. No downstream growth from an unready
-surface, and no repeated CFD or target solve without a demonstrated reason.
+473build, focused52cases/5688assertions, actualcurrent residualpreflight,
+complete saved451coupled regression, and MPI41cases/everyrank have passed in their
+stated scopes. New R4/R5split and reconstruction candidates pass all privateguards,
+but geometrybad2→2 and q/J2→4or8: no strictclosure. Complete regression still24calls/
+22pubs,geometry16→24/localdelta+2 andfirstrowUNREACHED. New4candidates have no exact
+MPIpublication evidence; the MPIactualcontrol uses existingcoarsening.
+
+Next run ONE actual same-seed fullsurface integration at the existing stage388.8s/
+233220work limits with the SAME441target and CFDseed. This is the remaining connected
+integration test, not another baseline or fullCFD retry. Judge completewallmeasurement,
+geometrybad/excess, directional conformity, positivity and usable readiness; do not
+claim success from more commits or lower fitting upperbounds. Extraquery work remains
+charged. If no credible surfaceoutput emerges, preserve the complete failed state and
+reconsider coupled placement/connectivity from actual residuals; do not add another
+ceiling, placement or split variant. Keep current source frozen until terminal.
 
 Then qualify actual firstheight/alignment/coverage, successive progression and
 junction/collision behavior, outer transition and strict closure. Keep stage0=32h0

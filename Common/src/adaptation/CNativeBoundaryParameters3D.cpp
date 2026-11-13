@@ -369,6 +369,13 @@ double BoundaryParameterState::EntityFaceError(Id facet,const std::array<Surface
   if(!EntityGeometry())throw std::invalid_argument("Entity face error requires an absolute geometry tolerance.");
   if(budget)budget->CheckTime();
   const auto& state=*this;const auto& g=*geometry;
+  auto tighten=[&](const std::vector<Id>& support,double upper) {
+    const auto ceiling=2*state.GeometryTolerance();
+    // An outside-witness bound classifies safely but can be too loose for old/new fitting merit.
+    if(std::isfinite(ceiling)&&upper>ceiling)
+      upper=std::min(upper,g.BoundPhysicalSurface(support,{p},ceiling,*budget));
+    return std::max(maximum,upper);
+  };
   bool direct=true;for(const auto& b:binding)direct=direct&&g.Supports(facet,b);
   if(direct){const auto start=std::chrono::steady_clock::now();double result;
     try{result=std::max(maximum,g.SurfaceError(facet,binding,p));}
@@ -380,6 +387,7 @@ double BoundaryParameterState::EntityFaceError(Id facet,const std::array<Surface
       AtlasStorage storage(budget,scratch,budget->maximum_bytes);
       const std::vector<Id> support{facet};const std::vector<std::array<Point,3>> triangles{p};
       result=std::max(maximum,std::min(result,g.BoundPhysicalSurface(support,triangles,state.GeometryTolerance(),*budget)));
+      result=tighten(support,result);
     }
     return result;}
 
@@ -395,7 +403,8 @@ double BoundaryParameterState::EntityFaceError(Id facet,const std::array<Surface
   candidates.erase(std::remove_if(candidates.begin(),candidates.end(),[&](Id id){return state.Entity(id)!=entity;}),candidates.end());
   g.RecordSupportQuery(std::chrono::duration<double>(std::chrono::steady_clock::now()-support_start).count(),candidates.size());
   if(candidates.empty())throw std::invalid_argument("Entity surface query lost its supporting geometry.");
-  return std::max(maximum,g.BoundPhysicalSurface(candidates,{p},state.GeometryTolerance(),*budget));
+  const auto upper=g.BoundPhysicalSurface(candidates,{p},state.GeometryTolerance(),*budget);
+  return tighten(candidates,upper);
 }
 const std::map<BoundaryParameterState::EntityKey,MappedFacetReference::SurfaceUnionBounds>&
 BoundaryParameterState::GeometryCertificates(AtlasBudget& budget,bool complete)const {

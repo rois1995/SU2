@@ -1,0 +1,30 @@
+{
+  "build": "build472",
+  "case": "curved472_current_parent_faces_serial",
+  "ranks": 1,
+  "argv": [
+    "nice",
+    "-n",
+    "19",
+    "/usr/bin/time",
+    "-v",
+    "timeout",
+    "300",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+    "[NativeM6GeometryQueries3D]",
+    "--durations",
+    "yes"
+  ],
+  "environment": {
+    "SU2_NATIVE_TRANSACTION_REFERENCE": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_bl_inputs/rans_metric_entry364_v1/m6.su2.native_ref",
+    "SU2_NATIVE_TRANSACTION_HAUSD": "0.0001",
+    "SU2_NATIVE_GEOMETRY_QUERY_INPUT": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/residual472_query_replays/old_parent_faces_v2.bin",
+    "OMPI_MCA_osc": "pt2pt",
+    "OMPI_MCA_orte_tmpdir_base": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/compile-tmp/parent472-8m5f1lwu",
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1",
+    "TMPDIR": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/compile-tmp"
+  },
+  "timeout_seconds": 300
+}

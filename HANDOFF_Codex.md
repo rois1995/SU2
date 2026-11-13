@@ -13,16 +13,49 @@ retains all earlier findings/handles; it is NOT live workload state.
 
 ## Live state, source and build
 
-All owned472 build/current-residual/trace/exact-query workloads are TERMINAL.
-Exact-query exec18941 finished0: eight exact childface certificates,95.479s shared
-wrapper time. Existing strict bound replays match captured production queries bit
-exactly. Derived query ceilings change certificate tightness, NEVER geometry1e-4
-acceptance. R/residual472_query_replay_assessment.json records independent handles,
-pins and complete fourface sums. No active frozen C++ workload and no production
-change since470. First query launcher failed before evaluation on a relative path;
-archive/correction retained, not a geometry failure.
-Build297.837s/all10actualidentities terminal/pins/newtestbinary/cleanNinja. Production
-CFD remains470SHAa0eea83a5a2f957ff5ed33e617d9ef2330edda86f7cd502a49e0c0c22c4bfd81;
+Parent4face replay and all8fixed-policy old/fresh exact-query replays TERMINAL;
+actual5/33identities and1725unique source/runtime/input pins verified before editing.
+Experimental shared geometry-merit473 correction now LOCAL/UNQUALIFIED: EntityFaceError
+makes at most ONEextra same-support certificate query at2*GeometryTolerance when its
+strict valid upper is looser, taking minvalidbounds and preserving maximumfloor.
+All acceptance remains1e-4. SAMEpolicy applies old/fresh/direct/cross/census. No target,
+configuration, geometry authority, scheduler, constraint or resource change. Additional
+query exhaustion remains failclosed. R/geometry_merit473_design.json states scope and
+acceptance before build. Diagnostic mapped control now avoids planar preprojection;
+existing cross-query test oracle updated; focused outside/cache/exhaustion checks added.
+Build473 TERMINAL/PASS305.914s; all26actual hostidentities terminal, sourcepins,
+new binaries and cleanNinja verified. TestSHAfe107f3e4dcd290b2de2f06896e6647b85b079f5308aed48579f15c508f9309f;
+CFDSHA70c1974cf3f56b7ee6c11a19703f2d6c8d17206a40f223860623228f7429c2f7.
+Focused serial validation TERMINAL/PASS62.658s,52cases/5688assertions/1714pins;
+all5actual hostidentities terminal. Existing SurfaceMemo interruption covers uncached
+primitive failure; new Backend assertion covers second-query cached-work exhaustion.
+Actual current M6 residual replay TERMINAL/PASS148.615s;24calls/608092assertions/
+all5actualidentities/pins/303757original470Owned unchanged. Four residual candidates
+NOWprivate-feasible: R4Split2→4 andReconstruct2→8, excess1.277010e-7→8.650461e-8;
+R5same2→4/8, excess2.563259e-7→1.785057e-7. All original guardflags pass. Geometrybad
+2→2, q/J2→4or8, strictheightFALSE/provisionalTRUE; no publication or strictclosure.
+Controlcollapse10→8 stillfeasible; mappedcontrolMove nowconstructs but no demand
+progress, thereforeadmissioncorrectlyrefuses. Overallgeometrywork484520→1015819
+includes changed control/search/cachework; not a performancegain. R/current_residual473_assessment.json.
+
+SAME saved451→coupled transaction regression TERMINAL/PASS247.696s;1773pins/all5actual
+identities/303622originalOwned unchanged. Exact16stepcheckpoint preserved;24calls/
+22pubs,36→110observed(+11old),gbad16→24,localdelta+2/qJ+63/+63,firstrowUNREACHED.
+Trajectory72.709656wall/72.696812CPU/1650973gwork. SAME mesh/progress as470, not a
+new current470-residual publication trajectory or speedup. R/surface_transaction473_assessment.json.
+
+MPI6 connected473 milestone TERMINAL/PASS185.914s:41cases EVERYrank,
+3642–124194assertions/rank, allactualidentities/pins/emptyrank/conflict/stale/cache/
+resource/constraint checks verified. R/surface_phase473_qualification.json.
+ActualsavedM6 cross-ownercontrol uses EXISTINGcoarsening, not the new R4/R5split
+cavities. Those new candidates remain serial private evidence; no exactMPIpub claim.
+One shared conservative-bound correction is serial/MPI qualified in this scope;
+strictBL FALSE. Fullsame-seed surface-stage integration is NEXT (helperprepared,
+notyetstarted); only its outcome can establish useful globalstage progress. Current
+owned workloads all terminal. Keep473C++frozen for the same-target integration.
+No speedup/BLreadiness from privatefeasible candidates or regression alone.
+Historical472build297.837s/all10actualidentities terminal/pins/newtestbinary/cleanNinja.
+At that build CFD remained470SHAa0eea83a5a2f957ff5ed33e617d9ef2330edda86f7cd502a49e0c0c22c4bfd81;
 testSHA44289f605b65dcde01c975c7dd59d3fdfd8e410f56d69936b4c7fd222c161b64.
 Actual R/cases/curved472_current_residual_serial_20261113T022549_1476203
 (exec37321terminal): PASS147.641s/608081assertions/1771pins/allactualhandles terminal.
@@ -70,8 +103,8 @@ currentedgepresent. All arrays use current nodal metrics; no field/height/norm c
 actual full surface stage are TERMINAL; actual PID/starttick identities independently
 verified before reporting. No stop or timeout was needed. Preserve unrelated changes.
 Source checkpoint0adea12bff is pushed to origin/codex/native-3d-bl. Later evidence-only
-checkpoint may supersede it; consult HEAD/origin. Current production source and470
-binaries match frozen pins.469experimental wall-placement fallback was rejected and
+checkpoint may supersede it; consult HEAD/origin. Qualified470baseline pins are retained; the current working source/binaries are
+the unqualified473 experiment described above.469experimental wall-placement fallback was rejected and
 restored before470; it is NOT integrated. Exact archive/patch/disposition remain in R.
 
 Build470PASS580.205s/all155actualidentities terminal/pins/newbinaries/cleanNinja.

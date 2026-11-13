@@ -1,0 +1,31 @@
+{
+  "schema": "geometry_merit473_readonly_review_v1",
+  "scope": "Read-only review of frozen build473 four-file diff and geometry_merit473_design.json; no source edits or jobs.",
+  "files_reviewed": [
+    "Common/src/adaptation/CNativeBoundaryParameters3D.cpp",
+    "UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp",
+    "UnitTests/Common/adaptation/CNativeGeometryBackend3D_tests.cpp",
+    "UnitTests/SU2_CFD/adaptation/fixtures/native_actual_bl_cavity_planning_body.inc",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/geometry_merit473_design.json"
+  ],
+  "finding": "No production correctness blocker identified in EntityFaceError. The extra query is guarded by a valid over-2tau upper, uses the unchanged support and physical triangle, takes min of upper bounds, and preserves maximum floor and strict geometry gate.",
+  "verified_safety_points": [
+    "Direct branch reaches the helper only when budget is nonnull; cross-binding branch rejects a null budget before support discovery/query.",
+    "Direct calls retain exact one-facet support; cross calls reuse their entity-filtered discovered support; maximum floor is returned with the tightened bound.",
+    "2tau query is a distinct tolerance-keyed memo entry. Failed BoundPhysicalSurface calls do not store a result; geometry_certificates assignment remains after complete census succeeds.",
+    "Final GeometryCertificates comparisons still use GeometryTolerance; entity certificate maps are not serialized as cached query results."
+  ],
+  "test_coverage_limitation": {
+    "file": "UnitTests/Common/adaptation/CNativeGeometryBackend3D_tests.cpp",
+    "finding": "The successful outside-face call computes and caches the 2tau bound before the limited-budget assertion. The limited attempt therefore exhausts work at the extra 2tau memo lookup; it does not test interruption of an uncached 2tau refinement or absence of a partial memo after such interruption.",
+    "recommended_followup": "Use a fresh authority/cache for the limited attempt, allowing the strict query to complete and stopping work during the uncached 2tau query; assert no false pass and a later full-budget recomputation agrees."
+  },
+  "scope_limits": [
+    "The serial 52-tag and MPI 41-case reports are separate validation evidence; this static review did not run tests.",
+    "The query policy does not establish broad geometry closure, accepted mesh/BL readiness, or a performance improvement without complete M6 trajectory evidence.",
+    "The current residual control MoveVertex probe is test-only and not evidence of production candidate acceptance."
+  ],
+  "build473_terminal_reported_by_parent": true,
+  "production_qualified": false,
+  "goal_complete": false
+}

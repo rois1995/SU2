@@ -428,7 +428,8 @@ for(const auto& entry:contexts) {
     Point average{};for(const auto& node:nodes)if(node.first!=vertex){average.x+=node.second.p.x;average.y+=node.second.p.y;average.z+=node.second.p.z;}
     const auto original=nodes.at(vertex).p;const double count=nodes.size()-1;
     Node proposal{nextNode,{.9*original.x+.1*average.x/count,.9*original.y+.1*average.y/count,.9*original.z+.1*average.z/count}};
-    proposal=ConstrainMovePoint(vertexPatch,vertex,proposal,heights,*current.reference);
+    if(!currentResidual || !current.reference->Mobility())
+      proposal=ConstrainMovePoint(vertexPatch,vertex,proposal,heights,*current.reference);
     test("MoveVertex",entry.second,MetricChange::GeometryRepair,[&](const Patch& old,Patch& fresh,std::string& why){proposal.id=nextNode;return MoveVertex(old,vertex,proposal,nextCell,*current.reference,fresh,why);});
     test("Reconnect",entry.second,MetricChange::GeometryRepair,[&](const Patch& old,Patch& fresh,std::string& why){return Reconnect(old,neighbor,nextCell,*current.reference,fresh,why);});
   }
