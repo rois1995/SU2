@@ -1,0 +1,269 @@
+{
+  "source_commit": "d162016382f0c122433000c114e88d808b48f7a7",
+  "production_patches": [],
+  "selections": {
+    "setPrim": {
+      "path": "SU2_CFD/src/variables/CEulerVariable.cpp",
+      "span_bytes": [
+        3958,
+        5799
+      ],
+      "sha256": "cebd9c9e215d6980b2ba321f5695d0015046489e164be621469a520eb78b4693",
+      "formal_status": "manual implementation-model correspondence; not a Lean C++ translation"
+    },
+    "constructor": {
+      "path": "SU2_CFD/src/variables/CEulerVariable.cpp",
+      "span_bytes": [
+        2670,
+        3002
+      ],
+      "sha256": "8222d26186c7f72d0319d5deddad0b0b0d04795f83e113ab11858aad20807cc3",
+      "formal_status": "manual implementation-model correspondence; not a Lean C++ translation"
+    },
+    "velocity": {
+      "path": "SU2_CFD/include/variables/CEulerVariable.hpp",
+      "span_bytes": [
+        10652,
+        10975
+      ],
+      "sha256": "545eeddd2f103f48f5bcdcab4067ac7bbb95a7728547b633357a60160487678b",
+      "formal_status": "manual implementation-model correspondence; not a Lean C++ translation"
+    },
+    "pressure": {
+      "path": "SU2_CFD/include/variables/CEulerVariable.hpp",
+      "span_bytes": [
+        5224,
+        5372
+      ],
+      "sha256": "c64fc7d0f260e0039fe8437547125a8f417b485f718bf50daaa8d25e7e332a81",
+      "formal_status": "manual implementation-model correspondence; not a Lean C++ translation"
+    },
+    "sound": {
+      "path": "SU2_CFD/include/variables/CEulerVariable.hpp",
+      "span_bytes": [
+        5492,
+        5677
+      ],
+      "sha256": "22c71cd57b0d95901a186e61a6bcab1c314343d196295193365dfef9b98ecf90",
+      "formal_status": "manual implementation-model correspondence; not a Lean C++ translation"
+    },
+    "enthalpy": {
+      "path": "SU2_CFD/include/variables/CEulerVariable.hpp",
+      "span_bytes": [
+        5734,
+        5931
+      ],
+      "sha256": "a23087c2c8f1e1b54ce8c09cf845dd82a1b3e0eff0e30761d3c3493bfba1316c",
+      "formal_status": "manual implementation-model correspondence; not a Lean C++ translation"
+    },
+    "density": {
+      "path": "SU2_CFD/include/variables/CEulerVariable.hpp",
+      "span_bytes": [
+        7719,
+        7896
+      ],
+      "sha256": "08bd58e17cf47529a13fbee39050d2b1cb209b2827e051831feb181e7f688493",
+      "formal_status": "manual implementation-model correspondence; not a Lean C++ translation"
+    },
+    "temperature": {
+      "path": "SU2_CFD/include/variables/CEulerVariable.hpp",
+      "span_bytes": [
+        8020,
+        8196
+      ],
+      "sha256": "c4fe0f84b7d4dda30a4cc9d7a1596f04e4aea9f7953c1bd438b30f5683935830",
+      "formal_status": "manual implementation-model correspondence; not a Lean C++ translation"
+    },
+    "getDensity": {
+      "path": "SU2_CFD/include/variables/CEulerVariable.hpp",
+      "span_bytes": [
+        8934,
+        9028
+      ],
+      "sha256": "24bbaf243f700e62c405a1da3fa62d0360bb65c8b6c64b11d70b8a4286f1c8c8",
+      "formal_status": "manual implementation-model correspondence; not a Lean C++ translation"
+    },
+    "getEnergy": {
+      "path": "SU2_CFD/include/variables/CEulerVariable.hpp",
+      "span_bytes": [
+        9128,
+        9245
+      ],
+      "sha256": "f86d2ee2fcc0626e12524b674a28e4686345ebcba4f4641b4b70bb00fdfec3c5",
+      "formal_status": "manual implementation-model correspondence; not a Lean C++ translation"
+    },
+    "snapshot": {
+      "path": "SU2_CFD/src/variables/CVariable.cpp",
+      "span_bytes": [
+        3553,
+        3711
+      ],
+      "sha256": "f01d5b772e6e0ea762a38af0ff1d3b0cd3a0a772768b8a47f42322ade90b5ce7",
+      "formal_status": "restricted Lean grammar"
+    },
+    "copyLoop": {
+      "path": "Common/include/parallelization/omp_structure.hpp",
+      "span_bytes": [
+        7347,
+        7527
+      ],
+      "sha256": "5df1e0b7902920de652b60dc12856736c995bbf8001628ea15a18d1b0582c013",
+      "formal_status": "restricted Lean grammar"
+    },
+    "idealGas": {
+      "path": "SU2_CFD/src/fluid/CIdealGas.cpp",
+      "span_bytes": [
+        1375,
+        1777
+      ],
+      "sha256": "539e0d0c2b31226e92d49a78f9dc771e14c9630a7aea09cff7edd63ad1731998",
+      "formal_status": "manual implementation-model correspondence; not a Lean C++ translation"
+    },
+    "truncationZero": {
+      "path": "SU2_CFD/src/variables/CFlowVariable.cpp",
+      "span_bytes": [
+        1566,
+        1619
+      ],
+      "sha256": "ea82ee5217d8a9ac6cc8d7251b4ca838b1da85e0675e412a57e14c9b6f26f262",
+      "formal_status": "manual implementation-model correspondence; not a Lean C++ translation"
+    },
+    "residualZero": {
+      "path": "Common/include/linear_algebra/CSysVector.hpp",
+      "span_bytes": [
+        20483,
+        20540
+      ],
+      "sha256": "2d43d78f0ba6123aaac58724afecbf516cbf5e8f7f7c4b7c8eb48b606d6b9bab",
+      "formal_status": "manual implementation-model correspondence; not a Lean C++ translation"
+    },
+    "preprocessing": {
+      "path": "SU2_CFD/src/solvers/CEulerSolver.cpp",
+      "span_bytes": [
+        64570,
+        68379
+      ],
+      "sha256": "2c7167af537362dfa9adc53fa26b577880128bf43a49d4022ea9acd1117c458c",
+      "formal_status": "manual implementation-model correspondence; not a Lean C++ translation"
+    },
+    "primitiveLoop": {
+      "path": "SU2_CFD/src/solvers/CEulerSolver.cpp",
+      "span_bytes": [
+        69745,
+        70588
+      ],
+      "sha256": "950b85a3189f784ef0da54b20e8015f452750520eed57f9abd62160f1885ea40",
+      "formal_status": "manual implementation-model correspondence; not a Lean C++ translation"
+    },
+    "upwindDispatch": {
+      "path": "SU2_CFD/src/solvers/CEulerSolver.cpp",
+      "span_bytes": [
+        73583,
+        82480
+      ],
+      "sha256": "927496abd0baaaf7a6744126b57c085ad8dad0b6bf8c2e94ed06dd69aa00e750",
+      "formal_status": "manual implementation-model correspondence; not a Lean C++ translation"
+    },
+    "spaceIntegration": {
+      "path": "SU2_CFD/src/integration/CIntegration.cpp",
+      "span_bytes": [
+        1254,
+        9647
+      ],
+      "sha256": "b77f231da3d56c0cf0b9c37b6b56bd755a20c8e05ee37b59120dc20472ecfcd6",
+      "formal_status": "manual implementation-model correspondence; not a Lean C++ translation"
+    },
+    "simdEdgeLoop": {
+      "path": "SU2_CFD/include/solvers/CFVMFlowSolverBase.inl",
+      "span_bytes": [
+        62071,
+        64502
+      ],
+      "sha256": "c366cdf53c358b75499582ae988f6c33967eab4177a835f4d3f5bd66c6eb8ea3",
+      "formal_status": "manual implementation-model correspondence; not a Lean C++ translation"
+    },
+    "eulerConstructor": {
+      "path": "SU2_CFD/src/variables/CEulerVariable.cpp",
+      "span_bytes": [
+        1987,
+        3956
+      ],
+      "sha256": "051a36bf04e416ad7b0cff7b35102f2d5c11d8515553a15d9b0bf0b2b81dbc51",
+      "formal_status": "manual implementation-model mapping or caller trace, not verified C++ translation"
+    },
+    "flowConstructor": {
+      "path": "SU2_CFD/src/variables/CFlowVariable.cpp",
+      "span_bytes": [
+        1097,
+        3769
+      ],
+      "sha256": "5373c7dc14fa427adfe2ceeb58d3c960122ec88b482fe668661073268323af07",
+      "formal_status": "manual implementation-model mapping or caller trace, not verified C++ translation"
+    },
+    "baseConstructor": {
+      "path": "SU2_CFD/src/variables/CVariable.cpp",
+      "span_bytes": [
+        2258,
+        3551
+      ],
+      "sha256": "fac3be26d7295f683fbdef4f0477b928e97991bf8eaf425235a21b6122a821b0",
+      "formal_status": "manual implementation-model mapping or caller trace, not verified C++ translation"
+    },
+    "secondary": {
+      "path": "SU2_CFD/src/variables/CEulerVariable.cpp",
+      "span_bytes": [
+        5801,
+        6109
+      ],
+      "sha256": "0c9a99529d431709b00131afc4767aaa0634045936d37050a7ff6463971c822c",
+      "formal_status": "manual implementation-model mapping or caller trace, not verified C++ translation"
+    },
+    "idealConstructor": {
+      "path": "SU2_CFD/src/fluid/CIdealGas.cpp",
+      "span_bytes": [
+        1056,
+        1373
+      ],
+      "sha256": "139d34e343d0594747683a58727b1ad7b14ad91f52aea7e25a8d64bdfdeaac41",
+      "formal_status": "manual implementation-model mapping or caller trace, not verified C++ translation"
+    },
+    "preprocessDispatch": {
+      "path": "SU2_CFD/src/solvers/CEulerSolver.cpp",
+      "span_bytes": [
+        68381,
+        69743
+      ],
+      "sha256": "c87835ebf232e0ddd9b65740169ab1b203adc54b2599b6207ce6e06450873c93",
+      "formal_status": "manual implementation-model mapping or caller trace, not verified C++ translation"
+    },
+    "preSmoothing": {
+      "path": "SU2_CFD/src/integration/CMultiGridIntegration.cpp",
+      "span_bytes": [
+        32079,
+        36092
+      ],
+      "sha256": "5708d7e30a03566e6176ef50773b894a9efe00caadf52d818e2cdeba2bf7ee5d",
+      "formal_status": "manual implementation-model mapping or caller trace, not verified C++ translation"
+    }
+  },
+  "full_source_sha256": {
+    "SU2_CFD/src/variables/CEulerVariable.cpp": "9ab7e8aa43e362782a1d9249a89d2f233df70259d7927b8d0e00b9bd89d12034",
+    "SU2_CFD/include/variables/CEulerVariable.hpp": "a345131210c29e2b25ed0fe210924003e826604d2061be5ede5b2f4c4941e105",
+    "SU2_CFD/src/variables/CVariable.cpp": "ecc1128dbdfeaa3e0862fe117a0d548355a418706a717139afbdd66fe3c72c5c",
+    "SU2_CFD/src/variables/CFlowVariable.cpp": "3eafc3870ba1dd08fc3ca18734e06f612f8baf8e0678bd005a74716cdd04d0ac",
+    "SU2_CFD/src/fluid/CIdealGas.cpp": "d9dc59839db243f1671e0a2e11608c357736882f2a8cc6f4c4cd900ab0ecca87",
+    "Common/include/parallelization/omp_structure.hpp": "bb0d269d299a379da12ce9e5f801f6378fac2570272ff2492e8333b1cc4c9267",
+    "Common/include/linear_algebra/CSysVector.hpp": "eb73b0ee97814e549c457dbab32060cbfbe69f60202874839aa08825aaea475f",
+    "SU2_CFD/src/solvers/CEulerSolver.cpp": "a02047d187aeb4dcd5dffadbce9c21243ace41df79f806e58091b99b3465dc20",
+    "SU2_CFD/src/integration/CMultiGridIntegration.cpp": "9d24b1f2e715e390029a840cbafdf6cc76ad60c8745da27eb182fd3580bdf368",
+    "SU2_CFD/src/integration/CIntegration.cpp": "b00c94749cc04fbefcf4f780316a94e76b619f600f0fd07c161132bc67b1e755",
+    "SU2_CFD/include/solvers/CFVMFlowSolverBase.inl": "ef228099073057584c196405b674ff8dbf246a3fa325e636e36eff2a423c4e68",
+    "SU2_CFD/include/numerics_simd/flow/convection/upwind.hpp": "50ee1ffa2d3bb97cac79a4e00b98aa5bfb5b9a08b2ff070ff963461a2d35c8f4",
+    "Common/include/containers/C2DContainer.hpp": "86c1173fe5dabddb258b50263344fafcfb078aa325d17028ba63df6d35394fe2",
+    "SU2_CFD/include/solvers/CFVMFlowSolverBase.hpp": "496938310d2c746ad0e31222d23fd9478ab98ced6795f76c8c7ff85aa3f2d063",
+    "SU2_CFD/include/solvers/CSolver.hpp": "f9d6b7989dac3bedfec83aab60c57324554f336f042c38d347ef0eedb65b08b8",
+    "SU2_CFD/include/fluid/CIdealGas.hpp": "de02a1830906f135124a2737cdc65e9e72fbf44dc420ff2ef00f940f09cd5202"
+  },
+  "limits": "Restricted caller grammar has exact-real execution semantics. SetPrimVar, setters, fluid fields and caller macros are manually represented. Extraction, C++ heap/ABI/lifetimes, floating point and compiler semantics are unverified.",
+  "new_restricted_syntax": "complete SetPrimitive_Variables method; original, increment refactor, skipped-last semantic mutant"
+}

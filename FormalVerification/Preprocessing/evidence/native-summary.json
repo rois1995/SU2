@@ -1,0 +1,30 @@
+{
+  "source-controls": {
+    "result_sha256": "9f59b44a4a86b1e901219145a1a3bfcbc3ea5ed02990761077b5a9bfe08b1ba2",
+    "status": "PASS source-body semantic controls"
+  },
+  "actual-methods": {
+    "result_sha256": "0fe88e44e73348d15b716b90721f921de403952ccc691e2c1c0a64e0fce81d23",
+    "status": "PASS actual pinned SU2 preprocessing and snapshot observations"
+  },
+  "baseline": {
+    "result_sha256": "4122172b4bef1c9be1ba1317e88bfdf5f2cf9171cce573752dbd54d384e09dbd",
+    "status": "PASS build and selected upstream unit tests; integration and proofs recorded separately"
+  },
+  "integration": {
+    "result_sha256": "a87f877d8ed707ea60cb37aec9fb6466defe1cc57ab877fb806a3273de0e966d",
+    "status": "PASS native integration only"
+  },
+  "preserved-memory": {
+    "result_sha256": "dabcb651756c7602d1c3d4bbb355436f5b7ba6658ef53842f5353c40f2c34d4d",
+    "status": "PASS supplementary native memory composition and semantic controls"
+  },
+  "preserved-boundary": {
+    "result_sha256": "7daa016b3cddfb17395f9899d261cb1c3091b8f8c3065959889e8c259791e5d9",
+    "status": "PASS supplementary native boundary and full-loop evidence"
+  },
+  "preserved-euler": {
+    "result_sha256": "e24dfa10a5e942fe99c5a1c9dc38b93bc9356377b5f64723419ddc63e6129c80",
+    "status": "PASS supplementary native controls"
+  }
+}

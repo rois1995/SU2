@@ -1,0 +1,13 @@
+name = "su2preprocessing"
+version = "0.1.0"
+defaultTargets = ["SU2Preprocessing", "PreprocessingAudit"]
+[leanOptions]
+autoImplicit = false
+warningAsError = true
+[[require]]
+name = "su2initialization"
+path = "../Initialization"
+[[lean_lib]]
+name = "SU2Preprocessing"
+[[lean_lib]]
+name = "PreprocessingAudit"

@@ -1,0 +1,75 @@
+{
+  "status": "PASS supplementary native controls",
+  "source_commit": "d162016382f0c122433000c114e88d808b48f7a7",
+  "compiler": "g++ (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0",
+  "configuration": "C++17 LP64 passive double, serial, -O2 -DNDEBUG; no fast-math in source-slice controls",
+  "variants": {
+    "update-original": {
+      "expected_exit": 0,
+      "binary_sha256": "f33fa45dbe6dd67199a2af73ff1cb94ec0b8c1dfc96043bbc47df52c67b024bc",
+      "preprocessed_sha256": "c3807ea839f09ccc8040acbd168568032e4f308de042bf26779a460010b0245f",
+      "log_sha256": "383dd1ce883ee820f8510fa2a527b93bc60ee39726dfc243884fb0f143e66087"
+    },
+    "update-refactored": {
+      "expected_exit": 0,
+      "binary_sha256": "f33fa45dbe6dd67199a2af73ff1cb94ec0b8c1dfc96043bbc47df52c67b024bc",
+      "preprocessed_sha256": "7371a91588f302a96c4cb34557f0170a424711485eb8101ad2ddb880bb017aa4",
+      "log_sha256": "6db8819756eeab180d1d41d11d77d04208a23d8a68e9386ef157d5997675eb40"
+    },
+    "update-subtract": {
+      "expected_exit": 1,
+      "binary_sha256": "e2ae91bb92a95ba90192abaa0e0e38393647935a9671a842e1ea792254a69816",
+      "preprocessed_sha256": "a3bce21e0907bbd0fea3dc91c74b2a02ad81cf1df87df4a6bed43ce9e0bf5fdd",
+      "log_sha256": "462cbb871e4fa4fbd5627db145c5d2acd1117b32b3dd6dbf67cfb5b852b75fe5"
+    },
+    "update-currentRead": {
+      "expected_exit": 1,
+      "binary_sha256": "536ae701147b7e79987fbad642af89bd0b76aba11762c62b1677d88a0e59fdd8",
+      "preprocessed_sha256": "096df16e3815a9f2566baa9eda7446a3630123bb5c343a1ba358e3339fee9320",
+      "log_sha256": "a7a417a2826bb1c3811d9d09fa85f01e041eb5a68aeae6d592fa6f547b534d8a"
+    },
+    "update-wrongTarget": {
+      "expected_exit": 1,
+      "binary_sha256": "182dfcc4d89b8a0e5dea13d66eb537f298cb4f9861190f393f35ae9ae6dcbe2f",
+      "preprocessed_sha256": "462dd5334eb83cda1303fc831c67bc2345bbd9be7c36989630fbb448bde284df",
+      "log_sha256": "fa8aa2cde4a0f9141edc6a81feebdd59c2fae3f7e42fc1c77dba677d1393ec58"
+    },
+    "composed-original": {
+      "expected_exit": 0,
+      "binary_sha256": "14fd6caaa2ab136636277a1a18a82a86703bbd60488f452b2fe606155866595a",
+      "preprocessed_sha256": "672102ea38db41120b7080323f490b817a9f34982e2af0d12d69dd9382adc5ae",
+      "log_sha256": "79f19e67aa7414a5089b5594f8c96f6faff4e67bd8f772d9793750d41ff56424"
+    },
+    "composed-refactored": {
+      "expected_exit": 0,
+      "binary_sha256": "14fd6caaa2ab136636277a1a18a82a86703bbd60488f452b2fe606155866595a",
+      "preprocessed_sha256": "d8a571577cc636aecfc8084aa103a6dab5dde6976bd323fbeb73b527e808d103",
+      "log_sha256": "763d76dc50dbff1959545724b2a3cf94fbda9860a9463b037677ee7a72e78f22"
+    },
+    "composed-wrongSign": {
+      "expected_exit": 1,
+      "binary_sha256": "a5a9a6020e7b6bebea49afe4b2b159fd9a79b1eed035ffc0a46825963ade1e47",
+      "preprocessed_sha256": "d98faf8c567b4d3456b56e740756f78222422c9eb0d3dac016f66fea6002b571",
+      "log_sha256": "9e1071937d1db61a52b22f27186bda837d571b182049061ab6818dde4ba2585d"
+    },
+    "composed-wrongMask": {
+      "expected_exit": 1,
+      "binary_sha256": "89b336d2993054e468ead05f3eef26a9864c100c38c37c449cfeb1a5356096fe",
+      "preprocessed_sha256": "2677afa0299f61c7e7030606f319d78144d7d963d40b879f22d6b7e153f8c784",
+      "log_sha256": "62933cc99b9dfa19be45ffcd12895f87ffa338a3b8bb309361cc1701cf9f1e3e"
+    },
+    "composed-subtractTrunc": {
+      "expected_exit": 1,
+      "binary_sha256": "0311943c5a356408ad81710eacad92f539b696d1b7184065c48ae789e11aa226",
+      "preprocessed_sha256": "e68082209c14fabb2589df73f150a34d3a35e1493e70acd9a3bb9024ae0e538f",
+      "log_sha256": "18aeced6cf3e6251b71dd8dbcf965f7fff0f0e7a536b0138f17f8ac620f6ab26"
+    },
+    "composed-wrongCall": {
+      "expected_exit": 1,
+      "binary_sha256": "b3eee5e134c87908748bd3699e3021860a97b88117ba3981f462c6e898351bb3",
+      "preprocessed_sha256": "339747c04aa05ce1014789454a668d0e5177fea5fc4446dff84b1d8b37e68781",
+      "log_sha256": "12be08b641fa7da6905c09f24dcd4c2a08ea1a6dbe486a6004abb8a26901e101"
+    }
+  },
+  "limitation": "Extracted caller fragments run in a fixture; full execution dispatch is separately inspected and integration-tested. No verified compiler or IEEE arithmetic."
+}

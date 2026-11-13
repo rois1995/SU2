@@ -1,0 +1,46 @@
+{
+  "review_date": "2026-11-13",
+  "status": "SOURCE_LEVEL_PASS; INDEPENDENT_COLD_LEAN_AND_FULL_NATIVE_PENDING",
+  "delivered_zip_sha256": "ab57dde9e993640b6b3fccaae5b1f3df09f9ae402309f6a8e736d310c20268df",
+  "delivered_commit": "d19af33d2b2ba2845a49038bf10088460ca006a1",
+  "formal_candidate_commit": "d3aea3de43f6aefbc4dce7a09fc399c367230b9d",
+  "candidate_lock_sha256": "1257f65d1c1ce63ef98c9f4c29d89581efb5ff82e9a9cc6a301e092cd1a909bf",
+  "replay_lock_sha256": "a285fe9b3423fbd96a91539b044f67323865c1ca81cfc2226032d05bda106a40",
+  "historical_boundary_memory_lock_sha256": "76480f32b04949ce54a14fff97d63da79ac830e6aa21b6fdb9fb20a95d3229cb",
+  "upstream_numerical_commit": "d162016382f0c122433000c114e88d808b48f7a7",
+  "checked_latest_upstream_commit": "103442f30ca2fba1ff48ef12aa1ae93480256a30",
+  "cfdlean_m1_commit": "0a88e36b3810cd5adc3881db526ca8a35f81afbb",
+  "cfdlean_m1_acceptance_record": "e1b6747e8683f6b6e81e1ccc510271e539611848",
+  "confirmed_checks": {
+    "zip_crc": true,
+    "zip_entries": 1053,
+    "sha256sum_entries_verified": 1051,
+    "manifest_files_verified": 1050,
+    "protected_candidate_files_verified": 81,
+    "protected_historical_files_verified": 713,
+    "regenerated_files_identical": 30,
+    "explicit_theorem_lines_count": 62,
+    "native_original_checks": 500,
+    "native_refactor_checks": 500,
+    "native_semantic_mutants_compiled_and_rejected": 7,
+    "production_cpp_files_modified": 0
+  },
+  "candidate_claims_not_independently_executed": [
+    "Lean 4.19.0 build",
+    "Lean theorem type audit",
+    "transitive axiom audit",
+    "negative axiom audit",
+    "full native SU2 unit tests",
+    "full SU2 integration"
+  ],
+  "known_open_interfaces": [
+    "primitive-point-to-memory and all-point preprocessing",
+    "interior SIMD Roe",
+    "geometry/edge traversal",
+    "timestep source implementation",
+    "true C++ heap/IEEE/compiler semantics",
+    "Roe/far-field scientific approval"
+  ],
+  "confirmed_new_production_bugs": 0,
+  "caution": "C++ fallback retries invalid state without checking second flags; caller reachability and invariant unverified, so not a confirmed bug"
+}

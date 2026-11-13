@@ -1,0 +1,56 @@
+{
+  "status": "PASS supplementary source-body controls",
+  "variants": {
+    "original": {
+      "exit": 0,
+      "log_sha256": "ecf1740bd27933b44a32eed055f1e4e64f80a4dabcd4b8a6eb79f71364f58e4b",
+      "binary_sha256": "9711ed0bec9e8c71cb3ad51ad38d9bf4a494d381caf0a748f57a463e19de4310"
+    },
+    "refactored": {
+      "exit": 0,
+      "log_sha256": "1b3e2f561257b7ab423efbb62ac30ecf0e2028e8b3ef4c4f9d4872a0c15c806c",
+      "binary_sha256": "92f0de1bada59cfdbb52d61a06956df482f04ae7523ce8f484b8f4644ac8f6a1"
+    },
+    "wrongBuffer": {
+      "exit": 1,
+      "log_sha256": "be8384f9ee899d596a73a336e603275393e3083c0410912acfb3167347b0a36b",
+      "binary_sha256": "e10796b23863d8515ccd44af2ea56e340637745d03b5d61e3304b9fb89a5f876"
+    },
+    "incomplete": {
+      "exit": 1,
+      "log_sha256": "e1bd9eb25bf34510c9c678fe3100a1b7076991ca8e5b3239bb5859d5dc81414b",
+      "binary_sha256": "56ab5eeeab35bbac17d12e988cc6af9b12d2f1975c6ff0c0b0f202860a9afa56"
+    },
+    "omitDensity": {
+      "exit": 1,
+      "log_sha256": "079c3c0cce9abbc04ddeeff5f4abfaf873761f6d643147359ba2673c410d8439",
+      "binary_sha256": "cd0a89d5ede1e406a7471d300ca7584b6daadce86d8f22c7c21913fd13c77581"
+    },
+    "omitKinetic": {
+      "exit": 1,
+      "log_sha256": "f98f528ddb31250b3da51e9a9a49be0458e855612ec5c8e8560e677ba53a8727",
+      "binary_sha256": "b7ccec7ac537610863439ca88c84e28eb03d4980e086c035bbfa1322a4b1c11c"
+    },
+    "staleFallback": {
+      "exit": 1,
+      "log_sha256": "7b00623b06c82372dc57963cff209689d75a98ecf9714506c5d58530be260812",
+      "binary_sha256": "4dec8cb1a311ee0b79fb84a7cb136f1d561ce660d7a9b51dde033cf63343b10f"
+    },
+    "eraseTail": {
+      "exit": 1,
+      "log_sha256": "e777f50c2cd3b723e90fa3145c5f64017a8afc47b47ce21a8eb4f4b63c1c2966",
+      "binary_sha256": "c9ee4067ff39c460d5cebe1373397ac829b823d06734a3dd7d87814bd698002c"
+    },
+    "wrongResidual": {
+      "exit": 1,
+      "log_sha256": "460e8c56cd96bb1acc07bed1d8209433cf91d8d821dd53071407b769f05e5315",
+      "binary_sha256": "681b73e5b346fa9f46026378b92f360e9f3b259cabf7ed5d99ea75dd619aa063"
+    }
+  },
+  "test_sha256": "a82d0b009295fdfb8982fc4b4e38997972bf3b40b9a235ed320458a69d67d5a4",
+  "script_sha256": "9c491371d08c7cbcba08535f1b97bce191180537f68d60a59b35485e2fdb1d2d",
+  "source_manifest_sha256": "09d140f15ee4f41a386d09713ac5b389c106b8817d0ef6068d592ea797b29515",
+  "production_patches": [],
+  "source_commit": "d162016382f0c122433000c114e88d808b48f7a7",
+  "limits": "Unchanged production method bodies compiled in mock classes/containers, not a full native SU2 build or certified C++ semantics. No production defect is claimed."
+}
