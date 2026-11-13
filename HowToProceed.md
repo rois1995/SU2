@@ -17,26 +17,35 @@ coverage than451 does not establish better closure. Preserve all six complete sa
 shards, full441target and original CFD; these outputs remain diagnosed failure
 captures, not a qualified successful stage checkpoint. No repeated CFD solve.
 
-Next, use representative actual residual cavities from470, especially rank4's
-geometry-merit refusal and rank5's uncertified-clearance refusal, plus a clean control.
-Recover complete current support, associations and transported metrics. The last
-rejection message is not a complete candidate checkpoint; feature2:8010 identifies
-only its first vertex. Verify fresh reproduction rather than assuming stale private
-cell IDs or support remain published. Separate
-actual geometry violation from conservative refusal, connectivity/visibility,
-missing support, feature/body/height constraints and measurement limits. Evaluate
-complete affected patches and neighbors. Do not conclude that larger cavities,
-independent normals, more splits or reduced tolerance are the remedy from a refusal
-alone. Test ONE connected correction using existing operators/accounting/publication
-only if useful complete admissible replacements are demonstrated.
+The connected saved-input trajectory has been tested and STALLED before first-row
+readiness:24calls/22commits, local geometrybad delta+2 and q/J+63/+63; observation
+36→110 includes11old cells newly observed. Neither more commits nor the positive
+3→10 reconstruction establishes closure. Use the trajectory contract's explicit
+operation roles, readiness and reconsideration rules; do not append another local
+placement or splitting variant.
 
-Continue the saved-input→geometry closure→tangential delivery→constrained directions→
-first-row trajectory within existing bounds. Splitting resolves actual offending
-chords; collapse removes admissible redundant resolution; relocation redistributes
-placement; reconnection repairs obstructive connectivity. More cuts or passing
-maxedge alone are not readiness. Stop/reconsider on repeated unchanged refusals,
-neighbor-debt proliferation, unavailable support or bounded work/resource exhaustion.
-Never claim global infeasibility from one bounded stop.
+472current-residual diagnostics reproduce current rank4/5 stars with complete native
+associations and transported metrics, plus a geometry-clean control.24private trials;
+only controlcollapse is feasible under all original preflight guards. The historical
+rank5 private clearance failure is not reproduced; its old cell is absent. Existing
+trace plus eight exact query replays demonstrate loose classification upper bounds
+being used numerically as geometry merit. Complete four-child upper-bound excess can
+be tightened below the recorded old score on two existing split candidates. This is
+not strict closure or proof of physical improvement against a comparably tightened
+old patch. Production remains470. All472jobs are terminal; no production correction
+has been implemented from these queries.
+
+Next select ONE correction only after old and fresh complete-patch bounds are
+comparable. Preserve cache/census semantics, exact support/association identity and
+work/memory limits. Do not merely increase a certificate ceiling or relax geometry.
+The mapped relocation control must also avoid its diagnostic planar preprojection;
+production SmoothBoundary already uses mapped association/projection. Qualify the
+connected correction, then rerun the SAME complete trajectory through geometry
+closure, tangential delivery and first-row prerequisites under shared bounds. If
+neighbor debt, unresolved geometry or point crowding still prevents readiness,
+reconsider coupled placement/connectivity from the actual failed cavity. Save failure
+evidence, not a successful stage checkpoint. No downstream growth from an unready
+surface, and no repeated CFD or target solve without a demonstrated reason.
 
 Then qualify actual firstheight/alignment/coverage, successive progression and
 junction/collision behavior, outer transition and strict closure. Keep stage0=32h0

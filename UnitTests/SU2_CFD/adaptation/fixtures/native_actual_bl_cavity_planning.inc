@@ -1,7 +1,7 @@
 #include "../../../../Common/include/adaptation/CNativeMetricTransport3D.hpp"
 #include <ctime>
 // Complete saved actual cavities, transported current nodal core and associations; diagnostic only.
-namespace {void RunSavedActualCavities(bool cavityCorrection,bool heightContinuation=false,bool productionCorrection=false,bool guidanceReuse=false,bool planningCost=false,bool clearanceProbe=false,bool geometryProbe=false,bool compoundSplit=false,bool splitContinuation=false,bool residualProbe=false,bool diagonalProbe=false,bool stripProbe=false,bool patchTrajectory=false) {
+namespace {void RunSavedActualCavities(bool cavityCorrection,bool heightContinuation=false,bool productionCorrection=false,bool guidanceReuse=false,bool planningCost=false,bool clearanceProbe=false,bool geometryProbe=false,bool compoundSplit=false,bool splitContinuation=false,bool residualProbe=false,bool diagonalProbe=false,bool stripProbe=false,bool patchTrajectory=false,bool currentResidual=false) {
   World world;REQUIRE(world.size==1);
   const auto* cfg=std::getenv("SU2_NATIVE_FROZEN_CONFIG");
   const auto* ref=std::getenv("SU2_NATIVE_BL_REFERENCE");
@@ -78,4 +78,8 @@ TEST_CASE("Saved M6 directional surface strips retain complete adjacent volume",
 
 TEST_CASE("Saved M6 connected surface volume patch follows geometry to first row", "[.][NativeActualSurfacePatchTrajectory3D]") {
   RunSavedActualCavities(true,false,true,false,false,false,false,false,true,true,false,false,true);
+}
+
+TEST_CASE("Saved current M6 residuals classify complete geometry and clearance refusals", "[.][NativeActualCurrentResidual3D]") {
+  RunSavedActualCavities(true,false,false,false,false,false,false,false,false,false,false,false,false,true);
 }

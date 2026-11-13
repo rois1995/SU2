@@ -2,8 +2,143 @@
 
 Current curved-BL cycle, ordered stage3→4. Read HANDOFF_Codex.md for actual handles
 and frozen sources. This is one connected diagnostic/integration cycle, not a new
-production scheduler, geometry authority, target or configuration. Production remains
-451 until a useful correction is demonstrated and qualified.
+production scheduler, geometry authority, target or configuration. Production remains470; test-only472 diagnostics do not change construction policy.
+
+## Current strategy, tested end-to-end within the stage boundary
+
+This is a coupled **surface plus adjacent tetrahedral volume** trajectory. The
+observation region may contain several overlapping stars; each transaction must
+have its own complete valid interface and current dependencies. A large observation
+union is not automatically a valid cavity. No operation is granted acceptance
+because its core looks better while its neighbors are omitted.
+
+Input is the saved441 complete composed target/profile and geometry authority,
+saved RANS+SA seed, and the current transported nodal field/associations. Current
+stage0 first height is6.4e-5 (32 times final2e-6), growth1.2, thickness.01. The
+configuration literal final height is transformed by CConfig's existing event0
+postprocessing; do not silently substitute the final-height target at this stage.
+Source production470 and saved six-partition surface470 state are authoritative.
+Sensor tensors alone cannot reconstruct this input. The completed470 sequential
+trajectory started from the451 capture; the full470 surface capture is the newer
+input for472 residual diagnosis. No new published complete trajectory from the470
+capture is claimed.
+
+The executable route and the conditions for advancing are:
+
+1. **Restore and measure the complete affected region.** Validate target/profile,
+   reference, associations, ownership and dependency versions. Measure all physical
+   faces and production tangential planning edges; retain directional distributions,
+   short-edge concentration and unresolved measurements. Positivity, topology,
+   body separation, genuine features and already-passing heights remain mandatory.
+   q/J debt is recorded, not used to veto validity-first construction.
+2. **Close offending geometry while updating the neighboring volume.** Existing
+   projected splitting shortens demonstrated offending chords. SplitSurfaceStrip
+   retains compatible volume connectivity; if that connectivity inverts,
+   ReconstructSplitPatch seeks a different positive cone. Add a neighboring face
+   only for a demonstrated visibility/support obstruction and only within the
+   existing bound. Rediscover and reserve the COMPLETE changed cavity before
+   reconstruction/publication. Recompute the whole changed region afterward.
+   Above-tolerance fitting debt may be provisional; it is never final geometry
+   permission. Tangential planning success is not a bidirectional certificate.
+3. **Deliver suitable tangential resolution.** Use exact SurfacePlanning lengths
+   and the restricted target's directions, not triangle counts alone. Splitting
+   serves overlong demands; collapse removes admissible redundant points; mapped
+   relocation redistributes points on the authority; reconnection changes a
+   connectivity obstruction. These operations must preserve complete-patch
+   geometry, interfaces and passing heights. Coarsening currently requires zero
+   candidate geometry-guidance excess, so it is not an unrestricted cleanup route
+   on a geometry-indebted patch. Original wall spacing is not a physical constraint.
+   Readiness requires complete requested-wall measurement, no unresolved geometry
+   or overlong planning edges, and an explained directional distribution: unexplained
+   spanwise crowding remains an open delivery defect even when maxedge passes.
+   No blanket minimum-edge gate or new anisotropy threshold is introduced.
+4. **Rebuild directions and construct a coordinated first row.** Rebuild existing
+   constrained/blended direction data after relevant surface/connectivity changes;
+   preserve carrier/symmetry tangency and smooth recovery along the wall. Existing
+   first-child/lift/cavity transactions must cover the requested patch without
+   gaps or overlaps and connect positively to retained volume. Check physical
+   stage first height with the configured tolerance, certified fluid clearance,
+   direction alignment/visibility, feature/junction transitions and preservation
+   of previously passing rows. A measured provisional height debt or a retained
+   positive cone is not first-row readiness. Do not advance merely because the
+   direction routine exists or a few wall children are valid.
+5. **Save a credible output or preserve an explicit stall.** A usable stage output
+   includes mesh, complete parameters/associations, transported metrics, composed
+   policy/profile/authority, continuation event and provenance. Only a credible
+   surface/first-row output proceeds to successive fronts; actual progression,
+   coverage, collisions, outer transition and final full-mesh certification remain
+   downstream obligations. Final q/J/size/geometry/height gates are unchanged.
+
+No new operator ladder or scheduling policy is implied by this sequence. In the
+current source PrepareSurface delegates to Adapt with the tangential planning
+target; full composed-volume edge certification belongs to AdaptMetric. The
+production geometry-progress check is in CNativeEngine3D.cpp geometric_change;
+GeometryGuidanceExcess aggregates face bounds. First-row facilities and strict
+admission exist, but their existence does not prove this route reaches them.
+
+### Stall and mandatory reconsideration
+
+The SAME shared24constructor calls,300s geometry/600s outer,64old/128new cells and
+12GiB ceiling cover the diagnostic trajectory. Stop safely on any exhausted bound,
+incomplete/stale support, failed reservation/publication or unresolved certification.
+Repeated unchanged complete-context refusals are a stall, not permission to retry
+more variants. Reconsider the strategy if useful core cuts grow neighboring debt or
+short-edge crowding without approaching readiness, if required placement/connectivity
+cannot produce a valid complete replacement, or if geometry-progress ranking is
+not comparable between old and new faces. A bounded failure does not establish
+physical impossibility. Keep the last published state and exact refusal; never
+raise limits, waive uncertainty or proceed to first row from failed prerequisites.
+
+### Actual trajectory result: FAILED readiness, useful local capability only
+
+The470 saved-input replay tested the connected route, including16 exact precursor
+transactions, the real inherited split inversion, complete support rediscovery2→3,
+new full reservation, positive reconstruction3→10 and publication, then continued
+measurement and transactions within the original24-call bound. It ended with22
+commits, observed cells36→110 (including11 previously unobserved old cells), geometry
+bad16→24 and local introduced-minus-retired geometry+2, q/J+63/+63. The changing
+observation scope prevents raw counts being interpreted as churn. Geometry closure
+FAILED; tangential suitability UNPROVEN; first row UNREACHED. Trajectory74.886533s
+wall/74.866628s CPU/1590930 geometry work; wrapper251.852s includes reconstruction
+and other setup. Passing assertions mean the diagnostic behaved correctly, not that
+the mesh became acceptable. R/surface_transaction470_assessment.json records every
+transaction and observation.
+
+The actual distributed surface470 integration corroborates the stage stall:
+389.138s native at the unchanged388.8s stage budget,164commits,30500/39128wall cells
+measured,1458known geometry and37size failures,273257unmeasured cells; all303757tets
+positive,61494nodes. Zero complete global surface passes. q/J are UNKNOWN. This
+is a preserved failure capture, not a successful reusable stage output.
+
+The472 actual current residual diagnostic then separated constructor feasibility
+from admission:24 bounded trials on two current residual stars and a native-measured
+geometry-clean control. The control collapse10→8 is private-feasible; no residual
+candidate passes every original guard. Historical rank5 clearance failure is NOT
+reproduced. Its old private cell no longer exists. A control relocation refusal
+comes from a diagnostic planar ConstrainMovePoint before mapped MoveVertex;
+production SmoothBoundary uses mapped association/projection. This is a diagnostic
+composition limitation, not evidence that production boundary mobility is absent.
+
+Existing query tracing and eight exact support/coordinate replays isolate a
+material admission uncertainty: the strict classifier can return a loose upper
+bound immediately after finding an outside witness. The fitting merit then squares
+that classification bound. Tighter valid certificates on ALL four child faces of
+two same split candidates lower their complete-patch upper-bound excess below the
+recorded old production score. This does not certify strict closure, physical
+improvement relative to a comparably tightened old patch, or a published replacement.
+See R/residual472_query_replay_assessment.json. Query precision is not a changed
+geometry gate. The free current-heap-upper change does not address these root exits.
+
+**Decision:** do not append another placement/split variant or launch another full
+stage yet. The next connected correction must make old/fresh geometry-progress
+assessment comparable, preserve cached/recomputed and census semantics, and then
+retest this COMPLETE trajectory, including neighbor debt, tangential delivery and
+first-row prerequisites. Fix the mapped diagnostic composition when testing
+relocation. A candidate-only tighter query or an arbitrary larger certificate
+ceiling is not yet a qualified production correction. If comparable assessment
+still yields no useful complete replacements, reconsider coupled placement and
+connectivity using the actual failed contexts; do not blame reference cavity
+methods from this narrower operator composition.
 
 ## Evidence and corrected interpretation
 
@@ -308,3 +443,47 @@ proxies; whether this obstructs otherwise admissible geometry cones is an UNPROV
 source hypothesis, not an authorized new variant. Do not simply lengthen the run,
 raise cavity limits, waive old-row clearance or append placement offsets. Whole-patch
 and neighboring-cell effects must drive geometry closure and eventual firstrow readiness.
+
+
+##471 current residual reproduction — scope before build
+
+470actual last-private cell5930309 is absent from all six saved Owned shards. Current
+edge18152–18153 exists with2rank4cells; full removed18152star10cells.8010has16rank5
+cells and six incident requested physical edges (other edges of its surface faces
+are not incident demands). Python inventory preserves versions/coordinates/current
+raw nodal tensors/physical facets but does NOT infer geometry associations or clean
+control. All six5,075,160Bparameter payloads are BITIDENTICAL; Directory globally
+publishes associations. Existing native loader therefore uses the full current
+rootparameter state with all six Owned shards and unchanged complete441target.
+R/residual471_inventory.json/entry.json are inventories, not certificates.
+
+One TEST-ONLY selector reuses existing complete-cavity planning/operator preflight
+for current rank4star→18153, current8010star and a dynamic smooth-wall control.
+Native identity topology is checked before judging failures. All incident8010wall
+collapse directions are compared; existing bounded growth/reconnect/reduction and
+surface split/joint reconstruction remain within64old/128new/24totalconstructor/
+300ssharedgeometry/600souter/12GiB limits. No production policy or gate changed.
+This diagnostic does not reuse a vanished private candidate or presume unchanged queued
+state. Control is called clean only after native measured zero excess, not by region.
+
+Complete old/fresh patches are measured with existing exact SurfacePlanning edge
+quadrature, current nodal metric/associations, geometry guidance, positive topology,
+passing-height/provisional-clearance checks, final support reservation, parameter
+preflight and external contact. q/J are centroid observations, not construction
+ranking. No publication and no full composed-volume edge certificate is claimed.
+Coarsening retains production's zero total candidate guidance-excess rule; geometry refinement needs
+measured descent. All resources/unknowns remain refusals. Original Owned and parameter
+payload must remain byte-identical. This is failure classification before ONE connected
+hypothesis, not a new primitive variant, finalmesh acceptance or pyAMG equivalence.
+
+
+471build passed297.809s but no runtime was launched: review identified two hidden
+candidate paths outside the new counter (existing CorrectCollapse planner and
+prescribed-interface control CollapseVertex). All10actualbuild handles terminal and
+sourcepins verified before edits; exact source archived in residual471_unqualified_source/.
+472disables these two paths only for current residual diagnostics, retaining bounded
+explicit growth/reduction callbacks under24cap and native untouched-input topology.
+Discovery exceptions are recorded separately as search refusals, not evidence that
+all operators fail. Productioncode/CFDbinary470 unchanged. Currentbuild472 is FROZEN;
+readHANDOFF for handles. This test-only classifier does not need another broad/MPI campaign; actual bounded
+serial evidence must first select a useful connected production hypothesis.

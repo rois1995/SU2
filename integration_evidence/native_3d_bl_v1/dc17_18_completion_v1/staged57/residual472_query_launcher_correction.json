@@ -1,0 +1,8 @@
+{
+  "failed_case": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved472_query_current_rank4_geometry_0_strict_20261113T030729_1587378",
+  "all_actual_handles_terminal": true,
+  "failure": "Native query input path was relative to repository but worker cwd is isolated case; failure occurred before geometry query.",
+  "old_helper_archive": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/replay_residual472_queries_relative_path_failed.py",
+  "old_helper_sha256": "e7a221c09e9486256de49a181e3e28f008c657d2d8f1b8f1c828dfe1e154f154",
+  "correction": "Resolve query input to absolute path; no production or geometry change."
+}

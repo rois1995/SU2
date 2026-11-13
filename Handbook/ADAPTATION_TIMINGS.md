@@ -1,9 +1,34 @@
 # Adaptation timings and computational work
 
-Updated2026-11-13 after470terminal surface integration. NO owned heavy workload live.
+Updated2026-11-13 after472 terminal residual and exact-query diagnostics.
+NO owned heavy workload live. Production remains470.
 [Current handoff](../HANDOFF_Codex.md) owns source/build/handle state;
 [stage contract](ADAPTATION_CONNECTED_PATCH_TRAJECTORY_20261113.md) owns acceptance/stalls.
 R=`integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57`.
+
+## Latest bounded diagnosis (not a performance baseline)
+
+472test-only build297.837s, current-residual replay147.641s wrapper/608081assertions/
+1771verified pins, original303757Owned records unchanged.24high-level constructors
+share existing work/time/memory bounds; one clean-control collapse private-feasible,
+no residual publication. Same replay with EXISTING query trace147.639s; all24
+nontiming decisions/measurements exactly match. Trace is diagnostic overhead, not
+another baseline or a speed comparison. Per-query preparation and traversal timers
+are nested; do not add them to wrapper time.
+
+Eight exact child-face query replays total95.479s wrapper, including repeated authority
+load/test process startup. Native queries .012–.341s each. Strict replay bounds match
+captured production queries exactly; one derived certificate ceiling supplies tighter
+valid bounds for each failed child. Complete-patch geometry upper-bound merit changes;
+no construction trajectory or accepted mesh was accelerated. Traversal work per query
+is preserved in residual472_query_replay_completed.json. Fewer work units on some
+queries do not establish a speedup: their stopping purposes differ. Extra refinement
+can also cost more work. No new perf/GDB campaign or raised resource bound.
+
+Geometry/tangential closure FAILED and firstrow UNREACHED in the already-tested470
+connected trajectory. Do not report time-to-ready or bad-cell removal/s for a stage
+that never reached readiness. Next correction must compare complete old/fresh merit
+and repeat the whole connected trajectory, not optimize an isolated query count.
 
 ## Current per-stage status
 

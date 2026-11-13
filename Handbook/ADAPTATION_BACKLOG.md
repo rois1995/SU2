@@ -1205,3 +1205,18 @@ for82–84StorageBytescalls percontext versus.117–.141s completeguidance. No c
 implemented.451insteadtests repeated position-only thin-strip screening inside
 ONEboundaryguidancecall; see currentcost audit. Do not reopen accounting without
 new material contrary evidence.
+
+
+###472 comparable geometry-merit bounds (active blocker; alternatives unqualified)
+
+Actual470 residual splits have complete four-child certificates that improve their
+reported excess when refined beyond the strict classifier's early outside-witness
+exit. This does not show physical improvement against a comparably tightened old
+patch. A fixed larger internal certificate ceiling, candidate-only precision based
+on old debt, or a general quantitative-distance bracket are alternative hypotheses,
+NOT integrated policies. Before choosing one, establish old/fresh comparability,
+cache/census determinism, sticky work/memory failure handling and complete-trajectory
+benefit. The free current-heap-upper return does not help the relevant root exits;
+no optimization cycle from unrelated queries. Preserve the rejected454 evidence.
+See ADAPTATION_CONNECTED_PATCH_TRAJECTORY_20261113.md and staged57/
+residual472_query_replay_assessment.json. No gate, scheduler, target or budget change.

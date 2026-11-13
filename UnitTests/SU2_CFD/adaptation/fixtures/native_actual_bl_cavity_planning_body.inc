@@ -38,8 +38,8 @@ auto star=[&](Id vertex) {std::vector<Id> ids;
   REQUIRE_FALSE(ids.empty());REQUIRE(ids.size()<=MaximumCavityCells);return ids;
 };
 std::vector<std::pair<std::string,std::vector<Id>>> contexts;
-contexts.push_back({"recorded_geometry_refusal",star(18775)});
-if(cavityCorrection){contexts.push_back({"recorded_visibility_obstruction",star(11990)});contexts.push_back({"recorded_visibility_obstruction_b",star(13785)});}
+if(!currentResidual)contexts.push_back({"recorded_geometry_refusal",star(18775)});
+if(cavityCorrection&&!currentResidual){contexts.push_back({"recorded_visibility_obstruction",star(11990)});contexts.push_back({"recorded_visibility_obstruction_b",star(13785)});}
 std::set<Id> constrained=current.live_parameters->Mobility().corners;
 for(const auto& edge:current.live_parameters->Mobility().features)constrained.insert(edge.first.begin(),edge.first.end());
 Id smooth=0;long double nearest=INFINITY;
@@ -55,8 +55,11 @@ REQUIRE(smooth!=0);contexts.push_back({"unchanged_wall_control",star(smooth)});
 for(const auto& row:current.mesh)if(std::none_of(row.second.physical.begin(),row.second.physical.end(),[](FacetBinding f){return f.present;})) {
   contexts.push_back({"unchanged_interior_control",{row.first}});break;
 }
-contexts.push_back({"leading_edge",star(4219)});
-REQUIRE(contexts.size()==(cavityCorrection?6:4));
+if(currentResidual) {
+  contexts.push_back({"current_rank4_geometry",star(18152)});
+  contexts.push_back({"current_rank5_clearance",star(8010)});
+} else contexts.push_back({"leading_edge",star(4219)});
+REQUIRE(contexts.size()==(currentResidual?4:cavityCorrection?6:4));
 std::ofstream log("actual_bl_cavity_planning.jsonl");REQUIRE(bool(log));log<<std::setprecision(17)<<std::boolalpha;
 auto samePoint=[](Point a,Point b){return a.x==b.x&&a.y==b.y&&a.z==b.z;};
 auto sameTensor=[](Tensor a,Tensor b){return a.xx==b.xx&&a.xy==b.xy&&a.xz==b.xz&&a.yy==b.yy&&a.yz==b.yz&&a.zz==b.zz;};
@@ -180,13 +183,38 @@ auto measurePatch=[&](const Patch& patch,const std::vector<OwnedCell>& rows) {
 };
 struct CorrectionAudit {std::string context,operation;Patch old,fresh;std::vector<OwnedCell> rows;};
 std::vector<CorrectionAudit> correctionAudits,heightAudits;
+unsigned residualTrials=0;
 for(const auto& entry:contexts) {
+  if(currentResidual && (residualTrials>=24 || !budget.within_time()))break;
   if(entry.first=="unchanged_interior_control")continue;
-  const Id vertex=entry.first=="recorded_geometry_refusal"?18775:entry.first=="recorded_visibility_obstruction"?11990:entry.first=="recorded_visibility_obstruction_b"?13785:entry.first=="leading_edge"?4219:smooth;
+  const Id vertex=entry.first=="current_rank4_geometry"?18152:entry.first=="current_rank5_clearance"?8010:entry.first=="recorded_geometry_refusal"?18775:entry.first=="recorded_visibility_obstruction"?11990:entry.first=="recorded_visibility_obstruction_b"?13785:entry.first=="leading_edge"?4219:smooth;
   const auto vertexPatch=junction_wp0::PatchOf(current,entry.second);
   std::map<Id,Node> nodes;for(const auto& cell:vertexPatch.cells)for(auto n:cell.v)nodes.emplace(n.id,n);
   std::vector<OwnedCell> vertexRows;for(Id id:entry.second)vertexRows.push_back(current.mesh.at(id));
-  const auto planning=measurePatch(vertexPatch,vertexRows);
+  if(currentResidual) {
+    auto skin=Incidence(vertexPatch.cells).Boundary();for(auto& face:skin)std::rotate(face.begin(),std::min_element(face.begin(),face.end()),face.end());
+    std::sort(skin.begin(),skin.end(),[](Face a,Face b){return junction_wp0::Sorted(a)<junction_wp0::Sorted(b);});
+    std::string topologyReason;const bool topology=ValidatePrescribedInterface(vertexPatch.cells,vertexPatch.cells,skin,topologyReason);
+    GeometryGuidance score;
+    try {score=GeometryGuidanceExcess(vertexPatch,*current.reference,SU2_TYPE::GetValue(config.GetAdap_Hausd()));}
+    catch(const std::exception& e) {
+      log<<"{\"stage\":\"current_residual_unresolved\",\"context\":"<<std::quoted(entry.first)<<",\"reason\":"<<std::quoted(e.what())<<"}"<<std::endl;continue;
+    }
+    const auto* parameter=current.reference->Parameter(nodes.at(vertex).p);REQUIRE(parameter);
+    log<<"{\"stage\":\"current_residual_context\",\"context\":"<<std::quoted(entry.first)<<",\"vertex\":"<<vertex
+       <<",\"cells\":"<<vertexPatch.cells.size()<<",\"native_input_topology\":"<<topology<<",\"topology_reason\":"<<std::quoted(topologyReason)
+       <<",\"geometry_complete\":"<<score.complete<<",\"geometry_excess\":"<<score.excess
+       <<",\"binding_dimension\":"<<parameter->binding.dimension<<",\"binding_feature\":"<<parameter->binding.feature
+       <<",\"binding_version\":"<<parameter->binding.version<<",\"genuine_corner\":"<<current.live_parameters->Mobility().corners.count(vertex)
+       <<",\"known_stage_private_cell_reused\":false}"<<std::endl;
+    if(!topology)continue;
+  }
+  PatchMetric planning;
+  try {planning=measurePatch(vertexPatch,vertexRows);}
+  catch(const std::exception& e) {
+    if(!currentResidual)throw;
+    log<<"{\"stage\":\"current_residual_unresolved\",\"context\":"<<std::quoted(entry.first)<<",\"reason\":"<<std::quoted(e.what())<<"}"<<std::endl;continue;
+  }
   Edge shortest{},longest{};long double shortLength=INFINITY,longLength=-1;
   for(const auto& edge:planning.edges)if(edge.first[0]==vertex||edge.first[1]==vertex) {
     bool wall=false;for(const auto& face:vertexPatch.surface)if(heights.count(current.reference->Get(face.facet).marker)&&
@@ -198,6 +226,8 @@ for(const auto& entry:contexts) {
   REQUIRE(std::isfinite(shortLength));REQUIRE(longLength>0);
   bool guidanceReplayed=false;
   auto test=[&](const char* name,const std::vector<Id>& ids,MetricChange kind,auto construct) {
+    if(currentResidual && (residualTrials>=24 || !budget.within_time()))return false;
+    if(currentResidual)++residualTrials;
     const auto old=junction_wp0::PatchOf(current,ids);std::vector<OwnedCell> rows;for(Id id:ids)rows.push_back(current.mesh.at(id));
     const auto acceptedParameters=current.live_parameters->Payload();
     const auto cpu=std::clock();const long rssBefore=dc16::RssKB();
@@ -328,18 +358,18 @@ for(const auto& entry:contexts) {
     REQUIRE(budget.geometry_failure.empty());
     return feasible;
   };
-  const Id neighbor=entry.first=="recorded_geometry_refusal"?18783:entry.first=="recorded_visibility_obstruction"?11886:entry.first=="recorded_visibility_obstruction_b"?13788:shortest[0]==vertex?shortest[1]:shortest[0];
-  if(cavityCorrection&&!heightContinuation) {
+  const Id neighbor=entry.first=="current_rank4_geometry"?18153:entry.first=="recorded_geometry_refusal"?18783:entry.first=="recorded_visibility_obstruction"?11886:entry.first=="recorded_visibility_obstruction_b"?13788:shortest[0]==vertex?shortest[1]:shortest[0];
+  if(cavityCorrection&&!heightContinuation&&!currentResidual) {
     const auto dependencies=directory.Lookup({Feature{{vertex,0,0},1}},ceiling,retained);REQUIRE(dependencies.valid);
     const auto rows=directory.Fetch(dependencies,current.mesh,ceiling,retained);REQUIRE(rows.valid);
     const auto plan=directory.CorrectCollapse(dependencies,rows,current.mesh,vertex,neighbor,true,*current.reference,
         2*MaximumCavityCells,budget.within_time,ceiling,retained);
-    INFO(plan.reason);REQUIRE(plan.valid);
+    INFO(plan.reason);if(!currentResidual)REQUIRE(plan.valid);
     log<<"{\"stage\":\"production_correction_support\",\"context\":"<<std::quoted(entry.first)
        <<",\"corrected\":"<<plan.corrected<<",\"apex\":"<<plan.apex<<",\"old_cells\":"<<plan.imported.cells.size()
        <<",\"work\":"<<plan.work<<"}"<<std::endl;
     if(entry.first=="recorded_visibility_obstruction")REQUIRE(plan.corrected);
-    if(plan.corrected) {
+    if(plan.valid&&plan.corrected) {
       std::vector<Id> ids;for(const auto& c:plan.imported.cells)ids.push_back(c.cell.id);
       test("ProductionReconnectCollapse",ids,MetricChange::Coarsen,[&](const Patch& old,Patch& fresh,std::string& why){
         return ReconnectCollapse(old,vertex,neighbor,plan.apex,nextCell,*current.reference,fresh,why);
@@ -349,8 +379,42 @@ for(const auto& entry:contexts) {
   test("CollapseVertex",entry.second,MetricChange::Coarsen,[&](const Patch& old,Patch& fresh,std::string& why){
     return CollapseVertex(old,vertex,entry.first=="recorded_geometry_refusal"?18783:neighbor,nextCell,*current.reference,fresh,why);
   });
-  if(cavityCorrection) {
+  if(currentResidual && entry.first=="current_rank5_clearance")for(const auto& edge:planning.edges) {
+    if(edge.first[0]!=vertex && edge.first[1]!=vertex)continue;
+    const Id other=edge.first[0]==vertex?edge.first[1]:edge.first[0];if(other==neighbor)continue;
+    const bool wall=std::any_of(vertexPatch.surface.begin(),vertexPatch.surface.end(),[&](const SurfaceFace& face) {
+      return heights.count(current.reference->Get(face.facet).marker) &&
+          std::find(face.v.begin(),face.v.end(),vertex)!=face.v.end() && std::find(face.v.begin(),face.v.end(),other)!=face.v.end();
+    });if(!wall)continue;
+    const auto name="CollapseVertex_to_"+std::to_string(other);
+    test(name.c_str(),entry.second,MetricChange::Coarsen,[&](const Patch& old,Patch& fresh,std::string& why) {
+      return CollapseVertex(old,vertex,other,nextCell,*current.reference,fresh,why);
+    });
+  }
+  if(cavityCorrection&&(!currentResidual||entry.first!="unchanged_wall_control"))try {
 #include "native_actual_cavity_correction.inc"
+  }catch(const std::exception& e) {
+    if(!currentResidual)throw;
+    log<<"{\"stage\":\"current_residual_search_refused\",\"context\":"<<std::quoted(entry.first)<<",\"reason\":"<<std::quoted(e.what())<<"}"<<std::endl;
+  }
+  if(currentResidual&&entry.first!="unchanged_wall_control") {
+    Edge edge=entry.first=="current_rank4_geometry"?Edge{18152,18153}:longest;
+    const auto deps=directory.Lookup({Feature{{edge[0],edge[1],0},2}},ceiling,retained);REQUIRE(deps.valid);
+    std::vector<Id> ids;for(const auto& dep:deps.cells)ids.push_back(dep.cell);
+    const auto a=nodes.at(edge[0]).p,b=nodes.at(edge[1]).p;
+    auto midpoint=[&](){return Node{nextNode,{double(((long double)a.x+b.x)/2),double(((long double)a.y+b.y)/2),double(((long double)a.z+b.z)/2)}};};
+    test("SplitSurfaceStrip",ids,MetricChange::GeometryRefine,[&](const Patch& old,Patch& fresh,std::string& why) {
+      return SplitSurfaceStrip(old,edge,midpoint(),{},nextCell,*current.reference,fresh,why);
+    });
+    test("ReconstructSplitPatch",ids,MetricChange::GeometryRefine,[&](const Patch& old,Patch& fresh,std::string& why) {
+      auto donors=source.ImportCellsLocal(old.cells,vertexRows,ceiling,budget.caller_bytes);
+      if(!donors.valid){why=donors.reason;return false;}
+      const auto extensions=AssociatedExtensions(donors.cells,*current.reference);
+      FrozenField field(std::move(donors.cells),policy.Composition(),true,extensions,policy.Edges(),
+          std::make_shared<const FrozenMetricIdentity>(),true,MaximumDonors,true);
+      const auto placement=field.Query(Centroid(old.cells.front())).target;
+      Face obstruction{};return ReconstructSplitPatch(old,edge,midpoint(),{nextNode+1,{}},placement,nextCell,*current.reference,fresh,obstruction,why,nullptr,heights);
+    });
   }
   if(entry.first=="leading_edge") {
     std::vector<Id> edgeStar;for(Id id:entry.second){const auto& cell=current.mesh.at(id).cell;unsigned found=0;for(auto n:cell.v)found+=n.id==longest[0]||n.id==longest[1];if(found==2)edgeStar.push_back(id);}
@@ -372,7 +436,7 @@ for(const auto& entry:contexts) {
 if(heightContinuation) {
 #include "native_actual_cavity_height_continuation.inc"
 }
-if(cavityCorrection&&!heightContinuation&&!productionCorrection) {
+if(cavityCorrection&&!heightContinuation&&!productionCorrection&&!currentResidual) {
   for(const auto& audit:correctionAudits)for(unsigned side=0;side<2;++side) {
     const auto& patch=side?audit.fresh:audit.old;std::string why;PatchMetric metric;bool complete=false;
     const auto t=std::chrono::steady_clock::now();const auto cpu=std::clock();const auto workBefore=budget.work;
@@ -401,4 +465,7 @@ if(cavityCorrection&&!heightContinuation&&!productionCorrection) {
   }
 }
 
+if(currentResidual)log<<"{\"stage\":\"current_residual_result\",\"constructor_calls\":"<<residualTrials
+    <<",\"time_exhausted\":"<<budget.time_exhausted<<",\"geometry_work\":"<<budget.work
+    <<",\"whole_mesh_accepted\":false,\"published\":false}"<<std::endl;
 if(cavityCorrection)NativeStageCapture::WriteOwned("correction_unchanged_owned.bin",current.mesh);

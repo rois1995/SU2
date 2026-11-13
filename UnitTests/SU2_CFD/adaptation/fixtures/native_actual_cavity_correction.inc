@@ -16,7 +16,7 @@ auto prescribed=[&](const Patch& old) {
   std::vector<Face> result;for(const auto& f:expected)result.push_back(f.second);return result;
 };
 // Exercise the prescribed-interface contract on the existing primitive before judging compound failures.
-{Patch control;std::string why;if(CollapseVertex(vertexPatch,vertex,neighbor,nextCell,*current.reference,control,why))
+if(!currentResidual){Patch control;std::string why;if(CollapseVertex(vertexPatch,vertex,neighbor,nextCell,*current.reference,control,why))
   REQUIRE(ValidatePrescribedInterface(vertexPatch.cells,control.cells,prescribed(vertexPatch),why));}
 auto compound=[&](const Patch& old,Id apex,Patch& fresh,std::string& why) {
   return ReconnectCollapse(old,vertex,neighbor,apex,nextCell,*current.reference,fresh,why);

@@ -1,0 +1,3491 @@
+{
+  "case": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved472_current_residual_trace_serial_20261113T023816_1509672",
+  "generic_model0_miss_diagnostics": {
+    "cache_misses": 31,
+    "examples": [
+      {
+        "domain_record_count": 5,
+        "final_leaf_count": 4,
+        "final_leaf_max_upper": 0.002805322841336826,
+        "lower_exceeds_tolerance": true,
+        "maximum_recorded_lower": 0.00014457740594602263,
+        "note": "Generic model=0 query only; exact input triangles do not join target SplitSurfaceStrip/ReconstructSplitPatch cell faces.",
+        "result_line": 477315,
+        "returned_upper": 0.005580655765079942,
+        "returned_upper_equals_initial": true,
+        "root_initial_upper": 0.005580655765079942,
+        "source_line": 477294,
+        "start": 159591,
+        "subdivided_parent_count": 1,
+        "support_facets": [
+          36342
+        ],
+        "tolerance": 0.0001,
+        "triangle_coordinate_bits": [
+          [
+            "3fe4b04c83fc8463",
+            "3ff1670a0b5f3c37",
+            "bf8b87550a16a6d0",
+            "3fe4575e6017093e",
+            "3ff14c6a1b2293dc",
+            "bf87f85fec3377c9",
+            "3fe483a09704a5ad",
+            "3ff13f94eaee9402",
+            "bf8bb0865b4c32f6"
+          ]
+        ],
+        "work": 927
+      },
+      {
+        "domain_record_count": 5,
+        "final_leaf_count": 4,
+        "final_leaf_max_upper": 0.0039466314763052955,
+        "lower_exceeds_tolerance": true,
+        "maximum_recorded_lower": 0.0001538097119121061,
+        "note": "Generic model=0 query only; exact input triangles do not join target SplitSurfaceStrip/ReconstructSplitPatch cell faces.",
+        "result_line": 478351,
+        "returned_upper": 0.008234987631248967,
+        "returned_upper_equals_initial": true,
+        "root_initial_upper": 0.008234987631248967,
+        "source_line": 478332,
+        "start": 302759,
+        "subdivided_parent_count": 1,
+        "support_facets": [
+          10601,
+          10602,
+          10610,
+          10611,
+          10612,
+          10619,
+          10620,
+          10621,
+          10622,
+          10628,
+          10629,
+          10630,
+          10631,
+          10637,
+          10638,
+          10639,
+          10640,
+          10647,
+          10648,
+          10649,
+          10650,
+          10656,
+          10657,
+          10658,
+          10659,
+          10666,
+          10667,
+          10676,
+          16126,
+          16127,
+          16128,
+          16424,
+          16425,
+          16426,
+          16717,
+          16718,
+          16719,
+          16720,
+          16721,
+          17007,
+          17008,
+          17009,
+          17010,
+          17011,
+          17290,
+          17291,
+          17292,
+          17293,
+          17294,
+          17569,
+          17570,
+          17571,
+          17572,
+          17842,
+          17843,
+          17844,
+          18111,
+          29892,
+          29902,
+          29912,
+          35416,
+          35417,
+          35418
+        ],
+        "tolerance": 0.0001,
+        "triangle_coordinate_bits": [
+          [
+            "3fd7621438ae3976",
+            "3fe36ea17f66992d",
+            "3f8ed741cc5c8658",
+            "3fd7d3f7dcb0fc15",
+            "3fe34d9bd6ac7de9",
+            "3f91d029625453a6",
+            "3fd759fe8350ef16",
+            "3fe2e1dd8b2875d8",
+            "3f91ec4d8a46d66b"
+          ]
+        ],
+        "work": 3176
+      }
+    ],
+    "interpretation": "After exact target-face-linked queries are removed, two other generic misses show a tighter final-leaf maximum after one subdivision. No query returns the root initial bound after more than one subdivided parent. The generic examples do not evidence the target residual behavior.",
+    "leaf_bound_method": "Replay the dyadic four-child barycentric subdivision tree per (facet,depth,parameter triangle); final unsplit domains include finished and outstanding leaves. Maximum leaf upper is a conservative upper bound for the entire query; no lower-bound/certification claim is inferred from it.",
+    "returned_initial_upper_after_any_subdivision_with_smaller_final_leaf_max": 2,
+    "returned_initial_upper_after_more_than_one_parent_subdivision": 0,
+    "returned_initial_upper_count": 27
+  },
+  "inputs": {
+    "Common/src/adaptation/CNativeAffineReference.cpp": {
+      "bytes": 235259,
+      "sha256": "fe150599671fb5a2def5c4032958f137491270d420ee3428e1045cea9b5c1a1e"
+    },
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved472_current_residual_trace_serial_20261113T023816_1509672/actual_bl_cavity_planning.jsonl": {
+      "bytes": 215669,
+      "sha256": "1146a7956d116cec4f993646b1aee71bc73f9d1aab0ddb05f089cd0ba60cb5d9"
+    },
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved472_current_residual_trace_serial_20261113T023816_1509672/run.log": {
+      "bytes": 35781778,
+      "sha256": "09d017452ce37957ece9ac7510d2e7322ad0c9e909ef1584e08bb00cb8d7c3be"
+    },
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/current_residual472_assessment.json": {
+      "bytes": 48147,
+      "sha256": "4dc6e865be5acc2439ac437996f3dde7fa756d6171a3f6a420b3aa665d139969"
+    }
+  },
+  "matching_method": {
+    "basis": "exact binary64 coordinates from each trace query physical triangle vs every face of each old/fresh centroid_directional_witness tetra cell for SplitSurfaceStrip and ReconstructSplitPatch; no facet/cell identity assumption",
+    "candidate_vertex_overlaps": {
+      "current_rank4_geometry|ReconstructSplitPatch|fresh": {
+        "candidate_vertex_coordinate_count": 21,
+        "exact_coordinate_intersections": 15,
+        "trace_vertex_coordinate_count": 69
+      },
+      "current_rank4_geometry|ReconstructSplitPatch|old": {
+        "candidate_vertex_coordinate_count": 15,
+        "exact_coordinate_intersections": 12,
+        "trace_vertex_coordinate_count": 69
+      },
+      "current_rank4_geometry|SplitSurfaceStrip|fresh": {
+        "candidate_vertex_coordinate_count": 18,
+        "exact_coordinate_intersections": 15,
+        "trace_vertex_coordinate_count": 69
+      },
+      "current_rank4_geometry|SplitSurfaceStrip|old": {
+        "candidate_vertex_coordinate_count": 15,
+        "exact_coordinate_intersections": 12,
+        "trace_vertex_coordinate_count": 69
+      },
+      "current_rank5_clearance|ReconstructSplitPatch|fresh": {
+        "candidate_vertex_coordinate_count": 21,
+        "exact_coordinate_intersections": 15,
+        "trace_vertex_coordinate_count": 69
+      },
+      "current_rank5_clearance|ReconstructSplitPatch|old": {
+        "candidate_vertex_coordinate_count": 15,
+        "exact_coordinate_intersections": 12,
+        "trace_vertex_coordinate_count": 69
+      },
+      "current_rank5_clearance|SplitSurfaceStrip|fresh": {
+        "candidate_vertex_coordinate_count": 18,
+        "exact_coordinate_intersections": 15,
+        "trace_vertex_coordinate_count": 69
+      },
+      "current_rank5_clearance|SplitSurfaceStrip|old": {
+        "candidate_vertex_coordinate_count": 15,
+        "exact_coordinate_intersections": 12,
+        "trace_vertex_coordinate_count": 69
+      }
+    },
+    "conclusion": "Exact input-coordinate matching finds physical query triangles on target old/fresh tetra boundary faces. Metrics below are associated through those exact coordinates, not assumed by log order or identity.",
+    "model0_cache_miss_groups_with_domains": 43,
+    "query_groups": 272,
+    "target_candidate_groups": {
+      "current_rank4_geometry|ReconstructSplitPatch|fresh": {
+        "candidate_face_count": 20,
+        "cell_ids": [
+          5807619,
+          5807620,
+          5807621,
+          5807622,
+          5807623,
+          5807624,
+          5807625,
+          5807626
+        ],
+        "cells": 8,
+        "exact_trace_triangle_hits": 4
+      },
+      "current_rank4_geometry|ReconstructSplitPatch|old": {
+        "candidate_face_count": 7,
+        "cell_ids": [
+          215614,
+          222691
+        ],
+        "cells": 2,
+        "exact_trace_triangle_hits": 2
+      },
+      "current_rank4_geometry|SplitSurfaceStrip|fresh": {
+        "candidate_face_count": 12,
+        "cell_ids": [
+          5807491,
+          5807492,
+          5807493,
+          5807494
+        ],
+        "cells": 4,
+        "exact_trace_triangle_hits": 4
+      },
+      "current_rank4_geometry|SplitSurfaceStrip|old": {
+        "candidate_face_count": 7,
+        "cell_ids": [
+          215614,
+          222691
+        ],
+        "cells": 2,
+        "exact_trace_triangle_hits": 2
+      },
+      "current_rank5_clearance|ReconstructSplitPatch|fresh": {
+        "candidate_face_count": 20,
+        "cell_ids": [
+          5809283,
+          5809284,
+          5809285,
+          5809286,
+          5809287,
+          5809288,
+          5809289,
+          5809290
+        ],
+        "cells": 8,
+        "exact_trace_triangle_hits": 4
+      },
+      "current_rank5_clearance|ReconstructSplitPatch|old": {
+        "candidate_face_count": 7,
+        "cell_ids": [
+          275002,
+          297126
+        ],
+        "cells": 2,
+        "exact_trace_triangle_hits": 2
+      },
+      "current_rank5_clearance|SplitSurfaceStrip|fresh": {
+        "candidate_face_count": 12,
+        "cell_ids": [
+          5809155,
+          5809156,
+          5809157,
+          5809158
+        ],
+        "cells": 4,
+        "exact_trace_triangle_hits": 4
+      },
+      "current_rank5_clearance|SplitSurfaceStrip|old": {
+        "candidate_face_count": 7,
+        "cell_ids": [
+          275002,
+          297126
+        ],
+        "cells": 2,
+        "exact_trace_triangle_hits": 2
+      }
+    },
+    "target_linked_query_details": [
+      {
+        "cache": "miss",
+        "matched_context_operator_side": [
+          [
+            "current_rank4_geometry",
+            "SplitSurfaceStrip",
+            "old"
+          ],
+          [
+            "current_rank4_geometry",
+            "ReconstructSplitPatch",
+            "old"
+          ]
+        ],
+        "matched_triangle_count": 2,
+        "start": 158955,
+        "support_facets": [
+          29524
+        ]
+      },
+      {
+        "cache": "miss",
+        "matched_context_operator_side": [
+          [
+            "current_rank4_geometry",
+            "SplitSurfaceStrip",
+            "old"
+          ],
+          [
+            "current_rank4_geometry",
+            "ReconstructSplitPatch",
+            "old"
+          ]
+        ],
+        "matched_triangle_count": 2,
+        "start": 160982,
+        "support_facets": [
+          36051
+        ]
+      },
+      {
+        "cache": "hit",
+        "matched_context_operator_side": [
+          [
+            "current_rank4_geometry",
+            "SplitSurfaceStrip",
+            "old"
+          ],
+          [
+            "current_rank4_geometry",
+            "ReconstructSplitPatch",
+            "old"
+          ]
+        ],
+        "matched_triangle_count": 2,
+        "start": 166179,
+        "support_facets": [
+          29524
+        ]
+      },
+      {
+        "cache": "hit",
+        "matched_context_operator_side": [
+          [
+            "current_rank4_geometry",
+            "SplitSurfaceStrip",
+            "old"
+          ],
+          [
+            "current_rank4_geometry",
+            "ReconstructSplitPatch",
+            "old"
+          ]
+        ],
+        "matched_triangle_count": 2,
+        "start": 166245,
+        "support_facets": [
+          36051
+        ]
+      },
+      {
+        "cache": "hit",
+        "matched_context_operator_side": [
+          [
+            "current_rank4_geometry",
+            "SplitSurfaceStrip",
+            "old"
+          ],
+          [
+            "current_rank4_geometry",
+            "ReconstructSplitPatch",
+            "old"
+          ]
+        ],
+        "matched_triangle_count": 2,
+        "start": 186545,
+        "support_facets": [
+          29524
+        ]
+      },
+      {
+        "cache": "hit",
+        "matched_context_operator_side": [
+          [
+            "current_rank4_geometry",
+            "SplitSurfaceStrip",
+            "old"
+          ],
+          [
+            "current_rank4_geometry",
+            "ReconstructSplitPatch",
+            "old"
+          ]
+        ],
+        "matched_triangle_count": 2,
+        "start": 186611,
+        "support_facets": [
+          36051
+        ]
+      },
+      {
+        "cache": "hit",
+        "matched_context_operator_side": [
+          [
+            "current_rank4_geometry",
+            "SplitSurfaceStrip",
+            "old"
+          ],
+          [
+            "current_rank4_geometry",
+            "ReconstructSplitPatch",
+            "old"
+          ]
+        ],
+        "matched_triangle_count": 2,
+        "start": 198361,
+        "support_facets": [
+          29524
+        ]
+      },
+      {
+        "cache": "hit",
+        "matched_context_operator_side": [
+          [
+            "current_rank4_geometry",
+            "SplitSurfaceStrip",
+            "old"
+          ],
+          [
+            "current_rank4_geometry",
+            "ReconstructSplitPatch",
+            "old"
+          ]
+        ],
+        "matched_triangle_count": 2,
+        "start": 198427,
+        "support_facets": [
+          36051
+        ]
+      },
+      {
+        "cache": "hit",
+        "matched_context_operator_side": [
+          [
+            "current_rank4_geometry",
+            "SplitSurfaceStrip",
+            "old"
+          ],
+          [
+            "current_rank4_geometry",
+            "ReconstructSplitPatch",
+            "old"
+          ]
+        ],
+        "matched_triangle_count": 2,
+        "start": 198884,
+        "support_facets": [
+          29524
+        ]
+      },
+      {
+        "cache": "hit",
+        "matched_context_operator_side": [
+          [
+            "current_rank4_geometry",
+            "SplitSurfaceStrip",
+            "old"
+          ],
+          [
+            "current_rank4_geometry",
+            "ReconstructSplitPatch",
+            "old"
+          ]
+        ],
+        "matched_triangle_count": 2,
+        "start": 198950,
+        "support_facets": [
+          36051
+        ]
+      },
+      {
+        "cache": "hit",
+        "matched_context_operator_side": [
+          [
+            "current_rank4_geometry",
+            "SplitSurfaceStrip",
+            "old"
+          ],
+          [
+            "current_rank4_geometry",
+            "ReconstructSplitPatch",
+            "old"
+          ]
+        ],
+        "matched_triangle_count": 2,
+        "start": 200688,
+        "support_facets": [
+          29524
+        ]
+      },
+      {
+        "cache": "hit",
+        "matched_context_operator_side": [
+          [
+            "current_rank4_geometry",
+            "SplitSurfaceStrip",
+            "old"
+          ],
+          [
+            "current_rank4_geometry",
+            "ReconstructSplitPatch",
+            "old"
+          ]
+        ],
+        "matched_triangle_count": 2,
+        "start": 200754,
+        "support_facets": [
+          36051
+        ]
+      },
+      {
+        "cache": "hit",
+        "matched_context_operator_side": [
+          [
+            "current_rank4_geometry",
+            "SplitSurfaceStrip",
+            "old"
+          ],
+          [
+            "current_rank4_geometry",
+            "ReconstructSplitPatch",
+            "old"
+          ]
+        ],
+        "matched_triangle_count": 2,
+        "start": 201211,
+        "support_facets": [
+          29524
+        ]
+      },
+      {
+        "cache": "hit",
+        "matched_context_operator_side": [
+          [
+            "current_rank4_geometry",
+            "SplitSurfaceStrip",
+            "old"
+          ],
+          [
+            "current_rank4_geometry",
+            "ReconstructSplitPatch",
+            "old"
+          ]
+        ],
+        "matched_triangle_count": 2,
+        "start": 201277,
+        "support_facets": [
+          36051
+        ]
+      },
+      {
+        "cache": "hit",
+        "matched_context_operator_side": [
+          [
+            "current_rank4_geometry",
+            "SplitSurfaceStrip",
+            "old"
+          ],
+          [
+            "current_rank4_geometry",
+            "ReconstructSplitPatch",
+            "old"
+          ]
+        ],
+        "matched_triangle_count": 2,
+        "start": 207043,
+        "support_facets": [
+          29524
+        ]
+      },
+      {
+        "cache": "hit",
+        "matched_context_operator_side": [
+          [
+            "current_rank4_geometry",
+            "SplitSurfaceStrip",
+            "old"
+          ],
+          [
+            "current_rank4_geometry",
+            "ReconstructSplitPatch",
+            "old"
+          ]
+        ],
+        "matched_triangle_count": 2,
+        "start": 207109,
+        "support_facets": [
+          36051
+        ]
+      },
+      {
+        "cache": "hit",
+        "matched_context_operator_side": [
+          [
+            "current_rank4_geometry",
+            "SplitSurfaceStrip",
+            "old"
+          ],
+          [
+            "current_rank4_geometry",
+            "ReconstructSplitPatch",
+            "old"
+          ]
+        ],
+        "matched_triangle_count": 2,
+        "start": 207566,
+        "support_facets": [
+          29524
+        ]
+      },
+      {
+        "cache": "hit",
+        "matched_context_operator_side": [
+          [
+            "current_rank4_geometry",
+            "SplitSurfaceStrip",
+            "old"
+          ],
+          [
+            "current_rank4_geometry",
+            "ReconstructSplitPatch",
+            "old"
+          ]
+        ],
+        "matched_triangle_count": 2,
+        "start": 207632,
+        "support_facets": [
+          36051
+        ]
+      },
+      {
+        "cache": "hit",
+        "matched_context_operator_side": [
+          [
+            "current_rank4_geometry",
+            "SplitSurfaceStrip",
+            "old"
+          ],
+          [
+            "current_rank4_geometry",
+            "ReconstructSplitPatch",
+            "old"
+          ]
+        ],
+        "matched_triangle_count": 2,
+        "start": 216446,
+        "support_facets": [
+          29524
+        ]
+      },
+      {
+        "cache": "hit",
+        "matched_context_operator_side": [
+          [
+            "current_rank4_geometry",
+            "SplitSurfaceStrip",
+            "old"
+          ],
+          [
+            "current_rank4_geometry",
+            "ReconstructSplitPatch",
+            "old"
+          ]
+        ],
+        "matched_triangle_count": 2,
+        "start": 216468,
+        "support_facets": [
+          36051
+        ]
+      },
+      {
+        "cache": "miss",
+        "matched_context_operator_side": [
+          [
+            "current_rank4_geometry",
+            "SplitSurfaceStrip",
+            "fresh"
+          ],
+          [
+            "current_rank4_geometry",
+            "ReconstructSplitPatch",
+            "fresh"
+          ]
+        ],
+        "matched_triangle_count": 2,
+        "start": 216490,
+        "support_facets": [
+          10211,
+          10219,
+          10227,
+          10236,
+          16168,
+          16169,
+          16170,
+          16171,
+          29501,
+          29507,
+          29508,
+          29509,
+          29514,
+          29515,
+          29516,
+          29517,
+          29522,
+          29523,
+          29524,
+          29525,
+          29526,
+          29531,
+          29532,
+          29533,
+          29534,
+          29539,
+          29540,
+          29541,
+          29542,
+          29548,
+          29549,
+          29557,
+          35458,
+          35459,
+          35460,
+          35461,
+          35756,
+          35757,
+          35758,
+          35759,
+          36050,
+          36051,
+          36052,
+          36053,
+          36340,
+          36341,
+          36342,
+          36343,
+          36344,
+          36624,
+          36625,
+          36626,
+          36627,
+          36902,
+          36903,
+          36904,
+          37175
+        ]
+      },
+      {
+        "cache": "miss",
+        "matched_context_operator_side": [
+          [
+            "current_rank4_geometry",
+            "SplitSurfaceStrip",
+            "fresh"
+          ],
+          [
+            "current_rank4_geometry",
+            "ReconstructSplitPatch",
+            "fresh"
+          ]
+        ],
+        "matched_triangle_count": 2,
+        "start": 220143,
+        "support_facets": [
+          10211,
+          10219,
+          10227,
+          10236,
+          16168,
+          16169,
+          16170,
+          16171,
+          29501,
+          29507,
+          29508,
+          29509,
+          29514,
+          29515,
+          29516,
+          29517,
+          29522,
+          29523,
+          29524,
+          29525,
+          29526,
+          29531,
+          29532,
+          29533,
+          29534,
+          29539,
+          29540,
+          29541,
+          29542,
+          29548,
+          29549,
+          29557,
+          35458,
+          35459,
+          35460,
+          35461,
+          35756,
+          35757,
+          35758,
+          35759,
+          35760,
+          36050,
+          36051,
+          36052,
+          36053,
+          36054,
+          36340,
+          36341,
+          36342,
+          36343,
+          36344,
+          36624,
+          36625,
+          36626,
+          36627,
+          36902,
+          36903,
+          36904,
+          37175
+        ]
+      },
+      {
+        "cache": "miss",
+        "matched_context_operator_side": [
+          [
+            "current_rank4_geometry",
+            "SplitSurfaceStrip",
+            "fresh"
+          ],
+          [
+            "current_rank4_geometry",
+            "ReconstructSplitPatch",
+            "fresh"
+          ]
+        ],
+        "matched_triangle_count": 2,
+        "start": 221634,
+        "support_facets": [
+          36051
+        ]
+      },
+      {
+        "cache": "miss",
+        "matched_context_operator_side": [
+          [
+            "current_rank4_geometry",
+            "SplitSurfaceStrip",
+            "fresh"
+          ],
+          [
+            "current_rank4_geometry",
+            "ReconstructSplitPatch",
+            "fresh"
+          ]
+        ],
+        "matched_triangle_count": 2,
+        "start": 222189,
+        "support_facets": [
+          36051
+        ]
+      },
+      {
+        "cache": "hit",
+        "matched_context_operator_side": [
+          [
+            "current_rank4_geometry",
+            "SplitSurfaceStrip",
+            "old"
+          ],
+          [
+            "current_rank4_geometry",
+            "ReconstructSplitPatch",
+            "old"
+          ]
+        ],
+        "matched_triangle_count": 2,
+        "start": 233149,
+        "support_facets": [
+          29524
+        ]
+      },
+      {
+        "cache": "hit",
+        "matched_context_operator_side": [
+          [
+            "current_rank4_geometry",
+            "SplitSurfaceStrip",
+            "old"
+          ],
+          [
+            "current_rank4_geometry",
+            "ReconstructSplitPatch",
+            "old"
+          ]
+        ],
+        "matched_triangle_count": 2,
+        "start": 233171,
+        "support_facets": [
+          36051
+        ]
+      },
+      {
+        "cache": "hit",
+        "matched_context_operator_side": [
+          [
+            "current_rank4_geometry",
+            "SplitSurfaceStrip",
+            "fresh"
+          ],
+          [
+            "current_rank4_geometry",
+            "ReconstructSplitPatch",
+            "fresh"
+          ]
+        ],
+        "matched_triangle_count": 2,
+        "start": 233193,
+        "support_facets": [
+          10211,
+          10219,
+          10227,
+          10236,
+          16168,
+          16169,
+          16170,
+          16171,
+          29501,
+          29507,
+          29508,
+          29509,
+          29514,
+          29515,
+          29516,
+          29517,
+          29522,
+          29523,
+          29524,
+          29525,
+          29526,
+          29531,
+          29532,
+          29533,
+          29534,
+          29539,
+          29540,
+          29541,
+          29542,
+          29548,
+          29549,
+          29557,
+          35458,
+          35459,
+          35460,
+          35461,
+          35756,
+          35757,
+          35758,
+          35759,
+          36050,
+          36051,
+          36052,
+          36053,
+          36340,
+          36341,
+          36342,
+          36343,
+          36344,
+          36624,
+          36625,
+          36626,
+          36627,
+          36902,
+          36903,
+          36904,
+          37175
+        ]
+      },
+      {
+        "cache": "hit",
+        "matched_context_operator_side": [
+          [
+            "current_rank4_geometry",
+            "SplitSurfaceStrip",
+            "fresh"
+          ],
+          [
+            "current_rank4_geometry",
+            "ReconstructSplitPatch",
+            "fresh"
+          ]
+        ],
+        "matched_triangle_count": 2,
+        "start": 233271,
+        "support_facets": [
+          10211,
+          10219,
+          10227,
+          10236,
+          16168,
+          16169,
+          16170,
+          16171,
+          29501,
+          29507,
+          29508,
+          29509,
+          29514,
+          29515,
+          29516,
+          29517,
+          29522,
+          29523,
+          29524,
+          29525,
+          29526,
+          29531,
+          29532,
+          29533,
+          29534,
+          29539,
+          29540,
+          29541,
+          29542,
+          29548,
+          29549,
+          29557,
+          35458,
+          35459,
+          35460,
+          35461,
+          35756,
+          35757,
+          35758,
+          35759,
+          35760,
+          36050,
+          36051,
+          36052,
+          36053,
+          36054,
+          36340,
+          36341,
+          36342,
+          36343,
+          36344,
+          36624,
+          36625,
+          36626,
+          36627,
+          36902,
+          36903,
+          36904,
+          37175
+        ]
+      },
+      {
+        "cache": "hit",
+        "matched_context_operator_side": [
+          [
+            "current_rank4_geometry",
+            "SplitSurfaceStrip",
+            "fresh"
+          ],
+          [
+            "current_rank4_geometry",
+            "ReconstructSplitPatch",
+            "fresh"
+          ]
+        ],
+        "matched_triangle_count": 2,
+        "start": 233351,
+        "support_facets": [
+          36051
+        ]
+      },
+      {
+        "cache": "hit",
+        "matched_context_operator_side": [
+          [
+            "current_rank4_geometry",
+            "SplitSurfaceStrip",
+            "fresh"
+          ],
+          [
+            "current_rank4_geometry",
+            "ReconstructSplitPatch",
+            "fresh"
+          ]
+        ],
+        "matched_triangle_count": 2,
+        "start": 233373,
+        "support_facets": [
+          36051
+        ]
+      },
+      {
+        "cache": "hit",
+        "matched_context_operator_side": [
+          [
+            "current_rank4_geometry",
+            "SplitSurfaceStrip",
+            "old"
+          ],
+          [
+            "current_rank4_geometry",
+            "ReconstructSplitPatch",
+            "old"
+          ]
+        ],
+        "matched_triangle_count": 2,
+        "start": 237310,
+        "support_facets": [
+          29524
+        ]
+      },
+      {
+        "cache": "hit",
+        "matched_context_operator_side": [
+          [
+            "current_rank4_geometry",
+            "SplitSurfaceStrip",
+            "old"
+          ],
+          [
+            "current_rank4_geometry",
+            "ReconstructSplitPatch",
+            "old"
+          ]
+        ],
+        "matched_triangle_count": 2,
+        "start": 237332,
+        "support_facets": [
+          36051
+        ]
+      },
+      {
+        "cache": "hit",
+        "matched_context_operator_side": [
+          [
+            "current_rank4_geometry",
+            "SplitSurfaceStrip",
+            "fresh"
+          ],
+          [
+            "current_rank4_geometry",
+            "ReconstructSplitPatch",
+            "fresh"
+          ]
+        ],
+        "matched_triangle_count": 2,
+        "start": 237354,
+        "support_facets": [
+          10211,
+          10219,
+          10227,
+          10236,
+          16168,
+          16169,
+          16170,
+          16171,
+          29501,
+          29507,
+          29508,
+          29509,
+          29514,
+          29515,
+          29516,
+          29517,
+          29522,
+          29523,
+          29524,
+          29525,
+          29526,
+          29531,
+          29532,
+          29533,
+          29534,
+          29539,
+          29540,
+          29541,
+          29542,
+          29548,
+          29549,
+          29557,
+          35458,
+          35459,
+          35460,
+          35461,
+          35756,
+          35757,
+          35758,
+          35759,
+          36050,
+          36051,
+          36052,
+          36053,
+          36340,
+          36341,
+          36342,
+          36343,
+          36344,
+          36624,
+          36625,
+          36626,
+          36627,
+          36902,
+          36903,
+          36904,
+          37175
+        ]
+      },
+      {
+        "cache": "hit",
+        "matched_context_operator_side": [
+          [
+            "current_rank4_geometry",
+            "SplitSurfaceStrip",
+            "fresh"
+          ],
+          [
+            "current_rank4_geometry",
+            "ReconstructSplitPatch",
+            "fresh"
+          ]
+        ],
+        "matched_triangle_count": 2,
+        "start": 237432,
+        "support_facets": [
+          10211,
+          10219,
+          10227,
+          10236,
+          16168,
+          16169,
+          16170,
+          16171,
+          29501,
+          29507,
+          29508,
+          29509,
+          29514,
+          29515,
+          29516,
+          29517,
+          29522,
+          29523,
+          29524,
+          29525,
+          29526,
+          29531,
+          29532,
+          29533,
+          29534,
+          29539,
+          29540,
+          29541,
+          29542,
+          29548,
+          29549,
+          29557,
+          35458,
+          35459,
+          35460,
+          35461,
+          35756,
+          35757,
+          35758,
+          35759,
+          35760,
+          36050,
+          36051,
+          36052,
+          36053,
+          36054,
+          36340,
+          36341,
+          36342,
+          36343,
+          36344,
+          36624,
+          36625,
+          36626,
+          36627,
+          36902,
+          36903,
+          36904,
+          37175
+        ]
+      },
+      {
+        "cache": "hit",
+        "matched_context_operator_side": [
+          [
+            "current_rank4_geometry",
+            "SplitSurfaceStrip",
+            "fresh"
+          ],
+          [
+            "current_rank4_geometry",
+            "ReconstructSplitPatch",
+            "fresh"
+          ]
+        ],
+        "matched_triangle_count": 2,
+        "start": 237512,
+        "support_facets": [
+          36051
+        ]
+      },
+      {
+        "cache": "hit",
+        "matched_context_operator_side": [
+          [
+            "current_rank4_geometry",
+            "SplitSurfaceStrip",
+            "fresh"
+          ],
+          [
+            "current_rank4_geometry",
+            "ReconstructSplitPatch",
+            "fresh"
+          ]
+        ],
+        "matched_triangle_count": 2,
+        "start": 237534,
+        "support_facets": [
+          36051
+        ]
+      },
+      {
+        "cache": "hit",
+        "matched_context_operator_side": [
+          [
+            "current_rank4_geometry",
+            "SplitSurfaceStrip",
+            "old"
+          ],
+          [
+            "current_rank4_geometry",
+            "ReconstructSplitPatch",
+            "old"
+          ]
+        ],
+        "matched_triangle_count": 2,
+        "start": 237556,
+        "support_facets": [
+          29524
+        ]
+      },
+      {
+        "cache": "hit",
+        "matched_context_operator_side": [
+          [
+            "current_rank4_geometry",
+            "SplitSurfaceStrip",
+            "old"
+          ],
+          [
+            "current_rank4_geometry",
+            "ReconstructSplitPatch",
+            "old"
+          ]
+        ],
+        "matched_triangle_count": 2,
+        "start": 237578,
+        "support_facets": [
+          36051
+        ]
+      },
+      {
+        "cache": "hit",
+        "matched_context_operator_side": [
+          [
+            "current_rank4_geometry",
+            "SplitSurfaceStrip",
+            "fresh"
+          ],
+          [
+            "current_rank4_geometry",
+            "ReconstructSplitPatch",
+            "fresh"
+          ]
+        ],
+        "matched_triangle_count": 2,
+        "start": 237600,
+        "support_facets": [
+          10211,
+          10219,
+          10227,
+          10236,
+          16168,
+          16169,
+          16170,
+          16171,
+          29501,
+          29507,
+          29508,
+          29509,
+          29514,
+          29515,
+          29516,
+          29517,
+          29522,
+          29523,
+          29524,
+          29525,
+          29526,
+          29531,
+          29532,
+          29533,
+          29534,
+          29539,
+          29540,
+          29541,
+          29542,
+          29548,
+          29549,
+          29557,
+          35458,
+          35459,
+          35460,
+          35461,
+          35756,
+          35757,
+          35758,
+          35759,
+          36050,
+          36051,
+          36052,
+          36053,
+          36340,
+          36341,
+          36342,
+          36343,
+          36344,
+          36624,
+          36625,
+          36626,
+          36627,
+          36902,
+          36903,
+          36904,
+          37175
+        ]
+      },
+      {
+        "cache": "hit",
+        "matched_context_operator_side": [
+          [
+            "current_rank4_geometry",
+            "SplitSurfaceStrip",
+            "fresh"
+          ],
+          [
+            "current_rank4_geometry",
+            "ReconstructSplitPatch",
+            "fresh"
+          ]
+        ],
+        "matched_triangle_count": 2,
+        "start": 237678,
+        "support_facets": [
+          10211,
+          10219,
+          10227,
+          10236,
+          16168,
+          16169,
+          16170,
+          16171,
+          29501,
+          29507,
+          29508,
+          29509,
+          29514,
+          29515,
+          29516,
+          29517,
+          29522,
+          29523,
+          29524,
+          29525,
+          29526,
+          29531,
+          29532,
+          29533,
+          29534,
+          29539,
+          29540,
+          29541,
+          29542,
+          29548,
+          29549,
+          29557,
+          35458,
+          35459,
+          35460,
+          35461,
+          35756,
+          35757,
+          35758,
+          35759,
+          35760,
+          36050,
+          36051,
+          36052,
+          36053,
+          36054,
+          36340,
+          36341,
+          36342,
+          36343,
+          36344,
+          36624,
+          36625,
+          36626,
+          36627,
+          36902,
+          36903,
+          36904,
+          37175
+        ]
+      },
+      {
+        "cache": "hit",
+        "matched_context_operator_side": [
+          [
+            "current_rank4_geometry",
+            "SplitSurfaceStrip",
+            "fresh"
+          ],
+          [
+            "current_rank4_geometry",
+            "ReconstructSplitPatch",
+            "fresh"
+          ]
+        ],
+        "matched_triangle_count": 2,
+        "start": 237758,
+        "support_facets": [
+          36051
+        ]
+      },
+      {
+        "cache": "hit",
+        "matched_context_operator_side": [
+          [
+            "current_rank4_geometry",
+            "SplitSurfaceStrip",
+            "fresh"
+          ],
+          [
+            "current_rank4_geometry",
+            "ReconstructSplitPatch",
+            "fresh"
+          ]
+        ],
+        "matched_triangle_count": 2,
+        "start": 237780,
+        "support_facets": [
+          36051
+        ]
+      },
+      {
+        "cache": "miss",
+        "matched_context_operator_side": [
+          [
+            "current_rank5_clearance",
+            "SplitSurfaceStrip",
+            "old"
+          ],
+          [
+            "current_rank5_clearance",
+            "ReconstructSplitPatch",
+            "old"
+          ]
+        ],
+        "matched_triangle_count": 2,
+        "start": 244065,
+        "support_facets": [
+          10640
+        ]
+      },
+      {
+        "cache": "miss",
+        "matched_context_operator_side": [
+          [
+            "current_rank5_clearance",
+            "SplitSurfaceStrip",
+            "old"
+          ],
+          [
+            "current_rank5_clearance",
+            "ReconstructSplitPatch",
+            "old"
+          ]
+        ],
+        "matched_triangle_count": 2,
+        "start": 246821,
+        "support_facets": [
+          16718
+        ]
+      },
+      {
+        "cache": "hit",
+        "matched_context_operator_side": [
+          [
+            "current_rank5_clearance",
+            "SplitSurfaceStrip",
+            "old"
+          ],
+          [
+            "current_rank5_clearance",
+            "ReconstructSplitPatch",
+            "old"
+          ]
+        ],
+        "matched_triangle_count": 2,
+        "start": 251158,
+        "support_facets": [
+          10640
+        ]
+      },
+      {
+        "cache": "hit",
+        "matched_context_operator_side": [
+          [
+            "current_rank5_clearance",
+            "SplitSurfaceStrip",
+            "old"
+          ],
+          [
+            "current_rank5_clearance",
+            "ReconstructSplitPatch",
+            "old"
+          ]
+        ],
+        "matched_triangle_count": 2,
+        "start": 251224,
+        "support_facets": [
+          16718
+        ]
+      },
+      {
+        "cache": "hit",
+        "matched_context_operator_side": [
+          [
+            "current_rank5_clearance",
+            "SplitSurfaceStrip",
+            "old"
+          ],
+          [
+            "current_rank5_clearance",
+            "ReconstructSplitPatch",
+            "old"
+          ]
+        ],
+        "matched_triangle_count": 2,
+        "start": 278698,
+        "support_facets": [
+          10640
+        ]
+      },
+      {
+        "cache": "hit",
+        "matched_context_operator_side": [
+          [
+            "current_rank5_clearance",
+            "SplitSurfaceStrip",
+            "old"
+          ],
+          [
+            "current_rank5_clearance",
+            "ReconstructSplitPatch",
+            "old"
+          ]
+        ],
+        "matched_triangle_count": 2,
+        "start": 278764,
+        "support_facets": [
+          16718
+        ]
+      },
+      {
+        "cache": "hit",
+        "matched_context_operator_side": [
+          [
+            "current_rank5_clearance",
+            "SplitSurfaceStrip",
+            "old"
+          ],
+          [
+            "current_rank5_clearance",
+            "ReconstructSplitPatch",
+            "old"
+          ]
+        ],
+        "matched_triangle_count": 2,
+        "start": 299627,
+        "support_facets": [
+          10640
+        ]
+      },
+      {
+        "cache": "hit",
+        "matched_context_operator_side": [
+          [
+            "current_rank5_clearance",
+            "SplitSurfaceStrip",
+            "old"
+          ],
+          [
+            "current_rank5_clearance",
+            "ReconstructSplitPatch",
+            "old"
+          ]
+        ],
+        "matched_triangle_count": 2,
+        "start": 299693,
+        "support_facets": [
+          16718
+        ]
+      },
+      {
+        "cache": "hit",
+        "matched_context_operator_side": [
+          [
+            "current_rank5_clearance",
+            "SplitSurfaceStrip",
+            "old"
+          ],
+          [
+            "current_rank5_clearance",
+            "ReconstructSplitPatch",
+            "old"
+          ]
+        ],
+        "matched_triangle_count": 2,
+        "start": 313969,
+        "support_facets": [
+          10640
+        ]
+      },
+      {
+        "cache": "hit",
+        "matched_context_operator_side": [
+          [
+            "current_rank5_clearance",
+            "SplitSurfaceStrip",
+            "old"
+          ],
+          [
+            "current_rank5_clearance",
+            "ReconstructSplitPatch",
+            "old"
+          ]
+        ],
+        "matched_triangle_count": 2,
+        "start": 314035,
+        "support_facets": [
+          16718
+        ]
+      },
+      {
+        "cache": "hit",
+        "matched_context_operator_side": [
+          [
+            "current_rank5_clearance",
+            "SplitSurfaceStrip",
+            "old"
+          ],
+          [
+            "current_rank5_clearance",
+            "ReconstructSplitPatch",
+            "old"
+          ]
+        ],
+        "matched_triangle_count": 2,
+        "start": 322789,
+        "support_facets": [
+          10640
+        ]
+      },
+      {
+        "cache": "hit",
+        "matched_context_operator_side": [
+          [
+            "current_rank5_clearance",
+            "SplitSurfaceStrip",
+            "old"
+          ],
+          [
+            "current_rank5_clearance",
+            "ReconstructSplitPatch",
+            "old"
+          ]
+        ],
+        "matched_triangle_count": 2,
+        "start": 322855,
+        "support_facets": [
+          16718
+        ]
+      },
+      {
+        "cache": "hit",
+        "matched_context_operator_side": [
+          [
+            "current_rank5_clearance",
+            "SplitSurfaceStrip",
+            "old"
+          ],
+          [
+            "current_rank5_clearance",
+            "ReconstructSplitPatch",
+            "old"
+          ]
+        ],
+        "matched_triangle_count": 2,
+        "start": 343872,
+        "support_facets": [
+          10640
+        ]
+      },
+      {
+        "cache": "hit",
+        "matched_context_operator_side": [
+          [
+            "current_rank5_clearance",
+            "SplitSurfaceStrip",
+            "old"
+          ],
+          [
+            "current_rank5_clearance",
+            "ReconstructSplitPatch",
+            "old"
+          ]
+        ],
+        "matched_triangle_count": 2,
+        "start": 343938,
+        "support_facets": [
+          16718
+        ]
+      },
+      {
+        "cache": "hit",
+        "matched_context_operator_side": [
+          [
+            "current_rank5_clearance",
+            "SplitSurfaceStrip",
+            "old"
+          ],
+          [
+            "current_rank5_clearance",
+            "ReconstructSplitPatch",
+            "old"
+          ]
+        ],
+        "matched_triangle_count": 2,
+        "start": 355108,
+        "support_facets": [
+          10640
+        ]
+      },
+      {
+        "cache": "hit",
+        "matched_context_operator_side": [
+          [
+            "current_rank5_clearance",
+            "SplitSurfaceStrip",
+            "old"
+          ],
+          [
+            "current_rank5_clearance",
+            "ReconstructSplitPatch",
+            "old"
+          ]
+        ],
+        "matched_triangle_count": 2,
+        "start": 355174,
+        "support_facets": [
+          16718
+        ]
+      },
+      {
+        "cache": "hit",
+        "matched_context_operator_side": [
+          [
+            "current_rank5_clearance",
+            "SplitSurfaceStrip",
+            "old"
+          ],
+          [
+            "current_rank5_clearance",
+            "ReconstructSplitPatch",
+            "old"
+          ]
+        ],
+        "matched_triangle_count": 2,
+        "start": 366582,
+        "support_facets": [
+          10640
+        ]
+      },
+      {
+        "cache": "hit",
+        "matched_context_operator_side": [
+          [
+            "current_rank5_clearance",
+            "SplitSurfaceStrip",
+            "old"
+          ],
+          [
+            "current_rank5_clearance",
+            "ReconstructSplitPatch",
+            "old"
+          ]
+        ],
+        "matched_triangle_count": 2,
+        "start": 366648,
+        "support_facets": [
+          16718
+        ]
+      },
+      {
+        "cache": "hit",
+        "matched_context_operator_side": [
+          [
+            "current_rank5_clearance",
+            "SplitSurfaceStrip",
+            "old"
+          ],
+          [
+            "current_rank5_clearance",
+            "ReconstructSplitPatch",
+            "old"
+          ]
+        ],
+        "matched_triangle_count": 2,
+        "start": 385703,
+        "support_facets": [
+          10640
+        ]
+      },
+      {
+        "cache": "hit",
+        "matched_context_operator_side": [
+          [
+            "current_rank5_clearance",
+            "SplitSurfaceStrip",
+            "old"
+          ],
+          [
+            "current_rank5_clearance",
+            "ReconstructSplitPatch",
+            "old"
+          ]
+        ],
+        "matched_triangle_count": 2,
+        "start": 385769,
+        "support_facets": [
+          16718
+        ]
+      },
+      {
+        "cache": "hit",
+        "matched_context_operator_side": [
+          [
+            "current_rank5_clearance",
+            "SplitSurfaceStrip",
+            "old"
+          ],
+          [
+            "current_rank5_clearance",
+            "ReconstructSplitPatch",
+            "old"
+          ]
+        ],
+        "matched_triangle_count": 2,
+        "start": 386547,
+        "support_facets": [
+          10640
+        ]
+      },
+      {
+        "cache": "hit",
+        "matched_context_operator_side": [
+          [
+            "current_rank5_clearance",
+            "SplitSurfaceStrip",
+            "old"
+          ],
+          [
+            "current_rank5_clearance",
+            "ReconstructSplitPatch",
+            "old"
+          ]
+        ],
+        "matched_triangle_count": 2,
+        "start": 386613,
+        "support_facets": [
+          16718
+        ]
+      },
+      {
+        "cache": "hit",
+        "matched_context_operator_side": [
+          [
+            "current_rank5_clearance",
+            "SplitSurfaceStrip",
+            "old"
+          ],
+          [
+            "current_rank5_clearance",
+            "ReconstructSplitPatch",
+            "old"
+          ]
+        ],
+        "matched_triangle_count": 2,
+        "start": 398293,
+        "support_facets": [
+          10640
+        ]
+      },
+      {
+        "cache": "hit",
+        "matched_context_operator_side": [
+          [
+            "current_rank5_clearance",
+            "SplitSurfaceStrip",
+            "old"
+          ],
+          [
+            "current_rank5_clearance",
+            "ReconstructSplitPatch",
+            "old"
+          ]
+        ],
+        "matched_triangle_count": 2,
+        "start": 398359,
+        "support_facets": [
+          16718
+        ]
+      },
+      {
+        "cache": "hit",
+        "matched_context_operator_side": [
+          [
+            "current_rank5_clearance",
+            "SplitSurfaceStrip",
+            "old"
+          ],
+          [
+            "current_rank5_clearance",
+            "ReconstructSplitPatch",
+            "old"
+          ]
+        ],
+        "matched_triangle_count": 2,
+        "start": 399137,
+        "support_facets": [
+          10640
+        ]
+      },
+      {
+        "cache": "hit",
+        "matched_context_operator_side": [
+          [
+            "current_rank5_clearance",
+            "SplitSurfaceStrip",
+            "old"
+          ],
+          [
+            "current_rank5_clearance",
+            "ReconstructSplitPatch",
+            "old"
+          ]
+        ],
+        "matched_triangle_count": 2,
+        "start": 399203,
+        "support_facets": [
+          16718
+        ]
+      },
+      {
+        "cache": "hit",
+        "matched_context_operator_side": [
+          [
+            "current_rank5_clearance",
+            "SplitSurfaceStrip",
+            "old"
+          ],
+          [
+            "current_rank5_clearance",
+            "ReconstructSplitPatch",
+            "old"
+          ]
+        ],
+        "matched_triangle_count": 2,
+        "start": 407688,
+        "support_facets": [
+          10640
+        ]
+      },
+      {
+        "cache": "hit",
+        "matched_context_operator_side": [
+          [
+            "current_rank5_clearance",
+            "SplitSurfaceStrip",
+            "old"
+          ],
+          [
+            "current_rank5_clearance",
+            "ReconstructSplitPatch",
+            "old"
+          ]
+        ],
+        "matched_triangle_count": 2,
+        "start": 407710,
+        "support_facets": [
+          16718
+        ]
+      },
+      {
+        "cache": "miss",
+        "matched_context_operator_side": [
+          [
+            "current_rank5_clearance",
+            "SplitSurfaceStrip",
+            "fresh"
+          ],
+          [
+            "current_rank5_clearance",
+            "ReconstructSplitPatch",
+            "fresh"
+          ]
+        ],
+        "matched_triangle_count": 2,
+        "start": 407732,
+        "support_facets": [
+          10612,
+          10621,
+          10622,
+          10630,
+          10631,
+          10639,
+          10640,
+          10641,
+          10648,
+          10649,
+          10650,
+          10658,
+          16126,
+          16127,
+          16423,
+          16424,
+          16425,
+          16717,
+          16718,
+          16719,
+          17007,
+          17008,
+          17009,
+          17010,
+          17291,
+          17292,
+          17569
+        ]
+      },
+      {
+        "cache": "miss",
+        "matched_context_operator_side": [
+          [
+            "current_rank5_clearance",
+            "SplitSurfaceStrip",
+            "fresh"
+          ],
+          [
+            "current_rank5_clearance",
+            "ReconstructSplitPatch",
+            "fresh"
+          ]
+        ],
+        "matched_triangle_count": 2,
+        "start": 408660,
+        "support_facets": [
+          16718
+        ]
+      },
+      {
+        "cache": "miss",
+        "matched_context_operator_side": [
+          [
+            "current_rank5_clearance",
+            "SplitSurfaceStrip",
+            "fresh"
+          ],
+          [
+            "current_rank5_clearance",
+            "ReconstructSplitPatch",
+            "fresh"
+          ]
+        ],
+        "matched_triangle_count": 2,
+        "start": 415691,
+        "support_facets": [
+          10611,
+          10612,
+          10620,
+          10621,
+          10622,
+          10629,
+          10630,
+          10631,
+          10632,
+          10639,
+          10640,
+          10641,
+          10642,
+          10648,
+          10649,
+          10650,
+          10651,
+          10658,
+          10659,
+          10667,
+          10668,
+          16124,
+          16125,
+          16126,
+          16127,
+          16422,
+          16423,
+          16424,
+          16425,
+          16716,
+          16717,
+          16718,
+          16719,
+          16720,
+          17007,
+          17008,
+          17009,
+          17010,
+          17290,
+          17291,
+          17292,
+          17568,
+          17569,
+          29902,
+          29912,
+          29922,
+          29932,
+          35414,
+          35415,
+          35416,
+          35417
+        ]
+      },
+      {
+        "cache": "miss",
+        "matched_context_operator_side": [
+          [
+            "current_rank5_clearance",
+            "SplitSurfaceStrip",
+            "fresh"
+          ],
+          [
+            "current_rank5_clearance",
+            "ReconstructSplitPatch",
+            "fresh"
+          ]
+        ],
+        "matched_triangle_count": 2,
+        "start": 473776,
+        "support_facets": [
+          16718
+        ]
+      },
+      {
+        "cache": "hit",
+        "matched_context_operator_side": [
+          [
+            "current_rank5_clearance",
+            "SplitSurfaceStrip",
+            "old"
+          ],
+          [
+            "current_rank5_clearance",
+            "ReconstructSplitPatch",
+            "old"
+          ]
+        ],
+        "matched_triangle_count": 2,
+        "start": 474332,
+        "support_facets": [
+          10640
+        ]
+      },
+      {
+        "cache": "hit",
+        "matched_context_operator_side": [
+          [
+            "current_rank5_clearance",
+            "SplitSurfaceStrip",
+            "old"
+          ],
+          [
+            "current_rank5_clearance",
+            "ReconstructSplitPatch",
+            "old"
+          ]
+        ],
+        "matched_triangle_count": 2,
+        "start": 474354,
+        "support_facets": [
+          16718
+        ]
+      },
+      {
+        "cache": "hit",
+        "matched_context_operator_side": [
+          [
+            "current_rank5_clearance",
+            "SplitSurfaceStrip",
+            "fresh"
+          ],
+          [
+            "current_rank5_clearance",
+            "ReconstructSplitPatch",
+            "fresh"
+          ]
+        ],
+        "matched_triangle_count": 2,
+        "start": 474376,
+        "support_facets": [
+          10612,
+          10621,
+          10622,
+          10630,
+          10631,
+          10639,
+          10640,
+          10641,
+          10648,
+          10649,
+          10650,
+          10658,
+          16126,
+          16127,
+          16423,
+          16424,
+          16425,
+          16717,
+          16718,
+          16719,
+          17007,
+          17008,
+          17009,
+          17010,
+          17291,
+          17292,
+          17569
+        ]
+      },
+      {
+        "cache": "hit",
+        "matched_context_operator_side": [
+          [
+            "current_rank5_clearance",
+            "SplitSurfaceStrip",
+            "fresh"
+          ],
+          [
+            "current_rank5_clearance",
+            "ReconstructSplitPatch",
+            "fresh"
+          ]
+        ],
+        "matched_triangle_count": 2,
+        "start": 474424,
+        "support_facets": [
+          16718
+        ]
+      },
+      {
+        "cache": "hit",
+        "matched_context_operator_side": [
+          [
+            "current_rank5_clearance",
+            "SplitSurfaceStrip",
+            "fresh"
+          ],
+          [
+            "current_rank5_clearance",
+            "ReconstructSplitPatch",
+            "fresh"
+          ]
+        ],
+        "matched_triangle_count": 2,
+        "start": 474446,
+        "support_facets": [
+          10611,
+          10612,
+          10620,
+          10621,
+          10622,
+          10629,
+          10630,
+          10631,
+          10632,
+          10639,
+          10640,
+          10641,
+          10642,
+          10648,
+          10649,
+          10650,
+          10651,
+          10658,
+          10659,
+          10667,
+          10668,
+          16124,
+          16125,
+          16126,
+          16127,
+          16422,
+          16423,
+          16424,
+          16425,
+          16716,
+          16717,
+          16718,
+          16719,
+          16720,
+          17007,
+          17008,
+          17009,
+          17010,
+          17290,
+          17291,
+          17292,
+          17568,
+          17569,
+          29902,
+          29912,
+          29922,
+          29932,
+          35414,
+          35415,
+          35416,
+          35417
+        ]
+      },
+      {
+        "cache": "hit",
+        "matched_context_operator_side": [
+          [
+            "current_rank5_clearance",
+            "SplitSurfaceStrip",
+            "fresh"
+          ],
+          [
+            "current_rank5_clearance",
+            "ReconstructSplitPatch",
+            "fresh"
+          ]
+        ],
+        "matched_triangle_count": 2,
+        "start": 474518,
+        "support_facets": [
+          16718
+        ]
+      },
+      {
+        "cache": "hit",
+        "matched_context_operator_side": [
+          [
+            "current_rank5_clearance",
+            "SplitSurfaceStrip",
+            "old"
+          ],
+          [
+            "current_rank5_clearance",
+            "ReconstructSplitPatch",
+            "old"
+          ]
+        ],
+        "matched_triangle_count": 2,
+        "start": 478455,
+        "support_facets": [
+          10640
+        ]
+      },
+      {
+        "cache": "hit",
+        "matched_context_operator_side": [
+          [
+            "current_rank5_clearance",
+            "SplitSurfaceStrip",
+            "old"
+          ],
+          [
+            "current_rank5_clearance",
+            "ReconstructSplitPatch",
+            "old"
+          ]
+        ],
+        "matched_triangle_count": 2,
+        "start": 478477,
+        "support_facets": [
+          16718
+        ]
+      },
+      {
+        "cache": "hit",
+        "matched_context_operator_side": [
+          [
+            "current_rank5_clearance",
+            "SplitSurfaceStrip",
+            "fresh"
+          ],
+          [
+            "current_rank5_clearance",
+            "ReconstructSplitPatch",
+            "fresh"
+          ]
+        ],
+        "matched_triangle_count": 2,
+        "start": 478499,
+        "support_facets": [
+          10612,
+          10621,
+          10622,
+          10630,
+          10631,
+          10639,
+          10640,
+          10641,
+          10648,
+          10649,
+          10650,
+          10658,
+          16126,
+          16127,
+          16423,
+          16424,
+          16425,
+          16717,
+          16718,
+          16719,
+          17007,
+          17008,
+          17009,
+          17010,
+          17291,
+          17292,
+          17569
+        ]
+      },
+      {
+        "cache": "hit",
+        "matched_context_operator_side": [
+          [
+            "current_rank5_clearance",
+            "SplitSurfaceStrip",
+            "fresh"
+          ],
+          [
+            "current_rank5_clearance",
+            "ReconstructSplitPatch",
+            "fresh"
+          ]
+        ],
+        "matched_triangle_count": 2,
+        "start": 478547,
+        "support_facets": [
+          16718
+        ]
+      },
+      {
+        "cache": "hit",
+        "matched_context_operator_side": [
+          [
+            "current_rank5_clearance",
+            "SplitSurfaceStrip",
+            "fresh"
+          ],
+          [
+            "current_rank5_clearance",
+            "ReconstructSplitPatch",
+            "fresh"
+          ]
+        ],
+        "matched_triangle_count": 2,
+        "start": 478569,
+        "support_facets": [
+          10611,
+          10612,
+          10620,
+          10621,
+          10622,
+          10629,
+          10630,
+          10631,
+          10632,
+          10639,
+          10640,
+          10641,
+          10642,
+          10648,
+          10649,
+          10650,
+          10651,
+          10658,
+          10659,
+          10667,
+          10668,
+          16124,
+          16125,
+          16126,
+          16127,
+          16422,
+          16423,
+          16424,
+          16425,
+          16716,
+          16717,
+          16718,
+          16719,
+          16720,
+          17007,
+          17008,
+          17009,
+          17010,
+          17290,
+          17291,
+          17292,
+          17568,
+          17569,
+          29902,
+          29912,
+          29922,
+          29932,
+          35414,
+          35415,
+          35416,
+          35417
+        ]
+      },
+      {
+        "cache": "hit",
+        "matched_context_operator_side": [
+          [
+            "current_rank5_clearance",
+            "SplitSurfaceStrip",
+            "fresh"
+          ],
+          [
+            "current_rank5_clearance",
+            "ReconstructSplitPatch",
+            "fresh"
+          ]
+        ],
+        "matched_triangle_count": 2,
+        "start": 478641,
+        "support_facets": [
+          16718
+        ]
+      },
+      {
+        "cache": "hit",
+        "matched_context_operator_side": [
+          [
+            "current_rank5_clearance",
+            "SplitSurfaceStrip",
+            "old"
+          ],
+          [
+            "current_rank5_clearance",
+            "ReconstructSplitPatch",
+            "old"
+          ]
+        ],
+        "matched_triangle_count": 2,
+        "start": 478663,
+        "support_facets": [
+          10640
+        ]
+      },
+      {
+        "cache": "hit",
+        "matched_context_operator_side": [
+          [
+            "current_rank5_clearance",
+            "SplitSurfaceStrip",
+            "old"
+          ],
+          [
+            "current_rank5_clearance",
+            "ReconstructSplitPatch",
+            "old"
+          ]
+        ],
+        "matched_triangle_count": 2,
+        "start": 478685,
+        "support_facets": [
+          16718
+        ]
+      },
+      {
+        "cache": "hit",
+        "matched_context_operator_side": [
+          [
+            "current_rank5_clearance",
+            "SplitSurfaceStrip",
+            "fresh"
+          ],
+          [
+            "current_rank5_clearance",
+            "ReconstructSplitPatch",
+            "fresh"
+          ]
+        ],
+        "matched_triangle_count": 2,
+        "start": 478707,
+        "support_facets": [
+          10612,
+          10621,
+          10622,
+          10630,
+          10631,
+          10639,
+          10640,
+          10641,
+          10648,
+          10649,
+          10650,
+          10658,
+          16126,
+          16127,
+          16423,
+          16424,
+          16425,
+          16717,
+          16718,
+          16719,
+          17007,
+          17008,
+          17009,
+          17010,
+          17291,
+          17292,
+          17569
+        ]
+      },
+      {
+        "cache": "hit",
+        "matched_context_operator_side": [
+          [
+            "current_rank5_clearance",
+            "SplitSurfaceStrip",
+            "fresh"
+          ],
+          [
+            "current_rank5_clearance",
+            "ReconstructSplitPatch",
+            "fresh"
+          ]
+        ],
+        "matched_triangle_count": 2,
+        "start": 478755,
+        "support_facets": [
+          16718
+        ]
+      },
+      {
+        "cache": "hit",
+        "matched_context_operator_side": [
+          [
+            "current_rank5_clearance",
+            "SplitSurfaceStrip",
+            "fresh"
+          ],
+          [
+            "current_rank5_clearance",
+            "ReconstructSplitPatch",
+            "fresh"
+          ]
+        ],
+        "matched_triangle_count": 2,
+        "start": 478777,
+        "support_facets": [
+          10611,
+          10612,
+          10620,
+          10621,
+          10622,
+          10629,
+          10630,
+          10631,
+          10632,
+          10639,
+          10640,
+          10641,
+          10642,
+          10648,
+          10649,
+          10650,
+          10651,
+          10658,
+          10659,
+          10667,
+          10668,
+          16124,
+          16125,
+          16126,
+          16127,
+          16422,
+          16423,
+          16424,
+          16425,
+          16716,
+          16717,
+          16718,
+          16719,
+          16720,
+          17007,
+          17008,
+          17009,
+          17010,
+          17290,
+          17291,
+          17292,
+          17568,
+          17569,
+          29902,
+          29912,
+          29922,
+          29932,
+          35414,
+          35415,
+          35416,
+          35417
+        ]
+      },
+      {
+        "cache": "hit",
+        "matched_context_operator_side": [
+          [
+            "current_rank5_clearance",
+            "SplitSurfaceStrip",
+            "fresh"
+          ],
+          [
+            "current_rank5_clearance",
+            "ReconstructSplitPatch",
+            "fresh"
+          ]
+        ],
+        "matched_triangle_count": 2,
+        "start": 478849,
+        "support_facets": [
+          16718
+        ]
+      }
+    ],
+    "target_linked_query_groups": 92
+  },
+  "operator_decision_parity": {
+    "compared_fields": [
+      "centroid_shape_measured",
+      "complete_removed_stars",
+      "constructed",
+      "contact_pass",
+      "contact_protocol",
+      "context",
+      "current_nodal_field",
+      "final_support_reserved",
+      "geometry_counts_measured",
+      "geometry_guidance_pass",
+      "geometry_work",
+      "height_measured",
+      "mesh_accepted",
+      "metric_admission",
+      "new_J_bad",
+      "new_cells",
+      "new_geometry_bad_cells",
+      "new_geometry_excess",
+      "new_planning_max",
+      "new_q_bad",
+      "old_J_bad",
+      "old_cells",
+      "old_geometry_bad_cells",
+      "old_geometry_excess",
+      "old_planning_max",
+      "old_q_bad",
+      "operator",
+      "parameter_preflight",
+      "passing_heights_preserved",
+      "private_feasible",
+      "provisional_height",
+      "published",
+      "reason",
+      "stage",
+      "strict_height"
+    ],
+    "mismatch_count": 0,
+    "mismatches": [],
+    "nontrace_operations": 24,
+    "trace_operations": 24,
+    "volatile_fields_ignored": [
+      "admitted_peak_bytes",
+      "cpu_seconds",
+      "rss_kB_after",
+      "rss_kB_before",
+      "seconds"
+    ]
+  },
+  "scope_limits": [
+    "No full-patch closure, geometry progress, or candidate improvement claim.",
+    "Trace includes only BoundPhysicalSurface model=0 domains for this analysis.",
+    "No production change or tolerance campaign; trace was compared with nontrace 472 assessment."
+  ],
+  "status": "trace complete; test hypothesis not attributable to requested residual cells",
+  "target_linked_miss_diagnostics": {
+    "misses": 12,
+    "queries": [
+      {
+        "domain_records": 1,
+        "final_leaf_count": 1,
+        "final_leaf_max_upper": 0.005724411449342619,
+        "lower_exceeds_tolerance": true,
+        "max_recorded_lower": 0.00014762861131351545,
+        "returned_upper": 0.005724411449342619,
+        "root_initial_upper": 0.005724411449342619,
+        "start": 158955,
+        "subdivided_parent_count": 0,
+        "support_facets": [
+          29524
+        ],
+        "tolerance": 0.0001,
+        "triangle_coordinate_bits": [
+          [
+            "3fe432ec7430f4e0",
+            "3ff156f62a55d7ad",
+            "bf81fca03a86d68a",
+            "3fe4575e6017093e",
+            "3ff14c6a1b2293dc",
+            "bf87f85fec3377c9",
+            "3fe4844c0a20d734",
+            "3ff173cc2c07cdc9",
+            "bf87d4b9eb096912"
+          ]
+        ]
+      },
+      {
+        "domain_records": 1,
+        "final_leaf_count": 1,
+        "final_leaf_max_upper": 0.005763792658218875,
+        "lower_exceeds_tolerance": true,
+        "max_recorded_lower": 0.00019564451790676614,
+        "returned_upper": 0.005763792658218875,
+        "root_initial_upper": 0.005763792658218875,
+        "start": 160982,
+        "subdivided_parent_count": 0,
+        "support_facets": [
+          36051
+        ],
+        "tolerance": 0.0001,
+        "triangle_coordinate_bits": [
+          [
+            "3fe432ec7430f4e0",
+            "3ff156f62a55d7ad",
+            "bf81fca03a86d68a",
+            "3fe4057425783ca6",
+            "3ff12f59f86517c6",
+            "bf821796743358ee",
+            "3fe4575e6017093e",
+            "3ff14c6a1b2293dc",
+            "bf87f85fec3377c9"
+          ]
+        ]
+      },
+      {
+        "domain_records": 29,
+        "final_leaf_count": 22,
+        "final_leaf_max_upper": 9.412007326074622e-05,
+        "lower_exceeds_tolerance": false,
+        "max_recorded_lower": 0.0,
+        "returned_upper": 9.412007326074622e-05,
+        "root_initial_upper": 0.005537501106593,
+        "start": 216490,
+        "subdivided_parent_count": 7,
+        "support_facets": [
+          10211,
+          10219,
+          10227,
+          10236,
+          16168,
+          16169,
+          16170,
+          16171,
+          29501,
+          29507,
+          29508,
+          29509,
+          29514,
+          29515,
+          29516,
+          29517,
+          29522,
+          29523,
+          29524,
+          29525,
+          29526,
+          29531,
+          29532,
+          29533,
+          29534,
+          29539,
+          29540,
+          29541,
+          29542,
+          29548,
+          29549,
+          29557,
+          35458,
+          35459,
+          35460,
+          35461,
+          35756,
+          35757,
+          35758,
+          35759,
+          36050,
+          36051,
+          36052,
+          36053,
+          36340,
+          36341,
+          36342,
+          36343,
+          36344,
+          36624,
+          36625,
+          36626,
+          36627,
+          36902,
+          36903,
+          36904,
+          37175
+        ],
+        "tolerance": 0.0001,
+        "triangle_coordinate_bits": [
+          [
+            "3fe4844c0a20d734",
+            "3ff173cc2c07cdc9",
+            "bf87d4b9eb096912",
+            "3fe4446c1334aff0",
+            "3ff151e432e9b50e",
+            "bf855bd467541f61",
+            "3fe4575e6017093e",
+            "3ff14c6a1b2293dc",
+            "bf87f85fec3377c9"
+          ]
+        ]
+      },
+      {
+        "domain_records": 1,
+        "final_leaf_count": 1,
+        "final_leaf_max_upper": 0.005722432724133221,
+        "lower_exceeds_tolerance": true,
+        "max_recorded_lower": 0.00013750873350165126,
+        "returned_upper": 0.005722432724133221,
+        "root_initial_upper": 0.005722432724133221,
+        "start": 220143,
+        "subdivided_parent_count": 0,
+        "support_facets": [
+          10211,
+          10219,
+          10227,
+          10236,
+          16168,
+          16169,
+          16170,
+          16171,
+          29501,
+          29507,
+          29508,
+          29509,
+          29514,
+          29515,
+          29516,
+          29517,
+          29522,
+          29523,
+          29524,
+          29525,
+          29526,
+          29531,
+          29532,
+          29533,
+          29534,
+          29539,
+          29540,
+          29541,
+          29542,
+          29548,
+          29549,
+          29557,
+          35458,
+          35459,
+          35460,
+          35461,
+          35756,
+          35757,
+          35758,
+          35759,
+          35760,
+          36050,
+          36051,
+          36052,
+          36053,
+          36054,
+          36340,
+          36341,
+          36342,
+          36343,
+          36344,
+          36624,
+          36625,
+          36626,
+          36627,
+          36902,
+          36903,
+          36904,
+          37175
+        ],
+        "tolerance": 0.0001,
+        "triangle_coordinate_bits": [
+          [
+            "3fe4844c0a20d734",
+            "3ff173cc2c07cdc9",
+            "bf87d4b9eb096912",
+            "3fe432ec7430f4e0",
+            "3ff156f62a55d7ad",
+            "bf81fca03a86d68a",
+            "3fe4446c1334aff0",
+            "3ff151e432e9b50e",
+            "bf855bd467541f61"
+          ]
+        ]
+      },
+      {
+        "domain_records": 1,
+        "final_leaf_count": 1,
+        "final_leaf_max_upper": 0.005763792658218875,
+        "lower_exceeds_tolerance": true,
+        "max_recorded_lower": 0.0001232612571487198,
+        "returned_upper": 0.005763792658218875,
+        "root_initial_upper": 0.005763792658218875,
+        "start": 221634,
+        "subdivided_parent_count": 0,
+        "support_facets": [
+          36051
+        ],
+        "tolerance": 0.0001,
+        "triangle_coordinate_bits": [
+          [
+            "3fe4575e6017093e",
+            "3ff14c6a1b2293dc",
+            "bf87f85fec3377c9",
+            "3fe4446c1334aff0",
+            "3ff151e432e9b50e",
+            "bf855bd467541f61",
+            "3fe4057425783ca6",
+            "3ff12f59f86517c6",
+            "bf821796743358ee"
+          ]
+        ]
+      },
+      {
+        "domain_records": 197,
+        "final_leaf_count": 148,
+        "final_leaf_max_upper": 9.85084540322807e-05,
+        "lower_exceeds_tolerance": false,
+        "max_recorded_lower": 0.0,
+        "returned_upper": 9.85084540322807e-05,
+        "root_initial_upper": 0.0055766763987239645,
+        "start": 222189,
+        "subdivided_parent_count": 49,
+        "support_facets": [
+          36051
+        ],
+        "tolerance": 0.0001,
+        "triangle_coordinate_bits": [
+          [
+            "3fe432ec7430f4e0",
+            "3ff156f62a55d7ad",
+            "bf81fca03a86d68a",
+            "3fe4057425783ca6",
+            "3ff12f59f86517c6",
+            "bf821796743358ee",
+            "3fe4446c1334aff0",
+            "3ff151e432e9b50e",
+            "bf855bd467541f61"
+          ]
+        ]
+      },
+      {
+        "domain_records": 1,
+        "final_leaf_count": 1,
+        "final_leaf_max_upper": 0.008122769576604679,
+        "lower_exceeds_tolerance": true,
+        "max_recorded_lower": 0.0002532938450400663,
+        "returned_upper": 0.008122769576604679,
+        "root_initial_upper": 0.008122769576604679,
+        "start": 244065,
+        "subdivided_parent_count": 0,
+        "support_facets": [
+          10640
+        ],
+        "tolerance": 0.0001,
+        "triangle_coordinate_bits": [
+          [
+            "3fd60ce5da250dee",
+            "3fe2b241189f6198",
+            "3f876dd866374bb4",
+            "3fd6890a6dc2b614",
+            "3fe31e663782f586",
+            "3f8749057d7a1347",
+            "3fd6e766f2ae6795",
+            "3fe303175f2251df",
+            "3f8f07fac65a47fb"
+          ]
+        ]
+      },
+      {
+        "domain_records": 1,
+        "final_leaf_count": 1,
+        "final_leaf_max_upper": 0.007844728728369216,
+        "lower_exceeds_tolerance": true,
+        "max_recorded_lower": 0.00019226721605060848,
+        "returned_upper": 0.007844728728369216,
+        "root_initial_upper": 0.007844728728369216,
+        "start": 246821,
+        "subdivided_parent_count": 0,
+        "support_facets": [
+          16718
+        ],
+        "tolerance": 0.0001,
+        "triangle_coordinate_bits": [
+          [
+            "3fd6e766f2ae6795",
+            "3fe303175f2251df",
+            "3f8f07fac65a47fb",
+            "3fd66bd7991439f6",
+            "3fe296c710a9b8dc",
+            "3f8f390d89e1bf31",
+            "3fd60ce5da250dee",
+            "3fe2b241189f6198",
+            "3f876dd866374bb4"
+          ]
+        ]
+      },
+      {
+        "domain_records": 1,
+        "final_leaf_count": 1,
+        "final_leaf_max_upper": 0.004286674050883954,
+        "lower_exceeds_tolerance": true,
+        "max_recorded_lower": 0.00015909144383220654,
+        "returned_upper": 0.004286674050883954,
+        "root_initial_upper": 0.004286674050883954,
+        "start": 407732,
+        "subdivided_parent_count": 0,
+        "support_facets": [
+          10612,
+          10621,
+          10622,
+          10630,
+          10631,
+          10639,
+          10640,
+          10641,
+          10648,
+          10649,
+          10650,
+          10658,
+          16126,
+          16127,
+          16423,
+          16424,
+          16425,
+          16717,
+          16718,
+          16719,
+          17007,
+          17008,
+          17009,
+          17010,
+          17291,
+          17292,
+          17569
+        ],
+        "tolerance": 0.0001,
+        "triangle_coordinate_bits": [
+          [
+            "3fd6e766f2ae6795",
+            "3fe303175f2251df",
+            "3f8f07fac65a47fb",
+            "3fd6783feaa6bc27",
+            "3fe2db40045bf750",
+            "3f8bb83484ad54f3",
+            "3fd6890a6dc2b614",
+            "3fe31e663782f586",
+            "3f8749057d7a1347"
+          ]
+        ]
+      },
+      {
+        "domain_records": 117,
+        "final_leaf_count": 88,
+        "final_leaf_max_upper": 8.386024313477859e-05,
+        "lower_exceeds_tolerance": false,
+        "max_recorded_lower": 0.0,
+        "returned_upper": 8.386024313477859e-05,
+        "root_initial_upper": 0.007614495051174712,
+        "start": 408660,
+        "subdivided_parent_count": 29,
+        "support_facets": [
+          16718
+        ],
+        "tolerance": 0.0001,
+        "triangle_coordinate_bits": [
+          [
+            "3fd6e766f2ae6795",
+            "3fe303175f2251df",
+            "3f8f07fac65a47fb",
+            "3fd66bd7991439f6",
+            "3fe296c710a9b8dc",
+            "3f8f390d89e1bf31",
+            "3fd6783feaa6bc27",
+            "3fe2db40045bf750",
+            "3f8bb83484ad54f3"
+          ]
+        ]
+      },
+      {
+        "domain_records": 1089,
+        "final_leaf_count": 817,
+        "final_leaf_max_upper": 9.999157499811653e-05,
+        "lower_exceeds_tolerance": false,
+        "max_recorded_lower": 0.0,
+        "returned_upper": 9.999157499811653e-05,
+        "root_initial_upper": 0.007612693152302933,
+        "start": 415691,
+        "subdivided_parent_count": 272,
+        "support_facets": [
+          10611,
+          10612,
+          10620,
+          10621,
+          10622,
+          10629,
+          10630,
+          10631,
+          10632,
+          10639,
+          10640,
+          10641,
+          10642,
+          10648,
+          10649,
+          10650,
+          10651,
+          10658,
+          10659,
+          10667,
+          10668,
+          16124,
+          16125,
+          16126,
+          16127,
+          16422,
+          16423,
+          16424,
+          16425,
+          16716,
+          16717,
+          16718,
+          16719,
+          16720,
+          17007,
+          17008,
+          17009,
+          17010,
+          17290,
+          17291,
+          17292,
+          17568,
+          17569,
+          29902,
+          29912,
+          29922,
+          29932,
+          35414,
+          35415,
+          35416,
+          35417
+        ],
+        "tolerance": 0.0001,
+        "triangle_coordinate_bits": [
+          [
+            "3fd6890a6dc2b614",
+            "3fe31e663782f586",
+            "3f8749057d7a1347",
+            "3fd6783feaa6bc27",
+            "3fe2db40045bf750",
+            "3f8bb83484ad54f3",
+            "3fd60ce5da250dee",
+            "3fe2b241189f6198",
+            "3f876dd866374bb4"
+          ]
+        ]
+      },
+      {
+        "domain_records": 1,
+        "final_leaf_count": 1,
+        "final_leaf_max_upper": 0.004760807187329376,
+        "lower_exceeds_tolerance": true,
+        "max_recorded_lower": 0.00015118491197245565,
+        "returned_upper": 0.004760807187329376,
+        "root_initial_upper": 0.004760807187329376,
+        "start": 473776,
+        "subdivided_parent_count": 0,
+        "support_facets": [
+          16718
+        ],
+        "tolerance": 0.0001,
+        "triangle_coordinate_bits": [
+          [
+            "3fd60ce5da250dee",
+            "3fe2b241189f6198",
+            "3f876dd866374bb4",
+            "3fd6783feaa6bc27",
+            "3fe2db40045bf750",
+            "3f8bb83484ad54f3",
+            "3fd66bd7991439f6",
+            "3fe296c710a9b8dc",
+            "3f8f390d89e1bf31"
+          ]
+        ]
+      }
+    ],
+    "returned_initial_after_any_subdivision_with_smaller_final_leaf_max": 0,
+    "returned_initial_after_more_than_one_parent_subdivision": 0,
+    "returned_initial_upper": 8
+  },
+  "task": "Read-only trace hypothesis assessment"
+}

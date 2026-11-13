@@ -1,0 +1,23 @@
+{
+  "build_passed": true,
+  "runtime_performed": false,
+  "diagnostic_qualified": false,
+  "all_actual_build_handles_terminal": true,
+  "source_pins_verified": 1511,
+  "reason": "Static review found uncounted high-level constructor calls in reused CorrectCollapse planner and prescribed-interface control. No runtime performed; exclude these paths only in currentResidual before qualification.",
+  "exact_sources": {
+    "UnitTests/SU2_CFD/adaptation/fixtures/native_actual_bl_cavity_planning.inc": {
+      "archive": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/residual471_unqualified_source/native_actual_bl_cavity_planning.inc",
+      "sha256": "dcf25532b3f3dcf05a789f3b928e182c777a6fd7cead4e9dd9802ecd9809b7ed"
+    },
+    "UnitTests/SU2_CFD/adaptation/fixtures/native_actual_bl_cavity_planning_body.inc": {
+      "archive": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/residual471_unqualified_source/native_actual_bl_cavity_planning_body.inc",
+      "sha256": "92ea33adc99b4d0264bb2bfa105810f984597a3218c69b8d9524b7f2a7eb2971"
+    },
+    "UnitTests/SU2_CFD/adaptation/fixtures/native_actual_cavity_correction.inc": {
+      "archive": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/residual471_unqualified_source/native_actual_cavity_correction.inc",
+      "sha256": "8ce4b1f55296541794c0959776027b4ac411525dfed19b9a0fa9afe7e1425ca7"
+    }
+  },
+  "production_binary_unchanged_from470": true
+}

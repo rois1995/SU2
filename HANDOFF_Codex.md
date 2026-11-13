@@ -13,7 +13,60 @@ retains all earlier findings/handles; it is NOT live workload state.
 
 ## Live state, source and build
 
-NO owned heavy workload live.470build, focused, actual trajectory, MPI milestone and
+All owned472 build/current-residual/trace/exact-query workloads are TERMINAL.
+Exact-query exec18941 finished0: eight exact childface certificates,95.479s shared
+wrapper time. Existing strict bound replays match captured production queries bit
+exactly. Derived query ceilings change certificate tightness, NEVER geometry1e-4
+acceptance. R/residual472_query_replay_assessment.json records independent handles,
+pins and complete fourface sums. No active frozen C++ workload and no production
+change since470. First query launcher failed before evaluation on a relative path;
+archive/correction retained, not a geometry failure.
+Build297.837s/all10actualidentities terminal/pins/newtestbinary/cleanNinja. Production
+CFD remains470SHAa0eea83a5a2f957ff5ed33e617d9ef2330edda86f7cd502a49e0c0c22c4bfd81;
+testSHA44289f605b65dcde01c975c7dd59d3fdfd8e410f56d69936b4c7fd222c161b64.
+Actual R/cases/curved472_current_residual_serial_20261113T022549_1476203
+(exec37321terminal): PASS147.641s/608081assertions/1771pins/allactualhandles terminal.
+All303757original470Owned independently byte-identical.24highlevelcandidate calls;
+3complete nativeidentity contexts, geometry-clean control6070. Only controlcollapse
+is private-feasible (10→8,g0→0,q10→8/J8→7). No residual candidate passes every guard.
+Rank4current10cellcollapse/reconnect preserves heights/parameters/contact/metric,
+gbad6→4 but guidanceexcess2.735e-7→1.996e-4; split2→4 similarly raises its bound.
+Rank5several16cellcollapse/reconnect candidates build, but both geometry and surface
+metric refuse; other directions have positive-cone obstructions. The sampled
+historical clearance failure is NOT reproduced. No published candidate or fullvolume
+edge/firstrow/mesh certificate. R/current_residual472_assessment.json has all flags.
+
+Same bounded replay with EXISTING geometry-query trace also TERMINAL147.639s;
+R/cases/curved472_current_residual_trace_serial_20261113T023816_1509672.
+1771pins/allactualhandles/303757Owned verified; all24operator decisions/numerical
+measurements EXACTLY MATCH nontrace (timing/RSS excluded).35,781,778Btrace retained.
+R/residual472_trace_provenance.json. No timingbaseline or productiondecision change.
+Trace analysis REJECTS the free current-heap-bound hypothesis for relevant samples:
+8root-witness exits have zero subdivisions,4otherqueries certify within tolerance.
+No targetquery has discarded refined upper data; two unrelated queries do, and are
+NOT justification for an optimization cycle. Exact support/coordinate replays now
+demonstrate tighter valid complete fourchild upper-bound excess on two SAMEsplit
+candidates, below their recorded old production score. Neither is strictclosed;
+no candidate was published and oldside has not been comparably tightened. Therefore
+physical geometry improvement and a safe production correction are still UNPROVEN.
+The454threshold-only hypothesis failed on different contexts; no blanket revival,
+arbitrary ceiling change or acceptance relaxation. Next require comparable old/fresh
+merit, cache/census consistency and the COMPLETEtrajectory, not an isolated speedup.
+
+ControlMoveVertex preflight is NOT a mobility limit: its old diagnostic generator
+first calls ConstrainMovePoint, which intersects original noncoplanar facet planes
+and returns original point. Production SmoothBoundary instead uses mapped binding/
+atlas projection. Resolve this diagnostic composition before judging relocation.
+No new production boundary-mobility change is justified by that control refusal.
+
+471priorbuild PASS297.809s/no runtime; static review found uncounted planner/control
+constructors. Exactsource/disposition archived; terminal verified before472fixes.
+472excludes those paths only in current-residual mode; explicit existing bounded
+growth/reduction remains. Prior175actualhandles/1740pins/all-sixassociationpayloads
+verified before edits: R/residual471_entry/inventory.json.5930309absent;18152–18153
+currentedgepresent. All arrays use current nodal metrics; no field/height/norm change.
+
+470build, focused, actual trajectory, MPI milestone and
 actual full surface stage are TERMINAL; actual PID/starttick identities independently
 verified before reporting. No stop or timeout was needed. Preserve unrelated changes.
 Source checkpoint0adea12bff is pushed to origin/codex/native-3d-bl. Later evidence-only
@@ -93,15 +146,20 @@ Do not sum nested timers or call election/join time total MPIwait. Sampled treeR
 
 ## Next active action
 
-Use latest saved470remaining actual geometry cavities and a successful control.
-Reproduce complete current support/transported metrics/associations; classify whole-
-patch geometry preservation versus uncertain clearance, topology/visibility,
-association/features/heights, missing support and resource refusal. Test a connected
-surface+adjacent-volume trajectory with existing operators, not another isolated
-normal offset or split variant. Choose ONE correction only from demonstrated useful
-complete replacements. No newbaseline/perf/GDB campaign, scheduler, representation,
-larger bounds or waived clearance. Keep measured height debt provisional and protect
-passing rows. Then continue ordered stages when a credible surface output exists.
+The full saved-input→coupled surface/volume trajectory and explicit stall/readiness
+contract are in the linked trajectory handbook. Actual470test reached reconstruction
+and publication then stalled within24calls; geometry closure failed, tangential
+suitability unproved, firstrow UNREACHED. Current472residuals isolate a material
+classification-bound/quantitative-merit uncertainty. Select ONE correction only after
+complete old/fresh geometry progress is comparable and all cache/census/support/
+resource semantics remain valid. Correct the mapped diagnostic preprojection when
+assessing relocation; do not invent a production mobility fix from its planar control.
+Then test the SAMEcomplete trajectory through geometry, tangential delivery and
+firstrow prerequisites, including all affected neighbors. Reconsider on persistent
+neighbor debt/crowding or unavailable valid placement/connectivity; do not append
+isolated variants or increase budgets. No newbaseline/perf/GDB/scheduler/geometry
+representation, waived clearance, or upstreamCFD/target recomputation. Full final
+workflow remains active; provisional captures are not successful stage checkpoints.
 
 ## Saved inputs, physical constraints and full remaining goal
 
