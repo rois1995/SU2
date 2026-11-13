@@ -1,0 +1,93 @@
+{
+  "status": "PASS source-body semantic controls",
+  "variants": {
+    "original": {
+      "compiled": true,
+      "exit": 0,
+      "log_sha256": "22c19d31267e322e2a3e1bf7ad1adfd3c0f53b9b016c560aaa2d3d9cf4e9bb72",
+      "binary_sha256": "f3dbc33dd929176de3253c66e5bc6348891b9b9ea7630aac74db58f8126bff31"
+    },
+    "refactored": {
+      "compiled": true,
+      "exit": 0,
+      "log_sha256": "e0e1f68398eaa660473e7cf3280781b7fad22b8437cf2901a37baa5d8988fa50",
+      "binary_sha256": "1472e9a5aae0902de7faf83167120c31da3e804ba1a2017ca9a56a82d2b4bb15"
+    },
+    "wrongBuffer": {
+      "compiled": true,
+      "exit": 1,
+      "log_sha256": "6dfca33358ca21e17ecc679b78dfaa719dadfdbf3fe64dc7a787a468c5c7c7a3",
+      "binary_sha256": "1633db4980f63bd4bde58d47cbab8ba1845a73ec8c291431f7b054fe92fa3de6"
+    },
+    "incomplete": {
+      "compiled": true,
+      "exit": 1,
+      "log_sha256": "3e9f309ce00d40b6e08f80b68786e57fd5e4f584e943df24835f7252f25fb415",
+      "binary_sha256": "8a9c79bb936bcf1f8bc070e1b839e218dc2aa3cc8bc2c62b88bd335600ccfad1"
+    },
+    "omitDensity": {
+      "compiled": true,
+      "exit": 1,
+      "log_sha256": "6ee296dcfe8e03cccb7388aaa8ec61374d730e7fe78a854ff42b4ddaa3a00a07",
+      "binary_sha256": "f379248846074c0f5f1a7cedda4bd534053fd78458ef1ae50aab645333c3a63b"
+    },
+    "omitKinetic": {
+      "compiled": true,
+      "exit": 1,
+      "log_sha256": "09c890b3ee46c70199889bb985ddf544db40dca62de74bb58489a9cb6173b1ca",
+      "binary_sha256": "97a2448a4d1800d01a99fb5d4de8e97f7f6f4e5f772f031dc159d5b703285b44"
+    },
+    "staleFallback": {
+      "compiled": true,
+      "exit": 1,
+      "log_sha256": "c254bae10c50a2b4775457afad5cd3675850b86b67ec69c628240d8019c4a82e",
+      "binary_sha256": "5f277359217137f226b42237ba86ab82e72b2d1226c00cc05139392a9ce17e30"
+    },
+    "eraseTail": {
+      "compiled": true,
+      "exit": 1,
+      "log_sha256": "a16d359f8ac9ea87d420dec8e4f8406c9062527f46eae9fa85a39596da270c25",
+      "binary_sha256": "68612c99e9c526a41fe19285937278f1ebc412820427a827764fe84b8f45c11c"
+    },
+    "wrongResidual": {
+      "compiled": true,
+      "exit": 1,
+      "log_sha256": "d395753ae8791f6d2fdc578f1f961d4e74218efe717759f68d34271f41dc7241",
+      "binary_sha256": "a24ff2149ca168d4d61590f6275acafca6150dd7866d65da7390610e0cf9d2db"
+    },
+    "skipLast": {
+      "compiled": true,
+      "exit": 1,
+      "log_sha256": "3176354264ceec4da839c87f7107fec6212a433ca93b21685baaf69710ca7540",
+      "binary_sha256": "f45a4868b75178b12e8cb6a08f73e593cdc487eec4d5bcc8dcd9600a3e2baee3"
+    },
+    "earlySnapshot": {
+      "compiled": true,
+      "exit": 1,
+      "log_sha256": "e917ee5d7e7d34ac522f3c0b8e8f9665a1f0a0928b64ae609fa694cc3a09d580",
+      "binary_sha256": "0ac478ef0602eb83eec70441bcb52be8b0ee1ba5dac21fc5ca094618433c6bdf"
+    },
+    "badStride": {
+      "compiled": true,
+      "exit": 1,
+      "log_sha256": "24e2b91d1fa4cb495622dc15bb10e75d502e2ab19e609b6abc63336bd6639c18",
+      "binary_sha256": "71226d764da39d26088342adc4833fd3c20d177d7b37e1bd55db6a18cb1e0427"
+    },
+    "skipReset": {
+      "compiled": true,
+      "exit": 1,
+      "log_sha256": "7575d4d93af7a7e6ce988c3e981caed0f9119259c327557693906cc826091a2d",
+      "binary_sha256": "93b915dc458319d4a2cd15c73cb3de374b16941fa831cab78cc99aea882d6d61"
+    },
+    "skipEntropy": {
+      "compiled": true,
+      "exit": 1,
+      "log_sha256": "04abe00fa3a44b2233372f535ffc950392efd9078401dd75a5867f4801154887",
+      "binary_sha256": "be4913a75dbaee8180495b2922c40b2a05f019cf0f197aa13685a688bc09b9cb"
+    }
+  },
+  "production_patches": [],
+  "source_commit": "d162016382f0c122433000c114e88d808b48f7a7",
+  "test_sha256": "6f4d4d366b151c411b0356564b23187294fa87c8263c5415f5bf7ca384ae3ed4",
+  "limits": "Actual method bodies in mock containers, AD/serial macros, fluid storage and selected caller order. Not full C++ heap/FP/compiler verification. earlySnapshot, badStride and wrongResidual mutate the harness interface; other variants alter extracted source bodies."
+}

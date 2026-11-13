@@ -1,0 +1,489 @@
+{
+  "source_commit": "d162016382f0c122433000c114e88d808b48f7a7",
+  "production_patches": [],
+  "full_source_files": {
+    "SU2_CFD/src/solvers/CEulerSolver.cpp": {
+      "sha256": "a02047d187aeb4dcd5dffadbce9c21243ace41df79f806e58091b99b3465dc20",
+      "git_blob": "8380bfdf60dfaddaab8f29e3c07fec0c9f3c39f0"
+    },
+    "SU2_CFD/include/solvers/CFVMFlowSolverBase.hpp": {
+      "sha256": "496938310d2c746ad0e31222d23fd9478ab98ced6795f76c8c7ff85aa3f2d063",
+      "git_blob": "e0c24506a5e5ca67e2b5cc6cd7d2d23770d28c80"
+    },
+    "SU2_CFD/include/solvers/CFVMFlowSolverBase.inl": {
+      "sha256": "ef228099073057584c196405b674ff8dbf246a3fa325e636e36eff2a423c4e68",
+      "git_blob": "9f1637b2b7819c4d4340f3e4aae13d887a00ebd1"
+    },
+    "SU2_CFD/src/integration/CIntegration.cpp": {
+      "sha256": "b00c94749cc04fbefcf4f780316a94e76b619f600f0fd07c161132bc67b1e755",
+      "git_blob": "95c84e45c151bc302e7b70fa6a5792f5c94f7900"
+    },
+    "SU2_CFD/include/variables/CVariable.hpp": {
+      "sha256": "5b137ccdd34c14816ea0bde9993690c49da7ad925b6dda166afe873b4264f40b",
+      "git_blob": "377a0c8188817dd230049e5cb5019b0e23670d4d"
+    },
+    "SU2_CFD/include/variables/CEulerVariable.hpp": {
+      "sha256": "a345131210c29e2b25ed0fe210924003e826604d2061be5ede5b2f4c4941e105",
+      "git_blob": "3c28db4a202544b935ab0fe8f92f81673b5e7717"
+    },
+    "SU2_CFD/include/solvers/CSolver.hpp": {
+      "sha256": "f9d6b7989dac3bedfec83aab60c57324554f336f042c38d347ef0eedb65b08b8",
+      "git_blob": "882316b5c67add5fd074a03271039b5fa243a320"
+    },
+    "Common/include/geometry/dual_grid/CPoint.hpp": {
+      "sha256": "e441f89ce302a1156ea1596e32aaf4f6b0b2876df551762008e2da7082df136b",
+      "git_blob": "4b96b1d4cec3920afa25bc2ea0f6f9017045b4ee"
+    },
+    "Common/src/geometry/CGeometry.cpp": {
+      "sha256": "c10827b83c8e38489efafa016567f7f03cdca35aa2cb71ea163c5f3e5710a594",
+      "git_blob": "8ecaf3a89c6fa8560241423e4798db8d1281f879"
+    },
+    "Common/include/toolboxes/graph_toolbox.hpp": {
+      "sha256": "59a57d9c18cedcb230b205fccaf09f94c5e45a1004a8980d7c8a8c2a5bbc3f4f",
+      "git_blob": "e6ad162fdd913f9815dc230199ec5b47b33b9092"
+    },
+    "Common/src/geometry/CPhysicalGeometry.cpp": {
+      "sha256": "07f35c1fb0813e722dd1802bd692115f3a96198cd2e0da3790559452bb0a429f",
+      "git_blob": "fa9d6b42e3fbb7fba3029b6b1b6f1e0e6022c9dc"
+    },
+    "Common/src/geometry/dual_grid/CEdge.cpp": {
+      "sha256": "2fc69790c92b0d9250035d4e5975b92fe7c45ec72b1207f171b5b91f481741a4",
+      "git_blob": "082039e35b094554ffcd6606200d8e0f26fffee6"
+    },
+    "SU2_CFD/include/numerics_simd/flow/convection/common.hpp": {
+      "sha256": "8c372799bb5a7f8e5eada71c22f57a920eff4ee87e97cf4cbfeafba84a10327c",
+      "git_blob": "1e97735ef7e28782f006b8e83f75a2191d59b0f9"
+    },
+    "SU2_CFD/include/numerics_simd/flow/variables.hpp": {
+      "sha256": "9747a7d2a6a0a62a7bec354133087170964f9845120660005504eb2be4ba3c15",
+      "git_blob": "ce929ffab774c62fabfad7c0890165a36df44c33"
+    },
+    "SU2_CFD/include/numerics_simd/flow/convection/upwind.hpp": {
+      "sha256": "50ee1ffa2d3bb97cac79a4e00b98aa5bfb5b9a08b2ff070ff963461a2d35c8f4",
+      "git_blob": "f4cb098028d647eaa01aa33c5132fd871bd629b8"
+    },
+    "SU2_CFD/include/numerics_simd/CNumericsSIMD.cpp": {
+      "sha256": "df4e67d5cd6f375085d3df07cca89888ea52c41978b7fc1501fe49544e735f96",
+      "git_blob": "e9ce737e05f419d7fdd2300dfdecbccf9643e58b"
+    },
+    "Common/include/linear_algebra/CSysVector.hpp": {
+      "sha256": "eb73b0ee97814e549c457dbab32060cbfbe69f60202874839aa08825aaea475f",
+      "git_blob": "1371156899a48bfb682a664174496d8af8e7dcff"
+    },
+    "SU2_CFD/include/numerics_simd/util.hpp": {
+      "sha256": "356cfe3cb389096822e34dd5bec7a058b8671f39bb674857c23742bb14156d27",
+      "git_blob": "fd582482a38e3bf934c5fbd04ff65d5de227264f"
+    },
+    "SU2_CFD/include/numerics_simd/flow/diffusion/viscous_fluxes.hpp": {
+      "sha256": "dcda5075a707823d918be3589434fdfd7010d86d8dd31df599bf1b9426a04f5b",
+      "git_blob": "fa2b90d3d5928ef14221ddac4173c887ea1086a4"
+    },
+    "Common/include/CConfig.hpp": {
+      "sha256": "578c804286a765eb68b6bea2fb01e45221ca12bd6781906a04b46efe50ea4f70",
+      "git_blob": "17afb4dc54764cc2018b2a203cb45f8b24c8d841"
+    },
+    "Common/src/CConfig.cpp": {
+      "sha256": "17cbab1350fe9d5f24cb61e8084d9a21fd7f749b5c1cc6776f148a17bf4ad1bf",
+      "git_blob": "f2b171c9571f86c343050e38a7403ef1deda0290"
+    },
+    "Common/include/geometry/dual_grid/CEdge.hpp": {
+      "sha256": "b7a70d97edd55fde0b18399904361e859438310e8dc7771cbc263095b46d8712",
+      "git_blob": "b73af332894acf36ce5c415f33f58ff148f59361"
+    },
+    "Common/include/containers/C2DContainer.hpp": {
+      "sha256": "86c1173fe5dabddb258b50263344fafcfb078aa325d17028ba63df6d35394fe2",
+      "git_blob": "680629136d53ae3c573f15cd8586de74e36f0ecd"
+    }
+  },
+  "selections": {
+    "timestepDispatch": {
+      "path": "SU2_CFD/src/solvers/CEulerSolver.cpp",
+      "span_bytes": [
+        70590,
+        73283
+      ],
+      "sha256": "4bea0e14c52701e98cbb4e5ef5b1dc910656753faa83104b62c7d0ec806d44e1",
+      "formal_status": "manual exact-real implementation model and source trace; not verified C++ translation"
+    },
+    "timestep": {
+      "path": "SU2_CFD/include/solvers/CFVMFlowSolverBase.hpp",
+      "span_bytes": [
+        21326,
+        30096
+      ],
+      "sha256": "7b2cca2522b1b637247024b2b929c20b986c547c71786140f86aa456dd81b0a8",
+      "formal_status": "manual exact-real implementation model and source trace; not verified C++ translation"
+    },
+    "upwindDispatch": {
+      "path": "SU2_CFD/src/solvers/CEulerSolver.cpp",
+      "span_bytes": [
+        73583,
+        82480
+      ],
+      "sha256": "927496abd0baaaf7a6744126b57c085ad8dad0b6bf8c2e94ed06dd69aa00e750",
+      "formal_status": "manual exact-real implementation model and source trace; not verified C++ translation"
+    },
+    "edgeLoop": {
+      "path": "SU2_CFD/include/solvers/CFVMFlowSolverBase.inl",
+      "span_bytes": [
+        62071,
+        64502
+      ],
+      "sha256": "c366cdf53c358b75499582ae988f6c33967eab4177a835f4d3f5bd66c6eb8ea3",
+      "formal_status": "manual exact-real implementation model and source trace; not verified C++ translation"
+    },
+    "finalizeResidual": {
+      "path": "SU2_CFD/include/solvers/CFVMFlowSolverBase.hpp",
+      "span_bytes": [
+        14600,
+        15735
+      ],
+      "sha256": "59ef908f70c525e9fc0174fe0af72d4c94bbc0e0557f2e9892bf8483cc0dabf7",
+      "formal_status": "manual exact-real implementation model and source trace; not verified C++ translation"
+    },
+    "packetTraversal": {
+      "path": "SU2_CFD/include/solvers/CFVMFlowSolverBase.inl",
+      "span_bytes": [
+        63664,
+        64399
+      ],
+      "sha256": "8fbd3df6dd0c3038e89c2c7700d8b013e19b19740ffa0daf84243b8b862e528d",
+      "formal_status": "manual exact-real implementation model and source trace; not verified C++ translation"
+    },
+    "sourceResidual": {
+      "path": "SU2_CFD/src/solvers/CEulerSolver.cpp",
+      "span_bytes": [
+        84889,
+        93875
+      ],
+      "sha256": "04a2d234f3b1360018eff361c321918644ebc0bac9d1ff36a5f11f32ff724f99",
+      "formal_status": "manual exact-real implementation model and source trace; not verified C++ translation"
+    },
+    "fluidInterface": {
+      "path": "SU2_CFD/include/solvers/CFVMFlowSolverBase.inl",
+      "span_bytes": [
+        53100,
+        59806
+      ],
+      "sha256": "e892e2e0357db850255feb0a5ea803b82c0f490d36bbf53878046dc4cf3eb927",
+      "formal_status": "manual exact-real implementation model and source trace; not verified C++ translation"
+    },
+    "spaceIntegration": {
+      "path": "SU2_CFD/src/integration/CIntegration.cpp",
+      "span_bytes": [
+        1254,
+        9647
+      ],
+      "sha256": "b77f231da3d56c0cf0b9c37b6b56bd755a20c8e05ee37b59120dc20472ecfcd6",
+      "formal_status": "manual exact-real implementation model and source trace; not verified C++ translation"
+    },
+    "setCFL": {
+      "path": "SU2_CFD/include/variables/CVariable.hpp",
+      "span_bytes": [
+        24839,
+        24935
+      ],
+      "sha256": "2efd18e56e9b0ab64fb53a24e5a687719b0e7e70db9143d6f72e58b20e95138c",
+      "formal_status": "manual exact-real implementation model and source trace; not verified C++ translation"
+    },
+    "getCFL": {
+      "path": "SU2_CFD/include/variables/CVariable.hpp",
+      "span_bytes": [
+        25132,
+        25217
+      ],
+      "sha256": "3aec07d8f7906b10ed0ae15bb1ebeea0f23591bee81d8e16549b93b575a12a2d",
+      "formal_status": "manual exact-real implementation model and source trace; not verified C++ translation"
+    },
+    "setDt": {
+      "path": "SU2_CFD/include/variables/CVariable.hpp",
+      "span_bytes": [
+        33563,
+        33677
+      ],
+      "sha256": "97e26fea5f738d4640fd1d1b1ee404c918babe28aec617bf901a79799a1d3536",
+      "formal_status": "manual exact-real implementation model and source trace; not verified C++ translation"
+    },
+    "getDt": {
+      "path": "SU2_CFD/include/variables/CVariable.hpp",
+      "span_bytes": [
+        33812,
+        33900
+      ],
+      "sha256": "6f89d7d41a73e9968ea573ab6b9afb3a6283b815a4e913b17951fad90ca52aef",
+      "formal_status": "manual exact-real implementation model and source trace; not verified C++ translation"
+    },
+    "setLambda": {
+      "path": "SU2_CFD/include/variables/CVariable.hpp",
+      "span_bytes": [
+        34141,
+        34263
+      ],
+      "sha256": "5c001db6b578f19c7be12e5eed3b55f53a021b481baa5a692ae3f46031887a3c",
+      "formal_status": "manual exact-real implementation model and source trace; not verified C++ translation"
+    },
+    "addLambda": {
+      "path": "SU2_CFD/include/variables/CVariable.hpp",
+      "span_bytes": [
+        34865,
+        34988
+      ],
+      "sha256": "9141eed76b481dacfd93f918c57140d272e8df82fb83a248b40c331e287850cd",
+      "formal_status": "manual exact-real implementation model and source trace; not verified C++ translation"
+    },
+    "getLambda": {
+      "path": "SU2_CFD/include/variables/CVariable.hpp",
+      "span_bytes": [
+        35575,
+        35672
+      ],
+      "sha256": "4d6c988ac4cab4fa1ff5ef86d11008c8aac74df5e06cdd00eecd377870869e2d",
+      "formal_status": "manual exact-real implementation model and source trace; not verified C++ translation"
+    },
+    "getProjected": {
+      "path": "SU2_CFD/include/variables/CEulerVariable.hpp",
+      "span_bytes": [
+        10250,
+        10527
+      ],
+      "sha256": "30ec88c2fddf7a353d906cf97ffc6747bf96cfa566123569ba2dc71b7c3ad351",
+      "formal_status": "manual exact-real implementation model and source trace; not verified C++ translation"
+    },
+    "getSound": {
+      "path": "SU2_CFD/include/variables/CEulerVariable.hpp",
+      "span_bytes": [
+        8498,
+        8614
+      ],
+      "sha256": "bb26f61dbd58749ea71b2d6e0704d8b37880898993272d4eb190a3a48851a619",
+      "formal_status": "manual exact-real implementation model and source trace; not verified C++ translation"
+    },
+    "emptyViscous": {
+      "path": "SU2_CFD/include/solvers/CSolver.hpp",
+      "span_bytes": [
+        81079,
+        81458
+      ],
+      "sha256": "3c6322a5473a097c0fe772c9e72df10715b2620683a3f218fdbf855ea1625ab5",
+      "formal_status": "manual exact-real implementation model and source trace; not verified C++ translation"
+    },
+    "emptyFixed": {
+      "path": "SU2_CFD/include/solvers/CSolver.hpp",
+      "span_bytes": [
+        66976,
+        67062
+      ],
+      "sha256": "bd2049147815cc91d2c529a908147bd5e7ee927084b89230de4fb13caadafa17",
+      "formal_status": "manual exact-real implementation model and source trace; not verified C++ translation"
+    },
+    "getVolume": {
+      "path": "Common/include/geometry/dual_grid/CPoint.hpp",
+      "span_bytes": [
+        23795,
+        23883
+      ],
+      "sha256": "46bb699fc72543d1c6e0fe0c0bef6cd12acb4bd15d0dbf73545fa1905200fec2",
+      "formal_status": "manual exact-real implementation model and source trace; not verified C++ translation"
+    },
+    "setEdges": {
+      "path": "Common/src/geometry/CGeometry.cpp",
+      "span_bytes": [
+        62853,
+        63782
+      ],
+      "sha256": "332225d698f90d04be66565f65c8f7e7193320450634ea148f72e4a2c5dd4d06",
+      "formal_status": "manual exact-real implementation model and source trace; not verified C++ translation"
+    },
+    "edgeColoring": {
+      "path": "Common/src/geometry/CGeometry.cpp",
+      "span_bytes": [
+        166452,
+        170257
+      ],
+      "sha256": "cd0574335c8eeb3212bc16cc65a790969b59f4aefd332763744ccdc6e96d483c",
+      "formal_status": "manual exact-real implementation model and source trace; not verified C++ translation"
+    },
+    "naturalColoring": {
+      "path": "Common/include/toolboxes/graph_toolbox.hpp",
+      "span_bytes": [
+        19091,
+        19483
+      ],
+      "sha256": "766179a8ab161135d876dedbadaa839db0db4e45c369b5bbf26a7370c484be6c",
+      "formal_status": "manual exact-real implementation model and source trace; not verified C++ translation"
+    },
+    "controlVolumes": {
+      "path": "Common/src/geometry/CPhysicalGeometry.cpp",
+      "span_bytes": [
+        267301,
+        273709
+      ],
+      "sha256": "66f4983b76f19668060cf75ccbe1d3b9521db73a1b2281e6a5ea3dcb8754079b",
+      "formal_status": "manual exact-real implementation model and source trace; not verified C++ translation"
+    },
+    "dualVolume": {
+      "path": "Common/src/geometry/dual_grid/CEdge.cpp",
+      "span_bytes": [
+        2098,
+        2512
+      ],
+      "sha256": "43d9d0b0103378ccf60275a761e894968e45bf8ab856c34d1c0db83d1604d2db",
+      "formal_status": "manual exact-real implementation model and source trace; not verified C++ translation"
+    },
+    "dualNormal": {
+      "path": "Common/src/geometry/dual_grid/CEdge.cpp",
+      "span_bytes": [
+        3054,
+        3287
+      ],
+      "sha256": "d28d87edbeca8da748571b9922ad7c1df8915321143b66f8dc4bf1f44bb3fc3c",
+      "formal_status": "manual exact-real implementation model and source trace; not verified C++ translation"
+    },
+    "reconstruct": {
+      "path": "SU2_CFD/include/numerics_simd/flow/convection/common.hpp",
+      "span_bytes": [
+        2122,
+        6603
+      ],
+      "sha256": "356d6b84db5db7cd8af84434c4d1a119acacdbe6a3d717c15e12cd4c88a56662",
+      "formal_status": "manual exact-real implementation model and source trace; not verified C++ translation"
+    },
+    "pMatrix": {
+      "path": "SU2_CFD/include/numerics_simd/flow/convection/common.hpp",
+      "span_bytes": [
+        6737,
+        8761
+      ],
+      "sha256": "fc7bc54b3bf32d7241d2e4c2dd10d44960314eb19733cef14169beaf73045456",
+      "formal_status": "manual exact-real implementation model and source trace; not verified C++ translation"
+    },
+    "inverseP": {
+      "path": "SU2_CFD/include/numerics_simd/flow/convection/common.hpp",
+      "span_bytes": [
+        8903,
+        11197
+      ],
+      "sha256": "385fb231f2eb8368b11692b40a7b5e98c1c41b72ac6ea0877a593ea591b55e3c",
+      "formal_status": "manual exact-real implementation model and source trace; not verified C++ translation"
+    },
+    "conservatives": {
+      "path": "SU2_CFD/include/numerics_simd/flow/variables.hpp",
+      "span_bytes": [
+        3591,
+        3953
+      ],
+      "sha256": "4701e20f0e7809cd291635ff47cdccf99d56136f8ec31e7a2a5a5cbe95f84a29",
+      "formal_status": "manual exact-real implementation model and source trace; not verified C++ translation"
+    },
+    "averages": {
+      "path": "SU2_CFD/include/numerics_simd/flow/variables.hpp",
+      "span_bytes": [
+        4274,
+        5008
+      ],
+      "sha256": "bc2aadc75c4bbfe4e824de96544d570b120f9a13e10cdf8c77f8dd500afd0245",
+      "formal_status": "manual exact-real implementation model and source trace; not verified C++ translation"
+    },
+    "computeFlux": {
+      "path": "SU2_CFD/include/numerics_simd/flow/convection/upwind.hpp",
+      "span_bytes": [
+        2896,
+        5967
+      ],
+      "sha256": "aca417d29778f95c03c39daabf2a51297d23e25281bfec8dd07b17697a4caa28",
+      "formal_status": "manual exact-real implementation model and source trace; not verified C++ translation"
+    },
+    "roeFinal": {
+      "path": "SU2_CFD/include/numerics_simd/flow/convection/upwind.hpp",
+      "span_bytes": [
+        7057,
+        11043
+      ],
+      "sha256": "f009e30625b46690351f896f848f608e1aa3e446c35f6824f75ce45de496e84b",
+      "formal_status": "manual exact-real implementation model and source trace; not verified C++ translation"
+    },
+    "factory": {
+      "path": "SU2_CFD/include/numerics_simd/CNumericsSIMD.cpp",
+      "span_bytes": [
+        4597,
+        5199
+      ],
+      "sha256": "c69a6d7689df5a731d1a68e0443bde4f1ee000bffc75fbd7312d4d4edaee8ba4",
+      "formal_status": "manual exact-real implementation model and source trace; not verified C++ translation"
+    },
+    "idealFactory": {
+      "path": "SU2_CFD/include/numerics_simd/CNumericsSIMD.cpp",
+      "span_bytes": [
+        1368,
+        1803
+      ],
+      "sha256": "7222b77a9c9cfe97655d7389a1b7f99ec46a27c0daf6ceb05586046d73fdad18",
+      "formal_status": "manual exact-real implementation model and source trace; not verified C++ translation"
+    },
+    "dimensionFactory": {
+      "path": "SU2_CFD/include/numerics_simd/CNumericsSIMD.cpp",
+      "span_bytes": [
+        3027,
+        4380
+      ],
+      "sha256": "3ac10c646568caa6f74ec5a848fe5a519c3e91a214892a3f19dae3d5ac906041",
+      "formal_status": "manual exact-real implementation model and source trace; not verified C++ translation"
+    },
+    "scatter": {
+      "path": "Common/include/linear_algebra/CSysVector.hpp",
+      "span_bytes": [
+        26671,
+        27427
+      ],
+      "sha256": "a6d0ff2efbb45a6224b8aafba6174b2825970ae3f6584883b6c962bfcc0c25b9",
+      "formal_status": "manual exact-real implementation model and source trace; not verified C++ translation"
+    },
+    "unpack": {
+      "path": "Common/include/linear_algebra/CSysVector.hpp",
+      "span_bytes": [
+        9299,
+        9707
+      ],
+      "sha256": "55e92bdb9ae0cb1043842152e8f2032d3caba3d25a3ff88c63ecc0591c9e7a2d",
+      "formal_status": "manual exact-real implementation model and source trace; not verified C++ translation"
+    },
+    "initialCFL": {
+      "path": "SU2_CFD/include/solvers/CFVMFlowSolverBase.inl",
+      "span_bytes": [
+        8805,
+        9011
+      ],
+      "sha256": "4fb485eb59df40b53691b18dff7ae430dca23205ebf15edcb867cbfb4a21a843",
+      "formal_status": "manual exact-real implementation model and source trace; not verified C++ translation"
+    },
+    "localTime": {
+      "path": "SU2_CFD/include/solvers/CFVMFlowSolverBase.hpp",
+      "span_bytes": [
+        26367,
+        26462
+      ],
+      "sha256": "b91a505a77919970c66be90b61b1724988f0c87609514f6f7beccfb96794267c",
+      "formal_status": "manual exact-real implementation model and source trace; not verified C++ translation"
+    },
+    "resetLambda": {
+      "path": "SU2_CFD/include/solvers/CFVMFlowSolverBase.hpp",
+      "span_bytes": [
+        22723,
+        22760
+      ],
+      "sha256": "8529e3138bf719613645d651623f7c70602d82b49a7b13f09ab8159a5cbc5c65",
+      "formal_status": "manual exact-real implementation model and source trace; not verified C++ translation"
+    },
+    "timeStore": {
+      "path": "SU2_CFD/include/solvers/CFVMFlowSolverBase.hpp",
+      "span_bytes": [
+        26779,
+        26859
+      ],
+      "sha256": "b2d45e26a14cd38f9ee700ce996c478b6fbe6a44c5a10fe77d0083ab88e1ebfe",
+      "formal_status": "closed Lean leaf grammar with exact-real store semantics"
+    }
+  },
+  "restriction": "Only full SIMD scatter method and complete timestep-store statement are Lean parsed. Other C++ methods are manually mapped exact-real implementation models. Unsupported syntax in the declared grammars fails; all other syntax is explicitly outside the translator.",
+  "limitations": "Unverified extraction/dispatch/accessor/geometry mapping, C++ heap/ABI/pointers/scratch allocation, floating-point/libm/compiler, MPI/OpenMP and complete numerical Roe specification are not proved."
+}

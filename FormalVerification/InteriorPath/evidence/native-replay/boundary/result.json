@@ -1,0 +1,55 @@
+{
+  "status": "PASS supplementary native boundary and full-loop evidence",
+  "source_commit": "d162016382f0c122433000c114e88d808b48f7a7",
+  "actual_method_binary_sha256": "d843b14a2081c691759d06832f232c1fb1912f626a381ae04108d95d6c73af60",
+  "actual_method_log": "$ /media/rausa/4TB/SU2_Versions/SU2_Lean_interior_native_replay_20261113/boundary/boundary_native euler.cfg\nPASS checks=7747 points=20 far_visits=55 wall_visits=69 regimes=7\nEXIT 0\n",
+  "baseline_record_sha256": "4122172b4bef1c9be1ba1317e88bfdf5f2cf9171cce573752dbd54d384e09dbd",
+  "variants": {
+    "original": {
+      "expected_exit": 0,
+      "log_sha256": "a3dab8afcd3c6f1ceb4593586c311783e8e29d2f9f46f7a58461cd977ca634e3",
+      "binary_sha256": "531def2bf16900021fab08824efaa69fb49602d7b49e52d8c3e12da26899e537"
+    },
+    "refactored": {
+      "expected_exit": 0,
+      "log_sha256": "14f3d23f80fd120ce4f272c90762e0f4ad5998a4801c145ea51ddabc5a4d98ce",
+      "binary_sha256": "531def2bf16900021fab08824efaa69fb49602d7b49e52d8c3e12da26899e537"
+    },
+    "wallOldSign": {
+      "expected_exit": 1,
+      "log_sha256": "00d3f27fba0c8255d0617af6018cc5738a7f3c4fbcc8e68f0f2c252d43d61cf6",
+      "binary_sha256": "4e028b0d58654d19e6eb7a97223d3fc6f24e4d78a1c35afb48ee66d84d79f41c"
+    },
+    "wallResidualSign": {
+      "expected_exit": 1,
+      "log_sha256": "ef248a4509b010124430faa96377c0eb5979445b44e99754f12265159bb9883e",
+      "binary_sha256": "f5f6823b7a98c51c95a8afbd1e0d4edc73df3011ea098003c3e516df06ea9440"
+    },
+    "wallTruncationSign": {
+      "expected_exit": 1,
+      "log_sha256": "2a7a4fae417f0e75c9f33b91089a0aa88e522167351d23bf5dfddcbcbf4437f7",
+      "binary_sha256": "4bcdeed5644c9eb118e40e9185ed5e7e55384b5e124c110de6af86963a000c8d"
+    },
+    "farSign": {
+      "expected_exit": 1,
+      "log_sha256": "066f03b0599f9fc57f3e47c2674b936a9bd3d94cc1c046c4bbc3c5f4af1325a1",
+      "binary_sha256": "10fcc442648946eb41c6fa4d376e6ad3a4965baa7ca0b38b238a17acfba0333d"
+    },
+    "skipPoint": {
+      "expected_exit": 1,
+      "log_sha256": "b973b6478f60c0aa7414cb26cc75421d956b74fe42f9b9e1da8f09ed6170ff46",
+      "binary_sha256": "f1e3e47b297eb8577504ce4a692851ccce74f515d0a98fe7964dd43352fc69ea"
+    },
+    "skipEnergy": {
+      "expected_exit": 1,
+      "log_sha256": "b8137e83652f3fc771389ecdfc08aba6ea1f1087314d640fc1cb6e17ac0efa12",
+      "binary_sha256": "a7d1f3a243e19da02a3e64fd69d858a53b7fbdc18efbed900d2eafcdd5130713"
+    },
+    "wrongTimestep": {
+      "expected_exit": 1,
+      "log_sha256": "9b7db996ddfdcdedda8bcfee1b2ae2a4e23ba189a3e25bfa21f1f1c1665a2796",
+      "binary_sha256": "a61f3fe44607d1d1a8b8aeddb72fba7b133c4d4b1d715ac773a5525976c509e3"
+    }
+  },
+  "limitations": "Actual methods linked from pinned release build (fast-math retained). Mutants/refactor are selected fragments in mock object context, -O2 without fast-math. No certified compiler, object-layout refinement or floating-point proof."
+}

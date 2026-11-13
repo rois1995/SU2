@@ -1,0 +1,62 @@
+{
+  "status": "PASS supplementary native memory composition and semantic controls",
+  "source_commit": "d162016382f0c122433000c114e88d808b48f7a7",
+  "production_patches": [],
+  "actual_method_binary_sha256": "8cfe6a1e4a3edeccab151dd7bf23f06d00c11487a9bdfc8d47a5cee170dc816d",
+  "actual_method_log": "$ /media/rausa/4TB/SU2_Versions/SU2_Lean_interior_native_replay_20261113/boundary-memory/memory_native euler.cfg\nPASS checks=24968 points=20 far_visits=110 wall_visits=69 regimes=7 far_passes=2 primitive_stride=11 cache_stride=11\nEXIT 0\n",
+  "baseline_record_sha256": "4122172b4bef1c9be1ba1317e88bfdf5f2cf9171cce573752dbd54d384e09dbd",
+  "variants": {
+    "original": {
+      "expected_exit": 0,
+      "log_sha256": "7f326c83506b911280313098e93a1451483332f6e206dd18d2663ffee1196108",
+      "binary_sha256": "7df2de8b573cc035475058766c5d6f577410c100c4c19cab0198ce61f11ddd1b"
+    },
+    "refactored": {
+      "expected_exit": 0,
+      "log_sha256": "8f3c2c3053e51e0f4dbd9da1c0f20da5ed7e3a622a2752bb90ca178faf14cd43",
+      "binary_sha256": "7df2de8b573cc035475058766c5d6f577410c100c4c19cab0198ce61f11ddd1b"
+    },
+    "discard": {
+      "expected_exit": 1,
+      "log_sha256": "b9d44efda754e82197d8a0b79fa6a5ae4f830c62f0907a860b75f55b5b8c86e7",
+      "binary_sha256": "7df2de8b573cc035475058766c5d6f577410c100c4c19cab0198ce61f11ddd1b"
+    },
+    "wrongBuffer": {
+      "expected_exit": 1,
+      "log_sha256": "6a51f78d5228dc3fe570f092eb0c5174d01ea369f1fbfd43974fe46e766c476e",
+      "binary_sha256": "5cf1e5156c7a2d687c4ba4067af1615272f2f3360955dfdbea7b0ee811a5073f"
+    },
+    "refresh": {
+      "expected_exit": 1,
+      "log_sha256": "595a99fba9194e3d0a2881e6b162f6f7377aa9f562fd4f481af151c050110db0",
+      "binary_sha256": "e4b15dc33ec0eea71807eed5d0c7ecc072e1e7d436d00b54eca76c7653f1a8e1"
+    },
+    "shortStride": {
+      "expected_exit": 1,
+      "log_sha256": "8ccdc47ed6c196997470102d0648c71f030336618da183bd92e849063ccbfd7d",
+      "binary_sha256": "6922e6f922fe693089ac4e95d0cc6df5c3fb5afcfea252d6c37b89ad1d804750"
+    },
+    "firstMarker": {
+      "expected_exit": 1,
+      "log_sha256": "fdbae34e04421c415458886ed90ea825a39309e7435d91455a868831a9227199",
+      "binary_sha256": "f6f2b626cb2c3d2cda4113776ce17233ec085b4a78a8a50c665b84c2106dfdef"
+    },
+    "firstVertex": {
+      "expected_exit": 1,
+      "log_sha256": "235b0bc10f25e29e5f0d21d87e304c78c0587942728e84cb4ab2cf11ac791e61",
+      "binary_sha256": "ea6241ce4f84012678a5e7c304f5c94f3ab65d9beb238be6840d274782c8eb7e"
+    },
+    "eraseTail": {
+      "expected_exit": 1,
+      "log_sha256": "de76faf04f88d29af89cf8224a313ef33fa02eb5fdca23ac59efa97a6bdf6d33",
+      "binary_sha256": "bcb04ed2861841a6af538b0fecf9823935bb50eac3b1fd1646c6834d09aedbbc"
+    },
+    "deduplicate": {
+      "expected_exit": 1,
+      "log_sha256": "65690aa5057e57dbba2569311790ea5927fd24d3df5ebe7c158578a676d48f16",
+      "binary_sha256": "7df2de8b573cc035475058766c5d6f577410c100c4c19cab0198ce61f11ddd1b"
+    }
+  },
+  "refactor": "All printed scalar hexfloat values identical for original/refactored fixture",
+  "limitations": "Actual methods use the pinned release build, including fast-math. Fragment controls use mock objects and -O2. No C++ object-layout, pointer-lifetime, compiler or floating-point proof. Duplicate-visit driver is a hypothetical mutant, not a discovered production defect."
+}

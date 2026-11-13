@@ -1,0 +1,32 @@
+{
+  "status": "PASS worker native evidence; independent acceptance pending",
+  "production_patches": [],
+  "new_source_controls": {
+    "positive": 2,
+    "compiled_semantic_mutants_rejected": 9
+  },
+  "actual_methods": {
+    "default_checks": 1588,
+    "cap_checks": 1589,
+    "points": 20,
+    "edges": 43,
+    "simd_width": 2,
+    "far_vertices": 8
+  },
+  "reachability": {
+    "iterations": 100,
+    "selected_cfl": 0.1,
+    "selected_bad_old": 0,
+    "selected_rejected_trials": 0,
+    "stress10_bad_old": 0,
+    "stress10_rejected_trials": 1823,
+    "stress100": "SU2 residual > 1e20 divergence guard; separate method-limitation observation"
+  },
+  "integration": {
+    "replays": 2,
+    "iterations_each": 20,
+    "byte_identical_outputs": true
+  },
+  "source_commit": "d162016382f0c122433000c114e88d808b48f7a7",
+  "independent_cold_kernel_acceptance": false
+}

@@ -1,0 +1,174 @@
+{
+  "status": "PASS compiled semantic source-fragment controls",
+  "variants": {
+    "original": {
+      "compiled": true,
+      "exit": 0,
+      "log_sha256": "725701a035e49af5fad9cf53e85a8b3f3aedbdea1186fe4b28bbb094509c2d01",
+      "source_fragments": {
+        "unpack": "eec2675f3aac4ec372f02aa1e93c58d65f779d51f3292630b9859d46582b5142",
+        "scatter": "ab33a5980021ef9bd68d27f1be0870760991b33f133deba8a0461a3c2150f9bc",
+        "dualNormal": "6f29ee2576b08ca2c8992d5ccb0e1940aad5e315ff47d5260f88943e90bce6ca",
+        "resetLambda": "ee847fb744da9cb5c95dfb7952d6c1e1e5d22a07c95230ac70dccdadda064bd7",
+        "localTime": "e784317341b27b49a734021e4811628a139e7caa93be60aee10393c07e756ec3",
+        "timeStore": "d970a790e28cc3afe57fafe982fc827b49b3cd5b09e3862058a9bb8206a5cf15",
+        "packetTraversal": "d8d4536f191dab579ec2e8ab48514f8e27dafd8121924a4d327c9b38ce1ddd0e"
+      },
+      "binary_sha256": "e8fe0f3c98ec8ff5d4f0bab989f72e4f6aae5692a2ff49080b20ffc281ea4b22"
+    },
+    "refactored": {
+      "compiled": true,
+      "exit": 0,
+      "log_sha256": "7a99efb02e180a1d19488a2a0e79499ac88db1adc6a61b9a0c02ad0f4f19998c",
+      "source_fragments": {
+        "unpack": "eec2675f3aac4ec372f02aa1e93c58d65f779d51f3292630b9859d46582b5142",
+        "scatter": "0334357ad20d67a6d7192fe09d29a55964beda22cc25f8bc7891d2e6beae050e",
+        "dualNormal": "6f29ee2576b08ca2c8992d5ccb0e1940aad5e315ff47d5260f88943e90bce6ca",
+        "resetLambda": "ee847fb744da9cb5c95dfb7952d6c1e1e5d22a07c95230ac70dccdadda064bd7",
+        "localTime": "e784317341b27b49a734021e4811628a139e7caa93be60aee10393c07e756ec3",
+        "timeStore": "24c7dc5e061b0a4e1b3219084ea482f214914bd2bfa13644bcbfc21630e3efc3",
+        "packetTraversal": "d8d4536f191dab579ec2e8ab48514f8e27dafd8121924a4d327c9b38ce1ddd0e"
+      },
+      "binary_sha256": "e8fe0f3c98ec8ff5d4f0bab989f72e4f6aae5692a2ff49080b20ffc281ea4b22"
+    },
+    "uncapped": {
+      "compiled": true,
+      "exit": 1,
+      "log_sha256": "a1d109388a29ce670879ddb094eb697eebe04410b6dd4c20d68d957b67a49f8f",
+      "source_fragments": {
+        "unpack": "eec2675f3aac4ec372f02aa1e93c58d65f779d51f3292630b9859d46582b5142",
+        "scatter": "ab33a5980021ef9bd68d27f1be0870760991b33f133deba8a0461a3c2150f9bc",
+        "dualNormal": "6f29ee2576b08ca2c8992d5ccb0e1940aad5e315ff47d5260f88943e90bce6ca",
+        "resetLambda": "ee847fb744da9cb5c95dfb7952d6c1e1e5d22a07c95230ac70dccdadda064bd7",
+        "localTime": "e784317341b27b49a734021e4811628a139e7caa93be60aee10393c07e756ec3",
+        "timeStore": "1c886e186fefc877d6c05edad43ae60112db6329327196a89bac228911022f76",
+        "packetTraversal": "d8d4536f191dab579ec2e8ab48514f8e27dafd8121924a4d327c9b38ce1ddd0e"
+      },
+      "binary_sha256": "b6c3c297fa284aa41db5c9d24515b04b898c49e728aaebd4348ac59987fbb8e3"
+    },
+    "wrongLambda": {
+      "compiled": true,
+      "exit": 1,
+      "log_sha256": "570f787ebc1310523ac9508faeea461856c0d6d73c0f434f26501956d74059ec",
+      "source_fragments": {
+        "unpack": "eec2675f3aac4ec372f02aa1e93c58d65f779d51f3292630b9859d46582b5142",
+        "scatter": "ab33a5980021ef9bd68d27f1be0870760991b33f133deba8a0461a3c2150f9bc",
+        "dualNormal": "6f29ee2576b08ca2c8992d5ccb0e1940aad5e315ff47d5260f88943e90bce6ca",
+        "resetLambda": "ee847fb744da9cb5c95dfb7952d6c1e1e5d22a07c95230ac70dccdadda064bd7",
+        "localTime": "0e17831bca66e53a817f47f94a5537eca6994f064fd900796465b41cc769e54c",
+        "timeStore": "d970a790e28cc3afe57fafe982fc827b49b3cd5b09e3862058a9bb8206a5cf15",
+        "packetTraversal": "d8d4536f191dab579ec2e8ab48514f8e27dafd8121924a4d327c9b38ce1ddd0e"
+      },
+      "binary_sha256": "c01157831da3bc0b01805b7dab7012360576a6e9453b8609267d48637c6b51f9"
+    },
+    "noReset": {
+      "compiled": true,
+      "exit": 1,
+      "log_sha256": "b735ab9e7cfa87b266e37a300e257b696f59c38d4a14150bfe32724aa60b9643",
+      "source_fragments": {
+        "unpack": "eec2675f3aac4ec372f02aa1e93c58d65f779d51f3292630b9859d46582b5142",
+        "scatter": "ab33a5980021ef9bd68d27f1be0870760991b33f133deba8a0461a3c2150f9bc",
+        "dualNormal": "6f29ee2576b08ca2c8992d5ccb0e1940aad5e315ff47d5260f88943e90bce6ca",
+        "resetLambda": "782af97aef57c89f7b1800f571417f9bf01e1d08c1300673764e521d429b11ed",
+        "localTime": "e784317341b27b49a734021e4811628a139e7caa93be60aee10393c07e756ec3",
+        "timeStore": "d970a790e28cc3afe57fafe982fc827b49b3cd5b09e3862058a9bb8206a5cf15",
+        "packetTraversal": "d8d4536f191dab579ec2e8ab48514f8e27dafd8121924a4d327c9b38ce1ddd0e"
+      },
+      "binary_sha256": "eeede33b6b22561d610958e201175b117bffba69f22b39f1005f06d558c22ba7"
+    },
+    "wrongSign": {
+      "compiled": true,
+      "exit": 1,
+      "log_sha256": "118a63f7f9a8bd8d2fabd7a88569dc905b5a139b26580a5785b25e683882d011",
+      "source_fragments": {
+        "unpack": "eec2675f3aac4ec372f02aa1e93c58d65f779d51f3292630b9859d46582b5142",
+        "scatter": "f5efd93b019e29e47e9a8c561e0bb37d52562c510824afae210aa9bd5e59ac50",
+        "dualNormal": "6f29ee2576b08ca2c8992d5ccb0e1940aad5e315ff47d5260f88943e90bce6ca",
+        "resetLambda": "ee847fb744da9cb5c95dfb7952d6c1e1e5d22a07c95230ac70dccdadda064bd7",
+        "localTime": "e784317341b27b49a734021e4811628a139e7caa93be60aee10393c07e756ec3",
+        "timeStore": "d970a790e28cc3afe57fafe982fc827b49b3cd5b09e3862058a9bb8206a5cf15",
+        "packetTraversal": "d8d4536f191dab579ec2e8ab48514f8e27dafd8121924a4d327c9b38ce1ddd0e"
+      },
+      "binary_sha256": "520d0a27399b03fb0ed50e7444e2e18c872898ee8d11d8cfcda410742bf63d14"
+    },
+    "skipEnergy": {
+      "compiled": true,
+      "exit": 1,
+      "log_sha256": "0e1b72f2f8c95bdc0442203051cd7dc93d1db3d146a50d5d0ee9627b709c81f2",
+      "source_fragments": {
+        "unpack": "eec2675f3aac4ec372f02aa1e93c58d65f779d51f3292630b9859d46582b5142",
+        "scatter": "3c0d17788328e22a1fa44c2702fd537103b351626388ba7ea695b285a9298e4c",
+        "dualNormal": "6f29ee2576b08ca2c8992d5ccb0e1940aad5e315ff47d5260f88943e90bce6ca",
+        "resetLambda": "ee847fb744da9cb5c95dfb7952d6c1e1e5d22a07c95230ac70dccdadda064bd7",
+        "localTime": "e784317341b27b49a734021e4811628a139e7caa93be60aee10393c07e756ec3",
+        "timeStore": "d970a790e28cc3afe57fafe982fc827b49b3cd5b09e3862058a9bb8206a5cf15",
+        "packetTraversal": "d8d4536f191dab579ec2e8ab48514f8e27dafd8121924a4d327c9b38ce1ddd0e"
+      },
+      "binary_sha256": "54f488c2c54b329609e57ec6a1f6e980b76f0b4eb154045e911cd99c640c1a5c"
+    },
+    "wrongBase": {
+      "compiled": true,
+      "exit": 1,
+      "log_sha256": "a7cb1f260601297311233aa0c35ea5d1ecf7bafccbd3f19fefdd83cb799f795d",
+      "source_fragments": {
+        "unpack": "eec2675f3aac4ec372f02aa1e93c58d65f779d51f3292630b9859d46582b5142",
+        "scatter": "ab33a5980021ef9bd68d27f1be0870760991b33f133deba8a0461a3c2150f9bc",
+        "dualNormal": "6f29ee2576b08ca2c8992d5ccb0e1940aad5e315ff47d5260f88943e90bce6ca",
+        "resetLambda": "ee847fb744da9cb5c95dfb7952d6c1e1e5d22a07c95230ac70dccdadda064bd7",
+        "localTime": "e784317341b27b49a734021e4811628a139e7caa93be60aee10393c07e756ec3",
+        "timeStore": "d970a790e28cc3afe57fafe982fc827b49b3cd5b09e3862058a9bb8206a5cf15",
+        "packetTraversal": "cb9725b845deb9c00902ac9fb2e9cdd1929a32bea5943da5ae134a4786a8a537"
+      },
+      "binary_sha256": "c28a790117cccac09e559ef8cdd27143642225a6c7b889bfc1834ccf7afcb1e2"
+    },
+    "activePadding": {
+      "compiled": true,
+      "exit": 1,
+      "log_sha256": "77d2882fa796e94825c6377b21ae26f919e4edf2c2d0e2807a8abee29340d226",
+      "source_fragments": {
+        "unpack": "eec2675f3aac4ec372f02aa1e93c58d65f779d51f3292630b9859d46582b5142",
+        "scatter": "ab33a5980021ef9bd68d27f1be0870760991b33f133deba8a0461a3c2150f9bc",
+        "dualNormal": "6f29ee2576b08ca2c8992d5ccb0e1940aad5e315ff47d5260f88943e90bce6ca",
+        "resetLambda": "ee847fb744da9cb5c95dfb7952d6c1e1e5d22a07c95230ac70dccdadda064bd7",
+        "localTime": "e784317341b27b49a734021e4811628a139e7caa93be60aee10393c07e756ec3",
+        "timeStore": "d970a790e28cc3afe57fafe982fc827b49b3cd5b09e3862058a9bb8206a5cf15",
+        "packetTraversal": "204a5b26f88dd5f3b18f10db40ea913a83e6bafaaccd8117a2525e5d0f3b2fb3"
+      },
+      "binary_sha256": "e3ccb7331707b4be20c69e747b5db09a777311f8780956e53257b7aea224d549"
+    },
+    "skipLast": {
+      "compiled": true,
+      "exit": 1,
+      "log_sha256": "eb7259a65e38c1a13a612ceae32eb1812b0fe12235aaa605d8aa186a833be1bc",
+      "source_fragments": {
+        "unpack": "eec2675f3aac4ec372f02aa1e93c58d65f779d51f3292630b9859d46582b5142",
+        "scatter": "ab33a5980021ef9bd68d27f1be0870760991b33f133deba8a0461a3c2150f9bc",
+        "dualNormal": "6f29ee2576b08ca2c8992d5ccb0e1940aad5e315ff47d5260f88943e90bce6ca",
+        "resetLambda": "ee847fb744da9cb5c95dfb7952d6c1e1e5d22a07c95230ac70dccdadda064bd7",
+        "localTime": "e784317341b27b49a734021e4811628a139e7caa93be60aee10393c07e756ec3",
+        "timeStore": "d970a790e28cc3afe57fafe982fc827b49b3cd5b09e3862058a9bb8206a5cf15",
+        "packetTraversal": "a42d161c919c74ccc63e26429327152b48641ab85e1fbf78cbd3b9dfe9f1ab9a"
+      },
+      "binary_sha256": "bdb9ecb3731bdaee3050a883f42a65ebf58fb396ca19b5ffb576d12073ddcb6a"
+    },
+    "normalSign": {
+      "compiled": true,
+      "exit": 1,
+      "log_sha256": "9515e992145244a6fb8dbcac2751c9db05db2dc69162d92445e8885f9d047487",
+      "source_fragments": {
+        "unpack": "eec2675f3aac4ec372f02aa1e93c58d65f779d51f3292630b9859d46582b5142",
+        "scatter": "ab33a5980021ef9bd68d27f1be0870760991b33f133deba8a0461a3c2150f9bc",
+        "dualNormal": "4b7a3a19ba373473034861926fb89033ea33db07d58d19cddfd6d19812c1117d",
+        "resetLambda": "ee847fb744da9cb5c95dfb7952d6c1e1e5d22a07c95230ac70dccdadda064bd7",
+        "localTime": "e784317341b27b49a734021e4811628a139e7caa93be60aee10393c07e756ec3",
+        "timeStore": "d970a790e28cc3afe57fafe982fc827b49b3cd5b09e3862058a9bb8206a5cf15",
+        "packetTraversal": "d8d4536f191dab579ec2e8ab48514f8e27dafd8121924a4d327c9b38ce1ddd0e"
+      },
+      "binary_sha256": "e47e60acaae92061e7273de40151e56bf840e9948c86dafc0ea1b4c346fe1e92"
+    }
+  },
+  "production_patches": [],
+  "source_commit": "d162016382f0c122433000c114e88d808b48f7a7",
+  "test_sha256": "3ebecea3726373d8b6b0de73a8ea6ca53a6dbad5e99e6f23b5db9b801d93ac0b",
+  "limitations": "Finite double observations in explicit mock interfaces. No full C++ translation, heap, libm or compiler theorem. Mutants are hypothetical, not production defects."
+}

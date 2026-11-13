@@ -1,0 +1,17 @@
+name = "su2interior"
+version = "0.1.0"
+defaultTargets = ["SU2Interior", "InteriorAudit"]
+[leanOptions]
+autoImplicit = false
+warningAsError = true
+[[require]]
+name = "su2preprocessing"
+path = "../Preprocessing"
+[[require]]
+name = "cfdlean"
+git = "https://github.com/rois1995/CFD_Lean.git"
+rev = "c92c0f66360f85c0a3339ab9b30fc00c39ee5f93"
+[[lean_lib]]
+name = "SU2Interior"
+[[lean_lib]]
+name = "InteriorAudit"
