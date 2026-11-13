@@ -6,7 +6,7 @@
     "sha256": "30593444427789626616174c71fe44cdb3ecc7f5c8b557328c77b1615122a59c",
     "bytes": 126390376
   },
-  "latest_test": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved485_reverse_surface_corrections_serial_20261113T123419_3117385",
+  "latest_test": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved488_corrected_surface_corrections_serial_20261113T133552_3269168",
   "latest_test_published": false,
   "provisional": true,
   "final_mesh_accepted": false,
@@ -16,26 +16,59 @@
     "1": "SYMMETRY",
     "2": "WING3D"
   },
+  "density": {
+    "field": "Density_seed_reference_interp",
+    "units": "raw saved restart Density units",
+    "scope": "Parametric visualization sampling of the saved pre-transfer CFD seed; not an adapted CFD solution or conservative transfer.",
+    "source_restart": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_bl_inputs/rans_metric_entry364_v1/baseline_sa_seed.dat",
+    "source_restart_sha256": "af7ade468dc40cd39dbe9238248e50057cdd151a64fef92fda957677aa3f6cae",
+    "seed_provenance_sha256": "2984e9d4b7f0e4b82bd4a73b333d871cc2dd1e6d340683f8d3f4aa2f33da6381",
+    "seed_qualification_sha256": "4658257505d2a21d03bb5c6e7caffcc13e6d511993c2dad5b0a54bb70e504808",
+    "restart_reader_sha256": "38ee0fe9fc60d7b29ab796303d8c5cec2770ad1beb06e2e5b76d5c687d495f92",
+    "native_reference": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/prepared_reference441.native_ref",
+    "native_reference_sha256": "9cdbc63cb6853f2c8b052bb0549f7b561299bfe82cd21fd6b792d2600dadf7e9",
+    "parameters": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved485_saved_surface_corrections_serial_20261113T120504_3046999/trajectory_working_parameters.bin",
+    "parameters_sha256": "bc44826ff07a88c1f5a78ebd512017c217113a621b97a216e9148912f33ad684",
+    "restart_points": 61330,
+    "boundary_points": 24700,
+    "binding_dimension_counts": {
+      "0": 24101,
+      "1": 121,
+      "2": 478
+    },
+    "exact_original_nodes_checks": 24479,
+    "exact_vertex_boundary_bindings": 24101,
+    "roundoff_weight_adjustments": 23,
+    "density_range": [
+      0.1490634736919159,
+      1.5386073794422008
+    ],
+    "reference_edges": 73431,
+    "reference_facets": 48954,
+    "tolerance": 0.0001
+  },
+  "density_helper_sha256": "9a0a47cdf50a3d5f995a740759e63e7a53b74c68d604c3e87ef28336c2017c1b",
+  "density_preview_sha256": "9730a7b6f31a43a1b3501eee8469e76e80c38f9fac6de0f9157ee36bff25342e",
   "outputs": {
     "all_boundaries.vtu": {
       "path": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/inspection_surface485/all_boundaries.vtu",
-      "sha256": "40332c2fe4b6ef24867e4b837546f0901fcf2cb0205b3ecf7e43524d1738b1c9",
+      "sha256": "c7d1ef1f1630edfe2509ead541d29b7222d9125896f2c2a0f15bc6d0b20f0f73",
       "points": 24700,
       "triangles": 49396,
-      "bytes": 3228235,
+      "bytes": 3465349,
       "readback_verified": true
     },
     "wing_surface.vtu": {
       "path": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/inspection_surface485/wing_surface.vtu",
-      "sha256": "e0b26977481749a00bdd214e2e211dd29a8344e593ea48ea14594fd09d71b527",
+      "sha256": "4b0ef592b81f88edb019f73b3ff8c0618755694dc4e9280f591414dbdc204283",
       "points": 19727,
       "triangles": 39243,
-      "bytes": 2557475,
+      "bytes": 2749549,
       "readback_verified": true
     }
   },
-  "preview_sha256": "651672bbc7536ca0d721e3792e13f11fe2662d8b7a591917af00b8aa13c100b5",
-  "export_script_sha256": "d8dd3c951b9a25dc7af72548b21b7cc696a0489c7d8722277f0bca694558dad4",
+  "preview_sha256": "7fdccb27d20cdec743b7ba8af38bb6eec2d15cf6bdf6959f13216ce8ed313759",
+  "export_script_sha256": "97b82f0d9d246365ad20619a4a8a7fe408c309a1c35f63f76c9fc9510055a343",
   "metric_semantics": "transported_sensor_tensor is the current 3D nodal Mach-sensor tensor, restricted to surface nodes; NOT the composed flow/BL target or tangential planning tensor. Full policy/target remains in saved_surface485_checkpoint.json.",
   "quality_semantics": "Global q/J/geometry certification is unavailable for this saved state; no fabricated quality arrays exported.",
   "stage_height": 6.4e-05,
