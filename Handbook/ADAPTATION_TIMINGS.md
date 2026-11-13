@@ -1,6 +1,6 @@
 # Adaptation timings and computational work
 
-Updated2026-11-13 after480 query decision. No owned heavy workload live; all terminal receipts verified. HANDOFF owns provenance.
+Updated2026-11-13:481production magnitude correction BUILD LIVE/FROZEN; HANDOFF and R/build481_status.json own actual handles. Previous480/479 terminal receipts verified.
 Build476642.982s under contention; current-input trajectory228.411s/609828assertions,
 legacy regression264.200s/610217assertions. Bothterminal/pins/actualhandles verified.
 Production473/CFD unchanged. Current trajectory stalls after5pubs/24calls; no readiness.
@@ -12,6 +12,18 @@ Build473305.914s; focused62.658s/52cases/5688assertions; MPI185.914s/41cases eve
 [stage contract](ADAPTATION_CONNECTED_PATCH_TRAJECTORY_20261113.md) owns acceptance/stalls.
 R=`integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57`.
 
+
+##481 active connected correction — unqualified
+
+Build481live nice19/j3/libs1; launch52.335GBavailable, load12.47/10.39/7.13.
+47Ninja tasks planned from the shared header/API change. Costs/results pending;
+no timing, work-saving or useful-construction improvement claimed. Exact sourcepins
+and CPU/RSS samples captured by existing build helper. Preserve frozen sources.
+Shared fixed magnitude-query purpose replaces473's2tauheuristic, keeping physicaltau,
+ordinary classification, final bidirectional certificates and every budget/gate.
+Need common old/fresh complete-patch results and connected useful progress;480's
+asymmetric counterfactual alone is insufficient. Source review and test scope in
+R/geometry_magnitude481_fidelity.json. Reuse current476coherentstate/441target/height.
 
 ##478–480 completed construction comparison and certification decision
 

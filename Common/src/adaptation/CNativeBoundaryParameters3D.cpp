@@ -370,10 +370,10 @@ double BoundaryParameterState::EntityFaceError(Id facet,const std::array<Surface
   if(budget)budget->CheckTime();
   const auto& state=*this;const auto& g=*geometry;
   auto tighten=[&](const std::vector<Id>& support,double upper) {
-    const auto ceiling=2*state.GeometryTolerance();
-    // An outside-witness bound classifies safely but can be too loose for old/new fitting merit.
-    if(std::isfinite(ceiling)&&upper>ceiling)
-      upper=std::min(upper,g.BoundPhysicalSurface(support,{p},ceiling,*budget));
+    // Old, fresh and census fitting merit need error magnitude, not an early outside classification.
+    if(upper>state.GeometryTolerance())
+      upper=std::min(upper,g.BoundPhysicalSurface(support,{p},state.GeometryTolerance(),*budget,
+          MappedFacetReference::SurfaceBoundPurpose::ErrorMagnitude));
     return std::max(maximum,upper);
   };
   bool direct=true;for(const auto& b:binding)direct=direct&&g.Supports(facet,b);

@@ -271,6 +271,50 @@ TEST_CASE("Curved target uncertainty refines without relaxing surface tolerance"
   CHECK(guidance.geometry->BoundPhysicalSurface({0},triangles,tolerance,reordered)>=.99*tolerance);
 }
 
+TEST_CASE("Geometry magnitude bounds retain complete domains and separate classification memo", "[NativeGeometryBackend3D][NativeSurfaceMemo3D][NativeGeometryMagnitude3D]") {
+  BackendFixture fixture(true), recomputed(true);
+  using Purpose=MappedFacetReference::SurfaceBoundPurpose;
+  const auto center=fixture.geometry->Realize(fixture.geometry->FacetPoint(0,1./3,1./3));
+  constexpr double tolerance=1e-4;
+  auto triangle=[&](double gap){return std::array<Point,3>{{{center.x,center.y,center.z-gap},
+      {center.x+1e-6,center.y,center.z-gap},{center.x,center.y+1e-6,center.z-gap}}};};
+  std::vector<std::array<Point,3>> physical{triangle(4*tolerance),triangle(30*tolerance)};
+  auto fast=BackendBudget();const auto classification=fixture.geometry->BoundPhysicalSurface({0},physical,tolerance,fast);
+  const auto before=fixture.geometry->GeometryStatsSnapshot();
+  auto measured=BackendBudget();const auto upper=fixture.geometry->BoundPhysicalSurface({0},physical,tolerance,measured,Purpose::ErrorMagnitude);
+  CHECK(upper>=30*tolerance);CHECK(upper<=31*tolerance+2e-6);
+  auto after=fixture.geometry->GeometryStatsSnapshot();CHECK(after.memo_union_misses==before.memo_union_misses+1);
+  auto warm=BackendBudget();CHECK(fixture.geometry->BoundPhysicalSurface({0},physical,tolerance,warm,Purpose::ErrorMagnitude)==upper);
+  CHECK(fixture.geometry->GeometryStatsSnapshot().memo_union_hits==after.memo_union_hits+1);
+  auto cold=BackendBudget();const auto oracle=recomputed.geometry->BoundPhysicalSurface({0},physical,tolerance,cold,Purpose::ErrorMagnitude);
+  CHECK(oracle==Approx(upper).margin(1e-12));
+  auto unchanged=BackendBudget();CHECK(fixture.geometry->BoundPhysicalSurface({0},physical,tolerance,unchanged)==classification);
+  auto changed=physical;changed.front().front().z=std::nextafter(changed.front().front().z,-INFINITY);
+  const auto identity_before=fixture.geometry->GeometryStatsSnapshot();auto coordinates=BackendBudget();
+  CHECK(fixture.geometry->BoundPhysicalSurface({0},changed,tolerance,coordinates,Purpose::ErrorMagnitude)>=30*tolerance);
+  auto tighter=BackendBudget();
+  CHECK(fixture.geometry->BoundPhysicalSurface({0},physical,tolerance/2,tighter,Purpose::ErrorMagnitude)>=30*tolerance);
+  CHECK(fixture.geometry->GeometryStatsSnapshot().memo_union_misses==identity_before.memo_union_misses+2);
+  std::reverse(physical.begin(),physical.end());auto reordered=BackendBudget();
+  const auto reverse=fixture.geometry->BoundPhysicalSurface({0},physical,tolerance,reordered,Purpose::ErrorMagnitude);
+  CHECK(reverse>=30*tolerance);CHECK(reverse<=31*tolerance+2e-6);
+  for(const auto gap:{.99*tolerance,1.01*tolerance}) {
+    auto budget=BackendBudget();const auto value=fixture.geometry->BoundPhysicalSurface({0},{triangle(gap)},tolerance,budget,Purpose::ErrorMagnitude);
+    CHECK((value<=tolerance)==(gap<tolerance));CHECK(value>=gap);
+  }
+  auto different_body=BackendBudget();
+  CHECK(fixture.geometry->BoundPhysicalSurface({100},{triangle(4*tolerance)},tolerance,different_body,Purpose::ErrorMagnitude)>9);
+  auto exhausted=BackendBudget();exhausted.maximum_work=0;
+  CHECK_THROWS(fixture.geometry->BoundPhysicalSurface({0},physical,tolerance,exhausted,Purpose::ErrorMagnitude));
+  CHECK(exhausted.work_exhausted);CHECK(exhausted.caller_bytes==0);
+  auto storage=BackendBudget();storage.maximum_bytes=1;
+  CHECK_THROWS(fixture.geometry->BoundPhysicalSurface({0},physical,tolerance,storage,Purpose::ErrorMagnitude));
+  CHECK(storage.caller_bytes==0);
+  auto expired=BackendBudget();expired.within_time=[] {return false;};
+  CHECK_THROWS(fixture.geometry->BoundPhysicalSurface({0},physical,tolerance,expired,Purpose::ErrorMagnitude));
+  CHECK(expired.time_exhausted);
+}
+
 TEST_CASE("Physical surface bounds reuse only identical immutable queries", "[NativeGeometryBackend3D][NativeSurfaceMemo3D]") {
   BackendFixture fixture(true,true);const auto& f=fixture.facets.front();
   const std::vector<SU2Native3D::Id> facets{0,1};
@@ -509,6 +553,7 @@ TEST_CASE("Fresh entity face bounds preserve correspondence and coordinate inval
   const auto bound=entity->EntityFaceError(face.id,binding,actual,&budget);
   CHECK(bound<=.01);CHECK(bound==reference->SurfaceError(face.id,actual));
   auto moved=actual;moved[0].z+=.05;
+  CHECK(entity->EntityFaceError(face.id,binding,moved,nullptr)==fixture.geometry->SurfaceError(face.id,binding,moved));
   const auto before=fixture.geometry->GeometryStatsSnapshot();
   const auto outside=entity->EntityFaceError(face.id,binding,moved,&budget);
   CHECK(outside>.02);

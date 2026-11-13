@@ -3,7 +3,7 @@
 Read [HANDOFF_Codex.md](HANDOFF_Codex.md) for actual handles/provenance and
 [the next construction decision](Handbook/ADAPTATION_GEOMETRY_MAGNITUDE_DECISION_20261113.md)
 for evidence, hypothesis, support/reject/unresolved outcomes and coverage. Goal ACTIVE;
-one curved-BL cycle. All current owned workloads terminal, independently verified.
+one curved-BL cycle. Build481 is LIVE/FROZEN; HANDOFF owns handles. All prior workloads terminal, independently verified.
 
 Production473 remains last qualified production. Build479 changes tests only;
 Euler293complete workflow/checkpoints remain preserved. Reuse476coherent saved
@@ -25,7 +25,7 @@ tighter upper would reduce complete fresh excess9.45926e-8 versus preserved old
 not improvement under a common old/fresh policy. Do not infer physical worsening or
 missing operators from the existing loose upper-score refusals.
 
-Next: review and test ONE shared, purpose-correct geometry error-magnitude policy.
+Next: preserve481frozenbuild; its ONE shared, purpose-correct geometry error-magnitude policy passed precompile review but remains UNQUALIFIED. Verify actualterminal handles/pins, then use check_geometry_magnitude481.py and check_saved_surface_corrections481.py.
 Keep ordinary classification and final certification unchanged, exact purpose-aware
 memo identity/accounting, complete-domain bounds, prepared geometry reuse and bounded
 refinement/fail-closed exhaustion. Compare BOTHold/fresh/census consistently; no new

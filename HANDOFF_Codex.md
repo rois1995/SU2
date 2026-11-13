@@ -12,10 +12,39 @@ preserves earlier details; it is NOT live state.
 
 ## Live state and provenance
 
-No owned heavy workload is live. Build479 and query480 are independently TERMINAL;
-all actual PID/start identities and source/runtime/input pins verified. Production473/
-CFD unchanged. Latest test SHA `2868a8510d4b3acfd539a9af52eac51a5f2ac03cbb11d457a46b64024b27fffd`.
-Build479 PASS357.852s; R/build479_status/source_pins/terminal_handles.json own provenance.
+Build481 is LIVE, execsession55868, wrapper2418037/start5003738,
+Ninja2418136/start5003941. ALLcompiled C++/includes FROZEN. R/build481_status.json
+owns actual handles; independently recheck them before source edits/restarts.
+Build launched nice19/j3/libs1 with52.335GBavailable, hostload12.47/10.39/7.13.
+Latest completed build479 TESTONLY; CFD still production473. Prior checkpoint74c90c962b.
+Build479 and query480 independently TERMINAL; actual identities/source/runtime/input
+pins rechecked BEFORE481edits.479test SHA
+`2868a8510d4b3acfd539a9af52eac51a5f2ac03cbb11d457a46b64024b27fffd`
+is historical while481builds; do not infer a completed481binary from it.
+
+481 is ONE UNQUALIFIED production correction to purpose-correct error magnitude.
+Keep classification/finalbidirectional certification unchanged. Explicit enum purpose
+and additional exact memo word separate the measured bound; account that word and
+all prepared geometry as before. Magnitude retains U=max(finished,allqueuedupper)
+and only returns outside when L>tau and U-L<=tau; approximation-floor uncertainty
+refines existing target, depth/work/time/storage failclosed. Shared EntityFaceError
+uses the fixed policy for old/fresh/census at physicaltau, replacing473's2tauquery.
+No-budget direct result, affine floors, support/association/body/height rules, phase,
+construction, ownership/publication, target and all budgets/gates unchanged.
+R/geometry_magnitude481_fidelity.json records primary+read-only precompile review;
+no correctness blocker found. New focused tests cover fullsourcequeue, near-threshold
+curvature, separatebodies, purpose/cache/coldrecompute, coordinate/tolerance changes,
+no-budget direct fallback and exhaustion. Two diagnostic oracles follow the shared
+policy. No target/geometry persistence format change. Production source UNVALIDATED.
+
+After481terminal/pin verification: R/check_geometry_magnitude481.py runs affected
+focusedserial tags with explicit runtime_20261113_474. Then
+R/check_saved_surface_corrections481.py reuses EXACT476state/SAME441target/stageheight,
+R4/R5/control fixed8slots/24total, common old/fresh policy. No repeatedupstreamsolve.
+If useful, test COMPLETEconnected trajectory under existing bounds, then ONEmeaningful
+MPI ownership/publication milestone. Reject/revise practical route if no useful
+progress or cost prevents it; do not raise limits or infer physical regression from
+unresolved bounds. Surface/firstrow readiness is NOTestablished.
 Read [construction decision/fidelity](Handbook/ADAPTATION_SURFACE_CORRECTION_DECISION_20261113.md)
 and [next certification decision](Handbook/ADAPTATION_GEOMETRY_MAGNITUDE_DECISION_20261113.md).
 
@@ -46,7 +75,7 @@ R/geometry_progress480_assessment.json. This demonstrates conservative admission
 uncertainty on ONEsample, not a new accepted candidate: compare BOTHsides under the
 same policy before production conclusions. No claimed timing gain. Next decision is
 purpose-correct magnitude certification, not more physical operator variants; preserve
-same476state/441target/profile/stageheight and existing limits. No production edit yet.
+same476state/441target/profile/stageheight and existing limits. 481implements the proposed shared policy; UNQUALIFIED until the tests above finish.
 
 Current476state is reused directly:61816nodes/304521tets, transported nodal metrics,
 complete parameters, SAME441target andstage0h6.4e-5. Prepared47,601,773Breference bytes
@@ -68,7 +97,7 @@ Source audit: ReconstructSplitPatch and Reconnect preserve the rejected surface;
 MoveVertex/collapse have real surface freedoms. PrepareSurface→Adapt has EMPTY
 composition: arithmetic mean, NOConstrainMovePoint; ChangePhase clears geometry_repairs
 and retains Construction/provisional heights, q/Junranked. Do not implement the false
-preconstraint bypass hypothesis for this surface stage. No production correction yet.
+preconstraint bypass hypothesis for this surface stage. No newly qualified production correction yet.
 
 Build476/trajectories qualify only their documented diagnostic scope: current228.411s/
 609828assertions/1783pins; legacy264.200s/610217assertions/1782pins. All5actualruntime
@@ -193,10 +222,9 @@ restart. Source/input/output hashes are retained. Original293checkpoints22payloa
 478has now exercised all three planned contexts: actual mapped moves and legal
 collapse freedoms, plus skin-preserving reconnection control. Active geometry descent
 remains unresolved;479qualifies the clean control and480demonstrates one loose-bound
-obstruction. See the linked next-certification decision. Before another build, review
-the actual shared error-magnitude policy/callers/cache/resource diff against that
-contract. Then compare BOTHold/fresh under the same policy on saved476state and test
-the complete trajectory. Do not repeat physical variants or infer operator failure
+obstruction. See the linked next-certification decision. 481actual shared error-magnitude diff/callers/cache/resource review is complete
+before compile. Preserve its frozenbuild, then compare BOTHold/fresh under the same
+policy on saved476state and test the complete trajectory. Do not repeat physical variants or infer operator failure
 from loose upper bounds. No new production correction or MPI capability yet.
 
 Geometry closure, directional tangential delivery and rebuilt constrained/blended

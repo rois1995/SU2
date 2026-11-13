@@ -222,7 +222,14 @@ TEST_CASE("Captured M6 feature-star tests existing collapse against reconstructe
            <<",\"scope_build_work\":"<<after.scope_build_work-before.scope_build_work<<"}\n";
         auto scoped=reference->WithAtlasReservation(query);
         const auto scoped_before=authority.GeometryStatsSnapshot();
-        CHECK(scoped->SurfaceDeviation(probe.facet,physical)==(direct<=1e-4?direct:std::min(direct,bound)));
+        double expected=direct<=1e-4?direct:std::min(direct,bound);
+        if(expected>1e-4)expected=std::min(expected,authority.BoundPhysicalSurface(support,triangles,1e-4,query,
+            SU2NativeGeometry::MappedFacetReference::SurfaceBoundPurpose::ErrorMagnitude));
+        const auto affine=reference->Affine().find(probe.facet);
+        if(affine!=reference->Affine().end())for(auto point:physical)
+          expected=std::max(expected,SU2NativeGeometry::AffineChart(affine->second).ErrorBound(point));
+        const auto measured=scoped->SurfaceDeviation(probe.facet,physical);
+        CHECK(measured==Approx(expected).margin(1e-14));CHECK((measured<=1e-4)==(expected<=1e-4));
         const auto scoped_after=authority.GeometryStatsSnapshot();
         if(direct<=1e-4)CHECK(scoped_after.upper_calls==scoped_before.upper_calls);
         if(probe.cell==152256924) {

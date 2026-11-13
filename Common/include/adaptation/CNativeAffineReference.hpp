@@ -186,9 +186,12 @@ class MappedFacetReference {
   /*! Model enclosure for source tubes; does not certify the reverse distance or final tolerance. */
   SurfaceUnionBounds BoundModelSurface(const std::vector<Id>& model_facets,
       const std::vector<std::array<Point,3>>& physical,double tolerance,AtlasBudget&)const;
-  /*! One-sided bound for a physical patch against a model union; omitted supports only weaken admission. */
+  enum class SurfaceBoundPurpose { Classification, ErrorMagnitude };
+  /*! One-sided bound; ErrorMagnitude also resolves outside error to the prescribed tolerance.
+   * Omitted supports only weaken admission. Neither purpose certifies the reverse distance. */
   double BoundPhysicalSurface(const std::vector<Id>& model_facets,
-      const std::vector<std::array<Point,3>>& physical,double tolerance,AtlasBudget&)const;
+      const std::vector<std::array<Point,3>>& physical,double tolerance,AtlasBudget&,
+      SurfaceBoundPurpose purpose=SurfaceBoundPurpose::Classification)const;
   /*! Convex hull of an immutable curved patch and current source face, including realization error. */
   class SourcePatch {
    public:
@@ -292,9 +295,9 @@ class MappedFacetReference {
   uint64_t Version()const{return version;}
  private:
   SurfaceUnionBounds QuerySurfaceUnion(const std::vector<Id>&,
-      const std::vector<std::array<Point,3>>&,double,AtlasBudget&,bool include_model,bool include_mesh)const;
+      const std::vector<std::array<Point,3>>&,double,AtlasBudget&,bool include_model,bool include_mesh,bool magnitude=false)const;
   SurfaceUnionBounds QuerySurfaceUnionAtResolution(const std::vector<Id>&,
-      const std::vector<std::array<Point,3>>&,double,AtlasBudget&,bool include_model,bool include_mesh,double resolution)const;
+      const std::vector<std::array<Point,3>>&,double,AtlasBudget&,bool include_model,bool include_mesh,double resolution,bool magnitude)const;
 
   std::shared_ptr<const SU2Native3D::PlanarReference> reference;
   std::map<Id,double> errors;
