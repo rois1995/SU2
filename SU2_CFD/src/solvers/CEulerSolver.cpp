@@ -3359,9 +3359,87 @@ void CEulerSolver::Source_Residual(CGeometry *geometry, CSolver **solver_contain
       su2double time = 0.0;
       if (config->GetTime_Marching() != TIME_MARCHING::STEADY) time = config->GetPhysicalTime();
 
+      /*--- MMS_SOURCE_DUAL_QUADRATURE: the source of node i is the integral of s over the dual cell V_i that the
+       residual uses. In 2D, V_i is the union of the triangles (x_i, edge midpoint, element dual point) built by
+       CPhysicalGeometry::SetControlVolume; the element dual point is the moved one of MOD_CENTROIDS (or the median
+       one). Each triangle gets the 7-point degree-5 rule. The source is steady, so it is computed once. ---*/
+      const bool dualQuad = config->GetMMS_Source_Dual_Quad() && (iMesh == MESH_0);
+      if (dualQuad) {
+        BEGIN_SU2_OMP_SAFE_GLOBAL_ACCESS {
+          if (MMSSourceDual.empty()) {
+            if (nDim != 2)
+              SU2_MPI::Error("MMS_SOURCE_DUAL_QUADRATURE is for 2D grids only.", CURRENT_FUNCTION);
+            if (config->GetTime_Marching() != TIME_MARCHING::STEADY || config->GetDynamic_Grid())
+              SU2_MPI::Error("MMS_SOURCE_DUAL_QUADRATURE needs a steady problem on a fixed grid.", CURRENT_FUNCTION);
+
+            MMSSourceDual.assign(size_t(nPoint) * nVar, 0.0);
+            vector<su2double> quadVol(nPoint, 0.0);
+
+            /*--- 7-point degree-5 rule on a triangle (barycentric points, weights sum to 1). ---*/
+            const su2double r15 = sqrt(15.0);
+            const su2double a1 = (9.0 - 2.0 * r15) / 21.0, b1 = (6.0 + r15) / 21.0;
+            const su2double a2 = (9.0 + 2.0 * r15) / 21.0, b2 = (6.0 - r15) / 21.0;
+            const su2double w0 = 9.0 / 40.0, w1 = (155.0 + r15) / 1200.0, w2 = (155.0 - r15) / 1200.0;
+            const su2double qb[7][3] = {{1.0 / 3.0, 1.0 / 3.0, 1.0 / 3.0},
+                                        {a1, b1, b1}, {b1, a1, b1}, {b1, b1, a1},
+                                        {a2, b2, b2}, {b2, a2, b2}, {b2, b2, a2}};
+            const su2double qw[7] = {w0, w1, w1, w1, w2, w2, w2};
+
+            vector<su2double> sq(nVar, 0.0);
+            auto addTriangle = [&](unsigned long iPoint, const su2double* P, const su2double* M, const su2double* C) {
+              const su2double area = 0.5 * fabs((M[0] - P[0]) * (C[1] - P[1]) - (M[1] - P[1]) * (C[0] - P[0]));
+              quadVol[iPoint] += area;
+              for (int q = 0; q < 7; q++) {
+                const su2double x[2] = {qb[q][0] * P[0] + qb[q][1] * M[0] + qb[q][2] * C[0],
+                                        qb[q][0] * P[1] + qb[q][1] * M[1] + qb[q][2] * C[1]};
+                VerificationSolution->GetMMSSourceTerm(x, time, sq.data());
+                for (auto iVar = 0u; iVar < nVar; iVar++)
+                  MMSSourceDual[iPoint * nVar + iVar] += qw[q] * area * sq[iVar];
+              }
+            };
+
+            for (auto iElem = 0ul; iElem < geometry->GetnElem(); iElem++) {
+              const auto* el = geometry->elem[iElem];
+              const su2double* C = el->GetCG();
+              for (unsigned short iFace = 0; iFace < el->GetnFaces(); iFace++) {
+                const auto iPoint = el->GetNode(el->GetFaces(iFace, 0));
+                const auto jPoint = el->GetNode(el->GetFaces(iFace, 1));
+                const su2double* Pi = geometry->nodes->GetCoord(iPoint);
+                const su2double* Pj = geometry->nodes->GetCoord(jPoint);
+                const su2double M[2] = {0.5 * (Pi[0] + Pj[0]), 0.5 * (Pi[1] + Pj[1])};
+                addTriangle(iPoint, Pi, M, C);
+                addTriangle(jPoint, Pj, M, C);
+              }
+            }
+
+            /*--- The sub-triangles must rebuild the dual volume of SetControlVolume. ---*/
+            passivedouble maxRel = 0.0;
+            for (auto iPoint = 0ul; iPoint < nPointDomain; iPoint++) {
+              const su2double V = geometry->nodes->GetVolume(iPoint);
+              maxRel = max(maxRel, SU2_TYPE::GetValue(fabs(quadVol[iPoint] - V) / V));
+            }
+            passivedouble maxRelAll = maxRel;
+            SU2_MPI::Allreduce(&maxRel, &maxRelAll, 1, MPI_DOUBLE, MPI_MAX, SU2_MPI::GetComm());
+            if (rank == MASTER_NODE)
+              cout << "MMS_SOURCE_DUAL_QUADRATURE: max |sum of sub-triangles - dual volume| / dual volume = "
+                   << maxRelAll << endl;
+            if (maxRelAll > 1e-10)
+              SU2_MPI::Error("MMS_SOURCE_DUAL_QUADRATURE: the sub-triangles do not rebuild the dual volume.",
+                             CURRENT_FUNCTION);
+          }
+        }
+        END_SU2_OMP_SAFE_GLOBAL_ACCESS
+      }
+
       /*--- Loop over points ---*/
       SU2_OMP_FOR_DYN(omp_chunk_size)
       for (auto iPoint = 0ul; iPoint < nPointDomain; iPoint++) {
+
+        if (dualQuad) {
+          for (auto iVar = 0ul; iVar < nVar; iVar++)
+            LinSysRes(iPoint,iVar) -= MMSSourceDual[iPoint * nVar + iVar];
+          continue;
+        }
 
         /*--- Get control volume size. ---*/
         su2double Volume = geometry->nodes->GetVolume(iPoint);

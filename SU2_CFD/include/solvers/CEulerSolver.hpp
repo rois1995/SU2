@@ -53,6 +53,7 @@ protected:
   su2activematrix TeCNOAdjLimiter, TeCNOAdjMin, TeCNOAdjMax; /*!< \brief Limiter of w and its work arrays. */
   su2activematrix TeCNOAdjEdgeA;   /*!< \brief TECNO_ADJOINT_GRADIENT= P1_AVERAGE: a_{0,1}, a_{1,0} of each edge (iEdge, 2 nDim). */
   su2activevector TeCNOAdjVol;     /*!< \brief Its nodal volumes Vhat_i = sum_T W_i^T. */
+  vector<su2double> MMSSourceDual; /*!< \brief MMS_SOURCE_DUAL_QUADRATURE: integral of the MMS source over each dual cell (nPoint x nVar), steady. */
   su2activematrix TeCNOAdjS;       /*!< \brief TECNO_ADJOINT_JACOBIAN= FIRST_RING: (s_i, 1/V_i, T_i) of each node. */
 
   /*!

@@ -96,6 +96,7 @@ private:
   bool BC_Wall_Entropy_P1;     /*!< \brief Entropy stable weak no-slip walls: closure C plus the SIPG penalty in entropy variables. */
   bool P1_Wall_Forces;         /*!< \brief Wall forces, Cf and heat flux from the boundary fluxes of the P1 entropy walls. */
   bool JST_Weak_Wall_Diss;     /*!< \brief JST fourth-order term off on edges that leave a weak no-slip wall (P1_WALL_DISSIPATION.md). */
+  bool MMS_Source_Dual_Quad;   /*!< \brief MMS source integrated over the actual dual cell (moved or median), not s(x_i)|V_i|. */
   bool SST_Energy_Consistent;  /*!< \brief SST: k diffusion in the energy flux and production from the stress work (no SSTm energy approximations). */
   bool JST_Entropy_Budget;     /*!< \brief Matched JST fourth-order term under a node entropy budget (P1_JST_ENTROPY.md, Theorem J7). */
   bool Visc_P1_Entropy_Moved;  /*!< \brief Element viscous fluxes of VISC_P1_ENTROPY on the moved (MOD_CENTROIDS) dual test space, 3D. */
@@ -10142,6 +10143,13 @@ public:
    *        BC_WALL_ENTROPY_P1, in the residual and in the Jacobian of JST and JST_MAT.
    */
   bool GetJST_Weak_Wall_Diss() const { return JST_Weak_Wall_Diss; }
+
+  /*!
+   * \brief MMS_SOURCE_DUAL_QUADRATURE: the manufactured source of node i is the integral of s over the dual cell
+   *        V_i that the residual uses (sub-triangles node / edge midpoint / element dual point, 7-point degree-5 rule),
+   *        instead of the one-point rule s(x_i)|V_i|. Steady 2D fine grid only.
+   */
+  bool GetMMS_Source_Dual_Quad() const { return MMS_Source_Dual_Quad; }
 
   /*!
    * \brief JST_ENTROPY_BUDGET: the matched fourth-order term -c4 (chi_ik (1-theta_i) Lh_i - chi_ki (1-theta_k) Lh_k),
