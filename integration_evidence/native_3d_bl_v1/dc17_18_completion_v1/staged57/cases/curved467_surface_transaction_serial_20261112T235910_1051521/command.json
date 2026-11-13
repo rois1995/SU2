@@ -1,0 +1,36 @@
+{
+  "build": "build467",
+  "case": "curved467_surface_transaction_serial",
+  "ranks": 1,
+  "argv": [
+    "nice",
+    "-n",
+    "19",
+    "/usr/bin/time",
+    "-v",
+    "timeout",
+    "600",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+    "[NativeActualSurfacePatchTrajectory3D]",
+    "--durations",
+    "yes"
+  ],
+  "environment": {
+    "OMPI_MCA_osc": "pt2pt",
+    "OMPI_MCA_orte_tmpdir_base": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/compile-tmp/curved467_surface_transaction_serial-hdlq6hlg",
+    "SU2_NATIVE_BL_PLANNING_CAPTURE": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved451_strip_reuse_saved_target_surface_mpi6_20261112T185700_120424",
+    "SU2_NATIVE_BL_FRONT_PROBE": "checkpoint_target_surface",
+    "SU2_NATIVE_BL_REFERENCE": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_bl_inputs/rans_metric_entry364_v1/m6.su2.native_ref",
+    "SU2_NATIVE_BL_CAVITY_CONTEXTS": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_bl_inputs/checkpoint_front416_le_context.dat",
+    "SU2_NATIVE_TARGET_CHECKPOINT3D": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved441_ramp5_metric_stage_20261112T124340_1300487/target_rank0.bin",
+    "SU2_NATIVE_FROZEN_SENSOR3D": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved441_ramp5_metric_stage_20261112T124340_1300487/selected_core_native.bin",
+    "SU2_NATIVE_FROZEN_CORE3D": "0.005499698867956817",
+    "SU2_NATIVE_FROZEN_TANGENT_SCALE3D": "0.3777507474613889",
+    "SU2_NATIVE_FROZEN_CONFIG": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved467_surface_transaction_serial_20261112T235910_1051521/run.cfg",
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1",
+    "TMPDIR": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/compile-tmp"
+  },
+  "timeout_seconds": 600
+}

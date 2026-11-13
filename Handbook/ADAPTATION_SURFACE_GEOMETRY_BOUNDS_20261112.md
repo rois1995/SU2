@@ -641,3 +641,11 @@ source/geometry/target setup and checking; not just operators. Sampledindividual
 1.432GB versus time-processmax1.577GB are not whole-job peaks. No production speedup
 or rankwait claim (serial test). Main blocker here is constructive closure/support,
 not a demonstrated timing improvement. Euler293 and full441target remain intact.
+
+
+467strategy correction: the57/80-cell overlapping observation union is NOT required
+to be a single ball/cavity. Existing native production uses current local transactions.
+Read ADAPTATION_CONNECTED_PATCH_TRAJECTORY_20261113.md for input/output/acceptance,
+versioned per-transaction reacquisition, exact heights, unchanged budgets and raw
+scope-versus-net-churn counters. This supersedes treating wholeunion closure as a
+production capacity limit. No relaxed native topology or new scheduler is proposed.

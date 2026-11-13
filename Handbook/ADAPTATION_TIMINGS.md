@@ -5,7 +5,16 @@ integration result. [Current handoff](../HANDOFF_Codex.md) owns live handles;
 [stage inputs/outputs and acceptance](ADAPTATION_CURVED_BL_STAGE_INTEGRATION_20261111.md)
 own the development sequence. R=`integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57`.
 
-Latest466connectedtrajectory TERMINAL: build327.858s; actual204.693swrapper/
+Latest467local-transaction diagnostic TERMINAL: build299.827s; actual267.942swrapper/
+260.212stest/609580assertions/1763pins/allactualterminal/303622Owned unchanged.
+24splitpubs/0reconstructioncalls, observation36→139 (+36oldrows), localdeltas q/J
++67/+67,geometry+12. No closure/firstrow/speedup. Trajectory89.894379wall/89.498557CPU/
+3252109geometrywork nested in95.849445sprefix (do notsum); separateDirectory versus
+constructor timing unexported. Scope/work/transport differ from466, so no speedratio.
+SampledindividualRSS2.287GB/time-processmax2.324GB, neither whole-job peak.
+468exactpre-inversion replay buildrunning:16prefixcalls INCLUDEDin24, not extra.
+
+Earlier466connectedtrajectory TERMINAL: build327.858s; actual204.693swrapper/
 195.527stest/610648assertions/1762pins/allactualterminal/303622Ownedunchanged451.
 36-cell input nativeidentity topologyPASS;24attempts/20cuts/4inversions. Privatecells
 36→84,geometrybad16→14,corebad8→2/neighbors8→12. No geometryclosure or firstrow.

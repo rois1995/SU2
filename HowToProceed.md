@@ -506,3 +506,24 @@ trajectory through the same downstream prerequisites. Do not just add split tria
 Allneighbor-demand union57cells is not a ball; naive fullstarcompletion80 exceeds64.
 A smaller valid corrected cavity is unresolved, not ruled out. No raised limits,
 postreservation enlargement, relaxedgates or newframework. See HANDOFF and466outcome.
+
+
+467current strategy supersedes treating57/80overlapping observation unions as one
+cavity. Keep the observation region connected/evolving, but Lookup/Fetch/construct/
+fullReserve/Publish each CURRENT local transaction within64/128, then recompute
+current nodal/association state. Existing ReconstructSplitPatch is the relevant
+alternate for an actual inherited split inversion; keep its EXACT height map.
+Face-obstruction discovery must finish before final reservation. Current work is
+test-only and unqualified; do not copy its serial loop into MPI. Read the linked
+ADAPTATION_CONNECTED_PATCH_TRAJECTORY_20261113.md for acceptance/stalls and net
+transaction churn versus expanding observation scope. Keep full end-to-end goal.
+
+
+467terminal:24successful local transaction mechanics but coupledalternateUNTESTED;
+expandingoriginalchord priority neverreached known466inversion. Localdelta geometry
++12/qJ+67+67 and expandingregionalcensus are not closure.468nowreconstructs EXACT
+saved16step prefix and2tet/5point/2face failingcontext, before ReconstructSplitPatch
+withunchangedheights; all16calls INSIDE24. This isdiagnosticreplay, notproductionschedule.
+Preservefrozen468build/ownedhandles inHANDOFF. Rejectmismatchedcheckpoint, neverloosen
+coordinate/topologymatching toforcecomparison. Thencontinuewholetrajectory andselect
+correctionfromactualfactoryresult. No emptyheightmap, largerbudget ornewframework.

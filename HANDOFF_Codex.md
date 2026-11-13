@@ -8,6 +8,7 @@ Read AGENTS.md, [ordered stages](Handbook/ADAPTATION_CURVED_BL_STAGE_INTEGRATION
 [first-height continuation](Handbook/ADAPTATION_FIRST_HEIGHT_CONTINUATION_20261112.md),
 [current clearance investigation](Handbook/ADAPTATION_SURFACE_CLEARANCE_20261112.md),
 [current geometry-bound probe](Handbook/ADAPTATION_SURFACE_GEOMETRY_BOUNDS_20261112.md),
+[current connected trajectory](Handbook/ADAPTATION_CONNECTED_PATCH_TRAJECTORY_20261113.md),
 [timing ledger](Handbook/ADAPTATION_TIMINGS.md), [HowToProceed](HowToProceed.md),
 [backlog](Handbook/ADAPTATION_BACKLOG.md).
 [History through447 qualification](Handbook/ADAPTATION_HANDOFF_HISTORY_PRE_447_OUTCOME_20261112.md)
@@ -15,9 +16,40 @@ preserves earlier evidence/handles, NOT live workload state.
 
 ## Live state and provenance
 
-NO owned heavy workload remains.466build and actual validation are TERMINAL,
+468exact saved pre-inversion replay BUILDING/FROZEN: execsession32405,
+wrapperPID1108921/startticks2142264, NinjaPID1109042/startticks2142440.
+Consult R/build468_status.json and verify actualhandles before pinned C++ edits.
+Oneownedheavyjob,nice19/j3, initialavailable52.60GB/load2.41. Same64/128/24calls/
+300s/600souter/12GiB; replay's16prefixcalls are INCLUDED, not extra.
+
+467build TERMINAL PASS299.827s/all10actualhandles terminal/pins/newbinary/cleanNinja.
+Validated testSHAa94afa4e9148af3bda0b8c050d6ed42e2e2bbc620bfeaf06ffbe6f20436fae6a.
+Actual R/cases/curved467_surface_transaction_serial_20261112T235910_1051521
+(session85120terminal) PASS267.942swrapper/260.212stest/609580assertions/1763pins,
+all5actualidentities terminal/all303622Owned records byte-identical451.
+R/surface_transaction467_assessment/outcome/source_snapshot.json.
+24local transactions reserve/construct/check/publish successfully, allold<=64/new<=128.
+Observation36→139 includes36previouslyunobserved oldcells; rawgeometrybad16→48 is
+NOT directly comparable. Sum of published local geometry deltas +12, q/J +67/+67;
+no geometry closure, tangential suitability or firstrow. EverycallwasSplitSurfaceStrip:
+expanding originalchord priority never exercised the known inversion/Reconstruct
+alternate. Do NOT infer that alternate fails, or integrate24commits as useful closure.
+Trajectory89.894379wall/89.498557CPU/3252109geometrywork nested in95.849445sprefix;
+Directory/constructor attribution gap explicit. SampledindividualRSS2.287GB versus
+time-processmax2.324GB are not wholejob peaks. ProductionCFD unchanged451.
+
+468diagnostic correction uses pinned surface_replay468.dat/provenance from preserved
+466source/capturedOwned. Reproduce16successful edits (eachnewpointcoordinateexact),
+then compare CURRENTcomplete failededge4217–3879270:2tets/5points/2physicalfaces,
+exacttopology/coordinates/facetidentity. Require the native inherited split refusal
+before testing ReconstructSplitPatch with EXACT heights, fresh deps/reservation and
+allcurrent gates. Afterthe checkpoint, remainingworkuseslive transactions. This is
+a diagnostic reconstruction, NOT a production edge schedule or newconfig. Current
+CPP changes are unqualified until468outcome. No emptyheightmap/raisedbudget/targetchange.
+[Currentcontract](Handbook/ADAPTATION_CONNECTED_PATCH_TRAJECTORY_20261113.md).
+466build/actual are historicalTERMINAL;
 all actual PID/starttick identities and runtime/source/input pins independently
-verified before any future edit. Latest testSHA:
+verified before467 edits. Historical466 testSHA:
 1f3899fe5fec9dd4d4eefecce87b49e1341a053efb2b794713342d6c659569aa.
 ProductionCFD unchanged451:
 f15bc306e1558ed5d9e8ee804ecc03155f4aecc55b754634ee2398f79fa5509a.
@@ -48,7 +80,8 @@ Confirmed construction/support limitations, not an excuse to extend budgets:
   connectivity. Need existing coupled relocation/reconnection/support correction,
   not more identical split attempts. Actual failed contexts/remaining face/edge data
   are in the trajectory records.
-- Remaining neighbors include originaledges without admitted complete stars. A
+- Historical fixed-cavity test: remaining neighbors included originaledges without
+  admitted complete stars. An observation region is NOT one transaction cavity. A
   preflight adding all originalneighbor bad-face edge demands gives57cells but is
   not a ball; simple fullstar completion gives80cells, exceeding64. This does NOT
   prove every smaller corrected cavity impossible. R/surface_patch466_neighbor_
