@@ -1,9 +1,63 @@
 # Adaptation timings and computational work
 
-Updated2026-11-13. Maintain this file after each completed meaningful stage or
-integration result. [Current handoff](../HANDOFF_Codex.md) owns live handles;
-[stage inputs/outputs and acceptance](ADAPTATION_CURVED_BL_STAGE_INTEGRATION_20261111.md)
-own the development sequence. R=`integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57`.
+Updated2026-11-13 after470terminal surface integration. NO owned heavy workload live.
+[Current handoff](../HANDOFF_Codex.md) owns source/build/handle state;
+[stage contract](ADAPTATION_CONNECTED_PATCH_TRAJECTORY_20261113.md) owns acceptance/stalls.
+R=`integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57`.
+
+## Current per-stage status
+
+| Stage | Latest measured time/work | Useful output / status |
+|---|---|---|
+| Saved CFD and geometry | Reused original RANS seed/authority; no new CFD solve.470target-load max45.564s/rank, import max.608s/rank; these are setup measurements, not a new metric solve. | Full441policy/geometry/current nodal state used. Original Euler29322payloads384685699B freshly hash-verified. |
+| Composed target/normalization | No recomputation in470. Saved initial complexity486914.722 ±empirical41525.003, nominal500k. | Target/profile unchanged; uncertainty is not a certified bound. Evolved-mesh complexity unmeasured. |
+| Coupled surface preparation | Native389.138s, wrapper498.917s; CPU sum2296.593s includes polling.30,088,848geometrywork,188,521fieldrequests,3676globalproposalwork,164commits. | 30500/39128wall rows measured(77.95%); NOT READY.1458knowngeometry/37sizebad, q/J ALLUNKNOWN.61494nodes/303757positive tets. |
+| Directions / firstrow | Actual connected trajectory does not reach readiness; no credible fullstage output yet. | Local strict/provisional checks pass; do not substitute them for physical height/alignment/coverage on generated M6. |
+| Successive growth | Not reached by current credible stage sequence. | Actual progression, coverage, collisions and preservation remain unproven. |
+| Outer transition / strict closure | Not reached. | All finalgeometry/q/J/size/height gates remain mandatory. |
+| RANS transfer / continuedCFD / second adaptation / diskrestart | Not reached. | Euler293 historical full workflow completed; RANS obligations still open. |
+
+470qualification costs, separate from stage runtime: build580.205s (header-restoration
+rebuild), focused21cases/4077assertions7.713swrapper; MPI32cases/everyrank155.969s.
+Saved actual cavity replay251.852swrapper, nested trajectory74.886533wall/74.866628CPU/
+1590930geometrywork.24calls/22commits; no surface/firstrow closure. Do not add nested
+trajectory/setup/geometry/MPI timers to obtain a new total.
+
+470surface native seed wrappers~90.5s/rank, reconstruction wrappers~164s/rank include
+synchronization; rank4/5metric wrappers30.822/28.026s. Rank5guidance45.740s, upper-query
+48.476s, scopeprep15.038s, facetprep13.877s, traversal19.073s overlap. Directoryelection
+rank0~339.328s/rank5~192.886s includes wait; trackedcollective counters~.8–.9s do not
+cover totalMPIwait. Interleaved exit lines prevent safe attribution on several ranks.
+No exclusive useful-work/wait decomposition or totalMPIwait claim. Sampled treeRSS
+4.432GB/individual.925GB are not whole-job peaks. Full wrapper minus native stage
+~109.779s includes setup/hash/load/cleanup; it is not one separately timed operation.
+
+## Evidence-backed efficiency changes and limits
+
+451scoped position-only thin-strip reuse remains qualified:39,140actual pairs,
+bit-identical ordered tensors/normals/rules,10,880,920derived avoided predicates;
+paired local guidance3.70–5.79x (warm-order limits). Full451vs449 at389s measured
+wall coverage13779vs5890, but neither stage completed. No accepted-mesh speedup.
+
+470is a phase-consistency capability correction, not a demonstrated speed optimization.
+It admits one actual previously blocked3→10replacement with complete guards, local
+geometrybad3→3/excess~5%lower but q/J3→10 and heightdebt. Same-limit surface coverage
+30500vs45113779(2.21x), commits164vs107; partialknowngeometry1458vs486 and measured
+sets/trajectories differ. No like-for-like closure/churn attribution from these raw
+counts. Fullstage CPU2296.593vs2284.099s and wall389.138vs389.125s are budget-limited,
+not a measured timing gain. Intervening production changes/source pins are recorded;
+no sole-function attribution for the fullstage coverage increase.
+
+Authoritative latest evidence: R/surface_stage470_assessment.json,
+R/surface_phase470_outcome.json and R/surface_phase470_qualification.json.
+The next demonstrated issue is incomplete geometry-preserving surface construction,
+especially remaining rank4/5 refusals; NOT proven shape-repair weakness (q/J unmeasured).
+
+## Historical evidence (not live state)
+
+Earlier RUNNING/build labels below are historical snapshots, superseded by the
+current table and HANDOFF. Findings/failures remain preserved; do not reuse stale
+handles or binary identities as current runtime state.
 
 Latest467local-transaction diagnostic TERMINAL: build299.827s; actual267.942swrapper/
 260.212stest/609580assertions/1763pins/allactualterminal/303622Owned unchanged.

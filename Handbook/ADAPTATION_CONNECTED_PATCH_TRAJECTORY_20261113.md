@@ -279,3 +279,32 @@ control is existing coarsening correction, not claimed same-cavity publication.
 One full same-target distributed surface-stage attempt now tests production integration
 under unchanged388.8s/233220work budget. Consult HANDOFF for live owned handles. No
 finalgeometry/shape/height/BL/RANS workflow completion from these checks.
+
+
+##470 actual full surface-stage terminal outcome and next evidence
+
+Fullstage R/cases/curved470_phase_consistent_saved_target_surface_mpi6_20261113T013323_1333069
+terminates normally at389.138snative/498.917swrapper.1740pins/all10actualidentities/
+all303757positive tets/1153534exactsharednodalchecks verified.61494nodes,164commits/
+3676globalwork;30500/39128requested-wall cells measured, ranks0–3 complete measurement,
+ranks4/5 incomplete. Known1458geometry/37sizebad; q/J entirelyUNMEASURED. No global
+complete surface pass, tangential readiness or firstrow. Target/CFD unchanged.
+The six complete captures preserve Owned/donors/parameters, but are diagnosed failure
+outputs, not a qualified credible successful stage checkpoint or adapted restart.
+
+Compared with451coverage13779/39014at same388.8s, more service is demonstrated;
+rawbadcounts on different measured/evolving sets cannot demonstrate closure or churn.
+Geometrywork30.089M, rank4/5~25.970M dominates. Rank5guidance1124refusals/1157trials;
+last rank4edge18152–18153 geometry-preservation refusal; last rank5feature2:8010
+uncertified clearance at facet10649cell5930309lower/h0=-1.404292. No proven penetration
+from that lower bound. Ranks0/1/3 have no cached geometry debt; rank2 has522knownbad
+with its wall measurement complete. Resource/time stop leaves feasibility undetermined.
+
+Next compare actual remaining contexts with full support/associations/current nodal
+metrics and a clean control. Classify true geometric regression versus conservative
+certification/association/height/topology/support limits before selecting another
+connected correction. Existing background search still considers raw wall-point
+proxies; whether this obstructs otherwise admissible geometry cones is an UNPROVEN
+source hypothesis, not an authorized new variant. Do not simply lengthen the run,
+raise cavity limits, waive old-row clearance or append placement offsets. Whole-patch
+and neighboring-cell effects must drive geometry closure and eventual firstrow readiness.

@@ -86,7 +86,7 @@ def main():
     aggregate['donor_seconds_max']=max(x['donor_seconds'] for x in rows)
     if aggregate['surface_prepared']:
         assert aggregate['requested_wall_census_complete'] and aggregate['requested_wall_geometry_complete']
-    baseline_path=R/'surface_stage449_assessment.json';baseline=json.loads(baseline_path.read_text())['aggregate']
+    baseline_path=R/'surface_stage451_assessment.json';baseline=json.loads(baseline_path.read_text())['aggregate']
     compared=['commits','global_work','cached_cells','unmeasured_cells','known_geometry_bad','known_size_bad',
         'geometry_work','geometry_rank_max_min','field_requests','summed_rank_cpu_seconds','stage_seconds_max']
     def record_hashes(folder):
@@ -109,7 +109,7 @@ def main():
     report=dict(scope='Actual M6 requested-wall surface-demand census; provisional construction, not final BL acceptance.',
         case=str(case),status=status,all_case_pins_verified=len(pins),all_actual_handles_terminal=True,
         aggregate=aggregate,common_retained_cell_comparison=common_records,ranks=rows,censuses=censuses,existing_exit_counters=counters,counter_attribution_gaps=counter_gaps,payloads=files,
-        comparison449={k:dict(before=baseline[k],after=aggregate[k]) for k in compared},
+        comparison451={k:dict(before=baseline[k],after=aggregate[k]) for k in compared},
         baseline_assessment_sha256=sha(baseline_path),
         confirmed=['SAME saved CFD seed, original partitions, qualified32h0 target441 and constraints/budgets as441. Only in-call boundary strip screening reuse changed; target and validity-first admission preserved. No metric recomputation or CFD advancement.',
             'Every saved cell positive with transported core; globally unique cell IDs and exact shared nodal coordinates/tensors.',
@@ -121,5 +121,5 @@ def main():
             'This is nativeMPI surface preparation, not nativeMPI FIRST_ROW/layer generation. Failure captures are not credible reusable successful stages.'],
         assessment_script_sha256=sha(__file__),goal_complete=False)
     (R/'surface_stage470_assessment.json').write_text(json.dumps(report,indent=2)+'\n')
-    print(json.dumps(aggregate,indent=2));print(json.dumps(report['comparison449'],indent=2))
+    print(json.dumps(aggregate,indent=2));print(json.dumps(report['comparison451'],indent=2))
 if __name__=='__main__':main()
