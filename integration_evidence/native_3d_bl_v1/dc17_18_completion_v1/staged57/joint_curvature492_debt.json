@@ -1,0 +1,47 @@
+{
+  "counterexample_proven": true,
+  "base_metric": [
+    [
+      2.0,
+      1.0
+    ],
+    [
+      1.0,
+      2.0
+    ]
+  ],
+  "individual_principal_caps": [
+    3.0,
+    3.0
+  ],
+  "updated_metric": [
+    [
+      3.5,
+      1.0
+    ],
+    [
+      1.0,
+      3.5
+    ]
+  ],
+  "individual_constraint_minimum_eigenvalues": [
+    0.19722436226800533,
+    0.19722436226800533
+  ],
+  "joint_curvature_envelope_minimum_eigenvalue": -0.5,
+  "updated_metric_eigenvalues": [
+    2.5,
+    4.5
+  ],
+  "implication": "Current code preserves the old metric and each individual principal constraint, but can undersize an oblique direction at a doubly-curved point compared with the joint curvature tensor. Analytic sphere capping is stronger.",
+  "scope": "Post-run mathematical limitation, not an attribution of any particular M6 refusal or a construction rerun.",
+  "next": "Before wider doubly-curved qualification, intersect the complete tangent curvature tensor with the existing tangent metric and validate mixed directions. Do not claim current focused tests/reload prove that property.",
+  "tested_source": {
+    "path": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/SU2_CFD/src/adaptation/CBoundaryLayerMetric.cpp",
+    "sha256": "f72614dd227f2aa04a725edd4b90072a6025d9736c0b5d1ebd8c1eb02f9eedd6"
+  },
+  "helper": {
+    "path": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/check_joint_curvature492_debt.py",
+    "sha256": "8e17d6254cd8b059bf68e00059ce9a8d4707d4e2b998eb8cb9dcac9375bbbbdc"
+  }
+}

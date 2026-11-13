@@ -1,0 +1,120 @@
+{
+  "decision": "reject_size_only_hypothesis",
+  "reason": "36 of65 published fixed-nose splits remain spanwise at their saved bindings: the frozen plan direction-reject criterion is met.",
+  "surface_ready": false,
+  "final_mesh_accepted": false,
+  "goal_complete": false,
+  "one_production_run": true,
+  "no_more_local_variants_this_cycle": true,
+  "plan": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/Handbook/ADAPTATION_MAPPED_CURVATURE_TARGET_492_20261113.md",
+  "case": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved492_saved_production_surface_serial_20261113T163756_3724702",
+  "nominal_complexity": 500000,
+  "seed_target_estimate": 492586.45082138194,
+  "empirical_uncertainty_indicator": 49430.288101579055,
+  "tangent_scale": 0.28717458874925855,
+  "core": 0.0047263575870155755,
+  "evolved_mesh_complexity": "unmeasured",
+  "input_mesh": {
+    "nodes": 61550,
+    "tets": 303823
+  },
+  "output_mesh": {
+    "nodes": 61855,
+    "tets": 304593,
+    "positive_tets": 304593,
+    "provisional": true
+  },
+  "configured_native_seconds": 388.8,
+  "native_seconds": 389.572521653,
+  "outer_seconds": 566.441118478775,
+  "seconds_per_accepted_split": 1.2772869562393443,
+  "outer_seconds_per_accepted_split": 1.8571839950123772,
+  "accepted_splits": 305,
+  "accepted_threshold_250_met": true,
+  "geometry_guidance_evaluations": 1014,
+  "geometry_guidance_refusals": 705,
+  "geometry_guidance_refusal_fraction": 0.6952662721893491,
+  "top_level_rejected_or_deferred_selections": 448,
+  "private_failed_checks": 1288,
+  "private_failure_categories": {
+    "longest_edge_frontier": 4,
+    "frozen_geometry_nonprogress": 705,
+    "incompatible_height_planes": 230,
+    "normal_row_clearance": 276,
+    "no_normal_foot_freedom": 38,
+    "other_link_or_visibility_or_fit": 32,
+    "incomplete_free_apex_stars": 3
+  },
+  "logical_split_trial_denominator": "not separately serialized; do not substitute private checks or rejected/deferred selections",
+  "direction": {
+    "counts": {
+      "around_nose": 29,
+      "spanwise": 36,
+      "ambiguous": 0,
+      "unknown": 0
+    },
+    "nose_split_records": 65,
+    "spanwise_fraction": 0.5538461538461539,
+    "minimum_spanwise_projection_margin": 0.10228867134190955,
+    "minimum_relative_principal_gap": 0.6501668274774046,
+    "maximum_forward_roundoff_error": 6.661338147750939e-16,
+    "source": "Exact saved bindings/all incident WING3D sides of immutable cubic authority; local differential diagnostic, not global curvature certificate."
+  },
+  "geometry_criterion": "unresolved: first full-entity query exhausted each30s observation budget; no completed per-face before/after certificates or two-halving proof",
+  "fixed_face_observations": [
+    {
+      "stage": "fixed_summary",
+      "side": "before",
+      "complete": false,
+      "missing_authority_facets": 0,
+      "faces": 1799,
+      "measured": 0,
+      "seconds": 30.001276242000003,
+      "geometry_work": 7877612,
+      "reason": "Curved atlas elapsed-time budget exhausted."
+    },
+    {
+      "stage": "fixed_summary",
+      "side": "after",
+      "complete": false,
+      "missing_authority_facets": 0,
+      "faces": 1926,
+      "measured": 0,
+      "seconds": 30.000979330000003,
+      "geometry_work": 11238584,
+      "reason": "Curved atlas elapsed-time budget exhausted."
+    }
+  ],
+  "surface_census": {
+    "measured": 31308,
+    "required": 39853,
+    "fraction": 0.7855870323438637,
+    "complete": false
+  },
+  "native_geometry_work": 73841533,
+  "diagnostic_geometry_work": 19116196,
+  "native_reserved_work_bytes": 10098980728,
+  "per_rank_memory_ceiling": 12884901888,
+  "item3": "Size demand responds, but geometric split direction/selection and unweighted admission objective remain unchanged. Spanwise majority and705 frozen-error refusals remain observed obstacles; height/normal-foot/link refusals also persist.",
+  "item4": "Unequal native old/fresh bound tightness remains unchanged. Existing489 attribution is preserved; this run cannot separate genuine regression from conservative refusal. Full-entity certificate cost blocks fixed-face comparison in its allotted time.",
+  "next": "Stop the requested cycle. Review coordinated surface construction/selection/admission and certification strategy before another run; no raised limits, relaxed gates or further local nose variants.",
+  "measurement_limits": [
+    "Initial bound-only assessment is unresolved; this consolidated result adds exact-binding direction evidence and rejects on that independent frozen criterion.",
+    "No progress conclusion from changing bad-face counts or pre-BL q/J.",
+    "No controlled algorithmic speedup claim: target and saved input differ from historical484.",
+    "All final geometry/quality/height/transfer/resource gates and the complete RANS workflow remain outstanding."
+  ],
+  "provenance": {
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/saved_surface492_checkpoint.json": "a7a0acfea2e71d88f3253a553b877788afe9476bbec4f6ab70ccb362aacdc990",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/saved_production_surface492_serial_assessment.json": "1c21de2bbbf036856db9b27b6630c44261159755125bbf5d95101cf60ce821ed",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/nose_target_observation492_assessment.json": "4ed717375182d906fbe5d1deb0c34d04789ac6ff920c9fe2f9499417a511e7dc",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/nose492_direction_supplement.json": "592cbca266001bd63ed6028635772a653e1b7a9b76455432f20b010e01a88e4c",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/nose492_point_direction_supplement.json": "f6298ca70404261da365c06b9b5c76a5b533c6bf1dce6e98b1fcbd3549059f5e",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/target_checkpoint492_qualification.json": "900be35292a6107a8868bb7bdb90f7be1044b9ec5e4fce5952d29f3827f795c9",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/target_reference492_fidelity.json": "7633bce1d0911829a0154be0f89493c9c208677ac79805712e9d322b897a6cec",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved492_saved_production_surface_serial_20261113T163756_3724702/status.json": "6751147e57d79015f53422231504e43cfcd0b8dfa16d265a0b49dd07d3e865cd",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved492_saved_production_surface_serial_20261113T163756_3724702/terminal_handles_actual.json": "c9b273c3ad5453dc4c263dfa6d8eeb29406c50b9435fff2387050e0838757383",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved492_saved_production_surface_serial_20261113T163756_3724702/actual_saved_surface_stage_rank0.json": "a5b4887cdd0199d10ab96b51befa5d146ebbfcb389f6c8563f629c5f34cfefe2",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/finalize_surface492.py": "cbbe28fcd98bd635fd92fe29e07eda275f3cac218b1ec2db0ebaf088baac8be4"
+  }
+}

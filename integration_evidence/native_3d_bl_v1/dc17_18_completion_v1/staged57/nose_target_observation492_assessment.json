@@ -1,0 +1,3354 @@
+{
+  "case": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved492_saved_production_surface_serial_20261113T163756_3724702",
+  "raw_observation": {
+    "path": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved492_saved_production_surface_serial_20261113T163756_3724702/nose_target_observation.jsonl",
+    "sha256": "c77502e7c65e1f71130281d3c2b895c04314cf0191872bdd31375d386675608d"
+  },
+  "fixed_set": {
+    "path": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/nose492_fixed_faces.json",
+    "sha256": "a4bef80473259cdbb98fd38b4233f8bd185912a1cc68e7ea1cc6f883bc77b001",
+    "authority_facets": 1374,
+    "counts": {
+      "1": 6,
+      "2": 8,
+      "4": 1727
+    },
+    "selection": "Wing faces incident to7594 (bit1),17814 (bit2); nose band(bit4): any vertex x <= minimum wing x in floor(y/.025) bin + .015. Frozen before run; geometric selection only."
+  },
+  "coverage": {
+    "before": {
+      "summary": {
+        "stage": "fixed_summary",
+        "side": "before",
+        "complete": false,
+        "missing_authority_facets": 0,
+        "faces": 1799,
+        "measured": 0,
+        "seconds": 30.001276242000003,
+        "geometry_work": 7877612,
+        "reason": "Curved atlas elapsed-time budget exhausted."
+      },
+      "support_faces": 0,
+      "groups": {
+        "1": {
+          "observed_support_faces": 0,
+          "maximum_complete_scope_lower": null,
+          "maximum_complete_scope_upper": null,
+          "complete_scope_faces": 0,
+          "incomplete_scope_faces": 0,
+          "all_scopes_complete": false,
+          "observer_complete": false,
+          "initial_fixed_face_count": 6,
+          "exact_original_face_descendants_proven": false,
+          "two_geometric_halvings_proven": false
+        },
+        "2": {
+          "observed_support_faces": 0,
+          "maximum_complete_scope_lower": null,
+          "maximum_complete_scope_upper": null,
+          "complete_scope_faces": 0,
+          "incomplete_scope_faces": 0,
+          "all_scopes_complete": false,
+          "observer_complete": false,
+          "initial_fixed_face_count": 8,
+          "exact_original_face_descendants_proven": false,
+          "two_geometric_halvings_proven": false
+        },
+        "4": {
+          "observed_support_faces": 0,
+          "maximum_complete_scope_lower": null,
+          "maximum_complete_scope_upper": null,
+          "complete_scope_faces": 0,
+          "incomplete_scope_faces": 0,
+          "all_scopes_complete": false,
+          "observer_complete": false,
+          "initial_fixed_face_count": 1727,
+          "exact_original_face_descendants_proven": false,
+          "two_geometric_halvings_proven": false
+        }
+      }
+    },
+    "after": {
+      "summary": {
+        "stage": "fixed_summary",
+        "side": "after",
+        "complete": false,
+        "missing_authority_facets": 0,
+        "faces": 1926,
+        "measured": 0,
+        "seconds": 30.000979330000003,
+        "geometry_work": 11238584,
+        "reason": "Curved atlas elapsed-time budget exhausted."
+      },
+      "support_faces": 0,
+      "groups": {
+        "1": {
+          "observed_support_faces": 0,
+          "maximum_complete_scope_lower": null,
+          "maximum_complete_scope_upper": null,
+          "complete_scope_faces": 0,
+          "incomplete_scope_faces": 0,
+          "all_scopes_complete": false,
+          "observer_complete": false,
+          "initial_fixed_face_count": 6,
+          "exact_original_face_descendants_proven": false,
+          "two_geometric_halvings_proven": false,
+          "within_two_halvings_proven": false,
+          "patch_decision": "unresolved"
+        },
+        "2": {
+          "observed_support_faces": 0,
+          "maximum_complete_scope_lower": null,
+          "maximum_complete_scope_upper": null,
+          "complete_scope_faces": 0,
+          "incomplete_scope_faces": 0,
+          "all_scopes_complete": false,
+          "observer_complete": false,
+          "initial_fixed_face_count": 8,
+          "exact_original_face_descendants_proven": false,
+          "two_geometric_halvings_proven": false,
+          "within_two_halvings_proven": false,
+          "patch_decision": "unresolved"
+        },
+        "4": {
+          "observed_support_faces": 0,
+          "maximum_complete_scope_lower": null,
+          "maximum_complete_scope_upper": null,
+          "complete_scope_faces": 0,
+          "incomplete_scope_faces": 0,
+          "all_scopes_complete": false,
+          "observer_complete": false,
+          "initial_fixed_face_count": 1727,
+          "exact_original_face_descendants_proven": false,
+          "two_geometric_halvings_proven": false
+        }
+      }
+    }
+  },
+  "lineage_reconstruction": {
+    "split_only_counters": {
+      "moved": 0,
+      "reconnected": 0,
+      "collapses": 0,
+      "commits": 305,
+      "splits": 305,
+      "published_records": 305
+    },
+    "split_only_gate": true,
+    "lineage_errors": 0,
+    "input_support_faces": 1799,
+    "before_observation_faces": 0,
+    "predicted_support_leaves": 1926,
+    "after_observation_faces": 0,
+    "output_support_faces": 1926,
+    "before_coverage_exact": false,
+    "after_coverage_exact": false,
+    "output_topology_exact": true,
+    "tracked_endpoint_coordinates_exact": true,
+    "tracked_split_point_coordinates_exact": true,
+    "no_compound_edits_proven": true,
+    "observation_coverage_complete": false
+  },
+  "bound_method": "Mapped complete-authority BoundPhysicalSurface/ErrorMagnitude with full-entity support audit.",
+  "precision": {
+    "values": [],
+    "same_before_after": false,
+    "requested": 6.25e-06
+  },
+  "published_split_records": 305,
+  "accepted_split_stat": 305,
+  "direction_classification": {
+    "counts": {
+      "around_nose": 0,
+      "spanwise": 0,
+      "ambiguous": 0,
+      "unmapped_or_unknown": 65
+    },
+    "gate": "unresolved",
+    "complete_for_all_nose_split_records": false,
+    "nose_split_records": 65,
+    "records": [
+      {
+        "edge": [
+          7634,
+          7635
+        ],
+        "a": [
+          0.6738455917126148,
+          1.122064278202132,
+          0.01446196290399845
+        ],
+        "b": [
+          0.6626471420116732,
+          1.116134710823527,
+          0.01321045290605084
+        ],
+        "point": [
+          65794782,
+          0.6682380359095853,
+          1.1191049680588385,
+          0.013887344755092243
+        ],
+        "endpoints_known": true,
+        "label": "unmapped_or_unknown",
+        "ancestor_faces": [
+          [
+            7629,
+            7634,
+            7635
+          ]
+        ],
+        "classification_scope": "Exact split-only reconstructed ancestry; endpoint coordinates checked against saved positions."
+      },
+      {
+        "edge": [
+          18289,
+          18291
+        ],
+        "a": [
+          0.5360508984541409,
+          0.90651068525516,
+          -0.01294052263327822
+        ],
+        "b": [
+          0.5248507864559746,
+          0.8984138877636842,
+          -0.009768556964055763
+        ],
+        "point": [
+          66132342,
+          0.5303518225054822,
+          0.9025225144853337,
+          -0.011558623001674078
+        ],
+        "endpoints_known": true,
+        "label": "unmapped_or_unknown",
+        "ancestor_faces": [
+          [
+            18289,
+            18290,
+            18291
+          ]
+        ],
+        "classification_scope": "Exact split-only reconstructed ancestry; endpoint coordinates checked against saved positions."
+      },
+      {
+        "edge": [
+          4276,
+          18101
+        ],
+        "a": [
+          0.664587881014082,
+          1.151146868001322,
+          -2.199124115341047e-16
+        ],
+        "b": [
+          0.6656708007862239,
+          1.150521664083574,
+          -0.004524015503928567
+        ],
+        "point": [
+          66139326,
+          0.6649041107031876,
+          1.1509624207939575,
+          -0.0023377587251372733
+        ],
+        "endpoints_known": true,
+        "label": "unmapped_or_unknown",
+        "ancestor_faces": [
+          [
+            4276,
+            18097,
+            18101
+          ],
+          [
+            4275,
+            4276,
+            18101
+          ]
+        ],
+        "classification_scope": "Exact split-only reconstructed ancestry; endpoint coordinates checked against saved positions."
+      },
+      {
+        "edge": [
+          24092,
+          24098
+        ],
+        "a": [
+          0.7096148612449535,
+          1.200911924740594,
+          0.01146143623704746
+        ],
+        "b": [
+          0.7047741235318249,
+          1.202987690600526,
+          0.008422872927054627
+        ],
+        "point": [
+          66141654,
+          0.707147926221873,
+          1.2020622528466038,
+          0.010096717505775697
+        ],
+        "endpoints_known": true,
+        "label": "unmapped_or_unknown",
+        "ancestor_faces": [
+          [
+            24092,
+            24098,
+            24099
+          ],
+          [
+            24092,
+            24098,
+            24109
+          ]
+        ],
+        "classification_scope": "Exact split-only reconstructed ancestry; endpoint coordinates checked against saved positions."
+      },
+      {
+        "edge": [
+          4248,
+          18313
+        ],
+        "a": [
+          0.501018657755999,
+          0.8678251216468149,
+          -1.397472871583204e-16
+        ],
+        "b": [
+          0.5022944736505279,
+          0.867088552692594,
+          -0.005331706565501086
+        ],
+        "point": [
+          66206838,
+          0.5013913344947504,
+          0.8676080313692498,
+          -0.0027550693301133097
+        ],
+        "endpoints_known": true,
+        "label": "unmapped_or_unknown",
+        "ancestor_faces": [
+          [
+            4248,
+            18313,
+            27112690
+          ],
+          [
+            4248,
+            18308,
+            18313
+          ]
+        ],
+        "classification_scope": "Exact split-only reconstructed ancestry; endpoint coordinates checked against saved positions."
+      },
+      {
+        "edge": [
+          4286,
+          23792
+        ],
+        "a": [
+          0.6954370336053903,
+          1.196299999999894,
+          0.007903413446309616
+        ],
+        "b": [
+          0.6971013549959203,
+          1.201026755759744,
+          0.005282637974995646
+        ],
+        "point": [
+          66220806,
+          0.6961259457772884,
+          1.1987984755522312,
+          0.006754637871505062
+        ],
+        "endpoints_known": true,
+        "label": "unmapped_or_unknown",
+        "ancestor_faces": [
+          [
+            4286,
+            23791,
+            23792
+          ],
+          [
+            4286,
+            23792,
+            23794
+          ]
+        ],
+        "classification_scope": "Exact split-only reconstructed ancestry; endpoint coordinates checked against saved positions."
+      },
+      {
+        "edge": [
+          18191,
+          18200
+        ],
+        "a": [
+          0.6030543540584634,
+          1.034665371711291,
+          -0.00904364287776217
+        ],
+        "b": [
+          0.607635413136375,
+          1.032013874286178,
+          -0.01205206169840187
+        ],
+        "point": [
+          66246414,
+          0.6052538863226042,
+          1.0333907617937674,
+          -0.010739010542771056
+        ],
+        "endpoints_known": true,
+        "label": "unmapped_or_unknown",
+        "ancestor_faces": [
+          [
+            18191,
+            18192,
+            18200
+          ],
+          [
+            18191,
+            18200,
+            63795019
+          ]
+        ],
+        "classification_scope": "Exact split-only reconstructed ancestry; endpoint coordinates checked against saved positions."
+      },
+      {
+        "edge": [
+          24142,
+          24447
+        ],
+        "a": [
+          0.7005495986306354,
+          1.203380237264026,
+          -0.004933436648254816
+        ],
+        "b": [
+          0.7047741235318249,
+          1.202987690600526,
+          -0.008422872927054627
+        ],
+        "point": [
+          66260382,
+          0.7025925407043638,
+          1.203327686916111,
+          -0.006778968874533683
+        ],
+        "endpoints_known": true,
+        "label": "unmapped_or_unknown",
+        "ancestor_faces": [
+          [
+            24142,
+            24447,
+            4051522
+          ],
+          [
+            24142,
+            24144,
+            24447
+          ]
+        ],
+        "classification_scope": "Exact split-only reconstructed ancestry; endpoint coordinates checked against saved positions."
+      },
+      {
+        "edge": [
+          4243,
+          7861
+        ],
+        "a": [
+          0.4680710893033431,
+          0.810755934386492,
+          -1.131769716430872e-16
+        ],
+        "b": [
+          0.4693859125226607,
+          0.8099968452673204,
+          0.005494713789818246
+        ],
+        "point": [
+          66472230,
+          0.4684551661719274,
+          0.8105322158025883,
+          0.0028393007249586503
+        ],
+        "endpoints_known": true,
+        "label": "unmapped_or_unknown",
+        "ancestor_faces": [
+          [
+            4242,
+            4243,
+            7861
+          ],
+          [
+            4243,
+            7861,
+            27000946
+          ]
+        ],
+        "classification_scope": "Exact split-only reconstructed ancestry; endpoint coordinates checked against saved positions."
+      },
+      {
+        "edge": [
+          16249,
+          16250
+        ],
+        "a": [
+          0.6921224078236915,
+          1.191213569863036,
+          -0.007628414513493728
+        ],
+        "b": [
+          0.6975909783670242,
+          1.1927255053601,
+          -0.01026869006786716
+        ],
+        "point": [
+          66474558,
+          0.6947801064248018,
+          1.1920156488109623,
+          -0.009085685028587637
+        ],
+        "endpoints_known": true,
+        "label": "unmapped_or_unknown",
+        "ancestor_faces": [
+          [
+            14978,
+            16249,
+            16250
+          ],
+          [
+            16249,
+            16250,
+            27126658
+          ]
+        ],
+        "classification_scope": "Exact split-only reconstructed ancestry; endpoint coordinates checked against saved positions."
+      },
+      {
+        "edge": [
+          7623,
+          7625
+        ],
+        "a": [
+          0.6626964330755506,
+          1.12853302863849,
+          0.01137165287767746
+        ],
+        "b": [
+          0.6530191784933808,
+          1.121713164969156,
+          0.008582219561512856
+        ],
+        "point": [
+          66476886,
+          0.6577707821896519,
+          1.125176097777208,
+          0.010156469388904816
+        ],
+        "endpoints_known": true,
+        "label": "unmapped_or_unknown",
+        "ancestor_faces": [
+          [
+            7623,
+            7625,
+            7630
+          ],
+          [
+            7623,
+            7625,
+            8996194
+          ]
+        ],
+        "classification_scope": "Exact split-only reconstructed ancestry; endpoint coordinates checked against saved positions."
+      },
+      {
+        "edge": [
+          4263,
+          18193
+        ],
+        "a": [
+          0.5929873497015281,
+          1.027126057928906,
+          -1.976367040174793e-16
+        ],
+        "b": [
+          0.59415428172859,
+          1.026452351082513,
+          -0.004876692827847482
+        ],
+        "point": [
+          66549054,
+          0.5933282037594058,
+          1.0269274683796739,
+          -0.002519948203226121
+        ],
+        "endpoints_known": true,
+        "label": "unmapped_or_unknown",
+        "ancestor_faces": [
+          [
+            4263,
+            18193,
+            10923778
+          ],
+          [
+            4263,
+            18186,
+            18193
+          ]
+        ],
+        "classification_scope": "Exact split-only reconstructed ancestry; endpoint coordinates checked against saved positions."
+      },
+      {
+        "edge": [
+          18272,
+          18274
+        ],
+        "a": [
+          0.5484193263100074,
+          0.9281952229681375,
+          -0.0127870137521125
+        ],
+        "b": [
+          0.53736805753106,
+          0.9202223140507338,
+          -0.009652527241787688
+        ],
+        "point": [
+          66621222,
+          0.5427958499318412,
+          0.9242682858921092,
+          -0.011421431453967552
+        ],
+        "endpoints_known": true,
+        "label": "unmapped_or_unknown",
+        "ancestor_faces": [
+          [
+            18272,
+            18273,
+            18274
+          ],
+          [
+            18272,
+            18274,
+            16147810
+          ]
+        ],
+        "classification_scope": "Exact split-only reconstructed ancestry; endpoint coordinates checked against saved positions."
+      },
+      {
+        "edge": [
+          18095,
+          18099
+        ],
+        "a": [
+          0.6769972811416081,
+          1.163575121700091,
+          -0.008325074285046776
+        ],
+        "b": [
+          0.6812079689050203,
+          1.161155473445967,
+          -0.01110796549112895
+        ],
+        "point": [
+          66628206,
+          0.6790180443036975,
+          1.1624122292472006,
+          -0.009892087944827472
+        ],
+        "endpoints_known": true,
+        "label": "unmapped_or_unknown",
+        "ancestor_faces": [
+          [
+            18095,
+            18099,
+            5266738
+          ],
+          [
+            18095,
+            18099,
+            18100
+          ]
+        ],
+        "classification_scope": "Exact split-only reconstructed ancestry; endpoint coordinates checked against saved positions."
+      },
+      {
+        "edge": [
+          4252,
+          18282
+        ],
+        "a": [
+          0.5265311134342202,
+          0.9120157912151405,
+          -1.584752947873343e-16
+        ],
+        "b": [
+          0.5277767245712499,
+          0.9112966604247773,
+          -0.0052054842261392
+        ],
+        "point": [
+          66649158,
+          0.5268949625619388,
+          0.9118038333071147,
+          -0.002689845940502707
+        ],
+        "endpoints_known": true,
+        "label": "unmapped_or_unknown",
+        "ancestor_faces": [
+          [
+            4252,
+            18282,
+            6300370
+          ],
+          [
+            4252,
+            18275,
+            18282
+          ]
+        ],
+        "classification_scope": "Exact split-only reconstructed ancestry; endpoint coordinates checked against saved positions."
+      },
+      {
+        "edge": [
+          24146,
+          24458
+        ],
+        "a": [
+          0.7163488005718444,
+          1.207820828915356,
+          -0.005769179240294348
+        ],
+        "b": [
+          0.7101379503723106,
+          1.20528434299801,
+          -0.007847885792328167
+        ],
+        "point": [
+          66651486,
+          0.7132212517411771,
+          1.2066586125924574,
+          -0.006869501765518246
+        ],
+        "endpoints_known": true,
+        "label": "unmapped_or_unknown",
+        "ancestor_faces": [
+          [
+            24145,
+            24146,
+            24458
+          ],
+          [
+            24146,
+            24458,
+            28651522
+          ]
+        ],
+        "classification_scope": "Exact split-only reconstructed ancestry; endpoint coordinates checked against saved positions."
+      },
+      {
+        "edge": [
+          18090,
+          18093
+        ],
+        "a": [
+          0.68688326917227,
+          1.181377562397796,
+          -0.007991167518114605
+        ],
+        "b": [
+          0.6880051289956398,
+          1.17365083427594,
+          -0.01090378828642804
+        ],
+        "point": [
+          66665454,
+          0.6873522586077149,
+          1.1775649475992298,
+          -0.009624023780534122
+        ],
+        "endpoints_known": true,
+        "label": "unmapped_or_unknown",
+        "ancestor_faces": [
+          [
+            16159,
+            18090,
+            18093
+          ],
+          [
+            18090,
+            18092,
+            18093
+          ]
+        ],
+        "classification_scope": "Exact split-only reconstructed ancestry; endpoint coordinates checked against saved positions."
+      },
+      {
+        "edge": [
+          18110,
+          18117
+        ],
+        "a": [
+          0.6637255935983113,
+          1.140358382956951,
+          -0.00848630536826778
+        ],
+        "b": [
+          0.668026477173868,
+          1.137869039983874,
+          -0.01130725324090321
+        ],
+        "point": [
+          66744606,
+          0.6657907074240935,
+          1.1391616314466946,
+          -0.010076231182128866
+        ],
+        "endpoints_known": true,
+        "label": "unmapped_or_unknown",
+        "ancestor_faces": [
+          [
+            18110,
+            18117,
+            15644962
+          ],
+          [
+            18109,
+            18110,
+            18117
+          ]
+        ],
+        "classification_scope": "Exact split-only reconstructed ancestry; endpoint coordinates checked against saved positions."
+      },
+      {
+        "edge": [
+          7809,
+          7811
+        ],
+        "a": [
+          0.5297990566327799,
+          0.895549850095646,
+          0.01301811641362337
+        ],
+        "b": [
+          0.5185237361900531,
+          0.8873904779434187,
+          0.009827205985879144
+        ],
+        "point": [
+          67058886,
+          0.5240617810510466,
+          0.8915307511923892,
+          0.011627968767358927
+        ],
+        "endpoints_known": true,
+        "label": "unmapped_or_unknown",
+        "ancestor_faces": [
+          [
+            7809,
+            7811,
+            5657842
+          ],
+          [
+            7796,
+            7809,
+            7811
+          ]
+        ],
+        "classification_scope": "Exact split-only reconstructed ancestry; endpoint coordinates checked against saved positions."
+      },
+      {
+        "edge": [
+          4281,
+          18087
+        ],
+        "a": [
+          0.6831108458242616,
+          1.183230891102678,
+          -2.216075434669933e-16
+        ],
+        "b": [
+          0.6841454427260278,
+          1.18277067821043,
+          -0.004251015382667842
+        ],
+        "point": [
+          67161318,
+          0.683423449884439,
+          1.1831162797346204,
+          -0.0021913633795395725
+        ],
+        "endpoints_known": true,
+        "label": "unmapped_or_unknown",
+        "ancestor_faces": [
+          [
+            4280,
+            4281,
+            18087
+          ],
+          [
+            4281,
+            18086,
+            18087
+          ]
+        ],
+        "classification_scope": "Exact split-only reconstructed ancestry; endpoint coordinates checked against saved positions."
+      },
+      {
+        "edge": [
+          7657,
+          7667
+        ],
+        "a": [
+          0.6356651188619151,
+          1.081155878063547,
+          0.01170420589044942
+        ],
+        "b": [
+          0.6256657344655607,
+          1.074060411732249,
+          0.00883405248752608
+        ],
+        "point": [
+          67214862,
+          0.630575893211354,
+          1.0776626520625063,
+          0.010453707700057642
+        ],
+        "endpoints_known": true,
+        "label": "unmapped_or_unknown",
+        "ancestor_faces": [
+          [
+            7657,
+            7667,
+            9778402
+          ],
+          [
+            7657,
+            7658,
+            7667
+          ]
+        ],
+        "classification_scope": "Exact split-only reconstructed ancestry; endpoint coordinates checked against saved positions."
+      },
+      {
+        "edge": [
+          7745,
+          7755
+        ],
+        "a": [
+          0.5726237505038375,
+          0.9706308309356338,
+          0.01248660407917395
+        ],
+        "b": [
+          0.5618639661919527,
+          0.962900723631869,
+          0.009425460587796013
+        ],
+        "point": [
+          67247454,
+          0.5671483216548873,
+          0.9668239041873482,
+          0.011152953049587567
+        ],
+        "endpoints_known": true,
+        "label": "unmapped_or_unknown",
+        "ancestor_faces": [
+          [
+            7745,
+            7755,
+            308098
+          ],
+          [
+            7745,
+            7755,
+            7760
+          ]
+        ],
+        "classification_scope": "Exact split-only reconstructed ancestry; endpoint coordinates checked against saved positions."
+      },
+      {
+        "edge": [
+          18372,
+          18379
+        ],
+        "a": [
+          0.4594706574988467,
+          0.7845042587812928,
+          -0.0103746020431133
+        ],
+        "b": [
+          0.4647259241746022,
+          0.7814625328313548,
+          -0.01382576112187167
+        ],
+        "point": [
+          67249782,
+          0.4619939323037699,
+          0.7830421142492636,
+          -0.012319474531222284
+        ],
+        "endpoints_known": true,
+        "label": "unmapped_or_unknown",
+        "ancestor_faces": [
+          [
+            18371,
+            18372,
+            18379
+          ],
+          [
+            18372,
+            18379,
+            170746
+          ]
+        ],
+        "classification_scope": "Exact split-only reconstructed ancestry; endpoint coordinates checked against saved positions."
+      },
+      {
+        "edge": [
+          5754,
+          7590
+        ],
+        "a": [
+          0.6921224078236915,
+          1.191213569863036,
+          0.007628414513493728
+        ],
+        "b": [
+          0.68945995587957,
+          1.192203037869635,
+          0.004020422663954528
+        ],
+        "point": [
+          67275390,
+          0.6906518652637578,
+          1.1917864214776064,
+          0.005952416829649285
+        ],
+        "endpoints_known": true,
+        "label": "unmapped_or_unknown",
+        "ancestor_faces": [
+          [
+            4285,
+            5754,
+            7590
+          ],
+          [
+            5754,
+            7590,
+            7591
+          ]
+        ],
+        "classification_scope": "Exact split-only reconstructed ancestry; endpoint coordinates checked against saved positions."
+      },
+      {
+        "edge": [
+          4268,
+          7659
+        ],
+        "a": [
+          0.6214799343790606,
+          1.076478672609084,
+          -2.092899637610725e-16
+        ],
+        "b": [
+          0.6226131358065687,
+          1.075824439506903,
+          0.004735731061318669
+        ],
+        "point": [
+          67289358,
+          0.6218109300908078,
+          1.0762858138461582,
+          0.0024471086023589756
+        ],
+        "endpoints_known": true,
+        "label": "unmapped_or_unknown",
+        "ancestor_faces": [
+          [
+            4268,
+            7659,
+            28383778
+          ],
+          [
+            4268,
+            7652,
+            7659
+          ]
+        ],
+        "classification_scope": "Exact split-only reconstructed ancestry; endpoint coordinates checked against saved positions."
+      },
+      {
+        "edge": [
+          4266,
+          18171
+        ],
+        "a": [
+          0.6102073933580459,
+          1.056953263462355,
+          -2.050919048293016e-16
+        ],
+        "b": [
+          0.6113539381774087,
+          1.056291326797155,
+          -0.004791496832264153
+        ],
+        "point": [
+          67319622,
+          0.6105422888678532,
+          1.0567581377122899,
+          -0.0024759245256240655
+        ],
+        "endpoints_known": true,
+        "label": "unmapped_or_unknown",
+        "ancestor_faces": [
+          [
+            4265,
+            4266,
+            18171
+          ],
+          [
+            4266,
+            18163,
+            18171
+          ]
+        ],
+        "classification_scope": "Exact split-only reconstructed ancestry; endpoint coordinates checked against saved positions."
+      },
+      {
+        "edge": [
+          4270,
+          7645
+        ],
+        "a": [
+          0.6325891541736613,
+          1.095721189570091,
+          -2.128725202725919e-16
+        ],
+        "b": [
+          0.6337092369934086,
+          1.095074530255574,
+          0.004680838296722385
+        ],
+        "point": [
+          67456974,
+          0.63291631671759,
+          1.0955305591874893,
+          0.0024187457825520465
+        ],
+        "endpoints_known": true,
+        "label": "unmapped_or_unknown",
+        "ancestor_faces": [
+          [
+            4270,
+            7645,
+            28551394
+          ],
+          [
+            4270,
+            7638,
+            7645
+          ]
+        ],
+        "classification_scope": "Exact split-only reconstructed ancestry; endpoint coordinates checked against saved positions."
+      },
+      {
+        "edge": [
+          4279,
+          7596
+        ],
+        "a": [
+          0.6767394143814717,
+          1.172194798571377,
+          -2.212305737613132e-16
+        ],
+        "b": [
+          0.6777872773389884,
+          1.171602871254578,
+          0.004409124586973237
+        ],
+        "point": [
+          67505862,
+          0.6770457985210308,
+          1.172021989018702,
+          0.002276703845751465
+        ],
+        "endpoints_known": true,
+        "label": "unmapped_or_unknown",
+        "ancestor_faces": [
+          [
+            4278,
+            4279,
+            7596
+          ],
+          [
+            4279,
+            7594,
+            7596
+          ]
+        ],
+        "classification_scope": "Exact split-only reconstructed ancestry; endpoint coordinates checked against saved positions."
+      },
+      {
+        "edge": [
+          4258,
+          18234
+        ],
+        "a": [
+          0.5634379018642177,
+          0.9759428279891965,
+          -1.821240685939085e-16
+        ],
+        "b": [
+          0.5646398182037831,
+          0.9752489235903415,
+          -0.005022888451509063
+        ],
+        "point": [
+          67566390,
+          0.5637889806514522,
+          0.9757382943972301,
+          -0.0025954924725374176
+        ],
+        "endpoints_known": true,
+        "label": "unmapped_or_unknown",
+        "ancestor_faces": [
+          [
+            4257,
+            4258,
+            18234
+          ],
+          [
+            4258,
+            18234,
+            17628418
+          ]
+        ],
+        "classification_scope": "Exact split-only reconstructed ancestry; endpoint coordinates checked against saved positions."
+      },
+      {
+        "edge": [
+          4244,
+          18340
+        ],
+        "a": [
+          0.4747562805981939,
+          0.8223354970612049,
+          -1.187610529325206e-16
+        ],
+        "b": [
+          0.4826923575928757,
+          0.8330816488119797,
+          -0.005428802495103049
+        ],
+        "point": [
+          67578030,
+          0.4784540182516112,
+          0.8278667444304534,
+          -0.0028013329352843184
+        ],
+        "endpoints_known": true,
+        "label": "unmapped_or_unknown",
+        "ancestor_faces": [
+          [
+            4244,
+            4245,
+            18340
+          ],
+          [
+            4244,
+            18340,
+            2794402
+          ]
+        ],
+        "classification_scope": "Exact split-only reconstructed ancestry; endpoint coordinates checked against saved positions."
+      },
+      {
+        "edge": [
+          18240,
+          18250
+        ],
+        "a": [
+          0.5726237505038375,
+          0.9706308309356338,
+          -0.01248660407917395
+        ],
+        "b": [
+          0.5618639661919527,
+          0.962900723631869,
+          -0.009425460587796013
+        ],
+        "point": [
+          67594326,
+          0.5671483216548873,
+          0.9668239041873482,
+          -0.01115295304958757
+        ],
+        "endpoints_known": true,
+        "label": "unmapped_or_unknown",
+        "ancestor_faces": [
+          [
+            18240,
+            18250,
+            4582306
+          ],
+          [
+            18240,
+            18250,
+            18255
+          ]
+        ],
+        "classification_scope": "Exact split-only reconstructed ancestry; endpoint coordinates checked against saved positions."
+      },
+      {
+        "edge": [
+          7761,
+          7769
+        ],
+        "a": [
+          0.5606094649026704,
+          0.949567181092987,
+          0.01263571764608348
+        ],
+        "b": [
+          0.5497049632431541,
+          0.9417164958393862,
+          0.009538169391638207
+        ],
+        "point": [
+          67678134,
+          0.55506053309254,
+          0.9457006555382262,
+          0.011286217139208552
+        ],
+        "endpoints_known": true,
+        "label": "unmapped_or_unknown",
+        "ancestor_faces": [
+          [
+            7761,
+            7762,
+            7769
+          ],
+          [
+            7761,
+            7769,
+            1229986
+          ]
+        ],
+        "classification_scope": "Exact split-only reconstructed ancestry; endpoint coordinates checked against saved positions."
+      },
+      {
+        "edge": [
+          18256,
+          18264
+        ],
+        "a": [
+          0.5606094649026704,
+          0.949567181092987,
+          -0.01263571764608348
+        ],
+        "b": [
+          0.5497049632431541,
+          0.9417164958393862,
+          -0.009538169391638207
+        ],
+        "point": [
+          67722366,
+          0.5550605330925399,
+          0.9457006555382261,
+          -0.011286217139208556
+        ],
+        "endpoints_known": true,
+        "label": "unmapped_or_unknown",
+        "ancestor_faces": [
+          [
+            18256,
+            18257,
+            18264
+          ],
+          [
+            18256,
+            18264,
+            4149298
+          ]
+        ],
+        "classification_scope": "Exact split-only reconstructed ancestry; endpoint coordinates checked against saved positions."
+      },
+      {
+        "edge": [
+          5664,
+          7593
+        ],
+        "a": [
+          0.6909208996005263,
+          1.179283017993109,
+          0.01075601210796366
+        ],
+        "b": [
+          0.6896115992687474,
+          1.186474730469011,
+          0.007815914849865168
+        ],
+        "point": [
+          67799190,
+          0.6901722295361438,
+          1.1829300483396654,
+          0.009458892291145068
+        ],
+        "endpoints_known": true,
+        "label": "unmapped_or_unknown",
+        "ancestor_faces": [
+          [
+            5664,
+            5698,
+            7593
+          ],
+          [
+            5664,
+            7593,
+            7595
+          ]
+        ],
+        "classification_scope": "Exact split-only reconstructed ancestry; endpoint coordinates checked against saved positions."
+      },
+      {
+        "edge": [
+          18211,
+          18212
+        ],
+        "a": [
+          0.5961343612702701,
+          1.011850034068243,
+          -0.012194805437286
+        ],
+        "b": [
+          0.5856579663695944,
+          1.004356221680494,
+          -0.009204900185872712
+        ],
+        "point": [
+          67808502,
+          0.5908028664513456,
+          1.008159904314531,
+          -0.010892169137545303
+        ],
+        "endpoints_known": true,
+        "label": "unmapped_or_unknown",
+        "ancestor_faces": [
+          [
+            18211,
+            18212,
+            18219
+          ],
+          [
+            18211,
+            18212,
+            13046914
+          ]
+        ],
+        "classification_scope": "Exact split-only reconstructed ancestry; endpoint coordinates checked against saved positions."
+      },
+      {
+        "edge": [
+          4250,
+          18292
+        ],
+        "a": [
+          0.5138673475640249,
+          0.8900806117828384,
+          -1.494006607608766e-16
+        ],
+        "b": [
+          0.5214752682936542,
+          0.9003645234261521,
+          -0.005236697514244608
+        ],
+        "point": [
+          67834110,
+          0.5174105839704543,
+          0.8953751499323164,
+          -0.0027022037960593892
+        ],
+        "endpoints_known": true,
+        "label": "unmapped_or_unknown",
+        "ancestor_faces": [
+          [
+            4250,
+            18292,
+            63776395
+          ],
+          [
+            4250,
+            18292,
+            18299
+          ]
+        ],
+        "classification_scope": "Exact split-only reconstructed ancestry; endpoint coordinates checked against saved positions."
+      },
+      {
+        "edge": [
+          7643,
+          7651
+        ],
+        "a": [
+          0.6465943212688804,
+          1.100315785051799,
+          0.01156883298738474
+        ],
+        "b": [
+          0.6367264854779241,
+          1.093330930508474,
+          0.008731629915733318
+        ],
+        "point": [
+          67841094,
+          0.6415719010137462,
+          1.0968772440558832,
+          0.010332699286217327
+        ],
+        "endpoints_known": true,
+        "label": "unmapped_or_unknown",
+        "ancestor_faces": [
+          [
+            7643,
+            7644,
+            7651
+          ],
+          [
+            7643,
+            7651,
+            22978162
+          ]
+        ],
+        "classification_scope": "Exact split-only reconstructed ancestry; endpoint coordinates checked against saved positions."
+      },
+      {
+        "edge": [
+          7716,
+          7717
+        ],
+        "a": [
+          0.5961343612702701,
+          1.011850034068243,
+          0.012194805437286
+        ],
+        "b": [
+          0.5856579663695944,
+          1.004356221680494,
+          0.009204900185872712
+        ],
+        "point": [
+          67878342,
+          0.5908028664513455,
+          1.008159904314531,
+          0.010892169137545295
+        ],
+        "endpoints_known": true,
+        "label": "unmapped_or_unknown",
+        "ancestor_faces": [
+          [
+            7716,
+            7717,
+            7724
+          ],
+          [
+            7716,
+            7717,
+            769042
+          ]
+        ],
+        "classification_scope": "Exact split-only reconstructed ancestry; endpoint coordinates checked against saved positions."
+      },
+      {
+        "edge": [
+          7689,
+          7696
+        ],
+        "a": [
+          0.6133233955020839,
+          1.041986142001483,
+          0.01198146606887503
+        ],
+        "b": [
+          0.6030543540584634,
+          1.034665371711291,
+          0.00904364287776217
+        ],
+        "point": [
+          67913262,
+          0.6080972146936153,
+          1.0383815460534058,
+          0.010701504430181306
+        ],
+        "endpoints_known": true,
+        "label": "unmapped_or_unknown",
+        "ancestor_faces": [
+          [
+            7689,
+            7696,
+            2808370
+          ],
+          [
+            7689,
+            7696,
+            7705
+          ]
+        ],
+        "classification_scope": "Exact split-only reconstructed ancestry; endpoint coordinates checked against saved positions."
+      },
+      {
+        "edge": [
+          4283,
+          14977
+        ],
+        "a": [
+          0.6883764916447492,
+          1.192351628731853,
+          -2.217520332486626e-16
+        ],
+        "b": [
+          0.6919953071250586,
+          1.196299999999894,
+          -0.004294725698817344
+        ],
+        "point": [
+          67915590,
+          0.6899426406957522,
+          1.1944727101209385,
+          -0.0022151138705500156
+        ],
+        "endpoints_known": true,
+        "label": "unmapped_or_unknown",
+        "ancestor_faces": [
+          [
+            4283,
+            4284,
+            14977
+          ],
+          [
+            4283,
+            14977,
+            18085
+          ]
+        ],
+        "classification_scope": "Exact split-only reconstructed ancestry; endpoint coordinates checked against saved positions."
+      },
+      {
+        "edge": [
+          7860,
+          7875
+        ],
+        "a": [
+          0.4729277470589496,
+          0.8079500991294832,
+          0.01024986081698665
+        ],
+        "b": [
+          0.4781198252088537,
+          0.8049449464322329,
+          0.01365952495563599
+        ],
+        "point": [
+          67917918,
+          0.4754206799862709,
+          0.8065055310596021,
+          0.01217134897904824
+        ],
+        "endpoints_known": true,
+        "label": "unmapped_or_unknown",
+        "ancestor_faces": [
+          [
+            7860,
+            7868,
+            7875
+          ],
+          [
+            7860,
+            7875,
+            27727282
+          ]
+        ],
+        "classification_scope": "Exact split-only reconstructed ancestry; endpoint coordinates checked against saved positions."
+      },
+      {
+        "edge": [
+          4274,
+          18113
+        ],
+        "a": [
+          0.6543266269611545,
+          1.133373130618737,
+          -2.182048741532293e-16
+        ],
+        "b": [
+          0.6554219554538985,
+          1.132740762750195,
+          -0.004575320808491781
+        ],
+        "point": [
+          68120454,
+          0.654646581001652,
+          1.1331866899222098,
+          -0.002364283625400291
+        ],
+        "endpoints_known": true,
+        "label": "unmapped_or_unknown",
+        "ancestor_faces": [
+          [
+            4273,
+            4274,
+            18113
+          ],
+          [
+            4274,
+            18113,
+            3632482
+          ]
+        ],
+        "classification_scope": "Exact split-only reconstructed ancestry; endpoint coordinates checked against saved positions."
+      },
+      {
+        "edge": [
+          7793,
+          7795
+        ],
+        "a": [
+          0.5422575519601129,
+          0.91739229553851,
+          0.01286348969174175
+        ],
+        "b": [
+          0.531132122739534,
+          0.9093576516524315,
+          0.009710331681513518
+        ],
+        "point": [
+          68222886,
+          0.5365964085143442,
+          0.913434844980595,
+          0.011489778372943394
+        ],
+        "endpoints_known": true,
+        "label": "unmapped_or_unknown",
+        "ancestor_faces": [
+          [
+            7793,
+            7795,
+            5280706
+          ],
+          [
+            7779,
+            7793,
+            7795
+          ]
+        ],
+        "classification_scope": "Exact split-only reconstructed ancestry; endpoint coordinates checked against saved positions."
+      },
+      {
+        "edge": [
+          18129,
+          18130
+        ],
+        "a": [
+          0.6738455917126148,
+          1.122064278202132,
+          -0.01446196290399845
+        ],
+        "b": [
+          0.6626471420116732,
+          1.116134710823527,
+          -0.01321045290605084
+        ],
+        "point": [
+          68255478,
+          0.6682380359095852,
+          1.1191049680588383,
+          -0.013887344755092249
+        ],
+        "endpoints_known": true,
+        "label": "unmapped_or_unknown",
+        "ancestor_faces": [
+          [
+            18124,
+            18129,
+            18130
+          ]
+        ],
+        "classification_scope": "Exact split-only reconstructed ancestry; endpoint coordinates checked against saved positions."
+      },
+      {
+        "edge": [
+          18170,
+          18176
+        ],
+        "a": [
+          0.6144424809448998,
+          1.05450652773576,
+          -0.008938079751329845
+        ],
+        "b": [
+          0.6245757125994986,
+          1.061713890176117,
+          -0.01184181067788592
+        ],
+        "point": [
+          68257806,
+          0.6194185084314429,
+          1.058165351989803,
+          -0.010576691673687058
+        ],
+        "endpoints_known": true,
+        "label": "unmapped_or_unknown",
+        "ancestor_faces": [
+          [
+            18170,
+            18176,
+            22908322
+          ],
+          [
+            18170,
+            18176,
+            18183
+          ]
+        ],
+        "classification_scope": "Exact split-only reconstructed ancestry; endpoint coordinates checked against saved positions."
+      },
+      {
+        "edge": [
+          7610,
+          7614
+        ],
+        "a": [
+          0.6685876791913206,
+          1.148836064351164,
+          0.008438548154505615
+        ],
+        "b": [
+          0.6728634857923242,
+          1.146361797236529,
+          0.01124471725046352
+        ],
+        "point": [
+          68267118,
+          0.670640607328672,
+          1.1476464653208263,
+          0.01002004160509125
+        ],
+        "endpoints_known": true,
+        "label": "unmapped_or_unknown",
+        "ancestor_faces": [
+          [
+            7610,
+            7614,
+            377938
+          ],
+          [
+            7610,
+            7614,
+            7615
+          ]
+        ],
+        "classification_scope": "Exact split-only reconstructed ancestry; endpoint coordinates checked against saved positions."
+      },
+      {
+        "edge": [
+          4264,
+          7691
+        ],
+        "a": [
+          0.5987692467394644,
+          1.037141005321824,
+          -2.002763378212063e-16
+        ],
+        "b": [
+          0.59992933343208,
+          1.036471250503974,
+          0.004848086925211543
+        ],
+        "point": [
+          68828166,
+          0.5991081001228483,
+          1.0369435788081975,
+          0.0025051665565622512
+        ],
+        "endpoints_known": true,
+        "label": "unmapped_or_unknown",
+        "ancestor_faces": [
+          [
+            4264,
+            7691,
+            28076482
+          ],
+          [
+            4264,
+            7682,
+            7691
+          ]
+        ],
+        "classification_scope": "Exact split-only reconstructed ancestry; endpoint coordinates checked against saved positions."
+      },
+      {
+        "edge": [
+          18152,
+          18162
+        ],
+        "a": [
+          0.6356651188619151,
+          1.081155878063547,
+          -0.01170420589044942
+        ],
+        "b": [
+          0.6256657344655607,
+          1.074060411732249,
+          -0.00883405248752608
+        ],
+        "point": [
+          68900334,
+          0.630575893211354,
+          1.0776626520625063,
+          -0.010453707700057647
+        ],
+        "endpoints_known": true,
+        "label": "unmapped_or_unknown",
+        "ancestor_faces": [
+          [
+            18152,
+            18161,
+            18162
+          ],
+          [
+            18152,
+            18162,
+            11622178
+          ]
+        ],
+        "classification_scope": "Exact split-only reconstructed ancestry; endpoint coordinates checked against saved positions."
+      },
+      {
+        "edge": [
+          4272,
+          18126
+        ],
+        "a": [
+          0.643537308942122,
+          1.114684722358075,
+          -2.158427435283841e-16
+        ],
+        "b": [
+          0.6446446510883622,
+          1.114045418635586,
+          -0.004627129577520287
+        ],
+        "point": [
+          68979486,
+          0.6438607539209066,
+          1.1144962533851408,
+          -0.0023910067012981534
+        ],
+        "endpoints_known": true,
+        "label": "unmapped_or_unknown",
+        "ancestor_faces": [
+          [
+            4271,
+            4272,
+            18126
+          ],
+          [
+            4272,
+            18126,
+            10937746
+          ]
+        ],
+        "classification_scope": "Exact split-only reconstructed ancestry; endpoint coordinates checked against saved positions."
+      },
+      {
+        "edge": [
+          18322,
+          18330
+        ],
+        "a": [
+          0.4992651483534382,
+          0.8538368792788527,
+          -0.01000572471342418
+        ],
+        "b": [
+          0.5107692816818296,
+          0.8621865260433434,
+          -0.01325430150401831
+        ],
+        "point": [
+          68981814,
+          0.5049157873481613,
+          0.8580733832415771,
+          -0.011839047468227235
+        ],
+        "endpoints_known": true,
+        "label": "unmapped_or_unknown",
+        "ancestor_faces": [
+          [
+            18312,
+            18322,
+            18330
+          ],
+          [
+            18322,
+            18330,
+            16664626
+          ]
+        ],
+        "classification_scope": "Exact split-only reconstructed ancestry; endpoint coordinates checked against saved positions."
+      },
+      {
+        "edge": [
+          18138,
+          18146
+        ],
+        "a": [
+          0.6465943212688804,
+          1.100315785051799,
+          -0.01156883298738474
+        ],
+        "b": [
+          0.6367264854779241,
+          1.093330930508474,
+          -0.008731629915733318
+        ],
+        "point": [
+          68984142,
+          0.6415719010137462,
+          1.0968772440558832,
+          -0.010332699286217335
+        ],
+        "endpoints_known": true,
+        "label": "unmapped_or_unknown",
+        "ancestor_faces": [
+          [
+            18138,
+            18146,
+            7585426
+          ],
+          [
+            18138,
+            18146,
+            18151
+          ]
+        ],
+        "classification_scope": "Exact split-only reconstructed ancestry; endpoint coordinates checked against saved positions."
+      },
+      {
+        "edge": [
+          4247,
+          7828
+        ],
+        "a": [
+          0.4945241710681325,
+          0.8565758824963716,
+          -1.347077231184974e-16
+        ],
+        "b": [
+          0.4958076759253141,
+          0.8558348744603059,
+          0.005363837882833725
+        ],
+        "point": [
+          69044670,
+          0.49489909496292117,
+          0.856357485692874,
+          0.0027716726781233415
+        ],
+        "endpoints_known": true,
+        "label": "unmapped_or_unknown",
+        "ancestor_faces": [
+          [
+            4246,
+            4247,
+            7828
+          ],
+          [
+            4247,
+            7828,
+            238258
+          ]
+        ],
+        "classification_scope": "Exact split-only reconstructed ancestry; endpoint coordinates checked against saved positions."
+      },
+      {
+        "edge": [
+          23687,
+          23793
+        ],
+        "a": [
+          0.7024338257009854,
+          1.205372298108851,
+          -6.650358263507225e-09
+        ],
+        "b": [
+          0.7005495986306354,
+          1.203380237264026,
+          0.004933436648254816
+        ],
+        "point": [
+          69161070,
+          0.7013762837684961,
+          1.2046188264488837,
+          0.002518812810148492
+        ],
+        "endpoints_known": true,
+        "label": "unmapped_or_unknown",
+        "ancestor_faces": [
+          [
+            23687,
+            23793,
+            23795
+          ],
+          [
+            23686,
+            23687,
+            23793
+          ]
+        ],
+        "classification_scope": "Exact split-only reconstructed ancestry; endpoint coordinates checked against saved positions."
+      },
+      {
+        "edge": [
+          7849,
+          7859
+        ],
+        "a": [
+          0.4913215024085573,
+          0.8280903501607514,
+          0.01349567450278094
+        ],
+        "b": [
+          0.4795837037398862,
+          0.819546551507903,
+          0.01018816304735373
+        ],
+        "point": [
+          69277470,
+          0.48534932335038367,
+          0.8238812489298679,
+          0.012054761771397629
+        ],
+        "endpoints_known": true,
+        "label": "unmapped_or_unknown",
+        "ancestor_faces": [
+          [
+            7849,
+            7859,
+            4805794
+          ],
+          [
+            7844,
+            7849,
+            7859
+          ]
+        ],
+        "classification_scope": "Exact split-only reconstructed ancestry; endpoint coordinates checked against saved positions."
+      },
+      {
+        "edge": [
+          18231,
+          18233
+        ],
+        "a": [
+          0.5844645900284013,
+          0.9913903923333566,
+          -0.01233964317968016
+        ],
+        "b": [
+          0.5738474993641998,
+          0.9837792363368596,
+          -0.009314378278903664
+        ],
+        "point": [
+          69587094,
+          0.5790616357985299,
+          0.9876422610737488,
+          -0.011021612502420008
+        ],
+        "endpoints_known": true,
+        "label": "unmapped_or_unknown",
+        "ancestor_faces": [
+          [
+            18231,
+            18232,
+            18233
+          ],
+          [
+            18231,
+            18233,
+            22279762
+          ]
+        ],
+        "classification_scope": "Exact split-only reconstructed ancestry; endpoint coordinates checked against saved positions."
+      },
+      {
+        "edge": [
+          7816,
+          7817
+        ],
+        "a": [
+          0.5171585620800033,
+          0.8733883207067966,
+          0.01317500195408805
+        ],
+        "b": [
+          0.5057312343431698,
+          0.8651025263552001,
+          0.009945786920409223
+        ],
+        "point": [
+          69675558,
+          0.5113440790210987,
+          0.869306736988046,
+          0.011768177521675359
+        ],
+        "endpoints_known": true,
+        "label": "unmapped_or_unknown",
+        "ancestor_faces": [
+          [
+            7812,
+            7816,
+            7817
+          ],
+          [
+            7816,
+            7817,
+            17586514
+          ]
+        ],
+        "classification_scope": "Exact split-only reconstructed ancestry; endpoint coordinates checked against saved positions."
+      },
+      {
+        "edge": [
+          4269,
+          18147
+        ],
+        "a": [
+          0.6270548177597834,
+          1.086135047223378,
+          -2.111580079122341e-16
+        ],
+        "b": [
+          0.6281814271071533,
+          1.085484619937904,
+          -0.004708166233008385
+        ],
+        "point": [
+          69715134,
+          0.6273838870525943,
+          1.0859433083371162,
+          -0.0024328654308281342
+        ],
+        "endpoints_known": true,
+        "label": "unmapped_or_unknown",
+        "ancestor_faces": [
+          [
+            4269,
+            18147,
+            8353666
+          ],
+          [
+            4269,
+            18140,
+            18147
+          ]
+        ],
+        "classification_scope": "Exact split-only reconstructed ancestry; endpoint coordinates checked against saved positions."
+      },
+      {
+        "edge": [
+          18344,
+          18354
+        ],
+        "a": [
+          0.4913215024085573,
+          0.8280903501607514,
+          -0.01349567450278094
+        ],
+        "b": [
+          0.4795837037398862,
+          0.819546551507903,
+          -0.01018816304735373
+        ],
+        "point": [
+          69754710,
+          0.4853493233503836,
+          0.8238812489298678,
+          -0.012054761771397634
+        ],
+        "endpoints_known": true,
+        "label": "unmapped_or_unknown",
+        "ancestor_faces": [
+          [
+            18344,
+            18354,
+            6090850
+          ],
+          [
+            18339,
+            18344,
+            18354
+          ]
+        ],
+        "classification_scope": "Exact split-only reconstructed ancestry; endpoint coordinates checked against saved positions."
+      },
+      {
+        "edge": [
+          7736,
+          7738
+        ],
+        "a": [
+          0.5844645900284013,
+          0.9913903923333566,
+          0.01233964317968016
+        ],
+        "b": [
+          0.5738474993641998,
+          0.9837792363368596,
+          0.009314378278903664
+        ],
+        "point": [
+          69908358,
+          0.5790616357985299,
+          0.9876422610737486,
+          0.01102161250242
+        ],
+        "endpoints_known": true,
+        "label": "unmapped_or_unknown",
+        "ancestor_faces": [
+          [
+            7736,
+            7737,
+            7738
+          ],
+          [
+            7736,
+            7738,
+            2515042
+          ]
+        ],
+        "classification_scope": "Exact split-only reconstructed ancestry; endpoint coordinates checked against saved positions."
+      },
+      {
+        "edge": [
+          7597,
+          7598
+        ],
+        "a": [
+          0.683898312763634,
+          1.175904577492032,
+          0.008134455913741304
+        ],
+        "b": [
+          0.6880051289956398,
+          1.17365083427594,
+          0.01090378828642804
+        ],
+        "point": [
+          69989838,
+          0.6858701145789328,
+          1.1748289588807501,
+          0.009688018064952156
+        ],
+        "endpoints_known": true,
+        "label": "unmapped_or_unknown",
+        "ancestor_faces": [
+          [
+            7597,
+            7598,
+            7599
+          ],
+          [
+            7597,
+            7598,
+            14178322
+          ]
+        ],
+        "classification_scope": "Exact split-only reconstructed ancestry; endpoint coordinates checked against saved positions."
+      },
+      {
+        "edge": [
+          7836,
+          7842
+        ],
+        "a": [
+          0.4927520795495912,
+          0.8424893756294322,
+          0.01006609800646924
+        ],
+        "b": [
+          0.5043335576205198,
+          0.8509033056105351,
+          0.01333417747255624
+        ],
+        "point": [
+          70101582,
+          0.49844077802057724,
+          0.846758391002425,
+          0.011910432467732036
+        ],
+        "endpoints_known": true,
+        "label": "unmapped_or_unknown",
+        "ancestor_faces": [
+          [
+            7836,
+            7842,
+            9261586
+          ],
+          [
+            7827,
+            7836,
+            7842
+          ]
+        ],
+        "classification_scope": "Exact split-only reconstructed ancestry; endpoint coordinates checked against saved positions."
+      },
+      {
+        "edge": [
+          18305,
+          18307
+        ],
+        "a": [
+          0.5235017154728254,
+          0.8845092447697295,
+          -0.01309627489280935
+        ],
+        "b": [
+          0.5121506575715468,
+          0.8762868744752912,
+          -0.00988628166087148
+        ],
+        "point": [
+          70127190,
+          0.5177259714247592,
+          0.8804590086163995,
+          -0.011697819117839027
+        ],
+        "endpoints_known": true,
+        "label": "unmapped_or_unknown",
+        "ancestor_faces": [
+          [
+            18305,
+            18307,
+            25813666
+          ],
+          [
+            18305,
+            18306,
+            18307
+          ]
+        ],
+        "classification_scope": "Exact split-only reconstructed ancestry; endpoint coordinates checked against saved positions."
+      },
+      {
+        "edge": [
+          4262,
+          7708
+        ],
+        "a": [
+          0.5871631817351515,
+          1.017037892157695,
+          -1.948425179624324e-16
+        ],
+        "b": [
+          0.5883370091400056,
+          1.016360204391147,
+          0.004905507858295416
+        ],
+        "point": [
+          70276182,
+          0.5875060510884648,
+          1.0168381310611425,
+          0.002534837913245129
+        ],
+        "endpoints_known": true,
+        "label": "unmapped_or_unknown",
+        "ancestor_faces": [
+          [
+            4262,
+            7708,
+            27978706
+          ],
+          [
+            4262,
+            7698,
+            7708
+          ]
+        ],
+        "classification_scope": "Exact split-only reconstructed ancestry; endpoint coordinates checked against saved positions."
+      },
+      {
+        "edge": [
+          7600,
+          7604
+        ],
+        "a": [
+          0.6769972811416081,
+          1.163575121700091,
+          0.008325074285046776
+        ],
+        "b": [
+          0.6812079689050203,
+          1.161155473445967,
+          0.01110796549112895
+        ],
+        "point": [
+          70299462,
+          0.6790180443036975,
+          1.1624122292472003,
+          0.009892087944827465
+        ],
+        "endpoints_known": true,
+        "label": "unmapped_or_unknown",
+        "ancestor_faces": [
+          [
+            7600,
+            7604,
+            3199474
+          ],
+          [
+            7600,
+            7604,
+            7605
+          ]
+        ],
+        "classification_scope": "Exact split-only reconstructed ancestry; endpoint coordinates checked against saved positions."
+      },
+      {
+        "edge": [
+          18643,
+          18644
+        ],
+        "a": [
+          0.2325644658006031,
+          0.3891731503867969,
+          -0.01247791498091388
+        ],
+        "b": [
+          0.219791516897067,
+          0.3769858087300089,
+          -0.00673103251875761
+        ],
+        "point": [
+          70306446,
+          0.2259386807305279,
+          0.38322108619292566,
+          -0.00984411631865128
+        ],
+        "endpoints_known": true,
+        "label": "unmapped_or_unknown",
+        "ancestor_faces": [
+          [
+            18634,
+            18643,
+            18644
+          ],
+          [
+            18643,
+            18644,
+            18650
+          ]
+        ],
+        "classification_scope": "Exact split-only reconstructed ancestry; endpoint coordinates checked against saved positions."
+      }
+    ],
+    "method": "Ambient edge direction projected onto the mapped authority principal directions for splits assigned to a selected original face by exact split-only lineage."
+  },
+  "rejections": {
+    "callback_records": 1288,
+    "callback_reasons": {
+      "failure=3; candidate=True; reason=Native 3D size insertion does not shorten the longest changed-edge frontier.": 4,
+      "failure=0; candidate=False; reason=Native3D candidate does not preserve/improve its frozen geometry error.": 705,
+      "failure=0; candidate=False; reason=Native3D retained apex has incompatible height planes; different connectivity is required.": 230,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 48509 cell 28524296 clearance/h0=-0.954849: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 48412 cell 28543732 clearance/h0=-0.951723: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 48870 cell 28545800 clearance/h0=-3.121511: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 48397 cell 28546788 clearance/h0=-1.360212: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 47559 cell 28578523 clearance/h0=-3.068902: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 47559 cell 28579568 clearance/h0=-3.068902: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 48499 cell 28597979 clearance/h0=-0.926874: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D retained height planes leave no normal-foot freedom.": 38,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 48701 cell 28599021 clearance/h0=-1.225002: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 47564 cell 28605163 clearance/h0=-0.982080: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 47564 cell 28606191 clearance/h0=-0.982080: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 48297 cell 28622560 clearance/h0=-0.498462: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 48069 cell 28673774 clearance/h0=-1.978120: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 47419 cell 28690166 clearance/h0=-1.414806: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 48884 cell 28734178 clearance/h0=-1.855741: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 48360 cell 29059825 clearance/h0=-1.212363: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 47638 cell 29179625 clearance/h0=-0.439173: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 47827 cell 29180685 clearance/h0=-2.326191: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 48011 cell 29181682 clearance/h0=-1.636874: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 16765 cell 29183703 clearance/h0=-1.884501: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 10203 cell 29184723 clearance/h0=-2.512036: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 10204 cell 29185780 clearance/h0=-2.851726: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 10371 cell 29187809 clearance/h0=-3.306752: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 10388 cell 29189857 clearance/h0=-2.946517: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 16453 cell 29191909 clearance/h0=-2.083136: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 10361 cell 29192969 clearance/h0=-2.959858: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 16156 cell 29193949 clearance/h0=-2.294604: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 10352 cell 29195007 clearance/h0=-2.878688: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 10352 cell 29196025 clearance/h0=-2.878688: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 35768 cell 29198044 clearance/h0=-2.249239: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 35767 cell 29199091 clearance/h0=-2.310053: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D joint point cannot see its retained skin.": 17,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 35767 cell 29199092 clearance/h0=-2.310053: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 35767 cell 29199093 clearance/h0=-2.310053: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 35767 cell 29199094 clearance/h0=-2.310053: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 35766 cell 29199110 clearance/h0=-2.374852: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 35766 cell 29199111 clearance/h0=-2.374852: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 29457 cell 29199087 clearance/h0=-2.624491: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 2,
+      "failure=0; candidate=False; reason=Native 3D cavity link has a nonmanifold edge.": 5,
+      "failure=0; candidate=False; reason=Native 3D cavity has a disconnected or unclosed link.": 5,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 29457 cell 29199089 clearance/h0=-2.624491: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 35468 cell 29200105 clearance/h0=-2.690714: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 2,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 35468 cell 29200119 clearance/h0=-2.690714: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 16469 cell 29202143 clearance/h0=-1.805872: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 10211 cell 29203172 clearance/h0=-2.873667: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 10204 cell 29204209 clearance/h0=-2.851726: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 29740 cell 29215447 clearance/h0=-2.368037: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 29740 cell 29216480 clearance/h0=-2.308032: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 29740 cell 29217544 clearance/h0=-2.368037: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 10204 cell 29221602 clearance/h0=-2.851726: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 10204 cell 29222626 clearance/h0=-2.851726: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 36351 cell 29223634 clearance/h0=-0.735883: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 36350 cell 29224688 clearance/h0=-0.754091: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 29473 cell 29225748 clearance/h0=-1.276142: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 10307 cell 29229812 clearance/h0=-1.975329: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 16459 cell 29230857 clearance/h0=-2.821507: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D retained height/normal-foot constraints have no common fit.": 5,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 35765 cell 29231846 clearance/h0=-2.419106: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 29474 cell 29232878 clearance/h0=-2.389865: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 16460 cell 29233916 clearance/h0=-2.743352: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 35763 cell 29234949 clearance/h0=-2.450262: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 35459 cell 29237975 clearance/h0=-2.051558: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 29525 cell 29239019 clearance/h0=-2.646243: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 35764 cell 29240031 clearance/h0=-2.450041: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 35764 cell 29241088 clearance/h0=-2.450041: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 10440 cell 29242083 clearance/h0=-0.832123: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 29509 cell 29243107 clearance/h0=-2.896050: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 17030 cell 29244148 clearance/h0=-1.106622: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 35765 cell 29245139 clearance/h0=-2.419106: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 17029 cell 29246190 clearance/h0=-1.115755: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 17029 cell 29246191 clearance/h0=-1.115755: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 17029 cell 29246192 clearance/h0=-1.115755: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 17029 cell 29246193 clearance/h0=-1.115755: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 17029 cell 29246194 clearance/h0=-1.115755: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 17029 cell 29246206 clearance/h0=-1.115755: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 48101 cell 29250291 clearance/h0=-2.141883: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 48614 cell 29253345 clearance/h0=-4.881532: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 16461 cell 29260535 clearance/h0=-2.721365: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 16461 cell 29262550 clearance/h0=-2.721365: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 48908 cell 29263605 clearance/h0=-1.471376: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 48636 cell 29264651 clearance/h0=-2.176736: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 36333 cell 29271791 clearance/h0=-0.695525: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 29613 cell 29272794 clearance/h0=-0.949675: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 29622 cell 29273865 clearance/h0=-0.957885: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 10406 cell 29276916 clearance/h0=-2.176633: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 16448 cell 29277936 clearance/h0=-3.079846: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 10397 cell 29278962 clearance/h0=-2.996063: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 16149 cell 29280999 clearance/h0=-3.380081: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 16451 cell 29282005 clearance/h0=-2.923018: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 10415 cell 29283049 clearance/h0=-2.970796: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 16148 cell 29285105 clearance/h0=-2.456002: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 16450 cell 29286127 clearance/h0=-2.972246: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 16450 cell 29286128 clearance/h0=-2.972246: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 29485 cell 29290221 clearance/h0=-1.301908: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 29485 cell 29291274 clearance/h0=-1.301908: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 29485 cell 29292284 clearance/h0=-1.301908: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 10242 cell 29298407 clearance/h0=-0.849454: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 10225 cell 29300452 clearance/h0=-1.917069: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 10242 cell 29302541 clearance/h0=-0.849454: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 10352 cell 29304561 clearance/h0=-2.936378: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 35770 cell 29305565 clearance/h0=-1.494688: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 16454 cell 29306643 clearance/h0=-2.853537: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 35770 cell 29307642 clearance/h0=-2.051234: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 35471 cell 29308648 clearance/h0=-2.431792: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 47849 cell 29309655 clearance/h0=-2.701577: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 47849 cell 29310710 clearance/h0=-2.701577: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 48725 cell 29311737 clearance/h0=-2.805449: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 29659 cell 29319909 clearance/h0=-2.191332: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 29643 cell 29320931 clearance/h0=-3.255740: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 35743 cell 29321976 clearance/h0=-2.876529: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 48636 cell 29323033 clearance/h0=-2.176736: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 48636 cell 29324032 clearance/h0=-2.479089: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 48636 cell 29325077 clearance/h0=-2.176736: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 16479 cell 29339365 clearance/h0=-1.564690: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 16479 cell 29340389 clearance/h0=-2.146774: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 16478 cell 29341440 clearance/h0=-2.249239: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 10194 cell 29342440 clearance/h0=-0.552504: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 10189 cell 29343459 clearance/h0=-1.831999: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 10194 cell 29344505 clearance/h0=-0.779970: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 47988 cell 29349603 clearance/h0=-3.337808: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 29750 cell 29354736 clearance/h0=-2.293396: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 35434 cell 29355784 clearance/h0=-3.480850: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 29741 cell 29356777 clearance/h0=-3.142645: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 29465 cell 29368017 clearance/h0=-1.917065: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 35467 cell 29369052 clearance/h0=-2.734721: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 16767 cell 29375197 clearance/h0=-1.852418: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 10190 cell 29376213 clearance/h0=-2.473861: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 10190 cell 29377259 clearance/h0=-2.473861: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 47824 cell 29383421 clearance/h0=-3.653663: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 47726 cell 29385438 clearance/h0=-3.529005: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 29614 cell 29390573 clearance/h0=-2.098035: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 29606 cell 29392601 clearance/h0=-2.787809: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 29606 cell 29395692 clearance/h0=-2.787809: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 35736 cell 29396731 clearance/h0=-3.068558: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 35439 cell 29397733 clearance/h0=-3.348058: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 36049 cell 29420265 clearance/h0=-1.972996: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 29535 cell 29421290 clearance/h0=-2.964771: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 48451 cell 29422309 clearance/h0=-2.663196: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 35458 cell 29425389 clearance/h0=-2.913861: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 10167 cell 29429460 clearance/h0=-2.624491: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 10167 cell 29430484 clearance/h0=-2.624491: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 10167 cell 29431524 clearance/h0=-2.624491: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 17043 cell 29444829 clearance/h0=-0.695525: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 16459 cell 29445861 clearance/h0=-2.765500: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 29479 cell 29446864 clearance/h0=-1.831999: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 29479 cell 29447915 clearance/h0=-1.831999: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 10306 cell 29448937 clearance/h0=-2.061656: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 29479 cell 29449953 clearance/h0=-1.831999: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 36024 cell 29464290 clearance/h0=-2.464858: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 35730 cell 29465306 clearance/h0=-3.218358: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 47746 cell 29466334 clearance/h0=-3.785196: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 35730 cell 29470446 clearance/h0=-3.218358: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 10242 cell 29484771 clearance/h0=-0.849454: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 17053 cell 29485783 clearance/h0=-0.838794: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 29486 cell 29499101 clearance/h0=-1.758440: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 10191 cell 29500136 clearance/h0=-2.809716: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 10174 cell 29501151 clearance/h0=-1.693376: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 16476 cell 29502195 clearance/h0=-2.429140: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 10167 cell 29506275 clearance/h0=-2.624491: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 16143 cell 29512407 clearance/h0=-2.561730: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 10461 cell 29513448 clearance/h0=-3.625156: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 16760 cell 29521625 clearance/h0=-1.955655: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 10244 cell 29522641 clearance/h0=-2.613813: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 10167 cell 29523683 clearance/h0=-2.624491: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 10244 cell 29524711 clearance/h0=-2.613813: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 29650 cell 29558502 clearance/h0=-2.185826: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 29634 cell 29559519 clearance/h0=-3.230511: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 16162 cell 29560545 clearance/h0=-2.179564: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 16460 cell 29561596 clearance/h0=-2.743352: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 29633 cell 29566689 clearance/h0=-2.855720: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 29468 cell 29583089 clearance/h0=-1.261064: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 16460 cell 29599473 clearance/h0=-2.799029: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 16461 cell 29600508 clearance/h0=-2.721365: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 36055 cell 29602512 clearance/h0=-1.884501: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 36055 cell 29603536 clearance/h0=-1.884501: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 36055 cell 29604585 clearance/h0=-1.884501: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 10210 cell 29606638 clearance/h0=-2.531494: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 16758 cell 29607637 clearance/h0=-2.003186: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 10262 cell 29608698 clearance/h0=-2.710740: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 16462 cell 29610709 clearance/h0=-2.699537: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 10204 cell 29612808 clearance/h0=-2.851726: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 16465 cell 29613792 clearance/h0=-2.635003: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 16455 cell 29616856 clearance/h0=-2.830711: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 16455 cell 29619928 clearance/h0=-2.830711: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 36041 cell 29620945 clearance/h0=-2.129632: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 36041 cell 29623012 clearance/h0=-2.129632: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 36058 cell 29632225 clearance/h0=-1.289362: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 29479 cell 29633232 clearance/h0=-1.831999: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 47783 cell 29637349 clearance/h0=-5.805569: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 47795 cell 29638385 clearance/h0=-5.779437: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 47764 cell 29661909 clearance/h0=-3.789789: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 35451 cell 29679325 clearance/h0=-2.198390: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 29589 cell 29681400 clearance/h0=-3.107079: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 16157 cell 29714161 clearance/h0=-2.275081: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 10343 cell 29715180 clearance/h0=-2.913069: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 10334 cell 29718261 clearance/h0=-2.832918: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 29775 cell 29724383 clearance/h0=-0.888185: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 35730 cell 29725420 clearance/h0=-3.218358: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 29775 cell 29727481 clearance/h0=-1.167399: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 29544 cell 29735632 clearance/h0=-2.988058: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 29544 cell 29736656 clearance/h0=-2.988058: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 29544 cell 29737699 clearance/h0=-2.988058: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 10324 cell 29740777 clearance/h0=-2.098035: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 10316 cell 29742857 clearance/h0=-2.844148: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 16756 cell 29743837 clearance/h0=-2.038658: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 16459 cell 29745894 clearance/h0=-2.765500: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 16462 cell 29746919 clearance/h0=-2.699537: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 10179 cell 29755115 clearance/h0=-1.713110: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 16478 cell 29756123 clearance/h0=-1.626616: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 10165 cell 29757159 clearance/h0=-2.234215: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 10179 cell 29758197 clearance/h0=-2.399613: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 48675 cell 29772506 clearance/h0=-3.302165: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 35446 cell 29794011 clearance/h0=-2.294604: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 29634 cell 29795062 clearance/h0=-3.278571: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 29625 cell 29796082 clearance/h0=-3.205464: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 16481 cell 29800154 clearance/h0=-1.857249: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 16182 cell 29802219 clearance/h0=-2.306781: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 16480 cell 29805286 clearance/h0=-2.032372: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 16147 cell 29811419 clearance/h0=-3.433003: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 16147 cell 29812448 clearance/h0=-3.400599: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 16147 cell 29815528 clearance/h0=-3.433003: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 35472 cell 29816537 clearance/h0=-1.641234: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 47733 cell 29849316 clearance/h0=-5.153418: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 35730 cell 29853402 clearance/h0=-3.218358: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 35730 cell 29854444 clearance/h0=-3.218358: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 16480 cell 29866730 clearance/h0=-2.032372: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 16169 cell 29873883 clearance/h0=-2.051558: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 29552 cell 29887196 clearance/h0=-2.656357: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 29544 cell 29888238 clearance/h0=-3.033362: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 35745 cell 29910757 clearance/h0=-2.046677: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 29625 cell 29911783 clearance/h0=-3.205464: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 29624 cell 29914862 clearance/h0=-2.832918: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 36041 cell 29917905 clearance/h0=-2.129632: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 35448 cell 29924055 clearance/h0=-2.255698: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 29616 cell 29925098 clearance/h0=-3.180599: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 29616 cell 29929197 clearance/h0=-3.180599: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 35759 cell 29933275 clearance/h0=-1.805872: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 10211 cell 29934304 clearance/h0=-2.873667: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 29494 cell 29935329 clearance/h0=-2.851726: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 29494 cell 29940484 clearance/h0=-2.895425: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 10197 cell 29941503 clearance/h0=-2.830390: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 35461 cell 29948641 clearance/h0=-2.016251: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 29766 cell 29962989 clearance/h0=-0.876810: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 10361 cell 29964015 clearance/h0=-2.901823: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 36316 cell 29965012 clearance/h0=-1.157966: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 16477 cell 29969120 clearance/h0=-2.310053: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 16475 cell 29979350 clearance/h0=-2.419106: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 29616 cell 29993704 clearance/h0=-3.228092: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 29481 cell 30003924 clearance/h0=-2.809716: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 29481 cell 30004961 clearance/h0=-2.852887: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 29634 cell 30017268 clearance/h0=-3.230511: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 48659 cell 30021347 clearance/h0=-3.069198: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 35732 cell 30028507 clearance/h0=-3.167700: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 10316 cell 30087893 clearance/h0=-2.787809: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 10424 cell 30133977 clearance/h0=-2.994704: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 16438 cell 30175998 clearance/h0=-3.269752: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 16438 cell 30177018 clearance/h0=-3.269752: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 10496 cell 30178023 clearance/h0=-3.242181: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 16154 cell 30189285 clearance/h0=-2.334079: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 16452 cell 30190306 clearance/h0=-2.983508: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 36054 cell 30195425 clearance/h0=-1.900575: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 36054 cell 30196432 clearance/h0=-1.900575: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 36054 cell 30197489 clearance/h0=-1.900575: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 16173 cell 30235355 clearance/h0=-1.981916: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 10191 cell 30236372 clearance/h0=-2.809716: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 10197 cell 30238439 clearance/h0=-2.873815: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 10191 cell 30240499 clearance/h0=-2.809716: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 29499 cell 30292709 clearance/h0=-1.327944: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 36055 cell 30293725 clearance/h0=-1.884501: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 16147 cell 30367471 clearance/h0=-3.433003: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 35445 cell 30421721 clearance/h0=-2.314270: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 29643 cell 30422774 clearance/h0=-3.304087: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 10487 cell 30600953 clearance/h0=-3.307085: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 10168 cell 31031003 clearance/h0=-1.672634: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 10253 cell 31038175 clearance/h0=-1.872130: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 16772 cell 31061732 clearance/h0=-1.219360: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D wall refit needs complete free apex stars.": 3,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 43339 cell 31204069 clearance/h0=-1.298981: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 43339 cell 31205072 clearance/h0=-1.383646: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1,
+      "failure=0; candidate=False; reason=Native3D geometry-height incompatibility of the normal-row proposal at facet 43339 cell 31206092 clearance/h0=-1.298981: positive smooth-reference clearance is not certified; reconsider the wall/row proposal.": 1
+    },
+    "geometry_guidance_trials": 1014,
+    "geometry_guidance_rejected": 705,
+    "guidance_rejection_fraction": 0.6952662721893491,
+    "logical_split_trial_denominator_available": false,
+    "note": "Rejected-trial callbacks, geometry-guidance counters and logical split trials are distinct; no logical-trial refusal fraction inferred."
+  },
+  "principal_probes": [],
+  "principal_cap_checks": [],
+  "patch_decision": {
+    "tip": {
+      "status": "unresolved",
+      "original_faces": 6,
+      "faces": [
+        {
+          "facet": 16479,
+          "original_face": [
+            7594,
+            7595,
+            7597
+          ],
+          "mask": 5,
+          "lineage_proven": false,
+          "pre_bound": null,
+          "descendants": [
+            {
+              "vertices": [
+                7594,
+                7595,
+                7597
+              ],
+              "depth": 0,
+              "physical_output_present": true,
+              "observation_present": false,
+              "scope_complete": false,
+              "lower": null,
+              "upper": null
+            }
+          ],
+          "maximum_depth": 0,
+          "max_descendant_lower": null,
+          "max_descendant_upper": null,
+          "certified_upper_improved": false,
+          "within_two_halvings": false,
+          "decision": "unresolved"
+        },
+        {
+          "facet": 10162,
+          "original_face": [
+            7592,
+            7594,
+            7595
+          ],
+          "mask": 5,
+          "lineage_proven": false,
+          "pre_bound": null,
+          "descendants": [
+            {
+              "vertices": [
+                7592,
+                7594,
+                7595
+              ],
+              "depth": 0,
+              "physical_output_present": true,
+              "observation_present": false,
+              "scope_complete": false,
+              "lower": null,
+              "upper": null
+            }
+          ],
+          "maximum_depth": 0,
+          "max_descendant_lower": null,
+          "max_descendant_upper": null,
+          "certified_upper_improved": false,
+          "within_two_halvings": false,
+          "decision": "unresolved"
+        },
+        {
+          "facet": 10165,
+          "original_face": [
+            7594,
+            7596,
+            7597
+          ],
+          "mask": 5,
+          "lineage_proven": false,
+          "pre_bound": null,
+          "descendants": [
+            {
+              "vertices": [
+                7594,
+                7596,
+                7597
+              ],
+              "depth": 0,
+              "physical_output_present": true,
+              "observation_present": false,
+              "scope_complete": false,
+              "lower": null,
+              "upper": null
+            }
+          ],
+          "maximum_depth": 0,
+          "max_descendant_lower": null,
+          "max_descendant_upper": null,
+          "certified_upper_improved": false,
+          "within_two_halvings": false,
+          "decision": "unresolved"
+        },
+        {
+          "facet": 16181,
+          "original_face": [
+            4280,
+            7592,
+            7594
+          ],
+          "mask": 5,
+          "lineage_proven": false,
+          "pre_bound": null,
+          "descendants": [
+            {
+              "vertices": [
+                4280,
+                7592,
+                7594
+              ],
+              "depth": 0,
+              "physical_output_present": true,
+              "observation_present": false,
+              "scope_complete": false,
+              "lower": null,
+              "upper": null
+            }
+          ],
+          "maximum_depth": 0,
+          "max_descendant_lower": null,
+          "max_descendant_upper": null,
+          "certified_upper_improved": false,
+          "within_two_halvings": false,
+          "decision": "unresolved"
+        },
+        {
+          "facet": 16180,
+          "original_face": [
+            4279,
+            7594,
+            7596
+          ],
+          "mask": 5,
+          "lineage_proven": false,
+          "pre_bound": null,
+          "descendants": [
+            {
+              "vertices": [
+                4279,
+                7594,
+                67505862
+              ],
+              "depth": 1,
+              "physical_output_present": true,
+              "observation_present": false,
+              "scope_complete": false,
+              "lower": null,
+              "upper": null
+            },
+            {
+              "vertices": [
+                7594,
+                7596,
+                67505862
+              ],
+              "depth": 1,
+              "physical_output_present": true,
+              "observation_present": false,
+              "scope_complete": false,
+              "lower": null,
+              "upper": null
+            }
+          ],
+          "maximum_depth": 1,
+          "max_descendant_lower": null,
+          "max_descendant_upper": null,
+          "certified_upper_improved": false,
+          "within_two_halvings": false,
+          "decision": "unresolved"
+        },
+        {
+          "facet": 10163,
+          "original_face": [
+            4279,
+            4280,
+            7594
+          ],
+          "mask": 5,
+          "lineage_proven": false,
+          "pre_bound": null,
+          "descendants": [
+            {
+              "vertices": [
+                4279,
+                4280,
+                7594
+              ],
+              "depth": 0,
+              "physical_output_present": true,
+              "observation_present": false,
+              "scope_complete": false,
+              "lower": null,
+              "upper": null
+            }
+          ],
+          "maximum_depth": 0,
+          "max_descendant_lower": null,
+          "max_descendant_upper": null,
+          "certified_upper_improved": false,
+          "within_two_halvings": false,
+          "decision": "unresolved"
+        }
+      ],
+      "lineage_and_observation_coverage_proven": false,
+      "maximum_descendant_depth_le_2_proven": false
+    },
+    "root": {
+      "status": "unresolved",
+      "original_faces": 8,
+      "faces": [
+        {
+          "facet": 44780,
+          "original_face": [
+            68,
+            17814,
+            17815
+          ],
+          "mask": 2,
+          "lineage_proven": false,
+          "pre_bound": null,
+          "descendants": [
+            {
+              "vertices": [
+                68,
+                17814,
+                17815
+              ],
+              "depth": 0,
+              "physical_output_present": true,
+              "observation_present": false,
+              "scope_complete": false,
+              "lower": null,
+              "upper": null
+            }
+          ],
+          "maximum_depth": 0,
+          "max_descendant_lower": null,
+          "max_descendant_upper": null,
+          "certified_upper_improved": false,
+          "within_two_halvings": false,
+          "decision": "unresolved"
+        },
+        {
+          "facet": 30334,
+          "original_face": [
+            17814,
+            17817,
+            18866
+          ],
+          "mask": 6,
+          "lineage_proven": false,
+          "pre_bound": null,
+          "descendants": [
+            {
+              "vertices": [
+                17814,
+                17817,
+                18866
+              ],
+              "depth": 0,
+              "physical_output_present": true,
+              "observation_present": false,
+              "scope_complete": false,
+              "lower": null,
+              "upper": null
+            }
+          ],
+          "maximum_depth": 0,
+          "max_descendant_lower": null,
+          "max_descendant_upper": null,
+          "certified_upper_improved": false,
+          "within_two_halvings": false,
+          "decision": "unresolved"
+        },
+        {
+          "facet": 30333,
+          "original_face": [
+            17808,
+            17814,
+            18862
+          ],
+          "mask": 2,
+          "lineage_proven": false,
+          "pre_bound": null,
+          "descendants": [
+            {
+              "vertices": [
+                17808,
+                17814,
+                18862
+              ],
+              "depth": 0,
+              "physical_output_present": true,
+              "observation_present": false,
+              "scope_complete": false,
+              "lower": null,
+              "upper": null
+            }
+          ],
+          "maximum_depth": 0,
+          "max_descendant_lower": null,
+          "max_descendant_upper": null,
+          "certified_upper_improved": false,
+          "within_two_halvings": false,
+          "decision": "unresolved"
+        },
+        {
+          "facet": 44777,
+          "original_face": [
+            17808,
+            17814,
+            17815
+          ],
+          "mask": 2,
+          "lineage_proven": false,
+          "pre_bound": null,
+          "descendants": [
+            {
+              "vertices": [
+                17808,
+                17814,
+                17815
+              ],
+              "depth": 0,
+              "physical_output_present": true,
+              "observation_present": false,
+              "scope_complete": false,
+              "lower": null,
+              "upper": null
+            }
+          ],
+          "maximum_depth": 0,
+          "max_descendant_lower": null,
+          "max_descendant_upper": null,
+          "certified_upper_improved": false,
+          "within_two_halvings": false,
+          "decision": "unresolved"
+        },
+        {
+          "facet": 30330,
+          "original_face": [
+            17814,
+            18862,
+            715498
+          ],
+          "mask": 2,
+          "lineage_proven": false,
+          "pre_bound": null,
+          "descendants": [
+            {
+              "vertices": [
+                17814,
+                18862,
+                715498
+              ],
+              "depth": 0,
+              "physical_output_present": true,
+              "observation_present": false,
+              "scope_complete": false,
+              "lower": null,
+              "upper": null
+            }
+          ],
+          "maximum_depth": 0,
+          "max_descendant_lower": null,
+          "max_descendant_upper": null,
+          "certified_upper_improved": false,
+          "within_two_halvings": false,
+          "decision": "unresolved"
+        },
+        {
+          "facet": 36258,
+          "original_face": [
+            17814,
+            18866,
+            715498
+          ],
+          "mask": 6,
+          "lineage_proven": false,
+          "pre_bound": null,
+          "descendants": [
+            {
+              "vertices": [
+                17814,
+                18866,
+                715498
+              ],
+              "depth": 0,
+              "physical_output_present": true,
+              "observation_present": false,
+              "scope_complete": false,
+              "lower": null,
+              "upper": null
+            }
+          ],
+          "maximum_depth": 0,
+          "max_descendant_lower": null,
+          "max_descendant_upper": null,
+          "certified_upper_improved": false,
+          "within_two_halvings": false,
+          "decision": "unresolved"
+        },
+        {
+          "facet": 44772,
+          "original_face": [
+            17814,
+            17817,
+            64065077
+          ],
+          "mask": 6,
+          "lineage_proven": false,
+          "pre_bound": null,
+          "descendants": [
+            {
+              "vertices": [
+                17814,
+                17817,
+                64065077
+              ],
+              "depth": 0,
+              "physical_output_present": true,
+              "observation_present": false,
+              "scope_complete": false,
+              "lower": null,
+              "upper": null
+            }
+          ],
+          "maximum_depth": 0,
+          "max_descendant_lower": null,
+          "max_descendant_upper": null,
+          "certified_upper_improved": false,
+          "within_two_halvings": false,
+          "decision": "unresolved"
+        },
+        {
+          "facet": 44774,
+          "original_face": [
+            68,
+            17814,
+            64065077
+          ],
+          "mask": 2,
+          "lineage_proven": false,
+          "pre_bound": null,
+          "descendants": [
+            {
+              "vertices": [
+                68,
+                17814,
+                64065077
+              ],
+              "depth": 0,
+              "physical_output_present": true,
+              "observation_present": false,
+              "scope_complete": false,
+              "lower": null,
+              "upper": null
+            }
+          ],
+          "maximum_depth": 0,
+          "max_descendant_lower": null,
+          "max_descendant_upper": null,
+          "certified_upper_improved": false,
+          "within_two_halvings": false,
+          "decision": "unresolved"
+        }
+      ],
+      "lineage_and_observation_coverage_proven": false,
+      "maximum_descendant_depth_le_2_proven": false
+    },
+    "overall": "unresolved",
+    "reason": "Split-only replay proves descendants only when edit counters, input/output physical faces, published split records and fixed observations agree exactly. Otherwise the affected criterion remains unresolved.",
+    "reject_requires": "A certified lower bound above tolerance after two geometric curved-direction halvings; topological depth alone is insufficient and does not trigger rejection here.",
+    "support_requires": "Complete fixed-face descendant coverage, two halvings, every required upper bound at or below tolerance, and all other plan gates.",
+    "plan_gates": {
+      "logical_refusal_fraction": "unresolved; exact logical trial denominator unavailable",
+      "accepted_splits": {
+        "observed": 305,
+        "support_threshold_met": true
+      },
+      "split_direction": "unresolved",
+      "tip_patch": "unresolved",
+      "root_patch": "unresolved",
+      "overall": "unresolved"
+    }
+  },
+  "bad_face_counts_used_as_progress": false
+}

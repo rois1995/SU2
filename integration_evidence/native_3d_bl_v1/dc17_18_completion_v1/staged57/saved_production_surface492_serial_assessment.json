@@ -1,0 +1,109 @@
+{
+  "assessment_helper": {
+    "path": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/assess_saved_production_surface492_v2.py",
+    "sha256": "d1648f43e2389f66520ff9f5bd305ec644ee87ff430d9f46d9cac7f68dcf674f"
+  },
+  "case": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved492_saved_production_surface_serial_20261113T163756_3724702",
+  "status": {
+    "state": "terminal",
+    "exit_code": 0,
+    "seconds": 566.441118478775,
+    "pins_verified": true,
+    "changed": [],
+    "largest_sampled_individual_process_rss_bytes": 3194220544,
+    "rss_note": "sampled process RSS; not a whole-job peak"
+  },
+  "pins_verified": 1794,
+  "actual_handles_terminal": true,
+  "input_donors_exact": 303823,
+  "input_cells": 303823,
+  "output_cells": 304593,
+  "output_nodes": 61855,
+  "all_output_cells_positive_and_sensor_present": true,
+  "same_target_policy": true,
+  "input_parameters_unchanged": true,
+  "surface_ready": false,
+  "final_mesh_accepted": false,
+  "goal_complete": false,
+  "result": {
+    "rank": 0,
+    "ranks": 1,
+    "input_cells": 303823,
+    "donor_cells": 303823,
+    "output_cells": 304593,
+    "global_output_cells": 304593,
+    "positive_cells": 304593,
+    "sensor_cells": 304593,
+    "surface_prepared": false,
+    "engine_valid": false,
+    "final_mesh_accepted": false,
+    "same_target_policy": true,
+    "input_parameters_unchanged": true,
+    "exact_transported_input": true,
+    "captured": true,
+    "stage_height": 6.4e-05,
+    "seconds": 389.572521653,
+    "maximum_seconds": 388.8,
+    "maximum_work": 233220,
+    "stop": "time_budget",
+    "reason": "Native 3D kernel elapsed-time budget exhausted; feasibility is undetermined. Local cached demands: geometry_cells=1258, metric_or_height_cells=2337, geometry_edges=0, metric_edges=0. Last local rejection: edge 74,75: Native3D candidate does not preserve/improve its frozen geometry error.",
+    "work": 2974,
+    "commits": 305,
+    "moved": 0,
+    "reconnected": 0,
+    "splits": 305,
+    "collapses": 0,
+    "geometry_work": 73841533,
+    "process_cpu_seconds": 389.20481,
+    "ownership_evaluations": 0,
+    "ownership_changes": 0,
+    "ownership_moved_cells": 0,
+    "geometry_guidance_trials": 1014,
+    "geometry_guidance_rejected": 705,
+    "surface_required": 39853,
+    "surface_measured": 31308,
+    "surface_census_complete": false,
+    "surface_geometry_complete": false,
+    "upper_calls": 14417,
+    "upper_work": 78532577,
+    "upper_seconds": 235.26856906600068,
+    "scope_work": 795505,
+    "scope_seconds": 16.793175133999984,
+    "facet_work": 1494240,
+    "traversal_work": 75023207,
+    "tracked_collective_seconds": 0.18747413900823062,
+    "ownership_seconds": 0,
+    "maximum_work_bytes": 10098980728,
+    "timers_overlap": true,
+    "cpu_includes_MPI_polling": true
+  },
+  "files": {
+    "owned": {
+      "path": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved492_saved_production_surface_serial_20261113T163756_3724702/stage_resumed_surface_rank0_owned.bin",
+      "sha256": "89886f8bf3dc736b9f04df73b7c588becf489519ebd909a3dbb0dd8faee92539",
+      "bytes": 126710696
+    },
+    "donors": {
+      "path": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved492_saved_production_surface_serial_20261113T163756_3724702/stage_resumed_surface_rank0_donors.bin",
+      "sha256": "dcd909d3d0e119d9440d3f825672f1cdd317ceb66ed33d6493022849c54697f7",
+      "bytes": 104515120
+    },
+    "parameters": {
+      "path": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved492_saved_production_surface_serial_20261113T163756_3724702/stage_resumed_surface_rank0_parameters.bin",
+      "sha256": "52ddcac68784232c81f9556149ed2b31efc48844839ea89755ef85ec47c94dbc",
+      "bytes": 5124832
+    }
+  },
+  "fixed_nose_observation_assessment": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/nose_target_observation492_assessment.json",
+  "limitations": [
+    "Provisional validity-first surface output, not accepted mesh or solver restart.",
+    "No first row, strict closure, final quality/height gates, transfer or CFD continuation established.",
+    "Exact nose-face lineage is credited only when split-only counters, replayed descendants, output faces and observation rows all agree.",
+    "Rejection callbacks are not logical split-trial counts; guidance counters are reported separately.",
+    "No progress inferred from changing bad-face counts."
+  ],
+  "checkpoint": {
+    "path": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/saved_surface492_checkpoint.json",
+    "sha256": "a7a0acfea2e71d88f3253a553b877788afe9476bbec4f6ab70ccb362aacdc990"
+  }
+}
