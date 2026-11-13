@@ -1,8 +1,9 @@
 # Adaptation timings and computational work
 
-Updated2026-11-13:485/486comparisons TERMINAL; build487 PASS465.248s; actual487comparison TERMINAL173.451s; build488PASS329.814s; actual488TERMINAL183.618s; build489failed61.791s; retrybuild490LIVE/FROZEN;484affected discovery serial/MPI PASS; M6surface
-trajectory TERMINAL/notready. Build488PASS329.814s/2tasks/1530pins/10actualidentities, CFDunchanged; actual488TERMINAL183.618s/1799pins/fiveactualidentities.2513378geometrywork; roothelper63009work/1step/.012637s, no growth20→20; positivefinalReconnectCollapse20→21 takes385264work/1.621721s includingmeasurements/admission. q20→18,J19→16,geometry7→6 butexcess+57.793%refuses, nopublication/Ownedparamsunchanged. Tip149829work/1.580353s,control154428/.570115s. Finalcalls3/internaltotalupper9of24. GNUtime173.50user+1.48system/176.31wall versus183.618outer; attributionremainderunsplit. IndividualRSS1,375,707,136B notwholepeak. No timinggain/MPIwaitclaim; no ownedheavyjob. Discovery reaches requiredwork
-and86physical split edits; wholefieldclosure and acceptedadaptation cost remainunknown.
+Updated2026-11-13:492 mapped-curvature target cycle is IN PROGRESS, not validated. Reviewed decision [492](ADAPTATION_MAPPED_CURVATURE_TARGET_492_20261113.md) freezes thresholds and one production run. Actual489 TERMINAL0/419.192s, pins verified; current independent host verification R/nose492_preedit_handles.json confirms wrapper/children absent. Build492 TERMINAL1/241.845s with1537pins unchanged and actual handles verified; failed source snapshots retained. New test interfaces failed compilation; no M6 run. Same connected correction retry build493 now owns the heavy-job slot; source/decision frozen. nice19,j2,libs1,disk compile-tmp. Actual host prebuild42GiB available/load2.63; build receipt reports45,976,985,600B available/load1.95. One owned heavy job; sources/decision pinned. No new complexity, speedup or accepted surface claim yet.
+
+492 measurements are explicitly nested/separate: diagnostic fixed-face observations bounded30s before and30s after production, outside388.8s native timer but inside existing outer/geometry ceilings; their geometry work/peak remain charged. Copying the local-time ledger avoids diagnostic timeout poisoning the production budget. Coverage uncertainty stays explicit; no adding overlapping geometry/observer/engine timers into a fictitious total. Fixed face manifest6tip/8root/1727bandfaces; no changing-count or pre-BL q/J progress claim.
+
 Historical measurements below retain their original scope; currenthandoff owns state.
 [Current handoff](../HANDOFF_Codex.md) owns source/build/handle state;
 [stage contract](ADAPTATION_CONNECTED_PATCH_TRAJECTORY_20261113.md) owns acceptance/stalls.
@@ -322,8 +323,8 @@ and repeat the whole connected trajectory, not optimize an isolated query count.
 | Stage | Latest measured time/work | Useful output / status |
 |---|---|---|
 | Saved CFD and geometry | Reused original RANS seed/authority; no new CFD solve.473target-load max45.271s/rank, import max.684s/rank; setup measurements, not a new metric solve. | Full441policy/geometry/current nodal state used. Original Euler29322payloads384685699B freshly hash-verified after473. |
-| Composed target/normalization | No recomputation in473. Saved initial complexity486914.722 ±empirical41525.003, nominal500k. | Target/profile unchanged; uncertainty is not a certified bound. Evolved-mesh complexity unmeasured. |
-| Coupled surface preparation | Native389.166s, wrapper497.751s; CPU sum2296.785s includes polling.51,309,637geometrywork,171947fieldrequests,4804globalproposalwork,481commits. | 39760/39760requested-wall rows measured(100%); NOT READY.3102conservative geometry-screen/34sizebad.264748othercells unmeasured; q/J/heights globally UNKNOWN.61811nodes/304508positive tets. |
+| Composed target/normalization |492 correction awaiting build493/focused checks; saved CFD reused, no flow advance. Historical441 complexity486914.722 ±empirical41525.003, nominal500k. | New complete target production/reload must finish before stage3; evolved-mesh complexity unmeasured. |
+| Coupled surface preparation | Latest production484 serial389.675s native/511.504s wrapper;86splits from388guidance trials,302refused;33,350,938geometrywork,834globalwork. | NOT READY;24370/39243requested-wall cells measured, incomplete census.485 subsequently publishes mapped root move; saved303823positive tets/61550nodes.492 single-run validation pending new target fidelity. |
 | Directions / firstrow | Actual connected trajectory does not reach readiness; no credible fullstage output yet. | Local strict/provisional checks pass; do not substitute them for physical height/alignment/coverage on generated M6. |
 | Successive growth | Not reached by current credible stage sequence. | Actual progression, coverage, collisions and preservation remain unproven. |
 | Outer transition / strict closure | Not reached. | All finalgeometry/q/J/size/height gates remain mandatory. |
@@ -400,3 +401,10 @@ run.24700points(dim0/1/2=24101/121/478),23roundoffweightnormalizations;24479orig
 referencevertexcoords exactlymatchrestart. Allrho finitepositive, allVTUexistingarrays/
 geometry readbackunchanged. Visualizationonly, no conservativetransfer claim; rawunits.
 Exportwalltime notseparatelyrecorded, no efficiencyclaim.
+
+Build490PASS367.858s, sourcepins1533/10actualterminalidentities; focusedflatfixture
+refused zerodeclaration beforequery4.382souter, notintervalfailure. Fixedfixture491
+compiled/linked butwrapper143beforefinalreceipt. Entireownedsessionterminal/pins1534
+verified; normalno-workNinja completion0. .025033sONLYcompletioncheck, originalcompile
+wallUNKNOWN. Focused491PASS1case/22assertions4.956souter/.001sCatch. Actualexperiment489
+underbuild491 nowLIVE/FROZEN,exec99533; node/target/geometry/height/budgets unchanged.

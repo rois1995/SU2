@@ -123,9 +123,9 @@ class CBoundaryLayerMetric {
     unsigned short wall_index=0;
     Tensor tangent_size;
     std::array<su2double,3> anchor{},distance_direction{};
-    std::array<double,3> curvature_direction{};
+    std::array<double,3> curvature_direction{},secondary_curvature_direction{};
     su2double anchor_hn=0,outward=0;
-    double curvature=0;
+    double curvature=0,secondary_curvature=0;
     bool directional_curvature=false;
     Tensor full;                /*!< \brief Wall metric at full strength. */
     Tensor logarithm;           /*!< \brief 3D log metric formed before mixing normal/tangent scales. */

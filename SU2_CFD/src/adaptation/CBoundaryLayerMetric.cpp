@@ -142,10 +142,11 @@ void Spectral(unsigned short n, const Mat3& A, Mat3& B, F f) {
 /*--- Invert the tangent block independently: a 3D eigensolve can lose h0^2
  *     through large spectral shifts even on a flat wall. Keep its logarithm for the fade. ---*/
 void WallMetric3D(const Mat3& size, CBoundaryLayerMetric::Sample& sample,double curvature=0,
-                  const std::array<double,3>* curvedDirection=nullptr) {
+                  const std::array<double,3>* curvedDirection=nullptr,double secondaryCurvature=0,
+                  const std::array<double,3>* secondaryDirection=nullptr) {
 #if defined(CODI_FORWARD_TYPE) || defined(CODI_REVERSE_TYPE)
   // Native3D is primal-only; retain the existing active wall-metric path for other callers.
-  if(curvature>0)throw std::runtime_error("Native3D analytic BL metric is primal-only.");
+  if(curvature>0 || secondaryCurvature>0)throw std::runtime_error("Native3D analytic BL metric is primal-only.");
   su2double combined[3][3];
   for(unsigned i=0;i<3;++i)for(unsigned j=0;j<3;++j)
     combined[i][j]=size[i][j]+pow(sample.hn,2)*sample.normal[i]*sample.normal[j];
@@ -185,15 +186,29 @@ void WallMetric3D(const Mat3& size, CBoundaryLayerMetric::Sample& sample,double 
       long double d0=0,d1=0;for(unsigned i=0;i<3;++i){d0+=(*curvedDirection)[i]*u[i];d1+=(*curvedDirection)[i]*v[i];}
       const auto norm=std::hypot(d0,d1);if(!(norm>1e-12L))throw std::runtime_error("Unresolved native3D curvature tangent.");
       d0/=norm;d1/=norm;
-      const auto covariance=scale*(aa*d0*d0+2*bb*d0*d1+cc*d1*d1);
-      if(!(covariance>0))throw std::runtime_error("Invalid native3D curvature tangent size.");
-      const auto alpha=std::max(0.L,(long double)curvature-1/covariance);
-      if(alpha>0) {
-        // Rank-one addition enforces M >= curvature*d*d^T without relaxing the old metric.
-        const auto m0=std::exp(-l0),m1=std::exp(-l1);
-        long double a=m0*cosine*cosine+m1*sine*sine+alpha*d0*d0;
-        long double b=(m0-m1)*cosine*sine+alpha*d0*d1;
-        long double c=m0*sine*sine+m1*cosine*cosine+alpha*d1*d1;
+      const auto m0=std::exp(-l0),m1=std::exp(-l1);
+      long double a=m0*cosine*cosine+m1*sine*sine;
+      long double b=(m0-m1)*cosine*sine;
+      long double c=m0*sine*sine+m1*cosine*cosine;
+      bool changed=false;
+      for(unsigned principal=0;principal<2;++principal) {
+        const auto cap=principal?secondaryCurvature:curvature;
+        if(!(cap>0))continue;
+        auto x=d0,y=d1;
+        if(principal) {
+          if(!secondaryDirection)throw std::runtime_error("Missing native3D second curvature tangent.");
+          x=y=0;
+          for(unsigned i=0;i<3;++i){x+=(*secondaryDirection)[i]*u[i];y+=(*secondaryDirection)[i]*v[i];}
+          const auto length=std::hypot(x,y);if(!(length>1e-12L))throw std::runtime_error("Unresolved native3D second curvature tangent.");
+          x/=length;y/=length;
+        }
+        const auto covariance=scale*(aa*x*x+2*bb*x*y+cc*y*y);
+        if(!(covariance>0))throw std::runtime_error("Invalid native3D curvature tangent size.");
+        const auto alpha=std::max(0.L,(long double)cap-1/covariance);
+        // Each positive rank-one addition preserves the old metric and the other principal constraint.
+        a+=alpha*x*x;b+=alpha*x*y;c+=alpha*y*y;changed=changed || alpha>0;
+      }
+      if(changed) {
         const auto ms=std::max({std::abs(a),std::abs(b),std::abs(c)});a/=ms;b/=ms;c/=ms;
         const auto large=.5L*(a+c+std::hypot(a-c,2*b)),small=SU2Native3D::FusedMultiplyAdd(a,c,-b*b)/large;
         if(!(small>0))throw std::runtime_error("Singular native3D curvature tangent metric.");
@@ -368,6 +383,8 @@ struct CBoundaryLayerMetric::WallProjection {
   SU2Native3D::Point bary{};
   std::array<SU2Native3D::Point,2> candidate_bounds{};
   bool physical_support=false;
+  double curvature1=0,curvature2=0;
+  SU2Native3D::Point direction1{},direction2{};
 };
 
 bool CBoundaryLayerMetric::CurvedWall(unsigned short wall)const {
@@ -428,6 +445,8 @@ CBoundaryLayerMetric::WallProjection CBoundaryLayerMetric::ProjectWall(
   out.physical_support=mobility ? geometry.MobilityDimension(closest.binding,*mobility)<2 :
       geometry.PhysicalSupport(closest.binding);
   auto facet=closest.facet;auto normal=closest.normal;
+  out.curvature1=closest.curvature1;out.curvature2=closest.curvature2;
+  out.direction1=closest.direction1;out.direction2=closest.direction2;
   if(mobility && !out.physical_support && closest.binding.dimension<2) {
     // An exact released-seam binding has several differential sides; query accuracy must not select the BL target.
     geometry.ForFacets(closest.binding,[&](SU2Native3D::Id side) {
@@ -438,7 +457,9 @@ CBoundaryLayerMetric::WallProjection CBoundaryLayerMetric::ProjectWall(
     });
     if(facet!=closest.facet) {
       if(reservation && !reservation->ChargeWork(1))throw std::length_error("Curved BL seam evaluation work exhausted.");
-      normal=geometry.EvaluateSurface(facet,closest.binding).normal;
+      const auto evaluation=geometry.EvaluateSurface(facet,closest.binding);normal=evaluation.normal;
+      out.curvature1=evaluation.curvature1;out.curvature2=evaluation.curvature2;
+      out.direction1=evaluation.direction1;out.direction2=evaluation.direction2;
     }
   }
   const auto where=std::lower_bound(wall.authority_facets.begin(),wall.authority_facets.end(),facet);
@@ -2051,7 +2072,7 @@ void CBoundaryLayerMetric::RecomposeTangentialSample(unsigned short wall,Sample&
   sample.hn=sample.anchor_hn;
   su2double size[3][3];
   for(unsigned i=0;i<3;++i)for(unsigned j=0;j<3;++j)size[i][j]=sample.tangent_size.m[i][j]/tangentialScale;
-  WallMetric3D(size,sample,sample.curvature,sample.directional_curvature?&sample.curvature_direction:nullptr);
+  WallMetric3D(size,sample,sample.curvature,sample.directional_curvature?&sample.curvature_direction:nullptr,sample.secondary_curvature,sample.directional_curvature?&sample.secondary_curvature_direction:nullptr);
   ApplyFeatures(wall,sample.anchor.data(),sample);
   if(sample.outward>0) {
     su2double normalMetric=0;
@@ -2162,6 +2183,8 @@ CBoundaryLayerMetric::Sample CBoundaryLayerMetric::EvaluateAtSurfaceAssociation(
   WallProjection associated;associated.face=where-wall.authority_facets.begin();
   associated.bary=geometry.SurfaceCoordinates(facet,binding);
   associated.surface.point=evaluation.point;associated.surface.normal=evaluation.normal;
+  associated.curvature1=evaluation.curvature1;associated.curvature2=evaluation.curvature2;
+  associated.direction1=evaluation.direction1;associated.direction2=evaluation.direction2;
   const su2double x[3]={evaluation.point.x,evaluation.point.y,evaluation.point.z};
   return EvaluateImpl(index,x,coreEigenvalue,false,ChordOwners::NoFacet,&associated);
 }
@@ -2368,7 +2391,21 @@ CBoundaryLayerMetric::Sample CBoundaryLayerMetric::EvaluateImpl(unsigned short i
         M[i][j] = tangent[i] * tangent[j] / (ht * ht) + sample.normal[i] * sample.normal[j] / pow(sample.hn, 2);
   } else {
     double curvature=0;std::array<double,3> direction{};const std::array<double,3>* curvedDirection=nullptr;
-    if(wall.authority && !CurvedWall(iWall)) {
+    if(CurvedWall(iWall)) {
+      auto cap=[&](double k) {
+        if(k==0)return 0.;
+        const long double radius=1/std::abs((long double)k),e=std::min((long double)wall.surface_tolerance,radius);
+        const long double chord=2*std::sqrt(e*(2*radius-e));
+        return double(std::pow(SU2Native3D::MaximumMetricEdge/chord,2));
+      };
+      const bool first=std::abs(projection.curvature1)>=std::abs(projection.curvature2);
+      curvature=cap(first?projection.curvature1:projection.curvature2);
+      sample.secondary_curvature=cap(first?projection.curvature2:projection.curvature1);
+      const auto d=first?projection.direction1:projection.direction2;
+      const auto second=first?projection.direction2:projection.direction1;
+      sample.secondary_curvature_direction={second.x,second.y,second.z};
+      direction={d.x,d.y,d.z};curvedDirection=&direction;
+    } else if(wall.authority) {
       const auto& g=wall.authority->Analytic().at(wall.authority_facet);
       if(g.kind!=SU2Native3D::AnalyticSurface::Kind::Disk) {
         const long double epsilon=wall.surface_tolerance;

@@ -1316,6 +1316,47 @@ TEST_CASE("Native3D complexity reference does not rebase the wall on the adapted
     CHECK(after.closest_region_misses==before.closest_region_misses);
     CHECK(intrinsic.distance==0);CHECK(intrinsic.hn==Approx(.001));
     const auto evaluation=curved->EvaluateSurface(f.id,binding);
+    // Both signed principal curvatures size the wall; scalar coarsening cannot erase either cap.
+    REQUIRE(std::abs(evaluation.curvature1)>0);REQUIRE(std::abs(evaluation.curvature2)>0);
+    auto cached=intrinsic;
+    for(double scale:{1e-6,.37775074746138892,1.}) {
+      associatedLayers->SelectTangentialScale(scale);
+      associatedLayers->RecomposeTangentialSample(0,cached,1.);
+      const auto fresh=associatedLayers->EvaluateAtSurfaceAssociation(0,f.id,binding,1.);
+      CheckTensor(3,cached.full,fresh.full,1e-12);
+      CHECK(cached.curvature>0);CHECK(cached.secondary_curvature>0);
+      const std::array<SU2Native3D::Point,2> directions{{evaluation.direction1,evaluation.direction2}};
+      const double curvatures[2]={evaluation.curvature1,evaluation.curvature2};
+      for(unsigned principal=0;principal<2;++principal) {
+        const long double radius=1/std::abs((long double)curvatures[principal]);
+        const auto e=std::min((long double)test.config->GetAdap_Hausd(),radius);
+        const auto cap=std::pow(SU2Native3D::MaximumMetricEdge/(2*std::sqrt(e*(2*radius-e))),2);
+        const auto d=directions[principal];const double v[3]={d.x,d.y,d.z};long double demand=0;
+        for(unsigned i=0;i<3;++i)for(unsigned j=0;j<3;++j)demand+=v[i]*SU2_TYPE::GetValue(cached.full.m[i][j])*v[j];
+        CHECK(demand>=cap*(1-1e-10L));
+      }
+      long double normalDemand=0;
+      for(unsigned i=0;i<3;++i)for(unsigned j=0;j<3;++j)
+        normalDemand+=cached.normal[i]*cached.full.m[i][j]*cached.normal[j];
+      CHECK(double(normalDemand)==Approx(1e6).epsilon(1e-10));
+    }
+    // At a feature foot the distance normal can tilt away from the surface normal: project BOTH directions.
+    cached=intrinsic;long double length=0;
+    const double d1[3]={evaluation.direction1.x,evaluation.direction1.y,evaluation.direction1.z};
+    const double d2[3]={evaluation.direction2.x,evaluation.direction2.y,evaluation.direction2.z};
+    for(unsigned i=0;i<3;++i){cached.normal[i]+=.3*d1[i]+.2*d2[i];length+=cached.normal[i]*cached.normal[i];}
+    for(auto& n:cached.normal)n/=std::sqrt(length);
+    associatedLayers->SelectTangentialScale(1e-6);associatedLayers->RecomposeTangentialSample(0,cached,1.);
+    for(unsigned principal=0;principal<2;++principal) {
+      const auto& direction=principal?cached.secondary_curvature_direction:cached.curvature_direction;
+      const double cap=principal?cached.secondary_curvature:cached.curvature;
+      long double dot=0;for(unsigned i=0;i<3;++i)dot+=direction[i]*cached.normal[i];
+      long double projected[3],norm=0,demand=0;
+      for(unsigned i=0;i<3;++i){projected[i]=direction[i]-dot*cached.normal[i];norm+=projected[i]*projected[i];}
+      for(unsigned i=0;i<3;++i)for(unsigned j=0;j<3;++j)demand+=projected[i]*cached.full.m[i][j]*projected[j]/norm;
+      CHECK(demand>=cap*(1-1e-10L));
+    }
+    associatedLayers->SelectTangentialScale(1.);
     const su2double onSurface[3]={evaluation.point.x,evaluation.point.y,evaluation.point.z};
     const auto searched=associatedLayers->Evaluate(0,onSurface,1.);
     CheckTensor(3,intrinsic.full,searched.full,2e-6);

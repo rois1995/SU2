@@ -168,3 +168,32 @@ TEST_CASE("Saved actual BL target isolates storage-accounting cost", "[.][Native
 
 #include "native_boundary_guidance_reference.inc"
 #include "native_actual_bl_cavity_planning.inc"
+
+TEST_CASE("Mapped target checkpoints reject the obsolete curvature law", "[NativeTargetCheckpoint]") {
+  using namespace native_target_checkpoint_test;
+  using namespace SU2NativeTargetCheckpoint3D;
+  auto config=Config();auto reference=Reference();
+  SU2NativeGeometry::MappedFacetReference::CurvedNets nets;
+  const auto& face=reference.facets.front();
+  const unsigned powers[10][3]={{3,0,0},{0,3,0},{0,0,3},{2,1,0},{1,2,0},{0,2,1},{0,1,2},{1,0,2},{2,0,1},{1,1,1}};
+  for(unsigned q=0;q<10;++q) {
+    auto& p=nets[face.id][q];
+    for(unsigned k=0;k<3;++k){p.x+=powers[q][k]*face.v[k].p.x/3;p.y+=powers[q][k]*face.v[k].p.y/3;p.z+=powers[q][k]*face.v[k].p.z/3;}
+  }
+  nets[face.id][9].z-=.03;
+  auto geometry=std::make_shared<SU2NativeGeometry::MappedFacetReference>(reference.original,
+      std::map<Id,double>{{face.id,1e-12}},7,SIZE_MAX,false,nets);
+  SU2Native3D::BoundaryPoints points;std::vector<SurfaceFace> skin;
+  for(const auto& f:reference.facets) {
+    for(auto n:f.v)points.emplace(n.id,SU2Native3D::BoundaryPoint{n,geometry->Vertex(n.id)});
+    skin.push_back({{f.v[0].id,f.v[1].id,f.v[2].id},f.id});
+  }
+  auto parameters=std::make_shared<SU2Native3D::BoundaryParameterState>(geometry,points,skin,1);
+  reference.original=PlanarReference::WithParameters(reference.original,parameters);
+  const auto bytes=Encode(Family(*config,reference),reference,*config,2.,3.,true);
+  CHECK(Decode(bytes,reference,*config).family!=nullptr);
+  auto obsolete=bytes;detail::Header h;SU2NativeBoundary2D::RecordStream input(static_cast<const std::vector<char>&>(bytes));input(h);
+  h.version=2;std::vector<char> header;SU2NativeBoundary2D::RecordStream output(header);output(h);
+  REQUIRE(header.size()==input.Size());std::copy(header.begin(),header.end(),obsolete.begin());Rechecksum(obsolete);
+  CHECK_THROWS_WITH(Decode(obsolete,reference,*config),Catch::Contains("predates directional curvature"));
+}

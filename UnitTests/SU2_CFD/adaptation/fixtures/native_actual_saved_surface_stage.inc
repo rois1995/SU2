@@ -40,11 +40,31 @@ options.stage_observer=[&](const StageProgressView& view) {
   stageCapture.Observe(view,world.rank);
   if(atExit){stageCapture.Save(view,world.rank,"resumed_surface");captured=true;}
 };
+#include "native_actual_surface_target_observation.inc"
+if(nosePath)options.caller_bytes=transfer_memory::Add(options.caller_bytes,noseBytes);
 REQUIRE_FALSE(world.maximum(!(options.maximum_seconds>0)||options.caller_bytes>ceiling));
+noseObserve(current.mesh,*current.reference,"before");
+if(nosePath)options.rejected_trial=[&](const Patch& old,const Patch& fresh,Feature feature,const MetricDiagnosis& diagnosis,bool candidate,const std::string& why) {
+  noseLog<<"{\"stage\":\"refusal\",\"feature\":["<<feature.vertices[0]<<','<<feature.vertices[1]<<','<<feature.vertices[2]
+      <<"],\"feature_count\":"<<feature.count<<",\"old_cells\":"<<old.cells.size()<<",\"fresh_cells\":"<<fresh.cells.size()
+      <<",\"candidate\":"<<candidate<<",\"failure\":"<<unsigned(diagnosis.failure)<<",\"reason\":"<<std::quoted(why)<<"}"<<std::endl;
+};
 const auto start=std::chrono::steady_clock::now();const auto beforeWork=budget.work;
 const auto prepared=PrepareSurface(world,current.mesh,donors,*current.reference,
     [&](Node node,const PlanarReference& geometry,Tensor sensor){return policy.BoundaryGuidance(node,geometry,sensor,reference->marker_names);},options);
 const auto seconds=std::chrono::duration<double>(std::chrono::steady_clock::now()-start).count();
+if(nosePath) {
+  // Published split records preserve parent endpoints even when a later edit retires them.
+  std::map<Id,Point> positions;for(const auto& row:current.mesh)for(auto n:row.second.cell.v)positions.emplace(n.id,n.p);
+  for(const auto& split:prepared.splits) {
+    const auto a=positions.find(split.edge[0]),b=positions.find(split.edge[1]);
+    noseLog<<"{\"stage\":\"accepted_split\",\"edge\":["<<split.edge[0]<<','<<split.edge[1]<<"],\"point\":["<<split.point.id<<','<<split.point.p.x<<','<<split.point.p.y<<','<<split.point.p.z<<"],\"endpoints_known\":"<<(a!=positions.end()&&b!=positions.end());
+    if(a!=positions.end()&&b!=positions.end())noseLog<<",\"a\":["<<a->second.x<<','<<a->second.y<<','<<a->second.z<<"],\"b\":["<<b->second.x<<','<<b->second.y<<','<<b->second.z<<']';
+    noseLog<<"}"<<std::endl;positions[split.point.id]=split.point.p;
+  }
+  noseLog<<"{\"stage\":\"split_summary\",\"accepted_records\":"<<prepared.splits.size()<<",\"accepted_stats\":"<<prepared.stats.length_splits<<",\"total_rejected\":"<<prepared.stats.rejected<<"}"<<std::endl;
+  positions.clear();noseObserve(prepared.cells,*prepared.reference,"after");
+}
 const bool samePolicy=SU2NativeTargetCheckpoint3D::detail::State(*policy.full)==fullStamp&&
     SU2NativeTargetCheckpoint3D::detail::State(*policy.base)==baseStamp&&policy.core==initialCore&&policy.inherited_tangent_scale==initialTangent;
 const bool inputParametersUnchanged=current.live_parameters->Payload()==originalParameters;

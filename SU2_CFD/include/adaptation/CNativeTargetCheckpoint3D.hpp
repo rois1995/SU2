@@ -37,7 +37,7 @@ inline Stamp State(const CBoundaryLayerMetric& m) {
           {{m.GetTangentialScale(),m.GetOuterTransitionCore(),n.protected_distance,n.maximum_growth,n.parameter,f.angle,f.slope,f.maximumRadius}}};
 }
 struct Header {
-  uint64_t magic=0x4e424c5441524731ULL,version=2,reference_bytes=0,nodes=0,owned=0,span=0,layers=0,roles=0;
+  uint64_t magic=0x4e424c5441524731ULL,version=3,reference_bytes=0,nodes=0,owned=0,span=0,layers=0,roles=0;
   std::array<double,8> controls{};
   std::array<double,8> family{}; // surface tolerance, angle, lower, upper, core, tangent scale, anchor, log scale
   uint64_t feature=0,status=0,trials=0,budget_status=0,budget_trials=0,budget_refinements=0,bracketed=0;
@@ -83,7 +83,7 @@ inline void CheckStage(const Header& h,const CConfig& config,bool exactEvent) {
   }
 }
 inline void CheckHeader(const Header& h,const CConfig& config,size_t bytes,size_t roles) {
-  if(h.magic!=0x4e424c5441524731ULL || (h.version!=1 && h.version!=2) || !h.span || h.owned>h.nodes || h.nodes>bytes/184 ||
+  if(h.magic!=0x4e424c5441524731ULL || (h.version!=1 && h.version!=2 && h.version!=3) || !h.span || h.owned>h.nodes || h.nodes>bytes/184 ||
       h.layers!=config.GetnAdap_BL() || !h.layers || h.roles!=roles || h.reference_bytes>bytes ||
       h.status>3 || h.budget_status>2 || h.trials>UINT_MAX || h.budget_trials>UINT_MAX || h.budget_refinements>UINT_MAX || h.bracketed>1)
     throw std::invalid_argument("Invalid native BL target checkpoint header.");
@@ -105,7 +105,7 @@ inline SU2NativeBLPipeline3D::RampStage InspectStage(const std::vector<char>& by
   uint64_t checksum=0;std::memcpy(&checksum,bytes.data()+bytes.size()-8,8);
   if(checksum!=Checksum(bytes,bytes.size()-8))throw std::invalid_argument("Damaged native target checkpoint.");
   SU2NativeBoundary2D::RecordStream stream(bytes);Header h;stream(h);
-  if(h.magic!=0x4e424c5441524731ULL || (h.version!=1 && h.version!=2))
+  if(h.magic!=0x4e424c5441524731ULL || (h.version!=1 && h.version!=2 && h.version!=3))
     throw std::invalid_argument("Invalid native BL target checkpoint header.");
   CheckStage(h,config,false);
   if(h.version==1)return SU2NativeBLPipeline3D::MakeRampStage(config,0);
@@ -173,6 +173,9 @@ inline Checkpoint Decode(const std::vector<char>& bytes,const ReferenceState& re
   uint64_t checksum=0;std::memcpy(&checksum,bytes.data()+bytes.size()-8,8);
   if(checksum!=Checksum(bytes,bytes.size()-8))throw std::invalid_argument("Damaged native target checkpoint.");
   RecordStream stream(bytes);Header h;stream(h);CheckHeader(h,config,bytes.size(),reference.marker_names.size());
+  if(h.version<3 && reference.original && reference.original->Parameters() &&
+      !reference.original->Parameters()->Geometry().Curves().empty())
+    throw std::invalid_argument("Mapped target checkpoint predates directional curvature sizing; rebuild from saved CFD seed.");
   const auto allocation=Add(GrowthBound(h.nodes,sizeof(CNativeMetricFamily3D::Node)+2*sizeof(CBoundaryLayerMetric::Tensor)+1),
       GrowthBound(h.owned,sizeof(CBoundaryLayerMetric::Tensor)+3*sizeof(su2double)),Mul(reference.facets.size(),16384));
   if(Add(caller_bytes,SU2Native3D::ReferenceStorageBytes(reference),Mul(bytes.size(),6),allocation)>ceiling)
