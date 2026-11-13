@@ -16,6 +16,44 @@ preserves earlier evidence/handles, NOT live workload state.
 
 ## Live state and provenance
 
+470ACTIVE connected phase-ordering correction (UNQUALIFIED). 469 local placement
+experiment remains REJECTED below. Source audit found PrepareSurface intentionally
+defers initial rows, but ReconstructSplitPatch forced ConstructFirstLayer even on an
+otherwise provisionally admissible positive cone.470uses EXACT heights plus current
+AdmitFirstHeight and passing-row preservation before deferring carving in ValidityOnly;
+absolute/protected failures keep existing carving. Restore/Finish/final height and
+passing-row checks remain. Actual firstrow construction/final gates still mandatory.
+All production callers and existing phase scope reviewed; ValidityOnly covers more
+than surface preparation, so non-surface accepted output still requires strict final
+height closure. No phase/config/target/gate/budget change.
+Prior164actualhandles terminal/1769pins reverified with exact469source archive and
+baseline restored-source hashes before470edits: R/surface_phase470_entry.json.
+470build TERMINAL PASS580.205s/all155actualidentities terminal/pins/newbinaries/
+cleanNinja. TestSHAbcd378a9b412ca60e0fb803b3525f65c913e6f5ff67c0874dd00e964f1e45e62;
+CFDSHAa0eea83a5a2f957ff5ed33e617d9ef2330edda86f7cd502a49e0c0c22c4bfd81.
+Focused All tests passed (4077 assertions in 21 test cases); 1711pins/actualhandles verified terminal.
+Actual470 TERMINAL PASS251.852swrapper; 1770pins/all5actualhandles/
+303622originalOwned verified.24calls/22commits,36→110scope(+11oldcells),geometry16→24,
+localgeometrydelta+2/qJ+63/+63. Threecell reconstruction now10cells passes metric,
+currentparameters, fullreservation/publication, externalcontact and passing-row
+preservation; geometrybad3→3/excess5.169003664825083e-7→4.913117750796659e-7.
+This is provisional only: height debt remains; q/J3→10; no geometry closure,
+tangential readiness or firstrow. Fulltrajectory74.886533wall/74.866628CPU/1590930work.
+470focused+MPI qualification PASS: serial21cases/4077assertions; MPI32cases on every
+rank,3118–123670assertions/rank,155.969swrapper/allactualhandles terminal/pins verified.
+R/surface_phase470_qualification.json. Exactnew3→10reconstruction is SERIAL evidence;
+MPIactual M6 control exercises unchanged cross-owner coarsening growth/reservation/
+conflict/stale rollback/cache consistency, plus changed strict/provisional local
+reconstruction and engine firstrow fixtures. No strictBL qualification follows.
+
+Current FROZEN470 ACTUAL SURFACE STAGE RUNNING execsession91510:
+R/cases/curved470_phase_consistent_saved_target_surface_mpi6_20261113T013323_1333069.
+Same saved441complete target and original CFD seed/partitions; not a new metric or
+CFD solve. Surface388.8s/233220work/600souter/12GiB/rank, oneheavyjob/libs1/nice19.
+Verify actualPID/startticks from status/resources and terminal handles BEFORE C++
+edits. New source/binary470 remains pinned throughout. No accepted stage checkpoint
+or firstrow/BL claim until outcome. Euler293 and all saved inputs retained.
+
 468exact saved pre-inversion replay build TERMINAL PASS305.850s/all10actual
 handles terminal/pins/newbinary/cleanNinja. TestSHA
 17b02cfa4f54704aaa787d7b000e73a0ee23017bf4f59eba74f681f4a7fd8e9d.

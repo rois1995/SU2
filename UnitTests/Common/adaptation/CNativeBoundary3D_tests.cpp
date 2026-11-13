@@ -1522,11 +1522,39 @@ TEST_CASE("Native3D uneven wall split replaces apices and transition together", 
   CHECK(double(Volume(rebuilt))==Approx(1).epsilon(1e-14));
   for(size_t i=0;i<rebuilt.cells.size();++i)for(size_t j=i+1;j<rebuilt.cells.size();++j)CHECK(ConformingDisjoint(rebuilt.cells[i],rebuilt.cells[j]));
   SaveCurved(aligned,reference,"wall_split_initial");SaveCurved(inherited,reference,"wall_split_inherited_rejected");SaveCurved(rebuilt,reference,"wall_split_joint");
+  {
+    struct Restore {ShapeAdmission previous=GetShapeAdmission();~Restore(){SetShapeAdmission(previous);}} restore;
+    SetShapeAdmission(ShapeAdmission::ValidityOnly);Patch protectedRows;
+    REQUIRE(ReconstructSplitPatch(aligned,edge,split,{1001,{}},Tensor{},2000,reference,protectedRows,obstruction,reason,nullptr,heights));
+    CHECK(CheckFirstHeight(protectedRows,heights,reference,report,reason));
+  }
   auto sentinel=rebuilt;const auto saved=Connectivity(sentinel);auto excessive=heights;for(auto& h:excessive)h.second=2.;
   CHECK_FALSE(ReconstructSplitPatch(aligned,edge,split,{1001,{}},Tensor{},2000,reference,sentinel,obstruction,reason,nullptr,excessive));
   CHECK(Connectivity(sentinel)==saved);
   CHECK_FALSE(ReconstructSplitPatch(aligned,edge,split,{UINT64_MAX,{}},Tensor{},2000,reference,sentinel,obstruction,reason,nullptr,heights));
   CHECK(Connectivity(sentinel)==saved);
+}
+
+
+TEST_CASE("Surface reconstruction preserves measured wall debt until first-row construction", "[NativeWallReconstruction3D]") {
+  struct Restore {ShapeAdmission previous=GetShapeAdmission();~Restore(){SetShapeAdmission(previous);}} restore;
+  const auto old=Cube();const auto facets=Facets(old);const PlanarReference reference(facets);WallHeights heights;
+  for(const auto& face:facets)if(std::all_of(face.v.begin(),face.v.end(),[](Node n){return n.p.z==0;}))heights[face.marker]=.1;
+  REQUIRE_FALSE(heights.empty());
+  const auto mode=GENERATE(ShapeAdmission::Absolute,ShapeAdmission::ValidityOnly);SetShapeAdmission(mode);
+  Patch fresh;Face obstruction{};std::string reason;FirstHeightReport report;
+  const bool ok=ReconstructSplitPatch(old,{0,2},{1000,{.4,.4,0}},{1001,{}},Tensor{},2000,
+                                    reference,fresh,obstruction,reason,nullptr,heights);
+  INFO(reason);REQUIRE(ok);
+  const bool strict=CheckFirstHeight(fresh,heights,reference,report,reason);
+  CHECK(report.measured);CHECK(report.missing_cells==0);CHECK(report.reference_clearance_failures==0);
+  if(mode==ShapeAdmission::Absolute)CHECK(strict);
+  else {
+    CHECK_FALSE(strict);CHECK(report.height_failures>0);
+    for(const auto& cell:fresh.cells)for(auto node:cell.v)CHECK(node.id<=1001);
+    CHECK(PreservePassingFirstHeights(old,fresh,heights,reference,reason));
+  }
+  for(const auto& cell:fresh.cells)CHECK(Orientation(cell.v[0].p,cell.v[1].p,cell.v[2].p,cell.v[3].p)>0);
 }
 
 

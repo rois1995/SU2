@@ -550,3 +550,16 @@ Reconsider coordinated whole wall-child/transition placement/connectivity on thi
 exact failure with existing facilities and bounds. No more isolated apex offsets or
 split-only variants. Full state/provenance and operation/readiness/stall table remain
 in the connected-trajectory handbook; full BL/RANS goal remains active.
+
+
+470CURRENT supersedes469restoration/build warning: rebuilt and qualified the connected
+phase-consistent reconstruction. It retains the exact height map and only defers
+carving when existing ValidityOnly height admission AND passing-row preservation
+both allow the positive cone, rechecked after finishing. Absolute mode unchanged.
+Focused21cases/4077assertions; MPI32cases on everyrank. Exact M6 threecell failure now
+publishes10positivecells with all private/transaction guards, localgeometryexcess~5%
+lower but qJ3→10 and measured height debt. No surface/firstrow completion.
+Current470same-target full distributed surface stage is FROZEN; consultHANDOFF for
+its actual owned handles. Preserve code until terminal. Record complete outcome,
+then choose next action from geometry closure, actual tangential readiness and
+firstrow evidence, not constructor success or commit count. Full goal unchanged.

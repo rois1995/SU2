@@ -1734,3 +1734,13 @@ handles/original303622Owned verified before source restoration. Sampledindividua
 469binaries need rebuild from restored468sources before downstream use. Attribution
 remains overlapping: trajectory nested in prefix, wrappers include input reconstruction;
 no summing nested timers or inferring MPIwait from serial CPU.
+
+
+470phase-consistent reconstruction: build580.205s (header restoration rebuild), focused
+21cases/4077assertions7.713swrapper. Actual saved trajectory251.852swrapper,
+74.886533wall/74.866628CPU/1590930geometrywork nested within input/prefix runtime.
+24constructors/22commits, versus46824/21; complete3→10reconstruction now admitted,
+localgeometry3→3/excess~5%lower, q/J3→10 provisionally. No geometryclosure/firstrow.
+Expandingregion110cells versus46897precludes direct rawbadcount or timing speedup.
+MPI32cases/everyrank155.969swrapper, actualhandles/pins checked; CPUincludespolling,
+no totalMPIwait inferred. Same-target fullsurface470RUNNING; outcome pending.

@@ -2502,15 +2502,22 @@ bool ReconstructSplitPatch(const Patch& old,Edge edge,Node point,Node interior,c
     });
     if(wall) {
       if(interior.id>UINT64_MAX-2)throw std::invalid_argument("Native3D joint wall identities overflow.");
-      FirstHeightReport report;Patch layer;
-      // Reuse the certified constructor; only the complete carved replacement reaches metric validation.
-      if(!ConstructFirstLayer(proposal,{interior.id+1,interior.p},interior.id+2,first,heights,reference,layer,report,reason,stats))
-        throw std::invalid_argument(reason);
-      proposal=std::move(layer);
+      FirstHeightReport report;std::string provisionalReason;
+      // Surface construction may owe measured height debt, but must retain clearance and passing rows.
+      const bool provisional=GetShapeAdmission()==ShapeAdmission::ValidityOnly &&
+          AdmitFirstHeight(proposal,heights,reference,report,provisionalReason,stats) &&
+          PreservePassingFirstHeights(old,proposal,heights,reference,provisionalReason);
+      if(!provisional) {
+        Patch layer;
+        if(!ConstructFirstLayer(proposal,{interior.id+1,interior.p},interior.id+2,first,heights,reference,layer,report,reason,stats))
+          throw std::invalid_argument(reason);
+        proposal=std::move(layer);
+      }
       RestorePatchPoints(proposal,nodes,first,reason,stats);
       proposal.surface.clear();
       Finish(old,proposal,skin,physical,reference,stats);
       if(!AdmitFirstHeight(proposal,heights,reference,report,reason,stats))throw std::invalid_argument(reason);
+      if(provisional && !PreservePassingFirstHeights(old,proposal,heights,reference,reason))throw std::invalid_argument(reason);
     }
     fresh.cells.swap(proposal.cells);fresh.surface.swap(proposal.surface);fresh.parameters.swap(proposal.parameters);
     fresh.coverage.faces.swap(proposal.coverage.faces);fresh.coverage.traces.swap(proposal.coverage.traces);reason.clear();return true;

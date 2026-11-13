@@ -231,3 +231,51 @@ obstruction. Joint feasibility remains a hypothesis, not authorization for anoth
 local offset, more cuts, larger cavities, new scheduler or raised limits. Preserve
 all already-passing geometry/features/heights and final gates; until a complete
 replacement is demonstrated, no usable surface/firstrow checkpoint exists.
+
+##470 phase-consistent surface reconstruction — acceptance before implementation
+
+Source audit: engine Adapt enters existing ValidityOnly admission at1167; its height
+check accepts fully measured provisional height/footprint debt but no missing child
+or uncertified reference clearance. Surface candidates additionally protect all
+already-passing rows. Ordinary surface splits use those conditions. In contrast,
+ReconstructSplitPatch always calls ConstructFirstLayer before returning even an
+otherwise positive geometry-construction cone.469's attempt19 reaches that forced
+firstrow step before geometry closure; independent row placement then blocks volume
+connectivity. ConstructWallRegion is not a mapped-M6 substitute: its general path
+requires complete analytic cylinder/sphere authority (or its special prism chart).
+
+Hypothesis: geometry preparation is unnecessarily coupled to premature firstrow
+construction. Reuse existing provisional admission on the complete positive cone,
+with the EXACT stage height map and passing-row preservation. Only ValidityOnly
+may defer carving; absolute callers and any nonadmissible/protected cone retain the
+existing constructor. Recheck admission/passing rows after restored retained points
+and final Finish. No empty height map, altered requested stage height, new phase,
+config, CAD dependence, direction-field change, q/J veto or relaxed final gate.
+Actual firstrow construction remains required after surface readiness.
+
+Input SAME451Owned+complete441target+exact468replay. Success requires complete
+3cell replacement with positivity/topology, current associations, metric admission,
+external clearance and preserved passing heights; measure actual geometry/qJ/edge
+changes on that COMPLETE patch and neighboring observations. Continue SAME24call/
+300s/600s/64old/128new/12GiB trajectory toward geometry/tangential closure then
+existing constrained-direction/firstrow readiness. Fixture-only success is not
+integration. Refusal or unchanged published progress rejects this hypothesis;
+uncertain height/geometry cannot become admitted. MPI only after useful actual
+serial replacement. All later strict BL/RANS workflow obligations remain open.
+
+
+470qualification and actual progress: focused21cases/4077assertions pass; exact M6
+replay24calls/22commits. Attempt19grown3cell support constructs10positivecells and
+passes metric/parameters/contact/height-preservation/reservation/publication with
+EXACT heights, provisional measured debt. Geometrybad3→3, excess5.169003664825083e-7
+→4.913117750796659e-7; q/J3→10. No firstrow certificate. Current trajectory still
+nonclosed:36→110scope(+11old), geometry16→24, localdelta+2/qJ+63/+63, firstrowunreached.
+74.886533wall/74.866628CPU/1590930work; no like-for-like speedup or wholefieldchurn claim.
+
+MPI32cases/everyrank155.969swrapper passes changed local admission/strict-row tests,
+firstrow/corner engine constraints, and actual saved-M6 ownership-growth/conflict/
+emptyrank/stale/cache control. The actualnew3→10case remains serial evidence; MPI
+control is existing coarsening correction, not claimed same-cavity publication.
+One full same-target distributed surface-stage attempt now tests production integration
+under unchanged388.8s/233220work budget. Consult HANDOFF for live owned handles. No
+finalgeometry/shape/height/BL/RANS workflow completion from these checks.
