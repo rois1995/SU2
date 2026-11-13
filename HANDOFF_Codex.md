@@ -12,6 +12,44 @@ preserves details; historical LIVElabels there are NOTcurrent state.
 
 ## Actual handles, source and qualification
 
+Build483 PASS105.973s/5tasks, cleanNinja, all1526pins/bothbinaries and18actual
+owned identities terminal. testSHA3c7346b70d8135395787ebf20cbe32f1d3238fdec09414817bc3fc6dba1240dc,
+CFDSHA57fb0b0f4af213990369a0a1b0f46f8f16c033e0f9dd55b37596cc02cb2d2aff.
+R/build483_status.json, build483_source_pins.json and build483_terminal_handles.json
+own exact provenance. nice19/j3/libs1;49.983GBavailable/load2.97/3.82/6.52.
+Focused483serial PASS9.361s/13cases/2611assertions, all1731pins/5actual identities
+terminal. CaseR/cases/surface_census483_serial_20261113T104712_2833882.
+
+Actual483serial TERMINAL522.326s outer/397.916sAPI/397.165snativeexit against388.8s
+safe-point clock. All1782pins/5actual identities terminal; no ownedheavyjob live.
+CaseR/cases/curved483_saved_production_surface_serial_20261113T104750_2835491.
+36930/39071wallmeasured, geometryscreenbad2794/sizebad30,2141wallunknown;
+0work/commits/constructortrials, no repair reached. All303606positive sensor-bearing
+tets/61464nodes ANDparameters byte-identical input, independently parsed;
+ALL303606donors exactly current input. q/J/heights remain unmeasured.
+R/saved_production_surface483_serial_assessment.json and surface_census483_outcome.json.
+
+Monolithic full entry census is not practical here: consumes stage before useful
+construction. Upperqueries6786/203.070s/67492516work,0unionexceptions;5624upper_refusals
+means VALIDupper>tau, NOTresource failure or proof of physical violation. Facetbuild
+56.830s/scope17.892s/traversal127.765s nested inupper, do not add them. Totalgeometry
+68399194work, processCPU396.501s, accountedpeak8,835,972,848B; sampledindividualRSS
+2,563,235,840B notwholepeak. Safe-point overrun and attribution gaps explicit.
+
+Connected483decision [surface census](Handbook/ADAPTATION_SURFACE_CENSUS_483_20261113.md)
+and R/surface_census483_fidelity.json preserve exact code/evidence. Source483 locally
+UNCOMMITTED, focused13cases/2611assertions pass but actual/MPIcapability UNQUALIFIED.
+Current state reuses valid482303606tets/61464nodes, SAME441target/authority/stageh6.4e-5;
+R/saved_production_surface483_inputs.json/surface483_current_state existingformatadapter.
+No oldP1/upstream solve or metric reset; no actual edit/progress lost in483.
+
+Next SAME-cycle hypothesis: retain incremental batch helper; discover requested-wall
+demand before optional collapse, but yield as soon as first globalrequired deficit is
+known instead of draining expensive remainder. Existing handoff/idle refill/complete
+final readiness remain. Predeclare decision and review before code/build; no new
+scheduler/config/state, raised budget or isolated operator variant. No MPI483retry:
+monolithic entry not practical; qualify coherent revised capability at ONE milestone.
+
 Build482 PASS371.770s/5tasks; cleanNinja, all1525sourcepins and bothbinaries
 verified. All18actual owned identities independently TERMINAL before focusedcheck.
 Current test SHA `98fb9283b6ffc24fb350db2c8b00fe60403a571f24b56bbbf7863b19dfc05232`,
@@ -78,12 +116,11 @@ sourcehashes in fidelity record; do not confuse review or diagnostic execution w
 construction acceptance. Full existing native sequence is now the construction test,
 not another isolated split variant.
 
-Latest COMPLETEDbuild481 PASS917.563s/47tasks,1523pins/165actual identities, cleanNinja.
+Previousbuild481 PASS917.563s/47tasks,1523pins/165actual identities, cleanNinja.
 Source76f10c8310 UNQUALIFIED, evidencecheckpoint641af9a67d pushed. 481test SHA
 `d4fec3abae29f5a4a6fbb9678e19b01a82a4c0111577e9063671a970e000dbf1`,
 CFD SHA `46adc4b512ff4c5a958d6849d7b52f3a78d1ea7ed510eec76177b8355915f84f`.
-In-place binaries can change during482build; do not execute/use them before complete
-verification. Explicit runtime_20261113_474/loaded_runtime_pins.json; historical runtime
+In-place binaries are pinned by483build; do not execute them before terminal verification. Explicit runtime_20261113_474/loaded_runtime_pins.json; historical runtime
 manifests preserved. Last qualified production473source35e173b043;481/482notqualified.
 
 Geometrybad counts below are conservative screens, not necessarily independently
@@ -156,7 +193,8 @@ outcomes and all481payloads. The next construction decision is whether completin
 existing requested-wall measurement before optional collapse correction enables the
 existing required-demand handoff and physical surface repair. Source seed_next2751+
 currently batches sided/surface census; surface handoff3211+ waits for measured debt.
-This is a bounded hypothesis, not an implemented scheduling change or proof of closure.
+The483predicate is implemented/focused-qualified but actualtrajectory/MPIunqualified;
+this is not proof of closure.
 Predeclare support/reject/unresolved outcomes and audit allcallers/phase/resources
 BEFORE edit/build. Reuse current helper; no local operator variants or raised limits.
 Actual readiness must close geometry/tangential demand with positive neighboring

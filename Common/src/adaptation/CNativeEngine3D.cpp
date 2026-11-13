@@ -2750,8 +2750,8 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
   };
   auto seed_next=[&](bool local_active=true) {
     Timer timer(stats.seed_seconds,options.timings);
-    // Composed or sided planning is expensive; a complete cavity may remove still-unmeasured topology.
-    if((!composition && !surface_target) || phase==Phase::Improvement) {const bool measured=measure(initial,true,&stats.seed_seconds);if(measured)seed_slot=initial.size();return measured;}
+    // Surface demand must be known before optional collapses; composed volume may remove unmeasured topology.
+    if(!composition || phase==Phase::Improvement) {const bool measured=measure(initial,true,&stats.seed_seconds);if(measured)seed_slot=initial.size();return measured;}
     if(options.maximum_seconds && world.maximum(std::chrono::duration<double>(Clock::now()-started).count()>=options.maximum_seconds)) {
       stats.stop=EngineStop::TimeBudget;result.reason="Native3D metric seeding exhausts elapsed-time budget.";return false;
     }

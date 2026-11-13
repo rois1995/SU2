@@ -1,29 +1,38 @@
 # How to proceed
 
 Read [HANDOFF_Codex.md](HANDOFF_Codex.md),
-[482decision and fidelity](Handbook/ADAPTATION_PRODUCTION_SURFACE_RESUME_482_20261113.md)
-and [timings](Handbook/ADAPTATION_TIMINGS.md). Build482andfocused53casecheck PASS; serial surface stage and MPI6 are TERMINAL, HANDOFF owns handles. Connected milestone remains UNQUALIFIED. All actual owned handles and pins verified; preserve saved progress.
+[483construction decision](Handbook/ADAPTATION_SURFACE_CENSUS_483_20261113.md)
+and [timings](Handbook/ADAPTATION_TIMINGS.md). Build483 PASS105.973s/5tasks;
+focused13cases/2611assertions PASS9.361s, actualhandles/pins verifiedterminal.
+Actual483serial TERMINAL522.326s, all1782pins/5actualhandles verified.
+36930/39071wallrows measured,0constructor/commits, outputOwned/params unchanged.
+No ownedheavyjob live; preserve current state and both prior outcomes.
 
-482reuses already-computed complete point-distance upper plus outward physical child
-diameter, magnitude-only, preserving whole-domain conservatism and original limits.
-It also binds public PrepareSurface to exact saved304585tets/61840nodes/current
-transported tensors/parameters and SAME441composed target/authority/stageh6.4e-5.
-Real driver wall h/growth/thickness forwarded; no CFD/import/geometry/Hessian/metric
-normalization or oldP1reset. Sixranktargets verified same prepared authority.
-Existing StateBytes/capture/ownership/publication machinery and388.8s/233220orlower/
-12GiB surface stage, parentnative5400s/outer600s unchanged. No production policy change.
+483uses existing complete requested-wall entry measure before optional collapses.
+Only seedpredicate changes; composedvolume stays incremental,16cell batches andall
+admission/deadline/ownership/publication preserved. No q/J construction veto/measure.
+Late-deficit regression now places real clean collapse opportunities before debt
+beyond first16rows; clean collapse control stillpasses. No actualreadiness claim.
 
-Serial stage independent readback passed: all304585donors match current input,
-303606positive outputtets/61464nodes have consistent shared fields, parameter payload
-and full target references preserved. Only7448/39071requiredwall rows measured;
-zero known geometryfailures is NOTclosure.376collapses/1split, no repair reached.
-MPI6 outertimeout124:314commits observed,3437/39194wall measured, rank5empty/aligned;
-no exitshards, no MPIqualification or firstrowreadiness. All10owned identities terminal.
-Read Handbook/ADAPTATION_SURFACE_482_OUTCOME_20261113.md before another edit/build.
-Next hypothesis: complete existing requested-wall census before optional collapse
-correction so required-demand handoff/physical repair can actually be exercised; serial collapse
-correction170.313s is substantial, upperquery15.645s nested, not dominant alone.
-Do not add local operator variants when native mapped repair was never reached.
+Continue from482serial's verified303606positive tets/61464nodes, current fullparams
+and transport, SAME441target/authority/config/stageh6.4e-5. Hashedsymlinkadapter reuses
+existingcapture format; no oldP1/upstream recompute or exactscheduler resume.
+Independent exitshards/donors/metrics/params/fulltarget checks complete.
+Monolithic scan consumed stage:6786upperqueries203.070s,0unionexceptions; valid
+upper>tau counts are NOTresourcefailures. No repair/firstrow enabled. Revise within
+samecycle: discover until required debt or full census, then existinghandoff; retain
+cursor/refill and mandatory complete finalcoverage. Reviewbeforeimplementation/build.
+Do not qualify/retry impractical483monolithic path on MPI; use one coherent revised
+capability milestone. No newoperator/scheduler/config/budget change.
+Do not repeat timedout actualMPI482 unchanged if setup+remainingstage cannotfit600s.
+482MPI314commits/3437of39194wall observed; noexitshards/MPIqualification. All482terminal.
+
+Construction decision: fullcoverage plus useful physical surface/neighbor progress
+supports483; completecensus with no usefuladmissible progress rejects/reviseshypothesis.
+Resource/incompletesupport remains unresolved, notphysicalimpossibility. Existing
+surface388.8s/233220work/12GiB,parent5400s/outer600 unchanged. Different progressed
+input means no identical-input timing/speedup comparison. Repair must actually be
+reached before operator capability/yield can be assessed. No new variant/scheduler.
 
 481admitted9actual mapped moves, but selected prefix raises geometryscreenbad6→7
 while excess falls29%. Its24split continuation publishesall24 yet geometrybadlocal+4,

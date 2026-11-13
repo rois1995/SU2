@@ -894,7 +894,7 @@ TEST_CASE("Requested-wall preparation uses construction ownership without claimi
   }
 }
 
-TEST_CASE("Known required surface debt precedes a feasible optional collapse", "[NativeSurfacePreparationEngine3D]") {
+TEST_CASE("Complete wall demand precedes a feasible optional collapse", "[NativeSurfacePreparationEngine3D]") {
   World world;auto fine=Box();
   for(auto& cell:fine.patch.cells)for(auto& n:cell.v){n.p.x*=.25;n.p.y*=.25;n.p.z*=.25;}
   for(auto& f:fine.facets) {
@@ -921,20 +921,37 @@ TEST_CASE("Known required surface debt precedes a feasible optional collapse", "
   const auto clean=PrepareSurface(world,input,Uniform(input,{}),fineReference,target,options);
   INFO(clean.reason);CHECK(world.sum(int(clean.stats.length_collapses))>0);
   CHECK(clean.stats.surface_required_handoffs==0);CHECK(Bytes(input)==saved);
+  auto facets=fine.facets;
+  // Put real optional collapses ahead of required debt beyond the first measurement batch.
+  for(Id copy=1;copy<8;++copy) {
+    const Id offset=1000*copy;auto patch=refined;
+    for(auto& cell:patch.cells) {
+      cell.id+=offset;for(auto& node:cell.v){node.id+=offset;node.p.x+=3*copy;}
+    }
+    for(auto& face:patch.surface){face.facet+=offset;for(auto& id:face.v)id+=offset;}
+    for(auto facet:fine.facets) {
+      facet.id+=offset;for(auto& node:facet.v){node.id+=offset;node.p.x+=3*copy;}
+      facets.push_back(facet);
+    }
+    if(!world.rank)for(auto row:Rows(patch)){row.sensor_present=true;row.sensor.fill({});input.emplace(row.cell.id,row);}
+  }
   auto coarse=Box();
-  for(auto& cell:coarse.patch.cells){cell.id+=200;for(auto& n:cell.v){n.id+=32;n.p.x+=3;}}
-  for(auto& face:coarse.patch.surface){face.facet+=32;for(auto& id:face.v)id+=32;}
+  for(auto& cell:coarse.patch.cells){cell.id+=100000;for(auto& n:cell.v){n.id+=100000;n.p.x+=30;}}
+  for(auto& face:coarse.patch.surface){face.facet+=100000;for(auto& id:face.v)id+=100000;}
   for(auto& facet:coarse.facets) {
-    facet.id+=32;for(auto& n:facet.v){n.id+=32;n.p.x+=3;}
+    facet.id+=100000;for(auto& n:facet.v){n.id+=100000;n.p.x+=30;}
     if(std::all_of(facet.v.begin(),facet.v.end(),[](Node n){return n.p.z==0;}))facet.marker=7;
   }
-  auto facets=fine.facets;facets.insert(facets.end(),coarse.facets.begin(),coarse.facets.end());
+  facets.insert(facets.end(),coarse.facets.begin(),coarse.facets.end());
   const PlanarReference geometry(facets);
   if(!world.rank)for(auto row:Rows(coarse.patch)){row.sensor_present=true;row.sensor.fill({});input.emplace(row.cell.id,row);}
   const auto mixedSaved=Bytes(input);bool observed=false;
   options.stage_observer=[&](const StageProgressView& view) {
     if(std::string(view.stage)!="surface_required_entry")return;
     observed=true;CHECK(view.stats.surface_required_handoffs==1);CHECK(view.stats.split_lane==1);
+    CHECK(view.stats.surface_demand_census_complete);
+    CHECK(view.stats.surface_demand_measured_cells==view.stats.surface_demand_required_cells);
+    CHECK(world.sum(int(view.stats.surface_demand_measured_cells))>16);
     CHECK(world.sum(int(view.progress.construction_invalid_cells))>0);
     CHECK(view.stats.length_collapses==0);CHECK(view.stats.length_collapse_passes==0);
     CHECK(view.progress.q_measured_cells==0);CHECK(view.progress.j_measured_cells==0);

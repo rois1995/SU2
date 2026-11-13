@@ -1,0 +1,178 @@
+{
+  "case": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved483_saved_production_surface_serial_20261113T104750_2835491",
+  "status": {
+    "state": "terminal",
+    "exit_code": 0,
+    "seconds": 522.3263504505157,
+    "pins_verified": true,
+    "changed": [],
+    "largest_sampled_individual_process_rss_bytes": 2563235840,
+    "rss_note": "sampled process RSS; not a whole-job peak"
+  },
+  "assessment_script_sha256": "f3700bd156bba9c42b7850c24e3080aad777ae12ce5c245844f4975e59f5556f",
+  "pins_verified": 1782,
+  "actual_handles_terminal": true,
+  "transported_input_donors_exact": 303606,
+  "output_cells": 303606,
+  "output_nodes": 61464,
+  "shared_coordinates_and_transported_tensors_consistent": true,
+  "shards": [
+    {
+      "result": {
+        "rank": 0,
+        "ranks": 1,
+        "input_cells": 303606,
+        "donor_cells": 303606,
+        "output_cells": 303606,
+        "global_output_cells": 303606,
+        "positive_cells": 303606,
+        "sensor_cells": 303606,
+        "surface_prepared": false,
+        "engine_valid": false,
+        "final_mesh_accepted": false,
+        "same_target_policy": true,
+        "input_parameters_unchanged": true,
+        "exact_transported_input": true,
+        "captured": true,
+        "stage_height": 6.4e-05,
+        "seconds": 397.915864821,
+        "maximum_seconds": 388.8,
+        "maximum_work": 233220,
+        "stop": "time_budget",
+        "reason": "Native3D metric seeding exhausts elapsed-time budget. Local cached demands: geometry_cells=2794, metric_or_height_cells=30, geometry_edges=0, metric_edges=101546.",
+        "work": 0,
+        "commits": 0,
+        "moved": 0,
+        "reconnected": 0,
+        "splits": 0,
+        "collapses": 0,
+        "geometry_work": 68399194,
+        "process_cpu_seconds": 396.500763,
+        "ownership_evaluations": 0,
+        "ownership_changes": 0,
+        "ownership_moved_cells": 0,
+        "geometry_guidance_trials": 0,
+        "geometry_guidance_rejected": 0,
+        "surface_required": 39071,
+        "surface_measured": 36930,
+        "surface_census_complete": false,
+        "surface_geometry_complete": false,
+        "upper_calls": 6786,
+        "upper_work": 67492516,
+        "upper_seconds": 203.06954257399974,
+        "scope_work": 832875,
+        "scope_seconds": 17.891635709999985,
+        "facet_work": 1393310,
+        "traversal_work": 64120915,
+        "tracked_collective_seconds": 0.15712965499946563,
+        "ownership_seconds": 0,
+        "maximum_work_bytes": 8835972848,
+        "timers_overlap": true,
+        "cpu_includes_MPI_polling": true
+      },
+      "manifest": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved483_saved_production_surface_serial_20261113T104750_2835491/stage_resumed_surface_rank0_manifest.json",
+      "files": {
+        "owned": {
+          "path": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved483_saved_production_surface_serial_20261113T104750_2835491/stage_resumed_surface_rank0_owned.bin",
+          "sha256": "9bf03b83f48cdece134d88abf768bb749a81b64f2bac629439c95bbc3c802cfb",
+          "bytes": 126300104
+        },
+        "donors": {
+          "path": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved483_saved_production_surface_serial_20261113T104750_2835491/stage_resumed_surface_rank0_donors.bin",
+          "sha256": "d688eb34740125ae023a841d151268a0b437d193ddfd013e1cbbdf0e77034480",
+          "bytes": 104440472
+        },
+        "parameters": {
+          "path": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved483_saved_production_surface_serial_20261113T104750_2835491/stage_resumed_surface_rank0_parameters.bin",
+          "sha256": "d7fa4f39193ee4f9230e2a6e5c0b46547c744756f58f9464d0313ae0def964ff",
+          "bytes": 5071416
+        }
+      }
+    }
+  ],
+  "target_reconstruction_inputs": {
+    "owned": {
+      "path": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved482_saved_production_surface_serial_20261113T100940_2712169/stage_resumed_surface_rank0_owned.bin",
+      "adapter_path": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/surface483_current_state/trajectory_working_owned.bin",
+      "sha256": "9bf03b83f48cdece134d88abf768bb749a81b64f2bac629439c95bbc3c802cfb"
+    },
+    "parameters": {
+      "path": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved482_saved_production_surface_serial_20261113T100940_2712169/stage_resumed_surface_rank0_parameters.bin",
+      "adapter_path": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/surface483_current_state/trajectory_working_parameters.bin",
+      "sha256": "d7fa4f39193ee4f9230e2a6e5c0b46547c744756f58f9464d0313ae0def964ff"
+    },
+    "target": {
+      "path": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved441_ramp5_metric_stage_20261112T124340_1300487/target_rank0.bin",
+      "sha256": "4093a6a066f26db3360c6732f8853227251eb95ba1ba5e629dc636f6a1badbb7"
+    },
+    "prepared_reference": {
+      "path": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/prepared_reference441.native_ref",
+      "sha256": "9cdbc63cb6853f2c8b052bb0549f7b561299bfe82cd21fd6b792d2600dadf7e9",
+      "bytes": 47601773,
+      "offset": 3099544,
+      "decoder_must_require_exact_target_reference_agreement": true
+    },
+    "all_rank_targets": [
+      {
+        "path": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved441_ramp5_metric_stage_20261112T124340_1300487/target_rank0.bin",
+        "sha256": "4093a6a066f26db3360c6732f8853227251eb95ba1ba5e629dc636f6a1badbb7",
+        "reference_bytes": 47601773,
+        "same_reference": true
+      },
+      {
+        "path": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved441_ramp5_metric_stage_20261112T124340_1300487/target_rank1.bin",
+        "sha256": "216d96876fc7fdd74aacbc8f291eff59efafe813edd81fb72d7ade5ea4a7db33",
+        "reference_bytes": 47601773,
+        "same_reference": true
+      },
+      {
+        "path": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved441_ramp5_metric_stage_20261112T124340_1300487/target_rank2.bin",
+        "sha256": "0e41c4a727587c744b9041dd3e776507364b14832f49ab5db3beed6379a784bd",
+        "reference_bytes": 47601773,
+        "same_reference": true
+      },
+      {
+        "path": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved441_ramp5_metric_stage_20261112T124340_1300487/target_rank3.bin",
+        "sha256": "7649febbc4d495b11a95f72d449a304468089718526baa6ad306fbf8b1a483cc",
+        "reference_bytes": 47601773,
+        "same_reference": true
+      },
+      {
+        "path": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved441_ramp5_metric_stage_20261112T124340_1300487/target_rank4.bin",
+        "sha256": "daa81742b6451a32c8d0144f79a4209e00a89f21b52faed130aa7df9a30f03a0",
+        "reference_bytes": 47601773,
+        "same_reference": true
+      },
+      {
+        "path": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved441_ramp5_metric_stage_20261112T124340_1300487/target_rank5.bin",
+        "sha256": "bed60953bbbf6027bc219547136dbffc932cacd5a4214e87dec8272302e5d7fa",
+        "reference_bytes": 47601773,
+        "same_reference": true
+      }
+    ],
+    "cells": 303606,
+    "nodes": 61464,
+    "shared_nodal_coordinates_and_tensors_consistent": true,
+    "profile": "SAME saved441composed policy and no-CAD authority; current transported tensors, no originalP1 rebootstrap.",
+    "stage_height": 6.4e-05,
+    "maximum_surface_seconds": 388.8,
+    "maximum_surface_work": 233220,
+    "source_assessment": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/saved_production_surface482_serial_assessment.json",
+    "source_assessment_sha256": "b8cdcb90e067538aad822d3e2b03c3c6cc1317e10d96bd1e2e50ac46efd55447",
+    "partition": "Serial unchanged; MPI6 existing diagnostic id%5 layout leaves rank5empty at entry. Production automatic ownership unchanged.",
+    "purpose": "Continue preserved482valid construction progress through complete entry wall census; not a matching-input speed baseline.",
+    "capture_adapter": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/surface483_current_state",
+    "provisional": true,
+    "exact_scheduling_resume": false,
+    "final_mesh_accepted": false
+  },
+  "surface_ready": false,
+  "final_mesh_accepted": false,
+  "goal_complete": false,
+  "limitations": [
+    "Provisional stage output, not a CFD restart.",
+    "Full target/authority/config plus current tensors and associations required; capture alone is incomplete.",
+    "Independent payload byte/readability checks do not establish final geometry, q/J, heights or exact scheduling resume.",
+    "Complete wall census required before interpreting zero known geometry failures as closure."
+  ]
+}

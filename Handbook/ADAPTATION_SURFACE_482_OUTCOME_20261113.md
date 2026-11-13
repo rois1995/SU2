@@ -27,8 +27,8 @@ Therefore do not reject useful mapped surface movement from this result.
 
 388.895s nativeexit/389.952s API/518.229s outer; safe-point/return/capture overshoot
 relative to388.8s clock is explicit, not an increased bound.369.814s processCPU,
-49913work/233220limit. Collapse correction170.313s/4661corrections/18281added-support
-cells/35353work is a major cost. Upper15.645s, guidance13.620s, update8.539s overlap;
+49913work/233220limit. Collapse correction170.313s/4661constructed-support-corrections/18281added-support
+cells/35353work is a major cost.4661does not count all timed invocations. Upper15.645s, guidance13.620s, update8.539s overlap;
 do not sum them. No isolated geometry speedup or net closure rate established.
 
 ## Experimental fidelity and next construction decision

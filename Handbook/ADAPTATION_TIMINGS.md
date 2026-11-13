@@ -1,7 +1,7 @@
 # Adaptation timings and computational work
 
-Updated2026-11-13:482build/focusedserial PASS; actual saved production surface stage
-serial TERMINAL; MPI6 TERMINAL/outertimeout124. HANDOFF owns actual handles.
+Updated2026-11-13:483build PASS; current saved surface trajectory TERMINAL/measurement budget, connected requested-wall census correction.
+482serial TERMINAL; MPI6 TERMINAL/outertimeout124. HANDOFF owns actual handles.
 Build476642.982s under contention; current-input trajectory228.411s/609828assertions,
 legacy regression264.200s/610217assertions. Bothterminal/pins/actualhandles verified.
 Production473/CFD unchanged. Current trajectory stalls after5pubs/24calls; no readiness.
@@ -13,6 +13,30 @@ Build473305.914s; focused62.658s/52cases/5688assertions; MPI185.914s/41cases eve
 [stage contract](ADAPTATION_CONNECTED_PATCH_TRAJECTORY_20261113.md) owns acceptance/stalls.
 R=`integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57`.
 
+
+##483 connected requested-wall census decision — measurement bound, no construction
+
+Reuse current482valid303606tets/61464nodes, SAME441target/authority/stageh6.4e-5.
+Only seed predicate enables existing full entry measurement for empty-composition
+surface preparation; existing16cell imports/admission/deadlines retained. Composed
+volume remains incremental; no operator/config/gate/budget change. Need complete wall
+coverage ANDuseful required geometry/tangential progress, not merely measurement.
+Build PASS105.973s/5tasks/1526pins/18terminalactualidentities; cleanNinja/bothbinaries
+verified. Launch49.983GBavailable/load2.97/3.82/6.52,nice19/j3/libs1. Focusedserial
+PASS9.361s/13cases/2611assertions,1731pins/5terminalactualidentities. Actual483serial
+TERMINAL from progressed482state; all1782pins/5actual identities verified.
+Outer522.326s/API397.916s/nativeexit397.165s vs388.8s clock; full entryseeding
+36930/39071wall rows,0work/commits/trials. Input/outputOwned+params byte-identical.
+68399194geometrywork;6786upperqueries203.070s/67492516work,0unionexceptions.
+5624upper_refusals is VALIDupper>tau, notresourceexception/physicalviolationproof.
+Nestedfacet56.830s/scope17.892s/traversal127.765s; do notsumoverlap. CPU396.501s,
+maxaccounted8,835,972,848B/sampleindividualRSS2,563,235,840B, notwholepeak.
+2794geometryscreens/30sizebad in known subset;2141wallunknown, q/J/heights unknown.
+No readiness, no speedup/usefulconstruction claim; monolithic entry path not practical.
+Nextdecision: yield discovery to existing requiredhandoff oncefirstdeficit known,
+retain censuscursor and complete finalcoverage requirement. No newbaseline/profiler.
+R/surface_census483_fidelity.json; next focused then current-state production surface.
+No timing/work improvement or readiness established; current input differs from482entry.
 
 ##482 connected production-stage continuation — serial complete, MPI timeout
 
@@ -40,8 +64,9 @@ Serial actual production stage:518.229s outer,389.952s APIreturn,388.895s native
 377commits(376collapses/1split),49913work,17,962,582geometrywork;
 303606positive tets/61464nodes. Only7448/39071requiredwall rows measured: no net
 whole-surface geometry/q/J closure rate or directional conformity established.
-Existing collapse-correction timer170.313s/4661calls/18281cells/35353work is a major
-measured cost (~44%of APIwall). Nested upper-query15.645s/3067calls/7130550work,
+Existing collapse-correction timer170.313s/4661constructed-support-corrections/18281added-support-cells/35353work is a major
+measured cost (~44%of APIwall). The4661counter is successful support correction
+construction, not all timer invocations; totalcallcount is not isolated. Nested upper-query15.645s/3067calls/7130550work,
 scope1.354s, guidance13.620s, update8.539s overlap; DO NOTadd them.
 Tracked collective .896s plus election .194s are call timers, not totalMPIwait.
 Maximum accounted workbytes10,077,652,824; sampled individual RSS2,177,744,896B,
