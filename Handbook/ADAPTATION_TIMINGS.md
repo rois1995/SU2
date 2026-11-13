@@ -1,6 +1,6 @@
 # Adaptation timings and computational work
 
-Updated2026-11-13 after476 connected trajectories. NO owned heavyjob.
+Updated2026-11-13 after480 query decision. No owned heavy workload live; all terminal receipts verified. HANDOFF owns provenance.
 Build476642.982s under contention; current-input trajectory228.411s/609828assertions,
 legacy regression264.200s/610217assertions. Bothterminal/pins/actualhandles verified.
 Production473/CFD unchanged. Current trajectory stalls after5pubs/24calls; no readiness.
@@ -11,6 +11,35 @@ Build473305.914s; focused62.658s/52cases/5688assertions; MPI185.914s/41cases eve
 [Current handoff](../HANDOFF_Codex.md) owns source/build/handle state;
 [stage contract](ADAPTATION_CONNECTED_PATCH_TRAJECTORY_20261113.md) owns acceptance/stalls.
 R=`integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57`.
+
+
+##478–480 completed construction comparison and certification decision
+
+Reuses476coherent304521tet state and SAME441target/profile/stageheight. Prepared
+reference embedded in441checkpoint is extracted, then native decoding must check
+exact authority agreement. No CFD geometry/mobility/metric construction repeated.
+Three contexts each8distinct slots; total24/300s/600s/12GiB unchanged. Input endpoint
+starunions27/10/20cells. 478buildPASS355.909s; actualcomparison182.460s completes24slots before diagnostic
+postpublication staleOLDview failure. All3contextscovered; noactivegeometry-admitted
+replacement; onlycontrolcollapse10→8published.304511untouched cells bit-identical.
+479reuses that output for proof only,0constructors/0repeatedcomparisontrials. No speedup claim.
+479build357.852s; zero-constructor proof192.915s/1774pins, all5actual handles terminal.
+The already published control is semantically rechecked; no repeated trials, no active
+geometry closure. 480exact-query wrapper47.552s/1731pins, all5actual handles terminal;
+nested query.029949181s/1557work, traversal.000840165s/395work. Do not add these timers.
+Same48support/child coordinates: upper.004238912→.000353533 at decision ceiling
+.001207578, physical gate1e-4 unchanged. Complete fresh counterfactual excess
+9.45926e-8 vs preserved old1.25704e-6; BOTHsides under a common tighter policy remain
+untested. No speedup, accepted mesh, net geometry retirement or MPI capability claim.
+478trial sums: R4 5.123800s/450778geometrywork;R5 2.348240s/992908;control
+2.182837s/275065. Overall2,261,666geometrywork includes observation/publication setup;
+these are not additive exclusive phase totals. SurfacePlanning lengths are endpoint/
+strip guidance, not full composed-edge integration. Current measured trajectory still
+does not reach tangential/firstrow readiness. See R/geometry_progress480_assessment.json.
+The already-frozen477trace completed253.679swrapper with SAME24decisions/geometrywork
+and bit-identical workingOwned/parameters as476.1134queries=104misses/1030hits.
+19refusals repeat FOUR unchanged split candidates. Trace overhead is not a baseline.
+Upper/lower query gaps leave relative geometry regression unresolved.
 
 ##473 active cycle — comparable fitting bounds
 

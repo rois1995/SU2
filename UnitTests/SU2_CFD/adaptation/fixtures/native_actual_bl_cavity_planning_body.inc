@@ -2,8 +2,8 @@ const auto* capture=std::getenv("SU2_NATIVE_BL_PLANNING_CAPTURE");REQUIRE(captur
 const std::string root=capture;constexpr size_t maxRows=1000000;
 junction_wp0::State current;
 {
- for(unsigned shard=0;shard<(cavityCorrection?6u:1u);++shard) {
-  const auto bytes=TransactionRead(root+"/stage_surface_rank"+std::to_string(shard)+"_owned.bin");RecordStream input(bytes);
+ for(unsigned shard=0;shard<(coherentCapture?1u:cavityCorrection?6u:1u);++shard) {
+  const auto bytes=TransactionRead(coherentCapture?root+"/trajectory_working_owned.bin":root+"/stage_surface_rank"+std::to_string(shard)+"_owned.bin");RecordStream input(bytes);
   auto rows=TransactionVector<OwnedCell>(input,maxRows);REQUIRE(input.End());
   REQUIRE(transfer_memory::Add(reference->original->ResidentBytes(),restored.family->ResidentBytes(),
       transfer_memory::Mul(current.mesh.size()+rows.size(),6*(sizeof(DonorCell)+640)),size_t(256)<<20)<ceiling);
@@ -13,7 +13,7 @@ junction_wp0::State current;
 const auto retained=transfer_memory::Add(ReferenceStorageBytes(*reference),restored.family->ResidentBytes(),
     OwnedStorageBytes(current.mesh),size_t(256)<<20);
 current.live_parameters=BoundaryParameterState::FromPayload(reference->original->Parameters()->Authority(),
-    TransactionRead(root+"/stage_surface_rank0_parameters.bin"),ceiling,retained);
+    TransactionRead(root+(coherentCapture?"/trajectory_working_parameters.bin":"/stage_surface_rank0_parameters.bin")),ceiling,retained);
 SU2NativeGeometry::AtlasBudget budget;budget.maximum_bytes=ceiling;budget.caller_bytes=retained;
 budget.maximum_work=transfer_memory::Mul(current.mesh.size(),SU2NativeGeometry::MappedFacetReference::ClearanceWork);
 constexpr size_t atlasScratch=size_t(16)<<20;size_t low=0,high=atlasScratch*8;
@@ -55,14 +55,22 @@ REQUIRE(smooth!=0);contexts.push_back({"unchanged_wall_control",star(smooth)});
 for(const auto& row:current.mesh)if(std::none_of(row.second.physical.begin(),row.second.physical.end(),[](FacetBinding f){return f.present;})) {
   contexts.push_back({"unchanged_interior_control",{row.first}});break;
 }
-if(currentResidual&&!patchTrajectory) {
+if(currentResidual&&!patchTrajectory&&!coherentCapture) {
   contexts.push_back({"current_rank4_geometry",star(18152)});
   contexts.push_back({"current_rank5_clearance",star(8010)});
 } else if(!currentResidual)contexts.push_back({"leading_edge",star(4219)});
-REQUIRE(contexts.size()==(currentResidual?(patchTrajectory?2:4):cavityCorrection?6:4));
+REQUIRE(contexts.size()==(currentResidual?((patchTrajectory||coherentCapture)?2:4):cavityCorrection?6:4));
 std::ofstream log("actual_bl_cavity_planning.jsonl");REQUIRE(bool(log));log<<std::setprecision(17)<<std::boolalpha;
 auto samePoint=[](Point a,Point b){return a.x==b.x&&a.y==b.y&&a.z==b.z;};
 auto sameTensor=[](Tensor a,Tensor b){return a.xx==b.xx&&a.xy==b.xy&&a.xz==b.xz&&a.yy==b.yy&&a.yz==b.yz&&a.zz==b.zz;};
+if(coherentCapture&&currentResidual&&!patchTrajectory) {
+  if(std::getenv("SU2_NATIVE_BL_SAVED_PATCH")) {
+#include "native_actual_saved_surface_publication.inc"
+    return;
+  }
+#include "native_actual_saved_surface_corrections.inc"
+  return;
+}
 if(patchTrajectory&&currentResidual) {
 #include "native_actual_current_trajectory.inc"
   return;

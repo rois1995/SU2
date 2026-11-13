@@ -12,13 +12,68 @@ preserves earlier details; it is NOT live state.
 
 ## Live state and provenance
 
-Build476 PASS642.982s under contention; all10actual build identities terminal.
-Current476trajectory TERMINAL228.411s,1783pins/all5actual handles verified; all304508
-original rows unchanged, coherent304521tet private diagnostic output saved.
-Legacy476regression TERMINAL PASS264.200s,1782pins/all5actual handles verified;
-exact16step replay/24calls/22publications retained,610217assertions. Current trajectory
-609828assertions. NO owned heavy workload live. All build/runtime handles independently terminal;
-no frozen run was interrupted. Preserve unrelated changes. Production473/CFD unchanged.
+No owned heavy workload is live. Build479 and query480 are independently TERMINAL;
+all actual PID/start identities and source/runtime/input pins verified. Production473/
+CFD unchanged. Latest test SHA `2868a8510d4b3acfd539a9af52eac51a5f2ac03cbb11d457a46b64024b27fffd`.
+Build479 PASS357.852s; R/build479_status/source_pins/terminal_handles.json own provenance.
+Read [construction decision/fidelity](Handbook/ADAPTATION_SURFACE_CORRECTION_DECISION_20261113.md)
+and [next certification decision](Handbook/ADAPTATION_GEOMETRY_MAGNITUDE_DECISION_20261113.md).
+
+478comparison completes ALL3contexts/24distinct constructors, then fails182.460s
+on diagnostic stale OLDprivate epoch AFTER controlpublication. All pins/handles
+verified. R/surface_comparison478_preserved_failure.json preserves every outcome.
+R4all8construct;R5sevenconstruct,onecollapse body/feature refusal;controlall8construct.
+No ACTIVEcandidate passes geometry guidance. All12active mapped moves change physical
+surface, construct and pass other measured gates; conservative score rises, genuine
+physical worsening unproved. SurfacePlanning edge values are endpoint/strip guidance,
+NOT exact composed-edge quadrature. Reconnect preserves skin: negative control only.
+Only6070→6072control collapse feasible/published10→8cells. Original476input unchanged;
+304511untouched rows bit-identical, coherent304519tet output/parameters saved.
+
+479proof PASS192.915s/1774pins/all5actual identities terminal. Reuses ALREADYpublished
+478control with independent persisted OLD/NEWparameter states; ZEROconstructors or
+repeatedcomparison slots. All8q/J/geometry observations match, fresh metric/geometry/
+provisional-height checks pass; saved bytes identical. The stale guard is preserved.
+R/saved_publication479_assessment.json. This qualifies control reload/publication only,
+not active-cavity geometry closure, strict BL height or a new distributed capability.
+
+480existing exact-query counterfactual PASS47.552s/1731pins/all5actual identities terminal.
+For476last refused14983–24439split, same48supportIDs/physical child triangle, a valid
+upper tightens.004238912→.000353533. Complete fresh hinge bound1.71609e-5→9.45926e-8
+versus preserved old1.25704e-6. Physical gate remains1e-4; query decision ceiling
+.001207578 is NOT that gate. Query1557work/.029949s; wrapper dominated by other work.
+R/geometry_progress480_assessment.json. This demonstrates conservative admission
+uncertainty on ONEsample, not a new accepted candidate: compare BOTHsides under the
+same policy before production conclusions. No claimed timing gain. Next decision is
+purpose-correct magnitude certification, not more physical operator variants; preserve
+same476state/441target/profile/stageheight and existing limits. No production edit yet.
+
+Current476state is reused directly:61816nodes/304521tets, transported nodal metrics,
+complete parameters, SAME441target andstage0h6.4e-5. Prepared47,601,773Breference bytes
+extracted from441target; native checkpoint decoder must verify exact byte equality.
+No new CFD/metric/mobility construction. R/surface_comparison478_inputs.json.
+Three fixed contexts each8slots: R4endpoints14983/24439(27unioncells), R5endpoints67/68
+(10unioncells), clean6070/6072control(20unioncells). Six production arithmetic-mean
+moves(steps1,.5,.25 at eachendpoint), one short-edge collapse, one skin-preserving
+Reconnect control. Support union and individual complete stars checked BEFORE trials;
+24total/300s/600s/64old/128new/12GiB unchanged. No unused-slot reassignment/repeated
+context. Active winner requires geometry progress separately from native feasibility.
+Fresh dependencies/full reservations/atomic publication + semantic rechecks planned.
+
+Trace477 TERMINAL253.679s, all24decisions/work/output EXACTLY476.1134queries,
+104misses/1030hits;19geometry refusals repeat only FOUR unchanged candidates.
+Child upperbounds.0035–.0044 versus lowerwitnesses.0001–.00023 do not establish
+relative geometric worsening. R/geometry_refusals477_assessment.json/queries.json.gz.
+Source audit: ReconstructSplitPatch and Reconnect preserve the rejected surface;
+MoveVertex/collapse have real surface freedoms. PrepareSurface→Adapt has EMPTY
+composition: arithmetic mean, NOConstrainMovePoint; ChangePhase clears geometry_repairs
+and retains Construction/provisional heights, q/Junranked. Do not implement the false
+preconstraint bypass hypothesis for this surface stage. No production correction yet.
+
+Build476/trajectories qualify only their documented diagnostic scope: current228.411s/
+609828assertions/1783pins; legacy264.200s/610217assertions/1782pins. All5actualruntime
+identities percase verified terminal. Original304508inputrows unchanged; coherent
+304521tet output preserved. Legacy16step replay/22pubs retained. Source b96645065c pushed.
 
 476current trajectory:24constructed/contact-passing candidates,5publications with
 production geometry descent,19guidance-descent refusals. R4scope17→38(+8old), local
@@ -42,7 +97,7 @@ manifest, explicit runtime_20261113_474 binding. R/build474_postcompile_helper_b
 records Python-only helper binding after474build; compiled source/binaries unchanged.
 Source checkpoint35e173b043 remains last qualified production; test-only476 changes
 are included in this reviewable checkpoint. No new MPI production capability claimed.
-Current test SHA `7ab9f4da2e460055bf25ffdc37352f9ae2ca4906d13789f9d9c70212534cb687`.
+Historical476 test SHA `7ab9f4da2e460055bf25ffdc37352f9ae2ca4906d13789f9d9c70212534cb687`.
 R/build476_status/source_pins/terminal_handles.json owns exact provenance.
 
 Historical production qualification: Build473 PASS305.914s; all26actual identities terminal, cleanNinja, source/binary pins.
@@ -135,15 +190,14 @@ UNMEASURED. This is a coherent DIAGNOSTIC capture, not successful stage output o
 restart. Source/input/output hashes are retained. Original293checkpoints22payloads/
 384685699B freshly hash-preserved in R/euler293_preservation_during_bl476.json.
 
-Classify actual remaining guidance refusals: genuine distance violation, conservative
-upper bounds, association/feature/body/height restriction versus placement/connectivity.
-All24constructors/contact checks pass;19lack geometry descent, so volume inversion
-is NOT the demonstrated cause of these refusals. Reconstruct was not triggered;
-collapse/relocation/reconnection were not exhausted. Test existing coupled facilities
-only against the demonstrated remaining obstruction, with complete current support,
-full reservations before changes, version checks and complete patch+neighbors.
-R5had no constructor budget: do not claim its capability is tested. Control6070has
-nativezero guidance, no strictfirstrow claim. Keep every finalgate/CADoptionality.
+478has now exercised all three planned contexts: actual mapped moves and legal
+collapse freedoms, plus skin-preserving reconnection control. Active geometry descent
+remains unresolved;479qualifies the clean control and480demonstrates one loose-bound
+obstruction. See the linked next-certification decision. Before another build, review
+the actual shared error-magnitude policy/callers/cache/resource diff against that
+contract. Then compare BOTHold/fresh under the same policy on saved476state and test
+the complete trajectory. Do not repeat physical variants or infer operator failure
+from loose upper bounds. No new production correction or MPI capability yet.
 
 Geometry closure, directional tangential delivery and rebuilt constrained/blended
 firstrow readiness remain separate prerequisites. Current below-.5edges rise0/19→10/44;

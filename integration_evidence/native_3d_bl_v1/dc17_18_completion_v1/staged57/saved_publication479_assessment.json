@@ -1,0 +1,56 @@
+{
+  "case": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved479_saved_publication_recheck_serial_20261113T073015_2283649",
+  "status": {
+    "state": "terminal",
+    "exit_code": 0,
+    "seconds": 192.91522860527039,
+    "pins_verified": true,
+    "changed": [],
+    "largest_sampled_individual_process_rss_bytes": 887132160,
+    "rss_note": "sampled process RSS; not a whole-job peak"
+  },
+  "pins_verified": 1774,
+  "all_actual_handles_terminal": true,
+  "preserved478_comparison": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved478_saved_surface_corrections_serial_20261113T070612_2226015",
+  "control_publication_semantically_rechecked": true,
+  "constructor_calls": 0,
+  "repeated_comparison_slots": 0,
+  "result": {
+    "stage": "saved_publication_recheck",
+    "constructor_calls": 0,
+    "old_cells": 10,
+    "new_cells": 8,
+    "old_q_bad": 10,
+    "new_q_bad": 8,
+    "old_J_bad": 8,
+    "new_J_bad": 7,
+    "old_geometry_bad": 0,
+    "new_geometry_bad": 0,
+    "old_geometry_excess": 0,
+    "new_geometry_excess": 0,
+    "strict_height": false,
+    "provisional_height": true,
+    "independent_parameter_epochs": true,
+    "existing_state_reused": true,
+    "mesh_accepted": false
+  },
+  "observations_match478": {
+    "old_q_bad": true,
+    "new_q_bad": true,
+    "old_J_bad": true,
+    "new_J_bad": true,
+    "old_geometry_bad": true,
+    "new_geometry_bad": true,
+    "old_geometry_excess": true,
+    "new_geometry_excess": true
+  },
+  "whole_working_cells": 304519,
+  "working_owned_sha256": "b4f1ac8cf4df00cb6eebbaaa3fb60159af5b76078aa5a19ad1eb3f0a3cdaa6cf",
+  "working_parameters_sha256": "d841365d788dc3afeeb34cf764a088bf94faf70f300c6d84ba6f5da1b6c0f9f5",
+  "production_changed": false,
+  "goal_complete": false,
+  "limitations": [
+    "Qualifies the existing control publication/diagnostic reload, not active geometry closure or final mesh acceptance.",
+    "No new MPI capability from this serial proof; all BL/RANS workflow obligations remain."
+  ]
+}

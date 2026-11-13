@@ -1,0 +1,41 @@
+{
+  "case": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved480_geometry_progress_query_20261113T074433_2318485",
+  "pins_verified": 1731,
+  "all_actual_handles_terminal": true,
+  "status": {
+    "state": "terminal",
+    "exit_code": 0,
+    "seconds": 47.551973819732666,
+    "pins_verified": true,
+    "changed": [],
+    "largest_sampled_individual_process_rss_bytes": 271138816,
+    "rss_note": "sampled process RSS; not a whole-job peak"
+  },
+  "query": {
+    "queried": true,
+    "complete": true,
+    "within_tolerance": true,
+    "work": 1557,
+    "seconds": 0.029949181000000002,
+    "traversal_work": 395,
+    "traversal_seconds": 0.000840165,
+    "model_bound": 0.0003535325148827817,
+    "work_exhausted": false
+  },
+  "old_complete_excess": 1.257042961897969e-06,
+  "previous_fresh_excess": 1.7160906160260812e-05,
+  "counterfactual_complete_fresh_upper_excess": 9.459260045427001e-08,
+  "ratio_to_original_old": 0.07525009353017471,
+  "physical_geometry_gate": 0.0001,
+  "decision_ceiling": 0.0012075780316932272,
+  "production_changed": false,
+  "goal_complete": false,
+  "confirmed": "Exact same support and physical triangle admit a tighter conservative bound sufficient for progress against the preserved old-side bound.",
+  "limitations": [
+    "A query counterfactual, not newly published replacement or geometry closure.",
+    "Old and fresh sides have not yet been compared under a common tighter policy.",
+    "within_tolerance in this query means its decision ceiling, not the final physical gate.",
+    "Other native guards passed for the preserved candidate; changed bound policy still requires complete revalidation and resource accounting.",
+    "No operator superiority, MPI capability or performance gain established."
+  ]
+}

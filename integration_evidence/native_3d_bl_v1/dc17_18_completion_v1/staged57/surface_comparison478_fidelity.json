@@ -1,0 +1,47 @@
+{
+  "checked_unix": 1794553111.1461656,
+  "source_pins": {
+    "UnitTests/SU2_CFD/adaptation/fixtures/native_actual_bl_cavity_planning.inc": "9dba026f99a00871068bd02cdba9c981746e17130bca0e80b7df09e4c739c8e1",
+    "UnitTests/SU2_CFD/adaptation/fixtures/native_actual_bl_cavity_planning_body.inc": "a2b57f93de81858bbb807953fd673ad01a036c71fea79fdc73d880a24cb0f80b",
+    "UnitTests/SU2_CFD/adaptation/fixtures/native_actual_saved_surface_corrections.inc": "b5b9d0799c57b1791591834e76158961f0796116f8af24b274b66221d2e66e08"
+  },
+  "contract": "Handbook/ADAPTATION_SURFACE_CORRECTION_DECISION_20261113.md",
+  "contract_sha256": "913e1e7ea1ebf7bd79064c1807bdbda78335cde02ad67c6ea9a796b88291965a",
+  "demonstrated_blocker": "Four unchanged split candidates repeatedly fail geometry descent; other actual physical surface freedoms were not exercised.476remaining state is preserved.",
+  "hypothesis": "Existing mapped endpoint relocation or a legal contraction can supply useful complete surface/volume replacements; volume-only reconnection is a negative surface control.",
+  "support": "Active candidate passes production surface-stage admission AND strict geometry progress, then complete reservation/publication and semantic rechecks. Clean zero-geometry collapse verifies control route.",
+  "reject": "Exact planned placement/connectivity/positive-volume or actual geometric/feature/body/height obstruction; only rejects the tested candidate.",
+  "unresolved": "Conservative guidance bounds, missing support, resource/measurement or publication refusal. Not general operator failure.",
+  "downstream": "Select one demonstrated production correction and qualify affected serial/MPI behavior, then connected surface trajectory toward firstrow prerequisites.",
+  "production_fidelity": {
+    "call_chain": "PrepareSurface\u2192Adapt({},Refine,true,surface_target)",
+    "composition_empty": true,
+    "phase": "Surface repair service retains Construction and clears geometry_repairs",
+    "shape_admission": "ValidityOnly; q/J observations separate",
+    "move": "arithmetic current surface-neighbor mean;1,.5,.25 at BOTH endpoints; no ConstrainMovePoint",
+    "geometry_repair": "non-increasing full excess plus geometry or size progress",
+    "active_goal_selection": "native feasibility recorded separately; strict geometry progress required for active winner",
+    "coarsen": "zero new geometry excess plus existing size/count admission",
+    "height": "PreservePassingFirstHeights and strict-or-measured provisional reference clearance",
+    "support": "Full endpoint union checked first; each operator uses complete current vertex star; removed-vertex completeness checked again",
+    "publication": "Existing Directory reused, fresh versioned lookup/fetch/full vertex reservation; atomic Publish; semantic metric/geometry/height recheck",
+    "neighbors": "Baseline complete one-ring observation, untouched node coordinates/tensors and complete removed stars certify unchanged halo; postpublication row hashes must preserve all untouched cells",
+    "memory": "OwnedStorageBytes persistent maps; load peaks retained; live Directory/source/parameter/capture/32MiB scratch; same12GiB",
+    "prepared_input": "LoadReference reads extracted441prepared authority; standard target decoder verifies exact byte agreement; no CFD/mobility/metric construction repeated"
+  },
+  "review_findings_resolved": [
+    "Dropped false preconstraint hypothesis after verifying empty surface composition.",
+    "Separate production feasible size-only move from strict geometry-progress active winner, in trial and postpublication.",
+    "Refresh live Directory residency; reuse original Directory for publication rather than retaining another global index.",
+    "No bitwise geometry-sum equality; re-run semantic admission."
+  ],
+  "coverage": {
+    "contexts": 3,
+    "slots_each": 8,
+    "total_slots": 24,
+    "constructors": "6MoveVertex+1CollapseVertex+1Reconnect percontext",
+    "uncovered": "R4opposite alternative vertices, additional contractions, generalized surface flips, enlarged cavities, growth and full MPI capability remain untested."
+  },
+  "production_changed": false,
+  "qualified": false
+}

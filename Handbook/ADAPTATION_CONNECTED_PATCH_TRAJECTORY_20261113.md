@@ -2,7 +2,7 @@
 
 Current curved-BL cycle, ordered stage3→4. Read HANDOFF_Codex.md for actual handles
 and frozen sources. This is one connected diagnostic/integration cycle, not a new
-production scheduler, geometry authority, target or configuration. Last qualified production is473. Test-only474 now removes the legacy precursor for the current-residual trajectory; its outcome is pending.
+production scheduler, geometry authority, target or configuration. Last qualified production is473. Current476saved trajectory stalls;478–480have completed representative operator coverage and a conservative-bound counterfactual. HANDOFF and the geometry-magnitude decision own the next experiment. Historical474plans below describe the tested prefix, not a pending run.
 Construction validity policy and all acceptance gates are unchanged.
 
 ## Current strategy, tested end-to-end within the stage boundary
