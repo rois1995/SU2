@@ -83,3 +83,7 @@ TEST_CASE("Saved M6 connected surface volume patch follows geometry to first row
 TEST_CASE("Saved current M6 residuals classify complete geometry and clearance refusals", "[.][NativeActualCurrentResidual3D]") {
   RunSavedActualCavities(true,false,false,false,false,false,false,false,false,false,false,false,false,true);
 }
+
+TEST_CASE("Saved current M6 patches follow the complete bounded surface volume trajectory", "[.][NativeActualCurrentTrajectory3D]") {
+  RunSavedActualCavities(true,false,true,false,false,false,false,false,false,false,false,false,true,true);
+}

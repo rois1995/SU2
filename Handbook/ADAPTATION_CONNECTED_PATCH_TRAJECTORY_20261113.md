@@ -2,7 +2,7 @@
 
 Current curved-BL cycle, ordered stage3→4. Read HANDOFF_Codex.md for actual handles
 and frozen sources. This is one connected diagnostic/integration cycle, not a new
-production scheduler, geometry authority, target or configuration. Last qualified production is470; shared473bound correction is now under qualification.
+production scheduler, geometry authority, target or configuration. Last qualified production is473. Test-only474 now removes the legacy precursor for the current-residual trajectory; its outcome is pending.
 Construction validity policy and all acceptance gates are unchanged.
 
 ## Current strategy, tested end-to-end within the stage boundary
@@ -77,6 +77,25 @@ production geometry-progress check is in CNativeEngine3D.cpp geometric_change;
 GeometryGuidanceExcess aggregates face bounds. First-row facilities and strict
 admission exist, but their existence does not prove this route reaches them.
 
+### Operation contract for the current saved input
+
+| Operation | Contribution and required result | Stall evidence |
+|---|---|---|
+| Restore, Directory discovery and native measurement | Exact current edge stars and complete neighboring cells, transported tensors, unchanged composed policy and geometry parameters. A native geometry-clean control checks the measurement route. | Missing/stale support or unresolved measurement; no constructor outcome may be inferred. |
+| Projected surface-strip split | Shorten a demonstrated offending chord while replacing its complete adjacent volume. Preserve positive cells, physical interfaces, associations and passing heights. | Inherited connectivity inverts, or complete-patch admission refuses despite a constructed candidate. |
+| Joint reconstruction, bounded support correction | Replace obstructing connectivity with a positive cone; add only the reported obstructing face and rediscover/re-reserve the entire resulting cavity. | No visible positive replacement within existing support/cell limits; repeated unchanged refusal; geometry or height regression. |
+| Tangential splitting, admissible collapse, mapped relocation and reconnection | Deliver the restricted target without inherited-spacing floors or unnecessary spanwise crowding. Complete geometry must survive; original coordinates are not frozen. | Metric-length or directional debt persists, zero-geometry coarsening admission blocks cleanup, or coupled volume prevents a useful replacement. These paths must be tested when reached, not inferred from geometry splitting. |
+| Direction rebuild and coordinated first-row transactions | Current carrier/symmetry-constrained blended directions, physical stage height, alignment, coverage and valid neighboring volume. | Surface prerequisites fail; stale direction data; missing coverage, clearance, positivity or height. |
+
+474 first executes the geometry-closure prefix on BOTH current saved residual
+contexts using ONE shared budget, then conditionally exercises existing first-row
+facilities. Its existing controller constructs splits/reconstructions; it does not
+independently establish a complete collapse/relocation/reconnection search. If this
+prefix stalls, downstream tangential delivery and first row are UNREACHED. That is
+a failed strategy trajectory, not permission to call the stage successful or evidence
+that all alternative coupled replacements fail. A maxedge pass alone does not
+establish directional tangential readiness or strict bidirectional geometry.
+
 ### Stall and mandatory reconsideration
 
 The SAME shared24constructor calls,300s geometry/600s outer,64old/128new cells and
@@ -89,6 +108,48 @@ cannot produce a valid complete replacement, or if geometry-progress ranking is
 not comparable between old and new faces. A bounded failure does not establish
 physical impossibility. Keep the last published state and exact refusal; never
 raise limits, waive uncertainty or proceed to first row from failed prerequisites.
+
+### Current473 input tested by476 — stall now demonstrated
+
+R/connected_trajectory476_outcome.json and current_trajectory476_assessment.json.
+Actual full473mesh/current transported nodal field/parameters + SAME441policy,
+stageheight and authority; no451precursor or stale recipe.1783pins/all5actual
+handles verified terminal.228.411s wrapper includes saved-state reconstruction;
+R4trajectory27.276542wall/27.100779CPU/933080geometrywork. R5measurement .608298s/
+.608067CPU/49678work. All304508original rows bit-identical; coherent private
+304521tet output and complete parameters retained as DIAGNOSTIC, not usableCFD.
+
+24constructed candidates pass exact positivity/topology and contact checks;5also
+pass current production geometry-progress/parameter/metric/height-preservation and
+provisional-clearance admission, then publish through fresh full reservations.
+Postpublication q/J/g counts and exact edge measurements agree; canonical geometry
+comparison avoids unordered-summation artifacts without a relaxed tolerance.
+19constructed candidates fail guidance descent: these are conservative bound-merit
+refusals, NOT independently proved physical geometry violations.
+
+R4observation17→38cells includes8previously unobserved oldcells. Local published
+geometry delta−4,qdelta+13,Jdelta+13; rawgeometry10→11 cannot be read as whole-field
+churn. Below-.5wall edges0/19→10/44; some may be geometry-required. Planningmax
+stays1.2365467, which does not certify directional suitability. Geometry remains
+unclosed. Shared24call limit is exhausted; R5gets measurement but ZEROconstructors.
+No tangential readiness or firstrow; later stages UNREACHED, not failed tests.
+
+This meets the mandatory reconsideration condition: the split-first prefix can
+publish useful local replacements but cannot demonstrate complete geometry closure
+or suitable tangential delivery within its bounds. Do not add another split variant,
+more calls or a fullM6retry. On this saved refused state distinguish physical demand,
+conservative guidance and placement/connectivity limitations using existing coupled
+operators before selecting a production correction. Reconstruct was not needed by
+these24inherited-connectivity trials; collapse/relocation/reconnection were not
+exhausted. No inference against reference cavity methods or R5physical feasibility.
+
+474/475initial zero-publication result was a DIAGNOSTIC storage refusal: retained
+baseline reserved6donor buffers for each of2Owned maps.476uses existing map sizing,
+keeping separate import/firstrow peaks. Collision admission peaks9,614,873,560B below
+12GiB. This corrects reservation accounting, not demonstrated allocated RAM/time.
+Production473/CFD unchanged. Legacy475new diagnostic sum assertion failed due face
+order;476canonicalizes BOTH sums. Legacy regression PASS264.200s/610217assertions, exact16step replay/22publications
+preserved. Both actual runtime handles/pins verified terminal; no ownedheavyjob. No new MPI capability is claimed by this serial diagnostic.
 
 ### Actual trajectory result: FAILED readiness, useful local capability only
 

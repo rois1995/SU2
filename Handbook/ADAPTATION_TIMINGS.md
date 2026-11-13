@@ -1,6 +1,11 @@
 # Adaptation timings and computational work
 
-Updated2026-11-13 after473 terminal full surface integration. NO owned heavyjob.
+Updated2026-11-13 after476 connected trajectories. NO owned heavyjob.
+Build476642.982s under contention; current-input trajectory228.411s/609828assertions,
+legacy regression264.200s/610217assertions. Bothterminal/pins/actualhandles verified.
+Production473/CFD unchanged. Current trajectory stalls after5pubs/24calls; no readiness.
+Host libc updated5pinnedlibraries; historical manifest preserved, runtime_20261113_474
+explicitly bound. No wall-time equivalence claim across runtime/contention changes.
 Build473305.914s; focused62.658s/52cases/5688assertions; MPI185.914s/41cases everyrank.
 473source35e173b043 is pushed; same-target surface integration is terminal and NOT READY.
 [Current handoff](../HANDOFF_Codex.md) owns source/build/handle state;
@@ -51,6 +56,44 @@ R4/R5 hold84.3%of measured remaininggeometry-screen failures; R2holds15.7%.
 CPU includes polling; election/join is not totalMPIwait. SampledtreeRSS4.642GB/
 individual1.006GB are not peaks. Next investigate actual coupled geometry-closure
 yield on the COMPLETEcurrent wall field, not a speculative timing tweak.
+
+##476 complete current-input trajectory — contact unblocked, readiness stalled
+
+Build642.982s under hostload~18–20; no compiler-speed comparison. ProductionCFD SHA
+unchanged. Current trajectory228.411swrapper/1783pins/all5actualterminal handles.
+R4:27.276542wall/27.100779CPU/933080geometrywork,24constructors/5pubs; R5measurement
+.608298wall/.608067CPU/49678work,0constructors because shared24exhausted. Contact
+passes24/24 after persistent map accounting correction. Collision admission peak
+9,614,873,560B<12GiB; each actual map estimate136,419,584B, retained3,829,441,888B,
+held3,965,861,472B; capture reserve134,283,264B. This is reduced conservative
+reservation, NOT a demonstrated allocated-memory reduction or speedup.
+Coherent working mesh304521tets; original304508rows unchanged. R4scope17→38(+8old),
+geometry10→11/localdelta−4,q/Jlocaldelta+13each. Below-.5edges0/19→10/44; directional
+need unresolved. No whole-field retirement/s, strictsurface/firstrow/BL acceptance.
+19guidance-descent refusals; no demonstrated physical violation from upper bounds.
+Trajectory MUST be reconsidered before another variant/fullretry; downstreamunreached.
+R/connected_trajectory476_outcome.json preserves the complete bounded outcome.
+Legacy regression PASS264.200swrapper/1782pins/all5actualterminal; exact16step replay,
+24calls/22pubs, same36→110scope/localgeometry+2/qJ+63each,firstrowUNREACHED.
+78.018044wall/77.896780CPU/1663296geometrywork. Canonical exact checks pass; no new
+MPI/BLcapability or speedup from this historical regression.
+
+##474 current-input trajectory — stalled, no mesh progress
+
+Same saved473mesh/parameters,441target and physical stageheight. No legacy451precursor.
+191.814s wrapper includes authority/target reconstruction; current R4trajectory7.982927s
+wall/7.980734CPU/643727geometrywork and R5trajectory5.990949s/5.989344CPU/449132work.
+ONEshared24limit:13+10constructors,23constructed,0published,1callunused. Geometrybad
+10of17and6of10observed cells unchanged; q/J17/17and10/9unchanged; planningmax1.23655
+and.91876. Whole-field churn and finalgeometry/height/shape are NOT measured here.
+All304508original records byte-identical; last coherent private mesh/parameter state
+saved. Control6070has zero native guidanceexcess, not a firstrow certificate.
+Four candidates lower complete-patch excess, but all23collision protocol calls fail;
+reason text was overwritten by later height checks. No physical collision/height
+obstruction conclusion.475separates these reasons and adds missing current-input
+production GeometryRefine progress admission. Legacy replay remains a regression,
+not proof of identical production admission. No production source/operator change.
+FirstrowUNREACHED; this is a stalled geometry prefix, not successful stage output.
 
 ## Latest bounded diagnosis (not a performance baseline)
 

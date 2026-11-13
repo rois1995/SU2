@@ -11,7 +11,7 @@ junction_wp0::State current;
  }
 }
 const auto retained=transfer_memory::Add(ReferenceStorageBytes(*reference),restored.family->ResidentBytes(),
-    transfer_memory::Mul(current.mesh.size(),6*(sizeof(DonorCell)+640)),size_t(256)<<20);
+    OwnedStorageBytes(current.mesh),size_t(256)<<20);
 current.live_parameters=BoundaryParameterState::FromPayload(reference->original->Parameters()->Authority(),
     TransactionRead(root+"/stage_surface_rank0_parameters.bin"),ceiling,retained);
 SU2NativeGeometry::AtlasBudget budget;budget.maximum_bytes=ceiling;budget.caller_bytes=retained;
@@ -55,14 +55,18 @@ REQUIRE(smooth!=0);contexts.push_back({"unchanged_wall_control",star(smooth)});
 for(const auto& row:current.mesh)if(std::none_of(row.second.physical.begin(),row.second.physical.end(),[](FacetBinding f){return f.present;})) {
   contexts.push_back({"unchanged_interior_control",{row.first}});break;
 }
-if(currentResidual) {
+if(currentResidual&&!patchTrajectory) {
   contexts.push_back({"current_rank4_geometry",star(18152)});
   contexts.push_back({"current_rank5_clearance",star(8010)});
-} else contexts.push_back({"leading_edge",star(4219)});
-REQUIRE(contexts.size()==(currentResidual?4:cavityCorrection?6:4));
+} else if(!currentResidual)contexts.push_back({"leading_edge",star(4219)});
+REQUIRE(contexts.size()==(currentResidual?(patchTrajectory?2:4):cavityCorrection?6:4));
 std::ofstream log("actual_bl_cavity_planning.jsonl");REQUIRE(bool(log));log<<std::setprecision(17)<<std::boolalpha;
 auto samePoint=[](Point a,Point b){return a.x==b.x&&a.y==b.y&&a.z==b.z;};
 auto sameTensor=[](Tensor a,Tensor b){return a.xx==b.xx&&a.xy==b.xy&&a.xz==b.xz&&a.yy==b.yy&&a.yz==b.yz&&a.zz==b.zz;};
+if(patchTrajectory&&currentResidual) {
+#include "native_actual_current_trajectory.inc"
+  return;
+}
 if(splitContinuation) {
 #include "native_actual_surface_split_continuation.inc"
   return;

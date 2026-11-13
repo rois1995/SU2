@@ -43,6 +43,10 @@ if(residualProbe) {
     }
   }
   if(patchTrajectory) {
+    const auto& seedPatch=publishedPatch;
+    const std::vector<Feature> seedQueries{{{4218,0,0},1},{{4219,0,0},1}};
+    const Id trajectoryNode=nextNode+completed,trajectoryCell=nextCell+MaximumReplacementCells;
+    unsigned trajectoryRemaining=24;
 #include "native_actual_surface_patch_trajectory.inc"
   } else {
   std::vector<std::pair<long double,Edge>> ordered;for(auto e:demanded)ordered.push_back({-e.second,e.first});std::sort(ordered.begin(),ordered.end());

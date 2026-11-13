@@ -1,0 +1,126 @@
+{
+  "assertions": "All six Owned shards were streamed; exact complete edge-star cell IDs/quads were compared to inventory; duplicate/missing/extra cells fail; each cell contains both edge endpoints.",
+  "assessment_path": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/surface_stage473_assessment.json",
+  "assessment_sha256": "864d51dedd036f322af270f6419664e9d70a3ef233065da37c6ae5e6e698d2c7",
+  "case": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved473_geometry_merit_saved_target_surface_mpi6_20261113T041459_1770102",
+  "context_file": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/current_trajectory474_contexts.dat",
+  "context_file_sha256": "42dd2158e9e91e83d146fcce1772cf9924f57713dc836d0ec89294f455ae0b96",
+  "contexts": [
+    {
+      "cell_count": 3,
+      "cells": [
+        {
+          "global_cell_id": 225587,
+          "sorted_vertex_ids": [
+            24152,
+            24410,
+            24423,
+            40767
+          ]
+        },
+        {
+          "global_cell_id": 234324,
+          "sorted_vertex_ids": [
+            24150,
+            24152,
+            24423,
+            46195
+          ]
+        },
+        {
+          "global_cell_id": 242569,
+          "sorted_vertex_ids": [
+            24152,
+            24423,
+            40767,
+            46195
+          ]
+        }
+      ],
+      "edge_nodes": [
+        24152,
+        24423
+      ],
+      "label": "current_rank4_edge_24152_24423"
+    },
+    {
+      "cell_count": 1,
+      "cells": [
+        {
+          "global_cell_id": 266816,
+          "sorted_vertex_ids": [
+            67,
+            68,
+            3342,
+            17814
+          ]
+        }
+      ],
+      "edge_nodes": [
+        67,
+        68
+      ],
+      "label": "current_rank5_edge_67_68"
+    }
+  ],
+  "format_source": "UnitTests/SU2_CFD/adaptation/fixtures/native_actual_bl_surface_cavities.inc:59-60,108-110",
+  "inventory_path": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/residual473_terminal_inventory.json",
+  "inventory_sha256": "f475a2b4e596549c7b5fad5cd007eabb9100a55f8171575cb4630351ef549550",
+  "saved_shard_inputs": [
+    {
+      "manifest_path": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved473_geometry_merit_saved_target_surface_mpi6_20261113T041459_1770102/stage_surface_rank0_manifest.json",
+      "manifest_sha256": "aa9715b84791d89014014c93168e158b2ead5f456989f4d318d03f0022c74be2",
+      "owned_path": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved473_geometry_merit_saved_target_surface_mpi6_20261113T041459_1770102/stage_surface_rank0_owned.bin",
+      "owned_sha256": "1738d9edf8684f87b1695bfd2a3794ce3e5d5660949831a986b59de3fc2367f0",
+      "parameters_path": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved473_geometry_merit_saved_target_surface_mpi6_20261113T041459_1770102/stage_surface_rank0_parameters.bin",
+      "parameters_sha256": "26b0779860a2cc8616cadb56fb168c3b5432d6653eaa5a6d9a796041e61e41ef",
+      "rank": 0
+    },
+    {
+      "manifest_path": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved473_geometry_merit_saved_target_surface_mpi6_20261113T041459_1770102/stage_surface_rank1_manifest.json",
+      "manifest_sha256": "ef8f22e3597c1ea1e7eaf64519ff3a025ccdf45b1291e02f02608c386b7d6ee0",
+      "owned_path": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved473_geometry_merit_saved_target_surface_mpi6_20261113T041459_1770102/stage_surface_rank1_owned.bin",
+      "owned_sha256": "0c60ac178ef68429479f5ca9054ce3a93a736a22631cf9fbc31bb444972ff8b2",
+      "parameters_path": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved473_geometry_merit_saved_target_surface_mpi6_20261113T041459_1770102/stage_surface_rank1_parameters.bin",
+      "parameters_sha256": "26b0779860a2cc8616cadb56fb168c3b5432d6653eaa5a6d9a796041e61e41ef",
+      "rank": 1
+    },
+    {
+      "manifest_path": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved473_geometry_merit_saved_target_surface_mpi6_20261113T041459_1770102/stage_surface_rank2_manifest.json",
+      "manifest_sha256": "c2c9bbb32969a164257a608359221d2c42d309060fff629b320d1fccccab70c2",
+      "owned_path": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved473_geometry_merit_saved_target_surface_mpi6_20261113T041459_1770102/stage_surface_rank2_owned.bin",
+      "owned_sha256": "fc52b18ec590d22d48ad9be37cbb4907877fd54ae396b62159b080e51548dc06",
+      "parameters_path": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved473_geometry_merit_saved_target_surface_mpi6_20261113T041459_1770102/stage_surface_rank2_parameters.bin",
+      "parameters_sha256": "26b0779860a2cc8616cadb56fb168c3b5432d6653eaa5a6d9a796041e61e41ef",
+      "rank": 2
+    },
+    {
+      "manifest_path": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved473_geometry_merit_saved_target_surface_mpi6_20261113T041459_1770102/stage_surface_rank3_manifest.json",
+      "manifest_sha256": "3ed3eac9a663d3bef6f2e5e0be79cedec275ece0545a0580b380cd5fba7f2aef",
+      "owned_path": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved473_geometry_merit_saved_target_surface_mpi6_20261113T041459_1770102/stage_surface_rank3_owned.bin",
+      "owned_sha256": "473c364bbb67b8282846c8dda6e65a1e10daf5e62f48447477f98df70b69e903",
+      "parameters_path": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved473_geometry_merit_saved_target_surface_mpi6_20261113T041459_1770102/stage_surface_rank3_parameters.bin",
+      "parameters_sha256": "26b0779860a2cc8616cadb56fb168c3b5432d6653eaa5a6d9a796041e61e41ef",
+      "rank": 3
+    },
+    {
+      "manifest_path": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved473_geometry_merit_saved_target_surface_mpi6_20261113T041459_1770102/stage_surface_rank4_manifest.json",
+      "manifest_sha256": "a1f5132607595256683367b45ef52c737796003c9b9edccc46292aefff273613",
+      "owned_path": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved473_geometry_merit_saved_target_surface_mpi6_20261113T041459_1770102/stage_surface_rank4_owned.bin",
+      "owned_sha256": "fd0dde51e3f78283c9d8d7d23f840902561bc18b49e3b913b55d51384e383970",
+      "parameters_path": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved473_geometry_merit_saved_target_surface_mpi6_20261113T041459_1770102/stage_surface_rank4_parameters.bin",
+      "parameters_sha256": "26b0779860a2cc8616cadb56fb168c3b5432d6653eaa5a6d9a796041e61e41ef",
+      "rank": 4
+    },
+    {
+      "manifest_path": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved473_geometry_merit_saved_target_surface_mpi6_20261113T041459_1770102/stage_surface_rank5_manifest.json",
+      "manifest_sha256": "2275ae778215d86d70a409deecd0c62585745d407169069f1ea62fc59c941908",
+      "owned_path": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved473_geometry_merit_saved_target_surface_mpi6_20261113T041459_1770102/stage_surface_rank5_owned.bin",
+      "owned_sha256": "e9567a9accf8e98d2934b6386d69dca7e950217a91849e42755839045369df39",
+      "parameters_path": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved473_geometry_merit_saved_target_surface_mpi6_20261113T041459_1770102/stage_surface_rank5_parameters.bin",
+      "parameters_sha256": "26b0779860a2cc8616cadb56fb168c3b5432d6653eaa5a6d9a796041e61e41ef",
+      "rank": 5
+    }
+  ],
+  "scope": "Diagnostic exact edge-star context input only; labels do not select production behavior."
+}

@@ -13,7 +13,21 @@ The actual full surface integration is TERMINAL:497.751s wrapper/389.166s native
 61811nodes/304508positive tets. It reaches100%requested-wall measurement39760/39760,
 compared with470's77.95%. All original source/runtime/input pins and actual owned
 handles verified. Full output and six complete geometry/metric/Owned shards retained.
-No owned heavy workload is live.
+Build476 passed and current-input trajectory is terminal228.411s:24contact-passing
+constructors,5publications,19geometry-guidance-descent refusals. Original304508rows
+unchanged, coherent private304521tets/parameters saved. R/connected_trajectory476_outcome.json.
+Persistent map estimator unblocks contact under unchanged12GiB (peak9.615GB); no RAM
+allocation/timing speedup claimed. R4scope17→38(+8old), geometrylocaldelta−4,q/J+13each;
+rawgeometry10→11 includes newobservations. Short edges<.5grow0/19→10/44, need unresolved.
+Shared24limit exhausted: R5measurement only, no constructors. GeometryclosureFAILED;
+tangential/firstrowUNREACHED. Legacy476regression PASS264.200s/610217assertions, exact16step replay and22pubs preserved. No ownedheavyjob live; HANDOFF owns provenance.
+
+The split-first trajectory now reaches useful publication but MUST be reconsidered
+before another variant/fullM6retry. Distinguish conservative guidance, physical demand,
+placement/connectivity on the saved refused state using existing coupled facilities.
+Do not infer that all operators fail: no Reconstruct was needed here; collapse,
+mapped relocation and reconnection were not exhausted. No new operator/config/gates.
+Preserve runtime_20261113_474 and historical manifest.
 
 This is NOT surface readiness:3102cells fail the conservative geometry screen,
 34sizebad,264748cells unmeasured outside the requested-wall scope; q/J and heights
@@ -34,7 +48,7 @@ and a clean control. R/residual473_terminal_inventory.json verifies current edge
 (10cells). All six current parameter payloads are byte-identical. Inventory alone
 does not establish associations, genuine features or geometry cleanliness.
 
-Reproduce the current COMPLETEpatch/support/transported nodal field natively, then
+474 first removes the legacy451 precursor and validates both current edge stars before mutation, under one shared24-call budget. Preserve its legacy regression. This tests the geometry-closure prefix; collapse/relocation/reconnection and full directional readiness remain conditional, not implied coverage. Reproduce the current COMPLETEpatch/support/transported nodal field natively, then
 test a connected trajectory with existing split, collapse, mapped relocation and
 reconnection according to its measured obstruction. Distinguish geometric violation,
 conservative refusal, positivity/visibility, support, feature/body/height restrictions
@@ -59,6 +73,6 @@ Save credible reusable stage outputs with full provenance, and label remaining d
 Keep one heavyjob, bounded resources/source freezing and meaningful MPI milestones.
 No new baseline/perf/GDB campaign. Queued Coulaud/MAdLib and Growth12stale-front issues
 remain open; preserve CAD optionality and no-CAD authority. Euler293's completed
-workflow and22payloads are freshly hash-preserved after473. Remaining completion is
+workflow and22payloads are freshly hash-preserved after476. Remaining completion is
 strict curvedBL/nativeMPI constraints and TWO final-height RANS adaptations with
 conservative admissible flow+SAtransfer, finite continuedCFD and isolated diskrestart.

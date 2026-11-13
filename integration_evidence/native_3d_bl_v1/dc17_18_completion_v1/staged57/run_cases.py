@@ -218,7 +218,7 @@ def validate_stage_shards(attempt, ranks):
             "exact_continuation": False, "full_mesh_acceptance": False}
 
 
-def main():
+def main(runtime_manifest=None):
     if len(sys.argv) != 3 or not re.fullmatch(r"build[1-9][0-9]*", sys.argv[1]) or sys.argv[2] not in CASES:
         raise SystemExit("usage: run_cases.py buildN " + "|".join(CASES))
     build, case = sys.argv[1], sys.argv[2]
@@ -237,7 +237,7 @@ def main():
         changed = [path for path, digest in source_pins.items() if sha(path) != digest]
         if changed:
             raise RuntimeError("build source pins changed: " + ", ".join(changed[:8]))
-        runtime_manifest = ROOT / "runtime_20261106_v2/loaded_runtime_pins.json"
+        runtime_manifest = runtime_manifest or ROOT / "runtime_20261106_v2/loaded_runtime_pins.json"
         runtime_pins = json.loads(runtime_manifest.read_text())
         changed = [path for path, digest in runtime_pins.items() if sha(path) != digest]
         if changed:

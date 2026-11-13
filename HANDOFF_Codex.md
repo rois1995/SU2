@@ -12,20 +12,44 @@ preserves earlier details; it is NOT live state.
 
 ## Live state and provenance
 
-NO owned heavy workload live. Build473, focused checks, current-residual replay,
-coupled regression, MPI qualification and actual full surface integration are TERMINAL.
-Actual host PID/starttick identities and pinned source/runtime/inputs independently
-verified before reporting or starting the next job. No stop/restart was needed.
-Full integration exec92661 is terminal; all10actual identities and1743pins verified.
-Source checkpoint **35e173b043** is pushed to origin/codex/native-3d-bl; later evidence
-checkpoints may supersede HEAD. C++ remains unchanged since build473. Preserve
-unrelated working changes. Consult actual handles before any restart or compiled edit.
+Build476 PASS642.982s under contention; all10actual build identities terminal.
+Current476trajectory TERMINAL228.411s,1783pins/all5actual handles verified; all304508
+original rows unchanged, coherent304521tet private diagnostic output saved.
+Legacy476regression TERMINAL PASS264.200s,1782pins/all5actual handles verified;
+exact16step replay/24calls/22publications retained,610217assertions. Current trajectory
+609828assertions. NO owned heavy workload live. All build/runtime handles independently terminal;
+no frozen run was interrupted. Preserve unrelated changes. Production473/CFD unchanged.
 
-Build473 PASS305.914s; all26actual identities terminal, cleanNinja, source/binary pins.
-Test SHA `fe107f3e4dcd290b2de2f06896e6647b85b079f5308aed48579f15c508f9309f`.
+476current trajectory:24constructed/contact-passing candidates,5publications with
+production geometry descent,19guidance-descent refusals. R4scope17→38(+8old), local
+geometrydelta−4,q/J+13each; geometry10→11 on changing scope. Below-.5wall edges0/19
+→10/44. Shared24calls exhausted before closure; R5measured but0constructorcalls.
+Tangential/firstrow/growth UNREACHED. Reconsider split-first trajectory; no more
+isolated variants or biggerbudgets. R/connected_trajectory476_outcome.json.
+
+474/475zero-publication result was diagnostic STORAGE accounting, not collision.
+Legacy475terminal204.191s FAILED new unordered-sum bitwise assertion;476canonicalizes
+exact comparison. R/surface_transaction475_failure.json. No production defect claimed.
+476uses existing OwnedStorageBytes for TWO persistent maps instead of six donor
+buffers each; shard-import and firstrow peak allowances remain unchanged. Exact
+postpublication geometry check uses canonical cyclic face/order on BOTH sides;
+no tolerance/gate change. Distinct guard reasons/current-input production geometry
+progress guard retained. R/trajectory476_design.json. No new operators or policies.
+Current exact-support inputs: R/current_trajectory474_contexts.dat/provenance.json.
+
+Host libc updated5pinnedlibraries between473and474; preserved historical runtime
+manifest, explicit runtime_20261113_474 binding. R/build474_postcompile_helper_binding.json
+records Python-only helper binding after474build; compiled source/binaries unchanged.
+Source checkpoint35e173b043 remains last qualified production; test-only476 changes
+are included in this reviewable checkpoint. No new MPI production capability claimed.
+Current test SHA `7ab9f4da2e460055bf25ffdc37352f9ae2ca4906d13789f9d9c70212534cb687`.
+R/build476_status/source_pins/terminal_handles.json owns exact provenance.
+
+Historical production qualification: Build473 PASS305.914s; all26actual identities terminal, cleanNinja, source/binary pins.
+Historical473 test SHA `fe107f3e4dcd290b2de2f06896e6647b85b079f5308aed48579f15c508f9309f`.
 CFD SHA `70c1974cf3f56b7ee6c11a19703f2d6c8d17206a40f223860623228f7429c2f7`.
 R/build473_status/source_pins/terminal_handles.json records exact provenance.
-Do not use historical470/472 binary hashes as the current build.
+Do not use historical470/472/473 test hashes as the current build.
 
 ## Implemented and qualified scope
 
@@ -100,29 +124,33 @@ One split pass/no collapse passes; no relaxed gate or increased budget is justif
 
 ## Next active action
 
-Move from incomplete measurement to **coupled geometry-closure capability** on actual
-saved residuals. Keep ONEcycle. Do not start another speculative timing, ceiling,
-scheduler, representation or placement variant. Use current complete wall census.
-R/residual473_terminal_inventory.json and inventory_residual473_terminal.py scan all
-304508Owned rows: current edge24152–24423 has3cells[225587,234324,242569], endpoint
-stars12/8; edge67–68 has1cell[266816], endpointstars6/5; control6070has10cells.
-All six5118736Bparameter payloads are byte-identical. This is inventory, NOT native
-association/feature/geometry certification. Last private candidates are not assumed
-published. Rediscover exact current support, versions, metrics and associations.
+476has tested a direct current473 trajectory, without the legacy451precursor. The
+split-first strategy publishes useful complete replacements but stalls before geometry
+closure under shared24calls. Keep ONEcycle and reconsider coupled capability from
+its saved refused state; do not append another isolated variant/fullretry/raisedbudget.
+Use R/connected_trajectory476_outcome.json/current_trajectory476_assessment.json and
+case trajectory_working_owned.bin/trajectory_working_parameters.bin with exact441
+profile/authority/config/current nodal tensors.61816nodes/304521tets; evolved complexity
+UNMEASURED. This is a coherent DIAGNOSTIC capture, not successful stage output or CFD
+restart. Source/input/output hashes are retained. Original293checkpoints22payloads/
+384685699B freshly hash-preserved in R/euler293_preservation_during_bl476.json.
 
-First resolve the test coverage gap: the existing connected controller is entered
-through legacy451fourcuts/4218–4219seeds. Do not just point it at473and claim a current
-trajectory. Reuse it with explicit CURRENTsupport and one shared24call budget, without
-that unrelated precursor, while preserving its old regression. Then test COMPLETEpatch
-plus neighbors through geometry closure, tangential delivery and firstrow prerequisites
-with existing operators/Directory/reservations/publication.
-Separate genuine distance violation, conservative refusal, visibility/positivity,
-missing support, association/feature/body/height restrictions and pass deferral.
-Use bounded enlargement only for demonstrated necessary neighbors, reacquiring the
-complete reservation BEFORE constructing/publishing. Keep q/J observational during
-construction, every final gate strict. If neighbor debt/crowding or unavailable
-coupled replacements prevents readiness, reconsider construction—not another isolated
-variant, more rounds or raised limits. No new baseline/perf/GDB campaign.
+Classify actual remaining guidance refusals: genuine distance violation, conservative
+upper bounds, association/feature/body/height restriction versus placement/connectivity.
+All24constructors/contact checks pass;19lack geometry descent, so volume inversion
+is NOT the demonstrated cause of these refusals. Reconstruct was not triggered;
+collapse/relocation/reconnection were not exhausted. Test existing coupled facilities
+only against the demonstrated remaining obstruction, with complete current support,
+full reservations before changes, version checks and complete patch+neighbors.
+R5had no constructor budget: do not claim its capability is tested. Control6070has
+nativezero guidance, no strictfirstrow claim. Keep every finalgate/CADoptionality.
+
+Geometry closure, directional tangential delivery and rebuilt constrained/blended
+firstrow readiness remain separate prerequisites. Current below-.5edges rise0/19→10/44;
+some may be geometry-required. No blanket minimum-edge gate or greatercomplexity
+is justified. Keep q/J observational in construction; record physical direction/height,
+coverage and neighboring-cell effects before calling a stage credible. No new
+baseline/perf/GDBcampaign or competing scheduler/representation/target policy.
 
 ## Inputs, physical request and unchanged completion
 
