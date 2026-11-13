@@ -1,0 +1,69 @@
+diff --git a/Common/include/adaptation/CNativeBoundary3D.hpp b/Common/include/adaptation/CNativeBoundary3D.hpp
+index 8674bd10af..b973fc8e22 100644
+--- a/Common/include/adaptation/CNativeBoundary3D.hpp
++++ b/Common/include/adaptation/CNativeBoundary3D.hpp
+@@ -245,8 +245,8 @@ bool PreservePassingFirstHeights(const Patch& old,const Patch& fresh,const WallH
+                                 const PlanarReference& reference,std::string& reason);
+ /*! Joint fixed-interface background reconnection and wall-child carving. All new identities/ranges are
+  *  caller-reserved; complete cavity dependencies, target metric, external clearance and commit are separate.
+- *  Wall apices use face-centroid normal placement at prescribed altitude; obstruction requires another
+- *  background/cavity, never relaxing height. Output remains unchanged on any rejection. */
++ *  Wall apices retain admissible face-centroid placement, with projected physical-normal proposals on
++ *  curved walls; obstruction requires another background/cavity, never relaxing height. Output remains unchanged on any rejection. */
+ bool ConstructFirstLayer(const Patch& old,Node background,Id first_wall_node,Id first_cell,
+                          const WallHeights& heights,const PlanarReference& reference,
+                          Patch& fresh,FirstHeightReport& report,std::string& reason,KernelStats* stats=nullptr);
+diff --git a/Common/src/adaptation/CNativeBoundary3D.cpp b/Common/src/adaptation/CNativeBoundary3D.cpp
+index d746f900bf..727432f5db 100644
+--- a/Common/src/adaptation/CNativeBoundary3D.cpp
++++ b/Common/src/adaptation/CNativeBoundary3D.cpp
+@@ -636,7 +636,19 @@ bool CarveFirstLayer(const Patch& old,const Node* background,Id first_wall_node,
+       const auto clearance=-Dot(Delta(opposite->p,center),normal);
+       if(background && !(clearance>height->second))throw std::invalid_argument("Native3D background obstruction at facet "+std::to_string(face.facet));
+       std::vector<Cell> children;
+-      if(!Cone({*found},apex,first_cell,children,reason,stats))
++      const bool curved=(reference.Mapped() && reference.Parameters()->Geometry().Curves().count(face.facet)) ||
++                        reference.CompleteAnalytic(face.facet);
++      auto place=[&](Point point) {
++        apex.p=point;
++        if(!Cone({*found},apex,first_cell,children,reason,stats))return false;
++        FirstHeightReport childReport;
++        return !curved || AdmitFirstHeight(Patch{children,{face}},heights,reference,childReport,reason,stats);
++      };
++      bool placed=place(apex.p);
++      // A flat-face normal may place a curved-wall child on the uncertified side of the reference.
++      if(!placed && curved)for(const auto point:PhysicalFirstHeightProposals(face.facet,{a,b,c},height->second,reference))
++        if((placed=place(point)))break;
++      if(!placed)
+         throw std::invalid_argument("Native3D normal wall child obstructed at facet "+std::to_string(face.facet)+": "+reason);
+       const auto index=found-proposal.cells.begin();proposal.cells.erase(proposal.cells.begin()+index);
+       proposal.cells.insert(proposal.cells.end(),children.begin(),children.end());
+diff --git a/UnitTests/SU2_CFD/adaptation/fixtures/native_bl_direction_invalidation.inc b/UnitTests/SU2_CFD/adaptation/fixtures/native_bl_direction_invalidation.inc
+index 7c506d8ca4..a34e18944b 100644
+--- a/UnitTests/SU2_CFD/adaptation/fixtures/native_bl_direction_invalidation.inc
++++ b/UnitTests/SU2_CFD/adaptation/fixtures/native_bl_direction_invalidation.inc
+@@ -149,6 +149,24 @@ TEST_CASE("A curved first-child cone tries a physically admissible existing LP c
+   FirstHeightReport measured;std::string reason;
+   INFO(reason);CHECK(CheckFirstHeight(first,state.heights,*reference,measured,reason));
+   CHECK(measured.measured);CHECK(measured.maximum_relative_error<=.1);CHECK(measured.reference_clearance_failures==0);
++  SECTION("Curved first-layer carving certifies physical clearance before choosing a wall point") {
++    struct Restore {ShapeAdmission shape=GetShapeAdmission();~Restore(){SetShapeAdmission(shape);}} restore;
++    SetShapeAdmission(ShapeAdmission::ValidityOnly);
++    AtlasBudget budget{size_t(1)<<24,size_t(1)<<28,4096};
++    auto reserved=reference->WithAtlasReservation(budget);
++    Patch old;old.cells={cell};old.surface=surface;
++    const WallHeights heights{{7,.0005}};
++    FirstHeightReport report;std::string why;Patch fresh;
++    const bool direct=GENERATE(false,true);
++    const bool ok=direct?InsertFirstWallPoint(old,101,200,heights,*reserved,fresh,report,why):
++        ConstructFirstLayer(old,{100,{.3,.3,.05}},101,200,heights,*reserved,fresh,report,why);
++    INFO(why);REQUIRE(ok);
++    CHECK(ValidateFixedInterface(old.cells,fresh.cells,why));
++    CheckFirstHeight(fresh,heights,*reserved,report,why);
++    CHECK(report.measured);CHECK(report.reference_clearance_failures==0);
++    CHECK(report.minimum_reference_clearance_ratio>0);
++    for(const auto& child:fresh.cells)CHECK(Orientation(child.v[0].p,child.v[1].p,child.v[2].p,child.v[3].p)>0);
++  }
+   SECTION("A split wall child uses its new binding in the current private context") {
+     Patch old;old.cells={cell};old.surface=surface;auto current=reference->PrivateParameters(old);REQUIRE(current);
+     std::set<Id> incident;

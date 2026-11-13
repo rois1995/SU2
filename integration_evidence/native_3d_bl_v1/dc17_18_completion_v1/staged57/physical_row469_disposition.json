@@ -1,0 +1,88 @@
+{
+  "qualified": false,
+  "goal_complete": false,
+  "source_base": "9ecc880c08",
+  "archive": {
+    "Common/src/adaptation/CNativeBoundary3D.cpp": {
+      "archive": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/physical_row469_experiment_source/Common/src/adaptation/CNativeBoundary3D.cpp",
+      "sha256": "5aa9b23b3f58bd757377855d85922a371324baf6fa214c93314140f6120e604a"
+    },
+    "Common/include/adaptation/CNativeBoundary3D.hpp": {
+      "archive": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/physical_row469_experiment_source/Common/include/adaptation/CNativeBoundary3D.hpp",
+      "sha256": "697f0f4fc4955e7fd802e042bfa3b1fd5f9a8d0d91e9314bbc5e591b66349b50"
+    },
+    "UnitTests/SU2_CFD/adaptation/fixtures/native_bl_direction_invalidation.inc": {
+      "archive": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/physical_row469_experiment_source/UnitTests/SU2_CFD/adaptation/fixtures/native_bl_direction_invalidation.inc",
+      "sha256": "71af9720a73b6377070ced4ad7f30b25155eb2fde823322d0754c21bed2ab29a"
+    }
+  },
+  "patch_sha256": "f2e12622dad6a5542e61d7f9a2e9bb092fec1893d5ee1e7dc5d531a352c3ea27",
+  "all_original_owned_records_preserved": 303622,
+  "pins_verified_before_restoration": 1769,
+  "all_actual_handles_terminal": true,
+  "decision": "Reject production fallback for integration: no complete useful M6 replacement demonstrated. Preserve exact experiment; restore only the three initially clean edited files to baseline.",
+  "same_cavity_outcome": {
+    "stage": "transaction_operation",
+    "attempt": 19,
+    "operator": "ReconstructSplitPatch",
+    "edge": [
+      4217,
+      3879270
+    ],
+    "old_cells": 3,
+    "new_cells": 0,
+    "constructed": false,
+    "native_input_topology": true,
+    "metric": false,
+    "parameters": false,
+    "contact_protocol": false,
+    "contact": true,
+    "preserved_heights": false,
+    "provisional_height": false,
+    "reserved": true,
+    "published": false,
+    "measurements_known": false,
+    "old_q_bad": 0,
+    "new_q_bad": 0,
+    "old_J_bad": 0,
+    "new_J_bad": 0,
+    "old_geometry_bad": 0,
+    "new_geometry_bad": 0,
+    "old_geometry_excess": -1,
+    "new_geometry_excess": -1,
+    "reason": "Native3D normal wall child obstructed at facet 10702: Native 3D cone obstructed by interface face 8076,3879271,3879273 at apex 3879275.",
+    "publication_reason": "",
+    "obstruction": [
+      0,
+      0,
+      0
+    ]
+  },
+  "result": {
+    "stage": "transaction_result",
+    "initial_observation_cells": 36,
+    "final_observation_cells": 97,
+    "attempts": 24,
+    "commits": 21,
+    "geometry_bad": 22,
+    "mesh_to_model_guidance_closed": false,
+    "surface_geometry_certified": false,
+    "first_row_reached": false,
+    "target_first_height_coverage": false,
+    "replay_checkpoint_matched": true,
+    "rejected_context_hits": 0,
+    "sum_local_q_delta": 53,
+    "sum_local_J_delta": 53,
+    "sum_local_geometry_delta": 1,
+    "scope_added_old_cells": 8,
+    "stop": "unchanged 24-constructor work bound",
+    "seconds": 72.679326106,
+    "cpu_seconds": 72.64396099999999,
+    "geometry_work": 1657690,
+    "original_mesh_accepted": false
+  },
+  "binaries": "Build469 binaries are the unqualified experiment. Restored source requires rebuild before running any downstream workflow. Do not describe them as build468/451.",
+  "mpi": "Not run: serial complete replacement usefulness prerequisite failed.",
+  "restored_unix": 1794531809.8396106,
+  "restored_source_verified_against_build468": true
+}

@@ -1712,3 +1712,25 @@ whole-job peak. No MPIwait decomposition, accepted-stage time or production spee
 R/surface_strip464_assessment.json/outcome.json. ProductionCFD remains451 unchanged.
 Eightof12bad-facebasechoices retain known outside chords; fewer queries/triangles
 or lower excess alone would not establish closure. No efficiency gain selected.
+
+
+468 exact connected trajectory (terminal): build305.850s; actual wrapper251.944s,
+test244.450s. Trajectory72.725633wall/72.714155CPU/1,658,670geometrywork nested in
+79.084899s prefix, NOT additive.24constructors/21commits; no surface readiness or
+firstrow. Sampled individualRSS2.150GB/time-processmax2,231,376KiB, not wholejobpeak.
+1768pins/all5actualhandles/303622Owned verified. Geometry16→22 includes observation
+scope growth36→97(+8oldcells); published local geometrydelta+1/qJ+53/+53. No speedup
+or wholefield progress claim.469physical placement hypothesis remains unqualified.
+
+
+469connected physical-normal experiment REJECTED: build582.181s (sharedheader rebuild,
+154actualidentities terminal); focused14cases/2172assertions,7.725swrapper/3.86sprocess.
+Actual249.922swrapper; trajectory72.679326wall/72.643961CPU/1657690geometrywork versus
+46872.725633wall/72.714155CPU/1658670work. All22published state counters/excess/edge
+metrics unchanged; tiny timing/work difference is NOT a demonstrated efficiency gain.
+24constructors/21commits, geometry closureFALSE, firstrowUNREACHED.1769pins/all5actual
+handles/original303622Owned verified before source restoration. SampledindividualRSS
+2.251GB, notwholejobpeak. No MPI qualification. Production change retired; unqualified
+469binaries need rebuild from restored468sources before downstream use. Attribution
+remains overlapping: trajectory nested in prefix, wrappers include input reconstruction;
+no summing nested timers or inferring MPIwait from serial CPU.

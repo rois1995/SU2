@@ -16,11 +16,56 @@ preserves earlier evidence/handles, NOT live workload state.
 
 ## Live state and provenance
 
-468exact saved pre-inversion replay BUILDING/FROZEN: execsession32405,
-wrapperPID1108921/startticks2142264, NinjaPID1109042/startticks2142440.
-Consult R/build468_status.json and verify actualhandles before pinned C++ edits.
-Oneownedheavyjob,nice19/j3, initialavailable52.60GB/load2.41. Same64/128/24calls/
-300s/600souter/12GiB; replay's16prefixcalls are INCLUDED, not extra.
+468exact saved pre-inversion replay build TERMINAL PASS305.850s/all10actual
+handles terminal/pins/newbinary/cleanNinja. TestSHA
+17b02cfa4f54704aaa787d7b000e73a0ee23017bf4f59eba74f681f4a7fd8e9d.
+Actual468 TERMINAL PASS251.944swrapper/244.450stest/609067assertions/1768pins,
+all5actualhandles terminal/all303622originalOwned unchanged451. Exact16step replay
+matches the saved failure: split2cell inversion; reconstruction2cell visibility refusal;
+rediscovery/reservation3cell resolves visibility but first-row rawnormal proposal cannot
+certify positive curved-reference clearance (facet16118, clearance lower/h0=-4.292639).
+A negative LOWER bound is not proof of penetration.24calls/21commits, geometrybad16→22
+in expanding36→97observation; local published geometrydelta+1,q/J+53/+53.
+No geometry closure/tangential readiness/firstrow/BL or MPI qualification.
+R/surface_transaction468_assessment.json and terminal_handles_actual.json preserve evidence.
+469active connected hypothesis: shared CarveFirstLayer reuses existing projected
+PhysicalFirstHeightProposals only when raw placement fails current curved clearance/
+height admission. Same requested heights, no column-direction replacement or gate change.
+Actual host terminal/pins reverified before edits (physical_row469_entry.json).
+469experiment and actual replay TERMINAL. No owned heavy workload live.
+BuildPASS582.181s/all154actualidentities terminal/pins/newbinaries/cleanNinja.
+Experimental testSHA36a69f954ca63276572d81c1673cf150158d7f6b45645b5c9bf38519d930ad14;
+CFDSHA99fcf01be72ec358bece1f81b6c6aa8d61bece340a7a7ad79ad70361ad117ea6.
+These binaries are UNQUALIFIED469; shared source was restored AFTER terminal/pin
+verification to exact468 source hashes. REBUILD BEFORE ANY FURTHER RUNTIME; never
+identify current binaries as468/451. No production correction retained.
+
+Focused14cases/2172assertions PASS7.725swrapper/3.86sprocess/1710pins/all5handles
+terminal. First launcher failed MPI_Win_create before tests; corrected using existing
+pt2pt/scratch environment, no C++ change. Fixture success did NOT qualify capability.
+Actual R/cases/curved469_surface_transaction_serial_20261113T005749_1228156
+(execsession92219terminal) PASS249.922swrapper/242.595stest/1769pins/all5actualhandles
+terminal/303622originalOwned independently unchanged451. 609067assertions; complete frozen source/input checks passed before restoration. R/surface_transaction469_assessment.json/disposition
+and comparison468 receipts; exact experimental three-source archive+patch retained.
+
+Same16step failure reproduced. Bounded2→3support fixes visibility; physical-normal
+fallback passes earlier curved clearance but sequential wall-child carving next
+fails Cone positivity at facet10702/interface8076,3879271,3879273/apex3879275.
+No complete candidate, metric/contact/height/publication qualification for that
+replacement; do not infer a genuine geometry violation or global infeasibility.
+All22published observation states EXACTLY MATCH468 for counts/excess/edge metrics.
+24calls/21commits; geometry16→22 in36→97scope(+8oldcells), localgeometrydelta+1,
+q/J+53/+53; finalq97/J96. Geometry closure FALSE/tangential readiness UNPROVEN/
+firstrow UNREACHED. Trajectory72.679326wall/72.643961CPU/1657690geometrywork;
+no demonstrated speedup or workflow improvement. SampledindividualRSS2.251GB,
+notwholejobpeak. MPI deferred because useful serial replacement prerequisite failed.
+
+Decision: reject local physical-normal fallback for production, preserve evidence,
+stop isolated placement/split variants. Reconsider coupled selection of ALL affected
+wall apices with transition connectivity and complete patch support, using existing
+facilities/bounds. The observed greedy sequential obstruction is real; feasibility
+of a joint replacement is UNPROVEN. Contract table defines all operation roles,
+readiness and stalls; do not raise bounds or skip geometry/tangential prerequisites.
 
 467build TERMINAL PASS299.827s/all10actualhandles terminal/pins/newbinary/cleanNinja.
 Validated testSHAa94afa4e9148af3bda0b8c050d6ed42e2e2bbc620bfeaf06ffbe6f20436fae6a.

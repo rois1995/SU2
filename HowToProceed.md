@@ -527,3 +527,26 @@ withunchangedheights; all16calls INSIDE24. This isdiagnosticreplay, notproductio
 Preservefrozen468build/ownedhandles inHANDOFF. Rejectmismatchedcheckpoint, neverloosen
 coordinate/topologymatching toforcecomparison. Thencontinuewholetrajectory andselect
 correctionfromactualfactoryresult. No emptyheightmap, largerbudget ornewframework.
+
+
+Current468 is TERMINAL, not frozen/running. Exact target replay confirms a2→3cell
+support correction resolves visibility but exposes uncertified curved wall-apex clearance.
+469tests the shared physical-normal proposal helper in first-layer carving, keeping
+raw placements that already pass and all final/private admission rules. Read the
+connected-trajectory table for each operation's contribution/readiness/stall. Do not
+call a constructor pass geometry closure or a passing maxedge tangential suitability.
+If same-cavity complete trajectory still stalls, record that failure before selecting
+another correction. No qualified new stage checkpoint exists yet.
+
+
+469terminal supersedes the proposed helper integration: serial14cases pass but SAME
+actual3cell reconstruction still has no positive complete replacement. Curved physical
+placement cures one clearance refusal then hits sequential wall-child interface
+obstruction. Entire published trajectory/counts/excess/edge metrics identical468;
+geometry notclosed, tangential suitability unproved, firstrowunreached. Experiment
+archived, production sources restored to468hashes. Current469binaries UNQUALIFIED;
+rebuild before any run. No MPI campaign until useful serial replacement exists.
+Reconsider coordinated whole wall-child/transition placement/connectivity on this
+exact failure with existing facilities and bounds. No more isolated apex offsets or
+split-only variants. Full state/provenance and operation/readiness/stall table remain
+in the connected-trajectory handbook; full BL/RANS goal remains active.

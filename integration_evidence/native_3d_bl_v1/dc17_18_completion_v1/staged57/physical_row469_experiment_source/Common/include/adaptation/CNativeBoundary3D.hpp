@@ -1,0 +1,419 @@
+/*!
+ * \file CNativeBoundary3D.hpp
+ * \brief Coupled tetrahedral edge edits on immutable faceted or declared analytic physical references.
+ * Copyright 2012-2026, SU2 Contributors (cf. AUTHORS.md).
+ * SU2 is free software under the GNU Lesser General Public License, version 2.1 or later.
+ */
+#pragma once
+#include "CNativeCavity3D.hpp"
+#include "CNativeAffineReference.hpp"
+#include "CNativeBoundaryParameters3D.hpp"
+#include "CNativeFirstHeight.hpp"
+#include <map>
+#include <limits>
+#include <memory>
+#include <set>
+class CADTElemClass;
+namespace SU2Native3D {
+struct Facet {
+  Id id = 0;
+  int marker = 0;
+  std::array<Node, 3> v;
+  template <class Stream>
+  void Fields(Stream& s) {
+    s(id, marker, v);
+  }
+};
+struct Patch {
+  std::vector<Cell> cells;
+  std::vector<SurfaceFace> surface;
+  BoundaryPoints parameters;  // Sparse private boundary geometry, never original sensor weights.
+  SU2NativeGeometry::BoundaryCoverage coverage;
+};
+/*! Analytic authority is declared per original finite facet, never inferred from its marker.
+ * Sphere: origin=center, extent.x=radius. Bump: z=origin.z+extent.z*u(1-u)*v(1-v),
+ * u=(x-origin.x)/extent.x, v=(y-origin.y)/extent.y in [0,1]. Tolerance is a frozen
+ * physical distance for representable projection and finite-chart boundary roundoff. Cylinder uses
+ * extent.x=radius, extent.y=height and axis; Disk uses extent.x=radius and axis normal. */
+struct AnalyticSurface {
+  enum class Kind : unsigned { Sphere = 1, Bump = 2, Cylinder = 3, Disk = 4 };
+  Kind kind = Kind::Sphere;
+  Point origin, extent{1, 0, 0};
+  double tolerance = 1e-12;
+  Point axis{0,0,1};  // Cylinder/Disk axis; origin is cylinder base or disk center.
+};
+/*! Shared radial geometry for cylinder projection and frozen exterior source construction. */
+Point ScaleCylinder(const AnalyticSurface& geometry, Point point, double factor);
+double CylinderRadialFloor(const AnalyticSurface& geometry, const std::array<Point,3>& triangle);
+long double CylinderFacing(const AnalyticSurface& geometry, const std::array<Point,3>& triangle);
+/*! Bounded immutable imported facet authority. Exact finite planar containment; certified convex coplanar same-marker
+ * seams are removable. Nonconvex finite patches retain oriented borders and holes. */
+class PlanarReference {
+ public:
+  explicit PlanarReference(std::vector<Facet> facets, size_t ceiling = SIZE_MAX,
+                           std::map<Id, AnalyticSurface> analytic = {},
+                           std::map<Id,SU2NativeGeometry::AffineAuthority> affine = {});
+  const std::map<Id, AnalyticSurface>& Analytic() const { return definition?definition->Analytic():analytic; }
+  const std::map<Id,SU2NativeGeometry::AffineAuthority>& Affine()const{return definition?definition->Affine():affine;}
+  bool EntityGeometry()const;
+  bool Declared(Id facet)const{return parameter_view?Facets().count(facet):analytic.count(facet)||affine.count(facet);}
+  const std::vector<Id>& ExtensionComponents()const;
+  bool CompleteAnalytic(Id facet) const { return complete_analytic.count(Canonical(facet)); }
+  struct ClosestSurface { Point point, normal, direction; double distance=0; };
+  /*! Exact radial/finite-axis closest point on a certified complete sphere, cylinder or disk.
+   * Partial charts and graph surfaces reject; normal is physically oriented, direction points towards the query. */
+  ClosestSurface ClosestAnalytic(Id facet,Point p) const;
+  /*! Projection must remain in the original finite chart; unsupported feature intersections reject. */
+  Point Project(Id facet, Point p, KernelStats* stats = nullptr) const;
+  bool OnProjectedEdge(Id facet, Point a, Point b, Point p, KernelStats* stats = nullptr) const;
+  const Facet& Get(Id id) const;
+  const std::map<Id,Facet>& Facets() const { return definition?definition->Facets():facets; }
+  /*! Requested resident map/vector storage; allocator metadata and constructor scratch are separate. */
+  size_t ResidentBytes() const;
+  /*! Owned parameter overlay only, for admission while a reusable private context stays alive. */
+  size_t ParameterOverlayBytes() const;
+  /*! Conservative reference construction peak, including the house local box index. */
+  static size_t ConstructionBytes(size_t facets, size_t analytic = 0, size_t affine = 0);
+  bool Contains(Id facet, Point p, KernelStats* stats = nullptr) const;
+  /*! Complete closed chord containment on a finite faceted patch; analytic paths require their own chart. */
+  bool ContainsSegment(Id facet,Point a,Point b,KernelStats* stats=nullptr)const;
+  Id Canonical(Id facet) const;
+  /*! Finite complete triangle containment and exact orientation relative to the original physical facet. */
+  bool ContainsFace(Id facet, const std::array<Point, 3>& triangle, KernelStats* stats = nullptr) const;
+  /*! Conservative physical distance between a planar triangle and its analytic radial/graph authority.
+   * Zero for exact faceted authority. Includes nodal projection residual and arithmetic envelope. */
+  double SurfaceError(Id facet, const std::array<Point,3>& triangle, KernelStats* stats = nullptr) const;
+  /*! Error-only mapped query; caller must already have validated this exact face and associations.
+   * Unmapped geometry retains the checked path. Does not certify containment or publication. */
+  /*! Local immutable-geometry guidance, not a whole-face Hausdorff certificate. */
+  double SurfaceDeviation(Id facet,const std::array<Point,3>& triangle,bool validated=false)const;
+  double SurfaceErrorForValidatedFace(Id facet,const std::array<Point,3>& triangle) const;
+  /*! Lowest canonical same-marker patch containing the complete oriented triangle. Broad phase never admits geometry.
+   * Missing/invalid geometry leaves facet unchanged; nonfinite query coordinates throw. */
+  bool FindFace(int marker, const std::array<Point, 3>& triangle, Id& facet, KernelStats* stats = nullptr) const;
+  /*! Additional candidate/traversal storage bound for the serial per-rank binding query. */
+  size_t SearchWorkspaceBytes() const;
+  /*! A cheap view over shared immutable topology/indexes; no duplicate whole-reference preparation. */
+  static std::shared_ptr<const PlanarReference> WithParameters(std::shared_ptr<const PlanarReference> definition,
+                                                            std::shared_ptr<BoundaryParameterState> parameters);
+  bool Mapped()const{return bool(parameter_view);}
+  BoundaryParameterState* Parameters()const;
+  /*! Epoch identity without extending its lifetime in caller-owned weak memos. */
+  std::shared_ptr<const BoundaryParameterState> ParameterStateHandle()const;
+  std::shared_ptr<const PlanarReference> DefinitionHandle()const{return definition;}
+  std::shared_ptr<const PlanarReference> WithParameterState(std::shared_ptr<BoundaryParameterState> parameters)const;
+  /*! Private operator overlay; null in the unchanged strict path. */
+  std::unique_ptr<PlanarReference> PrivateParameters(const Patch& patch,SU2NativeGeometry::AtlasBudget* reservation=nullptr)const;
+  /*! Borrowed geometry work for this scope; never retain the view beyond the reservation's lifetime. */
+  std::unique_ptr<PlanarReference> WithAtlasReservation(SU2NativeGeometry::AtlasBudget& reservation)const;
+  /*! Borrowed from the scoped view; null when no caller admitted atlas work. */
+  SU2NativeGeometry::AtlasBudget* AtlasReservation()const;
+  void ExportPointParameters(Patch& patch)const;
+  void ExportParameters(Patch& patch,SU2NativeGeometry::AtlasBudget* reservation=nullptr)const;
+  bool HasExplicitCoverage(const Patch& patch)const;
+  /*! Reuse validity owned by the current accepted state only for an identical unoverridden face. */
+  bool HasAcceptedFaceCertificate(const SurfaceFace&,const std::array<BoundaryPoint,3>&,
+      const SU2NativeGeometry::BoundaryCoverage&)const;
+  const SU2NativeGeometry::MobilityPolicy* Mobility()const;
+  /*! Necessary contraction incidence; full-star remapping still proves geometry and topology. */
+  bool ContractionAllowed(Id removed,Id retained)const;
+  bool ResolveCoverage(const SurfaceFace&,SU2NativeGeometry::FaceCoverage&,SU2NativeGeometry::AtlasBudget&,std::string&)const;
+  bool ResolveTrace(Edge,const SurfaceFace&,SU2NativeGeometry::EdgeTrace&,SU2NativeGeometry::AtlasBudget&,std::string&)const;
+  const BoundaryPoint* Parameter(Point point)const;
+  Node BindNewPoint(Node point,const std::set<Id>& incident,const Edge* edge=nullptr)const;
+  Node BindMovedPoint(Id old,Node point,const std::set<Id>& incident)const;
+
+ private:
+  struct ParameterView;
+  PlanarReference(std::shared_ptr<const PlanarReference> definition,std::shared_ptr<ParameterView> view);
+  SU2NativeGeometry::SurfaceBinding ProposedBinding(Point point,const std::set<Id>& incident,
+                                                    const SU2NativeGeometry::SurfaceBinding* previous=nullptr)const;
+  bool ParameterContains(Id facet,Point point)const;
+  bool ParameterContainsFace(Id facet,const std::array<Point,3>& triangle,KernelStats* stats)const;
+  bool ParameterFindFace(int marker,const std::array<Point,3>& triangle,Id& facet,KernelStats* stats)const;
+  Point ParameterProject(Id facet,Point point)const;
+  bool ParameterOnEdge(Id facet,Point a,Point b,Point point,KernelStats* stats)const;
+  double ParameterError(Id facet,const std::array<Point,3>& triangle)const;
+  size_t ParameterWorkspaceBytes()const;
+  std::map<Id, Facet> facets;
+  const std::map<Id, AnalyticSurface> analytic;
+  const std::map<Id,SU2NativeGeometry::AffineAuthority> affine;
+  std::vector<std::shared_ptr<const SU2NativeGeometry::FinitePlaneReference>> affine_domains;
+  std::map<Id,size_t> affine_charts;
+  std::vector<Id> declared_components;
+  std::map<Id, Id> canonical;
+  std::set<Id> complete_analytic, nonconvex;
+  std::map<Id, std::vector<Edge>> boundaries;
+  std::map<Id,std::vector<std::array<Point,2>>> boundary_coordinates;
+  std::map<Id,std::vector<std::array<Id,3>>> boundary_corners;
+  std::map<Id, std::shared_ptr<const PlanarReference>> bump_charts;
+  std::map<Id, Node> nodes;
+  std::map<int, std::vector<Id>> marker_facets;
+  std::vector<Id> indexed;
+  std::shared_ptr<CADTElemClass> search;
+  std::shared_ptr<const PlanarReference> definition;
+  std::shared_ptr<ParameterView> parameter_view;
+};
+struct GeometryGuidance {
+  long double excess=0;
+  size_t evaluated_faces=0;
+  bool complete=true;
+  size_t reused_faces=0;
+};
+class GeometryGuidanceMemo;
+/*! Fitting guidance for accepted or independently validated surfaces, never a publication certificate.
+ * Sums squared absolute-tolerance excess per face, as in the complete census, retaining face order.
+ * An incomplete result proves only excess > reject_above;
+ * it must not be used as a complete score or as evidence of geometric progress. */
+GeometryGuidance GeometryGuidanceExcess(const Patch& patch,const PlanarReference& geometry,double tolerance,
+                                      long double reject_above=std::numeric_limits<long double>::infinity(),
+                                      GeometryGuidanceMemo* memo=nullptr);
+/*! Scoped entity-face numeric guidance, never an association or publication certificate.
+ * Prepare admits bounded storage; caller includes ResidentBytes in its retained reservation.
+ * First evaluation records bounds; later evaluations reuse only exact unchanged contracts. */
+class GeometryGuidanceMemo {
+ public:
+  bool Prepare(const Patch&,const PlanarReference&,double tolerance);
+  size_t ResidentBytes()const;
+ private:
+  struct Entry {
+    SurfaceFace face;
+    std::array<Point,3> points;
+    std::array<SU2NativeGeometry::SurfaceBinding,3> binding;
+    double bound=0;
+  };
+  std::vector<Entry> entries;
+  std::weak_ptr<const BoundaryParameterState> epoch;
+  std::weak_ptr<const PlanarReference> definition;
+  uint64_t revision=0;
+  double tolerance=0;
+  bool recording=false;
+  friend GeometryGuidance GeometryGuidanceExcess(const Patch&,const PlanarReference&,double,long double,GeometryGuidanceMemo*);
+};
+struct GeometrySplitPrediction {
+  long double before=0,after=0;
+  size_t evaluated_faces=0;
+  bool complete=false;
+};
+/*! Advisory arithmetic-midpoint split score over both accepted smooth physical faces.
+ * Coordinates/support must match current accepted state. No cavity or publication permission;
+ * unsupported geometry returns incomplete, while resource exhaustion propagates. */
+GeometrySplitPrediction PredictGeometrySplit(Edge edge,const std::array<Point,2>& endpoints,
+                                            const PlanarReference& geometry,double tolerance);
+/*! DC-13: promote a plain faceted reference to the v6 mapped-component authority (MappedFacetReference with released
+ * certified planar seams, declared mapping error `relative_error` x max(1, coordinate scale) per facet, every original
+ * facet vertex bound to itself, skin = the facets). Crease and junction points then bind to their original feature
+ * (EdgePoint/FacetPoint, realized within the declared error) instead of requiring an exactly representable binary64
+ * point on both facet planes (impossible for most folded edges). The geometry contract becomes the bounded-error v5/v6
+ * contract: callers set their surface tolerance to at least the returned declared error. */
+std::shared_ptr<const PlanarReference> PromoteFacetedReference(std::shared_ptr<const PlanarReference> reference,
+    const std::vector<Facet>& facets,double relative_error,double& declared_error,size_t ceiling=SIZE_MAX);
+/*! DC-17: declared affine plane authorities for planar markers of a plain faceted reference (FIRST_ROW construction
+ * only). Each connected facet component of a marker in `planar_markers` (the caller passes the configuration's
+ * symmetry-plane kinds) gets a fitted plane (area-weighted normal, vertex centroid, any orientation) with the error
+ * contract relative_tolerance x max(1, coordinate scale), when every vertex lies within that contract; a curved or
+ * kinked component keeps its exact faceted authority. Interior original vertices of a fitted component then have one
+ * canonical root and can slide on the promoted reference (imported planes are rarely exactly coplanar in binary64);
+ * component borders and junctions stay pinned. Returns `reference` unchanged when nothing is fitted or when it is not
+ * plain faceted. `fitted` counts the fitted components. */
+std::shared_ptr<const PlanarReference> FitPlanarMarkers(std::shared_ptr<const PlanarReference> reference,
+    const std::vector<Facet>& facets,const std::set<int>& planar_markers,double relative_tolerance,size_t& fitted,size_t ceiling=SIZE_MAX);
+struct FirstHeightReport {
+  bool measured=false;  // All faces measured; a partial report never authorizes a provisional mesh.
+  size_t wall_faces=0, height_failures=0, footprint_failures=0, missing_cells=0;
+  size_t reference_clearance_failures=0;
+  double minimum_reference_clearance_ratio=std::numeric_limits<double>::infinity();
+  Id reference_clearance_facet=0,reference_clearance_cell=0;
+  Point reference_clearance_apex{};
+  double maximum_relative_error=0, maximum_tilt=0, minimum_barycentric=1./3; // Worst facet-altitude or certified physical-distance error.
+  Id footprint_facet=0, footprint_cell=0;
+  Id worst_facet=0, worst_cell=0;
+  Point worst_apex{};
+};
+/*! Independent geometric first-row certificate on physical triangle children. Empty heights release
+ *  the BL contract. The normal foot must lie within its wall triangle; centroid tilt is reported
+ *  separately. Metric quality/lengths and global coverage are caller duties. */
+bool CheckFirstHeight(const Patch& patch,const WallHeights& heights,const PlanarReference& reference,
+                      FirstHeightReport& report,std::string& reason,KernelStats* stats=nullptr);
+/*! Seven bounded interior-apex proposals from projected feet and physical normals. Projection state stays
+ * private. These are neither height certificates nor the constrained direction field for advancing columns. */
+std::array<Point,7> PhysicalFirstHeightProposals(Id facet,const std::array<Point,3>& triangle,double height,
+                                               const PlanarReference& reference);
+/*! Provisional construction preserves already passing requested children; measured absent rows remain debt.
+ * Edited protected surface support refuses unresolved correspondence. Topology/contact are caller duties. */
+bool PreservePassingFirstHeights(const Patch& old,const Patch& fresh,const WallHeights& heights,
+                                const PlanarReference& reference,std::string& reason);
+/*! Joint fixed-interface background reconnection and wall-child carving. All new identities/ranges are
+ *  caller-reserved; complete cavity dependencies, target metric, external clearance and commit are separate.
+ *  Wall apices retain admissible face-centroid placement, with projected physical-normal proposals on
+ *  curved walls; obstruction requires another background/cavity, never relaxing height. Output remains unchanged on any rejection. */
+bool ConstructFirstLayer(const Patch& old,Node background,Id first_wall_node,Id first_cell,
+                         const WallHeights& heights,const PlanarReference& reference,
+                         Patch& fresh,FirstHeightReport& report,std::string& reason,KernelStats* stats=nullptr);
+
+/*! Geometry-only direct insertion for exactly one retained tetrahedron and one wall face.
+ * Coupled walls require ConstructFirstLayer and a shared feasible background. Existing valid
+ * wall children are retained; full target metric/quality acceptance is a separate caller duty. */
+bool InsertFirstWallPoint(const Patch& old,Id first_wall_node,Id first_cell,
+                         const WallHeights& heights,const PlanarReference& reference,
+                         Patch& fresh,FirstHeightReport& report,std::string& reason,KernelStats* stats=nullptr);
+
+/*! Project a displacement onto incident planar boundary/first-height tangent freedoms.
+ * Analytic surface projection, complete dependencies and final geometry/height checks remain caller duties. */
+Node ConstrainMovePoint(const Patch& old,Id vertex,Node proposal,const WallHeights& heights,
+                        const PlanarReference& reference);
+/*! Geometric private proposals only. Require the globally admitted complete edge/vertex star and authoritative
+ * physical skin. Input point is exact on-edge binary64, or the actual rounded midpoint of a curved edge;
+ * declared analytic physical facets project it before
+ * rebuilding all children. Inherited child connectivity must remain positive; planar points never snap.
+ * first_cell is a caller-reserved ID range. Distributed IDs, metric gates and external collision checks are separate.
+ * Both mesh and physical-face output remain unchanged on rejection. */
+bool SplitEdge(const Patch& old, Edge edge, Node point, Id first_cell, const PlanarReference& reference, Patch& fresh,
+               std::string& reason, KernelStats* stats = nullptr);
+/*! Inserts a representable point by coning a complete edge-star cavity, without exact on-edge placement.
+ * Interior interface skin is unchanged. A surface seam can be rebuilt only when its two physical triangles
+ * share one canonical finite chart; analytic surface points are projected before reconstruction; marker junctions and unadmitted interface faces reject. The point must see
+ * every retained oriented skin face and lie in the original surface fan. Metric gates are separate.
+ * Fresh output is unchanged on rejection; callers reserve identities and admit complete dependencies. */
+bool InsertEdgeCavity(const Patch& old, Edge edge, Node point, Id first_cell, const PlanarReference& reference,
+                      Patch& fresh, std::string& reason, KernelStats* stats = nullptr);
+/*! Elementary boundary shelling: replace two physical faces of one cell by its two internal faces.
+ * Requires the complete closed star of the new boundary diagonal, a single original surface entity,
+ * unchanged artificial skin and preserved genuine feature paths. No vertex moves or quality gates.
+ * Geometry error, metric/height admission, nonlocal contact and atomic publication remain caller duties. */
+bool ShellBoundaryCell(const Patch& old, Id cell, Id first_cell, const PlanarReference& reference,
+                       Patch& fresh, std::string& reason, KernelStats* stats = nullptr);
+/*! Inverse edge bisection: all removed-vertex incident cells must form paired children of the supplied endpoints.
+ * Preserves original facets/markers and feature edges; this is not general boundary-vertex collapse. */
+/*! Simultaneous bounded (at most eight) complete-star vertex moves and a physical surface split.
+ * Physical splits retain their finite chart; interior insertions may leave the old diagonal only inside a complete edge star.
+ * Empty movement retains all old coordinates. All child faces preserve chart orientation;
+ * artificial interface vertices stay fixed;
+ * moved identities are caller-reserved and each incident reference/marker feature is preserved.
+ * Inherited volume topology is split atomically; actual metric/progress and nonlocal clearance are caller duties. */
+bool SplitSurfaceStrip(const Patch& old,Edge edge,Node point,const std::vector<std::pair<Id,Node>>& moves,
+                       Id first_cell,const PlanarReference& reference,Patch& fresh,std::string& reason,
+                       KernelStats* stats = nullptr);
+/*! Project a physical wall split and jointly refit its existing free apices to all new height planes.
+ * Height planes and normal-foot half-spaces are fitted together; visibility closure may reconnect the
+ * admitted transition and requests an obstructing artificial face when a dependency is missing.
+ * Complete edge/apex stars are required. Stationary identities are retained; moved apices use consecutive
+ * reserved IDs. Joint fits must pass all normal-foot, height and geometry checks; caller still
+ * certifies the actual metric, strict size progress, nonlocal clearance and versioned dependencies.
+ * Enclosed original points are restored; a compound repair need not increase tet count. Failure leaves fresh unchanged. */
+bool RefitWallSplit(const Patch& old,Edge edge,Node point,Id first_apex,Id first_cell,
+                    const WallHeights& heights,const PlanarReference& reference,
+                    Patch& fresh,Feature& obstruction,std::string& reason,KernelStats* stats = nullptr);
+/*! Physical split and coordinated normal wall-point insertion into retained volume topology.
+ * Visibility cavities grow only inside the complete admitted patch, across obstructing faces.
+ * Completed wall children are protected; no common background point is required. Reserve one node
+ * per requested physical wall face from first_wall_node. With positive surface_tolerance, also split
+ * unresolved curved perimeter edges of the two incident wall faces before constructing normal points.
+ * Perimeter points plus wall points share the128-node bound. Caller certifies actual metric/progress,
+ * external clearance and versioned dependencies. Failed proposals leave fresh unchanged. */
+bool ReconstructWallSplit(const Patch& old,Edge edge,Node point,Id first_wall_node,Id first_cell,
+                          const WallHeights& heights,const PlanarReference& reference,
+                          Patch& fresh,Face& obstruction,std::string& reason,KernelStats* stats = nullptr,
+                          double surface_tolerance = 0);
+/*! Complete edge star plus imported face neighbours; joint projected surface split and interior reconnection.
+ * Placement tensor is a proposal proxy only. Caller must certify actual-query metric, geometry progress,
+ * nonlocal clearance and complete versioned dependencies. Requested wall children and transition are carved
+ * together at prescribed normal height. Reserve interior.id through interior.id+1+wall-face count, including
+ * the private background replacement. Obstruction names a retained interface for bounded growth. */
+bool ReconstructSplitPatch(const Patch& old,Edge edge,Node point,Node interior,const Tensor& placement,
+                           Id first_cell,const PlanarReference& reference,Patch& fresh,Face& obstruction,
+                           std::string& reason,KernelStats* stats = nullptr,
+                           const WallHeights& heights = {});
+class FrozenField;
+/*! Tentative bounded cover of split cells by non-endpoint vertices; physical vertices are excluded by default.
+ * Optional costs contain only globally admitted movable candidates, including smooth physical vertices; missing entries are unavailable.
+ * Minimum total cost within eight apices; at most511 binary search states. Complete stars remain caller duties.
+ * Empty means no bounded cover. */
+std::vector<Id> SplitPatchApices(const Patch& patch,Edge edge,const std::map<Id,size_t>* costs=nullptr);
+struct JointSplitReport {
+  size_t trials=0, geometry_rejected=0, height_rejected=0, metric_rejected=0;
+  size_t connectivity_trials=0, flips=0, moves=0;
+  size_t linearizations=0, metric_probes=0, linear_iterations=0, solve_trials=0;
+  Id blocked_interior_vertex=UINT64_MAX;
+  double initial_loss=0, best_loss=0, best_shape_loss=0;  // Unavailable: constructor does not measure q/J.
+  Patch best;  // Geometric/height-valid private proposal; never an accepted mesh.
+};
+/*! Private compound replacement of shared first-height ownership using metric-scaled wall-patch directions.
+ * Complete interior vertex stars, six new node IDs and replacement IDs must be globally reserved.
+ * Intermediate cuts enforce positive fixed-interface topology; the final patch enforces requested wall height.
+ * Metric quality/progress is checked downstream. Geometry, wall skin and original donors are unchanged. */
+bool ReconstructHeightStar(const Patch& old,Id vertex,Id first_node,Id first_cell,FrozenField& target,
+                           const PlanarReference& reference,const WallHeights& heights,
+                           Patch& fresh,JointSplitReport& report,std::string& reason,size_t maximum_trials=128);
+/*! Geometry-first placement of one split with up to eight complete-star interior vertices.
+ * Surface apices retain their coordinates here; other strip operators provide surface movement. A bounded clipped
+ * visibility kernel proposes interior coordinates without q/J measurements. The split retains its authority. Trials preserve positive
+ * orientation, interfaces and requested first heights. Metric quality/progress is checked downstream.
+ * Output is unchanged on failure; distributed admission and external clearance are caller duties. */
+bool PlaceSplitPatch(const Patch& old,Edge edge,Node point,const std::vector<std::pair<Id,Id>>& apices,Id first_cell,
+                       FrozenField& target,const PlanarReference& reference,const WallHeights& heights,
+                       Patch& fresh,JointSplitReport& report,std::string& reason,size_t maximum_trials=128);
+constexpr size_t MetricPatchSolveScratchBytes = MaximumReplacementCells * 8192;
+struct ConnectivityRepairReport {
+  size_t trials=0, flips=0, moves=0, removals=0, coordinated=0;
+  size_t linearizations=0, metric_probes=0, linear_iterations=0, solve_trials=0, solve_rejected=0;
+  size_t move_geometry_rejected=0, move_height_rejected=0, move_loss_rejected=0;
+  size_t vertex_moves=0;  // Accepted single-vertex star re-cones; moves also counts coordinated vertices.
+  double before_loss=0, after_loss=0;
+  bool complete_shape=false;
+  Id blocked_interior_vertex=UINT64_MAX;  // Actual-field deficit at an artificial interface; dependency hint, not infeasibility.
+};
+/*! Up to128 constructed private cells; bounded two/three/four-tet flips, unconstrained interior removal and movement in the actual frozen field. Returns a strictly
+ * improved private replacement, possibly still inadmissible; unchanged output on failure.
+ * Fixed interface coordinates and already passing requested first heights/footprints are preserved.
+ * Validity-only inputs may retain resolved neighboring row debt. Caller admits the complete original
+ * dependencies and validates full composed edges/progress and final heights before publication.
+ * Disable retirement when backtracking a shape repair that destroys frozen size resolution.
+ * An optional movable set restricts point displacement/removal, without restricting fixed-skin flips. */
+bool RepairMetricConnectivity(const Patch& old,FrozenField& target,const PlanarReference& reference,
+                              const WallHeights& heights,Id first_cell,Patch& fresh,
+                              ConnectivityRepairReport& report,std::string& reason,size_t maximum_trials=64,bool retire_points=true,const std::set<Id>* movable=nullptr);
+bool UndoEdgeSplit(const Patch& old, Id point, Edge endpoints, Id first_cell, const PlanarReference& reference,
+                   Patch& fresh, std::string& reason, KernelStats* stats = nullptr);
+/*! Contracts a vertex to an existing neighbor in its complete admitted vertex star, without split history.
+ * Boundary motion must lie on every incident finite reference patch; corners/junctions cannot drift.
+ * Positive cells and oriented physical faces preserve the embedded domain through the contraction homotopy.
+ * Metric/quality gates and global dependency admission remain caller requirements. Fresh cells follow old
+ * cell order excluding cells containing both endpoints. Rejection leaves both output vectors unchanged. */
+bool CollapseVertex(const Patch& old, Id point, Id neighbor, Id first_cell, const PlanarReference& reference,
+                    Patch& fresh, std::string& reason, KernelStats* stats = nullptr);
+/*! Bounded reconnect-then-contract on an enlarged cavity containing the complete removed star.
+ * The caller must discover/reserve every final dependency and verify all removed vertex stars.
+ * Exact prescribed skin, geometry and positivity are checked; metric/height/clearance remain caller duties. */
+bool ReconnectCollapse(const Patch& old, Id point, Id neighbor, Id apex, Id first_cell,
+                       const PlanarReference& reference, Patch& fresh, std::string& reason,
+                       KernelStats* stats = nullptr);
+/*! Moves one complete vertex star, replacing its vertex by a caller-reserved distinct identity.
+ * Vertex/cell counts are unchanged. Analytic boundary proposals are projected to their incident chart;
+ * positive endpoint determinants and chart-oriented faces are required; global clearance remains a caller duty;
+ * exact planar motion preserves its domain; interface-star omissions, corner drift and inversion reject atomically.
+ * New identity permits surface-coordinate changes without weakening fixed-interface coordinate checks. */
+/*! Coordinate-only move; maximum_old_cells is an explicit complete-star admission (default remains64). */
+bool MoveVertex(const Patch& old, Id vertex, Node point, Id first_cell, const PlanarReference& reference, Patch& fresh,
+                std::string& reason, KernelStats* stats = nullptr, size_t maximum_old_cells = MaximumCavityCells);
+/*! Immutable admitted old-star validation for repeated moves; every trial has fresh private parameters. */
+class PreparedVertexMove {
+ public:
+  ~PreparedVertexMove();
+  size_t ResidentBytes()const;
+ private:
+  struct Data;
+  explicit PreparedVertexMove(std::unique_ptr<Data>);
+  std::unique_ptr<Data> data;
+  friend std::unique_ptr<PreparedVertexMove> PrepareVertexMove(const Patch&,const PlanarReference&,KernelStats*);
+  friend bool MoveVertex(const PreparedVertexMove&,Id,Node,Id,Patch&,std::string&,KernelStats*);
+};
+/*! Optional bounded reuse; null means use ordinary MoveVertex. Caller charges ResidentBytes while retained. */
+std::unique_ptr<PreparedVertexMove> PrepareVertexMove(const Patch&,const PlanarReference&,KernelStats* stats=nullptr);
+bool MoveVertex(const PreparedVertexMove&,Id vertex,Node point,Id first_cell,Patch& fresh,
+                std::string& reason,KernelStats* stats=nullptr);
+/*! Fixed-skin reconnection to an existing admitted apex (including face2->3 and edge3->2/4->4).
+ * Geometry/topology only: frozen metric progress, complete dependencies and global IDs remain caller duties. */
+bool Reconnect(const Patch& old, Id vertex, Id first_cell, const PlanarReference& reference, Patch& fresh,
+               std::string& reason, KernelStats* stats = nullptr);
+}  // namespace SU2Native3D

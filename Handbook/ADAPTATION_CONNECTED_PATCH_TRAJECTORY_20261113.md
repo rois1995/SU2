@@ -94,6 +94,26 @@ progress requires repeated smallcuts but introduces neighbor failures, or reques
 height/visibility cannot be met, reconsider coupled construction/support using the
 actual failed context before another variant; do not raise limits or relax gates.
 
+## Required trajectory and readiness (not commit-count success)
+
+| Step | Input and operation contribution | Required output / stall |
+|---|---|---|
+| Restore | Saved CFD, complete441 composed profile/policy/authority and current451 nodal state; validate hashes and associations | Reconstruct identical target, stage height and complete current support. Missing/stale data refuses; never substitute sensor-only state. |
+| Geometry closure | Measure complete physical-face guidance and unresolved witnesses; projected split shortens actual offending chords and updates adjacent tets | Recompute complete affected patch and neighbors after each transaction. Unresolved certification stays unresolved; local core improvement with growing neighboring debt is a strategy stall. Strict bidirectional certification is still required later. |
+| Connectivity / placement | Existing reconnection rebuilds a positive volume replacement when inherited split children invert; bounded face-neighbor discovery repairs proven visibility obstruction. Relocation changes placement on the authority | Complete final cavity reserved with fresh versions before construction/publication, positive cells and valid interface. Repeated identical failure, missing mandatory support or capacity exhaustion records a stall. More splitting does not fix a demonstrated visibility/placement obstruction. |
+| Tangential delivery | Exact production edge measurement plus directional surface restriction; collapse removes admissible redundant points, relocation/reconnection redistribute or unblock connectivity | No overlong edges; report directional conformity and short-edge concentration separately from physically necessary around-nose refinement. Passing maxedge alone is NOT suitability. If no admissible cleanup/correction exists, save the actual failing star; do not force short-edge or shape gates into construction. |
+| First-row readiness | Rebuild constrained/blended direction data after changed surface/connectivity. Use coordinated wall child/transition transactions, checking the complete patch and neighbors | Measure physical stage height, certified fluid clearance, wall coverage/alignment, carrier tangency and direction continuity; preserve previously passing heights. Failed prerequisites mean firstrow UNREACHED, not a partial success. Height/footprint debt allowed provisionally is clearly distinguished from strict readiness. |
+| Handoff | Save complete current mesh/parameters/transported metrics, unchanged profile/authority/policy, continuation stage and provenance | Only credible surface+firstrow output advances to growth. Otherwise retain failure evidence; no successful stage checkpoint or downstream layer claim. |
+
+Bounds are shared across the trajectory, not restarted for each refusal. At24calls,
+300sgeometry/600souter,64old/128replacement or memory denial, preserve the last complete
+published state and exact failed candidate. No partial publication. A bound stop alone
+is not impossibility. Reconsider strategy when the measured required operation cannot
+produce an admissible complete replacement, or neighbor debt/short-edge proliferation
+prevents readiness despite useful core cuts. Select ONE demonstrated obstruction;
+do not append isolated variants until a fixture passes. q/J remains observational
+through construction, with full strict closure mandatory before acceptance.
+
 ## Qualification scope
 
 Runtime must preserve all303622original Owned records independently and all original
@@ -152,3 +172,62 @@ not individually exported by this diagnostic: constructor/Directory attribution 
 a gap, not inferred MPIwait. SerialCPU includes library calls/polling. No467vs466
 speedup ratio: workfront, observedscope and transport path differ. Sampledindividual
 RSS2.287GB/time-processmax2.324GB are not whole-job peaks.
+
+##468 outcome and469 connected hypothesis (before qualification)
+
+Exact replay reached actual split inversion and reconstructed support2→3 BEFORE a
+new reservation. Visibility then passes; raw flat-centroid first-row placement fails
+positive curved-reference clearance. Negative clearance lower bound is uncertainty,
+not a proven penetration. Outcome:24calls/21commits, observation36→97 (8oldcellsadded),
+geometry16→22, local geometrydelta+1/qJ+53/+53. Firstrow remains UNREACHED.
+Trajectory72.725633wall/72.714155CPU/1658670geometrywork, nested79.084899prefix.
+
+469tests one shared correction: retain raw placement if currently admissible; otherwise
+reuse existing projected-foot/physical-normal proposals with positivity and current
+clearance/height admission. Final whole-cavity geometry, interfaces, current parameters,
+metric/contact and passing-height preservation remain mandatory. No constrained column
+direction replacement, q/J construction gate, new operator, config or larger bound.
+
+Success requires an actual complete published replacement on the SAME replayed M6
+failure, then continued complete-patch trajectory toward geometry closure, tangential
+readiness and constrained firstrow within the SAME24calls/300s/600s/64old/128new bounds.
+A successful primitive alone is insufficient. If placement still refuses or neighboring
+geometry proliferates without readiness, retain the exact failed context and reconsider
+the coupled placement/connectivity strategy; do not add another isolated variant.
+ValidityOnly may retain measured height/footprint debt, NEVER uncertified clearance.
+Final requested physical height/coverage/alignment and all strict gates remain OPEN
+until measured on generated complete output. No MPI claim until useful serial output.
+
+##469 terminal: complete trajectory rejects the isolated placement hypothesis
+
+Build582.181s; focused14cases/2172assertions pass. Actual249.922swrapper, all5actual
+handles terminal/1769pins/303622Owned unchanged. Exact replay and every one of22
+published observation states match468 counts, excess and edge metrics.24constructors,
+21commits; geometry16→22 in36→97scope(+8oldcells), localgeometrydelta+1/qJ+53/+53.
+Geometry closure FALSE, tangential suitability UNPROVEN, firstrow UNREACHED.
+Trajectory72.679326wall/72.643961CPU/1657690geometrywork; no useful progress gain.
+
+The experimental shared physical-normal fallback resolves the earlier rawpoint
+clearance refusal but the SAME3cell reconstruction then fails another wall child's
+positive cone: facet10702/interface8076,3879271,3879273/apex3879275. This demonstrates
+that independently finding a fluid-side wall point is insufficient for the coupled
+replacement. It does NOT prove a joint candidate or a bounded support correction
+impossible, nor establish a physical geometry violation. Rejected replacements have
+no qualified q/J, metric, contact or height outcome; those values are UNKNOWN.
+
+After independently verifying terminal handles and all frozen pins, exact experimental
+sources/patch were archived and all three edited files restored to build468 hashes.
+No production change integrated. Current469binaries remain unqualified experiment;
+rebuild restored sources before further runtime. No MPI campaign: complete useful
+serial replacement was not demonstrated. Receipts: physical_row469_disposition.json,
+physical_row469_unqualified.patch, physical_row469_experiment_source/ and
+surface_transaction469_assessment/comparison468.json under staged57.
+
+RECONSIDER now: the whole wall-child/transition construction needs compatible
+placements and connectivity over the complete affected surface/volume cavity,
+rather than committing the first locally admissible apex then discovering that the
+next one cannot fit. Audit/test existing coordinated facilities on this EXACT
+obstruction. Joint feasibility remains a hypothesis, not authorization for another
+local offset, more cuts, larger cavities, new scheduler or raised limits. Preserve
+all already-passing geometry/features/heights and final gates; until a complete
+replacement is demonstrated, no usable surface/firstrow checkpoint exists.
