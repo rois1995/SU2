@@ -11,7 +11,7 @@ retains older evidence; historical LIVElabels superseded.487outcome separatelyli
 
 ## Actual source, handles and outcome
 
-NOownedheavyjoblive. Build488 and actualcomparison TERMINAL; allpins/actualhost
+ONEownedheavyjob: build490LIVE/FROZEN (exec39603, wrapper3413019/start7305378,ninja3413070/start7305553). PreserveALLcompiled/pinned sources untilactualterminal. Build489failed61.791s/privateCurvedBounds call;1532pins/9actualidentities verifiedterminal, exactfailedsources archived. RetryusesexistingpublicErrorBound only; sameexperiment489, no newhypothesis. Build488 and actualcomparison TERMINAL; allpins/actualhost
 identities independently verified. Production remains qualifiedbuild484, checkpoint
 adbed962ae; only TWOtestincludes changed through487/488. Unrelatedchanges preserved.
 Build488PASS329.814s/2tasks,1530pins/10actualidentities, cleanNinja.
@@ -54,11 +54,11 @@ No originalP1/CFD/Hessian/normalization recompute or exactschedulerresume claim.
 Inspection R/inspection_surface485/wing_surface.vtu:19727surfacepoints/39243triangles;
 all_boundaries.vtu24700/49396, PNGpreview/README/provenance. AllVTUarrays readbackchecked.
 transported_sensor_tensor is CURRENT3Dnodalsensor, NOTcomposedBL/tangentialtarget.
-No fabricatedglobalq/J/geometryarrays. No newexportneeded: savedmeshunchangedthrough488.
+No fabricatedglobalq/J/geometryarrays. Savedmeshunchangedthrough488. Userrequestedfluidrho added to BOTHVTUs as Density_seed_reference_interp; R/surface_seed_density.py uses savedCFDseed throughcurrentnativegeometryassociations (visualonly, notconservativeCFDtransfer). All24700boundarynodesfinitepositive, 24479originalreferencecoords exactlymatchseed; sourcehashes/readbackretained. R/inspection_surface485/density_preview.png available. Wingrho[.1490634737,1.4962236474] inrawrestartunits. No newCFDsolve orsensorchange.
 
 ## Next decision and method
 
-Analysis FIRST: attribute actualgeometryrefusals before any newimplementation/build.
+Experiment489faceadmissiondiagnostic reviewed/implemented; retrybuild490LIVE. Read[489decision](Handbook/ADAPTATION_FACE_ADMISSION_DECISION_489_20261113.md). Offlinequerycoverage insufficient; allchangedfacesWing/noaffine. Threeconstructors/nativeadmissions precededeferredobservations; samecallerheadroom, capture reservation reused, allgatesunchanged. Afterbuild490terminal verify R/check_magnitude_interval489.py first (build490/tagNativeMagnitudeInterval3D), then R/check_face_admission489.py (build490/caseprefixcurved489). AssessorR/assess_face_admission489.py exactFraction coverage/selftestpassed; runtimeassessmentpending.
 Separate genuinephysicaldistance regression, affine/correspondence floors, changed
 support and conservativebounds. CurrentSurfaceDeviation→ParameterError→EntityFaceError
 uses classification+ErrorMagnitude with physicaltolerance; publicmagnitude returnUPPER

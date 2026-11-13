@@ -2122,3 +2122,23 @@ TEST_CASE("Saved complete M6 faces certify fresh entity reverse bounds without a
           "[.][NativeM6FacewiseGeometry3D]") {SavedM6EntityFaces(false);}
 TEST_CASE("Saved M6 entity authority publishes and reloads within its admitted budget",
           "[.][NativeM6ReferencePublication3D]") {SavedM6EntityFaces(true);}
+
+TEST_CASE("Magnitude outside width encloses a known flat-face distance", "[NativeMagnitudeInterval3D]") {
+  using namespace SU2Native3D;
+  const auto facets=ComponentCube(false);const auto reference=std::make_shared<PlanarReference>(facets);
+  std::map<Id,double> errors;for(const auto& face:facets)errors.emplace(face.id,0.);
+  MappedFacetReference geometry(reference,errors,29);
+  const auto& face=facets.front();std::vector<std::array<Point,3>> physical(1);
+  for(unsigned k=0;k<3;++k){REQUIRE(face.v[k].p.z==0);physical[0][k]=face.v[k].p;physical[0][k].z=.125;}
+  for(double precision:{.01,.0025})for(unsigned repeat=0;repeat<2;++repeat) {
+    auto budget=GeometryAtlasBudget();
+    const double upper=geometry.BoundPhysicalSurface({face.id},physical,precision,budget,MappedFacetReference::SurfaceBoundPurpose::ErrorMagnitude);
+    const double lower=upper>precision?std::max(0.,std::nextafter(upper-precision,-INFINITY)):0.;
+    CHECK(lower<=.125);CHECK(upper>=.125);CHECK(lower<=upper);CHECK(budget.caller_bytes==0);
+  }
+  for(auto& point:physical[0])point.z=0;
+  auto inside=GeometryAtlasBudget();CHECK(geometry.BoundPhysicalSurface({face.id},physical,.01,inside,MappedFacetReference::SurfaceBoundPurpose::ErrorMagnitude)<=.01);
+  auto exhausted=GeometryAtlasBudget();exhausted.maximum_work=0;
+  CHECK_THROWS(geometry.BoundPhysicalSurface({face.id},physical,.01,exhausted,MappedFacetReference::SurfaceBoundPurpose::ErrorMagnitude));
+  CHECK(exhausted.work_exhausted);
+}

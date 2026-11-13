@@ -39,3 +39,14 @@ uncovered. No first-row work until surface readiness and directional suitability
 Keep q/J observational in validity-first construction; maintain every final gate,
 normal profile, budgets, frozen-run discipline and Euler293baseline. Complete final
 curvedBL/MPI and two-event RANS transfer/CFD/restart objective remains unchanged.
+
+Current update: experiment489facebound attribution source reviewed and implemented.
+Build489compilefailed/privateCurvedBounds call, sources/terminalreceipt preserved.
+Build490retryLIVE (exacthandles inhandoff), existingpublicErrorBound substituted;
+no furtherCPPedits untilactualterminal. Then focusedintervalcheck andactualsame-state
+facecomparison, originalnativeadmissions beforeallobservations. No newproductionfix
+until physicalregression/certification attribution is supported.
+
+Fluiddensity is now in exportedVTUs as Density_seed_reference_interp, plusPNGpreview.
+It samples savedCFDseed throughcurrentboundaryassociation coordinates forvisualization;
+not anadaptedCFDsolution/conservativetransfer. Geometry/existingarraysreadbackunchanged.

@@ -1,11 +1,19 @@
 // Fixed coverage compares existing surface freedoms on one saved state, before one publication.
 #include "native_actual_surface_trial_context.inc"
 const size_t captureBytes=NativeStageCapture::limit+NativeStageCapture::streaming_reserve;
+const bool admissionProbe=geometryProbe&&directedCollapse;
+const size_t probeBytes=admissionProbe?transfer_memory::Add(transfer_memory::Mul(3*(MaximumCavityCells+MaximumReplacementCells),8192),
+    transfer_memory::Mul(current.reference->Parameters()->Geometry().Reference().Facets().size(),128)):0;
+// Deferred probes borrow the existing capture reservation and release it before capture.
+REQUIRE(probeBytes<=captureBytes);
 const size_t caller=transfer_memory::Add(held,captureBytes,size_t(32)<<20);
 REQUIRE(caller<ceiling);budget.caller_bytes=caller;
 const unsigned slotsPerContext=directedCollapse?1:8,expectedSlots=3*slotsPerContext;
 unsigned slots=0,calls=0,completed=0,activeFeasible=0;
+struct AdmissionPatch {std::string label;Patch old,fresh;};
+std::vector<AdmissionPatch> admissionPatches;if(admissionProbe)admissionPatches.reserve(3);
 auto saveWorking=[&]() {
+  std::vector<AdmissionPatch>().swap(admissionPatches);
   NativeStageCapture::CheckPayloadBound(trial.live_parameters->PayloadBytes(),captureBytes);
   NativeStageCapture::WriteOwned("trajectory_working_owned.bin",trial.mesh);
   NativeStageCapture::WriteBytes("trajectory_working_parameters.bin",trial.live_parameters->Payload());
@@ -176,12 +184,16 @@ try {
          <<",\"halo_q_delta\":"<<(measured?long(q1)-long(q0):0)<<",\"halo_J_delta\":"<<(measured?long(j1)-long(j0):0)<<",\"halo_geometry_delta\":"<<(measured?long(b1)-long(b0):0)<<",\"unchanged_halo_cells\":"<<halo.size()-old.cells.size()
          <<",\"support_reason\":"<<junction_wp0::Json(supportWhy)<<",\"constructor_reason\":"<<junction_wp0::Json(constructorWhy)<<",\"certification_reason\":"<<junction_wp0::Json(certificationWhy)<<",\"metric_reason\":"<<junction_wp0::Json(metricWhy)<<",\"parameter_reason\":"<<junction_wp0::Json(parameterWhy)
          <<",\"contact_reason\":"<<junction_wp0::Json(contactWhy)<<",\"preserve_reason\":"<<junction_wp0::Json(preserveWhy)<<",\"height_reason\":"<<junction_wp0::Json(heightWhy)<<",\"geometry_work\":"<<budget.work-work<<",\"seconds\":"<<std::chrono::duration<double>(std::chrono::steady_clock::now()-started).count()<<",\"cpu_seconds\":"<<double(std::clock()-cpu)/CLOCKS_PER_SEC<<",\"mesh_accepted\":false}"<<std::endl;
+      if(admissionProbe&&built&&measured){REQUIRE(admissionPatches.size()<3);admissionPatches.push_back({seed.label,old,fresh});}
     }
     ++completed;
   }
+  if(admissionProbe) {
+#include "native_actual_face_admission_probe.inc"
+  }
   const unsigned internalConstructorBound=directedCollapse&&productionCorrection?2*seeds.size():0;
   REQUIRE(slots==expectedSlots);REQUIRE(calls+internalConstructorBound<=24);bool published=false;
-  if(winner) {
+  if(winner&&!admissionProbe) {
     auto& publication=directory;
     const auto winnerCaller=transfer_memory::Add(caller,transfer_memory::Mul(4,transfer_memory::Add(transfer_memory::Bytes(winner->dependencies.cells),transfer_memory::Bytes(winner->rows))));
     budget.caller_bytes=transfer_memory::Add(winnerCaller,directory.ResidentBytes());REQUIRE(budget.caller_bytes<ceiling);

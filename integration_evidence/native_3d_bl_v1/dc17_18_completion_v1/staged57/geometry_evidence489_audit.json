@@ -1,0 +1,142 @@
+{
+  "input_owned": {
+    "path": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved485_saved_surface_corrections_serial_20261113T120504_3046999/trajectory_working_owned.bin",
+    "sha256": "30593444427789626616174c71fe44cdb3ecc7f5c8b557328c77b1615122a59c",
+    "bytes": 126390376
+  },
+  "reference": {
+    "path": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/prepared_reference441.native_ref",
+    "sha256": "9cdbc63cb6853f2c8b052bb0549f7b561299bfe82cd21fd6b792d2600dadf7e9",
+    "bytes": 47601773,
+    "offset": 3099544,
+    "decoder_must_require_exact_target_reference_agreement": true
+  },
+  "old_query_file_sha256": "61126b8c959076a6309456578688588f1bf5349af234524473bd550e1dcd70a4",
+  "saved_query_records": 1134,
+  "affine_facets_by_marker": {
+    "SYMMETRY": 8094
+  },
+  "contexts": [
+    {
+      "context": "near_refused_tip",
+      "removed": 7594,
+      "retained": 7592,
+      "removed_star_cells": 14,
+      "physical_faces_old": 6,
+      "physical_faces_fresh": 4,
+      "changed_original_faces_by_marker": {
+        "WING3D": 6
+      },
+      "changed_original_faces_with_affine": 0,
+      "unchanged_physical_faces": 0,
+      "unchanged_faces_rotated_by_finish": 0,
+      "sides": [
+        {
+          "side": "old",
+          "physical_faces": 6,
+          "exact_triangle_matches": 0,
+          "matches": []
+        },
+        {
+          "side": "fresh",
+          "physical_faces": 4,
+          "exact_triangle_matches": 0,
+          "matches": []
+        }
+      ]
+    },
+    {
+      "context": "corrected_root",
+      "removed": 17814,
+      "retained": 64065077,
+      "removed_star_cells": 20,
+      "physical_faces_old": 10,
+      "physical_faces_fresh": 8,
+      "changed_original_faces_by_marker": {
+        "WING3D": 8
+      },
+      "changed_original_faces_with_affine": 0,
+      "unchanged_physical_faces": 2,
+      "unchanged_faces_rotated_by_finish": 2,
+      "sides": [
+        {
+          "side": "old",
+          "physical_faces": 10,
+          "exact_triangle_matches": 1,
+          "matches": [
+            {
+              "vertices": [
+                17814,
+                68,
+                17815
+              ],
+              "facet": 44780,
+              "records": 6,
+              "supports": [
+                [
+                  44780
+                ],
+                [
+                  44780
+                ],
+                [
+                  44780
+                ],
+                [
+                  44780
+                ],
+                [
+                  44780
+                ],
+                [
+                  44780
+                ]
+              ]
+            }
+          ]
+        },
+        {
+          "side": "fresh",
+          "physical_faces": 8,
+          "exact_triangle_matches": 0,
+          "matches": []
+        }
+      ]
+    },
+    {
+      "context": "clean_control",
+      "removed": 6070,
+      "retained": 6072,
+      "removed_star_cells": 10,
+      "physical_faces_old": 6,
+      "physical_faces_fresh": 4,
+      "changed_original_faces_by_marker": {
+        "WING3D": 6
+      },
+      "changed_original_faces_with_affine": 0,
+      "unchanged_physical_faces": 0,
+      "unchanged_faces_rotated_by_finish": 0,
+      "sides": [
+        {
+          "side": "old",
+          "physical_faces": 6,
+          "exact_triangle_matches": 0,
+          "matches": []
+        },
+        {
+          "side": "fresh",
+          "physical_faces": 4,
+          "exact_triangle_matches": 0,
+          "matches": []
+        }
+      ]
+    }
+  ],
+  "classification": "Evidence coverage/source-fidelity audit only; no new native measurements/candidates/acceptance.",
+  "limitations": [
+    "Fresh physicalskin follows the already-tested directed contraction and native cyclic Finish policy, not an independent reconstruction.",
+    "Triangle matches alone would not establish exact support/association/purpose/binary agreement or certificate reuse.",
+    "No geometry-order sensitivity or genuine physical-distance regression proved by static face identity."
+  ],
+  "script_sha256": "e10138d7c9f29a43fe76c76b9218395455df4ebffa20888e5d928c1e629f1607"
+}

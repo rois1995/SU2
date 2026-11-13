@@ -113,3 +113,7 @@ TEST_CASE("Saved current M6 nominated directed collapses test the physical surfa
 TEST_CASE("Saved current M6 directed contractions reuse bounded production support correction", "[.][NativeActualCorrectedDirectedResidual3D]") {
   RunSavedActualCavities(true,false,true,false,false,false,false,false,false,false,false,false,false,true,false,true);
 }
+
+TEST_CASE("Saved M6 faces distinguish geometry regression from conservative admission", "[.][NativeActualFaceAdmission3D]") {
+  RunSavedActualCavities(true,false,true,false,false,false,true,false,false,false,false,false,false,true,false,true);
+}

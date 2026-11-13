@@ -1,6 +1,6 @@
 # Adaptation timings and computational work
 
-Updated2026-11-13:485/486comparisons TERMINAL; build487 PASS465.248s; actual487comparison TERMINAL173.451s; build488PASS329.814s; actual488TERMINAL183.618s; no ownedheavyjob;484affected discovery serial/MPI PASS; M6surface
+Updated2026-11-13:485/486comparisons TERMINAL; build487 PASS465.248s; actual487comparison TERMINAL173.451s; build488PASS329.814s; actual488TERMINAL183.618s; build489failed61.791s; retrybuild490LIVE/FROZEN;484affected discovery serial/MPI PASS; M6surface
 trajectory TERMINAL/notready. Build488PASS329.814s/2tasks/1530pins/10actualidentities, CFDunchanged; actual488TERMINAL183.618s/1799pins/fiveactualidentities.2513378geometrywork; roothelper63009work/1step/.012637s, no growth20→20; positivefinalReconnectCollapse20→21 takes385264work/1.621721s includingmeasurements/admission. q20→18,J19→16,geometry7→6 butexcess+57.793%refuses, nopublication/Ownedparamsunchanged. Tip149829work/1.580353s,control154428/.570115s. Finalcalls3/internaltotalupper9of24. GNUtime173.50user+1.48system/176.31wall versus183.618outer; attributionremainderunsplit. IndividualRSS1,375,707,136B notwholepeak. No timinggain/MPIwaitclaim; no ownedheavyjob. Discovery reaches requiredwork
 and86physical split edits; wholefieldclosure and acceptedadaptation cost remainunknown.
 Historical measurements below retain their original scope; currenthandoff owns state.
@@ -384,3 +384,19 @@ Detailed earlier phase timings, improvements, failed hypotheses, source receipts
 comparison/maintenance rules are preserved in the
 [historical timing ledger](ADAPTATION_TIMINGS_HISTORY_THROUGH_473_20261113.md).
 Old RUNNING labels there do not describe current workload state.
+
+##489 face-admission attribution and requested density view — pendingnativequalification
+
+Offline1134saved477queries matchedONEoldrootface/NOcurrentfreshfaces. Allchangedfaces
+areWing/noaffine; root2unchangedfacescyclicallyrotated. No actualorderartifact yetproved.
+Test-onlydeferred3context faceprobe/math/scope/memory reviewed. Build489failed61.791s
+privateCurvedBoundsaccess,1532pins/9actualterminalidentities. No nativecase ran. Exact
+failedsources preserved; retry490usespublicErrorBound foranchorrealizationuncertainty,
+samehypothesis/limits. Currentbuild490LIVE/FROZEN,exec39603, no secondheavyjob.
+FocusedMagnitudeInterval test plus actualsame-target comparison pending.
+
+Userfluidrhoexport completed via savedseed parametricboundary sampling, no native/CFD
+run.24700points(dim0/1/2=24101/121/478),23roundoffweightnormalizations;24479original
+referencevertexcoords exactlymatchrestart. Allrho finitepositive, allVTUexistingarrays/
+geometry readbackunchanged. Visualizationonly, no conservativetransfer claim; rawunits.
+Exportwalltime notseparatelyrecorded, no efficiencyclaim.
