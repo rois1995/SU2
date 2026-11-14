@@ -5,7 +5,7 @@ if(residualProbe) {
     std::array<Point,3> points;std::array<SU2NativeGeometry::SurfaceBinding,3> bindings;
     bool direct=true;const auto& authority=trial.live_parameters->Geometry();
     for(unsigned k=0;k<3;++k){points[k]=positions.at(face.v[k]).p;const auto* p=trial.reference->Parameter(points[k]);REQUIRE(p);bindings[k]=p->binding;direct=direct&&authority.Supports(face.facet,bindings[k]);}
-    const double bound=trial.reference->SurfaceDeviation(face.facet,points,true);
+    const double bound=trial.reference->SurfaceDeviation(face.facet, points, SU2NativeGeometry::SurfaceQueryNeed::Magnitude(), true);
     log<<"{\"stage\":\"residual_face\",\"facet\":"<<face.facet<<",\"bound\":"<<bound<<",\"direct\":"<<direct<<",\"vertices\":[";
     for(unsigned k=0;k<3;++k){if(k)log<<',';const auto p=points[k];const auto b=bindings[k];log<<'['<<face.v[k]<<','<<p.x<<','<<p.y<<','<<p.z<<','<<b.dimension<<','<<b.feature<<','<<b.u<<','<<b.v<<','<<b.version<<']';}
     log<<"],\"planning_lengths\":[";std::vector<Edge> group;

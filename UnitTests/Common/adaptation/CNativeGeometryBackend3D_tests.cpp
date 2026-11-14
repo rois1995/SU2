@@ -301,6 +301,9 @@ TEST_CASE("Geometry magnitude bounds retain complete domains and separate classi
   for(const auto gap:{.99*tolerance,1.01*tolerance}) {
     auto budget=BackendBudget();const auto value=fixture.geometry->BoundPhysicalSurface({0},{triangle(gap)},tolerance,budget,Purpose::ErrorMagnitude);
     CHECK((value<=tolerance)==(gap<tolerance));CHECK(value>=gap);
+    auto classification_budget=BackendBudget();
+    const auto classified=fixture.geometry->BoundPhysicalSurface({0},{triangle(gap)},tolerance,classification_budget,Purpose::ExactClassification);
+    CHECK((classified<=tolerance)==(value<=tolerance));CHECK(classified>=gap);
   }
   auto different_body=BackendBudget();
   CHECK(fixture.geometry->BoundPhysicalSurface({100},{triangle(4*tolerance)},tolerance,different_body,Purpose::ErrorMagnitude)>9);
@@ -550,21 +553,21 @@ TEST_CASE("Fresh entity face bounds preserve correspondence and coordinate inval
   auto reference=PlanarReference::WithParameters(fixture.reference,entity)->WithAtlasReservation(budget);
   const auto& face=fixture.facets.front();std::array<Point,3> actual;std::array<SurfaceBinding,3> binding;
   for(unsigned k=0;k<3;++k){actual[k]=face.v[k].p;binding[k]=fixture.geometry->Vertex(face.v[k].id);}
-  const auto bound=entity->EntityFaceError(face.id,binding,actual,&budget);
+  const auto bound=entity->EntityFaceError(face.id, binding, actual, &budget, SU2NativeGeometry::SurfaceQueryNeed::Magnitude());
   CHECK(bound<=.01);CHECK(bound==reference->SurfaceError(face.id,actual));
   auto moved=actual;moved[0].z+=.05;
-  CHECK(entity->EntityFaceError(face.id,binding,moved,nullptr)==fixture.geometry->SurfaceError(face.id,binding,moved));
+  CHECK(entity->EntityFaceError(face.id, binding, moved, nullptr, SU2NativeGeometry::SurfaceQueryNeed::Magnitude())==fixture.geometry->SurfaceError(face.id,binding,moved));
   const auto before=fixture.geometry->GeometryStatsSnapshot();
-  const auto outside=entity->EntityFaceError(face.id,binding,moved,&budget);
+  const auto outside=entity->EntityFaceError(face.id, binding, moved, &budget, SU2NativeGeometry::SurfaceQueryNeed::Magnitude());
   CHECK(outside>.02);
   CHECK(fixture.geometry->GeometryStatsSnapshot().upper_calls==before.upper_calls+2);
-  CHECK(entity->EntityFaceError(face.id,binding,moved,&budget)==outside);
+  CHECK(entity->EntityFaceError(face.id, binding, moved, &budget, SU2NativeGeometry::SurfaceQueryNeed::Magnitude())==outside);
   auto strict=BackendBudget();
   fixture.geometry->BoundPhysicalSurface({face.id},{moved},.01,strict);
   auto limited=BackendBudget();limited.maximum_work=strict.work;
-  CHECK_THROWS(entity->EntityFaceError(face.id,binding,moved,&limited));CHECK(limited.work_exhausted);
-  CHECK(entity->EntityFaceError(face.id,binding,moved,&budget)==outside);
-  CHECK(entity->EntityFaceError(face.id,binding,actual,&budget)==bound);
+  CHECK_THROWS(entity->EntityFaceError(face.id, binding, moved, &limited, SU2NativeGeometry::SurfaceQueryNeed::Magnitude()));CHECK(limited.work_exhausted);
+  CHECK(entity->EntityFaceError(face.id, binding, moved, &budget, SU2NativeGeometry::SurfaceQueryNeed::Magnitude())==outside);
+  CHECK(entity->EntityFaceError(face.id, binding, actual, &budget, SU2NativeGeometry::SurfaceQueryNeed::Magnitude())==bound);
   for(const auto& row:entity->GeometryCertificates(budget,true)) {
     CHECK(row.second.within_tolerance);CHECK(row.second.mesh_to_model<=.01);
     CHECK(row.second.model_pieces==0);CHECK(row.second.physical_pieces>0);
@@ -573,6 +576,59 @@ TEST_CASE("Fresh entity face bounds preserve correspondence and coordinate inval
   CHECK_THROWS(entity->GeometryCertificates(exhausted,true));
   auto no_work=BackendBudget();no_work.maximum_work=0;
   CHECK_THROWS(entity->GeometryCertificates(no_work,true));CHECK(no_work.work_exhausted);
+}
+
+TEST_CASE("Entity face query needs preserve classification and limit decisions across memo order", "[NativeGeometryBackend3D][NativeFaceQueryNeed3D]") {
+  using namespace SU2Native3D;
+  constexpr double tolerance=.01, cutoff=.01;
+  auto prepare=[](BackendFixture& fixture,AtlasBudget& budget,const Facet*& face,
+                  std::array<SurfaceBinding,3>& binding,std::array<Point,3>& actual) {
+    BoundaryPoints points;std::vector<SurfaceFace> skin;
+    for(const auto& f:fixture.facets) {
+      skin.push_back({{f.v[0].id,f.v[1].id,f.v[2].id},f.id});
+      for(auto n:f.v)points.emplace(n.id,BoundaryPoint{n,fixture.geometry->Vertex(n.id)});
+    }
+    auto legacy=std::make_shared<BoundaryParameterState>(fixture.geometry,points,skin,1,SIZE_MAX,0,
+        BoundaryCoverage{},fixture.policy,&budget);
+    auto entity=legacy->WithEntityGeometry(tolerance,budget);
+    face=&fixture.facets.front();
+    for(unsigned k=0;k<3;++k) {
+      actual[k]=face->v[k].p;binding[k]=fixture.geometry->Vertex(face->v[k].id);
+    }
+    return entity;
+  };
+  for(double gap:{0.,.0101,.125}) {
+    BackendFixture limit_first_fixture(false,false);auto limit_first_budget=BackendBudget();
+    const Facet* limit_first_face=nullptr;std::array<SurfaceBinding,3> limit_first_binding{};std::array<Point,3> limit_first_points{};
+    auto limit_first_entity=prepare(limit_first_fixture,limit_first_budget,limit_first_face,limit_first_binding,limit_first_points);
+    for(auto& point:limit_first_points)point.z+=gap;
+    const auto limit_first=limit_first_entity->EntityFaceError(limit_first_face->id,limit_first_binding,
+        limit_first_points,&limit_first_budget,SurfaceQueryNeed::Limit(cutoff));
+    const auto magnitude_after_limit=limit_first_entity->EntityFaceError(limit_first_face->id,limit_first_binding,
+        limit_first_points,&limit_first_budget,SurfaceQueryNeed::Magnitude());
+    const auto classified=limit_first_entity->EntityFaceError(limit_first_face->id,limit_first_binding,
+        limit_first_points,&limit_first_budget,SurfaceQueryNeed::Classify());
+    CHECK((limit_first>cutoff)==(magnitude_after_limit>cutoff));
+    CHECK((classified<=tolerance)==(magnitude_after_limit<=tolerance));
+    CHECK(std::isfinite(limit_first));CHECK(std::isfinite(magnitude_after_limit));
+
+    BackendFixture magnitude_first_fixture(false,false);auto magnitude_first_budget=BackendBudget();
+    const Facet* magnitude_first_face=nullptr;std::array<SurfaceBinding,3> magnitude_first_binding{};std::array<Point,3> magnitude_first_points{};
+    auto magnitude_first_entity=prepare(magnitude_first_fixture,magnitude_first_budget,magnitude_first_face,
+        magnitude_first_binding,magnitude_first_points);
+    for(auto& point:magnitude_first_points)point.z+=gap;
+    const auto magnitude_first=magnitude_first_entity->EntityFaceError(magnitude_first_face->id,magnitude_first_binding,
+        magnitude_first_points,&magnitude_first_budget,SurfaceQueryNeed::Magnitude());
+    const auto limit_after_magnitude=magnitude_first_entity->EntityFaceError(magnitude_first_face->id,magnitude_first_binding,
+        magnitude_first_points,&magnitude_first_budget,SurfaceQueryNeed::Limit(cutoff));
+    CHECK((limit_after_magnitude>cutoff)==(magnitude_first>cutoff));
+    CHECK(magnitude_after_limit==magnitude_first);
+    CHECK(std::isfinite(limit_after_magnitude));
+    CHECK_THROWS(magnitude_first_entity->EntityFaceError(magnitude_first_face->id,magnitude_first_binding,
+        magnitude_first_points,&magnitude_first_budget,SurfaceQueryNeed::Limit(.005)));
+    CHECK_THROWS(magnitude_first_entity->EntityFaceError(magnitude_first_face->id,magnitude_first_binding,
+        magnitude_first_points,&magnitude_first_budget,SurfaceQueryNeed::Limit(INFINITY)));
+  }
 }
 
 TEST_CASE("Entity geometry preserves feature contracts through reference and payload roundtrips", "[NativeGeometryBackend3D]") {
@@ -596,7 +652,7 @@ TEST_CASE("Entity geometry preserves feature contracts through reference and pay
   const std::array<Point,3> diagonal{{points.at(0).node.p,points.at(2).node.p,points.at(1).node.p}};
   REQUIRE_FALSE(fixture.geometry->Supports(0,fixture.geometry->Vertex(1)));
   const auto before_guidance=budget.work;
-  const auto deviation=guidance->SurfaceDeviation(0,diagonal,true);
+  const auto deviation=guidance->SurfaceDeviation(0, diagonal, SU2NativeGeometry::SurfaceQueryNeed::Magnitude(), true);
   CHECK(std::isfinite(deviation));CHECK(deviation>0);CHECK(deviation<.1);
   CHECK(budget.work>before_guidance);
   CHECK(entity->Snapshot()==guidance->Parameters()->Snapshot());

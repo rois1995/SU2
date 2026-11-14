@@ -1432,10 +1432,10 @@ bool PlanarReference::ContainsFace(Id id, const std::array<Point, 3>& triangle, 
   return false;
 }
 double PlanarReference::SurfaceErrorForValidatedFace(Id id,const std::array<Point,3>& triangle) const {
-  return parameter_view?ParameterError(id,triangle):SurfaceError(id,triangle);
+  return parameter_view?ParameterError(id,triangle,SU2NativeGeometry::SurfaceQueryNeed::Magnitude()):SurfaceError(id,triangle);
 }
 double PlanarReference::SurfaceError(Id id,const std::array<Point,3>& triangle,KernelStats* stats) const {
-  if(parameter_view){if(!ParameterContainsFace(id,triangle,stats))throw std::invalid_argument("Mapped surface leaves its parameter authority.");return ParameterError(id,triangle);}
+  if(parameter_view){if(!ParameterContainsFace(id,triangle,stats))throw std::invalid_argument("Mapped surface leaves its parameter authority.");return ParameterError(id,triangle,SU2NativeGeometry::SurfaceQueryNeed::Magnitude());}
   id=Canonical(id);
   if(!ContainsFace(id,triangle,stats))throw std::invalid_argument("Native3D surface error leaves its authority.");
   if(affine.count(id)) {
@@ -3492,13 +3492,32 @@ GeometryGuidance GeometryGuidanceExcess(const Patch& patch,const PlanarReference
             a.feature==b.feature&&a.version==b.version&&a.dimension==b.dimension&&equal_double(a.u,b.u)&&equal_double(a.v,b.v);}
       if(same){retained=&entry;break;}
     }
-    const double bound=retained?retained->bound:geometry.SurfaceDeviation(f.facet,p,true);
+    using SU2NativeGeometry::SurfaceQueryNeed;
+    auto need=SurfaceQueryNeed::Magnitude();
+    if(geometry.EntityGeometry()&&std::isfinite(reject_above)) {
+      const long double cutoff=static_cast<long double>(tolerance)+std::sqrt(std::max(0.L,reject_above-result.excess));
+      double rounded=std::nextafter(static_cast<double>(cutoff),INFINITY);
+      if(geometry.EntityGeometry())rounded=std::max(rounded,geometry.Parameters()->GeometryTolerance());
+      if(std::isfinite(rounded))need=SurfaceQueryNeed::Limit(rounded);
+      if(reject_above==0&&(!geometry.EntityGeometry()||tolerance==geometry.Parameters()->GeometryTolerance()))
+        need=SurfaceQueryNeed::Classify();
+    }
+    double bound=retained?retained->bound:geometry.SurfaceDeviation(f.facet,p,need,true);
+    if(!std::isfinite(bound))throw std::invalid_argument("Unresolved native3D fitting-guidance face.");
+    auto squared_excess=[&](double value){const long double error=std::max(0.L,static_cast<long double>(value)-tolerance);return error*error;};
+    const bool partial=!retained&&need.kind!=SurfaceQueryNeed::Kind::Magnitude&&
+        bound>(need.kind==SurfaceQueryNeed::Kind::Classify?tolerance:need.stop_above);
+    if(partial&&!(result.excess+squared_excess(bound)>reject_above))
+      bound=geometry.SurfaceDeviation(f.facet,p,SurfaceQueryNeed::Magnitude(),true);
+    else if(partial) {
+      result.excess+=squared_excess(bound);++result.evaluated_faces;
+      result.complete=false;return result;
+    }
     if(!std::isfinite(bound))throw std::invalid_argument("Unresolved native3D fitting-guidance face.");
     if(retained){if(auto* budget=geometry.AtlasReservation())budget->CheckTime();++result.reused_faces;}
     if(recording&&bound_points&&memo->entries.size()<memo->entries.capacity())memo->entries.push_back({f,p,binding,bound});
-    const long double error=std::max(0.L,static_cast<long double>(bound)-tolerance);
     // Match complete-census debt: changing face area must not veto reduced certified geometry excess.
-    result.excess+=error*error;
+    result.excess+=squared_excess(bound);
     ++result.evaluated_faces;
     if(!std::isfinite(result.excess))throw std::invalid_argument("Unresolved native3D fitting-guidance sum.");
     // Nonnegative additions in the SAME order cannot reduce this rounded partial sum.

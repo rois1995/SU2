@@ -30,7 +30,7 @@ for(unsigned pass=0;pass<3;++pass) {
             std::array<double,3> upper{};
             for(unsigned rotation=0;rotation<3;++rotation) {
               std::array<Point,3> rotated;for(unsigned k=0;k<3;++k)rotated[k]=points[(k+rotation)%3];
-              upper[rotation]=context->SurfaceDeviation(face.facet,rotated,true);REQUIRE(std::isfinite(upper[rotation]));
+              upper[rotation]=context->SurfaceDeviation(face.facet, rotated, SU2NativeGeometry::SurfaceQueryNeed::Magnitude(), true);REQUIRE(std::isfinite(upper[rotation]));
             }
             const unsigned rotation=std::distance(face.v.begin(),std::min_element(face.v.begin(),face.v.end()));
             std::rotate(item.face.begin(),item.face.begin()+rotation,item.face.end());item.canonical=upper[rotation];

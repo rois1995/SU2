@@ -1,0 +1,780 @@
+diff --git a/Common/include/adaptation/CNativeAffineReference.hpp b/Common/include/adaptation/CNativeAffineReference.hpp
+index d5cff7bf5e..8d0da9ba8f 100644
+--- a/Common/include/adaptation/CNativeAffineReference.hpp
++++ b/Common/include/adaptation/CNativeAffineReference.hpp
+@@ -5,6 +5,7 @@
+  */
+ #pragma once
+ #include <functional>
++#include <limits>
+ #include "CNativeCavity3D.hpp"
+ #include "CNativePointConstruction3D.hpp"
+ #include "CNativeAtlas3D.hpp"
+@@ -20,6 +21,15 @@ namespace SU2Native3D { class PlanarReference; struct Facet; struct SurfaceFace;
+ namespace SU2NativeGeometry {
+ using SU2Native3D::Point;
+ using SU2Native3D::Id;
++/*! Limit may return a certified rejection lower bound; only Magnitude is a complete score. */
++struct SurfaceQueryNeed {
++  enum class Kind { Classify, Limit, Magnitude };
++  Kind kind;
++  double stop_above;
++  static SurfaceQueryNeed Classify(){return {Kind::Classify,0};}
++  static SurfaceQueryNeed Limit(double cutoff){return {Kind::Limit,cutoff};}
++  static SurfaceQueryNeed Magnitude(){return {Kind::Magnitude,0};}
++};
+ /*! Immutable definition; identity/version belong in every dependent cache key.
+  * Distance is a physical error contract, never a tolerance for volume predicates.
+  * The error contract must be at least the smallest normal binary64 value. */
+@@ -186,12 +196,14 @@ class MappedFacetReference {
+   /*! Model enclosure for source tubes; does not certify the reverse distance or final tolerance. */
+   SurfaceUnionBounds BoundModelSurface(const std::vector<Id>& model_facets,
+       const std::vector<std::array<Point,3>>& physical,double tolerance,AtlasBudget&)const;
+-  enum class SurfaceBoundPurpose { Classification, ErrorMagnitude };
+-  /*! One-sided bound; ErrorMagnitude also resolves outside error to the prescribed tolerance.
+-   * Omitted supports only weaken admission. Neither purpose certifies the reverse distance. */
++  enum class SurfaceBoundPurpose { Classification, ErrorMagnitude, ErrorLimit, ExactClassification };
++  /*! One-sided bound; ErrorMagnitude resolves outside error to the prescribed tolerance.
++   * ExactClassification refines ambiguous bounds before deciding tolerance.
++   * ErrorLimit may instead return a certified lower bound above stop_above; never use it as a magnitude.
++   * Omitted supports only weaken admission. No purpose certifies the reverse distance. */
+   double BoundPhysicalSurface(const std::vector<Id>& model_facets,
+       const std::vector<std::array<Point,3>>& physical,double tolerance,AtlasBudget&,
+-      SurfaceBoundPurpose purpose=SurfaceBoundPurpose::Classification)const;
++      SurfaceBoundPurpose purpose=SurfaceBoundPurpose::Classification,double stop_above=std::numeric_limits<double>::infinity())const;
+   /*! Convex hull of an immutable curved patch and current source face, including realization error. */
+   class SourcePatch {
+    public:
+@@ -295,9 +307,11 @@ class MappedFacetReference {
+   uint64_t Version()const{return version;}
+  private:
+   SurfaceUnionBounds QuerySurfaceUnion(const std::vector<Id>&,
+-      const std::vector<std::array<Point,3>>&,double,AtlasBudget&,bool include_model,bool include_mesh,bool magnitude=false)const;
++      const std::vector<std::array<Point,3>>&,double,AtlasBudget&,bool include_model,bool include_mesh,bool magnitude=false,
++      double stop_above=std::numeric_limits<double>::infinity(),bool exact_classification=false)const;
+   SurfaceUnionBounds QuerySurfaceUnionAtResolution(const std::vector<Id>&,
+-      const std::vector<std::array<Point,3>>&,double,AtlasBudget&,bool include_model,bool include_mesh,double resolution,bool magnitude)const;
++      const std::vector<std::array<Point,3>>&,double,AtlasBudget&,bool include_model,bool include_mesh,double resolution,bool magnitude,
++      double stop_above,bool exact_classification)const;
+ 
+   std::shared_ptr<const SU2Native3D::PlanarReference> reference;
+   std::map<Id,double> errors;
+diff --git a/Common/include/adaptation/CNativeBoundary3D.hpp b/Common/include/adaptation/CNativeBoundary3D.hpp
+index 8674bd10af..583fde268a 100644
+--- a/Common/include/adaptation/CNativeBoundary3D.hpp
++++ b/Common/include/adaptation/CNativeBoundary3D.hpp
+@@ -86,7 +86,7 @@ class PlanarReference {
+   /*! Error-only mapped query; caller must already have validated this exact face and associations.
+    * Unmapped geometry retains the checked path. Does not certify containment or publication. */
+   /*! Local immutable-geometry guidance, not a whole-face Hausdorff certificate. */
+-  double SurfaceDeviation(Id facet,const std::array<Point,3>& triangle,bool validated=false)const;
++  double SurfaceDeviation(Id facet,const std::array<Point,3>& triangle,SU2NativeGeometry::SurfaceQueryNeed need,bool validated=false)const;
+   double SurfaceErrorForValidatedFace(Id facet,const std::array<Point,3>& triangle) const;
+   /*! Lowest canonical same-marker patch containing the complete oriented triangle. Broad phase never admits geometry.
+    * Missing/invalid geometry leaves facet unchanged; nonfinite query coordinates throw. */
+@@ -133,7 +133,7 @@ class PlanarReference {
+   bool ParameterFindFace(int marker,const std::array<Point,3>& triangle,Id& facet,KernelStats* stats)const;
+   Point ParameterProject(Id facet,Point point)const;
+   bool ParameterOnEdge(Id facet,Point a,Point b,Point point,KernelStats* stats)const;
+-  double ParameterError(Id facet,const std::array<Point,3>& triangle)const;
++  double ParameterError(Id facet,const std::array<Point,3>& triangle,SU2NativeGeometry::SurfaceQueryNeed need)const;
+   size_t ParameterWorkspaceBytes()const;
+   std::map<Id, Facet> facets;
+   const std::map<Id, AnalyticSurface> analytic;
+diff --git a/Common/include/adaptation/CNativeBoundaryParameters3D.hpp b/Common/include/adaptation/CNativeBoundaryParameters3D.hpp
+index 76e7325e62..4f4fe155f6 100644
+--- a/Common/include/adaptation/CNativeBoundaryParameters3D.hpp
++++ b/Common/include/adaptation/CNativeBoundaryParameters3D.hpp
+@@ -93,7 +93,7 @@ class BoundaryParameterState {
+       SU2NativeGeometry::AtlasBudget&,size_t ceiling=SIZE_MAX,size_t caller_bytes=0)const;
+   /*! Rigorous whole-face mesh-to-model upper bound with current entity associations. */
+   double EntityFaceError(Id facet,const std::array<SU2NativeGeometry::SurfaceBinding,3>&,
+-      const std::array<Point,3>&,SU2NativeGeometry::AtlasBudget*,double minimum_error=0)const;
++      const std::array<Point,3>&,SU2NativeGeometry::AtlasBudget*,SU2NativeGeometry::SurfaceQueryNeed need,double minimum_error=0)const;
+   const std::map<EntityKey,SU2NativeGeometry::MappedFacetReference::SurfaceUnionBounds>&
+       GeometryCertificates(SU2NativeGeometry::AtlasBudget&,bool complete=false)const;
+   const Entries& Records()const{return records;}
+diff --git a/Common/src/adaptation/CNativeAffineReference.cpp b/Common/src/adaptation/CNativeAffineReference.cpp
+index 0e7aa0a2ad..b853cb5a5f 100644
+--- a/Common/src/adaptation/CNativeAffineReference.cpp
++++ b/Common/src/adaptation/CNativeAffineReference.cpp
+@@ -2007,8 +2007,13 @@ MappedFacetReference::SurfaceUnionBounds MappedFacetReference::BoundModelSurface
+     const std::vector<Id>& facets,const std::vector<std::array<Point,3>>& physical,
+     double tolerance,AtlasBudget& budget)const {return QuerySurfaceUnion(facets,physical,tolerance,budget,true,false);}
+ double MappedFacetReference::BoundPhysicalSurface(const std::vector<Id>& facets,
+-    const std::vector<std::array<Point,3>>& physical,double tolerance,AtlasBudget& budget,SurfaceBoundPurpose purpose)const {
+-  const bool magnitude=purpose==SurfaceBoundPurpose::ErrorMagnitude;
++    const std::vector<std::array<Point,3>>& physical,double tolerance,AtlasBudget& budget,SurfaceBoundPurpose purpose,double stop_above)const {
++  const bool limited=purpose==SurfaceBoundPurpose::ErrorLimit;
++  const bool magnitude=purpose==SurfaceBoundPurpose::ErrorMagnitude||limited;
++  const bool exact_classification=purpose==SurfaceBoundPurpose::ExactClassification;
++  if(limited&&(!std::isfinite(stop_above)||stop_above<tolerance))
++    throw std::invalid_argument("Invalid surface error cutoff.");
++  if(!limited)stop_above=INFINITY;
+   budget.CheckTime();
+   auto bits=[](double x){uint64_t value;std::memcpy(&value,&x,sizeof value);return value;};
+   const bool trace=AtlasOps::Trace();const auto trace_start=budget.work;
+@@ -2034,7 +2039,7 @@ double MappedFacetReference::BoundPhysicalSurface(const std::vector<Id>& facets,
+   const auto canonical_bytes=physical.size()==1 ? transfer_memory::Add(sizeof(physical),
+       transfer_memory::GrowthBound(1,sizeof(std::array<Point,3>))) : 0;
+   if(transfer_memory::Add(budget.caller_bytes,canonical_bytes)>budget.maximum_bytes)
+-    return traced_result(QuerySurfaceUnion(facets,physical,tolerance,budget,false,true,magnitude).mesh_to_model,"bypass");
++    return traced_result(QuerySurfaceUnion(facets,physical,tolerance,budget,false,true,magnitude,stop_above,exact_classification).mesh_to_model,"bypass");
+   AtlasOps op{budget,__func__};
+   struct Restore{AtlasBudget& budget;size_t caller;~Restore(){budget.caller_bytes=caller;}} restore{budget,budget.caller_bytes};
+   std::vector<std::array<Point,3>> canonical;
+@@ -2048,23 +2053,31 @@ double MappedFacetReference::BoundPhysicalSurface(const std::vector<Id>& facets,
+     });
+   }
+   const auto& query=canonical.empty()?physical:canonical;
+-  const auto words=transfer_memory::Add(magnitude?4:3,facets.size(),transfer_memory::Mul(physical.size(),9));
++  const auto words=transfer_memory::Add(limited?5:((magnitude||exact_classification)?4:3),facets.size(),transfer_memory::Mul(physical.size(),9));
+   const auto temporary=transfer_memory::GrowthBound(words,sizeof(uint64_t));
+   if(!face_memo || FaceMemo::UnionBytes(words)>FaceMemo::Capacity() ||
+       transfer_memory::Add(budget.caller_bytes,temporary)>budget.maximum_bytes)
+-    return traced_result(QuerySurfaceUnion(facets,query,tolerance,budget,false,true,magnitude).mesh_to_model,"bypass");
++    return traced_result(QuerySurfaceUnion(facets,query,tolerance,budget,false,true,magnitude,stop_above,exact_classification).mesh_to_model,"bypass");
+   op.Work(words);op.Storage(temporary);
+   FaceMemo::UnionKey key;key.reserve(words);
+   key.push_back(facets.size());key.insert(key.end(),facets.begin(),facets.end());
+   key.push_back(physical.size());key.push_back(bits(tolerance));
+-  if(magnitude)key.push_back(1);
++  if(magnitude||exact_classification)key.push_back(exact_classification?3:1);
++  // Try a complete magnitude before the separate lower-only cutoff key.
++  const auto purpose_word=facets.size()+3;
+   for(const auto& triangle:query)for(auto p:triangle)for(auto x:Values(p))key.push_back(bits(x));
+   budget.caller_bytes=transfer_memory::Add(budget.caller_bytes,transfer_memory::Mul(key.capacity(),sizeof(uint64_t)));
+   {std::lock_guard<std::mutex> guard(face_memo->lock);double cached=0;
+-    if(face_memo->Find(key,cached)){std::lock_guard<std::mutex> stats_lock(geometry_stats->mutex);
++    bool found=face_memo->Find(key,cached);
++    if(limited&&!found) {
++      key[purpose_word]=2;key.insert(key.begin()+purpose_word+1,bits(stop_above));
++      found=face_memo->Find(key,cached);
++    }
++    if(found){std::lock_guard<std::mutex> stats_lock(geometry_stats->mutex);
+       ++geometry_stats->value.upper_calls;geometry_stats->value.upper_refusals+=cached>tolerance;return traced_result(cached,"hit");}}
+-  // Purpose separates error-magnitude bounds from early classification results.
+-  const auto before=budget.work;const auto result=QuerySurfaceUnion(facets,query,tolerance,budget,false,true,magnitude).mesh_to_model;
++  const auto before=budget.work;const auto result=QuerySurfaceUnion(facets,query,tolerance,budget,false,true,magnitude,stop_above,exact_classification).mesh_to_model;
++  // A cutoff result at or below its cutoff completed magnitude refinement.
++  if(limited&&result<=stop_above){key[purpose_word]=1;key.erase(key.begin()+purpose_word+1);}
+   {std::lock_guard<std::mutex> guard(face_memo->lock);face_memo->Store(std::move(key),result,budget.work-before,op);}
+   return traced_result(result,"miss");
+ }
+@@ -2103,7 +2116,7 @@ MappedFacetReference::FacetStructure MappedFacetReference::StructuralEstimate(Id
+ }
+ MappedFacetReference::SurfaceUnionBounds MappedFacetReference::QuerySurfaceUnion(
+     const std::vector<Id>& facets,const std::vector<std::array<Point,3>>& physical,
+-    double tolerance,AtlasBudget& budget,bool include_model,bool include_mesh,bool magnitude)const {
++    double tolerance,AtlasBudget& budget,bool include_model,bool include_mesh,bool magnitude,double stop_above,bool exact_classification)const {
+   const auto start=std::chrono::steady_clock::now();const auto initial_work=budget.work;const bool upper=!include_model&&include_mesh;
+   auto record=[&](bool failed,bool refusal){const double seconds=std::chrono::duration<double>(std::chrono::steady_clock::now()-start).count();
+     std::lock_guard<std::mutex> lock(geometry_stats->mutex);auto& x=geometry_stats->value;
+@@ -2112,7 +2125,7 @@ MappedFacetReference::SurfaceUnionBounds MappedFacetReference::QuerySurfaceUnion
+   try {double resolution=tolerance;
+     for(;;) {
+       budget.CheckTime();
+-      try{auto result=QuerySurfaceUnionAtResolution(facets,physical,tolerance,budget,include_model,include_mesh,resolution,magnitude);
++      try{auto result=QuerySurfaceUnionAtResolution(facets,physical,tolerance,budget,include_model,include_mesh,resolution,magnitude,stop_above,exact_classification);
+         record(false,upper&&result.mesh_to_model>tolerance);return result;}
+       catch(const RefineSurfaceTarget&) {
+         const double finer=resolution/4;
+@@ -2125,7 +2138,7 @@ MappedFacetReference::SurfaceUnionBounds MappedFacetReference::QuerySurfaceUnion
+ }
+ MappedFacetReference::SurfaceUnionBounds MappedFacetReference::QuerySurfaceUnionAtResolution(
+     const std::vector<Id>& facets,const std::vector<std::array<Point,3>>& physical,
+-    double tolerance,AtlasBudget& budget,bool include_model,bool include_mesh,double resolution,bool magnitude)const {
++    double tolerance,AtlasBudget& budget,bool include_model,bool include_mesh,double resolution,bool magnitude,double stop_above,bool exact_classification)const {
+   AtlasOps op{budget,__func__};
+   struct Restore {AtlasBudget& b;size_t caller;~Restore(){b.caller_bytes=caller;}} restore{budget,budget.caller_bytes};
+   if(facets.empty()||physical.empty()||!std::isfinite(tolerance)||tolerance<std::numeric_limits<double>::min())
+@@ -2309,13 +2322,13 @@ MappedFacetReference::SurfaceUnionBounds MappedFacetReference::QuerySurfaceUnion
+         if(!(upper<=tolerance))upper=std::min(upper,target.Upper(controls,op));
+       }
+       else {std::array<Box,3> points;for(unsigned k=0;k<3;++k)points[k]=LinearPoint(physical.at(domain.facet),Exact(domain.parameter[k]));upper=target.Upper(points,op);
+-        if(upper>tolerance&&(magnitude||target.ApproximationError()>0))for(unsigned k=0;k<3;++k)
++        if(upper>tolerance&&(magnitude||exact_classification||target.ApproximationError()>0))for(unsigned k=0;k<3;++k)
+           diameter=std::max(diameter,NormBound(Difference(points[k],points[(k+1)%3])));}
+       const auto distance_work=budget.work;
+       if(upper>tolerance) {
+         const auto distance=target.Distance(sample(domain,from_model),op);lower=std::max(lower,distance.lower);
+         // Distance is 1-Lipschitz; the physical child diameter covers every point from its enclosed sample.
+-        if(magnitude&&!from_model)upper=std::min(upper,std::nextafter(double(
++        if((magnitude||exact_classification)&&!from_model)upper=std::min(upper,std::nextafter(double(
+             Add({distance.upper,distance.upper},{diameter,diameter}).hi),INFINITY));
+       }
+       if(AtlasOps::Trace()) {
+@@ -2339,15 +2352,16 @@ MappedFacetReference::SurfaceUnionBounds MappedFacetReference::QuerySurfaceUnion
+         traced_work=budget.work;
+       }
+       const double covering_upper=std::max(finished,queue.front().upper);
++      if(!from_model&&lower>stop_above)return std::make_tuple(lower,leaves,true);
+       if(lower>tolerance&&(!magnitude||(long double)covering_upper-lower<=tolerance))
+         return std::make_tuple(magnitude?covering_upper:initial_upper,leaves,true);
+       std::pop_heap(queue.begin(),queue.end(),compare);const auto node=queue.back();queue.pop_back();
+       if(node.upper<=tolerance){finished=std::max(finished,node.upper);++leaves;continue;}
+       if(!from_model&&target.ApproximationError()>0&&
+           (node.diameter<=target.ApproximationError()||node.domain.depth>=48)) {
+-        // Upper-only guidance may conservatively refuse this candidate without proving it outside.
+-        // The popped maximum and finished leaves bound every source domain; final certificates still refine.
+-        if(!include_model&&!magnitude)return std::make_tuple(std::max(finished,node.upper),leaves,false);
++        // Preserve legacy upper-only refusals; explicit classification must resolve ambiguity.
++        if(!include_model&&!magnitude&&!exact_classification)
++          return std::make_tuple(std::max(finished,node.upper),leaves,false);
+         if(AtlasOps::Trace())std::fprintf(stderr,"NATIVE_SURFACE_REFINE resolution=%.17g error=%.17g diameter=%.17g upper=%.17g lower=%.17g work=%zu\n",
+             resolution,target.ApproximationError(),node.diameter,node.upper,lower,budget.work);
+         throw RefineSurfaceTarget{};
+diff --git a/Common/src/adaptation/CNativeBoundary3D.cpp b/Common/src/adaptation/CNativeBoundary3D.cpp
+index cef8a35e99..54e505b1ac 100644
+--- a/Common/src/adaptation/CNativeBoundary3D.cpp
++++ b/Common/src/adaptation/CNativeBoundary3D.cpp
+@@ -1432,10 +1432,10 @@ bool PlanarReference::ContainsFace(Id id, const std::array<Point, 3>& triangle,
+   return false;
+ }
+ double PlanarReference::SurfaceErrorForValidatedFace(Id id,const std::array<Point,3>& triangle) const {
+-  return parameter_view?ParameterError(id,triangle):SurfaceError(id,triangle);
++  return parameter_view?ParameterError(id,triangle,SU2NativeGeometry::SurfaceQueryNeed::Magnitude()):SurfaceError(id,triangle);
+ }
+ double PlanarReference::SurfaceError(Id id,const std::array<Point,3>& triangle,KernelStats* stats) const {
+-  if(parameter_view){if(!ParameterContainsFace(id,triangle,stats))throw std::invalid_argument("Mapped surface leaves its parameter authority.");return ParameterError(id,triangle);}
++  if(parameter_view){if(!ParameterContainsFace(id,triangle,stats))throw std::invalid_argument("Mapped surface leaves its parameter authority.");return ParameterError(id,triangle,SU2NativeGeometry::SurfaceQueryNeed::Magnitude());}
+   id=Canonical(id);
+   if(!ContainsFace(id,triangle,stats))throw std::invalid_argument("Native3D surface error leaves its authority.");
+   if(affine.count(id)) {
+@@ -3492,13 +3492,32 @@ GeometryGuidance GeometryGuidanceExcess(const Patch& patch,const PlanarReference
+             a.feature==b.feature&&a.version==b.version&&a.dimension==b.dimension&&equal_double(a.u,b.u)&&equal_double(a.v,b.v);}
+       if(same){retained=&entry;break;}
+     }
+-    const double bound=retained?retained->bound:geometry.SurfaceDeviation(f.facet,p,true);
++    using SU2NativeGeometry::SurfaceQueryNeed;
++    auto need=SurfaceQueryNeed::Magnitude();
++    if(geometry.EntityGeometry()&&std::isfinite(reject_above)) {
++      const long double cutoff=static_cast<long double>(tolerance)+std::sqrt(std::max(0.L,reject_above-result.excess));
++      double rounded=std::nextafter(static_cast<double>(cutoff),INFINITY);
++      if(geometry.EntityGeometry())rounded=std::max(rounded,geometry.Parameters()->GeometryTolerance());
++      if(std::isfinite(rounded))need=SurfaceQueryNeed::Limit(rounded);
++      if(reject_above==0&&(!geometry.EntityGeometry()||tolerance==geometry.Parameters()->GeometryTolerance()))
++        need=SurfaceQueryNeed::Classify();
++    }
++    double bound=retained?retained->bound:geometry.SurfaceDeviation(f.facet,p,need,true);
++    if(!std::isfinite(bound))throw std::invalid_argument("Unresolved native3D fitting-guidance face.");
++    auto squared_excess=[&](double value){const long double error=std::max(0.L,static_cast<long double>(value)-tolerance);return error*error;};
++    const bool partial=!retained&&need.kind!=SurfaceQueryNeed::Kind::Magnitude&&
++        bound>(need.kind==SurfaceQueryNeed::Kind::Classify?tolerance:need.stop_above);
++    if(partial&&!(result.excess+squared_excess(bound)>reject_above))
++      bound=geometry.SurfaceDeviation(f.facet,p,SurfaceQueryNeed::Magnitude(),true);
++    else if(partial) {
++      result.excess+=squared_excess(bound);++result.evaluated_faces;
++      result.complete=false;return result;
++    }
+     if(!std::isfinite(bound))throw std::invalid_argument("Unresolved native3D fitting-guidance face.");
+     if(retained){if(auto* budget=geometry.AtlasReservation())budget->CheckTime();++result.reused_faces;}
+     if(recording&&bound_points&&memo->entries.size()<memo->entries.capacity())memo->entries.push_back({f,p,binding,bound});
+-    const long double error=std::max(0.L,static_cast<long double>(bound)-tolerance);
+     // Match complete-census debt: changing face area must not veto reduced certified geometry excess.
+-    result.excess+=error*error;
++    result.excess+=squared_excess(bound);
+     ++result.evaluated_faces;
+     if(!std::isfinite(result.excess))throw std::invalid_argument("Unresolved native3D fitting-guidance sum.");
+     // Nonnegative additions in the SAME order cannot reduce this rounded partial sum.
+diff --git a/Common/src/adaptation/CNativeBoundaryParameters3D.cpp b/Common/src/adaptation/CNativeBoundaryParameters3D.cpp
+index 2797a5058f..383feccd51 100644
+--- a/Common/src/adaptation/CNativeBoundaryParameters3D.cpp
++++ b/Common/src/adaptation/CNativeBoundaryParameters3D.cpp
+@@ -365,16 +365,21 @@ std::shared_ptr<BoundaryParameterState> BoundaryParameterState::WithEntityGeomet
+   next->ValidateEntityFeatures(budget);return next;
+ }
+ double BoundaryParameterState::EntityFaceError(Id facet,const std::array<SurfaceBinding,3>& binding,
+-    const std::array<Point,3>& p,AtlasBudget* budget,double maximum)const {
++    const std::array<Point,3>& p,AtlasBudget* budget,SurfaceQueryNeed need,double maximum)const {
+   if(!EntityGeometry())throw std::invalid_argument("Entity face error requires an absolute geometry tolerance.");
+   if(budget)budget->CheckTime();
+   const auto& state=*this;const auto& g=*geometry;
+-  auto tighten=[&](const std::vector<Id>& support,double upper) {
+-    // Old, fresh and census fitting merit need error magnitude, not an early outside classification.
+-    if(upper>state.GeometryTolerance())
+-      upper=std::min(upper,g.BoundPhysicalSurface(support,{p},state.GeometryTolerance(),*budget,
+-          MappedFacetReference::SurfaceBoundPurpose::ErrorMagnitude));
+-    return std::max(maximum,upper);
++  if(need.kind==SurfaceQueryNeed::Kind::Limit&&
++      (!std::isfinite(need.stop_above)||need.stop_above<state.GeometryTolerance()))
++    throw std::invalid_argument("Invalid entity face error cutoff.");
++  auto query=[&](const std::vector<Id>& support) {
++    const auto classification=need.kind==SurfaceQueryNeed::Kind::Classify ?
++        MappedFacetReference::SurfaceBoundPurpose::ExactClassification : MappedFacetReference::SurfaceBoundPurpose::Classification;
++    const double upper=g.BoundPhysicalSurface(support,{p},state.GeometryTolerance(),*budget,classification);
++    if(need.kind==SurfaceQueryNeed::Kind::Classify||upper<=state.GeometryTolerance())return upper;
++    const auto purpose=need.kind==SurfaceQueryNeed::Kind::Limit ? MappedFacetReference::SurfaceBoundPurpose::ErrorLimit :
++        MappedFacetReference::SurfaceBoundPurpose::ErrorMagnitude;
++    return std::min(upper,g.BoundPhysicalSurface(support,{p},state.GeometryTolerance(),*budget,purpose,need.stop_above));
+   };
+   bool direct=true;for(const auto& b:binding)direct=direct&&g.Supports(facet,b);
+   if(direct){const auto start=std::chrono::steady_clock::now();double result;
+@@ -385,9 +390,8 @@ double BoundaryParameterState::EntityFaceError(Id facet,const std::array<Surface
+       // A failed correspondence upper bound need not imply a distance violation.
+       const auto scratch=transfer_memory::Add(budget->caller_bytes,256,2*sizeof(Id),2*sizeof(std::array<Point,3>));
+       AtlasStorage storage(budget,scratch,budget->maximum_bytes);
+-      const std::vector<Id> support{facet};const std::vector<std::array<Point,3>> triangles{p};
+-      result=std::max(maximum,std::min(result,g.BoundPhysicalSurface(support,triangles,state.GeometryTolerance(),*budget)));
+-      result=tighten(support,result);
++      const std::vector<Id> support{facet};
++      result=std::max(maximum,std::min(result,query(support)));
+     }
+     return result;}
+ 
+@@ -403,8 +407,7 @@ double BoundaryParameterState::EntityFaceError(Id facet,const std::array<Surface
+   candidates.erase(std::remove_if(candidates.begin(),candidates.end(),[&](Id id){return state.Entity(id)!=entity;}),candidates.end());
+   g.RecordSupportQuery(std::chrono::duration<double>(std::chrono::steady_clock::now()-support_start).count(),candidates.size());
+   if(candidates.empty())throw std::invalid_argument("Entity surface query lost its supporting geometry.");
+-  const auto upper=g.BoundPhysicalSurface(candidates,{p},state.GeometryTolerance(),*budget);
+-  return tighten(candidates,upper);
++  return std::max(maximum,query(candidates));
+ }
+ const std::map<BoundaryParameterState::EntityKey,MappedFacetReference::SurfaceUnionBounds>&
+ BoundaryParameterState::GeometryCertificates(AtlasBudget& budget,bool complete)const {
+@@ -424,7 +427,7 @@ BoundaryParameterState::GeometryCertificates(AtlasBudget& budget,bool complete)c
+     for(unsigned k=0;k<3;++k){const auto& point=records.at(row.second.v[k]).point;points[k]=point.node.p;binding[k]=point.binding;}
+     auto& entity=physical.at(Entity(row.second.facet));entity.faces.push_back(points);
+     if(facewise&&entity.reverse<=geometry_tolerance) {
+-      const double bound=EntityFaceError(row.second.facet,binding,points,&budget);
++      const double bound=EntityFaceError(row.second.facet,binding,points,&budget,SurfaceQueryNeed::Magnitude());
+       entity.reverse=std::isfinite(bound)&&bound>=0?std::max(entity.reverse,bound):INFINITY;
+     }
+   }
+@@ -1310,8 +1313,12 @@ GeometryProjection ProjectEntitySurface(const State& state,Point point,const Sur
+   return projection;
+ }
+ }
+-double PlanarReference::SurfaceDeviation(Id facet,const std::array<Point,3>& triangle,bool validated)const {
+-  // Geometry permissions use the original surface error, not a constant-curvature sizing surrogate.
++double PlanarReference::SurfaceDeviation(Id facet,const std::array<Point,3>& triangle,SurfaceQueryNeed need,bool validated)const {
++  if(parameter_view) {
++    if(!validated&&!ParameterContainsFace(facet,triangle,nullptr))
++      throw std::invalid_argument("Mapped surface leaves its parameter authority.");
++    return ParameterError(facet,triangle,need);
++  }
+   return validated?SurfaceErrorForValidatedFace(facet,triangle):SurfaceError(facet,triangle);
+ }
+ GeometrySplitPrediction PredictGeometrySplit(Edge edge,const std::array<Point,2>& endpoints,
+@@ -1349,7 +1356,7 @@ GeometrySplitPrediction PredictGeometrySplit(Edge edge,const std::array<Point,2>
+     if(PointKey(midpoint.p)==PointKey(endpoints[0])||PointKey(midpoint.p)==PointKey(endpoints[1]))return checked();
+     auto score=[&](Id facet,const std::array<Point,3>& triangle,long double& sum) {
+       if(!context->ContainsFace(facet,triangle))return false;
+-      const double bound=context->SurfaceDeviation(facet,triangle,true);
++      const double bound=context->SurfaceDeviation(facet,triangle,SurfaceQueryNeed::Magnitude(),true);
+       if(!std::isfinite(bound))return false;
+       const long double excess=std::max(0.L,(long double)bound-tolerance);
+       sum+=excess*excess;++prediction.evaluated_faces;
+@@ -1508,12 +1515,12 @@ bool PlanarReference::ParameterOnEdge(Id facet,Point a,Point b,Point p,KernelSta
+   if(g.ReferenceComponents())return ContainsSegment(facet,a,b,stats)&&ParametricOnProjectedSegment(g.Ideal(Parameter(a)->binding),g.Ideal(Parameter(b)->binding),g.Ideal(Parameter(p)->binding),g.ComponentAxis(facet),stats);
+   return ParametricOnSegment(g.Ideal(Parameter(a)->binding),g.Ideal(Parameter(b)->binding),g.Ideal(Parameter(p)->binding),stats);
+ }
+-double PlanarReference::ParameterError(Id facet,const std::array<Point,3>& p)const {
++double PlanarReference::ParameterError(Id facet,const std::array<Point,3>& p,SurfaceQueryNeed need)const {
+   if(parameter_view->reservation)parameter_view->reservation->CheckTime();
+   double maximum=0;const auto& g=parameter_view->accepted->Geometry();std::array<SU2NativeGeometry::SurfaceBinding,3> binding;
+   for(unsigned k=0;k<3;++k){const auto b=Parameter(p[k]);if(!b)throw std::invalid_argument("Unbound mapped surface error query.");binding[k]=b->binding;
+     const auto plane=Affine().find(facet);if(plane!=Affine().end())maximum=std::max(maximum,SU2NativeGeometry::AffineChart(plane->second).ErrorBound(p[k]));}
+-  if(EntityGeometry())return parameter_view->accepted->EntityFaceError(facet,binding,p,parameter_view->reservation,maximum);
++  if(EntityGeometry())return parameter_view->accepted->EntityFaceError(facet,binding,p,parameter_view->reservation,need,maximum);
+   if(!AtlasActive(*parameter_view->accepted)&&parameter_view->coverage.faces.empty()&&parameter_view->coverage.traces.empty())return std::max(maximum,g.SurfaceError(facet,binding,p));
+   SurfaceFace face;face.facet=facet;bool transient=false;
+   for(unsigned k=0;k<3;++k){const auto* point=Parameter(p[k]);face.v[k]=point->node.id;
+diff --git a/Common/src/adaptation/CNativeEngine3D.cpp b/Common/src/adaptation/CNativeEngine3D.cpp
+index 50ef5244be..c48d43627e 100644
+--- a/Common/src/adaptation/CNativeEngine3D.cpp
++++ b/Common/src/adaptation/CNativeEngine3D.cpp
+@@ -822,7 +822,7 @@ class Selection {
+         if(surface_planning&&!heights.count(geometry.Get(owned.physical[slot].facet).marker))continue;
+         std::array<Point,3> triangle{};
+         for(size_t i=0;i<3;++i)for(auto n:cell.v)if(n.id==faces[slot][i])triangle[i]=n.p;
+-        const double error=geometry.SurfaceDeviation(owned.physical[slot].facet,triangle);
++        const double error=geometry.SurfaceDeviation(owned.physical[slot].facet,triangle,SU2NativeGeometry::SurfaceQueryNeed::Magnitude());
+         const auto allowed=tolerance;
+         if(std::isfinite(error)) {
+           const auto excess=hinge(static_cast<long double>(error)-allowed);d.geometry+=excess*excess;
+@@ -1945,7 +1945,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
+         for(const auto& face:patch.surface) {
+           std::array<Point,3> triangle{};
+           for(unsigned k=0;k<3;++k)for(const auto& node:row.second.cell.v)if(node.id==face.v[k])triangle[k]=node.p;
+-          if(geometry.SurfaceError(face.facet,triangle)>options.surface_tolerance)
++          if(geometry.SurfaceDeviation(face.facet,triangle,SU2NativeGeometry::SurfaceQueryNeed::Classify())>options.surface_tolerance)
+             geometryFailure.Set(1,face.facet,"Prepared surface does not meet the prescribed geometry tolerance.");
+         }
+       }}catch(const std::exception& e){geometryFailure.Set(2,0,e.what());}
+@@ -5359,7 +5359,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
+               const auto found=facets.find(Key(face));if(found==facets.end())continue;
+               std::array<Point,3> triangle;
+               for(unsigned k=0;k<3;++k)for(auto n:cell.v)if(n.id==face[k])triangle[k]=n.p;
+-              const auto error=reference.SurfaceDeviation(found->second,triangle);++stats.geometry_guidance_faces;
++              const auto error=reference.SurfaceDeviation(found->second,triangle,SU2NativeGeometry::SurfaceQueryNeed::Classify());++stats.geometry_guidance_faces;
+               if(!std::isfinite(error))throw std::runtime_error("Native3D coupled repair lacks a complete face certificate.");
+               if(error<=options.surface_tolerance)continue;
+               bad=true;++counts.second;
+@@ -5998,7 +5998,7 @@ bool CollapseConstraintViolation(const OwnedCell& cell,Id removed,Node retained,
+     }
+     // Remapped faces need complete-cavity admission, not a global enclosure inside a selection shortcut.
+     if(direct && geometry.Declared(geometry.Canonical(face.facet)) &&
+-        geometry.SurfaceDeviation(face.facet,points)>tolerance)return true;
++        geometry.SurfaceDeviation(face.facet,points,SU2NativeGeometry::SurfaceQueryNeed::Classify())>tolerance)return true;
+   }
+   FirstHeightReport report;std::string reason;
+   if(heights.empty() || CheckFirstHeight(patch,heights,geometry,report,reason))return false;
+@@ -6954,7 +6954,7 @@ bool MeshOptimizer::ShellBoundary(Id id) {
+     const auto key=Key(face.v);
+     if(!physical.count(key) && options.surface_tolerance>0) {
+       const std::array<Point,3> p{points.at(face.v[0]),points.at(face.v[1]),points.at(face.v[2])};
+-      if(!(proposed.SurfaceErrorForValidatedFace(face.facet,p)<=options.surface_tolerance)) {
++      if(!(proposed.SurfaceDeviation(face.facet,p,SU2NativeGeometry::SurfaceQueryNeed::Classify(),true)<=options.surface_tolerance)) {
+         strict_geometry=false;
+       }
+     }
+diff --git a/Common/src/adaptation/CNativeRegion3D.cpp b/Common/src/adaptation/CNativeRegion3D.cpp
+index cd755169ed..2f38b3177f 100644
+--- a/Common/src/adaptation/CNativeRegion3D.cpp
++++ b/Common/src/adaptation/CNativeRegion3D.cpp
+@@ -240,7 +240,7 @@ class Construction {
+   bool SurfaceValid(const SurfaceFace& f) {
+     const auto p = Triangle(f);
+     if (!geometry.ContainsFace(f.facet, p)) return false;
+-    return geometry.SurfaceDeviation(f.facet, p) <= tolerance;
++    return geometry.SurfaceDeviation(f.facet, p, SU2NativeGeometry::SurfaceQueryNeed::Classify()) <= tolerance;
+   }
+   bool SampleCylinder() {
+     Id wall=UINT64_MAX; std::map<int,Id> cap;
+diff --git a/UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp b/UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp
+index 1fd8f5c998..b0e9f34647 100644
+--- a/UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp
++++ b/UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp
+@@ -1901,8 +1901,8 @@ TEST_CASE("Representative saved M6 geometry queries preserve exact inputs and ex
+       auto fresh=budget();Patch overlay;overlay.surface.push_back(q.face);
+       for(const auto& point:q.points)overlay.parameters.emplace(point.node.id,point);
+       auto context=current_context->PrivateParameters(overlay,&fresh);REQUIRE(context);
+-      production=context->SurfaceDeviation(q.face.facet,physical.front(),true);
+-      production_work=fresh.work;const auto again=context->SurfaceDeviation(q.face.facet,physical.front(),true);
++      production=context->SurfaceDeviation(q.face.facet, physical.front(), SU2NativeGeometry::SurfaceQueryNeed::Magnitude(), true);
++      production_work=fresh.work;const auto again=context->SurfaceDeviation(q.face.facet, physical.front(), SU2NativeGeometry::SurfaceQueryNeed::Magnitude(), true);
+       CHECK(production==again);REQUIRE(std::isfinite(production));
+       bool direct=true;double plane=0;
+       for(const auto& point:q.points){direct=direct&&authority->Supports(q.face.facet,point.binding);
+@@ -2104,7 +2104,7 @@ static void SavedM6EntityFaces(bool publish_reference) {
+       for(unsigned k=0;k<3;++k){physical[k]=q.points[k].node.p;binding[k]=q.points[k].binding;
+         REQUIRE(geometry->Admissible(binding[k],physical[k]));same_facet=same_facet&&geometry->Supports(q.face.facet,binding[k]);}
+       direct+=same_facet;
+-      const auto bound=entity->EntityFaceError(q.face.facet,binding,physical,&budget);REQUIRE(std::isfinite(bound));REQUIRE(bound>=0);
++      const auto bound=entity->EntityFaceError(q.face.facet, binding, physical, &budget, SU2NativeGeometry::SurfaceQueryNeed::Magnitude());REQUIRE(std::isfinite(bound));REQUIRE(bound>=0);
+       maximum=std::max(maximum,bound);refused+=bound>tolerance;++processed;
+     }}catch(const std::exception& error){reason=error.what();}
+   const auto stats=geometry->GeometryStatsSnapshot();
+@@ -2142,3 +2142,24 @@ TEST_CASE("Magnitude outside width encloses a known flat-face distance", "[Nativ
+   CHECK_THROWS(geometry.BoundPhysicalSurface({face.id},physical,.01,exhausted,MappedFacetReference::SurfaceBoundPurpose::ErrorMagnitude));
+   CHECK(exhausted.work_exhausted);
+ }
++
++TEST_CASE("Surface cutoff bounds cannot poison complete magnitude memo entries", "[NativeMagnitudeInterval3D][NativeFaceQueryNeed3D]") {
++  using namespace SU2Native3D;
++  const auto facets=ComponentCube(false);const auto reference=std::make_shared<PlanarReference>(facets);
++  std::map<Id,double> errors;for(const auto& face:facets)errors.emplace(face.id,1e-12);
++  MappedFacetReference geometry(reference,errors,29),oracle(reference,errors,29);
++  const auto& face=facets.front();std::vector<std::array<Point,3>> physical(1);
++  for(unsigned k=0;k<3;++k){physical[0][k]=face.v[k].p;physical[0][k].z=.125;}
++  using Purpose=MappedFacetReference::SurfaceBoundPurpose;
++  auto limited=GeometryAtlasBudget();
++  const auto lower=geometry.BoundPhysicalSurface({face.id},physical,.01,limited,Purpose::ErrorLimit,.02);
++  CHECK(lower>.02);CHECK(lower<=.125);
++  auto complete=GeometryAtlasBudget(),cold=GeometryAtlasBudget();
++  const auto magnitude=geometry.BoundPhysicalSurface({face.id},physical,.01,complete,Purpose::ErrorMagnitude);
++  CHECK(magnitude==oracle.BoundPhysicalSurface({face.id},physical,.01,cold,Purpose::ErrorMagnitude));
++  CHECK(magnitude>=.125);
++  auto accepted=GeometryAtlasBudget();
++  CHECK(geometry.BoundPhysicalSurface({face.id},physical,.01,accepted,Purpose::ErrorLimit,.5)==magnitude);
++  auto invalid=GeometryAtlasBudget();
++  CHECK_THROWS(geometry.BoundPhysicalSurface({face.id},physical,.01,invalid,Purpose::ErrorLimit,.005));
++}
+diff --git a/UnitTests/Common/adaptation/CNativeBoundary3D_tests.cpp b/UnitTests/Common/adaptation/CNativeBoundary3D_tests.cpp
+index dcc6ea84ad..043848f864 100644
+--- a/UnitTests/Common/adaptation/CNativeBoundary3D_tests.cpp
++++ b/UnitTests/Common/adaptation/CNativeBoundary3D_tests.cpp
+@@ -1012,7 +1012,7 @@ TEST_CASE("Bounded fitting guidance rejects losing trials without completing the
+     long double expected=0;
+     for(const auto& f:patch.surface) {
+       const auto a=Position(patch,f.v[0]),b=Position(patch,f.v[1]),c=Position(patch,f.v[2]);
+-      const long double e=std::max(0.L,static_cast<long double>(geometry.SurfaceDeviation(f.facet,{a,b,c},true))-tolerance);
++      const long double e=std::max(0.L,static_cast<long double>(geometry.SurfaceDeviation(f.facet, {a, b, c}, SU2NativeGeometry::SurfaceQueryNeed::Magnitude(), true))-tolerance);
+       expected+=e*e;
+     }
+     CHECK(full.excess==expected);
+diff --git a/UnitTests/Common/adaptation/CNativeGeometryBackend3D_tests.cpp b/UnitTests/Common/adaptation/CNativeGeometryBackend3D_tests.cpp
+index 96a437fcb3..b59957bca0 100644
+--- a/UnitTests/Common/adaptation/CNativeGeometryBackend3D_tests.cpp
++++ b/UnitTests/Common/adaptation/CNativeGeometryBackend3D_tests.cpp
+@@ -301,6 +301,9 @@ TEST_CASE("Geometry magnitude bounds retain complete domains and separate classi
+   for(const auto gap:{.99*tolerance,1.01*tolerance}) {
+     auto budget=BackendBudget();const auto value=fixture.geometry->BoundPhysicalSurface({0},{triangle(gap)},tolerance,budget,Purpose::ErrorMagnitude);
+     CHECK((value<=tolerance)==(gap<tolerance));CHECK(value>=gap);
++    auto classification_budget=BackendBudget();
++    const auto classified=fixture.geometry->BoundPhysicalSurface({0},{triangle(gap)},tolerance,classification_budget,Purpose::ExactClassification);
++    CHECK((classified<=tolerance)==(value<=tolerance));CHECK(classified>=gap);
+   }
+   auto different_body=BackendBudget();
+   CHECK(fixture.geometry->BoundPhysicalSurface({100},{triangle(4*tolerance)},tolerance,different_body,Purpose::ErrorMagnitude)>9);
+@@ -550,21 +553,21 @@ TEST_CASE("Fresh entity face bounds preserve correspondence and coordinate inval
+   auto reference=PlanarReference::WithParameters(fixture.reference,entity)->WithAtlasReservation(budget);
+   const auto& face=fixture.facets.front();std::array<Point,3> actual;std::array<SurfaceBinding,3> binding;
+   for(unsigned k=0;k<3;++k){actual[k]=face.v[k].p;binding[k]=fixture.geometry->Vertex(face.v[k].id);}
+-  const auto bound=entity->EntityFaceError(face.id,binding,actual,&budget);
++  const auto bound=entity->EntityFaceError(face.id, binding, actual, &budget, SU2NativeGeometry::SurfaceQueryNeed::Magnitude());
+   CHECK(bound<=.01);CHECK(bound==reference->SurfaceError(face.id,actual));
+   auto moved=actual;moved[0].z+=.05;
+-  CHECK(entity->EntityFaceError(face.id,binding,moved,nullptr)==fixture.geometry->SurfaceError(face.id,binding,moved));
++  CHECK(entity->EntityFaceError(face.id, binding, moved, nullptr, SU2NativeGeometry::SurfaceQueryNeed::Magnitude())==fixture.geometry->SurfaceError(face.id,binding,moved));
+   const auto before=fixture.geometry->GeometryStatsSnapshot();
+-  const auto outside=entity->EntityFaceError(face.id,binding,moved,&budget);
++  const auto outside=entity->EntityFaceError(face.id, binding, moved, &budget, SU2NativeGeometry::SurfaceQueryNeed::Magnitude());
+   CHECK(outside>.02);
+   CHECK(fixture.geometry->GeometryStatsSnapshot().upper_calls==before.upper_calls+2);
+-  CHECK(entity->EntityFaceError(face.id,binding,moved,&budget)==outside);
++  CHECK(entity->EntityFaceError(face.id, binding, moved, &budget, SU2NativeGeometry::SurfaceQueryNeed::Magnitude())==outside);
+   auto strict=BackendBudget();
+   fixture.geometry->BoundPhysicalSurface({face.id},{moved},.01,strict);
+   auto limited=BackendBudget();limited.maximum_work=strict.work;
+-  CHECK_THROWS(entity->EntityFaceError(face.id,binding,moved,&limited));CHECK(limited.work_exhausted);
+-  CHECK(entity->EntityFaceError(face.id,binding,moved,&budget)==outside);
+-  CHECK(entity->EntityFaceError(face.id,binding,actual,&budget)==bound);
++  CHECK_THROWS(entity->EntityFaceError(face.id, binding, moved, &limited, SU2NativeGeometry::SurfaceQueryNeed::Magnitude()));CHECK(limited.work_exhausted);
++  CHECK(entity->EntityFaceError(face.id, binding, moved, &budget, SU2NativeGeometry::SurfaceQueryNeed::Magnitude())==outside);
++  CHECK(entity->EntityFaceError(face.id, binding, actual, &budget, SU2NativeGeometry::SurfaceQueryNeed::Magnitude())==bound);
+   for(const auto& row:entity->GeometryCertificates(budget,true)) {
+     CHECK(row.second.within_tolerance);CHECK(row.second.mesh_to_model<=.01);
+     CHECK(row.second.model_pieces==0);CHECK(row.second.physical_pieces>0);
+@@ -575,6 +578,59 @@ TEST_CASE("Fresh entity face bounds preserve correspondence and coordinate inval
+   CHECK_THROWS(entity->GeometryCertificates(no_work,true));CHECK(no_work.work_exhausted);
+ }
+ 
++TEST_CASE("Entity face query needs preserve classification and limit decisions across memo order", "[NativeGeometryBackend3D][NativeFaceQueryNeed3D]") {
++  using namespace SU2Native3D;
++  constexpr double tolerance=.01, cutoff=.01;
++  auto prepare=[](BackendFixture& fixture,AtlasBudget& budget,const Facet*& face,
++                  std::array<SurfaceBinding,3>& binding,std::array<Point,3>& actual) {
++    BoundaryPoints points;std::vector<SurfaceFace> skin;
++    for(const auto& f:fixture.facets) {
++      skin.push_back({{f.v[0].id,f.v[1].id,f.v[2].id},f.id});
++      for(auto n:f.v)points.emplace(n.id,BoundaryPoint{n,fixture.geometry->Vertex(n.id)});
++    }
++    auto legacy=std::make_shared<BoundaryParameterState>(fixture.geometry,points,skin,1,SIZE_MAX,0,
++        BoundaryCoverage{},fixture.policy,&budget);
++    auto entity=legacy->WithEntityGeometry(tolerance,budget);
++    face=&fixture.facets.front();
++    for(unsigned k=0;k<3;++k) {
++      actual[k]=face->v[k].p;binding[k]=fixture.geometry->Vertex(face->v[k].id);
++    }
++    return entity;
++  };
++  for(double gap:{0.,.0101,.125}) {
++    BackendFixture limit_first_fixture(false,false);auto limit_first_budget=BackendBudget();
++    const Facet* limit_first_face=nullptr;std::array<SurfaceBinding,3> limit_first_binding{};std::array<Point,3> limit_first_points{};
++    auto limit_first_entity=prepare(limit_first_fixture,limit_first_budget,limit_first_face,limit_first_binding,limit_first_points);
++    for(auto& point:limit_first_points)point.z+=gap;
++    const auto limit_first=limit_first_entity->EntityFaceError(limit_first_face->id,limit_first_binding,
++        limit_first_points,&limit_first_budget,SurfaceQueryNeed::Limit(cutoff));
++    const auto magnitude_after_limit=limit_first_entity->EntityFaceError(limit_first_face->id,limit_first_binding,
++        limit_first_points,&limit_first_budget,SurfaceQueryNeed::Magnitude());
++    const auto classified=limit_first_entity->EntityFaceError(limit_first_face->id,limit_first_binding,
++        limit_first_points,&limit_first_budget,SurfaceQueryNeed::Classify());
++    CHECK((limit_first>cutoff)==(magnitude_after_limit>cutoff));
++    CHECK((classified<=tolerance)==(magnitude_after_limit<=tolerance));
++    CHECK(std::isfinite(limit_first));CHECK(std::isfinite(magnitude_after_limit));
++
++    BackendFixture magnitude_first_fixture(false,false);auto magnitude_first_budget=BackendBudget();
++    const Facet* magnitude_first_face=nullptr;std::array<SurfaceBinding,3> magnitude_first_binding{};std::array<Point,3> magnitude_first_points{};
++    auto magnitude_first_entity=prepare(magnitude_first_fixture,magnitude_first_budget,magnitude_first_face,
++        magnitude_first_binding,magnitude_first_points);
++    for(auto& point:magnitude_first_points)point.z+=gap;
++    const auto magnitude_first=magnitude_first_entity->EntityFaceError(magnitude_first_face->id,magnitude_first_binding,
++        magnitude_first_points,&magnitude_first_budget,SurfaceQueryNeed::Magnitude());
++    const auto limit_after_magnitude=magnitude_first_entity->EntityFaceError(magnitude_first_face->id,magnitude_first_binding,
++        magnitude_first_points,&magnitude_first_budget,SurfaceQueryNeed::Limit(cutoff));
++    CHECK((limit_after_magnitude>cutoff)==(magnitude_first>cutoff));
++    CHECK(magnitude_after_limit==magnitude_first);
++    CHECK(std::isfinite(limit_after_magnitude));
++    CHECK_THROWS(magnitude_first_entity->EntityFaceError(magnitude_first_face->id,magnitude_first_binding,
++        magnitude_first_points,&magnitude_first_budget,SurfaceQueryNeed::Limit(.005)));
++    CHECK_THROWS(magnitude_first_entity->EntityFaceError(magnitude_first_face->id,magnitude_first_binding,
++        magnitude_first_points,&magnitude_first_budget,SurfaceQueryNeed::Limit(INFINITY)));
++  }
++}
++
+ TEST_CASE("Entity geometry preserves feature contracts through reference and payload roundtrips", "[NativeGeometryBackend3D]") {
+   using namespace SU2Native3D;BackendFixture fixture;auto budget=BackendBudget();std::string reason;
+   BoundaryPoints points;std::vector<SurfaceFace> skin;
+@@ -596,7 +652,7 @@ TEST_CASE("Entity geometry preserves feature contracts through reference and pay
+   const std::array<Point,3> diagonal{{points.at(0).node.p,points.at(2).node.p,points.at(1).node.p}};
+   REQUIRE_FALSE(fixture.geometry->Supports(0,fixture.geometry->Vertex(1)));
+   const auto before_guidance=budget.work;
+-  const auto deviation=guidance->SurfaceDeviation(0,diagonal,true);
++  const auto deviation=guidance->SurfaceDeviation(0, diagonal, SU2NativeGeometry::SurfaceQueryNeed::Magnitude(), true);
+   CHECK(std::isfinite(deviation));CHECK(deviation>0);CHECK(deviation<.1);
+   CHECK(budget.work>before_guidance);
+   CHECK(entity->Snapshot()==guidance->Parameters()->Snapshot());
+diff --git a/UnitTests/SU2_CFD/adaptation/fixtures/native_actual_bl_cavity_planning_body.inc b/UnitTests/SU2_CFD/adaptation/fixtures/native_actual_bl_cavity_planning_body.inc
+index 58eec3360f..5dff1a530c 100644
+--- a/UnitTests/SU2_CFD/adaptation/fixtures/native_actual_bl_cavity_planning_body.inc
++++ b/UnitTests/SU2_CFD/adaptation/fixtures/native_actual_bl_cavity_planning_body.inc
+@@ -307,7 +307,7 @@ for(const auto& entry:contexts) {
+           auto badCells=[&](const Patch& p) {
+             auto privateGeometry=current.reference->PrivateParameters(p);const auto& g=privateGeometry?*privateGeometry:*current.reference;
+             std::map<Id,Point> points;std::set<Id> bad;for(const auto& c:p.cells)for(auto n:c.v)points.emplace(n.id,n.p);
+-            for(const auto& f:p.surface)if(g.SurfaceDeviation(f.facet,{points.at(f.v[0]),points.at(f.v[1]),points.at(f.v[2])},true)>SU2_TYPE::GetValue(config.GetAdap_Hausd())) {
++            for(const auto& f:p.surface)if(g.SurfaceDeviation(f.facet, {points.at(f.v[0]), points.at(f.v[1]), points.at(f.v[2])}, SU2NativeGeometry::SurfaceQueryNeed::Classify(), true)>SU2_TYPE::GetValue(config.GetAdap_Hausd())) {
+               auto key=f.v;std::sort(key.begin(),key.end());
+               for(const auto& c:p.cells)for(auto face:junction_wp0::CellFaces(c)){std::sort(face.begin(),face.end());if(face==key)bad.insert(c.id);}
+             }return bad.size();
+diff --git a/UnitTests/SU2_CFD/adaptation/fixtures/native_actual_face_admission_probe.inc b/UnitTests/SU2_CFD/adaptation/fixtures/native_actual_face_admission_probe.inc
+index 31c19018a1..62529e732e 100644
+--- a/UnitTests/SU2_CFD/adaptation/fixtures/native_actual_face_admission_probe.inc
++++ b/UnitTests/SU2_CFD/adaptation/fixtures/native_actual_face_admission_probe.inc
+@@ -30,7 +30,7 @@ for(unsigned pass=0;pass<3;++pass) {
+             std::array<double,3> upper{};
+             for(unsigned rotation=0;rotation<3;++rotation) {
+               std::array<Point,3> rotated;for(unsigned k=0;k<3;++k)rotated[k]=points[(k+rotation)%3];
+-              upper[rotation]=context->SurfaceDeviation(face.facet,rotated,true);REQUIRE(std::isfinite(upper[rotation]));
++              upper[rotation]=context->SurfaceDeviation(face.facet, rotated, SU2NativeGeometry::SurfaceQueryNeed::Magnitude(), true);REQUIRE(std::isfinite(upper[rotation]));
+             }
+             const unsigned rotation=std::distance(face.v.begin(),std::min_element(face.v.begin(),face.v.end()));
+             std::rotate(item.face.begin(),item.face.begin()+rotation,item.face.end());item.canonical=upper[rotation];
+diff --git a/UnitTests/SU2_CFD/adaptation/fixtures/native_actual_surface_compound_split.inc b/UnitTests/SU2_CFD/adaptation/fixtures/native_actual_surface_compound_split.inc
+index 8f08469cfa..4e6ca71ffc 100644
+--- a/UnitTests/SU2_CFD/adaptation/fixtures/native_actual_surface_compound_split.inc
++++ b/UnitTests/SU2_CFD/adaptation/fixtures/native_actual_surface_compound_split.inc
+@@ -64,7 +64,7 @@ for(const auto& entry:contextsToTest) {
+           qBad+=m.mean_ratio<MinimumMeanRatio;jBad+=m.minimum_scaled_jacobian<MinimumScaledJacobian;
+         }
+         std::set<Id> bad;
+-        for(const auto& face:patch.surface)if(g.SurfaceDeviation(face.facet,{positions.at(face.v[0]),positions.at(face.v[1]),positions.at(face.v[2])},true)>SU2_TYPE::GetValue(config.GetAdap_Hausd()))
++        for(const auto& face:patch.surface)if(g.SurfaceDeviation(face.facet, {positions.at(face.v[0]), positions.at(face.v[1]), positions.at(face.v[2])}, SU2NativeGeometry::SurfaceQueryNeed::Classify(), true)>SU2_TYPE::GetValue(config.GetAdap_Hausd()))
+           for(Id cell:Incidence(patch.cells).FaceCells(face.v))bad.insert(cell);
+         geometryBad=bad.size();
+         const BoundaryMetric boundary=[&](Node n,const PlanarReference& ref,Tensor tensor){return policy.BoundaryGuidance(n,ref,tensor,reference->marker_names);};
+diff --git a/UnitTests/SU2_CFD/adaptation/fixtures/native_actual_surface_geometry_probe.inc b/UnitTests/SU2_CFD/adaptation/fixtures/native_actual_surface_geometry_probe.inc
+index 62087c2fea..9f18148c8b 100644
+--- a/UnitTests/SU2_CFD/adaptation/fixtures/native_actual_surface_geometry_probe.inc
++++ b/UnitTests/SU2_CFD/adaptation/fixtures/native_actual_surface_geometry_probe.inc
+@@ -61,7 +61,7 @@ for(const auto& entry:edges) {
+       for(unsigned k=0;k<3;++k){p[k]=nodes.at(face.v[k]).p;const auto* record=geometry.Parameter(p[k]);REQUIRE(record);binding[k]=record->binding;
+         direct=direct&&g.Supports(face.facet,binding[k]);
+         const auto plane=geometry.Affine().find(face.facet);if(plane!=geometry.Affine().end())affine=std::max(affine,SU2NativeGeometry::AffineChart(plane->second).ErrorBound(p[k]));}
+-      const double production=geometry.SurfaceDeviation(face.facet,p,true);
++      const double production=geometry.SurfaceDeviation(face.facet, p, SU2NativeGeometry::SurfaceQueryNeed::Magnitude(), true);
+       const auto error=std::max(0.L,(long double)production-1e-4);strictScore+=error*error;
+       auto key=face.v;std::sort(key.begin(),key.end());
+       const bool affected=side?!oldFaces.count(key):std::find(face.v.begin(),face.v.end(),edge[0])!=face.v.end()&&std::find(face.v.begin(),face.v.end(),edge[1])!=face.v.end();
+diff --git a/UnitTests/SU2_CFD/adaptation/fixtures/native_actual_surface_patch_trajectory.inc b/UnitTests/SU2_CFD/adaptation/fixtures/native_actual_surface_patch_trajectory.inc
+index 906b886507..cec4285be8 100644
+--- a/UnitTests/SU2_CFD/adaptation/fixtures/native_actual_surface_patch_trajectory.inc
++++ b/UnitTests/SU2_CFD/adaptation/fixtures/native_actual_surface_patch_trajectory.inc
+@@ -54,7 +54,7 @@ for(unsigned pass=0;pass<=attemptLimit;++pass) {
+   std::map<Edge,Id> examine;size_t shortEdges=0,wallEdges=0;
+   std::set<Edge> edges;
+   for(auto f:last.patch.surface)if(heights.count(trial.reference->Get(f.facet).marker)) {
+-    const double bound=trial.reference->SurfaceDeviation(f.facet,{points.at(f.v[0]).p,points.at(f.v[1]).p,points.at(f.v[2]).p},true);
++    const double bound=trial.reference->SurfaceDeviation(f.facet, {points.at(f.v[0]).p, points.at(f.v[1]).p, points.at(f.v[2]).p}, SU2NativeGeometry::SurfaceQueryNeed::Magnitude(), true);
+     log<<"{\"stage\":\"transaction_face\",\"pass\":"<<pass<<",\"facet\":"<<f.facet<<",\"vertices\":["<<f.v[0]<<','<<f.v[1]<<','<<f.v[2]<<"],\"bound\":"<<bound<<",\"final_certificate\":false}"<<std::endl;
+     for(unsigned k=0;k<3;++k){Edge e{f.v[k],f.v[(k+1)%3]};std::sort(e.begin(),e.end());edges.insert(e);if(bound>SU2_TYPE::GetValue(config.GetAdap_Hausd()))examine.emplace(e,f.facet);}
+   }
+diff --git a/UnitTests/SU2_CFD/adaptation/fixtures/native_actual_surface_residual_probe.inc b/UnitTests/SU2_CFD/adaptation/fixtures/native_actual_surface_residual_probe.inc
+index a4e8d1f6f7..400d423483 100644
+--- a/UnitTests/SU2_CFD/adaptation/fixtures/native_actual_surface_residual_probe.inc
++++ b/UnitTests/SU2_CFD/adaptation/fixtures/native_actual_surface_residual_probe.inc
+@@ -5,7 +5,7 @@ if(residualProbe) {
+     std::array<Point,3> points;std::array<SU2NativeGeometry::SurfaceBinding,3> bindings;
+     bool direct=true;const auto& authority=trial.live_parameters->Geometry();
+     for(unsigned k=0;k<3;++k){points[k]=positions.at(face.v[k]).p;const auto* p=trial.reference->Parameter(points[k]);REQUIRE(p);bindings[k]=p->binding;direct=direct&&authority.Supports(face.facet,bindings[k]);}
+-    const double bound=trial.reference->SurfaceDeviation(face.facet,points,true);
++    const double bound=trial.reference->SurfaceDeviation(face.facet, points, SU2NativeGeometry::SurfaceQueryNeed::Magnitude(), true);
+     log<<"{\"stage\":\"residual_face\",\"facet\":"<<face.facet<<",\"bound\":"<<bound<<",\"direct\":"<<direct<<",\"vertices\":[";
+     for(unsigned k=0;k<3;++k){if(k)log<<',';const auto p=points[k];const auto b=bindings[k];log<<'['<<face.v[k]<<','<<p.x<<','<<p.y<<','<<p.z<<','<<b.dimension<<','<<b.feature<<','<<b.u<<','<<b.v<<','<<b.version<<']';}
+     log<<"],\"planning_lengths\":[";std::vector<Edge> group;
+diff --git a/UnitTests/SU2_CFD/adaptation/fixtures/native_actual_surface_trial_context.inc b/UnitTests/SU2_CFD/adaptation/fixtures/native_actual_surface_trial_context.inc
+index 04b4066c52..ff3b64d4bf 100644
+--- a/UnitTests/SU2_CFD/adaptation/fixtures/native_actual_surface_trial_context.inc
++++ b/UnitTests/SU2_CFD/adaptation/fixtures/native_actual_surface_trial_context.inc
+@@ -20,7 +20,7 @@ auto measure=[&](const Patch& patch,const std::vector<OwnedCell>& rows,const Pla
+   for(const auto& cell:patch.cells){for(auto n:cell.v)positions.emplace(n.id,n.p);const auto x=Centroid(cell);const auto tensor=compose(x,core.Sensor(x));
+     const auto m=Measure({cell.v[0].p,cell.v[1].p,cell.v[2].p,cell.v[3].p},tensor);q+=m.mean_ratio<MinimumMeanRatio;j+=m.minimum_scaled_jacobian<MinimumScaledJacobian;}
+   const auto incidence=Incidence(patch.cells);std::set<Id> failing;
+-  for(const auto& face:patch.surface)if(g.SurfaceDeviation(face.facet,{positions.at(face.v[0]),positions.at(face.v[1]),positions.at(face.v[2])},true)>SU2_TYPE::GetValue(config.GetAdap_Hausd()))
++  for(const auto& face:patch.surface)if(g.SurfaceDeviation(face.facet, {positions.at(face.v[0]), positions.at(face.v[1]), positions.at(face.v[2])}, SU2NativeGeometry::SurfaceQueryNeed::Classify(), true)>SU2_TYPE::GetValue(config.GetAdap_Hausd()))
+     for(Id id:incidence.FaceCells(face.v))failing.insert(id);
+   bad=failing.size();
+   const BoundaryMetric guidance=[&](Node n,const PlanarReference& ref,Tensor tensor){return policy.BoundaryGuidance(n,ref,tensor,reference->marker_names);};
+diff --git a/UnitTests/SU2_CFD/adaptation/fixtures/native_current219_witness.inc b/UnitTests/SU2_CFD/adaptation/fixtures/native_current219_witness.inc
+index 6b57601d3b..0b4371d5c1 100644
+--- a/UnitTests/SU2_CFD/adaptation/fixtures/native_current219_witness.inc
++++ b/UnitTests/SU2_CFD/adaptation/fixtures/native_current219_witness.inc
+@@ -247,7 +247,7 @@ static void CapturedCurrentResidual(bool compound,bool distributed=false,bool pr
+         for(const auto& row:cells){bool bad=false;
+           for(unsigned slot=0;slot<4;++slot)if(row.second.physical[slot].present){std::array<Point,3> triangle;
+             for(unsigned k=0;k<3;++k)triangle[k]=row.second.cell.v[opposite[slot][k]].p;
+-            const auto error=geometry.SurfaceDeviation(row.second.physical[slot].facet,triangle);
++            const auto error=geometry.SurfaceDeviation(row.second.physical[slot].facet, triangle, SU2NativeGeometry::SurfaceQueryNeed::Magnitude());
+             REQUIRE(std::isfinite(error));bad=bad||error>1e-4;
+             errors.bad_faces+=error>1e-4;errors.maximum_error=std::max(errors.maximum_error,error);
+             const long double excess=std::max(0.L,static_cast<long double>(error)-1e-4);
+@@ -787,7 +787,7 @@ TEST_CASE("Captured residual wing faces reproduce bounded certificates without a
+       auto context=scope->PrivateParameters(patch);REQUIRE(context);context->ExportParameters(patch);
+       const bool contained=context->ContainsFace(face.facet,xyz);CHECK(contained);
+       if(!contained){log<<"{\"stage\":\"baseline\",\"cell\":"<<row.cell.id<<",\"contained\":false}\n";continue;}
+-      const double bound=context->SurfaceDeviation(face.facet,xyz,true),actual=std::max(0.,bound-1e-4);
++      const double bound=context->SurfaceDeviation(face.facet, xyz, SU2NativeGeometry::SurfaceQueryNeed::Magnitude(), true),actual=std::max(0.,bound-1e-4);
+       REQUIRE(std::isfinite(bound));CHECK(std::abs(actual-expected.at(row.cell.id))<=1e-10);
+       const auto stats1=entity->Geometry().GeometryStatsSnapshot();
+       log<<"{\"stage\":\"baseline\",\"cell\":"<<row.cell.id<<",\"facet\":"<<face.facet
+@@ -807,7 +807,7 @@ TEST_CASE("Captured residual wing faces reproduce bounded certificates without a
+         std::ostringstream entry;entry<<std::setprecision(17)<<std::boolalpha;
+         entry<<"{\"stage\":\"face_midpoint_probe\",\"cell\":"<<row.cell.id<<",\"edge\":"<<edge
+            <<",\"contains_children\":"<<valid<<",\"length_squared\":"<<dx*dx+dy*dy+dz*dz;
+-        if(valid){const double l=trial->SurfaceDeviation(face.facet,left,true),r=trial->SurfaceDeviation(face.facet,right,true);
++        if(valid){const double l=trial->SurfaceDeviation(face.facet, left, SU2NativeGeometry::SurfaceQueryNeed::Magnitude(), true),r=trial->SurfaceDeviation(face.facet, right, SU2NativeGeometry::SurfaceQueryNeed::Magnitude(), true);
+           REQUIRE(std::isfinite(l));REQUIRE(std::isfinite(r));
+           const long double dl=std::max(0.L,(long double)l-1e-4),dr=std::max(0.L,(long double)r-1e-4);
+           entry<<",\"child_maximum_bound\":"<<std::max(l,r)<<",\"child_squared_excess\":"<<dl*dl+dr*dr;}
+diff --git a/UnitTests/SU2_CFD/adaptation/fixtures/native_failure202_witness.inc b/UnitTests/SU2_CFD/adaptation/fixtures/native_failure202_witness.inc
+index f7c29aeeee..7c74c42bc5 100644
+--- a/UnitTests/SU2_CFD/adaptation/fixtures/native_failure202_witness.inc
++++ b/UnitTests/SU2_CFD/adaptation/fixtures/native_failure202_witness.inc
+@@ -134,7 +134,7 @@ TEST_CASE("Captured M6 feature-star tests existing collapse against reconstructe
+       for(unsigned k=0;k<3;++k){const auto& p=points.at(found->v[k]);physical[k]=p.node.p;bindings[k]=p.binding;
+         REQUIRE(authority.Supports(probe.facet,p.binding));}
+       const double direct=authority.SurfaceError(probe.facet,bindings,physical);
+-      const double production=reference->SurfaceDeviation(probe.facet,physical);
++      const double production=reference->SurfaceDeviation(probe.facet, physical, SU2NativeGeometry::SurfaceQueryNeed::Magnitude());
+       CHECK(direct==production);CHECK(std::abs(std::max(0.,production-1e-4)-probe.excess)<=1e-12);
+       auto query=budget;query.work=0;query.maximum_work=64*SU2NativeGeometry::MappedFacetReference::ClearanceWork;
+       query.caller_bytes=query_caller;query.work_exhausted=false;query.geometry_failure.clear();
+@@ -228,21 +228,21 @@ TEST_CASE("Captured M6 feature-star tests existing collapse against reconstructe
+         const auto affine=reference->Affine().find(probe.facet);
+         if(affine!=reference->Affine().end())for(auto point:physical)
+           expected=std::max(expected,SU2NativeGeometry::AffineChart(affine->second).ErrorBound(point));
+-        const auto measured=scoped->SurfaceDeviation(probe.facet,physical);
++        const auto measured=scoped->SurfaceDeviation(probe.facet, physical, SU2NativeGeometry::SurfaceQueryNeed::Magnitude());
+         CHECK(measured==Approx(expected).margin(1e-14));CHECK((measured<=1e-4)==(expected<=1e-4));
+         const auto scoped_after=authority.GeometryStatsSnapshot();
+         if(direct<=1e-4)CHECK(scoped_after.upper_calls==scoped_before.upper_calls);
+         if(probe.cell==152256924) {
+-          CHECK(scoped->SurfaceDeviation(probe.facet,physical)<=1e-4);
++          CHECK(scoped->SurfaceDeviation(probe.facet, physical, SU2NativeGeometry::SurfaceQueryNeed::Classify())<=1e-4);
+           const auto saved_caller=query.caller_bytes,saved_ceiling=query.maximum_bytes;
+           auto exhausted=query;auto exhausted_scope=reference->WithAtlasReservation(exhausted);
+           exhausted.work=0;exhausted.maximum_work=0;
+-          CHECK_THROWS(exhausted_scope->SurfaceDeviation(probe.facet,physical));CHECK(exhausted.work_exhausted);
++          CHECK_THROWS(exhausted_scope->SurfaceDeviation(probe.facet, physical, SU2NativeGeometry::SurfaceQueryNeed::Magnitude()));CHECK(exhausted.work_exhausted);
+           CHECK(exhausted.caller_bytes==saved_caller);CHECK(exhausted.maximum_bytes==saved_ceiling);
+           auto tight=query;auto tight_scope=reference->WithAtlasReservation(tight);tight.maximum_bytes=tight.caller_bytes;
+-          CHECK_THROWS_AS(tight_scope->SurfaceDeviation(probe.facet,physical),std::length_error);
++          CHECK_THROWS_AS(tight_scope->SurfaceDeviation(probe.facet, physical, SU2NativeGeometry::SurfaceQueryNeed::Magnitude()),std::length_error);
+           CHECK(tight.caller_bytes==saved_caller);CHECK(tight.maximum_bytes==saved_caller);
+-          CHECK(reference->SurfaceDeviation(probe.facet,physical)==direct);
++          CHECK(reference->SurfaceDeviation(probe.facet, physical, SU2NativeGeometry::SurfaceQueryNeed::Magnitude())==direct);
+         }
+       }catch(const std::exception& error) {
+         WARN(error.what());

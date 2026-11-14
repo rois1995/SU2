@@ -64,7 +64,7 @@ for(const auto& entry:contextsToTest) {
           qBad+=m.mean_ratio<MinimumMeanRatio;jBad+=m.minimum_scaled_jacobian<MinimumScaledJacobian;
         }
         std::set<Id> bad;
-        for(const auto& face:patch.surface)if(g.SurfaceDeviation(face.facet,{positions.at(face.v[0]),positions.at(face.v[1]),positions.at(face.v[2])},true)>SU2_TYPE::GetValue(config.GetAdap_Hausd()))
+        for(const auto& face:patch.surface)if(g.SurfaceDeviation(face.facet, {positions.at(face.v[0]), positions.at(face.v[1]), positions.at(face.v[2])}, SU2NativeGeometry::SurfaceQueryNeed::Classify(), true)>SU2_TYPE::GetValue(config.GetAdap_Hausd()))
           for(Id cell:Incidence(patch.cells).FaceCells(face.v))bad.insert(cell);
         geometryBad=bad.size();
         const BoundaryMetric boundary=[&](Node n,const PlanarReference& ref,Tensor tensor){return policy.BoundaryGuidance(n,ref,tensor,reference->marker_names);};

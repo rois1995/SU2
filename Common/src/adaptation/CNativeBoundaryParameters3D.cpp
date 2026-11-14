@@ -365,16 +365,21 @@ std::shared_ptr<BoundaryParameterState> BoundaryParameterState::WithEntityGeomet
   next->ValidateEntityFeatures(budget);return next;
 }
 double BoundaryParameterState::EntityFaceError(Id facet,const std::array<SurfaceBinding,3>& binding,
-    const std::array<Point,3>& p,AtlasBudget* budget,double maximum)const {
+    const std::array<Point,3>& p,AtlasBudget* budget,SurfaceQueryNeed need,double maximum)const {
   if(!EntityGeometry())throw std::invalid_argument("Entity face error requires an absolute geometry tolerance.");
   if(budget)budget->CheckTime();
   const auto& state=*this;const auto& g=*geometry;
-  auto tighten=[&](const std::vector<Id>& support,double upper) {
-    // Old, fresh and census fitting merit need error magnitude, not an early outside classification.
-    if(upper>state.GeometryTolerance())
-      upper=std::min(upper,g.BoundPhysicalSurface(support,{p},state.GeometryTolerance(),*budget,
-          MappedFacetReference::SurfaceBoundPurpose::ErrorMagnitude));
-    return std::max(maximum,upper);
+  if(need.kind==SurfaceQueryNeed::Kind::Limit&&
+      (!std::isfinite(need.stop_above)||need.stop_above<state.GeometryTolerance()))
+    throw std::invalid_argument("Invalid entity face error cutoff.");
+  auto query=[&](const std::vector<Id>& support) {
+    const auto classification=need.kind==SurfaceQueryNeed::Kind::Classify ?
+        MappedFacetReference::SurfaceBoundPurpose::ExactClassification : MappedFacetReference::SurfaceBoundPurpose::Classification;
+    const double upper=g.BoundPhysicalSurface(support,{p},state.GeometryTolerance(),*budget,classification);
+    if(need.kind==SurfaceQueryNeed::Kind::Classify||upper<=state.GeometryTolerance())return upper;
+    const auto purpose=need.kind==SurfaceQueryNeed::Kind::Limit ? MappedFacetReference::SurfaceBoundPurpose::ErrorLimit :
+        MappedFacetReference::SurfaceBoundPurpose::ErrorMagnitude;
+    return std::min(upper,g.BoundPhysicalSurface(support,{p},state.GeometryTolerance(),*budget,purpose,need.stop_above));
   };
   bool direct=true;for(const auto& b:binding)direct=direct&&g.Supports(facet,b);
   if(direct){const auto start=std::chrono::steady_clock::now();double result;
@@ -385,9 +390,8 @@ double BoundaryParameterState::EntityFaceError(Id facet,const std::array<Surface
       // A failed correspondence upper bound need not imply a distance violation.
       const auto scratch=transfer_memory::Add(budget->caller_bytes,256,2*sizeof(Id),2*sizeof(std::array<Point,3>));
       AtlasStorage storage(budget,scratch,budget->maximum_bytes);
-      const std::vector<Id> support{facet};const std::vector<std::array<Point,3>> triangles{p};
-      result=std::max(maximum,std::min(result,g.BoundPhysicalSurface(support,triangles,state.GeometryTolerance(),*budget)));
-      result=tighten(support,result);
+      const std::vector<Id> support{facet};
+      result=std::max(maximum,std::min(result,query(support)));
     }
     return result;}
 
@@ -403,8 +407,7 @@ double BoundaryParameterState::EntityFaceError(Id facet,const std::array<Surface
   candidates.erase(std::remove_if(candidates.begin(),candidates.end(),[&](Id id){return state.Entity(id)!=entity;}),candidates.end());
   g.RecordSupportQuery(std::chrono::duration<double>(std::chrono::steady_clock::now()-support_start).count(),candidates.size());
   if(candidates.empty())throw std::invalid_argument("Entity surface query lost its supporting geometry.");
-  const auto upper=g.BoundPhysicalSurface(candidates,{p},state.GeometryTolerance(),*budget);
-  return tighten(candidates,upper);
+  return std::max(maximum,query(candidates));
 }
 const std::map<BoundaryParameterState::EntityKey,MappedFacetReference::SurfaceUnionBounds>&
 BoundaryParameterState::GeometryCertificates(AtlasBudget& budget,bool complete)const {
@@ -424,7 +427,7 @@ BoundaryParameterState::GeometryCertificates(AtlasBudget& budget,bool complete)c
     for(unsigned k=0;k<3;++k){const auto& point=records.at(row.second.v[k]).point;points[k]=point.node.p;binding[k]=point.binding;}
     auto& entity=physical.at(Entity(row.second.facet));entity.faces.push_back(points);
     if(facewise&&entity.reverse<=geometry_tolerance) {
-      const double bound=EntityFaceError(row.second.facet,binding,points,&budget);
+      const double bound=EntityFaceError(row.second.facet,binding,points,&budget,SurfaceQueryNeed::Magnitude());
       entity.reverse=std::isfinite(bound)&&bound>=0?std::max(entity.reverse,bound):INFINITY;
     }
   }
@@ -1310,8 +1313,12 @@ GeometryProjection ProjectEntitySurface(const State& state,Point point,const Sur
   return projection;
 }
 }
-double PlanarReference::SurfaceDeviation(Id facet,const std::array<Point,3>& triangle,bool validated)const {
-  // Geometry permissions use the original surface error, not a constant-curvature sizing surrogate.
+double PlanarReference::SurfaceDeviation(Id facet,const std::array<Point,3>& triangle,SurfaceQueryNeed need,bool validated)const {
+  if(parameter_view) {
+    if(!validated&&!ParameterContainsFace(facet,triangle,nullptr))
+      throw std::invalid_argument("Mapped surface leaves its parameter authority.");
+    return ParameterError(facet,triangle,need);
+  }
   return validated?SurfaceErrorForValidatedFace(facet,triangle):SurfaceError(facet,triangle);
 }
 GeometrySplitPrediction PredictGeometrySplit(Edge edge,const std::array<Point,2>& endpoints,
@@ -1349,7 +1356,7 @@ GeometrySplitPrediction PredictGeometrySplit(Edge edge,const std::array<Point,2>
     if(PointKey(midpoint.p)==PointKey(endpoints[0])||PointKey(midpoint.p)==PointKey(endpoints[1]))return checked();
     auto score=[&](Id facet,const std::array<Point,3>& triangle,long double& sum) {
       if(!context->ContainsFace(facet,triangle))return false;
-      const double bound=context->SurfaceDeviation(facet,triangle,true);
+      const double bound=context->SurfaceDeviation(facet,triangle,SurfaceQueryNeed::Magnitude(),true);
       if(!std::isfinite(bound))return false;
       const long double excess=std::max(0.L,(long double)bound-tolerance);
       sum+=excess*excess;++prediction.evaluated_faces;
@@ -1508,12 +1515,12 @@ bool PlanarReference::ParameterOnEdge(Id facet,Point a,Point b,Point p,KernelSta
   if(g.ReferenceComponents())return ContainsSegment(facet,a,b,stats)&&ParametricOnProjectedSegment(g.Ideal(Parameter(a)->binding),g.Ideal(Parameter(b)->binding),g.Ideal(Parameter(p)->binding),g.ComponentAxis(facet),stats);
   return ParametricOnSegment(g.Ideal(Parameter(a)->binding),g.Ideal(Parameter(b)->binding),g.Ideal(Parameter(p)->binding),stats);
 }
-double PlanarReference::ParameterError(Id facet,const std::array<Point,3>& p)const {
+double PlanarReference::ParameterError(Id facet,const std::array<Point,3>& p,SurfaceQueryNeed need)const {
   if(parameter_view->reservation)parameter_view->reservation->CheckTime();
   double maximum=0;const auto& g=parameter_view->accepted->Geometry();std::array<SU2NativeGeometry::SurfaceBinding,3> binding;
   for(unsigned k=0;k<3;++k){const auto b=Parameter(p[k]);if(!b)throw std::invalid_argument("Unbound mapped surface error query.");binding[k]=b->binding;
     const auto plane=Affine().find(facet);if(plane!=Affine().end())maximum=std::max(maximum,SU2NativeGeometry::AffineChart(plane->second).ErrorBound(p[k]));}
-  if(EntityGeometry())return parameter_view->accepted->EntityFaceError(facet,binding,p,parameter_view->reservation,maximum);
+  if(EntityGeometry())return parameter_view->accepted->EntityFaceError(facet,binding,p,parameter_view->reservation,need,maximum);
   if(!AtlasActive(*parameter_view->accepted)&&parameter_view->coverage.faces.empty()&&parameter_view->coverage.traces.empty())return std::max(maximum,g.SurfaceError(facet,binding,p));
   SurfaceFace face;face.facet=facet;bool transient=false;
   for(unsigned k=0;k<3;++k){const auto* point=Parameter(p[k]);face.v[k]=point->node.id;

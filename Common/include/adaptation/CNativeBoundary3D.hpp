@@ -86,7 +86,7 @@ class PlanarReference {
   /*! Error-only mapped query; caller must already have validated this exact face and associations.
    * Unmapped geometry retains the checked path. Does not certify containment or publication. */
   /*! Local immutable-geometry guidance, not a whole-face Hausdorff certificate. */
-  double SurfaceDeviation(Id facet,const std::array<Point,3>& triangle,bool validated=false)const;
+  double SurfaceDeviation(Id facet,const std::array<Point,3>& triangle,SU2NativeGeometry::SurfaceQueryNeed need,bool validated=false)const;
   double SurfaceErrorForValidatedFace(Id facet,const std::array<Point,3>& triangle) const;
   /*! Lowest canonical same-marker patch containing the complete oriented triangle. Broad phase never admits geometry.
    * Missing/invalid geometry leaves facet unchanged; nonfinite query coordinates throw. */
@@ -133,7 +133,7 @@ class PlanarReference {
   bool ParameterFindFace(int marker,const std::array<Point,3>& triangle,Id& facet,KernelStats* stats)const;
   Point ParameterProject(Id facet,Point point)const;
   bool ParameterOnEdge(Id facet,Point a,Point b,Point point,KernelStats* stats)const;
-  double ParameterError(Id facet,const std::array<Point,3>& triangle)const;
+  double ParameterError(Id facet,const std::array<Point,3>& triangle,SU2NativeGeometry::SurfaceQueryNeed need)const;
   size_t ParameterWorkspaceBytes()const;
   std::map<Id, Facet> facets;
   const std::map<Id, AnalyticSurface> analytic;

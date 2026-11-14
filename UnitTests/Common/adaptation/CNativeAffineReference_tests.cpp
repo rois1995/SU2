@@ -1901,8 +1901,8 @@ TEST_CASE("Representative saved M6 geometry queries preserve exact inputs and ex
       auto fresh=budget();Patch overlay;overlay.surface.push_back(q.face);
       for(const auto& point:q.points)overlay.parameters.emplace(point.node.id,point);
       auto context=current_context->PrivateParameters(overlay,&fresh);REQUIRE(context);
-      production=context->SurfaceDeviation(q.face.facet,physical.front(),true);
-      production_work=fresh.work;const auto again=context->SurfaceDeviation(q.face.facet,physical.front(),true);
+      production=context->SurfaceDeviation(q.face.facet, physical.front(), SU2NativeGeometry::SurfaceQueryNeed::Magnitude(), true);
+      production_work=fresh.work;const auto again=context->SurfaceDeviation(q.face.facet, physical.front(), SU2NativeGeometry::SurfaceQueryNeed::Magnitude(), true);
       CHECK(production==again);REQUIRE(std::isfinite(production));
       bool direct=true;double plane=0;
       for(const auto& point:q.points){direct=direct&&authority->Supports(q.face.facet,point.binding);
@@ -2104,7 +2104,7 @@ static void SavedM6EntityFaces(bool publish_reference) {
       for(unsigned k=0;k<3;++k){physical[k]=q.points[k].node.p;binding[k]=q.points[k].binding;
         REQUIRE(geometry->Admissible(binding[k],physical[k]));same_facet=same_facet&&geometry->Supports(q.face.facet,binding[k]);}
       direct+=same_facet;
-      const auto bound=entity->EntityFaceError(q.face.facet,binding,physical,&budget);REQUIRE(std::isfinite(bound));REQUIRE(bound>=0);
+      const auto bound=entity->EntityFaceError(q.face.facet, binding, physical, &budget, SU2NativeGeometry::SurfaceQueryNeed::Magnitude());REQUIRE(std::isfinite(bound));REQUIRE(bound>=0);
       maximum=std::max(maximum,bound);refused+=bound>tolerance;++processed;
     }}catch(const std::exception& error){reason=error.what();}
   const auto stats=geometry->GeometryStatsSnapshot();
@@ -2141,4 +2141,25 @@ TEST_CASE("Magnitude outside width encloses a known flat-face distance", "[Nativ
   auto exhausted=GeometryAtlasBudget();exhausted.maximum_work=0;
   CHECK_THROWS(geometry.BoundPhysicalSurface({face.id},physical,.01,exhausted,MappedFacetReference::SurfaceBoundPurpose::ErrorMagnitude));
   CHECK(exhausted.work_exhausted);
+}
+
+TEST_CASE("Surface cutoff bounds cannot poison complete magnitude memo entries", "[NativeMagnitudeInterval3D][NativeFaceQueryNeed3D]") {
+  using namespace SU2Native3D;
+  const auto facets=ComponentCube(false);const auto reference=std::make_shared<PlanarReference>(facets);
+  std::map<Id,double> errors;for(const auto& face:facets)errors.emplace(face.id,1e-12);
+  MappedFacetReference geometry(reference,errors,29),oracle(reference,errors,29);
+  const auto& face=facets.front();std::vector<std::array<Point,3>> physical(1);
+  for(unsigned k=0;k<3;++k){physical[0][k]=face.v[k].p;physical[0][k].z=.125;}
+  using Purpose=MappedFacetReference::SurfaceBoundPurpose;
+  auto limited=GeometryAtlasBudget();
+  const auto lower=geometry.BoundPhysicalSurface({face.id},physical,.01,limited,Purpose::ErrorLimit,.02);
+  CHECK(lower>.02);CHECK(lower<=.125);
+  auto complete=GeometryAtlasBudget(),cold=GeometryAtlasBudget();
+  const auto magnitude=geometry.BoundPhysicalSurface({face.id},physical,.01,complete,Purpose::ErrorMagnitude);
+  CHECK(magnitude==oracle.BoundPhysicalSurface({face.id},physical,.01,cold,Purpose::ErrorMagnitude));
+  CHECK(magnitude>=.125);
+  auto accepted=GeometryAtlasBudget();
+  CHECK(geometry.BoundPhysicalSurface({face.id},physical,.01,accepted,Purpose::ErrorLimit,.5)==magnitude);
+  auto invalid=GeometryAtlasBudget();
+  CHECK_THROWS(geometry.BoundPhysicalSurface({face.id},physical,.01,invalid,Purpose::ErrorLimit,.005));
 }

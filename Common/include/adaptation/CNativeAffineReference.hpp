@@ -5,6 +5,7 @@
  */
 #pragma once
 #include <functional>
+#include <limits>
 #include "CNativeCavity3D.hpp"
 #include "CNativePointConstruction3D.hpp"
 #include "CNativeAtlas3D.hpp"
@@ -20,6 +21,15 @@ namespace SU2Native3D { class PlanarReference; struct Facet; struct SurfaceFace;
 namespace SU2NativeGeometry {
 using SU2Native3D::Point;
 using SU2Native3D::Id;
+/*! Limit may return a certified rejection lower bound; only Magnitude is a complete score. */
+struct SurfaceQueryNeed {
+  enum class Kind { Classify, Limit, Magnitude };
+  Kind kind;
+  double stop_above;
+  static SurfaceQueryNeed Classify(){return {Kind::Classify,0};}
+  static SurfaceQueryNeed Limit(double cutoff){return {Kind::Limit,cutoff};}
+  static SurfaceQueryNeed Magnitude(){return {Kind::Magnitude,0};}
+};
 /*! Immutable definition; identity/version belong in every dependent cache key.
  * Distance is a physical error contract, never a tolerance for volume predicates.
  * The error contract must be at least the smallest normal binary64 value. */
@@ -186,12 +196,14 @@ class MappedFacetReference {
   /*! Model enclosure for source tubes; does not certify the reverse distance or final tolerance. */
   SurfaceUnionBounds BoundModelSurface(const std::vector<Id>& model_facets,
       const std::vector<std::array<Point,3>>& physical,double tolerance,AtlasBudget&)const;
-  enum class SurfaceBoundPurpose { Classification, ErrorMagnitude };
-  /*! One-sided bound; ErrorMagnitude also resolves outside error to the prescribed tolerance.
-   * Omitted supports only weaken admission. Neither purpose certifies the reverse distance. */
+  enum class SurfaceBoundPurpose { Classification, ErrorMagnitude, ErrorLimit, ExactClassification };
+  /*! One-sided bound; ErrorMagnitude resolves outside error to the prescribed tolerance.
+   * ExactClassification refines ambiguous bounds before deciding tolerance.
+   * ErrorLimit may instead return a certified lower bound above stop_above; never use it as a magnitude.
+   * Omitted supports only weaken admission. No purpose certifies the reverse distance. */
   double BoundPhysicalSurface(const std::vector<Id>& model_facets,
       const std::vector<std::array<Point,3>>& physical,double tolerance,AtlasBudget&,
-      SurfaceBoundPurpose purpose=SurfaceBoundPurpose::Classification)const;
+      SurfaceBoundPurpose purpose=SurfaceBoundPurpose::Classification,double stop_above=std::numeric_limits<double>::infinity())const;
   /*! Convex hull of an immutable curved patch and current source face, including realization error. */
   class SourcePatch {
    public:
@@ -295,9 +307,11 @@ class MappedFacetReference {
   uint64_t Version()const{return version;}
  private:
   SurfaceUnionBounds QuerySurfaceUnion(const std::vector<Id>&,
-      const std::vector<std::array<Point,3>>&,double,AtlasBudget&,bool include_model,bool include_mesh,bool magnitude=false)const;
+      const std::vector<std::array<Point,3>>&,double,AtlasBudget&,bool include_model,bool include_mesh,bool magnitude=false,
+      double stop_above=std::numeric_limits<double>::infinity(),bool exact_classification=false)const;
   SurfaceUnionBounds QuerySurfaceUnionAtResolution(const std::vector<Id>&,
-      const std::vector<std::array<Point,3>>&,double,AtlasBudget&,bool include_model,bool include_mesh,double resolution,bool magnitude)const;
+      const std::vector<std::array<Point,3>>&,double,AtlasBudget&,bool include_model,bool include_mesh,double resolution,bool magnitude,
+      double stop_above,bool exact_classification)const;
 
   std::shared_ptr<const SU2Native3D::PlanarReference> reference;
   std::map<Id,double> errors;

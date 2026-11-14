@@ -307,7 +307,7 @@ for(const auto& entry:contexts) {
           auto badCells=[&](const Patch& p) {
             auto privateGeometry=current.reference->PrivateParameters(p);const auto& g=privateGeometry?*privateGeometry:*current.reference;
             std::map<Id,Point> points;std::set<Id> bad;for(const auto& c:p.cells)for(auto n:c.v)points.emplace(n.id,n.p);
-            for(const auto& f:p.surface)if(g.SurfaceDeviation(f.facet,{points.at(f.v[0]),points.at(f.v[1]),points.at(f.v[2])},true)>SU2_TYPE::GetValue(config.GetAdap_Hausd())) {
+            for(const auto& f:p.surface)if(g.SurfaceDeviation(f.facet, {points.at(f.v[0]), points.at(f.v[1]), points.at(f.v[2])}, SU2NativeGeometry::SurfaceQueryNeed::Classify(), true)>SU2_TYPE::GetValue(config.GetAdap_Hausd())) {
               auto key=f.v;std::sort(key.begin(),key.end());
               for(const auto& c:p.cells)for(auto face:junction_wp0::CellFaces(c)){std::sort(face.begin(),face.end());if(face==key)bad.insert(c.id);}
             }return bad.size();

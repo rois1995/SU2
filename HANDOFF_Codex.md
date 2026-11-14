@@ -1,10 +1,12 @@
 # Native adaptation — current handoff
 
-2026-11-14 no-BL cause diagnostic: restoring only the pre-76f10c8310 tighten lambda reduced first-collapse work to 1.44× build 293 (confirmed by the ≤2× criterion); counts match all ranks. Diagnostic only, BL correction/production source unchanged; see the [cause report](Handbook/ADAPTATION_M6_NOBL_CAUSE_CONFIRM_20261114.md).
-2026-11-14 M6 no-BL check complete: Euler293 timing is historical; the no-BL path is slower on build494 in this unprofiled run, and both adaptations were time-budget rejected. The user waived the unmet quiet-load condition; see the [clean-check report](Handbook/ADAPTATION_M6_NOBL_CLEAN_CHECK_20261114.md). Native source/build/config unchanged.
-2026-11-14 measurement v2 completed: Run A ended normally; both configured Run B adaptations hit the time budget, solver exit 0; see the [measurement report](Handbook/ADAPTATION_M6_MEASUREMENT_V2_20261114.md). No source/build/config changes or design work.
+Updated 2026-11-14, Europe/Rome. The new fix handoff is active: P5 implementation is frozen and isolated build495 is running. The five required checks are pending; see the [P5 status/report](Handbook/ADAPTATION_M6_PURPOSE_QUERY_FIX_20261114.md). Build494 remains preserved. Current build handle/receipt: R/purpose_query_fix_20261114/build_status.json; sources must remain frozen until the owned build/run is terminal.
 
-Updated 2026-11-13, Europe/Rome. The full curved-BL/RANS goal remains open. The requested nose-target cycle492 is **closed: tested size-only implementation rejected**. No owned heavy job remains; do not start another local nose variant or retry this cycle.
+The [cause diagnostic](Handbook/ADAPTATION_M6_NOBL_CAUSE_CONFIRM_20261114.md) is causal evidence only. Its old-lambda revert is not the production fix. Build293's accepted Euler timings are historical; build494 rejected both adaptations in the [clean check](Handbook/ADAPTATION_M6_NOBL_CLEAN_CHECK_20261114.md). The prior quiet-load waiver applied to that run; record actual host load for new validation.
+
+Current order: P5 and its five checks; F1/F2 regression gates; connected B1/B2/B3/B4/B6/A2 changes and one repeat of measurement-v2 A/B; F3 exclusive timer tree; one reviewed C/D/E design answering the annex. C/D/E implementation requires acceptance of that design. Keep all budgets, final gates and the complete curved-BL/RANS workflow objective.
+
+The nose-target cycle492 remains closed as a rejected size-only experiment. Do not retry local nose/cone variants. Its saved provisional state is reusable only after provenance verification; it is not an accepted mesh or a qualified joint-curvature target.
 
 R=`integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57`.
 Read [AGENTS](AGENTS.md), [492 outcome](Handbook/ADAPTATION_MAPPED_CURVATURE_OUTCOME_492_20261113.md), [frozen reviewed plan](Handbook/ADAPTATION_MAPPED_CURVATURE_TARGET_492_20261113.md), [ordered stages](Handbook/ADAPTATION_CURVED_BL_STAGE_INTEGRATION_20261111.md), [timings](Handbook/ADAPTATION_TIMINGS.md), [HowToProceed](HowToProceed.md). [History through491](Handbook/ADAPTATION_HANDOFF_HISTORY_THROUGH_491_20261113.md) retains earlier evidence; its LIVE labels are historical.

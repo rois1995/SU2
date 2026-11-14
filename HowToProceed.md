@@ -1,8 +1,8 @@
 # How to proceed
 
-2026-11-14 no-BL cause diagnostic: restoring only the pre-76f10c8310 tighten lambda reduced first-collapse work to 1.44× build 293 (confirmed by the ≤2× criterion); counts match all ranks. Diagnostic only, BL correction/production source unchanged; see the [cause report](Handbook/ADAPTATION_M6_NOBL_CAUSE_CONFIRM_20261114.md).
-2026-11-14 M6 no-BL check complete: Euler293 timing is historical; the no-BL path is slower on build494 in this unprofiled run, and both adaptations were time-budget rejected. The user waived the unmet quiet-load condition; see the [clean-check report](Handbook/ADAPTATION_M6_NOBL_CLEAN_CHECK_20261114.md). Native source/build/config unchanged.
-2026-11-14 measurement v2 completed: Run A ended normally; both configured Run B adaptations hit the time budget, solver exit 0; see the [measurement report](Handbook/ADAPTATION_M6_MEASUREMENT_V2_20261114.md). No source/build/config changes or design work.
+2026-11-14: follow the new fix handoff, starting with the [P5 report/status](Handbook/ADAPTATION_M6_PURPOSE_QUERY_FIX_20261114.md). Explicit query needs and their caller/tests are frozen; isolated build495 is running. Check R/purpose_query_fix_20261114/build_status.json and live identities before another job or any C++ edit. The five acceptance checks remain pending; build494 is preserved for comparison.
+
+After P5's five checks: permanent F1/F2 path/work gates; the connected cheap B1/B2/B3/B4/B6/A2 change and one A/B reprofile; F3 exclusive timers; one independently reviewed C/D/E design. Do not implement C/D/E before user acceptance. Hash preservation is not an execution or performance check. Keep one owned heavy job, low priority and single-threaded libraries; final resource/geometry/quality/height/transfer gates stay unchanged.
 
 The requested M6 nose-target cycle492 is closed. Read the [current handoff](HANDOFF_Codex.md), [492 outcome](Handbook/ADAPTATION_MAPPED_CURVATURE_OUTCOME_492_20261113.md), [frozen plan](Handbook/ADAPTATION_MAPPED_CURVATURE_TARGET_492_20261113.md) and [timings](Handbook/ADAPTATION_TIMINGS.md).
 
@@ -12,4 +12,4 @@ Latest reusable provisional state is R/saved_surface492_checkpoint.json,61855nod
 
 Final mathematical review also found a joint-curvature envelope limitation: separate principal constraints do not guarantee oblique directions at doubly-curved points. Correct and qualify the joint tangent tensor (with distinct target semantics) before wider reuse; the negative experiment concerns the tested implementation. No extra source/build/run was attempted.
 
-Next is that metric correction plus a reviewed coordinated construction/selection/admission and certification decision addressing the remaining brief items3/4 and normal-foot/link constraints. Keep the complete curved-BL/RANS transfer/continued-CFD/second-adaptation/restart objective and every final gate. All owned heavy jobs are terminal. Historical directions/status through491 are in the linked history, not current work instructions.
+The later reviewed design must address the joint metric correction, construction/selection/admission and certification, including the remaining brief items3/4 and normal-foot/link constraints. Keep the complete curved-BL/RANS transfer/continued-CFD/second-adaptation/restart objective and every final gate. The current build handle above owns job status; historical terminal notes do not describe this build. Historical directions/status through491 are in the linked history, not current work instructions.

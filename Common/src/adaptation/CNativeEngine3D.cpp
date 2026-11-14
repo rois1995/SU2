@@ -822,7 +822,7 @@ class Selection {
         if(surface_planning&&!heights.count(geometry.Get(owned.physical[slot].facet).marker))continue;
         std::array<Point,3> triangle{};
         for(size_t i=0;i<3;++i)for(auto n:cell.v)if(n.id==faces[slot][i])triangle[i]=n.p;
-        const double error=geometry.SurfaceDeviation(owned.physical[slot].facet,triangle);
+        const double error=geometry.SurfaceDeviation(owned.physical[slot].facet,triangle,SU2NativeGeometry::SurfaceQueryNeed::Magnitude());
         const auto allowed=tolerance;
         if(std::isfinite(error)) {
           const auto excess=hinge(static_cast<long double>(error)-allowed);d.geometry+=excess*excess;
@@ -1945,7 +1945,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
         for(const auto& face:patch.surface) {
           std::array<Point,3> triangle{};
           for(unsigned k=0;k<3;++k)for(const auto& node:row.second.cell.v)if(node.id==face.v[k])triangle[k]=node.p;
-          if(geometry.SurfaceError(face.facet,triangle)>options.surface_tolerance)
+          if(geometry.SurfaceDeviation(face.facet,triangle,SU2NativeGeometry::SurfaceQueryNeed::Classify())>options.surface_tolerance)
             geometryFailure.Set(1,face.facet,"Prepared surface does not meet the prescribed geometry tolerance.");
         }
       }}catch(const std::exception& e){geometryFailure.Set(2,0,e.what());}
@@ -5359,7 +5359,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
               const auto found=facets.find(Key(face));if(found==facets.end())continue;
               std::array<Point,3> triangle;
               for(unsigned k=0;k<3;++k)for(auto n:cell.v)if(n.id==face[k])triangle[k]=n.p;
-              const auto error=reference.SurfaceDeviation(found->second,triangle);++stats.geometry_guidance_faces;
+              const auto error=reference.SurfaceDeviation(found->second,triangle,SU2NativeGeometry::SurfaceQueryNeed::Classify());++stats.geometry_guidance_faces;
               if(!std::isfinite(error))throw std::runtime_error("Native3D coupled repair lacks a complete face certificate.");
               if(error<=options.surface_tolerance)continue;
               bad=true;++counts.second;
@@ -5998,7 +5998,7 @@ bool CollapseConstraintViolation(const OwnedCell& cell,Id removed,Node retained,
     }
     // Remapped faces need complete-cavity admission, not a global enclosure inside a selection shortcut.
     if(direct && geometry.Declared(geometry.Canonical(face.facet)) &&
-        geometry.SurfaceDeviation(face.facet,points)>tolerance)return true;
+        geometry.SurfaceDeviation(face.facet,points,SU2NativeGeometry::SurfaceQueryNeed::Classify())>tolerance)return true;
   }
   FirstHeightReport report;std::string reason;
   if(heights.empty() || CheckFirstHeight(patch,heights,geometry,report,reason))return false;
@@ -6954,7 +6954,7 @@ bool MeshOptimizer::ShellBoundary(Id id) {
     const auto key=Key(face.v);
     if(!physical.count(key) && options.surface_tolerance>0) {
       const std::array<Point,3> p{points.at(face.v[0]),points.at(face.v[1]),points.at(face.v[2])};
-      if(!(proposed.SurfaceErrorForValidatedFace(face.facet,p)<=options.surface_tolerance)) {
+      if(!(proposed.SurfaceDeviation(face.facet,p,SU2NativeGeometry::SurfaceQueryNeed::Classify(),true)<=options.surface_tolerance)) {
         strict_geometry=false;
       }
     }

@@ -61,7 +61,7 @@ for(const auto& entry:edges) {
       for(unsigned k=0;k<3;++k){p[k]=nodes.at(face.v[k]).p;const auto* record=geometry.Parameter(p[k]);REQUIRE(record);binding[k]=record->binding;
         direct=direct&&g.Supports(face.facet,binding[k]);
         const auto plane=geometry.Affine().find(face.facet);if(plane!=geometry.Affine().end())affine=std::max(affine,SU2NativeGeometry::AffineChart(plane->second).ErrorBound(p[k]));}
-      const double production=geometry.SurfaceDeviation(face.facet,p,true);
+      const double production=geometry.SurfaceDeviation(face.facet, p, SU2NativeGeometry::SurfaceQueryNeed::Magnitude(), true);
       const auto error=std::max(0.L,(long double)production-1e-4);strictScore+=error*error;
       auto key=face.v;std::sort(key.begin(),key.end());
       const bool affected=side?!oldFaces.count(key):std::find(face.v.begin(),face.v.end(),edge[0])!=face.v.end()&&std::find(face.v.begin(),face.v.end(),edge[1])!=face.v.end();

@@ -20,7 +20,7 @@ auto measure=[&](const Patch& patch,const std::vector<OwnedCell>& rows,const Pla
   for(const auto& cell:patch.cells){for(auto n:cell.v)positions.emplace(n.id,n.p);const auto x=Centroid(cell);const auto tensor=compose(x,core.Sensor(x));
     const auto m=Measure({cell.v[0].p,cell.v[1].p,cell.v[2].p,cell.v[3].p},tensor);q+=m.mean_ratio<MinimumMeanRatio;j+=m.minimum_scaled_jacobian<MinimumScaledJacobian;}
   const auto incidence=Incidence(patch.cells);std::set<Id> failing;
-  for(const auto& face:patch.surface)if(g.SurfaceDeviation(face.facet,{positions.at(face.v[0]),positions.at(face.v[1]),positions.at(face.v[2])},true)>SU2_TYPE::GetValue(config.GetAdap_Hausd()))
+  for(const auto& face:patch.surface)if(g.SurfaceDeviation(face.facet, {positions.at(face.v[0]), positions.at(face.v[1]), positions.at(face.v[2])}, SU2NativeGeometry::SurfaceQueryNeed::Classify(), true)>SU2_TYPE::GetValue(config.GetAdap_Hausd()))
     for(Id id:incidence.FaceCells(face.v))failing.insert(id);
   bad=failing.size();
   const BoundaryMetric guidance=[&](Node n,const PlanarReference& ref,Tensor tensor){return policy.BoundaryGuidance(n,ref,tensor,reference->marker_names);};

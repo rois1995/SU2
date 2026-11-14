@@ -93,7 +93,7 @@ class BoundaryParameterState {
       SU2NativeGeometry::AtlasBudget&,size_t ceiling=SIZE_MAX,size_t caller_bytes=0)const;
   /*! Rigorous whole-face mesh-to-model upper bound with current entity associations. */
   double EntityFaceError(Id facet,const std::array<SU2NativeGeometry::SurfaceBinding,3>&,
-      const std::array<Point,3>&,SU2NativeGeometry::AtlasBudget*,double minimum_error=0)const;
+      const std::array<Point,3>&,SU2NativeGeometry::AtlasBudget*,SU2NativeGeometry::SurfaceQueryNeed need,double minimum_error=0)const;
   const std::map<EntityKey,SU2NativeGeometry::MappedFacetReference::SurfaceUnionBounds>&
       GeometryCertificates(SU2NativeGeometry::AtlasBudget&,bool complete=false)const;
   const Entries& Records()const{return records;}

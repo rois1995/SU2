@@ -134,7 +134,7 @@ TEST_CASE("Captured M6 feature-star tests existing collapse against reconstructe
       for(unsigned k=0;k<3;++k){const auto& p=points.at(found->v[k]);physical[k]=p.node.p;bindings[k]=p.binding;
         REQUIRE(authority.Supports(probe.facet,p.binding));}
       const double direct=authority.SurfaceError(probe.facet,bindings,physical);
-      const double production=reference->SurfaceDeviation(probe.facet,physical);
+      const double production=reference->SurfaceDeviation(probe.facet, physical, SU2NativeGeometry::SurfaceQueryNeed::Magnitude());
       CHECK(direct==production);CHECK(std::abs(std::max(0.,production-1e-4)-probe.excess)<=1e-12);
       auto query=budget;query.work=0;query.maximum_work=64*SU2NativeGeometry::MappedFacetReference::ClearanceWork;
       query.caller_bytes=query_caller;query.work_exhausted=false;query.geometry_failure.clear();
@@ -228,21 +228,21 @@ TEST_CASE("Captured M6 feature-star tests existing collapse against reconstructe
         const auto affine=reference->Affine().find(probe.facet);
         if(affine!=reference->Affine().end())for(auto point:physical)
           expected=std::max(expected,SU2NativeGeometry::AffineChart(affine->second).ErrorBound(point));
-        const auto measured=scoped->SurfaceDeviation(probe.facet,physical);
+        const auto measured=scoped->SurfaceDeviation(probe.facet, physical, SU2NativeGeometry::SurfaceQueryNeed::Magnitude());
         CHECK(measured==Approx(expected).margin(1e-14));CHECK((measured<=1e-4)==(expected<=1e-4));
         const auto scoped_after=authority.GeometryStatsSnapshot();
         if(direct<=1e-4)CHECK(scoped_after.upper_calls==scoped_before.upper_calls);
         if(probe.cell==152256924) {
-          CHECK(scoped->SurfaceDeviation(probe.facet,physical)<=1e-4);
+          CHECK(scoped->SurfaceDeviation(probe.facet, physical, SU2NativeGeometry::SurfaceQueryNeed::Classify())<=1e-4);
           const auto saved_caller=query.caller_bytes,saved_ceiling=query.maximum_bytes;
           auto exhausted=query;auto exhausted_scope=reference->WithAtlasReservation(exhausted);
           exhausted.work=0;exhausted.maximum_work=0;
-          CHECK_THROWS(exhausted_scope->SurfaceDeviation(probe.facet,physical));CHECK(exhausted.work_exhausted);
+          CHECK_THROWS(exhausted_scope->SurfaceDeviation(probe.facet, physical, SU2NativeGeometry::SurfaceQueryNeed::Magnitude()));CHECK(exhausted.work_exhausted);
           CHECK(exhausted.caller_bytes==saved_caller);CHECK(exhausted.maximum_bytes==saved_ceiling);
           auto tight=query;auto tight_scope=reference->WithAtlasReservation(tight);tight.maximum_bytes=tight.caller_bytes;
-          CHECK_THROWS_AS(tight_scope->SurfaceDeviation(probe.facet,physical),std::length_error);
+          CHECK_THROWS_AS(tight_scope->SurfaceDeviation(probe.facet, physical, SU2NativeGeometry::SurfaceQueryNeed::Magnitude()),std::length_error);
           CHECK(tight.caller_bytes==saved_caller);CHECK(tight.maximum_bytes==saved_caller);
-          CHECK(reference->SurfaceDeviation(probe.facet,physical)==direct);
+          CHECK(reference->SurfaceDeviation(probe.facet, physical, SU2NativeGeometry::SurfaceQueryNeed::Magnitude())==direct);
         }
       }catch(const std::exception& error) {
         WARN(error.what());

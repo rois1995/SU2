@@ -54,7 +54,7 @@ for(unsigned pass=0;pass<=attemptLimit;++pass) {
   std::map<Edge,Id> examine;size_t shortEdges=0,wallEdges=0;
   std::set<Edge> edges;
   for(auto f:last.patch.surface)if(heights.count(trial.reference->Get(f.facet).marker)) {
-    const double bound=trial.reference->SurfaceDeviation(f.facet,{points.at(f.v[0]).p,points.at(f.v[1]).p,points.at(f.v[2]).p},true);
+    const double bound=trial.reference->SurfaceDeviation(f.facet, {points.at(f.v[0]).p, points.at(f.v[1]).p, points.at(f.v[2]).p}, SU2NativeGeometry::SurfaceQueryNeed::Magnitude(), true);
     log<<"{\"stage\":\"transaction_face\",\"pass\":"<<pass<<",\"facet\":"<<f.facet<<",\"vertices\":["<<f.v[0]<<','<<f.v[1]<<','<<f.v[2]<<"],\"bound\":"<<bound<<",\"final_certificate\":false}"<<std::endl;
     for(unsigned k=0;k<3;++k){Edge e{f.v[k],f.v[(k+1)%3]};std::sort(e.begin(),e.end());edges.insert(e);if(bound>SU2_TYPE::GetValue(config.GetAdap_Hausd()))examine.emplace(e,f.facet);}
   }

@@ -1012,7 +1012,7 @@ TEST_CASE("Bounded fitting guidance rejects losing trials without completing the
     long double expected=0;
     for(const auto& f:patch.surface) {
       const auto a=Position(patch,f.v[0]),b=Position(patch,f.v[1]),c=Position(patch,f.v[2]);
-      const long double e=std::max(0.L,static_cast<long double>(geometry.SurfaceDeviation(f.facet,{a,b,c},true))-tolerance);
+      const long double e=std::max(0.L,static_cast<long double>(geometry.SurfaceDeviation(f.facet, {a, b, c}, SU2NativeGeometry::SurfaceQueryNeed::Magnitude(), true))-tolerance);
       expected+=e*e;
     }
     CHECK(full.excess==expected);

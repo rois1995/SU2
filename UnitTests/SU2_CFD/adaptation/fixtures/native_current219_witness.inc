@@ -247,7 +247,7 @@ static void CapturedCurrentResidual(bool compound,bool distributed=false,bool pr
         for(const auto& row:cells){bool bad=false;
           for(unsigned slot=0;slot<4;++slot)if(row.second.physical[slot].present){std::array<Point,3> triangle;
             for(unsigned k=0;k<3;++k)triangle[k]=row.second.cell.v[opposite[slot][k]].p;
-            const auto error=geometry.SurfaceDeviation(row.second.physical[slot].facet,triangle);
+            const auto error=geometry.SurfaceDeviation(row.second.physical[slot].facet, triangle, SU2NativeGeometry::SurfaceQueryNeed::Magnitude());
             REQUIRE(std::isfinite(error));bad=bad||error>1e-4;
             errors.bad_faces+=error>1e-4;errors.maximum_error=std::max(errors.maximum_error,error);
             const long double excess=std::max(0.L,static_cast<long double>(error)-1e-4);
@@ -787,7 +787,7 @@ TEST_CASE("Captured residual wing faces reproduce bounded certificates without a
       auto context=scope->PrivateParameters(patch);REQUIRE(context);context->ExportParameters(patch);
       const bool contained=context->ContainsFace(face.facet,xyz);CHECK(contained);
       if(!contained){log<<"{\"stage\":\"baseline\",\"cell\":"<<row.cell.id<<",\"contained\":false}\n";continue;}
-      const double bound=context->SurfaceDeviation(face.facet,xyz,true),actual=std::max(0.,bound-1e-4);
+      const double bound=context->SurfaceDeviation(face.facet, xyz, SU2NativeGeometry::SurfaceQueryNeed::Magnitude(), true),actual=std::max(0.,bound-1e-4);
       REQUIRE(std::isfinite(bound));CHECK(std::abs(actual-expected.at(row.cell.id))<=1e-10);
       const auto stats1=entity->Geometry().GeometryStatsSnapshot();
       log<<"{\"stage\":\"baseline\",\"cell\":"<<row.cell.id<<",\"facet\":"<<face.facet
@@ -807,7 +807,7 @@ TEST_CASE("Captured residual wing faces reproduce bounded certificates without a
         std::ostringstream entry;entry<<std::setprecision(17)<<std::boolalpha;
         entry<<"{\"stage\":\"face_midpoint_probe\",\"cell\":"<<row.cell.id<<",\"edge\":"<<edge
            <<",\"contains_children\":"<<valid<<",\"length_squared\":"<<dx*dx+dy*dy+dz*dz;
-        if(valid){const double l=trial->SurfaceDeviation(face.facet,left,true),r=trial->SurfaceDeviation(face.facet,right,true);
+        if(valid){const double l=trial->SurfaceDeviation(face.facet, left, SU2NativeGeometry::SurfaceQueryNeed::Magnitude(), true),r=trial->SurfaceDeviation(face.facet, right, SU2NativeGeometry::SurfaceQueryNeed::Magnitude(), true);
           REQUIRE(std::isfinite(l));REQUIRE(std::isfinite(r));
           const long double dl=std::max(0.L,(long double)l-1e-4),dr=std::max(0.L,(long double)r-1e-4);
           entry<<",\"child_maximum_bound\":"<<std::max(l,r)<<",\"child_squared_excess\":"<<dl*dl+dr*dr;}
