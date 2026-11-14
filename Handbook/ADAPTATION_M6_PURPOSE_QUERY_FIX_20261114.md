@@ -1,6 +1,6 @@
 # M6 query-purpose regression fix — 2026-11-14
 
-Status: implementation frozen; build495 attempt6 units/BL/regressions pass; work gate failed; full workflow pending. No accepted mesh is claimed.
+Status: attempt6 units/BL/regressions pass; work and full-workflow gates fail. Attempt7 units/BL/481/2D pass; work and full-workflow gates fail. No accepted mesh is claimed.
 
 Input: build494 source on `codex/native-3d-bl`, exact clean-check Euler configuration/seed and C492 saved485 BL state.
 Output: explicit Classify / Limit(cutoff) / Magnitude face-query needs; unchanged complete magnitude scoring and final gates.
@@ -22,11 +22,11 @@ The reviewer claim that the first old classification result always decided the t
 
 | Check | Status / numbers |
 |---|---|
-| 1. Affine/backend unit tests, inside/near/far query needs and memo order | Attempt6 PASS:76 cases/8535 assertions,157.577s; all1539 pins unchanged |
-| 2. Six-rank first collapse, work <=108459426; counts 480/472/344/263/473/464 | Attempt6 FAIL:116540211 work (limit108459426); all six counts match494; inner424.567s |
-| 3. Exact C492 serial BL repeat, >=300 edits in388.8s; compare measurement v2 | PASS:300 splits/304578 positive tets; owned/parameters/donors byte-identical to v2 A; API389.645s, cfg388.8s |
-| 4. Existing geometry-magnitude481 and saved-surface-corrections481 checks | PASS:merit55cases/5761assertions; saved1case/611527assertions with qualified v3 target (v2 rejected) |
-| 5. Full no-BL workflow, both adaptations accepted <=5400s/event | Pending |
+| 1. Affine/backend unit tests, inside/near/far query needs and memo order | Attempt7 PASS:76 cases/8537 assertions,157.628s; all1539 pins unchanged |
+| 2. Six-rank first collapse, work <=108459426; counts 480/472/344/263/473/464 | Attempt7 FAIL:116540211 work (limit108459426); all six counts match494; inner426.100s |
+| 3. Exact C492 serial BL repeat, >=300 edits in388.8s; compare measurement v2 | Attempt7 PASS:300 splits/304578 positive tets; owned/parameters/donors byte-identical to v2 A; API389.774s, cfg388.8s |
+| 4. Existing geometry-magnitude481 and saved-surface-corrections481 checks | Attempt7 PASS:merit55cases/5763assertions; saved1case/611527assertions with qualified v3 target (v2 rejected) |
+| 5. Full no-BL workflow, both adaptations accepted <=5400s/event | FAIL:first event5401.986s, all6 incomplete; stopped after rejection; event2 not evaluated |
 
 Build494 and its original binaries are preserved. The isolated build is `integration_evidence/build-integrated-v3-p5-20261114`.
 Attempt1 stopped after10.105s on a header declaration using INFINITY before its definition; source pins verified unchanged.
@@ -46,6 +46,12 @@ Evidence: `integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/p
 `source_pins.json` freezes968 C++/header/fixture files plus571 unchanged build494 dependencies; `source.patch` records the connected source change.
 The first-collapse gate reports count differences without tuning. Historical counts do not prove equal collapse IDs.
 Build293 timings are historical; build494's full unprofiled workflow rejected both adaptations.
+Attempt6 full first event:24359 q/24622 J/356 geometry bad cells; source/runtime pins unchanged, all owned handles terminal.
+Only9 quality batch rounds completed after quality entry; rank3 upper-bound timer3561.998s (nested guidance728.256s); no off-CPU attribution.
+Host load2.97–15.03; max modeled per-rank native storage10.186GiB, max individual reported RSS5.972GiB; sampled concurrent solver RSS12.759GiB.
+Attempt7 retains certified-outside receipt bits; unknown refusals still refine; complete magnitude stays separate. First-pass work saving is zero.
+F1/F2 execution gates: R/shared_engine_regression_gates.json; 2D native BL/no-BL1/2/4 pass in6.479/6.451/6.516s (39cases/rank).
+Owned process group deliberately terminated after first rejection; exit-15 and manual_stop_after_first_rejection.json record it.
 See [cause diagnostic](ADAPTATION_M6_NOBL_CAUSE_CONFIRM_20261114.md), [clean check](ADAPTATION_M6_NOBL_CLEAN_CHECK_20261114.md),
 [measurement v2](ADAPTATION_M6_MEASUREMENT_V2_20261114.md). File hashes alone establish preservation, never path validation.
 

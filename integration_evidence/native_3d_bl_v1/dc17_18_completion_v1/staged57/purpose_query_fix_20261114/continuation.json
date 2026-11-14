@@ -1,25 +1,47 @@
 {
-  "source_frozen": true,
-  "build_status": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/purpose_query_fix_20261114/build_status.json",
+  "source_frozen": false,
+  "build_status": "attempt7 passed40.085s, binary021afb0a..., test c324c193...",
   "cpp_source_pins": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/purpose_query_fix_20261114/source_pins.json",
   "unchanged_dependencies": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/purpose_query_fix_20261114/unchanged_build494_source_pins.json",
   "current_owned_job": null,
-  "unit_case": "p5_unit_20261114T191329_2415914",
+  "unit_case": "p5_unit_20261114T213730_2736000",
   "unit_pass": {
     "cases": 76,
-    "assertions": 8535,
-    "seconds": 157.57670760154724
+    "assertions": 8537,
+    "seconds": 157.6284317970276
   },
   "first_pass": {
-    "case": "first_collapse_inside",
+    "case": "first_collapse_outside",
     "work": 116540211,
     "limit": 108459426,
     "counts_match_all_six_build494": true,
-    "status": "work_gate_failed"
+    "status": "work_gate_failed",
+    "delta_work_from_attempt6": 0
   },
   "next": [
-    "Full no-BL two-adaptation workflow on the frozen attempt6 binary",
-    "F1/F2 gates; remaining connected cheap items; A/B profile; F3 timers; reviewed C/D/E design"
+    "Push reviewable P5 failure/preservation checkpoint without staging unrelated dirty history",
+    "Implement B1/B2/B3/B4/B6/A2 as one connected cheap group; draft B1_v2 preserves current metadata",
+    "Validate changed interfaces and F1/F2; one same-method A/B profile; no new full M6 before integration milestone",
+    "F3 exclusive timer tree; independently reviewed C/D/E design, no C/D/E implementation before user accepts"
   ],
-  "updated_unix": 1794686369.2302887
+  "updated_unix": 1794694272.6303983,
+  "scratch_only_work": [
+    "B1_reviewed_candidate.patch: zero/subnormal stepping; ordinary-normal carry/borrow retained; uncompiled",
+    "B2/B3 audit: key actual point binding rather than whole mesh revision; live metric version getters; reserve before caller snapshot",
+    "B4_B6_scope.md: aggregate geometry cannot reproduce face-order scores; persistent census needs complete target/geometry contract"
+  ],
+  "full_workflow_attempt6": {
+    "case": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/purpose_query_fix_20261114/full_workflow",
+    "terminal": true,
+    "pins_unchanged": true,
+    "owned_handles_terminal": true,
+    "first_event_rejected": true,
+    "whole_event_seconds_max": 5401.985953414,
+    "second_event_evaluated": false,
+    "stopped_after_first_rejection": true
+  },
+  "current_source_change": "attempt7: certified-outside proof bit retained by union memo; legacy unknown still refines; magnitude keys separate",
+  "agent_availability": "clean_reference/curvature_review reported usage limit; monitor directly. Use authorized local Claude if independent review needed later.",
+  "2d_execution_regressions": "native_2d_execution_regression_receipt.json",
+  "all_current_validation_jobs_terminal": true
 }

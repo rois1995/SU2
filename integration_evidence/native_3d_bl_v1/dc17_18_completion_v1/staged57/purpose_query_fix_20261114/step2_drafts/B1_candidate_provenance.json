@@ -1,0 +1,12 @@
+{
+  "base_source_hashes": {
+    "Common/src/adaptation/CNativeAffineReference.cpp": "d5e5321862d99b0da46d745f9af36b8de75bf5d46f387837f8564bc8af5e4f06",
+    "UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp": "aff092c44ead6b1e08906ee6fe7b280eb2d60c085b9c4cbeec0a1ed12564ab39"
+  },
+  "status": "scratch candidate only; uncompiled and untested",
+  "corrections": [
+    "ordinary-normal carry/borrow preserved",
+    "all source calls use imported helper without call-site churn",
+    "signed-zero oracle compares payload, not fast-math signbit"
+  ]
+}

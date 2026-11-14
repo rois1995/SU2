@@ -84,11 +84,16 @@ else:
   state_path=R/'saved_surface485_checkpoint.json';state=json.loads(state_path.read_text());extra_pins[str(state_path)]=sha(state_path)
   for key in ('owned','parameters','prepared_reference'):
    item=state[key];assert sha(item['path'])==item['sha256'];extra_pins[item['path']]=item['sha256']
-  setup_save=checks.save
+  setup_save=checks.save;bl_case=[]
+  gate_path=HERE/'check_bl_regression.py'
+  extra_pins[str(gate_path.resolve())]=sha(gate_path)
+  extra_pins[str((HERE/'bl_output_comparison.json').resolve())]=sha(HERE/'bl_output_comparison.json')
+  reference_case=R/'cases/p5_bl_20261114T192833_2451182'
+  for name in ('command.json','run.cfg'):extra_pins[str((reference_case/name).resolve())]=sha(reference_case/name)
   def setup(path,value):
    if Path(path).name=='pins.json':
     import shutil
-    attempt=Path(path).parent
+    attempt=Path(path).parent;bl_case.append(attempt)
     for name in ('m6.su2','m6.su2.native_ref','m6.su2.native_rows','baseline_sa_seed.dat'):
      src=(source/name).resolve();(attempt/name).symlink_to(src);value[str(src)]=sha(src)
     shutil.copyfile(source/'run.cfg',attempt/'run.cfg');value[str(attempt/'run.cfg')]=sha(attempt/'run.cfg')
@@ -96,4 +101,12 @@ else:
    setup_save(path,value)
   checks.save=setup;filters='[NativeActualSavedSurfaceStage3D]'
  checks.CASES[case]=(ranks,filters);sys.argv=['run_cases.py','build495',case]
- checks.main(R/'runtime_20261113_474/loaded_runtime_pins.json')
+ if mode=='bl':
+  try:checks.main(R/'runtime_20261113_474/loaded_runtime_pins.json')
+  except SystemExit as result:
+   if result.code:raise
+   assert len(bl_case)==1,bl_case
+   spec=importlib.util.spec_from_file_location('bl_regression',gate_path)
+   gate=importlib.util.module_from_spec(spec);spec.loader.exec_module(gate)
+   gate.self_check();raise SystemExit(gate.main(bl_case[0]))
+ else:checks.main(R/'runtime_20261113_474/loaded_runtime_pins.json')

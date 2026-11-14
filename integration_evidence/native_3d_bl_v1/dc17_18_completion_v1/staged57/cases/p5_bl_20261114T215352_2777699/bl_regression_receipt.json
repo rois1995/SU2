@@ -1,0 +1,26 @@
+{
+  "case": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/p5_bl_20261114T215352_2777699",
+  "passed": true,
+  "gates": {
+    "executed_successfully": true,
+    "runtime_pins_verified": true,
+    "serial_bounded_command": true,
+    "exact_input_and_target": true,
+    "unchanged_stage_limits": true,
+    "at_least_300_splits": true,
+    "all_private_cells_positive_with_sensors": true,
+    "modeled_storage_within_12GiB": true,
+    "same_bounded_output": true,
+    "same_frozen_input_contract": true,
+    "same_frozen_configuration": true
+  },
+  "actual_splits": 300,
+  "actual_output_sha256": {
+    "stage_resumed_surface_rank0_owned.bin": "37a1958dab00f449a5c75624772f048bf1017a14bab2c2fd52661aadefc17d7b",
+    "stage_resumed_surface_rank0_parameters.bin": "90aeca26fe24f42d7bcfb6984030017eedd735b15c86ee2f4734ae64769292db",
+    "stage_resumed_surface_rank0_donors.bin": "dcd909d3d0e119d9440d3f825672f1cdd317ceb66ed33d6493022849c54697f7"
+  },
+  "reference": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/purpose_query_fix_20261114/bl_output_comparison.json",
+  "scope": "Executed bounded-state preservation only; no accepted final mesh or qualified joint-curvature target claimed.",
+  "changed_output_rule": "A different bounded output needs explicit decision/prefix evidence before preservation is established; higher throughput alone is not a regression verdict."
+}

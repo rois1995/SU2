@@ -1,0 +1,111 @@
+{
+  "schema": "native_shared_engine_execution_gates_v1",
+  "frequency": "Run the affected shared-code gates for each connected implementation milestone; full no-BL workflow at integration milestones. Check live owned handles before any launch.",
+  "resource_policy": {
+    "one_owned_heavy_job": true,
+    "nice": 19,
+    "single_thread_libraries": true,
+    "max_heavy_ranks": 6,
+    "unchanged_native_event_seconds": 5400,
+    "unchanged_memory_MiB": 12288
+  },
+  "gates": [
+    {
+      "name": "noBL_first_collapse",
+      "argv": [
+        "python3",
+        "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/purpose_query_fix_20261114/run_p5_first_collapse_gate.py",
+        "NEW_FIRST_COLLAPSE_CASE"
+      ],
+      "acceptance": {
+        "all_rank_exit_rows": 6,
+        "upper_work_sum_max": 108459426,
+        "accepted_by_rank": [
+          480,
+          472,
+          344,
+          263,
+          473,
+          464
+        ]
+      },
+      "failure_rule": "Nonzero exit; report count differences without tuning. Work is independent of host contention."
+    },
+    {
+      "name": "exact_C492_BL_repeat",
+      "argv": [
+        "python3",
+        "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/purpose_query_fix_20261114/run_checks.py",
+        "bl"
+      ],
+      "acceptance": {
+        "stage_seconds": 388.8,
+        "work_limit": 233220,
+        "minimum_splits": 300,
+        "unchanged_target_and_transported_state": true,
+        "positive_private_cells": true,
+        "same_bounded_output_or_explicit_decision_evidence": true
+      },
+      "validator": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/purpose_query_fix_20261114/check_bl_regression.py",
+      "failure_rule": "The existing runner invokes the validator after an executed successful case. Changed bounded output requires explicit decision/prefix evidence before preservation is established; it is not by itself a slower/faster verdict."
+    },
+    {
+      "name": "native_2D_BL_and_noBL",
+      "argv_sequential": [
+        [
+          "python3",
+          "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/purpose_query_fix_20261114/run_checks.py",
+          "2d1"
+        ],
+        [
+          "python3",
+          "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/purpose_query_fix_20261114/run_checks.py",
+          "2d2"
+        ],
+        [
+          "python3",
+          "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/purpose_query_fix_20261114/run_checks.py",
+          "2d4"
+        ]
+      ],
+      "acceptance": {
+        "ranks": [
+          1,
+          2,
+          4
+        ],
+        "outer_seconds_max_each": 600,
+        "all_test_assertions_pass": true,
+        "source_runtime_pins_unchanged": true
+      }
+    },
+    {
+      "name": "full_noBL_workflow_milestone",
+      "argv": [
+        "python3",
+        "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/purpose_query_fix_20261114/run_p5_first_collapse_gate.py",
+        "--full",
+        "NEW_FULL_WORKFLOW_CASE"
+      ],
+      "acceptance": {
+        "accepted_adaptations": 2,
+        "all_rank_exit_rows_per_event": 6,
+        "whole_native_seconds_max_per_event": 5400,
+        "final_q_J_size_geometry_gates_unchanged": true,
+        "actual_mesh_counts_reported_not_fixed": true,
+        "finite_positive_solution_and_conservative_transfer": true,
+        "continued_CFD_after_each_adaptation": true
+      },
+      "scope_limit": "No isolated disk-restart claim; that remains a separate end-to-end obligation."
+    }
+  ],
+  "provenance": "The runners freeze source, binary, inputs and loaded runtime. Reuse only evidence whose relevant provenance and scope still apply. NEW_* must be fresh case paths.",
+  "F2": "File hashes alone mean artifacts unchanged. Runtime/performance preservation requires these executed path checks. Historical artifact-only receipts are not acceptance evidence.",
+  "current_known_failures": {
+    "first_collapse_attempt7": 116540211,
+    "first_collapse_limit": 108459426,
+    "full_attempt6_first_event_seconds": 5401.985953414,
+    "full_attempt6_event1_accepted": false,
+    "full_attempt6_event2_evaluated": false
+  }
+}

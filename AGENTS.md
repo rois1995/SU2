@@ -1,5 +1,14 @@
 # Implementation and validation cadence
 
+User order, 2026-11-14 (M6 fix handoff): protect shared-engine changes with the
+executed gates in `integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/shared_engine_regression_gates.json`.
+For each connected shared-code change, run the affected no-BL first-collapse
+work/count gate, exact saved-state BL repeat and native 2D BL/no-BL checks at
+1/2/4 ranks. Run the full two-adaptation no-BL workflow at integration milestones.
+Keep the stated time/work/resource and physical gates unchanged, and report failed
+or unevaluated gates explicitly. Artifact hashes alone prove files unchanged;
+they do not establish execution or performance preservation.
+
 User clarification, 2026-11-11 (LATEST CADENCE; supersedes earlier immediate-full-run retries):
 Use incremental, stage-based integration. Establish the execution sequence/timing
 from source and existing evidence. Work in order: saved CFD/geometry; composed

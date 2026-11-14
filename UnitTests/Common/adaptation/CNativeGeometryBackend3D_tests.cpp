@@ -283,6 +283,9 @@ TEST_CASE("Geometry magnitude bounds retain complete domains and separate classi
       {center.x+1e-6,center.y,center.z-gap},{center.x,center.y+1e-6,center.z-gap}}};};
   std::vector<std::array<Point,3>> physical{triangle(4*tolerance),triangle(30*tolerance)};
   auto fast=BackendBudget();const auto classification=fixture.geometry->BoundPhysicalSurface({0},physical,tolerance,fast);
+  const auto before_classified=fixture.geometry->GeometryStatsSnapshot();auto classified_witness=BackendBudget();
+  CHECK(fixture.geometry->BoundPhysicalSurface({0},physical,tolerance,classified_witness,Purpose::ExactClassification)==classification);
+  CHECK(fixture.geometry->GeometryStatsSnapshot().upper_work==before_classified.upper_work);
   const auto before=fixture.geometry->GeometryStatsSnapshot();
   auto measured=BackendBudget();const auto upper=fixture.geometry->BoundPhysicalSurface({0},physical,tolerance,measured,Purpose::ErrorMagnitude);
   CHECK(upper>=30*tolerance);CHECK(upper<=31*tolerance+2e-6);

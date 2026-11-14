@@ -1175,7 +1175,7 @@ struct MappedFacetReference::FaceMemo {
     for(unsigned k=0;k<3;++k){key[at++]=bits(realized[k].x);key[at++]=bits(realized[k].y);key[at++]=bits(realized[k].z);}
     return key;
   }
-  struct Entry {double value=0;size_t bytes=0,work=0;unsigned credit=0;};
+  struct Entry {double value=0;size_t bytes=0,work=0;unsigned credit=0;bool outside_certificate=false;};
   struct ClockKey {bool scoped=false;const void* key=nullptr;};
   // Stable tree nodes avoid retained hash buckets after incremental eviction.
   std::mutex lock;std::map<Key,Entry> values;
@@ -1188,14 +1188,15 @@ struct MappedFacetReference::FaceMemo {
   static size_t EntryBytes(){return sizeof(Key)+sizeof(Entry)+12*sizeof(void*)+4*sizeof(size_t);}
   static size_t UnionBytes(size_t words){return transfer_memory::Add(transfer_memory::Mul(words,sizeof(uint64_t)),
       sizeof(UnionKey)+sizeof(Entry)+12*sizeof(void*)+4*sizeof(size_t));}
-  template<class Map,class K> bool Find(Map& map,const K& key,unsigned kind,double& result) {
+  template<class Map,class K> bool Find(Map& map,const K& key,unsigned kind,double& result,bool* outside=nullptr) {
+    if(outside)*outside=false;
     auto found=map.find(key);if(found==map.end()){++misses[kind];return false;}
     auto& entry=found->second;
     entry.credit=1+std::min<size_t>(3,entry.work/(1+entry.bytes/64));
-    result=entry.value;++hits[kind];return true;
+    result=entry.value;if(outside)*outside=entry.outside_certificate;++hits[kind];return true;
   }
   bool Find(const Key& key,double& result){return Find(values,key,0,result);}
-  bool Find(const UnionKey& key,double& result){return Find(union_values,key,1,result);}
+  bool Find(const UnionKey& key,double& result,bool* outside=nullptr){return Find(union_values,key,1,result,outside);}
   bool Reserve(size_t requested,AtlasOps* op) {
     if(requested>Capacity()){++refusals;return false;}
     size_t scans=std::min<size_t>(64,clock.size()*5);
@@ -1216,17 +1217,17 @@ struct MappedFacetReference::FaceMemo {
     if(transfer_memory::Add(bytes,requested)>Capacity()){++refusals;return false;}
     return true;
   }
-  template<class Map,class K> void Retain(Map& map,K&& key,double value,size_t size,size_t work,bool scoped,AtlasOps* op) {
+  template<class Map,class K> void Retain(Map& map,K&& key,double value,size_t size,size_t work,bool scoped,AtlasOps* op,bool outside=false) {
     const auto previous=map.find(key);if(previous!=map.end())return;
     if(!Reserve(size,op))return;
-    const auto inserted=map.emplace(std::forward<K>(key),Entry{value,size,work,0});
+    const auto inserted=map.emplace(std::forward<K>(key),Entry{value,size,work,0,outside});
     if(!inserted.second)throw std::logic_error("Numeric geometry memo repeated an admitted key.");
     try{clock.push_back({scoped,&inserted.first->first});}catch(...){map.erase(inserted.first);throw;}
     bytes+=size;++stores;
   }
   void Store(const Key& key,double value){Retain(values,key,value,EntryBytes(),0,false,nullptr);}
-  void Store(UnionKey&& key,double value,size_t work,AtlasOps& op){
-    const auto size=UnionBytes(key.capacity());Retain(union_values,std::move(key),value,size,work,true,&op);
+  void Store(UnionKey&& key,double value,size_t work,AtlasOps& op,bool outside){
+    const auto size=UnionBytes(key.capacity());Retain(union_values,std::move(key),value,size,work,true,&op,outside);
   }
   void Snapshot(GeometryStats& out,bool reset) {
     out.memo_direct_hits=hits[0];out.memo_direct_misses=misses[0];out.memo_union_hits=hits[1];out.memo_union_misses=misses[1];
@@ -2085,8 +2086,9 @@ double MappedFacetReference::BoundPhysicalSurface(const std::vector<Id>& facets,
     }
     if(exact_classification&&!found) {
       key.erase(key.begin()+purpose_word);
-      // A legacy upper bound certifies inside; its conservative refusal is not an outside witness.
-      found=face_memo->Find(key,cached)&&cached<=tolerance;
+      // Reuse only a certified inside bound or an explicitly retained outside witness.
+      bool outside=false;
+      found=face_memo->Find(key,cached,&outside)&&(cached<=tolerance||outside);
       key.insert(key.begin()+purpose_word,3);
     }
     if(limited&&!found) {
@@ -2095,10 +2097,11 @@ double MappedFacetReference::BoundPhysicalSurface(const std::vector<Id>& facets,
     }
     if(found){std::lock_guard<std::mutex> stats_lock(geometry_stats->mutex);
       ++geometry_stats->value.upper_calls;geometry_stats->value.upper_refusals+=cached>tolerance;return traced_result(cached,"hit");}}
-  const auto before=budget.work;const auto result=QuerySurfaceUnion(facets,query,tolerance,budget,false,true,magnitude,stop_above,exact_classification).mesh_to_model;
+  const auto before=budget.work;const auto receipt=QuerySurfaceUnion(facets,query,tolerance,budget,false,true,magnitude,stop_above,exact_classification);
+  const auto result=receipt.mesh_to_model;
   // A cutoff result at or below its cutoff completed magnitude refinement.
   if(limited&&result<=stop_above){key[purpose_word]=1;key.erase(key.begin()+purpose_word+1);}
-  {std::lock_guard<std::mutex> guard(face_memo->lock);face_memo->Store(std::move(key),result,budget.work-before,op);}
+  {std::lock_guard<std::mutex> guard(face_memo->lock);face_memo->Store(std::move(key),result,budget.work-before,op,receipt.outside_tolerance);}
   return traced_result(result,"miss");
 }
 MappedFacetReference::GeometryStats MappedFacetReference::GeometryStatsSnapshot(bool reset)const {
