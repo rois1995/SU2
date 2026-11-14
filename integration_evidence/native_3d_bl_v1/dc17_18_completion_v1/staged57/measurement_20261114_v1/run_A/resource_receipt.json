@@ -1,0 +1,44 @@
+{
+  "samples": 289,
+  "first": {
+    "elapsed": 0.021173477172851562,
+    "monotonic_ns": 134932642006975,
+    "loadavg": "3.92 3.94 3.66 2/2760 775409\n",
+    "processes": [
+      {
+        "pid": 775407,
+        "start_ticks": 13493262,
+        "rss_bytes": 1601536,
+        "command": "/usr/bin/time -v -o /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/measurement_20261114_v1/run_A/outer.time.txt timeout 600 /usr/bin/python3 /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1"
+      }
+    ]
+  },
+  "last": {
+    "elapsed": 294.3434317111969,
+    "monotonic_ns": 135226964265009,
+    "loadavg": "4.56 4.23 3.85 3/2759 788330\n",
+    "processes": [
+      {
+        "pid": 775407,
+        "start_ticks": 13493262,
+        "rss_bytes": 1601536,
+        "command": "/usr/bin/time -v -o /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/measurement_20261114_v1/run_A/outer.time.txt timeout 600 /usr/bin/python3 /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1"
+      },
+      {
+        "pid": 775408,
+        "start_ticks": 13493262,
+        "rss_bytes": 2097152,
+        "command": "timeout 600 /usr/bin/python3 /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/measurement_20261114_v1/rank_perf.py /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/t"
+      },
+      {
+        "pid": 775409,
+        "start_ticks": 13493262,
+        "rss_bytes": 18149376,
+        "command": "/usr/bin/python3 /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/measurement_20261114_v1/rank_perf.py /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver ["
+      }
+    ]
+  },
+  "maximum_load1": 4.79,
+  "maximum_sum_of_sampled_owned_process_RSS_bytes": 1973809152,
+  "note": "Simultaneously sampled sum, not whole-job peak; process identities and raw receipts retained locally."
+}

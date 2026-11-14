@@ -1,0 +1,29 @@
+{
+  "argv": [
+    "/usr/bin/perf",
+    "record",
+    "--clockid",
+    "mono",
+    "-e",
+    "cycles:u",
+    "-F",
+    "99",
+    "--call-graph",
+    "dwarf",
+    "-p",
+    "775497",
+    "-o",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/measurement_20261114_v1/run_A/profile/rank0.saved_surface_setup.dwarf.data",
+    "--",
+    "/bin/sleep",
+    "20"
+  ],
+  "attached": {
+    "pid": 775497,
+    "start_ticks": 13493439,
+    "monotonic_ns": 134934421918247,
+    "wall_ns": 1794642628266098467,
+    "program": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver"
+  },
+  "started_monotonic_ns": 135080845331058
+}

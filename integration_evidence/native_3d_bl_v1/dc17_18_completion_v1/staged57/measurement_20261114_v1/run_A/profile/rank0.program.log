@@ -1,0 +1,25 @@
+NATIVE3D_REFERENCE_CACHE host_ranks=1 host_quota_bytes=4294967296 rank_quota_bytes=4294967296
+Filters: [NativeActualSavedSurfaceStage3D]
+NATIVE3D_STORAGE rank=0 stage=surface_required_entry authority_plus_memo_bytes=53184784 prepared_reserved_bytes=3204054800 facet_live_bytes=84838832 scope_live_bytes=3550032 private_cells_bytes=136112704 selection_bytes=19322240 directory_bytes=253828368 metric_source_bytes=332990752 parameter_bytes=49062376 caller_reservation_bytes=4225036072 native_peak_bytes=7904881264
+NATIVE3D_STAGE rank=0 stage=surface_required_entry phase=construction cells=303823 measured=320 cache_consistent=1 census_complete=0 shape_complete=0 geometry_complete=0 q_measured=0 j_measured=0 q_bad=0 j_bad=0 size_bad=1 geometry_bad=0 q_debt=0 j_debt=0 size_debt=0.0010368432315358514 geometry_debt=0 associations=24700 working_faces=49396 face_pieces=0 trace_pieces=677 maximum_ratio_limbs=2 atlas_work=7852837 atlas_bytes=7875381992 global_work=0 rounds=0 batch_rounds=0 collapse_corrections=0 collapse_correction_cells=0 collapse_correction_work=0 collapse_correction_seconds=0 batch_candidates=0 batch_reserved=0 quality_progress=0 accepted=0 updated_cells=0 update_seconds=0 surface_measurement_skipped=0 surface_required_handoffs=1 surface_demand_required=39243 surface_demand_measured=320 surface_demand_complete=0 surface_geometry_complete=0 seed_cell_classes=0,0,320 updated_cell_classes=0,0,0 geometry_trials=0 geometry_rejected=0 guidance_trials=0 guidance_rejected=0 guidance_faces=0 guidance_early_rejected=0 guidance_seconds=0 collective_calls=119 collective_seconds=0.15870570099993131 election_calls=326 election_seconds=0.00016255399995657172 direct_calls=320 direct_exceptions=0 direct_work=0 direct_seconds=0.027811182000000018 upper_calls=0 union_exceptions=0 upper_refusals=0 upper_work=0 upper_seconds=0 full_calls=0 full_work=0 full_seconds=0 facet_hits=0 facet_misses=0 scope_hits=0 scope_misses=0 scope_attempts=0 scope_builds=0 scope_build_work=0 scope_build_seconds=0 support_calls=0 support_facets=0 support_seconds=0 facet_build_work=0 facet_build_seconds=0 piece_selection_work=0 piece_selection_seconds=0 traversal_work=0 traversal_seconds=0 selected_pieces=0 support_pieces=0 smooth_boundary_stars=0 smooth_boundary_reused=0 smooth_boundary_candidates=0 smooth_boundary_rejects=0,0,0,0 smooth_boundary_guidance=0 smooth_boundary_upper_queries=0 smooth_boundary_move_contexts=0 smooth_boundary_prepared_trials=0 smooth_boundary_guidance_reused_faces=0 smooth_boundary_guidance_faces=0 smooth_boundary_guidance_early_rejected=0 smooth_boundary_moves=0 smooth_boundary_debt_reduction=0 smooth_boundary_seconds=0 smooth_interior_stars=0 smooth_interior_reused=0 smooth_interior_candidates=0 smooth_interior_rejects=0,0,0,0 smooth_interior_guidance=0 smooth_interior_upper_queries=0 smooth_interior_moves=0 smooth_interior_debt_reduction=0 smooth_interior_seconds=0 retention_refusals=0 prepared_bytes=88388864 prepared_limit=3204054800 facet_bytes=84838832 scope_bytes=3550032 facet_entries=105 scope_entries=1 cache_evictions=0 cache_evicted_bytes=0 memo_direct_hits=0 memo_direct_misses=320 memo_union_hits=0 memo_union_misses=0 memo_stores=320 memo_evictions=0 memo_evicted_bytes=0 memo_retention_refusals=0 memo_maintenance_work=0 memo_bytes=115200 memo_limit=4194304 memo_direct_entries=320 memo_union_entries=0 length_splits=0 length_collapses=0 split_passes=0 collapse_passes=0 quality_stages=0 split_generation=1 split_lane=1 surface_rounds=0 interior_rounds=0 surface_seconds=0 interior_seconds=0 surface_conflicts=0 interior_conflicts=0 interior_boundary_discoveries=0 unique_long_surface=0 unique_long_interior=0 unique_edge_debt=0 maximum_edge=0 edge_census_round=18446744073709551615 edge_census_current=0 edge_histogram=0,0,0 child_parent_max=0 child_ratio_measured=0 elapsed=7.6494534810000001
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+test_driver is a Catch v2.13.9 host application.
+Run with -? for options
+
+-------------------------------------------------------------------------------
+Saved transported M6 state resumes the production surface sequence
+-------------------------------------------------------------------------------
+../../UnitTests/SU2_CFD/adaptation/fixtures/native_actual_bl_cavity_planning.inc:105
+...............................................................................
+
+../../UnitTests/SU2_CFD/adaptation/fixtures/native_actual_bl_cavity_planning.inc:105: FAILED:
+  {Unknown expression after the reported line}
+due to a fatal error condition:
+  SIGTERM - Termination request signal
+
+0.000 s: Saved transported M6 state resumes the production surface sequence
+===============================================================================
+test cases:      1 |      0 passed | 1 failed
+assertions: 611806 | 611805 passed | 1 failed
+

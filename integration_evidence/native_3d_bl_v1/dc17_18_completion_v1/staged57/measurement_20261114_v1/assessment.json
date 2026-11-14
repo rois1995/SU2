@@ -1,0 +1,85 @@
+{
+  "state": "stopped_per_brief_profiler_failure",
+  "run_A": {
+    "state": "terminal",
+    "exit_code": 241,
+    "seconds": 298.43862295150757,
+    "profiler_failed": true,
+    "native_started": true,
+    "inputs_unchanged": true,
+    "changed": [],
+    "all_owned_handles_terminal": true,
+    "live": [],
+    "identities": [
+      {
+        "pid": 775407,
+        "start_ticks": 13493262
+      },
+      {
+        "pid": 775408,
+        "start_ticks": 13493262
+      },
+      {
+        "pid": 775409,
+        "start_ticks": 13493262
+      },
+      {
+        "pid": 775445,
+        "start_ticks": 13493414
+      },
+      {
+        "pid": 775446,
+        "start_ticks": 13493414
+      },
+      {
+        "pid": 775496,
+        "start_ticks": 13493438
+      },
+      {
+        "pid": 775497,
+        "start_ticks": 13493439
+      },
+      {
+        "pid": 775498,
+        "start_ticks": 13493442
+      },
+      {
+        "pid": 781849,
+        "start_ticks": 13508084
+      },
+      {
+        "pid": 781852,
+        "start_ticks": 13508109
+      }
+    ],
+    "wrapper_excluded": {
+      "pid": 775184,
+      "start_ticks": 13492692
+    }
+  },
+  "run_B": "not started",
+  "native_samples": 28898,
+  "sampled_profile_bytes_highwater": 27928299,
+  "retained_total_bytes": 16991355,
+  "sampled_main_peak_rss_kib": 2032524,
+  "observed_main_peak_hwm_kib": 2237336,
+  "binary_hashes_unchanged": true,
+  "raw_profiles": [
+    {
+      "path": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/measurement_20261114_v1/preflight/perf.data",
+      "bytes": 15788,
+      "sha256": "2f30b26e0151346ef008da5cd26c984aeb3122a27f947b04034e427836286b26"
+    },
+    {
+      "path": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/measurement_20261114_v1/preflight/pipe.perf.data",
+      "bytes": 10264,
+      "sha256": "df58f4fd7c450ef4e00668708fc10da2ab6e1a676d1c99e913a1230c18715e2a"
+    },
+    {
+      "path": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/measurement_20261114_v1/run_A/profile/rank0.perf.data",
+      "bytes": 1428460,
+      "sha256": "3ddb22b4f3a100824245c9be7eb7f1393a7769e376d3ea2351ba87cc1695ca7c"
+    }
+  ],
+  "no_source_or_build_changes": true
+}

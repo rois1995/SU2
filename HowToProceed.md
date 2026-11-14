@@ -1,5 +1,7 @@
 # How to proceed
 
+2026-11-14 measurement-only task stopped on DWARF decoding failure; Run A partial, Run B unstarted: [measurement report](Handbook/ADAPTATION_M6_MEASUREMENT_20261114.md). No design work started.
+
 The requested M6 nose-target cycle492 is closed. Read the [current handoff](HANDOFF_Codex.md), [492 outcome](Handbook/ADAPTATION_MAPPED_CURVATURE_OUTCOME_492_20261113.md), [frozen plan](Handbook/ADAPTATION_MAPPED_CURVATURE_TARGET_492_20261113.md) and [timings](Handbook/ADAPTATION_TIMINGS.md).
 
 The individual principal constraints and rebuilt-target fidelity are qualified, but the one unchanged-budget production run rejects the size-only hypothesis:305splits;36of65nose splits remain spanwise;705/1014geometry-guidance refusals; surface not ready. Full-entity before/after certification is unresolved after both30s observations exhausted their budgets. Do not start another local nose/cone variant, increase budgets or relax gates.

@@ -1,0 +1,39 @@
+{
+  "record_argv": [
+    "nice",
+    "-n",
+    "19",
+    "/usr/bin/perf",
+    "record",
+    "--clockid",
+    "mono",
+    "-e",
+    "cycles:u",
+    "-F",
+    "99",
+    "-o",
+    "-",
+    "--",
+    "/usr/bin/python3",
+    "-c",
+    "sum(i*i for i in range(3000000))"
+  ],
+  "script_argv": [
+    "/usr/bin/perf",
+    "script",
+    "-i",
+    "-",
+    "--ns",
+    "-F",
+    "pid,tid,time,ip,sym,dso"
+  ],
+  "record_exit": 0,
+  "script_exit": 0,
+  "record_stderr": "[ perf record: Woken up 1 times to write data ]\n[ perf record: Captured and wrote 0.000 MB - ]\n",
+  "script_stderr": "",
+  "first_samples": [
+    " 746844/746844  134357.545294604:            5a83c7 [unknown] (/usr/bin/python3.12)",
+    " 746844/746844  134357.547989543:      70e1704d5819 do_lookup_x (/usr/lib/x86_64-linux-gnu/ld-linux-x86-64.so.2)",
+    " 746844/746844  134357.551908624:            562375 PyLong_FromLong (/usr/bin/python3.12)"
+  ]
+}

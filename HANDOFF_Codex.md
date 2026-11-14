@@ -1,5 +1,7 @@
 # Native adaptation — current handoff
 
+2026-11-14 measurement-only task stopped on DWARF decoding failure; Run A partial, Run B unstarted: [measurement report](Handbook/ADAPTATION_M6_MEASUREMENT_20261114.md). No design work started.
+
 Updated 2026-11-13, Europe/Rome. The full curved-BL/RANS goal remains open. The requested nose-target cycle492 is **closed: tested size-only implementation rejected**. No owned heavy job remains; do not start another local nose variant or retry this cycle.
 
 R=`integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57`.

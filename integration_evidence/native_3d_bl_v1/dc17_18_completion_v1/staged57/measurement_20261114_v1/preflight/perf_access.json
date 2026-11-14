@@ -1,0 +1,25 @@
+{
+  "argv": [
+    "nice",
+    "-n",
+    "19",
+    "/usr/bin/perf",
+    "record",
+    "-e",
+    "cycles:u",
+    "-F",
+    "99",
+    "-o",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/measurement_20261114_v1/preflight/perf.data",
+    "--",
+    "/usr/bin/python3",
+    "-c",
+    "sum(i*i for i in range(3000000))"
+  ],
+  "exit_code": 0,
+  "stdout": "",
+  "stderr": "[ perf record: Woken up 1 times to write data ]\n[ perf record: Captured and wrote 0.002 MB /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/measurement_20261114_v1/preflight/perf.data (20 samples) ]\n",
+  "seconds": 0.46999120712280273,
+  "actual_host": true,
+  "uid": 1000
+}

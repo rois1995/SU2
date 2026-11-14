@@ -1,0 +1,2511 @@
+[
+  {
+    "rank": 0,
+    "native_pid": 775497,
+    "native_samples": 28898,
+    "ignored_other_pid_or_before_exec": 9,
+    "first_monotonic": 134934.461582672,
+    "last_monotonic": 135226.793814401,
+    "groups": {
+      "wall_proof": {
+        "samples": 119,
+        "percent": 0.4117932036819157,
+        "resolution": "resolved"
+      },
+      "exact_predicates": {
+        "samples": 1288,
+        "percent": 4.457055851616029,
+        "resolution": "resolved"
+      },
+      "target_BL": {
+        "samples": 7876,
+        "percent": 27.254481278981245,
+        "resolution": "resolved"
+      },
+      "tree": {
+        "samples": 456,
+        "percent": 1.5779638729323828,
+        "resolution": "resolved"
+      },
+      "memory": {
+        "samples": 473,
+        "percent": 1.6367914734583708,
+        "resolution": "resolved"
+      },
+      "MPI": {
+        "samples": 1,
+        "percent": 0.0034604470897639976,
+        "resolution": "not resolved"
+      },
+      "pack_unpack": {
+        "samples": 64,
+        "percent": 0.22146861374489585,
+        "resolution": "not resolved"
+      },
+      "cavity_topology": {
+        "samples": 84,
+        "percent": 0.29067755554017577,
+        "resolution": "not resolved"
+      },
+      "other": {
+        "samples": 18537,
+        "percent": 64.14630770295523,
+        "resolution": "resolved"
+      }
+    },
+    "top20": [
+      {
+        "symbol": "dc10::OptionA::InStrip(dc10::StripPair const&, junction_wp0::V, long double&, junction_wp0::V&) const",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "samples": 4392,
+        "percent": 15.198283618243478,
+        "resolution": "resolved"
+      },
+      {
+        "symbol": "SU2NativeGeometry::(anonymous namespace)::Multiply(SU2NativeGeometry::(anonymous namespace)::Range, SU2NativeGeometry::(anonymous namespace)::Range)",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "samples": 4316,
+        "percent": 14.935289639421413,
+        "resolution": "resolved"
+      },
+      {
+        "symbol": "__nexttowardl",
+        "dso": "/usr/lib/x86_64-linux-gnu/libm.so.6",
+        "samples": 3681,
+        "percent": 12.737905737421276,
+        "resolution": "resolved"
+      },
+      {
+        "symbol": "SU2NativeBLPipeline3D::TargetPolicy::BoundaryGuidance(SU2Native3D::Node, SU2Native3D::PlanarReference const&, SU2Native3D::Tensor, std::vector<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::allocator<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > > const&) const::{lambda(unsigned long)#1}::operator()(unsigned long) const",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "samples": 3412,
+        "percent": 11.80704547027476,
+        "resolution": "resolved"
+      },
+      {
+        "symbol": "SU2NativeGeometry::(anonymous namespace)::Add(SU2NativeGeometry::(anonymous namespace)::Range, SU2NativeGeometry::(anonymous namespace)::Range)",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "samples": 2434,
+        "percent": 8.42272821648557,
+        "resolution": "resolved"
+      },
+      {
+        "symbol": "SU2NativeGeometry::(anonymous namespace)::Multiply(SU2NativeGeometry::(anonymous namespace)::Range, long double)",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "samples": 2254,
+        "percent": 7.79984774032805,
+        "resolution": "resolved"
+      },
+      {
+        "symbol": "SU2NativeGeometry::(anonymous namespace)::Adjacent(long double, bool)",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "samples": 1529,
+        "percent": 5.291023600249152,
+        "resolution": "resolved"
+      },
+      {
+        "symbol": "SU2NativeGeometry::(anonymous namespace)::Blossom(std::array<SU2Native3D::Point, 10ul> const&, std::array<std::array<SU2NativeGeometry::(anonymous namespace)::Range, 3ul>, 3ul> const&)",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "samples": 1249,
+        "percent": 4.322098415115233,
+        "resolution": "resolved"
+      },
+      {
+        "symbol": "SU2Native3D::(anonymous namespace)::Coordinate(double)",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "samples": 393,
+        "percent": 1.359955706277251,
+        "resolution": "resolved"
+      },
+      {
+        "symbol": "SU2Native3D::(anonymous namespace)::Integer<66ul> SU2Native3D::(anonymous namespace)::Difference<66ul>(SU2Native3D::(anonymous namespace)::Integer<66ul> const&, SU2Native3D::(anonymous namespace)::Integer<66ul> const&)",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "samples": 275,
+        "percent": 0.9516229496850993,
+        "resolution": "resolved"
+      },
+      {
+        "symbol": "SU2Native3D::(anonymous namespace)::Integer<132ul> SU2Native3D::(anonymous namespace)::Difference<132ul>(SU2Native3D::(anonymous namespace)::Integer<132ul> const&, SU2Native3D::(anonymous namespace)::Integer<132ul> const&)",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "samples": 209,
+        "percent": 0.7232334417606755,
+        "resolution": "resolved"
+      },
+      {
+        "symbol": "SU2Native3D::(anonymous namespace)::Integer<(66ul)+(66ul)> SU2Native3D::(anonymous namespace)::Product<66ul, 66ul>(SU2Native3D::(anonymous namespace)::Integer<66ul> const&, SU2Native3D::(anonymous namespace)::Integer<66ul> const&)",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "samples": 188,
+        "percent": 0.6505640528756316,
+        "resolution": "resolved"
+      },
+      {
+        "symbol": "SU2NativeGeometry::(anonymous namespace)::NormBound(std::array<SU2NativeGeometry::(anonymous namespace)::Range, 3ul> const&)",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "samples": 169,
+        "percent": 0.5848155581701155,
+        "resolution": "resolved"
+      },
+      {
+        "symbol": "SU2NativeGeometry::(anonymous namespace)::EdgeNormal(SU2NativeGeometry::MappedFacetReference const&, unsigned long, std::array<unsigned long, 2ul>, SU2NativeGeometry::(anonymous namespace)::Range)",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "samples": 166,
+        "percent": 0.5744342169008236,
+        "resolution": "resolved"
+      },
+      {
+        "symbol": "SU2NativeGeometry::(anonymous namespace)::UnionChord(std::array<std::array<SU2NativeGeometry::(anonymous namespace)::Range, 3ul>, 10ul> const&)",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "samples": 157,
+        "percent": 0.5432901930929476,
+        "resolution": "resolved"
+      },
+      {
+        "symbol": "SU2NativeGeometry::(anonymous namespace)::Difference(std::array<SU2NativeGeometry::(anonymous namespace)::Range, 3ul> const&, std::array<SU2NativeGeometry::(anonymous namespace)::Range, 3ul> const&)",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "samples": 153,
+        "percent": 0.5294484047338917,
+        "resolution": "resolved"
+      },
+      {
+        "symbol": "__memset_avx2_unaligned_erms",
+        "dso": "/usr/lib/x86_64-linux-gnu/libc.so.6",
+        "samples": 141,
+        "percent": 0.4879230396567236,
+        "resolution": "resolved"
+      },
+      {
+        "symbol": "SU2NativeGeometry::(anonymous namespace)::TriangleDistance(std::array<SU2NativeGeometry::(anonymous namespace)::Range, 3ul> const&, std::array<SU2Native3D::Point, 3ul> const&, SU2NativeGeometry::(anonymous namespace)::AtlasOps&, bool) [clone .isra.0]",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "samples": 133,
+        "percent": 0.4602394629386117,
+        "resolution": "resolved"
+      },
+      {
+        "symbol": "__memmove_avx_unaligned_erms",
+        "dso": "/usr/lib/x86_64-linux-gnu/libc.so.6",
+        "samples": 132,
+        "percent": 0.45677901584884767,
+        "resolution": "resolved"
+      },
+      {
+        "symbol": "SU2Native3D::PlanarReference::Get(unsigned long) const",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "samples": 129,
+        "percent": 0.4463976745795557,
+        "resolution": "resolved"
+      }
+    ],
+    "all_symbols": [
+      {
+        "symbol": "dc10::OptionA::InStrip(dc10::StripPair const&, junction_wp0::V, long double&, junction_wp0::V&) const",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "target_BL",
+        "samples": 4392
+      },
+      {
+        "symbol": "SU2NativeGeometry::(anonymous namespace)::Multiply(SU2NativeGeometry::(anonymous namespace)::Range, SU2NativeGeometry::(anonymous namespace)::Range)",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "other",
+        "samples": 4316
+      },
+      {
+        "symbol": "__nexttowardl",
+        "dso": "/usr/lib/x86_64-linux-gnu/libm.so.6",
+        "group": "other",
+        "samples": 3681
+      },
+      {
+        "symbol": "SU2NativeBLPipeline3D::TargetPolicy::BoundaryGuidance(SU2Native3D::Node, SU2Native3D::PlanarReference const&, SU2Native3D::Tensor, std::vector<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::allocator<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > > const&) const::{lambda(unsigned long)#1}::operator()(unsigned long) const",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "target_BL",
+        "samples": 3412
+      },
+      {
+        "symbol": "SU2NativeGeometry::(anonymous namespace)::Add(SU2NativeGeometry::(anonymous namespace)::Range, SU2NativeGeometry::(anonymous namespace)::Range)",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "other",
+        "samples": 2434
+      },
+      {
+        "symbol": "SU2NativeGeometry::(anonymous namespace)::Multiply(SU2NativeGeometry::(anonymous namespace)::Range, long double)",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "other",
+        "samples": 2254
+      },
+      {
+        "symbol": "SU2NativeGeometry::(anonymous namespace)::Adjacent(long double, bool)",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "other",
+        "samples": 1529
+      },
+      {
+        "symbol": "SU2NativeGeometry::(anonymous namespace)::Blossom(std::array<SU2Native3D::Point, 10ul> const&, std::array<std::array<SU2NativeGeometry::(anonymous namespace)::Range, 3ul>, 3ul> const&)",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "other",
+        "samples": 1249
+      },
+      {
+        "symbol": "SU2Native3D::(anonymous namespace)::Coordinate(double)",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "exact_predicates",
+        "samples": 393
+      },
+      {
+        "symbol": "SU2Native3D::(anonymous namespace)::Integer<66ul> SU2Native3D::(anonymous namespace)::Difference<66ul>(SU2Native3D::(anonymous namespace)::Integer<66ul> const&, SU2Native3D::(anonymous namespace)::Integer<66ul> const&)",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "exact_predicates",
+        "samples": 275
+      },
+      {
+        "symbol": "SU2Native3D::(anonymous namespace)::Integer<132ul> SU2Native3D::(anonymous namespace)::Difference<132ul>(SU2Native3D::(anonymous namespace)::Integer<132ul> const&, SU2Native3D::(anonymous namespace)::Integer<132ul> const&)",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "exact_predicates",
+        "samples": 209
+      },
+      {
+        "symbol": "SU2Native3D::(anonymous namespace)::Integer<(66ul)+(66ul)> SU2Native3D::(anonymous namespace)::Product<66ul, 66ul>(SU2Native3D::(anonymous namespace)::Integer<66ul> const&, SU2Native3D::(anonymous namespace)::Integer<66ul> const&)",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "exact_predicates",
+        "samples": 188
+      },
+      {
+        "symbol": "SU2NativeGeometry::(anonymous namespace)::NormBound(std::array<SU2NativeGeometry::(anonymous namespace)::Range, 3ul> const&)",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "other",
+        "samples": 169
+      },
+      {
+        "symbol": "SU2NativeGeometry::(anonymous namespace)::EdgeNormal(SU2NativeGeometry::MappedFacetReference const&, unsigned long, std::array<unsigned long, 2ul>, SU2NativeGeometry::(anonymous namespace)::Range)",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "other",
+        "samples": 166
+      },
+      {
+        "symbol": "SU2NativeGeometry::(anonymous namespace)::UnionChord(std::array<std::array<SU2NativeGeometry::(anonymous namespace)::Range, 3ul>, 10ul> const&)",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "other",
+        "samples": 157
+      },
+      {
+        "symbol": "SU2NativeGeometry::(anonymous namespace)::Difference(std::array<SU2NativeGeometry::(anonymous namespace)::Range, 3ul> const&, std::array<SU2NativeGeometry::(anonymous namespace)::Range, 3ul> const&)",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "other",
+        "samples": 153
+      },
+      {
+        "symbol": "__memset_avx2_unaligned_erms",
+        "dso": "/usr/lib/x86_64-linux-gnu/libc.so.6",
+        "group": "memory",
+        "samples": 141
+      },
+      {
+        "symbol": "SU2NativeGeometry::(anonymous namespace)::TriangleDistance(std::array<SU2NativeGeometry::(anonymous namespace)::Range, 3ul> const&, std::array<SU2Native3D::Point, 3ul> const&, SU2NativeGeometry::(anonymous namespace)::AtlasOps&, bool) [clone .isra.0]",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "other",
+        "samples": 133
+      },
+      {
+        "symbol": "__memmove_avx_unaligned_erms",
+        "dso": "/usr/lib/x86_64-linux-gnu/libc.so.6",
+        "group": "memory",
+        "samples": 132
+      },
+      {
+        "symbol": "SU2Native3D::PlanarReference::Get(unsigned long) const",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "other",
+        "samples": 129
+      },
+      {
+        "symbol": "SU2NativeGeometry::(anonymous namespace)::CrossBox(std::array<SU2NativeGeometry::(anonymous namespace)::Range, 3ul> const&, std::array<SU2NativeGeometry::(anonymous namespace)::Range, 3ul> const&)",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "other",
+        "samples": 124
+      },
+      {
+        "symbol": "std::_Rb_tree<std::array<unsigned long, 2ul>, std::array<unsigned long, 2ul>, std::_Identity<std::array<unsigned long, 2ul> >, std::less<std::array<unsigned long, 2ul> >, std::allocator<std::array<unsigned long, 2ul> > >::_M_get_insert_unique_pos(std::array<unsigned long, 2ul> const&)",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "tree",
+        "samples": 112
+      },
+      {
+        "symbol": "SU2NativeGeometry::(anonymous namespace)::CubicNormalControls(std::array<std::array<SU2NativeGeometry::(anonymous namespace)::Range, 3ul>, 10ul> const&)",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "other",
+        "samples": 106
+      },
+      {
+        "symbol": "SU2Native3D::(anonymous namespace)::ParametricBounds(SU2Native3D::(anonymous namespace)::Integer<132ul> const&)",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "exact_predicates",
+        "samples": 106
+      },
+      {
+        "symbol": "std::_Rb_tree<unsigned long, std::pair<unsigned long const, std::array<SU2Native3D::Point, 10ul> >, std::_Select1st<std::pair<unsigned long const, std::array<SU2Native3D::Point, 10ul> > >, std::less<unsigned long>, std::allocator<std::pair<unsigned long const, std::array<SU2Native3D::Point, 10ul> > > >::find(unsigned long const&) const [clone .isra.0]",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "tree",
+        "samples": 90
+      },
+      {
+        "symbol": "SU2NativeGeometry::MappedFacetReference::ClosestCurved(unsigned long, SU2Native3D::Point, double, unsigned long, unsigned long, std::function<bool (unsigned long)> const&, unsigned long*, SU2NativeGeometry::AtlasBudget*) const::{lambda(unsigned long, std::array<SU2Native3D::Point, 3ul> const&, unsigned int)#1}::operator()(unsigned long, std::array<SU2Native3D::Point, 3ul> const&, unsigned int) const",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "wall_proof",
+        "samples": 79
+      },
+      {
+        "symbol": "SU2Native3D::BoundaryParameterState::Entity(unsigned long) const",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "other",
+        "samples": 77
+      },
+      {
+        "symbol": "SU2Native3D::Directory::Prepare(std::vector<SU2Native3D::OwnedCell, std::allocator<SU2Native3D::OwnedCell> > const&, std::vector<SU2Native3D::OwnedCell, std::allocator<SU2Native3D::OwnedCell> > const&, unsigned long, unsigned long)",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "other",
+        "samples": 74
+      },
+      {
+        "symbol": "SU2NativeGeometry::MappedFacetReference::MaximumError(SU2NativeGeometry::SurfaceBinding const&) const",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "other",
+        "samples": 70
+      },
+      {
+        "symbol": "SU2NativeGeometry::(anonymous namespace)::TriangleDistance(std::array<SU2NativeGeometry::(anonymous namespace)::Range, 3ul> const&, std::array<SU2Native3D::Point, 3ul> const&, SU2NativeGeometry::(anonymous namespace)::AtlasOps&, bool)::{lambda(long double, long double)#1}::operator()(long double, long double) const",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "other",
+        "samples": 70
+      },
+      {
+        "symbol": "SU2NativeGeometry::MappedFacetReference::CheckBinding(SU2NativeGeometry::SurfaceBinding const&) const",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "other",
+        "samples": 66
+      },
+      {
+        "symbol": "SU2Native3D::CavityMetricSource::Build(std::vector<SU2Native3D::DonorCell, std::allocator<SU2Native3D::DonorCell> > const&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >&, unsigned long, unsigned long)",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "cavity_topology",
+        "samples": 66
+      },
+      {
+        "symbol": "_int_malloc",
+        "dso": "/usr/lib/x86_64-linux-gnu/libc.so.6",
+        "group": "memory",
+        "samples": 62
+      },
+      {
+        "symbol": "SU2Native3D::(anonymous namespace)::Integer<198ul> SU2Native3D::(anonymous namespace)::Difference<198ul>(SU2Native3D::(anonymous namespace)::Integer<198ul> const&, SU2Native3D::(anonymous namespace)::Integer<198ul> const&)",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "exact_predicates",
+        "samples": 59
+      },
+      {
+        "symbol": "SU2NativeGeometry::(anonymous namespace)::DotBox(std::array<SU2NativeGeometry::(anonymous namespace)::Range, 3ul> const&, std::array<SU2NativeGeometry::(anonymous namespace)::Range, 3ul> const&)",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "other",
+        "samples": 58
+      },
+      {
+        "symbol": "CADTBaseClass::BuildADT(unsigned short, unsigned long, double const*)",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "other",
+        "samples": 55
+      },
+      {
+        "symbol": "CADTElemClass::DetermineNearestElement_impl(std::vector<CBBoxTargetClass, std::allocator<CBBoxTargetClass> >&, std::vector<unsigned long, std::allocator<unsigned long> >&, std::vector<unsigned long, std::allocator<unsigned long> >&, double const*, double&, unsigned short&, unsigned long&, int&) const",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "other",
+        "samples": 50
+      },
+      {
+        "symbol": "malloc_consolidate",
+        "dso": "/usr/lib/x86_64-linux-gnu/libc.so.6",
+        "group": "memory",
+        "samples": 47
+      },
+      {
+        "symbol": "SU2Native3D::(anonymous namespace)::Determinant(SU2Native3D::Point, SU2Native3D::Point, SU2Native3D::Point, SU2Native3D::Point, SU2Native3D::KernelStats*, long double, bool)",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "other",
+        "samples": 44
+      },
+      {
+        "symbol": "SU2Native3D::(anonymous namespace)::ParametricCoordinate(SU2Native3D::ParametricPoint const&, unsigned int)",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "other",
+        "samples": 43
+      },
+      {
+        "symbol": "std::_Rb_tree_increment(std::_Rb_tree_node_base*)",
+        "dso": "/usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.33",
+        "group": "tree",
+        "samples": 41
+      },
+      {
+        "symbol": "std::_Rb_tree_increment(std::_Rb_tree_node_base const*)",
+        "dso": "/usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.33",
+        "group": "tree",
+        "samples": 41
+      },
+      {
+        "symbol": "__GI_____strtod_l_internal",
+        "dso": "/usr/lib/x86_64-linux-gnu/libc.so.6",
+        "group": "other",
+        "samples": 39
+      },
+      {
+        "symbol": "unlink_chunk.isra.0",
+        "dso": "/usr/lib/x86_64-linux-gnu/libc.so.6",
+        "group": "other",
+        "samples": 38
+      },
+      {
+        "symbol": "SU2Native3D::(anonymous namespace)::Integer<(66ul)+(132ul)> SU2Native3D::(anonymous namespace)::Product<66ul, 132ul>(SU2Native3D::(anonymous namespace)::Integer<66ul> const&, SU2Native3D::(anonymous namespace)::Integer<132ul> const&)",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "exact_predicates",
+        "samples": 38
+      },
+      {
+        "symbol": "void std::__introsort_loop<unsigned long*, long, __gnu_cxx::__ops::_Iter_comp_iter<CADTComparePointClass> >(unsigned long*, unsigned long*, long, __gnu_cxx::__ops::_Iter_comp_iter<CADTComparePointClass>)",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "other",
+        "samples": 38
+      },
+      {
+        "symbol": "SU2Native3D::PlanarReference::PlanarReference(std::vector<SU2Native3D::Facet, std::allocator<SU2Native3D::Facet> >, unsigned long, std::map<unsigned long, SU2Native3D::AnalyticSurface, std::less<unsigned long>, std::allocator<std::pair<unsigned long const, SU2Native3D::AnalyticSurface> > >, std::map<unsigned long, SU2NativeGeometry::AffineAuthority, std::less<unsigned long>, std::allocator<std::pair<unsigned long const, SU2NativeGeometry::AffineAuthority> > >)",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "other",
+        "samples": 35
+      },
+      {
+        "symbol": "__printf_fp_buffer_1.isra.0",
+        "dso": "/usr/lib/x86_64-linux-gnu/libc.so.6",
+        "group": "other",
+        "samples": 34
+      },
+      {
+        "symbol": "[unknown]",
+        "dso": "[unknown]",
+        "group": "other",
+        "samples": 32
+      },
+      {
+        "symbol": "std::num_get<char, std::istreambuf_iterator<char, std::char_traits<char> > >::_M_extract_float(std::istreambuf_iterator<char, std::char_traits<char> >, std::istreambuf_iterator<char, std::char_traits<char> >, std::ios_base&, std::_Ios_Iostate&, std::string&) const",
+        "dso": "/usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.33",
+        "group": "other",
+        "samples": 32
+      },
+      {
+        "symbol": "SU2NativeGeometry::MappedFacetReference::Admissible(SU2NativeGeometry::SurfaceBinding const&, SU2Native3D::Point) const",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "other",
+        "samples": 32
+      },
+      {
+        "symbol": "malloc",
+        "dso": "/usr/lib/x86_64-linux-gnu/libc.so.6",
+        "group": "memory",
+        "samples": 32
+      },
+      {
+        "symbol": "CADTElemClass::DetermineIntersectingElements(double const*, double const*, std::vector<unsigned long, std::allocator<unsigned long> >&)",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "other",
+        "samples": 31
+      },
+      {
+        "symbol": "SU2NativeGeometry::MappedFacetReference::MappedFacetReference(std::shared_ptr<SU2Native3D::PlanarReference const>, std::map<unsigned long, double, std::less<unsigned long>, std::allocator<std::pair<unsigned long const, double> > > const&, unsigned long, unsigned long, bool, std::map<unsigned long, std::array<SU2Native3D::Point, 10ul>, std::less<unsigned long>, std::allocator<std::pair<unsigned long const, std::array<SU2Native3D::Point, 10ul> > > > const&, unsigned long)",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "other",
+        "samples": 29
+      },
+      {
+        "symbol": "_int_free",
+        "dso": "/usr/lib/x86_64-linux-gnu/libc.so.6",
+        "group": "memory",
+        "samples": 28
+      },
+      {
+        "symbol": "SU2Native3D::(anonymous namespace)::Surface(std::vector<std::array<unsigned long, 3ul>, std::allocator<std::array<unsigned long, 3ul> > > const&, bool, bool, SU2Native3D::Feature*, bool)",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "other",
+        "samples": 28
+      },
+      {
+        "symbol": "SU2NativeGeometry::AffineChart::ErrorBound(SU2Native3D::Point) const",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "other",
+        "samples": 27
+      },
+      {
+        "symbol": "void CBlasStructure::tql2<double [3][3], double [3], double [3]>(double (&) [3][3], double (&) [3], double (&) [3], int)",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "other",
+        "samples": 27
+      },
+      {
+        "symbol": "void SU2NativeBoundary2D::RecordStream::Field<double>(double&)",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "pack_unpack",
+        "samples": 27
+      },
+      {
+        "symbol": "void std::__introsort_loop<__gnu_cxx::__normal_iterator<SU2Native3D::(anonymous namespace)::Authority*, std::vector<SU2Native3D::(anonymous namespace)::Authority, std::allocator<SU2Native3D::(anonymous namespace)::Authority> > >, long, __gnu_cxx::__ops::_Iter_comp_iter<SU2Native3D::DonorImport::Build(std::vector<SU2Native3D::DonorCell, std::allocator<SU2Native3D::DonorCell> > const&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >&, unsigned long, unsigned long)::{lambda(auto:1 const&, auto:2 const&)#2}> >(__gnu_cxx::__normal_iterator<SU2Native3D::(anonymous namespace)::Authority*, std::vector<SU2Native3D::(anonymous namespace)::Authority, std::allocator<SU2Native3D::(anonymous namespace)::Authority> > >, __gnu_cxx::__normal_iterator<SU2Native3D::(anonymous namespace)::Authority*, std::vector<SU2Native3D::(anonymous namespace)::Authority, std::allocator<SU2Native3D::(anonymous namespace)::Authority> > >, long, __gnu_cxx::__ops::_Iter_comp_iter<SU2Native3D::DonorImport::Build(std::vector<SU2Native3D::DonorCell, std::allocator<SU2Native3D::DonorCell> > const&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >&, unsigned long, unsigned long)::{lambda(auto:1 const&, auto:2 const&)#2}>)",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "other",
+        "samples": 26
+      },
+      {
+        "symbol": "SU2NativeGeometry::MappedFacetReference::Realize(SU2NativeGeometry::SurfaceBinding const&) const",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "other",
+        "samples": 26
+      },
+      {
+        "symbol": "std::_Rb_tree_insert_and_rebalance(bool, std::_Rb_tree_node_base*, std::_Rb_tree_node_base*, std::_Rb_tree_node_base&)",
+        "dso": "/usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.33",
+        "group": "tree",
+        "samples": 25
+      },
+      {
+        "symbol": "SU2NativeGeometry::MappedFacetReference::OrientedFace(unsigned long, SU2NativeGeometry::SurfaceBinding const&, std::array<SU2Native3D::Point, 3ul> const&) const",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "other",
+        "samples": 24
+      },
+      {
+        "symbol": "SU2NativeGeometry::MappedFacetReference::QuerySurfaceUnionAtResolution(std::vector<unsigned long, std::allocator<unsigned long> > const&, std::vector<std::array<SU2Native3D::Point, 3ul>, std::allocator<std::array<SU2Native3D::Point, 3ul> > > const&, double, SU2NativeGeometry::AtlasBudget&, bool, bool, double, bool) const::{lambda(SU2NativeGeometry::(anonymous namespace)::UnionDomain const&)#1}::operator()(SU2NativeGeometry::(anonymous namespace)::UnionDomain const&) const",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "wall_proof",
+        "samples": 24
+      },
+      {
+        "symbol": "SU2NativeGeometry::(anonymous namespace)::TriangleUnion::PlaneUnion::Upper<3ul>(std::array<std::array<SU2NativeGeometry::(anonymous namespace)::Range, 3ul>, 3ul> const&, SU2NativeGeometry::(anonymous namespace)::AtlasOps&, double) const::{lambda(SU2NativeGeometry::(anonymous namespace)::TriangleUnion::PlaneUnion::Plane const&)#1}::operator()(SU2NativeGeometry::(anonymous namespace)::TriangleUnion::PlaneUnion::Plane const&) const",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "other",
+        "samples": 23
+      },
+      {
+        "symbol": "SU2Native3D::(anonymous namespace)::Selection::Add(SU2Native3D::OwnedCell const&, SU2Native3D::PatchMetric const&, bool, bool, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, SU2Native3D::FirstHeightReport const*, bool)",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "other",
+        "samples": 21
+      },
+      {
+        "symbol": "std::set<std::pair<bool, unsigned long>, std::less<std::pair<bool, unsigned long> >, std::allocator<std::pair<bool, unsigned long> > >::insert(std::pair<bool, unsigned long>&&)",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "other",
+        "samples": 20
+      },
+      {
+        "symbol": "__expl_finite@GLIBC_2.15",
+        "dso": "/usr/lib/x86_64-linux-gnu/libm.so.6",
+        "group": "other",
+        "samples": 20
+      },
+      {
+        "symbol": "SU2Native3D::BoundaryParameterState::Find(unsigned long) const",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "other",
+        "samples": 20
+      },
+      {
+        "symbol": "SU2NativeGeometry::MappedFacetReference::Admissible(SU2NativeGeometry::SurfaceBinding const&, SU2Native3D::Point) const::{lambda(unsigned long)#1}::operator()(unsigned long) const",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "other",
+        "samples": 18
+      },
+      {
+        "symbol": "auto SU2NativeGeometry::MappedFacetReference::BuildMobilityPolicy(double, std::map<int, int, std::less<int>, std::allocator<std::pair<int const, int> > > const&, SU2NativeGeometry::MobilityPolicy&, SU2NativeGeometry::AtlasBudget&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >&) const::{lambda(auto:1&, unsigned long)#1}::operator()<std::map<unsigned long, unsigned long, std::less<unsigned long>, std::allocator<std::pair<unsigned long const, unsigned long> > > >(std::map<unsigned long, unsigned long, std::less<unsigned long>, std::allocator<std::pair<unsigned long const, unsigned long> > >&, unsigned long) const [clone .isra.0]",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "other",
+        "samples": 18
+      },
+      {
+        "symbol": "CBoundaryLayerMetric::RecomposeTangentialSample(unsigned short, CBoundaryLayerMetric::Sample&, double) const",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "target_BL",
+        "samples": 18
+      },
+      {
+        "symbol": "SU2NativeGeometry::MappedFacetReference::ErrorBound(SU2NativeGeometry::SurfaceBinding const&, SU2Native3D::Point) const",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "other",
+        "samples": 17
+      },
+      {
+        "symbol": "SU2Native3D::(anonymous namespace)::Rounded(SU2Native3D::(anonymous namespace)::Integer<198ul> const&, bool)",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "exact_predicates",
+        "samples": 17
+      },
+      {
+        "symbol": "SU2Native3D::(anonymous namespace)::Add(std::map<unsigned long, std::vector<unsigned long, std::allocator<unsigned long> >, std::less<unsigned long>, std::allocator<std::pair<unsigned long const, std::vector<unsigned long, std::allocator<unsigned long> > > > >&, unsigned long, unsigned long)",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "other",
+        "samples": 16
+      },
+      {
+        "symbol": "SU2Native3D::BoundaryParameterState::BoundaryParameterState(std::shared_ptr<SU2NativeGeometry::MappedFacetReference const>, std::map<unsigned long, SU2Native3D::BoundaryPoint, std::less<unsigned long>, std::allocator<std::pair<unsigned long const, SU2Native3D::BoundaryPoint> > > const&, std::vector<SU2Native3D::SurfaceFace, std::allocator<SU2Native3D::SurfaceFace> > const&, unsigned long, unsigned long, unsigned long, SU2NativeGeometry::BoundaryCoverage const&, SU2NativeGeometry::MobilityPolicy const&, SU2NativeGeometry::AtlasBudget*, double)",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "other",
+        "samples": 16
+      },
+      {
+        "symbol": "SU2NativeGeometry::MappedFacetReference::MappedFacetReference(std::shared_ptr<SU2Native3D::PlanarReference const>, std::map<unsigned long, double, std::less<unsigned long>, std::allocator<std::pair<unsigned long const, double> > > const&, unsigned long, unsigned long, bool, std::map<unsigned long, std::array<SU2Native3D::Point, 10ul>, std::less<unsigned long>, std::allocator<std::pair<unsigned long const, std::array<SU2Native3D::Point, 10ul> > > > const&, unsigned long)::{lambda(unsigned long)#2}::operator()(unsigned long) const",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "other",
+        "samples": 15
+      },
+      {
+        "symbol": "SU2NativeGeometry::(anonymous namespace)::TriangleUnion::TriangleUnion(std::vector<SU2NativeGeometry::(anonymous namespace)::UnionTriangle, std::allocator<SU2NativeGeometry::(anonymous namespace)::UnionTriangle> > const&, SU2NativeGeometry::(anonymous namespace)::AtlasOps&, double, bool)",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "other",
+        "samples": 14
+      },
+      {
+        "symbol": "SU2Native3D::(anonymous namespace)::Selection::SurfaceCensus(std::map<unsigned long, SU2Native3D::OwnedCell, std::less<unsigned long>, std::allocator<std::pair<unsigned long const, SU2Native3D::OwnedCell> > > const&) const",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "other",
+        "samples": 14
+      },
+      {
+        "symbol": "void std::__insertion_sort<unsigned long*, __gnu_cxx::__ops::_Iter_less_iter>(unsigned long*, unsigned long*, __gnu_cxx::__ops::_Iter_less_iter) [clone .isra.0]",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "other",
+        "samples": 13
+      },
+      {
+        "symbol": "std::_Rb_tree_decrement(std::_Rb_tree_node_base*)",
+        "dso": "/usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.33",
+        "group": "tree",
+        "samples": 13
+      },
+      {
+        "symbol": "CBoundaryLayerMetric::Build()",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "target_BL",
+        "samples": 13
+      },
+      {
+        "symbol": "SU2NativeGeometry::(anonymous namespace)::BoxGap(std::array<SU2NativeGeometry::(anonymous namespace)::Range, 3ul> const&, std::array<SU2NativeGeometry::(anonymous namespace)::Range, 3ul> const&)",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "other",
+        "samples": 13
+      },
+      {
+        "symbol": "SU2NativeGeometry::(anonymous namespace)::TriangleUnion::PlaneUnion::Upper<3ul>(std::array<std::array<SU2NativeGeometry::(anonymous namespace)::Range, 3ul>, 3ul> const&, SU2NativeGeometry::(anonymous namespace)::AtlasOps&, double) const::{lambda(SU2NativeGeometry::(anonymous namespace)::TriangleUnion::PlaneUnion::Plane const&)#1}::operator()(SU2NativeGeometry::(anonymous namespace)::TriangleUnion::PlaneUnion::Plane const&) const::{lambda(bool)#1}::operator()(bool) const",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "other",
+        "samples": 13
+      },
+      {
+        "symbol": "std::vector<char, std::allocator<char> >::_M_default_append(unsigned long)",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "other",
+        "samples": 12
+      },
+      {
+        "symbol": "std::vector<SU2Native3D::Directory::Entry, std::allocator<SU2Native3D::Directory::Entry> > SU2NativeBoundary2D::World::exchange<SU2Native3D::Directory::Entry>(std::vector<std::vector<SU2Native3D::Directory::Entry, std::allocator<SU2Native3D::Directory::Entry> >, std::allocator<std::vector<SU2Native3D::Directory::Entry, std::allocator<SU2Native3D::Directory::Entry> > > > const&, bool*, unsigned long, unsigned long)",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "pack_unpack",
+        "samples": 12
+      },
+      {
+        "symbol": "CBoundaryLayerMetric::EvaluateImpl(unsigned short, double const*, double, bool, unsigned long, CBoundaryLayerMetric::WallProjection const*)",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "target_BL",
+        "samples": 12
+      },
+      {
+        "symbol": "std::_Rb_tree<std::array<double, 3ul>, std::pair<std::array<double, 3ul> const, unsigned long>, std::_Select1st<std::pair<std::array<double, 3ul> const, unsigned long> >, std::less<std::array<double, 3ul> >, std::allocator<std::pair<std::array<double, 3ul> const, unsigned long> > >::find(std::array<double, 3ul> const&) const",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "tree",
+        "samples": 12
+      },
+      {
+        "symbol": "std::_Rb_tree<std::array<unsigned long, 2ul>, std::array<unsigned long, 2ul>, std::_Identity<std::array<unsigned long, 2ul> >, std::less<std::array<unsigned long, 2ul> >, std::allocator<std::array<unsigned long, 2ul> > >::find(std::array<unsigned long, 2ul> const&) const",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "tree",
+        "samples": 12
+      },
+      {
+        "symbol": "SU2NativeGeometry::(anonymous namespace)::Finite(SU2Native3D::Point)",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "other",
+        "samples": 11
+      },
+      {
+        "symbol": "cfree@GLIBC_2.2.5",
+        "dso": "/usr/lib/x86_64-linux-gnu/libc.so.6",
+        "group": "memory",
+        "samples": 11
+      },
+      {
+        "symbol": "SU2Native3D::ValidateDomainSurfaceTopology(std::vector<std::array<unsigned long, 3ul>, std::allocator<std::array<unsigned long, 3ul> > > const&)",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "cavity_topology",
+        "samples": 10
+      },
+      {
+        "symbol": "__nextafter",
+        "dso": "/usr/lib/x86_64-linux-gnu/libm.so.6",
+        "group": "other",
+        "samples": 10
+      },
+      {
+        "symbol": "SU2Native3D::DonorImport::Build(std::vector<SU2Native3D::DonorCell, std::allocator<SU2Native3D::DonorCell> > const&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >&, unsigned long, unsigned long)",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "other",
+        "samples": 10
+      },
+      {
+        "symbol": "CSolver::IntersectMetrics(unsigned short, double const (&) [3][3], double const (&) [3][3], double (&) [3][3])",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "other",
+        "samples": 10
+      },
+      {
+        "symbol": "SU2Native3D::MeasureSurfacePlanning(SU2Native3D::Patch const&, SU2Native3D::FrozenField&, SU2Native3D::PlanarReference const&, SU2Native3D::WallHeights const&, std::function<std::vector<SU2Native3D::BoundaryMetricSample, std::allocator<SU2Native3D::BoundaryMetricSample> > (SU2Native3D::Node, SU2Native3D::PlanarReference const&, SU2Native3D::Tensor)> const&, SU2Native3D::MetricStats*)",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "target_BL",
+        "samples": 10
+      },
+      {
+        "symbol": "SU2NativeGeometry::MappedFacetReference::MappedFacetReference(std::shared_ptr<SU2Native3D::PlanarReference const>, std::map<unsigned long, double, std::less<unsigned long>, std::allocator<std::pair<unsigned long const, double> > > const&, unsigned long, unsigned long, bool, std::map<unsigned long, std::array<SU2Native3D::Point, 10ul>, std::less<unsigned long>, std::allocator<std::pair<unsigned long const, std::array<SU2Native3D::Point, 10ul> > > > const&, unsigned long)::{lambda(unsigned long)#1}::operator()(unsigned long) const",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "other",
+        "samples": 9
+      },
+      {
+        "symbol": "nextafterl@plt",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "other",
+        "samples": 9
+      },
+      {
+        "symbol": "void CBlasStructure::tred2<double [3][3], double [3], double [3]>(double (&) [3][3], double (&) [3], double (&) [3], int)",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "other",
+        "samples": 9
+      },
+      {
+        "symbol": "std::_Hashtable<std::array<long long, 3ul>, std::pair<std::array<long long, 3ul> const, std::vector<unsigned long, std::allocator<unsigned long> > >, std::allocator<std::pair<std::array<long long, 3ul> const, std::vector<unsigned long, std::allocator<unsigned long> > > >, std::__detail::_Select1st, std::equal_to<std::array<long long, 3ul> >, dc10::OptionA::GridHash, std::__detail::_Mod_range_hashing, std::__detail::_Default_ranged_hash, std::__detail::_Prime_rehash_policy, std::__detail::_Hashtable_traits<true, false, true> >::_M_find_before_node(unsigned long, std::array<long long, 3ul> const&, unsigned long) const [clone .isra.0]",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "other",
+        "samples": 9
+      },
+      {
+        "symbol": "SU2Native3D::(anonymous namespace)::Adapt(SU2NativeBoundary2D::World&, std::map<unsigned long, SU2Native3D::OwnedCell, std::less<unsigned long>, std::allocator<std::pair<unsigned long const, SU2Native3D::OwnedCell> > > const&, std::vector<SU2Native3D::DonorCell, std::allocator<SU2Native3D::DonorCell> > const&, SU2Native3D::PlanarReference const&, std::function<SU2Native3D::Tensor (SU2Native3D::Point, SU2Native3D::Tensor)>, SU2Native3D::EngineOptions, SU2Native3D::MetricChange, bool, std::function<std::vector<SU2Native3D::BoundaryMetricSample, std::allocator<SU2Native3D::BoundaryMetricSample> > (SU2Native3D::Node, SU2Native3D::PlanarReference const&, SU2Native3D::Tensor)>)::{lambda(std::vector<unsigned long, std::allocator<unsigned long> > const&, bool, double*)#1}::operator()(std::vector<unsigned long, std::allocator<unsigned long> > const&, bool, double*) const",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "other",
+        "samples": 9
+      },
+      {
+        "symbol": "std::_Rb_tree<std::array<unsigned long, 2ul>, std::pair<std::array<unsigned long, 2ul> const, SU2Native3D::(anonymous namespace)::Selection::EdgeState>, std::_Select1st<std::pair<std::array<unsigned long, 2ul> const, SU2Native3D::(anonymous namespace)::Selection::EdgeState> >, std::less<std::array<unsigned long, 2ul> >, std::allocator<std::pair<std::array<unsigned long, 2ul> const, SU2Native3D::(anonymous namespace)::Selection::EdgeState> > >::find(std::array<unsigned long, 2ul> const&) const",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "tree",
+        "samples": 9
+      },
+      {
+        "symbol": "str_to_mpn.isra.0",
+        "dso": "/usr/lib/x86_64-linux-gnu/libc.so.6",
+        "group": "other",
+        "samples": 8
+      },
+      {
+        "symbol": "std::istream::sentry::sentry(std::istream&, bool)",
+        "dso": "/usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.33",
+        "group": "other",
+        "samples": 8
+      },
+      {
+        "symbol": "SU2NativeGeometry::(anonymous namespace)::TriangleBox(SU2NativeGeometry::(anonymous namespace)::UnionTriangle const&)",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "other",
+        "samples": 8
+      },
+      {
+        "symbol": "SU2NativeGeometry::(anonymous namespace)::BoxMiddle(std::array<SU2NativeGeometry::(anonymous namespace)::Range, 3ul> const&)",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "other",
+        "samples": 8
+      },
+      {
+        "symbol": "SU2Native3D::DonorCell::Key() const",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "other",
+        "samples": 8
+      },
+      {
+        "symbol": "__kernel_rem_pio2",
+        "dso": "/usr/lib/x86_64-linux-gnu/libm.so.6",
+        "group": "other",
+        "samples": 8
+      },
+      {
+        "symbol": "[unknown]",
+        "dso": "/usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.33",
+        "group": "other",
+        "samples": 7
+      },
+      {
+        "symbol": "SU2Native3D::PlanarReference::Canonical(unsigned long) const",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "other",
+        "samples": 7
+      },
+      {
+        "symbol": "(anonymous namespace)::Rotate(double const (&) [3][3], double const (&) [3][3], double (&) [3][3])",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "other",
+        "samples": 7
+      },
+      {
+        "symbol": "SU2Native3D::PlanarReference::Contains(unsigned long, SU2Native3D::Point, SU2Native3D::KernelStats*) const",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "other",
+        "samples": 7
+      },
+      {
+        "symbol": "SU2NativeGeometry::(anonymous namespace)::Subtract(SU2NativeGeometry::(anonymous namespace)::Range, SU2NativeGeometry::(anonymous namespace)::Range)",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "other",
+        "samples": 7
+      },
+      {
+        "symbol": "void std::__introsort_loop<unsigned long*, long, __gnu_cxx::__ops::_Iter_less_iter>(unsigned long*, unsigned long*, long, __gnu_cxx::__ops::_Iter_less_iter) [clone .isra.0]",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "other",
+        "samples": 7
+      },
+      {
+        "symbol": "std::_Rb_tree<std::array<unsigned long, 2ul>, std::array<unsigned long, 2ul>, std::_Identity<std::array<unsigned long, 2ul> >, std::less<std::array<unsigned long, 2ul> >, std::allocator<std::array<unsigned long, 2ul> > >::_M_erase(std::_Rb_tree_node<std::array<unsigned long, 2ul> >*) [clone .isra.0]",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "tree",
+        "samples": 7
+      },
+      {
+        "symbol": "std::string::push_back(char)",
+        "dso": "/usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.33",
+        "group": "other",
+        "samples": 6
+      },
+      {
+        "symbol": "SU2Native3D::DecodeReferenceImpl(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, unsigned long, unsigned long&, unsigned long) [clone .constprop.0]",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "other",
+        "samples": 6
+      },
+      {
+        "symbol": "operator new(unsigned long)",
+        "dso": "/usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.33",
+        "group": "memory",
+        "samples": 6
+      },
+      {
+        "symbol": "std::_Rb_tree<unsigned long, std::pair<unsigned long const, std::vector<unsigned long, std::allocator<unsigned long> > >, std::_Select1st<std::pair<unsigned long const, std::vector<unsigned long, std::allocator<unsigned long> > > >, std::less<unsigned long>, std::allocator<std::pair<unsigned long const, std::vector<unsigned long, std::allocator<unsigned long> > > > >::_M_erase(std::_Rb_tree_node<std::pair<unsigned long const, std::vector<unsigned long, std::allocator<unsigned long> > > >*) [clone .isra.0]",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "tree",
+        "samples": 6
+      },
+      {
+        "symbol": "std::_Rb_tree<unsigned long, unsigned long, std::_Identity<unsigned long>, std::less<unsigned long>, std::allocator<unsigned long> >::_M_get_insert_unique_pos(unsigned long const&) [clone .isra.0]",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "tree",
+        "samples": 6
+      },
+      {
+        "symbol": "std::map<unsigned long, SU2Native3D::Point, std::less<unsigned long>, std::allocator<std::pair<unsigned long const, SU2Native3D::Point> > >::at(unsigned long const&) const [clone .isra.0]",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "other",
+        "samples": 6
+      },
+      {
+        "symbol": "SU2NativeTargetCheckpoint3D::Decode(std::vector<char, std::allocator<char> > const&, SU2Native3D::ReferenceState const&, CConfig const&, unsigned long, unsigned long)",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "other",
+        "samples": 6
+      },
+      {
+        "symbol": "SU2Native2D::(anonymous namespace)::Coordinate(double)",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "other",
+        "samples": 6
+      },
+      {
+        "symbol": "void std::__insertion_sort<unsigned long*, __gnu_cxx::__ops::_Iter_comp_iter<CADTComparePointClass> >(unsigned long*, unsigned long*, __gnu_cxx::__ops::_Iter_comp_iter<CADTComparePointClass>)",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "other",
+        "samples": 6
+      },
+      {
+        "symbol": "SU2NativeGeometry::MappedFacetReference::FacetParameters(unsigned long, SU2NativeGeometry::SurfaceBinding const&) const",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "other",
+        "samples": 6
+      },
+      {
+        "symbol": "double SU2NativeGeometry::(anonymous namespace)::TriangleUnion::Upper<3ul>(std::array<std::array<SU2NativeGeometry::(anonymous namespace)::Range, 3ul>, 3ul> const&, SU2NativeGeometry::(anonymous namespace)::AtlasOps&)",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "other",
+        "samples": 6
+      },
+      {
+        "symbol": "CADTElemClass::Dist2ToLine(unsigned long, unsigned long, double const*, double&) const",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "other",
+        "samples": 6
+      },
+      {
+        "symbol": "SU2Native3D::(anonymous namespace)::Adapt(SU2NativeBoundary2D::World&, std::map<unsigned long, SU2Native3D::OwnedCell, std::less<unsigned long>, std::allocator<std::pair<unsigned long const, SU2Native3D::OwnedCell> > > const&, std::vector<SU2Native3D::DonorCell, std::allocator<SU2Native3D::DonorCell> > const&, SU2Native3D::PlanarReference const&, std::function<SU2Native3D::Tensor (SU2Native3D::Point, SU2Native3D::Tensor)>, SU2Native3D::EngineOptions, SU2Native3D::MetricChange, bool, std::function<std::vector<SU2Native3D::BoundaryMetricSample, std::allocator<SU2Native3D::BoundaryMetricSample> > (SU2Native3D::Node, SU2Native3D::PlanarReference const&, SU2Native3D::Tensor)>)",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "other",
+        "samples": 6
+      },
+      {
+        "symbol": "SU2Native3D::ValidateTensor(SU2Native3D::Tensor const&, SU2Native3D::KernelStats*)",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "other",
+        "samples": 6
+      },
+      {
+        "symbol": "std::vector<SU2Native3D::(anonymous namespace)::Authority, std::allocator<SU2Native3D::(anonymous namespace)::Authority> > SU2NativeBoundary2D::World::exchange<SU2Native3D::(anonymous namespace)::Authority>(std::vector<std::vector<SU2Native3D::(anonymous namespace)::Authority, std::allocator<SU2Native3D::(anonymous namespace)::Authority> >, std::allocator<std::vector<SU2Native3D::(anonymous namespace)::Authority, std::allocator<SU2Native3D::(anonymous namespace)::Authority> > > > const&, bool*, unsigned long, unsigned long) [clone .constprop.0]",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "pack_unpack",
+        "samples": 6
+      },
+      {
+        "symbol": "round_and_return",
+        "dso": "/usr/lib/x86_64-linux-gnu/libc.so.6",
+        "group": "other",
+        "samples": 5
+      },
+      {
+        "symbol": "SU2Native3D::(anonymous namespace)::Connected(std::map<unsigned long, std::vector<unsigned long, std::allocator<unsigned long> >, std::less<unsigned long>, std::allocator<std::pair<unsigned long const, std::vector<unsigned long, std::allocator<unsigned long> > > > > const&)",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "other",
+        "samples": 5
+      },
+      {
+        "symbol": "std::map<unsigned long, unsigned long, std::less<unsigned long>, std::allocator<std::pair<unsigned long const, unsigned long> > >::operator[](unsigned long const&)",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "other",
+        "samples": 5
+      },
+      {
+        "symbol": "SU2NativeGeometry::MappedFacetReference::BuildMobilityPolicy(double, std::map<int, int, std::less<int>, std::allocator<std::pair<int const, int> > > const&, SU2NativeGeometry::MobilityPolicy&, SU2NativeGeometry::AtlasBudget&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >&) const",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "other",
+        "samples": 5
+      },
+      {
+        "symbol": "SU2NativeGeometry::MappedFacetReference::Supports(unsigned long, SU2NativeGeometry::SurfaceBinding const&) const",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "other",
+        "samples": 5
+      },
+      {
+        "symbol": "SU2NativeGeometry::MappedFacetReference::CurvedBounds(SU2NativeGeometry::SurfaceBinding const&) const",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "other",
+        "samples": 5
+      },
+      {
+        "symbol": "void SU2NativeBoundary2D::RecordStream::Field<bool>(bool&)",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "pack_unpack",
+        "samples": 5
+      },
+      {
+        "symbol": "void SU2NativeBoundary2D::RecordStream::Field<unsigned long>(unsigned long&)",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "pack_unpack",
+        "samples": 5
+      },
+      {
+        "symbol": "CADTElemClass::CADTElemClass(unsigned short, std::vector<double, std::allocator<double> >&, std::vector<unsigned long, std::allocator<unsigned long> >&, std::vector<unsigned short, std::allocator<unsigned short> >&, std::vector<unsigned short, std::allocator<unsigned short> >&, std::vector<unsigned long, std::allocator<unsigned long> >&, bool)",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "other",
+        "samples": 5
+      },
+      {
+        "symbol": "std::_Rb_tree<std::pair<bool, unsigned long>, std::pair<std::pair<bool, unsigned long> const, std::map<unsigned long, SU2Native3D::Directory::Entry, std::less<unsigned long>, std::allocator<std::pair<unsigned long const, SU2Native3D::Directory::Entry> > > >, std::_Select1st<std::pair<std::pair<bool, unsigned long> const, std::map<unsigned long, SU2Native3D::Directory::Entry, std::less<unsigned long>, std::allocator<std::pair<unsigned long const, SU2Native3D::Directory::Entry> > > > >, std::less<std::pair<bool, unsigned long> >, std::allocator<std::pair<std::pair<bool, unsigned long> const, std::map<unsigned long, SU2Native3D::Directory::Entry, std::less<unsigned long>, std::allocator<std::pair<unsigned long const, SU2Native3D::Directory::Entry> > > > > >::_M_get_insert_unique_pos(std::pair<bool, unsigned long> const&) [clone .isra.0]",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "tree",
+        "samples": 5
+      },
+      {
+        "symbol": "std::_Rb_tree<std::array<unsigned long, 25ul>, std::pair<std::array<unsigned long, 25ul> const, SU2NativeGeometry::MappedFacetReference::FaceMemo::Entry>, std::_Select1st<std::pair<std::array<unsigned long, 25ul> const, SU2NativeGeometry::MappedFacetReference::FaceMemo::Entry> >, std::less<std::array<unsigned long, 25ul> >, std::allocator<std::pair<std::array<unsigned long, 25ul> const, SU2NativeGeometry::MappedFacetReference::FaceMemo::Entry> > >::find(std::array<unsigned long, 25ul> const&)",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "tree",
+        "samples": 5
+      },
+      {
+        "symbol": "std::map<unsigned long, std::vector<unsigned long, std::allocator<unsigned long> >, std::less<unsigned long>, std::allocator<std::pair<unsigned long const, std::vector<unsigned long, std::allocator<unsigned long> > > > >::at(unsigned long const&) const [clone .isra.0]",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "other",
+        "samples": 5
+      },
+      {
+        "symbol": "__mpn_mul_1",
+        "dso": "/usr/lib/x86_64-linux-gnu/libc.so.6",
+        "group": "other",
+        "samples": 4
+      },
+      {
+        "symbol": "SU2Native3D::DecodeBoundaryAtlas(std::vector<char, std::allocator<char> > const&, SU2NativeGeometry::BoundaryCoverage&, SU2NativeGeometry::MobilityPolicy&, unsigned long, unsigned long)",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "other",
+        "samples": 4
+      },
+      {
+        "symbol": "SU2Native3D::(anonymous namespace)::ExactDeterminant(SU2Native3D::Point, SU2Native3D::Point, SU2Native3D::Point, SU2Native3D::Point)",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "other",
+        "samples": 4
+      },
+      {
+        "symbol": "std::_Rb_tree<std::pair<unsigned long, std::array<unsigned long, 3ul> >, std::pair<unsigned long, std::array<unsigned long, 3ul> >, std::_Identity<std::pair<unsigned long, std::array<unsigned long, 3ul> > >, std::less<std::pair<unsigned long, std::array<unsigned long, 3ul> > >, std::allocator<std::pair<unsigned long, std::array<unsigned long, 3ul> > > >::_M_get_insert_unique_pos(std::pair<unsigned long, std::array<unsigned long, 3ul> > const&)",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "tree",
+        "samples": 4
+      },
+      {
+        "symbol": "SU2NativeGeometry::(anonymous namespace)::Bits(std::vector<unsigned int, std::allocator<unsigned int> > const&)",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "other",
+        "samples": 4
+      },
+      {
+        "symbol": "SU2NativeGeometry::MappedFacetReference::BuildMobilityPolicy(double, std::map<int, int, std::less<int>, std::allocator<std::pair<int const, int> > > const&, SU2NativeGeometry::MobilityPolicy&, SU2NativeGeometry::AtlasBudget&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >&) const::{lambda(unsigned long)#2}::operator()(unsigned long) const [clone .isra.0]",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "other",
+        "samples": 4
+      },
+      {
+        "symbol": "(anonymous namespace)::RunSavedActualCavities(bool, bool, bool, bool, bool, bool, bool, bool, bool, bool, bool, bool, bool, bool, bool, bool)",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "other",
+        "samples": 4
+      },
+      {
+        "symbol": "SU2NativeGeometry::(anonymous namespace)::TriangleUnion::Distance(std::array<SU2NativeGeometry::(anonymous namespace)::Range, 3ul> const&, SU2NativeGeometry::(anonymous namespace)::AtlasOps&)",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "other",
+        "samples": 4
+      },
+      {
+        "symbol": "SU2Native3D::(anonymous namespace)::OnEdge(SU2Native3D::Point, SU2Native3D::Point, SU2Native3D::Point, SU2Native3D::KernelStats*)",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "other",
+        "samples": 4
+      },
+      {
+        "symbol": "void std::__introsort_loop<__gnu_cxx::__normal_iterator<CBBoxTargetClass*, std::vector<CBBoxTargetClass, std::allocator<CBBoxTargetClass> > >, long, __gnu_cxx::__ops::_Iter_less_iter>(__gnu_cxx::__normal_iterator<CBBoxTargetClass*, std::vector<CBBoxTargetClass, std::allocator<CBBoxTargetClass> > >, __gnu_cxx::__normal_iterator<CBBoxTargetClass*, std::vector<CBBoxTargetClass, std::allocator<CBBoxTargetClass> > >, long, __gnu_cxx::__ops::_Iter_less_iter) [clone .isra.0]",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "other",
+        "samples": 4
+      },
+      {
+        "symbol": "SU2Native3D::OrientationCentroidSign(SU2Native3D::Point, SU2Native3D::Point, std::array<SU2Native3D::Point, 3ul> const&, SU2Native3D::Point, SU2Native3D::KernelStats*)",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "other",
+        "samples": 4
+      },
+      {
+        "symbol": "void std::vector<SU2Native3D::Directory::Entry, std::allocator<SU2Native3D::Directory::Entry> >::_M_realloc_insert<SU2Native3D::Directory::Entry const&>(__gnu_cxx::__normal_iterator<SU2Native3D::Directory::Entry*, std::vector<SU2Native3D::Directory::Entry, std::allocator<SU2Native3D::Directory::Entry> > >, SU2Native3D::Directory::Entry const&)",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "other",
+        "samples": 4
+      },
+      {
+        "symbol": "SU2Native3D::MetricNorm(SU2Native3D::Point, SU2Native3D::Point, SU2Native3D::Tensor const&, SU2Native3D::KernelStats*)",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "other",
+        "samples": 4
+      },
+      {
+        "symbol": "SU2NativeGeometry::(anonymous namespace)::CubicDeviation(std::array<SU2Native3D::Point, 10ul> const&, std::array<std::array<SU2NativeGeometry::(anonymous namespace)::Range, 3ul>, 3ul> const&, std::array<SU2Native3D::Point, 3ul> const&)",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "other",
+        "samples": 4
+      },
+      {
+        "symbol": "SU2NativeGeometry::MappedFacetReference::EvaluateSurface(unsigned long, SU2NativeGeometry::SurfaceBinding const&) const",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "other",
+        "samples": 4
+      },
+      {
+        "symbol": "SU2NativeBLPipeline3D::TargetPolicy::BoundaryGuidance(SU2Native3D::Node, SU2Native3D::PlanarReference const&, SU2Native3D::Tensor, std::vector<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::allocator<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > > const&) const",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "target_BL",
+        "samples": 4
+      },
+      {
+        "symbol": "SU2Native3D::EvaluateCavitySample(std::vector<SU2Native3D::DonorCell, std::allocator<SU2Native3D::DonorCell> > const&, SU2Native3D::Point)",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "cavity_topology",
+        "samples": 4
+      },
+      {
+        "symbol": "SU2NativeGeometry::MappedFacetReference::QuerySurfaceUnionAtResolution(std::vector<unsigned long, std::allocator<unsigned long> > const&, std::vector<std::array<SU2Native3D::Point, 3ul>, std::allocator<std::array<SU2Native3D::Point, 3ul> > > const&, double, SU2NativeGeometry::AtlasBudget&, bool, bool, double, bool) const",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "wall_proof",
+        "samples": 4
+      },
+      {
+        "symbol": "SU2NativeGeometry::(anonymous namespace)::LinearPoint(std::array<SU2Native3D::Point, 3ul> const&, std::array<SU2NativeGeometry::(anonymous namespace)::Range, 3ul> const&)",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "other",
+        "samples": 4
+      },
+      {
+        "symbol": "SU2Native3D::LoadReference(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, SU2Native3D::ReferenceState&, bool&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >&, unsigned long, unsigned long, unsigned long&)",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "other",
+        "samples": 3
+      },
+      {
+        "symbol": "std::string::_Rep::_S_create(unsigned long, unsigned long, std::allocator<char> const&)",
+        "dso": "/usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.33",
+        "group": "other",
+        "samples": 3
+      },
+      {
+        "symbol": "__mpn_mul",
+        "dso": "/usr/lib/x86_64-linux-gnu/libc.so.6",
+        "group": "other",
+        "samples": 3
+      },
+      {
+        "symbol": "std::istreambuf_iterator<char, std::char_traits<char> > std::num_get<char, std::istreambuf_iterator<char, std::char_traits<char> > >::_M_extract_int<unsigned long>(std::istreambuf_iterator<char, std::char_traits<char> >, std::istreambuf_iterator<char, std::char_traits<char> >, std::ios_base&, std::_Ios_Iostate&, unsigned long&) const",
+        "dso": "/usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.33",
+        "group": "other",
+        "samples": 3
+      },
+      {
+        "symbol": "SU2NativeGeometry::MappedFacetReference::ResidentBytes() const",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "other",
+        "samples": 3
+      },
+      {
+        "symbol": "SU2NativeGeometry::(anonymous namespace)::NormalAngleBound(std::array<SU2NativeGeometry::(anonymous namespace)::Range, 3ul> const&, std::array<SU2NativeGeometry::(anonymous namespace)::Range, 3ul> const&, SU2NativeGeometry::(anonymous namespace)::Range)",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "other",
+        "samples": 3
+      },
+      {
+        "symbol": "__wrap_scalbn",
+        "dso": "/usr/lib/x86_64-linux-gnu/libm.so.6",
+        "group": "other",
+        "samples": 3
+      },
+      {
+        "symbol": "std::_Rb_tree<std::array<unsigned long, 2ul>, std::pair<std::array<unsigned long, 2ul> const, std::vector<unsigned long, std::allocator<unsigned long> > >, std::_Select1st<std::pair<std::array<unsigned long, 2ul> const, std::vector<unsigned long, std::allocator<unsigned long> > > >, std::less<std::array<unsigned long, 2ul> >, std::allocator<std::pair<std::array<unsigned long, 2ul> const, std::vector<unsigned long, std::allocator<unsigned long> > > > >::_M_erase(std::_Rb_tree_node<std::pair<std::array<unsigned long, 2ul> const, std::vector<unsigned long, std::allocator<unsigned long> > > >*) [clone .isra.0]",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "tree",
+        "samples": 3
+      },
+      {
+        "symbol": "std::_Rb_tree<unsigned long, unsigned long, std::_Identity<unsigned long>, std::less<unsigned long>, std::allocator<unsigned long> >::_M_erase(std::_Rb_tree_node<unsigned long>*) [clone .isra.0]",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "tree",
+        "samples": 3
+      },
+      {
+        "symbol": "std::_Rb_tree<std::pair<std::array<unsigned long, 2ul>, std::array<unsigned long, 3ul> >, std::pair<std::array<unsigned long, 2ul>, std::array<unsigned long, 3ul> >, std::_Identity<std::pair<std::array<unsigned long, 2ul>, std::array<unsigned long, 3ul> > >, std::less<std::pair<std::array<unsigned long, 2ul>, std::array<unsigned long, 3ul> > >, std::allocator<std::pair<std::array<unsigned long, 2ul>, std::array<unsigned long, 3ul> > > >::_M_get_insert_unique_pos(std::pair<std::array<unsigned long, 2ul>, std::array<unsigned long, 3ul> > const&)",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "tree",
+        "samples": 3
+      },
+      {
+        "symbol": "operator delete(void*, unsigned long)",
+        "dso": "/usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.33",
+        "group": "memory",
+        "samples": 3
+      },
+      {
+        "symbol": "__mpn_divrem",
+        "dso": "/usr/lib/x86_64-linux-gnu/libc.so.6",
+        "group": "other",
+        "samples": 3
+      },
+      {
+        "symbol": "std::vector<unsigned int, std::allocator<unsigned int> >::_M_default_append(unsigned long)",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "other",
+        "samples": 3
+      },
+      {
+        "symbol": "std::_Rb_tree<unsigned long, std::pair<unsigned long const, unsigned long>, std::_Select1st<std::pair<unsigned long const, unsigned long> >, std::less<unsigned long>, std::allocator<std::pair<unsigned long const, unsigned long> > >::_M_erase(std::_Rb_tree_node<std::pair<unsigned long const, unsigned long> >*) [clone .isra.0]",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "tree",
+        "samples": 3
+      },
+      {
+        "symbol": "CBoundaryLayerMetric::BuildFeatures(CBoundaryLayerMetric::FeatureOptions)",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "target_BL",
+        "samples": 3
+      },
+      {
+        "symbol": "memset@plt",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "memory",
+        "samples": 3
+      },
+      {
+        "symbol": "void std::__insertion_sort<__gnu_cxx::__normal_iterator<CBBoxTargetClass*, std::vector<CBBoxTargetClass, std::allocator<CBBoxTargetClass> > >, __gnu_cxx::__ops::_Iter_less_iter>(__gnu_cxx::__normal_iterator<CBBoxTargetClass*, std::vector<CBBoxTargetClass, std::allocator<CBBoxTargetClass> > >, __gnu_cxx::__normal_iterator<CBBoxTargetClass*, std::vector<CBBoxTargetClass, std::allocator<CBBoxTargetClass> > >, __gnu_cxx::__ops::_Iter_less_iter) [clone .isra.0]",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "other",
+        "samples": 3
+      },
+      {
+        "symbol": "std::_Rb_tree_node<std::pair<unsigned long const, SU2Native3D::OwnedCell> >* std::_Rb_tree<unsigned long, std::pair<unsigned long const, SU2Native3D::OwnedCell>, std::_Select1st<std::pair<unsigned long const, SU2Native3D::OwnedCell> >, std::less<unsigned long>, std::allocator<std::pair<unsigned long const, SU2Native3D::OwnedCell> > >::_M_copy<false, std::_Rb_tree<unsigned long, std::pair<unsigned long const, SU2Native3D::OwnedCell>, std::_Select1st<std::pair<unsigned long const, SU2Native3D::OwnedCell> >, std::less<unsigned long>, std::allocator<std::pair<unsigned long const, SU2Native3D::OwnedCell> > >::_Reuse_or_alloc_node>(std::_Rb_tree_node<std::pair<unsigned long const, SU2Native3D::OwnedCell> >*, std::_Rb_tree_node_base*, std::_Rb_tree<unsigned long, std::pair<unsigned long const, SU2Native3D::OwnedCell>, std::_Select1st<std::pair<unsigned long const, SU2Native3D::OwnedCell> >, std::less<unsigned long>, std::allocator<std::pair<unsigned long const, SU2Native3D::OwnedCell> > >::_Reuse_or_alloc_node&) [clone .isra.0]",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "tree",
+        "samples": 3
+      },
+      {
+        "symbol": "std::_Rb_tree<std::pair<bool, unsigned long>, std::pair<std::pair<bool, unsigned long> const, std::map<unsigned long, SU2Native3D::Directory::Entry, std::less<unsigned long>, std::allocator<std::pair<unsigned long const, SU2Native3D::Directory::Entry> > > >, std::_Select1st<std::pair<std::pair<bool, unsigned long> const, std::map<unsigned long, SU2Native3D::Directory::Entry, std::less<unsigned long>, std::allocator<std::pair<unsigned long const, SU2Native3D::Directory::Entry> > > > >, std::less<std::pair<bool, unsigned long> >, std::allocator<std::pair<std::pair<bool, unsigned long> const, std::map<unsigned long, SU2Native3D::Directory::Entry, std::less<unsigned long>, std::allocator<std::pair<unsigned long const, SU2Native3D::Directory::Entry> > > > > >::find(std::pair<bool, unsigned long> const&)",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "tree",
+        "samples": 3
+      },
+      {
+        "symbol": "void SU2NativeBoundary2D::RecordStream::Field<unsigned int>(unsigned int&)",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "pack_unpack",
+        "samples": 3
+      },
+      {
+        "symbol": "void std::__unguarded_linear_insert<__gnu_cxx::__normal_iterator<SU2Native3D::(anonymous namespace)::Authority*, std::vector<SU2Native3D::(anonymous namespace)::Authority, std::allocator<SU2Native3D::(anonymous namespace)::Authority> > >, __gnu_cxx::__ops::_Val_comp_iter<SU2Native3D::DonorImport::Build(std::vector<SU2Native3D::DonorCell, std::allocator<SU2Native3D::DonorCell> > const&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >&, unsigned long, unsigned long)::{lambda(auto:1 const&, auto:2 const&)#2}> >(__gnu_cxx::__normal_iterator<SU2Native3D::(anonymous namespace)::Authority*, std::vector<SU2Native3D::(anonymous namespace)::Authority, std::allocator<SU2Native3D::(anonymous namespace)::Authority> > >, __gnu_cxx::__ops::_Val_comp_iter<SU2Native3D::DonorImport::Build(std::vector<SU2Native3D::DonorCell, std::allocator<SU2Native3D::DonorCell> > const&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >&, unsigned long, unsigned long)::{lambda(auto:1 const&, auto:2 const&)#2}>)",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "other",
+        "samples": 3
+      },
+      {
+        "symbol": "__gnu_cxx::__normal_iterator<unsigned long const*, std::vector<unsigned long, std::allocator<unsigned long> > > std::__lower_bound<__gnu_cxx::__normal_iterator<unsigned long const*, std::vector<unsigned long, std::allocator<unsigned long> > >, unsigned long, __gnu_cxx::__ops::_Iter_less_val>(__gnu_cxx::__normal_iterator<unsigned long const*, std::vector<unsigned long, std::allocator<unsigned long> > >, __gnu_cxx::__normal_iterator<unsigned long const*, std::vector<unsigned long, std::allocator<unsigned long> > >, unsigned long const&, __gnu_cxx::__ops::_Iter_less_val) [clone .isra.0]",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "other",
+        "samples": 3
+      },
+      {
+        "symbol": "std::_Rb_tree<std::array<unsigned long, 3ul>, std::pair<std::array<unsigned long, 3ul> const, SU2Native3D::SurfaceFace>, std::_Select1st<std::pair<std::array<unsigned long, 3ul> const, SU2Native3D::SurfaceFace> >, std::less<std::array<unsigned long, 3ul> >, std::allocator<std::pair<std::array<unsigned long, 3ul> const, SU2Native3D::SurfaceFace> > >::find(std::array<unsigned long, 3ul> const&) const",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "tree",
+        "samples": 3
+      },
+      {
+        "symbol": "SU2Native2D::(anonymous namespace)::Integer<66ul> SU2Native2D::(anonymous namespace)::Difference<66ul>(SU2Native2D::(anonymous namespace)::Integer<66ul> const&, SU2Native2D::(anonymous namespace)::Integer<66ul> const&)",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "other",
+        "samples": 3
+      },
+      {
+        "symbol": "SU2NativeGeometry::FinitePlaneReference::FinitePlaneReference(SU2NativeGeometry::AffineAuthority, std::vector<SU2Native3D::Facet, std::allocator<SU2Native3D::Facet> > const&, unsigned long)",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "other",
+        "samples": 3
+      },
+      {
+        "symbol": "[unknown]",
+        "dso": "/usr/lib/x86_64-linux-gnu/libpciaccess.so.0.11.1",
+        "group": "other",
+        "samples": 2
+      },
+      {
+        "symbol": "void std::__convert_to_v<double>(char const*, double&, std::_Ios_Iostate&, __locale_struct* const&)",
+        "dso": "/usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.33",
+        "group": "other",
+        "samples": 2
+      },
+      {
+        "symbol": "std::istream& std::istream::_M_extract<double>(double&)",
+        "dso": "/usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.33",
+        "group": "other",
+        "samples": 2
+      },
+      {
+        "symbol": "free@plt",
+        "dso": "/usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.33",
+        "group": "memory",
+        "samples": 2
+      },
+      {
+        "symbol": "malloc@plt",
+        "dso": "/usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.33",
+        "group": "memory",
+        "samples": 2
+      },
+      {
+        "symbol": "void std::__final_insertion_sort<unsigned long*, __gnu_cxx::__ops::_Iter_less_iter>(unsigned long*, unsigned long*, __gnu_cxx::__ops::_Iter_less_iter) [clone .isra.0]",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "other",
+        "samples": 2
+      },
+      {
+        "symbol": "SU2NativeGeometry::(anonymous namespace)::Natural::Natural(SU2NativeGeometry::(anonymous namespace)::Context&, unsigned long, unsigned long)",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "other",
+        "samples": 2
+      },
+      {
+        "symbol": "__strlen_avx2",
+        "dso": "/usr/lib/x86_64-linux-gnu/libc.so.6",
+        "group": "other",
+        "samples": 2
+      },
+      {
+        "symbol": "___vsnprintf",
+        "dso": "/usr/lib/x86_64-linux-gnu/libc.so.6",
+        "group": "other",
+        "samples": 2
+      },
+      {
+        "symbol": "__mpn_lshift",
+        "dso": "/usr/lib/x86_64-linux-gnu/libc.so.6",
+        "group": "other",
+        "samples": 2
+      },
+      {
+        "symbol": "__uselocale",
+        "dso": "/usr/lib/x86_64-linux-gnu/libc.so.6",
+        "group": "other",
+        "samples": 2
+      },
+      {
+        "symbol": "__printf_buffer_write",
+        "dso": "/usr/lib/x86_64-linux-gnu/libc.so.6",
+        "group": "other",
+        "samples": 2
+      },
+      {
+        "symbol": "__memchr_avx2",
+        "dso": "/usr/lib/x86_64-linux-gnu/libc.so.6",
+        "group": "other",
+        "samples": 2
+      },
+      {
+        "symbol": "__printf_buffer",
+        "dso": "/usr/lib/x86_64-linux-gnu/libc.so.6",
+        "group": "other",
+        "samples": 2
+      },
+      {
+        "symbol": "std::string::_Rep::_M_clone(std::allocator<char> const&, unsigned long)",
+        "dso": "/usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.33",
+        "group": "other",
+        "samples": 2
+      },
+      {
+        "symbol": "SU2Native3D::BoundaryParameterState::ContainsEntityFace(unsigned long, std::array<SU2Native3D::BoundaryPoint, 3ul> const&) const",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "other",
+        "samples": 2
+      },
+      {
+        "symbol": "std::_Rb_tree<std::array<unsigned long, 3ul>, std::pair<std::array<unsigned long, 3ul> const, SU2Native3D::SurfaceFace>, std::_Select1st<std::pair<std::array<unsigned long, 3ul> const, SU2Native3D::SurfaceFace> >, std::less<std::array<unsigned long, 3ul> >, std::allocator<std::pair<std::array<unsigned long, 3ul> const, SU2Native3D::SurfaceFace> > >::_M_erase(std::_Rb_tree_node<std::pair<std::array<unsigned long, 3ul> const, SU2Native3D::SurfaceFace> >*) [clone .isra.0]",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "tree",
+        "samples": 2
+      },
+      {
+        "symbol": "__memcmp_avx2_movbe",
+        "dso": "/usr/lib/x86_64-linux-gnu/libc.so.6",
+        "group": "other",
+        "samples": 2
+      },
+      {
+        "symbol": "CBoundaryLayerMetric::FromNativeReference(SU2Native3D::ReferenceState const&, CConfig const&, double)",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "target_BL",
+        "samples": 2
+      },
+      {
+        "symbol": "std::map<std::pair<unsigned int, unsigned int>, std::vector<unsigned int, std::allocator<unsigned int> >, std::less<std::pair<unsigned int, unsigned int> >, std::allocator<std::pair<std::pair<unsigned int, unsigned int> const, std::vector<unsigned int, std::allocator<unsigned int> > > > >::operator[](std::pair<unsigned int, unsigned int>&&)",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "other",
+        "samples": 2
+      },
+      {
+        "symbol": "dc10::OptionA::ConfigureRadius(double, std::function<void (unsigned long)> const&)",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "other",
+        "samples": 2
+      },
+      {
+        "symbol": "std::vector<unsigned long, std::allocator<unsigned long> >::reserve(unsigned long)",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "other",
+        "samples": 2
+      },
+      {
+        "symbol": "(anonymous namespace)::RunSavedActualCavities(bool, bool, bool, bool, bool, bool, bool, bool, bool, bool, bool, bool, bool, bool, bool, bool)::{lambda(std::map<unsigned long, SU2Native3D::OwnedCell, std::less<unsigned long>, std::allocator<std::pair<unsigned long const, SU2Native3D::OwnedCell> > > const&, SU2Native3D::PlanarReference const&, char const*)#1}::operator()(std::map<unsigned long, SU2Native3D::OwnedCell, std::less<unsigned long>, std::allocator<std::pair<unsigned long const, SU2Native3D::OwnedCell> > > const&, SU2Native3D::PlanarReference const&, char const*) const",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "other",
+        "samples": 2
+      },
+      {
+        "symbol": "CADTElemClass::Dist2ToElement(unsigned long, double const*, double&) const",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "other",
+        "samples": 2
+      },
+      {
+        "symbol": "SU2NativeGeometry::MappedFacetReference::QuerySurfaceUnionAtResolution(std::vector<unsigned long, std::allocator<unsigned long> > const&, std::vector<std::array<SU2Native3D::Point, 3ul>, std::allocator<std::array<SU2Native3D::Point, 3ul> > > const&, double, SU2NativeGeometry::AtlasBudget&, bool, bool, double, bool) const::{lambda(bool, auto:1&)#1}::operator()<SU2NativeGeometry::(anonymous namespace)::SurfaceForest>(bool, SU2NativeGeometry::(anonymous namespace)::SurfaceForest&) const::{lambda(SU2NativeGeometry::(anonymous namespace)::UnionDomain const&)#1}::operator()(SU2NativeGeometry::(anonymous namespace)::UnionDomain const&) const",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "wall_proof",
+        "samples": 2
+      },
+      {
+        "symbol": "SU2Native3D::PlanarReference::ContainsFace(unsigned long, std::array<SU2Native3D::Point, 3ul> const&, SU2Native3D::KernelStats*) const",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "other",
+        "samples": 2
+      },
+      {
+        "symbol": "void std::__push_heap<__gnu_cxx::__normal_iterator<SU2NativeGeometry::MappedFacetReference::QuerySurfaceUnionAtResolution(std::vector<unsigned long, std::allocator<unsigned long> > const&, std::vector<std::array<SU2Native3D::Point, 3ul>, std::allocator<std::array<SU2Native3D::Point, 3ul> > > const&, double, SU2NativeGeometry::AtlasBudget&, bool, bool, double, bool) const::NodeBound*, std::vector<SU2NativeGeometry::MappedFacetReference::QuerySurfaceUnionAtResolution(std::vector<unsigned long, std::allocator<unsigned long> > const&, std::vector<std::array<SU2Native3D::Point, 3ul>, std::allocator<std::array<SU2Native3D::Point, 3ul> > > const&, double, SU2NativeGeometry::AtlasBudget&, bool, bool, double, bool) const::NodeBound, std::allocator<SU2NativeGeometry::MappedFacetReference::QuerySurfaceUnionAtResolution(std::vector<unsigned long, std::allocator<unsigned long> > const&, std::vector<std::array<SU2Native3D::Point, 3ul>, std::allocator<std::array<SU2Native3D::Point, 3ul> > > const&, double, SU2NativeGeometry::AtlasBudget&, bool, bool, double, bool) const::NodeBound> > >, long, SU2NativeGeometry::MappedFacetReference::QuerySurfaceUnionAtResolution(std::vector<unsigned long, std::allocator<unsigned long> > const&, std::vector<std::array<SU2Native3D::Point, 3ul>, std::allocator<std::array<SU2Native3D::Point, 3ul> > > const&, double, SU2NativeGeometry::AtlasBudget&, bool, bool, double, bool) const::NodeBound, __gnu_cxx::__ops::_Iter_comp_val<SU2NativeGeometry::MappedFacetReference::QuerySurfaceUnionAtResolution(std::vector<unsigned long, std::allocator<unsigned long> > const&, std::vector<std::array<SU2Native3D::Point, 3ul>, std::allocator<std::array<SU2Native3D::Point, 3ul> > > const&, double, SU2NativeGeometry::AtlasBudget&, bool, bool, double, bool) const::{lambda(SU2NativeGeometry::MappedFacetReference::QuerySurfaceUnionAtResolution(std::vector<unsigned long, std::allocator<unsigned long> > const&, std::vector<std::array<SU2Native3D::Point, 3ul>, std::allocator<std::array<SU2Native3D::Point, 3ul> > > const&, double, SU2NativeGeometry::AtlasBudget&, bool, bool, double, bool) const::NodeBound const&, SU2NativeGeometry::MappedFacetReference::QuerySurfaceUnionAtResolution(std::vector<unsigned long, std::allocator<unsigned long> > const&, std::vector<std::array<SU2Native3D::Point, 3ul>, std::allocator<std::array<SU2Native3D::Point, 3ul> > > const&, double, SU2NativeGeometry::AtlasBudget&, bool, bool, double, bool) const::NodeBound const&)#1}> >(__gnu_cxx::__normal_iterator<SU2NativeGeometry::MappedFacetReference::QuerySurfaceUnionAtResolution(std::vector<unsigned long, std::allocator<unsigned long> > const&, std::vector<std::array<SU2Native3D::Point, 3ul>, std::allocator<std::array<SU2Native3D::Point, 3ul> > > const&, double, SU2NativeGeometry::AtlasBudget&, bool, bool, double, bool) const::NodeBound*, std::vector<SU2NativeGeometry::MappedFacetReference::QuerySurfaceUnionAtResolution(std::vector<unsigned long, std::allocator<unsigned long> > const&, std::vector<std::array<SU2Native3D::Point, 3ul>, std::allocator<std::array<SU2Native3D::Point, 3ul> > > const&, double, SU2NativeGeometry::AtlasBudget&, bool, bool, double, bool) const::NodeBound, std::allocator<SU2NativeGeometry::MappedFacetReference::QuerySurfaceUnionAtResolution(std::vector<unsigned long, std::allocator<unsigned long> > const&, std::vector<std::array<SU2Native3D::Point, 3ul>, std::allocator<std::array<SU2Native3D::Point, 3ul> > > const&, double, SU2NativeGeometry::AtlasBudget&, bool, bool, double, bool) const::NodeBound> > >, long, long, SU2NativeGeometry::MappedFacetReference::QuerySurfaceUnionAtResolution(std::vector<unsigned long, std::allocator<unsigned long> > const&, std::vector<std::array<SU2Native3D::Point, 3ul>, std::allocator<std::array<SU2Native3D::Point, 3ul> > > const&, double, SU2NativeGeometry::AtlasBudget&, bool, bool, double, bool) const::NodeBound, __gnu_cxx::__ops::_Iter_comp_val<SU2NativeGeometry::MappedFacetReference::QuerySurfaceUnionAtResolution(std::vector<unsigned long, std::allocator<unsigned long> > const&, std::vector<std::array<SU2Native3D::Point, 3ul>, std::allocator<std::array<SU2Native3D::Point, 3ul> > > const&, double, SU2NativeGeometry::AtlasBudget&, bool, bool, double, bool) const::{lambda(SU2NativeGeometry::MappedFacetReference::QuerySurfaceUnionAtResolution(std::vector<unsigned long, std::allocator<unsigned long> > const&, std::vector<std::array<SU2Native3D::Point, 3ul>, std::allocator<std::array<SU2Native3D::Point, 3ul> > > const&, double, SU2NativeGeometry::AtlasBudget&, bool, bool, double, bool) const::NodeBound const&, SU2NativeGeometry::MappedFacetReference::QuerySurfaceUnionAtResolution(std::vector<unsigned long, std::allocator<unsigned long> > const&, std::vector<std::array<SU2Native3D::Point, 3ul>, std::allocator<std::array<SU2Native3D::Point, 3ul> > > const&, double, SU2NativeGeometry::AtlasBudget&, bool, bool, double, bool) const::NodeBound const&)#1}>&) [clone .constprop.0]",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "wall_proof",
+        "samples": 2
+      },
+      {
+        "symbol": "SU2Native3D::Orientation(SU2Native3D::Point, SU2Native3D::Point, SU2Native3D::Point, SU2Native3D::Point, SU2Native3D::KernelStats*)",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "other",
+        "samples": 2
+      },
+      {
+        "symbol": "SU2NativeGeometry::(anonymous namespace)::AtlasOps::Work(unsigned long) [clone .isra.0]",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "other",
+        "samples": 2
+      },
+      {
+        "symbol": "SU2Native3D::Directory::Build(std::map<unsigned long, SU2Native3D::OwnedCell, std::less<unsigned long>, std::allocator<std::pair<unsigned long const, SU2Native3D::OwnedCell> > > const&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >&, unsigned long, unsigned long)",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "other",
+        "samples": 2
+      },
+      {
+        "symbol": "SU2Native3D::(anonymous namespace)::WriteSnapshot(SU2NativeBoundary2D::RecordStream&, SU2Native3D::BoundaryParameterState const&) [clone .constprop.0]",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "pack_unpack",
+        "samples": 2
+      },
+      {
+        "symbol": "SU2Native3D::Directory::Rendezvous(std::pair<bool, unsigned long>) const",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "other",
+        "samples": 2
+      },
+      {
+        "symbol": "SU2Native3D::(anonymous namespace)::Validate(SU2Native3D::OwnedCell const&)",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "other",
+        "samples": 2
+      },
+      {
+        "symbol": "std::_Rb_tree_rebalance_for_erase(std::_Rb_tree_node_base*, std::_Rb_tree_node_base&)",
+        "dso": "/usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.33",
+        "group": "tree",
+        "samples": 2
+      },
+      {
+        "symbol": "void std::__unguarded_linear_insert<__gnu_cxx::__normal_iterator<SU2Native3D::DonorCell*, std::vector<SU2Native3D::DonorCell, std::allocator<SU2Native3D::DonorCell> > >, __gnu_cxx::__ops::_Val_comp_iter<SU2Native3D::DonorImport::Build(std::vector<SU2Native3D::DonorCell, std::allocator<SU2Native3D::DonorCell> > const&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >&, unsigned long, unsigned long)::{lambda(auto:1 const&, auto:2 const&)#1}> >(__gnu_cxx::__normal_iterator<SU2Native3D::DonorCell*, std::vector<SU2Native3D::DonorCell, std::allocator<SU2Native3D::DonorCell> > >, __gnu_cxx::__ops::_Val_comp_iter<SU2Native3D::DonorImport::Build(std::vector<SU2Native3D::DonorCell, std::allocator<SU2Native3D::DonorCell> > const&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >&, unsigned long, unsigned long)::{lambda(auto:1 const&, auto:2 const&)#1}>)",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "other",
+        "samples": 2
+      },
+      {
+        "symbol": "void std::vector<SU2Native3D::(anonymous namespace)::Authority, std::allocator<SU2Native3D::(anonymous namespace)::Authority> >::_M_realloc_insert<SU2Native3D::(anonymous namespace)::Authority const&>(__gnu_cxx::__normal_iterator<SU2Native3D::(anonymous namespace)::Authority*, std::vector<SU2Native3D::(anonymous namespace)::Authority, std::allocator<SU2Native3D::(anonymous namespace)::Authority> > >, SU2Native3D::(anonymous namespace)::Authority const&)",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "other",
+        "samples": 2
+      },
+      {
+        "symbol": "std::pair<std::_Rb_tree_iterator<std::array<unsigned long, 2ul> >, bool> std::_Rb_tree<std::array<unsigned long, 2ul>, std::array<unsigned long, 2ul>, std::_Identity<std::array<unsigned long, 2ul> >, std::less<std::array<unsigned long, 2ul> >, std::allocator<std::array<unsigned long, 2ul> > >::_M_insert_unique<std::array<unsigned long, 2ul> const&>(std::array<unsigned long, 2ul> const&)",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "tree",
+        "samples": 2
+      },
+      {
+        "symbol": "SU2Native3D::(anonymous namespace)::Selection::ChangePhase(bool, std::map<unsigned long, SU2Native3D::OwnedCell, std::less<unsigned long>, std::allocator<std::pair<unsigned long const, SU2Native3D::OwnedCell> > > const&, std::shared_ptr<SU2Native3D::FrozenMetricIdentity const> const&)",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "other",
+        "samples": 2
+      },
+      {
+        "symbol": "SU2NativeGeometry::MappedFacetReference::Ideal(SU2NativeGeometry::SurfaceBinding const&) const",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "other",
+        "samples": 2
+      },
+      {
+        "symbol": "SU2Native3D::Incidence::Incidence(std::vector<SU2Native3D::Cell, std::allocator<SU2Native3D::Cell> > const&, SU2Native3D::KernelStats*)",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "other",
+        "samples": 2
+      },
+      {
+        "symbol": "__kernel_sinl",
+        "dso": "/usr/lib/x86_64-linux-gnu/libm.so.6",
+        "group": "other",
+        "samples": 2
+      },
+      {
+        "symbol": "CBoundaryLayerMetric::ApplySample(unsigned short, CBoundaryLayerMetric::Sample const&, CBoundaryLayerMetric::Tensor&, double, std::vector<CBoundaryLayerMetric::WallReport, std::allocator<CBoundaryLayerMetric::WallReport> >*, bool)",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "target_BL",
+        "samples": 2
+      },
+      {
+        "symbol": "SU2NativeGeometry::MappedFacetReference::EvaluateSurface(unsigned long, SU2NativeGeometry::SurfaceBinding const&) const::{lambda(std::array<SU2NativeGeometry::(anonymous namespace)::Range, 3ul> const&, std::array<SU2NativeGeometry::(anonymous namespace)::Range, 3ul> const&)#1}::operator()(std::array<SU2NativeGeometry::(anonymous namespace)::Range, 3ul> const&, std::array<SU2NativeGeometry::(anonymous namespace)::Range, 3ul> const&) const [clone .constprop.0] [clone .isra.0]",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "other",
+        "samples": 2
+      },
+      {
+        "symbol": "__hypotl_finite@GLIBC_2.15",
+        "dso": "/usr/lib/x86_64-linux-gnu/libm.so.6",
+        "group": "other",
+        "samples": 2
+      },
+      {
+        "symbol": "SU2Native3D::FrozenField::EdgeLength(SU2Native3D::Point, SU2Native3D::Point, bool, SU2Native3D::FrozenField::LengthInverse*)",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "target_BL",
+        "samples": 2
+      },
+      {
+        "symbol": "__kernel_cosl",
+        "dso": "/usr/lib/x86_64-linux-gnu/libm.so.6",
+        "group": "other",
+        "samples": 2
+      },
+      {
+        "symbol": "[unknown]",
+        "dso": "[vdso]",
+        "group": "other",
+        "samples": 2
+      },
+      {
+        "symbol": "std::_Sp_counted_base<(__gnu_cxx::_Lock_policy)2>::_M_release()",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "other",
+        "samples": 2
+      },
+      {
+        "symbol": "SU2Native3D::PlanarReference::ParameterError(unsigned long, std::array<SU2Native3D::Point, 3ul> const&) const",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "other",
+        "samples": 2
+      },
+      {
+        "symbol": "SU2NativeBLPipeline3D::TargetPolicy::IntrinsicSurfaceGuidance(unsigned short, unsigned long, SU2Native3D::Node, SU2Native3D::PlanarReference const&, SU2Native3D::Tensor) const",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "other",
+        "samples": 2
+      },
+      {
+        "symbol": "SU2NativeGeometry::(anonymous namespace)::DividePositive(SU2NativeGeometry::(anonymous namespace)::Range, long double)",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "other",
+        "samples": 2
+      },
+      {
+        "symbol": "void std::__introsort_loop<__gnu_cxx::__normal_iterator<SU2Native3D::FaceUse*, std::vector<SU2Native3D::FaceUse, std::allocator<SU2Native3D::FaceUse> > >, long, __gnu_cxx::__ops::_Iter_comp_iter<SU2Native3D::(anonymous namespace)::SortUses<SU2Native3D::FaceUse>(std::vector<SU2Native3D::FaceUse, std::allocator<SU2Native3D::FaceUse> >&)::{lambda(SU2Native3D::FaceUse const&, SU2Native3D::FaceUse const&)#1}> >(__gnu_cxx::__normal_iterator<SU2Native3D::FaceUse*, std::vector<SU2Native3D::FaceUse, std::allocator<SU2Native3D::FaceUse> > >, __gnu_cxx::__normal_iterator<SU2Native3D::FaceUse*, std::vector<SU2Native3D::FaceUse, std::allocator<SU2Native3D::FaceUse> > >, long, __gnu_cxx::__ops::_Iter_comp_iter<SU2Native3D::(anonymous namespace)::SortUses<SU2Native3D::FaceUse>(std::vector<SU2Native3D::FaceUse, std::allocator<SU2Native3D::FaceUse> >&)::{lambda(SU2Native3D::FaceUse const&, SU2Native3D::FaceUse const&)#1}>)",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "other",
+        "samples": 2
+      },
+      {
+        "symbol": "SU2Native3D::Directory::ClearanceBatch(std::map<unsigned long, SU2Native3D::OwnedCell, std::less<unsigned long>, std::allocator<std::pair<unsigned long const, SU2Native3D::OwnedCell> > > const&, std::vector<SU2Native3D::ClearanceCandidate, std::allocator<SU2Native3D::ClearanceCandidate> >&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >&, unsigned long, unsigned long)",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "other",
+        "samples": 2
+      },
+      {
+        "symbol": "std::_Rb_tree<std::array<unsigned long, 2ul>, std::pair<std::array<unsigned long, 2ul> const, unsigned long>, std::_Select1st<std::pair<std::array<unsigned long, 2ul> const, unsigned long> >, std::less<std::array<unsigned long, 2ul> >, std::allocator<std::pair<std::array<unsigned long, 2ul> const, unsigned long> > >::_M_erase(std::_Rb_tree_node<std::pair<std::array<unsigned long, 2ul> const, unsigned long> >*) [clone .isra.0]",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "tree",
+        "samples": 2
+      },
+      {
+        "symbol": "SU2Native3D::MetricEdgeRequests(std::vector<SU2Native3D::Cell, std::allocator<SU2Native3D::Cell> > const&, std::map<std::array<unsigned long, 2ul>, SU2Native3D::EdgeMeasure, std::less<std::array<unsigned long, 2ul> >, std::allocator<std::pair<std::array<unsigned long, 2ul> const, SU2Native3D::EdgeMeasure> > >&, std::shared_ptr<SU2Native3D::FrozenMetricIdentity const> const&, std::map<std::array<unsigned long, 2ul>, SU2Native3D::EdgeMeasure, std::less<std::array<unsigned long, 2ul> >, std::allocator<std::pair<std::array<unsigned long, 2ul> const, SU2Native3D::EdgeMeasure> > > const*)",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "other",
+        "samples": 2
+      },
+      {
+        "symbol": "std::_Rb_tree<std::vector<unsigned long, std::allocator<unsigned long> >, std::pair<std::vector<unsigned long, std::allocator<unsigned long> > const, SU2NativeGeometry::MappedFacetReference::CurvedSearch::Pool<std::vector<unsigned long, std::allocator<unsigned long> > >::Entry>, std::_Select1st<std::pair<std::vector<unsigned long, std::allocator<unsigned long> > const, SU2NativeGeometry::MappedFacetReference::CurvedSearch::Pool<std::vector<unsigned long, std::allocator<unsigned long> > >::Entry> >, std::less<std::vector<unsigned long, std::allocator<unsigned long> > >, std::allocator<std::pair<std::vector<unsigned long, std::allocator<unsigned long> > const, SU2NativeGeometry::MappedFacetReference::CurvedSearch::Pool<std::vector<unsigned long, std::allocator<unsigned long> > >::Entry> > >::find(std::vector<unsigned long, std::allocator<unsigned long> > const&)",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "tree",
+        "samples": 2
+      },
+      {
+        "symbol": "SU2NativeGeometry::MappedFacetReference::QuerySurfaceUnionAtResolution(std::vector<unsigned long, std::allocator<unsigned long> > const&, std::vector<std::array<SU2Native3D::Point, 3ul>, std::allocator<std::array<SU2Native3D::Point, 3ul> > > const&, double, SU2NativeGeometry::AtlasBudget&, bool, bool, double, bool) const::NodeBound& std::vector<SU2NativeGeometry::MappedFacetReference::QuerySurfaceUnionAtResolution(std::vector<unsigned long, std::allocator<unsigned long> > const&, std::vector<std::array<SU2Native3D::Point, 3ul>, std::allocator<std::array<SU2Native3D::Point, 3ul> > > const&, double, SU2NativeGeometry::AtlasBudget&, bool, bool, double, bool) const::NodeBound, std::allocator<SU2NativeGeometry::MappedFacetReference::QuerySurfaceUnionAtResolution(std::vector<unsigned long, std::allocator<unsigned long> > const&, std::vector<std::array<SU2Native3D::Point, 3ul>, std::allocator<std::array<SU2Native3D::Point, 3ul> > > const&, double, SU2NativeGeometry::AtlasBudget&, bool, bool, double, bool) const::NodeBound> >::emplace_back<SU2NativeGeometry::MappedFacetReference::QuerySurfaceUnionAtResolution(std::vector<unsigned long, std::allocator<unsigned long> > const&, std::vector<std::array<SU2Native3D::Point, 3ul>, std::allocator<std::array<SU2Native3D::Point, 3ul> > > const&, double, SU2NativeGeometry::AtlasBudget&, bool, bool, double, bool) const::NodeBound>(SU2NativeGeometry::MappedFacetReference::QuerySurfaceUnionAtResolution(std::vector<unsigned long, std::allocator<unsigned long> > const&, std::vector<std::array<SU2Native3D::Point, 3ul>, std::allocator<std::array<SU2Native3D::Point, 3ul> > > const&, double, SU2NativeGeometry::AtlasBudget&, bool, bool, double, bool) const::NodeBound&&) [clone .isra.0]",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "wall_proof",
+        "samples": 2
+      },
+      {
+        "symbol": "__atan2l",
+        "dso": "/usr/lib/x86_64-linux-gnu/libm.so.6",
+        "group": "other",
+        "samples": 2
+      },
+      {
+        "symbol": "SU2Native3D::MeasureMetricCellsImpl(std::vector<SU2Native3D::Cell, std::allocator<SU2Native3D::Cell> > const&, SU2Native3D::FrozenField&, SU2Native3D::MetricStats*, std::map<std::array<unsigned long, 2ul>, SU2Native3D::EdgeMeasure, std::less<std::array<unsigned long, 2ul> >, std::allocator<std::pair<std::array<unsigned long, 2ul> const, SU2Native3D::EdgeMeasure> > > const*, bool, SU2Native3D::MetricDiagnosis*, bool, std::map<std::array<unsigned long, 2ul>, SU2Native3D::EdgeMeasure, std::less<std::array<unsigned long, 2ul> >, std::allocator<std::pair<std::array<unsigned long, 2ul> const, SU2Native3D::EdgeMeasure> > >*, bool)",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "target_BL",
+        "samples": 2
+      },
+      {
+        "symbol": "do_lookup_x",
+        "dso": "/usr/lib/x86_64-linux-gnu/ld-linux-x86-64.so.2",
+        "group": "other",
+        "samples": 1
+      },
+      {
+        "symbol": "__strcmp_avx2",
+        "dso": "/usr/lib/x86_64-linux-gnu/libc.so.6",
+        "group": "other",
+        "samples": 1
+      },
+      {
+        "symbol": "std::enable_if<std::is_constructible<std::pair<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const, COptionBase*>, std::pair<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, COptionBase*> >::value, std::pair<std::_Rb_tree_iterator<std::pair<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const, COptionBase*> >, bool> >::type std::map<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, COptionBase*, std::less<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > >, std::allocator<std::pair<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const, COptionBase*> > >::insert<std::pair<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, COptionBase*> >(std::pair<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, COptionBase*>&&)",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "tree",
+        "samples": 1
+      },
+      {
+        "symbol": "std::istreambuf_iterator<char, std::char_traits<char> > std::num_get<char, std::istreambuf_iterator<char, std::char_traits<char> > >::_M_extract_int<long>(std::istreambuf_iterator<char, std::char_traits<char> >, std::istreambuf_iterator<char, std::char_traits<char> >, std::ios_base&, std::_Ios_Iostate&, long&) const",
+        "dso": "/usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.33",
+        "group": "other",
+        "samples": 1
+      },
+      {
+        "symbol": "pthread_once@GLIBC_2.2.5",
+        "dso": "/usr/lib/x86_64-linux-gnu/libc.so.6",
+        "group": "other",
+        "samples": 1
+      },
+      {
+        "symbol": "std::locale::facet::_S_get_c_locale()",
+        "dso": "/usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.33",
+        "group": "other",
+        "samples": 1
+      },
+      {
+        "symbol": "std::_Rb_tree<std::array<unsigned long, 2ul>, std::pair<std::array<unsigned long, 2ul> const, int>, std::_Select1st<std::pair<std::array<unsigned long, 2ul> const, int> >, std::less<std::array<unsigned long, 2ul> >, std::allocator<std::pair<std::array<unsigned long, 2ul> const, int> > >::_M_erase(std::_Rb_tree_node<std::pair<std::array<unsigned long, 2ul> const, int> >*) [clone .isra.0]",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "tree",
+        "samples": 1
+      },
+      {
+        "symbol": "operator delete(void*)@plt",
+        "dso": "/usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.33",
+        "group": "memory",
+        "samples": 1
+      },
+      {
+        "symbol": "std::pair<std::_Rb_tree_iterator<std::pair<std::array<unsigned long, 2ul>, std::array<unsigned long, 3ul> > >, bool> std::_Rb_tree<std::pair<std::array<unsigned long, 2ul>, std::array<unsigned long, 3ul> >, std::pair<std::array<unsigned long, 2ul>, std::array<unsigned long, 3ul> >, std::_Identity<std::pair<std::array<unsigned long, 2ul>, std::array<unsigned long, 3ul> > >, std::less<std::pair<std::array<unsigned long, 2ul>, std::array<unsigned long, 3ul> > >, std::allocator<std::pair<std::array<unsigned long, 2ul>, std::array<unsigned long, 3ul> > > >::_M_emplace_unique<std::array<unsigned long, 2ul>&, std::array<unsigned long, 3ul> const&>(std::array<unsigned long, 2ul>&, std::array<unsigned long, 3ul> const&)",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "tree",
+        "samples": 1
+      },
+      {
+        "symbol": "SU2NativeGeometry::ExactAdd(SU2NativeGeometry::ExactRatio const&, SU2NativeGeometry::ExactRatio const&, SU2NativeGeometry::ExactRatio&, SU2NativeGeometry::AtlasBudget&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >&)",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "other",
+        "samples": 1
+      },
+      {
+        "symbol": "SU2NativeGeometry::(anonymous namespace)::Arithmetic(SU2NativeGeometry::ExactRatio const&, SU2NativeGeometry::ExactRatio const&, SU2NativeGeometry::ExactRatio&, SU2NativeGeometry::AtlasBudget&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >&, char)::{lambda()#1}::operator()() const",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "other",
+        "samples": 1
+      },
+      {
+        "symbol": "std::ostreambuf_iterator<char, std::char_traits<char> > std::num_put<char, std::ostreambuf_iterator<char, std::char_traits<char> > >::_M_insert_float<double>(std::ostreambuf_iterator<char, std::char_traits<char> >, std::ios_base&, char, char, double) const",
+        "dso": "/usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.33",
+        "group": "other",
+        "samples": 1
+      },
+      {
+        "symbol": "std::basic_streambuf<char, std::char_traits<char> >::xsputn(char const*, long)",
+        "dso": "/usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.33",
+        "group": "other",
+        "samples": 1
+      },
+      {
+        "symbol": "std::ostream& std::ostream::_M_insert<double>(double)",
+        "dso": "/usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.33",
+        "group": "other",
+        "samples": 1
+      },
+      {
+        "symbol": "hack_digit",
+        "dso": "/usr/lib/x86_64-linux-gnu/libc.so.6",
+        "group": "other",
+        "samples": 1
+      },
+      {
+        "symbol": "__strchrnul_avx2",
+        "dso": "/usr/lib/x86_64-linux-gnu/libc.so.6",
+        "group": "other",
+        "samples": 1
+      },
+      {
+        "symbol": "SU2Native3D::EncodeReference[abi:cxx11](SU2Native3D::ReferenceState const&, unsigned long, unsigned long)",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "other",
+        "samples": 1
+      },
+      {
+        "symbol": "std::ostreambuf_iterator<char, std::char_traits<char> > std::num_put<char, std::ostreambuf_iterator<char, std::char_traits<char> > >::_M_insert_int<unsigned long>(std::ostreambuf_iterator<char, std::char_traits<char> >, std::ios_base&, char, unsigned long) const",
+        "dso": "/usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.33",
+        "group": "other",
+        "samples": 1
+      },
+      {
+        "symbol": "std::istreambuf_iterator<char, std::char_traits<char> > std::num_get<char, std::istreambuf_iterator<char, std::char_traits<char> > >::_M_extract_int<unsigned int>(std::istreambuf_iterator<char, std::char_traits<char> >, std::istreambuf_iterator<char, std::char_traits<char> >, std::ios_base&, std::_Ios_Iostate&, unsigned int&) const",
+        "dso": "/usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.33",
+        "group": "other",
+        "samples": 1
+      },
+      {
+        "symbol": "std::num_get<char, std::istreambuf_iterator<char, std::char_traits<char> > >::do_get(std::istreambuf_iterator<char, std::char_traits<char> >, std::istreambuf_iterator<char, std::char_traits<char> >, std::ios_base&, std::_Ios_Iostate&, double&) const",
+        "dso": "/usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.33",
+        "group": "other",
+        "samples": 1
+      },
+      {
+        "symbol": "std::string::reserve(unsigned long)@plt",
+        "dso": "/usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.33",
+        "group": "other",
+        "samples": 1
+      },
+      {
+        "symbol": "std::locale::id::_M_id() const",
+        "dso": "/usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.33",
+        "group": "other",
+        "samples": 1
+      },
+      {
+        "symbol": "__mpn_construct_double",
+        "dso": "/usr/lib/x86_64-linux-gnu/libc.so.6",
+        "group": "other",
+        "samples": 1
+      },
+      {
+        "symbol": "std::pair<std::_Rb_tree_iterator<unsigned long>, bool> std::_Rb_tree<unsigned long, unsigned long, std::_Identity<unsigned long>, std::less<unsigned long>, std::allocator<unsigned long> >::_M_insert_unique<unsigned long const&>(unsigned long const&)",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "tree",
+        "samples": 1
+      },
+      {
+        "symbol": "std::pair<std::_Rb_tree_iterator<std::pair<unsigned long const, std::array<SU2Native3D::Point, 2ul> > >, bool> std::map<unsigned long, std::array<SU2Native3D::Point, 2ul>, std::less<unsigned long>, std::allocator<std::pair<unsigned long const, std::array<SU2Native3D::Point, 2ul> > > >::emplace<unsigned long const&, std::array<SU2Native3D::Point, 2ul> >(unsigned long const&, std::array<SU2Native3D::Point, 2ul>&&)",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "tree",
+        "samples": 1
+      },
+      {
+        "symbol": "SU2Native3D::(anonymous namespace)::Curve(std::map<unsigned long, std::vector<unsigned long, std::allocator<unsigned long> >, std::less<unsigned long>, std::allocator<std::pair<unsigned long const, std::vector<unsigned long, std::allocator<unsigned long> > > > > const&, bool)",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "other",
+        "samples": 1
+      },
+      {
+        "symbol": "std::_Rb_tree_node<std::pair<unsigned long const, unsigned long> >* std::_Rb_tree<unsigned long, std::pair<unsigned long const, unsigned long>, std::_Select1st<std::pair<unsigned long const, unsigned long> >, std::less<unsigned long>, std::allocator<std::pair<unsigned long const, unsigned long> > >::_M_copy<false, std::_Rb_tree<unsigned long, std::pair<unsigned long const, unsigned long>, std::_Select1st<std::pair<unsigned long const, unsigned long> >, std::less<unsigned long>, std::allocator<std::pair<unsigned long const, unsigned long> > >::_Reuse_or_alloc_node>(std::_Rb_tree_node<std::pair<unsigned long const, unsigned long> >*, std::_Rb_tree_node_base*, std::_Rb_tree<unsigned long, std::pair<unsigned long const, unsigned long>, std::_Select1st<std::pair<unsigned long const, unsigned long> >, std::less<unsigned long>, std::allocator<std::pair<unsigned long const, unsigned long> > >::_Reuse_or_alloc_node&) [clone .isra.0]",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "tree",
+        "samples": 1
+      },
+      {
+        "symbol": "SU2Native3D::(anonymous namespace)::WriteAtlas(SU2NativeBoundary2D::RecordStream&, SU2NativeGeometry::BoundaryCoverage const&, SU2NativeGeometry::MobilityPolicy const&)",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "pack_unpack",
+        "samples": 1
+      },
+      {
+        "symbol": "SU2Native3D::SurfaceOrientationSign(std::array<SU2Native3D::Point, 3ul> const&, std::array<SU2Native3D::Point, 3ul> const&, SU2Native3D::KernelStats*)",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "exact_predicates",
+        "samples": 1
+      },
+      {
+        "symbol": "memcpy@plt",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "memory",
+        "samples": 1
+      },
+      {
+        "symbol": "std::_Rb_tree<std::array<unsigned long, 2ul>, std::pair<std::array<unsigned long, 2ul> const, int>, std::_Select1st<std::pair<std::array<unsigned long, 2ul> const, int> >, std::less<std::array<unsigned long, 2ul> >, std::allocator<std::pair<std::array<unsigned long, 2ul> const, int> > >::_M_get_insert_hint_unique_pos(std::_Rb_tree_const_iterator<std::pair<std::array<unsigned long, 2ul> const, int> >, std::array<unsigned long, 2ul> const&)",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "tree",
+        "samples": 1
+      },
+      {
+        "symbol": "SU2NativeGeometry::(anonymous namespace)::BaryBytes(SU2NativeGeometry::ExactBary const&)",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "other",
+        "samples": 1
+      },
+      {
+        "symbol": "std::_Rb_tree_decrement(std::_Rb_tree_node_base*)@plt",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "tree",
+        "samples": 1
+      },
+      {
+        "symbol": "SU2NativeGeometry::(anonymous namespace)::MulSize(unsigned long, unsigned long)",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "other",
+        "samples": 1
+      },
+      {
+        "symbol": "SU2NativeGeometry::(anonymous namespace)::Small(SU2NativeGeometry::(anonymous namespace)::Context&, unsigned long)",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "other",
+        "samples": 1
+      },
+      {
+        "symbol": "SU2NativeGeometry::(anonymous namespace)::TraceBytes(SU2NativeGeometry::EdgeTrace const&)",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "other",
+        "samples": 1
+      },
+      {
+        "symbol": "std::_Rb_tree<unsigned long, std::pair<unsigned long const, double>, std::_Select1st<std::pair<unsigned long const, double> >, std::less<unsigned long>, std::allocator<std::pair<unsigned long const, double> > >::_M_erase(std::_Rb_tree_node<std::pair<unsigned long const, double> >*) [clone .isra.0]",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "tree",
+        "samples": 1
+      },
+      {
+        "symbol": "std::_Rb_tree<std::pair<std::array<unsigned long, 2ul>, std::array<unsigned long, 3ul> >, std::pair<std::array<unsigned long, 2ul>, std::array<unsigned long, 3ul> >, std::_Identity<std::pair<std::array<unsigned long, 2ul>, std::array<unsigned long, 3ul> > >, std::less<std::pair<std::array<unsigned long, 2ul>, std::array<unsigned long, 3ul> > >, std::allocator<std::pair<std::array<unsigned long, 2ul>, std::array<unsigned long, 3ul> > > >::_M_erase(std::_Rb_tree_node<std::pair<std::array<unsigned long, 2ul>, std::array<unsigned long, 3ul> > >*) [clone .isra.0]",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "tree",
+        "samples": 1
+      },
+      {
+        "symbol": "CBoundaryLayerMetric::BuildFeatures(CBoundaryLayerMetric::FeatureOptions)::{lambda(std::vector<unsigned int, std::allocator<unsigned int> > const&, int, bool)#1}::operator()(std::vector<unsigned int, std::allocator<unsigned int> > const&, int, bool) const",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "target_BL",
+        "samples": 1
+      },
+      {
+        "symbol": "CBoundaryLayerMetric::BuildFeatures(CBoundaryLayerMetric::FeatureOptions)::{lambda(CBoundaryLayerMetric::BuildFeatures(CBoundaryLayerMetric::FeatureOptions)::Face const&)#1}::operator()(CBoundaryLayerMetric::BuildFeatures(CBoundaryLayerMetric::FeatureOptions)::Face const&) const [clone .isra.0]",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "target_BL",
+        "samples": 1
+      },
+      {
+        "symbol": "std::_Rb_tree<unsigned int, std::pair<unsigned int const, std::vector<std::pair<unsigned int, unsigned int>, std::allocator<std::pair<unsigned int, unsigned int> > > >, std::_Select1st<std::pair<unsigned int const, std::vector<std::pair<unsigned int, unsigned int>, std::allocator<std::pair<unsigned int, unsigned int> > > > >, std::less<unsigned int>, std::allocator<std::pair<unsigned int const, std::vector<std::pair<unsigned int, unsigned int>, std::allocator<std::pair<unsigned int, unsigned int> > > > > >::find(unsigned int const&) const [clone .isra.0]",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "tree",
+        "samples": 1
+      },
+      {
+        "symbol": "void std::__introsort_loop<__gnu_cxx::__normal_iterator<unsigned long*, std::vector<unsigned long, std::allocator<unsigned long> > >, long, __gnu_cxx::__ops::_Iter_less_iter>(__gnu_cxx::__normal_iterator<unsigned long*, std::vector<unsigned long, std::allocator<unsigned long> > >, __gnu_cxx::__normal_iterator<unsigned long*, std::vector<unsigned long, std::allocator<unsigned long> > >, long, __gnu_cxx::__ops::_Iter_less_iter) [clone .isra.0]",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "other",
+        "samples": 1
+      },
+      {
+        "symbol": "SU2NativeGeometry::MappedFacetReference::CurvedComponent(unsigned long) const",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "other",
+        "samples": 1
+      },
+      {
+        "symbol": "std::_Rb_tree<std::array<double, 3ul>, std::pair<std::array<double, 3ul> const, unsigned int>, std::_Select1st<std::pair<std::array<double, 3ul> const, unsigned int> >, std::less<std::array<double, 3ul> >, std::allocator<std::pair<std::array<double, 3ul> const, unsigned int> > >::_M_erase(std::_Rb_tree_node<std::pair<std::array<double, 3ul> const, unsigned int> >*) [clone .isra.0]",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "tree",
+        "samples": 1
+      },
+      {
+        "symbol": "dc10::BuildOptionA(std::vector<SU2Native3D::Facet, std::allocator<SU2Native3D::Facet> > const&, std::map<int, int, std::less<int>, std::allocator<std::pair<int const, int> > > const&, double, double, double, std::function<void (unsigned long)> const&)",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "other",
+        "samples": 1
+      },
+      {
+        "symbol": "Catch::RunContext::handleExpr(Catch::AssertionInfo const&, Catch::ITransientExpression const&, Catch::AssertionReaction&)",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "other",
+        "samples": 1
+      },
+      {
+        "symbol": "std::_Rb_tree_iterator<std::pair<unsigned long const, SU2Native3D::OwnedCell> > std::_Rb_tree<unsigned long, std::pair<unsigned long const, SU2Native3D::OwnedCell>, std::_Select1st<std::pair<unsigned long const, SU2Native3D::OwnedCell> >, std::less<unsigned long>, std::allocator<std::pair<unsigned long const, SU2Native3D::OwnedCell> > >::_M_emplace_hint_unique<unsigned long&, SU2Native3D::OwnedCell>(std::_Rb_tree_const_iterator<std::pair<unsigned long const, SU2Native3D::OwnedCell> >, unsigned long&, SU2Native3D::OwnedCell&&)",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "tree",
+        "samples": 1
+      },
+      {
+        "symbol": "SU2NativeGeometry::(anonymous namespace)::Load(SU2NativeGeometry::(anonymous namespace)::Context&, SU2NativeGeometry::ExactRatio const&)",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "other",
+        "samples": 1
+      },
+      {
+        "symbol": "std::pair<std::_Rb_tree_iterator<std::pair<unsigned long, std::array<unsigned long, 3ul> > >, bool> std::_Rb_tree<std::pair<unsigned long, std::array<unsigned long, 3ul> >, std::pair<unsigned long, std::array<unsigned long, 3ul> >, std::_Identity<std::pair<unsigned long, std::array<unsigned long, 3ul> > >, std::less<std::pair<unsigned long, std::array<unsigned long, 3ul> > >, std::allocator<std::pair<unsigned long, std::array<unsigned long, 3ul> > > >::_M_emplace_unique<unsigned long, std::array<unsigned long, 3ul> const&>(unsigned long&&, std::array<unsigned long, 3ul> const&)",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "tree",
+        "samples": 1
+      },
+      {
+        "symbol": "SU2NativeGeometry::(anonymous namespace)::Copy(SU2NativeGeometry::(anonymous namespace)::Context&, std::vector<unsigned int, std::allocator<unsigned int> > const&)",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "other",
+        "samples": 1
+      },
+      {
+        "symbol": "SU2NativeGeometry::(anonymous namespace)::Plus(unsigned long, unsigned long)",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "other",
+        "samples": 1
+      },
+      {
+        "symbol": "SU2Native3D::(anonymous namespace)::WritePayload(SU2NativeBoundary2D::RecordStream&, SU2Native3D::BoundaryParameterState const&) [clone .constprop.0]",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "pack_unpack",
+        "samples": 1
+      },
+      {
+        "symbol": "SU2Native3D::(anonymous namespace)::WriteRatio(SU2NativeBoundary2D::RecordStream&, SU2NativeGeometry::ExactRatio const&)",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "pack_unpack",
+        "samples": 1
+      },
+      {
+        "symbol": "std::_Rb_tree_node<std::pair<std::array<unsigned long, 2ul>, std::array<unsigned long, 3ul> > >* std::_Rb_tree<std::pair<std::array<unsigned long, 2ul>, std::array<unsigned long, 3ul> >, std::pair<std::array<unsigned long, 2ul>, std::array<unsigned long, 3ul> >, std::_Identity<std::pair<std::array<unsigned long, 2ul>, std::array<unsigned long, 3ul> > >, std::less<std::pair<std::array<unsigned long, 2ul>, std::array<unsigned long, 3ul> > >, std::allocator<std::pair<std::array<unsigned long, 2ul>, std::array<unsigned long, 3ul> > > >::_M_copy<false, std::_Rb_tree<std::pair<std::array<unsigned long, 2ul>, std::array<unsigned long, 3ul> >, std::pair<std::array<unsigned long, 2ul>, std::array<unsigned long, 3ul> >, std::_Identity<std::pair<std::array<unsigned long, 2ul>, std::array<unsigned long, 3ul> > >, std::less<std::pair<std::array<unsigned long, 2ul>, std::array<unsigned long, 3ul> > >, std::allocator<std::pair<std::array<unsigned long, 2ul>, std::array<unsigned long, 3ul> > > >::_Alloc_node>(std::_Rb_tree_node<std::pair<std::array<unsigned long, 2ul>, std::array<unsigned long, 3ul> > >*, std::_Rb_tree_node_base*, std::_Rb_tree<std::pair<std::array<unsigned long, 2ul>, std::array<unsigned long, 3ul> >, std::pair<std::array<unsigned long, 2ul>, std::array<unsigned long, 3ul> >, std::_Identity<std::pair<std::array<unsigned long, 2ul>, std::array<unsigned long, 3ul> > >, std::less<std::pair<std::array<unsigned long, 2ul>, std::array<unsigned long, 3ul> > >, std::allocator<std::pair<std::array<unsigned long, 2ul>, std::array<unsigned long, 3ul> > > >::_Alloc_node&) [clone .isra.0]",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "tree",
+        "samples": 1
+      },
+      {
+        "symbol": "std::_Rb_tree_node<std::pair<unsigned long, std::array<unsigned long, 3ul> > >* std::_Rb_tree<std::pair<unsigned long, std::array<unsigned long, 3ul> >, std::pair<unsigned long, std::array<unsigned long, 3ul> >, std::_Identity<std::pair<unsigned long, std::array<unsigned long, 3ul> > >, std::less<std::pair<unsigned long, std::array<unsigned long, 3ul> > >, std::allocator<std::pair<unsigned long, std::array<unsigned long, 3ul> > > >::_M_copy<false, std::_Rb_tree<std::pair<unsigned long, std::array<unsigned long, 3ul> >, std::pair<unsigned long, std::array<unsigned long, 3ul> >, std::_Identity<std::pair<unsigned long, std::array<unsigned long, 3ul> > >, std::less<std::pair<unsigned long, std::array<unsigned long, 3ul> > >, std::allocator<std::pair<unsigned long, std::array<unsigned long, 3ul> > > >::_Alloc_node>(std::_Rb_tree_node<std::pair<unsigned long, std::array<unsigned long, 3ul> > >*, std::_Rb_tree_node_base*, std::_Rb_tree<std::pair<unsigned long, std::array<unsigned long, 3ul> >, std::pair<unsigned long, std::array<unsigned long, 3ul> >, std::_Identity<std::pair<unsigned long, std::array<unsigned long, 3ul> > >, std::less<std::pair<unsigned long, std::array<unsigned long, 3ul> > >, std::allocator<std::pair<unsigned long, std::array<unsigned long, 3ul> > > >::_Alloc_node&) [clone .isra.0]",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "tree",
+        "samples": 1
+      },
+      {
+        "symbol": "void SU2NativeBoundary2D::RecordStream::Field<int>(int&)",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "pack_unpack",
+        "samples": 1
+      },
+      {
+        "symbol": "std::_Rb_tree_iterator<std::pair<unsigned long const, SU2Native3D::Directory::Entry> > std::_Rb_tree<unsigned long, std::pair<unsigned long const, SU2Native3D::Directory::Entry>, std::_Select1st<std::pair<unsigned long const, SU2Native3D::Directory::Entry> >, std::less<unsigned long>, std::allocator<std::pair<unsigned long const, SU2Native3D::Directory::Entry> > >::_M_emplace_hint_unique<unsigned long const&, SU2Native3D::Directory::Entry const&>(std::_Rb_tree_const_iterator<std::pair<unsigned long const, SU2Native3D::Directory::Entry> >, unsigned long const&, SU2Native3D::Directory::Entry const&)",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "tree",
+        "samples": 1
+      },
+      {
+        "symbol": "std::_Rb_tree<std::pair<bool, unsigned long>, std::pair<bool, unsigned long>, std::_Identity<std::pair<bool, unsigned long> >, std::less<std::pair<bool, unsigned long> >, std::allocator<std::pair<bool, unsigned long> > >::_M_erase(std::_Rb_tree_node<std::pair<bool, unsigned long> >*) [clone .isra.0]",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "tree",
+        "samples": 1
+      },
+      {
+        "symbol": "void std::__introsort_loop<__gnu_cxx::__normal_iterator<SU2Native3D::DonorCell*, std::vector<SU2Native3D::DonorCell, std::allocator<SU2Native3D::DonorCell> > >, long, __gnu_cxx::__ops::_Iter_comp_iter<SU2Native3D::DonorImport::Build(std::vector<SU2Native3D::DonorCell, std::allocator<SU2Native3D::DonorCell> > const&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >&, unsigned long, unsigned long)::{lambda(auto:1 const&, auto:2 const&)#1}> >(__gnu_cxx::__normal_iterator<SU2Native3D::DonorCell*, std::vector<SU2Native3D::DonorCell, std::allocator<SU2Native3D::DonorCell> > >, __gnu_cxx::__normal_iterator<SU2Native3D::DonorCell*, std::vector<SU2Native3D::DonorCell, std::allocator<SU2Native3D::DonorCell> > >, long, __gnu_cxx::__ops::_Iter_comp_iter<SU2Native3D::DonorImport::Build(std::vector<SU2Native3D::DonorCell, std::allocator<SU2Native3D::DonorCell> > const&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >&, unsigned long, unsigned long)::{lambda(auto:1 const&, auto:2 const&)#1}>)",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "other",
+        "samples": 1
+      },
+      {
+        "symbol": "SU2Native3D::(anonymous namespace)::Bounds(SU2Native3D::Cell const&)",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "other",
+        "samples": 1
+      },
+      {
+        "symbol": "BisectionBoxes(unsigned short, std::vector<double, std::allocator<double> > const&, std::vector<double, std::allocator<double> > const&, unsigned long, std::vector<unsigned long, std::allocator<unsigned long> >*)",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "other",
+        "samples": 1
+      },
+      {
+        "symbol": "std::_Rb_tree_increment(std::_Rb_tree_node_base const*)@plt",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "tree",
+        "samples": 1
+      },
+      {
+        "symbol": "__sincosl",
+        "dso": "/usr/lib/x86_64-linux-gnu/libm.so.6",
+        "group": "other",
+        "samples": 1
+      },
+      {
+        "symbol": "std::_Rb_tree_iterator<std::pair<unsigned long const, SU2Native3D::Node> > std::_Rb_tree<unsigned long, std::pair<unsigned long const, SU2Native3D::Node>, std::_Select1st<std::pair<unsigned long const, SU2Native3D::Node> >, std::less<unsigned long>, std::allocator<std::pair<unsigned long const, SU2Native3D::Node> > >::_M_emplace_hint_unique<unsigned long&, SU2Native3D::Node&>(std::_Rb_tree_const_iterator<std::pair<unsigned long const, SU2Native3D::Node> >, unsigned long&, SU2Native3D::Node&)",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "tree",
+        "samples": 1
+      },
+      {
+        "symbol": "std::_Rb_tree_iterator<std::pair<unsigned long const, SU2Native3D::Point> > std::_Rb_tree<unsigned long, std::pair<unsigned long const, SU2Native3D::Point>, std::_Select1st<std::pair<unsigned long const, SU2Native3D::Point> >, std::less<unsigned long>, std::allocator<std::pair<unsigned long const, SU2Native3D::Point> > >::_M_emplace_hint_unique<unsigned long&, SU2Native3D::Point&>(std::_Rb_tree_const_iterator<std::pair<unsigned long const, SU2Native3D::Point> >, unsigned long&, SU2Native3D::Point&)",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "tree",
+        "samples": 1
+      },
+      {
+        "symbol": "SU2Native3D::(anonymous namespace)::Selection::Queue(std::array<unsigned long, 2ul>, long double, bool)",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "other",
+        "samples": 1
+      },
+      {
+        "symbol": "std::_Rb_tree<std::array<unsigned long, 2ul>, std::pair<std::array<unsigned long, 2ul> const, SU2NativeGeometry::EdgeTrace>, std::_Select1st<std::pair<std::array<unsigned long, 2ul> const, SU2NativeGeometry::EdgeTrace> >, std::less<std::array<unsigned long, 2ul> >, std::allocator<std::pair<std::array<unsigned long, 2ul> const, SU2NativeGeometry::EdgeTrace> > >::find(std::array<unsigned long, 2ul> const&) const",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "tree",
+        "samples": 1
+      },
+      {
+        "symbol": "SU2Native3D::InterpolateSensor(SU2Native3D::DonorCell const&, std::array<long double, 4ul> const&)",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "other",
+        "samples": 1
+      },
+      {
+        "symbol": "_int_free_merge_chunk",
+        "dso": "/usr/lib/x86_64-linux-gnu/libc.so.6",
+        "group": "memory",
+        "samples": 1
+      },
+      {
+        "symbol": "SU2Native3D::CavityMetricSource::ImportCells(std::vector<SU2Native3D::Cell, std::allocator<SU2Native3D::Cell> > const&, unsigned long, unsigned long)",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "cavity_topology",
+        "samples": 1
+      },
+      {
+        "symbol": "__hypotl",
+        "dso": "/usr/lib/x86_64-linux-gnu/libm.so.6",
+        "group": "other",
+        "samples": 1
+      },
+      {
+        "symbol": "SU2NativeGeometry::MappedFacetReference::SurfaceCoordinates(unsigned long, SU2NativeGeometry::SurfaceBinding const&) const",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "other",
+        "samples": 1
+      },
+      {
+        "symbol": "SU2Native3D::ParametricPointBounds(SU2Native3D::ParametricPoint const&)",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "other",
+        "samples": 1
+      },
+      {
+        "symbol": "memcmp@plt",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "other",
+        "samples": 1
+      },
+      {
+        "symbol": "SU2Native3D::PlanarReference::Parameter(SU2Native3D::Point) const",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "other",
+        "samples": 1
+      },
+      {
+        "symbol": "std::_Function_handler<std::vector<SU2Native3D::BoundaryMetricSample, std::allocator<SU2Native3D::BoundaryMetricSample> > (SU2Native3D::Node, SU2Native3D::PlanarReference const&, SU2Native3D::Tensor), (anonymous namespace)::RunSavedActualCavities(bool, bool, bool, bool, bool, bool, bool, bool, bool, bool, bool, bool, bool, bool, bool, bool)::{lambda(SU2Native3D::Node, SU2Native3D::PlanarReference const&, SU2Native3D::Tensor)#1}>::_M_invoke(std::_Any_data const&, SU2Native3D::Node&&, SU2Native3D::PlanarReference const&, SU2Native3D::Tensor&&)",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "other",
+        "samples": 1
+      },
+      {
+        "symbol": "void std::vector<SU2Native3D::BoundaryMetricSample, std::allocator<SU2Native3D::BoundaryMetricSample> >::_M_realloc_insert<SU2Native3D::BoundaryMetricSample const&>(__gnu_cxx::__normal_iterator<SU2Native3D::BoundaryMetricSample*, std::vector<SU2Native3D::BoundaryMetricSample, std::allocator<SU2Native3D::BoundaryMetricSample> > >, SU2Native3D::BoundaryMetricSample const&)",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "other",
+        "samples": 1
+      },
+      {
+        "symbol": "__ieee754_logl",
+        "dso": "/usr/lib/x86_64-linux-gnu/libm.so.6",
+        "group": "other",
+        "samples": 1
+      },
+      {
+        "symbol": "void std::__unguarded_linear_insert<__gnu_cxx::__normal_iterator<SU2Native3D::FaceUse*, std::vector<SU2Native3D::FaceUse, std::allocator<SU2Native3D::FaceUse> > >, __gnu_cxx::__ops::_Val_comp_iter<SU2Native3D::(anonymous namespace)::SortUses<SU2Native3D::FaceUse>(std::vector<SU2Native3D::FaceUse, std::allocator<SU2Native3D::FaceUse> >&)::{lambda(SU2Native3D::FaceUse const&, SU2Native3D::FaceUse const&)#1}> >(__gnu_cxx::__normal_iterator<SU2Native3D::FaceUse*, std::vector<SU2Native3D::FaceUse, std::allocator<SU2Native3D::FaceUse> > >, __gnu_cxx::__ops::_Val_comp_iter<SU2Native3D::(anonymous namespace)::SortUses<SU2Native3D::FaceUse>(std::vector<SU2Native3D::FaceUse, std::allocator<SU2Native3D::FaceUse> >&)::{lambda(SU2Native3D::FaceUse const&, SU2Native3D::FaceUse const&)#1}>)",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "other",
+        "samples": 1
+      },
+      {
+        "symbol": "clock_gettime@@GLIBC_2.17",
+        "dso": "/usr/lib/x86_64-linux-gnu/libc.so.6",
+        "group": "other",
+        "samples": 1
+      },
+      {
+        "symbol": "std::_Rb_tree<std::array<unsigned long, 2ul>, std::pair<std::array<unsigned long, 2ul> const, SU2NativeGeometry::EdgeTrace>, std::_Select1st<std::pair<std::array<unsigned long, 2ul> const, SU2NativeGeometry::EdgeTrace> >, std::less<std::array<unsigned long, 2ul> >, std::allocator<std::pair<std::array<unsigned long, 2ul> const, SU2NativeGeometry::EdgeTrace> > >::_M_erase(std::_Rb_tree_node<std::pair<std::array<unsigned long, 2ul> const, SU2NativeGeometry::EdgeTrace> >*) [clone .isra.0]",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "tree",
+        "samples": 1
+      },
+      {
+        "symbol": "std::chrono::_V2::steady_clock::now()",
+        "dso": "/usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.33",
+        "group": "other",
+        "samples": 1
+      },
+      {
+        "symbol": "CBoundaryLayerMetric::GeometryWorkspaceBytes() const",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "target_BL",
+        "samples": 1
+      },
+      {
+        "symbol": "std::chrono::_V2::steady_clock::now()@plt",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "other",
+        "samples": 1
+      },
+      {
+        "symbol": "SU2Native3D::PlanarReference::PrivateParameters(SU2Native3D::Patch const&, SU2NativeGeometry::AtlasBudget*) const",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "other",
+        "samples": 1
+      },
+      {
+        "symbol": "CBoundaryLayerMetric::EvaluateAtSurfaceAssociation(unsigned short, unsigned long, SU2NativeGeometry::SurfaceBinding const&, double)",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "target_BL",
+        "samples": 1
+      },
+      {
+        "symbol": "std::_Rb_tree_iterator<std::pair<std::array<unsigned long, 2ul> const, SU2Native3D::EdgeMeasure> > std::_Rb_tree<std::array<unsigned long, 2ul>, std::pair<std::array<unsigned long, 2ul> const, SU2Native3D::EdgeMeasure>, std::_Select1st<std::pair<std::array<unsigned long, 2ul> const, SU2Native3D::EdgeMeasure> >, std::less<std::array<unsigned long, 2ul> >, std::allocator<std::pair<std::array<unsigned long, 2ul> const, SU2Native3D::EdgeMeasure> > >::_M_emplace_hint_unique<std::array<unsigned long, 2ul>&, SU2Native3D::EdgeMeasure&>(std::_Rb_tree_const_iterator<std::pair<std::array<unsigned long, 2ul> const, SU2Native3D::EdgeMeasure> >, std::array<unsigned long, 2ul>&, SU2Native3D::EdgeMeasure&)",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "tree",
+        "samples": 1
+      },
+      {
+        "symbol": "SU2Native3D::PlanarReference::ExportParameters(SU2Native3D::Patch&, SU2NativeGeometry::AtlasBudget*) const",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "other",
+        "samples": 1
+      },
+      {
+        "symbol": "CRankBoxTree::GetMemory() const",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "other",
+        "samples": 1
+      },
+      {
+        "symbol": "__ieee754_exp_fma",
+        "dso": "/usr/lib/x86_64-linux-gnu/libm.so.6",
+        "group": "other",
+        "samples": 1
+      },
+      {
+        "symbol": "CADTElemClass::RetainedWorkspaceBound(unsigned long) const",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "other",
+        "samples": 1
+      },
+      {
+        "symbol": "__vdso_clock_gettime",
+        "dso": "[vdso]",
+        "group": "other",
+        "samples": 1
+      },
+      {
+        "symbol": "std::_Rb_tree_iterator<std::pair<std::array<unsigned long, 25ul> const, SU2NativeGeometry::MappedFacetReference::FaceMemo::Entry> > std::_Rb_tree<std::array<unsigned long, 25ul>, std::pair<std::array<unsigned long, 25ul> const, SU2NativeGeometry::MappedFacetReference::FaceMemo::Entry>, std::_Select1st<std::pair<std::array<unsigned long, 25ul> const, SU2NativeGeometry::MappedFacetReference::FaceMemo::Entry> >, std::less<std::array<unsigned long, 25ul> >, std::allocator<std::pair<std::array<unsigned long, 25ul> const, SU2NativeGeometry::MappedFacetReference::FaceMemo::Entry> > >::_M_emplace_hint_unique<std::array<unsigned long, 25ul> const&, SU2NativeGeometry::MappedFacetReference::FaceMemo::Entry>(std::_Rb_tree_const_iterator<std::pair<std::array<unsigned long, 25ul> const, SU2NativeGeometry::MappedFacetReference::FaceMemo::Entry> >, std::array<unsigned long, 25ul> const&, SU2NativeGeometry::MappedFacetReference::FaceMemo::Entry&&)",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "tree",
+        "samples": 1
+      },
+      {
+        "symbol": "std::_Rb_tree<unsigned long, unsigned long, std::_Identity<unsigned long>, std::less<unsigned long>, std::allocator<unsigned long> >::erase(unsigned long const&) [clone .isra.0]",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "tree",
+        "samples": 1
+      },
+      {
+        "symbol": "SU2Native3D::(anonymous namespace)::Integer<(132ul)+(66ul)> SU2Native3D::(anonymous namespace)::Product<132ul, 66ul>(SU2Native3D::(anonymous namespace)::Integer<132ul> const&, SU2Native3D::(anonymous namespace)::Integer<66ul> const&)",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "exact_predicates",
+        "samples": 1
+      },
+      {
+        "symbol": "CPassiveComm::AlltoallvRounds(char const*, std::vector<unsigned long, std::allocator<unsigned long> > const&, std::vector<unsigned long, std::allocator<unsigned long> >&, ompi_communicator_t*)",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "MPI",
+        "samples": 1
+      },
+      {
+        "symbol": "log@@GLIBC_2.29",
+        "dso": "/usr/lib/x86_64-linux-gnu/libm.so.6",
+        "group": "other",
+        "samples": 1
+      },
+      {
+        "symbol": "pthread_mutex_unlock@@GLIBC_2.2.5",
+        "dso": "/usr/lib/x86_64-linux-gnu/libc.so.6",
+        "group": "other",
+        "samples": 1
+      },
+      {
+        "symbol": "std::_Rb_tree<std::array<double, 3ul>, std::array<double, 3ul>, std::_Identity<std::array<double, 3ul> >, std::less<std::array<double, 3ul> >, std::allocator<std::array<double, 3ul> > >::_M_erase(std::_Rb_tree_node<std::array<double, 3ul> >*) [clone .isra.0]",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "tree",
+        "samples": 1
+      },
+      {
+        "symbol": "SU2Native3D::(anonymous namespace)::Adapt(SU2NativeBoundary2D::World&, std::map<unsigned long, SU2Native3D::OwnedCell, std::less<unsigned long>, std::allocator<std::pair<unsigned long const, SU2Native3D::OwnedCell> > > const&, std::vector<SU2Native3D::DonorCell, std::allocator<SU2Native3D::DonorCell> > const&, SU2Native3D::PlanarReference const&, std::function<SU2Native3D::Tensor (SU2Native3D::Point, SU2Native3D::Tensor)>, SU2Native3D::EngineOptions, SU2Native3D::MetricChange, bool, std::function<std::vector<SU2Native3D::BoundaryMetricSample, std::allocator<SU2Native3D::BoundaryMetricSample> > (SU2Native3D::Node, SU2Native3D::PlanarReference const&, SU2Native3D::Tensor)>)::{lambda()#22}::operator()() const::{lambda(std::vector<SU2Native3D::Cell, std::allocator<SU2Native3D::Cell> > const&, SU2Native3D::PatchMetric&, bool, std::map<std::array<unsigned long, 2ul>, SU2Native3D::EdgeMeasure, std::less<std::array<unsigned long, 2ul> >, std::allocator<std::pair<std::array<unsigned long, 2ul> const, SU2Native3D::EdgeMeasure> > > const&, SU2Native3D::Patch const*)#1}::operator()(std::vector<SU2Native3D::Cell, std::allocator<SU2Native3D::Cell> > const&, SU2Native3D::PatchMetric&, bool, std::map<std::array<unsigned long, 2ul>, SU2Native3D::EdgeMeasure, std::less<std::array<unsigned long, 2ul> >, std::allocator<std::pair<std::array<unsigned long, 2ul> const, SU2Native3D::EdgeMeasure> > > const&, SU2Native3D::Patch const*) const",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "other",
+        "samples": 1
+      },
+      {
+        "symbol": "SU2Native3D::FusedMultiplyAdd(long double, long double, long double)",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "other",
+        "samples": 1
+      },
+      {
+        "symbol": "operator new(unsigned long)@plt",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "memory",
+        "samples": 1
+      },
+      {
+        "symbol": "SU2Native3D::CavityMetricSource::ImportCellsFrom(std::vector<SU2Native3D::Cell, std::allocator<SU2Native3D::Cell> > const&, std::vector<SU2Native3D::OwnedCell, std::allocator<SU2Native3D::OwnedCell> > const*, bool, unsigned long, unsigned long)",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "cavity_topology",
+        "samples": 1
+      },
+      {
+        "symbol": "void std::__push_heap<__gnu_cxx::__normal_iterator<SU2NativeGeometry::(anonymous namespace)::CurvedQueryRegion*, std::vector<SU2NativeGeometry::(anonymous namespace)::CurvedQueryRegion, std::allocator<SU2NativeGeometry::(anonymous namespace)::CurvedQueryRegion> > >, long, SU2NativeGeometry::(anonymous namespace)::CurvedQueryRegion, __gnu_cxx::__ops::_Iter_comp_val<SU2NativeGeometry::MappedFacetReference::ClosestCurved(unsigned long, SU2Native3D::Point, double, unsigned long, unsigned long, std::function<bool (unsigned long)> const&, unsigned long*, SU2NativeGeometry::AtlasBudget*) const::{lambda(SU2NativeGeometry::(anonymous namespace)::CurvedQueryRegion const&, SU2NativeGeometry::(anonymous namespace)::CurvedQueryRegion const&)#1}> >(__gnu_cxx::__normal_iterator<SU2NativeGeometry::(anonymous namespace)::CurvedQueryRegion*, std::vector<SU2NativeGeometry::(anonymous namespace)::CurvedQueryRegion, std::allocator<SU2NativeGeometry::(anonymous namespace)::CurvedQueryRegion> > >, long, long, SU2NativeGeometry::(anonymous namespace)::CurvedQueryRegion, __gnu_cxx::__ops::_Iter_comp_val<SU2NativeGeometry::MappedFacetReference::ClosestCurved(unsigned long, SU2Native3D::Point, double, unsigned long, unsigned long, std::function<bool (unsigned long)> const&, unsigned long*, SU2NativeGeometry::AtlasBudget*) const::{lambda(SU2NativeGeometry::(anonymous namespace)::CurvedQueryRegion const&, SU2NativeGeometry::(anonymous namespace)::CurvedQueryRegion const&)#1}>&) [clone .constprop.0]",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "wall_proof",
+        "samples": 1
+      },
+      {
+        "symbol": "std::vector<unsigned long, std::allocator<unsigned long> >::~vector()",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "other",
+        "samples": 1
+      },
+      {
+        "symbol": "std::_Rb_tree<std::array<unsigned long, 3ul>, std::array<unsigned long, 3ul>, std::_Identity<std::array<unsigned long, 3ul> >, std::less<std::array<unsigned long, 3ul> >, std::allocator<std::array<unsigned long, 3ul> > >::_M_erase(std::_Rb_tree_node<std::array<unsigned long, 3ul> >*) [clone .isra.0]",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "tree",
+        "samples": 1
+      },
+      {
+        "symbol": "void std::vector<SU2NativeGeometry::(anonymous namespace)::UnionTriangle, std::allocator<SU2NativeGeometry::(anonymous namespace)::UnionTriangle> >::_M_realloc_insert<SU2NativeGeometry::(anonymous namespace)::UnionTriangle const&>(__gnu_cxx::__normal_iterator<SU2NativeGeometry::(anonymous namespace)::UnionTriangle*, std::vector<SU2NativeGeometry::(anonymous namespace)::UnionTriangle, std::allocator<SU2NativeGeometry::(anonymous namespace)::UnionTriangle> > >, SU2NativeGeometry::(anonymous namespace)::UnionTriangle const&)",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "other",
+        "samples": 1
+      },
+      {
+        "symbol": "SU2NativeGeometry::(anonymous namespace)::UnionChildren(SU2NativeGeometry::(anonymous namespace)::UnionDomain const&)",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "other",
+        "samples": 1
+      },
+      {
+        "symbol": "void std::vector<unsigned long, std::allocator<unsigned long> >::_M_realloc_insert<unsigned long const&>(__gnu_cxx::__normal_iterator<unsigned long*, std::vector<unsigned long, std::allocator<unsigned long> > >, unsigned long const&)",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "other",
+        "samples": 1
+      },
+      {
+        "symbol": "SU2NativeGeometry::MappedFacetReference::QuerySurfaceUnionAtResolution(std::vector<unsigned long, std::allocator<unsigned long> > const&, std::vector<std::array<SU2Native3D::Point, 3ul>, std::allocator<std::array<SU2Native3D::Point, 3ul> > > const&, double, SU2NativeGeometry::AtlasBudget&, bool, bool, double, bool) const::{lambda(unsigned long, std::vector<SU2NativeGeometry::(anonymous namespace)::UnionTriangle, std::allocator<SU2NativeGeometry::(anonymous namespace)::UnionTriangle> >&)#1}::operator()(unsigned long, std::vector<SU2NativeGeometry::(anonymous namespace)::UnionTriangle, std::allocator<SU2NativeGeometry::(anonymous namespace)::UnionTriangle> >&) const",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "wall_proof",
+        "samples": 1
+      },
+      {
+        "symbol": "std::_Rb_tree<std::array<double, 3ul>, std::pair<std::array<double, 3ul> const, unsigned long>, std::_Select1st<std::pair<std::array<double, 3ul> const, unsigned long> >, std::less<std::array<double, 3ul> >, std::allocator<std::pair<std::array<double, 3ul> const, unsigned long> > >::_M_get_insert_hint_unique_pos(std::_Rb_tree_const_iterator<std::pair<std::array<double, 3ul> const, unsigned long> >, std::array<double, 3ul> const&)",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "tree",
+        "samples": 1
+      },
+      {
+        "symbol": "SU2Native2D::(anonymous namespace)::Product(SU2Native2D::(anonymous namespace)::Integer<66ul> const&, SU2Native2D::(anonymous namespace)::Integer<66ul> const&)",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "other",
+        "samples": 1
+      },
+      {
+        "symbol": "std::_Rb_tree<unsigned long, std::pair<unsigned long const, SU2NativeGeometry::AffineAuthority>, std::_Select1st<std::pair<unsigned long const, SU2NativeGeometry::AffineAuthority> >, std::less<unsigned long>, std::allocator<std::pair<unsigned long const, SU2NativeGeometry::AffineAuthority> > >::find(unsigned long const&) const [clone .isra.0]",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "tree",
+        "samples": 1
+      },
+      {
+        "symbol": "clock",
+        "dso": "/usr/lib/x86_64-linux-gnu/libc.so.6",
+        "group": "other",
+        "samples": 1
+      },
+      {
+        "symbol": "SU2NativeGeometry::MappedFacetReference::QuerySurfaceUnionAtResolution(std::vector<unsigned long, std::allocator<unsigned long> > const&, std::vector<std::array<SU2Native3D::Point, 3ul>, std::allocator<std::array<SU2Native3D::Point, 3ul> > > const&, double, SU2NativeGeometry::AtlasBudget&, bool, bool, double, bool) const::BuildReceipt::~BuildReceipt()",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "wall_proof",
+        "samples": 1
+      },
+      {
+        "symbol": "SU2Native3D::(anonymous namespace)::Nodes(std::vector<SU2Native3D::Cell, std::allocator<SU2Native3D::Cell> > const&)",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "other",
+        "samples": 1
+      },
+      {
+        "symbol": "SU2Native3D::(anonymous namespace)::StraightBorders(std::vector<std::array<unsigned long, 2ul>, std::allocator<std::array<unsigned long, 2ul> > > const&, std::map<unsigned long, SU2Native3D::Node, std::less<unsigned long>, std::allocator<std::pair<unsigned long const, SU2Native3D::Node> > > const&)",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "other",
+        "samples": 1
+      },
+      {
+        "symbol": "SU2NativeGeometry::MappedFacetReference::CurvedSearch::Pool<std::vector<unsigned long, std::allocator<unsigned long> > >::Find(std::vector<unsigned long, std::allocator<unsigned long> > const&)",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "other",
+        "samples": 1
+      },
+      {
+        "symbol": "SU2Native3D::(anonymous namespace)::Selection::ServiceEdge(std::array<unsigned long, 2ul>)",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "other",
+        "samples": 1
+      },
+      {
+        "symbol": "__gnu_cxx::__normal_iterator<SU2Native3D::Cell*, std::vector<SU2Native3D::Cell, std::allocator<SU2Native3D::Cell> > > std::__remove_if<__gnu_cxx::__normal_iterator<SU2Native3D::Cell*, std::vector<SU2Native3D::Cell, std::allocator<SU2Native3D::Cell> > >, __gnu_cxx::__ops::_Iter_pred<SU2Native3D::ReconstructWallSplit(SU2Native3D::Patch const&, std::array<unsigned long, 2ul>, SU2Native3D::Node, unsigned long, unsigned long, SU2Native3D::WallHeights const&, SU2Native3D::PlanarReference const&, SU2Native3D::Patch&, std::array<unsigned long, 3ul>&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >&, SU2Native3D::KernelStats*, double)::{lambda(auto:1 const&)#3}> >(__gnu_cxx::__normal_iterator<SU2Native3D::Cell*, std::vector<SU2Native3D::Cell, std::allocator<SU2Native3D::Cell> > >, __gnu_cxx::__normal_iterator<SU2Native3D::Cell*, std::vector<SU2Native3D::Cell, std::allocator<SU2Native3D::Cell> > >, __gnu_cxx::__ops::_Iter_pred<SU2Native3D::ReconstructWallSplit(SU2Native3D::Patch const&, std::array<unsigned long, 2ul>, SU2Native3D::Node, unsigned long, unsigned long, SU2Native3D::WallHeights const&, SU2Native3D::PlanarReference const&, SU2Native3D::Patch&, std::array<unsigned long, 3ul>&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >&, SU2Native3D::KernelStats*, double)::{lambda(auto:1 const&)#3}>)",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "cavity_topology",
+        "samples": 1
+      },
+      {
+        "symbol": "SU2NativeGeometry::MappedFacetReference::ClosestCurved(unsigned long, SU2Native3D::Point, double, unsigned long, unsigned long, std::function<bool (unsigned long)> const&, unsigned long*, SU2NativeGeometry::AtlasBudget*) const::{lambda(unsigned long)#2}::operator()(unsigned long) const [clone .isra.0]",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "wall_proof",
+        "samples": 1
+      },
+      {
+        "symbol": "std::_Rb_tree<std::array<double, 3ul>, std::pair<std::array<double, 3ul> const, SU2Native3D::BoundaryPoint>, std::_Select1st<std::pair<std::array<double, 3ul> const, SU2Native3D::BoundaryPoint> >, std::less<std::array<double, 3ul> >, std::allocator<std::pair<std::array<double, 3ul> const, SU2Native3D::BoundaryPoint> > >::find(std::array<double, 3ul> const&)",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "tree",
+        "samples": 1
+      },
+      {
+        "symbol": "void std::__insertion_sort<__gnu_cxx::__normal_iterator<SU2Native3D::EdgeUse*, std::vector<SU2Native3D::EdgeUse, std::allocator<SU2Native3D::EdgeUse> > >, __gnu_cxx::__ops::_Iter_comp_iter<SU2Native3D::(anonymous namespace)::SortUses<SU2Native3D::EdgeUse>(std::vector<SU2Native3D::EdgeUse, std::allocator<SU2Native3D::EdgeUse> >&)::{lambda(SU2Native3D::EdgeUse const&, SU2Native3D::EdgeUse const&)#1}> >(__gnu_cxx::__normal_iterator<SU2Native3D::EdgeUse*, std::vector<SU2Native3D::EdgeUse, std::allocator<SU2Native3D::EdgeUse> > >, __gnu_cxx::__normal_iterator<SU2Native3D::EdgeUse*, std::vector<SU2Native3D::EdgeUse, std::allocator<SU2Native3D::EdgeUse> > >, __gnu_cxx::__ops::_Iter_comp_iter<SU2Native3D::(anonymous namespace)::SortUses<SU2Native3D::EdgeUse>(std::vector<SU2Native3D::EdgeUse, std::allocator<SU2Native3D::EdgeUse> >&)::{lambda(SU2Native3D::EdgeUse const&, SU2Native3D::EdgeUse const&)#1}>)",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "other",
+        "samples": 1
+      },
+      {
+        "symbol": "SU2NativeGeometry::(anonymous namespace)::AtlasOps::Trace()",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "other",
+        "samples": 1
+      },
+      {
+        "symbol": "SU2NativeGeometry::MappedFacetReference::QuerySurfaceUnionAtResolution(std::vector<unsigned long, std::allocator<unsigned long> > const&, std::vector<std::array<SU2Native3D::Point, 3ul>, std::allocator<std::array<SU2Native3D::Point, 3ul> > > const&, double, SU2NativeGeometry::AtlasBudget&, bool, bool, double, bool) const::{lambda(SU2NativeGeometry::(anonymous namespace)::UnionDomain const&, bool)#1}::operator()(SU2NativeGeometry::(anonymous namespace)::UnionDomain const&, bool) const",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "wall_proof",
+        "samples": 1
+      },
+      {
+        "symbol": "SU2Native3D::TransportNodalMetrics(std::vector<SU2Native3D::DonorCell, std::allocator<SU2Native3D::DonorCell> > const&, std::vector<SU2Native3D::Node, std::allocator<SU2Native3D::Node> > const&, std::map<unsigned long, SU2Native3D::Tensor, std::less<unsigned long>, std::allocator<std::pair<unsigned long const, SU2Native3D::Tensor> > > const&)",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "other",
+        "samples": 1
+      },
+      {
+        "symbol": "std::_Rb_tree<unsigned long, std::pair<unsigned long const, SU2Native3D::BoundaryPoint>, std::_Select1st<std::pair<unsigned long const, SU2Native3D::BoundaryPoint> >, std::less<unsigned long>, std::allocator<std::pair<unsigned long const, SU2Native3D::BoundaryPoint> > >::_M_erase(std::_Rb_tree_node<std::pair<unsigned long const, SU2Native3D::BoundaryPoint> >*) [clone .isra.0]",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "tree",
+        "samples": 1
+      },
+      {
+        "symbol": "bool std::operator< <unsigned long, 2ul>(std::array<unsigned long, 2ul> const&, std::array<unsigned long, 2ul> const&)",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "other",
+        "samples": 1
+      },
+      {
+        "symbol": "std::_Rb_tree_iterator<std::pair<unsigned long const, std::vector<unsigned long, std::allocator<unsigned long> > > > std::_Rb_tree<unsigned long, std::pair<unsigned long const, std::vector<unsigned long, std::allocator<unsigned long> > >, std::_Select1st<std::pair<unsigned long const, std::vector<unsigned long, std::allocator<unsigned long> > > >, std::less<unsigned long>, std::allocator<std::pair<unsigned long const, std::vector<unsigned long, std::allocator<unsigned long> > > > >::_M_emplace_hint_unique<std::piecewise_construct_t const&, std::tuple<unsigned long const&>, std::tuple<> >(std::_Rb_tree_const_iterator<std::pair<unsigned long const, std::vector<unsigned long, std::allocator<unsigned long> > > >, std::piecewise_construct_t const&, std::tuple<unsigned long const&>&&, std::tuple<>&&) [clone .isra.0]",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "tree",
+        "samples": 1
+      },
+      {
+        "symbol": "std::_Rb_tree<std::array<unsigned long, 2ul>, std::pair<std::array<unsigned long, 2ul> const, SU2Native3D::EdgeMeasure>, std::_Select1st<std::pair<std::array<unsigned long, 2ul> const, SU2Native3D::EdgeMeasure> >, std::less<std::array<unsigned long, 2ul> >, std::allocator<std::pair<std::array<unsigned long, 2ul> const, SU2Native3D::EdgeMeasure> > >::_M_erase(std::_Rb_tree_node<std::pair<std::array<unsigned long, 2ul> const, SU2Native3D::EdgeMeasure> >*) [clone .isra.0]",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "tree",
+        "samples": 1
+      },
+      {
+        "symbol": "std::_Rb_tree<std::vector<unsigned long, std::allocator<unsigned long> >, std::pair<std::vector<unsigned long, std::allocator<unsigned long> > const, SU2NativeGeometry::MappedFacetReference::FaceMemo::Entry>, std::_Select1st<std::pair<std::vector<unsigned long, std::allocator<unsigned long> > const, SU2NativeGeometry::MappedFacetReference::FaceMemo::Entry> >, std::less<std::vector<unsigned long, std::allocator<unsigned long> > >, std::allocator<std::pair<std::vector<unsigned long, std::allocator<unsigned long> > const, SU2NativeGeometry::MappedFacetReference::FaceMemo::Entry> > >::find(std::vector<unsigned long, std::allocator<unsigned long> > const&)",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "tree",
+        "samples": 1
+      },
+      {
+        "symbol": "(anonymous namespace)::RotateNormal(double const*, double const*, double (&) [3][3])",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "other",
+        "samples": 1
+      },
+      {
+        "symbol": "SU2NativeBoundary2D::ValidatePhysicalGraph(std::vector<SU2NativeBoundary2D::PolylineReference::Face, std::allocator<SU2NativeBoundary2D::PolylineReference::Face> > const&)",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "other",
+        "samples": 1
+      },
+      {
+        "symbol": "SU2Native3D::CavityMetricSource::Add(SU2Native3D::OwnedCell const&, std::map<unsigned long, SU2Native3D::Tensor, std::less<unsigned long>, std::allocator<std::pair<unsigned long const, SU2Native3D::Tensor> > >&, std::vector<SU2Native3D::DonorCell, std::allocator<SU2Native3D::DonorCell> >&)",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "cavity_topology",
+        "samples": 1
+      },
+      {
+        "symbol": "SU2Native3D::SurfaceNormalSign(SU2Native3D::Point, std::array<SU2Native3D::Point, 3ul> const&, SU2Native3D::KernelStats*)",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "exact_predicates",
+        "samples": 1
+      },
+      {
+        "symbol": "void std::__adjust_heap<__gnu_cxx::__normal_iterator<SU2NativeGeometry::MappedFacetReference::QuerySurfaceUnionAtResolution(std::vector<unsigned long, std::allocator<unsigned long> > const&, std::vector<std::array<SU2Native3D::Point, 3ul>, std::allocator<std::array<SU2Native3D::Point, 3ul> > > const&, double, SU2NativeGeometry::AtlasBudget&, bool, bool, double, bool) const::NodeBound*, std::vector<SU2NativeGeometry::MappedFacetReference::QuerySurfaceUnionAtResolution(std::vector<unsigned long, std::allocator<unsigned long> > const&, std::vector<std::array<SU2Native3D::Point, 3ul>, std::allocator<std::array<SU2Native3D::Point, 3ul> > > const&, double, SU2NativeGeometry::AtlasBudget&, bool, bool, double, bool) const::NodeBound, std::allocator<SU2NativeGeometry::MappedFacetReference::QuerySurfaceUnionAtResolution(std::vector<unsigned long, std::allocator<unsigned long> > const&, std::vector<std::array<SU2Native3D::Point, 3ul>, std::allocator<std::array<SU2Native3D::Point, 3ul> > > const&, double, SU2NativeGeometry::AtlasBudget&, bool, bool, double, bool) const::NodeBound> > >, long, SU2NativeGeometry::MappedFacetReference::QuerySurfaceUnionAtResolution(std::vector<unsigned long, std::allocator<unsigned long> > const&, std::vector<std::array<SU2Native3D::Point, 3ul>, std::allocator<std::array<SU2Native3D::Point, 3ul> > > const&, double, SU2NativeGeometry::AtlasBudget&, bool, bool, double, bool) const::NodeBound, __gnu_cxx::__ops::_Iter_comp_iter<SU2NativeGeometry::MappedFacetReference::QuerySurfaceUnionAtResolution(std::vector<unsigned long, std::allocator<unsigned long> > const&, std::vector<std::array<SU2Native3D::Point, 3ul>, std::allocator<std::array<SU2Native3D::Point, 3ul> > > const&, double, SU2NativeGeometry::AtlasBudget&, bool, bool, double, bool) const::{lambda(SU2NativeGeometry::MappedFacetReference::QuerySurfaceUnionAtResolution(std::vector<unsigned long, std::allocator<unsigned long> > const&, std::vector<std::array<SU2Native3D::Point, 3ul>, std::allocator<std::array<SU2Native3D::Point, 3ul> > > const&, double, SU2NativeGeometry::AtlasBudget&, bool, bool, double, bool) const::NodeBound const&, SU2NativeGeometry::MappedFacetReference::QuerySurfaceUnionAtResolution(std::vector<unsigned long, std::allocator<unsigned long> > const&, std::vector<std::array<SU2Native3D::Point, 3ul>, std::allocator<std::array<SU2Native3D::Point, 3ul> > > const&, double, SU2NativeGeometry::AtlasBudget&, bool, bool, double, bool) const::NodeBound const&)#1}> >(__gnu_cxx::__normal_iterator<SU2NativeGeometry::MappedFacetReference::QuerySurfaceUnionAtResolution(std::vector<unsigned long, std::allocator<unsigned long> > const&, std::vector<std::array<SU2Native3D::Point, 3ul>, std::allocator<std::array<SU2Native3D::Point, 3ul> > > const&, double, SU2NativeGeometry::AtlasBudget&, bool, bool, double, bool) const::NodeBound*, std::vector<SU2NativeGeometry::MappedFacetReference::QuerySurfaceUnionAtResolution(std::vector<unsigned long, std::allocator<unsigned long> > const&, std::vector<std::array<SU2Native3D::Point, 3ul>, std::allocator<std::array<SU2Native3D::Point, 3ul> > > const&, double, SU2NativeGeometry::AtlasBudget&, bool, bool, double, bool) const::NodeBound, std::allocator<SU2NativeGeometry::MappedFacetReference::QuerySurfaceUnionAtResolution(std::vector<unsigned long, std::allocator<unsigned long> > const&, std::vector<std::array<SU2Native3D::Point, 3ul>, std::allocator<std::array<SU2Native3D::Point, 3ul> > > const&, double, SU2NativeGeometry::AtlasBudget&, bool, bool, double, bool) const::NodeBound> > >, long, long, SU2NativeGeometry::MappedFacetReference::QuerySurfaceUnionAtResolution(std::vector<unsigned long, std::allocator<unsigned long> > const&, std::vector<std::array<SU2Native3D::Point, 3ul>, std::allocator<std::array<SU2Native3D::Point, 3ul> > > const&, double, SU2NativeGeometry::AtlasBudget&, bool, bool, double, bool) const::NodeBound, __gnu_cxx::__ops::_Iter_comp_iter<SU2NativeGeometry::MappedFacetReference::QuerySurfaceUnionAtResolution(std::vector<unsigned long, std::allocator<unsigned long> > const&, std::vector<std::array<SU2Native3D::Point, 3ul>, std::allocator<std::array<SU2Native3D::Point, 3ul> > > const&, double, SU2NativeGeometry::AtlasBudget&, bool, bool, double, bool) const::{lambda(SU2NativeGeometry::MappedFacetReference::QuerySurfaceUnionAtResolution(std::vector<unsigned long, std::allocator<unsigned long> > const&, std::vector<std::array<SU2Native3D::Point, 3ul>, std::allocator<std::array<SU2Native3D::Point, 3ul> > > const&, double, SU2NativeGeometry::AtlasBudget&, bool, bool, double, bool) const::NodeBound const&, SU2NativeGeometry::MappedFacetReference::QuerySurfaceUnionAtResolution(std::vector<unsigned long, std::allocator<unsigned long> > const&, std::vector<std::array<SU2Native3D::Point, 3ul>, std::allocator<std::array<SU2Native3D::Point, 3ul> > > const&, double, SU2NativeGeometry::AtlasBudget&, bool, bool, double, bool) const::NodeBound const&)#1}>) [clone .constprop.0]",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "wall_proof",
+        "samples": 1
+      },
+      {
+        "symbol": "SU2Native3D::Directory::ResidentBytes() const",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "other",
+        "samples": 1
+      },
+      {
+        "symbol": "std::_Rb_tree<unsigned long, std::pair<unsigned long const, SU2Native3D::Node>, std::_Select1st<std::pair<unsigned long const, SU2Native3D::Node> >, std::less<unsigned long>, std::allocator<std::pair<unsigned long const, SU2Native3D::Node> > >::_M_get_insert_hint_unique_pos(std::_Rb_tree_const_iterator<std::pair<unsigned long const, SU2Native3D::Node> >, unsigned long const&) [clone .isra.0]",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "tree",
+        "samples": 1
+      },
+      {
+        "symbol": "std::_Rb_tree<std::array<unsigned long, 2ul>, std::pair<std::array<unsigned long, 2ul> const, SU2Native3D::EdgeMeasure>, std::_Select1st<std::pair<std::array<unsigned long, 2ul> const, SU2Native3D::EdgeMeasure> >, std::less<std::array<unsigned long, 2ul> >, std::allocator<std::pair<std::array<unsigned long, 2ul> const, SU2Native3D::EdgeMeasure> > >::find(std::array<unsigned long, 2ul> const&)",
+        "dso": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "group": "tree",
+        "samples": 1
+      },
+      {
+        "symbol": "__logl",
+        "dso": "/usr/lib/x86_64-linux-gnu/libm.so.6",
+        "group": "other",
+        "samples": 1
+      }
+    ]
+  }
+]
