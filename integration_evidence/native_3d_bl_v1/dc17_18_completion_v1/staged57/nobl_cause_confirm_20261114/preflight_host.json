@@ -1,0 +1,59 @@
+{
+  "actual_host_proc": true,
+  "unix": 1794674294.24204,
+  "loadavg": "2.43 2.42 4.21 1/2799 2040386",
+  "sample_seconds": 3.076455567992525,
+  "busy_processes": [
+    {
+      "pid": 1849,
+      "cpu_percent": 8.451284091505908,
+      "ticks": 679542,
+      "start_ticks": 1177,
+      "comm": "Xorg",
+      "command": "/usr/lib/xorg/Xorg :0 vt07 -nolisten tcp -novtswitch -auth /var/run/lxdm/lxdm-:0.auth "
+    },
+    {
+      "pid": 2793,
+      "cpu_percent": 30.229593096540363,
+      "ticks": 1308487,
+      "start_ticks": 2000,
+      "comm": "gnome-shell",
+      "command": "/usr/bin/gnome-shell "
+    },
+    {
+      "pid": 5318,
+      "cpu_percent": 26.979099215191937,
+      "ticks": 3484602,
+      "start_ticks": 3321,
+      "comm": "code",
+      "command": "/usr/share/code/code --type=zygote "
+    },
+    {
+      "pid": 6389,
+      "cpu_percent": 6.175938374562009,
+      "ticks": 521737,
+      "start_ticks": 3898,
+      "comm": "code",
+      "command": "/proc/self/exe --type=utility --utility-sub-type=node.mojom.NodeService --lang=en-US --service-sandbox-type=none --js-flags=--nodecommit_pooled_pages --crashpad-handler-pid=5244 --enable-crash-reporter=b056c165-a836-45a2-bcb4-7c8225dfb985,no_channel --user-data-dir=/home/rausa/.config/Code --standard-schemes=vscode-webview,vscode-file --enable-sand"
+    },
+    {
+      "pid": 15583,
+      "cpu_percent": 7.47613592710138,
+      "ticks": 570317,
+      "start_ticks": 12168,
+      "comm": "codex",
+      "command": "/home/rausa/.nvm/versions/node/v22.22.2/lib/node_modules/@openai/codex/node_modules/@openai/codex-linux-x64/vendor/x86_64-unknown-linux-musl/bin/codex "
+    },
+    {
+      "pid": 3401339,
+      "cpu_percent": 15.927420018607288,
+      "ticks": 892572,
+      "start_ticks": 7276553,
+      "comm": "Isolated Web Co",
+      "command": "/snap/firefox/9171/usr/lib/firefox/firefox -contentproc -isForBrowser -prefsHandle 0:53386 -prefMapHandle 1:300514 -jsInitHandle 2:161360 -parentBuildID 20261102221755 -sandboxReporter 3 -chrootClient 4 -ipcHandle 5 -initialChannelId {52c78fc2-fe3c-4f69-b480-2b57393cf786} -parentPid 3965 -crashHelperPid 4055 -crashHelper 6 -crashReporter 7 -greomni"
+    }
+  ],
+  "existing_native_or_build_processes": [],
+  "mem_available": "MemAvailable:   46716160 kB",
+  "disk_free_bytes": 15933165568
+}

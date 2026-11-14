@@ -1,5 +1,6 @@
 # How to proceed
 
+2026-11-14 no-BL cause diagnostic: restoring only the pre-76f10c8310 tighten lambda reduced first-collapse work to 1.44× build 293 (confirmed by the ≤2× criterion); counts match all ranks. Diagnostic only, BL correction/production source unchanged; see the [cause report](Handbook/ADAPTATION_M6_NOBL_CAUSE_CONFIRM_20261114.md).
 2026-11-14 M6 no-BL check complete: Euler293 timing is historical; the no-BL path is slower on build494 in this unprofiled run, and both adaptations were time-budget rejected. The user waived the unmet quiet-load condition; see the [clean-check report](Handbook/ADAPTATION_M6_NOBL_CLEAN_CHECK_20261114.md). Native source/build/config unchanged.
 2026-11-14 measurement v2 completed: Run A ended normally; both configured Run B adaptations hit the time budget, solver exit 0; see the [measurement report](Handbook/ADAPTATION_M6_MEASUREMENT_V2_20261114.md). No source/build/config changes or design work.
 

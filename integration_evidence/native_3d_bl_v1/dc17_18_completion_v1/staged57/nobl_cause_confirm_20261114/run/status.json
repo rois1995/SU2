@@ -1,0 +1,104 @@
+{
+  "state": "terminal",
+  "exit_code": -15,
+  "intentional_stop": true,
+  "stop_reason": "all_six_first_collapse_records",
+  "seconds_until_stop": 351.34941445299773,
+  "seconds_total": 356.9212112459936,
+  "captured_ranks": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5
+  ],
+  "all_owned_handles_terminal": true,
+  "live": [],
+  "identities": [
+    {
+      "pid": 2091900,
+      "state": "S",
+      "ppid": 2091848,
+      "pgid": 2091900,
+      "sid": 2091900,
+      "start_ticks": 16782000,
+      "comm": "time"
+    },
+    {
+      "pid": 2091904,
+      "state": "S",
+      "ppid": 2091903,
+      "pgid": 2091903,
+      "sid": 2091900,
+      "start_ticks": 16782001,
+      "comm": "mpirun"
+    },
+    {
+      "pid": 2091903,
+      "state": "S",
+      "ppid": 2091900,
+      "pgid": 2091903,
+      "sid": 2091900,
+      "start_ticks": 16782001,
+      "comm": "timeout"
+    },
+    {
+      "pid": 2091936,
+      "state": "R",
+      "ppid": 2091904,
+      "pgid": 2091936,
+      "sid": 2091900,
+      "start_ticks": 16782008,
+      "comm": "SU2_CFD"
+    },
+    {
+      "pid": 2091937,
+      "state": "R",
+      "ppid": 2091904,
+      "pgid": 2091937,
+      "sid": 2091900,
+      "start_ticks": 16782008,
+      "comm": "SU2_CFD"
+    },
+    {
+      "pid": 2091932,
+      "state": "R",
+      "ppid": 2091904,
+      "pgid": 2091932,
+      "sid": 2091900,
+      "start_ticks": 16782008,
+      "comm": "SU2_CFD"
+    },
+    {
+      "pid": 2091935,
+      "state": "R",
+      "ppid": 2091904,
+      "pgid": 2091935,
+      "sid": 2091900,
+      "start_ticks": 16782008,
+      "comm": "SU2_CFD"
+    },
+    {
+      "pid": 2091933,
+      "state": "R",
+      "ppid": 2091904,
+      "pgid": 2091933,
+      "sid": 2091900,
+      "start_ticks": 16782008,
+      "comm": "SU2_CFD"
+    },
+    {
+      "pid": 2091934,
+      "state": "R",
+      "ppid": 2091904,
+      "pgid": 2091934,
+      "sid": 2091900,
+      "start_ticks": 16782008,
+      "comm": "SU2_CFD"
+    }
+  ],
+  "inputs_unchanged": true,
+  "changed": [],
+  "native_case_started": true
+}
