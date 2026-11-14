@@ -1409,8 +1409,8 @@ void CFVMFlowSolverBase<V, FlowRegime>::BC_Sym_Plane(CGeometry* geometry, CSolve
             Jacobian.SetBlock(iPoint, jPoint, block);
           };
           projectBlock(iPoint);
-          for (size_t iNeigh = 0; iNeigh < geometry->nodes->GetnPoint(iPoint); ++iNeigh)
-            projectBlock(geometry->nodes->GetPoint(iPoint, iNeigh));
+          /*--- Every block of the row (the split pairs of EDGE_FORM_P1_MIXED included). ---*/
+          Jacobian.ForEachOffDiagColumn(iPoint, projectBlock);
         }
         su2double* truncError = nodes->GetResTruncError(iPoint);
         P1StrongSlip::SlipProject(nDim, nq, Q, iVel, truncError);
@@ -1544,9 +1544,8 @@ void CFVMFlowSolverBase<V, FlowRegime>::BC_Sym_Plane(CGeometry* geometry, CSolve
         Jacobian.SetBlock(iPoint, jPoint, newJac);
       };
       ModifyJacobian(iPoint);
-      for (size_t iNeigh = 0; iNeigh < geometry->nodes->GetnPoint(iPoint); ++iNeigh) {
-        ModifyJacobian(geometry->nodes->GetPoint(iPoint, iNeigh));
-      }
+      /*--- Every block of the row (the split pairs of EDGE_FORM_P1_MIXED included). ---*/
+      Jacobian.ForEachOffDiagColumn(iPoint, ModifyJacobian);
     }
 
     /*--- Correction for multigrid. ---*/
@@ -1676,8 +1675,8 @@ void CFVMFlowSolverBase<V, R>::BC_Slip_Strong_P1(CGeometry* geometry, const CCon
           Jacobian.SetBlock(iPoint, jPoint, block);
         };
         projectBlock(iPoint);
-        for (size_t iNeigh = 0; iNeigh < geometry->nodes->GetnPoint(iPoint); ++iNeigh)
-          projectBlock(geometry->nodes->GetPoint(iPoint, iNeigh));
+        /*--- Every block of the row (the split pairs of EDGE_FORM_P1_MIXED included). ---*/
+        Jacobian.ForEachOffDiagColumn(iPoint, projectBlock);
       }
     }
 

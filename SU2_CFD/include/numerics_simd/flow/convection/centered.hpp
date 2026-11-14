@@ -86,7 +86,9 @@ protected:
     fixFactor(config.GetCent_Jac_Fix_Factor()),
     dynamicGrid(config.GetDynamic_Grid()),
     edgeForm(iMesh == MESH_0 && (config.GetEdge_Form_P1() || config.GetSplit_Edge_Flux())),
-    exactFormJac(edgeForm && config.GetEdge_Form_Exact_Jacobian()),
+    /*--- The P1 edge form always gets the Jacobian with its own coefficients (JST_P1ES_JACOBIAN_DIAG.md 8.2): the dual
+     * normal is not the derivative of the form and made the implicit iteration diverge on T6E. ---*/
+    exactFormJac(edgeForm && (config.GetEdge_Form_Exact_Jacobian() || config.GetEdge_Form_P1())),
     projDiss(iMesh == MESH_0 && config.GetEdge_Diss_Projected()),
     ecFlux((edgeForm || projDiss) && config.GetEdge_Form_EC_Flux()),
     esDiss(edgeForm && config.GetEdge_Form_ES_Diss()),

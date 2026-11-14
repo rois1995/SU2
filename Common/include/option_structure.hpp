@@ -896,10 +896,12 @@ static const MapType<std::string, TECNO_ADJ_LIMITER> TeCNO_Adj_Limiter_Map = {
 enum class TECNO_ADJ_FCT_BOUND {
   TWO_NODE,   /*!< \brief One box per edge, 2 min(A_0, A_1), A = max(beta, u, own jump) (S4c-S4e, default). */
   NODE_INPUT, /*!< \brief One box per edge end with the amounts that reach the node, A = max(beta, u) + own jump, and the entropy own bound |l_c| <= |dy| (S4f). */
+  ENTROPY_LENS, /*!< \brief The limiter model of P1_TECNO_LIMITER_MODEL.md: the NODE_INPUT rows with the own value phi_c = min(1, |dy|/o, 2 |dy| o / |sigma|^2) (o > 0), 0 (o <= 0). */
 };
 static const MapType<std::string, TECNO_ADJ_FCT_BOUND> TeCNO_Adj_FCT_Bound_Map = {
   MakePair("TWO_NODE", TECNO_ADJ_FCT_BOUND::TWO_NODE)
   MakePair("NODE_INPUT", TECNO_ADJ_FCT_BOUND::NODE_INPUT)
+  MakePair("ENTROPY_LENS", TECNO_ADJ_FCT_BOUND::ENTROPY_LENS)
 };
 
 /*!
