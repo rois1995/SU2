@@ -11,17 +11,24 @@ def extract(path):
     if path.is_dir():
         files=sorted(path.glob('rank_output/*/rank.*/stdout'))
         assert len(files)==6, files
-        ranks={}
+        ranks={}; all_details=collections.defaultdict(list)
         for f in files:
             part=extract(f); rank=f.parent.name.split('.')[-1]
             assert set(part['ranks'])=={rank}, (f,list(part['ranks']))
             ranks.update(part['ranks'])
+            for r,items in part['all_refine_details'].items():all_details[r].extend(items)
+        for r,items in all_details.items():
+            unique={}
+            for row in items:
+                signature=tuple(sorted((k,str(v)) for k,v in row.items() if not k.startswith('source_')))
+                unique.setdefault(signature,row)
+            ranks[r]['refine_details']=list(unique.values())
         return {'source':str(path),'rank_log_sources':list(map(str,files)),'ranks':ranks,'semantics':part['semantics']}
     stages=collections.defaultdict(list);details=collections.defaultdict(list)
     for number,line in enumerate(Path(path).open(errors='replace'),1):
         matches=list(re.finditer(r'NATIVE3D_(?:STAGE|DETAIL)\s+',line))
         for idx,m in enumerate(matches):
-            part=line[m.start():matches[idx+1].start() if idx+1<len(matches) else len(line)]; row=old.parse_fields(part);row['source_line']=number
+            part=line[m.start():matches[idx+1].start() if idx+1<len(matches) else len(line)]; row=old.parse_fields(part);row['source_line']=number;row['source_file']=str(path)
             if 'rank' not in row:continue
             rank=int(row['rank'])
             if row['record']=='NATIVE3D_STAGE' and 'elapsed' in row:
@@ -38,7 +45,7 @@ def extract(path):
             assert abs(sum(g['wall_interval_s'] for g in intervals)-inv[-1]['elapsed'])<1e-5
             events.append({'invocation':number,'stages':inv,'intervals':intervals,'bins':bins,'exit_marker_present':inv[-1].get('stage')=='exit'})
         result[str(rank)]={'events':events,'refine_details':details[rank]}
-    return {'source':str(path),'ranks':result,'semantics':'Disjoint marker-boundary bins; collapse/surface/repartition/alternation include setup. Failed returns included in active phase. No assumed missing exits.'}
+    return {'source':str(path),'ranks':result,'all_refine_details':{str(r):v for r,v in details.items()},'semantics':'Disjoint marker-boundary bins; collapse/surface/repartition/alternation include setup. Failed returns included in active phase. No assumed missing exits.'}
 if __name__=='__main__':
     assert len(sys.argv)==3,'extract_markers.py LOG OUTPUT'
     data=extract(sys.argv[1]);Path(sys.argv[2]).write_text(json.dumps(data,indent=2)+'\n')

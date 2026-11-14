@@ -8,7 +8,16 @@ Evidence: `integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/n
 
 ## T1 — outcomes
 
-Pending normal termination of both configured adaptations. Reference build 293 accepted 149051 points/736323 tets, then 172001 points/870422 tets. Inner native times: 3640.719259s and 2314.855222s (rank 0 DETAIL timer).
+| Rank-0 first adaptation | Build 293 | Build 494 profiled | This unprofiled run |
+|---|---:|---:|---:|
+| Collapse exit seconds | 194.723054 | 1423.509701 | 1410.686670 |
+| Accepted collapses | 480 | 480 | 480 |
+| First split seconds / splits | 241.14 / 5047 | 1609.19 / 3520 | pending |
+| Second split record | 274.10 / 9949 | 1737.87 / 8442 | pending |
+| Inner native time/result | 3640.719259s, accepted | 5344.540316s, rejected | pending |
+| Accepted mesh points/tets | 149051/736323 | retained original | pending |
+Second adaptation remains pending; build 293 accepted 172001 points/870422 tets in 2314.855222s inner native time.
+Unprofiled first-collapse rank3 upper proof=934.259092s/4674 calls, versus build293 28.654482s/2794 calls; final per-rank exit counters are still pending.
 
 ## T2 — first-adaptation phases
 
