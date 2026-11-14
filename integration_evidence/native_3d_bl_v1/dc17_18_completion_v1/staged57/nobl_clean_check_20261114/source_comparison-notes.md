@@ -1,7 +1,11 @@
-# Build293/build494 geometry upper-bound source comparison
+# Build 293/build 494 upper-bound source comparison
 
-Source pin SHA256s verified: build293 versions were recovered as exact git blobs; current build494 pin contents match both the working files and HEAD blobs. The commits recorded as source matches are per-file content provenance, not build IDs.
+Exact source contents match both pin manifests; matching commits identify file contents, not build IDs. Primary interpretation supersedes the initial ordering preserved in commit 31680e8469.
 
-Most plausible path is `BoundaryParameterState::EntityFaceError` → `MappedFacetReference::BoundPhysicalSurface` → `QuerySurfaceUnion` / `QuerySurfaceUnionAtResolution`. Commit `76f10c8310` makes error-magnitude proof run whenever preliminary upper exceeds geometry tolerance, memoizes that purpose separately, and requires the covering upper/lower gap to close to tolerance. Commit `54d2ca2bd4` adds diameter plus sampled-distance tightening in that magnitude path. These changes can account for both more upper calls and much more work per call. Rank3 has 4674 calls / 830252222 work / 934.259 s versus build293 2794 / 4555668 / 28.654 s, with 263 collapses accepted in both. Commit `35e173b043` is a lower-ranked ancestor that first added a second certificate query above twice tolerance.
+1. `76f10c8310`: `EntityFaceError` → `BoundPhysicalSurface` → `QuerySurfaceUnion*` requests ErrorMagnitude above tolerance and refines the covering upper/lower gap. This is the leading candidate for more queries and work per query.
+2. `35e173b043`: introduced the follow-up certificate query relative to build 293; this ancestor was later modified by `76f10c8310`, so it is not an independent additive cause.
+3. `54d2ca2bd4`: adds diameter/interval arithmetic and sampled-distance Lipschitz tightening. This adds work per node but may reduce refinement; its net cost direction is unestablished.
 
-This is a candidate explanation, not a causal finding: the logs provide aggregate counters without per-call attribution. The clean run launched at load 2.72 against the requested <1 threshold under the explicit user override; all six ranks used 98–99% of one core. The timing verdict therefore remains provisional. No running job was touched.
+First-collapse rank 3: 2,794 → 4,674 calls, 4,555,668 → 830,252,222 logged work units, 28.65 → 934.26 seconds, with 263 accepted collapses in both. Aggregate counters do not identify which query or commit caused this growth. No causal tests or fixes were performed.
+
+The load threshold below 1.0 was explicitly waived after 24.5 minutes of rechecks; launch load was 2.72 and the CPU-use gate passed. No strict quiet-host claim is made. The running job was not changed by this source comparison.

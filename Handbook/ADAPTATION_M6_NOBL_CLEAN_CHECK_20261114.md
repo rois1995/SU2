@@ -35,31 +35,31 @@ C/S/R/A* include setup/re-entry; Q* includes quality through return, and the cur
 
 ## T3 — per-rank exit counters
 
-Every cell is build 293 → build 494. Invocation/rank identifies rows. U=upper seconds/calls; E=World election seconds/calls; update/other are seconds; G=geometry trials/rejections. Timers overlap; do not add them. Directory elections are separate and retained in `comparison_summary.json`.
-| Inv/rank | U | E | Update | G | Other |
-|---|---|---|---|---|---|
-| 1/0 | 1007.76/159024 → 198.96/15979 | 669.87/3777685 → 3231.53/3303294 | 377.24 → 1915.88 | 55846/23224 → 25203/11140 | 2225.78 → 3071.23 |
-| 1/1 | 1232.31/175198 → 419.24/19795 | 636.29/3777685 → 2969.34/3303294 | 377.19 → 1915.87 | 57442/24631 → 25450/10859 | 2094.98 → 3103.77 |
-| 1/2 | 1129.75/159075 → 569.66/23613 | 658.31/3777685 → 3034.57/3303294 | 377.28 → 1915.86 | 69209/32835 → 34543/15342 | 2157.75 → 2868.79 |
-| 1/3 | 966.84/160292 → 1939.13/26232 | 719.76/3777685 → 2043.32/3303294 | 377.25 → 1915.87 | 66201/30093 → 36988/16141 | 2209.76 → 2511.54 |
-| 1/4 | 810.72/166398 → 1100.67/20449 | 676.92/3777685 → 3171.18/3303294 | 377.22 → 1915.93 | 60788/25684 → 22252/9672 | 2348.02 → 2428.73 |
-| 1/5 | 1277.82/140633 → 1756.58/27794 | 635.38/3777685 → 1825.13/3303294 | 377.26 → 1915.86 | 57039/26903 → 32576/13365 | 2152.20 → 2925.63 |
-| 2/0 | 739.77/110580 → pending | 583.74/1516407 → pending | 133.59 → pending | 27675/9071 → pending | 1338.04 → pending |
-| 2/1 | 892.29/108265 → pending | 507.07/1516407 → pending | 133.45 → pending | 34358/14554 → pending | 1309.06 → pending |
-| 2/2 | 800.98/111857 → pending | 574.16/1516407 → pending | 133.55 → pending | 25373/7914 → pending | 1296.95 → pending |
-| 2/3 | 756.51/61503 → pending | 677.17/1516407 → pending | 133.41 → pending | 17672/6391 → pending | 1424.85 → pending |
-| 2/4 | 741.83/70408 → pending | 682.20/1516407 → pending | 133.38 → pending | 17628/6361 → pending | 1423.15 → pending |
-| 2/5 | 820.04/71673 → pending | 615.00/1516407 → pending | 133.47 → pending | 12840/3691 → pending | 1397.32 → pending |
+Every cell is build 293 → build 494. Invocation/rank identifies rows. U=upper seconds/calls; E=World election seconds/calls; update/other are seconds; G=geometry trials/rejections. D=Directory election seconds/calls. E and D are distinct families; timers overlap, so do not add them.
+| Inv/rank | U | E (World) | D (Directory) | Update | G | Other |
+|---|---|---|---|---|---|---|
+| 1/0 | 1007.76/159024 → 198.96/15979 | 669.87/3777685 → 3231.53/3303294 | 155.44/954079 → 46.50/837184 | 377.24 → 1915.88 | 55846/23224 → 25203/11140 | 2225.78 → 3071.23 |
+| 1/1 | 1232.31/175198 → 419.24/19795 | 636.29/3777685 → 2969.34/3303294 | 164.04/954079 → 50.22/837184 | 377.19 → 1915.87 | 57442/24631 → 25450/10859 | 2094.98 → 3103.77 |
+| 1/2 | 1129.75/159075 → 569.66/23613 | 658.31/3777685 → 3034.57/3303294 | 176.08/954079 → 40.74/837184 | 377.28 → 1915.86 | 69209/32835 → 34543/15342 | 2157.75 → 2868.79 |
+| 1/3 | 966.84/160292 → 1939.13/26232 | 719.76/3777685 → 2043.32/3303294 | 176.39/954079 → 39.35/837184 | 377.25 → 1915.87 | 66201/30093 → 36988/16141 | 2209.76 → 2511.54 |
+| 1/4 | 810.72/166398 → 1100.67/20449 | 676.92/3777685 → 3171.18/3303294 | 157.36/954079 → 48.36/837184 | 377.22 → 1915.93 | 60788/25684 → 22252/9672 | 2348.02 → 2428.73 |
+| 1/5 | 1277.82/140633 → 1756.58/27794 | 635.38/3777685 → 1825.13/3303294 | 202.08/954079 → 42.27/837184 | 377.26 → 1915.86 | 57039/26903 → 32576/13365 | 2152.20 → 2925.63 |
+| 2/0 | 739.77/110580 → pending | 583.74/1516407 → pending | 120.19/344487 → pending | 133.59 → pending | 27675/9071 → pending | 1338.04 → pending |
+| 2/1 | 892.29/108265 → pending | 507.07/1516407 → pending | 138.62/344487 → pending | 133.45 → pending | 34358/14554 → pending | 1309.06 → pending |
+| 2/2 | 800.98/111857 → pending | 574.16/1516407 → pending | 115.30/344487 → pending | 133.55 → pending | 25373/7914 → pending | 1296.95 → pending |
+| 2/3 | 756.51/61503 → pending | 677.17/1516407 → pending | 179.16/344487 → pending | 133.41 → pending | 17672/6391 → pending | 1424.85 → pending |
+| 2/4 | 741.83/70408 → pending | 682.20/1516407 → pending | 181.53/344487 → pending | 133.38 → pending | 17628/6361 → pending | 1423.15 → pending |
+| 2/5 | 820.04/71673 → pending | 615.00/1516407 → pending | 165.82/344487 → pending | 133.47 → pending | 12840/3691 → pending | 1397.32 → pending |
 
 ## T4 — sampled host load
 
 Cells=N samples: min/median/max in timestamped marker windows. C* begins at the preceding input PARTITION log; no native epoch was estimated.
 | Phase | Adaptation 1 | Adaptation 2 |
 |---|---|---|
-| C* collapse | 140: 8.25/8.96/10.38 | no samples/window |
-| S* surface | 190: 8.09/8.88/10.29 | no samples/window |
-| I interior | 6: 8.60/8.84/9.22 | no samples/window |
-| R* repartition/setup | 5: 8.93/9.16/9.72 | no samples/window |
+| C* collapse | 140: 8.25/8.96/10.38 | 140: 8.10/8.83/9.77 |
+| S* surface | 190: 8.09/8.88/10.29 | 158: 8.22/9.02/11.53 |
+| I interior | 6: 8.60/8.84/9.22 | 5: 8.59/9.06/9.44 |
+| R* repartition/setup | 5: 8.93/9.16/9.72 | 1: 9.50/9.50/9.50 |
 | Q* quality/return | 190: 8.41/9.01/10.34 | no samples/window |
 | A* alternation/re-entry | no samples/window | no samples/window |
 | F finish | no samples/window | no samples/window |

@@ -208,28 +208,28 @@
         "MappedFacetReference::QuerySurfaceUnion",
         "MappedFacetReference::QuerySurfaceUnionAtResolution"
       ],
-      "evidence": "EntityFaceError changed the second upper-bound query from a loose outside classification threshold (2*GeometryTolerance) to ErrorMagnitude whenever upper > GeometryTolerance. The magnitude query gets a distinct memo key/purpose, and QuerySurfaceUnionAtResolution now refines until the lower/covering-upper gap is within tolerance. This can increase both upper-call count and work/call in the general geometry error path. It is the strongest candidate for the observed calls/work growth.",
+      "evidence": "Purpose-specific ErrorMagnitude queries replace early outside classification and require a covering upper/lower gap within tolerance; strongest candidate for increased work per query and extra queries.",
       "causality": "Plausible mechanism, not proven for this run: no per-call trace connects aggregate counters to this branch."
     },
     {
       "rank": 2,
-      "commit": "54d2ca2bd4a31eb357abb296b7439da829c6c8c1",
-      "subject": "Bound geometry magnitude work and preserve saved surface-stage outcomes",
-      "functions": [
-        "MappedFacetReference::QuerySurfaceUnionAtResolution"
-      ],
-      "evidence": "For magnitude mode, mesh-to-model processing computes a patch diameter and tightens the upper bound using a sampled distance plus that diameter. This adds geometric proof operations in the same upper-bound path and can explain the extreme rank3 upper_work/seconds increase per call.",
-      "causality": "Plausible mechanism, not proven; rank3 used 830252222 upper work units vs 4555668 in build293."
-    },
-    {
-      "rank": 3,
       "commit": "35e173b043b6061856c9b3bb2c19e4b4bdccc1ed",
       "subject": "Tighten loose M6 geometry fitting bounds with one shared certificate query",
       "functions": [
         "BoundaryParameterState::EntityFaceError"
       ],
-      "evidence": "Introduced a follow-up BoundPhysicalSurface certificate when the preliminary error exceeded twice tolerance. This is an ancestor of the current behavior and directly concerns upper-bound call frequency; the later 76f10 change tightens the condition and changes the purpose.",
+      "evidence": "Introduced the follow-up certificate query relative to build293; call-path ancestor subsequently modified by76f10c8310, not an independent additive cause.",
       "causality": "Plausible contributor to call count, lower priority because its threshold is superseded by 76f10."
+    },
+    {
+      "rank": 3,
+      "commit": "54d2ca2bd4a31eb357abb296b7439da829c6c8c1",
+      "subject": "Bound geometry magnitude work and preserve saved surface-stage outcomes",
+      "functions": [
+        "MappedFacetReference::QuerySurfaceUnionAtResolution"
+      ],
+      "evidence": "Adds diameter/interval arithmetic per magnitude node but also tightens upper bounds using a sampled-distance Lipschitz bound, which can reduce refinement. Net cost direction is not established; do not claim it necessarily increases total proof work.",
+      "causality": "Plausible mechanism, not proven; rank3 used 830252222 upper work units vs 4555668 in build293."
     }
   ],
   "limitations": [
@@ -276,5 +276,6 @@
     ],
     "collapse_comparison": "First collapse 1410.68667s/480 accepted vs build293 194.72305s/480; parent notes ~1% faster than 1423.5s profiled comparison.",
     "quiet_gate": "Strict load<1 was not met. Current verdict must remain qualified; this comparison does not claim a quiet-host run."
-  }
+  },
+  "assessment_revision": "Primary review supersedes initial ordering and cost interpretation; the prior artifact is preserved in commit 31680e8469. 54d2ca2bd4 adds per-node arithmetic and a tighter bound that may reduce refinement; net direction unestablished. 35e173b043 is a call-path ancestor later changed by 76f10c8310, not an independent additive cause."
 }
