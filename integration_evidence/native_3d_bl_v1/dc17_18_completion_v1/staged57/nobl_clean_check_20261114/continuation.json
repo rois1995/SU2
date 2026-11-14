@@ -1,0 +1,13 @@
+{
+  "state": "running",
+  "controller_exec_session": 72303,
+  "case": "run",
+  "run_status": "run/status.json",
+  "user_load_override": "launch_override.json",
+  "wait_minutes_before_override_launch": 24.54428878625234,
+  "launch_load_1m": 2.72,
+  "CPU_gate_pass": true,
+  "task": "One unprofiled frozen no-BL M6 case, both configured adaptations, normal end, <=80-line report T1-T6, handoff links, push, stop; no source/build/config edits",
+  "reference": "reference293_markers.json uses isolated rank logs and existing phase semantics; reference293.json additional extraction",
+  "next": "Monitor existing owned handle; no reruns. After terminal verify native outcomes, input hashes, all handles. Analyze per-rank markers vs reference, load per phase from timestamped logs and 10s receipts. T6 only if verdict2. Explicitly report unmet quiet-load condition and user launch override."
+}

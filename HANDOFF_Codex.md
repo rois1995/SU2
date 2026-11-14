@@ -1,5 +1,6 @@
 # Native adaptation — current handoff
 
+2026-11-14 no-BL clean check is running without profiler under an explicit user override of the unmet load threshold; see the [clean-check report](Handbook/ADAPTATION_M6_NOBL_CLEAN_CHECK_20261114.md). No source/build/config changes.
 2026-11-14 measurement v2 completed: Run A ended normally; both configured Run B adaptations hit the time budget, solver exit 0; see the [measurement report](Handbook/ADAPTATION_M6_MEASUREMENT_V2_20261114.md). No source/build/config changes or design work.
 
 Updated 2026-11-13, Europe/Rome. The full curved-BL/RANS goal remains open. The requested nose-target cycle492 is **closed: tested size-only implementation rejected**. No owned heavy job remains; do not start another local nose variant or retry this cycle.
