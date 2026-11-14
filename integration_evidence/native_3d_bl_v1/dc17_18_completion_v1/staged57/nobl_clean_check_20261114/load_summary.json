@@ -1,0 +1,550 @@
+{
+  "scope": "Load receipts inside rank0 timestamped marker windows, not a reconstructed native epoch. First C* starts at preceding PARTITION log and includes any post-partition prelude.",
+  "precision": "10s polls; MPI log timestamps have1s precision; forwarding delay unmeasured. Subsecond phases can have no samples.",
+  "events": [
+    {
+      "invocation": 1,
+      "windows": [
+        {
+          "phase": "collapse_setup",
+          "start_log_unix_s": 1794662317.0,
+          "end_log_unix_s": 1794663728.0
+        },
+        {
+          "phase": "repartition_setup",
+          "start_log_unix_s": 1794663728.0,
+          "end_log_unix_s": 1794663732.0
+        },
+        {
+          "phase": "surface_setup",
+          "start_log_unix_s": 1794663732.0,
+          "end_log_unix_s": 1794663889.0
+        },
+        {
+          "phase": "alternation_setup",
+          "start_log_unix_s": 1794663889.0,
+          "end_log_unix_s": 1794663889.0
+        },
+        {
+          "phase": "interior",
+          "start_log_unix_s": 1794663889.0,
+          "end_log_unix_s": 1794663910.0
+        },
+        {
+          "phase": "surface_setup",
+          "start_log_unix_s": 1794663910.0,
+          "end_log_unix_s": 1794664021.0
+        },
+        {
+          "phase": "alternation_setup",
+          "start_log_unix_s": 1794664021.0,
+          "end_log_unix_s": 1794664021.0
+        },
+        {
+          "phase": "interior",
+          "start_log_unix_s": 1794664021.0,
+          "end_log_unix_s": 1794664039.0
+        },
+        {
+          "phase": "alternation_setup",
+          "start_log_unix_s": 1794664039.0,
+          "end_log_unix_s": 1794664039.0
+        },
+        {
+          "phase": "surface_setup",
+          "start_log_unix_s": 1794664039.0,
+          "end_log_unix_s": 1794664039.0
+        },
+        {
+          "phase": "alternation_setup",
+          "start_log_unix_s": 1794664039.0,
+          "end_log_unix_s": 1794664039.0
+        },
+        {
+          "phase": "interior",
+          "start_log_unix_s": 1794664039.0,
+          "end_log_unix_s": 1794664039.0
+        },
+        {
+          "phase": "surface_setup",
+          "start_log_unix_s": 1794664039.0,
+          "end_log_unix_s": 1794664146.0
+        },
+        {
+          "phase": "alternation_setup",
+          "start_log_unix_s": 1794664146.0,
+          "end_log_unix_s": 1794664146.0
+        },
+        {
+          "phase": "interior",
+          "start_log_unix_s": 1794664146.0,
+          "end_log_unix_s": 1794664151.0
+        },
+        {
+          "phase": "alternation_setup",
+          "start_log_unix_s": 1794664151.0,
+          "end_log_unix_s": 1794664151.0
+        },
+        {
+          "phase": "surface_setup",
+          "start_log_unix_s": 1794664151.0,
+          "end_log_unix_s": 1794664151.0
+        },
+        {
+          "phase": "alternation_setup",
+          "start_log_unix_s": 1794664151.0,
+          "end_log_unix_s": 1794664151.0
+        },
+        {
+          "phase": "interior",
+          "start_log_unix_s": 1794664151.0,
+          "end_log_unix_s": 1794664152.0
+        },
+        {
+          "phase": "surface_setup",
+          "start_log_unix_s": 1794664152.0,
+          "end_log_unix_s": 1794664356.0
+        },
+        {
+          "phase": "alternation_setup",
+          "start_log_unix_s": 1794664356.0,
+          "end_log_unix_s": 1794664356.0
+        },
+        {
+          "phase": "interior",
+          "start_log_unix_s": 1794664356.0,
+          "end_log_unix_s": 1794664357.0
+        },
+        {
+          "phase": "surface_setup",
+          "start_log_unix_s": 1794664357.0,
+          "end_log_unix_s": 1794664476.0
+        },
+        {
+          "phase": "alternation_setup",
+          "start_log_unix_s": 1794664476.0,
+          "end_log_unix_s": 1794664476.0
+        },
+        {
+          "phase": "interior",
+          "start_log_unix_s": 1794664476.0,
+          "end_log_unix_s": 1794664478.0
+        },
+        {
+          "phase": "alternation_setup",
+          "start_log_unix_s": 1794664478.0,
+          "end_log_unix_s": 1794664478.0
+        },
+        {
+          "phase": "surface_setup",
+          "start_log_unix_s": 1794664478.0,
+          "end_log_unix_s": 1794664478.0
+        },
+        {
+          "phase": "alternation_setup",
+          "start_log_unix_s": 1794664478.0,
+          "end_log_unix_s": 1794664478.0
+        },
+        {
+          "phase": "interior",
+          "start_log_unix_s": 1794664478.0,
+          "end_log_unix_s": 1794664479.0
+        },
+        {
+          "phase": "surface_setup",
+          "start_log_unix_s": 1794664479.0,
+          "end_log_unix_s": 1794664577.0
+        },
+        {
+          "phase": "alternation_setup",
+          "start_log_unix_s": 1794664577.0,
+          "end_log_unix_s": 1794664577.0
+        },
+        {
+          "phase": "interior",
+          "start_log_unix_s": 1794664577.0,
+          "end_log_unix_s": 1794664578.0
+        },
+        {
+          "phase": "surface_setup",
+          "start_log_unix_s": 1794664578.0,
+          "end_log_unix_s": 1794664694.0
+        },
+        {
+          "phase": "alternation_setup",
+          "start_log_unix_s": 1794664694.0,
+          "end_log_unix_s": 1794664694.0
+        },
+        {
+          "phase": "interior",
+          "start_log_unix_s": 1794664694.0,
+          "end_log_unix_s": 1794664695.0
+        },
+        {
+          "phase": "surface_setup",
+          "start_log_unix_s": 1794664695.0,
+          "end_log_unix_s": 1794664766.0
+        },
+        {
+          "phase": "alternation_setup",
+          "start_log_unix_s": 1794664766.0,
+          "end_log_unix_s": 1794664766.0
+        },
+        {
+          "phase": "interior",
+          "start_log_unix_s": 1794664766.0,
+          "end_log_unix_s": 1794664767.0
+        },
+        {
+          "phase": "surface_setup",
+          "start_log_unix_s": 1794664767.0,
+          "end_log_unix_s": 1794664835.0
+        },
+        {
+          "phase": "alternation_setup",
+          "start_log_unix_s": 1794664835.0,
+          "end_log_unix_s": 1794664835.0
+        },
+        {
+          "phase": "interior",
+          "start_log_unix_s": 1794664835.0,
+          "end_log_unix_s": 1794664836.0
+        },
+        {
+          "phase": "surface_setup",
+          "start_log_unix_s": 1794664836.0,
+          "end_log_unix_s": 1794664922.0
+        },
+        {
+          "phase": "alternation_setup",
+          "start_log_unix_s": 1794664922.0,
+          "end_log_unix_s": 1794664922.0
+        },
+        {
+          "phase": "interior",
+          "start_log_unix_s": 1794664922.0,
+          "end_log_unix_s": 1794664922.0
+        },
+        {
+          "phase": "surface_setup",
+          "start_log_unix_s": 1794664922.0,
+          "end_log_unix_s": 1794665015.0
+        },
+        {
+          "phase": "alternation_setup",
+          "start_log_unix_s": 1794665015.0,
+          "end_log_unix_s": 1794665015.0
+        },
+        {
+          "phase": "interior",
+          "start_log_unix_s": 1794665015.0,
+          "end_log_unix_s": 1794665015.0
+        },
+        {
+          "phase": "surface_setup",
+          "start_log_unix_s": 1794665015.0,
+          "end_log_unix_s": 1794665058.0
+        },
+        {
+          "phase": "alternation_setup",
+          "start_log_unix_s": 1794665058.0,
+          "end_log_unix_s": 1794665058.0
+        },
+        {
+          "phase": "interior",
+          "start_log_unix_s": 1794665058.0,
+          "end_log_unix_s": 1794665058.0
+        },
+        {
+          "phase": "surface_setup",
+          "start_log_unix_s": 1794665058.0,
+          "end_log_unix_s": 1794665132.0
+        },
+        {
+          "phase": "alternation_setup",
+          "start_log_unix_s": 1794665132.0,
+          "end_log_unix_s": 1794665132.0
+        },
+        {
+          "phase": "interior",
+          "start_log_unix_s": 1794665132.0,
+          "end_log_unix_s": 1794665133.0
+        },
+        {
+          "phase": "surface_setup",
+          "start_log_unix_s": 1794665133.0,
+          "end_log_unix_s": 1794665199.0
+        },
+        {
+          "phase": "alternation_setup",
+          "start_log_unix_s": 1794665199.0,
+          "end_log_unix_s": 1794665199.0
+        },
+        {
+          "phase": "interior",
+          "start_log_unix_s": 1794665199.0,
+          "end_log_unix_s": 1794665199.0
+        },
+        {
+          "phase": "alternation_setup",
+          "start_log_unix_s": 1794665199.0,
+          "end_log_unix_s": 1794665199.0
+        },
+        {
+          "phase": "surface_setup",
+          "start_log_unix_s": 1794665199.0,
+          "end_log_unix_s": 1794665199.0
+        },
+        {
+          "phase": "alternation_setup",
+          "start_log_unix_s": 1794665199.0,
+          "end_log_unix_s": 1794665199.0
+        },
+        {
+          "phase": "interior",
+          "start_log_unix_s": 1794665199.0,
+          "end_log_unix_s": 1794665200.0
+        },
+        {
+          "phase": "surface_setup",
+          "start_log_unix_s": 1794665200.0,
+          "end_log_unix_s": 1794665255.0
+        },
+        {
+          "phase": "alternation_setup",
+          "start_log_unix_s": 1794665255.0,
+          "end_log_unix_s": 1794665255.0
+        },
+        {
+          "phase": "interior",
+          "start_log_unix_s": 1794665255.0,
+          "end_log_unix_s": 1794665255.0
+        },
+        {
+          "phase": "surface_setup",
+          "start_log_unix_s": 1794665255.0,
+          "end_log_unix_s": 1794665362.0
+        },
+        {
+          "phase": "alternation_setup",
+          "start_log_unix_s": 1794665362.0,
+          "end_log_unix_s": 1794665362.0
+        },
+        {
+          "phase": "interior",
+          "start_log_unix_s": 1794665362.0,
+          "end_log_unix_s": 1794665363.0
+        },
+        {
+          "phase": "surface_setup",
+          "start_log_unix_s": 1794665363.0,
+          "end_log_unix_s": 1794665431.0
+        },
+        {
+          "phase": "alternation_setup",
+          "start_log_unix_s": 1794665431.0,
+          "end_log_unix_s": 1794665431.0
+        },
+        {
+          "phase": "interior",
+          "start_log_unix_s": 1794665431.0,
+          "end_log_unix_s": 1794665431.0
+        },
+        {
+          "phase": "surface_setup",
+          "start_log_unix_s": 1794665431.0,
+          "end_log_unix_s": 1794665537.0
+        },
+        {
+          "phase": "alternation_setup",
+          "start_log_unix_s": 1794665537.0,
+          "end_log_unix_s": 1794665537.0
+        },
+        {
+          "phase": "interior",
+          "start_log_unix_s": 1794665537.0,
+          "end_log_unix_s": 1794665537.0
+        },
+        {
+          "phase": "surface_setup",
+          "start_log_unix_s": 1794665537.0,
+          "end_log_unix_s": 1794665650.0
+        },
+        {
+          "phase": "alternation_setup",
+          "start_log_unix_s": 1794665650.0,
+          "end_log_unix_s": 1794665651.0
+        },
+        {
+          "phase": "interior",
+          "start_log_unix_s": 1794665651.0,
+          "end_log_unix_s": 1794665651.0
+        },
+        {
+          "phase": "surface_setup",
+          "start_log_unix_s": 1794665651.0,
+          "end_log_unix_s": 1794665670.0
+        },
+        {
+          "phase": "alternation_setup",
+          "start_log_unix_s": 1794665670.0,
+          "end_log_unix_s": 1794665670.0
+        },
+        {
+          "phase": "interior",
+          "start_log_unix_s": 1794665670.0,
+          "end_log_unix_s": 1794665670.0
+        },
+        {
+          "phase": "surface_setup",
+          "start_log_unix_s": 1794665670.0,
+          "end_log_unix_s": 1794665683.0
+        },
+        {
+          "phase": "alternation_setup",
+          "start_log_unix_s": 1794665683.0,
+          "end_log_unix_s": 1794665683.0
+        },
+        {
+          "phase": "interior",
+          "start_log_unix_s": 1794665683.0,
+          "end_log_unix_s": 1794665683.0
+        },
+        {
+          "phase": "surface_setup",
+          "start_log_unix_s": 1794665683.0,
+          "end_log_unix_s": 1794665690.0
+        },
+        {
+          "phase": "alternation_setup",
+          "start_log_unix_s": 1794665690.0,
+          "end_log_unix_s": 1794665690.0
+        },
+        {
+          "phase": "interior",
+          "start_log_unix_s": 1794665690.0,
+          "end_log_unix_s": 1794665691.0
+        },
+        {
+          "phase": "surface_setup",
+          "start_log_unix_s": 1794665691.0,
+          "end_log_unix_s": 1794665711.0
+        },
+        {
+          "phase": "alternation_setup",
+          "start_log_unix_s": 1794665711.0,
+          "end_log_unix_s": 1794665711.0
+        },
+        {
+          "phase": "interior",
+          "start_log_unix_s": 1794665711.0,
+          "end_log_unix_s": 1794665712.0
+        },
+        {
+          "phase": "interior",
+          "start_log_unix_s": 1794665712.0,
+          "end_log_unix_s": 1794665712.0
+        },
+        {
+          "phase": "repartition_setup",
+          "start_log_unix_s": 1794665712.0,
+          "end_log_unix_s": 1794665747.0
+        },
+        {
+          "phase": "repartition_setup",
+          "start_log_unix_s": 1794665747.0,
+          "end_log_unix_s": 1794665747.0
+        },
+        {
+          "phase": "alternation_setup",
+          "start_log_unix_s": 1794665747.0,
+          "end_log_unix_s": 1794665748.0
+        },
+        {
+          "phase": "quality",
+          "start_log_unix_s": 1794665748.0,
+          "end_log_unix_s": 1794666869.0
+        },
+        {
+          "phase": "quality",
+          "start_log_unix_s": 1794666869.0,
+          "end_log_unix_s": 1794667662.0
+        }
+      ],
+      "phases": {
+        "collapse_setup": {
+          "n": 140,
+          "min": 8.25,
+          "median": 8.955,
+          "max": 10.38
+        },
+        "repartition_setup": {
+          "n": 5,
+          "min": 8.93,
+          "median": 9.16,
+          "max": 9.72
+        },
+        "surface_setup": {
+          "n": 190,
+          "min": 8.09,
+          "median": 8.88,
+          "max": 10.29
+        },
+        "alternation_setup": {
+          "n": 0
+        },
+        "interior": {
+          "n": 6,
+          "min": 8.6,
+          "median": 8.835,
+          "max": 9.22
+        },
+        "quality": {
+          "n": 190,
+          "min": 8.41,
+          "median": 9.01,
+          "max": 10.34
+        }
+      }
+    }
+  ],
+  "observed_native_CPU_percent_of_one_core": {
+    "1568280": {
+      "n": 544,
+      "min": 94.11159386538323,
+      "median": 98.44021094044137,
+      "max": 100.01743880199511
+    },
+    "1568281": {
+      "n": 544,
+      "min": 94.82729055625776,
+      "median": 98.40440857568521,
+      "max": 100.04830433892883
+    },
+    "1568282": {
+      "n": 544,
+      "min": 95.08555660468822,
+      "median": 98.35615611574963,
+      "max": 100.02877075128818
+    },
+    "1568283": {
+      "n": 544,
+      "min": 95.01017545425167,
+      "median": 98.43257043212921,
+      "max": 100.03269624048939
+    },
+    "1568284": {
+      "n": 544,
+      "min": 95.33905771991408,
+      "median": 98.52417664288714,
+      "max": 100.01914884371487
+    },
+    "1568285": {
+      "n": 544,
+      "min": 94.64649683421423,
+      "median": 98.42453471257117,
+      "max": 100.46869647422834
+    }
+  },
+  "cpu_accounting": "Retained /proc user+system ticks, host CLK_TCK100, divided by measured wall interval; not a wall-wait measurement."
+}
