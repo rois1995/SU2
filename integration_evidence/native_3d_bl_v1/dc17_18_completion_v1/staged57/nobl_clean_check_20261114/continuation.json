@@ -9,9 +9,22 @@
   "CPU_gate_pass": true,
   "task": "One unprofiled frozen no-BL M6 case, both configured adaptations, normal end, <=80-line report T1-T6, handoff links, push, stop; no source/build/config edits",
   "reference": "reference293_markers.json uses isolated rank logs and existing phase semantics; reference293.json additional extraction",
-  "next": "Monitor existing owned handle; no reruns. After terminal verify native outcomes, input hashes, all handles. Analyze per-rank markers vs reference, load per phase from timestamped logs and 10s receipts. T6 only if verdict2. Explicitly report unmet quiet-load condition and user launch override.",
-  "latest_pushed_checkpoint": "300aed9cc0",
+  "next": "Monitor existing controller session72303; sole6rank heavyjob, frozenCPP1539 pins unchanged, no rerun/build/fix/design. Let bothconfigurednativeadaptations anddriver normalend.",
+  "latest_pushed_checkpoint": "f131dff3d7",
   "first_collapse_receipt": "first_collapse_receipt.json",
   "first_collapse_rank0_seconds": 1410.686669683,
-  "all_1539_build494_source_pins_match": true
+  "all_1539_build494_source_pins_match": true,
+  "source_comparison": "Done read-only; source_comparison.json, source_primary_review.json. Primary reverified five pin pairs, all candidate commits ancestors. No tests/source changes.",
+  "first_collapse_global_counters": "first_collapse_global_counters.json:2495\u21922496 edits,54.229713M\u21921034.769513M upper work(19.081x),19905\u219226642calls",
+  "first_two_split_receipts": "first_two_split_receipts.json:1593.361907572/3520,1722.372641414/8442",
+  "analysis_pipeline": [
+    "After normal terminal: nice19 python3 extract_markers.py run current_markers.json (absolute paths or correct cwd). Uses isolated rank streams, strips MPI timestamp prefixes even inside numbers; gathered DETAIL records from rank0 distributed to all ranks.",
+    "Then nice19 python3 summarize_load.py. Load windows use actual MPI timestamps, not estimated native epoch. First C* starts at preceding NATIVE3D_PARTITION log;10s polls,1s log timestamp precision, forwarding delay unmeasured. CPU summaries from retained /proc ticks,CLK_TCK100.",
+    "Reference: reference293_markers.json authoritative primary-extracted isolated rank stages+all two-per-rank DETAIL; reference293.json extra agent extraction. Both native totals rank0 DETAIL3640.719259241,2314.855222ish (check exact stored fields), outer adaptation timers different.",
+    "T2 bins use existing measurement/analyze_B.py interval semantics. Collapse/surface/repartition/alternation include setup; quality-to-exit can bundle final finish; do not invent separate finish wall timer. Sum accepted edits globally, use maxrank wall perphase, WorldE commoncount (not6x), mean rank0Worldseconds/E; clearly label scopes.",
+    "T3 first adaptation perrank exit: upperseconds/calls fromSTAGE,Worldelectionseconds/calls fromSTAGE,update_seconds andgeometrytrials/rejections fromSTAGE,other fromDETAIL. Directory nested family distinct.",
+    "Final <=80-line single Handbook report T1-T6. Intro user explicitly overrode load gate after24.544min; launch2.72; CPUgatepassed; no strictquiet-host claim. Slower-path evidence supports qualified verdict2 under changed launch condition; uncertainty about absolute host effect and source causality explicit. Do not present actualquiet-gatepass.",
+    "Source ranked primary review:76f10c8310 strongest (magnitude gap proof and tighter trigger);35e173b043 ancestor followupquery notadditive;54d2ca2bd4 addspernodearithmetic butalso tightens bounds/possiblyreduces refinement,netunresolved. No recommendations.",
+    "After terminal verifypins/ownedhandles and native acceptance/CFDsuccess (exit0 canretainoriginalafterrejection); save finalmetadata/loghashes/small evidence. Update current clean-check line in place bothHANDOFF/HowToProceed; ifverdict2 stateEuler293timinghistorical/noBLslower494 withconditioncaveat. Commit/push explicit paths toorigin codex/native-3d-bl persistentapproval,stop. No raw native mesh/field binaries inGit."
+  ]
 }

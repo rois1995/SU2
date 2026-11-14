@@ -1,0 +1,7 @@
+# Build293/build494 geometry upper-bound source comparison
+
+Source pin SHA256s verified: build293 versions were recovered as exact git blobs; current build494 pin contents match both the working files and HEAD blobs. The commits recorded as source matches are per-file content provenance, not build IDs.
+
+Most plausible path is `BoundaryParameterState::EntityFaceError` → `MappedFacetReference::BoundPhysicalSurface` → `QuerySurfaceUnion` / `QuerySurfaceUnionAtResolution`. Commit `76f10c8310` makes error-magnitude proof run whenever preliminary upper exceeds geometry tolerance, memoizes that purpose separately, and requires the covering upper/lower gap to close to tolerance. Commit `54d2ca2bd4` adds diameter plus sampled-distance tightening in that magnitude path. These changes can account for both more upper calls and much more work per call. Rank3 has 4674 calls / 830252222 work / 934.259 s versus build293 2794 / 4555668 / 28.654 s, with 263 collapses accepted in both. Commit `35e173b043` is a lower-ranked ancestor that first added a second certificate query above twice tolerance.
+
+This is a candidate explanation, not a causal finding: the logs provide aggregate counters without per-call attribution. The clean run launched at load 2.72 against the requested <1 threshold under the explicit user override; all six ranks used 98–99% of one core. The timing verdict therefore remains provisional. No running job was touched.

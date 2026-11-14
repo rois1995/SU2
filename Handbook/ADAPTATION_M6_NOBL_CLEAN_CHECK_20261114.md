@@ -12,8 +12,8 @@ Evidence: `integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/n
 |---|---:|---:|---:|
 | Collapse exit seconds | 194.723054 | 1423.509701 | 1410.686670 |
 | Accepted collapses | 480 | 480 | 480 |
-| First split seconds / splits | 241.14 / 5047 | 1609.19 / 3520 | pending |
-| Second split record | 274.10 / 9949 | 1737.87 / 8442 | pending |
+| First split seconds / splits | 241.14 / 5047 | 1609.19 / 3520 | 1593.361908 / 3520 |
+| Second split record | 274.10 / 9949 | 1737.87 / 8442 | 1722.372641 / 8442 |
 | Inner native time/result | 3640.719259s, accepted | 5344.540316s, rejected | pending |
 | Accepted mesh points/tets | 149051/736323 | retained original | pending |
 Second adaptation remains pending; build 293 accepted 172001 points/870422 tets in 2314.855222s inner native time.
@@ -37,4 +37,4 @@ Pending. No quiet-host performance conclusion is claimed.
 
 ## T6 — conditional read-only comparison
 
-Not started; conditional on verdict 2. No design, fix or recommendation.
+Read-only comparison of the slow proof phase is in progress, based on the observed 7.24× collapse slowdown and increased proof counters. The report will retain the user-waived quiet-load condition. No design, fix, test or recommendation.

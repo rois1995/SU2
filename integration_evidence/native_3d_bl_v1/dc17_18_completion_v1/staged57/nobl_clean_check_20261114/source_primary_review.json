@@ -1,0 +1,48 @@
+{
+  "primary_reverified_pin_pairs": [
+    {
+      "path": "Common/src/adaptation/CNativeAffineReference.cpp",
+      "old_blob_verified": true,
+      "current_pin_verified": true
+    },
+    {
+      "path": "Common/include/adaptation/CNativeAffineReference.hpp",
+      "old_blob_verified": true,
+      "current_pin_verified": true
+    },
+    {
+      "path": "Common/src/adaptation/CNativeBoundaryParameters3D.cpp",
+      "old_blob_verified": true,
+      "current_pin_verified": true
+    },
+    {
+      "path": "Common/src/adaptation/CNativeBoundary3D.cpp",
+      "old_blob_verified": true,
+      "current_pin_verified": true
+    },
+    {
+      "path": "Common/src/adaptation/CNativeEngine3D.cpp",
+      "old_blob_verified": true,
+      "current_pin_verified": true
+    }
+  ],
+  "ranked_interpretation": [
+    {
+      "rank": 1,
+      "commit": "76f10c8310",
+      "reason": "Purpose-specific ErrorMagnitude queries replace early outside classification and require a covering upper/lower gap within tolerance; strongest candidate for increased work per query and extra queries."
+    },
+    {
+      "rank": 2,
+      "commit": "35e173b043",
+      "reason": "Introduced the follow-up certificate query relative to build293; call-path ancestor subsequently modified by76f10c8310, not an independent additive cause."
+    },
+    {
+      "rank": 3,
+      "commit": "54d2ca2bd4",
+      "reason": "Adds diameter/interval arithmetic per magnitude node but also tightens upper bounds using a sampled-distance Lipschitz bound, which can reduce refinement. Net cost direction is not established; do not claim it necessarily increases total proof work."
+    }
+  ],
+  "causality": "Candidates only; aggregate counters do not attribute individual proof calls/work to commits. No testing/fix/design performed.",
+  "quiet_condition": "Absolute load<1 was not met; user authorized start after24.5-minute wait, CPU-use gate passed. Any slower-path verdict must retain this limitation."
+}

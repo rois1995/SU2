@@ -1,0 +1,280 @@
+{
+  "schema": "nobl_clean_check_build293_build494_source_comparison_v1",
+  "scope": "Read-only source comparison limited to geometry upper-proof and connected boundary-call paths. No source/build/run changes.",
+  "source_identity": {
+    "build293_pins": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/build293_source_pins.json",
+    "build494_pins": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/build494_source_pins.json",
+    "build293_exact_file_contents_verified_against_git_blobs": true,
+    "build494_exact_file_contents_verified_against_worktree_and_HEAD_blobs": true,
+    "source_files": [
+      {
+        "path": "Common/src/adaptation/CNativeAffineReference.cpp",
+        "build293_sha256": "ca1aee358f6210431bafa3b6b7c8f851c5e9e441d1cae43021a5129e3a80aee1",
+        "build293_matching_source_commit": "bf8e47ad385c2d727ba13aa8f1a5dad57697ff3a",
+        "build494_sha256": "01c76cd1b44a5d93d39ea0ddc46a0a91b36187d969259945077b2d6304f4a91b",
+        "build494_worktree_and_HEAD_blob_match": true
+      },
+      {
+        "path": "Common/include/adaptation/CNativeAffineReference.hpp",
+        "build293_sha256": "398bdb3ba5d08bb15954a75965a668d120f8621e918a6a4e2ccc116789af2cf0",
+        "build293_matching_source_commit": "2bee93a0acf374cfdcddce6bb2271d353853abc7",
+        "build494_sha256": "bfc217abaa6a9be255e4bfd155ef5f7c21a3083fe5aa7e6d3c6bdbcd828d9d30",
+        "build494_worktree_and_HEAD_blob_match": true
+      },
+      {
+        "path": "Common/src/adaptation/CNativeBoundaryParameters3D.cpp",
+        "build293_sha256": "204ccb5a25d1ea7ebf9701e959396add9a0d16e6efcbbb455b99139a0000fe07",
+        "build293_matching_source_commit": "2d558a1d4d2681ceb41bafd45b9e6696aa69cc71",
+        "build494_sha256": "c400d8b77b5c03b893afb0fcf63afd2ffed181f074f8dafa5360e6445928e29f",
+        "build494_worktree_and_HEAD_blob_match": true
+      },
+      {
+        "path": "Common/src/adaptation/CNativeBoundary3D.cpp",
+        "build293_sha256": "87ded19da6fb868563eb68a864ba8427661ab72c700df3f2e49db8414c78fff0",
+        "build293_matching_source_commit": "31ff1c3bad8808712096a6632259fd77b9318822",
+        "build494_sha256": "d0bee57b216703d459d117922466b860d23961343ed9bf5ee3830234053b8597",
+        "build494_worktree_and_HEAD_blob_match": true
+      },
+      {
+        "path": "Common/src/adaptation/CNativeEngine3D.cpp",
+        "build293_sha256": "11043001e7933759846e94f513b352896c8f179af92487682421282b95ac3401",
+        "build293_matching_source_commit": "f2fd9c2c9d6051c313b85f00413583326a9208b4",
+        "build494_sha256": "006fd10052a39cad7ad08ab538708181bc3c396abdc94de6e0f8035ba889e302",
+        "build494_worktree_and_HEAD_blob_match": true
+      }
+    ],
+    "warning": "Matching source blobs establish content identity, not a claim that the build numbers equal these source commit IDs."
+  },
+  "runtime_evidence": {
+    "quiet_load_gate_override": "Parent-provided observation: launch 1-minute load 2.72 despite <1 gate; explicit user override was \u201cStart now and explicitly say in the report that you could not wait.\u201d",
+    "cpu_receipts": "Parent-provided: all six ranks 98\u201399% of one core.",
+    "run_state": "Parent states the unprofiled 6-rank job remains active; this task did not inspect, stop, signal, attach to, build, or run code in that job.",
+    "collapse_comparison_by_rank": {
+      "build293": [
+        {
+          "rank": 0,
+          "source_path": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build293_bounded_reference_mach_only_real_cfd50k/rank_output/1/rank.0/stdout",
+          "line": 250,
+          "elapsed": 194.723054036,
+          "accepted": 480,
+          "upper_calls": 3498,
+          "upper_seconds": 41.33989934799994,
+          "upper_work": 10427608,
+          "upper_refusals": 808
+        },
+        {
+          "rank": 1,
+          "source_path": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build293_bounded_reference_mach_only_real_cfd50k/rank_output/1/rank.1/stdout",
+          "line": 5,
+          "elapsed": 194.712549538,
+          "accepted": 473,
+          "upper_calls": 3325,
+          "upper_seconds": 30.61618341300001,
+          "upper_work": 8187461,
+          "upper_refusals": 720
+        },
+        {
+          "rank": 2,
+          "source_path": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build293_bounded_reference_mach_only_real_cfd50k/rank_output/1/rank.2/stdout",
+          "line": 5,
+          "elapsed": 194.712462105,
+          "accepted": 346,
+          "upper_calls": 3428,
+          "upper_seconds": 36.20534139600002,
+          "upper_work": 8126294,
+          "upper_refusals": 1510
+        },
+        {
+          "rank": 3,
+          "source_path": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build293_bounded_reference_mach_only_real_cfd50k/rank_output/1/rank.3/stdout",
+          "line": 5,
+          "elapsed": 194.711108666,
+          "accepted": 263,
+          "upper_calls": 2794,
+          "upper_seconds": 28.654481828999998,
+          "upper_work": 4555668,
+          "upper_refusals": 1880
+        },
+        {
+          "rank": 4,
+          "source_path": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build293_bounded_reference_mach_only_real_cfd50k/rank_output/1/rank.4/stdout",
+          "line": 5,
+          "elapsed": 194.717524082,
+          "accepted": 469,
+          "upper_calls": 3812,
+          "upper_seconds": 34.70004645600008,
+          "upper_work": 8923013,
+          "upper_refusals": 950
+        },
+        {
+          "rank": 5,
+          "source_path": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build293_bounded_reference_mach_only_real_cfd50k/rank_output/1/rank.5/stdout",
+          "line": 5,
+          "elapsed": 194.711539031,
+          "accepted": 464,
+          "upper_calls": 3048,
+          "upper_seconds": 46.02467584199992,
+          "upper_work": 14009669,
+          "upper_refusals": 768
+        }
+      ],
+      "build494": [
+        {
+          "rank": 0,
+          "source_path": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/nobl_clean_check_20261114/run/rank_output/1/rank.0/stdout",
+          "line": 277,
+          "elapsed": 1410.686669683,
+          "accepted": 480,
+          "upper_calls": 4311,
+          "upper_seconds": 112.87466952299994,
+          "upper_work": 46565944,
+          "upper_refusals": 1612
+        },
+        {
+          "rank": 1,
+          "source_path": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/nobl_clean_check_20261114/run/rank_output/1/rank.1/stdout",
+          "line": 4,
+          "elapsed": 1410.687084592,
+          "accepted": 472,
+          "upper_calls": 4047,
+          "upper_seconds": 76.32838063099994,
+          "upper_work": 31759069,
+          "upper_refusals": 1440
+        },
+        {
+          "rank": 2,
+          "source_path": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/nobl_clean_check_20261114/run/rank_output/1/rank.2/stdout",
+          "line": 4,
+          "elapsed": 1410.687973738,
+          "accepted": 344,
+          "upper_calls": 5038,
+          "upper_seconds": 138.27558338799994,
+          "upper_work": 33423422,
+          "upper_refusals": 3085
+        },
+        {
+          "rank": 3,
+          "source_path": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/nobl_clean_check_20261114/run/rank_output/1/rank.3/stdout",
+          "line": 4,
+          "elapsed": 1410.686323668,
+          "accepted": 263,
+          "upper_calls": 4674,
+          "upper_seconds": 934.2590918959979,
+          "upper_work": 830252222,
+          "upper_refusals": 3754
+        },
+        {
+          "rank": 4,
+          "source_path": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/nobl_clean_check_20261114/run/rank_output/1/rank.4/stdout",
+          "line": 4,
+          "elapsed": 1410.687261554,
+          "accepted": 473,
+          "upper_calls": 4750,
+          "upper_seconds": 133.9135247139999,
+          "upper_work": 35703712,
+          "upper_refusals": 1868
+        },
+        {
+          "rank": 5,
+          "source_path": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/nobl_clean_check_20261114/run/rank_output/1/rank.5/stdout",
+          "line": 4,
+          "elapsed": 1410.686707389,
+          "accepted": 464,
+          "upper_calls": 3822,
+          "upper_seconds": 160.66372441500016,
+          "upper_work": 57065144,
+          "upper_refusals": 1532
+        }
+      ]
+    },
+    "rank3_delta": {
+      "upper_calls_build293": 2794,
+      "upper_calls_build494": 4674,
+      "upper_seconds_build293": 28.654481829,
+      "upper_seconds_build494": 934.259091896,
+      "upper_work_build293": 4555668,
+      "upper_work_build494": 830252222,
+      "accepted_collapses_both": 263
+    }
+  },
+  "ranked_candidates": [
+    {
+      "rank": 1,
+      "commit": "76f10c83107ce2e753e15ff928b2e7ed870dc1a5",
+      "subject": "Add purpose-correct surface error bounds pending build481 qualification",
+      "functions": [
+        "BoundaryParameterState::EntityFaceError",
+        "MappedFacetReference::BoundPhysicalSurface",
+        "MappedFacetReference::QuerySurfaceUnion",
+        "MappedFacetReference::QuerySurfaceUnionAtResolution"
+      ],
+      "evidence": "EntityFaceError changed the second upper-bound query from a loose outside classification threshold (2*GeometryTolerance) to ErrorMagnitude whenever upper > GeometryTolerance. The magnitude query gets a distinct memo key/purpose, and QuerySurfaceUnionAtResolution now refines until the lower/covering-upper gap is within tolerance. This can increase both upper-call count and work/call in the general geometry error path. It is the strongest candidate for the observed calls/work growth.",
+      "causality": "Plausible mechanism, not proven for this run: no per-call trace connects aggregate counters to this branch."
+    },
+    {
+      "rank": 2,
+      "commit": "54d2ca2bd4a31eb357abb296b7439da829c6c8c1",
+      "subject": "Bound geometry magnitude work and preserve saved surface-stage outcomes",
+      "functions": [
+        "MappedFacetReference::QuerySurfaceUnionAtResolution"
+      ],
+      "evidence": "For magnitude mode, mesh-to-model processing computes a patch diameter and tightens the upper bound using a sampled distance plus that diameter. This adds geometric proof operations in the same upper-bound path and can explain the extreme rank3 upper_work/seconds increase per call.",
+      "causality": "Plausible mechanism, not proven; rank3 used 830252222 upper work units vs 4555668 in build293."
+    },
+    {
+      "rank": 3,
+      "commit": "35e173b043b6061856c9b3bb2c19e4b4bdccc1ed",
+      "subject": "Tighten loose M6 geometry fitting bounds with one shared certificate query",
+      "functions": [
+        "BoundaryParameterState::EntityFaceError"
+      ],
+      "evidence": "Introduced a follow-up BoundPhysicalSurface certificate when the preliminary error exceeded twice tolerance. This is an ancestor of the current behavior and directly concerns upper-bound call frequency; the later 76f10 change tightens the condition and changes the purpose.",
+      "causality": "Plausible contributor to call count, lower priority because its threshold is superseded by 76f10."
+    }
+  ],
+  "limitations": [
+    "Commit IDs identify exact source snapshots or code changes, not binary provenance; source SHA256 pins were verified independently.",
+    "Aggregate counters do not identify which call sites consumed the work; no causality is established.",
+    "Load-gate override and active job make the observed wall-time verdict provisional."
+  ],
+  "source_function_locations": [
+    {
+      "file": "Common/src/adaptation/CNativeBoundaryParameters3D.cpp",
+      "line": 367,
+      "function": "BoundaryParameterState::EntityFaceError"
+    },
+    {
+      "file": "Common/src/adaptation/CNativeBoundaryParameters3D.cpp",
+      "line": 1511,
+      "function": "PlanarReference::ParameterError"
+    },
+    {
+      "file": "Common/src/adaptation/CNativeAffineReference.cpp",
+      "line": 2009,
+      "function": "MappedFacetReference::BoundPhysicalSurface"
+    },
+    {
+      "file": "Common/src/adaptation/CNativeAffineReference.cpp",
+      "line": 2104,
+      "function": "MappedFacetReference::QuerySurfaceUnion"
+    },
+    {
+      "file": "Common/src/adaptation/CNativeAffineReference.cpp",
+      "line": 2126,
+      "function": "MappedFacetReference::QuerySurfaceUnionAtResolution"
+    }
+  ],
+  "run_update_from_primary": {
+    "marker_recovery": "Combined MPI timestamp output can corrupt tokens; parent regenerated first_collapse_receipt.json from cleaned rank output with extract_markers.py.",
+    "clean_first_split_rank0_seconds": [
+      1593.361907572,
+      1722.372641414
+    ],
+    "clean_first_split_rank0_accepted_counts": [
+      3520,
+      8442
+    ],
+    "collapse_comparison": "First collapse 1410.68667s/480 accepted vs build293 194.72305s/480; parent notes ~1% faster than 1423.5s profiled comparison.",
+    "quiet_gate": "Strict load<1 was not met. Current verdict must remain qualified; this comparison does not claim a quiet-host run."
+  }
+}

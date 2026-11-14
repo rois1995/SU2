@@ -1,6 +1,9 @@
 """Read existing native markers; reuse the measurement phase-boundary semantics."""
-import collections,importlib.util,json,re,sys
+import collections,importlib.util,json,re,sys,time
 from pathlib import Path
+STAMP=r'[A-Z][a-z]{2} [A-Z][a-z]{2} [ \d]\d \d{2}:\d{2}:\d{2} \d{4}'
+def strip_mpi_prefixes(line):return re.sub(STAMP+r'<(?:stdout|stderr)>:', '',line)
+assert strip_mpi_prefixes('elapsed=1572.3Sat Nov 14 14:42:00 2026<stdout>:123')=='elapsed=1572.3123'
 ROOT=Path(__file__).resolve().parent
 sys.path.insert(0,str(ROOT.parent/'measurement_20261114_v2'))
 import analyze_B as old
@@ -25,10 +28,14 @@ def extract(path):
             ranks[r]['refine_details']=list(unique.values())
         return {'source':str(path),'rank_log_sources':list(map(str,files)),'ranks':ranks,'semantics':part['semantics']}
     stages=collections.defaultdict(list);details=collections.defaultdict(list)
-    for number,line in enumerate(Path(path).open(errors='replace'),1):
+    for number,raw_line in enumerate(Path(path).open(errors='replace'),1):
+        line=strip_mpi_prefixes(raw_line)
         matches=list(re.finditer(r'NATIVE3D_(?:STAGE|DETAIL)\s+',line))
         for idx,m in enumerate(matches):
             part=line[m.start():matches[idx+1].start() if idx+1<len(matches) else len(line)]; row=old.parse_fields(part);row['source_line']=number;row['source_file']=str(path)
+            stamps=re.findall(STAMP+r'(?=<stdout>:)',raw_line)
+            if stamps:
+                row['log_timestamp']=stamps[-1];row['log_unix_s']=time.mktime(time.strptime(stamps[-1],'%a %b %d %H:%M:%S %Y'))
             if 'rank' not in row:continue
             rank=int(row['rank'])
             if row['record']=='NATIVE3D_STAGE' and 'elapsed' in row:
@@ -39,6 +46,9 @@ def extract(path):
         events=[]
         for number,inv in enumerate(old.split_invocations(rows),1):
             intervals=old.intervals_for_invocation(inv,number);bins={}
+            for gap,left,right in zip(intervals,[None]+inv[:-1],inv):
+                gap['start_log_unix_s']=left.get('log_unix_s') if left else None
+                gap['end_log_unix_s']=right.get('log_unix_s')
             for gap in intervals:
                 name=PHASE.get(gap['phase'],gap['phase']);bucket=bins.setdefault(name,{'seconds':0.,'counters':{}});bucket['seconds']+=gap['wall_interval_s']
                 for k,v in gap['counter_deltas'].items():bucket['counters'][k]=bucket['counters'].get(k,0)+v
