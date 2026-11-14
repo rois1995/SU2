@@ -1,0 +1,409 @@
+diff --git a/Common/src/adaptation/CNativeAffineReference.cpp b/Common/src/adaptation/CNativeAffineReference.cpp
+index c9d5347f34..3ff504398b 100644
+--- a/Common/src/adaptation/CNativeAffineReference.cpp
++++ b/Common/src/adaptation/CNativeAffineReference.cpp
+@@ -5,6 +5,7 @@
+  */
+ #include "../../include/adaptation/CNativeAffineReference.hpp"
+ #include "CNativePredicates3D_internal.hpp"
++#include "CNativeAdjacent_internal.hpp"
+ #include "../../include/adaptation/CNativeBoundary3D.hpp"
+ #include "../../include/adaptation/CNativeGeometryValidation2D.hpp"
+ #include "../../include/adaptation/CTransferMemory.hpp"
+@@ -28,26 +29,7 @@ using Vec=std::array<double,3>;
+ Vec Values(Point p){return {p.x,p.y,p.z};}
+ Point ToPoint(Vec p){return {p[0],p[1],p[2]};}
+ void Finite(Point p){for(auto x:Values(p))if(!std::isfinite(x))throw std::invalid_argument("Nonfinite affine geometry coordinate.");}
+-long double Adjacent(long double value,bool upward) {
+-#if defined(__x86_64__) && defined(__LDBL_MANT_DIG__) && __LDBL_MANT_DIG__==64
+-  static_assert(std::numeric_limits<long double>::radix==2 && std::numeric_limits<long double>::max_exponent==16384,
+-                "Native outward stepping assumes the x87 extended format.");
+-  struct Bits {uint64_t mantissa;uint16_t sign_exponent;};
+-  Bits bits{};std::memcpy(&bits,&value,10);const unsigned exponent=bits.sign_exponent&0x7fff;
+-  // Only ordinary normals: preserve the standard library's exceptional-range behavior below.
+-  if(exponent>1 && exponent<0x7ffe && (bits.mantissa>>63)) {
+-    if(upward==!(bits.sign_exponent&0x8000)) {
+-      if(bits.mantissa==UINT64_MAX){bits.mantissa=uint64_t(1)<<63;++bits.sign_exponent;}
+-      else ++bits.mantissa;
+-    } else {
+-      if(bits.mantissa==(uint64_t(1)<<63)){bits.mantissa=UINT64_MAX;--bits.sign_exponent;}
+-      else --bits.mantissa;
+-    }
+-    std::memcpy(&value,&bits,10);return value;
+-  }
+-#endif
+-  return std::nextafter(value,upward?INFINITY:-INFINITY);
+-}
++using detail::Adjacent;
+ // Each operation encloses the exact real result, including underflow. Compile without fast math/contraction.
+ struct Range {long double lo=0,hi=0;};
+ Range Add(Range a,Range b){
+diff --git a/SU2_CFD/include/adaptation/CNativeBLPipeline3D.hpp b/SU2_CFD/include/adaptation/CNativeBLPipeline3D.hpp
+index 11a2b226c0..8077556970 100644
+--- a/SU2_CFD/include/adaptation/CNativeBLPipeline3D.hpp
++++ b/SU2_CFD/include/adaptation/CNativeBLPipeline3D.hpp
+@@ -445,8 +445,14 @@ inline EngineResult RunEvent(World& world, const Owned& cells, const std::vector
+     preparation.timings=true;
+     if(!(preparation.maximum_seconds>0))return finish("FIRST_ROW deadline exhausted before surface preparation.");
+     const auto preparation_started=elapsed();
+-    auto prepared=PrepareSurface(world,s->mesh,donors,*s->reference,
+-        [&](Node node,const PlanarReference& geometry,Tensor core){return policy.BoundaryGuidance(node,geometry,core,state.marker_names);},preparation);
++    EngineResult prepared;
++    {
++      BoundaryGuidanceMemo guidance_memo;
++      if(preparation.caller_bytes<stateCeiling)guidance_memo.Reserve((stateCeiling-preparation.caller_bytes)/8);
++      preparation.caller_bytes=transfer_memory::Add(preparation.caller_bytes,guidance_memo.ReservedBytes());
++      prepared=PrepareSurface(world,s->mesh,donors,*s->reference,
++          [&](Node node,const PlanarReference& geometry,Tensor core){return policy.BoundaryGuidance(node,geometry,core,state.marker_names,&guidance_memo);},preparation);
++    }
+     const auto preparation_work=prepared.stats.global_work;
+     out.stats=prepared.stats;
+     json << ",\"surface_preparation\":{\"prepared\":" << prepared.surface_prepared << ",\"final_acceptance\":false"
+diff --git a/SU2_CFD/include/adaptation/CNativeBLTarget3D.hpp b/SU2_CFD/include/adaptation/CNativeBLTarget3D.hpp
+index e122bd98cb..badd7c3e55 100644
+--- a/SU2_CFD/include/adaptation/CNativeBLTarget3D.hpp
++++ b/SU2_CFD/include/adaptation/CNativeBLTarget3D.hpp
+@@ -12,7 +12,9 @@
+ #include "../../../Common/include/CConfig.hpp"
+ #include "../../../Common/include/adaptation/CTransferMemory.hpp"
+ #include <deque>
++#include <cstring>
+ #include <iomanip>
++#include <new>
+ #include <sstream>
+ #include <unordered_map>
+ namespace dc10 {
+@@ -56,6 +58,7 @@ using PKey=std::array<double,3>;
+ inline PKey KeyOf(V x){return {double(x.x),double(x.y),double(x.z)};}
+ struct OptionA {
+   std::vector<WedgeCrease> creases;std::vector<StripPair> strips;long double radius=0,onLine=0,r0=0;
++  uint64_t strip_generation=0;
+   std::vector<Chain> chains;std::vector<size_t> chainOf;std::map<PKey,std::vector<size_t>> atPoint;
+   // [rev 3] w(x) = max_c S(r_c/r0) (1 - S(2 r_c/R_f - 1)) A_c F(d/r_c): r_c the distance to crease c, d the BL wall
+   // distance (min over walls of the base layers' exact nearest-face distance), F(u) = S((u - cos 22.5)/(1 - cos 22.5)),
+@@ -96,6 +99,8 @@ struct OptionA {
+     grid.clear();cell=0;  // bounded index; otherwise the exact full loop
+   }
+   void ConfigureRadius(double value,const std::function<void(size_t)>& admit={}) {
++    if(strip_generation==UINT64_MAX)throw std::overflow_error("Native strip identity exhausted.");
++    ++strip_generation;
+     radius=value;strips.clear();const long double pi=std::acos(-1.L);
+     // thin strips: parallel creases (|t_i.t_j| >= cos 30) with a coplanar face each (normals within 10 deg) bounding the
+     // strip from both sides, width <= the D1 feature radius
+@@ -274,6 +279,75 @@ inline bool RampStage::Matches(const CConfig& config)const {
+ }
+ 
+ using namespace SU2Native3D;
++/*! Synchronous event memo. Its fixed reservation belongs to the event caller, not the retained target.
++ * Raw Option-A geometry must remain frozen while supplied to queries; clear after a direct fixture mutation. */
++class BoundaryGuidanceMemo {
++ public:
++  using Stamp=std::array<uint64_t,16>;
++  using Coordinates=std::array<uint64_t,3>;
++  using Binding=std::array<uint64_t,5>;
++  using Sensor=std::array<uint64_t,6>;
++  size_t guidance_hits=0,strip_hits=0,stores=0,refusals=0;
++  static uint64_t Bits(double value){uint64_t bits;std::memcpy(&bits,&value,sizeof bits);return bits;}
++  static Coordinates Key(Point p){return {{Bits(p.x),Bits(p.y),Bits(p.z)}};}
++  static Binding Key(const SU2NativeGeometry::SurfaceBinding& b){return {{b.feature,b.version,b.dimension,Bits(b.u),Bits(b.v)}};}
++  static Sensor Key(Tensor t){return {{Bits(t.xx),Bits(t.xy),Bits(t.xz),Bits(t.yy),Bits(t.yz),Bits(t.zz)}};}
++  void Clear(){rows.clear();roles.clear();std::vector<std::string>().swap(names);used=0;initialized=false;}
++  void Reserve(size_t bytes){Clear();limit=bytes>sizeof(*this)?bytes-sizeof(*this):0;}
++  size_t ReservedBytes()const{return limit?transfer_memory::Add(sizeof(*this),limit):0;}
++  size_t LiveBytes()const{return limit?transfer_memory::Add(sizeof(*this),used):0;}
++  bool Synchronize(const Stamp& current,const std::map<int,int>& marker_roles,const std::vector<std::string>& marker_names) {
++    if(!limit)return false;
++    if(initialized&&stamp==current&&roles==marker_roles&&names==marker_names)return true;
++    Clear();
++    const auto metadata=transfer_memory::Add(transfer_memory::Mul(marker_roles.size(),sizeof(decltype(roles)::value_type)+4*sizeof(void*)),
++        transfer_memory::GrowthBound(marker_names.size(),sizeof(std::string)),transfer_memory::Bytes(marker_names));
++    if(metadata>limit){++refusals;return false;}
++    try {roles=marker_roles;names=marker_names;}
++    catch(const std::bad_alloc&){Clear();++refusals;return false;}
++    stamp=current;used=metadata;initialized=true;return true;
++  }
++  const std::vector<BoundaryMetricSample>* Guidance(Id id,Coordinates p,Binding b,Sensor sensor) {
++    const auto found=rows.find(id);
++    if(found==rows.end()||found->second.point!=p||found->second.binding!=b||found->second.sensor!=sensor)return nullptr;
++    ++guidance_hits;return &found->second.samples;
++  }
++  const std::vector<Point>* Strips(Id id,Coordinates p) {
++    const auto found=rows.find(id);
++    if(found==rows.end()||found->second.point!=p||!found->second.strips_ready)return nullptr;
++    ++strip_hits;return &found->second.strips;
++  }
++  void Store(Id id,Coordinates p,Binding b,Sensor sensor,const std::vector<BoundaryMetricSample>& samples,
++             size_t strip_begin,size_t strip_end,bool strips_ready) {
++    if(!initialized)return;
++    const auto bytes=transfer_memory::Add(sizeof(decltype(rows)::value_type)+4*sizeof(void*),
++        transfer_memory::GrowthBound(samples.size(),sizeof(BoundaryMetricSample)),
++        transfer_memory::GrowthBound(strip_end-strip_begin,sizeof(Point)));
++    // The old row and new vector copies coexist until the replacement is fully built.
++    if(transfer_memory::Add(used,bytes)>limit){++refusals;return;}
++    try {
++    Entry row;row.point=p;row.binding=b;row.sensor=sensor;row.samples=samples;row.strips_ready=strips_ready;
++    row.strips.reserve(strip_end-strip_begin);
++    for(size_t i=strip_begin;i<strip_end;++i)row.strips.push_back(samples.at(i).strip_rule);
++    const auto retained=transfer_memory::Add(sizeof(decltype(rows)::value_type)+4*sizeof(void*),
++        transfer_memory::Bytes(row.samples),transfer_memory::Bytes(row.strips));
++    if(retained>bytes)throw std::logic_error("Native guidance memo exceeded vector admission.");
++    const auto previous=rows.find(id);
++    if(previous!=rows.end()) {
++      used-=previous->second.bytes;previous->second=std::move(row);previous->second.bytes=retained;
++    } else {row.bytes=retained;rows.emplace(id,std::move(row));}
++    used=transfer_memory::Add(used,retained);++stores;
++    }catch(const std::bad_alloc&){Clear();++refusals;}
++  }
++ private:
++  struct Entry {
++    Coordinates point{};Binding binding{};Sensor sensor{};
++    std::vector<BoundaryMetricSample> samples;std::vector<Point> strips;
++    size_t bytes=0;bool strips_ready=false;
++  };
++  Stamp stamp{};std::map<int,int> roles;std::vector<std::string> names;std::map<Id,Entry> rows;
++  size_t limit=0,used=0;bool initialized=false;
++};
+ /*! One immutable per-event target: full layers (production D1), base layers (no D1 feature), option A blending them
+  *  (D1 kept off the wall), the frozen sensor core. The same object gives the composition of the remesher's
+  *  reassessment and of the construction's frozen field. */
+@@ -373,9 +447,28 @@ struct TargetPolicy {
+         SU2_TYPE::GetValue(associated.normal[2])}};
+   }
+   std::vector<BoundaryMetricSample> BoundaryGuidance(Node node,const PlanarReference& context,Tensor sensor,
+-                                                   const std::vector<std::string>& marker_names) const {
++                                                   const std::vector<std::string>& marker_names,BoundaryGuidanceMemo* memo=nullptr) const {
+     if(!authority||!base||!A)throw std::invalid_argument("Boundary guidance needs an initialized native target.");
+     ValidateTensor(sensor);
++    const auto* associated_point=context.Parameters()?context.Parameter(node.p):nullptr;
++    if(context.Parameters()) {
++      if(authority->Mapped()&&authority->Parameters()->Authority()!=context.Parameters()->Authority())
++        throw std::invalid_argument("Boundary guidance changed its immutable geometry authority.");
++      if(!associated_point)return {};
++      if(associated_point->node.id!=node.id)throw std::invalid_argument("Boundary guidance coordinate has a different node identity.");
++    }
++    bool memo_ready=false;
++    const auto point_key=BoundaryGuidanceMemo::Key(node.p);
++    if(memo&&full&&associated_point&&point_key==BoundaryGuidanceMemo::Key(associated_point->node.p)) {
++      auto address=[](const auto* p){return uint64_t(reinterpret_cast<uintptr_t>(p));};
++      const BoundaryGuidanceMemo::Stamp stamp{{address(authority.get()),address(base.get()),address(full.get()),address(A.get()),
++        address(context.Parameters()->Authority().get()),base->GetSampleVersion(),base->GetGeometrySampleVersion(),base->GetSupportVersion(),
++        full->GetSampleVersion(),full->GetGeometrySampleVersion(),full->GetSupportVersion(),
++        base->GetFeatures().identity,full->GetFeatures().identity,A->strip_generation,BoundaryGuidanceMemo::Bits(core),BoundaryGuidanceMemo::Bits(h0)}};
++      memo_ready=memo->Synchronize(stamp,roles,marker_names);
++      if(memo_ready)if(const auto* retained=memo->Guidance(node.id,point_key,BoundaryGuidanceMemo::Key(associated_point->binding),BoundaryGuidanceMemo::Key(sensor)))return *retained;
++    }
++    const auto* retained_strips=memo_ready?memo->Strips(node.id,point_key):nullptr;
+     std::vector<BoundaryMetricSample> result;
+     auto append=[&](BoundaryMetricSample sample) {
+       if(result.size()==4*MaximumCavityCells)throw std::length_error("Requested-wall sided guidance exceeds cavity admission.");
+@@ -403,6 +496,10 @@ struct TargetPolicy {
+         if(stripsReady) {
+           // Strip membership depends only on this call's fixed point and policy, not its reference side.
+           for(size_t i=stripBegin;i<stripEnd;++i){sample.strip_rule=result[i].strip_rule;append(sample);}
++        } else if(retained_strips) {
++          stripBegin=result.size();
++          for(const auto& rule:*retained_strips){sample.strip_rule=rule;append(sample);}
++          stripEnd=result.size();stripsReady=true;
+         } else {
+           stripBegin=result.size();
+           for(const auto& strip:A->strips) {
+@@ -418,12 +515,7 @@ struct TargetPolicy {
+       if(!found)throw std::invalid_argument("Requested-wall binding has no retained metric component.");
+     };
+     if(context.Parameters()) {
+-      if(authority->Mapped()&&authority->Parameters()->Authority()!=context.Parameters()->Authority())
+-        throw std::invalid_argument("Boundary guidance changed its immutable geometry authority.");
+-      const auto* point=context.Parameter(node.p);
+-      if(!point)return result;
+-      if(point->node.id!=node.id)throw std::invalid_argument("Boundary guidance coordinate has a different node identity.");
+-      context.Parameters()->Geometry().ForFacets(point->binding,side);
++      context.Parameters()->Geometry().ForFacets(associated_point->binding,side);
+     } else {
+       std::set<Id> components;
+       for(const auto& face:authority->Facets()) {
+@@ -433,6 +525,8 @@ struct TargetPolicy {
+         if(!components.count(component)&&context.Contains(face.first,node.p)){side(face.first);components.insert(component);}
+       }
+     }
++    if(memo_ready)memo->Store(node.id,point_key,BoundaryGuidanceMemo::Key(associated_point->binding),BoundaryGuidanceMemo::Key(sensor),
++        result,stripBegin,stripEnd,stripsReady);
+     return result;
+   }
+   void ApplyPoint(Point p,CBoundaryLayerMetric::Tensor& m) const {
+diff --git a/UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp b/UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp
+index e70191e722..3eeb0d470d 100644
+--- a/UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp
++++ b/UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp
+@@ -4,6 +4,7 @@
+  * SPDX-License-Identifier: LGPL-2.1-or-later
+  */
+ #include "catch.hpp"
++#include "../../../Common/src/adaptation/CNativeAdjacent_internal.hpp"
+ #include "../../../Common/src/adaptation/CNativePredicates3D_internal.hpp"
+ #include "../../../Common/include/adaptation/CNativeAffineReference.hpp"
+ #include "../../../Common/include/adaptation/CNativeBoundary3D.hpp"
+@@ -2193,3 +2194,55 @@ TEST_CASE("Numeric surface memo shares the admitted query quota without changing
+   auto repeated=GeometryAtlasBudget();CHECK(bounded.BoundPhysicalSurface({face.id},physical,.01,repeated)==bound);
+   CHECK(bounded.GeometryStatsSnapshot().memo_bytes<=storage.memo_limit);
+ }
++
++TEST_CASE("x87 adjacent stepping matches nextafter across zero subnormal and exp1 boundaries", "[NativeAffineAdjacent]") {
++  using SU2NativeGeometry::detail::Adjacent;
++  const long double denorm = std::numeric_limits<long double>::denorm_min();
++  const long double min_normal = std::numeric_limits<long double>::min();
++  const long double max_subnormal = std::nextafter(min_normal, 0.0L);
++  const long double exp1_max = std::nextafter(2*min_normal, 0.0L);
++  const long double one = 1.0L;
++  const long double top_fast_boundary = std::ldexp(1.L, std::numeric_limits<long double>::max_exponent-1);
++  const long double below_top_fast_boundary = std::nextafter(top_fast_boundary, 0.0L);
++  const long double finite_below_overflow = std::nextafter(std::numeric_limits<long double>::max(), 0.0L);
++  const std::vector<long double> values{
++    0.0L, -0.0L, denorm, -denorm,
++    max_subnormal, -max_subnormal,
++    min_normal, -min_normal, std::nextafter(min_normal, INFINITY), -std::nextafter(min_normal, INFINITY),
++    exp1_max, -exp1_max, 2*min_normal, -2*min_normal,
++    one, -one, std::nextafter(one, 0.0L), std::nextafter(one, INFINITY),
++    top_fast_boundary, -top_fast_boundary, below_top_fast_boundary, -below_top_fast_boundary,
++    finite_below_overflow, -finite_below_overflow,
++    std::numeric_limits<long double>::max(), -std::numeric_limits<long double>::max(),
++    INFINITY, -INFINITY, std::numeric_limits<long double>::quiet_NaN()
++  };
++  auto same = [](long double a, long double b) {
++#if defined(__x86_64__) && defined(__LDBL_MANT_DIG__) && __LDBL_MANT_DIG__ == 64 && \
++    defined(__BYTE_ORDER__) && __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
++    return std::memcmp(&a, &b, 10) == 0;
++#else
++    return a == b && (a != 0 || std::signbit(a) == std::signbit(b));
++#endif
++  };
++  for (long double x : values) for (bool upward : {false, true}) {
++    const auto expected = std::nextafter(x, upward ? INFINITY : -INFINITY);
++    const auto actual = Adjacent(x, upward);
++    if (std::isnan(expected)) CHECK(std::isnan(actual));
++    else CHECK(same(actual, expected));
++  }
++#if defined(__x86_64__) && defined(__LDBL_MANT_DIG__) && __LDBL_MANT_DIG__ == 64
++  // Exercise sign, underflow and exponent-boundary transitions.
++  CHECK(Adjacent(0.0L, true) == denorm);
++  CHECK(Adjacent(0.0L, false) == -denorm);
++  CHECK(Adjacent(-0.0L, true) == denorm);
++  CHECK(Adjacent(-0.0L, false) == -denorm);
++  CHECK(Adjacent(denorm, false) == 0.0L);
++  CHECK(same(Adjacent(-denorm, true),std::nextafter(-denorm,INFINITY)));
++  CHECK(Adjacent(max_subnormal, true) == min_normal);
++  CHECK(Adjacent(-max_subnormal, false) == -min_normal);
++  CHECK(Adjacent(min_normal, false) == max_subnormal);
++  CHECK(Adjacent(-min_normal, true) == -max_subnormal);
++  CHECK(Adjacent(exp1_max, true) == 2*min_normal);
++  CHECK(Adjacent(-exp1_max, false) == -2*min_normal);
++#endif
++}
+diff --git a/UnitTests/SU2_CFD/adaptation/fixtures/native_actual_saved_surface_stage.inc b/UnitTests/SU2_CFD/adaptation/fixtures/native_actual_saved_surface_stage.inc
+index 0259ce889c..1c3233f9b3 100644
+--- a/UnitTests/SU2_CFD/adaptation/fixtures/native_actual_saved_surface_stage.inc
++++ b/UnitTests/SU2_CFD/adaptation/fixtures/native_actual_saved_surface_stage.inc
+@@ -50,8 +50,12 @@ if(nosePath)options.rejected_trial=[&](const Patch& old,const Patch& fresh,Featu
+       <<",\"candidate\":"<<candidate<<",\"failure\":"<<unsigned(diagnosis.failure)<<",\"reason\":"<<std::quoted(why)<<"}"<<std::endl;
+ };
+ const auto start=std::chrono::steady_clock::now();const auto beforeWork=budget.work;
++SU2NativeBLPipeline3D::BoundaryGuidanceMemo guidanceMemo;
++const auto guidanceBaseline=transfer_memory::Add(options.caller_bytes,options.geometry_workspace_bytes,options.stage_observer_bytes);
++if(guidanceBaseline<ceiling)guidanceMemo.Reserve((ceiling-guidanceBaseline)/8);
++options.caller_bytes=transfer_memory::Add(options.caller_bytes,guidanceMemo.ReservedBytes());
+ const auto prepared=PrepareSurface(world,current.mesh,donors,*current.reference,
+-    [&](Node node,const PlanarReference& geometry,Tensor sensor){return policy.BoundaryGuidance(node,geometry,sensor,reference->marker_names);},options);
++    [&](Node node,const PlanarReference& geometry,Tensor sensor){return policy.BoundaryGuidance(node,geometry,sensor,reference->marker_names,&guidanceMemo);},options);
+ const auto seconds=std::chrono::duration<double>(std::chrono::steady_clock::now()-start).count();
+ if(nosePath) {
+   // Published split records preserve parent endpoints even when a later edit retires them.
+@@ -93,6 +97,8 @@ output<<std::setprecision(17)<<std::boolalpha<<"{\"rank\":"<<world.rank<<",\"ran
+     <<",\"geometry_guidance_rejected\":"<<prepared.stats.geometry_guidance_rejected
+     <<",\"surface_required\":"<<prepared.stats.surface_demand_required_cells<<",\"surface_measured\":"<<prepared.stats.surface_demand_measured_cells
+     <<",\"surface_census_complete\":"<<prepared.stats.surface_demand_census_complete<<",\"surface_geometry_complete\":"<<prepared.stats.surface_demand_geometry_complete
++    <<",\"guidance_memo_reserved_bytes\":"<<guidanceMemo.ReservedBytes()<<",\"guidance_memo_live_bytes\":"<<guidanceMemo.LiveBytes()
++    <<",\"guidance_memo_hits\":"<<guidanceMemo.guidance_hits<<",\"strip_memo_hits\":"<<guidanceMemo.strip_hits
+     <<",\"upper_calls\":"<<geometryAfter.upper_calls-geometryBefore.upper_calls<<",\"upper_work\":"<<geometryAfter.upper_work-geometryBefore.upper_work
+     <<",\"upper_seconds\":"<<geometryAfter.upper_seconds-geometryBefore.upper_seconds<<",\"scope_work\":"<<geometryAfter.scope_build_work-geometryBefore.scope_build_work
+     <<",\"scope_seconds\":"<<geometryAfter.scope_build_seconds-geometryBefore.scope_build_seconds
+diff --git a/UnitTests/SU2_CFD/adaptation/fixtures/native_boundary_guidance_reference.inc b/UnitTests/SU2_CFD/adaptation/fixtures/native_boundary_guidance_reference.inc
+index 2d9761579d..6e6867f977 100644
+--- a/UnitTests/SU2_CFD/adaptation/fixtures/native_boundary_guidance_reference.inc
++++ b/UnitTests/SU2_CFD/adaptation/fixtures/native_boundary_guidance_reference.inc
+@@ -65,9 +65,17 @@ std::vector<BoundaryMetricSample> BeforeStripReuse(const SU2NativeBLPipeline3D::
+     return result;
+ 
+ }
++void CheckSamples(const std::vector<BoundaryMetricSample>& actual,const std::vector<BoundaryMetricSample>& expected) {
++  REQUIRE(actual.size()==expected.size());
++  for(size_t i=0;i<actual.size();++i) {
++    auto words=[](const BoundaryMetricSample& s){return std::array<double,12>{{s.tensor.xx,s.tensor.xy,s.tensor.xz,
++        s.tensor.yy,s.tensor.yz,s.tensor.zz,s.normal.x,s.normal.y,s.normal.z,s.strip_rule.x,s.strip_rule.y,s.strip_rule.z}};};
++    const auto a=words(actual[i]),b=words(expected[i]);CHECK(std::memcmp(a.data(),b.data(),sizeof(a))==0);
++  }
++}
+ }
+ 
+-TEST_CASE("Boundary strip reuse preserves side order, changing positions and admission", "[NativeBoundaryStripReuse3D]") {
++TEST_CASE("Boundary strip reuse preserves side order, changing positions and admission", "[NativeBoundaryStripReuse3D][NativeBoundaryGuidanceMemo3D]") {
+   using namespace native_target_checkpoint_test;
+   auto config=Config();auto reference=Reference();
+   for(auto& facet:reference.facets)facet.marker=0;
+@@ -86,8 +94,38 @@ TEST_CASE("Boundary strip reuse preserves side order, changing positions and adm
+   auto b=a;b.a.y=b.b.y=1;policy->A->creases={a,b};
+   const Tensor sensor{2.,.1,0.,3.,0.,4.};
+   World world;
++  SU2NativeBLPipeline3D::BoundaryGuidanceMemo memo;memo.Reserve(size_t(8)<<20);
++  if(world.size==1||world.rank!=world.size-1) {
++    const auto node=points.begin()->second.node;
++    auto oracle=[&](Node n,Tensor s){return native_boundary_guidance_test::BeforeStripReuse(*policy,n,*reference.original,s,reference.marker_names);};
++    native_boundary_guidance_test::CheckSamples(policy->BoundaryGuidance(node,*reference.original,sensor,reference.marker_names,&memo),oracle(node,sensor));
++    const auto before=memo.guidance_hits;
++    native_boundary_guidance_test::CheckSamples(policy->BoundaryGuidance(node,*reference.original,sensor,reference.marker_names,&memo),oracle(node,sensor));
++    CHECK(memo.guidance_hits==before+1);
++    auto wrong=node;++wrong.id;
++    CHECK_THROWS_AS(policy->BoundaryGuidance(wrong,*reference.original,sensor,reference.marker_names,&memo),std::invalid_argument);
++    auto invalid=sensor;invalid.xx=-1;
++    CHECK_THROWS(policy->BoundaryGuidance(node,*reference.original,invalid,reference.marker_names,&memo));
++    CHECK(memo.guidance_hits==before+1);
++    auto moved=node;moved.p.x+=.001;
++    native_boundary_guidance_test::CheckSamples(policy->BoundaryGuidance(moved,*reference.original,sensor,reference.marker_names,&memo),oracle(moved,sensor));
++    CHECK(memo.guidance_hits==before+1);
++    policy->base->SelectTangentialScale(.5);
++    native_boundary_guidance_test::CheckSamples(policy->BoundaryGuidance(node,*reference.original,sensor,reference.marker_names,&memo),oracle(node,sensor));
++    CHECK(memo.guidance_hits==before+1);
++    auto renamed=reference.marker_names;renamed.at(0)+="_changed";
++    CHECK_THROWS_AS(policy->BoundaryGuidance(node,*reference.original,sensor,renamed,&memo),std::invalid_argument);
++    policy->roles[0]=2;
++    CHECK(policy->BoundaryGuidance(node,*reference.original,sensor,reference.marker_names,&memo).empty());
++    policy->roles[0]=1;
++    const auto stores_before_tiny=memo.stores;memo.Reserve(sizeof(memo)+1);
++    native_boundary_guidance_test::CheckSamples(policy->BoundaryGuidance(node,*reference.original,sensor,reference.marker_names,&memo),oracle(node,sensor));
++    CHECK(memo.stores==stores_before_tiny);CHECK(memo.refusals>0);CHECK(memo.LiveBytes()<=memo.ReservedBytes());
++    memo.Reserve(size_t(8)<<20);
++  }
+   for(const size_t strips:{size_t(0),size_t(2),size_t(80),size_t(100)}) {
+     policy->A->strips.assign(strips,dc10::StripPair{0,1,{0,0,1}});
++    memo.Clear();
+     // Every rank constructs the same authority; the last worker may have no local queries.
+     if(world.size>1&&world.rank==world.size-1)continue;
+     for(const auto& row:points) {
+@@ -95,10 +133,19 @@ TEST_CASE("Boundary strip reuse preserves side order, changing positions and adm
+       if(exhausted) {
+         CHECK_THROWS_AS(policy->BoundaryGuidance(node,*reference.original,sensor,reference.marker_names),std::length_error);
+         CHECK_THROWS_AS(native_boundary_guidance_test::BeforeStripReuse(*policy,node,*reference.original,sensor,reference.marker_names),std::length_error);
++        CHECK_THROWS_AS(policy->BoundaryGuidance(node,*reference.original,sensor,reference.marker_names,&memo),std::length_error);
+         continue;
+       }
+       const auto expected=native_boundary_guidance_test::BeforeStripReuse(*policy,node,*reference.original,sensor,reference.marker_names);
+       const auto actual=policy->BoundaryGuidance(node,*reference.original,sensor,reference.marker_names);
++      native_boundary_guidance_test::CheckSamples(policy->BoundaryGuidance(node,*reference.original,sensor,reference.marker_names,&memo),expected);
++      const auto hits=memo.guidance_hits;
++      native_boundary_guidance_test::CheckSamples(policy->BoundaryGuidance(node,*reference.original,sensor,reference.marker_names,&memo),expected);
++      CHECK(memo.guidance_hits==hits+1);
++      auto changed=sensor;changed.xx*=2;const auto strip_hits=memo.strip_hits;
++      native_boundary_guidance_test::CheckSamples(policy->BoundaryGuidance(node,*reference.original,changed,reference.marker_names,&memo),
++          native_boundary_guidance_test::BeforeStripReuse(*policy,node,*reference.original,changed,reference.marker_names));
++      CHECK(memo.strip_hits==strip_hits+1);CHECK(memo.LiveBytes()<=memo.ReservedBytes());
+       REQUIRE(actual.size()==expected.size());REQUIRE(actual.size()==3*(1+(node.p.z==0?strips:0)));
+       for(size_t i=0;i<actual.size();++i) {
+         CHECK(actual[i].tensor.xx==expected[i].tensor.xx);CHECK(actual[i].tensor.xy==expected[i].tensor.xy);

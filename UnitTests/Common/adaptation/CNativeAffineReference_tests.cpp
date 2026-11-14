@@ -2158,9 +2158,6 @@ TEST_CASE("Surface cutoff bounds cannot poison complete magnitude memo entries",
   const auto magnitude=geometry.BoundPhysicalSurface({face.id},physical,.01,complete,Purpose::ErrorMagnitude);
   CHECK(magnitude==oracle.BoundPhysicalSurface({face.id},physical,.01,cold,Purpose::ErrorMagnitude));
   CHECK(magnitude>=.125);
-  const auto before_classification=geometry.GeometryStatsSnapshot();auto classification=GeometryAtlasBudget();
-  CHECK(geometry.BoundPhysicalSurface({face.id},physical,.01,classification,Purpose::ExactClassification)==magnitude);
-  CHECK(geometry.GeometryStatsSnapshot().upper_work==before_classification.upper_work);
   auto accepted=GeometryAtlasBudget();
   CHECK(geometry.BoundPhysicalSurface({face.id},physical,.01,accepted,Purpose::ErrorLimit,.5)==magnitude);
   auto invalid=GeometryAtlasBudget();
@@ -2168,9 +2165,7 @@ TEST_CASE("Surface cutoff bounds cannot poison complete magnitude memo entries",
   for(auto& point:physical.front())point.z=.001;
   auto legacy=GeometryAtlasBudget();const auto inside=geometry.BoundPhysicalSurface({face.id},physical,.01,legacy);
   REQUIRE(inside<=.01);
-  const auto before_inside=geometry.GeometryStatsSnapshot();auto classified_inside=GeometryAtlasBudget();
-  CHECK(geometry.BoundPhysicalSurface({face.id},physical,.01,classified_inside,Purpose::ExactClassification)==inside);
-  CHECK(geometry.GeometryStatsSnapshot().upper_work==before_inside.upper_work);
+
 }
 
 TEST_CASE("Numeric surface memo shares the admitted query quota without changing bounds", "[NativeSurfaceMemo3D][NativeSurfaceCache3D]") {

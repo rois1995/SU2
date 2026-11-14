@@ -1,0 +1,24 @@
+{
+  "base_commit": "d27bb299bb",
+  "proposal": "reviewer_handoff_received.md sections 1.5\u20131.6",
+  "source_check": "P6 described call flow and deletion consumers confirmed with git grep before edits",
+  "source_path_correction": "EntityFaceError tests are in CNativeGeometryBackend3D_tests.cpp, not a separate CNativeBoundaryParameters3D_tests.cpp",
+  "active_change": [
+    "Common/include/adaptation/CNativeAffineReference.hpp",
+    "Common/src/adaptation/CNativeAffineReference.cpp",
+    "Common/src/adaptation/CNativeBoundaryParameters3D.cpp",
+    "Common/src/adaptation/CNativeEngine3D.cpp",
+    "UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp",
+    "UnitTests/Common/adaptation/CNativeGeometryBackend3D_tests.cpp"
+  ],
+  "preserved_contracts": [
+    "SurfaceUnionBounds::outside_tolerance retained",
+    "ErrorLimit cutoff exit remains before gap termination",
+    "No Engine/Boundary caller need changed",
+    "Bidirectional union refinement retained",
+    "No fixture value pins changed",
+    "No memo quota/prepared-pool/cache-key extension"
+  ],
+  "cheap_group": "cheap_group_set_aside/manifest.json; not compiled into P6",
+  "validation": "pending isolated build, then check 1 once; stop first failure"
+}

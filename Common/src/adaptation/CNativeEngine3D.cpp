@@ -1846,6 +1846,13 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
           <<" direct_work="<<g.direct_work-geometry_begin.direct_work<<" direct_seconds="<<g.direct_seconds-geometry_begin.direct_seconds
           <<" upper_calls="<<g.upper_calls-geometry_begin.upper_calls<<" union_exceptions="<<g.union_exceptions-geometry_begin.union_exceptions
           <<" upper_refusals="<<g.upper_refusals-geometry_begin.upper_refusals<<" upper_work="<<g.upper_work-geometry_begin.upper_work
+          <<" upper_refinements="<<g.upper_refinements-geometry_begin.upper_refinements
+          <<" classification_calls="<<g.classification_calls-geometry_begin.classification_calls
+          <<" classification_work="<<g.classification_work-geometry_begin.classification_work
+          <<" magnitude_calls="<<g.magnitude_calls-geometry_begin.magnitude_calls
+          <<" magnitude_work="<<g.magnitude_work-geometry_begin.magnitude_work
+          <<" limit_calls="<<g.limit_calls-geometry_begin.limit_calls
+          <<" limit_work="<<g.limit_work-geometry_begin.limit_work
           <<" upper_seconds="<<g.upper_seconds-geometry_begin.upper_seconds<<" full_calls="<<g.full_calls-geometry_begin.full_calls
           <<" full_work="<<g.full_work-geometry_begin.full_work<<" full_seconds="<<g.full_seconds-geometry_begin.full_seconds
           <<" facet_hits="<<g.facet_hits-geometry_begin.facet_hits<<" facet_misses="<<g.facet_misses-geometry_begin.facet_misses

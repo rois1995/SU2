@@ -21,7 +21,8 @@ namespace SU2Native3D { class PlanarReference; struct Facet; struct SurfaceFace;
 namespace SU2NativeGeometry {
 using SU2Native3D::Point;
 using SU2Native3D::Id;
-/*! Limit may return a certified rejection lower bound; only Magnitude is a complete score. */
+/*! Classify returns <= tolerance iff proven inside at base model accuracy; unproven faces are not accepted.
+ * Limit may return a certified rejection lower bound; only Magnitude is a complete score. */
 struct SurfaceQueryNeed {
   enum class Kind { Classify, Limit, Magnitude };
   Kind kind;
@@ -121,6 +122,8 @@ class MappedFacetReference {
   struct GeometryStats {
     size_t direct_calls=0,direct_exceptions=0,upper_calls=0,full_calls=0,union_exceptions=0,upper_refusals=0;
     size_t direct_work=0,upper_work=0,full_work=0,facet_hits=0,facet_misses=0,scope_hits=0,scope_misses=0;
+    size_t upper_refinements=0,classification_calls=0,classification_work=0;
+    size_t magnitude_calls=0,magnitude_work=0,limit_calls=0,limit_work=0;
     size_t scope_attempts=0,scope_builds=0,scope_build_work=0,retention_refusals=0,prepared_bytes=0,prepared_limit=0;
     size_t facet_bytes=0,scope_bytes=0,facet_entries=0,scope_entries=0,evictions=0,evicted_bytes=0;
     size_t support_calls=0,support_facets=0,facet_build_work=0,piece_selection_work=0,traversal_work=0;
@@ -196,9 +199,8 @@ class MappedFacetReference {
   /*! Model enclosure for source tubes; does not certify the reverse distance or final tolerance. */
   SurfaceUnionBounds BoundModelSurface(const std::vector<Id>& model_facets,
       const std::vector<std::array<Point,3>>& physical,double tolerance,AtlasBudget&)const;
-  enum class SurfaceBoundPurpose { Classification, ErrorMagnitude, ErrorLimit, ExactClassification };
-  /*! One-sided bound; ErrorMagnitude resolves outside error to the prescribed tolerance.
-   * ExactClassification refines ambiguous bounds before deciding tolerance.
+  enum class SurfaceBoundPurpose { Classification, ErrorMagnitude, ErrorLimit };
+  /*! One-sided bound; ErrorMagnitude certifies a gap no larger than the prescribed tolerance.
    * ErrorLimit may instead return a certified lower bound above stop_above; never use it as a magnitude.
    * Omitted supports only weaken admission. No purpose certifies the reverse distance. */
   double BoundPhysicalSurface(const std::vector<Id>& model_facets,
@@ -308,10 +310,10 @@ class MappedFacetReference {
  private:
   SurfaceUnionBounds QuerySurfaceUnion(const std::vector<Id>&,
       const std::vector<std::array<Point,3>>&,double,AtlasBudget&,bool include_model,bool include_mesh,bool magnitude=false,
-      double stop_above=std::numeric_limits<double>::infinity(),bool exact_classification=false)const;
+      double stop_above=std::numeric_limits<double>::infinity())const;
   SurfaceUnionBounds QuerySurfaceUnionAtResolution(const std::vector<Id>&,
       const std::vector<std::array<Point,3>>&,double,AtlasBudget&,bool include_model,bool include_mesh,double resolution,bool magnitude,
-      double stop_above,bool exact_classification)const;
+      double stop_above)const;
 
   std::shared_ptr<const SU2Native3D::PlanarReference> reference;
   std::map<Id,double> errors;

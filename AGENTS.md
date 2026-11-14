@@ -1,5 +1,18 @@
 # Implementation and validation cadence
 
+User order, 2026-11-15 (updated M6_FIX_HANDOFF.md): the reviewer supplies ideas
+and design; implement, build, run and report, without independent redesign.
+Check proposals against source first. On a contradiction or first failed check,
+stop that item, report source lines/numbers and available purpose/call-site counters,
+and wait for a corrected proposal. No attempt loops or self-invented follow-up fixes.
+P6 is isolated before the cheap group: set aside its open edits, implement section
+1.5, then run section 1.6 checks once in order, stopping on the first failure.
+No full M6 run until the preceding P6 gates pass. Do not change pinned fixture
+values; report changed counts/ranges. Keep F1's build494 count reference until
+P6's full two-adaptation milestone passes. Reviewer-owned one-engine design is
+read-only; after cheap-group profiling and F3, source-check it and measure M1–M8.
+No implementation of its steps8.2–8.7 before user acceptance.
+
 User order, 2026-11-14 (M6 fix handoff): protect shared-engine changes with the
 executed gates in `integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/shared_engine_regression_gates.json`.
 For each connected shared-code change, run the affected no-BL first-collapse

@@ -267,11 +267,37 @@ TEST_CASE("Curved target uncertainty refines without relaxing surface tolerance"
   const auto upper=guidance.geometry->BoundPhysicalSurface({0},triangles,tolerance,upper_budget);
   // This safe bound may reject a feasible edit; it never claims an outside-distance lower bound.
   CHECK(upper>tolerance);CHECK(upper>=.99*tolerance);CHECK(upper_budget.work<inside.work);
-  auto classified=BackendBudget();
-  CHECK(guidance.geometry->BoundPhysicalSurface({0},triangles,tolerance,classified,
-      MappedFacetReference::SurfaceBoundPurpose::ExactClassification)<=tolerance);
   std::reverse(triangles.begin(),triangles.end());auto reordered=BackendBudget();
   CHECK(guidance.geometry->BoundPhysicalSurface({0},triangles,tolerance,reordered)>=.99*tolerance);
+}
+
+TEST_CASE("One-sided near-tolerance magnitudes need no model refinement", "[NativeGeometryBackend3D][NativeGeometryMagnitude3D]") {
+  using Purpose=MappedFacetReference::SurfaceBoundPurpose;
+  constexpr double tolerance=1e-4;
+  auto query=[](BackendFixture& fixture,double gap,Purpose purpose) {
+    const auto center=fixture.geometry->Realize(fixture.geometry->FacetPoint(0,1./3,1./3));
+    const std::array<Point,3> triangle{{{center.x,center.y,center.z-gap},
+        {center.x+1e-6,center.y,center.z-gap},{center.x,center.y+1e-6,center.z-gap}}};
+    auto budget=BackendBudget();
+    return fixture.geometry->BoundPhysicalSurface({0},{triangle},tolerance,budget,purpose,2*tolerance);
+  };
+  for(auto purpose:{Purpose::ErrorMagnitude,Purpose::ErrorLimit}) {
+    BackendFixture far;query(far,30*tolerance,purpose);
+    const auto baseline=far.geometry->GeometryStatsSnapshot();
+    REQUIRE(baseline.upper_refinements==0);
+    for(double gap:{.99*tolerance,tolerance,1.01*tolerance}) {
+      BackendFixture near;const auto before=near.geometry->GeometryStatsSnapshot();
+      const auto value=query(near,gap,purpose);const auto after=near.geometry->GeometryStatsSnapshot();
+      INFO("gap="<<gap<<" purpose="<<int(purpose));
+      CHECK(after.upper_refinements==before.upper_refinements);
+      CHECK(after.facet_build_work-before.facet_build_work<=baseline.facet_build_work);
+      CHECK(value>=gap);CHECK(value<=gap+tolerance);
+      CHECK(after.upper_calls==after.classification_calls+after.magnitude_calls+after.limit_calls);
+      CHECK(after.upper_work==after.classification_work+after.magnitude_work+after.limit_work);
+      if(purpose==Purpose::ErrorMagnitude)CHECK(after.magnitude_calls==1);
+      else CHECK(after.limit_calls==1);
+    }
+  }
 }
 
 TEST_CASE("Geometry magnitude bounds retain complete domains and separate classification memo", "[NativeGeometryBackend3D][NativeSurfaceMemo3D][NativeGeometryMagnitude3D]") {
@@ -283,9 +309,6 @@ TEST_CASE("Geometry magnitude bounds retain complete domains and separate classi
       {center.x+1e-6,center.y,center.z-gap},{center.x,center.y+1e-6,center.z-gap}}};};
   std::vector<std::array<Point,3>> physical{triangle(4*tolerance),triangle(30*tolerance)};
   auto fast=BackendBudget();const auto classification=fixture.geometry->BoundPhysicalSurface({0},physical,tolerance,fast);
-  const auto before_classified=fixture.geometry->GeometryStatsSnapshot();auto classified_witness=BackendBudget();
-  CHECK(fixture.geometry->BoundPhysicalSurface({0},physical,tolerance,classified_witness,Purpose::ExactClassification)==classification);
-  CHECK(fixture.geometry->GeometryStatsSnapshot().upper_work==before_classified.upper_work);
   const auto before=fixture.geometry->GeometryStatsSnapshot();
   auto measured=BackendBudget();const auto upper=fixture.geometry->BoundPhysicalSurface({0},physical,tolerance,measured,Purpose::ErrorMagnitude);
   CHECK(upper>=30*tolerance);CHECK(upper<=31*tolerance+2e-6);
@@ -306,10 +329,7 @@ TEST_CASE("Geometry magnitude bounds retain complete domains and separate classi
   CHECK(reverse>=30*tolerance);CHECK(reverse<=31*tolerance+2e-6);
   for(const auto gap:{.99*tolerance,1.01*tolerance}) {
     auto budget=BackendBudget();const auto value=fixture.geometry->BoundPhysicalSurface({0},{triangle(gap)},tolerance,budget,Purpose::ErrorMagnitude);
-    CHECK((value<=tolerance)==(gap<tolerance));CHECK(value>=gap);
-    auto classification_budget=BackendBudget();
-    const auto classified=fixture.geometry->BoundPhysicalSurface({0},{triangle(gap)},tolerance,classification_budget,Purpose::ExactClassification);
-    CHECK((classified<=tolerance)==(value<=tolerance));CHECK(classified>=gap);
+    CHECK(value>=gap);CHECK(value-gap<=tolerance);
   }
   auto different_body=BackendBudget();
   CHECK(fixture.geometry->BoundPhysicalSurface({100},{triangle(4*tolerance)},tolerance,different_body,Purpose::ErrorMagnitude)>9);
@@ -616,6 +636,11 @@ TEST_CASE("Entity face query needs preserve classification and limit decisions a
         limit_first_points,&limit_first_budget,SurfaceQueryNeed::Classify());
     CHECK((limit_first>cutoff)==(magnitude_after_limit>cutoff));
     CHECK((classified<=tolerance)==(magnitude_after_limit<=tolerance));
+    if(classified<=tolerance) {
+      CHECK(limit_first==classified);CHECK(magnitude_after_limit==classified);
+    } else {
+      CHECK(limit_first>tolerance);CHECK(magnitude_after_limit>tolerance);
+    }
     CHECK(std::isfinite(limit_first));CHECK(std::isfinite(magnitude_after_limit));
 
     BackendFixture magnitude_first_fixture(false,true);auto magnitude_first_budget=BackendBudget();

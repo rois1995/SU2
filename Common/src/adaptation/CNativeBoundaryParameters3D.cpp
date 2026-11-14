@@ -373,8 +373,7 @@ double BoundaryParameterState::EntityFaceError(Id facet,const std::array<Surface
       (!std::isfinite(need.stop_above)||need.stop_above<state.GeometryTolerance()))
     throw std::invalid_argument("Invalid entity face error cutoff.");
   auto query=[&](const std::vector<Id>& support) {
-    const auto classification=need.kind==SurfaceQueryNeed::Kind::Classify ?
-        MappedFacetReference::SurfaceBoundPurpose::ExactClassification : MappedFacetReference::SurfaceBoundPurpose::Classification;
+    const auto classification=MappedFacetReference::SurfaceBoundPurpose::Classification;
     const double upper=g.BoundPhysicalSurface(support,{p},state.GeometryTolerance(),*budget,classification);
     if(need.kind==SurfaceQueryNeed::Kind::Classify||upper<=state.GeometryTolerance())return upper;
     const auto purpose=need.kind==SurfaceQueryNeed::Kind::Limit ? MappedFacetReference::SurfaceBoundPurpose::ErrorLimit :
