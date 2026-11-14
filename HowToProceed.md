@@ -1,6 +1,6 @@
 # How to proceed
 
-2026-11-14: follow the new fix handoff, starting with the [P5 report/status](Handbook/ADAPTATION_M6_PURPOSE_QUERY_FIX_20261114.md). Explicit query needs and their caller/tests are frozen; isolated build495 is running. Check R/purpose_query_fix_20261114/build_status.json and live identities before another job or any C++ edit. The five acceptance checks remain pending; build494 is preserved for comparison.
+2026-11-14: follow the new fix handoff, starting with the [P5 report/status](Handbook/ADAPTATION_M6_PURPOSE_QUERY_FIX_20261114.md). Explicit query needs and their caller/tests are frozen; isolated build495 validation is in progress. Check R/purpose_query_fix_20261114/build_status.json, its case subdirectories and R/cases/p5_* plus live identities before another job or any C++ edit. Units/BL and version-compatible481 regressions pass; first-collapse work fails (116540211>108459426) with unchanged per-rank counts. Full no-BL workflow is next; build494 is preserved for comparison.
 
 After P5's five checks: permanent F1/F2 path/work gates; the connected cheap B1/B2/B3/B4/B6/A2 change and one A/B reprofile; F3 exclusive timers; one independently reviewed C/D/E design. Do not implement C/D/E before user acceptance. Hash preservation is not an execution or performance check. Keep one owned heavy job, low priority and single-threaded libraries; final resource/geometry/quality/height/transfer gates stay unchanged.
 

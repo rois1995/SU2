@@ -2145,9 +2145,9 @@ TEST_CASE("Magnitude outside width encloses a known flat-face distance", "[Nativ
 
 TEST_CASE("Surface cutoff bounds cannot poison complete magnitude memo entries", "[NativeMagnitudeInterval3D][NativeFaceQueryNeed3D]") {
   using namespace SU2Native3D;
-  const auto facets=ComponentCube(false);const auto reference=std::make_shared<PlanarReference>(facets);
-  std::map<Id,double> errors;for(const auto& face:facets)errors.emplace(face.id,1e-12);
-  MappedFacetReference geometry(reference,errors,29),oracle(reference,errors,29);
+  CurvedAtlasFixture fixture(0,0),uncached(0,0,0);
+  auto& geometry=*fixture.geometry;auto& oracle=*uncached.geometry;const auto& facets=fixture.facets;
+  REQUIRE(geometry.GeometryStatsSnapshot().memo_limit>0);
   const auto& face=facets.front();std::vector<std::array<Point,3>> physical(1);
   for(unsigned k=0;k<3;++k){physical[0][k]=face.v[k].p;physical[0][k].z=.125;}
   using Purpose=MappedFacetReference::SurfaceBoundPurpose;
@@ -2158,8 +2158,38 @@ TEST_CASE("Surface cutoff bounds cannot poison complete magnitude memo entries",
   const auto magnitude=geometry.BoundPhysicalSurface({face.id},physical,.01,complete,Purpose::ErrorMagnitude);
   CHECK(magnitude==oracle.BoundPhysicalSurface({face.id},physical,.01,cold,Purpose::ErrorMagnitude));
   CHECK(magnitude>=.125);
+  const auto before_classification=geometry.GeometryStatsSnapshot();auto classification=GeometryAtlasBudget();
+  CHECK(geometry.BoundPhysicalSurface({face.id},physical,.01,classification,Purpose::ExactClassification)==magnitude);
+  CHECK(geometry.GeometryStatsSnapshot().upper_work==before_classification.upper_work);
   auto accepted=GeometryAtlasBudget();
   CHECK(geometry.BoundPhysicalSurface({face.id},physical,.01,accepted,Purpose::ErrorLimit,.5)==magnitude);
   auto invalid=GeometryAtlasBudget();
   CHECK_THROWS(geometry.BoundPhysicalSurface({face.id},physical,.01,invalid,Purpose::ErrorLimit,.005));
+  for(auto& point:physical.front())point.z=.001;
+  auto legacy=GeometryAtlasBudget();const auto inside=geometry.BoundPhysicalSurface({face.id},physical,.01,legacy);
+  REQUIRE(inside<=.01);
+  const auto before_inside=geometry.GeometryStatsSnapshot();auto classified_inside=GeometryAtlasBudget();
+  CHECK(geometry.BoundPhysicalSurface({face.id},physical,.01,classified_inside,Purpose::ExactClassification)==inside);
+  CHECK(geometry.GeometryStatsSnapshot().upper_work==before_inside.upper_work);
+}
+
+TEST_CASE("Numeric surface memo shares the admitted query quota without changing bounds", "[NativeSurfaceMemo3D][NativeSurfaceCache3D]") {
+  CurvedAtlasFixture fixture;const auto& curves=fixture.geometry->Curves();
+  std::map<Id,double> errors;for(const auto& face:fixture.facets)errors.emplace(face.id,1e-12);
+  auto definition=std::make_shared<SU2Native3D::PlanarReference>(fixture.facets);
+  const size_t quota=size_t(64)<<20;
+  MappedFacetReference bounded(definition,errors,29,SIZE_MAX,false,curves,quota);
+  MappedFacetReference uncached(definition,errors,29,SIZE_MAX,false,curves,0);
+  const auto storage=bounded.GeometryStatsSnapshot();
+  CHECK(storage.memo_limit>fixture.geometry->GeometryStatsSnapshot().memo_limit);
+  CHECK(storage.prepared_limit+storage.memo_limit<quota);
+  CHECK(quota-storage.prepared_limit-storage.memo_limit<4096);
+  CHECK(bounded.ResidentBytes()==uncached.ResidentBytes()+quota);
+  const auto& face=fixture.facets.front();
+  const std::vector<std::array<SU2Native3D::Point,3>> physical{{{face.v[0].p,face.v[1].p,face.v[2].p}}};
+  auto warm=GeometryAtlasBudget(),cold=GeometryAtlasBudget();
+  const auto bound=bounded.BoundPhysicalSurface({face.id},physical,.01,warm);
+  CHECK(bound==uncached.BoundPhysicalSurface({face.id},physical,.01,cold));
+  auto repeated=GeometryAtlasBudget();CHECK(bounded.BoundPhysicalSurface({face.id},physical,.01,repeated)==bound);
+  CHECK(bounded.GeometryStatsSnapshot().memo_bytes<=storage.memo_limit);
 }

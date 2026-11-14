@@ -1181,7 +1181,10 @@ struct MappedFacetReference::FaceMemo {
   std::mutex lock;std::map<Key,Entry> values;
   std::map<UnionKey,Entry> union_values;std::list<ClockKey> clock;
   size_t bytes=0,hits[2]{},misses[2]{},stores=0,evictions=0,evicted_bytes=0,refusals=0,maintenance_work=0;
-  static size_t Capacity(){return transfer_memory::Mul(Entries,sizeof(Key)+sizeof(double)+4*sizeof(void*)+2*sizeof(size_t));}
+  static size_t DefaultCapacity(){return transfer_memory::Mul(Entries,sizeof(Key)+sizeof(double)+4*sizeof(void*)+2*sizeof(size_t));}
+  size_t limit=DefaultCapacity();
+  size_t Capacity()const{return limit;}
+  size_t StorageBytes()const{return transfer_memory::Add(sizeof(FaceMemo),limit);}
   static size_t EntryBytes(){return sizeof(Key)+sizeof(Entry)+12*sizeof(void*)+4*sizeof(size_t);}
   static size_t UnionBytes(size_t words){return transfer_memory::Add(transfer_memory::Mul(words,sizeof(uint64_t)),
       sizeof(UnionKey)+sizeof(Entry)+12*sizeof(void*)+4*sizeof(size_t));}
@@ -1383,8 +1386,16 @@ MappedFacetReference::MappedFacetReference(std::shared_ptr<const SU2Native3D::Pl
     if(transfer_memory::Add(prepared,FaceMemoBytes())<=ceiling){face_memo=std::make_shared<FaceMemo>();prepared=transfer_memory::Add(prepared,FaceMemoBytes());}
     if(ResidentBytes()>prepared)throw std::length_error("Mapped component storage model exhausted before publication.");
   }
-  if(!curves.empty() && transfer_memory::Add(ResidentBytes(),FaceMemoBytes())<=ceiling)
-    face_memo=std::make_shared<FaceMemo>();
+  if(!curves.empty()) {
+    const auto resident=ResidentBytes();
+    auto memo=FaceMemoBytes();
+    // Retain the legacy floor; grow from one eighth of the already admitted query quota.
+    if(query_cache_bytes!=SIZE_MAX&&query_cache_bytes>=memo)
+      memo=std::max(memo,std::min(query_cache_bytes/8,resident<ceiling?ceiling-resident:0));
+    if(transfer_memory::Add(resident,memo)<=ceiling) {
+      face_memo=std::make_shared<FaceMemo>();face_memo->limit=memo-sizeof(FaceMemo);
+    }
+  }
   if(curved_search) {
     const auto resident=ResidentBytes();
     // Reserve once with the authority; populate fixed facet indices when their requested tolerance is known.
@@ -1394,7 +1405,7 @@ MappedFacetReference::MappedFacetReference(std::shared_ptr<const SU2Native3D::Pl
           ceiling==SIZE_MAX?std::min(available,size_t(1)<<24):available);
     } else {
       // The host quota includes the separately reserved answer memo as well as prepared pools.
-      const auto memo=face_memo?FaceMemoBytes():0;
+      const auto memo=face_memo?face_memo->StorageBytes():0;
       curved_search->prepared_limit=query_cache_bytes>memo?query_cache_bytes-memo:0;
       if(query_cache_bytes<memo)face_memo.reset();
       if(!face_memo)curved_search->prepared_limit=query_cache_bytes;
@@ -2055,7 +2066,7 @@ double MappedFacetReference::BoundPhysicalSurface(const std::vector<Id>& facets,
   const auto& query=canonical.empty()?physical:canonical;
   const auto words=transfer_memory::Add(limited?5:((magnitude||exact_classification)?4:3),facets.size(),transfer_memory::Mul(physical.size(),9));
   const auto temporary=transfer_memory::GrowthBound(words,sizeof(uint64_t));
-  if(!face_memo || FaceMemo::UnionBytes(words)>FaceMemo::Capacity() ||
+  if(!face_memo || FaceMemo::UnionBytes(words)>face_memo->Capacity() ||
       transfer_memory::Add(budget.caller_bytes,temporary)>budget.maximum_bytes)
     return traced_result(QuerySurfaceUnion(facets,query,tolerance,budget,false,true,magnitude,stop_above,exact_classification).mesh_to_model,"bypass");
   op.Work(words);op.Storage(temporary);
@@ -2069,6 +2080,15 @@ double MappedFacetReference::BoundPhysicalSurface(const std::vector<Id>& facets,
   budget.caller_bytes=transfer_memory::Add(budget.caller_bytes,transfer_memory::Mul(key.capacity(),sizeof(uint64_t)));
   {std::lock_guard<std::mutex> guard(face_memo->lock);double cached=0;
     bool found=face_memo->Find(key,cached);
+    if(exact_classification&&!found) {
+      key[purpose_word]=1;found=face_memo->Find(key,cached);key[purpose_word]=3;
+    }
+    if(exact_classification&&!found) {
+      key.erase(key.begin()+purpose_word);
+      // A legacy upper bound certifies inside; its conservative refusal is not an outside witness.
+      found=face_memo->Find(key,cached)&&cached<=tolerance;
+      key.insert(key.begin()+purpose_word,3);
+    }
     if(limited&&!found) {
       key[purpose_word]=2;key.insert(key.begin()+purpose_word+1,bits(stop_above));
       found=face_memo->Find(key,cached);
@@ -3113,7 +3133,7 @@ bool MappedFacetReference::ComponentContainsFace(Id facet,const std::array<Surfa
 }
 size_t MappedFacetReference::FaceMemoBytes() {
   // The fixed reserve covers live tree/clock nodes and key capacity; no retained bucket arrays.
-  return transfer_memory::Add(sizeof(FaceMemo),FaceMemo::Capacity());
+  return transfer_memory::Add(sizeof(FaceMemo),FaceMemo::DefaultCapacity());
 }
 size_t MappedFacetReference::ResidentBytes()const {
   auto bytes=[](const auto& map){return transfer_memory::Mul(map.size(),sizeof(typename std::decay_t<decltype(map)>::value_type)+4*sizeof(void*));};
@@ -3123,7 +3143,7 @@ size_t MappedFacetReference::ResidentBytes()const {
   if(components){out=transfer_memory::Add(out,sizeof(ComponentData),bytes(components->entries));
     for(const auto& row:components->entries){const auto& c=row.second;out=transfer_memory::Add(out,transfer_memory::Bytes(c.facets),transfer_memory::Bytes(c.border),
         transfer_memory::Bytes(c.corners),bytes(c.features),c.search?c.search->GetAllocatedBytes():0,c.search?c.search->RetainedWorkspaceBound(1):0,transfer_memory::Mul(c.facets.size(),3*sizeof(Id)));}}
-  if(face_memo)out=transfer_memory::Add(out,FaceMemoBytes());
+  if(face_memo)out=transfer_memory::Add(out,face_memo->StorageBytes());
   if(curved_search) {
     out=transfer_memory::Add(out,sizeof(CurvedSearch),bytes(curved_search->root),bytes(curved_search->entries),curved_search->prepared_limit);
     for(const auto& row:curved_search->entries){const auto& c=row.second;out=transfer_memory::Add(out,transfer_memory::Bytes(c.facets),

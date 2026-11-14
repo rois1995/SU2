@@ -4,7 +4,7 @@ from pathlib import Path
 HERE=Path(__file__).resolve().parent;R=HERE.parent;REPO=R.parents[3]
 sys.path.insert(0,str(R));import run_cases as checks
 sha=checks.sha
-mode=sys.argv[1];assert mode in ('unit','merit481','saved481','bl','2d1','2d2','2d4')
+mode=sys.argv[1];assert mode in ('unit','merit481','saved481','saved_current','bl','2d1','2d2','2d4')
 status=json.loads((HERE/'build_status.json').read_text())
 assert status['state']=='terminal' and status['exit_code']==0 and status['pins_verified']
 assert sha(status['test_binary'])==status['test_binary_sha256']
@@ -18,7 +18,12 @@ os.environ.update(OMP_NUM_THREADS='1',OPENBLAS_NUM_THREADS='1',MKL_NUM_THREADS='
 scratch=REPO/'integration_evidence/build-integrated-v2/compile-tmp'
 os.environ['OMPI_MCA_orte_tmpdir_base']=tempfile.mkdtemp(prefix='p5-'+mode+'-',dir=scratch)
 metadata=dict(status,completed_build=True)
-for path,value in ((R/'build495_status.json',metadata),(R/'build495_source_pins.json',json.loads((HERE/'source_pins.json').read_text())),(R/'build495_terminal_handles.json',{'actual_host_proc':True,'all_owned_handles_terminal':True,'identities':[],'verified_no_heavy_process_unix':time.time()})):
+source_pins=json.loads((HERE/'source_pins.json').read_text())
+extra=json.loads((HERE/'unchanged_build494_source_pins.json').read_text())
+assert not (source_pins.keys()&extra.keys())
+source_pins.update(extra)
+assert all(sha(path)==digest for path,digest in source_pins.items())
+for path,value in ((R/'build495_status.json',metadata),(R/'build495_source_pins.json',source_pins),(R/'build495_terminal_handles.json',{'actual_host_proc':True,'all_owned_handles_terminal':True,'identities':[],'verified_no_heavy_process_unix':time.time()})):
  if path.exists():
   prior=json.loads(path.read_text())
   if 'verified_no_heavy_process_unix' not in prior:assert prior==value,str(path)
@@ -33,11 +38,28 @@ if mode=='merit481':
  spec=importlib.util.spec_from_file_location('merit481',R/'check_geometry_magnitude481.py');module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
  module.BUILD='build495';module.CASE='geometry_merit495_serial';module.STATUS=R/'build495_status.json';module.HANDLES=R/'build495_terminal_handles.json';module.SOURCE_PINS=R/'build495_source_pins.json';module.RESULT=HERE/'geometry_merit495_serial_assessment.json'
  module.main()
-elif mode=='saved481':
+elif mode in ('saved481','saved_current'):
  path=R/'check_saved_surface_corrections481.py';text=path.read_text()
  assert text.count("'build481'")==1 and text.count('build481_terminal_handles.json')==1 and text.count('curved481_saved_surface_corrections_')==1
  text=text.replace("'build481'","'build495'").replace('build481_terminal_handles.json','build495_terminal_handles.json').replace('curved481_saved_surface_corrections_','curved495_saved_surface_corrections_')
  extra_pins[str(path)]=sha(path);sys.argv=[str(path),'serial']
+ if mode=='saved_current':
+  producer_receipt=R/'target_checkpoint492_producer.json';qualification=R/'target_checkpoint492_qualification.json'
+  receipt=json.loads(producer_receipt.read_text());qualified=json.loads(qualification.read_text())
+  assert qualified['actual_target_checkpoint_qualified'] and qualified['recomposed_target_checked_after_reload']
+  assert qualified['producer_receipt_sha256']==sha(producer_receipt)
+  producer=Path(receipt['producer']);assert producer.resolve()==Path(qualified['producer']).resolve()
+  for name,item in receipt['files'].items():
+   file=producer/name;assert sha(file)==item['sha256'];extra_pins[str(file)]=item['sha256']
+  exact=json.loads((R/'cases/curved492_saved_production_surface_serial_20261113T163756_3724702/command.json').read_text())['environment']
+  current={key:exact[key] for key in ('SU2_NATIVE_TARGET_CHECKPOINT3D','SU2_NATIVE_FROZEN_SENSOR3D','SU2_NATIVE_FROZEN_CORE3D','SU2_NATIVE_FROZEN_TANGENT_SCALE3D')}
+  for file in (producer_receipt,qualification,Path(current['SU2_NATIVE_TARGET_CHECKPOINT3D']),Path(current['SU2_NATIVE_FROZEN_SENSOR3D'])):extra_pins[str(file)]=sha(file)
+  original_main=checks.main
+  def current_main(runtime_manifest=None):
+   os.environ.update(current)
+   return original_main(runtime_manifest)
+  checks.main=current_main
+  text=text.replace('curved495_saved_surface_corrections_','curved495_current_target_surface_corrections_')
  exec(compile(text,str(path),'exec'),{'__name__':'__main__','__file__':str(path)})
 else:
  case='p5_'+mode;ranks=int(mode[-1]) if mode.startswith('2d') else 1

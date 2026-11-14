@@ -267,6 +267,9 @@ TEST_CASE("Curved target uncertainty refines without relaxing surface tolerance"
   const auto upper=guidance.geometry->BoundPhysicalSurface({0},triangles,tolerance,upper_budget);
   // This safe bound may reject a feasible edit; it never claims an outside-distance lower bound.
   CHECK(upper>tolerance);CHECK(upper>=.99*tolerance);CHECK(upper_budget.work<inside.work);
+  auto classified=BackendBudget();
+  CHECK(guidance.geometry->BoundPhysicalSurface({0},triangles,tolerance,classified,
+      MappedFacetReference::SurfaceBoundPurpose::ExactClassification)<=tolerance);
   std::reverse(triangles.begin(),triangles.end());auto reordered=BackendBudget();
   CHECK(guidance.geometry->BoundPhysicalSurface({0},triangles,tolerance,reordered)>=.99*tolerance);
 }
@@ -598,7 +601,7 @@ TEST_CASE("Entity face query needs preserve classification and limit decisions a
     return entity;
   };
   for(double gap:{0.,.0101,.125}) {
-    BackendFixture limit_first_fixture(false,false);auto limit_first_budget=BackendBudget();
+    BackendFixture limit_first_fixture(false,true);auto limit_first_budget=BackendBudget();
     const Facet* limit_first_face=nullptr;std::array<SurfaceBinding,3> limit_first_binding{};std::array<Point,3> limit_first_points{};
     auto limit_first_entity=prepare(limit_first_fixture,limit_first_budget,limit_first_face,limit_first_binding,limit_first_points);
     for(auto& point:limit_first_points)point.z+=gap;
@@ -612,7 +615,7 @@ TEST_CASE("Entity face query needs preserve classification and limit decisions a
     CHECK((classified<=tolerance)==(magnitude_after_limit<=tolerance));
     CHECK(std::isfinite(limit_first));CHECK(std::isfinite(magnitude_after_limit));
 
-    BackendFixture magnitude_first_fixture(false,false);auto magnitude_first_budget=BackendBudget();
+    BackendFixture magnitude_first_fixture(false,true);auto magnitude_first_budget=BackendBudget();
     const Facet* magnitude_first_face=nullptr;std::array<SurfaceBinding,3> magnitude_first_binding{};std::array<Point,3> magnitude_first_points{};
     auto magnitude_first_entity=prepare(magnitude_first_fixture,magnitude_first_budget,magnitude_first_face,
         magnitude_first_binding,magnitude_first_points);

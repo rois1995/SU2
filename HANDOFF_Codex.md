@@ -1,6 +1,6 @@
 # Native adaptation — current handoff
 
-Updated 2026-11-14, Europe/Rome. The new fix handoff is active: P5 implementation is frozen and isolated build495 is running. The five required checks are pending; see the [P5 status/report](Handbook/ADAPTATION_M6_PURPOSE_QUERY_FIX_20261114.md). Build494 remains preserved. Current build handle/receipt: R/purpose_query_fix_20261114/build_status.json; sources must remain frozen until the owned build/run is terminal.
+Updated 2026-11-14, Europe/Rome. The new fix handoff is active: P5 implementation is frozen and isolated build495 validation is in progress. Units pass (76/8535); the exact BL repeat has300splits and byte-identical owned/parameter/donor output to v2 A. The two481 assertion sets pass (saved-target port to schema-v3 required). First-collapse counts match all6ranks but work116540211 exceeds108459426; full workflow is pending; see the [P5 status/report](Handbook/ADAPTATION_M6_PURPOSE_QUERY_FIX_20261114.md). Build494 remains preserved. Current receipts: R/purpose_query_fix_20261114/build_status.json, its case subdirectories and R/cases/p5_*; verify live identities before another job or any C++ edit.
 
 The [cause diagnostic](Handbook/ADAPTATION_M6_NOBL_CAUSE_CONFIRM_20261114.md) is causal evidence only. Its old-lambda revert is not the production fix. Build293's accepted Euler timings are historical; build494 rejected both adaptations in the [clean check](Handbook/ADAPTATION_M6_NOBL_CLEAN_CHECK_20261114.md). The prior quiet-load waiver applied to that run; record actual host load for new validation.
 
