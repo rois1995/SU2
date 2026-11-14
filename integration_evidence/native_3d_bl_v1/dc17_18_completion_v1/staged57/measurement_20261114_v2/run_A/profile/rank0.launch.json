@@ -1,0 +1,54 @@
+{
+  "rank": 0,
+  "wrapper": {
+    "pid": 835827,
+    "start_ticks": 13673190
+  },
+  "record": {
+    "pid": 835918,
+    "start_ticks": 13673343
+  },
+  "parser": {
+    "pid": 835919,
+    "start_ticks": 13673343
+  },
+  "argv": [
+    "/usr/bin/perf",
+    "record",
+    "--clockid",
+    "mono",
+    "-e",
+    "cycles:u",
+    "-F",
+    "99",
+    "-o",
+    "-",
+    "--",
+    "/usr/bin/time",
+    "-v",
+    "-o",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/measurement_20261114_v2/run_A/profile/rank0.time.txt",
+    "/usr/bin/python3",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/measurement_20261114_v2/rank_perf.py",
+    "--exec",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/measurement_20261114_v2/run_A/profile/rank0.program.log",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+    "[NativeActualSavedSurfaceStage3D]",
+    "--durations",
+    "yes"
+  ],
+  "parser_argv": [
+    "/usr/bin/perf",
+    "script",
+    "-i",
+    "-",
+    "--ns",
+    "-F",
+    "pid,tid,time,ip,sym,dso"
+  ],
+  "binary_sha256": "e6c25520db86bdd212b500249420a7cf3ceddf4af5c17c40e02b1b0b743cd365",
+  "monotonic_ns": 136734999795929,
+  "wall_ns": 1794644428843976507,
+  "sample_clock": "CLOCK_MONOTONIC",
+  "profile_limit_total_bytes": 2000000000
+}

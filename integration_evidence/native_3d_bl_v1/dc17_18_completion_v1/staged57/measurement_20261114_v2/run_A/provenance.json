@@ -1,0 +1,72 @@
+{
+  "case": "A",
+  "ranks": 1,
+  "source_case": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved492_saved_production_surface_serial_20261113T163756_3724702",
+  "argv": [
+    "nice",
+    "-n",
+    "19",
+    "/usr/bin/time",
+    "-v",
+    "-o",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/measurement_20261114_v2/run_A/outer.time.txt",
+    "timeout",
+    "600",
+    "/usr/bin/python3",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/measurement_20261114_v2/rank_perf.py",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+    "[NativeActualSavedSurfaceStage3D]",
+    "--durations",
+    "yes"
+  ],
+  "environment": {
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1",
+    "OMPI_MCA_osc": "pt2pt",
+    "TMPDIR": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/compile-tmp",
+    "OMPI_MCA_orte_tmpdir_base": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/measurement_20261114_v2/run_A/mpi_tmp",
+    "SU2_NATIVE_NOSE_FIXED_FACETS": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/nose492_fixed_facets.dat",
+    "SU2_NATIVE_BL_FRONT_PROBE": "checkpoint_target_surface",
+    "SU2_NATIVE_BL_PLANNING_CAPTURE": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/surface486_current_state",
+    "SU2_NATIVE_BL_REFERENCE": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/prepared_reference441.native_ref",
+    "SU2_NATIVE_TARGET_CHECKPOINT3D": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved492_ramp5_metric_stage_20261113T161313_3653005/target_rank0.bin",
+    "SU2_NATIVE_FROZEN_SENSOR3D": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved492_ramp5_metric_stage_20261113T161313_3653005/selected_core_native.bin",
+    "SU2_NATIVE_FROZEN_CORE3D": "0.0047263575870155755",
+    "SU2_NATIVE_FROZEN_TANGENT_SCALE3D": "0.28717458874925855",
+    "SU2_NATIVE_FROZEN_CONFIG": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/measurement_20261114_v2/run_A/run.cfg"
+  },
+  "config_sha256": "47465112c03706bb137af73e3becb138b81e65750ef6ae8b5709b094030f4e9a",
+  "input_hashes": {
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_bl_inputs/rans_metric_entry364_v1/m6.su2": "8c839170eb5e359f7de6a41434aa6a9c2d620053f37de6d9360bd04d2a63088b",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_bl_inputs/rans_metric_entry364_v1/m6.su2.native_ref": "2e99fb7870e2c718f110da8509e4c0f7e746ce138e7f27ab57aa0dedbb6c42de",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved441_ramp5_seed_stage_20261112T123956_1290282/m6.su2.native_rows": "9018e0a1be716e54b759e9a2affb6fbe7a29f4695d79de47a09c7f65c29d1a48",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_bl_inputs/rans_metric_entry364_v1/baseline_sa_seed.dat": "af7ade468dc40cd39dbe9238248e50057cdd151a64fef92fda957677aa3f6cae",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/nose492_fixed_facets.dat": "50d928bb1a7110261d600ebbff49b4beaf30aae44982c738f2c9df90969aa82e",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/prepared_reference441.native_ref": "9cdbc63cb6853f2c8b052bb0549f7b561299bfe82cd21fd6b792d2600dadf7e9",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved492_ramp5_metric_stage_20261113T161313_3653005/target_rank0.bin": "ef809cdfc51aeaebc0411f5c30fc84548b94975789c96373385d32a1574b787f",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved492_ramp5_metric_stage_20261113T161313_3653005/selected_core_native.bin": "25f03abdbe5e3406af6725e093bedd94c8b1d05cd32586d35d74829e1f1b9cae",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/measurement_20261114_v2/run_A/run.cfg": "47465112c03706bb137af73e3becb138b81e65750ef6ae8b5709b094030f4e9a",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved485_saved_surface_corrections_serial_20261113T120504_3046999/trajectory_working_owned.bin": "30593444427789626616174c71fe44cdb3ecc7f5c8b557328c77b1615122a59c",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved485_saved_surface_corrections_serial_20261113T120504_3046999/trajectory_working_parameters.bin": "bc44826ff07a88c1f5a78ebd512017c217113a621b97a216e9148912f33ad684",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/SU2_CFD/src/SU2_CFD": "0311b5a2a4f871bd82f48cd7cef3eac49a932cd1d90012bbc7e3c0d887e74ee6",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver": "e6c25520db86bdd212b500249420a7cf3ceddf4af5c17c40e02b1b0b743cd365",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/measurement_20261114_v2/rank_perf.py": "52e7c9db5e944a4a808143c8ac0629ed356ed830eae737d33920a698511e1263",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/measurement_20261114_v2/engine_clock.gdb": "0098a254eab7c54be2d7e8f758400961b30e58f30deaa472bff10dbff164dca2",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/measurement_20261114_v2/run_measurement.py": "8910d8ef426e1ef048cb67da780ae8729af7d23f4276d52bf663357e8824f36a",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/measurement_20261114_v2/brief.md": "092c5bb7bcfa4ef5cf80bea17164fb8cd3595fc01961b50c400e388bae55ede8"
+  },
+  "free_space": {
+    "total": 3936860798976,
+    "used": 3718956392448,
+    "free": 17848377344
+  },
+  "meminfo": "MemTotal:       65618216 kB\nMemFree:         7321492 kB\nMemAvailable:   44209180 kB\nBuffers:         3591968 kB\nCached:         26973504 kB\nSwapCached:           88 kB\nActive:         32533464 kB\nInactive:       16666468 kB\nActive(anon):   17244836 kB\nInactive(anon):  1389624 kB\nActive(file):   15288628 kB\nInactive(file): 15276844 kB\nUnevictable:      838172 kB\nMlocked:             104 kB\nSwapTotal:      15625212 kB\nSwapFree:       15614204 kB\nZswap:                 0 kB\nZswapped:              0 kB\nDirty:               176 kB\nWriteback:             0 kB\nAnonPages:      19473108 kB\nMapped:          2844044 kB\nShmem:           1611624 kB\nKReclaimable:    7046740 kB\nSlab:            7785320 kB\nSReclaimable:    7046740 kB\nSUnreclaim:       738580 kB\nKernelStack:       44592 kB\nPageTables:       242440 kB\nSecPageTables:         0 kB\nNFS_Unstable:          0 kB\nBounce:                0 kB\nWritebackTmp:          0 kB\nCommitLimit:    48434320 kB\nCommitted_AS:   44042216 kB\nVmallocTotal:   34359738367 kB\nVmallocUsed:       84600 kB\nVmallocChunk:          0 kB\nPercpu:            10944 kB\nHardwareCorrupted:     0 kB\nAnonHugePages:         0 kB\nShmemHugePages:        0 kB\nShmemPmdMapped:        0 kB\nFileHugePages:         0 kB\nFilePmdMapped:         0 kB\nUnaccepted:            0 kB\nHugePages_Total:       0\nHugePages_Free:        0\nHugePages_Rsvd:        0\nHugePages_Surp:        0\nHugepagesize:       2048 kB\nHugetlb:               0 kB\nDirectMap4k:      352944 kB\nDirectMap2M:     4659200 kB\nDirectMap1G:    61865984 kB\n",
+  "loadavg": "3.55 3.14 3.10 1/2783 835824\n",
+  "wrapper": {
+    "pid": 835621,
+    "start_ticks": 13672623
+  },
+  "started_monotonic_ns": 136731898267155,
+  "started_unix": 1794644425.7424479
+}

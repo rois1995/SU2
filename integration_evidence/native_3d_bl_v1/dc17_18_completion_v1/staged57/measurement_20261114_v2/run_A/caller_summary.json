@@ -1,0 +1,946 @@
+{
+  "limits": [
+    "No exact calls per guidance evaluation can be derived from sampled stacks.",
+    "Unmatched, restricted, or explicitly truncated chains remain counted as diagnostics.",
+    "A missing truncation marker does not prove a complete call chain.",
+    "BoundaryGuidance step classification uses only visible names; source context is not counted as evidence."
+  ],
+  "method": "LBR decoded sampled stacks; each stack contributes its sample weight once per matching leaf group",
+  "not_calls": "Shares/counts are sampled appearances, not function invocation counts.",
+  "profiles": {
+    "native_surface": {
+      "decode_exit": 0,
+      "input": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/measurement_20261114_v2/run_A/profile/rank0.native_surface.summary.json",
+      "sample_stacks": 5934,
+      "sampled_leaf_groups": {
+        "boundary_guidance_lambda": {
+          "chain_diagnostics": {
+            "max_stack_depth": 23,
+            "truncation_marker_absent": 1634
+          },
+          "interpretation": "Step buckets require visible matching names; no source-only inference.",
+          "leaf_functions": [
+            {
+              "label": "SU2NativeBLPipeline3D::TargetPolicy::BoundaryGuidance(SU2Native3D::Node, SU2Native3D::PlanarReference const&, SU2Native3D::Tensor, std::vector<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::allocator<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > > const&) const::{lambda(unsigned long)#1}::operator()(unsigned long) const",
+              "samples": 1634,
+              "share": 1.0
+            }
+          ],
+          "nearest_ancestry": [
+            {
+              "label": "SU2Native3D::MeasureSurfacePlanning(SU2Native3D::Patch const&, SU2Native3D::FrozenField&, SU2Native3D::PlanarReference const&, SU2Native3D::WallHeights const&, std::function<std::vector<SU2Native3D::BoundaryMetricSample, std::allocator<SU2Native3D::BoundaryMetricSample> > (SU2Native3D::Node, SU2Native3D::PlanarReference const&, SU2Native3D::Tensor)> const&, SU2Native3D::MetricStats*)",
+              "samples": 1634,
+              "share": 1.0
+            }
+          ],
+          "nearest_visible_parent": [
+            {
+              "label": "SU2Native3D::MeasureSurfacePlanning(SU2Native3D::Patch const&, SU2Native3D::FrozenField&, SU2Native3D::PlanarReference const&, SU2Native3D::WallHeights const&, std::function<std::vector<SU2Native3D::BoundaryMetricSample, std::allocator<SU2Native3D::BoundaryMetricSample> > (SU2Native3D::Node, SU2Native3D::PlanarReference const&, SU2Native3D::Tensor)> const&, SU2Native3D::MetricStats*)",
+              "samples": 1634,
+              "share": 1.0
+            }
+          ],
+          "outer_visible_caller": [
+            {
+              "label": "SU2Native3D::MeasureSurfacePlanning(SU2Native3D::Patch const&, SU2Native3D::FrozenField&, SU2Native3D::PlanarReference const&, SU2Native3D::WallHeights const&, std::function<std::vector<SU2Native3D::BoundaryMetricSample, std::allocator<SU2Native3D::BoundaryMetricSample> > (SU2Native3D::Node, SU2Native3D::PlanarReference const&, SU2Native3D::Tensor)> const&, SU2Native3D::MetricStats*)",
+              "samples": 1634,
+              "share": 1.0
+            }
+          ],
+          "sample_denominator": 1634,
+          "visible_engine_step_ancestry": [
+            {
+              "label": "other_visible",
+              "samples": 1634,
+              "share": 1.0
+            }
+          ]
+        },
+        "in_strip": {
+          "caller_functions": [
+            {
+              "label": "SU2NativeBLPipeline3D::TargetPolicy::BoundaryGuidance(SU2Native3D::Node, SU2Native3D::PlanarReference const&, SU2Native3D::Tensor, std::vector<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::allocator<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > > const&) const::{lambda(unsigned long)#1}::operator()(unsigned long) const",
+              "samples": 2301,
+              "share": 1.0
+            }
+          ],
+          "chain_diagnostics": {
+            "max_stack_depth": 24,
+            "truncation_marker_absent": 2301
+          },
+          "leaf_functions": [
+            {
+              "label": "dc10::OptionA::InStrip(dc10::StripPair const&, junction_wp0::V, long double&, junction_wp0::V&) const",
+              "samples": 2301,
+              "share": 1.0
+            }
+          ],
+          "nearest_visible_parent": [
+            {
+              "label": "SU2NativeBLPipeline3D::TargetPolicy::BoundaryGuidance(SU2Native3D::Node, SU2Native3D::PlanarReference const&, SU2Native3D::Tensor, std::vector<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::allocator<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > > const&) const::{lambda(unsigned long)#1}::operator()(unsigned long) const",
+              "samples": 2301,
+              "share": 1.0
+            }
+          ],
+          "parent_ancestry": [
+            {
+              "label": "SU2NativeBLPipeline3D::TargetPolicy::BoundaryGuidance(SU2Native3D::Node, SU2Native3D::PlanarReference const&, SU2Native3D::Tensor, std::vector<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::allocator<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > > const&) const::{lambda(unsigned long)#1}::operator()(unsigned long) const",
+              "samples": 2301,
+              "share": 1.0
+            }
+          ],
+          "sample_denominator": 2301
+        },
+        "interval_arithmetic": {
+          "caller_categories": [
+            {
+              "label": "wall_upper_bound_proof",
+              "samples": 579,
+              "share": 0.7165841584158416
+            },
+            {
+              "label": "ContainsEntityFace_or_BoundaryParameterState",
+              "samples": 217,
+              "share": 0.2685643564356436
+            },
+            {
+              "label": "BuildMobilityPolicy",
+              "samples": 12,
+              "share": 0.01485148514851485
+            }
+          ],
+          "caller_functions_by_sampled_category": [
+            {
+              "label": "CBoundaryLayerMetric::EvaluateAtSurfaceAssociation(unsigned short, unsigned long, SU2NativeGeometry::SurfaceBinding const&, double)",
+              "samples": 497,
+              "share": 0.6150990099009901
+            },
+            {
+              "label": "SU2Native3D::BoundaryParameterState::ContainsEntityFace(unsigned long, std::array<SU2Native3D::BoundaryPoint, 3ul> const&) const",
+              "samples": 133,
+              "share": 0.1646039603960396
+            },
+            {
+              "label": "SU2Native3D::BoundaryParameterState::EntityFaceError(unsigned long, std::array<SU2NativeGeometry::SurfaceBinding, 3ul> const&, std::array<SU2Native3D::Point, 3ul> const&, SU2NativeGeometry::AtlasBudget*, double) const",
+              "samples": 84,
+              "share": 0.10396039603960396
+            },
+            {
+              "label": "SU2NativeGeometry::(anonymous namespace)::NormBound(std::array<SU2NativeGeometry::(anonymous namespace)::Range, 3ul> const&)",
+              "samples": 69,
+              "share": 0.0853960396039604
+            },
+            {
+              "label": "SU2NativeGeometry::MappedFacetReference::BuildMobilityPolicy(double, std::map<int, int, std::less<int>, std::allocator<std::pair<int const, int> > > const&, SU2NativeGeometry::MobilityPolicy&, SU2NativeGeometry::AtlasBudget&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >&) const",
+              "samples": 12,
+              "share": 0.01485148514851485
+            },
+            {
+              "label": "SU2Native3D::(anonymous namespace)::Adapt(SU2NativeBoundary2D::World&, std::map<unsigned long, SU2Native3D::OwnedCell, std::less<unsigned long>, std::allocator<std::pair<unsigned long const, SU2Native3D::OwnedCell> > > const&, std::vector<SU2Native3D::DonorCell, std::allocator<SU2Native3D::DonorCell> > const&, SU2Native3D::PlanarReference const&, std::function<SU2Native3D::Tensor (SU2Native3D::Point, SU2Native3D::Tensor)>, SU2Native3D::EngineOptions, SU2Native3D::MetricChange, bool, std::function<std::vector<SU2Native3D::BoundaryMetricSample, std::allocator<SU2Native3D::BoundaryMetricSample> > (SU2Native3D::Node, SU2Native3D::PlanarReference const&, SU2Native3D::Tensor)>)::{lambda()#22}::operator()() const::{lambda(bool, char const*)#1}::operator()(bool, char const*) const",
+              "samples": 11,
+              "share": 0.013613861386138614
+            },
+            {
+              "label": "SU2NativeGeometry::MappedFacetReference::ErrorBound(SU2NativeGeometry::SurfaceBinding const&, SU2Native3D::Point) const",
+              "samples": 2,
+              "share": 0.0024752475247524753
+            }
+          ],
+          "chain_diagnostics": {
+            "max_stack_depth": 31,
+            "truncation_marker_absent": 808
+          },
+          "leaf_functions": [
+            {
+              "label": "SU2NativeGeometry::(anonymous namespace)::Multiply(SU2NativeGeometry::(anonymous namespace)::Range, long double)",
+              "samples": 239,
+              "share": 0.2957920792079208
+            },
+            {
+              "label": "SU2NativeGeometry::(anonymous namespace)::Blossom(std::array<SU2Native3D::Point, 10ul> const&, std::array<std::array<SU2NativeGeometry::(anonymous namespace)::Range, 3ul>, 3ul> const&)",
+              "samples": 228,
+              "share": 0.28217821782178215
+            },
+            {
+              "label": "SU2NativeGeometry::(anonymous namespace)::Multiply(SU2NativeGeometry::(anonymous namespace)::Range, SU2NativeGeometry::(anonymous namespace)::Range)",
+              "samples": 163,
+              "share": 0.20173267326732675
+            },
+            {
+              "label": "SU2NativeGeometry::(anonymous namespace)::Add(SU2NativeGeometry::(anonymous namespace)::Range, SU2NativeGeometry::(anonymous namespace)::Range)",
+              "samples": 134,
+              "share": 0.16584158415841585
+            },
+            {
+              "label": "SU2NativeGeometry::(anonymous namespace)::Adjacent(long double, bool)",
+              "samples": 44,
+              "share": 0.054455445544554455
+            }
+          ],
+          "nearest_visible_parent": [
+            {
+              "label": "SU2NativeGeometry::(anonymous namespace)::Blossom(std::array<SU2Native3D::Point, 10ul> const&, std::array<std::array<SU2NativeGeometry::(anonymous namespace)::Range, 3ul>, 3ul> const&)",
+              "samples": 251,
+              "share": 0.31064356435643564
+            },
+            {
+              "label": "SU2NativeGeometry::(anonymous namespace)::Multiply(SU2NativeGeometry::(anonymous namespace)::Range, SU2NativeGeometry::(anonymous namespace)::Range)",
+              "samples": 169,
+              "share": 0.20915841584158415
+            },
+            {
+              "label": "SU2NativeGeometry::MappedFacetReference::EvaluateSurface(unsigned long, SU2NativeGeometry::SurfaceBinding const&) const::{lambda(std::array<SU2NativeGeometry::(anonymous namespace)::Range, 3ul> const&, std::array<SU2NativeGeometry::(anonymous namespace)::Range, 3ul> const&)#1}::operator()(std::array<SU2NativeGeometry::(anonymous namespace)::Range, 3ul> const&, std::array<SU2NativeGeometry::(anonymous namespace)::Range, 3ul> const&) const [clone .constprop.0] [clone .isra.0]",
+              "samples": 103,
+              "share": 0.12747524752475248
+            },
+            {
+              "label": "SU2NativeGeometry::(anonymous namespace)::NormBound(std::array<SU2NativeGeometry::(anonymous namespace)::Range, 3ul> const&)",
+              "samples": 80,
+              "share": 0.09900990099009901
+            },
+            {
+              "label": "SU2NativeGeometry::MappedFacetReference::EvaluateSurface(unsigned long, SU2NativeGeometry::SurfaceBinding const&) const",
+              "samples": 77,
+              "share": 0.0952970297029703
+            },
+            {
+              "label": "SU2NativeGeometry::MappedFacetReference::OrientedFace(unsigned long, SU2NativeGeometry::SurfaceBinding const&, std::array<SU2Native3D::Point, 3ul> const&) const",
+              "samples": 40,
+              "share": 0.04950495049504951
+            },
+            {
+              "label": "SU2NativeGeometry::(anonymous namespace)::CubicDeviation(std::array<SU2Native3D::Point, 10ul> const&, std::array<std::array<SU2NativeGeometry::(anonymous namespace)::Range, 3ul>, 3ul> const&, std::array<SU2Native3D::Point, 3ul> const&)",
+              "samples": 27,
+              "share": 0.03341584158415842
+            },
+            {
+              "label": "SU2NativeGeometry::(anonymous namespace)::Difference(std::array<SU2NativeGeometry::(anonymous namespace)::Range, 3ul> const&, std::array<SU2NativeGeometry::(anonymous namespace)::Range, 3ul> const&)",
+              "samples": 15,
+              "share": 0.018564356435643563
+            },
+            {
+              "label": "SU2NativeGeometry::(anonymous namespace)::CrossBox(std::array<SU2NativeGeometry::(anonymous namespace)::Range, 3ul> const&, std::array<SU2NativeGeometry::(anonymous namespace)::Range, 3ul> const&)",
+              "samples": 13,
+              "share": 0.01608910891089109
+            },
+            {
+              "label": "SU2NativeGeometry::(anonymous namespace)::EdgeNormal(SU2NativeGeometry::MappedFacetReference const&, unsigned long, std::array<unsigned long, 2ul>, SU2NativeGeometry::(anonymous namespace)::Range)",
+              "samples": 12,
+              "share": 0.01485148514851485
+            },
+            {
+              "label": "SU2NativeGeometry::(anonymous namespace)::Multiply(SU2NativeGeometry::(anonymous namespace)::Range, long double)",
+              "samples": 7,
+              "share": 0.008663366336633664
+            },
+            {
+              "label": "SU2NativeGeometry::(anonymous namespace)::Add(SU2NativeGeometry::(anonymous namespace)::Range, SU2NativeGeometry::(anonymous namespace)::Range)",
+              "samples": 6,
+              "share": 0.007425742574257425
+            },
+            {
+              "label": "SU2NativeGeometry::MappedFacetReference::ClosestCurved(unsigned long, SU2Native3D::Point, double, unsigned long, unsigned long, std::function<bool (unsigned long)> const&, unsigned long*, SU2NativeGeometry::AtlasBudget*) const::{lambda(unsigned long, std::array<SU2Native3D::Point, 3ul> const&, unsigned int)#1}::operator()(unsigned long, std::array<SU2Native3D::Point, 3ul> const&, unsigned int) const",
+              "samples": 3,
+              "share": 0.0037128712871287127
+            },
+            {
+              "label": "SU2NativeGeometry::(anonymous namespace)::TriangleDistance(std::array<SU2NativeGeometry::(anonymous namespace)::Range, 3ul> const&, std::array<SU2Native3D::Point, 3ul> const&, SU2NativeGeometry::(anonymous namespace)::AtlasOps&, bool) [clone .isra.0]",
+              "samples": 2,
+              "share": 0.0024752475247524753
+            },
+            {
+              "label": "SU2NativeGeometry::(anonymous namespace)::DotBox(std::array<SU2NativeGeometry::(anonymous namespace)::Range, 3ul> const&, std::array<SU2NativeGeometry::(anonymous namespace)::Range, 3ul> const&)",
+              "samples": 2,
+              "share": 0.0024752475247524753
+            },
+            {
+              "label": "SU2NativeGeometry::MappedFacetReference::ErrorBound(SU2NativeGeometry::SurfaceBinding const&, SU2Native3D::Point) const",
+              "samples": 1,
+              "share": 0.0012376237623762376
+            }
+          ],
+          "operators": {
+            "Add": {
+              "caller_categories": [
+                {
+                  "label": "wall_upper_bound_proof",
+                  "samples": 109,
+                  "share": 0.8134328358208955
+                },
+                {
+                  "label": "ContainsEntityFace_or_BoundaryParameterState",
+                  "samples": 25,
+                  "share": 0.1865671641791045
+                }
+              ],
+              "caller_functions": [
+                {
+                  "label": "CBoundaryLayerMetric::EvaluateAtSurfaceAssociation(unsigned short, unsigned long, SU2NativeGeometry::SurfaceBinding const&, double)",
+                  "samples": 85,
+                  "share": 0.6343283582089553
+                },
+                {
+                  "label": "SU2NativeGeometry::(anonymous namespace)::NormBound(std::array<SU2NativeGeometry::(anonymous namespace)::Range, 3ul> const&)",
+                  "samples": 21,
+                  "share": 0.15671641791044777
+                },
+                {
+                  "label": "SU2Native3D::BoundaryParameterState::EntityFaceError(unsigned long, std::array<SU2NativeGeometry::SurfaceBinding, 3ul> const&, std::array<SU2Native3D::Point, 3ul> const&, SU2NativeGeometry::AtlasBudget*, double) const",
+                  "samples": 14,
+                  "share": 0.1044776119402985
+                },
+                {
+                  "label": "SU2Native3D::BoundaryParameterState::ContainsEntityFace(unsigned long, std::array<SU2Native3D::BoundaryPoint, 3ul> const&) const",
+                  "samples": 11,
+                  "share": 0.08208955223880597
+                },
+                {
+                  "label": "SU2Native3D::(anonymous namespace)::Adapt(SU2NativeBoundary2D::World&, std::map<unsigned long, SU2Native3D::OwnedCell, std::less<unsigned long>, std::allocator<std::pair<unsigned long const, SU2Native3D::OwnedCell> > > const&, std::vector<SU2Native3D::DonorCell, std::allocator<SU2Native3D::DonorCell> > const&, SU2Native3D::PlanarReference const&, std::function<SU2Native3D::Tensor (SU2Native3D::Point, SU2Native3D::Tensor)>, SU2Native3D::EngineOptions, SU2Native3D::MetricChange, bool, std::function<std::vector<SU2Native3D::BoundaryMetricSample, std::allocator<SU2Native3D::BoundaryMetricSample> > (SU2Native3D::Node, SU2Native3D::PlanarReference const&, SU2Native3D::Tensor)>)::{lambda()#22}::operator()() const::{lambda(bool, char const*)#1}::operator()(bool, char const*) const",
+                  "samples": 2,
+                  "share": 0.014925373134328358
+                },
+                {
+                  "label": "SU2NativeGeometry::MappedFacetReference::ErrorBound(SU2NativeGeometry::SurfaceBinding const&, SU2Native3D::Point) const",
+                  "samples": 1,
+                  "share": 0.007462686567164179
+                }
+              ],
+              "sample_denominator": 134
+            },
+            "Adjacent": {
+              "caller_categories": [
+                {
+                  "label": "ContainsEntityFace_or_BoundaryParameterState",
+                  "samples": 16,
+                  "share": 0.36363636363636365
+                },
+                {
+                  "label": "wall_upper_bound_proof",
+                  "samples": 16,
+                  "share": 0.36363636363636365
+                },
+                {
+                  "label": "BuildMobilityPolicy",
+                  "samples": 12,
+                  "share": 0.2727272727272727
+                }
+              ],
+              "caller_functions": [
+                {
+                  "label": "SU2NativeGeometry::MappedFacetReference::BuildMobilityPolicy(double, std::map<int, int, std::less<int>, std::allocator<std::pair<int const, int> > > const&, SU2NativeGeometry::MobilityPolicy&, SU2NativeGeometry::AtlasBudget&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >&) const",
+                  "samples": 12,
+                  "share": 0.2727272727272727
+                },
+                {
+                  "label": "SU2Native3D::BoundaryParameterState::ContainsEntityFace(unsigned long, std::array<SU2Native3D::BoundaryPoint, 3ul> const&) const",
+                  "samples": 9,
+                  "share": 0.20454545454545456
+                },
+                {
+                  "label": "CBoundaryLayerMetric::EvaluateAtSurfaceAssociation(unsigned short, unsigned long, SU2NativeGeometry::SurfaceBinding const&, double)",
+                  "samples": 9,
+                  "share": 0.20454545454545456
+                },
+                {
+                  "label": "SU2Native3D::BoundaryParameterState::EntityFaceError(unsigned long, std::array<SU2NativeGeometry::SurfaceBinding, 3ul> const&, std::array<SU2Native3D::Point, 3ul> const&, SU2NativeGeometry::AtlasBudget*, double) const",
+                  "samples": 7,
+                  "share": 0.1590909090909091
+                },
+                {
+                  "label": "SU2NativeGeometry::(anonymous namespace)::NormBound(std::array<SU2NativeGeometry::(anonymous namespace)::Range, 3ul> const&)",
+                  "samples": 3,
+                  "share": 0.06818181818181818
+                },
+                {
+                  "label": "SU2Native3D::(anonymous namespace)::Adapt(SU2NativeBoundary2D::World&, std::map<unsigned long, SU2Native3D::OwnedCell, std::less<unsigned long>, std::allocator<std::pair<unsigned long const, SU2Native3D::OwnedCell> > > const&, std::vector<SU2Native3D::DonorCell, std::allocator<SU2Native3D::DonorCell> > const&, SU2Native3D::PlanarReference const&, std::function<SU2Native3D::Tensor (SU2Native3D::Point, SU2Native3D::Tensor)>, SU2Native3D::EngineOptions, SU2Native3D::MetricChange, bool, std::function<std::vector<SU2Native3D::BoundaryMetricSample, std::allocator<SU2Native3D::BoundaryMetricSample> > (SU2Native3D::Node, SU2Native3D::PlanarReference const&, SU2Native3D::Tensor)>)::{lambda()#22}::operator()() const::{lambda(bool, char const*)#1}::operator()(bool, char const*) const",
+                  "samples": 3,
+                  "share": 0.06818181818181818
+                },
+                {
+                  "label": "SU2NativeGeometry::MappedFacetReference::ErrorBound(SU2NativeGeometry::SurfaceBinding const&, SU2Native3D::Point) const",
+                  "samples": 1,
+                  "share": 0.022727272727272728
+                }
+              ],
+              "sample_denominator": 44
+            },
+            "Blossom": {
+              "caller_categories": [
+                {
+                  "label": "wall_upper_bound_proof",
+                  "samples": 171,
+                  "share": 0.75
+                },
+                {
+                  "label": "ContainsEntityFace_or_BoundaryParameterState",
+                  "samples": 57,
+                  "share": 0.25
+                }
+              ],
+              "caller_functions": [
+                {
+                  "label": "CBoundaryLayerMetric::EvaluateAtSurfaceAssociation(unsigned short, unsigned long, SU2NativeGeometry::SurfaceBinding const&, double)",
+                  "samples": 170,
+                  "share": 0.7456140350877193
+                },
+                {
+                  "label": "SU2Native3D::BoundaryParameterState::ContainsEntityFace(unsigned long, std::array<SU2Native3D::BoundaryPoint, 3ul> const&) const",
+                  "samples": 40,
+                  "share": 0.17543859649122806
+                },
+                {
+                  "label": "SU2Native3D::BoundaryParameterState::EntityFaceError(unsigned long, std::array<SU2NativeGeometry::SurfaceBinding, 3ul> const&, std::array<SU2Native3D::Point, 3ul> const&, SU2NativeGeometry::AtlasBudget*, double) const",
+                  "samples": 17,
+                  "share": 0.07456140350877193
+                },
+                {
+                  "label": "SU2Native3D::(anonymous namespace)::Adapt(SU2NativeBoundary2D::World&, std::map<unsigned long, SU2Native3D::OwnedCell, std::less<unsigned long>, std::allocator<std::pair<unsigned long const, SU2Native3D::OwnedCell> > > const&, std::vector<SU2Native3D::DonorCell, std::allocator<SU2Native3D::DonorCell> > const&, SU2Native3D::PlanarReference const&, std::function<SU2Native3D::Tensor (SU2Native3D::Point, SU2Native3D::Tensor)>, SU2Native3D::EngineOptions, SU2Native3D::MetricChange, bool, std::function<std::vector<SU2Native3D::BoundaryMetricSample, std::allocator<SU2Native3D::BoundaryMetricSample> > (SU2Native3D::Node, SU2Native3D::PlanarReference const&, SU2Native3D::Tensor)>)::{lambda()#22}::operator()() const::{lambda(bool, char const*)#1}::operator()(bool, char const*) const",
+                  "samples": 1,
+                  "share": 0.0043859649122807015
+                }
+              ],
+              "sample_denominator": 228
+            },
+            "Multiply": {
+              "caller_categories": [
+                {
+                  "label": "wall_upper_bound_proof",
+                  "samples": 283,
+                  "share": 0.7039800995024875
+                },
+                {
+                  "label": "ContainsEntityFace_or_BoundaryParameterState",
+                  "samples": 119,
+                  "share": 0.2960199004975124
+                }
+              ],
+              "caller_functions": [
+                {
+                  "label": "CBoundaryLayerMetric::EvaluateAtSurfaceAssociation(unsigned short, unsigned long, SU2NativeGeometry::SurfaceBinding const&, double)",
+                  "samples": 233,
+                  "share": 0.5796019900497512
+                },
+                {
+                  "label": "SU2Native3D::BoundaryParameterState::ContainsEntityFace(unsigned long, std::array<SU2Native3D::BoundaryPoint, 3ul> const&) const",
+                  "samples": 73,
+                  "share": 0.18159203980099503
+                },
+                {
+                  "label": "SU2Native3D::BoundaryParameterState::EntityFaceError(unsigned long, std::array<SU2NativeGeometry::SurfaceBinding, 3ul> const&, std::array<SU2Native3D::Point, 3ul> const&, SU2NativeGeometry::AtlasBudget*, double) const",
+                  "samples": 46,
+                  "share": 0.11442786069651742
+                },
+                {
+                  "label": "SU2NativeGeometry::(anonymous namespace)::NormBound(std::array<SU2NativeGeometry::(anonymous namespace)::Range, 3ul> const&)",
+                  "samples": 45,
+                  "share": 0.11194029850746269
+                },
+                {
+                  "label": "SU2Native3D::(anonymous namespace)::Adapt(SU2NativeBoundary2D::World&, std::map<unsigned long, SU2Native3D::OwnedCell, std::less<unsigned long>, std::allocator<std::pair<unsigned long const, SU2Native3D::OwnedCell> > > const&, std::vector<SU2Native3D::DonorCell, std::allocator<SU2Native3D::DonorCell> > const&, SU2Native3D::PlanarReference const&, std::function<SU2Native3D::Tensor (SU2Native3D::Point, SU2Native3D::Tensor)>, SU2Native3D::EngineOptions, SU2Native3D::MetricChange, bool, std::function<std::vector<SU2Native3D::BoundaryMetricSample, std::allocator<SU2Native3D::BoundaryMetricSample> > (SU2Native3D::Node, SU2Native3D::PlanarReference const&, SU2Native3D::Tensor)>)::{lambda()#22}::operator()() const::{lambda(bool, char const*)#1}::operator()(bool, char const*) const",
+                  "samples": 5,
+                  "share": 0.012437810945273632
+                }
+              ],
+              "sample_denominator": 402
+            }
+          },
+          "sample_denominator": 808
+        },
+        "libm_nextafter": {
+          "ancestry_classification": [
+            {
+              "label": "confirmed_Adjacent_ancestry",
+              "samples": 90,
+              "share": 0.9183673469387755
+            },
+            {
+              "label": "unknown_ancestry",
+              "samples": 8,
+              "share": 0.08163265306122448
+            }
+          ],
+          "chain_diagnostics": {
+            "max_stack_depth": 31,
+            "truncation_marker_absent": 98
+          },
+          "interpretation": "Only visible symbol ancestry is classified; otherwise unknown.",
+          "leaf_functions": [
+            {
+              "label": "nextafterl@plt",
+              "samples": 98,
+              "share": 1.0
+            }
+          ],
+          "nearest_visible_parent": [
+            {
+              "label": "SU2NativeGeometry::(anonymous namespace)::Adjacent(long double, bool)",
+              "samples": 90,
+              "share": 0.9183673469387755
+            },
+            {
+              "label": "SU2NativeGeometry::(anonymous namespace)::CubicDeviation(std::array<SU2Native3D::Point, 10ul> const&, std::array<std::array<SU2NativeGeometry::(anonymous namespace)::Range, 3ul>, 3ul> const&, std::array<SU2Native3D::Point, 3ul> const&)",
+              "samples": 8,
+              "share": 0.08163265306122448
+            }
+          ],
+          "sample_denominator": 98
+        }
+      },
+      "unique_stacks": 997
+    },
+    "preparation": {
+      "decode_exit": 0,
+      "input": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/measurement_20261114_v2/run_A/profile/rank0.preparation.summary.json",
+      "sample_stacks": 5746,
+      "sampled_leaf_groups": {
+        "interval_arithmetic": {
+          "caller_categories": [
+            {
+              "label": "BuildMobilityPolicy",
+              "samples": 2469,
+              "share": 0.7769037130270611
+            },
+            {
+              "label": "ContainsEntityFace_or_BoundaryParameterState",
+              "samples": 579,
+              "share": 0.18219005663939586
+            },
+            {
+              "label": "closest_point_or_normal",
+              "samples": 112,
+              "share": 0.03524229074889868
+            },
+            {
+              "label": "other_visible",
+              "samples": 14,
+              "share": 0.004405286343612335
+            },
+            {
+              "label": "unresolved",
+              "samples": 3,
+              "share": 0.0009439899307740718
+            },
+            {
+              "label": "wall_upper_bound_proof",
+              "samples": 1,
+              "share": 0.00031466331025802394
+            }
+          ],
+          "caller_functions_by_sampled_category": [
+            {
+              "label": "SU2NativeGeometry::MappedFacetReference::BuildMobilityPolicy(double, std::map<int, int, std::less<int>, std::allocator<std::pair<int const, int> > > const&, SU2NativeGeometry::MobilityPolicy&, SU2NativeGeometry::AtlasBudget&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >&) const",
+              "samples": 2469,
+              "share": 0.7769037130270611
+            },
+            {
+              "label": "SU2Native3D::BoundaryParameterState::ContainsEntityFace(unsigned long, std::array<SU2Native3D::BoundaryPoint, 3ul> const&) const",
+              "samples": 561,
+              "share": 0.1765261170547514
+            },
+            {
+              "label": "SU2NativeGeometry::(anonymous namespace)::CubicNormalControls(std::array<std::array<SU2NativeGeometry::(anonymous namespace)::Range, 3ul>, 10ul> const&)",
+              "samples": 112,
+              "share": 0.03524229074889868
+            },
+            {
+              "label": "SU2Native3D::BoundaryParameterState::BoundaryParameterState(std::shared_ptr<SU2NativeGeometry::MappedFacetReference const>, std::map<unsigned long, SU2Native3D::BoundaryPoint, std::less<unsigned long>, std::allocator<std::pair<unsigned long const, SU2Native3D::BoundaryPoint> > > const&, std::vector<SU2Native3D::SurfaceFace, std::allocator<SU2Native3D::SurfaceFace> > const&, unsigned long, unsigned long, unsigned long, SU2NativeGeometry::BoundaryCoverage const&, SU2NativeGeometry::MobilityPolicy const&, SU2NativeGeometry::AtlasBudget*, double)",
+              "samples": 18,
+              "share": 0.005663939584644431
+            },
+            {
+              "label": "SU2NativeGeometry::MappedFacetReference::MappedFacetReference(std::shared_ptr<SU2Native3D::PlanarReference const>, std::map<unsigned long, double, std::less<unsigned long>, std::allocator<std::pair<unsigned long const, double> > > const&, unsigned long, unsigned long, bool, std::map<unsigned long, std::array<SU2Native3D::Point, 10ul>, std::less<unsigned long>, std::allocator<std::pair<unsigned long const, std::array<SU2Native3D::Point, 10ul> > > > const&, unsigned long)",
+              "samples": 7,
+              "share": 0.0022026431718061676
+            },
+            {
+              "label": "SU2NativeGeometry::(anonymous namespace)::Multiply(SU2NativeGeometry::(anonymous namespace)::Range, SU2NativeGeometry::(anonymous namespace)::Range)",
+              "samples": 5,
+              "share": 0.0015733165512901196
+            },
+            {
+              "label": "<unresolved>",
+              "samples": 3,
+              "share": 0.0009439899307740718
+            },
+            {
+              "label": "SU2NativeGeometry::(anonymous namespace)::Add(SU2NativeGeometry::(anonymous namespace)::Range, SU2NativeGeometry::(anonymous namespace)::Range)",
+              "samples": 2,
+              "share": 0.0006293266205160479
+            },
+            {
+              "label": "SU2NativeGeometry::AffineChart::ErrorBound(SU2Native3D::Point) const",
+              "samples": 1,
+              "share": 0.00031466331025802394
+            }
+          ],
+          "chain_diagnostics": {
+            "max_stack_depth": 7,
+            "no_parent_frame": 3,
+            "truncation_marker_absent": 3178
+          },
+          "leaf_functions": [
+            {
+              "label": "SU2NativeGeometry::(anonymous namespace)::Multiply(SU2NativeGeometry::(anonymous namespace)::Range, SU2NativeGeometry::(anonymous namespace)::Range)",
+              "samples": 1870,
+              "share": 0.5884203901825047
+            },
+            {
+              "label": "SU2NativeGeometry::(anonymous namespace)::Add(SU2NativeGeometry::(anonymous namespace)::Range, SU2NativeGeometry::(anonymous namespace)::Range)",
+              "samples": 658,
+              "share": 0.20704845814977973
+            },
+            {
+              "label": "SU2NativeGeometry::(anonymous namespace)::Adjacent(long double, bool)",
+              "samples": 298,
+              "share": 0.09376966645689112
+            },
+            {
+              "label": "SU2NativeGeometry::(anonymous namespace)::Multiply(SU2NativeGeometry::(anonymous namespace)::Range, long double)",
+              "samples": 198,
+              "share": 0.062303335431088736
+            },
+            {
+              "label": "SU2NativeGeometry::(anonymous namespace)::Blossom(std::array<SU2Native3D::Point, 10ul> const&, std::array<std::array<SU2NativeGeometry::(anonymous namespace)::Range, 3ul>, 3ul> const&)",
+              "samples": 154,
+              "share": 0.048458149779735685
+            }
+          ],
+          "nearest_visible_parent": [
+            {
+              "label": "SU2NativeGeometry::(anonymous namespace)::EdgeNormal(SU2NativeGeometry::MappedFacetReference const&, unsigned long, std::array<unsigned long, 2ul>, SU2NativeGeometry::(anonymous namespace)::Range)",
+              "samples": 2036,
+              "share": 0.6406544996853367
+            },
+            {
+              "label": "SU2NativeGeometry::(anonymous namespace)::Multiply(SU2NativeGeometry::(anonymous namespace)::Range, SU2NativeGeometry::(anonymous namespace)::Range)",
+              "samples": 252,
+              "share": 0.07929515418502203
+            },
+            {
+              "label": "SU2NativeGeometry::(anonymous namespace)::CrossBox(std::array<SU2NativeGeometry::(anonymous namespace)::Range, 3ul> const&, std::array<SU2NativeGeometry::(anonymous namespace)::Range, 3ul> const&)",
+              "samples": 241,
+              "share": 0.07583385777218377
+            },
+            {
+              "label": "SU2NativeGeometry::(anonymous namespace)::Blossom(std::array<SU2Native3D::Point, 10ul> const&, std::array<std::array<SU2NativeGeometry::(anonymous namespace)::Range, 3ul>, 3ul> const&)",
+              "samples": 183,
+              "share": 0.057583385777218374
+            },
+            {
+              "label": "SU2NativeGeometry::MappedFacetReference::OrientedFace(unsigned long, SU2NativeGeometry::SurfaceBinding const&, std::array<SU2Native3D::Point, 3ul> const&) const",
+              "samples": 154,
+              "share": 0.048458149779735685
+            },
+            {
+              "label": "SU2NativeGeometry::(anonymous namespace)::Add(SU2NativeGeometry::(anonymous namespace)::Range, SU2NativeGeometry::(anonymous namespace)::Range)",
+              "samples": 98,
+              "share": 0.030837004405286344
+            },
+            {
+              "label": "SU2NativeGeometry::(anonymous namespace)::CubicNormalControls(std::array<std::array<SU2NativeGeometry::(anonymous namespace)::Range, 3ul>, 10ul> const&)",
+              "samples": 87,
+              "share": 0.02737570799244808
+            },
+            {
+              "label": "SU2NativeGeometry::(anonymous namespace)::NormBound(std::array<SU2NativeGeometry::(anonymous namespace)::Range, 3ul> const&)",
+              "samples": 67,
+              "share": 0.021082441787287604
+            },
+            {
+              "label": "SU2NativeGeometry::(anonymous namespace)::Difference(std::array<SU2NativeGeometry::(anonymous namespace)::Range, 3ul> const&, std::array<SU2NativeGeometry::(anonymous namespace)::Range, 3ul> const&)",
+              "samples": 27,
+              "share": 0.008495909376966647
+            },
+            {
+              "label": "SU2NativeGeometry::(anonymous namespace)::Multiply(SU2NativeGeometry::(anonymous namespace)::Range, long double)",
+              "samples": 9,
+              "share": 0.0028319697923222154
+            },
+            {
+              "label": "SU2NativeGeometry::(anonymous namespace)::DotBox(std::array<SU2NativeGeometry::(anonymous namespace)::Range, 3ul> const&, std::array<SU2NativeGeometry::(anonymous namespace)::Range, 3ul> const&)",
+              "samples": 8,
+              "share": 0.0025173064820641915
+            },
+            {
+              "label": "SU2NativeGeometry::MappedFacetReference::MappedFacetReference(std::shared_ptr<SU2Native3D::PlanarReference const>, std::map<unsigned long, double, std::less<unsigned long>, std::allocator<std::pair<unsigned long const, double> > > const&, unsigned long, unsigned long, bool, std::map<unsigned long, std::array<SU2Native3D::Point, 10ul>, std::less<unsigned long>, std::allocator<std::pair<unsigned long const, std::array<SU2Native3D::Point, 10ul> > > > const&, unsigned long)",
+              "samples": 7,
+              "share": 0.0022026431718061676
+            },
+            {
+              "label": "SU2NativeGeometry::(anonymous namespace)::NormalAngleBound(std::array<SU2NativeGeometry::(anonymous namespace)::Range, 3ul> const&, std::array<SU2NativeGeometry::(anonymous namespace)::Range, 3ul> const&, SU2NativeGeometry::(anonymous namespace)::Range)",
+              "samples": 3,
+              "share": 0.0009439899307740718
+            },
+            {
+              "label": "SU2NativeGeometry::AffineChart::ErrorBound(SU2Native3D::Point) const",
+              "samples": 3,
+              "share": 0.0009439899307740718
+            },
+            {
+              "label": "<no parent>",
+              "samples": 3,
+              "share": 0.0009439899307740718
+            }
+          ],
+          "operators": {
+            "Add": {
+              "caller_categories": [
+                {
+                  "label": "BuildMobilityPolicy",
+                  "samples": 548,
+                  "share": 0.8328267477203647
+                },
+                {
+                  "label": "ContainsEntityFace_or_BoundaryParameterState",
+                  "samples": 95,
+                  "share": 0.14437689969604864
+                },
+                {
+                  "label": "closest_point_or_normal",
+                  "samples": 13,
+                  "share": 0.019756838905775075
+                },
+                {
+                  "label": "other_visible",
+                  "samples": 1,
+                  "share": 0.001519756838905775
+                },
+                {
+                  "label": "unresolved",
+                  "samples": 1,
+                  "share": 0.001519756838905775
+                }
+              ],
+              "caller_functions": [
+                {
+                  "label": "SU2NativeGeometry::MappedFacetReference::BuildMobilityPolicy(double, std::map<int, int, std::less<int>, std::allocator<std::pair<int const, int> > > const&, SU2NativeGeometry::MobilityPolicy&, SU2NativeGeometry::AtlasBudget&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >&) const",
+                  "samples": 548,
+                  "share": 0.8328267477203647
+                },
+                {
+                  "label": "SU2Native3D::BoundaryParameterState::ContainsEntityFace(unsigned long, std::array<SU2Native3D::BoundaryPoint, 3ul> const&) const",
+                  "samples": 89,
+                  "share": 0.135258358662614
+                },
+                {
+                  "label": "SU2NativeGeometry::(anonymous namespace)::CubicNormalControls(std::array<std::array<SU2NativeGeometry::(anonymous namespace)::Range, 3ul>, 10ul> const&)",
+                  "samples": 13,
+                  "share": 0.019756838905775075
+                },
+                {
+                  "label": "SU2Native3D::BoundaryParameterState::BoundaryParameterState(std::shared_ptr<SU2NativeGeometry::MappedFacetReference const>, std::map<unsigned long, SU2Native3D::BoundaryPoint, std::less<unsigned long>, std::allocator<std::pair<unsigned long const, SU2Native3D::BoundaryPoint> > > const&, std::vector<SU2Native3D::SurfaceFace, std::allocator<SU2Native3D::SurfaceFace> > const&, unsigned long, unsigned long, unsigned long, SU2NativeGeometry::BoundaryCoverage const&, SU2NativeGeometry::MobilityPolicy const&, SU2NativeGeometry::AtlasBudget*, double)",
+                  "samples": 6,
+                  "share": 0.00911854103343465
+                },
+                {
+                  "label": "SU2NativeGeometry::MappedFacetReference::MappedFacetReference(std::shared_ptr<SU2Native3D::PlanarReference const>, std::map<unsigned long, double, std::less<unsigned long>, std::allocator<std::pair<unsigned long const, double> > > const&, unsigned long, unsigned long, bool, std::map<unsigned long, std::array<SU2Native3D::Point, 10ul>, std::less<unsigned long>, std::allocator<std::pair<unsigned long const, std::array<SU2Native3D::Point, 10ul> > > > const&, unsigned long)",
+                  "samples": 1,
+                  "share": 0.001519756838905775
+                },
+                {
+                  "label": "<unresolved>",
+                  "samples": 1,
+                  "share": 0.001519756838905775
+                }
+              ],
+              "sample_denominator": 658
+            },
+            "Adjacent": {
+              "caller_categories": [
+                {
+                  "label": "BuildMobilityPolicy",
+                  "samples": 220,
+                  "share": 0.738255033557047
+                },
+                {
+                  "label": "closest_point_or_normal",
+                  "samples": 39,
+                  "share": 0.13087248322147652
+                },
+                {
+                  "label": "ContainsEntityFace_or_BoundaryParameterState",
+                  "samples": 32,
+                  "share": 0.10738255033557047
+                },
+                {
+                  "label": "other_visible",
+                  "samples": 7,
+                  "share": 0.02348993288590604
+                }
+              ],
+              "caller_functions": [
+                {
+                  "label": "SU2NativeGeometry::MappedFacetReference::BuildMobilityPolicy(double, std::map<int, int, std::less<int>, std::allocator<std::pair<int const, int> > > const&, SU2NativeGeometry::MobilityPolicy&, SU2NativeGeometry::AtlasBudget&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >&) const",
+                  "samples": 220,
+                  "share": 0.738255033557047
+                },
+                {
+                  "label": "SU2NativeGeometry::(anonymous namespace)::CubicNormalControls(std::array<std::array<SU2NativeGeometry::(anonymous namespace)::Range, 3ul>, 10ul> const&)",
+                  "samples": 39,
+                  "share": 0.13087248322147652
+                },
+                {
+                  "label": "SU2Native3D::BoundaryParameterState::ContainsEntityFace(unsigned long, std::array<SU2Native3D::BoundaryPoint, 3ul> const&) const",
+                  "samples": 32,
+                  "share": 0.10738255033557047
+                },
+                {
+                  "label": "SU2NativeGeometry::(anonymous namespace)::Multiply(SU2NativeGeometry::(anonymous namespace)::Range, SU2NativeGeometry::(anonymous namespace)::Range)",
+                  "samples": 5,
+                  "share": 0.016778523489932886
+                },
+                {
+                  "label": "SU2NativeGeometry::(anonymous namespace)::Add(SU2NativeGeometry::(anonymous namespace)::Range, SU2NativeGeometry::(anonymous namespace)::Range)",
+                  "samples": 2,
+                  "share": 0.006711409395973154
+                }
+              ],
+              "sample_denominator": 298
+            },
+            "Blossom": {
+              "caller_categories": [
+                {
+                  "label": "ContainsEntityFace_or_BoundaryParameterState",
+                  "samples": 154,
+                  "share": 1.0
+                }
+              ],
+              "caller_functions": [
+                {
+                  "label": "SU2Native3D::BoundaryParameterState::ContainsEntityFace(unsigned long, std::array<SU2Native3D::BoundaryPoint, 3ul> const&) const",
+                  "samples": 154,
+                  "share": 1.0
+                }
+              ],
+              "sample_denominator": 154
+            },
+            "Multiply": {
+              "caller_categories": [
+                {
+                  "label": "BuildMobilityPolicy",
+                  "samples": 1701,
+                  "share": 0.8225338491295938
+                },
+                {
+                  "label": "ContainsEntityFace_or_BoundaryParameterState",
+                  "samples": 298,
+                  "share": 0.14410058027079303
+                },
+                {
+                  "label": "closest_point_or_normal",
+                  "samples": 60,
+                  "share": 0.029013539651837523
+                },
+                {
+                  "label": "other_visible",
+                  "samples": 6,
+                  "share": 0.0029013539651837525
+                },
+                {
+                  "label": "unresolved",
+                  "samples": 2,
+                  "share": 0.0009671179883945841
+                },
+                {
+                  "label": "wall_upper_bound_proof",
+                  "samples": 1,
+                  "share": 0.00048355899419729207
+                }
+              ],
+              "caller_functions": [
+                {
+                  "label": "SU2NativeGeometry::MappedFacetReference::BuildMobilityPolicy(double, std::map<int, int, std::less<int>, std::allocator<std::pair<int const, int> > > const&, SU2NativeGeometry::MobilityPolicy&, SU2NativeGeometry::AtlasBudget&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >&) const",
+                  "samples": 1701,
+                  "share": 0.8225338491295938
+                },
+                {
+                  "label": "SU2Native3D::BoundaryParameterState::ContainsEntityFace(unsigned long, std::array<SU2Native3D::BoundaryPoint, 3ul> const&) const",
+                  "samples": 286,
+                  "share": 0.13829787234042554
+                },
+                {
+                  "label": "SU2NativeGeometry::(anonymous namespace)::CubicNormalControls(std::array<std::array<SU2NativeGeometry::(anonymous namespace)::Range, 3ul>, 10ul> const&)",
+                  "samples": 60,
+                  "share": 0.029013539651837523
+                },
+                {
+                  "label": "SU2Native3D::BoundaryParameterState::BoundaryParameterState(std::shared_ptr<SU2NativeGeometry::MappedFacetReference const>, std::map<unsigned long, SU2Native3D::BoundaryPoint, std::less<unsigned long>, std::allocator<std::pair<unsigned long const, SU2Native3D::BoundaryPoint> > > const&, std::vector<SU2Native3D::SurfaceFace, std::allocator<SU2Native3D::SurfaceFace> > const&, unsigned long, unsigned long, unsigned long, SU2NativeGeometry::BoundaryCoverage const&, SU2NativeGeometry::MobilityPolicy const&, SU2NativeGeometry::AtlasBudget*, double)",
+                  "samples": 12,
+                  "share": 0.005802707930367505
+                },
+                {
+                  "label": "SU2NativeGeometry::MappedFacetReference::MappedFacetReference(std::shared_ptr<SU2Native3D::PlanarReference const>, std::map<unsigned long, double, std::less<unsigned long>, std::allocator<std::pair<unsigned long const, double> > > const&, unsigned long, unsigned long, bool, std::map<unsigned long, std::array<SU2Native3D::Point, 10ul>, std::less<unsigned long>, std::allocator<std::pair<unsigned long const, std::array<SU2Native3D::Point, 10ul> > > > const&, unsigned long)",
+                  "samples": 6,
+                  "share": 0.0029013539651837525
+                },
+                {
+                  "label": "<unresolved>",
+                  "samples": 2,
+                  "share": 0.0009671179883945841
+                },
+                {
+                  "label": "SU2NativeGeometry::AffineChart::ErrorBound(SU2Native3D::Point) const",
+                  "samples": 1,
+                  "share": 0.00048355899419729207
+                }
+              ],
+              "sample_denominator": 2068
+            }
+          },
+          "sample_denominator": 3178
+        },
+        "libm_nextafter": {
+          "ancestry_classification": [
+            {
+              "label": "confirmed_Adjacent_ancestry",
+              "samples": 1319,
+              "share": 0.9734317343173432
+            },
+            {
+              "label": "unknown_ancestry",
+              "samples": 36,
+              "share": 0.026568265682656828
+            }
+          ],
+          "chain_diagnostics": {
+            "max_stack_depth": 8,
+            "no_parent_frame": 3,
+            "truncation_marker_absent": 1355
+          },
+          "interpretation": "Only visible symbol ancestry is classified; otherwise unknown.",
+          "leaf_functions": [
+            {
+              "label": "nextafterl@plt",
+              "samples": 1352,
+              "share": 0.9977859778597786
+            },
+            {
+              "label": "__nexttowardl",
+              "samples": 3,
+              "share": 0.002214022140221402
+            }
+          ],
+          "nearest_visible_parent": [
+            {
+              "label": "SU2NativeGeometry::(anonymous namespace)::Adjacent(long double, bool)",
+              "samples": 1319,
+              "share": 0.9734317343173432
+            },
+            {
+              "label": "SU2NativeGeometry::(anonymous namespace)::CubicNormalControls(std::array<std::array<SU2NativeGeometry::(anonymous namespace)::Range, 3ul>, 10ul> const&)",
+              "samples": 33,
+              "share": 0.024354243542435424
+            },
+            {
+              "label": "<no parent>",
+              "samples": 3,
+              "share": 0.002214022140221402
+            }
+          ],
+          "sample_denominator": 1355
+        }
+      },
+      "unique_stacks": 644
+    }
+  }
+}

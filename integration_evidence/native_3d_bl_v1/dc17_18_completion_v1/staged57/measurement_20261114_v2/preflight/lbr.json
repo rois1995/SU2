@@ -1,0 +1,25 @@
+{
+  "argv": [
+    "nice",
+    "-n",
+    "19",
+    "/usr/bin/perf",
+    "record",
+    "--clockid",
+    "mono",
+    "-e",
+    "cycles:u",
+    "-F",
+    "99",
+    "--call-graph",
+    "lbr",
+    "-o",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/measurement_20261114_v2/preflight/lbr.data",
+    "--",
+    "/usr/bin/python3",
+    "-c",
+    "sum(i*i for i in range(8000000))"
+  ],
+  "exit_code": 0,
+  "output": "[ perf record: Woken up 1 times to write data ]\n[ perf record: Captured and wrote 0.022 MB integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/measurement_20261114_v2/preflight/lbr.data (54 samples) ]\n"
+}
