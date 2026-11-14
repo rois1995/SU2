@@ -1,6 +1,6 @@
 # M6 build-494 no-BL unprofiled check — 2026-11-14
 
-**IN PROGRESS: second configured adaptation remains active.**
+**Driver exit 0; the single prescribed unprofiled run is terminal.**
 We could not wait for the quiet-load condition: after 24.5 minutes of failed rechecks, the user instructed launch at load 2.72 (required <1.0). The CPU-use gate passed; the load condition was explicitly waived.
 No native source/build/config/gate/budget/limit changes; no perf, gdb or rank-stopping observer. nice 19, six ranks, single-thread libraries; /proc receipts every ~10 seconds.
 Evidence: `integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/nobl_clean_check_20261114`; exact hashes/argv/environment: `run/provenance.json`; program SHA 0311b5a2a4f871bd… and config SHA 5ad2dc1d9a1cd8bf…. All 1539 build-494 source pins matched.
@@ -15,8 +15,8 @@ Evidence: `integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/n
 | Second split seconds/splits | 274.10/9949 | 1737.87/8442 | 1722.372641/8442 |
 | Adaptation 1 inner seconds/result | 3640.719259, accepted | 5344.540316, rejected | 5345.557143, rejected, time_budget |
 | Adaptation 1 points/tets | 149051/736323 accepted | 61330/303359 retained | 61330/303359 (retained) |
-| Adaptation 2 inner seconds/result | 2314.855222, accepted | 5324.459194, rejected | pending, pending |
-| Adaptation 2 points/tets | 172001/870422 accepted | 61330/303359 retained | pending |
+| Adaptation 2 inner seconds/result | 2314.855222, accepted | 5324.459194, rejected | 5345.548136, rejected, time_budget |
+| Adaptation 2 points/tets | 172001/870422 accepted | 61330/303359 retained | 61330/303359 (retained) |
 Second inputs diverge after the first result: current CFD retained the original mesh; reference CFD continued on its first accepted adaptation. Complexity 50,000 is nominal, not a point-count gate.
 
 ## T2 — first-adaptation boundary bins
@@ -44,12 +44,12 @@ Every cell is build 293 → build 494. Invocation/rank identifies rows. U=upper 
 | 1/3 | 966.84/160292 → 1939.13/26232 | 719.76/3777685 → 2043.32/3303294 | 176.39/954079 → 39.35/837184 | 377.25 → 1915.87 | 66201/30093 → 36988/16141 | 2209.76 → 2511.54 |
 | 1/4 | 810.72/166398 → 1100.67/20449 | 676.92/3777685 → 3171.18/3303294 | 157.36/954079 → 48.36/837184 | 377.22 → 1915.93 | 60788/25684 → 22252/9672 | 2348.02 → 2428.73 |
 | 1/5 | 1277.82/140633 → 1756.58/27794 | 635.38/3777685 → 1825.13/3303294 | 202.08/954079 → 42.27/837184 | 377.26 → 1915.86 | 57039/26903 → 32576/13365 | 2152.20 → 2925.63 |
-| 2/0 | 739.77/110580 → pending | 583.74/1516407 → pending | 120.19/344487 → pending | 133.59 → pending | 27675/9071 → pending | 1338.04 → pending |
-| 2/1 | 892.29/108265 → pending | 507.07/1516407 → pending | 138.62/344487 → pending | 133.45 → pending | 34358/14554 → pending | 1309.06 → pending |
-| 2/2 | 800.98/111857 → pending | 574.16/1516407 → pending | 115.30/344487 → pending | 133.55 → pending | 25373/7914 → pending | 1296.95 → pending |
-| 2/3 | 756.51/61503 → pending | 677.17/1516407 → pending | 179.16/344487 → pending | 133.41 → pending | 17672/6391 → pending | 1424.85 → pending |
-| 2/4 | 741.83/70408 → pending | 682.20/1516407 → pending | 181.53/344487 → pending | 133.38 → pending | 17628/6361 → pending | 1423.15 → pending |
-| 2/5 | 820.04/71673 → pending | 615.00/1516407 → pending | 165.82/344487 → pending | 133.47 → pending | 12840/3691 → pending | 1397.32 → pending |
+| 2/0 | 739.77/110580 → 1637.05/30059 | 583.74/1516407 → 2048.37/3358047 | 120.19/344487 → 36.68/858616 | 133.59 → 2172.14 | 27675/9071 → 33202/13482 | 1338.04 → 2824.70 |
+| 2/1 | 892.29/108265 → 745.81/12853 | 507.07/1516407 → 3410.09/3358047 | 138.62/344487 → 51.46/858616 | 133.45 → 2172.07 | 34358/14554 → 16152/7212 | 1309.06 → 2541.18 |
+| 2/2 | 800.98/111857 → 779.64/24763 | 574.16/1516407 → 2843.30/3358047 | 115.30/344487 → 37.75/858616 | 133.55 → 2172.11 | 25373/7914 → 37099/15365 | 1296.95 → 2851.02 |
+| 2/3 | 756.51/61503 → 1450.38/16311 | 677.17/1516407 → 2606.38/3358047 | 179.16/344487 → 43.42/858616 | 133.41 → 2172.08 | 17672/6391 → 32793/14670 | 1424.85 → 2475.77 |
+| 2/4 | 741.83/70408 → 219.47/12954 | 682.20/1516407 → 3405.87/3358047 | 181.53/344487 → 42.19/858616 | 133.38 → 2172.06 | 17628/6361 → 26485/11750 | 1423.15 → 2861.26 |
+| 2/5 | 820.04/71673 → 951.76/15695 | 615.00/1516407 → 3301.63/3358047 | 165.82/344487 → 46.45/858616 | 133.47 → 2172.08 | 12840/3691 → 26388/11485 | 1397.32 → 2254.13 |
 
 ## T4 — sampled host load
 
@@ -57,17 +57,17 @@ Cells=N samples: min/median/max in timestamped marker windows. C* begins at the 
 | Phase | Adaptation 1 | Adaptation 2 |
 |---|---|---|
 | C* collapse | 140: 8.25/8.96/10.38 | 140: 8.10/8.83/9.77 |
-| S* surface | 190: 8.09/8.88/10.29 | 158: 8.22/9.02/11.53 |
-| I interior | 6: 8.60/8.84/9.22 | 5: 8.59/9.06/9.44 |
-| R* repartition/setup | 5: 8.93/9.16/9.72 | 1: 9.50/9.50/9.50 |
-| Q* quality/return | 190: 8.41/9.01/10.34 | no samples/window |
+| S* surface | 190: 8.09/8.88/10.29 | 207: 8.10/8.83/11.53 |
+| I interior | 6: 8.60/8.84/9.22 | 6: 8.59/9.01/9.44 |
+| R* repartition/setup | 5: 8.93/9.16/9.72 | 4: 8.66/8.89/9.50 |
+| Q* quality/return | 190: 8.41/9.01/10.34 | 174: 7.95/8.61/9.72 |
 | A* alternation/re-entry | no samples/window | no samples/window |
 | F finish | no samples/window | no samples/window |
 Poll cadence ~10s; MPI log times have 1s precision and unmeasured forwarding delay. Unsampled extrema and subsecond handoffs are unresolved.
 
 ## T5 — verdict
 
-**Provisional 2 — the no-BL M6 path is slower on build 494 under the authorized launch conditions.** Collapse is 7.24× and the surface/setup bin is 6.44× the historical wall time; the first native attempt was rejected instead of accepted.
+**2 — the no-BL M6 path is slower on build 494 under the authorized launch conditions.** Collapse is 7.24× and the surface/setup bin is 6.44× the historical wall time; the first native attempt was rejected instead of accepted.
 First-collapse global upper-work units 54,229,713→1,034,769,513 (19.08×), calls 19905→26642, edits 2,495 → 2,496. Rank 3 proof 28.65→934.26 s and work 4.56M→830.25M, with 263 accepted collapses in both.
 The original strict quiet-host condition was not met. Host effects and the older test-driver versus current CFD execution context are not isolated; no timing correction or causal attribution is claimed.
 

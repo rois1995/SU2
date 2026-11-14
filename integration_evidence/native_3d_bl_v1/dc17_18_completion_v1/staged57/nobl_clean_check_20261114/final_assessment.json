@@ -1,0 +1,40 @@
+{
+  "task": "one unprofiled no-BL M6 case; both configured adaptations; report and stop",
+  "complete": true,
+  "native_execution_count": 1,
+  "native_adaptation_events": 2,
+  "solver_exit_code": 0,
+  "native_outcomes": {
+    "1": {
+      "accepted": false,
+      "reason": "time_budget",
+      "points": 61330,
+      "tets": 303359,
+      "private_tets": 697369,
+      "source": "first_event_receipt.json; CFD Adaptation skipped and Cycle1of2 retained61330points"
+    },
+    "2": {
+      "accepted": false,
+      "reason": "time_budget",
+      "points": 61330,
+      "tets": 303359,
+      "private_tets": 693707,
+      "source": "second_event_receipt.json; CFD Adaptation skipped, Cycle2of2 retained61330points, ExitSuccess"
+    }
+  },
+  "native_source_build_config_gate_limit_changes": false,
+  "source_pin_count_unchanged": 1539,
+  "program_config_inputs_unchanged": true,
+  "all_owned_handles_terminal": true,
+  "quiet_load_requirement_met": false,
+  "user_authorized_launch_override": true,
+  "wait_minutes": 24.54428878625234,
+  "launch_load_1m": 2.72,
+  "launch_CPU_gate_passed": true,
+  "verdict": "2, qualified by user-waived load gate; observed M6 path slower; strict quiet-host effects not isolated",
+  "causal_source_tests_or_fixes": false,
+  "additional_solver_runs": false,
+  "report_lines": 80,
+  "report": "Handbook/ADAPTATION_M6_NOBL_CLEAN_CHECK_20261114.md",
+  "remaining_work": "none within this measurement brief; stop"
+}

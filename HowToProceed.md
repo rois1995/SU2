@@ -1,6 +1,6 @@
 # How to proceed
 
-2026-11-14 M6 no-BL check: Euler293 timing is historical; the first unprofiled build494 adaptation was slower and rejected, second adaptation remains active under the user-waived load condition; see the [clean-check report](Handbook/ADAPTATION_M6_NOBL_CLEAN_CHECK_20261114.md). No native source/build/config changes.
+2026-11-14 M6 no-BL check complete: Euler293 timing is historical; the no-BL path is slower on build494 in this unprofiled run, and both adaptations were time-budget rejected. The user waived the unmet quiet-load condition; see the [clean-check report](Handbook/ADAPTATION_M6_NOBL_CLEAN_CHECK_20261114.md). Native source/build/config unchanged.
 2026-11-14 measurement v2 completed: Run A ended normally; both configured Run B adaptations hit the time budget, solver exit 0; see the [measurement report](Handbook/ADAPTATION_M6_MEASUREMENT_V2_20261114.md). No source/build/config changes or design work.
 
 The requested M6 nose-target cycle492 is closed. Read the [current handoff](HANDOFF_Codex.md), [492 outcome](Handbook/ADAPTATION_MAPPED_CURVATURE_OUTCOME_492_20261113.md), [frozen plan](Handbook/ADAPTATION_MAPPED_CURVATURE_TARGET_492_20261113.md) and [timings](Handbook/ADAPTATION_TIMINGS.md).

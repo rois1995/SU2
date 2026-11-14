@@ -508,6 +508,175 @@
           "interior_lane_seconds": 108.14092944000001
         }
       ]
+    },
+    {
+      "invocation": 2,
+      "phases": {
+        "collapse_setup": {
+          "max_rank_boundary_seconds": 1410.896586291,
+          "global_accepted_edits": 2510.0,
+          "world_election_calls_common_per_rank": 248664.0,
+          "world_election_seconds_rank0": 1310.715952277109,
+          "world_election_mean_us_rank0": 5271.032205213095
+        },
+        "surface_setup": {
+          "max_rank_boundary_seconds": 2088.7190712739994,
+          "global_accepted_edits": 10906.0,
+          "world_election_calls_common_per_rank": 800730.0,
+          "world_election_seconds_rank0": 577.099496179444,
+          "world_election_mean_us_rank0": 720.7167162207536
+        },
+        "interior": {
+          "max_rank_boundary_seconds": 55.94321749299979,
+          "global_accepted_edits": 70354.0,
+          "world_election_calls_common_per_rank": 2223471.0,
+          "world_election_seconds_rank0": 21.01620035115957,
+          "world_election_mean_us_rank0": 9.451978618637062
+        },
+        "repartition_setup": {
+          "max_rank_boundary_seconds": 40.76023766800017,
+          "global_accepted_edits": 0.0,
+          "world_election_calls_common_per_rank": 66012.0,
+          "world_election_seconds_rank0": 8.310784387213971,
+          "world_election_mean_us_rank0": 125.89808500293842
+        },
+        "quality": {
+          "max_rank_boundary_seconds": 1748.2657285219998,
+          "global_accepted_edits": 1758.0,
+          "world_election_calls_common_per_rank": 19160.0,
+          "world_election_seconds_rank0": 131.220527004014,
+          "world_election_mean_us_rank0": 6848.670511691754
+        },
+        "alternation_setup": {
+          "max_rank_boundary_seconds": 1.230075314000942,
+          "global_accepted_edits": 0.0,
+          "world_election_calls_common_per_rank": 10.0,
+          "world_election_seconds_rank0": 0.00801576200137788,
+          "world_election_mean_us_rank0": 801.576200137788
+        }
+      },
+      "ranks": [
+        {
+          "rank": 0,
+          "native_inner_seconds": 5345.548136111,
+          "complete": false,
+          "stop": "time_budget",
+          "upper_seconds": 1637.045215527011,
+          "upper_calls": 30059,
+          "upper_work": 289927049,
+          "world_election_seconds": 2048.370975960942,
+          "world_election_calls": 3358047,
+          "update_seconds": 2172.141079094014,
+          "geometry_trials": 33202,
+          "geometry_rejected": 13482,
+          "other_seconds": 2824.702008274986,
+          "directory_election_seconds": 36.682896684000795,
+          "directory_election_calls": 858616,
+          "final_private_tets": 108419,
+          "surface_lane_seconds": 2073.954148821998,
+          "interior_lane_seconds": 107.56414785100003
+        },
+        {
+          "rank": 1,
+          "native_inner_seconds": 5345.562054275,
+          "complete": false,
+          "stop": "time_budget",
+          "upper_seconds": 745.8089414639986,
+          "upper_calls": 12853,
+          "upper_work": 84061023,
+          "world_election_seconds": 3410.0885684912455,
+          "world_election_calls": 3358047,
+          "update_seconds": 2172.074254859011,
+          "geometry_trials": 16152,
+          "geometry_rejected": 7212,
+          "other_seconds": 2541.181028758989,
+          "directory_election_seconds": 51.4644032299978,
+          "directory_election_calls": 858616,
+          "final_private_tets": 120440,
+          "surface_lane_seconds": 2073.9456026159983,
+          "interior_lane_seconds": 107.57210597499999
+        },
+        {
+          "rank": 2,
+          "native_inner_seconds": 5345.535857742,
+          "complete": false,
+          "stop": "time_budget",
+          "upper_seconds": 779.6389245550005,
+          "upper_calls": 24763,
+          "upper_work": 158328131,
+          "world_election_seconds": 2843.301287250887,
+          "world_election_calls": 3358047,
+          "update_seconds": 2172.110922874998,
+          "geometry_trials": 37099,
+          "geometry_rejected": 15365,
+          "other_seconds": 2851.023943533003,
+          "directory_election_seconds": 37.75273879599988,
+          "directory_election_calls": 858616,
+          "final_private_tets": 109972,
+          "surface_lane_seconds": 2073.950891606993,
+          "interior_lane_seconds": 107.56110041100004
+        },
+        {
+          "rank": 3,
+          "native_inner_seconds": 5345.540158588,
+          "complete": false,
+          "stop": "time_budget",
+          "upper_seconds": 1450.3797440880012,
+          "upper_calls": 16311,
+          "upper_work": 894019292,
+          "world_election_seconds": 2606.383343667182,
+          "world_election_calls": 3358047,
+          "update_seconds": 2172.0773991379924,
+          "geometry_trials": 32793,
+          "geometry_rejected": 14670,
+          "other_seconds": 2475.7709377190076,
+          "directory_election_seconds": 43.4225787069997,
+          "directory_election_calls": 858616,
+          "final_private_tets": 113143,
+          "surface_lane_seconds": 2073.951496653994,
+          "interior_lane_seconds": 107.56367947799959
+        },
+        {
+          "rank": 4,
+          "native_inner_seconds": 5345.55346466,
+          "complete": false,
+          "stop": "time_budget",
+          "upper_seconds": 219.47322781100016,
+          "upper_calls": 12954,
+          "upper_work": 51038617,
+          "world_election_seconds": 3405.868181736143,
+          "world_election_calls": 3358047,
+          "update_seconds": 2172.0627563400144,
+          "geometry_trials": 26485,
+          "geometry_rejected": 11750,
+          "other_seconds": 2861.2574656599854,
+          "directory_election_seconds": 42.19183075100104,
+          "directory_election_calls": 858616,
+          "final_private_tets": 118527,
+          "surface_lane_seconds": 2073.9474493980033,
+          "interior_lane_seconds": 107.57155681300011
+        },
+        {
+          "rank": 5,
+          "native_inner_seconds": 5345.533431534,
+          "complete": false,
+          "stop": "time_budget",
+          "upper_seconds": 951.7552737219993,
+          "upper_calls": 15695,
+          "upper_work": 134036546,
+          "world_election_seconds": 3301.63123525012,
+          "world_election_calls": 3358047,
+          "update_seconds": 2172.083322117003,
+          "geometry_trials": 26388,
+          "geometry_rejected": 11485,
+          "other_seconds": 2254.130150025997,
+          "directory_election_seconds": 46.45442184599893,
+          "directory_election_calls": 858616,
+          "final_private_tets": 123206,
+          "surface_lane_seconds": 2073.9492057840057,
+          "interior_lane_seconds": 107.55929498000008
+        }
+      ]
     }
   ],
   "semantics": "Phase wall=max rank disjoint marker-bin sum; edits=sum rank deltas; World election count common per rank, mean uses rank0. Named lane counters have a different scope. Directory election family separate. Final finish is unresolved if not separately emitted."

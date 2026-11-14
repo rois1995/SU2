@@ -1,5 +1,5 @@
 {
-  "state": "second_adaptation_construction_active",
+  "state": "complete",
   "controller_exec_session": 72303,
   "case": "run",
   "run_status": "run/status.json",
@@ -9,8 +9,8 @@
   "CPU_gate_pass": true,
   "task": "One unprofiled frozen no-BL M6 case, both configured adaptations, normal end, <=80-line report T1-T6, handoff links, push, stop; no source/build/config edits",
   "reference": "reference293_markers.json uses isolated rank logs and existing phase semantics; reference293.json additional extraction",
-  "next": "Monitor existing controller session72303; sole6rank heavyjob, frozenCPP1539 pins unchanged, no rerun/build/fix/design. Let bothconfigurednativeadaptations anddriver normalend.",
-  "latest_pushed_checkpoint": "bc4b8e538a",
+  "next": "Measurement complete. Final report/evidence checkpoint then stop; no further runs, design, builds or fixes.",
+  "latest_pushed_checkpoint": "c311b04a78",
   "first_collapse_receipt": "first_collapse_receipt.json",
   "first_collapse_rank0_seconds": 1410.686669683,
   "all_1539_build494_source_pins_match": true,
@@ -18,24 +18,16 @@
   "first_collapse_global_counters": "first_collapse_global_counters.json:2495\u21922496 edits,54.229713M\u21921034.769513M upper work(19.081x),19905\u219226642calls",
   "first_two_split_receipts": "first_two_split_receipts.json:1593.361907572/3520,1722.372641414/8442",
   "analysis_pipeline": [
-    "After normal terminal: nice19 python3 extract_markers.py run current_markers.json (absolute paths or correct cwd). Uses isolated rank streams, strips MPI timestamp prefixes even inside numbers; gathered DETAIL records from rank0 distributed to all ranks.",
-    "Then nice19 python3 summarize_load.py. Load windows use actual MPI timestamps, not estimated native epoch. First C* starts at preceding NATIVE3D_PARTITION log;10s polls,1s log timestamp precision, forwarding delay unmeasured. CPU summaries from retained /proc ticks,CLK_TCK100.",
-    "Reference: reference293_markers.json authoritative primary-extracted isolated rank stages+all two-per-rank DETAIL; reference293.json extra agent extraction. Both native totals rank0 DETAIL3640.719259241,2314.855222ish (check exact stored fields), outer adaptation timers different.",
-    "T2 bins use existing measurement/analyze_B.py interval semantics. Collapse/surface/repartition/alternation include setup; quality-to-exit can bundle final finish; do not invent separate finish wall timer. Sum accepted edits globally, use maxrank wall perphase, WorldE commoncount (not6x), mean rank0Worldseconds/E; clearly label scopes.",
-    "T3 first adaptation perrank exit: upperseconds/calls fromSTAGE,Worldelectionseconds/calls fromSTAGE,update_seconds andgeometrytrials/rejections fromSTAGE,other fromDETAIL. Directory nested family distinct.",
-    "Final <=80-line single Handbook report T1-T6. Intro user explicitly overrode load gate after24.544min; launch2.72; CPUgatepassed; no strictquiet-host claim. Slower-path evidence supports qualified verdict2 under changed launch condition; uncertainty about absolute host effect and source causality explicit. Do not present actualquiet-gatepass.",
-    "Source ranked primary review:76f10c8310 strongest (magnitude gap proof and tighter trigger);35e173b043 ancestor followupquery notadditive;54d2ca2bd4 addspernodearithmetic butalso tightens bounds/possiblyreduces refinement,netunresolved. No recommendations.",
-    "After terminal verifypins/ownedhandles and native acceptance/CFDsuccess (exit0 canretainoriginalafterrejection); save finalmetadata/loghashes/small evidence. Update current clean-check line in place bothHANDOFF/HowToProceed; ifverdict2 stateEuler293timinghistorical/noBLslower494 withconditioncaveat. Commit/push explicit paths toorigin codex/native-3d-bl persistentapproval,stop. No raw native mesh/field binaries inGit."
-  ],
-  "first_event": "5345.557143125s rank0DETAIL, complete0,time_budget,private697369tets,retained61330points/303359tets; first_event_receipt.json",
-  "report": "Exactly80 lines; T3 both World/Directory now explicit; T6 ranking reconciled to primary review; first event complete, second pending",
-  "analysis_after_terminal": [
     "extract_markers.py CASE current_markers.json",
     "summarize_comparison.py",
     "summarize_load.py",
     "Verify CFD second acceptance/retention and point/tet counts; populate outcomes.json explicitly, then make_report.py.",
     "T3 includes both adaptations; T2 first only. First Q is budget-censored, finish not separately emitted, timers overlap."
   ],
+  "first_event": "5345.557143125s rank0DETAIL, complete0,time_budget,private697369tets,retained61330points/303359tets; first_event_receipt.json",
+  "report": "80 lines; both events populated; driver exit0; no pending values",
   "second_collapse": "Rank0 1410.892241675s/480collapses; second_collapse_receipt.json",
-  "qa": "qa_notes.json; first-event T1-T4 values independently matched receipts, scopes/quiet override explicit"
+  "qa": "qa_notes.json; first-event T1-T4 values independently matched receipts, scopes/quiet override explicit",
+  "second_event": "5345.548136111s rank0DETAIL, complete0/time_budget,private693707tets,retained61330points/303359tets",
+  "all_owned_handles_terminal": true
 }
