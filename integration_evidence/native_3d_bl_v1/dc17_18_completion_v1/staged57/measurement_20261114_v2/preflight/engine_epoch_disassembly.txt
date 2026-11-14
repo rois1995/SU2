@@ -1,0 +1,35 @@
+
+integration_evidence/build-integrated-v3-currenthost/SU2_CFD/src/SU2_CFD:     file format elf64-x86-64
+
+
+Disassembly of section .text:
+
+00000000014075f0 <SU2Native3D::(anonymous namespace)::Adapt(SU2NativeBoundary2D::World&, std::map<unsigned long, SU2Native3D::OwnedCell, std::less<unsigned long>, std::allocator<std::pair<unsigned long const, SU2Native3D::OwnedCell> > > const&, std::vector<SU2Native3D::DonorCell, std::allocator<SU2Native3D::DonorCell> > const&, SU2Native3D::PlanarReference const&, std::function<SU2Native3D::Tensor (SU2Native3D::Point, SU2Native3D::Tensor)>, SU2Native3D::EngineOptions, SU2Native3D::MetricChange, bool, std::function<std::vector<SU2Native3D::BoundaryMetricSample, std::allocator<SU2Native3D::BoundaryMetricSample> > (SU2Native3D::Node, SU2Native3D::PlanarReference const&, SU2Native3D::Tensor)>)+0xd0>:
+ 14075f0:	ff                   	(bad)
+ 14075f1:	ff 00                	incl   (%rax)
+ 14075f3:	c6 85 7e b2 ff ff 00 	movb   $0x0,-0x4d82(%rbp)
+ 14075fa:	c6 85 7f b2 ff ff 00 	movb   $0x0,-0x4d81(%rbp)
+ 1407601:	c6 85 80 b2 ff ff 00 	movb   $0x0,-0x4d80(%rbp)
+ 1407608:	c6 85 81 b2 ff ff 00 	movb   $0x0,-0x4d7f(%rbp)
+ 140760f:	48 c7 85 28 b3 ff ff 	movq   $0x0,-0x4cd8(%rbp)
+ 1407616:	00 00 00 00 
+ 140761a:	74 1c                	je     1407638 <SU2Native3D::(anonymous namespace)::Adapt(SU2NativeBoundary2D::World&, std::map<unsigned long, SU2Native3D::OwnedCell, std::less<unsigned long>, std::allocator<std::pair<unsigned long const, SU2Native3D::OwnedCell> > > const&, std::vector<SU2Native3D::DonorCell, std::allocator<SU2Native3D::DonorCell> > const&, SU2Native3D::PlanarReference const&, std::function<SU2Native3D::Tensor (SU2Native3D::Point, SU2Native3D::Tensor)>, SU2Native3D::EngineOptions, SU2Native3D::MetricChange, bool, std::function<std::vector<SU2Native3D::BoundaryMetricSample, std::allocator<SU2Native3D::BoundaryMetricSample> > (SU2Native3D::Node, SU2Native3D::PlanarReference const&, SU2Native3D::Tensor)>)+0x118>
+ 140761c:	48 8b 43 10          	mov    0x10(%rbx),%rax
+ 1407620:	48 03 83 90 01 00 00 	add    0x190(%rbx),%rax
+ 1407627:	0f 82 2a 0f 01 00    	jb     1418557 <SU2Native3D::(anonymous namespace)::Adapt(SU2NativeBoundary2D::World&, std::map<unsigned long, SU2Native3D::OwnedCell, std::less<unsigned long>, std::allocator<std::pair<unsigned long const, SU2Native3D::OwnedCell> > > const&, std::vector<SU2Native3D::DonorCell, std::allocator<SU2Native3D::DonorCell> > const&, SU2Native3D::PlanarReference const&, std::function<SU2Native3D::Tensor (SU2Native3D::Point, SU2Native3D::Tensor)>, SU2Native3D::EngineOptions, SU2Native3D::MetricChange, bool, std::function<std::vector<SU2Native3D::BoundaryMetricSample, std::allocator<SU2Native3D::BoundaryMetricSample> > (SU2Native3D::Node, SU2Native3D::PlanarReference const&, SU2Native3D::Tensor)>)+0x11037>
+ 140762d:	48 8b 9d 18 b2 ff ff 	mov    -0x4de8(%rbp),%rbx
+ 1407634:	48 89 43 10          	mov    %rax,0x10(%rbx)
+ 1407638:	e8 a3 a7 cf fe       	call   101de0 <std::chrono::_V2::steady_clock::now()@plt>
+ 140763d:	48 8b 9d 18 b2 ff ff 	mov    -0x4de8(%rbp),%rbx
+ 1407644:	48 89 85 30 b3 ff ff 	mov    %rax,-0x4cd0(%rbp)
+ 140764b:	31 c0                	xor    %eax,%eax
+ 140764d:	80 bb 9c 01 00 00 00 	cmpb   $0x0,0x19c(%rbx)
+ 1407654:	0f 85 2e 46 00 00    	jne    140bc88 <SU2Native3D::(anonymous namespace)::Adapt(SU2NativeBoundary2D::World&, std::map<unsigned long, SU2Native3D::OwnedCell, std::less<unsigned long>, std::allocator<std::pair<unsigned long const, SU2Native3D::OwnedCell> > > const&, std::vector<SU2Native3D::DonorCell, std::allocator<SU2Native3D::DonorCell> > const&, SU2Native3D::PlanarReference const&, std::function<SU2Native3D::Tensor (SU2Native3D::Point, SU2Native3D::Tensor)>, SU2Native3D::EngineOptions, SU2Native3D::MetricChange, bool, std::function<std::vector<SU2Native3D::BoundaryMetricSample, std::allocator<SU2Native3D::BoundaryMetricSample> > (SU2Native3D::Node, SU2Native3D::PlanarReference const&, SU2Native3D::Tensor)>)+0x4768>
+ 140765a:	48 89 85 38 b3 ff ff 	mov    %rax,-0x4cc8(%rbp)
+ 1407661:	48 8d 85 78 e8 ff ff 	lea    -0x1788(%rbp),%rax
+ 1407668:	c5 f1 ef c9          	vpxor  %xmm1,%xmm1,%xmm1
+ 140766c:	c5 f9 ef c0          	vpxor  %xmm0,%xmm0,%xmm0
+ 1407670:	48 89 85 68 e8 ff ff 	mov    %rax,-0x1798(%rbp)
+ 1407677:	48 8b 85 18 b2 ff ff 	mov    -0x4de8(%rbp),%rax
+ 140767e:	c5                   	.byte 0xc5
+ 140767f:	fd                   	std

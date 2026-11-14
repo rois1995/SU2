@@ -1,0 +1,35 @@
+{
+  "task": "Follow brief.md v2 through normal end of A then B; measurement only; final <=150-line Handbook report T0-T7, overhead and gaps; update one line each HANDOFF/HowToProceed; push; stop without design",
+  "updated_monotonic": 142835.963193754,
+  "run_A": "terminal0, complete, pinned inputs unchanged, all handles terminal; API393.694989634s vsref389.572521653 (+1.0582%),300splits vs305(-1.6393%); internal exit388.843170562; preparation loader starti toAPI142.716039044; postcall31.207s external fixed-face30s observation",
+  "run_B": "currently running first native invocation; do not restart or edit pinned recorder/clock/native sources; verify status/handles before any new work",
+  "B_controller_exec_session": 79883,
+  "B_observer_exec_session": 42192,
+  "B_status_file": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/measurement_20261114_v2/run_B/status.json",
+  "latest_pushed_checkpoint": "e7ec17288b",
+  "prior_v1_checkpoint": "896f68e3ae",
+  "B_latest_marker_at_note": "quality first window elapsed4834.295747720,rounds22336,rank0accepted11489; no qualityexit yet",
+  "helpers": "summarize_samples.py full per-rank leaf profiles; split_A_profiles.py completed; summarize_callers.py completed A; summarize_timers.py broad timer extraction; analyze_B.py streams final samples using clock epoch brackets (do after native normal end); decode_lbr.py successful captures no-inline removes raw optional files",
+  "known_limitations": [
+    "GDB inner started member unavailable; exact epoch between AdaptMetric_entry and Adapt_timer_epoch_unavailable observation (~0.35s); only guaranteed intervals assigned; no estimated epoch",
+    "MPI DSO plugins /openmpi/...mca* have unknown symbols but belong to MPI group; classifier fixed in summarize_samples.py",
+    "Existing T4 guidance_seconds is GEOMETRIC acceptance timer overlapping upper proof, not BL BoundaryGuidance lambda",
+    "A upper_seconds engine exit173.858064448; actual_saved_surface_stage_rank0.json233.722574021 includes two external30s fixed-face probes; do not mix scopes",
+    "surface_conflicts1897/2640=71.86% is reservation conflict fraction, not explicit deferral count",
+    "T7 optional60s LBR windows only sampled callers, not exact calls/evaluation; numerator<100 mark not resolved",
+    "Literal world-exchange counts not emitted, tracked collectives are not a proxy; wall waiting/offCPU and slowest-rank causality unavailable",
+    "Old reference B first collapse194.723054s vscurrent1423.509701s; current election261115 taking1285.774713s (~4.924ms/call); interior firstpass22.028s timer, similar older21.6s; do not correct timing differences"
+  ],
+  "next_actions": [
+    "Monitor B sole heavy job, nice19 6ranks single-thread libs. No stop for optional profiler/clock decoder errors; only stop solverdoesnotstart orflat samplingfails. Brief no fixes/config/limits/build/source edits.",
+    "Decode ready profile/*.lbr.data only when corresponding lbr_status exists using --no-inline helper, no DWARF; optional failure nonfatal. Quality/interior/finish requests observer.",
+    "After B normal end verify all owned handles terminal, hashpins unchanged and collect exit/result/meshes/counts; execute summary/bin scripts; inspect all results and fill report.",
+    "Resource/data receipts in run_B; profiler cap2GB across v1/v2. Full raw perf files retained local only. Temporary duplicate v2 snapshot exports removed after summary with receipt.",
+    "Handbook report final should distinguish measured public-API T0 from internal timer; loader stop excludes0.265s quantized OS-process birth prefix; post-call31.207s separate. Report top20 and counts for Aprep/native and B6ranks plus all unmeasured.",
+    "Commit/push final small evidence and report to origin codex/native-3d-bl under persistent userapproval; no rawperf data."
+  ],
+  "current_handbook": "Handbook/ADAPTATION_M6_MEASUREMENT_V2_20261114.md",
+  "current_A_caller_summary": "run_A/nearest_callers.json",
+  "superseded_A_caller_summary": "run_A/caller_summary.json; see caller_review.json",
+  "B_gdb_status_caution": "Runner wrapsGDB: outerexit0doesnotprovenativeCFDsuccess. Inspectinferiorexit/abortlines, nativecompleteflags, acceptedmeshandCFDtransferlogs. LetentireconfiguredCFDdriverreachitsend, includingsecondadaptationifdrivercontinues."
+}
