@@ -1,0 +1,30 @@
+{
+  "argv": [
+    "/usr/bin/perf",
+    "record",
+    "--clockid",
+    "mono",
+    "-e",
+    "cycles:u",
+    "-F",
+    "99",
+    "--call-graph",
+    "lbr",
+    "-p",
+    "866087",
+    "-o",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/measurement_20261114_v2/run_B/profile/rank0.event1_construction.lbr.data",
+    "--",
+    "/bin/sleep",
+    "60"
+  ],
+  "attached": {
+    "pid": 866087,
+    "start_ticks": 13738607,
+    "monotonic_ns": 137386670794501,
+    "wall_ns": 1794645080514975193,
+    "program": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/SU2_CFD/src/SU2_CFD",
+    "clock_method": "GDB starti, AdaptMetric entry/return, existing started steady_clock variable"
+  },
+  "started_monotonic_ns": 137496076102303
+}

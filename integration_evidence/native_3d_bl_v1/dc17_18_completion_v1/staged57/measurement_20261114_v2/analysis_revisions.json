@@ -1,0 +1,15 @@
+{
+  "native_execution_unchanged": true,
+  "notes": [
+    "Prior broad LBR caller ancestry is superseded by nearest_callers.json and caller_review.json; historical broad summary is preserved.",
+    "Final grouping includes explicit Orientation predicates; sample totals and top20 unchanged.",
+    "Final B phase assignment uses guaranteed epoch brackets, source lane markers, setup and failed-return scopes.",
+    "Prior analysis versions remain reconstructible from e7ec17288b and bded0730d5; no native rerun or input change."
+  ],
+  "sha256": {
+    "analyze_B.py": "12a652e6dc6659bb3a14d0bb73e77d6e19d5b09fbf81d6d0ebb9a6b5b44bb19e",
+    "summarize_samples.py": "aefffe7967f89c67c7114d20e2972e83ff1412c7d387b056c1852247627f9ce2",
+    "run_A/split_profiles.json": "be9dbc46953df026cdbb5740325218b0c55b33572d580c8c66ad52ac5817d5ea",
+    "run_B/run_B_phase_samples.json": "e0b1a630fe886ec0e8259e7d1784cb7c8f1cafd5c9f345a189b12f3d6433b6fa"
+  }
+}

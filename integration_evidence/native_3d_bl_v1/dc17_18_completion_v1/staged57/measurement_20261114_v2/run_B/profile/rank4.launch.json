@@ -1,0 +1,52 @@
+{
+  "rank": 4,
+  "wrapper": {
+    "pid": 865516,
+    "start_ticks": 13737668
+  },
+  "record": {
+    "pid": 865584,
+    "start_ticks": 13737778
+  },
+  "parser": {
+    "pid": 865587,
+    "start_ticks": 13737779
+  },
+  "argv": [
+    "/usr/bin/perf",
+    "record",
+    "--clockid",
+    "mono",
+    "-e",
+    "cycles:u",
+    "-F",
+    "99",
+    "-o",
+    "-",
+    "--",
+    "/usr/bin/time",
+    "-v",
+    "-o",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/measurement_20261114_v2/run_B/profile/rank4.time.txt",
+    "/usr/bin/python3",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/measurement_20261114_v2/rank_perf_B.py",
+    "--exec",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/measurement_20261114_v2/run_B/profile/rank4.program.log",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/SU2_CFD/src/SU2_CFD",
+    "run.cfg"
+  ],
+  "parser_argv": [
+    "/usr/bin/perf",
+    "script",
+    "-i",
+    "-",
+    "--ns",
+    "-F",
+    "pid,tid,time,ip,sym,dso"
+  ],
+  "binary_sha256": "0311b5a2a4f871bd82f48cd7cef3eac49a932cd1d90012bbc7e3c0d887e74ee6",
+  "monotonic_ns": 137381494590631,
+  "wall_ns": 1794645075338771452,
+  "sample_clock": "CLOCK_MONOTONIC",
+  "profile_limit_total_bytes": 2000000000
+}

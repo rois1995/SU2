@@ -20,7 +20,8 @@ from summarize_samples import GROUPS, ROW, group
 STAGE_PREFIX = "NATIVE3D_STAGE"
 DETAIL_PREFIX = "NATIVE3D_DETAIL"
 COUNTERS = ("accepted", "rounds", "length_splits", "length_collapses",
-            "election_calls", "election_seconds", "collective_calls", "collective_seconds")
+            "election_calls", "election_seconds", "collective_calls", "collective_seconds",
+            "surface_seconds", "interior_seconds", "upper_seconds", "upper_calls", "guidance_seconds")
 ENGINE_EPOCH_KEYS = ("epoch_ns", "actual_engine_epoch_monotonic_ns", "engine_epoch_monotonic_ns",
                      "adapt_epoch_monotonic_ns", "timer_epoch_monotonic_ns")
 
@@ -86,13 +87,6 @@ def stage_counter(row, key):
     return value(row, key)
 
 
-def destination_after_quality(rows, index):
-    for row in rows[index + 1:]:
-        if row.get("stage") in ("construction_entry", "exit"):
-            return "transition" if row["stage"] == "construction_entry" else "finish"
-    return "transition"
-
-
 def lane_of(row):
     lane = value(row, "split_lane", 0)
     return "surface" if lane == 1 else "interior" if lane == 2 else "other"
@@ -105,19 +99,35 @@ def intervals_for_invocation(rows, invocation):
     timeline = [baseline] + rows
     intervals = []
     mode = "collapse"
-    post_quality_target = "transition"
-    first_stage = rows[0].get("stage") if rows else None
     for idx, (left, right) in enumerate(zip(timeline, timeline[1:])):
         t0, t1 = left["elapsed"], right["elapsed"]
         if idx == 0:
             label = "initialization_collapse" if right.get("stage") == "length_collapse_exit" else "initialization"
             note = "cumulative initialization+collapse" if label == "initialization_collapse" else "initialization before first marker"
+        elif right.get("stage") == "ownership_staged":
+            label, note = "phase_setup_repartition_staging", "ownership staging boundary; not a pure repartition timer"
+        elif left.get("stage") == "ownership_staged" and right.get("stage") == "ownership_committed":
+            label, note = "repartition_commit", "ownership staged-to-committed interval; separate partition total remains authoritative"
+        elif left.get("stage") == "quality_exit" and right.get("stage") == "exit":
+            label, note = "finish", "strict quality_exit-to-exit interval"
+        elif left.get("stage") == "quality_exit":
+            label, note = "transition", "quality_exit not followed immediately by exit"
+        elif right.get("stage") == "exit" and right.get("phase") == "construction":
+            active_lane = lane_of(right)
+            label = ("surface_with_setup_until_failed_return" if active_lane == "surface" and left.get("stage") == "length_split_exit"
+                     else active_lane + "_until_failed_return" if active_lane in ("surface", "interior") else "unresolved_setup_until_failed_return")
+            note = "unfinished construction lane from exit state; generation setup included after length_split_exit"
         elif mode == "after_quality":
-            label = post_quality_target
-            note = "quality_exit followed by construction re-entry" if label == "transition" else "final quality_exit through exit"
+            label, note = "transition", "post-quality work; no immediate quality_exit-to-exit marker pair"
+        elif right.get("stage") == "split_surface_exit" and lane_of(right) == "surface" and (
+                left.get("stage") in ("length_split_exit", "ownership_committed") or
+                left.get("stage") == "ownership_staged"):
+            label, note = "surface_with_setup", "surface generation/setup bounded by prior checkpoint and surface exit"
+        elif right.get("stage") == "exit" and (mode == "quality" or left.get("phase") == "improvement"):
+            label, note = "quality_until_failed_return", "improvement ended at exit without a quality_exit marker"
         elif left.get("stage") in ("split_surface_exit", "split_interior_exit"):
             label, note = "transition", "lane exit to next lane/phase boundary"
-        elif left.get("stage") in ("ownership_staged", "ownership_committed"):
+        elif left.get("stage") == "ownership_committed":
             label, note = "transition", "ownership marker; not a pure repartition interval"
         elif left.get("phase") == "improvement" or mode == "quality":
             label, note = "quality", "improvement phase / quality window"
@@ -144,7 +154,6 @@ def intervals_for_invocation(rows, invocation):
             mode = "quality"
         elif stage == "quality_exit":
             mode = "after_quality"
-            post_quality_target = destination_after_quality(rows, idx)
         elif stage == "length_collapse_exit":
             mode = "other"
         elif stage in ("split_surface_exit", "split_interior_exit", "ownership_staged", "ownership_committed"):
@@ -253,6 +262,44 @@ def self_check():
     assert intervals_for_invocation(quality_rows, 0)[-1]["phase"] == "transition"
     quality_rows[-1] = {"stage": "exit", "phase": "improvement", "elapsed": 6.0, "split_lane": 0}
     assert intervals_for_invocation(quality_rows, 0)[-1]["phase"] == "finish"
+    failed_quality = [
+        {"stage": "quality_entry", "phase": "improvement", "elapsed": 1.0, "split_lane": 0},
+        {"stage": "window", "phase": "improvement", "elapsed": 5.0, "split_lane": 0},
+        {"stage": "exit", "phase": "improvement", "elapsed": 6.0, "split_lane": 0},
+    ]
+    assert intervals_for_invocation(failed_quality, 0)[-1]["phase"] == "quality_until_failed_return"
+    lanes = [
+        {"stage": "length_split_exit", "phase": "construction", "split_lane": 2,
+         "elapsed": 1680.0446977, "surface_seconds": 10, "interior_seconds": 20},
+        {"stage": "split_surface_exit", "phase": "construction", "split_lane": 1,
+         "elapsed": 2577.249299, "surface_seconds": 907.2046013, "interior_seconds": 20},
+        {"stage": "split_interior_entry", "phase": "construction", "split_lane": 2,
+         "elapsed": 2577.3, "surface_seconds": 907.2046013, "interior_seconds": 20},
+        {"stage": "split_interior_exit", "phase": "construction", "split_lane": 2,
+         "elapsed": 2600.0, "surface_seconds": 907.2046013, "interior_seconds": 42.7},
+        {"stage": "length_split_exit", "phase": "construction", "split_lane": 2,
+         "elapsed": 2600.1, "surface_seconds": 907.2046013, "interior_seconds": 42.8},
+    ]
+    lane_intervals = intervals_for_invocation(lanes, 0)
+    setup_gap = next(row for row in lane_intervals if row["start_marker"] == "length_split_exit")
+    assert setup_gap["phase"] == "surface_with_setup"
+    assert abs(setup_gap["wall_interval_s"] - 897.2046013) < 1e-9
+    lane_handoff = next(row for row in lane_intervals if row["start_marker"] == "split_surface_exit")
+    assert lane_handoff["phase"] == "transition"
+    assert next(row for row in lane_intervals if row["start_marker"] == "split_interior_entry")["phase"] == "interior"
+    plain_surface = [
+        {"stage": "construction_entry", "phase": "construction", "split_lane": 1, "elapsed": 1.0},
+        {"stage": "split_surface_exit", "phase": "construction", "split_lane": 1, "elapsed": 3.0},
+    ]
+    assert intervals_for_invocation(plain_surface, 0)[-1]["phase"] == "surface"
+    ownership = [
+        {"stage": "construction_entry", "phase": "construction", "split_lane": 1, "elapsed": 0.5},
+        {"stage": "ownership_staged", "phase": "construction", "split_lane": 0, "elapsed": 1.0},
+        {"stage": "ownership_committed", "phase": "improvement", "split_lane": 0, "elapsed": 4.0},
+    ]
+    ownership_intervals = intervals_for_invocation(ownership, 0)
+    assert ownership_intervals[1]["phase"] == "phase_setup_repartition_staging"
+    assert ownership_intervals[2]["phase"] == "repartition_commit"
 
 
 def pid_for_rank(profile, rank):
