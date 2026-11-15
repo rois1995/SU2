@@ -1,0 +1,30 @@
+{
+  "state": "stopped_at_first_remaining_source_contradiction",
+  "resolved_prior_blocker": "P8 2.0e-r uses given-communicator worker peaks plus pre-worker idle-rank peaks as lower bound; exact parent sums at rendezvous. No parent reduction inside worker progress.",
+  "blocked_part": "P7 check(c): sum over ranks of final_proof/geometry_bound calls equals wall-face count",
+  "source": {
+    "scope": "Common/src/adaptation/CNativeAffineReference.cpp:2012-2014",
+    "direct_face_path": "Common/src/adaptation/CNativeBoundaryParameters3D.cpp:385-397",
+    "one_or_two_query_path": "Common/src/adaptation/CNativeBoundaryParameters3D.cpp:377-383",
+    "certificate_face_loop": "Common/src/adaptation/CNativeBoundaryParameters3D.cpp:428-434"
+  },
+  "reason": "EntityFaceError is called per face, but GeometryBound scopes count BoundPhysicalSurface queries. A direct face can make zero; other paths one or two. Splitting face lists does not change that distinction.",
+  "existing_event1_evidence": {
+    "log": "f3b_20261115/full_workflow/rank_output/1/rank.0/stdout:1137",
+    "geometry_bound_calls_per_rank": 31622,
+    "mesh": "f3b_20261115/full_workflow/adapted_mesh_adap_00001.su2",
+    "wing_faces": 52583,
+    "wing_count_line": 873124,
+    "farfield_faces": 2825,
+    "symmetry_faces": 11762,
+    "all_marker_faces": 67170,
+    "scope": "Retained completed event1; no new numerical run. WING3D alone exceeds query count."
+  },
+  "production_changes": false,
+  "builds": 0,
+  "numerical_runs": 0,
+  "ordered_checks_a_b_c": "not started after source contradiction",
+  "independent_readonly_review": "Confirms source mismatch; marker counts above verified by primary.",
+  "next": "Report contradiction without independent timer/gate redesign; preserve one connected P7/P8/counter change.",
+  "unix": 1794765858.9337173
+}

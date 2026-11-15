@@ -1,35 +1,38 @@
-# P7/P8/counters — stopped at the first source contradiction
+# P7/P8/counters — corrected P8 checked; remaining P7 gate contradiction
 
-2026-11-15. No production edit, build or numerical run. The requested P7/P8/M18/M20/M21 connected change cannot satisfy P8 as written for the supported worker-subset configuration. Stopped during the source check, under AGENTS.md's instruction to report a contradiction without independently redesigning the proposal. No partial P7 or counter implementation.
+2026-11-15. **Stopped at the first remaining source contradiction, before production edits, build or numerical checks.** P8 section2.0e-r resolves the previously reported communicator mismatch. P7 check(c), which the user says remains unchanged, equates lower-level geometry-query calls with wall faces. The source and retained M6 output contradict that equality. No independent timer/gate redesign and no partial implementation of the ONE connected P7/P8/M18/M20/M21 item.
 
-## Preceding F3b correction passes
+## P8 correction checked
 
-Section2.0b-r is complete: assert timer row root/rank agrees with its summary, copy old-cavity rows with `dict(row)`, run ONLY the corrected helper once on existing outputs. Exit0; complete_milestone_receipt.json passed; all six mesh/reference/restart payloads equal P6c. No build or numerical repeat. [F3b report](ADAPTATION_F3B_20261115.md).
+The previous report is preserved at checkpoint a27f56cd78 and R/p7p8_source_check_20261115. Section2.0e-r now defines JobPeakRSS3D for the given communicator. Workers add idle-rank lifetime peaks captured collectively before worker execution; this is a lower bound. Exact parent-communicator sums occur at Remesh start, after the worker barrier and at Remesh end. EngineOptions carries the limit and idle contribution. No parent collective is required inside worker-only progress.
 
-## First contradiction: P8 stage-boundary whole-job memory sum
+This matches the inspected structure: Remesher523 splits workers, 533–534 enters the worker World, 667–674 waits at the parent barrier and phase(10) follows it. The parent sum before the worker branch can be executed by every CFD rank. Monotonic process peaks justify the lower-bound relation even if MPI background activity raises idle-rank peaks. The exact parent values at rendezvous remain required. No code was changed to implement it yet.
 
-P8 item2 defines JobPeakRSS3D(comm) as SUM of process peak RSS over the job. Item3 requires it in engine observe_progress at every stage boundary, including ownership_staged. These requirements conflict with worker-subset execution:
+## First remaining contradiction: P7's unchanged call-count gate
 
-| Source | Fact |
+P7 check(c) requires the sum over ranks of `final_proof / geometry_bound` calls to equal the count of wall faces. Those calls count queries, not face proofs:
+
+| Source | What is counted |
 |---|---|
-| config_template.cfg:2921–2924 | ADAP_NATIVE_RANKS=M<N is explicitly supported; CFD communicator remains unchanged. |
-| Common/src/CConfig.cpp:6440–6441 | Validation rejects M>N, allowing M<N. |
-| Common/src/adaptation/CNativeRemesher3D.cpp:523 | MPI_Comm_split excludes parent ranks >=M from the worker communicator. |
-| Same file:533–534 | Only the M workers enter the engine, using World workers(comm). |
-| Same file:667–674 | Nonworker ranks wait in a parent communicator barrier until worker execution returns. |
-| Common/src/adaptation/CNativeEngine3D.cpp:1809–1817 | observe_progress runs inside the worker engine and uses its World. |
-| Same file:3024 | ownership_staged invokes that worker-only observe_progress. |
+| Common/src/adaptation/CNativeAffineReference.cpp:2012–2014 | GeometryBound scope is entered by BoundPhysicalSurface. |
+| Common/src/adaptation/CNativeBoundaryParameters3D.cpp:428–434 | GeometryCertificates iterates surface faces and calls EntityFaceError(Magnitude) while that entity remains within tolerance. |
+| Same file:385–397 | A supported face uses SurfaceError directly; it can return without a BoundPhysicalSurface call. |
+| Same file:377–383 | The query path calls BoundPhysicalSurface for Classification and may call it again for Magnitude: one or two scopes per face. |
 
-JobPeakRSS3D(world.comm) at engine boundaries sums only M workers and omits N−M nonworker peaks. It is not the required whole-job sum. Passing parent.comm there would block the reduction because nonworkers are at the parent barrier, not participating in that reduction. Using the application communicator has the same mismatch. Parent-communicator checks at Remesh start/end are feasible, but do not implement the specified whole-job stage-boundary gate.
+Moving the same face function to owned-face lists does not establish one GeometryBound call per face. Its value is not a reliable proof-face counter. No new enclosing scope or revised acceptance counter was silently substituted.
 
-The all-six-worker M6 case would conceal this issue; passing it would not qualify the option for the existing subset-worker caller. No M=N restriction, idle-rank estimate, communicator service or other replacement design was introduced. Reviewer correction is needed for this configuration.
+Retained accepted F3b event1 evidence (read-only, no numerical rerun):
 
-## Scope reached and checks not started
+- rank0 stdout line1137 records final_proof geometry_bound calls=31,622.
+- adapted_mesh_adap_00001.su2 lines873123–873124: WING3D has52,583 faces.
+- FARFIELD has2,825 and SYMMETRY11,762; all markers total67,170. WING3D alone exceeds31,622. The marker labels are kept distinct;67,170 is not the wing count.
 
-P7 source locations were inspected: BoundaryParameterState::GeometryCertificates at CNativeBoundaryParameters3D.cpp:414–449, entity finish at CNativeEngine3D.cpp:1973–1985 and legacy owned-cell GeometryPatch pattern at1995. The existing import caller at CNativeImport3D.cpp:479 must keep its behavior. P7 acceptance was not reached after the connected item's first contradiction.
+The proposal's approximately31,622 query-count prediction is compatible with the existing query timer, but its separate face-count equality is not. The required gate needs reviewer clarification/correction before this item can be implemented as written. Primary source review and a bounded read-only second opinion agree on the source distinction.
 
-P8 reaches config declaration/registration/validation/template, EngineOptions/EngineStop, runtime RSS helper, Remesh start/end, engine progress and refusal paths, plus serial/MPI tests. M18 reaches CurvedSearch/cache statistics; M20 private repair work/window reporting; M21 ownership-transition RSS/exchange reporting. None was edited or executed.
+## Check status and scope
 
-Ordered checks (a) units including P7 split-list equivalence and P8 MPI1/2/refusal, (b) exact collapse, (c) one full two-event M6 milestone are all NOT STARTED. No claim about new certificate equivalence, job memory enforcement or counter values. Existing 20 GB/time/physical gates and A5/B5 withdrawals are unchanged.
+F3/F3b remains complete: authorized report-helper-only correction passed once and all six retained payloads match P6c. It was not rerun for this source check. [F3b report](ADAPTATION_F3B_20261115.md).
 
-Evidence: R/p7p8_source_check_20261115/source_check.json, source_hashes.json and SHA-sealed reviewer handoff/design snapshots. R=integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57. Primary source review and the bounded read-only second opinion agree. No owned heavy job was launched.
+P7/P8/counters: no production edit, build or numerical run; ordered checks(a) units, (b) first collapse and(c) one full two-event milestone NOT STARTED. Source checking stopped at the first remaining contradiction; no complete qualification of unimplemented P7 or the new memory gate is claimed. No partial P7, option or counter changes. A5/B5 remain withdrawn; no cache/limit/geometry/quality gate changes.
+
+Evidence: R/p7p8_corrected_source_check_20261115/source_check.json, source_hashes.json and SHA-sealed reviewer handoff/design snapshots. R=integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57. No owned heavy job was launched.
