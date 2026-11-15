@@ -1,0 +1,86 @@
+{
+  "schema": "n4_prefix_controller_receipt_v1",
+  "files": [
+    "run_prefix_controller.py",
+    "compare_integer_rows.py",
+    "source_check.md",
+    "unchanged_build499_source_pins.json"
+  ],
+  "causes_and_corrections": [
+    {
+      "cause": "Reused F3b runner roots assumed a shallower directory and historical 494 baseline counts.",
+      "correction": "Set N4/staged57/build paths explicitly; preserve historical 494 checks as references while G2 independently enforces 480/473/346/263/469/464 and exact 90,809,869 upper work."
+    },
+    {
+      "cause": "Historical F3b output was being used as a candidate integer-prefix comparator.",
+      "correction": "Add reference-capture mode with no historical integer comparison; candidate mode requires a terminal, passing same-gate N4 capture and pins its stdout streams."
+    },
+    {
+      "cause": "GQ must anchor on the third NATIVE3D_QUALITY stage=window row for each rank; quality_entry is a different marker.",
+      "correction": "Count exact window rows per rank and compare through the existing comparator\u2019s per-rank anchor; every GQ run first passes exact G2."
+    },
+    {
+      "cause": "Prefix runs terminate before native final summaries, so the whole-job RSS gate cannot rely on event summary rows.",
+      "correction": "Track per-process VmHWM by PID/start-tick identity, retain peaks after exit, and stop above 19,999,490,048 bytes."
+    },
+    {
+      "cause": "The global build output may be mutable after build completion.",
+      "correction": "Execute the local-only sealed N4 reference binary and verify its SHA against both build status and original build output."
+    },
+    {
+      "cause": "Comparator treated NATIVE3D_QUALITY debt_removed decimal measurement as an integer gate counter.",
+      "correction": "Ignore the exact floating measurement key and self-check that 0.0 versus 0.125 does not affect prefix equality."
+    }
+  ],
+  "self_checks": {
+    "py_compile": true,
+    "controller_self_check": {
+      "passed": true,
+      "quality_window_counts": {
+        "0": 4,
+        "1": 4,
+        "2": 4,
+        "3": 4,
+        "4": 4,
+        "5": 4
+      },
+      "integer_comparator_checks": 19
+    },
+    "comparator_self_check": {
+      "passed": true,
+      "checks": 19
+    },
+    "build_source_pins": {
+      "passed": true,
+      "source_pin_count": 1550,
+      "binary_sha256": "63a035efcf162e4b19e5ba288ef7c19e149e9a744691f02f658db2895f440dbc"
+    },
+    "runtime_dependencies": {
+      "passed": true,
+      "loaded_libraries": 15,
+      "runtime_pin_count": 193
+    },
+    "accepted_reference_streams": 6
+  },
+  "launch_contract": {
+    "G2_counts": [
+      480,
+      473,
+      346,
+      263,
+      469,
+      464
+    ],
+    "G2_upper_work_sum": 90809869,
+    "G2_upper_refinements": 0,
+    "GQ_anchor": "third NATIVE3D_QUALITY stage=window per rank",
+    "GQ_requires_G2": true,
+    "max_sum_rank_process_peak_hwm_bytes": 19999490048,
+    "ranks": 6,
+    "nice": 19,
+    "threads": 1,
+    "native_event_budget_seconds": 5400
+  },
+  "numerical_run_launched": false,
+  "production_sources_changed": false
+}

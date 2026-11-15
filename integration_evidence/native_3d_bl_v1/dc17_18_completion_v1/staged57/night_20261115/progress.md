@@ -7,7 +7,7 @@ Updated 2026-11-15. Latest order: NIGHT_WORK_ORDER.md (SHA-sealed input_manifest
 | N1 P7/P8/counters | FAILED; connected code/config/tests reverted to F3b bytes | First event2 NELEM855828 vs855760 (+68), points+7; event1all3identityPASS; physical/memory/timersPASS; R5readonlydiagnosiscomplete, no transcription | Commit/push revert+evidence, then N3 |
 | N2 B7 | NOT STARTED | Depends on accepted N1; failed-run M18 is not qualified input | Continue independent N3 |
 | N3 design source check | PASSED (read-only review completed) |14 consolidated findings/readings; M11/M15/M17/M19 and T1–T3 answered; no build/run/productionedit; see Handbook/ADAPTATION_DESIGN_SOURCE_CHECK_20261115.md | Commit/push, then N4 C/inventories/sourcecheck and reference gates |
-| N4 Adapt cut8.2 | NOT STARTED; user acceptance received | ReadC/inventories atstart; recordG2/G3/GQreferencebeforeedit | acceptedN1/N2base, orF3bafterfailed/revertedN1 |
+| N4 Adapt cut8.2 | ACTIVE sourcecheck/reference preparation; no productionedit | C+bothinventories read completely; source6941fcc41c=acceptedF3b; new referencebuild prepared | Freeze/rebuild F3b; G2/G3/GQ before A1 |
 | N5 all design measurements | NOT STARTED | use newestaccepted commit | afterN4 |
 | N6 further identical cuts | NOT STARTED | requirescompletedN4+G5 | Remesh,MeshOptimizer,Selection |
 | N7 morning report | NOT STARTED | always | finalclose/terminalhandles |
@@ -31,3 +31,17 @@ R5 diagnosis complete: prepared-cache→StructuralEstimate→global observed pie
 N1 revert becb4927c9 pushed; newestaccepted implementation remains48f07ad1a8+report-helpera27f56cd78. N3started1794777488/deadline1794788288, no numericalrun. PriorN1helperrestart cancelled, all9ownedhandles hostverifiedterminal.
 
 N3completed within3hours: one consolidated14-item sourcecheck, qualifiedcontactproofdata/conditions, requiredMsourceanswers andwhole-designcoverage. No behavior-changingdesign accepted/implemented. NextN4: readC/bothinventories completely; sourcecheckWHOLEcut; rebuildrestoredF3b andrecordG2/G3/GQbeforefirstedit.
+
+N3checkpoint6941fcc41c pushed. N4started: C194lines and bothinventories586/694lines readcompletely. Constructor/callback/Selection-writefactschecked. Referencebuild ownhelper prepared with1540+current-sourcepins and ACTUAL v3-p5 buildmetadata; no C++edit. Resources hostload1.74,available~49.5GB, repositorydisk~36.5GB.
+
+N4 live rebuild tool63730: controller1870291/start27335226, ninja1870303/start27335244, nice19/j4. Whole-cut sourcecheck saved Handbook/ADAPTATION_ADAPT_CUT_20261115.md before firstproductionedit; all18findings/readings, no unresolvedresultcontradiction. Next referenceG2/G3/GQ, thenA1.
+
+N4referencebuildPASSED870.265s/347actions; sourcepinsunchanged, CFD63a035efcf16/test9b7d005b8eb9. AcceptedF3bcode rebuilt; referencebinaries preservedlocalCOW. Tool63730terminal0; noCPPedit. Next hostterminalreceipt, G2/G3/GQrefs.
+
+N4countercomparatorR3repairs: wrongliteralRpath/root, missing/earlysyntheticanchor, lostQUALITYsuffix/invalidfamilyrequiredkeys, no-suffixranktimingsmisclassifiedasintegers, nonstablefirstkeyorder. Correctedwithoutproductionchange;18assertions+primaryactualacceptedF3bsamecaseG2/GQPASS (primary_comparator_review.json). Referencehelpersstillpreflightreview; no ownedheavyjob afterterminalbuild.
+
+N4G2referenceLIVEtool2727, app/sessionleader1929881/start27479691/pgid1929881, started1794782490.7615. ExecutessealedF3bCFD63a035efcf16; referencesnewcapture(notcomparisonhistoricalrows). G2exact90809869work/counts480/473/346/263/469/464/refinements0 andSUM6HWM19999490048B enforced. Source/runner/comparator/N4status/sourcecheckCOPYfrozen; onlyprogressappendallowed. NextfinishSAMEjob, thenG3/GQreferencebeforeA1.
+
+N4G2referencePASSEDtool2727terminalcontroller0/app-15intentionalprefixstop:317.194suntilstop/326.125ssealed, exact90809869work/counts480/473/346/263/469/464/zeroRefinements; all9ownedterminal,pins/inputsunchanged. Fullintegerprefixsavedreference_G2/rank_output. NextSAMEbaseG3C492reference, thenGQbeforeCPPedit. Counterhelperfinal19asserts(includingLADDERdebt0/decimalignored)PASS.
+
+N4G3referenceLIVEtool52386, serialC492case cases/n4_bl_20261115T224821_1945316, root1945616. Unchangedfixture/388.8sstagebudget/336-prefix; build509aliasofacceptedF3b. Launchhost2.23load/49.5GBavailable. Unithelperfrozen; standaloneORhiddenfilterbugfixedbeforeanytest(ORtermsnoweach~[.]); actualdriverlist-onlycatalog375serial/57MPIselectedexactly,nohidden/unrelated. G3/GQstillrequiredbeforeCPPedit.

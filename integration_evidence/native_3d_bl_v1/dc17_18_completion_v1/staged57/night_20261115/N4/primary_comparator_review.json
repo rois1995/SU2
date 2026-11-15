@@ -1,0 +1,58 @@
+{
+  "self_check": {
+    "passed": true,
+    "started_unix": 1794782151.1849785,
+    "checks": 18,
+    "causes_and_corrections": [
+      {
+        "cause": "Initial helper root was set for the shallower repository-root R path.",
+        "correction": "After relocation to staged57/night_20261115/N4, set root to parents[6]."
+      },
+      {
+        "cause": "Synthetic G2 anchor was initially absent, then placed before all rows.",
+        "correction": "Emit one length_collapse_exit anchor after the rows under comparison."
+      },
+      {
+        "cause": "The initial marker matcher collapsed QUALITY_LOCATION, QUALITY_LADDER and QUALITY_DRIFT into the base family.",
+        "correction": "Capture each full marker literal, require identity fields by exact marker, and anchor GQ only on base QUALITY."
+      },
+      {
+        "cause": "The rank summary prints tracked-collective timings and elapsed fields without a seconds suffix.",
+        "correction": "Added the source-listed rank timing names and elapsed to the measured-field exclusions; byte/call counters remain compared."
+      },
+      {
+        "cause": "Set iteration made the first reported differing key nondeterministic.",
+        "correction": "Sort identity and integer key traversals."
+      }
+    ],
+    "limitations": [
+      "Requires rank_output files to pair by relative path; run.log fallback is one stream.",
+      "G2/GQ anchors are required in every logical rank represented across physical streams."
+    ]
+  },
+  "actual_accepted_F3b_same_case_GQ": {
+    "passed": true,
+    "first_difference": null,
+    "streams": [
+      "rank_output/1/rank.0/stdout",
+      "rank_output/1/rank.1/stdout",
+      "rank_output/1/rank.2/stdout",
+      "rank_output/1/rank.3/stdout",
+      "rank_output/1/rank.4/stdout",
+      "rank_output/1/rank.5/stdout"
+    ]
+  },
+  "actual_accepted_F3b_same_case_G2": {
+    "passed": true,
+    "first_difference": null,
+    "streams": [
+      "rank_output/1/rank.0/stdout",
+      "rank_output/1/rank.1/stdout",
+      "rank_output/1/rank.2/stdout",
+      "rank_output/1/rank.3/stdout",
+      "rank_output/1/rank.4/stdout",
+      "rank_output/1/rank.5/stdout"
+    ]
+  },
+  "scope": "Readonly parser verification, no numerical execution."
+}

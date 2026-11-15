@@ -1,0 +1,41 @@
+{
+  "helper": "compare_integer_rows.py",
+  "initial_start_unix": 1794781339.4776568,
+  "fixture_deadline_unix": 1794786739.4776568,
+  "review_correction_start_unix": 1794781885.8110104,
+  "latest_self_check_start_unix": 1794781965.912346,
+  "repairs": [
+    {
+      "cause": "The helper was initially created under repository-root R/night_20261115/N4 instead of the sealed staged57/night_20261115/N4 path.",
+      "correction": "Moved the sole helper to the requested evidence path and removed empty R directories."
+    },
+    {
+      "cause": "The shallower helper path used a root depth that did not fit the sealed evidence path.",
+      "correction": "Set ROOT to Path(__file__).resolve().parents[6]."
+    },
+    {
+      "cause": "Synthetic G2 anchor was initially absent, then placed before all rows.",
+      "correction": "Emit one length_collapse_exit anchor after rows under comparison."
+    },
+    {
+      "cause": "The initial matcher collapsed QUALITY_LOCATION, QUALITY_LADDER and QUALITY_DRIFT into the base marker and applied base required fields to all.",
+      "correction": "Preserve full marker literals, require identity fields by exact family, and anchor GQ only on exact NATIVE3D_QUALITY rows. Added passing family checks and mutations for each counter family."
+    },
+    {
+      "cause": "NATIVE3D rank timing fields nested_tracked_collectives/import/parent/worker and elapsed can print as integer zero without a seconds suffix.",
+      "correction": "Exclude those measured duration fields using writer-specific names; retain tracked bytes/calls and native_bound."
+    },
+    {
+      "cause": "Set iteration made first differing key selection nondeterministic.",
+      "correction": "Sort identity and integer key traversals."
+    }
+  ],
+  "checks": {
+    "self_check": "PASS, 18 assertions including QUALITY_LOCATION/LADDER/DRIFT pass and counter mutations fail",
+    "same_case_all_six_streams": "PASS, metric_target219_production/L1 compared against itself"
+  },
+  "limitations": [
+    "Rank output files are paired by relative path; run.log fallback is one stream.",
+    "G2/GQ require logical rank anchors 0 through 5 across the physical streams."
+  ]
+}

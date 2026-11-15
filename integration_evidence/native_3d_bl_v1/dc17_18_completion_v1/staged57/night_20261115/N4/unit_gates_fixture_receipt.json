@@ -1,0 +1,93 @@
+{
+  "receipt_type": "N4 unit-gate helper setup and list-only selection evidence",
+  "created_utc": "2026-11-15T22:49:13Z",
+  "task_timebox_minutes": 45,
+  "task_start_utc": null,
+  "task_deadline_utc": null,
+  "time_note": "The task requested a 45-minute maximum, but its start timestamp was not captured; no inferred deadline is recorded.",
+  "scope": {
+    "repository": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated",
+    "n4_root": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N4",
+    "g3_case": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/n4_bl_20261115T224821_1945316",
+    "g3_root_pid_reported_by_parent": 1945616,
+    "g3_controller_tool_handle_reported_by_parent": 52386,
+    "build_reference_status": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N4/reference_build/build_status.json",
+    "case_status": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/n4_bl_20261115T224821_1945316/status.json",
+    "only_file_created_by_this_bookkeeping_task": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N4/unit_gates_fixture_receipt.json",
+    "production_edits_or_numerical_launches_by_this_agent": false
+  },
+  "setup_causes_and_corrections": [
+    {
+      "cause": "The N4 retargeted F3b helper initially expected build status and source pins under N4 itself, although the authoritative build509 receipts live under N4/reference_build.",
+      "correction": "Retargeted the helper to read the status and pins from N4/reference_build. The staged run_cases-compatible build509 alias remains generated from those verified receipts; no separate N4-local source/status copy is used."
+    },
+    {
+      "cause": "run_cases.main raises SystemExit(0) on a successful cohort, which would have stopped G1 after the first serial cohort.",
+      "correction": "The wrapper catches successful SystemExit and rethrows nonzero exits so later cohorts can continue."
+    },
+    {
+      "cause": "A standalone Catch2 `~[.]` comma term is ORed with the inclusion terms and can select every nonhidden test, rather than excluding hidden tests from each inclusion.",
+      "correction": "The helper appends `~[.]` to each comma-separated inclusion term, making the exclusion conjunctive for every OR branch. Actual driver list-only checks verified exact source-derived selections."
+    },
+    {
+      "cause": "An inline integer-row parser was initially drafted and did not preserve the comparator's canonical marker parsing and measurement exclusions, including TIMER call counters.",
+      "correction": "The wrapper imports the existing sibling compare_integer_rows.py and uses marker_rows and integer_values. TIMER `calls` remain canonical integer values. The comparator file was not edited; its path is included in the G3 extra source pins."
+    },
+    {
+      "cause": "The first list-only attempt in the default sandbox could not initialize OpenMPI because local socket creation was denied. A first unsandboxed attempt then failed MPI_Win_create because it lacked the existing runner's OSC setting.",
+      "correction": "List-only enumeration used the runner's OMPI_MCA_osc=pt2pt setting. No tests were executed. The initial sandbox socket failure and the intermediate MPI_Win_create failure were not treated as test results."
+    }
+  ],
+  "g1_source_catalog": {
+    "source": "UnitTests/Common/adaptation/CNativeDistributed3D_tests.cpp",
+    "public_native_3d_case_count": 102,
+    "native_3d_tag_count": 65,
+    "rank_guarded_tag_count": 32,
+    "guard_rule": "A tag is classified rank-guarded only when every case carrying that tag has a lexical if(world.size|world.rank) in the test body.",
+    "selection_scope": "Serial filter supplements run_cases.CASES['serial_full'] with all cataloged Native*3D tags plus NativeGeometryBackend3D, NativeTimerTree3D, NativeBoundedGuidance3D, and NativeBoundaryGuidanceMemo3D. MPI2 and MPI4 filters supplement the existing mpi2 cohort with the 32 rank-guarded tags. Each OR term excludes hidden tests with ~[.].",
+    "limits": [
+      "The catalog parser inventories CNativeDistributed3D_tests.cpp; the four named supplementary tags cover selected additional backend/timer/guidance tests outside that catalog.",
+      "Rank-guard classification is lexical and is not runtime proof that all branches are safe at both two and four ranks.",
+      "Actual list-only enumeration validates selected names against source-derived test declarations; it does not execute tests or establish gate behavior."
+    ]
+  },
+  "list_only_selections": [
+    {
+      "cohort": "G1 serial",
+      "selected_names": 375,
+      "source_expected_names": 375,
+      "unrelated_names": 0,
+      "missing_expected_names": 0,
+      "hidden_names": 0,
+      "driver_exit_code": 119,
+      "exit_code_explanation": "Catch's list operation returns the number of listed names; 375 modulo the shell's 8-bit process status is 119.",
+      "selected_names_sha256_sorted_newline_joined": "b5c41ee08cf875fab9eef3192d3202df63b693c09a16053df6a3eb3c284803bb"
+    },
+    {
+      "cohort": "G1 MPI guarded selection, used at 2 and 4 ranks",
+      "selected_names": 57,
+      "source_expected_names": 57,
+      "unrelated_names": 0,
+      "missing_expected_names": 0,
+      "hidden_names": 0,
+      "driver_exit_code": 57,
+      "selected_names_sha256_sorted_newline_joined": "ee602b6aa0681eb9b6b5cc1bb1f7f6dd89badb02965b8911e7370aaab4e31b4b"
+    },
+    {
+      "cohort": "NativeGeometryBackend3D spot list-only check",
+      "selected_names": 30,
+      "source_expected_names": 30,
+      "unrelated_names": 0,
+      "missing_expected_names": 0,
+      "hidden_names": 0,
+      "driver_exit_code": 30,
+      "selected_names_sha256_sorted_newline_joined": "2a802e768ce9c2dfffdffefab7544e38f3219ce00a6027770954169d081890d5"
+    }
+  ],
+  "helper_checks": {
+    "py_compile": "pass",
+    "read_only_self_check": "pass: syntax, BL reference, build509 terminal and pins, row comparator TIMER calls handling",
+    "production_test_cases_executed": false,
+    "numerical_jobs_launched": false
+  }
+}
