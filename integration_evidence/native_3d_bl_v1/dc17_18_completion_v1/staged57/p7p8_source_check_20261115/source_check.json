@@ -1,0 +1,24 @@
+{
+  "proposal": "P7 + P8 + M18/M20/M21 connected change",
+  "state": "stopped_at_first_source_contradiction",
+  "blocked_part": "P8 whole-job RSS inside engine observe_progress with worker subsets",
+  "supported_configuration": "ADAP_NATIVE_RANKS M < parent.size N",
+  "source_references": {
+    "documented_support": "config_template.cfg:2921-2924",
+    "configuration_validation": "Common/src/CConfig.cpp:6440-6441",
+    "worker_comm_split": "Common/src/adaptation/CNativeRemesher3D.cpp:523",
+    "worker_only_engine": "Common/src/adaptation/CNativeRemesher3D.cpp:533-534",
+    "nonworkers_wait": "Common/src/adaptation/CNativeRemesher3D.cpp:667-674",
+    "engine_progress": "Common/src/adaptation/CNativeEngine3D.cpp:1809-1817",
+    "ownership_staged": "Common/src/adaptation/CNativeEngine3D.cpp:3024"
+  },
+  "contradiction": "Worker communicator SUM omits nonworker process peaks. Parent communicator SUM in engine stage progress cannot complete while nonworkers wait in the parent barrier. P8 requires the whole-job sum at that location.",
+  "review": "Primary source review and bounded read-only second opinion agree. No replacement design.",
+  "production_changes": false,
+  "P7_partial_implementation": false,
+  "counter_implementation": false,
+  "builds": 0,
+  "numerical_runs": 0,
+  "checks_a_b_c": "not started after source contradiction",
+  "next": "Reviewer correction required for subset-worker behavior; preserve one connected change."
+}

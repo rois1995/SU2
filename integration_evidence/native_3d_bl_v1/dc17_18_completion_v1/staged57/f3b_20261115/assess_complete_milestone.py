@@ -37,7 +37,10 @@ def root_receipts():
         assert len(set(ranks.values())) == 1, (root, 'different event counts', dict(ranks))
     assert {'metric', 'remesh', 'replace', 'mesh_output'}.issubset(counts), counts
     assert all(value == 2 for value in counts['remesh'].values()), counts['remesh']
-    old_measurements = [dict(root=record['summary']['root'], rank=record['summary']['rank'], **row)
+    for record in records:
+        for row in record['rows']:
+            assert row['root'] == record['summary']['root'] and row['rank'] == record['summary']['rank']
+    old_measurements = [dict(row)
                         for record in records for row in record['rows']
                         if row['operation'] == 'old_cavity_measurement']
     assert old_measurements, 'Required old-cavity measurement node was never recorded'

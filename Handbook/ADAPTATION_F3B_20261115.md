@@ -1,8 +1,8 @@
-# F3b — implemented; stopped at final assessment failure
+# F3b — complete after reviewer-authorized helper correction
 
-2026-11-15. **F3b is not fully accepted.** The one numerical workflow exited normally; both complete-event timer gates and the independent physical validator passed. The final assessment helper then failed with `TypeError: dict() got multiple values for keyword argument 'root'`. Stopped at this first failed assessment as requested. No helper fix, rerun, later check or second implementation was made. A5/B5 are withdrawn and untouched.
+2026-11-15. **F3/F3b complete.** Reviewer section2.0b-r corrected the reporting-only failure: assert every timer row's root/rank equals its summary, then copy old-cavity rows with `dict(row)`. Ran only `assess_complete_milestone.py` once on the retained outputs: exit0, `complete_milestone_receipt.json` passed, all six final payloads byte-identical to P6c. No build, numerical run or repeated physical validation. Both complete-event timer gates and independent physical results from the original run are retained. A5/B5 remain withdrawn.
 
-Evidence: `R/f3b_20261115`, where R is `integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57`. See `first_failure.json`, `final_assessment_failure.txt`, `full_workflow/status.json` and the saved event/physical receipts. Implementation checkpoint: `48f07ad1a8` (pushed). The final failure and results are preserved by the closing checkpoint.
+Evidence: `R/f3b_20261115`, where R is `integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57`. See `first_failure.json`, `final_assessment_failure.txt`, `full_workflow/status.json` and the saved event/physical receipts. Implementation checkpoint: `48f07ad1a8` (pushed). The original failure/results are preserved by checkpoint `98c1565456`; `report_helper_correction_receipt.json` seals the authorized helper-only correction.
 
 ## Implementation
 
@@ -28,8 +28,8 @@ Build504 froze 1,543 source/build inputs. CFD SHA `2ba0d897c186cad1533ed1e1da9c1
 | (c) One two-event numerical workflow | Normal exit 0; all owned handles terminal; pins unchanged | 5,082.303 process / 5,091.350 controller |
 | (c) Complete-event timer gates | PASS on every rank for both events | See below |
 | (c) Independent physical workflow validator | PASS, no errors; strict mesh, transfer, continued CFD, time and memory | See below |
-| (c) Final milestone assessor | **FAIL: reporting-helper TypeError at line 40; stopped** | — |
-| (c) All six payloads versus P6c | **Not reached after failure** | — |
+| (c) Final milestone assessor | Original TypeError stopped the campaign; reviewer-authorized helper-only correction now PASS once | — |
+| (c) All six payloads versus P6c | PASS in the corrected helper; both mesh/reference/restart triplets identical | — |
 
 44 of 422 preserved objects changed, including the conditional checks' executed objects. Therefore all affected build503 checks were repeated once after (b), before (c); no invalid evidence reuse. Receipts are `object_reuse_decision.json`, `check_b_receipt.json`, `C492_repeat_receipt.json` and `final_checks_sequence.json`.
 
@@ -59,12 +59,12 @@ Both events satisfy 5,400 s and decimal 20 GB limits. Reported process lifetime 
 
 The 95% complete-event coverage and 1% join-agreement gates pass. The largest relative join difference is 1.5894e-6 (0.000159%). Prediction ranges are observations to compare, not extra gates: quality unattributed was 13.397–30.518 s in event 1 and 3.518–13.677 s in event 2, versus approximately 15–25 s predicted. Some event-1 and all event-2 coverage values exceed the approximate 96.5–97% prediction. No tuning was done. Clearance and old-cavity values above are exclusive; inclusive legacy times and repeated snapshots are nonadditive. Old-cavity includes old edge/field work, not only q/J.
 
-## First failure and remaining scope
+## Preserved failure, authorized correction and remaining scope
 
-`assess_complete_milestone.py:40` constructs `dict(root=..., rank=..., **row)` for old-cavity report rows. Each row already has root/rank keys. Python raises before the helper returns its lifecycle-root aggregate or calls payload_identity. No `complete_milestone_receipt.json` was produced. The numerical outputs remain local, but all-six P6c identity and the aggregate receipt remain unestablished by this final check. This is a reporting helper failure, not a reported numerical acceptance failure.
+The original `assess_complete_milestone.py:40` used `dict(root=..., rank=..., **row)` even though row already held those keys. The campaign stopped on that TypeError. `first_failure.json` and `final_assessment_failure.txt` preserve it.
 
-The independent physical receipt and event timer receipts remain valid within their stated scope. They do not substitute for the uncompleted identity check. No fresh isolated disk restart was run, and reuse is not extended to unverified payload identity.
+The reviewer explicitly authorized the 2.0b-r correction and one helper-only invocation. It now asserts row/summary root and rank agreement before using `dict(row)`. The full aggregate receipt passes, including all production lifecycle-root ledgers and all six output hashes against P6c. No compiled source, build, numerical run, independent physical-validator rerun or new isolated disk restart was needed. Prior passing P6c isolated restart covers identical final payloads; no fresh restart is claimed.
 
 `source_and_readability_review.md` records all 78 argument tuples/order and unchanged World/join counters. New helper/closure bodies are four lines each; new functions satisfy the 80/15-line limits. Header and fixture clang-format18 dry-runs pass for baseline/current; legacy engine/distributed formatting and large-body debt remain explicit. No broad reformat or Adapt extraction.
 
-No further work under this request after reporting the failure. Curved BL remains unaccepted (surface not ready), dedicated BL MPI and RANS500k remain open. Design8.2–8.7 require user acceptance; A5/B5 remain withdrawn.
+The next connected P7/P8/M18/M20/M21 item stopped before implementation on a source contradiction in P8's whole-job memory collective at worker-only engine boundaries. [Source report](ADAPTATION_P7_P8_SOURCE_CHECK_20261115.md). Curved BL remains unaccepted (surface not ready), dedicated BL MPI and RANS500k remain open. Design8.2–8.7 require user acceptance; A5/B5 remain withdrawn.
