@@ -149,3 +149,9 @@ Evidence: R/night_20261115/N4/A1/{first_result_failure.json,readonly_diagnosis.j
 failed_production.diff,G1_terminal_handles.json,build_status.json}; raw cohort is
 R/cases/n4_native3d_serial_20261115T232613_2033368. G2/G3/GQ references were passed
 before this edit and are preserved; they do not establish that A1 passed G1.
+
+Failed checkpoint `ec0e8f3ef5` preserves the A1 code and raw G1 evidence. The sole
+production file has now been restored byte-for-byte to accepted F3b; its revert is
+the next commit. Shared build binaries still represent FAILED build510 and must
+not be used as the accepted implementation. Frozen F3b reference binaries remain
+in N4/reference_binaries. No numerical retry was launched.

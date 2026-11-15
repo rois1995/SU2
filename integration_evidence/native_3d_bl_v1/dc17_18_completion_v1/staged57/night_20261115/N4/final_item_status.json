@@ -1,6 +1,6 @@
 {
   "item": "N4",
-  "state": "FAILED_G1_A1_to_be_reverted",
+  "state": "FAILED_A1_production_reverted",
   "accepted_implementation": "48f07ad1a8",
   "reference_checkpoint": "4798ea3936",
   "A1_build_passed": true,
@@ -9,5 +9,8 @@
   "later_phases_started": false,
   "N6_started": false,
   "reason": "Existing numeric G1 assertion outside moved Adapt bodies fails; no authorized transcription correction found.",
-  "next": "Commit labelled failure, revert A1 in one commit; independent N5."
+  "next": "N5 measurement item; N6 NOT STARTED",
+  "failed_commit": "ec0e8f3ef5",
+  "production_reverted": true,
+  "production_matches_accepted_F3b": true
 }
