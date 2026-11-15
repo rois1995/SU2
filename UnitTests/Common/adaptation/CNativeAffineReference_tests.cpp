@@ -1099,8 +1099,20 @@ TEST_CASE("Geometry workload snapshots and cheap facet estimates", "[NativeSurfa
   CHECK(g.GeometryStatsSnapshot().scope_hits>=1);
   auto denied=GeometryAtlasBudget();denied.maximum_work=0;CHECK_THROWS(g.BoundSurfaceUnion({0},physical,.1,denied));
   CHECK(g.GeometryStatsSnapshot().union_exceptions>=1);
-  auto snapshot=g.GeometryStatsSnapshot(true);CHECK(snapshot.upper_calls>=2);auto reset=g.GeometryStatsSnapshot();CHECK(reset.upper_calls==0);CHECK(reset.scope_builds==0);
-  CHECK(reset.prepared_bytes==snapshot.prepared_bytes);CHECK(reset.prepared_limit==snapshot.prepared_limit);
+  const auto resident_before_reset = g.ResidentBytes();
+  auto snapshot = g.GeometryStatsSnapshot(true);
+  CHECK(snapshot.upper_calls >= 2);
+  auto reset = g.GeometryStatsSnapshot();
+  CHECK(reset.upper_calls == 0);
+  CHECK(reset.scope_builds == 0);
+  // Reset releases event-only diagnostic keys while preserving both prepared pools.
+  const auto released_event_bytes = resident_before_reset - g.ResidentBytes();
+  CHECK(reset.prepared_bytes + released_event_bytes == snapshot.prepared_bytes);
+  CHECK(reset.facet_bytes == snapshot.facet_bytes);
+  CHECK(reset.scope_bytes == snapshot.scope_bytes);
+  CHECK(reset.facet_entries == snapshot.facet_entries);
+  CHECK(reset.scope_entries == snapshot.scope_entries);
+  CHECK(reset.prepared_limit == snapshot.prepared_limit);
   MappedFacetReference uncached(reference,errors,29,SIZE_MAX,false,g.Curves(),0);
   auto uncached_budget=GeometryAtlasBudget();uncached.BoundPhysicalSurface({0},physical,.1,uncached_budget);
   CHECK(uncached.GeometryStatsSnapshot().retention_refusals>=1);

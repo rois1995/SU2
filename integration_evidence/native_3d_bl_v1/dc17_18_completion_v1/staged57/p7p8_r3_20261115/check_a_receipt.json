@@ -1,0 +1,59 @@
+{
+  "check_a_passed": true,
+  "scope": "Initialserial42passed/1diagnosticcounterfixturefailed; correctedstatscasespassed andallother selectedpassingobjectsunchanged; P8MPI2passed",
+  "cases": [
+    {
+      "mode": "serial",
+      "case": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/p7p8_r3_units_serial_20261115T192259_1416302",
+      "status": {
+        "state": "terminal",
+        "exit_code": 1,
+        "seconds": 118.63898706436157,
+        "pins_verified": true,
+        "changed": [],
+        "largest_sampled_individual_process_rss_bytes": 62611456,
+        "rss_note": "sampled process RSS; not a whole-job peak"
+      },
+      "summaries": [],
+      "P8completed": true
+    },
+    {
+      "mode": "stats",
+      "case": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/p7p8_r3_units_stats_20261115T192813_1429712",
+      "status": {
+        "state": "terminal",
+        "exit_code": 0,
+        "seconds": 4.488453149795532,
+        "pins_verified": true,
+        "changed": [],
+        "largest_sampled_individual_process_rss_bytes": 532480,
+        "rss_note": "sampled process RSS; not a whole-job peak"
+      },
+      "summaries": [
+        "All tests passed (43 assertions in 2 test cases)"
+      ],
+      "P8completed": false
+    },
+    {
+      "mode": "mpi2",
+      "case": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/p7p8_r3_units_mpi2_20261115T192852_1431442",
+      "status": {
+        "state": "terminal",
+        "exit_code": 0,
+        "seconds": 4.548577547073364,
+        "pins_verified": true,
+        "changed": [],
+        "largest_sampled_individual_process_rss_bytes": 851968,
+        "rss_note": "sampled process RSS; not a whole-job peak"
+      },
+      "summaries": [
+        "All tests passed\u001b[0m (11 assertions in 1 test case)",
+        "All tests passed\u001b[0m (13 assertions in 1 test case)"
+      ],
+      "P8completed": true
+    }
+  ],
+  "passing_object_receipt": "passing_serial_object_reuse.json",
+  "original_failure_is_only_corrected_report_fixture": true,
+  "reused_objects_verified_unchanged": true
+}

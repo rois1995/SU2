@@ -1,0 +1,223 @@
+# Implementation and validation cadence
+
+User order, 2026-11-15 (LATEST; replaces the "one correction" rule for fixtures):
+Your own test code is yours to make work. A test fixture, script or report helper that
+you wrote for an item is not production code and not a result gate. When it fails
+because of its own setup: find the cause, correct it, run it again, and repeat until it
+tests what the item asks. No limit on the count; limit of 90 minutes for one fixture.
+Never change production code, a gate or a tolerance to make a test pass. Write each
+cause and correction in the report afterwards. Do not stop and do not wait for the
+reviewer. Stop only when: (1) a result gate fails in a production run; (2) the source
+contradicts a proposal on a result; (3) the corrected fixture shows that the production
+code does not do what the item asks; (4) the 90 minutes end.
+
+User order, 2026-11-15 (LATEST; refines the "stop at the first contradiction"
+rule below): before any production edit, source-check the WHOLE item (all its
+steps, checks and counters, including connected items built together) and report
+ALL contradictions in ONE list with source lines/numbers; the reviewer answers
+them in one correction. A mismatch in a print-only counter or report row does not
+stop the item: report it with call-site counts and continue. Gates on results
+(mesh/output identity, accept/reject decisions, validity, geometry, quality,
+memory, time) stay strict: stop on their first failure. Still no attempt loops
+and no independent redesign.
+
+Reviewer correction supplied 2026-11-15: M6_FIX_HANDOFF.md section1.7 (P6c)
+supersedes waiting after P6. Same-fixture baseline scan first; implement the
+specified deferred-bound completion/counter/guard records and repeat the ordered
+checks once, stopping on first failure. No independent replacement fix.
+
+User order, 2026-11-15 (updated M6_FIX_HANDOFF.md): the reviewer supplies ideas
+and design; implement, build, run and report, without independent redesign.
+Check proposals against source first. On a contradiction or first failed check,
+stop that item, report source lines/numbers and available purpose/call-site counters,
+and wait for a corrected proposal. No attempt loops or self-invented follow-up fixes.
+P6 is isolated before the cheap group: set aside its open edits, implement section
+1.5, then run section 1.6 checks once in order, stopping on the first failure.
+No full M6 run until the preceding P6 gates pass. Do not change pinned fixture
+values; report changed counts/ranges. Keep F1's build494 count reference until
+P6's full two-adaptation milestone passes. Reviewer-owned one-engine design is
+read-only; after cheap-group profiling and F3, source-check it and measure M1–M8.
+No implementation of its steps8.2–8.7 before user acceptance.
+
+User order, 2026-11-14 (M6 fix handoff): protect shared-engine changes with the
+executed gates in `integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/shared_engine_regression_gates.json`.
+For each connected shared-code change, run the affected no-BL first-collapse
+work/count gate, exact saved-state BL repeat and native 2D BL/no-BL checks at
+1/2/4 ranks. Run the full two-adaptation no-BL workflow at integration milestones.
+Keep the stated time/work/resource and physical gates unchanged, and report failed
+or unevaluated gates explicitly. Artifact hashes alone prove files unchanged;
+they do not establish execution or performance preservation.
+
+User clarification, 2026-11-11 (LATEST CADENCE; supersedes earlier immediate-full-run retries):
+Use incremental, stage-based integration. Establish the execution sequence/timing
+from source and existing evidence. Work in order: saved CFD/geometry; composed
+metric/normalization (finish tangential-profile investigation); coupled surface
+preparation; constrained directions/first row; successive growth; outer transition
+and strict closure; transfer/continued CFD/second adaptation/isolated restart.
+Define each stage's input/output/acceptance before changes. Save credible reusable
+stage outputs with complete provenance and enough state to reconstruct the SAME
+composed target and geometry; sensor tensors alone are insufficient. Preserve
+validity-first provisional outputs with diagnosed quality debt; final gates still
+apply before mesh acceptance. Use focused checks and meaningful MPI integration
+milestones. Reserve full M6 retries for integration milestones or failures that
+cannot be reproduced at a stage boundary. Keep one cycle, one owned heavy job,
+budgets, source freezing and the complete final objective unchanged.
+Maintain Handbook/ADAPTATION_TIMINGS.md with current per-stage timings/work and
+evidence-backed major computational efficiency improvements; keep nested timers,
+contention and attribution gaps explicit.
+
+User clarification, 2026-11-11: RANS500k is a NOMINAL metric-complexity target,
+not an acceptance gate or exact node count. Explain overshoot and uncertainty;
+preserve requested normal heights/progression and all strict acceptance/resource gates.
+
+User clarification, 2026-10-30: the 500k adaptation target was intended for RANS,
+not Euler. Use a much smaller Euler target; the current functional-loop attempt
+uses 50k (an implementation choice), with 500k reserved for RANS. Keep all geometry,
+quality, transfer and requested-height gates strict. Report actual mesh point/cell
+counts separately from the metric-complexity target.
+
+User instruction, 2026-10-29: let the complete M6 attempt drive development.
+Freeze a coherent implementation, allow generous but bounded certification work,
+and attempt the requested CFD → mesh → CFD → mesh workflow. Address construction,
+certification or transfer/CFD according to that run's failure; focused checker
+changes and tests are diagnostics, not the immediate capability objective.
+
+Permanent user instruction, 2026-10-29 (overnight continuation): if the M6 run
+reveals a clear computational bottleneck whose fix will improve efficiency, or a
+construction/certification/transfer/CFD error, preserve its evidence, stop only the
+verified owned run, implement a connected fix, validate the affected behavior and
+rerun ONERA M6. Continue autonomously until a valid accepted Euler
+CFD → mesh → CFD → mesh loop succeeds; passing diagnostics are not completion.
+Then verify that BL generation still works before proceeding with the RANS grid
+and the same target-driven workflow. Keep strict acceptance gates, one owned heavy
+workload, resumable evidence and regularly pushed reviewable checkpoints. The user
+is unavailable overnight; resolve routine choices within the authorized scope
+without waiting for answers. This instruction persists across sessions/compaction.
+
+User instruction, 2026-10-12: prioritize substantial, connected implementation
+steps over repeated small checkpoints.
+
+- Group changes that solve the same end-to-end capability before running a broad
+  regression. Do not require the full suite after each small edit or checkpoint.
+- During implementation, run focused tests when they resolve a concrete failure,
+  exercise new risky behavior, or validate a changed interface. Documentation and
+  routine low-impact edits do not need a new test campaign.
+- Run appropriate broader regression at meaningful integration milestones and
+  before declaring the integrated result validated. Never weaken acceptance gates
+  or omit necessary correctness checks to satisfy this cadence.
+- Reserve MPI campaigns for substantial connected implementation milestones; do
+  not repeat them for each small local edit. Use focused serial checks during
+  development where they resolve a concrete risk.
+- Push reviewable checkpoints regularly. Clearly label incomplete or unvalidated
+  work; a checkpoint does not itself require repeating a previously passing suite.
+- Updates should state progress toward the actual end-to-end goal and its remaining
+  blockers, rather than treating each passing intermediate test as a milestone.
+
+## Capability-first implementation
+
+Permanent user instruction, 2026-10-14; applies across context compaction and
+future sessions.
+
+- Organize work around a complete end-to-end capability and its known difficult
+  failure, rather than repeatedly extending isolated operators until toy cases pass.
+- Before a substantial implementation, state the missing capability, the evidence
+  for its underlying limitation, and the acceptance conditions. Choose a connected
+  design that addresses that limitation across the affected callers and constraints.
+- Use the known difficult target and a small set of meaningfully different fields
+  or geometries to assess the complete change. Do not defer the difficult case
+  until a succession of easier checkpoints has passed.
+- Simple tests establish primitive correctness or resolve specific risks; they do
+  not establish robust mesh generation and must not be reported as capability
+  milestones. Keep private intermediate progress distinct from an admissible final
+  mesh and a successful adaptation/solution-transfer workflow.
+- The next meaningful curved-construction milestone is a complete accepted mesh
+  under unchanged constraints. If the current recovery cannot deliver it, reconsider
+  the construction strategy before adding another local fallback.
+- When a strategy stalls on the difficult target, preserve the diagnosis and
+  reconsider the construction or coordination it lacks. Do not keep adding local
+  variants or raising limits without evidence that they address the blockage.
+- Deliver substantial connected improvements, then validate at the cadence above.
+  Preserve the full agreed goal and all acceptance gates; neither a prototype nor
+  a passing fixture justifies narrowing the goal or declaring it complete.
+
+## Reuse and resumable validation
+
+Permanent user instruction, 2026-10-13; applies across context compaction and
+future sessions.
+
+- Reuse existing implementation and validation facilities before adding new ones.
+  Keep implementation and checks tied to the full agreed goal and its exclusions.
+- Reuse passing evidence when its scope covers the requirement and the relevant
+  source, build/binary, configuration, inputs and validation helpers remain valid.
+  Verify the needed provenance; source hashes alone do not prove unchanged runtime
+  behavior. Rerun checks affected by changes, failures or unresolved concerns.
+- Make long validation campaigns resumable: save complete independently validated
+  cases or stages with their provenance as they finish. A timeout must not discard
+  completed evidence or force successful work to repeat. Partial results cannot
+  establish whole-campaign success.
+- Resume a saved result only after verifying its relevant hashes and acceptance
+  conditions. Preserve failures and diagnostics, keep resource/work limits explicit,
+  and require every planned case or stage before declaring completion.
+- Before restarting a job, verify its existing process/session/job handle. Elapsed
+  time, an observation timeout or stale logs alone do not establish termination.
+- Keep compiled/executing/pinned C++ sources unchanged throughout a build or validation
+  campaign. Verify the owned handle is terminal before editing those sources. Git
+  snapshots and documentation updates are allowed without changing the pinned code.
+
+## Adaptation architecture
+
+User instruction, 2026-10-14: Euler-to-BL and BL-to-Euler describe validation
+scenarios, never production transition modes. Mesh construction and removal must
+follow the target metric, geometry authority and currently requested wall-height
+constraints through general remeshing operators. Do not dispatch reconstruction
+from Euler/RANS labels, an inferred input-mesh class, case names, saved coordinates
+or fixture identities. Solver compatibility and solution-transfer checks remain
+separate from mesh reconstruction. Wall-aware operators are allowed to enforce
+actual geometric constraints; limited fixture success does not establish general
+robustness. Qualify wider fields/geometries rather than adding scenario switches.
+
+## Handbook maintenance
+
+User instruction, 2026-10-14: keep HANDOFF_Codex.md current and concise. Put detailed
+current topics and accumulated history into smaller linked handbooks when the entry
+point grows. Preserve findings, failures and evidence; historical job/status notes
+must not be mistaken for current state. Update the current state in place rather
+than prepending repeated copies of prior updates.
+
+## Resource discipline
+
+User instruction, 2026-10-17: account for machine contention and RAM usage.
+
+- Check actual host load and available RAM before sustained computation. Run one
+  owned heavy job at a time; use low priority,2–4 build workers when resources permit
+  (user update2026-10-29) and single-threaded
+  libraries. Keep local MPI correctness checks bounded to available ranks/resources.
+- Check live job handles before starting another job. Observe process memory during
+  longer runs, preserve resource receipts, and leave unrelated processes untouched.
+- Use the repository build's compile-tmp on the4TB disk while the root/tmp filesystem
+  is nearly full. Do not infer whole-job peak memory from one process's RSS.
+
+## Optional local second opinion
+
+User authorization, 2026-10-18: consult the local Claude Code installation when
+useful, using Opus 5.5 at medium or high effort. Keep source-checking and validation
+with the implementation; a model review does not establish correctness.
+
+## Staged adaptation and boundary mobility
+
+User reaffirmation,2026-10-26: implement the already agreed validity-first construction
+followed by metric/BL-aware quality improvement. q/J/size and requested first-height gates apply to the
+final accepted mesh; intermediate meshes must remain valid. Fixed physical boundary
+node coordinates are not required. Allow redistribution on the prescribed geometry
+while retaining genuine features, body separation and requested BL constraints.
+Complete the connected distributed workflow rather than accumulating strict local
+construction fallbacks; preserve all final acceptance/transfer/restart obligations.
+
+
+User clarification,2026-10-26: construction must omit q/J measurements, shape
+ranking and quality-progress vetoes that are unnecessary for valid elements.
+Exact positive, nondegenerate cells, topology, geometry and body separation remain
+mandatory; J>=.001 is a quality threshold, not geometric validity. Measure and
+improve shape in the subsequent stage and enforce all final acceptance gates.
+Delegate bounded routine tasks to more token-efficient models; retain integrated
+design, source review and acceptance assessment with the primary agent.

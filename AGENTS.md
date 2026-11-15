@@ -1,5 +1,69 @@
 # Implementation and validation cadence
 
+User order, 2026-11-15 (LATEST): unattended work, section 2 of NIGHT_WORK_ORDER.md
+
+These rules are the latest user order. Where an older text (AGENTS.md, H Part 0) says
+"stop and wait for the reviewer", read it as "stop THAT ITEM, record it, and go to the
+next item of section 3 that does not depend on it". Add this order to AGENTS.md.
+
+R1. No gate, budget, tolerance or limit changes. 5400 s for each event, 19073 MiB for the
+    job, geometry 1e-4, q / J / size / height gates, requested heights and progression.
+    One owned heavy job, nice 19, at most 6 heavy processes on the machine. Check the
+    host load and the free memory before each long run.
+R2. No redesign and no own fix of production behaviour. You implement what H, D and C
+    say. A production change that is not written there is not allowed.
+R3. Your own test code is yours to make work (H Part 0). Fixtures, scripts and report
+    helpers that you wrote: find the cause, correct, run again, until they test what the
+    item asks. Limit: 90 minutes for one fixture. Never change production code or a gate
+    to make a test pass.
+R4. One source check for a whole item, before its first production edit. Write all
+    contradictions in one list in the report.
+    - A contradiction on a print-only counter or a report row: write it, continue.
+    - A contradiction on a result where the written text has one clear reading that the
+      source supports: use that reading, write it in the list as "reading used".
+    - A contradiction on a result with no clear reading: do not implement that part.
+      If the rest of the item is independent of it, do the rest. If not, skip the item.
+R5. A failed result gate (outputs not identical where they must be, accept / reject,
+    validity, geometry, quality, memory, time):
+    - Preserve the evidence. Write the first number that differs.
+    - Use ONE diagnosis pass of at most 60 minutes, read-only plus the existing counters,
+      to name the cause. If the cause is a transcription or wiring error against the
+      written proposal (your code does not do what the text says), correct it one time
+      and repeat the failed check one time.
+    - If it fails again, or the cause is in the proposal itself: revert the item in one
+      commit (keep the evidence and the reverted commit hash in the report), mark it
+      FAILED, and go to the next item that does not depend on it.
+R6. Time limits, so that one item cannot take the whole night: 90 minutes for one
+    fixture (R3); 60 minutes for one diagnosis (R5); 3 hours for item N3. At a limit:
+    write the state, go on.
+R7. Keep a progress file `R/night_20261115/progress.md` (R as in H). Update it after each
+    sub-step: item, sub-step, commit, gate numbers, next action. After each compaction of
+    your context, read this work order and the progress file again before you continue.
+R8. Commit after each passed sub-step. Push the checkpoints. Never commit a state that
+    fails its gates as "accepted"; a preserved failure is labelled as a failure.
+R9. Readable code (D 7.1a) for all new code. Written exceptions are listed in C.
+
+User order, 2026-11-15 (LATEST; replaces the "one correction" rule for fixtures):
+Your own test code is yours to make work. A test fixture, script or report helper that
+you wrote for an item is not production code and not a result gate. When it fails
+because of its own setup: find the cause, correct it, run it again, and repeat until it
+tests what the item asks. No limit on the count; limit of 90 minutes for one fixture.
+Never change production code, a gate or a tolerance to make a test pass. Write each
+cause and correction in the report afterwards. Do not stop and do not wait for the
+reviewer. Stop only when: (1) a result gate fails in a production run; (2) the source
+contradicts a proposal on a result; (3) the corrected fixture shows that the production
+code does not do what the item asks; (4) the 90 minutes end.
+
+User order, 2026-11-15 (LATEST; refines the "stop at the first contradiction"
+rule below): before any production edit, source-check the WHOLE item (all its
+steps, checks and counters, including connected items built together) and report
+ALL contradictions in ONE list with source lines/numbers; the reviewer answers
+them in one correction. A mismatch in a print-only counter or report row does not
+stop the item: report it with call-site counts and continue. Gates on results
+(mesh/output identity, accept/reject decisions, validity, geometry, quality,
+memory, time) stay strict: stop on their first failure. Still no attempt loops
+and no independent redesign.
+
 Reviewer correction supplied 2026-11-15: M6_FIX_HANDOFF.md section1.7 (P6c)
 supersedes waiting after P6. Same-fixture baseline scan first; implement the
 specified deferred-bound completion/counter/guard records and repeat the ordered

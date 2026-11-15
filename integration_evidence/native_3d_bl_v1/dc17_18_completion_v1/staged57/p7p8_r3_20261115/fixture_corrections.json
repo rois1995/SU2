@@ -1,0 +1,17 @@
+[
+  {
+    "cause": "Allowed-memory branch supplied a new config with runtime marker tables not initialized for the geometry built using the other config",
+    "correction": "Construct its own MeshSolution, metric and ReferenceState with enabled and compare with its own saved state",
+    "production_changed": false,
+    "unix": 1794770364.99223
+  },
+  {
+    "fixture": "Geometry workload snapshots and cheap facet estimates",
+    "cause": "Old print-only storage assertion included328bytes of event diagnostic scope keys that M18 intentionally releases on reset",
+    "correction": "Strictly reconcile total reported bytes with actual released resident bytes and assert facet/scope cache bytes, entries and limit are all unchanged",
+    "production_changed": false,
+    "gate_or_tolerance_changed": false,
+    "unix": 1794770816.7558014,
+    "deadline_unix": 1794776216.7558017
+  }
+]

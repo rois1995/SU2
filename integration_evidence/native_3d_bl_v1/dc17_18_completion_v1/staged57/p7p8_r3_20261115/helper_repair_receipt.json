@@ -1,0 +1,49 @@
+{
+  "scope": "Synthetic helper repair only; no build or numerical campaign run.",
+  "causes_and_corrections": [
+    {
+      "cause": "Connected proof-face coverage accepted matching zero owned and surface face totals.",
+      "correction": "Require a positive reported surface-face count before coverage can pass."
+    },
+    {
+      "cause": "The event reader selected rank_output/1 but did not reject additional launch roots or extra completed events.",
+      "correction": "Accept only the single rank_output/1 root, at most two complete event blocks, and ordinals one or two; leave an incomplete second block pending."
+    },
+    {
+      "cause": "Repeated identical exit and final-timer records could inflate event ordinals.",
+      "correction": "Deduplicate identical parsed exit rows and timer snapshots before ordinal selection."
+    },
+    {
+      "cause": "read_event selected the nth engine exit globally, but one native event can contain multiple engine exits, misaligning exit gates and M20/M21 diagnostics with remesh events.",
+      "correction": "Segment each rank log at its nth complete remesh/final timer summary, use the last exit within that segment, and collect diagnostics from the same segment; duplicate final snapshots remain counted once."
+    },
+    {
+      "cause": "The final milestone sealer did not require the P7/P8 connected gates or F3b timer gates for both events.",
+      "correction": "Require all four event-specific receipts to exist, report passed=true, and carry their matching event ordinal."
+    },
+    {
+      "cause": "The initial synthetic fixture referenced its root log before assigning the path.",
+      "correction": "Assign the fixture root path before writing the partial-event cases; reran the connected self-check successfully."
+    },
+    {
+      "cause": "The duplicate-record fixture initially lacked event-distinguishing fields on exit rows and the full second root summary during duplication checks.",
+      "correction": "Give fixture exit rows event ordinals and restore the complete root log before injecting exact duplicates; reran successfully."
+    }
+  ],
+  "self_checks": {
+    "connected_two_events_same_rank_files": "passed",
+    "exact_duplicate_exit_and_final_timer_count_once": "passed",
+    "zero_surface_faces_fails_coverage": "passed",
+    "ambiguous_second_launch_root_fails_closed": "passed",
+    "partial_second_event_keeps_first_event_readable": "passed",
+    "missing_or_failed_connected_and_timer_receipts_fail_closure": "passed",
+    "p7_query_count_mismatch_is_diagnostic_nonblocking": "passed",
+    "event_one_two_engine_exits_event_two_exit_and_diagnostics_segmented_by_remesh_final": "passed; event-one lower bounds selected as 550 after an earlier 1000 exit, event-two lower bounds selected as 575; event-two M20/M21 rows contain only event two",
+    "python_compile_all_three_helpers": "passed"
+  },
+  "api_changes": [
+    "check_connected_events.read_event now returns None for ambiguous roots, unsupported ordinals, or more than two completed event groups.",
+    "assess_complete_milestone.connected_receipts(case) returns {passed, records} for the four required event receipts."
+  ],
+  "unrun": ["validate_full_workflow.py production invocation", "build", "numerical campaign"]
+}
