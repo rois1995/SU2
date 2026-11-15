@@ -45,3 +45,7 @@ N4G2referenceLIVEtool2727, app/sessionleader1929881/start27479691/pgid1929881, s
 N4G2referencePASSEDtool2727terminalcontroller0/app-15intentionalprefixstop:317.194suntilstop/326.125ssealed, exact90809869work/counts480/473/346/263/469/464/zeroRefinements; all9ownedterminal,pins/inputsunchanged. Fullintegerprefixsavedreference_G2/rank_output. NextSAMEbaseG3C492reference, thenGQbeforeCPPedit. Counterhelperfinal19asserts(includingLADDERdebt0/decimalignored)PASS.
 
 N4G3referenceLIVEtool52386, serialC492case cases/n4_bl_20261115T224821_1945316, root1945616. Unchangedfixture/388.8sstagebudget/336-prefix; build509aliasofacceptedF3b. Launchhost2.23load/49.5GBavailable. Unithelperfrozen; standaloneORhiddenfilterbugfixedbeforeanytest(ORtermsnoweach~[.]); actualdriverlist-onlycatalog375serial/57MPIselectedexactly,nohidden/unrelated. G3/GQstillrequiredbeforeCPPedit.
+
+Checkpoint e8876c188d pushed: N4 acceptedF3b rebuild/sourcecheck/G2reference, G3/GQexplicitlypending; noCPPedit. G3ownedroot1945616/start27520993/pgid1945616 verifiedhost; latestsampletreeRSS~2.72GB. FrozenunithelperR3repairsrecordedunit_gates_fixture_receipt.json;G1plannedselection375serial/57MPI(notexecuted).
+
+N4G3referencePASSEDtool52386terminal0,543.547souter;473splits/305015positivecells,first336editsmatchP6c;zeroRefinements,input/config/budget388.8unchanged. FreshCbaselinecount473 (historicalF3b462, timeboundedcountnotclaimedidenticaltohistorical); futureCchecksMUSTmatchnew473andALLintegerrows. G3_reference_receipt.json+g3_integer_rows.jsonsealnewreference; nextGQnewcapturebeforefirstCPPedit.

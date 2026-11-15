@@ -104,5 +104,8 @@ Reference rebuild PASSED870.265s/347actions, sourcepinsunchanged. Tool63730
 and controller1870291/start27335226/ninja1870303/start27335244 are terminal;
 host no-heavy receipt verified. No production edit. G2 capture PASSED:317.194s until stop,326.125s sealed;
 90,809,869 work, exact480/473/346/263/469/464, zero refinements; peak sum
-5,201,391,616B. G3 C492 reference live tool52386; GQ pending.
+5,201,391,616B. G3 C492 reference PASSED543.547s:473splits,305015positivecells,
+first336edits match P6c, zero refinements and unchanged388.8s budget.
+The fresh C reference is473; historical F3b462 is recorded, not substituted.
+Future G3 checks must match473 and every integer row. GQ pending.
 No new implementation is accepted by this source check.
