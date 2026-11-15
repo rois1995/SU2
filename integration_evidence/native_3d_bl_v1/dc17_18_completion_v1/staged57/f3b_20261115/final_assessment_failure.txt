@@ -1,0 +1,5 @@
+Command: python3 integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/f3b_20261115/assess_complete_milestone.py
+Exit: 1
+File assess_complete_milestone.py, line 40, in root_receipts
+    old_measurements = [dict(root=record['summary']['root'], rank=record['summary']['rank'], **row)
+TypeError: dict() got multiple values for keyword argument 'root'

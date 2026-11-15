@@ -1,6 +1,6 @@
 {
   "proposal": "F3b section2.0b",
-  "source_frozen": true,
+  "source_frozen": false,
   "build": "build504",
   "build_passed": true,
   "build_seconds": 490.16391611099243,
@@ -10,11 +10,11 @@
   "timer_unit_seconds": 4.508785963058472,
   "object_hashes_changed": 44,
   "conditional_repeats_required": true,
-  "current_check": "c full two-event milestone",
-  "current_tool_session_id": 96758,
-  "next": "Observeexistingrunonly; automaticcomplete-eventcoverage/joinchecks; preserveallstrictgatesandstopfirstfailure",
+  "current_check": "STOPPED: final assessment helper TypeError",
+  "current_tool_session_id": null,
+  "next": "Report first failure; no repair/retry or subsequent checks",
   "A5_B5": "withdrawn; no work",
-  "updated_unix": 1794759808.2982242,
+  "updated_unix": 1794764943.3048573,
   "check_b_passed": true,
   "check_b_seconds": 330.1635562409938,
   "check_b_coverage_range": [
@@ -23,5 +23,22 @@
   ],
   "conditional_C492_passed": true,
   "conditional_C492_splits": 462,
-  "conditional_other_repeats_passed": true
+  "conditional_other_repeats_passed": true,
+  "event1_passed": true,
+  "event1_timer_receipt": "full_workflow/f3b_event1_timer_gate.json",
+  "event1_coverage_range": [
+    0.9691117376606149,
+    0.975864003515267
+  ],
+  "event1_quality_unattributed_range": [
+    13.39690680800006,
+    30.51815668300113
+  ],
+  "event1_native_seconds_max": 2683.411540761,
+  "event1_peak_RSS_sum_bytes": 13950185472,
+  "full_workflow_process_passed": true,
+  "independent_physical_passed": true,
+  "event2_passed": true,
+  "full_F3b_accepted": false,
+  "first_failure": "first_failure.json"
 }

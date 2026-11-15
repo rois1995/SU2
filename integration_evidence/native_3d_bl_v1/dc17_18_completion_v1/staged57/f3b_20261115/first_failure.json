@@ -1,0 +1,22 @@
+{
+  "check": "c: final complete milestone assessment",
+  "command": "python3 integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/f3b_20261115/assess_complete_milestone.py",
+  "exit_code": 1,
+  "exception": "TypeError: dict() got multiple values for keyword argument 'root'",
+  "location": "assess_complete_milestone.py:40",
+  "cause": "The old_cavity_measurements report passes root and rank explicitly and expands a row that already contains both keys.",
+  "solver_exit_code": 0,
+  "all_owned_handles_terminal": true,
+  "independent_physical_workflow_passed": true,
+  "event_timer_gates_passed": [
+    1,
+    2
+  ],
+  "full_F3b_accepted": false,
+  "not_reached": [
+    "final lifecycle-root aggregate receipt",
+    "comparison of all six final payloads against P6c"
+  ],
+  "action": "Stopped at the first failed assessment. No helper fix, rerun, later check or further implementation.",
+  "unix": 1794764943.3045285
+}
