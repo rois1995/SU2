@@ -9,7 +9,8 @@ P6c build passed570.142s/1539inputs unchanged; check1 passed77cases/8710assertio
 Checks2/3 pass: exact90809869collapse work/predicted counts; collapse max267.270s, construction634.158s, phase366.887s.
 All6zero refinements, required rank5/gen1 and rank2/gen4 completions observed. Rank0facet339060/13328=25.439work/miss.
 Load1m3.96–10.37, outer750.796s, intentional boundary stop/all9owned terminal; sampled solver RSS sum max7066300KiB, not whole-job peak.
-Behavior differs after collapse; no equal-work speed claim. Nested timers remain overlapping; checks4–6/full acceptance pending.
+Behavior differs after collapse; no equal-work speed claim. Nested timers remain overlapping. Check4 passes336splits/304663positive in the same388.8sconfigured budget, zero refinements; outer566.603s, API390.280s.
+First edit difference59; changed bounded output allowed by P6, no equal-work speed claim or accepted BL. Check5 passes:481merit149.628s/56cases5940assertions, saved-current175.501s/611527assertions;2D1/2/4ranks6.503/6.486/6.518s,39cases each rank. Full6 pending.
 Evidence: staged57/purpose_query_fix_20261114/p6c_20261115.
 
 Current P6 (2026-11-15) stopped on check3 failure; see [P6 report](ADAPTATION_M6_P6_20261115.md).
