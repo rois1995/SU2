@@ -1,0 +1,35 @@
+run_A 0 53259 {'wall_proof': 2.92, 'exact_predicates': 13.93, 'target_BL': 5.0, 'tree': 1.93, 'memory': 3.24, 'MPI': 0.02, 'pack_unpack': 0.15, 'cavity_topology': 0.15, 'other': 72.67}
+[(7067, 'SU2NativeGeometry::(anonymous namespace)::Multiply(SU2NativeGeometry::(anonymous namespace)::Range, SU2NativeGeometry::(anonymous namespace)::Range)'), (6763, 'SU2NativeGeometry::(anonymous namespace)::Multiply(SU2NativeGeometry::(anonymous namespace)::Range, long double)'), (6519, 'SU2NativeGeometry::(anonymous namespace)::Add(SU2NativeGeometry::(anonymous namespace)::Range, SU2NativeGeometry::(anonymous namespace)::Range)'), (5683, 'SU2NativeGeometry::detail::Adjacent(long double, bool)'), (2569, 'SU2Native3D::(anonymous namespace)::Coordinate(double)'), (1944, 'SU2NativeGeometry::(anonymous namespace)::Blossom(std::array<SU2Native3D::Point, 10ul> const&, std::array<std::array<SU2NativeGeometry::(anonymous namespace)::Range, 3ul>, 3ul> con'), (1466, 'dc10::OptionA::InStrip(dc10::StripPair const&, junction_wp0::V, long double&, junction_wp0::V&) const'), (1444, 'SU2NativeGeometry::MappedFacetReference::ClosestCurved(unsigned long, SU2Native3D::Point, double, unsigned long, unsigned long, std::function<bool (unsigned long)> const&, unsigned')]
+{
+  "case": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/purpose_query_fix_20261114/cheap_group_20261115/profile/run_A",
+  "native_process_peak_rss_by_event": [],
+  "sum_rank_peak_RSS_conservative_upper_bound_bytes": 3323449344,
+  "conservative_peak_20GB_gate": true,
+  "external_peak_scope": "Each per-rank GNUtime record encloses its native child plus recorder/GDB descendants. Sum of largest descendant peaks conservatively bounds the sum of native rank peaks; this is not sampled RSS or a measured native-only sum.",
+  "native_summary_memory_gate": "unevaluated: no NATIVE3D process_peak_rss summary row",
+  "gnu_time_peak_rss": [
+    {
+      "file": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/purpose_query_fix_20261114/cheap_group_20261115/profile/run_A/profile/rank0.time.txt",
+      "maximum_resident_set_kib": 3245556,
+      "meaning": "GNU time ru_maxrss for the per-rank recorder exec tree; informational when native summary rows exist"
+    }
+  ],
+  "facet_resolution_work_by_rank_event": [
+    {
+      "event": 0,
+      "rank": 0,
+      "log": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/purpose_query_fix_20261114/cheap_group_20261115/profile/run_A/profile/rank0.program.log",
+      "line": 12,
+      "elapsed_s": 388.954853088,
+      "facet_misses": 6186,
+      "facet_resolutions": 2,
+      "facet_build_work": 678816,
+      "misses_minus_resolutions_x_48954": -91722
+    }
+  ],
+  "source_method": {
+    "stage_parser": "NATIVE3D_STAGE exit rows; duplicate MPI log rows deduplicated by event/rank",
+    "facet_formula": "facet_misses - facet_resolutions * 48954",
+    "native_memory_gate": "sum native process_peak_rss bytes per event <= 20000000000"
+  }
+}

@@ -1,0 +1,145 @@
+{
+  "rows": [
+    {
+      "build": "v2/build494",
+      "phase": "preparation",
+      "wall": 142.71603904399672,
+      "samples": 13883,
+      "categories": {
+        "libm_nextafter": {
+          "samples": 3104,
+          "percent": 22.35827991068213
+        },
+        "interval": {
+          "samples": 7802,
+          "percent": 56.19822804869265
+        },
+        "InStrip": {
+          "samples": 0,
+          "percent": 0.0
+        },
+        "Guidance_lambda": {
+          "samples": 0,
+          "percent": 0.0
+        }
+      },
+      "exclusive_groups": {
+        "wall_proof": 0.07203054094936252,
+        "exact_predicates": 5.28704170568321,
+        "target_BL": 0.1224519196139163,
+        "tree": 1.001224519196139,
+        "memory": 1.591874954980912,
+        "MPI": 0.0,
+        "pack_unpack": 0.06482748685442628,
+        "cavity_topology": 0.07923359504429878,
+        "other": 91.78131527767773
+      }
+    },
+    {
+      "build": "v2/build494",
+      "phase": "native",
+      "wall": 393.69416614298825,
+      "samples": 38549,
+      "categories": {
+        "libm_nextafter": {
+          "samples": 3288,
+          "percent": 8.529404134997018
+        },
+        "interval": {
+          "samples": 13853,
+          "percent": 35.93608135100781
+        },
+        "InStrip": {
+          "samples": 6292,
+          "percent": 16.32208358193468
+        },
+        "Guidance_lambda": {
+          "samples": 4935,
+          "percent": 12.801888505538406
+        }
+      },
+      "exclusive_groups": {
+        "wall_proof": 1.7847414978339255,
+        "exact_predicates": 8.806972943526421,
+        "target_BL": 29.30555915847363,
+        "tree": 1.5019844872759345,
+        "memory": 2.129756932734961,
+        "MPI": 0.005188202028586993,
+        "pack_unpack": 0.1452696568004358,
+        "cavity_topology": 0.21531038418636023,
+        "other": 56.10521673713974
+      }
+    },
+    {
+      "build": "new/build499",
+      "phase": "preparation",
+      "wall": 119.84954863900202,
+      "samples": 11634,
+      "categories": {
+        "libm_nextafter": {
+          "samples": 75,
+          "percent": 0.6446621970087674
+        },
+        "interval": {
+          "samples": 8410,
+          "percent": 72.28812102458312
+        },
+        "InStrip": {
+          "samples": 0,
+          "percent": 0.0
+        },
+        "Guidance_lambda": {
+          "samples": 0,
+          "percent": 0.0
+        }
+      },
+      "exclusive_groups": {
+        "wall_proof": 0.09455045556128588,
+        "exact_predicates": 6.360667010486505,
+        "target_BL": 0.23207839092315627,
+        "tree": 1.3151108818978856,
+        "memory": 1.865222623345367,
+        "MPI": 0.017190991920233798,
+        "pack_unpack": 0.08595495960116899,
+        "cavity_topology": 0.09455045556128588,
+        "other": 89.93467423070311
+      }
+    },
+    {
+      "build": "new/build499",
+      "phase": "native",
+      "wall": 393.8191445080156,
+      "samples": 38538,
+      "categories": {
+        "libm_nextafter": {
+          "samples": 374,
+          "percent": 0.970470704239971
+        },
+        "interval": {
+          "samples": 17689,
+          "percent": 45.9001505008044
+        },
+        "InStrip": {
+          "samples": 1466,
+          "percent": 3.8040375733042713
+        },
+        "Guidance_lambda": {
+          "samples": 1116,
+          "percent": 2.8958430639887904
+        }
+      },
+      "exclusive_groups": {
+        "wall_proof": 3.9908661580777416,
+        "exact_predicates": 16.827546836888267,
+        "target_BL": 6.83481239296279,
+        "tree": 2.125175151798225,
+        "memory": 3.739166536924594,
+        "MPI": 0.023353573096683792,
+        "pack_unpack": 0.1738543774975349,
+        "cavity_topology": 0.18163890186309617,
+        "other": 66.10358607089107
+      }
+    }
+  ],
+  "scope": "Same-v2 method and exact frozen inputs; intervening P6c and changed completed work/host mean no isolated speedup attribution. Counts below100 are unresolved per v2."
+}

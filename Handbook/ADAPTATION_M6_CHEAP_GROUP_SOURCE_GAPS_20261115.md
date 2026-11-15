@@ -1,4 +1,6 @@
-# Next cheap group — source gaps, 2026-11-15
+# Cheap group — preserved source gaps, 2026-11-15
+
+Resolved by reviewer handoff2.0: B4/B6 withdrawn, A2 closed and replaced by A2c measurement. Findings below are preserved; current work is [B1/B2/B3/A2c](ADAPTATION_M6_CHEAP_GROUP_20261115.md).
 
 P6c checks1–6 and the actual isolated event2 CFD restart pass. This is the source check before the next connected B1/B2/B3/B4/B6/A2 change. No replacement design or numerical change was made here.
 

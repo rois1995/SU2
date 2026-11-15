@@ -45,6 +45,8 @@ def prepare(mode):
     case = HERE / ("run_" + mode)
     assert not case.exists(), f"refusing to overwrite {case}"
     before = verify_runtime()
+    prerequisites={BUILD_CONTEXT/"unit_receipt.json":"passed",BUILD_CONTEXT/"collapse_receipt.json":"passed",BUILD_CONTEXT/"BL_receipt.json":"passed",BUILD_CONTEXT/"final_checks_sequence.json":"all_planned_checks_passed"}
+    assert all(json.loads(p.read_text())[key] is True for p,key in prerequisites.items()), "ordered regression checks incomplete"
     if mode == "B":
         prior = json.loads((HERE / "run_A/status.json").read_text())
         assert prior.get("state") == "terminal" and prior.get("exit_code") == 0
@@ -59,7 +61,7 @@ def prepare(mode):
                SU2_PROFILE_TEST_SHA256=before["runtime_hashes"][str(TEST)],
                SU2_PROFILE_STAGED_ROOT=str(STAGED), SU2_PROFILE_CURRENT_ROOT=str(HERE))
     mpi_tmp = case / "mpi_tmp"; mpi_tmp.mkdir(); env["OMPI_MCA_orte_tmpdir_base"] = str(mpi_tmp)
-    inputs = {}; source_case = None
+    inputs = {str(p):sha(p) for p in prerequisites}; source_case = None
     if mode == "A":
         source_case = STAGED / "cases/curved492_saved_production_surface_serial_20261113T163756_3724702"
         old = json.loads((source_case / "command.json").read_text()); env.update(old["environment"])

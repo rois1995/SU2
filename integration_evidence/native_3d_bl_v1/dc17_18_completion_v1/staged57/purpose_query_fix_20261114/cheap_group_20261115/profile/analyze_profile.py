@@ -69,7 +69,14 @@ def analyze(case):
     subprocess.run([sys.executable,str(OLD/"summarize_samples.py"),str(case)],check=True)
     if case.name=="run_B":subprocess.run([sys.executable,str(OLD/"analyze_B.py"),str(case)],check=True)
     memory=native_memory(case, 1 if case.name=="run_A" else 6)
+    external=gnu_time(case)
+    expected=1 if case.name=="run_A" else 6
+    external_complete=len(external)==expected and all(r["maximum_resident_set_kib"] is not None for r in external)
+    upper_bound=sum(r["maximum_resident_set_kib"]*1024 for r in external) if external_complete else None
     result={"case":str(case),"native_process_peak_rss_by_event":memory,
+            "sum_rank_peak_RSS_conservative_upper_bound_bytes":upper_bound,
+            "conservative_peak_20GB_gate":upper_bound is not None and upper_bound<=20_000_000_000,
+            "external_peak_scope":"Each per-rank GNUtime record encloses its native child plus recorder/GDB descendants. Sum of largest descendant peaks conservatively bounds the sum of native rank peaks; this is not sampled RSS or a measured native-only sum.",
             "native_summary_memory_gate":"evaluated" if memory else "unevaluated: no NATIVE3D process_peak_rss summary row",
             "gnu_time_peak_rss":gnu_time(case),"facet_resolution_work_by_rank_event":stage_events(case),
             "source_method":{"stage_parser":"NATIVE3D_STAGE exit rows; duplicate MPI log rows deduplicated by event/rank",
@@ -85,4 +92,12 @@ if __name__=="__main__":
     assert status.get("state")=="terminal" and status.get("all_owned_handles_terminal")
     result=analyze(case)
     print(json.dumps(result,indent=2))
-    if any(row["gate"]=="fail" for row in result["native_process_peak_rss_by_event"]):raise SystemExit(1)
+    rows=result["facet_resolution_work_by_rank_event"]
+    expected=1 if sys.argv[1]=="A" else 12
+    assert len(rows)==expected and all("facet_resolutions" in r and "facet_misses" in r for r in rows), "missing rank/event exit measurements"
+    memory=result["native_process_peak_rss_by_event"]
+    if sys.argv[1]=="B":
+        assert len(memory)==2 and all(r["gate"]=="pass" for r in memory), "incomplete or failed native peak RSS gate"
+    else:
+        assert result["conservative_peak_20GB_gate"], "serial conservative peak RSS bound missing or above20GB"
+    if any(row["gate"]=="fail" for row in memory):raise SystemExit(1)

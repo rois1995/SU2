@@ -87,7 +87,7 @@ else:
   setup_save=checks.save;bl_case=[]
   gate_path=HERE/'check_cheap_bl.py'
   extra_pins[str(gate_path.resolve())]=sha(gate_path)
-  for file in (HERE.parent/'check_bl_regression.py',R/'measurement_20261114_v2/run_A/nose_target_observation.jsonl'):
+  for file in (HERE.parent/'check_bl_regression.py',R/'cases/p6c_bl_20261115T003316_3200535/nose_target_observation.jsonl'):
    extra_pins[str(file.resolve())]=sha(file)
   extra_pins[str((HERE.parent/'bl_output_comparison.json').resolve())]=sha(HERE.parent/'bl_output_comparison.json')
   reference_case=R/'cases/p5_bl_20261114T192833_2451182'

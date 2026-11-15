@@ -1,5 +1,7 @@
 # M6 measurement v2 — 2026-11-14
 
+[2026-11-15 same-v2 follow-up tables](ADAPTATION_M6_MEASUREMENT_CHEAP_GROUP_20261115.md) compare the updated implementation; historical values below are preserved.
+
 **Both prescribed runs reached normal process exit; all flat recorders/parsers exited0 and pins were unchanged. No native source/build/config/gate/budget changes.**
 Run A:300splits,304578positive private tets, surface_prepared=false (same bounded stage, not an accepted mesh). Run B:two configured subiterations, both time-budget rejected; solver exit0 retained61330points/303359tets.
 B private exit meshes:697183 and685450tets, neither accepted; reference event1 accepted149051points/736323tets, event2 accepted172001points/870422tets. Euler complexity50000 is nominal, not a node-count gate.

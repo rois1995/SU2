@@ -1,0 +1,55 @@
+{
+  "rank": 0,
+  "wrapper": {
+    "pid": 41667,
+    "start_ticks": 23060172
+  },
+  "record": {
+    "pid": 41693,
+    "start_ticks": 23060327
+  },
+  "parser": {
+    "pid": 41694,
+    "start_ticks": 23060327
+  },
+  "argv": [
+    "/usr/bin/perf",
+    "record",
+    "--clockid",
+    "mono",
+    "-e",
+    "cycles:u",
+    "-F",
+    "99",
+    "-o",
+    "-",
+    "--",
+    "/usr/bin/time",
+    "-v",
+    "-o",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/purpose_query_fix_20261114/cheap_group_20261115/profile/run_A/profile/rank0.time.txt",
+    "/usr/bin/python3",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/purpose_query_fix_20261114/cheap_group_20261115/profile/rank_perf.py",
+    "--exec",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/purpose_query_fix_20261114/cheap_group_20261115/profile/run_A/profile/rank0.program.log",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-p5-20261114/UnitTests/test_driver",
+    "[NativeActualSavedSurfaceStage3D]",
+    "--durations",
+    "yes"
+  ],
+  "parser_argv": [
+    "/usr/bin/perf",
+    "script",
+    "-i",
+    "-",
+    "--ns",
+    "-F",
+    "pid,tid,time,ip,sym,dso"
+  ],
+  "binary_sha256": "a787f09b2bd5401e2997ff911c64ce36720987f043309e8b872dbf88588cda4c",
+  "monotonic_ns": 230604905107727,
+  "wall_ns": 1794738298749288411,
+  "sample_clock": "CLOCK_MONOTONIC",
+  "profile_limit_total_bytes": 2000000000,
+  "profile_bytes_at_limit": 1900000000
+}

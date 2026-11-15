@@ -1,6 +1,9 @@
 # Adaptation timings and computational work
 
-Current P6c (2026-11-15): reviewer section1.7 supplied after the preserved P6 failure.
+Current connected B1/B2/B3/A2c (2026-11-15): [report](ADAPTATION_M6_CHEAP_GROUP_20261115.md). Build499660.202s, units196.655s/79cases20580assertions. Six-rank collapse work EXACT90809869 and counts P6c; native933.125s, outer1272.214s under unrelated Lean contention/load~16. No seconds-based regression claim. BL462splits/304988positive in unchanged388.8sconfigured budget; API390.199s, engine389.200s, outer547.142s; first336edits EXACTP6c. Observed throughput only, unequal completed work/host; surface not ready.481merit123.752s/56cases5943assertions; saved-current151.553s/611527assertions;2D1/2/4ranks6.896/6.844/6.761s,39cases/rank. Counter:1facet resolution each rank at collapse,2at serial BL exit despite0refinements. Full-event rebuild bounds/profile attribution pending. Same-v2 profileA complete557.165s: preparation119.850s/public native393.819s,467splits; profileB active; no standalone fullM6 run. All C++ sources remain frozen. F3 exclusive timing/95%coverage remains next after profile, nested timers still overlap.
+
+
+Completed P6c baseline (2026-11-15): reviewer section1.7 supplied after the preserved P6 failure.
 Same-fixture baseline scan:31gaps, zero refinements (does not reproduce M6);61.483s,
 unchanged P6 production CFD SHA b7c78fdb145684243e43522095233a1b85bb396057545be56efdb3a15bc280ab.
 Scan harness first compile failed10.145s on missing test-only standard headers;

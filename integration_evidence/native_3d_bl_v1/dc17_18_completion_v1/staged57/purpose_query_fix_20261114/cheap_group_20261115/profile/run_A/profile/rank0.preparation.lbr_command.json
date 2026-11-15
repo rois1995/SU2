@@ -1,0 +1,30 @@
+{
+  "argv": [
+    "/usr/bin/perf",
+    "record",
+    "--clockid",
+    "mono",
+    "-e",
+    "cycles:u",
+    "-F",
+    "99",
+    "--call-graph",
+    "lbr",
+    "-p",
+    "41954",
+    "-o",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/purpose_query_fix_20261114/cheap_group_20261115/profile/run_A/profile/rank0.preparation.lbr.data",
+    "--",
+    "/bin/sleep",
+    "60"
+  ],
+  "attached": {
+    "pid": 41954,
+    "start_ticks": 23060631,
+    "monotonic_ns": 230606562752334,
+    "wall_ns": 1794738300406934066,
+    "program": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-p5-20261114/UnitTests/test_driver",
+    "clock_method": "GDB starti stop; public PrepareSurface entry/return breakpoints"
+  },
+  "started_monotonic_ns": 230606930693414
+}

@@ -17,3 +17,5 @@ Status: prepared only. No profile, build, test, or CFD job was launched. The run
 ## Files
 
 All new preparation files are under this directory: `run_profile.py`, copied/retargeted `rank_perf.py` and `rank_perf_B.py`, the unchanged v2 GDB scripts, `analyze_profile.py`, `method_provenance.json`, and this report. The runner saves before/after runtime/source-pin receipts in each fresh case’s provenance and terminal status.
+
+Primary completion: all ordered numerical checks pass. Six historical Run-B sample text files are now losslessly gzip-compressed (931,661,039B→68,713,365B); every decompressed SHA matches the original. See ../historical_profile_text_compression.json for exact restoration paths/hashes. No evidence content lost and no sampling/cap/quota change. Parser self-check distinguishes events even when the second exit takes longer. Runtime-library pins now join binary/source hashes before/after. Per-rank GNUtime descendant peaks also provide a labeled conservative bound when native summary rows are absent; this is not sampled RSS or a claimed measured native-only sum.
