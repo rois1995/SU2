@@ -1,0 +1,49 @@
+ninja: Entering directory `/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-p5-20261114'
+[1/347] Compiling C++ object Common/src/libSU2AccurateSum.a.p/adaptation_CNativeCanonicalTrace3D.cpp.o
+[2/347] Compiling C++ object Common/src/libSU2AccurateSum.a.p/adaptation_CNativeReferenceTriangulation3D.cpp.o
+[3/347] Compiling C++ object Common/src/libSU2AccurateSum.a.p/adaptation_CNativeGeometryBackend3D.cpp.o
+[4/347] Compiling C++ object Common/src/libSU2AccurateSum.a.p/adaptation_CNativeCurvedAtlas3D.cpp.o
+[5/347] Compiling C++ object Common/src/libSU2AccurateSum.a.p/adaptation_CNativeBoundaryParameters3D.cpp.o
+FAILED: [code=1] Common/src/libSU2AccurateSum.a.p/adaptation_CNativeBoundaryParameters3D.cpp.o 
+c++ -ICommon/src/libSU2AccurateSum.a.p -ICommon/src -I../../Common/src -I../../externals/CLI11 -I../../externals/eigen -I../../externals/cgns/adf -I../../externals/cgns/adfh -Iexternals/cgns -I../../externals/cgns -Iexternals/cgns/hdf5 -I../../externals/cgns/hdf5 -I../../externals/metis/include -I../../externals/metis/GKlib -I../../externals/metis/libmetis -I../../externals/parmetis/include -I../../externals/parmetis/libparmetis -I../../externals/mel -I/usr/lib/x86_64-linux-gnu/openmpi/include -I/usr/lib/x86_64-linux-gnu/openmpi/include/openmpi -fdiagnostics-color=always -D_GLIBCXX_ASSERTIONS=1 -D_FILE_OFFSET_BITS=64 -std=c++17 -O2 -g -fPIC -pthread -Wno-empty-body -Wno-ignored-qualifiers -Wno-unused-parameter -Wno-deprecated-declarations -Wno-error=cast-function-type -Wno-cast-function-type -Wno-error=stringop-truncation -Wno-stringop-truncation -Wno-error=missing-field-initializers -Wno-missing-field-initializers -Wno-error=class-memaccess -Wno-class-memaccess -Wno-overloaded-virtual -Wno-array-bounds -Wno-dangling-pointer -march=native -ffast-math -fno-finite-math-only -DHAVE_CGNS -DHAVE_MPI -DHAVE_METIS -DHAVE_PARMETIS -DHAVE_MMG -fno-fast-math -fno-unsafe-math-optimizations -ffp-contract=off -MD -MQ Common/src/libSU2AccurateSum.a.p/adaptation_CNativeBoundaryParameters3D.cpp.o -MF Common/src/libSU2AccurateSum.a.p/adaptation_CNativeBoundaryParameters3D.cpp.o.d -o Common/src/libSU2AccurateSum.a.p/adaptation_CNativeBoundaryParameters3D.cpp.o -c ../../Common/src/adaptation/CNativeBoundaryParameters3D.cpp
+In file included from ../../Common/src/adaptation/../../include/adaptation/CDistributedSearch.hpp:38,
+                 from ../../Common/src/adaptation/../../include/adaptation/CNativeDistributed2D.hpp:13,
+                 from ../../Common/src/adaptation/CNativeBoundaryParameters3D.cpp:7:
+../../Common/src/adaptation/../../include/adaptation/../parallelization/CPassiveComm.hpp: In instantiation of ‘static ompi_datatype_t* CPassiveComm::NativeType() [with T = bool; MPI_Datatype = ompi_datatype_t*]’:
+../../Common/src/adaptation/../../include/adaptation/../parallelization/CPassiveComm.hpp:220:94:   required from ‘static void CPassiveComm::Allreduce(const T*, T*, size_t, Op, Communicator) [with T = bool; size_t = long unsigned int; Communicator = ompi_communicator_t*]’
+../../Common/src/adaptation/../../include/adaptation/../parallelization/CPassiveComm.hpp:231:14:   required from ‘static T CPassiveComm::Allreduce(T, Op, Communicator) [with T = bool; Communicator = ompi_communicator_t*]’
+../../Common/src/adaptation/../../include/adaptation/CNativeDistributed2D.hpp:203:48:   required from ‘T SU2NativeBoundary2D::World::Reduce(T, CPassiveComm::Op) [with T = bool]’
+../../Common/src/adaptation/../../include/adaptation/CNativeDistributed2D.hpp:114:56:   required from ‘T SU2NativeBoundary2D::World::maximum(T) [with T = bool]’
+../../Common/src/adaptation/../../include/adaptation/CNativeDistributed2D.hpp:447:22:   required from here
+../../Common/src/adaptation/../../include/adaptation/../parallelization/CPassiveComm.hpp:337:34: error: static assertion failed: CPassiveComm::Allreduce: no native MPI type for this type.
+  337 |     else static_assert(sizeof(T) == 0, "CPassiveComm::Allreduce: no native MPI type for this type.");
+      |                        ~~~~~~~~~~^~~~
+../../Common/src/adaptation/../../include/adaptation/../parallelization/CPassiveComm.hpp:337:34: note: the comparison reduces to ‘(1 == 0)’
+../../Common/src/adaptation/../../include/adaptation/../parallelization/CPassiveComm.hpp:338:3: warning: no return statement in function returning non-void [-Wreturn-type]
+  338 |   }
+      |   ^
+[6/347] Compiling C++ object Common/src/libSU2AccurateSum.a.p/adaptation_CNativeTraceCoverage3D.cpp.o
+[7/347] Compiling C++ object Common/src/libSU2AccurateSum.a.p/adaptation_CNativeField3D.cpp.o
+FAILED: [code=1] Common/src/libSU2AccurateSum.a.p/adaptation_CNativeField3D.cpp.o 
+c++ -ICommon/src/libSU2AccurateSum.a.p -ICommon/src -I../../Common/src -I../../externals/CLI11 -I../../externals/eigen -I../../externals/cgns/adf -I../../externals/cgns/adfh -Iexternals/cgns -I../../externals/cgns -Iexternals/cgns/hdf5 -I../../externals/cgns/hdf5 -I../../externals/metis/include -I../../externals/metis/GKlib -I../../externals/metis/libmetis -I../../externals/parmetis/include -I../../externals/parmetis/libparmetis -I../../externals/mel -I/usr/lib/x86_64-linux-gnu/openmpi/include -I/usr/lib/x86_64-linux-gnu/openmpi/include/openmpi -fdiagnostics-color=always -D_GLIBCXX_ASSERTIONS=1 -D_FILE_OFFSET_BITS=64 -std=c++17 -O2 -g -fPIC -pthread -Wno-empty-body -Wno-ignored-qualifiers -Wno-unused-parameter -Wno-deprecated-declarations -Wno-error=cast-function-type -Wno-cast-function-type -Wno-error=stringop-truncation -Wno-stringop-truncation -Wno-error=missing-field-initializers -Wno-missing-field-initializers -Wno-error=class-memaccess -Wno-class-memaccess -Wno-overloaded-virtual -Wno-array-bounds -Wno-dangling-pointer -march=native -ffast-math -fno-finite-math-only -DHAVE_CGNS -DHAVE_MPI -DHAVE_METIS -DHAVE_PARMETIS -DHAVE_MMG -fno-fast-math -fno-unsafe-math-optimizations -ffp-contract=off -MD -MQ Common/src/libSU2AccurateSum.a.p/adaptation_CNativeField3D.cpp.o -MF Common/src/libSU2AccurateSum.a.p/adaptation_CNativeField3D.cpp.o.d -o Common/src/libSU2AccurateSum.a.p/adaptation_CNativeField3D.cpp.o -c ../../Common/src/adaptation/CNativeField3D.cpp
+In file included from ../../Common/src/adaptation/../../include/adaptation/CDistributedSearch.hpp:38,
+                 from ../../Common/src/adaptation/../../include/adaptation/CNativeDistributed2D.hpp:13,
+                 from ../../Common/src/adaptation/../../include/adaptation/CNativeDistributed3D.hpp:9,
+                 from ../../Common/src/adaptation/../../include/adaptation/CNativeDonor3D.hpp:8,
+                 from ../../Common/src/adaptation/../../include/adaptation/CNativeMetricTransport3D.hpp:8,
+                 from ../../Common/src/adaptation/CNativeField3D.cpp:8:
+../../Common/src/adaptation/../../include/adaptation/../parallelization/CPassiveComm.hpp: In instantiation of ‘static ompi_datatype_t* CPassiveComm::NativeType() [with T = bool; MPI_Datatype = ompi_datatype_t*]’:
+../../Common/src/adaptation/../../include/adaptation/../parallelization/CPassiveComm.hpp:220:94:   required from ‘static void CPassiveComm::Allreduce(const T*, T*, size_t, Op, Communicator) [with T = bool; size_t = long unsigned int; Communicator = ompi_communicator_t*]’
+../../Common/src/adaptation/../../include/adaptation/../parallelization/CPassiveComm.hpp:231:14:   required from ‘static T CPassiveComm::Allreduce(T, Op, Communicator) [with T = bool; Communicator = ompi_communicator_t*]’
+../../Common/src/adaptation/../../include/adaptation/CNativeDistributed2D.hpp:203:48:   required from ‘T SU2NativeBoundary2D::World::Reduce(T, CPassiveComm::Op) [with T = bool]’
+../../Common/src/adaptation/../../include/adaptation/CNativeDistributed2D.hpp:114:56:   required from ‘T SU2NativeBoundary2D::World::maximum(T) [with T = bool]’
+../../Common/src/adaptation/../../include/adaptation/CNativeDistributed2D.hpp:447:22:   required from here
+../../Common/src/adaptation/../../include/adaptation/../parallelization/CPassiveComm.hpp:337:34: error: static assertion failed: CPassiveComm::Allreduce: no native MPI type for this type.
+  337 |     else static_assert(sizeof(T) == 0, "CPassiveComm::Allreduce: no native MPI type for this type.");
+      |                        ~~~~~~~~~~^~~~
+../../Common/src/adaptation/../../include/adaptation/../parallelization/CPassiveComm.hpp:337:34: note: the comparison reduces to ‘(1 == 0)’
+../../Common/src/adaptation/../../include/adaptation/../parallelization/CPassiveComm.hpp:338:3: warning: no return statement in function returning non-void [-Wreturn-type]
+  338 |   }
+      |   ^
+[8/347] Compiling C++ object Common/src/libSU2AccurateSum.a.p/adaptation_CNativeAffineReference.cpp.o
+ninja: build stopped: subcommand failed.

@@ -1,0 +1,14 @@
+{
+  "after_terminal_build": true,
+  "before_any_numerical_check": true,
+  "changes": [
+    "Worker-only fixture assertion is only checked on rank0 in the M=1 test",
+    "Owned proof scratch also reserves reduced-bound vector storage"
+  ],
+  "source_changed_only": [
+    "Common/src/adaptation/CNativeEngine3D.cpp",
+    "UnitTests/SU2_CFD/adaptation/CNativeImport3D_tests.cpp"
+  ],
+  "prior_compile_seconds": 910.140251159668,
+  "numerical_attempts": 0
+}

@@ -211,6 +211,7 @@ CRemeshResult CNativeRemesher3D::Remesh(const CConfig& config, const CGeometry& 
                                         SU2NativeTiming3D::Phase::Preparation);
   if (timer_tree.Owns()) control.caller_bytes = transfer_memory::Add(control.caller_bytes, timer_tree.ReservedBytes());
   control.surface_tolerance = SU2_TYPE::GetValue(config.GetAdap_Hausd());
+  control.job_memory_limit=config.GetAdap_Native_Job_MemoryLimit();
   control.wall_heights.tolerance = SU2_TYPE::GetValue(config.GetAdap_BL_FirstHeightTol());  // Agreed by the engine.
   if (config.GetAdap_Native_Max_Work()) control.maximum_work=config.GetAdap_Native_Max_Work();
   if (config.GetAdap_Native_Max_Time()>0) control.maximum_seconds=SU2_TYPE::GetValue(config.GetAdap_Native_Max_Time());
@@ -237,6 +238,15 @@ CRemeshResult CNativeRemesher3D::Remesh(const CConfig& config, const CGeometry& 
     reason = elected.message;
     return !elected.any;
   };
+  auto check_job_memory = [&](size_t peak, const char* message) {
+    CLocalFailure local;
+    if(control.job_memory_limit && peak>control.job_memory_limit)local.Set(3,0,message);
+    const auto elected=parent.elect(local);
+    if(!elected.any)return true;
+    stats.refine.stop=EngineStop::MemoryBudget;
+    reason=elected.message;
+    return false;
+  };
   auto admit = [&](size_t bytes) {
     stats.maximum_native_bytes = std::max(stats.maximum_native_bytes, bytes);
     return vote(bytes != SIZE_MAX && bytes <= control.memory_ceiling,
@@ -254,9 +264,16 @@ CRemeshResult CNativeRemesher3D::Remesh(const CConfig& config, const CGeometry& 
     bool published = false;
   };
   SU2NativeGeometry::AtlasBudget target_event_budget;
+  bool reset_need_at_start=false;
+  if(reference->original && reference->original->Parameters()) {
+    reference->original->Parameters()->Geometry().ResetGeometryNeedStats();
+    reset_need_at_start=true;
+  }
   do {
     CheckSupport(config, geometry);
     phase(0);
+    stats.job_peak_rss_bytes=JobPeakRSS3D(parent.comm);
+    if(!check_job_memory(stats.job_peak_rss_bytes,"Native3D whole-job peak RSS exceeds ADAP_NATIVE_JOB_MEMORY_LIMIT."))break;
     const int worker_low = CPassiveComm::Allreduce(stats.workers, CPassiveComm::Op::MIN, parent.comm),
               worker_high = CPassiveComm::Allreduce(stats.workers, CPassiveComm::Op::MAX, parent.comm);
     const int low = CPassiveComm::Allreduce(int(control.timings), CPassiveComm::Op::MIN, parent.comm),
@@ -268,7 +285,9 @@ CRemeshResult CNativeRemesher3D::Remesh(const CConfig& config, const CGeometry& 
     const auto work_hi=CPassiveComm::Allreduce(control.maximum_work,CPassiveComm::Op::MAX,parent.comm);
     const auto time_lo=CPassiveComm::Allreduce(control.maximum_seconds,CPassiveComm::Op::MIN,parent.comm);
     const auto time_hi=CPassiveComm::Allreduce(control.maximum_seconds,CPassiveComm::Op::MAX,parent.comm);
-    if (work_lo!=work_hi || time_lo!=time_hi || !std::isfinite(time_lo) || !std::isfinite(time_hi) || time_lo<0)
+    const auto memory_lo=CPassiveComm::Allreduce(uint64_t(control.job_memory_limit),CPassiveComm::Op::MIN,parent.comm);
+    const auto memory_hi=CPassiveComm::Allreduce(uint64_t(control.job_memory_limit),CPassiveComm::Op::MAX,parent.comm);
+    if (work_lo!=work_hi || time_lo!=time_hi || memory_lo!=memory_hi || !std::isfinite(time_lo) || !std::isfinite(time_hi) || time_lo<0)
       failure.Set(1,0,"Native3D work/time controls differ or are invalid.");
     const int normalizer_low=CPassiveComm::Allreduce(int(bool(normalizationFactory)),CPassiveComm::Op::MIN,parent.comm),
               normalizer_high=CPassiveComm::Allreduce(int(bool(normalizationFactory)),CPassiveComm::Op::MAX,parent.comm);
@@ -332,6 +351,8 @@ CRemeshResult CNativeRemesher3D::Remesh(const CConfig& config, const CGeometry& 
     ImportedGeometry imported;
     bool ready = ImportGeometry(config, geometry, &sensor, pending->state, imported, reason, stats.imported,
                                 control.memory_ceiling, retained);
+    if(!reset_need_at_start && pending->state.original && pending->state.original->Parameters())
+      pending->state.original->Parameters()->Geometry().ResetGeometryNeedStats();
     stats.maximum_native_bytes = std::max(stats.maximum_native_bytes, stats.imported.maximum_native_bytes);
     phase(2);
     if (!ready) break;
@@ -518,6 +539,8 @@ CRemeshResult CNativeRemesher3D::Remesh(const CConfig& config, const CGeometry& 
     for(unsigned stage=0;ready && stage<2;++stage) {
     ++stats.normalization_stages;stats.construction_stats={};stats.refine={};stats.coarsen={};
     if (ready) {
+      const auto idle_peak=CPassiveComm::Allreduce(uint64_t(parent.rank>=stats.workers ? ProcessPeakRSS3D() : 0),
+                                                   CPassiveComm::Op::SUM,parent.comm);
       auto comm = parent.comm;
 #ifdef HAVE_MPI
       MPI_Comm_split(parent.comm, parent.rank < stats.workers ? 0 : MPI_UNDEFINED, parent.rank, &comm);
@@ -533,6 +556,7 @@ CRemeshResult CNativeRemesher3D::Remesh(const CConfig& config, const CGeometry& 
       if (parent.rank < stats.workers && ready) {
         World workers(comm);
         auto kernel = control;
+        kernel.idle_peak_rss_bytes=stats.workers<parent.size ? idle_peak : 0;
         if(control.geometry_workspace_bytes)kernel.shared_geometry_budget=&target_event_budget;
         kernel.maximum_seconds=worker_seconds;
         kernel.maximum_work=control.maximum_work-stats.cumulative_work;
@@ -676,6 +700,11 @@ CRemeshResult CNativeRemesher3D::Remesh(const CConfig& config, const CGeometry& 
 #endif
       phase(10);
       if (parent.rank >= stats.workers) stats.idle_cpu_seconds += double(std::clock() - idle_cpu) / CLOCKS_PER_SEC;
+      stats.job_peak_rss_bytes=JobPeakRSS3D(parent.comm);
+      if(!check_job_memory(stats.job_peak_rss_bytes,"Native3D whole-job peak RSS exceeds ADAP_NATIVE_JOB_MEMORY_LIMIT.")) {
+        valid=false;
+        detail=reason;
+      }
       now = parent.seconds();
 #ifdef HAVE_MPI
       if (comm != MPI_COMM_NULL) MPI_Comm_free(&comm);
@@ -805,6 +834,12 @@ CRemeshResult CNativeRemesher3D::Remesh(const CConfig& config, const CGeometry& 
       if(ready && rebound)pending->state.original=std::move(rebound);
     }
     phase(11);
+    if(pending->state.original && pending->state.original->Parameters()) {
+      const auto m18=pending->state.original->Parameters()->Geometry().GeometryStatsSnapshot();
+      stats.geometry_distinct_facets=m18.distinct_facets;
+      stats.geometry_distinct_scope_keys=m18.distinct_scope_keys;
+      stats.geometry_prepared_facet_mean_bytes=m18.prepared_facet_mean_bytes;
+    }
     stats.maximum_native_bytes =
         std::max({stats.maximum_native_bytes, stats.construction_stats.maximum_work_bytes, stats.refine.maximum_work_bytes, stats.coarsen.maximum_work_bytes,
                   stats.returned.maximum_native_bytes, stats.reassessment.maximum_native_bytes, stats.parameter_return.maximum_native_bytes, parent.max_exchange_work_bytes});
@@ -844,16 +879,18 @@ CRemeshResult CNativeRemesher3D::Remesh(const CConfig& config, const CGeometry& 
   stats.process_cpu_seconds = double(std::clock() - cpu) / CLOCKS_PER_SEC;
   stats.total_seconds = parent.seconds() - start;
   stats.other_seconds = stats.total_seconds - std::accumulate(stats.phases.begin(), stats.phases.end(), 0.);
-#if defined(__unix__)
-  struct rusage usage {};
-  if (!getrusage(RUSAGE_SELF, &usage)) {
-#if defined(__APPLE__)
-    stats.process_peak_rss_bytes = usage.ru_maxrss;
-#else
-    stats.process_peak_rss_bytes = transfer_memory::Mul(usage.ru_maxrss, 1024);
-#endif
+  stats.process_peak_rss_bytes=ProcessPeakRSS3D();
+  stats.job_peak_rss_bytes=JobPeakRSS3D(parent.comm,stats.process_peak_rss_bytes);
+  if(!check_job_memory(stats.job_peak_rss_bytes,"Native3D whole-job peak RSS exceeds ADAP_NATIVE_JOB_MEMORY_LIMIT.")) {
+    result.status=CRemeshResult::Status::INCOMPLETE_QUALITY;
+    result.slices={}; result.markers.clear(); result.beforeAcceptance={}; result.onAccepted={};
+    stats.complete=false; stats.final_cells=0;
   }
-#endif
+  const auto& proof=stats.refine.final_proof_surface_faces ? stats.refine : stats.construction_stats;
+  stats.final_proof_faces=proof.final_proof_faces;
+  stats.final_proof_surface_faces=proof.final_proof_surface_faces;
+  stats.job_peak_rss_lower_bytes=std::max({stats.construction_stats.job_peak_rss_lower,
+                                           stats.refine.job_peak_rss_lower,stats.coarsen.job_peak_rss_lower});
   const auto report = parent.seconds();
   std::ostringstream row;
   row << std::setprecision(17) << "NATIVE3D rank=" << parent.rank << " ranks=" << parent.size
@@ -871,7 +908,13 @@ CRemeshResult CNativeRemesher3D::Remesh(const CConfig& config, const CGeometry& 
       << " nested_tracked_parent=" << stats.parent_transport_seconds
       << " tracked_worker_bytes=" << stats.worker_transport_bytes << " tracked_worker_calls=" << stats.worker_transport_calls
       << " nested_tracked_worker=" << stats.worker_transport_seconds << " native_bound=" << stats.maximum_native_bytes
-      << " process_peak_rss=" << stats.process_peak_rss_bytes << '\n';
+      << " process_peak_rss=" << stats.process_peak_rss_bytes << " job_peak_rss=" << stats.job_peak_rss_bytes
+      << " job_peak_rss_lower=" << stats.job_peak_rss_lower_bytes
+      << " final_proof_faces=" << stats.final_proof_faces
+      << " final_proof_surface_faces=" << stats.final_proof_surface_faces
+      << " geometry_distinct_facets=" << stats.geometry_distinct_facets
+      << " geometry_distinct_scope_keys=" << stats.geometry_distinct_scope_keys
+      << " geometry_prepared_facet_mean_bytes=" << stats.geometry_prepared_facet_mean_bytes << '\n';
   const auto text = row.str();
   const auto all = CPassiveComm::Allgatherv(std::vector<char>(text.begin(), text.end()), nullptr, parent.comm);
   if (!parent.rank) {

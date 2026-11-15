@@ -1,0 +1,9 @@
+# Whole connected source check (before production edits)
+No remaining result-gate contradictions after2.0d-r/e-r. All diagnostic differences in one list:
+1. BP377-397 has0/1/2lower queries perface; d-r separates coverage fromquerycounts. No extra EntityFaceError final-proof callers outsideGeometryCertificates found.
+2. M18existingfacet_entries/support_facets/resolutioncounts are notdistinct need; newbitmap/scopekeyset requires storageaccounting and eventreset. Count prepared-service facet uses/scope keys; meanincludesallbuildreceipts before retention. Memo hits that bypass this service do notrequire preparedcache; reportthisscope.
+3. M20localprivate_work_used is notallreduced used; accumulate rank-localwork before SUM andemitwindow deltas besidebusytime.
+4. M21currentRSS andtransitionpayload rows absent; addprocstatm reader before/staged/committed withknownbuffers, peak/exchangebytes. Background/runtimeallocator memory cannotbeassigned toonebuffer; reportgap.
+P7allsteps: canonicalstateface inputs; entityorderedvectorMAXthroughWorld; ownedfacecountSUMvsstateSurface; oldimportdefaultpathunchanged; nonfiniteinfinity; components modekeepsoldpart2path. Repartitiondestinations<parts atPartition341, conservation+swap382-390, Rem533onlyworkers -> workerownedwallpartitioncoverscomplete state.
+P8allsteps: configMiB0off, overflow/negativevalidation; parentexactstart/postbarrier/end electedrefusal; workersum+idlepeaks capturedbeforeeachworkersection; no parentcollectiveinsideengine; memoryrefusalclearsunpublishedcallbacks andretainsacceptedstate. LowerboundnotwholejobexactforM<N; rendezvousisexact. LinuxRSShelperavailable; nonunixexistingProcessPeakRSSreturns0 andcurrentRSSunavailableareplatformlimits, no portabilityenforcementclaim.
+Checksordered once asstage_contract.md; P7c1/c3andmemory/time/physicalgatesstrict; c2andpredictiondiagnostic. ExistingBL/2D safeguards retained. A5/B5/cachequotas untouched.

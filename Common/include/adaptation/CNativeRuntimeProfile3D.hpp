@@ -6,16 +6,20 @@
  */
 #pragma once
 #include "../parallelization/CPassiveComm.hpp"
+#include "CNativeTimerTree3D.hpp"
 #include <array>
 #include <ctime>
 #include <iomanip>
+#include <fstream>
 #include <iostream>
 #include <numeric>
 #include <sstream>
 #if defined(__unix__)
+#include <unistd.h>
 #include <sys/resource.h>
 #endif
 namespace SU2Native3D {
+// Linux /proc exposes current resident pages; unsupported platforms report zero.
 inline size_t ProcessPeakRSS3D() {
 #if defined(__unix__)
   struct rusage usage {};
@@ -29,6 +33,24 @@ inline size_t ProcessPeakRSS3D() {
 #endif
   return 0;
 }
+/*! Current Linux resident bytes; zero when the platform cannot provide them. */
+inline size_t CurrentRSS3D() {
+#if defined(__unix__)
+  std::ifstream statm("/proc/self/statm");
+  size_t total = 0, resident = 0;
+  if (!(statm >> total >> resident)) return 0;
+  const long page = sysconf(_SC_PAGESIZE);
+  if (page > 0 && resident <= SIZE_MAX / size_t(page)) return resident * size_t(page);
+#endif
+  return 0;
+}
+/*! Sum the same local peak sample used by the per-rank report. */
+inline size_t JobPeakRSS3D(SU2_Comm comm, size_t local_peak) {
+  SU2NativeTiming3D::Scope timer(SU2NativeTiming3D::Operation::Communication);
+  return CPassiveComm::Allreduce(uint64_t(local_peak), CPassiveComm::Op::SUM, comm);
+}
+/*! Sum lifetime process peaks over the given communicator only. */
+inline size_t JobPeakRSS3D(SU2_Comm comm) { return JobPeakRSS3D(comm, ProcessPeakRSS3D()); }
 inline double ProfileRow3D(const std::string& row, SU2_Comm comm = SU2_MPI::GetComm()) {
   const auto begin = SU2_MPI::Wtime();
   const auto all = CPassiveComm::Allgatherv(std::vector<char>(row.begin(), row.end()), nullptr, comm);

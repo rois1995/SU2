@@ -112,6 +112,8 @@ class World {
   mutable uint64_t election_collective_calls = 0;
   int sum(int value) { return Reduce(value, CPassiveComm::Op::SUM); }
   int maximum(int value) { return Reduce(value, CPassiveComm::Op::MAX); }
+  /*! Typed collective for certificate values; existing boolean callers retain their int conversion. */
+  template <class T> T reduce(T value, CPassiveComm::Op op) { return Reduce(value, op); }
   double seconds() const { return SU2_MPI::Wtime(); }
 
   template <class T>
@@ -197,7 +199,7 @@ class World {
   }
 
  private:
-  int Reduce(int value, CPassiveComm::Op op) {
+  template <class T> T Reduce(T value, CPassiveComm::Op op) {
     SU2NativeTiming3D::Scope communication_timer(SU2NativeTiming3D::Operation::Communication);
     const auto started = seconds();
     const auto result = CPassiveComm::Allreduce(value, op, comm);

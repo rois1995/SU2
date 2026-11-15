@@ -2858,3 +2858,53 @@ TEST_CASE("Native3D reader returns current nodal sensors outside donor coverage"
     CHECK(result.metric[i]==Approx(7));CHECK(result.metric[i+3]==Approx(7));CHECK(result.metric[i+5]==Approx(9));
   }
 }
+
+// Exercise both parent rendezvous checks and the single-worker lower bound on MPI2.
+TEST_CASE("Native job memory peaks and refusal preserve accepted CFD state", "[NativeJobMemory3D]") {
+  World world;
+  const auto local = ProcessPeakRSS3D();
+  const auto sum = CPassiveComm::Allreduce(local, CPassiveComm::Op::SUM, world.comm);
+  CHECK(JobPeakRSS3D(world.comm) >= sum);
+  auto config = MakeConfig(3,
+                           "SOLVER= EULER\nCOMPUTE_METRIC= YES\nADAP_SENSOR= PRESSURE\n"
+                           "ADAP_REMESHER= NATIVE_CAVITY\nADAP_SURFACE= YES\nADAP_HESSIAN_NOISE= 0\n"
+                           "ADAP_NATIVE_REPARTITION= YES\nADAP_NATIVE_RANKS= 1\nADAP_HAUSD= .001\n"
+                           "ADAP_NATIVE_MAX_WORK= 4096\nADAP_NATIVE_JOB_MEMORY_LIMIT= 1\nWRT_PERFORMANCE= YES\n");
+  MeshSolution mesh(config.get(), BoxMesh(3, 1, false), 0);
+  const auto accepted = State(mesh);
+  su2activematrix metric(mesh.Fine().GetnPointDomain(), 6);
+  for (unsigned long i = 0; i < metric.rows(); ++i) {
+    for (unsigned j = 0; j < 6; ++j) metric(i, j) = (j == 0 || j == 3 || j == 5) ? 1 : 0;
+  }
+  auto state = std::make_shared<ReferenceState>();
+  CNativeRemesher3D denied(state);
+  const auto result = denied.Remesh(*config, mesh.Fine(), metric);
+  CHECK(result.status != CRemeshResult::Status::COMPLETE);
+  CHECK_FALSE(result.onAccepted);
+  CHECK(denied.Statistics().refine.stop == EngineStop::MemoryBudget);
+  CHECK_FALSE(state->original);
+  CHECK(State(mesh) == accepted);
+  auto enabled = MakeConfig(3,
+                            "SOLVER= EULER\nCOMPUTE_METRIC= YES\nADAP_SENSOR= PRESSURE\n"
+                            "ADAP_REMESHER= NATIVE_CAVITY\nADAP_SURFACE= YES\nADAP_HESSIAN_NOISE= 0\n"
+                            "ADAP_NATIVE_REPARTITION= YES\nADAP_NATIVE_RANKS= 1\nADAP_HAUSD= .001\n"
+                            "ADAP_NATIVE_MAX_WORK= 4096\nADAP_NATIVE_JOB_MEMORY_LIMIT= 19073\nWRT_PERFORMANCE= YES\n");
+  EngineOptions options;
+  size_t maximum_lower = 0, observed_boundaries = 0;
+  options.stage_observer = [&](const StageProgressView& view) {
+    maximum_lower = std::max(maximum_lower, view.stats.job_peak_rss_lower);
+    ++observed_boundaries;
+  };
+  CNativeRemesher3D subset(state, options);
+  const auto attempted = subset.Remesh(*enabled, mesh.Fine(), metric);
+  const auto& stats = subset.Statistics();
+  CHECK(stats.job_peak_rss_lower_bytes <= stats.job_peak_rss_bytes);
+  CHECK(maximum_lower <= stats.job_peak_rss_bytes);
+  if (world.rank == 0) CHECK(observed_boundaries > 0);
+  CHECK(stats.job_peak_rss_bytes ==
+        CPassiveComm::Allreduce(stats.process_peak_rss_bytes, CPassiveComm::Op::SUM, world.comm));
+  if (world.rank == 0) CHECK(stats.refine.job_peak_rss_lower > 0);
+  CHECK(State(mesh) == accepted);
+  CHECK_FALSE(state->original);  // Remesh is provisional until its publication callback is invoked.
+  (void)attempted;
+}

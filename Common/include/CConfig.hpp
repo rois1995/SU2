@@ -1314,6 +1314,7 @@ private:
   bool Compute_Metric = false;              /*!< \brief Determines if the adaptation metric is computed. */
   bool Adap_Iso_Corner = true;              /*!< \brief Isotropic adaptation metric at sharp wall corners. */
   unsigned long Adap_Native_MemoryLimit = 0; /*!< \brief Native3D accounted working storage per rank in MiB; zero keeps automatic/default policies. */
+  unsigned long Adap_Native_Job_MemoryLimit = 0; /*!< \brief Native3D whole-job peak RSS limit in MiB; zero disables it. */
   unsigned long Adap_Native_Max_Work = 0;   /*!< \brief Global 3D proposal allowance; zero is automatic. */
   su2double Adap_Native_Max_Time = 0;      /*!< \brief Optional native3D-to-replacement deadline in seconds. */
   unsigned long Adap_Native_Ranks = 0;       /*!< \brief Native adaptation ranks; zero uses all CFD ranks. */
@@ -10491,6 +10492,8 @@ public:
   bool GetAdap_Native_Repartition(void) const { return Adap_Native_Repartition; }
   /*! Explicit native3D working-storage ceiling in bytes; zero retains default/automatic policies. */
   size_t GetAdap_Native_MemoryLimit() const { return size_t(Adap_Native_MemoryLimit)*(size_t(1)<<20); }
+  /*! Whole-job process peak RSS ceiling in bytes; zero disables refusal. */
+  size_t GetAdap_Native_Job_MemoryLimit() const { return size_t(Adap_Native_Job_MemoryLimit)*(size_t(1)<<20); }
   unsigned long GetAdap_Native_Max_Work(void) const { return Adap_Native_Max_Work; }
   su2double GetAdap_Native_Max_Time(void) const { return Adap_Native_Max_Time; }
 

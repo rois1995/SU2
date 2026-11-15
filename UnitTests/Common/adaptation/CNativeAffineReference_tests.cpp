@@ -1106,6 +1106,45 @@ TEST_CASE("Geometry workload snapshots and cheap facet estimates", "[NativeSurfa
   CHECK(uncached.GeometryStatsSnapshot().retention_refusals>=1);
 }
 
+TEST_CASE("Geometry need counters reset per event without clearing caches", "[NativeGeometryStats3D]") {
+  CurvedAtlasFixture fixture;
+  auto& geometry = *fixture.geometry;
+  const auto& face = fixture.facets.front();
+  std::vector<std::array<Point, 3>> physical{{{face.v[0].p, face.v[1].p, face.v[2].p}}};
+
+  auto first_budget = GeometryAtlasBudget();
+  geometry.BoundPhysicalSurface({face.id}, physical, .1, first_budget);
+  const auto first = geometry.GeometryStatsSnapshot();
+  REQUIRE(first.distinct_facets == 1);
+  REQUIRE(first.distinct_scope_keys > 0);
+  CHECK(first.upper_calls > 0);
+
+  auto repeat_budget = GeometryAtlasBudget();
+  geometry.BoundPhysicalSurface({face.id}, physical, .1, repeat_budget);
+  const auto repeated = geometry.GeometryStatsSnapshot();
+  CHECK(repeated.distinct_facets == first.distinct_facets);
+  CHECK(repeated.distinct_scope_keys == first.distinct_scope_keys);
+
+  geometry.ResetGeometryNeedStats();
+  const auto reset = geometry.GeometryStatsSnapshot();
+  CHECK(reset.distinct_facets == 0);
+  CHECK(reset.distinct_scope_keys == 0);
+  CHECK(reset.prepared_facet_builds == 0);
+  CHECK(reset.upper_calls == repeated.upper_calls);
+  CHECK(reset.scope_builds == repeated.scope_builds);
+  CHECK(reset.facet_bytes == repeated.facet_bytes);
+  CHECK(reset.scope_bytes == repeated.scope_bytes);
+  CHECK(reset.facet_entries == repeated.facet_entries);
+
+  // Change one bit so the old face memo cannot hide the new event's geometry query.
+  physical[0][0].x = std::nextafter(physical[0][0].x, INFINITY);
+  auto next_event_budget = GeometryAtlasBudget();
+  geometry.BoundPhysicalSurface({face.id}, physical, .1, next_event_budget);
+  const auto next_event = geometry.GeometryStatsSnapshot();
+  CHECK(next_event.distinct_facets == 1);
+  CHECK(next_event.distinct_scope_keys > 0);
+}
+
 TEST_CASE("Single triangle permutations reuse canonical certified queries", "[NativeSurfaceMemo3D]") {
   using namespace SU2Native3D;CurvedAtlasFixture fixture;auto& g=*fixture.geometry;
   const auto& f=fixture.facets.front();std::array<unsigned,3> order{0,1,2};double expected=-1;

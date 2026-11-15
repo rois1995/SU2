@@ -1,6 +1,6 @@
-# P7/P8/counters — corrected P8 checked; remaining P7 gate contradiction
+# P7/P8 source-check history — both reported contradictions now corrected
 
-2026-11-15. **Stopped at the first remaining source contradiction, before production edits, build or numerical checks.** P8 section2.0e-r resolves the previously reported communicator mismatch. P7 check(c), which the user says remains unchanged, equates lower-level geometry-query calls with wall faces. The source and retained M6 output contradict that equality. No independent timer/gate redesign and no partial implementation of the ONE connected P7/P8/M18/M20/M21 item.
+2026-11-15. Historical source-check stop, preserved at a29c63f046. Reviewer2.0d-r now corrects the query-count gate; latest AGENTS/Part0 requires whole-item review. Current connected implementation and validation state: [report](ADAPTATION_P7_P8_CONNECTED_20261115.md). The following is the preserved diagnosis, not the current blocker. P8 section2.0e-r resolves the previously reported communicator mismatch. P7 check(c), which the user says remains unchanged, equates lower-level geometry-query calls with wall faces. The source and retained M6 output contradict that equality. No independent timer/gate redesign and no partial implementation of the ONE connected P7/P8/M18/M20/M21 item.
 
 ## P8 correction checked
 

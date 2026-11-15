@@ -1,0 +1,28 @@
+{
+  "state": "stopped_at_first_executed_unit_failure",
+  "check": "a serial connected unit check",
+  "case": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/p7p8_units_serial_20261115T184919_1337265",
+  "exit_code": 134,
+  "fatal_signal": "SIGABRT",
+  "unit_test": "Native job memory peaks and refusal preserve accepted CFD state",
+  "test_cases": 1,
+  "passed_assertions": 1,
+  "fatal_assertions": 1,
+  "location": "CNativeImport3D_tests.cpp:2874 calls State(mesh); State reads current/time_n/time_n1 arrays at86-90",
+  "diagnosis": "New fixture uses steady configuration but State helper also indexes unallocated time-history arrays. addr2line maps abort to State. Fixture error introduced by this implementation, before Remesh was called.",
+  "production_memory_gate_executed": false,
+  "new_proof_unit_executed": false,
+  "result_gate_qualification": "memory refusal/accepted-state retention not established; no production result failure claimed",
+  "ordered_checks_not_started": [
+    "MPI2 subset",
+    "first collapse",
+    "C492",
+    "481/current target",
+    "2D1/2/4",
+    "full two-event workflow"
+  ],
+  "source_binary_pins_unchanged": true,
+  "action": "Stop; preserve evidence; no fixture repair/retry or later numerical check",
+  "sandbox_attempt": "earlier socket()EPERM aborted MPI_Init before any test; preserved separately",
+  "unix": 1794768642.6755786
+}
