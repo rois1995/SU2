@@ -18,8 +18,11 @@ R = PURPOSE.parent
 REPO = R.parents[3]
 BUILD = REPO / "integration_evidence/build-integrated-v3-p5-20261114"
 BINARY = BUILD / "SU2_CFD/src/SU2_CFD"
-BUILD_STATUS = PURPOSE / "build_status.json"
-SOURCE_PINS = PURPOSE / "source_pins.json"
+BUILD_CONTEXT = PURPOSE / "p6c_20261115"
+BUILD_STATUS = BUILD_CONTEXT / "build_status.json"
+SOURCE_PINS = BUILD_CONTEXT / "source_pins.json"
+ADDITIONAL_PINS = BUILD_CONTEXT / "unchanged_build494_source_pins.json"
+COUNT_REFERENCE = R / "shared_engine_accepted_count_reference.json"
 CLEAN = R / "nobl_clean_check_20261114/run"
 REFERENCE494 = R / "nobl_clean_check_20261114/first_collapse_receipt.json"
 REFERENCE293 = R / "nobl_cause_confirm_20261114/reference_counts.json"
@@ -86,7 +89,7 @@ def verify_pins(strict=True):
         pins = pins["source_pins"]
     if strict:
         assert isinstance(pins, dict) and pins, "source_pins.json must be a nonempty flat absolute path -> sha256 map"
-    extra_path=PURPOSE / "unchanged_build494_source_pins.json"
+    extra_path=ADDITIONAL_PINS
     extra=json.loads(extra_path.read_text())
     assert not (pins.keys() & extra.keys())
     pins.update(extra)
@@ -116,6 +119,14 @@ def verify_pins(strict=True):
             "additional_source_pins_sha256": sha(extra_path)}
 
 
+def accepted_counts_match(rows, expected):
+    return set(rows)==set(range(6)) and all(int(rows[rank]["accepted"])==expected[rank] for rank in range(6))
+
+
+def refinements_pass(rows):
+    return set(rows)==set(range(6)) and all(int(row.get("upper_refinements",-1))==0 for row in rows.values())
+
+
 def collapse_rows(case):
     result = {}
     for path in sorted(case.glob("rank_output/*/rank.*/stdout")):
@@ -141,6 +152,22 @@ def collapse_rows(case):
             row.update(source_file=str(path), source_line=number)
             result[rank] = row
             break
+    return result
+
+
+def event_summaries(case):
+    result={}
+    for path in sorted(case.glob("rank_output/*/rank.*/stdout")):
+        for number,raw in enumerate(path.open(errors="replace"),1):
+            if not raw.endswith("\n"):continue
+            line=clean_prefixes(raw)
+            if "NATIVE3D rank=" not in line:continue
+            row=dict(re.findall(r"(\w+)=([^\s]+)",line))
+            if not all(k in row for k in ("rank","complete","final","total")):continue
+            rank=int(row["rank"])
+            if rank not in range(6):continue
+            row.update(source_file=str(path),source_line=number)
+            result.setdefault(rank,[]).append(row)
     return result
 
 
@@ -312,7 +339,7 @@ def validate_full_workflow(case):
         required_markers = ["------------------- Solution Transfer (conservative P1) -------------------",
                             "Change of the integrals (sum of value x control volume)", "Time: setup ",
                             "The problem uses the new mesh:", "Mesh replaced in ",
-                            f"Writing the adapted mesh of cycle {event:05d}: adapted_mesh_adap_{event:05d}.su2."]
+                            f"Writing the adapted mesh of cycle {event}: adapted_mesh_adap_{event:05d}.su2."]
         marker_positions = [section.find(marker) for marker in required_markers]
         native_position = section.rfind("NATIVE3D rank=")
         ordered = (native_position >= 0 and all(position >= 0 for position in marker_positions) and
@@ -413,6 +440,13 @@ def main():
 
     # Validate prerequisites before creating output or launching any process.
     pins_before = verify_pins()
+    count_reference=json.loads(COUNT_REFERENCE.read_text())
+    assert count_reference["full_two_event_workflow_accepted"] is True
+    expected_counts=count_reference["accepted_by_rank"]
+    assert len(expected_counts)==6 and all(type(n) is int and n>=0 for n in expected_counts)
+    assert count_reference["upper_work_limit"]==MAX_WORK
+    assert sha(count_reference["full_workflow_receipt"])==count_reference["full_workflow_receipt_sha256"]
+    assert json.loads(Path(count_reference["full_workflow_receipt"]).read_text())["workflow_accepted"] is True
     clean_provenance = json.loads((CLEAN / "provenance.json").read_text())
     baseline293 = json.loads(REFERENCE293.read_text())
     baseline494 = baseline293["build494"]
@@ -448,7 +482,7 @@ def main():
     assert all(sha(path)==digest for path,digest in runtime_pins.items()), "runtime dependency changed"
     input_hashes.update(runtime_pins)
     for path in (SCRIPT,Path(runtime_checks.__file__),runtime_manifest,BUILD_STATUS,SOURCE_PINS,
-                 PURPOSE / "unchanged_build494_source_pins.json",R / "nobl_clean_check_20261114/extract_markers.py",
+                 ADDITIONAL_PINS,COUNT_REFERENCE,R / "nobl_clean_check_20261114/extract_markers.py",
                  REFERENCE494,REFERENCE293,CLEAN / "provenance.json"):
         input_hashes[str(path)]=sha(path)
     for name in ("m6.su2", "m6.su2.native_ref", "baseline_euler_seed.dat"):
@@ -530,6 +564,25 @@ def main():
             receipts.write(json.dumps({"unix": time.time(), "elapsed": elapsed,
                                       "host": host_snapshot(), "owned_processes": sampled}) + "\n")
             receipts.flush()
+            if full_mode:
+                guard_records=[]
+                for path in sorted(case.glob("rank_output/*/rank.*/stderr")):
+                    for number,line in enumerate(path.open(errors="replace"),1):
+                        if "NATIVE_SURFACE_REFINE " in line:
+                            guard_records.append({"source_file":str(path),"source_line":number,"record":clean_prefixes(line).strip()})
+                if guard_records:
+                    save(case / "p6c_refinement_guard_failure.json",{"reason":"P6c predicts zero one-sided model refinements; stop first failure without another fix.","records":guard_records})
+                    stop_reason="p6c_one_sided_refinement_guard_failure"
+                    break
+                summaries=event_summaries(case)
+                if set(summaries)==set(range(6)):
+                    for event in range(min(len(rows) for rows in summaries.values())):
+                        rejected={rank:rows[event] for rank,rows in summaries.items() if int(rows[event]["complete"])!=1}
+                        if rejected:
+                            save(case / "first_rejected_event.json",{"event":event+1,"reason":"Stop first rejected adaptation per reviewer no-attempt-loop rule; two accepted adaptations are now impossible.","per_rank":{rank:rows[event] for rank,rows in summaries.items()}})
+                            stop_reason="adaptation_rejected_stop_first_failure"
+                            break
+                    if stop_reason:break
             if len(captured)<6:captured = collapse_rows(case)
             if not full_mode and set(captured) == set(range(6)):
                 stop_reason = "all_six_first_collapse_exit_rows"
@@ -617,6 +670,10 @@ def main():
         "build494_reference_six_rank_sums": baseline494["six_rank_sums"],
         "build494_reference_per_rank": baseline494["per_rank"],
     }
+    first_collapse_gate.update(accepted_count_reference=str(COUNT_REFERENCE),
+                              accepted_by_rank_expected=expected_counts,
+                              accepted_counts_match_current_reference=accepted_counts_match(captured,expected_counts),
+                              upper_refinements_pass=refinements_pass(captured))
     save(case / "comparison.json", first_collapse_gate)
     full_receipt = None
     if full_mode and stop_reason == "normal_process_exit" and code == 0:
@@ -646,7 +703,7 @@ def main():
     save(case / "status.json", result)
     print(json.dumps(result), flush=True)
     raise SystemExit(bool(live) or bool(inputs_changed) or pin_changes or not first_collapse_gate["upper_work_pass"] or
-                     not first_collapse_gate["accepted_counts_match_build494"] or not result["native_case_started"] or
+                     not first_collapse_gate["accepted_counts_match_current_reference"] or not first_collapse_gate["upper_refinements_pass"] or not result["native_case_started"] or
                      (full_mode and not result["full_workflow_accepted"]))
 
 

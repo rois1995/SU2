@@ -1,0 +1,80 @@
+{
+  "schema": "p6c_euler_completion_v1",
+  "unix": 1794711320.1286337,
+  "source_checkpoint": "05501a11d7",
+  "checks1_to6_passed": true,
+  "two_accepted_euler50k_events_verified": true,
+  "strict_q_J_size_geometry_gates_unchanged": true,
+  "actual_positive_mesh_and_admissible_solution_verified": true,
+  "conservative_transfers_and_finite_continued_CFD_verified": true,
+  "actual_isolated_final_adapted_disk_restart_verified": true,
+  "disk_restart_event": 2,
+  "one_sided_refinements_by_event": [
+    0,
+    0
+  ],
+  "events": [
+    {
+      "event": 1,
+      "whole_native_seconds_max_rank": 2941.5865853289997,
+      "actual_mesh_counts": {
+        "points": 146676,
+        "cells": 726442
+      },
+      "transfer_residuals": {
+        "Density": 7.713e-14,
+        "Momentum-x": 2.647e-14,
+        "Momentum-y": 5.25e-14,
+        "Momentum-z": 3.14e-14,
+        "Energy": 7.61e-14
+      },
+      "outputs": {
+        "adapted_mesh_adap_00001.su2": "2aea6a341b0de7c3175aef7c9671c9f42a17a767c5acc35478a8d89bef87eca7",
+        "adapted_mesh_adap_00001.su2.native_ref": "9bddc9a6317e82cf732adb13ab157c690c46ee7fd820eebf62bf672553e129b9",
+        "restart_flow_adap_00001.dat": "b77362d32483541b97c9ead50bc52ff33e90a0593db3c5d363977a61331c4091"
+      }
+    },
+    {
+      "event": 2,
+      "whole_native_seconds_max_rank": 2128.8917143699996,
+      "actual_mesh_counts": {
+        "points": 168790,
+        "cells": 855760
+      },
+      "transfer_residuals": {
+        "Density": 6.468e-14,
+        "Momentum-x": 7.442e-14,
+        "Momentum-y": 4.071e-14,
+        "Momentum-z": 9.075e-14,
+        "Energy": 6.339e-14
+      },
+      "outputs": {
+        "adapted_mesh_adap_00002.su2": "11f7b7422ef5d0c17d85666ae265ea7a590bcaf729daeb2df56030d39a660be0",
+        "adapted_mesh_adap_00002.su2.native_ref": "bc49c1af6f6d691e1c58927470b04b4336336d21f043684a035a6d11394f30db",
+        "restart_flow_adap_00002.dat": "3be66436bd544fca0be3fcc2850c20f6b7e26a9cf7d0e777437a59f1c9272afd"
+      }
+    }
+  ],
+  "whole_native_seconds_sum": 5070.478299699,
+  "outer_workflow_seconds": 5493.180860182998,
+  "euler_nominal_metric_complexity": 50000,
+  "evolved_mesh_integrated_complexity_measured": false,
+  "receipt_hashes": {
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/purpose_query_fix_20261114/p6c_20261115/full_workflow/full_workflow_corrected_marker_receipt.json": "a8d0442dd3197f51f6ac0b8a833814f0650db50eb48859b348261fed21089a3c",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/purpose_query_fix_20261114/p6c_20261115/disk_restart_event2/disk_restart_validation.json": "95dd033bfe81651816dcfaaa3a0be81aeda1ffc4a8e0ebb1f3b2b5a29ec06371",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/purpose_query_fix_20261114/p6c_20261115/check1_receipt.json": "f2d1bd2accc558560b6d28b7eb6028b8c4c06a896addec6fe3b0804ac4c27a0e",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/purpose_query_fix_20261114/p6c_20261115/nobl_to_construction/p6_check2.json": "d4b9072d9163aa5a5f2a2cabc52b07373e147d88f6f2e19e0d65b4ab85426d16",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/purpose_query_fix_20261114/p6c_20261115/nobl_to_construction/p6_check3.json": "238258c84dbcd553b39b3dd26ce284f0b1d2b94e30c3516ad25e1b7e8bd8cb19",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/purpose_query_fix_20261114/p6c_20261115/check5_receipt.json": "5d583662161fc8c18ca9bb7ebe7f5fba705d174e2c5151380c0ce7410658859f",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/shared_engine_accepted_count_reference.json": "be9a98e55c86da2cc2216e60840e369ed549b2f50470215878636550f7d1b84e"
+  },
+  "binary_sha256": "9c06aec181c662c8714d7e142e1802ba39468980eb6d8d008dd406a3e53d70f0",
+  "test_binary_sha256": "ea115c238822cbaab4034ad3b39239c32e15ec36386872f4ed186b158019c299",
+  "BL_bounded_preservation_passes": true,
+  "curved_BL_surface_ready": false,
+  "dedicated_native_BL_MPI_qualified": false,
+  "rans500k_complete": false,
+  "full_goal_complete": false,
+  "saved_state_scope": "Accepted CFD/geometry and matching on-disk solution preserved. No exact composed-target checkpoint or scheduler-exact replay claim for these final Euler states.",
+  "parser_correction": "Only unpadded publication-label comparison changed; original controller/raw false-format receipt retained; no solver rerun."
+}

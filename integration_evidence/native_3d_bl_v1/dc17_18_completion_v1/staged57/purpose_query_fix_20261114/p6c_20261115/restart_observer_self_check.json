@@ -1,0 +1,10 @@
+{
+  "passed": true,
+  "checks": [
+    "actual executing inode and all mapped ELFs match pinned set",
+    "vanished process is not accepted",
+    "deleted non-ELF data mapping accepted",
+    "deleted ELF mapping rejected"
+  ],
+  "source_review_corrections": "expected path/stat identity, process-exit races, deleted shared-memory data, zombie terminal state, bounded ownership on observation error"
+}

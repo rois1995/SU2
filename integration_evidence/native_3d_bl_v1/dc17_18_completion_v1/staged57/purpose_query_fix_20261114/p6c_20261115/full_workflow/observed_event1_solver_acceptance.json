@@ -1,0 +1,40 @@
+{
+  "scope": "Observed solver acceptance, transfer markers/residuals and published first-event outputs; independent actual-volume/restart-field/full-workflow checks wait until the owned job is terminal. No scheduler-exact or exact composed-target continuation claimed.",
+  "native_complete_all_six": true,
+  "whole_native_seconds_max": 2941.5865853289997,
+  "engine_stage_seconds_max": 2839.81513446,
+  "actual_solver_point_count": 146676,
+  "actual_native_global_cell_count": 726442,
+  "native_stage_failure_sums": {
+    "q_bad": 0,
+    "j_bad": 0,
+    "size_bad": 0,
+    "geometry_bad": 0,
+    "upper_refinements": 0
+  },
+  "conservative_CG_residuals": {
+    "Density": 7.713e-14,
+    "Momentum-x": 2.647e-14,
+    "Momentum-y": 5.25e-14,
+    "Momentum-z": 3.14e-14,
+    "Energy": 7.61e-14
+  },
+  "projected_inadmissible_zero": true,
+  "ordered_transfer_replacement_publication": true,
+  "outputs": {
+    "adapted_mesh_adap_00001.su2": {
+      "sha256": "2aea6a341b0de7c3175aef7c9671c9f42a17a767c5acc35478a8d89bef87eca7",
+      "bytes": 37748548
+    },
+    "adapted_mesh_adap_00001.su2.native_ref": {
+      "sha256": "9bddc9a6317e82cf732adb13ab157c690c46ee7fd820eebf62bf672553e129b9",
+      "bytes": 49470084
+    },
+    "restart_flow_adap_00001.dat": {
+      "sha256": "b77362d32483541b97c9ead50bc52ff33e90a0593db3c5d363977a61331c4091",
+      "bytes": 25815722
+    }
+  },
+  "observed_unix": 1794707344.8317583,
+  "parser_format_note": "Publication label is cycle1, filename00001; frozen controller mismatch is corrected only in companion read-only assessment."
+}
