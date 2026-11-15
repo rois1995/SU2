@@ -1,0 +1,682 @@
+{
+  "purpose": "Read-only A3 control-state inventory; no design proposal or source edits.",
+  "source_references": {
+    "cut_plan": "/tmp/claude-1000/-media-rausa-4TB/SU2-Versions-SU2-NativeIntegrated/f3d988e5-f14f-4a96-b6fb-963ec11730e7/scratchpad/CUT_PLAN_8_2.md (A3 and section 3 state/lifetime rules)",
+    "part1_inventory": "/tmp/claude-1000/-media-rausa-4TB/SU2-Versions-SU2-NativeIntegrated/f3d988e5-f14f-4a96-b6fb-963ec11730e7/scratchpad/cut/CUT_INVENTORY_PART1.md lines 65-128, Control table",
+    "current_source": "Common/src/adaptation/CNativeEngine3D.cpp",
+    "current_source_sha256": "27b1628cd9ae639faf6ab30928c83bd7303916659a1e227d5c99df3543e05b21",
+    "repository_head_at_read": "4798ea3936bad69072b64d2a1571b9b56f6a72cf",
+    "working_tree_observation": "Common/src/adaptation/CNativeEngine3D.cpp was marked modified at inventory time; this agent made no source edits. Inventory reflects the exact SHA above."
+  },
+  "geometry_resolution": {
+    "declaration": "const auto& geometry=atlas_geometry?*atlas_geometry:private_geometry?*private_geometry:accepted_geometry;",
+    "line": 1297,
+    "pre_resolution_parameter_failure_return": "lines 1293-1295 return rejected before geometry alias and before later context/objects."
+  },
+  "canonical_original_control_table_order_expanded": [
+    "admission",
+    "Phase",
+    "phase",
+    "timer_session",
+    "region_rebuilt",
+    "improvement_changed",
+    "construction_changed",
+    "construction_handoff_progress",
+    "construction_generation_changed",
+    "metric_cleanup",
+    "metric_cleanup_tried",
+    "phase_start_round",
+    "started",
+    "started_cpu",
+    "local_atlas_budget",
+    "atlas_budget",
+    "atlas_work_initial",
+    "restore_budget",
+    "target_geometry_lease",
+    "atlas_scratch",
+    "parameter_failure",
+    "parameter_bound",
+    "parameter_setup",
+    "standalone_coarsening",
+    "coarsening",
+    "repairing",
+    "construction_kind",
+    "tracked_bytes_begin",
+    "tracked_calls_begin",
+    "tracked_seconds_begin",
+    "election_calls_begin",
+    "election_seconds_begin",
+    "geometry_begin",
+    "result",
+    "stats",
+    "generation_window",
+    "generation_window_count",
+    "checkpoint",
+    "accepted_bytes",
+    "private_optimizer_allowance",
+    "batch_bytes",
+    "FixedMetricSamples",
+    "diagnostic_bytes",
+    "fixed_metric_points",
+    "fixed_metric_cells",
+    "fixed_metric_initialized",
+    "fixed_metric_available",
+    "last_rejection",
+    "diagnostic_rejections",
+    "diagnostic_sequence",
+    "diagnostic_rejection_limit",
+    "progress_at_window",
+    "attempted_at_window",
+    "deferred_at_window",
+    "observe_rejections",
+    "observe_state",
+    "observe_stage",
+    "stage_storage_admitted",
+    "stage_observer_failed",
+    "construction_entry_reported",
+    "previous_quality",
+    "previous_quality_census",
+    "previous_quality_elapsed",
+    "previous_quality_collective",
+    "quality_census_serial",
+    "previous_quality_construction",
+    "previous_quality_ownership",
+    "quality_census_started",
+    "transaction_captured",
+    "layer_active",
+    "region_active",
+    "layer_started",
+    "region_started",
+    "ready"
+  ],
+  "canonical_current_source_declaration_order": [
+    "admission",
+    "Phase",
+    "phase",
+    "timer_session",
+    "region_rebuilt",
+    "improvement_changed",
+    "construction_changed",
+    "construction_handoff_progress",
+    "construction_generation_changed",
+    "metric_cleanup",
+    "metric_cleanup_tried",
+    "phase_start_round",
+    "started",
+    "started_cpu",
+    "local_atlas_budget",
+    "atlas_budget",
+    "atlas_work_initial",
+    "restore_budget",
+    "target_geometry_lease",
+    "atlas_scratch",
+    "parameter_failure",
+    "parameter_bound",
+    "parameter_setup",
+    "standalone_coarsening",
+    "coarsening",
+    "repairing",
+    "construction_kind",
+    "tracked_bytes_begin",
+    "tracked_calls_begin",
+    "tracked_seconds_begin",
+    "election_calls_begin",
+    "election_seconds_begin",
+    "geometry_begin",
+    "result",
+    "stats",
+    "generation_window",
+    "generation_window_count",
+    "checkpoint",
+    "accepted_bytes",
+    "private_optimizer_allowance",
+    "batch_bytes",
+    "FixedMetricSamples",
+    "diagnostic_bytes",
+    "fixed_metric_points",
+    "fixed_metric_cells",
+    "fixed_metric_initialized",
+    "fixed_metric_available",
+    "last_rejection",
+    "diagnostic_rejections",
+    "diagnostic_sequence",
+    "diagnostic_rejection_limit",
+    "progress_at_window",
+    "attempted_at_window",
+    "deferred_at_window",
+    "observe_rejections",
+    "observe_state",
+    "observe_stage",
+    "stage_storage_admitted",
+    "stage_observer_failed",
+    "construction_entry_reported",
+    "previous_quality",
+    "previous_quality_census",
+    "previous_quality_elapsed",
+    "previous_quality_collective",
+    "quality_census_serial",
+    "previous_quality_construction",
+    "previous_quality_ownership",
+    "quality_census_started",
+    "transaction_captured",
+    "layer_active",
+    "region_active",
+    "layer_started",
+    "region_started",
+    "ready"
+  ],
+  "control_variables": [
+    {
+      "name": "admission",
+      "current_source_line": 1240,
+      "exact_current_declaration_initializer": "1240:   RestoreAdmission admission;",
+      "lifetime": "Declared before `geometry` is resolved at line 1297; survives that point and remains in Adapt scope, except parameter-stage failure returns early before geometry resolution."
+    },
+    {
+      "name": "Phase",
+      "current_source_line": 1242,
+      "exact_current_declaration_initializer": "1242:   using Phase=EnginePhase;",
+      "lifetime": "Declared before `geometry` is resolved at line 1297; survives that point and remains in Adapt scope, except parameter-stage failure returns early before geometry resolution."
+    },
+    {
+      "name": "phase",
+      "current_source_line": 1243,
+      "exact_current_declaration_initializer": "1243:   Phase phase=Phase::Construction;",
+      "lifetime": "Declared before `geometry` is resolved at line 1297; survives that point and remains in Adapt scope, except parameter-stage failure returns early before geometry resolution."
+    },
+    {
+      "name": "timer_session",
+      "current_source_line": 1244,
+      "exact_current_declaration_initializer": "1244:   SU2NativeTiming3D::Session timer_session(\n1245:       options.timings, \"native_engine\", world.rank, world.size,\n1246:       surface_target ? SU2NativeTiming3D::Phase::Surface : SU2NativeTiming3D::Phase::Construction);",
+      "lifetime": "Declared before `geometry` is resolved at line 1297; survives that point and remains in Adapt scope, except parameter-stage failure returns early before geometry resolution."
+    },
+    {
+      "name": "region_rebuilt",
+      "current_source_line": 1249,
+      "exact_current_declaration_initializer": "1249:   bool region_rebuilt=false,improvement_changed=false,construction_changed=false,construction_handoff_progress=false;",
+      "lifetime": "Declared before `geometry` is resolved at line 1297; survives that point and remains in Adapt scope, except parameter-stage failure returns early before geometry resolution."
+    },
+    {
+      "name": "improvement_changed",
+      "current_source_line": 1249,
+      "exact_current_declaration_initializer": "1249:   bool region_rebuilt=false,improvement_changed=false,construction_changed=false,construction_handoff_progress=false;",
+      "lifetime": "Declared before `geometry` is resolved at line 1297; survives that point and remains in Adapt scope, except parameter-stage failure returns early before geometry resolution."
+    },
+    {
+      "name": "construction_changed",
+      "current_source_line": 1249,
+      "exact_current_declaration_initializer": "1249:   bool region_rebuilt=false,improvement_changed=false,construction_changed=false,construction_handoff_progress=false;",
+      "lifetime": "Declared before `geometry` is resolved at line 1297; survives that point and remains in Adapt scope, except parameter-stage failure returns early before geometry resolution."
+    },
+    {
+      "name": "construction_handoff_progress",
+      "current_source_line": 1249,
+      "exact_current_declaration_initializer": "1249:   bool region_rebuilt=false,improvement_changed=false,construction_changed=false,construction_handoff_progress=false;",
+      "lifetime": "Declared before `geometry` is resolved at line 1297; survives that point and remains in Adapt scope, except parameter-stage failure returns early before geometry resolution."
+    },
+    {
+      "name": "construction_generation_changed",
+      "current_source_line": 1250,
+      "exact_current_declaration_initializer": "1250:   bool construction_generation_changed=false;",
+      "lifetime": "Declared before `geometry` is resolved at line 1297; survives that point and remains in Adapt scope, except parameter-stage failure returns early before geometry resolution."
+    },
+    {
+      "name": "metric_cleanup",
+      "current_source_line": 1251,
+      "exact_current_declaration_initializer": "1251:   bool metric_cleanup=false,metric_cleanup_tried=false;",
+      "lifetime": "Declared before `geometry` is resolved at line 1297; survives that point and remains in Adapt scope, except parameter-stage failure returns early before geometry resolution."
+    },
+    {
+      "name": "metric_cleanup_tried",
+      "current_source_line": 1251,
+      "exact_current_declaration_initializer": "1251:   bool metric_cleanup=false,metric_cleanup_tried=false;",
+      "lifetime": "Declared before `geometry` is resolved at line 1297; survives that point and remains in Adapt scope, except parameter-stage failure returns early before geometry resolution."
+    },
+    {
+      "name": "phase_start_round",
+      "current_source_line": 1252,
+      "exact_current_declaration_initializer": "1252:   uint64_t phase_start_round=0;",
+      "lifetime": "Declared before `geometry` is resolved at line 1297; survives that point and remains in Adapt scope, except parameter-stage failure returns early before geometry resolution."
+    },
+    {
+      "name": "started",
+      "current_source_line": 1254,
+      "exact_current_declaration_initializer": "1254:   const auto started=Clock::now();",
+      "lifetime": "Declared before `geometry` is resolved at line 1297; survives that point and remains in Adapt scope, except parameter-stage failure returns early before geometry resolution."
+    },
+    {
+      "name": "started_cpu",
+      "current_source_line": 1255,
+      "exact_current_declaration_initializer": "1255:   const auto started_cpu=options.timings ? std::clock() : std::clock_t{};",
+      "lifetime": "Declared before `geometry` is resolved at line 1297; survives that point and remains in Adapt scope, except parameter-stage failure returns early before geometry resolution."
+    },
+    {
+      "name": "local_atlas_budget",
+      "current_source_line": 1257,
+      "exact_current_declaration_initializer": "1257:   SU2NativeGeometry::AtlasBudget local_atlas_budget;",
+      "lifetime": "Declared before `geometry` is resolved at line 1297; survives that point and remains in Adapt scope, except parameter-stage failure returns early before geometry resolution."
+    },
+    {
+      "name": "atlas_budget",
+      "current_source_line": 1258,
+      "exact_current_declaration_initializer": "1258:   auto& atlas_budget=options.shared_geometry_budget?*options.shared_geometry_budget:local_atlas_budget;",
+      "lifetime": "Declared before `geometry` is resolved at line 1297; survives that point and remains in Adapt scope, except parameter-stage failure returns early before geometry resolution."
+    },
+    {
+      "name": "atlas_work_initial",
+      "current_source_line": 1259,
+      "exact_current_declaration_initializer": "1259:   const auto atlas_work_initial=atlas_budget.work;",
+      "lifetime": "Declared before `geometry` is resolved at line 1297; survives that point and remains in Adapt scope, except parameter-stage failure returns early before geometry resolution."
+    },
+    {
+      "name": "restore_budget",
+      "current_source_line": 1260,
+      "exact_current_declaration_initializer": "1260:   RestoreBudgetWindow restore_budget{options.shared_geometry_budget,atlas_budget.caller_bytes,atlas_budget.maximum_bytes,\n1261:       atlas_budget.maximum_integer_bits,atlas_budget.maximum_work};",
+      "lifetime": "Declared before `geometry` is resolved at line 1297; survives that point and remains in Adapt scope, except parameter-stage failure returns early before geometry resolution."
+    },
+    {
+      "name": "target_geometry_lease",
+      "current_source_line": 1263,
+      "exact_current_declaration_initializer": "1263:   std::shared_ptr<void> target_geometry_lease;",
+      "lifetime": "Declared before `geometry` is resolved at line 1297; survives that point and remains in Adapt scope, except parameter-stage failure returns early before geometry resolution. Default-empty at declaration; later assigned from options.geometry_reservation at line 2182."
+    },
+    {
+      "name": "atlas_scratch",
+      "current_source_line": 1264,
+      "exact_current_declaration_initializer": "1264:   const auto atlas_scratch=std::max(AtlasScratchBytes,options.geometry_workspace_bytes);",
+      "lifetime": "Declared before `geometry` is resolved at line 1297; survives that point and remains in Adapt scope, except parameter-stage failure returns early before geometry resolution."
+    },
+    {
+      "name": "parameter_failure",
+      "current_source_line": 1270,
+      "exact_current_declaration_initializer": "1270:   CLocalFailure parameter_failure;size_t parameter_bound=0;",
+      "lifetime": "Declared before `geometry` is resolved at line 1297; survives that point and remains in Adapt scope, except parameter-stage failure returns early before geometry resolution."
+    },
+    {
+      "name": "parameter_bound",
+      "current_source_line": 1270,
+      "exact_current_declaration_initializer": "1270:   CLocalFailure parameter_failure;size_t parameter_bound=0;",
+      "lifetime": "Declared before `geometry` is resolved at line 1297; survives that point and remains in Adapt scope, except parameter-stage failure returns early before geometry resolution."
+    },
+    {
+      "name": "parameter_setup",
+      "current_source_line": 1298,
+      "exact_current_declaration_initializer": "1298:   const double parameter_setup=options.timings?std::chrono::duration<double>(Clock::now()-started).count():0;",
+      "lifetime": "Declared after `geometry` is resolved at line 1297; function-scope lifetime through Adapt return."
+    },
+    {
+      "name": "standalone_coarsening",
+      "current_source_line": 1300,
+      "exact_current_declaration_initializer": "1300:   const bool standalone_coarsening=intent==MetricChange::Coarsen;",
+      "lifetime": "Declared after `geometry` is resolved at line 1297; function-scope lifetime through Adapt return."
+    },
+    {
+      "name": "coarsening",
+      "current_source_line": 1301,
+      "exact_current_declaration_initializer": "1301:   bool coarsening=standalone_coarsening || bidirectional;",
+      "lifetime": "Declared after `geometry` is resolved at line 1297; function-scope lifetime through Adapt return."
+    },
+    {
+      "name": "repairing",
+      "current_source_line": 1302,
+      "exact_current_declaration_initializer": "1302:   bool repairing=false;",
+      "lifetime": "Declared after `geometry` is resolved at line 1297; function-scope lifetime through Adapt return."
+    },
+    {
+      "name": "construction_kind",
+      "current_source_line": 1303,
+      "exact_current_declaration_initializer": "1303:   MetricChange construction_kind=coarsening ? MetricChange::Coarsen : MetricChange::Refine;",
+      "lifetime": "Declared after `geometry` is resolved at line 1297; function-scope lifetime through Adapt return."
+    },
+    {
+      "name": "tracked_bytes_begin",
+      "current_source_line": 1304,
+      "exact_current_declaration_initializer": "1304:   const auto tracked_bytes_begin=world.bytes_sent;",
+      "lifetime": "Declared after `geometry` is resolved at line 1297; function-scope lifetime through Adapt return."
+    },
+    {
+      "name": "tracked_calls_begin",
+      "current_source_line": 1305,
+      "exact_current_declaration_initializer": "1305:   const auto tracked_calls_begin=world.collective_calls;",
+      "lifetime": "Declared after `geometry` is resolved at line 1297; function-scope lifetime through Adapt return."
+    },
+    {
+      "name": "tracked_seconds_begin",
+      "current_source_line": 1306,
+      "exact_current_declaration_initializer": "1306:   const double tracked_seconds_begin=world.collective_seconds;",
+      "lifetime": "Declared after `geometry` is resolved at line 1297; function-scope lifetime through Adapt return."
+    },
+    {
+      "name": "election_calls_begin",
+      "current_source_line": 1307,
+      "exact_current_declaration_initializer": "1307:   const auto election_calls_begin=world.election_collective_calls;",
+      "lifetime": "Declared after `geometry` is resolved at line 1297; function-scope lifetime through Adapt return."
+    },
+    {
+      "name": "election_seconds_begin",
+      "current_source_line": 1308,
+      "exact_current_declaration_initializer": "1308:   const double election_seconds_begin=world.election_collective_seconds;",
+      "lifetime": "Declared after `geometry` is resolved at line 1297; function-scope lifetime through Adapt return."
+    },
+    {
+      "name": "geometry_begin",
+      "current_source_line": 1310,
+      "exact_current_declaration_initializer": "1310:   const auto geometry_begin=geometry_authority?geometry_authority->GeometryStatsSnapshot():SU2NativeGeometry::MappedFacetReference::GeometryStats{};",
+      "lifetime": "Declared after `geometry` is resolved at line 1297; function-scope lifetime through Adapt return."
+    },
+    {
+      "name": "result",
+      "current_source_line": 1311,
+      "exact_current_declaration_initializer": "1311:   EngineResult result;",
+      "lifetime": "Declared after `geometry` is resolved at line 1297; function-scope lifetime through Adapt return."
+    },
+    {
+      "name": "stats",
+      "current_source_line": 1312,
+      "exact_current_declaration_initializer": "1312:   auto& stats=result.stats;stats.bidirectional=bidirectional;stats.parameter_setup_seconds=parameter_setup;stats.initialization_seconds=parameter_setup;stats.maximum_work_bytes=parameter_bound;",
+      "lifetime": "Declared after `geometry` is resolved at line 1297; function-scope lifetime through Adapt return."
+    },
+    {
+      "name": "generation_window",
+      "current_source_line": 1320,
+      "exact_current_declaration_initializer": "1320:   std::array<GenerationDebt,4> generation_window{};size_t generation_window_count=0;",
+      "lifetime": "Declared after `geometry` is resolved at line 1297; function-scope lifetime through Adapt return."
+    },
+    {
+      "name": "generation_window_count",
+      "current_source_line": 1320,
+      "exact_current_declaration_initializer": "1320:   std::array<GenerationDebt,4> generation_window{};size_t generation_window_count=0;",
+      "lifetime": "Declared after `geometry` is resolved at line 1297; function-scope lifetime through Adapt return."
+    },
+    {
+      "name": "checkpoint",
+      "current_source_line": 1331,
+      "exact_current_declaration_initializer": "1331:   CoarseningCheckpoint checkpoint;",
+      "lifetime": "Declared after `geometry` is resolved at line 1297; function-scope lifetime through Adapt return."
+    },
+    {
+      "name": "accepted_bytes",
+      "current_source_line": 1351,
+      "exact_current_declaration_initializer": "1351:   size_t accepted_bytes=MapBytes(accepted);",
+      "lifetime": "Declared after `geometry` is resolved at line 1297; function-scope lifetime through Adapt return."
+    },
+    {
+      "name": "private_optimizer_allowance",
+      "current_source_line": 1371,
+      "exact_current_declaration_initializer": "1371:   size_t private_optimizer_allowance=0;",
+      "lifetime": "Declared after `geometry` is resolved at line 1297; function-scope lifetime through Adapt return. Initialized to zero; populated during batch planning and read in private-repair work."
+    },
+    {
+      "name": "batch_bytes",
+      "current_source_line": 1402,
+      "exact_current_declaration_initializer": "1402:   size_t batch_bytes=0;",
+      "lifetime": "Declared after `geometry` is resolved at line 1297; function-scope lifetime through Adapt return."
+    },
+    {
+      "name": "FixedMetricSamples",
+      "current_source_line": 1403,
+      "exact_current_declaration_initializer": "1403:   constexpr size_t FixedMetricSamples=16;",
+      "lifetime": "Declared after `geometry` is resolved at line 1297; function-scope lifetime through Adapt return."
+    },
+    {
+      "name": "diagnostic_bytes",
+      "current_source_line": 1404,
+      "exact_current_declaration_initializer": "1404:   const size_t diagnostic_bytes=transfer_memory::Add(16384,transfer_memory::Mul(world.size,4096));",
+      "lifetime": "Declared after `geometry` is resolved at line 1297; function-scope lifetime through Adapt return."
+    },
+    {
+      "name": "fixed_metric_points",
+      "current_source_line": 1405,
+      "exact_current_declaration_initializer": "1405:   std::vector<FixedMetricPoint> fixed_metric_points;",
+      "lifetime": "Declared after `geometry` is resolved at line 1297; function-scope lifetime through Adapt return."
+    },
+    {
+      "name": "fixed_metric_cells",
+      "current_source_line": 1406,
+      "exact_current_declaration_initializer": "1406:   std::array<Id,FixedMetricSamples> fixed_metric_cells;fixed_metric_cells.fill(UINT64_MAX);",
+      "lifetime": "Declared after `geometry` is resolved at line 1297; function-scope lifetime through Adapt return."
+    },
+    {
+      "name": "fixed_metric_initialized",
+      "current_source_line": 1407,
+      "exact_current_declaration_initializer": "1407:   bool fixed_metric_initialized=false,fixed_metric_available=false;",
+      "lifetime": "Declared after `geometry` is resolved at line 1297; function-scope lifetime through Adapt return."
+    },
+    {
+      "name": "fixed_metric_available",
+      "current_source_line": 1407,
+      "exact_current_declaration_initializer": "1407:   bool fixed_metric_initialized=false,fixed_metric_available=false;",
+      "lifetime": "Declared after `geometry` is resolved at line 1297; function-scope lifetime through Adapt return."
+    },
+    {
+      "name": "last_rejection",
+      "current_source_line": 1538,
+      "exact_current_declaration_initializer": "1538:   std::string last_rejection;",
+      "lifetime": "Declared after `geometry` is resolved at line 1297; function-scope lifetime through Adapt return."
+    },
+    {
+      "name": "diagnostic_rejections",
+      "current_source_line": 1539,
+      "exact_current_declaration_initializer": "1539:   std::vector<RejectionDiagnostic> diagnostic_rejections;uint64_t diagnostic_sequence=0;",
+      "lifetime": "Declared after `geometry` is resolved at line 1297; function-scope lifetime through Adapt return."
+    },
+    {
+      "name": "diagnostic_sequence",
+      "current_source_line": 1539,
+      "exact_current_declaration_initializer": "1539:   std::vector<RejectionDiagnostic> diagnostic_rejections;uint64_t diagnostic_sequence=0;",
+      "lifetime": "Declared after `geometry` is resolved at line 1297; function-scope lifetime through Adapt return."
+    },
+    {
+      "name": "diagnostic_rejection_limit",
+      "current_source_line": 1540,
+      "exact_current_declaration_initializer": "1540:   constexpr size_t diagnostic_rejection_limit=64;",
+      "lifetime": "Declared after `geometry` is resolved at line 1297; function-scope lifetime through Adapt return."
+    },
+    {
+      "name": "progress_at_window",
+      "current_source_line": 1556,
+      "exact_current_declaration_initializer": "1556:   uint64_t progress_at_window=0, attempted_at_window=0, deferred_at_window=0;",
+      "lifetime": "Declared after `geometry` is resolved at line 1297; function-scope lifetime through Adapt return."
+    },
+    {
+      "name": "attempted_at_window",
+      "current_source_line": 1556,
+      "exact_current_declaration_initializer": "1556:   uint64_t progress_at_window=0, attempted_at_window=0, deferred_at_window=0;",
+      "lifetime": "Declared after `geometry` is resolved at line 1297; function-scope lifetime through Adapt return."
+    },
+    {
+      "name": "deferred_at_window",
+      "current_source_line": 1556,
+      "exact_current_declaration_initializer": "1556:   uint64_t progress_at_window=0, attempted_at_window=0, deferred_at_window=0;",
+      "lifetime": "Declared after `geometry` is resolved at line 1297; function-scope lifetime through Adapt return."
+    },
+    {
+      "name": "observe_rejections",
+      "current_source_line": 1611,
+      "exact_current_declaration_initializer": "1611:   const bool observe_rejections=world.maximum(bool(options.rejected_trial) || bool(options.transaction_observer));",
+      "lifetime": "Declared after `geometry` is resolved at line 1297; function-scope lifetime through Adapt return."
+    },
+    {
+      "name": "observe_state",
+      "current_source_line": 1612,
+      "exact_current_declaration_initializer": "1612:   const bool observe_state=world.maximum(bool(options.rejected_state));",
+      "lifetime": "Declared after `geometry` is resolved at line 1297; function-scope lifetime through Adapt return."
+    },
+    {
+      "name": "observe_stage",
+      "current_source_line": 1613,
+      "exact_current_declaration_initializer": "1613:   const bool observe_stage=world.maximum(bool(options.stage_observer));",
+      "lifetime": "Declared after `geometry` is resolved at line 1297; function-scope lifetime through Adapt return."
+    },
+    {
+      "name": "stage_storage_admitted",
+      "current_source_line": 1614,
+      "exact_current_declaration_initializer": "1614:   bool stage_storage_admitted=false,stage_observer_failed=false,construction_entry_reported=false;",
+      "lifetime": "Declared after `geometry` is resolved at line 1297; function-scope lifetime through Adapt return."
+    },
+    {
+      "name": "stage_observer_failed",
+      "current_source_line": 1614,
+      "exact_current_declaration_initializer": "1614:   bool stage_storage_admitted=false,stage_observer_failed=false,construction_entry_reported=false;",
+      "lifetime": "Declared after `geometry` is resolved at line 1297; function-scope lifetime through Adapt return."
+    },
+    {
+      "name": "construction_entry_reported",
+      "current_source_line": 1614,
+      "exact_current_declaration_initializer": "1614:   bool stage_storage_admitted=false,stage_observer_failed=false,construction_entry_reported=false;",
+      "lifetime": "Declared after `geometry` is resolved at line 1297; function-scope lifetime through Adapt return."
+    },
+    {
+      "name": "previous_quality",
+      "current_source_line": 1748,
+      "exact_current_declaration_initializer": "1748:   QualityRepairStats previous_quality;StageProgress previous_quality_census;",
+      "lifetime": "Declared after `geometry` is resolved at line 1297; function-scope lifetime through Adapt return."
+    },
+    {
+      "name": "previous_quality_census",
+      "current_source_line": 1748,
+      "exact_current_declaration_initializer": "1748:   QualityRepairStats previous_quality;StageProgress previous_quality_census;",
+      "lifetime": "Declared after `geometry` is resolved at line 1297; function-scope lifetime through Adapt return."
+    },
+    {
+      "name": "previous_quality_elapsed",
+      "current_source_line": 1749,
+      "exact_current_declaration_initializer": "1749:   double previous_quality_elapsed=0,previous_quality_collective=0;",
+      "lifetime": "Declared after `geometry` is resolved at line 1297; function-scope lifetime through Adapt return."
+    },
+    {
+      "name": "previous_quality_collective",
+      "current_source_line": 1749,
+      "exact_current_declaration_initializer": "1749:   double previous_quality_elapsed=0,previous_quality_collective=0;",
+      "lifetime": "Declared after `geometry` is resolved at line 1297; function-scope lifetime through Adapt return."
+    },
+    {
+      "name": "quality_census_serial",
+      "current_source_line": 1750,
+      "exact_current_declaration_initializer": "1750:   uint64_t quality_census_serial=0,previous_quality_construction=0,previous_quality_ownership=0;",
+      "lifetime": "Declared after `geometry` is resolved at line 1297; function-scope lifetime through Adapt return."
+    },
+    {
+      "name": "previous_quality_construction",
+      "current_source_line": 1750,
+      "exact_current_declaration_initializer": "1750:   uint64_t quality_census_serial=0,previous_quality_construction=0,previous_quality_ownership=0;",
+      "lifetime": "Declared after `geometry` is resolved at line 1297; function-scope lifetime through Adapt return."
+    },
+    {
+      "name": "previous_quality_ownership",
+      "current_source_line": 1750,
+      "exact_current_declaration_initializer": "1750:   uint64_t quality_census_serial=0,previous_quality_construction=0,previous_quality_ownership=0;",
+      "lifetime": "Declared after `geometry` is resolved at line 1297; function-scope lifetime through Adapt return."
+    },
+    {
+      "name": "quality_census_started",
+      "current_source_line": 1751,
+      "exact_current_declaration_initializer": "1751:   bool quality_census_started=false;",
+      "lifetime": "Declared after `geometry` is resolved at line 1297; function-scope lifetime through Adapt return."
+    },
+    {
+      "name": "transaction_captured",
+      "current_source_line": 1995,
+      "exact_current_declaration_initializer": "1995:   bool transaction_captured=false;",
+      "lifetime": "Declared after `geometry` is resolved at line 1297; function-scope lifetime through Adapt return."
+    },
+    {
+      "name": "layer_active",
+      "current_source_line": 1996,
+      "exact_current_declaration_initializer": "1996:   bool layer_active=false,region_active=false;Clock::time_point layer_started,region_started;",
+      "lifetime": "Declared after `geometry` is resolved at line 1297; function-scope lifetime through Adapt return."
+    },
+    {
+      "name": "region_active",
+      "current_source_line": 1996,
+      "exact_current_declaration_initializer": "1996:   bool layer_active=false,region_active=false;Clock::time_point layer_started,region_started;",
+      "lifetime": "Declared after `geometry` is resolved at line 1297; function-scope lifetime through Adapt return."
+    },
+    {
+      "name": "layer_started",
+      "current_source_line": 1996,
+      "exact_current_declaration_initializer": "1996:   bool layer_active=false,region_active=false;Clock::time_point layer_started,region_started;",
+      "lifetime": "Declared after `geometry` is resolved at line 1297; function-scope lifetime through Adapt return."
+    },
+    {
+      "name": "region_started",
+      "current_source_line": 1996,
+      "exact_current_declaration_initializer": "1996:   bool layer_active=false,region_active=false;Clock::time_point layer_started,region_started;",
+      "lifetime": "Declared after `geometry` is resolved at line 1297; function-scope lifetime through Adapt return."
+    },
+    {
+      "name": "ready",
+      "current_source_line": 2136,
+      "exact_current_declaration_initializer": "2136:   bool ready=false;",
+      "lifetime": "Declared after `geometry` is resolved at line 1297; function-scope lifetime through Adapt return."
+    }
+  ],
+  "raii_and_prefix_order": {
+    "construction_order": [
+      "RestoreAdmission admission (line 1240)",
+      "SU2NativeTiming3D::Session timer_session (lines 1244-1246)",
+      "RestoreBudgetWindow restore_budget (lines 1260-1261)",
+      "atlas_geometry unique_ptr (line 1262)",
+      "target_geometry_lease shared_ptr (line 1263)"
+    ],
+    "destruction_order_within_scope": [
+      "target_geometry_lease",
+      "atlas_geometry",
+      "restore_budget",
+      "timer_session",
+      "admission"
+    ],
+    "relevant_behavior": [
+      "RestoreAdmission restores the prior global ShapeAdmission; it is the first object and therefore restores last.",
+      "Session is noncopyable/nonmovable; its destructor finalizes/reports only when it owns the root timing session.",
+      "RestoreBudgetWindow snapshots the shared budget fields and restores them in its destructor.",
+      "The geometry view and lease are declared after RestoreBudgetWindow and are destroyed before the budget window restores its snapshot.",
+      "The lease is declared after atlas_geometry and therefore is released before the atlas geometry object."
+    ],
+    "type_locations_now": [
+      "RestoreAdmission is namespace-scope at lines 1183-1186; its local instance is line 1240.",
+      "RestoreBudgetWindow is namespace-scope at lines 1187-1198; its local instance is lines 1260-1261.",
+      "GenerationDebt is namespace-scope at lines 1199-1202; its array is line 1320.",
+      "CoarseningCheckpoint is namespace-scope at lines 1203-1218; its local instance is line 1331.",
+      "RepairProposal is namespace-scope at lines 1219-1235."
+    ]
+  },
+  "borrowed_aliases_and_lifetimes": {
+    "options": "Adapt takes EngineOptions options by value (signature lines 1237-1239); that local copy is mutated (e.g. caller_bytes lines 1248, 1253, 1282) and used directly. No copied options object or callback copy is introduced here. EngineOptions callback fields are declared at CNativeEngine3D.hpp lines 113-123; transaction_observer remains in options and is invoked from that object.",
+    "selection": {
+      "creation": "CNativeEngine3D.cpp:1314",
+      "ctor_and_reference_members": "CNativeEngine3D.cpp:222-232",
+      "aliases": [
+        "const PlanarReference& geometry",
+        "EngineStats& stats (the alias bound to result.stats)",
+        "const WallHeights& heights (options.wall_heights)"
+      ],
+      "lifetime": "Constructed after geometry, result/stats, working and control values; each referenced owner outlives Selection in the current lexical scope. Selection is a named local, not copied into another helper."
+    },
+    "source": {
+      "creation": "CNativeEngine3D.cpp:1330",
+      "ctor": "CNativeMetricTransport3D.hpp:158-159",
+      "borrowed_members": "CNativeMetricTransport3D.hpp:426, 428",
+      "aliases": [
+        "World& world",
+        "Owned& current (the working map)"
+      ],
+      "lifetime": "Constructed after working and geometry; its borrowed World and working references outlive it. It also owns bootstrap/stat/vector members; no explicit CavityMetricSource destructor is declared."
+    },
+    "directory": {
+      "creation": "CNativeEngine3D.cpp:1329",
+      "ctor": "CNativeDistributed3D.hpp:108; CNativeDistributed3D.cpp:150-152",
+      "borrowed_members": "CNativeDistributed3D.hpp:182-183, 208",
+      "aliases": [
+        "World& world",
+        "BoundaryParameterState* parameters from geometry.Parameters(), documented as borrowed for the Directory lifetime",
+        "parameter_geometry points into the parameter state geometry"
+      ],
+      "lifetime": "Constructed after geometry and before source. Its unique_ptr local is destroyed after source but before geometry/private_parameters/atlas_geometry owners. Directory has an explicit out-of-line default destructor; no collective call is present in the constructor/destructor definitions cited."
+    },
+    "shared_lifetime_order": "working is declared at line 1313; Selection at 1314; Directory at 1329; CavityMetricSource at 1330. Reverse local destruction ends source before directory, directory before Selection and working, while geometry owners declared before the resolved geometry outlive all three."
+  },
+  "inventory_only_or_missing_control_names": [],
+  "p7_p8_inventory_note": "All identifiers in PART1 Control rows 65-128 were found as current Adapt declarations by name; none is listed as an inventory-only removed Control variable. The RAII/helper type declarations that were local in the older inventory are now namespace-scope declarations (listed above); their corresponding local instances remain present.",
+  "scope_limit": "This receipt inventories the Control section and the explicitly requested Selection/source/Directory aliases. It is not a full 112-variable context manifest."
+}

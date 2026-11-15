@@ -112,3 +112,40 @@ GQ reference PASSED1064.175s to stop/1072.976s sealed, all six third windows,
 peak sum13,917,859,840B; pins/inputs unchanged and all9owned terminal.
 All three references precede the first production edit; nextA1/G1/G2.
 No new implementation is accepted by this source check.
+
+## A1 result: FAILED G1, no cut accepted
+
+A1 hoisted the five specified types, preserving each declaration/construction point.
+Build510 passed70.128s with1,573pins. The ordered G1 serial cohort failed its first
+result assertion at BoundaryLayerMetric_tests.cpp:1220: metric complexity
+**209.9357526597 versus656.1522579418**, epsilon5e-4. Thirteen failure markers were
+recorded before the600s outer cohort timed out (603.814s wrapper, exit124).
+MPI2/MPI4 and G2 were NOT STARTED. The timeout is secondary: the numeric assertion
+already failed, so splitting our cohort would not remove that result failure.
+
+The single R5 read-only diagnosis found all five type bodies equal after whitespace
+normalization; Adapt and all following function tokens also match after replacing
+the local type declarations by the hoisted names. The first failing test calls
+MetricTest::ComputeMetric -> CSolver::ComputeMetric, rather than Adapt. Its analytic
+reference assumes unscaled wall tangent eigenvalues2/6; the unchanged production
+metric path selects an inherited tangent scale (recorded0.046415888336127774).
+The metric/test files are byte-identical to accepted F3b. This identifies a metric
+expectation/implementation disagreement outside the moved bodies; it does not
+establish which side should change. No baseline numerical replay was performed.
+No transcription/wiring correction against C was found. Existing tests, production
+semantics, tolerances and gates were not changed. The user rule for our own fixtures
+does not authorize changing this pre-existing numeric assertion.
+
+Preserve the failed A1 code as an explicitly FAILED checkpoint, then revert its sole
+production file in one commit. Later phases cannot be qualified with this unchanged
+G1 gate and their A1/state dependencies; they are NOT STARTED. N4 is FAILED, N6 is
+NOT STARTED (requires completed N4/G5), and independent N5 follows. No new engine
+unit file or accepted decomposition remains after the revert; Adapt's80-line target
+is not achieved. Therefore there are no new accepted functions for the ten-longest
+new-function list. EngineLegacyWall remains a planned written exception, not an
+implemented unit. The source-check/found-during-cut lists above remain preserved.
+
+Evidence: R/night_20261115/N4/A1/{first_result_failure.json,readonly_diagnosis.json,
+failed_production.diff,G1_terminal_handles.json,build_status.json}; raw cohort is
+R/cases/n4_native3d_serial_20261115T232613_2033368. G2/G3/GQ references were passed
+before this edit and are preserved; they do not establish that A1 passed G1.

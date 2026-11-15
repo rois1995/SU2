@@ -1,0 +1,49 @@
+{
+  "schema": "n4_cut_build_plan_v1",
+  "build_label": "build510",
+  "step_dir": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N4/A1",
+  "target_build_tree": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-p5-20261114",
+  "source_pins_sha256": "328d7cbb97af6539207e5c4061066654b930afff82dfa40c3739cbfe0f630b2c",
+  "source_pin_count": 1573,
+  "adaptation_source_changes_from_reference": [
+    {
+      "path": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/Common/src/adaptation/CNativeEngine3D.cpp",
+      "reference_sha256": "ecd69bf8b42a2f2679695c3ae6f084e9033758b1448c13e71ae3126276db8ea0",
+      "current_sha256": "27b1628cd9ae639faf6ab30928c83bd7303916659a1e227d5c99df3543e05b21"
+    }
+  ],
+  "reference_captures": {
+    "G2": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N4/reference_G2",
+    "GQ": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N4/reference_GQ",
+    "G3": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/n4_bl_20261115T224821_1945316"
+  },
+  "builder_template": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N4/reference_build/build.py",
+  "builder_template_sha256": "bf11e624d7ba528f788d500f1c5206bd1fadcfe417db5e0260b8fb0b4cb6a947",
+  "generated_builder": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N4/A1/build.py",
+  "generated_builder_sha256": "bd837d3c485c2ebc9d94ab9e8758d5c5c3f895f90b1bf53ae1fb833855bab870",
+  "root_substitutions": {
+    "repo_root": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated",
+    "step_root": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N4/A1",
+    "reference_root": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N4/reference_build"
+  },
+  "argv_contract": [
+    "nice",
+    "-n",
+    "19",
+    "ninja",
+    "-C",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-p5-20261114",
+    "-j4",
+    "UnitTests/test_driver",
+    "SU2_CFD/src/SU2_CFD"
+  ],
+  "environment_contract": {
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1",
+    "TMPDIR": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/compile-tmp"
+  },
+  "resource_monitor": "unchanged reference_build/build.py sample_tree polling every 10 seconds",
+  "launched": false,
+  "launch_command": "python3 /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N4/A1/build.py"
+}
