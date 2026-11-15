@@ -49,3 +49,7 @@ N4G3referenceLIVEtool52386, serialC492case cases/n4_bl_20261115T224821_1945316, 
 Checkpoint e8876c188d pushed: N4 acceptedF3b rebuild/sourcecheck/G2reference, G3/GQexplicitlypending; noCPPedit. G3ownedroot1945616/start27520993/pgid1945616 verifiedhost; latestsampletreeRSS~2.72GB. FrozenunithelperR3repairsrecordedunit_gates_fixture_receipt.json;G1plannedselection375serial/57MPI(notexecuted).
 
 N4G3referencePASSEDtool52386terminal0,543.547souter;473splits/305015positivecells,first336editsmatchP6c;zeroRefinements,input/config/budget388.8unchanged. FreshCbaselinecount473 (historicalF3b462, timeboundedcountnotclaimedidenticaltohistorical); futureCchecksMUSTmatchnew473andALLintegerrows. G3_reference_receipt.json+g3_integer_rows.jsonsealnewreference; nextGQnewcapturebeforefirstCPPedit.
+
+G3checkpoint31e7757b3a pushed. N4GQreferenceLIVEtool46984,root1975238/start27595231/pgid1975238,started1794783646.1603. SAMEsealedF3bCFD/same5400sinputs; stoponlyall6thirdQUALITYwindowanchors orfailure/resourceguard. Source+allpinnedhelpers/N4status/sourcecheckcopyfrozen. G2/G3passed,noproductionedit; nextfinishSAMEGQthenapplyA1five-typehoist,build/G1/G2.
+
+N4GQreferencePASSED tool46984terminalcontroller0/app-15intentionalstop,1064.175suntilstop/1072.976ssealed, all6thirdQUALITYwindows, embeddedexactG2PASS, SUM6HWM13917859840B<19999490048, all9ownedterminal/pins+inputsunchanged. G2/G3/GQrefsALLrecordedbeforeCPPedit. NextA1applyproposedfive-typehoist,build510,G1/G2once,inorder; noG5untilendphaseA.

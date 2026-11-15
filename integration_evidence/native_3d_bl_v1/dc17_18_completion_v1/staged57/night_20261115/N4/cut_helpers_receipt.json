@@ -1,0 +1,97 @@
+{
+  "schema": "n4_cut_helper_prep_v1",
+  "helpers": [
+    "run_cut_build.py",
+    "run_cut_checks.py"
+  ],
+  "scope": "New retarget wrappers only; no existing helper, comparator, test, production source, or build file edited.",
+  "cause_corrections": [
+    {
+      "cause": "The reference build runner assumes its ROOT-to-REPO depth and hardcoded reference source pins.",
+      "correction": "Generated step-local build.py keeps ROOT at step_dir, substitutes REPO through an asserted exact anchor, refreshes only adaptation/helper/build metadata pins, and fails on source drift outside that scope."
+    },
+    {
+      "cause": "run_cases accepts only buildN labels, while cut wrappers initially accepted arbitrary tokens.",
+      "correction": "Require unique build[1-9][0-9]* labels and refuse labels already used by staged receipts."
+    },
+    {
+      "cause": "The reused unit helper writes G3 integer-row output at N4 root and uses fixed case prefixes.",
+      "correction": "Assert and retarget its G3 row artifact to the step directory and make F3b-generated case prefixes build-label-specific; preserve the original helper __file__ for import roots."
+    },
+    {
+      "cause": "The generic cheap BL gate permits further edits after the shared first 336 and only requires a minimum split count.",
+      "correction": "Post-compare all integer output rows against the fresh N4 G3 reference, require 473 actual splits/edits, preserve first-336 P6c pass, and require exact equality of saved-state output SHA maps."
+    },
+    {
+      "cause": "Prefix checks could silently compare a candidate without the captured N4 baseline.",
+      "correction": "G2/GQ/G3 candidate actions require --reference-case; prefix controller is imported with step binary/build/pin overrides while PURPOSE remains N4."
+    },
+    {
+      "cause": "The build recipe assertion expected whitespace absent in the copied reference argv.",
+      "correction": "Matched the source\u2019s compact literal `nice`,`-n`,`19` argv form; retarget-builder self-check then passed."
+    },
+    {
+      "cause": "F3b unit-helper execution injected CUT_HELPER into a string evaluated inside the helper, whose inner exec namespace did not define it.",
+      "correction": "Removed the injected reference; the wrapper is already covered by the new build source pin set, and the inner namespace now contains only its actual required REF_DIR binding."
+    },
+    {
+      "cause": "The reusable full-workflow validator checked physical, transfer, timer, and resource gates but did not compare all six event payload hashes with accepted P6c outputs.",
+      "correction": "Added G5, which runs the existing full controller unchanged and then compares all six mesh, native reference, and restart hashes against the accepted P6c completion/full-workflow receipts. It requires both receipts to be accepted, both timer events to be covered, and the payload identity records to agree."
+    },
+    {
+      "cause": "G3 trusted the candidate receipt's three saved-state SHA claims without rehashing the current files.",
+      "correction": "G3 now hashes each of the three candidate payload files (and the reference payload files), checks path containment, and requires the actual hashes to match their receipt maps before accepting equality."
+    }
+  ],
+  "self_checks": {
+    "py_compile": true,
+    "run_cut_checks": {
+      "passed": true,
+      "unit_helper_retarget_syntax": true,
+      "original_helper_file_root_preserved": true,
+      "prefix_reference_contract": true,
+      "g3_reference_contract": true,
+      "launched": false,
+      "payload_map_rehash_and_mismatch_rejection": true,
+      "accepted_p6c_payload_records": 6,
+      "g5_accepted_receipts_valid": true,
+      "g5_workflow_gate_reuse": {
+        "physical_transfer_continued_cfd": "existing run_prefix_controller.validate_full_workflow",
+        "timer_six_rank_coverage": "existing assess_event loop requires event 1 and 2 receipts",
+        "resource": "existing per-process sampled peak HWM <= 19,999,490,048 bytes and final reported rank-peak sum <= 20,000,000,000 bytes per event",
+        "payload_identity": "new wrapper requires exact six output hashes to match accepted P6c receipts"
+      }
+    },
+    "run_cut_build": {
+      "passed": true,
+      "retargeted_builder_syntax": true,
+      "source_pin_count": 1573,
+      "adaptation_source_change_count": 0,
+      "launched": false
+    }
+  },
+  "build_contract": {
+    "build_label_pattern": "build[1-9][0-9]*",
+    "nice": 19,
+    "ninja_jobs": 4,
+    "threads": 1,
+    "compile_tmp": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/compile-tmp",
+    "resource_monitor": "reference build.py sample_tree every 10 s",
+    "launches_from_wrapper": false
+  },
+  "g3_reference": {
+    "case": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/n4_bl_20261115T224821_1945316",
+    "actual_splits": 473,
+    "first_336_identical_P6c": true,
+    "comparison": "all integer rows plus exact saved-state payload SHA map"
+  },
+  "production_edits": 0,
+  "build_launched": false,
+  "numerical_or_unit_jobs_launched": false,
+  "g5_api": {
+    "action": "g5",
+    "required": "--case-dir <new N4 child>",
+    "forbidden": "--reference-case",
+    "mode": "full workflow; execute only when parent authorizes after other gates"
+  }
+}

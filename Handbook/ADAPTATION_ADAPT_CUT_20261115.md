@@ -107,5 +107,8 @@ host no-heavy receipt verified. No production edit. G2 capture PASSED:317.194s u
 5,201,391,616B. G3 C492 reference PASSED543.547s:473splits,305015positivecells,
 first336edits match P6c, zero refinements and unchanged388.8s budget.
 The fresh C reference is473; historical F3b462 is recorded, not substituted.
-Future G3 checks must match473 and every integer row. GQ pending.
+Future G3 checks must match473, every integer row and saved-state payloads.
+GQ reference PASSED1064.175s to stop/1072.976s sealed, all six third windows,
+peak sum13,917,859,840B; pins/inputs unchanged and all9owned terminal.
+All three references precede the first production edit; nextA1/G1/G2.
 No new implementation is accepted by this source check.
