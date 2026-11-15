@@ -1,9 +1,11 @@
 # How to proceed
 
-Step 2 is numerically complete, including both profiles: see [current handoff](HANDOFF_Codex.md), [checks](Handbook/ADAPTATION_M6_CHEAP_GROUP_20261115.md) and [profile tables](Handbook/ADAPTATION_M6_MEASUREMENT_CHEAP_GROUP_20261115.md). Both B adaptations passed and all six final payloads match P6c byte for byte.
+Step2 is complete and pushed: [cheap checks](Handbook/ADAPTATION_M6_CHEAP_GROUP_20261115.md) and [profile tables](Handbook/ADAPTATION_M6_MEASUREMENT_CHEAP_GROUP_20261115.md).
 
-Current task is step 3 F3: integrate the exclusive timer tree, validate the ledger and unchanged numerical behavior, and measure named coverage >=95%. Evidence: R/f3_exclusive_20261115. Initial build500 failed before numerical validation; preserve its receipts. Verify each live build/job handle before editing pinned sources or launching another heavy job. Run each numerical check once; stop the first failure without an independent numerical fix loop.
+**F3 step3 failed its first complete-event coverage check and is incomplete.** Final ledger coverage68.357–74.357% misses95%; quality leaves619.987–773.172s/rank unattributed. All ledger arithmetic checks pass. [Failure report](Handbook/ADAPTATION_F3_EXCLUSIVE_TIMERS_20261115.md), evidence R/f3_exclusive_20261115. Bounded checks passed. First native event accepted2659.995s and13.924GB summed reported rank peaks; mesh/reference matchP6c. The owned run was stopped at the coverage failure, before event2; all handles are terminal and source/binary hashes unchanged.
 
-Keep 5400 s per native event, all strict mesh/geometry/height gates, and sum of rank process peak RSS <=20 GB decimal. Do not substitute sampled RSS or change modeled memory options/cache quotas. One owned heavy job, nice19, at most six heavy ranks, single-threaded libraries, 4TB build scratch.
+Await the reviewer’s corrected F3 proposal. Do not add another local timer variant or launch a numerical retry under the existing proposal. Preserve the complete failure, exact phase gaps, call counts, old-cavity cost and source omissions. Do not call step3 finalized or advance the design sequence as though it passed.
 
-After F3, reread the exact reviewer-owned ADAPTATION_ONE_ENGINE_DESIGN_V1.md path from the handoff. Source-check 5.9/5.10/5A/5B and M11/M15/M17; measure every requested number M1–M10/M12/M13/M14/M16, with missing values explained. No steps 8.2–8.7 before user acceptance. Curved BL readiness, dedicated BL MPI and RANS500k remain open.
+Keep5400s per native event, all strict mesh/geometry/height gates and summed native rank peakRSS<=20GB decimal. No sampled-RSS substitution or modeled-memory/cache-quota change. One owned heavy job, nice19, max6heavy ranks, single-threaded libraries,4TBscratch.
+
+After F3 passes, reread the exact reviewer-owned ADAPTATION_ONE_ENGINE_DESIGN_V1.md path from the handoff, source-check5.9/5.10/5A/5B andM11/M15/M17, and measure all requested number rows. No design8.2–8.7 before user acceptance. Curved BL readiness, dedicated BL MPI and RANS500k remain open.

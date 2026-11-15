@@ -4,13 +4,16 @@ import re
 import sys
 from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "nobl_clean_check_20261114"))
+from extract_markers import strip_mpi_prefixes
+
 
 def snapshots(text):
     """Pair local operation rows with their following root summary, retaining repeated boundaries."""
     pending = {}
     result = []
     for line in text.splitlines():
-        match = re.search(r'\b(NATIVE3D_TIMER(?:_SUMMARY)?)\s+(.*)', line)
+        match = re.search(r'\b(NATIVE3D_TIMER(?:_SUMMARY)?)\s+(.*)', strip_mpi_prefixes(line))
         if not match:
             continue
         fields = dict(re.findall(r'(\w+)=([^\s]+)', match[2]))
@@ -58,6 +61,9 @@ def self_check():
     bad = dict(parsed[0], summary=dict(parsed[0]['summary'], sumexclusive='11'))
     assert not assess(bad)['passed']
     assert len(snapshots(text + text)) == 2
+    decorated = text.replace('exclusive_seconds=9.6',
+                             'exclusive_seconds=9.Sun Nov 15 15:00:00 2026<stdout>:6')
+    assert assess(snapshots(decorated)[0])['passed']
 
 
 def main(paths, boundary):

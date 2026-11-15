@@ -1,0 +1,47 @@
+{
+  "native_event1_complete_all_ranks": true,
+  "native_seconds_max_rank": 2659.995464557,
+  "native5400_gate_passed": true,
+  "reported_rank_peak_RSS": {
+    "0": 2240020480,
+    "1": 2366205952,
+    "2": 2281353216,
+    "3": 2282668032,
+    "4": 2345308160,
+    "5": 2408415232
+  },
+  "reported_rank_peak_RSS_sum_bytes": 13923971072,
+  "whole_job20GB_gate_passed": true,
+  "payloads": [
+    {
+      "path": "adapted_mesh_adap_00001.su2",
+      "present": true,
+      "sha256": "2aea6a341b0de7c3175aef7c9671c9f42a17a767c5acc35478a8d89bef87eca7",
+      "P6c_sha256": "2aea6a341b0de7c3175aef7c9671c9f42a17a767c5acc35478a8d89bef87eca7",
+      "byte_identical": true
+    },
+    {
+      "path": "adapted_mesh_adap_00001.su2.native_ref",
+      "present": true,
+      "sha256": "9bddc9a6317e82cf732adb13ab157c690c46ee7fd820eebf62bf672553e129b9",
+      "P6c_sha256": "9bddc9a6317e82cf732adb13ab157c690c46ee7fd820eebf62bf672553e129b9",
+      "byte_identical": true
+    },
+    {
+      "path": "restart_flow_adap_00001.dat",
+      "present": false,
+      "sha256": null,
+      "P6c_sha256": "b77362d32483541b97c9ead50bc52ff33e90a0593db3c5d363977a61331c4091",
+      "byte_identical": false
+    }
+  ],
+  "all_event1_payloads_equal_P6c": false,
+  "second_native_event_started": false,
+  "full_workflow_accepted": false,
+  "reason_not_complete": "Intentional stop after complete-event F3 coverage gate failure; event2 not started; no full-loop or isolated-restart claim.",
+  "present_payloads_equal_P6c": true,
+  "missing_payloads": [
+    "restart_flow_adap_00001.dat"
+  ],
+  "missing_payloads_note": "Matching continued-CFD restart not yet written at the intentional coverage-failure stop; not a hash mismatch."
+}
