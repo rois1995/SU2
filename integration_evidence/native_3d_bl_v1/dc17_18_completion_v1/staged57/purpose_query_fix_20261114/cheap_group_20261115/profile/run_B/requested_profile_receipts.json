@@ -1,0 +1,210 @@
+{
+  "case": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/purpose_query_fix_20261114/cheap_group_20261115/profile/run_B",
+  "native_process_peak_rss_by_event": [
+    {
+      "event": 0,
+      "ranks": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "missing_ranks": [],
+      "sum_process_peak_rss_bytes": 13933756416,
+      "limit_bytes": 20000000000,
+      "gate": "pass"
+    },
+    {
+      "event": 1,
+      "ranks": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "missing_ranks": [],
+      "sum_process_peak_rss_bytes": 17657745408,
+      "limit_bytes": 20000000000,
+      "gate": "pass"
+    }
+  ],
+  "sum_rank_peak_RSS_conservative_upper_bound_bytes": 17657745408,
+  "conservative_peak_20GB_gate": true,
+  "external_peak_scope": "Each per-rank GNUtime record encloses its native child plus recorder/GDB descendants. Sum of largest descendant peaks conservatively bounds the sum of native rank peaks; this is not sampled RSS or a measured native-only sum.",
+  "native_summary_memory_gate": "evaluated",
+  "gnu_time_peak_rss": [
+    {
+      "file": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/purpose_query_fix_20261114/cheap_group_20261115/profile/run_B/profile/rank0.time.txt",
+      "maximum_resident_set_kib": 2642876,
+      "meaning": "GNU time ru_maxrss for the per-rank recorder exec tree; informational when native summary rows exist"
+    },
+    {
+      "file": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/purpose_query_fix_20261114/cheap_group_20261115/profile/run_B/profile/rank1.time.txt",
+      "maximum_resident_set_kib": 2749352,
+      "meaning": "GNU time ru_maxrss for the per-rank recorder exec tree; informational when native summary rows exist"
+    },
+    {
+      "file": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/purpose_query_fix_20261114/cheap_group_20261115/profile/run_B/profile/rank2.time.txt",
+      "maximum_resident_set_kib": 3029960,
+      "meaning": "GNU time ru_maxrss for the per-rank recorder exec tree; informational when native summary rows exist"
+    },
+    {
+      "file": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/purpose_query_fix_20261114/cheap_group_20261115/profile/run_B/profile/rank3.time.txt",
+      "maximum_resident_set_kib": 2838216,
+      "meaning": "GNU time ru_maxrss for the per-rank recorder exec tree; informational when native summary rows exist"
+    },
+    {
+      "file": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/purpose_query_fix_20261114/cheap_group_20261115/profile/run_B/profile/rank4.time.txt",
+      "maximum_resident_set_kib": 2755056,
+      "meaning": "GNU time ru_maxrss for the per-rank recorder exec tree; informational when native summary rows exist"
+    },
+    {
+      "file": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/purpose_query_fix_20261114/cheap_group_20261115/profile/run_B/profile/rank5.time.txt",
+      "maximum_resident_set_kib": 3228432,
+      "meaning": "GNU time ru_maxrss for the per-rank recorder exec tree; informational when native summary rows exist"
+    }
+  ],
+  "facet_resolution_work_by_rank_event": [
+    {
+      "event": 0,
+      "rank": 0,
+      "log": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/purpose_query_fix_20261114/cheap_group_20261115/profile/run_B/profile/rank0.program.log",
+      "line": 921,
+      "elapsed_s": 2605.594059607,
+      "facet_misses": 108640,
+      "facet_resolutions": 1,
+      "facet_build_work": 5094582,
+      "misses_minus_resolutions_x_48954": 59686
+    },
+    {
+      "event": 0,
+      "rank": 1,
+      "log": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/purpose_query_fix_20261114/cheap_group_20261115/profile/run_B/profile/rank1.program.log",
+      "line": 647,
+      "elapsed_s": 2605.59570775,
+      "facet_misses": 115091,
+      "facet_resolutions": 1,
+      "facet_build_work": 5033279,
+      "misses_minus_resolutions_x_48954": 66137
+    },
+    {
+      "event": 0,
+      "rank": 2,
+      "log": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/purpose_query_fix_20261114/cheap_group_20261115/profile/run_B/profile/rank2.program.log",
+      "line": 647,
+      "elapsed_s": 2605.590396369,
+      "facet_misses": 104394,
+      "facet_resolutions": 1,
+      "facet_build_work": 5015108,
+      "misses_minus_resolutions_x_48954": 55440
+    },
+    {
+      "event": 0,
+      "rank": 3,
+      "log": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/purpose_query_fix_20261114/cheap_group_20261115/profile/run_B/profile/rank3.program.log",
+      "line": 647,
+      "elapsed_s": 2605.586724794,
+      "facet_misses": 110003,
+      "facet_resolutions": 1,
+      "facet_build_work": 5355820,
+      "misses_minus_resolutions_x_48954": 61049
+    },
+    {
+      "event": 0,
+      "rank": 4,
+      "log": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/purpose_query_fix_20261114/cheap_group_20261115/profile/run_B/profile/rank4.program.log",
+      "line": 647,
+      "elapsed_s": 2605.602892088,
+      "facet_misses": 103420,
+      "facet_resolutions": 1,
+      "facet_build_work": 4592988,
+      "misses_minus_resolutions_x_48954": 54466
+    },
+    {
+      "event": 0,
+      "rank": 5,
+      "log": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/purpose_query_fix_20261114/cheap_group_20261115/profile/run_B/profile/rank5.program.log",
+      "line": 647,
+      "elapsed_s": 2605.60389676,
+      "facet_misses": 102299,
+      "facet_resolutions": 1,
+      "facet_build_work": 5007188,
+      "misses_minus_resolutions_x_48954": 53345
+    },
+    {
+      "event": 1,
+      "rank": 0,
+      "log": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/purpose_query_fix_20261114/cheap_group_20261115/profile/run_B/profile/rank0.program.log",
+      "line": 1494,
+      "elapsed_s": 2418.92901356,
+      "facet_misses": 246144,
+      "facet_resolutions": 1,
+      "facet_build_work": 6873943,
+      "misses_minus_resolutions_x_48954": 197190
+    },
+    {
+      "event": 1,
+      "rank": 1,
+      "log": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/purpose_query_fix_20261114/cheap_group_20261115/profile/run_B/profile/rank1.program.log",
+      "line": 959,
+      "elapsed_s": 2418.927120068,
+      "facet_misses": 236237,
+      "facet_resolutions": 1,
+      "facet_build_work": 6845895,
+      "misses_minus_resolutions_x_48954": 187283
+    },
+    {
+      "event": 1,
+      "rank": 2,
+      "log": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/purpose_query_fix_20261114/cheap_group_20261115/profile/run_B/profile/rank2.program.log",
+      "line": 959,
+      "elapsed_s": 2419.097975616,
+      "facet_misses": 235662,
+      "facet_resolutions": 1,
+      "facet_build_work": 6709663,
+      "misses_minus_resolutions_x_48954": 186708
+    },
+    {
+      "event": 1,
+      "rank": 3,
+      "log": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/purpose_query_fix_20261114/cheap_group_20261115/profile/run_B/profile/rank3.program.log",
+      "line": 959,
+      "elapsed_s": 2418.934186921,
+      "facet_misses": 227240,
+      "facet_resolutions": 1,
+      "facet_build_work": 6454904,
+      "misses_minus_resolutions_x_48954": 178286
+    },
+    {
+      "event": 1,
+      "rank": 4,
+      "log": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/purpose_query_fix_20261114/cheap_group_20261115/profile/run_B/profile/rank4.program.log",
+      "line": 959,
+      "elapsed_s": 2418.893527659,
+      "facet_misses": 235322,
+      "facet_resolutions": 1,
+      "facet_build_work": 6848584,
+      "misses_minus_resolutions_x_48954": 186368
+    },
+    {
+      "event": 1,
+      "rank": 5,
+      "log": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/purpose_query_fix_20261114/cheap_group_20261115/profile/run_B/profile/rank5.program.log",
+      "line": 959,
+      "elapsed_s": 2419.098732629,
+      "facet_misses": 231394,
+      "facet_resolutions": 1,
+      "facet_build_work": 6764285,
+      "misses_minus_resolutions_x_48954": 182440
+    }
+  ],
+  "source_method": {
+    "stage_parser": "NATIVE3D_STAGE exit rows; duplicate MPI log rows deduplicated by event/rank",
+    "facet_formula": "facet_misses - facet_resolutions * 48954",
+    "native_memory_gate": "sum native process_peak_rss bytes per event <= 20000000000"
+  }
+}

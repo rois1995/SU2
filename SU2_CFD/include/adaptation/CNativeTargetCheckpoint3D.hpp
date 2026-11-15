@@ -257,6 +257,9 @@ inline void Write(const std::string& path,const std::vector<char>& bytes) {
 }
 inline Checkpoint Read(const std::string& path,const ReferenceState& reference,const CConfig& config,
     size_t ceiling=SU2Native3D::ReferenceStorageLimit3D,size_t caller_bytes=0) {
+  SU2NativeTiming3D::Session timer_tree(config.GetWrt_Performance(), "target_checkpoint", SU2_MPI::GetRank(),
+                                        SU2_MPI::GetSize(), SU2NativeTiming3D::Phase::Preparation);
+  SU2NativeTiming3D::Scope target_timer(SU2NativeTiming3D::Operation::TargetComposition);
   std::ifstream input(path,std::ios::binary|std::ios::ate);if(!input)throw std::runtime_error("Missing native target checkpoint.");
   const auto length=input.tellg();if(length<0 || uint64_t(length)>ceiling ||
       transfer_memory::Add(caller_bytes,SU2Native3D::ReferenceStorageBytes(reference),transfer_memory::Mul(size_t(length),6))>ceiling)

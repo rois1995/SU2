@@ -1,0 +1,28 @@
+ninja: Entering directory `/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-p5-20261114'
+[1/49] Compiling C++ object Common/src/libSU2AccurateSum.a.p/adaptation_CNativeRegionField3D.cpp.o
+[2/49] Compiling C++ object Common/src/libSU2AccurateSum.a.p/adaptation_CNativeField3D.cpp.o
+[3/49] Compiling C++ object Common/src/libSU2AccurateSum.a.p/adaptation_CNativeDonor3D.cpp.o
+[4/49] Compiling C++ object Common/src/libSU2AccurateSum.a.p/adaptation_CNativeBoundaryParameters3D.cpp.o
+[5/49] Compiling C++ object Common/src/libSU2AccurateSum.a.p/adaptation_CNativeEngine3D.cpp.o
+FAILED: [code=1] Common/src/libSU2AccurateSum.a.p/adaptation_CNativeEngine3D.cpp.o 
+c++ -ICommon/src/libSU2AccurateSum.a.p -ICommon/src -I../../Common/src -I../../externals/CLI11 -I../../externals/eigen -I../../externals/cgns/adf -I../../externals/cgns/adfh -Iexternals/cgns -I../../externals/cgns -Iexternals/cgns/hdf5 -I../../externals/cgns/hdf5 -I../../externals/metis/include -I../../externals/metis/GKlib -I../../externals/metis/libmetis -I../../externals/parmetis/include -I../../externals/parmetis/libparmetis -I../../externals/mel -I/usr/lib/x86_64-linux-gnu/openmpi/include -I/usr/lib/x86_64-linux-gnu/openmpi/include/openmpi -fdiagnostics-color=always -D_GLIBCXX_ASSERTIONS=1 -D_FILE_OFFSET_BITS=64 -std=c++17 -O2 -g -fPIC -pthread -Wno-empty-body -Wno-ignored-qualifiers -Wno-unused-parameter -Wno-deprecated-declarations -Wno-error=cast-function-type -Wno-cast-function-type -Wno-error=stringop-truncation -Wno-stringop-truncation -Wno-error=missing-field-initializers -Wno-missing-field-initializers -Wno-error=class-memaccess -Wno-class-memaccess -Wno-overloaded-virtual -Wno-array-bounds -Wno-dangling-pointer -march=native -ffast-math -fno-finite-math-only -DHAVE_CGNS -DHAVE_MPI -DHAVE_METIS -DHAVE_PARMETIS -DHAVE_MMG -fno-fast-math -fno-unsafe-math-optimizations -ffp-contract=off -MD -MQ Common/src/libSU2AccurateSum.a.p/adaptation_CNativeEngine3D.cpp.o -MF Common/src/libSU2AccurateSum.a.p/adaptation_CNativeEngine3D.cpp.o.d -o Common/src/libSU2AccurateSum.a.p/adaptation_CNativeEngine3D.cpp.o -c ../../Common/src/adaptation/CNativeEngine3D.cpp
+../../Common/src/adaptation/CNativeEngine3D.cpp: In member function ‘long double SU2Native3D::{anonymous}::MeshOptimizer::OldMerit(const std::vector<long unsigned int>&, bool)’:
+../../Common/src/adaptation/CNativeEngine3D.cpp:6595:17: error: ‘const struct SU2Native3D::OptimizeOptions’ has no member named ‘timings’
+ 6595 |     if (options.timings) old_cavity_scope.emplace(SU2NativeTiming3D::Operation::OldCavityMeasurement);
+      |                 ^~~~~~~
+../../Common/src/adaptation/CNativeEngine3D.cpp: In member function ‘bool SU2Native3D::{anonymous}::MeshOptimizer::SmoothBoundary(SU2Native3D::Id)’:
+../../Common/src/adaptation/CNativeEngine3D.cpp:6868:17: error: ‘const struct SU2Native3D::OptimizeOptions’ has no member named ‘timings’
+ 6868 |     if (options.timings) old_cavity_scope.emplace(SU2NativeTiming3D::Operation::OldCavityMeasurement);
+      |                 ^~~~~~~
+../../Common/src/adaptation/CNativeEngine3D.cpp: In member function ‘bool SU2Native3D::{anonymous}::MeshOptimizer::Smooth(SU2Native3D::Id)’:
+../../Common/src/adaptation/CNativeEngine3D.cpp:7069:17: error: ‘const struct SU2Native3D::OptimizeOptions’ has no member named ‘timings’
+ 7069 |     if (options.timings) old_cavity_scope.emplace(SU2NativeTiming3D::Operation::OldCavityMeasurement);
+      |                 ^~~~~~~
+../../Common/src/adaptation/CNativeEngine3D.cpp: In member function ‘bool SU2Native3D::{anonymous}::MeshOptimizer::CoupledBoundary()’:
+../../Common/src/adaptation/CNativeEngine3D.cpp:7488:17: error: ‘const struct SU2Native3D::OptimizeOptions’ has no member named ‘timings’
+ 7488 |     if (options.timings) old_cavity_scope.emplace(SU2NativeTiming3D::Operation::OldCavityMeasurement);
+      |                 ^~~~~~~
+[6/49] Compiling C++ object Common/src/libSU2AccurateSum.a.p/adaptation_CNativeDistributed3D.cpp.o
+[7/49] Compiling C++ object Common/src/libSU2AccurateSum.a.p/adaptation_CNativePartition3D.cpp.o
+[8/49] Compiling C++ object Common/src/libSU2AccurateSum.a.p/adaptation_CNativeAffineReference.cpp.o
+ninja: build stopped: subcommand failed.

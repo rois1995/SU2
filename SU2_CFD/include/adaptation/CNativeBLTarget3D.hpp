@@ -448,6 +448,7 @@ struct TargetPolicy {
   }
   std::vector<BoundaryMetricSample> BoundaryGuidance(Node node,const PlanarReference& context,Tensor sensor,
                                                    const std::vector<std::string>& marker_names,BoundaryGuidanceMemo* memo=nullptr) const {
+    SU2NativeTiming3D::Scope guidance_timer(SU2NativeTiming3D::Operation::TargetComposition);
     if(!authority||!base||!A)throw std::invalid_argument("Boundary guidance needs an initialized native target.");
     ValidateTensor(sensor);
     const auto* associated_point=context.Parameters()?context.Parameter(node.p):nullptr;

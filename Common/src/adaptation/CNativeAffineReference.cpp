@@ -10,6 +10,7 @@
 #include "../../include/adaptation/CNativeGeometryValidation2D.hpp"
 #include "../../include/adaptation/CTransferMemory.hpp"
 #include "../../include/adaptation/CNativeCurvedReference.hpp"
+#include "../../include/adaptation/CNativeTimerTree3D.hpp"
 #include "../../include/adt/CADTElemClass.hpp"
 #include "../../include/option_structure.hpp"
 #include <cstring>
@@ -1427,6 +1428,7 @@ bool MappedFacetReference::PhysicalSupport(const SurfaceBinding& binding)const {
 }
 bool MappedFacetReference::BuildMobilityPolicy(double angle,const std::map<int,int>& roles,MobilityPolicy& result,
     AtlasBudget& budget,std::string& reason)const {
+  SU2NativeTiming3D::Scope timer(SU2NativeTiming3D::Operation::MobilityPolicy);
   try {
     AtlasOps op{budget,__func__};op.Storage(transfer_memory::Mul(reference->Facets().size()+edges.size(),512));
     if(!(std::isfinite(angle)&&angle>=0&&angle<=180))throw std::invalid_argument("Invalid geometry feature angle.");
@@ -2009,6 +2011,7 @@ MappedFacetReference::SurfaceUnionBounds MappedFacetReference::BoundModelSurface
     double tolerance,AtlasBudget& budget)const {return QuerySurfaceUnion(facets,physical,tolerance,budget,true,false);}
 double MappedFacetReference::BoundPhysicalSurface(const std::vector<Id>& facets,
     const std::vector<std::array<Point,3>>& physical,double tolerance,AtlasBudget& budget,SurfaceBoundPurpose purpose,double stop_above)const {
+  SU2NativeTiming3D::Scope timer(SU2NativeTiming3D::Operation::GeometryBound);
   const bool limited=purpose==SurfaceBoundPurpose::ErrorLimit;
   const bool magnitude=purpose==SurfaceBoundPurpose::ErrorMagnitude||limited;
   if(limited&&(!std::isfinite(stop_above)||stop_above<tolerance))

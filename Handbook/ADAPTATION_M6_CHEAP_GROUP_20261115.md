@@ -1,6 +1,6 @@
 # B1/B2/B3/A2c — 2026-11-15
 
-Numerical checks all PASS once, with source/binary/runtime/input pins unchanged. Same-v2 profileA passes; profileB is active. No new standalone fullM6 run. Curved BL/RANS capability remains open.
+Numerical checks all PASS once, with source/binary/runtime/input pins unchanged. The single requested same-v2 A/B profile is complete; both profilers and the independent B workflow validator pass. No new standalone fullM6 run. Curved BL/RANS capability remains open.
 R=`integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57`; D=`R/purpose_query_fix_20261114/cheap_group_20261115`.
 Reviewer update2.0 accepts the source-gap report: B4/B6 withdrawn, A2 closed/replaced by A2c. No query-purpose, pool/quota, eviction, budget, quality, height/progression or target semantics change.
 
@@ -18,7 +18,7 @@ Implementation: exact x87 zero/subnormal/smallest-normal adjacent stepping; sync
 
 BL first336 are identical; record336 is an additional edit after the reference ends, not a changed prefix. Geometry is valid but surface_prepared=false, engine_valid=false, census incomplete. No accepted BL mesh or exact scheduler resume claim. Output payloads stay local, SHA-sealed in D/BL_receipt.json. Memo94931guidance hits,0strip hits,16830144live bytes. Different amount of completed work; no isolated speedup claim.
 
-A2c at first-collapse boundary:1resolution each rank; facet misses13026/12382/7734/6477/12001/13785. Requested raw lower-limit formula gives negative values there (no positive rebuild lower bound). Serial BL exit:2resolutions,6186misses, raw6186−2×48954=−91722; not one resolution despite zero refinements. Full-event numbers await profileB. No quota change.
+A2c at first-collapse boundary:1resolution each rank; facet misses13026/12382/7734/6477/12001/13785. Requested raw lower-limit formula gives negative values there (no positive rebuild lower bound). Serial BL exit:2resolutions,6186misses, raw6186−2×48954=−91722; not one resolution despite zero refinements. Full-event B exit has one resolution on every rank. Event 1 misses are108640/115091/104394/110003/103420/102299; event 2 misses246144/236237/235662/227240/235322/231394. The requested `misses − resolutions × 48954` lower bounds are59686/66137/55440/61049/54466/53345 and197190/187283/186708/178286/186368/182440. These measure repeated facet preparation at the base resolution; no quota change.
 
 Host contention is explicit: unrelated Lean work shared CPU with nice19MPI6, load reached~16; first-collapse work/partition/counts match P6c. Do not attribute slower wall time to a code regression or add overlapping counters as exclusive CPU.
 
@@ -28,4 +28,10 @@ Historical v2 sample text is losslessly gzip archived931,661,039→68,713,365B w
 
 ProfileA: terminal0/allowned terminal/source1540+binary+runtime/input pins unchanged,557.165s. Catch1case916815assertions;467splits/305000positive,0refinements,2facet resolutions. Preparation119.849549s/11634samples; public native393.819145s/38538samples. Both optional LBR captures decode0 with5786/5934stacks; raw LBR retained. Serial conservative peak bound3323449344B<20GB; no native-summary peak row claimed. Source v2 helpers and methods frozen in profile provenance.
 
-Next: finish exactly one same-v2 A/B profile, put new tables beside v2, then F3 exclusive timer tree/95%coverage. Reviewer design remains read-only; no8.2–8.7 implementation before user acceptance.
+ProfileB: terminal0 in6920.110s; all six flat recorders/parsers pass, all1540source pins and binary/runtime/config/input/helper hashes unchanged. Independent physical/transfer/continued-CFD validation passes (`D/profile/run_B/independent_workflow_receipt.json`). Events1/2 are accepted in2697.000/3684.252s, each below5400s; meshes have146676/168790points and726442/855760cells, with q/J/size/geometry bad counts all0. The sum6381.251s is not the per-event gate. Native summary peak-RSS sums13,933,756,416/17,657,745,408B pass the20,000,000,000B whole-job gate; sampled RSS is not used.
+
+Both events' mesh/reference/restart payloads (six files) are byte-identical to accepted P6c, with exact hashes in `D/profile/run_B/P6c_payload_identity.json`. No fresh isolated restart was run for this cheap group; prior P6c restart evidence is retained for the byte-identical final inputs.
+
+ProfileB limitations: optional observer exited143 during event2; raw program logs and all flat samples completed. Direct GDB timer epoch lookup failed (`_M_d` unavailable), so phase sampling uses guaranteed entry-to-next-breakpoint brackets and excludes ambiguous boundaries; rank0 bracket widths0.322842/0.014011s. Optional post-native LBR decoded5339stacks, exposing1893visible EdgeNormal/BuildMobilityPolicy ancestors and812MPI ancestors. These are sampled ancestry counts, not exclusive seconds. New tables are in [the completed comparison](ADAPTATION_M6_MEASUREMENT_CHEAP_GROUP_20261115.md); no causal speedup is claimed against failed/different-work v2 runs.
+
+Next: F3 exclusive timer tree/95%coverage; this is not yet validated. Reviewer design remains read-only; no8.2–8.7 implementation before user acceptance.

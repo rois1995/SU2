@@ -1,0 +1,18 @@
+{
+  "unix": 1794742883.623211,
+  "monotonic_ns": 235189779031827,
+  "gdb_event2_entry": {
+    "event": "AdaptMetric_entry",
+    "adaptation": 2,
+    "pid": 90022,
+    "monotonic_ns": 234430071521897,
+    "wall_ns": 1794742123915702105
+  },
+  "previous_request": {
+    "phase": "event2_construction"
+  },
+  "new_request": {
+    "phase": "event2_quality"
+  },
+  "reason": "Unchanged v2 observer counts construction_entry only when rounds0; its second quality label can remain event1. Use the recorded GDB adaptation2 identity for the intended single second-event quality LBR window. Sampling method/rate/duration unchanged; no numerical code/input change."
+}

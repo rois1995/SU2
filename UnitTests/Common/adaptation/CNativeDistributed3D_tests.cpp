@@ -5336,3 +5336,5 @@ TEST_CASE("Private geometry expiry joins empty ranks and captures the last publi
   CHECK(result.stats.quality.private_tracked_collectives==0);
   CHECK(parameters->Snapshot()==snapshot);
 }
+
+#include "fixtures/native_timer_tree3d_tests.inc"

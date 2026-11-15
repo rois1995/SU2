@@ -4,6 +4,7 @@
  * Copyright 2012-2026, SU2 Contributors (cf. AUTHORS.md).
  * SU2 is free software under the GNU Lesser General Public License, version 2.1 or later.
  */
+#include "../../include/adaptation/CNativeTimerTree3D.hpp"
 #include "../../include/adaptation/CNativeNearContainment.hpp"
 #include <iostream>
 #include "../../include/adaptation/CNativeImport3D.hpp"
@@ -1012,6 +1013,8 @@ bool Coverage(World& world,const Owned& cells,std::vector<DonorCell>& source,con
 bool ImportGeometry(const CConfig& config, const CGeometry& geometry, const su2activematrix* metric,
                     ReferenceState& state, ImportedGeometry& output, std::string& reason, BridgeStats& stats,
                     size_t ceiling, size_t caller_bytes) {
+  SU2NativeTiming3D::PhaseScope timing_phase(SU2NativeTiming3D::Phase::Preparation);
+  SU2NativeTiming3D::Scope operation_timer(SU2NativeTiming3D::Operation::Import);
   World parent;
   ImportedGeometry result;
   ReferenceState pending;
@@ -1969,6 +1972,8 @@ bool ReassessComplexity(World& parent,const Owned& candidate,DonorImport& source
     const PlanarReference& reference,MetricComposition composition,ComplexityReassessment3D& output,
     std::string& reason,BridgeStats& stats,size_t ceiling,size_t caller_bytes,uint64_t count,uint64_t seed,
     std::function<bool()> withinBudget,std::shared_ptr<const PreparedComplexity3D>* prepared) {
+  SU2NativeTiming3D::PhaseScope timing_phase(SU2NativeTiming3D::Phase::Metric);
+  SU2NativeTiming3D::Scope operation_timer(SU2NativeTiming3D::Operation::MetricNormalization);
   const bool current = !parent.maximum(std::any_of(candidate.begin(), candidate.end(),
       [](const Owned::value_type& row) { return !row.second.sensor_present; }));
   if (!current)
@@ -2078,6 +2083,8 @@ bool ReaderSlices(World& parent, const Owned& cells, const std::vector<DonorCell
                   const ReferenceState& state, CReaderSlices& output, std::string& reason, BridgeStats& stats,
                   MetricComposition composition, size_t ceiling, size_t caller_bytes, bool query_timings,DonorImport* prepared_source,
                   std::shared_ptr<const PlanarReference>* returned_reference) {
+  SU2NativeTiming3D::PhaseScope timing_phase(SU2NativeTiming3D::Phase::Transfer);
+  SU2NativeTiming3D::Scope operation_timer(SU2NativeTiming3D::Operation::Import);
   Envelope envelope(parent, stats);
   CLocalFailure failure;
   const int supplied=bool(prepared_source);

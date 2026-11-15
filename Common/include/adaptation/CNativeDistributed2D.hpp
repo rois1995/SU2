@@ -8,6 +8,7 @@
 
 #pragma once
 
+#include "CNativeTimerTree3D.hpp"
 #include "CNativeBoundary2D.hpp"
 #include "CDistributedSearch.hpp"
 #include "CTransferMemory.hpp"
@@ -88,6 +89,7 @@ class World {
   explicit World(CPassiveComm::Communicator c = SU2_MPI::GetComm())
       : comm(c), rank(CPassiveComm::Rank(c)), size(CPassiveComm::Size(c)) {}
   CElectedFailure elect(const CLocalFailure& local) const {
+    SU2NativeTiming3D::Scope communication_timer(SU2NativeTiming3D::Operation::Communication);
     const auto started = seconds();
     const auto result = ElectFailure(local, comm);
     election_collective_seconds += seconds() - started;
@@ -115,6 +117,7 @@ class World {
   template <class T>
   std::vector<T> exchange(const std::vector<std::vector<T>>& to, bool* admitted = nullptr, size_t ceiling = SIZE_MAX,
                           size_t baseline = 0) {
+    SU2NativeTiming3D::Scope communication_timer(SU2NativeTiming3D::Operation::Communication);
     CLocalFailure failure;
     if (to.size() != static_cast<size_t>(size)) failure.Set(1, 0, "Invalid native peer buckets.");
     Fail(failure, CURRENT_FUNCTION);
@@ -195,6 +198,7 @@ class World {
 
  private:
   int Reduce(int value, CPassiveComm::Op op) {
+    SU2NativeTiming3D::Scope communication_timer(SU2NativeTiming3D::Operation::Communication);
     const auto started = seconds();
     const auto result = CPassiveComm::Allreduce(value, op, comm);
     collective_seconds += seconds() - started;

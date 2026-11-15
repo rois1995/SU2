@@ -8,6 +8,7 @@
 #include "../../include/adaptation/CNativeCurvedAtlas3D.hpp"
 #include "../../include/adaptation/CNativeGeometryBackend3D.hpp"
 #include "../../include/adaptation/CNativeCurvedReference.hpp"
+#include "../../include/adaptation/CNativeTimerTree3D.hpp"
 #include "../../include/adaptation/CTransferMemory.hpp"
 #include "CNativePredicates3D_internal.hpp"
 #include <algorithm>
@@ -345,6 +346,7 @@ void BoundaryParameterState::ValidateEntityFeatures(AtlasBudget& budget)const {
 }
 std::shared_ptr<BoundaryParameterState> BoundaryParameterState::WithEntityGeometry(double tolerance,
     AtlasBudget& budget,size_t ceiling,size_t caller)const {
+  SU2NativeTiming3D::Scope timer(SU2NativeTiming3D::Operation::GeometryPreparation);
   if(!(std::isfinite(tolerance)&&tolerance>=std::numeric_limits<double>::min())||!mobility.identity)
     throw std::invalid_argument("Entity geometry requires a physical mobility policy and absolute tolerance.");
   const auto live=transfer_memory::Add(caller,geometry->ResidentBytes(),transfer_memory::Mul(ResidentBytes(),3));
@@ -410,6 +412,7 @@ double BoundaryParameterState::EntityFaceError(Id facet,const std::array<Surface
 }
 const std::map<BoundaryParameterState::EntityKey,MappedFacetReference::SurfaceUnionBounds>&
 BoundaryParameterState::GeometryCertificates(AtlasBudget& budget,bool complete)const {
+  SU2NativeTiming3D::Scope certificate_timer(SU2NativeTiming3D::Operation::Certification);
   budget.CheckTime();
   if(!EntityGeometry())throw std::invalid_argument("Entity geometry certificate requested from a legacy face partition.");
   // A source enclosure alone never substitutes for both directed proofs.
@@ -1297,6 +1300,7 @@ template<class Points>Id CurrentEntityHint(const State& state,Id anchor,Point qu
 }
 GeometryProjection ProjectEntitySurface(const State& state,Point point,const SurfaceBinding& previous,
     Id hint,AtlasBudget& budget) {
+  SU2NativeTiming3D::Scope timer(SU2NativeTiming3D::Operation::GeometryProjection);
   NativeMappedGeometryBackend3D backend(state.Authority(),state.Mobility());GeometrySupport support;std::string reason;
   if(!backend.Support(previous,hint,support,budget,reason)) {
     if(!budget.work_exhausted&&!budget.time_exhausted&&budget.geometry_failure.empty())budget.geometry_failure=reason;

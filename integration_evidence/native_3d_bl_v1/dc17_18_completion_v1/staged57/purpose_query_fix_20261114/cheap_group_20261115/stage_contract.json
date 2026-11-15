@@ -11,9 +11,9 @@
     "sum rank process peak RSS<=20000000000bytes; retain modeled memory config/noquota change"
   ],
   "source_review": "No B2/B3 blocker; bounded Luna read-only review confirms invalidation, scope and admission; primary review retains integrated acceptance",
-  "frozen": true,
+  "frozen": false,
   "build_session": null,
-  "ordered_check": "profile_B_active",
+  "ordered_check": "all_numerical_checks_and_profiles_complete",
   "no_independent_fix_loop": true,
   "unit_tool_session": null,
   "unit_case": "cases/cheap_unit_20261115T093909_4071819",
@@ -38,5 +38,10 @@
   "profile_A_splits": 467,
   "profile_A_positive_cells": 305000,
   "profile_B_tool_session": 50597,
-  "profile_B_observer_tool_session": 39312
+  "profile_B_observer_tool_session": 39312,
+  "profile_B_session": null,
+  "profile_observer_session": null,
+  "profile_B_complete": true,
+  "source_freeze_released_after_profiles": true,
+  "next": "F3 exclusive timers; current frozen build501 in sibling f3_exclusive_20261115"
 }

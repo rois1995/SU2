@@ -4,6 +4,7 @@
  * Copyright 2012-2026, SU2 Contributors (cf. AUTHORS.md).
  * SU2 is free software under the GNU Lesser General Public License, version 2.1 or later.
  */
+#include "../../include/adaptation/CNativeTimerTree3D.hpp"
 #include "../../include/adaptation/CNativeDonor3D.hpp"
 #include "../../include/adt/CADTElemClass.hpp"
 #include "../../include/adaptation/CNativeNearContainment.hpp"
@@ -157,6 +158,7 @@ size_t DonorImport::ResidentBytes() const {
 }
 bool DonorImport::Build(const std::vector<DonorCell>& original, std::string& reason,
                         size_t ceiling, size_t caller_bytes) {
+  SU2NativeTiming3D::Scope import_timer(SU2NativeTiming3D::Operation::Import);
   Timer timer(stats.build_seconds, timings);
   ++stats.builds;
   CLocalFailure failure;
@@ -512,6 +514,7 @@ DonorPatch DonorImport::ProbePoints(const std::vector<Point>& points,size_t ceil
 DonorPatch DonorImport::ImportRegions(const std::vector<DonorRegion>& regions, const std::vector<Cell>* cells,
                                     size_t ceiling, size_t caller_bytes, bool metric_queries,
                                     const std::vector<std::array<Point,2>>* segments, const std::vector<Point>* points, bool positive_segments) {
+  SU2NativeTiming3D::Scope import_timer(SU2NativeTiming3D::Operation::Import);
   Timer timer(stats.import_seconds, timings);
   ++stats.imports;
   DonorPatch result;

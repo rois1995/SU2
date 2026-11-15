@@ -5,6 +5,7 @@
  * SU2 is free software under the GNU Lesser General Public License, version 2.1 or later.
  */
 
+#include "../../include/adaptation/CNativeTimerTree3D.hpp"
 #include "../../include/adaptation/CNativeRemesher3D.hpp"
 #include "../../include/adaptation/CNativeMetricTransport3D.hpp"
 #include "../../include/adaptation/CNativeAffineReference.hpp"
@@ -65,6 +66,7 @@ size_t NativeMemoryCeiling(const CConfig& config,const CGeometry& geometry,size_
 namespace {
 // Configuration prepares mobility explicitly; loading an old sidecar never changes its semantics.
 void PrepareMobility(const CConfig& config,ReferenceState& state,size_t ceiling,size_t caller) {
+  SU2NativeTiming3D::Scope mobility_timer(SU2NativeTiming3D::Operation::MobilityPolicy);
   if(!state.original || !state.original->Mapped())return;
   const auto* accepted=state.original->Parameters();const auto& authority=accepted->Geometry();
   if(authority.Curves().empty())return;
@@ -102,6 +104,9 @@ void PrepareMobility(const CConfig& config,ReferenceState& state,size_t ceiling,
 }
 }  // namespace
 void CNativeRemesher3D::PrepareReference(const CConfig& config,const CGeometry& geometry) {
+  SU2NativeTiming3D::Session timer_tree(config.GetWrt_Performance() || options.timings, "reference", SU2_MPI::GetRank(),
+                                        SU2_MPI::GetSize(), SU2NativeTiming3D::Phase::Preparation);
+  SU2NativeTiming3D::Scope reference_timer(SU2NativeTiming3D::Operation::Import);
   if(reference->original) {
     CLocalFailure failure;auto pending=*reference;
     const auto ceiling=NativeMemoryCeiling(config,geometry,options.memory_ceiling,false,SU2_MPI::GetComm());
@@ -202,6 +207,9 @@ CRemeshResult CNativeRemesher3D::Remesh(const CConfig& config, const CGeometry& 
   stats.workers = config.GetAdap_Native_Ranks() ? int(config.GetAdap_Native_Ranks()) : parent.size;
   auto control = options;
   control.timings = options.timings || config.GetWrt_Performance();
+  SU2NativeTiming3D::Session timer_tree(control.timings, "remesh", parent.rank, parent.size,
+                                        SU2NativeTiming3D::Phase::Preparation);
+  if (timer_tree.Owns()) control.caller_bytes = transfer_memory::Add(control.caller_bytes, timer_tree.ReservedBytes());
   control.surface_tolerance = SU2_TYPE::GetValue(config.GetAdap_Hausd());
   control.wall_heights.tolerance = SU2_TYPE::GetValue(config.GetAdap_BL_FirstHeightTol());  // Agreed by the engine.
   if (config.GetAdap_Native_Max_Work()) control.maximum_work=config.GetAdap_Native_Max_Work();
@@ -375,7 +383,9 @@ CRemeshResult CNativeRemesher3D::Remesh(const CConfig& config, const CGeometry& 
       }catch(const std::exception& e){failure.Set(2,0,e.what());}
       CollectiveFailure(failure,CURRENT_FUNCTION);
       const double core=CPassiveComm::Allreduce(localCore,CPassiveComm::Op::MIN,parent.comm);frozen_core=core;
-      try {composition=compositionFactory(config,pending->state,core,control);}
+      try {
+        SU2NativeTiming3D::Scope target_timer(SU2NativeTiming3D::Operation::TargetComposition);
+        composition=compositionFactory(config,pending->state,core,control);}
       catch(const std::exception& e){failure.Set(2,0,e.what());}
       CollectiveFailure(failure,CURRENT_FUNCTION);
       if (!vote(bool(composition) && bool(control.edge_breakpoints),"Native3D BL policy omitted composition or geometric edge bands.")) break;
@@ -409,7 +419,8 @@ CRemeshResult CNativeRemesher3D::Remesh(const CConfig& config, const CGeometry& 
     const std::vector<DonorCell>* worker_source = &imported.original;
     const bool repartition = config.GetAdap_Native_Repartition() || stats.workers < parent.size;
     auto migrate_source=[&](size_t baseline) {
-        if (admit(transfer_memory::Add(baseline,
+      SU2NativeTiming3D::Scope migration_timer(SU2NativeTiming3D::Operation::Communication);
+      if (admit(transfer_memory::Add(baseline,
                                        transfer_memory::GrowthBound(imported.original.size(), sizeof(DonorCell)),
                                        transfer_memory::Mul(stats.partition.destinations.size(),sizeof(std::pair<const Id,int>)+4*sizeof(void*)),
                                        transfer_memory::Mul(parent.size, sizeof(std::vector<DonorCell>))))) {
@@ -734,6 +745,8 @@ CRemeshResult CNativeRemesher3D::Remesh(const CConfig& config, const CGeometry& 
     if(!vote(!failure.Failed(),failure.message)){ready=false;break;}
     try {
       auto within=[&](){return !control.maximum_seconds || std::chrono::duration<double>(std::chrono::steady_clock::now()-deadline_start).count()<control.maximum_seconds;};
+      SU2NativeTiming3D::PhaseScope normalization_phase(SU2NativeTiming3D::Phase::Metric);
+      SU2NativeTiming3D::Scope normalization_timer(SU2NativeTiming3D::Operation::MetricNormalization);
       proposal=normalizer.propose(stats.complexity,*prepared,nodal_correction?correction_source:imported.original,
           frozen_core,within,control.memory_ceiling,transfer_memory::Add(normalization_live,transfer_memory::Bytes(correction_source)));
     }catch(const std::exception& e){proposal.valid=false;proposal.reason=e.what();}
@@ -766,7 +779,9 @@ CRemeshResult CNativeRemesher3D::Remesh(const CConfig& config, const CGeometry& 
     const auto previous_policy=control.caller_bytes-base_caller;
     composition={};control.edge_breakpoints={};control.caller_bytes=base_caller;frozen_core=proposal.core;
     retained-=previous_policy;
-    try {if(config.GetnAdap_BL())composition=compositionFactory(config,pending->state,proposal.core,control);}
+    try {
+      SU2NativeTiming3D::Scope target_timer(SU2NativeTiming3D::Operation::TargetComposition);
+      if(config.GetnAdap_BL())composition=compositionFactory(config,pending->state,proposal.core,control);}
     catch(const std::exception& e){failure.Set(2,0,e.what());}
     ready=vote(!failure.Failed() && control.caller_bytes>=base_caller &&
         (!config.GetnAdap_BL() || (bool(composition)&&bool(control.edge_breakpoints))),"Native3D normalized geometric policy is invalid.");

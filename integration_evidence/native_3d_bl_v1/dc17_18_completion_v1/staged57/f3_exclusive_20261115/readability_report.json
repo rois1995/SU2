@@ -1,0 +1,569 @@
+{
+  "method": "Comments/string literals masked while preserving offsets; balanced braces and parentheses; named declaration signatures only, excluding control blocks and lambdas. Top-ten signatures and closing braces manually checked. Constructor initializer names in the new header corrected by manual inspection.",
+  "line_convention": "Physical lines from opening body brace through closing body brace inclusive, including comments/blanks/nested scopes. Single-line body counts as one.",
+  "clang_format_version": "Ubuntu clang-format version 18.1.3 (1ubuntu1)",
+  "production_files": [
+    "Common/include/adaptation/CNativeDistributed2D.hpp",
+    "Common/src/adaptation/CNativeAffineReference.cpp",
+    "Common/src/adaptation/CNativeBoundaryParameters3D.cpp",
+    "Common/src/adaptation/CNativeDonor3D.cpp",
+    "Common/src/adaptation/CNativeEngine3D.cpp",
+    "Common/src/adaptation/CNativeImport3D.cpp",
+    "Common/src/adaptation/CNativeMetric3D.cpp",
+    "Common/src/adaptation/CNativeRemesher3D.cpp",
+    "SU2_CFD/include/adaptation/CNativeBLTarget3D.hpp",
+    "SU2_CFD/include/adaptation/CNativeTargetCheckpoint3D.hpp",
+    "SU2_CFD/src/drivers/CSinglezoneDriver.cpp",
+    "Common/include/adaptation/CNativeTimerTree3D.hpp"
+  ],
+  "source_sha256": {
+    "Common/include/adaptation/CNativeDistributed2D.hpp": "3258eb9b5cc7b7c99062c31ca7427f134242a9440ea384c5f7924934c34eb2a4",
+    "Common/src/adaptation/CNativeAffineReference.cpp": "360c4411ecc9757faa6d3eee4827ba343ddfaa4985b67ef9b251636624219f89",
+    "Common/src/adaptation/CNativeBoundaryParameters3D.cpp": "5d970a260a2eccce4291f7ad15887722f55f877ef51fa49136e1dfb89ce7423a",
+    "Common/src/adaptation/CNativeDonor3D.cpp": "190770810169bfc3f9e0c6bcfc974bb6500641d07d83ec8e7f5a3922182085eb",
+    "Common/src/adaptation/CNativeEngine3D.cpp": "c29f5641e2c889750677e3af5940fa89c3d83b37989a22f08cc070913faf8695",
+    "Common/src/adaptation/CNativeImport3D.cpp": "ced3ca6e07c06b5e54cb19456345aebad5e4fc1f6a7ef33d258d95afdcca4527",
+    "Common/src/adaptation/CNativeRemesher3D.cpp": "970a56d113d73bb8152aabd34ad23bf60d39044736bbebad8d79e25792508840",
+    "SU2_CFD/include/adaptation/CNativeBLTarget3D.hpp": "c57410b68aee2c80cdcd047003ca4f38e28321507779a585fb8a0677fd790c09",
+    "SU2_CFD/include/adaptation/CNativeTargetCheckpoint3D.hpp": "5c041f39db2166a1981f26077fb89e15c2dd00395f990a216716907b0abb31f8",
+    "SU2_CFD/src/drivers/CSinglezoneDriver.cpp": "5f548753cf3dee16ff915d3a8585b98a233b183f4917850f69754642bd085793",
+    "UnitTests/Common/adaptation/CNativeDistributed3D_tests.cpp": "add7f9495f2e1d79a09ccd9f20fb8565d58f1442326eec26a008737985ecbfe3",
+    "Common/include/adaptation/CNativeTimerTree3D.hpp": "8c26fabd45309e0af7c9bd0d9d767f6c006f6a866289ecba9fd6cf922446e96f",
+    "UnitTests/Common/adaptation/fixtures/native_timer_tree3d_tests.inc": "6d48072db4eb1a7234ef4e785282a3e6bdbfe12a70a5a1ac3d64f2a1afcbe436",
+    "Common/src/adaptation/CNativeMetric3D.cpp": "417125524df91a788775e98de7e4b8a7324efc6bfd0e263aaa33abc3f6801a06"
+  },
+  "source_unchanged_during_audit": true,
+  "ten_longest_in_changed_production_files": [
+    {
+      "file": "Common/src/adaptation/CNativeEngine3D.cpp",
+      "function": "Adapt",
+      "body_open_line": 1178,
+      "body_close_line": 6037,
+      "body_lines_inclusive": 4860,
+      "new": false,
+      "body_touched": true
+    },
+    {
+      "file": "Common/src/adaptation/CNativeRemesher3D.cpp",
+      "function": "CNativeRemesher3D::Remesh",
+      "body_open_line": 202,
+      "body_close_line": 1076,
+      "body_lines_inclusive": 875,
+      "new": false,
+      "body_touched": true
+    },
+    {
+      "file": "Common/src/adaptation/CNativeImport3D.cpp",
+      "function": "ImportGeometry",
+      "body_open_line": 1015,
+      "body_close_line": 1364,
+      "body_lines_inclusive": 350,
+      "new": false,
+      "body_touched": true
+    },
+    {
+      "file": "Common/src/adaptation/CNativeImport3D.cpp",
+      "function": "JointAffineCoverage",
+      "body_open_line": 355,
+      "body_close_line": 676,
+      "body_lines_inclusive": 322,
+      "new": false,
+      "body_touched": false
+    },
+    {
+      "file": "Common/src/adaptation/CNativeAffineReference.cpp",
+      "function": "MappedFacetReference::ClosestCurved",
+      "body_open_line": 1594,
+      "body_close_line": 1902,
+      "body_lines_inclusive": 309,
+      "new": false,
+      "body_touched": false
+    },
+    {
+      "file": "Common/src/adaptation/CNativeBoundaryParameters3D.cpp",
+      "function": "BoundaryParameterState::Prepare",
+      "body_open_line": 623,
+      "body_close_line": 913,
+      "body_lines_inclusive": 291,
+      "new": false,
+      "body_touched": false
+    },
+    {
+      "file": "SU2_CFD/src/drivers/CSinglezoneDriver.cpp",
+      "function": "CSinglezoneDriver::RunTimeFixedPointLoop",
+      "body_open_line": 1484,
+      "body_close_line": 1767,
+      "body_lines_inclusive": 284,
+      "new": false,
+      "body_touched": false
+    },
+    {
+      "file": "Common/src/adaptation/CNativeAffineReference.cpp",
+      "function": "MappedFacetReference::QuerySurfaceUnionAtResolution",
+      "body_open_line": 2152,
+      "body_close_line": 2414,
+      "body_lines_inclusive": 263,
+      "new": false,
+      "body_touched": false
+    },
+    {
+      "file": "SU2_CFD/src/drivers/CSinglezoneDriver.cpp",
+      "function": "CSinglezoneDriver::RunTimeAdaptationLoop",
+      "body_open_line": 1055,
+      "body_close_line": 1288,
+      "body_lines_inclusive": 234,
+      "new": false,
+      "body_touched": false
+    },
+    {
+      "file": "SU2_CFD/src/drivers/CSinglezoneDriver.cpp",
+      "function": "CSinglezoneDriver::PredictWindowMetric",
+      "body_open_line": 744,
+      "body_close_line": 950,
+      "body_lines_inclusive": 207,
+      "new": false,
+      "body_touched": false
+    }
+  ],
+  "ten_longest_new_timer_header_functions": [
+    {
+      "file": "Common/include/adaptation/CNativeTimerTree3D.hpp",
+      "function": "OperationName",
+      "body_open_line": 115,
+      "body_close_line": 159,
+      "body_lines_inclusive": 45,
+      "new": true,
+      "body_touched": true
+    },
+    {
+      "file": "Common/include/adaptation/CNativeTimerTree3D.hpp",
+      "function": "Session::Snapshot",
+      "body_open_line": 215,
+      "body_close_line": 238,
+      "body_lines_inclusive": 24,
+      "new": true,
+      "body_touched": true
+    },
+    {
+      "file": "Common/include/adaptation/CNativeTimerTree3D.hpp",
+      "function": "PhaseName",
+      "body_open_line": 90,
+      "body_close_line": 112,
+      "body_lines_inclusive": 23,
+      "new": true,
+      "body_touched": true
+    },
+    {
+      "file": "Common/include/adaptation/CNativeTimerTree3D.hpp",
+      "function": "Session::Report",
+      "body_open_line": 282,
+      "body_close_line": 302,
+      "body_lines_inclusive": 21,
+      "new": true,
+      "body_touched": true
+    },
+    {
+      "file": "Common/include/adaptation/CNativeTimerTree3D.hpp",
+      "function": "Session::AddOpenFrames",
+      "body_open_line": 245,
+      "body_close_line": 257,
+      "body_lines_inclusive": 13,
+      "new": true,
+      "body_touched": true
+    },
+    {
+      "file": "Common/include/adaptation/CNativeTimerTree3D.hpp",
+      "function": "Scope::Scope",
+      "body_open_line": 344,
+      "body_close_line": 355,
+      "body_lines_inclusive": 12,
+      "new": true,
+      "body_touched": true
+    },
+    {
+      "file": "Common/include/adaptation/CNativeTimerTree3D.hpp",
+      "function": "Session::Session",
+      "body_open_line": 170,
+      "body_close_line": 178,
+      "body_lines_inclusive": 9,
+      "new": true,
+      "body_touched": true
+    },
+    {
+      "file": "Common/include/adaptation/CNativeTimerTree3D.hpp",
+      "function": "Scope::~Scope",
+      "body_open_line": 322,
+      "body_close_line": 329,
+      "body_lines_inclusive": 8,
+      "new": true,
+      "body_touched": true
+    },
+    {
+      "file": "Common/include/adaptation/CNativeTimerTree3D.hpp",
+      "function": "Session::Finalize",
+      "body_open_line": 273,
+      "body_close_line": 279,
+      "body_lines_inclusive": 7,
+      "new": true,
+      "body_touched": true
+    },
+    {
+      "file": "Common/include/adaptation/CNativeTimerTree3D.hpp",
+      "function": "Session::Add",
+      "body_open_line": 265,
+      "body_close_line": 270,
+      "body_lines_inclusive": 6,
+      "new": true,
+      "body_touched": true
+    }
+  ],
+  "new_header_function_count": 18,
+  "all_new_header_functions_at_most_80_lines": true,
+  "format_results": [
+    {
+      "file": "Common/include/adaptation/CNativeDistributed2D.hpp",
+      "command": [
+        "clang-format",
+        "--dry-run",
+        "--Werror",
+        "--ferror-limit=5",
+        "Common/include/adaptation/CNativeDistributed2D.hpp"
+      ],
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": "",
+      "head_baseline": {
+        "command": [
+          "clang-format",
+          "--dry-run",
+          "--Werror",
+          "--ferror-limit=5",
+          "--assume-filename=Common/include/adaptation/CNativeDistributed2D.hpp"
+        ],
+        "exit_code": 0,
+        "stdout": "",
+        "stderr": ""
+      }
+    },
+    {
+      "file": "Common/src/adaptation/CNativeAffineReference.cpp",
+      "command": [
+        "clang-format",
+        "--dry-run",
+        "--Werror",
+        "--ferror-limit=5",
+        "Common/src/adaptation/CNativeAffineReference.cpp"
+      ],
+      "exit_code": 1,
+      "stdout": "",
+      "stderr": "Common/src/adaptation/CNativeAffineReference.cpp:30:10: error: code should be clang-formatted [-Wclang-format-violations]\nusing Vec=std::array<double,3>;\n         ^\nCommon/src/adaptation/CNativeAffineReference.cpp:30:11: error: code should be clang-formatted [-Wclang-format-violations]\nusing Vec=std::array<double,3>;\n          ^\nCommon/src/adaptation/CNativeAffineReference.cpp:30:29: error: code should be clang-formatted [-Wclang-format-violations]\nusing Vec=std::array<double,3>;\n                            ^\nCommon/src/adaptation/CNativeAffineReference.cpp:31:20: error: code should be clang-formatted [-Wclang-format-violations]\nVec Values(Point p){return {p.x,p.y,p.z};}\n                   ^\nCommon/src/adaptation/CNativeAffineReference.cpp:31:21: error: code should be clang-formatted [-Wclang-format-violations]\nVec Values(Point p){return {p.x,p.y,p.z};}\n                    ^\n",
+      "head_baseline": {
+        "command": [
+          "clang-format",
+          "--dry-run",
+          "--Werror",
+          "--ferror-limit=5",
+          "--assume-filename=Common/src/adaptation/CNativeAffineReference.cpp"
+        ],
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "Common/src/adaptation/CNativeAffineReference.cpp:29:10: error: code should be clang-formatted [-Wclang-format-violations]\nusing Vec=std::array<double,3>;\n         ^\nCommon/src/adaptation/CNativeAffineReference.cpp:29:11: error: code should be clang-formatted [-Wclang-format-violations]\nusing Vec=std::array<double,3>;\n          ^\nCommon/src/adaptation/CNativeAffineReference.cpp:29:29: error: code should be clang-formatted [-Wclang-format-violations]\nusing Vec=std::array<double,3>;\n                            ^\nCommon/src/adaptation/CNativeAffineReference.cpp:30:20: error: code should be clang-formatted [-Wclang-format-violations]\nVec Values(Point p){return {p.x,p.y,p.z};}\n                   ^\nCommon/src/adaptation/CNativeAffineReference.cpp:30:21: error: code should be clang-formatted [-Wclang-format-violations]\nVec Values(Point p){return {p.x,p.y,p.z};}\n                    ^\n"
+      }
+    },
+    {
+      "file": "Common/src/adaptation/CNativeBoundaryParameters3D.cpp",
+      "command": [
+        "clang-format",
+        "--dry-run",
+        "--Werror",
+        "--ferror-limit=5",
+        "Common/src/adaptation/CNativeBoundaryParameters3D.cpp"
+      ],
+      "exit_code": 1,
+      "stdout": "",
+      "stderr": "Common/src/adaptation/CNativeBoundaryParameters3D.cpp:22:12: error: code should be clang-formatted [-Wclang-format-violations]\nusing State=BoundaryParameterState;\n           ^\nCommon/src/adaptation/CNativeBoundaryParameters3D.cpp:22:13: error: code should be clang-formatted [-Wclang-format-violations]\nusing State=BoundaryParameterState;\n            ^\nCommon/src/adaptation/CNativeBoundaryParameters3D.cpp:23:36: error: code should be clang-formatted [-Wclang-format-violations]\nState::Coordinate PointKey(Point p){return {p.x,p.y,p.z};}\n                                   ^\nCommon/src/adaptation/CNativeBoundaryParameters3D.cpp:23:37: error: code should be clang-formatted [-Wclang-format-violations]\nState::Coordinate PointKey(Point p){return {p.x,p.y,p.z};}\n                                    ^\nCommon/src/adaptation/CNativeBoundaryParameters3D.cpp:23:49: error: code should be clang-formatted [-Wclang-format-violations]\nState::Coordinate PointKey(Point p){return {p.x,p.y,p.z};}\n                                                ^\n",
+      "head_baseline": {
+        "command": [
+          "clang-format",
+          "--dry-run",
+          "--Werror",
+          "--ferror-limit=5",
+          "--assume-filename=Common/src/adaptation/CNativeBoundaryParameters3D.cpp"
+        ],
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "Common/src/adaptation/CNativeBoundaryParameters3D.cpp:21:12: error: code should be clang-formatted [-Wclang-format-violations]\nusing State=BoundaryParameterState;\n           ^\nCommon/src/adaptation/CNativeBoundaryParameters3D.cpp:21:13: error: code should be clang-formatted [-Wclang-format-violations]\nusing State=BoundaryParameterState;\n            ^\nCommon/src/adaptation/CNativeBoundaryParameters3D.cpp:22:36: error: code should be clang-formatted [-Wclang-format-violations]\nState::Coordinate PointKey(Point p){return {p.x,p.y,p.z};}\n                                   ^\nCommon/src/adaptation/CNativeBoundaryParameters3D.cpp:22:37: error: code should be clang-formatted [-Wclang-format-violations]\nState::Coordinate PointKey(Point p){return {p.x,p.y,p.z};}\n                                    ^\nCommon/src/adaptation/CNativeBoundaryParameters3D.cpp:22:49: error: code should be clang-formatted [-Wclang-format-violations]\nState::Coordinate PointKey(Point p){return {p.x,p.y,p.z};}\n                                                ^\n"
+      }
+    },
+    {
+      "file": "Common/src/adaptation/CNativeDonor3D.cpp",
+      "command": [
+        "clang-format",
+        "--dry-run",
+        "--Werror",
+        "--ferror-limit=5",
+        "Common/src/adaptation/CNativeDonor3D.cpp"
+      ],
+      "exit_code": 1,
+      "stdout": "",
+      "stderr": "Common/src/adaptation/CNativeDonor3D.cpp:23:13: error: code should be clang-formatted [-Wclang-format-violations]\n  ~Timer() { if (enabled) value += std::chrono::duration<double>(std::chrono::steady_clock::now() - start).count(); }\n            ^\nCommon/src/adaptation/CNativeDonor3D.cpp:23:116: error: code should be clang-formatted [-Wclang-format-violations]\n  ~Timer() { if (enabled) value += std::chrono::duration<double>(std::chrono::steady_clock::now() - start).count(); }\n                                                                                                                   ^\nCommon/src/adaptation/CNativeDonor3D.cpp:23:118: error: code should be clang-formatted [-Wclang-format-violations]\n  ~Timer() { if (enabled) value += std::chrono::duration<double>(std::chrono::steady_clock::now() - start).count(); }\n                                                                                                                     ^\nCommon/src/adaptation/CNativeDonor3D.cpp:35:21: error: code should be clang-formatted [-Wclang-format-violations]\n  template <class S> void Fields(S& s) { s(kind, key, point, sensor); }\n                    ^\nCommon/src/adaptation/CNativeDonor3D.cpp:35:41: error: code should be clang-formatted [-Wclang-format-violations]\n  template <class S> void Fields(S& s) { s(kind, key, point, sensor); }\n                                        ^\n",
+      "head_baseline": {
+        "command": [
+          "clang-format",
+          "--dry-run",
+          "--Werror",
+          "--ferror-limit=5",
+          "--assume-filename=Common/src/adaptation/CNativeDonor3D.cpp"
+        ],
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "Common/src/adaptation/CNativeDonor3D.cpp:22:13: error: code should be clang-formatted [-Wclang-format-violations]\n  ~Timer() { if (enabled) value += std::chrono::duration<double>(std::chrono::steady_clock::now() - start).count(); }\n            ^\nCommon/src/adaptation/CNativeDonor3D.cpp:22:116: error: code should be clang-formatted [-Wclang-format-violations]\n  ~Timer() { if (enabled) value += std::chrono::duration<double>(std::chrono::steady_clock::now() - start).count(); }\n                                                                                                                   ^\nCommon/src/adaptation/CNativeDonor3D.cpp:22:118: error: code should be clang-formatted [-Wclang-format-violations]\n  ~Timer() { if (enabled) value += std::chrono::duration<double>(std::chrono::steady_clock::now() - start).count(); }\n                                                                                                                     ^\nCommon/src/adaptation/CNativeDonor3D.cpp:34:21: error: code should be clang-formatted [-Wclang-format-violations]\n  template <class S> void Fields(S& s) { s(kind, key, point, sensor); }\n                    ^\nCommon/src/adaptation/CNativeDonor3D.cpp:34:41: error: code should be clang-formatted [-Wclang-format-violations]\n  template <class S> void Fields(S& s) { s(kind, key, point, sensor); }\n                                        ^\n"
+      }
+    },
+    {
+      "file": "Common/src/adaptation/CNativeEngine3D.cpp",
+      "command": [
+        "clang-format",
+        "--dry-run",
+        "--Werror",
+        "--ferror-limit=5",
+        "Common/src/adaptation/CNativeEngine3D.cpp"
+      ],
+      "exit_code": 1,
+      "stdout": "",
+      "stderr": "Common/src/adaptation/CNativeEngine3D.cpp:35:48: error: code should be clang-formatted [-Wclang-format-violations]\nbool CollapseOutsideTolerance(const Patch& old,Id removed,Id retained,const PlanarReference& geometry,double tolerance) {\n                                               ^\nCommon/src/adaptation/CNativeEngine3D.cpp:35:59: error: code should be clang-formatted [-Wclang-format-violations]\nbool CollapseOutsideTolerance(const Patch& old,Id removed,Id retained,const PlanarReference& geometry,double tolerance) {\n                                                          ^\nCommon/src/adaptation/CNativeEngine3D.cpp:35:71: error: code should be clang-formatted [-Wclang-format-violations]\nbool CollapseOutsideTolerance(const Patch& old,Id removed,Id retained,const PlanarReference& geometry,double tolerance) {\n                                                                      ^\nCommon/src/adaptation/CNativeEngine3D.cpp:35:103: error: code should be clang-formatted [-Wclang-format-violations]\nbool CollapseOutsideTolerance(const Patch& old,Id removed,Id retained,const PlanarReference& geometry,double tolerance) {\n                                                                                                      ^\nCommon/src/adaptation/CNativeEngine3D.cpp:36:20: error: code should be clang-formatted [-Wclang-format-violations]\n  const auto* state=geometry.Parameters();\n                   ^\n",
+      "head_baseline": {
+        "command": [
+          "clang-format",
+          "--dry-run",
+          "--Werror",
+          "--ferror-limit=5",
+          "--assume-filename=Common/src/adaptation/CNativeEngine3D.cpp"
+        ],
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "Common/src/adaptation/CNativeEngine3D.cpp:33:48: error: code should be clang-formatted [-Wclang-format-violations]\nbool CollapseOutsideTolerance(const Patch& old,Id removed,Id retained,const PlanarReference& geometry,double tolerance) {\n                                               ^\nCommon/src/adaptation/CNativeEngine3D.cpp:33:59: error: code should be clang-formatted [-Wclang-format-violations]\nbool CollapseOutsideTolerance(const Patch& old,Id removed,Id retained,const PlanarReference& geometry,double tolerance) {\n                                                          ^\nCommon/src/adaptation/CNativeEngine3D.cpp:33:71: error: code should be clang-formatted [-Wclang-format-violations]\nbool CollapseOutsideTolerance(const Patch& old,Id removed,Id retained,const PlanarReference& geometry,double tolerance) {\n                                                                      ^\nCommon/src/adaptation/CNativeEngine3D.cpp:33:103: error: code should be clang-formatted [-Wclang-format-violations]\nbool CollapseOutsideTolerance(const Patch& old,Id removed,Id retained,const PlanarReference& geometry,double tolerance) {\n                                                                                                      ^\nCommon/src/adaptation/CNativeEngine3D.cpp:34:20: error: code should be clang-formatted [-Wclang-format-violations]\n  const auto* state=geometry.Parameters();\n                   ^\n"
+      }
+    },
+    {
+      "file": "Common/src/adaptation/CNativeImport3D.cpp",
+      "command": [
+        "clang-format",
+        "--dry-run",
+        "--Werror",
+        "--ferror-limit=5",
+        "Common/src/adaptation/CNativeImport3D.cpp"
+      ],
+      "exit_code": 1,
+      "stdout": "",
+      "stderr": "Common/src/adaptation/CNativeImport3D.cpp:69:22: error: code should be clang-formatted [-Wclang-format-violations]\n      : world(world), stats(stats), start(world.seconds()), collective_start(world.collective_seconds),\n                     ^\nCommon/src/adaptation/CNativeImport3D.cpp:69:36: error: code should be clang-formatted [-Wclang-format-violations]\n      : world(world), stats(stats), start(world.seconds()), collective_start(world.collective_seconds),\n                                   ^\nCommon/src/adaptation/CNativeImport3D.cpp:69:60: error: code should be clang-formatted [-Wclang-format-violations]\n      : world(world), stats(stats), start(world.seconds()), collective_start(world.collective_seconds),\n                                                           ^\nCommon/src/adaptation/CNativeImport3D.cpp:70:39: error: code should be clang-formatted [-Wclang-format-violations]\n        bytes_start(world.bytes_sent), calls_start(world.collective_calls) { stats = {}; }\n                                      ^\nCommon/src/adaptation/CNativeImport3D.cpp:70:77: error: code should be clang-formatted [-Wclang-format-violations]\n        bytes_start(world.bytes_sent), calls_start(world.collective_calls) { stats = {}; }\n                                                                            ^\n",
+      "head_baseline": {
+        "command": [
+          "clang-format",
+          "--dry-run",
+          "--Werror",
+          "--ferror-limit=5",
+          "--assume-filename=Common/src/adaptation/CNativeImport3D.cpp"
+        ],
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "Common/src/adaptation/CNativeImport3D.cpp:68:22: error: code should be clang-formatted [-Wclang-format-violations]\n      : world(world), stats(stats), start(world.seconds()), collective_start(world.collective_seconds),\n                     ^\nCommon/src/adaptation/CNativeImport3D.cpp:68:36: error: code should be clang-formatted [-Wclang-format-violations]\n      : world(world), stats(stats), start(world.seconds()), collective_start(world.collective_seconds),\n                                   ^\nCommon/src/adaptation/CNativeImport3D.cpp:68:60: error: code should be clang-formatted [-Wclang-format-violations]\n      : world(world), stats(stats), start(world.seconds()), collective_start(world.collective_seconds),\n                                                           ^\nCommon/src/adaptation/CNativeImport3D.cpp:69:39: error: code should be clang-formatted [-Wclang-format-violations]\n        bytes_start(world.bytes_sent), calls_start(world.collective_calls) { stats = {}; }\n                                      ^\nCommon/src/adaptation/CNativeImport3D.cpp:69:77: error: code should be clang-formatted [-Wclang-format-violations]\n        bytes_start(world.bytes_sent), calls_start(world.collective_calls) { stats = {}; }\n                                                                            ^\n"
+      }
+    },
+    {
+      "file": "Common/src/adaptation/CNativeRemesher3D.cpp",
+      "command": [
+        "clang-format",
+        "--dry-run",
+        "--Werror",
+        "--ferror-limit=5",
+        "Common/src/adaptation/CNativeRemesher3D.cpp"
+      ],
+      "exit_code": 1,
+      "stdout": "",
+      "stderr": "Common/src/adaptation/CNativeRemesher3D.cpp:31:102: error: code should be clang-formatted [-Wclang-format-violations]\nCNativeRemesher3D::CNativeRemesher3D(std::shared_ptr<ReferenceState> retained, EngineOptions control, CompositionFactory constraints,NormalizationFactory normalizer)\n                                                                                                     ^\nCommon/src/adaptation/CNativeRemesher3D.cpp:31:134: error: code should be clang-formatted [-Wclang-format-violations]\nCNativeRemesher3D::CNativeRemesher3D(std::shared_ptr<ReferenceState> retained, EngineOptions control, CompositionFactory constraints,NormalizationFactory normalizer)\n                                                                                                                                     ^\nCommon/src/adaptation/CNativeRemesher3D.cpp:32:38: error: code should be clang-formatted [-Wclang-format-violations]\n    : reference(std::move(retained)), options(control), compositionFactory(std::move(constraints)), normalizationFactory(std::move(normalizer)) {\n                                     ^\nCommon/src/adaptation/CNativeRemesher3D.cpp:32:56: error: code should be clang-formatted [-Wclang-format-violations]\n    : reference(std::move(retained)), options(control), compositionFactory(std::move(constraints)), normalizationFactory(std::move(normalizer)) {\n                                                       ^\nCommon/src/adaptation/CNativeRemesher3D.cpp:32:100: error: code should be clang-formatted [-Wclang-format-violations]\n    : reference(std::move(retained)), options(control), compositionFactory(std::move(constraints)), normalizationFactory(std::move(normalizer)) {\n                                                                                                   ^\n",
+      "head_baseline": {
+        "command": [
+          "clang-format",
+          "--dry-run",
+          "--Werror",
+          "--ferror-limit=5",
+          "--assume-filename=Common/src/adaptation/CNativeRemesher3D.cpp"
+        ],
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "Common/src/adaptation/CNativeRemesher3D.cpp:30:102: error: code should be clang-formatted [-Wclang-format-violations]\nCNativeRemesher3D::CNativeRemesher3D(std::shared_ptr<ReferenceState> retained, EngineOptions control, CompositionFactory constraints,NormalizationFactory normalizer)\n                                                                                                     ^\nCommon/src/adaptation/CNativeRemesher3D.cpp:30:134: error: code should be clang-formatted [-Wclang-format-violations]\nCNativeRemesher3D::CNativeRemesher3D(std::shared_ptr<ReferenceState> retained, EngineOptions control, CompositionFactory constraints,NormalizationFactory normalizer)\n                                                                                                                                     ^\nCommon/src/adaptation/CNativeRemesher3D.cpp:31:38: error: code should be clang-formatted [-Wclang-format-violations]\n    : reference(std::move(retained)), options(control), compositionFactory(std::move(constraints)), normalizationFactory(std::move(normalizer)) {\n                                     ^\nCommon/src/adaptation/CNativeRemesher3D.cpp:31:56: error: code should be clang-formatted [-Wclang-format-violations]\n    : reference(std::move(retained)), options(control), compositionFactory(std::move(constraints)), normalizationFactory(std::move(normalizer)) {\n                                                       ^\nCommon/src/adaptation/CNativeRemesher3D.cpp:31:100: error: code should be clang-formatted [-Wclang-format-violations]\n    : reference(std::move(retained)), options(control), compositionFactory(std::move(constraints)), normalizationFactory(std::move(normalizer)) {\n                                                                                                   ^\n"
+      }
+    },
+    {
+      "file": "SU2_CFD/include/adaptation/CNativeBLTarget3D.hpp",
+      "command": [
+        "clang-format",
+        "--dry-run",
+        "--Werror",
+        "--ferror-limit=5",
+        "SU2_CFD/include/adaptation/CNativeBLTarget3D.hpp"
+      ],
+      "exit_code": 1,
+      "stdout": "",
+      "stderr": "SU2_CFD/include/adaptation/CNativeBLTarget3D.hpp:23:9: error: code should be clang-formatted [-Wclang-format-violations]\nusing M3=std::array<std::array<long double,3>,3>;\n        ^\nSU2_CFD/include/adaptation/CNativeBLTarget3D.hpp:23:10: error: code should be clang-formatted [-Wclang-format-violations]\nusing M3=std::array<std::array<long double,3>,3>;\n         ^\nSU2_CFD/include/adaptation/CNativeBLTarget3D.hpp:23:44: error: code should be clang-formatted [-Wclang-format-violations]\nusing M3=std::array<std::array<long double,3>,3>;\n                                           ^\nSU2_CFD/include/adaptation/CNativeBLTarget3D.hpp:23:47: error: code should be clang-formatted [-Wclang-format-violations]\nusing M3=std::array<std::array<long double,3>,3>;\n                                              ^\nSU2_CFD/include/adaptation/CNativeBLTarget3D.hpp:24:38: error: code should be clang-formatted [-Wclang-format-violations]\ninline M3 FromTensor(const Tensor& t){return M3{{{t.xx,t.xy,t.xz},{t.xy,t.yy,t.yz},{t.xz,t.yz,t.zz}}};}\n                                     ^\n",
+      "head_baseline": {
+        "command": [
+          "clang-format",
+          "--dry-run",
+          "--Werror",
+          "--ferror-limit=5",
+          "--assume-filename=SU2_CFD/include/adaptation/CNativeBLTarget3D.hpp"
+        ],
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "SU2_CFD/include/adaptation/CNativeBLTarget3D.hpp:23:9: error: code should be clang-formatted [-Wclang-format-violations]\nusing M3=std::array<std::array<long double,3>,3>;\n        ^\nSU2_CFD/include/adaptation/CNativeBLTarget3D.hpp:23:10: error: code should be clang-formatted [-Wclang-format-violations]\nusing M3=std::array<std::array<long double,3>,3>;\n         ^\nSU2_CFD/include/adaptation/CNativeBLTarget3D.hpp:23:44: error: code should be clang-formatted [-Wclang-format-violations]\nusing M3=std::array<std::array<long double,3>,3>;\n                                           ^\nSU2_CFD/include/adaptation/CNativeBLTarget3D.hpp:23:47: error: code should be clang-formatted [-Wclang-format-violations]\nusing M3=std::array<std::array<long double,3>,3>;\n                                              ^\nSU2_CFD/include/adaptation/CNativeBLTarget3D.hpp:24:38: error: code should be clang-formatted [-Wclang-format-violations]\ninline M3 FromTensor(const Tensor& t){return M3{{{t.xx,t.xy,t.xz},{t.xy,t.yy,t.yz},{t.xz,t.yz,t.zz}}};}\n                                     ^\n"
+      }
+    },
+    {
+      "file": "SU2_CFD/include/adaptation/CNativeTargetCheckpoint3D.hpp",
+      "command": [
+        "clang-format",
+        "--dry-run",
+        "--Werror",
+        "--ferror-limit=5",
+        "SU2_CFD/include/adaptation/CNativeTargetCheckpoint3D.hpp"
+      ],
+      "exit_code": 1,
+      "stdout": "",
+      "stderr": "SU2_CFD/include/adaptation/CNativeTargetCheckpoint3D.hpp:15:1: error: code should be clang-formatted [-Wclang-format-violations]\nusing SU2NativeBoundary2D::RecordStream;\n^\nSU2_CFD/include/adaptation/CNativeTargetCheckpoint3D.hpp:16:1: error: code should be clang-formatted [-Wclang-format-violations]\nusing SU2Native3D::ReferenceState;\n^\nSU2_CFD/include/adaptation/CNativeTargetCheckpoint3D.hpp:19:24: error: code should be clang-formatted [-Wclang-format-violations]\n  double pre_complexity=0,final_complexity=0;bool bracketed=false;\n                       ^\nSU2_CFD/include/adaptation/CNativeTargetCheckpoint3D.hpp:19:25: error: code should be clang-formatted [-Wclang-format-violations]\n  double pre_complexity=0,final_complexity=0;bool bracketed=false;\n                        ^\nSU2_CFD/include/adaptation/CNativeTargetCheckpoint3D.hpp:19:27: error: code should be clang-formatted [-Wclang-format-violations]\n  double pre_complexity=0,final_complexity=0;bool bracketed=false;\n                          ^\n",
+      "head_baseline": {
+        "command": [
+          "clang-format",
+          "--dry-run",
+          "--Werror",
+          "--ferror-limit=5",
+          "--assume-filename=SU2_CFD/include/adaptation/CNativeTargetCheckpoint3D.hpp"
+        ],
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "SU2_CFD/include/adaptation/CNativeTargetCheckpoint3D.hpp:15:1: error: code should be clang-formatted [-Wclang-format-violations]\nusing SU2NativeBoundary2D::RecordStream;\n^\nSU2_CFD/include/adaptation/CNativeTargetCheckpoint3D.hpp:16:1: error: code should be clang-formatted [-Wclang-format-violations]\nusing SU2Native3D::ReferenceState;\n^\nSU2_CFD/include/adaptation/CNativeTargetCheckpoint3D.hpp:19:24: error: code should be clang-formatted [-Wclang-format-violations]\n  double pre_complexity=0,final_complexity=0;bool bracketed=false;\n                       ^\nSU2_CFD/include/adaptation/CNativeTargetCheckpoint3D.hpp:19:25: error: code should be clang-formatted [-Wclang-format-violations]\n  double pre_complexity=0,final_complexity=0;bool bracketed=false;\n                        ^\nSU2_CFD/include/adaptation/CNativeTargetCheckpoint3D.hpp:19:27: error: code should be clang-formatted [-Wclang-format-violations]\n  double pre_complexity=0,final_complexity=0;bool bracketed=false;\n                          ^\n"
+      }
+    },
+    {
+      "file": "SU2_CFD/src/drivers/CSinglezoneDriver.cpp",
+      "command": [
+        "clang-format",
+        "--dry-run",
+        "--Werror",
+        "--ferror-limit=5",
+        "SU2_CFD/src/drivers/CSinglezoneDriver.cpp"
+      ],
+      "exit_code": 1,
+      "stdout": "",
+      "stderr": "SU2_CFD/src/drivers/CSinglezoneDriver.cpp:63:53: error: code should be clang-formatted [-Wclang-format-violations]\nCSinglezoneDriver::CSinglezoneDriver(char* confFile,\n                                                    ^\nSU2_CFD/src/drivers/CSinglezoneDriver.cpp:64:49: error: code should be clang-formatted [-Wclang-format-violations]\n                       unsigned short val_nZone,\n                                                ^\nSU2_CFD/src/drivers/CSinglezoneDriver.cpp:65:49: error: code should be clang-formatted [-Wclang-format-violations]\n                       SU2_Comm MPICommunicator) : CDriver(confFile,\n                                                ^\nSU2_CFD/src/drivers/CSinglezoneDriver.cpp:65:69: error: code should be clang-formatted [-Wclang-format-violations]\n                       SU2_Comm MPICommunicator) : CDriver(confFile,\n                                                                    ^\nSU2_CFD/src/drivers/CSinglezoneDriver.cpp:66:69: error: code should be clang-formatted [-Wclang-format-violations]\n                                                          val_nZone,\n                                                                    ^\n",
+      "head_baseline": {
+        "command": [
+          "clang-format",
+          "--dry-run",
+          "--Werror",
+          "--ferror-limit=5",
+          "--assume-filename=SU2_CFD/src/drivers/CSinglezoneDriver.cpp"
+        ],
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "SU2_CFD/src/drivers/CSinglezoneDriver.cpp:61:53: error: code should be clang-formatted [-Wclang-format-violations]\nCSinglezoneDriver::CSinglezoneDriver(char* confFile,\n                                                    ^\nSU2_CFD/src/drivers/CSinglezoneDriver.cpp:62:49: error: code should be clang-formatted [-Wclang-format-violations]\n                       unsigned short val_nZone,\n                                                ^\nSU2_CFD/src/drivers/CSinglezoneDriver.cpp:63:49: error: code should be clang-formatted [-Wclang-format-violations]\n                       SU2_Comm MPICommunicator) : CDriver(confFile,\n                                                ^\nSU2_CFD/src/drivers/CSinglezoneDriver.cpp:63:69: error: code should be clang-formatted [-Wclang-format-violations]\n                       SU2_Comm MPICommunicator) : CDriver(confFile,\n                                                                    ^\nSU2_CFD/src/drivers/CSinglezoneDriver.cpp:64:69: error: code should be clang-formatted [-Wclang-format-violations]\n                                                          val_nZone,\n                                                                    ^\n"
+      }
+    },
+    {
+      "file": "UnitTests/Common/adaptation/CNativeDistributed3D_tests.cpp",
+      "command": [
+        "clang-format",
+        "--dry-run",
+        "--Werror",
+        "--ferror-limit=5",
+        "UnitTests/Common/adaptation/CNativeDistributed3D_tests.cpp"
+      ],
+      "exit_code": 1,
+      "stdout": "",
+      "stderr": "UnitTests/Common/adaptation/CNativeDistributed3D_tests.cpp:30:12: error: code should be clang-formatted [-Wclang-format-violations]\n  std::cout<<std::flush;\n           ^\nUnitTests/Common/adaptation/CNativeDistributed3D_tests.cpp:30:14: error: code should be clang-formatted [-Wclang-format-violations]\n  std::cout<<std::flush;\n             ^\nUnitTests/Common/adaptation/CNativeDistributed3D_tests.cpp:31:45: error: code should be clang-formatted [-Wclang-format-violations]\n  const std::vector<char> send(text.begin(),text.end());\n                                            ^\nUnitTests/Common/adaptation/CNativeDistributed3D_tests.cpp:32:18: error: code should be clang-formatted [-Wclang-format-violations]\n  const auto rows=CPassiveComm::Allgatherv(send,nullptr,world.comm);\n                 ^\nUnitTests/Common/adaptation/CNativeDistributed3D_tests.cpp:32:19: error: code should be clang-formatted [-Wclang-format-violations]\n  const auto rows=CPassiveComm::Allgatherv(send,nullptr,world.comm);\n                  ^\n",
+      "head_baseline": {
+        "command": [
+          "clang-format",
+          "--dry-run",
+          "--Werror",
+          "--ferror-limit=5",
+          "--assume-filename=UnitTests/Common/adaptation/CNativeDistributed3D_tests.cpp"
+        ],
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "UnitTests/Common/adaptation/CNativeDistributed3D_tests.cpp:30:12: error: code should be clang-formatted [-Wclang-format-violations]\n  std::cout<<std::flush;\n           ^\nUnitTests/Common/adaptation/CNativeDistributed3D_tests.cpp:30:14: error: code should be clang-formatted [-Wclang-format-violations]\n  std::cout<<std::flush;\n             ^\nUnitTests/Common/adaptation/CNativeDistributed3D_tests.cpp:31:45: error: code should be clang-formatted [-Wclang-format-violations]\n  const std::vector<char> send(text.begin(),text.end());\n                                            ^\nUnitTests/Common/adaptation/CNativeDistributed3D_tests.cpp:32:18: error: code should be clang-formatted [-Wclang-format-violations]\n  const auto rows=CPassiveComm::Allgatherv(send,nullptr,world.comm);\n                 ^\nUnitTests/Common/adaptation/CNativeDistributed3D_tests.cpp:32:19: error: code should be clang-formatted [-Wclang-format-violations]\n  const auto rows=CPassiveComm::Allgatherv(send,nullptr,world.comm);\n                  ^\n"
+      }
+    },
+    {
+      "file": "Common/include/adaptation/CNativeTimerTree3D.hpp",
+      "command": [
+        "clang-format",
+        "--dry-run",
+        "--Werror",
+        "Common/include/adaptation/CNativeTimerTree3D.hpp"
+      ],
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "file": "UnitTests/Common/adaptation/fixtures/native_timer_tree3d_tests.inc",
+      "command": [
+        "clang-format",
+        "--dry-run",
+        "--Werror",
+        "UnitTests/Common/adaptation/fixtures/native_timer_tree3d_tests.inc"
+      ],
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "file": "Common/src/adaptation/CNativeMetric3D.cpp",
+      "command": [
+        "clang-format",
+        "--dry-run",
+        "--Werror",
+        "--ferror-limit=5",
+        "Common/src/adaptation/CNativeMetric3D.cpp"
+      ],
+      "exit_code": 1,
+      "stdout": "",
+      "stderr": "Common/src/adaptation/CNativeMetric3D.cpp:23:47: error: code should be clang-formatted [-Wclang-format-violations]\nlong double NormalizedShapeHingeDebt(double q,double J) {\n                                              ^\nCommon/src/adaptation/CNativeMetric3D.cpp:24:5: error: code should be clang-formatted [-Wclang-format-violations]\n  if(!std::isfinite(q)||!std::isfinite(J)||q<0||J<0)return INFINITY;\n    ^\nCommon/src/adaptation/CNativeMetric3D.cpp:24:23: error: code should be clang-formatted [-Wclang-format-violations]\n  if(!std::isfinite(q)||!std::isfinite(J)||q<0||J<0)return INFINITY;\n                      ^\nCommon/src/adaptation/CNativeMetric3D.cpp:24:25: error: code should be clang-formatted [-Wclang-format-violations]\n  if(!std::isfinite(q)||!std::isfinite(J)||q<0||J<0)return INFINITY;\n                        ^\nCommon/src/adaptation/CNativeMetric3D.cpp:24:42: error: code should be clang-formatted [-Wclang-format-violations]\n  if(!std::isfinite(q)||!std::isfinite(J)||q<0||J<0)return INFINITY;\n                                         ^\n",
+      "head_baseline": {
+        "command": [
+          "clang-format",
+          "--dry-run",
+          "--Werror",
+          "--ferror-limit=5",
+          "--assume-filename=Common/src/adaptation/CNativeMetric3D.cpp"
+        ],
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "Common/src/adaptation/CNativeMetric3D.cpp:22:47: error: code should be clang-formatted [-Wclang-format-violations]\nlong double NormalizedShapeHingeDebt(double q,double J) {\n                                              ^\nCommon/src/adaptation/CNativeMetric3D.cpp:23:5: error: code should be clang-formatted [-Wclang-format-violations]\n  if(!std::isfinite(q)||!std::isfinite(J)||q<0||J<0)return INFINITY;\n    ^\nCommon/src/adaptation/CNativeMetric3D.cpp:23:23: error: code should be clang-formatted [-Wclang-format-violations]\n  if(!std::isfinite(q)||!std::isfinite(J)||q<0||J<0)return INFINITY;\n                      ^\nCommon/src/adaptation/CNativeMetric3D.cpp:23:25: error: code should be clang-formatted [-Wclang-format-violations]\n  if(!std::isfinite(q)||!std::isfinite(J)||q<0||J<0)return INFINITY;\n                        ^\nCommon/src/adaptation/CNativeMetric3D.cpp:23:42: error: code should be clang-formatted [-Wclang-format-violations]\n  if(!std::isfinite(q)||!std::isfinite(J)||q<0||J<0)return INFINITY;\n                                         ^\n"
+      }
+    }
+  ],
+  "frozen_build": 503,
+  "refresh_changed_hashes": [
+    "Common/src/adaptation/CNativeMetric3D.cpp"
+  ],
+  "build503_source_pin_manifest": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/build503_source_pins.json",
+  "build503_manifest_sha256": "9c2c39a9a310ca365c69bdbba488b6dfadfa527815b1e1fcaa7eaeafd3810b2d",
+  "all_reported_source_hashes_match_build503": true,
+  "new_old_cavity_closure": {
+    "file": "Common/src/adaptation/CNativeMetric3D.cpp",
+    "body_open_line": 642,
+    "body_close_line": 647,
+    "body_lines_inclusive": 6,
+    "comment": "Include both old shape and edge work; nested service timers retain their own exclusive attribution.",
+    "under_15_line_limit": true,
+    "original_measure_expression_unchanged_ignoring_whitespace": true
+  },
+  "prior_audit_build502": {
+    "build502_source_pin_manifest": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/build502_source_pins.json",
+    "build502_manifest_sha256": "aebd550c00cb7300ccbc3046f72f10797d12ca4d961f5095c2f50a7a777eb2fc",
+    "all_reported_source_hashes_match_build502": true
+  }
+}

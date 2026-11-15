@@ -4,6 +4,7 @@
  * Copyright 2012-2026, SU2 Contributors (cf. AUTHORS.md).
  * SU2 is free software under the GNU Lesser General Public License, version 2.1 or later.
  */
+#include "../../include/adaptation/CNativeTimerTree3D.hpp"
 #include "../../include/adaptation/CNativeMetric3D.hpp"
 #include "../../include/adaptation/CNativeBoundary3D.hpp"
 #include "../../include/adaptation/CNativeFma.hpp"
@@ -638,7 +639,12 @@ bool ValidateMetricChange(const std::vector<Cell>& old, const std::vector<Cell>&
       diagnosis->weakest_cell=measured.weakest_cell; diagnosis->sliver_cell=measured.sliver_cell;
     }
     if (diagnosis) diagnosis->failure=MetricFailure::Measurement;
-    const auto before = measure_shape ? MeasureMetricCells(old,target,stats,&measured.edges) : MeasureMetricEdges(old,target,stats,&measured.edges);
+    const auto before = [&]() {
+      // Include both old shape and edge work; nested service timers retain their own exclusive attribution.
+      SU2NativeTiming3D::Scope old_cavity_timer(SU2NativeTiming3D::Operation::OldCavityMeasurement);
+      return measure_shape ? MeasureMetricCells(old,target,stats,&measured.edges) :
+                             MeasureMetricEdges(old,target,stats,&measured.edges);
+    }();
     const bool valid = ValidateMetricChange(old.size(), before, fresh.size(), measured, kind, reason, diagnosis, relocated);
     if (!valid && stats) ++stats->failures;
     return valid;

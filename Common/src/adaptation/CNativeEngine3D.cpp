@@ -14,6 +14,7 @@
 #include "../../include/adaptation/CNativeGenerationProgress3D.hpp"
 #include "../../include/adaptation/CNativePartition3D.hpp"
 #include "../../include/adaptation/CNativeImport3D.hpp"
+#include "../../include/adaptation/CNativeTimerTree3D.hpp"
 #include <chrono>
 #include <cmath>
 #include <cstring>
@@ -27,6 +28,7 @@
 #include <tuple>
 #include <stdexcept>
 #include <type_traits>
+#include <optional>
 namespace SU2Native3D {
 namespace {
 // A successful separation is only a necessary geometry-error rejection, never admission.
@@ -60,15 +62,26 @@ bool CollapseOutsideTolerance(const Patch& old,Id removed,Id retained,const Plan
   return any;
 }
 using Clock = std::chrono::steady_clock;
+/*! Retain legacy counters while adding exclusive service rows to the active F3 ledger. */
 class Timer {
  public:
-  Timer(double& value, bool enabled, double* parent=nullptr) : value(value), enabled(enabled), parent(parent) { if (enabled) start = Clock::now(); }
+  /*! Start both counters only when the existing timings flag permits clocks. */
+  Timer(double& value, bool enabled, double* parent=nullptr,
+        SU2NativeTiming3D::Operation operation = SU2NativeTiming3D::Operation::Unattributed) : value(value), enabled(enabled), parent(parent) { if (enabled) {
+      start = Clock::now();
+      scope.emplace(operation);
+    }
+  }
+  /*! Label an existing legacy service that has no parent-subtraction counter. */
+  Timer(double& value, bool enabled, SU2NativeTiming3D::Operation operation)
+      : Timer(value, enabled, nullptr, operation) {}
   ~Timer() { if (enabled) {const auto elapsed=std::chrono::duration<double>(Clock::now()-start).count();value+=elapsed;if(parent)*parent-=elapsed;} }
  private:
   double& value;
   bool enabled;
   double* parent;  // Keep a nested scope exclusive when its parent is also reported as a phase.
   Clock::time_point start;
+  std::optional<SU2NativeTiming3D::Scope> scope;
 };
 class CpuTimer {
  public:
@@ -229,7 +242,7 @@ class Selection {
       if(!geometry_split_priorities.count(edge)&&
           (!maximum_seconds||std::chrono::duration<double>(Clock::now()-started).count()<maximum_seconds)) {
         const auto& measured=edges.at(edge).measure;
-        Timer timer(stats.geometry_guidance_seconds,timings);++stats.geometry_guidance_trials;
+        Timer timer(stats.geometry_guidance_seconds,timings, SU2NativeTiming3D::Operation::GeometryBound);++stats.geometry_guidance_trials;
         const auto prediction=PredictGeometrySplit(edge,{measured.a,measured.b},geometry,tolerance);
         stats.geometry_guidance_faces+=prediction.evaluated_faces;
         const bool better=prediction.complete&&prediction.before>0&&prediction.after<prediction.before*(1-1e-12L);
@@ -600,7 +613,7 @@ class Selection {
     if (star==vertex_cells.end()) throw std::logic_error("Missing native 3D local collapse star.");
     const Point apex=choice.edge[0]<choice.edge[1] ? choice.measure.a : choice.measure.b;
     {
-      Timer timer(stats.collapse_geometry_seconds,timings);
+      Timer timer(stats.collapse_geometry_seconds,timings, SU2NativeTiming3D::Operation::GeometryBound);
       size_t scanned=0;
       for (Id id:star->second) {
         if (++scanned>MaximumDirectoryScan) break;
@@ -614,7 +627,7 @@ class Selection {
         }
       }
     }
-    Timer timer(stats.collapse_orientation_seconds,timings);
+    Timer timer(stats.collapse_orientation_seconds,timings, SU2NativeTiming3D::Operation::Topology);
     size_t scanned=0;
     for (Id id:star->second) {
       if (++scanned>MaximumDirectoryScan) break;
@@ -763,7 +776,7 @@ class Selection {
   }
   unsigned char Forbidden(const OwnedCell& owned, Edge edge) {
     if (!coarsening) return 0;
-    Timer timer(stats.collapse_geometry_seconds,timings);
+    Timer timer(stats.collapse_geometry_seconds,timings, SU2NativeTiming3D::Operation::GeometryBound);
     unsigned char blocked=0;
     for (unsigned direction=0;direction<2;++direction) {
       const Id retained=edge[direction], removed=edge[1-direction];
@@ -1167,6 +1180,11 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
   SetShapeAdmission(ShapeAdmission::ValidityOnly);
   using Phase=EnginePhase;
   Phase phase=Phase::Construction;
+  SU2NativeTiming3D::Session timer_session(
+      options.timings, "native_engine", world.rank, world.size,
+      surface_target ? SU2NativeTiming3D::Phase::Surface : SU2NativeTiming3D::Phase::Construction);
+  if (timer_session.Owns())
+    options.caller_bytes = transfer_memory::Add(options.caller_bytes, SU2NativeTiming3D::Session::ReservedBytes());
   bool region_rebuilt=false,improvement_changed=false,construction_changed=false,construction_handoff_progress=false;
   bool construction_generation_changed=false;
   bool metric_cleanup=false,metric_cleanup_tried=false;
@@ -1782,6 +1800,9 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     previous_quality_ownership=stats.ownership_changes;++quality_census_serial;
   };
   auto observe_progress=[&](const char* stage) {
+    if(options.timings && (std::strcmp(stage, "length_collapse_exit") == 0 ||
+                            std::strcmp(stage, "construction_entry") == 0 || std::strcmp(stage, "exit") == 0))
+      SU2NativeTiming3D::Session::Checkpoint(stage);
     if(surface_target) {
       CLocalFailure failure;
       try{refresh_surface_census();}catch(const std::exception& e){failure.Set(2,0,e.what());}
@@ -1794,6 +1815,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
       if(complete){emit_fixed_metric_drift(stage);emit_quality_census(stage,census);}
     }
     if(options.timings && (std::string(stage)!="window" || phase==Phase::Improvement)) {
+      SU2NativeTiming3D::Scope output_scope(SU2NativeTiming3D::Operation::Output);
       const auto p=selection.Progress(working.size());const auto* state=geometry.Parameters();
       const auto cache=geometry_authority?geometry_authority->GeometryStatsSnapshot():SU2NativeGeometry::MappedFacetReference::GeometryStats{};
       const auto authority=geometry_authority?geometry_authority->ResidentBytes():0;
@@ -1941,6 +1963,12 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     if(layer_active && options.timings)stats.layer_seconds+=std::chrono::duration<double>(Clock::now()-layer_started).count();
     layer_active=false;
     if((result.valid||result.surface_prepared) && geometry.EntityGeometry()) {
+      std::optional<SU2NativeTiming3D::PhaseScope> proof_phase;
+      std::optional<SU2NativeTiming3D::Scope> proof_scope;
+      if (options.timings) {
+        proof_phase.emplace(SU2NativeTiming3D::Phase::FinalProof);
+        proof_scope.emplace(SU2NativeTiming3D::Operation::Certification);
+      }
       CLocalFailure geometryFailure;
       try {for(const auto& row:geometry.Parameters()->GeometryCertificates(atlas_budget,true))if(!row.second.within_tolerance)
         geometryFailure.Set(1,std::get<0>(row.first),"Complete working surface does not meet the prescribed two-sided geometry tolerance.");}
@@ -1948,6 +1976,12 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
       if(!vote(geometryFailure)){result.valid=result.surface_prepared=false;stats.stop=EngineStop::Failure;}
     }
     if(result.surface_prepared && !geometry.EntityGeometry()) {
+      std::optional<SU2NativeTiming3D::PhaseScope> proof_phase;
+      std::optional<SU2NativeTiming3D::Scope> proof_scope;
+      if (options.timings) {
+        proof_phase.emplace(SU2NativeTiming3D::Phase::FinalProof);
+        proof_scope.emplace(SU2NativeTiming3D::Operation::Certification);
+      }
       CLocalFailure geometryFailure;
       try {for(const auto& row:working) {
         const auto patch=GeometryPatch(Imported{{row.second},true,{}},&geometry);
@@ -1961,6 +1995,12 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
       if(!vote(geometryFailure)){result.surface_prepared=false;stats.stop=EngineStop::Failure;}
     }
     if((result.valid||result.surface_prepared) && !options.wall_heights.empty()) {
+      std::optional<SU2NativeTiming3D::PhaseScope> proof_phase;
+      std::optional<SU2NativeTiming3D::Scope> proof_scope;
+      if (options.timings) {
+        proof_phase.emplace(SU2NativeTiming3D::Phase::FinalProof);
+        proof_scope.emplace(SU2NativeTiming3D::Operation::Certification);
+      }
       CLocalFailure heightFailure;
       for(const auto& row:working) {
         std::string reason;
@@ -2052,7 +2092,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
   bool ready=false;
   Id maximum_node=0,maximum_cell=0;
   {
-    Timer timer(stats.initialization_seconds,options.timings);
+    Timer timer(stats.initialization_seconds,options.timings, SU2NativeTiming3D::Operation::Communication);
     CLocalFailure failure;
     const auto curved_lo=CPassiveComm::Allreduce(int(curved),CPassiveComm::Op::MIN,world.comm);
     const auto curved_hi=CPassiveComm::Allreduce(int(curved),CPassiveComm::Op::MAX,world.comm);
@@ -2384,9 +2424,10 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     region_active=false;result.valid=false;result.reason.clear();
   }
   auto composed_sample=[&](Point point,Tensor sensor) {
-    Timer query(stats.field_query_seconds,options.timings);++stats.field_requests;++stats.field_misses;
+    Timer query(stats.field_query_seconds,options.timings, SU2NativeTiming3D::Operation::TargetComposition);++stats.field_requests;++stats.field_misses;
     try {
-      if(composition){Timer compose(stats.field_composition_seconds,options.timings);++stats.field_compositions;sensor=composition(point,sensor);}
+      if(composition){Timer compose(stats.field_composition_seconds,options.timings,
+                      SU2NativeTiming3D::Operation::TargetComposition);++stats.field_compositions;sensor=composition(point,sensor);}
       ValidateTensor(sensor);return sensor;
     }catch(...){++stats.field_failures;throw;}
   };
@@ -2426,7 +2467,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
       std::vector<Feature> features;std::vector<Id> queued;
       DependencyBatch dependencies;ImportedBatch imported;ReservationBatch reserved;
       auto plan=[&]() {
-        Timer timer(stats.layer_metadata_seconds,options.timings);
+        Timer timer(stats.layer_metadata_seconds,options.timings, SU2NativeTiming3D::Operation::Topology);
         const uint64_t available=std::min(pending.size(),options.candidate_batch);
         const auto position=CPassiveComm::ExscanSum(available,world.comm);
         const auto remaining=stats.work_limit-stats.global_work;
@@ -2483,7 +2524,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
           if(timed_out())return false;
           size_t group=std::min(span,slots-at);DonorPatch donors;
           if(ranked_background) {
-            Timer timer(stats.layer_donor_seconds,options.timings);
+            Timer timer(stats.layer_donor_seconds,options.timings, SU2NativeTiming3D::Operation::Import);
             for(;;) {
               std::vector<Cell> query;std::vector<OwnedCell> metric_context;
               try {for(size_t k=at;k<std::min(at+group,imported.candidates.size());++k)
@@ -2504,7 +2545,8 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
           std::unique_ptr<FrozenField> target;std::unique_ptr<FieldAccounting> accounting;
           try {
             if(ranked_background) {
-              Timer timer(stats.layer_metric_seconds,options.timings);
+              Timer timer(stats.layer_metric_seconds,options.timings,
+                          SU2NativeTiming3D::Operation::MetricNormalization);
               const auto components=AssociatedExtensions(donors.cells,geometry);
               target=std::make_unique<FrozenField>(std::move(donors.cells),composition,options.timings,components,options.edge_breakpoints,field_identity,true,MaximumDonors,true);
               accounting.reset(new FieldAccounting{stats,*target});
@@ -2528,7 +2570,8 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
               const Id node=maximum_node+1+nodeOffset,cell=maximum_cell+1+cellOffset;
               if(!joint_candidate(imported.candidates[k])) {
                 FirstHeightReport report;
-                {Timer timer(stats.layer_geometry_seconds,options.timings);
+                {Timer timer(stats.layer_geometry_seconds,options.timings,
+                              SU2NativeTiming3D::Operation::GeometryBound);
                   approved=InsertFirstWallPoint(old,node+1,cell,options.wall_heights,geometry,fresh,report,result.reason);
                   if(approved && !SameSkin(old,fresh))throw std::runtime_error("Native3D interior first-row replacement changed its interface.");
                 }
@@ -2548,7 +2591,8 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
                 long double bestLength=std::numeric_limits<long double>::infinity();std::map<Edge,EdgeMeasure> reuse;
                 for(const auto& background:backgrounds) {
                   Patch candidate;FirstHeightReport report;std::string why;bool built=false;
-                  {Timer timer(stats.layer_geometry_seconds,options.timings);
+                  {Timer timer(stats.layer_geometry_seconds,options.timings,
+                                SU2NativeTiming3D::Operation::GeometryBound);
                     built=ConstructFirstLayer(old,{node,background},node+1,cell,options.wall_heights,geometry,candidate,report,why);
                     if(built && !SameSkin(old,candidate))throw std::runtime_error("Native3D interior first-row replacement changed its interface.");
                   }
@@ -2558,7 +2602,8 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
                     continue;
                   }
                   MetricStats counted;PatchMetric measured;
-                  {Timer timer(stats.layer_metric_seconds,options.timings);
+                  {Timer timer(stats.layer_metric_seconds,options.timings,
+                                SU2NativeTiming3D::Operation::MetricNormalization);
                     measured=MeasureMetricEdges(candidate.cells,*target,&counted,&reuse);
                   }
                   reuse=measured.edges;
@@ -2584,7 +2629,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
       };
       if(!construct())return finish();
       auto publish=[&]() {
-        Timer timer(stats.layer_publication_seconds,options.timings);
+        Timer timer(stats.layer_publication_seconds,options.timings, SU2NativeTiming3D::Operation::Communication);
         std::vector<std::vector<Dependency>> toRemove(world.size);
         std::vector<std::vector<OwnedCell>> toAdd(world.size);size_t published=0;
         std::vector<BoundaryParameterEdit> layer_parameter_edits;SU2NativeGeometry::BoundaryCoverage layer_coverage;
@@ -2642,6 +2687,8 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
   constexpr size_t MeasurementBatch=16;
   // Construction requests missing edges only; improvement also imports centroid support.
   auto measure=[&](const std::vector<Id>& requested_ids,bool seed,double* enclosing_seconds) {
+    std::optional<SU2NativeTiming3D::Scope> census_scope;
+    if (options.timings) census_scope.emplace(SU2NativeTiming3D::Operation::Census);
     std::vector<Id> demand;
     const auto demand_bytes=surface_target?transfer_memory::GrowthBound(requested_ids.size(),sizeof(Id)):0;
     const auto plan_scratch=transfer_memory::Add(demand_bytes,
@@ -2686,7 +2733,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
         try {requests=MetricEdgeRequests(regions,reuse,field_identity,&campaign_edges);}
         catch(const std::exception& e){failure.Set(2,0,e.what());}
         if(!vote(failure))return false;
-        {Timer timer(stats.donor_seconds,options.timings,enclosing_seconds);
+        {Timer timer(stats.donor_seconds,options.timings,enclosing_seconds, SU2NativeTiming3D::Operation::Import);
           imported=import_source(regions,transfer_memory::Add(MaximumFrozenFieldBytes,plan_scratch),false,&requests);}
 
         if (imported.valid) break;
@@ -2758,7 +2805,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     return true;
   };
   auto seed_next=[&](bool local_active=true) {
-    Timer timer(stats.seed_seconds,options.timings);
+    Timer timer(stats.seed_seconds,options.timings, SU2NativeTiming3D::Operation::Census);
     // Composed or sided planning is expensive; a complete cavity may remove still-unmeasured topology.
     if((!composition && !surface_target) || phase==Phase::Improvement) {const bool measured=measure(initial,true,&stats.seed_seconds);if(measured)seed_slot=initial.size();return measured;}
     if(options.maximum_seconds && world.maximum(std::chrono::duration<double>(Clock::now()-started).count()>=options.maximum_seconds)) {
@@ -3155,6 +3202,11 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     if (!ready) return finish();
   } while(surface_target && !world.maximum(selection.construction_invalid!=0) && world.maximum(seed_slot<initial.size()));
   for (size_t round=0;;) {
+    std::optional<SU2NativeTiming3D::PhaseScope> phase_scope;
+    if (options.timings)
+      phase_scope.emplace(phase == Phase::Improvement ? SU2NativeTiming3D::Phase::Quality
+                          : surface_target            ? SU2NativeTiming3D::Phase::Surface
+                                                      : SU2NativeTiming3D::Phase::Construction);
     if(surface_target && (result.surface_prepared || (repairing && surface_ready()))) {
       if(world.maximum(stats.global_work>stats.work_limit)) {
         result.surface_prepared=false;stats.stop=EngineStop::WorkBudget;
@@ -3183,7 +3235,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
       any=world.maximum(choice.active); return true;
     };
     {
-      Timer timer(stats.selection_seconds,options.timings);
+      Timer timer(stats.selection_seconds,options.timings, SU2NativeTiming3D::Operation::Scheduling);
       ++stats.selections;
       // The surface cursor covers only demand owners. Complete versioned coverage is checked at quiescent boundaries.
       const bool pending_census=surface_target ? seed_slot<initial.size()||!selection.progress_consistent : selection.cells.size()!=working.size();
@@ -3400,7 +3452,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
       continue;
     }
     {
-      Timer timer(stats.selection_seconds,options.timings);
+      Timer timer(stats.selection_seconds,options.timings, SU2NativeTiming3D::Operation::Scheduling);
       if (options.maximum_seconds && world.maximum(std::chrono::duration<double>(Clock::now()-started).count()>=options.maximum_seconds)) {
         stats.stop=EngineStop::TimeBudget; result.reason="Native 3D kernel elapsed-time budget exhausted; feasibility is undetermined.";
         return finish();
@@ -3433,7 +3485,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
       result.valid=true;result.reason.clear();return finish();
     }
     {
-      Timer timer(stats.selection_seconds,options.timings);
+      Timer timer(stats.selection_seconds,options.timings, SU2NativeTiming3D::Operation::Scheduling);
       if (stats.rounds>phase_start_round && round && round%options.stagnation_window==0) {
         ++stats.progress_windows;
         const uint64_t progress=stats.size_progress+stats.quality_progress+stats.cell_removals+stats.geometry_progress;
@@ -3467,7 +3519,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     // A final census/phase transition consumes no additional operator round.
     if(options.maximum_rounds && round>=options.maximum_rounds)break;
     {
-      Timer timer(stats.selection_seconds,options.timings);
+      Timer timer(stats.selection_seconds,options.timings, SU2NativeTiming3D::Operation::Scheduling);
       const size_t used=coarsening ? result.collapses.size() : result.splits.size();
       const size_t capacity=coarsening ? result.collapses.capacity() : result.splits.capacity();
       const size_t needed=transfer_memory::Add(used,options.candidate_batch);
@@ -3525,7 +3577,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
         return false;
       }
       if(planned_coarsening) {
-        Timer timer(stats.planning_seconds,options.timings);
+        Timer timer(stats.planning_seconds,options.timings, SU2NativeTiming3D::Operation::Scheduling);
         std::vector<Feature> features;std::vector<size_t> selected;
         try {for(const auto& candidate:choices)features.push_back({{candidate.edge[1],0,0},1});}
         catch(const std::exception& e){failure.Set(2,0,e.what());}
@@ -3577,7 +3629,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
         }
       }
       {
-        Timer timer(stats.selection_seconds,options.timings);
+        Timer timer(stats.selection_seconds,options.timings, SU2NativeTiming3D::Operation::Scheduling);
         try {
           bool oversized=false;
           choices=repairing ? selection.RepairBatch(working,repair_slots,oversized) :
@@ -3591,7 +3643,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
         ++stats.batch_rounds; stats.batch_candidates+=choices.size(); stats.proposed+=choices.size()+refused_candidates;
       }
       {
-        Timer timer(stats.selection_seconds,options.timings);
+        Timer timer(stats.selection_seconds,options.timings, SU2NativeTiming3D::Operation::Scheduling);
         // Planned refusals are proposals too: they consume the same global work as serial oversized stars.
         const uint64_t proposed=CPassiveComm::Allreduce(uint64_t(choices.size()+refused_candidates),CPassiveComm::Op::SUM,world.comm);
         if (proposed>stats.work_limit-stats.global_work) {
@@ -3601,7 +3653,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
         stats.global_work+=proposed;
       }
       {
-        Timer timer(stats.dependency_seconds,options.timings);
+        Timer timer(stats.dependency_seconds,options.timings, SU2NativeTiming3D::Operation::Topology);
         std::vector<Feature> features;
         try { for (const auto& candidate:choices) features.push_back(repairing ? candidate.feature :
             coarsening ? Feature{{candidate.edge[1],0,0},1} : Feature{{candidate.edge[0],candidate.edge[1],0},2}); }
@@ -3703,7 +3755,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
         }
       }
       {
-        Timer timer(stats.reservation_seconds,options.timings);
+        Timer timer(stats.reservation_seconds,options.timings, SU2NativeTiming3D::Operation::Communication);
         std::vector<unsigned> priorities;
         try {if(repairing)for(const auto& candidate:choices)priorities.push_back(candidate.reservation_priority);}
         catch(const std::exception& e){failure.Set(2,0,e.what());}
@@ -3726,7 +3778,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
         if (!world.maximum(winners!=0 || refused_candidates!=0 || pass_deferred_candidates!=0)) { result.reason="Native 3D batch reservation made no progress."; return finish(); }
       }
     } else {
-      Timer timer(stats.selection_seconds,options.timings);
+      Timer timer(stats.selection_seconds,options.timings, SU2NativeTiming3D::Operation::Scheduling);
       if((curved || composition) && !repairing && !concurrent) {
         // Single-proposal requests and coarsening retain their established serial ordering.
         if(composition && !curved && !repairing) {
@@ -3808,7 +3860,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
       if (repairing?!chosen:!world.maximum(chosen)) continue;
     } else {
       {
-        Timer timer(stats.dependency_seconds,options.timings);
+        Timer timer(stats.dependency_seconds,options.timings, SU2NativeTiming3D::Operation::Topology);
         const Feature feature=repairing ? choice.feature : (coarsening ? Feature{{choice.edge[1],0,0},1} : Feature{{choice.edge[0],choice.edge[1],0},2});
         const auto features=choice.active ? std::vector<Feature>{feature} : std::vector<Feature>{};
         if(planned_coarsening) {
@@ -3840,7 +3892,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
         result.reason=dependencies.valid ? imported.reason : dependencies.reason; return finish();
       }
       if(surface_target && curved && coarsening && !repairing) {
-        Timer timer(stats.collapse_correction_seconds,options.timings);
+        Timer timer(stats.collapse_correction_seconds,options.timings, SU2NativeTiming3D::Operation::Candidate);
         const size_t seed_cells=imported.cells.size();
         auto correction=directory->CorrectCollapse(dependencies,imported,working,choice.edge[1],choice.edge[0],
             choice.active,geometry,stats.work_limit-stats.global_work,atlas_budget.within_time,
@@ -3853,7 +3905,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
         dependencies=std::move(correction.dependencies);imported=std::move(correction.imported);
       }
       {
-        Timer timer(stats.reservation_seconds,options.timings);
+        Timer timer(stats.reservation_seconds,options.timings, SU2NativeTiming3D::Operation::Communication);
         chosen=reserve_dependencies(imported,choice.active,result.reason,options.memory_ceiling,
             transfer_memory::Add(bytes(),source.ResidentBytes()),choice.reservation_priority);
         stats.conflicts+=choice.active && !chosen;
@@ -4002,7 +4054,8 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
       // Entity refinement constructs valid cells; local surrogate descent is not a geometry permission.
       if(!surface_target&&geometry.EntityGeometry()&&phase==Phase::Construction&&kind!=MetricChange::Coarsen)return true;
       ++stats.geometry_guidance_trials;
-      Timer guidance_timer(stats.geometry_guidance_seconds,options.timings);
+      Timer guidance_timer(stats.geometry_guidance_seconds,options.timings,
+                           SU2NativeTiming3D::Operation::GeometryBound);
       try {
         long double before,after;bool complete_guidance=true;
         if(kind==MetricChange::Coarsen) {
@@ -4086,11 +4139,11 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
       if(!vote(failure))return false;
       if(!admit(transfer_memory::Add(MaximumFrozenFieldBytes,transfer_memory::Bytes(imported.cells))))return false;
       DonorPatch seed;
-      {Timer timer(stats.donor_seconds,options.timings);
+      {Timer timer(stats.donor_seconds,options.timings, SU2NativeTiming3D::Operation::Import);
         seed=trial_import_cells(query,options.memory_ceiling,transfer_memory::Add(bytes(),directory->ResidentBytes(),MaximumFrozenFieldBytes));}
       if(!seed.valid){result.reason=seed.reason;return false;}
       if(chosen)try {
-        Timer timer(stats.metric_seconds,options.timings);CpuTimer cpu(stats.metric_cpu_seconds,options.timings);
+        Timer timer(stats.metric_seconds,options.timings, SU2NativeTiming3D::Operation::MetricNormalization);CpuTimer cpu(stats.metric_cpu_seconds,options.timings);
         const auto components=AssociatedExtensions(seed.cells,geometry);
         observe_transaction("split_donors",seed.valid,&seed);
         FrozenField target(std::move(seed.cells),composition,options.timings,components,options.edge_breakpoints,field_identity,true,MaximumDonors,true);
@@ -4111,7 +4164,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
       if(!vote(failure))return false;
     }
     {
-      Timer timer(stats.reconstruction_seconds,options.timings);
+      Timer timer(stats.reconstruction_seconds,options.timings, SU2NativeTiming3D::Operation::Candidate);
       if (chosen && !split_failed) {
         CpuTimer private_cpu(stats.reconstruction_cpu_seconds,options.timings);
         ++stats.attempted;
@@ -4207,7 +4260,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
       return changed;
     };
     {
-      Timer timer(stats.metric_seconds,options.timings);
+      Timer timer(stats.metric_seconds,options.timings, SU2NativeTiming3D::Operation::MetricNormalization);
       const double reconstruction_before=stats.reconstruction_seconds;
       const double reconstruction_cpu_before=stats.reconstruction_cpu_seconds;
       if (!streamed && metric_needed) try {
@@ -4254,7 +4307,8 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
                     double(p.y+step*(center.y-p.y)),double(p.z+step*(center.z-p.z))}};
                 if(composition)point=ConstrainMovePoint(old,vertex,point,options.wall_heights,geometry);
                 ++stats.repair_proposals;
-                { Timer geometry_timer(stats.reconstruction_seconds,options.timings); CpuTimer geometry_cpu(stats.reconstruction_cpu_seconds,options.timings);
+                { Timer geometry_timer(stats.reconstruction_seconds,options.timings,
+                                       SU2NativeTiming3D::Operation::Candidate); CpuTimer geometry_cpu(stats.reconstruction_cpu_seconds,options.timings);
                 approved=guarded_geometry(MoveVertex(old,vertex,point,first,geometry,fresh,result.reason),"MoveVertex"); }
                 if (approved) {const auto kind=repair_kind();
                   approved=validate_metric_vector(kind,*field,metric,reuse);}
@@ -4265,7 +4319,8 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
               for (const auto& row:nodes) {
                 if (++proposals>16) break;
                 ++stats.repair_proposals;
-                { Timer geometry_timer(stats.reconstruction_seconds,options.timings); CpuTimer geometry_cpu(stats.reconstruction_cpu_seconds,options.timings);
+                { Timer geometry_timer(stats.reconstruction_seconds,options.timings,
+                                       SU2NativeTiming3D::Operation::Candidate); CpuTimer geometry_cpu(stats.reconstruction_cpu_seconds,options.timings);
                   approved=guarded_geometry(Reconnect(old,row.first,first,geometry,fresh,result.reason),"Reconnect"); }
                 if (approved) {const auto kind=repair_kind();
                   approved=validate_metric_vector(kind,*field,metric,reuse);}
@@ -4273,7 +4328,8 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
               }
             }
             if(!surface_target && !approved && repair_work<repair_budget) {
-              {Timer geometry_timer(stats.reconstruction_seconds,options.timings);CpuTimer geometry_cpu(stats.reconstruction_cpu_seconds,options.timings);
+              {Timer geometry_timer(stats.reconstruction_seconds,options.timings,
+                                     SU2NativeTiming3D::Operation::Candidate);CpuTimer geometry_cpu(stats.reconstruction_cpu_seconds,options.timings);
                 approved=guarded_geometry(optimize_patch(old,RegionMetric(*field),false));}
               if(approved){const auto kind=repair_kind();
                 approved=validate_metric_vector(kind,*field,metric,reuse);}
@@ -4328,7 +4384,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
             catch(const std::exception& e){local.Set(2,0,e.what());}
             if (!(ready=vote(local))) return false;
             {
-              Timer timer(stats.donor_seconds,options.timings);
+              Timer timer(stats.donor_seconds,options.timings, SU2NativeTiming3D::Operation::Import);
               ++stats.donor_batches;
               donors=trial_import_samples(query,eligible_extensions,options.memory_ceiling,
                   transfer_memory::Add(bytes(),directory->ResidentBytes(),private_scratch),requests,measure_shape);
@@ -4338,7 +4394,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
             batch=(batch+1)/2; ++stats.batch_retries;
           }
           if (usable && slot<cells.size()) {
-            Timer timer(stats.metric_seconds,options.timings);
+            Timer timer(stats.metric_seconds,options.timings, SU2NativeTiming3D::Operation::MetricNormalization);
             CpuTimer cpu(stats.metric_cpu_seconds,options.timings);
             MetricStats counted;
             std::unique_ptr<FrozenField> target;
@@ -4396,7 +4452,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
         return usable;
       };
       std::map<Edge,EdgeMeasure> reuse;
-      { Timer timer(stats.metric_seconds,options.timings);
+      { Timer timer(stats.metric_seconds,options.timings, SU2NativeTiming3D::Operation::MetricNormalization);
         try { for (const auto& cell:old.cells) selection.Cached(cell,reuse); }
         catch (const std::exception& e) { failure.Set(2,0,e.what()); }
         ready=vote(failure);
@@ -4430,7 +4486,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
         bool measured=measure_private(candidate ? fresh.cells : empty,metric,true,before.edges,&fresh);
         CLocalFailure observed;
         bool valid=false;
-        { Timer timer(stats.metric_seconds,options.timings); CpuTimer cpu(stats.metric_cpu_seconds,options.timings);
+        { Timer timer(stats.metric_seconds,options.timings, SU2NativeTiming3D::Operation::MetricNormalization); CpuTimer cpu(stats.metric_cpu_seconds,options.timings);
           if (candidate) {
             const auto effective=kind==MetricChange::Repair ? (geometric_progress&&!bidirectional?MetricChange::GeometryRepair:repair_kind()) : kind;
             if (measured) valid=metric_cleanup ?
@@ -4518,7 +4574,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
           for(Id id:apices)features.push_back({{id,0,0},1});
         }
         Dependencies joined;
-        {Timer timer(stats.dependency_seconds,options.timings);
+        {Timer timer(stats.dependency_seconds,options.timings, SU2NativeTiming3D::Operation::Topology);
           joined=directory->Lookup(features,options.memory_ceiling,transfer_memory::Add(bytes(),source.ResidentBytes(),private_scratch));}
         if(!joined.valid) {
           if(joined.reason=="Native 3D dependency star exceeds budget." || joined.reason=="Native 3D dependency union exceeds budget.")search=false;
@@ -4527,7 +4583,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
         if(!(ready=vote(failure)))return false;
         if(!search){joined.valid=true;joined.cells.clear();}
         Imported more;
-        {Timer timer(stats.dependency_seconds,options.timings);
+        {Timer timer(stats.dependency_seconds,options.timings, SU2NativeTiming3D::Operation::Topology);
           more=directory->Fetch(joined,working,options.memory_ceiling,transfer_memory::Add(bytes(),source.ResidentBytes(),private_scratch));}
         if(!more.valid){result.reason=more.reason;return false;}
         if(search)try {
@@ -4544,7 +4600,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
         }catch(const std::exception& e){failure.Set(2,0,e.what());}
         if(!(ready=vote(failure)))return false;
         bool reserved=false;
-        {Timer timer(stats.reservation_seconds,options.timings);
+        {Timer timer(stats.reservation_seconds,options.timings, SU2NativeTiming3D::Operation::Communication);
           reserved=reserve_dependencies(imported,search || approved,result.reason,options.memory_ceiling,transfer_memory::Add(bytes(),source.ResidentBytes(),private_scratch),choice.reservation_priority);}
         if((search || approved) && !reserved) {
           if(directory->PassDeferred() || result.reason=="Native 3D conflicting dependency reservation.") {
@@ -4560,7 +4616,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
         if(search && !measured)failure.Set(1,0,result.reason);
         if(!(ready=vote(failure)))return false;
         DonorPatch support;
-        {Timer timer(stats.donor_seconds,options.timings);++stats.donor_batches;
+        {Timer timer(stats.donor_seconds,options.timings, SU2NativeTiming3D::Operation::Import);++stats.donor_batches;
           support=trial_import_cells(search?old.cells:empty,options.memory_ceiling,transfer_memory::Add(bytes(),directory->ResidentBytes(),private_scratch));}
         if(!support.valid) {
           if(DonorCap(support.reason))search=false;
@@ -4571,7 +4627,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
         if(!allowance){stats.stop=EngineStop::WorkBudget;result.reason="Native3D joint placement cannot admit simultaneous work within the global budget.";return false;}
         bool candidate=false;JointSplitReport report;
         if(search)try {
-          Timer timer(stats.reconstruction_seconds,options.timings);CpuTimer cpu(stats.reconstruction_cpu_seconds,options.timings);
+          Timer timer(stats.reconstruction_seconds,options.timings, SU2NativeTiming3D::Operation::Candidate);CpuTimer cpu(stats.reconstruction_cpu_seconds,options.timings);
           const auto components=AssociatedExtensions(support.cells,geometry);
           observe_transaction("support_donors",support.valid,&support);
           FrozenField target(std::move(support.cells),composition,options.timings,components,options.edge_breakpoints,field_identity,true,MaximumDonors,true);
@@ -4642,7 +4698,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
           for(auto id:wallApices)features.push_back({{id,0,0},1});
         }
         Dependencies joined;
-        {Timer timer(stats.dependency_seconds,options.timings);
+        {Timer timer(stats.dependency_seconds,options.timings, SU2NativeTiming3D::Operation::Topology);
           joined=directory->Lookup(features,options.memory_ceiling,transfer_memory::Add(bytes(),source.ResidentBytes(),private_scratch));}
         if(!joined.valid) {
           if(joined.reason=="Native 3D dependency star exceeds budget." || joined.reason=="Native 3D dependency union exceeds budget.")strip=wallSplit=false;
@@ -4651,7 +4707,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
         if(!(ready=vote(failure)))return false;
         if(!strip && !wallSplit){joined.valid=true;joined.cells.clear();}
         Imported more;
-        {Timer timer(stats.dependency_seconds,options.timings);
+        {Timer timer(stats.dependency_seconds,options.timings, SU2NativeTiming3D::Operation::Topology);
           more=directory->Fetch(joined,working,options.memory_ceiling,
               transfer_memory::Add(bytes(),source.ResidentBytes(),private_scratch));}
         if(!more.valid){result.reason=more.reason;return false;}
@@ -4666,7 +4722,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
         }catch(const std::exception& e){failure.Set(2,0,e.what());}
         if(!(ready=vote(failure)))return false;
         bool reserved=false;
-        {Timer timer(stats.reservation_seconds,options.timings);
+        {Timer timer(stats.reservation_seconds,options.timings, SU2NativeTiming3D::Operation::Communication);
           reserved=reserve_dependencies(imported,strip || wallSplit,result.reason,options.memory_ceiling,
               transfer_memory::Add(bytes(),source.ResidentBytes(),private_scratch),choice.reservation_priority);}
         if((strip || wallSplit) && !reserved) {
@@ -4680,7 +4736,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
         if(joint && !measured)failure.Set(1,0,result.reason);
         if(!(ready=vote(failure)))return false;
         DonorPatch donors;
-        {Timer timer(stats.donor_seconds,options.timings);++stats.donor_batches;
+        {Timer timer(stats.donor_seconds,options.timings, SU2NativeTiming3D::Operation::Import);++stats.donor_batches;
           donors=trial_import_cells(strip?old.cells:empty,options.memory_ceiling,
               transfer_memory::Add(bytes(),directory->ResidentBytes(),private_scratch));}
         if(!donors.valid) {
@@ -4690,7 +4746,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
         std::array<Point,3> splits{};Edge extraEdge{};Node extraPoint,offEdgePoint;bool extraSplit=false;
         std::array<std::vector<std::pair<Id,Node>>,3> moveSeeds;std::vector<std::pair<Id,Node>> normalMoves;
         if(strip)try {
-          Timer timer(stats.metric_seconds,options.timings);CpuTimer cpu(stats.metric_cpu_seconds,options.timings);
+          Timer timer(stats.metric_seconds,options.timings, SU2NativeTiming3D::Operation::MetricNormalization);CpuTimer cpu(stats.metric_cpu_seconds,options.timings);
           const auto components=AssociatedExtensions(donors.cells,geometry);
           observe_transaction("support_donors",donors.valid,&donors);
           FrozenField target(std::move(donors.cells),composition,options.timings,components,options.edge_breakpoints,field_identity,true,MaximumDonors,true);
@@ -4783,7 +4839,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
         if(!(ready=vote(failure)))return false;
         std::vector<Patch> frames;std::vector<unsigned> extraFrames;
         if(strip)try {
-          Timer timer(stats.reconstruction_seconds,options.timings);CpuTimer cpu(stats.reconstruction_cpu_seconds,options.timings);
+          Timer timer(stats.reconstruction_seconds,options.timings, SU2NativeTiming3D::Operation::Candidate);CpuTimer cpu(stats.reconstruction_cpu_seconds,options.timings);
           frames.push_back(old);extraFrames.push_back(0);
           if(extraSplit){frames.push_back(old);extraFrames.push_back(2);}
           if(boundary_edge) {
@@ -4830,7 +4886,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
           bool candidate=false;
           if(participating)try {
             const unsigned slotTrial=normalTrial?12*((trial-originalTrials)/4)+(trial-originalTrials)%4:trial%36;
-            Timer timer(stats.reconstruction_seconds,options.timings);CpuTimer cpu(stats.reconstruction_cpu_seconds,options.timings);
+            Timer timer(stats.reconstruction_seconds,options.timings, SU2NativeTiming3D::Operation::Candidate);CpuTimer cpu(stats.reconstruction_cpu_seconds,options.timings);
             ++stats.repair_proposals;auto moves=normalTrial?normalMoves:moveSeeds[(slotTrial%12)/4];const double alpha=std::array<double,4>{{1.,.5,.25,.125}}[slotTrial%4];
             for(auto& move:moves) {
               Point origin{};bool found=false;for(const auto& c:old.cells)for(auto n:c.v)if(n.id==move.first){origin=n.p;found=true;}
@@ -4913,7 +4969,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
           candidates.assign(vertices.begin(),vertices.end());for(Id id:candidates)features.push_back({{{id,0,0}},1});
         }catch(const std::exception& e){failure.Set(2,0,e.what());}
         if(!(ready=vote(failure)))return false;
-        {Timer timer(stats.dependency_seconds,options.timings);
+        {Timer timer(stats.dependency_seconds,options.timings, SU2NativeTiming3D::Operation::Topology);
           auto metadata=directory->LookupBatch(features,options.memory_ceiling,transfer_memory::Add(bytes(),source.ResidentBytes(),private_scratch));
           if(!metadata.valid){result.reason=metadata.reason;return false;}
           auto payload=directory->FetchBatch(metadata,working,options.memory_ceiling,transfer_memory::Add(bytes(),source.ResidentBytes(),private_scratch));
@@ -4957,7 +5013,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
             placement_obstruction!=UINT64_MAX && placement_obstruction!=choice.edge[0] && placement_obstruction!=choice.edge[1] &&
             std::find(apices.begin(),apices.end(),placement_obstruction)==apices.end();
         if(!trial_maximum(expand))break;
-        {Timer timer(stats.dependency_seconds,options.timings);
+        {Timer timer(stats.dependency_seconds,options.timings, SU2NativeTiming3D::Operation::Topology);
           const std::vector<Feature> hints=expand?std::vector<Feature>{{{{placement_obstruction,0,0}},1}}:std::vector<Feature>{};
           auto metadata=directory->LookupBatch(hints,options.memory_ceiling,transfer_memory::Add(bytes(),source.ResidentBytes(),private_scratch));
           if(!metadata.valid){result.reason=metadata.reason;return false;}
@@ -4990,7 +5046,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
         catch(const std::exception& e){failure.Set(2,0,e.what());}
         if(!(ready=vote(failure)))return false;
         DonorSamples proxy;
-        {Timer timer(stats.donor_seconds,options.timings);++stats.donor_batches;
+        {Timer timer(stats.donor_seconds,options.timings, SU2NativeTiming3D::Operation::Import);++stats.donor_batches;
           proxy=trial_sample_points(query,eligible_extensions,options.memory_ceiling,
               transfer_memory::Add(bytes(),directory->ResidentBytes(),private_scratch));}
         if(!proxy.valid){result.reason=proxy.reason;return false;}
@@ -5016,7 +5072,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
         for(unsigned frame=0;frame<frames;++frame) {
           const bool participating=joint && !approved;candidate=false;
           {
-            Timer timer(stats.reconstruction_seconds,options.timings);CpuTimer cpu(stats.reconstruction_cpu_seconds,options.timings);
+            Timer timer(stats.reconstruction_seconds,options.timings, SU2NativeTiming3D::Operation::Candidate);CpuTimer cpu(stats.reconstruction_cpu_seconds,options.timings);
             if(participating)try {
               ++stats.repair_proposals;
               const bool wall=std::any_of(old.surface.begin(),old.surface.end(),[&](const auto& f) {
@@ -5064,7 +5120,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
               const bool active=retry;if(strategy && active)fresh=repair_seed;
               // Movement needs the whole admitted domain, not donors for the previous proposal's queries.
               DonorPatch donors;
-              { Timer timer(stats.donor_seconds,options.timings);
+              { Timer timer(stats.donor_seconds,options.timings, SU2NativeTiming3D::Operation::Import);
                 ++stats.donor_batches;
                 donors=trial_import_cells(active ? old.cells : std::vector<Cell>{},options.memory_ceiling,
                     transfer_memory::Add(bytes(),directory->ResidentBytes(),private_scratch));
@@ -5078,7 +5134,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
                 FrozenField target(std::move(donors.cells),composition,options.timings,components,options.edge_breakpoints,field_identity,true,MaximumDonors,true);
                 FieldAccounting accounting{stats,target};
                 Patch proposal;std::string rejected;
-                { Timer timer(stats.reconstruction_seconds,options.timings);CpuTimer cpu(stats.reconstruction_cpu_seconds,options.timings);
+                { Timer timer(stats.reconstruction_seconds,options.timings, SU2NativeTiming3D::Operation::Candidate);CpuTimer cpu(stats.reconstruction_cpu_seconds,options.timings);
                   // Probe the whole actual-field interface before exhausting repair on a fixed support point.
                   RepairMetricConnectivity(fresh,target,geometry,options.wall_heights,
                       maximum_cell+1+offset,proposal,report,rejected,0);
@@ -5225,7 +5281,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
       const bool move=repairing ? choice.feature.count==1 : coarsening;
       const Id vertex=repairing ? choice.feature.vertices[0] : choice.edge[1];
       std::map<Id,Node> nodes;
-      { Timer timer(stats.reconstruction_seconds,options.timings);
+      { Timer timer(stats.reconstruction_seconds,options.timings, SU2NativeTiming3D::Operation::Candidate);
         try { if (fallback) for (const auto& cell:old.cells) for (auto node:cell.v) nodes.emplace(node.id,node); }
         catch (const std::exception& e) { failure.Set(2,0,e.what()); }
         ready=vote(failure);
@@ -5252,7 +5308,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
           catch(const std::exception& e){failure.Set(2,0,e.what());}
           if(!(ready=vote(failure)))return false;
           DonorSamples answer;
-          {Timer timer(stats.donor_seconds,options.timings);++stats.donor_batches;
+          {Timer timer(stats.donor_seconds,options.timings, SU2NativeTiming3D::Operation::Import);++stats.donor_batches;
             answer=trial_sample_midpoints(queries,eligible_extensions,options.memory_ceiling,
                 transfer_memory::Add(bytes(),directory->ResidentBytes(),private_scratch));}
           if(!answer.valid){result.reason=answer.reason;return false;}
@@ -5276,7 +5332,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
         bool validated=false;
         reserve_optimization(!coordinate_only && repair_work<160 && chosen && !approved);
         DonorPatch donors;
-        {Timer timer(stats.donor_seconds,options.timings);++stats.donor_batches;
+        {Timer timer(stats.donor_seconds,options.timings, SU2NativeTiming3D::Operation::Import);++stats.donor_batches;
           donors=trial_import_cells(!coordinate_only && repair_work<repair_budget && !approved?old.cells:empty,options.memory_ceiling,
               transfer_memory::Add(bytes(),directory->ResidentBytes(),private_scratch));}
         bool candidate=false;
@@ -5286,7 +5342,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
           observe_transaction("support_donors",donors.valid,&donors);
           FrozenField proposal_field(std::move(donors.cells),composition,options.timings,components,options.edge_breakpoints,field_identity,true,MaximumDonors,true);
           FieldAccounting accounting{stats,proposal_field};
-          Timer timer(stats.reconstruction_seconds,options.timings);CpuTimer cpu(stats.reconstruction_cpu_seconds,options.timings);
+          Timer timer(stats.reconstruction_seconds,options.timings, SU2NativeTiming3D::Operation::Candidate);CpuTimer cpu(stats.reconstruction_cpu_seconds,options.timings);
           candidate=guarded_geometry(optimize_patch(old,RegionMetric(proposal_field),false),"OptimizeMetricMesh");
         }catch(const std::exception& e){failure.Set(2,0,e.what());}
         if(!(ready=vote(failure)))return false;
@@ -5310,7 +5366,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
         if (!trial_maximum(participating)) continue;
         const auto trial_started=Clock::now();const auto geometry_before=stats.geometry_rejected,height_before=stats.height_rejected+stats.footprint_rejected;
         bool candidate=false;
-        { Timer timer(stats.reconstruction_seconds,options.timings);
+        { Timer timer(stats.reconstruction_seconds,options.timings, SU2NativeTiming3D::Operation::Candidate);
           if (participating) try {
             CpuTimer cpu(stats.reconstruction_cpu_seconds,options.timings);
             ++stats.repair_proposals;
@@ -5357,7 +5413,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
         std::map<Id,Node> nodes;std::set<Edge> edges;
         for(const auto& cell:old.cells)for(auto n:cell.v)nodes.emplace(n.id,n);
         auto geometry_counts=[&](const Patch& patch,std::set<Edge>* failed_edges=nullptr) {
-          Timer timer(stats.geometry_guidance_seconds,options.timings);
+          Timer timer(stats.geometry_guidance_seconds,options.timings, SU2NativeTiming3D::Operation::GeometryBound);
           auto parameters=geometry.PrivateParameters(patch);const auto& reference=parameters?*parameters:geometry;
           std::map<Face,Id> facets;for(const auto& face:patch.surface)facets.emplace(Key(face.v),face.facet);
           std::pair<size_t,size_t> counts{};
@@ -5387,7 +5443,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
             Edge edge{face[k],face[(k+1)%3]};std::sort(edge.begin(),edge.end());edges.erase(edge);
           }
         DonorPatch donors;
-        {Timer timer(stats.donor_seconds,options.timings);++stats.donor_batches;
+        {Timer timer(stats.donor_seconds,options.timings, SU2NativeTiming3D::Operation::Import);++stats.donor_batches;
           donors=trial_import_cells(repair_work<repair_budget?old.cells:empty,options.memory_ceiling,
               transfer_memory::Add(bytes(),directory->ResidentBytes(),private_scratch));}
         if(!donors.valid && !DonorCap(donors.reason)){result.reason=donors.reason;return false;}
@@ -5406,7 +5462,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
             point={maximum_node+1+node_offset,{double(((long double)a.x+b.x)/2),
                 double(((long double)a.y+b.y)/2),double(((long double)a.z+b.z)/2)}};
             bool candidate;
-            {Timer timer(stats.reconstruction_seconds,options.timings);CpuTimer cpu(stats.reconstruction_cpu_seconds,options.timings);
+            {Timer timer(stats.reconstruction_seconds,options.timings, SU2NativeTiming3D::Operation::Candidate);CpuTimer cpu(stats.reconstruction_cpu_seconds,options.timings);
               candidate=guarded_geometry(SplitSurfaceStrip(old,edge,point,{},maximum_cell+1+offset,
                   geometry,fresh,result.reason),"SplitSurfaceStrip");}
             if(candidate) {
@@ -5420,7 +5476,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
                 (certified.minimum_mean_ratio<MinimumMeanRatio || certified.minimum_scaled_jacobian<MinimumScaledJacobian) &&
                 repair_work<repair_budget) {
               const Patch split=fresh;
-              {Timer timer(stats.reconstruction_seconds,options.timings);CpuTimer cpu(stats.reconstruction_cpu_seconds,options.timings);
+              {Timer timer(stats.reconstruction_seconds,options.timings, SU2NativeTiming3D::Operation::Candidate);CpuTimer cpu(stats.reconstruction_cpu_seconds,options.timings);
                 candidate=guarded_geometry(optimize_patch(split,RegionMetric(target),false),"OptimizeGeometrySplit");}
               valid=validate_private(candidate,MetricChange::GeometryRepair);
               if(!ready)return false;
@@ -5515,7 +5571,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
       else if(prior && !approved)geometry_trial(false);
     }
     if((concurrent || world.maximum(collapse_corrected)) && world.maximum(approved)) {
-      Timer timer(stats.reservation_seconds,options.timings);CLocalFailure final_failure;
+      Timer timer(stats.reservation_seconds,options.timings, SU2NativeTiming3D::Operation::Communication);CLocalFailure final_failure;
       // Every approved proposal claims its final old footprint together, including completed peers.
       if(approved)try {
         if(old.cells.size()!=imported.cells.size() || dependencies.cells.size()!=imported.cells.size())
@@ -5568,7 +5624,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     std::vector<OwnedCell> added;
     std::vector<BlockedEdge> failures;
     {
-      Timer timer(stats.routing_seconds,options.timings);
+      Timer timer(stats.routing_seconds,options.timings, SU2NativeTiming3D::Operation::Communication);
       if (chosen && !approved) ++stats.rejected;
       try {
         if (approved) {
@@ -5628,7 +5684,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     }
     if (!ready) return finish();
     {
-      Timer timer(stats.publication_seconds,options.timings);
+      Timer timer(stats.publication_seconds,options.timings, SU2NativeTiming3D::Operation::Communication);
       ready=directory->Publish(working,removed,added,true,result.reason,options.memory_ceiling,
           transfer_memory::Add(real_bytes(),source.ResidentBytes(),MaximumFrozenFieldBytes),parameter_edits,approved?fresh.coverage:no_coverage,geometry.AtlasReservation(),repairing);
     }
@@ -5646,7 +5702,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     if(!service_frontier(repairing ? choice.feature : Feature{{choice.edge[0],choice.edge[1],0},2},chosen||pass_deferred,approved,nullptr,0,disposition))return finish();
     std::vector<Id> changed;
     {
-      Timer timer(stats.update_seconds,options.timings);
+      Timer timer(stats.update_seconds,options.timings, SU2NativeTiming3D::Operation::Topology);
       ready=admit(transfer_memory::Add(
           batched&&repairing ? transfer_memory::Add(
               transfer_memory::GrowthBound(transfer_memory::Add(batch_changed.size(),added.size()),sizeof(Id)),
@@ -5796,7 +5852,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
       if(!vote(failure))return finish();
       ReservationBatch final_reserved;
       {
-        Timer timer(stats.reservation_seconds,options.timings);++stats.final_reservations;
+        Timer timer(stats.reservation_seconds,options.timings, SU2NativeTiming3D::Operation::Communication);++stats.final_reservations;
         final_reserved=directory->ReserveBatch(final_inputs,options.memory_ceiling,
             transfer_memory::Add(bytes(),source.ResidentBytes()),priorities);
       }
@@ -5822,7 +5878,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
       SU2NativeGeometry::BoundaryCoverage coverage;
       std::array<RepairReceipt,MaximumCandidateBatch> receipts{};size_t receipt_count=0;
       {
-        Timer timer(stats.routing_seconds,options.timings);
+        Timer timer(stats.routing_seconds,options.timings, SU2NativeTiming3D::Operation::Communication);
         try {
           removals.resize(world.size);additions.resize(world.size);blocked.resize(world.size);
           for(auto& proposal:repair_proposals) {
@@ -5884,7 +5940,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
       if(!vote(failure))return finish();
       std::vector<Dependency> removed;std::vector<OwnedCell> added;std::vector<BlockedEdge> failures;
       {
-        Timer timer(stats.routing_seconds,options.timings);bool admitted=false;
+        Timer timer(stats.routing_seconds,options.timings, SU2NativeTiming3D::Operation::Communication);bool admitted=false;
         const auto baseline=transfer_memory::Add(bytes(),source.ResidentBytes(),directory->ResidentBytes());
         removed=world.exchange(removals,&admitted,options.memory_ceiling,baseline);
         if(!admitted){result.reason="Native3D round removal routing exceeds storage budget.";return finish();}
@@ -5900,7 +5956,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
           BoundaryCoverageBytes(coverage),transfer_memory::GrowthBound(added.size(),sizeof(Id)));
       if(!admit(0))return finish();
       {
-        Timer timer(stats.publication_seconds,options.timings);
+        Timer timer(stats.publication_seconds,options.timings, SU2NativeTiming3D::Operation::Communication);
         if(!directory->Publish(working,removed,added,true,result.reason,options.memory_ceiling,
             transfer_memory::Add(real_bytes(),source.ResidentBytes(),MaximumFrozenFieldBytes),parameter_edits,coverage,geometry.AtlasReservation(),true))return finish();
       }
@@ -5908,7 +5964,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
       if(!removed.empty()||!added.empty())selection.progress_consistent=false;
       if(!service_frontier({},false,false,&receipts,receipt_count))return finish();
       {
-        Timer timer(stats.update_seconds,options.timings);
+        Timer timer(stats.update_seconds,options.timings, SU2NativeTiming3D::Operation::Topology);
         if(!admit(transfer_memory::Add(transfer_memory::Mul(working.size(),selection_bound(true)),
             transfer_memory::Mul(transfer_memory::Mul(6,removed.size()),sizeof(std::pair<const Edge,EdgeMeasure>)+4*sizeof(void*)),
             transfer_memory::Mul(transfer_memory::Mul(14,removed.size()),sizeof(RepairFeature)+4*sizeof(void*)),
@@ -5962,7 +6018,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     batch_bytes=0;++round;
   }
   {
-    Timer timer(stats.completion_seconds,options.timings);
+    Timer timer(stats.completion_seconds,options.timings, SU2NativeTiming3D::Operation::Certification);
     const int incomplete=world.maximum(selection.cells.size()!=working.size() ? 3 :
         (selection.invalid ? 2 : (coarsening && !selection.queue.empty() ? 1 : 0)));
     result.valid=!metric_cleanup && phase==Phase::Improvement && incomplete==0 && !world.maximum(selection.unmeasured_shape!=0 || selection.quality_invalid!=0 ||
@@ -6237,6 +6293,7 @@ class MeshOptimizer {
     return Height(GeometryPatch(cells))>=1;
   }
   long double OldMerit(const std::vector<Id>& ids,bool debt) {
+    SU2NativeTiming3D::Scope old_cavity_scope(SU2NativeTiming3D::Operation::OldCavityMeasurement);
     if(!debt)return MinScore(ids);
     long double sum=0;
     for(Id id:ids){const auto q=RowQuality(id,mesh.at(id).cell);if(!q.Valid())return -INFINITY;sum+=NormalizedShapeHingeDebt(q.q,q.J);}
@@ -6504,7 +6561,13 @@ bool MeshOptimizer::SmoothBoundary(Id p) {
   try{geometry.ExportParameters(patch);}catch(const std::exception&){return false;}
   const bool debt=DebtMode(old,&patch);const auto before=OldMerit(old,debt);const auto origin=points.at(p);
   auto shape_debt=[&](const std::vector<Cell>& cells){long double sum=0;for(const auto& c:cells){const auto q=Quality(c);if(!q.Valid())return std::numeric_limits<long double>::infinity();sum+=NormalizedShapeHingeDebt(q.q,q.J);}return sum;};
-  const long double old_shape_debt=debt?-before:shape_debt(patch.cells);
+  long double old_shape_debt;
+  if (debt)
+    old_shape_debt = -before;
+  else {
+    SU2NativeTiming3D::Scope old_cavity_scope(SU2NativeTiming3D::Operation::OldCavityMeasurement);
+    old_shape_debt = shape_debt(patch.cells);
+  }
   long double geometric_before=0;bool geometry_measured=false;
   std::vector<Point> targets;std::set<Id> neighbors;
   for(const auto& c:patch.cells)for(auto n:c.v)if(n.id!=p)neighbors.insert(n.id);
@@ -6698,7 +6761,13 @@ bool MeshOptimizer::Smooth(Id p) {
   ++report.trials;
   const bool debt=DebtMode(old);const auto oldMin=OldMerit(old,debt);
   std::vector<Cell> old_cells;for(Id id:old)old_cells.push_back(mesh.at(id).cell);
-  const long double old_shape_debt=debt?-oldMin:shape_debt(old_cells);
+  long double old_shape_debt;
+  if (debt)
+    old_shape_debt = -oldMin;
+  else {
+    SU2NativeTiming3D::Scope old_cavity_scope(SU2NativeTiming3D::Operation::OldCavityMeasurement);
+    old_shape_debt = shape_debt(old_cells);
+  }
   long double oldMax=0,shortest=INFINITY;
   for(Id x:nbr){const Point px=points.at(x);try{oldMax=std::max(oldMax,Estimate(x0,px));}catch(const std::exception&){oldMax=INFINITY;}
     const long double dx=(long double)px.x-x0.x,dy=(long double)px.y-x0.y,dz=(long double)px.z-x0.z;shortest=std::min(shortest,std::sqrt(dx*dx+dy*dy+dz*dz));}
@@ -7112,7 +7181,12 @@ bool MeshOptimizer::CoupledBoundary() {
   if(!Progress(after,before,debt)){++report.rejected_quality;return false;}
   auto counts=[&](const std::vector<Cell>& cells){std::array<size_t,2> result{};for(const auto& c:cells){const auto q=Quality(c,false);
     if(!q.Valid())throw std::invalid_argument("Coupled boundary candidate has invalid quality.");result[0]+=q.q<MinimumMeanRatio;result[1]+=q.J<MinimumScaledJacobian;}return result;};
-  const auto old_bad=counts(original.cells),new_bad=counts(candidate.cells);
+  std::array<size_t, 2> old_bad;
+  {
+    SU2NativeTiming3D::Scope old_cavity_scope(SU2NativeTiming3D::Operation::OldCavityMeasurement);
+    old_bad = counts(original.cells);
+  }
+  const auto new_bad=counts(candidate.cells);
   if(new_bad[0]>old_bad[0] || new_bad[1]>old_bad[1] || new_bad==old_bad){++report.rejected_quality;return false;}
   for(const auto& c:candidate.cells)for(unsigned i=0;i<4;++i)for(unsigned j=i+1;j<4;++j)
     if((!points.count(c.v[i].id)||!points.count(c.v[j].id)||!Adjacent(c.v[i].id,c.v[j].id)) &&
@@ -7134,6 +7208,8 @@ bool MeshOptimizer::CoupledBoundary() {
   changed=true;rejected_smoothing.clear();Bound();return true;
 }
 bool MeshOptimizer::Run() {
+  SU2NativeTiming3D::PhaseScope quality_phase(SU2NativeTiming3D::Phase::Quality);
+  SU2NativeTiming3D::Scope optimization_timer(SU2NativeTiming3D::Operation::QualityOptimization);
   Index();
   auto census=[&](size_t& bad,double& minimum){bad=0;minimum=INFINITY;for(const auto& row:mesh){if(options.frozen_cells.count(row.first))continue;const double s=RowScore(row.first,row.second.cell);minimum=std::min(minimum,s);bad+=s<1;}if(!std::isfinite(minimum))minimum=1;};
   census(report.bad_before,report.minimum_before);

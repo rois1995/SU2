@@ -26,6 +26,8 @@
  */
 
 // DC-14: the FIRST_ROW construction (inline headers) before any using-directive of the driver headers.
+#include "../../../Common/include/adaptation/CNativeTimerTree3D.hpp"
+#include <optional>
 #include "../../include/adaptation/CNativeBLPipeline3D.hpp"
 #include "../../include/adaptation/CNativeNormalizationStage3D.hpp"
 #include "../../include/drivers/CSinglezoneDriver.hpp"
@@ -251,6 +253,9 @@ void CSinglezoneDriver::ComputeMetric() {
 
   SU2Native3D::RuntimeProfile3D<4> profile(config->GetWrt_Performance() && nDim == 3 &&
       config->GetKind_Adap_Remesher() == ADAP_REMESHER::NATIVE_CAVITY, "metric");
+  SU2NativeTiming3D::Session timer_tree(
+      config->GetWrt_Performance() && nDim == 3 && config->GetKind_Adap_Remesher() == ADAP_REMESHER::NATIVE_CAVITY,
+      "metric", rank, SU2_MPI::GetSize(), SU2NativeTiming3D::Phase::Metric);
   const auto startTime = SU2_MPI::Wtime();
   if (config->GetKind_Adap_Remesher() == ADAP_REMESHER::NATIVE_CAVITY &&
       config->GetnAdap_BL() && (nDim==2 ? (!nativeReference || !nativeReference->original)
@@ -258,13 +263,22 @@ void CSinglezoneDriver::ComputeMetric() {
     auto remesher = MakeRemesher(); // Initializes the retained immutable reference, including restart associations.
   }
   profile.Mark(0);
-  solver_flow->SetAuxVar_Adapt(geometry, config, solver_container[ZONE_0][INST_0][MESH_0]);
+  {
+    SU2NativeTiming3D::Scope metric_timer(SU2NativeTiming3D::Operation::Sensors);
+    solver_flow->SetAuxVar_Adapt(geometry, config, solver_container[ZONE_0][INST_0][MESH_0]);
+  }
   profile.Mark(1);
-  solver_flow->SetHessian_Adapt(geometry, config);
+  {
+    SU2NativeTiming3D::Scope metric_timer(SU2NativeTiming3D::Operation::Hessian);
+    solver_flow->SetHessian_Adapt(geometry, config);
+  }
   profile.Mark(2);
   /*--- ADAP_BL_METHOD= TWO_PASS: the remesher builds the boundary-layer metric itself, on its pass-A mesh. ---*/
   const bool boundaryLayer = config->GetKind_Adap_BL_Method() != ADAP_BL_METHOD::TWO_PASS;
-  solver_flow->ComputeMetric(geometry, config, nullptr, boundaryLayer, nativeReference.get(), nativeReference3D.get());
+  {
+    SU2NativeTiming3D::Scope metric_timer(SU2NativeTiming3D::Operation::TargetComposition);
+    solver_flow->ComputeMetric(geometry, config, nullptr, boundaryLayer, nativeReference.get(), nativeReference3D.get());
+  }
   profile.Mark(3);
   profile.Report(config->GetTimeIter(), {{"setup", "sensors", "hessian", "construction"}});
   if (rank == MASTER_NODE) cout << "Metric computed in " << SU2_MPI::Wtime() - startTime << " s." << endl;
@@ -1810,6 +1824,10 @@ void CSinglezoneDriver::WriteAdaptedMesh(unsigned long iCycle, unsigned long fir
   const auto fileName = AdaptedMeshName(iCycle, firstTimeIter);
   SU2Native3D::RuntimeProfile3D<2> profile(config->GetWrt_Performance() && nDim == 3 &&
       config->GetKind_Adap_Remesher() == ADAP_REMESHER::NATIVE_CAVITY, "mesh_output");
+  SU2NativeTiming3D::Session timer_tree(config->GetWrt_Performance() && nDim == 3 &&
+      config->GetKind_Adap_Remesher() == ADAP_REMESHER::NATIVE_CAVITY, "mesh_output", rank, SU2_MPI::GetSize(),
+      SU2NativeTiming3D::Phase::Output);
+  SU2NativeTiming3D::Scope output_timer(SU2NativeTiming3D::Operation::Output);
 
   if (rank == MASTER_NODE) {
     cout << "Writing the adapted mesh of cycle " << iCycle << ": " << fileName + config->GetMesh_Out_FileExtension()
@@ -1876,6 +1894,12 @@ bool CSinglezoneDriver::ReplaceMesh(const CRemeshResult& remeshed, CSolutionTran
 
   SU2Native3D::RuntimeProfile3D<5> profile(config_container[ZONE_0]->GetWrt_Performance() && nDim == 3 &&
       config_container[ZONE_0]->GetKind_Adap_Remesher() == ADAP_REMESHER::NATIVE_CAVITY, "replace");
+  SU2NativeTiming3D::Session timer_tree(config_container[ZONE_0]->GetWrt_Performance() && nDim == 3 &&
+      config_container[ZONE_0]->GetKind_Adap_Remesher() == ADAP_REMESHER::NATIVE_CAVITY, "replace", rank,
+      SU2_MPI::GetSize(), SU2NativeTiming3D::Phase::Preparation);
+  std::optional<SU2NativeTiming3D::PhaseScope> replacement_phase;
+  std::optional<SU2NativeTiming3D::Scope> replacement_timer;
+  replacement_timer.emplace(SU2NativeTiming3D::Operation::Import);
 
   lastReplaceTime = lastTransferTime = 0;
   if (!CanReplaceMesh(remeshed)) return false;
@@ -1918,6 +1942,9 @@ bool CSinglezoneDriver::ReplaceMesh(const CRemeshResult& remeshed, CSolutionTran
     BuildGeometryFVM(config, new CPhysicalGeometry(config, reader, nZone), geometry, true);
   }
   const auto geometryBuiltAt = SU2_MPI::Wtime();
+  replacement_timer.reset();
+  replacement_phase.emplace(SU2NativeTiming3D::Phase::FinalProof);
+  replacement_timer.emplace(SU2NativeTiming3D::Operation::Certification);
   profile.Mark(0);
   const auto nMGLevels = config->GetnMGLevels();
 
@@ -1951,6 +1978,9 @@ bool CSinglezoneDriver::ReplaceMesh(const CRemeshResult& remeshed, CSolutionTran
   }
 
   const auto geometryCheckedAt = SU2_MPI::Wtime();
+  replacement_timer.reset();
+  replacement_phase.reset();
+  replacement_timer.emplace(SU2NativeTiming3D::Operation::Import);
   profile.Mark(1);
 
   /*--- Solvers in the free-stream state (the restart files belong to the first mesh), then the solution from
@@ -1968,8 +1998,14 @@ bool CSinglezoneDriver::ReplaceMesh(const CRemeshResult& remeshed, CSolutionTran
 
   profile.Mark(2);
   const auto transferStart = SU2_MPI::Wtime();
+  replacement_timer.reset();
+  replacement_phase.emplace(SU2NativeTiming3D::Phase::Transfer);
+  replacement_timer.emplace(SU2NativeTiming3D::Operation::Import);
   transfer.Transfer(config, donor, geometry, solver);
   const auto transferTime = SU2_MPI::Wtime() - transferStart;
+  replacement_timer.reset();
+  replacement_phase.reset();
+  replacement_timer.emplace(SU2NativeTiming3D::Operation::Topology);
   profile.Mark(3);
 
   CNumerics**** numerics = nullptr;
