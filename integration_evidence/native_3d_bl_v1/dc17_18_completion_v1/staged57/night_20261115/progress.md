@@ -6,7 +6,7 @@ Updated 2026-11-15. Latest order: NIGHT_WORK_ORDER.md (SHA-sealed input_manifest
 |---|---|---|---|
 | N1 P7/P8/counters | FAILED; connected code/config/tests reverted to F3b bytes | First event2 NELEM855828 vs855760 (+68), points+7; event1all3identityPASS; physical/memory/timersPASS; R5readonlydiagnosiscomplete, no transcription | Commit/push revert+evidence, then N3 |
 | N2 B7 | NOT STARTED | Depends on accepted N1; failed-run M18 is not qualified input | Continue independent N3 |
-| N3 design source check | NOT STARTED | independent;3hourlimit | afterN1/N2 |
+| N3 design source check | PASSED (read-only review completed) |14 consolidated findings/readings; M11/M15/M17/M19 and T1–T3 answered; no build/run/productionedit; see Handbook/ADAPTATION_DESIGN_SOURCE_CHECK_20261115.md | Commit/push, then N4 C/inventories/sourcecheck and reference gates |
 | N4 Adapt cut8.2 | NOT STARTED; user acceptance received | ReadC/inventories atstart; recordG2/G3/GQreferencebeforeedit | acceptedN1/N2base, orF3bafterfailed/revertedN1 |
 | N5 all design measurements | NOT STARTED | use newestaccepted commit | afterN4 |
 | N6 further identical cuts | NOT STARTED | requirescompletedN4+G5 | Remesh,MeshOptimizer,Selection |
@@ -26,4 +26,8 @@ Event1 checkpoint d4e9e81cac pushed (immutable P7/P8+F3b timer receipts). Remesh
 
 N1 RESULT GATE FAILED: independent physicalworkflow passes, but event2 mesh/native_ref/restart hashes differ fromP6c; all3event1payloads identical. Firstdifference saved p7p8_r3_20261115/first_result_failure.json. R5 one read-only diagnosis started1794776849, deadline1794780449; no numerical retry/restart/B7 launched. Next: diagnose transcription/wiring only, otherwise productionitemrevert and proceedN3.
 
-R5 diagnosis complete: prepared-cache→StructuralEstimate→global observed pieces→geometry partition weights. No transcription/wiring defect found; no authorized production correction or numerical retry. Restored16code/config/test paths from0aaa321b2a^, identical to accepted48f07ad1a8. Revert commit pending; then N3 independent source check.
+R5 diagnosis complete: prepared-cache→StructuralEstimate→global observed pieces→geometry partition weights. No transcription/wiring defect found; no authorized production correction or numerical retry. Restored16code/config/test paths from0aaa321b2a^, identical to accepted48f07ad1a8. Revert commit becb4927c9 pushed; N3 independent source check active.
+
+N1 revert becb4927c9 pushed; newestaccepted implementation remains48f07ad1a8+report-helpera27f56cd78. N3started1794777488/deadline1794788288, no numericalrun. PriorN1helperrestart cancelled, all9ownedhandles hostverifiedterminal.
+
+N3completed within3hours: one consolidated14-item sourcecheck, qualifiedcontactproofdata/conditions, requiredMsourceanswers andwhole-designcoverage. No behavior-changingdesign accepted/implemented. NextN4: readC/bothinventories completely; sourcecheckWHOLEcut; rebuildrestoredF3b andrecordG2/G3/GQbeforefirstedit.
