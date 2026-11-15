@@ -4,6 +4,7 @@
  * SPDX-License-Identifier: LGPL-2.1-or-later
  */
 #include "catch.hpp"
+#include "../../../Common/src/adaptation/CNativeAdjacent_internal.hpp"
 #include "../../../Common/src/adaptation/CNativePredicates3D_internal.hpp"
 #include "../../../Common/include/adaptation/CNativeAffineReference.hpp"
 #include "../../../Common/include/adaptation/CNativeBoundary3D.hpp"
@@ -2187,4 +2188,60 @@ TEST_CASE("Numeric surface memo shares the admitted query quota without changing
   CHECK(bound==uncached.BoundPhysicalSurface({face.id},physical,.01,cold));
   auto repeated=GeometryAtlasBudget();CHECK(bounded.BoundPhysicalSurface({face.id},physical,.01,repeated)==bound);
   CHECK(bounded.GeometryStatsSnapshot().memo_bytes<=storage.memo_limit);
+  const auto resolutions=bounded.GeometryStatsSnapshot().facet_resolutions;
+  CHECK(resolutions==1);
+  CHECK(bounded.GeometryStatsSnapshot(true).facet_resolutions==resolutions);
+  CHECK(bounded.GeometryStatsSnapshot().facet_resolutions==resolutions);
+}
+
+TEST_CASE("x87 adjacent stepping matches nextafter across zero subnormal and exp1 boundaries", "[NativeAffineAdjacent]") {
+  using SU2NativeGeometry::detail::Adjacent;
+  const long double denorm = std::numeric_limits<long double>::denorm_min();
+  const long double min_normal = std::numeric_limits<long double>::min();
+  const long double max_subnormal = std::nextafter(min_normal, 0.0L);
+  const long double exp1_max = std::nextafter(2*min_normal, 0.0L);
+  const long double one = 1.0L;
+  const long double top_fast_boundary = std::ldexp(1.L, std::numeric_limits<long double>::max_exponent-1);
+  const long double below_top_fast_boundary = std::nextafter(top_fast_boundary, 0.0L);
+  const long double finite_below_overflow = std::nextafter(std::numeric_limits<long double>::max(), 0.0L);
+  const std::vector<long double> values{
+    0.0L, -0.0L, denorm, -denorm,
+    max_subnormal, -max_subnormal,
+    min_normal, -min_normal, std::nextafter(min_normal, INFINITY), -std::nextafter(min_normal, INFINITY),
+    exp1_max, -exp1_max, 2*min_normal, -2*min_normal,
+    one, -one, std::nextafter(one, 0.0L), std::nextafter(one, INFINITY),
+    top_fast_boundary, -top_fast_boundary, below_top_fast_boundary, -below_top_fast_boundary,
+    finite_below_overflow, -finite_below_overflow,
+    std::numeric_limits<long double>::max(), -std::numeric_limits<long double>::max(),
+    INFINITY, -INFINITY, std::numeric_limits<long double>::quiet_NaN()
+  };
+  auto same = [](long double a, long double b) {
+#if defined(__x86_64__) && defined(__LDBL_MANT_DIG__) && __LDBL_MANT_DIG__ == 64 && \
+    defined(__BYTE_ORDER__) && __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
+    return std::memcmp(&a, &b, 10) == 0;
+#else
+    return a == b && (a != 0 || std::signbit(a) == std::signbit(b));
+#endif
+  };
+  for (long double x : values) for (bool upward : {false, true}) {
+    const auto expected = std::nextafter(x, upward ? INFINITY : -INFINITY);
+    const auto actual = Adjacent(x, upward);
+    if (std::isnan(expected)) CHECK(std::isnan(actual));
+    else CHECK(same(actual, expected));
+  }
+#if defined(__x86_64__) && defined(__LDBL_MANT_DIG__) && __LDBL_MANT_DIG__ == 64
+  // Exercise sign, underflow and exponent-boundary transitions.
+  CHECK(Adjacent(0.0L, true) == denorm);
+  CHECK(Adjacent(0.0L, false) == -denorm);
+  CHECK(Adjacent(-0.0L, true) == denorm);
+  CHECK(Adjacent(-0.0L, false) == -denorm);
+  CHECK(Adjacent(denorm, false) == 0.0L);
+  CHECK(same(Adjacent(-denorm, true),std::nextafter(-denorm,INFINITY)));
+  CHECK(Adjacent(max_subnormal, true) == min_normal);
+  CHECK(Adjacent(-max_subnormal, false) == -min_normal);
+  CHECK(Adjacent(min_normal, false) == max_subnormal);
+  CHECK(Adjacent(-min_normal, true) == -max_subnormal);
+  CHECK(Adjacent(exp1_max, true) == 2*min_normal);
+  CHECK(Adjacent(-exp1_max, false) == -2*min_normal);
+#endif
 }

@@ -50,8 +50,12 @@ if(nosePath)options.rejected_trial=[&](const Patch& old,const Patch& fresh,Featu
       <<",\"candidate\":"<<candidate<<",\"failure\":"<<unsigned(diagnosis.failure)<<",\"reason\":"<<std::quoted(why)<<"}"<<std::endl;
 };
 const auto start=std::chrono::steady_clock::now();const auto beforeWork=budget.work;
+SU2NativeBLPipeline3D::BoundaryGuidanceMemo guidanceMemo;
+const auto guidanceBaseline=transfer_memory::Add(options.caller_bytes,options.geometry_workspace_bytes,options.stage_observer_bytes);
+if(guidanceBaseline<ceiling)guidanceMemo.Reserve((ceiling-guidanceBaseline)/8);
+options.caller_bytes=transfer_memory::Add(options.caller_bytes,guidanceMemo.ReservedBytes());
 const auto prepared=PrepareSurface(world,current.mesh,donors,*current.reference,
-    [&](Node node,const PlanarReference& geometry,Tensor sensor){return policy.BoundaryGuidance(node,geometry,sensor,reference->marker_names);},options);
+    [&](Node node,const PlanarReference& geometry,Tensor sensor){return policy.BoundaryGuidance(node,geometry,sensor,reference->marker_names,&guidanceMemo);},options);
 const auto seconds=std::chrono::duration<double>(std::chrono::steady_clock::now()-start).count();
 if(nosePath) {
   // Published split records preserve parent endpoints even when a later edit retires them.
@@ -93,9 +97,12 @@ output<<std::setprecision(17)<<std::boolalpha<<"{\"rank\":"<<world.rank<<",\"ran
     <<",\"geometry_guidance_rejected\":"<<prepared.stats.geometry_guidance_rejected
     <<",\"surface_required\":"<<prepared.stats.surface_demand_required_cells<<",\"surface_measured\":"<<prepared.stats.surface_demand_measured_cells
     <<",\"surface_census_complete\":"<<prepared.stats.surface_demand_census_complete<<",\"surface_geometry_complete\":"<<prepared.stats.surface_demand_geometry_complete
+    <<",\"guidance_memo_reserved_bytes\":"<<guidanceMemo.ReservedBytes()<<",\"guidance_memo_live_bytes\":"<<guidanceMemo.LiveBytes()
+    <<",\"guidance_memo_hits\":"<<guidanceMemo.guidance_hits<<",\"strip_memo_hits\":"<<guidanceMemo.strip_hits
     <<",\"upper_calls\":"<<geometryAfter.upper_calls-geometryBefore.upper_calls<<",\"upper_work\":"<<geometryAfter.upper_work-geometryBefore.upper_work
     <<",\"upper_seconds\":"<<geometryAfter.upper_seconds-geometryBefore.upper_seconds<<",\"scope_work\":"<<geometryAfter.scope_build_work-geometryBefore.scope_build_work
     <<",\"scope_seconds\":"<<geometryAfter.scope_build_seconds-geometryBefore.scope_build_seconds
+    <<",\"facet_resolutions\":"<<geometryAfter.facet_resolutions
     <<",\"facet_work\":"<<geometryAfter.facet_build_work-geometryBefore.facet_build_work<<",\"traversal_work\":"<<geometryAfter.traversal_work-geometryBefore.traversal_work
     <<",\"tracked_collective_seconds\":"<<prepared.stats.tracked_collective_seconds<<",\"ownership_seconds\":"<<prepared.stats.ownership_seconds
     <<",\"maximum_work_bytes\":"<<prepared.stats.maximum_work_bytes<<",\"timers_overlap\":true,\"cpu_includes_MPI_polling\":true}"<<std::endl;

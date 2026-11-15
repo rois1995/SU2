@@ -121,7 +121,7 @@ class MappedFacetReference {
   const CurvedNets& Curves()const{return curves;}
   struct GeometryStats {
     size_t direct_calls=0,direct_exceptions=0,upper_calls=0,full_calls=0,union_exceptions=0,upper_refusals=0;
-    size_t direct_work=0,upper_work=0,full_work=0,facet_hits=0,facet_misses=0,scope_hits=0,scope_misses=0;
+    size_t direct_work=0,upper_work=0,full_work=0,facet_hits=0,facet_misses=0,facet_resolutions=0,scope_hits=0,scope_misses=0;
     size_t upper_refinements=0,upper_deferred_bounds=0,classification_calls=0,classification_work=0;
     size_t magnitude_calls=0,magnitude_work=0,limit_calls=0,limit_work=0;
     size_t scope_attempts=0,scope_builds=0,scope_build_work=0,retention_refusals=0,prepared_bytes=0,prepared_limit=0;

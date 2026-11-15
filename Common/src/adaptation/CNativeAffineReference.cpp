@@ -5,6 +5,7 @@
  */
 #include "../../include/adaptation/CNativeAffineReference.hpp"
 #include "CNativePredicates3D_internal.hpp"
+#include "CNativeAdjacent_internal.hpp"
 #include "../../include/adaptation/CNativeBoundary3D.hpp"
 #include "../../include/adaptation/CNativeGeometryValidation2D.hpp"
 #include "../../include/adaptation/CTransferMemory.hpp"
@@ -29,26 +30,7 @@ using Vec=std::array<double,3>;
 Vec Values(Point p){return {p.x,p.y,p.z};}
 Point ToPoint(Vec p){return {p[0],p[1],p[2]};}
 void Finite(Point p){for(auto x:Values(p))if(!std::isfinite(x))throw std::invalid_argument("Nonfinite affine geometry coordinate.");}
-long double Adjacent(long double value,bool upward) {
-#if defined(__x86_64__) && defined(__LDBL_MANT_DIG__) && __LDBL_MANT_DIG__==64
-  static_assert(std::numeric_limits<long double>::radix==2 && std::numeric_limits<long double>::max_exponent==16384,
-                "Native outward stepping assumes the x87 extended format.");
-  struct Bits {uint64_t mantissa;uint16_t sign_exponent;};
-  Bits bits{};std::memcpy(&bits,&value,10);const unsigned exponent=bits.sign_exponent&0x7fff;
-  // Only ordinary normals: preserve the standard library's exceptional-range behavior below.
-  if(exponent>1 && exponent<0x7ffe && (bits.mantissa>>63)) {
-    if(upward==!(bits.sign_exponent&0x8000)) {
-      if(bits.mantissa==UINT64_MAX){bits.mantissa=uint64_t(1)<<63;++bits.sign_exponent;}
-      else ++bits.mantissa;
-    } else {
-      if(bits.mantissa==(uint64_t(1)<<63)){bits.mantissa=UINT64_MAX;--bits.sign_exponent;}
-      else --bits.mantissa;
-    }
-    std::memcpy(&value,&bits,10);return value;
-  }
-#endif
-  return std::nextafter(value,upward?INFINITY:-INFINITY);
-}
+using detail::Adjacent;
 // Each operation encloses the exact real result, including underflow. Compile without fast math/contraction.
 struct Range {long double lo=0,hi=0;};
 Range Add(Range a,Range b){
@@ -1143,14 +1125,17 @@ struct MappedFacetReference::CurvedSearch {
       bytes+=size;return true;
     }
   };
+  std::set<uint64_t> facet_resolutions;
   Pool<std::pair<Id,uint64_t>> prepared;
   Pool<std::vector<uint64_t>> scopes;
   size_t prepared_limit=0;
-  size_t Bytes()const{return transfer_memory::Add(prepared.bytes,scopes.bytes);}
+  size_t Bytes()const{return transfer_memory::Add(prepared.bytes,scopes.bytes,
+      transfer_memory::Mul(facet_resolutions.size(),sizeof(uint64_t)+4*sizeof(void*)));}
   void Snapshot(GeometryStats& stats)const {
     stats.prepared_limit=prepared_limit;stats.prepared_bytes=Bytes();
     stats.facet_bytes=prepared.bytes;stats.scope_bytes=scopes.bytes;
     stats.facet_entries=prepared.values.size();stats.scope_entries=scopes.values.size();
+    stats.facet_resolutions=facet_resolutions.size();
     stats.evictions=prepared.evictions+scopes.evictions;stats.evicted_bytes=prepared.evicted_bytes+scopes.evicted_bytes;
   }
 };
@@ -2233,7 +2218,12 @@ MappedFacetReference::SurfaceUnionBounds MappedFacetReference::QuerySurfaceUnion
     std::memcpy(&tolerance_bits,&tolerance,sizeof tolerance_bits);
     // Pin complete-support leaves throughout certification. Unretained leaves remain transiently charged.
     for(Id facet:facets) {
-      op.Work();const auto key=std::make_pair(facet,resolution_bits);const auto found=curved_search->prepared.Find(key);
+      op.Work();const auto key=std::make_pair(facet,resolution_bits);
+      if(!curved_search->facet_resolutions.count(resolution_bits)) {
+        op.Storage(transfer_memory::Add(curved_search->Bytes(),sizeof(uint64_t)+4*sizeof(void*)));
+        curved_search->facet_resolutions.insert(resolution_bits);
+      }
+      const auto found=curved_search->prepared.Find(key);
       std::shared_ptr<CurvedSearch::PreparedFacet> data;
       {std::lock_guard<std::mutex> lock(geometry_stats->mutex);if(bool(found))++geometry_stats->value.facet_hits;else ++geometry_stats->value.facet_misses;}
       if(bool(found))data=found;

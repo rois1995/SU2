@@ -1857,6 +1857,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
           <<" upper_seconds="<<g.upper_seconds-geometry_begin.upper_seconds<<" full_calls="<<g.full_calls-geometry_begin.full_calls
           <<" full_work="<<g.full_work-geometry_begin.full_work<<" full_seconds="<<g.full_seconds-geometry_begin.full_seconds
           <<" facet_hits="<<g.facet_hits-geometry_begin.facet_hits<<" facet_misses="<<g.facet_misses-geometry_begin.facet_misses
+          <<" facet_resolutions="<<g.facet_resolutions
           <<" scope_hits="<<g.scope_hits-geometry_begin.scope_hits<<" scope_misses="<<g.scope_misses-geometry_begin.scope_misses
           <<" scope_attempts="<<g.scope_attempts-geometry_begin.scope_attempts
           <<" scope_builds="<<g.scope_builds-geometry_begin.scope_builds<<" scope_build_work="<<g.scope_build_work-geometry_begin.scope_build_work

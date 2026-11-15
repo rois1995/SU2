@@ -65,9 +65,17 @@ std::vector<BoundaryMetricSample> BeforeStripReuse(const SU2NativeBLPipeline3D::
     return result;
 
 }
+void CheckSamples(const std::vector<BoundaryMetricSample>& actual,const std::vector<BoundaryMetricSample>& expected) {
+  REQUIRE(actual.size()==expected.size());
+  for(size_t i=0;i<actual.size();++i) {
+    auto words=[](const BoundaryMetricSample& s){return std::array<double,12>{{s.tensor.xx,s.tensor.xy,s.tensor.xz,
+        s.tensor.yy,s.tensor.yz,s.tensor.zz,s.normal.x,s.normal.y,s.normal.z,s.strip_rule.x,s.strip_rule.y,s.strip_rule.z}};};
+    const auto a=words(actual[i]),b=words(expected[i]);CHECK(std::memcmp(a.data(),b.data(),sizeof(a))==0);
+  }
+}
 }
 
-TEST_CASE("Boundary strip reuse preserves side order, changing positions and admission", "[NativeBoundaryStripReuse3D]") {
+TEST_CASE("Boundary strip reuse preserves side order, changing positions and admission", "[NativeBoundaryStripReuse3D][NativeBoundaryGuidanceMemo3D]") {
   using namespace native_target_checkpoint_test;
   auto config=Config();auto reference=Reference();
   for(auto& facet:reference.facets)facet.marker=0;
@@ -86,8 +94,38 @@ TEST_CASE("Boundary strip reuse preserves side order, changing positions and adm
   auto b=a;b.a.y=b.b.y=1;policy->A->creases={a,b};
   const Tensor sensor{2.,.1,0.,3.,0.,4.};
   World world;
+  SU2NativeBLPipeline3D::BoundaryGuidanceMemo memo;memo.Reserve(size_t(8)<<20);
+  if(world.size==1||world.rank!=world.size-1) {
+    const auto node=points.begin()->second.node;
+    auto oracle=[&](Node n,Tensor s){return native_boundary_guidance_test::BeforeStripReuse(*policy,n,*reference.original,s,reference.marker_names);};
+    native_boundary_guidance_test::CheckSamples(policy->BoundaryGuidance(node,*reference.original,sensor,reference.marker_names,&memo),oracle(node,sensor));
+    const auto before=memo.guidance_hits;
+    native_boundary_guidance_test::CheckSamples(policy->BoundaryGuidance(node,*reference.original,sensor,reference.marker_names,&memo),oracle(node,sensor));
+    CHECK(memo.guidance_hits==before+1);
+    auto wrong=node;++wrong.id;
+    CHECK_THROWS_AS(policy->BoundaryGuidance(wrong,*reference.original,sensor,reference.marker_names,&memo),std::invalid_argument);
+    auto invalid=sensor;invalid.xx=-1;
+    CHECK_THROWS(policy->BoundaryGuidance(node,*reference.original,invalid,reference.marker_names,&memo));
+    CHECK(memo.guidance_hits==before+1);
+    auto moved=node;moved.p.x+=.001;
+    native_boundary_guidance_test::CheckSamples(policy->BoundaryGuidance(moved,*reference.original,sensor,reference.marker_names,&memo),oracle(moved,sensor));
+    CHECK(memo.guidance_hits==before+1);
+    policy->base->SelectTangentialScale(.5);
+    native_boundary_guidance_test::CheckSamples(policy->BoundaryGuidance(node,*reference.original,sensor,reference.marker_names,&memo),oracle(node,sensor));
+    CHECK(memo.guidance_hits==before+1);
+    auto renamed=reference.marker_names;renamed.at(0)+="_changed";
+    CHECK_THROWS_AS(policy->BoundaryGuidance(node,*reference.original,sensor,renamed,&memo),std::invalid_argument);
+    policy->roles[0]=2;
+    CHECK(policy->BoundaryGuidance(node,*reference.original,sensor,reference.marker_names,&memo).empty());
+    policy->roles[0]=1;
+    const auto stores_before_tiny=memo.stores;memo.Reserve(sizeof(memo)+1);
+    native_boundary_guidance_test::CheckSamples(policy->BoundaryGuidance(node,*reference.original,sensor,reference.marker_names,&memo),oracle(node,sensor));
+    CHECK(memo.stores==stores_before_tiny);CHECK(memo.refusals>0);CHECK(memo.LiveBytes()<=memo.ReservedBytes());
+    memo.Reserve(size_t(8)<<20);
+  }
   for(const size_t strips:{size_t(0),size_t(2),size_t(80),size_t(100)}) {
     policy->A->strips.assign(strips,dc10::StripPair{0,1,{0,0,1}});
+    memo.Clear();
     // Every rank constructs the same authority; the last worker may have no local queries.
     if(world.size>1&&world.rank==world.size-1)continue;
     for(const auto& row:points) {
@@ -95,10 +133,19 @@ TEST_CASE("Boundary strip reuse preserves side order, changing positions and adm
       if(exhausted) {
         CHECK_THROWS_AS(policy->BoundaryGuidance(node,*reference.original,sensor,reference.marker_names),std::length_error);
         CHECK_THROWS_AS(native_boundary_guidance_test::BeforeStripReuse(*policy,node,*reference.original,sensor,reference.marker_names),std::length_error);
+        CHECK_THROWS_AS(policy->BoundaryGuidance(node,*reference.original,sensor,reference.marker_names,&memo),std::length_error);
         continue;
       }
       const auto expected=native_boundary_guidance_test::BeforeStripReuse(*policy,node,*reference.original,sensor,reference.marker_names);
       const auto actual=policy->BoundaryGuidance(node,*reference.original,sensor,reference.marker_names);
+      native_boundary_guidance_test::CheckSamples(policy->BoundaryGuidance(node,*reference.original,sensor,reference.marker_names,&memo),expected);
+      const auto hits=memo.guidance_hits;
+      native_boundary_guidance_test::CheckSamples(policy->BoundaryGuidance(node,*reference.original,sensor,reference.marker_names,&memo),expected);
+      CHECK(memo.guidance_hits==hits+1);
+      auto changed=sensor;changed.xx*=2;const auto strip_hits=memo.strip_hits;
+      native_boundary_guidance_test::CheckSamples(policy->BoundaryGuidance(node,*reference.original,changed,reference.marker_names,&memo),
+          native_boundary_guidance_test::BeforeStripReuse(*policy,node,*reference.original,changed,reference.marker_names));
+      CHECK(memo.strip_hits==strip_hits+1);CHECK(memo.LiveBytes()<=memo.ReservedBytes());
       REQUIRE(actual.size()==expected.size());REQUIRE(actual.size()==3*(1+(node.p.z==0?strips:0)));
       for(size_t i=0;i<actual.size();++i) {
         CHECK(actual[i].tensor.xx==expected[i].tensor.xx);CHECK(actual[i].tensor.xy==expected[i].tensor.xy);

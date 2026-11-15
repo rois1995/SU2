@@ -445,8 +445,14 @@ inline EngineResult RunEvent(World& world, const Owned& cells, const std::vector
     preparation.timings=true;
     if(!(preparation.maximum_seconds>0))return finish("FIRST_ROW deadline exhausted before surface preparation.");
     const auto preparation_started=elapsed();
-    auto prepared=PrepareSurface(world,s->mesh,donors,*s->reference,
-        [&](Node node,const PlanarReference& geometry,Tensor core){return policy.BoundaryGuidance(node,geometry,core,state.marker_names);},preparation);
+    EngineResult prepared;
+    {
+      BoundaryGuidanceMemo guidance_memo;
+      if(preparation.caller_bytes<stateCeiling)guidance_memo.Reserve((stateCeiling-preparation.caller_bytes)/8);
+      preparation.caller_bytes=transfer_memory::Add(preparation.caller_bytes,guidance_memo.ReservedBytes());
+      prepared=PrepareSurface(world,s->mesh,donors,*s->reference,
+          [&](Node node,const PlanarReference& geometry,Tensor core){return policy.BoundaryGuidance(node,geometry,core,state.marker_names,&guidance_memo);},preparation);
+    }
     const auto preparation_work=prepared.stats.global_work;
     out.stats=prepared.stats;
     json << ",\"surface_preparation\":{\"prepared\":" << prepared.surface_prepared << ",\"final_acceptance\":false"

@@ -12,7 +12,9 @@
 #include "../../../Common/include/CConfig.hpp"
 #include "../../../Common/include/adaptation/CTransferMemory.hpp"
 #include <deque>
+#include <cstring>
 #include <iomanip>
+#include <new>
 #include <sstream>
 #include <unordered_map>
 namespace dc10 {
@@ -56,6 +58,7 @@ using PKey=std::array<double,3>;
 inline PKey KeyOf(V x){return {double(x.x),double(x.y),double(x.z)};}
 struct OptionA {
   std::vector<WedgeCrease> creases;std::vector<StripPair> strips;long double radius=0,onLine=0,r0=0;
+  uint64_t strip_generation=0;
   std::vector<Chain> chains;std::vector<size_t> chainOf;std::map<PKey,std::vector<size_t>> atPoint;
   // [rev 3] w(x) = max_c S(r_c/r0) (1 - S(2 r_c/R_f - 1)) A_c F(d/r_c): r_c the distance to crease c, d the BL wall
   // distance (min over walls of the base layers' exact nearest-face distance), F(u) = S((u - cos 22.5)/(1 - cos 22.5)),
@@ -96,6 +99,8 @@ struct OptionA {
     grid.clear();cell=0;  // bounded index; otherwise the exact full loop
   }
   void ConfigureRadius(double value,const std::function<void(size_t)>& admit={}) {
+    if(strip_generation==UINT64_MAX)throw std::overflow_error("Native strip identity exhausted.");
+    ++strip_generation;
     radius=value;strips.clear();const long double pi=std::acos(-1.L);
     // thin strips: parallel creases (|t_i.t_j| >= cos 30) with a coplanar face each (normals within 10 deg) bounding the
     // strip from both sides, width <= the D1 feature radius
@@ -274,6 +279,75 @@ inline bool RampStage::Matches(const CConfig& config)const {
 }
 
 using namespace SU2Native3D;
+/*! Synchronous event memo. Its fixed reservation belongs to the event caller, not the retained target.
+ * Raw Option-A geometry must remain frozen while supplied to queries; clear after a direct fixture mutation. */
+class BoundaryGuidanceMemo {
+ public:
+  using Stamp=std::array<uint64_t,16>;
+  using Coordinates=std::array<uint64_t,3>;
+  using Binding=std::array<uint64_t,5>;
+  using Sensor=std::array<uint64_t,6>;
+  size_t guidance_hits=0,strip_hits=0,stores=0,refusals=0;
+  static uint64_t Bits(double value){uint64_t bits;std::memcpy(&bits,&value,sizeof bits);return bits;}
+  static Coordinates Key(Point p){return {{Bits(p.x),Bits(p.y),Bits(p.z)}};}
+  static Binding Key(const SU2NativeGeometry::SurfaceBinding& b){return {{b.feature,b.version,b.dimension,Bits(b.u),Bits(b.v)}};}
+  static Sensor Key(Tensor t){return {{Bits(t.xx),Bits(t.xy),Bits(t.xz),Bits(t.yy),Bits(t.yz),Bits(t.zz)}};}
+  void Clear(){rows.clear();roles.clear();std::vector<std::string>().swap(names);used=0;initialized=false;}
+  void Reserve(size_t bytes){Clear();limit=bytes>sizeof(*this)?bytes-sizeof(*this):0;}
+  size_t ReservedBytes()const{return limit?transfer_memory::Add(sizeof(*this),limit):0;}
+  size_t LiveBytes()const{return limit?transfer_memory::Add(sizeof(*this),used):0;}
+  bool Synchronize(const Stamp& current,const std::map<int,int>& marker_roles,const std::vector<std::string>& marker_names) {
+    if(!limit)return false;
+    if(initialized&&stamp==current&&roles==marker_roles&&names==marker_names)return true;
+    Clear();
+    const auto metadata=transfer_memory::Add(transfer_memory::Mul(marker_roles.size(),sizeof(decltype(roles)::value_type)+4*sizeof(void*)),
+        transfer_memory::GrowthBound(marker_names.size(),sizeof(std::string)),transfer_memory::Bytes(marker_names));
+    if(metadata>limit){++refusals;return false;}
+    try {roles=marker_roles;names=marker_names;}
+    catch(const std::bad_alloc&){Clear();++refusals;return false;}
+    stamp=current;used=metadata;initialized=true;return true;
+  }
+  const std::vector<BoundaryMetricSample>* Guidance(Id id,Coordinates p,Binding b,Sensor sensor) {
+    const auto found=rows.find(id);
+    if(found==rows.end()||found->second.point!=p||found->second.binding!=b||found->second.sensor!=sensor)return nullptr;
+    ++guidance_hits;return &found->second.samples;
+  }
+  const std::vector<Point>* Strips(Id id,Coordinates p) {
+    const auto found=rows.find(id);
+    if(found==rows.end()||found->second.point!=p||!found->second.strips_ready)return nullptr;
+    ++strip_hits;return &found->second.strips;
+  }
+  void Store(Id id,Coordinates p,Binding b,Sensor sensor,const std::vector<BoundaryMetricSample>& samples,
+             size_t strip_begin,size_t strip_end,bool strips_ready) {
+    if(!initialized)return;
+    const auto bytes=transfer_memory::Add(sizeof(decltype(rows)::value_type)+4*sizeof(void*),
+        transfer_memory::GrowthBound(samples.size(),sizeof(BoundaryMetricSample)),
+        transfer_memory::GrowthBound(strip_end-strip_begin,sizeof(Point)));
+    // The old row and new vector copies coexist until the replacement is fully built.
+    if(transfer_memory::Add(used,bytes)>limit){++refusals;return;}
+    try {
+    Entry row;row.point=p;row.binding=b;row.sensor=sensor;row.samples=samples;row.strips_ready=strips_ready;
+    row.strips.reserve(strip_end-strip_begin);
+    for(size_t i=strip_begin;i<strip_end;++i)row.strips.push_back(samples.at(i).strip_rule);
+    const auto retained=transfer_memory::Add(sizeof(decltype(rows)::value_type)+4*sizeof(void*),
+        transfer_memory::Bytes(row.samples),transfer_memory::Bytes(row.strips));
+    if(retained>bytes)throw std::logic_error("Native guidance memo exceeded vector admission.");
+    const auto previous=rows.find(id);
+    if(previous!=rows.end()) {
+      used-=previous->second.bytes;previous->second=std::move(row);previous->second.bytes=retained;
+    } else {row.bytes=retained;rows.emplace(id,std::move(row));}
+    used=transfer_memory::Add(used,retained);++stores;
+    }catch(const std::bad_alloc&){Clear();++refusals;}
+  }
+ private:
+  struct Entry {
+    Coordinates point{};Binding binding{};Sensor sensor{};
+    std::vector<BoundaryMetricSample> samples;std::vector<Point> strips;
+    size_t bytes=0;bool strips_ready=false;
+  };
+  Stamp stamp{};std::map<int,int> roles;std::vector<std::string> names;std::map<Id,Entry> rows;
+  size_t limit=0,used=0;bool initialized=false;
+};
 /*! One immutable per-event target: full layers (production D1), base layers (no D1 feature), option A blending them
  *  (D1 kept off the wall), the frozen sensor core. The same object gives the composition of the remesher's
  *  reassessment and of the construction's frozen field. */
@@ -373,9 +447,28 @@ struct TargetPolicy {
         SU2_TYPE::GetValue(associated.normal[2])}};
   }
   std::vector<BoundaryMetricSample> BoundaryGuidance(Node node,const PlanarReference& context,Tensor sensor,
-                                                   const std::vector<std::string>& marker_names) const {
+                                                   const std::vector<std::string>& marker_names,BoundaryGuidanceMemo* memo=nullptr) const {
     if(!authority||!base||!A)throw std::invalid_argument("Boundary guidance needs an initialized native target.");
     ValidateTensor(sensor);
+    const auto* associated_point=context.Parameters()?context.Parameter(node.p):nullptr;
+    if(context.Parameters()) {
+      if(authority->Mapped()&&authority->Parameters()->Authority()!=context.Parameters()->Authority())
+        throw std::invalid_argument("Boundary guidance changed its immutable geometry authority.");
+      if(!associated_point)return {};
+      if(associated_point->node.id!=node.id)throw std::invalid_argument("Boundary guidance coordinate has a different node identity.");
+    }
+    bool memo_ready=false;
+    const auto point_key=BoundaryGuidanceMemo::Key(node.p);
+    if(memo&&full&&associated_point&&point_key==BoundaryGuidanceMemo::Key(associated_point->node.p)) {
+      auto address=[](const auto* p){return uint64_t(reinterpret_cast<uintptr_t>(p));};
+      const BoundaryGuidanceMemo::Stamp stamp{{address(authority.get()),address(base.get()),address(full.get()),address(A.get()),
+        address(context.Parameters()->Authority().get()),base->GetSampleVersion(),base->GetGeometrySampleVersion(),base->GetSupportVersion(),
+        full->GetSampleVersion(),full->GetGeometrySampleVersion(),full->GetSupportVersion(),
+        base->GetFeatures().identity,full->GetFeatures().identity,A->strip_generation,BoundaryGuidanceMemo::Bits(core),BoundaryGuidanceMemo::Bits(h0)}};
+      memo_ready=memo->Synchronize(stamp,roles,marker_names);
+      if(memo_ready)if(const auto* retained=memo->Guidance(node.id,point_key,BoundaryGuidanceMemo::Key(associated_point->binding),BoundaryGuidanceMemo::Key(sensor)))return *retained;
+    }
+    const auto* retained_strips=memo_ready?memo->Strips(node.id,point_key):nullptr;
     std::vector<BoundaryMetricSample> result;
     auto append=[&](BoundaryMetricSample sample) {
       if(result.size()==4*MaximumCavityCells)throw std::length_error("Requested-wall sided guidance exceeds cavity admission.");
@@ -403,6 +496,10 @@ struct TargetPolicy {
         if(stripsReady) {
           // Strip membership depends only on this call's fixed point and policy, not its reference side.
           for(size_t i=stripBegin;i<stripEnd;++i){sample.strip_rule=result[i].strip_rule;append(sample);}
+        } else if(retained_strips) {
+          stripBegin=result.size();
+          for(const auto& rule:*retained_strips){sample.strip_rule=rule;append(sample);}
+          stripEnd=result.size();stripsReady=true;
         } else {
           stripBegin=result.size();
           for(const auto& strip:A->strips) {
@@ -418,12 +515,7 @@ struct TargetPolicy {
       if(!found)throw std::invalid_argument("Requested-wall binding has no retained metric component.");
     };
     if(context.Parameters()) {
-      if(authority->Mapped()&&authority->Parameters()->Authority()!=context.Parameters()->Authority())
-        throw std::invalid_argument("Boundary guidance changed its immutable geometry authority.");
-      const auto* point=context.Parameter(node.p);
-      if(!point)return result;
-      if(point->node.id!=node.id)throw std::invalid_argument("Boundary guidance coordinate has a different node identity.");
-      context.Parameters()->Geometry().ForFacets(point->binding,side);
+      context.Parameters()->Geometry().ForFacets(associated_point->binding,side);
     } else {
       std::set<Id> components;
       for(const auto& face:authority->Facets()) {
@@ -433,6 +525,8 @@ struct TargetPolicy {
         if(!components.count(component)&&context.Contains(face.first,node.p)){side(face.first);components.insert(component);}
       }
     }
+    if(memo_ready)memo->Store(node.id,point_key,BoundaryGuidanceMemo::Key(associated_point->binding),BoundaryGuidanceMemo::Key(sensor),
+        result,stripBegin,stripEnd,stripsReady);
     return result;
   }
   void ApplyPoint(Point p,CBoundaryLayerMetric::Tensor& m) const {

@@ -1,0 +1,33 @@
+{
+  "events": [
+    {
+      "event": 1,
+      "rank_peak_rss_bytes": {
+        "0": 2244308992,
+        "1": 2366550016,
+        "2": 2327379968,
+        "3": 2282680320,
+        "4": 2344595456,
+        "5": 2403643392
+      },
+      "sum_rank_peak_rss_bytes": 13969158144,
+      "limit_bytes": 20000000000,
+      "passed": true
+    },
+    {
+      "event": 2,
+      "rank_peak_rss_bytes": {
+        "0": 2706305024,
+        "1": 2835038208,
+        "2": 3130998784,
+        "3": 2908463104,
+        "4": 2783195136,
+        "5": 3336634368
+      },
+      "sum_rank_peak_rss_bytes": 17700634624,
+      "limit_bytes": 20000000000,
+      "passed": true
+    }
+  ],
+  "meaning": "Sum of process lifetime peak RSS is conservative across nonconcurrent rank peaks. No cache quota or modeled per-rank option changed."
+}
