@@ -1847,6 +1847,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
           <<" upper_calls="<<g.upper_calls-geometry_begin.upper_calls<<" union_exceptions="<<g.union_exceptions-geometry_begin.union_exceptions
           <<" upper_refusals="<<g.upper_refusals-geometry_begin.upper_refusals<<" upper_work="<<g.upper_work-geometry_begin.upper_work
           <<" upper_refinements="<<g.upper_refinements-geometry_begin.upper_refinements
+          <<" upper_deferred_bounds="<<g.upper_deferred_bounds-geometry_begin.upper_deferred_bounds
           <<" classification_calls="<<g.classification_calls-geometry_begin.classification_calls
           <<" classification_work="<<g.classification_work-geometry_begin.classification_work
           <<" magnitude_calls="<<g.magnitude_calls-geometry_begin.magnitude_calls

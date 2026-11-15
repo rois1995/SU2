@@ -1,0 +1,16 @@
+ninja: Entering directory `/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-p5-20261114'
+[1/2] Compiling C++ object UnitTests/test_driver.p/Common_adaptation_CNativeGeometryBackend3D_tests.cpp.o
+FAILED: [code=1] UnitTests/test_driver.p/Common_adaptation_CNativeGeometryBackend3D_tests.cpp.o 
+c++ -IUnitTests/test_driver.p -IUnitTests -I../../UnitTests -ISU2_CFD/src -I../../SU2_CFD/src -ICommon/src -I../../Common/src -I../../externals/CLI11 -I../../externals/eigen -I../../externals/cgns/adf -I../../externals/cgns/adfh -Iexternals/cgns -I../../externals/cgns -Iexternals/cgns/hdf5 -I../../externals/cgns/hdf5 -I../../externals/metis/include -I../../externals/metis/GKlib -I../../externals/metis/libmetis -I../../externals/parmetis/include -I../../externals/parmetis/libparmetis -I../../externals/mel -I../../externals/catch2 -I/usr/lib/x86_64-linux-gnu/openmpi/include -I/usr/lib/x86_64-linux-gnu/openmpi/include/openmpi -fdiagnostics-color=always -D_GLIBCXX_ASSERTIONS=1 -D_FILE_OFFSET_BITS=64 -std=c++17 -O2 -g -pthread -fPIC -Wno-empty-body -Wno-ignored-qualifiers -Wno-unused-parameter -Wno-deprecated-declarations -Wno-error=cast-function-type -Wno-cast-function-type -Wno-error=stringop-truncation -Wno-stringop-truncation -Wno-error=missing-field-initializers -Wno-missing-field-initializers -Wno-error=class-memaccess -Wno-class-memaccess -Wno-overloaded-virtual -Wno-array-bounds -Wno-dangling-pointer -march=native -ffast-math -fno-finite-math-only -DHAVE_CGNS -DHAVE_MPI -DHAVE_METIS -DHAVE_PARMETIS -DHAVE_MMG -MD -MQ UnitTests/test_driver.p/Common_adaptation_CNativeGeometryBackend3D_tests.cpp.o -MF UnitTests/test_driver.p/Common_adaptation_CNativeGeometryBackend3D_tests.cpp.o.d -o UnitTests/test_driver.p/Common_adaptation_CNativeGeometryBackend3D_tests.cpp.o -c ../../UnitTests/Common/adaptation/CNativeGeometryBackend3D_tests.cpp
+../../UnitTests/Common/adaptation/CNativeGeometryBackend3D_tests.cpp: In function ‘void C_A_T_C_H_T_E_S_T_27()’:
+../../UnitTests/Common/adaptation/CNativeGeometryBackend3D_tests.cpp:301:21: error: variable ‘std::ofstream scan’ has initializer but incomplete type
+  301 |   std::ofstream scan("p6c_gap_scan.jsonl");REQUIRE(bool(scan));scan<<std::setprecision(17);
+      |                     ^
+../../UnitTests/Common/adaptation/CNativeGeometryBackend3D_tests.cpp:301:75: error: ‘setprecision’ is not a member of ‘std’
+  301 |   std::ofstream scan("p6c_gap_scan.jsonl");REQUIRE(bool(scan));scan<<std::setprecision(17);
+      |                                                                           ^~~~~~~~~~~~
+../../UnitTests/Common/adaptation/CNativeGeometryBackend3D_tests.cpp:14:1: note: ‘std::setprecision’ is defined in header ‘<iomanip>’; did you forget to ‘#include <iomanip>’?
+   13 | #include <cfenv>
+  +++ |+#include <iomanip>
+   14 | #if defined(__SSE2__)
+ninja: build stopped: subcommand failed.

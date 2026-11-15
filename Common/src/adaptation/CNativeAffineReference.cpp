@@ -12,6 +12,7 @@
 #include "../../include/adt/CADTElemClass.hpp"
 #include "../../include/option_structure.hpp"
 #include <cstring>
+#include <atomic>
 #include <cstdio>
 #include <cstdlib>
 #include <numeric>
@@ -307,6 +308,7 @@ class TriangleUnion {
     for(auto i:candidates){const auto b=Distance(point,i,op);bound.lower=std::min(bound.lower,b.lower);bound.upper=std::min(bound.upper,b.upper);}
     return bound;
   }
+  TriangleDistanceBounds CompleteDistance(const Box& point,AtlasOps& op){return Distance(point,op);}
   template<size_t N> double Upper(const std::array<Box,N>& hull,AtlasOps& op) {
     Box box;for(unsigned d=0;d<3;++d){box[d]={INFINITY,-INFINITY};for(const auto& p:hull){box[d].lo=std::min(box[d].lo,p[d].lo);box[d].hi=std::max(box[d].hi,p[d].hi);}}
     auto witness=[&](size_t i,double cutoff)->double{double b=0;for(const auto& p:hull){
@@ -606,11 +608,14 @@ class SurfaceForest {
   std::vector<TriangleUnion*> leaves;TriangleUnion* witness=nullptr;double maximum_error=0,accuracy=0;bool complete_witness=false;
   template<size_t N> double Upper(const std::array<Box,N>& hull,AtlasOps& op){return witness->Upper(hull,op);}
   double ApproximationError()const{return maximum_error;}
-  TriangleDistanceBounds Distance(const Box& point,AtlasOps& op) {
+  TriangleDistanceBounds Distance(const Box& point,AtlasOps& op){return Distance(point,op,false);}
+  TriangleDistanceBounds CompleteDistance(const Box& point,AtlasOps& op){return Distance(point,op,true);}
+ private:
+  TriangleDistanceBounds Distance(const Box& point,AtlasOps& op,bool complete) {
     if(complete_witness)return witness->Distance(point,op);
     TriangleDistanceBounds bound{INFINITY,witness->Distance(point,op).upper};
     // A rigorous witness upper bound within tolerance makes an outside proof at this sample impossible.
-    if(bound.upper<=accuracy)return {0,bound.upper};
+    if(!complete&&bound.upper<=accuracy)return {0,bound.upper};
     for(auto* leaf:leaves){op.Work();if(BoxGap(point,leaf->Bounds())>bound.upper)continue;
       const auto next=leaf->Distance(point,op);bound.lower=std::min(bound.lower,next.lower);bound.upper=std::min(bound.upper,next.upper);}
     if(!std::isfinite(bound.lower))throw std::logic_error("Surface witness lost its exact support.");
@@ -2158,6 +2163,7 @@ MappedFacetReference::SurfaceUnionBounds MappedFacetReference::QuerySurfaceUnion
     const std::vector<Id>& facets,const std::vector<std::array<Point,3>>& physical,
     double tolerance,AtlasBudget& budget,bool include_model,bool include_mesh,double resolution,bool magnitude,double stop_above)const {
   AtlasOps op{budget,__func__};
+  static std::atomic<size_t> refinement_records{0};
   struct Restore {AtlasBudget& b;size_t caller;~Restore(){b.caller_bytes=caller;}} restore{budget,budget.caller_bytes};
   if(facets.empty()||physical.empty()||!std::isfinite(tolerance)||tolerance<std::numeric_limits<double>::min())
     throw std::invalid_argument("Invalid surface-union geometry/tolerance.");
@@ -2321,7 +2327,7 @@ MappedFacetReference::SurfaceUnionBounds MappedFacetReference::QuerySurfaceUnion
   std::unique_ptr<TriangleUnion> mesh_union,model_union;
   if(include_model)mesh_union=std::make_unique<TriangleUnion>(flat,op,tolerance);
   if(include_mesh && !prepared_model)model_union=std::make_unique<TriangleUnion>(model,op,tolerance);
-  struct NodeBound {UnionDomain domain;double upper,diameter;};
+  struct NodeBound {UnionDomain domain;double upper,diameter;bool complete=false;};
   auto compare=[](const NodeBound& a,const NodeBound& b){return a.upper<b.upper;};
   auto directed=[&](bool from_model,auto& target) {
     std::vector<NodeBound> queue;double lower=0,finished=0;size_t leaves=0;
@@ -2381,8 +2387,19 @@ MappedFacetReference::SurfaceUnionBounds MappedFacetReference::QuerySurfaceUnion
         // An unproven face is conservatively refused at base model accuracy.
         if(!include_model&&!magnitude)
           return std::make_tuple(std::max(finished,node.upper),leaves,false);
-        if(AtlasOps::Trace())std::fprintf(stderr,"NATIVE_SURFACE_REFINE resolution=%.17g error=%.17g diameter=%.17g upper=%.17g lower=%.17g work=%zu\n",
-            resolution,target.ApproximationError(),node.diameter,node.upper,lower,budget.work);
+        if(magnitude&&!node.complete) {
+          // The witness shortcut deferred this sample's lower bound; complete it before refining the model.
+          const auto distance=target.CompleteDistance(sample(node.domain,false),op);lower=std::max(lower,distance.lower);
+          const double upper=std::min(node.upper,std::nextafter(double(
+              Add({distance.upper,distance.upper},{node.diameter,node.diameter}).hi),INFINITY));
+          op.Storage(transfer_memory::GrowthBound(queue.size()+1,sizeof(NodeBound)));
+          queue.push_back({node.domain,upper,node.diameter,true});std::push_heap(queue.begin(),queue.end(),compare);
+          {std::lock_guard<std::mutex> lock(geometry_stats->mutex);++geometry_stats->value.upper_deferred_bounds;}
+          continue;
+        }
+        const bool guard_record=!include_model&&refinement_records.fetch_add(1,std::memory_order_relaxed)<8;
+        if(AtlasOps::Trace()||guard_record)std::fprintf(stderr,"NATIVE_SURFACE_REFINE resolution=%.17g error=%.17g diameter=%.17g upper=%.17g lower=%.17g work=%zu finished=%.17g depth=%u complete=%d magnitude=%d\n",
+            resolution,target.ApproximationError(),node.diameter,node.upper,lower,budget.work,finished,node.domain.depth,int(node.complete),int(magnitude));
         throw RefineSurfaceTarget{};
       }
       unresolved(from_model?"model_to_mesh":"mesh_to_model",node.domain,node.upper,lower);

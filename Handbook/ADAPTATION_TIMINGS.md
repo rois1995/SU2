@@ -1,5 +1,17 @@
 # Adaptation timings and computational work
 
+Current P6c (2026-11-15): reviewer section1.7 supplied after the preserved P6 failure.
+Same-fixture baseline scan:31gaps, zero refinements (does not reproduce M6);61.483s,
+unchanged P6 production CFD SHA b7c78fdb145684243e43522095233a1b85bb396057545be56efdb3a15bc280ab.
+Scan harness first compile failed10.145s on missing test-only standard headers;
+headers corrected, build30.137s, scan run once and passed. Both receipts retained.
+P6c build passed570.142s/1539inputs unchanged; check1 passed77cases/8710assertions210.677s.
+Checks2/3 pass: exact90809869collapse work/predicted counts; collapse max267.270s, construction634.158s, phase366.887s.
+All6zero refinements, required rank5/gen1 and rank2/gen4 completions observed. Rank0facet339060/13328=25.439work/miss.
+Load1m3.96–10.37, outer750.796s, intentional boundary stop/all9owned terminal; sampled solver RSS sum max7066300KiB, not whole-job peak.
+Behavior differs after collapse; no equal-work speed claim. Nested timers remain overlapping; checks4–6/full acceptance pending.
+Evidence: staged57/purpose_query_fix_20261114/p6c_20261115.
+
 Current P6 (2026-11-15) stopped on check3 failure; see [P6 report](ADAPTATION_M6_P6_20261115.md).
 Isolated build496500.164s/1539inputs unchanged; check1 passed77cases/8584assertions in163.569s.
 Check2 passed90809869work<=108459426, predicted480/473/346/263/469/464, zero refinements;

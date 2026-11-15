@@ -1,5 +1,10 @@
 # Implementation and validation cadence
 
+Reviewer correction supplied 2026-11-15: M6_FIX_HANDOFF.md section1.7 (P6c)
+supersedes waiting after P6. Same-fixture baseline scan first; implement the
+specified deferred-bound completion/counter/guard records and repeat the ordered
+checks once, stopping on first failure. No independent replacement fix.
+
 User order, 2026-11-15 (updated M6_FIX_HANDOFF.md): the reviewer supplies ideas
 and design; implement, build, run and report, without independent redesign.
 Check proposals against source first. On a contradiction or first failed check,

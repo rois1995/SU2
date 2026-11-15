@@ -11,6 +11,8 @@
 #include <cmath>
 #include <limits>
 #include <cfenv>
+#include <fstream>
+#include <iomanip>
 #if defined(__SSE2__)
 #include <xmmintrin.h>
 #endif
@@ -298,6 +300,19 @@ TEST_CASE("One-sided near-tolerance magnitudes need no model refinement", "[Nati
       else CHECK(after.limit_calls==1);
     }
   }
+  std::ofstream scan("p6c_gap_scan.jsonl");REQUIRE(bool(scan));scan<<std::setprecision(17);
+  for(unsigned step=170;step<=200;++step) {
+    const double gap=step*.005*tolerance;
+    BackendFixture fixture;const auto before=fixture.geometry->GeometryStatsSnapshot();
+    const auto value=query(fixture,gap,Purpose::ErrorMagnitude);const auto after=fixture.geometry->GeometryStatsSnapshot();
+    INFO("scan gap/tolerance="<<gap/tolerance);
+    CHECK(after.upper_refinements==before.upper_refinements);
+    CHECK(value>=gap);CHECK(value<=gap+tolerance);
+    scan<<"{\"gap_over_tolerance\":"<<gap/tolerance<<",\"value_over_tolerance\":"<<value/tolerance
+        <<",\"upper_refinements\":"<<after.upper_refinements-before.upper_refinements
+        <<",\"upper_deferred_bounds\":"<<after.upper_deferred_bounds-before.upper_deferred_bounds<<"}\n";
+  }
+  REQUIRE(bool(scan));
 }
 
 TEST_CASE("Geometry magnitude bounds retain complete domains and separate classification memo", "[NativeGeometryBackend3D][NativeSurfaceMemo3D][NativeGeometryMagnitude3D]") {
