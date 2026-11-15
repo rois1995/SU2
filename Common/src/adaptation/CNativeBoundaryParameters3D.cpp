@@ -410,39 +410,8 @@ double BoundaryParameterState::EntityFaceError(Id facet,const std::array<Surface
   if(candidates.empty())throw std::invalid_argument("Entity surface query lost its supporting geometry.");
   return std::max(maximum,query(candidates));
 }
-std::vector<double> BoundaryParameterState::OwnedFaceReverseBounds(const std::vector<SurfaceFace>& owned_faces,
-                                                                   AtlasBudget& budget) const {
-  if (!EntityGeometry()) throw std::invalid_argument("Owned face proof requires entity geometry.");
-  AtlasStorage storage(
-      &budget,
-      transfer_memory::Add(budget.caller_bytes, transfer_memory::Mul(geometry->Reference().Facets().size(), 256)),
-      budget.maximum_bytes);
-  std::map<EntityKey, double> bounds;
-  for (const auto& row : geometry->Reference().Facets()) bounds.emplace(Entity(row.first), 0);
-  for (const auto& owned : owned_faces) {
-    budget.CheckTime();
-    // Use the accepted canonical ordering so partitioning cannot change query inputs.
-    const auto& face = surface.at(FaceKey(owned.v));
-    if (Entity(face.facet) != Entity(owned.facet)) throw std::invalid_argument("Owned face entity differs from state.");
-    auto& reverse = bounds.at(Entity(face.facet));
-    if (geometry->ReferenceComponents() || reverse > geometry_tolerance) continue;
-    std::array<Point, 3> points;
-    std::array<SurfaceBinding, 3> bindings;
-    for (unsigned k = 0; k < 3; ++k) {
-      const auto& point = records.at(face.v[k]).point;
-      points[k] = point.node.p;
-      bindings[k] = point.binding;
-    }
-    const double bound = EntityFaceError(face.facet, bindings, points, &budget, SurfaceQueryNeed::Magnitude());
-    reverse = std::isfinite(bound) && bound >= 0 ? std::max(reverse, bound) : INFINITY;
-  }
-  std::vector<double> result;
-  result.reserve(bounds.size());
-  for (const auto& row : bounds) result.push_back(row.second);
-  return result;
-}
 const std::map<BoundaryParameterState::EntityKey,MappedFacetReference::SurfaceUnionBounds>&
-BoundaryParameterState::GeometryCertificates(AtlasBudget& budget,bool complete,const std::vector<double>* reverse_bounds)const {
+BoundaryParameterState::GeometryCertificates(AtlasBudget& budget,bool complete)const {
   SU2NativeTiming3D::Scope certificate_timer(SU2NativeTiming3D::Operation::Certification);
   budget.CheckTime();
   if(!EntityGeometry())throw std::invalid_argument("Entity geometry certificate requested from a legacy face partition.");
@@ -456,18 +425,10 @@ BoundaryParameterState::GeometryCertificates(AtlasBudget& budget,bool complete,c
   std::map<EntityKey,EntitySurface> physical;
   const bool facewise=complete&&!geometry->ReferenceComponents();
   for(const auto& row:geometry->Reference().Facets()){budget.CheckTime();physical.emplace(Entity(row.first),EntitySurface{});}
-  if(reverse_bounds) {
-    if(!complete || reverse_bounds->size()!=physical.size())throw std::invalid_argument("Incomplete reduced entity bounds.");
-    size_t i=0;
-    for(auto& row:physical) {
-      const double bound=reverse_bounds->at(i++);
-      row.second.reverse=std::isfinite(bound)&&bound>=0?bound:INFINITY;
-    }
-  }
   for(const auto& row:surface){budget.CheckTime();std::array<Point,3> points;std::array<SurfaceBinding,3> binding;
     for(unsigned k=0;k<3;++k){const auto& point=records.at(row.second.v[k]).point;points[k]=point.node.p;binding[k]=point.binding;}
     auto& entity=physical.at(Entity(row.second.facet));entity.faces.push_back(points);
-    if(facewise&&!reverse_bounds&&entity.reverse<=geometry_tolerance) {
+    if(facewise&&entity.reverse<=geometry_tolerance) {
       const double bound=EntityFaceError(row.second.facet,binding,points,&budget,SurfaceQueryNeed::Magnitude());
       entity.reverse=std::isfinite(bound)&&bound>=0?std::max(entity.reverse,bound):INFINITY;
     }

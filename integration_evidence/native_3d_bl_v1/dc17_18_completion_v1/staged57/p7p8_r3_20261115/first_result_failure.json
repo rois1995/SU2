@@ -1,0 +1,105 @@
+{
+  "state": "diagnosis_complete_revert_required",
+  "started_unix": 1794776849,
+  "deadline_unix": 1794780449,
+  "limit_seconds": 3600,
+  "first_differing_artifact": "adapted_mesh_adap_00002.su2",
+  "first_differing_line": {
+    "line": 2,
+    "current": "NELEM= 855828",
+    "P6c": "NELEM= 855760"
+  },
+  "payload_identity": {
+    "passed": false,
+    "records": [
+      {
+        "path": "adapted_mesh_adap_00001.su2",
+        "sha256": "2aea6a341b0de7c3175aef7c9671c9f42a17a767c5acc35478a8d89bef87eca7",
+        "P6c_sha256": "2aea6a341b0de7c3175aef7c9671c9f42a17a767c5acc35478a8d89bef87eca7",
+        "byte_identical": true
+      },
+      {
+        "path": "adapted_mesh_adap_00001.su2.native_ref",
+        "sha256": "9bddc9a6317e82cf732adb13ab157c690c46ee7fd820eebf62bf672553e129b9",
+        "P6c_sha256": "9bddc9a6317e82cf732adb13ab157c690c46ee7fd820eebf62bf672553e129b9",
+        "byte_identical": true
+      },
+      {
+        "path": "restart_flow_adap_00001.dat",
+        "sha256": "b77362d32483541b97c9ead50bc52ff33e90a0593db3c5d363977a61331c4091",
+        "P6c_sha256": "b77362d32483541b97c9ead50bc52ff33e90a0593db3c5d363977a61331c4091",
+        "byte_identical": true
+      },
+      {
+        "path": "adapted_mesh_adap_00002.su2",
+        "sha256": "63690652de1af70f890994fb5054523403ba1dc27200123a660e573827aebc36",
+        "P6c_sha256": "11f7b7422ef5d0c17d85666ae265ea7a590bcaf729daeb2df56030d39a660be0",
+        "byte_identical": false
+      },
+      {
+        "path": "adapted_mesh_adap_00002.su2.native_ref",
+        "sha256": "36c45abe03d1dc38e523583cc3103cfb9c83b17983b3679df0c424fab8ff088a",
+        "P6c_sha256": "bc49c1af6f6d691e1c58927470b04b4336336d21f043684a035a6d11394f30db",
+        "byte_identical": false
+      },
+      {
+        "path": "restart_flow_adap_00002.dat",
+        "sha256": "44766f7f95f14d60011fb27ef1bb864c44e9649f782f2b9a0139c6766c93bc94",
+        "P6c_sha256": "3be66436bd544fca0be3fcc2850c20f6b7e26a9cf7d0e777437a59f1c9272afd",
+        "byte_identical": false
+      }
+    ]
+  },
+  "all_owned_handles_terminal": true,
+  "no_retry_started": true,
+  "restart_not_launched": true,
+  "diagnosis_finished_unix": 1794777238.3682952,
+  "diagnosis_elapsed_seconds": 389.3682954311371,
+  "cause": "P7 changes retained prepared-cache history; the existing event2 geometry partition predictor reads prepared facet pieces. Same event1 payloads and metric counts but changed event2 geometry weights precede changed mesh. No proposal transcription/wiring error found. Per-facet retained cache inventory was not logged, so exact contributing facets are not identified.",
+  "source_chain": [
+    {
+      "path": "Common/src/adaptation/CNativeAffineReference.cpp",
+      "lines": "2172-2179",
+      "role": "StructuralEstimate reads prepared pieces from retained prepared cache"
+    },
+    {
+      "path": "Common/src/adaptation/CNativeImport3D.cpp",
+      "lines": "1760-1788",
+      "role": "WorkingWeights MAX-reduces rank-local observed piece counts"
+    },
+    {
+      "path": "Common/src/adaptation/CNativeImport3D.cpp",
+      "lines": "1664-1665,1804-1806",
+      "role": "Observed counts feed geometry estimates and partition weights"
+    }
+  ],
+  "current_event2_counts": {
+    "cells": 855828,
+    "points": 168797
+  },
+  "P6c_event2_counts": {
+    "cells": 855760,
+    "points": 168790
+  },
+  "no_production_correction_permitted": true,
+  "revert_source": "0aaa321b2a^ (production/test bytes identical to accepted48f07ad1a8)",
+  "reverted_paths": [
+    "Common/include/CConfig.hpp",
+    "Common/include/adaptation/CNativeAffineReference.hpp",
+    "Common/include/adaptation/CNativeBoundaryParameters3D.hpp",
+    "Common/include/adaptation/CNativeDistributed2D.hpp",
+    "Common/include/adaptation/CNativeEngine3D.hpp",
+    "Common/include/adaptation/CNativeRemesher3D.hpp",
+    "Common/include/adaptation/CNativeRuntimeProfile3D.hpp",
+    "Common/src/CConfig.cpp",
+    "Common/src/adaptation/CNativeAffineReference.cpp",
+    "Common/src/adaptation/CNativeBoundaryParameters3D.cpp",
+    "Common/src/adaptation/CNativeEngine3D.cpp",
+    "Common/src/adaptation/CNativeRemesher3D.cpp",
+    "UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp",
+    "UnitTests/Common/adaptation/CNativeGeometryBackend3D_tests.cpp",
+    "UnitTests/SU2_CFD/adaptation/CNativeImport3D_tests.cpp",
+    "config_template.cfg"
+  ],
+  "numerical_retries": 0
+}

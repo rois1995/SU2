@@ -1163,37 +1163,3 @@ TEST_CASE("Closest witnesses compare competitive supports after an upper improve
   CHECK(after.closest_projection_work-before.closest_projection_work<=128);
   CHECK(result.work<=16384);
 }
-
-// Splitting face ownership must leave both directed entity certificate values unchanged.
-TEST_CASE("Owned face reverse bounds preserve complete entity certificates", "[NativeOwnedFaceProof3D]") {
-  using namespace SU2Native3D;
-  BackendFixture fixture(GENERATE(false, true));
-  auto budget = BackendBudget();
-  BoundaryPoints points;
-  std::vector<SurfaceFace> skin;
-  for (const auto& face : fixture.facets) {
-    skin.push_back({{face.v[0].id, face.v[1].id, face.v[2].id}, face.id});
-    for (auto node : face.v) points.emplace(node.id, BoundaryPoint{node, fixture.geometry->Vertex(node.id)});
-  }
-  auto legacy = std::make_shared<BoundaryParameterState>(fixture.geometry, points, skin, 1, SIZE_MAX, 0,
-                                                         BoundaryCoverage{}, fixture.policy, &budget);
-  auto entity = legacy->WithEntityGeometry(.01, budget);
-  const auto complete = entity->GeometryCertificates(budget, true);
-  std::vector<SurfaceFace> first, second;
-  for (size_t i = 0; i < skin.size(); ++i) (i % 2 ? second : first).push_back(skin[i]);
-  auto bounds = entity->OwnedFaceReverseBounds(first, budget);
-  const auto other = entity->OwnedFaceReverseBounds(second, budget);
-  REQUIRE(bounds.size() == other.size());
-  for (size_t i = 0; i < bounds.size(); ++i) bounds[i] = std::max(bounds[i], other[i]);
-  const auto reduced = entity->GeometryCertificates(budget, true, &bounds);
-  REQUIRE(reduced.size() == complete.size());
-  for (const auto& row : complete) {
-    const auto& actual = reduced.at(row.first);
-    CHECK(actual.model_to_mesh == row.second.model_to_mesh);
-    CHECK(actual.mesh_to_model == row.second.mesh_to_model);
-    CHECK(actual.within_tolerance == row.second.within_tolerance);
-    CHECK(actual.physical_pieces == row.second.physical_pieces);
-  }
-  bounds.clear();
-  CHECK_THROWS(entity->GeometryCertificates(budget, true, &bounds));
-}

@@ -53,10 +53,6 @@ struct RemeshStats {
   uint64_t worker_transport_bytes = 0, worker_transport_calls = 0;
   double communication_seconds = 0, parent_transport_seconds = 0, worker_transport_seconds = 0;
   size_t maximum_native_bytes = 0, process_peak_rss_bytes = 0;
-  size_t job_peak_rss_bytes = 0;
-  uint64_t job_peak_rss_lower_bytes = 0, final_proof_faces = 0, final_proof_surface_faces = 0;
-  size_t geometry_distinct_facets=0, geometry_distinct_scope_keys=0;
-  double geometry_prepared_facet_mean_bytes=0;
   int workers = 0;
   bool complete = false, detailed_timings = false;
   bool construction = false;      // A FIRST_ROW factory seeded private construction before distributed adaptation.

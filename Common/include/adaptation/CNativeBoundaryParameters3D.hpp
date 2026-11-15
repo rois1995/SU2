@@ -95,9 +95,7 @@ class BoundaryParameterState {
   double EntityFaceError(Id facet,const std::array<SU2NativeGeometry::SurfaceBinding,3>&,
       const std::array<Point,3>&,SU2NativeGeometry::AtlasBudget*,SU2NativeGeometry::SurfaceQueryNeed need,double minimum_error=0)const;
   const std::map<EntityKey,SU2NativeGeometry::MappedFacetReference::SurfaceUnionBounds>&
-      GeometryCertificates(SU2NativeGeometry::AtlasBudget&,bool complete=false,const std::vector<double>* reverse_bounds=nullptr)const;
-  /*! Mesh-to-model bounds for the given owned faces, in canonical entity-key order. */
-  std::vector<double> OwnedFaceReverseBounds(const std::vector<SurfaceFace>&,SU2NativeGeometry::AtlasBudget&)const;
+      GeometryCertificates(SU2NativeGeometry::AtlasBudget&,bool complete=false)const;
   const Entries& Records()const{return records;}
   const std::map<Face,SurfaceFace>& Surface()const{return surface;}
   const SU2NativeGeometry::BoundaryCoverage& Coverage()const{return coverage;}

@@ -1,0 +1,52 @@
+{
+  "accepted": false,
+  "events": [
+    {
+      "event": 1,
+      "remesh_root_seconds": {
+        "N1": 2220.3880281680003,
+        "F3b": 2683.459776222
+      },
+      "N1_peak_sum_bytes": 14007463936,
+      "F3b_peak_sum_bytes": 13950185472,
+      "N1_proof_faces": 67170,
+      "N1_minimum_timer_coverage": 0.963632099303999,
+      "N1_geometry_bound_calls": 31622
+    },
+    {
+      "event": 2,
+      "remesh_root_seconds": {
+        "N1": 1451.0150395980002,
+        "F3b": 1977.279934371
+      },
+      "N1_peak_sum_bytes": 17343528960,
+      "F3b_peak_sum_bytes": 17696780288,
+      "N1_proof_faces": 62912,
+      "N1_minimum_timer_coverage": 0.9662155811024806,
+      "N1_geometry_bound_calls": 35298
+    }
+  ],
+  "scope": "Observed failed-N1 run versus accepted F3b; rank-summed exclusive timer seconds are not whole-job wall time. Inclusive timers overlap and must not be added. No speedup/capability claim.",
+  "native_reported_totals": {
+    "p7p8_r3_20261115": [
+      {
+        "event": 1,
+        "maximum_native_total_seconds": 2220.339770577
+      },
+      {
+        "event": 2,
+        "maximum_native_total_seconds": 1450.9664617259996
+      }
+    ],
+    "f3b_20261115": [
+      {
+        "event": 1,
+        "maximum_native_total_seconds": 2683.411540761
+      },
+      {
+        "event": 2,
+        "maximum_native_total_seconds": 1977.2148138020002
+      }
+    ]
+  }
+}

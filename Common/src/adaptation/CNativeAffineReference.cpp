@@ -1096,10 +1096,6 @@ struct MappedFacetReference::CurvedSearch {
   };
   std::map<Id,Id> root;
   std::map<Id,Entry> entries;
-  std::vector<Id> facet_ids;
-  std::vector<uint8_t> seen_facets;
-  std::set<std::vector<uint64_t>> event_scope_keys;
-  size_t distinct_facet_count=0,scope_key_bytes=0,prepared_facet_bytes_sum=0,prepared_facet_builds=0;
   std::mutex mutex; // House ADT traversal buffers are shared by concurrent non-OpenMP callers.
   std::mutex prepared_mutex;
   template<class Key> struct Pool {
@@ -1134,37 +1130,13 @@ struct MappedFacetReference::CurvedSearch {
   Pool<std::pair<Id,uint64_t>> prepared;
   Pool<std::vector<uint64_t>> scopes;
   size_t prepared_limit=0;
-  /*! Account for the event counter index, bitmap, and retained scope keys. */
-  size_t NeedBytes() const {
-    return transfer_memory::Add(transfer_memory::Mul(facet_ids.capacity(), sizeof(Id)),
-                                transfer_memory::Bytes(seen_facets), scope_key_bytes);
-  }
-  /*! Map an authority facet identity to its bit using sorted authority order. */
-  size_t FacetIndex(Id facet) const {
-    const auto found = std::lower_bound(facet_ids.begin(), facet_ids.end(), facet);
-    if (found == facet_ids.end() || *found != facet) {
-      throw std::out_of_range("Surface query facet is outside its authority.");
-    }
-    return size_t(found - facet_ids.begin());
-  }
-  /*! Set one authority-facet bit and count its first use in this event. */
-  void MarkFacet(Id facet) {
-    const auto index = FacetIndex(facet);
-    const auto mask = uint8_t(1u << (index % 8));
-    if (seen_facets[index / 8] & mask) return;
-    seen_facets[index / 8] |= mask;
-    ++distinct_facet_count;
-  }
   size_t Bytes()const{return transfer_memory::Add(prepared.bytes,scopes.bytes,
-      transfer_memory::Mul(facet_resolutions.size(),sizeof(uint64_t)+4*sizeof(void*)),NeedBytes());}
+      transfer_memory::Mul(facet_resolutions.size(),sizeof(uint64_t)+4*sizeof(void*)));}
   void Snapshot(GeometryStats& stats)const {
     stats.prepared_limit=prepared_limit;stats.prepared_bytes=Bytes();
     stats.facet_bytes=prepared.bytes;stats.scope_bytes=scopes.bytes;
     stats.facet_entries=prepared.values.size();stats.scope_entries=scopes.values.size();
     stats.facet_resolutions=facet_resolutions.size();
-    stats.distinct_facets=distinct_facet_count;stats.distinct_scope_keys=event_scope_keys.size();
-    stats.prepared_facet_builds=prepared_facet_builds;
-    stats.prepared_facet_mean_bytes=prepared_facet_builds?double(prepared_facet_bytes_sum)/prepared_facet_builds:0;
     stats.evictions=prepared.evictions+scopes.evictions;stats.evicted_bytes=prepared.evicted_bytes+scopes.evicted_bytes;
   }
 };
@@ -1312,9 +1284,6 @@ MappedFacetReference::MappedFacetReference(std::shared_ptr<const SU2Native3D::Pl
   }
   if(!curves.empty()) {
     auto data=std::make_shared<CurvedSearch>();
-    data->facet_ids.reserve(reference->Facets().size());
-    for(const auto& row:reference->Facets())data->facet_ids.push_back(row.first);
-    data->seen_facets.assign((data->facet_ids.size()+7)/8,0);
     for(const auto& row:curves)data->root.emplace(row.first,row.first);
     auto root=[&](Id id){while(data->root.at(id)!=id){data->root[id]=data->root.at(data->root.at(id));id=data->root.at(id);}return id;};
     for(const auto& row:edge_facets)if(row.size()==2 && curves.count(row[0]) && curves.count(row[1]) &&
@@ -1322,8 +1291,7 @@ MappedFacetReference::MappedFacetReference(std::shared_ptr<const SU2Native3D::Pl
       const auto a=root(row[0]),b=root(row[1]);data->root[std::max(a,b)]=std::min(a,b);
     }
     for(auto& row:data->root){row.second=root(row.first);data->entries[row.second].facets.push_back(row.first);}
-    size_t prepared=transfer_memory::Add(bound,data->NeedBytes());
-    if(prepared==SIZE_MAX||prepared>ceiling)throw std::length_error("Curved facet counter storage exceeds admission.");
+    size_t prepared=bound;
     for(auto& row:data->entries) {
       auto& entry=row.second;const size_t count=entry.facets.size();if(count<=16)continue;
       size_t retained=0,peak=0;CADTElemClass::PredictBytes(3,2*count,count,2*count,&retained,&peak);
@@ -2132,38 +2100,12 @@ MappedFacetReference::GeometryStats MappedFacetReference::GeometryStatsSnapshot(
   if(reset){geometry_stats->value={};geometry_stats->value.prepared_bytes=value.prepared_bytes;geometry_stats->value.prepared_limit=value.prepared_limit;
     geometry_stats->value.facet_bytes=value.facet_bytes;geometry_stats->value.scope_bytes=value.scope_bytes;
     geometry_stats->value.facet_entries=value.facet_entries;geometry_stats->value.scope_entries=value.scope_entries;
-    geometry_stats->value.evictions=value.evictions;geometry_stats->value.evicted_bytes=value.evicted_bytes;
-    if(curved_search){std::fill(curved_search->seen_facets.begin(),curved_search->seen_facets.end(),0);
-      curved_search->distinct_facet_count=0;curved_search->event_scope_keys.clear();curved_search->scope_key_bytes=0;
-      curved_search->prepared_facet_bytes_sum=curved_search->prepared_facet_builds=0;}}
+    geometry_stats->value.evictions=value.evictions;geometry_stats->value.evicted_bytes=value.evicted_bytes;}
   return value;
 }
 void MappedFacetReference::RecordSupportQuery(double seconds,size_t facets)const {
   std::lock_guard<std::mutex> lock(geometry_stats->mutex);auto& x=geometry_stats->value;
   ++x.support_calls;x.support_facets+=facets;x.support_seconds+=seconds;
-}
-// Clear only counters whose lifetime is one adaptation event.
-void MappedFacetReference::ResetGeometryNeedStats() const {
-  if (curved_search) {
-    std::lock_guard<std::mutex> prepared(curved_search->prepared_mutex);
-    std::fill(curved_search->seen_facets.begin(), curved_search->seen_facets.end(), 0);
-    curved_search->distinct_facet_count = 0;
-    curved_search->event_scope_keys.clear();
-    curved_search->scope_key_bytes = 0;
-    curved_search->prepared_facet_bytes_sum = 0;
-    curved_search->prepared_facet_builds = 0;
-    std::lock_guard<std::mutex> stats(geometry_stats->mutex);
-    geometry_stats->value.distinct_facets = 0;
-    geometry_stats->value.distinct_scope_keys = 0;
-    geometry_stats->value.prepared_facet_builds = 0;
-    geometry_stats->value.prepared_facet_mean_bytes = 0;
-  } else {
-    std::lock_guard<std::mutex> stats(geometry_stats->mutex);
-    geometry_stats->value.distinct_facets = 0;
-    geometry_stats->value.distinct_scope_keys = 0;
-    geometry_stats->value.prepared_facet_builds = 0;
-    geometry_stats->value.prepared_facet_mean_bytes = 0;
-  }
 }
 void MappedFacetReference::RecordDirectQuery(double seconds,size_t work,bool failed)const {
   std::lock_guard<std::mutex> lock(geometry_stats->mutex);auto& x=geometry_stats->value;
@@ -2280,7 +2222,6 @@ MappedFacetReference::SurfaceUnionBounds MappedFacetReference::QuerySurfaceUnion
     // Pin complete-support leaves throughout certification. Unretained leaves remain transiently charged.
     for(Id facet:facets) {
       op.Work();const auto key=std::make_pair(facet,resolution_bits);
-      curved_search->MarkFacet(facet);
       if(!curved_search->facet_resolutions.count(resolution_bits)) {
         op.Storage(transfer_memory::Add(curved_search->Bytes(),sizeof(uint64_t)+4*sizeof(void*)));
         curved_search->facet_resolutions.insert(resolution_bits);
@@ -2296,10 +2237,6 @@ MappedFacetReference::SurfaceUnionBounds MappedFacetReference::QuerySurfaceUnion
         budget.caller_bytes=transfer_memory::Add(budget.caller_bytes,transfer_memory::Mul(data->triangles.capacity(),sizeof(UnionTriangle)));
         data->target=std::make_unique<TriangleUnion>(data->triangles,op,resolution,false);
         const auto bytes=transfer_memory::Add(data->Bytes(),256);budget.caller_bytes=leaf_caller;op.Storage(bytes);
-        {std::lock_guard<std::mutex> lock(geometry_stats->mutex);auto& stats=geometry_stats->value;
-          curved_search->prepared_facet_bytes_sum=transfer_memory::Add(curved_search->prepared_facet_bytes_sum,bytes);
-          ++curved_search->prepared_facet_builds;stats.prepared_facet_builds=curved_search->prepared_facet_builds;
-          stats.prepared_facet_mean_bytes=double(curved_search->prepared_facet_bytes_sum)/curved_search->prepared_facet_builds;}
         const bool retain=curved_search->prepared.Retain(key,data,bytes,budget.work-leaf_work,curved_search->prepared_limit/2,op);
         if(!retain)budget.caller_bytes=transfer_memory::Add(leaf_caller,bytes);
         std::lock_guard<std::mutex> lock(geometry_stats->mutex);auto& stats=geometry_stats->value;
@@ -2341,14 +2278,6 @@ MappedFacetReference::SurfaceUnionBounds MappedFacetReference::QuerySurfaceUnion
       op.Storage(transfer_memory::Add(transfer_memory::GrowthBound(1,sizeof(selected.front())),transfer_memory::GrowthBound(4,sizeof(uint64_t))));
       selected.emplace_back(0,0);scope.push_back(facets.front());scope.push_back(0);
     }
-    const auto scope_storage=transfer_memory::Add(sizeof(scope),transfer_memory::Mul(scope.size(),sizeof(uint64_t)),4*sizeof(void*));
-    const auto scope_found=curved_search->event_scope_keys.find(scope);
-    if(scope_found==curved_search->event_scope_keys.end()) {
-      op.Storage(transfer_memory::Add(curved_search->Bytes(),scope_storage));
-      curved_search->event_scope_keys.insert(scope);
-      curved_search->scope_key_bytes=transfer_memory::Add(curved_search->scope_key_bytes,scope_storage);
-    }
-    {std::lock_guard<std::mutex> lock(geometry_stats->mutex);geometry_stats->value.distinct_scope_keys=curved_search->event_scope_keys.size();}
     budget.caller_bytes=selection_caller;op.Storage(selection_bytes());
     budget.caller_bytes=transfer_memory::Add(selection_caller,selection_bytes());
     {std::lock_guard<std::mutex> lock(geometry_stats->mutex);auto& stats=geometry_stats->value;
@@ -3228,7 +3157,6 @@ size_t MappedFacetReference::ResidentBytes()const {
     out=transfer_memory::Add(out,sizeof(CurvedSearch),bytes(curved_search->root),bytes(curved_search->entries),curved_search->prepared_limit);
     for(const auto& row:curved_search->entries){const auto& c=row.second;out=transfer_memory::Add(out,transfer_memory::Bytes(c.facets),
         c.index?c.index->GetAllocatedBytes():0,c.index?c.index->RetainedWorkspaceBound(1):0);}
-    out=transfer_memory::Add(out,curved_search->NeedBytes());
   }
   return out;
 }

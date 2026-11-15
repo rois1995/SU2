@@ -127,8 +127,6 @@ class MappedFacetReference {
     size_t scope_attempts=0,scope_builds=0,scope_build_work=0,retention_refusals=0,prepared_bytes=0,prepared_limit=0;
     size_t facet_bytes=0,scope_bytes=0,facet_entries=0,scope_entries=0,evictions=0,evicted_bytes=0;
     size_t support_calls=0,support_facets=0,facet_build_work=0,piece_selection_work=0,traversal_work=0;
-    size_t distinct_facets=0,distinct_scope_keys=0,prepared_facet_builds=0;
-    double prepared_facet_mean_bytes=0;
     size_t selected_pieces=0,support_pieces=0;
     size_t closest_region_hits=0,closest_region_misses=0,closest_region_retention_refusals=0;
     size_t closest_answer_hits=0,closest_answer_misses=0,closest_answer_refinements=0;
@@ -143,8 +141,6 @@ class MappedFacetReference {
   };
   struct FacetStructure {bool curved=false;double chord_size=0,control_deviation=0;size_t prepared_pieces=0;};
   GeometryStats GeometryStatsSnapshot(bool reset=false)const;
-  /*! Start a new event-local geometry-need counter epoch without clearing legacy statistics or caches. */
-  void ResetGeometryNeedStats()const;
   void RecordSupportQuery(double seconds,size_t facets)const;
   FacetStructure StructuralEstimate(Id facet)const;
   void RecordDirectQuery(double seconds,size_t work,bool failed)const;
