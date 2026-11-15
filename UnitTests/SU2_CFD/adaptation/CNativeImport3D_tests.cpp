@@ -2869,6 +2869,8 @@ TEST_CASE("Native job memory peaks and refusal preserve accepted CFD state", "[N
                            "SOLVER= EULER\nCOMPUTE_METRIC= YES\nADAP_SENSOR= PRESSURE\n"
                            "ADAP_REMESHER= NATIVE_CAVITY\nADAP_SURFACE= YES\nADAP_HESSIAN_NOISE= 0\n"
                            "ADAP_NATIVE_REPARTITION= YES\nADAP_NATIVE_RANKS= 1\nADAP_HAUSD= .001\n"
+                           "TIME_DOMAIN= YES\nTIME_STEP= .001\nTIME_ITER= 10\n"
+                           "TIME_MARCHING= DUAL_TIME_STEPPING-2ND_ORDER\n"
                            "ADAP_NATIVE_MAX_WORK= 4096\nADAP_NATIVE_JOB_MEMORY_LIMIT= 1\nWRT_PERFORMANCE= YES\n");
   MeshSolution mesh(config.get(), BoxMesh(3, 1, false), 0);
   const auto accepted = State(mesh);
@@ -2888,7 +2890,9 @@ TEST_CASE("Native job memory peaks and refusal preserve accepted CFD state", "[N
                             "SOLVER= EULER\nCOMPUTE_METRIC= YES\nADAP_SENSOR= PRESSURE\n"
                             "ADAP_REMESHER= NATIVE_CAVITY\nADAP_SURFACE= YES\nADAP_HESSIAN_NOISE= 0\n"
                             "ADAP_NATIVE_REPARTITION= YES\nADAP_NATIVE_RANKS= 1\nADAP_HAUSD= .001\n"
-                            "ADAP_NATIVE_MAX_WORK= 4096\nADAP_NATIVE_JOB_MEMORY_LIMIT= 19073\nWRT_PERFORMANCE= YES\n");
+                            "TIME_DOMAIN= YES\nTIME_STEP= .001\nTIME_ITER= 10\n"
+                           "TIME_MARCHING= DUAL_TIME_STEPPING-2ND_ORDER\n"
+                           "ADAP_NATIVE_MAX_WORK= 4096\nADAP_NATIVE_JOB_MEMORY_LIMIT= 19073\nWRT_PERFORMANCE= YES\n");
   EngineOptions options;
   size_t maximum_lower = 0, observed_boundaries = 0;
   options.stage_observer = [&](const StageProgressView& view) {

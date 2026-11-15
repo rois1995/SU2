@@ -1,0 +1,45 @@
+{
+  "state": "stopped_same_fixture_failed_again_after_authorized_correction",
+  "check": "a serial units",
+  "case": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/p7p8_r2_units_serial_20261115T190817_1380050",
+  "exit_code": 1,
+  "fixture": "Native job memory peaks and refusal preserve accepted CFD state",
+  "correction_count": 1,
+  "previous_cause": "steady fixture State(mesh) lacked time-history arrays",
+  "correction": "four time-domain options in BOTH fixture configurations exactly as2.0e-r2",
+  "corrected_cause_resolved": true,
+  "new_failure": "Native3D face/physical-label incidence is not an oriented conforming manifold.",
+  "production_gate_location": "Common/src/adaptation/CNativeImport3D.cpp:1230-1239",
+  "failure_phase": "second allowed-memory Remesh(*enabled,mesh.Fine(),metric), before engine execution",
+  "observed_partial_result": {
+    "one_MiB_refusal_emitted": true,
+    "job_peak_rss_bytes": 33402880,
+    "process_peak_rss_bytes": 33402880,
+    "complete": false
+  },
+  "source_diagnosis": "MeshSolution was constructed with config; the allowed call passes separately constructed enabled config with the same geometry. Mesh readers/BuildGeometryFVM initialize runtime marker tables on the config used to construct the geometry. This is a likely setup mismatch; no rejected face counts/witness were printed, so exact failing group is not independently reconstructed.",
+  "source_references": [
+    "CNativeImport3D_tests.cpp:2875-2876,2889-2903",
+    "TransferTestCase.hpp:88-92,108-117",
+    "CNativeImport3D.cpp:1063-1065,1184-1190,1230-1239"
+  ],
+  "same_fixture_retry_or_second_correction": false,
+  "production_code_changed": false,
+  "all_owned_handles_terminal": true,
+  "source_binary_pins_unchanged": true,
+  "not_run": [
+    "remaining serial unit cases",
+    "MPI2 subset",
+    "exact collapse",
+    "C492",
+    "481/current target",
+    "2D1/2/4",
+    "full two-event workflow"
+  ],
+  "B7": {
+    "condition_evaluated": false,
+    "implemented": false,
+    "reason": "Full P7/P8 run has not passed; event2 M18 rows unavailable"
+  },
+  "unix": 1794769905.8983705
+}

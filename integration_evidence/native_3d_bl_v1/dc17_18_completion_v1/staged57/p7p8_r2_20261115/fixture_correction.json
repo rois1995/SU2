@@ -1,0 +1,10 @@
+{
+  "rule": "reviewer2.0e-r2 and user harness correction rule",
+  "cause": "State(mesh) reads time_n/time_n1; steady fixture did not allocate them",
+  "correction": "Add TIME_DOMAIN YES, TIME_STEP .001, TIME_ITER10, TIME_MARCHING DUAL_TIME_STEPPING-2ND_ORDER to BOTH new P8 configurations, nothing else",
+  "correction_count": 1,
+  "same_fixture_failure_after_correction": "stop item",
+  "source_changed_only": "UnitTests/SU2_CFD/adaptation/CNativeImport3D_tests.cpp",
+  "production_changed": false,
+  "unix": 1794769480.337303
+}
