@@ -2,9 +2,7 @@
 
 Step2 is complete and pushed: [cheap checks](Handbook/ADAPTATION_M6_CHEAP_GROUP_20261115.md) and [profile tables](Handbook/ADAPTATION_M6_MEASUREMENT_CHEAP_GROUP_20261115.md).
 
-**F3 step3 failed its first complete-event coverage check and is incomplete.** Final ledger coverage68.357–74.357% misses95%; quality leaves619.987–773.172s/rank unattributed. All ledger arithmetic checks pass. [Failure report](Handbook/ADAPTATION_F3_EXCLUSIVE_TIMERS_20261115.md), evidence R/f3_exclusive_20261115. Bounded checks passed. First native event accepted2659.995s and13.924GB summed reported rank peaks; mesh/reference matchP6c. The owned run was stopped at the coverage failure, before event2; all handles are terminal and source/binary hashes unchanged.
-
-Await the reviewer’s corrected F3 proposal. Do not add another local timer variant or launch a numerical retry under the existing proposal. Preserve the complete failure, exact phase gaps, call counts, old-cavity cost and source omissions. Do not call step3 finalized or advance the design sequence as though it passed.
+**Current step3: execute reviewer F3b section2.0b, implementation frozen at build504.** Build,9timerunits,exactcollapse andallchanged-objectC492/481/target/2DrepeatsPASS. Fullcheck(c)is active atR/f3b_20261115/full_workflow/status.json(tool96758). Verify handle before any heavy job/source edit. Observeexisting(c)runonly; allpriorcheckscompletedonce. Require95%coverage each rank/event, JoinWait within1%oflegacy windows, P6c-identical outputs,5400s/event and20GB sumofreportedrankpeaks. Stop first failure and report; no secondchange/retry. A5/B5withdrawn. Preserve historicalF3failure but do not treat its terminal status as current.
 
 Keep5400s per native event, all strict mesh/geometry/height gates and summed native rank peakRSS<=20GB decimal. No sampled-RSS substitution or modeled-memory/cache-quota change. One owned heavy job, nice19, max6heavy ranks, single-threaded libraries,4TBscratch.
 

@@ -5,6 +5,7 @@
  * SU2 is free software under the GNU Lesser General Public License, version 2.1 or later.
  */
 #include "../../include/adaptation/CNativeDistributed3D.hpp"
+#include "../../include/adaptation/CNativeTimerTree3D.hpp"
 #include "../../include/adt/CADTElemClass.hpp"
 #include "../../include/option_structure.hpp"
 #include <chrono>
@@ -340,6 +341,7 @@ std::array<su2double,6> CollisionBounds(const Cell& cell) {
 }
 bool Directory::Clearance(const Owned& owned,const Patch& old,const Patch& fresh,bool& candidate,
                           std::string& reason,size_t ceiling,size_t caller_bytes,bool* deferred,unsigned priority,Feature coordinate_star) {
+  SU2NativeTiming3D::Scope clearance_timer(SU2NativeTiming3D::Operation::Clearance);
   if(deferred)*deferred=false;
   std::vector<ClearanceCandidate> batch;CLocalFailure failure;
   try {batch.push_back({&old,&fresh,candidate,false,priority,coordinate_star,{}});}
@@ -352,6 +354,7 @@ bool Directory::Clearance(const Owned& owned,const Patch& old,const Patch& fresh
 }
 bool Directory::ClearanceBatch(const Owned& owned,std::vector<ClearanceCandidate>& candidates,
                               std::string& reason,size_t ceiling,size_t caller_bytes) {
+  SU2NativeTiming3D::Scope clearance_timer(SU2NativeTiming3D::Operation::Clearance);
   Timer timer(stats.collision_seconds);CLocalFailure failure;
   for(auto& candidate:candidates){candidate.deferred=false;candidate.reason.clear();}
   caller_bytes=transfer_memory::Add(caller_bytes,transfer_memory::Bytes(candidates),

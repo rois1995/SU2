@@ -157,3 +157,10 @@ TEST_CASE("Native timer checkpoints emit active operation rows", "[NativeTimerTr
   CHECK(report.find("boundary=collapse rank=0 phase=construction operation=census calls=1") != std::string::npos);
   CHECK(report.find("boundary=final rank=0") != std::string::npos);
 }
+
+/*! Stable operation names keep join wait and clearance distinct in the F3 ledger. */
+TEST_CASE("Native timer names distinguish join wait and clearance", "[NativeTimerTree3D]") {
+  using namespace SU2NativeTiming3D;
+  CHECK(std::string(OperationName(Operation::JoinWait)) == "join_wait");
+  CHECK(std::string(OperationName(Operation::Clearance)) == "clearance");
+}

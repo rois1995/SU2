@@ -50,6 +50,8 @@ enum class Operation : std::size_t {
   MetricNormalization,
   Certification,
   Output,
+  JoinWait,
+  Clearance,
   Count
 };
 
@@ -152,6 +154,10 @@ inline const char* OperationName(Operation operation) {
       return "certification";
     case Operation::Output:
       return "output";
+    case Operation::JoinWait:
+      return "join_wait";
+    case Operation::Clearance:
+      return "clearance";
     case Operation::Count:
       break;
   }

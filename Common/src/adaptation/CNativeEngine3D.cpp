@@ -83,6 +83,13 @@ class Timer {
   Clock::time_point start;
   std::optional<SU2NativeTiming3D::Scope> scope;
 };
+/*! Direct collectives bypass World: name their wall time without changing its legacy counters. */
+template <class T>
+T TimedAllreduce(T value, CPassiveComm::Op operation, CPassiveComm::Communicator communicator) {
+  SU2NativeTiming3D::Scope communication_timer(SU2NativeTiming3D::Operation::Communication);
+  return CPassiveComm::Allreduce(value, operation, communicator);
+}
+
 class CpuTimer {
  public:
   CpuTimer(double& value, bool enabled) : value(value), enabled(enabled) { if (enabled) start=std::clock(); }
@@ -1212,7 +1219,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
   const SU2NativeGeometry::BoundaryCoverage no_coverage;
   CLocalFailure parameter_failure;size_t parameter_bound=0;
   const unsigned mapped=accepted_geometry.Mapped();
-  const auto mapped_low=CPassiveComm::Allreduce(mapped,CPassiveComm::Op::MIN,world.comm),mapped_high=CPassiveComm::Allreduce(mapped,CPassiveComm::Op::MAX,world.comm);
+  const auto mapped_low=TimedAllreduce(mapped,CPassiveComm::Op::MIN,world.comm),mapped_high=TimedAllreduce(mapped,CPassiveComm::Op::MAX,world.comm);
   if(mapped_low!=mapped_high)parameter_failure.Set(1,0,"Native3D parameter geometry mode differs across workers.");
   if(mapped)try {
     const auto* parameters=accepted_geometry.Parameters();
@@ -1594,7 +1601,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
   auto generation_debt=[&]() {
     GenerationDebt d;d.edges=edge_progress.hinge_squared;d.maximum=edge_progress.max_length;
     const auto p=selection.Progress(working.size());
-    d.geometry=CPassiveComm::Allreduce(double(p.geometry_excess_squared),CPassiveComm::Op::SUM,world.comm);
+    d.geometry=TimedAllreduce(double(p.geometry_excess_squared),CPassiveComm::Op::SUM,world.comm);
     bool geometry_complete=p.geometry_complete;
     if(surface_target) {
       const auto count=selection.SurfaceCensus(working);
@@ -1810,6 +1817,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
       if(elected.any){result.valid=result.surface_prepared=false;result.reason=elected.message;return false;}
     }
     if(phase==Phase::Improvement) {
+      SU2NativeTiming3D::Scope progress_timer(SU2NativeTiming3D::Operation::Census);
       const auto census=selection.Progress(working.size());
       const bool complete=!world.maximum(!census.census_complete||!census.shape_complete||!census.geometry_complete);
       if(complete){emit_fixed_metric_drift(stage);emit_quality_census(stage,census);}
@@ -2094,36 +2102,36 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
   {
     Timer timer(stats.initialization_seconds,options.timings, SU2NativeTiming3D::Operation::Communication);
     CLocalFailure failure;
-    const auto curved_lo=CPassiveComm::Allreduce(int(curved),CPassiveComm::Op::MIN,world.comm);
-    const auto curved_hi=CPassiveComm::Allreduce(int(curved),CPassiveComm::Op::MAX,world.comm);
-    const double surface_lo=CPassiveComm::Allreduce(options.surface_tolerance,CPassiveComm::Op::MIN,world.comm);
-    const double surface_hi=CPassiveComm::Allreduce(options.surface_tolerance,CPassiveComm::Op::MAX,world.comm);
+    const auto curved_lo=TimedAllreduce(int(curved),CPassiveComm::Op::MIN,world.comm);
+    const auto curved_hi=TimedAllreduce(int(curved),CPassiveComm::Op::MAX,world.comm);
+    const double surface_lo=TimedAllreduce(options.surface_tolerance,CPassiveComm::Op::MIN,world.comm);
+    const double surface_hi=TimedAllreduce(options.surface_tolerance,CPassiveComm::Op::MAX,world.comm);
     if(curved_lo!=curved_hi || surface_lo!=surface_hi || !std::isfinite(surface_lo) ||
        (curved && !(surface_lo>0)))
       failure.Set(1,0,"Native3D analytic runtime requires a consistent positive frozen surface tolerance.");
-    const auto ownership_lo=CPassiveComm::Allreduce(int(options.phase_ownership),CPassiveComm::Op::MIN,world.comm);
-    const auto ownership_hi=CPassiveComm::Allreduce(int(options.phase_ownership),CPassiveComm::Op::MAX,world.comm);
+    const auto ownership_lo=TimedAllreduce(int(options.phase_ownership),CPassiveComm::Op::MIN,world.comm);
+    const auto ownership_hi=TimedAllreduce(int(options.phase_ownership),CPassiveComm::Op::MAX,world.comm);
     if(ownership_lo!=ownership_hi || ownership_lo<0 || ownership_hi>int(PhaseOwnership::DiagnosticAlways))
       failure.Set(1,0,"Native3D phase ownership controls differ or are invalid.");
-    const auto composition_lo=CPassiveComm::Allreduce(int(bool(composition)),CPassiveComm::Op::MIN,world.comm);
-    const auto composition_hi=CPassiveComm::Allreduce(int(bool(composition)),CPassiveComm::Op::MAX,world.comm);
-    const auto bands_lo=CPassiveComm::Allreduce(int(bool(options.edge_breakpoints)),CPassiveComm::Op::MIN,world.comm);
-    const auto bands_hi=CPassiveComm::Allreduce(int(bool(options.edge_breakpoints)),CPassiveComm::Op::MAX,world.comm);
+    const auto composition_lo=TimedAllreduce(int(bool(composition)),CPassiveComm::Op::MIN,world.comm);
+    const auto composition_hi=TimedAllreduce(int(bool(composition)),CPassiveComm::Op::MAX,world.comm);
+    const auto bands_lo=TimedAllreduce(int(bool(options.edge_breakpoints)),CPassiveComm::Op::MIN,world.comm);
+    const auto bands_hi=TimedAllreduce(int(bool(options.edge_breakpoints)),CPassiveComm::Op::MAX,world.comm);
     if(composition_lo!=composition_hi || bands_lo!=bands_hi || (composition_hi && !bands_lo))
       failure.Set(1,0,"Native3D frozen composition/band policies differ or composed integration is missing.");
-    const auto lo=CPassiveComm::Allreduce(options.maximum_rounds,CPassiveComm::Op::MIN,world.comm);
-    const auto hi=CPassiveComm::Allreduce(options.maximum_rounds,CPassiveComm::Op::MAX,world.comm);
+    const auto lo=TimedAllreduce(options.maximum_rounds,CPassiveComm::Op::MIN,world.comm);
+    const auto hi=TimedAllreduce(options.maximum_rounds,CPassiveComm::Op::MAX,world.comm);
     if (lo!=hi) failure.Set(1,0,"Native 3D round limit must be equal across workers.");
-    const auto work_lo=CPassiveComm::Allreduce(options.maximum_work,CPassiveComm::Op::MIN,world.comm);
-    const auto work_hi=CPassiveComm::Allreduce(options.maximum_work,CPassiveComm::Op::MAX,world.comm);
-    const auto window_lo=CPassiveComm::Allreduce(options.stagnation_window,CPassiveComm::Op::MIN,world.comm);
-    const auto window_hi=CPassiveComm::Allreduce(options.stagnation_window,CPassiveComm::Op::MAX,world.comm);
-    const double time_lo=CPassiveComm::Allreduce(options.maximum_seconds,CPassiveComm::Op::MIN,world.comm);
-    const double time_hi=CPassiveComm::Allreduce(options.maximum_seconds,CPassiveComm::Op::MAX,world.comm);
+    const auto work_lo=TimedAllreduce(options.maximum_work,CPassiveComm::Op::MIN,world.comm);
+    const auto work_hi=TimedAllreduce(options.maximum_work,CPassiveComm::Op::MAX,world.comm);
+    const auto window_lo=TimedAllreduce(options.stagnation_window,CPassiveComm::Op::MIN,world.comm);
+    const auto window_hi=TimedAllreduce(options.stagnation_window,CPassiveComm::Op::MAX,world.comm);
+    const double time_lo=TimedAllreduce(options.maximum_seconds,CPassiveComm::Op::MIN,world.comm);
+    const double time_hi=TimedAllreduce(options.maximum_seconds,CPassiveComm::Op::MAX,world.comm);
     if (work_lo!=work_hi || window_lo!=window_hi || !window_hi || !std::isfinite(time_lo) ||
         !std::isfinite(time_hi) || time_lo!=time_hi || time_lo<0)
       failure.Set(1,0,"Native 3D work/time/progress controls differ or are invalid.");
-    const auto global_cells=CPassiveComm::Allreduce(uint64_t(accepted.size()),CPassiveComm::Op::SUM,world.comm);
+    const auto global_cells=TimedAllreduce(uint64_t(accepted.size()),CPassiveComm::Op::SUM,world.comm);
     stats.work_limit=options.maximum_work==SIZE_MAX ? std::max<size_t>(4096,transfer_memory::Mul(global_cells,64)) : options.maximum_work;
     if (stats.work_limit==SIZE_MAX) failure.Set(1,0,"Native 3D automatic work ceiling overflows.");
     if(atlas_geometry) {
@@ -2132,17 +2140,17 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
       else atlas_budget.maximum_work=options.shared_geometry_budget?
           std::min(atlas_budget.maximum_work,transfer_memory::Add(atlas_budget.work,allowance)):allowance;
     }
-    const auto lease_low=CPassiveComm::Allreduce(unsigned(bool(options.geometry_reservation)),CPassiveComm::Op::MIN,world.comm);
-    const auto lease_high=CPassiveComm::Allreduce(unsigned(bool(options.geometry_reservation)),CPassiveComm::Op::MAX,world.comm);
+    const auto lease_low=TimedAllreduce(unsigned(bool(options.geometry_reservation)),CPassiveComm::Op::MIN,world.comm);
+    const auto lease_high=TimedAllreduce(unsigned(bool(options.geometry_reservation)),CPassiveComm::Op::MAX,world.comm);
     if(lease_low!=lease_high)failure.Set(1,0,"Native3D target geometry reservation differs across workers.");
     if(atlas_geometry && options.geometry_reservation)try {target_geometry_lease=options.geometry_reservation(atlas_budget);}
       catch(const std::exception& e){failure.Set(2,0,e.what());}
-    const auto batch_lo=CPassiveComm::Allreduce(options.candidate_batch,CPassiveComm::Op::MIN,world.comm);
-    const auto batch_hi=CPassiveComm::Allreduce(options.candidate_batch,CPassiveComm::Op::MAX,world.comm);
+    const auto batch_lo=TimedAllreduce(options.candidate_batch,CPassiveComm::Op::MIN,world.comm);
+    const auto batch_hi=TimedAllreduce(options.candidate_batch,CPassiveComm::Op::MAX,world.comm);
     if (batch_lo!=batch_hi || !batch_hi || batch_hi>MaximumCandidateBatch)
       failure.Set(1,0,"Native 3D candidate batch must be bounded and equal across workers.");
-    const auto mode_lo=CPassiveComm::Allreduce(16*int(bool(surface_target))+2*int(intent)+int(bidirectional),CPassiveComm::Op::MIN,world.comm);
-    const auto mode_hi=CPassiveComm::Allreduce(16*int(bool(surface_target))+2*int(intent)+int(bidirectional),CPassiveComm::Op::MAX,world.comm);
+    const auto mode_lo=TimedAllreduce(16*int(bool(surface_target))+2*int(intent)+int(bidirectional),CPassiveComm::Op::MIN,world.comm);
+    const auto mode_hi=TimedAllreduce(16*int(bool(surface_target))+2*int(intent)+int(bidirectional),CPassiveComm::Op::MAX,world.comm);
     if (mode_lo!=mode_hi) failure.Set(1,0,"Native 3D adaptation intent differs across workers.");
     if(options.wall_heights.size()>MaximumDirectoryFeatures)
       failure.Set(1,0,"Native3D wall-height policy exceeds bounded marker count.");
@@ -2155,8 +2163,8 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     for(const auto& h:options.wall_heights)if(!(h.second>0) || !std::isfinite(h.second))
       failure.Set(1,0,"Native3D wall-height policy is nonfinite/nonpositive.");
     // One first-height tolerance T (ADAP_BL_FIRST_HEIGHT_TOL) on every worker; no rank-local gate.
-    const auto height_tolerance_lo=CPassiveComm::Allreduce(options.wall_heights.tolerance,CPassiveComm::Op::MIN,world.comm);
-    const auto height_tolerance_hi=CPassiveComm::Allreduce(options.wall_heights.tolerance,CPassiveComm::Op::MAX,world.comm);
+    const auto height_tolerance_lo=TimedAllreduce(options.wall_heights.tolerance,CPassiveComm::Op::MIN,world.comm);
+    const auto height_tolerance_hi=TimedAllreduce(options.wall_heights.tolerance,CPassiveComm::Op::MAX,world.comm);
     if(!(height_tolerance_lo>0 && height_tolerance_hi<1) || height_tolerance_lo!=height_tolerance_hi)
       failure.Set(1,0,"Native3D first-height tolerance must lie in (0,1) and agree across workers.");
     ready=vote(failure);
@@ -2210,8 +2218,8 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     if (ready) ready=vote(failure);
     if (ready && !world.maximum(!working.empty())) { failure.Set(1,0,"Native 3D adaptation input is empty."); ready=vote(failure); }
     if (ready) {
-      maximum_node=CPassiveComm::Allreduce(maximum_node,CPassiveComm::Op::MAX,world.comm);
-      maximum_cell=CPassiveComm::Allreduce(maximum_cell,CPassiveComm::Op::MAX,world.comm);
+      maximum_node=TimedAllreduce(maximum_node,CPassiveComm::Op::MAX,world.comm);
+      maximum_cell=TimedAllreduce(maximum_cell,CPassiveComm::Op::MAX,world.comm);
       ready=directory->Build(working,result.reason,options.memory_ceiling,
           transfer_memory::Add(bytes(),source.ResidentBytes()));
     }
@@ -2261,7 +2269,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     }
   }
   // A complete visible radial region is constructed as one transaction, never as a larger local cavity.
-  const auto global_original=CPassiveComm::Allreduce(uint64_t(original.size()),CPassiveComm::Op::SUM,world.comm);
+  const auto global_original=TimedAllreduce(uint64_t(original.size()),CPassiveComm::Op::SUM,world.comm);
   const bool prismatic=!surface_target && !repairing && options.region_walls.size()==options.wall_heights.size() &&
       (!coarsening || options.wall_heights.empty()) && PrismaticWallRegion(geometry,options.region_walls);
   bool region_applicable=!surface_target && curved && !repairing && options.region_walls.size()<=1 &&
@@ -2287,8 +2295,8 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     region_applicable=region_applicable && walls.size()==1;
   }
   region_applicable=region_applicable || prismatic;
-  const int region_lo=CPassiveComm::Allreduce(int(region_applicable),CPassiveComm::Op::MIN,world.comm);
-  const int region_hi=CPassiveComm::Allreduce(int(region_applicable),CPassiveComm::Op::MAX,world.comm);
+  const int region_lo=TimedAllreduce(int(region_applicable),CPassiveComm::Op::MIN,world.comm);
+  const int region_hi=TimedAllreduce(int(region_applicable),CPassiveComm::Op::MAX,world.comm);
   if(region_lo!=region_hi){result.reason="Native3D region applicability differs across workers.";return finish();}
   if(region_applicable) {
     region_active=true;region_started=Clock::now();CLocalFailure failure;
@@ -2297,9 +2305,9 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
       maximum_cell=std::max(maximum_cell,donor.cell.id);
       for(auto node:donor.cell.v)maximum_node=std::max(maximum_node,node.id);
     }
-    maximum_node=CPassiveComm::Allreduce(maximum_node,CPassiveComm::Op::MAX,world.comm);
-    maximum_cell=CPassiveComm::Allreduce(maximum_cell,CPassiveComm::Op::MAX,world.comm);
-    const size_t global_input=CPassiveComm::Allreduce(working.size(),CPassiveComm::Op::SUM,world.comm);
+    maximum_node=TimedAllreduce(maximum_node,CPassiveComm::Op::MAX,world.comm);
+    maximum_cell=TimedAllreduce(maximum_cell,CPassiveComm::Op::MAX,world.comm);
+    const size_t global_input=TimedAllreduce(working.size(),CPassiveComm::Op::SUM,world.comm);
     // shortcut: a bounded single-worker visible region; partition into connected regions for large sources.
     const size_t region_cells=stats.work_limit;
     const auto scratch=transfer_memory::Add(transfer_memory::Mul(global_input,8192),
@@ -2392,7 +2400,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     stats.region_sampling_seconds=report.sampling_seconds;stats.region_first_band_seconds=report.first_band_seconds;
     stats.region_transition_seconds=report.transition_seconds;stats.region_junction_seconds=report.junction_seconds;
     stats.region_core_seconds=report.core_seconds;stats.region_validation_seconds=report.validation_seconds;
-    stats.global_work=CPassiveComm::Allreduce(uint64_t(report.generated_cells+report.surface_trials+report.junction_trials+report.core_trials+report.front_trials),CPassiveComm::Op::MAX,world.comm);
+    stats.global_work=TimedAllreduce(uint64_t(report.generated_cells+report.surface_trials+report.junction_trials+report.core_trials+report.front_trials),CPassiveComm::Op::MAX,world.comm);
     if(!vote(failure)) {
       if(world.maximum(report.exhausted_work))stats.stop=EngineStop::WorkBudget;
       else if(options.maximum_seconds && world.maximum(std::chrono::duration<double>(Clock::now()-started).count()>=options.maximum_seconds))stats.stop=EngineStop::TimeBudget;
@@ -2408,17 +2416,17 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
       std::vector<Dependency> removed;try{for(const auto& row:working)removed.push_back({row.first,row.second.version,world.rank});}catch(const std::exception& e){failure.Set(2,0,e.what());}
       if(!vote(failure))return finish();
       if(!directory->Publish(working,removed,added,true,result.reason,options.memory_ceiling,transfer_memory::Add(real_bytes(),scratch),region_parameter_edits,fresh.coverage,geometry.AtlasReservation()))return finish();
-      if(!world.rank)++stats.accepted;stats.maximum_owned=std::max(stats.maximum_owned,working.size());stats.region_cells=CPassiveComm::Allreduce(working.size(),CPassiveComm::Op::SUM,world.comm);
+      if(!world.rank)++stats.accepted;stats.maximum_owned=std::max(stats.maximum_owned,working.size());stats.region_cells=TimedAllreduce(working.size(),CPassiveComm::Op::SUM,world.comm);
     }
-    region_rebuilt=changed;stats.global_work=CPassiveComm::Allreduce(stats.global_work,CPassiveComm::Op::MAX,world.comm);
+    region_rebuilt=changed;stats.global_work=TimedAllreduce(stats.global_work,CPassiveComm::Op::MAX,world.comm);
     if(changed)try {
       initial.clear();initial.reserve(working.size());
       for(const auto& row:working){if(!surface_target||selection.RequestedWall(row.second))initial.push_back(row.first);maximum_cell=std::max(maximum_cell,row.first);
         for(auto node:row.second.cell.v)maximum_node=std::max(maximum_node,node.id);}
     }catch(const std::exception& e){failure.Set(2,0,e.what());}
     if(!vote(failure))return finish();
-    maximum_node=CPassiveComm::Allreduce(maximum_node,CPassiveComm::Op::MAX,world.comm);
-    maximum_cell=CPassiveComm::Allreduce(maximum_cell,CPassiveComm::Op::MAX,world.comm);
+    maximum_node=TimedAllreduce(maximum_node,CPassiveComm::Op::MAX,world.comm);
+    maximum_cell=TimedAllreduce(maximum_cell,CPassiveComm::Op::MAX,world.comm);
     // Valid coarsening inputs and finer interior fields retain the existing volume search.
     if(options.timings)stats.reconstruction_seconds+=std::chrono::duration<double>(Clock::now()-region_started).count();
     region_active=false;result.valid=false;result.reason.clear();
@@ -2472,7 +2480,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
         const auto position=CPassiveComm::ExscanSum(available,world.comm);
         const auto remaining=stats.work_limit-stats.global_work;
         const size_t count=position<remaining ? std::min(available,remaining-position) : 0;
-        stats.global_work+=CPassiveComm::Allreduce(uint64_t(count),CPassiveComm::Op::SUM,world.comm);
+        stats.global_work+=TimedAllreduce(uint64_t(count),CPassiveComm::Op::SUM,world.comm);
         try {
           auto it=pending.begin();
           for(size_t i=0;i<count;++i,++it) {
@@ -2508,7 +2516,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
       std::vector<Patch> proposals;
       try {proposals.resize(imported.candidates.size());}catch(const std::exception& e){failure.Set(2,0,e.what());}
       if(!vote(failure))return finish();
-      const size_t slots=CPassiveComm::Allreduce(imported.candidates.size(),CPassiveComm::Op::MAX,world.comm);
+      const size_t slots=TimedAllreduce(imported.candidates.size(),CPassiveComm::Op::MAX,world.comm);
       auto joint_candidate=[&](const auto& item) {
         unsigned walls=0;
         for(const auto& face:item.cells.front().physical)
@@ -2679,8 +2687,8 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
       for(const auto& row:working){if(!surface_target||selection.RequestedWall(row.second))initial.push_back(row.first);maximum_cell=std::max(maximum_cell,row.first);for(auto n:row.second.cell.v)maximum_node=std::max(maximum_node,n.id);}
     }catch(const std::exception& e){failure.Set(2,0,e.what());}
     if(!vote(failure))return finish();
-    maximum_node=CPassiveComm::Allreduce(maximum_node,CPassiveComm::Op::MAX,world.comm);
-    maximum_cell=CPassiveComm::Allreduce(maximum_cell,CPassiveComm::Op::MAX,world.comm);
+    maximum_node=TimedAllreduce(maximum_node,CPassiveComm::Op::MAX,world.comm);
+    maximum_cell=TimedAllreduce(maximum_cell,CPassiveComm::Op::MAX,world.comm);
     if(options.timings)stats.layer_seconds+=std::chrono::duration<double>(Clock::now()-layer_started).count();
     layer_active=false;
   }
@@ -2708,7 +2716,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     // Publication keeps the complete cavity; only requested walls own this provisional census.
     const auto& ids=surface_target?demand:requested_ids;
     selection.census_started=true;
-    const size_t count=CPassiveComm::Allreduce(ids.size(),CPassiveComm::Op::MAX,world.comm);
+    const size_t count=TimedAllreduce(ids.size(),CPassiveComm::Op::MAX,world.comm);
     for (size_t slot=0; slot<count;) {
       if(options.maximum_seconds && world.maximum(std::chrono::duration<double>(Clock::now()-started).count()>=options.maximum_seconds)) {
         stats.stop=EngineStop::TimeBudget;result.reason=seed ? "Native3D metric seeding exhausts elapsed-time budget." :
@@ -2850,7 +2858,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     // coarsening cycle retains that ownership until it is explicitly retired.
     if(world.maximum(checkpoint.valid || !scope_census_complete() || (quality&&!selection.repair_zero.empty())))return true;
     if(quality&&world.maximum(!selection.Progress(working.size()).complete))return true;
-    const auto global_cells=CPassiveComm::Allreduce(uint64_t(working.size()),CPassiveComm::Op::SUM,world.comm);
+    const auto global_cells=TimedAllreduce(uint64_t(working.size()),CPassiveComm::Op::SUM,world.comm);
     // Optional migration cannot populate one graph part per rank with fewer cells than ranks.
     if(global_cells<uint64_t(world.size))return true;
     if(quality){ownership_evaluated[boundary]=true;quality_ownership_round=stats.rounds;++stats.ownership_evaluations;}
@@ -2916,32 +2924,32 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
       }
     }catch(const std::exception& e){failure.Set(2,0,e.what());}
     if(!vote(failure)||!within_time())return false;
-    const auto max_cost=CPassiveComm::Allreduce(costs.empty()?0:*std::max_element(costs.begin(),costs.end()),CPassiveComm::Op::MAX,world.comm);
-    const auto max_geometry=CPassiveComm::Allreduce(geometry_costs.empty()?0:*std::max_element(geometry_costs.begin(),geometry_costs.end()),CPassiveComm::Op::MAX,world.comm);
-    const double max_quality_debt=quality?CPassiveComm::Allreduce(quality_debts.empty()?0:*std::max_element(quality_debts.begin(),quality_debts.end()),CPassiveComm::Op::MAX,world.comm):0;
+    const auto max_cost=TimedAllreduce(costs.empty()?0:*std::max_element(costs.begin(),costs.end()),CPassiveComm::Op::MAX,world.comm);
+    const auto max_geometry=TimedAllreduce(geometry_costs.empty()?0:*std::max_element(geometry_costs.begin(),geometry_costs.end()),CPassiveComm::Op::MAX,world.comm);
+    const double max_quality_debt=quality?TimedAllreduce(quality_debts.empty()?0:*std::max_element(quality_debts.begin(),quality_debts.end()),CPassiveComm::Op::MAX,world.comm):0;
     for(size_t i=0;i<costs.size();++i) {
       weights.push_back(uint32_t(std::clamp(std::ceil(costs[i]/std::max(1.,max_cost)*MaximumPartitionWeight),1.,double(MaximumPartitionWeight))));
       geometric.push_back(geometry_costs[i]>0?uint32_t(std::clamp(std::ceil(geometry_costs[i]/max_geometry*MaximumPartitionWeight),1.,double(MaximumPartitionWeight))):0);
       if(quality)quality_weights.push_back(quality_debts[i]>0?uint32_t(std::clamp(std::ceil(quality_debts[i]/max_quality_debt*MaximumPartitionWeight),1.,double(MaximumPartitionWeight))):0);
     }
-    const double demand_sum=CPassiveComm::Allreduce(local_demand,CPassiveComm::Op::SUM,world.comm);
-    const double demand_max=CPassiveComm::Allreduce(local_demand,CPassiveComm::Op::MAX,world.comm);
-    const double geometry_sum=CPassiveComm::Allreduce(local_geometry,CPassiveComm::Op::SUM,world.comm);
-    const double geometry_max=CPassiveComm::Allreduce(local_geometry,CPassiveComm::Op::MAX,world.comm);
-    const double quality_debt_sum=quality?CPassiveComm::Allreduce(local_quality_debt,CPassiveComm::Op::SUM,world.comm):0;
-    const double quality_debt_max=quality?CPassiveComm::Allreduce(local_quality_debt,CPassiveComm::Op::MAX,world.comm):0;
+    const double demand_sum=TimedAllreduce(local_demand,CPassiveComm::Op::SUM,world.comm);
+    const double demand_max=TimedAllreduce(local_demand,CPassiveComm::Op::MAX,world.comm);
+    const double geometry_sum=TimedAllreduce(local_geometry,CPassiveComm::Op::SUM,world.comm);
+    const double geometry_max=TimedAllreduce(local_geometry,CPassiveComm::Op::MAX,world.comm);
+    const double quality_debt_sum=quality?TimedAllreduce(local_quality_debt,CPassiveComm::Op::SUM,world.comm):0;
+    const double quality_debt_max=quality?TimedAllreduce(local_quality_debt,CPassiveComm::Op::MAX,world.comm):0;
     const double imbalance=std::max({demand_sum?world.size*demand_max/demand_sum:1.,geometry_sum?world.size*geometry_max/geometry_sum:1.,
         quality_debt_sum?world.size*quality_debt_max/quality_debt_sum:1.});
     const double wall=std::chrono::duration<double>(Clock::now()-started).count();
     // Conservative benefit proxy: remaining demand relative to observed attempted edits. The
     // twofold hurdle acknowledges unknown placement, operator mix and destination cache locality.
-    const double attempts=CPassiveComm::Allreduce(double(stats.attempted),CPassiveComm::Op::SUM,world.comm);
+    const double attempts=TimedAllreduce(double(stats.attempted),CPassiveComm::Op::SUM,world.comm);
     const double remaining=wall*std::max(0.,demand_sum-double(global_cells))/std::max(1.,attempts);
-    const double estimate_seconds=CPassiveComm::Allreduce(world.seconds()-transition_started,CPassiveComm::Op::MAX,world.comm);
-    const double rebuild=CPassiveComm::Allreduce(stats.initialization_seconds+stats.seed_seconds,CPassiveComm::Op::MAX,world.comm);
+    const double estimate_seconds=TimedAllreduce(world.seconds()-transition_started,CPassiveComm::Op::MAX,world.comm);
+    const double rebuild=TimedAllreduce(stats.initialization_seconds+stats.seed_seconds,CPassiveComm::Op::MAX,world.comm);
     double warming=0;
     if(geometry_authority) {const auto cache=geometry_authority->GeometryStatsSnapshot();
-      warming=CPassiveComm::Allreduce(cache.scope_build_seconds/std::max<size_t>(1,cache.scope_builds)*cache.scope_entries,CPassiveComm::Op::MAX,world.comm);}
+      warming=TimedAllreduce(cache.scope_build_seconds/std::max<size_t>(1,cache.scope_builds)*cache.scope_entries,CPassiveComm::Op::MAX,world.comm);}
     const double predicted_cost=estimate_seconds+rebuild+warming+stats.ownership_seconds;
     const double predicted_gain=remaining*(1-1/std::max(1.,imbalance));
     stats.ownership_predicted_gain+=predicted_gain;stats.ownership_predicted_cost+=predicted_cost;
@@ -3145,7 +3153,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     // directory is never queried during the speculative trial; rollback needs no allocation.
     if(!checkpoint.directory->Build(checkpoint.cells,result.reason,options.memory_ceiling,
         transfer_memory::Add(bytes(),source.ResidentBytes(),directory->ResidentBytes())))return false;
-    checkpoint.global_cells=CPassiveComm::Allreduce(working.size(),CPassiveComm::Op::SUM,world.comm);
+    checkpoint.global_cells=TimedAllreduce(working.size(),CPassiveComm::Op::SUM,world.comm);
     checkpoint.collapses=result.collapses.size();checkpoint.splits=result.splits.size();
     checkpoint.valid=true;checkpoint.trial=false;
     ++stats.coarsen_checkpoints;return true;
@@ -3329,7 +3337,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     }
     if(standalone_coarsening && clean_quality && !world.maximum(selection.construction_invalid!=0)) {
       if(checkpoint.valid && world.maximum(checkpoint.trial)) {
-        const size_t cells=CPassiveComm::Allreduce(working.size(),CPassiveComm::Op::SUM,world.comm);
+        const size_t cells=TimedAllreduce(working.size(),CPassiveComm::Op::SUM,world.comm);
         if(cells>=checkpoint.global_cells) {
           if(!rollback_checkpoint())return finish();
           continue;
@@ -3622,7 +3630,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
         if(!std::isfinite(local_debt)||local_debt<0)failure.Set(1,0,"Invalid cached required repair debt.");
         if(!vote(failure))return finish();
         const bool complete=!world.maximum(!selection.progress_consistent||selection.cells.size()!=working.size()||selection.unmeasured_shape!=0);
-        const double total_debt=CPassiveComm::Allreduce(local_debt,CPassiveComm::Op::SUM,world.comm);
+        const double total_debt=TimedAllreduce(local_debt,CPassiveComm::Op::SUM,world.comm);
         if(complete&&std::isfinite(total_debt)&&total_debt>0) {
           const double share=std::clamp(local_debt/total_debt*world.size,0.,1.);
           repair_slots=std::max<size_t>(1,size_t(std::ceil(options.candidate_batch*share)));
@@ -3639,13 +3647,13 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
         if (!(ready=vote(failure))) return finish();
         if(!coalesce(choices))return finish();
         if(!plan_choices())return finish();
-        slots=CPassiveComm::Allreduce(choices.size(),CPassiveComm::Op::MAX,world.comm);
+        slots=TimedAllreduce(choices.size(),CPassiveComm::Op::MAX,world.comm);
         ++stats.batch_rounds; stats.batch_candidates+=choices.size(); stats.proposed+=choices.size()+refused_candidates;
       }
       {
         Timer timer(stats.selection_seconds,options.timings, SU2NativeTiming3D::Operation::Scheduling);
         // Planned refusals are proposals too: they consume the same global work as serial oversized stars.
-        const uint64_t proposed=CPassiveComm::Allreduce(uint64_t(choices.size()+refused_candidates),CPassiveComm::Op::SUM,world.comm);
+        const uint64_t proposed=TimedAllreduce(uint64_t(choices.size()+refused_candidates),CPassiveComm::Op::SUM,world.comm);
         if (proposed>stats.work_limit-stats.global_work) {
           stats.stop=EngineStop::WorkBudget; result.reason="Native 3D global proposal budget exhausted before admission; feasibility is undetermined.";
           return finish();
@@ -3784,14 +3792,14 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
         if(composition && !curved && !repairing) {
           // Choose global metric priority before ownership; rank numbering must not decide the next edit.
           const double priority=choice.active ? double(selection.Priority(choice.measure.length)) : INFINITY;
-          const double best=CPassiveComm::Allreduce(priority,CPassiveComm::Op::MIN,world.comm);
+          const double best=TimedAllreduce(priority,CPassiveComm::Op::MIN,world.comm);
           choice.active=choice.active && priority==best;
-          const Id first=CPassiveComm::Allreduce(choice.active ? choice.edge[0] : UINT64_MAX,CPassiveComm::Op::MIN,world.comm);
+          const Id first=TimedAllreduce(choice.active ? choice.edge[0] : UINT64_MAX,CPassiveComm::Op::MIN,world.comm);
           choice.active=choice.active && choice.edge[0]==first;
-          const Id second=CPassiveComm::Allreduce(choice.active ? choice.edge[1] : UINT64_MAX,CPassiveComm::Op::MIN,world.comm);
+          const Id second=TimedAllreduce(choice.active ? choice.edge[1] : UINT64_MAX,CPassiveComm::Op::MIN,world.comm);
           choice.active=choice.active && choice.edge[1]==second;
         }
-        const int owner=CPassiveComm::Allreduce(choice.active ? world.rank : world.size,CPassiveComm::Op::MIN,world.comm);
+        const int owner=TimedAllreduce(choice.active ? world.rank : world.size,CPassiveComm::Op::MIN,world.comm);
         choice.active=choice.active && world.rank==owner;
       }
       if(repairing || concurrent || (coarsening && !repairing && !curved && !composition && world.size>1)) {
@@ -3801,7 +3809,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
         choice=choices.empty()?Choice{}:choices.front();
       }
       stats.proposed+=choice.active;
-      const uint64_t proposed=CPassiveComm::Allreduce(uint64_t(choice.active),CPassiveComm::Op::SUM,world.comm);
+      const uint64_t proposed=TimedAllreduce(uint64_t(choice.active),CPassiveComm::Op::SUM,world.comm);
       if (proposed>stats.work_limit-stats.global_work) {
         stats.stop=EngineStop::WorkBudget; result.reason="Native 3D global proposal budget exhausted before admission; feasibility is undetermined.";
         return finish();
@@ -3834,7 +3842,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
       if(!admit(0))return finish();
       try {repair_proposals.resize(choices.size());}catch(const std::exception& e){private_failure.Set(2,0,e.what());}
       if(!vote(private_failure))return finish();
-      eligible=CPassiveComm::Allreduce(eligible,CPassiveComm::Op::SUM,world.comm);
+      eligible=TimedAllreduce(eligible,CPassiveComm::Op::SUM,world.comm);
       private_optimizer_allowance=eligible?std::min<uint64_t>(160,(stats.work_limit-stats.global_work)/eligible):0;
       private_work_reserved=eligible*private_optimizer_allowance;stats.global_work+=private_work_reserved;
     }
@@ -3923,7 +3931,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     // Private cavity evaluation uses the same operators with local reductions and explicit cavity data.
     auto trial_maximum=[&](int value){return private_repair?value:world.maximum(value);};
     auto trial_reduce=[&](auto value,CPassiveComm::Op op) {
-      return private_repair?value:CPassiveComm::Allreduce(value,op,world.comm);
+      return private_repair?value:TimedAllreduce(value,op,world.comm);
     };
     auto trial_import_cells=[&](const std::vector<Cell>& cells,size_t ceiling,size_t caller) {
       return private_repair?source.ImportCellsLocal(cells,imported.cells,ceiling,caller):source.ImportCells(cells,ceiling,caller);
@@ -4476,6 +4484,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
         return ids.size();
       };
       auto validate_private=[&](bool candidate,MetricChange kind,bool no_new_oversized=false,bool strict_size=false,size_t relocated=0) {
+        SU2NativeTiming3D::Scope candidate_timer(SU2NativeTiming3D::Operation::Candidate);
         const bool completed=concurrent && approved && !candidate;
         const auto retained=certified;
         certified={};
@@ -5594,7 +5603,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
         }else final_failure.Set(1,0,"Native3D final proposal reservation failed: "+result.reason);
       }
       if(!vote(final_failure))return finish();
-      const auto commits=CPassiveComm::Allreduce(uint64_t(approved),CPassiveComm::Op::SUM,world.comm);
+      const auto commits=TimedAllreduce(uint64_t(approved),CPassiveComm::Op::SUM,world.comm);
       stats.maximum_parallel_commits=std::max(stats.maximum_parallel_commits,commits);
 
     }
@@ -5691,7 +5700,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     if (!ready) return finish();
     update_fixed_metric_cells(removed,added);
     if(bidirectional&&phase==Phase::Construction&&!coarsening) {
-      const auto split_commits=CPassiveComm::Allreduce(uint64_t(approved),CPassiveComm::Op::SUM,world.comm);
+      const auto split_commits=TimedAllreduce(uint64_t(approved),CPassiveComm::Op::SUM,world.comm);
       stats.maximum_parallel_split_commits=std::max(stats.maximum_parallel_split_commits,split_commits);
     }
     if(!removed.empty() || !added.empty())selection.progress_consistent=false;
@@ -5794,7 +5803,11 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
       stats.quality.busy_seconds+=std::chrono::duration<double>(Clock::now()-private_started).count();
       stats.quality.private_tracked_collectives+=world.collective_calls+world.election_collective_calls-private_collectives;
       const auto joined=Clock::now();
-      const auto used=CPassiveComm::Allreduce(private_work_used,CPassiveComm::Op::SUM,world.comm);
+      // The legacy counter still surrounds the same call; F3 names its join wait separately.
+      const auto used = [&]() {
+        SU2NativeTiming3D::Scope join_timer(SU2NativeTiming3D::Operation::JoinWait);
+        return CPassiveComm::Allreduce(private_work_used, CPassiveComm::Op::SUM, world.comm);
+      }();
       stats.quality.join_wait_seconds+=std::chrono::duration<double>(Clock::now()-joined).count();
       if(used>private_work_reserved)private_failure.Set(2,0,"Native3D private repair exceeds its common work reservation.");
       else stats.global_work-=private_work_reserved-used;
@@ -5807,26 +5820,29 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
       CLocalFailure failure;
       std::vector<ClearanceCandidate> contact;
       bool needs_contact=false;
-      try {
-        contact.reserve(repair_proposals.size());
-        for(auto& proposal:repair_proposals) {
-          if(proposal.approved) {
-            if(proposal.old.cells.size()!=proposal.imported.cells.size()||proposal.dependencies.cells.size()!=proposal.imported.cells.size())
-              throw std::runtime_error("Native3D final repair lacks its complete imported dependencies.");
-            std::set<Id> cells;for(const auto& c:proposal.old.cells)if(!cells.insert(c.id).second)
-              throw std::runtime_error("Native3D final repair repeats an old cell.");
-            for(const auto& dependency:proposal.dependencies.cells) {
-              const auto row=std::find_if(proposal.imported.cells.begin(),proposal.imported.cells.end(),
-                  [&](const OwnedCell& c){return c.cell.id==dependency.cell;});
-              if(!cells.erase(dependency.cell)||row==proposal.imported.cells.end()||row->version!=dependency.version)
-                throw std::runtime_error("Native3D final repair lost a versioned old dependency.");
+      {
+        SU2NativeTiming3D::Scope contact_timer(SU2NativeTiming3D::Operation::Clearance);
+        try {
+          contact.reserve(repair_proposals.size());
+          for(auto& proposal:repair_proposals) {
+            if(proposal.approved) {
+              if(proposal.old.cells.size()!=proposal.imported.cells.size()||proposal.dependencies.cells.size()!=proposal.imported.cells.size())
+                throw std::runtime_error("Native3D final repair lacks its complete imported dependencies.");
+              std::set<Id> cells;for(const auto& c:proposal.old.cells)if(!cells.insert(c.id).second)
+                throw std::runtime_error("Native3D final repair repeats an old cell.");
+              for(const auto& dependency:proposal.dependencies.cells) {
+                const auto row=std::find_if(proposal.imported.cells.begin(),proposal.imported.cells.end(),
+                    [&](const OwnedCell& c){return c.cell.id==dependency.cell;});
+                if(!cells.erase(dependency.cell)||row==proposal.imported.cells.end()||row->version!=dependency.version)
+                  throw std::runtime_error("Native3D final repair lost a versioned old dependency.");
+              }
+              needs_contact=true; // Full vertex disjointness does not certify simultaneous physical contacts.
             }
-            needs_contact=true; // Full vertex disjointness does not certify simultaneous physical contacts.
+            contact.push_back({&proposal.old,&proposal.fresh,proposal.approved,false,proposal.choice.reservation_priority,
+                proposal.coordinate_only?proposal.imported.coordinate_star:Feature{}, {}});
           }
-          contact.push_back({&proposal.old,&proposal.fresh,proposal.approved,false,proposal.choice.reservation_priority,
-              proposal.coordinate_only?proposal.imported.coordinate_star:Feature{}, {}});
-        }
-      }catch(const std::exception& e){failure.Set(2,0,e.what());}
+        }catch(const std::exception& e){failure.Set(2,0,e.what());}
+      }
       if(!vote(failure))return finish();
       if(world.maximum(needs_contact)) {
         if(!directory->ClearanceBatch(working,contact,result.reason,options.memory_ceiling,
@@ -5869,7 +5885,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
         }
         commits+=proposal.approved;
       }
-      commits=CPassiveComm::Allreduce(commits,CPassiveComm::Op::SUM,world.comm);
+      commits=TimedAllreduce(commits,CPassiveComm::Op::SUM,world.comm);
       stats.maximum_parallel_commits=std::max(stats.maximum_parallel_commits,commits);
       std::vector<std::vector<Dependency>> removals;
       std::vector<std::vector<OwnedCell>> additions;
