@@ -1004,7 +1004,7 @@ void FullEntropyVariables(int nDim, const pve::NodeState& S, su2double* w) {
 }
 
 /*--- Element flux with the frozen state of E and the nodal entropy variables of "state" (Picard). ---*/
-pve::Element Frozen(const pve::Element& E, const pve::NodeState* state) {
+pve::Element FrozenElement(const pve::Element& E, const pve::NodeState* state) {
   pve::Element F = E;
   su2double gT[3] = {}, gM[3][3] = {};
   for (int a = 0; a < E.nNodes; ++a) {
@@ -1116,8 +1116,8 @@ TEST_CASE("VISC_P1_ENTROPY element: entropy dissipation, P1_CELL limit, Picard J
           Perturb(nDim, plus[b], j, h);
           Perturb(nDim, minus[b], j, -h);
           su2double rp[4][5], rm[4][5];
-          Frozen(E, plus).Residual(rp);
-          Frozen(E, minus).Residual(rm);
+          FrozenElement(E, plus).Residual(rp);
+          FrozenElement(E, minus).Residual(rm);
           for (int a = 0; a < nNodes; ++a) {
             for (int v = 0; v < nVar; ++v) {
               jacErr = std::max(jacErr, fabs((rp[a][v] - rm[a][v]) / (2 * h) - jac[a][b][v][j]));
@@ -1208,8 +1208,8 @@ TEST_CASE("BC_WALL_ENTROPY_P1 on one wall element: entropy bound, rest state, Ja
           Perturb(nDim, plus[b], j, h);
           Perturb(nDim, minus[b], j, -h);
           su2double rp[4][5], rm[4][5];
-          pve::NoSlipWall(Frozen(E, plus), nDim, faceNodes, N, isothermal, wallTheta, 1, sipg, 2.5, rp);
-          pve::NoSlipWall(Frozen(E, minus), nDim, faceNodes, N, isothermal, wallTheta, 1, sipg, 2.5, rm);
+          pve::NoSlipWall(FrozenElement(E, plus), nDim, faceNodes, N, isothermal, wallTheta, 1, sipg, 2.5, rp);
+          pve::NoSlipWall(FrozenElement(E, minus), nDim, faceNodes, N, isothermal, wallTheta, 1, sipg, 2.5, rm);
           for (int a = 0; a < nNodes; ++a) {
             for (int v = 0; v < nVar; ++v) {
               jacErr = std::max(jacErr, fabs((rp[a][v] - rm[a][v]) / (2 * h) - jac[a][b][v][j]));
@@ -1450,8 +1450,8 @@ TEST_CASE("VISC_P1_ENTROPY_MOVED element: production identity, conservation, Jac
         Perturb(3, plus[b], j, h);
         Perturb(3, minus[b], j, -h);
         su2double rp[4][5], rm[4][5];
-        Frozen(E, plus).Residual(rp);
-        Frozen(E, minus).Residual(rm);
+        FrozenElement(E, plus).Residual(rp);
+        FrozenElement(E, minus).Residual(rm);
         for (int a = 0; a < 4; ++a) {
           for (int v = 0; v < 5; ++v) {
             jacErr = std::max(jacErr, fabs((rp[a][v] - rm[a][v]) / (2 * h) - jac[a][b][v][j]));
@@ -1586,9 +1586,9 @@ TEST_CASE("VISC_P1_ENTROPY_MOVED weak wall: moved shares, wall production W_T, J
         Perturb(3, plus[b], j, h);
         Perturb(3, minus[b], j, -h);
         su2double rp[4][5], rm[4][5];
-        pve::NoSlipWall(Frozen(E, plus), 3, faceNodes, N, isothermal, wallTheta, 1, pve::NOSLIP_SIPG,
+        pve::NoSlipWall(FrozenElement(E, plus), 3, faceNodes, N, isothermal, wallTheta, 1, pve::NOSLIP_SIPG,
                         pve::NOSLIP_PENALTY, rp, nullptr, nullptr, share);
-        pve::NoSlipWall(Frozen(E, minus), 3, faceNodes, N, isothermal, wallTheta, 1, pve::NOSLIP_SIPG,
+        pve::NoSlipWall(FrozenElement(E, minus), 3, faceNodes, N, isothermal, wallTheta, 1, pve::NOSLIP_SIPG,
                         pve::NOSLIP_PENALTY, rm, nullptr, nullptr, share);
         for (int a = 0; a < 4; ++a) {
           for (int v = 0; v < 5; ++v) {
@@ -2068,9 +2068,9 @@ TEST_CASE("GRID_ENTROPY_P1: moving weak no-slip wall, projector, entropy bound, 
           Perturb(nDim, plus[b], j, h);
           Perturb(nDim, minus[b], j, -h);
           su2double rp[4][5], rm[4][5];
-          pve::NoSlipWall(Frozen(E, plus), nDim, faceNodes, N, isothermal, wallTheta, 1, sipg, 2.5, rp, nullptr, nullptr,
+          pve::NoSlipWall(FrozenElement(E, plus), nDim, faceNodes, N, isothermal, wallTheta, 1, sipg, 2.5, rp, nullptr, nullptr,
                           nullptr, wallVel);
-          pve::NoSlipWall(Frozen(E, minus), nDim, faceNodes, N, isothermal, wallTheta, 1, sipg, 2.5, rm, nullptr, nullptr,
+          pve::NoSlipWall(FrozenElement(E, minus), nDim, faceNodes, N, isothermal, wallTheta, 1, sipg, 2.5, rm, nullptr, nullptr,
                           nullptr, wallVel);
           for (int a = 0; a < nNodes; ++a) {
             for (int v = 0; v < nVar; ++v) {
@@ -7135,9 +7135,9 @@ TEST_CASE("BC_ENTROPY_P1 viscous: symmetry SAT entropy sign, normal force only, 
           Perturb(nDim, plus[b], j, h);
           Perturb(nDim, minus[b], j, -h);
           su2double rp[4][5], rm[4][5];
-          pve::NoSlipWall(Frozen(E, plus), nDim, faceSym, Ns, false, 1.0, 1, sipg, 2.5, rp, nullptr, nullptr, nullptr,
+          pve::NoSlipWall(FrozenElement(E, plus), nDim, faceSym, Ns, false, 1.0, 1, sipg, 2.5, rp, nullptr, nullptr, nullptr,
                           nullptr, nullptr, true);
-          pve::NoSlipWall(Frozen(E, minus), nDim, faceSym, Ns, false, 1.0, 1, sipg, 2.5, rm, nullptr, nullptr, nullptr,
+          pve::NoSlipWall(FrozenElement(E, minus), nDim, faceSym, Ns, false, 1.0, 1, sipg, 2.5, rm, nullptr, nullptr, nullptr,
                           nullptr, nullptr, true);
           for (int a = 0; a < nNodes; ++a) {
             for (int v = 0; v < nVar; ++v) {
@@ -7381,7 +7381,7 @@ TEST_CASE("VISC_P1_JACOBIAN: simplex element and weak wall Jacobians against fin
 
           /*--- K frozen: the Picard part. ---*/
           su2double rp[4][5], rm[4][5], wp[4][5], wm[4][5];
-          const auto frozenPlus = Frozen(E, plus), frozenMinus = Frozen(E, minus);
+          const auto frozenPlus = FrozenElement(E, plus), frozenMinus = FrozenElement(E, minus);
           frozenPlus.Residual(rp);
           frozenMinus.Residual(rm);
           wall(frozenPlus, wp);
@@ -7514,7 +7514,7 @@ TEST_CASE("VISC_P1_JACOBIAN: split averages of prisms and hexahedra and the drop
           }
           pve::Element Et;
           if (recompute) Et.Set(nDim, X, sub, kGas);
-          else Et = Frozen(base[t], sub);
+          else Et = FrozenElement(base[t], sub);
           su2double r[4][5];
           Et.Residual(r);
           for (int a = 0; a <= nDim; ++a)
