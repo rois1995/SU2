@@ -149,3 +149,9 @@ Build521 PASSED80.133622s/2actions, pins unchanged/allownedterminal. CFD861737e1
 Locality2 correctedfixture PASSED54.699657s, test382dc714/build521; owner maps audited, inputs/pins unchanged/allownedterminal. SUM2rankpeaks5394513920B<19999490048B. Next locality4 then6, full2event; noCPP/helperedits.
 
 Locality4 PASSED51.774955s; owner maps audited, pins unchanged/allownedterminal; SUM4rankpeaks5974003712B<19999490048B. Next locality6, thenfulltwoevent. Frozenbuild521.
+
+Locality6 PASSED55.879528s; owner maps audited/pinsunchanged/allownedterminal; SUM6rankpeaks6685327360B<19999490048B. All bounded measurements complete with scope/unavailable qualifications. Full two-event observer profile is next on SAME frozen521code/CFD861737e1. Hostpreflight saved full_launch_host.json; noheavyprocess.
+
+N5 locality documentation complete: successful build521 production-Repartition/unit-weight fixtures at 2/4/6 ranks now populate M7 complete-shell shares and M9 local ownership (`item1`) split-edge/collapse-vertex shares. Each reports SUM local-visible denominators separately from globally unique IDs; global eligible counts mean complete on at least one owner. M9's distributed body-contact proof share is not emitted and remains unavailable. The initial locality2 setup failure and test-only correction are noted; no production source changed. Three receipts terminal/pins verified/resource sums under job limit. Updated `N5/reports/N5_measurement_table_draft.md`; no new job or code edit.
+
+N5 fulltwoevent LIVE tool23503 {"state":"running","started_unix":1794801301.0297465,"identity":{"pid":2668867,"start_ticks":29360718,"pgid":2668867}}; allCPP/currentimmediatehelpers/binaries/runtime/config/inputs FROZEN. Boundary/physical/5400s/19073MiB andall6P6cpayloadgatesunchanged. DoNOTrestartthisjob. NextfinishSAMErun, extractM16/freshM8, finalN7; N6dependencyfalse.
