@@ -151,7 +151,8 @@ R/cases/n4_native3d_serial_20261115T232613_2033368. G2/G3/GQ references were pas
 before this edit and are preserved; they do not establish that A1 passed G1.
 
 Failed checkpoint `ec0e8f3ef5` preserves the A1 code and raw G1 evidence. The sole
-production file has now been restored byte-for-byte to accepted F3b; its revert is
-the next commit. Shared build binaries still represent FAILED build510 and must
-not be used as the accepted implementation. Frozen F3b reference binaries remain
-in N4/reference_binaries. No numerical retry was launched.
+production file was restored byte-for-byte to accepted F3b in revert `8039fc1b59`.
+At that failure boundary shared binaries still represented FAILED build510; N5
+subsequently rebuilt its separately qualified observational sources. Current binary
+and active-job state are in HANDOFF_Codex.md and night_20261115/progress.md. Frozen
+F3b reference binaries remain in N4/reference_binaries. No A1 numerical retry was launched.

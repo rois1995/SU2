@@ -1,32 +1,29 @@
 {
-  "binary_sha256": "8a77a3fb0e294ecbb143410c08f7fc995dffc88818f8c648653dbf9a3d1bfede",
   "build": "build520",
   "cases": [
     {
-      "G_columns": 0,
-      "G_exception": "",
-      "G_layer_cells": 0,
-      "G_layers_run": 0,
-      "G_lifted_points": 0,
-      "G_reason": "completion complete",
-      "G_refused": 0,
-      "G_returned": true,
-      "G_transactions": 0,
-      "J_min": 0.00138398244189,
-      "R2_accepted": 0,
-      "R2_max_closure_vertices_outer_seed": 0,
-      "R2_max_fresh_cells": 0,
-      "R2_max_old_cells": 0,
-      "R2_partial_growth_observation": null,
-      "R2_rejected": 0,
-      "R2_work": 0,
+      "R2_max": {
+        "closure_vertices": 0,
+        "fresh_cells": 0,
+        "old_cells": 0
+      },
+      "R2_partial_growth_observation": {
+        "columns": 0,
+        "completed_growth_layers": 0,
+        "lifted_points": 0,
+        "scope": "G returned but no nontrivial growth"
+      },
       "acceptance_claim": false,
-      "all_positive": true,
-      "binary_sha256": "8a77a3fb0e294ecbb143410c08f7fc995dffc88818f8c648653dbf9a3d1bfede",
-      "boundary_faces": 12,
+      "artifact_hashes_receipt": {
+        "d9_stack_measurement.json": "72a8540af05276e810f5d8f8e86a4d04fb2aae7860c016857b6dc62c67597585",
+        "d9_stack_phase_log.txt": "6a4349fa3253785bc025590c87a60f8ec01a35d0318f14913a78d63a91291946",
+        "run.log": "70263a3734bb811227b060881bfd19daa8a24f6037aafed6d27ea89591ad6f04"
+      },
+      "attempt": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N5/cases/n5_d9_m10_n1_refresh_faceheight_20261116T032637_2598104",
+      "attempt_status_sha256": "e203f2688a0877e8c468cd9fbad9b7ea813376f358a638ed6bebdcef5242d545",
       "build": "build520",
-      "case": "n5_d9_m10_n1_refresh_20261116T022404_2452293",
-      "cells": 12,
+      "case": "n5_d9_m10_n1_refresh_faceheight",
+      "columns": [],
       "columns_by_wall": {
         "0": {
           "columns": 0,
@@ -39,63 +36,235 @@
           "thickness": 0.5
         }
       },
-      "descriptor_hashes": {
-        "m10_n1_refresh.json": "4039f370e48f9f1e52b308323e57a6c2dec3c90c3b7173603baec60ad2365f47"
-      },
-      "face_first_child_altitudes": {
-        "0": {
-          "faces": 2,
-          "height_tolerance": 0.1,
-          "max_normal_distance": 0.004,
-          "maximum_relative_error": 2.08166817117e-17,
-          "mean_normal_distance": 0.004,
-          "min_normal_distance": 0.004,
-          "requested_h0": 0.004
-        }
-      },
-      "faceheight_receipt": {
-        "artifacts_sha256": {
-          "d9_stack_measurement.json": "72a8540af05276e810f5d8f8e86a4d04fb2aae7860c016857b6dc62c67597585",
-          "d9_stack_phase_log.txt": "6a4349fa3253785bc025590c87a60f8ec01a35d0318f14913a78d63a91291946",
-          "run.log": "70263a3734bb811227b060881bfd19daa8a24f6037aafed6d27ea89591ad6f04"
+      "command": {
+        "argv": [
+          "nice",
+          "-n",
+          "19",
+          "/usr/bin/time",
+          "-v",
+          "timeout",
+          "600",
+          "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-p5-20261114/UnitTests/test_driver",
+          "[.][NativeD9SerialStack]",
+          "--durations",
+          "yes"
+        ],
+        "build": "build520",
+        "case": "n5_d9_m10_n1_refresh_faceheight",
+        "environment": {
+          "MKL_NUM_THREADS": "1",
+          "OMPI_MCA_orte_tmpdir_base": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N5/mpi_units",
+          "OMPI_MCA_osc": "pt2pt",
+          "OMP_NUM_THREADS": "1",
+          "OPENBLAS_NUM_THREADS": "1",
+          "TMPDIR": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/compile-tmp"
         },
-        "attempt": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N5/cases/n5_d9_m10_n1_refresh_faceheight_20261116T032637_2598104",
-        "descriptor_sha256": "8d67d31d804d6bf148dabdbea359e7a431849c48c2d9d48fc2a19ef6d071032a",
-        "passed": true,
-        "path": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N5/unit_measurement_receipts/n5_d9_m10_n1_refresh_faceheight.json",
-        "source_pins_sha256": "29dfaf2c251de2d53ea38c42f9ead09fb5ff825879e81d062d24fec1bd18101d",
-        "test_binary_sha256": "8a77a3fb0e294ecbb143410c08f7fc995dffc88818f8c648653dbf9a3d1bfede"
+        "ranks": 1,
+        "timeout_seconds": 600
       },
+      "completion_surface_counters": {
+        "row_retry_commits": 0,
+        "row_retry_seconds": 0,
+        "row_retry_work": 0,
+        "surface_edits": 0,
+        "surface_seconds": 0,
+        "surface_work": 0
+      },
+      "descriptor": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N5/descriptors/m10_n1_refresh_faceheight.json",
+      "descriptor_sha256": "8d67d31d804d6bf148dabdbea359e7a431849c48c2d9d48fc2a19ef6d071032a",
       "family": "M10",
-      "final_mesh_complete": false,
-      "first_height_measurement_kind": "base-to-lift vertex |dz| spacings; not wall-face/opposite-face prism height and not the enforced h0 gate",
-      "fixture_dc10_sha256": "c9d61107b81b590a20159a38e2dbb587c28c8a95081799c161c53650779012b2",
-      "fixture_dc12_sha256": "bd92e320ff2ffddb6a1b6f2b882114d140f3c38fda816091a67cad2df6c52c05",
-      "gnu_maxrss_is_rank_or_whole_job": "GNU /usr/bin/time wrapper scope; report exact value from run.log, does not substitute whole-job resource peak",
+      "fixture_source_hashes": {
+        "native_first_row_dc10.inc": "c9d61107b81b590a20159a38e2dbb587c28c8a95081799c161c53650779012b2",
+        "native_first_row_dc12.inc": "25d6831f75162291b17dcab0b8efc56bb9dc4a96701ae70ea8766c86867e97ce"
+      },
       "gnu_time": [
-        "Elapsed (wall clock) time (h:mm:ss or m:ss): 0:00.36",
-        "Maximum resident set size (kbytes): 36164"
+        "Elapsed (wall clock) time (h:mm:ss or m:ss): 0:00.37",
+        "Maximum resident set size (kbytes): 35180"
       ],
-      "height_failures": 0,
-      "height_gate_failures": 0,
-      "j_bad": 6,
-      "j_threshold": 0.05,
       "measurement_json_sha256": "72a8540af05276e810f5d8f8e86a4d04fb2aae7860c016857b6dc62c67597585",
       "mode": "M10_n1",
       "n": 1,
-      "nonmanifold_faces": 0,
-      "phase_log_sha256": "6a4349fa3253785bc025590c87a60f8ec01a35d0318f14913a78d63a91291946",
-      "phase_seconds": {
-        "G": 0.000188155,
-        "R1": 5.626e-05,
-        "R2": 1.7286e-05,
-        "completion": 0.030163393
+      "phase_limits": {
+        "G_seconds": 120,
+        "R1_seconds": 60,
+        "R1_work": 4096,
+        "R2_seconds": 120,
+        "completion_seconds": 60,
+        "completion_surface_tolerance": 0.0001
       },
-      "positive_cells": 12,
-      "q_bad": 6,
-      "q_min": 0.0247939928335,
-      "q_threshold": 0.2,
+      "phase_log_sha256": "6a4349fa3253785bc025590c87a60f8ec01a35d0318f14913a78d63a91291946",
+      "phases": {
+        "G": {
+          "clear": {
+            "collapses": 0,
+            "moves": 0,
+            "refusals": {},
+            "retries": 0,
+            "retries_accepted": 0
+          },
+          "columns": 0,
+          "fixed_blockers": {},
+          "joint": {
+            "accepted": 0,
+            "retries": 0
+          },
+          "last_refusal": "",
+          "layer_cells": 0,
+          "layers_per_column": {},
+          "layers_run": 0,
+          "lifted_points": 0,
+          "max_fresh_cells": 0,
+          "max_old_cells": 0,
+          "outcome": "complete",
+          "patch_transactions": 0,
+          "refusals": {},
+          "refused": 0,
+          "room": {
+            "calls": 0,
+            "cells": 0,
+            "cg_iterations": 0,
+            "commits": 0,
+            "metric_reverted": 0,
+            "moved": 0,
+            "needy_tops": 0,
+            "pseudo_frozen": 0,
+            "refused": 0,
+            "region_vertices": 0,
+            "seconds": {
+              "batch": 0,
+              "commit": 0,
+              "metric": 0,
+              "move": 0,
+              "problem": 0,
+              "slides": 0,
+              "solve": 0,
+              "total": 0
+            },
+            "sliding": 0,
+            "sliding_reverted": 0,
+            "unconverged": 0,
+            "why": {}
+          },
+          "seconds": 0.000149844,
+          "single_transactions": 0,
+          "stop_reasons": {},
+          "stops": {},
+          "transactions": 0
+        },
+        "G_exception": "",
+        "G_ran": true,
+        "G_reason": "completion complete",
+        "G_returned": true,
+        "R1": {
+          "accepted": 0,
+          "field": {
+            "compositions": 0,
+            "edge_compositions": 0,
+            "edge_integrations": 0,
+            "edge_pieces": 0,
+            "queries": 0,
+            "query_misses": 0
+          },
+          "last_witness": "",
+          "outcome": "complete",
+          "peak_rss_kB": 33388,
+          "reasons": {},
+          "rejected": 0,
+          "seconds": 2.0023e-05,
+          "work": 0
+        },
+        "R2": {
+          "accepted": 0,
+          "field": {
+            "compositions": 0,
+            "edge_compositions": 0,
+            "edge_integrations": 0,
+            "edge_pieces": 0,
+            "queries": 0,
+            "query_misses": 0
+          },
+          "last_witness": "",
+          "outcome": "complete",
+          "peak_rss_kB": 33388,
+          "reasons": {},
+          "rejected": 0,
+          "seconds": 1.3923e-05,
+          "work": 0
+        },
+        "completion": {
+          "apex_placed": 0,
+          "cavity": 0,
+          "failing_after": 0,
+          "failing_before": 2,
+          "inserted": 2,
+          "outcome": "complete",
+          "passes": 1,
+          "row_retry_commits": 0,
+          "row_retry_seconds": 0,
+          "row_retry_work": 0,
+          "seconds": 0.028131808,
+          "separated": 0,
+          "surface_edits": 0,
+          "surface_seconds": 0,
+          "surface_work": 0,
+          "why": {},
+          "witnesses": [],
+          "work": 2
+        },
+        "phase_log_file": "d9_stack_phase_log.txt"
+      },
+      "positive_validity_and_topology": {
+        "J_min": 0.00138398244189,
+        "all_positive": true,
+        "boundary_faces": 12,
+        "cells": 12,
+        "complete": false,
+        "height_failures": 0,
+        "j_bad": 6,
+        "j_threshold": 0.05,
+        "nonmanifold_faces": 0,
+        "positive_cells": 12,
+        "q_bad": 6,
+        "q_min": 0.0247939928335,
+        "q_threshold": 0.2,
+        "size_edge_max": 18.4789621873,
+        "size_long_edges": 11,
+        "unbound_boundary_faces": 0
+      },
+      "rank_peak_hwm_bytes": {},
       "ranks": 1,
+      "receipt_passed": true,
+      "receipt_path": "unit_measurement_receipts/n5_d9_m10_n1_refresh_faceheight.json",
+      "resource_guard": {
+        "actual_host_proc": true,
+        "all_expected_rank_peaks_seen": false,
+        "all_owned_handles_terminal": true,
+        "expected_ranks": 1,
+        "gnu_time_child_maximum_is_job_peak": false,
+        "identities": [
+          {
+            "alive": false,
+            "mpi_rank": null,
+            "name": "nice",
+            "pgid": 2598361,
+            "pid": 2598361,
+            "sid": 2598361,
+            "start_ticks": 29190573,
+            "state": "R"
+          }
+        ],
+        "live_hwm_lower_bound": true,
+        "maximum_job_bytes": 19999490048,
+        "peak_note": "named sum of observed per-rank test_driver VmHWM maxima; live lower-bound observation, not GNU time maximum-child RSS",
+        "rank_peak_basis": "per-rank /proc VmHWM maxima sampled while test_driver lives",
+        "rank_peak_hwm_bytes": {},
+        "resource_guard_triggered": false,
+        "schema": "n5_d9_unit_resource_guard_v2",
+        "sum_rank_peak_hwm_bytes": 0,
+        "unix": 1794799602.3044713,
+        "unranked_test_driver_pids": []
+      },
       "room": {
         "logged_nonempty_regions": 0,
         "region_sizes": [],
@@ -126,18 +295,33 @@
           "why": {}
         }
       },
-      "room_logged_nonempty_regions": 0,
-      "room_measurement_scope": "recorded room.stats counters; for guarded M10 growth cases these reflect activity completed before the G guard",
-      "room_region_sizes": [],
-      "runner_wall_seconds": 4.491600751876831,
-      "sampled_individual_process_rss_bytes": 1339392,
-      "sampled_rss_note": "sampled process RSS; not a whole-job peak",
-      "size_edge_max": 18.4789621873,
-      "size_long_edges": 11,
-      "source_pin_receipt_sha256": "29dfaf2c251de2d53ea38c42f9ead09fb5ff825879e81d062d24fec1bd18101d",
-      "stops_by_column": {},
-      "terminal": true,
-      "unbound_boundary_faces": 0,
+      "run_log_sha256": "70263a3734bb811227b060881bfd19daa8a24f6037aafed6d27ea89591ad6f04",
+      "runner_wall_seconds": 4.447768449783325,
+      "scope_limitations": {
+        "R2_closure_vertices": "accepted outer seed set, not internal expanded vertex set or growth count",
+        "acceptance": "fixture diagnostic only; no accepted BL mesh claim",
+        "stack_layer_count": "growth layers exclude initial row",
+        "vertex_spacing": "base-to-lift absolute dz; distinct from physical wall-face first-child altitude"
+      },
+      "source_pins_sha256": "29dfaf2c251de2d53ea38c42f9ead09fb5ff825879e81d062d24fec1bd18101d",
+      "surface_preparation_need_faces": null,
+      "surface_preparation_need_unavailable_reason": "measurement schema records completion surface_work/surface_edits but has no distinct count of faces needing surface preparation; do not infer need from failing_before or height_failures",
+      "terminal_status": {
+        "changed": [],
+        "exit_code": 0,
+        "largest_sampled_individual_process_rss_bytes": 1613824,
+        "pins_verified": true,
+        "rss_note": "sampled process RSS; not a whole-job peak",
+        "seconds": 4.447768449783325,
+        "state": "terminal"
+      },
+      "test_binary_sha256": "8a77a3fb0e294ecbb143410c08f7fc995dffc88818f8c648653dbf9a3d1bfede",
+      "timing_seconds": {
+        "G": 0.000159204,
+        "R1": 5.4569e-05,
+        "R2": 1.9359e-05,
+        "completion": 0.028144806
+      },
       "vertex_lift_spacings": {
         "0": {
           "max_abs_dz": null,
@@ -149,101 +333,235 @@
           "samples": []
         }
       },
-      "vertex_lift_spacings_scope": "vertex-lift spacings; separate from wall-face first-child altitude"
+      "vertex_lift_spacings_scope": "vertex-lift spacings; separate from wall-face first-child altitude",
+      "wall_first_child_heights": {
+        "0": {
+          "faces": 2,
+          "height_tolerance": 0.1,
+          "max_normal_distance": 0.004,
+          "maximum_relative_error": 2.08166817117e-17,
+          "mean_normal_distance": 0.004,
+          "min_normal_distance": 0.004,
+          "requested_h0": 0.004
+        }
+      }
     },
     {
-      "G_columns": null,
-      "G_exception": "BL growth surface dependencies changed; current fronts need reconstruction before advancement.",
-      "G_layer_cells": null,
-      "G_layers_run": null,
-      "G_lifted_points": null,
-      "G_reason": "completion complete",
-      "G_refused": null,
-      "G_returned": false,
-      "G_transactions": null,
-      "J_min": 0.00112842635052,
-      "R2_accepted": 2,
-      "R2_max_closure_vertices_outer_seed": 1,
-      "R2_max_fresh_cells": 40,
-      "R2_max_old_cells": 20,
+      "R2_max": {
+        "closure_vertices": 1,
+        "fresh_cells": 40,
+        "old_cells": 20
+      },
       "R2_partial_growth_observation": {
         "completed_growth_log_layers": [
           0,
           1
         ],
-        "description": "phase log records 4 lifts over two layers before production growth guard; partial only",
+        "evidence_lines": [
+          "DC12 G layer 0 planned=2 lifted_total=2 refused_total=0 t=0.00176004",
+          "DC12 G layer 1 planned=2 lifted_total=4 refused_total=0 t=0.00324589"
+        ],
         "lifted_total_by_layer": [
           2,
           4
-        ]
+        ],
+        "scope": "partial before dependency guard; no completed G totals"
       },
-      "R2_rejected": 0,
-      "R2_work": 2,
       "acceptance_claim": false,
-      "all_positive": true,
-      "binary_sha256": "8a77a3fb0e294ecbb143410c08f7fc995dffc88818f8c648653dbf9a3d1bfede",
-      "boundary_faces": 54,
+      "artifact_hashes_receipt": {
+        "d9_stack_measurement.json": "3b442205984cace804cd483061ee2b095a8d9c09a78eba4714ff6c38f1419b30",
+        "d9_stack_phase_log.txt": "1d44f1e0e6d521290e74f224e7b0aa3dca329f3943929d8f67c0e93c7ac33cc8",
+        "run.log": "d87c609e8ae1caa294cb61cd46ff665d941b0d4082ad19e0a4d6b0ee2018e969"
+      },
+      "attempt": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N5/cases/n5_d9_m10_n2_faceheight_20261116T032711_2599472",
+      "attempt_status_sha256": "6ef2ebcc88ca6195f55062ac0531b2184ae643b4e1fe01c986ff39319779c2d4",
       "build": "build520",
-      "case": "n5_d9_m10_n2_20261116T022146_2446872",
-      "cells": 101,
-      "columns_by_wall": {},
-      "descriptor_hashes": {
-        "m10_n2.json": "dfe8a59836e5ee99a02b705cb8eb201e858982809346f100beadb9b40f0562e2"
-      },
-      "face_first_child_altitudes": {
-        "0": {
-          "faces": 8,
-          "height_tolerance": 0.1,
-          "max_normal_distance": 0.004,
-          "maximum_relative_error": 0.099999,
-          "mean_normal_distance": 0.0036500035,
-          "min_normal_distance": 0.003600004,
-          "requested_h0": 0.004
-        }
-      },
-      "faceheight_receipt": {
-        "artifacts_sha256": {
-          "d9_stack_measurement.json": "3b442205984cace804cd483061ee2b095a8d9c09a78eba4714ff6c38f1419b30",
-          "d9_stack_phase_log.txt": "1d44f1e0e6d521290e74f224e7b0aa3dca329f3943929d8f67c0e93c7ac33cc8",
-          "run.log": "d87c609e8ae1caa294cb61cd46ff665d941b0d4082ad19e0a4d6b0ee2018e969"
+      "case": "n5_d9_m10_n2_faceheight",
+      "columns": null,
+      "columns_by_wall": null,
+      "command": {
+        "argv": [
+          "nice",
+          "-n",
+          "19",
+          "/usr/bin/time",
+          "-v",
+          "timeout",
+          "600",
+          "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-p5-20261114/UnitTests/test_driver",
+          "[.][NativeD9SerialStack]",
+          "--durations",
+          "yes"
+        ],
+        "build": "build520",
+        "case": "n5_d9_m10_n2_faceheight",
+        "environment": {
+          "MKL_NUM_THREADS": "1",
+          "OMPI_MCA_orte_tmpdir_base": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N5/mpi_units",
+          "OMPI_MCA_osc": "pt2pt",
+          "OMP_NUM_THREADS": "1",
+          "OPENBLAS_NUM_THREADS": "1",
+          "TMPDIR": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/compile-tmp"
         },
-        "attempt": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N5/cases/n5_d9_m10_n2_faceheight_20261116T032711_2599472",
-        "descriptor_sha256": "3e1b9c203f72f4f1170ec17d4f76ed1b5cb443cc4cdc76d2430dedc50c235e4f",
-        "passed": true,
-        "path": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N5/unit_measurement_receipts/n5_d9_m10_n2_faceheight.json",
-        "source_pins_sha256": "29dfaf2c251de2d53ea38c42f9ead09fb5ff825879e81d062d24fec1bd18101d",
-        "test_binary_sha256": "8a77a3fb0e294ecbb143410c08f7fc995dffc88818f8c648653dbf9a3d1bfede"
+        "ranks": 1,
+        "timeout_seconds": 600
       },
+      "completion_surface_counters": {
+        "row_retry_commits": 0,
+        "row_retry_seconds": 0,
+        "row_retry_work": 0,
+        "surface_edits": 0,
+        "surface_seconds": 0,
+        "surface_work": 0
+      },
+      "descriptor": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N5/descriptors/m10_n2_faceheight.json",
+      "descriptor_sha256": "3e1b9c203f72f4f1170ec17d4f76ed1b5cb443cc4cdc76d2430dedc50c235e4f",
       "family": "M10",
-      "final_mesh_complete": false,
-      "first_height_measurement_kind": "base-to-lift vertex |dz| spacings; not wall-face/opposite-face prism height and not the enforced h0 gate",
-      "fixture_dc10_sha256": "c9d61107b81b590a20159a38e2dbb587c28c8a95081799c161c53650779012b2",
-      "fixture_dc12_sha256": "bd92e320ff2ffddb6a1b6f2b882114d140f3c38fda816091a67cad2df6c52c05",
-      "gnu_maxrss_is_rank_or_whole_job": "GNU /usr/bin/time wrapper scope; report exact value from run.log, does not substitute whole-job resource peak",
+      "fixture_source_hashes": {
+        "native_first_row_dc10.inc": "c9d61107b81b590a20159a38e2dbb587c28c8a95081799c161c53650779012b2",
+        "native_first_row_dc12.inc": "25d6831f75162291b17dcab0b8efc56bb9dc4a96701ae70ea8766c86867e97ce"
+      },
       "gnu_time": [
-        "Elapsed (wall clock) time (h:mm:ss or m:ss): 0:00.47",
-        "Maximum resident set size (kbytes): 35548"
+        "Elapsed (wall clock) time (h:mm:ss or m:ss): 0:00.45",
+        "Maximum resident set size (kbytes): 35456"
       ],
-      "height_failures": 0,
-      "height_gate_failures": 0,
-      "j_bad": 34,
-      "j_threshold": 0.05,
       "measurement_json_sha256": "3b442205984cace804cd483061ee2b095a8d9c09a78eba4714ff6c38f1419b30",
       "mode": "M10_n2",
       "n": 2,
-      "nonmanifold_faces": 0,
-      "phase_log_sha256": "1d44f1e0e6d521290e74f224e7b0aa3dca329f3943929d8f67c0e93c7ac33cc8",
-      "phase_seconds": {
-        "G": 0.003345141,
-        "R1": 0.000321612,
-        "R2": 0.054755521,
-        "completion": 0.006434337
+      "phase_limits": {
+        "G_seconds": 120,
+        "R1_seconds": 60,
+        "R1_work": 4096,
+        "R2_seconds": 120,
+        "completion_seconds": 60,
+        "completion_surface_tolerance": 0.0001
       },
-      "positive_cells": 101,
-      "q_bad": 47,
-      "q_min": 0.0216419530027,
-      "q_threshold": 0.2,
+      "phase_log_sha256": "1d44f1e0e6d521290e74f224e7b0aa3dca329f3943929d8f67c0e93c7ac33cc8",
+      "phases": {
+        "G": null,
+        "G_exception": "BL growth surface dependencies changed; current fronts need reconstruction before advancement.",
+        "G_ran": true,
+        "G_reason": "completion complete",
+        "G_returned": false,
+        "R1": {
+          "accepted": 0,
+          "field": {
+            "compositions": 0,
+            "edge_compositions": 0,
+            "edge_integrations": 0,
+            "edge_pieces": 0,
+            "queries": 0,
+            "query_misses": 0
+          },
+          "last_witness": "",
+          "outcome": "complete",
+          "peak_rss_kB": 33280,
+          "reasons": {},
+          "rejected": 0,
+          "seconds": 0.000235032,
+          "work": 0
+        },
+        "R2": {
+          "accepted": 2,
+          "field": {
+            "compositions": 10515,
+            "edge_compositions": 10515,
+            "edge_integrations": 76,
+            "edge_pieces": 80,
+            "queries": 0,
+            "query_misses": 0
+          },
+          "last_witness": "",
+          "outcome": "complete",
+          "peak_rss_kB": 34816,
+          "reasons": {},
+          "rejected": 0,
+          "seconds": 0.051858602,
+          "work": 2
+        },
+        "completion": {
+          "apex_placed": 0,
+          "cavity": 0,
+          "failing_after": 0,
+          "failing_before": 1,
+          "inserted": 1,
+          "outcome": "complete",
+          "passes": 1,
+          "row_retry_commits": 0,
+          "row_retry_seconds": 0,
+          "row_retry_work": 0,
+          "seconds": 0.006331296,
+          "separated": 0,
+          "surface_edits": 0,
+          "surface_seconds": 0,
+          "surface_work": 0,
+          "why": {},
+          "witnesses": [],
+          "work": 1
+        },
+        "phase_log_file": "d9_stack_phase_log.txt"
+      },
+      "positive_validity_and_topology": {
+        "J_min": 0.00112842635052,
+        "all_positive": true,
+        "boundary_faces": 54,
+        "cells": 101,
+        "complete": false,
+        "height_failures": 0,
+        "j_bad": 34,
+        "j_threshold": 0.05,
+        "nonmanifold_faces": 0,
+        "positive_cells": 101,
+        "q_bad": 47,
+        "q_min": 0.0216419530027,
+        "q_threshold": 0.2,
+        "size_edge_max": 17.6367568365,
+        "size_long_edges": 42,
+        "unbound_boundary_faces": 0
+      },
+      "rank_peak_hwm_bytes": {},
       "ranks": 1,
+      "receipt_passed": true,
+      "receipt_path": "unit_measurement_receipts/n5_d9_m10_n2_faceheight.json",
+      "resource_guard": {
+        "actual_host_proc": true,
+        "all_expected_rank_peaks_seen": false,
+        "all_owned_handles_terminal": true,
+        "expected_ranks": 1,
+        "gnu_time_child_maximum_is_job_peak": false,
+        "identities": [
+          {
+            "alive": false,
+            "mpi_rank": null,
+            "name": "time",
+            "pgid": 2599806,
+            "pid": 2599806,
+            "sid": 2599806,
+            "start_ticks": 29193915,
+            "state": "S"
+          },
+          {
+            "alive": false,
+            "mpi_rank": null,
+            "name": "timeout",
+            "pgid": 2599806,
+            "pid": 2599807,
+            "sid": 2599806,
+            "start_ticks": 29193916,
+            "state": "R"
+          }
+        ],
+        "live_hwm_lower_bound": true,
+        "maximum_job_bytes": 19999490048,
+        "peak_note": "named sum of observed per-rank test_driver VmHWM maxima; live lower-bound observation, not GNU time maximum-child RSS",
+        "rank_peak_basis": "per-rank /proc VmHWM maxima sampled while test_driver lives",
+        "rank_peak_hwm_bytes": {},
+        "resource_guard_triggered": false,
+        "schema": "n5_d9_unit_resource_guard_v2",
+        "sum_rank_peak_hwm_bytes": 0,
+        "unix": 1794799635.7027338,
+        "unranked_test_driver_pids": []
+      },
       "room": {
         "logged_nonempty_regions": 0,
         "region_sizes": [],
@@ -266,7 +584,7 @@
             "problem": 0,
             "slides": 0,
             "solve": 0,
-            "total": 2.2198e-05
+            "total": 2.0763e-05
           },
           "sliding": 0,
           "sliding_reverted": 0,
@@ -274,18 +592,33 @@
           "why": {}
         }
       },
-      "room_logged_nonempty_regions": 0,
-      "room_measurement_scope": "recorded room.stats counters; for guarded M10 growth cases these reflect activity completed before the G guard",
-      "room_region_sizes": [],
-      "runner_wall_seconds": 4.512978792190552,
-      "sampled_individual_process_rss_bytes": 868352,
-      "sampled_rss_note": "sampled process RSS; not a whole-job peak",
-      "size_edge_max": 17.6367568365,
-      "size_long_edges": 42,
-      "source_pin_receipt_sha256": "29dfaf2c251de2d53ea38c42f9ead09fb5ff825879e81d062d24fec1bd18101d",
-      "stops_by_column": {},
-      "terminal": true,
-      "unbound_boundary_faces": 0,
+      "run_log_sha256": "d87c609e8ae1caa294cb61cd46ff665d941b0d4082ad19e0a4d6b0ee2018e969",
+      "runner_wall_seconds": 4.4305336475372314,
+      "scope_limitations": {
+        "R2_closure_vertices": "accepted outer seed set, not internal expanded vertex set or growth count",
+        "acceptance": "fixture diagnostic only; no accepted BL mesh claim",
+        "stack_layer_count": "growth layers exclude initial row",
+        "vertex_spacing": "base-to-lift absolute dz; distinct from physical wall-face first-child altitude"
+      },
+      "source_pins_sha256": "29dfaf2c251de2d53ea38c42f9ead09fb5ff825879e81d062d24fec1bd18101d",
+      "surface_preparation_need_faces": null,
+      "surface_preparation_need_unavailable_reason": "measurement schema records completion surface_work/surface_edits but has no distinct count of faces needing surface preparation; do not infer need from failing_before or height_failures",
+      "terminal_status": {
+        "changed": [],
+        "exit_code": 0,
+        "largest_sampled_individual_process_rss_bytes": 1531904,
+        "pins_verified": true,
+        "rss_note": "sampled process RSS; not a whole-job peak",
+        "seconds": 4.4305336475372314,
+        "state": "terminal"
+      },
+      "test_binary_sha256": "8a77a3fb0e294ecbb143410c08f7fc995dffc88818f8c648653dbf9a3d1bfede",
+      "timing_seconds": {
+        "G": 0.003300154,
+        "R1": 0.000271027,
+        "R2": 0.051861965,
+        "completion": 0.006337049
+      },
       "vertex_lift_spacings": {
         "0": {
           "max_abs_dz": 0.00577368,
@@ -308,95 +641,216 @@
           ]
         }
       },
-      "vertex_lift_spacings_scope": "vertex-lift spacings; separate from wall-face first-child altitude"
-    },
-    {
-      "G_columns": null,
-      "G_exception": "BL growth surface dependencies changed; current fronts need reconstruction before advancement.",
-      "G_layer_cells": null,
-      "G_layers_run": null,
-      "G_lifted_points": null,
-      "G_reason": "completion complete",
-      "G_refused": null,
-      "G_returned": false,
-      "G_transactions": null,
-      "J_min": 0.00145030593763,
-      "R2_accepted": 12,
-      "R2_max_closure_vertices_outer_seed": 1,
-      "R2_max_fresh_cells": 48,
-      "R2_max_old_cells": 32,
-      "R2_partial_growth_observation": {
-        "completed_R2_transactions": 12,
-        "description": "R2 row creation only; no completed G growth layers before production guard",
-        "lifted": 12
-      },
-      "R2_rejected": 0,
-      "R2_work": 12,
-      "acceptance_claim": false,
-      "all_positive": true,
-      "binary_sha256": "8a77a3fb0e294ecbb143410c08f7fc995dffc88818f8c648653dbf9a3d1bfede",
-      "boundary_faces": 202,
-      "build": "build520",
-      "case": "n5_d9_m10_n4_20261116T022417_2452891",
-      "cells": 617,
-      "columns_by_wall": {},
-      "descriptor_hashes": {
-        "m10_n4.json": "3b39ec1795c26943d1dff272c90c1aaff3f613ebd829445b0a3343c6ce2ea5a1"
-      },
-      "face_first_child_altitudes": {
+      "vertex_lift_spacings_scope": "vertex-lift spacings; separate from wall-face first-child altitude",
+      "wall_first_child_heights": {
         "0": {
-          "faces": 32,
+          "faces": 8,
           "height_tolerance": 0.1,
           "max_normal_distance": 0.004,
           "maximum_relative_error": 0.099999,
-          "mean_normal_distance": 0.003612503875,
+          "mean_normal_distance": 0.0036500035,
           "min_normal_distance": 0.003600004,
           "requested_h0": 0.004
         }
+      }
+    },
+    {
+      "R2_max": {
+        "closure_vertices": 1,
+        "fresh_cells": 48,
+        "old_cells": 32
       },
-      "faceheight_receipt": {
-        "artifacts_sha256": {
-          "d9_stack_measurement.json": "3570efc3c60826c098fbc9e5459d52f173ec598289f8a7355a19e370b995687e",
-          "d9_stack_phase_log.txt": "39ee52e5052d70cb42a720297b3c8256784a5eef0cfe397622b8603eea10d69a",
-          "run.log": "1843678d9e2c68ad1fc233d09273df56cc479d60f1e6e95c69ce8a9cc5eeb8f1"
+      "R2_partial_growth_observation": {
+        "completed_R2_transactions": 12,
+        "completed_growth_layers": 0,
+        "lifted": 12,
+        "scope": "R2 row creation only; G totals unavailable"
+      },
+      "acceptance_claim": false,
+      "artifact_hashes_receipt": {
+        "d9_stack_measurement.json": "3570efc3c60826c098fbc9e5459d52f173ec598289f8a7355a19e370b995687e",
+        "d9_stack_phase_log.txt": "39ee52e5052d70cb42a720297b3c8256784a5eef0cfe397622b8603eea10d69a",
+        "run.log": "1843678d9e2c68ad1fc233d09273df56cc479d60f1e6e95c69ce8a9cc5eeb8f1"
+      },
+      "attempt": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N5/cases/n5_d9_m10_n4_faceheight_20261116T032744_2600771",
+      "attempt_status_sha256": "da44cb1c02987c8163d667eeb86bf9f54cdd89bbe07c2427fd8d9faabd53a478",
+      "build": "build520",
+      "case": "n5_d9_m10_n4_faceheight",
+      "columns": null,
+      "columns_by_wall": null,
+      "command": {
+        "argv": [
+          "nice",
+          "-n",
+          "19",
+          "/usr/bin/time",
+          "-v",
+          "timeout",
+          "600",
+          "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-p5-20261114/UnitTests/test_driver",
+          "[.][NativeD9SerialStack]",
+          "--durations",
+          "yes"
+        ],
+        "build": "build520",
+        "case": "n5_d9_m10_n4_faceheight",
+        "environment": {
+          "MKL_NUM_THREADS": "1",
+          "OMPI_MCA_orte_tmpdir_base": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N5/mpi_units",
+          "OMPI_MCA_osc": "pt2pt",
+          "OMP_NUM_THREADS": "1",
+          "OPENBLAS_NUM_THREADS": "1",
+          "TMPDIR": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/compile-tmp"
         },
-        "attempt": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N5/cases/n5_d9_m10_n4_faceheight_20261116T032744_2600771",
-        "descriptor_sha256": "5ac256850b484f9e6cafe95ded9ac60a662a354b78a0f606d269d8e1516e3ad8",
-        "passed": true,
-        "path": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N5/unit_measurement_receipts/n5_d9_m10_n4_faceheight.json",
-        "source_pins_sha256": "29dfaf2c251de2d53ea38c42f9ead09fb5ff825879e81d062d24fec1bd18101d",
-        "test_binary_sha256": "8a77a3fb0e294ecbb143410c08f7fc995dffc88818f8c648653dbf9a3d1bfede"
+        "ranks": 1,
+        "timeout_seconds": 600
       },
+      "completion_surface_counters": {
+        "row_retry_commits": 0,
+        "row_retry_seconds": 0,
+        "row_retry_work": 0,
+        "surface_edits": 0,
+        "surface_seconds": 0,
+        "surface_work": 0
+      },
+      "descriptor": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N5/descriptors/m10_n4_faceheight.json",
+      "descriptor_sha256": "5ac256850b484f9e6cafe95ded9ac60a662a354b78a0f606d269d8e1516e3ad8",
       "family": "M10",
-      "final_mesh_complete": false,
-      "first_height_measurement_kind": "base-to-lift vertex |dz| spacings; not wall-face/opposite-face prism height and not the enforced h0 gate",
-      "fixture_dc10_sha256": "c9d61107b81b590a20159a38e2dbb587c28c8a95081799c161c53650779012b2",
-      "fixture_dc12_sha256": "bd92e320ff2ffddb6a1b6f2b882114d140f3c38fda816091a67cad2df6c52c05",
-      "gnu_maxrss_is_rank_or_whole_job": "GNU /usr/bin/time wrapper scope; report exact value from run.log, does not substitute whole-job resource peak",
+      "fixture_source_hashes": {
+        "native_first_row_dc10.inc": "c9d61107b81b590a20159a38e2dbb587c28c8a95081799c161c53650779012b2",
+        "native_first_row_dc12.inc": "25d6831f75162291b17dcab0b8efc56bb9dc4a96701ae70ea8766c86867e97ce"
+      },
       "gnu_time": [
         "Elapsed (wall clock) time (h:mm:ss or m:ss): 0:00.74",
-        "Maximum resident set size (kbytes): 37584"
+        "Maximum resident set size (kbytes): 37224"
       ],
-      "height_failures": 0,
-      "height_gate_failures": 0,
-      "j_bad": 160,
-      "j_threshold": 0.05,
       "measurement_json_sha256": "3570efc3c60826c098fbc9e5459d52f173ec598289f8a7355a19e370b995687e",
       "mode": "M10_n4",
       "n": 4,
-      "nonmanifold_faces": 0,
-      "phase_log_sha256": "39ee52e5052d70cb42a720297b3c8256784a5eef0cfe397622b8603eea10d69a",
-      "phase_seconds": {
-        "G": 0.007001066,
-        "R1": 0.000363543,
-        "R2": 0.205919147,
-        "completion": 0.004479704
+      "phase_limits": {
+        "G_seconds": 120,
+        "R1_seconds": 60,
+        "R1_work": 4096,
+        "R2_seconds": 120,
+        "completion_seconds": 60,
+        "completion_surface_tolerance": 0.0001
       },
-      "positive_cells": 617,
-      "q_bad": 192,
-      "q_min": 0.0255647567224,
-      "q_threshold": 0.2,
+      "phase_log_sha256": "39ee52e5052d70cb42a720297b3c8256784a5eef0cfe397622b8603eea10d69a",
+      "phases": {
+        "G": null,
+        "G_exception": "BL growth surface dependencies changed; current fronts need reconstruction before advancement.",
+        "G_ran": true,
+        "G_reason": "completion complete",
+        "G_returned": false,
+        "R1": {
+          "accepted": 0,
+          "field": {
+            "compositions": 0,
+            "edge_compositions": 0,
+            "edge_integrations": 0,
+            "edge_pieces": 0,
+            "queries": 0,
+            "query_misses": 0
+          },
+          "last_witness": "",
+          "outcome": "complete",
+          "peak_rss_kB": 34664,
+          "reasons": {},
+          "rejected": 0,
+          "seconds": 0.00031042,
+          "work": 0
+        },
+        "R2": {
+          "accepted": 12,
+          "field": {
+            "compositions": 42030,
+            "edge_compositions": 42030,
+            "edge_integrations": 544,
+            "edge_pieces": 556,
+            "queries": 0,
+            "query_misses": 0
+          },
+          "last_witness": "",
+          "outcome": "complete",
+          "peak_rss_kB": 36072,
+          "reasons": {},
+          "rejected": 0,
+          "seconds": 0.205525564,
+          "work": 12
+        },
+        "completion": {
+          "apex_placed": 0,
+          "cavity": 0,
+          "failing_after": 0,
+          "failing_before": 1,
+          "inserted": 1,
+          "outcome": "complete",
+          "passes": 1,
+          "row_retry_commits": 0,
+          "row_retry_seconds": 0,
+          "row_retry_work": 0,
+          "seconds": 0.004527901,
+          "separated": 0,
+          "surface_edits": 0,
+          "surface_seconds": 0,
+          "surface_work": 0,
+          "why": {},
+          "witnesses": [],
+          "work": 1
+        },
+        "phase_log_file": "d9_stack_phase_log.txt"
+      },
+      "positive_validity_and_topology": {
+        "J_min": 0.00145030593763,
+        "all_positive": true,
+        "boundary_faces": 202,
+        "cells": 617,
+        "complete": false,
+        "height_failures": 0,
+        "j_bad": 160,
+        "j_threshold": 0.05,
+        "nonmanifold_faces": 0,
+        "positive_cells": 617,
+        "q_bad": 192,
+        "q_min": 0.0255647567224,
+        "q_threshold": 0.2,
+        "size_edge_max": 14.3430651574,
+        "size_long_edges": 174,
+        "unbound_boundary_faces": 0
+      },
+      "rank_peak_hwm_bytes": {},
       "ranks": 1,
+      "receipt_passed": true,
+      "receipt_path": "unit_measurement_receipts/n5_d9_m10_n4_faceheight.json",
+      "resource_guard": {
+        "actual_host_proc": true,
+        "all_expected_rank_peaks_seen": false,
+        "all_owned_handles_terminal": true,
+        "expected_ranks": 1,
+        "gnu_time_child_maximum_is_job_peak": false,
+        "identities": [
+          {
+            "alive": false,
+            "mpi_rank": null,
+            "name": "nice",
+            "pgid": 2601138,
+            "pid": 2601138,
+            "sid": 2601138,
+            "start_ticks": 29197252,
+            "state": "R"
+          }
+        ],
+        "live_hwm_lower_bound": true,
+        "maximum_job_bytes": 19999490048,
+        "peak_note": "named sum of observed per-rank test_driver VmHWM maxima; live lower-bound observation, not GNU time maximum-child RSS",
+        "rank_peak_basis": "per-rank /proc VmHWM maxima sampled while test_driver lives",
+        "rank_peak_hwm_bytes": {},
+        "resource_guard_triggered": false,
+        "schema": "n5_d9_unit_resource_guard_v2",
+        "sum_rank_peak_hwm_bytes": 0,
+        "unix": 1794799669.1227686,
+        "unranked_test_driver_pids": []
+      },
       "room": {
         "logged_nonempty_regions": 0,
         "region_sizes": [],
@@ -419,7 +873,7 @@
             "problem": 0,
             "slides": 0,
             "solve": 0,
-            "total": 8.4347e-05
+            "total": 7.3896e-05
           },
           "sliding": 0,
           "sliding_reverted": 0,
@@ -427,18 +881,33 @@
           "why": {}
         }
       },
-      "room_logged_nonempty_regions": 0,
-      "room_measurement_scope": "recorded room.stats counters; for guarded M10 growth cases these reflect activity completed before the G guard",
-      "room_region_sizes": [],
-      "runner_wall_seconds": 4.514168977737427,
-      "sampled_individual_process_rss_bytes": 593920,
-      "sampled_rss_note": "sampled process RSS; not a whole-job peak",
-      "size_edge_max": 14.3430651574,
-      "size_long_edges": 174,
-      "source_pin_receipt_sha256": "29dfaf2c251de2d53ea38c42f9ead09fb5ff825879e81d062d24fec1bd18101d",
-      "stops_by_column": {},
-      "terminal": true,
-      "unbound_boundary_faces": 0,
+      "run_log_sha256": "1843678d9e2c68ad1fc233d09273df56cc479d60f1e6e95c69ce8a9cc5eeb8f1",
+      "runner_wall_seconds": 4.507730722427368,
+      "scope_limitations": {
+        "R2_closure_vertices": "accepted outer seed set, not internal expanded vertex set or growth count",
+        "acceptance": "fixture diagnostic only; no accepted BL mesh claim",
+        "stack_layer_count": "growth layers exclude initial row",
+        "vertex_spacing": "base-to-lift absolute dz; distinct from physical wall-face first-child altitude"
+      },
+      "source_pins_sha256": "29dfaf2c251de2d53ea38c42f9ead09fb5ff825879e81d062d24fec1bd18101d",
+      "surface_preparation_need_faces": null,
+      "surface_preparation_need_unavailable_reason": "measurement schema records completion surface_work/surface_edits but has no distinct count of faces needing surface preparation; do not infer need from failing_before or height_failures",
+      "terminal_status": {
+        "changed": [],
+        "exit_code": 0,
+        "largest_sampled_individual_process_rss_bytes": 1196032,
+        "pins_verified": true,
+        "rss_note": "sampled process RSS; not a whole-job peak",
+        "seconds": 4.507730722427368,
+        "state": "terminal"
+      },
+      "test_binary_sha256": "8a77a3fb0e294ecbb143410c08f7fc995dffc88818f8c648653dbf9a3d1bfede",
+      "timing_seconds": {
+        "G": 0.006951938,
+        "R1": 0.000326433,
+        "R2": 0.205531137,
+        "completion": 0.004547225
+      },
       "vertex_lift_spacings": {
         "0": {
           "max_abs_dz": 0.00577368,
@@ -511,33 +980,588 @@
           ]
         }
       },
-      "vertex_lift_spacings_scope": "vertex-lift spacings; separate from wall-face first-child altitude"
+      "vertex_lift_spacings_scope": "vertex-lift spacings; separate from wall-face first-child altitude",
+      "wall_first_child_heights": {
+        "0": {
+          "faces": 32,
+          "height_tolerance": 0.1,
+          "max_normal_distance": 0.004,
+          "maximum_relative_error": 0.099999,
+          "mean_normal_distance": 0.003612503875,
+          "min_normal_distance": 0.003600004,
+          "requested_h0": 0.004
+        }
+      }
     },
     {
-      "G_columns": 50,
-      "G_exception": "",
-      "G_layer_cells": 2844,
-      "G_layers_run": 15,
-      "G_lifted_points": 726,
-      "G_reason": "completion complete",
-      "G_refused": 20,
-      "G_returned": true,
-      "G_transactions": 136,
-      "J_min": 0.00495520459023,
-      "R2_accepted": 50,
-      "R2_max_closure_vertices_outer_seed": 1,
-      "R2_max_fresh_cells": 48,
-      "R2_max_old_cells": 32,
+      "R2_max": {
+        "closure_vertices": 1,
+        "fresh_cells": 48,
+        "old_cells": 32
+      },
       "R2_partial_growth_observation": null,
-      "R2_rejected": 0,
-      "R2_work": 50,
       "acceptance_claim": false,
-      "all_positive": true,
-      "binary_sha256": "8a77a3fb0e294ecbb143410c08f7fc995dffc88818f8c648653dbf9a3d1bfede",
-      "boundary_faces": 1168,
+      "artifact_hashes_receipt": {
+        "d9_stack_measurement.json": "b34a85aaabd9d1f922b1b39e131250d893e805ca6591311e141fc5727f5346c9",
+        "d9_stack_phase_log.txt": "4767fb3a3d82b5c36e651df8bcdc066b0a8ed6f9460f752cf831db034dccdf1e",
+        "run.log": "37d0809b5764defbc59a783641206638952acd41cfbf01947077689aaf81aa67"
+      },
+      "attempt": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N5/cases/n5_d9_m12_control_faceheight_20261116T032817_2602158",
+      "attempt_status_sha256": "56dc322a724b91044483fd9b29afb84d794bdc70ac5f90db46ae4bf5c0ec1619",
       "build": "build520",
-      "case": "n5_d9_m12_control_20261116T022430_2453425",
-      "cells": 3734,
+      "case": "n5_d9_m12_control_faceheight",
+      "columns": [
+        {
+          "layers": 12,
+          "root": 1,
+          "stop": "s3 refused transactions (clearance)",
+          "stop_height": null,
+          "stopped": true,
+          "top": 918,
+          "walls": [
+            0
+          ]
+        },
+        {
+          "layers": 15,
+          "root": 2,
+          "stop": "s1 thickness",
+          "stop_height": 0.386317253395,
+          "stopped": true,
+          "top": 1248,
+          "walls": [
+            0
+          ]
+        },
+        {
+          "layers": 15,
+          "root": 3,
+          "stop": "s1 thickness",
+          "stop_height": 0.386317253395,
+          "stopped": true,
+          "top": 1249,
+          "walls": [
+            0
+          ]
+        },
+        {
+          "layers": 15,
+          "root": 4,
+          "stop": "s1 thickness",
+          "stop_height": 0.386317253395,
+          "stopped": true,
+          "top": 1250,
+          "walls": [
+            0
+          ]
+        },
+        {
+          "layers": 12,
+          "root": 5,
+          "stop": "s3 refused transactions (clearance)",
+          "stop_height": null,
+          "stopped": true,
+          "top": 922,
+          "walls": [
+            0
+          ]
+        },
+        {
+          "layers": 15,
+          "root": 6,
+          "stop": "s1 thickness",
+          "stop_height": 0.386317253395,
+          "stopped": true,
+          "top": 1251,
+          "walls": [
+            0
+          ]
+        },
+        {
+          "layers": 15,
+          "root": 7,
+          "stop": "s1 thickness",
+          "stop_height": 0.386317253395,
+          "stopped": true,
+          "top": 1252,
+          "walls": [
+            0
+          ]
+        },
+        {
+          "layers": 15,
+          "root": 8,
+          "stop": "s1 thickness",
+          "stop_height": 0.386317253395,
+          "stopped": true,
+          "top": 1253,
+          "walls": [
+            0
+          ]
+        },
+        {
+          "layers": 15,
+          "root": 9,
+          "stop": "s1 thickness",
+          "stop_height": 0.386317253395,
+          "stopped": true,
+          "top": 1254,
+          "walls": [
+            0
+          ]
+        },
+        {
+          "layers": 15,
+          "root": 10,
+          "stop": "s1 thickness",
+          "stop_height": 0.386317253395,
+          "stopped": true,
+          "top": 1255,
+          "walls": [
+            0
+          ]
+        },
+        {
+          "layers": 15,
+          "root": 11,
+          "stop": "s1 thickness",
+          "stop_height": 0.386317253395,
+          "stopped": true,
+          "top": 1256,
+          "walls": [
+            0
+          ]
+        },
+        {
+          "layers": 15,
+          "root": 12,
+          "stop": "s1 thickness",
+          "stop_height": 0.386317253395,
+          "stopped": true,
+          "top": 1257,
+          "walls": [
+            0
+          ]
+        },
+        {
+          "layers": 15,
+          "root": 13,
+          "stop": "s1 thickness",
+          "stop_height": 0.386317253395,
+          "stopped": true,
+          "top": 1258,
+          "walls": [
+            0
+          ]
+        },
+        {
+          "layers": 15,
+          "root": 14,
+          "stop": "s1 thickness",
+          "stop_height": 0.386317253395,
+          "stopped": true,
+          "top": 1259,
+          "walls": [
+            0
+          ]
+        },
+        {
+          "layers": 15,
+          "root": 15,
+          "stop": "s1 thickness",
+          "stop_height": 0.386317253395,
+          "stopped": true,
+          "top": 1260,
+          "walls": [
+            0
+          ]
+        },
+        {
+          "layers": 15,
+          "root": 16,
+          "stop": "s1 thickness",
+          "stop_height": 0.386317253395,
+          "stopped": true,
+          "top": 1261,
+          "walls": [
+            0
+          ]
+        },
+        {
+          "layers": 15,
+          "root": 17,
+          "stop": "s1 thickness",
+          "stop_height": 0.386317253395,
+          "stopped": true,
+          "top": 1262,
+          "walls": [
+            0
+          ]
+        },
+        {
+          "layers": 15,
+          "root": 18,
+          "stop": "s1 thickness",
+          "stop_height": 0.386317253395,
+          "stopped": true,
+          "top": 1263,
+          "walls": [
+            0
+          ]
+        },
+        {
+          "layers": 15,
+          "root": 19,
+          "stop": "s1 thickness",
+          "stop_height": 0.386317253395,
+          "stopped": true,
+          "top": 1264,
+          "walls": [
+            0
+          ]
+        },
+        {
+          "layers": 15,
+          "root": 20,
+          "stop": "s1 thickness",
+          "stop_height": 0.386317253395,
+          "stopped": true,
+          "top": 1265,
+          "walls": [
+            0
+          ]
+        },
+        {
+          "layers": 12,
+          "root": 21,
+          "stop": "s3 refused transactions (clearance)",
+          "stop_height": null,
+          "stopped": true,
+          "top": 938,
+          "walls": [
+            0
+          ]
+        },
+        {
+          "layers": 15,
+          "root": 22,
+          "stop": "s1 thickness",
+          "stop_height": 0.386317253395,
+          "stopped": true,
+          "top": 1266,
+          "walls": [
+            0
+          ]
+        },
+        {
+          "layers": 15,
+          "root": 23,
+          "stop": "s1 thickness",
+          "stop_height": 0.386317253395,
+          "stopped": true,
+          "top": 1267,
+          "walls": [
+            0
+          ]
+        },
+        {
+          "layers": 15,
+          "root": 24,
+          "stop": "s1 thickness",
+          "stop_height": 0.386317253395,
+          "stopped": true,
+          "top": 1268,
+          "walls": [
+            0
+          ]
+        },
+        {
+          "layers": 12,
+          "root": 25,
+          "stop": "s3 refused transactions (clearance)",
+          "stop_height": null,
+          "stopped": true,
+          "top": 942,
+          "walls": [
+            0
+          ]
+        },
+        {
+          "layers": 12,
+          "root": 101,
+          "stop": "s3 refused transactions (clearance)",
+          "stop_height": null,
+          "stopped": true,
+          "top": 943,
+          "walls": [
+            3
+          ]
+        },
+        {
+          "layers": 15,
+          "root": 102,
+          "stop": "s1 thickness",
+          "stop_height": 0.354624781012,
+          "stopped": true,
+          "top": 1269,
+          "walls": [
+            3
+          ]
+        },
+        {
+          "layers": 15,
+          "root": 103,
+          "stop": "s1 thickness",
+          "stop_height": 0.354624781012,
+          "stopped": true,
+          "top": 1270,
+          "walls": [
+            3
+          ]
+        },
+        {
+          "layers": 15,
+          "root": 104,
+          "stop": "s1 thickness",
+          "stop_height": 0.354624781012,
+          "stopped": true,
+          "top": 1271,
+          "walls": [
+            3
+          ]
+        },
+        {
+          "layers": 12,
+          "root": 105,
+          "stop": "s3 refused transactions (clearance)",
+          "stop_height": null,
+          "stopped": true,
+          "top": 947,
+          "walls": [
+            3
+          ]
+        },
+        {
+          "layers": 15,
+          "root": 106,
+          "stop": "s1 thickness",
+          "stop_height": 0.354624781012,
+          "stopped": true,
+          "top": 1272,
+          "walls": [
+            3
+          ]
+        },
+        {
+          "layers": 15,
+          "root": 107,
+          "stop": "s1 thickness",
+          "stop_height": 0.354624781012,
+          "stopped": true,
+          "top": 1273,
+          "walls": [
+            3
+          ]
+        },
+        {
+          "layers": 15,
+          "root": 108,
+          "stop": "s1 thickness",
+          "stop_height": 0.354624781012,
+          "stopped": true,
+          "top": 1274,
+          "walls": [
+            3
+          ]
+        },
+        {
+          "layers": 15,
+          "root": 109,
+          "stop": "s1 thickness",
+          "stop_height": 0.354624781012,
+          "stopped": true,
+          "top": 1275,
+          "walls": [
+            3
+          ]
+        },
+        {
+          "layers": 15,
+          "root": 110,
+          "stop": "s1 thickness",
+          "stop_height": 0.354624781012,
+          "stopped": true,
+          "top": 1276,
+          "walls": [
+            3
+          ]
+        },
+        {
+          "layers": 15,
+          "root": 111,
+          "stop": "s1 thickness",
+          "stop_height": 0.354624781012,
+          "stopped": true,
+          "top": 1277,
+          "walls": [
+            3
+          ]
+        },
+        {
+          "layers": 15,
+          "root": 112,
+          "stop": "s1 thickness",
+          "stop_height": 0.354624781012,
+          "stopped": true,
+          "top": 1278,
+          "walls": [
+            3
+          ]
+        },
+        {
+          "layers": 15,
+          "root": 113,
+          "stop": "s1 thickness",
+          "stop_height": 0.354624781012,
+          "stopped": true,
+          "top": 1279,
+          "walls": [
+            3
+          ]
+        },
+        {
+          "layers": 15,
+          "root": 114,
+          "stop": "s1 thickness",
+          "stop_height": 0.354624781012,
+          "stopped": true,
+          "top": 1280,
+          "walls": [
+            3
+          ]
+        },
+        {
+          "layers": 15,
+          "root": 115,
+          "stop": "s1 thickness",
+          "stop_height": 0.354624781012,
+          "stopped": true,
+          "top": 1281,
+          "walls": [
+            3
+          ]
+        },
+        {
+          "layers": 15,
+          "root": 116,
+          "stop": "s1 thickness",
+          "stop_height": 0.354624781012,
+          "stopped": true,
+          "top": 1282,
+          "walls": [
+            3
+          ]
+        },
+        {
+          "layers": 15,
+          "root": 117,
+          "stop": "s1 thickness",
+          "stop_height": 0.354624781012,
+          "stopped": true,
+          "top": 1283,
+          "walls": [
+            3
+          ]
+        },
+        {
+          "layers": 15,
+          "root": 118,
+          "stop": "s1 thickness",
+          "stop_height": 0.354624781012,
+          "stopped": true,
+          "top": 1284,
+          "walls": [
+            3
+          ]
+        },
+        {
+          "layers": 15,
+          "root": 119,
+          "stop": "s1 thickness",
+          "stop_height": 0.354624781012,
+          "stopped": true,
+          "top": 1285,
+          "walls": [
+            3
+          ]
+        },
+        {
+          "layers": 15,
+          "root": 120,
+          "stop": "s1 thickness",
+          "stop_height": 0.354624781012,
+          "stopped": true,
+          "top": 1286,
+          "walls": [
+            3
+          ]
+        },
+        {
+          "layers": 12,
+          "root": 121,
+          "stop": "s3 refused transactions (clearance)",
+          "stop_height": null,
+          "stopped": true,
+          "top": 963,
+          "walls": [
+            3
+          ]
+        },
+        {
+          "layers": 15,
+          "root": 122,
+          "stop": "s1 thickness",
+          "stop_height": 0.354624781012,
+          "stopped": true,
+          "top": 1287,
+          "walls": [
+            3
+          ]
+        },
+        {
+          "layers": 15,
+          "root": 123,
+          "stop": "s1 thickness",
+          "stop_height": 0.354624781012,
+          "stopped": true,
+          "top": 1288,
+          "walls": [
+            3
+          ]
+        },
+        {
+          "layers": 15,
+          "root": 124,
+          "stop": "s1 thickness",
+          "stop_height": 0.354624781012,
+          "stopped": true,
+          "top": 1289,
+          "walls": [
+            3
+          ]
+        },
+        {
+          "layers": 12,
+          "root": 125,
+          "stop": "s3 refused transactions (clearance)",
+          "stop_height": null,
+          "stopped": true,
+          "top": 967,
+          "walls": [
+            3
+          ]
+        }
+      ],
       "columns_by_wall": {
         "0": {
           "columns": 25,
@@ -560,72 +1584,287 @@
           "thickness": 0.4
         }
       },
-      "descriptor_hashes": {
-        "m12_control.json": "743c12e34aeb28b1a025040e2e1ca23d1ab7e0d51d57f09703c7761fe1c54071"
-      },
-      "face_first_child_altitudes": {
-        "0": {
-          "faces": 32,
-          "height_tolerance": 0.1,
-          "max_normal_distance": 0.003600004,
-          "maximum_relative_error": 0.099999,
-          "mean_normal_distance": 0.003600004,
-          "min_normal_distance": 0.003600004,
-          "requested_h0": 0.004
+      "command": {
+        "argv": [
+          "nice",
+          "-n",
+          "19",
+          "/usr/bin/time",
+          "-v",
+          "timeout",
+          "600",
+          "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-p5-20261114/UnitTests/test_driver",
+          "[.][NativeD9SerialStack]",
+          "--durations",
+          "yes"
+        ],
+        "build": "build520",
+        "case": "n5_d9_m12_control_faceheight",
+        "environment": {
+          "MKL_NUM_THREADS": "1",
+          "OMPI_MCA_orte_tmpdir_base": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N5/mpi_units",
+          "OMPI_MCA_osc": "pt2pt",
+          "OMP_NUM_THREADS": "1",
+          "OPENBLAS_NUM_THREADS": "1",
+          "TMPDIR": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/compile-tmp"
         },
-        "3": {
-          "faces": 32,
-          "height_tolerance": 0.1,
-          "max_normal_distance": 0.005400006,
-          "maximum_relative_error": 0.099999,
-          "mean_normal_distance": 0.005400006,
-          "min_normal_distance": 0.005400006,
-          "requested_h0": 0.006
-        }
+        "ranks": 1,
+        "timeout_seconds": 600
       },
-      "faceheight_receipt": {
-        "artifacts_sha256": {
-          "d9_stack_measurement.json": "b34a85aaabd9d1f922b1b39e131250d893e805ca6591311e141fc5727f5346c9",
-          "d9_stack_phase_log.txt": "4767fb3a3d82b5c36e651df8bcdc066b0a8ed6f9460f752cf831db034dccdf1e",
-          "run.log": "37d0809b5764defbc59a783641206638952acd41cfbf01947077689aaf81aa67"
-        },
-        "attempt": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N5/cases/n5_d9_m12_control_faceheight_20261116T032817_2602158",
-        "descriptor_sha256": "5343ae5f493c611af52a061090f6f8854fcfc7513f6a17fedd0ea6280e17a316",
-        "passed": true,
-        "path": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N5/unit_measurement_receipts/n5_d9_m12_control_faceheight.json",
-        "source_pins_sha256": "29dfaf2c251de2d53ea38c42f9ead09fb5ff825879e81d062d24fec1bd18101d",
-        "test_binary_sha256": "8a77a3fb0e294ecbb143410c08f7fc995dffc88818f8c648653dbf9a3d1bfede"
+      "completion_surface_counters": {
+        "row_retry_commits": 0,
+        "row_retry_seconds": 0,
+        "row_retry_work": 0,
+        "surface_edits": 0,
+        "surface_seconds": 0,
+        "surface_work": 0
       },
+      "descriptor": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N5/descriptors/m12_control_faceheight.json",
+      "descriptor_sha256": "5343ae5f493c611af52a061090f6f8854fcfc7513f6a17fedd0ea6280e17a316",
       "family": "M12",
-      "final_mesh_complete": false,
-      "first_height_measurement_kind": "base-to-lift vertex |dz| spacings; not wall-face/opposite-face prism height and not the enforced h0 gate",
-      "fixture_dc10_sha256": "c9d61107b81b590a20159a38e2dbb587c28c8a95081799c161c53650779012b2",
-      "fixture_dc12_sha256": "bd92e320ff2ffddb6a1b6f2b882114d140f3c38fda816091a67cad2df6c52c05",
-      "gnu_maxrss_is_rank_or_whole_job": "GNU /usr/bin/time wrapper scope; report exact value from run.log, does not substitute whole-job resource peak",
+      "fixture_source_hashes": {
+        "native_first_row_dc10.inc": "c9d61107b81b590a20159a38e2dbb587c28c8a95081799c161c53650779012b2",
+        "native_first_row_dc12.inc": "25d6831f75162291b17dcab0b8efc56bb9dc4a96701ae70ea8766c86867e97ce"
+      },
       "gnu_time": [
         "Elapsed (wall clock) time (h:mm:ss or m:ss): 0:02.54",
-        "Maximum resident set size (kbytes): 44152"
+        "Maximum resident set size (kbytes): 43928"
       ],
-      "height_failures": 0,
-      "height_gate_failures": 0,
-      "j_bad": 278,
-      "j_threshold": 0.05,
       "measurement_json_sha256": "b34a85aaabd9d1f922b1b39e131250d893e805ca6591311e141fc5727f5346c9",
       "mode": "M12_control",
       "n": 4,
-      "nonmanifold_faces": 0,
-      "phase_log_sha256": "4767fb3a3d82b5c36e651df8bcdc066b0a8ed6f9460f752cf831db034dccdf1e",
-      "phase_seconds": {
-        "G": 0.626454765,
-        "R1": 0.00117939,
-        "R2": 0.637034815,
-        "completion": 0.000946781
+      "phase_limits": {
+        "G_seconds": 120,
+        "R1_seconds": 60,
+        "R1_work": 4096,
+        "R2_seconds": 120,
+        "completion_seconds": 60,
+        "completion_surface_tolerance": 0.0001
       },
-      "positive_cells": 3734,
-      "q_bad": 280,
-      "q_min": 0.0404860126581,
-      "q_threshold": 0.2,
+      "phase_log_sha256": "4767fb3a3d82b5c36e651df8bcdc066b0a8ed6f9460f752cf831db034dccdf1e",
+      "phases": {
+        "G": {
+          "clear": {
+            "collapses": 1,
+            "moves": 9,
+            "refusals": {
+              "boundary vertex": 69,
+              "collapse adds frozen excess": 2,
+              "fixed (lid, apex, stack, top or copy)": 16
+            },
+            "retries": 10,
+            "retries_accepted": 0
+          },
+          "columns": 50,
+          "fixed_blockers": {
+            "planned top (other transaction)": 6,
+            "stack or stopped top": 16
+          },
+          "joint": {
+            "accepted": 0,
+            "retries": 4
+          },
+          "last_refusal": "clearance: moved cell 8796 inverts (the volume above is too close)",
+          "layer_cells": 2844,
+          "layers_per_column": {
+            "12": 8,
+            "15": 42
+          },
+          "layers_run": 15,
+          "lifted_points": 726,
+          "max_fresh_cells": 93,
+          "max_old_cells": 54,
+          "outcome": "complete",
+          "patch_transactions": 86,
+          "refusals": {
+            "clearance": 20
+          },
+          "refused": 20,
+          "room": {
+            "calls": 15,
+            "cells": 1128,
+            "cg_iterations": 44,
+            "commits": 3,
+            "metric_reverted": 0,
+            "moved": 187,
+            "needy_tops": 130,
+            "pseudo_frozen": 0,
+            "refused": 0,
+            "region_vertices": 187,
+            "seconds": {
+              "batch": 0.003384114,
+              "commit": 0.084428543,
+              "metric": 9.3066e-05,
+              "move": 0.000305003,
+              "problem": 0.003754351,
+              "slides": 0.080839475,
+              "solve": 0.001877287,
+              "total": 0.093666395
+            },
+            "sliding": 108,
+            "sliding_reverted": 0,
+            "unconverged": 0,
+            "why": {}
+          },
+          "seconds": 0.63381582,
+          "single_transactions": 50,
+          "stop_reasons": {
+            "s# refused transactions (clearance)": 8,
+            "s# thickness": 42
+          },
+          "stops": {
+            "s1": 42,
+            "s3": 8
+          },
+          "transactions": 136
+        },
+        "G_exception": "",
+        "G_ran": true,
+        "G_reason": "completion complete",
+        "G_returned": true,
+        "R1": {
+          "accepted": 0,
+          "field": {
+            "compositions": 0,
+            "edge_compositions": 0,
+            "edge_integrations": 0,
+            "edge_pieces": 0,
+            "queries": 0,
+            "query_misses": 0
+          },
+          "last_witness": "",
+          "outcome": "complete",
+          "peak_rss_kB": 34584,
+          "reasons": {},
+          "rejected": 0,
+          "seconds": 0.00122207,
+          "work": 0
+        },
+        "R2": {
+          "accepted": 50,
+          "field": {
+            "compositions": 139530,
+            "edge_compositions": 139530,
+            "edge_integrations": 1879,
+            "edge_pieces": 1947,
+            "queries": 0,
+            "query_misses": 0
+          },
+          "last_witness": "",
+          "outcome": "complete",
+          "peak_rss_kB": 36632,
+          "reasons": {},
+          "rejected": 0,
+          "seconds": 0.630619467,
+          "work": 50
+        },
+        "completion": {
+          "apex_placed": 0,
+          "cavity": 0,
+          "failing_after": 0,
+          "failing_before": 0,
+          "inserted": 0,
+          "outcome": "complete",
+          "passes": 0,
+          "row_retry_commits": 0,
+          "row_retry_seconds": 0,
+          "row_retry_work": 0,
+          "seconds": 0.000923024,
+          "separated": 0,
+          "surface_edits": 0,
+          "surface_seconds": 0,
+          "surface_work": 0,
+          "why": {},
+          "witnesses": [],
+          "work": 0
+        },
+        "phase_log_file": "d9_stack_phase_log.txt"
+      },
+      "positive_validity_and_topology": {
+        "J_min": 0.00495520459023,
+        "all_positive": true,
+        "boundary_faces": 1168,
+        "cells": 3734,
+        "complete": false,
+        "height_failures": 0,
+        "j_bad": 278,
+        "j_threshold": 0.05,
+        "nonmanifold_faces": 0,
+        "positive_cells": 3734,
+        "q_bad": 280,
+        "q_min": 0.0404860126581,
+        "q_threshold": 0.2,
+        "size_edge_max": 3.56868743385,
+        "size_long_edges": 97,
+        "unbound_boundary_faces": 0
+      },
+      "rank_peak_hwm_bytes": {
+        "0": 43499520
+      },
       "ranks": 1,
+      "receipt_passed": true,
+      "receipt_path": "unit_measurement_receipts/n5_d9_m12_control_faceheight.json",
+      "resource_guard": {
+        "actual_host_proc": true,
+        "all_expected_rank_peaks_seen": true,
+        "all_owned_handles_terminal": true,
+        "expected_ranks": 1,
+        "gnu_time_child_maximum_is_job_peak": false,
+        "identities": [
+          {
+            "alive": false,
+            "mpi_rank": null,
+            "name": "time",
+            "pgid": 2602454,
+            "pid": 2602454,
+            "sid": 2602454,
+            "start_ticks": 29200574,
+            "state": "S"
+          },
+          {
+            "alive": false,
+            "mpi_rank": null,
+            "name": "timeout",
+            "pgid": 2602457,
+            "pid": 2602457,
+            "sid": 2602454,
+            "start_ticks": 29200574,
+            "state": "S"
+          },
+          {
+            "alive": false,
+            "mpi_rank": 0,
+            "name": "test_driver",
+            "pgid": 2602457,
+            "pid": 2602458,
+            "sid": 2602454,
+            "start_ticks": 29200574,
+            "state": "R"
+          },
+          {
+            "alive": false,
+            "mpi_rank": null,
+            "name": "orted",
+            "pgid": 2602464,
+            "pid": 2602464,
+            "sid": 2602464,
+            "start_ticks": 29200575,
+            "state": "S"
+          }
+        ],
+        "live_hwm_lower_bound": true,
+        "maximum_job_bytes": 19999490048,
+        "peak_note": "named sum of observed per-rank test_driver VmHWM maxima; live lower-bound observation, not GNU time maximum-child RSS",
+        "rank_peak_basis": "per-rank /proc VmHWM maxima sampled while test_driver lives",
+        "rank_peak_hwm_bytes": {
+          "0": 43499520
+        },
+        "resource_guard_triggered": false,
+        "schema": "n5_d9_unit_resource_guard_v2",
+        "sum_rank_peak_hwm_bytes": 43499520,
+        "unix": 1794799704.3104305,
+        "unranked_test_driver_pids": []
+      },
       "room": {
         "logged_nonempty_regions": 3,
         "region_sizes": [
@@ -645,14 +1884,14 @@
           "refused": 0,
           "region_vertices": 187,
           "seconds": {
-            "batch": 0.003414533,
-            "commit": 0.084152581,
-            "metric": 9.3296e-05,
-            "move": 0.000309636,
-            "problem": 0.003825594,
-            "slides": 0.080544178,
-            "solve": 0.001856096,
-            "total": 0.093371657
+            "batch": 0.003384114,
+            "commit": 0.084428543,
+            "metric": 9.3066e-05,
+            "move": 0.000305003,
+            "problem": 0.003754351,
+            "slides": 0.080839475,
+            "solve": 0.001877287,
+            "total": 0.093666395
           },
           "sliding": 108,
           "sliding_reverted": 0,
@@ -660,25 +1899,33 @@
           "why": {}
         }
       },
-      "room_logged_nonempty_regions": 3,
-      "room_measurement_scope": "recorded room.stats counters; for guarded M10 growth cases these reflect activity completed before the G guard",
-      "room_region_sizes": [
-        63,
-        62,
-        62
-      ],
-      "runner_wall_seconds": 6.501371622085571,
-      "sampled_individual_process_rss_bytes": 43634688,
-      "sampled_rss_note": "sampled process RSS; not a whole-job peak",
-      "size_edge_max": 3.56868743385,
-      "size_long_edges": 97,
-      "source_pin_receipt_sha256": "29dfaf2c251de2d53ea38c42f9ead09fb5ff825879e81d062d24fec1bd18101d",
-      "stops_by_column": {
-        "s1 thickness": 42,
-        "s3 refused transactions (clearance)": 8
+      "run_log_sha256": "37d0809b5764defbc59a783641206638952acd41cfbf01947077689aaf81aa67",
+      "runner_wall_seconds": 6.439338207244873,
+      "scope_limitations": {
+        "R2_closure_vertices": "accepted outer seed set, not internal expanded vertex set or growth count",
+        "acceptance": "fixture diagnostic only; no accepted BL mesh claim",
+        "stack_layer_count": "growth layers exclude initial row",
+        "vertex_spacing": "base-to-lift absolute dz; distinct from physical wall-face first-child altitude"
       },
-      "terminal": true,
-      "unbound_boundary_faces": 0,
+      "source_pins_sha256": "29dfaf2c251de2d53ea38c42f9ead09fb5ff825879e81d062d24fec1bd18101d",
+      "surface_preparation_need_faces": null,
+      "surface_preparation_need_unavailable_reason": "measurement schema records completion surface_work/surface_edits but has no distinct count of faces needing surface preparation; do not infer need from failing_before or height_failures",
+      "terminal_status": {
+        "changed": [],
+        "exit_code": 0,
+        "largest_sampled_individual_process_rss_bytes": 43499520,
+        "pins_verified": true,
+        "rss_note": "sampled process RSS; not a whole-job peak",
+        "seconds": 6.439338207244873,
+        "state": "terminal"
+      },
+      "test_binary_sha256": "8a77a3fb0e294ecbb143410c08f7fc995dffc88818f8c648653dbf9a3d1bfede",
+      "timing_seconds": {
+        "G": 0.63388933,
+        "R1": 0.001239995,
+        "R2": 0.630624456,
+        "completion": 0.000929172
+      },
       "vertex_lift_spacings": {
         "0": {
           "max_abs_dz": 0.00577368,
@@ -951,33 +2198,597 @@
           ]
         }
       },
-      "vertex_lift_spacings_scope": "vertex-lift spacings; separate from wall-face first-child altitude"
+      "vertex_lift_spacings_scope": "vertex-lift spacings; separate from wall-face first-child altitude",
+      "wall_first_child_heights": {
+        "0": {
+          "faces": 32,
+          "height_tolerance": 0.1,
+          "max_normal_distance": 0.003600004,
+          "maximum_relative_error": 0.099999,
+          "mean_normal_distance": 0.003600004,
+          "min_normal_distance": 0.003600004,
+          "requested_h0": 0.004
+        },
+        "3": {
+          "faces": 32,
+          "height_tolerance": 0.1,
+          "max_normal_distance": 0.005400006,
+          "maximum_relative_error": 0.099999,
+          "mean_normal_distance": 0.005400006,
+          "min_normal_distance": 0.005400006,
+          "requested_h0": 0.006
+        }
+      }
     },
     {
-      "G_columns": 50,
-      "G_exception": "",
-      "G_layer_cells": 3024,
-      "G_layers_run": 17,
-      "G_lifted_points": 768,
-      "G_reason": "completion complete",
-      "G_refused": 110,
-      "G_returned": true,
-      "G_transactions": 142,
-      "J_min": 0.000399331267739,
-      "R2_accepted": 50,
-      "R2_max_closure_vertices_outer_seed": 1,
-      "R2_max_fresh_cells": 48,
-      "R2_max_old_cells": 32,
+      "R2_max": {
+        "closure_vertices": 1,
+        "fresh_cells": 48,
+        "old_cells": 32
+      },
       "R2_partial_growth_observation": null,
-      "R2_rejected": 0,
-      "R2_work": 50,
       "acceptance_claim": false,
-      "all_positive": true,
-      "binary_sha256": "8a77a3fb0e294ecbb143410c08f7fc995dffc88818f8c648653dbf9a3d1bfede",
-      "boundary_faces": 1216,
+      "artifact_hashes_receipt": {
+        "d9_stack_measurement.json": "ee2519fc240c60f9add6d8c57fccc3f7a45ece867741ccc394e0b9bf3e566270",
+        "d9_stack_phase_log.txt": "4fe61cbb3b4761f0fc274a9b009ef0b692f6a40fef3a6aa394b128491bf3723a",
+        "run.log": "64ec2b4c12e7b7b82457bd07727af95fe831d3347d9bc135b06b09b40214e6ba"
+      },
+      "attempt": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N5/cases/n5_d9_m12_meet_faceheight_20261116T032851_2603453",
+      "attempt_status_sha256": "b667be556b667a24933204331ebc9415b86a5bd35b3c29bc522320b0c2441f35",
       "build": "build520",
-      "case": "n5_d9_m12_meet_20261116T022445_2453964",
-      "cells": 3914,
+      "case": "n5_d9_m12_meet_faceheight",
+      "columns": [
+        {
+          "layers": 12,
+          "root": 1,
+          "stop": "s3 refused transactions (clearance)",
+          "stop_height": null,
+          "stopped": true,
+          "top": 918,
+          "walls": [
+            0
+          ]
+        },
+        {
+          "layers": 16,
+          "root": 2,
+          "stop": "s3 refused transactions (clearance)",
+          "stop_height": null,
+          "stopped": true,
+          "top": 1352,
+          "walls": [
+            0
+          ]
+        },
+        {
+          "layers": 16,
+          "root": 3,
+          "stop": "s3 refused transactions (clearance)",
+          "stop_height": null,
+          "stopped": true,
+          "top": 1353,
+          "walls": [
+            0
+          ]
+        },
+        {
+          "layers": 16,
+          "root": 4,
+          "stop": "s3 refused transactions (clearance)",
+          "stop_height": null,
+          "stopped": true,
+          "top": 1354,
+          "walls": [
+            0
+          ]
+        },
+        {
+          "layers": 12,
+          "root": 5,
+          "stop": "s3 refused transactions (clearance)",
+          "stop_height": null,
+          "stopped": true,
+          "top": 922,
+          "walls": [
+            0
+          ]
+        },
+        {
+          "layers": 16,
+          "root": 6,
+          "stop": "s3 refused transactions (clearance)",
+          "stop_height": null,
+          "stopped": true,
+          "top": 1355,
+          "walls": [
+            0
+          ]
+        },
+        {
+          "layers": 16,
+          "root": 7,
+          "stop": "s3 refused transactions (clearance)",
+          "stop_height": null,
+          "stopped": true,
+          "top": 1356,
+          "walls": [
+            0
+          ]
+        },
+        {
+          "layers": 16,
+          "root": 8,
+          "stop": "s3 refused transactions (clearance)",
+          "stop_height": null,
+          "stopped": true,
+          "top": 1357,
+          "walls": [
+            0
+          ]
+        },
+        {
+          "layers": 16,
+          "root": 9,
+          "stop": "s3 refused transactions (clearance)",
+          "stop_height": null,
+          "stopped": true,
+          "top": 1358,
+          "walls": [
+            0
+          ]
+        },
+        {
+          "layers": 16,
+          "root": 10,
+          "stop": "s3 refused transactions (clearance)",
+          "stop_height": null,
+          "stopped": true,
+          "top": 1359,
+          "walls": [
+            0
+          ]
+        },
+        {
+          "layers": 16,
+          "root": 11,
+          "stop": "s3 refused transactions (clearance)",
+          "stop_height": null,
+          "stopped": true,
+          "top": 1360,
+          "walls": [
+            0
+          ]
+        },
+        {
+          "layers": 16,
+          "root": 12,
+          "stop": "s3 refused transactions (clearance)",
+          "stop_height": null,
+          "stopped": true,
+          "top": 1361,
+          "walls": [
+            0
+          ]
+        },
+        {
+          "layers": 16,
+          "root": 13,
+          "stop": "s3 refused transactions (clearance)",
+          "stop_height": null,
+          "stopped": true,
+          "top": 1362,
+          "walls": [
+            0
+          ]
+        },
+        {
+          "layers": 16,
+          "root": 14,
+          "stop": "s3 refused transactions (clearance)",
+          "stop_height": null,
+          "stopped": true,
+          "top": 1363,
+          "walls": [
+            0
+          ]
+        },
+        {
+          "layers": 16,
+          "root": 15,
+          "stop": "s3 refused transactions (clearance)",
+          "stop_height": null,
+          "stopped": true,
+          "top": 1364,
+          "walls": [
+            0
+          ]
+        },
+        {
+          "layers": 16,
+          "root": 16,
+          "stop": "s3 refused transactions (clearance)",
+          "stop_height": null,
+          "stopped": true,
+          "top": 1365,
+          "walls": [
+            0
+          ]
+        },
+        {
+          "layers": 16,
+          "root": 17,
+          "stop": "s3 refused transactions (clearance)",
+          "stop_height": null,
+          "stopped": true,
+          "top": 1366,
+          "walls": [
+            0
+          ]
+        },
+        {
+          "layers": 16,
+          "root": 18,
+          "stop": "s3 refused transactions (clearance)",
+          "stop_height": null,
+          "stopped": true,
+          "top": 1367,
+          "walls": [
+            0
+          ]
+        },
+        {
+          "layers": 16,
+          "root": 19,
+          "stop": "s3 refused transactions (clearance)",
+          "stop_height": null,
+          "stopped": true,
+          "top": 1368,
+          "walls": [
+            0
+          ]
+        },
+        {
+          "layers": 16,
+          "root": 20,
+          "stop": "s3 refused transactions (clearance)",
+          "stop_height": null,
+          "stopped": true,
+          "top": 1369,
+          "walls": [
+            0
+          ]
+        },
+        {
+          "layers": 12,
+          "root": 21,
+          "stop": "s3 refused transactions (clearance)",
+          "stop_height": null,
+          "stopped": true,
+          "top": 938,
+          "walls": [
+            0
+          ]
+        },
+        {
+          "layers": 16,
+          "root": 22,
+          "stop": "s3 refused transactions (clearance)",
+          "stop_height": null,
+          "stopped": true,
+          "top": 1370,
+          "walls": [
+            0
+          ]
+        },
+        {
+          "layers": 16,
+          "root": 23,
+          "stop": "s3 refused transactions (clearance)",
+          "stop_height": null,
+          "stopped": true,
+          "top": 1371,
+          "walls": [
+            0
+          ]
+        },
+        {
+          "layers": 16,
+          "root": 24,
+          "stop": "s3 refused transactions (clearance)",
+          "stop_height": null,
+          "stopped": true,
+          "top": 1372,
+          "walls": [
+            0
+          ]
+        },
+        {
+          "layers": 12,
+          "root": 25,
+          "stop": "s3 refused transactions (clearance)",
+          "stop_height": null,
+          "stopped": true,
+          "top": 942,
+          "walls": [
+            0
+          ]
+        },
+        {
+          "layers": 12,
+          "root": 101,
+          "stop": "s3 refused transactions (clearance)",
+          "stop_height": null,
+          "stopped": true,
+          "top": 943,
+          "walls": [
+            3
+          ]
+        },
+        {
+          "layers": 16,
+          "root": 102,
+          "stop": "s3 refused transactions (clearance)",
+          "stop_height": null,
+          "stopped": true,
+          "top": 1373,
+          "walls": [
+            3
+          ]
+        },
+        {
+          "layers": 16,
+          "root": 103,
+          "stop": "s3 refused transactions (clearance)",
+          "stop_height": null,
+          "stopped": true,
+          "top": 1374,
+          "walls": [
+            3
+          ]
+        },
+        {
+          "layers": 16,
+          "root": 104,
+          "stop": "s3 refused transactions (clearance)",
+          "stop_height": null,
+          "stopped": true,
+          "top": 1375,
+          "walls": [
+            3
+          ]
+        },
+        {
+          "layers": 12,
+          "root": 105,
+          "stop": "s3 refused transactions (clearance)",
+          "stop_height": null,
+          "stopped": true,
+          "top": 947,
+          "walls": [
+            3
+          ]
+        },
+        {
+          "layers": 16,
+          "root": 106,
+          "stop": "s3 refused transactions (clearance)",
+          "stop_height": null,
+          "stopped": true,
+          "top": 1376,
+          "walls": [
+            3
+          ]
+        },
+        {
+          "layers": 16,
+          "root": 107,
+          "stop": "s3 refused transactions (clearance)",
+          "stop_height": null,
+          "stopped": true,
+          "top": 1377,
+          "walls": [
+            3
+          ]
+        },
+        {
+          "layers": 16,
+          "root": 108,
+          "stop": "s3 refused transactions (clearance)",
+          "stop_height": null,
+          "stopped": true,
+          "top": 1378,
+          "walls": [
+            3
+          ]
+        },
+        {
+          "layers": 16,
+          "root": 109,
+          "stop": "s3 refused transactions (clearance)",
+          "stop_height": null,
+          "stopped": true,
+          "top": 1379,
+          "walls": [
+            3
+          ]
+        },
+        {
+          "layers": 16,
+          "root": 110,
+          "stop": "s3 refused transactions (clearance)",
+          "stop_height": null,
+          "stopped": true,
+          "top": 1380,
+          "walls": [
+            3
+          ]
+        },
+        {
+          "layers": 16,
+          "root": 111,
+          "stop": "s3 refused transactions (clearance)",
+          "stop_height": null,
+          "stopped": true,
+          "top": 1381,
+          "walls": [
+            3
+          ]
+        },
+        {
+          "layers": 16,
+          "root": 112,
+          "stop": "s3 refused transactions (clearance)",
+          "stop_height": null,
+          "stopped": true,
+          "top": 1382,
+          "walls": [
+            3
+          ]
+        },
+        {
+          "layers": 16,
+          "root": 113,
+          "stop": "s3 refused transactions (clearance)",
+          "stop_height": null,
+          "stopped": true,
+          "top": 1383,
+          "walls": [
+            3
+          ]
+        },
+        {
+          "layers": 16,
+          "root": 114,
+          "stop": "s3 refused transactions (clearance)",
+          "stop_height": null,
+          "stopped": true,
+          "top": 1384,
+          "walls": [
+            3
+          ]
+        },
+        {
+          "layers": 16,
+          "root": 115,
+          "stop": "s3 refused transactions (clearance)",
+          "stop_height": null,
+          "stopped": true,
+          "top": 1385,
+          "walls": [
+            3
+          ]
+        },
+        {
+          "layers": 16,
+          "root": 116,
+          "stop": "s3 refused transactions (clearance)",
+          "stop_height": null,
+          "stopped": true,
+          "top": 1386,
+          "walls": [
+            3
+          ]
+        },
+        {
+          "layers": 16,
+          "root": 117,
+          "stop": "s3 refused transactions (clearance)",
+          "stop_height": null,
+          "stopped": true,
+          "top": 1387,
+          "walls": [
+            3
+          ]
+        },
+        {
+          "layers": 16,
+          "root": 118,
+          "stop": "s3 refused transactions (clearance)",
+          "stop_height": null,
+          "stopped": true,
+          "top": 1388,
+          "walls": [
+            3
+          ]
+        },
+        {
+          "layers": 16,
+          "root": 119,
+          "stop": "s3 refused transactions (clearance)",
+          "stop_height": null,
+          "stopped": true,
+          "top": 1389,
+          "walls": [
+            3
+          ]
+        },
+        {
+          "layers": 16,
+          "root": 120,
+          "stop": "s3 refused transactions (clearance)",
+          "stop_height": null,
+          "stopped": true,
+          "top": 1390,
+          "walls": [
+            3
+          ]
+        },
+        {
+          "layers": 12,
+          "root": 121,
+          "stop": "s3 refused transactions (clearance)",
+          "stop_height": null,
+          "stopped": true,
+          "top": 963,
+          "walls": [
+            3
+          ]
+        },
+        {
+          "layers": 16,
+          "root": 122,
+          "stop": "s3 refused transactions (clearance)",
+          "stop_height": null,
+          "stopped": true,
+          "top": 1391,
+          "walls": [
+            3
+          ]
+        },
+        {
+          "layers": 16,
+          "root": 123,
+          "stop": "s3 refused transactions (clearance)",
+          "stop_height": null,
+          "stopped": true,
+          "top": 1392,
+          "walls": [
+            3
+          ]
+        },
+        {
+          "layers": 16,
+          "root": 124,
+          "stop": "s3 refused transactions (clearance)",
+          "stop_height": null,
+          "stopped": true,
+          "top": 1393,
+          "walls": [
+            3
+          ]
+        },
+        {
+          "layers": 12,
+          "root": 125,
+          "stop": "s3 refused transactions (clearance)",
+          "stop_height": null,
+          "stopped": true,
+          "top": 967,
+          "walls": [
+            3
+          ]
+        }
+      ],
       "columns_by_wall": {
         "0": {
           "columns": 25,
@@ -1000,72 +2811,289 @@
           "thickness": 0.6
         }
       },
-      "descriptor_hashes": {
-        "m12_meet.json": "b1f4f2ad85971304c2caf6b9a376be9122fda2bab8559af9c106fd53ed025cf8"
-      },
-      "face_first_child_altitudes": {
-        "0": {
-          "faces": 32,
-          "height_tolerance": 0.1,
-          "max_normal_distance": 0.003600004,
-          "maximum_relative_error": 0.099999,
-          "mean_normal_distance": 0.003600004,
-          "min_normal_distance": 0.003600004,
-          "requested_h0": 0.004
+      "command": {
+        "argv": [
+          "nice",
+          "-n",
+          "19",
+          "/usr/bin/time",
+          "-v",
+          "timeout",
+          "600",
+          "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-p5-20261114/UnitTests/test_driver",
+          "[.][NativeD9SerialStack]",
+          "--durations",
+          "yes"
+        ],
+        "build": "build520",
+        "case": "n5_d9_m12_meet_faceheight",
+        "environment": {
+          "MKL_NUM_THREADS": "1",
+          "OMPI_MCA_orte_tmpdir_base": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N5/mpi_units",
+          "OMPI_MCA_osc": "pt2pt",
+          "OMP_NUM_THREADS": "1",
+          "OPENBLAS_NUM_THREADS": "1",
+          "TMPDIR": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/compile-tmp"
         },
-        "3": {
-          "faces": 32,
-          "height_tolerance": 0.1,
-          "max_normal_distance": 0.005400006,
-          "maximum_relative_error": 0.099999,
-          "mean_normal_distance": 0.005400006,
-          "min_normal_distance": 0.005400006,
-          "requested_h0": 0.006
-        }
+        "ranks": 1,
+        "timeout_seconds": 600
       },
-      "faceheight_receipt": {
-        "artifacts_sha256": {
-          "d9_stack_measurement.json": "ee2519fc240c60f9add6d8c57fccc3f7a45ece867741ccc394e0b9bf3e566270",
-          "d9_stack_phase_log.txt": "4fe61cbb3b4761f0fc274a9b009ef0b692f6a40fef3a6aa394b128491bf3723a",
-          "run.log": "64ec2b4c12e7b7b82457bd07727af95fe831d3347d9bc135b06b09b40214e6ba"
-        },
-        "attempt": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N5/cases/n5_d9_m12_meet_faceheight_20261116T032851_2603453",
-        "descriptor_sha256": "7508a3b7818a38f1f5c44f34c071b3c87622eb02114b5379805f3c50756fb354",
-        "passed": true,
-        "path": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N5/unit_measurement_receipts/n5_d9_m12_meet_faceheight.json",
-        "source_pins_sha256": "29dfaf2c251de2d53ea38c42f9ead09fb5ff825879e81d062d24fec1bd18101d",
-        "test_binary_sha256": "8a77a3fb0e294ecbb143410c08f7fc995dffc88818f8c648653dbf9a3d1bfede"
+      "completion_surface_counters": {
+        "row_retry_commits": 0,
+        "row_retry_seconds": 0,
+        "row_retry_work": 0,
+        "surface_edits": 0,
+        "surface_seconds": 0,
+        "surface_work": 0
       },
+      "descriptor": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N5/descriptors/m12_meet_faceheight.json",
+      "descriptor_sha256": "7508a3b7818a38f1f5c44f34c071b3c87622eb02114b5379805f3c50756fb354",
       "family": "M12",
-      "final_mesh_complete": false,
-      "first_height_measurement_kind": "base-to-lift vertex |dz| spacings; not wall-face/opposite-face prism height and not the enforced h0 gate",
-      "fixture_dc10_sha256": "c9d61107b81b590a20159a38e2dbb587c28c8a95081799c161c53650779012b2",
-      "fixture_dc12_sha256": "bd92e320ff2ffddb6a1b6f2b882114d140f3c38fda816091a67cad2df6c52c05",
-      "gnu_maxrss_is_rank_or_whole_job": "GNU /usr/bin/time wrapper scope; report exact value from run.log, does not substitute whole-job resource peak",
+      "fixture_source_hashes": {
+        "native_first_row_dc10.inc": "c9d61107b81b590a20159a38e2dbb587c28c8a95081799c161c53650779012b2",
+        "native_first_row_dc12.inc": "25d6831f75162291b17dcab0b8efc56bb9dc4a96701ae70ea8766c86867e97ce"
+      },
       "gnu_time": [
-        "Elapsed (wall clock) time (h:mm:ss or m:ss): 0:03.38",
-        "Maximum resident set size (kbytes): 44608"
+        "Elapsed (wall clock) time (h:mm:ss or m:ss): 0:03.39",
+        "Maximum resident set size (kbytes): 44384"
       ],
-      "height_failures": 0,
-      "height_gate_failures": 0,
-      "j_bad": 406,
-      "j_threshold": 0.05,
       "measurement_json_sha256": "ee2519fc240c60f9add6d8c57fccc3f7a45ece867741ccc394e0b9bf3e566270",
       "mode": "M12_meet",
       "n": 4,
-      "nonmanifold_faces": 0,
-      "phase_log_sha256": "4fe61cbb3b4761f0fc274a9b009ef0b692f6a40fef3a6aa394b128491bf3723a",
-      "phase_seconds": {
-        "G": 1.116838749,
-        "R1": 0.001228295,
-        "R2": 0.668754984,
-        "completion": 0.000943098
+      "phase_limits": {
+        "G_seconds": 120,
+        "R1_seconds": 60,
+        "R1_work": 4096,
+        "R2_seconds": 120,
+        "completion_seconds": 60,
+        "completion_surface_tolerance": 0.0001
       },
-      "positive_cells": 3914,
-      "q_bad": 400,
-      "q_min": 0.010307463934,
-      "q_threshold": 0.2,
+      "phase_log_sha256": "4fe61cbb3b4761f0fc274a9b009ef0b692f6a40fef3a6aa394b128491bf3723a",
+      "phases": {
+        "G": {
+          "clear": {
+            "collapses": 1,
+            "moves": 9,
+            "refusals": {
+              "boundary vertex": 351,
+              "collapse adds frozen excess": 54,
+              "fixed (lid, apex, stack, top or copy)": 266,
+              "no valid move or collapse": 236
+            },
+            "retries": 10,
+            "retries_accepted": 0
+          },
+          "columns": 50,
+          "fixed_blockers": {
+            "planned top (other transaction)": 369,
+            "stack or stopped top": 74
+          },
+          "joint": {
+            "accepted": 0,
+            "retries": 65
+          },
+          "last_refusal": "clearance: moved cell 12883 inverts (the volume above is too close)",
+          "layer_cells": 3024,
+          "layers_per_column": {
+            "12": 8,
+            "16": 42
+          },
+          "layers_run": 17,
+          "lifted_points": 768,
+          "max_fresh_cells": 93,
+          "max_old_cells": 54,
+          "outcome": "complete",
+          "patch_transactions": 92,
+          "refusals": {
+            "cap": 2,
+            "clearance": 108
+          },
+          "refused": 110,
+          "room": {
+            "calls": 17,
+            "cells": 1876,
+            "cg_iterations": 78,
+            "commits": 5,
+            "metric_reverted": 0,
+            "moved": 309,
+            "needy_tops": 212,
+            "pseudo_frozen": 62,
+            "refused": 0,
+            "region_vertices": 311,
+            "seconds": {
+              "batch": 0.005664721,
+              "commit": 0.13726961,
+              "metric": 0.000153901,
+              "move": 0.000542637,
+              "problem": 0.006150382,
+              "slides": 0.13128239,
+              "solve": 0.003131068,
+              "total": 0.15010103
+            },
+            "sliding": 180,
+            "sliding_reverted": 2,
+            "unconverged": 0,
+            "why": {
+              "slide: Native #D movement obstructed at cell #.": 2
+            }
+          },
+          "seconds": 1.1243573,
+          "single_transactions": 50,
+          "stop_reasons": {
+            "s# refused transactions (clearance)": 50
+          },
+          "stops": {
+            "s3": 50
+          },
+          "transactions": 142
+        },
+        "G_exception": "",
+        "G_ran": true,
+        "G_reason": "completion complete",
+        "G_returned": true,
+        "R1": {
+          "accepted": 0,
+          "field": {
+            "compositions": 0,
+            "edge_compositions": 0,
+            "edge_integrations": 0,
+            "edge_pieces": 0,
+            "queries": 0,
+            "query_misses": 0
+          },
+          "last_witness": "",
+          "outcome": "complete",
+          "peak_rss_kB": 34592,
+          "reasons": {},
+          "rejected": 0,
+          "seconds": 0.001236372,
+          "work": 0
+        },
+        "R2": {
+          "accepted": 50,
+          "field": {
+            "compositions": 139530,
+            "edge_compositions": 139530,
+            "edge_integrations": 1879,
+            "edge_pieces": 1947,
+            "queries": 0,
+            "query_misses": 0
+          },
+          "last_witness": "",
+          "outcome": "complete",
+          "peak_rss_kB": 36640,
+          "reasons": {},
+          "rejected": 0,
+          "seconds": 0.673795166,
+          "work": 50
+        },
+        "completion": {
+          "apex_placed": 0,
+          "cavity": 0,
+          "failing_after": 0,
+          "failing_before": 0,
+          "inserted": 0,
+          "outcome": "complete",
+          "passes": 0,
+          "row_retry_commits": 0,
+          "row_retry_seconds": 0,
+          "row_retry_work": 0,
+          "seconds": 0.00092152,
+          "separated": 0,
+          "surface_edits": 0,
+          "surface_seconds": 0,
+          "surface_work": 0,
+          "why": {},
+          "witnesses": [],
+          "work": 0
+        },
+        "phase_log_file": "d9_stack_phase_log.txt"
+      },
+      "positive_validity_and_topology": {
+        "J_min": 0.000399331267739,
+        "all_positive": true,
+        "boundary_faces": 1216,
+        "cells": 3914,
+        "complete": false,
+        "height_failures": 0,
+        "j_bad": 406,
+        "j_threshold": 0.05,
+        "nonmanifold_faces": 0,
+        "positive_cells": 3914,
+        "q_bad": 400,
+        "q_min": 0.010307463934,
+        "q_threshold": 0.2,
+        "size_edge_max": 5.03961473124,
+        "size_long_edges": 117,
+        "unbound_boundary_faces": 0
+      },
+      "rank_peak_hwm_bytes": {
+        "0": 44617728
+      },
       "ranks": 1,
+      "receipt_passed": true,
+      "receipt_path": "unit_measurement_receipts/n5_d9_m12_meet_faceheight.json",
+      "resource_guard": {
+        "actual_host_proc": true,
+        "all_expected_rank_peaks_seen": true,
+        "all_owned_handles_terminal": true,
+        "expected_ranks": 1,
+        "gnu_time_child_maximum_is_job_peak": false,
+        "identities": [
+          {
+            "alive": false,
+            "mpi_rank": null,
+            "name": "time",
+            "pgid": 2603784,
+            "pid": 2603784,
+            "sid": 2603784,
+            "start_ticks": 29203941,
+            "state": "S"
+          },
+          {
+            "alive": false,
+            "mpi_rank": null,
+            "name": "timeout",
+            "pgid": 2603785,
+            "pid": 2603785,
+            "sid": 2603784,
+            "start_ticks": 29203941,
+            "state": "S"
+          },
+          {
+            "alive": false,
+            "mpi_rank": 0,
+            "name": "test_driver",
+            "pgid": 2603785,
+            "pid": 2603786,
+            "sid": 2603784,
+            "start_ticks": 29203941,
+            "state": "R"
+          },
+          {
+            "alive": false,
+            "mpi_rank": null,
+            "name": "orted",
+            "pgid": 2603787,
+            "pid": 2603787,
+            "sid": 2603787,
+            "start_ticks": 29203942,
+            "state": "S"
+          }
+        ],
+        "live_hwm_lower_bound": true,
+        "maximum_job_bytes": 19999490048,
+        "peak_note": "named sum of observed per-rank test_driver VmHWM maxima; live lower-bound observation, not GNU time maximum-child RSS",
+        "rank_peak_basis": "per-rank /proc VmHWM maxima sampled while test_driver lives",
+        "rank_peak_hwm_bytes": {
+          "0": 44617728
+        },
+        "resource_guard_triggered": false,
+        "schema": "n5_d9_unit_resource_guard_v2",
+        "sum_rank_peak_hwm_bytes": 44617728,
+        "unix": 1794799738.9616137,
+        "unranked_test_driver_pids": []
+      },
       "room": {
         "logged_nonempty_regions": 5,
         "region_sizes": [
@@ -1087,14 +3115,14 @@
           "refused": 0,
           "region_vertices": 311,
           "seconds": {
-            "batch": 0.005636716,
-            "commit": 0.13612698,
-            "metric": 0.000147003,
-            "move": 0.000520291,
-            "problem": 0.006119465,
-            "slides": 0.13017759,
-            "solve": 0.003121267,
-            "total": 0.14873436
+            "batch": 0.005664721,
+            "commit": 0.13726961,
+            "metric": 0.000153901,
+            "move": 0.000542637,
+            "problem": 0.006150382,
+            "slides": 0.13128239,
+            "solve": 0.003131068,
+            "total": 0.15010103
           },
           "sliding": 180,
           "sliding_reverted": 2,
@@ -1104,26 +3132,33 @@
           }
         }
       },
-      "room_logged_nonempty_regions": 5,
-      "room_measurement_scope": "recorded room.stats counters; for guarded M10 growth cases these reflect activity completed before the G guard",
-      "room_region_sizes": [
-        63,
-        62,
-        62,
-        62,
-        62
-      ],
-      "runner_wall_seconds": 7.417397737503052,
-      "sampled_individual_process_rss_bytes": 44748800,
-      "sampled_rss_note": "sampled process RSS; not a whole-job peak",
-      "size_edge_max": 5.03961473124,
-      "size_long_edges": 117,
-      "source_pin_receipt_sha256": "29dfaf2c251de2d53ea38c42f9ead09fb5ff825879e81d062d24fec1bd18101d",
-      "stops_by_column": {
-        "s3 refused transactions (clearance)": 50
+      "run_log_sha256": "64ec2b4c12e7b7b82457bd07727af95fe831d3347d9bc135b06b09b40214e6ba",
+      "runner_wall_seconds": 7.42559552192688,
+      "scope_limitations": {
+        "R2_closure_vertices": "accepted outer seed set, not internal expanded vertex set or growth count",
+        "acceptance": "fixture diagnostic only; no accepted BL mesh claim",
+        "stack_layer_count": "growth layers exclude initial row",
+        "vertex_spacing": "base-to-lift absolute dz; distinct from physical wall-face first-child altitude"
       },
-      "terminal": true,
-      "unbound_boundary_faces": 0,
+      "source_pins_sha256": "29dfaf2c251de2d53ea38c42f9ead09fb5ff825879e81d062d24fec1bd18101d",
+      "surface_preparation_need_faces": null,
+      "surface_preparation_need_unavailable_reason": "measurement schema records completion surface_work/surface_edits but has no distinct count of faces needing surface preparation; do not infer need from failing_before or height_failures",
+      "terminal_status": {
+        "changed": [],
+        "exit_code": 0,
+        "largest_sampled_individual_process_rss_bytes": 44617728,
+        "pins_verified": true,
+        "rss_note": "sampled process RSS; not a whole-job peak",
+        "seconds": 7.42559552192688,
+        "state": "terminal"
+      },
+      "test_binary_sha256": "8a77a3fb0e294ecbb143410c08f7fc995dffc88818f8c648653dbf9a3d1bfede",
+      "timing_seconds": {
+        "G": 1.12442693,
+        "R1": 0.001253192,
+        "R2": 0.673800366,
+        "completion": 0.000927937
+      },
       "vertex_lift_spacings": {
         "0": {
           "max_abs_dz": 0.00577368,
@@ -1396,9 +3431,77 @@
           ]
         }
       },
-      "vertex_lift_spacings_scope": "vertex-lift spacings; separate from wall-face first-child altitude"
+      "vertex_lift_spacings_scope": "vertex-lift spacings; separate from wall-face first-child altitude",
+      "wall_first_child_heights": {
+        "0": {
+          "faces": 32,
+          "height_tolerance": 0.1,
+          "max_normal_distance": 0.003600004,
+          "maximum_relative_error": 0.099999,
+          "mean_normal_distance": 0.003600004,
+          "min_normal_distance": 0.003600004,
+          "requested_h0": 0.004
+        },
+        "3": {
+          "faces": 32,
+          "height_tolerance": 0.1,
+          "max_normal_distance": 0.005400006,
+          "maximum_relative_error": 0.099999,
+          "mean_normal_distance": 0.005400006,
+          "min_normal_distance": 0.005400006,
+          "requested_h0": 0.006
+        }
+      }
     }
   ],
-  "schema": "N5_stack_measurements_v1",
-  "source_pin_receipt_sha256": "29dfaf2c251de2d53ea38c42f9ead09fb5ff825879e81d062d24fec1bd18101d"
+  "historical_previous": [
+    {
+      "mode": "M10_n1",
+      "note": "Historical build515 extraction; excluded from current cases.",
+      "superseded_binary_sha256": "30b74f56ca10162687447283e006fa93ab5dfb0a18e9e55df6f0f134f4130a72",
+      "superseded_build": "build515",
+      "superseded_case_id": "n5_d9_m10_n1_refresh_20261116T022404_2452293",
+      "superseded_measurement_json_sha256": "72a8540af05276e810f5d8f8e86a4d04fb2aae7860c016857b6dc62c67597585",
+      "superseded_runner_wall_seconds": 4.491600751876831
+    },
+    {
+      "mode": "M10_n2",
+      "note": "Historical build515 extraction; excluded from current cases.",
+      "superseded_binary_sha256": "30b74f56ca10162687447283e006fa93ab5dfb0a18e9e55df6f0f134f4130a72",
+      "superseded_build": "build515",
+      "superseded_case_id": "n5_d9_m10_n2_20261116T022146_2446872",
+      "superseded_measurement_json_sha256": "3b442205984cace804cd483061ee2b095a8d9c09a78eba4714ff6c38f1419b30",
+      "superseded_runner_wall_seconds": 4.512978792190552
+    },
+    {
+      "mode": "M10_n4",
+      "note": "Historical build515 extraction; excluded from current cases.",
+      "superseded_binary_sha256": "30b74f56ca10162687447283e006fa93ab5dfb0a18e9e55df6f0f134f4130a72",
+      "superseded_build": "build515",
+      "superseded_case_id": "n5_d9_m10_n4_20261116T022417_2452891",
+      "superseded_measurement_json_sha256": "3570efc3c60826c098fbc9e5459d52f173ec598289f8a7355a19e370b995687e",
+      "superseded_runner_wall_seconds": 4.514168977737427
+    },
+    {
+      "mode": "M12_control",
+      "note": "Historical build515 extraction; excluded from current cases.",
+      "superseded_binary_sha256": "30b74f56ca10162687447283e006fa93ab5dfb0a18e9e55df6f0f134f4130a72",
+      "superseded_build": "build515",
+      "superseded_case_id": "n5_d9_m12_control_20261116T022430_2453425",
+      "superseded_measurement_json_sha256": "b34a85aaabd9d1f922b1b39e131250d893e805ca6591311e141fc5727f5346c9",
+      "superseded_runner_wall_seconds": 6.501371622085571
+    },
+    {
+      "mode": "M12_meet",
+      "note": "Historical build515 extraction; excluded from current cases.",
+      "superseded_binary_sha256": "30b74f56ca10162687447283e006fa93ab5dfb0a18e9e55df6f0f134f4130a72",
+      "superseded_build": "build515",
+      "superseded_case_id": "n5_d9_m12_meet_20261116T022445_2453964",
+      "superseded_measurement_json_sha256": "ee2519fc240c60f9add6d8c57fccc3f7a45ece867741ccc394e0b9bf3e566270",
+      "superseded_runner_wall_seconds": 7.417397737503052
+    }
+  ],
+  "schema": "N5_stack_measurements_v2",
+  "source_pins_sha256": "29dfaf2c251de2d53ea38c42f9ead09fb5ff825879e81d062d24fec1bd18101d",
+  "test_binary_sha256": "8a77a3fb0e294ecbb143410c08f7fc995dffc88818f8c648653dbf9a3d1bfede"
 }
