@@ -34,3 +34,5 @@ No B7 full workflow, six-file repeatability, event times/RSS sums, full timer tr
 Own helper corrections are preserved in section6_2_helper_repairs.json; build declaration and R5 no-quota wiring errors have separate receipts/source capsules. Prepared restart525 helpers were never launched and are unused drafts.
 
 Next independent item N9 under latest section6.5, on accepted N1 source; thenN10,N8A1 beforeN11,N11,remainingN8,6.3,N6,N7. Do not finalize N7 yet.
+
+Revert commit: **9831c787e7** (pushed). All B7 production/test paths restored in that one commit.
