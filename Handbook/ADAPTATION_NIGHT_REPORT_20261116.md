@@ -1,6 +1,6 @@
 # Unattended adaptation work, 2026-11-16
 
-DRAFT: N5 still active; this file is not a completion claim. The accepted implementation
+DRAFT: N5 resource-corrected rechecks remain active; this file is not a completion claim. The first N5 full run passed every numerical/physical/time/memory/timer gate and all6P6c hashes, but FAILED R1 process-count compliance:8CPU-heavy processes versus6, including2abandoned owned function scanners. They were terminated by verified PID/start identity. The original solver run finished unchanged. One corrected resource repeat is pending; no source or gate changed. The accepted implementation
 remains F3b48f07ad1a8 plus report helpera27f56cd78. Production restorations arebecb4927c9
 and8039fc1b59. Latest measurement checkpointeb5e48174a is pushed. N5 observation G2/GQ identity passed;
 full two-event qualification is still pending. Current CFD hash861737e1 is unchanged
@@ -51,8 +51,10 @@ No old test, production policy, gate or tolerance was changed to pass G1.
 |---|---:|---:|---:|---|
 | Accepted F3b/1 |2683.411540761|2683.459776222|13950185472|All physical gates and3P6c hashes pass|
 | Accepted F3b/2 |1977.214813802|1977.279934371|17696780288|All physical gates and3P6c hashes pass|
-| Failed N1/1 |2220.339770577|2220.388 (rounded)|14007463936|All physical gates and3P6c hashes pass|
-| Failed N1/2 |1450.966461726|see sealed timer receipt|17343528960|Physical gates pass;3P6c hashes fail|
+| Failed N1/1 |2220.339770577|2220.388028168|14007463936|All physical gates and3P6c hashes pass|
+| Failed N1/2 |1450.966461726|1451.015039598|17343528960|Physical gates pass;3P6c hashes fail|
+| N5 attempt1 FAILED R1/1 |2947.736208863|2947.778907674|13926658048|Physical/timer/memory/time and3P6c hashes pass; operational CPU count failed8>6|
+| N5 attempt1 FAILED R1/2 |2158.058723047|2158.100531323|17698131968|Physical/timer/memory/time and3P6c hashes pass; operational CPU count failed8>6|
 
 N1 controller4117.532307s. All event times stay below5400s; all exact rank peak sums
 stay below19073MiB=19999490048B. Failed-item timings are observations, not accepted
