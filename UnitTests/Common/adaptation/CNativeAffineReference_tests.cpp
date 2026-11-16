@@ -1220,8 +1220,8 @@ TEST_CASE("Curved surface caches stay within split quota and rebuild exact answe
   CHECK(hit.mesh_to_model==first.mesh_to_model);CHECK(hit.model_to_mesh==first.model_to_mesh);
   auto initial=bounded.GeometryStatsSnapshot();
   REQUIRE(initial.prepared_limit==quota);
-  CHECK(initial.facet_bytes <= initial.facet_limit);
-  CHECK(initial.scope_bytes <= initial.scope_limit);
+  CHECK(initial.facet_bytes<=initial.prepared_limit/2);
+  CHECK(initial.scope_bytes<=initial.prepared_limit-initial.prepared_limit/2);
   CHECK(initial.scope_hits>=1);
 
   for(auto& point:physical.front())point.z+=.001;
@@ -1239,8 +1239,8 @@ TEST_CASE("Curved surface caches stay within split quota and rebuild exact answe
   }
   const auto after=bounded.GeometryStatsSnapshot();
   CHECK(after.prepared_bytes<=after.prepared_limit);
-  CHECK(after.facet_bytes <= after.facet_limit);
-  CHECK(after.scope_bytes <= after.scope_limit);
+  CHECK(after.facet_bytes<=after.prepared_limit/2);
+  CHECK(after.scope_bytes<=after.prepared_limit-after.prepared_limit/2);
   CHECK(after.scope_misses>initial.scope_misses);CHECK(after.evictions>0);
   auto rebuilt_budget=GeometryAtlasBudget();const auto rebuilt=query(bounded,.1,rebuilt_budget);
   auto oracle_budget=GeometryAtlasBudget();const auto oracle=query(uncached,.1,oracle_budget);
@@ -2233,15 +2233,8 @@ TEST_CASE("Numeric surface memo shares the admitted query quota without changing
   MappedFacetReference bounded(definition,errors,29,SIZE_MAX,false,curves,quota);
   MappedFacetReference uncached(definition,errors,29,SIZE_MAX,false,curves,0);
   const auto storage=bounded.GeometryStatsSnapshot();
-  const auto rounded = MappedFacetReference::SurfaceQueryStorageBytes(curves.size(), quota);
-  const auto memo_storage = quota - storage.prepared_limit;
-  CHECK(storage.scope_limit == (rounded - memo_storage) / 2);
-  CHECK(storage.facet_limit == quota - memo_storage - storage.scope_limit);
-  CHECK(storage.prepared_limit == storage.facet_limit + storage.scope_limit);
-  const auto legacy = fixture.geometry->GeometryStatsSnapshot();
-  CHECK(legacy.facet_limit == legacy.prepared_limit / 2);
-  CHECK(legacy.scope_limit == legacy.prepared_limit - legacy.facet_limit);
-  CHECK(storage.prepared_limit + storage.memo_limit <= quota);
+  CHECK(storage.memo_limit>fixture.geometry->GeometryStatsSnapshot().memo_limit);
+  CHECK(storage.prepared_limit+storage.memo_limit<quota);
   CHECK(quota-storage.prepared_limit-storage.memo_limit<4096);
   CHECK(bounded.ResidentBytes()==uncached.ResidentBytes()+quota);
   const auto& face=fixture.facets.front();
@@ -2955,34 +2948,4 @@ TEST_CASE("D9 geometry need and exact wall proof measurements", "[.][NativeD9Geo
   REQUIRE(bool(face_csv));
   REQUIRE(bool(projection_csv));
   REQUIRE(bool(summary));
-}
-
-/*! B7 keeps rounded memo/scope reservations and gives only the unused quota to facets. */
-TEST_CASE("Prepared facet pool receives unused admitted quota", "[NativeSurfaceCache3D]") {
-  CurvedAtlasFixture fixture;
-  const auto& curves = fixture.geometry->Curves();
-  std::map<Id, double> errors;
-  for (const auto& face : fixture.facets) errors.emplace(face.id, 1e-12);
-  auto definition = std::make_shared<SU2Native3D::PlanarReference>(fixture.facets);
-  const auto rounded = MappedFacetReference::SurfaceQueryStorageBytes(curves.size(), size_t(64) << 20);
-  MappedFacetReference base(definition, errors, 29, SIZE_MAX, false, curves, rounded);
-  const auto old = base.GeometryStatsSnapshot();
-  for (size_t extra : {size_t(0), size_t(1), size_t(12345)}) {
-    const auto quota = rounded + extra;
-    MappedFacetReference geometry(definition, errors, 29, SIZE_MAX, false, curves, quota);
-    const auto current = geometry.GeometryStatsSnapshot();
-    CHECK(current.memo_limit == old.memo_limit);
-    CHECK(current.scope_limit == old.scope_limit);
-    CHECK(current.facet_limit == old.facet_limit + extra);
-    CHECK(current.prepared_limit == old.prepared_limit + extra);
-    CHECK(geometry.ResidentBytes() == base.ResidentBytes() + extra);
-    const auto reset = geometry.GeometryStatsSnapshot(true);
-    CHECK(reset.facet_limit == current.facet_limit);
-    CHECK(reset.scope_limit == current.scope_limit);
-    CHECK(geometry.GeometryStatsSnapshot().facet_limit == current.facet_limit);
-  }
-  MappedFacetReference none(definition, errors, 29, SIZE_MAX, false, curves, 0);
-  const auto zero = none.GeometryStatsSnapshot();
-  CHECK(zero.facet_limit == 0);
-  CHECK(zero.scope_limit == 0);
 }

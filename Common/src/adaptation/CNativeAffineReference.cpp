@@ -1133,7 +1133,7 @@ struct MappedFacetReference::CurvedSearch {
   std::set<uint64_t> facet_resolutions;
   Pool<std::pair<Id,uint64_t>> prepared;
   Pool<std::vector<uint64_t>> scopes;
-  size_t prepared_limit = 0, facet_limit = 0, scope_limit = 0;
+  size_t prepared_limit=0;
   /*! Account for the event counter index, bitmap, and retained scope keys. */
   size_t NeedBytes() const {
     return transfer_memory::Add(transfer_memory::Mul(facet_ids.capacity(), sizeof(Id)),
@@ -1158,10 +1158,7 @@ struct MappedFacetReference::CurvedSearch {
   size_t Bytes()const{return transfer_memory::Add(prepared.bytes,scopes.bytes,
       transfer_memory::Mul(facet_resolutions.size(),sizeof(uint64_t)+4*sizeof(void*)),NeedBytes());}
   void Snapshot(GeometryStats& stats)const {
-    stats.prepared_limit = prepared_limit;
-    stats.facet_limit = facet_limit;
-    stats.scope_limit = scope_limit;
-    stats.prepared_bytes = Bytes();
+    stats.prepared_limit=prepared_limit;stats.prepared_bytes=Bytes();
     stats.facet_bytes=prepared.bytes;stats.scope_bytes=scopes.bytes;
     stats.facet_entries=prepared.values.size();stats.scope_entries=scopes.values.size();
     stats.facet_resolutions=facet_resolutions.size();
@@ -1412,15 +1409,12 @@ MappedFacetReference::MappedFacetReference(std::shared_ptr<const SU2Native3D::Pl
     if(transfer_memory::Add(prepared,FaceMemoBytes())<=ceiling){face_memo=std::make_shared<FaceMemo>();prepared=transfer_memory::Add(prepared,FaceMemoBytes());}
     if(ResidentBytes()>prepared)throw std::length_error("Mapped component storage model exhausted before publication.");
   }
-  // B7 keeps memo/scope sizes from rounded L; only facets receive unused admitted quota Q.
-  const auto rounded_cache =
-      query_cache_bytes == SIZE_MAX ? SIZE_MAX : SurfaceQueryStorageBytes(curves.size(), query_cache_bytes);
   if(!curves.empty()) {
     const auto resident=ResidentBytes();
     auto memo=FaceMemoBytes();
     // Retain the legacy floor; grow from one eighth of the already admitted query quota.
-    if (rounded_cache != SIZE_MAX && rounded_cache >= memo)
-      memo = std::max(memo, std::min(rounded_cache / 8, resident < ceiling ? ceiling - resident : 0));
+    if(query_cache_bytes!=SIZE_MAX&&query_cache_bytes>=memo)
+      memo=std::max(memo,std::min(query_cache_bytes/8,resident<ceiling?ceiling-resident:0));
     if(transfer_memory::Add(resident,memo)<=ceiling) {
       face_memo=std::make_shared<FaceMemo>();face_memo->limit=memo-sizeof(FaceMemo);
     }
@@ -1434,15 +1428,10 @@ MappedFacetReference::MappedFacetReference(std::shared_ptr<const SU2Native3D::Pl
           ceiling==SIZE_MAX?std::min(available,size_t(1)<<24):available);
     } else {
       // The host quota includes the separately reserved answer memo as well as prepared pools.
-      if (face_memo && rounded_cache < face_memo->StorageBytes()) face_memo.reset();
       const auto memo=face_memo?face_memo->StorageBytes():0;
-      curved_search->scope_limit = (rounded_cache - memo) / 2;
-      curved_search->facet_limit = query_cache_bytes - memo - curved_search->scope_limit;
-      curved_search->prepared_limit = curved_search->facet_limit + curved_search->scope_limit;
-    }
-    if (query_cache_bytes == SIZE_MAX) {
-      curved_search->facet_limit = curved_search->prepared_limit / 2;
-      curved_search->scope_limit = curved_search->prepared_limit - curved_search->facet_limit;
+      curved_search->prepared_limit=query_cache_bytes>memo?query_cache_bytes-memo:0;
+      if(query_cache_bytes<memo)face_memo.reset();
+      if(!face_memo)curved_search->prepared_limit=query_cache_bytes;
     }
     geometry_stats->value.prepared_limit=curved_search->prepared_limit;
   }
@@ -1658,7 +1647,7 @@ MappedFacetReference::CurvedClosest MappedFacetReference::ClosestCurved(
     ++result.work;++charged[kind];};
   try {
   std::vector<uint64_t> answerKey;
-  const auto scopeLimit = curved_search->scope_limit;
+  const auto scopeLimit=curved_search->prepared_limit-curved_search->prepared_limit/2;
   if(scopeLimit && !allowed_facets && std::fegetround()==FE_TONEAREST) try {
     // Immutable geometry owns the pool; arbitrary caller predicates have no reusable support identity.
     answerKey.reserve(6);answerKey={UINT64_MAX-1,hint};
@@ -1788,7 +1777,7 @@ MappedFacetReference::CurvedClosest MappedFacetReference::ClosestCurved(
     for(unsigned d=0;d<3;++d)v[d]=.25*Values(parameter[0])[d]+.25*Values(parameter[1])[d]+.5*Values(parameter[2])[d];
     std::vector<uint64_t> key;
     std::shared_ptr<CurvedSearch::PreparedFacet> prepared;
-    const auto limit = curved_search->scope_limit;
+    const auto limit=curved_search->prepared_limit-curved_search->prepared_limit/2;
     if(limit) {
       // Union-scope keys start with positive finite tolerance bits; this namespace cannot collide.
       key.reserve(11);key.push_back(UINT64_MAX);key.push_back(id);
@@ -1928,18 +1917,18 @@ MappedFacetReference::CurvedClosest MappedFacetReference::ClosestCurved(
     size_t bytes=0,entries=0,evictions=0;
     {std::lock_guard<std::mutex> lock(curved_search->prepared_mutex);
       bytes=curved_search->scopes.bytes;entries=curved_search->scopes.values.size();evictions=curved_search->scopes.evictions;}
-    std::ostringstream message;
-    message << "Curved distance certification work exhausted.\nCubic closest work replay: {"
-            << "\"work\":" << result.work << ",\"maximum_work\":" << maximum_work << ",\"seed_work\":" << charged[0]
-            << ",\"root_work\":" << charged[1] << ",\"refinement_work\":" << charged[2]
-            << ",\"cache_work\":" << charged[3] << ",\"failed_kind\":" << failedKind
-            << ",\"root_candidates\":" << initialCandidates << ",\"completed_roots\":" << completed[0]
-            << ",\"completed_refinements\":" << completed[1] << ",\"retention_attempts\":" << retentionAttempts
-            << ",\"retention_successes\":" << retentionSuccesses << ",\"retention_refusals\":" << retentionRefusals
-            << ",\"cache_scans\":" << (charged[3] - retentionSuccesses - answerLookups)
-            << ",\"answer_lookup_work\":" << answerLookups << ",\"scope_limit\":" << (curved_search->scope_limit)
-            << ",\"scope_bytes_at_failure_snapshot\":" << bytes << ",\"scope_entries_at_failure_snapshot\":" << entries
-            << ",\"scope_evictions_at_failure_snapshot\":" << evictions << "}";
+    std::ostringstream message;message<<"Curved distance certification work exhausted.\nCubic closest work replay: {"
+        <<"\"work\":"<<result.work<<",\"maximum_work\":"<<maximum_work
+        <<",\"seed_work\":"<<charged[0]<<",\"root_work\":"<<charged[1]
+        <<",\"refinement_work\":"<<charged[2]<<",\"cache_work\":"<<charged[3]
+        <<",\"failed_kind\":"<<failedKind<<",\"root_candidates\":"<<initialCandidates
+        <<",\"completed_roots\":"<<completed[0]<<",\"completed_refinements\":"<<completed[1]
+        <<",\"retention_attempts\":"<<retentionAttempts<<",\"retention_successes\":"<<retentionSuccesses
+        <<",\"retention_refusals\":"<<retentionRefusals<<",\"cache_scans\":"<<(charged[3]-retentionSuccesses-answerLookups)
+        <<",\"answer_lookup_work\":"<<answerLookups
+        <<",\"scope_limit\":"<<(curved_search->prepared_limit-curved_search->prepared_limit/2)
+        <<",\"scope_bytes_at_failure_snapshot\":"<<bytes<<",\"scope_entries_at_failure_snapshot\":"<<entries
+        <<",\"scope_evictions_at_failure_snapshot\":"<<evictions<<"}";
     throw std::length_error(message.str());
   }
 }
@@ -2141,8 +2130,6 @@ MappedFacetReference::GeometryStats MappedFacetReference::GeometryStatsSnapshot(
   auto value=geometry_stats->value;
   if(face_memo)face_memo->Snapshot(value,reset);
   if(reset){geometry_stats->value={};geometry_stats->value.prepared_bytes=value.prepared_bytes;geometry_stats->value.prepared_limit=value.prepared_limit;
-    geometry_stats->value.facet_limit = value.facet_limit;
-    geometry_stats->value.scope_limit = value.scope_limit;
     geometry_stats->value.facet_bytes=value.facet_bytes;geometry_stats->value.scope_bytes=value.scope_bytes;
     geometry_stats->value.facet_entries=value.facet_entries;geometry_stats->value.scope_entries=value.scope_entries;
     geometry_stats->value.evictions=value.evictions;geometry_stats->value.evicted_bytes=value.evicted_bytes;
@@ -2313,8 +2300,7 @@ MappedFacetReference::SurfaceUnionBounds MappedFacetReference::QuerySurfaceUnion
           curved_search->prepared_facet_bytes_sum=transfer_memory::Add(curved_search->prepared_facet_bytes_sum,bytes);
           ++curved_search->prepared_facet_builds;stats.prepared_facet_builds=curved_search->prepared_facet_builds;
           stats.prepared_facet_mean_bytes=double(curved_search->prepared_facet_bytes_sum)/curved_search->prepared_facet_builds;}
-        const bool retain =
-            curved_search->prepared.Retain(key, data, bytes, budget.work - leaf_work, curved_search->facet_limit, op);
+        const bool retain=curved_search->prepared.Retain(key,data,bytes,budget.work-leaf_work,curved_search->prepared_limit/2,op);
         if(!retain)budget.caller_bytes=transfer_memory::Add(leaf_caller,bytes);
         std::lock_guard<std::mutex> lock(geometry_stats->mutex);auto& stats=geometry_stats->value;
         stats.facet_build_work+=budget.work-leaf_work;
@@ -2387,8 +2373,8 @@ MappedFacetReference::SurfaceUnionBounds MappedFacetReference::QuerySurfaceUnion
       prepared_model->target=std::make_unique<TriangleUnion>(prepared_model->triangles,op,tolerance);
       budget.caller_bytes=caller;
       const auto bytes=transfer_memory::Add(prepared_model->Bytes(),transfer_memory::Mul(scope.capacity(),2*sizeof(uint64_t)),256);op.Storage(bytes);
-      const bool retain = curved_search->scopes.Retain(scope, prepared_model, bytes, budget.work - receipt.work,
-                                                       curved_search->scope_limit, op);
+      const bool retain=curved_search->scopes.Retain(scope,prepared_model,bytes,budget.work-receipt.work,
+          curved_search->prepared_limit-curved_search->prepared_limit/2,op);
       if(!retain)budget.caller_bytes=transfer_memory::Add(caller,bytes);
       {std::lock_guard<std::mutex> lock(geometry_stats->mutex);geometry_stats->value.retention_refusals+=!retain;}
       receipt.success=true;

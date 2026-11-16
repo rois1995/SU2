@@ -125,9 +125,7 @@ class MappedFacetReference {
     size_t upper_refinements=0,upper_deferred_bounds=0,classification_calls=0,classification_work=0;
     size_t magnitude_calls=0,magnitude_work=0,limit_calls=0,limit_work=0;
     size_t scope_attempts=0,scope_builds=0,scope_build_work=0,retention_refusals=0,prepared_bytes=0,prepared_limit=0;
-    size_t facet_limit = 0, scope_limit = 0;  // B7: explicit admitted pool limits, retained across diagnostic resets.
-    size_t facet_bytes = 0, scope_bytes = 0;
-    size_t facet_entries = 0, scope_entries = 0, evictions = 0, evicted_bytes = 0;
+    size_t facet_bytes=0,scope_bytes=0,facet_entries=0,scope_entries=0,evictions=0,evicted_bytes=0;
     size_t support_calls=0,support_facets=0,facet_build_work=0,piece_selection_work=0,traversal_work=0;
     size_t distinct_facets=0,distinct_scope_keys=0,prepared_facet_builds=0;
     double prepared_facet_mean_bytes=0;

@@ -2017,9 +2017,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
           <<" smooth_interior_guidance="<<stats.interior_smoothing_guidance_calls<<" smooth_interior_upper_queries="<<stats.interior_smoothing_upper_queries
           <<" smooth_interior_moves="<<stats.interior_smoothing_moves<<" smooth_interior_debt_reduction="<<double(stats.interior_smoothing_debt_reduction)
           <<" smooth_interior_seconds="<<stats.interior_smoothing_seconds
-          <<" retention_refusals="<<g.retention_refusals-geometry_begin.retention_refusals<<" prepared_bytes="<<g.prepared_bytes<<" prepared_limit="<<g.prepared_limit
-          << " facet_limit=" << g.facet_limit << " scope_limit=" << g.scope_limit
-          <<" facet_bytes="<<g.facet_bytes<<" scope_bytes="<<g.scope_bytes
+          <<" retention_refusals="<<g.retention_refusals-geometry_begin.retention_refusals<<" prepared_bytes="<<g.prepared_bytes<<" prepared_limit="<<g.prepared_limit<<" facet_bytes="<<g.facet_bytes<<" scope_bytes="<<g.scope_bytes
           <<" facet_entries="<<g.facet_entries<<" scope_entries="<<g.scope_entries<<" cache_evictions="<<g.evictions<<" cache_evicted_bytes="<<g.evicted_bytes
           <<" memo_direct_hits="<<g.memo_direct_hits-geometry_begin.memo_direct_hits<<" memo_direct_misses="<<g.memo_direct_misses-geometry_begin.memo_direct_misses
           <<" memo_union_hits="<<g.memo_union_hits-geometry_begin.memo_union_hits<<" memo_union_misses="<<g.memo_union_misses-geometry_begin.memo_union_misses

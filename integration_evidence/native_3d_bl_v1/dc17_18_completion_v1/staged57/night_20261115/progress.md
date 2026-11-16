@@ -5,14 +5,14 @@ Updated 2026-11-15. Latest order: NIGHT_WORK_ORDER.md (SHA-sealed input_manifest
 | Item | State | Commit / gates | Next |
 |---|---|---|---|
 | N1 P7/P8/counters | Section6.1 PASSED; original failure/revert retained | accepted N5 base3d28237f03; FULLRUN1+isolatedrestart PASSED on522 | units1/2/stats,collapse,safeguards,full newevent2referencepolicy |
-| N2 B7 | ACTIVE: condition true; corrected build524 running | source checkpoint e945675cba pending validation; predicted17.70GB<=19.0GB | units→exactcollapse→safeguards→full |
+| N2 B7 | FAILED C492 and production reverted | model13,061,193,021>12,884,901,888B;0splits;conditionTRUE | continue N9 on acceptedN1 |
 | N3 design source check | PASSED (read-only review completed) |14 consolidated findings/readings; M11/M15/M17/M19 and T1–T3 answered; no build/run/productionedit; see Handbook/ADAPTATION_DESIGN_SOURCE_CHECK_20261115.md | Commit/push, then N4 C/inventories/sourcecheck and reference gates |
 | N4 Adapt cut8.2 | Section6.3 pending; old A1 failure/revert historical | first complexity209.9357526597 vs656.1522579418; failed ec0e8f3ef5, reverted8039fc1b59 | freshG1identity/G2/G3/GQ after6.1/6.2 |
 | N5 all design measurements | PASSED; unavailable rows qualified | build521; G2/GQ exact integers; clean full all6P6c/standing gates; native2581.0285/1907.4990s, SUMpeaks13952311296/17729433600B | seal measurement table/checkpoint, then6.1 |
 | N6 further identical cuts | NOT STARTED | requirescompletedN4+G5 | Remesh,MeshOptimizer,Selection |
 | N7 morning report | NOT STARTED | always | finalclose/terminalhandles |
 
-Current job: B7 C492 on525, controller3874664/start32115380, app3874948; case section6_2_bl_20261116T113412_3874664. ALLCPP/activeexistingS2PY/extra manifest FROZEN. ExactG2+additionalconstructionguardPASSED833.369258s until plannedstop/842.021957sealed,10actualhostownedIDsterminal/pinsunchanged. NextsameC492→481/current492/2D1/2/4→full6.2referencepolicy→isolatedrestart,thenN9,N10,N11,N8(A1beforeN11),6.3,N6,N7.
+Current job: NONE; B7C492+allpreviousjobsactualhostterminal. B7FAILED/revertedtoN1429c6c1a60 byC492modeledmemory13,061,193,021>12GiB/0splits. Sharedbinariesarefailed525; rebuildacceptedN1 sourcebeforeexecution. NextN9→N10→N8A1→N11→remainingN8→6.3→N6→N7. No finalN7.
 
 R5 governs resultfailures: preservefirstnumber; one<=60min readonlydiagnosis; onlytranscription/wiringagainstwrittenproposal permitsonecorrection+onefailedcheckrepeat; else revertitem, markFAILED andcontinueindependentnextitem. R3ownharnessrepairs<=90min each, no gate/productionchanges. Do not implementdesign8.3-8.7,A5/B5 or job-derivedquota.
 
@@ -241,3 +241,5 @@ B7R5UNITREPEATPASSED130.175983s,all1903assertions/51cases including unchangedold
 B7SAMEprefix exactcollapsePASSED90809869work/counts480/473/346/263/469/464/zeroRefinements. collapse_gate_checkpoint.json sealedsubset. Legacyrunnercontinuesextra constructionboundary; preserveSAMEjob3836441/3836625, doNOTstop/restart or editCPP/activeS2PY/manifest. Latestactualhostownedheavy6/controllerCPUavg3.06%, unownedhot1observationonly. Nextterminalseal thenC492,safeguards/full.
 
 B7G2+same-runadditionalconstructionguardPASSED: exact90809869work/counts480/473/346/263/469/464/zeroRefinements, check2/check3true, plannedstopall_six_construction_entry_rows app-15 (notproductionfailure). 833.369258boundary/842.021957sealed; all10actualhostownedIDs terminal/allsource/runtime/inputpinsunchanged. Firstpartitionintegers/weights equal6.1; modelednativebytes increases799371060→1114167806 asintendedrawQreserve. Hostload9.01/10.30/8.52 observednearend, unownedprogramsnotR1failures; timingsnotisolatedspeedclaim. C492NOWLIVE3874664/start32115380/app3874948 on525, unchanged388.8stage/12GiBmodel/19073MiBjob. CPP/activeS2helpersFROZEN.
+
+B7C492RESULTGATEFAILED: testexit0 doesnotpassguard. 0splits/firstedit210,7004absent vs336required; Directorycollisionsearchpeak13061193021B>12884901888B(+176291133). Actualall303823inputcellspositive,jobRSS2291232768Bunder19073MiB. R5readonlycausewrittenB7fullQserialreservation+1086717952B chargedbyResidentBytes; collisionmodelcapfails. Limitsmatchproposal; no furtherproductionfix/retry. All5C492ownedIDsactualhostterminal/1785pinsunchanged. Restoredall5B7pathsbyteidenticalaccepted429c6;all1560build522pinsmatch. REPORT/R5_C492_proposal_failure/failed_B7_source+SHA preserveevidence; onecommitrevertnext. 481/current/2D/full/restartNOTSTARTED afterfail. Preparedrestart525helpersUNUSED. ContinueindependentN9latestsection6.5, N7notfinal.
