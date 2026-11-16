@@ -1,0 +1,169 @@
+# N9 section6.6 B0 table
+
+Source: `N9_66_bl_20261116T135717_78861/run.log`. These rows are observations; corrected G3 is independently passed. Text storage is16 first96-character prefix buckets plus overflow occurrences.
+
+| Row / scope | Measure | Value | Run log line |
+|---|---|---:|---:|
+| NATIVE3D_WALL_REFUSAL / SplitEdge/orientation | count | 0 | 24 |
+| NATIVE3D_WALL_REFUSAL / SplitEdge/interface | count | 0 | 25 |
+| NATIVE3D_WALL_REFUSAL / SplitEdge/surface_containment | count | 0 | 26 |
+| NATIVE3D_WALL_REFUSAL / SplitEdge/feature | count | 0 | 27 |
+| NATIVE3D_WALL_REFUSAL / SplitEdge/marker_junction | count | 0 | 28 |
+| NATIVE3D_WALL_REFUSAL / SplitEdge/incomplete_star | count | 0 | 29 |
+| NATIVE3D_WALL_REFUSAL / SplitEdge/other | count | 0 | 30 |
+| NATIVE3D_WALL_REFUSAL / InsertEdgeCavity/orientation | count | 0 | 31 |
+| NATIVE3D_WALL_REFUSAL / InsertEdgeCavity/interface | count | 0 | 32 |
+| NATIVE3D_WALL_REFUSAL / InsertEdgeCavity/surface_containment | count | 0 | 33 |
+| NATIVE3D_WALL_REFUSAL / InsertEdgeCavity/feature | count | 0 | 34 |
+| NATIVE3D_WALL_REFUSAL / InsertEdgeCavity/marker_junction | count | 0 | 35 |
+| NATIVE3D_WALL_REFUSAL / InsertEdgeCavity/incomplete_star | count | 0 | 36 |
+| NATIVE3D_WALL_REFUSAL / InsertEdgeCavity/other | count | 0 | 37 |
+| NATIVE3D_WALL_REFUSAL / other_geometry/orientation | count | 18 | 38 |
+| NATIVE3D_WALL_REFUSAL / other_geometry/interface | count | 4 | 39 |
+| NATIVE3D_WALL_REFUSAL / other_geometry/surface_containment | count | 0 | 40 |
+| NATIVE3D_WALL_REFUSAL / other_geometry/feature | count | 0 | 41 |
+| NATIVE3D_WALL_REFUSAL / other_geometry/marker_junction | count | 0 | 42 |
+| NATIVE3D_WALL_REFUSAL / other_geometry/incomplete_star | count | 25 | 43 |
+| NATIVE3D_WALL_REFUSAL / other_geometry/other | count | 857 | 44 |
+| NATIVE3D_WALL_REASON / Native3D retained apex has incompatible height planes; different connectivity is required. | count | 345 | 45 |
+| NATIVE3D_WALL_REASON / Native3D geometry-height incompatibility of the normal-row proposal at facet 48509 cell 28524296 | count | 1 | 46 |
+| NATIVE3D_WALL_REASON / Native3D geometry-height incompatibility of the normal-row proposal at facet 48412 cell 28543732 | count | 1 | 47 |
+| NATIVE3D_WALL_REASON / Native3D geometry-height incompatibility of the normal-row proposal at facet 48870 cell 28545800 | count | 1 | 48 |
+| NATIVE3D_WALL_REASON / Native3D geometry-height incompatibility of the normal-row proposal at facet 48397 cell 28546788 | count | 1 | 49 |
+| NATIVE3D_WALL_REASON / Native3D geometry-height incompatibility of the normal-row proposal at facet 47559 cell 28578523 | count | 1 | 50 |
+| NATIVE3D_WALL_REASON / Native3D geometry-height incompatibility of the normal-row proposal at facet 47559 cell 28579568 | count | 1 | 51 |
+| NATIVE3D_WALL_REASON / Native3D geometry-height incompatibility of the normal-row proposal at facet 47564 cell 28603115 | count | 1 | 52 |
+| NATIVE3D_WALL_REASON / Native3D geometry-height incompatibility of the normal-row proposal at facet 47564 cell 28604143 | count | 1 | 53 |
+| NATIVE3D_WALL_REASON / Native3D geometry-height incompatibility of the normal-row proposal at facet 48297 cell 28620512 | count | 1 | 54 |
+| NATIVE3D_WALL_REASON / Native3D geometry-height incompatibility of the normal-row proposal at facet 47419 cell 28687094 | count | 1 | 55 |
+| NATIVE3D_WALL_REASON / Native3D geometry-height incompatibility of the normal-row proposal at facet 48884 cell 28731106 | count | 1 | 56 |
+| NATIVE3D_WALL_REASON / Native3D geometry-height incompatibility of the normal-row proposal at facet 48885 cell 28924658 | count | 1 | 57 |
+| NATIVE3D_WALL_REASON / Native3D geometry-height incompatibility of the normal-row proposal at facet 48360 cell 29061873 | count | 1 | 58 |
+| NATIVE3D_WALL_REASON / Native3D geometry-height incompatibility of the normal-row proposal at facet 47638 cell 29186793 | count | 1 | 59 |
+| NATIVE3D_WALL_REASON / Native3D geometry-height incompatibility of the normal-row proposal at facet 47827 cell 29187853 | count | 1 | 60 |
+| NATIVE3D_WALL_REASON / <more> | count | 544 | 61 |
+| NATIVE3D_WALL_REFUSAL / PreservePassingFirstHeights | count | 0 | 62 |
+| NATIVE3D_WALL_REFUSAL / height_check | count | 0 | 63 |
+| NATIVE3D_WALL_REFUSAL / boundary_replacement_ready | count | 0 | 64 |
+| NATIVE3D_WALL_REFUSAL / guidance_guard | count | 1180 | 65 |
+| NATIVE3D_WALL_REFUSAL / unwrapped_geometry_trial | count | 0 | 66 |
+| NATIVE3D_WALL_GUIDANCE / size/incomplete | count | 10 | 67 |
+| NATIVE3D_WALL_GUIDANCE / size/nonfinite | count | 0 | 68 |
+| NATIVE3D_WALL_GUIDANCE / size/no_progress | count | 0 | 69 |
+| NATIVE3D_WALL_GUIDANCE / size/after_above | count | 0 | 70 |
+| NATIVE3D_WALL_GUIDANCE / size/exception | count | 0 | 71 |
+| NATIVE3D_WALL_GUIDANCE / size/other | count | 0 | 72 |
+| NATIVE3D_WALL_GUIDANCE / geometry/incomplete | count | 1167 | 73 |
+| NATIVE3D_WALL_GUIDANCE / geometry/nonfinite | count | 0 | 74 |
+| NATIVE3D_WALL_GUIDANCE / geometry/no_progress | count | 3 | 75 |
+| NATIVE3D_WALL_GUIDANCE / geometry/after_above | count | 0 | 76 |
+| NATIVE3D_WALL_GUIDANCE / geometry/exception | count | 0 | 77 |
+| NATIVE3D_WALL_GUIDANCE / geometry/other | count | 0 | 78 |
+| NATIVE3D_WALL_PRETRIAL / other | count | 0 | 79 |
+| NATIVE3D_WALL_PRETRIAL / oversized | count | 0 | 80 |
+| NATIVE3D_WALL_PRETRIAL / conflict | count | 0 | 81 |
+| NATIVE3D_WALL_PRETRIAL / deferred | count | 3455 | 82 |
+| NATIVE3D_WALL_PRETRIAL / split_position | count | 0 | 83 |
+| NATIVE3D_WALL_COUNTS /  | geometry_trials | 3726 | 84 |
+| NATIVE3D_WALL_COUNTS /  | expected_geometry_trials | 3726 | 84 |
+| NATIVE3D_WALL_COUNTS /  | geometry_rejected | 2084 | 84 |
+| NATIVE3D_WALL_COUNTS /  | expected_geometry_rejected | 2084 | 84 |
+| NATIVE3D_WALL_COUNTS /  | guidance_trials | 1642 | 84 |
+| NATIVE3D_WALL_COUNTS /  | expected_guidance_trials | 1642 | 84 |
+| NATIVE3D_WALL_COUNTS /  | geometric_change_guidance_trials | 1642 | 84 |
+| NATIVE3D_WALL_COUNTS /  | priority_guidance | 0 | 84 |
+| NATIVE3D_WALL_COUNTS /  | geometry_queue_guidance_trials | 1425 | 84 |
+| NATIVE3D_WALL_COUNTS /  | size_queue_guidance_trials | 217 | 84 |
+| NATIVE3D_WALL_COUNTS /  | guidance_rejected | 1180 | 84 |
+| NATIVE3D_WALL_COUNTS /  | expected_guidance_rejected | 1180 | 84 |
+| NATIVE3D_WALL_COUNTS /  | accepted | 457 | 84 |
+| NATIVE3D_WALL_COUNTS /  | expected_accepted | 457 | 84 |
+| NATIVE3D_WALL_COUNTS /  | metric_trials | 462 | 84 |
+| NATIVE3D_WALL_COUNTS /  | expected_metric_trials | 462 | 84 |
+| NATIVE3D_WALL_COUNTS /  | metric_validation_trials | 462 | 84 |
+| NATIVE3D_WALL_COUNTS /  | metric_validation_rejected | 5 | 84 |
+| NATIVE3D_WALL_COUNTS /  | metric_rejected | 5 | 84 |
+| NATIVE3D_WALL_COUNTS /  | metric_vetoed | 0 | 84 |
+| NATIVE3D_WALL_COUNTS /  | selected | 4676 | 84 |
+| NATIVE3D_WALL_COUNTS /  | operator_entered | 1221 | 84 |
+| NATIVE3D_WALL_COUNTS /  | pretrial | 3455 | 84 |
+| NATIVE3D_WALL_COUNTS /  | choice_partition_sum | 4676 | 84 |
+| NATIVE3D_WALL_COUNTS /  | expected_proposed | 4676 | 84 |
+| NATIVE3D_WALL_COUNTS /  | expected_attempted | 1221 | 84 |
+| NATIVE3D_WALL_COUNTS /  | planning_refusals | 0 | 84 |
+| NATIVE3D_WALL_COUNTS /  | guarded_refusals | 2084 | 84 |
+| NATIVE3D_WALL_COUNTS /  | unwrapped_geometry_trials | 0 | 84 |
+| NATIVE3D_WALL_COUNTS /  | refusal_partition_sum | 2084 | 84 |
+| NATIVE3D_WALL_COUNTS /  | counter_sums_match | 1 | 84 |
+| D9_QUERY / surface/a | scopes | 1642 | 97 |
+| D9_QUERY / surface/a | direct_calls | 8039 | 97 |
+| D9_QUERY / surface/a | upper_calls | 17222 | 97 |
+| D9_QUERY / surface/a | classification_calls | 9957 | 97 |
+| D9_QUERY / surface/a | magnitude_calls | 3691 | 97 |
+| D9_QUERY / surface/a | limit_calls | 3574 | 97 |
+| D9_QUERY / surface/a | memo_direct_hits | 4330 | 97 |
+| D9_QUERY / surface/a | memo_union_hits | 9371 | 97 |
+| D9_QUERY / surface/a | upper_work | 84655755 | 97 |
+| D9_QUERY / surface/a | seconds | 176.90577037800008 | 97 |
+| D9_QUERY / surface/a | direct_seconds | 0.32853280800000673 | 97 |
+| D9_QUERY / surface/a | upper_seconds | 176.11364799299949 | 97 |
+| D9_QUERY / surface/b | scopes | 0 | 98 |
+| D9_QUERY / surface/b | direct_calls | 0 | 98 |
+| D9_QUERY / surface/b | upper_calls | 0 | 98 |
+| D9_QUERY / surface/b | classification_calls | 0 | 98 |
+| D9_QUERY / surface/b | magnitude_calls | 0 | 98 |
+| D9_QUERY / surface/b | limit_calls | 0 | 98 |
+| D9_QUERY / surface/b | memo_direct_hits | 0 | 98 |
+| D9_QUERY / surface/b | memo_union_hits | 0 | 98 |
+| D9_QUERY / surface/b | upper_work | 0 | 98 |
+| D9_QUERY / surface/b | seconds | 0 | 98 |
+| D9_QUERY / surface/b | direct_seconds | 0 | 98 |
+| D9_QUERY / surface/b | upper_seconds | 0 | 98 |
+| D9_QUERY / surface/c | scopes | 0 | 99 |
+| D9_QUERY / surface/c | direct_calls | 0 | 99 |
+| D9_QUERY / surface/c | upper_calls | 0 | 99 |
+| D9_QUERY / surface/c | classification_calls | 0 | 99 |
+| D9_QUERY / surface/c | magnitude_calls | 0 | 99 |
+| D9_QUERY / surface/c | limit_calls | 0 | 99 |
+| D9_QUERY / surface/c | memo_direct_hits | 0 | 99 |
+| D9_QUERY / surface/c | memo_union_hits | 0 | 99 |
+| D9_QUERY / surface/c | upper_work | 0 | 99 |
+| D9_QUERY / surface/c | seconds | 0 | 99 |
+| D9_QUERY / surface/c | direct_seconds | 0 | 99 |
+| D9_QUERY / surface/c | upper_seconds | 0 | 99 |
+| D9_QUERY / surface/d | scopes | 0 | 100 |
+| D9_QUERY / surface/d | direct_calls | 0 | 100 |
+| D9_QUERY / surface/d | upper_calls | 0 | 100 |
+| D9_QUERY / surface/d | classification_calls | 0 | 100 |
+| D9_QUERY / surface/d | magnitude_calls | 0 | 100 |
+| D9_QUERY / surface/d | limit_calls | 0 | 100 |
+| D9_QUERY / surface/d | memo_direct_hits | 0 | 100 |
+| D9_QUERY / surface/d | memo_union_hits | 0 | 100 |
+| D9_QUERY / surface/d | upper_work | 0 | 100 |
+| D9_QUERY / surface/d | seconds | 0 | 100 |
+| D9_QUERY / surface/d | direct_seconds | 0 | 100 |
+| D9_QUERY / surface/d | upper_seconds | 0 | 100 |
+| D9_QUERY / surface/e | scopes | 37706 | 101 |
+| D9_QUERY / surface/e | direct_calls | 36469 | 101 |
+| D9_QUERY / surface/e | upper_calls | 7104 | 101 |
+| D9_QUERY / surface/e | classification_calls | 4414 | 101 |
+| D9_QUERY / surface/e | magnitude_calls | 2690 | 101 |
+| D9_QUERY / surface/e | limit_calls | 0 | 101 |
+| D9_QUERY / surface/e | memo_direct_hits | 1064 | 101 |
+| D9_QUERY / surface/e | memo_union_hits | 3016 | 101 |
+| D9_QUERY / surface/e | upper_work | 28275299 | 101 |
+| D9_QUERY / surface/e | seconds | 60.166494788999891 | 101 |
+| D9_QUERY / surface/e | direct_seconds | 2.6733884229999854 | 101 |
+| D9_QUERY / surface/e | upper_seconds | 56.373381617999968 | 101 |
+| D9_QUERY / surface/g | scopes | 0 | 102 |
+| D9_QUERY / surface/g | direct_calls | 0 | 102 |
+| D9_QUERY / surface/g | upper_calls | 0 | 102 |
+| D9_QUERY / surface/g | classification_calls | 0 | 102 |
+| D9_QUERY / surface/g | magnitude_calls | 0 | 102 |
+| D9_QUERY / surface/g | limit_calls | 0 | 102 |
+| D9_QUERY / surface/g | memo_direct_hits | 0 | 102 |
+| D9_QUERY / surface/g | memo_union_hits | 0 | 102 |
+| D9_QUERY / surface/g | upper_work | 0 | 102 |
+| D9_QUERY / surface/g | seconds | 0 | 102 |
+| D9_QUERY / surface/g | direct_seconds | 0 | 102 |
+| D9_QUERY / surface/g | upper_seconds | 0 | 102 |

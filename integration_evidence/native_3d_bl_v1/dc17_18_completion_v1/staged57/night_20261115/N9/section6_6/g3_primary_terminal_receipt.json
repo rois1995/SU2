@@ -1,0 +1,69 @@
+{
+  "actual_host_proc": true,
+  "verified_unix": 1794838028.2522283,
+  "identities": [
+    {
+      "pid": 78858,
+      "ppid": 2375,
+      "start_ticks": 32973839,
+      "state": "S",
+      "name": "python3",
+      "alive": false
+    },
+    {
+      "pid": 78861,
+      "ppid": 78858,
+      "start_ticks": 32973843,
+      "state": "S",
+      "name": "python3",
+      "alive": false
+    },
+    {
+      "pid": 79186,
+      "ppid": 78861,
+      "start_ticks": 32974511,
+      "state": "S",
+      "name": "time",
+      "alive": false
+    },
+    {
+      "pid": 79187,
+      "ppid": 79186,
+      "start_ticks": 32974511,
+      "state": "S",
+      "name": "timeout",
+      "alive": false
+    },
+    {
+      "pid": 79188,
+      "ppid": 79187,
+      "start_ticks": 32974511,
+      "state": "R",
+      "name": "test_driver",
+      "alive": false
+    },
+    {
+      "pid": 79189,
+      "ppid": 79188,
+      "start_ticks": 32974512,
+      "state": "S",
+      "name": "orted",
+      "alive": false
+    }
+  ],
+  "all_owned_handles_terminal": true,
+  "pins_verified": true,
+  "pin_count": 1815,
+  "changed_pins": [],
+  "case_status": {
+    "state": "terminal",
+    "exit_code": 0,
+    "seconds": 546.6447250843048,
+    "pins_verified": true,
+    "changed": [],
+    "largest_sampled_individual_process_rss_bytes": 3340013568,
+    "rss_note": "sampled process RSS; not a whole-job peak"
+  },
+  "G3_passed": true,
+  "GNU_time_serial_peak_bytes": 3339386880
+}
