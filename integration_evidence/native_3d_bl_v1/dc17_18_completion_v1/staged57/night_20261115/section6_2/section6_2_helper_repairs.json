@@ -1,0 +1,53 @@
+{
+  "scope": "Section 6.2 helper setup corrections only; no production source, acceptance gate, tolerance, build, or numerical run changed.",
+  "repairs": [
+    {
+      "cause": "The first retarget copied Section 6.1 labels and build522 assumptions into the B7 helper paths.",
+      "correction": "Retargeted new Section 6.2 wrappers to build524, its immutable build directory, and distinct section6_2 case labels; full-run binary selection now comes from build status.",
+      "verification": "Full controller, first-collapse controller, unit wrapper, and remaining-check helper self-checks pass without reading build output."
+    },
+    {
+      "cause": "The original unit grouping did not exercise the newly affected surface cache, geometry statistics, or reference I/O tags.",
+      "correction": "Added explicit surface_cache and reference_io modes and included SurfaceCache, SurfaceMemo, ReferenceIO, AtlasReferenceIO, GeometryStats, geometry backend, ownership proof, and timer tree tags in serial; MPI2 includes the affected cache/stat/memory tags.",
+      "verification": "Unit wrapper mode self-check passes; source inventory found 3 SurfaceCache tests, 2 GeometryStats tests, 2 ReferenceIO tests, and 1 AtlasReferenceIO test."
+    },
+    {
+      "cause": "The inherited core preflight rejected any host process named SU2_CFD or test_driver, regardless of ownership.",
+      "correction": "Retargeted core and final-check preflights to use this section's PID/start-tick controller and running-case receipts; unowned busy processes remain observational and do not block or get signaled.",
+      "verification": "Synthetic preflight checks confirm an unowned hot process is ignored and an owned long-running helper is recognized."
+    },
+    {
+      "cause": "The inherited timer gate filename was initially constructed without the required _timer component.",
+      "correction": "Require f3b_event1_timer_gate.json and f3b_event2_timer_gate.json consistently in launch audit and payload comparison.",
+      "verification": "Payload comparator self-check also reads the accepted Section 6.1 case's actual receipt schema read-only."
+    },
+    {
+      "cause": "A single global launch receipt/log path prevented a distinct second full workflow after expected N1 payload drift.",
+      "correction": "Derive controller receipt and log paths from each case name; allow the second case only at a new path and compare its six outputs to the first case after all strict gates pass.",
+      "verification": "Detached-launch self-check confirms per-case paths; no workflow was launched."
+    },
+    {
+      "cause": "The launch terminal record had a duplicated helper-hash field and did not wait for the detached controller identity to exit before claiming terminal success.",
+      "correction": "Removed the duplicate key and require the controller PID/start-tick identity to be gone before a successful terminal audit; helper hashes are checked once.",
+      "verification": "Launch wrapper self-check and AST syntax parse pass."
+    },
+    {
+      "cause": "One synthetic owned-helper self-check used an incorrect process start tick, producing an under-60-second synthetic runtime.",
+      "correction": "Adjusted the synthetic start tick so elapsed time and average CPU exercise the intended 60-second/50-percent boundary.",
+      "verification": "Final-check self-check passes at, below, and outside the ownership threshold."
+    },
+    {
+      "cause": "The N1 first-run drift report and repeat comparison needed separate semantics.",
+      "correction": "The first candidate reports six-hash drift and requests one repeat only after all standing gates pass; a second candidate is compared against the first candidate's six hashes, with mismatch failing the repeat identity gate and no drift diagnosis.",
+      "verification": "Synthetic six-hash equality/drift comparison passes."
+    },
+    {
+      "cause": "B7 result-gate wiring correction rebuilt binary as525, while prepared wrappers still selected524.",
+      "correction": "Retarget active new wrappers and create immutable525aliases; preserve524unit sources and receipts. Prior failedunit was terminal before edits."
+    },
+    {
+      "cause": "Copied extra manifest named only6.1wrappers, and core expected purpose-local checker paths absent from initial helper set.",
+      "correction": "Create relative checker links with byte-identical targets and hash all active6.2wrappers plus reusedcore in new extra manifest before any prefix/full. No numerical rerun."
+    }
+  ]
+}

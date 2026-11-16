@@ -1,0 +1,113 @@
+[
+  {
+    "command": [
+      "python3",
+      "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/section6_2/build525_aliases.py",
+      "--self-check"
+    ],
+    "returncode": 0,
+    "stdout": "{\"passed\": true, \"launched\": false}\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "python3",
+      "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/section6_2/run_first_collapse_section6_2.py",
+      "--self-check"
+    ],
+    "returncode": 0,
+    "stdout": "{\"passed\": true, \"launched\": false, \"gate\": \"exact G2: 90809869 work and six rank counts\"}\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "python3",
+      "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/section6_2/run_remaining_checks.py",
+      "--self-check"
+    ],
+    "returncode": 0,
+    "stdout": "{\"passed\": true, \"old_runner_sha256\": \"1949724533829a028c7685cbb93c226613b935c02d36eeaec64876bf2dd2d73b\", \"transformed_source_sha256\": \"376f281b2789e4c2e62c6bfb026f04694e38a7ce6396ffae22785a4909be9ef7\", \"geometry_source_sha256\": \"d140d5e6250d7aec8ed732dadc1f0dde79055ff84f31f5e62071d0e1a88cf041\", \"saved_current_source_sha256\": \"006623c22acf786550f68ce3dd597c1e028b71ae371b960cc2b7d1002fd0c314\", \"bl_source_sha256\": \"3004072abca61f792be244c7d4fa9384df63ce82d22bf62ff6ba4663879bd605\", \"bl_memory_cap_bytes\": 19999490048}\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "python3",
+      "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/section6_2/check_complete_events.py",
+      "--self-check"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "python3",
+      "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/section6_2/check_connected_events.py",
+      "--self-check"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "python3",
+      "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/section6_2/compare_reference_payloads.py",
+      "--self-check"
+    ],
+    "returncode": 0,
+    "stdout": "{\"passed\": true, \"launched\": false}\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "python3",
+      "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/section6_2/run_full_section6_2.py",
+      "--self-check"
+    ],
+    "returncode": 0,
+    "stdout": "{\"passed\": true, \"launched\": false}\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "python3",
+      "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/section6_2/run_final_checks.py",
+      "--self-check"
+    ],
+    "returncode": 0,
+    "stdout": "{\"passed\": true, \"launched\": false, \"job_peak_cap_bytes\": 19999490048}\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "python3",
+      "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/section6_2/run_units.py",
+      "--self-check"
+    ],
+    "returncode": 0,
+    "stdout": "{\"passed\": true, \"launched\": false, \"modes\": [\"serial\", \"mpi2\", \"stats\", \"surface_cache\", \"reference_io\"]}\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "python3",
+      "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/section6_2/check_timer_tree.py",
+      "--self-check"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "python3",
+      "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/section6_2/launch_full_section6_2.py",
+      "launch",
+      "--self-check"
+    ],
+    "returncode": 0,
+    "stdout": "{\"passed\": true, \"launched\": false}\n",
+    "stderr": ""
+  }
+]

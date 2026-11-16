@@ -1,4 +1,4 @@
-"""Run affected native surface-cache and geometry-stat unit groups with build524."""
+"""Run affected native surface-cache and geometry-stat unit groups with build525."""
 import json
 import os
 import sys
@@ -12,21 +12,21 @@ REPO = STAGED.parents[3]
 sys.path.insert(0, str(STAGED))
 from run_cases import sha
 import run_cases as checks
-from build524_aliases import main as expose_build
+from build525_aliases import main as expose_build
 
 
 def main():
     if sys.argv[1:] == ["--self-check"]:
         assert HERE.parents[1] == STAGED and STAGED.parents[3] == REPO
-        assert (HERE / "build524").parent == HERE
-        assert (HERE / "build524_aliases.py").is_file()
+        assert (HERE / "build525").parent == HERE
+        assert (HERE / "build525_aliases.py").is_file()
         print(json.dumps({"passed": True, "launched": False,
                           "modes": ["serial", "mpi2", "stats", "surface_cache", "reference_io"]}))
         return
     mode = sys.argv[1]
     assert mode in ("serial", "mpi2", "stats", "surface_cache", "reference_io")
     expose_build()
-    status = json.loads((HERE / "build524_status.json").read_text())
+    status = json.loads((HERE / "build525_status.json").read_text())
     checks.ROOT = HERE
     checks.REPO = REPO
     checks.BINARY = Path(status["test_binary"])
@@ -56,12 +56,12 @@ def main():
     def save_with_wrapper_pin(path, value):
         if Path(path).name == "pins.json":
             value[str(Path(__file__).resolve())] = sha(__file__)
-            alias = HERE / "build524_aliases.py"
+            alias = HERE / "build525_aliases.py"
             value[str(alias.resolve())] = sha(alias)
         original_save(path, value)
 
     checks.save = save_with_wrapper_pin
-    sys.argv = ["run_cases.py", "build524", "section6_2_units_" + mode]
+    sys.argv = ["run_cases.py", "build525", "section6_2_units_" + mode]
     manifest = STAGED / "runtime_20261113_474/loaded_runtime_pins.json"
     checks.main(manifest)
 

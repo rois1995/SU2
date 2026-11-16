@@ -1,0 +1,20 @@
+{
+  "gate": "H2.0c(a) serial units",
+  "first_failure": "CNativeGeometryBackend3D_tests.cpp:103 EncodeReference(restored)==encoded throws retained state exceeds storage budget",
+  "result": {
+    "cases": 51,
+    "passed": 50,
+    "assertions": 1903,
+    "passed_assertions": 1902,
+    "encoding_budget_bytes": 2147483648,
+    "exact_retained_bytes": "not emitted; guard means >=budget"
+  },
+  "diagnosis_started_unix": 1794827479.8164346,
+  "diagnosis_completed_unix": 1794827479.8167024,
+  "diagnosis_limit_seconds": 3600,
+  "cause": "Wiring transcription: DecodeReferenceImpl cache_cap==SIZE_MAX means no explicit host quota. B7 forwarded all remaining decoder ceiling as Q, consuming the complete persistence budget. The written B7 applies only admitted host Q and requires no-quota path unchanged. Existing direct DecodeReference default had only rounded L, not an admitted finite host Q.",
+  "correction": "For cache_cap==SIZE_MAX preserve old rounded SurfaceQueryStorageBytes reservation. Only explicit finite host quota forwards raw Q. Constructor memo/scope/facet split, existing test, tolerance and2GiB persistence budget unchanged.",
+  "one_result_gate_correction": true,
+  "repeat": "Rebuild then repeat complete failed51case unit check once before proceeding; any repeat result failure reverts B7 byR5.",
+  "edit_helper_setup_correction": "First asserted replacement expected pre-format whitespace, so no source changed. Matched exact formatted source and applied the same single correction."
+}
