@@ -2,7 +2,7 @@
 
 Latest user orders are NIGHT_WORK_ORDER.md sections6.6 and6.7, copied at the top of AGENTS.md. No questions or reviewer waits. Read the COMPLETE current work order and this file after compaction. Historical sub-step log is preserved in [progress_history_through_20261116_section6_7_G3.md](progress_history_through_20261116_section6_7_G3.md), SHA256 10bb2e40353f2d6a16ac73b3b3ca5394359b9ff0f6f44f2fe1ad221a3e0b9538. All old failures and fixture corrections remain there and in item reports.
 
-Current job: **NONE; A1build532 PASSED470.250586s/50actions**, all1565pinsunchanged,130actual-host identities sealedterminal. CFD9fa6fb6d4973/test01d5e2b87b69. A1numerical checks still pending. Sources remain frozen for ordered checks; next focused wall-law fixture, then three geometry CSV identities. AcceptedN9 remains9867041a2e.
+Current job: **NONE. A1 FAILED exact Euler293 CSV gate**, normal0/344.990330s,need7521unchanged. Firstdiff line3score0.00013363402603001954 vs0.00013363402603001952; one readonly diagnosis completed (strict-library vsfastmath compilationcontext; exactformulaunchanged). All4actualhostIDs terminal/1565pinsunchanged. RevertA1productiononecommit now; skipdependentN11/N10; nextindependentA2/A3+N12. Lastaccepted9867041a2e; candidateeb6d94042c preserved.
 
 **Last completed campaign:** build529 pins and all31 helper/reference pins in `N9/section6_6/unchanged_build499_source_pins.json`. All owned campaign handles are now terminal; preserve historical hashes/helpers and use new paths for later validation. Documentation and NEW unexecuted helper paths may be prepared separately; no other heavy job. R1 counts own solver ranks/build jobs/test binaries and own scripts above half-core for>60s, maximum6; user programs are observations only. Nice19, single-threaded libraries,4TB compile-tmp, build workers2–4.
 
@@ -44,3 +44,7 @@ A1build530 ended terminal10.138423s,pinsunchanged,before compilation: ownlaunche
 A1build531 terminal40.163326s: missing complete PlanarReference declaration in new CPP; generated build.ninja/compile_commands also necessarily refreshed by Meson source-list regeneration. All7actualhostIDssealedterminal. Single compile-wiring correction adds existing defining Boundary3Dheader, no behavior/gate change; oldattemptimmutable. Build532 RUNNING exec86016 with correctedinclude and regeneratedgraphpins; pinnedsourcefrozen. No numerical check yet. Ledger R3_corrections.json.
 
 A1build532PASSED470.250586s/50actions,1565pins unchanged/130actualhostIDs terminal;aliases/primary_run_ready verified. API/CSV/G1/G2/GQ/G3/G4/full gates PENDING. No acceptance claim.
+
+A1checkpointeb6d94042c PUSHED (buildpassed,numericalpending). Focusedlawfixture firstattempt exited53beforeCatch(MPI_Win_create defaultbackend),ownsetup corrected to existingG1 OMPI_MCA_osc=pt2pt; failedattempt/helpers preserved. Correctedfocused fixturePASSED4.526925s, frozenpins,normal0;resourceguardterminal. NextgeometryEuler293,then492,theninput; allorderedoldCSVhashesstrict.
+
+A1resultfailure: Euler293CSVhash339c4cc7... vsreferencee19ab8ee...,49,392scorefields/594limiting-sidefields differ; need7521 andallotherCSVfields unchanged. Under1minute readonlyR5diagnosis, no authorizedtranscriptionfix. RevertA1 inonecommit, preserveevidence; no remaining A1gatesrun. N11/N10NOTSTARTEDdependent. Next combinedindependentA2/A3+N12whole sourcecheck.

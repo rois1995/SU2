@@ -1,0 +1,29 @@
+{
+  "state": "first_result_gate_failed",
+  "observed_unix": 1794841450.4627273,
+  "gate": "A1 exact N5 Euler293 edge CSV SHA",
+  "candidate_case": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N8/A1/cases/n5_d9_a1_geometry_euler293_20261116T145726_228417",
+  "reference_case": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N5/cases/n5_d9_geometry_euler293_R1_repeat_20261116T053313_2922610",
+  "candidate_sha256": "339c4cc7a15bf50604f0bc839ffac7af8c4517c007c5569f662b8ae837be6bde",
+  "reference_sha256": "e19ab8eef41204c1b668f443dc3376218d9c5e437463689f00a5c4a3b2a7fd09",
+  "candidate_need_edges": 7521,
+  "reference_need_edges": 7521,
+  "reference_rows": 82559,
+  "candidate_rows": 82559,
+  "first_difference": {
+    "csv_line": 3,
+    "field": "score_max",
+    "edge_a": "11",
+    "edge_b": "37343",
+    "reference": "0.00013363402603001954",
+    "candidate": "0.00013363402603001952",
+    "absolute_difference": -2.710505431213761e-20
+  },
+  "differing_fields_counts": {
+    "score_max": 49392,
+    "limiting_side_b": 296,
+    "limiting_side_a": 298
+  },
+  "maximum_relative_score_difference": 3.959977415686591e-08,
+  "diagnosis": "one read-only pass in progress; no further checks launched"
+}

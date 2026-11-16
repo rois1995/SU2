@@ -1,16 +1,23 @@
-# N8 A1 — validation pending
+# N8 A1 — FAILED, production revert required
 
-Accepted base9867041a2e; no acceptance claim for the candidate. Whole source check and consolidated readings are in [source_check.md](source_check.md). The new service owns the N5 score/eligibility/endpoint logic; diagnostics call it with explicit tau and retain their original CSV columns. Adapt prints rank-local physical face-edge incidence censuses at entry/finish under timings, in operation wall_law. No metric composition or BL metric curvature change. New API fixture covers planar zero, endpoint reversal, absent support, threshold and missing records. All new functions are <=80lines ([readability.json](readability.json)).
+Candidateeb6d94042c (pushed, labelled validationpending); accepted base9867041a2e. First result failure: exact Euler293 CSV identity. No later A1 check launched.
 
-## Current ordered checks
-Build532 PASSED470.250586s/50actions, all1565pinsunchanged and130actualhost identities terminal. CFD9fa6fb6d4973/test01d5e2b87b69. Next: new law fixture, Euler293 / saved492 / Euler-input geometry fixtures in that order with M1=7521/6759/4368 and original R1-repeat CSV SHA identity. Then shared-reference G1, strict old-row G2/GQ, corrected G3, G4 and one full two-event identity workflow. No numerical fixture has started yet. See status.json and progress.md for live handles; never infer terminal from elapsed time.
+| Check | Result | Evidence |
+|---|---|---|
+| Whole connected source check | COMPLETE, readings/risks consolidated before edit | source_check.md |
+| Build532 | PASSED470.250586s/50actions,1565pinsunchanged,130actual-host IDsterminal | build532/ |
+| New law unit | PASSED10assertions/1case,4.526925s outer/.001s Catch | unit_measurement_receipts/n5_d9_a1_wall_law.json |
+| Euler293 hidden geometry fixture | normal0,16assertions,344.990330s outer; all82,559edges and need7,521 unchanged; CSV identityFAILED | first_result_failure.json |
+| saved492 / Euler-input / G1/G2/GQ/G3/G4/full | NOT STARTED, stopped firstresultgate | status.json |
 
-## Corrections retained
-- Launcher530 used absolute Ninja but did not put its directory in PATH for Meson regeneration. It stopped before compilation,10.138423s. Preserved530 untouched;531 prepends the repository tools path.
-- Compilation531 exposed a missing defining header in the moved translation unit (PlanarReference::Get). All seven actual-host build identities were terminal before adding the existing CNativeBoundary3D.hpp include.40.163326s attempt; no law/decision/tolerance change.
--531 also recorded generated build.ninja/compile_commands pin changes from the requested new Meson source-list entry.532 pins the regenerated graph, corrected source and its own launcher; all historical attempts/pins remain saved.
--Prelaunch runner self-check found one copied Euler-input CSV hash character wrong. Corrected it from both original receipt and CSV, then descriptor/input/count/CSV provenance self-check passed, launched:false. [preflight_corrections.json](preflight_corrections.json).
+First differing value: CSVline3,edge(11,37343),score_max reference0.00013363402603001954, candidate0.00013363402603001952 (difference-2.710505431213761e-20). ReferenceSHAe19ab8eef41204c1b668f443dc3376218d9c5e437463689f00a5c4a3b2a7fd09; candidate339c4cc7a15bf50604f0bc839ffac7af8c4517c007c5569f662b8ae837be6bde.49,392score fields,298limiting_side_a and296limiting_side_b fields differ; all other CSVcolumns agree. Unsupportedsideevaluations0; maximum relative score difference3.959977415686591e-8 (including very small scores).
 
-Full setup/wiring ledger: [R3_corrections.json](R3_corrections.json). No result gate or tolerance changed. The source-check risks (strict floating arithmetic and192-byte timer ledger growth) remain for unchanged gates to assess.
+## One read-only R5 diagnosis
+Completed in under one minute. The moved scoring expression body is text-identical after whitespace normalization. Old diagnosticTU uses fast-math; requested accurate_sum_lib placement appends strict passive arithmetic and disables contraction. Source/flag evidence points to changed arithmetic compilation context, including near-tie limiting-side changes. No transcription/wiring error in the formula was found. This attribution is based on source and compileflags, without an extra build or numerical run. No compiler, CSV normalization, tolerance, threshold or reference workaround was made. Required exact identity fails even though need count agrees. See R5_diagnosis.json.
 
-N12 is later, combined with A2/A3 in one build and the same full run. No design8.5 implementation.
+All4actual-host fixture identities terminal and1565buildpins unchanged before reverting (geometry_euler293_primary_terminal_receipt.json). Production changes revert together in one commit; candidate source remains in eb6d94042c and all raw evidence stays here. N11 is NOTSTARTED because accepted A1 is absent; N10 is NOTSTARTED because it needs passed N11. Continue independent A2/A3+N12, ONE combined build/full, no8.5.
+
+## Own setup/wiring corrections
+R3_corrections.json and preflight_corrections.json record every cause/correction:530NinjaPATH failure before compile;531missing definingheader plus expected generatedbuildgraph pin refresh; prelaunch copied CSVhash typo corrected from both originalreceipt/file; focusedfixture defaultMPIwindow failure before Catch corrected to existingG1 pt2pt setting. The corrected focused fixture passed. These are separate from the real CSV result failure; no numerical test was repeated to hide that failure.
+
+Newfunctions<=80lines: readability.json. Source/whole-item scope and readings: source_check.md. N12remainsprint-only; no8.5 implementation.

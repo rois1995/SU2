@@ -6,7 +6,7 @@
 #include "catch.hpp"
 #include "../../../Common/src/adaptation/CNativeAdjacent_internal.hpp"
 #include "../../../Common/src/adaptation/CNativePredicates3D_internal.hpp"
-#include "../../../Common/include/adaptation/CNativeWallGeometryLaw3D.hpp"
+#include "../../../Common/include/adaptation/CNativeAffineReference.hpp"
 #include "../../../Common/include/adaptation/CNativeBoundary3D.hpp"
 #include "../../../Common/include/adaptation/CNativeReferenceIO3D.hpp"
 #include "../../../Common/include/adaptation/CNativeImport3D.hpp"
@@ -2304,6 +2304,7 @@ TEST_CASE("x87 adjacent stepping matches nextafter across zero subnormal and exp
 namespace {
 using namespace SU2Native3D;
 using namespace SU2NativeGeometry;
+constexpr double D9Tau = 1e-4;
 constexpr int D9DiagnosticSeconds = 540;
 constexpr size_t D9WorkLimit = size_t(1) << 24;
 constexpr size_t D9WorkspaceLimit = size_t(8) << 30;
@@ -2364,6 +2365,12 @@ struct D9Inventory {
   size_t unsupported_sides = 0;
   size_t unvisited_edges = 0;
 };
+struct D9EndpointScore {
+  size_t supported = 0;
+  size_t unsupported = 0;
+  double score = 0;
+  Id limiting_side = 0;
+};
 struct D9FaceStats {
   size_t success = 0;
   size_t over_tolerance = 0;
@@ -2419,6 +2426,32 @@ D9Inventory D9BuildInventory(const BoundaryParameterState& parameters, const std
   }
   return inventory;
 }
+std::set<Id> D9EligibleSides(const std::set<Id>& supports, const std::set<Id>& anchors,
+                             const BoundaryParameterState& parameters) {
+  std::set<Id> eligible;
+  const auto authority = parameters.Authority();
+  for (Id side : supports) {
+    for (Id anchor : anchors) {
+      const auto& side_facet = authority->Reference().Get(side);
+      const auto& anchor_facet = authority->Reference().Get(anchor);
+      if (side_facet.marker != anchor_facet.marker) continue;
+      if (parameters.Entity(side) != parameters.Entity(anchor)) continue;
+      eligible.insert(side);
+      break;
+    }
+  }
+  return eligible;
+}
+double D9EndpointNeedScore(const MappedFacetReference::SurfaceEvaluation& evaluation, const Point& chord) {
+  const double d1 =
+      evaluation.direction1.x * chord.x + evaluation.direction1.y * chord.y + evaluation.direction1.z * chord.z;
+  const double d2 =
+      evaluation.direction2.x * chord.x + evaluation.direction2.y * chord.y + evaluation.direction2.z * chord.z;
+  const double curvature = std::abs(evaluation.curvature1) * d1 * d1 + std::abs(evaluation.curvature2) * d2 * d2;
+  const double normal =
+      std::abs(evaluation.normal.x * chord.x + evaluation.normal.y * chord.y + evaluation.normal.z * chord.z);
+  return std::max(curvature / 8, normal / 4);
+}
 void D9CheckNeedScaling() {
   MappedFacetReference::SurfaceEvaluation surface;
   surface.normal = {0, 0, 1};
@@ -2426,12 +2459,42 @@ void D9CheckNeedScaling() {
   surface.direction2 = {0, 1, 0};
   surface.curvature1 = 8;
   surface.curvature2 = 0;
-  CHECK(WallEndpointNeedScore(surface, {1, 0, 0}) == 1);
-  CHECK(WallEndpointNeedScore(surface, {2, 0, 0}) == 4);
-  CHECK(WallEndpointNeedScore(surface, {0, 0, 4}) == 1);
+  CHECK(D9EndpointNeedScore(surface, {1, 0, 0}) == 1);
+  CHECK(D9EndpointNeedScore(surface, {2, 0, 0}) == 4);
+  CHECK(D9EndpointNeedScore(surface, {0, 0, 4}) == 1);
+}
+D9EndpointScore D9ScoreEndpoint(const std::set<Id>& supports, const std::set<Id>& anchors,
+                                const BoundaryParameterState& parameters, const SurfaceBinding& binding,
+                                const Point& chord) {
+  D9EndpointScore result;
+  const auto eligible = D9EligibleSides(supports, anchors, parameters);
+  const auto authority = parameters.Authority();
+  if (eligible.empty()) {
+    result.unsupported = 1;
+    return result;
+  }
+  // Feature joins retain the maximum score over every matching own-side facet.
+  for (Id side : eligible) {
+    try {
+      const auto evaluation = authority->EvaluateSurface(side, binding);
+      const double score = D9EndpointNeedScore(evaluation, chord);
+      if (!std::isfinite(score)) {
+        ++result.unsupported;
+        continue;
+      }
+      ++result.supported;
+      if (score > result.score) {
+        result.score = score;
+        result.limiting_side = side;
+      }
+    } catch (const std::exception&) {
+      ++result.unsupported;
+    }
+  }
+  return result;
 }
 void D9EvaluateEdges(D9Inventory& inventory, const BoundaryParameterState& parameters,
-                     const MappedFacetReference& authority, double tau, const std::function<bool()>& within_time,
+                     const MappedFacetReference& authority, const std::function<bool()>& within_time,
                      std::set<Id>& needed, size_t& valid_edges, size_t& unsupported_sides, std::ofstream& csv) {
   csv << "edge_a,edge_b,score_max,tau,need_threshold,need,limiting_side_a,limiting_side_b,supported_sides_a,supported_"
          "sides_b,unsupported_sides_a,unsupported_sides_b\n";
@@ -2448,22 +2511,21 @@ void D9EvaluateEdges(D9Inventory& inventory, const BoundaryParameterState& param
     std::set<Id> supports_a, supports_b;
     authority.ForFacets(a->binding, [&](Id side) { supports_a.insert(side); });
     authority.ForFacets(b->binding, [&](Id side) { supports_b.insert(side); });
-    const auto score_a = ScoreWallEndpoint(supports_a, entry.anchors, parameters, a->binding, chord);
-    const auto score_b = ScoreWallEndpoint(supports_b, entry.anchors, parameters, b->binding, chord);
+    const auto score_a = D9ScoreEndpoint(supports_a, entry.anchors, parameters, a->binding, chord);
+    const auto score_b = D9ScoreEndpoint(supports_b, entry.anchors, parameters, b->binding, chord);
     entry.score = std::max(score_a.score, score_b.score);
     entry.side_a = score_a.limiting_side;
     entry.side_b = score_b.limiting_side;
-    entry.evaluated = score_a.supported > 0 && score_b.supported > 0 &&
-                      score_a.unsupported == 0 && score_b.unsupported == 0;
+    entry.evaluated = score_a.supported > 0 && score_b.supported > 0;
     unsupported_sides += score_a.unsupported + score_b.unsupported;
     if (entry.evaluated) ++valid_edges;
-    entry.need = EstimateSaysNeed({entry.evaluated, entry.score}, tau);
+    entry.need = entry.evaluated && entry.score > 3 * D9Tau / 4;
     if (entry.need) {
       needed.insert(entry.edge[0]);
       needed.insert(entry.edge[1]);
     }
-    csv << entry.edge[0] << ',' << entry.edge[1] << ',' << std::setprecision(17) << entry.score << ',' << tau << ','
-        << 3 * tau / 4 << ',' << (entry.need ? 1 : 0) << ',' << entry.side_a << ',' << entry.side_b << ','
+    csv << entry.edge[0] << ',' << entry.edge[1] << ',' << std::setprecision(17) << entry.score << ',' << D9Tau << ','
+        << 3 * D9Tau / 4 << ',' << (entry.need ? 1 : 0) << ',' << entry.side_a << ',' << entry.side_b << ','
         << score_a.supported << ',' << score_b.supported << ',' << score_a.unsupported << ',' << score_b.unsupported
         << '\n';
   }
@@ -2754,7 +2816,7 @@ void D9MeasureProjections(const D9Loaded& loaded, const char* parameter_path, co
 void D9WriteSummary(std::ofstream& summary, const D9Loaded& loaded, const char* reference_path,
                     const char* parameter_path, const char* marker_text, const D9Inventory& inventory,
                     const std::set<Id>& needed, size_t valid_edges, size_t unsupported_sides, const D9FaceStats& faces,
-                    const D9ProjectionStats& projections, double tau) {
+                    const D9ProjectionStats& projections) {
   summary << std::setprecision(17)
           << "{\"schema\":\"d9_geometry_measurement_v1\",\"status\":\"observed\",\"reference\":"
           << std::quoted(reference_path)
@@ -2762,8 +2824,8 @@ void D9WriteSummary(std::ofstream& summary, const D9Loaded& loaded, const char* 
           << ",\"marker_filter\":" << std::quoted(marker_text ? marker_text : "")
           << ",\"entity_geometry\":" << (loaded.entity_geometry ? "true" : "false")
           << ",\"query_tolerance\":" << loaded.query_tolerance
-          << ",\"geometry_tolerance_matches_M1_tau\":" << (loaded.query_tolerance == tau ? "true" : "false")
-          << ",\"M1\":{\"tau\":" << tau << ",\"edge_need_threshold\":" << 3 * tau / 4
+          << ",\"geometry_tolerance_matches_M1_tau\":" << (loaded.query_tolerance == D9Tau ? "true" : "false")
+          << ",\"M1\":{\"tau\":" << D9Tau << ",\"edge_need_threshold\":" << 3 * D9Tau / 4
           << ",\"unique_selected_edges\":" << inventory.edges.size() << ",\"geometry_need_edges\":"
           << std::count_if(inventory.edges.begin(), inventory.edges.end(),
                            [](const auto& row) { return row.second.need; })
@@ -2816,7 +2878,6 @@ void D9WriteSummary(std::ofstream& summary, const D9Loaded& loaded, const char* 
 }  // namespace
 TEST_CASE("D9 geometry need and exact wall proof measurements", "[.][NativeD9Geometry]") {
   D9CheckNeedScaling();
-  const double tau = 1e-4;  // Established M1 fixture input, independent of serialized entity mode.
   World world;
   REQUIRE(world.size == 1);
   const char* reference_path = std::getenv("SU2_D9_REFERENCE");
@@ -2870,7 +2931,7 @@ TEST_CASE("D9 geometry need and exact wall proof measurements", "[.][NativeD9Geo
   std::set<Id> needed;
   size_t valid_edges = 0;
   size_t unsupported_sides = 0;
-  D9EvaluateEdges(inventory, *loaded.parameters, *loaded.authority, tau, within_time, needed, valid_edges, unsupported_sides,
+  D9EvaluateEdges(inventory, *loaded.parameters, *loaded.authority, within_time, needed, valid_edges, unsupported_sides,
                   edge_csv);
   D9ProjectionStats projection_stats;
   projection_stats.selected =
@@ -2882,34 +2943,9 @@ TEST_CASE("D9 geometry need and exact wall proof measurements", "[.][NativeD9Geo
   D9FaceStats face_stats;
   D9MeasureFaces(loaded, inventory, within_time, face_stats, face_csv);
   D9WriteSummary(summary, loaded, reference_path, parameter_path, marker_text, inventory, needed, valid_edges,
-                 unsupported_sides, face_stats, projection_stats, tau);
+                 unsupported_sides, face_stats, projection_stats);
   REQUIRE(bool(edge_csv));
   REQUIRE(bool(face_csv));
   REQUIRE(bool(projection_csv));
   REQUIRE(bool(summary));
-}
-
-TEST_CASE("Wall geometry law is planar, symmetric and rejects absent matching support", "[NativeWallGeometryLaw3D]") {
-  using namespace SU2Native3D;
-  const auto facets = ComponentCube(false);
-  auto base = std::make_shared<PlanarReference>(facets);
-  std::map<Id, double> errors;
-  for (const auto& facet : facets) errors.emplace(facet.id, 1e-12);
-  auto geometry = std::make_shared<MappedFacetReference>(base, errors, 7, SIZE_MAX, true);
-  auto state = ComponentState(geometry, facets);
-  const auto a = facets[0].v[0], b = facets[0].v[1];
-  const auto forward = EstimateWallEdge(*state, a, b, facets[0].id);
-  const auto reverse = EstimateWallEdge(*state, b, a, facets[0].id);
-  REQUIRE(forward.supported);
-  REQUIRE(reverse.supported);
-  CHECK(forward.value == 0);
-  CHECK(reverse.value == forward.value);
-  CHECK_FALSE(EstimateSaysNeed(forward, 1e-4));
-  CHECK_FALSE(EstimateWallEdge(*state, a, b, facets[2].id).supported);
-  auto missing = a;
-  missing.id = 9999;
-  CHECK_FALSE(EstimateWallEdge(*state, missing, b, facets[0].id).supported);
-  CHECK(EstimateSaysNeed({true, 1}, 1));
-  CHECK_FALSE(EstimateSaysNeed({false, 1}, 1));
-  CHECK_FALSE(EstimateSaysNeed({true, .75}, 1));
 }

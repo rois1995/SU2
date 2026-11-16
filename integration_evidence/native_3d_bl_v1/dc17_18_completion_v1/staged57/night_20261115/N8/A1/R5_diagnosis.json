@@ -1,0 +1,31 @@
+{
+  "diagnosis_passes": 1,
+  "started_failure_unix": 1794841450.4627273,
+  "completed_unix": 1794841497.2202964,
+  "read_only": true,
+  "exact_score_body_unchanged": true,
+  "actual_compile_flags": {
+    "../../Common/src/adaptation/CNativeWallGeometryLaw3D.cpp": [
+      "-fdiagnostics-color=always",
+      "-O2",
+      "-fPIC",
+      "-march=native",
+      "-ffast-math",
+      "-fno-finite-math-only",
+      "-fno-fast-math",
+      "-fno-unsafe-math-optimizations",
+      "-ffp-contract=off"
+    ],
+    "../../UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp": [
+      "-fdiagnostics-color=always",
+      "-O2",
+      "-fPIC",
+      "-march=native",
+      "-ffast-math",
+      "-fno-finite-math-only"
+    ]
+  },
+  "unsupported_sides": 0,
+  "conclusion": "No transcription/wiring error found in moved formula. Its arithmetic compilation context changes from fast-math test TU to strict accurate_sum_lib as requested by placement. Score roundoff changes also affect limiting-side near ties. Required CSV bit identity fails despite identical 7521 need count; no compiler/CSV/tolerance workaround authorized. Cause attributed to relocation arithmetic context (source/flag evidence; no extra build/run).",
+  "action": "revert A1 production in one commit; dependent N11 and N10 not started; continue independent A2/A3+N12"
+}

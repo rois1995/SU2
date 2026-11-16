@@ -18,5 +18,13 @@
     "cause": "inherited build pins included generated build.ninja and compile_commands.json which Meson necessarily regenerates for requested new source-list entry",
     "correction": "preserve531 changed-pin receipt; build532 pins the now-regenerated build graph plus current corrected source, with all pins verified terminal",
     "category": "build harness setup"
+  },
+  {
+    "fixture": "focused wall-law launcher",
+    "cause": "MPI_Win_create failed with default Open MPI osc backend before Catch/test body, exit53; existing G1 runner explicitly uses pt2pt",
+    "correction": "setdefault OMPI_MCA_osc=pt2pt in A1 unit launcher, matching existing G1 host setup; no test or production code changed",
+    "failed_attempt": "cases/n5_d9_a1_wall_law_20261116T145558_224653",
+    "seconds": 4.484347581863403,
+    "artifacts_preserved": "fixture_setup_failures/mpi_window_default"
   }
 ]

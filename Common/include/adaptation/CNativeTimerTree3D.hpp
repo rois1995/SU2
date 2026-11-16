@@ -52,7 +52,6 @@ enum class Operation : std::size_t {
   Output,
   JoinWait,
   Clearance,
-  WallLaw,
   Count
 };
 
@@ -159,8 +158,6 @@ inline const char* OperationName(Operation operation) {
       return "join_wait";
     case Operation::Clearance:
       return "clearance";
-    case Operation::WallLaw:
-      return "wall_law";
     case Operation::Count:
       break;
   }

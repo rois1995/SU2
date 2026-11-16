@@ -3,6 +3,7 @@
 import argparse
 import importlib.util
 import json
+import os
 import sys
 from pathlib import Path
 
@@ -19,6 +20,7 @@ GEOMETRY = {
 
 
 def load_unit():
+    os.environ.setdefault("OMPI_MCA_osc", "pt2pt")
     sys.path.insert(0, str(N5))
     spec = importlib.util.spec_from_file_location("a1_n5_d9_unit_runner", UNIT_PATH)
     unit = importlib.util.module_from_spec(spec)

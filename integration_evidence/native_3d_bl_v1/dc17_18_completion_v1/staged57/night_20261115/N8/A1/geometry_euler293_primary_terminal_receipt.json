@@ -1,0 +1,53 @@
+{
+  "actual_host_proc": true,
+  "unix": 1794841525.9625878,
+  "identities": [
+    {
+      "pid": 228821,
+      "start_ticks": 33335443,
+      "state": "S",
+      "pgid": 228821,
+      "sid": 228821,
+      "name": "time",
+      "alive": false,
+      "mpi_rank": null
+    },
+    {
+      "pid": 228822,
+      "start_ticks": 33335443,
+      "state": "S",
+      "pgid": 228822,
+      "sid": 228821,
+      "name": "timeout",
+      "alive": false,
+      "mpi_rank": null
+    },
+    {
+      "pid": 228823,
+      "start_ticks": 33335443,
+      "state": "R",
+      "pgid": 228822,
+      "sid": 228821,
+      "name": "test_driver",
+      "alive": false,
+      "mpi_rank": 0
+    },
+    {
+      "pid": 228824,
+      "start_ticks": 33335443,
+      "state": "S",
+      "pgid": 228824,
+      "sid": 228824,
+      "name": "orted",
+      "alive": false,
+      "mpi_rank": null
+    }
+  ],
+  "all_owned_handles_terminal": true,
+  "source_pins_unchanged": 1565,
+  "changed": [],
+  "tool_session_terminal": 33640,
+  "binary_exit_code": 0,
+  "helper_exit_code": 1,
+  "note": "helper exact CSV gate failed; no subsequent checks launched"
+}

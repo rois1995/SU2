@@ -1,0 +1,45 @@
+{
+  "schema": "n5_d9_unit_action_v1",
+  "case": "n5_d9_a1_wall_law",
+  "descriptor": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N8/A1/descriptors/wall_geometry_law_A1.json",
+  "descriptor_sha256": "182c715195f5af0a87e9bb7d8af59547ac7b82e29463015b0a9b56bdccaf47c2",
+  "attempt": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N8/A1/cases/n5_d9_a1_wall_law_20261116T145656_227074",
+  "ranks": 1,
+  "attempt_status_sha256": "1efc15c1146df5789605b5a34220e4dc7fe455232028c3d0aa335ca7f5b893bb",
+  "artifacts_sha256": {
+    "run.log": "fb81c95503b3c5b21a8ccd877d7134497eefab6e913951700f24fa408531eb91"
+  },
+  "resource_guard": {
+    "schema": "n5_d9_unit_resource_guard_v2",
+    "actual_host_proc": true,
+    "unix": 1794841021.5049584,
+    "expected_ranks": 1,
+    "rank_peak_hwm_bytes": {},
+    "sum_rank_peak_hwm_bytes": 0,
+    "unranked_test_driver_pids": [],
+    "all_expected_rank_peaks_seen": false,
+    "identities": [
+      {
+        "pid": 227462,
+        "start_ticks": 33332488,
+        "state": "R",
+        "pgid": 227462,
+        "sid": 227462,
+        "name": "nice",
+        "alive": false,
+        "mpi_rank": null
+      }
+    ],
+    "all_owned_handles_terminal": true,
+    "maximum_job_bytes": 19999490048,
+    "resource_guard_triggered": false,
+    "rank_peak_basis": "per-rank /proc VmHWM maxima sampled while test_driver lives",
+    "live_hwm_lower_bound": true,
+    "gnu_time_child_maximum_is_job_peak": false,
+    "peak_note": "named sum of observed per-rank test_driver VmHWM maxima; live lower-bound observation, not GNU time maximum-child RSS"
+  },
+  "rank_peak_summary": null,
+  "source_pins_sha256": "b7e5392bd5c488822e9b36a6aaa940eb4096d761d2daeee64b8bfaff3968ad79",
+  "test_binary_sha256": "01d5e2b87b694d781ba7ea571cb2e08be1b994dde916bdd921dc85b4050f6e54",
+  "passed": true
+}
