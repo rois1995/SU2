@@ -47,3 +47,5 @@ All B0 refusal/reason/frame/guidance/pretrial rows and new source/law rows are p
 SecondG3, MPI6report, safeguards, N11full/restart and dependentN10 NOT STARTED because the firstresult gate failed. Independent next item is6.3, fresh cut references on restoredaccepted534base, thenN6/N7. No questions/reviewer wait.
 
 R3 post-only repair: numericalrun endednormal0 but ownterminalhelper referenced undefinedsha. Originalexception preserved; post-only external proof found all5observedPIDs absent (onlytwo launch startticks had persisted; no fabricateddescendantticks), then existingphysical and purposepostprocessors ran in order. No numericalrepeat, sourcepinrewrite or gate/tolerancechange. This exposed the real purpose failure above.
+
+Revert commit0d9d627645 PUSHED. Restoredbaselinebuild536 reproduces original534CFD/test hashes EXACT in90.125806s; originalfailed535binaries copied/hashverified underfailed_build535_binaries beforeoverwrite. No furtherN11numericalchecks.

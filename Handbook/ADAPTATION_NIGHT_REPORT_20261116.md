@@ -1,8 +1,8 @@
 # Unattended adaptation work, 2026-11-16
 
-DRAFT — ordered work continues; N7 is not final. The combined section6.8 group passed build534, four focused unit groups (78 assertions/eight cases), three corrected CSV checks, M6b, G1 identity at serial/MPI2/MPI4, G2/GQ strict identity, corrected G3, G4 and all saved-state safeguards. The ONE full workflow PASSED normal0/4697.519889s, all6referencehashes identical and pins unchanged. Isolated diskrestart PASSED248.353069s; allownedhandles actual-hostterminal. The group is accepted. Latest pushed checkpoint1b1a47e8b8 records the passed safeguards and live launch. See [current group report](../integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N8/A2_A3_N12/section6_8/REPORT.md).
+DRAFT — ordered work continues; N7 is not final. Combined section6.8 is accepted at f8c7b01085 (build534). N11 B2+6.9 failed its FIRST G3 purpose gate: geometry-origin guidance1046/1301=0.803996925442, required<0.70. Physical validity passed. One R5 read-only diagnosis found the proposal cause; connected production reverted in0d9d627645 (pushed), N10 skipped dependent. No second N11 G3/full/restart. Complete failure evidence: [N11 report](../integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N11/REPORT.md).
 
-Accepted production is now combined section6.8 build534 (frozen source527c7c73fa), atop accepted N9/N1. Historical failures and reverts stay in the table below. Section6.8 reopens A1 in the combined group: strict arithmetic, existing Census operation, unchanged Session size4120, digit-run reason keys and three raw frame operator classes. After this group: N11, N10 only if N11 passes, then6.3, N6 and N7. No design8.5 or BL/RANS capability claim. The shared executable is candidate534, not the accepted N9 binary.
+Production now equals accepted f8c7b01085, rebuilt as536 (90.125806s;1598 pins unchanged;12 terminal build identities). CFD/test binaries are byte-identical accepted534. Fresh cut G1 serial is running; G1 MPI2/4, G2, G3 and GQ references must finish before any cut edit. Whole N4 source check is complete in one22-item list. Remaining order:6.3/N4 -> N6 only with completeN4/passedG5 -> finalN7. Latest6.9 copied verbatim into AGENTS before firstN11 edit. No design8.5 or BL/RANS capability claim.
 
 R = `integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57`.
 NIGHT/H/D/C and both inventories are SHA-sealed in `R/night_20261115/inputs`.
@@ -27,11 +27,13 @@ The latest unattended section2 is in AGENTS.md; no user/reviewer answer was requ
 | N9 /6.6 | PASSED |9867041a2e|G3:457commonedits/adjustedentry5113/physical+first336PASS; G2alloldints/exact90,809,869PASS. N9/section6_6/REPORT.md |
 | SharedG1 reference | PASSED (recorded existing failures) |9867041a2e|375serial/57perrank MPI2/4;24/19/37failedexpressions,792.252073/14.745597/15.756263s. N10/G1_shared_reference_manifest.json |
 | Historical N8 A1 old gate | FAILED (correctly reverted;6.8reopens) |candidateeb6d94042c; reverted03fffc52e8|Build532470.250586s/1565pins/130terminalIDs; API10assertionsPASS; Euler293CSVfirstline3score0.00013363402603001954→0.00013363402603001952,need7521same; no later checks. N8/A1/REPORT.md |
-| N11 / N10 | NOT STARTED |—|Await combined6.8group acceptance; N11readonlydraft prepared, N10needs passedN11. |
+| N11 B2+6.9 | FAILED |candidate5488d1f1b5; revert0d9d627645|FirstG3 geometryguidance1046/1301=.803996925442>=.70; physicalPASS; no secondG3/full. N11/REPORT.md. |
+| N10 correctedB1 | NOT STARTED (dependent skipped) |—|N11 purpose failed; latest6.6 forbids dependentN10. |
+| N4 renewed references | IN PROGRESS |restored0d9d627645/sourcef8c7b01085|Build536 reproduced accepted534 hashes; freshG1serial live; no cut production edit. |
 | N8 combined6.8 | PASSED |source527c7c73fa; acceptancecheckpointcurrent|All ordered prerequisites/full/all6hashes/isolatedrestart PASS. native2529.592735/1684.219472s; SUMpeaks14021578752/17419386880B; restart248.353069s. |
 | N8 G1 candidate | PASSED identity |7938b89495|375 serial/57 per rank at MPI2/4, zero changed cases; baseline failed-expression counts24/19/37. Controller seconds839.004931/15.181993/20.688848;4/6/8 terminal identities. |
 | N8 G2 candidate | PASSED identity |836ca18d27|Work90,809,869 and all six counts exact; all old integers/bytes/non-Census calls exact;12 timer snapshots satisfy Census sum rule for6 law lines.398.804320s until planned stop/408.513817s sealed. One solver run; postprocessing repaired underR3. |
-| N8 A2/A3 + N12 | IMPLEMENTED, group pending |3a5d331e37|Passive requirements/lane census; build534 all ordered prerequisites pass; shares current ONE full run; no8.5. |
+| N8 A2/A3 + N12 | PASSED |3a5d331e37; acceptancef8c7b01085|Passive requirements/lane census; all534group/full/restart gates passed; no8.5. |
 | N7 final closure | NOT STARTED |—|This remains a draft until ordered work ends.|
 
 ## Failed items and reversions

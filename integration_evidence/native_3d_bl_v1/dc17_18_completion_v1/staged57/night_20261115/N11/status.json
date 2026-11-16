@@ -1,5 +1,5 @@
 {
-  "state": "FAILED_PURPOSE_PRODUCTION_REVERTED_COMMIT_PENDING",
+  "state": "FAILED_PURPOSE_REVERTED",
   "checkpoint": "5488d1f1b5",
   "pushed": true,
   "source_check": "source_check.md",
@@ -9,7 +9,7 @@
   "accepted_base": "f8c7b01085",
   "latest_order": "6.9",
   "no_N11_acceptance_claim": true,
-  "next": "judge serial then MPI2 then MPI4",
+  "next": "6.3 fresh cut references",
   "build_seconds": 160.16473269462585,
   "binary_sha256": "08c41a9e63cef04144c12cfd95f967fb17874e2e729a44b2d44b68b3f4fa6f01",
   "test_binary_sha256": "88f2c9c8a98a33ec7a1c54b09513832a3c15037adb68950a23a6e9cab3d2dbbe",
@@ -52,5 +52,7 @@
   "second_G3": "NOT_STARTED_FIRST_RESULT_FAILURE",
   "N10": "NOT_STARTED_DEPENDENT_FAILED",
   "further_N11_checks": "NOT_STARTED_FIRST_RESULT_FAILURE",
-  "production_restored_to": "f8c7b01085"
+  "production_restored_to": "f8c7b01085",
+  "revert_commit": "0d9d627645",
+  "accepted_production_source": "f8c7b01085"
 }
