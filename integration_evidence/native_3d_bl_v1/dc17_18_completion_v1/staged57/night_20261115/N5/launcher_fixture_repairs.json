@@ -8,5 +8,9 @@
     "correction": "Relaunch same frozenbinary/helper with explicit OMPI_MCA_osc=pt2pt and fresh MPI scratch on4TB; environment recorded inruncommand. No source/build/gate/tolerance change.",
     "failed_attempt": "cases/n5_d9_counter_check_20261116T011532_2292086",
     "all_owned_handles_terminal": true
+  },
+  {
+    "cause": "Primary process-group review beforeMPIcases: inherited timeout/mpirun/workers can occupy PGIDs different from outer GNU-time group, so a cap breach must not signal only outergroup.",
+    "correction": "Signal every verified owned PID/start-tick identity, descendants first; allow10s graceful exit then SIGKILL only matching remaining identities. Same resourcecap, missing/stale/reused PIDs excluded by selfchecks. No breach occurred in prior runs."
   }
 ]

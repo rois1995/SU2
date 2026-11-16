@@ -6,6 +6,7 @@
  */
 #include "TransferTestCase.hpp"
 #include "../../../Common/include/adaptation/CNativeImport3D.hpp"
+#include "../../../Common/include/adaptation/CNativePartition3D.hpp"
 #include "../../../Common/include/adaptation/CNativeEngine3D.hpp"
 #include "../../../Common/include/adaptation/CNativeOptimize3D.hpp"
 #include "../../../Common/include/adaptation/CNativeRegionField3D.hpp"
@@ -2857,4 +2858,648 @@ TEST_CASE("Native3D reader returns current nodal sensors outside donor coverage"
   for(size_t i=0;i<result.metric.size();i+=6) {
     CHECK(result.metric[i]==Approx(7));CHECK(result.metric[i+3]==Approx(7));CHECK(result.metric[i+5]==Approx(9));
   }
+}
+
+struct D9LocalityRecord {
+  unsigned char kind = 0;  // 0: volume edge, 1: WING3D edge, 2: WING3D vertex
+  Id first = 0, second = 0;
+  int eligible = 0, owner = 0;
+  template <class S>
+  void Fields(S& s) {
+    s(kind, first, second, eligible, owner);
+  }
+};
+
+struct D9LocalityIndex {
+  std::map<Face, unsigned> face_cells;
+  std::set<Face> physical_faces, owned_wall_faces;
+  std::map<Edge, std::set<Face>> edge_faces;
+  std::map<Id, std::set<Face>> vertex_faces;
+  std::set<Edge> local_edges, wall_edges;
+  std::set<Id> wall_vertices;
+};
+
+Face D9SortedFace(Face face) {
+  std::sort(face.begin(), face.end());
+  return face;
+}
+
+Edge D9SortedEdge(Id first, Id second) {
+  if (second < first) std::swap(first, second);
+  return {first, second};
+}
+
+void D9BuildLocalityIndex(const Owned& cells, const ReferenceState& reference, int wall_marker,
+                          D9LocalityIndex& index) {
+  for (const auto& row : cells) {
+    const auto& owned = row.second;
+    const auto& cell = owned.cell;
+    std::array<Face, 4> faces{};
+    for (unsigned omit = 0; omit < 4; ++omit) {
+      size_t at = 0;
+      for (unsigned v = 0; v < 4; ++v) {
+        if (v != omit) faces[omit][at++] = cell.v[v].id;
+      }
+      faces[omit] = D9SortedFace(faces[omit]);
+      ++index.face_cells[faces[omit]];
+      if (owned.physical[omit].present) index.physical_faces.insert(faces[omit]);
+      if (!owned.physical[omit].present || reference.original->Get(owned.physical[omit].facet).marker != wall_marker)
+        continue;
+      index.owned_wall_faces.insert(faces[omit]);
+      for (auto id : faces[omit]) index.wall_vertices.insert(id);
+      for (unsigned a = 0; a < 3; ++a) {
+        for (unsigned b = a + 1; b < 3; ++b) {
+          index.wall_edges.insert(D9SortedEdge(faces[omit][a], faces[omit][b]));
+        }
+      }
+    }
+    for (unsigned a = 0; a < 4; ++a) {
+      for (unsigned b = a + 1; b < 4; ++b) {
+        const auto edge = D9SortedEdge(cell.v[a].id, cell.v[b].id);
+        index.local_edges.insert(edge);
+        for (const auto& face : faces) {
+          if (std::binary_search(face.begin(), face.end(), edge[0]) &&
+              std::binary_search(face.begin(), face.end(), edge[1]))
+            index.edge_faces[edge].insert(face);
+        }
+      }
+    }
+    for (const auto& face : faces) {
+      for (auto id : face) index.vertex_faces[id].insert(face);
+    }
+  }
+}
+
+bool D9CompleteLocalShell(const std::set<Face>& faces, const D9LocalityIndex& index) {
+  for (const auto& face : faces) {
+    const auto count = index.face_cells.at(face);
+    if (count == 2 || (count == 1 && index.physical_faces.count(face))) continue;
+    return false;
+  }
+  return true;
+}
+
+bool D9OwnsWallVertexLink(Id vertex, int wall_marker, const ReferenceState& reference, const D9LocalityIndex& index) {
+  const auto range = reference.original->Parameters()->FacesOnVertex(vertex);
+  for (auto it = range.first; it != range.second; ++it) {
+    if (reference.original->Get(it->first).marker == wall_marker && !index.owned_wall_faces.count(it->second))
+      return false;
+  }
+  return true;
+}
+
+bool D9OwnsChangedWallFaceLinks(const std::vector<Face>& changed_faces, int wall_marker,
+                                const ReferenceState& reference, const D9LocalityIndex& index) {
+  for (const auto& face : changed_faces) {
+    if (!index.owned_wall_faces.count(face)) return false;
+    for (auto vertex : face) {
+      if (!D9OwnsWallVertexLink(vertex, wall_marker, reference, index)) return false;
+    }
+  }
+  return !changed_faces.empty();
+}
+
+bool D9OwnsSplitWallLink(Edge edge, int wall_marker, const ReferenceState& reference, const D9LocalityIndex& index) {
+  std::vector<Face> changed_faces;
+  const auto range = reference.original->Parameters()->FacesOnVertex(edge[0]);
+  for (auto it = range.first; it != range.second; ++it) {
+    if (reference.original->Get(it->first).marker != wall_marker) continue;
+    if (std::binary_search(it->second.begin(), it->second.end(), edge[1])) changed_faces.push_back(it->second);
+  }
+  return D9OwnsChangedWallFaceLinks(changed_faces, wall_marker, reference, index);
+}
+
+bool D9OwnsCollapseWallLink(Id removed, int wall_marker, const ReferenceState& reference,
+                            const D9LocalityIndex& index) {
+  std::vector<Face> changed_faces;
+  const auto range = reference.original->Parameters()->FacesOnVertex(removed);
+  for (auto it = range.first; it != range.second; ++it) {
+    if (reference.original->Get(it->first).marker == wall_marker) changed_faces.push_back(it->second);
+  }
+  return D9OwnsChangedWallFaceLinks(changed_faces, wall_marker, reference, index);
+}
+
+std::vector<D9LocalityRecord> D9LocalRecords(World& world, const ReferenceState& reference, int wall_marker,
+                                             const D9LocalityIndex& index, uint64_t& local_complete_edges,
+                                             uint64_t& local_complete_wall_edges,
+                                             uint64_t& local_complete_wall_vertices) {
+  std::map<Edge, bool> edge_eligible;
+  std::vector<D9LocalityRecord> records;
+  for (const auto& edge : index.local_edges) {
+    const bool eligible = D9CompleteLocalShell(index.edge_faces.at(edge), index);
+    edge_eligible[edge] = eligible;
+    local_complete_edges += eligible;
+    records.push_back({0, edge[0], edge[1], int(eligible), world.rank});
+  }
+  for (const auto& edge : index.wall_edges) {
+    const bool wall_link = D9OwnsSplitWallLink(edge, wall_marker, reference, index);
+    const bool eligible = edge_eligible.count(edge) && edge_eligible.at(edge) && wall_link;
+    local_complete_wall_edges += eligible;
+    records.push_back({1, edge[0], edge[1], int(eligible), world.rank});
+  }
+  for (auto vertex : index.wall_vertices) {
+    const bool eligible = D9CompleteLocalShell(index.vertex_faces.at(vertex), index) &&
+                          D9OwnsCollapseWallLink(vertex, wall_marker, reference, index);
+    local_complete_wall_vertices += eligible;
+    records.push_back({2, vertex, 0, int(eligible), world.rank});
+  }
+  return records;
+}
+
+void D9WriteOwnerMap(int rank, const Owned& cells) {
+  std::ofstream owners("native_d9_locality_owners_rank" + std::to_string(rank) + ".json");
+  if (!owners) throw std::runtime_error("Cannot write native D9 rank owner map.");
+  owners << "{\"rank\":" << rank << ",\"cells\":[";
+  bool comma = false;
+  for (const auto& row : cells) {
+    if (comma) owners << ',';
+    comma = true;
+    owners << row.first;
+  }
+  owners << "]}\n";
+  if (!owners) throw std::runtime_error("Cannot finish native D9 rank owner map.");
+}
+
+void D9WriteSummary(int ranks, uint64_t local_edges, uint64_t local_complete_edges, uint64_t local_wall_edges,
+                    uint64_t local_complete_wall_edges, uint64_t local_wall_vertices,
+                    uint64_t local_complete_wall_vertices,
+                    const std::map<std::tuple<unsigned char, Id, Id>, bool>& unique, double reference_seconds,
+                    double import_seconds, double partition_seconds, size_t model_ceiling, size_t import_caller,
+                    size_t reference_peak, size_t partition_native_bytes) {
+  auto count = [&](unsigned char kind, bool eligible) {
+    return std::count_if(unique.begin(), unique.end(),
+                         [&](const auto& row) { return std::get<0>(row.first) == kind && (!eligible || row.second); });
+  };
+  std::ofstream out("native_d9_locality_m" + std::to_string(ranks) + ".json");
+  if (!out) throw std::runtime_error("Cannot write native D9 locality summary.");
+  out << "{\"ranks\":" << ranks << ",\"partition_method\":\"production Repartition API with unit weights\""
+      << ",\"model_ceiling_bytes\":" << model_ceiling << ",\"import_caller_bytes\":" << import_caller
+      << ",\"reference_peak_bytes\":" << reference_peak << ",\"reference_seconds\":" << reference_seconds
+      << ",\"import_seconds\":" << import_seconds << ",\"partition_seconds\":" << partition_seconds
+      << ",\"partition_max_native_bytes\":" << partition_native_bytes << ",\"local_unique_edges\":" << local_edges
+      << ",\"local_edges_complete\":" << local_complete_edges << ",\"global_unique_edges\":" << count(0, false)
+      << ",\"global_edges_complete_on_some_owner\":" << count(0, true)
+      << ",\"local_unique_wall_edges\":" << local_wall_edges
+      << ",\"local_wall_edges_item1\":" << local_complete_wall_edges
+      << ",\"global_unique_wall_edges\":" << count(1, false) << ",\"global_wall_edges_item1\":" << count(1, true)
+      << ",\"local_unique_wall_vertices\":" << local_wall_vertices
+      << ",\"local_wall_vertices_item1\":" << local_complete_wall_vertices
+      << ",\"global_unique_wall_vertices\":" << count(2, false) << ",\"global_wall_vertices_item1\":" << count(2, true)
+      << "}\n";
+  if (!out) throw std::runtime_error("Cannot finish native D9 locality summary.");
+}
+
+size_t D9ImportCallerBytes(const CGeometry& geometry);
+
+TEST_CASE("Accepted Euler import reports rank-local edge and wall shells", "[.][NativeD9Locality]") {
+  World world;
+  const int ranks = world.size;
+  REQUIRE((ranks == 2 || ranks == 4 || ranks == 6));
+  const auto* mesh_path = std::getenv("SU2_NATIVE_D9_MESH");
+  REQUIRE(mesh_path != nullptr);
+  REQUIRE(std::string(mesh_path).size() > 0);
+  std::stringstream options;
+  options << "SOLVER= EULER\nMESH_FORMAT= SU2\nMESH_FILENAME= " << mesh_path << "\n"
+          << "MARKER_FAR= (FARFIELD)\nMARKER_EULER= (WING3D)\nMARKER_SYM= (SYMMETRY)\n"
+          << "MGLEVEL= 0\n";
+  Mute mute;
+  CConfig config(options, SU2_COMPONENT::SU2_CFD, false);
+  CSU2ASCIIMeshReaderFVM reader(&config, 0, 1);
+  MeshSolution mesh(&config, reader, 0);
+  ReferenceState reference;
+  bool sidecar_loaded = false;
+  std::string reason;
+  const size_t model_ceiling = size_t(12) << 30;
+  const size_t import_caller = D9ImportCallerBytes(mesh.Fine());
+  size_t reference_peak = 0;
+  const auto reference_start = std::chrono::steady_clock::now();
+  const bool reference_ok = LoadReference(std::string(mesh_path) + ".native_ref", reference, sidecar_loaded, reason,
+                                          model_ceiling, import_caller, reference_peak);
+  const double reference_seconds =
+      std::chrono::duration<double>(std::chrono::steady_clock::now() - reference_start).count();
+  INFO("Reference load refusal reason: " << reason);
+  REQUIRE(reference_ok);
+  REQUIRE(sidecar_loaded);
+  INFO("Reference load seconds: " << reference_seconds << ", modeled caller bytes: " << import_caller
+                                  << ", reference peak requested bytes: " << reference_peak);
+  ImportedGeometry imported;
+  BridgeStats import_stats;
+  const bool imported_ok =
+      ImportGeometry(config, mesh.Fine(), nullptr, reference, imported, reason, import_stats, model_ceiling,
+                     import_caller);
+  INFO("Geometry import refusal reason: " << reason);
+  REQUIRE(imported_ok);
+  REQUIRE(reference.original != nullptr);
+  REQUIRE(reference.original->Parameters() != nullptr);
+  auto partitioned = imported.cells;
+  std::vector<uint32_t> unit_weights(partitioned.size(), 1);
+  PartitionStats partition_stats;
+  const size_t partition_caller =
+      transfer_memory::Add(import_caller, OwnedStorageBytes(imported.cells), ReferenceStorageBytes(reference),
+                           transfer_memory::Bytes(imported.original));
+  REQUIRE(
+      Repartition(world, partitioned, unit_weights, ranks, partition_stats, reason, model_ceiling, partition_caller));
+  const auto marker = std::find(reference.marker_names.begin(), reference.marker_names.end(), "WING3D");
+  REQUIRE(marker != reference.marker_names.end());
+  const int wall_marker = int(marker - reference.marker_names.begin());
+  D9LocalityIndex index;
+  D9BuildLocalityIndex(partitioned, reference, wall_marker, index);
+  uint64_t complete_edges = 0, complete_wall_edges = 0, complete_wall_vertices = 0;
+  const auto local_records =
+      D9LocalRecords(world, reference, wall_marker, index, complete_edges, complete_wall_edges, complete_wall_vertices);
+  const auto all_records = world.metadata(local_records);
+  std::map<std::tuple<unsigned char, Id, Id>, bool> unique;
+  for (const auto& record : all_records) {
+    unique[{record.kind, record.first, record.second}] |= record.eligible != 0;
+  }
+  D9WriteOwnerMap(world.rank, partitioned);
+  const auto local_edges =
+      CPassiveComm::Allreduce(uint64_t(index.local_edges.size()), CPassiveComm::Op::SUM, world.comm);
+  const auto global_complete_edges = CPassiveComm::Allreduce(complete_edges, CPassiveComm::Op::SUM, world.comm);
+  const auto local_wall_edges =
+      CPassiveComm::Allreduce(uint64_t(index.wall_edges.size()), CPassiveComm::Op::SUM, world.comm);
+  const auto global_complete_wall_edges =
+      CPassiveComm::Allreduce(complete_wall_edges, CPassiveComm::Op::SUM, world.comm);
+  const auto local_wall_vertices =
+      CPassiveComm::Allreduce(uint64_t(index.wall_vertices.size()), CPassiveComm::Op::SUM, world.comm);
+  const auto global_complete_wall_vertices =
+      CPassiveComm::Allreduce(complete_wall_vertices, CPassiveComm::Op::SUM, world.comm);
+  if (!world.rank)
+    D9WriteSummary(ranks, local_edges, global_complete_edges, local_wall_edges, global_complete_wall_edges,
+                   local_wall_vertices, global_complete_wall_vertices, unique, reference_seconds,
+                   import_stats.total_seconds, partition_stats.total_seconds, model_ceiling, import_caller,
+                   reference_peak, partition_stats.maximum_native_bytes);
+}
+
+SU2NativeGeometry::AtlasBudget D9ActualOperatorBudget(size_t caller_bytes,
+                                                      std::chrono::steady_clock::time_point deadline) {
+  SU2NativeGeometry::AtlasBudget budget;
+  budget.maximum_work = size_t(1) << 24;
+  budget.maximum_bytes = size_t(8) << 30;
+  budget.maximum_integer_bits = 4096;
+  budget.caller_bytes = caller_bytes;
+  budget.within_time = [deadline] { return std::chrono::steady_clock::now() < deadline; };
+  return budget;
+}
+
+size_t D9IndexMemory(const D9LocalityIndex& index) {
+  using transfer_memory::Add;
+  using transfer_memory::GrowthBound;
+  size_t bytes = sizeof(index);
+  size_t nested_faces = 0;
+  for (const auto& row : index.edge_faces) nested_faces += row.second.size();
+  for (const auto& row : index.vertex_faces) nested_faces += row.second.size();
+  bytes = Add(bytes, GrowthBound(index.face_cells.size(), sizeof(std::pair<Face, unsigned>) + 4 * sizeof(void*)));
+  bytes = Add(bytes, GrowthBound(index.physical_faces.size(), sizeof(Face) + 4 * sizeof(void*)));
+  bytes = Add(bytes, GrowthBound(index.owned_wall_faces.size(), sizeof(Face) + 4 * sizeof(void*)));
+  bytes = Add(bytes, GrowthBound(index.edge_faces.size(), sizeof(std::pair<Edge, std::set<Face>>) + 4 * sizeof(void*)));
+  bytes = Add(bytes, GrowthBound(index.vertex_faces.size(), sizeof(std::pair<Id, std::set<Face>>) + 4 * sizeof(void*)));
+  bytes = Add(bytes, GrowthBound(index.local_edges.size() + index.wall_edges.size(), sizeof(Edge) + 4 * sizeof(void*)));
+  bytes = Add(bytes, GrowthBound(nested_faces, sizeof(Face) + 4 * sizeof(void*)));
+  return Add(bytes, GrowthBound(index.wall_vertices.size(), sizeof(Id) + 4 * sizeof(void*)));
+}
+
+Patch D9EdgeCavity(const Owned& cells, Edge edge) {
+  Patch patch;
+  for (const auto& row : cells) {
+    const auto& owned = row.second;
+    unsigned endpoints = 0;
+    for (const auto& node : owned.cell.v) endpoints += node.id == edge[0] || node.id == edge[1];
+    if (endpoints != 2) continue;
+    patch.cells.push_back(owned.cell);
+    const auto& v = owned.cell.v;
+    const std::array<Face, 4> faces{{{v[1].id, v[2].id, v[3].id},
+                                     {v[0].id, v[3].id, v[2].id},
+                                     {v[0].id, v[1].id, v[3].id},
+                                     {v[0].id, v[2].id, v[1].id}}};
+    for (unsigned omit = 0; omit < 4; ++omit) {
+      if (owned.physical[omit].present) patch.surface.push_back({faces[omit], owned.physical[omit].facet});
+    }
+  }
+  return patch;
+}
+
+bool D9EdgeHasPhysicalFace(const D9LocalityIndex& index, Edge edge) {
+  for (const auto& face : index.physical_faces) {
+    if (std::binary_search(face.begin(), face.end(), edge[0]) && std::binary_search(face.begin(), face.end(), edge[1]))
+      return true;
+  }
+  return false;
+}
+
+Node D9Midpoint(const Patch& patch, Edge edge, Id id) {
+  std::map<Id, Node> nodes;
+  for (const auto& cell : patch.cells)
+    for (const auto& node : cell.v) nodes.emplace(node.id, node);
+  const auto a = nodes.at(edge[0]), b = nodes.at(edge[1]);
+  return {id,
+          {double((static_cast<long double>(a.p.x) + b.p.x) / 2), double((static_cast<long double>(a.p.y) + b.p.y) / 2),
+           double((static_cast<long double>(a.p.z) + b.p.z) / 2)}};
+}
+
+bool D9InsideOldCavity(const Patch& old, Point point, KernelStats& stats,
+                       std::chrono::steady_clock::time_point deadline, bool& complete) {
+  for (const auto& cell : old.cells) {
+    if (std::chrono::steady_clock::now() >= deadline) {
+      complete = false;
+      return false;
+    }
+    Tetrahedron donor{};
+    for (size_t i = 0; i < 4; ++i) donor[i] = cell.v[i].p;
+    std::array<long double, 4> weights{};
+    if (Barycentric(donor, point, weights, &stats)) {
+      complete = true;
+      return true;
+    }
+  }
+  complete = true;
+  return false;
+}
+
+bool D9NewPoint(const Patch& fresh, const std::set<Id>& old_ids, Node& point) {
+  for (const auto& cell : fresh.cells)
+    for (const auto& node : cell.v) {
+      if (!old_ids.count(node.id)) {
+        point = node;
+        return true;
+      }
+    }
+  return false;
+}
+
+size_t D9PatchMemory(const Patch& patch) {
+  const auto boundary_estimate =
+      transfer_memory::GrowthBound(3 * patch.surface.size(), sizeof(BoundaryPoint) + 4 * sizeof(void*));
+  return transfer_memory::Add(sizeof(Patch), transfer_memory::Bytes(patch.cells), transfer_memory::Bytes(patch.surface),
+                              transfer_memory::GrowthBound(patch.parameters.size(), sizeof(BoundaryPoints::value_type) + 4 * sizeof(void*)), boundary_estimate,
+                              BoundaryCoverageBytes(patch.coverage));
+}
+
+size_t D9OperatorCallerBytes(size_t baseline, const Patch& patch, const std::set<Id>& old_ids) {
+  const auto node_bytes = transfer_memory::GrowthBound(old_ids.size(), sizeof(Id) + 4 * sizeof(void*));
+  return transfer_memory::Add(baseline, 2 * D9PatchMemory(patch), node_bytes);
+}
+
+bool D9IsBudgetRefusal(const SU2NativeGeometry::AtlasBudget& budget, const std::string& reason) {
+  const bool named_limit = reason.find("budget") != std::string::npos ||
+                           reason.find("admission") != std::string::npos ||
+                           reason.find("work limit") != std::string::npos;
+  return budget.work_exhausted || budget.time_exhausted || named_limit;
+}
+
+void D9WriteJsonString(std::ofstream& out, const std::string& value) {
+  out << '"';
+  for (unsigned char ch : value) {
+    if (ch == '"' || ch == '\\') out << '\\';
+    if (ch == '\n')
+      out << "\\n";
+    else if (ch != '\r')
+      out << char(ch);
+  }
+  out << '"';
+}
+
+void D9WriteActualOperatorRow(std::ofstream& out, const char* kind, Edge edge, size_t old_cells, const char* status,
+                              double split_seconds, double insert_seconds, const std::string& split_reason,
+                              const std::string& insert_reason, bool insert_attempted, const Node* point, int inside,
+                              uint64_t exact_orientations, uint64_t filtered_orientations, size_t caller_bytes,
+                              size_t atlas_work, size_t atlas_peak_bytes, bool budget_refusal, bool proof_complete) {
+  out << "{\"kind\":\"" << kind << "\",\"edge\":[" << edge[0] << ',' << edge[1] << "],\"old_cells\":" << old_cells
+      << ",\"status\":\"" << status << "\",\"split_seconds\":" << split_seconds
+      << ",\"insert_seconds\":" << insert_seconds << ",\"split_reason\":";
+  D9WriteJsonString(out, split_reason);
+  out << ",\"insert_attempted\":" << (insert_attempted ? "true" : "false") << ",\"insert_reason\":";
+  D9WriteJsonString(out, insert_reason);
+  out << ",\"caller_bytes\":" << caller_bytes << ",\"atlas_work\":" << atlas_work
+      << ",\"atlas_peak_bytes\":" << atlas_peak_bytes << ",\"budget_refusal\":" << (budget_refusal ? "true" : "false")
+      << ",\"proof_complete\":" << (proof_complete ? "true" : "false") << ",\"new_point\":";
+  if (point)
+    out << '[' << point->p.x << ',' << point->p.y << ',' << point->p.z << ']';
+  else
+    out << "null";
+  out << ",\"inside_old_cavity\":";
+  if (inside < 0)
+    out << "null";
+  else
+    out << (inside ? "true" : "false");
+  out << ",\"exact_orientations\":" << exact_orientations << ",\"filtered_orientations\":" << filtered_orientations
+      << '}';
+}
+
+struct D9OperatorCounts {
+  size_t sampled = 0, plain = 0, cone = 0, refused = 0;
+  size_t budget_refused = 0, proof_unvisited = 0, time_unvisited = 0;
+  size_t atlas_work = 0, atlas_peak = 0;
+};
+
+void D9MeasureWallEdges(const Owned& cells, const D9LocalityIndex& index, const PlanarReference& geometry,
+                        size_t baseline, const std::set<Id>& old_ids, Id new_node, Id first_cell,
+                        std::chrono::steady_clock::time_point deadline, std::ofstream& out, D9OperatorCounts& counts) {
+  bool comma = false;
+  size_t visited = 0;
+  for (const auto& edge : index.wall_edges) {
+    if (visited >= 32 || std::chrono::steady_clock::now() >= deadline) break;
+    ++visited;
+    Patch old = D9EdgeCavity(cells, edge);
+    if (old.cells.empty()) continue;
+    const size_t caller_bytes = D9OperatorCallerBytes(baseline, old, old_ids);
+    auto budget = D9ActualOperatorBudget(caller_bytes, deadline);
+    auto scoped = geometry.WithAtlasReservation(budget);
+    REQUIRE(scoped != nullptr);
+    scoped->ExportParameters(old, &budget);
+    const Node point = D9Midpoint(old, edge, new_node);
+    Patch fresh;
+    KernelStats stats;
+    std::string split_reason, insert_reason;
+    const auto split_start = std::chrono::steady_clock::now();
+    const bool split_ok = SplitEdge(old, edge, point, first_cell, *scoped, fresh, split_reason, &stats);
+    const double split_seconds = std::chrono::duration<double>(std::chrono::steady_clock::now() - split_start).count();
+    double insert_seconds = 0;
+    bool insert_ok = false;
+    bool insert_attempted = false;
+    if (!split_ok && std::chrono::steady_clock::now() < deadline) {
+      insert_attempted = true;
+      const auto insert_start = std::chrono::steady_clock::now();
+      insert_ok = InsertEdgeCavity(old, edge, point, first_cell, *scoped, fresh, insert_reason, &stats);
+      insert_seconds = std::chrono::duration<double>(std::chrono::steady_clock::now() - insert_start).count();
+    }
+    const bool accepted = split_ok || insert_ok;
+    Node actual_point;
+    const bool found = accepted && D9NewPoint(fresh, old_ids, actual_point);
+    if (accepted) REQUIRE(found);
+    bool proof_complete = false;
+    int inside = -1;
+    if (accepted && std::chrono::steady_clock::now() < deadline) {
+      inside = int(D9InsideOldCavity(old, actual_point.p, stats, deadline, proof_complete));
+    }
+    if (accepted && !proof_complete) {
+      ++counts.proof_unvisited;
+      inside = -1;
+    }
+    const bool budget_refusal = D9IsBudgetRefusal(budget, split_ok    ? std::string{}
+                                                          : insert_ok ? insert_reason
+                                                                      : split_reason + insert_reason);
+    const char* status = split_ok ? "plain" : insert_ok ? "cone" : budget_refusal ? "budget_refused" : "refused";
+    if (split_ok)
+      ++counts.plain;
+    else if (insert_ok)
+      ++counts.cone;
+    else
+      ++counts.refused;
+    counts.budget_refused += budget_refusal;
+    counts.atlas_work += budget.work;
+    counts.atlas_peak = std::max(counts.atlas_peak, budget.peak_bytes);
+    if (comma) out << ',';
+    comma = true;
+    D9WriteActualOperatorRow(out, "wall", edge, old.cells.size(), status, split_seconds, insert_seconds, split_reason,
+                             insert_reason, insert_attempted, found ? &actual_point : nullptr, inside,
+                             stats.exact_orientations, stats.filtered_orientations, caller_bytes, budget.work,
+                             budget.peak_bytes, budget_refusal, proof_complete);
+    ++counts.sampled;
+  }
+  counts.time_unvisited =
+      std::min<size_t>(32 - visited, index.wall_edges.size() > visited ? index.wall_edges.size() - visited : 0);
+}
+
+double D9MeasureInteriorEdge(const Owned& cells, const D9LocalityIndex& index, const PlanarReference& geometry,
+                             size_t baseline, const std::set<Id>& old_ids, Id new_node, Id first_cell,
+                             std::chrono::steady_clock::time_point deadline, std::ofstream& out, bool comma,
+                             D9OperatorCounts& counts) {
+  if (std::chrono::steady_clock::now() >= deadline) return -1;
+  Edge edge{};
+  bool found_edge = false;
+  for (const auto& candidate : index.local_edges) {
+    if (D9EdgeHasPhysicalFace(index, candidate)) continue;
+    edge = candidate;
+    found_edge = true;
+    break;
+  }
+  REQUIRE(found_edge);
+  Patch old = D9EdgeCavity(cells, edge);
+  REQUIRE_FALSE(old.cells.empty());
+  const size_t caller_bytes = D9OperatorCallerBytes(baseline, old, old_ids);
+  auto budget = D9ActualOperatorBudget(caller_bytes, deadline);
+  auto scoped = geometry.WithAtlasReservation(budget);
+  REQUIRE(scoped != nullptr);
+  scoped->ExportParameters(old, &budget);
+  const Node point = D9Midpoint(old, edge, new_node);
+  Patch fresh;
+  KernelStats stats;
+  std::string reason;
+  const auto start = std::chrono::steady_clock::now();
+  const bool accepted = SplitEdge(old, edge, point, first_cell, *scoped, fresh, reason, &stats);
+  const double seconds = std::chrono::duration<double>(std::chrono::steady_clock::now() - start).count();
+  Node actual_point;
+  const bool has_point = accepted && D9NewPoint(fresh, old_ids, actual_point);
+  const bool limited = D9IsBudgetRefusal(budget, reason);
+  if (comma) out << ',';
+  D9WriteActualOperatorRow(out, "interior", edge, old.cells.size(),
+                           accepted  ? "plain"
+                           : limited ? "budget_refused"
+                                     : "refused",
+                           seconds, 0, reason, {}, false, has_point ? &actual_point : nullptr, -1,
+                           stats.exact_orientations, stats.filtered_orientations, caller_bytes, budget.work,
+                           budget.peak_bytes, limited, false);
+  counts.atlas_work += budget.work;
+  counts.atlas_peak = std::max(counts.atlas_peak, budget.peak_bytes);
+  counts.budget_refused += limited;
+  return seconds;
+}
+
+size_t D9ImportCallerBytes(const CGeometry& geometry) {
+  using transfer_memory::Add;
+  using transfer_memory::GrowthBound;
+  const auto cells = geometry.GetnElem();
+  const auto points = geometry.GetnPointDomain();
+  const auto cell_bytes =
+      GrowthBound(cells, sizeof(OwnedCell) + sizeof(DonorCell) + sizeof(Face) * 4 + 12 * sizeof(void*));
+  const auto point_bytes = GrowthBound(points, sizeof(Node) + sizeof(Edge) * 6 + 10 * sizeof(void*));
+  return Add(cell_bytes, point_bytes);
+}
+
+size_t D9OperatorBaseline(const Owned& cells, const ReferenceState& reference, const std::vector<DonorCell>& donors,
+                          const D9LocalityIndex& index) {
+  return transfer_memory::Add(OwnedStorageBytes(cells), ReferenceStorageBytes(reference),
+                              transfer_memory::Bytes(donors), D9IndexMemory(index));
+}
+
+TEST_CASE("Accepted Euler import measures bounded actual split operators", "[.][NativeD9ActualOperators]") {
+  using Clock = std::chrono::steady_clock;
+  World world;
+  REQUIRE(world.size == 1);
+  const auto start = Clock::now();
+  const auto deadline = start + std::chrono::seconds(540);
+  const auto* mesh_path = std::getenv("SU2_NATIVE_D9_MESH");
+  REQUIRE(mesh_path != nullptr);
+  std::stringstream options;
+  options << "SOLVER= EULER\nMESH_FORMAT= SU2\nMESH_FILENAME= " << mesh_path << "\n"
+          << "MARKER_FAR= (FARFIELD)\nMARKER_EULER= (WING3D)\nMARKER_SYM= (SYMMETRY)\n"
+          << "MGLEVEL= 0\nADAP_HAUSD= 1e-4\n";
+  Mute mute;
+  CConfig config(options, SU2_COMPONENT::SU2_CFD, false);
+  CSU2ASCIIMeshReaderFVM reader(&config, 0, 1);
+  MeshSolution mesh(&config, reader, 0);
+  ReferenceState reference;
+  bool loaded = false;
+  std::string reason;
+  const size_t model_ceiling = size_t(12) << 30;
+  const size_t import_caller = D9ImportCallerBytes(mesh.Fine());
+  size_t reference_peak = 0;
+  const auto reference_start = Clock::now();
+  const bool reference_ok = LoadReference(std::string(mesh_path) + ".native_ref", reference, loaded, reason,
+                                          model_ceiling, import_caller, reference_peak);
+  const double reference_seconds = std::chrono::duration<double>(Clock::now() - reference_start).count();
+  INFO("Reference load refusal reason: " << reason);
+  REQUIRE(reference_ok);
+  REQUIRE(loaded);
+  ImportedGeometry imported;
+  BridgeStats import_stats;
+  const bool imported_ok =
+      ImportGeometry(config, mesh.Fine(), nullptr, reference, imported, reason, import_stats, model_ceiling,
+                     import_caller);
+  INFO("Geometry import refusal reason: " << reason);
+  REQUIRE(imported_ok);
+  REQUIRE(reference.original != nullptr);
+  REQUIRE(reference.original->Parameters() != nullptr);
+  const auto marker = std::find(reference.marker_names.begin(), reference.marker_names.end(), "WING3D");
+  REQUIRE(marker != reference.marker_names.end());
+  D9LocalityIndex index;
+  D9BuildLocalityIndex(imported.cells, reference, int(marker - reference.marker_names.begin()), index);
+  std::set<Id> old_ids;
+  Id maximum_node = 0, maximum_cell = 0;
+  for (const auto& row : imported.cells) {
+    maximum_cell = std::max(maximum_cell, row.first);
+    for (const auto& node : row.second.cell.v) {
+      old_ids.insert(node.id);
+      maximum_node = std::max(maximum_node, node.id);
+    }
+  }
+  REQUIRE((maximum_node < UINT64_MAX - 1 && maximum_cell < UINT64_MAX - 1000000));
+  const auto baseline = transfer_memory::Add(import_caller,
+      D9OperatorBaseline(imported.cells, reference, imported.original, index));
+  std::ofstream out("native_d9_actual_operators_m1.json");
+  REQUIRE(out.good());
+  out << std::setprecision(17) << "{\"ranks\":1,\"population_limit\":32"
+      << ",\"population_scope\":\"first 32 lexicographic WING3D edges plus one interior edge\""
+      << ",\"projection_timing\":\"not separately exposed; included in operator elapsed time\""
+      << ",\"model_ceiling_bytes\":" << model_ceiling << ",\"import_caller_bytes\":" << import_caller
+      << ",\"reference_peak_bytes\":" << reference_peak << ",\"reference_seconds\":" << reference_seconds
+      << ",\"import_seconds\":" << import_stats.total_seconds << ",\"tau\":1e-4,\"rows\":[";
+  D9OperatorCounts counts;
+  D9MeasureWallEdges(imported.cells, index, *reference.original, baseline, old_ids, maximum_node + 1, maximum_cell + 1,
+                     deadline, out, counts);
+  const double interior_seconds =
+      D9MeasureInteriorEdge(imported.cells, index, *reference.original, baseline, old_ids, maximum_node + 1,
+                            maximum_cell + 1, deadline, out, counts.sampled != 0, counts);
+  out << "],\"wall_candidates\":" << counts.sampled
+      << ",\"wall_population_unvisited\":" << (index.wall_edges.size() - std::min<size_t>(index.wall_edges.size(), 32))
+      << ",\"containment_proofs_unvisited\":" << counts.proof_unvisited
+      << ",\"time_unvisited_cap\":" << counts.time_unvisited << ",\"plain\":" << counts.plain
+      << ",\"cone\":" << counts.cone << ",\"refused\":" << counts.refused
+      << ",\"budget_refused\":" << counts.budget_refused
+      << ",\"interior_unvisited_due_deadline\":" << (interior_seconds < 0 ? "true" : "false")
+      << ",\"interior_split_seconds\":" << interior_seconds << ",\"atlas_work_total\":" << counts.atlas_work
+      << ",\"atlas_peak_bytes_max\":" << counts.atlas_peak
+      << ",\"setup_seconds\":" << std::chrono::duration<double>(Clock::now() - start).count() << "}\n";
+  CHECK(out.good());
 }

@@ -1,0 +1,8 @@
+[
+  {
+    "cause": "operators1 atomic-output assertion compared refusal output with prior successfulcone, but D9RunCone helper initialized fresh empty output rather than seedingpriorpatch. Production correctlypreservedemptyoutput; emptyvs12 and0vs12 failuresareownsetup.",
+    "correction": "Seed helperoutput with explicitinitialpatch beforestartingkernel timer; passcone.output torefusalcall. Keepsameassertions and productioncode/gatesunchanged.",
+    "failed_case": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N5/cases/n5_d9_operators1_20261116T030107_2538456",
+    "owned_handles_terminal": true
+  }
+]

@@ -1,0 +1,47 @@
+{
+  "schema": "n5_d9_unit_action_v1",
+  "case": "n5_d9_m10_n1_refresh",
+  "descriptor": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N5/descriptors/m10_n1_refresh.json",
+  "descriptor_sha256": "4039f370e48f9f1e52b308323e57a6c2dec3c90c3b7173603baec60ad2365f47",
+  "attempt": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N5/cases/n5_d9_m10_n1_refresh_20261116T022404_2452293",
+  "ranks": 1,
+  "attempt_status_sha256": "b073e9a552be8170014585ee942e87a82b09811b2c2c21a3cfb2a660444e0bec",
+  "artifacts_sha256": {
+    "d9_stack_measurement.json": "f6b43a5a11765052d0b4567c8dc37cee3cb2dc0f7f4eba26dda7a9d65033640b",
+    "run.log": "580bc102d61cf8e590a722473210b649e25ca1d29544bd062891183474a0eeb0",
+    "d9_stack_phase_log.txt": "6a4349fa3253785bc025590c87a60f8ec01a35d0318f14913a78d63a91291946"
+  },
+  "resource_guard": {
+    "schema": "n5_d9_unit_resource_guard_v2",
+    "actual_host_proc": true,
+    "unix": 1794795848.9565039,
+    "expected_ranks": 1,
+    "rank_peak_hwm_bytes": {},
+    "sum_rank_peak_hwm_bytes": 0,
+    "unranked_test_driver_pids": [],
+    "all_expected_rank_peaks_seen": false,
+    "identities": [
+      {
+        "pid": 2452666,
+        "start_ticks": 28815234,
+        "state": "R",
+        "pgid": 2452666,
+        "sid": 2452666,
+        "name": "nice",
+        "alive": false,
+        "mpi_rank": null
+      }
+    ],
+    "all_owned_handles_terminal": true,
+    "maximum_job_bytes": 19999490048,
+    "resource_guard_triggered": false,
+    "rank_peak_basis": "per-rank /proc VmHWM maxima sampled while test_driver lives",
+    "live_hwm_lower_bound": true,
+    "gnu_time_child_maximum_is_job_peak": false,
+    "peak_note": "named sum of observed per-rank test_driver VmHWM maxima; live lower-bound observation, not GNU time maximum-child RSS"
+  },
+  "rank_peak_summary": null,
+  "source_pins_sha256": "cb2050ae0ed98e5396d78876444ee870025fdc32c228fefdd48a12ef03bdcacc",
+  "test_binary_sha256": "30b74f56ca10162687447283e006fa93ab5dfb0a18e9e55df6f0f134f4130a72",
+  "passed": true
+}

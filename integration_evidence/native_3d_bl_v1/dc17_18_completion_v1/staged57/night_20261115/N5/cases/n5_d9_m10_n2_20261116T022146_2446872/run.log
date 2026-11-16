@@ -1,0 +1,33 @@
+Filters: [.][NativeD9SerialStack]
+DC16 G plan 0 active=2 planned=2 seconds=0.000624899 rss_kB 35676->35740 grown_kB NextLayer=64 Tangential=0 Geometry=0
+DC16 G layer 0 planned=2 lifted_total=2 refused_total=0 room_needy=0 room_moved=0 t=0.00179554 rss_now_kB=35820 heap_inuse_kB_mod4G=3698 heap_free_kB_mod4G=233 mmap_kB=2264 cells=92 vertices=39 lengths=77 geometry=78 shape=0 height=9 balanced=0 overlay=16 boxes=0
+DC16 G plan 1 active=2 planned=2 seconds=0.000503357 rss_kB 35820->35824 grown_kB NextLayer=0 Tangential=0 Geometry=4
+DC16 G layer 1 planned=2 lifted_total=4 refused_total=0 room_needy=0 room_moved=0 t=0.00328376 rss_now_kB=35828 heap_inuse_kB_mod4G=3712 heap_free_kB_mod4G=351 mmap_kB=2264 cells=101 vertices=41 lengths=77 geometry=80 shape=0 height=9 balanced=0 overlay=17 boxes=0
+D9_STACK M10_n2 cells=101 completion=complete G=1
+0.127 s: D9 serial stack measurement on synthetic boxes
+===============================================================================
+All tests passed (9 assertions in 1 test case)
+
+	Command being timed: "timeout 600 /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-p5-20261114/UnitTests/test_driver [.][NativeD9SerialStack] --durations yes"
+	User time (seconds): 0.15
+	System time (seconds): 0.02
+	Percent of CPU this job got: 38%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 0:00.47
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 35548
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 0
+	Minor (reclaiming a frame) page faults: 2947
+	Voluntary context switches: 1081
+	Involuntary context switches: 43
+	Swaps: 0
+	File system inputs: 0
+	File system outputs: 24
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0

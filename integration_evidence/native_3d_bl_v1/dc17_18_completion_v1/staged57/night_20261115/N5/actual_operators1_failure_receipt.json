@@ -1,0 +1,48 @@
+{
+  "schema": "n5_d9_fixture_failure_v1",
+  "action": "actual_operators1",
+  "state": "FAILED_STOP_ON_FIRST_NONZERO",
+  "build": "build519",
+  "test_binary_sha256": "28a6a9ca063321252635e4cf2aa281fc9a9943996681d8a51bfe646910bd1d6b",
+  "started_unix": 1794798527.636456,
+  "ended_unix": 1794798597.3946652,
+  "duration_seconds": 44.68085241317749,
+  "unified_exec_session_id": 15564,
+  "helper_exit_code": 1,
+  "first_failure": {
+    "source": "UnitTests/SU2_CFD/adaptation/CNativeImport3D_tests.cpp",
+    "line": 3461,
+    "expression": "REQUIRE(imported_ok)",
+    "observed": false,
+    "reason": "Native 3D bridge storage budget exceeded: requested 12783 MiB > ceiling 12288 MiB"
+  },
+  "attempt": "cases/n5_d9_actual_operators1_20261116T030912_2557287",
+  "attempt_log_lines": {
+    "cache_quota": "NATIVE3D_REFERENCE_CACHE host_ranks=1 host_quota_bytes=4294967296 rank_quota_bytes=4294967296",
+    "wall_seconds": 40.2,
+    "gnu_time_max_rss_kib": 2918984
+  },
+  "resource_receipt": {
+    "path": "n5_d9_actual_operators1_resource_handles.json",
+    "actual_host_proc": true,
+    "all_owned_handles_terminal": true,
+    "rank_peak_hwm_bytes": {
+      "0": 2989039616
+    },
+    "sum_rank_peak_hwm_bytes": 2989039616,
+    "resource_guard_triggered": false,
+    "unranked_test_driver_pids": []
+  },
+  "pins_verified": true,
+  "changed_pins": [],
+  "preserved_artifact_sha256": {
+    "descriptors/actual_operators1.json": "7542f3db8e2c6a1041bfe5b401f7609e1cb3c36007e5a7088cb9e7eaa3bffc68",
+    "run_d9_units.py": "97d96be536b02559e6fcc277bcb5836788fdca478dfb37dbab776f63f03c6c18",
+    "run_measurements.py": "a5f6a7f7ca139adae5fcfd79cd2766756aa1e4c436974567e7b1c7f2b69d365e",
+    "cases/n5_d9_actual_operators1_20261116T030912_2557287/run.log": "b155d98befd1f661d8319c19fb7862298e5da181886f24c199f864247f428e6b",
+    "cases/n5_d9_actual_operators1_20261116T030912_2557287/command.json": "a48689f08bcf59039e7baac6410504c5a3ebbaa783730d41a7233b7135199ed3",
+    "cases/n5_d9_actual_operators1_20261116T030912_2557287/pins.json": "4cfd84e1df87d6368ecbe63cb3e5374a8b469d11a00d91aaee145431ad52a6d6",
+    "n5_d9_actual_operators1_resource_handles.json": "de46e22a29e0622a49ceccc8e71717f257c49c09bd62ea18b62dcd680c99e576"
+  },
+  "continuation": "No fix, retry, or later descriptor launched; stopped for primary review."
+}

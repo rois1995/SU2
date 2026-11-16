@@ -2254,13 +2254,14 @@ namespace {
 using namespace SU2Native3D;
 using namespace SU2NativeGeometry;
 constexpr double D9Tau = 1e-4;
+constexpr int D9DiagnosticSeconds = 540;
 constexpr size_t D9WorkLimit = size_t(1) << 24;
 constexpr size_t D9WorkspaceLimit = size_t(8) << 30;
 constexpr size_t D9HeldMemoryLimit = size_t(12) << 30;
 constexpr size_t D9IntegerLimit = 4096;
 using D9Clock = std::chrono::steady_clock;
 using D9Deadline = D9Clock::time_point;
-bool D9WithinTime(D9Deadline started) { return D9Clock::now() - started < std::chrono::seconds(600); }
+bool D9WithinTime(D9Deadline started) { return D9Clock::now() - started < std::chrono::seconds(D9DiagnosticSeconds); }
 std::vector<char> D9ReadBytes(const std::string& path) {
   std::ifstream input(path, std::ios::binary | std::ios::ate);
   if (!input) throw std::runtime_error("cannot open diagnostic input: " + path);
@@ -2400,6 +2401,17 @@ double D9EndpointNeedScore(const MappedFacetReference::SurfaceEvaluation& evalua
       std::abs(evaluation.normal.x * chord.x + evaluation.normal.y * chord.y + evaluation.normal.z * chord.z);
   return std::max(curvature / 8, normal / 4);
 }
+void D9CheckNeedScaling() {
+  MappedFacetReference::SurfaceEvaluation surface;
+  surface.normal = {0, 0, 1};
+  surface.direction1 = {1, 0, 0};
+  surface.direction2 = {0, 1, 0};
+  surface.curvature1 = 8;
+  surface.curvature2 = 0;
+  CHECK(D9EndpointNeedScore(surface, {1, 0, 0}) == 1);
+  CHECK(D9EndpointNeedScore(surface, {2, 0, 0}) == 4);
+  CHECK(D9EndpointNeedScore(surface, {0, 0, 4}) == 1);
+}
 D9EndpointScore D9ScoreEndpoint(const std::set<Id>& supports, const std::set<Id>& anchors,
                                 const BoundaryParameterState& parameters, const SurfaceBinding& binding,
                                 const Point& chord) {
@@ -2534,6 +2546,8 @@ void D9MeasureFaces(const D9Loaded& loaded, const D9Inventory& inventory, const 
          "classify_seconds,classify_work,direct_calls,direct_exceptions,upper_calls,upper_refusals,classification_"
          "calls,classification_work,upper_work,direct_seconds,union_seconds,magnitude_value,magnitude_seconds,"
          "magnitude_work,error\n";
+  stats.current_demand_faces = std::count_if(inventory.faces.begin(), inventory.faces.end(),
+      [&](const auto& row) { return D9FaceHasNeed(row.second, inventory.edges); });
   for (const auto& row : inventory.faces) {
     if (!within_time()) break;
     ++stats.visited;
@@ -2554,7 +2568,6 @@ void D9MeasureFaces(const D9Loaded& loaded, const D9Inventory& inventory, const 
       continue;
     }
     const bool incident_need = D9FaceHasNeed(face, inventory.edges);
-    if (incident_need) ++stats.current_demand_faces;
     const auto before = loaded.authority->GeometryStatsSnapshot(false);
     const auto result = D9ClassifyFace(face, triangle, *loaded.base, *loaded.authority, loaded.entity_geometry,
                                        loaded.query_tolerance, loaded.held, within_time);
@@ -2611,10 +2624,18 @@ struct D9ProjectionContext {
   std::shared_ptr<const PlanarReference> base;
   size_t held = 0;
 };
+size_t D9HeldReferenceBytes(const ReferenceState& reference,
+                           const std::shared_ptr<BoundaryParameterState>& parameters,
+                           const std::vector<char>& raw, const PlanarReference& view) {
+  const auto extra_parameters = parameters.get() == reference.original->Parameters() ? 0 : parameters->ResidentBytes();
+  // ReferenceStorageBytes already owns the accepted parameter state, authority and its reserved query storage.
+  return transfer_memory::Add(ReferenceStorageBytes(reference), extra_parameters,
+                             transfer_memory::Bytes(raw), view.ParameterOverlayBytes());
+}
 D9ProjectionContext D9MakeProjectionContext(const D9Loaded& loaded, const char* parameter_path) {
   D9ProjectionContext result;
   result.bytes = loaded.bytes;
-  result.reference = DecodeReference(std::string(result.bytes.begin(), result.bytes.end()));
+  result.reference = DecodeReference(std::string(result.bytes.begin(), result.bytes.end()), D9HeldMemoryLimit);
   if (!result.reference.original) throw std::runtime_error("projection reference has no original state");
   if (parameter_path) {
     const auto authority = result.reference.original->Parameters()->Authority();
@@ -2627,8 +2648,8 @@ D9ProjectionContext D9MakeProjectionContext(const D9Loaded& loaded, const char* 
   if (result.parameters->Snapshot() != loaded.parameters->Snapshot())
     throw std::runtime_error("fresh projection state differs from measured state");
   result.base = result.reference.original->WithParameterState(result.parameters);
-  result.held = transfer_memory::Add(result.reference.original->ResidentBytes(), result.parameters->ResidentBytes(),
-                                     result.parameters->Authority()->ResidentBytes());
+  result.held = transfer_memory::Add(loaded.held,
+      D9HeldReferenceBytes(result.reference, result.parameters, result.bytes, *result.base));
   if (result.held > D9HeldMemoryLimit) throw std::runtime_error("projection held memory model exceeded");
   return result;
 }
@@ -2775,7 +2796,7 @@ void D9WriteSummary(std::ofstream& summary, const D9Loaded& loaded, const char* 
           << ",\"faces_unvisited_at_deadline\":" << faces.unvisited_deadline << ",\"complete_classify_census\":"
           << (loaded.entity_geometry && faces.attempted == inventory.faces.size() ? "true" : "false")
           << ",\"held_memory_model_bytes\":" << D9HeldMemoryLimit << ",\"maximum_query_peak_bytes\":" << faces.peak
-          << ",\"time_limit_seconds\":600}"
+          << ",\"time_limit_seconds\":" << D9DiagnosticSeconds << "}"
           << ",\"current_demand_face_proof_addendum\":{\"faces\":" << faces.current_demand_faces
           << ",\"classify_success_within_tolerance\":" << faces.success
           << ",\"classify_failures_over_tolerance\":" << faces.over_tolerance
@@ -2799,12 +2820,13 @@ void D9WriteSummary(std::ofstream& summary, const D9Loaded& loaded, const char* 
              "reported separately; not an all-edge projection census\"}"
           << ",\"full_composed_target_loaded\":false,\"budgets\":{\"held_memory_model_bytes\":" << D9HeldMemoryLimit
           << ",\"workspace_bytes_per_operation\":" << D9WorkspaceLimit << ",\"work_per_operation\":" << D9WorkLimit
-          << ",\"within_time_deadline_seconds\":600,\"integer_bit_limit\":" << D9IntegerLimit
+          << ",\"within_time_deadline_seconds\":" << D9DiagnosticSeconds << ",\"integer_bit_limit\":" << D9IntegerLimit
           << "},\"output_files\":[\"d9_geometry_edges.csv\",\"d9_geometry_faces.csv\",\"d9_geometry_projections.csv\"]"
           << ",\"production_workflow_launched\":false}\n";
 }
 }  // namespace
 TEST_CASE("D9 geometry need and exact wall proof measurements", "[.][NativeD9Geometry]") {
+  D9CheckNeedScaling();
   World world;
   REQUIRE(world.size == 1);
   const char* reference_path = std::getenv("SU2_D9_REFERENCE");
@@ -2816,7 +2838,7 @@ TEST_CASE("D9 geometry need and exact wall proof measurements", "[.][NativeD9Geo
   const auto within_time = [started]() { return D9WithinTime(started); };
   D9Loaded loaded;
   loaded.bytes = D9ReadBytes(reference_path);
-  loaded.reference = DecodeReference(std::string(loaded.bytes.begin(), loaded.bytes.end()));
+  loaded.reference = DecodeReference(std::string(loaded.bytes.begin(), loaded.bytes.end()), D9HeldMemoryLimit);
   REQUIRE(loaded.reference.original);
   std::ofstream summary("d9_geometry_summary.json");
   REQUIRE(bool(summary));
@@ -2844,8 +2866,7 @@ TEST_CASE("D9 geometry need and exact wall proof measurements", "[.][NativeD9Geo
   loaded.entity_geometry = loaded.parameters->EntityGeometry();
   loaded.query_tolerance = loaded.parameters->GeometryTolerance();
   loaded.base = loaded.reference.original->WithParameterState(loaded.parameters);
-  loaded.held = transfer_memory::Add(loaded.reference.original->ResidentBytes(), loaded.parameters->ResidentBytes(),
-                                     loaded.authority->ResidentBytes());
+  loaded.held = D9HeldReferenceBytes(loaded.reference, loaded.parameters, loaded.bytes, *loaded.base);
   REQUIRE(loaded.held <= D9HeldMemoryLimit);
   auto inventory = D9BuildInventory(*loaded.parameters, markers);
   std::ofstream edge_csv("d9_geometry_edges.csv");

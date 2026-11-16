@@ -1,0 +1,51 @@
+Filters: [.][NativeD9SerialStack]
+DC16 G plan 0 active=2 planned=2 seconds=0.000608218 rss_kB 36048->36112 grown_kB NextLayer=64 Tangential=0 Geometry=0
+DC16 G layer 0 planned=2 lifted_total=2 refused_total=0 room_needy=0 room_moved=0 t=0.0017677 rss_now_kB=36192 heap_inuse_kB_mod4G=3695 heap_free_kB_mod4G=232 mmap_kB=2264 cells=92 vertices=39 lengths=77 geometry=78 shape=0 height=9 balanced=0 overlay=16 boxes=0
+DC16 G plan 1 active=2 planned=2 seconds=0.000508435 rss_kB 36192->36196 grown_kB NextLayer=0 Tangential=0 Geometry=4
+DC16 G layer 1 planned=2 lifted_total=4 refused_total=0 room_needy=0 room_moved=0 t=0.00327233 rss_now_kB=36200 heap_inuse_kB_mod4G=3710 heap_free_kB_mod4G=349 mmap_kB=2264 cells=101 vertices=41 lengths=77 geometry=80 shape=0 height=9 balanced=0 overlay=17 boxes=0
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+test_driver is a Catch v2.13.9 host application.
+Run with -? for options
+
+-------------------------------------------------------------------------------
+D9 serial stack measurement on synthetic boxes
+-------------------------------------------------------------------------------
+../../UnitTests/SU2_CFD/adaptation/fixtures/native_first_row_dc12.inc:541
+...............................................................................
+
+../../UnitTests/SU2_CFD/adaptation/fixtures/native_first_row_dc12.inc:541: FAILED:
+  {Unknown expression after the reported line}
+due to unexpected exception with message:
+  BL growth surface dependencies changed; current fronts need reconstruction
+  before advancement.
+
+0.000 s: D9 serial stack measurement on synthetic boxes
+===============================================================================
+test cases: 1 | 1 failed
+assertions: 7 | 6 passed | 1 failed
+
+Command exited with non-zero status 1
+	Command being timed: "timeout 600 /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-p5-20261114/UnitTests/test_driver [.][NativeD9SerialStack] --durations yes"
+	User time (seconds): 0.09
+	System time (seconds): 0.02
+	Percent of CPU this job got: 30%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 0:00.38
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 36204
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 0
+	Minor (reclaiming a frame) page faults: 2941
+	Voluntary context switches: 1056
+	Involuntary context switches: 20
+	Swaps: 0
+	File system inputs: 0
+	File system outputs: 8
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 1

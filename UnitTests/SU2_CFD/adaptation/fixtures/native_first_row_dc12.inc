@@ -391,6 +391,47 @@ inline std::string D9FirstHeights(State& s, const Rows10& rows) {
   out << "}";
   return out.str();
 }
+inline std::string D9WallFirstChildHeights(const State& s) {
+  std::map<int, std::vector<double>> values;
+  for (const auto& row : s.mesh) {
+    const auto faces = CellFaces(row.second.cell);
+    for (unsigned k = 0; k < 4; ++k) {
+      if (!row.second.physical[k].present) continue;
+      const int marker = s.reference->Get(row.second.physical[k].facet).marker;
+      if (!s.walls.count(marker)) continue;
+      const V a = Of(NodePoint(s, faces[k][0]));
+      const V b = Of(NodePoint(s, faces[k][1]));
+      const V c = Of(NodePoint(s, faces[k][2]));
+      const V normal = Unit(Cross(b - a, c - a));
+      const V opposite = Of(row.second.cell.v[k].p);
+      values[marker].push_back(std::abs(double(Dot(opposite - a, normal))));
+    }
+  }
+  std::ostringstream out;
+  out << "{";
+  bool first = true;
+  for (int marker : s.walls) {
+    if (!first) out << ",";
+    first = false;
+    const double requested = s.heights.at(marker);
+    double sum = 0, lo = INFINITY, hi = 0, error = 0;
+    for (double height : values[marker]) {
+      sum += height;
+      lo = std::min(lo, height);
+      hi = std::max(hi, height);
+      error = std::max(error, std::abs(height / requested - 1));
+    }
+    const auto count = values[marker].size();
+    out << "\"" << marker << "\":{\"faces\":" << count << ",\"requested_h0\":" << D9Number(requested)
+        << ",\"min_normal_distance\":" << D9Number(count ? lo : NAN)
+        << ",\"max_normal_distance\":" << D9Number(count ? hi : NAN)
+        << ",\"mean_normal_distance\":" << D9Number(count ? sum / count : NAN)
+        << ",\"maximum_relative_error\":" << D9Number(count ? error : NAN)
+        << ",\"height_tolerance\":" << D9Number(s.heights.tolerance) << "}";
+  }
+  out << "}";
+  return out.str();
+}
 inline std::string D9MeshStats(State& s, const Gates8& gates) {
   size_t positive = 0, qBad = 0, jBad = 0;
   for (const auto& row : s.mesh) {
@@ -449,8 +490,10 @@ inline std::string D9RoomStats(const std::string& log) {
 inline std::string D9Report(const std::string& mode, const std::string& family, const BoxSpec& b, const R1Stage& r1,
                             const R2Stage& r2, const dc15::Completion& completion, const Growth& growth,
                             const Gates8& gates, State& s, const std::string& log, const Rows10& rows, double r1time,
-                            double r2time, double completionTime, double growthTime) {
-  const auto columns = D9Columns(s, growth);
+                            double r2time, double completionTime, double growthTime,
+                            const std::string& growthFailure) {
+  const bool growthReturned = completion.failing_after == 0 && growthFailure.empty();
+  const auto columns = growthReturned ? D9Columns(s, growth) : D9StackRows{"null", "null"};
   std::ostringstream out;
   out << std::setprecision(12) << "{\"schema\":\"D9_stack_v1\",\"mode\":" << junction_wp0::Json(mode)
       << ",\"family\":" << junction_wp0::Json(family) << ",\"n\":" << b.n
@@ -467,16 +510,35 @@ inline std::string D9Report(const std::string& mode, const std::string& family, 
       << ",\"G_ran\":" << (completion.failing_after == 0 ? "true" : "false") << ",\"G_reason\":"
       << junction_wp0::Json(completion.failing_after == 0 ? "completion complete"
                                                           : "completion incomplete; production early stop")
-      << ",\"G\":" << JsonGrowth(s, growth) << "},\"R2_max\":{\"closure_vertices\":" << r2.max_closure
+      << ",\"G_returned\":" << (growthReturned ? "true" : "false")
+      << ",\"G_exception\":" << junction_wp0::Json(growthFailure)
+      << ",\"phase_log_file\":\"d9_stack_phase_log.txt\""
+      << ",\"G\":" << (growthReturned ? JsonGrowth(s, growth) : "null")
+      << "},\"R2_max\":{\"closure_vertices\":" << r2.max_closure
       << ",\"old_cells\":" << r2.max_old << ",\"fresh_cells\":" << r2.max_fresh << "}"
       << ",\"room\":" << D9RoomStats(log) << ",\"positive_validity_and_topology\":" << D9MeshStats(s, gates)
+      << ",\"wall_first_child_heights\":" << D9WallFirstChildHeights(s)
+      << ",\"first_height_measurement_scope\":\"vertex-lift spacings; separate from wall-face first-child altitude\""
       << ",\"first_height_measurements\":" << D9FirstHeights(s, rows) << ",\"columns_by_wall\":" << columns.by_wall
       << ",\"columns\":" << columns.columns << ",\"acceptance_claim\":false}\n";
   return out.str();
 }
+inline void D9ConfigureDirections(State& state, DirField& field) {
+  dc9::ensureDirectionField = [&state, &field](State& current) {
+    if (&current != &state) throw std::logic_error("D9 direction refresh changed private state.");
+    if (current.publication_failed) throw std::runtime_error("D9 direction refresh follows failed publication.");
+    if (current.direction_revision == current.boundary_revision) return;
+    field = ComputeDirectionField(current);
+    current.direction_revision = current.boundary_revision;
+    dc9::directionField = &field.d;
+  };
+  dc9::ensureDirectionField(state);
+  dc9::directionFieldUses = 0;
+}
 inline void D9Measure(const std::string& mode, const std::string& family, const BoxSpec& b, const std::string& output,
                       World& world) {
   Policies policies;
+  DirField field;
   struct ReleaseDirections {
     ~ReleaseDirections() {
       dc9::ensureDirectionField = {};
@@ -505,8 +567,7 @@ inline void D9Measure(const std::string& mode, const std::string& family, const 
   ApplyWallPolicies(*s);
   DetectCreases(*s, roles);
   Rows10 rows;
-  DirField field = ComputeDirectionField(*s);
-  dc9::directionField = &field.d;
+  D9ConfigureDirections(*s, field);
   std::ostringstream log;
   const auto t0 = Clock::now();
   const auto r1 = PhaseR1(*s, rows, 4096, 60, log);
@@ -519,15 +580,25 @@ inline void D9Measure(const std::string& mode, const std::string& family, const 
   const auto completion = dc15::CompleteFirstRow(*s, rows, world, 1e-4, 60, certified, log);
   const double completionTime = Seconds(t2);
   Growth growth;
+  std::string growthFailure;
   double growthTime = 0;
   if (completion.failing_after == 0) {
     const auto t3 = Clock::now();
-    growth = PhaseG(*s, rows, 120, log);
+    try {
+      growth = PhaseG(*s, rows, 120, log);
+    } catch (const std::exception& error) {
+      growthFailure = error.what();
+      log << "D9 observed production growth stop: " << growthFailure << '\n';
+    }
     growthTime = Seconds(t3);
   }
   const auto gates = Final(*s);
   const std::string report = D9Report(mode, family, b, r1, r2, completion, growth, gates, *s, log.str(), rows, r1time,
-                                      r2time, completionTime, growthTime);
+                                      r2time, completionTime, growthTime, growthFailure);
+  std::ofstream phaseLog("d9_stack_phase_log.txt");
+  phaseLog << log.str();
+  phaseLog.close();
+  REQUIRE(phaseLog.good());
   std::ofstream out(output);
   REQUIRE(out.good());
   out << report;

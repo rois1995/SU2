@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Prepare build513 pins/recipe only after a primary review receipt; never builds."""
+"""Prepare build520 pins/recipe only after a primary review receipt; never builds."""
 
 import argparse
 import hashlib
@@ -13,13 +13,14 @@ REPO = N5.parents[5]
 N4 = N5.parent / "N4"
 REFERENCE = N4 / "reference_build"
 RECIPE = REFERENCE / "build.py"
-BUILD_DIR = N5 / "build513"
+BUILD_DIR = N5 / "build520"
 SOURCE_PIN_REFERENCE = REFERENCE / "source_pins.json"
 ALLOWED_CHANGED = {
     "Common/src/adaptation/CNativeEngine3D.cpp",
     "Common/src/adaptation/CNativePredicates3D.cpp",
     "UnitTests/Common/adaptation/CNativeDistributed3D_tests.cpp",
     "UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp",
+    "UnitTests/SU2_CFD/adaptation/CNativeImport3D_tests.cpp",
     "UnitTests/SU2_CFD/adaptation/fixtures/native_first_row_dc12.inc",
 }
 ALLOWED_NEW = {"Common/include/adaptation/CNativeD9Profile3D.hpp"}
@@ -108,7 +109,7 @@ def verify_recipe():
                      "OPENBLAS_NUM_THREADS='1'", "MKL_NUM_THREADS='1'", "'-n','19'", "'-j4'",
                      "UnitTests/test_driver", "SU2_CFD/src/SU2_CFD"):
         assert expected in source, f"immutable build recipe missing {expected}"
-    assert not (BUILD_DIR / "build_status.json").exists(), "build513 status already exists"
+    assert not (BUILD_DIR / "build_status.json").exists(), "build520 status already exists"
     launch = " proc=subprocess.Popen(argv,cwd=REPO,env=env,stdout=log,stderr=subprocess.STDOUT,start_new_session=True)\n"
     assert source.count(launch) == 1, "reference recipe launch changed; review before adapting"
     source = source.replace(launch, launch + " owned_handles={}\n")
@@ -144,14 +145,14 @@ def self_check():
             "allowed_changed_sources": inventory["allowed_changed_sources"],
             "allowed_new_sources": inventory["allowed_new_sources"],
             "reference_build_metadata": inventory["reference_build_metadata"],
-            "build513_exists": BUILD_DIR.exists()}
+            "build520_exists": BUILD_DIR.exists()}
 
 
 def prepare(ready_path):
     recipe = verify_recipe()
     inventory = source_inventory()
     ready = json.loads(ready_path.read_text())
-    assert ready.get("build513_ready") is True
+    assert ready.get("build520_ready") is True
     assert ready.get("reviewed_snapshot_sha256") == inventory["snapshot_sha256"], "primary reviewed a different source snapshot"
     assert not BUILD_DIR.exists(), f"refusing to overwrite {BUILD_DIR}"
     BUILD_DIR.mkdir()
@@ -161,7 +162,7 @@ def prepare(ready_path):
     pins_text = json.dumps(inventory["source_pins"], indent=2, sort_keys=True) + "\n"
     pins_path = BUILD_DIR / "source_pins.json"
     pins_path.write_text(pins_text)
-    plan = {"build_label": "build513", "state": "prepared_not_launched",
+    plan = {"build_label": "build520", "state": "prepared_not_launched",
             "source_snapshot_sha256": inventory["snapshot_sha256"],
             "source_pins_sha256": sha(pins_path), "source_pin_count": len(inventory["source_pins"]),
             "reference_recipe": str(RECIPE), "reference_recipe_sha256": sha(RECIPE),

@@ -1,0 +1,1249 @@
+{
+  "cases": [
+    {
+      "G_columns": 0,
+      "G_exception": "",
+      "G_layer_cells": 0,
+      "G_layers_run": 0,
+      "G_lifted_points": 0,
+      "G_reason": "completion complete",
+      "G_refused": 0,
+      "G_returned": true,
+      "G_transactions": 0,
+      "J_min": 0.00138398244189,
+      "R2_accepted": 0,
+      "R2_max_closure_vertices_outer_seed": 0,
+      "R2_max_fresh_cells": 0,
+      "R2_max_old_cells": 0,
+      "R2_partial_growth_observation": null,
+      "R2_rejected": 0,
+      "R2_work": 0,
+      "acceptance_claim": false,
+      "all_positive": true,
+      "binary_sha256": "30b74f56ca10162687447283e006fa93ab5dfb0a18e9e55df6f0f134f4130a72",
+      "boundary_faces": 12,
+      "build": "build515",
+      "case": "n5_d9_m10_n1_refresh_20261116T022404_2452293",
+      "cells": 12,
+      "columns_by_wall": {
+        "0": {
+          "columns": 0,
+          "configured_h0": 0.004,
+          "growth": 1.2,
+          "largest_layers": 0,
+          "layer_index": 0,
+          "mean_layers": 0,
+          "stack_count": 0,
+          "thickness": 0.5
+        }
+      },
+      "descriptor_hashes": {
+        "m10_n1_refresh.json": "4039f370e48f9f1e52b308323e57a6c2dec3c90c3b7173603baec60ad2365f47"
+      },
+      "family": "M10",
+      "final_mesh_complete": false,
+      "first_height_measurement_kind": "base-to-lift vertex |dz| spacings; not wall-face/opposite-face prism height and not the enforced h0 gate",
+      "fixture_dc10_sha256": "c9d61107b81b590a20159a38e2dbb587c28c8a95081799c161c53650779012b2",
+      "fixture_dc12_sha256": "bd92e320ff2ffddb6a1b6f2b882114d140f3c38fda816091a67cad2df6c52c05",
+      "gnu_maxrss_is_rank_or_whole_job": "GNU /usr/bin/time wrapper scope; report exact value from run.log, does not substitute whole-job resource peak",
+      "gnu_time": [
+        "Elapsed (wall clock) time (h:mm:ss or m:ss): 0:00.36",
+        "Maximum resident set size (kbytes): 36164"
+      ],
+      "height_failures": 0,
+      "j_bad": 6,
+      "j_threshold": 0.05,
+      "measurement_json_sha256": "f6b43a5a11765052d0b4567c8dc37cee3cb2dc0f7f4eba26dda7a9d65033640b",
+      "mode": "M10_n1",
+      "n": 1,
+      "nonmanifold_faces": 0,
+      "phase_log_sha256": "6a4349fa3253785bc025590c87a60f8ec01a35d0318f14913a78d63a91291946",
+      "phase_seconds": {
+        "G": 0.000188155,
+        "R1": 5.626e-05,
+        "R2": 1.7286e-05,
+        "completion": 0.030163393
+      },
+      "positive_cells": 12,
+      "q_bad": 6,
+      "q_min": 0.0247939928335,
+      "q_threshold": 0.2,
+      "ranks": 1,
+      "room": {
+        "logged_nonempty_regions": 0,
+        "region_sizes": [],
+        "stats": {
+          "calls": 0,
+          "cells": 0,
+          "cg_iterations": 0,
+          "commits": 0,
+          "metric_reverted": 0,
+          "moved": 0,
+          "needy_tops": 0,
+          "pseudo_frozen": 0,
+          "refused": 0,
+          "region_vertices": 0,
+          "seconds": {
+            "batch": 0,
+            "commit": 0,
+            "metric": 0,
+            "move": 0,
+            "problem": 0,
+            "slides": 0,
+            "solve": 0,
+            "total": 0
+          },
+          "sliding": 0,
+          "sliding_reverted": 0,
+          "unconverged": 0,
+          "why": {}
+        }
+      },
+      "room_logged_nonempty_regions": 0,
+      "room_measurement_scope": "recorded room.stats counters; for guarded M10 growth cases these reflect activity completed before the G guard",
+      "room_region_sizes": [],
+      "runner_wall_seconds": 4.491600751876831,
+      "sampled_individual_process_rss_bytes": 1339392,
+      "sampled_rss_note": "sampled process RSS; not a whole-job peak",
+      "size_edge_max": 18.4789621873,
+      "size_long_edges": 11,
+      "stops_by_column": {},
+      "terminal": true,
+      "unbound_boundary_faces": 0,
+      "vertex_lift_spacings": {
+        "0": {
+          "max_abs_dz": null,
+          "mean_abs_dz": null,
+          "measured_samples": 0,
+          "measurement_status": "unavailable: no base-to-lift samples",
+          "min_abs_dz": null,
+          "missing_vertices": 4,
+          "samples": []
+        }
+      }
+    },
+    {
+      "G_columns": null,
+      "G_exception": "BL growth surface dependencies changed; current fronts need reconstruction before advancement.",
+      "G_layer_cells": null,
+      "G_layers_run": null,
+      "G_lifted_points": null,
+      "G_reason": "completion complete",
+      "G_refused": null,
+      "G_returned": false,
+      "G_transactions": null,
+      "J_min": 0.00112842635052,
+      "R2_accepted": 2,
+      "R2_max_closure_vertices_outer_seed": 1,
+      "R2_max_fresh_cells": 40,
+      "R2_max_old_cells": 20,
+      "R2_partial_growth_observation": {
+        "completed_growth_log_layers": [
+          0,
+          1
+        ],
+        "description": "phase log records 4 lifts over two layers before production growth guard; partial only",
+        "lifted_total_by_layer": [
+          2,
+          4
+        ]
+      },
+      "R2_rejected": 0,
+      "R2_work": 2,
+      "acceptance_claim": false,
+      "all_positive": true,
+      "binary_sha256": "30b74f56ca10162687447283e006fa93ab5dfb0a18e9e55df6f0f134f4130a72",
+      "boundary_faces": 54,
+      "build": "build515",
+      "case": "n5_d9_m10_n2_20261116T022146_2446872",
+      "cells": 101,
+      "columns_by_wall": {},
+      "descriptor_hashes": {
+        "m10_n2.json": "dfe8a59836e5ee99a02b705cb8eb201e858982809346f100beadb9b40f0562e2"
+      },
+      "family": "M10",
+      "final_mesh_complete": false,
+      "first_height_measurement_kind": "base-to-lift vertex |dz| spacings; not wall-face/opposite-face prism height and not the enforced h0 gate",
+      "fixture_dc10_sha256": "c9d61107b81b590a20159a38e2dbb587c28c8a95081799c161c53650779012b2",
+      "fixture_dc12_sha256": "bd92e320ff2ffddb6a1b6f2b882114d140f3c38fda816091a67cad2df6c52c05",
+      "gnu_maxrss_is_rank_or_whole_job": "GNU /usr/bin/time wrapper scope; report exact value from run.log, does not substitute whole-job resource peak",
+      "gnu_time": [
+        "Elapsed (wall clock) time (h:mm:ss or m:ss): 0:00.47",
+        "Maximum resident set size (kbytes): 35548"
+      ],
+      "height_failures": 0,
+      "j_bad": 34,
+      "j_threshold": 0.05,
+      "measurement_json_sha256": "1a386b93b3927fe0dd66d70dd006001609270e3a70e8067069aa000f8c99ee3f",
+      "mode": "M10_n2",
+      "n": 2,
+      "nonmanifold_faces": 0,
+      "phase_log_sha256": "63cd46fb89622fafcf729703ce595bcbf81239eb4e21355a0aaf88c8a5352f7b",
+      "phase_seconds": {
+        "G": 0.003345141,
+        "R1": 0.000321612,
+        "R2": 0.054755521,
+        "completion": 0.006434337
+      },
+      "positive_cells": 101,
+      "q_bad": 47,
+      "q_min": 0.0216419530027,
+      "q_threshold": 0.2,
+      "ranks": 1,
+      "room": {
+        "logged_nonempty_regions": 0,
+        "region_sizes": [],
+        "stats": {
+          "calls": 2,
+          "cells": 0,
+          "cg_iterations": 0,
+          "commits": 0,
+          "metric_reverted": 0,
+          "moved": 0,
+          "needy_tops": 0,
+          "pseudo_frozen": 0,
+          "refused": 0,
+          "region_vertices": 0,
+          "seconds": {
+            "batch": 0,
+            "commit": 0,
+            "metric": 0,
+            "move": 0,
+            "problem": 0,
+            "slides": 0,
+            "solve": 0,
+            "total": 2.2198e-05
+          },
+          "sliding": 0,
+          "sliding_reverted": 0,
+          "unconverged": 0,
+          "why": {}
+        }
+      },
+      "room_logged_nonempty_regions": 0,
+      "room_measurement_scope": "recorded room.stats counters; for guarded M10 growth cases these reflect activity completed before the G guard",
+      "room_region_sizes": [],
+      "runner_wall_seconds": 4.512978792190552,
+      "sampled_individual_process_rss_bytes": 868352,
+      "sampled_rss_note": "sampled process RSS; not a whole-job peak",
+      "size_edge_max": 17.6367568365,
+      "size_long_edges": 42,
+      "stops_by_column": {},
+      "terminal": true,
+      "unbound_boundary_faces": 0,
+      "vertex_lift_spacings": {
+        "0": {
+          "max_abs_dz": 0.00577368,
+          "mean_abs_dz": 0.00577368,
+          "measured_samples": 2,
+          "measurement_status": "measured",
+          "min_abs_dz": 0.00577368,
+          "missing_vertices": 7,
+          "samples": [
+            {
+              "abs_dz": 0.00577368,
+              "base": 4,
+              "lift": 28
+            },
+            {
+              "abs_dz": 0.00577368,
+              "base": 5,
+              "lift": 32
+            }
+          ]
+        }
+      }
+    },
+    {
+      "G_columns": null,
+      "G_exception": "BL growth surface dependencies changed; current fronts need reconstruction before advancement.",
+      "G_layer_cells": null,
+      "G_layers_run": null,
+      "G_lifted_points": null,
+      "G_reason": "completion complete",
+      "G_refused": null,
+      "G_returned": false,
+      "G_transactions": null,
+      "J_min": 0.00145030593763,
+      "R2_accepted": 12,
+      "R2_max_closure_vertices_outer_seed": 1,
+      "R2_max_fresh_cells": 48,
+      "R2_max_old_cells": 32,
+      "R2_partial_growth_observation": {
+        "completed_R2_transactions": 12,
+        "description": "R2 row creation only; no completed G growth layers before production guard",
+        "lifted": 12
+      },
+      "R2_rejected": 0,
+      "R2_work": 12,
+      "acceptance_claim": false,
+      "all_positive": true,
+      "binary_sha256": "30b74f56ca10162687447283e006fa93ab5dfb0a18e9e55df6f0f134f4130a72",
+      "boundary_faces": 202,
+      "build": "build515",
+      "case": "n5_d9_m10_n4_20261116T022417_2452891",
+      "cells": 617,
+      "columns_by_wall": {},
+      "descriptor_hashes": {
+        "m10_n4.json": "3b39ec1795c26943d1dff272c90c1aaff3f613ebd829445b0a3343c6ce2ea5a1"
+      },
+      "family": "M10",
+      "final_mesh_complete": false,
+      "first_height_measurement_kind": "base-to-lift vertex |dz| spacings; not wall-face/opposite-face prism height and not the enforced h0 gate",
+      "fixture_dc10_sha256": "c9d61107b81b590a20159a38e2dbb587c28c8a95081799c161c53650779012b2",
+      "fixture_dc12_sha256": "bd92e320ff2ffddb6a1b6f2b882114d140f3c38fda816091a67cad2df6c52c05",
+      "gnu_maxrss_is_rank_or_whole_job": "GNU /usr/bin/time wrapper scope; report exact value from run.log, does not substitute whole-job resource peak",
+      "gnu_time": [
+        "Elapsed (wall clock) time (h:mm:ss or m:ss): 0:00.74",
+        "Maximum resident set size (kbytes): 37584"
+      ],
+      "height_failures": 0,
+      "j_bad": 160,
+      "j_threshold": 0.05,
+      "measurement_json_sha256": "28ebbed4b9dd90f31ac32c6bb822900f313f48fe417b69c7a2bccbb94067627d",
+      "mode": "M10_n4",
+      "n": 4,
+      "nonmanifold_faces": 0,
+      "phase_log_sha256": "39ee52e5052d70cb42a720297b3c8256784a5eef0cfe397622b8603eea10d69a",
+      "phase_seconds": {
+        "G": 0.007001066,
+        "R1": 0.000363543,
+        "R2": 0.205919147,
+        "completion": 0.004479704
+      },
+      "positive_cells": 617,
+      "q_bad": 192,
+      "q_min": 0.0255647567224,
+      "q_threshold": 0.2,
+      "ranks": 1,
+      "room": {
+        "logged_nonempty_regions": 0,
+        "region_sizes": [],
+        "stats": {
+          "calls": 1,
+          "cells": 0,
+          "cg_iterations": 0,
+          "commits": 0,
+          "metric_reverted": 0,
+          "moved": 0,
+          "needy_tops": 0,
+          "pseudo_frozen": 0,
+          "refused": 0,
+          "region_vertices": 0,
+          "seconds": {
+            "batch": 0,
+            "commit": 0,
+            "metric": 0,
+            "move": 0,
+            "problem": 0,
+            "slides": 0,
+            "solve": 0,
+            "total": 8.4347e-05
+          },
+          "sliding": 0,
+          "sliding_reverted": 0,
+          "unconverged": 0,
+          "why": {}
+        }
+      },
+      "room_logged_nonempty_regions": 0,
+      "room_measurement_scope": "recorded room.stats counters; for guarded M10 growth cases these reflect activity completed before the G guard",
+      "room_region_sizes": [],
+      "runner_wall_seconds": 4.514168977737427,
+      "sampled_individual_process_rss_bytes": 593920,
+      "sampled_rss_note": "sampled process RSS; not a whole-job peak",
+      "size_edge_max": 14.3430651574,
+      "size_long_edges": 174,
+      "stops_by_column": {},
+      "terminal": true,
+      "unbound_boundary_faces": 0,
+      "vertex_lift_spacings": {
+        "0": {
+          "max_abs_dz": 0.00577368,
+          "mean_abs_dz": 0.00577368,
+          "measured_samples": 12,
+          "measurement_status": "measured",
+          "min_abs_dz": 0.00577368,
+          "missing_vertices": 13,
+          "samples": [
+            {
+              "abs_dz": 0.00577368,
+              "base": 6,
+              "lift": 126
+            },
+            {
+              "abs_dz": 0.00577368,
+              "base": 7,
+              "lift": 130
+            },
+            {
+              "abs_dz": 0.00577368,
+              "base": 8,
+              "lift": 137
+            },
+            {
+              "abs_dz": 0.00577368,
+              "base": 9,
+              "lift": 144
+            },
+            {
+              "abs_dz": 0.00577368,
+              "base": 11,
+              "lift": 151
+            },
+            {
+              "abs_dz": 0.00577368,
+              "base": 12,
+              "lift": 155
+            },
+            {
+              "abs_dz": 0.00577368,
+              "base": 13,
+              "lift": 162
+            },
+            {
+              "abs_dz": 0.00577368,
+              "base": 14,
+              "lift": 169
+            },
+            {
+              "abs_dz": 0.00577368,
+              "base": 16,
+              "lift": 176
+            },
+            {
+              "abs_dz": 0.00577368,
+              "base": 17,
+              "lift": 180
+            },
+            {
+              "abs_dz": 0.00577368,
+              "base": 18,
+              "lift": 187
+            },
+            {
+              "abs_dz": 0.00577368,
+              "base": 19,
+              "lift": 194
+            }
+          ]
+        }
+      }
+    },
+    {
+      "G_columns": 50,
+      "G_exception": "",
+      "G_layer_cells": 2844,
+      "G_layers_run": 15,
+      "G_lifted_points": 726,
+      "G_reason": "completion complete",
+      "G_refused": 20,
+      "G_returned": true,
+      "G_transactions": 136,
+      "J_min": 0.00495520459023,
+      "R2_accepted": 50,
+      "R2_max_closure_vertices_outer_seed": 1,
+      "R2_max_fresh_cells": 48,
+      "R2_max_old_cells": 32,
+      "R2_partial_growth_observation": null,
+      "R2_rejected": 0,
+      "R2_work": 50,
+      "acceptance_claim": false,
+      "all_positive": true,
+      "binary_sha256": "30b74f56ca10162687447283e006fa93ab5dfb0a18e9e55df6f0f134f4130a72",
+      "boundary_faces": 1168,
+      "build": "build515",
+      "case": "n5_d9_m12_control_20261116T022430_2453425",
+      "cells": 3734,
+      "columns_by_wall": {
+        "0": {
+          "columns": 25,
+          "configured_h0": 0.004,
+          "growth": 1.2,
+          "largest_layers": 15,
+          "layer_index": 1,
+          "mean_layers": 14.52,
+          "stack_count": 25,
+          "thickness": 0.4
+        },
+        "3": {
+          "columns": 25,
+          "configured_h0": 0.006,
+          "growth": 1.15,
+          "largest_layers": 15,
+          "layer_index": 0,
+          "mean_layers": 14.52,
+          "stack_count": 25,
+          "thickness": 0.4
+        }
+      },
+      "descriptor_hashes": {
+        "m12_control.json": "743c12e34aeb28b1a025040e2e1ca23d1ab7e0d51d57f09703c7761fe1c54071"
+      },
+      "family": "M12",
+      "final_mesh_complete": false,
+      "first_height_measurement_kind": "base-to-lift vertex |dz| spacings; not wall-face/opposite-face prism height and not the enforced h0 gate",
+      "fixture_dc10_sha256": "c9d61107b81b590a20159a38e2dbb587c28c8a95081799c161c53650779012b2",
+      "fixture_dc12_sha256": "bd92e320ff2ffddb6a1b6f2b882114d140f3c38fda816091a67cad2df6c52c05",
+      "gnu_maxrss_is_rank_or_whole_job": "GNU /usr/bin/time wrapper scope; report exact value from run.log, does not substitute whole-job resource peak",
+      "gnu_time": [
+        "Elapsed (wall clock) time (h:mm:ss or m:ss): 0:02.54",
+        "Maximum resident set size (kbytes): 44152"
+      ],
+      "height_failures": 0,
+      "j_bad": 278,
+      "j_threshold": 0.05,
+      "measurement_json_sha256": "a16346af96f68657ee2d65d3f93219845975899c0aabf027905eb94950b8cbaf",
+      "mode": "M12_control",
+      "n": 4,
+      "nonmanifold_faces": 0,
+      "phase_log_sha256": "6f1bd59c059984a4975ed1730fc18ff7e293ef991a7956fd8de5f0d9bd8ea8a3",
+      "phase_seconds": {
+        "G": 0.626454765,
+        "R1": 0.00117939,
+        "R2": 0.637034815,
+        "completion": 0.000946781
+      },
+      "positive_cells": 3734,
+      "q_bad": 280,
+      "q_min": 0.0404860126581,
+      "q_threshold": 0.2,
+      "ranks": 1,
+      "room": {
+        "logged_nonempty_regions": 3,
+        "region_sizes": [
+          63,
+          62,
+          62
+        ],
+        "stats": {
+          "calls": 15,
+          "cells": 1128,
+          "cg_iterations": 44,
+          "commits": 3,
+          "metric_reverted": 0,
+          "moved": 187,
+          "needy_tops": 130,
+          "pseudo_frozen": 0,
+          "refused": 0,
+          "region_vertices": 187,
+          "seconds": {
+            "batch": 0.003414533,
+            "commit": 0.084152581,
+            "metric": 9.3296e-05,
+            "move": 0.000309636,
+            "problem": 0.003825594,
+            "slides": 0.080544178,
+            "solve": 0.001856096,
+            "total": 0.093371657
+          },
+          "sliding": 108,
+          "sliding_reverted": 0,
+          "unconverged": 0,
+          "why": {}
+        }
+      },
+      "room_logged_nonempty_regions": 3,
+      "room_measurement_scope": "recorded room.stats counters; for guarded M10 growth cases these reflect activity completed before the G guard",
+      "room_region_sizes": [
+        63,
+        62,
+        62
+      ],
+      "runner_wall_seconds": 6.501371622085571,
+      "sampled_individual_process_rss_bytes": 43634688,
+      "sampled_rss_note": "sampled process RSS; not a whole-job peak",
+      "size_edge_max": 3.56868743385,
+      "size_long_edges": 97,
+      "stops_by_column": {
+        "s1 thickness": 42,
+        "s3 refused transactions (clearance)": 8
+      },
+      "terminal": true,
+      "unbound_boundary_faces": 0,
+      "vertex_lift_spacings": {
+        "0": {
+          "max_abs_dz": 0.00577368,
+          "mean_abs_dz": 0.00577368,
+          "measured_samples": 25,
+          "measurement_status": "measured",
+          "min_abs_dz": 0.00577368,
+          "missing_vertices": 0,
+          "samples": [
+            {
+              "abs_dz": 0.00577368,
+              "base": 1,
+              "lift": 126
+            },
+            {
+              "abs_dz": 0.00577368,
+              "base": 2,
+              "lift": 129
+            },
+            {
+              "abs_dz": 0.00577368,
+              "base": 3,
+              "lift": 133
+            },
+            {
+              "abs_dz": 0.00577368,
+              "base": 4,
+              "lift": 137
+            },
+            {
+              "abs_dz": 0.00577368,
+              "base": 5,
+              "lift": 141
+            },
+            {
+              "abs_dz": 0.00577368,
+              "base": 6,
+              "lift": 143
+            },
+            {
+              "abs_dz": 0.00577368,
+              "base": 7,
+              "lift": 147
+            },
+            {
+              "abs_dz": 0.00577368,
+              "base": 8,
+              "lift": 154
+            },
+            {
+              "abs_dz": 0.00577368,
+              "base": 9,
+              "lift": 161
+            },
+            {
+              "abs_dz": 0.00577368,
+              "base": 10,
+              "lift": 168
+            },
+            {
+              "abs_dz": 0.00577368,
+              "base": 11,
+              "lift": 172
+            },
+            {
+              "abs_dz": 0.00577368,
+              "base": 12,
+              "lift": 176
+            },
+            {
+              "abs_dz": 0.00577368,
+              "base": 13,
+              "lift": 183
+            },
+            {
+              "abs_dz": 0.00577368,
+              "base": 14,
+              "lift": 190
+            },
+            {
+              "abs_dz": 0.00577368,
+              "base": 15,
+              "lift": 197
+            },
+            {
+              "abs_dz": 0.00577368,
+              "base": 16,
+              "lift": 201
+            },
+            {
+              "abs_dz": 0.00577368,
+              "base": 17,
+              "lift": 205
+            },
+            {
+              "abs_dz": 0.00577368,
+              "base": 18,
+              "lift": 212
+            },
+            {
+              "abs_dz": 0.00577368,
+              "base": 19,
+              "lift": 219
+            },
+            {
+              "abs_dz": 0.00577368,
+              "base": 20,
+              "lift": 226
+            },
+            {
+              "abs_dz": 0.00577368,
+              "base": 21,
+              "lift": 230
+            },
+            {
+              "abs_dz": 0.00577368,
+              "base": 22,
+              "lift": 232
+            },
+            {
+              "abs_dz": 0.00577368,
+              "base": 23,
+              "lift": 236
+            },
+            {
+              "abs_dz": 0.00577368,
+              "base": 24,
+              "lift": 240
+            },
+            {
+              "abs_dz": 0.00577368,
+              "base": 25,
+              "lift": 244
+            }
+          ]
+        },
+        "3": {
+          "max_abs_dz": 0.00866052,
+          "mean_abs_dz": 0.00866052,
+          "measured_samples": 25,
+          "measurement_status": "measured",
+          "min_abs_dz": 0.00866052,
+          "missing_vertices": 0,
+          "samples": [
+            {
+              "abs_dz": 0.00866052,
+              "base": 101,
+              "lift": 247
+            },
+            {
+              "abs_dz": 0.00866052,
+              "base": 102,
+              "lift": 250
+            },
+            {
+              "abs_dz": 0.00866052,
+              "base": 103,
+              "lift": 254
+            },
+            {
+              "abs_dz": 0.00866052,
+              "base": 104,
+              "lift": 258
+            },
+            {
+              "abs_dz": 0.00866052,
+              "base": 105,
+              "lift": 262
+            },
+            {
+              "abs_dz": 0.00866052,
+              "base": 106,
+              "lift": 264
+            },
+            {
+              "abs_dz": 0.00866052,
+              "base": 107,
+              "lift": 268
+            },
+            {
+              "abs_dz": 0.00866052,
+              "base": 108,
+              "lift": 275
+            },
+            {
+              "abs_dz": 0.00866052,
+              "base": 109,
+              "lift": 282
+            },
+            {
+              "abs_dz": 0.00866052,
+              "base": 110,
+              "lift": 289
+            },
+            {
+              "abs_dz": 0.00866052,
+              "base": 111,
+              "lift": 293
+            },
+            {
+              "abs_dz": 0.00866052,
+              "base": 112,
+              "lift": 297
+            },
+            {
+              "abs_dz": 0.00866052,
+              "base": 113,
+              "lift": 304
+            },
+            {
+              "abs_dz": 0.00866052,
+              "base": 114,
+              "lift": 311
+            },
+            {
+              "abs_dz": 0.00866052,
+              "base": 115,
+              "lift": 318
+            },
+            {
+              "abs_dz": 0.00866052,
+              "base": 116,
+              "lift": 322
+            },
+            {
+              "abs_dz": 0.00866052,
+              "base": 117,
+              "lift": 326
+            },
+            {
+              "abs_dz": 0.00866052,
+              "base": 118,
+              "lift": 333
+            },
+            {
+              "abs_dz": 0.00866052,
+              "base": 119,
+              "lift": 340
+            },
+            {
+              "abs_dz": 0.00866052,
+              "base": 120,
+              "lift": 347
+            },
+            {
+              "abs_dz": 0.00866052,
+              "base": 121,
+              "lift": 351
+            },
+            {
+              "abs_dz": 0.00866052,
+              "base": 122,
+              "lift": 353
+            },
+            {
+              "abs_dz": 0.00866052,
+              "base": 123,
+              "lift": 357
+            },
+            {
+              "abs_dz": 0.00866052,
+              "base": 124,
+              "lift": 361
+            },
+            {
+              "abs_dz": 0.00866052,
+              "base": 125,
+              "lift": 365
+            }
+          ]
+        }
+      }
+    },
+    {
+      "G_columns": 50,
+      "G_exception": "",
+      "G_layer_cells": 3024,
+      "G_layers_run": 17,
+      "G_lifted_points": 768,
+      "G_reason": "completion complete",
+      "G_refused": 110,
+      "G_returned": true,
+      "G_transactions": 142,
+      "J_min": 0.000399331267739,
+      "R2_accepted": 50,
+      "R2_max_closure_vertices_outer_seed": 1,
+      "R2_max_fresh_cells": 48,
+      "R2_max_old_cells": 32,
+      "R2_partial_growth_observation": null,
+      "R2_rejected": 0,
+      "R2_work": 50,
+      "acceptance_claim": false,
+      "all_positive": true,
+      "binary_sha256": "30b74f56ca10162687447283e006fa93ab5dfb0a18e9e55df6f0f134f4130a72",
+      "boundary_faces": 1216,
+      "build": "build515",
+      "case": "n5_d9_m12_meet_20261116T022445_2453964",
+      "cells": 3914,
+      "columns_by_wall": {
+        "0": {
+          "columns": 25,
+          "configured_h0": 0.004,
+          "growth": 1.2,
+          "largest_layers": 16,
+          "layer_index": 1,
+          "mean_layers": 15.36,
+          "stack_count": 25,
+          "thickness": 0.6
+        },
+        "3": {
+          "columns": 25,
+          "configured_h0": 0.006,
+          "growth": 1.15,
+          "largest_layers": 16,
+          "layer_index": 0,
+          "mean_layers": 15.36,
+          "stack_count": 25,
+          "thickness": 0.6
+        }
+      },
+      "descriptor_hashes": {
+        "m12_meet.json": "b1f4f2ad85971304c2caf6b9a376be9122fda2bab8559af9c106fd53ed025cf8"
+      },
+      "family": "M12",
+      "final_mesh_complete": false,
+      "first_height_measurement_kind": "base-to-lift vertex |dz| spacings; not wall-face/opposite-face prism height and not the enforced h0 gate",
+      "fixture_dc10_sha256": "c9d61107b81b590a20159a38e2dbb587c28c8a95081799c161c53650779012b2",
+      "fixture_dc12_sha256": "bd92e320ff2ffddb6a1b6f2b882114d140f3c38fda816091a67cad2df6c52c05",
+      "gnu_maxrss_is_rank_or_whole_job": "GNU /usr/bin/time wrapper scope; report exact value from run.log, does not substitute whole-job resource peak",
+      "gnu_time": [
+        "Elapsed (wall clock) time (h:mm:ss or m:ss): 0:03.38",
+        "Maximum resident set size (kbytes): 44608"
+      ],
+      "height_failures": 0,
+      "j_bad": 406,
+      "j_threshold": 0.05,
+      "measurement_json_sha256": "e7c24a15bd13ebc8a1cff36e9df8ae64cd0147d05388f5959825c44bd2072d59",
+      "mode": "M12_meet",
+      "n": 4,
+      "nonmanifold_faces": 0,
+      "phase_log_sha256": "ed9013b72eed7c0148f3b6a473a1b5cc107198701e671a8e75077fba6343dbd2",
+      "phase_seconds": {
+        "G": 1.116838749,
+        "R1": 0.001228295,
+        "R2": 0.668754984,
+        "completion": 0.000943098
+      },
+      "positive_cells": 3914,
+      "q_bad": 400,
+      "q_min": 0.010307463934,
+      "q_threshold": 0.2,
+      "ranks": 1,
+      "room": {
+        "logged_nonempty_regions": 5,
+        "region_sizes": [
+          63,
+          62,
+          62,
+          62,
+          62
+        ],
+        "stats": {
+          "calls": 17,
+          "cells": 1876,
+          "cg_iterations": 78,
+          "commits": 5,
+          "metric_reverted": 0,
+          "moved": 309,
+          "needy_tops": 212,
+          "pseudo_frozen": 62,
+          "refused": 0,
+          "region_vertices": 311,
+          "seconds": {
+            "batch": 0.005636716,
+            "commit": 0.13612698,
+            "metric": 0.000147003,
+            "move": 0.000520291,
+            "problem": 0.006119465,
+            "slides": 0.13017759,
+            "solve": 0.003121267,
+            "total": 0.14873436
+          },
+          "sliding": 180,
+          "sliding_reverted": 2,
+          "unconverged": 0,
+          "why": {
+            "slide: Native #D movement obstructed at cell #.": 2
+          }
+        }
+      },
+      "room_logged_nonempty_regions": 5,
+      "room_measurement_scope": "recorded room.stats counters; for guarded M10 growth cases these reflect activity completed before the G guard",
+      "room_region_sizes": [
+        63,
+        62,
+        62,
+        62,
+        62
+      ],
+      "runner_wall_seconds": 7.417397737503052,
+      "sampled_individual_process_rss_bytes": 44748800,
+      "sampled_rss_note": "sampled process RSS; not a whole-job peak",
+      "size_edge_max": 5.03961473124,
+      "size_long_edges": 117,
+      "stops_by_column": {
+        "s3 refused transactions (clearance)": 50
+      },
+      "terminal": true,
+      "unbound_boundary_faces": 0,
+      "vertex_lift_spacings": {
+        "0": {
+          "max_abs_dz": 0.00577368,
+          "mean_abs_dz": 0.00577368,
+          "measured_samples": 25,
+          "measurement_status": "measured",
+          "min_abs_dz": 0.00577368,
+          "missing_vertices": 0,
+          "samples": [
+            {
+              "abs_dz": 0.00577368,
+              "base": 1,
+              "lift": 126
+            },
+            {
+              "abs_dz": 0.00577368,
+              "base": 2,
+              "lift": 129
+            },
+            {
+              "abs_dz": 0.00577368,
+              "base": 3,
+              "lift": 133
+            },
+            {
+              "abs_dz": 0.00577368,
+              "base": 4,
+              "lift": 137
+            },
+            {
+              "abs_dz": 0.00577368,
+              "base": 5,
+              "lift": 141
+            },
+            {
+              "abs_dz": 0.00577368,
+              "base": 6,
+              "lift": 143
+            },
+            {
+              "abs_dz": 0.00577368,
+              "base": 7,
+              "lift": 147
+            },
+            {
+              "abs_dz": 0.00577368,
+              "base": 8,
+              "lift": 154
+            },
+            {
+              "abs_dz": 0.00577368,
+              "base": 9,
+              "lift": 161
+            },
+            {
+              "abs_dz": 0.00577368,
+              "base": 10,
+              "lift": 168
+            },
+            {
+              "abs_dz": 0.00577368,
+              "base": 11,
+              "lift": 172
+            },
+            {
+              "abs_dz": 0.00577368,
+              "base": 12,
+              "lift": 176
+            },
+            {
+              "abs_dz": 0.00577368,
+              "base": 13,
+              "lift": 183
+            },
+            {
+              "abs_dz": 0.00577368,
+              "base": 14,
+              "lift": 190
+            },
+            {
+              "abs_dz": 0.00577368,
+              "base": 15,
+              "lift": 197
+            },
+            {
+              "abs_dz": 0.00577368,
+              "base": 16,
+              "lift": 201
+            },
+            {
+              "abs_dz": 0.00577368,
+              "base": 17,
+              "lift": 205
+            },
+            {
+              "abs_dz": 0.00577368,
+              "base": 18,
+              "lift": 212
+            },
+            {
+              "abs_dz": 0.00577368,
+              "base": 19,
+              "lift": 219
+            },
+            {
+              "abs_dz": 0.00577368,
+              "base": 20,
+              "lift": 226
+            },
+            {
+              "abs_dz": 0.00577368,
+              "base": 21,
+              "lift": 230
+            },
+            {
+              "abs_dz": 0.00577368,
+              "base": 22,
+              "lift": 232
+            },
+            {
+              "abs_dz": 0.00577368,
+              "base": 23,
+              "lift": 236
+            },
+            {
+              "abs_dz": 0.00577368,
+              "base": 24,
+              "lift": 240
+            },
+            {
+              "abs_dz": 0.00577368,
+              "base": 25,
+              "lift": 244
+            }
+          ]
+        },
+        "3": {
+          "max_abs_dz": 0.00866052,
+          "mean_abs_dz": 0.00866052,
+          "measured_samples": 25,
+          "measurement_status": "measured",
+          "min_abs_dz": 0.00866052,
+          "missing_vertices": 0,
+          "samples": [
+            {
+              "abs_dz": 0.00866052,
+              "base": 101,
+              "lift": 247
+            },
+            {
+              "abs_dz": 0.00866052,
+              "base": 102,
+              "lift": 250
+            },
+            {
+              "abs_dz": 0.00866052,
+              "base": 103,
+              "lift": 254
+            },
+            {
+              "abs_dz": 0.00866052,
+              "base": 104,
+              "lift": 258
+            },
+            {
+              "abs_dz": 0.00866052,
+              "base": 105,
+              "lift": 262
+            },
+            {
+              "abs_dz": 0.00866052,
+              "base": 106,
+              "lift": 264
+            },
+            {
+              "abs_dz": 0.00866052,
+              "base": 107,
+              "lift": 268
+            },
+            {
+              "abs_dz": 0.00866052,
+              "base": 108,
+              "lift": 275
+            },
+            {
+              "abs_dz": 0.00866052,
+              "base": 109,
+              "lift": 282
+            },
+            {
+              "abs_dz": 0.00866052,
+              "base": 110,
+              "lift": 289
+            },
+            {
+              "abs_dz": 0.00866052,
+              "base": 111,
+              "lift": 293
+            },
+            {
+              "abs_dz": 0.00866052,
+              "base": 112,
+              "lift": 297
+            },
+            {
+              "abs_dz": 0.00866052,
+              "base": 113,
+              "lift": 304
+            },
+            {
+              "abs_dz": 0.00866052,
+              "base": 114,
+              "lift": 311
+            },
+            {
+              "abs_dz": 0.00866052,
+              "base": 115,
+              "lift": 318
+            },
+            {
+              "abs_dz": 0.00866052,
+              "base": 116,
+              "lift": 322
+            },
+            {
+              "abs_dz": 0.00866052,
+              "base": 117,
+              "lift": 326
+            },
+            {
+              "abs_dz": 0.00866052,
+              "base": 118,
+              "lift": 333
+            },
+            {
+              "abs_dz": 0.00866052,
+              "base": 119,
+              "lift": 340
+            },
+            {
+              "abs_dz": 0.00866052,
+              "base": 120,
+              "lift": 347
+            },
+            {
+              "abs_dz": 0.00866052,
+              "base": 121,
+              "lift": 351
+            },
+            {
+              "abs_dz": 0.00866052,
+              "base": 122,
+              "lift": 353
+            },
+            {
+              "abs_dz": 0.00866052,
+              "base": 123,
+              "lift": 357
+            },
+            {
+              "abs_dz": 0.00866052,
+              "base": 124,
+              "lift": 361
+            },
+            {
+              "abs_dz": 0.00866052,
+              "base": 125,
+              "lift": 365
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "schema": "N5_stack_measurements_v1",
+  "source_pin_receipt_sha256": "cb2050ae0ed98e5396d78876444ee870025fdc32c228fefdd48a12ef03bdcacc"
+}

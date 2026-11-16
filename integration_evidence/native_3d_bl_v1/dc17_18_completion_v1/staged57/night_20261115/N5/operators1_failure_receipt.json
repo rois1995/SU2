@@ -1,0 +1,49 @@
+{
+  "schema": "n5_d9_fixture_failure_v1",
+  "action": "operators1",
+  "state": "FAILED_STOP_ON_FIRST_NONZERO",
+  "started_unix": 1794798067,
+  "ended_unix": 1794798072.4163182,
+  "duration_seconds": 4.503713369369507,
+  "unified_exec_session_id": 88806,
+  "command": "env OMPI_MCA_osc=pt2pt OMPI_MCA_orte_tmpdir_base=<N5>/mpi_units python3 <N5>/run_d9_units.py --descriptor <N5>/descriptors/operators1.json",
+  "helper_exit_code": 2,
+  "first_failure": {
+    "source": "UnitTests/Common/adaptation/CNativeDistributed3D_tests.cpp",
+    "line": 5605,
+    "expression": "D9Connectivity(cone_refusal.output) == D9Connectivity(cone.output)",
+    "observed_refusal_connectivity": [],
+    "observed_reference_connectivity": "12 tetrahedra"
+  },
+  "next_failure": {
+    "line": 5606,
+    "expression": "cone_refusal.output.surface.size() == cone.output.surface.size()",
+    "observed": "0 != 12"
+  },
+  "attempt_path": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N5/cases/n5_d9_operators1_20261116T030107_2538456",
+  "pins_verified": true,
+  "changed_pins": [],
+  "resource_receipt": {
+    "path": "n5_d9_operators1_resource_handles.json",
+    "all_owned_handles_terminal": true,
+    "actual_host_proc": true,
+    "unranked_test_driver_pids": [],
+    "resource_guard_triggered": false
+  },
+  "rank_or_job_memory": {
+    "gnu_time_max_rss_kib": 35624,
+    "elapsed_seconds": 0.35,
+    "signals_delivered": 0,
+    "wall_gate_passed": true
+  },
+  "preserved_artifact_sha256": {
+    "descriptors/operators1.json": "0e48a62ca41491504e9264f6e5eedd81d340659b187f3228747193ed95dc9893",
+    "run_d9_units.py": "ca5c5700644d00c493773802ce3ed7c0eb9c5184270a0d0f74f1f3dacc8a8409",
+    "run_measurements.py": "4b71664cd2e4db495d6d8ae923d0d15fae509b6d1f31b11675fd360c01bda093",
+    "cases/n5_d9_operators1_20261116T030107_2538456/run.log": "3e0ad3ffb6417aa79e77ca8317c12d8a364f40b87268747356bb0c8f04089c2b",
+    "cases/n5_d9_operators1_20261116T030107_2538456/d9_native_operator_costs.json": "04158d32bc702a2dc08d01b8338f5c32ec2223779e11ad1283814d3fc6a77da9",
+    "cases/n5_d9_operators1_20261116T030107_2538456/pins.json": "d7b3ec06a9523625a070873d4e9273f7e81c89fdf4f7921acc881fc2580fbc60",
+    "n5_d9_operators1_resource_handles.json": "604191643e9b8522e3cc02070b826b353d9f9cb6f4a0861ea6d86ca67e5571b5"
+  },
+  "continuation": "No retry and no subsequent descriptor launched, pending primary review."
+}

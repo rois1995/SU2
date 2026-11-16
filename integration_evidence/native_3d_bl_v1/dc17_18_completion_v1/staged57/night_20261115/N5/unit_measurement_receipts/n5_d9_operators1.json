@@ -1,0 +1,46 @@
+{
+  "schema": "n5_d9_unit_action_v1",
+  "case": "n5_d9_operators1",
+  "descriptor": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N5/descriptors/operators1.json",
+  "descriptor_sha256": "0e48a62ca41491504e9264f6e5eedd81d340659b187f3228747193ed95dc9893",
+  "attempt": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N5/cases/n5_d9_operators1_20261116T030843_2556145",
+  "ranks": 1,
+  "attempt_status_sha256": "20240d827542318e73d62a25a706781ace48b7ff6c57dbe9256b7b861f1d3409",
+  "artifacts_sha256": {
+    "d9_native_operator_costs.json": "406edd168aac46558c87ffd0553097914fc54f22b444080e550bd5ecb761eb87",
+    "run.log": "9cfc715263a85931b6bfb1451627167e3debc4d3a188ec5fdd341d8ad4af267a"
+  },
+  "resource_guard": {
+    "schema": "n5_d9_unit_resource_guard_v2",
+    "actual_host_proc": true,
+    "unix": 1794798527.636456,
+    "expected_ranks": 1,
+    "rank_peak_hwm_bytes": {},
+    "sum_rank_peak_hwm_bytes": 0,
+    "unranked_test_driver_pids": [],
+    "all_expected_rank_peaks_seen": false,
+    "identities": [
+      {
+        "pid": 2556445,
+        "start_ticks": 29083103,
+        "state": "R",
+        "pgid": 2556445,
+        "sid": 2556445,
+        "name": "nice",
+        "alive": false,
+        "mpi_rank": null
+      }
+    ],
+    "all_owned_handles_terminal": true,
+    "maximum_job_bytes": 19999490048,
+    "resource_guard_triggered": false,
+    "rank_peak_basis": "per-rank /proc VmHWM maxima sampled while test_driver lives",
+    "live_hwm_lower_bound": true,
+    "gnu_time_child_maximum_is_job_peak": false,
+    "peak_note": "named sum of observed per-rank test_driver VmHWM maxima; live lower-bound observation, not GNU time maximum-child RSS"
+  },
+  "rank_peak_summary": null,
+  "source_pins_sha256": "4fdb19f8f7a165a959d0b1f9d446ae4977cdd221adda7e51c001c3b91d54857a",
+  "test_binary_sha256": "28a6a9ca063321252635e4cf2aa281fc9a9943996681d8a51bfe646910bd1d6b",
+  "passed": true
+}

@@ -36,5 +36,16 @@
   "primary_projection_scope": {
     "cause": "M5 asks cost of one projection; initial all-edge projection census ran after expensive M3 and could get no time, unnecessarily expanding the fixture.",
     "correction": "Measure the first demanded edge once before the face census, and label single-sample scope, keeping total need-edge denominator and incomplete census explicit."
+  },
+  "runtime_decoder_caller_contract": {
+    "cause": "Euler293 diagnostic failed before queries: requested decoding model2271278216B exceeds API default2147483648B; fixture already declares12884901888B held model but omitted it in DecodeReference call. Actualpeak176212KiB, not physicaljobgatefailure.",
+    "correction": "Pass existing D9HeldMemoryLimit to both decoder contexts. No production defaults,8GiBworkspace,12GiBmodel or19073MiBjobgate changed. Fix stale top-level sampling-deadline label600 to actual540; query logic unchanged.",
+    "failed_case": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N5/cases/n5_d9_geometry_euler293_20261116T022917_2464641",
+    "owned_handles_terminal": true
+  },
+  "runtime_shared_authority_accounting": {
+    "cause": "Second Euler293 attempt completed M1 edges, then fixture projection held-model guard failed. PlanarReference::ResidentBytes already includes accepted state and Geometry().ResidentBytes via ParameterWorkspaceBytes; fixture added authority again in each of two contexts, double-counting each3.2GB prepared reserve. Physical peak686276KiB.",
+    "correction": "Use existing ReferenceStorageBytes once per independent context, plus actual copied parameter-state storage/raw bytes/view overlay and the retained prior context. No quota/ceiling/production change. Preserve failure and per-edge CSV.",
+    "failed_case": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N5/cases/n5_d9_geometry_euler293_20261116T024058_2491809"
   }
 }

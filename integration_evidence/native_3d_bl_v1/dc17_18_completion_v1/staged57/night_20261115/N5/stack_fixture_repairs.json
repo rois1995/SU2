@@ -35,5 +35,11 @@
   "compile_WallFaces_API": {
     "cause": "Build511: new first-height reporter assumed WallFaces returns face structs with out/marker; actual API returns (cell ID, sorted face).",
     "correction": "Read its actual owning cell, match physical slot by sorted face, obtain marker through unchanged reference, and use pair.second vertices. Production unchanged; failed80.177s build receipts/pins/source copies preserved."
+  },
+  "runtime_direction_setup_and_growth_receipt": {
+    "cause": "M10n2 reachedtwoGrowthlayers thenproductioncurrent_front threw afterboundary_revision changed. New fixture differed from productioncaller: it installed a one-time direction pointer without ensureDirectionField revision refresh; uncaught production stops also lost all partial measurement receipts.",
+    "correction": "Install the existing production-style synchronous revision refresh callback. Record an explicit G exception/null unavailable growth-object data and committed-state/phase-log evidence if the unchanged production guard still stops; never bypass guard or claim accepted BL.",
+    "failed_attempt": "cases/n5_d9_m10_n2_20261116T014530_2361903",
+    "owned_handles_terminal": true
   }
 }

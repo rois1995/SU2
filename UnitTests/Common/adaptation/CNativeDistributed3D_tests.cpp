@@ -5366,3 +5366,247 @@ TEST_CASE("D9 observations preserve timer calls and separate candidate qJ work",
     for (size_t operation = 0; operation < SU2NativeTiming3D::Session::OperationCount; ++operation)
       CHECK(after.records[phase][operation].calls == before.records[phase][operation].calls);
 }
+namespace {
+struct D9OperatorSample {
+  bool accepted = false;
+  double seconds = 0;
+  Patch output;
+  std::string reason;
+  KernelStats kernel;
+};
+struct D9CoverageSample {
+  bool attempted = false;
+  bool inside_union = false;
+  size_t cells_tested = 0;
+  size_t cells_containing = 0;
+  double seconds = 0;
+  KernelStats kernel;
+};
+struct D9RepairSample {
+  EngineResult result;
+  double seconds = 0;
+};
+Patch D9CompleteEdgeStar(const Patch &source, Edge edge) {
+  std::vector<OwnedCell> star;
+  for (const auto &row : Rows(source)) {
+    bool has_a = false;
+    bool has_b = false;
+    for (const auto &node : row.cell.v) {
+      has_a = has_a || node.id == edge[0];
+      has_b = has_b || node.id == edge[1];
+    }
+    if (has_a && has_b)
+      star.push_back(row);
+  }
+  if (star.empty())
+    throw std::runtime_error("D9 edge fixture has no complete star");
+  return PatchOf(star);
+}
+D9OperatorSample D9RunSplit(const Patch &star, Edge edge, Node point,
+                            Id first_cell, const PlanarReference &geometry) {
+  D9OperatorSample sample;
+  const auto started = std::chrono::steady_clock::now();
+  sample.accepted = SplitEdge(star, edge, point, first_cell, geometry,
+                              sample.output, sample.reason, &sample.kernel);
+  sample.seconds =
+      std::chrono::duration<double>(std::chrono::steady_clock::now() - started)
+          .count();
+  return sample;
+}
+D9OperatorSample D9RunCone(const Patch &star, Edge edge, Node point,
+                           Id first_cell, const PlanarReference &geometry, const Patch& initial = {}) {
+  D9OperatorSample sample;
+  sample.output = initial;
+  const auto started = std::chrono::steady_clock::now();
+  sample.accepted =
+      InsertEdgeCavity(star, edge, point, first_cell, geometry, sample.output,
+                       sample.reason, &sample.kernel);
+  sample.seconds =
+      std::chrono::duration<double>(std::chrono::steady_clock::now() - started)
+          .count();
+  return sample;
+}
+bool D9FindNode(const Patch &patch, Id id, Node &found) {
+  for (const auto &cell : patch.cells) {
+    for (const auto &node : cell.v) {
+      if (node.id != id)
+        continue;
+      found = node;
+      return true;
+    }
+  }
+  return false;
+}
+std::vector<std::array<Id, 4>> D9Connectivity(const Patch &patch) {
+  std::vector<std::array<Id, 4>> result;
+  for (const auto &cell : patch.cells) {
+    std::array<Id, 4> ids{};
+    for (unsigned i = 0; i < 4; ++i)
+      ids[i] = cell.v[i].id;
+    std::sort(ids.begin(), ids.end());
+    result.push_back(ids);
+  }
+  std::sort(result.begin(), result.end());
+  return result;
+}
+D9CoverageSample D9MeasureOldCavityUnion(const Patch &star, bool cone_accepted,
+                                         bool found, const Node &point) {
+  D9CoverageSample sample;
+  if (!cone_accepted || !found)
+    return sample;
+  sample.attempted = true;
+  const auto started = std::chrono::steady_clock::now();
+  for (const auto &cell : star.cells) {
+    const Tetrahedron donor{cell.v[0].p, cell.v[1].p, cell.v[2].p, cell.v[3].p};
+    std::array<long double, 4> weights{};
+    ++sample.cells_tested;
+    sample.cells_containing +=
+        Barycentric(donor, point.p, weights, &sample.kernel);
+  }
+  sample.seconds =
+      std::chrono::duration<double>(std::chrono::steady_clock::now() - started)
+          .count();
+  sample.inside_union = sample.cells_containing > 0;
+  return sample;
+}
+Fixture D9InteriorPlacementFixture() {
+  Fixture fixture = Box();
+  fixture.patch.cells.clear();
+  const Node center{8, {.95, .93, .9}};
+  for (const auto &facet : fixture.facets) {
+    Cell cell{Id(fixture.patch.cells.size()),
+              {center, facet.v[0], facet.v[1], facet.v[2]}};
+    if (Orientation(cell.v[0].p, cell.v[1].p, cell.v[2].p, cell.v[3].p) < 0)
+      std::swap(cell.v[2], cell.v[3]);
+    fixture.patch.cells.push_back(cell);
+  }
+  return fixture;
+}
+std::vector<DonorCell> D9UniformDonors(const Owned &owned, Tensor sensor) {
+  std::vector<DonorCell> donors;
+  for (const auto &row : owned) {
+    DonorCell donor;
+    donor.cell = row.second.cell;
+    donor.sensor.fill(sensor);
+    donors.push_back(donor);
+  }
+  return donors;
+}
+D9RepairSample D9RunOneRepairRound(const Fixture &fixture, World &world) {
+  const auto input = Partition(Rows(fixture.patch), world);
+  const Tensor sensor{1, 0, 0, 1, 0, 1};
+  EngineOptions options;
+  options.maximum_rounds = 1;
+  options.candidate_batch = 1;
+  options.timings = true;
+  const PlanarReference geometry(fixture.facets);
+  const auto donors = D9UniformDonors(input, sensor);
+  const auto started = std::chrono::steady_clock::now();
+  auto result = Repair(world, input, donors, geometry, {}, options);
+  const double seconds =
+      std::chrono::duration<double>(std::chrono::steady_clock::now() - started)
+          .count();
+  return {std::move(result), seconds};
+}
+void D9WriteOperatorReport(
+    const D9OperatorSample &wall, const D9OperatorSample &split_refusal,
+    const D9OperatorSample &cone, const D9OperatorSample &cone_refusal,
+    bool wall_point_found, double wall_displacement, bool cone_point_found,
+    const D9CoverageSample &coverage, const D9RepairSample &repair,
+    const Patch &wall_star, const Patch &interior_star) {
+  std::ofstream report("d9_native_operator_costs.json");
+  if (!report)
+    throw std::runtime_error("cannot write D9 operator report");
+  report << std::setprecision(17)
+         << "{\"schema\":\"d9_native_operator_costs_v1\",\"population\":"
+            "\"single Box primitive only; not an M6 wing sample\""
+         << ",\"timing_unit\":\"seconds per API call; each operator "
+            "denominator is one call\""
+         << ",\"plain_wall_split\":{\"attempts\":1,\"accepted\":"
+         << (wall.accepted ? "true" : "false")
+         << ",\"edge_star_cells\":" << wall_star.cells.size()
+         << ",\"output_cells\":" << wall.output.cells.size()
+         << ",\"seconds\":" << wall.seconds
+         << ",\"point_found\":" << (wall_point_found ? "true" : "false")
+         << ",\"point_displacement\":";
+  if (wall_point_found)
+    report << wall_displacement;
+  else
+    report << "null";
+  report << ",\"exact_orientations\":" << wall.kernel.exact_orientations
+         << ",\"reason\":" << std::quoted(wall.reason) << "}"
+         << ",\"off_edge_split_refusal\":{\"attempts\":1,\"accepted\":"
+         << (split_refusal.accepted ? "true" : "false")
+         << ",\"seconds\":" << split_refusal.seconds
+         << ",\"reason\":" << std::quoted(split_refusal.reason) << "}"
+         << ",\"interior_cone\":{\"attempts\":1,\"accepted\":"
+         << (cone.accepted ? "true" : "false")
+         << ",\"edge_star_cells\":" << interior_star.cells.size()
+         << ",\"output_cells\":" << cone.output.cells.size()
+         << ",\"seconds\":" << cone.seconds
+         << ",\"point_found\":" << (cone_point_found ? "true" : "false")
+         << ",\"exact_orientations\":" << cone.kernel.exact_orientations
+         << ",\"reason\":" << std::quoted(cone.reason) << "}"
+         << ",\"outside_cone_refusal\":{\"attempts\":1,\"accepted\":"
+         << (cone_refusal.accepted ? "true" : "false")
+         << ",\"seconds\":" << cone_refusal.seconds
+         << ",\"reason\":" << std::quoted(cone_refusal.reason) << "}"
+         << ",\"old_cavity_barycentric_union\":{\"attempted_only_after_"
+            "successful_cone\":"
+         << (coverage.attempted ? "true" : "false")
+         << ",\"point_inside_old_cavity_union\":"
+         << (coverage.inside_union ? "true" : "false")
+         << ",\"old_cavity_cells_tested\":" << coverage.cells_tested
+         << ",\"cells_containing_point\":" << coverage.cells_containing
+         << ",\"seconds\":" << coverage.seconds
+         << ",\"exact_orientations\":" << coverage.kernel.exact_orientations
+         << "}" << ",\"interior_repair_one_round\":{\"attempted\":"
+         << repair.result.stats.attempted
+         << ",\"accepted\":" << repair.result.stats.accepted
+         << ",\"rejected\":" << repair.result.stats.rejected
+         << ",\"valid\":" << (repair.result.valid ? "true" : "false")
+         << ",\"seconds\":" << repair.seconds
+         << ",\"round_limit\":1,\"candidate_batch\":1,\"shape_admission_"
+            "override\":false}"
+         << ",\"production_policy_changed\":false,\"production_workflow_"
+            "launched\":false}\n";
+}
+} // namespace
+TEST_CASE(
+    "D9 operator costs use complete edge stars and exact old-cavity coverage",
+    "[.][NativeD9Operators]") {
+  World world;
+  REQUIRE(world.size == 1);
+  const auto fixture = Box();
+  const PlanarReference geometry(fixture.facets);
+  const Patch wall_star = D9CompleteEdgeStar(fixture.patch, {0, 1});
+  const auto wall =
+      D9RunSplit(wall_star, {0, 1}, {8, {.5, 0, 0}}, 100, geometry);
+  CHECK(wall.accepted);
+  Node realized_wall{8, {.5, 0, 0}};
+  const bool wall_found = D9FindNode(wall.output, 8, realized_wall);
+  const double wall_displacement =
+      wall_found ? std::hypot(realized_wall.p.x - .5, realized_wall.p.y,
+                              realized_wall.p.z)
+                 : std::numeric_limits<double>::quiet_NaN();
+  const Patch interior_star = D9CompleteEdgeStar(fixture.patch, {0, 6});
+  const Node off_edge{8, {.5, std::nextafter(.5, 1.), .5}};
+  const auto split_refusal =
+      D9RunSplit(interior_star, {0, 6}, off_edge, 200, geometry);
+  CHECK_FALSE(split_refusal.accepted);
+  const auto cone = D9RunCone(interior_star, {0, 6}, off_edge, 300, geometry);
+  CHECK(cone.accepted);
+  Node realized_interior{};
+  const bool cone_found = D9FindNode(cone.output, 8, realized_interior);
+  const auto coverage = D9MeasureOldCavityUnion(interior_star, cone.accepted,
+                                                cone_found, realized_interior);
+  const auto cone_refusal =
+      D9RunCone(interior_star, {0, 6}, {8, {1.5, .5, .5}}, 400, geometry, cone.output);
+  CHECK_FALSE(cone_refusal.accepted);
+  CHECK(D9Connectivity(cone_refusal.output) == D9Connectivity(cone.output));
+  CHECK(cone_refusal.output.surface.size() == cone.output.surface.size());
+  const auto repair = D9RunOneRepairRound(D9InteriorPlacementFixture(), world);
+  D9WriteOperatorReport(wall, split_refusal, cone, cone_refusal, wall_found,
+                        wall_displacement, cone_found, coverage, repair,
+                        wall_star, interior_star);
+}

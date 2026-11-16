@@ -19,10 +19,10 @@ N4 = N5.parent / "N4"
 PREFIX = N4 / "run_prefix_controller.py"
 CUT_CHECKS = N4 / "run_cut_checks.py"
 COMPARATOR = N4 / "compare_integer_rows.py"
-BUILD513 = N5 / "build513"
-ALIAS_STATUS = N5 / "build513_status.json"
-ALIAS_PINS = N5 / "build513_source_pins.json"
-ALIAS_HANDLES = N5 / "build513_terminal_handles.json"
+BUILD520 = N5 / "build520"
+ALIAS_STATUS = N5 / "build520_status.json"
+ALIAS_PINS = N5 / "build520_source_pins.json"
+ALIAS_HANDLES = N5 / "build520_terminal_handles.json"
 RUN_READY = N5 / "primary_run_ready.json"
 HEAVY = {"SU2_CFD", "test_driver", "cc1plus", "ninja", "lto1"}
 
@@ -59,8 +59,8 @@ REPO = Path({str(REPO)!r})
 BUILD = REPO / "integration_evidence/build-integrated-v3-p5-20261114"
 BUILD_BINARY = BUILD / "SU2_CFD/src/SU2_CFD"
 BINARY = BUILD_BINARY
-BUILD_STATUS = N5ROOT / "build513/build_status.json"
-SOURCE_PINS = N5ROOT / "build513/source_pins.json"
+BUILD_STATUS = N5ROOT / "build520/build_status.json"
+SOURCE_PINS = N5ROOT / "build520/source_pins.json"
 CLEAN = R / "nobl_clean_check_20261114/run"
 REFERENCE494 = R / "nobl_clean_check_20261114/first_collapse_receipt.json"
 REFERENCE293 = R / "nobl_cause_confirm_20261114/reference_counts.json"
@@ -108,9 +108,9 @@ def self_check():
 
 
 def verify_build():
-    status = json.loads((BUILD513 / "build_status.json").read_text())
-    pins = json.loads((BUILD513 / "source_pins.json").read_text())
-    handles = json.loads((BUILD513 / "terminal_handles.json").read_text())
+    status = json.loads((BUILD520 / "build_status.json").read_text())
+    pins = json.loads((BUILD520 / "source_pins.json").read_text())
+    handles = json.loads((BUILD520 / "terminal_handles.json").read_text())
     assert status.get("state") == "terminal" and status.get("exit_code") == 0 and status.get("pins_verified") is True
     assert handles.get("actual_host_proc") is True and handles.get("all_owned_handles_terminal") is True
     assert all(not row.get("alive") for row in handles.get("identities", []))
@@ -120,8 +120,8 @@ def verify_build():
     assert status["binary"] == str(binary) and status["test_binary"] == str(test_binary)
     assert sha(binary) == status["binary_sha256"] and sha(test_binary) == status["test_binary_sha256"]
     changed = [path for path, digest in pins.items() if sha(path) != digest]
-    assert not changed, f"build513 source freeze changed: {changed[:8]}"
-    assert sha(BUILD513 / "source_pins.json") == json.loads((BUILD513 / "build_plan.json").read_text())["source_pins_sha256"]
+    assert not changed, f"build520 source freeze changed: {changed[:8]}"
+    assert sha(BUILD520 / "source_pins.json") == json.loads((BUILD520 / "build_plan.json").read_text())["source_pins_sha256"]
     return status, pins, handles, binary, test_binary
 
 
@@ -154,8 +154,8 @@ def verify_run_ready():
     status, pins, _, _, _ = verify_build()
     ready = json.loads(RUN_READY.read_text())
     assert ready.get("run_ready") is True
-    assert ready.get("build_status_sha256") == sha(BUILD513 / "build_status.json")
-    assert ready.get("source_pins_sha256") == sha(BUILD513 / "source_pins.json")
+    assert ready.get("build_status_sha256") == sha(BUILD520 / "build_status.json")
+    assert ready.get("source_pins_sha256") == sha(BUILD520 / "source_pins.json")
     expected_helpers = {str(path.resolve()): sha(path) for path in sorted(N5.glob("*.py"))}
     assert ready.get("helper_sha256") == expected_helpers
     assert status.get("pins_verified") and pins

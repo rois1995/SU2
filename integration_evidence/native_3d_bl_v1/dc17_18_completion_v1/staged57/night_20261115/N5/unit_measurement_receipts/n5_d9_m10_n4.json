@@ -1,0 +1,47 @@
+{
+  "schema": "n5_d9_unit_action_v1",
+  "case": "n5_d9_m10_n4",
+  "descriptor": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N5/descriptors/m10_n4.json",
+  "descriptor_sha256": "3b39ec1795c26943d1dff272c90c1aaff3f613ebd829445b0a3343c6ce2ea5a1",
+  "attempt": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N5/cases/n5_d9_m10_n4_20261116T022417_2452891",
+  "ranks": 1,
+  "attempt_status_sha256": "95e9f4d4fda44f7a2d6ea580ca1636ee9cf0bc887cd1671d2d51335be655519a",
+  "artifacts_sha256": {
+    "d9_stack_measurement.json": "28ebbed4b9dd90f31ac32c6bb822900f313f48fe417b69c7a2bccbb94067627d",
+    "run.log": "12d2aae125f4d391e40c9f65ccdeab33e354fb40089a62ebd0c2063f7ebca4ee",
+    "d9_stack_phase_log.txt": "39ee52e5052d70cb42a720297b3c8256784a5eef0cfe397622b8603eea10d69a"
+  },
+  "resource_guard": {
+    "schema": "n5_d9_unit_resource_guard_v2",
+    "actual_host_proc": true,
+    "unix": 1794795862.1538706,
+    "expected_ranks": 1,
+    "rank_peak_hwm_bytes": {},
+    "sum_rank_peak_hwm_bytes": 0,
+    "unranked_test_driver_pids": [],
+    "all_expected_rank_peaks_seen": false,
+    "identities": [
+      {
+        "pid": 2453201,
+        "start_ticks": 28816554,
+        "state": "R",
+        "pgid": 2453201,
+        "sid": 2453201,
+        "name": "nice",
+        "alive": false,
+        "mpi_rank": null
+      }
+    ],
+    "all_owned_handles_terminal": true,
+    "maximum_job_bytes": 19999490048,
+    "resource_guard_triggered": false,
+    "rank_peak_basis": "per-rank /proc VmHWM maxima sampled while test_driver lives",
+    "live_hwm_lower_bound": true,
+    "gnu_time_child_maximum_is_job_peak": false,
+    "peak_note": "named sum of observed per-rank test_driver VmHWM maxima; live lower-bound observation, not GNU time maximum-child RSS"
+  },
+  "rank_peak_summary": null,
+  "source_pins_sha256": "cb2050ae0ed98e5396d78876444ee870025fdc32c228fefdd48a12ef03bdcacc",
+  "test_binary_sha256": "30b74f56ca10162687447283e006fa93ab5dfb0a18e9e55df6f0f134f4130a72",
+  "passed": true
+}

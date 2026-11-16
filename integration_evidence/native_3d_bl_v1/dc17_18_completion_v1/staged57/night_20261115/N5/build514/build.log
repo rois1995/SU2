@@ -1,0 +1,49 @@
+ninja: Entering directory `/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-p5-20261114'
+[1/5] Compiling C++ object UnitTests/test_driver.p/SU2_CFD_adaptation_CNativeImport3D_tests.cpp.o
+FAILED: [code=1] UnitTests/test_driver.p/SU2_CFD_adaptation_CNativeImport3D_tests.cpp.o 
+c++ -IUnitTests/test_driver.p -IUnitTests -I../../UnitTests -ISU2_CFD/src -I../../SU2_CFD/src -ICommon/src -I../../Common/src -I../../externals/CLI11 -I../../externals/eigen -I../../externals/cgns/adf -I../../externals/cgns/adfh -Iexternals/cgns -I../../externals/cgns -Iexternals/cgns/hdf5 -I../../externals/cgns/hdf5 -I../../externals/metis/include -I../../externals/metis/GKlib -I../../externals/metis/libmetis -I../../externals/parmetis/include -I../../externals/parmetis/libparmetis -I../../externals/mel -I../../externals/catch2 -I/usr/lib/x86_64-linux-gnu/openmpi/include -I/usr/lib/x86_64-linux-gnu/openmpi/include/openmpi -fdiagnostics-color=always -D_GLIBCXX_ASSERTIONS=1 -D_FILE_OFFSET_BITS=64 -std=c++17 -O2 -g -pthread -fPIC -Wno-empty-body -Wno-ignored-qualifiers -Wno-unused-parameter -Wno-deprecated-declarations -Wno-error=cast-function-type -Wno-cast-function-type -Wno-error=stringop-truncation -Wno-stringop-truncation -Wno-error=missing-field-initializers -Wno-missing-field-initializers -Wno-error=class-memaccess -Wno-class-memaccess -Wno-overloaded-virtual -Wno-array-bounds -Wno-dangling-pointer -march=native -ffast-math -fno-finite-math-only -DHAVE_CGNS -DHAVE_MPI -DHAVE_METIS -DHAVE_PARMETIS -DHAVE_MMG -MD -MQ UnitTests/test_driver.p/SU2_CFD_adaptation_CNativeImport3D_tests.cpp.o -MF UnitTests/test_driver.p/SU2_CFD_adaptation_CNativeImport3D_tests.cpp.o.d -o UnitTests/test_driver.p/SU2_CFD_adaptation_CNativeImport3D_tests.cpp.o -c ../../UnitTests/SU2_CFD/adaptation/CNativeImport3D_tests.cpp
+../../UnitTests/SU2_CFD/adaptation/CNativeImport3D_tests.cpp: In function ‘size_t D9PatchMemory(const SU2Native3D::Patch&)’:
+../../UnitTests/SU2_CFD/adaptation/CNativeImport3D_tests.cpp:3234:53: error: no matching function for call to ‘Bytes(const SU2Native3D::BoundaryPoints&)’
+ 3234 |                               transfer_memory::Bytes(patch.parameters), boundary_estimate,
+      |                               ~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~
+In file included from ../../UnitTests/SU2_CFD/adaptation/../../../Common/include/adaptation/CNativeDistributed2D.hpp:14,
+                 from ../../UnitTests/SU2_CFD/adaptation/../../../Common/include/adaptation/CNativeDistributed3D.hpp:9,
+                 from ../../UnitTests/SU2_CFD/adaptation/../../../Common/include/adaptation/CNativeDonor3D.hpp:8,
+                 from ../../UnitTests/SU2_CFD/adaptation/../../../Common/include/adaptation/CNativeImport3D.hpp:8,
+                 from ../../UnitTests/SU2_CFD/adaptation/CNativeImport3D_tests.cpp:8:
+../../UnitTests/SU2_CFD/adaptation/../../../Common/include/adaptation/CTransferMemory.hpp:55:8: note: candidate: ‘template<class T> size_t transfer_memory::Bytes(const std::vector<T>&)’
+   55 | size_t Bytes(const std::vector<T>& v) {
+      |        ^~~~~
+../../UnitTests/SU2_CFD/adaptation/../../../Common/include/adaptation/CTransferMemory.hpp:55:8: note:   template argument deduction/substitution failed:
+../../UnitTests/SU2_CFD/adaptation/CNativeImport3D_tests.cpp:3234:53: note:   ‘const SU2Native3D::BoundaryPoints’ {aka ‘const std::map<long unsigned int, SU2Native3D::BoundaryPoint>’} is not derived from ‘const std::vector<T>’
+ 3234 |                               transfer_memory::Bytes(patch.parameters), boundary_estimate,
+      |                               ~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~
+../../UnitTests/SU2_CFD/adaptation/../../../Common/include/adaptation/CTransferMemory.hpp:60:8: note: candidate: ‘template<class T> size_t transfer_memory::Bytes(const std::vector<std::vector<T> >&)’
+   60 | size_t Bytes(const std::vector<std::vector<T>>& v) {
+      |        ^~~~~
+../../UnitTests/SU2_CFD/adaptation/../../../Common/include/adaptation/CTransferMemory.hpp:60:8: note:   template argument deduction/substitution failed:
+../../UnitTests/SU2_CFD/adaptation/CNativeImport3D_tests.cpp:3234:53: note:   ‘const SU2Native3D::BoundaryPoints’ {aka ‘const std::map<long unsigned int, SU2Native3D::BoundaryPoint>’} is not derived from ‘const std::vector<std::vector<T> >’
+ 3234 |                               transfer_memory::Bytes(patch.parameters), boundary_estimate,
+      |                               ~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~
+../../UnitTests/SU2_CFD/adaptation/../../../Common/include/adaptation/CTransferMemory.hpp:66:15: note: candidate: ‘size_t transfer_memory::Bytes(const std::string&)’
+   66 | inline size_t Bytes(const std::string& s) { return s.capacity() > 15 ? s.capacity() + 1 : 0; }
+      |               ^~~~~
+../../UnitTests/SU2_CFD/adaptation/../../../Common/include/adaptation/CTransferMemory.hpp:66:40: note:   no known conversion for argument 1 from ‘const SU2Native3D::BoundaryPoints’ {aka ‘const std::map<long unsigned int, SU2Native3D::BoundaryPoint>’} to ‘const std::string&’ {aka ‘const std::__cxx11::basic_string<char>&’}
+   66 | inline size_t Bytes(const std::string& s) { return s.capacity() > 15 ? s.capacity() + 1 : 0; }
+      |                     ~~~~~~~~~~~~~~~~~~~^
+../../UnitTests/SU2_CFD/adaptation/../../../Common/include/adaptation/CTransferMemory.hpp:68:15: note: candidate: ‘size_t transfer_memory::Bytes(const std::vector<std::__cxx11::basic_string<char> >&)’
+   68 | inline size_t Bytes(const std::vector<std::string>& v) {
+      |               ^~~~~
+../../UnitTests/SU2_CFD/adaptation/../../../Common/include/adaptation/CTransferMemory.hpp:68:53: note:   no known conversion for argument 1 from ‘const SU2Native3D::BoundaryPoints’ {aka ‘const std::map<long unsigned int, SU2Native3D::BoundaryPoint>’} to ‘const std::vector<std::__cxx11::basic_string<char> >&’
+   68 | inline size_t Bytes(const std::vector<std::string>& v) {
+      |                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+../../UnitTests/SU2_CFD/adaptation/../../../Common/include/adaptation/CTransferMemory.hpp:74:15: note: candidate: ‘size_t transfer_memory::Bytes(const std::vector<bool>&)’
+   74 | inline size_t Bytes(const std::vector<bool>& v) { return CeilDiv(v.capacity(), 64) * 8; }
+      |               ^~~~~
+../../UnitTests/SU2_CFD/adaptation/../../../Common/include/adaptation/CTransferMemory.hpp:74:46: note:   no known conversion for argument 1 from ‘const SU2Native3D::BoundaryPoints’ {aka ‘const std::map<long unsigned int, SU2Native3D::BoundaryPoint>’} to ‘const std::vector<bool>&’
+   74 | inline size_t Bytes(const std::vector<bool>& v) { return CeilDiv(v.capacity(), 64) * 8; }
+      |                     ~~~~~~~~~~~~~~~~~~~~~~~~~^
+[2/5] Compiling C++ object UnitTests/test_driver.p/Common_adaptation_CNativeAffineReference_tests.cpp.o
+[3/5] Compiling C++ object UnitTests/test_driver.p/Common_adaptation_CNativeDistributed3D_tests.cpp.o
+[4/5] Compiling C++ object UnitTests/test_driver.p/SU2_CFD_adaptation_CNativeRemesher3D_tests.cpp.o
+ninja: build stopped: subcommand failed.
