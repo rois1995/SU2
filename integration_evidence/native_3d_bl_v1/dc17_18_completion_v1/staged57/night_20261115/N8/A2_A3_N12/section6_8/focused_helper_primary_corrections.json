@@ -1,0 +1,11 @@
+[
+  {
+    "cause": "Retargeted runner bypassed parent load_unit, losing known OMPI_MCA_osc=pt2pt setup",
+    "correction": "Set same existing pt2pt environment at new load_unit before any launch; production and gates unchanged",
+    "found": "prelaunch source review"
+  },
+  {
+    "cause": "Launch snippet used shorthand descriptor filenames rather than generated case-name filenames",
+    "correction": "Use exact generated case-name descriptor paths; assertion fired before any test process started"
+  }
+]

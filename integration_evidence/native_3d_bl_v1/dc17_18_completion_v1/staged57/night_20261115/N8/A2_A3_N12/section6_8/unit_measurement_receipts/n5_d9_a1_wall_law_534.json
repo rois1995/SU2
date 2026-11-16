@@ -1,0 +1,45 @@
+{
+  "schema": "n5_d9_unit_action_v1",
+  "case": "n5_d9_a1_wall_law_534",
+  "descriptor": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N8/A2_A3_N12/section6_8/descriptors/n5_d9_a1_wall_law_534.json",
+  "descriptor_sha256": "35f3727ccdeb2f926c17bfd2e944906ebec2927df12b0ff47497c02d93148795",
+  "attempt": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N8/A2_A3_N12/section6_8/cases/n5_d9_a1_wall_law_534_20261116T165157_528729",
+  "ranks": 1,
+  "attempt_status_sha256": "e73822f5023b54849b3051987d91631b624ec70498ea957490e6bbcb7a50a484",
+  "artifacts_sha256": {
+    "run.log": "f52d18170148b87e995463a581dbac0e7203e2ade1663c7b7148ffbcf22c0816"
+  },
+  "resource_guard": {
+    "schema": "n5_d9_unit_resource_guard_v2",
+    "actual_host_proc": true,
+    "unix": 1794847922.8377552,
+    "expected_ranks": 1,
+    "rank_peak_hwm_bytes": {},
+    "sum_rank_peak_hwm_bytes": 0,
+    "unranked_test_driver_pids": [],
+    "all_expected_rank_peaks_seen": false,
+    "identities": [
+      {
+        "pid": 529154,
+        "start_ticks": 34022597,
+        "state": "R",
+        "pgid": 529154,
+        "sid": 529154,
+        "name": "nice",
+        "alive": false,
+        "mpi_rank": null
+      }
+    ],
+    "all_owned_handles_terminal": true,
+    "maximum_job_bytes": 19999490048,
+    "resource_guard_triggered": false,
+    "rank_peak_basis": "per-rank /proc VmHWM maxima sampled while test_driver lives",
+    "live_hwm_lower_bound": true,
+    "gnu_time_child_maximum_is_job_peak": false,
+    "peak_note": "named sum of observed per-rank test_driver VmHWM maxima; live lower-bound observation, not GNU time maximum-child RSS"
+  },
+  "rank_peak_summary": null,
+  "source_pins_sha256": "d9b50bc1b0f633da7c2e01f5c8a917493b46f274bdee8b001b7db5afd79f9d3c",
+  "test_binary_sha256": "b5fb04ffd903d94357467a35d8adc5e9c3ce32ce5dd562bd2539f55aa66f52f3",
+  "passed": true
+}

@@ -1,0 +1,45 @@
+{
+  "schema": "n5_d9_unit_action_v1",
+  "case": "n5_d9_a2_requirements_534",
+  "descriptor": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N8/A2_A3_N12/section6_8/descriptors/n5_d9_a2_requirements_534.json",
+  "descriptor_sha256": "2110908da7f597ae87116b4f353df3f30fd30f6e6e78cb1843ad84f232fbbb1f",
+  "attempt": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N8/A2_A3_N12/section6_8/cases/n5_d9_a2_requirements_534_20261116T165135_527709",
+  "ranks": 1,
+  "attempt_status_sha256": "8b047a54f1576e566dc150d8f1c1b11d304a7574935626e7ef227e8404382b79",
+  "artifacts_sha256": {
+    "run.log": "7ca35a3af858714522caf1c0e1e8760676c259ef1510bc503a9b231679f5168f"
+  },
+  "resource_guard": {
+    "schema": "n5_d9_unit_resource_guard_v2",
+    "actual_host_proc": true,
+    "unix": 1794847900.2291472,
+    "expected_ranks": 1,
+    "rank_peak_hwm_bytes": {},
+    "sum_rank_peak_hwm_bytes": 0,
+    "unranked_test_driver_pids": [],
+    "all_expected_rank_peaks_seen": false,
+    "identities": [
+      {
+        "pid": 528074,
+        "start_ticks": 34020352,
+        "state": "R",
+        "pgid": 528074,
+        "sid": 528074,
+        "name": "nice",
+        "alive": false,
+        "mpi_rank": null
+      }
+    ],
+    "all_owned_handles_terminal": true,
+    "maximum_job_bytes": 19999490048,
+    "resource_guard_triggered": false,
+    "rank_peak_basis": "per-rank /proc VmHWM maxima sampled while test_driver lives",
+    "live_hwm_lower_bound": true,
+    "gnu_time_child_maximum_is_job_peak": false,
+    "peak_note": "named sum of observed per-rank test_driver VmHWM maxima; live lower-bound observation, not GNU time maximum-child RSS"
+  },
+  "rank_peak_summary": null,
+  "source_pins_sha256": "d9b50bc1b0f633da7c2e01f5c8a917493b46f274bdee8b001b7db5afd79f9d3c",
+  "test_binary_sha256": "b5fb04ffd903d94357467a35d8adc5e9c3ce32ce5dd562bd2539f55aa66f52f3",
+  "passed": true
+}
