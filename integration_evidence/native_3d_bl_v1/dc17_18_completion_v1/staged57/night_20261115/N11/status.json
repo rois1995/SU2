@@ -1,5 +1,5 @@
 {
-  "state": "GQ_passed_first_G3_next",
+  "state": "FAILED_PURPOSE_PRODUCTION_REVERTED_COMMIT_PENDING",
   "checkpoint": "5488d1f1b5",
   "pushed": true,
   "source_check": "source_check.md",
@@ -18,7 +18,7 @@
   "focused_assertions": 60,
   "focused_cases": 6,
   "session_id": null,
-  "case": "validation/cases/N11_GQ_535",
+  "case": "validation/cases/section6_2_bl_20261116T221115_1302882",
   "serial_identity_pass": true,
   "serial_changed_cases": 0,
   "serial_seconds": 794.6968865394592,
@@ -29,5 +29,28 @@
   },
   "first_G2_unqualified_reason": "helper hash edited in unused selfcheck during active run; original failed provenance preserved",
   "G2_summary": "validation/G2_summary.json",
-  "GQ_summary": "validation/GQ_summary.json"
+  "GQ_summary": "validation/GQ_summary.json",
+  "launch_identities": [
+    {
+      "pid": 1302882,
+      "start_ticks": 35937384,
+      "state": "S",
+      "comm": "python3"
+    },
+    {
+      "pid": 1303275,
+      "start_ticks": 35938398,
+      "state": "S",
+      "comm": "time"
+    }
+  ],
+  "first_failed_gate": "G3 geometry-origin guidance rejected/trials strictly<.70",
+  "ratio": 0.8039969254419678,
+  "rejected": 1046,
+  "trials": 1301,
+  "physical_passed": true,
+  "second_G3": "NOT_STARTED_FIRST_RESULT_FAILURE",
+  "N10": "NOT_STARTED_DEPENDENT_FAILED",
+  "further_N11_checks": "NOT_STARTED_FIRST_RESULT_FAILURE",
+  "production_restored_to": "f8c7b01085"
 }

@@ -19,3 +19,31 @@ G2first numericalgateexact90,809,869/counts480/473/346/263/469/464 and strictold
 CorrectedG2 R3fixture PASSED353.063082s planned/361.351210s sealed; exact90809869/counts and alloldinteger/timercalls, ALLinputs/source/binary unchanged,9terminalIDs. Originalunqualifiedreceiptremainsunchanged. No tolerance/gateoverride.
 
 GQ PASSED1238.571465s stop/1246.812545s sealed, strictalloldintegers/bytes/timercalls exactwith6.9Censusdelta. ALLpinsunchanged/9IDs terminal. ObservedSUMrankHWM14,076,043,264B belowjobcap. FirstG3next.
+
+
+## Final N11 result — FAILED, connected production reverted
+
+First RESULT failure: geometry-origin guidance **1,046 / 1,301 = 0.8039969254**, required strictly **<0.70**. Physical checks ALL passed:304,983 private cells all positive with sensors, zero upper refinements, modeled11,197,749,225B<12GiB, serial job RSS under19073MiB, exact frozen input/config/target/runtime, normal exit0. Numericalfixture622.150845s. Native decision budget remains388.8s/work233220; reported stage/API clocks include nested exitcensus74.060795s. No accepted final BL mesh.
+
+One read-only R5 diagnosis found no proposal transcription/wiring error. Exact written weights were active for2,914face encounters,0fallback. First changed edit vsP6c is index32 (report only, permitted6.9). All1592builtpins verified before revert. No guidance or joint-operator decision changed. The written proposal is insufficient on its required difficult-case purpose gate; no production retry/redesign.
+
+| Population | Validated/trials | Guidance rejected | Approved/accepted |
+|---|---:|---:|---:|
+| Primary, both queues |1136|672|459|
+| RefitWallSplit |0|0|0|
+| ReconstructWallSplit |0|0|0|
+| ReconstructSplitPatch |384|384|0|
+| Four-source sums |1520|1056|459|
+| Existing all-queue totals |1520|1056|459|
+
+All source-sum differences are0. Primary-only ALLQUEUE ratio672/1136=0.5915492958; this differs in population from the geometry-origin purpose ratio. Derived geometry-primary ratio662/917=0.7219193021 (inference: this serial PrepareSurface passes empty composition, and joint requires geometry||composition, so all384availablejoint results are geometry-origin). This inference does not replace or relax the actual gate.
+
+Raw frames: RefitWallSplit412calls/0valid/8.718522s; ReconstructWallSplit400/0/17.969102s; ReconstructSplitPatch402/384/26.305389s. All384validated patches of the last source were rejected by guidance. Geometry causes1043incomplete+3no_progress; size10incomplete. No joint-operator fix is authorized by this item.
+
+Reports: accepted459splits=255geometry+204size,4870rounds,37673measuredcells, exitgeometry_bad2653/size_bad4609/geometry_debt0.00012947533365975256/size_debt5936.6983113070364. These exit counts depend on clocks and are report-only (the withdrawn7984purpose is not used). Compare splitcounts457N9(noentrycensus),373suppliedpartial534,384qualifiedcomplete534. Geometry purpose ratios1170/1425=.82105N9,974/1169=.83319suppliedpartial,995/1197=.83124qualified534,1046/1301=.80400N11; no equal-work speed claim.
+
+All B0 refusal/reason/frame/guidance/pretrial rows and new source/law rows are preserved in reports/G3_all_wall_rows.json and.csv, alongside exact stage/model/RSS summary. R5_diagnosis.json records the source reading and first failure; failed_production_snapshot preserves candidate sources. ONE revert restores all connected N11 production and its own focused fixture to acceptedf8c7b01085, as pre-edit source_check reading14 said; AGENTS6.9policy/evidence remain. Original534pins now differ only by previously documented AGENTS policy overlay; original compiledbinaries preserved in reference_build534_before_69.
+
+SecondG3, MPI6report, safeguards, N11full/restart and dependentN10 NOT STARTED because the firstresult gate failed. Independent next item is6.3, fresh cut references on restoredaccepted534base, thenN6/N7. No questions/reviewer wait.
+
+R3 post-only repair: numericalrun endednormal0 but ownterminalhelper referenced undefinedsha. Originalexception preserved; post-only external proof found all5observedPIDs absent (onlytwo launch startticks had persisted; no fabricateddescendantticks), then existingphysical and purposepostprocessors ran in order. No numericalrepeat, sourcepinrewrite or gate/tolerancechange. This exposed the real purpose failure above.

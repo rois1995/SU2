@@ -1,0 +1,31 @@
+{"state": "running", "attempt": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N11/validation/cases/section6_2_bl_20261116T221115_1302882", "pid": 1303275}
+{"state": "terminal", "exit_code": 0, "seconds": 622.1508450508118, "pins_verified": true, "changed": [], "largest_sampled_individual_process_rss_bytes": 3338240000, "rss_note": "sampled process RSS; not a whole-job peak"}
+Traceback (most recent call last):
+  File "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N11/validation/run_n11_g3.py", line 103, in <module>
+    assert "gate.self_check();match_bl_wrapper(gate);raise SystemExit(gate.main(bl_case[0]))" in source
+      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/run_cases.py", line 174, in main
+    """Byte completeness and frozen-source identity; not mesh acceptance or exact continuation."""
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+SystemExit: 0
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N11/validation/run_n11_g3.py", line 363, in <module>
+    main()
+  File "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N11/validation/run_n11_g3.py", line 347, in main
+    result = launch_one("first", args.host_preflight)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N11/validation/run_n11_g3.py", line 272, in launch_one
+    code, namespace = execute_g3_source(probe=False, host_path=host_path)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N11/validation/run_n11_g3.py", line 227, in execute_g3_source
+    exec(compile(source, str(Path(__file__).resolve()), "exec"), namespace)
+  File "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N11/validation/run_n11_g3.py", line 107, in <module>
+    def host_preflight(path):
+       ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N11/validation/run_n11_g3.py", line 168, in terminal_receipt
+    "host_preflight": str(host_path), "host_preflight_sha256": sha(host_path)}
+                                                               ^^^
+NameError: name 'sha' is not defined

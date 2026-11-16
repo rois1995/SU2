@@ -104,20 +104,4 @@ bool EstimateSaysNeed(const WallEdgeEstimate& estimate, double tau) {
   return estimate.supported && estimate.value > .75 * tau;
 }
 
-WallFaceWeights WallFaceEdgeWeights(const std::array<WallEdgeEstimate, 3>& estimates) {
-  double maximum = 0;
-  for (const auto& estimate : estimates) {
-    if (!estimate.supported) return {};
-    maximum = std::max(maximum, estimate.value);
-  }
-  if (maximum == 0) return {};
-  WallFaceWeights result;
-  result.weighted = true;
-  for (size_t i = 0; i < estimates.size(); ++i) {
-    const long double ratio = static_cast<long double>(estimates[i].value) / maximum;
-    result.factors[i] = ratio * ratio;
-  }
-  return result;
-}
-
 }  // namespace SU2Native3D

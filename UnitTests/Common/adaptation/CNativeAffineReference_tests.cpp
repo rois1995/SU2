@@ -2919,5 +2919,3 @@ TEST_CASE("Wall geometry law is planar, symmetric and rejects absent matching su
 #include "fixtures/native_requirements3d_tests.inc"
 
 #include "fixtures/native_wall_diagnostics68_tests.inc"
-
-#include "fixtures/native_wall_law_b2_tests.inc"

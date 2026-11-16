@@ -1,0 +1,180 @@
+NATIVE3D_REFERENCE_CACHE host_ranks=1 host_quota_bytes=4294967296 rank_quota_bytes=4294967296
+Filters: [NativeActualSavedSurfaceStage3D]
+NATIVE3D_TIMER root=target_checkpoint boundary=final rank=0 phase=preparation operation=target_composition calls=1 inclusive_call_seconds=32.636025272000005 exclusive_seconds=16.007961011000003
+NATIVE3D_TIMER root=target_checkpoint boundary=final rank=0 phase=preparation operation=mobility_policy calls=1 inclusive_call_seconds=16.628064261000002 exclusive_seconds=16.628064261000002
+NATIVE3D_TIMER_SUMMARY root=target_checkpoint boundary=final rank=0 ranks=1 root_seconds=32.636025455000002 sumexclusive=32.636025455000002 unattributed=1.829999973779195e-07 coverage=0.9999999943926996 fixedstorage=4120
+NATIVE3D_REQUIREMENTS rank=0 hmin=nan hmax=nan ARmax=nan hgrad=nan complexity=nan composition_present=0 mapped=1 entity_geometry=1 curved=1 tolerance=0.0001 policy_present=1 features=674 corners=2 sheets=4 angle=60 height_tolerance=0.10000000000000001 maximum_work=233220 maximum_seconds=388.80000000000001 memory_ceiling=12884901888 job_memory_limit=0 wall_rows=2:6.3999999999999997e-05,1.2,0.01
+NATIVE3D_STORAGE rank=0 stage=surface_required_entry authority_plus_memo_bytes=450474328 prepared_reserved_bytes=2807218176 facet_live_bytes=84838832 scope_live_bytes=3550032 private_cells_bytes=136112704 selection_bytes=19322240 directory_bytes=253828368 metric_source_bytes=332990752 parameter_bytes=49062376 caller_reservation_bytes=5307871697 native_peak_bytes=8988169809
+NATIVE3D_STAGE rank=0 stage=surface_required_entry job_peak_rss_lower=2290778112 phase=construction cells=303823 measured=320 cache_consistent=1 census_complete=0 shape_complete=0 geometry_complete=0 q_measured=0 j_measured=0 q_bad=0 j_bad=0 size_bad=1 geometry_bad=0 q_debt=0 j_debt=0 size_debt=0.0010368432315358514 geometry_debt=0 distinct_facets=105 distinct_scope_keys=1 prepared_facet_builds=105 prepared_facet_mean_bytes=807988.87619047624 associations=24700 working_faces=49396 face_pieces=0 trace_pieces=677 maximum_ratio_limbs=2 atlas_work=10742418 atlas_bytes=8958670537 global_work=0 rounds=0 batch_rounds=0 collapse_corrections=0 collapse_correction_cells=0 collapse_correction_work=0 collapse_correction_seconds=0 batch_candidates=0 batch_reserved=0 quality_progress=0 accepted=0 updated_cells=0 update_seconds=0 surface_measurement_skipped=0 surface_required_handoffs=1 surface_demand_required=39243 surface_demand_measured=320 surface_demand_complete=0 surface_geometry_complete=0 seed_cell_classes=0,0,320 updated_cell_classes=0,0,0 geometry_trials=0 geometry_rejected=0 guidance_trials=0 guidance_rejected=0 guidance_faces=0 guidance_early_rejected=0 guidance_seconds=0 collective_calls=119 collective_seconds=0.17146489499999973 election_calls=327 election_seconds=0.00015395700016540559 direct_calls=320 direct_exceptions=0 direct_work=0 direct_seconds=0.023860740999999998 upper_calls=0 union_exceptions=0 upper_refusals=0 upper_work=0 upper_refinements=0 upper_deferred_bounds=0 classification_calls=0 classification_work=0 magnitude_calls=0 magnitude_work=0 limit_calls=0 limit_work=0 upper_seconds=0 full_calls=0 full_work=0 full_seconds=0 facet_hits=0 facet_misses=0 facet_resolutions=1 scope_hits=0 scope_misses=0 scope_attempts=0 scope_builds=0 scope_build_work=0 scope_build_seconds=0 support_calls=0 support_facets=0 support_seconds=0 facet_build_work=0 facet_build_seconds=0 piece_selection_work=0 piece_selection_seconds=0 traversal_work=0 traversal_seconds=0 selected_pieces=0 support_pieces=0 smooth_boundary_stars=0 smooth_boundary_reused=0 smooth_boundary_candidates=0 smooth_boundary_rejects=0,0,0,0 smooth_boundary_guidance=0 smooth_boundary_upper_queries=0 smooth_boundary_move_contexts=0 smooth_boundary_prepared_trials=0 smooth_boundary_guidance_reused_faces=0 smooth_boundary_guidance_faces=0 smooth_boundary_guidance_early_rejected=0 smooth_boundary_moves=0 smooth_boundary_debt_reduction=0 smooth_boundary_seconds=0 smooth_interior_stars=0 smooth_interior_reused=0 smooth_interior_candidates=0 smooth_interior_rejects=0,0,0,0 smooth_interior_guidance=0 smooth_interior_upper_queries=0 smooth_interior_moves=0 smooth_interior_debt_reduction=0 smooth_interior_seconds=0 retention_refusals=0 prepared_bytes=88841544 prepared_limit=2807218176 facet_bytes=84838832 scope_bytes=3550032 facet_entries=105 scope_entries=1 cache_evictions=0 cache_evicted_bytes=0 memo_direct_hits=0 memo_direct_misses=320 memo_union_hits=0 memo_union_misses=0 memo_stores=320 memo_evictions=0 memo_evicted_bytes=0 memo_retention_refusals=0 memo_maintenance_work=0 memo_bytes=115200 memo_limit=401030920 memo_direct_entries=320 memo_union_entries=0 length_splits=0 length_collapses=0 split_passes=0 collapse_passes=0 quality_stages=0 split_generation=1 split_lane=1 surface_rounds=0 interior_rounds=0 surface_seconds=0 interior_seconds=0 surface_conflicts=0 interior_conflicts=0 interior_boundary_discoveries=0 unique_long_surface=0 unique_long_interior=0 unique_edge_debt=0 maximum_edge=0 edge_census_round=18446744073709551615 edge_census_current=0 edge_histogram=0,0,0 child_parent_max=0 child_ratio_measured=0 elapsed=8.4094632130000004
+NATIVE3D_WALL_LAW rank=0 boundary=exit faces=50314 edge_incidences=150942 need_incidences=20014 unsupported_incidences=0 max_ratio=4924.9832181650645 seconds=74.060795342999995
+NATIVE3D_TIMER root=native_engine boundary=exit rank=0 phase=surface operation=unattributed calls=14241 inclusive_call_seconds=909.61834933200259 exclusive_seconds=2.3148441570000671
+NATIVE3D_TIMER root=native_engine boundary=exit rank=0 phase=surface operation=import calls=9369 inclusive_call_seconds=2.261253292000001 exclusive_seconds=1.7493352210000028
+NATIVE3D_TIMER root=native_engine boundary=exit rank=0 phase=surface operation=target_composition calls=162846 inclusive_call_seconds=35.519233139999734 exclusive_seconds=35.519233139999734
+NATIVE3D_TIMER root=native_engine boundary=exit rank=0 phase=surface operation=census calls=5677 inclusive_call_seconds=309.70410133199994 exclusive_seconds=93.715512166000067
+NATIVE3D_TIMER root=native_engine boundary=exit rank=0 phase=surface operation=geometry_bound calls=26237 inclusive_call_seconds=396.16225738900226 exclusive_seconds=232.12050940099991
+NATIVE3D_TIMER root=native_engine boundary=exit rank=0 phase=surface operation=geometry_projection calls=2293 inclusive_call_seconds=0.66664898900000058 exclusive_seconds=0.66664898900000058
+NATIVE3D_TIMER root=native_engine boundary=exit rank=0 phase=surface operation=candidate calls=5836 inclusive_call_seconds=250.15217452500002 exclusive_seconds=83.883284076999786
+NATIVE3D_TIMER root=native_engine boundary=exit rank=0 phase=surface operation=scheduling calls=26601 inclusive_call_seconds=3.3646257939999957 exclusive_seconds=3.359597914999997
+NATIVE3D_TIMER root=native_engine boundary=exit rank=0 phase=surface operation=topology calls=7331 inclusive_call_seconds=5.4897988909999924 exclusive_seconds=0.20307290699999919
+NATIVE3D_TIMER root=native_engine boundary=exit rank=0 phase=surface operation=communication calls=610641 inclusive_call_seconds=7.1355016170240697 exclusive_seconds=4.7694391120183264
+NATIVE3D_TIMER root=native_engine boundary=exit rank=0 phase=surface operation=metric_normalization calls=7945 inclusive_call_seconds=2.918530335000014 exclusive_seconds=0.53806546900000696
+NATIVE3D_TIMER root=native_engine boundary=exit rank=0 phase=surface operation=output calls=1 inclusive_call_seconds=0.0020560260000000003 exclusive_seconds=0.0020560260000000003
+NATIVE3D_TIMER root=native_engine boundary=exit rank=0 phase=surface operation=clearance calls=918 inclusive_call_seconds=5.9919588250000082 exclusive_seconds=2.9727213259999967
+NATIVE3D_TIMER_SUMMARY root=native_engine boundary=exit rank=0 ranks=1 root_seconds=462.88485740800002 sumexclusive=462.88485740801877 unattributed=3.3853816590009416 coverage=0.99268634174391024 fixedstorage=4120
+NATIVE3D_STORAGE rank=0 stage=exit authority_plus_memo_bytes=467132616 prepared_reserved_bytes=2807218176 facet_live_bytes=347057288 scope_live_bytes=1403422536 private_cells_bytes=136632384 selection_bytes=61405952 directory_bytes=369596160 metric_source_bytes=332990752 parameter_bytes=49882104 caller_reservation_bytes=5307871697 native_peak_bytes=11197749225
+NATIVE3D_STAGE rank=0 stage=exit job_peak_rss_lower=3337584640 phase=construction cells=304983 measured=37673 cache_consistent=1 census_complete=0 shape_complete=0 geometry_complete=0 q_measured=0 j_measured=0 q_bad=0 j_bad=0 size_bad=4609 geometry_bad=2653 q_debt=0 j_debt=0 size_debt=5936.6983113070364 geometry_debt=0.00012947533365975256 distinct_facets=6193 distinct_scope_keys=6909 prepared_facet_builds=6298 prepared_facet_mean_bytes=55105.952365830424 associations=25159 working_faces=50314 face_pieces=0 trace_pieces=679 maximum_ratio_limbs=2 atlas_work=129937709 atlas_bytes=9967879553 global_work=5284 rounds=4870 batch_rounds=0 collapse_corrections=0 collapse_correction_cells=0 collapse_correction_work=0 collapse_correction_seconds=0 batch_candidates=0 batch_reserved=0 quality_progress=0 accepted=459 updated_cells=1832 update_seconds=5.1886073420000063 surface_measurement_skipped=488 surface_required_handoffs=1 surface_demand_required=40159 surface_demand_measured=37673 surface_demand_complete=0 surface_geometry_complete=0 seed_cell_classes=0,0,36314 updated_cell_classes=0,0,1832 geometry_trials=3406 geometry_rejected=1886 guidance_trials=1520 guidance_rejected=1056 guidance_faces=10358 guidance_early_rejected=1053 guidance_seconds=164.71403814899995 collective_calls=218294 collective_seconds=0.25694725900943638 election_calls=409106 election_seconds=0.05122057400042479 direct_calls=44191 direct_exceptions=0 direct_work=0 direct_seconds=3.0570473809999963 upper_calls=23537 union_exceptions=0 upper_refusals=19072 upper_work=114535592 upper_refinements=0 upper_deferred_bounds=1 classification_calls=14001 classification_work=51005811 magnitude_calls=6297 magnitude_work=35482872 limit_calls=3239 limit_work=28046909 upper_seconds=231.28303656399942 full_calls=0 full_work=0 full_seconds=0 facet_hits=151533 facet_misses=6193 facet_resolutions=2 scope_hits=4223 scope_misses=7740 scope_attempts=7740 scope_builds=7740 scope_build_work=1797563 scope_build_seconds=38.921585938000028 support_calls=4313 support_facets=166997 support_seconds=0.26398503600000017 facet_build_work=678842 facet_build_seconds=27.846574200000074 piece_selection_work=2098909 piece_selection_seconds=1.2549244660000021 traversal_work=109790589 traversal_seconds=162.80092706799999 selected_pieces=1884330 support_pieces=21987814 smooth_boundary_stars=0 smooth_boundary_reused=0 smooth_boundary_candidates=0 smooth_boundary_rejects=0,0,0,0 smooth_boundary_guidance=0 smooth_boundary_upper_queries=0 smooth_boundary_move_contexts=0 smooth_boundary_prepared_trials=0 smooth_boundary_guidance_reused_faces=0 smooth_boundary_guidance_faces=0 smooth_boundary_guidance_early_rejected=0 smooth_boundary_moves=0 smooth_boundary_debt_reduction=0 smooth_boundary_seconds=0 smooth_interior_stars=0 smooth_interior_reused=0 smooth_interior_candidates=0 smooth_interior_rejects=0,0,0,0 smooth_interior_guidance=0 smooth_interior_upper_queries=0 smooth_interior_moves=0 smooth_interior_debt_reduction=0 smooth_interior_seconds=0 retention_refusals=1304 prepared_bytes=1767590832 prepared_limit=2807218176 facet_bytes=347057288 scope_bytes=1403422536 facet_entries=6298 scope_entries=161816 cache_evictions=96078 cache_evicted_bytes=446320144 memo_direct_hits=5034 memo_direct_misses=39157 memo_union_hits=11574 memo_union_misses=14093 memo_stores=51120 memo_evictions=0 memo_evicted_bytes=0 memo_retention_refusals=0 memo_maintenance_work=0 memo_bytes=18760968 memo_limit=401030920 memo_direct_entries=39157 memo_union_entries=11963 length_splits=459 length_collapses=0 split_passes=0 collapse_passes=0 quality_stages=0 split_generation=1 split_lane=1 surface_rounds=4870 interior_rounds=0 surface_seconds=380.14134185800043 interior_seconds=0 surface_conflicts=3734 interior_conflicts=0 interior_boundary_discoveries=0 unique_long_surface=0 unique_long_interior=0 unique_edge_debt=0 maximum_edge=0 edge_census_round=18446744073709551615 edge_census_current=0 edge_histogram=0,0,0 child_parent_max=0 child_ratio_measured=0 elapsed=462.936249825
+NATIVE3D_WALL_REFUSAL rank=0 class=SplitEdge reason=orientation count=0
+NATIVE3D_WALL_REFUSAL rank=0 class=SplitEdge reason=interface count=0
+NATIVE3D_WALL_REFUSAL rank=0 class=SplitEdge reason=surface_containment count=0
+NATIVE3D_WALL_REFUSAL rank=0 class=SplitEdge reason=feature count=0
+NATIVE3D_WALL_REFUSAL rank=0 class=SplitEdge reason=marker_junction count=0
+NATIVE3D_WALL_REFUSAL rank=0 class=SplitEdge reason=incomplete_star count=0
+NATIVE3D_WALL_REFUSAL rank=0 class=SplitEdge reason=other count=0
+NATIVE3D_WALL_REFUSAL rank=0 class=InsertEdgeCavity reason=orientation count=0
+NATIVE3D_WALL_REFUSAL rank=0 class=InsertEdgeCavity reason=interface count=0
+NATIVE3D_WALL_REFUSAL rank=0 class=InsertEdgeCavity reason=surface_containment count=0
+NATIVE3D_WALL_REFUSAL rank=0 class=InsertEdgeCavity reason=feature count=0
+NATIVE3D_WALL_REFUSAL rank=0 class=InsertEdgeCavity reason=marker_junction count=0
+NATIVE3D_WALL_REFUSAL rank=0 class=InsertEdgeCavity reason=incomplete_star count=0
+NATIVE3D_WALL_REFUSAL rank=0 class=InsertEdgeCavity reason=other count=0
+NATIVE3D_WALL_REFUSAL rank=0 class=other_geometry reason=orientation count=0
+NATIVE3D_WALL_REFUSAL rank=0 class=other_geometry reason=interface count=0
+NATIVE3D_WALL_REFUSAL rank=0 class=other_geometry reason=surface_containment count=0
+NATIVE3D_WALL_REFUSAL rank=0 class=other_geometry reason=feature count=0
+NATIVE3D_WALL_REFUSAL rank=0 class=other_geometry reason=marker_junction count=0
+NATIVE3D_WALL_REFUSAL rank=0 class=other_geometry reason=incomplete_star count=0
+NATIVE3D_WALL_REFUSAL rank=0 class=other_geometry reason=other count=0
+NATIVE3D_WALL_REFUSAL rank=0 class=RefitWallSplit reason=orientation count=0
+NATIVE3D_WALL_REFUSAL rank=0 class=RefitWallSplit reason=interface count=4
+NATIVE3D_WALL_REFUSAL rank=0 class=RefitWallSplit reason=surface_containment count=0
+NATIVE3D_WALL_REFUSAL rank=0 class=RefitWallSplit reason=feature count=0
+NATIVE3D_WALL_REFUSAL rank=0 class=RefitWallSplit reason=marker_junction count=0
+NATIVE3D_WALL_REFUSAL rank=0 class=RefitWallSplit reason=incomplete_star count=25
+NATIVE3D_WALL_REFUSAL rank=0 class=RefitWallSplit reason=other count=383
+NATIVE3D_WALL_REFUSAL rank=0 class=ReconstructWallSplit reason=orientation count=0
+NATIVE3D_WALL_REFUSAL rank=0 class=ReconstructWallSplit reason=interface count=0
+NATIVE3D_WALL_REFUSAL rank=0 class=ReconstructWallSplit reason=surface_containment count=0
+NATIVE3D_WALL_REFUSAL rank=0 class=ReconstructWallSplit reason=feature count=0
+NATIVE3D_WALL_REFUSAL rank=0 class=ReconstructWallSplit reason=marker_junction count=0
+NATIVE3D_WALL_REFUSAL rank=0 class=ReconstructWallSplit reason=incomplete_star count=0
+NATIVE3D_WALL_REFUSAL rank=0 class=ReconstructWallSplit reason=other count=400
+NATIVE3D_WALL_REFUSAL rank=0 class=ReconstructSplitPatch reason=orientation count=18
+NATIVE3D_WALL_REFUSAL rank=0 class=ReconstructSplitPatch reason=interface count=0
+NATIVE3D_WALL_REFUSAL rank=0 class=ReconstructSplitPatch reason=surface_containment count=0
+NATIVE3D_WALL_REFUSAL rank=0 class=ReconstructSplitPatch reason=feature count=0
+NATIVE3D_WALL_REFUSAL rank=0 class=ReconstructSplitPatch reason=marker_junction count=0
+NATIVE3D_WALL_REFUSAL rank=0 class=ReconstructSplitPatch reason=incomplete_star count=0
+NATIVE3D_WALL_REFUSAL rank=0 class=ReconstructSplitPatch reason=other count=0
+NATIVE3D_WALL_REASON rank=0 text="Native#D retained apex has incompatible height planes; different connectivity is required." count=312
+NATIVE3D_WALL_REASON rank=0 text="Native#D geometry-height incompatibility of the normal-row proposal at facet # cell #" count=400
+NATIVE3D_WALL_REASON rank=0 text="Native#D joint point cannot see its retained skin." count=18
+NATIVE3D_WALL_REASON rank=0 text="Native #D cavity link has a nonmanifold edge." count=5
+NATIVE3D_WALL_REASON rank=0 text="Native #D cavity has a disconnected or unclosed link." count=5
+NATIVE3D_WALL_REASON rank=0 text="Native#D retained height/normal-foot constraints have no common fit." count=6
+NATIVE3D_WALL_REASON rank=0 text="Native#D retained height planes leave no normal-foot freedom." count=55
+NATIVE3D_WALL_REASON rank=0 text="Native#D wall refit needs complete free apex stars." count=25
+NATIVE3D_WALL_REASON rank=0 text="Native#D wall-foot fit needs visibility across an admitted interface." count=4
+NATIVE3D_WALL_FRAME rank=0 operation=RefitWallSplit calls=412 valid=0 seconds=8.7185220129999976
+NATIVE3D_WALL_FRAME rank=0 operation=ReconstructWallSplit calls=400 valid=0 seconds=17.969101995999992
+NATIVE3D_WALL_FRAME rank=0 operation=ReconstructSplitPatch calls=402 valid=384 seconds=26.305389337999987
+NATIVE3D_WALL_SOURCE rank=0 source=primary validated=1136 guidance_rejected=672 approved=459
+NATIVE3D_WALL_SOURCE rank=0 source=RefitWallSplit validated=0 guidance_rejected=0 approved=0
+NATIVE3D_WALL_SOURCE rank=0 source=ReconstructWallSplit validated=0 guidance_rejected=0 approved=0
+NATIVE3D_WALL_SOURCE rank=0 source=ReconstructSplitPatch validated=384 guidance_rejected=384 approved=0
+NATIVE3D_WALL_LAW_SELECTION rank=0 law_weighted_faces=2914 law_fallback_faces=0 accepted_geometry_splits=255 accepted_size_splits=204
+NATIVE3D_WALL_REFUSAL rank=0 class=PreservePassingFirstHeights count=0
+NATIVE3D_WALL_REFUSAL rank=0 class=height_check count=0
+NATIVE3D_WALL_REFUSAL rank=0 class=boundary_replacement_ready count=0
+NATIVE3D_WALL_REFUSAL rank=0 class=guidance_guard count=1056
+NATIVE3D_WALL_REFUSAL rank=0 class=unwrapped_geometry_trial count=0
+NATIVE3D_WALL_GUIDANCE rank=0 origin=size cause=incomplete count=10
+NATIVE3D_WALL_GUIDANCE rank=0 origin=size cause=nonfinite count=0
+NATIVE3D_WALL_GUIDANCE rank=0 origin=size cause=no_progress count=0
+NATIVE3D_WALL_GUIDANCE rank=0 origin=size cause=after_above count=0
+NATIVE3D_WALL_GUIDANCE rank=0 origin=size cause=exception count=0
+NATIVE3D_WALL_GUIDANCE rank=0 origin=size cause=other count=0
+NATIVE3D_WALL_GUIDANCE rank=0 origin=geometry cause=incomplete count=1043
+NATIVE3D_WALL_GUIDANCE rank=0 origin=geometry cause=nonfinite count=0
+NATIVE3D_WALL_GUIDANCE rank=0 origin=geometry cause=no_progress count=3
+NATIVE3D_WALL_GUIDANCE rank=0 origin=geometry cause=after_above count=0
+NATIVE3D_WALL_GUIDANCE rank=0 origin=geometry cause=exception count=0
+NATIVE3D_WALL_GUIDANCE rank=0 origin=geometry cause=other count=0
+NATIVE3D_WALL_PRETRIAL rank=0 disposition=other count=0
+NATIVE3D_WALL_PRETRIAL rank=0 disposition=oversized count=0
+NATIVE3D_WALL_PRETRIAL rank=0 disposition=conflict count=0
+NATIVE3D_WALL_PRETRIAL rank=0 disposition=deferred count=3734
+NATIVE3D_WALL_PRETRIAL rank=0 disposition=split_position count=0
+NATIVE3D_WALL_COUNTS rank=0 geometry_trials=3406 expected_geometry_trials=3406 geometry_rejected=1886 expected_geometry_rejected=1886 guidance_trials=1520 expected_guidance_trials=1520 geometric_change_guidance_trials=1520 priority_guidance=0 geometry_queue_guidance_trials=1301 size_queue_guidance_trials=219 guidance_rejected=1056 expected_guidance_rejected=1056 accepted=459 expected_accepted=459 metric_trials=464 expected_metric_trials=464 metric_validation_trials=464 metric_validation_rejected=5 metric_rejected=5 metric_vetoed=0 selected=4870 operator_entered=1136 pretrial=3734 choice_partition_sum=4870 expected_proposed=4870 expected_attempted=1136 planning_refusals=0 guarded_refusals=1886 unwrapped_geometry_trials=0 refusal_partition_sum=1886 counter_sums_match=1
+NATIVE3D_LANE_CENSUS rank=0 stage=construction class=local_interior trials=0 approved=0 commits=0 seconds=0 work=0 same_skin=0 no_parameter_edits=0 no_coverage=0
+NATIVE3D_LANE_CENSUS rank=0 stage=construction class=local_wall trials=1136 approved=459 commits=459 seconds=253.56747919400016 work=0 same_skin=0 no_parameter_edits=0 no_coverage=443
+NATIVE3D_LANE_CENSUS rank=0 stage=construction class=shared_interior trials=0 approved=0 commits=0 seconds=0 work=0 same_skin=0 no_parameter_edits=0 no_coverage=0
+NATIVE3D_LANE_CENSUS rank=0 stage=construction class=shared_wall trials=0 approved=0 commits=0 seconds=0 work=0 same_skin=0 no_parameter_edits=0 no_coverage=0
+NATIVE3D_LANE_CENSUS rank=0 stage=quality class=local_interior trials=0 approved=0 commits=0 seconds=0 work=0 same_skin=0 no_parameter_edits=0 no_coverage=0
+NATIVE3D_LANE_CENSUS rank=0 stage=quality class=local_wall trials=0 approved=0 commits=0 seconds=0 work=0 same_skin=0 no_parameter_edits=0 no_coverage=0
+NATIVE3D_LANE_CENSUS rank=0 stage=quality class=shared_interior trials=0 approved=0 commits=0 seconds=0 work=0 same_skin=0 no_parameter_edits=0 no_coverage=0
+NATIVE3D_LANE_CENSUS rank=0 stage=quality class=shared_wall trials=0 approved=0 commits=0 seconds=0 work=0 same_skin=0 no_parameter_edits=0 no_coverage=0
+D9_QUERY rank=0 phase=quality site=a scopes=0 direct_calls=0 upper_calls=0 classification_calls=0 magnitude_calls=0 limit_calls=0 memo_direct_hits=0 memo_union_hits=0 upper_work=0 seconds=0 direct_seconds=0 upper_seconds=0
+D9_QUERY rank=0 phase=quality site=b scopes=0 direct_calls=0 upper_calls=0 classification_calls=0 magnitude_calls=0 limit_calls=0 memo_direct_hits=0 memo_union_hits=0 upper_work=0 seconds=0 direct_seconds=0 upper_seconds=0
+D9_QUERY rank=0 phase=quality site=c scopes=0 direct_calls=0 upper_calls=0 classification_calls=0 magnitude_calls=0 limit_calls=0 memo_direct_hits=0 memo_union_hits=0 upper_work=0 seconds=0 direct_seconds=0 upper_seconds=0
+D9_QUERY rank=0 phase=quality site=d scopes=0 direct_calls=0 upper_calls=0 classification_calls=0 magnitude_calls=0 limit_calls=0 memo_direct_hits=0 memo_union_hits=0 upper_work=0 seconds=0 direct_seconds=0 upper_seconds=0
+D9_QUERY rank=0 phase=quality site=e scopes=0 direct_calls=0 upper_calls=0 classification_calls=0 magnitude_calls=0 limit_calls=0 memo_direct_hits=0 memo_union_hits=0 upper_work=0 seconds=0 direct_seconds=0 upper_seconds=0
+D9_QUERY rank=0 phase=quality site=g scopes=0 direct_calls=0 upper_calls=0 classification_calls=0 magnitude_calls=0 limit_calls=0 memo_direct_hits=0 memo_union_hits=0 upper_work=0 seconds=0 direct_seconds=0 upper_seconds=0
+D9_QUERY rank=0 phase=final_proof site=a scopes=0 direct_calls=0 upper_calls=0 classification_calls=0 magnitude_calls=0 limit_calls=0 memo_direct_hits=0 memo_union_hits=0 upper_work=0 seconds=0 direct_seconds=0 upper_seconds=0
+D9_QUERY rank=0 phase=final_proof site=b scopes=0 direct_calls=0 upper_calls=0 classification_calls=0 magnitude_calls=0 limit_calls=0 memo_direct_hits=0 memo_union_hits=0 upper_work=0 seconds=0 direct_seconds=0 upper_seconds=0
+D9_QUERY rank=0 phase=final_proof site=c scopes=0 direct_calls=0 upper_calls=0 classification_calls=0 magnitude_calls=0 limit_calls=0 memo_direct_hits=0 memo_union_hits=0 upper_work=0 seconds=0 direct_seconds=0 upper_seconds=0
+D9_QUERY rank=0 phase=final_proof site=d scopes=0 direct_calls=0 upper_calls=0 classification_calls=0 magnitude_calls=0 limit_calls=0 memo_direct_hits=0 memo_union_hits=0 upper_work=0 seconds=0 direct_seconds=0 upper_seconds=0
+D9_QUERY rank=0 phase=final_proof site=e scopes=0 direct_calls=0 upper_calls=0 classification_calls=0 magnitude_calls=0 limit_calls=0 memo_direct_hits=0 memo_union_hits=0 upper_work=0 seconds=0 direct_seconds=0 upper_seconds=0
+D9_QUERY rank=0 phase=final_proof site=g scopes=0 direct_calls=0 upper_calls=0 classification_calls=0 magnitude_calls=0 limit_calls=0 memo_direct_hits=0 memo_union_hits=0 upper_work=0 seconds=0 direct_seconds=0 upper_seconds=0
+D9_QUERY rank=0 phase=surface site=a scopes=1520 direct_calls=7444 upper_calls=15831 classification_calls=9209 magnitude_calls=3383 limit_calls=3239 memo_direct_hits=4011 memo_union_hits=8612 upper_work=79307388 seconds=164.71489229400009 direct_seconds=0.3063201349999885 upper_seconds=163.94033589400036
+D9_QUERY rank=0 phase=surface site=b scopes=0 direct_calls=0 upper_calls=0 classification_calls=0 magnitude_calls=0 limit_calls=0 memo_direct_hits=0 memo_union_hits=0 upper_work=0 seconds=0 direct_seconds=0 upper_seconds=0
+D9_QUERY rank=0 phase=surface site=c scopes=0 direct_calls=0 upper_calls=0 classification_calls=0 magnitude_calls=0 limit_calls=0 memo_direct_hits=0 memo_union_hits=0 upper_work=0 seconds=0 direct_seconds=0 upper_seconds=0
+D9_QUERY rank=0 phase=surface site=d scopes=0 direct_calls=0 upper_calls=0 classification_calls=0 magnitude_calls=0 limit_calls=0 memo_direct_hits=0 memo_union_hits=0 upper_work=0 seconds=0 direct_seconds=0 upper_seconds=0
+D9_QUERY rank=0 phase=surface site=e scopes=38146 direct_calls=36747 upper_calls=7706 classification_calls=4792 magnitude_calls=2914 limit_calls=0 memo_direct_hits=1023 memo_union_hits=2962 upper_work=35228204 seconds=75.510578517999733 direct_seconds=2.7507272460000078 upper_seconds=67.342700669999076
+D9_QUERY rank=0 phase=surface site=g scopes=0 direct_calls=0 upper_calls=0 classification_calls=0 magnitude_calls=0 limit_calls=0 memo_direct_hits=0 memo_union_hits=0 upper_work=0 seconds=0 direct_seconds=0 upper_seconds=0
+D9_MOVE rank=0 stars=0 candidates=0 star_seconds=0 candidate_seconds=0 shared_qj_calls=0 shared_qj_seconds=0 qj_calls=0
+D9_MOVE_PART rank=0 part=other calls=0 inclusive_seconds=0 qj_seconds=0
+D9_MOVE_PART rank=0 part=export calls=0 inclusive_seconds=0 qj_seconds=0
+D9_MOVE_PART rank=0 part=projection calls=0 inclusive_seconds=0 qj_seconds=0
+D9_MOVE_PART rank=0 part=move calls=0 inclusive_seconds=0 qj_seconds=0
+D9_MOVE_PART rank=0 part=guidance calls=0 inclusive_seconds=0 qj_seconds=0
+NATIVE3D_TIMER root=native_engine boundary=final rank=0 phase=surface operation=unattributed calls=14241 inclusive_call_seconds=910.61764387400262 exclusive_seconds=2.812433843000079
+NATIVE3D_TIMER root=native_engine boundary=final rank=0 phase=surface operation=import calls=9369 inclusive_call_seconds=2.261253292000001 exclusive_seconds=1.7493352210000028
+NATIVE3D_TIMER root=native_engine boundary=final rank=0 phase=surface operation=target_composition calls=162846 inclusive_call_seconds=35.519233139999734 exclusive_seconds=35.519233139999734
+NATIVE3D_TIMER root=native_engine boundary=final rank=0 phase=surface operation=census calls=5677 inclusive_call_seconds=309.70410133199994 exclusive_seconds=93.715512166000067
+NATIVE3D_TIMER root=native_engine boundary=final rank=0 phase=surface operation=geometry_bound calls=26237 inclusive_call_seconds=396.16225738900226 exclusive_seconds=232.12050940099991
+NATIVE3D_TIMER root=native_engine boundary=final rank=0 phase=surface operation=geometry_projection calls=2293 inclusive_call_seconds=0.66664898900000058 exclusive_seconds=0.66664898900000058
+NATIVE3D_TIMER root=native_engine boundary=final rank=0 phase=surface operation=candidate calls=5836 inclusive_call_seconds=250.15217452500002 exclusive_seconds=83.883284076999786
+NATIVE3D_TIMER root=native_engine boundary=final rank=0 phase=surface operation=scheduling calls=26601 inclusive_call_seconds=3.3646257939999957 exclusive_seconds=3.359597914999997
+NATIVE3D_TIMER root=native_engine boundary=final rank=0 phase=surface operation=topology calls=7331 inclusive_call_seconds=5.4897988909999924 exclusive_seconds=0.20307290699999919
+NATIVE3D_TIMER root=native_engine boundary=final rank=0 phase=surface operation=communication calls=610643 inclusive_call_seconds=7.1355067000240702 exclusive_seconds=4.7694441950183268
+NATIVE3D_TIMER root=native_engine boundary=final rank=0 phase=surface operation=metric_normalization calls=7945 inclusive_call_seconds=2.918530335000014 exclusive_seconds=0.53806546900000696
+NATIVE3D_TIMER root=native_engine boundary=final rank=0 phase=surface operation=output calls=2 inclusive_call_seconds=0.0041086180000000005 exclusive_seconds=0.0041086180000000005
+NATIVE3D_TIMER root=native_engine boundary=final rank=0 phase=surface operation=clearance calls=918 inclusive_call_seconds=5.9919588250000082 exclusive_seconds=2.9727213259999967
+NATIVE3D_TIMER_SUMMARY root=native_engine boundary=final rank=0 ranks=1 root_seconds=463.89554438599998 sumexclusive=463.89554438601863 unattributed=4.3940109620009054 coverage=0.99052801645720334 fixedstorage=4120
+616.183 s: Saved transported M6 state resumes the production surface sequence
+===============================================================================
+All tests passed (916798 assertions in 1 test case)
+
+	Command being timed: "timeout 900 /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-p5-20261114/UnitTests/test_driver [NativeActualSavedSurfaceStage3D] --durations yes"
+	User time (seconds): 613.20
+	System time (seconds): 2.48
+	Percent of CPU this job got: 99%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 10:16.68
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 3259360
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 0
+	Minor (reclaiming a frame) page faults: 1469851
+	Voluntary context switches: 1059
+	Involuntary context switches: 5186
+	Swaps: 0
+	File system inputs: 0
+	File system outputs: 463704
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0

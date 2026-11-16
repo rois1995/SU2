@@ -7,8 +7,6 @@
 
 #include "CNativeBoundaryParameters3D.hpp"
 
-#include <array>
-
 namespace SU2Native3D {
 
 struct WallEndpointScore {
@@ -22,13 +20,6 @@ struct WallEdgeEstimate {
   bool supported = false;
   double value = 0;
 };
-
-struct WallFaceWeights {
-  std::array<long double, 3> factors{{1, 1, 1}};
-  bool weighted = false;
-};
-
-WallFaceWeights WallFaceEdgeWeights(const std::array<WallEdgeEstimate, 3>& estimates);
 
 std::set<Id> WallEligibleSides(const std::set<Id>& supports, const std::set<Id>& anchors,
                                const BoundaryParameterState& parameters);
