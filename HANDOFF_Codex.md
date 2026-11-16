@@ -1,12 +1,12 @@
 # Native adaptation — current handoff
 
-Updated 2026-11-16, Europe/Rome. **Section6.8 combined A1/A2/A3/N12/item4 is in validation. All ordered prerequisites passed; ONE full two-event run is active and the group is not accepted.** Newest accepted production remains N9 section6.6 (`9867041a2e`, production `c8f524b2a1`) atop accepted N1/P7/P8. The shared executable is candidate build534.
+Updated 2026-11-16, Europe/Rome. **Section6.8 combined A1/A2/A3/N12/item4 PASSED all ordered gates and is accepted on build534.** Full4697.519889s/all6N1hashes exact; isolated diskrestart248.353069s independently validated; all owned handles actual-host terminal. Accepted source checkpoint527c7c73fa has the frozen C534 production. Next is N11 under6.9, after policy copy and whole sourcecheck.
 
 R = `integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57`.
 Current campaign T = `R/night_20261115/N8/A2_A3_N12/section6_8`.
 Read complete latest scratchpad `NIGHT_WORK_ORDER.md` and [progress](integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/progress.md) after each compaction. Latest section6.8 is copied verbatim at AGENTS top; its copied input SHA is836173151939978d53310f24dd90b0ce78fc11de67014b72d551dc55eeb389a0.
 
-Current owned job: ONE full two-event workflow, tool21791/controller891010. All ordered prerequisites including saved safeguards passed. Read progress/status and validation/full_controller.log before any launch; no repeat or interruption. Isolated disk restart remains required after the full run. Whole group remains pending.
+Current owned job: NONE. Full and isolatedrestart terminal proofs under validation/full_workflow/status.json and validation/restart534/primary_final_terminal_proof.json. AGENTSstill contains pinned6.8 for the completed campaign; COPY exact6.9 from N11/section6_9_inputs before first N11 production edit. Accepted534binaries/policy/relevant source are archived in N11/reference_build534_before_69. No8.5.
 
 Passed on534: build110.165477s/1588pins/16terminal process identities; four focused groups78assertions/8cases; all three corrected CSV gates (need7521/6759/4368, all M1 integers/order/flags/support exact); M6b all82559projected/0refusals; G1serial/MPI2/MPI4 identity with0changedcases; G2alloldintegers/bytes/nonCensuscalls and12timer snapshots/exactCensusaddition for6lawrows. G2solver ran once,398.804320s untilplannedstop/408.513817s sealed,9terminalidentities. Postprocessing helpers were repaired underR3; no result gate was weakened and no numerical rerun was used for those repairs.
 

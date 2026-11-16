@@ -1,0 +1,43 @@
+{
+  "purpose": "Preserve accepted534 binaries and relevant source/policy before6.9/N11 edits; full original1588-source manifest retained",
+  "all_full_and_restart_owned_handles_terminal": true,
+  "records": {
+    "SU2_CFD": {
+      "source": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-p5-20261114/SU2_CFD/src/SU2_CFD",
+      "sha256": "a144d90cdc50b6ca5d77e23f929294c271a7c15628b28136b65303f15e4083b1",
+      "bytes": 524784952
+    },
+    "test_driver": {
+      "source": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-p5-20261114/UnitTests/test_driver",
+      "sha256": "b5fb04ffd903d94357467a35d8adc5e9c3ce32ce5dd562bd2539f55aa66f52f3",
+      "bytes": 823760560
+    },
+    "Common/src/adaptation/CNativeEngine3D.cpp": {
+      "sha256": "c953482705fc1686b14db19ee027f2c795687522e614275e608444a7ebc8566a",
+      "bytes": 544116
+    },
+    "Common/include/adaptation/CNativeEngine3D.hpp": {
+      "sha256": "c661acd0f8866b7e2bcf0884bf944286409f5c2d92ff548c510da3aefe3e75d7",
+      "bytes": 24823
+    },
+    "Common/include/adaptation/CNativeWallDiagnostics3D.hpp": {
+      "sha256": "9cc513ea95f34fee5d6ad44c345e339bfdb5fecd5d86a49ed84d76185bd04fda",
+      "bytes": 17387
+    },
+    "Common/include/adaptation/CNativeWallGeometryLaw3D.hpp": {
+      "sha256": "79eb840a398e91a45586e78750544b767c5f1eb682f829289acf228b907cf72d",
+      "bytes": 1257
+    },
+    "Common/src/adaptation/CNativeWallGeometryLaw3D.cpp": {
+      "sha256": "6671e88472352d35cd8f95366fdeba3b22c87a2fe861955ddb0f9e0b986636e6",
+      "bytes": 4184
+    },
+    "UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp": {
+      "sha256": "51488109e3f3f91d3ed2bdda6b6ba174676578bf06969c51a0ba4830c49e0eba",
+      "bytes": 214484
+    }
+  },
+  "AGENTS_sha256": "1eb12bf43c9eb2803f516de582e6e721853f8a57e24807ffc73907047259c046",
+  "all_full_six_hashes_match": true,
+  "source_commit_checkpoint": "527c7c73fa"
+}

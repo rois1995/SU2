@@ -1,0 +1,8 @@
+{
+  "cause": "The inherited full controller main raises SystemExit(0) on success. The wrapper code after runner[main]() is unreachable, so timer and six-file postprocessing must be invoked separately.",
+  "correction": "Standalone postprocessor reuses the original timer and payload comparators and original complete workflow receipts, preserving the frozen executing wrapper and its pins.",
+  "numerical_repeat": false,
+  "gate_or_tolerance_change": false,
+  "production_edit": false,
+  "next": "Run validate_full_post534.py only after full controller and owned solver handles are terminal."
+}
