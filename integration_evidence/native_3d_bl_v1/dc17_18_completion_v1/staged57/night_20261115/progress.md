@@ -5,14 +5,14 @@ Updated 2026-11-15. Latest order: NIGHT_WORK_ORDER.md (SHA-sealed input_manifest
 | Item | State | Commit / gates | Next |
 |---|---|---|---|
 | N1 P7/P8/counters | Section6.1 PASSED; original failure/revert retained | accepted N5 base3d28237f03; FULLRUN1+isolatedrestart PASSED on522 | units1/2/stats,collapse,safeguards,full newevent2referencepolicy |
-| N2 B7 | NOT STARTED | awaits accepted6.1M18 | reread/archiveNightsection6 beforecondition |
+| N2 B7 | ACTIVE: condition true; corrected build524 running | source checkpoint e945675cba pending validation; predicted17.70GB<=19.0GB | units→exactcollapse→safeguards→full |
 | N3 design source check | PASSED (read-only review completed) |14 consolidated findings/readings; M11/M15/M17/M19 and T1–T3 answered; no build/run/productionedit; see Handbook/ADAPTATION_DESIGN_SOURCE_CHECK_20261115.md | Commit/push, then N4 C/inventories/sourcecheck and reference gates |
 | N4 Adapt cut8.2 | Section6.3 pending; old A1 failure/revert historical | first complexity209.9357526597 vs656.1522579418; failed ec0e8f3ef5, reverted8039fc1b59 | freshG1identity/G2/G3/GQ after6.1/6.2 |
 | N5 all design measurements | PASSED; unavailable rows qualified | build521; G2/GQ exact integers; clean full all6P6c/standing gates; native2581.0285/1907.4990s, SUMpeaks13952311296/17729433600B | seal measurement table/checkpoint, then6.1 |
 | N6 further identical cuts | NOT STARTED | requirescompletedN4+G5 | Remesh,MeshOptimizer,Selection |
 | N7 morning report | NOT STARTED | always | finalclose/terminalhandles |
 
-Current job: NONE; section6.1 full and corrected isolatedrestart terminal/PASSED. Latest next6.2 fresh read/archive+condition, N9,N10,N11,N8 (A1 before N11),6.3,N6,N7. User programs are observations only under latest R1.
+Current job: section6.2 serialunits controller3802953/start31946474, application3803196; case section6_2_units_serial_20261116T110603_3802953. ALLCPP/build524/run_units/build524_aliases FROZEN. Build524PASSED910.995026s/all1561pins unchanged,134ownedbuildidentitiesactualhostterminal. Latest nextunits→exactcollapse→safeguards→fullB7policy,thenN9,N10,N11,N8(A1beforeN11),6.3,N6,N7.
 
 R5 governs resultfailures: preservefirstnumber; one<=60min readonlydiagnosis; onlytranscription/wiringagainstwrittenproposal permitsonecorrection+onefailedcheckrepeat; else revertitem, markFAILED andcontinueindependentnextitem. R3ownharnessrepairs<=90min each, no gate/productionchanges. Do not implementdesign8.3-8.7,A5/B5 or job-derivedquota.
 
@@ -231,3 +231,5 @@ Section6.1 N1 PASSED: corrected isolatedrestart physical validation true,245.402
 Section6.1 accepted checkpoint429c6c1a60 pushed. Section6.2 started: freshly rereadNightsection6 and H2.0c; copiedboth+SHA into section6_2/inputs BEFORE condition. B7 predicted peak 17700000000B vs19.0e9; condition=True. Per-rank needs in B7_condition.json. Next wholeB7sourcecheck before productionedit.
 
 B7 conditionTRUE17.70e9<=19.0e9; whole sourcecheck beforeedit in section6_2/source_check.md. Connected5paths implemented explicitfacet/scopelimits;Qfromconstant4GiBhostquota, memo/scopefromroundedL,ResidentBytescombinedcharge. Build523FAILEDterminal10.138870s missingtypeheaderdeclaration (owntranscription), evidence+headerpreserved. Allownedhandlesactualhostterminal; correctedsize_tonce,R5receipt. Correctedbuild524 nowLIVE; ALLcompiledsources/build524pins/helperFROZENuntilterminal. NextfinishSAMEbuild thenunits→exactcollapse→affectedsharedsafeguards→fullNight6.2referencepolicy. N9/N10/N11/N8 then6.3/N6/N7; nofinalN7.
+
+B7correctedbuild524PASSED910.995025635s/47actions;CFDc6187c58e829/test82be0e6dc3f7;all1561pinsunchanged/all134ownedbuildIDsactualhostterminal. SerialunitcohortLIVE3802953/start31946474/app3803196. Units+aliases/CPPFROZEN. Primaryreviewoffullhelperscaughtwrongtimerreceiptbasename before anyfullrun; agentcorrectingonlynewunusedhelpers,R3,no numericalrepeat. Buildfailure523puretranscriptionpreserved, nosecondCPPcorrection. B7notaccepteduntilorderednumericalgates.

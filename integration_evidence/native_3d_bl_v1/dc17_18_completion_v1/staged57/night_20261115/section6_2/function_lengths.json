@@ -1,94 +1,138 @@
 {
-  "method": "Reuse masked, line-bounded signature scan and balanced body braces. Longest existing definitions, not a C++ semantic parser. Existing long functions unchanged except bounded B7 wiring, written exception in implementation_receipt. New test33lines.",
-  "seconds": 1.299500614986755,
+  "count": 10,
+  "method": "Read-only masked C++ source scan using the safe line-bounded recipe: comments and string/character literals masked while preserving newlines; candidate declarators are followed through the balanced parameter list to a function-body brace; body length is inclusive start/end source lines through its matching closing brace. Catch2 TEST_CASE bodies are identified as test bodies, not named C++ functions. Top rows were checked against their source signatures and body braces.",
+  "provenance": {
+    "build_source_pins_sha256": "b2c252f814a9b745b2ecedea7b79a082f2a45d931a08fffd1a9931eda45976b6",
+    "current_file_hashes_match_build524_pins": true,
+    "implementation_receipt": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/section6_2/implementation_receipt.json",
+    "scan_recipe": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N5/reports/function_lengths_scan_recipe.txt",
+    "scan_recipe_sha256": "709ceaaaba6cba4392f1552097157bebd9ed571dd7c37e66d8547338d6a03f33",
+    "source_sha256": {
+      "Common/include/adaptation/CNativeAffineReference.hpp": "7d0a079409bcf8bacd213f4a1c88aa2b33a0db6d6a2eb96050be3ba714d4635b",
+      "Common/src/adaptation/CNativeAffineReference.cpp": "671e875d6a9c02acdd06520de54ce521d916ad39cf68deebff559b075e570d4f",
+      "Common/src/adaptation/CNativeEngine3D.cpp": "64e6a9f9f02c6b6f69fbd038314c049d2677c45b41f12dad5a4f459ff34072c2",
+      "Common/src/adaptation/CNativeReferenceIO3D.cpp": "da6246012f2d792ad4e05fa818c52b01903e17c6903c7baa9b022fe93390c74a",
+      "UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp": "6dfdb32f14582123ad635d0db1fe38a0df0f2d2a392df2f6663c9d6ff9e43e14"
+    }
+  },
+  "readability_context": "The existing Adapt method is 4,904 lines; it predates this B7 wiring. Section 6.2 implementation_receipt.json documents the bounded wiring exception and the 33-line new test. This report identifies function lengths only; it does not propose a cut or alter acceptance.",
+  "scan_correction": {
+    "cause": "The earlier approximate top-ten artifact used a different five-file inventory and signature-token matches that admitted keyword and constructor-initializer false positives; it yielded only nine entries and was not scoped to the five changed_existing_pins.",
+    "correction": "Rescoped to the exact five build524-pinned files. Applied comment/string masking and balanced-body bounds; excluded declarations/keyword or initializer matches unless a real body follows. Confirmed each retained top entry against the signature and matching function body. The constructor entry is the actual MappedFacetReference constructor body; test-case entries are explicitly labeled Catch2 bodies.",
+    "no_code_or_build_change": true
+  },
+  "schema": "section6_2_function_lengths_bounded_scan_v2",
+  "scope": {
+    "files": [
+      "Common/src/adaptation/CNativeEngine3D.cpp",
+      "Common/src/adaptation/CNativeAffineReference.cpp",
+      "Common/src/adaptation/CNativeReferenceIO3D.cpp",
+      "Common/include/adaptation/CNativeAffineReference.hpp",
+      "UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp"
+    ],
+    "reason": "The five existing source files listed in section6_2/implementation_receipt.json changed_existing_pins; no unrelated N5 or historical files are included.",
+    "source_pin_receipt": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/section6_2/build524/source_pins.json"
+  },
   "top10": [
     {
-      "path": "Common/src/adaptation/CNativeEngine3D.cpp",
-      "function": "Adapt",
-      "start_line": 1274,
       "end_line": 6177,
+      "function": "Adapt",
+      "language": "C++",
       "lines": 4904,
-      "language": "C++"
+      "path": "Common/src/adaptation/CNativeEngine3D.cpp",
+      "signature_or_kind": "EngineResult Adapt(...)",
+      "source_sha256": "64e6a9f9f02c6b6f69fbd038314c049d2677c45b41f12dad5a4f459ff34072c2",
+      "start_line": 1274
     },
     {
-      "path": "Common/src/adaptation/CNativeAffineReference.cpp",
-      "function": "MappedFacetReference::ClosestCurved",
-      "start_line": 1635,
       "end_line": 1945,
+      "function": "MappedFacetReference::ClosestCurved",
+      "language": "C++",
       "lines": 311,
-      "language": "C++"
+      "path": "Common/src/adaptation/CNativeAffineReference.cpp",
+      "signature_or_kind": "MappedFacetReference::ClosestCurved(...) const",
+      "source_sha256": "671e875d6a9c02acdd06520de54ce521d916ad39cf68deebff559b075e570d4f",
+      "start_line": 1635
     },
     {
-      "path": "Common/src/adaptation/CNativeAffineReference.cpp",
-      "function": "MappedFacetReference::QuerySurfaceUnionAtResolution",
-      "start_line": 2221,
       "end_line": 2499,
+      "function": "MappedFacetReference::QuerySurfaceUnionAtResolution",
+      "language": "C++",
       "lines": 279,
-      "language": "C++"
+      "path": "Common/src/adaptation/CNativeAffineReference.cpp",
+      "signature_or_kind": "MappedFacetReference::QuerySurfaceUnionAtResolution(...) const",
+      "source_sha256": "671e875d6a9c02acdd06520de54ce521d916ad39cf68deebff559b075e570d4f",
+      "start_line": 2221
     },
     {
-      "path": "UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp",
-      "function": "TEST_CASE",
-      "start_line": 1744,
       "end_line": 2000,
+      "function": "TEST_CASE (Catch2 body: Representative saved M6 geometry queries preserve exact inputs and expose repeated work)",
+      "language": "C++",
       "lines": 257,
-      "language": "C++"
-    },
-    {
-      "path": "Common/src/adaptation/CNativeEngine3D.cpp",
-      "function": "MeshOptimizer::SmoothBoundary",
-      "start_line": 6674,
-      "end_line": 6896,
-      "lines": 223,
-      "language": "C++"
-    },
-    {
-      "path": "Common/src/adaptation/CNativeAffineReference.cpp",
-      "function": "MappedFacetReference::MappedFacetReference",
-      "start_line": 1261,
-      "end_line": 1449,
-      "lines": 189,
-      "language": "C++"
-    },
-    {
-      "path": "Common/src/adaptation/CNativeAffineReference.cpp",
-      "function": "reference",
-      "start_line": 1264,
-      "end_line": 1449,
-      "lines": 186,
-      "language": "C++"
-    },
-    {
-      "path": "Common/src/adaptation/CNativeAffineReference.cpp",
-      "function": "Upper",
-      "start_line": 329,
-      "end_line": 487,
-      "lines": 159,
-      "language": "C++"
-    },
-    {
-      "path": "Common/src/adaptation/CNativeEngine3D.cpp",
-      "function": "MeshOptimizer::Smooth",
-      "start_line": 6897,
-      "end_line": 7035,
-      "lines": 139,
-      "language": "C++"
-    },
-    {
       "path": "UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp",
-      "function": "TEST_CASE",
-      "start_line": 615,
+      "signature_or_kind": "Catch2 TEST_CASE body",
+      "source_sha256": "6dfdb32f14582123ad635d0db1fe38a0df0f2d2a392df2f6663c9d6ff9e43e14",
+      "start_line": 1744
+    },
+    {
+      "end_line": 6896,
+      "function": "MeshOptimizer::SmoothBoundary",
+      "language": "C++",
+      "lines": 223,
+      "path": "Common/src/adaptation/CNativeEngine3D.cpp",
+      "signature_or_kind": "bool MeshOptimizer::SmoothBoundary(...)",
+      "source_sha256": "64e6a9f9f02c6b6f69fbd038314c049d2677c45b41f12dad5a4f459ff34072c2",
+      "start_line": 6674
+    },
+    {
+      "end_line": 1449,
+      "function": "MappedFacetReference::MappedFacetReference",
+      "language": "C++",
+      "lines": 189,
+      "path": "Common/src/adaptation/CNativeAffineReference.cpp",
+      "signature_or_kind": "MappedFacetReference constructor",
+      "source_sha256": "671e875d6a9c02acdd06520de54ce521d916ad39cf68deebff559b075e570d4f",
+      "start_line": 1261
+    },
+    {
+      "end_line": 487,
+      "function": "Upper",
+      "language": "C++",
+      "lines": 159,
+      "path": "Common/src/adaptation/CNativeAffineReference.cpp",
+      "signature_or_kind": "template<size_t N> double Upper(...)",
+      "source_sha256": "671e875d6a9c02acdd06520de54ce521d916ad39cf68deebff559b075e570d4f",
+      "start_line": 329
+    },
+    {
+      "end_line": 7035,
+      "function": "MeshOptimizer::Smooth",
+      "language": "C++",
+      "lines": 139,
+      "path": "Common/src/adaptation/CNativeEngine3D.cpp",
+      "signature_or_kind": "bool MeshOptimizer::Smooth(...)",
+      "source_sha256": "64e6a9f9f02c6b6f69fbd038314c049d2677c45b41f12dad5a4f459ff34072c2",
+      "start_line": 6897
+    },
+    {
       "end_line": 746,
+      "function": "TEST_CASE (Catch2 body: Curved mapped controls persist physical geometry separately from exact parameter topology)",
+      "language": "C++",
       "lines": 132,
-      "language": "C++"
+      "path": "UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp",
+      "signature_or_kind": "Catch2 TEST_CASE body",
+      "source_sha256": "6dfdb32f14582123ad635d0db1fe38a0df0f2d2a392df2f6663c9d6ff9e43e14",
+      "start_line": 615
+    },
+    {
+      "end_line": 1004,
+      "function": "Add",
+      "language": "C++",
+      "lines": 119,
+      "path": "Common/src/adaptation/CNativeEngine3D.cpp",
+      "signature_or_kind": "void Add(...)",
+      "source_sha256": "64e6a9f9f02c6b6f69fbd038314c049d2677c45b41f12dad5a4f459ff34072c2",
+      "start_line": 886
     }
-  ],
-  "files": [
-    "Common/include/adaptation/CNativeAffineReference.hpp",
-    "Common/src/adaptation/CNativeAffineReference.cpp",
-    "Common/src/adaptation/CNativeReferenceIO3D.cpp",
-    "Common/src/adaptation/CNativeEngine3D.cpp",
-    "UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp"
-  ],
-  "helper_correction": "Initial generalized signature inventory included control statements and primitive type tokens. Filtered C++ keywords; reran only read-only report extraction. No numerical repeat."
+  ]
 }
