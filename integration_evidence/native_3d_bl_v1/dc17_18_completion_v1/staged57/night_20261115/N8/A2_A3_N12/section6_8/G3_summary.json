@@ -1,0 +1,150 @@
+{
+  "passed": true,
+  "case": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N8/A2_A3_N12/section6_8/validation/cases/section6_2_bl_20261116T182654_766647",
+  "normal_numeric_exit": 0,
+  "seconds": 621.0126631259918,
+  "accepted_splits": 384,
+  "cells": 304779,
+  "positive_cells": 304779,
+  "sensor_cells": 304779,
+  "modeled_peak_bytes": 11190581249,
+  "serial_GNU_maximum_child_rss_bytes": 3308994560,
+  "native_maximum_seconds_unchanged": 388.8,
+  "native_maximum_work_unchanged": 233220,
+  "all_common_edits": {
+    "passed": true,
+    "reference_accepted": 486,
+    "candidate_accepted": 384,
+    "compared_count": 384,
+    "reference_edits": 486,
+    "candidate_edits": 384
+  },
+  "adjusted_entry_work": {
+    "passed": true,
+    "reference": {
+      "entry_atlas_work": 11497909,
+      "observer_geometry_work": 11492796,
+      "observer_adjusted_entry_work": 5113,
+      "observer_source": "nose_target_observation.jsonl fixed_summary side=before geometry_work",
+      "entry_source": "run.log NATIVE3D_STAGE surface_required_entry atlas_work"
+    },
+    "candidate": {
+      "entry_atlas_work": 10781212,
+      "observer_geometry_work": 10776099,
+      "observer_adjusted_entry_work": 5113,
+      "observer_source": "nose_target_observation.jsonl fixed_summary side=before geometry_work",
+      "entry_source": "run.log NATIVE3D_STAGE surface_required_entry atlas_work"
+    },
+    "expected_method_value": 5113
+  },
+  "law_rows": [
+    {
+      "rank": "0",
+      "boundary": "entry",
+      "faces": "49396",
+      "edge_incidences": "148188",
+      "need_incidences": "19415",
+      "unsupported_incidences": "0",
+      "max_ratio": "4924.98",
+      "seconds": "73.3382"
+    },
+    {
+      "rank": "0",
+      "boundary": "exit",
+      "faces": "50164",
+      "edge_incidences": "150492",
+      "need_incidences": "19825",
+      "unsupported_incidences": "0",
+      "max_ratio": "4924.9832181650645",
+      "seconds": "73.639539782"
+    }
+  ],
+  "reason_counts": [
+    {
+      "line": 69,
+      "rank": "0",
+      "text": "Native#D retained apex has incompatible height planes; different connectivity is required.",
+      "count": "318"
+    },
+    {
+      "line": 70,
+      "rank": "0",
+      "text": "Native#D geometry-height incompatibility of the normal-row proposal at facet # cell #",
+      "count": "402"
+    },
+    {
+      "line": 71,
+      "rank": "0",
+      "text": "Native#D joint point cannot see its retained skin.",
+      "count": "18"
+    },
+    {
+      "line": 72,
+      "rank": "0",
+      "text": "Native #D cavity link has a nonmanifold edge.",
+      "count": "5"
+    },
+    {
+      "line": 73,
+      "rank": "0",
+      "text": "Native #D cavity has a disconnected or unclosed link.",
+      "count": "5"
+    },
+    {
+      "line": 74,
+      "rank": "0",
+      "text": "Native#D retained height/normal-foot constraints have no common fit.",
+      "count": "6"
+    },
+    {
+      "line": 75,
+      "rank": "0",
+      "text": "Native#D retained height planes leave no normal-foot freedom.",
+      "count": "58"
+    },
+    {
+      "line": 76,
+      "rank": "0",
+      "text": "Native#D wall refit needs complete free apex stars.",
+      "count": "18"
+    },
+    {
+      "line": 77,
+      "rank": "0",
+      "text": "Native#D wall-foot fit needs visibility across an admitted interface.",
+      "count": "4"
+    }
+  ],
+  "frame_rows": [
+    {
+      "rank": "0",
+      "operation": "RefitWallSplit",
+      "calls": "414",
+      "valid": "0",
+      "seconds": "9.2593019989999998"
+    },
+    {
+      "rank": "0",
+      "operation": "ReconstructWallSplit",
+      "calls": "402",
+      "valid": "0",
+      "seconds": "18.527632406000013"
+    },
+    {
+      "rank": "0",
+      "operation": "ReconstructSplitPatch",
+      "calls": "404",
+      "valid": "386",
+      "seconds": "27.045679694999976"
+    }
+  ],
+  "reason_sum": {
+    "0": 834
+  },
+  "old_all_integer_comparison_gate": false,
+  "fixture_attempts": {
+    "first": "wrapper600timeout124,partialpreserved",
+    "second": "wrapper900normal0,physicalandidentityPASS"
+  },
+  "postprocessor_repeated_without_numeric_rerun": true
+}

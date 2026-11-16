@@ -1,0 +1,19 @@
+{
+  "argv_differences": [
+    {
+      "index": 6,
+      "old": "600",
+      "new": "900"
+    }
+  ],
+  "other_environment_values_identical": true,
+  "fresh_case_cfg_paths_have_identical_bytes_sha256": "47465112c03706bb137af73e3becb138b81e65750ef6ae8b5709b094030f4e9a",
+  "fresh_MPI_scratch_paths_differ_as_expected": true,
+  "environment_path_differences": [
+    "OMPI_MCA_orte_tmpdir_base",
+    "SU2_NATIVE_FROZEN_CONFIG"
+  ],
+  "all_1588_build_pins_unchanged": true,
+  "native_binary_identical": true,
+  "own_report_helper_correction": "Literal env equality initially failed on fresh case cfg/scratch paths; now verify cfg bytes and all other env values, report scratch-only difference; no gate/value normalization."
+}

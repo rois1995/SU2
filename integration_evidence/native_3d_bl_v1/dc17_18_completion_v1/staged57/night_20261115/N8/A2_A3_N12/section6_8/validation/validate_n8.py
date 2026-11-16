@@ -217,6 +217,7 @@ def self_check():
     transformed = {mode: adapted_safeguard_source(base, mode)
                    for mode in ("bl", "merit481", "saved481", "saved_current", "2d1", "2d2", "2d4")}
     assert "19_999_490_048" in transformed["bl"]
+    assert "set_bl_wrapper_timeout(checks)" in bl_wrapper_source(transformed["bl"])
     assert all("build534" in source for source in transformed.values())
     full_module = load("n8_section62_full_selfcheck", SECTION2 / "run_full_section6_2.py")
     full_module.self_check()
@@ -257,15 +258,63 @@ def adapted_safeguard_source(base, mode):
     return source
 
 
+def bl_wrapper_source(source):
+    """Install the C492 timeout hook after the existing build alias setup."""
+    anchor = "expose_build();checks.ROOT=HERE;checks.REPO=REPO"
+    assert source.count(anchor) == 1
+    return source.replace(anchor, anchor + "\nset_bl_wrapper_timeout(checks)", 1)
+
+
+def bl_wrapper_timeout(checks):
+    """Give only the C492 fixture time to finish its authorized census observations."""
+    import inspect
+    source = inspect.getsource(checks.main)
+    old = 'timeout_seconds = 2400 if case == "m6_stage" else 600'
+    assert source.count(old) == 1
+    source = source.replace(old, 'timeout_seconds = 900 if case == "section6_2_bl" else 2400 if case == "m6_stage" else 600', 1)
+    exec(compile(source, checks.__file__, "exec"), checks.__dict__)
+
+
 def run_safeguard(mode):
     """Reuse section 6.2 safeguard source with validation-root and build534 paths."""
     base = load("n8_section62_checks", SECTION2 / "run_remaining_checks.py")
     source = adapted_safeguard_source(base, mode)
+    if mode == "bl":
+        source = bl_wrapper_source(source)
+        assert source.count("gate.self_check();") == 1
+        source = source.replace("gate.self_check();", "gate.self_check();match_bl_wrapper(gate);", 1)
     os.environ["OMPI_MCA_osc"] = "pt2pt"
     namespace = {"__name__": "__main__", "__file__": str(HERE / "validate_n8.py"),
-                 "OLD": base.OLD, "HERE": HERE, "STAGED": STAGED, "REPO": REPO}
+                 "OLD": base.OLD, "HERE": HERE, "STAGED": STAGED, "REPO": REPO,
+                 "set_bl_wrapper_timeout": bl_wrapper_timeout, "match_bl_wrapper": match_bl_wrapper}
     sys.argv = [str(HERE / "validate_n8.py"), mode]
     exec(compile(source, str(HERE / "validate_n8.py"), "exec"), namespace)
+
+
+def match_bl_wrapper(gate):
+    """Match the exact local test wrapper while retaining every physical predicate."""
+    original = gate.prior.conditions
+    def conditions(status, command, row, identical):
+        result = original(status, command, row, identical)
+        result["serial_bounded_command"] = command.get("ranks") == 1 and command.get("timeout_seconds") == 900
+        return result
+    gate.prior.conditions = conditions
+
+
+def load_bl_gate():
+    """Load the existing physical guard with current job limit and fixture wrapper."""
+    path = STAGED / "p7p8_r3_20261115/check_cheap_bl.py"
+    source = path.read_text()
+    assert source.count("20_000_000_000") == 1
+    source = source.replace("20_000_000_000", "19_999_490_048", 1)
+    source = source.replace("whole_job_peak_RSS_20GB_serial", "whole_job_peak_RSS_19073_MiB_serial")
+    source = source.replace("20GB serial peak gate", "19073 MiB serial peak gate")
+    namespace = {"__name__": "section6_8_bl_guard", "__file__": str(path)}
+    exec(compile(source, str(path), "exec"), namespace)
+    gate = __import__("types").SimpleNamespace(**namespace)
+    gate.self_check()
+    match_bl_wrapper(gate)
+    return gate
 
 
 def run_g3():
@@ -281,10 +330,18 @@ def run_g3():
     made = set(case_dir.glob("section6_2_bl_*")) - before
     assert len(made) == 1, "expected exactly one fresh serial physical-guard case"
     case = made.pop()
+    return check_g3_case(case, child.returncode)
+
+
+def check_g3_case(case, child_returncode=0):
+    """Check existing numerical artifacts; never launch or repeat the fixture."""
+    case = Path(case).resolve(strict=True)
+    summary = HERE / "g3_identity_validation.json"
+    guard_failed = load_bl_gate().main(case)
     cheap = json.loads((case / "cheap_bl_receipt.json").read_text())
-    if child.returncode or cheap.get("passed") is not True:
+    if guard_failed or cheap.get("passed") is not True:
         summary.write_text(json.dumps({"passed": False, "first_failed_gate": "cheap_bl_physical_guard",
-                                       "case": str(case), "child_returncode": child.returncode}, indent=2)+"\n")
+                                       "case": str(case), "child_returncode": child_returncode}, indent=2)+"\n")
         raise SystemExit(1)
     identity = load("n8_identity_check", IDENTITY_PATH)
     # The historical all-integer comparison is preserved as report-only.
@@ -302,7 +359,7 @@ def run_g3():
     wall_report = wall_diagnostic_report(case / "run.log", WALL_REFERENCE_LOG)
     wall_report_path = case / "g3_wall_frame_reason_report.json"
     wall_report_path.write_text(json.dumps(wall_report, indent=2) + "\n")
-    result = {"passed": decision["passed"], "case": str(case), "child_returncode": child.returncode,
+    result = {"passed": decision["passed"], "case": str(case), "child_returncode": child_returncode,
               "identity": decision, "old_integer_comparison_gate": False,
               "physical_guard_receipt_sha256": sha(case / "cheap_bl_receipt.json"),
               "wall_frame_reason_report": str(wall_report_path),

@@ -1,0 +1,95 @@
+{
+  "operator_classes": [
+    "SplitEdge",
+    "InsertEdgeCavity",
+    "other_geometry",
+    "RefitWallSplit",
+    "ReconstructWallSplit",
+    "ReconstructSplitPatch"
+  ],
+  "reason_names": [
+    "orientation",
+    "interface",
+    "surface_containment",
+    "feature",
+    "marker_junction",
+    "incomplete_star",
+    "other"
+  ],
+  "refusal_schema_by_rank": {
+    "0": {
+      "missing": [],
+      "duplicate_rows": 0
+    }
+  },
+  "frame_rows": [
+    {
+      "rank": "0",
+      "operation": "RefitWallSplit",
+      "calls": "414",
+      "valid": "0",
+      "seconds": "9.2593019989999998"
+    },
+    {
+      "rank": "0",
+      "operation": "ReconstructWallSplit",
+      "calls": "402",
+      "valid": "0",
+      "seconds": "18.527632406000013"
+    },
+    {
+      "rank": "0",
+      "operation": "ReconstructSplitPatch",
+      "calls": "404",
+      "valid": "386",
+      "seconds": "27.045679694999976"
+    }
+  ],
+  "frame_schema_complete": true,
+  "reason_digit_normalized": true,
+  "reason_sum_by_rank": {
+    "0": 834
+  },
+  "raw_operator_refusal_sum_by_rank": {
+    "0": 834
+  },
+  "non_guidance_guard_refusal_sum_by_rank": {
+    "0": 834
+  },
+  "reason_sum_reconciles": {
+    "0": true
+  },
+  "virtual_legacy_other_geometry_by_rank_reason": {
+    "0": {
+      "orientation": 18,
+      "interface": 4,
+      "surface_containment": 0,
+      "feature": 0,
+      "marker_junction": 0,
+      "incomplete_star": 18,
+      "other": 794
+    }
+  },
+  "old_other_geometry_by_rank_reason": {
+    "0": {
+      "orientation": 18,
+      "interface": 4,
+      "surface_containment": 0,
+      "feature": 0,
+      "marker_junction": 0,
+      "incomplete_star": 25,
+      "other": 857
+    }
+  },
+  "legacy_difference_by_rank_reason": {
+    "0": {
+      "feature": 0,
+      "incomplete_star": -7,
+      "interface": 0,
+      "marker_junction": 0,
+      "orientation": 0,
+      "other": -63,
+      "surface_containment": 0
+    }
+  }
+}

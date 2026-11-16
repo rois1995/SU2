@@ -1,5 +1,5 @@
 {
-  "state": "G3_RUNNING",
+  "state": "G3_G4_PASSED_SAFEGUARDS_NEXT",
   "whole_group_accepted": false,
   "candidate_checkpoint": "9a82231de1",
   "newest_accepted_base": "9867041a2e",
@@ -13,10 +13,12 @@
     "G1_mpi2_identity",
     "G1_mpi4_identity",
     "G2_integer_and_Census_identity",
-    "GQ_integer_and_Census_identity"
+    "GQ_integer_and_Census_identity",
+    "G3_6_6_physical_common_prefix_adjusted_work",
+    "G4_2D_1_2_4_with_and_without_BL"
   ],
-  "active_case": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N8/A2_A3_N12/section6_8/validation/cases/section6_2_bl_20261116T181040_727116",
-  "active_tool_session": 31951,
+  "active_case": null,
+  "active_tool_session": null,
   "owned_identity_receipt": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N8/A2_A3_N12/section6_8/validation/G1_serial_live_owned_identities.json",
   "next": [
     "G1_mpi2",
@@ -29,12 +31,15 @@
     "one_full_two_event_run"
   ],
   "source_frozen": true,
-  "updated_unix": 1794852718.497276,
+  "updated_unix": 1794854954.9313173,
   "post_group": [
     "N11",
     "N10_if_N11_passes",
     "6.3",
     "N6",
     "N7"
-  ]
+  ],
+  "G3_first_attempt": "own_wrapper_timeout124_preserved",
+  "G3_current_wrapper_seconds": 900,
+  "G3_native_budget_seconds": 388.8
 }
