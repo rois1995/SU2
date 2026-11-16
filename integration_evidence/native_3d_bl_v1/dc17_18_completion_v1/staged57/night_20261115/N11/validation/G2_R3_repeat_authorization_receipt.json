@@ -1,0 +1,17 @@
+{
+  "original_case": "validation/cases/N11_G2_535",
+  "original_qualification": "FAILED_HELPER_PROVENANCE_NOT_ACCEPTED",
+  "result_only_diagnostic_passed": true,
+  "first_change": {
+    "path": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N11/validation/run_g2_gq_prefix.py",
+    "expected": "3852a540e140b8ad79cdec454dbbf9f36eab9556bba30a8132ae61e96928a972",
+    "actual": "78ed0a0e9281171304d32d5a17ab2f1f24b7a7a9db74f7379a6e2399fe44531b"
+  },
+  "cause": "Own helper self_check was edited during active run; live process retained original compiled runtime functions, but exact whole-file input receipt correctly failed",
+  "correction": "Restore exact original helper SHA3852; freeze ALL helper inputs; repeat only G2 under R3 with fresh case, no source/build/gate/tolerance change",
+  "original_status_not_modified": true,
+  "all_original_handles_terminal": true,
+  "native_stop_seconds": 357.97875109198503,
+  "sealed_seconds": 366.08703817997593,
+  "next_case": "validation/cases/N11_G2_535_R3_frozen"
+}

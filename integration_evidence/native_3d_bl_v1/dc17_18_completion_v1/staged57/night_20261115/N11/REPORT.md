@@ -13,3 +13,7 @@ Historical source comparison for report: N9 457splits/1170guidance rejections of
 Build535 PASSED160.164733s/17terminalownedidentities/1592pinsunchanged. Focusedunit PASSED60assertions/6cases/4.953031s, exactcase above/progress; GNUmaxchild32,224KiB, sampledRSSlowerbound separately1,605,632B (notclaimedwholejobpeak). G1 notyetlaunched.
 
 G1 PASSED fixed375serial/57perrankMPI2/4,0changes(includingwallcases), baselinefailedexpressions24/19/37identical; controllers794.696887/14.858670/17.119732s. All535pinsunchanged/allrecordedhandles terminal. Evidencevalidation/G1_summary.json.
+
+G2first numericalgateexact90,809,869/counts480/473/346/263/469/464 and strictoldrows/timerCensusdelta PASS, but ownhelper self_check editedwhilelive changedpin3852->78ed. Originalprovenanceinputs_unchangedFALSEpreserved, unqualified. No production/source/binary/gate/tolerancechange. All9ownedhandles terminal,357.978751stop/366.087038sealed. R3restoredexact3852helper, frozeALLhelpers and repeatsONLYG2freshcaseN11_G2_535_R3_frozen. Neverrewrotefailedstatusoroverrodeitsgate.
+
+CorrectedG2 R3fixture PASSED353.063082s planned/361.351210s sealed; exact90809869/counts and alloldinteger/timercalls, ALLinputs/source/binary unchanged,9terminalIDs. Originalunqualifiedreceiptremainsunchanged. No tolerance/gateoverride.

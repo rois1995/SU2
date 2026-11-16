@@ -70,3 +70,11 @@ CURRENTJOB N11G1serial RUNNINGexec74268/controller1171041/testroot1171476; casev
 G1serial PASSED375cases,0changes/24baselinefailedexpressionsidentical,794.696887controllerseconds (case794.475854),pinsunchanged/allownedIDsterminal. CURRENTjob G1MPI2exec32961, controllerlogvalidation/G1_mpi2_controller.log; nextjudgeMPI2thenMPI4. No sourceedits. Full535helperpreflight updatedexplicitPURPOSEimports, newfullcasewouldbeaccepted534validation/full535(fresh), NOToldsealedfull_workflow. StillNOTlaunched.
 
 G1 ALLPASSED535:375serial/57perrankMPI2/4,0changedcases/0wallcasechanges,exactbaselinefailedexpressions24/19/37; controllers794.696887/14.858670/17.119732s,5/6/8recordedIDsterminal. Serialexec74268/MPI2exec32961/MPI4exec49238allterminal0. Next G2exactprefix; noownedjobnow.
+
+CURRENTjob N11G2prefix RUNNINGexec29838/solverroot1210039(start35704286),casevalidation/cases/N11_G2_535. G1checkpointaf0378ac76committed/pushing. No sourceedits; allpriorhandles terminalbeforeG2. NextjudgeG2thenGQ. G2/GQhelpernew6.9exactbothsidecensuscomparator selfcheckPASS.
+
+G2originalN11_G2_535 UNQUALIFIED dueownhelper editedlive3852->78ed (ONLYunusedselfcheck). Nativegatework90809869/counts+strictalloldints/12timerboundaries PASSread-onlydiagnostic; plannedstop357.978751/sealed366.087038s, all9IDsterminal, prodsource/binarypins unchanged. Originalinputs_unchangedFALSEpreservedimmutable, NOTaccepted/NOTgaterelaxed. R3exacthelper3852RESTORED, ALLagentsidle/helpersfrozen; repeatONLYG2freshcaseN11_G2_535_R3_frozen. No productionresultfailure. Evidencevalidation/G2_R3_repeat_authorization_receipt.json andg2_wrapper_r3_correction.md.
+
+CURRENTJOB correctedG2fixtureexec65241/solverroot1229725(start35754794),casevalidation/cases/N11_G2_535_R3_frozen. ALLhelpersfrozen/allagentscompleted. DoNOTmodifyANYcasepinnedhelper. NextstrictqualifiedG2thenGQ.
+
+CorrectedG2fixture PASSED N11_G2_535_R3_frozen:exact90809869/counts480/473/346/263/469/464/ALLoldintegers/timerdeltaPASS;353.063082plannedstop/361.351210sealed, ALL9ownedIDsterminal, inputs/source/binarypinsunchanged. Originalunqualifiedhelper-changecasepreserved. NextGQonequalifiedprefix, noprodedit.

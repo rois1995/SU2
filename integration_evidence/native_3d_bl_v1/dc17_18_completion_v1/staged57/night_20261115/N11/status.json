@@ -1,5 +1,5 @@
 {
-  "state": "G1_passed_G2_next",
+  "state": "G2_passed_GQ_next",
   "checkpoint": "5488d1f1b5",
   "pushed": true,
   "source_check": "source_check.md",
@@ -18,9 +18,15 @@
   "focused_assertions": 60,
   "focused_cases": 6,
   "session_id": null,
-  "case": "validation/cases/N8_G1_candidate_serial_20261116T211625_1171041",
+  "case": "validation/cases/N11_G2_535_R3_frozen",
   "serial_identity_pass": true,
   "serial_changed_cases": 0,
   "serial_seconds": 794.6968865394592,
-  "G1_summary": "validation/G1_summary.json"
+  "G1_summary": "validation/G1_summary.json",
+  "solver_identity": {
+    "pid": 1229725,
+    "start_ticks": 35754794
+  },
+  "first_G2_unqualified_reason": "helper hash edited in unused selfcheck during active run; original failed provenance preserved",
+  "G2_summary": "validation/G2_summary.json"
 }

@@ -39,5 +39,16 @@
     "all_failed_handles_terminal": true,
     "test_assertions_reached": false,
     "production_unchanged": true
+  },
+  {
+    "helper": "validation/run_g2_gq_prefix.py",
+    "cause": "Own unused self_check was edited during active G2, invalidating whole-file helper pin; controller correctly marked inputs_unchanged=false",
+    "correction": "Restored exact3852SHA; all helpers frozen; preserve originalfailedstatus; repeatONLYG2fixture underR3",
+    "first_case": "validation/cases/N11_G2_535",
+    "corrected_case": "validation/cases/N11_G2_535_R3_frozen",
+    "production_sources_and_binaries_unchanged": true,
+    "production_gates_in_first_run": "exactwork/counts and oldrows/timerdelta all PASS; original qualification remains failed",
+    "original_handles_terminal": true,
+    "gate_or_tolerance_changed": false
   }
 ]

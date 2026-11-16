@@ -1,0 +1,11 @@
+# N11 helper setup corrections
+
+Preparatory ledger for the N11 validation wrappers; none of these corrections changed production code or result gates.
+
+1. The inherited cheap-BL guard's self-check expects the historical 300-split predicate. The N11 wrapper now runs that self-check against the unmodified helper first, then removes only the withdrawn 300-split predicate from the live validation conditions. Its N11-specific self-check requires a 900-second outer command; 600 seconds fails. The native 388.8-second / 233220-work stage limits remain unchanged.
+2. The G1 wrapper initially checked build status before creating the ready receipt and referenced the N8 helper's build534 aliases. It now creates the ready receipt from the terminal build535 status first, verifies the build, and exposes build535 aliases. All dynamic `build534` tokens in the reused runner are retargeted to build535.
+3. The inherited focused `run_cases.py` path binding points at the build output directory rather than the UnitTests binary. The N11 focused wrapper binds the actual build535 `UnitTests/test_driver` path and verifies it before a possible launch. The root also added `OMPI_MCA_osc=pt2pt` after the initial MPI setup failed before test execution.
+4. The N11 G3 parser originally treated missing/duplicate `NATIVE3D_WALL_SOURCE` rows as hard errors. These counters are print-only under 6.9, so the parser now reports their schema problems and incomplete sums without affecting the geometry ratio or common-edit pair gates. Synthetic missing/duplicate source rows still produce passing result gates when the actual purpose/identity inputs pass.
+5. The first G3 source retarget kept the inherited `main` alias entrypoint and a virtual `validate_n8.py` filename. N11's dynamic alias exposes `verify_and_publish`, and the N11 runner now executes the inherited source with its actual launcher path and exact alias function. The case pin map uses the alias's actual N11 path. A no-launch setup probe reaches imports, alias verification, fixture linking, and case-pin construction with a stubbed `checks.main`.
+6. The G3 wrapper now performs its physical gate before evaluating the <0.70 ratio. It will not launch the second run unless the first physical and purpose gates passed; a physical failure is preserved with purpose explicitly unevaluated.
+

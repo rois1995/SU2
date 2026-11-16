@@ -26,9 +26,34 @@ def fields(line, marker, identity):
     return identity.key_values(line[line.index(marker) + len(marker):])
 
 
+def collect_source_row(row, rank, sources, issues, log, line_no):
+    """Keep valid source counters and record schema problems as report-only."""
+    source = row.get("source")
+    if rank is None or source not in SOURCE_KINDS:
+        issues.append({"line": line_no, "rank": rank, "source": source,
+                       "problem": "missing rank or unknown source"})
+        return
+    bucket = sources.setdefault(rank, {})
+    if source in bucket:
+        issues.append({"line": line_no, "rank": rank, "source": source,
+                       "problem": "duplicate source row"})
+        return
+    try:
+        values = {key: int(row[key]) for key in ("validated", "guidance_rejected", "approved")}
+    except (KeyError, ValueError):
+        issues.append({"line": line_no, "rank": rank, "source": source,
+                       "problem": "missing or malformed integer"})
+        return
+    if min(values.values()) < 0:
+        issues.append({"line": line_no, "rank": rank, "source": source,
+                       "problem": "negative integer"})
+        return
+    bucket[source] = values
+
+
 def geometry_guidance(case, identity):
-    """Collect old purpose counters and four source counters per rank."""
-    counts, rejects, sources = {}, {}, {}
+    """Collect strict geometry counters and report-only source rows per rank."""
+    counts, rejects, sources, source_issues = {}, {}, {}, []
     log = case / "run.log"
     for line_no, line in enumerate(log.read_text(errors="replace").splitlines(), 1):
         if "NATIVE3D_WALL_COUNTS " in line:
@@ -63,39 +88,31 @@ def geometry_guidance(case, identity):
             bucket[cause] = count
         elif "NATIVE3D_WALL_SOURCE " in line:
             row = fields(line, "NATIVE3D_WALL_SOURCE ", identity)
-            rank, source = row.get("rank"), row.get("source")
-            if rank is None or source not in SOURCE_KINDS:
-                raise ValueError(f"{log}:{line_no}: invalid wall source row {row}")
-            bucket = sources.setdefault(rank, {})
-            if source in bucket:
-                raise ValueError(f"{log}:{line_no}: duplicate source {source} for rank {rank}")
-            try:
-                values = {key: int(row[key]) for key in ("validated", "guidance_rejected", "approved")}
-            except (KeyError, ValueError) as exc:
-                raise ValueError(f"{log}:{line_no}: invalid wall source integer") from exc
-            if min(values.values()) < 0:
-                raise ValueError(f"{log}:{line_no}: negative wall source count")
-            bucket[source] = values
+            collect_source_row(row, row.get("rank"), sources, source_issues, log, line_no)
     if not counts:
         raise ValueError(f"{log}: no NATIVE3D_WALL_COUNTS rows")
     if set(counts) != set(rejects):
         raise ValueError(f"{log}: COUNTS/guidance rank mismatch {set(counts)} != {set(rejects)}")
-    if set(counts) != set(sources):
-        raise ValueError(f"{log}: COUNTS/source rank mismatch {set(counts)} != {set(sources)}")
     result = {}
     for rank, old in counts.items():
         if set(rejects[rank]) != set(GEOMETRY_CAUSES):
             raise ValueError(f"{log}: incomplete geometry causes for rank {rank}: {rejects[rank]}")
-        if set(sources[rank]) != set(SOURCE_KINDS):
-            raise ValueError(f"{log}: incomplete source rows for rank {rank}: {sources[rank]}")
+        missing_sources = set(SOURCE_KINDS) - set(sources.get(rank, {}))
+        source_issues.extend({"rank": rank, "source": source, "problem": "missing source row"}
+                             for source in sorted(missing_sources))
         rejected = sum(rejects[rank].values())
         trials = old["geometry_queue_guidance_trials"]
         result[rank] = {**old,
                         "geometry_origin_rejections": rejected,
                         "rejections_by_cause": rejects[rank],
-                        "source_rows": sources[rank],
+                        "source_rows": sources.get(rank, {}),
+                        "source_row_diagnostics": [item for item in source_issues
+                                                    if item.get("rank") in (rank, None)],
                         "ratio": rejected / trials if trials else None,
                         "strictly_below_0_70": trials > 0 and rejected * 10 < trials * 7}
+    for issue in source_issues:
+        if issue.get("rank") not in counts:
+            result[next(iter(counts))]["source_row_diagnostics"].append(issue)
     return result
 
 
@@ -113,12 +130,16 @@ def source_report(per_rank):
     totals = {key: sum(values[key] for values in sums.values())
               for key in ("validated", "guidance_rejected", "approved")}
     primary = sums["primary"]
+    diagnostics = [issue for row in per_rank.values()
+                   for issue in row["source_row_diagnostics"]]
     return {"by_source": sums, "source_sums": totals, "existing_totals": old,
             "differences_source_minus_existing": {
                 "validated_minus_guidance_trials": totals["validated"] - old["guidance_trials"],
                 "guidance_rejected_minus_existing": totals["guidance_rejected"] - old["guidance_rejected"],
                 "approved_minus_accepted": totals["approved"] - old["accepted"]},
             "source_sum_difference_is_report_only": True,
+            "source_row_diagnostics": diagnostics,
+            "source_rows_complete": not diagnostics,
             "primary_guidance_rejection_ratio": (primary["guidance_rejected"] / primary["validated"]
                                                   if primary["validated"] else None)}
 
@@ -184,7 +205,7 @@ def write_synthetic_case(path, edits, ratio_rejected, ratio_trials):
 
 
 def self_check():
-    """Exercise strict thresholding, prefix identity, and missing/duplicate rejection."""
+    """Exercise strict result gates and report-only source-row diagnostics."""
     import tempfile
     identity = load_identity()
     common = [([1, 2], [0.1, 0.2, 0.3]), ([3, 4], [0.4, 0.5, 0.6])]
@@ -229,27 +250,24 @@ def self_check():
         source_log = missing_source / "run.log"
         source_log.write_text("\n".join(line for line in source_log.read_text().splitlines()
                                            if "source=primary" not in line) + "\n")
-        try:
-            geometry_guidance(missing_source, identity)
-        except ValueError as exc:
-            assert "incomplete source rows" in str(exc)
-        else:
-            raise AssertionError("missing source row accepted")
+        missing_result = compare_pair(root / "b", missing_source, identity)
+        assert missing_result["passed"]
+        missing_report = missing_result["second_run"]["source_report"]
+        assert not missing_report["source_rows_complete"]
+        assert missing_report["primary_guidance_rejection_ratio"] is None
         duplicate_source = root / "duplicate_source"
         write_synthetic_case(duplicate_source, common, 1, 10)
         with (duplicate_source / "run.log").open("a") as stream:
             stream.write("NATIVE3D_WALL_SOURCE rank=0 source=primary validated=1 guidance_rejected=0 approved=1\n")
-        try:
-            geometry_guidance(duplicate_source, identity)
-        except ValueError as exc:
-            assert "duplicate source primary" in str(exc)
-        else:
-            raise AssertionError("duplicate source row accepted")
+        duplicate_result = compare_pair(root / "b", duplicate_source, identity)
+        assert duplicate_result["passed"]
+        assert any(issue["problem"] == "duplicate source row"
+                   for issue in duplicate_result["second_run"]["source_report"]["source_row_diagnostics"])
     return {"passed": True, "launched": False, "strict_ratio_boundary_rejected": True,
             "common_prefix_identity_checked": True, "missing_and_duplicate_guidance_rejected": True,
             "source_rows_parsed_and_primary_ratio_reported": True,
             "source_sum_differences_report_only": True,
-            "missing_and_duplicate_source_rows_rejected": True}
+            "missing_and_duplicate_source_rows_report_only": True}
 
 
 def main():

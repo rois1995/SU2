@@ -4,7 +4,7 @@ Read AGENTS.md, COMPLETE latest scratchpad NIGHT_WORK_ORDER.md and R/night_20261
 
 R = `integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57`.
 
-**Running now: N11 G1 serial exec74268**, controller1171041/testroot1171476; case `R/night_20261115/N11/validation/cases/N8_G1_candidate_serial_20261116T211625_1171041`. Do not stop/restart or edit pinned535sources. Build535 and focused60assertions/6cases passed; production checkpoint5488d1f1b5 and evidencec8db783d6c pushed, N11 not yet accepted. Acceptedbase remains f8c7b01085/build534, archived before535replaced the shared binaries.
+**Current owned job: corrected N11 G2 fixture exec65241**, solverroot1229725(start35754794), case `N/N11/validation/cases/N11_G2_535_R3_frozen`. OriginalG2 exactwork/counts/strictoldrows passed, but ownunusedselfcheck was editedlive, so its originalfailedhelperprovenance is preserved/unqualified. R3 restoredexact3852helper and repeatsONLYG2, no production/gate change. Allhelpers+535sources frozen; allagentscompleted. NextqualifiedG2thenGQ. G1passed0changes onserial/MPI2/4, checkpointaf0378ac76pushed.
 
 Continue from this job, once per ordered check:
 
