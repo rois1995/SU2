@@ -1,0 +1,77 @@
+{
+  "started_unix": 1794824164.7534935,
+  "first_failure": "busy_count7>6: innerPythonhelper3640639/start31610519 CPU72.8204% beside6SU2 ranks",
+  "later_foreign_interference": [
+    [
+      7,
+      [
+        {
+          "pid": 3640639,
+          "start_ticks": 31610519,
+          "comm": "python3",
+          "percent_one_core": 72.82038223582421
+        }
+      ]
+    ],
+    [
+      7,
+      [
+        {
+          "pid": 3965,
+          "start_ticks": 2898,
+          "comm": "firefox",
+          "percent_one_core": 85.59008012524019
+        }
+      ]
+    ],
+    [
+      7,
+      [
+        {
+          "pid": 3629941,
+          "start_ticks": 31592431,
+          "comm": "Isolated Web Co",
+          "percent_one_core": 52.807733670035184
+        }
+      ]
+    ],
+    [
+      8,
+      [
+        {
+          "pid": 3965,
+          "start_ticks": 2898,
+          "comm": "firefox",
+          "percent_one_core": 77.82526970781657
+        },
+        {
+          "pid": 3629941,
+          "start_ticks": 31592431,
+          "comm": "Isolated Web Co",
+          "percent_one_core": 53.218750609021626
+        }
+      ]
+    ],
+    [
+      7,
+      [
+        {
+          "pid": 3647076,
+          "start_ticks": 31622588,
+          "comm": "Isolated Web Co",
+          "percent_one_core": 96.93084981905996
+        }
+      ]
+    ]
+  ],
+  "scope": "read-only diagnosis; own launch/helper resource wiring, no production/gate edit",
+  "failed_case": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/section6_1/disk_restart_full_workflow_event2",
+  "single_corrected_restart_pending": false,
+  "correction": "Confine the entire owned restart (inspector and six MPI ranks) to two inherited CPU identities; explicit MPI oversubscribe/bind-none preserves six ranks without widening affinity. Verify each rank affinity and retain all-process CPU audit. No production code, physical gate, time600s, memory19073MiB, rank count or process-count limit changed.",
+  "corrected_runner_sha256": "040f0f76e765bc8ee9d1e476112d4d40d0c956ec0454b3d98a8255ae21c11c51",
+  "failed_runner_sha256": "313a3d9a075385eb9249abed3390e9a49f67571012305c13cdd00652abfc3a63",
+  "corrected_repeat_budget": 1,
+  "ended_unix": 1794824506.84416,
+  "read_only_diagnosis_minutes": 5.701511112848918,
+  "single_corrected_restart_started": true
+}

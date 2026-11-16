@@ -106,6 +106,10 @@ def retargeted_source():
          'EXTRA_SOURCE_PINS, RUNTIME_MANIFEST, EVENTS, CFD, SOURCE / "section6_1_reference_identity.json", '
          'SOURCE / "p7p8_event1_gate.json", SOURCE / "p7p8_event2_gate.json", '
          'SOURCE / "f3b_event1_timer_gate.json", SOURCE / "f3b_event2_timer_gate.json",'),
+        ('"600", "mpirun",\n        "--output-filename"',
+         '"600", "mpirun", "--oversubscribe", "--bind-to", "none",\n        "--output-filename"'),
+        ('OMPI_MCA_osc="pt2pt", TMPDIR=str(scratch_root),',
+         'OMPI_MCA_osc="pt2pt", OMPI_MCA_mpi_yield_when_idle="1", TMPDIR=str(scratch_root),'),
         ('HERE / "validate_disk_restart508.py"', 'HERE / "validate_disk_restart522.py"'),
     )
     for old, new in edits:
@@ -152,6 +156,8 @@ def resource_helper_state():
     return """
 MAX_JOB_RSS = 19999490048
 MAX_BUSY_PROCESSES = 6
+OWNED_CPUS = set(int(value) for value in os.environ["SU2_SECTION61_ALLOWED_CPUS"].split(","))
+affinity_violations = set()
 CPU_TICKS_PER_SECOND = os.sysconf("SC_CLK_TCK")
 worker_peaks = {}
 cpu_windows = []
@@ -213,6 +219,9 @@ def resource_helper_observer():
                 peak = int(hwm.split()[1]) * 1024
                 key = f"{pid}:{identity[1]}"
                 keep_peak(worker_peaks, key, peak)
+                allowed = set(os.sched_getaffinity(pid))
+                if not allowed.issubset(OWNED_CPUS):
+                    affinity_violations.add(key)
                 workers.append({"pid": pid, "start_ticks": identity[1], "VmHWM_bytes": peak})
         except (OSError, ValueError, StopIteration, IndexError):
             continue
@@ -271,7 +280,7 @@ def resource_helper_summary():
     total = sum(worker_peaks.values())
     windows = [row["duration_seconds"] for row in cpu_windows]
     cpu_covered = bool(windows) and min(windows) >= 3.0 and cpu_max_busy_processes <= MAX_BUSY_PROCESSES
-    passed = len(worker_peaks) == 6 and total <= MAX_JOB_RSS and cpu_covered
+    passed = len(worker_peaks) == 6 and total <= MAX_JOB_RSS and cpu_covered and not affinity_violations
     observed = max(0.0, (cpu_monitor_finished or 0.0) - (cpu_monitor_started or 0.0))
     covered = sum(windows)
     cpu_monitor = {"passed": cpu_covered, "window_count": len(windows),
@@ -285,6 +294,7 @@ def resource_helper_summary():
             "rank_process_peak_hwm_bytes": worker_peaks,
             "sum_rank_process_peak_hwm_bytes": total,
             "limit_bytes": MAX_JOB_RSS, "hwm_sample_before_runtime_check": True,
+            "owned_cpu_ids": sorted(OWNED_CPUS), "affinity_violations": sorted(affinity_violations),
             "cpu_monitor": cpu_monitor}
 """
 
@@ -301,6 +311,7 @@ def wait_identity(pid):
 
 def self_check_resource_helpers():
     """Exercise unknown-process CPU detection and monotone process peaks."""
+    os.environ.setdefault("SU2_SECTION61_ALLOWED_CPUS", "0,1")
     namespace = {"os": os, "Path": Path, "time": time}
     exec(resource_helpers(), namespace)
     keep_peak = namespace["keep_peak"]
@@ -312,6 +323,21 @@ def self_check_resource_helpers():
     busy = namespace["busy_cpu_rows"](rows, 3.1, tick_rate=100)
     assert {row["comm"] for row in busy} == {"SU2_CFD", "python3"}
     assert namespace["busy_cpu_rows"](rows, 2.99, tick_rate=100) is None
+    namespace["worker_peaks"].update({str(rank): 1 for rank in range(6)})
+    namespace["cpu_windows"].append({"duration_seconds": 3.1})
+    assert namespace["resource_summary"]()["passed"]
+    namespace["affinity_violations"].add("synthetic-outside-allocation")
+    assert not namespace["resource_summary"]()["passed"]
+
+
+def apply_owned_cpu_budget():
+    """Keep six MPI ranks and their inspector inside one two-core CPU allocation."""
+    allowed = sorted(os.sched_getaffinity(0))
+    assert len(allowed) >= 2, "isolated restart needs two available CPU identities"
+    selected = allowed[:2]
+    os.sched_setaffinity(0, selected)
+    os.environ["SU2_SECTION61_ALLOWED_CPUS"] = ",".join(map(str, selected))
+    return selected
 
 
 def process_identity(pid):
@@ -359,6 +385,8 @@ def main():
     if args.self_check:
         assert "full_workflow_receipt.json" in source
         assert CFD_SHA in source and "resource_peak_receipt.json" in source
+        assert '"--oversubscribe", "--bind-to", "none"' in source
+        assert 'OMPI_MCA_mpi_yield_when_idle="1"' in source
         self_check_records()
         self_check_resource_helpers()
         print(json.dumps({"passed": True, "launched": False, "build_sha": CFD_SHA}))
@@ -366,6 +394,7 @@ def main():
     assert args.source_case is not None and args.source_case.is_dir()
     source_case = args.source_case.resolve(strict=True)
     read_source_receipts(source_case)
+    apply_owned_cpu_budget()
     case = args.case_dir.resolve() if args.case_dir else HERE / f"disk_restart_{source_case.name}_event2"
     assert HERE in case.parents and not case.exists()
     if args.internal:
@@ -385,6 +414,7 @@ def supervise(source, source_case, case):
     wrapper = {"pid": child.pid, "start_ticks": identity["start_ticks"],
                "started_unix": time.time(), "argv": argv}
     (case.parent / f"{case.name}_controller_launch.json").write_text(json.dumps(wrapper, indent=2) + "\n")
+    wrapper["owned_cpu_ids"] = sorted(os.sched_getaffinity(0))
     code = child.wait()
     receipt = post_terminal_receipt(case, wrapper)
     assert receipt["all_owned_handles_terminal"], receipt

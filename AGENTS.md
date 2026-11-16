@@ -1,3 +1,39 @@
+User order, 2026-11-16 (LATEST): section 6.5 and R1 clarification
+
+### 6.5 Design steps 8.3 and 8.4 (first part), accepted by the user on 2026-11-16
+
+The user accepted design revision 2 with steps 8.3, 8.4 and 8.4a. Copy these two files
+with their SHA256 into your evidence folder and read them completely:
+
+- `/tmp/claude-1000/-media-rausa-4TB-SU2-Versions-SU2-NativeIntegrated/f3d988e5-f14f-4a96-b6fb-963ec11730e7/scratchpad/IMPLEMENTATION_8_3_8_4.md` (I)
+- `/tmp/claude-1000/-media-rausa-4TB-SU2-Versions-SU2-NativeIntegrated/f3d988e5-f14f-4a96-b6fb-963ec11730e7/scratchpad/ADAPTATION_ONE_ENGINE_DESIGN_V1.md` (D, revision 2.1)
+
+This replaces the line of section 3 "NOT in this work order: design steps 8.3 to 8.7"
+for the parts that I names. Steps 8.4a, 8.5, 8.6 and 8.7 stay out.
+
+| Item | Content | Results | Text |
+|---|---|---|---|
+| N8 | The wall geometry law as production code with its census; the requirements record as a view; the table of the switch places; measurement M6b | identical | I part A |
+| N9 | Counters of the wall stage (refusal classes, guidance causes, call sites) and one run of the G3 fixture | identical | I part B0 |
+| N10 | No progress veto for a needed wall split | BL wall stage changes; no-BL identical | I part B1 |
+| N11 | Inside a failing face the law chooses the edge | BL wall stage changes; no-BL identical | I part B2 |
+
+Order with the cut (6.3):
+- These items do not need the cut. They name symbols, not line numbers.
+- If the cut has not made its first production edit when you read this: do N9, N10, N11
+  and N8 first (in this order: N9 and N10 are the ones that help the BL goal most), then
+  the cut. Record the cut references (G1, G2, G3, GQ) after them.
+- If the cut is in work: finish the phase that is in work (A, B, C or D) with its
+  gates, then do N9, N10, N11, N8, then record G1, G2, G3 and GQ again and continue the
+  cut.
+- A failed item is reverted by R5 and does not stop the items after it, except: N11
+  needs N8 part A1 (the law); if N8 A1 is not in, do A1 before N11. N10 does not need N8.
+
+
+R1 clarification from the user: A heavy process is a solver rank, a build job, a test binary, or a script of ours that uses more than half of a core for more than 60 seconds. Do not start more than 6 of them in total. A browser or another program of the user is not a heavy process of the work. It does not fail a run and is not a reason to repeat a run. Record it in the receipt as an observation only.
+
+Work order: finish 6.1 and 6.2, then N9, N10, N11, N8 (with N8 A1 before N11 if absent), then 6.3, N6, N7. Do not stop or restart a running job.
+
 # Implementation and validation cadence
 
 User order, 2026-11-16 (LATEST): NIGHT_WORK_ORDER.md section6, including 07:50 B7 decision.

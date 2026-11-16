@@ -1,0 +1,38 @@
+{
+  "state": "terminal",
+  "exit_code": 0,
+  "seconds": 131.14952993392944,
+  "pins_verified": true,
+  "changed": [],
+  "disk_restart_validated": false,
+  "runtime_receipt_written": true,
+  "runtime_observation_error": null,
+  "resource_gate": {
+    "passed": false,
+    "rank_process_count": 6,
+    "rank_process_peak_hwm_bytes": {
+      "3640951:31610989": 337965056,
+      "3640952:31610989": 310120448,
+      "3640953:31610990": 299220992,
+      "3640954:31610990": 305565696,
+      "3640955:31610990": 299036672,
+      "3640961:31610990": 312279040
+    },
+    "sum_rank_process_peak_hwm_bytes": 1864187904,
+    "limit_bytes": 19999490048,
+    "hwm_sample_before_runtime_check": true,
+    "cpu_monitor": {
+      "passed": false,
+      "window_count": 37,
+      "window_min_seconds": 3.171190112014301,
+      "window_max_seconds": 9.942271350009833,
+      "covered_seconds": 125.84183457499603,
+      "observed_seconds": 128.14751204301137,
+      "coverage_fraction": 0.9820076298692286,
+      "max_busy_processes": 8,
+      "busy_process_limit": 6,
+      "process_scope": "all /proc processes keyed by PID/start_ticks",
+      "window_method": "sample CPU ticks opportunistically; emit when accumulated interval reaches 3s; no added wait"
+    }
+  }
+}

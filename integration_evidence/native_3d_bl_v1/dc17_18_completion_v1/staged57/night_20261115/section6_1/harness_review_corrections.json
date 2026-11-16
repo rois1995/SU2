@@ -57,6 +57,18 @@
       "correction": "Install STAGED module search path at wrapper initialization and include an actual import/path assertion in the helper self-check. Preserve failed launch/sequence/log/source as setup_failure1 and repeat only the helper launch.",
       "old_helper_sha256": "5d9f30be62aa0aa5e9ed2bd35ec446547417e97a2be9a6e68d10e649d78efa4f",
       "new_helper_sha256": "095704db102e083735e11f2d6b58dad37d6473c7120288574e34de95286e7f6c"
+    },
+    {
+      "cause": "Isolated restart inspector briefly competed with six CFD ranks; older monitor also counted user browser processes.",
+      "correction": "Preserved first case; one own-launch wiring correction allocated entire owned job to CPU0/1, retaining six ranks,600s and all physical/memory limits. Corrected restart passed245.402971s/max3 busy. Latest user R1 counts only owned heavy processes sustained>60s; browser activity now observation only, never grounds for a repeat."
+    },
+    {
+      "cause": "Pinned restart validator executed house source without os in its namespace.",
+      "correction": "New loader capsule supplies complete module globals; reran validator only, no CFD/build."
+    },
+    {
+      "cause": "Loader resource-proof insertion referenced log before its later assignment.",
+      "correction": "Preload the same case run.log into the namespace. Repeated validator only; all physical/restart checks pass. Pinned validator unchanged."
     }
   ],
   "strict_full_memory_gate": "The legacy redundant20GB row is superseded by unchanged P7/P8 connected checker: job_peak==SUM6processpeaks and<=19073MiB in each event; productionP8 also refuses aboveexactcap."

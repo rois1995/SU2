@@ -1,0 +1,28 @@
+{
+  "sampled_hwm_sum_bytes": 1864327168,
+  "sampled_hwm_is_lower_bound": true,
+  "sampled_cpu_coverage": {
+    "passed": true,
+    "window_count": 67,
+    "window_min_seconds": 3.1774107519886456,
+    "window_max_seconds": 13.246101790980902,
+    "covered_seconds": 242.5418861109647,
+    "observed_seconds": 242.5418861109647,
+    "coverage_fraction": 1.0,
+    "max_busy_processes": 3,
+    "busy_process_limit": 6,
+    "process_scope": "all /proc processes keyed by PID/start_ticks",
+    "window_method": "sample CPU ticks opportunistically; emit when accumulated interval reaches 3s; no added wait"
+  },
+  "gnu_time": {
+    "parsed": true,
+    "maxrss_kib": 330592,
+    "maxrss_bytes": 338526208,
+    "rank_count": 6,
+    "upper_bound_bytes": 2031157248,
+    "time_exit_status": 0,
+    "method": "6 times largest GNU time descendant MaxRSS; kbytes converted by 1024"
+  },
+  "limit_bytes": 19999490048,
+  "classification": "passed_conservative_upper_bound"
+}

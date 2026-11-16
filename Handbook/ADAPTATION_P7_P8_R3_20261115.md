@@ -1,6 +1,10 @@
+# Current accepted result
+
+Section6.1 PASSED on build522: both events passed all standing gates, event1=P6c and event2=original P7 reference; isolated restart passed. See `R/night_20261115/section6_1/REPORT.md` and accepted_reference_payloads.json. New conditional B7 follows; the earlier failure below remains historical.
+
 # P7/P8 fixture ownership, ordered validation and conditional B7
 
-Current: **N1 FAILED the event2 output-identity gate.** All ordered prechecks and the independent physical workflow passed. The one full run exited0 with all owned handles terminal. Event1's three payloads match P6c; event2's three payloads differ. R5 read-only diagnosis found a retained prepared-cache dependency in the next partition predictor, with no proposal transcription error. The connected production/config/tests are being reverted to the accepted F3b bytes. N2/B7 is NOT STARTED because N1 did not pass. No numerical retry or isolated restart was launched. Continue independent N3 under NIGHT_WORK_ORDER.md; do not wait for the reviewer.
+Historical first attempt: **N1 FAILED the event2 output-identity gate.** All ordered prechecks and the independent physical workflow passed. The one full run exited0 with all owned handles terminal. Event1's three payloads match P6c; event2's three payloads differ. R5 read-only diagnosis found a retained prepared-cache dependency in the next partition predictor, with no proposal transcription error. The connected production/config/tests are being reverted to the accepted F3b bytes. N2/B7 is NOT STARTED because N1 did not pass. No numerical retry or isolated restart was launched. Continue independent N3 under NIGHT_WORK_ORDER.md; do not wait for the reviewer.
 
 Own-harness errors are repaired without changing production, gates or tolerances;90minutes per fixture. Stop cases: production-run result gate failure; result-related proposal contradiction; a corrected fixture demonstrating production does not satisfy the requested behavior; fixture90minute limit. Each cause/correction is recorded in fixture_corrections.json and this report.
 

@@ -1,6 +1,6 @@
 {
   "item": "section6.1 N1 P7/P8/M18/M20/M21",
-  "state": "full_run1_running",
+  "state": "PASSED",
   "accepted_N5_base": "3d28237f03",
   "build": "build522",
   "CFD_sha256": "949359f28cd46490bd5b4e1389ccc22948952c73f360671b593e3e09a4f2d752",
@@ -39,5 +39,38 @@
   "application": {
     "pid": 3428753,
     "start_ticks": 31149331
-  }
+  },
+  "full_native_policy_passed": true,
+  "full_repeat_needed": false,
+  "full_seconds": 4286.332645118004,
+  "native_seconds": [
+    2161.697076749,
+    1634.8289531580003
+  ],
+  "peak_sums_bytes": [
+    14028087296,
+    17349582848
+  ],
+  "restart_case": "disk_restart_full_workflow_event2_R1_repeat",
+  "restart_outer": {
+    "pid": 3676467,
+    "start_ticks": 31681300
+  },
+  "restart_inner": {
+    "pid": 3676477,
+    "start_ticks": 31681305
+  },
+  "restart_first_attempt": "FAILED_R1_PROCESS_COUNT8>6;CFDnormalexit0",
+  "restart_MPI_session": 3676689,
+  "restart_corrected_repeat_count": 1,
+  "restart_owned_CPU_ids": [
+    0,
+    1
+  ],
+  "restart_MPI_ranks": 6,
+  "all_ordered_checks_passed": true,
+  "isolated_restart_passed": true,
+  "all_owned_handles_terminal": true,
+  "accepted_reference_payloads": "accepted_reference_payloads.json",
+  "next_item": "6.2: reread and archive Night section6 before B7 condition"
 }
