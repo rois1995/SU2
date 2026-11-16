@@ -1,0 +1,64 @@
+{
+  "schema": "reference_g3_preparation_helper_repair_v1",
+  "fixture_setup_corrections": [
+    {
+      "cause": "The accepted Section 6.2 safeguard imports build536_aliases.main; initial new alias wrapper exposed publish() but not the compatibility entrypoint.",
+      "correction": "Added main() to the new build536_aliases.py; it delegates to publish() and retains the existing verifier and build hashes.",
+      "check": "The actual inherited setup reached the intercepted run_cases solver Popen boundary."
+    }
+  ],
+  "self_check": {
+    "passed": true,
+    "solver_launched": false,
+    "stub_reached_solver_boundary": true,
+    "command": [
+      "nice",
+      "-n",
+      "19",
+      "/usr/bin/time",
+      "-v",
+      "timeout",
+      "900",
+      "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-p5-20261114/UnitTests/test_driver",
+      "[NativeActualSavedSurfaceStage3D]",
+      "--durations",
+      "yes"
+    ],
+    "case": "n4_g3_reference_bl",
+    "ranks": 1,
+    "timeout_seconds": 900,
+    "nice_priority": 19,
+    "host_preflight": {
+      "hostname": "pc-rausa",
+      "boot_id": "c2e658c2-00e7-4daf-8942-349c59218707",
+      "loadavg": "2.27 4.72 4.52 2/3444 4",
+      "mem_available_mib": 37789,
+      "scratch_free_bytes": 23523471360,
+      "active_heavy_processes": []
+    },
+    "identity_selfcheck": {
+      "passed": true,
+      "launched": false,
+      "reference_splits": 486,
+      "candidate_splits": 459,
+      "common_edits": 459,
+      "observer_adjusted_work": 5113,
+      "other_integer_differences_report_only": 75
+    }
+  },
+  "bindings": {
+    "build_status": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N4/section6_3_after_N11/build536/build_status.json",
+    "build_binary_sha256": "a144d90cdc50b6ca5d77e23f929294c271a7c15628b28136b65303f15e4083b1",
+    "test_binary_sha256": "b5fb04ffd903d94357467a35d8adc5e9c3ce32ce5dd562bd2539f55aa66f52f3",
+    "accepted_n1_g3_reference": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/section6_1/cases/section6_1_bl_20261116T082025_3350201",
+    "p6c_edit_prefix": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/p6c_bl_20261115T003316_3200535",
+    "g3_identity_helper": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N4/N9/section6_6/drafts/check_g3_identity_66.py",
+    "section_source_check": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N4/section6_3_after_N11/source_check.md",
+    "cut_plan": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N4/section6_3_after_N11/inputs/CUT_PLAN_8_2.md"
+  },
+  "helper_sha256": {
+    "build536_aliases.py": "d5c9c86151cedf99dccd1a001a6c68a67bc00d8d65bfe2d4757ff14361404694",
+    "run_g3_reference536.py": "b90fc983bc70bbcb5cec44d5e3f15d6315b86695b46f7e14e66df80857132ced"
+  },
+  "numerical_launch_performed": false
+}

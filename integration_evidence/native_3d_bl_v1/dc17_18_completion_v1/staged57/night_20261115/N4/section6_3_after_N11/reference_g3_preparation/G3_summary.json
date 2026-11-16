@@ -1,0 +1,80 @@
+{
+  "passed": true,
+  "case": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N4/section6_3_after_N11/reference_g3_preparation/cases/n4_g3_reference_bl_20261116T233109_1495225",
+  "seconds": 623.1531779766083,
+  "pins_verified": true,
+  "splits": 375,
+  "output_cells": 304757,
+  "positive_cells": 304757,
+  "sensor_cells": 304757,
+  "maximum_work_bytes": 11190581249,
+  "model_limit_bytes": 12884901888,
+  "common_edit_count": 375,
+  "first336_p6c_passed": true,
+  "observer_adjusted_entry_work": 5113,
+  "physical_gates": {
+    "executed_successfully": true,
+    "runtime_pins_verified": true,
+    "serial_bounded_command": true,
+    "exact_input_and_target": true,
+    "unchanged_stage_limits": true,
+    "at_least_300_splits": true,
+    "all_private_cells_positive_with_sensors": true,
+    "modeled_storage_within_12GiB": true,
+    "same_frozen_input_contract": true,
+    "same_frozen_configuration": true,
+    "zero_upper_refinements": true,
+    "at_least_336_splits": true,
+    "first_336_edits_identical": true,
+    "whole_job_peak_RSS_19073_MiB_serial": true
+  },
+  "terminal_handles": {
+    "actual_host_proc": true,
+    "all_owned_handles_terminal": true,
+    "identities": [
+      {
+        "pid": 1495818,
+        "start_ticks": 36417808,
+        "alive": false
+      },
+      {
+        "pid": 1495819,
+        "start_ticks": 36417808,
+        "alive": false
+      },
+      {
+        "pid": 1495820,
+        "start_ticks": 36417808,
+        "alive": false
+      },
+      {
+        "pid": 1495821,
+        "start_ticks": 36417809,
+        "alive": false
+      }
+    ]
+  },
+  "law_rows": [
+    {
+      "rank": "0",
+      "boundary": "entry",
+      "faces": "49396",
+      "edge_incidences": "148188",
+      "need_incidences": "19415",
+      "unsupported_incidences": "0",
+      "max_ratio": "4924.98",
+      "seconds": "73.8598"
+    },
+    {
+      "rank": "0",
+      "boundary": "exit",
+      "faces": "50146",
+      "edge_incidences": "150438",
+      "need_incidences": "19801",
+      "unsupported_incidences": "0",
+      "max_ratio": "4924.9832181650645",
+      "seconds": "75.030966504999995"
+    }
+  ],
+  "scope": "Provisional C492 fixture; no accepted BL mesh or full BL workflow claim."
+}

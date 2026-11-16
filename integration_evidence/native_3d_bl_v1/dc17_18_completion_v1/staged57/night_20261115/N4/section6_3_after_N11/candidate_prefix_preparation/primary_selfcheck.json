@@ -1,0 +1,48 @@
+{
+  "passed": true,
+  "launched": false,
+  "candidate_build_root": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N4/section6_3_after_N11/build536",
+  "binary_sha256": "a144d90cdc50b6ca5d77e23f929294c271a7c15628b28136b65303f15e4083b1",
+  "test_binary_sha256": "b5fb04ffd903d94357467a35d8adc5e9c3ce32ce5dd562bd2539f55aa66f52f3",
+  "strict_comparator_sha256": "b4ca8efc8469140577f6c347248a24e85df41727e4134c9d860840b7e6c5990a",
+  "frozen_reference_artifacts": [
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N4/section6_3_after_N11/reference_prefix_preparation/cases/G2_reference536/fresh_build536_prefix_reference.json",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N4/section6_3_after_N11/reference_prefix_preparation/cases/G2_reference536/provenance.json",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N4/section6_3_after_N11/reference_prefix_preparation/cases/G2_reference536/rank_output/1/rank.0/stdout",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N4/section6_3_after_N11/reference_prefix_preparation/cases/G2_reference536/rank_output/1/rank.1/stdout",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N4/section6_3_after_N11/reference_prefix_preparation/cases/G2_reference536/rank_output/1/rank.2/stdout",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N4/section6_3_after_N11/reference_prefix_preparation/cases/G2_reference536/rank_output/1/rank.3/stdout",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N4/section6_3_after_N11/reference_prefix_preparation/cases/G2_reference536/rank_output/1/rank.4/stdout",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N4/section6_3_after_N11/reference_prefix_preparation/cases/G2_reference536/rank_output/1/rank.5/stdout",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N4/section6_3_after_N11/reference_prefix_preparation/cases/G2_reference536/status.json"
+  ],
+  "frozen_candidate_inputs": [
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N4/section6_3_after_N11/candidate_prefix_preparation/compare_candidate_prefix.py",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N4/section6_3_after_N11/candidate_prefix_preparation/run_candidate_prefix.py",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N4/section6_3_after_N11/reference_prefix_preparation/run_prefix536.py"
+  ],
+  "reference_case_argument_required": true,
+  "controller_setup_stopped_at": "Popen stub before numerical execution",
+  "command": [
+    "nice",
+    "-n",
+    "19",
+    "/usr/bin/time",
+    "-v",
+    "-o",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N4/section6_3_after_N11/candidate_prefix_preparation/cases/.selfcheck_1521308/outer.time.txt",
+    "timeout",
+    "14400",
+    "mpirun",
+    "--bind-to",
+    "none",
+    "-n",
+    "6",
+    "--timestamp-output",
+    "--output-filename",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N4/section6_3_after_N11/candidate_prefix_preparation/cases/.selfcheck_1521308/rank_output",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-p5-20261114/SU2_CFD/src/SU2_CFD",
+    "run.cfg"
+  ],
+  "environment_osc": "pt2pt"
+}
