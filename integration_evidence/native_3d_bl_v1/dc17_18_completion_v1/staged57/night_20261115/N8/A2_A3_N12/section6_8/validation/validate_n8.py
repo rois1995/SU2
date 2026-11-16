@@ -277,6 +277,13 @@ def bl_wrapper_timeout(checks):
 
 def run_safeguard(mode):
     """Reuse section 6.2 safeguard source with validation-root and build534 paths."""
+    if mode in ("merit481", "saved481", "saved_current"):
+        section62 = load_section62_safeguards()
+        if mode == "merit481":
+            section62.run_geometry()
+        else:
+            section62.run_saved(mode)
+        return
     base = load("n8_section62_checks", SECTION2 / "run_remaining_checks.py")
     source = adapted_safeguard_source(base, mode)
     if mode == "bl":
@@ -290,6 +297,36 @@ def run_safeguard(mode):
     sys.argv = [str(HERE / "validate_n8.py"), mode]
     exec(compile(source, str(HERE / "validate_n8.py"), "exec"), namespace)
 
+
+def load_section62_safeguards():
+    """Load Section 6.2's case-root aware geometry/saved dispatch at build534."""
+    path = SECTION2 / "run_remaining_checks.py"
+    source = path.read_text()
+    assert "build525" in source and "build534" not in source
+    source = source.replace("build525", "build534")
+    geometry_pin = "value[str(Path(__file__).resolve())] = sha(__file__)"
+    saved_pin = "pinned_inputs = {str(Path(__file__).resolve()): sha(__file__),"
+    assert source.count(geometry_pin) == source.count(saved_pin) == 1
+    source = source.replace(
+        geometry_pin,
+        "value[str(Path(__file__).resolve())] = sha(__file__)\n"
+        "            value[str((HERE / 'validate_n8.py').resolve())] = sha(HERE / 'validate_n8.py')")
+    source = source.replace(
+        saved_pin,
+        "pinned_inputs = {str(Path(__file__).resolve()): sha(__file__),\n"
+        "                     str((HERE / 'validate_n8.py').resolve()): sha(HERE / 'validate_n8.py'),")
+    # The legacy v2 input is rejected before operators; use the qualified v3 same-seed target.
+    target_binding = 'if mode == "saved_current":\n        producer_receipt ='
+    assert source.count(target_binding) == 1
+    source = source.replace(target_binding,
+                            'if mode in ("saved481", "saved_current"):\n        producer_receipt =', 1)
+    namespace = {"__name__": "n8_section62_safeguards", "__file__": str(path)}
+    exec(compile(source, str(path), "exec"), namespace)
+    namespace.update(HERE=HERE, STAGED=STAGED, REPO=REPO)
+    namespace.update(OLD=STAGED / "p7p8_r3_20261115/run_remaining_checks.py",
+                     GEOMETRY=STAGED / "check_geometry_magnitude481.py",
+                     SAVED=STAGED / "check_saved_surface_corrections481.py")
+    return __import__("types").SimpleNamespace(**namespace)
 
 def match_bl_wrapper(gate):
     """Match the exact local test wrapper while retaining every physical predicate."""

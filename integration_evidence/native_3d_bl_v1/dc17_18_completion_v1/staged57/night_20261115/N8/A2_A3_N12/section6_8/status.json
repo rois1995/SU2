@@ -1,5 +1,5 @@
 {
-  "state": "G3_G4_PASSED_SAFEGUARDS_NEXT",
+  "state": "R3_corrected_saved_safeguards_running",
   "whole_group_accepted": false,
   "candidate_checkpoint": "9a82231de1",
   "newest_accepted_base": "9867041a2e",
@@ -15,10 +15,11 @@
     "G2_integer_and_Census_identity",
     "GQ_integer_and_Census_identity",
     "G3_6_6_physical_common_prefix_adjusted_work",
-    "G4_2D_1_2_4_with_and_without_BL"
+    "G4_2D_1_2_4_with_and_without_BL",
+    "merit481"
   ],
-  "active_case": null,
-  "active_tool_session": null,
+  "active_case": [],
+  "active_tool_session": 82957,
   "owned_identity_receipt": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N8/A2_A3_N12/section6_8/validation/G1_serial_live_owned_identities.json",
   "next": [
     "G1_mpi2",
@@ -31,7 +32,7 @@
     "one_full_two_event_run"
   ],
   "source_frozen": true,
-  "updated_unix": 1794854954.9313173,
+  "updated_unix": 1794855670.1534069,
   "post_group": [
     "N11",
     "N10_if_N11_passes",
@@ -41,5 +42,10 @@
   ],
   "G3_first_attempt": "own_wrapper_timeout124_preserved",
   "G3_current_wrapper_seconds": 900,
-  "G3_native_budget_seconds": 388.8
+  "G3_native_budget_seconds": 388.8,
+  "owned_heavy_job_running": true,
+  "supervisor_terminal": true,
+  "saved_current_started": false,
+  "supervisor_tool": 36047,
+  "controller_pid": 875184
 }

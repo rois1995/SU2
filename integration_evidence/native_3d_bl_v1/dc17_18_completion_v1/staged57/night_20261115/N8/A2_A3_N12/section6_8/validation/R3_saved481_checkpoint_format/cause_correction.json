@@ -1,0 +1,58 @@
+{
+  "cause": "Legacy saved481 descriptor binds target441 version2, rejected by unchanged strict curved decoder before operator checks.",
+  "correction": "Bind both saved481 and saved_current to existing qualified version3 target492 via the existing late override; keep saved geometry, contexts, config, test selection and all assertions. This is a current-policy recomputation from identical frozen seed and stage controls, NOT the original441 metric field.",
+  "unchanged_production": true,
+  "unchanged_gates": true,
+  "input_comparison": {
+    "441": {
+      "producer_receipt_sha256": "ba2bf09206b3e40a42d1c140d3b29eb48d7522811153c8ae0af51e9fcb356251",
+      "qualification_sha256": "fed86f7d942873e10368e2a3d7b7b87cc88b907f979fb998493f8e66de9d9d6f",
+      "stage": {
+        "N": 5,
+        "event": 0,
+        "effective_h0": 6.4e-05,
+        "final_h0": 2e-06,
+        "growth": 1.2,
+        "thickness": 0.01
+      },
+      "core": 0.005499698867956817,
+      "tangential_scale": 0.3777507474613889,
+      "target_sha256": "4093a6a066f26db3360c6732f8853227251eb95ba1ba5e629dc636f6a1badbb7",
+      "header_version": 2,
+      "seed_input_pins": {
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved441_ramp5_seed_stage_20261112T123956_1290282/m6.su2": "8c839170eb5e359f7de6a41434aa6a9c2d620053f37de6d9360bd04d2a63088b",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved441_ramp5_seed_stage_20261112T123956_1290282/m6.su2.native_ref": "2e99fb7870e2c718f110da8509e4c0f7e746ce138e7f27ab57aa0dedbb6c42de",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved441_ramp5_seed_stage_20261112T123956_1290282/baseline_sa_seed.dat": "af7ade468dc40cd39dbe9238248e50057cdd151a64fef92fda957677aa3f6cae",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved441_ramp5_seed_stage_20261112T123956_1290282/run.cfg": "47465112c03706bb137af73e3becb138b81e65750ef6ae8b5709b094030f4e9a",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved441_ramp5_seed_stage_20261112T123956_1290282/m6.su2.native_rows": "9018e0a1be716e54b759e9a2affb6fbe7a29f4695d79de47a09c7f65c29d1a48",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved441_ramp5_seed_stage_20261112T123956_1290282/provenance.json": "9b367e54f2139497ffa4fd07c46b05212c88a79ac459a5ff3fbf82f8e1e36d6c",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved441_ramp5_seed_stage_20261112T123956_1290282/qualification.json": "41537522cac46902bb3ad4bc1cf6c60dc15a1e7330fbd25fbf600fe3782c1c50"
+      }
+    },
+    "492": {
+      "producer_receipt_sha256": "ff2fb6b8620cf22e82cc0e3e62d316a3a2fb6f345eb4605142d9c3841cd2ec22",
+      "qualification_sha256": "900be35292a6107a8868bb7bdb90f7be1044b9ec5e4fce5952d29f3827f795c9",
+      "stage": {
+        "N": 5,
+        "event": 0,
+        "effective_h0": 6.4e-05,
+        "final_h0": 2e-06,
+        "growth": 1.2,
+        "thickness": 0.01
+      },
+      "core": 0.0047263575870155755,
+      "tangential_scale": 0.28717458874925855,
+      "target_sha256": "ef809cdfc51aeaebc0411f5c30fc84548b94975789c96373385d32a1574b787f",
+      "header_version": 3,
+      "seed_input_pins": {
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved441_ramp5_seed_stage_20261112T123956_1290282/m6.su2": "8c839170eb5e359f7de6a41434aa6a9c2d620053f37de6d9360bd04d2a63088b",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved441_ramp5_seed_stage_20261112T123956_1290282/m6.su2.native_ref": "2e99fb7870e2c718f110da8509e4c0f7e746ce138e7f27ab57aa0dedbb6c42de",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved441_ramp5_seed_stage_20261112T123956_1290282/baseline_sa_seed.dat": "af7ade468dc40cd39dbe9238248e50057cdd151a64fef92fda957677aa3f6cae",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved441_ramp5_seed_stage_20261112T123956_1290282/run.cfg": "47465112c03706bb137af73e3becb138b81e65750ef6ae8b5709b094030f4e9a",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved441_ramp5_seed_stage_20261112T123956_1290282/m6.su2.native_rows": "9018e0a1be716e54b759e9a2affb6fbe7a29f4695d79de47a09c7f65c29d1a48",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved441_ramp5_seed_stage_20261112T123956_1290282/provenance.json": "9b367e54f2139497ffa4fd07c46b05212c88a79ac459a5ff3fbf82f8e1e36d6c",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved441_ramp5_seed_stage_20261112T123956_1290282/qualification.json": "41537522cac46902bb3ad4bc1cf6c60dc15a1e7330fbd25fbf600fe3782c1c50"
+      }
+    }
+  }
+}
