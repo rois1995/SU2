@@ -16,7 +16,7 @@ Updated 2026-11-15. Latest order: NIGHT_WORK_ORDER.md (SHA-sealed input_manifest
 | N11 law-directed edge | NOT STARTED | needsN8A1 first | I.B2 |
 | N8 geometry law/requirements/M6b | NOT STARTED | A1beforeN11; remainingafterN11 | I.A |
 
-Current job: NONE after N9 build527 passed. CFD31c43b6e3bc1/test7245c5ef405d; all17 actual-host build identities terminal,1562pins unchanged. Connected print-only observations unqualified pending ONE G3/all old integer rows then G2. Next N10,N8A1,N11,remainingN8,6.3,N6,N7.
+Current job: N9 G3 C492 LIVE outer4057923/start32540825, frozen527 CFD31c43b6e/test7245c5ef plus21extrahelperpins. Single serial saved492 stage,388.8s/12GiBmodel/19073MiBjob unchanged. No full N9 workflow. Keep SAMEjob, no source/helper changes. Afterfirstresultfailure R5; ifPASS G2 next.
 
 R5 governs resultfailures: preservefirstnumber; one<=60min readonlydiagnosis; onlytranscription/wiringagainstwrittenproposal permitsonecorrection+onefailedcheckrepeat; else revertitem, markFAILED andcontinueindependentnextitem. R3ownharnessrepairs<=90min each, no gate/productionchanges. Do not implementdesign8.3-8.7,A5/B5 or job-derivedquota.
 
@@ -253,3 +253,5 @@ B7revert9831c787e7PUSHED. N9inputsNight/I/D/Ccopied+SHA; Ireadcompletelyagain. A
 N9 connected print-only implementation applied after sourcecheck: fixed-array wall guard/guidance/choice/metric/accepted observations plus appended Surface D9 phase. Standalone counter/phase fixture PASS; G3 comparator selfcheck PASS with no numerical launch. Build527 prepared, production not yet qualified. No prior job restarted. Next build527 then ONE G3, G2 with unchanged gates.
 
 N9build527 PASSED100.162575s/6actions, all1562sourcepinsunchanged,17actualhostownedIDsterminal. CFD31c43b6e3bc1/test7245c5ef405d. Standalonecounterphasefixture and G3integercomparator selfcheckPASS. NewN9wrapper provenance audit underway, no numericalcase yet. ALLcompiledsources remainfrozen for G3/G2.
+
+N9G3 LIVE outer4057923/start32540825, lowpriority/singlethreadlibraries, actualhostpreflight noownedheavyjob/RAM37383384KiB/load2.28; usercodeprocesshot observationonly. Standalonecounter/phase fixture recompiled+ranPASS0.482s with source/binary receipt, no CPPchanges. AllcompiledCPP and21activehelperpinsFROZEN. Buildpassedcheckpointbd709cb4c1PUSHED.

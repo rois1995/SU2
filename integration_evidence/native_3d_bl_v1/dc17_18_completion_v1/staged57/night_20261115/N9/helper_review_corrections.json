@@ -1,0 +1,17 @@
+{
+  "scope": "own helpers/drafts, before any N9 build or numerical launch",
+  "corrections": [
+    {
+      "cause": "G2 helper compared candidate hashes with baseline949/6de constants; an instrumented candidate necessarily has new hashes.",
+      "correction": "Use immutable candidate build metadata and alias verification; baseline949/6de stays only in reference526 provenance."
+    },
+    {
+      "cause": "Reused load_runner held its own module HERE in function globals, so session ownership discovery would inspect S2 instead of N9.",
+      "correction": "Retarget actual function globals in this separate process and selfcheck ownership function resolvesN9."
+    },
+    {
+      "cause": "G2 comparator asserted before persisting a failed comparison.",
+      "correction": "Always save comparison receipt including first difference before returning a failed result gate."
+    }
+  ]
+}

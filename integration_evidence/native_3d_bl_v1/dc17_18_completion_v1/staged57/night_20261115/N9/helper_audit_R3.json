@@ -1,0 +1,33 @@
+{
+  "scope": "N9 helper-only audit; no numerical or build launch",
+  "corrections": [
+    {
+      "cause": "I misread G3 as a full two-event workflow and temporarily retargeted run_g3.py to launch that workflow and compare against section6_1/full_workflow.",
+      "correction": "Restored the intended serial saved-492 PrepareSurface G3 shape: run the cheap-BL physical gate, then compare all old integer rows to the accepted N1 cheap-BL case. Preserved the rejected full-workflow revision at drafts/run_g3_wrong_full_scope.py.",
+      "result": "No numerical run used the mistaken helper."
+    },
+    {
+      "cause": "The adapted cheap-BL runner pinned its own wrapper and build alias but omitted the active N9 run_g3.py orchestrator.",
+      "correction": "Added the resolved N9 run_g3.py path and SHA-256 to the cheap-BL case extra pins."
+    },
+    {
+      "cause": "The build alias checked internal status and artifact hashes but did not require the designated N9 build527 binary identities.",
+      "correction": "Added explicit CFD and test binary SHA-256 assertions for build527."
+    }
+  ],
+  "self_checks": {
+    "python_compile": "passed",
+    "build527_aliases_py": "passed",
+    "run_remaining_checks_py": "passed; adapted BL source compiles and pins run_g3.py",
+    "run_first_collapse_N9_py": "passed; exact G2 synthetic gate and actual N1 prefix comparator",
+    "run_g3_py": "passed; actual accepted N1 cheap-BL self-comparison",
+    "numerical_run_launched": false,
+    "build_launched": false
+  },
+  "extra_source_pins": {
+    "path": "unchanged_build499_source_pins.json",
+    "entries": 21,
+    "verified": true,
+    "disjoint_from_build527_source_pins": true
+  }
+}

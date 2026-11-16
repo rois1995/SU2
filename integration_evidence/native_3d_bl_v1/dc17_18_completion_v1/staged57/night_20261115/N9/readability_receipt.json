@@ -1,0 +1,491 @@
+{
+  "execution_scope": {
+    "build_launched": false,
+    "fixture_launched": false,
+    "numerical_job_launched": false,
+    "reason": "build527 is active; this receipt is read-only."
+  },
+  "formatting_dry_checks": {
+    "checks": [
+      {
+        "command": [
+          "clang-format",
+          "--dry-run",
+          "--Werror",
+          "--ferror-limit=3",
+          "Common/include/adaptation/CNativeWallDiagnostics3D.hpp"
+        ],
+        "diagnostics": [],
+        "exit_code": 0,
+        "name": "wall_diagnostics_header_whole_file"
+      },
+      {
+        "command": [
+          "clang-format",
+          "--dry-run",
+          "--Werror",
+          "--ferror-limit=3",
+          "-lines=23:55",
+          "Common/include/adaptation/CNativeD9Profile3D.hpp"
+        ],
+        "diagnostics": [],
+        "exit_code": 0,
+        "name": "d9_profile_modified_range"
+      },
+      {
+        "command": [
+          "clang-format",
+          "--dry-run",
+          "--Werror",
+          "--ferror-limit=3",
+          "-lines=40:45",
+          "-lines=4201:4213",
+          "Common/src/adaptation/CNativeEngine3D.cpp"
+        ],
+        "diagnostics": [
+          "line 4203 last_geometry_operation=operation; is not clang-formatted; bounded diagnostic included additional offsets on same line"
+        ],
+        "exit_code": 1,
+        "name": "engine_added_function_and_lambda_ranges"
+      },
+      {
+        "command": [
+          "clang-format",
+          "--dry-run",
+          "--Werror",
+          "--ferror-limit=3",
+          "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N9/wall_diagnostics_test.cpp"
+        ],
+        "diagnostics": [],
+        "exit_code": 0,
+        "name": "standalone_fixture_whole_file"
+      },
+      {
+        "command": [
+          "clang-format",
+          "--dry-run",
+          "--Werror",
+          "--ferror-limit=3",
+          "Common/src/adaptation/CNativeEngine3D.cpp"
+        ],
+        "diagnostics": [
+          "first reported legacy style issue at Common/src/adaptation/CNativeEngine3D.cpp:83 in preexisting CollapseOutsideTolerance; no formatting rewrite applied"
+        ],
+        "exit_code": 1,
+        "name": "engine_whole_file_legacy"
+      }
+    ],
+    "clang_format_version": "Ubuntu clang-format version 18.1.3 (1ubuntu1)",
+    "no_files_reformatted": true
+  },
+  "legacy_exception": {
+    "adapt_lines": 4963,
+    "all_new_helper_function_lengths_at_most_80": true,
+    "new_guarded_geometry_lambda_lines": 13,
+    "source_check": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N9/source_check.md",
+    "statement": "The existing Adapt body and its surrounding lambdas are an explicit readability exception for this observation-only N9 step; cut is scheduled after N9/N10/N11/N8. No cut or reordering was made here."
+  },
+  "scan": {
+    "method": "Only listed files were inspected. Reused newline-preserving comment/string masking, parsed candidate signatures, followed balanced parentheses to a body brace, and counted source lines through the matching closing brace. Top ten entries checked against source declarations/bodies. Python helpers counted with AST inclusive start/end lines. No regex scanning of the repository.",
+    "new_and_modified_function_lengths": [
+      {
+        "end_line": 33,
+        "function": "Counters",
+        "lines": 1,
+        "path": "Common/include/adaptation/CNativeWallDiagnostics3D.hpp",
+        "start_line": 33
+      },
+      {
+        "end_line": 40,
+        "function": "ObserveGeometry",
+        "lines": 5,
+        "path": "Common/include/adaptation/CNativeWallDiagnostics3D.hpp",
+        "start_line": 36
+      },
+      {
+        "end_line": 59,
+        "function": "ObserveGuard",
+        "lines": 17,
+        "path": "Common/include/adaptation/CNativeWallDiagnostics3D.hpp",
+        "start_line": 43
+      },
+      {
+        "end_line": 66,
+        "function": "GuidanceTrial",
+        "lines": 5,
+        "path": "Common/include/adaptation/CNativeWallDiagnostics3D.hpp",
+        "start_line": 62
+      },
+      {
+        "end_line": 73,
+        "function": "GuidanceReject",
+        "lines": 5,
+        "path": "Common/include/adaptation/CNativeWallDiagnostics3D.hpp",
+        "start_line": 69
+      },
+      {
+        "end_line": 82,
+        "function": "MetricValidation",
+        "lines": 7,
+        "path": "Common/include/adaptation/CNativeWallDiagnostics3D.hpp",
+        "start_line": 76
+      },
+      {
+        "end_line": 90,
+        "function": "MetricTrial",
+        "lines": 6,
+        "path": "Common/include/adaptation/CNativeWallDiagnostics3D.hpp",
+        "start_line": 85
+      },
+      {
+        "end_line": 95,
+        "function": "Accepted",
+        "lines": 3,
+        "path": "Common/include/adaptation/CNativeWallDiagnostics3D.hpp",
+        "start_line": 93
+      },
+      {
+        "end_line": 100,
+        "function": "PlanningRefusal",
+        "lines": 3,
+        "path": "Common/include/adaptation/CNativeWallDiagnostics3D.hpp",
+        "start_line": 98
+      },
+      {
+        "end_line": 163,
+        "function": "Print",
+        "lines": 61,
+        "path": "Common/include/adaptation/CNativeWallDiagnostics3D.hpp",
+        "start_line": 103
+      },
+      {
+        "end_line": 169,
+        "function": "Contains",
+        "lines": 3,
+        "path": "Common/include/adaptation/CNativeWallDiagnostics3D.hpp",
+        "start_line": 167
+      },
+      {
+        "end_line": 184,
+        "function": "Reason",
+        "lines": 13,
+        "path": "Common/include/adaptation/CNativeWallDiagnostics3D.hpp",
+        "start_line": 172
+      },
+      {
+        "end_line": 189,
+        "function": "PrintSingle",
+        "lines": 3,
+        "path": "Common/include/adaptation/CNativeWallDiagnostics3D.hpp",
+        "start_line": 187
+      },
+      {
+        "end_line": 197,
+        "function": "GuardRefusals",
+        "lines": 6,
+        "path": "Common/include/adaptation/CNativeWallDiagnostics3D.hpp",
+        "start_line": 192
+      },
+      {
+        "end_line": 204,
+        "function": "PreTrialTotal",
+        "lines": 5,
+        "path": "Common/include/adaptation/CNativeWallDiagnostics3D.hpp",
+        "start_line": 200
+      },
+      {
+        "end_line": 223,
+        "function": "Choice",
+        "lines": 1,
+        "path": "Common/include/adaptation/CNativeWallDiagnostics3D.hpp",
+        "start_line": 223
+      },
+      {
+        "end_line": 234,
+        "function": "Begin",
+        "lines": 9,
+        "path": "Common/include/adaptation/CNativeWallDiagnostics3D.hpp",
+        "start_line": 226
+      },
+      {
+        "end_line": 244,
+        "function": "EnterOperator",
+        "lines": 8,
+        "path": "Common/include/adaptation/CNativeWallDiagnostics3D.hpp",
+        "start_line": 237
+      },
+      {
+        "end_line": 254,
+        "function": "Disposition",
+        "lines": 8,
+        "path": "Common/include/adaptation/CNativeWallDiagnostics3D.hpp",
+        "start_line": 247
+      },
+      {
+        "change": "modified",
+        "end_line": 39,
+        "function": "Phase",
+        "lines": 8,
+        "path": "Common/include/adaptation/CNativeD9Profile3D.hpp",
+        "start_line": 32
+      },
+      {
+        "change": "modified",
+        "end_line": 55,
+        "function": "PrintQueries",
+        "lines": 15,
+        "path": "Common/include/adaptation/CNativeD9Profile3D.hpp",
+        "start_line": 41
+      },
+      {
+        "change": "new",
+        "end_line": 45,
+        "function": "WallGuidanceCause",
+        "lines": 6,
+        "path": "Common/src/adaptation/CNativeEngine3D.cpp",
+        "start_line": 40
+      },
+      {
+        "change": "modified lambda",
+        "end_line": 4213,
+        "function": "guarded_geometry (lambda)",
+        "lines": 13,
+        "path": "Common/src/adaptation/CNativeEngine3D.cpp",
+        "start_line": 4201
+      },
+      {
+        "end_line": 58,
+        "function": "Observe",
+        "lines": 48,
+        "path": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N9/wall_diagnostics_test.cpp",
+        "start_line": 11
+      },
+      {
+        "end_line": 89,
+        "function": "Check",
+        "lines": 29,
+        "path": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N9/wall_diagnostics_test.cpp",
+        "start_line": 61
+      },
+      {
+        "end_line": 120,
+        "function": "CheckSurfacePhase",
+        "lines": 29,
+        "path": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N9/wall_diagnostics_test.cpp",
+        "start_line": 92
+      },
+      {
+        "end_line": 134,
+        "function": "main",
+        "lines": 12,
+        "path": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N9/wall_diagnostics_test.cpp",
+        "start_line": 123
+      }
+    ],
+    "python_helper_function_lengths": {
+      "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N9/run_first_collapse_N9.py": [
+        {
+          "end_line": 35,
+          "function": "verify_build",
+          "lines": 8,
+          "start_line": 28
+        },
+        {
+          "end_line": 51,
+          "function": "compare_g2",
+          "lines": 14,
+          "start_line": 38
+        },
+        {
+          "end_line": 71,
+          "function": "self_check",
+          "lines": 18,
+          "start_line": 54
+        },
+        {
+          "end_line": 100,
+          "function": "main",
+          "lines": 27,
+          "start_line": 74
+        }
+      ],
+      "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N9/run_g3.py": [
+        {
+          "end_line": 18,
+          "function": "sha",
+          "lines": 4,
+          "start_line": 15
+        },
+        {
+          "end_line": 23,
+          "function": "save",
+          "lines": 3,
+          "start_line": 21
+        },
+        {
+          "end_line": 36,
+          "function": "compare",
+          "lines": 11,
+          "start_line": 26
+        },
+        {
+          "end_line": 51,
+          "function": "observation_rows",
+          "lines": 13,
+          "start_line": 39
+        },
+        {
+          "end_line": 88,
+          "function": "main",
+          "lines": 35,
+          "start_line": 54
+        }
+      ],
+      "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N9/run_remaining_checks.py": [
+        {
+          "end_line": 34,
+          "function": "adapted_source",
+          "lines": 15,
+          "start_line": 20
+        },
+        {
+          "end_line": 52,
+          "function": "self_check",
+          "lines": 16,
+          "start_line": 37
+        },
+        {
+          "end_line": 63,
+          "function": "main",
+          "lines": 9,
+          "start_line": 55
+        }
+      ]
+    },
+    "recipe": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N5/reports/function_lengths_scan_recipe.txt",
+    "recipe_sha256": "709ceaaaba6cba4392f1552097157bebd9ed571dd7c37e66d8547338d6a03f33",
+    "top_10_longest_touched_definitions": [
+      {
+        "end_line": 6247,
+        "function": "Adapt",
+        "lines": 4963,
+        "path": "Common/src/adaptation/CNativeEngine3D.cpp",
+        "source_sha256": "518e19607b3085739a13178e345b0ceceb8c95deae03ee1a6a36e323e2c638c0",
+        "start_line": 1285
+      },
+      {
+        "end_line": 6966,
+        "function": "MeshOptimizer::SmoothBoundary",
+        "lines": 223,
+        "path": "Common/src/adaptation/CNativeEngine3D.cpp",
+        "source_sha256": "518e19607b3085739a13178e345b0ceceb8c95deae03ee1a6a36e323e2c638c0",
+        "start_line": 6744
+      },
+      {
+        "end_line": 7105,
+        "function": "MeshOptimizer::Smooth",
+        "lines": 139,
+        "path": "Common/src/adaptation/CNativeEngine3D.cpp",
+        "source_sha256": "518e19607b3085739a13178e345b0ceceb8c95deae03ee1a6a36e323e2c638c0",
+        "start_line": 6967
+      },
+      {
+        "end_line": 1015,
+        "function": "Add",
+        "lines": 119,
+        "path": "Common/src/adaptation/CNativeEngine3D.cpp",
+        "source_sha256": "518e19607b3085739a13178e345b0ceceb8c95deae03ee1a6a36e323e2c638c0",
+        "start_line": 897
+      },
+      {
+        "end_line": 7440,
+        "function": "MeshOptimizer::CoupledBoundary",
+        "lines": 100,
+        "path": "Common/src/adaptation/CNativeEngine3D.cpp",
+        "source_sha256": "518e19607b3085739a13178e345b0ceceb8c95deae03ee1a6a36e323e2c638c0",
+        "start_line": 7341
+      },
+      {
+        "end_line": 163,
+        "function": "Print",
+        "lines": 61,
+        "path": "Common/include/adaptation/CNativeWallDiagnostics3D.hpp",
+        "source_sha256": "331e19a32e93bb3826e776ba5a1ddcf66a381eb6370a517c2d05f0d389259457",
+        "start_line": 103
+      },
+      {
+        "end_line": 6707,
+        "function": "MeshOptimizer::EdgeRemoval",
+        "lines": 54,
+        "path": "Common/src/adaptation/CNativeEngine3D.cpp",
+        "source_sha256": "518e19607b3085739a13178e345b0ceceb8c95deae03ee1a6a36e323e2c638c0",
+        "start_line": 6654
+      },
+      {
+        "end_line": 7491,
+        "function": "MeshOptimizer::Run",
+        "lines": 51,
+        "path": "Common/src/adaptation/CNativeEngine3D.cpp",
+        "source_sha256": "518e19607b3085739a13178e345b0ceceb8c95deae03ee1a6a36e323e2c638c0",
+        "start_line": 7441
+      },
+      {
+        "end_line": 1284,
+        "function": "OptimizedRepairPatch",
+        "lines": 49,
+        "path": "Common/src/adaptation/CNativeEngine3D.cpp",
+        "source_sha256": "518e19607b3085739a13178e345b0ceceb8c95deae03ee1a6a36e323e2c638c0",
+        "start_line": 1236
+      },
+      {
+        "end_line": 7157,
+        "function": "MeshOptimizer::BoundaryFlip",
+        "lines": 49,
+        "path": "Common/src/adaptation/CNativeEngine3D.cpp",
+        "source_sha256": "518e19607b3085739a13178e345b0ceceb8c95deae03ee1a6a36e323e2c638c0",
+        "start_line": 7109
+      }
+    ],
+    "whole_cpp_function_count_scanned": 229
+  },
+  "schema": "n9_readability_receipt_v1",
+  "scope": {
+    "build527_source_pin_receipt": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N9/build527/source_pins.json",
+    "build527_source_pins_verified_for_scanned_cpp": true,
+    "changed_build527_pins": [
+      "Common/include/adaptation/CNativeD9Profile3D.hpp",
+      "Common/src/adaptation/CNativeEngine3D.cpp",
+      "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N9/build527/build.py",
+      "Common/include/adaptation/CNativeWallDiagnostics3D.hpp"
+    ],
+    "python_helpers": [
+      "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N9/run_g3.py",
+      "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N9/run_remaining_checks.py",
+      "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N9/run_first_collapse_N9.py"
+    ],
+    "source_files": [
+      "Common/include/adaptation/CNativeWallDiagnostics3D.hpp",
+      "Common/include/adaptation/CNativeD9Profile3D.hpp",
+      "Common/src/adaptation/CNativeEngine3D.cpp"
+    ],
+    "standalone_fixture": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N9/wall_diagnostics_test.cpp"
+  },
+  "source_sha256": {
+    "Common/include/adaptation/CNativeD9Profile3D.hpp": "2b649832a8004f0d3b4f5bf531ab5567e8b00c62844324aef0a9894bd06205f1",
+    "Common/include/adaptation/CNativeWallDiagnostics3D.hpp": "331e19a32e93bb3826e776ba5a1ddcf66a381eb6370a517c2d05f0d389259457",
+    "Common/src/adaptation/CNativeEngine3D.cpp": "518e19607b3085739a13178e345b0ceceb8c95deae03ee1a6a36e323e2c638c0",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N9/run_first_collapse_N9.py": "e73c9b345cada51cb54a4a5f1b57ef3a9d661664f3037d52dc3273d221a37543",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N9/run_g3.py": "be095f88153b853b5cf7478ecf21df88e3758c92161f1b2638d33f429367ae60",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N9/run_remaining_checks.py": "addc5080704f3bd5a27f5132357703ad032358125ce4433a6ba4c4198a403afd",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N9/wall_diagnostics_test.cpp": "7154b21d118d79b38ad9b257924a33223fe613feeacea25483a0c399d859de52"
+  },
+  "standalone_fixture_binary": {
+    "coherence": "unverified: no exact prior compile command or source-to-binary receipt was found in the bounded N9 records; binary was not executed",
+    "fixture_source_sha256": "7154b21d118d79b38ad9b257924a33223fe613feeacea25483a0c399d859de52",
+    "mtime_local": 1794832178.1497853,
+    "path": "/tmp/n9_wall_diagnostics_test",
+    "sha256": "a611d73b258562cc8029c6535113c0078e2fec37d48868bc72fde850d0616d54",
+    "size_bytes": 50392,
+    "source_mtime_local": 1794832177.6347857
+  }
+}

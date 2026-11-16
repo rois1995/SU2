@@ -1,0 +1,240 @@
+#pragma once
+
+#include <array>
+#include <cstdint>
+#include <iostream>
+#include <string_view>
+
+namespace SU2NativeWallDiagnostics3D {
+
+// Counts worker-local observations only; never reads counters to control mesh edits.
+enum class GuardOrigin : std::uint8_t { Operator, Guidance, Count };
+enum class GuidanceCause : std::uint8_t { Incomplete, Nonfinite, NoProgress, AfterAbove, Exception, Other, Count };
+enum class PreTrialDisposition : std::uint8_t { Other, Oversized, Conflict, Deferred, SplitPosition, Count };
+
+struct Expected {
+  std::uint64_t geometry_trials = 0;
+  std::uint64_t geometry_rejected = 0;
+  std::uint64_t guidance_trials = 0;
+  std::uint64_t guidance_rejected = 0;
+  std::uint64_t accepted = 0;
+  std::uint64_t metric_trials = 0;
+  std::uint64_t proposed = 0;
+  std::uint64_t attempted = 0;
+};
+
+class Counters {
+ public:
+  explicit Counters(bool enabled) : enabled_(enabled) {}
+
+  // Mirrors one existing geometry_trial call; it does not classify its caller.
+  void ObserveGeometry(bool valid) {
+    if (!enabled_) return;
+    ++geometry_trials_;
+    geometry_rejected_ += !valid;
+  }
+
+  // Records only the first false predicate in guarded_geometry's existing order.
+  void ObserveGuard(std::string_view operation, GuardOrigin origin, bool initially_valid,
+                    bool preserved, bool height_valid, bool boundary_valid, std::string_view reason) {
+    if (!enabled_ || (initially_valid && preserved && height_valid && boundary_valid)) return;
+    if (origin == GuardOrigin::Guidance) {
+      ++guidance_guard_refusals_;
+      return;
+    }
+    if (!initially_valid) {
+      ++operator_refusals_[Is(operation, "SplitEdge") ? 0 : Is(operation, "InsertEdgeCavity") ? 1 : 2]
+                           [Reason(reason)];
+    } else if (!preserved) {
+      ++preserve_refusals_;
+    } else if (!height_valid) {
+      ++height_refusals_;
+    } else {
+      ++boundary_refusals_;
+    }
+  }
+
+  // `geometric` marks the geometric_change callsite; other trials are priority planning.
+  void GuidanceTrial(bool geometric) {
+    if (!enabled_) return;
+    ++guidance_trials_;
+    geometric_guidance_trials_ += geometric;
+  }
+
+  // Cause precedence is assigned by the caller; this method records the supplied result.
+  void GuidanceReject(GuidanceCause cause, bool geometric) {
+    if (!enabled_) return;
+    ++guidance_rejected_;
+    ++guidance_rejections_[static_cast<std::size_t>(geometric)][static_cast<std::size_t>(cause)];
+  }
+
+  // Counts validation refusals while returning the exact input decision.
+  bool MetricValidation(bool valid) {
+    if (enabled_) {
+      ++metric_validation_trials_;
+      metric_validation_rejected_ += !valid;
+    }
+    return valid;
+  }
+
+  // `before && !after` is the disjoint true-to-false metric_trial veto subset.
+  void MetricTrial(bool before, bool after) {
+    if (!enabled_) return;
+    ++metric_trials_;
+    metric_rejected_ += !after;
+    metric_vetoed_ += before && !after;
+  }
+
+  void Accepted() {
+    if (enabled_) ++accepted_;
+  }
+
+  // Kept outside the selected-choice partition: these calls need not name a choice.
+  void PlanningRefusal() {
+    if (enabled_) ++planning_refusals_;
+  }
+
+  // Prints observational totals and arithmetic residuals; diagnostics never reject work.
+  void Print(int rank, const Expected& expected) const noexcept {
+    if (!enabled_) return;
+    try {
+      static constexpr const char* operators[] = {"SplitEdge", "InsertEdgeCavity", "other_geometry"};
+      static constexpr const char* reasons[] = {"orientation", "interface", "surface_containment", "feature",
+                                                "marker_junction", "incomplete_star", "other"};
+      static constexpr const char* causes[] = {"incomplete", "nonfinite", "no_progress", "after_above",
+                                               "exception", "other"};
+      static constexpr const char* origins[] = {"priority", "geometric_change"};
+      static constexpr const char* dispositions[] = {"other", "oversized", "conflict", "deferred", "split_position"};
+      for (std::size_t op = 0; op < 3; ++op)
+        for (std::size_t why = 0; why < 7; ++why)
+          std::cout << "NATIVE3D_WALL_REFUSAL rank=" << rank << " class=" << operators[op]
+                    << " reason=" << reasons[why] << " count=" << operator_refusals_[op][why] << '\n';
+      PrintSingle(rank, "PreservePassingFirstHeights", preserve_refusals_);
+      PrintSingle(rank, "height_check", height_refusals_);
+      PrintSingle(rank, "boundary_replacement_ready", boundary_refusals_);
+      PrintSingle(rank, "guidance_guard", guidance_guard_refusals_);
+      const auto guarded_refusals = GuardRefusals();
+      PrintSingle(rank, "guarded_refusals", guarded_refusals);
+      PrintSingle(rank, "unwrapped_geometry_trial",
+                  geometry_rejected_ >= guarded_refusals ? geometry_rejected_ - guarded_refusals : 0);
+      for (std::size_t origin = 0; origin < 2; ++origin)
+        for (std::size_t cause = 0; cause < 6; ++cause)
+          std::cout << "NATIVE3D_WALL_GUIDANCE rank=" << rank << " origin=" << origins[origin]
+                    << " cause=" << causes[cause] << " count=" << guidance_rejections_[origin][cause] << '\n';
+      for (std::size_t why = 0; why < dispositions_.size(); ++why)
+        std::cout << "NATIVE3D_WALL_PRETRIAL rank=" << rank << " disposition=" << dispositions[why]
+                  << " count=" << dispositions_[why] << '\n';
+      std::cout << "NATIVE3D_WALL_COUNTS rank=" << rank << " geometry_trials=" << geometry_trials_
+                << " expected_geometry_trials=" << expected.geometry_trials
+                << " geometry_rejected=" << geometry_rejected_
+                << " expected_geometry_rejected=" << expected.geometry_rejected
+                << " guidance_trials=" << guidance_trials_
+                << " expected_guidance_trials=" << expected.guidance_trials
+                << " geometric_change_guidance_trials=" << geometric_guidance_trials_
+                << " priority_guidance=" << (expected.guidance_trials >= geometric_guidance_trials_
+                                                  ? expected.guidance_trials - geometric_guidance_trials_ : 0)
+                << " guidance_rejected=" << guidance_rejected_
+                << " expected_guidance_rejected=" << expected.guidance_rejected
+                << " accepted=" << accepted_ << " expected_accepted=" << expected.accepted
+                << " metric_trials=" << metric_trials_ << " expected_metric_trials=" << expected.metric_trials
+                << " metric_validation_trials=" << metric_validation_trials_
+                << " metric_validation_rejected=" << metric_validation_rejected_
+                << " metric_rejected=" << metric_rejected_ << " metric_vetoed=" << metric_vetoed_
+                << " selected=" << selected_ << " operator_entered=" << operator_entered_
+                << " pretrial=" << PreTrialTotal()
+                << " choice_partition_sum=" << operator_entered_ + PreTrialTotal()
+                << " expected_proposed=" << expected.proposed
+                << " expected_attempted=" << expected.attempted
+                << " planning_refusals=" << planning_refusals_ << '\n';
+    } catch (...) {
+    }
+  }
+
+ private:
+  static bool Is(std::string_view value, std::string_view needle) {
+    return value.substr(0, 256).find(needle) != std::string_view::npos;
+  }
+
+  // Reason matching is bounded to a fixed ordered set; unknown messages map to `other`.
+  static std::size_t Reason(std::string_view reason) {
+    if (Is(reason, "marker junction") || Is(reason, "marker-junction")) return 4;
+    if (Is(reason, "orientation")) return 0;
+    if (Is(reason, "interface")) return 1;
+    if (Is(reason, "containment") || Is(reason, "outside surface")) return 2;
+    if (Is(reason, "feature")) return 3;
+    if (Is(reason, "incomplete") || Is(reason, "star")) return 5;
+    return 6;
+  }
+
+  void PrintSingle(int rank, const char* name, std::uint64_t count) const {
+    std::cout << "NATIVE3D_WALL_REFUSAL rank=" << rank << " class=" << name << " count=" << count << '\n';
+  }
+
+  std::uint64_t GuardRefusals() const {
+    std::uint64_t count = preserve_refusals_ + height_refusals_ + boundary_refusals_ + guidance_guard_refusals_;
+    for (const auto& row : operator_refusals_)
+      for (auto value : row) count += value;
+    return count;
+  }
+
+  std::uint64_t PreTrialTotal() const {
+    std::uint64_t count = 0;
+    for (auto value : dispositions_) count += value;
+    return count;
+  }
+
+  friend class Choice;
+  bool enabled_;
+  std::uint64_t geometry_trials_ = 0, geometry_rejected_ = 0;
+  std::uint64_t guidance_trials_ = 0, guidance_rejected_ = 0, geometric_guidance_trials_ = 0;
+  std::uint64_t preserve_refusals_ = 0, height_refusals_ = 0, boundary_refusals_ = 0, guidance_guard_refusals_ = 0;
+  std::uint64_t metric_validation_trials_ = 0, metric_validation_rejected_ = 0;
+  std::uint64_t metric_trials_ = 0, metric_rejected_ = 0, metric_vetoed_ = 0;
+  std::uint64_t accepted_ = 0, planning_refusals_ = 0, selected_ = 0, operator_entered_ = 0;
+  std::array<std::array<std::uint64_t, 7>, 3> operator_refusals_{};
+  std::array<std::array<std::uint64_t, 6>, 2> guidance_rejections_{};
+  std::array<std::uint64_t, static_cast<std::size_t>(PreTrialDisposition::Count)> dispositions_{};
+};
+
+class Choice {
+ public:
+  explicit Choice(Counters& counters) : counters_(counters) {}
+
+  // Starts one elected active slot in its explicit default pre-trial bucket.
+  void Begin(bool active) {
+    active_ = active;
+    entered_ = false;
+    disposition_ = PreTrialDisposition::Other;
+    if (active_ && counters_.enabled_) {
+      ++counters_.selected_;
+      ++counters_.dispositions_[static_cast<std::size_t>(disposition_)];
+    }
+  }
+
+  // Moves this slot exactly once from its pre-trial bucket into operator entry.
+  void EnterOperator() {
+    if (!active_ || entered_) return;
+    entered_ = true;
+    if (counters_.enabled_) {
+      --counters_.dispositions_[static_cast<std::size_t>(disposition_)];
+      ++counters_.operator_entered_;
+    }
+  }
+
+  // Replaces the default/previous disposition while the slot has not entered an operator.
+  void Disposition(PreTrialDisposition disposition) {
+    if (!active_ || entered_ || disposition >= PreTrialDisposition::Count) return;
+    if (counters_.enabled_) {
+      --counters_.dispositions_[static_cast<std::size_t>(disposition_)];
+      ++counters_.dispositions_[static_cast<std::size_t>(disposition)];
+    }
+    disposition_ = disposition;
+  }
+
+ private:
+  Counters& counters_;
+  PreTrialDisposition disposition_ = PreTrialDisposition::Other;
+  bool active_ = false, entered_ = false;
+};
+
+}  // namespace SU2NativeWallDiagnostics3D
