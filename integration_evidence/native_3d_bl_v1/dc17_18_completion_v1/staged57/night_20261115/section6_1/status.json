@@ -1,6 +1,6 @@
 {
   "item": "section6.1 N1 P7/P8/M18/M20/M21",
-  "state": "prechecks_passed_full_pending",
+  "state": "full_run1_running",
   "accepted_N5_base": "3d28237f03",
   "build": "build522",
   "CFD_sha256": "949359f28cd46490bd5b4e1389ccc22948952c73f360671b593e3e09a4f2d752",
@@ -28,7 +28,16 @@
     "2d2",
     "2d4"
   ],
-  "full_run_count": 0,
+  "full_run_count": 1,
   "full_reference_policy": "Night6.1: event1 P6c, event2 supplied P7 reference; only explicit one repeat if event2 differs with all other gates passing",
-  "N7_finalized": false
+  "N7_finalized": false,
+  "full_case": "full_workflow",
+  "controller": {
+    "pid": 3428575,
+    "start_ticks": 31149079
+  },
+  "application": {
+    "pid": 3428753,
+    "start_ticks": 31149331
+  }
 }

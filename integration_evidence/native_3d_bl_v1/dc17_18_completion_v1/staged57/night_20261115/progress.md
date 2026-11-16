@@ -4,7 +4,7 @@ Updated 2026-11-15. Latest order: NIGHT_WORK_ORDER.md (SHA-sealed input_manifest
 
 | Item | State | Commit / gates | Next |
 |---|---|---|---|
-| N1 P7/P8/counters | Section6.1 ACTIVE; original failure/revert retained | accepted N5 base3d28237f03; build522/units1+2/exactcollapse+constructionguard/C492 passed; safeguards running | units1/2/stats,collapse,safeguards,full newevent2referencepolicy |
+| N1 P7/P8/counters | Section6.1 ACTIVE; original failure/revert retained | accepted N5 base3d28237f03; ALL prechecks passed; fullrun1 running on frozen522 | units1/2/stats,collapse,safeguards,full newevent2referencepolicy |
 | N2 B7 | NOT STARTED | awaits accepted6.1M18 | reread/archiveNightsection6 beforecondition |
 | N3 design source check | PASSED (read-only review completed) |14 consolidated findings/readings; M11/M15/M17/M19 and T1–T3 answered; no build/run/productionedit; see Handbook/ADAPTATION_DESIGN_SOURCE_CHECK_20261115.md | Commit/push, then N4 C/inventories/sourcecheck and reference gates |
 | N4 Adapt cut8.2 | Section6.3 pending; old A1 failure/revert historical | first complexity209.9357526597 vs656.1522579418; failed ec0e8f3ef5, reverted8039fc1b59 | freshG1identity/G2/G3/GQ after6.1/6.2 |
@@ -12,7 +12,7 @@ Updated 2026-11-15. Latest order: NIGHT_WORK_ORDER.md (SHA-sealed input_manifest
 | N6 further identical cuts | NOT STARTED | requirescompletedN4+G5 | Remesh,MeshOptimizer,Selection |
 | N7 morning report | NOT STARTED | always | finalclose/terminalhandles |
 
-Current job: section6.1 safeguards, durable controller3390925/start31053185; firstmerit481 case geometry_merit505_serial_20261116T083708_3391037/app3391130. Check sequence and actual handles before any launch. N5 all numerical handles terminal. The original N1 failed build508 is historical; newest accepted checkpoint3d28237f03 is N5 build521. Read Night order and this file after compaction; no questions.
+Current job: section6.1 fullrun1, detached controller3428575/start31149079; same app3428753/start31149331, case section6_1/full_workflow. All30precheckhandles actualhostterminal. Check these identities before any launch; do not restart or edit pinned code/helpers. N5 all numerical handles terminal. The original N1 failed build508 is historical; newest accepted checkpoint3d28237f03 is N5 build521. Read Night order and this file after compaction; no questions.
 
 R5 governs resultfailures: preservefirstnumber; one<=60min readonlydiagnosis; onlytranscription/wiringagainstwrittenproposal permitsonecorrection+onefailedcheckrepeat; else revertitem, markFAILED andcontinueindependentnextitem. R3ownharnessrepairs<=90min each, no gate/productionchanges. Do not implementdesign8.3-8.7,A5/B5 or job-derivedquota.
 
@@ -211,3 +211,7 @@ Section6.1C492 PASSED542.492544s,486splits/allprivatecellspositive, first336iden
 Section6.1merit481 PASSED121.580727scase/122.016101ssequence,56cases/5947assertions,pinsunchanged/conservativepeak72802304B<19999490048; currenttargetLIVE casecurved505_current_target_surface_corrections_serial_20261116T083917_3396090. commandenv verifiedqualified492target/core sensor/scale binding afterlatecallback, receiptcurrent_target_binding_receipt.json. SAMEfinalcontroller3390925/start31053185 willcontinue2D1/2/4onlyifthispasses; no CPP/helperchanges. C492checkpoint82f6791181PUSHED. NextfullM6 afterallsafeguards/terminal/hostpreflight, notbefore.
 
 Section6.1allsafeguardsPASSED:SAMEfinalsequencecomplete, merit481122.016s,currenttarget149.018s,2D1/2/4 11.007/12.007/11.007s, allcaseexit0/pinsunchanged/conservativepeaksunder19999490048. Geometry56/5947,currenttarget+2Dcountsfromrawlogs; current492bindingexplicitlyverified. Nextactualterminalclosure/checkpoint thenONEfull_workflow on frozen522code; nofullbeforeclosure. Handoff/HowToProceedcurrentbinaryupdated522, acceptedN5source3d282retainedhistory. N7unfinished.
+
+Section6.1FULLRUN1 LIVE controller3428575/start31149079, app3428753/start31149331, case section6_1/full_workflow. Freshactualhost3sCPU0busy/load+RAM>20GB/free31.3GiB; nootherownedjob. ALLCPP/build522source+binary/runtime/config/inputpins andfullwrapper/core/fouradditionalhelpersFROZEN. Exactcollapse/physical/time5400/event/job19073MiB/95%timer+join/P7c1/P8exactSUM+lower gates unchanged. Event1P6c; event2originalP7reference, ONLYwrittenone-repeatcontingency ifevent2differswhileallothergatespass. Precheckscheckpointbdb59d4177PUSHED. NextfinishSAMEjob, event1hashafterpublication, terminalseal/allstanding+6hashpolicy, isolatedrestart, then6.2freshNightread/archive beforeM18condition. NO finalN7.
+
+Section6.1SAMEfullrun1 final_source_first_collapse_gate PASSED exact90809869/countprediction/zero refinements; qualityimprovementactive aroundelapsed1300s. Controller3428575/app3428753unchanged; actualhostCPUauditsmax6, nootherbusyhelpersobserved. AllCPP/fullhelpers/pinsremainFROZEN; event1finalphysical/P7P8/timer/outputidentitynotyetclosed. KeepSAMEjob, no restart.
