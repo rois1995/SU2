@@ -472,3 +472,5 @@ compiled/linked butwrapper143beforefinalreceipt. Entireownedsessionterminal/pins
 verified; normalno-workNinja completion0. .025033sONLYcompletioncheck, originalcompile
 wallUNKNOWN. Focused491PASS1case/22assertions4.956souter/.001sCatch. Actualexperiment489
 underbuild491 nowLIVE/FROZEN,exec99533; node/target/geometry/height/budgets unchanged.
+
+2026-11-16 night update: N9section6.6 build529100.145415s/6actions; corrected G3 fixture546.644725s incl saved-state load +30s observer +388.8s wall-stage budget,457accepted splits; G2samejob751.169940s until planned extra construction boundary /759.371902s sealed, NOT collapse-only. Sampled serial GNUtimepeak3,339,386,880B is not a sum of controller peaks. A1launcher53010.138423s failed before compilation (Ninja PATH setup); compile53140.163326s failed missing defining header, generated buildgraph refreshed. Neither establishes law/census speed or an efficiency gain. Corrected build532 in progress with4workers,nice19; stage census seconds remain pending. All rawattempts/corrections in R/night_20261115/N8/A1.

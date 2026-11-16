@@ -1,0 +1,21 @@
+{
+  "passed": true,
+  "launched": false,
+  "tests": {
+    "passed": true,
+    "launched": false,
+    "actual_n9_g2_selfcompare": true,
+    "allowed_wall_law_additions": 1,
+    "old_calls_change_rejected": true,
+    "old_modeled_bytes_change_rejected": true,
+    "unexpected_timer_rejected": true,
+    "comparator_sha256": "284473302a0154aff18495e69450861c4eb33bd4eff918bf45d49032443582cc",
+    "n9_g2_case": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N9/section6_6/first_collapse"
+  },
+  "draft_helper_sha256": "bca0fbb95675a2701c24617bcaf5ff389cc5043450809eecc0df428e36c22440",
+  "base_comparator_sha256": "284473302a0154aff18495e69450861c4eb33bd4eff918bf45d49032443582cc",
+  "actual_n9_g2_run_log_sha256": "d68862695b47587427685e45d07612ba657bd69020dca1b4564bd205e499486b",
+  "source_input": "N12/inputs/NIGHT_WORK_ORDER.md",
+  "source_input_sha256": "6aebc3cfd9666a4a5d8f6fefb66ac378ae1c1285bb63ae336a6f30489935adee",
+  "comparison_rule": "remove only candidate NATIVE3D_TIMER operation=wall_law additions, then apply unchanged N4 G2/GQ comparator"
+}

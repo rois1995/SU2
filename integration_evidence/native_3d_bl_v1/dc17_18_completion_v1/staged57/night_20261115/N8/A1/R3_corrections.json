@@ -1,0 +1,22 @@
+[
+  {
+    "fixture": "build530/build.py",
+    "cause": "Meson regenerate needs Ninja discoverable via PATH; launch used absolute ninja but omitted its tools directory from PATH",
+    "correction": "new build531 launcher prepends repository Ninja tools directory to PATH; build530 preserved unchanged",
+    "production_changed": false,
+    "gate_changed": false,
+    "failed_attempt_seconds": 10.138422727584839
+  },
+  {
+    "fixture": "build531 source compilation",
+    "cause": "new moved law translation unit used PlanarReference::Get with only forward declaration available",
+    "correction": "include existing CNativeBoundary3D.hpp defining PlanarReference; single wiring correction, no formula/decision/gate change",
+    "category": "compile wiring against proposal"
+  },
+  {
+    "fixture": "build531 source pins",
+    "cause": "inherited build pins included generated build.ninja and compile_commands.json which Meson necessarily regenerates for requested new source-list entry",
+    "correction": "preserve531 changed-pin receipt; build532 pins the now-regenerated build graph plus current corrected source, with all pins verified terminal",
+    "category": "build harness setup"
+  }
+]

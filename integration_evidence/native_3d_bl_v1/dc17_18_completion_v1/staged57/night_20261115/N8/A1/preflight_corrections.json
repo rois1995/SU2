@@ -1,0 +1,13 @@
+{
+  "schema": "a1_runner_preflight_corrections_v1",
+  "corrections": [
+    {
+      "helper": "run_a1_checks.py",
+      "cause": "The copied Euler-input decode12 reference CSV SHA-256 was transcribed with one incorrect hexadecimal character.",
+      "correction": "Read the digest from the existing N5 R1-repeat receipt and verified it against the saved source CSV; reran the read-only preflight successfully.",
+      "production_changed": false,
+      "gate_changed": false,
+      "numerical_run": false
+    }
+  ]
+}
