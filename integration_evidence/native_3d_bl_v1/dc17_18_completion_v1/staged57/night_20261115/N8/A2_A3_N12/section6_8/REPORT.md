@@ -14,8 +14,8 @@ A1 restored over retained A2/A3/N12 using strict arithmetic and existing Census 
 | G1 | PASSED |375serial/57perrankMPI2/4,0changedcases,baseline24/19/37identical;839.004931/15.181993/20.688848controllerseconds;all4/6/8trackedIDs terminal |
 | G2 / GQ | PASSED both |Exact Census sum addition only; all other old integer/call/modeled-byte fields strict |
 | G3 | PASSED |384common edits/304779positive sensor cells; adjustedentry5113; model11190581249B; normal0/621.012663s; first336P6c exact |
-| G4 / safeguards | G4 and merit481 PASSED; saved-state checks RUNNING |2D1/2/4ranks allpass; merit481 normal0/124.021300s. Legacy saved481 input failed before operators, R3 binding corrected to qualified492 same-seed current-policy target; distinct saved cases run in order |
-| Full two-event workflow | NOT STARTED |ONE run after prior checks; six accepted N1 hashes and all standing gates |
+| G4 / safeguards | PASSED |2D1/2/4ranks allpass; merit481 normal0/124.021300s. Legacy saved481 input failed before operators, R3 binding corrected to qualified492 same-seed current-policy target; both distinct saved cases passed normal0; 611527assertions each; 5IDs sealed each |
+| Full two-event workflow | RUNNING tool21791 |ONE run after prior checks; six accepted N1 hashes and all standing gates |
 
 | Geometry fixture | Rows | Need edges | Seconds | Max relative score difference | Limiting-side changes A/B (union) |
 |---|---:|---:|---:|---:|---:|

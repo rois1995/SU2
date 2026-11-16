@@ -1,0 +1,116 @@
+{
+  "passed": true,
+  "cases": {
+    "saved481": {
+      "case": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N8/A2_A3_N12/section6_8/validation/cases/curved505_saved_surface_corrections_serial_20261116T191124_875184",
+      "status": {
+        "state": "terminal",
+        "exit_code": 0,
+        "seconds": 152.29779434204102,
+        "pins_verified": true,
+        "changed": [],
+        "largest_sampled_individual_process_rss_bytes": 1197539328,
+        "rss_note": "sampled process RSS; not a whole-job peak"
+      },
+      "terminal": {
+        "actual_host_proc": true,
+        "all_owned_handles_terminal": true,
+        "identities": [
+          {
+            "pid": 875184,
+            "start_ticks": 34858346,
+            "state": "R",
+            "name": "python3",
+            "alive": false
+          },
+          {
+            "pid": 875648,
+            "start_ticks": 34859380,
+            "state": "S",
+            "name": "orted",
+            "alive": false
+          },
+          {
+            "pid": 875645,
+            "start_ticks": 34859379,
+            "state": "S",
+            "name": "time",
+            "alive": false
+          },
+          {
+            "pid": 875646,
+            "start_ticks": 34859379,
+            "state": "S",
+            "name": "timeout",
+            "alive": false
+          },
+          {
+            "pid": 875647,
+            "start_ticks": 34859379,
+            "state": "R",
+            "name": "test_driver",
+            "alive": false
+          }
+        ],
+        "controller_returncode": 0,
+        "seconds": 160.0782549381256
+      }
+    },
+    "saved_current": {
+      "case": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N8/A2_A3_N12/section6_8/validation/cases/curved505_current_target_surface_corrections_serial_20261116T191401_881789",
+      "status": {
+        "state": "terminal",
+        "exit_code": 0,
+        "seconds": 154.24953413009644,
+        "pins_verified": true,
+        "changed": [],
+        "largest_sampled_individual_process_rss_bytes": 1408966656,
+        "rss_note": "sampled process RSS; not a whole-job peak"
+      },
+      "terminal": {
+        "actual_host_proc": true,
+        "all_owned_handles_terminal": true,
+        "identities": [
+          {
+            "pid": 881789,
+            "start_ticks": 34874354,
+            "state": "R",
+            "name": "python3",
+            "alive": false
+          },
+          {
+            "pid": 882247,
+            "start_ticks": 34875089,
+            "state": "Z",
+            "name": "time",
+            "alive": false
+          },
+          {
+            "pid": 882248,
+            "start_ticks": 34875089,
+            "state": "S",
+            "name": "timeout",
+            "alive": false
+          },
+          {
+            "pid": 882249,
+            "start_ticks": 34875090,
+            "state": "R",
+            "name": "test_driver",
+            "alive": false
+          },
+          {
+            "pid": 882250,
+            "start_ticks": 34875090,
+            "state": "S",
+            "name": "orted",
+            "alive": false
+          }
+        ],
+        "controller_returncode": 0,
+        "seconds": 159.1410617828369
+      }
+    }
+  },
+  "target_binding": "qualified492 current-policy version3; legacy441 metric not claimed"
+}

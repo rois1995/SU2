@@ -1,0 +1,57 @@
+{
+  "passed": true,
+  "case": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N8/A2_A3_N12/section6_8/validation/cases/curved505_saved_surface_corrections_serial_20261116T191124_875184",
+  "target": "qualified492 version3 current-policy; same frozen441 seed, not441 original field",
+  "status": {
+    "state": "terminal",
+    "exit_code": 0,
+    "seconds": 152.29779434204102,
+    "pins_verified": true,
+    "changed": [],
+    "largest_sampled_individual_process_rss_bytes": 1197539328,
+    "rss_note": "sampled process RSS; not a whole-job peak"
+  },
+  "terminal_receipt": {
+    "actual_host_proc": true,
+    "all_owned_handles_terminal": true,
+    "identities": [
+      {
+        "pid": 875184,
+        "start_ticks": 34858346,
+        "state": "R",
+        "name": "python3",
+        "alive": false
+      },
+      {
+        "pid": 875648,
+        "start_ticks": 34859380,
+        "state": "S",
+        "name": "orted",
+        "alive": false
+      },
+      {
+        "pid": 875645,
+        "start_ticks": 34859379,
+        "state": "S",
+        "name": "time",
+        "alive": false
+      },
+      {
+        "pid": 875646,
+        "start_ticks": 34859379,
+        "state": "S",
+        "name": "timeout",
+        "alive": false
+      },
+      {
+        "pid": 875647,
+        "start_ticks": 34859379,
+        "state": "R",
+        "name": "test_driver",
+        "alive": false
+      }
+    ],
+    "controller_returncode": 0,
+    "seconds": 160.0782549381256
+  }
+}
