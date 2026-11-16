@@ -7,8 +7,8 @@ Updated 2026-11-15. Latest order: NIGHT_WORK_ORDER.md (SHA-sealed input_manifest
 | N1 P7/P8/counters | FAILED; connected code/config/tests reverted to F3b bytes | First event2 NELEM855828 vs855760 (+68), points+7; event1all3identityPASS; physical/memory/timersPASS; R5readonlydiagnosiscomplete, no transcription | Commit/push revert+evidence, then N3 |
 | N2 B7 | NOT STARTED | Depends on accepted N1; failed-run M18 is not qualified input | Continue independent N3 |
 | N3 design source check | PASSED (read-only review completed) |14 consolidated findings/readings; M11/M15/M17/M19 and T1–T3 answered; no build/run/productionedit; see Handbook/ADAPTATION_DESIGN_SOURCE_CHECK_20261115.md | Commit/push, then N4 C/inventories/sourcecheck and reference gates |
-| N4 Adapt cut8.2 | ACTIVE sourcecheck/reference preparation; no productionedit | C+bothinventories read completely; source6941fcc41c=acceptedF3b; new referencebuild prepared | Freeze/rebuild F3b; G2/G3/GQ before A1 |
-| N5 all design measurements | NOT STARTED | use newestaccepted commit | afterN4 |
+| N4 Adapt cut8.2 | FAILED A1 G1; reverted | first complexity209.9357526597 vs656.1522579418; failed ec0e8f3ef5, reverted8039fc1b59 | N5 independent |
+| N5 all design measurements | ACTIVE | M8 reused accepted F3b; test-only fixtures and observation counters preparing | build/check new diagnostics, complete table |
 | N6 further identical cuts | NOT STARTED | requirescompletedN4+G5 | Remesh,MeshOptimizer,Selection |
 | N7 morning report | NOT STARTED | always | finalclose/terminalhandles |
 
@@ -65,3 +65,7 @@ A1RESULTGATEFAILEDG1 tool16780terminal124/603.814s; firstBoundaryLayerMetric_tes
 A1R5readonlydiagnosisCOMPLETE:all5typebodiestokenequalandAdapt/postbodytokensequalafterhoist; firstfailureComputeMetricpathdoesnotcallAdapt. Existingtestassumesunscaledtangent2/6; productionnormalizesinheritedtangent0.0464158883. Bothmetric/testfilesbyteidenticalacceptedF3b; no transcription/wiringerror. DoNOTchangetest/gate/productionordiagnosererun. PreservefailedA1thenrevertonecommit,N4FAILED/restphasesNOTSTARTED; proceedindependentN5,N6dependencyfalse.
 
 N4A1FAILEDcodepreservedcommit ec0e8f3ef5,productionNOWREVERTEDtoF3bbytes(wholeCommon/SU2_CFD/UnitTests/config/mesoncompared48f07ad1a8). Revertcommitnext. N4FAILED,noacceptedcut;laterphasesandN6NOTSTARTED.G1oldtest/toleranceunchanged;noretry. SharedglobalbinariesstillFAILEDbuild510,acceptedF3bCOWreferencesremain63a035ef/9b7d005b. NextindependentN5.
+
+N4revert8039fc1b59pushed. N5startedonacceptedF3bperlatestNight(noN4dependency):H4c/D3,4,5.1,5.9,5A.3,5B.1,9reread;12-pointWHOLEsourcecheckwrittenN5/source_check.mdbeforeanyproductiondiag edit. M8existingfullF3bsourcepinsmatchcurrentrelevantCPP;204windowrows/12rank-events extracted read-only. NextqualifyM8,preparetest-onlyM12/geometryfixturesandconnectedobservationalM16counters; no productionmath/gatechanges.
+
+N5 M8 read-only substep PASSED:204 quality windows/180 timer rows across2events×6ranks, receipt/physicalacceptance and source reuse verified. Named-exclusive includesJoinWait (explicit label); separate nonjoin value saved. NewD9 observers/fixtures UNBUILT/unaccepted; own counter API setup error corrected beforebuild, M1 chord-length² setup error undercorrection; no numericaljob running.

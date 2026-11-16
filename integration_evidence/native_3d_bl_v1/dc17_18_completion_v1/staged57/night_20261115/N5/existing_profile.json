@@ -1,0 +1,1139 @@
+{
+  "purpose": "existing accepted F3b timing extraction; no new solver run",
+  "extraction_started_unix": 1794786493.303973,
+  "source_scope": "all six rank stdout streams, two event segments, quality window markers and final-boundary quality timer rows",
+  "self_check": "PASS: parser fields, marker rejection, and busy/join arithmetic smoke checks",
+  "window_row_count": 204,
+  "timer_row_count": 180,
+  "summaries": [
+    {
+      "event": 1,
+      "rank": 0,
+      "window_rows": 20,
+      "quality_named_exclusive_seconds": 1426.01080099303,
+      "quality_named_nonjoin_exclusive_seconds": 873.01525948403,
+      "quality_unattributed_seconds": 19.855201889000295,
+      "quality_all_exclusive_seconds": 1445.8660028820302,
+      "join_wait_seconds": 552.995541509,
+      "legacy_join_seconds": 552.996269213001,
+      "legacy_join_calls_or_windows": 29,
+      "timer_quality_operations": {
+        "unattributed": {
+          "calls": 4403,
+          "exclusive_seconds": 19.855201889000295,
+          "inclusive_call_seconds": 2201.7008909290034
+        },
+        "import": {
+          "calls": 86820,
+          "exclusive_seconds": 6.695390809999934,
+          "inclusive_call_seconds": 7.075781066999906
+        },
+        "census": {
+          "calls": 1300,
+          "exclusive_seconds": 13.828408859000035,
+          "inclusive_call_seconds": 132.8525910519998
+        },
+        "geometry_bound": {
+          "calls": 114719,
+          "exclusive_seconds": 286.93420429800113,
+          "inclusive_call_seconds": 397.7689034230101
+        },
+        "geometry_projection": {
+          "calls": 58757,
+          "exclusive_seconds": 11.938613088999965,
+          "inclusive_call_seconds": 11.938613088999965
+        },
+        "quality_optimization": {
+          "calls": 3126,
+          "exclusive_seconds": 68.18944819699992,
+          "inclusive_call_seconds": 216.8839827389998
+        },
+        "old_cavity_measurement": {
+          "calls": 265232,
+          "exclusive_seconds": 0.24457995299999577,
+          "inclusive_call_seconds": 0.24457995299999577
+        },
+        "candidate": {
+          "calls": 73698,
+          "exclusive_seconds": 73.21692128599992,
+          "inclusive_call_seconds": 414.75384866999724
+        },
+        "scheduling": {
+          "calls": 7648,
+          "exclusive_seconds": 34.53622623600011,
+          "inclusive_call_seconds": 41.82119612599988
+        },
+        "topology": {
+          "calls": 2548,
+          "exclusive_seconds": 3.9141893089999886,
+          "inclusive_call_seconds": 138.43025797199985
+        },
+        "communication": {
+          "calls": 433415,
+          "exclusive_seconds": 270.27979796202885,
+          "inclusive_call_seconds": 275.992584680026
+        },
+        "metric_normalization": {
+          "calls": 110145,
+          "exclusive_seconds": 7.244357916999942,
+          "inclusive_call_seconds": 7.244357916999942
+        },
+        "output": {
+          "calls": 26,
+          "exclusive_seconds": 0.086921309,
+          "inclusive_call_seconds": 0.086921309
+        },
+        "join_wait": {
+          "calls": 1274,
+          "exclusive_seconds": 552.995541509,
+          "inclusive_call_seconds": 552.995541509
+        },
+        "clearance": {
+          "calls": 2515,
+          "exclusive_seconds": 95.90620025900017,
+          "inclusive_call_seconds": 211.07808384500063
+        }
+      }
+    },
+    {
+      "event": 1,
+      "rank": 1,
+      "window_rows": 20,
+      "quality_named_exclusive_seconds": 1418.2707166240289,
+      "quality_named_nonjoin_exclusive_seconds": 932.7282706830298,
+      "quality_unattributed_seconds": 27.589510303000445,
+      "quality_all_exclusive_seconds": 1445.8602269270293,
+      "join_wait_seconds": 485.5424459409991,
+      "legacy_join_seconds": 485.54305523299917,
+      "legacy_join_calls_or_windows": 29,
+      "timer_quality_operations": {
+        "unattributed": {
+          "calls": 5021,
+          "exclusive_seconds": 27.589510303000445,
+          "inclusive_call_seconds": 2233.8890539940057
+        },
+        "import": {
+          "calls": 94811,
+          "exclusive_seconds": 7.802550868999942,
+          "inclusive_call_seconds": 8.110590877999986
+        },
+        "census": {
+          "calls": 1300,
+          "exclusive_seconds": 18.893994909000003,
+          "inclusive_call_seconds": 132.91602684799986
+        },
+        "geometry_bound": {
+          "calls": 146599,
+          "exclusive_seconds": 283.603573553999,
+          "inclusive_call_seconds": 389.11698865100414
+        },
+        "geometry_projection": {
+          "calls": 83919,
+          "exclusive_seconds": 17.40983012999991,
+          "inclusive_call_seconds": 17.40983012999991
+        },
+        "quality_optimization": {
+          "calls": 3744,
+          "exclusive_seconds": 86.39983261599996,
+          "inclusive_call_seconds": 249.07788408899984
+        },
+        "old_cavity_measurement": {
+          "calls": 311385,
+          "exclusive_seconds": 0.30040121899998495,
+          "inclusive_call_seconds": 0.30040121899998495
+        },
+        "candidate": {
+          "calls": 87619,
+          "exclusive_seconds": 100.58774581100046,
+          "inclusive_call_seconds": 476.0428938120073
+        },
+        "scheduling": {
+          "calls": 7648,
+          "exclusive_seconds": 29.30232833000012,
+          "inclusive_call_seconds": 41.785289510000176
+        },
+        "topology": {
+          "calls": 2548,
+          "exclusive_seconds": 4.505915146999985,
+          "inclusive_call_seconds": 138.43711462700026
+        },
+        "communication": {
+          "calls": 433415,
+          "exclusive_seconds": 267.0946158270302,
+          "inclusive_call_seconds": 272.8574621160303
+        },
+        "metric_normalization": {
+          "calls": 125883,
+          "exclusive_seconds": 8.071326218999902,
+          "inclusive_call_seconds": 8.071326218999902
+        },
+        "output": {
+          "calls": 26,
+          "exclusive_seconds": 0.081235819,
+          "inclusive_call_seconds": 0.081235819
+        },
+        "join_wait": {
+          "calls": 1274,
+          "exclusive_seconds": 485.5424459409991,
+          "inclusive_call_seconds": 485.5424459409991
+        },
+        "clearance": {
+          "calls": 2515,
+          "exclusive_seconds": 108.6749202330002,
+          "inclusive_call_seconds": 211.07724427300047
+        }
+      }
+    },
+    {
+      "event": 1,
+      "rank": 2,
+      "window_rows": 20,
+      "quality_named_exclusive_seconds": 1432.2345559870307,
+      "quality_named_nonjoin_exclusive_seconds": 879.0578782050297,
+      "quality_unattributed_seconds": 13.634024079999977,
+      "quality_all_exclusive_seconds": 1445.8685800670307,
+      "join_wait_seconds": 553.176677782001,
+      "legacy_join_seconds": 553.1771737400004,
+      "legacy_join_calls_or_windows": 29,
+      "timer_quality_operations": {
+        "unattributed": {
+          "calls": 3927,
+          "exclusive_seconds": 13.634024079999977,
+          "inclusive_call_seconds": 2212.5054202360047
+        },
+        "import": {
+          "calls": 94354,
+          "exclusive_seconds": 8.95971512199996,
+          "inclusive_call_seconds": 9.509544340000014
+        },
+        "census": {
+          "calls": 1300,
+          "exclusive_seconds": 8.582631445999997,
+          "inclusive_call_seconds": 132.71490280100014
+        },
+        "geometry_bound": {
+          "calls": 116693,
+          "exclusive_seconds": 289.8092819330074,
+          "inclusive_call_seconds": 394.4389091010108
+        },
+        "geometry_projection": {
+          "calls": 54731,
+          "exclusive_seconds": 9.926703812999932,
+          "inclusive_call_seconds": 9.926703812999932
+        },
+        "quality_optimization": {
+          "calls": 2650,
+          "exclusive_seconds": 56.6471947269999,
+          "inclusive_call_seconds": 227.68599250200018
+        },
+        "old_cavity_measurement": {
+          "calls": 205637,
+          "exclusive_seconds": 0.16871914599999832,
+          "inclusive_call_seconds": 0.16871914599999832
+        },
+        "candidate": {
+          "calls": 77361,
+          "exclusive_seconds": 73.44929940599914,
+          "inclusive_call_seconds": 417.5541174689995
+        },
+        "scheduling": {
+          "calls": 7648,
+          "exclusive_seconds": 21.02472682300021,
+          "inclusive_call_seconds": 41.856897003000135
+        },
+        "topology": {
+          "calls": 2548,
+          "exclusive_seconds": 2.9711094029999825,
+          "inclusive_call_seconds": 138.40890675399982
+        },
+        "communication": {
+          "calls": 433415,
+          "exclusive_seconds": 339.03581331302325,
+          "inclusive_call_seconds": 344.4797571280217
+        },
+        "metric_normalization": {
+          "calls": 119306,
+          "exclusive_seconds": 8.469269968999834,
+          "inclusive_call_seconds": 8.469269968999834
+        },
+        "output": {
+          "calls": 26,
+          "exclusive_seconds": 0.11784765900000002,
+          "inclusive_call_seconds": 0.11784765900000002
+        },
+        "join_wait": {
+          "calls": 1274,
+          "exclusive_seconds": 553.176677782001,
+          "inclusive_call_seconds": 553.176677782001
+        },
+        "clearance": {
+          "calls": 2515,
+          "exclusive_seconds": 59.89556544500018,
+          "inclusive_call_seconds": 211.07655746299986
+        }
+      }
+    },
+    {
+      "event": 1,
+      "rank": 3,
+      "window_rows": 20,
+      "quality_named_exclusive_seconds": 1423.1763434240395,
+      "quality_named_nonjoin_exclusive_seconds": 883.403662151039,
+      "quality_unattributed_seconds": 22.683950322001166,
+      "quality_all_exclusive_seconds": 1445.8602937460407,
+      "join_wait_seconds": 539.7726812730004,
+      "legacy_join_seconds": 539.7732314509996,
+      "legacy_join_calls_or_windows": 29,
+      "timer_quality_operations": {
+        "unattributed": {
+          "calls": 4699,
+          "exclusive_seconds": 22.683950322001166,
+          "inclusive_call_seconds": 2205.8846108570033
+        },
+        "import": {
+          "calls": 104740,
+          "exclusive_seconds": 9.120846776999876,
+          "inclusive_call_seconds": 9.548340008999887
+        },
+        "census": {
+          "calls": 1300,
+          "exclusive_seconds": 15.250381279999969,
+          "inclusive_call_seconds": 132.79575172300017
+        },
+        "geometry_bound": {
+          "calls": 142052,
+          "exclusive_seconds": 244.02984201500428,
+          "inclusive_call_seconds": 327.0622474500106
+        },
+        "geometry_projection": {
+          "calls": 74745,
+          "exclusive_seconds": 15.222421280999926,
+          "inclusive_call_seconds": 15.222421280999926
+        },
+        "quality_optimization": {
+          "calls": 3422,
+          "exclusive_seconds": 72.70698360899995,
+          "inclusive_call_seconds": 221.0734375749998
+        },
+        "old_cavity_measurement": {
+          "calls": 301804,
+          "exclusive_seconds": 0.235628112999989,
+          "inclusive_call_seconds": 0.235628112999989
+        },
+        "candidate": {
+          "calls": 91478,
+          "exclusive_seconds": 99.8524680379986,
+          "inclusive_call_seconds": 421.16495895000077
+        },
+        "scheduling": {
+          "calls": 7648,
+          "exclusive_seconds": 23.049940494000158,
+          "inclusive_call_seconds": 41.81116295999988
+        },
+        "topology": {
+          "calls": 2548,
+          "exclusive_seconds": 3.824656061999986,
+          "inclusive_call_seconds": 138.4267905679999
+        },
+        "communication": {
+          "calls": 433415,
+          "exclusive_seconds": 305.0684476940362,
+          "inclusive_call_seconds": 310.674828017037
+        },
+        "metric_normalization": {
+          "calls": 138964,
+          "exclusive_seconds": 9.358042560999886,
+          "inclusive_call_seconds": 9.358042560999886
+        },
+        "output": {
+          "calls": 26,
+          "exclusive_seconds": 0.10789152000000002,
+          "inclusive_call_seconds": 0.10789152000000002
+        },
+        "join_wait": {
+          "calls": 1274,
+          "exclusive_seconds": 539.7726812730004,
+          "inclusive_call_seconds": 539.7726812730004
+        },
+        "clearance": {
+          "calls": 2515,
+          "exclusive_seconds": 85.5761127070002,
+          "inclusive_call_seconds": 211.0777069369995
+        }
+      }
+    },
+    {
+      "event": 1,
+      "rank": 4,
+      "window_rows": 20,
+      "quality_named_exclusive_seconds": 1415.3402169640417,
+      "quality_named_nonjoin_exclusive_seconds": 779.6332915600419,
+      "quality_unattributed_seconds": 30.51815668300113,
+      "quality_all_exclusive_seconds": 1445.8583736470428,
+      "join_wait_seconds": 635.7069254039998,
+      "legacy_join_seconds": 635.7076845409982,
+      "legacy_join_calls_or_windows": 29,
+      "timer_quality_operations": {
+        "unattributed": {
+          "calls": 5063,
+          "exclusive_seconds": 30.51815668300113,
+          "inclusive_call_seconds": 2136.4023311710007
+        },
+        "import": {
+          "calls": 89716,
+          "exclusive_seconds": 6.221527339999994,
+          "inclusive_call_seconds": 6.533089383999982
+        },
+        "census": {
+          "calls": 1300,
+          "exclusive_seconds": 19.992953349999965,
+          "inclusive_call_seconds": 132.88767825399992
+        },
+        "geometry_bound": {
+          "calls": 138074,
+          "exclusive_seconds": 111.46073561600026,
+          "inclusive_call_seconds": 159.99912000499808
+        },
+        "geometry_projection": {
+          "calls": 80964,
+          "exclusive_seconds": 16.83529015600014,
+          "inclusive_call_seconds": 16.83529015600014
+        },
+        "quality_optimization": {
+          "calls": 3786,
+          "exclusive_seconds": 89.99614369999982,
+          "inclusive_call_seconds": 151.5929812549996
+        },
+        "old_cavity_measurement": {
+          "calls": 333516,
+          "exclusive_seconds": 0.3313764379999894,
+          "inclusive_call_seconds": 0.3313764379999894
+        },
+        "candidate": {
+          "calls": 84244,
+          "exclusive_seconds": 102.92557283999989,
+          "inclusive_call_seconds": 324.5850518999938
+        },
+        "scheduling": {
+          "calls": 7648,
+          "exclusive_seconds": 31.949320532999916,
+          "inclusive_call_seconds": 41.779697116000115
+        },
+        "topology": {
+          "calls": 2548,
+          "exclusive_seconds": 4.122563359999994,
+          "inclusive_call_seconds": 138.4408055479998
+        },
+        "communication": {
+          "calls": 433415,
+          "exclusive_seconds": 278.26590178404206,
+          "inclusive_call_seconds": 284.189324994043
+        },
+        "metric_normalization": {
+          "calls": 118866,
+          "exclusive_seconds": 7.1912354099998685,
+          "inclusive_call_seconds": 7.1912354099998685
+        },
+        "output": {
+          "calls": 26,
+          "exclusive_seconds": 0.086487715,
+          "inclusive_call_seconds": 0.086487715
+        },
+        "join_wait": {
+          "calls": 1274,
+          "exclusive_seconds": 635.7069254039998,
+          "inclusive_call_seconds": 635.7069254039998
+        },
+        "clearance": {
+          "calls": 2515,
+          "exclusive_seconds": 110.25418331800012,
+          "inclusive_call_seconds": 211.08500897000002
+        }
+      }
+    },
+    {
+      "event": 1,
+      "rank": 5,
+      "window_rows": 20,
+      "quality_named_exclusive_seconds": 1432.471941711031,
+      "quality_named_nonjoin_exclusive_seconds": 852.3684634470319,
+      "quality_unattributed_seconds": 13.39690680800006,
+      "quality_all_exclusive_seconds": 1445.868848519031,
+      "join_wait_seconds": 580.103478263999,
+      "legacy_join_seconds": 580.1042244159996,
+      "legacy_join_calls_or_windows": 29,
+      "timer_quality_operations": {
+        "unattributed": {
+          "calls": 3378,
+          "exclusive_seconds": 13.39690680800006,
+          "inclusive_call_seconds": 2214.6123284519986
+        },
+        "import": {
+          "calls": 82229,
+          "exclusive_seconds": 7.52245429700006,
+          "inclusive_call_seconds": 8.067902610000003
+        },
+        "census": {
+          "calls": 1300,
+          "exclusive_seconds": 8.903392496999999,
+          "inclusive_call_seconds": 132.7462760630001
+        },
+        "geometry_bound": {
+          "calls": 87569,
+          "exclusive_seconds": 291.0574898139984,
+          "inclusive_call_seconds": 386.4439553879993
+        },
+        "geometry_projection": {
+          "calls": 42110,
+          "exclusive_seconds": 7.966029105000026,
+          "inclusive_call_seconds": 7.966029105000026
+        },
+        "quality_optimization": {
+          "calls": 2101,
+          "exclusive_seconds": 46.46840535399994,
+          "inclusive_call_seconds": 229.79261863700012
+        },
+        "old_cavity_measurement": {
+          "calls": 178067,
+          "exclusive_seconds": 0.17084404099999612,
+          "inclusive_call_seconds": 0.17084404099999612
+        },
+        "candidate": {
+          "calls": 54045,
+          "exclusive_seconds": 57.22368368000041,
+          "inclusive_call_seconds": 395.39680192900244
+        },
+        "scheduling": {
+          "calls": 7648,
+          "exclusive_seconds": 22.710708638000064,
+          "inclusive_call_seconds": 41.86050006000003
+        },
+        "topology": {
+          "calls": 2548,
+          "exclusive_seconds": 2.770901808999994,
+          "inclusive_call_seconds": 138.40616476300002
+        },
+        "communication": {
+          "calls": 433415,
+          "exclusive_seconds": 339.721818422033,
+          "inclusive_call_seconds": 346.0782950420356
+        },
+        "metric_normalization": {
+          "calls": 94631,
+          "exclusive_seconds": 6.890905052999937,
+          "inclusive_call_seconds": 6.890905052999937
+        },
+        "output": {
+          "calls": 26,
+          "exclusive_seconds": 0.11087703800000002,
+          "inclusive_call_seconds": 0.11087703800000002
+        },
+        "join_wait": {
+          "calls": 1274,
+          "exclusive_seconds": 580.103478263999,
+          "inclusive_call_seconds": 580.103478263999
+        },
+        "clearance": {
+          "calls": 2515,
+          "exclusive_seconds": 60.85095369900016,
+          "inclusive_call_seconds": 211.06642717100007
+        }
+      }
+    },
+    {
+      "event": 2,
+      "rank": 0,
+      "window_rows": 14,
+      "quality_named_exclusive_seconds": 873.5526777080134,
+      "quality_named_nonjoin_exclusive_seconds": 546.2635862000132,
+      "quality_unattributed_seconds": 11.989470172999967,
+      "quality_all_exclusive_seconds": 885.5421478810134,
+      "join_wait_seconds": 327.2890915080003,
+      "legacy_join_seconds": 327.28953884000043,
+      "legacy_join_calls_or_windows": 19,
+      "timer_quality_operations": {
+        "unattributed": {
+          "calls": 3328,
+          "exclusive_seconds": 11.989470172999967,
+          "inclusive_call_seconds": 1671.7585314360003
+        },
+        "import": {
+          "calls": 68421,
+          "exclusive_seconds": 4.636262117999956,
+          "inclusive_call_seconds": 4.927391802999945
+        },
+        "census": {
+          "calls": 902,
+          "exclusive_seconds": 10.595646312000015,
+          "inclusive_call_seconds": 91.86567764999987
+        },
+        "geometry_bound": {
+          "calls": 72746,
+          "exclusive_seconds": 133.8856339939995,
+          "inclusive_call_seconds": 193.5286543330008
+        },
+        "geometry_projection": {
+          "calls": 31637,
+          "exclusive_seconds": 6.651098233999972,
+          "inclusive_call_seconds": 6.651098233999972
+        },
+        "quality_optimization": {
+          "calls": 2440,
+          "exclusive_seconds": 46.07342787900011,
+          "inclusive_call_seconds": 111.19848576799988
+        },
+        "old_cavity_measurement": {
+          "calls": 151829,
+          "exclusive_seconds": 0.16454499100000072,
+          "inclusive_call_seconds": 0.16454499100000072
+        },
+        "candidate": {
+          "calls": 50588,
+          "exclusive_seconds": 47.78135699700005,
+          "inclusive_call_seconds": 231.86994226000112
+        },
+        "scheduling": {
+          "calls": 5319,
+          "exclusive_seconds": 21.61766665300003,
+          "inclusive_call_seconds": 23.356600952000086
+        },
+        "topology": {
+          "calls": 1772,
+          "exclusive_seconds": 2.845315164999991,
+          "inclusive_call_seconds": 95.55337725700016
+        },
+        "communication": {
+          "calls": 313319,
+          "exclusive_seconds": 180.65568617201362,
+          "inclusive_call_seconds": 184.0806415150119
+        },
+        "metric_normalization": {
+          "calls": 82546,
+          "exclusive_seconds": 5.226966207999961,
+          "inclusive_call_seconds": 5.226966207999961
+        },
+        "output": {
+          "calls": 16,
+          "exclusive_seconds": 0.052333001,
+          "inclusive_call_seconds": 0.052333001
+        },
+        "join_wait": {
+          "calls": 886,
+          "exclusive_seconds": 327.2890915080003,
+          "inclusive_call_seconds": 327.2890915080003
+        },
+        "clearance": {
+          "calls": 1772,
+          "exclusive_seconds": 86.07764847599996,
+          "inclusive_call_seconds": 164.03818302299996
+        }
+      }
+    },
+    {
+      "event": 2,
+      "rank": 1,
+      "window_rows": 14,
+      "quality_named_exclusive_seconds": 873.0871054330174,
+      "quality_named_nonjoin_exclusive_seconds": 506.41140554501743,
+      "quality_unattributed_seconds": 12.532306154000002,
+      "quality_all_exclusive_seconds": 885.6194115870175,
+      "join_wait_seconds": 366.675699888,
+      "legacy_join_seconds": 366.67614304699987,
+      "legacy_join_calls_or_windows": 19,
+      "timer_quality_operations": {
+        "unattributed": {
+          "calls": 3624,
+          "exclusive_seconds": 12.532306154000002,
+          "inclusive_call_seconds": 1662.361115484001
+        },
+        "import": {
+          "calls": 72612,
+          "exclusive_seconds": 5.380736424000052,
+          "inclusive_call_seconds": 5.675011708000069
+        },
+        "census": {
+          "calls": 902,
+          "exclusive_seconds": 11.112751527999984,
+          "inclusive_call_seconds": 91.93773908800009
+        },
+        "geometry_bound": {
+          "calls": 70356,
+          "exclusive_seconds": 72.05875836899986,
+          "inclusive_call_seconds": 96.6609377110003
+        },
+        "geometry_projection": {
+          "calls": 35540,
+          "exclusive_seconds": 7.62570059499996,
+          "inclusive_call_seconds": 7.62570059499996
+        },
+        "quality_optimization": {
+          "calls": 2736,
+          "exclusive_seconds": 58.64025291000008,
+          "inclusive_call_seconds": 101.72378814099989
+        },
+        "old_cavity_measurement": {
+          "calls": 202993,
+          "exclusive_seconds": 0.233125145999994,
+          "inclusive_call_seconds": 0.233125145999994
+        },
+        "candidate": {
+          "calls": 56797,
+          "exclusive_seconds": 50.821390393000165,
+          "inclusive_call_seconds": 191.68313397999958
+        },
+        "scheduling": {
+          "calls": 5319,
+          "exclusive_seconds": 17.882061552000017,
+          "inclusive_call_seconds": 23.380233276000137
+        },
+        "topology": {
+          "calls": 1772,
+          "exclusive_seconds": 2.8629872609999945,
+          "inclusive_call_seconds": 95.54363888899994
+        },
+        "communication": {
+          "calls": 313319,
+          "exclusive_seconds": 188.52623726301735,
+          "inclusive_call_seconds": 191.9772413210169
+        },
+        "metric_normalization": {
+          "calls": 89621,
+          "exclusive_seconds": 5.623282632999979,
+          "inclusive_call_seconds": 5.623282632999979
+        },
+        "output": {
+          "calls": 16,
+          "exclusive_seconds": 0.056404778,
+          "inclusive_call_seconds": 0.056404778
+        },
+        "join_wait": {
+          "calls": 886,
+          "exclusive_seconds": 366.675699888,
+          "inclusive_call_seconds": 366.675699888
+        },
+        "clearance": {
+          "calls": 1772,
+          "exclusive_seconds": 85.58771669300002,
+          "inclusive_call_seconds": 164.036802103
+        }
+      }
+    },
+    {
+      "event": 2,
+      "rank": 2,
+      "window_rows": 14,
+      "quality_named_exclusive_seconds": 871.8648527540194,
+      "quality_named_nonjoin_exclusive_seconds": 669.0702283960193,
+      "quality_unattributed_seconds": 13.676852135999944,
+      "quality_all_exclusive_seconds": 885.5417048900193,
+      "join_wait_seconds": 202.79462435800005,
+      "legacy_join_seconds": 202.79491084200012,
+      "legacy_join_calls_or_windows": 19,
+      "timer_quality_operations": {
+        "unattributed": {
+          "calls": 4104,
+          "exclusive_seconds": 13.676852135999944,
+          "inclusive_call_seconds": 1727.864074770997
+        },
+        "import": {
+          "calls": 84713,
+          "exclusive_seconds": 6.469095516000007,
+          "inclusive_call_seconds": 6.767975996999993
+        },
+        "census": {
+          "calls": 902,
+          "exclusive_seconds": 11.49580762799999,
+          "inclusive_call_seconds": 91.89601993099988
+        },
+        "geometry_bound": {
+          "calls": 91873,
+          "exclusive_seconds": 256.53590631699956,
+          "inclusive_call_seconds": 368.5848530269974
+        },
+        "geometry_projection": {
+          "calls": 39748,
+          "exclusive_seconds": 8.190503351999991,
+          "inclusive_call_seconds": 8.190503351999991
+        },
+        "quality_optimization": {
+          "calls": 3216,
+          "exclusive_seconds": 55.078122747999906,
+          "inclusive_call_seconds": 167.3044173849998
+        },
+        "old_cavity_measurement": {
+          "calls": 228603,
+          "exclusive_seconds": 0.21545426100000098,
+          "inclusive_call_seconds": 0.21545426100000098
+        },
+        "candidate": {
+          "calls": 71452,
+          "exclusive_seconds": 58.2563398909995,
+          "inclusive_call_seconds": 353.8086948159993
+        },
+        "scheduling": {
+          "calls": 5319,
+          "exclusive_seconds": 17.20882354700005,
+          "inclusive_call_seconds": 23.370074108000043
+        },
+        "topology": {
+          "calls": 1772,
+          "exclusive_seconds": 3.153768765999996,
+          "inclusive_call_seconds": 95.55356893699982
+        },
+        "communication": {
+          "calls": 313319,
+          "exclusive_seconds": 160.96932313702044,
+          "inclusive_call_seconds": 164.20279619802054
+        },
+        "metric_normalization": {
+          "calls": 110191,
+          "exclusive_seconds": 6.754991602999914,
+          "inclusive_call_seconds": 6.754991602999914
+        },
+        "output": {
+          "calls": 16,
+          "exclusive_seconds": 0.04833725400000001,
+          "inclusive_call_seconds": 0.04833725400000001
+        },
+        "join_wait": {
+          "calls": 886,
+          "exclusive_seconds": 202.79462435800005,
+          "inclusive_call_seconds": 202.79462435800005
+        },
+        "clearance": {
+          "calls": 1772,
+          "exclusive_seconds": 84.693754376,
+          "inclusive_call_seconds": 164.02938358799977
+        }
+      }
+    },
+    {
+      "event": 2,
+      "rank": 3,
+      "window_rows": 14,
+      "quality_named_exclusive_seconds": 881.6904145810114,
+      "quality_named_nonjoin_exclusive_seconds": 420.49474119301107,
+      "quality_unattributed_seconds": 3.861187924999969,
+      "quality_all_exclusive_seconds": 885.5516025060114,
+      "join_wait_seconds": 461.19567338800033,
+      "legacy_join_seconds": 461.19607226800065,
+      "legacy_join_calls_or_windows": 19,
+      "timer_quality_operations": {
+        "unattributed": {
+          "calls": 1683,
+          "exclusive_seconds": 3.861187924999969,
+          "inclusive_call_seconds": 1621.830704812
+        },
+        "import": {
+          "calls": 32083,
+          "exclusive_seconds": 1.497289950999996,
+          "inclusive_call_seconds": 2.092907348999995
+        },
+        "census": {
+          "calls": 902,
+          "exclusive_seconds": 3.073841167999996,
+          "inclusive_call_seconds": 91.74597281800007
+        },
+        "geometry_bound": {
+          "calls": 25820,
+          "exclusive_seconds": 81.25550666899963,
+          "inclusive_call_seconds": 110.85204062000044
+        },
+        "geometry_projection": {
+          "calls": 10763,
+          "exclusive_seconds": 1.9022592529999953,
+          "inclusive_call_seconds": 1.9022592529999953
+        },
+        "quality_optimization": {
+          "calls": 795,
+          "exclusive_seconds": 13.888551077999997,
+          "inclusive_call_seconds": 61.261341366000025
+        },
+        "old_cavity_measurement": {
+          "calls": 48345,
+          "exclusive_seconds": 0.045555409000000456,
+          "inclusive_call_seconds": 0.045555409000000456
+        },
+        "candidate": {
+          "calls": 18100,
+          "exclusive_seconds": 13.556080150999886,
+          "inclusive_call_seconds": 107.47679658099965
+        },
+        "scheduling": {
+          "calls": 5319,
+          "exclusive_seconds": 13.217322853999944,
+          "inclusive_call_seconds": 23.47473604900004
+        },
+        "topology": {
+          "calls": 1772,
+          "exclusive_seconds": 0.9650224169999924,
+          "inclusive_call_seconds": 95.50662563899999
+        },
+        "communication": {
+          "calls": 313319,
+          "exclusive_seconds": 254.49834303501154,
+          "inclusive_call_seconds": 258.3046836400125
+        },
+        "metric_normalization": {
+          "calls": 27065,
+          "exclusive_seconds": 1.661116460000005,
+          "inclusive_call_seconds": 1.661116460000005
+        },
+        "output": {
+          "calls": 16,
+          "exclusive_seconds": 0.06531953000000001,
+          "inclusive_call_seconds": 0.06531953000000001
+        },
+        "join_wait": {
+          "calls": 886,
+          "exclusive_seconds": 461.19567338800033,
+          "inclusive_call_seconds": 461.19567338800033
+        },
+        "clearance": {
+          "calls": 1772,
+          "exclusive_seconds": 34.86853321800006,
+          "inclusive_call_seconds": 164.0100761720003
+        }
+      }
+    },
+    {
+      "event": 2,
+      "rank": 4,
+      "window_rows": 14,
+      "quality_named_exclusive_seconds": 882.03801405602,
+      "quality_named_nonjoin_exclusive_seconds": 421.5805728800202,
+      "quality_unattributed_seconds": 3.518031153000126,
+      "quality_all_exclusive_seconds": 885.5560452090201,
+      "join_wait_seconds": 460.45744117599975,
+      "legacy_join_seconds": 460.4579597749999,
+      "legacy_join_calls_or_windows": 19,
+      "timer_quality_operations": {
+        "unattributed": {
+          "calls": 1511,
+          "exclusive_seconds": 3.518031153000126,
+          "inclusive_call_seconds": 1618.7579364590001
+        },
+        "import": {
+          "calls": 35681,
+          "exclusive_seconds": 2.367936387000009,
+          "inclusive_call_seconds": 2.968680790999985
+        },
+        "census": {
+          "calls": 902,
+          "exclusive_seconds": 2.776646944999999,
+          "inclusive_call_seconds": 91.63608972500016
+        },
+        "geometry_bound": {
+          "calls": 23960,
+          "exclusive_seconds": 82.01605333200003,
+          "inclusive_call_seconds": 112.76630278499971
+        },
+        "geometry_projection": {
+          "calls": 11583,
+          "exclusive_seconds": 2.2278294800000027,
+          "inclusive_call_seconds": 2.2278294800000027
+        },
+        "quality_optimization": {
+          "calls": 623,
+          "exclusive_seconds": 11.315488984,
+          "inclusive_call_seconds": 58.18415411599999
+        },
+        "old_cavity_measurement": {
+          "calls": 39381,
+          "exclusive_seconds": 0.03522495299999991,
+          "inclusive_call_seconds": 0.03522495299999991
+        },
+        "candidate": {
+          "calls": 15433,
+          "exclusive_seconds": 15.010821651999954,
+          "inclusive_call_seconds": 108.2971166180001
+        },
+        "scheduling": {
+          "calls": 5319,
+          "exclusive_seconds": 11.454442837000002,
+          "inclusive_call_seconds": 23.487233753000105
+        },
+        "topology": {
+          "calls": 1772,
+          "exclusive_seconds": 0.9796962949999953,
+          "inclusive_call_seconds": 95.50127367699993
+        },
+        "communication": {
+          "calls": 313319,
+          "exclusive_seconds": 264.05958938802024,
+          "inclusive_call_seconds": 267.9647143460221
+        },
+        "metric_normalization": {
+          "calls": 29380,
+          "exclusive_seconds": 2.1217031549999983,
+          "inclusive_call_seconds": 2.1217031549999983
+        },
+        "output": {
+          "calls": 16,
+          "exclusive_seconds": 0.08393310500000001,
+          "inclusive_call_seconds": 0.08393310500000001
+        },
+        "join_wait": {
+          "calls": 886,
+          "exclusive_seconds": 460.45744117599975,
+          "inclusive_call_seconds": 460.45744117599975
+        },
+        "clearance": {
+          "calls": 1772,
+          "exclusive_seconds": 27.131206367000015,
+          "inclusive_call_seconds": 164.0063567369999
+        }
+      }
+    },
+    {
+      "event": 2,
+      "rank": 5,
+      "window_rows": 14,
+      "quality_named_exclusive_seconds": 878.7206762340178,
+      "quality_named_nonjoin_exclusive_seconds": 585.3671192850177,
+      "quality_unattributed_seconds": 6.8272270980000025,
+      "quality_all_exclusive_seconds": 885.5479033320178,
+      "join_wait_seconds": 293.35355694900005,
+      "legacy_join_seconds": 293.35402320600025,
+      "legacy_join_calls_or_windows": 19,
+      "timer_quality_operations": {
+        "unattributed": {
+          "calls": 2726,
+          "exclusive_seconds": 6.8272270980000025,
+          "inclusive_call_seconds": 1708.7770718579984
+        },
+        "import": {
+          "calls": 55054,
+          "exclusive_seconds": 3.749227672999973,
+          "inclusive_call_seconds": 4.252823300999969
+        },
+        "census": {
+          "calls": 902,
+          "exclusive_seconds": 5.086488487000007,
+          "inclusive_call_seconds": 91.79667156599996
+        },
+        "geometry_bound": {
+          "calls": 49578,
+          "exclusive_seconds": 223.1568536600009,
+          "inclusive_call_seconds": 310.1668376869991
+        },
+        "geometry_projection": {
+          "calls": 22066,
+          "exclusive_seconds": 3.8957461359999956,
+          "inclusive_call_seconds": 3.8957461359999956
+        },
+        "quality_optimization": {
+          "calls": 1838,
+          "exclusive_seconds": 26.445871855000018,
+          "inclusive_call_seconds": 148.21128353600002
+        },
+        "old_cavity_measurement": {
+          "calls": 114433,
+          "exclusive_seconds": 0.10120611099999985,
+          "inclusive_call_seconds": 0.10120611099999985
+        },
+        "candidate": {
+          "calls": 44998,
+          "exclusive_seconds": 28.904703607999863,
+          "inclusive_call_seconds": 271.2566979959996
+        },
+        "scheduling": {
+          "calls": 5319,
+          "exclusive_seconds": 14.53606109500004,
+          "inclusive_call_seconds": 23.430426588000056
+        },
+        "topology": {
+          "calls": 1772,
+          "exclusive_seconds": 1.8328394709999938,
+          "inclusive_call_seconds": 95.52532580500012
+        },
+        "communication": {
+          "calls": 313319,
+          "exclusive_seconds": 223.04524819801682,
+          "inclusive_call_seconds": 226.68499200001844
+        },
+        "metric_normalization": {
+          "calls": 65255,
+          "exclusive_seconds": 3.855022590000003,
+          "inclusive_call_seconds": 3.855022590000003
+        },
+        "output": {
+          "calls": 16,
+          "exclusive_seconds": 0.058398199,
+          "inclusive_call_seconds": 0.058398199
+        },
+        "join_wait": {
+          "calls": 886,
+          "exclusive_seconds": 293.35355694900005,
+          "inclusive_call_seconds": 293.35355694900005
+        },
+        "clearance": {
+          "calls": 1772,
+          "exclusive_seconds": 50.69945220200006,
+          "inclusive_call_seconds": 164.01992253599983
+        }
+      }
+    }
+  ],
+  "provenance": {
+    "complete_milestone_receipt": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/f3b_20261115/complete_milestone_receipt.json",
+    "complete_milestone_receipt_sha256": "66beedcfa0d1766acab5cf10f823aa2cd3bc785dc74005ab0aea53f658e1c53a",
+    "full_workflow_receipt": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/f3b_20261115/full_workflow/full_workflow_receipt.json",
+    "full_workflow_receipt_sha256": "a7bf6693609fb90cf5b87a557497053120e51a5b48340d9e70fdc3dc7ad3eca7",
+    "provenance": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/f3b_20261115/full_workflow/provenance.json",
+    "provenance_sha256": "7fff58dad79ecf2d32de9a70decbbad053f6265a32a4775ac29843eec25a028f",
+    "source_freeze": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/f3b_20261115/source_freeze.json",
+    "source_freeze_sha256": "aec9ebb923346d5bc0fee706a52304f0f09a35348c8800c3ffbd2a9c7647c307",
+    "binary_sha256": "2ba0d897c186cad1533ed1e1da9c1f5931b0afc077005075f6a0dad9e75dfb51",
+    "source_pins_sha256": "82d17c8b96ef70614ce0bb3ab63b345c37a5186fefebfd90f965586351c3bfdc",
+    "source_commit_base": "856b89ccb4",
+    "build": "build504",
+    "accepted": true,
+    "physical_workflow_accepted": true,
+    "rank_stdout": {
+      "0": {
+        "path": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/f3b_20261115/full_workflow/rank_output/1/rank.0/stdout",
+        "sha256": "e4eb429e12645f27e3ddef9cba3b29d90635c9a12bb28f6f496c0c7f91d56b7c"
+      },
+      "1": {
+        "path": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/f3b_20261115/full_workflow/rank_output/1/rank.1/stdout",
+        "sha256": "33fd31a93d00e3381e63b90efebe3f7f7dc6a0e6cab77afe300c0e73a69cf81f"
+      },
+      "2": {
+        "path": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/f3b_20261115/full_workflow/rank_output/1/rank.2/stdout",
+        "sha256": "a9d75f6b730cba112f7c1ae2dd63f24013accd2c144178cd38923895ed055a9e"
+      },
+      "3": {
+        "path": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/f3b_20261115/full_workflow/rank_output/1/rank.3/stdout",
+        "sha256": "1e4fecb4575cb8f0aa66d4e3fc066724ea006b252c9fecc281eced97e9a25927"
+      },
+      "4": {
+        "path": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/f3b_20261115/full_workflow/rank_output/1/rank.4/stdout",
+        "sha256": "84d911ddf3f503356f92ffe30b4435dbe31b05e95b83dc642f8a2aa873983153"
+      },
+      "5": {
+        "path": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/f3b_20261115/full_workflow/rank_output/1/rank.5/stdout",
+        "sha256": "c8e51eb685e7007a5ab625242c3b68c64f846c1036d6d290ec232d04eb682602"
+      }
+    },
+    "timer_gate_receipts": {
+      "1": {
+        "path": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/f3b_20261115/full_workflow/f3b_event1_timer_gate.json",
+        "sha256": "8e47dbb3398562b0ef2ec8471818ae69ef7ccc808642e0d97e48edc56daae535",
+        "passed": true
+      },
+      "2": {
+        "path": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/f3b_20261115/full_workflow/f3b_event2_timer_gate.json",
+        "sha256": "9c61a6e8f010b1f14e82ff16844d139ec8a273ca226d3e7eccbaa0f4770254bb",
+        "passed": true
+      }
+    }
+  },
+  "limits": [
+    "busy_seconds is observed wall interval inside the quality window; it is not CPU time.",
+    "join_call_seconds is a measured call interval; do not add it to tracked_collective_call_seconds without accounting for overlap.",
+    "Timer inclusive_call_seconds are nested/inclusive; operation rows are not additive. Use exclusive_seconds for tree accounting.",
+    "No private_work_used field exists in these window markers; M20 work-unit cost is unavailable.",
+    "No direct per-candidate M16 export/projection/q-J/move/guidance record is present; aggregate operation rows do not supply that split."
+  ]
+}
