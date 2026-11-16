@@ -16,6 +16,7 @@
 #include "../../include/adaptation/CNativeImport3D.hpp"
 #include "../../include/adaptation/CNativeTimerTree3D.hpp"
 #include "../../include/adaptation/CNativeD9Profile3D.hpp"
+#include "../../include/adaptation/CNativeRuntimeProfile3D.hpp"
 #include <chrono>
 #include <cmath>
 #include <cstring>
@@ -163,6 +164,59 @@ Patch GeometryPatch(const Imported& imported,const PlanarReference* geometry=nul
   return patch;
 }
 bool Same(Point a, Point b) { return a.x==b.x && a.y==b.y && a.z==b.z; }
+/*! Keep the owned-face buffers inside the existing event reservation until certification ends. */
+struct ProofStorage {
+  SU2NativeGeometry::AtlasBudget& budget;
+  size_t caller;
+  ProofStorage(SU2NativeGeometry::AtlasBudget& value, size_t extra) : budget(value), caller(value.caller_bytes) {
+    const auto live = transfer_memory::Add(caller, extra);
+    if (live == SIZE_MAX || live > budget.maximum_bytes)
+      throw std::length_error("Owned face proof exceeds storage admission.");
+    budget.caller_bytes = live;
+    budget.peak_bytes = std::max(budget.peak_bytes, live);
+  }
+  ~ProofStorage() { budget.caller_bytes = caller; }
+};
+/*! Combine the disjoint owned-face reverse proofs before the unchanged entity proof. */
+void ProveOwnedSurface(World& world, const Owned& working, const PlanarReference& geometry,
+                       SU2NativeGeometry::AtlasBudget& budget, EngineStats& stats) {
+  const auto& state = *geometry.Parameters();
+  std::vector<SurfaceFace> faces;
+  std::vector<double> bounds;
+  CLocalFailure failure;
+  std::optional<ProofStorage> storage;
+  try {
+    storage.emplace(budget, transfer_memory::Add(transfer_memory::Mul(working.size(), 8 * sizeof(SurfaceFace)),
+        transfer_memory::Mul(state.Geometry().Reference().Facets().size(), 2 * sizeof(double))));
+    for (const auto& row : working) {
+      const auto cell_faces = Faces(row.second.cell);
+      for (unsigned i = 0; i < 4; ++i)
+        if (row.second.physical[i].present) faces.push_back({cell_faces[i], row.second.physical[i].facet});
+    }
+    bounds = state.OwnedFaceReverseBounds(faces, budget);
+  } catch (const std::exception& error) {
+    failure.Set(2, 0, error.what());
+  }
+  const auto elected = world.elect(failure);
+  if (elected.any) throw std::runtime_error(elected.message);
+  stats.final_proof_faces = faces.size();
+  stats.final_proof_surface_faces = state.Surface().size();
+  if (world.reduce(uint64_t(faces.size()), CPassiveComm::Op::SUM) != state.Surface().size())
+    throw std::runtime_error("Owned wall-face proof does not cover the complete working surface exactly once.");
+  for (auto& bound : bounds) bound = world.reduce(bound, CPassiveComm::Op::MAX);
+  for (const auto& row : state.GeometryCertificates(budget, true, &bounds))
+    if (!row.second.within_tolerance)
+      throw std::runtime_error("Complete working surface does not meet the prescribed two-sided geometry tolerance.");
+}
+/*! Report the ownership spike with live payload sizes; this is not a memory admission model. */
+void ReportOwnershipMemory(const World& world, const char* boundary, size_t pending = 0, size_t outgoing = 0,
+                           size_t records = 0) {
+  SU2NativeTiming3D::Scope timer(SU2NativeTiming3D::Operation::Output);
+  std::cout << "NATIVE3D_OWNERSHIP_MEMORY rank=" << world.rank << " boundary=" << boundary
+            << " current_rss=" << CurrentRSS3D() << " process_peak_rss=" << ProcessPeakRSS3D()
+            << " max_exchange_work_bytes=" << world.max_exchange_work_bytes << " bytes_sent=" << world.bytes_sent
+            << " pending_bytes=" << pending << " outgoing_bytes=" << outgoing << " record_bytes=" << records << '\n';
+}
 bool DonorCap(const std::string& reason) {
   return reason=="Original donor import exceeds patch budget." || reason=="Original donor union exceeds patch budget.";
 }
@@ -1803,6 +1857,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
       std::cout<<std::setprecision(17)<<"NATIVE3D_QUALITY rank="<<world.rank<<" stage="<<stage<<" census="<<quality_census_serial
           <<" complete=1 round="<<stats.rounds<<" elapsed="<<elapsed<<" window_seconds="<<seconds
           <<" busy_seconds="<<q.busy_seconds-old.busy_seconds<<" join_call_seconds="<<q.join_wait_seconds-old.join_wait_seconds
+          <<" private_work_used="<<q.private_work_used-old.private_work_used
           <<" tracked_collective_call_seconds="<<tracked_collective-previous_quality_collective
           <<" diagnostic_seconds="<<q.diagnostic_seconds-old.diagnostic_seconds
           <<" commits="<<q.commits-old.commits<<" commits_total="<<q.commits
@@ -1845,6 +1900,17 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     previous_quality_ownership=stats.ownership_changes;++quality_census_serial;
   };
   auto observe_progress=[&](const char* stage) {
+    stats.job_peak_rss_lower = transfer_memory::Add(JobPeakRSS3D(world.comm), options.idle_peak_rss_bytes);
+    CLocalFailure memory_failure;
+    if (options.job_memory_limit && stats.job_peak_rss_lower > options.job_memory_limit)
+      memory_failure.Set(3, 0, "Native3D whole-job process peak RSS exceeds memory budget.");
+    const auto memory_vote = world.elect(memory_failure);
+    if (memory_vote.any) {
+      result.valid = result.surface_prepared = false;
+      stats.stop = EngineStop::MemoryBudget;
+      result.reason = memory_vote.message;
+      return false;
+    }
     if(options.timings && (std::strcmp(stage, "length_collapse_exit") == 0 ||
                             std::strcmp(stage, "construction_entry") == 0 || std::strcmp(stage, "exit") == 0))
       SU2NativeTiming3D::Session::Checkpoint(stage);
@@ -1882,6 +1948,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
       }
       const auto g=geometry_authority?geometry_authority->GeometryStatsSnapshot():SU2NativeGeometry::MappedFacetReference::GeometryStats{};
       std::cout<<std::setprecision(17)<<"NATIVE3D_STAGE rank="<<world.rank<<" stage="<<stage
+          <<" job_peak_rss_lower="<<stats.job_peak_rss_lower
           <<" phase="<<(phase==Phase::Construction?"construction":"improvement")<<" cells="<<p.owned_cells
           <<" measured="<<p.measured_cells<<" cache_consistent="<<p.cache_consistent
           <<" census_complete="<<p.census_complete<<" shape_complete="<<p.shape_complete
@@ -1889,6 +1956,8 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
           <<" q_bad="<<p.q_bad_cells<<" j_bad="<<p.j_bad_cells<<" size_bad="<<p.size_bad_cells
           <<" geometry_bad="<<p.geometry_bad_cells<<" q_debt="<<p.q_hinge_squared<<" j_debt="<<p.j_hinge_squared
           <<" size_debt="<<p.size_hinge_squared<<" geometry_debt="<<p.geometry_excess_squared
+          <<" distinct_facets="<<g.distinct_facets<<" distinct_scope_keys="<<g.distinct_scope_keys
+          <<" prepared_facet_builds="<<g.prepared_facet_builds<<" prepared_facet_mean_bytes="<<g.prepared_facet_mean_bytes
           <<" associations="<<(state?state->Records().size():0)<<" working_faces="<<(state?state->Surface().size():0)
           <<" face_pieces="<<face_pieces<<" trace_pieces="<<trace_pieces<<" maximum_ratio_limbs="<<limbs
           <<" atlas_work="<<atlas_budget.work<<" atlas_bytes="<<atlas_budget.peak_bytes<<" global_work="<<stats.global_work
@@ -2018,9 +2087,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
       CLocalFailure geometryFailure;
       try {
         D9QueryScope d9_query(SU2NativeD9::Site::Finish, &geometry);
-        for(const auto& row:geometry.Parameters()->GeometryCertificates(atlas_budget,true))
-          if(!row.second.within_tolerance)
-            geometryFailure.Set(1,std::get<0>(row.first),"Complete working surface does not meet the prescribed two-sided geometry tolerance.");
+        ProveOwnedSurface(world,working,geometry,atlas_budget,stats);
       }
       catch(const std::exception& e){geometryFailure.Set(2,0,e.what());}
       if(!vote(geometryFailure)){result.valid=result.surface_prepared=false;stats.stop=EngineStop::Failure;}
@@ -3003,6 +3070,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
         <<" predicted_imbalance="<<imbalance<<" predicted_gain_seconds="<<predicted_gain<<" predicted_cost_seconds="<<predicted_cost
         <<" estimate_seconds="<<estimate_seconds<<" rebuild_allowance="<<rebuild<<" warming_allowance="<<warming<<" uncertainty_factor=2"<<'\n';
     if(!proceed){stats.ownership_seconds+=world.seconds()-transition_started;return true;}
+    if (options.timings) ReportOwnershipMemory(world, "before");
     Owned pending;std::vector<Id> pending_initial;std::unique_ptr<Directory> pending_directory;
     Selection pending_selection(coarsening,repairing,geometry,stats,options.timings,options.surface_tolerance,options.wall_heights,bidirectional,bool(surface_target));
     pending_selection.split_lanes=selection.split_lanes;pending_selection.lane=selection.lane;
@@ -3063,6 +3131,8 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
       else pending_selection.ChangePhase(false,pending,field_identity);
     }catch(const std::exception& e){failure.Set(2,0,e.what());}
     if(!vote(failure))return false;
+    if (options.timings) ReportOwnershipMemory(world, "staged", pending_bytes,
+        transfer_memory::Bytes(outgoing), transfer_memory::Bytes(records));
     if(!within_time() || !observe_progress("ownership_staged"))return false;
     // No private transaction survives this swap; required features retain their inherited service history.
     retire_directory(directory->Statistics());working.swap(pending);directory.swap(pending_directory);selection.SwapState(pending_selection);
@@ -3082,6 +3152,8 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
         <<" quality_debt_weight_before="<<partition.quality_debt_before.at(world.rank)<<" quality_debt_weight_after="<<partition.quality_debt_after.at(world.rank)
         <<" directory_peak_bytes="<<directory->Statistics().maximum_work_bytes
         <<" cells="<<working.size()<<" transition_peak_bytes="<<stats.maximum_work_bytes<<'\n';
+    if (options.timings) ReportOwnershipMemory(world, "committed", pending_bytes,
+        transfer_memory::Bytes(outgoing), transfer_memory::Bytes(records));
     return !quality||observe_progress("ownership_committed");
   };
   auto begin_length_generation=[&](bool collapse) {
@@ -5843,7 +5915,14 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     if (!ready) return finish();
     }
     if(repairing) {
-      stats.quality.busy_seconds+=std::chrono::duration<double>(Clock::now()-private_started).count();
+      const double private_busy_seconds = std::chrono::duration<double>(Clock::now()-private_started).count();
+      stats.quality.busy_seconds += private_busy_seconds;
+      stats.quality.private_work_used += private_work_used;
+      if (options.timings) {
+        SU2NativeTiming3D::Scope output_timer(SU2NativeTiming3D::Operation::Output);
+        std::cout << "NATIVE3D_PRIVATE_WORK rank=" << world.rank << " round=" << stats.rounds
+                  << " private_work_used=" << private_work_used << " busy_seconds=" << private_busy_seconds << '\n';
+      }
       stats.quality.private_tracked_collectives+=world.collective_calls+world.election_collective_calls-private_collectives;
       const auto joined=Clock::now();
       // The legacy counter still surrounds the same call; F3 names its join wait separately.

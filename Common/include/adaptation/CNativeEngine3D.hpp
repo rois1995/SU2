@@ -105,6 +105,7 @@ struct EngineOptions {
   // Zero rounds uses a work-bounded search; positive rounds remain an explicit diagnostic ceiling.
   size_t maximum_work = SIZE_MAX, stagnation_window = 64;  // SIZE_MAX: max(4096,64*global input cells).
   double maximum_seconds = 0;  // Optional kernel elapsed ceiling, checked at collective safe points.
+  size_t job_memory_limit = 0, idle_peak_rss_bytes = 0;  // Whole-job byte limit; idle ranks contribute frozen peaks.
   double surface_tolerance = 0;  // Analytic authority requires a positive frozen physical error ceiling.
   WallHeights wall_heights;  // Frozen marker h0 and tolerance T (ADAP_BL_FIRST_HEIGHT_TOL); empty releases the first-row constraint.
   std::map<int,RegionWallPolicy> region_walls;  // Same existing frozen BL configuration; no scenario selection.
@@ -129,10 +130,10 @@ struct SplitRecord {
   Edge edge{};
   Node point;
 };
-enum class EngineStop { None, Complete, RoundBudget, WorkBudget, TimeBudget, OperatorStagnation, Failure };
+enum class EngineStop { None, Complete, RoundBudget, WorkBudget, TimeBudget, OperatorStagnation, Failure, MemoryBudget };
 inline const char* EngineStopName(EngineStop stop) {
-  constexpr const char* names[]={"none","complete","round_budget","work_budget","time_budget","operator_stagnation","failure"};
-  const auto i=static_cast<unsigned>(stop); return i<7 ? names[i] : "failure";
+  constexpr const char* names[]={"none","complete","round_budget","work_budget","time_budget","operator_stagnation","failure","memory_budget"};
+  const auto i=static_cast<unsigned>(stop); return i<8 ? names[i] : "failure";
 }
 /*! Sufficient local counterexample for an unchanged surviving cell of a directed collapse.
  * Cells containing both endpoints disappear and provide no witness; false is not admission. */
@@ -147,6 +148,7 @@ struct QualityLadderStats {
   std::array<uint64_t,8> rejected{};
 };
 struct QualityRepairStats {
+  uint64_t private_work_used = 0;
   double busy_seconds=0,join_wait_seconds=0,diagnostic_seconds=0;
   uint64_t commits=0,q_removed=0,q_created=0,j_removed=0,j_created=0;
   uint64_t private_tracked_collectives=0;
@@ -155,6 +157,8 @@ struct QualityRepairStats {
   std::array<QualityLadderStats,3> ladder{};
 };
 struct EngineStats {
+  size_t job_peak_rss_lower = 0;
+  uint64_t final_proof_faces = 0, final_proof_surface_faces = 0;
   QualityRepairStats quality;
   EngineStop stop = EngineStop::None;
   uint64_t global_work = 0, work_limit = 0, progress_windows = 0, stagnant_windows = 0, search_windows = 0;

@@ -3309,6 +3309,7 @@ void CConfig::SetConfig_Options() {
   addBoolOption("ADAP_NATIVE_REPARTITION", Adap_Native_Repartition, false);
   addUnsignedLongOption("ADAP_NATIVE_RANKS", Adap_Native_Ranks, 0);
   addUnsignedLongOption("ADAP_NATIVE_MEMORY_LIMIT", Adap_Native_MemoryLimit, 0);
+  addUnsignedLongOption("ADAP_NATIVE_JOB_MEMORY_LIMIT", Adap_Native_Job_MemoryLimit, 0);
   addUnsignedLongOption("ADAP_NATIVE_MAX_WORK", Adap_Native_Max_Work, 0);
   addDoubleOption("ADAP_NATIVE_MAX_TIME", Adap_Native_Max_Time, 0.0);
 
@@ -6433,6 +6434,14 @@ void CConfig::SetPostprocessing(SU2_COMPONENT val_software, unsigned short val_i
     SU2_MPI::Error("ADAP_NATIVE_MEMORY_LIMIT in MiB exceeds the addressable byte range.", CURRENT_FUNCTION);
   if (Adap_Native_MemoryLimit && Kind_Adap_Remesher != ADAP_REMESHER::NATIVE_CAVITY)
     SU2_MPI::Error("ADAP_NATIVE_MEMORY_LIMIT requires the native3D remesher.", CURRENT_FUNCTION);
+  const auto& nativeJobMemoryText = option_map.at("ADAP_NATIVE_JOB_MEMORY_LIMIT")->GetValue();
+  if (!nativeJobMemoryText.empty() && (nativeJobMemoryText.front().empty() ||
+      nativeJobMemoryText.front().find_first_not_of("0123456789") != string::npos))
+    SU2_MPI::Error("ADAP_NATIVE_JOB_MEMORY_LIMIT must be a nonnegative integer number of MiB.", CURRENT_FUNCTION);
+  if (Adap_Native_Job_MemoryLimit > (std::numeric_limits<size_t>::max() >> 20))
+    SU2_MPI::Error("ADAP_NATIVE_JOB_MEMORY_LIMIT in MiB exceeds the addressable byte range.", CURRENT_FUNCTION);
+  if (Adap_Native_Job_MemoryLimit && Kind_Adap_Remesher != ADAP_REMESHER::NATIVE_CAVITY)
+    SU2_MPI::Error("ADAP_NATIVE_JOB_MEMORY_LIMIT requires the native3D remesher.", CURRENT_FUNCTION);
 
   if ((Adap_Native_Repartition || Adap_Native_Ranks) && Kind_Adap_Remesher != ADAP_REMESHER::NATIVE_CAVITY)
     SU2_MPI::Error("ADAP_NATIVE_REPARTITION/ADAP_NATIVE_RANKS require ADAP_REMESHER= NATIVE_CAVITY.", CURRENT_FUNCTION);
