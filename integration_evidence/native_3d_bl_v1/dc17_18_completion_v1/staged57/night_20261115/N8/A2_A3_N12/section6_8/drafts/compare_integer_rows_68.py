@@ -230,21 +230,52 @@ def count_wall_law(path: Path, cutoffs: dict[str, int] | None = None) -> int:
     return total
 
 
+def plain_prefix(rows: list, limits: dict[str, int], label: str, files: dict, gate: str) -> list:
+    """Crop the physical rank stream, including later summaries reporting other ranks."""
+    rank = stream_rank(files, label)
+    if gate == "all":
+        kept = rows
+    elif rank is not None:
+        assert str(rank) in limits, f"missing {gate} anchor for stream {label}"
+        kept = [row for row in rows if row.line <= limits[str(rank)]]
+    else:
+        kept = [row for row in rows if row.line <= limits.get(row.rank(), max(limits.values()))]
+    return [row for row in kept if row.marker != "NATIVE3D_TIMER"]
+
+
 def compare_cases(reference_path: Path, current_path: Path, gate: str) -> dict:
-    """Compare existing integer rows and the Section 6.8 timer adjustment."""
+    """Compare strict old rows and timers through the same physical-stream prefix."""
     reference_rows = N4.streams(reference_path)
     current_rows = N4.streams(current_path)
-    reference_plain = {name: [row for row in rows if row.marker != "NATIVE3D_TIMER"]
-                       for name, rows in reference_rows.items()}
-    current_plain = {name: [row for row in rows if row.marker != "NATIVE3D_TIMER"]
-                     for name, rows in current_rows.items()}
-    integer = N4.compare_streams(reference_plain, current_plain, gate)
     reference_files, current_files = source_files(reference_path), source_files(current_path)
     reference_cutoffs = {name: cutoff_lines(reference_rows[name], gate) for name in reference_rows}
     current_cutoffs = {name: cutoff_lines(current_rows[name], gate) for name in current_rows}
+    reference_plain = {name: plain_prefix(rows, reference_cutoffs[name], name, reference_files, gate)
+                       for name, rows in reference_rows.items()}
+    current_plain = {name: plain_prefix(rows, current_cutoffs[name], name, current_files, gate)
+                     for name, rows in current_rows.items()}
+    integer = N4.compare_streams(reference_plain, current_plain, gate)
     timer = compare_timer_streams(reference_files, current_files, reference_cutoffs, current_cutoffs)
     return {"passed": integer["passed"] and timer["passed"], "gate": gate,
             "integer_rows": integer, "timer_rows": timer}
+
+
+def actual_truncated_prefix_check(full: Path) -> dict:
+    """Compare a full reference with its physically stopped six-rank GQ prefix."""
+    from tempfile import TemporaryDirectory
+    rows, files = N4.streams(full), source_files(full)
+    with TemporaryDirectory() as temporary:
+        candidate = Path(temporary)
+        for label, path in files.items():
+            rank = stream_rank(files, label)
+            limits = cutoff_lines(rows[label], "GQ")
+            target = candidate / label
+            target.parent.mkdir(parents=True)
+            target.write_text("".join(path.open(errors="replace").readlines()[:limits[str(rank)]]))
+        result = compare_cases(full, candidate, "GQ")
+        assert result["passed"], result
+    return {"passed": True, "full_reference_vs_stopped_prefix": True,
+            "post_anchor_cross_rank_bridge_rows_excluded": True}
 
 
 def synthetic_snapshot(lines: list[str]) -> list[dict]:
@@ -325,6 +356,7 @@ def self_check() -> dict:
     full = ROOT / "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/section6_1/full_workflow"
     actual_gq = compare_cases(full, full, "GQ")
     assert actual_gq["passed"]
+    truncated_prefix = actual_truncated_prefix_check(full)
     overshoot = synthetic_cutoff_check()
     assert overshoot["passed"]
     resets = synthetic_root_reset_check()
@@ -334,6 +366,7 @@ def self_check() -> dict:
     assert "maximum_work_bytes" in N4.compare_row(old_stage, changed_stage)
     return {"passed": True, "launched": False, "actual_n1_g2_self_compare": actual,
             "actual_n1_gq_prefix_self_compare": actual_gq,
+            "actual_full_vs_physically_truncated_prefix": truncated_prefix,
             "synthetic_overshoot": overshoot, "synthetic_any_root_reset": resets,
             "synthetic": {"census_delta": "pass", "wrong_delta": "fail", "old_calls": "fail",
                           "modeled_fixedstorage": "fail", "modeled_old_row_bytes": "fail",

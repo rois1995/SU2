@@ -1,0 +1,29 @@
+{
+  "gate": "GQ",
+  "passed": false,
+  "reference": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/section6_1/full_workflow",
+  "candidate": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N8/A2_A3_N12/section6_8/validation/cases/GQ_534",
+  "comparator_sha256": "64733ed0c958369f42bdae7c55f65645f4c1677cc6d4b837c3b492530c4c970c",
+  "comparison": {
+    "passed": false,
+    "gate": "GQ",
+    "integer_rows": {
+      "passed": false,
+      "first_difference": {
+        "file": "rank_output/1/rank.0/stdout",
+        "row": 150,
+        "key": "row_presence/order",
+        "reference": "NATIVE3D rank",
+        "current": "<missing>"
+      }
+    },
+    "timer_rows": {
+      "passed": true,
+      "snapshot_count": 18,
+      "reference_wall_law_lines": 0,
+      "wall_law_lines_before_cutoffs": 6
+    }
+  },
+  "stdout": "{\n  \"passed\": false,\n  \"gate\": \"GQ\",\n  \"integer_rows\": {\n    \"passed\": false,\n    \"first_difference\": {\n      \"file\": \"rank_output/1/rank.0/stdout\",\n      \"row\": 150,\n      \"key\": \"row_presence/order\",\n      \"reference\": \"NATIVE3D rank\",\n      \"current\": \"<missing>\"\n    }\n  },\n  \"timer_rows\": {\n    \"passed\": true,\n    \"snapshot_count\": 18,\n    \"reference_wall_law_lines\": 0,\n    \"wall_law_lines_before_cutoffs\": 6\n  }\n}\n",
+  "stderr": ""
+}

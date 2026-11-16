@@ -1,0 +1,13 @@
+{
+  "cause": "Inherited N4 integer cutoff stops rows by reported rank, so after rank0 third-window anchor, rank0 stdout retains later bridge summaries reporting other ranks; full reference therefore leaks post-prefix rows absent from the stopped candidate",
+  "evidence": {
+    "reference_rank0_cutoff_line": 943,
+    "candidate_rank0_cutoff_line": 945,
+    "reference_kept_rows_before_fix": 299,
+    "candidate_kept_rows": 149,
+    "reference_extra_rows_after_cutoff_up_to_line": 4135
+  },
+  "correction": "Crop every rank stdout stream by its own per-stream anchor line before invoking unchanged strict old-integer row comparator, matching timer cutoff scope; change no values/fields/tolerances",
+  "numerical_run_count": 1,
+  "unix": 1794852331.3956978
+}

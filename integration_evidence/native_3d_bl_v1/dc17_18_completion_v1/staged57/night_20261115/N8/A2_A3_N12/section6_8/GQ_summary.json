@@ -1,0 +1,40 @@
+{
+  "passed": true,
+  "numerical_run_count": 1,
+  "seconds_until_stop": 1357.238631273969,
+  "seconds_total": 1367.9935138819856,
+  "quality_window_rows": {
+    "0": 3,
+    "1": 3,
+    "2": 3,
+    "3": 3,
+    "4": 3,
+    "5": 3
+  },
+  "observed_rank_peak_HWM_sum_bytes": 13998174208,
+  "comparison": {
+    "passed": true,
+    "gate": "GQ",
+    "integer_rows": {
+      "passed": true,
+      "first_difference": null,
+      "streams": [
+        "rank_output/1/rank.0/stdout",
+        "rank_output/1/rank.1/stdout",
+        "rank_output/1/rank.2/stdout",
+        "rank_output/1/rank.3/stdout",
+        "rank_output/1/rank.4/stdout",
+        "rank_output/1/rank.5/stdout"
+      ]
+    },
+    "timer_rows": {
+      "passed": true,
+      "snapshot_count": 18,
+      "reference_wall_law_lines": 0,
+      "wall_law_lines_before_cutoffs": 6
+    }
+  },
+  "all_owned_handles_terminal": true,
+  "terminal_identities": 9,
+  "posthelper_R3_scope_fix": "Cross-rank bridge rows in the same physical stream after the requested third window were leaking from full reference; crop by physical rank stream line; preserve every in-prefix old value/call/byte."
+}

@@ -262,10 +262,10 @@ def run_safeguard(mode):
     base = load("n8_section62_checks", SECTION2 / "run_remaining_checks.py")
     source = adapted_safeguard_source(base, mode)
     os.environ["OMPI_MCA_osc"] = "pt2pt"
-    namespace = {"__name__": "__main__", "__file__": str(HERE / "run_remaining_checks.py"),
+    namespace = {"__name__": "__main__", "__file__": str(HERE / "validate_n8.py"),
                  "OLD": base.OLD, "HERE": HERE, "STAGED": STAGED, "REPO": REPO}
-    sys.argv = [str(HERE / "run_remaining_checks.py"), mode]
-    exec(compile(source, str(HERE / "run_remaining_checks.py"), "exec"), namespace)
+    sys.argv = [str(HERE / "validate_n8.py"), mode]
+    exec(compile(source, str(HERE / "validate_n8.py"), "exec"), namespace)
 
 
 def run_g3():

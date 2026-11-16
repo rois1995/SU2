@@ -1,0 +1,84 @@
+{
+  "selfcheck": {
+    "passed": true,
+    "launched": false,
+    "actual_n1_g2_self_compare": {
+      "passed": true,
+      "gate": "G2",
+      "integer_rows": {
+        "passed": true,
+        "first_difference": null,
+        "streams": [
+          "rank_output/1/rank.0/stdout",
+          "rank_output/1/rank.1/stdout",
+          "rank_output/1/rank.2/stdout",
+          "rank_output/1/rank.3/stdout",
+          "rank_output/1/rank.4/stdout",
+          "rank_output/1/rank.5/stdout"
+        ]
+      },
+      "timer_rows": {
+        "passed": true,
+        "snapshot_count": 12,
+        "reference_wall_law_lines": 0,
+        "wall_law_lines_before_cutoffs": 0
+      }
+    },
+    "actual_n1_gq_prefix_self_compare": {
+      "passed": true,
+      "gate": "GQ",
+      "integer_rows": {
+        "passed": true,
+        "first_difference": null,
+        "streams": [
+          "rank_output/1/rank.0/stdout",
+          "rank_output/1/rank.1/stdout",
+          "rank_output/1/rank.2/stdout",
+          "rank_output/1/rank.3/stdout",
+          "rank_output/1/rank.4/stdout",
+          "rank_output/1/rank.5/stdout"
+        ]
+      },
+      "timer_rows": {
+        "passed": true,
+        "snapshot_count": 18,
+        "reference_wall_law_lines": 0,
+        "wall_law_lines_before_cutoffs": 0
+      }
+    },
+    "actual_full_vs_physically_truncated_prefix": {
+      "passed": true,
+      "full_reference_vs_stopped_prefix": true,
+      "post_anchor_cross_rank_bridge_rows_excluded": true
+    },
+    "synthetic_overshoot": {
+      "passed": true,
+      "rank0_cutoff_line": 6,
+      "rank1_cutoff_line": 15,
+      "post_cut_rank0_timer_removed": true
+    },
+    "synthetic_any_root_reset": {
+      "passed": true,
+      "law_deltas": [
+        1,
+        1,
+        0
+      ],
+      "reset_root": "native_engine/final"
+    },
+    "synthetic": {
+      "census_delta": "pass",
+      "wrong_delta": "fail",
+      "old_calls": "fail",
+      "modeled_fixedstorage": "fail",
+      "modeled_old_row_bytes": "fail",
+      "unexpected_operation": "fail"
+    }
+  },
+  "GQ_comparison_passed": true,
+  "G2_posthelper_recheck_passed": true,
+  "numerical_run_count_each": 1,
+  "new_comparator_sha256": "1077b87962f593b2ad440ed5facb9a5dcc0aeed81b2b0974013a66d43d7cf28d",
+  "new_extra_map_sha256": "b23c23e1585338ccafc02e4d69653ddbdd906d3866bc0895a0b999632133d4c6",
+  "other_map_dependency_changed_only_for_separate_prelaunch_setup_fix": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N8/A2_A3_N12/section6_8/validation/validate_n8.py"
+}
