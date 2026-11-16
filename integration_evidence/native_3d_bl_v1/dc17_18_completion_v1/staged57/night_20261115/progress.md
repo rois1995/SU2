@@ -11,12 +11,12 @@ Updated 2026-11-15. Latest order: NIGHT_WORK_ORDER.md (SHA-sealed input_manifest
 | N5 all design measurements | PASSED; unavailable rows qualified | build521; G2/GQ exact integers; clean full all6P6c/standing gates; native2581.0285/1907.4990s, SUMpeaks13952311296/17729433600B | seal measurement table/checkpoint, then6.1 |
 | N6 further identical cuts | NOT STARTED | requirescompletedN4+G5 | Remesh,MeshOptimizer,Selection |
 | N7 morning report | NOT STARTED | always | finalclose/terminalhandles |
-| N9 wall counters | ACTIVE sourcecheck complete, no production edit yet | N1byte-identicalreference526; source_check.md one list | counterservice/integration thenG3/G2 |
+| N9 wall counters | Build527 PASSED; G3/G2 pending | 100.162575s; 1562pins unchanged; 17owned IDs terminal | ONE G3 then G2 |
 | N10 needed wall split | NOT STARTED | afterN9; independent ifN9fails | I.B1 |
 | N11 law-directed edge | NOT STARTED | needsN8A1 first | I.B2 |
 | N8 geometry law/requirements/M6b | NOT STARTED | A1beforeN11; remainingafterN11 | I.A |
 
-Current job: NONE. N9 accepted-N1 reference rebuild526 PASSED610.262174s, CFD949/test6de byte-identical accepted522;122actualhostownedIDs terminal/1561pinsunchanged. WholeN9sourcecheck complete before firstproductionedit; worker-localcounterheader draft underpreparation onlyN9/drafts. CPPstillacceptedN1; nextN9connectedobservations→focusedcounterfixture/build→G3/G2once,thenN10,N8A1,N11,remainingN8,6.3,N6,N7.
+Current job: NONE after N9 build527 passed. CFD31c43b6e3bc1/test7245c5ef405d; all17 actual-host build identities terminal,1562pins unchanged. Connected print-only observations unqualified pending ONE G3/all old integer rows then G2. Next N10,N8A1,N11,remainingN8,6.3,N6,N7.
 
 R5 governs resultfailures: preservefirstnumber; one<=60min readonlydiagnosis; onlytranscription/wiringagainstwrittenproposal permitsonecorrection+onefailedcheckrepeat; else revertitem, markFAILED andcontinueindependentnextitem. R3ownharnessrepairs<=90min each, no gate/productionchanges. Do not implementdesign8.3-8.7,A5/B5 or job-derivedquota.
 
@@ -249,3 +249,7 @@ B7G2+same-runadditionalconstructionguardPASSED: exact90809869work/counts480/473/
 B7C492RESULTGATEFAILED: testexit0 doesnotpassguard. 0splits/firstedit210,7004absent vs336required; Directorycollisionsearchpeak13061193021B>12884901888B(+176291133). Actualall303823inputcellspositive,jobRSS2291232768Bunder19073MiB. R5readonlycausewrittenB7fullQserialreservation+1086717952B chargedbyResidentBytes; collisionmodelcapfails. Limitsmatchproposal; no furtherproductionfix/retry. All5C492ownedIDsactualhostterminal/1785pinsunchanged. Restoredall5B7pathsbyteidenticalaccepted429c6;all1560build522pinsmatch. REPORT/R5_C492_proposal_failure/failed_B7_source+SHA preserveevidence; onecommitrevertnext. 481/current/2D/full/restartNOTSTARTED afterfail. Preparedrestart525helpersUNUSED. ContinueindependentN9latestsection6.5, N7notfinal.
 
 B7revert9831c787e7PUSHED. N9inputsNight/I/D/Ccopied+SHA; Ireadcompletelyagain. AcceptedN1referencebuild526PASSED610.262174s/47actions/all1561pinsunchanged,CFD949359f28cd4/test6de087f99ba0EXACTaccepted522. All122ownedbuildIDsactualhostterminal. N9WHOLEsourcecheckwrittenbeforeanyproductionedit;10consolidatedprint-counterreadings/gates/readabilityexception. ExistinggeometryRejectedincludesguidancecallbacks; trialsincludeunwrappedchecks; guidanceincludesprioritycalls; candidate/guardedcallcountsnotone-to-one. Newservice willseparate/reconcile scopeswithoutchangingdecisions. Allresultgatesstaystrict incltimeboundedG3oldintegers; no fixture/tolerance changes. HeaderdrafttaskonlyN9/drafts, no currentCPPedit.
+
+N9 connected print-only implementation applied after sourcecheck: fixed-array wall guard/guidance/choice/metric/accepted observations plus appended Surface D9 phase. Standalone counter/phase fixture PASS; G3 comparator selfcheck PASS with no numerical launch. Build527 prepared, production not yet qualified. No prior job restarted. Next build527 then ONE G3, G2 with unchanged gates.
+
+N9build527 PASSED100.162575s/6actions, all1562sourcepinsunchanged,17actualhostownedIDsterminal. CFD31c43b6e3bc1/test7245c5ef405d. Standalonecounterphasefixture and G3integercomparator selfcheckPASS. NewN9wrapper provenance audit underway, no numericalcase yet. ALLcompiledsources remainfrozen for G3/G2.
