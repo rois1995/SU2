@@ -1,0 +1,82 @@
+{
+  "schema": "n5_d9_unit_action_v1",
+  "case": "n5_d9_a1_geometry_euler_input_decode12_534",
+  "descriptor": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N8/A2_A3_N12/section6_8/descriptors/n5_d9_a1_geometry_euler_input_decode12_534.json",
+  "descriptor_sha256": "7fbe65a4ec2c05ec32659ed554ef90d4e0878371fa136f28b80b4325dd1b5fc4",
+  "attempt": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N8/A2_A3_N12/section6_8/cases/n5_d9_a1_geometry_euler_input_decode12_534_20261116T170603_569677",
+  "ranks": 1,
+  "attempt_status_sha256": "d437f88c9eae743cd97081dd3192de0438475e3c2ca973ee9d0f0d768e5880ec",
+  "artifacts_sha256": {
+    "d9_geometry_summary.json": "ac84a87a65ff0277f5936d7df8207a12049d9b446065ecceab2c32d591a7886c",
+    "run.log": "482ce19ae33d8c3e5f7ceb16266708121849ccc6aaf1eb873335adc541ba8b18",
+    "d9_geometry_edges.csv": "5a8a07b27ce377924dc047863a388b4cef528cf268de8fd1762fbb066f7941d8",
+    "d9_geometry_faces.csv": "c7061a34f817e035e340991e8ed815bd7632bcfdbaddadf02ebdb9b504468e9e",
+    "d9_geometry_projections.csv": "17d62f5313149029161c60111ca80eae8ebc1027ba55677a7d1a5b9e70b750dd",
+    "a1_rowwise_comparison.json": "63efe57a75b4c958a1bcc0d2ae5d3c04be9684c223b378736e1d2f870a494b04"
+  },
+  "resource_guard": {
+    "schema": "n5_d9_unit_resource_guard_v2",
+    "actual_host_proc": true,
+    "unix": 1794848792.8347716,
+    "expected_ranks": 1,
+    "rank_peak_hwm_bytes": {
+      "0": 592932864
+    },
+    "sum_rank_peak_hwm_bytes": 592932864,
+    "unranked_test_driver_pids": [],
+    "all_expected_rank_peaks_seen": true,
+    "identities": [
+      {
+        "pid": 570088,
+        "start_ticks": 34107184,
+        "state": "S",
+        "pgid": 570088,
+        "sid": 570088,
+        "name": "time",
+        "alive": false,
+        "mpi_rank": null
+      },
+      {
+        "pid": 570089,
+        "start_ticks": 34107184,
+        "state": "S",
+        "pgid": 570089,
+        "sid": 570088,
+        "name": "timeout",
+        "alive": false,
+        "mpi_rank": null
+      },
+      {
+        "pid": 570090,
+        "start_ticks": 34107184,
+        "state": "R",
+        "pgid": 570089,
+        "sid": 570088,
+        "name": "test_driver",
+        "alive": false,
+        "mpi_rank": 0
+      },
+      {
+        "pid": 570091,
+        "start_ticks": 34107185,
+        "state": "S",
+        "pgid": 570091,
+        "sid": 570091,
+        "name": "orted",
+        "alive": false,
+        "mpi_rank": null
+      }
+    ],
+    "all_owned_handles_terminal": true,
+    "maximum_job_bytes": 19999490048,
+    "resource_guard_triggered": false,
+    "rank_peak_basis": "per-rank /proc VmHWM maxima sampled while test_driver lives",
+    "live_hwm_lower_bound": true,
+    "gnu_time_child_maximum_is_job_peak": false,
+    "peak_note": "named sum of observed per-rank test_driver VmHWM maxima; live lower-bound observation, not GNU time maximum-child RSS"
+  },
+  "rank_peak_summary": null,
+  "source_pins_sha256": "d9b50bc1b0f633da7c2e01f5c8a917493b46f274bdee8b001b7db5afd79f9d3c",
+  "test_binary_sha256": "b5fb04ffd903d94357467a35d8adc5e9c3ce32ce5dd562bd2539f55aa66f52f3",
+  "passed": true
+}

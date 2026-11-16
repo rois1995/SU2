@@ -1,5 +1,8 @@
 # Adaptation timings and computational work
 
+Section6.8 combinedgroup: build534 passed110.165477s/7actions,1588source/helper/policy/configpinsunchanged,16actual-host build identities terminal. Focused requirements21assertions/1case4.750761s, lane21/3 4.718268s, law10/1 4.870562s, diagnostics26/3 5.404644s. No efficiency claim; geometry checks/fullgroup gates pending. Build533 focused/M6b history remains valid but repeats on534 per latestuserorder. Evidence R/night_20261115/N8/A2_A3_N12/section6_8.
+
+
 N9 section6.6 PASSED: build529100.145415s; correctedC492546.644725s,457splits/all457commonN1/adjustedentry5113,GNUserialpeak3,339,386,880B/physicalPASS. Operatorreason904=360retainedoccurrences+544overflow. G2exact90,809,869/counts/ALLoldintegersPASS; samelegacyjob continuesextra constructionguard,751.169940s untilplannedstop/759.371902s sealed (notcollapse-only). Allownedhandlesactualhostterminal/pinsunchanged. Noequal-work speedclaim andnoextra fullN9run. Evidence R/night_20261115/N9/section6_6/REPORT.md.
 
 Section6.6/6.7 continuation:shared accepted-base G1 reference complete on528:375serial792.252073s,57perrankMPI2 14.745597s/MPI4 15.756263s; failedexpressions24/19/37 are baseline table evidence, not candidatepasses. No test/tolerancechanges. RestoredN9+boundedreasoncounter build529100.145415s/6actions,all1562pinsunchanged/13actual-host buildIDs terminal; standalonecounterfixture0.504s. CorrectedG3 commonprefix/net-entrywork and G2 pending. N12/M24 joinslaterN8A2/A3samebuild/fullrun; noextra run/no8.5. Evidence N9/section6_6 andN10/G1_shared_reference_manifest.json.
