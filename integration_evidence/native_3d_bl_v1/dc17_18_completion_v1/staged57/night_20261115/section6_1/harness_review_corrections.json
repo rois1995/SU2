@@ -1,0 +1,21 @@
+{
+  "scope": "own fixtures/scripts/report helpers; production, requested gates and tolerances unchanged",
+  "corrections": [
+    {
+      "cause": "Legacy full runner names f3b timer helper relative to PURPOSE.parent; new purpose is nested one level deeper.",
+      "correction": "Reuse house controller with one asserted path-expression substitution to STAGED R; preserve every gate and input."
+    },
+    {
+      "cause": "Legacy P6 diagnostic accepted work<=108459426 and reported count differences; latest item requires work exactly90809869 and exact counts.",
+      "correction": "Wrap assess_p6 with exact work and count conditions; positive synthetic reference and bad count/work self-checks pass."
+    },
+    {
+      "cause": "Copied remaining-check alias setup tried to rewrite immutable source-pins alias with per-case helper pins; copied BL paths used wrong parent.",
+      "correction": "Routine helper repair delegated before any numerical launch; pending review."
+    },
+    {
+      "cause": "N5 measurement-table prose mislabeled stack/operator build520 binary8a77 as build521 and carried a stale M8 sentence.",
+      "correction": "Report text corrected against actual receipts: stack/operators520, clean geometry/locality521; fresh N5 M8 plus F3b comparison. No numerical repeat."
+    }
+  ]
+}
