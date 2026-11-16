@@ -17,3 +17,5 @@ G1 PASSED fixed375serial/57perrankMPI2/4,0changes(includingwallcases), baselinef
 G2first numericalgateexact90,809,869/counts480/473/346/263/469/464 and strictoldrows/timerCensusdelta PASS, but ownhelper self_check editedwhilelive changedpin3852->78ed. Originalprovenanceinputs_unchangedFALSEpreserved, unqualified. No production/source/binary/gate/tolerancechange. All9ownedhandles terminal,357.978751stop/366.087038sealed. R3restoredexact3852helper, frozeALLhelpers and repeatsONLYG2freshcaseN11_G2_535_R3_frozen. Neverrewrotefailedstatusoroverrodeitsgate.
 
 CorrectedG2 R3fixture PASSED353.063082s planned/361.351210s sealed; exact90809869/counts and alloldinteger/timercalls, ALLinputs/source/binary unchanged,9terminalIDs. Originalunqualifiedreceiptremainsunchanged. No tolerance/gateoverride.
+
+GQ PASSED1238.571465s stop/1246.812545s sealed, strictalloldintegers/bytes/timercalls exactwith6.9Censusdelta. ALLpinsunchanged/9IDs terminal. ObservedSUMrankHWM14,076,043,264B belowjobcap. FirstG3next.
