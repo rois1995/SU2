@@ -1,0 +1,35 @@
+{
+  "scope": "Section 6.1 restart helper setup corrections only; no production code, gates, tolerances, or numeric run changed.",
+  "corrections": [
+    {
+      "cause": "Initial retarget guessed the old P7 core exposed gate_passed.",
+      "correction": "Require terminal state, exit 0, all owned handles terminal, unchanged inputs and source/binary pins, full_workflow_accepted, the two checked-event arrays, section6_1_reference_identity.json identity_passed, and both event and timer gate receipts.",
+      "verification": "Runner and validator synthetic accepted/rejected schema self-checks pass."
+    },
+    {
+      "cause": "Named-process CPU accounting could miss arbitrary busy helpers such as python3.",
+      "correction": "Track all /proc processes by PID/start_ticks and calculate CPU-tick deltas in opportunistic windows of at least three seconds; count any process above 50% of one core and report observed/covered duration.",
+      "verification": "Synthetic unknown-helper and minimum-window self-checks pass; no numerical run launched."
+    },
+    {
+      "cause": "Runtime ELF hashing could take time before a worker HWM sample, and a worker could disappear before later samples.",
+      "correction": "Capture sticky per-worker VmHWM before runtime verification and retain the accumulated maximum by PID/start_ticks.",
+      "verification": "Synthetic monotonic sticky-peak check passes; receipt labels sampled total as a lower bound."
+    },
+    {
+      "cause": "Supervisor launch receipt recorded only the child PID and wall start time, which cannot distinguish PID reuse.",
+      "correction": "Capture and record child /proc start_ticks with its PID before writing the launch receipt.",
+      "verification": "Wrapper self-check passes; no child or CFD was launched."
+    },
+    {
+      "cause": "Earlier self-checks asserted retargeted source strings but did not exercise receipt parsing or resource-observer behavior.",
+      "correction": "Exercise accepted and rejected receipt shapes, event failures, unknown-process CPU deltas, short windows, and sticky HWM maxima using synthetic records.",
+      "verification": "Both wrapper --self-check commands pass."
+    },
+    {
+      "cause": "Sticky sampled VmHWM may miss a worker's final unsampled spike and therefore remains only a lower bound.",
+      "correction": "Parse GNU time's MaxRSS from run.log, convert KiB to bytes, multiply the largest descendant MaxRSS by six ranks, and compare the conservative bound to the unchanged 19999490048-byte limit. If absent or over limit, record resource_proof_insufficient after physical checks and stop qualification without claiming a production memory failure.",
+      "verification": "Synthetic max selection, KiB conversion, six-rank bound, missing record, and nonzero time exit checks pass."
+    }
+  ]
+}
