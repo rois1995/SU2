@@ -1,0 +1,131 @@
+{
+  "schema": "n5_d9_unit_action_v1",
+  "case": "n5_d9_locality2_R1_repeat",
+  "descriptor": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N5/descriptors/locality2_R1_repeat.json",
+  "descriptor_sha256": "e078f6a920405bcd6d917bfbac20d1ba9a75d7ac10afd3b257e1e6429fb96655",
+  "attempt": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N5/cases/n5_d9_locality2_R1_repeat_20261116T054632_2958962",
+  "ranks": 2,
+  "attempt_status_sha256": "df645b8e58b724dface4b4a73c954a6dcad867ad0a57efa042120c3990e77a4b",
+  "artifacts_sha256": {
+    "native_d9_locality_m2.json": "18563fb4bf1526bb7622760b57109ed8b3a836f2cb4c13b7480aee3e1a5b557c",
+    "native_d9_locality_owners_rank0.json": "904137dc591cfead500ac46caa2d29b4c64ecd84f52e362284a22bb64fff9993",
+    "native_d9_locality_owners_rank1.json": "a1751a280b14dbc0990d7d179b3ace7fb8f6e76e945b3abcde9167e20b0029be",
+    "run.log": "d0eaf6d8432ef54b1579b89d130833f966e18a72eb516ca32c5c53d08bc05842",
+    "n5_d9_locality2_R1_repeat_resource_handles.json": "d1328159568731c420ccd647e37cb5f57542c2fbd898fa0b176db698f1ab7c9b",
+    "d9_rank_timing_wrapper.json": "c5a167837b555620cc91c2ff7211c573910da1223a37eb78afc8f35aa671cf79",
+    "d9_rank_peak_summary.json": "faef2e218ba2d555b52a9e86f1184be350bc1fabf2a54b8dce7dabe772c9bf32",
+    "d9_rank_0_peak.txt": "e03ac6629999b676bd045be432f8fa21dfbed4f58d5b70ae4e28fff6b340f235",
+    "d9_rank_1_peak.txt": "55392b6c60816bc675e2cac79044f7abcac42749da2cf5c9b0761424333a435a",
+    "resources.jsonl": "a74f6820c27e61c56b195bdb3f80b5f727bc33931b5e9923a6f2f40979f912cb"
+  },
+  "resource_guard": {
+    "schema": "n5_d9_unit_resource_guard_v2",
+    "actual_host_proc": true,
+    "unix": 1794808047.0389469,
+    "expected_ranks": 2,
+    "rank_peak_hwm_bytes": {
+      "0": 2740985856,
+      "1": 2653925376
+    },
+    "sum_rank_peak_hwm_bytes": 5394911232,
+    "unranked_test_driver_pids": [],
+    "all_expected_rank_peaks_seen": true,
+    "identities": [
+      {
+        "pid": 2959233,
+        "start_ticks": 30030023,
+        "state": "S",
+        "pgid": 2959233,
+        "sid": 2959233,
+        "name": "time",
+        "alive": false,
+        "mpi_rank": null
+      },
+      {
+        "pid": 2959234,
+        "start_ticks": 30030023,
+        "state": "S",
+        "pgid": 2959234,
+        "sid": 2959233,
+        "name": "timeout",
+        "alive": false,
+        "mpi_rank": null
+      },
+      {
+        "pid": 2959235,
+        "start_ticks": 30030023,
+        "state": "S",
+        "pgid": 2959234,
+        "sid": 2959233,
+        "name": "mpirun",
+        "alive": false,
+        "mpi_rank": null
+      },
+      {
+        "pid": 2959239,
+        "start_ticks": 30030026,
+        "state": "S",
+        "pgid": 2959239,
+        "sid": 2959233,
+        "name": "time",
+        "alive": false,
+        "mpi_rank": null
+      },
+      {
+        "pid": 2959241,
+        "start_ticks": 30030026,
+        "state": "R",
+        "pgid": 2959239,
+        "sid": 2959233,
+        "name": "test_driver",
+        "alive": false,
+        "mpi_rank": 1
+      },
+      {
+        "pid": 2959238,
+        "start_ticks": 30030025,
+        "state": "S",
+        "pgid": 2959238,
+        "sid": 2959233,
+        "name": "time",
+        "alive": false,
+        "mpi_rank": null
+      },
+      {
+        "pid": 2959240,
+        "start_ticks": 30030026,
+        "state": "R",
+        "pgid": 2959238,
+        "sid": 2959233,
+        "name": "test_driver",
+        "alive": false,
+        "mpi_rank": 0
+      }
+    ],
+    "all_owned_handles_terminal": true,
+    "maximum_job_bytes": 19999490048,
+    "resource_guard_triggered": false,
+    "rank_peak_basis": "per-rank /proc VmHWM maxima sampled while test_driver lives",
+    "live_hwm_lower_bound": true,
+    "gnu_time_child_maximum_is_job_peak": false,
+    "peak_note": "named sum of observed per-rank test_driver VmHWM maxima; live lower-bound observation, not GNU time maximum-child RSS"
+  },
+  "rank_peak_summary": {
+    "schema": "n5_d9_rank_peak_summary_v1",
+    "rank_peak_bytes": {
+      "0": 2740985856,
+      "1": 2653925376
+    },
+    "sum_rank_peak_bytes": 5394911232,
+    "maximum_job_bytes": 19999490048,
+    "within_limit": true,
+    "meaning": "sum of per-rank maximum of final GNU-time RSS and observed VmHWM; not simultaneous whole-job peak",
+    "rank_files": {
+      "d9_rank_0_peak.txt": "e03ac6629999b676bd045be432f8fa21dfbed4f58d5b70ae4e28fff6b340f235",
+      "d9_rank_1_peak.txt": "55392b6c60816bc675e2cac79044f7abcac42749da2cf5c9b0761424333a435a"
+    }
+  },
+  "source_pins_sha256": "e5f7ffe147eadaf8d64b821bcb90395fc026107ce7ed57d1f4464e27befc36da",
+  "test_binary_sha256": "382dc7142320d2520dd665858fb47492990261e67bae7890717a67138c5ec48b",
+  "passed": true
+}

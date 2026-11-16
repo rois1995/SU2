@@ -1,0 +1,181 @@
+{
+  "schema": "n5_d9_unit_action_v1",
+  "case": "n5_d9_locality4_R1_repeat",
+  "descriptor": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N5/descriptors/locality4_R1_repeat.json",
+  "descriptor_sha256": "eb280ed19235e33d5a07e272f836632e00e2ec8a8ccdb287e30f19c7acf9e5ec",
+  "attempt": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N5/cases/n5_d9_locality4_R1_repeat_20261116T054823_2963648",
+  "ranks": 4,
+  "attempt_status_sha256": "fe6ce0e139db0c5bc114a783c05c7756fdc7c00f348c7a4df32973dc06813884",
+  "artifacts_sha256": {
+    "native_d9_locality_m4.json": "0c822d075a8d91d1ca023fd4b642f1bd32069aa23f59dd7171ad17e5ab7ba054",
+    "native_d9_locality_owners_rank0.json": "52ab15035982a594ceff28412c399a89e413860a0036bf89306892cbb51d53ef",
+    "native_d9_locality_owners_rank1.json": "c7ebb65fc7c8fccc99aa69df19ea9f2168c3a2298b91b2513a6ef6775a96ebe5",
+    "native_d9_locality_owners_rank2.json": "25216e71e824b8d760e9371c1b55d720f327c1589f31344f4fdaeb82a6941c1a",
+    "native_d9_locality_owners_rank3.json": "d07ca9dbfcec464eaf0cb776ee5b48051b580b0b8be114ba890eca9fa07e284e",
+    "run.log": "e922fd08bf2498ea8e4867af24dc20784f42643076e03de353cf0cf70f49592c",
+    "n5_d9_locality4_R1_repeat_resource_handles.json": "8b6193c1d2b648921f018e58576e89a432126bf1143a48657773dd134deca3b0",
+    "d9_rank_timing_wrapper.json": "b780b828c58b104959f295fe2ed6913c4910f6427f15422cf747b8c217c3bce6",
+    "d9_rank_peak_summary.json": "33535888b60d3537ae5b039fe6e09a19fb2c6459b862c1f0457f175a79c0fa9a",
+    "d9_rank_0_peak.txt": "d1ef4611e8a285c79c0084b55834a0f2316d7dc3f6dc1ba281797da6b806fbfd",
+    "d9_rank_1_peak.txt": "38c6a7768fae9f49e9b46b8784a2ae6d75992f1728d02737d3501d22d8dd2021",
+    "d9_rank_2_peak.txt": "e899ba5e2d1c3f2ad6809d56f3279b3e8d4f722e64255129349a59654eb54899",
+    "d9_rank_3_peak.txt": "01638d8184bf5ffee061c472366d38aee8f1806ee123858b6bb21ff8961a26cf",
+    "resources.jsonl": "a3444e75c2c591fbd1a90b0043aa8bf0c4c3357a0ca523b9519192fd493747f5"
+  },
+  "resource_guard": {
+    "schema": "n5_d9_unit_resource_guard_v2",
+    "actual_host_proc": true,
+    "unix": 1794808151.6930447,
+    "expected_ranks": 4,
+    "rank_peak_hwm_bytes": {
+      "0": 1481773056,
+      "1": 1516904448,
+      "2": 1476530176,
+      "3": 1498697728
+    },
+    "sum_rank_peak_hwm_bytes": 5973905408,
+    "unranked_test_driver_pids": [],
+    "all_expected_rank_peaks_seen": true,
+    "identities": [
+      {
+        "pid": 2963985,
+        "start_ticks": 30041184,
+        "state": "S",
+        "pgid": 2963985,
+        "sid": 2963985,
+        "name": "time",
+        "alive": false,
+        "mpi_rank": null
+      },
+      {
+        "pid": 2963986,
+        "start_ticks": 30041184,
+        "state": "S",
+        "pgid": 2963986,
+        "sid": 2963985,
+        "name": "timeout",
+        "alive": false,
+        "mpi_rank": null
+      },
+      {
+        "pid": 2963987,
+        "start_ticks": 30041185,
+        "state": "S",
+        "pgid": 2963986,
+        "sid": 2963985,
+        "name": "mpirun",
+        "alive": false,
+        "mpi_rank": null
+      },
+      {
+        "pid": 2963995,
+        "start_ticks": 30041188,
+        "state": "S",
+        "pgid": 2963995,
+        "sid": 2963985,
+        "name": "time",
+        "alive": false,
+        "mpi_rank": null
+      },
+      {
+        "pid": 2963997,
+        "start_ticks": 30041188,
+        "state": "R",
+        "pgid": 2963995,
+        "sid": 2963985,
+        "name": "test_driver",
+        "alive": false,
+        "mpi_rank": 3
+      },
+      {
+        "pid": 2963993,
+        "start_ticks": 30041187,
+        "state": "S",
+        "pgid": 2963993,
+        "sid": 2963985,
+        "name": "time",
+        "alive": false,
+        "mpi_rank": null
+      },
+      {
+        "pid": 2963996,
+        "start_ticks": 30041188,
+        "state": "R",
+        "pgid": 2963993,
+        "sid": 2963985,
+        "name": "test_driver",
+        "alive": false,
+        "mpi_rank": 2
+      },
+      {
+        "pid": 2963991,
+        "start_ticks": 30041187,
+        "state": "S",
+        "pgid": 2963991,
+        "sid": 2963985,
+        "name": "time",
+        "alive": false,
+        "mpi_rank": null
+      },
+      {
+        "pid": 2963994,
+        "start_ticks": 30041187,
+        "state": "R",
+        "pgid": 2963991,
+        "sid": 2963985,
+        "name": "test_driver",
+        "alive": false,
+        "mpi_rank": 1
+      },
+      {
+        "pid": 2963990,
+        "start_ticks": 30041187,
+        "state": "S",
+        "pgid": 2963990,
+        "sid": 2963985,
+        "name": "time",
+        "alive": false,
+        "mpi_rank": null
+      },
+      {
+        "pid": 2963992,
+        "start_ticks": 30041187,
+        "state": "R",
+        "pgid": 2963990,
+        "sid": 2963985,
+        "name": "test_driver",
+        "alive": false,
+        "mpi_rank": 0
+      }
+    ],
+    "all_owned_handles_terminal": true,
+    "maximum_job_bytes": 19999490048,
+    "resource_guard_triggered": false,
+    "rank_peak_basis": "per-rank /proc VmHWM maxima sampled while test_driver lives",
+    "live_hwm_lower_bound": true,
+    "gnu_time_child_maximum_is_job_peak": false,
+    "peak_note": "named sum of observed per-rank test_driver VmHWM maxima; live lower-bound observation, not GNU time maximum-child RSS"
+  },
+  "rank_peak_summary": {
+    "schema": "n5_d9_rank_peak_summary_v1",
+    "rank_peak_bytes": {
+      "0": 1481773056,
+      "1": 1516904448,
+      "2": 1476530176,
+      "3": 1498697728
+    },
+    "sum_rank_peak_bytes": 5973905408,
+    "maximum_job_bytes": 19999490048,
+    "within_limit": true,
+    "meaning": "sum of per-rank maximum of final GNU-time RSS and observed VmHWM; not simultaneous whole-job peak",
+    "rank_files": {
+      "d9_rank_0_peak.txt": "d1ef4611e8a285c79c0084b55834a0f2316d7dc3f6dc1ba281797da6b806fbfd",
+      "d9_rank_1_peak.txt": "38c6a7768fae9f49e9b46b8784a2ae6d75992f1728d02737d3501d22d8dd2021",
+      "d9_rank_2_peak.txt": "e899ba5e2d1c3f2ad6809d56f3279b3e8d4f722e64255129349a59654eb54899",
+      "d9_rank_3_peak.txt": "01638d8184bf5ffee061c472366d38aee8f1806ee123858b6bb21ff8961a26cf"
+    }
+  },
+  "source_pins_sha256": "e5f7ffe147eadaf8d64b821bcb90395fc026107ce7ed57d1f4464e27befc36da",
+  "test_binary_sha256": "382dc7142320d2520dd665858fb47492990261e67bae7890717a67138c5ec48b",
+  "passed": true
+}

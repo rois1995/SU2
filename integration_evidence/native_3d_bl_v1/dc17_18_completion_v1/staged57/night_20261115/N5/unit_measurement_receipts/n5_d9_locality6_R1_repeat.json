@@ -1,0 +1,231 @@
+{
+  "schema": "n5_d9_unit_action_v1",
+  "case": "n5_d9_locality6_R1_repeat",
+  "descriptor": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N5/descriptors/locality6_R1_repeat.json",
+  "descriptor_sha256": "be6afa985840d76fd61df35e9f4d99f9d60f3dd1ea62ce94b331a661fe9e6b8f",
+  "attempt": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N5/cases/n5_d9_locality6_R1_repeat_20261116T055006_2967986",
+  "ranks": 6,
+  "attempt_status_sha256": "2dda9341e5ec18f13f8d15604d7b807d6f864e45661f56fd849267fdfc3ccbab",
+  "artifacts_sha256": {
+    "native_d9_locality_m6.json": "210e1cf63353d6e12b4e67ca92a34675639fded79a8a808da6cfdb41dba21e82",
+    "native_d9_locality_owners_rank0.json": "a834844ccb5ae7feabc1e257b8d2a56e07d5fef6f4a8bf5d69c69aedf7fd12ed",
+    "native_d9_locality_owners_rank1.json": "fad86e6c97bac62d32793860136cfe693aeb20a52a183caf3776293adfa96ec9",
+    "native_d9_locality_owners_rank2.json": "692c4fbe60936543e2ca5f05c258609c2652c28080600c7c0dd6093afeaeeef6",
+    "native_d9_locality_owners_rank3.json": "5b792f69a58e9b1a674eb7f0d5e647e935853f9c38781a61e9885467ad2102fd",
+    "native_d9_locality_owners_rank4.json": "0d4393b2a183f74eb0dad8994cc11023893d73af48fae0256d5bbf89a5bfb1b1",
+    "native_d9_locality_owners_rank5.json": "2573fb12e2ca97118edcfec5ce8b9c473c2b448323d5b47c61f09588c1fb2d60",
+    "run.log": "29f95d8ae1eb99a83f6e7544247fe6c9ddc05a0e00cb8a398fa157a51cf4cfef",
+    "n5_d9_locality6_R1_repeat_resource_handles.json": "47f1420af7bfeb58a164ef7ed2643085e8ae288c10f8ce332fd9128faa97c411",
+    "d9_rank_timing_wrapper.json": "4fa959e8b4dccba8edf0445c66a4794990c19bff689d0cb2a0ed98f3dc611a5f",
+    "d9_rank_peak_summary.json": "4233076e791e071cec91af1b16af8f5c36bb211c3d2273e508ee7a7e18230883",
+    "d9_rank_0_peak.txt": "de8db36ea29378deca8c161659b0f9b147f4e5a8228664e68c17fa516a8fb2b3",
+    "d9_rank_1_peak.txt": "8087949b53b266ad748d83276700402565105f200f907ecc610f3f2310225b91",
+    "d9_rank_2_peak.txt": "7edab414f3f3cde96bec4b70c804c76ba6bee29b383787b56a0c2dad0ceb599e",
+    "d9_rank_3_peak.txt": "a3e1414b831c8b3284ddab47cc3d0addf5e702cf84f3a9f67a995fd9f69375c8",
+    "d9_rank_4_peak.txt": "f307a4eef0c5f52f14b66a2ea9bcb97ea35d6250f9782e41cf0ca945c3717829",
+    "d9_rank_5_peak.txt": "be914f05e321ebb9caf91fb35f12d0bba4979c18681074926e1aa4869e821cd1",
+    "resources.jsonl": "928dd732f56c6c7720adb2dde042420aa0b5fbd03a7e4307b9e169e6b257661a"
+  },
+  "resource_guard": {
+    "schema": "n5_d9_unit_resource_guard_v2",
+    "actual_host_proc": true,
+    "unix": 1794808254.311672,
+    "expected_ranks": 6,
+    "rank_peak_hwm_bytes": {
+      "0": 1118507008,
+      "1": 1111449600,
+      "2": 1131077632,
+      "3": 1105895424,
+      "4": 1101254656,
+      "5": 1116401664
+    },
+    "sum_rank_peak_hwm_bytes": 6684585984,
+    "unranked_test_driver_pids": [],
+    "all_expected_rank_peaks_seen": true,
+    "identities": [
+      {
+        "pid": 2968306,
+        "start_ticks": 30051436,
+        "state": "S",
+        "pgid": 2968306,
+        "sid": 2968306,
+        "name": "time",
+        "alive": false,
+        "mpi_rank": null
+      },
+      {
+        "pid": 2968307,
+        "start_ticks": 30051436,
+        "state": "S",
+        "pgid": 2968307,
+        "sid": 2968306,
+        "name": "timeout",
+        "alive": false,
+        "mpi_rank": null
+      },
+      {
+        "pid": 2968308,
+        "start_ticks": 30051436,
+        "state": "S",
+        "pgid": 2968307,
+        "sid": 2968306,
+        "name": "mpirun",
+        "alive": false,
+        "mpi_rank": null
+      },
+      {
+        "pid": 2968320,
+        "start_ticks": 30051439,
+        "state": "S",
+        "pgid": 2968320,
+        "sid": 2968306,
+        "name": "time",
+        "alive": false,
+        "mpi_rank": null
+      },
+      {
+        "pid": 2968322,
+        "start_ticks": 30051440,
+        "state": "R",
+        "pgid": 2968320,
+        "sid": 2968306,
+        "name": "test_driver",
+        "alive": false,
+        "mpi_rank": 5
+      },
+      {
+        "pid": 2968318,
+        "start_ticks": 30051439,
+        "state": "S",
+        "pgid": 2968318,
+        "sid": 2968306,
+        "name": "time",
+        "alive": false,
+        "mpi_rank": null
+      },
+      {
+        "pid": 2968321,
+        "start_ticks": 30051439,
+        "state": "R",
+        "pgid": 2968318,
+        "sid": 2968306,
+        "name": "test_driver",
+        "alive": false,
+        "mpi_rank": 4
+      },
+      {
+        "pid": 2968316,
+        "start_ticks": 30051439,
+        "state": "S",
+        "pgid": 2968316,
+        "sid": 2968306,
+        "name": "time",
+        "alive": false,
+        "mpi_rank": null
+      },
+      {
+        "pid": 2968319,
+        "start_ticks": 30051439,
+        "state": "R",
+        "pgid": 2968316,
+        "sid": 2968306,
+        "name": "test_driver",
+        "alive": false,
+        "mpi_rank": 3
+      },
+      {
+        "pid": 2968314,
+        "start_ticks": 30051439,
+        "state": "S",
+        "pgid": 2968314,
+        "sid": 2968306,
+        "name": "time",
+        "alive": false,
+        "mpi_rank": null
+      },
+      {
+        "pid": 2968317,
+        "start_ticks": 30051439,
+        "state": "R",
+        "pgid": 2968314,
+        "sid": 2968306,
+        "name": "test_driver",
+        "alive": false,
+        "mpi_rank": 2
+      },
+      {
+        "pid": 2968312,
+        "start_ticks": 30051439,
+        "state": "S",
+        "pgid": 2968312,
+        "sid": 2968306,
+        "name": "time",
+        "alive": false,
+        "mpi_rank": null
+      },
+      {
+        "pid": 2968315,
+        "start_ticks": 30051439,
+        "state": "R",
+        "pgid": 2968312,
+        "sid": 2968306,
+        "name": "test_driver",
+        "alive": false,
+        "mpi_rank": 1
+      },
+      {
+        "pid": 2968311,
+        "start_ticks": 30051439,
+        "state": "S",
+        "pgid": 2968311,
+        "sid": 2968306,
+        "name": "time",
+        "alive": false,
+        "mpi_rank": null
+      },
+      {
+        "pid": 2968313,
+        "start_ticks": 30051439,
+        "state": "R",
+        "pgid": 2968311,
+        "sid": 2968306,
+        "name": "test_driver",
+        "alive": false,
+        "mpi_rank": 0
+      }
+    ],
+    "all_owned_handles_terminal": true,
+    "maximum_job_bytes": 19999490048,
+    "resource_guard_triggered": false,
+    "rank_peak_basis": "per-rank /proc VmHWM maxima sampled while test_driver lives",
+    "live_hwm_lower_bound": true,
+    "gnu_time_child_maximum_is_job_peak": false,
+    "peak_note": "named sum of observed per-rank test_driver VmHWM maxima; live lower-bound observation, not GNU time maximum-child RSS"
+  },
+  "rank_peak_summary": {
+    "schema": "n5_d9_rank_peak_summary_v1",
+    "rank_peak_bytes": {
+      "0": 1118507008,
+      "1": 1111449600,
+      "2": 1131077632,
+      "3": 1105895424,
+      "4": 1101254656,
+      "5": 1116401664
+    },
+    "sum_rank_peak_bytes": 6684585984,
+    "maximum_job_bytes": 19999490048,
+    "within_limit": true,
+    "meaning": "sum of per-rank maximum of final GNU-time RSS and observed VmHWM; not simultaneous whole-job peak",
+    "rank_files": {
+      "d9_rank_0_peak.txt": "de8db36ea29378deca8c161659b0f9b147f4e5a8228664e68c17fa516a8fb2b3",
+      "d9_rank_1_peak.txt": "8087949b53b266ad748d83276700402565105f200f907ecc610f3f2310225b91",
+      "d9_rank_2_peak.txt": "7edab414f3f3cde96bec4b70c804c76ba6bee29b383787b56a0c2dad0ceb599e",
+      "d9_rank_3_peak.txt": "a3e1414b831c8b3284ddab47cc3d0addf5e702cf84f3a9f67a995fd9f69375c8",
+      "d9_rank_4_peak.txt": "f307a4eef0c5f52f14b66a2ea9bcb97ea35d6250f9782e41cf0ca945c3717829",
+      "d9_rank_5_peak.txt": "be914f05e321ebb9caf91fb35f12d0bba4979c18681074926e1aa4869e821cd1"
+    }
+  },
+  "source_pins_sha256": "e5f7ffe147eadaf8d64b821bcb90395fc026107ce7ed57d1f4464e27befc36da",
+  "test_binary_sha256": "382dc7142320d2520dd665858fb47492990261e67bae7890717a67138c5ec48b",
+  "passed": true
+}
