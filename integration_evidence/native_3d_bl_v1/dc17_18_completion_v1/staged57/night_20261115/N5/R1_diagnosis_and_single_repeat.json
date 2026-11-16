@@ -1,0 +1,12 @@
+{
+  "rule": "NIGHT R1/R3/R5",
+  "first_failure": "8 CPU-heavy processes observed versus limit6:6SU2 ranks+2ownedabandonedscanner attempts",
+  "cause": "Own helper lifecycle/wiring error: catastrophic regex attempts were left running without preserving/polling their tool handles. No production behaviour defect found.",
+  "diagnosis": "One read-only pass: CPU sample, PID/start/cmdline inspection, agent ownership confirmation and preserved scanner source.",
+  "correction": "Terminate only the2verified owned scanner PID/start identities; repeat CPU gate now6. Production/source/config/gates unchanged.",
+  "full_run_action": "Finish current tool23503 unchanged per user; retain numerical results with FAILED unattended resource qualification. Then repeat the full check ONCE on the same frozen build in fresh full_workflow_R1_repeat. No third full attempt.",
+  "repeat_count_allowed": 1,
+  "repeat_count_started": 0,
+  "unix": 1794806806.527688,
+  "interpretation": "R4 reading used: own helper orchestration failure is wiring/setup under R3 and R5; the failed resource-compliance check needs one clean full repeat, not a production redesign."
+}

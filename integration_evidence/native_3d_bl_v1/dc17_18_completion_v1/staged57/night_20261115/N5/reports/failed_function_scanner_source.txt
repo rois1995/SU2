@@ -1,0 +1,86 @@
+import re
+from pathlib import Path
+files=[
+'Common/include/adaptation/CNativeD9Profile3D.hpp',
+'UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp',
+'UnitTests/Common/adaptation/CNativeDistributed3D_tests.cpp',
+'UnitTests/SU2_CFD/adaptation/CNativeImport3D_tests.cpp',
+'UnitTests/SU2_CFD/adaptation/fixtures/native_first_row_dc12.inc']
+extra={'Phase','Seconds','PrintQueries','PrintMoves','Root','Star','Candidate','WorkScope','Measure','Quality'}
+
+def code_mask(s):
+    out=list(s); i=0; state='code'
+    while i<len(s):
+      if state=='code':
+        if s.startswith('//',i): out[i]=out[i+1]=' '; i+=2; state='line'; continue
+        if s.startswith('/*',i): out[i]=out[i+1]=' '; i+=2; state='block'; continue
+        if s[i] in ('"',"'"): q=s[i];out[i]=' ';i+=1;state=('str',q);continue
+        i+=1
+      elif state=='line':
+        if s[i]=='\n':state='code'
+        else:out[i]=' '
+        i+=1
+      elif state=='block':
+        if s.startswith('*/',i):out[i]=out[i+1]=' ';i+=2;state='code'
+        else:
+          if s[i]!='\n':out[i]=' '
+          i+=1
+      else:
+        q=state[1]
+        if s[i]=='\\':out[i]=' ';i+=1
+        elif s[i]==q:out[i]=' ';i+=1;state='code'
+        else:
+          if s[i]!='\n':out[i]=' '
+          i+=1
+    return ''.join(out)
+
+def funcs(path):
+    s=Path(path).read_text(); m=code_mask(s); lines=s.splitlines(keepends=True); offsets=[]; z=0
+    for line in lines: offsets.append(z);z+=len(line)
+    pat=re.compile(r'^\s*(?:(?:inline|static|constexpr|virtual|explicit|template\s*<[^>]*>)\s+)*(?:[\w:<>*&\s,]+?\s+)?(?P<name>D9\w+|'+ '|'.join(extra) +r')\s*\(',re.M)
+    out=[]; seen=set()
+    for mt in pat.finditer(m):
+      start=mt.start(); name=mt.group('name'); pos=mt.end()-1
+      # balance params
+      depth=0; i=pos
+      while i<len(m):
+       if m[i]=='(':depth+=1
+       elif m[i]==')':
+        depth-=1
+        if depth==0:break
+       i+=1
+      if depth:continue
+      # find body brace or declaration semicolon, skipping return-type scopes; no braces in params expected
+      j=i+1; par=0; angle=0; bracket=0
+      while j<len(m):
+       c=m[j]
+       if c=='(' : par+=1
+       elif c==')': par-=1
+       elif c=='[': bracket+=1
+       elif c==']': bracket-=1
+       elif c=='{' and par==0 and bracket==0:break
+       elif c==';' and par==0 and bracket==0:break
+       j+=1
+      if j>=len(m) or m[j]!='{':continue
+      # ensure candidate prefix before name contains plausible return type or constructor, and no assignment/call macro
+      line_start=m.rfind('\n',0,start)+1; pre=m[line_start:mt.start('name')].strip()
+      if name not in extra and (not pre or any(x in pre for x in ('=', 'return','CHECK','.', '->'))): continue
+      if name in extra and not pre and path.endswith('CNativeD9Profile3D.hpp') and name not in {'Root','Star','Candidate','WorkScope','Quality'}:continue
+      depth=0;k=j
+      while k<len(m):
+       if m[k]=='{': depth+=1
+       elif m[k]=='}':
+        depth-=1
+        if depth==0:break
+       k+=1
+      if depth:continue
+      start_line=m.count('\n',0,start)+1; end_line=m.count('\n',0,k)+1
+      key=(start_line,name)
+      if key in seen:continue
+      seen.add(key)
+      out.append((start_line,end_line,end_line-start_line+1,name))
+    return out
+for f in files:
+  xs=funcs(f)
+  print('\n',f,len(xs))
+  for x in sorted(xs,key=lambda a:a[0]):print(x)

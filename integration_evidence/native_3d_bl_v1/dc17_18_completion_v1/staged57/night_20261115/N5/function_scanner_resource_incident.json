@@ -1,0 +1,37 @@
+{
+  "unix": 1794806564.4801764,
+  "cause": "Two owned abandoned function-scanner attempts remained CPU-bound in catastrophic regex backtracking after corrected scanner results had been obtained. Host CPU sample found8 processes above50%core including6SU2 ranks, violating the max6 operational rule.",
+  "agent_ownership_confirmed": true,
+  "source_path": "/tmp/scan_d9_funcs.py",
+  "source_sha256": "bcceff4c594102dc61c7a93410aa97843d234387c84511f907819e7d03020c6c",
+  "full_solver_untouched": true,
+  "actions": [
+    {
+      "signal": "SIGTERM",
+      "pid": 2619039,
+      "start_ticks": 29241114,
+      "state": "R",
+      "ppid": 2619038
+    },
+    {
+      "signal": "SIGTERM",
+      "pid": 2619737,
+      "start_ticks": 29242728,
+      "state": "R",
+      "ppid": 2619736
+    }
+  ],
+  "terminal": [
+    {
+      "pid": 2619039,
+      "expected_start_ticks": 29241114,
+      "observed": null
+    },
+    {
+      "pid": 2619737,
+      "expected_start_ticks": 29242728,
+      "observed": null
+    }
+  ],
+  "all_scanner_handles_terminal": true
+}
