@@ -1,0 +1,105 @@
+{
+  "passed": true,
+  "numerical_run_launched": false,
+  "source_sha256": "4bf4deb04b0b35b20ffba8270b237c610b87bb1e01fa51bf7d8f73ba57249aaa",
+  "synthetic_selfcheck": true,
+  "actual_partial_reference_assertion": {
+    "success": "false",
+    "type": "CHECK",
+    "file": "../../UnitTests/SU2_CFD/adaptation/BoundaryLayerMetric_tests.cpp",
+    "line": "1220",
+    "sections": [],
+    "original": "test.solver[FLOW_SOL]->GetMetricComplexityFinal()==Approx(reference).epsilon(5e-4)",
+    "expanded": "209.9357526597 == Approx( 656.1522579418 )"
+  },
+  "actual_source_case": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N10/cases/N10_G1_reference_serial_20261116T131252_4147187",
+  "partial_XML_snapshot_sha256": "fd8de02f6cb512855e4e8704bc16f460d1dad99f4d4f21467be5b794c183e7da",
+  "complete_reference_acceptance": false,
+  "function_lengths": [
+    {
+      "file": "parse_g1_identity.py",
+      "function": "sha",
+      "lines": 3
+    },
+    {
+      "file": "parse_g1_identity.py",
+      "function": "write_json",
+      "lines": 7
+    },
+    {
+      "file": "parse_g1_identity.py",
+      "function": "decimal12",
+      "lines": 5
+    },
+    {
+      "file": "parse_g1_identity.py",
+      "function": "collect_assertions",
+      "lines": 15
+    },
+    {
+      "file": "parse_g1_identity.py",
+      "function": "collect_totals",
+      "lines": 12
+    },
+    {
+      "file": "parse_g1_identity.py",
+      "function": "parse_xml",
+      "lines": 15
+    },
+    {
+      "file": "parse_g1_identity.py",
+      "function": "run_sources",
+      "lines": 9
+    },
+    {
+      "file": "parse_g1_identity.py",
+      "function": "parse_run",
+      "lines": 24
+    },
+    {
+      "file": "parse_g1_identity.py",
+      "function": "comparable",
+      "lines": 9
+    },
+    {
+      "file": "parse_g1_identity.py",
+      "function": "compare",
+      "lines": 15
+    },
+    {
+      "file": "parse_g1_identity.py",
+      "function": "self_check",
+      "lines": 20
+    },
+    {
+      "file": "parse_g1_identity.py",
+      "function": "main",
+      "lines": 26
+    },
+    {
+      "file": "parse_g1_identity.py",
+      "function": "replace",
+      "lines": 3
+    },
+    {
+      "file": "run_g1_reference.py",
+      "function": "sha",
+      "lines": 4
+    },
+    {
+      "file": "run_g1_reference.py",
+      "function": "transformed_source",
+      "lines": 15
+    },
+    {
+      "file": "run_g1_reference.py",
+      "function": "expose",
+      "lines": 8
+    },
+    {
+      "file": "run_g1_reference.py",
+      "function": "main",
+      "lines": 36
+    }
+  ]
+}

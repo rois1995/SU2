@@ -1,0 +1,197 @@
+--- D2.1
++++ D2.2
+@@ -92,6 +92,77 @@
+    the trials, and an accepted trial needs the exact proof of its new faces anyway. The
+    possible gain is about 25 s for each rank (1 % of the event). Step 8.4a is set
+    aside. The cost of the quality stage is the waiting; that is step 8.5.
++
++### 0.2 Revision 2.2 of 2026-11-16 (M20, and a source inventory of one quality round)
++
++State: step 8.5 is NOT accepted and its implementation text is not written. This
++section holds the new facts and what they change. Sources: M =
++`R/night_20261115/section6_1/reports/M20_accepted_counters.csv` and
++`current_profile_all_timer_rows.csv` (accepted run of work order 6.1); C = the file
++`/tmp/claude-1000/-media-rausa-4TB-SU2-Versions-SU2-NativeIntegrated/f3d988e5-f14f-4a96-b6fb-963ec11730e7/scratchpad/inventory/ROUND_INVENTORY_20261116.md`.
++
++Facts:
++
++1. (M) Quality stage, private loop of each round (M20):
++
++   | | Event 1 (1,274 rounds) | Event 2 (801 rounds) |
++   |---|---|---|
++   | Busy time of a rank, smallest / mean / largest | 344 / 416 / 484 s | 90 / 246 / 369 s |
++   | Sum over the rounds of the largest busy time | 943 s | 589 s |
++   | Mean wait of a rank in the join | 527 s | 343 s |
++   | Model: one join for each 8 rounds | wait 327 s | wait 212 s |
++   | Model: one join for each 64 rounds | wait 220 s | wait 188 s |
++   | Model: one join for the stage | wait 68 s | wait 123 s |
++
++   The model adds the measured busy times of N rounds for each rank and takes the
++   largest sum. It is a lower bound of the wait for that join distance, not a promise.
++2. (M) `private_work_used` does not follow the time. Correlation of work and busy time
++   of a rank in a round: 0.38 (event 1), 0.47 (event 2). One unit costs 0.87 to 1.87 ms
++   (event 1) and 0.88 to 2.60 ms (event 2) on different ranks. 36 % of the rank-rounds
++   use 0 units and cost 0.16 s. The slowest 10 % of the rounds give 31 % of the sum.
++   Which rank is the slowest changes: each rank is the slowest in 138 to 352 rounds.
++3. (M) Quality stage of event 1, rank 0: 1,717 s. Join wait 523 s, communication 259 s
++   (433,467 scopes, about 340 for each round), private busy time 407 s. So 782 s of
++   1,717 s is wait and communication. Construction has 275 s of communication
++   (4,845,975 scopes in 23,113 rounds).
++4. (C) A round of the quality stage has 21 steps; table 1 of the inventory. The
++   collectives of one round are in its table 2. The list of 5B.1 was not complete.
++5. (C) Points 3 to 9 of the inventory section 9 correct this design: `AgreeParameters`
++   runs only in `Directory::Build`, the cost of each round is `PrepareParameters`; the
++   slots and the allowance need global values before the private loop; the id token
++   needs a counter for each edit; the cavity of a private trial comes from Lookup and
++   Fetch; the optimizer gets the remaining seconds.
++
++What this changes:
++
++a. The cause of the join wait is the difference of the busy times in ONE round, not a
++   bad balance of the stage. The sum of the busy times of the ranks is nearly level
++   (344 to 484 s). So a larger batch for each round helps only in part (wait 527 ->
++   327 s for 8 times fewer joins), and a pass that is short and has the same count of
++   edits on each rank keeps about 220 s. A long pass is necessary.
++b. 5.5 item 4 changes. A pass share in work units, or in "edits tried", does not make
++   the busy times equal (fact 2). New rule: a rank ends its pass when its local queue
++   has no candidate left that it can try, or when its share of the global work budget
++   is used (the budget is far from its limit: 1,023,830 of 46,492,288 units in event
++   2). Both are counts, so rule R-det holds. No rule in seconds.
++c. What stays after long passes is the imbalance of the stage: 68 s (event 1) and 123 s
++   (event 2) for each rank. This is the job of the balance rule of 5.5 items 1 to 3. It
++   comes after the passes, as its own step, with its own numbers.
++d. Expected gain of passes in the quality stage (I, not measured): the join wait falls
++   from about 520 s to about 70 to 120 s, and most of the 260 s of communication goes
++   away. The private busy time (407 s) stays. The compute after the join (clearance
++   97 s, census, publication) stays in part.
++e. Step 8.5 is cut into parts, each with its own gate (proposal):
++   - 8.5a: a local lane for edits that do not change the wall and whose complete cavity
++     is on one rank (rule 5.1). No Lookup, Fetch, reservation, contact test or
++     publication for these edits. The rounds of today stay for all other edits.
++   - 8.5b: wall edits in the local lane (5.9: wall state merge, contact proofs).
++   - 8.5c: the interface move (5.5), so that edits at the old interface become local.
++   - 8.5d: the balance rule (5.5 items 1 to 3).
++   Each part changes the mesh and gets new reference files by the rule of 2026-11-16.
++f. Open before the text of 8.5a: how a rank reads a complete cavity from its own data;
++   which edits of the quality stage need the contact test; what `Directory::Build`
++   resets; the share of the quality candidates that are local and do not touch the wall.
+ 
+ ## 1. What does not change
+ 
+@@ -661,6 +732,97 @@
+ `InsertEdgeCavity` only. A later version can call a patch operator inside a pass when
+ its cavity is local; not in v1.
+ 
++### 5.11 Part 8.5a: the local lane (added 2026-11-16, revision 2.2; NOT accepted yet)
++
++Sources: section 0.2; C = `inventory/ROUND_INVENTORY_20261116.md` (R) and
++`inventory/LOCAL_LANE_INVENTORY_20261116.md` (L) in the scratchpad of the reviewer,
++commit `0acacc8cc8`. This section replaces 5.2 and 5.3 for the edits that it names. The
++rounds of today stay for all other edits.
++
++Idea. Before the slots of a global round, each rank works alone on the candidates of its
++repair queue that only its own cells can see. It applies each accepted edit at once to
++its own cells. When all ranks have no such candidate left, they join one time, the
++directory gets the net change in one publication, and the round goes on as today.
++
++L1. Lane candidate. A feature (vertex, edge or face) of the repair queue is a lane
++    candidate when:
++    (a) its cavity is complete on this rank: each face of a cavity cell that contains
++        the first vertex of the feature is shared by two cells of this rank (the rule
++        that `Directory::LookupImpl` uses for a star, Dist:658-680, with local data);
++    (b) no cell of the cavity has a physical facet (`OwnedCell::physical`, DH:20-31).
++    Why (a) is exact with (b): with no physical face the star of the vertex is a closed
++    ball, and its cells are connected through faces that contain the vertex. If one
++    cell were on another rank, one of these faces would have no second local cell.
++    New code: one function that builds the star from `Selection::vertex_cells` and
++    `working` (as the lambda `feature_cells`, Eng:567-585) and makes this face test.
++L2. Trial. The ladder of today (`evaluate_candidate` with `private_repair`), unchanged.
++    Its inputs `Dependencies` and `Imported` (DH:34-59) are filled from `working`:
++    `{cell, version, this rank}` and the rows themselves. The cap of 4,096 cells for a
++    coordinate star stays. Allowance for each trial: 160, as today when the work limit
++    is far.
++L3. Commit condition. The approved patch is applied in the lane only when
++    `SameSkin(old, fresh)` is true (Eng:233), the parameter edits are empty and the
++    coverage delta is empty (Eng:6024-6031). If not, the feature stays in the queue for
++    the slots of the round. Nothing is applied.
++L4. Local commit. The same steps that a commit of today does on the data of the rank
++    (L section 5, items 3, 5, 6, 10, 12, 14, 16): new rows with `PublishMetrics`
++    sensors, erase and insert in `working`, `Selection::Drop`, the measure of the new
++    cells with local votes and local imports, `Selection::Add`, `Service`, `Touch`.
++    The rank writes each removed ORIGINAL row and each added id in a journal.
++L5. No contact test in the lane. Reason: positive cells that conform and keep the skin
++    of the cavity fill the old region exactly (L3 tests the skin; the operators test
++    the cells). Today each approved proposal goes through `ClearanceBatch`
++    (Eng:5950-5961); in the accepted run it rejected none (ladder `rejected[5]` = 0).
++L6. No reservation and no receipts in the lane. Two ranks cannot have a cell, an inner
++    face, an inner edge or an inner vertex of a lane cavity in common, because the
++    cavities are complete on one rank and their skins do not change. A lane candidate
++    is in the queue of one rank only.
++L7. New ids. The token formula stays (Eng:4082-4087), with a new counter `id_round` in
++    the place of `round`. `id_round` grows with `round`. In a lane the edit number j of
++    a rank uses the epoch `(id_round + j / batch) * size + rank` and the slot
++    `j % batch`. At the join, `id_round` grows by the largest `ceil(n / batch)` of the
++    ranks. `round` itself does not change (the window rule reads it, Eng:3611).
++L8. End of a lane for a rank: no lane candidate is left, or its share of the global
++    work is used (`(work_limit - global_work) / size`), or its own clock says that the
++    event deadline is reached. No rule in seconds for the balance (rule R-det).
++L9. Join and publication, one time for each lane: one reduction (work used, commits,
++    largest edit count, failure, deadline); then the journals go into the directory by
++    `Directory::Publish` with a new mode "the rows are already applied" (it skips the
++    two local checks Dist:1601-1605, 1610 and the local erase / insert Dist:1626-1630;
++    `Prepare`, `Commit`, the contact index `added`, `NotifyChanges` and
++    `NotifyRepairChanges` run as today). A lane with no commit on any rank sends
++    nothing.
++L10. Not in the lane: a cavity with a physical facet (part 8.5b), a cavity that is not
++    complete on one rank (part 8.5c frees it), all edits while a coarsening checkpoint
++    is valid, the construction stage (its own text after the quality stage works).
++
++What is new code: the star function of L1, the local fill of L2, the journal, the mode
++of `Publish`, the counter `id_round`, the lane loop with its join. All other functions
++are called as they are. After the cut (8.2) the commit steps of L4 are named functions;
++the lane calls them. So 8.5a comes after the cut.
++
++Gates (the mesh changes; new reference files by the rule of 2026-11-16):
++- unit tests: the star function against `LookupImpl` on a partitioned fixture (same
++  cells, and "not complete" for each interface feature); the journal publication gives
++  the same directory as a rebuild (`Directory::Build`) of the same cells;
++- one rank: the lane takes each candidate with no physical facet; the final gates pass;
++- 2 / 4 / 6 ranks: all standing gates of the full two-event run, two runs with the same
++  files; report the join wait, the communication seconds, the rounds, the lane commits
++  and the lane seconds for each rank beside section 0.2;
++- the standing safeguards for shared code (C492 by G3 rule 1, 481, 2D at 1 / 2 / 4
++  ranks).
++
++One number is missing before the text for the agent: M24 (section 9). It says which
++share of the quality work is a lane candidate. If the share with a physical facet is
++the larger one, 8.5a alone gives a small gain, and 8.5a and 8.5b are built as one step.
++
++Risks: (1) the order of the edits changes (each rank follows its own queue), so the
++mesh changes; (2) a long lane holds the interface candidates back until the join;
++(3) the ids grow by the largest lane, not by the sum (L7); (4) the argument of L5 is a
++proof for cavities with no physical face only; (5) the helper did not read each line of
++Eng:4478-5440 and the body of `OptimizeMetricMesh`: the source check of the item must
++confirm that no trial of a lane candidate calls the directory.
++
+ ## 5A. Stage S2: the rows, as engine operators in passes (added 2026-11-15)
+ 
+ This is the design section that step 8.6 asked for. Source of the facts: a read-only helper
+@@ -1164,7 +1326,9 @@
+ | M15 | answered: no combination by patches in the forward direction | 4.3 |
+ | M16 | (a) 306k, (b) 235k, (e) 146k union queries in the quality stage of event 1; candidates 3.0 ms | 5B.2 items 2, 3 and 7 |
+ | M17 | answered: fill cells exist; a general split does not update the layer records | 5A.2b not ready |
+-| M18, M20, M21 | pending: they come from the accepted P7 run (work order 6.1) | cache need, join balance, memory spike |
++| M18 | done (accepted run of 6.1): prepared-facet builds = distinct facets, 102,866 in event 1; the need of a rank is 82 to 130 MB, below the pool of 175 MB | the cache fix B7 is withdrawn (handoff 2.0c) |
++| M20 | done: section 0.2 | long passes; no share in work units |
++| M21 | exported (`R/night_20261115/section6_1/reports/M21_accepted_counters.csv`); not analysed yet | memory spike |
+ | M19 | answered: each rank proved the complete wall | done by P7 |
+ 
+ New rows:
+@@ -1174,6 +1338,7 @@
+ | M6b | All wall edges of the accepted mesh: exact orientation of the projected midpoint against each old wall face of the edge shell; counts of positive, zero, negative; the same for the collapse of each wall vertex onto its nearest wall neighbour | diagnostic only; no split is done |
+ | M22 | For each column: ratio of the heights of two layers that follow each other against the requested growth; largest difference and place | print only, in step 8.6 |
+ | M23 | Wall collapses that the estimate alone refuses (the faces would pass the exact proof) | counter in step 8.4, with an exact proof of a sample of the refused candidates |
++| M24 | Lane census (5.11), quality stage and construction stage, for each rank: for each candidate that reaches its private trial, the class "all cavity cells on this rank" (yes / no, from `Dependency::owner`) x "a cavity cell has a physical facet" (yes / no); for each class the trials, approved patches, commits, busy seconds and optimizer work; for the commits of each class the counts of `SameSkin` true, empty parameter edits, empty coverage delta | print only, under `options.timings`; no change of results; work order 6.7 |
+ 
+ ## 10. Decisions for the user
+ 

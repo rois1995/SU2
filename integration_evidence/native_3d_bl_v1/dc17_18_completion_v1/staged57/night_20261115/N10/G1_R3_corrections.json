@@ -1,0 +1,29 @@
+{
+  "scope": "own unlaunched G1 draft and saved-result parser; no production/gate/tolerance changes",
+  "corrections": [
+    {
+      "cause": "Draft used stale N4 reference metadata and treated the live scratch document as lacking section2.1.",
+      "correction": "Verified SHA-identical sealed current CUT_PLAN section2.1, and used byte-identical accepted-N1 reference528; named selections independently listed375/57."
+    },
+    {
+      "cause": "Large draft had alias write-once reuse, missing terminal state, old shared-binary verification, and XML-root/source-location setup defects before any launch.",
+      "correction": "Kept it unlaunched and launched one cohort with a minimal adapter of run_cases; output-only XML/rank files and own wrapper5400s ceiling. Parser is a separate saved-artifact helper."
+    },
+    {
+      "cause": "Parser draft positional arguments made the parse output bind as an unused candidate; compare wrote a false identity report but returnedsuccess.",
+      "correction": "Use explicit --output, always preserve comparison, then returnfailure on identity mismatch."
+    },
+    {
+      "cause": "Parser draft omitted cohort elapsed time, process returncode and its own source pin from parsed reports.",
+      "correction": "Include all three; selfcheck synthetic XML/line changes and actual partial reference failure1220."
+    },
+    {
+      "cause": "An inline progress-only regex matched filename as if it were testcase name.",
+      "correction": "Use attribute-boundary name matching for subsequent progress; saved XML parser uses ElementTree and was unaffected."
+    },
+    {
+      "cause": "Inline shared-reference report generator misspelled conditional expression as else57; Python rejected it before any writes.",
+      "correction": "Corrected whitespace and reran only the report generator. No numerical or production change."
+    }
+  ]
+}

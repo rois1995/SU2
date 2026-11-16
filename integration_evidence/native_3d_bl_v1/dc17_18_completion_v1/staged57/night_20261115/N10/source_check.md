@@ -1,4 +1,6 @@
-# N10 whole-item source check before production edits: I.B1
+Section6.6 now wins. This is preserved OLD-text planning, not the specification for a future N10 edit. No old B1 production code was implemented. A fresh whole-item check of the new A1-qualified bypass follows accepted N11. The running accepted-base G1 reference is shared by the revised items.
+
+# Superseded source check: old I.B1, no production edit
 
 Accepted base is N1 `429c6c1a60`, after rejected B7 and rejected N9. N9 production was reverted in `0acacc8cc8`; its B0 rows are retained as diagnostic evidence of a failed identity run. Reference rebuild528 is byte-identical to accepted N1 (CFD949359f28cd4/test6de087f99ba0),1,561 pins unchanged and17 actual-host build identities terminal. Actual driver list-only selection is375 serial and57 shared MPI cases, with the same name hashes as the old N4 selection. No N10 production edit has occurred.
 

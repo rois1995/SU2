@@ -1,0 +1,60 @@
+{
+  "actual_host_proc": true,
+  "verified_unix": 1794835801.91217,
+  "identities": [
+    {
+      "pid": 4147187,
+      "start_ticks": 32707644,
+      "name": "controller",
+      "currently_present": false,
+      "alive": false
+    },
+    {
+      "pid": 4147402,
+      "start_ticks": null,
+      "name": "nice",
+      "currently_present": false,
+      "alive": false
+    },
+    {
+      "pid": 4147403,
+      "start_ticks": null,
+      "name": "timeout",
+      "currently_present": false,
+      "alive": false
+    },
+    {
+      "pid": 4147404,
+      "start_ticks": null,
+      "name": "test_driver",
+      "currently_present": false,
+      "alive": false
+    },
+    {
+      "pid": 4147405,
+      "start_ticks": null,
+      "name": "orted",
+      "currently_present": false,
+      "alive": false
+    }
+  ],
+  "handle_note": "Child process PIDs from house resource records; their start ticks were not captured. All observed PIDs are absent or terminal at actual-host closure; controller has exact PID/start identity.",
+  "all_owned_handles_terminal": true,
+  "pins_verified": true,
+  "pin_count": 1764,
+  "changed_pins": [],
+  "cases": 375,
+  "failed_cases": 9,
+  "failed_assertion_records": 24,
+  "GNU_time_serial_peak_bytes": 277544960,
+  "reference_complete": true,
+  "status": {
+    "state": "terminal",
+    "exit_code": 24,
+    "seconds": 792.2520728111267,
+    "pins_verified": true,
+    "changed": [],
+    "largest_sampled_individual_process_rss_bytes": 264376320,
+    "rss_note": "sampled process RSS; not a whole-job peak"
+  }
+}

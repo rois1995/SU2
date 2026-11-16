@@ -1,0 +1,60 @@
+{
+  "actual_host_proc": true,
+  "verified_unix": 1794836035.4782481,
+  "identities": [
+    {
+      "pid": 1783,
+      "start_ticks": 32814195,
+      "name": "controller",
+      "alive": false
+    },
+    {
+      "pid": 2008,
+      "start_ticks": null,
+      "name": "nice",
+      "alive": false
+    },
+    {
+      "pid": 2009,
+      "start_ticks": null,
+      "name": "timeout",
+      "alive": false
+    },
+    {
+      "pid": 2010,
+      "start_ticks": null,
+      "name": "mpirun",
+      "alive": false
+    },
+    {
+      "pid": 2021,
+      "start_ticks": null,
+      "name": "test_driver",
+      "alive": false
+    },
+    {
+      "pid": 2020,
+      "start_ticks": null,
+      "name": "test_driver",
+      "alive": false
+    }
+  ],
+  "all_owned_handles_terminal": true,
+  "handle_note": "Controller PID/start exact; child PIDs observed by house resources, absent/terminal at actual-host closure, start ticks not recorded.",
+  "pins_verified": true,
+  "pin_count": 1764,
+  "changed_pins": [],
+  "complete_case_records": 114,
+  "cases_per_rank": 57,
+  "failed_case_records": 3,
+  "failed_assertion_records": 19,
+  "status": {
+    "state": "terminal",
+    "exit_code": 9,
+    "seconds": 14.745596885681152,
+    "pins_verified": true,
+    "changed": [],
+    "largest_sampled_individual_process_rss_bytes": 53821440,
+    "rss_note": "sampled process RSS; not a whole-job peak"
+  }
+}

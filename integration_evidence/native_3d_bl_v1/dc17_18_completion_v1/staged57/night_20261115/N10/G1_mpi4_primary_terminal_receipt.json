@@ -1,0 +1,72 @@
+{
+  "actual_host_proc": true,
+  "verified_unix": 1794836127.5908554,
+  "identities": [
+    {
+      "pid": 11888,
+      "start_ticks": 32835928,
+      "name": "controller",
+      "alive": false
+    },
+    {
+      "pid": 12016,
+      "start_ticks": null,
+      "name": "nice",
+      "alive": false
+    },
+    {
+      "pid": 12017,
+      "start_ticks": null,
+      "name": "timeout",
+      "alive": false
+    },
+    {
+      "pid": 12018,
+      "start_ticks": null,
+      "name": "mpirun",
+      "alive": false
+    },
+    {
+      "pid": 12024,
+      "start_ticks": null,
+      "name": "test_driver",
+      "alive": false
+    },
+    {
+      "pid": 12023,
+      "start_ticks": null,
+      "name": "test_driver",
+      "alive": false
+    },
+    {
+      "pid": 12022,
+      "start_ticks": null,
+      "name": "test_driver",
+      "alive": false
+    },
+    {
+      "pid": 12021,
+      "start_ticks": null,
+      "name": "test_driver",
+      "alive": false
+    }
+  ],
+  "all_owned_handles_terminal": true,
+  "handle_note": "Controller PID/start exact; child PIDs observed by house resources, absent/terminal at actual-host closure, start ticks not captured.",
+  "pins_verified": true,
+  "pin_count": 1764,
+  "changed_pins": [],
+  "complete_case_records": 228,
+  "cases_per_rank": 57,
+  "failed_case_records": 5,
+  "failed_assertion_records": 37,
+  "status": {
+    "state": "terminal",
+    "exit_code": 9,
+    "seconds": 15.75626277923584,
+    "pins_verified": true,
+    "changed": [],
+    "largest_sampled_individual_process_rss_bytes": 73560064,
+    "rss_note": "sampled process RSS; not a whole-job peak"
+  }
+}

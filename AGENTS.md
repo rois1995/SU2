@@ -1,3 +1,142 @@
+User order, 2026-11-16 (LATEST addition): section6.7, N12/M24 print-only with N8 A2/A3; do not implement8.5.
+
+### 6.7 One more print-only measurement: M24, the lane census (2026-11-16, 15:00)
+
+Purpose: design step 8.5 (not accepted, do not implement it). The reviewer needs one
+number to write its text: which share of the quality work a rank could do alone.
+Text: D section 5.11 and row M24 of D section 9 (D revision 2.2; copy it with its
+SHA256).
+
+Item N12. Do it in ONE build with N8 parts A2 and A3 (all three are print only), with
+the same gates and the same full two-event run. No extra run.
+
+1. Where: the private loop of a round, for each slot that reaches `evaluate_candidate`,
+   in the quality stage and in the construction stage. Under `options.timings` only.
+2. Class of the slot, from data that the slot has already:
+   - `local` = each `dependencies.cells[i].owner` is this rank;
+   - `wall` = one or more `imported.cells[i].physical` facets are bound.
+   Four classes: local / shared x interior / wall.
+3. For each class and stage: trials, approved patches, commits, busy seconds of the
+   slot (the clock that the private loop has), optimizer work.
+4. For the commits of each class: the count with `SameSkin(old, fresh)` true, the count
+   with no parameter edit, the count with an empty coverage delta. Compute `SameSkin`
+   for this only where the code does not compute it already; its result must not be
+   read by a decision.
+5. Print at the stage exit, one line for each rank, stage and class:
+   `NATIVE3D_LANE_CENSUS rank= stage= class= trials= approved= commits= seconds= work= same_skin= no_parameter_edits= no_coverage=`.
+   The sums over the classes must agree with the ladder counters that exist.
+6. Gates: identical results. G1, G2 and GQ with all old integer rows equal, G3 by rule
+   1 of 6.6, G4, and the full run of N8 with its six files equal to the references.
+7. Report: one table for each event (6 ranks x 2 stages x 4 classes), and the share of
+   the busy seconds and of the commits in the class local + interior.
+
+
+User order, 2026-11-16 (LATEST): NIGHT_WORK_ORDER.md section6.6, wins over6.5/I/C where different. Do not stop a running job.
+
+### 6.6 Correction of 2026-11-16, 14:50 (reviewer errors; this section wins over 6.5, over I and over C where they differ)
+
+Facts, from your evidence (`R/night_20261115/N9/R5_diagnosis.json`, `REPORT.md`,
+`B0_table.md`):
+
+- The G3 fixture has two clock inputs. The observer before `PrepareSurface` runs for
+  30 s and copies its work into the shared atlas budget
+  (`UnitTests/SU2_CFD/adaptation/fixtures/native_actual_surface_target_observation.inc:18`),
+  and the stage has 388.8 s. Three runs with identical decisions gave 473, 486 and 459
+  splits. So the gate "all old integer rows of G3 equal" cannot hold. This gate text was
+  an error of the reviewer. N9 did what its text asks: 459 common edits identical, entry
+  work minus observer work 5,113 in both runs, counter sums agree. Your revert followed
+  the written gate; it was correct to do it.
+- N9 table: the guidance check rejected 1,180 of 1,437 trials (82 %) for choices of the
+  geometry queue and 10 of 217 (5 %) for choices of the size queue. Cause `incomplete`
+  1,187 times: `GeometryGuidanceExcess` stops at the limit `before`, that is, the new
+  wall faces have more summed excess than the old ones. Cause `no_progress` 3 times.
+- 865 of the 912 operator refusals have the label `other_geometry` and the class
+  `other`. So their cause is still not known.
+- 3,508 of 4,737 selected choices are `deferred` before a trial.
+
+1. Gate G3, for all items and for C, from now:
+   (a) Physical part, as before: all private cells positive with sensors, zero upper
+       refinements, the modeled storage and the job peak inside their limits, at least
+       336 splits, the first 336 edits identical to the P6c reference.
+   (b) Identity part, for an item with "identical results": the accepted edits (edge and
+       point of each edit) are identical to those of the G3 reference run, up to the
+       smaller accepted count of the two runs; and `entry atlas_work` minus the observer
+       work is equal in the two runs.
+   (c) All other integer rows of G3 (entry `atlas_work`, rounds, split count, exit
+       counters) are a report beside the reference. They are not a gate.
+   The G3 reference run is the C492 run of section 6.1 (486 splits). G1, G2, GQ, G4 and
+   G5 do not change. If you find a clock input in one of them, report it; do not change
+   the gate.
+
+2. N9 again, before the next production edit of another item.
+   - Put back the three production paths of `bd709cb4c1` on the newest accepted commit.
+   - One addition, print only: for each guarded trial that an OPERATOR refuses (origin
+     not `Guidance`), count the distinct texts of `result.reason`. A fixed array of 16
+     entries (the first 96 characters of the text, and a count) and one count `more`.
+     Print at the stage exit: `NATIVE3D_WALL_REASON text="..." count=`. No decision reads
+     it. The sum of the counts must be the count of operator refusals (912 in the table).
+   - Gates: build; G3 by rule 1 (one run); G2. Report the B0 table again with the new
+     rows. Then N9 is PASSED.
+
+3. New order: N9 (item 2) -> N8 part A1 only (the law) -> N11 (B2) -> N10 (B1, with the
+   new text of item 5) -> N8 parts A2 and A3 -> 6.3 -> N6 -> N7.
+   - The G1 reference that you record now on the accepted base stays the G1 reference
+     for these items.
+   - If a production edit of B1 with the OLD text exists when you read this: do not
+     judge it. Let a live job end, keep its numbers as "B1, old text, not judged", put
+     the production paths back to the accepted base in one commit, and follow this order.
+   Reason of the order: the 82 % against 5 % (facts above). Reading of the reviewer (I,
+   N11 tests it): the geometry queue gives the score of a failing face to its edges by
+   their length. So it splits the longest edge, also when the curvature is along another
+   edge. The two new faces then keep the error, the summed excess is twice as large, and
+   the guidance check rejects the split. For such a split the check is right. B1 with
+   the old text would accept these splits. So B2 comes first, with the check in place.
+
+4. N11 (B2): the text of I part B2 does not change. Its gates: I "Gates of B1 and B2"
+   items 1, 2, 4 and 5 as written; item 3 is replaced by:
+   - the G3 fixture two times; validity as in rule 1 (a); the two runs have the same
+     edits up to the smaller of their accepted counts;
+   - purpose: in BOTH runs, for the choices of the geometry queue, (rejections of the
+     guidance check) / (guidance trials) is below 0.70. The reference is 0.82
+     (1,180 / 1,437; two older runs differ by 0.003 for all queues together). If it is
+     not below 0.70: the reading of item 3 is wrong. Keep the numbers, revert B2 in one
+     commit (R5, cause in the proposal), do NOT do N10, and go on with N8 A2 / A3;
+   - report beside the N9 table: all B0 rows, `law_weighted_faces`,
+     `law_fallback_faces`, accepted splits for each queue, rounds, measured cells, exit
+     `geometry_bad`, `size_bad`, `geometry_debt`, `size_debt`. The exit rows depend on
+     the clock; they are a report.
+
+5. N10 (B1), new text of item 1 of I part B1. `geometric_change` is not called when all
+   of these are true: the `Adapt` call has a surface target; the trial is an edge split;
+   it is not a coarsening and not a repair; and
+   - the edge comes from the size queue, or
+   - the edge comes from the geometry queue, the estimate of A1 is supported for this
+     edge, and `EstimateSaysNeed` is true for it.
+   In each other case the guidance check runs as today. Items 2 to 5 of I part B1 stay.
+   Counters: `wall_splits_without_guidance` for each of the two queues, and
+   `wall_splits_with_guidance`.
+   Gates of N10: I "Gates of B1 and B2" items 1, 2, 4 and 5 as written; item 3 is:
+   - the G3 fixture two times; validity as in rule 1 (a); the same edits up to the
+     smaller count;
+   - purpose: in BOTH runs the accepted count at the exit is at least 1.10 times the
+     larger accepted count of the two N11 runs. If not: keep the numbers, revert B1 in
+     one commit (B2 stays), go on;
+   - report: the list of item 4, `guidance_seconds`, `upper_seconds`, and for the splits
+     without the guidance check: how many of their new wall faces fail the exact
+     measure in `Selection::Add`.
+   The G3 runs of the last passed item are the G3 reference for the items after it.
+
+6. The gate texts that this section replaces: I part A "Gates of part A" (G3 by rule
+   1); I part B0 "Gate" (G3 by rule 1, G2); I "Gates of B1 and B2" item 3 (items 4 and 5
+   above); C section 2, row G3 (rule 1). The old purpose rule "`geometry_bad + size_bad`
+   below 7,984" is withdrawn: the exit counts depend on the clock, and a split of one
+   failing face can give two smaller failing faces before the error is inside the
+   tolerance.
+
+7. Not a task now, for the report only: the 3,508 `deferred` choices. The reviewer
+   writes a text for them after the N9 reason counts and the N11 numbers.
+
+
 User order, 2026-11-16 (LATEST): section 6.5 and R1 clarification
 
 ### 6.5 Design steps 8.3 and 8.4 (first part), accepted by the user on 2026-11-16

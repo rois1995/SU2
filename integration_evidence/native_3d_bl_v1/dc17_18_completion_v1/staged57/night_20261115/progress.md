@@ -11,12 +11,13 @@ Updated 2026-11-15. Latest order: NIGHT_WORK_ORDER.md (SHA-sealed input_manifest
 | N5 all design measurements | PASSED; unavailable rows qualified | build521; G2/GQ exact integers; clean full all6P6c/standing gates; native2581.0285/1907.4990s, SUMpeaks13952311296/17729433600B | seal measurement table/checkpoint, then6.1 |
 | N6 further identical cuts | NOT STARTED | requirescompletedN4+G5 | Remesh,MeshOptimizer,Selection |
 | N7 morning report | NOT STARTED | always | finalclose/terminalhandles |
-| N9 wall counters | FAILED G3; production reverted | entryatlaswork11497909!=10631585;459vs486splits;physicalPASS | G2notstarted; independentN10 |
-| N10 needed wall split | NOT STARTED | afterN9; independent ifN9fails | I.B1 |
+| N9 wall counters | 6.6 RESTORED; build529 active | oldgatefailure/revert historical; newreasonfixturePASS | correctedG3once→G2 |
+| N10 needed wall split | NOT STARTED, oldtextsuperseded | afterPASSEDN11; section6.6.5 | A1-qualifiedbypass/newaccepted-countgate |
 | N11 law-directed edge | NOT STARTED | needsN8A1 first | I.B2 |
-| N8 geometry law/requirements/M6b | NOT STARTED | A1beforeN11; remainingafterN11 | I.A |
+| N8 geometry law/requirements/M6b | NOT STARTED | A1afterN9beforeN11; A2/A3afterconditionalN10 | I.A+6.6 |
+| N12 lane census M24 | NOT STARTED | ONEbuild/fullrunwithN8A2/A3 | 6.7/D2.2;NO8.5 |
 
-Current job: N10 G1 accepted-base SERIAL REFERENCE LIVE controller4147187/start32707644, byte-identical528test6de. 375publiccases, CatchXML, helper5400s ceiling replaces truncatedold600s; existingfailedassertions remainreferenceevidence. NO N10productionedit. ALLcompiledsources/run_g1_reference.py/G1selectionJSONFROZEN. FinishSAMEcohort, parsecompletecases/failures/terminalseal, thenMPI2/4reference; onlythenB1edit/checks.
+Current job: NONE after N9section6.6 build529PASSED100.145415s,13actual-host IDs terminal/all1562pinsunchanged. CandidateCFD27d1f799a0bd/testc803ce1f2269. CPP/529buildhelper remainFROZENfornextG3/G2; newG3launcherreviewpending. SharedG1baselinecomplete375serial/57perrank2/4 underN10. NextONEcorrectedG3→G2→N8A1→N11→conditionalnewN10→N8A2/A3+N12ONEbuild/full→6.3→N6→N7. No8.5.
 
 R5 governs resultfailures: preservefirstnumber; one<=60min readonlydiagnosis; onlytranscription/wiringagainstwrittenproposal permitsonecorrection+onefailedcheckrepeat; else revertitem, markFAILED andcontinueindependentnextitem. R3ownharnessrepairs<=90min each, no gate/productionchanges. Do not implementdesign8.3-8.7,A5/B5 or job-derivedquota.
 
@@ -261,3 +262,11 @@ N9G3FAILEDoldintegers;physical/first336PASS459splits/304981positivecells,547.162
 N9revert0acacc8cc8PUSHED. N10inputsNight/I/D/C/Harchived+SHA, Ireadcompletelyatitemstart. Accepted-baserebuild528PASSED100.756728s/all1561pinsunchanged/17actualhostownedIDsterminal; CFD949/test6deexactaccepted522. G1actualLIST-ONLY375serial/57MPI hashsets matcholdN4. No numericalG1/prodedit yet; ownnewG1helperdraft setupissues beingcorrected beforeanylaunch.
 
 N10G1serialreferenceLIVE4147187/start32707644 via minimalrun_g1_reference.py; no candidate/prodedit. OwnlargeG1draft had stalebuildmetadata/aliasreuse/state/XMLsource-location setup defects foundbeforelaunch; preserveddraftcorrectingseparately. Actualserial/MPI375/57listsetsverified. Run_g1_reference selfcheckPASS; sourceonly housewrappertimeout5400/XML/perrankoutputflags, alltestfilters/assertions/runtimepinsunchanged. Actualhost noownedheavyjob/RAM37083404KiB/load2.81; usercodeCPUobservationonly.
+
+LATESTUSERORDER6.6 readCOMPLETELYbeforeanynewproductionedit; fullNight archivedN9/section6_6/inputs+SHA, section6.6copiedtopAGENTS. SAMEG1serialreference4147187/4147402continuesUNTOUCHED. No oldB1productioneditexists. G1accepted-basereferencebeingrecordedstaysreferencefortheseitems. Newsequence finishcurrentG1reference→restoreN9bd709threepaths+16x96reasontexts/more→build/G3correctedcommonprefixandentryminus30sobserverwork/G2→N8A1→N11B2geometryqueueguidancerejectratio<.70both→conditionalN10newA1-qualifiedbypassandacceptedcount>=1.10maxN11both→N8A2/A3→6.3→N6→N7. OldG3allintegergate andpurpose7984withdrawn; physicalG3incl>=336/first336P6cstillstrict. Allothergatesunchanged.
+
+Latest6.7readCOMPLETELY:N12/M24lane-censusprintonlyjoinsONEbuildandSAMEfullrunofN8A2/A3; NOextra run/NO8.5implementation. NightandDrev2.2copiedN12/inputs+SHA, section6.7addedtopAGENTS. CurrentG1all3referencecohortsnumericallyterminal; finalsharedreferenceexport/checkpointpending; N9threepathsrestoredper6.6, reasonadditionunderreview, no newbuild/numericaljob.
+
+SharedG1accepted-base528REFERENCECOMPLETE:serial375cases/9failedcases/24failedexpressions792.252073s; MPI2=57perrank/3failedcaserecords/19failedassertions14.745597s; MPI4=57perrank/5failedcaserecords/37failedassertions15.756263s. All3actualhostterminal/source-runtime-inputpinsunchangedatclosure. G1_shared_reference_manifest andfullpercaseJSONs/failed-baseunitstableunderN10. No test/tolerancechanged; candidateidentitynotyetjudged. N9newwholeitemsourcecheck6.6writtenbefore3pathrestore, reasonadditionfixturePASS0.504s, build529LIVE34302/start32883286. Latest6.7N12joinslaterA2/A3samebuild/full;NO8.5.
+
+N9section6.6build529PASSED100.145415s/6actions,13actualhostbuildIDsterminal/all1562pinsunchanged,CFD27d1f799a0bd/testc803ce1f2269. ReasonfixturePASS0.504s. CPPfrozen; newcorrectedG3/G2helpersunderreviewbeforeoneC492numericalrun. SharedG1referenceallcohortscompleteasabove, unitfailurespreserved. Latestsection6.7andD2.2archivedN12/inputs+SHA;M24joinslaterA2/A3ONEbuild/full,NO8.5.
