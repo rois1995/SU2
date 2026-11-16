@@ -1,5 +1,5 @@
 {
-  "state": "R5_units_repeat_running",
+  "state": "units_passed_first_collapse_running",
   "base_accepted_N1": "429c6c1a60",
   "implementation_checkpoint": "e945675cba",
   "accepted": false,
@@ -13,11 +13,18 @@
   "CFD_sha256": "d71d297fd9699182e02528240bbf85245365efaac9c6570d3969c3a94fb5ba4a",
   "test_sha256": "1ea277d0442f0f490005524ef5107d1c9181ebcfe2860986d1e44c6c0232c5b2",
   "controller": {
-    "pid": 3823449,
-    "start_ticks": 31991887
+    "pid": 3836441,
+    "start_ticks": 32022172
   },
-  "current_case": "cases/section6_2_units_serial_20261116T110603_3802953",
+  "current_case": "first_collapse",
   "build525": "PASSED",
   "failed_unit_build524": true,
-  "R5_units_repeat_count": 1
+  "R5_units_repeat_count": 1,
+  "units_serial_cases": 51,
+  "units_serial_assertions": 1903,
+  "units_serial_seconds": 130.17598271369934,
+  "application": {
+    "pid": 3836625,
+    "start_ticks": 32022594
+  }
 }

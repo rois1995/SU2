@@ -48,6 +48,10 @@
     {
       "cause": "Copied extra manifest named only6.1wrappers, and core expected purpose-local checker paths absent from initial helper set.",
       "correction": "Create relative checker links with byte-identical targets and hash all active6.2wrappers plus reusedcore in new extra manifest before any prefix/full. No numerical rerun."
+    },
+    {
+      "cause": "Primary launch snippet called nonexistent preflight instead of the reviewed host_preflight. Failed before numerical launch; no prefix case existed.",
+      "correction": "Use existing host_preflight, verify conflict/RAM receipts, and launch once. No production/gate/rebuild/numerical repeat."
     }
   ]
 }
