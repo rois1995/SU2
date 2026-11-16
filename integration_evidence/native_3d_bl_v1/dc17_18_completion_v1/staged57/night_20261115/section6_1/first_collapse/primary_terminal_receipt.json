@@ -1,0 +1,117 @@
+{
+  "actual_host_proc": true,
+  "all_owned_handles_terminal": true,
+  "identities": [
+    {
+      "pid": 3312676,
+      "state": "S",
+      "ppid": 3312586,
+      "pgid": 3312676,
+      "sid": 3312676,
+      "start_ticks": 30859561,
+      "comm": "time",
+      "alive": false
+    },
+    {
+      "pid": 3312677,
+      "state": "S",
+      "ppid": 3312676,
+      "pgid": 3312677,
+      "sid": 3312676,
+      "start_ticks": 30859561,
+      "comm": "timeout",
+      "alive": false
+    },
+    {
+      "pid": 3312678,
+      "state": "S",
+      "ppid": 3312677,
+      "pgid": 3312677,
+      "sid": 3312676,
+      "start_ticks": 30859561,
+      "comm": "mpirun",
+      "alive": false
+    },
+    {
+      "pid": 3312681,
+      "state": "R",
+      "ppid": 3312678,
+      "pgid": 3312681,
+      "sid": 3312676,
+      "start_ticks": 30859564,
+      "comm": "SU2_CFD",
+      "alive": false
+    },
+    {
+      "pid": 3312682,
+      "state": "R",
+      "ppid": 3312678,
+      "pgid": 3312682,
+      "sid": 3312676,
+      "start_ticks": 30859564,
+      "comm": "SU2_CFD",
+      "alive": false
+    },
+    {
+      "pid": 3312683,
+      "state": "R",
+      "ppid": 3312678,
+      "pgid": 3312683,
+      "sid": 3312676,
+      "start_ticks": 30859564,
+      "comm": "SU2_CFD",
+      "alive": false
+    },
+    {
+      "pid": 3312684,
+      "state": "R",
+      "ppid": 3312678,
+      "pgid": 3312684,
+      "sid": 3312676,
+      "start_ticks": 30859564,
+      "comm": "SU2_CFD",
+      "alive": false
+    },
+    {
+      "pid": 3312685,
+      "state": "R",
+      "ppid": 3312678,
+      "pgid": 3312685,
+      "sid": 3312676,
+      "start_ticks": 30859564,
+      "comm": "SU2_CFD",
+      "alive": false
+    },
+    {
+      "pid": 3312687,
+      "state": "R",
+      "ppid": 3312678,
+      "pgid": 3312687,
+      "sid": 3312676,
+      "start_ticks": 30859564,
+      "comm": "SU2_CFD",
+      "alive": false
+    },
+    {
+      "pid": 3312586,
+      "start_ticks": 30859284,
+      "pgid": 3312586,
+      "durably_detached": true,
+      "helper_sha256": "4a6381c4e6b5d91b007ade0ad079aef052d70e1e5b6345e391b1a5aa52eb81f0",
+      "alive": false
+    }
+  ],
+  "passed": true,
+  "exact_collapse_work": 90809869,
+  "counts": [
+    480,
+    473,
+    346,
+    263,
+    469,
+    464
+  ],
+  "additional_construction_guard_passed": true,
+  "max_reported_exact_six_worker_peak_sum_bytes": 7882035200,
+  "limit_bytes": 19999490048
+}
