@@ -49,6 +49,9 @@ def patched_controller():
         '    launch = host_snapshot()\n'
         '    available_kib = int(launch["MemAvailable"].split()[1])\n'
         '    assert available_kib >= 19073 * 1024, "free RAM below unchanged 19073 MiB job cap"\n'
+        '')
+    source = patch_once(source, '    case.mkdir(parents=True)\n',
+        '    case.mkdir(parents=True)\n'
         '    save(case / "launch_preflight.json", {"gate": gate, "host": launch,\n'
         '         "free_ram_at_least_job_cap": True, "max_job_peak_rss_bytes": MAX_JOB_PEAK_RSS})\n')
     source = source.replace('PURPOSE / "source_check.md"', 'GROUP / "source_check.md"')

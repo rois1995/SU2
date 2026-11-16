@@ -1,0 +1,34 @@
+# Section6.8 combined N8 A1/A2/A3/N12 and wall diagnostics
+
+DRAFT — group validation is pending. Candidate9a82231de1 is pushed; newest accepted production remains N9 section6.6 (9867041a2e). No running job was stopped. Complete latest Night order copied with SHA836173151939978d53310f24dd90b0ce78fc11de67014b72d551dc55eeb389a0 and section6.8 copied verbatim to AGENTS. The full533workflow had not started, so the exception does not apply.
+
+A1 restored over retained A2/A3/N12 using strict arithmetic and existing Census scopes. Timer enum/layout unchanged; focused assertion confirms Session4120. Item4 folds digit runs AFTER taking first96reasoncharacters, retains16buckets+more, and splits three raw frame operators from residual other_geometry. Only raw operator calls are timed, enabled only with observations; original guard decisions/reasons/exceptions remain.
+
+| Ordered step | State | Evidence / numbers |
+|---|---|---|
+| Whole connected source check | COMPLETE before edits | [one consolidated list](source_check.md); print-only scope/population readings retained |
+| Build534 | PASSED |110.165477s/7actions;1588pins unchanged;16actual-host identities terminal; [status](build534/build_status.json) |
+| Focused units | PASSED |78assertions/8cases: requirements21/1, lane21/3, law10/1, diagnostics26/3; [summary](focused_unit_summary.json) |
+| Three geometry CSV/M1 checks | PASSED |[new strict law references](strict_law_reference_payloads.json) |
+| M6b | PASSED |89.293548s;all82559projected/0refusals/0unvisited; [summary](M6b_summary.json) |
+| G1 | PASSED |375serial/57perrankMPI2/4,0changedcases,baseline24/19/37identical;839.004931/15.181993/20.688848controllerseconds;all4/6/8trackedIDs terminal |
+| G2 / GQ | G2 RUNNING;GQ NOT STARTED |Exact Census sum addition only; all other old integer/call/modeled-byte fields strict |
+| G3 | NOT STARTED |6.6physical/common edit prefix/observer-adjusted entry; other clock counts report-only |
+| G4 / safeguards | NOT STARTED |Original gates preserved |
+| Full two-event workflow | NOT STARTED |ONE run after prior checks; six accepted N1 hashes and all standing gates |
+
+| Geometry fixture | Rows | Need edges | Seconds | Max relative score difference | Limiting-side changes A/B (union) |
+|---|---:|---:|---:|---:|---:|
+|euler293|82559|7521|406.185265|3.95997742e-08|298/296 (592)|
+|saved492|59884|6759|324.611737|2.45864689e-08|398/343 (738)|
+|euler_input_decode12|58305|4368|29.267995|6.27683972e-13|2712/3164 (5712)|
+
+All row order, exact flags/tau/threshold/support fields, seven M1 integer fields and the stated score bound passed. Limiting-side changes are report-only. Newrun CSV files (not the historical failed A1 run) are the strict-arithmetic law references.
+
+M6b raw shell signs: Wing164931faces =37841positive +8zero +127082negative; other773 =199positive +0zero +574negative. These are raw triangle Orientation signs, not an inside/outside or accepted-mesh theorem. Atlaswork18452454, modeledpeak8434457960B <12884901888B; serial qualified RSS2995286016B is max(GNU maximum-child RSS, observed rank VmHWM), not a claimed whole-tree sum. No split/publication occurred.
+
+Own helper/setup corrections are preserved in [primary focused corrections](focused_helper_primary_corrections.json), [retarget notes](validation/retarget_notes.md), inherited [A2/A3/N12 setup ledger](../own_helper_corrections.json), and the helper self-check receipts. New runner initially missed the N5 import path and inherited pt2pt setup; both corrected before any relevant launch. A launch snippet used shorthand descriptor filenames; it asserted before any test process started and was corrected to generated case names. Timer comparator required exact G2/GQ per-rank line cutoffs, all-root final resets, and a consistently named fallback; synthetic and accepted-reference selfchecks now cover them. Prefix helper retargets needed post-exec globals and real input/source-check paths; old-path edits were persisted to the current directory before use. Full/G3 helper corrections keep the actual CFD hash, current accepted N9 B0 baseline, all non-Guidance reason denominator, and timestamp-fragment parsing. No production gate/tolerance was changed for a helper.
+
+Next after group acceptance: N11(B2), then N10 only if N11passes, then6.3cut,N6,N7. No8.5 or BL/RANS capability claim.
+
+G2 prelaunch R3 correction: preflight receipt save was injected before fresh case.mkdir. First attempt failed with no directory and no solver launched; moved save after existing mkdir and retried helper. No production/gate/tolerance change. G1 is unaffected: its relevant script/parser/selection/build remain unchanged; its older readiness snapshot included the then-unused prefix helper and is reconstructible from9a82231de1.

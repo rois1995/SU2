@@ -1,17 +1,38 @@
 {
-  "state": "BUILD534_PASSED_ORDERED_UNITS_NEXT",
-  "build": {
-    "state": "terminal",
-    "exit_code": 0,
-    "seconds": 110.16547703742981,
-    "pins_verified": true,
-    "changed": [],
-    "binary": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-p5-20261114/SU2_CFD/src/SU2_CFD",
-    "test_binary": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-p5-20261114/UnitTests/test_driver",
-    "binary_sha256": "a144d90cdc50b6ca5d77e23f929294c271a7c15628b28136b65303f15e4083b1",
-    "test_binary_sha256": "b5fb04ffd903d94357467a35d8adc5e9c3ce32ce5dd562bd2539f55aa66f52f3"
-  },
+  "state": "G2_RUNNING",
   "whole_group_accepted": false,
-  "next": "focused law/requirements/lane/diagnostic units then three CSV fixtures",
-  "updated_unix": 1794847779.4055076
+  "candidate_checkpoint": "9a82231de1",
+  "newest_accepted_base": "9867041a2e",
+  "build": "build534",
+  "passed": [
+    "build",
+    "four_focused_unit_groups",
+    "three_corrected_CSV_checks",
+    "M6b",
+    "G1_serial_identity",
+    "G1_mpi2_identity",
+    "G1_mpi4_identity"
+  ],
+  "active_case": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N8/A2_A3_N12/section6_8/validation/cases/G2_534",
+  "active_tool_session": 37346,
+  "owned_identity_receipt": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N8/A2_A3_N12/section6_8/validation/G1_serial_live_owned_identities.json",
+  "next": [
+    "G1_mpi2",
+    "G1_mpi4",
+    "G2",
+    "GQ",
+    "G3_6_6",
+    "G4_2d1_2_4",
+    "safeguards",
+    "one_full_two_event_run"
+  ],
+  "source_frozen": true,
+  "updated_unix": 1794850308.993634,
+  "post_group": [
+    "N11",
+    "N10_if_N11_passes",
+    "6.3",
+    "N6",
+    "N7"
+  ]
 }
