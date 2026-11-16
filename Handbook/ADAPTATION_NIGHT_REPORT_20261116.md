@@ -1,6 +1,6 @@
 # Unattended adaptation work, 2026-11-16
 
-DRAFT — ordered work continues; N7 is not final. The combined section6.8 group has passed build534, all four focused unit groups (78 assertions in eight cases), the three corrected CSV checks, M6b, G1 at serial/MPI2/MPI4, and G2 strict identity. GQ is running; no full534 two-event run has started. The group is not accepted. Latest pushed checkpoint836ca18d27 records G2. See [current group report](../integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N8/A2_A3_N12/section6_8/REPORT.md) for the ordered table, references and helper corrections.
+DRAFT — ordered work continues; N7 is not final. The combined section6.8 group passed build534, four focused unit groups (78 assertions/eight cases), three corrected CSV checks, M6b, G1 identity at serial/MPI2/MPI4, G2/GQ strict identity, corrected G3, G4 and all saved-state safeguards. ONE full two-event workflow is running (tool21791/controller891010), followed by isolated disk restart. The group is not accepted. Latest pushed checkpoint1b1a47e8b8 records the passed safeguards and live launch. See [current group report](../integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N8/A2_A3_N12/section6_8/REPORT.md).
 
 Accepted production remains N9 section6.6 (`9867041a2e`, source `c8f524b2a1`). Historical failures and reverts stay in the table below. Section6.8 reopens A1 in the combined group: strict arithmetic, existing Census operation, unchanged Session size4120, digit-run reason keys and three raw frame operator classes. After this group: N11, N10 only if N11 passes, then6.3, N6 and N7. No design8.5 or BL/RANS capability claim. The shared executable is candidate534, not the accepted N9 binary.
 
@@ -28,10 +28,10 @@ The latest unattended section2 is in AGENTS.md; no user/reviewer answer was requ
 | SharedG1 reference | PASSED (recorded existing failures) |9867041a2e|375serial/57perrank MPI2/4;24/19/37failedexpressions,792.252073/14.745597/15.756263s. N10/G1_shared_reference_manifest.json |
 | Historical N8 A1 old gate | FAILED (correctly reverted;6.8reopens) |candidateeb6d94042c; reverted03fffc52e8|Build532470.250586s/1565pins/130terminalIDs; API10assertionsPASS; Euler293CSVfirstline3score0.00013363402603001954→0.00013363402603001952,need7521same; no later checks. N8/A1/REPORT.md |
 | N11 / N10 | NOT STARTED |—|Await combined6.8group acceptance; N11readonlydraft prepared, N10needs passedN11. |
-| N8 combined6.8 | VALIDATION PENDING |836ca18d27|Build534/4unitgroups/3CSV/M6b/G1/G2 PASSED; GQ running, later/full gates pending. section6_8 evidence. |
+| N8 combined6.8 | VALIDATION PENDING |1b1a47e8b8|All ordered prerequisites PASSED including GQ/G3/G4/safeguards; ONE full workflow running, isolatedrestart pending. section6_8 evidence. |
 | N8 G1 candidate | PASSED identity |7938b89495|375 serial/57 per rank at MPI2/4, zero changed cases; baseline failed-expression counts24/19/37. Controller seconds839.004931/15.181993/20.688848;4/6/8 terminal identities. |
 | N8 G2 candidate | PASSED identity |836ca18d27|Work90,809,869 and all six counts exact; all old integers/bytes/non-Census calls exact;12 timer snapshots satisfy Census sum rule for6 law lines.398.804320s until planned stop/408.513817s sealed. One solver run; postprocessing repaired underR3. |
-| N8 A2/A3 + N12 | NOT STARTED production |—|Whole sourcecheck in progress; ONE combined build/full; print-only, no8.5. |
+| N8 A2/A3 + N12 | IMPLEMENTED, group pending |3a5d331e37|Passive requirements/lane census; build534 all ordered prerequisites pass; shares current ONE full run; no8.5. |
 | N7 final closure | NOT STARTED |—|This remains a draft until ordered work ends.|
 
 ## Failed items and reversions

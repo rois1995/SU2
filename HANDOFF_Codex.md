@@ -1,6 +1,6 @@
 # Native adaptation — current handoff
 
-Updated 2026-11-16, Europe/Rome. **Section6.8 combined A1/A2/A3/N12/item4 is in validation. G3, G4 and merit481 passed; saved481 checkpoint setup is being repaired; no owned heavy job is running and the group is not accepted.** Newest accepted production remains N9 section6.6 (`9867041a2e`, production `c8f524b2a1`) atop accepted N1/P7/P8. The shared executable is candidate build534.
+Updated 2026-11-16, Europe/Rome. **Section6.8 combined A1/A2/A3/N12/item4 is in validation. All ordered prerequisites passed; ONE full two-event run is active and the group is not accepted.** Newest accepted production remains N9 section6.6 (`9867041a2e`, production `c8f524b2a1`) atop accepted N1/P7/P8. The shared executable is candidate build534.
 
 R = `integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57`.
 Current campaign T = `R/night_20261115/N8/A2_A3_N12/section6_8`.
@@ -14,7 +14,7 @@ Reviewable checkpoints through836ca18d27 are pushed;823b57a209 records the passe
 
 Build: `integration_evidence/build-integrated-v3-p5-20261114`; exact binary/helper/config pins and terminal build receipts under `T/build534`. CFDsha a144d90cdc50b6ca5d77e23f929294c271a7c15628b28136b65303f15e4083b1; testsha b5fb04ffd903d94357467a35d8adc5e9c3ce32ce5dd562bd2539f55aa66f52f3. A1 uses existing Census operation; Session4120. A2 requirements and N12 lane observations remain passive. Item4 folds digit runs after taking first96reasoncharacters and reports three raw frame operators. No8.5.
 
-GQ passed all old integers and18timer snapshots with exact6law-call additions after a reader-only cutoff repair; one solver run. Next, in order: finish G3 by6.6; G4(2D1/2/4); 481/current-target safeguards; ONE full two-event run with six accepted N1 hashes and all standing physical/resource/timer/transfer/restart gates. Then N11(B2), N10 only ifN11passes, fresh6.3cut references/cut, N6, N7. `N11/section6_8_preparation/source_check.md` is a read-only draft, not implementation acceptance. R5/6.8failure handling reverts only the named part; own fixtures/helpers useR3. No reviewer questions/waits.
+GQ passed all old integers and18timer snapshots with exact6law-call additions after a reader-only cutoff repair; one solver run. G3passed384common edits/adjustedentry5113/first336P6c and physical gates; G4 and saved safeguards passed. Legacy saved481 target441 was rejected at loading; R3 bound qualified current-format492 from the same frozen CFD/geometry/config/stage, explicitly a different recomputed metric field. All assertions/gates unchanged. Current full run is next judged on all standing gates and six accepted N1 hashes, then isolated disk restart. Then N11(B2), N10 only ifN11passes, fresh6.3cut references/cut, N6, N7. `N11/section6_8_preparation/source_check.md` remains a preparatory inventory. R5/6.8 failure handling reverts only the named part; no questions/waits.
 
 Accepted N1 references: `R/night_20261115/section6_1/accepted_reference_payloads.json` (event1P6c/event2P7). FullN1native2161.697077/1634.828953s; SUMprocess peaks14,028,087,296/17,349,582,848B; all standing gates and isolated restart passed. B7failed C492modeled13,061,193,021B>12GiB and was reverted9831c787e7; leave out. N3source review and N5measurements are complete with their recorded scope limits. No accepted BL mesh or RANS capability is claimed.
 

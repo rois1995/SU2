@@ -1,0 +1,9 @@
+# Primary preparation notes; no N11 production edit or acceptance
+
+Latest6.9 supersedes the first336/atleast336 conditions ONLY for N11/N10, not running6.8. The whole source check still precedes production edits after group acceptance. Preserve both the reviewer partial373/974of1169 and qualified complete384/995of1197 G3 references. B2 and exit-only law census plus four-source validation counters belong in one build. All three joint operators retain decisions.
+
+Source review: Selection::Add aggregates exact finite failing-face contribution `(error-tau)^2 * length_squared`; multiply by squared normalized law estimate for all3supported/maxpositive, otherwise old factor1 for all3. Only surface_planning. Face counters count census encounters, not unique physical faces; reseeding/migration can repeat them. Queue accepted split attribution belongs with existing actual committed length_splits (not inferred from guidance approval); preserve original totals. Do not add job-derived quota or operator redesign.
+
+N11 timer draft must use both-side law-line deltas from the existing Session-scoped parser and its physical stream cutoff before strict old-row comparison. Root found early draft global-history/reset and plain-prefix regressions; repairs pending source review. Existing current68 helper remains frozen/unchanged.
+
+Before N11 first production edit: after all534full+restart handles terminal, copy exact6.9 intoAGENTS; preserve original534policy/source snapshot and qualify any doc-only policy overlay for reused binary rather than silently refreshing old pin evidence. NewB2 build gets currentpolicy+source pins. Whole connected sourcecheck must include source-counter semantics, all validate_private callers/frame retries, acceptance attribution, memory accounting and no-BL gating. This note is not that sourcecheck.
