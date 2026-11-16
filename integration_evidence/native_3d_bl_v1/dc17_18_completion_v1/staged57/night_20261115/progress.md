@@ -16,7 +16,7 @@ Updated 2026-11-15. Latest order: NIGHT_WORK_ORDER.md (SHA-sealed input_manifest
 | N11 law-directed edge | NOT STARTED | needsN8A1 first | I.B2 |
 | N8 geometry law/requirements/M6b | NOT STARTED | A1beforeN11; remainingafterN11 | I.A |
 
-Current job: NONE. N9 FAILED all-old-integer G3:entryatlaswork11497909!=10631585, exactly unchanged30sobserverworkdifference866324;physical/first336PASS459splits,all459commoneditsidenticalN1. R5readonlynoauthorizedwiringfix; production3pathsrestoredacceptedN1/all1560pinsmatch. Sharedbinariesstillfailed527. Next finalizeN9revertcheckpoint thenN10accepted-baserebuild/G1reference beforeedit; N7unfinished.
+Current job: N10 G1 accepted-base SERIAL REFERENCE LIVE controller4147187/start32707644, byte-identical528test6de. 375publiccases, CatchXML, helper5400s ceiling replaces truncatedold600s; existingfailedassertions remainreferenceevidence. NO N10productionedit. ALLcompiledsources/run_g1_reference.py/G1selectionJSONFROZEN. FinishSAMEcohort, parsecompletecases/failures/terminalseal, thenMPI2/4reference; onlythenB1edit/checks.
 
 R5 governs resultfailures: preservefirstnumber; one<=60min readonlydiagnosis; onlytranscription/wiringagainstwrittenproposal permitsonecorrection+onefailedcheckrepeat; else revertitem, markFAILED andcontinueindependentnextitem. R3ownharnessrepairs<=90min each, no gate/productionchanges. Do not implementdesign8.3-8.7,A5/B5 or job-derivedquota.
 
@@ -257,3 +257,7 @@ N9build527 PASSED100.162575s/6actions, all1562sourcepinsunchanged,17actualhostow
 N9G3 LIVE outer4057923/start32540825, lowpriority/singlethreadlibraries, actualhostpreflight noownedheavyjob/RAM37383384KiB/load2.28; usercodeprocesshot observationonly. Standalonecounter/phase fixture recompiled+ranPASS0.482s with source/binary receipt, no CPPchanges. AllcompiledCPP and21activehelperpinsFROZEN. Buildpassedcheckpointbd709cb4c1PUSHED.
 
 N9G3FAILEDoldintegers;physical/first336PASS459splits/304981positivecells,547.162650s. Firstentryatlaswork11497909!=10631585 exactly before30sobserverworkdelta866324; netentry5113both. All459commoneditsidenticalN1. Newcounterssumsagree; B0table140measurespreserved. R5readonly202.5s noauthorizedproductionwiringcorrection; NOretry/G2. All6ownedIDsactualhostterminal/all1804casehelperpinsunchangedbeforeproductionrestore. ThreeN9pathsrestoredaccepted429c6/all1560pinsmatch; failedsource+SHA preserved. NextonecommitrevertthenindependentN10.
+
+N9revert0acacc8cc8PUSHED. N10inputsNight/I/D/C/Harchived+SHA, Ireadcompletelyatitemstart. Accepted-baserebuild528PASSED100.756728s/all1561pinsunchanged/17actualhostownedIDsterminal; CFD949/test6deexactaccepted522. G1actualLIST-ONLY375serial/57MPI hashsets matcholdN4. No numericalG1/prodedit yet; ownnewG1helperdraft setupissues beingcorrected beforeanylaunch.
+
+N10G1serialreferenceLIVE4147187/start32707644 via minimalrun_g1_reference.py; no candidate/prodedit. OwnlargeG1draft had stalebuildmetadata/aliasreuse/state/XMLsource-location setup defects foundbeforelaunch; preserveddraftcorrectingseparately. Actualserial/MPI375/57listsetsverified. Run_g1_reference selfcheckPASS; sourceonly housewrappertimeout5400/XML/perrankoutputflags, alltestfilters/assertions/runtimepinsunchanged. Actualhost noownedheavyjob/RAM37083404KiB/load2.81; usercodeCPUobservationonly.
