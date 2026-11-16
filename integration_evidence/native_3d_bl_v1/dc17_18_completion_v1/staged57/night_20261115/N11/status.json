@@ -1,5 +1,5 @@
 {
-  "state": "focused_passed_G1_pending",
+  "state": "G1_passed_G2_next",
   "checkpoint": "5488d1f1b5",
   "pushed": true,
   "source_check": "source_check.md",
@@ -9,12 +9,18 @@
   "accepted_base": "f8c7b01085",
   "latest_order": "6.9",
   "no_N11_acceptance_claim": true,
-  "next": "focused units then fixed G1 then G2/GQ then two G3 and remaining gates",
+  "next": "judge serial then MPI2 then MPI4",
   "build_seconds": 160.16473269462585,
   "binary_sha256": "08c41a9e63cef04144c12cfd95f967fb17874e2e729a44b2d44b68b3f4fa6f01",
   "test_binary_sha256": "88f2c9c8a98a33ec7a1c54b09513832a3c15037adb68950a23a6e9cab3d2dbbe",
   "all_build_handles_terminal": true,
   "focused_case": "validation/cases/n11_b2_focused_wall_20261116T211153_1160426",
   "focused_assertions": 60,
-  "focused_cases": 6
+  "focused_cases": 6,
+  "session_id": null,
+  "case": "validation/cases/N8_G1_candidate_serial_20261116T211625_1171041",
+  "serial_identity_pass": true,
+  "serial_changed_cases": 0,
+  "serial_seconds": 794.6968865394592,
+  "G1_summary": "validation/G1_summary.json"
 }

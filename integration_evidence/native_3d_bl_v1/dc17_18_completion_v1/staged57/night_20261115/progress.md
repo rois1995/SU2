@@ -64,3 +64,9 @@ Build535 RUNNING exec34664/controller1142147(start35537715),ninja1142149(start35
 Build535 PASSED terminal0/160.164733s,1592pins unchanged,ALLbuildhandles terminal. CFD08c41a9e63cef04144c12cfd95f967fb17874e2e729a44b2d44b68b3f4fa6f01/test88f2c9c8a98a33ec7a1c54b09513832a3c15037adb68950a23a6e9cab3d2dbbe. Nextfocusedunits->G1serial/MPI2/4. No numericalcheck startedyet.
 
 N11focused PASSED60assertions/6cases normal0/4.953031s, pinsunchanged; actualGNUmaxchild32,224KiB; allownedrecordedidentities terminal. CaseN11/validation/cases/n11_b2_focused_wall_20261116T211153_1160426. OwnR3preflightformat thenMPIosc53setuperrorspreserved; neither reachedtestassertions, fixedhelperonly/qualifiedpt2pt. Buildfreeze persists, no sourcechanges. NextG1serial375/MPI2/4fixed57cohorts, helpersprimaryreviewing; no otherjob.
+
+CURRENTJOB N11G1serial RUNNINGexec74268/controller1171041/testroot1171476; casevalidation/cases/N8_G1_candidate_serial_20261116T211625_1171041. Fixed375cases, named6wallcasesONLYmaydiffer, allothersstrict. Hostpreflightavailable39,156,940KiB/load2.45, noownedpriorheavyjobs. Run_n11_g1.py FROZEN untilserial/MPIcohortscomplete. KeepALL535pinnedC++ unchanged; nextafterserialgateMPI2thenMPI4.
+
+G1serial PASSED375cases,0changes/24baselinefailedexpressionsidentical,794.696887controllerseconds (case794.475854),pinsunchanged/allownedIDsterminal. CURRENTjob G1MPI2exec32961, controllerlogvalidation/G1_mpi2_controller.log; nextjudgeMPI2thenMPI4. No sourceedits. Full535helperpreflight updatedexplicitPURPOSEimports, newfullcasewouldbeaccepted534validation/full535(fresh), NOToldsealedfull_workflow. StillNOTlaunched.
+
+G1 ALLPASSED535:375serial/57perrankMPI2/4,0changedcases/0wallcasechanges,exactbaselinefailedexpressions24/19/37; controllers794.696887/14.858670/17.119732s,5/6/8recordedIDsterminal. Serialexec74268/MPI2exec32961/MPI4exec49238allterminal0. Next G2exactprefix; noownedjobnow.

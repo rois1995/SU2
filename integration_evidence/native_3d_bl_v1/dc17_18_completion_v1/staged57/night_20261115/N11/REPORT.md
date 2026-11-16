@@ -11,3 +11,5 @@ Ordered checks in source_check.md. All production/result gates remain strict wit
 Historical source comparison for report: N9 457splits/1170guidance rejections of1425geometry trials; supplied6.9 partialgroup373/974of1169; qualified completed534group384/995of1197. Split counts report-only for N11/N10. No final BL capability claim.
 
 Build535 PASSED160.164733s/17terminalownedidentities/1592pinsunchanged. Focusedunit PASSED60assertions/6cases/4.953031s, exactcase above/progress; GNUmaxchild32,224KiB, sampledRSSlowerbound separately1,605,632B (notclaimedwholejobpeak). G1 notyetlaunched.
+
+G1 PASSED fixed375serial/57perrankMPI2/4,0changes(includingwallcases), baselinefailedexpressions24/19/37identical; controllers794.696887/14.858670/17.119732s. All535pinsunchanged/allrecordedhandles terminal. Evidencevalidation/G1_summary.json.
