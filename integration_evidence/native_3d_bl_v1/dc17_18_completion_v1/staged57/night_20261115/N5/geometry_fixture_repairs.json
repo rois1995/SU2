@@ -5,7 +5,7 @@
     {
       "cause": "M1 passed a unit chord direction into the curvature expression, omitting the chord-length-squared factor from directional curvature demand.",
       "correction": "M1 now passes the physical chord vector into q=e^T|II|e and the normal term; D9EndpointNeedScore computes max(q/8, |n.e|/4) with that chord. Each endpoint uses its own authority-supported sides and feature-join sides are reduced by maximum.",
-      "verification": "Source-level dimensional check: curvature has inverse-length units and q over the physical chord is dimensionless; the normal dot chord has length units. No build or test run was allowed."
+      "verification": "Dimensional check: curvature has inverse-length units; q over the physical chord has length units, as does the normal dot chord. Fixture checks length scaling (chord1\u2192score1, chord2\u2192score4 for curvature-only input). Historical no-build note referred to the source-review phase; subsequent build520 geometry receipts record execution."
     },
     {
       "cause": "The D9 diagnostic had one oversized test body and several multi-operation lines, making the fixture hard to review against the 80-line helper limit.",
