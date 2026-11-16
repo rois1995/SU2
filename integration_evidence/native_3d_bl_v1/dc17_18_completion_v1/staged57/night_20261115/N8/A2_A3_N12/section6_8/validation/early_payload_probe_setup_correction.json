@@ -1,0 +1,22 @@
+{
+  "cause": "Optional early payload probe assumed restart1 exists as soon as native/timer event1 gates pass; driver is still completing post-remesh workflow before writing it. FileNotFoundError occurred before comparison/result gate.",
+  "correction": "Check payload availability; defer complete identity decision until full workflow terminal. Mesh/native_ref available observations only.",
+  "production_or_gate_changes": false,
+  "current_observation": {
+    "adapted_mesh_adap_00001.su2": {
+      "available": true,
+      "actual": "2aea6a341b0de7c3175aef7c9671c9f42a17a767c5acc35478a8d89bef87eca7",
+      "expected": "2aea6a341b0de7c3175aef7c9671c9f42a17a767c5acc35478a8d89bef87eca7",
+      "identical": true
+    },
+    "adapted_mesh_adap_00001.su2.native_ref": {
+      "available": true,
+      "actual": "9bddc9a6317e82cf732adb13ab157c690c46ee7fd820eebf62bf672553e129b9",
+      "expected": "9bddc9a6317e82cf732adb13ab157c690c46ee7fd820eebf62bf672553e129b9",
+      "identical": true
+    },
+    "restart_flow_adap_00001.dat": {
+      "available": false
+    }
+  }
+}
