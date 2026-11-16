@@ -11,6 +11,14 @@
 namespace SU2NativeWallDiagnostics3D {
 
 // Counts worker-local observations only; never reads counters to control mesh edits.
+enum class PatchSource : std::uint8_t {
+  Primary,
+  RefitWallSplit,
+  ReconstructWallSplit,
+  ReconstructSplitPatch,
+  Unreported
+};
+
 enum class GuardOrigin : std::uint8_t { Operator, Guidance, Count };
 enum class GuidanceCause : std::uint8_t { Incomplete, Nonfinite, NoProgress, AfterAbove, Exception, Other, Count };
 enum class PreTrialDisposition : std::uint8_t { Other, Oversized, Conflict, Deferred, SplitPosition, Count };
@@ -113,6 +121,26 @@ class Counters {
     if (enabled_) ++accepted_;
   }
 
+  // Counts face encounters and committed split origins without feeding selection.
+  void ObserveLawFace(bool weighted) {
+    if (!enabled_) return;
+    ++law_faces_[static_cast<std::size_t>(weighted)];
+  }
+
+  void ObserveSplit(bool geometric) {
+    if (enabled_) ++accepted_splits_[static_cast<std::size_t>(geometric)];
+  }
+
+  // False collective probes and derived repair patches have no raw source to report.
+  void ObserveSource(PatchSource source, bool available, bool guidance_rejected, bool approved) {
+    const auto index = static_cast<std::size_t>(source);
+    if (!enabled_ || !available || index >= sources_.size()) return;
+    auto& row = sources_[index];
+    ++row.validated;
+    row.guidance_rejected += guidance_rejected;
+    row.approved += approved;
+  }
+
   // Kept outside the selected-choice partition: these calls need not name a choice.
   void PlanningRefusal() {
     if (enabled_) ++planning_refusals_;
@@ -135,6 +163,7 @@ class Counters {
                     << " count=" << operator_refusals_[op][why] << '\n';
       PrintOperatorReasons(rank);
       PrintFrames(rank);
+      PrintLawSources(rank);
       PrintSingle(rank, "PreservePassingFirstHeights", preserve_refusals_);
       PrintSingle(rank, "height_check", height_refusals_);
       PrintSingle(rank, "boundary_replacement_ready", boundary_refusals_);
@@ -185,6 +214,22 @@ class Counters {
   }
 
  private:
+  struct SourceCounts {
+    std::uint64_t validated = 0, guidance_rejected = 0, approved = 0;
+  };
+
+  void PrintLawSources(int rank) const {
+    constexpr const char* names[] = {"primary", "RefitWallSplit", "ReconstructWallSplit", "ReconstructSplitPatch"};
+    for (std::size_t i = 0; i < sources_.size(); ++i) {
+      const auto& row = sources_[i];
+      std::cout << "NATIVE3D_WALL_SOURCE rank=" << rank << " source=" << names[i] << " validated=" << row.validated
+                << " guidance_rejected=" << row.guidance_rejected << " approved=" << row.approved << '\n';
+    }
+    std::cout << "NATIVE3D_WALL_LAW_SELECTION rank=" << rank << " law_weighted_faces=" << law_faces_[1]
+              << " law_fallback_faces=" << law_faces_[0] << " accepted_geometry_splits=" << accepted_splits_[1]
+              << " accepted_size_splits=" << accepted_splits_[0] << '\n';
+  }
+
   struct OperatorReason {
     std::array<char, 97> text{};
     std::uint64_t count = 0;
@@ -324,6 +369,8 @@ class Counters {
   }
 
   friend class Choice;
+  std::array<SourceCounts, 4> sources_{};
+  std::array<std::uint64_t, 2> law_faces_{}, accepted_splits_{};
   bool enabled_;
   std::uint64_t geometry_trials_ = 0, geometry_rejected_ = 0;
   std::uint64_t guidance_trials_ = 0, guidance_rejected_ = 0, geometry_queue_guidance_trials_ = 0;
