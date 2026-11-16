@@ -15,7 +15,7 @@ The latest unattended section2 is in AGENTS.md; no user/reviewer answer was requ
 | Historical N2 before6.1 | NOT STARTED |—|Accepted N1 dependency false; failed M18 is not qualified condition input.|
 | N3 whole design source review | PASSED |6941fcc41c|Read-only, one14-item list; M11/M15/M17/M19 and conditional T1–T3 answered.|
 | N4 F3b reference rebuild/G2/G3/GQ | PASSED |4798ea3936|Build870.265s; G2exact90809869work; G3fresh473splits/305015positivecells/first336P6c; GQall6thirdwindows.|
-| N4 A1 five-type hoist G1 | FAILED |failedec0e8f3ef5; reverted8039fc1b59|First old metric assertion209.9357526597 vs656.1522579418, epsilon5e-4;13FAILmarkers, serial600s timeout. MPI/G2notstarted.|
+| Historical N4 A1 old G1 stop | REOPENED by C2.1 |historicalec0e8f3ef5; revert8039fc1b59|First old metric assertion209.9357526597 vs656.1522579418, epsilon5e-4;13FAILmarkers, serial600s timeout. MPI/G2notstarted.|
 | N4 later phases | NOT STARTED |—|A1 and unchanged G1 prerequisite failed.|
 | N5 existing F3b timing extraction | PASSED |4f4919ef61|204qualitywindows/180timerrows,2events×6ranks; source/runtime/input/physical receipts retained.|
 | N5 observation prefix gates | PASSED |a90d420937/6e0777868b|G2 all integers/exact90809869work; GQ all6thirdwindows and old integers identical. CFD861737e1.|
@@ -54,7 +54,7 @@ not Adapt; its unscaled tangent expectation differs from the current normalizing
 of which side is wrong, and no baseline numerical replay was done. No allowed transcription
 fix exists. Failed code preservedec0e8f3ef5, reverted8039fc1b59. Evidence:
 `R/night_20261115/N4/A1/{first_result_failure,readonly_diagnosis,G1_terminal_handles}.json`.
-No old test, production policy, gate or tolerance was changed to pass G1.
+No old test, production policy, gate or tolerance was changed to pass G1. Fresh536reference now confirms all13assertions already fail on the accepted base; C2.1 therefore reopens A1 and the historical stop is not a cut result failure. Reapply only after remaining fresh references.
 
 ## Full runs beside accepted F3b
 

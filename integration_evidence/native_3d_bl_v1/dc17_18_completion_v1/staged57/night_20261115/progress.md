@@ -4,7 +4,7 @@ R7: after compaction read COMPLETE latest scratchpad NIGHT_WORK_ORDER.md and thi
 
 ## LIVE — do not stop/restart or edit pinned code/helpers
 
-No owned job: ALL fresh G1 cohorts complete and actual-host identities terminal. Serial exec95550 794.971271s/375records/24failedexpressions; MPI2exec41584 14.883794s/114records/19failedexpressions; MPI4exec21854 17.237846s/228records/37failedexpressions. ZEROcasechanges vs historical bootstrap. Freshmanifest reference_validation/G1_shared_reference_manifest.json; failedcase/file/line/printedvalues saved unit_tests_that_fail_on_accepted_base.{json,md}. All13oldA1 assertions fail on freshbase, C2.1 eligible only AFTER freshG2/G3/GQ. ALLsource/build536/G1helpers remain frozen until reference campaign ends. No cut production edit yet.
+No owned job currently: freshG2 exec4965 TERMINAL/PASSED363.186728s plannedstop/371.571871s sealed. Exact90809869work/counts480/473/346/263/469/464, ALLoldinteger/model/callsPASS with12timerboundaries/6entrylawrows exactCensusdelta; ALLinputs/source/binarypinsunchanged. Actual-host all9IDs+controller terminal, reference_prefix_preparation/G2_primary_terminal_receipt.json. Case reference_prefix_preparation/cases/G2_reference536; receipt fresh_build536_prefix_reference.json. AllfreshG1cohorts passed ZEROchanges375/57, times794.971271/14.883794/17.237846s; ea5ab12f8f PUSHED. All13historicalA1assertions fail on freshbase; firstcutedit still prohibited untilG3/GQcomplete. Allcompiled sources remain FROZEN.
 
 ## Current accepted source/build
 
@@ -14,7 +14,7 @@ Build536 PASSED90.125806s/1598pins unchanged/12actual host identities terminal. 
 
 ## Next in order
 
-1. Finish SAME G1 serial; inspect identity_pass/changed_case_count/terminal proof, not wrapper exit alone. Then fresh host gates and MPI2, MPI4 sequentially. Fixed375serial/57perrank, ZERO wall exceptions, baseline failed expressions24/19/37. Save fresh cases/timings for cut C2.1 (528 used only bootstrap).
+1. G1 fresh reference COMPLETE; checkpointea5ab12f8f PUSHED. Fresh C2.1 manifest/failure table and 13-assertion decision sealed. No repeats. Candidate later wrapper limits from fresh times1193/23/26s.
 2. Fresh G2, G3, GQ references on536 BEFORE first cut edit. Agent n6_cut_inventory prepares NEW files only in N4/section6_3_after_N11/reference_prefix_preparation; root reviews. Bootstrap G2/GQ against accepted N1 section6_1 logs, not obsolete F3b. Cut G3 >=336/first336P6c/commonedge+point prefix vs accepted N1/adjusted entry5113; no N11 purpose or relaxed physical rows. Outer900 wrapper only; native388.8/work233220 unchanged.
 3. Follow C2.1 decision, then phased N4 cut. Whole source check COMPLETE: phase source_check.md,22 consolidated readings, no unresolved result contradiction. Latest C plus both1280line inventories read complete and SHA copied phase inputs. Preserved N4/A1_proposed.diff passes READONLY git apply -p0 --check; do NOT apply until ALL fresh refs finish. Each C substep G1/G2, extras as C; G5 only after A,C,end.
 4. N6 ONLY if N4 complete+passedG5, then N7 final. No8.4a/8.5-8.7/A5/B5/job-derived quota/BL-RANS claim.
@@ -36,3 +36,9 @@ Actualhost /proc requires require_escalated; sandbox proc isolated. One owned he
 Detailed historical receipts: progress_history_through_cut_reference_start_20261116.md and earlier histories. Historical live-state notes are superseded by this file. HANDOFF_Codex.md/HowToProceed.md current. Morning report remains DRAFT.
 
 C2.1 decision: fresh536serial verifies13/13oldA1assertions FAILunchanged; importtest historical line offsets+1 fromacceptedinclude, names/expressionssame. A1 eligible AFTER allfreshrefs. reference_validation/C2_1_A1_decision.json.
+
+Routine preparation agents: n6_cut_inventory NEWprefixdir G2/GQexactcomparator+launcher; r3_validation_helpers NEWreference_g3_preparation G3cutguard; m24_report_helper NEWcandidate_gate_preparation reusablefreshG1bindings. No heavy/numericallaunches delegated, no existing pinnedsource/helper edits. Root reviews beforelaunch. A2_lifetime_plan.md is preparatoryonly.
+
+G2/GQ helper PRIMARY reviewed+actualsetupstubselfcheckPASS, run_prefix536.py SHA5188fdac6624429037c91acb30bc62ed85f9ce0a41ecceb6d8f7bb2c2f3c26fe. ReusesqualifiedN8controller/validator/comparator68 SHA1077b87962f593b2ad440ed5facb9a5dcc0aeed81b2b0974013a66d43d7cf28d. ExplicitacceptedN1firstcollapse/full refs; THISphase whole sourcecheck andMPIoscpt2pt bound. Ownprelaunch R3corrections: olddraft comparator unsuitable -> reusedqualified68; GROUPsourcecheckpath/MPIenvfixed beforelaunch. Do NOTedit helper unused functions whilelive.
+
+CandidateG1preparedNEWonly candidate_gate_preparation/run_g1_candidate_gate.py SHAef26183cef5d4f92bfc47ad0cf8c19a3ec12d2b6a6aa92641eff62c270535695; primaryinitialreview found nonexistentcase-rootsetup, correctedbeforelaunch; agentexpandedselfcheckthroughactualN11monitor/aliases/READY/build/runtime/preparehouse withlaunchstub. NOTNUMERICALLYRUN, rootreviewlatestdelta beforeuse. m24agentdone. Prefixagent now NEWcandidate_prefix_preparation ONLY genericfutureG2/GQstrictfresh536refs; currentG2helperFROZEN. G3agentNEWreference_g3_preparation only. LatestprimaryRSSsampleG2at242.09s6ranksSUM4565491712B<19999490048cap. No resultyet.
