@@ -199,8 +199,8 @@ static ReferenceState DecodeReferenceImpl(const std::string& bytes,size_t ceilin
   if (requested == SIZE_MAX || requested > ceiling)
     throw std::length_error("Native3D reference decoding exceeds storage budget: requested "+
         std::to_string(requested)+", ceiling "+std::to_string(ceiling)+".");
-  const auto query_cache=SU2NativeGeometry::MappedFacetReference::SurfaceQueryStorageBytes(
-      header.curves,std::min(ceiling-requested,cache_cap));
+  // B7 forwards the admitted quota; the authority keeps memo/scopes based on its rounded part.
+  const auto query_cache = header.curves ? std::min(ceiling - requested, cache_cap) : 0;
   maximum_bytes=std::max(maximum_bytes,transfer_memory::Add(requested,query_cache));
   ReferenceState result;
   std::set<std::string> names;

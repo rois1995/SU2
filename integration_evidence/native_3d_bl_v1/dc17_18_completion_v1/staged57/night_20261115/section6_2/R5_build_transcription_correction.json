@@ -1,0 +1,10 @@
+{
+  "failed_build": "build523",
+  "failed_seconds": 10.138869762420654,
+  "first_error": "CNativeAffineReference.hpp:130 facet_entries does not name a type",
+  "cause": "Primary split declaration inserted semicolon without retaining size_t for old remaining fields. Pure transcription; proposal asks no such omission.",
+  "correction": "Restore size_t to existing fields; no numeric behavior, gates, budgets, tolerances changed.",
+  "one_correction": true,
+  "failed_source": "build523/failed_header.hpp.txt",
+  "time": 1794826137.6553864
+}

@@ -1,0 +1,14 @@
+{
+  "base": "429c6c1a60",
+  "state": "implemented_pending_build_checks",
+  "changed_existing_pins": [
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/Common/include/adaptation/CNativeAffineReference.hpp",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/Common/src/adaptation/CNativeAffineReference.cpp",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/Common/src/adaptation/CNativeEngine3D.cpp",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/Common/src/adaptation/CNativeReferenceIO3D.cpp",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp"
+  ],
+  "source_pins": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/section6_2/build523/source_pins.json",
+  "scope": "B7 only; Q constant host quota, memo/scope from L; existing no-quota sizes preserved",
+  "readability_exception": "Existing constructor/query/Adapt/DecodeReferenceImpl and legacy test functions exceed80lines. B7 changes only bounded allocation/limit wiring inside them; no unrelated cut before section6.5. New unit body33lines. Changed ranges formatted; full-file clang-format dry-run records preexisting unformatted code, no whole-file rewrite."
+}
