@@ -1,0 +1,41 @@
+{
+  "passed": true,
+  "launched": false,
+  "wrote_files": false,
+  "reference_recipe_sha256": "bf11e624d7ba528f788d500f1c5206bd1fadcfe417db5e0260b8fb0b4cb6a947",
+  "recipe_bytes": 3928,
+  "snapshot_sha256": "af79d3d49af45a190655877dcaf2957cece228d86d08e8be1e157ea032264aab",
+  "reference_key_count": 1550,
+  "current_source_count": 1559,
+  "reference_mismatches": [
+    "Common/src/adaptation/CNativeEngine3D.cpp",
+    "Common/src/adaptation/CNativePredicates3D.cpp",
+    "UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp",
+    "UnitTests/Common/adaptation/CNativeDistributed3D_tests.cpp",
+    "UnitTests/SU2_CFD/adaptation/fixtures/native_first_row_dc12.inc"
+  ],
+  "allowed_changed_sources": [
+    "Common/src/adaptation/CNativeEngine3D.cpp",
+    "Common/src/adaptation/CNativePredicates3D.cpp",
+    "UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp",
+    "UnitTests/Common/adaptation/CNativeDistributed3D_tests.cpp",
+    "UnitTests/SU2_CFD/adaptation/fixtures/native_first_row_dc12.inc"
+  ],
+  "allowed_new_sources": [
+    "Common/include/adaptation/CNativeD9Profile3D.hpp"
+  ],
+  "reference_build_metadata": {
+    "build_status_path": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N4/reference_build/build_status.json",
+    "build_status_sha256": "f17337b2f7077acbf2b5162d4ab4b0265bb8d57666319f518a6f5a152841f395",
+    "build_label": "N4_reference_build_build509_alias",
+    "build_output": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-p5-20261114",
+    "binary_sha256": "63a035efcf162e4b19e5ba288ef7c19e149e9a744691f02f658db2895f440dbc",
+    "test_binary_sha256": "9b7d005b8eb93fa999de3be9856ae7976bf460139f786e1de8950998f55fc1ce",
+    "binary_receipt": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N4/reference_binaries/receipt.json",
+    "binary_receipt_sha256": "658fb4c615ecf15c220f9c4386b0c6b3a2356eef3a07499987cbd780de005c96",
+    "runtime_manifest": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/runtime_20261113_474/loaded_runtime_pins.json",
+    "runtime_manifest_sha256": "e2daaed3b3b33a648db277ce13f2172d51eb919f5f36e1c95456fe42af6357d7",
+    "runtime_module_pin_count": 193
+  },
+  "build511_exists": false
+}

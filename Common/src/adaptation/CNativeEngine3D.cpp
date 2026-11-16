@@ -15,6 +15,7 @@
 #include "../../include/adaptation/CNativePartition3D.hpp"
 #include "../../include/adaptation/CNativeImport3D.hpp"
 #include "../../include/adaptation/CNativeTimerTree3D.hpp"
+#include "../../include/adaptation/CNativeD9Profile3D.hpp"
 #include <chrono>
 #include <cmath>
 #include <cstring>
@@ -31,6 +32,41 @@
 #include <optional>
 namespace SU2Native3D {
 namespace {
+// Attribute existing bound work without issuing or resetting geometry queries.
+struct D9QueryScope {
+  SU2NativeD9::Data* data = nullptr;
+  const SU2NativeGeometry::MappedFacetReference* authority = nullptr;
+  SU2NativeGeometry::MappedFacetReference::GeometryStats before{};
+  SU2NativeD9::Clock::time_point start{};
+  int phase = -1;
+  SU2NativeD9::Site site;
+  D9QueryScope(SU2NativeD9::Site value, const PlanarReference* geometry) : site(value) {
+    phase = SU2NativeD9::Phase();
+    if (phase < 0 || !geometry || !geometry->Parameters()) return;
+    data = SU2NativeD9::active;
+    authority = &geometry->Parameters()->Geometry();
+    before = authority->GeometryStatsSnapshot();
+    start = SU2NativeD9::Clock::now();
+  }
+  ~D9QueryScope() {
+    if (!data) return;
+    const auto seconds = SU2NativeD9::Seconds(start);
+    const auto after = authority->GeometryStatsSnapshot();
+    auto& row = data->queries[size_t(phase)][size_t(site)];
+    ++row.scopes;
+    row.direct += after.direct_calls - before.direct_calls;
+    row.upper += after.upper_calls - before.upper_calls;
+    row.classify += after.classification_calls - before.classification_calls;
+    row.magnitude += after.magnitude_calls - before.magnitude_calls;
+    row.limit += after.limit_calls - before.limit_calls;
+    row.memo_direct += after.memo_direct_hits - before.memo_direct_hits;
+    row.memo_union += after.memo_union_hits - before.memo_union_hits;
+    row.work += after.upper_work - before.upper_work;
+    row.direct_seconds += after.direct_seconds - before.direct_seconds;
+    row.upper_seconds += after.upper_seconds - before.upper_seconds;
+    row.seconds += seconds;
+  }
+};
 // A successful separation is only a necessary geometry-error rejection, never admission.
 bool CollapseOutsideTolerance(const Patch& old,Id removed,Id retained,const PlanarReference& geometry,double tolerance) {
   const auto* state=geometry.Parameters();
@@ -795,6 +831,7 @@ class Selection {
   }
   void Add(const OwnedCell& owned, const PatchMetric& metric, bool valid, bool quality_valid, const std::string& reason,
            const FirstHeightReport* height=nullptr,bool height_valid=true) {
+    D9QueryScope d9_query(SU2NativeD9::Site::Census, &geometry);
     const auto& cell=owned.cell;
     if (metric.edges.size()!=6 || !std::isfinite(metric.maximum_length))
       throw std::runtime_error(reason.empty()?"Incomplete native 3D initial/updated metric measurement.":reason);
@@ -1192,6 +1229,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
       surface_target ? SU2NativeTiming3D::Phase::Surface : SU2NativeTiming3D::Phase::Construction);
   if (timer_session.Owns())
     options.caller_bytes = transfer_memory::Add(options.caller_bytes, SU2NativeTiming3D::Session::ReservedBytes());
+  SU2NativeD9::Root d9_profile(options.timings, world.rank);
   bool region_rebuilt=false,improvement_changed=false,construction_changed=false,construction_handoff_progress=false;
   bool construction_generation_changed=false;
   bool metric_cleanup=false,metric_cleanup_tried=false;
@@ -1978,8 +2016,12 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
         proof_scope.emplace(SU2NativeTiming3D::Operation::Certification);
       }
       CLocalFailure geometryFailure;
-      try {for(const auto& row:geometry.Parameters()->GeometryCertificates(atlas_budget,true))if(!row.second.within_tolerance)
-        geometryFailure.Set(1,std::get<0>(row.first),"Complete working surface does not meet the prescribed two-sided geometry tolerance.");}
+      try {
+        D9QueryScope d9_query(SU2NativeD9::Site::Finish, &geometry);
+        for(const auto& row:geometry.Parameters()->GeometryCertificates(atlas_budget,true))
+          if(!row.second.within_tolerance)
+            geometryFailure.Set(1,std::get<0>(row.first),"Complete working surface does not meet the prescribed two-sided geometry tolerance.");
+      }
       catch(const std::exception& e){geometryFailure.Set(2,0,e.what());}
       if(!vote(geometryFailure)){result.valid=result.surface_prepared=false;stats.stop=EngineStop::Failure;}
     }
@@ -4061,6 +4103,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
       if(!candidate || !curved)return candidate;
       // Entity refinement constructs valid cells; local surrogate descent is not a geometry permission.
       if(!surface_target&&geometry.EntityGeometry()&&phase==Phase::Construction&&kind!=MetricChange::Coarsen)return true;
+      D9QueryScope d9_query(SU2NativeD9::Site::Guidance, &geometry);
       ++stats.geometry_guidance_trials;
       Timer guidance_timer(stats.geometry_guidance_seconds,options.timings,
                            SU2NativeTiming3D::Operation::GeometryBound);
@@ -6548,6 +6591,8 @@ bool MeshOptimizer::Collapse(Id p,Id q) {
 }
 // Physical stars move through their forward geometry bindings; artificial interfaces remain fixed.
 bool MeshOptimizer::SmoothBoundary(Id p) {
+  SU2NativeD9::Star d9_star;
+  D9QueryScope d9_query(SU2NativeD9::Site::SmoothBoundary, options.geometry);
   ++report.boundary_stars_searched;
   const auto* state=options.geometry?options.geometry->Parameters():nullptr;
   const auto* query_geometry=state?&state->Geometry():nullptr;
@@ -6574,7 +6619,11 @@ bool MeshOptimizer::SmoothBoundary(Id p) {
   for(auto f:Incidence(patch.cells).Boundary())
     if(std::find(f.begin(),f.end(),p)!=f.end() && !old_physical.count(Key(f)))return false;
   const auto& geometry=moved_geometry?*moved_geometry:*options.geometry;
-  try{geometry.ExportParameters(patch);}catch(const std::exception&){return false;}
+  try {
+    SU2NativeD9::Measure(SU2NativeD9::Work::Export, [&] { geometry.ExportParameters(patch); });
+  } catch(const std::exception&) {
+    return false;
+  }
   const bool debt=DebtMode(old,&patch);const auto before=OldMerit(old,debt);const auto origin=points.at(p);
   auto shape_debt=[&](const std::vector<Cell>& cells){long double sum=0;for(const auto& c:cells){const auto q=Quality(c);if(!q.Valid())return std::numeric_limits<long double>::infinity();sum+=NormalizedShapeHingeDebt(q.q,q.J);}return sum;};
   long double old_shape_debt;
@@ -6662,13 +6711,19 @@ bool MeshOptimizer::SmoothBoundary(Id p) {
   }
   Patch best;long double best_score=before;
   for(Point target_point:targets) {
-    if(Limited())break;++report.trials;++report.boundary_candidates;Patch candidate;std::string reason;
+    if(Limited())break;
+    ++report.trials;
+    ++report.boundary_candidates;
+    SU2NativeD9::Candidate d9_candidate;
+    Patch candidate;std::string reason;
     if(atlas_budget&&!charge_retained_geometry()){++report.boundary_rejected_geometry;break;}
     if(geometry.Mobility()) {
       // Projection and volume quality precede expensive surface reconstruction; height can only lower this score.
       long double upper=debt?0:INFINITY;
       {
         auto* budget=projected_geometry->AtlasReservation();BoundaryPoint projected;
+        {
+        SU2NativeD9::WorkScope d9_projection(SU2NativeD9::Work::Projection);
         if(projected_geometry->EntityGeometry()) {
           try {std::set<Id> incident;for(const auto& face:patch.surface)if(std::find(face.v.begin(),face.v.end(),p)!=face.v.end())incident.insert(face.facet);
             projected.node=projected_geometry->BindMovedPoint(p,{next_node,target_point},incident);
@@ -6677,6 +6732,7 @@ bool MeshOptimizer::SmoothBoundary(Id p) {
         } else if(!budget || !prepared_atlas_ok ||
             !SU2NativeGeometry::ProposeAtlasBinding(prepared_atlas,p,{next_node,target_point},projected,*budget,reason)) {
           ++report.rejected_interface;++report.boundary_rejected_geometry;continue;
+        }
         }
         for(auto cell:patch.cells) {
           for(auto& node:cell.v)if(node.id==p)node=projected.node;
@@ -6695,8 +6751,14 @@ bool MeshOptimizer::SmoothBoundary(Id p) {
       if(atlas_budget&&!charge_retained_geometry()){++report.boundary_rejected_geometry;break;}
     }
     if(prepared_move)++report.boundary_prepared_trials;
-    if(!(prepared_move?MoveVertex(*prepared_move,p,{next_node,target_point},next_cell,candidate,reason):
-                        MoveVertex(patch,p,{next_node,target_point},next_cell,geometry,candidate,reason))){++report.rejected_interface;++report.boundary_rejected_geometry;continue;}
+    if(!SU2NativeD9::Measure(SU2NativeD9::Work::Move, [&] {
+      return prepared_move ? MoveVertex(*prepared_move,p,{next_node,target_point},next_cell,candidate,reason) :
+                             MoveVertex(patch,p,{next_node,target_point},next_cell,geometry,candidate,reason);
+    })) {
+      ++report.rejected_interface;
+      ++report.boundary_rejected_geometry;
+      continue;
+    }
     const auto score=FreshMerit(candidate.cells,debt,false,&candidate);
     if(!std::isfinite(score)){++report.rejected_validity;++report.boundary_rejected_validity;continue;}
     if(!(Progress(score,best_score,debt))){++report.rejected_quality;++report.boundary_rejected_shape;continue;}
@@ -6713,11 +6775,11 @@ bool MeshOptimizer::SmoothBoundary(Id p) {
         guidance_memo_ready=guidance_memo.Prepare(patch,geometry,options.surface_tolerance);
       if(atlas_budget&&!charge_retained_geometry(candidate_parameters.get())){++report.boundary_rejected_geometry;return false;}
       ++report.boundary_guidance_calls;
-      const auto guidance=GeometryGuidanceExcess(patch,geometry,options.surface_tolerance,INFINITY,guidance_memo_ready?&guidance_memo:nullptr);
+      const auto guidance=SU2NativeD9::Measure(SU2NativeD9::Work::Guidance, [&] { return GeometryGuidanceExcess(patch,geometry,options.surface_tolerance,INFINITY,guidance_memo_ready?&guidance_memo:nullptr); });
       report.boundary_guidance_faces+=guidance.evaluated_faces;report.boundary_guidance_reused_faces+=guidance.reused_faces;geometric_before=guidance.excess;geometry_measured=true;
     }
     ++report.boundary_guidance_calls;
-    const auto guidance=GeometryGuidanceExcess(candidate,candidate_geometry,options.surface_tolerance,geometric_before,guidance_memo_ready?&guidance_memo:nullptr);
+    const auto guidance=SU2NativeD9::Measure(SU2NativeD9::Work::Guidance, [&] { return GeometryGuidanceExcess(candidate,candidate_geometry,options.surface_tolerance,geometric_before,guidance_memo_ready?&guidance_memo:nullptr); });
     report.boundary_guidance_faces+=guidance.evaluated_faces;report.boundary_guidance_reused_faces+=guidance.reused_faces;report.boundary_guidance_early_rejections+=!guidance.complete;
     const auto after=guidance.excess;
     if(!guidance.complete||!std::isfinite(after)||after>geometric_before){++report.rejected_interface;++report.boundary_rejected_geometry;continue;}
@@ -7026,6 +7088,7 @@ bool MeshOptimizer::NeighbourhoodInsert(Id cell) {
   return ConeReplace(old,Centroid(c),Insert::Neighbourhood);
 }
 bool MeshOptimizer::ShellBoundary(Id id) {
+  D9QueryScope d9_query(SU2NativeD9::Site::ShellBoundary, options.geometry);
   if(Limited() || !options.geometry || Frozen(id))return false;
   const auto& row=mesh.at(id);std::vector<unsigned> faces;
   for(unsigned k=0;k<4;++k)if(row.physical[k].present)faces.push_back(k);
@@ -7125,6 +7188,7 @@ void MeshOptimizer::AccountNested(const OptimizeReport& n,bool selected) {
   }
 }
 bool MeshOptimizer::CoupledBoundary() {
+  D9QueryScope d9_query(SU2NativeD9::Site::CoupledBoundary, options.geometry);
   if(!coupled || Limited() || !options.geometry || !options.swaps || !options.insertions ||
       GetShapeAdmission()!=ShapeAdmission::ValidityOnly || mesh.size()>MaximumCavityCells ||
       options.maximum_work-report.trials<3 || report.sweeps>=options.maximum_sweeps || next_node>=UINT64_MAX-1 ||

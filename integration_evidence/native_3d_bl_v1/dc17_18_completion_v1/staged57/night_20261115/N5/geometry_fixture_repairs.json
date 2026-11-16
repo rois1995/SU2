@@ -1,0 +1,40 @@
+{
+  "schema": "n5_geometry_fixture_repairs_v1",
+  "scope": "test-only D9 geometry diagnostic fixture",
+  "changes": [
+    {
+      "cause": "M1 passed a unit chord direction into the curvature expression, omitting the chord-length-squared factor from directional curvature demand.",
+      "correction": "M1 now passes the physical chord vector into q=e^T|II|e and the normal term; D9EndpointNeedScore computes max(q/8, |n.e|/4) with that chord. Each endpoint uses its own authority-supported sides and feature-join sides are reduced by maximum.",
+      "verification": "Source-level dimensional check: curvature has inverse-length units and q over the physical chord is dimensionless; the normal dot chord has length units. No build or test run was allowed."
+    },
+    {
+      "cause": "The D9 diagnostic had one oversized test body and several multi-operation lines, making the fixture hard to review against the 80-line helper limit.",
+      "correction": "Split inventory, side filtering/scoring, edge scan, face classification/output, projection setup/binding, and summary generation into helpers; clang-format was applied only to the new D9 block.",
+      "verification": "Source-level function scan found every D9 helper and the test body at or below 80 lines; largest is D9MeasureFaces at 76 lines."
+    },
+    {
+      "cause": "The elapsed deadline was not checked before M1 edge traversal or before M5 overlay/context work, so later work could begin after M3 consumed the limit.",
+      "correction": "Check the shared 600-second deadline at each M1 edge, M3 face, M5 edge, and after M5 overlay construction; report unvisited and unattempted counts separately.",
+      "verification": "Source-level control-flow review confirms M5 outer dispatch is skipped when M3 reaches the deadline and M5 rechecks before overlay and context creation."
+    },
+    {
+      "cause": "The final JSON label said no numerical campaign was launched even though the diagnostic deliberately executes geometry queries.",
+      "correction": "Rename the field to production_workflow_launched=false, distinguishing diagnostic geometry calls from a production workflow launch.",
+      "verification": "Source inspection confirms the observed and unsupported-input summaries use the corrected field."
+    }
+  ],
+  "validation": {
+    "git_diff_check": "passed",
+    "clang_format": "applied to the new D9 block only",
+    "build_or_test_run": false,
+    "numerical_or_production_workflow_run": false
+  },
+  "primary_context_and_empty_csv": {
+    "cause": "Primary API review: WithParameterState returns shared_ptr<const PlanarReference>; new fixture context used a mutable pointer type. Also projection CSV could be empty when deadline prevented entering its helper.",
+    "correction": "Use const shared pointer contexts and write CSV schema before optional projection work; no production/gate change."
+  },
+  "primary_projection_scope": {
+    "cause": "M5 asks cost of one projection; initial all-edge projection census ran after expensive M3 and could get no time, unnecessarily expanding the fixture.",
+    "correction": "Measure the first demanded edge once before the face census, and label single-sample scope, keeping total need-edge denominator and incomplete census explicit."
+  }
+}

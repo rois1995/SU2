@@ -1,0 +1,6 @@
+[
+  {
+    "cause": "New hidden check assumed nonexistent Session::Current and namespace-level dimension constants, found by API source review before build.",
+    "correction": "Use owning local session.Snapshot() and Session::PhaseCount/OperationCount; no production change."
+  }
+]

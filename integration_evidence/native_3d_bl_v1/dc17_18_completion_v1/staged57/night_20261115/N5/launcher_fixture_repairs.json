@@ -1,0 +1,12 @@
+[
+  {
+    "cause": "Primary launcher review: inherited run_cases serial wrapper logs RSS but has no live job-limit veto.",
+    "correction": "Add wrapper-only HWM/identity guard at19999490048B and6heavyworkers with verified owned process-group termination, terminal handle sealing, and final serial peak validation. No executable/production source change; rebuild513expectedno-op with fresh launcher pins."
+  },
+  {
+    "cause": "Counter-check firstlaunch aborted MPI_Win_create/MPI_ERR_WIN53 beforeCatch/test body: new directlauncher omitted OMPI_MCA_osc=pt2pt inherited byexistingF3b/N4unit harness.",
+    "correction": "Relaunch same frozenbinary/helper with explicit OMPI_MCA_osc=pt2pt and fresh MPI scratch on4TB; environment recorded inruncommand. No source/build/gate/tolerance change.",
+    "failed_attempt": "cases/n5_d9_counter_check_20261116T011532_2292086",
+    "all_owned_handles_terminal": true
+  }
+]

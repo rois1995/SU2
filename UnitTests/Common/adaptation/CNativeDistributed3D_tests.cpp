@@ -4,6 +4,7 @@
  * Copyright 2012-2026, SU2 Contributors (cf. AUTHORS.md).
  * SU2 is free software under the GNU Lesser General Public License, version 2.1 or later.
  */
+#include "../../../Common/include/adaptation/CNativeD9Profile3D.hpp"
 #include "catch.hpp"
 #include "../../../Common/include/adaptation/CNativeDistributed3D.hpp"
 #include "../../../Common/include/adaptation/CNativeDonor3D.hpp"
@@ -5338,3 +5339,30 @@ TEST_CASE("Private geometry expiry joins empty ranks and captures the last publi
 }
 
 #include "fixtures/native_timer_tree3d_tests.inc"
+
+TEST_CASE("D9 observations preserve timer calls and separate candidate qJ work", "[.][NativeD9CounterCheck]") {
+  World world;
+  REQUIRE(world.size == 1);
+  SU2NativeTiming3D::Session session(true, "d9_counter_check", world.rank, world.size,
+                                    SU2NativeTiming3D::Phase::Quality);
+  const auto before = session.Snapshot();
+  SU2NativeD9::Root root(true, world.rank);
+  {
+    SU2NativeD9::Star star;
+    SU2NativeD9::Candidate candidate;
+    SU2NativeD9::WorkScope move(SU2NativeD9::Work::Move);
+    const Tetrahedron tetrahedron{{{0, 0, 0}, {1, 0, 0}, {0, 1, 0}, {0, 0, 1}}};
+    const auto measured = Measure(tetrahedron, Tensor{1, 0, 0, 1, 0, 1});
+    CHECK(measured.mean_ratio > 0);
+  }
+  CHECK(root.data.stars == 1);
+  CHECK(root.data.candidates == 1);
+  CHECK(root.data.qj_calls == 1);
+  const auto move = size_t(SU2NativeD9::Work::Move);
+  CHECK(root.data.work_calls[move] == 1);
+  CHECK(root.data.work_seconds[move] >= root.data.qj_seconds[move]);
+  const auto after = session.Snapshot();
+  for (size_t phase = 0; phase < SU2NativeTiming3D::Session::PhaseCount; ++phase)
+    for (size_t operation = 0; operation < SU2NativeTiming3D::Session::OperationCount; ++operation)
+      CHECK(after.records[phase][operation].calls == before.records[phase][operation].calls);
+}

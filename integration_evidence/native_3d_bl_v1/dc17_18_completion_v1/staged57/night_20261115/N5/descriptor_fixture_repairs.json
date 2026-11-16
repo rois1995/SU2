@@ -1,0 +1,6 @@
+[
+  {
+    "cause": "Initial descriptor preparation looked for generated original mesh/reference hashes in the source pins manifest, where they are absent. Assertion stopped before measurement launch.",
+    "correction": "Use archived qualification.json output_sha256 for the original pair; use checkpoint.json input_hashes for adapted293 and saved492 per-payload hashes. All verified before writing geometry descriptors."
+  }
+]

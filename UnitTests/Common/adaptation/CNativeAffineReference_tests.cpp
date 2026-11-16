@@ -15,8 +15,13 @@
 #include "../../../Common/include/adaptation/CNativePointConstruction3D.hpp"
 #include <fstream>
 #include <iomanip>
+#include <iterator>
 #include <chrono>
 #include <cstdlib>
+#include <sstream>
+#include <set>
+#include <map>
+#include <vector>
 using namespace SU2NativeGeometry;
 namespace {
 AffineAuthority Authority(unsigned dimension) {
@@ -2244,4 +2249,631 @@ TEST_CASE("x87 adjacent stepping matches nextafter across zero subnormal and exp
   CHECK(Adjacent(exp1_max, true) == 2*min_normal);
   CHECK(Adjacent(-exp1_max, false) == -2*min_normal);
 #endif
+}
+namespace {
+using namespace SU2Native3D;
+using namespace SU2NativeGeometry;
+constexpr double D9Tau = 1e-4;
+constexpr size_t D9WorkLimit = size_t(1) << 24;
+constexpr size_t D9WorkspaceLimit = size_t(8) << 30;
+constexpr size_t D9HeldMemoryLimit = size_t(12) << 30;
+constexpr size_t D9IntegerLimit = 4096;
+using D9Clock = std::chrono::steady_clock;
+using D9Deadline = D9Clock::time_point;
+bool D9WithinTime(D9Deadline started) { return D9Clock::now() - started < std::chrono::seconds(600); }
+std::vector<char> D9ReadBytes(const std::string& path) {
+  std::ifstream input(path, std::ios::binary | std::ios::ate);
+  if (!input) throw std::runtime_error("cannot open diagnostic input: " + path);
+  const auto size = input.tellg();
+  if (size <= 0) throw std::runtime_error("diagnostic input is empty: " + path);
+  std::vector<char> bytes(static_cast<size_t>(size));
+  input.seekg(0);
+  input.read(bytes.data(), static_cast<std::streamsize>(bytes.size()));
+  if (!input) throw std::runtime_error("cannot read diagnostic input: " + path);
+  return bytes;
+}
+std::set<int> D9Markers(const char* text) {
+  std::set<int> result;
+  if (!text || !*text) return result;
+  std::stringstream stream(text);
+  std::string token;
+  while (std::getline(stream, token, ',')) {
+    size_t used = 0;
+    const int marker = std::stoi(token, &used);
+    if (used != token.size() || !result.insert(marker).second)
+      throw std::invalid_argument("invalid or duplicate D9 wall marker");
+  }
+  return result;
+}
+bool D9Selected(const BoundaryParameterState& state, Id facet, const std::set<int>& markers) {
+  return markers.empty() || markers.count(state.Authority()->Reference().Get(facet).marker) != 0;
+}
+std::string D9Csv(std::string value) {
+  std::string result = "\"";
+  for (char c : value) {
+    if (c == '\"') result += '\"';
+    result += c;
+  }
+  return result + '\"';
+}
+struct D9EdgeRow {
+  Edge edge;
+  std::set<Id> anchors;
+  double score = 0;
+  bool need = false;
+  bool evaluated = false;
+  Id side_a = 0;
+  Id side_b = 0;
+};
+struct D9Inventory {
+  std::map<Edge, D9EdgeRow> edges;
+  std::map<Face, SurfaceFace> faces;
+  std::set<Id> need_vertices;
+  size_t valid_edges = 0;
+  size_t unsupported_sides = 0;
+  size_t unvisited_edges = 0;
+};
+struct D9EndpointScore {
+  size_t supported = 0;
+  size_t unsupported = 0;
+  double score = 0;
+  Id limiting_side = 0;
+};
+struct D9FaceStats {
+  size_t success = 0;
+  size_t over_tolerance = 0;
+  size_t current_demand_faces = 0;
+  size_t query_errors = 0;
+  size_t examined = 0;
+  size_t attempted = 0;
+  size_t visited = 0;
+  size_t missing_points = 0;
+  size_t direct = 0;
+  size_t upper = 0;
+  size_t mixed = 0;
+  size_t work = 0;
+  size_t peak = 0;
+  size_t unvisited_deadline = 0;
+};
+struct D9ProjectionStats {
+  size_t success = 0;
+  size_t refusals = 0;
+  size_t context_failures = 0;
+  size_t bind_failures = 0;
+  size_t work = 0;
+  size_t peak = 0;
+  size_t attempted = 0;
+  size_t selected = 0;
+  size_t unattempted_deadline = 0;
+  double bind_seconds = 0;
+  double context_seconds = 0;
+};
+struct D9Loaded {
+  std::vector<char> bytes;
+  ReferenceState reference;
+  std::shared_ptr<BoundaryParameterState> parameters;
+  std::shared_ptr<const MappedFacetReference> authority;
+  std::shared_ptr<const PlanarReference> base;
+  size_t held = 0;
+  bool entity_geometry = false;
+  double query_tolerance = 0;
+};
+D9Inventory D9BuildInventory(const BoundaryParameterState& parameters, const std::set<int>& markers) {
+  D9Inventory inventory;
+  for (const auto& row : parameters.Surface()) {
+    const auto& face = row.second;
+    if (!D9Selected(parameters, face.facet, markers)) continue;
+    inventory.faces.emplace(row.first, face);
+    for (unsigned k = 0; k < 3; ++k) {
+      Edge edge{face.v[k], face.v[(k + 1) % 3]};
+      std::sort(edge.begin(), edge.end());
+      auto& entry = inventory.edges[edge];
+      entry.edge = edge;
+      entry.anchors.insert(face.facet);
+    }
+  }
+  return inventory;
+}
+std::set<Id> D9EligibleSides(const std::set<Id>& supports, const std::set<Id>& anchors,
+                             const BoundaryParameterState& parameters) {
+  std::set<Id> eligible;
+  const auto authority = parameters.Authority();
+  for (Id side : supports) {
+    for (Id anchor : anchors) {
+      const auto& side_facet = authority->Reference().Get(side);
+      const auto& anchor_facet = authority->Reference().Get(anchor);
+      if (side_facet.marker != anchor_facet.marker) continue;
+      if (parameters.Entity(side) != parameters.Entity(anchor)) continue;
+      eligible.insert(side);
+      break;
+    }
+  }
+  return eligible;
+}
+double D9EndpointNeedScore(const MappedFacetReference::SurfaceEvaluation& evaluation, const Point& chord) {
+  const double d1 =
+      evaluation.direction1.x * chord.x + evaluation.direction1.y * chord.y + evaluation.direction1.z * chord.z;
+  const double d2 =
+      evaluation.direction2.x * chord.x + evaluation.direction2.y * chord.y + evaluation.direction2.z * chord.z;
+  const double curvature = std::abs(evaluation.curvature1) * d1 * d1 + std::abs(evaluation.curvature2) * d2 * d2;
+  const double normal =
+      std::abs(evaluation.normal.x * chord.x + evaluation.normal.y * chord.y + evaluation.normal.z * chord.z);
+  return std::max(curvature / 8, normal / 4);
+}
+D9EndpointScore D9ScoreEndpoint(const std::set<Id>& supports, const std::set<Id>& anchors,
+                                const BoundaryParameterState& parameters, const SurfaceBinding& binding,
+                                const Point& chord) {
+  D9EndpointScore result;
+  const auto eligible = D9EligibleSides(supports, anchors, parameters);
+  const auto authority = parameters.Authority();
+  if (eligible.empty()) {
+    result.unsupported = 1;
+    return result;
+  }
+  // Feature joins retain the maximum score over every matching own-side facet.
+  for (Id side : eligible) {
+    try {
+      const auto evaluation = authority->EvaluateSurface(side, binding);
+      const double score = D9EndpointNeedScore(evaluation, chord);
+      if (!std::isfinite(score)) {
+        ++result.unsupported;
+        continue;
+      }
+      ++result.supported;
+      if (score > result.score) {
+        result.score = score;
+        result.limiting_side = side;
+      }
+    } catch (const std::exception&) {
+      ++result.unsupported;
+    }
+  }
+  return result;
+}
+void D9EvaluateEdges(D9Inventory& inventory, const BoundaryParameterState& parameters,
+                     const MappedFacetReference& authority, const std::function<bool()>& within_time,
+                     std::set<Id>& needed, size_t& valid_edges, size_t& unsupported_sides, std::ofstream& csv) {
+  csv << "edge_a,edge_b,score_max,tau,need_threshold,need,limiting_side_a,limiting_side_b,supported_sides_a,supported_"
+         "sides_b,unsupported_sides_a,unsupported_sides_b\n";
+  auto it = inventory.edges.begin();
+  for (; it != inventory.edges.end(); ++it) {
+    if (!within_time()) break;
+    auto& entry = it->second;
+    const auto* a = parameters.Find(entry.edge[0]);
+    const auto* b = parameters.Find(entry.edge[1]);
+    if (!a || !b) continue;
+    const Point chord{b->node.p.x - a->node.p.x, b->node.p.y - a->node.p.y, b->node.p.z - a->node.p.z};
+    const double length = std::hypot(chord.x, chord.y, chord.z);
+    if (!(length > 0 && std::isfinite(length))) continue;
+    std::set<Id> supports_a, supports_b;
+    authority.ForFacets(a->binding, [&](Id side) { supports_a.insert(side); });
+    authority.ForFacets(b->binding, [&](Id side) { supports_b.insert(side); });
+    const auto score_a = D9ScoreEndpoint(supports_a, entry.anchors, parameters, a->binding, chord);
+    const auto score_b = D9ScoreEndpoint(supports_b, entry.anchors, parameters, b->binding, chord);
+    entry.score = std::max(score_a.score, score_b.score);
+    entry.side_a = score_a.limiting_side;
+    entry.side_b = score_b.limiting_side;
+    entry.evaluated = score_a.supported > 0 && score_b.supported > 0;
+    unsupported_sides += score_a.unsupported + score_b.unsupported;
+    if (entry.evaluated) ++valid_edges;
+    entry.need = entry.evaluated && entry.score > 3 * D9Tau / 4;
+    if (entry.need) {
+      needed.insert(entry.edge[0]);
+      needed.insert(entry.edge[1]);
+    }
+    csv << entry.edge[0] << ',' << entry.edge[1] << ',' << std::setprecision(17) << entry.score << ',' << D9Tau << ','
+        << 3 * D9Tau / 4 << ',' << (entry.need ? 1 : 0) << ',' << entry.side_a << ',' << entry.side_b << ','
+        << score_a.supported << ',' << score_b.supported << ',' << score_a.unsupported << ',' << score_b.unsupported
+        << '\n';
+  }
+  inventory.unvisited_edges = std::distance(it, inventory.edges.end());
+}
+bool D9FaceHasNeed(const SurfaceFace& face, const std::map<Edge, D9EdgeRow>& edges) {
+  for (unsigned k = 0; k < 3; ++k) {
+    Edge edge{face.v[k], face.v[(k + 1) % 3]};
+    std::sort(edge.begin(), edge.end());
+    const auto found = edges.find(edge);
+    if (found != edges.end() && found->second.need) return true;
+  }
+  return false;
+}
+struct D9FaceResult {
+  std::string status;
+  double value = std::numeric_limits<double>::quiet_NaN();
+  double seconds = 0;
+  size_t work = 0;
+  size_t peak = 0;
+  bool attempted = false;
+};
+D9FaceResult D9ClassifyFace(const SurfaceFace& face, const std::array<Point, 3>& triangle, const PlanarReference& base,
+                            const MappedFacetReference& authority, bool entity_geometry, double query_tolerance,
+                            size_t held, const std::function<bool()>& within_time) {
+  D9FaceResult result;
+  result.status = "unsupported_non_entity_geometry";
+  if (!entity_geometry) return result;
+  AtlasBudget budget = GeometryAtlasBudget();
+  budget.maximum_work = D9WorkLimit;
+  budget.maximum_bytes = D9WorkspaceLimit;
+  budget.maximum_integer_bits = D9IntegerLimit;
+  budget.caller_bytes = held;
+  budget.within_time = within_time;
+  auto scoped = base.WithAtlasReservation(budget);
+  const auto started = D9Clock::now();
+  try {
+    if (!scoped) throw std::invalid_argument("WithAtlasReservation returned no classifier context.");
+    result.attempted = true;
+    result.value = scoped->SurfaceDeviation(face.facet, triangle, SurfaceQueryNeed::Classify(), false);
+    result.status = result.value <= query_tolerance ? "certified_within_tolerance" : "not_certified_within_tolerance";
+  } catch (const std::exception& error) {
+    result.status = std::string("exception:") + error.what();
+  }
+  result.seconds = std::chrono::duration<double>(D9Clock::now() - started).count();
+  result.work = budget.work;
+  result.peak = budget.peak_bytes;
+  return result;
+}
+void D9WriteFaceRow(std::ofstream& csv, const Face& key, const SurfaceFace& face, int marker, bool incident_need,
+                    bool entity_geometry, const D9FaceResult& result, const MappedFacetReference::GeometryStats& before,
+                    const MappedFacetReference::GeometryStats& after, double magnitude, double magnitude_seconds,
+                    size_t magnitude_work) {
+  csv << D9Csv(std::to_string(key[0]) + ":" + std::to_string(key[1]) + ":" + std::to_string(key[2])) << ','
+      << face.facet << ',' << marker << ',' << face.v[0] << ',' << face.v[1] << ',' << face.v[2] << ','
+      << (incident_need ? 1 : 0) << ',' << (entity_geometry ? 1 : 0) << ',' << D9Csv(result.status) << ','
+      << std::setprecision(17) << result.value << ',' << result.seconds << ',' << result.work << ','
+      << after.direct_calls - before.direct_calls << ',' << after.direct_exceptions - before.direct_exceptions << ','
+      << after.upper_calls - before.upper_calls << ',' << after.upper_refusals - before.upper_refusals << ','
+      << after.classification_calls - before.classification_calls << ','
+      << after.classification_work - before.classification_work << ',' << after.upper_work - before.upper_work << ','
+      << after.direct_seconds - before.direct_seconds << ',' << after.upper_seconds - before.upper_seconds << ','
+      << magnitude << ',' << magnitude_seconds << ',' << magnitude_work << ','
+      << D9Csv(result.status.rfind("exception:", 0) == 0 ? result.status.substr(10) : "") << '\n';
+}
+void D9MeasureFaces(const D9Loaded& loaded, const D9Inventory& inventory, const std::function<bool()>& within_time,
+                    D9FaceStats& stats, std::ofstream& csv) {
+  csv << "face_key,facet,marker,v0,v1,v2,geometry_need_incident,classify_supported,classify_status,classify_value,"
+         "classify_seconds,classify_work,direct_calls,direct_exceptions,upper_calls,upper_refusals,classification_"
+         "calls,classification_work,upper_work,direct_seconds,union_seconds,magnitude_value,magnitude_seconds,"
+         "magnitude_work,error\n";
+  for (const auto& row : inventory.faces) {
+    if (!within_time()) break;
+    ++stats.visited;
+    const auto& face = row.second;
+    const Id facet = face.facet;
+    std::array<Point, 3> triangle;
+    bool points_ok = true;
+    for (unsigned k = 0; k < 3; ++k) {
+      const auto* point = loaded.parameters->Find(face.v[k]);
+      if (!point) {
+        points_ok = false;
+        break;
+      }
+      triangle[k] = point->node.p;
+    }
+    if (!points_ok) {
+      ++stats.missing_points;
+      continue;
+    }
+    const bool incident_need = D9FaceHasNeed(face, inventory.edges);
+    if (incident_need) ++stats.current_demand_faces;
+    const auto before = loaded.authority->GeometryStatsSnapshot(false);
+    const auto result = D9ClassifyFace(face, triangle, *loaded.base, *loaded.authority, loaded.entity_geometry,
+                                       loaded.query_tolerance, loaded.held, within_time);
+    if (result.attempted) ++stats.attempted;
+    stats.work += result.work;
+    stats.peak = std::max(stats.peak, result.peak);
+    const auto after = loaded.authority->GeometryStatsSnapshot(false);
+    const auto direct = after.direct_calls - before.direct_calls;
+    const auto upper = after.upper_calls - before.upper_calls;
+    if (direct) ++stats.direct;
+    if (upper) ++stats.upper;
+    if (direct && upper) ++stats.mixed;
+    double magnitude = std::numeric_limits<double>::quiet_NaN();
+    double magnitude_seconds = 0;
+    size_t magnitude_work = 0;
+    if (incident_need && loaded.entity_geometry && std::isfinite(result.value) &&
+        result.value > loaded.query_tolerance) {
+      ++stats.over_tolerance;
+      ++stats.examined;
+      AtlasBudget budget = GeometryAtlasBudget();
+      budget.maximum_work = D9WorkLimit;
+      budget.maximum_bytes = D9WorkspaceLimit;
+      budget.maximum_integer_bits = D9IntegerLimit;
+      budget.caller_bytes = loaded.held;
+      budget.within_time = within_time;
+      auto scoped = loaded.base->WithAtlasReservation(budget);
+      const size_t before_work = budget.work;
+      const auto started = D9Clock::now();
+      try {
+        magnitude = scoped->SurfaceDeviation(facet, triangle, SurfaceQueryNeed::Magnitude(), false);
+      } catch (const std::exception&) {
+        ++stats.query_errors;
+      }
+      magnitude_seconds = std::chrono::duration<double>(D9Clock::now() - started).count();
+      magnitude_work = budget.work - before_work;
+      stats.work += budget.work;
+    } else if (incident_need && result.status.rfind("exception:", 0) == 0) {
+      ++stats.query_errors;
+    } else if (incident_need && loaded.entity_geometry && std::isfinite(result.value) &&
+               result.value <= loaded.query_tolerance) {
+      ++stats.success;
+      ++stats.examined;
+    }
+    const int marker = loaded.authority->Reference().Get(facet).marker;
+    D9WriteFaceRow(csv, row.first, face, marker, incident_need, loaded.entity_geometry, result, before, after,
+                   magnitude, magnitude_seconds, magnitude_work);
+  }
+  stats.unvisited_deadline = inventory.faces.size() - stats.visited;
+}
+struct D9ProjectionContext {
+  std::vector<char> bytes;
+  ReferenceState reference;
+  std::shared_ptr<BoundaryParameterState> parameters;
+  std::shared_ptr<const PlanarReference> base;
+  size_t held = 0;
+};
+D9ProjectionContext D9MakeProjectionContext(const D9Loaded& loaded, const char* parameter_path) {
+  D9ProjectionContext result;
+  result.bytes = loaded.bytes;
+  result.reference = DecodeReference(std::string(result.bytes.begin(), result.bytes.end()));
+  if (!result.reference.original) throw std::runtime_error("projection reference has no original state");
+  if (parameter_path) {
+    const auto authority = result.reference.original->Parameters()->Authority();
+    const auto payload = D9ReadBytes(parameter_path);
+    result.parameters = BoundaryParameterState::FromPayload(authority, payload, D9HeldMemoryLimit,
+                                                            result.reference.original->ResidentBytes());
+  } else {
+    result.parameters = std::make_shared<BoundaryParameterState>(*result.reference.original->Parameters());
+  }
+  if (result.parameters->Snapshot() != loaded.parameters->Snapshot())
+    throw std::runtime_error("fresh projection state differs from measured state");
+  result.base = result.reference.original->WithParameterState(result.parameters);
+  result.held = transfer_memory::Add(result.reference.original->ResidentBytes(), result.parameters->ResidentBytes(),
+                                     result.parameters->Authority()->ResidentBytes());
+  if (result.held > D9HeldMemoryLimit) throw std::runtime_error("projection held memory model exceeded");
+  return result;
+}
+size_t D9OverlayBytes(const Patch& overlay) {
+  return transfer_memory::Add(
+      transfer_memory::Bytes(overlay.surface),
+      transfer_memory::Mul(overlay.parameters.size(), sizeof(BoundaryPoints::value_type) + 3 * sizeof(void*)));
+}
+Patch D9ProjectionOverlay(const Edge& edge, const D9Inventory& inventory, const BoundaryParameterState& parameters,
+                          std::set<Id>& incident) {
+  Patch overlay;
+  for (const auto& row : inventory.faces) {
+    const auto& face = row.second;
+    bool has_a = false;
+    bool has_b = false;
+    for (Id id : face.v) {
+      has_a = has_a || id == edge[0];
+      has_b = has_b || id == edge[1];
+    }
+    if (!has_a || !has_b) continue;
+    incident.insert(face.facet);
+    overlay.surface.push_back(face);
+    for (Id id : face.v) {
+      const auto* point = parameters.Find(id);
+      if (point) overlay.parameters.emplace(id, *point);
+    }
+  }
+  return overlay;
+}
+Node D9MidpointNode(const Edge& edge, const BoundaryParameterState& parameters, Id id) {
+  const auto* a = parameters.Find(edge[0]);
+  const auto* b = parameters.Find(edge[1]);
+  if (!a || !b) throw std::runtime_error("need-edge endpoint missing from parameter state");
+  const Point midpoint{double(((long double)a->node.p.x + b->node.p.x) / 2),
+                       double(((long double)a->node.p.y + b->node.p.y) / 2),
+                       double(((long double)a->node.p.z + b->node.p.z) / 2)};
+  return Node{id, midpoint};
+}
+void D9MeasureProjection(const Edge& edge, const D9ProjectionContext& context, const D9Inventory& inventory,
+                         Id& next_id, const std::function<bool()>& within_time, D9ProjectionStats& stats,
+                         std::ofstream& csv) {
+  if (!within_time()) return;
+  std::set<Id> incident;
+  const auto overlay = D9ProjectionOverlay(edge, inventory, *context.parameters, incident);
+  if (!within_time()) return;
+  if (incident.empty() || next_id == std::numeric_limits<Id>::max()) return;
+  AtlasBudget budget = GeometryAtlasBudget();
+  budget.maximum_work = D9WorkLimit;
+  budget.maximum_bytes = D9WorkspaceLimit;
+  budget.maximum_integer_bits = D9IntegerLimit;
+  budget.caller_bytes = transfer_memory::Add(context.held, D9OverlayBytes(overlay));
+  budget.within_time = within_time;
+  const auto setup_start = D9Clock::now();
+  const size_t setup_work_before = budget.work;
+  std::unique_ptr<PlanarReference> private_view;
+  std::string error;
+  bool success = false;
+  Node projected;
+  try {
+    projected = D9MidpointNode(edge, *context.parameters, next_id++);
+    private_view = context.base->PrivateParameters(overlay, &budget);
+    if (!private_view) throw std::invalid_argument("PrivateParameters returned no projection context.");
+  } catch (const std::exception& failure) {
+    error = failure.what();
+  }
+  const double setup_seconds = std::chrono::duration<double>(D9Clock::now() - setup_start).count();
+  const size_t setup_work = budget.work - setup_work_before;
+  stats.context_seconds += setup_seconds;
+  double bind_seconds = 0;
+  size_t bind_work = 0;
+  if (private_view) {
+    const auto bind_start = D9Clock::now();
+    const size_t bind_work_before = budget.work;
+    try {
+      projected = private_view->BindNewPoint(projected, incident, &edge);
+      success = true;
+    } catch (const std::exception& failure) {
+      error = failure.what();
+      ++stats.bind_failures;
+    }
+    bind_seconds = std::chrono::duration<double>(D9Clock::now() - bind_start).count();
+    bind_work = budget.work - bind_work_before;
+    stats.bind_seconds += bind_seconds;
+  } else {
+    ++stats.context_failures;
+  }
+  if (success)
+    ++stats.success;
+  else
+    ++stats.refusals;
+  ++stats.attempted;
+  stats.work += budget.work;
+  stats.peak = std::max(stats.peak, budget.peak_bytes);
+  csv << edge[0] << ',' << edge[1] << ',' << incident.size() << ',' << std::setprecision(17) << setup_seconds << ','
+      << setup_work << ',' << bind_seconds << ',' << bind_work << ',' << (success ? 1 : 0) << ',' << projected.p.x
+      << ',' << projected.p.y << ',' << projected.p.z << ',' << budget.peak_bytes << ',' << D9Csv(error) << '\n';
+}
+void D9MeasureProjections(const D9Loaded& loaded, const char* parameter_path, const D9Inventory& inventory,
+                          const std::function<bool()>& within_time, D9ProjectionStats& stats, std::ofstream& csv) {
+  const auto context = D9MakeProjectionContext(loaded, parameter_path);
+  Id next_id = 0;
+  for (const auto& row : loaded.parameters->Records()) {
+    if (row.first >= next_id) next_id = row.first == std::numeric_limits<Id>::max() ? row.first : row.first + 1;
+  }
+  for (const auto& row : inventory.edges) {
+    if (!row.second.need) continue;
+    if (!within_time()) break;
+    D9MeasureProjection(row.first, context, inventory, next_id, within_time, stats, csv);
+    if (stats.attempted || !within_time()) break;
+  }
+  if (!within_time()) stats.unattempted_deadline = stats.selected - stats.attempted;
+}
+void D9WriteSummary(std::ofstream& summary, const D9Loaded& loaded, const char* reference_path,
+                    const char* parameter_path, const char* marker_text, const D9Inventory& inventory,
+                    const std::set<Id>& needed, size_t valid_edges, size_t unsupported_sides, const D9FaceStats& faces,
+                    const D9ProjectionStats& projections) {
+  summary << std::setprecision(17)
+          << "{\"schema\":\"d9_geometry_measurement_v1\",\"status\":\"observed\",\"reference\":"
+          << std::quoted(reference_path)
+          << ",\"parameter_payload\":" << (parameter_path ? std::string("\"") + parameter_path + "\"" : "null")
+          << ",\"marker_filter\":" << std::quoted(marker_text ? marker_text : "")
+          << ",\"entity_geometry\":" << (loaded.entity_geometry ? "true" : "false")
+          << ",\"query_tolerance\":" << loaded.query_tolerance
+          << ",\"geometry_tolerance_matches_M1_tau\":" << (loaded.query_tolerance == D9Tau ? "true" : "false")
+          << ",\"M1\":{\"tau\":" << D9Tau << ",\"edge_need_threshold\":" << 3 * D9Tau / 4
+          << ",\"unique_selected_edges\":" << inventory.edges.size() << ",\"geometry_need_edges\":"
+          << std::count_if(inventory.edges.begin(), inventory.edges.end(),
+                           [](const auto& row) { return row.second.need; })
+          << ",\"need_vertices\":" << needed.size() << ",\"first_pass_midpoint_candidates\":"
+          << std::count_if(inventory.edges.begin(), inventory.edges.end(),
+                           [](const auto& row) { return row.second.need; })
+          << ",\"edges_with_valid_support_at_both_endpoints\":" << valid_edges
+          << ",\"unvisited_edges_at_deadline\":" << inventory.unvisited_edges
+          << ",\"unsupported_endpoint_side_evaluations\":" << unsupported_sides
+          << ",\"complete_edge_coverage\":" << (valid_edges == inventory.edges.size() ? "true" : "false")
+          << ",\"scope\":\"geometry-only endpoint need; each endpoint uses its own supported frame(s), max across "
+             "feature-join sides; midpoint candidates are not completed S1 point count\"}"
+          << ",\"M3\":{\"selected_faces\":" << inventory.faces.size() << ",\"direct_path_faces\":" << faces.direct
+          << ",\"union_path_faces\":" << faces.upper << ",\"mixed_path_faces\":" << faces.mixed
+          << ",\"classify_supported\":" << (loaded.entity_geometry ? "true" : "false")
+          << ",\"work_limit_per_face\":" << D9WorkLimit << ",\"workspace_limit_bytes_per_face\":" << D9WorkspaceLimit
+          << ",\"aggregate_query_work\":" << faces.work << ",\"faces_visited\":" << faces.visited
+          << ",\"faces_attempted\":" << faces.attempted << ",\"faces_missing_input_points\":" << faces.missing_points
+          << ",\"faces_unvisited_at_deadline\":" << faces.unvisited_deadline << ",\"complete_classify_census\":"
+          << (loaded.entity_geometry && faces.attempted == inventory.faces.size() ? "true" : "false")
+          << ",\"held_memory_model_bytes\":" << D9HeldMemoryLimit << ",\"maximum_query_peak_bytes\":" << faces.peak
+          << ",\"time_limit_seconds\":600}"
+          << ",\"current_demand_face_proof_addendum\":{\"faces\":" << faces.current_demand_faces
+          << ",\"classify_success_within_tolerance\":" << faces.success
+          << ",\"classify_failures_over_tolerance\":" << faces.over_tolerance
+          << ",\"query_errors\":" << faces.query_errors << ",\"examined\":" << faces.examined
+          << ",\"scope\":\"additional proof on old faces incident to current geometry-demand edges; not an S1 plan\"}"
+          << ",\"M13\":{\"status\":\"unavailable_pending_qualified_S1_plan\",\"reason\":\"current-demand faces are old "
+             "faces and do not identify planned new faces\"}"
+          << ",\"M5\":{\"selected_need_edges\":" << projections.selected << ",\"attempted\":" << projections.attempted
+          << ",\"successful_bind_new_point\":" << projections.success
+          << ",\"refused_or_unavailable\":" << projections.refusals
+          << ",\"context_failures\":" << projections.context_failures
+          << ",\"bind_new_point_failures\":" << projections.bind_failures
+          << ",\"need_edges_unattempted_at_deadline\":" << projections.unattempted_deadline
+          << ",\"projection_seconds\":" << projections.bind_seconds
+          << ",\"private_context_seconds\":" << projections.context_seconds
+          << ",\"aggregate_work\":" << projections.work << ",\"maximum_projection_peak_bytes\":" << projections.peak
+          << ",\"work_limit_per_edge\":" << D9WorkLimit << ",\"workspace_limit_bytes_per_edge\":" << D9WorkspaceLimit
+          << ",\"held_memory_model_bytes\":" << D9HeldMemoryLimit
+          << ",\"complete_need_edge_census\":" << (projections.attempted == projections.selected ? "true" : "false")
+          << ",\"fresh_cache_context\":true,\"scope\":\"one first-demand-edge sample of BindNewPoint; private-context setup "
+             "reported separately; not an all-edge projection census\"}"
+          << ",\"full_composed_target_loaded\":false,\"budgets\":{\"held_memory_model_bytes\":" << D9HeldMemoryLimit
+          << ",\"workspace_bytes_per_operation\":" << D9WorkspaceLimit << ",\"work_per_operation\":" << D9WorkLimit
+          << ",\"within_time_deadline_seconds\":600,\"integer_bit_limit\":" << D9IntegerLimit
+          << "},\"output_files\":[\"d9_geometry_edges.csv\",\"d9_geometry_faces.csv\",\"d9_geometry_projections.csv\"]"
+          << ",\"production_workflow_launched\":false}\n";
+}
+}  // namespace
+TEST_CASE("D9 geometry need and exact wall proof measurements", "[.][NativeD9Geometry]") {
+  World world;
+  REQUIRE(world.size == 1);
+  const char* reference_path = std::getenv("SU2_D9_REFERENCE");
+  REQUIRE(reference_path);
+  const char* parameter_path = std::getenv("SU2_D9_PARAMETERS");
+  const char* marker_text = std::getenv("SU2_D9_WALL_MARKERS");
+  const auto markers = D9Markers(marker_text);
+  const auto started = D9Clock::now();
+  const auto within_time = [started]() { return D9WithinTime(started); };
+  D9Loaded loaded;
+  loaded.bytes = D9ReadBytes(reference_path);
+  loaded.reference = DecodeReference(std::string(loaded.bytes.begin(), loaded.bytes.end()));
+  REQUIRE(loaded.reference.original);
+  std::ofstream summary("d9_geometry_summary.json");
+  REQUIRE(bool(summary));
+  if (parameter_path) {
+    const auto* initial = loaded.reference.original->Parameters();
+    const auto authority = initial ? initial->Authority() : std::shared_ptr<const MappedFacetReference>{};
+    if (!authority) {
+      summary << "{\"schema\":\"d9_geometry_measurement_v1\",\"status\":\"unsupported_reference_has_no_geometry_"
+                 "authority\",\"production_workflow_launched\":false}\n";
+      return;
+    }
+    const auto payload = D9ReadBytes(parameter_path);
+    loaded.parameters = BoundaryParameterState::FromPayload(authority, payload, D9HeldMemoryLimit,
+                                                            loaded.reference.original->ResidentBytes());
+  } else if (loaded.reference.original->Parameters()) {
+    loaded.parameters = std::make_shared<BoundaryParameterState>(*loaded.reference.original->Parameters());
+  }
+  if (!loaded.parameters) {
+    summary << "{\"schema\":\"d9_geometry_measurement_v1\",\"status\":\"unsupported_missing_parameter_state\","
+               "\"production_workflow_launched\":false}\n";
+    return;
+  }
+  loaded.authority = loaded.parameters->Authority();
+  REQUIRE(loaded.authority);
+  loaded.entity_geometry = loaded.parameters->EntityGeometry();
+  loaded.query_tolerance = loaded.parameters->GeometryTolerance();
+  loaded.base = loaded.reference.original->WithParameterState(loaded.parameters);
+  loaded.held = transfer_memory::Add(loaded.reference.original->ResidentBytes(), loaded.parameters->ResidentBytes(),
+                                     loaded.authority->ResidentBytes());
+  REQUIRE(loaded.held <= D9HeldMemoryLimit);
+  auto inventory = D9BuildInventory(*loaded.parameters, markers);
+  std::ofstream edge_csv("d9_geometry_edges.csv");
+  std::ofstream face_csv("d9_geometry_faces.csv");
+  std::ofstream projection_csv("d9_geometry_projections.csv");
+  REQUIRE(bool(edge_csv));
+  REQUIRE(bool(face_csv));
+  REQUIRE(bool(projection_csv));
+  projection_csv << "edge_a,edge_b,incident_facets,context_seconds,context_work,bind_seconds,bind_work,success,projected_x,"
+                    "projected_y,projected_z,peak_bytes,error\n";
+  std::set<Id> needed;
+  size_t valid_edges = 0;
+  size_t unsupported_sides = 0;
+  D9EvaluateEdges(inventory, *loaded.parameters, *loaded.authority, within_time, needed, valid_edges, unsupported_sides,
+                  edge_csv);
+  D9ProjectionStats projection_stats;
+  projection_stats.selected =
+      std::count_if(inventory.edges.begin(), inventory.edges.end(), [](const auto& row) { return row.second.need; });
+  if (within_time())
+    D9MeasureProjections(loaded, parameter_path, inventory, within_time, projection_stats, projection_csv);
+  else
+    projection_stats.unattempted_deadline = projection_stats.selected;
+  D9FaceStats face_stats;
+  D9MeasureFaces(loaded, inventory, within_time, face_stats, face_csv);
+  D9WriteSummary(summary, loaded, reference_path, parameter_path, marker_text, inventory, needed, valid_edges,
+                 unsupported_sides, face_stats, projection_stats);
+  REQUIRE(bool(edge_csv));
+  REQUIRE(bool(face_csv));
+  REQUIRE(bool(projection_csv));
+  REQUIRE(bool(summary));
 }

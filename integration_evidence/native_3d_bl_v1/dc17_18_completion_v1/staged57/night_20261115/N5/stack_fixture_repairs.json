@@ -1,0 +1,39 @@
+{
+  "scope": "test-only N5 serial stack fixture setup corrections",
+  "production_source_changed": false,
+  "build_or_numerical_run": false,
+  "causes_and_corrections": [
+    {
+      "cause": "Column.walls stores layer indices (0/1), while the first report draft indexed wall policy APIs with marker IDs (0/3); top-wall marker 3 could be out of range.",
+      "correction": "Resolve each marker through existing layerOfMarker and invert that map for per-column labels; emit per-wall statistics under the physical marker IDs."
+    },
+    {
+      "cause": "The first report draft represented first-height behavior only with HeightOk pass/error summaries and configured h0 values.",
+      "correction": "After the existing completion/growth sequence, collect rows.lift base-to-lift pairs on each existing wall marker and report measured absolute z displacement samples, min/max/mean, and missing base-vertex counts. Empty measurements carry an explicit unavailable status."
+    },
+    {
+      "cause": "The first M10 modes reused the requested M12 two-wall/all-symmetry geometry, which did not preserve the smallest existing one-wall synthetic-box baseline.",
+      "correction": "M10 n1/n2/n4 now use the original one-wall SyntheticBox defaults and original marker roles; only M12 control/meet modes enable the two-wall, four-distinct-symmetry-side fixture."
+    },
+    {
+      "cause": "A column stopHeight can be infinite when no finite stop height was recorded, which is not valid JSON as a raw floating-point token.",
+      "correction": "Serialize nonfinite report doubles as JSON null with the test-only D9Number helper."
+    },
+    {
+      "cause": "The first stack formatter treated Column.walls entries as physical marker IDs although they are layer indices; the initial M10 report also did not preserve configured-wall scope in its by-wall section.",
+      "correction": "Map layer indices back to wall markers for column output and use layerOfMarker to read per-wall h0/growth/thickness and aggregate each wall's column stacks."
+    },
+    {
+      "cause": "The first implementation kept measurement, report assembly, and test dispatch in a long dense test block.",
+      "correction": "Split the test-only work into D9Columns, D9FirstHeights, D9MeshStats, D9RoomStats, D9Report, and D9Measure helpers; formatted only the new source range with clang-format."
+    }
+  ],
+  "primary_nonfinite_quality_correction": {
+    "cause": "NaN q/J comparisons would not count as bad in new writer.",
+    "correction": "Count nonfinite values as bad; original thresholds unchanged."
+  },
+  "compile_WallFaces_API": {
+    "cause": "Build511: new first-height reporter assumed WallFaces returns face structs with out/marker; actual API returns (cell ID, sorted face).",
+    "correction": "Read its actual owning cell, match physical slot by sorted face, obtain marker through unchanged reference, and use pair.second vertices. Production unchanged; failed80.177s build receipts/pins/source copies preserved."
+  }
+}

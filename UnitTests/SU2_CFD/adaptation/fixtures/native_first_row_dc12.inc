@@ -152,8 +152,8 @@ TEST_CASE("DC-12 production volume-only build-then-optimize (serial RefineOptimi
 
 namespace dc12 {
 // Synthetic box [0,1]^3 (rotated about z by `angle`), n^3 cubes x 6 Kuhn tetrahedra: marker 0 wall z=0, 1 reflective carrier
-// x=0, 2 artificial boundary, 3 second wall z=1 (topWall) and 4 second reflective carrier y=0 (seam); names from the spec only.
-struct BoxSpec { int n=4;double h0=4e-3,g=1.2,thickness=.5,h0Top=6e-3,gTop=1.15,angle=0,shear=0,shearY=0;bool topWall=false,seam=false;
+// x=0, 2 artificial boundary, 3 second wall z=1 (topWall), 4 y=0 carrier, and optional 5/6 x=1/y=1 carriers.
+struct BoxSpec { int n=4;double h0=4e-3,g=1.2,thickness=.5,h0Top=6e-3,gTop=1.15,angle=0,shear=0,shearY=0;bool topWall=false,seam=false,symmetrySides=false;
   std::array<std::string,5> names{{"wall","symmetry","outer","top","symmetry2"}}; };
 std::unique_ptr<State> SyntheticBox(const BoxSpec& b) {
   auto s=std::make_unique<State>();s->name="box";const int n=b.n;
@@ -165,10 +165,11 @@ std::unique_ptr<State> SyntheticBox(const BoxSpec& b) {
     std::array<int,3> c{i,j,k};std::array<Id,4> v;v[0]=id(c[0],c[1],c[2]);for(int t=0;t<3;++t){++c[p[t]];v[t+1]=id(c[0],c[1],c[2]);}
     Cell cell{cid++,{Node{v[0],nodes.at(v[0])},Node{v[1],nodes.at(v[1])},Node{v[2],nodes.at(v[2])},Node{v[3],nodes.at(v[3])}}};
     if(Orientation(cell.v[0].p,cell.v[1].p,cell.v[2].p,cell.v[3].p)<0)std::swap(cell.v[0],cell.v[1]);mesh.push_back(cell);}
-  s->markers={b.names[0],b.names[1],b.names[2],b.names[3],b.names[4]};
+  s->markers={b.names[0],b.names[1],b.names[2],b.names[3],b.names[4]};if(b.symmetrySides){s->markers.push_back("symmetry3");s->markers.push_back("symmetry4");}
   auto plane=[&](const Face& f)->int{std::array<std::array<int,3>,3> q;for(int t=0;t<3;++t)q[t]=ijk.at(f[t]);
     auto all=[&](int axis,int val){return q[0][axis]==val&&q[1][axis]==val&&q[2][axis]==val;};
-    if(all(2,0))return 0;if(all(0,0))return 1;if(all(2,n))return b.topWall?3:2;if(all(1,0))return b.seam?4:2;return 2;};
+    if(all(2,0))return 0;if(all(2,n))return b.topWall?3:2;if(all(0,0))return 1;if(b.symmetrySides&&all(0,n))return 5;
+    if(all(1,0))return b.symmetrySides?4:(b.seam?4:2);if(b.symmetrySides&&all(1,n))return 6;return 2;};
   std::map<Face,Face> skin;std::map<Face,int> uses;for(const auto& c:mesh)for(auto f:CellFaces(c)){skin[Sorted(f)]=f;++uses[Sorted(f)];}
   std::map<Face,Id> physical;Id fid=1;
   for(const auto& u:uses)if(u.second==1){const auto oriented=skin.at(u.first);Facet facet;facet.id=fid++;facet.marker=plane(u.first);
@@ -182,7 +183,7 @@ std::unique_ptr<State> SyntheticBox(const BoxSpec& b) {
     std::map<Id,unsigned long> index;
     for(const auto& f:s->facets)if(f.marker==m){for(auto x:f.v){const auto ins=index.emplace(x.id,index.size());if(ins.second){w.coord.push_back(x.p.x);w.coord.push_back(x.p.y);w.coord.push_back(x.p.z);}w.conn.push_back(ins.first->second);}w.conn.push_back(w.conn.back());}
     walls.push_back(std::move(w));}
-  for(const auto& f:s->facets)if(!s->walls.count(f.marker)){CBoundaryLayerMetric::FeatureFace p;p.reflective=f.marker==1||f.marker==4;
+  for(const auto& f:s->facets)if(!s->walls.count(f.marker)){CBoundaryLayerMetric::FeatureFace p;p.reflective=f.marker==1||f.marker==4||(b.symmetrySides&&(f.marker==5||f.marker==6));
     for(auto x:f.v){p.coord.push_back(x.p.x);p.coord.push_back(x.p.y);p.coord.push_back(x.p.z);}options.faces.push_back(std::move(p));}
   s->layers=std::make_shared<CBoundaryLayerMetric>(3,std::move(walls),45.0,std::move(options));
   std::vector<DonorCell> donors;{Point lo{-2,-2,-1},hi{3,3,2};const Tensor sensor{s->core,0,0,s->core,0,s->core};
@@ -194,7 +195,7 @@ std::unique_ptr<State> SyntheticBox(const BoxSpec& b) {
   Prepare(*s);dc7::MakeMapped(*s);return s;
 }
 // DC-16: roles of the box markers by index (0, 3 walls; 1, 4 reflective carriers; 2 artificial), never by name
-inline std::map<int,int> BoxRoles(){return {{0,1},{1,0},{2,2},{3,1},{4,0}};}
+inline std::map<int,int> BoxRoles(bool symmetrySides=false){auto r=std::map<int,int>{{0,1},{1,0},{2,2},{3,1},{4,0}};if(symmetrySides){r[5]=0;r[6]=0;}return r;}
 std::map<int,long double> MarkerAreas(State& s,size_t& unbound) {
   std::map<int,long double> area;std::map<Face,int> uses;unbound=0;for(const auto& r:s.mesh)for(auto f:CellFaces(r.second.cell))++uses[Sorted(f)];
   for(const auto& r:s.mesh){const auto f=CellFaces(r.second.cell);for(unsigned k=0;k<4;++k){if(uses.at(Sorted(f[k]))!=1)continue;if(!r.second.physical[k].present){++unbound;continue;}
@@ -273,4 +274,293 @@ TEST_CASE("DC-12 growth layers on synthetic boxes: fills, law heights, carriers,
   {bool found=false;for(const auto& c:r5.G.columns)if(c.wall==Id(1)){found=true;CHECK(!c.stack.empty());
      for(Id x:c.stack)if(r5.s->vertex_cells.count(x)){const auto p=NodePoint(*r5.s,x);CHECK(std::abs(p.x)<=1e-12);CHECK(std::abs(p.y)<=1e-12);}}
    CHECK(found);}
+}
+
+namespace dc12 {
+inline std::string D9Number(double x) {
+  if (!std::isfinite(x)) return "null";
+  std::ostringstream o;
+  o << std::setprecision(12) << x;
+  return o.str();
+}
+struct D9StackRows {
+  std::string columns, by_wall;
+};
+inline D9StackRows D9Columns(State& s, const Growth& growth) {
+  std::map<unsigned short, std::vector<size_t>> layerCounts;
+  std::map<unsigned short, size_t> wallColumns;
+  std::map<unsigned short, int> markerForLayer;
+  for (const auto& w : layerOfMarker) markerForLayer[w.second] = w.first;
+  std::ostringstream cols;
+  cols << "[";
+  bool first = true;
+  for (const auto& c : growth.columns) {
+    if (!first) cols << ",";
+    first = false;
+    cols << "{\"root\":" << c.wall << ",\"top\":" << c.top << ",\"walls\":[";
+    bool fw = true;
+    for (unsigned short layer : c.walls) {
+      if (!fw) cols << ",";
+      fw = false;
+      const int marker = markerForLayer.at(layer);
+      cols << marker;
+      ++wallColumns[layer];
+      layerCounts[layer].push_back(c.stack.size());
+    }
+    cols << "],\"layers\":" << c.stack.size() << ",\"stopped\":" << (c.stopped ? "true" : "false")
+         << ",\"stop\":" << junction_wp0::Json(c.stop) << ",\"stop_height\":" << D9Number(double(c.stopHeight)) << "}";
+  }
+  cols << "]";
+  std::ostringstream byWall;
+  byWall << "{";
+  bool firstWall = true;
+  for (int marker : s.walls) {
+    if (!firstWall) byWall << ",";
+    firstWall = false;
+    const unsigned short layer = layerOfMarker.at(marker);
+    auto v = layerCounts[layer];
+    size_t total = 0, largest = 0;
+    for (size_t count : v) {
+      total += count;
+      largest = std::max(largest, count);
+    }
+    byWall << "\"" << marker << "\":{\"layer_index\":" << layer
+           << ",\"configured_h0\":" << D9Number(double(FirstHeightOf(s, layer)))
+           << ",\"growth\":" << D9Number(double(GrowthOf(s, layer)))
+           << ",\"thickness\":" << D9Number(double(ThicknessOf(s, layer))) << ",\"columns\":" << wallColumns[layer]
+           << ",\"stack_count\":" << v.size() << ",\"largest_layers\":" << largest
+           << ",\"mean_layers\":" << (v.empty() ? 0. : double(total) / v.size()) << "}";
+  }
+  byWall << "}";
+  return {cols.str(), byWall.str()};
+}
+inline std::string D9FirstHeights(State& s, const Rows10& rows) {
+  struct Sample {
+    Id base, lift;
+    double dz;
+  };
+  std::map<int, std::set<Id>> wallVertices;
+  std::map<int, std::vector<Sample>> heights;
+  std::map<int, size_t> missing;
+  for (const auto& wf : WallFaces(s)) {
+    const auto& row = s.mesh.at(wf.first);
+    const auto faces = CellFaces(row.cell);
+    for (unsigned k = 0; k < 4; ++k) {
+      if (Sorted(faces[k]) != wf.second || !row.physical[k].present) continue;
+      const int marker = s.reference->Get(row.physical[k].facet).marker;
+      for (Id v : wf.second) wallVertices[marker].insert(v);
+    }
+  }
+  for (int marker : s.walls) {
+    for (Id base : wallVertices[marker]) {
+      const auto lift = rows.lift.find(base);
+      if (lift == rows.lift.end() || !s.vertex_cells.count(lift->second)) {
+        ++missing[marker];
+        continue;
+      }
+      const V a = Of(NodePoint(s, base)), b = Of(NodePoint(s, lift->second));
+      heights[marker].push_back({base, lift->second, std::abs(double(b.z - a.z))});
+    }
+  }
+  std::ostringstream out;
+  out << "{";
+  bool first = true;
+  for (int marker : s.walls) {
+    if (!first) out << ",";
+    first = false;
+    const auto& values = heights[marker];
+    double sum = 0, lo = INFINITY, hi = 0;
+    for (const auto& sample : values) {
+      sum += sample.dz;
+      lo = std::min(lo, sample.dz);
+      hi = std::max(hi, sample.dz);
+    }
+    out << "\"" << marker << "\":{\"measured_samples\":" << values.size() << ",\"missing_vertices\":" << missing[marker]
+        << ",\"measurement_status\":"
+        << junction_wp0::Json(values.empty() ? "unavailable: no base-to-lift samples" : "measured")
+        << ",\"min_abs_dz\":" << D9Number(values.empty() ? NAN : lo)
+        << ",\"max_abs_dz\":" << D9Number(values.empty() ? NAN : hi)
+        << ",\"mean_abs_dz\":" << D9Number(values.empty() ? NAN : sum / values.size()) << ",\"samples\":[";
+    for (size_t i = 0; i < values.size(); ++i) {
+      const auto& sample = values[i];
+      out << (i ? "," : "") << "{\"base\":" << sample.base << ",\"lift\":" << sample.lift
+          << ",\"abs_dz\":" << D9Number(sample.dz) << "}";
+    }
+    out << "]}";
+  }
+  out << "}";
+  return out.str();
+}
+inline std::string D9MeshStats(State& s, const Gates8& gates) {
+  size_t positive = 0, qBad = 0, jBad = 0;
+  for (const auto& row : s.mesh) {
+    if (Positive(row.second.cell.v)) ++positive;
+    const auto shape = MeshShape(s, row.first);
+    qBad += !std::isfinite(shape.q) || shape.q < MinimumMeanRatio;
+    jBad += !std::isfinite(shape.J) || shape.J < MinimumScaledJacobian;
+  }
+  std::map<Face, size_t> uses;
+  std::map<Face, bool> bound;
+  for (const auto& row : s.mesh) {
+    const auto faces = CellFaces(row.second.cell);
+    for (unsigned k = 0; k < 4; ++k) {
+      const auto key = Sorted(faces[k]);
+      ++uses[key];
+      bound[key] = bound[key] || row.second.physical[k].present;
+    }
+  }
+  size_t nonmanifold = 0, unbound = 0, boundary = 0;
+  for (const auto& f : uses) {
+    if (f.second > 2)
+      ++nonmanifold;
+    else if (f.second == 1) {
+      ++boundary;
+      unbound += !bound[f.first];
+    }
+  }
+  std::ostringstream out;
+  out << "{\"cells\":" << s.mesh.size() << ",\"positive_cells\":" << positive
+      << ",\"all_positive\":" << (positive == s.mesh.size() ? "true" : "false") << ",\"boundary_faces\":" << boundary
+      << ",\"nonmanifold_faces\":" << nonmanifold << ",\"unbound_boundary_faces\":" << unbound
+      << ",\"q_min\":" << D9Number(gates.q) << ",\"J_min\":" << D9Number(gates.J) << ",\"q_bad\":" << qBad
+      << ",\"j_bad\":" << jBad << ",\"q_threshold\":" << D9Number(MinimumMeanRatio)
+      << ",\"j_threshold\":" << D9Number(MinimumScaledJacobian) << ",\"size_long_edges\":" << gates.long_edges
+      << ",\"size_edge_max\":" << D9Number(double(gates.lmax)) << ",\"height_failures\":" << gates.height_failures
+      << ",\"complete\":" << (gates.complete ? "true" : "false") << "}";
+  return out.str();
+}
+inline std::string D9RoomStats(const std::string& log) {
+  std::vector<size_t> regions;
+  std::istringstream in(log);
+  std::string line;
+  while (std::getline(in, line)) {
+    const auto p = line.find("DC16 room ");
+    if (p == std::string::npos) continue;
+    const auto q = line.find("region=", p);
+    if (q != std::string::npos) regions.push_back(std::stoull(line.substr(q + 7)));
+  }
+  std::ostringstream out;
+  out << "{\"stats\":" << dc16::JsonRoom(dc16::roomStats) << ",\"logged_nonempty_regions\":" << regions.size()
+      << ",\"region_sizes\":[";
+  for (size_t i = 0; i < regions.size(); ++i) out << (i ? "," : "") << regions[i];
+  out << "]}";
+  return out.str();
+}
+inline std::string D9Report(const std::string& mode, const std::string& family, const BoxSpec& b, const R1Stage& r1,
+                            const R2Stage& r2, const dc15::Completion& completion, const Growth& growth,
+                            const Gates8& gates, State& s, const std::string& log, const Rows10& rows, double r1time,
+                            double r2time, double completionTime, double growthTime) {
+  const auto columns = D9Columns(s, growth);
+  std::ostringstream out;
+  out << std::setprecision(12) << "{\"schema\":\"D9_stack_v1\",\"mode\":" << junction_wp0::Json(mode)
+      << ",\"family\":" << junction_wp0::Json(family) << ",\"n\":" << b.n
+      << ",\"G\":1,\"top_wall\":" << (b.topWall ? "true" : "false")
+      << ",\"symmetry_sides\":" << (b.symmetrySides ? "true" : "false") << ",\"thickness\":" << D9Number(b.thickness)
+      << ",\"h0_bottom\":" << D9Number(b.h0) << ",\"h0_top\":" << (b.topWall ? D9Number(b.h0Top) : "null")
+      << ",\"growth_bottom\":" << D9Number(b.g) << ",\"growth_top\":" << (b.topWall ? D9Number(b.gTop) : "null")
+      << ",\"phase_limits\":{\"R1_work\":4096,\"R1_seconds\":60,\"R2_seconds\":120,\"completion_seconds\":60,"
+         "\"completion_surface_tolerance\":0.0001,\"G_seconds\":120}"
+      << ",\"timing_seconds\":{\"R1\":" << D9Number(r1time) << ",\"R2\":" << D9Number(r2time)
+      << ",\"completion\":" << D9Number(completionTime) << ",\"G\":" << D9Number(growthTime) << "}"
+      << ",\"phases\":{\"R1\":" << JsonStage(r1) << ",\"R2\":" << JsonStage(r2)
+      << ",\"completion\":" << dc15::JsonCompletion(completion)
+      << ",\"G_ran\":" << (completion.failing_after == 0 ? "true" : "false") << ",\"G_reason\":"
+      << junction_wp0::Json(completion.failing_after == 0 ? "completion complete"
+                                                          : "completion incomplete; production early stop")
+      << ",\"G\":" << JsonGrowth(s, growth) << "},\"R2_max\":{\"closure_vertices\":" << r2.max_closure
+      << ",\"old_cells\":" << r2.max_old << ",\"fresh_cells\":" << r2.max_fresh << "}"
+      << ",\"room\":" << D9RoomStats(log) << ",\"positive_validity_and_topology\":" << D9MeshStats(s, gates)
+      << ",\"first_height_measurements\":" << D9FirstHeights(s, rows) << ",\"columns_by_wall\":" << columns.by_wall
+      << ",\"columns\":" << columns.columns << ",\"acceptance_claim\":false}\n";
+  return out.str();
+}
+inline void D9Measure(const std::string& mode, const std::string& family, const BoxSpec& b, const std::string& output,
+                      World& world) {
+  Policies policies;
+  struct ReleaseDirections {
+    ~ReleaseDirections() {
+      dc9::ensureDirectionField = {};
+      dc9::directionField = nullptr;
+      dc9::directionFieldUses = 0;
+    }
+  } release;
+  dc9::ensureDirectionField = {};
+  artificialMarkers = {2};
+  perf = Perf{};
+  ResetCaches();
+  cachesOn = true;
+  balancedCache.clear();
+  dc16::roomStats = dc16::RoomStats{};
+  dc9::directionField = nullptr;
+  dc9::directionFieldUses = 0;
+  const auto roles = BoxRoles(b.symmetrySides);
+  std::unique_ptr<State> s = SyntheticBox(b);
+  REQUIRE(s->markers.size() == (b.symmetrySides ? 7 : 5));
+  if (b.symmetrySides) {
+    REQUIRE(roles.at(1) == 0);
+    REQUIRE(roles.at(4) == 0);
+    REQUIRE(roles.at(5) == 0);
+    REQUIRE(roles.at(6) == 0);
+  }
+  ApplyWallPolicies(*s);
+  DetectCreases(*s, roles);
+  Rows10 rows;
+  DirField field = ComputeDirectionField(*s);
+  dc9::directionField = &field.d;
+  std::ostringstream log;
+  const auto t0 = Clock::now();
+  const auto r1 = PhaseR1(*s, rows, 4096, 60, log);
+  const double r1time = Seconds(t0);
+  const auto t1 = Clock::now();
+  const auto r2 = PhaseR2(*s, static_cast<Rows&>(rows), 120, log);
+  const double r2time = Seconds(t1);
+  std::set<Face> certified;
+  const auto t2 = Clock::now();
+  const auto completion = dc15::CompleteFirstRow(*s, rows, world, 1e-4, 60, certified, log);
+  const double completionTime = Seconds(t2);
+  Growth growth;
+  double growthTime = 0;
+  if (completion.failing_after == 0) {
+    const auto t3 = Clock::now();
+    growth = PhaseG(*s, rows, 120, log);
+    growthTime = Seconds(t3);
+  }
+  const auto gates = Final(*s);
+  const std::string report = D9Report(mode, family, b, r1, r2, completion, growth, gates, *s, log.str(), rows, r1time,
+                                      r2time, completionTime, growthTime);
+  std::ofstream out(output);
+  REQUIRE(out.good());
+  out << report;
+  out.close();
+  REQUIRE(out.good());
+  std::cout << "D9_STACK " << mode << " cells=" << s->mesh.size() << " completion=" << completion.outcome
+            << " G=" << (completion.failing_after == 0) << "\n";
+}
+}  // namespace dc12
+
+TEST_CASE("D9 serial stack measurement on synthetic boxes", "[.][NativeD9SerialStack]") {
+  using namespace dc12;
+  World world;
+  REQUIRE(world.size == 1);
+  const char* modeEnv = std::getenv("SU2_D9_STACK_MODE");
+  REQUIRE(modeEnv);
+  const std::string mode(modeEnv);
+  const char* outputEnv = std::getenv("SU2_D9_STACK_JSON");
+  REQUIRE(outputEnv);
+  const std::string output(outputEnv);
+  BoxSpec b;
+  std::string family;
+  if (mode == "M12_control" || mode == "M12_meet") {
+    family = "M12";
+    b.topWall = true;
+    b.symmetrySides = true;
+    b.thickness = mode == "M12_control" ? .4 : .6;
+  } else if (mode == "M10_n1" || mode == "M10_n2" || mode == "M10_n4") {
+    family = "M10";
+    b.n = mode == "M10_n1" ? 1 : mode == "M10_n2" ? 2 : 4;
+  } else
+    FAIL("unsupported SU2_D9_STACK_MODE");
+  REQUIRE(b.n > 0);
+  REQUIRE(b.thickness > 0);
+  D9Measure(mode, family, b, output, world);
 }

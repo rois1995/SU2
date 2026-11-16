@@ -5,6 +5,7 @@
  * Copyright 2012-2026, SU2 Contributors (cf. AUTHORS.md).
  * SU2 is free software under the GNU Lesser General Public License, version 2.1 or later.
  */
+#include "../../include/adaptation/CNativeD9Profile3D.hpp"
 #include "../../include/adaptation/CNativeMesh3D.hpp"
 #include "../../include/adaptation/CNativeFma.hpp"
 #include "CNativePredicates3D_internal.hpp"
@@ -919,6 +920,7 @@ long double MetricNorm(Point a, Point b, const Tensor& metric, KernelStats* stat
   return std::sqrt(q);
 }
 MetricMeasures Measure(const Tetrahedron& tet, const Tensor& metric, KernelStats* stats) {
+  SU2NativeD9::Quality d9_quality;
   ValidateTensor(metric, stats);
   const std::array<double, 6> values{{metric.xx, metric.xy, metric.xz, metric.yy, metric.yz, metric.zz}};
   long double metricScale = 0;
