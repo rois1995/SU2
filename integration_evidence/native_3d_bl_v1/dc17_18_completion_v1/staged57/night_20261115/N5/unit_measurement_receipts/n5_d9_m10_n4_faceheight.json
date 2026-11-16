@@ -1,0 +1,47 @@
+{
+  "schema": "n5_d9_unit_action_v1",
+  "case": "n5_d9_m10_n4_faceheight",
+  "descriptor": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N5/descriptors/m10_n4_faceheight.json",
+  "descriptor_sha256": "5ac256850b484f9e6cafe95ded9ac60a662a354b78a0f606d269d8e1516e3ad8",
+  "attempt": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N5/cases/n5_d9_m10_n4_faceheight_20261116T032744_2600771",
+  "ranks": 1,
+  "attempt_status_sha256": "da44cb1c02987c8163d667eeb86bf9f54cdd89bbe07c2427fd8d9faabd53a478",
+  "artifacts_sha256": {
+    "d9_stack_measurement.json": "3570efc3c60826c098fbc9e5459d52f173ec598289f8a7355a19e370b995687e",
+    "run.log": "1843678d9e2c68ad1fc233d09273df56cc479d60f1e6e95c69ce8a9cc5eeb8f1",
+    "d9_stack_phase_log.txt": "39ee52e5052d70cb42a720297b3c8256784a5eef0cfe397622b8603eea10d69a"
+  },
+  "resource_guard": {
+    "schema": "n5_d9_unit_resource_guard_v2",
+    "actual_host_proc": true,
+    "unix": 1794799669.1227686,
+    "expected_ranks": 1,
+    "rank_peak_hwm_bytes": {},
+    "sum_rank_peak_hwm_bytes": 0,
+    "unranked_test_driver_pids": [],
+    "all_expected_rank_peaks_seen": false,
+    "identities": [
+      {
+        "pid": 2601138,
+        "start_ticks": 29197252,
+        "state": "R",
+        "pgid": 2601138,
+        "sid": 2601138,
+        "name": "nice",
+        "alive": false,
+        "mpi_rank": null
+      }
+    ],
+    "all_owned_handles_terminal": true,
+    "maximum_job_bytes": 19999490048,
+    "resource_guard_triggered": false,
+    "rank_peak_basis": "per-rank /proc VmHWM maxima sampled while test_driver lives",
+    "live_hwm_lower_bound": true,
+    "gnu_time_child_maximum_is_job_peak": false,
+    "peak_note": "named sum of observed per-rank test_driver VmHWM maxima; live lower-bound observation, not GNU time maximum-child RSS"
+  },
+  "rank_peak_summary": null,
+  "source_pins_sha256": "29dfaf2c251de2d53ea38c42f9ead09fb5ff825879e81d062d24fec1bd18101d",
+  "test_binary_sha256": "8a77a3fb0e294ecbb143410c08f7fc995dffc88818f8c648653dbf9a3d1bfede",
+  "passed": true
+}

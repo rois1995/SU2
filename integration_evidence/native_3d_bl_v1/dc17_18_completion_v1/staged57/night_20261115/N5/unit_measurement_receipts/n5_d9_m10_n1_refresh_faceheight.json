@@ -1,0 +1,47 @@
+{
+  "schema": "n5_d9_unit_action_v1",
+  "case": "n5_d9_m10_n1_refresh_faceheight",
+  "descriptor": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N5/descriptors/m10_n1_refresh_faceheight.json",
+  "descriptor_sha256": "8d67d31d804d6bf148dabdbea359e7a431849c48c2d9d48fc2a19ef6d071032a",
+  "attempt": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N5/cases/n5_d9_m10_n1_refresh_faceheight_20261116T032637_2598104",
+  "ranks": 1,
+  "attempt_status_sha256": "e203f2688a0877e8c468cd9fbad9b7ea813376f358a638ed6bebdcef5242d545",
+  "artifacts_sha256": {
+    "d9_stack_measurement.json": "72a8540af05276e810f5d8f8e86a4d04fb2aae7860c016857b6dc62c67597585",
+    "run.log": "70263a3734bb811227b060881bfd19daa8a24f6037aafed6d27ea89591ad6f04",
+    "d9_stack_phase_log.txt": "6a4349fa3253785bc025590c87a60f8ec01a35d0318f14913a78d63a91291946"
+  },
+  "resource_guard": {
+    "schema": "n5_d9_unit_resource_guard_v2",
+    "actual_host_proc": true,
+    "unix": 1794799602.3044713,
+    "expected_ranks": 1,
+    "rank_peak_hwm_bytes": {},
+    "sum_rank_peak_hwm_bytes": 0,
+    "unranked_test_driver_pids": [],
+    "all_expected_rank_peaks_seen": false,
+    "identities": [
+      {
+        "pid": 2598361,
+        "start_ticks": 29190573,
+        "state": "R",
+        "pgid": 2598361,
+        "sid": 2598361,
+        "name": "nice",
+        "alive": false,
+        "mpi_rank": null
+      }
+    ],
+    "all_owned_handles_terminal": true,
+    "maximum_job_bytes": 19999490048,
+    "resource_guard_triggered": false,
+    "rank_peak_basis": "per-rank /proc VmHWM maxima sampled while test_driver lives",
+    "live_hwm_lower_bound": true,
+    "gnu_time_child_maximum_is_job_peak": false,
+    "peak_note": "named sum of observed per-rank test_driver VmHWM maxima; live lower-bound observation, not GNU time maximum-child RSS"
+  },
+  "rank_peak_summary": null,
+  "source_pins_sha256": "29dfaf2c251de2d53ea38c42f9ead09fb5ff825879e81d062d24fec1bd18101d",
+  "test_binary_sha256": "8a77a3fb0e294ecbb143410c08f7fc995dffc88818f8c648653dbf9a3d1bfede",
+  "passed": true
+}

@@ -1,4 +1,6 @@
 {
+  "binary_sha256": "8a77a3fb0e294ecbb143410c08f7fc995dffc88818f8c648653dbf9a3d1bfede",
+  "build": "build520",
   "cases": [
     {
       "G_columns": 0,
@@ -20,9 +22,9 @@
       "R2_work": 0,
       "acceptance_claim": false,
       "all_positive": true,
-      "binary_sha256": "30b74f56ca10162687447283e006fa93ab5dfb0a18e9e55df6f0f134f4130a72",
+      "binary_sha256": "8a77a3fb0e294ecbb143410c08f7fc995dffc88818f8c648653dbf9a3d1bfede",
       "boundary_faces": 12,
-      "build": "build515",
+      "build": "build520",
       "case": "n5_d9_m10_n1_refresh_20261116T022404_2452293",
       "cells": 12,
       "columns_by_wall": {
@@ -40,6 +42,30 @@
       "descriptor_hashes": {
         "m10_n1_refresh.json": "4039f370e48f9f1e52b308323e57a6c2dec3c90c3b7173603baec60ad2365f47"
       },
+      "face_first_child_altitudes": {
+        "0": {
+          "faces": 2,
+          "height_tolerance": 0.1,
+          "max_normal_distance": 0.004,
+          "maximum_relative_error": 2.08166817117e-17,
+          "mean_normal_distance": 0.004,
+          "min_normal_distance": 0.004,
+          "requested_h0": 0.004
+        }
+      },
+      "faceheight_receipt": {
+        "artifacts_sha256": {
+          "d9_stack_measurement.json": "72a8540af05276e810f5d8f8e86a4d04fb2aae7860c016857b6dc62c67597585",
+          "d9_stack_phase_log.txt": "6a4349fa3253785bc025590c87a60f8ec01a35d0318f14913a78d63a91291946",
+          "run.log": "70263a3734bb811227b060881bfd19daa8a24f6037aafed6d27ea89591ad6f04"
+        },
+        "attempt": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N5/cases/n5_d9_m10_n1_refresh_faceheight_20261116T032637_2598104",
+        "descriptor_sha256": "8d67d31d804d6bf148dabdbea359e7a431849c48c2d9d48fc2a19ef6d071032a",
+        "passed": true,
+        "path": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N5/unit_measurement_receipts/n5_d9_m10_n1_refresh_faceheight.json",
+        "source_pins_sha256": "29dfaf2c251de2d53ea38c42f9ead09fb5ff825879e81d062d24fec1bd18101d",
+        "test_binary_sha256": "8a77a3fb0e294ecbb143410c08f7fc995dffc88818f8c648653dbf9a3d1bfede"
+      },
       "family": "M10",
       "final_mesh_complete": false,
       "first_height_measurement_kind": "base-to-lift vertex |dz| spacings; not wall-face/opposite-face prism height and not the enforced h0 gate",
@@ -51,9 +77,10 @@
         "Maximum resident set size (kbytes): 36164"
       ],
       "height_failures": 0,
+      "height_gate_failures": 0,
       "j_bad": 6,
       "j_threshold": 0.05,
-      "measurement_json_sha256": "f6b43a5a11765052d0b4567c8dc37cee3cb2dc0f7f4eba26dda7a9d65033640b",
+      "measurement_json_sha256": "72a8540af05276e810f5d8f8e86a4d04fb2aae7860c016857b6dc62c67597585",
       "mode": "M10_n1",
       "n": 1,
       "nonmanifold_faces": 0,
@@ -107,6 +134,7 @@
       "sampled_rss_note": "sampled process RSS; not a whole-job peak",
       "size_edge_max": 18.4789621873,
       "size_long_edges": 11,
+      "source_pin_receipt_sha256": "29dfaf2c251de2d53ea38c42f9ead09fb5ff825879e81d062d24fec1bd18101d",
       "stops_by_column": {},
       "terminal": true,
       "unbound_boundary_faces": 0,
@@ -120,7 +148,8 @@
           "missing_vertices": 4,
           "samples": []
         }
-      }
+      },
+      "vertex_lift_spacings_scope": "vertex-lift spacings; separate from wall-face first-child altitude"
     },
     {
       "G_columns": null,
@@ -152,14 +181,38 @@
       "R2_work": 2,
       "acceptance_claim": false,
       "all_positive": true,
-      "binary_sha256": "30b74f56ca10162687447283e006fa93ab5dfb0a18e9e55df6f0f134f4130a72",
+      "binary_sha256": "8a77a3fb0e294ecbb143410c08f7fc995dffc88818f8c648653dbf9a3d1bfede",
       "boundary_faces": 54,
-      "build": "build515",
+      "build": "build520",
       "case": "n5_d9_m10_n2_20261116T022146_2446872",
       "cells": 101,
       "columns_by_wall": {},
       "descriptor_hashes": {
         "m10_n2.json": "dfe8a59836e5ee99a02b705cb8eb201e858982809346f100beadb9b40f0562e2"
+      },
+      "face_first_child_altitudes": {
+        "0": {
+          "faces": 8,
+          "height_tolerance": 0.1,
+          "max_normal_distance": 0.004,
+          "maximum_relative_error": 0.099999,
+          "mean_normal_distance": 0.0036500035,
+          "min_normal_distance": 0.003600004,
+          "requested_h0": 0.004
+        }
+      },
+      "faceheight_receipt": {
+        "artifacts_sha256": {
+          "d9_stack_measurement.json": "3b442205984cace804cd483061ee2b095a8d9c09a78eba4714ff6c38f1419b30",
+          "d9_stack_phase_log.txt": "1d44f1e0e6d521290e74f224e7b0aa3dca329f3943929d8f67c0e93c7ac33cc8",
+          "run.log": "d87c609e8ae1caa294cb61cd46ff665d941b0d4082ad19e0a4d6b0ee2018e969"
+        },
+        "attempt": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N5/cases/n5_d9_m10_n2_faceheight_20261116T032711_2599472",
+        "descriptor_sha256": "3e1b9c203f72f4f1170ec17d4f76ed1b5cb443cc4cdc76d2430dedc50c235e4f",
+        "passed": true,
+        "path": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N5/unit_measurement_receipts/n5_d9_m10_n2_faceheight.json",
+        "source_pins_sha256": "29dfaf2c251de2d53ea38c42f9ead09fb5ff825879e81d062d24fec1bd18101d",
+        "test_binary_sha256": "8a77a3fb0e294ecbb143410c08f7fc995dffc88818f8c648653dbf9a3d1bfede"
       },
       "family": "M10",
       "final_mesh_complete": false,
@@ -172,13 +225,14 @@
         "Maximum resident set size (kbytes): 35548"
       ],
       "height_failures": 0,
+      "height_gate_failures": 0,
       "j_bad": 34,
       "j_threshold": 0.05,
-      "measurement_json_sha256": "1a386b93b3927fe0dd66d70dd006001609270e3a70e8067069aa000f8c99ee3f",
+      "measurement_json_sha256": "3b442205984cace804cd483061ee2b095a8d9c09a78eba4714ff6c38f1419b30",
       "mode": "M10_n2",
       "n": 2,
       "nonmanifold_faces": 0,
-      "phase_log_sha256": "63cd46fb89622fafcf729703ce595bcbf81239eb4e21355a0aaf88c8a5352f7b",
+      "phase_log_sha256": "1d44f1e0e6d521290e74f224e7b0aa3dca329f3943929d8f67c0e93c7ac33cc8",
       "phase_seconds": {
         "G": 0.003345141,
         "R1": 0.000321612,
@@ -228,6 +282,7 @@
       "sampled_rss_note": "sampled process RSS; not a whole-job peak",
       "size_edge_max": 17.6367568365,
       "size_long_edges": 42,
+      "source_pin_receipt_sha256": "29dfaf2c251de2d53ea38c42f9ead09fb5ff825879e81d062d24fec1bd18101d",
       "stops_by_column": {},
       "terminal": true,
       "unbound_boundary_faces": 0,
@@ -252,7 +307,8 @@
             }
           ]
         }
-      }
+      },
+      "vertex_lift_spacings_scope": "vertex-lift spacings; separate from wall-face first-child altitude"
     },
     {
       "G_columns": null,
@@ -278,14 +334,38 @@
       "R2_work": 12,
       "acceptance_claim": false,
       "all_positive": true,
-      "binary_sha256": "30b74f56ca10162687447283e006fa93ab5dfb0a18e9e55df6f0f134f4130a72",
+      "binary_sha256": "8a77a3fb0e294ecbb143410c08f7fc995dffc88818f8c648653dbf9a3d1bfede",
       "boundary_faces": 202,
-      "build": "build515",
+      "build": "build520",
       "case": "n5_d9_m10_n4_20261116T022417_2452891",
       "cells": 617,
       "columns_by_wall": {},
       "descriptor_hashes": {
         "m10_n4.json": "3b39ec1795c26943d1dff272c90c1aaff3f613ebd829445b0a3343c6ce2ea5a1"
+      },
+      "face_first_child_altitudes": {
+        "0": {
+          "faces": 32,
+          "height_tolerance": 0.1,
+          "max_normal_distance": 0.004,
+          "maximum_relative_error": 0.099999,
+          "mean_normal_distance": 0.003612503875,
+          "min_normal_distance": 0.003600004,
+          "requested_h0": 0.004
+        }
+      },
+      "faceheight_receipt": {
+        "artifacts_sha256": {
+          "d9_stack_measurement.json": "3570efc3c60826c098fbc9e5459d52f173ec598289f8a7355a19e370b995687e",
+          "d9_stack_phase_log.txt": "39ee52e5052d70cb42a720297b3c8256784a5eef0cfe397622b8603eea10d69a",
+          "run.log": "1843678d9e2c68ad1fc233d09273df56cc479d60f1e6e95c69ce8a9cc5eeb8f1"
+        },
+        "attempt": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N5/cases/n5_d9_m10_n4_faceheight_20261116T032744_2600771",
+        "descriptor_sha256": "5ac256850b484f9e6cafe95ded9ac60a662a354b78a0f606d269d8e1516e3ad8",
+        "passed": true,
+        "path": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N5/unit_measurement_receipts/n5_d9_m10_n4_faceheight.json",
+        "source_pins_sha256": "29dfaf2c251de2d53ea38c42f9ead09fb5ff825879e81d062d24fec1bd18101d",
+        "test_binary_sha256": "8a77a3fb0e294ecbb143410c08f7fc995dffc88818f8c648653dbf9a3d1bfede"
       },
       "family": "M10",
       "final_mesh_complete": false,
@@ -298,9 +378,10 @@
         "Maximum resident set size (kbytes): 37584"
       ],
       "height_failures": 0,
+      "height_gate_failures": 0,
       "j_bad": 160,
       "j_threshold": 0.05,
-      "measurement_json_sha256": "28ebbed4b9dd90f31ac32c6bb822900f313f48fe417b69c7a2bccbb94067627d",
+      "measurement_json_sha256": "3570efc3c60826c098fbc9e5459d52f173ec598289f8a7355a19e370b995687e",
       "mode": "M10_n4",
       "n": 4,
       "nonmanifold_faces": 0,
@@ -354,6 +435,7 @@
       "sampled_rss_note": "sampled process RSS; not a whole-job peak",
       "size_edge_max": 14.3430651574,
       "size_long_edges": 174,
+      "source_pin_receipt_sha256": "29dfaf2c251de2d53ea38c42f9ead09fb5ff825879e81d062d24fec1bd18101d",
       "stops_by_column": {},
       "terminal": true,
       "unbound_boundary_faces": 0,
@@ -428,7 +510,8 @@
             }
           ]
         }
-      }
+      },
+      "vertex_lift_spacings_scope": "vertex-lift spacings; separate from wall-face first-child altitude"
     },
     {
       "G_columns": 50,
@@ -450,9 +533,9 @@
       "R2_work": 50,
       "acceptance_claim": false,
       "all_positive": true,
-      "binary_sha256": "30b74f56ca10162687447283e006fa93ab5dfb0a18e9e55df6f0f134f4130a72",
+      "binary_sha256": "8a77a3fb0e294ecbb143410c08f7fc995dffc88818f8c648653dbf9a3d1bfede",
       "boundary_faces": 1168,
-      "build": "build515",
+      "build": "build520",
       "case": "n5_d9_m12_control_20261116T022430_2453425",
       "cells": 3734,
       "columns_by_wall": {
@@ -480,6 +563,39 @@
       "descriptor_hashes": {
         "m12_control.json": "743c12e34aeb28b1a025040e2e1ca23d1ab7e0d51d57f09703c7761fe1c54071"
       },
+      "face_first_child_altitudes": {
+        "0": {
+          "faces": 32,
+          "height_tolerance": 0.1,
+          "max_normal_distance": 0.003600004,
+          "maximum_relative_error": 0.099999,
+          "mean_normal_distance": 0.003600004,
+          "min_normal_distance": 0.003600004,
+          "requested_h0": 0.004
+        },
+        "3": {
+          "faces": 32,
+          "height_tolerance": 0.1,
+          "max_normal_distance": 0.005400006,
+          "maximum_relative_error": 0.099999,
+          "mean_normal_distance": 0.005400006,
+          "min_normal_distance": 0.005400006,
+          "requested_h0": 0.006
+        }
+      },
+      "faceheight_receipt": {
+        "artifacts_sha256": {
+          "d9_stack_measurement.json": "b34a85aaabd9d1f922b1b39e131250d893e805ca6591311e141fc5727f5346c9",
+          "d9_stack_phase_log.txt": "4767fb3a3d82b5c36e651df8bcdc066b0a8ed6f9460f752cf831db034dccdf1e",
+          "run.log": "37d0809b5764defbc59a783641206638952acd41cfbf01947077689aaf81aa67"
+        },
+        "attempt": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N5/cases/n5_d9_m12_control_faceheight_20261116T032817_2602158",
+        "descriptor_sha256": "5343ae5f493c611af52a061090f6f8854fcfc7513f6a17fedd0ea6280e17a316",
+        "passed": true,
+        "path": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N5/unit_measurement_receipts/n5_d9_m12_control_faceheight.json",
+        "source_pins_sha256": "29dfaf2c251de2d53ea38c42f9ead09fb5ff825879e81d062d24fec1bd18101d",
+        "test_binary_sha256": "8a77a3fb0e294ecbb143410c08f7fc995dffc88818f8c648653dbf9a3d1bfede"
+      },
       "family": "M12",
       "final_mesh_complete": false,
       "first_height_measurement_kind": "base-to-lift vertex |dz| spacings; not wall-face/opposite-face prism height and not the enforced h0 gate",
@@ -491,13 +607,14 @@
         "Maximum resident set size (kbytes): 44152"
       ],
       "height_failures": 0,
+      "height_gate_failures": 0,
       "j_bad": 278,
       "j_threshold": 0.05,
-      "measurement_json_sha256": "a16346af96f68657ee2d65d3f93219845975899c0aabf027905eb94950b8cbaf",
+      "measurement_json_sha256": "b34a85aaabd9d1f922b1b39e131250d893e805ca6591311e141fc5727f5346c9",
       "mode": "M12_control",
       "n": 4,
       "nonmanifold_faces": 0,
-      "phase_log_sha256": "6f1bd59c059984a4975ed1730fc18ff7e293ef991a7956fd8de5f0d9bd8ea8a3",
+      "phase_log_sha256": "4767fb3a3d82b5c36e651df8bcdc066b0a8ed6f9460f752cf831db034dccdf1e",
       "phase_seconds": {
         "G": 0.626454765,
         "R1": 0.00117939,
@@ -555,6 +672,7 @@
       "sampled_rss_note": "sampled process RSS; not a whole-job peak",
       "size_edge_max": 3.56868743385,
       "size_long_edges": 97,
+      "source_pin_receipt_sha256": "29dfaf2c251de2d53ea38c42f9ead09fb5ff825879e81d062d24fec1bd18101d",
       "stops_by_column": {
         "s1 thickness": 42,
         "s3 refused transactions (clearance)": 8
@@ -832,7 +950,8 @@
             }
           ]
         }
-      }
+      },
+      "vertex_lift_spacings_scope": "vertex-lift spacings; separate from wall-face first-child altitude"
     },
     {
       "G_columns": 50,
@@ -854,9 +973,9 @@
       "R2_work": 50,
       "acceptance_claim": false,
       "all_positive": true,
-      "binary_sha256": "30b74f56ca10162687447283e006fa93ab5dfb0a18e9e55df6f0f134f4130a72",
+      "binary_sha256": "8a77a3fb0e294ecbb143410c08f7fc995dffc88818f8c648653dbf9a3d1bfede",
       "boundary_faces": 1216,
-      "build": "build515",
+      "build": "build520",
       "case": "n5_d9_m12_meet_20261116T022445_2453964",
       "cells": 3914,
       "columns_by_wall": {
@@ -884,6 +1003,39 @@
       "descriptor_hashes": {
         "m12_meet.json": "b1f4f2ad85971304c2caf6b9a376be9122fda2bab8559af9c106fd53ed025cf8"
       },
+      "face_first_child_altitudes": {
+        "0": {
+          "faces": 32,
+          "height_tolerance": 0.1,
+          "max_normal_distance": 0.003600004,
+          "maximum_relative_error": 0.099999,
+          "mean_normal_distance": 0.003600004,
+          "min_normal_distance": 0.003600004,
+          "requested_h0": 0.004
+        },
+        "3": {
+          "faces": 32,
+          "height_tolerance": 0.1,
+          "max_normal_distance": 0.005400006,
+          "maximum_relative_error": 0.099999,
+          "mean_normal_distance": 0.005400006,
+          "min_normal_distance": 0.005400006,
+          "requested_h0": 0.006
+        }
+      },
+      "faceheight_receipt": {
+        "artifacts_sha256": {
+          "d9_stack_measurement.json": "ee2519fc240c60f9add6d8c57fccc3f7a45ece867741ccc394e0b9bf3e566270",
+          "d9_stack_phase_log.txt": "4fe61cbb3b4761f0fc274a9b009ef0b692f6a40fef3a6aa394b128491bf3723a",
+          "run.log": "64ec2b4c12e7b7b82457bd07727af95fe831d3347d9bc135b06b09b40214e6ba"
+        },
+        "attempt": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N5/cases/n5_d9_m12_meet_faceheight_20261116T032851_2603453",
+        "descriptor_sha256": "7508a3b7818a38f1f5c44f34c071b3c87622eb02114b5379805f3c50756fb354",
+        "passed": true,
+        "path": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N5/unit_measurement_receipts/n5_d9_m12_meet_faceheight.json",
+        "source_pins_sha256": "29dfaf2c251de2d53ea38c42f9ead09fb5ff825879e81d062d24fec1bd18101d",
+        "test_binary_sha256": "8a77a3fb0e294ecbb143410c08f7fc995dffc88818f8c648653dbf9a3d1bfede"
+      },
       "family": "M12",
       "final_mesh_complete": false,
       "first_height_measurement_kind": "base-to-lift vertex |dz| spacings; not wall-face/opposite-face prism height and not the enforced h0 gate",
@@ -895,13 +1047,14 @@
         "Maximum resident set size (kbytes): 44608"
       ],
       "height_failures": 0,
+      "height_gate_failures": 0,
       "j_bad": 406,
       "j_threshold": 0.05,
-      "measurement_json_sha256": "e7c24a15bd13ebc8a1cff36e9df8ae64cd0147d05388f5959825c44bd2072d59",
+      "measurement_json_sha256": "ee2519fc240c60f9add6d8c57fccc3f7a45ece867741ccc394e0b9bf3e566270",
       "mode": "M12_meet",
       "n": 4,
       "nonmanifold_faces": 0,
-      "phase_log_sha256": "ed9013b72eed7c0148f3b6a473a1b5cc107198701e671a8e75077fba6343dbd2",
+      "phase_log_sha256": "4fe61cbb3b4761f0fc274a9b009ef0b692f6a40fef3a6aa394b128491bf3723a",
       "phase_seconds": {
         "G": 1.116838749,
         "R1": 0.001228295,
@@ -965,6 +1118,7 @@
       "sampled_rss_note": "sampled process RSS; not a whole-job peak",
       "size_edge_max": 5.03961473124,
       "size_long_edges": 117,
+      "source_pin_receipt_sha256": "29dfaf2c251de2d53ea38c42f9ead09fb5ff825879e81d062d24fec1bd18101d",
       "stops_by_column": {
         "s3 refused transactions (clearance)": 50
       },
@@ -1241,9 +1395,10 @@
             }
           ]
         }
-      }
+      },
+      "vertex_lift_spacings_scope": "vertex-lift spacings; separate from wall-face first-child altitude"
     }
   ],
   "schema": "N5_stack_measurements_v1",
-  "source_pin_receipt_sha256": "cb2050ae0ed98e5396d78876444ee870025fdc32c228fefdd48a12ef03bdcacc"
+  "source_pin_receipt_sha256": "29dfaf2c251de2d53ea38c42f9ead09fb5ff825879e81d062d24fec1bd18101d"
 }
