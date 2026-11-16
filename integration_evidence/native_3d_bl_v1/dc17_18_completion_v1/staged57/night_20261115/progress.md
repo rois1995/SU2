@@ -11,12 +11,12 @@ Updated 2026-11-15. Latest order: NIGHT_WORK_ORDER.md (SHA-sealed input_manifest
 | N5 all design measurements | PASSED; unavailable rows qualified | build521; G2/GQ exact integers; clean full all6P6c/standing gates; native2581.0285/1907.4990s, SUMpeaks13952311296/17729433600B | seal measurement table/checkpoint, then6.1 |
 | N6 further identical cuts | NOT STARTED | requirescompletedN4+G5 | Remesh,MeshOptimizer,Selection |
 | N7 morning report | NOT STARTED | always | finalclose/terminalhandles |
-| N9 wall counters | Build527 PASSED; G3/G2 pending | 100.162575s; 1562pins unchanged; 17owned IDs terminal | ONE G3 then G2 |
+| N9 wall counters | FAILED G3; production reverted | entryatlaswork11497909!=10631585;459vs486splits;physicalPASS | G2notstarted; independentN10 |
 | N10 needed wall split | NOT STARTED | afterN9; independent ifN9fails | I.B1 |
 | N11 law-directed edge | NOT STARTED | needsN8A1 first | I.B2 |
 | N8 geometry law/requirements/M6b | NOT STARTED | A1beforeN11; remainingafterN11 | I.A |
 
-Current job: N9 G3 C492 LIVE outer4057923/start32540825, frozen527 CFD31c43b6e/test7245c5ef plus21extrahelperpins. Single serial saved492 stage,388.8s/12GiBmodel/19073MiBjob unchanged. No full N9 workflow. Keep SAMEjob, no source/helper changes. Afterfirstresultfailure R5; ifPASS G2 next.
+Current job: NONE. N9 FAILED all-old-integer G3:entryatlaswork11497909!=10631585, exactly unchanged30sobserverworkdifference866324;physical/first336PASS459splits,all459commoneditsidenticalN1. R5readonlynoauthorizedwiringfix; production3pathsrestoredacceptedN1/all1560pinsmatch. Sharedbinariesstillfailed527. Next finalizeN9revertcheckpoint thenN10accepted-baserebuild/G1reference beforeedit; N7unfinished.
 
 R5 governs resultfailures: preservefirstnumber; one<=60min readonlydiagnosis; onlytranscription/wiringagainstwrittenproposal permitsonecorrection+onefailedcheckrepeat; else revertitem, markFAILED andcontinueindependentnextitem. R3ownharnessrepairs<=90min each, no gate/productionchanges. Do not implementdesign8.3-8.7,A5/B5 or job-derivedquota.
 
@@ -255,3 +255,5 @@ N9 connected print-only implementation applied after sourcecheck: fixed-array wa
 N9build527 PASSED100.162575s/6actions, all1562sourcepinsunchanged,17actualhostownedIDsterminal. CFD31c43b6e3bc1/test7245c5ef405d. Standalonecounterphasefixture and G3integercomparator selfcheckPASS. NewN9wrapper provenance audit underway, no numericalcase yet. ALLcompiledsources remainfrozen for G3/G2.
 
 N9G3 LIVE outer4057923/start32540825, lowpriority/singlethreadlibraries, actualhostpreflight noownedheavyjob/RAM37383384KiB/load2.28; usercodeprocesshot observationonly. Standalonecounter/phase fixture recompiled+ranPASS0.482s with source/binary receipt, no CPPchanges. AllcompiledCPP and21activehelperpinsFROZEN. Buildpassedcheckpointbd709cb4c1PUSHED.
+
+N9G3FAILEDoldintegers;physical/first336PASS459splits/304981positivecells,547.162650s. Firstentryatlaswork11497909!=10631585 exactly before30sobserverworkdelta866324; netentry5113both. All459commoneditsidenticalN1. Newcounterssumsagree; B0table140measurespreserved. R5readonly202.5s noauthorizedproductionwiringcorrection; NOretry/G2. All6ownedIDsactualhostterminal/all1804casehelperpinsunchangedbeforeproductionrestore. ThreeN9pathsrestoredaccepted429c6/all1560pinsmatch; failedsource+SHA preserved. NextonecommitrevertthenindependentN10.

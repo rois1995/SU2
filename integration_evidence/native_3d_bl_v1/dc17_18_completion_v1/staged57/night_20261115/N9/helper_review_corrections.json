@@ -12,6 +12,10 @@
     {
       "cause": "G2 comparator asserted before persisting a failed comparison.",
       "correction": "Always save comparison receipt including first difference before returning a failed result gate."
+    },
+    {
+      "cause": "Inline report generator reused p for a Path, then its final informational print called len(p). All report writes had already completed.",
+      "correction": "Read back and assert the saved status/source-identity/report outputs; print the explicit saved pins integer. No production or numerical run repeated."
     }
   ]
 }

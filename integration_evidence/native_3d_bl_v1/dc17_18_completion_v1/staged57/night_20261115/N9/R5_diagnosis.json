@@ -1,0 +1,30 @@
+{
+  "started_unix": 1794833708.0814981,
+  "deadline_unix": 1794837308.0814984,
+  "first_difference": "entry atlas_work: 11497909 reference != 10631585 candidate",
+  "G2_started": false,
+  "numerical_repeat_started": false,
+  "scope": "ONE read-only diagnosis; production correction only for transcription/wiring against I.B0",
+  "state": "complete",
+  "completed_unix": 1794833910.5448103,
+  "cause": "The strict old-integer identity includes work of an unchanged 30-second fixed-nose observer before Adapt. Its wall-clock-limited work differs; the same 388.8-second production stage also ends at a different prefix length. No proposal transcription/wiring error was found.",
+  "classification": "proposal/result-identity requirement, no authorized wiring correction",
+  "reference_entry_atlas_work": 11497909,
+  "candidate_entry_atlas_work": 10631585,
+  "reference_before_observer_work": 11492796,
+  "candidate_before_observer_work": 10626472,
+  "entry_minus_observer_reference": 5113,
+  "entry_minus_observer_candidate": 5113,
+  "entry_work_difference": 866324,
+  "observer_work_difference": 866324,
+  "reference_splits": 486,
+  "candidate_splits": 459,
+  "common_edits_identical": 459,
+  "physical_gate_passed": true,
+  "decision": "preserve and revert N9 production in one commit; continue independent N10",
+  "source": [
+    "UnitTests/SU2_CFD/adaptation/fixtures/native_actual_saved_surface_stage.inc:46 calls before observer before PrepareSurface",
+    "UnitTests/SU2_CFD/adaptation/fixtures/native_actual_surface_target_observation.inc:18 fixes observer at30s; final lines copy observation.work into shared budget.work"
+  ],
+  "R1_note": "User program activity is observation only; it did not fail this run and no repeat is attributed to it."
+}

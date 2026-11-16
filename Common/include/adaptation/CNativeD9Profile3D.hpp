@@ -20,7 +20,7 @@ struct Queries {
 };
 struct Data {
   int rank = 0;
-  std::array<std::array<Queries, SiteCount>, 3> queries{};
+  std::array<std::array<Queries, SiteCount>, 2> queries{};
   uint64_t stars = 0, candidates = 0, qj_calls = 0, shared_qj_calls = 0;
   double star_seconds = 0, candidate_seconds = 0, shared_qj_seconds = 0;
   std::array<uint64_t, WorkCount> work_calls{};
@@ -34,22 +34,21 @@ inline int Phase() {
   if (!active || !frame) return -1;
   if (frame->phase == SU2NativeTiming3D::Phase::Quality) return 0;
   if (frame->phase == SU2NativeTiming3D::Phase::FinalProof) return 1;
-  if (frame->phase == SU2NativeTiming3D::Phase::Surface) return 2;
   return -1;
 }
 inline double Seconds(Clock::time_point start) { return std::chrono::duration<double>(Clock::now() - start).count(); }
 inline void PrintQueries(const Data& data) {
   constexpr const char* names[] = {"a", "b", "c", "d", "e", "g"};
-  constexpr const char* phases[] = {"quality", "final_proof", "surface"};
-  for (size_t phase = 0; phase < 3; ++phase) {
+  for (size_t phase = 0; phase < 2; ++phase) {
     for (size_t site = 0; site < SiteCount; ++site) {
       const auto& q = data.queries[phase][site];
-      std::cout << "D9_QUERY rank=" << data.rank << " phase=" << phases[phase] << " site=" << names[site]
-                << " scopes=" << q.scopes << " direct_calls=" << q.direct << " upper_calls=" << q.upper
-                << " classification_calls=" << q.classify << " magnitude_calls=" << q.magnitude
-                << " limit_calls=" << q.limit << " memo_direct_hits=" << q.memo_direct
-                << " memo_union_hits=" << q.memo_union << " upper_work=" << q.work << " seconds=" << q.seconds
-                << " direct_seconds=" << q.direct_seconds << " upper_seconds=" << q.upper_seconds << '\n';
+      std::cout << "D9_QUERY rank=" << data.rank << " phase=" << (phase ? "final_proof" : "quality")
+                << " site=" << names[site] << " scopes=" << q.scopes << " direct_calls=" << q.direct
+                << " upper_calls=" << q.upper << " classification_calls=" << q.classify
+                << " magnitude_calls=" << q.magnitude << " limit_calls=" << q.limit
+                << " memo_direct_hits=" << q.memo_direct << " memo_union_hits=" << q.memo_union
+                << " upper_work=" << q.work << " seconds=" << q.seconds << " direct_seconds=" << q.direct_seconds
+                << " upper_seconds=" << q.upper_seconds << '\n';
     }
   }
 }
