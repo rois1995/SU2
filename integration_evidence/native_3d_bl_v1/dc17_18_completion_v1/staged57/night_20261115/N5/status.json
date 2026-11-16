@@ -1,34 +1,104 @@
 {
   "item": "N5",
-  "state": "single_R1_corrected_full_repeat_running",
-  "started_unix": 1794788168.8496974,
-  "accepted_implementation": "48f07ad1a8",
-  "source_matches_F3b": false,
+  "state": "PASSED",
+  "scope_note": "Independent N5 measurements and the clean two-event repeat are complete. M18/M20/M21 are intentionally pending the separate N1 Section 6.1 accepted run; prior failed-N1 rows remain historical.",
+  "completed_unix": 1794813842.445039,
+  "accepted_base": "F3b 48f07ad1a8",
   "N4_revert": "8039fc1b59",
   "production_diagnostic_edits": 3,
   "source_check": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N5/source_check.md",
-  "base_source_reuse_verified_before_diagnostic_edits": true,
   "current_build": "build521",
+  "build_receipt": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N5/build521/build_status.json",
+  "source_pins": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N5/build521/source_pins.json",
+  "source_pins_sha256": "e5f7ffe147eadaf8d64b821bcb90395fc026107ce7ed57d1f4464e27befc36da",
+  "additional_source_pins": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N4/unchanged_build499_source_pins.json",
+  "additional_source_pins_sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356",
+  "CFD_binary": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-p5-20261114/SU2_CFD/src/SU2_CFD",
   "CFD_binary_sha256": "861737e1a3672295db61b6da082c3926e048144bc7f76bf01708c1e1cba686ee",
   "test_binary_sha256": "382dc7142320d2520dd665858fb47492990261e67bae7890717a67138c5ec48b",
-  "G2_passed": true,
-  "GQ_passed": true,
-  "full_two_event_started": true,
-  "full_tool_session": 85230,
-  "full_identity": {
-    "pid": 2977080,
-    "start_ticks": 30072631,
-    "pgid": 2977080
+  "ordered_unit_gates": {
+    "counter_assertions": 175,
+    "G2_passed": true,
+    "G2_first_collapse_work": 90809869,
+    "G2_counts_by_rank": [480, 473, 346, 263, 469, 464],
+    "GQ_passed": true,
+    "GQ_third_quality_window_all_ranks": true,
+    "geometry_diagnostics_passed": 3,
+    "locality_ranks_passed": [2, 4, 6]
   },
-  "event1_native_timer_passed": true,
-  "event1_three_payload_identity_passed": true,
-  "event2_active": false,
-  "first_full_numerical_payload_passed": true,
-  "first_full_R1_process_compliance_passed": false,
-  "first_full_terminal": true,
-  "single_corrected_full_repeat_pending": true,
-  "full_case": "full_workflow_R1_repeat",
-  "resource_corrected_bounded_rechecks_passed": true,
-  "corrected_full_repeat_started": true,
-  "full_repeat_count": 1
+  "full_workflow": {
+    "case": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N5/full_workflow_R1_repeat",
+    "status": "PASSED",
+    "outer_elapsed_seconds": 4904.514621019363,
+    "GNU_time_exit_zero": true,
+    "physical_workflow_accepted": true,
+    "event_time_limit_seconds": 5400,
+    "job_memory_limit_bytes": 19999490048,
+    "sticky_six_rank_peak_sum_bytes": 17729433600,
+    "all_six_P6c_payloads_match": true,
+    "inputs_source_binary_pins_unchanged": true,
+    "all_owned_handles_terminal": true,
+    "max_busy_processes_observed": 6,
+    "events": [
+      {
+        "event": 1,
+        "cells": 726442,
+        "points": 146676,
+        "native_seconds_max_rank": 2581.028493454,
+        "six_process_peak_sum_bytes": 13952311296,
+        "F3b_timer_gate_passed": true,
+        "all_three_payloads_match_P6c": true
+      },
+      {
+        "event": 2,
+        "cells": 855760,
+        "points": 168790,
+        "native_seconds_max_rank": 1907.499019169,
+        "six_process_peak_sum_bytes": 17729433600,
+        "F3b_timer_gate_passed": true,
+        "all_three_payloads_match_P6c": true
+      }
+    ],
+    "receipts": {
+      "full_workflow": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N5/full_workflow_R1_repeat/full_workflow_receipt.json",
+      "payload_identity": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N5/full_workflow_R1_repeat/g5_payload_identity_receipt.json",
+      "event1_payload_identity": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N5/full_workflow_R1_repeat/event1_payload_identity_receipt.json",
+      "event_timers": [
+        "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N5/full_workflow_R1_repeat/f3b_event1_timer_gate.json",
+        "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N5/full_workflow_R1_repeat/f3b_event2_timer_gate.json"
+      ],
+      "terminal_provenance": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N5/full_workflow_R1_repeat/primary_terminal_provenance.json",
+      "unattended_qualification": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N5/full_workflow_R1_repeat/unattended_qualification.json",
+      "terminal_handles": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N5/full_workflow_R1_repeat/terminal_handles_actual.json",
+      "attached_supervisor": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N5/full_workflow_R1_repeat/resume_full_supervisor_receipt.json"
+    }
+  },
+  "full_profile": {
+    "helper": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N5/reports/profile_full_run.py",
+    "summary": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N5/reports/current_profile.md",
+    "quality_window_rows": 204,
+    "quality_timer_rows": 180,
+    "all_phase_timer_rows": 549,
+    "M16_summary": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N5/reports/m16_d9_counters.md",
+    "M16_rank_event_rows": 12
+  },
+  "measurement_table": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N5/reports/N5_measurement_table_draft.md",
+  "limitations": [
+    "M1 is a geometry-only census, not a qualified S1 plan.",
+    "M2 and M6 are bounded first-32 samples; no full wall split share is claimed.",
+    "M4 has no accepted interior edit; M5 is a one-edge sample.",
+    "M9 distributed body-contact proof share is unavailable.",
+    "M10 inner closure and complete growth totals remain guarded/unavailable.",
+    "M13 has no qualified planned-face set; old-face checks are not M13.",
+    "M14 inverse Unlift is not implemented or qualified.",
+    "M18/M20/M21 require the separate accepted N1 Section 6.1 run."
+  ],
+  "R1_history": {
+    "first_full_attempt": "FAILED operational process-count qualification at 8 busy processes (>6); numerical/time/memory/timer and payload gates passed.",
+    "correction": "Two verified orphan function scanners were terminated. The one corrected full repeat preserved the same CFD process identity after the Python controller exited 143, then completed via attach-only supervision and primary terminal verification. No solver restart or signal occurred.",
+    "diagnosis": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N5/R1_diagnosis_and_single_repeat.json",
+    "scanner_incident": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N5/function_scanner_resource_incident.json"
+  },
+  "next_sequence": ["6.1 N1 P7/P8", "6.2 conditional B7", "6.3 N4 fresh G1/G2/G3/GQ", "N6", "N7"],
+  "N7_finalized": false
 }

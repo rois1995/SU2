@@ -1,0 +1,61 @@
+{
+  "schema": "n5_d9_unit_resource_guard_v2",
+  "actual_host_proc": true,
+  "unix": 1794800196.9205303,
+  "expected_ranks": 1,
+  "rank_peak_hwm_bytes": {
+    "0": 1970311168
+  },
+  "sum_rank_peak_hwm_bytes": 1970311168,
+  "unranked_test_driver_pids": [],
+  "all_expected_rank_peaks_seen": true,
+  "identities": [
+    {
+      "pid": 2608887,
+      "start_ticks": 29216693,
+      "state": "S",
+      "pgid": 2608887,
+      "sid": 2608887,
+      "name": "time",
+      "alive": false,
+      "mpi_rank": null
+    },
+    {
+      "pid": 2608888,
+      "start_ticks": 29216693,
+      "state": "S",
+      "pgid": 2608888,
+      "sid": 2608887,
+      "name": "timeout",
+      "alive": false,
+      "mpi_rank": null
+    },
+    {
+      "pid": 2608889,
+      "start_ticks": 29216693,
+      "state": "R",
+      "pgid": 2608888,
+      "sid": 2608887,
+      "name": "test_driver",
+      "alive": false,
+      "mpi_rank": 0
+    },
+    {
+      "pid": 2608890,
+      "start_ticks": 29216694,
+      "state": "S",
+      "pgid": 2608890,
+      "sid": 2608890,
+      "name": "orted",
+      "alive": false,
+      "mpi_rank": null
+    }
+  ],
+  "all_owned_handles_terminal": true,
+  "maximum_job_bytes": 19999490048,
+  "resource_guard_triggered": false,
+  "rank_peak_basis": "per-rank /proc VmHWM maxima sampled while test_driver lives",
+  "live_hwm_lower_bound": true,
+  "gnu_time_child_maximum_is_job_peak": false,
+  "peak_note": "named sum of observed per-rank test_driver VmHWM maxima; live lower-bound observation, not GNU time maximum-child RSS"
+}

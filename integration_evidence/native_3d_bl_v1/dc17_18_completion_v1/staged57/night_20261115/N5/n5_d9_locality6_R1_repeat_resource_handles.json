@@ -1,0 +1,176 @@
+{
+  "schema": "n5_d9_unit_resource_guard_v2",
+  "actual_host_proc": true,
+  "unix": 1794808254.311672,
+  "expected_ranks": 6,
+  "rank_peak_hwm_bytes": {
+    "0": 1118507008,
+    "1": 1111449600,
+    "2": 1131077632,
+    "3": 1105895424,
+    "4": 1101254656,
+    "5": 1116401664
+  },
+  "sum_rank_peak_hwm_bytes": 6684585984,
+  "unranked_test_driver_pids": [],
+  "all_expected_rank_peaks_seen": true,
+  "identities": [
+    {
+      "pid": 2968306,
+      "start_ticks": 30051436,
+      "state": "S",
+      "pgid": 2968306,
+      "sid": 2968306,
+      "name": "time",
+      "alive": false,
+      "mpi_rank": null
+    },
+    {
+      "pid": 2968307,
+      "start_ticks": 30051436,
+      "state": "S",
+      "pgid": 2968307,
+      "sid": 2968306,
+      "name": "timeout",
+      "alive": false,
+      "mpi_rank": null
+    },
+    {
+      "pid": 2968308,
+      "start_ticks": 30051436,
+      "state": "S",
+      "pgid": 2968307,
+      "sid": 2968306,
+      "name": "mpirun",
+      "alive": false,
+      "mpi_rank": null
+    },
+    {
+      "pid": 2968320,
+      "start_ticks": 30051439,
+      "state": "S",
+      "pgid": 2968320,
+      "sid": 2968306,
+      "name": "time",
+      "alive": false,
+      "mpi_rank": null
+    },
+    {
+      "pid": 2968322,
+      "start_ticks": 30051440,
+      "state": "R",
+      "pgid": 2968320,
+      "sid": 2968306,
+      "name": "test_driver",
+      "alive": false,
+      "mpi_rank": 5
+    },
+    {
+      "pid": 2968318,
+      "start_ticks": 30051439,
+      "state": "S",
+      "pgid": 2968318,
+      "sid": 2968306,
+      "name": "time",
+      "alive": false,
+      "mpi_rank": null
+    },
+    {
+      "pid": 2968321,
+      "start_ticks": 30051439,
+      "state": "R",
+      "pgid": 2968318,
+      "sid": 2968306,
+      "name": "test_driver",
+      "alive": false,
+      "mpi_rank": 4
+    },
+    {
+      "pid": 2968316,
+      "start_ticks": 30051439,
+      "state": "S",
+      "pgid": 2968316,
+      "sid": 2968306,
+      "name": "time",
+      "alive": false,
+      "mpi_rank": null
+    },
+    {
+      "pid": 2968319,
+      "start_ticks": 30051439,
+      "state": "R",
+      "pgid": 2968316,
+      "sid": 2968306,
+      "name": "test_driver",
+      "alive": false,
+      "mpi_rank": 3
+    },
+    {
+      "pid": 2968314,
+      "start_ticks": 30051439,
+      "state": "S",
+      "pgid": 2968314,
+      "sid": 2968306,
+      "name": "time",
+      "alive": false,
+      "mpi_rank": null
+    },
+    {
+      "pid": 2968317,
+      "start_ticks": 30051439,
+      "state": "R",
+      "pgid": 2968314,
+      "sid": 2968306,
+      "name": "test_driver",
+      "alive": false,
+      "mpi_rank": 2
+    },
+    {
+      "pid": 2968312,
+      "start_ticks": 30051439,
+      "state": "S",
+      "pgid": 2968312,
+      "sid": 2968306,
+      "name": "time",
+      "alive": false,
+      "mpi_rank": null
+    },
+    {
+      "pid": 2968315,
+      "start_ticks": 30051439,
+      "state": "R",
+      "pgid": 2968312,
+      "sid": 2968306,
+      "name": "test_driver",
+      "alive": false,
+      "mpi_rank": 1
+    },
+    {
+      "pid": 2968311,
+      "start_ticks": 30051439,
+      "state": "S",
+      "pgid": 2968311,
+      "sid": 2968306,
+      "name": "time",
+      "alive": false,
+      "mpi_rank": null
+    },
+    {
+      "pid": 2968313,
+      "start_ticks": 30051439,
+      "state": "R",
+      "pgid": 2968311,
+      "sid": 2968306,
+      "name": "test_driver",
+      "alive": false,
+      "mpi_rank": 0
+    }
+  ],
+  "all_owned_handles_terminal": true,
+  "maximum_job_bytes": 19999490048,
+  "resource_guard_triggered": false,
+  "rank_peak_basis": "per-rank /proc VmHWM maxima sampled while test_driver lives",
+  "live_hwm_lower_bound": true,
+  "gnu_time_child_maximum_is_job_peak": false,
+  "peak_note": "named sum of observed per-rank test_driver VmHWM maxima; live lower-bound observation, not GNU time maximum-child RSS"
+}

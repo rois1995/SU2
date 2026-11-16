@@ -1,5 +1,113 @@
 # Implementation and validation cadence
 
+User order, 2026-11-16 (LATEST): NIGHT_WORK_ORDER.md section6, including 07:50 B7 decision.
+
+## 6. Addition of 2026-11-16 (user decisions; this section wins over the text above)
+
+State when this was written (07:40): N1 FAILED and reverted (`becb4927c9`), N2 NOT STARTED,
+N3 PASSED, N4 FAILED at A1 and reverted (`8039fc1b59`), N5 in its one corrected full
+repeat, N6 and N7 NOT STARTED. Do not stop or restart the running job. Finish N5 first.
+
+New order of work: finish N5 -> 6.1 (N1 again) -> 6.2 (N2) -> 6.3 (N4 again) -> N6 -> N7.
+All rules of section 2 stay. The rule of 6 heavy processes counts your helper scripts too.
+
+### 6.1 N1 again: the user accepts P7 / P8 with a new reference for event 2
+
+Cause of the first failure (your diagnosis, confirmed by the reviewer): the partition
+weights of the next event read `prepared_pieces` of the geometry cache
+(`CNativeAffineReference.cpp` `StructuralEstimate`, `CNativeImport3D.cpp` 1762-1806,
+MAX over the ranks). P7 changes which facets stay in the cache. So event 2 starts with
+other weights and gives another valid mesh. This is a property of the proposal, not an
+error of your code. The reviewer's statement "identical results" was wrong for event 2.
+
+User decision: P7 / P8 are accepted when event 1 is identical to P6c and event 2 passes
+all standing gates and is repeatable. No physical gate, budget or limit changes.
+
+The "P7 reference" for event 2 is the three event-2 files of your first N1 run
+(`R/p7p8_r3_20261115/first_result_failure.json`):
+
+- `adapted_mesh_adap_00002.su2`            63690652de1af70f890994fb5054523403ba1dc27200123a660e573827aebc36
+- `adapted_mesh_adap_00002.su2.native_ref` 36c45abe03d1dc38e523583cc3103cfb9c83b17983b3679df0c424fab8ff088a
+- `restart_flow_adap_00002.dat`            44766f7f95f14d60011fb27ef1bb864c44e9649f782f2b9a0139c6766c93bc94
+
+Do this:
+
+1. Base: the newest accepted commit after N5. Put back the 16 code / config / test paths
+   that `becb4927c9` reverted, with their content of before that commit. Keep the N5
+   observation code and the N5 fixtures. A conflict in a test file is your own test code
+   (R3). A conflict in a production file: both texts stay, P7 / P8 as written in H and
+   the N5 observer as it is; write each such place in the report. No other production
+   change.
+2. Build. Run the unit cases of the item, then the ordered checks (a) and (b) of H with
+   the safeguards (exact first collapse, C492, 481, current target, 2D at 1 / 2 / 4
+   ranks). They passed before on this code; they run again because the binary is new.
+3. Run ONE full two-event workflow. Gates:
+   - all standing gates of both events: 5400 s, 19073 MiB (P8: reported job peak equal to
+     the sum of the process peaks, lower bounds not above it), physical validator,
+     transfer, continued CFD, isolated restart where H asks it, 95 % timer coverage, join
+     agreement, P7 check c1 (owned proof faces SUM equal to the surface size);
+   - event 1: three files byte-identical to P6c;
+   - event 2: three files byte-identical to the P7 reference above. Equal hashes prove
+     that two runs give the same files.
+4. If all gates pass but the event-2 files differ from the P7 reference: do not revert
+   yet. Run the full workflow ONE more time with the same binary and inputs. If the two
+   new runs have the same three event-2 files: N1 is PASSED, these files are the P7
+   reference from now, and the report has all three hash sets with the note "differs
+   from the first N1 run; the build differs by the N5 observation code". If the two new
+   runs differ from each other: the result is not repeatable; revert the item, FAILED.
+5. If event 1 differs from P6c, or another standing gate fails: R5 as written.
+6. After N1 is PASSED: where H, C or this work order says "six files byte-identical to
+   P6c", read "event 1 files identical to P6c, event 2 files identical to the P7
+   reference". This holds for gate G5 of C and for N5 / N6.
+7. The M18, M20 and M21 rows of the accepted run are qualified. Put them in the N5 table
+   in place of the unqualified rows. Report the event times and the timer-tree rows
+   beside F3b (2683.4 s and 1977.2 s) and beside the first N1 run (2220.3 s, 1451.0 s).
+
+### 6.2 N2 (B7): the user accepts B7 with new references, by the same rule as 6.1
+
+(Changed 2026-11-16, 07:50, second user decision. It replaces the "limited gate" text.)
+
+1. Compute the condition (item 0 of H 2.0c) with the M18 rows of the accepted N1 run.
+   Condition false: write the rank values and the total, N2 is "condition false", go on.
+2. Condition true: implement B7 as written, build, run the checks of H 2.0c, then one
+   full two-event run (run 1).
+3. All standing gates of both events must pass (the list of 6.1 item 3). If one fails: R5.
+4. Compare the six files of run 1 with the references of 6.1.
+   - All six identical: N2 is PASSED. The references do not change.
+   - One or more differ: this is expected, no diagnosis pass. B7 changes what stays in
+     the cache, and `CNativeEngine3D.cpp` 2957 reads `prepared_pieces` inside event 1
+     too, so event 1 can change as well. Run the full workflow ONE more time with the
+     same binary and inputs (run 2). All standing gates must pass in run 2.
+     - Run 2 has the same six files as run 1: N2 is PASSED. These six files are the
+       "B7 reference" from now. It replaces the references of 6.1 in G5 of C and in N6.
+     - Run 2 differs from run 1: the result is not repeatable. Revert B7 in one commit,
+       FAILED, and go on with 6.3 on the N1 build.
+5. Report in each case: the six hashes of each run, the cell and point counts of both
+   events, the event times, the RSS sums, the timer-tree rows and the M18 rows, beside
+   the accepted N1 run and beside F3b.
+6. The memory rule stays as written in H 2.0c: the job peak of each run must be at most
+   19073 MiB. A run above it fails a standing gate (R5; the cause is then in the
+   proposal, so B7 is reverted).
+
+### 6.3 N4 again, with the corrected gate G1
+
+C has a new section 2.1 (G1 is an identity gate with its own reference). Read C again
+completely and copy it with its SHA256 into your evidence folder.
+
+1. Reference build = the build of the newest accepted commit (after 6.1 / 6.2).
+2. Record with it, before the first edit: the G1 reference (C 2.1), and G2, G3 and GQ
+   again (the production code changed since `4798ea3936`).
+3. Then C 2.1 item 5 decides about A1, and the cut goes on as C says. G5 uses the
+   newest references: those of 6.1, or the B7 reference when 6.2 made one.
+4. The list "unit tests that fail on the accepted base" goes into the morning report.
+
+### 6.4 Morning report (N7)
+
+Keep the file `Handbook/ADAPTATION_NIGHT_REPORT_20261116.md` and update it in place. Add
+one row for each item of this section. The first N1 run and the first A1 attempt stay in
+the report as history with their numbers.
+
+
 User order, 2026-11-15 (LATEST): unattended work, section 2 of NIGHT_WORK_ORDER.md
 
 These rules are the latest user order. Where an older text (AGENTS.md, H Part 0) says
