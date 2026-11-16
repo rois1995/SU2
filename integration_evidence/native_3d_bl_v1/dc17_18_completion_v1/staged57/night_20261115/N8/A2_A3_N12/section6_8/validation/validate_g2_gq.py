@@ -121,13 +121,19 @@ def build534():
     return {"status": status, "source_pins_sha256": sha(pins_path), "binary": str(binary)}
 
 
+def planned_prefix_passed(status, gate):
+    """Accept the inherited controller's explicit planned prefix signal, never a timeout."""
+    return (status.get("state") == "terminal" and status.get("exit_code") in (0, -15)
+            and status.get("stop_reason") == gate + "_prefix_passed"
+            and status.get("gate") == gate and status.get("gate_receipt", {}).get("passed") is True)
+
+
 def require_terminal_case(case, gate):
     """Reject live, failed, or out-of-scope case directories before reading their output."""
     case = case.resolve(strict=True)
     assert HERE in case.parents, "candidate case must be below N8/A2_A3_N12/validation"
     status = read_json(case / "status.json")
-    assert status.get("state") == "terminal" and status.get("exit_code") == 0
-    assert status.get("gate_passed") is True and status.get("gate") == gate
+    assert planned_prefix_passed(status, gate), "candidate did not reach its planned accepted prefix stop"
     assert status.get("inputs_unchanged") and status.get("source_and_binary_pins_unchanged")
     assert status.get("all_owned_handles_terminal")
     return case, status

@@ -1,5 +1,8 @@
 # Adaptation timings and computational work
 
+Section6.8 current: G1identityPASS375serial/57perrankMPI2/4,0casechanges,839.004931/15.181993/20.688848controllerseconds. G2identityPASSalloldintegers/bytes/nonCensuscalls,12timerboundaries+6lawrows/exactCensusdelta;ONEsolverrun398.804320s untilplannedstop/408.513817s terminalseal,work90809869/counts480/473/346/263/469/464. Scope includesCFD/import/metric/setup; unlike olderN9/6.1prefixcontrollers it stopsatfirstcollapse anddoesnotincludeextra constructionguard, so no speedclaim. GQrunning;latergates/fullpending. Only postprocessing/schema helpers repaired underR3; numericalG2notrepeated. Evidence section6_8/G1_summary.json,G2_summary.json.
+
+
 Section6.8 combinedgroup: build534 passed110.165477s/7actions,1588source/helper/policy/configpinsunchanged,16actual-host build identities terminal. Focused requirements21assertions/1case4.750761s, lane21/3 4.718268s, law10/1 4.870562s, diagnostics26/3 5.404644s. No efficiency claim; geometry checks/fullgroup gates pending. Build533 focused/M6b history remains valid but repeats on534 per latestuserorder. Evidence R/night_20261115/N8/A2_A3_N12/section6_8.
 
 

@@ -1,0 +1,8 @@
+{
+  "cause": "Own postprocessing helper assumed zero solver exit and nonexistent gate_passed, but the inherited prefix controller records planned SIGTERM -15 and gate_receipt.passed",
+  "correction": "Validate explicit terminal planned-stop reason matching gate, exit0/-15, passed gate receipt, unchanged inputs/source/binary and all handles terminal; never accept timeout or wrong reason",
+  "numerical_case_repeated": false,
+  "no_production_gate_change": true,
+  "unix": 1794850745.9297981,
+  "snapshot_directory": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N8/A2_A3_N12/section6_8/validation/R3_terminal_schema_repair"
+}
