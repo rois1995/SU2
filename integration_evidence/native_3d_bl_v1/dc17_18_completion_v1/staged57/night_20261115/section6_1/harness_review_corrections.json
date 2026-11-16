@@ -40,6 +40,23 @@
     {
       "cause": "House legacy first-collapse runner also continues to construction_entry, rather than stopping immediately at the required collapse row.",
       "correction": "Preserved the already running check to its planned terminal boundary; early exactcollapse and additionalcheck3 both pass. No numerical repeat or production/gate edit. Report634.619724s sealed duration separately from early gate timing."
+    },
+    {
+      "cause": "Current-target adapter set environment before executing legacy saved-state setup, which then overwrote it with the older target. Found before current-target execution.",
+      "correction": "Restore the original late checks.main callback so current492 target is installed immediately before run_cases captures the command and launches. Preserve prior helper source/hash; BL adapted source is unchanged, so the passed C492 execution is not repeated.",
+      "previous_helper_sha256": "ee8b59e1e366a66bd95f52fda25ba6d267ab157ac74eb7ed2a1e94c99f9e2e41",
+      "corrected_helper_sha256": "7f417f13dae43a64b8233f29fec3c4f23bdb3299de12a678e9c8b732878889a0",
+      "prior_source_checkpoint": "9480763540"
+    },
+    {
+      "cause": "The new late-current-target synthetic self-check referenced types.SimpleNamespace without importing types.",
+      "correction": "Add the standard-library import and rerun only the helper self-check; it passes. No numerical or production check repeated."
+    },
+    {
+      "cause": "First final-sequence launch: merit481 adapter could not import run_cases because its early geometry branch ran before the legacy source installed STAGED on sys.path. No case or numerical process was launched.",
+      "correction": "Install STAGED module search path at wrapper initialization and include an actual import/path assertion in the helper self-check. Preserve failed launch/sequence/log/source as setup_failure1 and repeat only the helper launch.",
+      "old_helper_sha256": "5d9f30be62aa0aa5e9ed2bd35ec446547417e97a2be9a6e68d10e649d78efa4f",
+      "new_helper_sha256": "095704db102e083735e11f2d6b58dad37d6473c7120288574e34de95286e7f6c"
     }
   ],
   "strict_full_memory_gate": "The legacy redundant20GB row is superseded by unchanged P7/P8 connected checker: job_peak==SUM6processpeaks and<=19073MiB in each event; productionP8 also refuses aboveexactcap."

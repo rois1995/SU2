@@ -1,6 +1,8 @@
 """Load the accepted safeguard runner with section 6.1 paths and build522."""
 import hashlib
 import json
+import ast
+import types
 import os
 import sys
 from pathlib import Path
@@ -11,6 +13,7 @@ REPO = STAGED.parents[3]
 OLD = STAGED / "p7p8_r3_20261115/run_remaining_checks.py"
 GEOMETRY = STAGED / "check_geometry_magnitude481.py"
 SAVED = STAGED / "check_saved_surface_corrections481.py"
+sys.path.insert(0, str(STAGED))
 
 
 def sha(path):
@@ -197,7 +200,14 @@ def run_saved(mode):
         pinned_inputs[str(qualification)] = sha(qualification)
         for variable in ("SU2_NATIVE_TARGET_CHECKPOINT3D", "SU2_NATIVE_FROZEN_SENSOR3D"):
             pinned_inputs[str(Path(current[variable]))] = sha(current[variable])
-        os.environ.update(current)
+        original_main = checks.main
+
+        def current_main(runtime_manifest=None):
+            """Apply the current target after the legacy fixture sets its default target."""
+            os.environ.update(current)
+            return original_main(runtime_manifest)
+
+        checks.main = current_main
     original_save = checks.save
 
     def save_pinned(path, value):
@@ -215,10 +225,27 @@ def run_saved(mode):
                                    "original_save": original_save})
 
 
+def current_target_self_check():
+    """Exercise the real late callback after a simulated legacy target overwrite."""
+    tree = ast.parse(Path(__file__).read_text())
+    callback = next(node for node in ast.walk(tree)
+                    if isinstance(node, ast.FunctionDef) and node.name == "current_main")
+    environment = {"SU2_NATIVE_TARGET_CHECKPOINT3D": "legacy"}
+    namespace = {"os": types.SimpleNamespace(environ=environment),
+                 "current": {"SU2_NATIVE_TARGET_CHECKPOINT3D": "current492"},
+                 "original_main": lambda runtime: dict(environment)}
+    module = ast.Module(body=[callback], type_ignores=[])
+    exec(compile(module, str(Path(__file__)), "exec"), namespace)
+    assert namespace["current_main"]()["SU2_NATIVE_TARGET_CHECKPOINT3D"] == "current492"
+
+
 def main():
     """Run the selected ordered validation action."""
     source = adapted_source()
     if sys.argv[1:] == ["--self-check"]:
+        current_target_self_check()
+        import run_cases as checks
+        assert Path(checks.__file__).resolve() == STAGED / "run_cases.py"
         geometry = geometry_source()
         saved = saved_source("saved_current")
         bl = adapted_source("bl")
