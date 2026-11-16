@@ -3,6 +3,7 @@
 #pragma once
 
 #include <array>
+#include <chrono>
 #include <cstdint>
 #include <iostream>
 #include <string_view>
@@ -49,13 +50,30 @@ class Counters {
     }
     ObserveOperatorReason(reason);
     if (!initially_valid) {
-      ++operator_refusals_[operation == "SplitEdge" ? 0 : operation == "InsertEdgeCavity" ? 1 : 2][Reason(reason)];
+      ++operator_refusals_[OperatorClass(operation)][Reason(reason)];
     } else if (!preserved) {
       ++preserve_refusals_;
     } else if (!height_valid) {
       ++height_refusals_;
     } else {
       ++boundary_refusals_;
+    }
+  }
+
+  // Measures one raw frame-operator invocation when enabled and returns its unchanged result.
+  template <class Callback>
+  bool TimeFrame(std::string_view operation, Callback&& callback) {
+    const auto index = FrameIndex(operation);
+    if (!enabled_ || index == frame_calls_.size()) return static_cast<bool>(callback());
+    ++frame_calls_[index];
+    const auto start = std::chrono::steady_clock::now();
+    try {
+      const bool valid = static_cast<bool>(callback());
+      RecordFrame(index, start, valid);
+      return valid;
+    } catch (...) {
+      RecordFrame(index, start, false);
+      throw;
     }
   }
 
@@ -104,17 +122,19 @@ class Counters {
   void Print(int rank, const Expected& expected) const noexcept {
     if (!enabled_) return;
     try {
-      constexpr const char* operators[] = {"SplitEdge", "InsertEdgeCavity", "other_geometry"};
+      constexpr const char* operators[] = {"SplitEdge",      "InsertEdgeCavity",     "other_geometry",
+                                           "RefitWallSplit", "ReconstructWallSplit", "ReconstructSplitPatch"};
       constexpr const char* reasons[] = {
           "orientation", "interface", "surface_containment", "feature", "marker_junction", "incomplete_star", "other"};
       constexpr const char* causes[] = {"incomplete", "nonfinite", "no_progress", "after_above", "exception", "other"};
       constexpr const char* origins[] = {"size", "geometry"};
       constexpr const char* dispositions[] = {"other", "oversized", "conflict", "deferred", "split_position"};
-      for (std::size_t op = 0; op < 3; ++op)
+      for (std::size_t op = 0; op < operator_refusals_.size(); ++op)
         for (std::size_t why = 0; why < 7; ++why)
           std::cout << "NATIVE3D_WALL_REFUSAL rank=" << rank << " class=" << operators[op] << " reason=" << reasons[why]
                     << " count=" << operator_refusals_[op][why] << '\n';
       PrintOperatorReasons(rank);
+      PrintFrames(rank);
       PrintSingle(rank, "PreservePassingFirstHeights", preserve_refusals_);
       PrintSingle(rank, "height_check", height_refusals_);
       PrintSingle(rank, "boundary_replacement_ready", boundary_refusals_);
@@ -170,10 +190,50 @@ class Counters {
     std::uint64_t count = 0;
   };
 
+  static std::size_t OperatorClass(std::string_view operation) {
+    if (operation == "SplitEdge") return 0;
+    if (operation == "InsertEdgeCavity") return 1;
+    if (operation == "RefitWallSplit") return 3;
+    if (operation == "ReconstructWallSplit") return 4;
+    if (operation == "ReconstructSplitPatch") return 5;
+    return 2;
+  }
+
+  static std::size_t FrameIndex(std::string_view operation) {
+    if (operation == "RefitWallSplit") return 0;
+    if (operation == "ReconstructWallSplit") return 1;
+    if (operation == "ReconstructSplitPatch") return 2;
+    return 3;
+  }
+
+  void RecordFrame(std::size_t index, std::chrono::steady_clock::time_point start, bool valid) {
+    frame_seconds_[index] += std::chrono::duration<double>(std::chrono::steady_clock::now() - start).count();
+    frame_valid_[index] += valid;
+  }
+
+  // Emits one fixed-storage observation row for each named frame operation.
+  void PrintFrames(int rank) const {
+    constexpr const char* names[] = {"RefitWallSplit", "ReconstructWallSplit", "ReconstructSplitPatch"};
+    for (std::size_t i = 0; i < frame_calls_.size(); ++i)
+      std::cout << "NATIVE3D_WALL_FRAME rank=" << rank << " operation=" << names[i] << " calls=" << frame_calls_[i]
+                << " valid=" << frame_valid_[i] << " seconds=" << frame_seconds_[i] << '\n';
+  }
+
   // Buckets reasons by the exact prefix that the bounded report can display.
   void ObserveOperatorReason(std::string_view reason) {
-    const auto size = reason.size() < 96 ? reason.size() : 96;
-    const auto prefix = reason.substr(0, size);
+    std::array<char, 97> normalized{};
+    std::size_t size = 0;
+    bool previous_digit = false;
+    for (const char value : reason.substr(0, reason.size() < 96 ? reason.size() : 96)) {
+      const bool digit = value >= '0' && value <= '9';
+      if (digit) {
+        if (!previous_digit) normalized[size++] = '#';
+      } else {
+        normalized[size++] = value;
+      }
+      previous_digit = digit;
+    }
+    const auto prefix = std::string_view(normalized.data(), size);
     for (auto& entry : operator_reason_texts_) {
       if (entry.count && std::string_view(entry.text.data()) == prefix) {
         ++entry.count;
@@ -271,9 +331,11 @@ class Counters {
   std::uint64_t metric_validation_trials_ = 0, metric_validation_rejected_ = 0;
   std::uint64_t metric_trials_ = 0, metric_rejected_ = 0, metric_vetoed_ = 0;
   std::uint64_t accepted_ = 0, planning_refusals_ = 0, selected_ = 0, operator_entered_ = 0;
-  std::array<std::array<std::uint64_t, 7>, 3> operator_refusals_{};
+  std::array<std::array<std::uint64_t, 7>, 6> operator_refusals_{};
   std::array<OperatorReason, 16> operator_reason_texts_{};
   std::uint64_t operator_reason_more_ = 0;
+  std::array<std::uint64_t, 3> frame_calls_{}, frame_valid_{};
+  std::array<double, 3> frame_seconds_{};
   std::array<std::array<std::uint64_t, 6>, 2> guidance_rejections_{};
   std::array<std::uint64_t, static_cast<std::size_t>(PreTrialDisposition::Count)> dispositions_{};
 };

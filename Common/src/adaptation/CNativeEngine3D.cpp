@@ -17,6 +17,7 @@
 #include "../../include/adaptation/CNativeTimerTree3D.hpp"
 #include "../../include/adaptation/CNativeD9Profile3D.hpp"
 #include "../../include/adaptation/CNativeWallDiagnostics3D.hpp"
+#include "../../include/adaptation/CNativeWallGeometryLaw3D.hpp"
 #include "../../include/adaptation/CNativeLaneCensus3D.hpp"
 #include "../../include/adaptation/CNativeRuntimeProfile3D.hpp"
 #include <chrono>
@@ -95,6 +96,43 @@ namespace {
 namespace wall_diagnostics = SU2NativeWallDiagnostics3D;
 namespace lane_census = SU2NativeLaneCensus3D;
 
+// Face-edge incidences deliberately include an edge once for each owned physical face.
+void PrintWallLawCensus(const Owned& cells, const PlanarReference& geometry, double tau, int rank, const char* boundary,
+                        bool enabled) {
+  const auto* parameters = geometry.Parameters();
+  if (!enabled || !parameters || !parameters->EntityGeometry()) return;
+  SU2NativeTiming3D::Scope timer(SU2NativeTiming3D::Operation::Census);
+  const auto started = std::chrono::steady_clock::now();
+  size_t faces = 0, incidences = 0, need = 0, unsupported = 0;
+  double max_ratio = 0;
+  for (const auto& row : cells) {
+    for (unsigned opposite = 0; opposite < 4; ++opposite) {
+      const auto& binding = row.second.physical[opposite];
+      if (!binding.present) continue;
+      ++faces;
+      std::array<unsigned, 3> vertices{};
+      unsigned count = 0;
+      for (unsigned k = 0; k < 4; ++k)
+        if (k != opposite) vertices[count++] = k;
+      for (unsigned k = 0; k < 3; ++k) {
+        ++incidences;
+        const auto estimate = EstimateWallEdge(*parameters, row.second.cell.v[vertices[k]],
+                                               row.second.cell.v[vertices[(k + 1) % 3]], binding.facet);
+        if (!estimate.supported) {
+          ++unsupported;
+          continue;
+        }
+        need += EstimateSaysNeed(estimate, tau);
+        max_ratio = std::max(max_ratio, estimate.value / (.75 * tau));
+      }
+    }
+  }
+  const double seconds = std::chrono::duration<double>(std::chrono::steady_clock::now() - started).count();
+  std::cout << "NATIVE3D_WALL_LAW rank=" << rank << " boundary=" << boundary << " faces=" << faces
+            << " edge_incidences=" << incidences << " need_incidences=" << need
+            << " unsupported_incidences=" << unsupported << " max_ratio=" << max_ratio << " seconds=" << seconds
+            << '\n';
+}
 // First-failure precedence from I.B0; only labels an already rejected guidance check.
 wall_diagnostics::GuidanceCause WallGuidanceCause(bool complete, bool finite, bool needs_progress, bool progress) {
   if (!complete) return wall_diagnostics::GuidanceCause::Incomplete;
@@ -1411,6 +1449,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
   const auto& geometry=atlas_geometry?*atlas_geometry:private_geometry?*private_geometry:accepted_geometry;
   if (options.timings)
     PrintAdaptationRequirements(MakeAdaptationRequirements(geometry, bool(composition), options), world.rank, std::cout);
+  PrintWallLawCensus(accepted, geometry, options.surface_tolerance, world.rank, "entry", options.timings);
   const double parameter_setup=options.timings?std::chrono::duration<double>(Clock::now()-started).count():0;
   const bool curved=!geometry.ExtensionComponents().empty();
   const bool standalone_coarsening=intent==MetricChange::Coarsen;
@@ -2272,6 +2311,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
           stats.metric_seconds+stats.routing_seconds+stats.publication_seconds+stats.update_seconds+stats.completion_seconds+stats.collision_seconds;
       stats.other_seconds=stats.total_seconds-phases-stats.layer_seconds;
     }
+    PrintWallLawCensus(working, geometry, options.surface_tolerance, world.rank, "exit", options.timings);
     observe_progress("exit");
     wall_counters.Print(world.rank, {stats.geometry_trials, stats.geometry_rejected, stats.geometry_guidance_trials,
                                      stats.geometry_guidance_rejected, stats.accepted, stats.metric_trials,
@@ -5339,14 +5379,22 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
               stats.wall_reconstruction_trials+=wall;
               if(retained_frame && frame<retained_frames && wallSplit) {
                 ++stats.wall_topology_trials;
-                if(frame==0)candidate=guarded_geometry(RefitWallSplit(old,choice.edge,point,maximum_node+2+node_offset,
-                    maximum_cell+1+offset,options.wall_heights,geometry,fresh,refit_obstruction,result.reason),"RefitWallSplit");
-                else candidate=guarded_geometry(ReconstructWallSplit(old,choice.edge,point,maximum_node+2+node_offset,
-                    maximum_cell+1+offset,options.wall_heights,geometry,fresh,obstruction,result.reason,nullptr,options.surface_tolerance),"ReconstructWallSplit");
+                if(frame==0)candidate=guarded_geometry(wall_counters.TimeFrame("RefitWallSplit", [&] {
+                    return RefitWallSplit(old,choice.edge,point,maximum_node+2+node_offset,
+                        maximum_cell+1+offset,options.wall_heights,geometry,fresh,refit_obstruction,result.reason);
+                  }),"RefitWallSplit");
+                else candidate=guarded_geometry(wall_counters.TimeFrame("ReconstructWallSplit", [&] {
+                    return ReconstructWallSplit(old,choice.edge,point,maximum_node+2+node_offset,
+                        maximum_cell+1+offset,options.wall_heights,geometry,fresh,obstruction,result.reason,nullptr,
+                        options.surface_tolerance);
+                  }),"ReconstructWallSplit");
               } else if(!retained_frame || frame>=retained_frames) {
-                candidate=guarded_geometry(ReconstructSplitPatch(old,choice.edge,point,{maximum_node+2+node_offset,{}},
-                    frame>retained_frames?nearPlacement:placement,maximum_cell+1+offset,geometry,
-                    fresh,obstruction,result.reason,nullptr,options.wall_heights),"ReconstructSplitPatch");
+                candidate=guarded_geometry(wall_counters.TimeFrame("ReconstructSplitPatch", [&] {
+                    return ReconstructSplitPatch(old,choice.edge,point,{maximum_node+2+node_offset,{}},
+                        frame>retained_frames?nearPlacement:placement,maximum_cell+1+offset,geometry,
+                        fresh,obstruction,result.reason,nullptr,options.wall_heights);
+                  }),"ReconstructSplitPatch");
+
               }
             }catch(const std::exception& e){failure.Set(2,0,e.what());}
             ready=vote(failure);
