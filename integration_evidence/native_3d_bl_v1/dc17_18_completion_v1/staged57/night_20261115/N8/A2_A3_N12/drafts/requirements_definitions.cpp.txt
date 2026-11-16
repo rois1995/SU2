@@ -1,0 +1,64 @@
+/* Add <iomanip>, <set>, and <ostream> with the engine source includes. */
+/* Insert in namespace SU2Native3D before its anonymous namespace. */
+AdaptationRequirements MakeAdaptationRequirements(const PlanarReference& geometry,
+                                                  bool composition,
+                                                  const EngineOptions& options) {
+  AdaptationRequirements result;
+  result.size.controls = options.requirement_size;
+  result.size.composition_present = composition;
+  result.geometry.mapped = geometry.Mapped();
+  result.geometry.entity_geometry = geometry.EntityGeometry();
+  result.geometry.curved = !geometry.ExtensionComponents().empty();
+  result.geometry.tolerance = options.surface_tolerance;
+  if (const auto* policy = geometry.Mobility()) {
+    result.features.policy_present = true;
+    result.features.features = policy->features.size();
+    result.features.corners = policy->corners.size();
+    std::set<Id> roots;
+    for (const auto& sheet : policy->sheets) roots.insert(sheet.second);
+    result.features.sheets = roots.size();
+    result.features.angle = policy->angle;
+  }
+  result.walls.first_heights = &options.wall_heights;
+  result.walls.region_policies = &options.region_walls;
+  result.walls.height_tolerance = options.wall_heights.tolerance;
+  result.budgets = {options.maximum_work, options.maximum_seconds,
+                    options.memory_ceiling, options.job_memory_limit};
+  return result;
+}
+
+void PrintAdaptationRequirements(const AdaptationRequirements& r, std::ostream& out) {
+  out << std::setprecision(17) << "NATIVE3D_REQUIREMENTS"
+      << " hmin=" << r.size.controls.hmin << " hmax=" << r.size.controls.hmax
+      << " ARmax=" << r.size.controls.armax << " hgrad=" << r.size.controls.hgrad
+      << " complexity=" << r.size.controls.complexity
+      << " composition_present=" << r.size.composition_present
+      << " mapped=" << r.geometry.mapped << " entity_geometry=" << r.geometry.entity_geometry
+      << " curved=" << r.geometry.curved << " tolerance=" << r.geometry.tolerance
+      << " policy_present=" << r.features.policy_present
+      << " features=" << r.features.features << " corners=" << r.features.corners
+      << " sheets=" << r.features.sheets << " angle=" << r.features.angle
+      << " height_tolerance=" << r.walls.height_tolerance
+      << " maximum_work=" << r.budgets.maximum_work
+      << " maximum_seconds=" << r.budgets.maximum_seconds
+      << " memory_ceiling=" << r.budgets.memory_ceiling
+      << " job_memory_limit=" << r.budgets.job_memory_limit << " wall_rows=";
+  std::set<int> markers;
+  for (const auto& wall : *r.walls.first_heights) markers.insert(wall.first);
+  for (const auto& region : *r.walls.region_policies) markers.insert(region.first);
+  bool first = true;
+  for (const int marker : markers) {
+    if (!first) out << ';';
+    first = false;
+    const auto height = r.walls.first_heights->find(marker);
+    const auto region = r.walls.region_policies->find(marker);
+    const double h0 = height != r.walls.first_heights->end() ? height->second
+        : region->second.height;
+    const double growth = region != r.walls.region_policies->end()
+        ? region->second.growth : std::numeric_limits<double>::quiet_NaN();
+    const double thickness = region != r.walls.region_policies->end()
+        ? region->second.thickness : std::numeric_limits<double>::quiet_NaN();
+    out << marker << ':' << h0 << ',' << growth << ',' << thickness;
+  }
+  out << '\n';
+}

@@ -1,9 +1,9 @@
 {
-  "state": "failed_revert_required",
+  "state": "failed_reverted",
   "base": "9867041a2e",
   "source_check": "source_check.md",
   "job": null,
-  "next": "one production revert, then independent A2/A3+N12",
+  "next": "independent A2/A3+N12 source check",
   "tool_session_id": 33640,
   "source_pins": 1565,
   "started_unix": 1794840207.1031208,
@@ -15,5 +15,6 @@
   "first_result_failure": "first_result_failure.json",
   "diagnosis": "R5_diagnosis.json",
   "candidate_commit": "eb6d94042c",
-  "running_job": null
+  "running_job": null,
+  "revert_commit": "03fffc52e8"
 }

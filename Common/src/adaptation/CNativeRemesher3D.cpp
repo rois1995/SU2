@@ -212,6 +212,13 @@ CRemeshResult CNativeRemesher3D::Remesh(const CConfig& config, const CGeometry& 
   if (timer_tree.Owns()) control.caller_bytes = transfer_memory::Add(control.caller_bytes, timer_tree.ReservedBytes());
   control.surface_tolerance = SU2_TYPE::GetValue(config.GetAdap_Hausd());
   control.job_memory_limit=config.GetAdap_Native_Job_MemoryLimit();
+  if (control.timings) {
+    control.requirement_size = {SU2_TYPE::GetValue(config.GetAdap_Hmin()),
+                                SU2_TYPE::GetValue(config.GetAdap_Hmax()),
+                                SU2_TYPE::GetValue(config.GetAdap_ARmax()),
+                                SU2_TYPE::GetValue(config.GetAdap_Hgrad()),
+                                SU2_TYPE::GetValue(config.GetAdap_Complexity())};
+  }
   control.wall_heights.tolerance = SU2_TYPE::GetValue(config.GetAdap_BL_FirstHeightTol());  // Agreed by the engine.
   if (config.GetAdap_Native_Max_Work()) control.maximum_work=config.GetAdap_Native_Max_Work();
   if (config.GetAdap_Native_Max_Time()>0) control.maximum_seconds=SU2_TYPE::GetValue(config.GetAdap_Native_Max_Time());

@@ -1,10 +1,8 @@
 # Unattended adaptation work, 2026-11-16
 
-DRAFT: N5 resource-corrected rechecks remain active; this file is not a completion claim. The first N5 full run passed every numerical/physical/time/memory/timer gate and all6P6c hashes, but FAILED R1 process-count compliance:8CPU-heavy processes versus6, including2abandoned owned function scanners. They were terminated by verified PID/start identity. The original solver run finished unchanged. One corrected resource repeat is pending; no source or gate changed. The accepted implementation
-remains F3b48f07ad1a8 plus report helpera27f56cd78. Production restorations arebecb4927c9
-and8039fc1b59. Latest measurement checkpointeb5e48174a is pushed. N5 observation G2/GQ identity passed;
-full two-event qualification is still pending. Current CFD hash861737e1 is unchanged
-through test-only build521 (test382dc714).
+DRAFT — ordered work continues; N7 is not final. Latest completed item: N8A1 FAILED exact Euler293 edge-CSV identity after successful build532 and10-assertion API unit. Candidateeb6d94042c preserved, production reverted03fffc52e8 and pushed. First difference: line3 score0.00013363402603001954 vs0.00013363402603001952; need7,521 unchanged. One read-only diagnosis found the formula text unchanged and points to strict-library arithmetic versus the old fast-math diagnostic. No gate/tolerance/compiler workaround. All4actual-host fixture handles terminal and1565pins unchanged before revert.
+
+Current accepted production base is N9section6.6 checkpoint9867041a2e (accepted sourcec8f524b2a1). N1/6.1 is PASSED, B7 FAILED/reverted9831c787e7, N5 PASSED3d28237f03, N3 source review complete. Shared G1 reference is complete. N11 and N10 are NOTSTARTED because A1 is absent. Next is independent N8A2/A3+N12 in ONE build and the SAME full two-event run, then6.3,N6,N7. No8.5. The shared build currently has FAILEDcandidate532 until next rebuild; it is not an accepted binary. Existing first N1, N4 and N5 operational failures below remain historical evidence.
 
 R = `integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57`.
 NIGHT/H/D/C and both inventories are SHA-sealed in `R/night_20261115/inputs`.
@@ -12,18 +10,26 @@ The latest unattended section2 is in AGENTS.md; no user/reviewer answer was requ
 
 | Item/sub-step | State | Commit | Numbers and evidence |
 |---|---|---|---|
-| N1 ordered fixtures/checks | PASSED |6322be34ea/d4e9e81cac|Exact first-collapse90809869work; C492461splits/304986positivecells; prior focused/MPI/safeguards passed.|
-| N1 full two-event result identity | FAILED |failed N1; revertedbecb4927c9|Event1 all3hashes identical; event2 firstNELEM855828 vs855760 (+68), points168797 vs168790 (+7), all3hashes differ.|
-| N2 B7 | NOT STARTED |—|Accepted N1 dependency false; failed M18 is not qualified condition input.|
+| Historical N1 ordered fixtures/checks | PASSED |6322be34ea/d4e9e81cac|Exact first-collapse90809869work; C492461splits/304986positivecells; prior focused/MPI/safeguards passed.|
+| Historical first N1 full identity | FAILED |failed N1; revertedbecb4927c9|Event1 all3hashes identical; event2 firstNELEM855828 vs855760 (+68), points168797 vs168790 (+7), all3hashes differ.|
+| Historical N2 before6.1 | NOT STARTED |—|Accepted N1 dependency false; failed M18 is not qualified condition input.|
 | N3 whole design source review | PASSED |6941fcc41c|Read-only, one14-item list; M11/M15/M17/M19 and conditional T1–T3 answered.|
 | N4 F3b reference rebuild/G2/G3/GQ | PASSED |4798ea3936|Build870.265s; G2exact90809869work; G3fresh473splits/305015positivecells/first336P6c; GQall6thirdwindows.|
 | N4 A1 five-type hoist G1 | FAILED |failedec0e8f3ef5; reverted8039fc1b59|First old metric assertion209.9357526597 vs656.1522579418, epsilon5e-4;13FAILmarkers, serial600s timeout. MPI/G2notstarted.|
 | N4 later phases | NOT STARTED |—|A1 and unchanged G1 prerequisite failed.|
 | N5 existing F3b timing extraction | PASSED |4f4919ef61|204qualitywindows/180timerrows,2events×6ranks; source/runtime/input/physical receipts retained.|
 | N5 observation prefix gates | PASSED |a90d420937/6e0777868b|G2 all integers/exact90809869work; GQ all6thirdwindows and old integers identical. CFD861737e1.|
-| N5 bounded measurements/full profile | ACTIVE |eb5e48174a|Build521; five refreshed stack/channel cases, actual operators and all three geometry measurements passed. Corrected locality check active; full two-event profile pending.|
+| Historical N5 intermediate profile | PASSED later3d28237f03 |eb5e48174a|Build521; five refreshed stack/channel cases, actual operators and all three geometry measurements passed. Corrected locality check active; full two-event profile pending.|
 | N6 further cuts | NOT STARTED |—|Requires completeN4+passedG5.|
-| N7 final closure | NOT STARTED |—|This draft will be updated afterN5.|
+| N1 /6.1 renewed acceptance | PASSED |429c6c1a60|Full event1 P6c/event2 P7-reference identity,4286.332645s workflow; native2161.697077/1634.828953s; SUMpeaks14,028,087,296/17,349,582,848B; isolatedrestartPASS. section6_1/REPORT.md |
+| N2 /6.2 B7 | FAILED |reverted9831c787e7|Conditiontrue17.70e9<=19.0e9; C492modeled13,061,193,021>12GiB,0splits; no fullB7run. section6_2/REPORT.md |
+| N5 clean measurement repeat | PASSED |3d28237f03|All6P6c/standinggates; native2581.0285/1907.4990s, SUMpeaks13,952,311,296/17,729,433,600B. N5/reports/N5_measurement_table_draft.md; qualified M18/20/21 nowsection6_1. |
+| N9 /6.6 | PASSED |9867041a2e|G3:457commonedits/adjustedentry5113/physical+first336PASS; G2alloldints/exact90,809,869PASS. N9/section6_6/REPORT.md |
+| SharedG1 reference | PASSED (recorded existing failures) |9867041a2e|375serial/57perrank MPI2/4;24/19/37failedexpressions,792.252073/14.745597/15.756263s. N10/G1_shared_reference_manifest.json |
+| N8 A1 law | FAILED |candidateeb6d94042c; reverted03fffc52e8|Build532470.250586s/1565pins/130terminalIDs; API10assertionsPASS; Euler293CSVfirstline3score0.00013363402603001954→0.00013363402603001952,need7521same; no later checks. N8/A1/REPORT.md |
+| N11 / N10 | NOT STARTED |—|Dependency: acceptedA1 absent; N10 needs passedN11. |
+| N8 A2/A3 + N12 | NOT STARTED production |—|Whole sourcecheck in progress; ONE combined build/full; print-only, no8.5. |
+| N7 final closure | NOT STARTED |—|This remains a draft until ordered work ends.|
 
 ## Failed items and reversions
 

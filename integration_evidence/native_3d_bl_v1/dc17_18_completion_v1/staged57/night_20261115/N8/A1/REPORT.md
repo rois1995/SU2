@@ -1,4 +1,4 @@
-# N8 A1 — FAILED, production revert required
+# N8 A1 — FAILED, reverted03fffc52e8
 
 Candidateeb6d94042c (pushed, labelled validationpending); accepted base9867041a2e. First result failure: exact Euler293 CSV identity. No later A1 check launched.
 
@@ -15,7 +15,7 @@ First differing value: CSVline3,edge(11,37343),score_max reference0.000133634026
 ## One read-only R5 diagnosis
 Completed in under one minute. The moved scoring expression body is text-identical after whitespace normalization. Old diagnosticTU uses fast-math; requested accurate_sum_lib placement appends strict passive arithmetic and disables contraction. Source/flag evidence points to changed arithmetic compilation context, including near-tie limiting-side changes. No transcription/wiring error in the formula was found. This attribution is based on source and compileflags, without an extra build or numerical run. No compiler, CSV normalization, tolerance, threshold or reference workaround was made. Required exact identity fails even though need count agrees. See R5_diagnosis.json.
 
-All4actual-host fixture identities terminal and1565buildpins unchanged before reverting (geometry_euler293_primary_terminal_receipt.json). Production changes revert together in one commit; candidate source remains in eb6d94042c and all raw evidence stays here. N11 is NOTSTARTED because accepted A1 is absent; N10 is NOTSTARTED because it needs passed N11. Continue independent A2/A3+N12, ONE combined build/full, no8.5.
+All4actual-host fixture identities terminal and1565buildpins unchanged before reverting (geometry_euler293_primary_terminal_receipt.json). Production changes reverted together in03fffc52e8 (pushed); candidate source remains in eb6d94042c and all raw evidence stays here. N11 is NOTSTARTED because accepted A1 is absent; N10 is NOTSTARTED because it needs passed N11. Continue independent A2/A3+N12, ONE combined build/full, no8.5.
 
 ## Own setup/wiring corrections
 R3_corrections.json and preflight_corrections.json record every cause/correction:530NinjaPATH failure before compile;531missing definingheader plus expected generatedbuildgraph pin refresh; prelaunch copied CSVhash typo corrected from both originalreceipt/file; focusedfixture defaultMPIwindow failure before Catch corrected to existingG1 pt2pt setting. The corrected focused fixture passed. These are separate from the real CSV result failure; no numerical test was repeated to hide that failure.

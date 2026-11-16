@@ -2949,3 +2949,7 @@ TEST_CASE("D9 geometry need and exact wall proof measurements", "[.][NativeD9Geo
   REQUIRE(bool(projection_csv));
   REQUIRE(bool(summary));
 }
+
+#include "fixtures/native_lane_census3d_tests.inc"
+
+#include "fixtures/native_requirements3d_tests.inc"

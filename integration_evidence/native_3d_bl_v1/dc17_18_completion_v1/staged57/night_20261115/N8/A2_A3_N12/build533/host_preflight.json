@@ -1,0 +1,55 @@
+{
+  "actual_host_proc": true,
+  "unix": 1794844235.9615624,
+  "previous_owned_identities": [
+    {
+      "pid": 228821,
+      "start_ticks": 33335443,
+      "state": "S",
+      "pgid": 228821,
+      "sid": 228821,
+      "name": "time",
+      "alive": false,
+      "mpi_rank": null
+    },
+    {
+      "pid": 228822,
+      "start_ticks": 33335443,
+      "state": "S",
+      "pgid": 228822,
+      "sid": 228821,
+      "name": "timeout",
+      "alive": false,
+      "mpi_rank": null
+    },
+    {
+      "pid": 228823,
+      "start_ticks": 33335443,
+      "state": "R",
+      "pgid": 228822,
+      "sid": 228821,
+      "name": "test_driver",
+      "alive": false,
+      "mpi_rank": 0
+    },
+    {
+      "pid": 228824,
+      "start_ticks": 33335443,
+      "state": "S",
+      "pgid": 228824,
+      "sid": 228824,
+      "name": "orted",
+      "alive": false,
+      "mpi_rank": null
+    }
+  ],
+  "all_previous_owned_handles_terminal": true,
+  "named_compute_observations": [],
+  "loadavg": "1.45 1.19 1.19 4/3330 359443\n",
+  "MemAvailable": "MemAvailable:   40206504 kB",
+  "owned_heavy_job": null,
+  "maximum_owned_heavy_processes": 6,
+  "nice": 19,
+  "build_workers": 4,
+  "user_programs": "observations only"
+}

@@ -7,6 +7,7 @@
 #pragma once
 #include "CNativeDonor3D.hpp"
 #include "CNativeMetric3D.hpp"
+#include "CNativeRequirements3D.hpp"
 #include "CNativeRegion3D.hpp"
 namespace SU2NativeGeometry {struct AtlasBudget;}
 namespace SU2Native3D {
@@ -125,6 +126,7 @@ struct EngineOptions {
   PhaseOwnership phase_ownership=PhaseOwnership::Automatic;  // DiagnosticAlways exercises migration without a profitability veto.
   bool timings = false;
   size_t candidate_batch = MaximumCandidateBatch;  // Internal control for paired correctness/work comparisons.
+  MetricSizeControls requirement_size;  // Print-only family controls, never read by remeshing decisions.
 };
 struct SplitRecord {
   Edge edge{};

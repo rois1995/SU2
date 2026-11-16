@@ -17,6 +17,7 @@
 #include "../../include/adaptation/CNativeTimerTree3D.hpp"
 #include "../../include/adaptation/CNativeD9Profile3D.hpp"
 #include "../../include/adaptation/CNativeWallDiagnostics3D.hpp"
+#include "../../include/adaptation/CNativeLaneCensus3D.hpp"
 #include "../../include/adaptation/CNativeRuntimeProfile3D.hpp"
 #include <chrono>
 #include <cmath>
@@ -33,8 +34,66 @@
 #include <type_traits>
 #include <optional>
 namespace SU2Native3D {
+AdaptationRequirements MakeAdaptationRequirements(const PlanarReference& geometry, bool composition,
+                                                  const EngineOptions& options) {
+  AdaptationRequirements result;
+  result.size.controls = options.requirement_size;
+  result.size.composition_present = composition;
+  result.geometry.mapped = geometry.Mapped();
+  result.geometry.entity_geometry = geometry.EntityGeometry();
+  result.geometry.curved = !geometry.ExtensionComponents().empty();
+  result.geometry.tolerance = options.surface_tolerance;
+  if (const auto* policy = geometry.Mobility()) {
+    result.features.policy_present = true;
+    result.features.features = policy->features.size();
+    result.features.corners = policy->corners.size();
+    std::set<Id> roots;
+    for (const auto& sheet : policy->sheets) roots.insert(sheet.second);
+    result.features.sheets = roots.size();
+    result.features.angle = policy->angle;
+  }
+  result.walls.first_heights = &options.wall_heights;
+  result.walls.region_policies = &options.region_walls;
+  result.walls.height_tolerance = options.wall_heights.tolerance;
+  result.budgets = {options.maximum_work, options.maximum_seconds, options.memory_ceiling, options.job_memory_limit};
+  return result;
+}
+
+void PrintAdaptationRequirements(const AdaptationRequirements& r, int rank, std::ostream& out) {
+  const auto precision = out.precision();
+  out << std::setprecision(17) << "NATIVE3D_REQUIREMENTS rank=" << rank << " hmin=" << r.size.controls.hmin
+      << " hmax=" << r.size.controls.hmax << " ARmax=" << r.size.controls.armax << " hgrad=" << r.size.controls.hgrad
+      << " complexity=" << r.size.controls.complexity << " composition_present=" << r.size.composition_present
+      << " mapped=" << r.geometry.mapped << " entity_geometry=" << r.geometry.entity_geometry
+      << " curved=" << r.geometry.curved << " tolerance=" << r.geometry.tolerance
+      << " policy_present=" << r.features.policy_present << " features=" << r.features.features
+      << " corners=" << r.features.corners << " sheets=" << r.features.sheets << " angle=" << r.features.angle
+      << " height_tolerance=" << r.walls.height_tolerance << " maximum_work=" << r.budgets.maximum_work
+      << " maximum_seconds=" << r.budgets.maximum_seconds << " memory_ceiling=" << r.budgets.memory_ceiling
+      << " job_memory_limit=" << r.budgets.job_memory_limit << " wall_rows=";
+  std::set<int> markers;
+  for (const auto& wall : *r.walls.first_heights) markers.insert(wall.first);
+  for (const auto& region : *r.walls.region_policies) markers.insert(region.first);
+  bool first = true;
+  for (const int marker : markers) {
+    if (!first) out << ';';
+    first = false;
+    const auto height = r.walls.first_heights->find(marker);
+    const auto region = r.walls.region_policies->find(marker);
+    const double h0 = height != r.walls.first_heights->end() ? height->second : region->second.height;
+    const double growth =
+        region != r.walls.region_policies->end() ? region->second.growth : std::numeric_limits<double>::quiet_NaN();
+    const double thickness =
+        region != r.walls.region_policies->end() ? region->second.thickness : std::numeric_limits<double>::quiet_NaN();
+    out << marker << ':' << h0 << ',' << growth << ',' << thickness;
+  }
+  out << '\n';
+  out.precision(precision);
+}
+
 namespace {
 namespace wall_diagnostics = SU2NativeWallDiagnostics3D;
+namespace lane_census = SU2NativeLaneCensus3D;
 
 // First-failure precedence from I.B0; only labels an already rejected guidance check.
 wall_diagnostics::GuidanceCause WallGuidanceCause(bool complete, bool finite, bool needs_progress, bool progress) {
@@ -1296,6 +1355,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     options.caller_bytes = transfer_memory::Add(options.caller_bytes, SU2NativeTiming3D::Session::ReservedBytes());
   SU2NativeD9::Root d9_profile(options.timings, world.rank);
   wall_diagnostics::Counters wall_counters(options.timings && bool(surface_target));
+  lane_census::Counters lane_counters(options.timings);
   bool region_rebuilt=false,improvement_changed=false,construction_changed=false,construction_handoff_progress=false;
   bool construction_generation_changed=false;
   bool metric_cleanup=false,metric_cleanup_tried=false;
@@ -1349,6 +1409,8 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     if(failure.any){EngineResult rejected;rejected.reason=failure.message;rejected.stats.stop=EngineStop::Failure;rejected.stats.maximum_work_bytes=parameter_bound;return rejected;}
   }
   const auto& geometry=atlas_geometry?*atlas_geometry:private_geometry?*private_geometry:accepted_geometry;
+  if (options.timings)
+    PrintAdaptationRequirements(MakeAdaptationRequirements(geometry, bool(composition), options), world.rank, std::cout);
   const double parameter_setup=options.timings?std::chrono::duration<double>(Clock::now()-started).count():0;
   const bool curved=!geometry.ExtensionComponents().empty();
   const bool standalone_coarsening=intent==MetricChange::Coarsen;
@@ -2214,6 +2276,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     wall_counters.Print(world.rank, {stats.geometry_trials, stats.geometry_rejected, stats.geometry_guidance_trials,
                                      stats.geometry_guidance_rejected, stats.accepted, stats.metric_trials,
                                      stats.proposed, stats.attempted});
+    lane_counters.Print(world.rank);
     stats.tracked_bytes=world.bytes_sent-tracked_bytes_begin;
     stats.tracked_calls=world.collective_calls-tracked_calls_begin;
     stats.tracked_collective_seconds=world.collective_seconds-tracked_seconds_begin;
@@ -3990,6 +4053,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
       private_optimizer_allowance=eligible?std::min<uint64_t>(160,(stats.work_limit-stats.global_work)/eligible):0;
       private_work_reserved=eligible*private_optimizer_allowance;stats.global_work+=private_work_reserved;
     }
+    std::array<lane_census::Slot, MaximumCandidateBatch> lane_slots{};
     const auto private_started=repairing?Clock::now():Clock::time_point{};
     const auto private_collectives=world.collective_calls+world.election_collective_calls;
     for (size_t slot=0;slot<(repairing?choices.size():slots);++slot) {
@@ -4188,6 +4252,8 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
       catch(const std::exception& e){result.reason=e.what();return false;}
     };
     auto evaluate_candidate=[&]() -> bool {
+    lane_census::Trial lane_trial(lane_counters, repairing, lane_slots[slot], dependencies, imported,
+                                 world.rank, repair_work);
     const bool coordinate_stream=trial_maximum(coordinate_only);
     // Admit large coordinate-star copies, surfaces, query regions and measurements before GeometryPatch
     // or source-region packing allocates them; the ordinary topology path keeps its existing bound.
@@ -5721,6 +5787,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
       }catch(const std::exception& e){result.reason=e.what();evaluated=false;}
       private_repair=false;private_work_used+=repair_work;
       if(!evaluated){private_failure.Set(2,0,result.reason);break;}
+      lane_counters.Approved(true, lane_slots[slot], approved);
       try {
         auto& proposal=repair_proposals.at(slot);proposal.choice=choice;
         proposal.dependencies=std::move(dependencies);proposal.imported=std::move(imported);
@@ -5747,6 +5814,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
         local.Set(2,0,"Native3D private surface collapse performed collective or unreserved operator work.");
       if(!(ready=vote(local)))return finish();
     } else if(!evaluate_candidate())return finish();
+    lane_counters.Approved(false, lane_slots[slot], approved);
     if(chosen&&!approved&&!collapse_correction_refusal.empty())
       result.reason+=" Bounded correction: "+collapse_correction_refusal;
     // Successful peer contact/reservation votes must not erase this worker's construction refusal.
@@ -5931,6 +5999,9 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
           construction_generation_changed=construction_generation_changed || !repairing;
           ++stats.accepted;
           wall_counters.Accepted();
+          if (options.timings)
+            lane_counters.Commit(false, lane_slots[slot], !surface_edit, parameter_edits.empty(),
+                                 fresh.coverage.faces.empty() && fresh.coverage.traces.empty());
           if(!repairing){if(coarsening)++stats.length_collapses;else ++stats.length_splits;}
           if(optimization_approved) {
             stats.optimization_moves+=repair_optimization.moves;
@@ -6092,6 +6163,8 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
             if(proposal.approved) {
               if(geometry.Mapped()) {
                 auto edits=BoundaryParameterState::Changes(proposal.old,proposal.fresh,geometry.Parameters()->Revision());
+                if (options.timings)
+                  lane_slots[&proposal - repair_proposals.data()].no_parameter_edits = edits.empty();
                 parameter_edits.insert(parameter_edits.end(),edits.begin(),edits.end());
               }
               for(const auto& face:proposal.fresh.coverage.faces)if(!coverage.faces.emplace(face).second)
@@ -6196,6 +6269,12 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
             ++stats.accepted;
             wall_counters.Accepted();
             ++stats.quality.commits;
+            if (options.timings) {
+              const auto& lane_slot = lane_slots[&proposal - repair_proposals.data()];
+              lane_counters.Commit(true, lane_slot, SameSkin(proposal.old, proposal.fresh),
+                                   lane_slot.no_parameter_edits,
+                                   proposal.fresh.coverage.faces.empty() && proposal.fresh.coverage.traces.empty());
+            }
             if(!surface_target)AccountQualityChurn(proposal.old,proposal.fresh,proposal.old_flags,proposal.fresh_flags,stats.quality);
             if(proposal.ladder<3) {
               auto& counter=stats.quality.ladder[proposal.ladder];++counter.published;

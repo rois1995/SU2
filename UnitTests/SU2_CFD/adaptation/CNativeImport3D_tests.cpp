@@ -3567,3 +3567,5 @@ TEST_CASE("Native job memory peaks and refusal preserve accepted CFD state", "[N
   CHECK_FALSE(allowed_state->original);  // Remesh is provisional until its publication callback is invoked.
   (void)attempted;
 }
+
+#include "fixtures/native_m6b_projection_tests.inc"

@@ -1,0 +1,28 @@
+[
+  {
+    "helper": "readability length report",
+    "cause": "initial unanchored name lookup also matched existing Classify/Commit callsites in Engine CPP",
+    "correction": "restrict each file to its actual new function names and anchor full return-type definitions; assert every required function found and<=80 before build",
+    "numerical_run": false
+  },
+  {
+    "helper": "A3 source inventory",
+    "cause": "draft claimed old edge_faces index held all physical faces of edge shell, but source filters both endpoints",
+    "correction": "source trace corrected before fixture edit; new fixture indexes whole incident tets and extracts their physical faces"
+  },
+  {
+    "helper": "switch inventory",
+    "cause": "first draft omitted enclosing symbols and non-if references",
+    "correction": "added145line lexicalsuperset with symbols beside80predicate rows"
+  },
+  {
+    "helper": "focused unit descriptors",
+    "cause": "inherited hidden [.] prefix did not match the new public unique unit tags",
+    "correction": "filters now exactly match NativeRequirements3D/NativeLaneCensus3D source tags; self-check reads emitted source tags before launch"
+  },
+  {
+    "helper": "M6b artifact capture",
+    "cause": "initial generic sign/status column matching did not recognize real wing_positive/zero/negative fields, and generic synthetic schema did not expose it",
+    "correction": "validate actual emitted CSV schema, unique edges, refusal blank fields, per-face signs and aggregate JSON totals; synthetic real-schema checks reject duplicate edges/wrong sign totals before launch"
+  }
+]
