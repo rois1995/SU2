@@ -378,7 +378,7 @@ def run(descriptor_path):
         if key.startswith("SU2_D9_") or key == "SU2_NATIVE_D9_MESH":
             os.environ.pop(key)
     os.environ.update(descriptor["environment"])
-    sys.argv = [str(STAGED / "run_cases.py"), core.BUILD520.name, descriptor["case_name"]]
+    sys.argv = [str(STAGED / "run_cases.py"), core.BUILD521.name, descriptor["case_name"]]
     core.dump(N5 / (descriptor['case_name'] + '_preflight.json'),
               {'unix': time.time(), 'loadavg': Path('/proc/loadavg').read_text(),
                'MemAvailable': next(line for line in Path('/proc/meminfo').read_text().splitlines()
@@ -412,7 +412,7 @@ def run(descriptor_path):
                         "attempt_status_sha256": core.sha(attempt / "status.json"),
                         "artifacts_sha256": artifacts, "resource_guard": resource,
                         "rank_peak_summary": strict_json(attempt / "d9_rank_peak_summary.json") if ranks > 1 else None,
-                        "source_pins_sha256": core.sha(core.BUILD520 / "source_pins.json"),
+                        "source_pins_sha256": core.sha(core.BUILD521 / "source_pins.json"),
                         "test_binary_sha256": status["test_binary_sha256"], "passed": True})
     return strict_json(receipt)
 

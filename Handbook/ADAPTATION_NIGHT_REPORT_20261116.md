@@ -4,7 +4,7 @@ DRAFT: N5 still active; this file is not a completion claim. The accepted implem
 remains F3b48f07ad1a8 plus report helpera27f56cd78. Production restorations arebecb4927c9
 and8039fc1b59. Latest measurement checkpointeb5e48174a is pushed. N5 observation G2/GQ identity passed;
 full two-event qualification is still pending. Current CFD hash861737e1 is unchanged
-through test-only build520 (test8a77a3fb).
+through test-only build521 (test382dc714).
 
 R = `integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57`.
 NIGHT/H/D/C and both inventories are SHA-sealed in `R/night_20261115/inputs`.
@@ -21,7 +21,7 @@ The latest unattended section2 is in AGENTS.md; no user/reviewer answer was requ
 | N4 later phases | NOT STARTED |—|A1 and unchanged G1 prerequisite failed.|
 | N5 existing F3b timing extraction | PASSED |4f4919ef61|204qualitywindows/180timerrows,2events×6ranks; source/runtime/input/physical receipts retained.|
 | N5 observation prefix gates | PASSED |a90d420937/6e0777868b|G2 all integers/exact90809869work; GQ all6thirdwindows and old integers identical. CFD861737e1.|
-| N5 bounded measurements/full profile | ACTIVE |eb5e48174a|Build520; five refreshed stack/channel cases and bounded actual operators passed. Geometry/locality/full two-event profile pending.|
+| N5 bounded measurements/full profile | ACTIVE |eb5e48174a|Build521; five refreshed stack/channel cases, actual operators and all three geometry measurements passed. Corrected locality check active; full two-event profile pending.|
 | N6 further cuts | NOT STARTED |—|Requires completeN4+passedG5.|
 | N7 final closure | NOT STARTED |—|This draft will be updated afterN5.|
 
@@ -106,7 +106,22 @@ receipt-sort ties depending on input order; asymmetric callback presence; retain
 geometry cache affecting subsequent partition weights. These were preserved, not fixed.
 The only written C exception is EngineLegacyWall's80-line limit; three growth copies
 must remain separate. No cut is retained after8039fc1b59, so there is no accepted set
-of ten longest newly cut functions. N5 diagnostic helper sizes will be reported separately.
+of ten longest newly cut functions. N5 diagnostic/helper scan covers158 active functions, all at most80lines; retained proposal drafts are excluded. Current top ten (unrelated to the reverted Adapt cut) follow.
+
+| Function | Lines | File |
+|---|---:|---|
+| produced_artifacts | 79 | `integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N5/run_d9_units.py` |
+| D9MeasureFaces | 77 | `UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp` |
+| D9Measure | 72 | `UnitTests/SU2_CFD/adaptation/fixtures/native_first_row_dc12.inc` |
+| D9MeasureWallEdges | 68 | `UnitTests/SU2_CFD/adaptation/CNativeImport3D_tests.cpp` |
+| D9WriteOperatorReport | 63 | `UnitTests/Common/adaptation/CNativeDistributed3D_tests.cpp` |
+| D9WriteSummary | 62 | `UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp` |
+| D9MeasureProjection | 59 | `UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp` |
+| D9FirstHeights | 57 | `UnitTests/SU2_CFD/adaptation/fixtures/native_first_row_dc12.inc` |
+| run | 55 | `integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N5/run_d9_units.py` |
+| D9Columns | 48 | `UnitTests/SU2_CFD/adaptation/fixtures/native_first_row_dc12.inc` |
+
+Source hashes and precise bounds are in `N5/reports/function_lengths_current.json`.
 [Complete C ledger](ADAPTATION_ADAPT_CUT_20261115.md).
 
 ## Readings and fixture repairs
@@ -117,8 +132,7 @@ on a cut engine for N5; F3b is used after N4failed. No reading waived a result g
 
 R3 repair details: `R/p7p8_r3_20261115/fixture_corrections.json`, helper receipts named in
 its report; N4 comparator19selfchecks and unit/cut helper repairs inN4 ledgers;
-N5 `{counter,stack,geometry,descriptor}_fixture_repairs.json`. N5final closure will add
-any runtime setup corrections. No production policy/gate/tolerance repair is included.
+N5 `fixture_repair_index.md` consolidates all counter, stack, geometry, descriptor, operator and launcher repair receipts and build511–521 setup outcomes. The latest locality setup correction resolves vertex-index face records to authority facet IDs before reading markers. No production policy/gate/tolerance repair is included.
 
 ## Terminal state and next authorized work
 

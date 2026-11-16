@@ -1,0 +1,57 @@
+{
+  "schema": "n5_d9_fixture_failure_v1",
+  "action": "locality2",
+  "state": "FAILED_STOP_ON_FIRST_NONZERO",
+  "build": "build520",
+  "test_binary_sha256": "8a77a3fb0e294ecbb143410c08f7fc995dffc88818f8c648653dbf9a3d1bfede",
+  "started_unix": 1794800640.0,
+  "ended_unix": 1794800681.6094618,
+  "duration_seconds": 54.744290828704834,
+  "unified_exec_session_id": 86996,
+  "helper_exit_code": 1,
+  "first_failure": {
+    "source": "UnitTests/SU2_CFD/adaptation/CNativeImport3D_tests.cpp",
+    "line": 3054,
+    "kind": "unexpected exception during import",
+    "message": "Reference load 30.3155s; modeled caller bytes 1101302304; reference peak requested bytes 4976705640; geometry import refusal reason empty; map::at",
+    "owner_result_json_emitted": false
+  },
+  "attempt": "cases/n5_d9_locality2_20261116T034346_2640072",
+  "resource_receipt": {
+    "path": "n5_d9_locality2_resource_handles.json",
+    "actual_host_proc": true,
+    "all_owned_handles_terminal": true,
+    "resource_guard_triggered": false,
+    "rank_peak_hwm_bytes": {
+      "0": 2740920320,
+      "1": 2655236096
+    },
+    "sum_rank_peak_hwm_bytes": 5396156416,
+    "GNU_time_peak_kib": {
+      "0": 2676680,
+      "1": 2593004
+    },
+    "GNU_time_peak_bytes": {
+      "0": 2740920320,
+      "1": 2655236096
+    },
+    "GNU_time_peak_sum_bytes": 5396156416,
+    "memory_limit_bytes": 19999490048
+  },
+  "pins_verified": true,
+  "changed_pins": [],
+  "no_736323_cell_or_owner_ids_verification_possible": true,
+  "preserved_artifact_sha256": {
+    "descriptors/locality2.json": "f1692dca7e2958dfdb8f32b6d2ed6d34946a78dc4dd7f0211ca66ef0200a2520",
+    "run_d9_units.py": "a87f01396f806fd9fabd37adbcfa4feca2def05317663405d0d2f299f23117a3",
+    "run_measurements.py": "9ad0a54a1ba86a9631ea6dc540e2319da3344121726afb36125095d72b7ac9e7",
+    "cases/n5_d9_locality2_20261116T034346_2640072/run.log": "8b9a6d6087ab97795a92cea0b5234aee2fad8896166bda838003c436d2a7f453",
+    "cases/n5_d9_locality2_20261116T034346_2640072/command.json": "61a05fb6b3f8d38a1e63dfca3ad79874860cc4c872cc1a4a195c88eb3f14c629",
+    "cases/n5_d9_locality2_20261116T034346_2640072/pins.json": "e10d711894254d9682b8c6bc2fb760b4348418dccf50f599777e3cb512700017",
+    "cases/n5_d9_locality2_20261116T034346_2640072/d9_rank_0_peak.txt": "8affde9f19db949db4d30c6205493e32de039785c4e29f7b8eb1487266cd18d7",
+    "cases/n5_d9_locality2_20261116T034346_2640072/d9_rank_1_peak.txt": "ab4ccd311215996bf9dba3df395fdb547d928a7cc4eb141eb926a67797542eda",
+    "cases/n5_d9_locality2_20261116T034346_2640072/d9_rank_timing_wrapper.json": "c5a167837b555620cc91c2ff7211c573910da1223a37eb78afc8f35aa671cf79",
+    "n5_d9_locality2_resource_handles.json": "9855df5d097e1625c536524905a65be5fab3ceb6302ea7a01f8fa19b9faffc0a"
+  },
+  "continuation": "No repair, retry, or subsequent descriptor launched; stop for primary review."
+}

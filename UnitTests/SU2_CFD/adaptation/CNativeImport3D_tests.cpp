@@ -2942,7 +2942,8 @@ bool D9CompleteLocalShell(const std::set<Face>& faces, const D9LocalityIndex& in
 bool D9OwnsWallVertexLink(Id vertex, int wall_marker, const ReferenceState& reference, const D9LocalityIndex& index) {
   const auto range = reference.original->Parameters()->FacesOnVertex(vertex);
   for (auto it = range.first; it != range.second; ++it) {
-    if (reference.original->Get(it->first).marker == wall_marker && !index.owned_wall_faces.count(it->second))
+    const auto facet = reference.original->Parameters()->Surface().at(it->second).facet;
+    if (reference.original->Get(facet).marker == wall_marker && !index.owned_wall_faces.count(it->second))
       return false;
   }
   return true;
@@ -2963,7 +2964,8 @@ bool D9OwnsSplitWallLink(Edge edge, int wall_marker, const ReferenceState& refer
   std::vector<Face> changed_faces;
   const auto range = reference.original->Parameters()->FacesOnVertex(edge[0]);
   for (auto it = range.first; it != range.second; ++it) {
-    if (reference.original->Get(it->first).marker != wall_marker) continue;
+    const auto facet = reference.original->Parameters()->Surface().at(it->second).facet;
+    if (reference.original->Get(facet).marker != wall_marker) continue;
     if (std::binary_search(it->second.begin(), it->second.end(), edge[1])) changed_faces.push_back(it->second);
   }
   return D9OwnsChangedWallFaceLinks(changed_faces, wall_marker, reference, index);
@@ -2974,7 +2976,8 @@ bool D9OwnsCollapseWallLink(Id removed, int wall_marker, const ReferenceState& r
   std::vector<Face> changed_faces;
   const auto range = reference.original->Parameters()->FacesOnVertex(removed);
   for (auto it = range.first; it != range.second; ++it) {
-    if (reference.original->Get(it->first).marker == wall_marker) changed_faces.push_back(it->second);
+    const auto facet = reference.original->Parameters()->Surface().at(it->second).facet;
+    if (reference.original->Get(facet).marker == wall_marker) changed_faces.push_back(it->second);
   }
   return D9OwnsChangedWallFaceLinks(changed_faces, wall_marker, reference, index);
 }

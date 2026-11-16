@@ -4,7 +4,7 @@
     "C++": "Comment/string-masked source, D9-named helper definitions plus explicitly enumerated CNativeD9Profile3D RAII/free methods; balanced function body braces through exact closing brace. Calls, declarations without bodies, and non-D9 code are excluded.",
     "Python": "AST FunctionDef/AsyncFunctionDef inclusive start/end lines; nested definitions included."
   },
-  "checked_function_count": 179,
+  "checked_function_count": 158,
   "limit_lines": 80,
   "over_limit_functions": [],
   "schema": "n5_function_lengths_current_v1",
@@ -18,46 +18,35 @@
     ],
     "python_files": [
       "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N5/measure_existing_profile.py",
-      "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N5/next_fixture_helpers/run_d9_units_proposed.py",
       "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N5/prepare_build511.py",
       "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N5/prepare_descriptors.py",
       "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N5/reports/m16_extract.py",
       "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N5/run_d9_units.py",
       "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N5/run_measurements.py"
     ],
-    "python_scope": "immediate N5 Python plus N5/reports and N5/next_fixture_helpers Python helpers, including the new M16 extractor and runner proposal."
+    "python_scope": "immediate N5/*.py plus the active reports/m16_extract.py helper; retained proposals/drafts and archived copies are excluded."
   },
   "source_sha256": {
     "Common/include/adaptation/CNativeD9Profile3D.hpp": "1fc0f55215d6f75c0cc8e5cd133cbbead4772a42f8534afe363fea15b440e5d5",
     "UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp": "213d389cb94331265bc0585657c34e32719e22aa1bc307d2609c9619e820e815",
     "UnitTests/Common/adaptation/CNativeDistributed3D_tests.cpp": "e2d8e757703a178e25d4071e2e5204ea6fc83bcca0c20151bffd333dbf272afd",
-    "UnitTests/SU2_CFD/adaptation/CNativeImport3D_tests.cpp": "56745413c3108c45f8999a149db7c43bcaca42fc91b09dedacb2f114bb1ab930",
+    "UnitTests/SU2_CFD/adaptation/CNativeImport3D_tests.cpp": "e2f5922f872a971794504cd6d05f93d882799c525ca268af3ba8bf9c808ecb14",
     "UnitTests/SU2_CFD/adaptation/fixtures/native_first_row_dc12.inc": "25d6831f75162291b17dcab0b8efc56bb9dc4a96701ae70ea8766c86867e97ce",
     "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N5/measure_existing_profile.py": "e173ad47263b938b38b79f661fbeab4b1667bc3130c9f53ad9cc73c96aab8975",
-    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N5/next_fixture_helpers/run_d9_units_proposed.py": "a25e35f32f948a856f6aba9c334757fbcc93339d62e4644ae7fcd07eb1516274",
-    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N5/prepare_build511.py": "53796129c27599cede5895d9c9d1f193a97f7771d652c8246fa77c2d7c029299",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N5/prepare_build511.py": "0893d07b941fd27549ad6ab7e870579a5376487f7d3f22e4409b1ad2e6eb4920",
     "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N5/prepare_descriptors.py": "422a97c532ec92cab3ad917e0708c306c1fc4d33cc51b775b19196fc5c64a397",
     "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N5/reports/m16_extract.py": "7eb03dda3688cf0b054d27fbd58a640c856b641a4db9817e8113f0107245ca25",
-    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N5/run_d9_units.py": "a87f01396f806fd9fabd37adbcfa4feca2def05317663405d0d2f299f23117a3",
-    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N5/run_measurements.py": "9ad0a54a1ba86a9631ea6dc540e2319da3344121726afb36125095d72b7ac9e7"
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N5/run_d9_units.py": "03ef7e4a161e9778d116550b810e282d88e985f27ca80efac3dc6583fea0bd99",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N5/run_measurements.py": "cacef444105399c8a371c7a79c1e2385f044d4724955d1a5e64975a4584e4c15"
   },
   "top_10_longest": [
-    {
-      "end_line": 238,
-      "function": "produced_artifacts",
-      "language": "Python",
-      "lines": 79,
-      "path": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N5/next_fixture_helpers/run_d9_units_proposed.py",
-      "sha256": "a25e35f32f948a856f6aba9c334757fbcc93339d62e4644ae7fcd07eb1516274",
-      "start_line": 160
-    },
     {
       "end_line": 246,
       "function": "produced_artifacts",
       "language": "Python",
       "lines": 79,
       "path": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N5/run_d9_units.py",
-      "sha256": "a87f01396f806fd9fabd37adbcfa4feca2def05317663405d0d2f299f23117a3",
+      "sha256": "03ef7e4a161e9778d116550b810e282d88e985f27ca80efac3dc6583fea0bd99",
       "start_line": 168
     },
     {
@@ -79,13 +68,13 @@
       "start_line": 538
     },
     {
-      "end_line": 3362,
+      "end_line": 3365,
       "function": "D9MeasureWallEdges",
       "language": "C++",
       "lines": 68,
       "path": "UnitTests/SU2_CFD/adaptation/CNativeImport3D_tests.cpp",
-      "sha256": "56745413c3108c45f8999a149db7c43bcaca42fc91b09dedacb2f114bb1ab930",
-      "start_line": 3295
+      "sha256": "e2f5922f872a971794504cd6d05f93d882799c525ca268af3ba8bf9c808ecb14",
+      "start_line": 3298
     },
     {
       "end_line": 5573,
@@ -124,13 +113,22 @@
       "start_line": 337
     },
     {
-      "end_line": 388,
+      "end_line": 417,
       "function": "run",
       "language": "Python",
       "lines": 55,
-      "path": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N5/next_fixture_helpers/run_d9_units_proposed.py",
-      "sha256": "a25e35f32f948a856f6aba9c334757fbcc93339d62e4644ae7fcd07eb1516274",
-      "start_line": 334
+      "path": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N5/run_d9_units.py",
+      "sha256": "03ef7e4a161e9778d116550b810e282d88e985f27ca80efac3dc6583fea0bd99",
+      "start_line": 363
+    },
+    {
+      "end_line": 336,
+      "function": "D9Columns",
+      "language": "C++",
+      "lines": 48,
+      "path": "UnitTests/SU2_CFD/adaptation/fixtures/native_first_row_dc12.inc",
+      "sha256": "25d6831f75162291b17dcab0b8efc56bb9dc4a96701ae70ea8766c86867e97ce",
+      "start_line": 289
     }
   ]
 }

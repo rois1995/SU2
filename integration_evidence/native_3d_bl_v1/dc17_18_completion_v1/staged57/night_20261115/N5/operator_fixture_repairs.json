@@ -4,5 +4,13 @@
     "correction": "Seed helperoutput with explicitinitialpatch beforestartingkernel timer; passcone.output torefusalcall. Keepsameassertions and productioncode/gatesunchanged.",
     "failed_case": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N5/cases/n5_d9_operators1_20261116T030107_2538456",
     "owned_handles_terminal": true
+  },
+  {
+    "cause": "FacesOnVertex yields (vertex ID, sorted face key), not (facet ID, face). Three new link helpers called PlanarReference::Get(vertex ID), causing map::at after successful import/repartition on two ranks.",
+    "correction": "Resolve each indexed face through Parameters()->Surface().at(face).facet before reading the authority marker in split-link, collapse-link and vertex-link helpers. Production code/gates/budgets unchanged.",
+    "failed_case": "cases/n5_d9_locality2_20261116T034346_2640072",
+    "first_failure_unix": 1794800681.6094618,
+    "fixture_limit_seconds": 5400,
+    "all_owned_terminal_before_edit": true
   }
 ]
