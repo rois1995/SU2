@@ -1,0 +1,181 @@
+{
+  "schema": "n5_d9_unit_action_v1",
+  "case": "n5_d9_locality4",
+  "descriptor": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N5/descriptors/locality4.json",
+  "descriptor_sha256": "bc1513bf4090b171c4dc12eaa221e982551164dc0e08fd04bbc019212eebb323",
+  "attempt": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N5/cases/n5_d9_locality4_20261116T035038_2657289",
+  "ranks": 4,
+  "attempt_status_sha256": "5d2b0f0d86cd906c9907409dd712a8acb0eccb3f9931464fb1b63255579bddd7",
+  "artifacts_sha256": {
+    "native_d9_locality_m4.json": "27fff2303d8cda0b102e88e56208bfc3a2b40b14967b4122c5bc63596583cd68",
+    "native_d9_locality_owners_rank0.json": "52ab15035982a594ceff28412c399a89e413860a0036bf89306892cbb51d53ef",
+    "native_d9_locality_owners_rank1.json": "c7ebb65fc7c8fccc99aa69df19ea9f2168c3a2298b91b2513a6ef6775a96ebe5",
+    "native_d9_locality_owners_rank2.json": "25216e71e824b8d760e9371c1b55d720f327c1589f31344f4fdaeb82a6941c1a",
+    "native_d9_locality_owners_rank3.json": "d07ca9dbfcec464eaf0cb776ee5b48051b580b0b8be114ba890eca9fa07e284e",
+    "run.log": "22108851a92dbf6477d58ac9cb10bd4c13ad5d28103c097561edde362880083d",
+    "n5_d9_locality4_resource_handles.json": "7a66babc207b58d7335dd2e3b51d824e3dfeecc43c268b7b1fa2c320cafc0180",
+    "d9_rank_timing_wrapper.json": "b780b828c58b104959f295fe2ed6913c4910f6427f15422cf747b8c217c3bce6",
+    "d9_rank_peak_summary.json": "029dc745c6608af80354df6498723268f9f283a20005902415a718e867a3607f",
+    "d9_rank_0_peak.txt": "45f69725ed378b3e8ac3f093f13f01c83db0ef0bc794b9edfa1e34ea309a30b5",
+    "d9_rank_1_peak.txt": "8c8b9fec479730dc8482512fe3c7dca00bbc2f9e80c9bc2d99834ef0c2c7e7cb",
+    "d9_rank_2_peak.txt": "efdaee0f172d224e5982e46d088bb8b95fe7a5491cc354927767bdc13ebf7644",
+    "d9_rank_3_peak.txt": "622b4a670857d33deac685984ec2c36c3b28e521c419cf9b64bc53d8be6223d8",
+    "resources.jsonl": "7c617fa598d315112acb798c0577a16ad1e9d4dfa17ba7bd0024b2f00a7c6369"
+  },
+  "resource_guard": {
+    "schema": "n5_d9_unit_resource_guard_v2",
+    "actual_host_proc": true,
+    "unix": 1794801089.7980366,
+    "expected_ranks": 4,
+    "rank_peak_hwm_bytes": {
+      "0": 1481388032,
+      "1": 1517256704,
+      "2": 1476599808,
+      "3": 1498759168
+    },
+    "sum_rank_peak_hwm_bytes": 5974003712,
+    "unranked_test_driver_pids": [],
+    "all_expected_rank_peaks_seen": true,
+    "identities": [
+      {
+        "pid": 2657593,
+        "start_ticks": 29334592,
+        "state": "S",
+        "pgid": 2657593,
+        "sid": 2657593,
+        "name": "time",
+        "alive": false,
+        "mpi_rank": null
+      },
+      {
+        "pid": 2657594,
+        "start_ticks": 29334592,
+        "state": "S",
+        "pgid": 2657594,
+        "sid": 2657593,
+        "name": "timeout",
+        "alive": false,
+        "mpi_rank": null
+      },
+      {
+        "pid": 2657595,
+        "start_ticks": 29334592,
+        "state": "S",
+        "pgid": 2657594,
+        "sid": 2657593,
+        "name": "mpirun",
+        "alive": false,
+        "mpi_rank": null
+      },
+      {
+        "pid": 2657603,
+        "start_ticks": 29334595,
+        "state": "S",
+        "pgid": 2657603,
+        "sid": 2657593,
+        "name": "time",
+        "alive": false,
+        "mpi_rank": null
+      },
+      {
+        "pid": 2657605,
+        "start_ticks": 29334595,
+        "state": "R",
+        "pgid": 2657603,
+        "sid": 2657593,
+        "name": "test_driver",
+        "alive": false,
+        "mpi_rank": null
+      },
+      {
+        "pid": 2657601,
+        "start_ticks": 29334595,
+        "state": "S",
+        "pgid": 2657601,
+        "sid": 2657593,
+        "name": "time",
+        "alive": false,
+        "mpi_rank": null
+      },
+      {
+        "pid": 2657604,
+        "start_ticks": 29334595,
+        "state": "R",
+        "pgid": 2657601,
+        "sid": 2657593,
+        "name": "test_driver",
+        "alive": false,
+        "mpi_rank": null
+      },
+      {
+        "pid": 2657599,
+        "start_ticks": 29334595,
+        "state": "S",
+        "pgid": 2657599,
+        "sid": 2657593,
+        "name": "time",
+        "alive": false,
+        "mpi_rank": null
+      },
+      {
+        "pid": 2657602,
+        "start_ticks": 29334595,
+        "state": "R",
+        "pgid": 2657599,
+        "sid": 2657593,
+        "name": "test_driver",
+        "alive": false,
+        "mpi_rank": null
+      },
+      {
+        "pid": 2657598,
+        "start_ticks": 29334595,
+        "state": "S",
+        "pgid": 2657598,
+        "sid": 2657593,
+        "name": "time",
+        "alive": false,
+        "mpi_rank": null
+      },
+      {
+        "pid": 2657600,
+        "start_ticks": 29334595,
+        "state": "R",
+        "pgid": 2657598,
+        "sid": 2657593,
+        "name": "test_driver",
+        "alive": false,
+        "mpi_rank": null
+      }
+    ],
+    "all_owned_handles_terminal": true,
+    "maximum_job_bytes": 19999490048,
+    "resource_guard_triggered": false,
+    "rank_peak_basis": "per-rank /proc VmHWM maxima sampled while test_driver lives",
+    "live_hwm_lower_bound": true,
+    "gnu_time_child_maximum_is_job_peak": false,
+    "peak_note": "named sum of observed per-rank test_driver VmHWM maxima; live lower-bound observation, not GNU time maximum-child RSS"
+  },
+  "rank_peak_summary": {
+    "schema": "n5_d9_rank_peak_summary_v1",
+    "rank_peak_bytes": {
+      "0": 1481388032,
+      "1": 1517256704,
+      "2": 1476599808,
+      "3": 1498759168
+    },
+    "sum_rank_peak_bytes": 5974003712,
+    "maximum_job_bytes": 19999490048,
+    "within_limit": true,
+    "meaning": "sum of per-rank maximum of final GNU-time RSS and observed VmHWM; not simultaneous whole-job peak",
+    "rank_files": {
+      "d9_rank_0_peak.txt": "45f69725ed378b3e8ac3f093f13f01c83db0ef0bc794b9edfa1e34ea309a30b5",
+      "d9_rank_1_peak.txt": "8c8b9fec479730dc8482512fe3c7dca00bbc2f9e80c9bc2d99834ef0c2c7e7cb",
+      "d9_rank_2_peak.txt": "efdaee0f172d224e5982e46d088bb8b95fe7a5491cc354927767bdc13ebf7644",
+      "d9_rank_3_peak.txt": "622b4a670857d33deac685984ec2c36c3b28e521c419cf9b64bc53d8be6223d8"
+    }
+  },
+  "source_pins_sha256": "e5f7ffe147eadaf8d64b821bcb90395fc026107ce7ed57d1f4464e27befc36da",
+  "test_binary_sha256": "382dc7142320d2520dd665858fb47492990261e67bae7890717a67138c5ec48b",
+  "passed": true
+}

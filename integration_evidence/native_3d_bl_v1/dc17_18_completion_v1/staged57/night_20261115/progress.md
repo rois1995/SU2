@@ -147,3 +147,5 @@ Locality2 setup exception traced to three FacesOnVertex users reading vertex IDs
 Build521 PASSED80.133622s/2actions, pins unchanged/allownedterminal. CFD861737e1 remains byte-identical; test382dc714. Three test-only FacesOnVertex marker lookups corrected, budgets unchanged. All CPP/immediatehelpers now FROZEN for locality2retry/4/6 and fullprofile. Primaryownssoleheavyjob.
 
 Locality2 correctedfixture PASSED54.699657s, test382dc714/build521; owner maps audited, inputs/pins unchanged/allownedterminal. SUM2rankpeaks5394513920B<19999490048B. Next locality4 then6, full2event; noCPP/helperedits.
+
+Locality4 PASSED51.774955s; owner maps audited, pins unchanged/allownedterminal; SUM4rankpeaks5974003712B<19999490048B. Next locality6, thenfulltwoevent. Frozenbuild521.
