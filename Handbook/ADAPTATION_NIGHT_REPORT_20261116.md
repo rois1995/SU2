@@ -2,7 +2,7 @@
 
 DRAFT — ordered work continues; N7 is not final. Combined section6.8 is accepted at f8c7b01085 (build534). N11 B2+6.9 failed its FIRST G3 purpose gate: geometry-origin guidance1046/1301=0.803996925442, required<0.70. Physical validity passed. One R5 read-only diagnosis found the proposal cause; connected production reverted in0d9d627645 (pushed), N10 skipped dependent. No second N11 G3/full/restart. Complete failure evidence: [N11 report](../integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N11/REPORT.md).
 
-Production now equals accepted f8c7b01085, rebuilt as536 (90.125806s;1598 pins unchanged;12 terminal build identities). CFD/test binaries are byte-identical accepted534. Fresh cut G1 serial is running; G1 MPI2/4, G2, G3 and GQ references must finish before any cut edit. Whole N4 source check is complete in one22-item list. Remaining order:6.3/N4 -> N6 only with completeN4/passedG5 -> finalN7. Latest6.9 copied verbatim into AGENTS before firstN11 edit. No design8.5 or BL/RANS capability claim.
+Production now equals accepted f8c7b01085, rebuilt as536 (90.125806s;1598 pins unchanged;12 terminal build identities). CFD/test binaries are byte-identical accepted534. Fresh cut G1 serial/MPI2/MPI4 references all match the accepted-base table; G2, G3 and GQ references must finish before any cut edit. Whole N4 source check is complete in one22-item list. Remaining order:6.3/N4 -> N6 only with completeN4/passedG5 -> finalN7. Latest6.9 copied verbatim into AGENTS before firstN11 edit. No design8.5 or BL/RANS capability claim.
 
 R = `integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57`.
 NIGHT/H/D/C and both inventories are SHA-sealed in `R/night_20261115/inputs`.
@@ -29,7 +29,7 @@ The latest unattended section2 is in AGENTS.md; no user/reviewer answer was requ
 | Historical N8 A1 old gate | FAILED (correctly reverted;6.8reopens) |candidateeb6d94042c; reverted03fffc52e8|Build532470.250586s/1565pins/130terminalIDs; API10assertionsPASS; Euler293CSVfirstline3score0.00013363402603001954→0.00013363402603001952,need7521same; no later checks. N8/A1/REPORT.md |
 | N11 B2+6.9 | FAILED |candidate5488d1f1b5; revert0d9d627645|FirstG3 geometryguidance1046/1301=.803996925442>=.70; physicalPASS; no secondG3/full. N11/REPORT.md. |
 | N10 correctedB1 | NOT STARTED (dependent skipped) |—|N11 purpose failed; latest6.6 forbids dependentN10. |
-| N4 renewed references | IN PROGRESS |restored0d9d627645/sourcef8c7b01085|Build536 reproduced accepted534 hashes; freshG1serial live; no cut production edit. |
+| N4 renewed references | IN PROGRESS |restored0d9d627645/sourcef8c7b01085|Build536 reproduced accepted534 hashes; freshG1allcohortsPASS; no cut production edit. |
 | N8 combined6.8 | PASSED |source527c7c73fa; acceptancecheckpointcurrent|All ordered prerequisites/full/all6hashes/isolatedrestart PASS. native2529.592735/1684.219472s; SUMpeaks14021578752/17419386880B; restart248.353069s. |
 | N8 G1 candidate | PASSED identity |7938b89495|375 serial/57 per rank at MPI2/4, zero changed cases; baseline failed-expression counts24/19/37. Controller seconds839.004931/15.181993/20.688848;4/6/8 terminal identities. |
 | N8 G2 candidate | PASSED identity |836ca18d27|Work90,809,869 and all six counts exact; all old integers/bytes/non-Census calls exact;12 timer snapshots satisfy Census sum rule for6 law lines.398.804320s until planned stop/408.513817s sealed. One solver run; postprocessing repaired underR3. |
@@ -186,3 +186,7 @@ N5 `fixture_repair_index.md` consolidates all counter, stack, geometry, descript
 
 Pending N5completion and host verification. Design8.3–8.7, A5/B5, job-derived cache quota,
 BL/RANS acceptance and other production redesign remain outside this work order.
+
+## Unit tests that fail on the accepted base
+
+Fresh build536 recorded375serial/57MPI cases per rank at2/4 ranks;24/19/37failedassertion records exactly match the prior table. Complete case/rank/file/line and printed values: [table](../integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N4/section6_3_after_N11/reference_validation/unit_tests_that_fail_on_accepted_base.md), [unabridged values](../integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N4/section6_3_after_N11/reference_validation/unit_tests_that_fail_on_accepted_base.json). All13historicalA1assertions fail on this fresh reference; import-test historical line numbers shifted+1 by an earlier accepted include, expressions unchanged. C2.1 permits A1 after remaining references.

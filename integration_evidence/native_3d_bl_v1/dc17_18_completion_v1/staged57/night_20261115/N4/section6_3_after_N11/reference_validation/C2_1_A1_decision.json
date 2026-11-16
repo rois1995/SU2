@@ -1,0 +1,137 @@
+{
+  "all_13_old_A1_assertions_fail_on_fresh536_reference": true,
+  "count": 13,
+  "line_mapping_note": "CNativeImport3D_tests.cpp historical lines shifted +1 by accepted earlier include; case names/expressions match; BoundaryLayerMetric line unchanged. No tests changed.",
+  "assertions": [
+    {
+      "case": "Native3D complexity integrates the geometric BL with sensor-only donors",
+      "expanded": "209.9357526597 == Approx( 656.1522579418 )",
+      "file": "../../UnitTests/SU2_CFD/adaptation/BoundaryLayerMetric_tests.cpp",
+      "line": "1220",
+      "original": "test.solver[FLOW_SOL]->GetMetricComplexityFinal()==Approx(reference).epsilon(5e-4)",
+      "sections": [],
+      "success": "false",
+      "type": "CHECK"
+    },
+    {
+      "case": "Native3D driver publishes only accepted mesh and transfers affine BDF2 states",
+      "expanded": "54 > 58",
+      "file": "../../UnitTests/SU2_CFD/adaptation/CNativeImport3D_tests.cpp",
+      "line": "543",
+      "original": "counts[2]>counts[1]",
+      "sections": [],
+      "success": "false",
+      "type": "CHECK"
+    },
+    {
+      "case": "Native3D driver publishes only accepted mesh and transfers affine BDF2 states",
+      "expanded": "54 > 58",
+      "file": "../../UnitTests/SU2_CFD/adaptation/CNativeImport3D_tests.cpp",
+      "line": "543",
+      "original": "counts[2]>counts[1]",
+      "sections": [],
+      "success": "false",
+      "type": "CHECK"
+    },
+    {
+      "case": "Native3D driver publishes only accepted mesh and transfers affine BDF2 states",
+      "expanded": "54 > 58",
+      "file": "../../UnitTests/SU2_CFD/adaptation/CNativeImport3D_tests.cpp",
+      "line": "543",
+      "original": "counts[2]>counts[1]",
+      "sections": [],
+      "success": "false",
+      "type": "CHECK"
+    },
+    {
+      "case": "Native3D driver publishes only accepted mesh and transfers affine BDF2 states",
+      "expanded": "54 > 58",
+      "file": "../../UnitTests/SU2_CFD/adaptation/CNativeImport3D_tests.cpp",
+      "line": "543",
+      "original": "counts[2]>counts[1]",
+      "sections": [],
+      "success": "false",
+      "type": "CHECK"
+    },
+    {
+      "case": "Actual CFD import generates bounded bump sensor columns with collective provenance and refusal",
+      "expanded": "6 == 12",
+      "file": "../../UnitTests/SU2_CFD/adaptation/CNativeImport3D_tests.cpp",
+      "line": "1185",
+      "original": "total==12",
+      "sections": [],
+      "success": "false",
+      "type": "CHECK"
+    },
+    {
+      "case": "Actual CFD import generates bounded bump sensor columns with collective provenance and refusal",
+      "expanded": "0 == 6",
+      "file": "../../UnitTests/SU2_CFD/adaptation/CNativeImport3D_tests.cpp",
+      "line": "1188",
+      "original": "CPassiveComm::Allreduce(uint64_t(ext),CPassiveComm::Op::SUM,world.comm)==6",
+      "sections": [],
+      "success": "false",
+      "type": "CHECK"
+    },
+    {
+      "case": "Actual CFD import generates bounded bump sensor columns with collective provenance and refusal",
+      "expanded": "6 == 12",
+      "file": "../../UnitTests/SU2_CFD/adaptation/CNativeImport3D_tests.cpp",
+      "line": "1190",
+      "original": "patch.cells.size()==12",
+      "sections": [],
+      "success": "false",
+      "type": "REQUIRE"
+    },
+    {
+      "case": "Actual CFD import generates a finite spherical sensor shell with copied boundary values",
+      "expanded": "1 == 13",
+      "file": "../../UnitTests/SU2_CFD/adaptation/CNativeImport3D_tests.cpp",
+      "line": "1229",
+      "original": "CPassiveComm::Allreduce(uint64_t(source.original.size()),CPassiveComm::Op::SUM,world.comm)==13",
+      "sections": [],
+      "success": "false",
+      "type": "CHECK"
+    },
+    {
+      "case": "Actual CFD import generates a finite spherical sensor shell with copied boundary values",
+      "expanded": "1 == 13",
+      "file": "../../UnitTests/SU2_CFD/adaptation/CNativeImport3D_tests.cpp",
+      "line": "1231",
+      "original": "patch.cells.size()==13",
+      "sections": [],
+      "success": "false",
+      "type": "REQUIRE"
+    },
+    {
+      "case": "Native3D production wall policy preserves sensor donors and RANS histories across worker counts",
+      "expanded": "2 == 0",
+      "file": "../../UnitTests/SU2_CFD/adaptation/CNativeImport3D_tests.cpp",
+      "line": "1786",
+      "original": "result.status==CRemeshResult::Status::COMPLETE",
+      "sections": [],
+      "success": "false",
+      "type": "REQUIRE"
+    },
+    {
+      "case": "Mapped native runtime completes a uniform target before conservative BDF2 transfer",
+      "expanded": "2 == 0",
+      "file": "../../UnitTests/SU2_CFD/adaptation/CNativeImport3D_tests.cpp",
+      "line": "2779",
+      "original": "result.status==CRemeshResult::Status::COMPLETE",
+      "sections": [],
+      "success": "false",
+      "type": "REQUIRE"
+    },
+    {
+      "case": "Mapped native runtime completes a uniform target before conservative BDF2 transfer",
+      "expanded": "2 == 0",
+      "file": "../../UnitTests/SU2_CFD/adaptation/CNativeImport3D_tests.cpp",
+      "line": "2779",
+      "original": "result.status==CRemeshResult::Status::COMPLETE",
+      "sections": [],
+      "success": "false",
+      "type": "REQUIRE"
+    }
+  ]
+}

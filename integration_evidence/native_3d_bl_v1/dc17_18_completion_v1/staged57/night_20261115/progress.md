@@ -4,7 +4,7 @@ R7: after compaction read COMPLETE latest scratchpad NIGHT_WORK_ORDER.md and thi
 
 ## LIVE — do not stop/restart or edit pinned code/helpers
 
-Fresh CUT G1 SERIAL reference exec95550, controller1400489/start36183655, testroot1400906/start36184775. Actual host verified both live after context resume. Case `N4/section6_3_after_N11/reference_validation/cases/N8_G1_candidate_serial_20261116T225219_1400489`; controller log `reference_validation/G1_serial_controller.log`. Build536/current binaries EXACT accepted534. ALL source/536 pins/G1 helpers/aliases/READY frozen. No cut production edits yet.
+No owned job: ALL fresh G1 cohorts complete and actual-host identities terminal. Serial exec95550 794.971271s/375records/24failedexpressions; MPI2exec41584 14.883794s/114records/19failedexpressions; MPI4exec21854 17.237846s/228records/37failedexpressions. ZEROcasechanges vs historical bootstrap. Freshmanifest reference_validation/G1_shared_reference_manifest.json; failedcase/file/line/printedvalues saved unit_tests_that_fail_on_accepted_base.{json,md}. All13oldA1 assertions fail on freshbase, C2.1 eligible only AFTER freshG2/G3/GQ. ALLsource/build536/G1helpers remain frozen until reference campaign ends. No cut production edit yet.
 
 ## Current accepted source/build
 
@@ -34,3 +34,5 @@ N1/6.1 PASSED429c6c1a60: full4286.332645s/native2161.697077/1634.828953/SUM14028
 Actualhost /proc requires require_escalated; sandbox proc isolated. One owned heavy workload,max6ownedheavyprocesses,nice19,libs1,4TBcompiletmp. User apps observation only. Before longlaunch check realhost load/RAM/prior handles. 5400s/event;19073MiBjob=19999490048B;model12GiB;geometry1e-4/allquality,height,progression,transfer,restart strict. R3 own setup fixture repairs <=90min each; never production/gate/tolerance tweaks. R4 one whole source check/all contradictions. R5 first RESULT failure one<=60m readonly diagnosis/only wiring fix once else one connected revert/continue independent. R8 commit/push passed substeps. Git mutation requires escalation, status --ignore-submodules=all. Authorized push https://github.com/rois1995/SU2.git HEAD:refs/heads/codex/native-3d-bl. No create_goal. No final until list ends.
 
 Detailed historical receipts: progress_history_through_cut_reference_start_20261116.md and earlier histories. Historical live-state notes are superseded by this file. HANDOFF_Codex.md/HowToProceed.md current. Morning report remains DRAFT.
+
+C2.1 decision: fresh536serial verifies13/13oldA1assertions FAILunchanged; importtest historical line offsets+1 fromacceptedinclude, names/expressionssame. A1 eligible AFTER allfreshrefs. reference_validation/C2_1_A1_decision.json.
