@@ -1,0 +1,25 @@
+# Section 6.8 item 2 source check: timer census mapping
+
+Read before preparing the comparison helper. No production files or result gates were changed.
+
+## Source facts and reading used
+
+- `NIGHT_WORK_ORDER.md` section 6.8 item 2 specifies reuse of `Operation::Census`, a fixed `Session` footprint of 4,120 bytes, and one exact cumulative rule: at each timer boundary, for each rank, sum calls over all `operation=census` rows and require reference sum plus the number of candidate `NATIVE3D_WALL_LAW` lines printed before that boundary. Other old timer rows retain strict integer, modeled-byte, and call comparisons.
+- In the current source `Common/include/adaptation/CNativeTimerTree3D.hpp:116-159`, operation names include `census`; there is no `wall_law` operation. `Session::ReservedBytes()` returns `sizeof(Session)` at lines 202-206. The summary prints that value as `fixedstorage` at lines 303-306.
+- `Common/src/adaptation/CNativeEngine3D.cpp:1351-1355` adds the owned timer session's reserved bytes to `caller_bytes`; `Common/src/adaptation/CNativeRemesher3D.cpp:210-212` also accounts for the remesher session. Therefore adding an enum entry is incompatible with fixed-storage and modeled-byte identity. Reusing `Census` leaves the operation-count dimension and `sizeof(Session)` unchanged.
+- A timer snapshot prints one row per nonzero phase/operation at `CNativeTimerTree3D.hpp:287-306`; `Checkpoint` emits cumulative snapshots (`:215-217`), and an owning session emits `boundary=final` from its destructor (`:186-190`). The engine checkpoints at `CNativeEngine3D.cpp:1997-1999`; nested engine sessions borrow the active remesh session. The remesh owner is constructed at `CNativeRemesher3D.cpp:210`.
+- The proposed `eb6d94042c` implementation (read with `git show`, not restored or edited) adds an operation enum `WallLaw` and wraps the law census in that operation. Its two print calls are at engine entry and exit. Under 6.8, those calls must instead create one `Census` scope each, so each completed print corresponds to one added census call.
+- Existing N4 comparator `N4/compare_integer_rows.py` is insufficient unchanged: it treats all fields on `NATIVE3D_TIMER` except calls as measurements (`is_measurement`, lines 129-136), and its marker regex does not parse `NATIVE3D_TIMER_SUMMARY`. It therefore does not check `fixedstorage` or modeled bytes from timer summaries. The draft supplements it: preserve its strict non-timer row comparison, then compare timer operation rows and summary rows with explicit handling for the one census aggregate.
+
+## Comparison interpretation
+
+- Process each rank stdout in source order. A timer snapshot is the contiguous `NATIVE3D_TIMER` row group closed by its following `NATIVE3D_TIMER_SUMMARY`; match snapshots by ordered `(root, boundary, rank)` occurrence, so repeated `construction_entry` boundaries remain distinct.
+- `NATIVE3D_WALL_LAW` is printed while the remesh-owned session is active. Count this rank's law lines before each snapshot, and reset the count on any root's `boundary=final`. Apply the exact `reference_census_calls + law_lines_so_far` rule for every root/boundary. This captures the `entry` line before the first checkpoint and prevents one completed event/session from being charged to the next.
+- G2/GQ compare only through N4's per-rank first-collapse/third-window anchor. N4's `cutoff_rows` keeps each rank through its own anchor, even when other ranks continue emitting rows later. The timer parser uses those exact line cutoffs for timer rows and wall-law lines so polling overshoot after one rank's anchor is out of scope for that rank. The supplied reference must be pre-law: the comparator rejects a reference with any `NATIVE3D_WALL_LAW` line.
+- Census rows may be aggregated across phases because the order explicitly says to sum every `operation=census` row at the rank/root/boundary. The helper does not compare phase distribution of census calls. It fails closed on unexpected census fields.
+- Non-census timer row identities and calls remain exact and ordered. Timer summary identities and all non-time fields remain exact; `fixedstorage` must equal 4,120 in both reference and candidate. Timing values (`inclusive_call_seconds`, `exclusive_seconds`, `root_seconds`, `sumexclusive`, `unattributed`, `coverage`) remain measurements.
+- Non-timer integer rows continue through the existing N4 comparator with its G2/GQ anchor behavior. No other row values are normalized or relaxed. N4 remains the authority for the population/cutoff; the draft adds only timer-specific checks.
+
+## Scope and limitations
+
+This draft validates only the item-2 comparison rule. It does not validate the proposed production `PrintWallLawCensus` implementation, run a build, or claim A1 passed. The accepted N1 first-collapse log has no wall-law records, so its G2 self-comparison exercises the zero-delta path; the accepted N1 full log exercises GQ through the third-window prefix. Synthetic records exercise positive and incorrect deltas, post-anchor overshoot, and resets at non-remesh final roots.

@@ -1,8 +1,8 @@
 # Unattended adaptation work, 2026-11-16
 
-DRAFT — ordered work continues; N7 is not final. Latest completed item: N8A1 FAILED exact Euler293 edge-CSV identity after successful build532 and10-assertion API unit. Candidateeb6d94042c preserved, production reverted03fffc52e8 and pushed. First difference: line3 score0.00013363402603001954 vs0.00013363402603001952; need7,521 unchanged. One read-only diagnosis found the formula text unchanged and points to strict-library arithmetic versus the old fast-math diagnostic. No gate/tolerance/compiler workaround. All4actual-host fixture handles terminal and1565pins unchanged before revert.
+DRAFT — ordered work continues; N7 is not final. Latestuser6.8 copied verbatim into AGENTS. Combined A1/A2/A3/N12/item4 build534 passed110.165477s/1588pins/16actual-host terminal identities. Four focused unit groups passed78assertions/8cases; all3correctedCSV gates passed with need7,521/6,759/4,368, ALLM1integers unchanged, maximum relative score differences3.96e-8/2.46e-8/6.28e-13. Newstrict references are in `N8/A2_A3_N12/section6_8/strict_law_reference_payloads.json`. M6b534 is running; no full534run yet. Group remains validationpending. Checkpoints0918a79ea4/923073eb6e/09820dc44f preserve build/units/CSVpasses; no acceptance claim.
 
-Current accepted production base is N9section6.6 checkpoint9867041a2e (accepted sourcec8f524b2a1). N1/6.1 is PASSED, B7 FAILED/reverted9831c787e7, N5 PASSED3d28237f03, N3 source review complete. Shared G1 reference is complete. N11 and N10 are NOTSTARTED because A1 is absent. Next is independent N8A2/A3+N12 in ONE build and the SAME full two-event run, then6.3,N6,N7. No8.5. The shared build currently has FAILEDcandidate532 until next rebuild; it is not an accepted binary. Existing first N1, N4 and N5 operational failures below remain historical evidence.
+Accepted production base remains N9section6.6 checkpoint9867041a2e (sourcec8f524b2a1). The historical A1 failure/revert under the withdrawn exactCSV gate stays below;6.8reopens A1 in the combinedgroup. Strict law uses existing Census operation and Session4120; reason keys fold digit runs in first96characters, and three raw frame operator classes/calls/valid/time are observations only. Aftergroup: N11 ->N10 ->6.3 ->N6 ->N7. N11 source inventory is draft only; no production edit. No8.5. First N1/N4/N5 operational failures remain history. Sharedcandidate534binary identities are sealed under section6_8/build534; shared executable is not the acceptedN9binary.
 
 R = `integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57`.
 NIGHT/H/D/C and both inventories are SHA-sealed in `R/night_20261115/inputs`.
@@ -26,8 +26,9 @@ The latest unattended section2 is in AGENTS.md; no user/reviewer answer was requ
 | N5 clean measurement repeat | PASSED |3d28237f03|All6P6c/standinggates; native2581.0285/1907.4990s, SUMpeaks13,952,311,296/17,729,433,600B. N5/reports/N5_measurement_table_draft.md; qualified M18/20/21 nowsection6_1. |
 | N9 /6.6 | PASSED |9867041a2e|G3:457commonedits/adjustedentry5113/physical+first336PASS; G2alloldints/exact90,809,869PASS. N9/section6_6/REPORT.md |
 | SharedG1 reference | PASSED (recorded existing failures) |9867041a2e|375serial/57perrank MPI2/4;24/19/37failedexpressions,792.252073/14.745597/15.756263s. N10/G1_shared_reference_manifest.json |
-| N8 A1 law | FAILED |candidateeb6d94042c; reverted03fffc52e8|Build532470.250586s/1565pins/130terminalIDs; API10assertionsPASS; Euler293CSVfirstline3score0.00013363402603001954→0.00013363402603001952,need7521same; no later checks. N8/A1/REPORT.md |
-| N11 / N10 | NOT STARTED |—|Dependency: acceptedA1 absent; N10 needs passedN11. |
+| Historical N8 A1 old gate | FAILED (correctly reverted;6.8reopens) |candidateeb6d94042c; reverted03fffc52e8|Build532470.250586s/1565pins/130terminalIDs; API10assertionsPASS; Euler293CSVfirstline3score0.00013363402603001954→0.00013363402603001952,need7521same; no later checks. N8/A1/REPORT.md |
+| N11 / N10 | NOT STARTED |—|Await combined6.8group acceptance; N11readonlydraft prepared, N10needs passedN11. |
+| N8 combined6.8 | VALIDATION PENDING |09820dc44f|Build534/4focusedgroups/3correctedCSVgatesPASSED; M6bRUNNING, identity/fullgates notyetstarted. section6_8 evidence. |
 | N8 A2/A3 + N12 | NOT STARTED production |—|Whole sourcecheck in progress; ONE combined build/full; print-only, no8.5. |
 | N7 final closure | NOT STARTED |—|This remains a draft until ordered work ends.|
 

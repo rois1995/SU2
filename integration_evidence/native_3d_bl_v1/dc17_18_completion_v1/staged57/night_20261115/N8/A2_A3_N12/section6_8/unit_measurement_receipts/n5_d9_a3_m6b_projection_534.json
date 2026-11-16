@@ -1,0 +1,80 @@
+{
+  "schema": "n5_d9_unit_action_v1",
+  "case": "n5_d9_a3_m6b_projection_534",
+  "descriptor": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N8/A2_A3_N12/section6_8/descriptors/n5_d9_a3_m6b_projection_534.json",
+  "descriptor_sha256": "c89a89264e4020a93f34f2b837f2a19bfdd86304c336d6df1402fb7e9b693bff",
+  "attempt": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N8/A2_A3_N12/section6_8/cases/n5_d9_a3_m6b_projection_534_20261116T170844_576847",
+  "ranks": 1,
+  "attempt_status_sha256": "89c4991544bcca86bc3313a7b6886488beafb90a4bb998b8d71fc8476a02e0ec",
+  "artifacts_sha256": {
+    "run.log": "415491c092314dd24cb663209f7b31546f2fb5bf562348dab5b3a4ce86fcfb5a",
+    "native_m6b_projection.json": "e92d94412b6e5975ac9f5c3b741d568a3c34b30d08f33e0278724059208d60b5",
+    "native_m6b_projection.csv": "c4bc4dbfc4217b8d9431c8f58793d64518f732af6d6ec284a14ac33d7edf472e",
+    "native_m6b_artifact_capture.json": "7ce8358d36c2b9136a07728fbeecd6a767b41f7d498102a42b25579212884a10"
+  },
+  "resource_guard": {
+    "schema": "n5_d9_unit_resource_guard_v2",
+    "actual_host_proc": true,
+    "unix": 1794849013.986409,
+    "expected_ranks": 1,
+    "rank_peak_hwm_bytes": {
+      "0": 2995286016
+    },
+    "sum_rank_peak_hwm_bytes": 2995286016,
+    "unranked_test_driver_pids": [],
+    "all_expected_rank_peaks_seen": true,
+    "identities": [
+      {
+        "pid": 577209,
+        "start_ticks": 34123286,
+        "state": "S",
+        "pgid": 577209,
+        "sid": 577209,
+        "name": "time",
+        "alive": false,
+        "mpi_rank": null
+      },
+      {
+        "pid": 577210,
+        "start_ticks": 34123286,
+        "state": "S",
+        "pgid": 577210,
+        "sid": 577209,
+        "name": "timeout",
+        "alive": false,
+        "mpi_rank": null
+      },
+      {
+        "pid": 577211,
+        "start_ticks": 34123286,
+        "state": "R",
+        "pgid": 577210,
+        "sid": 577209,
+        "name": "test_driver",
+        "alive": false,
+        "mpi_rank": 0
+      },
+      {
+        "pid": 577212,
+        "start_ticks": 34123287,
+        "state": "S",
+        "pgid": 577212,
+        "sid": 577212,
+        "name": "orted",
+        "alive": false,
+        "mpi_rank": null
+      }
+    ],
+    "all_owned_handles_terminal": true,
+    "maximum_job_bytes": 19999490048,
+    "resource_guard_triggered": false,
+    "rank_peak_basis": "per-rank /proc VmHWM maxima sampled while test_driver lives",
+    "live_hwm_lower_bound": true,
+    "gnu_time_child_maximum_is_job_peak": false,
+    "peak_note": "named sum of observed per-rank test_driver VmHWM maxima; live lower-bound observation, not GNU time maximum-child RSS"
+  },
+  "rank_peak_summary": null,
+  "source_pins_sha256": "d9b50bc1b0f633da7c2e01f5c8a917493b46f274bdee8b001b7db5afd79f9d3c",
+  "test_binary_sha256": "b5fb04ffd903d94357467a35d8adc5e9c3ce32ce5dd562bd2539f55aa66f52f3",
+  "passed": true
+}

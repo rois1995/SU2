@@ -1,0 +1,112 @@
+{
+  "schema": "n8_a3_m6b_artifact_capture_v1",
+  "expected_edges": 82559,
+  "csv_data_rows": 82559,
+  "population_complete_if_one_row_per_edge": true,
+  "csv_header": [
+    "edge_a",
+    "edge_b",
+    "shell_measured",
+    "projection_attempted",
+    "wing_shell_faces",
+    "wing_positive",
+    "wing_zero",
+    "wing_negative",
+    "other_shell_faces",
+    "other_positive",
+    "other_zero",
+    "other_negative",
+    "projection_succeeded",
+    "projection_seconds",
+    "atlas_work",
+    "atlas_peak_bytes",
+    "projection_reason"
+  ],
+  "csv_reconciled_totals": {
+    "projection_succeeded": 82559,
+    "wing_faces": 164931,
+    "wing_positive": 37841,
+    "wing_zero": 8,
+    "wing_negative": 127082,
+    "other_faces": 773,
+    "other_positive": 199,
+    "other_zero": 0,
+    "other_negative": 574
+  },
+  "raw_sign_value_counts": {
+    "wing_positive": {
+      "0": 63419,
+      "1": 439,
+      "2": 18701
+    },
+    "wing_zero": {
+      "0": 82555,
+      "2": 4
+    },
+    "wing_negative": {
+      "0": 18738,
+      "1": 606,
+      "2": 63169,
+      "3": 46
+    },
+    "other_positive": {
+      "0": 82360,
+      "1": 199
+    },
+    "other_zero": {
+      "0": 82559
+    },
+    "other_negative": {
+      "0": 82115,
+      "1": 329,
+      "2": 101,
+      "3": 13,
+      "4": 1
+    }
+  },
+  "status_and_refusal_value_counts": {
+    "shell_measured": {
+      "1": 82559
+    },
+    "projection_succeeded": {
+      "1": 82559
+    }
+  },
+  "summary_json": {
+    "mesh": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_inputs/euler_adapted293_event1_v1/adapted_mesh_adap_00001.su2",
+    "marker": "WING3D",
+    "marker_id": 2,
+    "wall_edges": 82559,
+    "attempted": 82559,
+    "projection_succeeded": 82559,
+    "projection_refusals": 0,
+    "unvisited": 0,
+    "all_edges_attempted": true,
+    "all_attempted_shells_measured": true,
+    "shell_faces": 165704,
+    "wing_faces": 164931,
+    "wing_positive": 37841,
+    "wing_zero": 8,
+    "wing_negative": 127082,
+    "other_faces": 773,
+    "other_positive": 199,
+    "other_zero": 0,
+    "other_negative": 574,
+    "projection_seconds": 23.048811996999902,
+    "atlas_work": 18452454,
+    "atlas_peak_bytes": 8434457960,
+    "model_ceiling_bytes": 12884901888,
+    "reference_peak_bytes": 7657802472,
+    "job_memory_limit_mib": 19073,
+    "import_seconds": 2.735557166999996,
+    "edge_index_bytes": 22947792,
+    "edge_incidence_count": 213127,
+    "fixture_elapsed_seconds": 80.52734651200001,
+    "mesh_modified": false,
+    "split_performed": false,
+    "geometry_only": true
+  },
+  "json_sha256": "e92d94412b6e5975ac9f5c3b741d568a3c34b30d08f33e0278724059208d60b5",
+  "csv_sha256": "c4bc4dbfc4217b8d9431c8f58793d64518f732af6d6ec284a14ac33d7edf472e",
+  "partial_counts_remain_observed": true
+}

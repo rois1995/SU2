@@ -1,0 +1,83 @@
+{
+  "schema": "section6_8_item2_comparator_selfcheck_v1",
+  "passed": true,
+  "launched": false,
+  "helper": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N8/A2_A3_N12/section6_8/drafts/compare_integer_rows_68.py",
+  "helper_sha256": "64733ed0c958369f42bdae7c55f65645f4c1677cc6d4b837c3b492530c4c970c",
+  "source_check": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N8/A2_A3_N12/section6_8/source_check_item2.md",
+  "N4_comparator": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N4/compare_integer_rows.py",
+  "N4_comparator_sha256": "284473302a0154aff18495e69450861c4eb33bd4eff918bf45d49032443582cc",
+  "results": {
+    "passed": true,
+    "launched": false,
+    "actual_n1_g2_self_compare": {
+      "passed": true,
+      "gate": "G2",
+      "integer_rows": {
+        "passed": true,
+        "first_difference": null,
+        "streams": [
+          "rank_output/1/rank.0/stdout",
+          "rank_output/1/rank.1/stdout",
+          "rank_output/1/rank.2/stdout",
+          "rank_output/1/rank.3/stdout",
+          "rank_output/1/rank.4/stdout",
+          "rank_output/1/rank.5/stdout"
+        ]
+      },
+      "timer_rows": {
+        "passed": true,
+        "snapshot_count": 12,
+        "reference_wall_law_lines": 0,
+        "wall_law_lines_before_cutoffs": 0
+      }
+    },
+    "actual_n1_gq_prefix_self_compare": {
+      "passed": true,
+      "gate": "GQ",
+      "integer_rows": {
+        "passed": true,
+        "first_difference": null,
+        "streams": [
+          "rank_output/1/rank.0/stdout",
+          "rank_output/1/rank.1/stdout",
+          "rank_output/1/rank.2/stdout",
+          "rank_output/1/rank.3/stdout",
+          "rank_output/1/rank.4/stdout",
+          "rank_output/1/rank.5/stdout"
+        ]
+      },
+      "timer_rows": {
+        "passed": true,
+        "snapshot_count": 18,
+        "reference_wall_law_lines": 0,
+        "wall_law_lines_before_cutoffs": 0
+      }
+    },
+    "synthetic_overshoot": {
+      "passed": true,
+      "rank0_cutoff_line": 6,
+      "rank1_cutoff_line": 15,
+      "post_cut_rank0_timer_removed": true
+    },
+    "synthetic_any_root_reset": {
+      "passed": true,
+      "law_deltas": [
+        1,
+        1,
+        0
+      ],
+      "reset_root": "native_engine/final"
+    },
+    "synthetic": {
+      "census_delta": "pass",
+      "wrong_delta": "fail",
+      "old_calls": "fail",
+      "modeled_fixedstorage": "fail",
+      "modeled_old_row_bytes": "fail",
+      "unexpected_operation": "fail"
+    }
+  },
+  "known_scope": "G2/GQ use the supplied pre-law reference and N4 per-rank anchor cutoffs; candidate wall lines are counted before snapshots and reset at any root final summary.",
+  "primary_setup_correction": "Fallback for timer summary without operation rows uses law_since_final consistently"
+}
