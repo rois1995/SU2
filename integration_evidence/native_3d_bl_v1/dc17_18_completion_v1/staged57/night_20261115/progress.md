@@ -6,7 +6,7 @@ Updated 2026-11-17. Read AGENTS.md and the copied WORK_ORDER_2.md at the start o
 
 Phase B passed on build558. Qualification commit: `97478b7abae40fcf107ac8132f0eea415a2aaaae`. Production source is identical to B8 checkpointdaf75b14e2a761ec1b8abaf5f5cd3e01a65ca7e3. No C++ change followed B8 application. All 1,781source pins and both current binary hashes were verified; owned C++ matches committed source. At the completed phase-B stop, all owned jobs were terminal; the recorded PID/start identities are in `N4/section6_3_after_N11/end_B_preparation/planned_stop_terminal_audit.json`.
 
-Work order 2 is in force. C1 passed on build559 (70.162 s, 1,781 verified pins). G1 matched 375 / 114 / 228 case records with zero differences in 771.316 / 12.622 / 15.802 s. G2 matched work 90,809,869, rank counts 480/473/346/263/469/464, all required integer/model/timer calls, fixedstorage 4120 and census delta 0. G2 stopped at 312.308 s and sealed at 320.173 s. Six sampled ranks, summed prefix HWM 6,675,406,848 B. All C1 jobs terminal. C1 acceptance and source review are in `N4/section6_3_after_N11/C1/validation`. Pinned H, D, C and I are in `N4/section6_3_after_N11/phase_C/inputs`. Phase B remains the previous integrated checkpoint.
+Work order 2 is in force. C1 checkpoint `f7017771e8` passed on build559 (70.162 s, 1,781 verified pins). G1 matched 375 / 114 / 228 case records with zero differences in 771.316 / 12.622 / 15.802 s. G2 matched work 90,809,869, rank counts 480/473/346/263/469/464, all required integer/model/timer calls, fixedstorage 4120 and census delta 0. G2 stopped at 312.308 s and sealed at 320.173 s. Six sampled ranks, summed prefix HWM 6,675,406,848 B. All C1 jobs terminal. C1 acceptance and source review are in `N4/section6_3_after_N11/C1/validation`. Pinned H, D, C and I are in `N4/section6_3_after_N11/phase_C/inputs`. Phase B remains the previous integrated checkpoint.
 
 ## Completed phase-B gates
 
@@ -43,4 +43,8 @@ N1/P7P8 accepted429c6c1a60. ConditionalcacheB7/N2 failed modeled12GiB and was re
 
 Historical progress: `progress_history_through_phase_B_qualification_20261117.md`, SHA256 `0e2c115b2607774e26d792b27b5b30b5987147c5a00d4ec2c70321966b38b982`. Its old RUNNING/PENDING notes are historical; this file controls current state.
 
-Next action: checkpoint C1 and push, then apply C2. C2–C11 drafts are in their preparation directories. Only C1 is qualified.
+
+## Phase C checkpoint progress
+
+
+Current action — C2, build560: passed G1 [375, 114, 228], G2 317.360 s; see scoped gate receipts.

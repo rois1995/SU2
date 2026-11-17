@@ -145,3 +145,310 @@ DonorPatch EngineExchange::ImportSource(EngineContext& context, const std::vecto
   return source.ImportCells(cells, options.memory_ceiling,
                             transfer_memory::Add(Bytes(context), directory->ResidentBytes(), extra));
 }
+
+// Holds the single original Topology scope across lookup, support expansion and frontier receipts.
+bool RoundAcquisition::AcquireBatchDependencies(CLocalFailure& failure) {
+  auto& stats = context.control.result->stats;
+  Timer timer(stats.dependency_seconds, context.options.timings, SU2NativeTiming3D::Operation::Topology);
+  std::vector<Feature> features;
+  size_t retained_cells;
+  return FetchBatch(failure, features, retained_cells) && ExpandRepairSupport(failure, retained_cells) &&
+         ServiceFetchRefusals();
+}
+
+// Charges retained batch memory before any candidate acquisition.
+bool RoundAcquisition::AdmitBatchStorage() {
+  auto& options = context.options;
+  auto& batch_bytes = *context.control.batch_bytes;
+  // All retained metadata/payloads remain byte-admitted while each disjoint candidate uses the existing transaction.
+  batch_bytes = transfer_memory::Add(
+      transfer_memory::Mul(options.candidate_batch, sizeof(Choice) + sizeof(Feature) + sizeof(Dependencies) +
+                                                        sizeof(Imported) + 2 * sizeof(bool) + 2 * sizeof(size_t)),
+      transfer_memory::Mul(transfer_memory::Mul(options.candidate_batch, MaximumCavityCells),
+                           sizeof(Dependency) + sizeof(OwnedCell)),
+      transfer_memory::Mul(transfer_memory::Mul(8, options.candidate_batch * MaximumCavityCells),
+                           sizeof(Id) + 4 * sizeof(void*)));
+  if (!context.exchange.Admit(context, 0)) return FinishRound();
+  return true;
+}
+
+// Charges initial proposals including planned refusals.
+bool RoundAcquisition::AdmitBatchWork() {
+  auto& world = context.world;
+  auto& options = context.options;
+  auto& stats = context.control.result->stats;
+  auto& result = *context.control.result;
+  auto& choices = *round_state.choices;
+  auto& refused_candidates = *round_state.refused_candidates;
+  Timer timer(stats.selection_seconds, options.timings, SU2NativeTiming3D::Operation::Scheduling);
+  // Planned refusals are proposals too: they consume the same global work as serial oversized stars.
+  const uint64_t proposed =
+      TimedAllreduce(uint64_t(choices.size() + refused_candidates), CPassiveComm::Op::SUM, world.comm);
+  if (proposed > stats.work_limit - stats.global_work) {
+    stats.stop = EngineStop::WorkBudget;
+    result.reason = "Native 3D global proposal budget exhausted before admission; feasibility is undetermined.";
+    return FinishRound();
+  }
+  stats.global_work += proposed;
+  return true;
+}
+
+// Looks up and fetches complete candidate dependencies under their existing byte admission.
+bool RoundAcquisition::FetchBatch(CLocalFailure& failure, std::vector<Feature>& features, size_t& retained_cells) {
+  auto& working = *context.ownership.working;
+  auto& options = context.options;
+  auto& result = *context.control.result;
+  auto& ready = *context.control.ready;
+  auto& repairing = *context.control.repairing;
+  auto& coarsening = *context.control.coarsening;
+  auto& batch_bytes = *context.control.batch_bytes;
+  auto& directory = *context.exchange.directory;
+  auto& source = *context.exchange.source;
+  auto& choices = *round_state.choices;
+  auto& dependency_batch = *round_state.dependency_batch;
+  auto& imported_batch = *round_state.imported_batch;
+  auto& planned_coarsening = *round_state.planned_coarsening;
+  auto& refused_slots = *round_state.refused_slots;
+  try {
+    for (const auto& candidate : choices)
+      features.push_back(repairing    ? candidate.feature
+                         : coarsening ? Feature{{candidate.edge[1], 0, 0}, 1}
+                                      : Feature{{candidate.edge[0], candidate.edge[1], 0}, 2});
+  } catch (const std::exception& e) {
+    failure.Set(2, 0, e.what());
+  }
+  if (!(ready = context.exchange.Vote(context, failure))) return FinishRound();
+  if (!planned_coarsening)
+    dependency_batch = directory->LookupBatch(
+        features, options.memory_ceiling, transfer_memory::Add(context.exchange.Bytes(context), source.ResidentBytes()),
+        repairing);
+  if (!dependency_batch.valid) {
+    result.reason = dependency_batch.reason;
+    return FinishRound();
+  }
+  // A remote complete coordinate star may exceed the ordinary cavity bound. Retained
+  // imports and footprint storage stay admitted across every subsequent private slot.
+  retained_cells = 0;
+  for (const auto& candidate : dependency_batch.candidates)
+    retained_cells = transfer_memory::Add(retained_cells, candidate.cells.size());
+  const auto ordinary_cells = transfer_memory::Mul(options.candidate_batch, MaximumCavityCells);
+  if (retained_cells > ordinary_cells)
+    batch_bytes = transfer_memory::Add(
+        batch_bytes, transfer_memory::Mul(retained_cells - ordinary_cells, sizeof(Dependency) + sizeof(OwnedCell) +
+                                                                               8 * (sizeof(Id) + 4 * sizeof(void*))));
+  if (!context.exchange.Admit(context, 0)) return FinishRound();
+  imported_batch = directory->FetchBatch(dependency_batch, working, options.memory_ceiling,
+                                         transfer_memory::Add(context.exchange.Bytes(context), source.ResidentBytes()));
+  if (!imported_batch.valid) {
+    result.reason = imported_batch.reason;
+    return FinishRound();
+  }
+  try {
+    for (size_t i = 0; i < imported_batch.candidates.size(); ++i) {
+      const auto& candidate = imported_batch.candidates[i];
+      if (candidate.valid) continue;
+      const auto& star = dependency_batch.candidates.at(i);
+      if (!star.valid && star.oversized) {
+        Refuse(choices.at(i), features.at(i), star.reason);
+        ++refused_slots;
+      } else
+        failure.Set(1, 0, candidate.reason);
+    }
+  } catch (const std::exception& e) {
+    failure.Set(2, 0, e.what());
+  }
+  if (!(ready = context.exchange.Vote(context, failure))) return FinishRound();
+  return true;
+}
+
+// Fetches the full vertex stars of curved repair candidates before reservation.
+bool RoundAcquisition::ExpandRepairSupport(CLocalFailure& failure, size_t retained_cells) {
+  auto& world = context.world;
+  auto& working = *context.ownership.working;
+  auto& options = context.options;
+  auto& result = *context.control.result;
+  auto& repairing = *context.control.repairing;
+  auto& batch_bytes = *context.control.batch_bytes;
+  auto& directory = *context.exchange.directory;
+  auto& source = *context.exchange.source;
+  auto& choices = *round_state.choices;
+  auto& dependency_batch = *round_state.dependency_batch;
+  auto& imported_batch = *round_state.imported_batch;
+  if (repairing && curved) {
+    const auto support_bytes =
+        transfer_memory::Mul(transfer_memory::Mul(4, choices.size()),
+                             transfer_memory::Mul(MaximumCavityCells, sizeof(Dependency) + sizeof(OwnedCell) +
+                                                                          8 * (sizeof(Id) + 4 * sizeof(void*))));
+    batch_bytes = transfer_memory::Add(batch_bytes, support_bytes,
+                                       transfer_memory::Mul(retained_cells, sizeof(OwnedCell) + sizeof(Dependency)));
+    if (!context.exchange.Admit(context, 0)) return FinishRound();
+    std::vector<Feature> supports;
+    std::vector<std::pair<size_t, size_t>> groups;
+    try {
+      SelectRepairSupport(supports, groups);
+    } catch (const std::exception& e) {
+      failure.Set(2, 0, e.what());
+    }
+    if (!context.exchange.Vote(context, failure)) return FinishRound();
+    if (world.maximum(!supports.empty())) {
+      // Complete moved stars are fetched before the existing full-vertex-disjoint reservation.
+      const auto extra =
+          directory->LookupBatch(supports, options.memory_ceiling,
+                                 transfer_memory::Add(context.exchange.Bytes(context), source.ResidentBytes()));
+      if (!extra.valid) {
+        result.reason = extra.reason;
+        return FinishRound();
+      }
+      bool expanded = false;
+      try {
+        MergeRepairSupport(extra, groups, expanded);
+      } catch (const std::exception& e) {
+        failure.Set(2, 0, e.what());
+      }
+      if (!context.exchange.Vote(context, failure)) return FinishRound();
+      if (world.maximum(expanded)) {
+        auto complete =
+            directory->FetchBatch(dependency_batch, working, options.memory_ceiling,
+                                  transfer_memory::Add(context.exchange.Bytes(context), source.ResidentBytes()));
+        if (!complete.valid) {
+          result.reason = complete.reason;
+          return FinishRound();
+        }
+        imported_batch = std::move(complete);
+      }
+    }
+  }
+  return true;
+}
+
+// Requests the four vertex stars of the selected weak core cell of each cavity.
+void RoundAcquisition::SelectRepairSupport(std::vector<Feature>& supports,
+                                           std::vector<std::pair<size_t, size_t>>& groups) {
+  auto& selection = *context.census.selection;
+  auto& imported_batch = *round_state.imported_batch;
+  for (size_t i = 0; i < imported_batch.candidates.size(); ++i) {
+    const auto& candidate = imported_batch.candidates[i];
+    if (!candidate.valid || candidate.cells.size() > MaximumCavityCells) continue;
+    const OwnedCell* core = nullptr;
+    long double worst = -1;
+    for (const auto& row : candidate.cells) {
+      const auto cached = selection.cells.find(row.cell.id);
+      if (cached == selection.cells.end() || !cached->second.geometry_invalid) continue;
+      const auto physical =
+          std::count_if(row.physical.begin(), row.physical.end(), [](const auto& f) { return f.present; });
+      if (selection.geometry_repairs
+              ? physical == 0
+              : (!cached->second.shape_measured || cached->second.quality_valid || physical != 2))
+        continue;
+      const auto weight = selection.RepairWeight(cached->second);
+      if (weight > worst || (weight == worst && core && row.cell.id < core->cell.id)) {
+        worst = weight;
+        core = &row;
+      }
+    }
+    if (!core) continue;
+    groups.push_back({i, supports.size()});
+    for (const auto& node : core->cell.v) supports.push_back({{node.id, 0, 0}, 1});
+  }
+}
+
+// Merges version-consistent support in canonical cell order without exceeding the original cavity bound.
+void RoundAcquisition::MergeRepairSupport(const DependencyBatch& extra,
+                                          const std::vector<std::pair<size_t, size_t>>& groups, bool& expanded) {
+  auto& dependency_batch = *round_state.dependency_batch;
+  for (const auto& group : groups) {
+    auto& original = dependency_batch.candidates.at(group.first);
+    std::map<Id, Dependency> merged;
+    for (const auto& row : original.cells) merged.emplace(row.cell, row);
+    bool complete = true;
+    for (size_t k = 0; k < 4; ++k) {
+      const auto& star = extra.candidates.at(group.second + k);
+      if (!star.valid) {
+        if (!star.oversized) throw std::logic_error("Coupled boundary support lost a current vertex star.");
+        complete = false;
+        continue;
+      }
+      for (const auto& row : star.cells) {
+        const auto prior = merged.emplace(row.cell, row);
+        if (!prior.second && (prior.first->second.owner != row.owner || prior.first->second.version != row.version))
+          throw std::logic_error("Coupled boundary support changed dependency ownership/version.");
+      }
+    }
+    if (!complete || merged.size() > MaximumCavityCells || merged.size() == original.cells.size()) continue;
+    original.cells.clear();
+    for (const auto& row : merged) original.cells.push_back(row.second);
+    original.coordinate_star = {};
+    expanded = true;
+  }
+}
+
+// Services fetch refusal receipts before leaving the dependency timer.
+bool RoundAcquisition::ServiceFetchRefusals() {
+  auto& world = context.world;
+  auto& refused_receipts = *round_state.refused_receipts;
+  auto& refused_receipt_count = *round_state.refused_receipt_count;
+  if (world.maximum(refused_receipt_count != 0)) {
+    if (!context.queues.ServiceFrontier(context, {}, false, false, &refused_receipts, refused_receipt_count))
+      return FinishRound();
+    refused_receipt_count = 0;
+  }
+  return true;
+}
+
+// Reserves disjoint candidates and services construction deferrals in the existing communication scope.
+bool RoundAcquisition::ReserveBatch(CLocalFailure& failure) {
+  auto& world = context.world;
+  auto& options = context.options;
+  auto& stats = context.control.result->stats;
+  auto& result = *context.control.result;
+  auto& repairing = *context.control.repairing;
+  auto& directory = *context.exchange.directory;
+  auto& source = *context.exchange.source;
+  auto& choices = *round_state.choices;
+  auto& imported_batch = *round_state.imported_batch;
+  auto& reserved = *round_state.reserved;
+  auto& refused_candidates = *round_state.refused_candidates;
+  auto& refused_slots = *round_state.refused_slots;
+  auto& refused_receipts = *round_state.refused_receipts;
+  auto& refused_receipt_count = *round_state.refused_receipt_count;
+  auto& pass_deferred_candidates = *round_state.pass_deferred_candidates;
+  Timer timer(stats.reservation_seconds, options.timings, SU2NativeTiming3D::Operation::Communication);
+  std::vector<unsigned> priorities;
+  try {
+    if (repairing)
+      for (const auto& candidate : choices) priorities.push_back(candidate.reservation_priority);
+  } catch (const std::exception& e) {
+    failure.Set(2, 0, e.what());
+  }
+  if (!context.exchange.Vote(context, failure)) return FinishRound();
+  reserved = directory->ReserveBatch(imported_batch, options.memory_ceiling,
+                                     transfer_memory::Add(context.exchange.Bytes(context), source.ResidentBytes()),
+                                     priorities);
+  if (!reserved.valid) {
+    result.reason = reserved.reason;
+    return FinishRound();
+  }
+  size_t winners = 0;
+  for (bool chosen : reserved.chosen) winners += chosen;
+  for (size_t i = 0; i < reserved.pass_deferred.size(); ++i)
+    if (reserved.pass_deferred[i]) {
+      if (refused_receipt_count == MaximumCandidateBatch)
+        throw std::logic_error("Native construction deferrals exceed frontier bound.");
+      const auto edge = choices.at(i).edge;
+      refused_receipts[refused_receipt_count++] = {Feature{{edge[0], edge[1], 0}, 2}, false};
+      ++pass_deferred_candidates;
+      ++stats.length_pass_deferred;
+    }
+  if (world.maximum(refused_receipt_count != 0)) {
+    if (!context.queues.ServiceFrontier(context, {}, false, false, &refused_receipts, refused_receipt_count))
+      return FinishRound();
+    refused_receipt_count = 0;
+  }
+  stats.batch_reserved += winners;
+  stats.conflicts += choices.size() - winners - refused_slots;
+  if (!world.maximum(winners != 0 || refused_candidates != 0 || pass_deferred_candidates != 0)) {
+    result.reason = "Native 3D batch reservation made no progress.";
+    return FinishRound();
+  }
+  return true;
+}

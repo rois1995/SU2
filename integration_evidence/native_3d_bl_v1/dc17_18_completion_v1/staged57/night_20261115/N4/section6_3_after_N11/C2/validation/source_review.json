@@ -1,0 +1,54 @@
+{
+  "clang_format_moved_definitions": "passed",
+  "longest_formatted_functions": [
+    [
+      "PlanChoices",
+      71
+    ],
+    [
+      "FetchBatch",
+      66
+    ],
+    [
+      "ExpandRepairSupport",
+      58
+    ],
+    [
+      "ReserveBatch",
+      56
+    ],
+    [
+      "AcquireSingle",
+      50
+    ],
+    [
+      "SelectRepairSupport",
+      29
+    ],
+    [
+      "SelectBatch",
+      28
+    ],
+    [
+      "MergeRepairSupport",
+      28
+    ],
+    [
+      "Refuse",
+      27
+    ],
+    [
+      "SetRepairSlots",
+      21
+    ]
+  ],
+  "source_review": {
+    "batch_planning_finish_order": "PlanChoices closes its own active timer before the caller finalizes",
+    "topology": "One Topology timer covers lookup, expanded support and refusal receipts",
+    "unchanged_uncaught_throw": "Deferral receipt overflow still escapes the batch reservation block",
+    "readings_used": [
+      "B35e-g share one scope. Preserve the separate batch and single proposal admission paths."
+    ]
+  },
+  "helper_issue": "C1 and C2 immutable aliases used a B8 validation directory suffix with unique build labels. C3 onward binds each alias to its current validation directory. No 558 receipt was replaced."
+}

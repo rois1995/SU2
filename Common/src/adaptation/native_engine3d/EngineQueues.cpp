@@ -221,3 +221,241 @@ bool EngineQueues::ServiceReceipts(EngineContext& context, std::vector<RepairRec
   }
   return certify_support || context.exchange.Vote(context, failure);
 }
+
+// Binds the live round slots without copying choice, dependency or receipt state.
+RoundAcquisition::RoundAcquisition(EngineContext& context, RoundState& round_state,
+                                   SU2NativeGeometry::AtlasBudget& atlas_budget, bool curved,
+                                   size_t diagnostic_rejection_limit)
+    : context(context),
+      round_state(round_state),
+      atlas_budget(atlas_budget),
+      curved(curved),
+      diagnostic_rejection_limit(diagnostic_rejection_limit) {}
+
+// Finalizes before nested scheduling, topology and communication scopes unwind.
+bool RoundAcquisition::FinishRound() {
+  auto& working = *context.ownership.working;
+  const auto& started = *context.setup.control_prefix.started;
+  const auto& started_cpu = *context.setup.control_prefix.started_cpu;
+  finished.emplace(EngineControl::Finish(context, curved, working, atlas_budget, started, started_cpu));
+  return false;
+}
+
+// Keeps the original batched and single scheduling paths distinct.
+bool RoundAcquisition::Acquire() { return *round_state.batched ? AcquireBatch() : AcquireSingle(); }
+
+// Keeps the shared failure and slot allowance alive through reservation.
+bool RoundAcquisition::AcquireBatch() {
+  if (!AdmitBatchStorage()) return false;
+  CLocalFailure failure;
+  size_t repair_slots = context.options.candidate_batch;
+  return SetRepairSlots(failure, repair_slots) && SelectBatch(failure, repair_slots) && AdmitBatchWork() &&
+         AcquireBatchDependencies(failure) && ReserveBatch(failure);
+}
+
+// Records a refused choice and any existing frontier receipt.
+void RoundAcquisition::Refuse(const Choice& candidate, const Feature& feature, const std::string& why) {
+  auto& selection = *context.census.selection;
+  auto& stats = context.control.result->stats;
+  auto& repairing = *context.control.repairing;
+  auto& last_rejection = *context.control.last_rejection;
+  auto& wall_counters = *context.setup.wall_counters;
+  auto& planned_coarsening = *round_state.planned_coarsening;
+  auto& batched = *round_state.batched;
+  auto& refused_candidates = *round_state.refused_candidates;
+  auto& refused_receipts = *round_state.refused_receipts;
+  auto& refused_receipt_count = *round_state.refused_receipt_count;
+  selection.Block(candidate.edge, candidate.feature, repairing);
+  ++stats.attempted;
+  ++stats.rejected;
+  ++stats.oversized_stars;
+  wall_counters.PlanningRefusal();
+  if (batched || (!repairing && planned_coarsening)) {
+    if (refused_receipt_count == MaximumCandidateBatch)
+      throw std::logic_error("Native refused frontier exceeds batch bound.");
+    refused_receipts[refused_receipt_count++] = {
+        repairing ? feature : Feature{{candidate.edge[0], candidate.edge[1], 0}, 2}, false};
+  }
+  stats.last_rejected_feature = feature;
+  ++refused_candidates;
+  last_rejection = "feature " + std::to_string(feature.count) + ":" + std::to_string(feature.vertices[0]) + ": " + why;
+  EngineReports::RecordRejection(context, diagnostic_rejection_limit, feature, nullptr, nullptr, why);
+}
+
+// Plans only the existing coarsening candidates and leaves its timer before returning failure.
+bool RoundAcquisition::PlanChoices() {
+  auto& world = context.world;
+  auto& options = context.options;
+  auto& stats = context.control.result->stats;
+  auto& result = *context.control.result;
+  auto& ready = *context.control.ready;
+  auto& directory = *context.exchange.directory;
+  auto& source = *context.exchange.source;
+  auto& choices = *round_state.choices;
+  auto& dependency_batch = *round_state.dependency_batch;
+  auto& planned_coarsening = *round_state.planned_coarsening;
+  auto& refused_candidates = *round_state.refused_candidates;
+  auto& refused_receipts = *round_state.refused_receipts;
+  auto& refused_receipt_count = *round_state.refused_receipt_count;
+  auto& pass_deferred_candidates = *round_state.pass_deferred_candidates;
+  CLocalFailure failure;
+  stats.batch_considered += choices.size();
+  if (stats.global_work == stats.work_limit) {
+    stats.stop = EngineStop::WorkBudget;
+    result.reason = "Native 3D global proposal budget exhausted before admission; feasibility is undetermined.";
+    return false;
+  }
+  if (planned_coarsening) {
+    Timer timer(stats.planning_seconds, options.timings, SU2NativeTiming3D::Operation::Scheduling);
+    std::vector<Feature> features;
+    std::vector<size_t> selected;
+    try {
+      for (const auto& candidate : choices) features.push_back({{candidate.edge[1], 0, 0}, 1});
+    } catch (const std::exception& e) {
+      failure.Set(2, 0, e.what());
+    }
+    if (!(ready = context.exchange.Vote(context, failure))) return false;
+    dependency_batch =
+        directory->PlanBatch(features, selected, options.memory_ceiling,
+                             transfer_memory::Add(context.exchange.Bytes(context), source.ResidentBytes()));
+    if (!dependency_batch.valid) {
+      result.reason = dependency_batch.reason;
+      return false;
+    }
+    try {
+      for (size_t i : dependency_batch.refused)
+        Refuse(choices.at(i), features.at(i), "Native 3D dependency star exceeds budget.");
+      for (size_t i : dependency_batch.pass_deferred) {
+        if (refused_receipt_count == MaximumCandidateBatch)
+          throw std::logic_error("Native construction deferrals exceed frontier bound.");
+        const auto edge = choices.at(i).edge;
+        refused_receipts[refused_receipt_count++] = {Feature{{edge[0], edge[1], 0}, 2}, false};
+        ++pass_deferred_candidates;
+        ++stats.length_pass_deferred;
+      }
+      std::vector<Choice> planned;
+      planned.reserve(selected.size());
+      for (size_t i : selected) planned.push_back(choices.at(i));
+      stats.batch_deferred += choices.size() - planned.size() - dependency_batch.refused.size();
+      choices.swap(planned);
+    } catch (const std::exception& e) {
+      failure.Set(2, 0, e.what());
+    }
+    if (!(ready = context.exchange.Vote(context, failure))) return false;
+    if (world.maximum(refused_receipt_count != 0)) {
+      if (!context.queues.ServiceFrontier(context, {}, false, false, &refused_receipts, refused_receipt_count))
+        return false;
+      refused_receipt_count = 0;
+    }
+    if (!world.maximum(!choices.empty() || refused_candidates != 0 || pass_deferred_candidates != 0)) {
+      result.reason = "Native 3D complete-star selection made no progress.";
+      return false;
+    }
+  }
+  return true;
+}
+
+// Allocates repair slots in the same proportion as the cached debt share.
+bool RoundAcquisition::SetRepairSlots(CLocalFailure& failure, size_t& repair_slots) {
+  auto& world = context.world;
+  auto& working = *context.ownership.working;
+  auto& options = context.options;
+  auto& selection = *context.census.selection;
+  auto& repairing = *context.control.repairing;
+  if (repairing) {
+    double local_debt = 0;
+    for (const auto& row : selection.repair_cell_severity) local_debt += double(row.second);
+    if (!std::isfinite(local_debt) || local_debt < 0) failure.Set(1, 0, "Invalid cached required repair debt.");
+    if (!context.exchange.Vote(context, failure)) return FinishRound();
+    const bool complete = !world.maximum(!selection.progress_consistent || selection.cells.size() != working.size() ||
+                                         selection.unmeasured_shape != 0);
+    const double total_debt = TimedAllreduce(local_debt, CPassiveComm::Op::SUM, world.comm);
+    if (complete && std::isfinite(total_debt) && total_debt > 0) {
+      const double share = std::clamp(local_debt / total_debt * world.size, 0., 1.);
+      repair_slots = std::max<size_t>(1, size_t(std::ceil(options.candidate_batch * share)));
+    }
+  }
+  return true;
+}
+
+// Selects and coalesces choices before agreeing the slot count.
+bool RoundAcquisition::SelectBatch(CLocalFailure& failure, size_t repair_slots) {
+  auto& world = context.world;
+  auto& working = *context.ownership.working;
+  auto& options = context.options;
+  auto& selection = *context.census.selection;
+  auto& stats = context.control.result->stats;
+  auto& ready = *context.control.ready;
+  auto& repairing = *context.control.repairing;
+  auto& choices = *round_state.choices;
+  auto& slots = *round_state.slots;
+  auto& refused_candidates = *round_state.refused_candidates;
+  Timer timer(stats.selection_seconds, options.timings, SU2NativeTiming3D::Operation::Scheduling);
+  try {
+    bool oversized = false;
+    choices = repairing ? selection.RepairBatch(working, repair_slots, oversized)
+                        : selection.Batch(working, options.candidate_batch);
+  } catch (const std::exception& e) {
+    failure.Set(2, 0, e.what());
+  }
+  if (!(ready = context.exchange.Vote(context, failure))) return FinishRound();
+  if (!context.queues.Coalesce(context, choices, curved)) return FinishRound();
+  if (!PlanChoices()) return FinishRound();
+  slots = TimedAllreduce(choices.size(), CPassiveComm::Op::MAX, world.comm);
+  ++stats.batch_rounds;
+  stats.batch_candidates += choices.size();
+  stats.proposed += choices.size() + refused_candidates;
+  return true;
+}
+
+// Keeps the single-candidate election and its work admission under one Scheduling timer.
+bool RoundAcquisition::AcquireSingle() {
+  auto& world = context.world;
+  auto& options = context.options;
+  auto& composition = context.composition;
+  auto& selection = *context.census.selection;
+  auto& stats = context.control.result->stats;
+  auto& result = *context.control.result;
+  auto& repairing = *context.control.repairing;
+  auto& coarsening = *context.control.coarsening;
+  auto& choice = *round_state.choice;
+  auto& choices = *round_state.choices;
+  auto& concurrent = *round_state.concurrent;
+  Timer timer(stats.selection_seconds, options.timings, SU2NativeTiming3D::Operation::Scheduling);
+  if ((curved || composition) && !repairing && !concurrent) {
+    // Single-proposal requests and coarsening retain their established serial ordering.
+    if (composition && !curved && !repairing) {
+      // Choose global metric priority before ownership; rank numbering must not decide the next edit.
+      const double priority = choice.active ? double(selection.Priority(choice.measure.length)) : INFINITY;
+      const double best = TimedAllreduce(priority, CPassiveComm::Op::MIN, world.comm);
+      choice.active = choice.active && priority == best;
+      const Id first = TimedAllreduce(choice.active ? choice.edge[0] : UINT64_MAX, CPassiveComm::Op::MIN, world.comm);
+      choice.active = choice.active && choice.edge[0] == first;
+      const Id second = TimedAllreduce(choice.active ? choice.edge[1] : UINT64_MAX, CPassiveComm::Op::MIN, world.comm);
+      choice.active = choice.active && choice.edge[1] == second;
+    }
+    const int owner = TimedAllreduce(choice.active ? world.rank : world.size, CPassiveComm::Op::MIN, world.comm);
+    choice.active = choice.active && world.rank == owner;
+  }
+  if (repairing || concurrent || (coarsening && !repairing && !curved && !composition && world.size > 1)) {
+    CLocalFailure failure;
+    try {
+      if (choice.active) choices.push_back(choice);
+    } catch (const std::exception& e) {
+      failure.Set(2, 0, e.what());
+    }
+    if (!context.exchange.Vote(context, failure) || !context.queues.Coalesce(context, choices, curved) ||
+        !PlanChoices())
+      return FinishRound();
+    choice = choices.empty() ? Choice{} : choices.front();
+  }
+  stats.proposed += choice.active;
+  const uint64_t proposed = TimedAllreduce(uint64_t(choice.active), CPassiveComm::Op::SUM, world.comm);
+  if (proposed > stats.work_limit - stats.global_work) {
+    stats.stop = EngineStop::WorkBudget;
+    result.reason = "Native 3D global proposal budget exhausted before admission; feasibility is undetermined.";
+    return FinishRound();
+  }
+  stats.global_work += proposed;
+  return true;
+}
