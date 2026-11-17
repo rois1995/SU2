@@ -1438,6 +1438,7 @@ struct RepairProposal {
 #include "native_engine3d/EngineCensus.cpp"
 #include "native_engine3d/EngineQueues.cpp"
 #include "native_engine3d/EngineExchange.cpp"
+#include "native_engine3d/EngineCommit.cpp"
 #include "native_engine3d/EngineContext.cpp"
 
 EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorCell>& original,
@@ -1569,7 +1570,8 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
   ContextValue result_lifetime(control.result);
   auto& result = result_lifetime.Get();
   auto& stats=result.stats;stats.bidirectional=bidirectional;stats.parameter_setup_seconds=parameter_setup;stats.initialization_seconds=parameter_setup;stats.maximum_work_bytes=parameter_bound;
-  Owned working;
+  ContextValue working_lifetime(context.commit.working);
+  auto& working = working_lifetime.Get();
   ContextValue selection_lifetime(context.census.selection, coarsening, repairing, geometry, stats,
                                   options.timings, options.surface_tolerance, options.wall_heights,
                                   bidirectional, bool(surface_target));
@@ -1701,9 +1703,12 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
   auto& fixed_metric_initialized = fixed_metric_initialized_lifetime.Get();
   ContextValue fixed_metric_available_lifetime(control.fixed_metric_available, false);
   auto& fixed_metric_available = fixed_metric_available_lifetime.Get();
-  std::vector<Id> batch_changed;
-  std::set<Id> batch_touched;
-  std::set<std::array<Id,4>> batch_supports;
+  ContextValue batch_changed_lifetime(context.commit.batch_changed);
+  auto& batch_changed = batch_changed_lifetime.Get();
+  ContextValue batch_touched_lifetime(context.commit.batch_touched);
+  auto& batch_touched = batch_touched_lifetime.Get();
+  ContextValue batch_supports_lifetime(context.commit.batch_supports);
+  auto& batch_supports = batch_supports_lifetime.Get();
   auto bytes=[&]() {
     return transfer_memory::Add(options.caller_bytes,MapBytes(options.wall_heights),MapBytes(options.region_walls),accepted_bytes,batch_bytes,diagnostic_bytes,MapBytes(working),checkpoint.Bytes(),
         transfer_memory::Bytes(batch_changed),MapBytes(batch_touched),MapBytes(batch_supports),
@@ -2500,7 +2505,10 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
   }
   ContextValue ready_lifetime(control.ready, false);
   auto& ready = ready_lifetime.Get();
-  Id maximum_node=0,maximum_cell=0;
+  ContextValue maximum_node_lifetime(context.commit.maximum_node, 0);
+  auto& maximum_node = maximum_node_lifetime.Get();
+  ContextValue maximum_cell_lifetime(context.commit.maximum_cell, 0);
+  auto& maximum_cell = maximum_cell_lifetime.Get();
   {
     Timer timer(stats.initialization_seconds,options.timings, SU2NativeTiming3D::Operation::Communication);
     CLocalFailure failure;

@@ -1,0 +1,38 @@
+[
+  {
+    "names": [
+      "working"
+    ],
+    "old": "Owned working;",
+    "new": "ContextValue working_lifetime(context.commit.working);\n  auto& working = working_lifetime.Get();"
+  },
+  {
+    "names": [
+      "batch_changed"
+    ],
+    "old": "std::vector<Id> batch_changed;",
+    "new": "ContextValue batch_changed_lifetime(context.commit.batch_changed);\n  auto& batch_changed = batch_changed_lifetime.Get();"
+  },
+  {
+    "names": [
+      "batch_touched"
+    ],
+    "old": "std::set<Id> batch_touched;",
+    "new": "ContextValue batch_touched_lifetime(context.commit.batch_touched);\n  auto& batch_touched = batch_touched_lifetime.Get();"
+  },
+  {
+    "names": [
+      "batch_supports"
+    ],
+    "old": "std::set<std::array<Id,4>> batch_supports;",
+    "new": "ContextValue batch_supports_lifetime(context.commit.batch_supports);\n  auto& batch_supports = batch_supports_lifetime.Get();"
+  },
+  {
+    "names": [
+      "maximum_node",
+      "maximum_cell"
+    ],
+    "old": "Id maximum_node=0,maximum_cell=0;",
+    "new": "ContextValue maximum_node_lifetime(context.commit.maximum_node, 0);\n  auto& maximum_node = maximum_node_lifetime.Get();\n  ContextValue maximum_cell_lifetime(context.commit.maximum_cell, 0);\n  auto& maximum_cell = maximum_cell_lifetime.Get();"
+  }
+]

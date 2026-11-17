@@ -4,6 +4,7 @@
 #include "EngineCensus.hpp"
 #include "EngineQueues.hpp"
 #include "EngineExchange.hpp"
+#include "EngineCommit.hpp"
 
 struct EngineControlPrefix {
   std::optional<EnginePhase> phase;
@@ -102,6 +103,7 @@ struct EngineContext {
   EngineCensus census;
   EngineQueues queues;
   EngineExchange exchange;
+  EngineCommit commit;
 
   EngineContext(EngineSetup&, World&, const Owned&, const std::vector<DonorCell>&, const PlanarReference&,
                 MetricComposition&, EngineOptions&, MetricChange&, bool&, BoundaryMetric&);
