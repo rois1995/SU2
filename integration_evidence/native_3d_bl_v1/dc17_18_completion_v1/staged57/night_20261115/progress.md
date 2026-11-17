@@ -2,15 +2,13 @@
 
 Updated 2026-11-17. Read the complete latest `NIGHT_WORK_ORDER.md` after every compaction, then this file.
 
-## Current boundary — N14/N15 PASSED, no owned heavy job
+## Current boundary — B3 scoped G1/G2 PASSED; no owned job
 
-N14/N15 qualification is COMPLETE and PASSED; `N14/section6_12/acceptance_summary.json`. Full5524738.250709s, all6payloads EXACT E1P6c/E2P7, all standing gates. Full primary receipt sealed10actual handles/1775source+212input+25helper pins. Isolated restart PASSED236.822017s,168797points/855828cells, coordinate error0, finite positive changed conservative fields;11actual handles/2022case+10helper pins sealed. Restart exec1603/validator8245exit0. The numeric status deliberately remains disk_restart_validated=false; separate disk_restart_validation.json is the authoritative passed validation (the primary sealer initially assumed a mutable flag and was corrected without rerun).
+Build55370.160315s/fouractions/1776pins; G1serial780.160772s/375records(exec73792),MPI2 13.539927s/114(exec84011),MPI4 14.536724s/228(exec19606),allzerochangedcases. Each1990casepins/eightroothelpers andactualIDs6/7/9sealed. StrictG2PASSED317.640179s stop/325.481453s sealed(exec76843),work90,809,869/counts480/473/346/263/469/464/alloldinteger/model/timerrows exact;1776source/221input/19helperpins andalltenactualIDsverifiedterminal. PrefixHWMsum7,946,518,528B, notfullP8peak. Noownedjob. acceptance_summary.json B3_SCOPED_G1_G2_PASSED. Nextcommit/pushB3 thenB4rebind/apply/build554/G1/G2.
 
-M26 report PASSED, both events6ranks,48prepare rows each, all96timer summaries fixedstorage4120; commits22278/13622 agree with N12 and class sums. `reports/M26_full552.md` and JSON/CSV. Post-helper timer grouping initially rejected non-remesh summaries after final; corrected to validate all summaries but group only remesh roots, synthetic+actual report passed. No production code, gate or tolerance changed and no numerical case repeated.
+N14/N15 qualification PASSED and PUSHED **0c2cb5c460a5e01c5dde1564c96d209f457e8fa8**. Full4738.250709s/6payloads EXACT/allstandinggates; isolated restart236.822017s/168797points855828cells/coordinate0/positivefinitechangedfields; M26both6ranks/48prepare rows each/96fixedstorage4120summaries/class sums=commits22278/13622. All actual552/full/restart handles were sealed before B3 edits. Exact552binaries preserved locally (not Git). Accepted references adopted without numerical rerun; successor_reference_selection.json names552G1/G2/GQ and firstN14G3. G1wallchangedcasesNONE.
 
-Fresh actual qualification-boundary preflight found NO owned heavy job. Exact qualified552 CFD/test binaries (1,352,928,592B) copied to build552/qualified_binaries with independent inodes/hash manifest; DO NOT Git-stage them. Qualified references adopted in validation/successor_reference_selection.json, G1newmanifest under validation/adopted_reference. Changed G1wallcases: NONE in all3cohorts. G2/GQ552cases and firstN14G3 are the new cut references, with no extra numerical reference run.
-
-NEXT: commit/push the qualified N14/N15 evidence/reference boundary, then rebind/review/apply B3 as three source paths and build553. No production B3 edit has happened yet. All earlier check details and correction history remain below.
+B3 applied as ONE3-path Census extraction from0c2cb5c460: Engine.cpp806e13ec..., Census.hppc34039f9..., Census.cppabfd9c00...; actual_apply_receipt.json under P/B3. Six actual lambda token proofs/main byte reversal and canonical optional-field identity passed. Nine methods max67lines, method-local Phase aliases bound. Comments updated for actual Census role, new header/implementation formatted. Build553 and all scopedG1/G2 passed; B3 accepted checkpoint pending.
 
 ## Latest order and stop point
 
@@ -23,12 +21,12 @@ Finish N14/N15, then B3–B8 and end-B G3/G4/GQ. After passed end gates and comm
 ## Accepted state and pending checkpoint
 
 - Newest accepted cut: **76b2ad61db**, B2 scoped G1/G2 passed and pushed.
-- Newest fully qualified workflow: **5ec465ca1a**, phase A, build545; passed full/restart and all end-A gates.
-- N14/N15 implementation checkpoint **93ea0f93e8** was preserved as pending; its production code is now qualified by completed build552 gates. Evidence/docs b09fa8046d/cb5f79ee86/213fb7af05/30c74c7a67 are pushed. Acceptance summary adopts the current code-equivalent source parent30c74c7a67; the qualification commit follows.
+- Newest fully qualified workflow: **0c2cb5c460**, N14/N15, build552; passed full/restart and all N14 gates. Phase A5ec465ca1a/build545 remains qualified history.
+- N14/N15 implementation checkpoint **93ea0f93e8** was preserved as pending; its production code is now qualified by completed build552 gates. Evidence/docs b09fa8046d/cb5f79ee86/213fb7af05/30c74c7a67 are pushed. Acceptance summary adopts the current code-equivalent source parent30c74c7a67; qualification commit0c2cb5c460 is pushed.
 - Shared build: `integration_evidence/build-integrated-v3-p5-20261114`; N14 receipts in `N14/section6_12/build552`.
-- CFD SHA256: `9ef34ecc72357e5deb31256e4c5739fedca2170f80f304996a5284e3a280ca35`.
-- Test SHA256: `efbfd37bb53d947f1b194860b76c76c9e29bf1b27feae19ecea8808017feac8a`.
-- Engine source SHA256: `7545edb4cea518fffc7e0e5cd4f763891fbe2a002b2d26b177b04b76e0d3b848`.
+- Archived qualified552 CFD SHA256: `9ef34ecc72357e5deb31256e4c5739fedca2170f80f304996a5284e3a280ca35`.
+- Archived qualified552 test SHA256: `efbfd37bb53d947f1b194860b76c76c9e29bf1b27feae19ecea8808017feac8a`.
+- Pre-B3 qualified552 engine source SHA256: `7545edb4cea518fffc7e0e5cd4f763891fbe2a002b2d26b177b04b76e0d3b848`.
 - Whole connected source check: `N14/section6_12/source_check.before_first_edit.md` (SHA c8655c756c5e73702fd285d14442c650616847ae70335e4d097b0162f8ba9edb), canonical `source_check.md`, separate diagnostic-scope clarifications. No blocking result contradiction.
 
 ## N14/N15 completed checks — do not repeat
@@ -57,10 +55,10 @@ Required/checked counts reconcile: first731 required accepted +33 checked accept
 
 ## Next ordered actions
 
-1. Commit/push the qualified N14/N15 evidence and accepted references. Preserve exact binary archives locally; no more552 numerical run is required.
-2. Rebind the B3 generator to the accepted frozen engine SHA7545edb..., review the actual3-file diff, then apply Census extraction. Build553 (actual resource/source freeze), G1serial/MPI2/MPI4 by exact C2.1 against adopted552 tables (no wall exceptions, success assert totals/launcher codes report-only), strict G2 against552. One commit/push for the connected B3 substep. Actual prelaunch setup stubs before numerical launches where wrappers are retargeted.
-3. Continue B4Queues, B5Reports/finish, B6Ownership, B7Control, B8Setup, each scoped G1/G2 and commit/push. Rebind drafts after prior cuts; preserve live aliases, type aliases, original lifecycle/collective/container order and all budgets. No behavior fixes.
-4. End-B G3/G4/GQ. G3 uses first N14 G3 as edit reference to smaller count, >=336splits and retained physical gates; no P6c first336 equality. Then commit/push, update progress/HANDOFF, verify no owned job, record terminal handles and **STOP; no phase C**. If phase B cannot finish under R5, stop after the required revert commit/push.
+1. Commit/push passed B3 checkpoint (acceptance_summary.json binds receipts). No owned job runs.
+2. B4 Queues rebind/review generator to accepted B3; apply connectedthreepaths, build554, G1serial/MPI2/MPI4, strictG2, commit/push.
+3. B5 Reports/finish, B6 Ownership, B7 Control, B8 Setup, each scopedG1/G2 thencommit/push. Drafts and inventories are unapplied; rebindsource/callinterfaces at each prior acceptedcut. Preserveeverycollective/container/RAII/timer order, allnewmethods<=80.
+4. End-B G3/G4/GQ using adopted552refs andfirstN14G3commonedits;>=336splits/allotherphysicalgates. Thencommit/push, updateprogress/HANDOFF, verifyNOownedjob, writeterminalhandles, STOPWAITUSER. Do notstartphaseC. R5failurestopafterrequiredrevertcommit/push.
 
 ## Own-helper correction ledger (no production/gate/tolerance changes)
 
@@ -73,7 +71,7 @@ Required/checked counts reconcile: first731 required accepted +33 checked accept
 
 ## Remaining cut preparation — unapplied
 
-P=`N4/section6_3_after_N11`. Whole-N4 source check `P/source_check.md` remains controlling. No B3 production edit/build/test yet.
+P=`N4/section6_3_after_N11`. Whole-N4 source check `P/source_check.md` remains controlling. B3 production applied/build553 passed; no numerical B3 test launched yet. Older preparation hashes below are historical and superseded by actual_apply_receipt.json and current generated binding manifest.
 
 - B3 final generator: `P/B3_preparation/proposal/generate_b3_proposal.py`, SHA f1ac3f4f75562d4494f8ea9e8b598e1ab79704638f08ad800e063008856a4a68. Manifest SHA7ad18e014cc16d037be73944a2ab4a2d60d4e1c0aee6700120fc7a09dfecfda7. Proposed census CPP SHAe208dcae1331dffd25256577dccb3eef14025319d1b99269c95ccd14bf0df599. Nine methods satisfy the <=80-line rule after the local type-alias correction. Primary reviewed all bodies/bindings/lifetimes; draft setup defects corrected (missing/duplicate surface_target, restored field_identity used by FrozenField; method-local Phase=EnginePhase aliases for three methods). Actual six lambda token proofs and main byte reversal pass. Must regenerate/rebind to post-N14 source, review final diff, then apply only at terminal boundary.
 - B4: `P/B4_preparation/proposal`, final generator SHAa44eec84e1f2751bf699d3fe968224766cec14fa091738e2d7f5204b720f70a4. Four methods <=80, actual lambda token proofs/main reversal pass. Primary found template lookup order defect; corrected helper definition before caller. Needs post-B3 rebinding/review/build/gates.

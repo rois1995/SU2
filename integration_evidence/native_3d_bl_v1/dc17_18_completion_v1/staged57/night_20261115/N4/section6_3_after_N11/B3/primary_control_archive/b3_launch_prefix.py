@@ -1,0 +1,8 @@
+from pathlib import Path
+import os,sys,json,time,hashlib
+p=Path('integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N4/section6_3_after_N11').resolve();v=p/'B3/validation';night=p.parents[1];gate=sys.argv[1];assert gate=='G2';host=v/f'{gate}_host_preflight.json';assert json.loads(host.read_text())['active_OWNED_heavy_processes']==[]
+script=v/'run_g2_gq_prefix_553.py';args=['/usr/bin/python3',str(script),'--gate',gate,'--case-name',f'B3_{gate}_553']
+paths=[script,v/'validate_g2_gq.py',p/'build553_aliases.py',p/'build553/build_status.json',p/'build553/source_pins.json',host,night/'N4/run_prefix_controller.py',night/'N8/A2_A3_N12/section6_8/validation/run_g2_gq_prefix.py',night/'N11/section6_8_preparation/drafts/compare_timer_census_delta_69.py']
+ref=v/'references/G2_reference';paths +=[ref/'status.json',ref/'provenance.json',ref/'run.cfg',ref/'G2_gate_receipt.json',*sorted(ref.glob('rank_output/*/rank.*/stdout'))]
+def sha(q):return hashlib.sha256(q.read_bytes()).hexdigest()
+pins={str(q.resolve(strict=True)):sha(q) for q in paths};out=v/f'{gate}_primary_validation_pins.json';assert not out.exists();out.write_text(json.dumps(pins,indent=2)+'\n');f=Path('/proc/self/stat').read_text().rsplit(')',1)[1].split();out=v/f'{gate}_primary_launch_identity.json';assert not out.exists();out.write_text(json.dumps(dict(actual_host_proc=True,unix=time.time(),controller=dict(pid=os.getpid(),start_ticks=int(f[19])),argv=args,validation_pins_sha256=sha(v/f'{gate}_primary_validation_pins.json')),indent=2)+'\n');os.environ.update(OMP_NUM_THREADS='1',OPENBLAS_NUM_THREADS='1',MKL_NUM_THREADS='1',OMPI_MCA_osc='pt2pt');os.nice(19);os.execv(args[0],args)

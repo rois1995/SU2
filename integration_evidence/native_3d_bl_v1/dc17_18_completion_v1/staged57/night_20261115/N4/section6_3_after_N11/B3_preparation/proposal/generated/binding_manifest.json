@@ -1,0 +1,607 @@
+{
+  "unapplied": true,
+  "base_build": "552; regenerate against post-N14-disposition source before applying",
+  "base_sha256": {
+    "CNativeEngine3D.cpp": "7545edb4cea518fffc7e0e5cd4f763891fbe2a002b2d26b177b04b76e0d3b848",
+    "EngineCensus.hpp": "bfe3181885c22e13bc1104c405e3adbf383bced1fff5861baed92a04ce02d739",
+    "EngineCensus.cpp": "314fbe6483953704d96d0ad5582e9bbcd507d740c65295b8a2f49d676979a326"
+  },
+  "proposed_sha256": {
+    "CNativeEngine3D.cpp": "806e13eccc41df3a6e19602b38e1297dc8b9852fd4a6a8804af7a8b67d4d80e5",
+    "EngineCensus.hpp": "c34039f9c9c06c8b1b7b9106e0c02fa70fc5cf6a9c80c9dba9d337228f9da6d6",
+    "EngineCensus.cpp": "abfd9c00dfaeef1d657a72178375d3aa2cbd97c98464eb0adac305cbc604ff10"
+  },
+  "main_cpp_byte_reversal_after_call_routing": true,
+  "removed_lambda_names": [
+    "scope_census_complete",
+    "refresh_surface_census",
+    "generation_census",
+    "generation_debt",
+    "measure",
+    "seed_next"
+  ],
+  "call_routing": [
+    {
+      "old": "scope_census_complete()",
+      "new": "context.census.ScopeCensusComplete(context)",
+      "count": 4
+    },
+    {
+      "old": "refresh_surface_census()",
+      "new": "context.census.RefreshSurfaceCensus(context)",
+      "count": 1
+    },
+    {
+      "old": "generation_census()",
+      "new": "context.census.GenerationCensus(context)",
+      "count": 3
+    },
+    {
+      "old": "generation_debt()",
+      "new": "context.census.CurrentGenerationDebt(context)",
+      "count": 1
+    },
+    {
+      "old": "measure(",
+      "new": "context.census.Measure(context, ",
+      "count": 3
+    },
+    {
+      "old": "seed_next()",
+      "new": "context.census.SeedNext(context)",
+      "count": 2
+    },
+    {
+      "old": "seed_next(!choice.active)",
+      "new": "context.census.SeedNext(context, !choice.active)",
+      "count": 1
+    }
+  ],
+  "formatted_member_methods": [
+    {
+      "name": "ScopeCensusComplete",
+      "formatted_lines": 9,
+      "sha256": "a5658c7c28665d1e1af3442d690e9dc365c1b61366a4fb22d855440eb205cd16"
+    },
+    {
+      "name": "RefreshSurfaceCensus",
+      "formatted_lines": 13,
+      "sha256": "529c5f9d8cf53b5d006fe35927b224d51b9d00dfc648bed43f95e3c78240e1a5"
+    },
+    {
+      "name": "GenerationCensus",
+      "formatted_lines": 48,
+      "sha256": "fdf7fa47dcde0258e267a4ca77f6ef8672cc98505ffc44695446c3d4a1cb056c"
+    },
+    {
+      "name": "CurrentGenerationDebt",
+      "formatted_lines": 20,
+      "sha256": "779bbc3ea1990cbb568839aadc353b0661eb8dca4319dfdea822eecde7b39efa"
+    },
+    {
+      "name": "Measure",
+      "formatted_lines": 60,
+      "sha256": "fdb565137c4524e5aea17b9b9f507997920b45fde0b13e99fe3f1350aa0e8afe"
+    },
+    {
+      "name": "SeedNext",
+      "formatted_lines": 44,
+      "sha256": "2a0a04684e83dfe325baabe9a6b59afbe162c260491da297690e889f36a827d5"
+    },
+    {
+      "name": "ImportMeasurementBatch",
+      "formatted_lines": 52,
+      "sha256": "7c11358ecfe9081e657ef0a3c8500f54afb46ea429388feb70440e2be689c6e0"
+    },
+    {
+      "name": "MeasureBatchCells",
+      "formatted_lines": 45,
+      "sha256": "237b5482412ccd193c34d816958f7a155fc2a794eec49cb650bc34b2273dd005"
+    },
+    {
+      "name": "MeasureCell",
+      "formatted_lines": 67,
+      "sha256": "df66c416d4640db5e8009d6a0e55e88592adda42dd9f4584a0a2df9bd3644b6f"
+    }
+  ],
+  "method_capture_binding_audit": {
+    "ScopeCensusComplete": {
+      "aliases": [
+        "surface_target",
+        "selection",
+        "working"
+      ],
+      "parameters": [
+        "context"
+      ]
+    },
+    "RefreshSurfaceCensus": {
+      "aliases": [
+        "surface_target",
+        "selection",
+        "working",
+        "stats"
+      ],
+      "parameters": [
+        "context"
+      ]
+    },
+    "GenerationCensus": {
+      "aliases": [
+        "selection",
+        "surface_target",
+        "edge_progress",
+        "edge_census_round",
+        "world",
+        "result",
+        "stats",
+        "options",
+        "source",
+        "directory"
+      ],
+      "parameters": [
+        "context"
+      ]
+    },
+    "CurrentGenerationDebt": {
+      "aliases": [
+        "edge_progress",
+        "selection",
+        "working",
+        "surface_target",
+        "world"
+      ],
+      "parameters": [
+        "context"
+      ]
+    },
+    "Measure": {
+      "aliases": [
+        "options",
+        "world",
+        "started",
+        "surface_target",
+        "selection",
+        "working",
+        "stats",
+        "result"
+      ],
+      "parameters": [
+        "context",
+        "requested_ids",
+        "seed",
+        "enclosing_seconds"
+      ]
+    },
+    "SeedNext": {
+      "aliases": [
+        "options",
+        "world",
+        "composition",
+        "stats",
+        "result",
+        "phase",
+        "initial",
+        "seed_slot",
+        "working",
+        "selection",
+        "started"
+      ],
+      "parameters": [
+        "context",
+        "local_active"
+      ]
+    },
+    "ImportMeasurementBatch": {
+      "aliases": [
+        "working",
+        "selection",
+        "retired_edges",
+        "field_identity",
+        "campaign_edges",
+        "stats",
+        "result",
+        "options"
+      ],
+      "parameters": [
+        "context",
+        "ids",
+        "slot",
+        "batch",
+        "plan_scratch",
+        "enclosing_seconds",
+        "failure",
+        "reuse",
+        "imported"
+      ]
+    },
+    "MeasureBatchCells": {
+      "aliases": [
+        "selection",
+        "working",
+        "geometry",
+        "surface_target",
+        "composition",
+        "field_identity",
+        "phase",
+        "options",
+        "stats"
+      ],
+      "parameters": [
+        "context",
+        "ids",
+        "slot",
+        "batch",
+        "seed",
+        "plan_scratch",
+        "failure",
+        "imported",
+        "reuse"
+      ]
+    },
+    "MeasureCell": {
+      "aliases": [
+        "selection",
+        "working",
+        "geometry",
+        "surface_target",
+        "field_identity",
+        "campaign_edges",
+        "phase",
+        "options",
+        "stats"
+      ],
+      "parameters": [
+        "context",
+        "id",
+        "seed",
+        "field",
+        "planned",
+        "reuse"
+      ]
+    },
+    "reference_constness": "started remains const auto& in Measure and SeedNext; other aliases are mutable auto& matching Adapt's reference captures"
+  },
+  "borrowed_alias_duplicate_unused_audit": {
+    "ScopeCensusComplete": {
+      "aliases": [
+        "surface_target",
+        "selection",
+        "working"
+      ],
+      "bindings_and_types": [
+        "auto& surface_target = context.surface_target;",
+        "auto& selection = *context.census.selection;",
+        "auto& working = *context.ownership.working;"
+      ],
+      "parameters": [
+        "context"
+      ],
+      "unused_aliases": [],
+      "free_capture_names": []
+    },
+    "RefreshSurfaceCensus": {
+      "aliases": [
+        "surface_target",
+        "selection",
+        "working",
+        "stats"
+      ],
+      "bindings_and_types": [
+        "auto& surface_target = context.surface_target;",
+        "auto& selection = *context.census.selection;",
+        "auto& working = *context.ownership.working;",
+        "auto& stats = context.control.result->stats;"
+      ],
+      "parameters": [
+        "context"
+      ],
+      "unused_aliases": [],
+      "free_capture_names": []
+    },
+    "GenerationCensus": {
+      "aliases": [
+        "selection",
+        "surface_target",
+        "edge_progress",
+        "edge_census_round",
+        "world",
+        "result",
+        "stats",
+        "options",
+        "source",
+        "directory"
+      ],
+      "bindings_and_types": [
+        "auto& selection = *context.census.selection;",
+        "auto& surface_target = context.surface_target;",
+        "auto& edge_progress = *context.census.edge_progress;",
+        "auto& edge_census_round = *context.census.edge_census_round;",
+        "auto& world = context.world;",
+        "auto& result = *context.control.result;",
+        "auto& stats = result.stats;",
+        "auto& options = context.options;",
+        "auto& source = *context.exchange.source;",
+        "auto& directory = *context.exchange.directory;"
+      ],
+      "parameters": [
+        "context"
+      ],
+      "unused_aliases": [],
+      "free_capture_names": []
+    },
+    "CurrentGenerationDebt": {
+      "aliases": [
+        "edge_progress",
+        "selection",
+        "working",
+        "surface_target",
+        "world"
+      ],
+      "bindings_and_types": [
+        "auto& edge_progress = *context.census.edge_progress;",
+        "auto& selection = *context.census.selection;",
+        "auto& working = *context.ownership.working;",
+        "auto& surface_target = context.surface_target;",
+        "auto& world = context.world;"
+      ],
+      "parameters": [
+        "context"
+      ],
+      "unused_aliases": [],
+      "free_capture_names": []
+    },
+    "Measure": {
+      "aliases": [
+        "options",
+        "world",
+        "started",
+        "surface_target",
+        "selection",
+        "working",
+        "stats",
+        "result"
+      ],
+      "bindings_and_types": [
+        "auto& options = context.options;",
+        "auto& world = context.world;",
+        "const auto& started = *context.setup.control_prefix.started;",
+        "auto& surface_target = context.surface_target;",
+        "auto& selection = *context.census.selection;",
+        "auto& working = *context.ownership.working;",
+        "auto& stats = context.control.result->stats;",
+        "auto& result = *context.control.result;"
+      ],
+      "parameters": [
+        "context",
+        "requested_ids",
+        "seed",
+        "enclosing_seconds"
+      ],
+      "unused_aliases": [],
+      "free_capture_names": []
+    },
+    "SeedNext": {
+      "aliases": [
+        "options",
+        "world",
+        "composition",
+        "surface_target",
+        "stats",
+        "result",
+        "phase",
+        "initial",
+        "seed_slot",
+        "working",
+        "selection",
+        "started"
+      ],
+      "bindings_and_types": [
+        "auto& options = context.options;",
+        "auto& world = context.world;",
+        "auto& composition = context.composition;",
+        "auto& surface_target = context.surface_target;",
+        "auto& stats = context.control.result->stats;",
+        "auto& result = *context.control.result;",
+        "auto& phase = *context.setup.control_prefix.phase;",
+        "auto& initial = *context.census.initial;",
+        "auto& seed_slot = *context.census.seed_slot;",
+        "auto& working = *context.ownership.working;",
+        "auto& selection = *context.census.selection;",
+        "const auto& started = *context.setup.control_prefix.started;"
+      ],
+      "parameters": [
+        "context",
+        "local_active"
+      ],
+      "unused_aliases": [],
+      "free_capture_names": []
+    },
+    "ImportMeasurementBatch": {
+      "aliases": [
+        "working",
+        "selection",
+        "retired_edges",
+        "field_identity",
+        "campaign_edges",
+        "stats",
+        "result",
+        "options"
+      ],
+      "bindings_and_types": [
+        "auto& working = *context.ownership.working;",
+        "auto& selection = *context.census.selection;",
+        "auto& retired_edges = *context.census.retired_edges;",
+        "auto& field_identity = *context.census.field_identity;",
+        "auto& campaign_edges = *context.census.campaign_edges;",
+        "auto& stats = context.control.result->stats;",
+        "auto& result = *context.control.result;",
+        "auto& options = context.options;"
+      ],
+      "parameters": [
+        "context",
+        "ids",
+        "slot",
+        "batch",
+        "plan_scratch",
+        "enclosing_seconds",
+        "failure",
+        "reuse",
+        "imported"
+      ],
+      "unused_aliases": [],
+      "free_capture_names": []
+    },
+    "MeasureBatchCells": {
+      "aliases": [
+        "selection",
+        "working",
+        "geometry",
+        "surface_target",
+        "composition",
+        "field_identity",
+        "phase",
+        "options",
+        "stats"
+      ],
+      "bindings_and_types": [
+        "auto& selection = *context.census.selection;",
+        "auto& working = *context.ownership.working;",
+        "auto& geometry = context.geometry;",
+        "auto& surface_target = context.surface_target;",
+        "auto& composition = context.composition;",
+        "auto& field_identity = *context.census.field_identity;",
+        "auto& phase = *context.setup.control_prefix.phase;",
+        "auto& options = context.options;",
+        "auto& stats = context.control.result->stats;"
+      ],
+      "parameters": [
+        "context",
+        "ids",
+        "slot",
+        "batch",
+        "seed",
+        "plan_scratch",
+        "failure",
+        "imported",
+        "reuse"
+      ],
+      "unused_aliases": [],
+      "free_capture_names": []
+    },
+    "MeasureCell": {
+      "aliases": [
+        "selection",
+        "working",
+        "geometry",
+        "surface_target",
+        "field_identity",
+        "campaign_edges",
+        "phase",
+        "options",
+        "stats"
+      ],
+      "bindings_and_types": [
+        "auto& selection = *context.census.selection;",
+        "auto& working = *context.ownership.working;",
+        "auto& geometry = context.geometry;",
+        "auto& surface_target = context.surface_target;",
+        "auto& field_identity = *context.census.field_identity;",
+        "auto& campaign_edges = *context.census.campaign_edges;",
+        "auto& phase = *context.setup.control_prefix.phase;",
+        "auto& options = context.options;",
+        "auto& stats = context.control.result->stats;"
+      ],
+      "parameters": [
+        "context",
+        "id",
+        "seed",
+        "field",
+        "planned",
+        "reuse"
+      ],
+      "unused_aliases": [],
+      "free_capture_names": []
+    }
+  },
+  "method_local_type_alias_audit": {
+    "ScopeCensusComplete": [],
+    "RefreshSurfaceCensus": [],
+    "GenerationCensus": [],
+    "CurrentGenerationDebt": [],
+    "Measure": [],
+    "SeedNext": [
+      [
+        "Phase",
+        "EnginePhase"
+      ]
+    ],
+    "ImportMeasurementBatch": [],
+    "MeasureBatchCells": [
+      [
+        "Phase",
+        "EnginePhase"
+      ]
+    ],
+    "MeasureCell": [
+      [
+        "Phase",
+        "EnginePhase"
+      ]
+    ]
+  },
+  "actual_removed_lambda_body_token_proofs": [
+    {
+      "old_lambda": "scope_census_complete",
+      "member": "ScopeCensusComplete",
+      "actual_lambda_token_equal": true
+    },
+    {
+      "old_lambda": "refresh_surface_census",
+      "member": "RefreshSurfaceCensus",
+      "actual_lambda_token_equal": true
+    },
+    {
+      "old_lambda": "generation_census",
+      "member": "GenerationCensus",
+      "actual_lambda_token_equal": true
+    },
+    {
+      "old_lambda": "generation_debt",
+      "member": "CurrentGenerationDebt",
+      "actual_lambda_token_equal": true
+    },
+    {
+      "old_lambda": "seed_next",
+      "member": "SeedNext",
+      "actual_lambda_token_equal": true
+    },
+    {
+      "old_lambda": "measure",
+      "member": "Measure with ImportMeasurementBatch and MeasureBatchCells inlined",
+      "actual_lambda_token_equal": true,
+      "import_success_return_true_inlined_as_break": true,
+      "batch_final_vote_return_inlined_as_original_false_branch": true
+    }
+  ],
+  "body_token_proofs": {
+    "MeasureBatchCells_with_MeasureCell_inlined_equals_pre_split_batch": true,
+    "MeasureCell_body_equals_original_per_cell_body_after_ids_i_to_id_parameter_binding": true,
+    "Measure_with_both_helpers_inlined_equals_actual_removed_measure_lambda": true,
+    "comparison": "C++ lexical tokens after formatting; comments/whitespace excluded; actual lambda bodies were extracted from the pinned main source"
+  },
+  "measure_split_map": {
+    "wrapper": "admission, surface demand, census start/count, batch deadline/advance",
+    "ImportMeasurementBatch": "region/cache collection, votes, requests, import timer and retry",
+    "MeasureBatchCells": "post-import admission, field/planning/per-cell work, catch/final vote",
+    "failure_lifetime": "one CLocalFailure per original batch, passed by reference across both helpers",
+    "temporaries": "regions, requests and demand remain at their old scopes; imported/reuse/batch/slot stay local to Measure"
+  },
+  "reversal_manifest": [
+    "restore the six removed Adapt lambdas and original call spellings; main source then byte-equals base",
+    "remove only the B3 declarations and method definitions from EngineCensus files",
+    "do not revert any other B2/N14/N15 or phase-B source changes"
+  ],
+  "no_live_file_written": true,
+  "compiled_or_run": false
+}

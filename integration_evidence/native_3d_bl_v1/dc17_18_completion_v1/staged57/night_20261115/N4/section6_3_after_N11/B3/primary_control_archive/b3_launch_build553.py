@@ -1,0 +1,3 @@
+from pathlib import Path
+import os,json,time,hashlib
+b=Path('integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N4/section6_3_after_N11/build553').resolve();f=Path('/proc/self/stat').read_text().rsplit(')',1)[1].split();argv=['/usr/bin/python3',str(b/'build.py')];out=b/'primary_launch_identity.json';assert not out.exists();out.write_text(json.dumps(dict(actual_host_proc=True,unix=time.time(),controller=dict(pid=os.getpid(),start_ticks=int(f[19])),argv=argv,source_pins_sha256=hashlib.sha256((b/'source_pins.json').read_bytes()).hexdigest()),indent=2)+'\n');os.environ.update(OMP_NUM_THREADS='1',OPENBLAS_NUM_THREADS='1',MKL_NUM_THREADS='1');os.nice(19);os.execv(argv[0],argv)

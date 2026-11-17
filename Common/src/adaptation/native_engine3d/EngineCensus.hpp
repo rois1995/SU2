@@ -1,4 +1,4 @@
-// Owns the canonical Census payloads; it never starts a value, performs a collective, or changes a decision.
+// Owns Census slots and measures live Context state; Adapt retains activation and payload lifetimes.
 #pragma once
 
 #include <cstdint>
@@ -6,6 +6,8 @@
 #include <memory>
 #include <optional>
 #include <vector>
+
+struct EngineContext;
 
 struct EngineCensus {
   std::optional<Selection> selection;
@@ -17,6 +19,20 @@ struct EngineCensus {
   std::optional<std::vector<Id>> initial;
   std::optional<std::vector<Id>> eligible_extensions;
   std::optional<size_t> seed_slot;
+
+  bool ScopeCensusComplete(EngineContext&) const;
+  void RefreshSurfaceCensus(EngineContext&) const;
+  bool GenerationCensus(EngineContext&);
+  GenerationDebt CurrentGenerationDebt(EngineContext&) const;
+  bool Measure(EngineContext&, const std::vector<Id>&, bool seed, double* enclosing_seconds);
+  bool ImportMeasurementBatch(EngineContext&, const std::vector<Id>& ids, size_t slot, size_t& batch,
+                              size_t plan_scratch, double* enclosing_seconds, CLocalFailure&,
+                              std::map<Edge, EdgeMeasure>& reuse, DonorPatch& imported);
+  bool MeasureBatchCells(EngineContext&, const std::vector<Id>& ids, size_t slot, size_t batch, bool seed,
+                         size_t plan_scratch, CLocalFailure&, DonorPatch& imported, std::map<Edge, EdgeMeasure>& reuse);
+  void MeasureCell(EngineContext&, Id id, bool seed, FrozenField& field, PatchMetric& planned,
+                   std::map<Edge, EdgeMeasure>& reuse);
+  bool SeedNext(EngineContext&, bool local_active = true);
 
   EngineCensus();
   ~EngineCensus();

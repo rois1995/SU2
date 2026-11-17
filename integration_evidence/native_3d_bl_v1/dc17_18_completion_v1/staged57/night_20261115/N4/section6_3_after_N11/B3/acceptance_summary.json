@@ -1,0 +1,68 @@
+{
+  "state": "B3_SCOPED_G1_G2_PASSED",
+  "unix": 1794924945.9367294,
+  "base_qualified_commit": "0c2cb5c460a5e01c5dde1564c96d209f457e8fa8",
+  "reference_build": 552,
+  "candidate_build": 553,
+  "build_seconds": 70.16031455993652,
+  "source_pins": 1776,
+  "G1": {
+    "serial": {
+      "passed": true,
+      "case_records": 375,
+      "changed_cases": 0,
+      "seconds": 780.1607720851898,
+      "actual_terminal_ids": 6,
+      "case_pins": 1990,
+      "successful_assertion_totals_observation": true,
+      "launcher_returncode_equal_observation": true
+    },
+    "mpi2": {
+      "passed": true,
+      "case_records": 114,
+      "changed_cases": 0,
+      "seconds": 13.539926528930664,
+      "actual_terminal_ids": 7,
+      "case_pins": 1990,
+      "successful_assertion_totals_observation": true,
+      "launcher_returncode_equal_observation": true
+    },
+    "mpi4": {
+      "passed": true,
+      "case_records": 228,
+      "changed_cases": 0,
+      "seconds": 14.536723613739014,
+      "actual_terminal_ids": 9,
+      "case_pins": 1990,
+      "successful_assertion_totals_observation": true,
+      "launcher_returncode_equal_observation": true
+    }
+  },
+  "G2": {
+    "actual_host_proc": true,
+    "unix": 1794924939.8640985,
+    "all_owned_handles_terminal": true,
+    "exec_session": 76843,
+    "exec_exit_code": 0,
+    "passed": true,
+    "seconds_until_stop": 317.64017948304536,
+    "seconds_total": 325.4814533580211,
+    "source_pins_verified": 1776,
+    "input_pins_verified": 221,
+    "extra_helper_pins_verified": 19,
+    "observed_prefix_rank_hwm_sum_bytes": 7946518528,
+    "not_full_workflow_P8_peak": true,
+    "strict_comparison_sha256": "474131ff9e8e3f59fcddc7c46e36b506141b075408fe27303f5a649e86f9a9a7"
+  },
+  "receipts_sha256": {
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N4/section6_3_after_N11/B3/validation/G1_serial_primary_terminal_receipt.json": "95c2997c1f680fa023ddc3f1b2562bbb2677886a83f197c4b6ff26f5f6aca19e",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N4/section6_3_after_N11/B3/validation/G1_mpi2_primary_terminal_receipt.json": "589a5d4aceca741f5938b21d62cb8981d2479099dd2bedfebc7cab433a9a127d",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N4/section6_3_after_N11/B3/validation/G1_mpi4_primary_terminal_receipt.json": "4e6427d1be9578fff1e951840530902361b6a1ec5fda52cefb83653db6084e48",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N4/section6_3_after_N11/B3/validation/G2_primary_terminal_receipt.json": "188eef346889d4014159ed4064603d2a3409fc1916b1a304925b4c02f01c9f6a",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N4/section6_3_after_N11/build553/primary_terminal_receipt.json": "e78a5460bd28ea753f66a3fec5c74fd01d32e3e5c9564d892c6416209660b0b9",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N4/section6_3_after_N11/B3/actual_apply_receipt.json": "2ae87d2499fd16ab262ba05613c674556276083128ea11f94ffc03490de9cb0b"
+  },
+  "phase_B_complete": false,
+  "phase_C_authorized": false,
+  "full_run_required_for_this_substep": false
+}

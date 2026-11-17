@@ -1685,19 +1685,6 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
   auto& eligible_extensions = eligible_extensions_lifetime.Get();
   ContextValue seed_slot_lifetime(context.census.seed_slot, 0);
   auto& seed_slot = seed_slot_lifetime.Get();
-  auto scope_census_complete=[&]() {
-    if(!surface_target)return selection.Progress(working.size()).census_complete;
-    if(!selection.progress_consistent||!selection.census_started)return false;
-    const auto count=selection.SurfaceCensus(working);return count[0]==count[1];
-  };
-  auto refresh_surface_census=[&]() {
-    if(!surface_target)return;
-    const auto count=selection.SurfaceCensus(working);
-    stats.surface_demand_required_cells=count[0];
-    stats.surface_demand_measured_cells=selection.progress_consistent?count[1]:0;
-    stats.surface_demand_census_complete=selection.progress_consistent&&selection.census_started&&count[0]==count[1];
-    stats.surface_demand_geometry_complete=stats.surface_demand_census_complete&&count[0]==count[2];
-  };
   ContextValue private_repair_lifetime(context.exchange.private_repair, false);
   auto& private_repair = private_repair_lifetime.Get();
   ContextValue private_optimizer_allowance_lifetime(control.private_optimizer_allowance, 0);
@@ -1858,39 +1845,6 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
   auto& stage_observer_failed = stage_observer_failed_lifetime.Get();
   ContextValue construction_entry_reported_lifetime(control.construction_entry_reported, false);
   auto& construction_entry_reported = construction_entry_reported_lifetime.Get();
-  auto generation_census=[&]() {
-    const auto extra=transfer_memory::Mul(selection.edges.size(),sizeof(EdgeProgressSample)+sizeof(Selection::History)+sizeof(Edge)+4*sizeof(void*));
-    if(!context.exchange.Admit(context, extra))return false;
-    CLocalFailure failure;std::vector<EdgeProgressSample> samples;
-    try {
-      selection.RefreshHistory(false);samples.reserve(selection.edges.size());
-      for(const auto& row:selection.edges) {
-        if(surface_target&&!row.second.physical_users)continue;
-        const auto h=selection.edge_history.find(row.first);const auto length=row.second.measure.length;
-        double value=double(length);if(value<length)value=std::nextafter(value,INFINITY);
-        samples.push_back({row.first,value,row.second.physical_users!=0,h==selection.edge_history.end()?0:h->second.age,
-            h==selection.edge_history.end()?0:h->second.disposition,h==selection.edge_history.end()?0:h->second.round});
-      }
-    }catch(const std::exception& e){failure.Set(2,0,e.what());}
-    if(!context.exchange.Vote(context, failure))return false;
-    if(!MeasureGenerationProgress(world,samples,edge_progress,result.reason,options.memory_ceiling,
-        transfer_memory::Add(context.exchange.Bytes(context),source.ResidentBytes(),directory->ResidentBytes(),transfer_memory::Bytes(edge_progress.top))))return false;
-    stats.unique_long_surface=edge_progress.long_surface;stats.unique_long_interior=edge_progress.long_interior;
-    stats.unique_edge_debt=edge_progress.hinge_squared;stats.maximum_edge=edge_progress.max_length;stats.edge_histogram=edge_progress.histogram;
-    edge_census_round=stats.rounds;
-    return true;
-  };
-  auto generation_debt=[&]() {
-    GenerationDebt d;d.edges=edge_progress.hinge_squared;d.maximum=edge_progress.max_length;
-    const auto p=selection.Progress(working.size());
-    d.geometry=TimedAllreduce(double(p.geometry_excess_squared),CPassiveComm::Op::SUM,world.comm);
-    bool geometry_complete=p.geometry_complete;
-    if(surface_target) {
-      const auto count=selection.SurfaceCensus(working);
-      geometry_complete=selection.progress_consistent&&selection.census_started&&count[0]==count[1]&&count[0]==count[2];
-    }
-    d.geometry_complete=!world.maximum(!geometry_complete);return d;
-  };
   ContextValue previous_quality_lifetime(control.previous_quality);
   auto& previous_quality = previous_quality_lifetime.Get();
   ContextValue previous_quality_census_lifetime(control.previous_quality_census);
@@ -2018,7 +1972,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
       SU2NativeTiming3D::Session::Checkpoint(stage);
     if(surface_target) {
       CLocalFailure failure;
-      try{refresh_surface_census();}catch(const std::exception& e){failure.Set(2,0,e.what());}
+      try{context.census.RefreshSurfaceCensus(context);}catch(const std::exception& e){failure.Set(2,0,e.what());}
       const auto elected=world.elect(failure);
       if(elected.any){result.valid=result.surface_prepared=false;result.reason=elected.message;return false;}
     }
@@ -2913,142 +2867,6 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
   }
   constexpr size_t MeasurementBatch=16;
   // Construction requests missing edges only; improvement also imports centroid support.
-  auto measure=[&](const std::vector<Id>& requested_ids,bool seed,double* enclosing_seconds) {
-    std::optional<SU2NativeTiming3D::Scope> census_scope;
-    if (options.timings) census_scope.emplace(SU2NativeTiming3D::Operation::Census);
-    std::vector<Id> demand;
-    const auto demand_bytes=surface_target?transfer_memory::GrowthBound(requested_ids.size(),sizeof(Id)):0;
-    const auto plan_scratch=transfer_memory::Add(demand_bytes,
-        transfer_memory::Mul(3*MaximumCampaignEdges,sizeof(std::pair<const Edge,EdgeMeasure>)+6*sizeof(void*)),
-        surface_target?transfer_memory::Add(SurfacePlanningScratchBytes(MeasurementBatch),
-            transfer_memory::Mul(MeasurementBatch,sizeof(OwnedCell))):0);
-    if(!context.exchange.Admit(context, transfer_memory::Add(plan_scratch,transfer_memory::Mul(MeasurementBatch,sizeof(Cell)+sizeof(unsigned char)))))return false;
-    if(surface_target) {
-      CLocalFailure failure;
-      try {
-        demand.reserve(requested_ids.size());
-        for(Id id:requested_ids)if(selection.RequestedWall(working.at(id)))demand.push_back(id);
-        stats.surface_measurement_skipped+=requested_ids.size()-demand.size();
-      }catch(const std::exception& e){failure.Set(2,0,e.what());}
-      if(!context.exchange.Vote(context, failure))return false;
-    }
-    // Publication keeps the complete cavity; only requested walls own this provisional census.
-    const auto& ids=surface_target?demand:requested_ids;
-    selection.census_started=true;
-    const size_t count=TimedAllreduce(ids.size(),CPassiveComm::Op::MAX,world.comm);
-    for (size_t slot=0; slot<count;) {
-      if(options.maximum_seconds && world.maximum(std::chrono::duration<double>(Clock::now()-started).count()>=options.maximum_seconds)) {
-        stats.stop=EngineStop::TimeBudget;result.reason=seed ? "Native3D metric seeding exhausts elapsed-time budget." :
-            "Native3D metric update exhausts elapsed-time budget.";return false;
-      }
-      size_t batch=std::min({MeasurementBatch,MaximumCavityCells/6,count-slot});
-      DonorPatch imported;std::map<Edge,EdgeMeasure> reuse;
-      CLocalFailure failure;
-      for (;;) {
-        std::vector<Cell> regions;
-        try {
-          reuse.clear();
-          for (size_t i=slot;i<std::min(slot+batch,ids.size());++i) {
-            const auto& cell=working.at(ids[i]).cell;regions.push_back(cell);selection.Cached(cell,reuse);
-            for(auto a:cell.v)for(auto b:cell.v)if(a.id<b.id) {
-              const auto prior=retired_edges.find({a.id,b.id});if(prior!=retired_edges.end())reuse.emplace(prior->first,prior->second);
-            }
-          }
-        } catch (const std::exception& e) { failure.Set(2,0,e.what()); }
-        if (!context.exchange.Vote(context, failure)) return false;
-        std::vector<unsigned char> requests;
-        try {requests=MetricEdgeRequests(regions,reuse,field_identity,&campaign_edges);}
-        catch(const std::exception& e){failure.Set(2,0,e.what());}
-        if(!context.exchange.Vote(context, failure))return false;
-        {Timer timer(stats.donor_seconds,options.timings,enclosing_seconds, SU2NativeTiming3D::Operation::Import);
-          imported=context.exchange.ImportSource(context, regions,transfer_memory::Add(MaximumFrozenFieldBytes,plan_scratch),false,&requests);}
-
-        if (imported.valid) break;
-        if (batch==1) { result.reason=imported.reason; return false; }
-        batch=(batch+1)/2; ++stats.batch_retries;
-      }
-      if (!context.exchange.Admit(context, transfer_memory::Add(transfer_memory::Bytes(imported.cells),
-          MaximumFrozenFieldBytes,plan_scratch,transfer_memory::Mul(working.size(),context.control.SelectionBound(context, selection.track_repairs))))) return false;
-      if (slot<ids.size()) try {
-        CpuTimer private_cpu(stats.measurement_cpu_seconds,options.timings);
-        const auto components=AssociatedExtensions(imported.cells,geometry);
-        FrozenField field(std::move(imported.cells),composition,options.timings,components,options.edge_breakpoints,field_identity,true,MaximumDonors,true);
-        FieldAccounting accounting{stats,field};
-        PatchMetric planned;
-        if(surface_target && phase==Phase::Construction) {
-          Imported published;published.cells.reserve(batch);
-          for(size_t i=slot;i<std::min(slot+batch,ids.size());++i)published.cells.push_back(working.at(ids[i]));
-          MetricStats counted;
-          // Published coordinates/associations and the field are unchanged throughout this measurement batch.
-          planned=MeasureSurfacePlanning(GeometryPatch(published,&geometry),field,geometry,options.wall_heights,surface_target,&counted);
-          stats.edge_evaluations+=counted.edge_evaluations;stats.edge_reused+=counted.edge_reused;
-        }
-        for (size_t i=slot;i<std::min(slot+batch,ids.size());++i) {
-          PatchMetric metric;
-          std::string reason;
-          MetricStats counted;
-          const auto& cell=working.at(ids[i]).cell;
-          bool strict=false,quality_valid=false,height_valid=true;FirstHeightReport height;
-          if(phase==Phase::Construction) {
-            if(surface_target) {
-              const auto& owned=working.at(ids[i]);
-              for(unsigned a=0;a<4;++a)for(unsigned b=a+1;b<4;++b) {
-                Edge key{cell.v[a].id,cell.v[b].id};std::sort(key.begin(),key.end());
-                metric.edges.emplace(key,planned.edges.at(key));
-              }
-              for(const auto& edge:metric.edges)for(unsigned face=0;face<4;++face)
-                if(cell.v[face].id!=edge.first[0] && cell.v[face].id!=edge.first[1] && owned.physical[face].present &&
-                    options.wall_heights.count(geometry.Get(owned.physical[face].facet).marker) && edge.second.length>metric.maximum_length) {
-                  metric.maximum_length=edge.second.length;metric.longest_edge=edge.first;
-                }
-            } else metric=MeasureMetricEdges({cell},field,&counted,&reuse,&campaign_edges);
-            strict=metric.maximum_length<=MaximumMetricEdge;
-          } else {
-            const bool metric_valid=ValidateMetricPatch({cell},field,metric,reason,&counted,&reuse);
-            std::string height_reason;
-            height_valid=EngineTrial::HeightCheck(context, GeometryPatch(Imported{{working.at(ids[i])},true,{}}, &geometry),height_reason,false,&height);
-            if(!height_valid)reason=height_reason;
-            quality_valid=metric.shape_measured && std::isfinite(metric.minimum_mean_ratio) && std::isfinite(metric.minimum_scaled_jacobian) &&
-                metric.minimum_mean_ratio>=MinimumMeanRatio &&
-                metric.minimum_scaled_jacobian>=MinimumScaledJacobian && height_valid;
-            strict=metric_valid && height_valid;
-          }
-          if(phase==Phase::Improvement && selection.cells.count(ids[i]))
-            selection.RefreshQuality(working.at(ids[i]),metric,strict,quality_valid,!options.wall_heights.empty()?&height:nullptr,height_valid,field_identity);
-          else selection.Add(working.at(ids[i]),metric,strict,quality_valid,reason,
-              phase==Phase::Improvement && !options.wall_heights.empty()?&height:nullptr,height_valid);
-          for(const auto& edge:metric.edges)reuse.insert_or_assign(edge.first,edge.second);
-          stats.edge_evaluations+=counted.edge_evaluations;
-          stats.edge_reused+=counted.edge_reused;
-          if (seed) ++stats.initial_cells; else ++stats.updated_cells;
-          const auto& owned=working.at(ids[i]);
-          const unsigned category=selection.RequestedWall(owned)?2:selection.cells.at(ids[i]).surface?1:0;
-          ++(seed?stats.seed_cell_classes:stats.updated_cell_classes)[category];
-        }
-      } catch (const std::exception& e) { failure.Set(2,0,e.what()); }
-      if (!context.exchange.Vote(context, failure)) return false;
-      slot+=batch;if(seed)++stats.seed_batches;
-    }
-    return true;
-  };
-  auto seed_next=[&](bool local_active=true) {
-    Timer timer(stats.seed_seconds,options.timings, SU2NativeTiming3D::Operation::Census);
-    // Composed or sided planning is expensive; a complete cavity may remove still-unmeasured topology.
-    if((!composition && !surface_target) || phase==Phase::Improvement) {const bool measured=measure(initial,true,&stats.seed_seconds);if(measured)seed_slot=initial.size();return measured;}
-    if(options.maximum_seconds && world.maximum(std::chrono::duration<double>(Clock::now()-started).count()>=options.maximum_seconds)) {
-      stats.stop=EngineStop::TimeBudget;result.reason="Native3D metric seeding exhausts elapsed-time budget.";return false;
-    }
-    if(!context.exchange.Admit(context, transfer_memory::Mul(MeasurementBatch,sizeof(Id))))return false;
-    CLocalFailure failure;std::vector<Id> next;
-    try {
-      size_t scanned=0;next.reserve(MeasurementBatch);
-      while(local_active && seed_slot<initial.size() && next.size()<MeasurementBatch && scanned++<MaximumDirectoryScan) {
-        const auto id=initial[seed_slot++];
-        if(working.count(id) && !selection.cells.count(id))next.push_back(id);
-      }
-    }catch(const std::exception& e){failure.Set(2,0,e.what());}
-    return context.exchange.Vote(context, failure) && measure(next,true,&stats.seed_seconds);
-  };
   ContextValue ownership_evaluated_lifetime(context.ownership.ownership_evaluated, std::array<bool, 2>{{false, false}});
   auto& ownership_evaluated = ownership_evaluated_lifetime.Get();
   ContextValue quality_ownership_round_lifetime(context.ownership.quality_ownership_round, 0);
@@ -3067,7 +2885,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     if(!quality){ownership_evaluated[boundary]=true;++stats.ownership_evaluations;}
     // The checkpoint's ownership is part of its rollback contract. Its enclosing speculative
     // coarsening cycle retains that ownership until it is explicitly retired.
-    if(world.maximum(checkpoint.valid || !scope_census_complete() || (quality&&!selection.repair_zero.empty())))return true;
+    if(world.maximum(checkpoint.valid || !context.census.ScopeCensusComplete(context) || (quality&&!selection.repair_zero.empty())))return true;
     if(quality&&world.maximum(!selection.Progress(working.size()).complete))return true;
     const auto global_cells=TimedAllreduce(uint64_t(working.size()),CPassiveComm::Op::SUM,world.comm);
     // Optional migration cannot populate one graph part per rank with fewer cells than ranks.
@@ -3276,7 +3094,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
   };
   auto surface_ready=[&]() {
     // Known debt already proves unreadiness; scan coverage only at a possible readiness boundary.
-    return !world.maximum(selection.construction_invalid!=0 || !scope_census_complete());
+    return !world.maximum(selection.construction_invalid!=0 || !context.census.ScopeCensusComplete(context));
   };
   auto enter_phase=[&](Phase next,bool refine_geometry=false) {
     if(surface_target && next==Phase::Improvement) {
@@ -3326,7 +3144,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     }catch(const std::exception& e){failure.Set(2,0,e.what());}
     if(!context.exchange.Vote(context, failure))return false;
     // A phase census has no enclosing update timer to debit for donor imports.
-    const bool measured=measure(initial,false,nullptr);retired_edges.clear();
+    const bool measured=context.census.Measure(context, initial,false,nullptr);retired_edges.clear();
     if(!measured)return false;seed_slot=initial.size();
     if(refine_geometry&&!composition&&options.wall_heights.empty()&&geometry.EntityGeometry()) {
       if(!context.exchange.Admit(context, selection.GeometryPriorityBytes()))return false;
@@ -3422,7 +3240,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
   }
   // Discover required surface work before optional collapses, without delaying a known deficit for the full census.
   do {
-    ready=seed_next();
+    ready=context.census.SeedNext(context);
     if (!ready) return finish();
   } while(surface_target && !world.maximum(selection.construction_invalid!=0) && world.maximum(seed_slot<initial.size()));
   for (RoundState round_state;;) {
@@ -3498,7 +3316,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     if(surface_target && phase==Phase::Construction && any &&
         world.maximum(!choice.active && seed_slot<initial.size())) {
       // One idle-rank census batch must not drain ahead of the active round.
-      if(!seed_next(!choice.active))return finish();
+      if(!context.census.SeedNext(context, !choice.active))return finish();
       bad_field=world.maximum(selection.invalid!=0);
       if(!pick())return finish();
       complete=!world.maximum(selection.invalid!=0 || seed_slot<initial.size() ||
@@ -3522,7 +3340,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     // destructive removals; invalid inputs still use construction until a strict closure exists.
     if(standalone_coarsening && !checkpoint.valid && phase==Phase::Construction && !repairing &&
         world.maximum(selection.cells.size()!=working.size()) && world.maximum(seed_slot<initial.size()))refill=true;
-    if(refill) {ready=seed_next();if(!ready)return finish();continue;}
+    if(refill) {ready=context.census.SeedNext(context);if(!ready)return finish();continue;}
     if(standalone_coarsening && !checkpoint.valid && phase==Phase::Construction && !repairing &&
         !world.maximum(selection.cells.size()!=working.size() || selection.construction_invalid!=0)) {
       if(!enter_phase(Phase::Improvement))return finish();
@@ -3598,8 +3416,8 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
       continue;
     }
     if(bidirectional&&phase==Phase::Construction&&!repairing&&!coarsening&&!any&&selection.lane==Selection::Lane::Surface&&
-        !world.maximum(!scope_census_complete())) {
-      if(!generation_census()||!observe_progress("split_surface_exit"))return finish();
+        !world.maximum(!context.census.ScopeCensusComplete(context))) {
+      if(!context.census.GenerationCensus(context)||!observe_progress("split_surface_exit"))return finish();
       // Interior publications can reopen surface demand after the full-vertex claims end.
       selection.geometry_split_priorities.clear();selection.geometry_priority_mode=false;
       directory->EndConstructionPass();construction_claims=false;selection.lane=Selection::Lane::Interior;stats.split_lane=2;
@@ -3610,16 +3428,16 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
         world.maximum(!selection.surface_queue.empty()||!selection.geometry_queue.empty())) {
       // Interior publications may reveal/reopen entry-edge surface demand. Drain it before ending
       // the finite generation; newly created edges still cannot enter its immutable frontier.
-      if(!generation_census()||!observe_progress("split_interior_exit"))return finish();
+      if(!context.census.GenerationCensus(context)||!observe_progress("split_interior_exit"))return finish();
       directory->BeginConstructionPass();construction_claims=true;selection.lane=Selection::Lane::Surface;stats.split_lane=1;
       if(!observe_progress("split_surface_resume"))return finish();
       continue;
     }
     if(bidirectional && phase==Phase::Construction && !repairing && !any &&
-        !world.maximum(!scope_census_complete())) {
+        !world.maximum(!context.census.ScopeCensusComplete(context))) {
       const bool productive=world.maximum(construction_generation_changed);
-      if(!generation_census())return finish();
-      const auto current_debt=generation_debt();bool progressing=true;
+      if(!context.census.GenerationCensus(context))return finish();
+      const auto current_debt=context.census.CurrentGenerationDebt(context);bool progressing=true;
       if(coarsening){generation_window_count=1;generation_window[0]=current_debt;}
       else {
         if(generation_window_count==generation_window.size()) {
@@ -6218,7 +6036,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
           batch_supports.insert(directory->ChangedRepairSupports().begin(),directory->ChangedRepairSupports().end());
         }catch(const std::exception& e){failure.Set(2,0,e.what());}
         ready=context.exchange.Vote(context, failure);
-      } else if (ready) ready=measure(changed,false,&stats.update_seconds);
+      } else if (ready) ready=context.census.Measure(context, changed,false,&stats.update_seconds);
       if (ready && !(batched&&repairing)) {
         try {
           selection.FinishRepairs();
@@ -6491,7 +6309,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
           }
           stats.maximum_owned=std::max(stats.maximum_owned,working.size());
         }catch(const std::exception& e){failure.Set(2,0,e.what());}
-        if(!context.exchange.Vote(context, failure)||!measure(batch_changed,false,&stats.update_seconds))return finish();
+        if(!context.exchange.Vote(context, failure)||!context.census.Measure(context, batch_changed,false,&stats.update_seconds))return finish();
         try {
           selection.FinishRepairs();
           for(const auto& support:directory->ChangedRepairSupports())selection.TouchRepairSupport(support);

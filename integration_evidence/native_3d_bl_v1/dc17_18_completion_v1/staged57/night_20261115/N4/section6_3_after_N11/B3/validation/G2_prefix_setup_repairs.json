@@ -1,0 +1,30 @@
+{
+  "scope": "G2/GQ inherited prefix controller setup only",
+  "build": "build553",
+  "production_edits": false,
+  "numerical_launch": false,
+  "causes_and_corrections": [
+    {
+      "cause": "The reused N8 controller calls validator methods named build534 and read_json, while the B3 validator initially exposed neither inherited API.",
+      "correction": "Added read_json, build553, and the build534 compatibility alias. The build adapter checks the already sealed build553 status/alias and binary digest."
+    },
+    {
+      "cause": "The inherited controller calls validate(gate, case) and reports N1_COLLAPSE/N1_FULL, while the B3 validator initially exposed validate_case and local reference paths only.",
+      "correction": "Added the thin validate adapter and bound the report constants to the adopted G2/GQ reference cases."
+    },
+    {
+      "cause": "The inherited controller hashes canonical N8 purpose paths that did not exist under B3, including run_g2_gq_prefix.py, status.json, reference_build, reference_binaries, and unchanged_build499_source_pins.json.",
+      "correction": "Added B3-local symlink aliases to the actual build553 runner/status/pins and existing N4 reference artifacts; no source, policy, or result gate changed."
+    },
+    {
+      "cause": "The first no-launch stub omitted the returned reference status when writing its summary.",
+      "correction": "Returned and bound the terminal status object; also moved shutil import to module scope."
+    }
+  ],
+  "checks": {
+    "py_compile": "passed",
+    "run_g2_gq_prefix_553_self_check": "passed",
+    "validate_g2_gq_self_check": "passed",
+    "controller_no_popen_stub": "pending until the live serial G1 case is terminal"
+  }
+}
