@@ -1,0 +1,29 @@
+{
+  "review_only": true,
+  "production_unchanged": true,
+  "shadow_patch_apply_passed": true,
+  "scoped_manifest_shadow_reverse_passed": true,
+  "all_substitutions_reverse_to_complete_original_CPP_and_Context": true,
+  "substitution_count": 62,
+  "source_files": [
+    "Common/src/adaptation/CNativeEngine3D.cpp",
+    "Common/src/adaptation/native_engine3d/EngineContext.hpp"
+  ],
+  "new_files": [
+    "Common/src/adaptation/native_engine3d/EngineRound.hpp",
+    "Common/src/adaptation/native_engine3d/EngineRound.cpp",
+    "Common/src/adaptation/native_engine3d/EngineSlot.hpp",
+    "Common/src/adaptation/native_engine3d/EngineSlot.cpp"
+  ],
+  "proposal_sha256": "18773c51b16533cbdfe2b411fef868728c580c182da1a072daa7d7fccb6c791a",
+  "binding_manifest_sha256": "cf40029535d048e48a6a6d7b77aa26715d0879923fe5dd309b242882506be099",
+  "base_sha256": {
+    "Common/src/adaptation/CNativeEngine3D.cpp": "fbc9642d964e80d6f20bb92fc48cb7ee6d2b13286a71fafef477aa5d57430e0d",
+    "Common/src/adaptation/native_engine3d/EngineContext.hpp": "1d14eec3d0e15c21bd9cead17728954762cd5e8d66630e97d76eb2095d9085f0"
+  },
+  "shadow_CPP_sha256": {
+    "Common/src/adaptation/CNativeEngine3D.cpp": "dd97c5e2cb75789b1c35934a6fc3851ba297303a25510df5deceaba65efaf66f",
+    "Common/src/adaptation/native_engine3d/EngineContext.hpp": "847752c9e043b21e2c1968f21673b1b0abba8ae89af74caef48dc43a55ba2419"
+  },
+  "scope": "temporary directory only; patch applied and manifest substitutions reversed; no compile/test/launch"
+}

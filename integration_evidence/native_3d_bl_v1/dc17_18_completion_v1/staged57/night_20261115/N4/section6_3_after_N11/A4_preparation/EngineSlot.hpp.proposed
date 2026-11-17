@@ -1,0 +1,62 @@
+// Owns cross-block slot DATA slots only; the slot index remains the for-loop value.
+#pragma once
+
+struct SlotState {
+  size_t slot = 0;
+  std::optional<Dependencies> dependencies;
+  std::optional<Imported> imported;
+  std::optional<bool> chosen;
+  std::optional<bool> pass_deferred;
+  std::optional<bool> collapse_corrected;
+  std::optional<Id> collapse_apex;
+  std::optional<std::string> collapse_correction_refusal;
+  std::optional<CLocalFailure> failure;
+  std::optional<bool> coordinate_only;
+  std::optional<size_t> private_scratch;
+  std::optional<Patch> old;
+  std::optional<Patch> fresh;
+  std::optional<Node> point;
+  std::optional<bool> approved;
+  std::optional<bool> moved;
+  std::optional<bool> repair_approved;
+  std::optional<bool> cavity_inserted;
+  std::optional<bool> optimization_approved;
+  std::optional<OptimizationOperations> repair_optimization;
+  std::optional<MetricDiagnosis> certified;
+  std::optional<bool> geometric_progress;
+  std::optional<const char*> last_geometry_operation;
+  std::optional<std::unique_ptr<FrozenField>> field;
+  std::optional<size_t> epoch;
+  std::optional<size_t> token;
+  std::optional<size_t> offset;
+  std::optional<size_t> construction_nodes;
+  std::optional<size_t> node_stride;
+  std::optional<size_t> node_offset;
+  std::optional<bool> capture;
+  std::optional<bool> capture_selected;
+  std::optional<unsigned> accepted_ladder;
+  std::optional<std::vector<CellQualityFlag>> old_flags;
+  std::optional<std::vector<CellQualityFlag>> fresh_flags;
+  std::optional<std::vector<CellQualityFlag>> measured_flags;
+  std::optional<Feature> transaction_feature;
+  std::optional<size_t> repair_budget;
+  std::optional<size_t> repair_work;
+  std::optional<bool> physical_edge;
+  std::optional<std::string> pending_rejection;
+  std::optional<bool> surface_edit;
+  std::optional<std::vector<BoundaryParameterEdit>> parameter_edits;
+  std::optional<std::vector<std::vector<Dependency>>> removals;
+  std::optional<std::vector<std::vector<OwnedCell>>> additions;
+  std::optional<std::vector<std::vector<BlockedEdge>>> blocked;
+  std::optional<std::vector<Dependency>> removed;
+  std::optional<std::vector<OwnedCell>> added;
+  std::optional<std::vector<BlockedEdge>> failures;
+  std::optional<std::vector<Id>> changed;
+
+  SlotState();
+  ~SlotState();
+  SlotState(const SlotState&) = delete;
+  SlotState& operator=(const SlotState&) = delete;
+  SlotState(SlotState&&) = delete;
+  SlotState& operator=(SlotState&&) = delete;
+};

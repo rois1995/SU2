@@ -1440,6 +1440,8 @@ struct RepairProposal {
 #include "native_engine3d/EngineExchange.cpp"
 #include "native_engine3d/EngineCommit.cpp"
 #include "native_engine3d/EngineOwnership.cpp"
+#include "native_engine3d/EngineRound.cpp"
+#include "native_engine3d/EngineSlot.cpp"
 #include "native_engine3d/EngineContext.cpp"
 
 EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorCell>& original,
@@ -3632,7 +3634,8 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     ready=seed_next();
     if (!ready) return finish();
   } while(surface_target && !world.maximum(selection.construction_invalid!=0) && world.maximum(seed_slot<initial.size()));
-  for (size_t round=0;;) {
+  for (RoundState round_state;;) {
+    auto& round = round_state.round;
     std::optional<SU2NativeTiming3D::PhaseScope> phase_scope;
     if (options.timings)
       phase_scope.emplace(phase == Phase::Improvement ? SU2NativeTiming3D::Phase::Quality
@@ -3649,12 +3652,24 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
       }
       result.surface_prepared=true;result.reason.clear();return finish();
     }
-    const unsigned timed_lane=bidirectional&&phase==Phase::Construction&&!repairing&&!coarsening?stats.split_lane:0;
-    double untimed_lane=0;
+    ContextValue timed_lane_lifetime(
+        round_state.timed_lane,
+        bidirectional && phase == Phase::Construction && !repairing && !coarsening ? stats.split_lane : 0);
+    const unsigned& timed_lane = timed_lane_lifetime.Get();
+    ContextValue untimed_lane_lifetime(round_state.untimed_lane, 0);
+    double& untimed_lane = untimed_lane_lifetime.Get();
     Timer lane_timer(timed_lane==1?stats.surface_seconds:timed_lane==2?stats.interior_seconds:untimed_lane,
         options.timings&&timed_lane!=0);
-    Choice choice;
-    bool complete=false,any=false,bad_field=false,refill=false;
+    ContextValue choice_lifetime(round_state.choice);
+    Choice& choice = choice_lifetime.Get();
+    ContextValue complete_lifetime(round_state.complete, false);
+    bool& complete = complete_lifetime.Get();
+    ContextValue any_lifetime(round_state.any, false);
+    bool& any = any_lifetime.Get();
+    ContextValue bad_field_lifetime(round_state.bad_field, false);
+    bool& bad_field = bad_field_lifetime.Get();
+    ContextValue refill_lifetime(round_state.refill, false);
+    bool& refill = refill_lifetime.Get();
     auto pick=[&]() {
       if (!coarsening) { choice=selection.Best(repairing); any=world.maximum(choice.active); return true; }
       CLocalFailure failure;
@@ -3723,8 +3738,12 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
       continue;
     }
     // Amortize the strict census over a useful repair pass before retrying outstanding construction.
-    const bool clean_quality=!metric_cleanup && phase==Phase::Improvement &&
-        !world.maximum(selection.quality_invalid!=0 || selection.unmeasured_shape!=0 || selection.cells.size()!=working.size());
+    ContextValue clean_quality_lifetime(
+        round_state.clean_quality,
+        !metric_cleanup && phase == Phase::Improvement &&
+            !world.maximum(selection.quality_invalid != 0 || selection.unmeasured_shape != 0 ||
+                           selection.cells.size() != working.size()));
+    const bool& clean_quality = clean_quality_lifetime.Get();
     if(metric_cleanup && !any) {
       if(world.maximum(!selection.Progress(working.size()).complete)) {
         result.reason="Native3D metric cleanup lost its complete improvement census.";return finish();
@@ -3974,21 +3993,44 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     }
     ++stats.rounds;
     if(timed_lane==1)++stats.surface_rounds;else if(timed_lane==2)++stats.interior_rounds;
-    const bool concurrent=(repairing || ((composition || curved || selection.split_lanes) && !coarsening) || (bidirectional && coarsening)) && options.candidate_batch>1 && world.size>1;
+    ContextValue concurrent_lifetime(round_state.concurrent,
+                                     (repairing || ((composition || curved || selection.split_lanes) && !coarsening) ||
+                                      (bidirectional && coarsening)) &&
+                                         options.candidate_batch > 1 && world.size > 1);
+    const bool& concurrent = concurrent_lifetime.Get();
     stats.concurrent_rounds+=concurrent;
     // Repair uses one complete round snapshot, including the one-candidate correctness path.
-    const bool batched=repairing || (options.candidate_batch>1 &&
-        (!(selection.split_lanes&&!coarsening) && !curved && !composition && (!coarsening || !bad_field)));
-    std::vector<Choice> choices;
-    DependencyBatch dependency_batch;
-    ImportedBatch imported_batch;
-    ReservationBatch reserved;
-    size_t slots=1;
-    const bool planned_coarsening=coarsening && !repairing && !curved && !composition && world.size>1;
+    ContextValue batched_lifetime(
+        round_state.batched,
+        repairing || (options.candidate_batch > 1 && (!(selection.split_lanes && !coarsening) && !curved &&
+                                                      !composition && (!coarsening || !bad_field))));
+    const bool& batched = batched_lifetime.Get();
+    ContextValue choices_lifetime(round_state.choices);
+    std::vector<Choice>& choices = choices_lifetime.Get();
+    ContextValue dependency_batch_lifetime(round_state.dependency_batch);
+    DependencyBatch& dependency_batch = dependency_batch_lifetime.Get();
+    ContextValue imported_batch_lifetime(round_state.imported_batch);
+    ImportedBatch& imported_batch = imported_batch_lifetime.Get();
+    ContextValue reserved_lifetime(round_state.reserved);
+    ReservationBatch& reserved = reserved_lifetime.Get();
+    ContextValue slots_lifetime(round_state.slots, 1);
+    size_t& slots = slots_lifetime.Get();
+    ContextValue planned_coarsening_lifetime(round_state.planned_coarsening,
+                                             coarsening && !repairing && !curved && !composition && world.size > 1);
+    const bool& planned_coarsening = planned_coarsening_lifetime.Get();
     // A complete star above the cavity bound blocks only its own proposal, as on every lookup path; changed
     // stars reactivate it. It is never published and never fails the event.
-    size_t refused_candidates=0,refused_slots=0,pass_deferred_candidates=0;
-    std::array<RepairReceipt,MaximumCandidateBatch> refused_receipts{};size_t refused_receipt_count=0;
+    ContextValue refused_candidates_lifetime(round_state.refused_candidates, 0);
+    size_t& refused_candidates = refused_candidates_lifetime.Get();
+    ContextValue refused_slots_lifetime(round_state.refused_slots, 0);
+    size_t& refused_slots = refused_slots_lifetime.Get();
+    ContextValue pass_deferred_candidates_lifetime(round_state.pass_deferred_candidates, 0);
+    size_t& pass_deferred_candidates = pass_deferred_candidates_lifetime.Get();
+    ContextValue refused_receipts_lifetime(round_state.refused_receipts,
+                                           std::array<RepairReceipt, MaximumCandidateBatch>{});
+    std::array<RepairReceipt, MaximumCandidateBatch>& refused_receipts = refused_receipts_lifetime.Get();
+    ContextValue refused_receipt_count_lifetime(round_state.refused_receipt_count, 0);
+    size_t& refused_receipt_count = refused_receipt_count_lifetime.Get();
     auto refuse=[&](const Choice& candidate,const Feature& feature,const std::string& why) {
       selection.Block(candidate.edge,candidate.feature,repairing);++stats.attempted;++stats.rejected;++stats.oversized_stars;
       wall_counters.PlanningRefusal();
@@ -4241,9 +4283,16 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
       stats.global_work+=proposed;
     }
 
-    std::vector<RepairProposal> repair_proposals;
-    CLocalFailure private_failure;uint64_t private_work_used=0,private_work_reserved=0;
-    bool private_deadline=false;
+    ContextValue repair_proposals_lifetime(round_state.repair_proposals);
+    std::vector<RepairProposal>& repair_proposals = repair_proposals_lifetime.Get();
+    ContextValue private_failure_lifetime(round_state.private_failure);
+    CLocalFailure& private_failure = private_failure_lifetime.Get();
+    ContextValue private_work_used_lifetime(round_state.private_work_used, 0);
+    uint64_t& private_work_used = private_work_used_lifetime.Get();
+    ContextValue private_work_reserved_lifetime(round_state.private_work_reserved, 0);
+    uint64_t& private_work_reserved = private_work_reserved_lifetime.Get();
+    ContextValue private_deadline_lifetime(round_state.private_deadline, false);
+    bool& private_deadline = private_deadline_lifetime.Get();
     if(repairing) {
       size_t retained=transfer_memory::Mul(choices.size(),sizeof(RepairProposal)+1024);
       uint64_t eligible=0;
@@ -4261,14 +4310,29 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
       private_optimizer_allowance=eligible?std::min<uint64_t>(160,(stats.work_limit-stats.global_work)/eligible):0;
       private_work_reserved=eligible*private_optimizer_allowance;stats.global_work+=private_work_reserved;
     }
-    std::array<lane_census::Slot, MaximumCandidateBatch> lane_slots{};
-    const auto private_started=repairing?Clock::now():Clock::time_point{};
-    const auto private_collectives=world.collective_calls+world.election_collective_calls;
-    for (size_t slot=0;slot<(repairing?choices.size():slots);++slot) {
-    Dependencies dependencies;
-    Imported imported;
-    bool chosen=false,pass_deferred=false,collapse_corrected=false;Id collapse_apex=0;
-    std::string collapse_correction_refusal;
+    ContextValue lane_slots_lifetime(round_state.lane_slots, std::array<lane_census::Slot, MaximumCandidateBatch>{});
+    std::array<lane_census::Slot, MaximumCandidateBatch>& lane_slots = lane_slots_lifetime.Get();
+    ContextValue private_started_lifetime(round_state.private_started, repairing ? Clock::now() : Clock::time_point{});
+    const Clock::time_point& private_started = private_started_lifetime.Get();
+    ContextValue private_collectives_lifetime(round_state.private_collectives,
+                                              world.collective_calls + world.election_collective_calls);
+    const uint64_t& private_collectives = private_collectives_lifetime.Get();
+    for (SlotState slot_state;slot_state.slot<(repairing?choices.size():slots);++slot_state.slot) {
+    size_t& slot = slot_state.slot;
+    ContextValue dependencies_lifetime(slot_state.dependencies);
+    Dependencies& dependencies = dependencies_lifetime.Get();
+    ContextValue imported_lifetime(slot_state.imported);
+    Imported& imported = imported_lifetime.Get();
+    ContextValue chosen_lifetime(slot_state.chosen, false);
+    bool& chosen = chosen_lifetime.Get();
+    ContextValue pass_deferred_lifetime(slot_state.pass_deferred, false);
+    bool& pass_deferred = pass_deferred_lifetime.Get();
+    ContextValue collapse_corrected_lifetime(slot_state.collapse_corrected, false);
+    bool& collapse_corrected = collapse_corrected_lifetime.Get();
+    ContextValue collapse_apex_lifetime(slot_state.collapse_apex, 0);
+    Id& collapse_apex = collapse_apex_lifetime.Get();
+    ContextValue collapse_correction_refusal_lifetime(slot_state.collapse_correction_refusal);
+    std::string& collapse_correction_refusal = collapse_correction_refusal_lifetime.Get();
     wall_diagnostics::Choice wall_choice(wall_counters);
     auto reserve_dependencies=[&](const Imported& rows,bool active,std::string& why,size_t ceiling,size_t caller,unsigned priority) {
       const bool selected=directory->Reserve(rows,active,why,ceiling,caller,priority);
@@ -4377,30 +4441,79 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
       return private_repair?source.SampleMidpointsLocal(points,imported.cells,extensions,ceiling,caller):
           source.SampleMidpoints(points,extensions,ceiling,caller);
     };
-    CLocalFailure failure;
-    const bool coordinate_only=repairing && imported.coordinate_star.count==1 && imported.cells.size()>MaximumCavityCells;
-    const size_t private_scratch=transfer_memory::Add(transfer_memory::Bytes(imported.cells),
-        transfer_memory::Mul(std::max(MaximumReplacementCells,imported.cells.size()),8192),
-        surface_target?SurfacePlanningScratchBytes(std::max(MaximumReplacementCells,imported.cells.size())):0,
-        transfer_memory::Mul(selection.geometry_repairs?2:1,MaximumFrozenFieldBytes),MetricPatchSolveScratchBytes,
-        transfer_memory::Mul(3*MaximumCampaignEdges,sizeof(std::pair<const Edge,EdgeMeasure>)+6*sizeof(void*)),
-        transfer_memory::Mul(8*MaximumReplacementCells,64)); // Bounded optimizer rejected-star set.
-    Patch old,fresh;
-    Node point;
-    bool approved=false, moved=false, repair_approved=false, cavity_inserted=false;
-    bool optimization_approved=false;OptimizationOperations repair_optimization;
-    MetricDiagnosis certified;
-    bool geometric_progress=false;const char* last_geometry_operation=nullptr;
-    std::unique_ptr<FrozenField> field;
-    const auto epoch=transfer_memory::Add(transfer_memory::Mul(round,world.size),world.rank);
-    const auto token=transfer_memory::Add(transfer_memory::Mul(epoch,options.candidate_batch),slot);
-    const auto offset=transfer_memory::Mul(token,MaximumReplacementCells);
-    const size_t construction_nodes=!options.wall_heights.empty() ? MaximumReplacementCells+3 : (composition || curved) ? 9 : 1;
-    const size_t node_stride=construction_nodes+160;
-    const auto node_offset=transfer_memory::Mul(token,node_stride);
-    bool capture=false, capture_selected=false;
-    unsigned accepted_ladder=3;
-    std::vector<CellQualityFlag> old_flags,fresh_flags,measured_flags;
+    ContextValue failure_lifetime(slot_state.failure);
+    CLocalFailure& failure = failure_lifetime.Get();
+    ContextValue coordinate_only_lifetime(slot_state.coordinate_only, repairing &&
+                                                                          imported.coordinate_star.count == 1 &&
+                                                                          imported.cells.size() > MaximumCavityCells);
+    const bool& coordinate_only = coordinate_only_lifetime.Get();
+    ContextValue private_scratch_lifetime(
+        slot_state.private_scratch,
+        transfer_memory::Add(
+            transfer_memory::Bytes(imported.cells),
+            transfer_memory::Mul(std::max(MaximumReplacementCells, imported.cells.size()), 8192),
+            surface_target ? SurfacePlanningScratchBytes(std::max(MaximumReplacementCells, imported.cells.size())) : 0,
+            transfer_memory::Mul(selection.geometry_repairs ? 2 : 1, MaximumFrozenFieldBytes),
+            MetricPatchSolveScratchBytes,
+            transfer_memory::Mul(3 * MaximumCampaignEdges,
+                                 sizeof(std::pair<const Edge, EdgeMeasure>) + 6 * sizeof(void*)),
+            transfer_memory::Mul(8 * MaximumReplacementCells, 64)));
+    const size_t& private_scratch = private_scratch_lifetime.Get(); // Bounded optimizer rejected-star set.
+    ContextValue old_lifetime(slot_state.old);
+    Patch& old = old_lifetime.Get();
+    ContextValue fresh_lifetime(slot_state.fresh);
+    Patch& fresh = fresh_lifetime.Get();
+    ContextValue point_lifetime(slot_state.point);
+    Node& point = point_lifetime.Get();
+    ContextValue approved_lifetime(slot_state.approved, false);
+    bool& approved = approved_lifetime.Get();
+    ContextValue moved_lifetime(slot_state.moved, false);
+    bool& moved = moved_lifetime.Get();
+    ContextValue repair_approved_lifetime(slot_state.repair_approved, false);
+    bool& repair_approved = repair_approved_lifetime.Get();
+    ContextValue cavity_inserted_lifetime(slot_state.cavity_inserted, false);
+    bool& cavity_inserted = cavity_inserted_lifetime.Get();
+    ContextValue optimization_approved_lifetime(slot_state.optimization_approved, false);
+    bool& optimization_approved = optimization_approved_lifetime.Get();
+    ContextValue repair_optimization_lifetime(slot_state.repair_optimization);
+    OptimizationOperations& repair_optimization = repair_optimization_lifetime.Get();
+    ContextValue certified_lifetime(slot_state.certified);
+    MetricDiagnosis& certified = certified_lifetime.Get();
+    ContextValue geometric_progress_lifetime(slot_state.geometric_progress, false);
+    bool& geometric_progress = geometric_progress_lifetime.Get();
+    ContextValue last_geometry_operation_lifetime(slot_state.last_geometry_operation, nullptr);
+    const char*& last_geometry_operation = last_geometry_operation_lifetime.Get();
+    ContextValue field_lifetime(slot_state.field);
+    std::unique_ptr<FrozenField>& field = field_lifetime.Get();
+    ContextValue epoch_lifetime(slot_state.epoch,
+                                transfer_memory::Add(transfer_memory::Mul(round, world.size), world.rank));
+    const size_t& epoch = epoch_lifetime.Get();
+    ContextValue token_lifetime(slot_state.token,
+                                transfer_memory::Add(transfer_memory::Mul(epoch, options.candidate_batch), slot));
+    const size_t& token = token_lifetime.Get();
+    ContextValue offset_lifetime(slot_state.offset, transfer_memory::Mul(token, MaximumReplacementCells));
+    const size_t& offset = offset_lifetime.Get();
+    ContextValue construction_nodes_lifetime(slot_state.construction_nodes, !options.wall_heights.empty()
+                                                                                ? MaximumReplacementCells + 3
+                                                                            : (composition || curved) ? 9
+                                                                                                      : 1);
+    const size_t& construction_nodes = construction_nodes_lifetime.Get();
+    ContextValue node_stride_lifetime(slot_state.node_stride, construction_nodes + 160);
+    const size_t& node_stride = node_stride_lifetime.Get();
+    ContextValue node_offset_lifetime(slot_state.node_offset, transfer_memory::Mul(token, node_stride));
+    const size_t& node_offset = node_offset_lifetime.Get();
+    ContextValue capture_lifetime(slot_state.capture, false);
+    bool& capture = capture_lifetime.Get();
+    ContextValue capture_selected_lifetime(slot_state.capture_selected, false);
+    bool& capture_selected = capture_selected_lifetime.Get();
+    ContextValue accepted_ladder_lifetime(slot_state.accepted_ladder, 3);
+    unsigned& accepted_ladder = accepted_ladder_lifetime.Get();
+    ContextValue old_flags_lifetime(slot_state.old_flags);
+    std::vector<CellQualityFlag>& old_flags = old_flags_lifetime.Get();
+    ContextValue fresh_flags_lifetime(slot_state.fresh_flags);
+    std::vector<CellQualityFlag>& fresh_flags = fresh_flags_lifetime.Get();
+    ContextValue measured_flags_lifetime(slot_state.measured_flags);
+    std::vector<CellQualityFlag>& measured_flags = measured_flags_lifetime.Get();
     auto note_ladder=[&](unsigned kind,bool valid,Clock::time_point began,uint64_t geometry_before,uint64_t height_before,size_t work=0) {
       if(!repairing)return;
       auto& counter=stats.quality.ladder.at(kind);++counter.trials;counter.certified+=valid;counter.work+=work;
@@ -4416,25 +4529,35 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
             certified.failure==MetricFailure::None;
       }
     };
-    const Feature transaction_feature=repairing ? choice.feature : Feature{{choice.edge[0],choice.edge[1],0},2};
+    ContextValue transaction_feature_lifetime(
+        slot_state.transaction_feature, repairing ? choice.feature : Feature{{choice.edge[0], choice.edge[1], 0}, 2});
+    const Feature& transaction_feature = transaction_feature_lifetime.Get();
     auto observe_transaction=[&](const char* stage,bool passed,const DonorPatch* donors=nullptr) {
       if(capture)options.transaction_observer({stage,transaction_feature,uint64_t(round),capture_selected,passed,
           working,geometry,dependencies,imported,old,fresh,point,maximum_cell+1+offset,maximum_node+1+node_offset,
           certified,result.reason,donors,composition,options.edge_breakpoints});
     };
-    size_t repair_budget=0,repair_work=0;
+    ContextValue repair_budget_lifetime(slot_state.repair_budget, 0);
+    size_t& repair_budget = repair_budget_lifetime.Get();
+    ContextValue repair_work_lifetime(slot_state.repair_work, 0);
+    size_t& repair_work = repair_work_lifetime.Get();
     source.SetCavity(&imported.cells);
     struct CavityScope {
       CavityMetricSource& source;
       ~CavityScope() { source.SetCavity(nullptr); }
     } cavity_scope{source};
-    const bool physical_edge=chosen && std::any_of(imported.cells.begin(),imported.cells.end(),[&](const OwnedCell& c) {
-      const auto faces=Faces(c.cell);
-      for(unsigned i=0;i<4;++i)if(c.physical[i].present &&
-          std::find(faces[i].begin(),faces[i].end(),choice.edge[0])!=faces[i].end() &&
-          std::find(faces[i].begin(),faces[i].end(),choice.edge[1])!=faces[i].end())return true;
-      return false;
-    });
+    ContextValue physical_edge_lifetime(
+        slot_state.physical_edge,
+        chosen && std::any_of(imported.cells.begin(), imported.cells.end(), [&](const OwnedCell& c) {
+          const auto faces = Faces(c.cell);
+          for (unsigned i = 0; i < 4; ++i)
+            if (c.physical[i].present &&
+                std::find(faces[i].begin(), faces[i].end(), choice.edge[0]) != faces[i].end() &&
+                std::find(faces[i].begin(), faces[i].end(), choice.edge[1]) != faces[i].end())
+              return true;
+          return false;
+        }));
+    const bool& physical_edge = physical_edge_lifetime.Get();
     auto boundary_replacement_ready=[&]() {
       if(phase!=Phase::Improvement || !geometry.Mapped() || (old.surface.empty()&&fresh.surface.empty()))return true;
       try {
@@ -6034,8 +6157,11 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     if(chosen&&!approved&&!collapse_correction_refusal.empty())
       result.reason+=" Bounded correction: "+collapse_correction_refusal;
     // Successful peer contact/reservation votes must not erase this worker's construction refusal.
-    const std::string pending_rejection=chosen && !approved ? result.reason : std::string{};
-    const bool surface_edit=approved && !SameSkin(old,fresh);
+    ContextValue pending_rejection_lifetime(slot_state.pending_rejection,
+                                            chosen && !approved ? result.reason : std::string{});
+    const std::string& pending_rejection = pending_rejection_lifetime.Get();
+    ContextValue surface_edit_lifetime(slot_state.surface_edit, approved && !SameSkin(old, fresh));
+    const bool& surface_edit = surface_edit_lifetime.Get();
     if(timed_lane==2&&surface_edit&&!physical_edge)++stats.interior_boundary_discoveries;
     if((curved && world.maximum(surface_edit)) || world.maximum(coordinate_only && approved) ||
         world.maximum(collapse_corrected && approved)) {
@@ -6075,7 +6201,8 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
 
     }
     if(chosen && !approved && !pending_rejection.empty())result.reason=pending_rejection;
-    std::vector<BoundaryParameterEdit> parameter_edits;
+    ContextValue parameter_edits_lifetime(slot_state.parameter_edits);
+    std::vector<BoundaryParameterEdit>& parameter_edits = parameter_edits_lifetime.Get();
     if(approved && geometry.Mapped())try {
       geometry.ExportParameters(old);geometry.ExportParameters(fresh);
       parameter_edits=BoundaryParameterState::Changes(old,fresh,geometry.Parameters()->Revision());
@@ -6093,12 +6220,18 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     if (chosen && !approved) last_rejection = (repairing ? "feature " + std::to_string(choice.feature.count) + ":" +
         std::to_string(choice.feature.vertices[0]) : "edge " + std::to_string(choice.edge[0]) + "," + std::to_string(choice.edge[1])) + ": " + result.reason;
     if(chosen && !approved)record_rejection(stats.last_rejected_feature,&old,&certified,result.reason);
-    std::vector<std::vector<Dependency>> removals(world.size);
-    std::vector<std::vector<OwnedCell>> additions(world.size);
-    std::vector<std::vector<BlockedEdge>> blocked(world.size);
-    std::vector<Dependency> removed;
-    std::vector<OwnedCell> added;
-    std::vector<BlockedEdge> failures;
+    ContextValue removals_lifetime(slot_state.removals, world.size);
+    std::vector<std::vector<Dependency>>& removals = removals_lifetime.Get();
+    ContextValue additions_lifetime(slot_state.additions, world.size);
+    std::vector<std::vector<OwnedCell>>& additions = additions_lifetime.Get();
+    ContextValue blocked_lifetime(slot_state.blocked, world.size);
+    std::vector<std::vector<BlockedEdge>>& blocked = blocked_lifetime.Get();
+    ContextValue removed_lifetime(slot_state.removed);
+    std::vector<Dependency>& removed = removed_lifetime.Get();
+    ContextValue added_lifetime(slot_state.added);
+    std::vector<OwnedCell>& added = added_lifetime.Get();
+    ContextValue failures_lifetime(slot_state.failures);
+    std::vector<BlockedEdge>& failures = failures_lifetime.Get();
     {
       Timer timer(stats.routing_seconds,options.timings, SU2NativeTiming3D::Operation::Communication);
       if (chosen && !approved) ++stats.rejected;
@@ -6176,7 +6309,8 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     stats.length_pass_deferred+=pass_deferred&&!approved;
     const unsigned disposition=pass_deferred&&!chosen?2:certified.failure==MetricFailure::None?4:10+unsigned(certified.failure);
     if(!service_frontier(repairing ? choice.feature : Feature{{choice.edge[0],choice.edge[1],0},2},chosen||pass_deferred,approved,nullptr,0,disposition))return finish();
-    std::vector<Id> changed;
+    ContextValue changed_lifetime(slot_state.changed);
+    std::vector<Id>& changed = changed_lifetime.Get();
     {
       Timer timer(stats.update_seconds,options.timings, SU2NativeTiming3D::Operation::Topology);
       ready=admit(transfer_memory::Add(

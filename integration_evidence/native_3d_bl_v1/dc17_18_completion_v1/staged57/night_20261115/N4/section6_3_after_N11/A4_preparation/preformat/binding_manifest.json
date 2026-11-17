@@ -1,0 +1,498 @@
+{
+  "status": "unapplied draft against current Ownership candidate; validation pending",
+  "scope": "PART2 2.1 Round data, PART2 2.2 cross-block Slot data, and accepted lane_slots; excludes lambdas, RAII, nested non-cross-block locals and Eval \u00a72.3",
+  "index_rules": {
+    "round": "RoundState::round direct member initialized once in original for-init; same-name body alias; no increment in for header",
+    "slot": "SlotState::slot direct member initialized in original for-init; header condition/increment use member; same-name body alias"
+  },
+  "curated_source_substitutions": [
+    {
+      "file": "Common/src/adaptation/CNativeEngine3D.cpp",
+      "label": "private cpp includes",
+      "old": "#include \"native_engine3d/EngineOwnership.cpp\"\n#include \"native_engine3d/EngineContext.cpp\"",
+      "new": "#include \"native_engine3d/EngineOwnership.cpp\"\n#include \"native_engine3d/EngineRound.cpp\"\n#include \"native_engine3d/EngineSlot.cpp\"\n#include \"native_engine3d/EngineContext.cpp\""
+    },
+    {
+      "file": "Common/src/adaptation/CNativeEngine3D.cpp",
+      "label": "round for header",
+      "old": "  for (size_t round=0;;) {",
+      "new": "  for (RoundState round_state;;) {"
+    },
+    {
+      "file": "Common/src/adaptation/CNativeEngine3D.cpp",
+      "label": "round body index alias",
+      "old": "  for (RoundState round_state;;) {\n",
+      "new": "  for (RoundState round_state;;) {\n    auto& round=round_state.round;\n"
+    },
+    {
+      "file": "Common/src/adaptation/CNativeEngine3D.cpp",
+      "label": "slot for header",
+      "old": "    for (size_t slot=0;slot<(repairing?choices.size():slots);++slot) {",
+      "new": "    for (SlotState slot_state;slot_state.slot<(repairing?choices.size():slots);++slot_state.slot) {"
+    },
+    {
+      "file": "Common/src/adaptation/CNativeEngine3D.cpp",
+      "label": "slot body index alias",
+      "old": "    for (SlotState slot_state;slot_state.slot<(repairing?choices.size():slots);++slot_state.slot) {\n",
+      "new": "    for (SlotState slot_state;slot_state.slot<(repairing?choices.size():slots);++slot_state.slot) {\n    size_t& slot=slot_state.slot;\n"
+    },
+    {
+      "file": "Common/src/adaptation/CNativeEngine3D.cpp",
+      "label": "timed lane",
+      "old": "const unsigned timed_lane=bidirectional&&phase==Phase::Construction&&!repairing&&!coarsening?stats.split_lane:0;",
+      "new": "ContextValue timed_lane_lifetime(round_state.timed_lane, bidirectional&&phase==Phase::Construction&&!repairing&&!coarsening?stats.split_lane:0);\nconst unsigned& timed_lane=timed_lane_lifetime.Get();"
+    },
+    {
+      "file": "Common/src/adaptation/CNativeEngine3D.cpp",
+      "label": "untimed lane",
+      "old": "double untimed_lane=0;",
+      "new": "ContextValue untimed_lane_lifetime(round_state.untimed_lane, 0);\ndouble& untimed_lane=untimed_lane_lifetime.Get();"
+    },
+    {
+      "file": "Common/src/adaptation/CNativeEngine3D.cpp",
+      "label": "choice",
+      "old": "Choice choice;",
+      "new": "ContextValue choice_lifetime(round_state.choice);\nChoice& choice=choice_lifetime.Get();"
+    },
+    {
+      "file": "Common/src/adaptation/CNativeEngine3D.cpp",
+      "label": "round decision booleans",
+      "old": "bool complete=false,any=false,bad_field=false,refill=false;",
+      "new": "ContextValue complete_lifetime(round_state.complete, false);\nbool& complete=complete_lifetime.Get();\nContextValue any_lifetime(round_state.any, false);\nbool& any=any_lifetime.Get();\nContextValue bad_field_lifetime(round_state.bad_field, false);\nbool& bad_field=bad_field_lifetime.Get();\nContextValue refill_lifetime(round_state.refill, false);\nbool& refill=refill_lifetime.Get();"
+    },
+    {
+      "file": "Common/src/adaptation/CNativeEngine3D.cpp",
+      "label": "clean quality",
+      "old": "const bool clean_quality=!metric_cleanup && phase==Phase::Improvement &&\n        !world.maximum(selection.quality_invalid!=0 || selection.unmeasured_shape!=0 || selection.cells.size()!=working.size());",
+      "new": "ContextValue clean_quality_lifetime(round_state.clean_quality, !metric_cleanup && phase==Phase::Improvement &&\n        !world.maximum(selection.quality_invalid!=0 || selection.unmeasured_shape!=0 || selection.cells.size()!=working.size()));\nconst bool& clean_quality=clean_quality_lifetime.Get();"
+    },
+    {
+      "file": "Common/src/adaptation/CNativeEngine3D.cpp",
+      "label": "concurrent",
+      "old": "const bool concurrent=(repairing || ((composition || curved || selection.split_lanes) && !coarsening) || (bidirectional && coarsening)) && options.candidate_batch>1 && world.size>1;",
+      "new": "ContextValue concurrent_lifetime(round_state.concurrent, (repairing || ((composition || curved || selection.split_lanes) && !coarsening) || (bidirectional && coarsening)) && options.candidate_batch>1 && world.size>1);\nconst bool& concurrent=concurrent_lifetime.Get();"
+    },
+    {
+      "file": "Common/src/adaptation/CNativeEngine3D.cpp",
+      "label": "batched",
+      "old": "const bool batched=repairing || (options.candidate_batch>1 &&\n        (!(selection.split_lanes&&!coarsening) && !curved && !composition && (!coarsening || !bad_field)));",
+      "new": "ContextValue batched_lifetime(round_state.batched, repairing || (options.candidate_batch>1 &&\n        (!(selection.split_lanes&&!coarsening) && !curved && !composition && (!coarsening || !bad_field))));\nconst bool& batched=batched_lifetime.Get();"
+    },
+    {
+      "file": "Common/src/adaptation/CNativeEngine3D.cpp",
+      "label": "choices",
+      "old": "std::vector<Choice> choices;",
+      "new": "ContextValue choices_lifetime(round_state.choices);\nstd::vector<Choice>& choices=choices_lifetime.Get();"
+    },
+    {
+      "file": "Common/src/adaptation/CNativeEngine3D.cpp",
+      "label": "dependency batch",
+      "old": "DependencyBatch dependency_batch;",
+      "new": "ContextValue dependency_batch_lifetime(round_state.dependency_batch);\nDependencyBatch& dependency_batch=dependency_batch_lifetime.Get();"
+    },
+    {
+      "file": "Common/src/adaptation/CNativeEngine3D.cpp",
+      "label": "imported batch",
+      "old": "ImportedBatch imported_batch;",
+      "new": "ContextValue imported_batch_lifetime(round_state.imported_batch);\nImportedBatch& imported_batch=imported_batch_lifetime.Get();"
+    },
+    {
+      "file": "Common/src/adaptation/CNativeEngine3D.cpp",
+      "label": "reservation batch",
+      "old": "ReservationBatch reserved;",
+      "new": "ContextValue reserved_lifetime(round_state.reserved);\nReservationBatch& reserved=reserved_lifetime.Get();"
+    },
+    {
+      "file": "Common/src/adaptation/CNativeEngine3D.cpp",
+      "label": "slots",
+      "old": "size_t slots=1;",
+      "new": "ContextValue slots_lifetime(round_state.slots, 1);\nsize_t& slots=slots_lifetime.Get();"
+    },
+    {
+      "file": "Common/src/adaptation/CNativeEngine3D.cpp",
+      "label": "planned coarsening",
+      "old": "const bool planned_coarsening=coarsening && !repairing && !curved && !composition && world.size>1;",
+      "new": "ContextValue planned_coarsening_lifetime(round_state.planned_coarsening, coarsening && !repairing && !curved && !composition && world.size>1);\nconst bool& planned_coarsening=planned_coarsening_lifetime.Get();"
+    },
+    {
+      "file": "Common/src/adaptation/CNativeEngine3D.cpp",
+      "label": "refusal counts",
+      "old": "size_t refused_candidates=0,refused_slots=0,pass_deferred_candidates=0;",
+      "new": "ContextValue refused_candidates_lifetime(round_state.refused_candidates, 0);\nsize_t& refused_candidates=refused_candidates_lifetime.Get();\nContextValue refused_slots_lifetime(round_state.refused_slots, 0);\nsize_t& refused_slots=refused_slots_lifetime.Get();\nContextValue pass_deferred_candidates_lifetime(round_state.pass_deferred_candidates, 0);\nsize_t& pass_deferred_candidates=pass_deferred_candidates_lifetime.Get();"
+    },
+    {
+      "file": "Common/src/adaptation/CNativeEngine3D.cpp",
+      "label": "refused receipts",
+      "old": "std::array<RepairReceipt,MaximumCandidateBatch> refused_receipts{};",
+      "new": "ContextValue refused_receipts_lifetime(round_state.refused_receipts, std::array<RepairReceipt,MaximumCandidateBatch>{});\nstd::array<RepairReceipt,MaximumCandidateBatch>& refused_receipts=refused_receipts_lifetime.Get();"
+    },
+    {
+      "file": "Common/src/adaptation/CNativeEngine3D.cpp",
+      "label": "receipt count",
+      "old": "size_t refused_receipt_count=0;",
+      "new": "ContextValue refused_receipt_count_lifetime(round_state.refused_receipt_count, 0);\nsize_t& refused_receipt_count=refused_receipt_count_lifetime.Get();"
+    },
+    {
+      "file": "Common/src/adaptation/CNativeEngine3D.cpp",
+      "label": "repair proposals",
+      "old": "std::vector<RepairProposal> repair_proposals;",
+      "new": "ContextValue repair_proposals_lifetime(round_state.repair_proposals);\nstd::vector<RepairProposal>& repair_proposals=repair_proposals_lifetime.Get();"
+    },
+    {
+      "file": "Common/src/adaptation/CNativeEngine3D.cpp",
+      "label": "private failure",
+      "old": "CLocalFailure private_failure;",
+      "new": "ContextValue private_failure_lifetime(round_state.private_failure);\nCLocalFailure& private_failure=private_failure_lifetime.Get();"
+    },
+    {
+      "file": "Common/src/adaptation/CNativeEngine3D.cpp",
+      "label": "private work",
+      "old": "uint64_t private_work_used=0,private_work_reserved=0;",
+      "new": "ContextValue private_work_used_lifetime(round_state.private_work_used, 0);\nuint64_t& private_work_used=private_work_used_lifetime.Get();\nContextValue private_work_reserved_lifetime(round_state.private_work_reserved, 0);\nuint64_t& private_work_reserved=private_work_reserved_lifetime.Get();"
+    },
+    {
+      "file": "Common/src/adaptation/CNativeEngine3D.cpp",
+      "label": "private deadline",
+      "old": "bool private_deadline=false;",
+      "new": "ContextValue private_deadline_lifetime(round_state.private_deadline, false);\nbool& private_deadline=private_deadline_lifetime.Get();"
+    },
+    {
+      "file": "Common/src/adaptation/CNativeEngine3D.cpp",
+      "label": "accepted lane slots",
+      "old": "std::array<lane_census::Slot, MaximumCandidateBatch> lane_slots{};",
+      "new": "ContextValue lane_slots_lifetime(round_state.lane_slots, std::array<lane_census::Slot, MaximumCandidateBatch>{});\nstd::array<lane_census::Slot, MaximumCandidateBatch>& lane_slots=lane_slots_lifetime.Get();"
+    },
+    {
+      "file": "Common/src/adaptation/CNativeEngine3D.cpp",
+      "label": "private start",
+      "old": "const auto private_started=repairing?Clock::now():Clock::time_point{};",
+      "new": "ContextValue private_started_lifetime(round_state.private_started, repairing?Clock::now():Clock::time_point{});\nconst Clock::time_point& private_started=private_started_lifetime.Get();"
+    },
+    {
+      "file": "Common/src/adaptation/CNativeEngine3D.cpp",
+      "label": "private collective baseline",
+      "old": "const auto private_collectives=world.collective_calls+world.election_collective_calls;",
+      "new": "ContextValue private_collectives_lifetime(round_state.private_collectives, world.collective_calls+world.election_collective_calls);\nconst uint64_t& private_collectives=private_collectives_lifetime.Get();"
+    },
+    {
+      "file": "Common/src/adaptation/CNativeEngine3D.cpp",
+      "label": "dependencies",
+      "old": "Dependencies dependencies;",
+      "new": "ContextValue dependencies_lifetime(slot_state.dependencies);\nDependencies& dependencies=dependencies_lifetime.Get();"
+    },
+    {
+      "file": "Common/src/adaptation/CNativeEngine3D.cpp",
+      "label": "imported",
+      "old": "Imported imported;",
+      "new": "ContextValue imported_lifetime(slot_state.imported);\nImported& imported=imported_lifetime.Get();"
+    },
+    {
+      "file": "Common/src/adaptation/CNativeEngine3D.cpp",
+      "label": "slot reservation flags",
+      "old": "bool chosen=false,pass_deferred=false,collapse_corrected=false;Id collapse_apex=0;",
+      "new": "ContextValue chosen_lifetime(slot_state.chosen, false);\nbool& chosen=chosen_lifetime.Get();\nContextValue pass_deferred_lifetime(slot_state.pass_deferred, false);\nbool& pass_deferred=pass_deferred_lifetime.Get();\nContextValue collapse_corrected_lifetime(slot_state.collapse_corrected, false);\nbool& collapse_corrected=collapse_corrected_lifetime.Get();\nContextValue collapse_apex_lifetime(slot_state.collapse_apex, 0);\nId& collapse_apex=collapse_apex_lifetime.Get();"
+    },
+    {
+      "file": "Common/src/adaptation/CNativeEngine3D.cpp",
+      "label": "collapse correction refusal",
+      "old": "std::string collapse_correction_refusal;",
+      "new": "ContextValue collapse_correction_refusal_lifetime(slot_state.collapse_correction_refusal);\nstd::string& collapse_correction_refusal=collapse_correction_refusal_lifetime.Get();"
+    },
+    {
+      "file": "Common/src/adaptation/CNativeEngine3D.cpp",
+      "label": "slot failure and coordinate only",
+      "old": "CLocalFailure failure;\n    const bool coordinate_only=repairing && imported.coordinate_star.count==1 && imported.cells.size()>MaximumCavityCells;",
+      "new": "ContextValue failure_lifetime(slot_state.failure);\nCLocalFailure& failure=failure_lifetime.Get();\nContextValue coordinate_only_lifetime(slot_state.coordinate_only, repairing && imported.coordinate_star.count==1 && imported.cells.size()>MaximumCavityCells);\nconst bool& coordinate_only=coordinate_only_lifetime.Get();"
+    },
+    {
+      "file": "Common/src/adaptation/CNativeEngine3D.cpp",
+      "label": "private scratch",
+      "old": "const size_t private_scratch=transfer_memory::Add(transfer_memory::Bytes(imported.cells),\n        transfer_memory::Mul(std::max(MaximumReplacementCells,imported.cells.size()),8192),\n        surface_target?SurfacePlanningScratchBytes(std::max(MaximumReplacementCells,imported.cells.size())):0,\n        transfer_memory::Mul(selection.geometry_repairs?2:1,MaximumFrozenFieldBytes),MetricPatchSolveScratchBytes,\n        transfer_memory::Mul(3*MaximumCampaignEdges,sizeof(std::pair<const Edge,EdgeMeasure>)+6*sizeof(void*)),\n        transfer_memory::Mul(8*MaximumReplacementCells,64));",
+      "new": "ContextValue private_scratch_lifetime(slot_state.private_scratch, transfer_memory::Add(transfer_memory::Bytes(imported.cells),\n        transfer_memory::Mul(std::max(MaximumReplacementCells,imported.cells.size()),8192),\n        surface_target?SurfacePlanningScratchBytes(std::max(MaximumReplacementCells,imported.cells.size())):0,\n        transfer_memory::Mul(selection.geometry_repairs?2:1,MaximumFrozenFieldBytes),MetricPatchSolveScratchBytes,\n        transfer_memory::Mul(3*MaximumCampaignEdges,sizeof(std::pair<const Edge,EdgeMeasure>)+6*sizeof(void*)),\n        transfer_memory::Mul(8*MaximumReplacementCells,64)));\nconst size_t& private_scratch=private_scratch_lifetime.Get();"
+    },
+    {
+      "file": "Common/src/adaptation/CNativeEngine3D.cpp",
+      "label": "old and fresh patches",
+      "old": "Patch old,fresh;",
+      "new": "ContextValue old_lifetime(slot_state.old);\nPatch& old=old_lifetime.Get();\nContextValue fresh_lifetime(slot_state.fresh);\nPatch& fresh=fresh_lifetime.Get();"
+    },
+    {
+      "file": "Common/src/adaptation/CNativeEngine3D.cpp",
+      "label": "point",
+      "old": "Node point;",
+      "new": "ContextValue point_lifetime(slot_state.point);\nNode& point=point_lifetime.Get();"
+    },
+    {
+      "file": "Common/src/adaptation/CNativeEngine3D.cpp",
+      "label": "candidate booleans",
+      "old": "bool approved=false, moved=false, repair_approved=false, cavity_inserted=false;",
+      "new": "ContextValue approved_lifetime(slot_state.approved, false);\nbool& approved=approved_lifetime.Get();\nContextValue moved_lifetime(slot_state.moved, false);\nbool& moved=moved_lifetime.Get();\nContextValue repair_approved_lifetime(slot_state.repair_approved, false);\nbool& repair_approved=repair_approved_lifetime.Get();\nContextValue cavity_inserted_lifetime(slot_state.cavity_inserted, false);\nbool& cavity_inserted=cavity_inserted_lifetime.Get();"
+    },
+    {
+      "file": "Common/src/adaptation/CNativeEngine3D.cpp",
+      "label": "optimization",
+      "old": "bool optimization_approved=false;OptimizationOperations repair_optimization;",
+      "new": "ContextValue optimization_approved_lifetime(slot_state.optimization_approved, false);\nbool& optimization_approved=optimization_approved_lifetime.Get();\nContextValue repair_optimization_lifetime(slot_state.repair_optimization);\nOptimizationOperations& repair_optimization=repair_optimization_lifetime.Get();"
+    },
+    {
+      "file": "Common/src/adaptation/CNativeEngine3D.cpp",
+      "label": "certified diagnosis",
+      "old": "MetricDiagnosis certified;",
+      "new": "ContextValue certified_lifetime(slot_state.certified);\nMetricDiagnosis& certified=certified_lifetime.Get();"
+    },
+    {
+      "file": "Common/src/adaptation/CNativeEngine3D.cpp",
+      "label": "geometry progress",
+      "old": "bool geometric_progress=false;const char* last_geometry_operation=nullptr;",
+      "new": "ContextValue geometric_progress_lifetime(slot_state.geometric_progress, false);\nbool& geometric_progress=geometric_progress_lifetime.Get();\nContextValue last_geometry_operation_lifetime(slot_state.last_geometry_operation, nullptr);\nconst char*& last_geometry_operation=last_geometry_operation_lifetime.Get();"
+    },
+    {
+      "file": "Common/src/adaptation/CNativeEngine3D.cpp",
+      "label": "field",
+      "old": "std::unique_ptr<FrozenField> field;",
+      "new": "ContextValue field_lifetime(slot_state.field);\nstd::unique_ptr<FrozenField>& field=field_lifetime.Get();"
+    },
+    {
+      "file": "Common/src/adaptation/CNativeEngine3D.cpp",
+      "label": "epoch",
+      "old": "const auto epoch=transfer_memory::Add(transfer_memory::Mul(round,world.size),world.rank);",
+      "new": "ContextValue epoch_lifetime(slot_state.epoch, transfer_memory::Add(transfer_memory::Mul(round,world.size),world.rank));\nconst size_t& epoch=epoch_lifetime.Get();"
+    },
+    {
+      "file": "Common/src/adaptation/CNativeEngine3D.cpp",
+      "label": "token",
+      "old": "const auto token=transfer_memory::Add(transfer_memory::Mul(epoch,options.candidate_batch),slot);",
+      "new": "ContextValue token_lifetime(slot_state.token, transfer_memory::Add(transfer_memory::Mul(epoch,options.candidate_batch),slot));\nconst size_t& token=token_lifetime.Get();"
+    },
+    {
+      "file": "Common/src/adaptation/CNativeEngine3D.cpp",
+      "label": "offset",
+      "old": "const auto offset=transfer_memory::Mul(token,MaximumReplacementCells);",
+      "new": "ContextValue offset_lifetime(slot_state.offset, transfer_memory::Mul(token,MaximumReplacementCells));\nconst size_t& offset=offset_lifetime.Get();"
+    },
+    {
+      "file": "Common/src/adaptation/CNativeEngine3D.cpp",
+      "label": "construction nodes",
+      "old": "const size_t construction_nodes=!options.wall_heights.empty() ? MaximumReplacementCells+3 : (composition || curved) ? 9 : 1;",
+      "new": "ContextValue construction_nodes_lifetime(slot_state.construction_nodes, !options.wall_heights.empty() ? MaximumReplacementCells+3 : (composition || curved) ? 9 : 1);\nconst size_t& construction_nodes=construction_nodes_lifetime.Get();"
+    },
+    {
+      "file": "Common/src/adaptation/CNativeEngine3D.cpp",
+      "label": "node stride",
+      "old": "const size_t node_stride=construction_nodes+160;",
+      "new": "ContextValue node_stride_lifetime(slot_state.node_stride, construction_nodes+160);\nconst size_t& node_stride=node_stride_lifetime.Get();"
+    },
+    {
+      "file": "Common/src/adaptation/CNativeEngine3D.cpp",
+      "label": "node offset",
+      "old": "const auto node_offset=transfer_memory::Mul(token,node_stride);",
+      "new": "ContextValue node_offset_lifetime(slot_state.node_offset, transfer_memory::Mul(token,node_stride));\nconst size_t& node_offset=node_offset_lifetime.Get();"
+    },
+    {
+      "file": "Common/src/adaptation/CNativeEngine3D.cpp",
+      "label": "capture flags",
+      "old": "bool capture=false, capture_selected=false;",
+      "new": "ContextValue capture_lifetime(slot_state.capture, false);\nbool& capture=capture_lifetime.Get();\nContextValue capture_selected_lifetime(slot_state.capture_selected, false);\nbool& capture_selected=capture_selected_lifetime.Get();"
+    },
+    {
+      "file": "Common/src/adaptation/CNativeEngine3D.cpp",
+      "label": "accepted ladder",
+      "old": "unsigned accepted_ladder=3;",
+      "new": "ContextValue accepted_ladder_lifetime(slot_state.accepted_ladder, 3);\nunsigned& accepted_ladder=accepted_ladder_lifetime.Get();"
+    },
+    {
+      "file": "Common/src/adaptation/CNativeEngine3D.cpp",
+      "label": "quality flags",
+      "old": "std::vector<CellQualityFlag> old_flags,fresh_flags,measured_flags;",
+      "new": "ContextValue old_flags_lifetime(slot_state.old_flags);\nstd::vector<CellQualityFlag>& old_flags=old_flags_lifetime.Get();\nContextValue fresh_flags_lifetime(slot_state.fresh_flags);\nstd::vector<CellQualityFlag>& fresh_flags=fresh_flags_lifetime.Get();\nContextValue measured_flags_lifetime(slot_state.measured_flags);\nstd::vector<CellQualityFlag>& measured_flags=measured_flags_lifetime.Get();"
+    },
+    {
+      "file": "Common/src/adaptation/CNativeEngine3D.cpp",
+      "label": "transaction feature",
+      "old": "const Feature transaction_feature=repairing ? choice.feature : Feature{{choice.edge[0],choice.edge[1],0},2};",
+      "new": "ContextValue transaction_feature_lifetime(slot_state.transaction_feature, repairing ? choice.feature : Feature{{choice.edge[0],choice.edge[1],0},2});\nconst Feature& transaction_feature=transaction_feature_lifetime.Get();"
+    },
+    {
+      "file": "Common/src/adaptation/CNativeEngine3D.cpp",
+      "label": "repair budget/work",
+      "old": "size_t repair_budget=0,repair_work=0;",
+      "new": "ContextValue repair_budget_lifetime(slot_state.repair_budget, 0);\nsize_t& repair_budget=repair_budget_lifetime.Get();\nContextValue repair_work_lifetime(slot_state.repair_work, 0);\nsize_t& repair_work=repair_work_lifetime.Get();"
+    },
+    {
+      "file": "Common/src/adaptation/CNativeEngine3D.cpp",
+      "label": "physical edge",
+      "old": "const bool physical_edge=chosen && std::any_of(imported.cells.begin(),imported.cells.end(),[&](const OwnedCell& c) {\n      const auto faces=Faces(c.cell);\n      for(unsigned i=0;i<4;++i)if(c.physical[i].present &&\n          std::find(faces[i].begin(),faces[i].end(),choice.edge[0])!=faces[i].end() &&\n          std::find(faces[i].begin(),faces[i].end(),choice.edge[1])!=faces[i].end())return true;\n      return false;\n    });",
+      "new": "ContextValue physical_edge_lifetime(slot_state.physical_edge, chosen && std::any_of(imported.cells.begin(),imported.cells.end(),[&](const OwnedCell& c) {\n      const auto faces=Faces(c.cell);\n      for(unsigned i=0;i<4;++i)if(c.physical[i].present &&\n          std::find(faces[i].begin(),faces[i].end(),choice.edge[0])!=faces[i].end() &&\n          std::find(faces[i].begin(),faces[i].end(),choice.edge[1])!=faces[i].end())return true;\n      return false;\n    }));\nconst bool& physical_edge=physical_edge_lifetime.Get();"
+    },
+    {
+      "file": "Common/src/adaptation/CNativeEngine3D.cpp",
+      "label": "pending rejection",
+      "old": "const std::string pending_rejection=chosen && !approved ? result.reason : std::string{};",
+      "new": "ContextValue pending_rejection_lifetime(slot_state.pending_rejection, chosen && !approved ? result.reason : std::string{});\nconst std::string& pending_rejection=pending_rejection_lifetime.Get();"
+    },
+    {
+      "file": "Common/src/adaptation/CNativeEngine3D.cpp",
+      "label": "surface edit",
+      "old": "const bool surface_edit=approved && !SameSkin(old,fresh);",
+      "new": "ContextValue surface_edit_lifetime(slot_state.surface_edit, approved && !SameSkin(old,fresh));\nconst bool& surface_edit=surface_edit_lifetime.Get();"
+    },
+    {
+      "file": "Common/src/adaptation/CNativeEngine3D.cpp",
+      "label": "parameter edits",
+      "old": "std::vector<BoundaryParameterEdit> parameter_edits;",
+      "new": "ContextValue parameter_edits_lifetime(slot_state.parameter_edits);\nstd::vector<BoundaryParameterEdit>& parameter_edits=parameter_edits_lifetime.Get();"
+    },
+    {
+      "file": "Common/src/adaptation/CNativeEngine3D.cpp",
+      "label": "removals",
+      "old": "std::vector<std::vector<Dependency>> removals(world.size);",
+      "new": "ContextValue removals_lifetime(slot_state.removals, world.size);\nstd::vector<std::vector<Dependency>>& removals=removals_lifetime.Get();"
+    },
+    {
+      "file": "Common/src/adaptation/CNativeEngine3D.cpp",
+      "label": "additions",
+      "old": "std::vector<std::vector<OwnedCell>> additions(world.size);",
+      "new": "ContextValue additions_lifetime(slot_state.additions, world.size);\nstd::vector<std::vector<OwnedCell>>& additions=additions_lifetime.Get();"
+    },
+    {
+      "file": "Common/src/adaptation/CNativeEngine3D.cpp",
+      "label": "blocked",
+      "old": "std::vector<std::vector<BlockedEdge>> blocked(world.size);",
+      "new": "ContextValue blocked_lifetime(slot_state.blocked, world.size);\nstd::vector<std::vector<BlockedEdge>>& blocked=blocked_lifetime.Get();"
+    },
+    {
+      "file": "Common/src/adaptation/CNativeEngine3D.cpp",
+      "label": "removed",
+      "old": "std::vector<Dependency> removed;",
+      "new": "ContextValue removed_lifetime(slot_state.removed);\nstd::vector<Dependency>& removed=removed_lifetime.Get();"
+    },
+    {
+      "file": "Common/src/adaptation/CNativeEngine3D.cpp",
+      "label": "added",
+      "old": "std::vector<OwnedCell> added;",
+      "new": "ContextValue added_lifetime(slot_state.added);\nstd::vector<OwnedCell>& added=added_lifetime.Get();"
+    },
+    {
+      "file": "Common/src/adaptation/CNativeEngine3D.cpp",
+      "label": "failures",
+      "old": "std::vector<BlockedEdge> failures;",
+      "new": "ContextValue failures_lifetime(slot_state.failures);\nstd::vector<BlockedEdge>& failures=failures_lifetime.Get();"
+    },
+    {
+      "file": "Common/src/adaptation/CNativeEngine3D.cpp",
+      "label": "changed",
+      "old": "std::vector<Id> changed;",
+      "new": "ContextValue changed_lifetime(slot_state.changed);\nstd::vector<Id>& changed=changed_lifetime.Get();"
+    },
+    {
+      "file": "Common/src/adaptation/native_engine3d/EngineContext.hpp",
+      "label": "EngineContext private headers",
+      "old": "#include \"EngineOwnership.hpp\"",
+      "new": "#include \"EngineOwnership.hpp\"\n#include \"EngineRound.hpp\"\n#include \"EngineSlot.hpp\""
+    },
+    {
+      "file": "Common/src/adaptation/native_engine3d/EngineContext.hpp",
+      "label": "EngineContext members",
+      "old": "  EngineOwnership ownership;",
+      "new": "  EngineOwnership ownership;\n  EngineRound round;\n  EngineSlot slot;"
+    }
+  ],
+  "class_members": {
+    "RoundState": [
+      "size_t round=0",
+      "optional<unsigned> timed_lane",
+      "optional<double> untimed_lane",
+      "optional<Choice> choice",
+      "optional<bool> complete",
+      "optional<bool> any",
+      "optional<bool> bad_field",
+      "optional<bool> refill",
+      "optional<bool> clean_quality",
+      "optional<bool> concurrent",
+      "optional<bool> batched",
+      "optional<std::vector<Choice>> choices",
+      "optional<DependencyBatch> dependency_batch",
+      "optional<ImportedBatch> imported_batch",
+      "optional<ReservationBatch> reserved",
+      "optional<size_t> slots",
+      "optional<bool> planned_coarsening",
+      "optional<size_t> refused_candidates",
+      "optional<size_t> refused_slots",
+      "optional<size_t> pass_deferred_candidates",
+      "optional<std::array<RepairReceipt, MaximumCandidateBatch>> refused_receipts",
+      "optional<size_t> refused_receipt_count",
+      "optional<std::vector<RepairProposal>> repair_proposals",
+      "optional<CLocalFailure> private_failure",
+      "optional<uint64_t> private_work_used",
+      "optional<uint64_t> private_work_reserved",
+      "optional<bool> private_deadline",
+      "optional<std::array<lane_census::Slot, MaximumCandidateBatch>> lane_slots",
+      "optional<Clock::time_point> private_started",
+      "optional<uint64_t> private_collectives"
+    ],
+    "SlotState": [
+      "size_t slot=0",
+      "optional<Dependencies> dependencies",
+      "optional<Imported> imported",
+      "optional<bool> chosen",
+      "optional<bool> pass_deferred",
+      "optional<bool> collapse_corrected",
+      "optional<Id> collapse_apex",
+      "optional<std::string> collapse_correction_refusal",
+      "optional<CLocalFailure> failure",
+      "optional<bool> coordinate_only",
+      "optional<size_t> private_scratch",
+      "optional<Patch> old",
+      "optional<Patch> fresh",
+      "optional<Node> point",
+      "optional<bool> approved",
+      "optional<bool> moved",
+      "optional<bool> repair_approved",
+      "optional<bool> cavity_inserted",
+      "optional<bool> optimization_approved",
+      "optional<OptimizationOperations> repair_optimization",
+      "optional<MetricDiagnosis> certified",
+      "optional<bool> geometric_progress",
+      "optional<const char*> last_geometry_operation",
+      "optional<std::unique_ptr<FrozenField>> field",
+      "optional<size_t> epoch",
+      "optional<size_t> token",
+      "optional<size_t> offset",
+      "optional<size_t> construction_nodes",
+      "optional<size_t> node_stride",
+      "optional<size_t> node_offset",
+      "optional<bool> capture",
+      "optional<bool> capture_selected",
+      "optional<unsigned> accepted_ladder",
+      "optional<std::vector<CellQualityFlag>> old_flags",
+      "optional<std::vector<CellQualityFlag>> fresh_flags",
+      "optional<std::vector<CellQualityFlag>> measured_flags",
+      "optional<Feature> transaction_feature",
+      "optional<size_t> repair_budget",
+      "optional<size_t> repair_work",
+      "optional<bool> physical_edge",
+      "optional<std::string> pending_rejection",
+      "optional<bool> surface_edit",
+      "optional<std::vector<BoundaryParameterEdit>> parameter_edits",
+      "optional<std::vector<std::vector<Dependency>>> removals",
+      "optional<std::vector<std::vector<OwnedCell>>> additions",
+      "optional<std::vector<std::vector<BlockedEdge>>> blocked",
+      "optional<std::vector<Dependency>> removed",
+      "optional<std::vector<OwnedCell>> added",
+      "optional<std::vector<BlockedEdge>> failures",
+      "optional<std::vector<Id>> changed"
+    ]
+  },
+  "excluded_scopes": [
+    "phase_scope",
+    "lane_timer",
+    "wall_choice",
+    "CavityScope",
+    "lane_census::Trial",
+    "FieldAccounting",
+    "query/operator timers",
+    "all lambdas",
+    "nested prior/deferred/final_failure/commits/admitted/parents/metric_rows",
+    "evaluate_candidate locals in PART2 \u00a72.3"
+  ]
+}

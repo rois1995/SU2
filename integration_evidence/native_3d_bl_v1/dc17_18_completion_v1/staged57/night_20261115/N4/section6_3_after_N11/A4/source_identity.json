@@ -1,0 +1,25 @@
+{
+  "substep": "A4",
+  "base_passed_substep": "5b09822b99",
+  "validation_pending": true,
+  "unix": 1794890446.6970835,
+  "62_curated_bindings_reverse_complete_CPP_and_Context_exactly": true,
+  "loop_indices_at_original_for_initializer_points": true,
+  "all_other_payload_lifetimes_at_old_lexical_points": true,
+  "RAII_timers_CavityScope_lambdas_collective_order_unchanged": true,
+  "no_extra_Context_frames": true,
+  "ContextValue_unchanged_reuse_Control_fixture": true,
+  "proposal_sha256": "18773c51b16533cbdfe2b411fef868728c580c182da1a072daa7d7fccb6c791a",
+  "paths_sha256": {
+    "Common/src/adaptation/CNativeEngine3D.cpp": "dd97c5e2cb75789b1c35934a6fc3851ba297303a25510df5deceaba65efaf66f",
+    "Common/src/adaptation/native_engine3d/EngineContext.hpp": "847752c9e043b21e2c1968f21673b1b0abba8ae89af74caef48dc43a55ba2419",
+    "Common/src/adaptation/native_engine3d/EngineRound.hpp": "be6bcc5290edb3543c5a9a8315161e4e1d701820b5885b18b3d31aed2b94d373",
+    "Common/src/adaptation/native_engine3d/EngineRound.cpp": "39992645f4ae08729b3cbdaa8638b374017b13431798bce1335b3a4ffc41088f",
+    "Common/src/adaptation/native_engine3d/EngineSlot.hpp": "f8665887133dbf2568fb0c1f8564598b75d5530b2adaa01d8859a5b19b6912d4",
+    "Common/src/adaptation/native_engine3d/EngineSlot.cpp": "16976122d3cf35c75545881e897ca2721cd55f733d9acf911367942efbb380b4"
+  },
+  "own_preparation_corrections": [
+    "Formatted only new declarations/aliases.",
+    "Matched RoundState/SlotState constructors and removed redundant Context frames before production apply/build."
+  ]
+}

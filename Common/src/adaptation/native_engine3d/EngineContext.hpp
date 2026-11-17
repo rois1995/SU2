@@ -6,6 +6,8 @@
 #include "EngineExchange.hpp"
 #include "EngineCommit.hpp"
 #include "EngineOwnership.hpp"
+#include "EngineRound.hpp"
+#include "EngineSlot.hpp"
 
 struct EngineControlPrefix {
   std::optional<EnginePhase> phase;
