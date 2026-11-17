@@ -1993,86 +1993,10 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
       if(chosen && directory->PassDeferred())++stats.length_expansion_deferrals;
       pass_deferred=pass_deferred||directory->PassDeferred();return selected;
     };
-    if (batched) {
-      choice=slot<choices.size() ? choices[slot] : Choice{};
-      wall_choice.Begin(choice.active);
-      if (choice.active) {
-        dependencies=std::move(dependency_batch.candidates[slot]);
-        imported=std::move(imported_batch.candidates[slot]);
-        chosen=reserved.chosen[slot];
-      }
-      if (repairing ? !chosen : !world.maximum(chosen)) {
-        wall_choice.Disposition(wall_diagnostics::PreTrialDisposition::Conflict);
-        continue;
-      }
-    } else {
-      wall_choice.Begin(choice.active);
-      {
-        Timer timer(stats.dependency_seconds,options.timings, SU2NativeTiming3D::Operation::Topology);
-        const Feature feature=repairing ? choice.feature : (coarsening ? Feature{{choice.edge[1],0,0},1} : Feature{{choice.edge[0],choice.edge[1],0},2});
-        const auto features=choice.active ? std::vector<Feature>{feature} : std::vector<Feature>{};
-        if(planned_coarsening) {
-          // Every proposal of this round may have been refused for an oversized star during planning.
-          if(!world.maximum(choice.active))continue;
-          if(choice.active)dependencies=std::move(dependency_batch.candidates.at(0));else dependencies.valid=true;
-        } else {
-          auto batch=directory->LookupBatch(features,options.memory_ceiling,transfer_memory::Add(context.exchange.Bytes(context),source.ResidentBytes()),repairing);
-          if(!batch.valid) {result.reason=batch.reason;return EngineControl::Finish(context, curved, working, atlas_budget, started, started_cpu);}
-          if(choice.active)dependencies=std::move(batch.candidates.at(0));else dependencies.valid=true;
-          const bool oversized=choice.active && !dependencies.valid && dependencies.oversized;
-          CLocalFailure lookup_failure;
-          if(choice.active && !dependencies.valid && !oversized)lookup_failure.Set(1,0,dependencies.reason);
-          if(!context.exchange.Vote(context, lookup_failure))return EngineControl::Finish(context, curved, working, atlas_budget, started, started_cpu);
-          if(oversized) {
-            // Refuse this proposal; publication still requires its complete star. Changed stars reactivate it.
-            wall_choice.Disposition(wall_diagnostics::PreTrialDisposition::Oversized);
-            try {acquisition.Refuse(choice,feature,dependencies.reason);}catch(const std::exception& e){lookup_failure.Set(2,0,e.what());}
-            choice.active=false;dependencies=Dependencies{};dependencies.valid=true;
-          }
-          if(!context.exchange.Vote(context, lookup_failure))return EngineControl::Finish(context, curved, working, atlas_budget, started, started_cpu);
-          if(world.maximum(oversized) && !context.queues.ServiceFrontier(context, repairing ? feature : Feature{{choice.edge[0],choice.edge[1],0},2},oversized,false))return EngineControl::Finish(context, curved, working, atlas_budget, started, started_cpu);
-          // Concurrent peers keep their own proposals; a slot whose every proposal was refused is skipped.
-          if(!world.maximum(choice.active))continue;
-        }
-        if (dependencies.valid) imported=directory->Fetch(dependencies,working,options.memory_ceiling,
-            transfer_memory::Add(context.exchange.Bytes(context),source.ResidentBytes()));
-      }
-      if (!dependencies.valid || !imported.valid) {
-        result.reason=dependencies.valid ? imported.reason : dependencies.reason; return EngineControl::Finish(context, curved, working, atlas_budget, started, started_cpu);
-      }
-      if(surface_target && curved && coarsening && !repairing) {
-        Timer timer(stats.collapse_correction_seconds,options.timings, SU2NativeTiming3D::Operation::Candidate);
-        const size_t seed_cells=imported.cells.size();
-        auto correction=directory->CorrectCollapse(dependencies,imported,working,choice.edge[1],choice.edge[0],
-            choice.active,geometry,stats.work_limit-stats.global_work,atlas_budget.within_time,
-            options.memory_ceiling,transfer_memory::Add(context.exchange.Bytes(context),source.ResidentBytes()));
-        stats.global_work+=correction.work;stats.collapse_correction_work+=correction.work;
-        if(!correction.valid){result.reason=correction.reason;return EngineControl::Finish(context, curved, working, atlas_budget, started, started_cpu);}
-        collapse_corrected=correction.corrected;collapse_apex=correction.apex;
-        if(!collapse_corrected)collapse_correction_refusal=std::move(correction.reason);
-        if(collapse_corrected){++stats.collapse_corrections;stats.collapse_correction_cells+=correction.imported.cells.size()-seed_cells;}
-        dependencies=std::move(correction.dependencies);imported=std::move(correction.imported);
-      }
-      {
-        Timer timer(stats.reservation_seconds,options.timings, SU2NativeTiming3D::Operation::Communication);
-        chosen=reserve_dependencies(imported,choice.active,result.reason,options.memory_ceiling,
-            transfer_memory::Add(context.exchange.Bytes(context),source.ResidentBytes()),choice.reservation_priority);
-        stats.conflicts+=choice.active && !chosen;
-        if (choice.active && !chosen) {
-          wall_choice.Disposition(pass_deferred ? wall_diagnostics::PreTrialDisposition::Deferred
-                                                : wall_diagnostics::PreTrialDisposition::Conflict);
-          selection.Note(choice.edge, pass_deferred ? 2 : 1);
-          if(timed_lane==1)++stats.surface_conflicts;else if(timed_lane==2)++stats.interior_conflicts;
-        }
-        const int admitted=world.maximum(chosen?2:pass_deferred?1:0);
-        if(!admitted)ready=false;
-        else if(admitted==1) {
-          if(!context.queues.ServiceFrontier(context, Feature{{choice.edge[0],choice.edge[1],0},2},choice.active&&pass_deferred,false,nullptr,0,2))return EngineControl::Finish(context, curved, working, atlas_budget, started, started_cpu);
-          stats.length_pass_deferred+=pass_deferred;continue;
-        }
-      }
-      if (!ready) return EngineControl::Finish(context, curved, working, atlas_budget, started, started_cpu);
-    }
+    SlotAcquisition slot_acquisition(context, round_state, slot_state, atlas_budget, curved);
+    const auto slot_decision = slot_acquisition.Run(acquisition, wall_choice, reserve_dependencies);
+    if (slot_decision == SlotDecision::Next) continue;
+    if (slot_decision == SlotDecision::Finish) return std::move(*slot_acquisition.finished);
     // Private cavity evaluation uses the same operators with local reductions and explicit cavity data.
     auto trial_maximum=[&](int value){return private_repair?value:world.maximum(value);};
     auto trial_reduce=[&](auto value,CPassiveComm::Op op) {

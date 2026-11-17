@@ -452,3 +452,251 @@ bool RoundAcquisition::ReserveBatch(CLocalFailure& failure) {
   }
   return true;
 }
+
+// Only Proceed opens the trial and its cavity scope.
+enum class SlotDecision { Next, Proceed, Finish };
+
+// Borrows the current choice and slot outputs without owning their lifetimes.
+class SlotAcquisition {
+ public:
+  SlotAcquisition(EngineContext&, RoundState&, SlotState&, SU2NativeGeometry::AtlasBudget&, bool curved);
+  template <class Reserve>
+  SlotDecision Run(RoundAcquisition&, wall_diagnostics::Choice&, Reserve& reserve_dependencies);
+  std::optional<EngineResult> finished;
+
+ private:
+  EngineContext& context;
+  RoundState& round_state;
+  SlotState& slot_state;
+  SU2NativeGeometry::AtlasBudget& atlas_budget;
+  bool curved;
+
+  SlotDecision FinishSlot();
+  SlotDecision UnpackBatch(wall_diagnostics::Choice&);
+  SlotDecision FetchSingle(RoundAcquisition&, wall_diagnostics::Choice&);
+  SlotDecision CorrectCollapse();
+  template <class Reserve>
+  SlotDecision ReserveSingle(wall_diagnostics::Choice&, Reserve& reserve_dependencies);
+};
+
+// Acquires into the active caller-owned slots without moving the choice observer.
+SlotAcquisition::SlotAcquisition(EngineContext& context, RoundState& round_state, SlotState& slot_state,
+                                 SU2NativeGeometry::AtlasBudget& atlas_budget, bool curved)
+    : context(context), round_state(round_state), slot_state(slot_state), atlas_budget(atlas_budget), curved(curved) {}
+
+// Evaluates terminal reporting before any timer or failure object in the originating operation unwinds.
+SlotDecision SlotAcquisition::FinishSlot() {
+  auto& working = *context.ownership.working;
+  const auto& started = *context.setup.control_prefix.started;
+  const auto& started_cpu = *context.setup.control_prefix.started_cpu;
+  finished.emplace(EngineControl::Finish(context, curved, working, atlas_budget, started, started_cpu));
+  return SlotDecision::Finish;
+}
+
+// Unpacks one pre-reserved candidate while preserving the private or collective conflict check.
+SlotDecision SlotAcquisition::UnpackBatch(wall_diagnostics::Choice& wall_choice) {
+  auto& world = context.world;
+  auto& repairing = *context.control.repairing;
+  auto& choice = *round_state.choice;
+  auto& choices = *round_state.choices;
+  auto& dependency_batch = *round_state.dependency_batch;
+  auto& imported_batch = *round_state.imported_batch;
+  auto& reserved = *round_state.reserved;
+  auto& chosen = *slot_state.chosen;
+  auto& dependencies = *slot_state.dependencies;
+  auto& imported = *slot_state.imported;
+  auto& slot = slot_state.slot;
+  choice = slot < choices.size() ? choices[slot] : Choice{};
+  wall_choice.Begin(choice.active);
+  if (choice.active) {
+    dependencies = std::move(dependency_batch.candidates[slot]);
+    imported = std::move(imported_batch.candidates[slot]);
+    chosen = reserved.chosen[slot];
+  }
+  if (repairing ? !chosen : !world.maximum(chosen)) {
+    wall_choice.Disposition(wall_diagnostics::PreTrialDisposition::Conflict);
+    return SlotDecision::Next;
+  }
+  return SlotDecision::Proceed;
+}
+
+// Performs the original complete-star lookup and fetch under one Topology timer.
+SlotDecision SlotAcquisition::FetchSingle(RoundAcquisition& round_acquisition, wall_diagnostics::Choice& wall_choice) {
+  auto& world = context.world;
+  auto& working = *context.ownership.working;
+  auto& options = context.options;
+  auto& stats = context.control.result->stats;
+  auto& result = *context.control.result;
+  auto& directory = *context.exchange.directory;
+  auto& source = *context.exchange.source;
+  auto& repairing = *context.control.repairing;
+  auto& coarsening = *context.control.coarsening;
+  auto& choice = *round_state.choice;
+  auto& dependency_batch = *round_state.dependency_batch;
+  auto& planned_coarsening = *round_state.planned_coarsening;
+  auto& dependencies = *slot_state.dependencies;
+  auto& imported = *slot_state.imported;
+  {
+    Timer timer(stats.dependency_seconds, options.timings, SU2NativeTiming3D::Operation::Topology);
+    const Feature feature =
+        repairing ? choice.feature
+                  : (coarsening ? Feature{{choice.edge[1], 0, 0}, 1} : Feature{{choice.edge[0], choice.edge[1], 0}, 2});
+    const auto features = choice.active ? std::vector<Feature>{feature} : std::vector<Feature>{};
+    if (planned_coarsening) {
+      // Every proposal of this round may have been refused for an oversized star during planning.
+      if (!world.maximum(choice.active)) return SlotDecision::Next;
+      if (choice.active)
+        dependencies = std::move(dependency_batch.candidates.at(0));
+      else
+        dependencies.valid = true;
+    } else {
+      auto batch = directory->LookupBatch(features, options.memory_ceiling,
+                                          transfer_memory::Add(context.exchange.Bytes(context), source.ResidentBytes()),
+                                          repairing);
+      if (!batch.valid) {
+        result.reason = batch.reason;
+        return FinishSlot();
+      }
+      if (choice.active)
+        dependencies = std::move(batch.candidates.at(0));
+      else
+        dependencies.valid = true;
+      const bool oversized = choice.active && !dependencies.valid && dependencies.oversized;
+      CLocalFailure lookup_failure;
+      if (choice.active && !dependencies.valid && !oversized) lookup_failure.Set(1, 0, dependencies.reason);
+      if (!context.exchange.Vote(context, lookup_failure)) return FinishSlot();
+      if (oversized) {
+        // Refuse this proposal; publication still requires its complete star. Changed stars reactivate it.
+        wall_choice.Disposition(wall_diagnostics::PreTrialDisposition::Oversized);
+        try {
+          round_acquisition.Refuse(choice, feature, dependencies.reason);
+        } catch (const std::exception& e) {
+          lookup_failure.Set(2, 0, e.what());
+        }
+        choice.active = false;
+        dependencies = Dependencies{};
+        dependencies.valid = true;
+      }
+      if (!context.exchange.Vote(context, lookup_failure)) return FinishSlot();
+      if (world.maximum(oversized) &&
+          !context.queues.ServiceFrontier(
+              context, repairing ? feature : Feature{{choice.edge[0], choice.edge[1], 0}, 2}, oversized, false))
+        return FinishSlot();
+      // Concurrent peers keep their own proposals; a slot whose every proposal was refused is skipped.
+      if (!world.maximum(choice.active)) return SlotDecision::Next;
+    }
+    if (dependencies.valid)
+      imported = directory->Fetch(dependencies, working, options.memory_ceiling,
+                                  transfer_memory::Add(context.exchange.Bytes(context), source.ResidentBytes()));
+  }
+  return SlotDecision::Proceed;
+}
+
+// Runs the bounded surface collapse correction at its original Candidate boundary.
+SlotDecision SlotAcquisition::CorrectCollapse() {
+  auto& working = *context.ownership.working;
+  auto& options = context.options;
+  auto& geometry = context.geometry;
+  auto& surface_target = context.surface_target;
+  auto& stats = context.control.result->stats;
+  auto& result = *context.control.result;
+  auto& directory = *context.exchange.directory;
+  auto& source = *context.exchange.source;
+  auto& repairing = *context.control.repairing;
+  auto& coarsening = *context.control.coarsening;
+  auto& choice = *round_state.choice;
+  auto& collapse_correction_refusal = *slot_state.collapse_correction_refusal;
+  auto& collapse_corrected = *slot_state.collapse_corrected;
+  auto& collapse_apex = *slot_state.collapse_apex;
+  auto& dependencies = *slot_state.dependencies;
+  auto& imported = *slot_state.imported;
+  if (surface_target && curved && coarsening && !repairing) {
+    Timer timer(stats.collapse_correction_seconds, options.timings, SU2NativeTiming3D::Operation::Candidate);
+    const size_t seed_cells = imported.cells.size();
+    auto correction = directory->CorrectCollapse(
+        dependencies, imported, working, choice.edge[1], choice.edge[0], choice.active, geometry,
+        stats.work_limit - stats.global_work, atlas_budget.within_time, options.memory_ceiling,
+        transfer_memory::Add(context.exchange.Bytes(context), source.ResidentBytes()));
+    stats.global_work += correction.work;
+    stats.collapse_correction_work += correction.work;
+    if (!correction.valid) {
+      result.reason = correction.reason;
+      return FinishSlot();
+    }
+    collapse_corrected = correction.corrected;
+    collapse_apex = correction.apex;
+    if (!collapse_corrected) collapse_correction_refusal = std::move(correction.reason);
+    if (collapse_corrected) {
+      ++stats.collapse_corrections;
+      stats.collapse_correction_cells += correction.imported.cells.size() - seed_cells;
+    }
+    dependencies = std::move(correction.dependencies);
+    imported = std::move(correction.imported);
+  }
+  return SlotDecision::Proceed;
+}
+
+// Reserves the fetched support and serves pass deferrals while the Communication timer is live.
+template <class Reserve>
+SlotDecision SlotAcquisition::ReserveSingle(wall_diagnostics::Choice& wall_choice, Reserve& reserve_dependencies) {
+  auto& world = context.world;
+  auto& options = context.options;
+  auto& selection = *context.census.selection;
+  auto& stats = context.control.result->stats;
+  auto& result = *context.control.result;
+  auto& source = *context.exchange.source;
+  auto& ready = *context.control.ready;
+  auto& timed_lane = *round_state.timed_lane;
+  auto& choice = *round_state.choice;
+  auto& chosen = *slot_state.chosen;
+  auto& pass_deferred = *slot_state.pass_deferred;
+  auto& imported = *slot_state.imported;
+  Timer timer(stats.reservation_seconds, options.timings, SU2NativeTiming3D::Operation::Communication);
+  chosen = reserve_dependencies(imported, choice.active, result.reason, options.memory_ceiling,
+                                transfer_memory::Add(context.exchange.Bytes(context), source.ResidentBytes()),
+                                choice.reservation_priority);
+  stats.conflicts += choice.active && !chosen;
+  if (choice.active && !chosen) {
+    wall_choice.Disposition(pass_deferred ? wall_diagnostics::PreTrialDisposition::Deferred
+                                          : wall_diagnostics::PreTrialDisposition::Conflict);
+    selection.Note(choice.edge, pass_deferred ? 2 : 1);
+    if (timed_lane == 1)
+      ++stats.surface_conflicts;
+    else if (timed_lane == 2)
+      ++stats.interior_conflicts;
+  }
+  const int admitted = world.maximum(chosen ? 2 : pass_deferred ? 1 : 0);
+  if (!admitted)
+    ready = false;
+  else if (admitted == 1) {
+    if (!context.queues.ServiceFrontier(context, Feature{{choice.edge[0], choice.edge[1], 0}, 2},
+                                        choice.active && pass_deferred, false, nullptr, 0, 2))
+      return FinishSlot();
+    stats.length_pass_deferred += pass_deferred;
+    return SlotDecision::Next;
+  }
+  return SlotDecision::Proceed;
+}
+
+// Selects the existing batched path or the ordered single lookup, correction and reservation path.
+template <class Reserve>
+SlotDecision SlotAcquisition::Run(RoundAcquisition& round_acquisition, wall_diagnostics::Choice& wall_choice,
+                                  Reserve& reserve_dependencies) {
+  auto& result = *context.control.result;
+  auto& ready = *context.control.ready;
+  auto& batched = *round_state.batched;
+  auto& dependencies = *slot_state.dependencies;
+  auto& imported = *slot_state.imported;
+  if (batched) return UnpackBatch(wall_choice);
+  if (const auto decision = FetchSingle(round_acquisition, wall_choice); decision != SlotDecision::Proceed)
+    return decision;
+  if (!dependencies.valid || !imported.valid) {
+    result.reason = dependencies.valid ? imported.reason : dependencies.reason;
+    return FinishSlot();
+  }
+  if (const auto decision = CorrectCollapse(); decision != SlotDecision::Proceed) return decision;
+  if (const auto decision = ReserveSingle(wall_choice, reserve_dependencies); decision != SlotDecision::Proceed)
+    return decision;
+  if (!ready) return FinishSlot();
+  return SlotDecision::Proceed;
+}
