@@ -1,0 +1,1985 @@
+{
+  "unapplied": true,
+  "compiled_or_launched": false,
+  "parent_passed_pushed_commit": "c8fd7ff400",
+  "base_sha256": {
+    "Common/src/adaptation/CNativeEngine3D.cpp": "4dd7a5bc894a510a55a537d8e52484f8e8e3fcd23c79b8247ee835d08f022ff0",
+    "Common/src/adaptation/native_engine3d/EngineExchange.hpp": "16738e08de8c69af0a5b493004b501030cbbb5ffae1de80b35f6638a7eeda3d1",
+    "Common/src/adaptation/native_engine3d/EngineExchange.cpp": "f094321c8de30e2278629813621b35dea43f60b6e6b095f551b2ca55cc431c62",
+    "Common/src/adaptation/native_engine3d/EngineReports.hpp": "3160df675ba5d8d7d013cbb466aec620eb774960b5dc11a563a84497ffe8cdd1",
+    "Common/src/adaptation/native_engine3d/EngineReports.cpp": "81cf80ac97fdb9cda0ea1078668441cf95acc7fcb443143bc6a470c5c60334c4"
+  },
+  "proposed_sha256": {
+    "Common/src/adaptation/CNativeEngine3D.cpp": "ffcb292b4639128c26495f7df44a4b63b9c61b0df62222547f4b4ad253ba9020",
+    "Common/src/adaptation/native_engine3d/EngineExchange.hpp": "06853c75d48b070f97a691a4152bf29f57d0174e21b00219a5c2bfb20a30f128",
+    "Common/src/adaptation/native_engine3d/EngineExchange.cpp": "9290b04af3c42097c18ad2813111b59bb3152a9b8111d30ad6f51a4ac6d0b6c6",
+    "Common/src/adaptation/native_engine3d/EngineReports.hpp": "1013fd374499f4bb3f3ce5b262a34396198d90787b30f1f307c4f0f76f1ae8ca",
+    "Common/src/adaptation/native_engine3d/EngineReports.cpp": "25670b601c721a3c60b5d10e2f31020d50e5c1af3b38c9fe83937b9eef218eb5"
+  },
+  "whole_CPP_byte_reversal": true,
+  "removed_lambdas": [
+    {
+      "name": "elect_trial_failure",
+      "start": 102899,
+      "end": 103108,
+      "old": "  auto elect_trial_failure=[&](const CLocalFailure& local) {\n    if(private_repair)return CElectedFailure{local.Failed(),world.rank,local.severity,local.gid,local.message};\n    return world.elect(local);\n  };\n",
+      "body": "\n    if(private_repair)return CElectedFailure{local.Failed(),world.rank,local.severity,local.gid,local.message};\n    return world.elect(local);\n  "
+    },
+    {
+      "name": "vote",
+      "start": 103108,
+      "end": 104970,
+      "old": "  auto vote=[&](const CLocalFailure& local) {\n    if(private_repair && atlas_budget.within_time && !atlas_budget.within_time())atlas_budget.time_exhausted=true;\n    stats.atlas_work=atlas_budget.work-atlas_work_initial;stats.atlas_peak_bytes=atlas_budget.peak_bytes;\n    stats.maximum_work_bytes=std::max(stats.maximum_work_bytes,atlas_budget.peak_bytes);\n    // Elect sticky geometry failures at the existing stage votes, even if a trial caught the exception.\n    constexpr unsigned short atlas_work_refusal=4;\n    auto pending=local;\n    if(atlas_budget.work_exhausted)pending.Set(atlas_work_refusal,0,\n        \"Native3D shared atlas work budget exhausted; feasibility is undetermined.\");\n    constexpr unsigned short geometry_backend_failure=5;\n    if(!atlas_budget.geometry_failure.empty())pending.Set(geometry_backend_failure,0,\n        \"Native3D geometry backend failure: \"+atlas_budget.geometry_failure);\n    constexpr unsigned short atlas_time_refusal=6;\n    if(atlas_budget.time_exhausted)pending.Set(atlas_time_refusal,0,\n        \"Native3D geometry/private work exhausts elapsed-time budget; feasibility is undetermined.\");\n    const auto elected=elect_trial_failure(pending);\n    if (elected.any) result.reason=elected.message;\n    if(elected.any && (elected.severity==atlas_work_refusal||elected.severity==geometry_backend_failure||elected.severity==atlas_time_refusal)){\n      // A quota refusal need not be the only failure; retain the ordinary elected diagnostic too.\n      const auto original=elect_trial_failure(local);\n      if(original.any)result.reason+=\" Original failure: \"+original.message;\n      result.valid=result.surface_prepared=false;stats.stop=elected.severity==atlas_time_refusal?EngineStop::TimeBudget:\n          elected.severity==atlas_work_refusal?EngineStop::WorkBudget:EngineStop::Failure;\n    }\n    return !elected.any;\n  };\n",
+      "body": "\n    if(private_repair && atlas_budget.within_time && !atlas_budget.within_time())atlas_budget.time_exhausted=true;\n    stats.atlas_work=atlas_budget.work-atlas_work_initial;stats.atlas_peak_bytes=atlas_budget.peak_bytes;\n    stats.maximum_work_bytes=std::max(stats.maximum_work_bytes,atlas_budget.peak_bytes);\n    // Elect sticky geometry failures at the existing stage votes, even if a trial caught the exception.\n    constexpr unsigned short atlas_work_refusal=4;\n    auto pending=local;\n    if(atlas_budget.work_exhausted)pending.Set(atlas_work_refusal,0,\n        \"Native3D shared atlas work budget exhausted; feasibility is undetermined.\");\n    constexpr unsigned short geometry_backend_failure=5;\n    if(!atlas_budget.geometry_failure.empty())pending.Set(geometry_backend_failure,0,\n        \"Native3D geometry backend failure: \"+atlas_budget.geometry_failure);\n    constexpr unsigned short atlas_time_refusal=6;\n    if(atlas_budget.time_exhausted)pending.Set(atlas_time_refusal,0,\n        \"Native3D geometry/private work exhausts elapsed-time budget; feasibility is undetermined.\");\n    const auto elected=elect_trial_failure(pending);\n    if (elected.any) result.reason=elected.message;\n    if(elected.any && (elected.severity==atlas_work_refusal||elected.severity==geometry_backend_failure||elected.severity==atlas_time_refusal)){\n      // A quota refusal need not be the only failure; retain the ordinary elected diagnostic too.\n      const auto original=elect_trial_failure(local);\n      if(original.any)result.reason+=\" Original failure: \"+original.message;\n      result.valid=result.surface_prepared=false;stats.stop=elected.severity==atlas_time_refusal?EngineStop::TimeBudget:\n          elected.severity==atlas_work_refusal?EngineStop::WorkBudget:EngineStop::Failure;\n    }\n    return !elected.any;\n  "
+    },
+    {
+      "name": "bytes",
+      "start": 106336,
+      "end": 107067,
+      "old": "  auto bytes=[&]() {\n    return transfer_memory::Add(options.caller_bytes,MapBytes(options.wall_heights),MapBytes(options.region_walls),accepted_bytes,batch_bytes,diagnostic_bytes,MapBytes(working),checkpoint.Bytes(),\n        transfer_memory::Bytes(batch_changed),MapBytes(batch_touched),MapBytes(batch_supports),\n        transfer_memory::Bytes(original),transfer_memory::Bytes(initial),transfer_memory::Bytes(eligible_extensions),transfer_memory::Bytes(result.splits),transfer_memory::Bytes(result.collapses),\n        selection.Bytes(),MapBytes(retired_edges),MapBytes(campaign_edges),MapBytes(inactive_blocked_edges),\n        transfer_memory::Mul(inactive_blocked_links,sizeof(Id)+4*sizeof(void*)),field_identity ? 64 : 0);\n  };\n",
+      "body": "\n    return transfer_memory::Add(options.caller_bytes,MapBytes(options.wall_heights),MapBytes(options.region_walls),accepted_bytes,batch_bytes,diagnostic_bytes,MapBytes(working),checkpoint.Bytes(),\n        transfer_memory::Bytes(batch_changed),MapBytes(batch_touched),MapBytes(batch_supports),\n        transfer_memory::Bytes(original),transfer_memory::Bytes(initial),transfer_memory::Bytes(eligible_extensions),transfer_memory::Bytes(result.splits),transfer_memory::Bytes(result.collapses),\n        selection.Bytes(),MapBytes(retired_edges),MapBytes(campaign_edges),MapBytes(inactive_blocked_edges),\n        transfer_memory::Mul(inactive_blocked_links,sizeof(Id)+4*sizeof(void*)),field_identity ? 64 : 0);\n  "
+    },
+    {
+      "name": "real_bytes",
+      "start": 107067,
+      "end": 107181,
+      "old": "  auto real_bytes=[&]() {const auto live=bytes();return atlas_geometry&&live!=SIZE_MAX?live-atlas_scratch:live;};\n",
+      "body": "const auto live=bytes();return atlas_geometry&&live!=SIZE_MAX?live-atlas_scratch:live;"
+    },
+    {
+      "name": "admit",
+      "start": 107181,
+      "end": 107844,
+      "old": "  auto admit=[&](size_t extra) {\n    const auto peak=transfer_memory::Add(bytes(),source.ResidentBytes(),directory->ResidentBytes(),extra);\n    stats.maximum_work_bytes=std::max(stats.maximum_work_bytes,peak);\n    CLocalFailure failure;\n    if (peak==SIZE_MAX || peak>options.memory_ceiling) failure.Set(3,0,\"Native 3D adaptation working storage exceeds budget.\");\n    const bool admitted=vote(failure);\n    // Integer workspace stays fixed; geometric query arrays use the remaining configured memory pool.\n    if(admitted&&atlas_geometry){atlas_budget.caller_bytes=peak-atlas_scratch;atlas_budget.maximum_bytes=options.memory_ceiling;}\n    return admitted;\n  };\n",
+      "body": "\n    const auto peak=transfer_memory::Add(bytes(),source.ResidentBytes(),directory->ResidentBytes(),extra);\n    stats.maximum_work_bytes=std::max(stats.maximum_work_bytes,peak);\n    CLocalFailure failure;\n    if (peak==SIZE_MAX || peak>options.memory_ceiling) failure.Set(3,0,\"Native 3D adaptation working storage exceeds budget.\");\n    const bool admitted=vote(failure);\n    // Integer workspace stays fixed; geometric query arrays use the remaining configured memory pool.\n    if(admitted&&atlas_geometry){atlas_budget.caller_bytes=peak-atlas_scratch;atlas_budget.maximum_bytes=options.memory_ceiling;}\n    return admitted;\n  "
+    },
+    {
+      "name": "import_source",
+      "start": 181749,
+      "end": 182116,
+      "old": "  auto import_source=[&](const std::vector<Cell>& cells,size_t extra,bool layer,\n                         const std::vector<unsigned char>* requests=nullptr) {\n    if(layer)++stats.layer_donor_batches;else ++stats.donor_batches;\n    return source.ImportCells(cells,options.memory_ceiling,\n        transfer_memory::Add(bytes(),directory->ResidentBytes(),extra));\n  };\n",
+      "body": "\n    if(layer)++stats.layer_donor_batches;else ++stats.donor_batches;\n    return source.ImportCells(cells,options.memory_ceiling,\n        transfer_memory::Add(bytes(),directory->ResidentBytes(),extra));\n  "
+    }
+  ],
+  "call_replacements": [
+    {
+      "name": "admit",
+      "start": 105014,
+      "end": 105020,
+      "old": "admit(",
+      "new": "context.exchange.Admit(context, ",
+      "new_start": 105014
+    },
+    {
+      "name": "vote",
+      "start": 105618,
+      "end": 105623,
+      "old": "vote(",
+      "new": "context.exchange.Vote(context, ",
+      "new_start": 105644
+    },
+    {
+      "name": "bytes",
+      "start": 105760,
+      "end": 105767,
+      "old": "bytes()",
+      "new": "context.exchange.Bytes(context)",
+      "new_start": 105812
+    },
+    {
+      "name": "vote",
+      "start": 108112,
+      "end": 108117,
+      "old": "vote(",
+      "new": "context.exchange.Vote(context, ",
+      "new_start": 108188
+    },
+    {
+      "name": "admit",
+      "start": 108742,
+      "end": 108748,
+      "old": "admit(",
+      "new": "context.exchange.Admit(context, ",
+      "new_start": 108844
+    },
+    {
+      "name": "vote",
+      "start": 109423,
+      "end": 109428,
+      "old": "vote(",
+      "new": "context.exchange.Vote(context, ",
+      "new_start": 109551
+    },
+    {
+      "name": "bytes",
+      "start": 109575,
+      "end": 109582,
+      "old": "bytes()",
+      "new": "context.exchange.Bytes(context)",
+      "new_start": 109729
+    },
+    {
+      "name": "vote",
+      "start": 110473,
+      "end": 110478,
+      "old": "vote(",
+      "new": "context.exchange.Vote(context, ",
+      "new_start": 110651
+    },
+    {
+      "name": "vote",
+      "start": 111612,
+      "end": 111617,
+      "old": "vote(",
+      "new": "context.exchange.Vote(context, ",
+      "new_start": 111816
+    },
+    {
+      "name": "vote",
+      "start": 111676,
+      "end": 111681,
+      "old": "vote(",
+      "new": "context.exchange.Vote(context, ",
+      "new_start": 111906
+    },
+    {
+      "name": "admit",
+      "start": 114025,
+      "end": 114031,
+      "old": "admit(",
+      "new": "context.exchange.Admit(context, ",
+      "new_start": 114281
+    },
+    {
+      "name": "vote",
+      "start": 114834,
+      "end": 114839,
+      "old": "vote(",
+      "new": "context.exchange.Vote(context, ",
+      "new_start": 115116
+    },
+    {
+      "name": "bytes",
+      "start": 114991,
+      "end": 114998,
+      "old": "bytes()",
+      "new": "context.exchange.Bytes(context)",
+      "new_start": 115299
+    },
+    {
+      "name": "vote",
+      "start": 142025,
+      "end": 142030,
+      "old": "vote(",
+      "new": "context.exchange.Vote(context, ",
+      "new_start": 142357
+    },
+    {
+      "name": "vote",
+      "start": 143291,
+      "end": 143296,
+      "old": "vote(",
+      "new": "context.exchange.Vote(context, ",
+      "new_start": 143649
+    },
+    {
+      "name": "vote",
+      "start": 144471,
+      "end": 144476,
+      "old": "vote(",
+      "new": "context.exchange.Vote(context, ",
+      "new_start": 144855
+    },
+    {
+      "name": "vote",
+      "start": 145236,
+      "end": 145241,
+      "old": "vote(",
+      "new": "context.exchange.Vote(context, ",
+      "new_start": 145646
+    },
+    {
+      "name": "admit",
+      "start": 151367,
+      "end": 151373,
+      "old": "admit(",
+      "new": "context.exchange.Admit(context, ",
+      "new_start": 151803
+    },
+    {
+      "name": "vote",
+      "start": 157996,
+      "end": 158001,
+      "old": "vote(",
+      "new": "context.exchange.Vote(context, ",
+      "new_start": 158458
+    },
+    {
+      "name": "admit",
+      "start": 158030,
+      "end": 158036,
+      "old": "admit(",
+      "new": "context.exchange.Admit(context, ",
+      "new_start": 158518
+    },
+    {
+      "name": "bytes",
+      "start": 158729,
+      "end": 158736,
+      "old": "bytes()",
+      "new": "context.exchange.Bytes(context)",
+      "new_start": 159243
+    },
+    {
+      "name": "vote",
+      "start": 159557,
+      "end": 159562,
+      "old": "vote(",
+      "new": "context.exchange.Vote(context, ",
+      "new_start": 160095
+    },
+    {
+      "name": "admit",
+      "start": 159607,
+      "end": 159613,
+      "old": "admit(",
+      "new": "context.exchange.Admit(context, ",
+      "new_start": 160171
+    },
+    {
+      "name": "vote",
+      "start": 161147,
+      "end": 161152,
+      "old": "vote(",
+      "new": "context.exchange.Vote(context, ",
+      "new_start": 161737
+    },
+    {
+      "name": "vote",
+      "start": 161278,
+      "end": 161283,
+      "old": "vote(",
+      "new": "context.exchange.Vote(context, ",
+      "new_start": 161894
+    },
+    {
+      "name": "bytes",
+      "start": 161582,
+      "end": 161589,
+      "old": "bytes()",
+      "new": "context.exchange.Bytes(context)",
+      "new_start": 162224
+    },
+    {
+      "name": "bytes",
+      "start": 161732,
+      "end": 161739,
+      "old": "bytes()",
+      "new": "context.exchange.Bytes(context)",
+      "new_start": 162398
+    },
+    {
+      "name": "admit",
+      "start": 161967,
+      "end": 161973,
+      "old": "admit(",
+      "new": "context.exchange.Admit(context, ",
+      "new_start": 162657
+    },
+    {
+      "name": "vote",
+      "start": 162355,
+      "end": 162360,
+      "old": "vote(",
+      "new": "context.exchange.Vote(context, ",
+      "new_start": 163071
+    },
+    {
+      "name": "admit",
+      "start": 162722,
+      "end": 162728,
+      "old": "admit(",
+      "new": "context.exchange.Admit(context, ",
+      "new_start": 163464
+    },
+    {
+      "name": "vote",
+      "start": 163210,
+      "end": 163215,
+      "old": "vote(",
+      "new": "context.exchange.Vote(context, ",
+      "new_start": 163978
+    },
+    {
+      "name": "admit",
+      "start": 163383,
+      "end": 163389,
+      "old": "admit(",
+      "new": "context.exchange.Admit(context, ",
+      "new_start": 164177
+    },
+    {
+      "name": "vote",
+      "start": 163877,
+      "end": 163882,
+      "old": "vote(",
+      "new": "context.exchange.Vote(context, ",
+      "new_start": 164697
+    },
+    {
+      "name": "real_bytes",
+      "start": 164088,
+      "end": 164100,
+      "old": "real_bytes()",
+      "new": "context.exchange.RealBytes(context)",
+      "new_start": 164934
+    },
+    {
+      "name": "admit",
+      "start": 167624,
+      "end": 167630,
+      "old": "admit(",
+      "new": "context.exchange.Admit(context, ",
+      "new_start": 168493
+    },
+    {
+      "name": "vote",
+      "start": 167895,
+      "end": 167900,
+      "old": "vote(",
+      "new": "context.exchange.Vote(context, ",
+      "new_start": 168790
+    },
+    {
+      "name": "bytes",
+      "start": 168037,
+      "end": 168044,
+      "old": "bytes()",
+      "new": "context.exchange.Bytes(context)",
+      "new_start": 168958
+    },
+    {
+      "name": "vote",
+      "start": 168886,
+      "end": 168891,
+      "old": "vote(",
+      "new": "context.exchange.Vote(context, ",
+      "new_start": 169831
+    },
+    {
+      "name": "bytes",
+      "start": 169075,
+      "end": 169082,
+      "old": "bytes()",
+      "new": "context.exchange.Bytes(context)",
+      "new_start": 170046
+    },
+    {
+      "name": "bytes",
+      "start": 169594,
+      "end": 169601,
+      "old": "bytes()",
+      "new": "context.exchange.Bytes(context)",
+      "new_start": 170589
+    },
+    {
+      "name": "vote",
+      "start": 175620,
+      "end": 175625,
+      "old": "vote(",
+      "new": "context.exchange.Vote(context, ",
+      "new_start": 176639
+    },
+    {
+      "name": "vote",
+      "start": 176207,
+      "end": 176212,
+      "old": "vote(",
+      "new": "context.exchange.Vote(context, ",
+      "new_start": 177252
+    },
+    {
+      "name": "bytes",
+      "start": 176333,
+      "end": 176340,
+      "old": "bytes()",
+      "new": "context.exchange.Bytes(context)",
+      "new_start": 177404
+    },
+    {
+      "name": "vote",
+      "start": 176656,
+      "end": 176661,
+      "old": "vote(",
+      "new": "context.exchange.Vote(context, ",
+      "new_start": 177751
+    },
+    {
+      "name": "real_bytes",
+      "start": 176801,
+      "end": 176813,
+      "old": "real_bytes()",
+      "new": "context.exchange.RealBytes(context)",
+      "new_start": 177922
+    },
+    {
+      "name": "vote",
+      "start": 177689,
+      "end": 177694,
+      "old": "vote(",
+      "new": "context.exchange.Vote(context, ",
+      "new_start": 178833
+    },
+    {
+      "name": "admit",
+      "start": 178574,
+      "end": 178580,
+      "old": "admit(",
+      "new": "context.exchange.Admit(context, ",
+      "new_start": 179744
+    },
+    {
+      "name": "vote",
+      "start": 179138,
+      "end": 179143,
+      "old": "vote(",
+      "new": "context.exchange.Vote(context, ",
+      "new_start": 180334
+    },
+    {
+      "name": "vote",
+      "start": 181111,
+      "end": 181116,
+      "old": "vote(",
+      "new": "context.exchange.Vote(context, ",
+      "new_start": 182333
+    },
+    {
+      "name": "bytes",
+      "start": 181293,
+      "end": 181300,
+      "old": "bytes()",
+      "new": "context.exchange.Bytes(context)",
+      "new_start": 182541
+    },
+    {
+      "name": "vote",
+      "start": 182054,
+      "end": 182059,
+      "old": "vote(",
+      "new": "context.exchange.Vote(context, ",
+      "new_start": 183326
+    },
+    {
+      "name": "vote",
+      "start": 182769,
+      "end": 182774,
+      "old": "vote(",
+      "new": "context.exchange.Vote(context, ",
+      "new_start": 184067
+    },
+    {
+      "name": "vote",
+      "start": 184296,
+      "end": 184301,
+      "old": "vote(",
+      "new": "context.exchange.Vote(context, ",
+      "new_start": 185620
+    },
+    {
+      "name": "import_source",
+      "start": 184394,
+      "end": 184408,
+      "old": "import_source(",
+      "new": "context.exchange.ImportSource(context, ",
+      "new_start": 185744
+    },
+    {
+      "name": "vote",
+      "start": 185444,
+      "end": 185449,
+      "old": "vote(",
+      "new": "context.exchange.Vote(context, ",
+      "new_start": 186819
+    },
+    {
+      "name": "vote",
+      "start": 190854,
+      "end": 190859,
+      "old": "vote(",
+      "new": "context.exchange.Vote(context, ",
+      "new_start": 192255
+    },
+    {
+      "name": "vote",
+      "start": 193773,
+      "end": 193778,
+      "old": "vote(",
+      "new": "context.exchange.Vote(context, ",
+      "new_start": 195200
+    },
+    {
+      "name": "bytes",
+      "start": 193870,
+      "end": 193877,
+      "old": "bytes()",
+      "new": "context.exchange.Bytes(context)",
+      "new_start": 195323
+    },
+    {
+      "name": "real_bytes",
+      "start": 194453,
+      "end": 194465,
+      "old": "real_bytes()",
+      "new": "context.exchange.RealBytes(context)",
+      "new_start": 195930
+    },
+    {
+      "name": "vote",
+      "start": 194825,
+      "end": 194830,
+      "old": "vote(",
+      "new": "context.exchange.Vote(context, ",
+      "new_start": 196325
+    },
+    {
+      "name": "vote",
+      "start": 195416,
+      "end": 195421,
+      "old": "vote(",
+      "new": "context.exchange.Vote(context, ",
+      "new_start": 196942
+    },
+    {
+      "name": "admit",
+      "start": 196598,
+      "end": 196604,
+      "old": "admit(",
+      "new": "context.exchange.Admit(context, ",
+      "new_start": 198150
+    },
+    {
+      "name": "vote",
+      "start": 197092,
+      "end": 197097,
+      "old": "vote(",
+      "new": "context.exchange.Vote(context, ",
+      "new_start": 198670
+    },
+    {
+      "name": "vote",
+      "start": 198536,
+      "end": 198541,
+      "old": "vote(",
+      "new": "context.exchange.Vote(context, ",
+      "new_start": 200140
+    },
+    {
+      "name": "vote",
+      "start": 198778,
+      "end": 198783,
+      "old": "vote(",
+      "new": "context.exchange.Vote(context, ",
+      "new_start": 200408
+    },
+    {
+      "name": "import_source",
+      "start": 198940,
+      "end": 198954,
+      "old": "import_source(",
+      "new": "context.exchange.ImportSource(context, ",
+      "new_start": 200596
+    },
+    {
+      "name": "admit",
+      "start": 199216,
+      "end": 199222,
+      "old": "admit(",
+      "new": "context.exchange.Admit(context, ",
+      "new_start": 200897
+    },
+    {
+      "name": "vote",
+      "start": 203508,
+      "end": 203513,
+      "old": "vote(",
+      "new": "context.exchange.Vote(context, ",
+      "new_start": 205215
+    },
+    {
+      "name": "admit",
+      "start": 204319,
+      "end": 204325,
+      "old": "admit(",
+      "new": "context.exchange.Admit(context, ",
+      "new_start": 206052
+    },
+    {
+      "name": "vote",
+      "start": 204831,
+      "end": 204836,
+      "old": "vote(",
+      "new": "context.exchange.Vote(context, ",
+      "new_start": 206590
+    },
+    {
+      "name": "admit",
+      "start": 207362,
+      "end": 207368,
+      "old": "admit(",
+      "new": "context.exchange.Admit(context, ",
+      "new_start": 209147
+    },
+    {
+      "name": "bytes",
+      "start": 207553,
+      "end": 207560,
+      "old": "bytes()",
+      "new": "context.exchange.Bytes(context)",
+      "new_start": 209364
+    },
+    {
+      "name": "vote",
+      "start": 211126,
+      "end": 211131,
+      "old": "vote(",
+      "new": "context.exchange.Vote(context, ",
+      "new_start": 212961
+    },
+    {
+      "name": "vote",
+      "start": 216231,
+      "end": 216236,
+      "old": "vote(",
+      "new": "context.exchange.Vote(context, ",
+      "new_start": 218092
+    },
+    {
+      "name": "bytes",
+      "start": 216334,
+      "end": 216341,
+      "old": "bytes()",
+      "new": "context.exchange.Bytes(context)",
+      "new_start": 218221
+    },
+    {
+      "name": "vote",
+      "start": 217831,
+      "end": 217836,
+      "old": "vote(",
+      "new": "context.exchange.Vote(context, ",
+      "new_start": 219742
+    },
+    {
+      "name": "admit",
+      "start": 218493,
+      "end": 218499,
+      "old": "admit(",
+      "new": "context.exchange.Admit(context, ",
+      "new_start": 220430
+    },
+    {
+      "name": "vote",
+      "start": 219784,
+      "end": 219789,
+      "old": "vote(",
+      "new": "context.exchange.Vote(context, ",
+      "new_start": 221747
+    },
+    {
+      "name": "admit",
+      "start": 222103,
+      "end": 222109,
+      "old": "admit(",
+      "new": "context.exchange.Admit(context, ",
+      "new_start": 224092
+    },
+    {
+      "name": "vote",
+      "start": 222815,
+      "end": 222820,
+      "old": "vote(",
+      "new": "context.exchange.Vote(context, ",
+      "new_start": 224830
+    },
+    {
+      "name": "vote",
+      "start": 223958,
+      "end": 223963,
+      "old": "vote(",
+      "new": "context.exchange.Vote(context, ",
+      "new_start": 225999
+    },
+    {
+      "name": "admit",
+      "start": 225549,
+      "end": 225555,
+      "old": "admit(",
+      "new": "context.exchange.Admit(context, ",
+      "new_start": 227616
+    },
+    {
+      "name": "vote",
+      "start": 226368,
+      "end": 226373,
+      "old": "vote(",
+      "new": "context.exchange.Vote(context, ",
+      "new_start": 228461
+    },
+    {
+      "name": "admit",
+      "start": 226717,
+      "end": 226723,
+      "old": "admit(",
+      "new": "context.exchange.Admit(context, ",
+      "new_start": 228836
+    },
+    {
+      "name": "vote",
+      "start": 226974,
+      "end": 226979,
+      "old": "vote(",
+      "new": "context.exchange.Vote(context, ",
+      "new_start": 229119
+    },
+    {
+      "name": "admit",
+      "start": 228336,
+      "end": 228342,
+      "old": "admit(",
+      "new": "context.exchange.Admit(context, ",
+      "new_start": 230507
+    },
+    {
+      "name": "vote",
+      "start": 229002,
+      "end": 229007,
+      "old": "vote(",
+      "new": "context.exchange.Vote(context, ",
+      "new_start": 231199
+    },
+    {
+      "name": "bytes",
+      "start": 229335,
+      "end": 229342,
+      "old": "bytes()",
+      "new": "context.exchange.Bytes(context)",
+      "new_start": 231558
+    },
+    {
+      "name": "vote",
+      "start": 230430,
+      "end": 230435,
+      "old": "vote(",
+      "new": "context.exchange.Vote(context, ",
+      "new_start": 232677
+    },
+    {
+      "name": "admit",
+      "start": 230466,
+      "end": 230472,
+      "old": "admit(",
+      "new": "context.exchange.Admit(context, ",
+      "new_start": 232739
+    },
+    {
+      "name": "vote",
+      "start": 231001,
+      "end": 231006,
+      "old": "vote(",
+      "new": "context.exchange.Vote(context, ",
+      "new_start": 233300
+    },
+    {
+      "name": "admit",
+      "start": 232370,
+      "end": 232376,
+      "old": "admit(",
+      "new": "context.exchange.Admit(context, ",
+      "new_start": 234695
+    },
+    {
+      "name": "vote",
+      "start": 232641,
+      "end": 232646,
+      "old": "vote(",
+      "new": "context.exchange.Vote(context, ",
+      "new_start": 234992
+    },
+    {
+      "name": "vote",
+      "start": 235622,
+      "end": 235627,
+      "old": "vote(",
+      "new": "context.exchange.Vote(context, ",
+      "new_start": 237999
+    },
+    {
+      "name": "vote",
+      "start": 236632,
+      "end": 236637,
+      "old": "vote(",
+      "new": "context.exchange.Vote(context, ",
+      "new_start": 239035
+    },
+    {
+      "name": "admit",
+      "start": 240322,
+      "end": 240328,
+      "old": "admit(",
+      "new": "context.exchange.Admit(context, ",
+      "new_start": 242751
+    },
+    {
+      "name": "vote",
+      "start": 240575,
+      "end": 240580,
+      "old": "vote(",
+      "new": "context.exchange.Vote(context, ",
+      "new_start": 243030
+    },
+    {
+      "name": "admit",
+      "start": 240952,
+      "end": 240958,
+      "old": "admit(",
+      "new": "context.exchange.Admit(context, ",
+      "new_start": 243433
+    },
+    {
+      "name": "vote",
+      "start": 241209,
+      "end": 241214,
+      "old": "vote(",
+      "new": "context.exchange.Vote(context, ",
+      "new_start": 243716
+    },
+    {
+      "name": "admit",
+      "start": 249587,
+      "end": 249593,
+      "old": "admit(",
+      "new": "context.exchange.Admit(context, ",
+      "new_start": 252120
+    },
+    {
+      "name": "vote",
+      "start": 249862,
+      "end": 249867,
+      "old": "vote(",
+      "new": "context.exchange.Vote(context, ",
+      "new_start": 252421
+    },
+    {
+      "name": "admit",
+      "start": 251371,
+      "end": 251377,
+      "old": "admit(",
+      "new": "context.exchange.Admit(context, ",
+      "new_start": 253956
+    },
+    {
+      "name": "vote",
+      "start": 251803,
+      "end": 251808,
+      "old": "vote(",
+      "new": "context.exchange.Vote(context, ",
+      "new_start": 254414
+    },
+    {
+      "name": "vote",
+      "start": 254548,
+      "end": 254553,
+      "old": "vote(",
+      "new": "context.exchange.Vote(context, ",
+      "new_start": 257185
+    },
+    {
+      "name": "admit",
+      "start": 255255,
+      "end": 255261,
+      "old": "admit(",
+      "new": "context.exchange.Admit(context, ",
+      "new_start": 257918
+    },
+    {
+      "name": "vote",
+      "start": 255709,
+      "end": 255714,
+      "old": "vote(",
+      "new": "context.exchange.Vote(context, ",
+      "new_start": 258398
+    },
+    {
+      "name": "vote",
+      "start": 255913,
+      "end": 255918,
+      "old": "vote(",
+      "new": "context.exchange.Vote(context, ",
+      "new_start": 258628
+    },
+    {
+      "name": "vote",
+      "start": 260600,
+      "end": 260605,
+      "old": "vote(",
+      "new": "context.exchange.Vote(context, ",
+      "new_start": 263341
+    },
+    {
+      "name": "bytes",
+      "start": 260737,
+      "end": 260744,
+      "old": "bytes()",
+      "new": "context.exchange.Bytes(context)",
+      "new_start": 263504
+    },
+    {
+      "name": "vote",
+      "start": 261766,
+      "end": 261771,
+      "old": "vote(",
+      "new": "context.exchange.Vote(context, ",
+      "new_start": 264557
+    },
+    {
+      "name": "admit",
+      "start": 262856,
+      "end": 262862,
+      "old": "admit(",
+      "new": "context.exchange.Admit(context, ",
+      "new_start": 265673
+    },
+    {
+      "name": "vote",
+      "start": 263226,
+      "end": 263231,
+      "old": "vote(",
+      "new": "context.exchange.Vote(context, ",
+      "new_start": 266069
+    },
+    {
+      "name": "vote",
+      "start": 264162,
+      "end": 264167,
+      "old": "vote(",
+      "new": "context.exchange.Vote(context, ",
+      "new_start": 267031
+    },
+    {
+      "name": "vote",
+      "start": 265592,
+      "end": 265597,
+      "old": "vote(",
+      "new": "context.exchange.Vote(context, ",
+      "new_start": 268487
+    },
+    {
+      "name": "bytes",
+      "start": 265760,
+      "end": 265767,
+      "old": "bytes()",
+      "new": "context.exchange.Bytes(context)",
+      "new_start": 268681
+    },
+    {
+      "name": "admit",
+      "start": 266618,
+      "end": 266624,
+      "old": "admit(",
+      "new": "context.exchange.Admit(context, ",
+      "new_start": 269563
+    },
+    {
+      "name": "bytes",
+      "start": 266771,
+      "end": 266778,
+      "old": "bytes()",
+      "new": "context.exchange.Bytes(context)",
+      "new_start": 269742
+    },
+    {
+      "name": "vote",
+      "start": 267426,
+      "end": 267431,
+      "old": "vote(",
+      "new": "context.exchange.Vote(context, ",
+      "new_start": 270421
+    },
+    {
+      "name": "admit",
+      "start": 267888,
+      "end": 267894,
+      "old": "admit(",
+      "new": "context.exchange.Admit(context, ",
+      "new_start": 270909
+    },
+    {
+      "name": "vote",
+      "start": 269299,
+      "end": 269304,
+      "old": "vote(",
+      "new": "context.exchange.Vote(context, ",
+      "new_start": 272346
+    },
+    {
+      "name": "bytes",
+      "start": 269603,
+      "end": 269610,
+      "old": "bytes()",
+      "new": "context.exchange.Bytes(context)",
+      "new_start": 272676
+    },
+    {
+      "name": "vote",
+      "start": 271141,
+      "end": 271146,
+      "old": "vote(",
+      "new": "context.exchange.Vote(context, ",
+      "new_start": 274238
+    },
+    {
+      "name": "bytes",
+      "start": 271352,
+      "end": 271359,
+      "old": "bytes()",
+      "new": "context.exchange.Bytes(context)",
+      "new_start": 274475
+    },
+    {
+      "name": "vote",
+      "start": 272118,
+      "end": 272123,
+      "old": "vote(",
+      "new": "context.exchange.Vote(context, ",
+      "new_start": 275265
+    },
+    {
+      "name": "bytes",
+      "start": 272249,
+      "end": 272256,
+      "old": "bytes()",
+      "new": "context.exchange.Bytes(context)",
+      "new_start": 275422
+    },
+    {
+      "name": "vote",
+      "start": 274900,
+      "end": 274905,
+      "old": "vote(",
+      "new": "context.exchange.Vote(context, ",
+      "new_start": 278097
+    },
+    {
+      "name": "admit",
+      "start": 276831,
+      "end": 276837,
+      "old": "admit(",
+      "new": "context.exchange.Admit(context, ",
+      "new_start": 280054
+    },
+    {
+      "name": "vote",
+      "start": 276986,
+      "end": 276991,
+      "old": "vote(",
+      "new": "context.exchange.Vote(context, ",
+      "new_start": 280235
+    },
+    {
+      "name": "bytes",
+      "start": 280834,
+      "end": 280841,
+      "old": "bytes()",
+      "new": "context.exchange.Bytes(context)",
+      "new_start": 284109
+    },
+    {
+      "name": "vote",
+      "start": 281313,
+      "end": 281318,
+      "old": "vote(",
+      "new": "context.exchange.Vote(context, ",
+      "new_start": 284612
+    },
+    {
+      "name": "vote",
+      "start": 281814,
+      "end": 281819,
+      "old": "vote(",
+      "new": "context.exchange.Vote(context, ",
+      "new_start": 285139
+    },
+    {
+      "name": "bytes",
+      "start": 282319,
+      "end": 282326,
+      "old": "bytes()",
+      "new": "context.exchange.Bytes(context)",
+      "new_start": 285670
+    },
+    {
+      "name": "bytes",
+      "start": 283017,
+      "end": 283024,
+      "old": "bytes()",
+      "new": "context.exchange.Bytes(context)",
+      "new_start": 286392
+    },
+    {
+      "name": "bytes",
+      "start": 283882,
+      "end": 283889,
+      "old": "bytes()",
+      "new": "context.exchange.Bytes(context)",
+      "new_start": 287281
+    },
+    {
+      "name": "bytes",
+      "start": 295681,
+      "end": 295688,
+      "old": "bytes()",
+      "new": "context.exchange.Bytes(context)",
+      "new_start": 299104
+    },
+    {
+      "name": "admit",
+      "start": 296508,
+      "end": 296514,
+      "old": "admit(",
+      "new": "context.exchange.Admit(context, ",
+      "new_start": 299955
+    },
+    {
+      "name": "vote",
+      "start": 302392,
+      "end": 302397,
+      "old": "vote(",
+      "new": "context.exchange.Vote(context, ",
+      "new_start": 305865
+    },
+    {
+      "name": "vote",
+      "start": 306021,
+      "end": 306026,
+      "old": "vote(",
+      "new": "context.exchange.Vote(context, ",
+      "new_start": 309520
+    },
+    {
+      "name": "admit",
+      "start": 306059,
+      "end": 306065,
+      "old": "admit(",
+      "new": "context.exchange.Admit(context, ",
+      "new_start": 309584
+    },
+    {
+      "name": "bytes",
+      "start": 306365,
+      "end": 306372,
+      "old": "bytes()",
+      "new": "context.exchange.Bytes(context)",
+      "new_start": 309916
+    },
+    {
+      "name": "vote",
+      "start": 307797,
+      "end": 307802,
+      "old": "vote(",
+      "new": "context.exchange.Vote(context, ",
+      "new_start": 311372
+    },
+    {
+      "name": "vote",
+      "start": 310833,
+      "end": 310838,
+      "old": "vote(",
+      "new": "context.exchange.Vote(context, ",
+      "new_start": 314434
+    },
+    {
+      "name": "admit",
+      "start": 311303,
+      "end": 311309,
+      "old": "admit(",
+      "new": "context.exchange.Admit(context, ",
+      "new_start": 314930
+    },
+    {
+      "name": "admit",
+      "start": 312275,
+      "end": 312281,
+      "old": "admit(",
+      "new": "context.exchange.Admit(context, ",
+      "new_start": 315928
+    },
+    {
+      "name": "admit",
+      "start": 321231,
+      "end": 321237,
+      "old": "admit(",
+      "new": "context.exchange.Admit(context, ",
+      "new_start": 324910
+    },
+    {
+      "name": "vote",
+      "start": 321962,
+      "end": 321967,
+      "old": "vote(",
+      "new": "context.exchange.Vote(context, ",
+      "new_start": 325667
+    },
+    {
+      "name": "vote",
+      "start": 323156,
+      "end": 323161,
+      "old": "vote(",
+      "new": "context.exchange.Vote(context, ",
+      "new_start": 326887
+    },
+    {
+      "name": "bytes",
+      "start": 323468,
+      "end": 323475,
+      "old": "bytes()",
+      "new": "context.exchange.Bytes(context)",
+      "new_start": 327225
+    },
+    {
+      "name": "vote",
+      "start": 328137,
+      "end": 328142,
+      "old": "vote(",
+      "new": "context.exchange.Vote(context, ",
+      "new_start": 331918
+    },
+    {
+      "name": "vote",
+      "start": 328681,
+      "end": 328686,
+      "old": "vote(",
+      "new": "context.exchange.Vote(context, ",
+      "new_start": 332488
+    },
+    {
+      "name": "vote",
+      "start": 333936,
+      "end": 333941,
+      "old": "vote(",
+      "new": "context.exchange.Vote(context, ",
+      "new_start": 337769
+    },
+    {
+      "name": "bytes",
+      "start": 337062,
+      "end": 337069,
+      "old": "bytes()",
+      "new": "context.exchange.Bytes(context)",
+      "new_start": 340921
+    },
+    {
+      "name": "vote",
+      "start": 337366,
+      "end": 337371,
+      "old": "vote(",
+      "new": "context.exchange.Vote(context, ",
+      "new_start": 341249
+    },
+    {
+      "name": "bytes",
+      "start": 337674,
+      "end": 337681,
+      "old": "bytes()",
+      "new": "context.exchange.Bytes(context)",
+      "new_start": 341583
+    },
+    {
+      "name": "vote",
+      "start": 338827,
+      "end": 338832,
+      "old": "vote(",
+      "new": "context.exchange.Vote(context, ",
+      "new_start": 342760
+    },
+    {
+      "name": "bytes",
+      "start": 339121,
+      "end": 339128,
+      "old": "bytes()",
+      "new": "context.exchange.Bytes(context)",
+      "new_start": 343080
+    },
+    {
+      "name": "vote",
+      "start": 339657,
+      "end": 339662,
+      "old": "vote(",
+      "new": "context.exchange.Vote(context, ",
+      "new_start": 343640
+    },
+    {
+      "name": "vote",
+      "start": 340004,
+      "end": 340009,
+      "old": "vote(",
+      "new": "context.exchange.Vote(context, ",
+      "new_start": 344013
+    },
+    {
+      "name": "bytes",
+      "start": 340284,
+      "end": 340291,
+      "old": "bytes()",
+      "new": "context.exchange.Bytes(context)",
+      "new_start": 344319
+    },
+    {
+      "name": "vote",
+      "start": 342965,
+      "end": 342970,
+      "old": "vote(",
+      "new": "context.exchange.Vote(context, ",
+      "new_start": 347024
+    },
+    {
+      "name": "bytes",
+      "start": 346430,
+      "end": 346437,
+      "old": "bytes()",
+      "new": "context.exchange.Bytes(context)",
+      "new_start": 350515
+    },
+    {
+      "name": "vote",
+      "start": 346743,
+      "end": 346748,
+      "old": "vote(",
+      "new": "context.exchange.Vote(context, ",
+      "new_start": 350852
+    },
+    {
+      "name": "bytes",
+      "start": 347079,
+      "end": 347086,
+      "old": "bytes()",
+      "new": "context.exchange.Bytes(context)",
+      "new_start": 351214
+    },
+    {
+      "name": "vote",
+      "start": 347923,
+      "end": 347928,
+      "old": "vote(",
+      "new": "context.exchange.Vote(context, ",
+      "new_start": 352082
+    },
+    {
+      "name": "bytes",
+      "start": 348232,
+      "end": 348239,
+      "old": "bytes()",
+      "new": "context.exchange.Bytes(context)",
+      "new_start": 352417
+    },
+    {
+      "name": "vote",
+      "start": 348704,
+      "end": 348709,
+      "old": "vote(",
+      "new": "context.exchange.Vote(context, ",
+      "new_start": 352913
+    },
+    {
+      "name": "vote",
+      "start": 348938,
+      "end": 348943,
+      "old": "vote(",
+      "new": "context.exchange.Vote(context, ",
+      "new_start": 353173
+    },
+    {
+      "name": "bytes",
+      "start": 349230,
+      "end": 349237,
+      "old": "bytes()",
+      "new": "context.exchange.Bytes(context)",
+      "new_start": 353491
+    },
+    {
+      "name": "vote",
+      "start": 356495,
+      "end": 356500,
+      "old": "vote(",
+      "new": "context.exchange.Vote(context, ",
+      "new_start": 360780
+    },
+    {
+      "name": "vote",
+      "start": 358611,
+      "end": 358616,
+      "old": "vote(",
+      "new": "context.exchange.Vote(context, ",
+      "new_start": 362922
+    },
+    {
+      "name": "vote",
+      "start": 364357,
+      "end": 364362,
+      "old": "vote(",
+      "new": "context.exchange.Vote(context, ",
+      "new_start": 368694
+    },
+    {
+      "name": "vote",
+      "start": 366199,
+      "end": 366204,
+      "old": "vote(",
+      "new": "context.exchange.Vote(context, ",
+      "new_start": 370562
+    },
+    {
+      "name": "bytes",
+      "start": 366432,
+      "end": 366439,
+      "old": "bytes()",
+      "new": "context.exchange.Bytes(context)",
+      "new_start": 370821
+    },
+    {
+      "name": "bytes",
+      "start": 366663,
+      "end": 366670,
+      "old": "bytes()",
+      "new": "context.exchange.Bytes(context)",
+      "new_start": 371076
+    },
+    {
+      "name": "vote",
+      "start": 368583,
+      "end": 368588,
+      "old": "vote(",
+      "new": "context.exchange.Vote(context, ",
+      "new_start": 373020
+    },
+    {
+      "name": "bytes",
+      "start": 369488,
+      "end": 369495,
+      "old": "bytes()",
+      "new": "context.exchange.Bytes(context)",
+      "new_start": 373951
+    },
+    {
+      "name": "bytes",
+      "start": 369719,
+      "end": 369726,
+      "old": "bytes()",
+      "new": "context.exchange.Bytes(context)",
+      "new_start": 374206
+    },
+    {
+      "name": "vote",
+      "start": 370454,
+      "end": 370459,
+      "old": "vote(",
+      "new": "context.exchange.Vote(context, ",
+      "new_start": 374965
+    },
+    {
+      "name": "vote",
+      "start": 371164,
+      "end": 371169,
+      "old": "vote(",
+      "new": "context.exchange.Vote(context, ",
+      "new_start": 375701
+    },
+    {
+      "name": "bytes",
+      "start": 371461,
+      "end": 371468,
+      "old": "bytes()",
+      "new": "context.exchange.Bytes(context)",
+      "new_start": 376024
+    },
+    {
+      "name": "vote",
+      "start": 371918,
+      "end": 371923,
+      "old": "vote(",
+      "new": "context.exchange.Vote(context, ",
+      "new_start": 376505
+    },
+    {
+      "name": "vote",
+      "start": 375122,
+      "end": 375127,
+      "old": "vote(",
+      "new": "context.exchange.Vote(context, ",
+      "new_start": 379735
+    },
+    {
+      "name": "bytes",
+      "start": 377632,
+      "end": 377639,
+      "old": "bytes()",
+      "new": "context.exchange.Bytes(context)",
+      "new_start": 382271
+    },
+    {
+      "name": "vote",
+      "start": 377929,
+      "end": 377934,
+      "old": "vote(",
+      "new": "context.exchange.Vote(context, ",
+      "new_start": 382592
+    },
+    {
+      "name": "vote",
+      "start": 381924,
+      "end": 381929,
+      "old": "vote(",
+      "new": "context.exchange.Vote(context, ",
+      "new_start": 386613
+    },
+    {
+      "name": "vote",
+      "start": 384312,
+      "end": 384317,
+      "old": "vote(",
+      "new": "context.exchange.Vote(context, ",
+      "new_start": 389027
+    },
+    {
+      "name": "bytes",
+      "start": 385597,
+      "end": 385604,
+      "old": "bytes()",
+      "new": "context.exchange.Bytes(context)",
+      "new_start": 390338
+    },
+    {
+      "name": "vote",
+      "start": 386097,
+      "end": 386102,
+      "old": "vote(",
+      "new": "context.exchange.Vote(context, ",
+      "new_start": 390862
+    },
+    {
+      "name": "bytes",
+      "start": 386352,
+      "end": 386359,
+      "old": "bytes()",
+      "new": "context.exchange.Bytes(context)",
+      "new_start": 391143
+    },
+    {
+      "name": "vote",
+      "start": 387554,
+      "end": 387559,
+      "old": "vote(",
+      "new": "context.exchange.Vote(context, ",
+      "new_start": 392369
+    },
+    {
+      "name": "bytes",
+      "start": 387758,
+      "end": 387765,
+      "old": "bytes()",
+      "new": "context.exchange.Bytes(context)",
+      "new_start": 392599
+    },
+    {
+      "name": "vote",
+      "start": 388249,
+      "end": 388254,
+      "old": "vote(",
+      "new": "context.exchange.Vote(context, ",
+      "new_start": 393114
+    },
+    {
+      "name": "vote",
+      "start": 388474,
+      "end": 388479,
+      "old": "vote(",
+      "new": "context.exchange.Vote(context, ",
+      "new_start": 393365
+    },
+    {
+      "name": "vote",
+      "start": 388741,
+      "end": 388746,
+      "old": "vote(",
+      "new": "context.exchange.Vote(context, ",
+      "new_start": 393658
+    },
+    {
+      "name": "vote",
+      "start": 389429,
+      "end": 389434,
+      "old": "vote(",
+      "new": "context.exchange.Vote(context, ",
+      "new_start": 394372
+    },
+    {
+      "name": "vote",
+      "start": 390131,
+      "end": 390136,
+      "old": "vote(",
+      "new": "context.exchange.Vote(context, ",
+      "new_start": 395100
+    },
+    {
+      "name": "vote",
+      "start": 390339,
+      "end": 390344,
+      "old": "vote(",
+      "new": "context.exchange.Vote(context, ",
+      "new_start": 395334
+    },
+    {
+      "name": "vote",
+      "start": 390789,
+      "end": 390794,
+      "old": "vote(",
+      "new": "context.exchange.Vote(context, ",
+      "new_start": 395810
+    },
+    {
+      "name": "bytes",
+      "start": 391101,
+      "end": 391108,
+      "old": "bytes()",
+      "new": "context.exchange.Bytes(context)",
+      "new_start": 396148
+    },
+    {
+      "name": "vote",
+      "start": 391670,
+      "end": 391675,
+      "old": "vote(",
+      "new": "context.exchange.Vote(context, ",
+      "new_start": 396741
+    },
+    {
+      "name": "vote",
+      "start": 392093,
+      "end": 392098,
+      "old": "vote(",
+      "new": "context.exchange.Vote(context, ",
+      "new_start": 397190
+    },
+    {
+      "name": "bytes",
+      "start": 393007,
+      "end": 393014,
+      "old": "bytes()",
+      "new": "context.exchange.Bytes(context)",
+      "new_start": 398130
+    },
+    {
+      "name": "vote",
+      "start": 394029,
+      "end": 394034,
+      "old": "vote(",
+      "new": "context.exchange.Vote(context, ",
+      "new_start": 399176
+    },
+    {
+      "name": "vote",
+      "start": 397752,
+      "end": 397757,
+      "old": "vote(",
+      "new": "context.exchange.Vote(context, ",
+      "new_start": 402925
+    },
+    {
+      "name": "bytes",
+      "start": 400682,
+      "end": 400689,
+      "old": "bytes()",
+      "new": "context.exchange.Bytes(context)",
+      "new_start": 405881
+    },
+    {
+      "name": "vote",
+      "start": 404349,
+      "end": 404354,
+      "old": "vote(",
+      "new": "context.exchange.Vote(context, ",
+      "new_start": 409572
+    },
+    {
+      "name": "admit",
+      "start": 405377,
+      "end": 405383,
+      "old": "admit(",
+      "new": "context.exchange.Admit(context, ",
+      "new_start": 410626
+    },
+    {
+      "name": "vote",
+      "start": 408407,
+      "end": 408412,
+      "old": "vote(",
+      "new": "context.exchange.Vote(context, ",
+      "new_start": 413682
+    },
+    {
+      "name": "bytes",
+      "start": 409623,
+      "end": 409630,
+      "old": "bytes()",
+      "new": "context.exchange.Bytes(context)",
+      "new_start": 414924
+    },
+    {
+      "name": "vote",
+      "start": 411146,
+      "end": 411151,
+      "old": "vote(",
+      "new": "context.exchange.Vote(context, ",
+      "new_start": 416471
+    },
+    {
+      "name": "bytes",
+      "start": 411351,
+      "end": 411358,
+      "old": "bytes()",
+      "new": "context.exchange.Bytes(context)",
+      "new_start": 416702
+    },
+    {
+      "name": "vote",
+      "start": 411786,
+      "end": 411791,
+      "old": "vote(",
+      "new": "context.exchange.Vote(context, ",
+      "new_start": 417161
+    },
+    {
+      "name": "vote",
+      "start": 412868,
+      "end": 412873,
+      "old": "vote(",
+      "new": "context.exchange.Vote(context, ",
+      "new_start": 418269
+    },
+    {
+      "name": "vote",
+      "start": 417155,
+      "end": 417160,
+      "old": "vote(",
+      "new": "context.exchange.Vote(context, ",
+      "new_start": 422582
+    },
+    {
+      "name": "bytes",
+      "start": 417267,
+      "end": 417274,
+      "old": "bytes()",
+      "new": "context.exchange.Bytes(context)",
+      "new_start": 422720
+    },
+    {
+      "name": "real_bytes",
+      "start": 418118,
+      "end": 418130,
+      "old": "real_bytes()",
+      "new": "context.exchange.RealBytes(context)",
+      "new_start": 423595
+    },
+    {
+      "name": "admit",
+      "start": 419472,
+      "end": 419478,
+      "old": "admit(",
+      "new": "context.exchange.Admit(context, ",
+      "new_start": 424972
+    },
+    {
+      "name": "vote",
+      "start": 424166,
+      "end": 424171,
+      "old": "vote(",
+      "new": "context.exchange.Vote(context, ",
+      "new_start": 429692
+    },
+    {
+      "name": "vote",
+      "start": 424625,
+      "end": 424630,
+      "old": "vote(",
+      "new": "context.exchange.Vote(context, ",
+      "new_start": 430177
+    },
+    {
+      "name": "vote",
+      "start": 425507,
+      "end": 425512,
+      "old": "vote(",
+      "new": "context.exchange.Vote(context, ",
+      "new_start": 431085
+    },
+    {
+      "name": "vote",
+      "start": 427327,
+      "end": 427332,
+      "old": "vote(",
+      "new": "context.exchange.Vote(context, ",
+      "new_start": 432931
+    },
+    {
+      "name": "vote",
+      "start": 429101,
+      "end": 429106,
+      "old": "vote(",
+      "new": "context.exchange.Vote(context, ",
+      "new_start": 434731
+    },
+    {
+      "name": "bytes",
+      "start": 429298,
+      "end": 429305,
+      "old": "bytes()",
+      "new": "context.exchange.Bytes(context)",
+      "new_start": 434954
+    },
+    {
+      "name": "vote",
+      "start": 430510,
+      "end": 430515,
+      "old": "vote(",
+      "new": "context.exchange.Vote(context, ",
+      "new_start": 436190
+    },
+    {
+      "name": "bytes",
+      "start": 430841,
+      "end": 430848,
+      "old": "bytes()",
+      "new": "context.exchange.Bytes(context)",
+      "new_start": 436547
+    },
+    {
+      "name": "vote",
+      "start": 436690,
+      "end": 436695,
+      "old": "vote(",
+      "new": "context.exchange.Vote(context, ",
+      "new_start": 442420
+    },
+    {
+      "name": "bytes",
+      "start": 437005,
+      "end": 437012,
+      "old": "bytes()",
+      "new": "context.exchange.Bytes(context)",
+      "new_start": 442761
+    },
+    {
+      "name": "admit",
+      "start": 438259,
+      "end": 438265,
+      "old": "admit(",
+      "new": "context.exchange.Admit(context, ",
+      "new_start": 444039
+    },
+    {
+      "name": "real_bytes",
+      "start": 438531,
+      "end": 438543,
+      "old": "real_bytes()",
+      "new": "context.exchange.RealBytes(context)",
+      "new_start": 444337
+    },
+    {
+      "name": "admit",
+      "start": 439027,
+      "end": 439033,
+      "old": "admit(",
+      "new": "context.exchange.Admit(context, ",
+      "new_start": 444856
+    },
+    {
+      "name": "vote",
+      "start": 442593,
+      "end": 442598,
+      "old": "vote(",
+      "new": "context.exchange.Vote(context, ",
+      "new_start": 448448
+    },
+    {
+      "name": "vote",
+      "start": 443040,
+      "end": 443045,
+      "old": "vote(",
+      "new": "context.exchange.Vote(context, ",
+      "new_start": 448921
+    }
+  ],
+  "main_call_counts": {
+    "elect_trial_failure": 0,
+    "vote": 131,
+    "bytes": 54,
+    "real_bytes": 5,
+    "admit": 40,
+    "import_source": 2
+  },
+  "callback_binding": {
+    "old": "EngineReports::EmitFixedMetricDrift(context, stage, bytes)",
+    "new": "EngineReports::EmitFixedMetricDrift(context, stage)",
+    "Reports_two_Bytes_calls_routed_directly": true,
+    "three_Reports_templates_removed_without_new_callback": true
+  },
+  "member_body_proofs": [
+    {
+      "lambda": "elect_trial_failure",
+      "member": "ElectTrialFailure",
+      "reference_aliases": 2,
+      "operation_tokens_identical_after_routing_reversal": true,
+      "formatted_lines": 6
+    },
+    {
+      "lambda": "vote",
+      "member": "Vote",
+      "reference_aliases": 6,
+      "operation_tokens_identical_after_routing_reversal": true,
+      "formatted_lines": 38
+    },
+    {
+      "lambda": "bytes",
+      "member": "Bytes",
+      "reference_aliases": 19,
+      "operation_tokens_identical_after_routing_reversal": true,
+      "formatted_lines": 29
+    },
+    {
+      "lambda": "real_bytes",
+      "member": "RealBytes",
+      "reference_aliases": 2,
+      "operation_tokens_identical_after_routing_reversal": true,
+      "formatted_lines": 6
+    },
+    {
+      "lambda": "admit",
+      "member": "Admit",
+      "reference_aliases": 7,
+      "operation_tokens_identical_after_routing_reversal": true,
+      "formatted_lines": 22
+    },
+    {
+      "lambda": "import_source",
+      "member": "ImportSource",
+      "reference_aliases": 4,
+      "operation_tokens_identical_after_routing_reversal": true,
+      "formatted_lines": 13
+    }
+  ],
+  "live_private_repair_and_atlas_geometry_references": true,
+  "all_original_constness_preserved": true,
+  "atlas_budget_selector_unchanged_and_option_pointer_never_assigned": true,
+  "requests_ignored_unchanged": true,
+  "no_live_files_changed": true
+}

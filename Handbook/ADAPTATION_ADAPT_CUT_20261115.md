@@ -58,3 +58,5 @@ The phase-A report draft at `P/end_A_preparation/phase_A_readiness_draft.md` rec
 [Original initial-A1 failure and superseded source/reference ledger](History/ADAPTATION_ADAPT_CUT_20261115_before_fresh536_phaseA_20261117.md) preserves failed checkpointec0e8f3ef5, revert8039fc1b59 and the original baseline gap. That historical failure does not override the later C2.1 correction or the current passed A1 checkpoint.
 
 History SHA256: 1335243e28043797a524bee6ac982cd28d7923acb54b7d1855e861414ca35657
+
+2026-11-17 CUTB2 PASSED scoped G1/G2, build55190.159432s/1765pins. G1zerochangedrecords at1/2/4; G2strict90,809,869work/count480/473/346/263/469/464,368.626787stop/376.929529seal. Actualhandles/pinssealed; evidence P/B2/REPORT.md. Latestuser releasesN14+N15nextboundary; phaseBstopafterendG3/G4/GQ+commit/push, doNOTstartC.

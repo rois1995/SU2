@@ -1,0 +1,79 @@
+{
+  "unapplied": true,
+  "whole_CPP_byte_reversal": true,
+  "six_member_operation_token_proofs": [
+    {
+      "lambda": "elect_trial_failure",
+      "member": "ElectTrialFailure",
+      "reference_aliases": 2,
+      "operation_tokens_identical_after_routing_reversal": true,
+      "formatted_lines": 6
+    },
+    {
+      "lambda": "vote",
+      "member": "Vote",
+      "reference_aliases": 6,
+      "operation_tokens_identical_after_routing_reversal": true,
+      "formatted_lines": 38
+    },
+    {
+      "lambda": "bytes",
+      "member": "Bytes",
+      "reference_aliases": 19,
+      "operation_tokens_identical_after_routing_reversal": true,
+      "formatted_lines": 29
+    },
+    {
+      "lambda": "real_bytes",
+      "member": "RealBytes",
+      "reference_aliases": 2,
+      "operation_tokens_identical_after_routing_reversal": true,
+      "formatted_lines": 6
+    },
+    {
+      "lambda": "admit",
+      "member": "Admit",
+      "reference_aliases": 7,
+      "operation_tokens_identical_after_routing_reversal": true,
+      "formatted_lines": 22
+    },
+    {
+      "lambda": "import_source",
+      "member": "ImportSource",
+      "reference_aliases": 4,
+      "operation_tokens_identical_after_routing_reversal": true,
+      "formatted_lines": 13
+    }
+  ],
+  "Reports_proofs": [
+    {
+      "file": "EngineReports.hpp",
+      "only_original_three_callback_templates_parameters_and_exact_two_accounting_calls_changed": true
+    },
+    {
+      "file": "EngineReports.cpp",
+      "only_original_three_callback_templates_parameters_and_exact_two_accounting_calls_changed": true
+    }
+  ],
+  "main_call_counts": {
+    "elect_trial_failure": 0,
+    "vote": 131,
+    "bytes": 54,
+    "real_bytes": 5,
+    "admit": 40,
+    "import_source": 2
+  },
+  "internal_calls_preserved": {
+    "ElectTrialFailure": 2,
+    "Vote_inside_Admit": 1,
+    "Bytes_inside_RealBytes_Admit_ImportSource": 3,
+    "Bytes_inside_Reports": 2
+  },
+  "original_capture_constness_checked_from_source": true,
+  "private_repair_and_atlas_geometry_are_live_references_not_bool_snapshots": true,
+  "shared_budget_option_not_assigned_in_CPP": true,
+  "no_new_payload_fields_or_callbacks": true,
+  "ignored_requests_stays_ignored_without_extra_void_statement": true,
+  "recipe_sha256": "4c13003ea2915059c2d7bc7735a2ed92873fa9479a827ea88828c1b2a6a02263",
+  "builds_or_tests_launched": false
+}

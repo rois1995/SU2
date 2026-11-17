@@ -12,15 +12,12 @@ struct EngineReports {
   static void UpdateFixedMetricCells(EngineContext&, const std::vector<Dependency>&, const std::vector<OwnedCell>&);
   static void ResetFixedMetricCells(EngineContext&);
 
-  template <class Bytes>
-  static void InitializeFixedMetricDrift(EngineContext&, bool& available, Bytes&);
-  template <class Bytes>
+  static void InitializeFixedMetricDrift(EngineContext&, bool& available);
   static void ReadFixedMetricDrift(EngineContext&, std::array<FixedMetricReading, FixedMetricSamples>& selected,
-                                   std::array<bool, FixedMetricSamples>& have, bool& available, Bytes&);
+                                   std::array<bool, FixedMetricSamples>& have, bool& available);
   static void CompareFixedMetricDrift(EngineContext&,
                                       const std::array<FixedMetricReading, FixedMetricSamples>& selected,
                                       const std::array<bool, FixedMetricSamples>& have, size_t& supported,
                                       size_t& owned, long double& maximum, long double& local_maximum);
-  template <class Bytes>
-  static void EmitFixedMetricDrift(EngineContext&, const char* stage, Bytes&);
+  static void EmitFixedMetricDrift(EngineContext&, const char* stage);
 };

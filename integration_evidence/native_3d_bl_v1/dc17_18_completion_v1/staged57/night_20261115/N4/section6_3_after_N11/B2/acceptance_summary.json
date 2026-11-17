@@ -1,0 +1,78 @@
+{
+  "substep": "B2",
+  "base_passed_substep": "c8fd7ff400",
+  "passed_scoped_G1_G2": true,
+  "phase_A_complete": true,
+  "N4_complete": false,
+  "G1": {
+    "serial": {
+      "gate_passed": true,
+      "case_records": 375,
+      "changed_case_count": 0,
+      "candidate_elapsed_seconds": 793.9152257442474,
+      "reporter_success_totals_equal_observation": true
+    },
+    "mpi2": {
+      "gate_passed": true,
+      "case_records": 114,
+      "changed_case_count": 0,
+      "candidate_elapsed_seconds": 14.066556215286255,
+      "reporter_success_totals_equal_observation": true
+    },
+    "mpi4": {
+      "gate_passed": true,
+      "case_records": 228,
+      "changed_case_count": 0,
+      "candidate_elapsed_seconds": 16.223246335983276,
+      "reporter_success_totals_equal_observation": true
+    }
+  },
+  "G2": {
+    "passed": true,
+    "case": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N4/section6_3_after_N11/candidate_prefix_preparation/cases/B2_G2_551",
+    "seconds_until_stop": 368.6267870719894,
+    "seconds_total": 376.9295285709668,
+    "strict_comparison": {
+      "gate": "G2",
+      "passed": true,
+      "comparison": {
+        "passed": true,
+        "gate": "G2",
+        "integer_rows": {
+          "passed": true,
+          "first_difference": null,
+          "streams": [
+            "rank_output/1/rank.0/stdout",
+            "rank_output/1/rank.1/stdout",
+            "rank_output/1/rank.2/stdout",
+            "rank_output/1/rank.3/stdout",
+            "rank_output/1/rank.4/stdout",
+            "rank_output/1/rank.5/stdout"
+          ]
+        },
+        "timer_rows": {
+          "passed": true,
+          "timer_snapshots": 12,
+          "wall_law_lines_by_physical_stream": {
+            "rank_output/1/rank.0/stdout": 1,
+            "rank_output/1/rank.1/stdout": 1,
+            "rank_output/1/rank.2/stdout": 1,
+            "rank_output/1/rank.3/stdout": 1,
+            "rank_output/1/rank.4/stdout": 1,
+            "rank_output/1/rank.5/stdout": 1
+          },
+          "rule": "strict per-row timer fields/calls and exact wall-law line counts; only timing values excluded"
+        },
+        "comparison_rule": "all old rows strict; every timer row and census call strict; no census allowance"
+      },
+      "comparator_sha256": "b4ca8efc8469140577f6c347248a24e85df41727e4134c9d860840b7e6c5990a"
+    },
+    "observed_rank_hwm_sum_bytes": 7895732224,
+    "job_limit_bytes": 19999490048,
+    "inputs_unchanged": true,
+    "source_and_binary_pins_unchanged": true,
+    "all_owned_handles_terminal": true
+  },
+  "source_pin_count": 1765,
+  "source_pins_unchanged_at_qualification": true
+}

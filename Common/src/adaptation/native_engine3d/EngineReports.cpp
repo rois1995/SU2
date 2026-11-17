@@ -84,8 +84,7 @@ void EngineReports::ResetFixedMetricCells(EngineContext& context) {
   for (const auto& row : working) ConsiderFixedMetricRow(context, row.second);
 }
 
-template <class Bytes>
-void EngineReports::InitializeFixedMetricDrift(EngineContext& context, bool& available, Bytes& bytes) {
+void EngineReports::InitializeFixedMetricDrift(EngineContext& context, bool& available) {
   auto& world = context.world;
   auto& options = context.options;
   auto& working = *context.ownership.working;
@@ -122,8 +121,9 @@ void EngineReports::InitializeFixedMetricDrift(EngineContext& context, bool& ava
   }
   if (!world.elect(failure).any) {
     bool admitted = false;
-    auto points = world.exchange(outgoing, &admitted, options.memory_ceiling,
-                                 transfer_memory::Add(bytes(), source.ResidentBytes(), directory->ResidentBytes()));
+    auto points = world.exchange(
+        outgoing, &admitted, options.memory_ceiling,
+        transfer_memory::Add(context.exchange.Bytes(context), source.ResidentBytes(), directory->ResidentBytes()));
     if (admitted && points.size() <= FixedMetricSamples) {
       std::sort(points.begin(), points.end(),
                 [](const auto& a, const auto& b) { return std::tie(a.owner, a.cell) < std::tie(b.owner, b.cell); });
@@ -136,10 +136,9 @@ void EngineReports::InitializeFixedMetricDrift(EngineContext& context, bool& ava
   available = fixed_metric_available;
 }
 
-template <class Bytes>
 void EngineReports::ReadFixedMetricDrift(EngineContext& context,
                                          std::array<FixedMetricReading, FixedMetricSamples>& selected,
-                                         std::array<bool, FixedMetricSamples>& have, bool& available, Bytes& bytes) {
+                                         std::array<bool, FixedMetricSamples>& have, bool& available) {
   auto& world = context.world;
   auto& options = context.options;
   auto& working = *context.ownership.working;
@@ -167,9 +166,9 @@ void EngineReports::ReadFixedMetricDrift(EngineContext& context,
     available = false;
   else {
     bool admitted = false;
-    const auto readings =
-        world.exchange(outgoing, &admitted, options.memory_ceiling,
-                       transfer_memory::Add(bytes(), source.ResidentBytes(), directory->ResidentBytes()));
+    const auto readings = world.exchange(
+        outgoing, &admitted, options.memory_ceiling,
+        transfer_memory::Add(context.exchange.Bytes(context), source.ResidentBytes(), directory->ResidentBytes()));
     available = admitted;
     if (admitted)
       for (const auto& reading : readings)
@@ -212,8 +211,7 @@ void EngineReports::CompareFixedMetricDrift(EngineContext& context,
     }
 }
 
-template <class Bytes>
-void EngineReports::EmitFixedMetricDrift(EngineContext& context, const char* stage, Bytes& bytes) {
+void EngineReports::EmitFixedMetricDrift(EngineContext& context, const char* stage) {
   auto& world = context.world;
   auto& options = context.options;
   auto& fixed_metric_available = *context.control.fixed_metric_available;
@@ -224,10 +222,10 @@ void EngineReports::EmitFixedMetricDrift(EngineContext& context, const char* sta
   const auto began = Clock::now();
   bool available = fixed_metric_available;
   if (!fixed_metric_initialized && std::string(stage) == "quality_entry")
-    InitializeFixedMetricDrift(context, available, bytes);
+    InitializeFixedMetricDrift(context, available);
   std::array<FixedMetricReading, FixedMetricSamples> selected{};
   std::array<bool, FixedMetricSamples> have{};
-  if (fixed_metric_available) ReadFixedMetricDrift(context, selected, have, available, bytes);
+  if (fixed_metric_available) ReadFixedMetricDrift(context, selected, have, available);
   size_t supported = 0, owned = 0;
   long double maximum = 0, local_maximum = 0;
   if (available) CompareFixedMetricDrift(context, selected, have, supported, owned, maximum, local_maximum);
