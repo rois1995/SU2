@@ -1,0 +1,79 @@
+{
+  "actual_host_proc": true,
+  "unix": 1794904311.824332,
+  "all_observed_handles_and_controller_terminal": true,
+  "identities": [
+    {
+      "pid": 2794196,
+      "state": "R",
+      "start_ticks": 39620294,
+      "name": "test_driver",
+      "alive": false
+    },
+    {
+      "pid": 2794241,
+      "state": "S",
+      "start_ticks": 39620463,
+      "name": "time",
+      "alive": false
+    },
+    {
+      "pid": 2794242,
+      "state": "S",
+      "start_ticks": 39620463,
+      "name": "timeout",
+      "alive": false
+    },
+    {
+      "pid": 2794243,
+      "state": "S",
+      "start_ticks": 39620463,
+      "name": "mpirun",
+      "alive": false
+    },
+    {
+      "pid": 2794249,
+      "state": "R",
+      "start_ticks": 39620467,
+      "name": "test_driver",
+      "alive": false
+    },
+    {
+      "pid": 2794248,
+      "state": "R",
+      "start_ticks": 39620467,
+      "name": "test_driver",
+      "alive": false
+    },
+    {
+      "pid": 2794247,
+      "state": "R",
+      "start_ticks": 39620467,
+      "name": "test_driver",
+      "alive": false
+    },
+    {
+      "pid": 2794246,
+      "state": "Z",
+      "start_ticks": 39620467,
+      "name": "test_driver",
+      "alive": false
+    },
+    {
+      "pid": 2794021,
+      "start_ticks": 39619896,
+      "name": "controller",
+      "alive": false
+    }
+  ],
+  "exec_session": 19490,
+  "exec_exit_code": 1,
+  "gate_passed": false,
+  "first_failure": "reporter_totals_equal=false; changed_case_count=0",
+  "written_C2_1_gate_passed": true,
+  "own_report_helper_corrected": true,
+  "postprocessing_only": true,
+  "original_exec_exit_code": 1,
+  "original_false_receipt_retained": true,
+  "corrected_gate_receipt": "validation/G1_C2_1_exact_mpi4.json"
+}

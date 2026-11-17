@@ -8,6 +8,8 @@ struct EngineExchange {
   std::optional<DirectoryStats> retired_directory;
   std::optional<bool> private_repair;
 
+  void RetireDirectory(const DirectoryStats& old);
+
   EngineExchange();
   ~EngineExchange();
   EngineExchange(const EngineExchange&) = delete;

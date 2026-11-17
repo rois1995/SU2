@@ -1,0 +1,400 @@
+{
+  "unapplied": true,
+  "compiled_or_launched": false,
+  "requires_phase_A_full_and_restart_pass_before_apply": true,
+  "base_CPP_sha256": "dd97c5e2cb75789b1c35934a6fc3851ba297303a25510df5deceaba65efaf66f",
+  "base_files_sha256": {
+    "Common/src/adaptation/CNativeEngine3D.cpp": "dd97c5e2cb75789b1c35934a6fc3851ba297303a25510df5deceaba65efaf66f",
+    "Common/src/adaptation/native_engine3d/EngineContext.hpp": "847752c9e043b21e2c1968f21673b1b0abba8ae89af74caef48dc43a55ba2419",
+    "Common/src/adaptation/native_engine3d/EngineControl.hpp": null,
+    "Common/src/adaptation/native_engine3d/EngineControl.cpp": null,
+    "Common/src/adaptation/native_engine3d/EngineExchange.hpp": "5218f814e469ce682b03549983198aedf1586f7e4b23449531088a6bcdf464c8",
+    "Common/src/adaptation/native_engine3d/EngineExchange.cpp": "764dd7425ccbcc9378b9f8cf467bb0190d4e0c92801f2ffb8cf894aa3d547121",
+    "Common/src/adaptation/native_engine3d/EngineQueues.hpp": "d4fac4045aef775c2bec4df2fb9ed74d8b97bd26503670b4649a7e8f2de2df37",
+    "Common/src/adaptation/native_engine3d/EngineQueues.cpp": "05e8495ab0edffde28bf5b18838deac614f67087508d41df61e01a36afe441fa",
+    "Common/src/adaptation/native_engine3d/EngineTrial.hpp": null,
+    "Common/src/adaptation/native_engine3d/EngineTrial.cpp": null,
+    "Common/src/adaptation/native_engine3d/EngineReports.hpp": null,
+    "Common/src/adaptation/native_engine3d/EngineReports.cpp": null
+  },
+  "proposed_files_sha256": {
+    "Common/src/adaptation/CNativeEngine3D.cpp": "5d95a9c8556084c7faaa10cb04603aea7e10354dc942cd89162d7f27210511a7",
+    "Common/src/adaptation/native_engine3d/EngineContext.hpp": "74d6202b1462cd3ce3670bf89009b08d8e55dfd05f46cd4010e2fd5ae9e5ee9d",
+    "Common/src/adaptation/native_engine3d/EngineControl.hpp": "4d9ba9cacce2c4103745e9711211091bcb9ae56642f67ddb5ebd27ac172fbd7c",
+    "Common/src/adaptation/native_engine3d/EngineControl.cpp": "8a49a7de40d846ad4e7f6164ed2c8b1d345e3939b2aa972408eb9db87a3a4b11",
+    "Common/src/adaptation/native_engine3d/EngineExchange.hpp": "16738e08de8c69af0a5b493004b501030cbbb5ffae1de80b35f6638a7eeda3d1",
+    "Common/src/adaptation/native_engine3d/EngineExchange.cpp": "f094321c8de30e2278629813621b35dea43f60b6e6b095f551b2ca55cc431c62",
+    "Common/src/adaptation/native_engine3d/EngineQueues.hpp": "359d3ef321fa1a6d2722f9ad4fe1667d970f031c5c51c6a1266510b580fc5a55",
+    "Common/src/adaptation/native_engine3d/EngineQueues.cpp": "701f2fe570f59a2d289611f504ca59205cdc14fe98e67855dc50fea301c784e5",
+    "Common/src/adaptation/native_engine3d/EngineTrial.hpp": "7a7a29321fd3636ed2a1a4d9e732bc23bc2f6a6f3c32c15da314d5afb8914d81",
+    "Common/src/adaptation/native_engine3d/EngineTrial.cpp": "717634a514b169f383cf3e88ecc6cbc10783dab3babb76c69ea7a3b249341fe5",
+    "Common/src/adaptation/native_engine3d/EngineReports.hpp": "3160df675ba5d8d7d013cbb466aec620eb774960b5dc11a563a84497ffe8cdd1",
+    "Common/src/adaptation/native_engine3d/EngineReports.cpp": "81cf80ac97fdb9cda0ea1078668441cf95acc7fcb443143bc6a470c5c60334c4"
+  },
+  "whole_CPP_reverse_byte_exact": true,
+  "removed_definitions_and_constant": [
+    {
+      "name": "retire_directory",
+      "start": 101195,
+      "end": 102333,
+      "old": "  auto retire_directory=[&](const DirectoryStats& old) {\n    retired_directory.collision_seconds+=old.collision_seconds;\n    retired_directory.collision_builds+=old.collision_builds;\n    retired_directory.collision_candidates+=old.collision_candidates;\n    retired_directory.collision_checks+=old.collision_checks;\n    retired_directory.elections+=old.elections;\n    retired_directory.election_seconds+=old.election_seconds;\n    retired_directory.parameter_agreement_seconds+=old.parameter_agreement_seconds;\n    retired_directory.parameter_publication_seconds+=old.parameter_publication_seconds;\n    retired_directory.parameter_edits+=old.parameter_edits;\n    retired_directory.parameter_faces+=old.parameter_faces;\n    retired_directory.parameter_payload_bytes+=old.parameter_payload_bytes;\n    retired_directory.change_scanned+=old.change_scanned;\n    retired_directory.change_sent+=old.change_sent;\n    retired_directory.change_received+=old.change_received;\n    retired_directory.change_seconds+=old.change_seconds;\n    retired_directory.maximum_work_bytes=std::max(retired_directory.maximum_work_bytes,old.maximum_work_bytes);\n  };\n",
+      "old_body": "\n    retired_directory.collision_seconds+=old.collision_seconds;\n    retired_directory.collision_builds+=old.collision_builds;\n    retired_directory.collision_candidates+=old.collision_candidates;\n    retired_directory.collision_checks+=old.collision_checks;\n    retired_directory.elections+=old.elections;\n    retired_directory.election_seconds+=old.election_seconds;\n    retired_directory.parameter_agreement_seconds+=old.parameter_agreement_seconds;\n    retired_directory.parameter_publication_seconds+=old.parameter_publication_seconds;\n    retired_directory.parameter_edits+=old.parameter_edits;\n    retired_directory.parameter_faces+=old.parameter_faces;\n    retired_directory.parameter_payload_bytes+=old.parameter_payload_bytes;\n    retired_directory.change_scanned+=old.change_scanned;\n    retired_directory.change_sent+=old.change_sent;\n    retired_directory.change_received+=old.change_received;\n    retired_directory.change_seconds+=old.change_seconds;\n    retired_directory.maximum_work_bytes=std::max(retired_directory.maximum_work_bytes,old.maximum_work_bytes);\n  "
+    },
+    {
+      "name": "selection_bound",
+      "start": 102473,
+      "end": 102698,
+      "old": "  auto selection_bound=[&](bool repairs) { return transfer_memory::Add(sizeof(Selection::CellDebt),\n      repairs ? 4096u : 0u,\n      (coarsening || bidirectional) ? (repairs ? 8192u : 5120u) : (repairs ? 6144u : 3072u)); };\n",
+      "old_body": " return transfer_memory::Add(sizeof(Selection::CellDebt),\n      repairs ? 4096u : 0u,\n      (coarsening || bidirectional) ? (repairs ? 8192u : 5120u) : (repairs ? 6144u : 3072u)); "
+    },
+    {
+      "name": "length_direction",
+      "start": 221432,
+      "end": 221909,
+      "old": "  auto length_direction=[&](bool collapse) {\n    if(coarsening!=collapse) {\n      selection.blocked_edges.swap(inactive_blocked_edges);std::swap(selection.blocked_links,inactive_blocked_links);\n      coarsening=selection.coarsening=collapse;\n      construction_kind=collapse?MetricChange::Coarsen:MetricChange::Refine;\n    }\n    if(length_blocks_dirty[collapse]) {\n      selection.blocked_edges.clear();selection.blocked_links=0;length_blocks_dirty[collapse]=false;\n    }\n  };\n",
+      "old_body": "\n    if(coarsening!=collapse) {\n      selection.blocked_edges.swap(inactive_blocked_edges);std::swap(selection.blocked_links,inactive_blocked_links);\n      coarsening=selection.coarsening=collapse;\n      construction_kind=collapse?MetricChange::Coarsen:MetricChange::Refine;\n    }\n    if(length_blocks_dirty[collapse]) {\n      selection.blocked_edges.clear();selection.blocked_links=0;length_blocks_dirty[collapse]=false;\n    }\n  "
+    },
+    {
+      "name": "height_check",
+      "start": 118772,
+      "end": 119474,
+      "old": "  auto height_check=[&](const Patch& patch,std::string& reason,bool provisional=false,FirstHeightReport* measured=nullptr) {\n    if(options.wall_heights.empty())return true;\n    ++stats.height_checks;FirstHeightReport report;\n    const bool valid=CheckFirstHeight(patch,options.wall_heights,geometry,report,reason);\n    if(measured)*measured=report;\n    stats.height_rejected+=report.height_failures || report.missing_cells;\n    stats.footprint_rejected+=report.footprint_failures!=0;\n    if(provisional && GetShapeAdmission()==ShapeAdmission::ValidityOnly && report.measured &&\n        !report.reference_clearance_failures && !report.missing_cells){reason.clear();return true;}\n    return valid;\n  };\n",
+      "old_body": "\n    if(options.wall_heights.empty())return true;\n    ++stats.height_checks;FirstHeightReport report;\n    const bool valid=CheckFirstHeight(patch,options.wall_heights,geometry,report,reason);\n    if(measured)*measured=report;\n    stats.height_rejected+=report.height_failures || report.missing_cells;\n    stats.footprint_rejected+=report.footprint_failures!=0;\n    if(provisional && GetShapeAdmission()==ShapeAdmission::ValidityOnly && report.measured &&\n        !report.reference_clearance_failures && !report.missing_cells){reason.clear();return true;}\n    return valid;\n  "
+    },
+    {
+      "name": "geometry_trial",
+      "start": 119474,
+      "end": 119649,
+      "old": "  auto geometry_trial = [&](bool valid) {\n    ++stats.geometry_trials;\n    stats.geometry_rejected += !valid;\n    wall_counters.ObserveGeometry(valid);\n    return valid;\n  };\n",
+      "old_body": "\n    ++stats.geometry_trials;\n    stats.geometry_rejected += !valid;\n    wall_counters.ObserveGeometry(valid);\n    return valid;\n  "
+    },
+    {
+      "name": "metric_trial",
+      "start": 119649,
+      "end": 121572,
+      "old": "  auto metric_trial = [&](bool valid, MetricDiagnosis& diagnosis, MetricChange kind,\n                          bool surface_geometry_progress = false) {\n    const bool previously_valid = valid;\n    ++stats.metric_trials;\n    if(valid&&surface_target&&kind==MetricChange::GeometryRepair&&\n        !surface_geometry_progress&&!diagnosis.size_progress) {\n      valid=false;\n      diagnosis.failure = MetricFailure::Progress;\n      result.reason=\"Surface preparation repair removes neither tangential nor geometry demand.\";\n    }\n    if(valid && bidirectional && repairing && kind==MetricChange::Repair) {\n      const bool final_shape=diagnosis.shape_measured && diagnosis.minimum_mean_ratio>=MinimumMeanRatio &&\n          diagnosis.minimum_scaled_jacobian>=MinimumScaledJacobian;\n      if((!diagnosis.quality_progress&&!final_shape)||diagnosis.added_excess>diagnosis.removed_excess) {\n        valid=false;\n        diagnosis.failure = MetricFailure::Progress;\n        result.reason=\"Native3D improvement must improve measured shape or reach its final gates without increasing metric excess.\";\n      }\n    }\n    if(valid && bidirectional && repairing && selection.geometry_repairs) {\n      if(!diagnosis.shape_measured || diagnosis.minimum_mean_ratio<MinimumMeanRatio ||\n          diagnosis.minimum_scaled_jacobian<MinimumScaledJacobian || diagnosis.added_excess>diagnosis.removed_excess) {\n        valid=false;\n        diagnosis.failure = MetricFailure::Progress;\n        result.reason=\"Native3D geometry repair must preserve closed shape and metric-size gates.\";\n      }\n    }\n    if (!valid) {\n      stats.metric_shape_rejected+=diagnosis.failure==MetricFailure::Shape;\n      stats.metric_progress_rejected+=diagnosis.failure==MetricFailure::Progress;\n      stats.metric_measurement_rejected+=diagnosis.failure==MetricFailure::Measurement;\n    }\n    wall_counters.MetricTrial(previously_valid, valid);\n    return valid;\n  };\n",
+      "old_body": "\n    const bool previously_valid = valid;\n    ++stats.metric_trials;\n    if(valid&&surface_target&&kind==MetricChange::GeometryRepair&&\n        !surface_geometry_progress&&!diagnosis.size_progress) {\n      valid=false;\n      diagnosis.failure = MetricFailure::Progress;\n      result.reason=\"Surface preparation repair removes neither tangential nor geometry demand.\";\n    }\n    if(valid && bidirectional && repairing && kind==MetricChange::Repair) {\n      const bool final_shape=diagnosis.shape_measured && diagnosis.minimum_mean_ratio>=MinimumMeanRatio &&\n          diagnosis.minimum_scaled_jacobian>=MinimumScaledJacobian;\n      if((!diagnosis.quality_progress&&!final_shape)||diagnosis.added_excess>diagnosis.removed_excess) {\n        valid=false;\n        diagnosis.failure = MetricFailure::Progress;\n        result.reason=\"Native3D improvement must improve measured shape or reach its final gates without increasing metric excess.\";\n      }\n    }\n    if(valid && bidirectional && repairing && selection.geometry_repairs) {\n      if(!diagnosis.shape_measured || diagnosis.minimum_mean_ratio<MinimumMeanRatio ||\n          diagnosis.minimum_scaled_jacobian<MinimumScaledJacobian || diagnosis.added_excess>diagnosis.removed_excess) {\n        valid=false;\n        diagnosis.failure = MetricFailure::Progress;\n        result.reason=\"Native3D geometry repair must preserve closed shape and metric-size gates.\";\n      }\n    }\n    if (!valid) {\n      stats.metric_shape_rejected+=diagnosis.failure==MetricFailure::Shape;\n      stats.metric_progress_rejected+=diagnosis.failure==MetricFailure::Progress;\n      stats.metric_measurement_rejected+=diagnosis.failure==MetricFailure::Measurement;\n    }\n    wall_counters.MetricTrial(previously_valid, valid);\n    return valid;\n  "
+    },
+    {
+      "name": "surface_merit",
+      "start": 121572,
+      "end": 122246,
+      "old": "  auto surface_merit=[&](PatchMetric& metric,const Patch& patch) {\n    if(!surface_target)return;\n    std::set<Edge> requested;\n    for(const auto& face:patch.surface)if(options.wall_heights.count(geometry.Get(face.facet).marker))\n      for(unsigned k=0;k<3;++k){Edge edge{face.v[k],face.v[(k+1)%3]};std::sort(edge.begin(),edge.end());requested.insert(edge);}\n    metric.maximum_length=0;\n    for(auto& edge:metric.edges) {\n      if(!requested.count(edge.first))edge.second.length=1; // Neutral merit, not a full-target edge certificate.\n      if(edge.second.length>metric.maximum_length){metric.maximum_length=edge.second.length;metric.longest_edge=edge.first;}\n    }\n  };\n",
+      "old_body": "\n    if(!surface_target)return;\n    std::set<Edge> requested;\n    for(const auto& face:patch.surface)if(options.wall_heights.count(geometry.Get(face.facet).marker))\n      for(unsigned k=0;k<3;++k){Edge edge{face.v[k],face.v[(k+1)%3]};std::sort(edge.begin(),edge.end());requested.insert(edge);}\n    metric.maximum_length=0;\n    for(auto& edge:metric.edges) {\n      if(!requested.count(edge.first))edge.second.length=1; // Neutral merit, not a full-target edge certificate.\n      if(edge.second.length>metric.maximum_length){metric.maximum_length=edge.second.length;metric.longest_edge=edge.first;}\n    }\n  "
+    },
+    {
+      "name": "composed_sample",
+      "start": 193868,
+      "end": 194401,
+      "old": "  auto composed_sample=[&](Point point,Tensor sensor) {\n    Timer query(stats.field_query_seconds,options.timings, SU2NativeTiming3D::Operation::TargetComposition);++stats.field_requests;++stats.field_misses;\n    try {\n      if(composition){Timer compose(stats.field_composition_seconds,options.timings,\n                      SU2NativeTiming3D::Operation::TargetComposition);++stats.field_compositions;sensor=composition(point,sensor);}\n      ValidateTensor(sensor);return sensor;\n    }catch(...){++stats.field_failures;throw;}\n  };\n",
+      "old_body": "\n    Timer query(stats.field_query_seconds,options.timings, SU2NativeTiming3D::Operation::TargetComposition);++stats.field_requests;++stats.field_misses;\n    try {\n      if(composition){Timer compose(stats.field_composition_seconds,options.timings,\n                      SU2NativeTiming3D::Operation::TargetComposition);++stats.field_compositions;sensor=composition(point,sensor);}\n      ValidateTensor(sensor);return sensor;\n    }catch(...){++stats.field_failures;throw;}\n  "
+    },
+    {
+      "name": "record_rejection",
+      "start": 117205,
+      "end": 118351,
+      "old": "  auto record_rejection=[&](Feature feature,const Patch* old,const MetricDiagnosis* metric,const std::string& reason) {\n    if(!diagnostic_rejections.capacity())return;\n    const size_t index=diagnostic_sequence%diagnostic_rejection_limit;\n    if(diagnostic_rejections.size()<diagnostic_rejection_limit)diagnostic_rejections.emplace_back();\n    auto& row=diagnostic_rejections[index];row={};row.sequence=diagnostic_sequence++;row.round=stats.rounds;row.feature=feature;\n    if(old){row.old_count=std::min(old->cells.size(),row.old_cells.size());row.old_cells_truncated=row.old_count<old->cells.size();\n      for(size_t i=0;i<row.old_count;++i)row.old_cells[i]=old->cells[i].id;}\n    else row.old_cells_truncated=true;\n    if(metric){row.shape_measured=metric->shape_measured;row.q=metric->minimum_mean_ratio;row.J=metric->minimum_scaled_jacobian;row.failure=metric->failure;}\n    size_t count=std::min(reason.size(),row.reason.size()-1);\n    if(count<reason.size())while(count && (static_cast<unsigned char>(reason[count])&0xc0)==0x80)--count;\n    std::copy_n(reason.data(),count,row.reason.data());row.reason_truncated=count<reason.size();\n  };\n",
+      "old_body": "\n    if(!diagnostic_rejections.capacity())return;\n    const size_t index=diagnostic_sequence%diagnostic_rejection_limit;\n    if(diagnostic_rejections.size()<diagnostic_rejection_limit)diagnostic_rejections.emplace_back();\n    auto& row=diagnostic_rejections[index];row={};row.sequence=diagnostic_sequence++;row.round=stats.rounds;row.feature=feature;\n    if(old){row.old_count=std::min(old->cells.size(),row.old_cells.size());row.old_cells_truncated=row.old_count<old->cells.size();\n      for(size_t i=0;i<row.old_count;++i)row.old_cells[i]=old->cells[i].id;}\n    else row.old_cells_truncated=true;\n    if(metric){row.shape_measured=metric->shape_measured;row.q=metric->minimum_mean_ratio;row.J=metric->minimum_scaled_jacobian;row.failure=metric->failure;}\n    size_t count=std::min(reason.size(),row.reason.size()-1);\n    if(count<reason.size())while(count && (static_cast<unsigned char>(reason[count])&0xc0)==0x80)--count;\n    std::copy_n(reason.data(),count,row.reason.data());row.reason_truncated=count<reason.size();\n  "
+    },
+    {
+      "name": "consider_fixed_metric_row",
+      "start": 125501,
+      "end": 126397,
+      "old": "  auto consider_fixed_metric_row=[&](const OwnedCell& row) {\n    if(!fixed_metric_available)return;\n    for(size_t i=0;i<fixed_metric_points.size();++i) {\n      if(row.cell.id>=fixed_metric_cells[i])continue;\n      const auto p=fixed_metric_points[i].point;bool inside=true;\n      const double xyz[3]={p.x,p.y,p.z};\n      for(unsigned axis=0;axis<3&&inside;++axis) {\n        double low=INFINITY,high=-INFINITY;\n        for(const auto& node:row.cell.v){const double coordinates[3]={node.p.x,node.p.y,node.p.z};low=std::min(low,coordinates[axis]);high=std::max(high,coordinates[axis]);}\n        inside=xyz[axis]>=low&&xyz[axis]<=high;\n      }\n      if(!inside)continue;\n      try {Tensor current;if(source.SampleContainedCurrentMetric(row,p,current))fixed_metric_cells[i]=row.cell.id;}\n      catch(const std::exception&){} // Unsupported diagnostics never authorize or veto a mesh edit.\n    }\n  };\n",
+      "old_body": "\n    if(!fixed_metric_available)return;\n    for(size_t i=0;i<fixed_metric_points.size();++i) {\n      if(row.cell.id>=fixed_metric_cells[i])continue;\n      const auto p=fixed_metric_points[i].point;bool inside=true;\n      const double xyz[3]={p.x,p.y,p.z};\n      for(unsigned axis=0;axis<3&&inside;++axis) {\n        double low=INFINITY,high=-INFINITY;\n        for(const auto& node:row.cell.v){const double coordinates[3]={node.p.x,node.p.y,node.p.z};low=std::min(low,coordinates[axis]);high=std::max(high,coordinates[axis]);}\n        inside=xyz[axis]>=low&&xyz[axis]<=high;\n      }\n      if(!inside)continue;\n      try {Tensor current;if(source.SampleContainedCurrentMetric(row,p,current))fixed_metric_cells[i]=row.cell.id;}\n      catch(const std::exception&){} // Unsupported diagnostics never authorize or veto a mesh edit.\n    }\n  "
+    },
+    {
+      "name": "update_fixed_metric_cells",
+      "start": 126397,
+      "end": 126767,
+      "old": "  auto update_fixed_metric_cells=[&](const std::vector<Dependency>& removed,const std::vector<OwnedCell>& added) {\n    if(!fixed_metric_available)return;\n    for(size_t i=0;i<fixed_metric_points.size();++i)for(const auto& row:removed)if(row.cell==fixed_metric_cells[i])fixed_metric_cells[i]=UINT64_MAX;\n    for(const auto& row:added)consider_fixed_metric_row(row);\n  };\n",
+      "old_body": "\n    if(!fixed_metric_available)return;\n    for(size_t i=0;i<fixed_metric_points.size();++i)for(const auto& row:removed)if(row.cell==fixed_metric_cells[i])fixed_metric_cells[i]=UINT64_MAX;\n    for(const auto& row:added)consider_fixed_metric_row(row);\n  "
+    },
+    {
+      "name": "reset_fixed_metric_cells",
+      "start": 126767,
+      "end": 126958,
+      "old": "  auto reset_fixed_metric_cells=[&]() {\n    if(!fixed_metric_available)return;\n    fixed_metric_cells.fill(UINT64_MAX);for(const auto& row:working)consider_fixed_metric_row(row.second);\n  };\n",
+      "old_body": "\n    if(!fixed_metric_available)return;\n    fixed_metric_cells.fill(UINT64_MAX);for(const auto& row:working)consider_fixed_metric_row(row.second);\n  "
+    },
+    {
+      "name": "emit_fixed_metric_drift",
+      "start": 126958,
+      "end": 131833,
+      "old": "  auto emit_fixed_metric_drift=[&](const char* stage) {\n    const auto began=Clock::now();bool available=fixed_metric_available;\n    if(!fixed_metric_initialized&&std::string(stage)==\"quality_entry\") {\n      fixed_metric_initialized=true;CLocalFailure failure;std::vector<FixedMetricPoint> local;\n      std::vector<std::vector<FixedMetricPoint>> outgoing;\n      try {\n        const size_t quota=FixedMetricSamples/world.size+(size_t(world.rank)<FixedMetricSamples%world.size);\n        std::array<std::vector<Id>,3> candidates;\n        for(const auto& row:working) {\n          const auto& cached=selection.cells.at(row.first);\n          const unsigned kind=cached.debt.q_bad||cached.debt.j_bad?(cached.surface?0u:1u):2u;\n          if(candidates[kind].size()<quota)candidates[kind].push_back(row.first);\n        }\n        for(const auto& category:candidates)for(Id id:category)if(local.size()<quota) {\n          const auto& row=working.at(id);const auto point=Centroid(row.cell);Tensor metric;\n          if(source.SampleContainedCurrentMetric(row,point,metric))local.push_back({id,world.rank,point,metric});\n        }\n        outgoing.assign(world.size,local);\n      }catch(const std::exception& e){failure.Set(1,0,e.what());}\n      if(!world.elect(failure).any) {\n        bool admitted=false;\n        auto points=world.exchange(outgoing,&admitted,options.memory_ceiling,\n            transfer_memory::Add(bytes(),source.ResidentBytes(),directory->ResidentBytes()));\n        if(admitted&&points.size()<=FixedMetricSamples) {\n          std::sort(points.begin(),points.end(),[](const auto& a,const auto& b){return std::tie(a.owner,a.cell)<std::tie(b.owner,b.cell);});\n          fixed_metric_points=std::move(points);fixed_metric_available=!fixed_metric_points.empty();\n          for(size_t i=0;i<fixed_metric_points.size();++i)if(fixed_metric_points[i].owner==world.rank)fixed_metric_cells[i]=fixed_metric_points[i].cell;\n        }\n      }\n      available=fixed_metric_available;\n    }\n    std::array<FixedMetricReading,FixedMetricSamples> selected{};\n    std::array<bool,FixedMetricSamples> have{};\n    if(fixed_metric_available) {\n      CLocalFailure failure;std::vector<FixedMetricReading> local;std::vector<std::vector<FixedMetricReading>> outgoing;\n      try {\n        local.reserve(fixed_metric_points.size());\n        for(size_t i=0;i<fixed_metric_points.size();++i) {\n          const auto row=working.find(fixed_metric_cells[i]);if(row==working.end())continue;\n          Tensor current;\n          if(source.SampleContainedCurrentMetric(row->second,fixed_metric_points[i].point,current))local.push_back({i,row->first,world.rank,current});\n        }\n        outgoing.assign(world.size,local);\n      }catch(const std::exception& e){failure.Set(1,0,e.what());}\n      if(world.elect(failure).any)available=false;\n      else {\n        bool admitted=false;\n        const auto readings=world.exchange(outgoing,&admitted,options.memory_ceiling,\n            transfer_memory::Add(bytes(),source.ResidentBytes(),directory->ResidentBytes()));\n        available=admitted;\n        if(admitted)for(const auto& reading:readings)if(reading.sample<fixed_metric_points.size()) {\n          const auto i=reading.sample;\n          if(!have[i]||std::tie(reading.cell,reading.owner)<std::tie(selected[i].cell,selected[i].owner)){selected[i]=reading;have[i]=true;}\n        }\n      }\n    }\n    size_t supported=0,owned=0;long double maximum=0,local_maximum=0;\n    if(available)for(size_t i=0;i<fixed_metric_points.size();++i)if(have[i]) {\n      const auto a=fixed_metric_points[i].baseline,b=selected[i].current;\n      const long double before[6]={a.xx,a.xy,a.xz,a.yy,a.yz,a.zz},after[6]={b.xx,b.xy,b.xz,b.yy,b.yz,b.zz};\n      long double scale=0,difference=0;\n      for(unsigned k=0;k<6;++k){const auto weight=(k==1||k==2||k==4)?std::sqrt(2.L):1.L;\n        scale=std::hypot(scale,weight*before[k]);difference=std::hypot(difference,weight*(after[k]-before[k]));}\n      if(!(std::isfinite(scale)&&scale>0&&std::isfinite(difference)))continue;\n      const auto relative=difference/scale;if(!std::isfinite(relative))continue;\n      ++supported;maximum=std::max(maximum,relative);\n      if(selected[i].owner==world.rank){++owned;local_maximum=std::max(local_maximum,relative);}\n    }\n    stats.quality.diagnostic_seconds+=std::chrono::duration<double>(Clock::now()-began).count();\n    if(options.timings)std::cout<<std::setprecision(17)<<\"NATIVE3D_QUALITY_DRIFT rank=\"<<world.rank<<\" stage=\"<<stage\n        <<\" initialized=\"<<fixed_metric_initialized<<\" available=\"<<available<<\" samples=\"<<fixed_metric_points.size()\n        <<\" supported=\"<<supported<<\" lost=\"<<fixed_metric_points.size()-supported<<\" owned=\"<<owned\n        <<\" maximum_relative_frobenius=\"<<maximum<<\" owned_maximum_relative_frobenius=\"<<local_maximum\n        <<\" current_nodal_sensor=1 full_target=\"<<!bool(composition)<<'\\n';\n  };\n",
+      "old_body": "\n    const auto began=Clock::now();bool available=fixed_metric_available;\n    if(!fixed_metric_initialized&&std::string(stage)==\"quality_entry\") {\n      fixed_metric_initialized=true;CLocalFailure failure;std::vector<FixedMetricPoint> local;\n      std::vector<std::vector<FixedMetricPoint>> outgoing;\n      try {\n        const size_t quota=FixedMetricSamples/world.size+(size_t(world.rank)<FixedMetricSamples%world.size);\n        std::array<std::vector<Id>,3> candidates;\n        for(const auto& row:working) {\n          const auto& cached=selection.cells.at(row.first);\n          const unsigned kind=cached.debt.q_bad||cached.debt.j_bad?(cached.surface?0u:1u):2u;\n          if(candidates[kind].size()<quota)candidates[kind].push_back(row.first);\n        }\n        for(const auto& category:candidates)for(Id id:category)if(local.size()<quota) {\n          const auto& row=working.at(id);const auto point=Centroid(row.cell);Tensor metric;\n          if(source.SampleContainedCurrentMetric(row,point,metric))local.push_back({id,world.rank,point,metric});\n        }\n        outgoing.assign(world.size,local);\n      }catch(const std::exception& e){failure.Set(1,0,e.what());}\n      if(!world.elect(failure).any) {\n        bool admitted=false;\n        auto points=world.exchange(outgoing,&admitted,options.memory_ceiling,\n            transfer_memory::Add(bytes(),source.ResidentBytes(),directory->ResidentBytes()));\n        if(admitted&&points.size()<=FixedMetricSamples) {\n          std::sort(points.begin(),points.end(),[](const auto& a,const auto& b){return std::tie(a.owner,a.cell)<std::tie(b.owner,b.cell);});\n          fixed_metric_points=std::move(points);fixed_metric_available=!fixed_metric_points.empty();\n          for(size_t i=0;i<fixed_metric_points.size();++i)if(fixed_metric_points[i].owner==world.rank)fixed_metric_cells[i]=fixed_metric_points[i].cell;\n        }\n      }\n      available=fixed_metric_available;\n    }\n    std::array<FixedMetricReading,FixedMetricSamples> selected{};\n    std::array<bool,FixedMetricSamples> have{};\n    if(fixed_metric_available) {\n      CLocalFailure failure;std::vector<FixedMetricReading> local;std::vector<std::vector<FixedMetricReading>> outgoing;\n      try {\n        local.reserve(fixed_metric_points.size());\n        for(size_t i=0;i<fixed_metric_points.size();++i) {\n          const auto row=working.find(fixed_metric_cells[i]);if(row==working.end())continue;\n          Tensor current;\n          if(source.SampleContainedCurrentMetric(row->second,fixed_metric_points[i].point,current))local.push_back({i,row->first,world.rank,current});\n        }\n        outgoing.assign(world.size,local);\n      }catch(const std::exception& e){failure.Set(1,0,e.what());}\n      if(world.elect(failure).any)available=false;\n      else {\n        bool admitted=false;\n        const auto readings=world.exchange(outgoing,&admitted,options.memory_ceiling,\n            transfer_memory::Add(bytes(),source.ResidentBytes(),directory->ResidentBytes()));\n        available=admitted;\n        if(admitted)for(const auto& reading:readings)if(reading.sample<fixed_metric_points.size()) {\n          const auto i=reading.sample;\n          if(!have[i]||std::tie(reading.cell,reading.owner)<std::tie(selected[i].cell,selected[i].owner)){selected[i]=reading;have[i]=true;}\n        }\n      }\n    }\n    size_t supported=0,owned=0;long double maximum=0,local_maximum=0;\n    if(available)for(size_t i=0;i<fixed_metric_points.size();++i)if(have[i]) {\n      const auto a=fixed_metric_points[i].baseline,b=selected[i].current;\n      const long double before[6]={a.xx,a.xy,a.xz,a.yy,a.yz,a.zz},after[6]={b.xx,b.xy,b.xz,b.yy,b.yz,b.zz};\n      long double scale=0,difference=0;\n      for(unsigned k=0;k<6;++k){const auto weight=(k==1||k==2||k==4)?std::sqrt(2.L):1.L;\n        scale=std::hypot(scale,weight*before[k]);difference=std::hypot(difference,weight*(after[k]-before[k]));}\n      if(!(std::isfinite(scale)&&scale>0&&std::isfinite(difference)))continue;\n      const auto relative=difference/scale;if(!std::isfinite(relative))continue;\n      ++supported;maximum=std::max(maximum,relative);\n      if(selected[i].owner==world.rank){++owned;local_maximum=std::max(local_maximum,relative);}\n    }\n    stats.quality.diagnostic_seconds+=std::chrono::duration<double>(Clock::now()-began).count();\n    if(options.timings)std::cout<<std::setprecision(17)<<\"NATIVE3D_QUALITY_DRIFT rank=\"<<world.rank<<\" stage=\"<<stage\n        <<\" initialized=\"<<fixed_metric_initialized<<\" available=\"<<available<<\" samples=\"<<fixed_metric_points.size()\n        <<\" supported=\"<<supported<<\" lost=\"<<fixed_metric_points.size()-supported<<\" owned=\"<<owned\n        <<\" maximum_relative_frobenius=\"<<maximum<<\" owned_maximum_relative_frobenius=\"<<local_maximum\n        <<\" current_nodal_sensor=1 full_target=\"<<!bool(composition)<<'\\n';\n  "
+    },
+    {
+      "name": "FixedMetricSamples original declaration",
+      "start": 106311,
+      "end": 106353,
+      "old": "  constexpr size_t FixedMetricSamples=16;\n"
+    }
+  ],
+  "call_transforms": [
+    {
+      "name": "retire_directory",
+      "old": "retire_directory(checkpoint.directory->Statistics())",
+      "new": "context.exchange.RetireDirectory(checkpoint.directory->Statistics())"
+    },
+    {
+      "name": "retire_directory",
+      "old": "retire_directory(directory->Statistics())",
+      "new": "context.exchange.RetireDirectory(directory->Statistics())"
+    },
+    {
+      "name": "retire_directory",
+      "old": "retire_directory(checkpoint.directory->Statistics())",
+      "new": "context.exchange.RetireDirectory(checkpoint.directory->Statistics())"
+    },
+    {
+      "name": "retire_directory",
+      "old": "retire_directory(directory->Statistics())",
+      "new": "context.exchange.RetireDirectory(directory->Statistics())"
+    },
+    {
+      "name": "selection_bound",
+      "old": "selection_bound(true)",
+      "new": "context.control.SelectionBound(context, true)"
+    },
+    {
+      "name": "selection_bound",
+      "old": "selection_bound(selection.track_repairs)",
+      "new": "context.control.SelectionBound(context, selection.track_repairs)"
+    },
+    {
+      "name": "selection_bound",
+      "old": "selection_bound(false)",
+      "new": "context.control.SelectionBound(context, false)"
+    },
+    {
+      "name": "selection_bound",
+      "old": "selection_bound(true)",
+      "new": "context.control.SelectionBound(context, true)"
+    },
+    {
+      "name": "selection_bound",
+      "old": "selection_bound(true)",
+      "new": "context.control.SelectionBound(context, true)"
+    },
+    {
+      "name": "selection_bound",
+      "old": "selection_bound(repairing)",
+      "new": "context.control.SelectionBound(context, repairing)"
+    },
+    {
+      "name": "selection_bound",
+      "old": "selection_bound(false)",
+      "new": "context.control.SelectionBound(context, false)"
+    },
+    {
+      "name": "selection_bound",
+      "old": "selection_bound(quality)",
+      "new": "context.control.SelectionBound(context, quality)"
+    },
+    {
+      "name": "selection_bound",
+      "old": "selection_bound(selection.track_repairs)",
+      "new": "context.control.SelectionBound(context, selection.track_repairs)"
+    },
+    {
+      "name": "selection_bound",
+      "old": "selection_bound(repairing)",
+      "new": "context.control.SelectionBound(context, repairing)"
+    },
+    {
+      "name": "length_direction",
+      "old": "length_direction(true)",
+      "new": "context.queues.LengthDirection(context, true)"
+    },
+    {
+      "name": "length_direction",
+      "old": "length_direction(false)",
+      "new": "context.queues.LengthDirection(context, false)"
+    },
+    {
+      "name": "length_direction",
+      "old": "length_direction(next==Phase::Construction)",
+      "new": "context.queues.LengthDirection(context, next==Phase::Construction)"
+    },
+    {
+      "name": "length_direction",
+      "old": "length_direction(false)",
+      "new": "context.queues.LengthDirection(context, false)"
+    },
+    {
+      "name": "length_direction",
+      "old": "length_direction(collapse)",
+      "new": "context.queues.LengthDirection(context, collapse)"
+    },
+    {
+      "name": "height_check",
+      "old": "height_check(fresh,result.reason)",
+      "new": "EngineTrial::HeightCheck(context, fresh,result.reason)"
+    },
+    {
+      "name": "height_check",
+      "old": "height_check(fresh, result.reason, !selection.geometry_repairs)",
+      "new": "EngineTrial::HeightCheck(context, fresh, result.reason, !selection.geometry_repairs)"
+    },
+    {
+      "name": "height_check",
+      "old": "height_check(GeometryPatch(Imported{{working.at(ids[i])},true,{}}, &geometry),height_reason,false,&height)",
+      "new": "EngineTrial::HeightCheck(context, GeometryPatch(Imported{{working.at(ids[i])},true,{}}, &geometry),height_reason,false,&height)"
+    },
+    {
+      "name": "height_check",
+      "old": "height_check(GeometryPatch(Imported{{row},true,{}}, &geometry),reason)",
+      "new": "EngineTrial::HeightCheck(context, GeometryPatch(Imported{{row},true,{}}, &geometry),reason)"
+    },
+    {
+      "name": "height_check",
+      "old": "height_check(GeometryPatch(Imported{{row.second},true,{}}, &geometry),reason,bool(surface_target))",
+      "new": "EngineTrial::HeightCheck(context, GeometryPatch(Imported{{row.second},true,{}}, &geometry),reason,bool(surface_target))"
+    },
+    {
+      "name": "geometry_trial",
+      "old": "geometry_trial(false)",
+      "new": "EngineTrial::GeometryTrial(context, false)"
+    },
+    {
+      "name": "geometry_trial",
+      "old": "geometry_trial(false)",
+      "new": "EngineTrial::GeometryTrial(context, false)"
+    },
+    {
+      "name": "geometry_trial",
+      "old": "geometry_trial(false)",
+      "new": "EngineTrial::GeometryTrial(context, false)"
+    },
+    {
+      "name": "geometry_trial",
+      "old": "geometry_trial(counts.first<=old_counts.first && counts.second<old_counts.second)",
+      "new": "EngineTrial::GeometryTrial(context, counts.first<=old_counts.first && counts.second<old_counts.second)"
+    },
+    {
+      "name": "geometry_trial",
+      "old": "geometry_trial(counts.first<=old_counts.first && counts.second<old_counts.second)",
+      "new": "EngineTrial::GeometryTrial(context, counts.first<=old_counts.first && counts.second<old_counts.second)"
+    },
+    {
+      "name": "geometry_trial",
+      "old": "geometry_trial(guards[3])",
+      "new": "EngineTrial::GeometryTrial(context, guards[3])"
+    },
+    {
+      "name": "metric_trial",
+      "old": "metric_trial(valid,certified,effective,geometric_progress)",
+      "new": "EngineTrial::MetricTrial(context, valid,certified,effective,geometric_progress)"
+    },
+    {
+      "name": "metric_trial",
+      "old": "metric_trial(\n          wall_counters.MetricValidation(ValidateMetricChange(old.cells.size(), before, fresh.cells.size(), metric,\n                                                              effective, result.reason, &certified)),\n          certified, effective, geometric_progress)",
+      "new": "EngineTrial::MetricTrial(context, \n          wall_counters.MetricValidation(ValidateMetricChange(old.cells.size(), before, fresh.cells.size(), metric,\n                                                              effective, result.reason, &certified)),\n          certified, effective, geometric_progress)"
+    },
+    {
+      "name": "metric_trial",
+      "old": "metric_trial(ValidateMetricChange(old.cells,fresh.cells,kind,target,metric,\n          result.reason,nullptr,&reuse,&certified),certified,kind)",
+      "new": "EngineTrial::MetricTrial(context, ValidateMetricChange(old.cells,fresh.cells,kind,target,metric,\n          result.reason,nullptr,&reuse,&certified),certified,kind)"
+    },
+    {
+      "name": "surface_merit",
+      "old": "surface_merit(measured,*surface_context)",
+      "new": "EngineTrial::SurfaceMerit(context, measured,*surface_context)"
+    },
+    {
+      "name": "surface_merit",
+      "old": "surface_merit(metric,fresh)",
+      "new": "EngineTrial::SurfaceMerit(context, metric,fresh)"
+    },
+    {
+      "name": "surface_merit",
+      "old": "surface_merit(before,old)",
+      "new": "EngineTrial::SurfaceMerit(context, before,old)"
+    },
+    {
+      "name": "composed_sample",
+      "old": "composed_sample(p,answer.samples.at(i).sensor)",
+      "new": "EngineTrial::ComposedSample(context, p,answer.samples.at(i).sensor)"
+    },
+    {
+      "name": "composed_sample",
+      "old": "composed_sample(query[1],proxy.samples.at(1).sensor)",
+      "new": "EngineTrial::ComposedSample(context, query[1],proxy.samples.at(1).sensor)"
+    },
+    {
+      "name": "composed_sample",
+      "old": "composed_sample(query[0],proxy.samples.at(0).sensor)",
+      "new": "EngineTrial::ComposedSample(context, query[0],proxy.samples.at(0).sensor)"
+    },
+    {
+      "name": "record_rejection",
+      "old": "record_rejection(proposal.choice.feature,&proposal.old,&proposal.certified,proposal.rejection)",
+      "new": "EngineReports::RecordRejection(context, diagnostic_rejection_limit, proposal.choice.feature,&proposal.old,&proposal.certified,proposal.rejection)"
+    },
+    {
+      "name": "record_rejection",
+      "old": "record_rejection(stats.last_rejected_feature,&old,&certified,result.reason)",
+      "new": "EngineReports::RecordRejection(context, diagnostic_rejection_limit, stats.last_rejected_feature,&old,&certified,result.reason)"
+    },
+    {
+      "name": "record_rejection",
+      "old": "record_rejection(feature,nullptr,nullptr,why)",
+      "new": "EngineReports::RecordRejection(context, diagnostic_rejection_limit, feature,nullptr,nullptr,why)"
+    },
+    {
+      "name": "update_fixed_metric_cells",
+      "old": "update_fixed_metric_cells(removed,added)",
+      "new": "EngineReports::UpdateFixedMetricCells(context, removed,added)"
+    },
+    {
+      "name": "update_fixed_metric_cells",
+      "old": "update_fixed_metric_cells(removed,added)",
+      "new": "EngineReports::UpdateFixedMetricCells(context, removed,added)"
+    },
+    {
+      "name": "reset_fixed_metric_cells",
+      "old": "reset_fixed_metric_cells()",
+      "new": "EngineReports::ResetFixedMetricCells(context)"
+    },
+    {
+      "name": "emit_fixed_metric_drift",
+      "old": "emit_fixed_metric_drift(stage)",
+      "new": "EngineReports::EmitFixedMetricDrift(context, stage, bytes)"
+    }
+  ],
+  "includes": [
+    [
+      "#include \"native_engine3d/EngineSetup.cpp\"",
+      "#include \"native_engine3d/EngineSetup.cpp\"\n#include \"native_engine3d/EngineControl.cpp\""
+    ],
+    [
+      "#include \"native_engine3d/EngineContext.cpp\"",
+      "#include \"native_engine3d/EngineContext.cpp\"\n#include \"native_engine3d/EngineTrial.cpp\"\n#include \"native_engine3d/EngineReports.cpp\""
+    ]
+  ],
+  "external_caller_count": 46,
+  "routed_call_counts": {
+    "retire_directory": 4,
+    "selection_bound": 10,
+    "length_direction": 5,
+    "height_check": 5,
+    "geometry_trial": 6,
+    "metric_trial": 3,
+    "surface_merit": 3,
+    "composed_sample": 3,
+    "record_rejection": 3,
+    "update_fixed_metric_cells": 2,
+    "reset_fixed_metric_cells": 1,
+    "emit_fixed_metric_drift": 1
+  },
+  "all_thirteen_original_lambda_identifiers_removed": true,
+  "reports_existing_constant_hoisted_once_without_value_change": true,
+  "Reports_and_Trial_stateless_no_dummy_instance": true,
+  "no_real_source_modified": true,
+  "individual_proofs": [
+    "../control_queue_exchange_draft/primary_shadow_reversal_receipt.json",
+    "../trial_draft/shadow_reversal_receipt.json",
+    "../reports_draft/executable_source_proof.json"
+  ]
+}

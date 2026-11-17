@@ -1,0 +1,151 @@
+{
+  "binding_aliases": {
+    "composition": "EngineContext.composition by reference",
+    "diagnostic_rejections": "*EngineContext.control.diagnostic_rejections",
+    "diagnostic_sequence": "*EngineContext.control.diagnostic_sequence",
+    "directory": "**EngineContext.exchange.directory",
+    "fixed_metric_available": "*EngineContext.control.fixed_metric_available",
+    "fixed_metric_cells": "*EngineContext.control.fixed_metric_cells",
+    "fixed_metric_initialized": "*EngineContext.control.fixed_metric_initialized",
+    "fixed_metric_points": "*EngineContext.control.fixed_metric_points",
+    "options": "EngineContext.options by reference",
+    "selection": "*EngineContext.census.selection",
+    "source": "*EngineContext.exchange.source",
+    "stats": "EngineContext.control.result->stats",
+    "working": "*EngineContext.ownership.working",
+    "world": "EngineContext.world by reference"
+  },
+  "body_bindings": {
+    "consider_fixed_metric_row": {
+      "direct_call_count": 2,
+      "new_destination": "EngineReports::ConsiderFixedMetricRow; only called within Update/Reset helpers",
+      "old_body_sha256": "d3d5ad7bda1344f4f56381336be326c9a32259b778ca11d2923bb5af8ffe2075",
+      "old_callsite_lines": [
+        1998,
+        2002
+      ],
+      "old_line_span": [
+        1979,
+        1994
+      ]
+    },
+    "emit_fixed_metric_drift": {
+      "direct_call_count": 1,
+      "new_destination": "EngineReports::EmitFixedMetricDrift<Bytes>; original lexical split into Initialize/Read/Compare helpers",
+      "old_body_sha256": "212904e4b90ae431b04e5f1b38688eec8708843d79739f1eed763af632079379",
+      "old_callsite_lines": [
+        2214
+      ],
+      "old_line_span": [
+        2004,
+        2078
+      ]
+    },
+    "record_rejection": {
+      "direct_call_count": 3,
+      "new_destination": "EngineReports::RecordRejection; all callers pass size_t(diagnostic_rejection_limit)",
+      "old_body_sha256": "2e8a1c6ed683c135d5dd19ab5a722ebfce976fc1a44319fb1d9eefccf0f1095f",
+      "old_callsite_lines": [
+        4043,
+        6222,
+        6554
+      ],
+      "old_line_span": [
+        1851,
+        1863
+      ]
+    },
+    "reset_fixed_metric_cells": {
+      "direct_call_count": 1,
+      "new_destination": "EngineReports::ResetFixedMetricCells",
+      "old_body_sha256": "cb2b16f95b372c1c8f25a4b5848811569de0f0ff032d2b37c08d7333e3e4fb86",
+      "old_callsite_lines": [
+        3450
+      ],
+      "old_line_span": [
+        2000,
+        2003
+      ]
+    },
+    "update_fixed_metric_cells": {
+      "direct_call_count": 2,
+      "new_destination": "EngineReports::UpdateFixedMetricCells",
+      "old_body_sha256": "791e5244f4ee2dcc3236714595a83de9e11d0d5b561f67e430e2f4518a48229b",
+      "old_callsite_lines": [
+        6301,
+        6593
+      ],
+      "old_line_span": [
+        1995,
+        1999
+      ]
+    }
+  },
+  "definition_bindings": {
+    "FixedMetricSamples": {
+      "duplicate_definition": false,
+      "new": "single private-header constexpr before exact fixed-size array signatures",
+      "old": "Adapt-local constexpr size_t FixedMetricSamples=16 at line 1697"
+    }
+  },
+  "direct_callsite_replacements": [
+    {
+      "mapped_old_function": "record_rejection",
+      "replacement": "EngineReports::RecordRejection(context, size_t(diagnostic_rejection_limit), feature, nullptr, nullptr, why);",
+      "source_call": "record_rejection(feature,nullptr,nullptr,why);"
+    },
+    {
+      "mapped_old_function": "record_rejection",
+      "replacement": "EngineReports::RecordRejection(context, size_t(diagnostic_rejection_limit), stats.last_rejected_feature, &old, &certified, result.reason);",
+      "source_call": "record_rejection(stats.last_rejected_feature,&old,&certified,result.reason);"
+    },
+    {
+      "mapped_old_function": "record_rejection",
+      "replacement": "EngineReports::RecordRejection(context, size_t(diagnostic_rejection_limit), proposal.choice.feature, &proposal.old, &proposal.certified, proposal.rejection);",
+      "source_call": "record_rejection(proposal.choice.feature,&proposal.old,&proposal.certified,proposal.rejection);"
+    },
+    {
+      "mapped_old_function": "reset_fixed_metric_cells",
+      "replacement": "EngineReports::ResetFixedMetricCells(context);",
+      "source_call": "reset_fixed_metric_cells();"
+    },
+    {
+      "mapped_old_function": "update_fixed_metric_cells",
+      "replacement": "EngineReports::UpdateFixedMetricCells(context, removed, added);",
+      "source_call": "update_fixed_metric_cells(removed,added);"
+    },
+    {
+      "mapped_old_function": "emit_fixed_metric_drift",
+      "replacement": "EngineReports::EmitFixedMetricDrift(context, stage, bytes);",
+      "source_call": "emit_fixed_metric_drift(stage);"
+    }
+  ],
+  "implementation_constraints": {
+    "arrays": "exact original std::array types",
+    "fixed_metric_cell_indexing": "original operator[] retained; no bounds-checked replacement",
+    "fixed_sample_count_declaration": "one existing value, moved to private header; removed from Adapt",
+    "memory_or_collective_change": false,
+    "new_counter_or_decision": false,
+    "new_std_function_or_lambda": false,
+    "owning_reports_service": false,
+    "static_methods_only": true
+  },
+  "include_order": [
+    "EngineSetup.cpp",
+    "... existing private implementation files ...",
+    "EngineContext.cpp",
+    "EngineReports.hpp",
+    "EngineReports.cpp",
+    "Adapt"
+  ],
+  "proposed_files": {
+    "EngineReports.cpp.proposed": "f4f0aded403be9dc75a462472f8f2c9b08b2c9b8812263b99a57b7209c39a4ae",
+    "EngineReports.hpp.proposed": "12bc1ccfe8094dabe126e877e89aed07b33e441cb55af659d21ba84d659693c7"
+  },
+  "schema": "n4_b1_enginereports_binding_manifest_unapplied_v1",
+  "source_hash_matches_inventory": true,
+  "source_path": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/Common/src/adaptation/CNativeEngine3D.cpp",
+  "source_sha256": "dd97c5e2cb75789b1c35934a6fc3851ba297303a25510df5deceaba65efaf66f",
+  "status": "proposal only; no production file changed, compiled, or run",
+  "unapplied_diff_sha256": "82ac2860a31aa94c85b660e57d3c2a78ac2c3783811974a40ad4478002310229"
+}

@@ -1,0 +1,43 @@
+{
+  "schema": "n4_b1_reports_preparation_corrections_v1",
+  "status": "unapplied proposal; no compile, tests, production edits, or numerical run",
+  "corrections": [
+    {
+      "cause": "The first private implementation draft omitted its own EngineReports.hpp include.",
+      "correction": "The proposed implementation now includes the private header and the integration diff places header and implementation after EngineContext.cpp type completion."
+    },
+    {
+      "cause": "The first read helper used optional-array .at(i), adding a checked bounds path absent from the old body.",
+      "correction": "It now binds the existing fixed_metric_cells optional by reference and uses the original fixed_metric_cells[i] indexing."
+    },
+    {
+      "cause": "The first helper declarations generalized Selected/Have arrays although the source has exact fixed-size array types.",
+      "correction": "Read and Compare now take std::array<FixedMetricReading, FixedMetricSamples> and std::array<bool, FixedMetricSamples> references exactly. The one original Adapt-local FixedMetricSamples=16 declaration moves to the private header before those signatures; there is no second definition or tunable copy."
+    },
+    {
+      "cause": "The first method bodies directly spelled context member paths for many original lambda captures.",
+      "correction": "Bodies now bind canonical old-name aliases through the exact active optionals, then retain original names and caller-lifetime roles."
+    },
+    {
+      "cause": "The first comparison draft split the paired before/after component-array declaration across separate declarations.",
+      "correction": "The current draft retains the original one-statement paired declaration."
+    },
+    {
+      "cause": "The directory handle in EngineContext is a unique_ptr reference; an earlier proposal draft dereferenced it twice and used dot member access.",
+      "correction": "The proposal binds directory with one dereference and retains the original directory->ResidentBytes() expression in both split metric-drift routines."
+    },
+    {
+      "cause": "The new RecordRejection caller bindings redundantly cast a parameter already declared size_t.",
+      "correction": "All three proposed call sites now pass diagnostic_rejection_limit directly; no size_t casts remain."
+    }
+  ],
+  "final_source_parser_assertions": "source_parser_assertions.json",
+  "production_source_sha256": "dd97c5e2cb75789b1c35934a6fc3851ba297303a25510df5deceaba65efaf66f",
+  "formatting_and_proof": {
+    "formatter": "clang-format-18 18.1.3",
+    "function_count": 8,
+    "max_function_lines": 50,
+    "all_functions_at_most_80_lines": true,
+    "proof": "executable_source_proof.json"
+  }
+}

@@ -1,0 +1,95 @@
+{
+  "schema": "n4_b1_trial_shadow_reverse_v1",
+  "passed": true,
+  "source_sha256": "dd97c5e2cb75789b1c35934a6fc3851ba297303a25510df5deceaba65efaf66f",
+  "source_bytes": 564528,
+  "source_without_five_lambdas_sha256": "af3957550a4c9cc082224d4f5ae8454e465d43e421b6128d6c3ea113b99d4b1a",
+  "reverse_call_and_include_transform_exact": true,
+  "removed_lambda_slices": [
+    {
+      "name": "height_check",
+      "lines": [
+        1870,
+        1880
+      ],
+      "sha256": "7d33c80810158c8a51cab5da7503313f5268fb535ba7c3268df7b01c62ea2275"
+    },
+    {
+      "name": "geometry_trial",
+      "lines": [
+        1881,
+        1886
+      ],
+      "sha256": "242d1dee2e54289dd783f8ae62bdef8887613f28ba1f4870704ed90eb329d826"
+    },
+    {
+      "name": "metric_trial",
+      "lines": [
+        1887,
+        1921
+      ],
+      "sha256": "0a7c81e22095c0a436d83499b593b5740c48e7c7d64a676c2d070af920cfb93d"
+    },
+    {
+      "name": "surface_merit",
+      "lines": [
+        1922,
+        1932
+      ],
+      "sha256": "6bf0196b44563ddef9fdf4b477d0abfd5385eb3a119cc009e3b5c33b92ff9d66"
+    },
+    {
+      "name": "composed_sample",
+      "lines": [
+        2852,
+        2859
+      ],
+      "sha256": "125495f37a274e0122343f8abe8d95e6bd48f28fc095bef46c72c37893168701"
+    }
+  ],
+  "caller_counts": {
+    "height_check": 5,
+    "geometry_trial": 6,
+    "metric_trial": 3,
+    "surface_merit": 3,
+    "composed_sample": 3
+  },
+  "unapplied": true,
+  "compile_or_launch": false,
+  "formatted_newfile_sha256": {
+    "EngineTrial.hpp.proposed": "7a7a29321fd3636ed2a1a4d9e732bc23bc2f6a6f3c32c15da314d5afb8914d81",
+    "EngineTrial.cpp.proposed": "717634a514b169f383cf3e88ecc6cbc10783dab3babb76c69ea7a3b249341fe5"
+  },
+  "formatted_function_lines": {
+    "HeightCheck": 20,
+    "GeometryTrial": 9,
+    "MetricTrial": 45,
+    "SurfaceMerit": 23,
+    "ComposedSample": 21
+  },
+  "all_trial_functions_at_or_below_80": true,
+  "body_token_equivalence": {
+    "HeightCheck": {
+      "tokens_match_after_formatting": true,
+      "token_count": 113
+    },
+    "GeometryTrial": {
+      "tokens_match_after_formatting": true,
+      "token_count": 24
+    },
+    "MetricTrial": {
+      "tokens_match_after_formatting": true,
+      "token_count": 245
+    },
+    "SurfaceMerit": {
+      "tokens_match_after_formatting": true,
+      "token_count": 183
+    },
+    "ComposedSample": {
+      "tokens_match_after_formatting": true,
+      "token_count": 92
+    }
+  },
+  "clang_format_18_dry_run_exit_code": 0,
+  "base_source_still_matches_pinned_sha256": true
+}

@@ -1,0 +1,207 @@
+{
+  "schema": "n4_b1_trial_binding_manifest_v1",
+  "status": "unapplied preparation draft",
+  "base_source": "Common/src/adaptation/CNativeEngine3D.cpp",
+  "base_sha256": "dd97c5e2cb75789b1c35934a6fc3851ba297303a25510df5deceaba65efaf66f",
+  "include_after": "native_engine3d/EngineContext.cpp",
+  "definitions": [
+    {
+      "old_name": "height_check",
+      "member_name": "HeightCheck",
+      "return_type": "bool",
+      "old_lambda_source_lines": [
+        1870,
+        1880
+      ],
+      "old_lambda_sha256": "7d33c80810158c8a51cab5da7503313f5268fb535ba7c3268df7b01c62ea2275",
+      "declaration": "  static bool HeightCheck(EngineContext&, const Patch&, std::string&, bool provisional = false, FirstHeightReport* measured = nullptr);",
+      "definition_parameters": "const Patch& patch, std::string& reason, bool provisional, FirstHeightReport* measured",
+      "header_parameters": "const Patch&, std::string&, bool provisional = false, FirstHeightReport* measured = nullptr",
+      "aliases": [
+        "auto& options = context.options;",
+        "const auto& geometry = context.geometry;",
+        "auto& stats = context.control.result->stats;"
+      ],
+      "body_sha256": "2eaada20962943bf852841ae5e9625fdb918ddf0f933506be2acdd0655464872"
+    },
+    {
+      "old_name": "geometry_trial",
+      "member_name": "GeometryTrial",
+      "return_type": "bool",
+      "old_lambda_source_lines": [
+        1881,
+        1886
+      ],
+      "old_lambda_sha256": "242d1dee2e54289dd783f8ae62bdef8887613f28ba1f4870704ed90eb329d826",
+      "declaration": "  static bool GeometryTrial(EngineContext&, bool valid);",
+      "definition_parameters": "bool valid",
+      "header_parameters": "bool valid",
+      "aliases": [
+        "auto& stats = context.control.result->stats;",
+        "auto& wall_counters = *context.setup.wall_counters;"
+      ],
+      "body_sha256": "c44248ec04490fd4b5c63ed4bda507bd01342e1d3c157a8721a2f0e31d4996ed"
+    },
+    {
+      "old_name": "metric_trial",
+      "member_name": "MetricTrial",
+      "return_type": "bool",
+      "old_lambda_source_lines": [
+        1887,
+        1921
+      ],
+      "old_lambda_sha256": "0a7c81e22095c0a436d83499b593b5740c48e7c7d64a676c2d070af920cfb93d",
+      "declaration": "  static bool MetricTrial(EngineContext&, bool valid, MetricDiagnosis& diagnosis, MetricChange kind, bool surface_geometry_progress = false);",
+      "definition_parameters": "bool valid, MetricDiagnosis& diagnosis, MetricChange kind, bool surface_geometry_progress",
+      "header_parameters": "bool valid, MetricDiagnosis& diagnosis, MetricChange kind, bool surface_geometry_progress = false",
+      "aliases": [
+        "auto& surface_target = context.surface_target;",
+        "auto& bidirectional = context.bidirectional;",
+        "auto& repairing = *context.control.repairing;",
+        "auto& selection = *context.census.selection;",
+        "auto& result = *context.control.result;",
+        "auto& stats = result.stats;",
+        "auto& wall_counters = *context.setup.wall_counters;"
+      ],
+      "body_sha256": "34731c220c6982377e4de27244478b29a8475cd85cfcc72683d77a0b96f0f917"
+    },
+    {
+      "old_name": "surface_merit",
+      "member_name": "SurfaceMerit",
+      "return_type": "void",
+      "old_lambda_source_lines": [
+        1922,
+        1932
+      ],
+      "old_lambda_sha256": "6bf0196b44563ddef9fdf4b477d0abfd5385eb3a119cc009e3b5c33b92ff9d66",
+      "declaration": "  static void SurfaceMerit(EngineContext&, PatchMetric&, const Patch&);",
+      "definition_parameters": "PatchMetric& metric, const Patch& patch",
+      "header_parameters": "PatchMetric&, const Patch&",
+      "aliases": [
+        "auto& surface_target = context.surface_target;",
+        "auto& options = context.options;",
+        "const auto& geometry = context.geometry;"
+      ],
+      "body_sha256": "11850fe0e1e28c703634f81663508fa43be77765d6b239579f6b5a2c3973f4f9"
+    },
+    {
+      "old_name": "composed_sample",
+      "member_name": "ComposedSample",
+      "return_type": "Tensor",
+      "old_lambda_source_lines": [
+        2852,
+        2859
+      ],
+      "old_lambda_sha256": "125495f37a274e0122343f8abe8d95e6bd48f28fc095bef46c72c37893168701",
+      "declaration": "  static Tensor ComposedSample(EngineContext&, Point, Tensor);",
+      "definition_parameters": "Point point, Tensor sensor",
+      "header_parameters": "Point, Tensor",
+      "aliases": [
+        "auto& stats = context.control.result->stats;",
+        "auto& options = context.options;",
+        "auto& composition = context.composition;"
+      ],
+      "body_sha256": "560816ab1d90ea42cc1948a4779a9b5f36043a83f39b1d14e5abc9da15b90fd9"
+    }
+  ],
+  "removed_lambda_exact_ranges": [
+    {
+      "name": "height_check",
+      "lines": [
+        1870,
+        1880
+      ],
+      "sha256": "7d33c80810158c8a51cab5da7503313f5268fb535ba7c3268df7b01c62ea2275"
+    },
+    {
+      "name": "geometry_trial",
+      "lines": [
+        1881,
+        1886
+      ],
+      "sha256": "242d1dee2e54289dd783f8ae62bdef8887613f28ba1f4870704ed90eb329d826"
+    },
+    {
+      "name": "metric_trial",
+      "lines": [
+        1887,
+        1921
+      ],
+      "sha256": "0a7c81e22095c0a436d83499b593b5740c48e7c7d64a676c2d070af920cfb93d"
+    },
+    {
+      "name": "surface_merit",
+      "lines": [
+        1922,
+        1932
+      ],
+      "sha256": "6bf0196b44563ddef9fdf4b477d0abfd5385eb3a119cc009e3b5c33b92ff9d66"
+    },
+    {
+      "name": "composed_sample",
+      "lines": [
+        2852,
+        2859
+      ],
+      "sha256": "125495f37a274e0122343f8abe8d95e6bd48f28fc095bef46c72c37893168701"
+    }
+  ],
+  "call_replacements": {
+    "height_check": 5,
+    "geometry_trial": 6,
+    "metric_trial": 3,
+    "surface_merit": 3,
+    "composed_sample": 3
+  },
+  "callers_change": "direct EngineTrial member calls with context first; no forwarding lambda",
+  "candidate_include_added": true,
+  "reverse_proof": "caller/include substitutions reverse byte-for-byte to source with only the five exact lambda slices removed; each slice fingerprint retained",
+  "member_files": {
+    "EngineTrial.hpp.proposed": "7a7a29321fd3636ed2a1a4d9e732bc23bc2f6a6f3c32c15da314d5afb8914d81",
+    "EngineTrial.cpp.proposed": "717634a514b169f383cf3e88ecc6cbc10783dab3babb76c69ea7a3b249341fe5"
+  },
+  "formatted_function_lines": {
+    "HeightCheck": 20,
+    "GeometryTrial": 9,
+    "MetricTrial": 45,
+    "SurfaceMerit": 23,
+    "ComposedSample": 21
+  },
+  "all_trial_functions_at_or_below_80": true,
+  "original_call_lines": {
+    "height_check": [
+      2419,
+      2878,
+      3208,
+      4604,
+      5099
+    ],
+    "geometry_trial": [
+      4606,
+      6067,
+      6082,
+      6121,
+      6173,
+      6466
+    ],
+    "metric_trial": [
+      4677,
+      4684,
+      5095
+    ],
+    "surface_merit": [
+      4682,
+      4682,
+      5035
+    ],
+    "composed_sample": [
+      5643,
+      5644,
+      5915
+    ]
+  },
+  "formatted_newfile_sha256": {
+    "EngineTrial.hpp.proposed": "7a7a29321fd3636ed2a1a4d9e732bc23bc2f6a6f3c32c15da314d5afb8914d81",
+    "EngineTrial.cpp.proposed": "717634a514b169f383cf3e88ecc6cbc10783dab3babb76c69ea7a3b249341fe5"
+  }
+}

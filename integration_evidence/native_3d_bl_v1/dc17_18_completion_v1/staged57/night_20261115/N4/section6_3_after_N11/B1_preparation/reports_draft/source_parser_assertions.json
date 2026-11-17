@@ -1,0 +1,49 @@
+{
+  "checks": {
+    "combined_before_after_declaration": true,
+    "cpp_proposal_includes_header": true,
+    "each_original_lambda_once": {
+      "consider_fixed_metric_row": true,
+      "emit_fixed_metric_drift": true,
+      "record_rejection": true,
+      "reset_fixed_metric_cells": true,
+      "update_fixed_metric_cells": true
+    },
+    "exact_fixed_array_signatures": true,
+    "fixed_sample_single_proposed_definition": true,
+    "include_order_in_proposal_diff": true,
+    "no_fixed_metric_at_bounds_change": true,
+    "old_direct_call_counts": {
+      "emit_fixed_metric_drift": true,
+      "record_rejection": true,
+      "reset_fixed_metric_cells": true,
+      "update_fixed_metric_cells": true
+    },
+    "proposed_direct_calls": {
+      "EmitFixedMetricDrift": true,
+      "RecordRejection": true,
+      "ResetFixedMetricCells": true,
+      "UpdateFixedMetricCells": true
+    },
+    "source_hash_matches_build545_inventory": true,
+    "directory_alias_single_dereference": true,
+    "no_redundant_rejection_limit_casts": true
+  },
+  "compiled_or_run": false,
+  "diff_sha256": "037521243ba1e4edb698fe7b1b3273a224c1365ec81bafb8768f1abc76179fc5",
+  "passed": true,
+  "performed_read_only": true,
+  "proposed_sha256": {
+    "EngineReports.cpp.proposed": "81cf80ac97fdb9cda0ea1078668441cf95acc7fcb443143bc6a470c5c60334c4",
+    "EngineReports.hpp.proposed": "3160df675ba5d8d7d013cbb466aec620eb774960b5dc11a563a84497ffe8cdd1"
+  },
+  "schema": "n4_b1_reports_source_parser_assertions_v1",
+  "source_sha256": "dd97c5e2cb75789b1c35934a6fc3851ba297303a25510df5deceaba65efaf66f",
+  "formatting_tool": "clang-format-18 (18.1.3)",
+  "proof_json": "executable_source_proof.json",
+  "function_length_assertions": {
+    "count": 8,
+    "max_lines": 50,
+    "all_le_80": true
+  }
+}

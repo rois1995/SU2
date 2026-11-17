@@ -1,0 +1,142 @@
+{
+  "draft_unapplied": true,
+  "production_unchanged": true,
+  "base_cpp_sha256": "dd97c5e2cb75789b1c35934a6fc3851ba297303a25510df5deceaba65efaf66f",
+  "definitions_removed": 3,
+  "call_counts": {
+    "retire_directory": 4,
+    "selection_bound": 10,
+    "length_direction": 5
+  },
+  "bindings": [
+    {
+      "name": "retire_directory",
+      "old_declaration": "  auto retire_directory=[&](const DirectoryStats& old) {\n    retired_directory.collision_seconds+=old.collision_seconds;\n    retired_directory.collision_builds+=old.collision_builds;\n    retired_directory.collision_candidates+=old.collision_candidates;\n    retired_directory.collision_checks+=old.collision_checks;\n    retired_directory.elections+=old.elections;\n    retired_directory.election_seconds+=old.election_seconds;\n    retired_directory.parameter_agreement_seconds+=old.parameter_agreement_seconds;\n    retired_directory.parameter_publication_seconds+=old.parameter_publication_seconds;\n    retired_directory.parameter_edits+=old.parameter_edits;\n    retired_directory.parameter_faces+=old.parameter_faces;\n    retired_directory.parameter_payload_bytes+=old.parameter_payload_bytes;\n    retired_directory.change_scanned+=old.change_scanned;\n    retired_directory.change_sent+=old.change_sent;\n    retired_directory.change_received+=old.change_received;\n    retired_directory.change_seconds+=old.change_seconds;\n    retired_directory.maximum_work_bytes=std::max(retired_directory.maximum_work_bytes,old.maximum_work_bytes);\n  };\n",
+      "old_body": "\n    retired_directory.collision_seconds+=old.collision_seconds;\n    retired_directory.collision_builds+=old.collision_builds;\n    retired_directory.collision_candidates+=old.collision_candidates;\n    retired_directory.collision_checks+=old.collision_checks;\n    retired_directory.elections+=old.elections;\n    retired_directory.election_seconds+=old.election_seconds;\n    retired_directory.parameter_agreement_seconds+=old.parameter_agreement_seconds;\n    retired_directory.parameter_publication_seconds+=old.parameter_publication_seconds;\n    retired_directory.parameter_edits+=old.parameter_edits;\n    retired_directory.parameter_faces+=old.parameter_faces;\n    retired_directory.parameter_payload_bytes+=old.parameter_payload_bytes;\n    retired_directory.change_scanned+=old.change_scanned;\n    retired_directory.change_sent+=old.change_sent;\n    retired_directory.change_received+=old.change_received;\n    retired_directory.change_seconds+=old.change_seconds;\n    retired_directory.maximum_work_bytes=std::max(retired_directory.maximum_work_bytes,old.maximum_work_bytes);\n  ",
+      "new_signature": "void EngineExchange::RetireDirectory(const DirectoryStats& old)",
+      "new_aliases": "  auto& retired_directory = *this->retired_directory;\n",
+      "method_definition": "void EngineExchange::RetireDirectory(const DirectoryStats& old) {\n  auto& retired_directory = *this->retired_directory;\n\n  retired_directory.collision_seconds += old.collision_seconds;\n  retired_directory.collision_builds += old.collision_builds;\n  retired_directory.collision_candidates += old.collision_candidates;\n  retired_directory.collision_checks += old.collision_checks;\n  retired_directory.elections += old.elections;\n  retired_directory.election_seconds += old.election_seconds;\n  retired_directory.parameter_agreement_seconds += old.parameter_agreement_seconds;\n  retired_directory.parameter_publication_seconds += old.parameter_publication_seconds;\n  retired_directory.parameter_edits += old.parameter_edits;\n  retired_directory.parameter_faces += old.parameter_faces;\n  retired_directory.parameter_payload_bytes += old.parameter_payload_bytes;\n  retired_directory.change_scanned += old.change_scanned;\n  retired_directory.change_sent += old.change_sent;\n  retired_directory.change_received += old.change_received;\n  retired_directory.change_seconds += old.change_seconds;\n  retired_directory.maximum_work_bytes = std::max(retired_directory.maximum_work_bytes, old.maximum_work_bytes);\n}\n",
+      "caller_target": "context.exchange.RetireDirectory",
+      "expected_call_count": 4,
+      "original_start_line": 1619,
+      "original_end_line": 1636,
+      "call_substitutions": [
+        {
+          "before": "retire_directory(",
+          "after": "context.exchange.RetireDirectory("
+        },
+        {
+          "before": "retire_directory(",
+          "after": "context.exchange.RetireDirectory("
+        },
+        {
+          "before": "retire_directory(",
+          "after": "context.exchange.RetireDirectory("
+        },
+        {
+          "before": "retire_directory(",
+          "after": "context.exchange.RetireDirectory("
+        }
+      ]
+    },
+    {
+      "name": "selection_bound",
+      "old_declaration": "  auto selection_bound=[&](bool repairs) { return transfer_memory::Add(sizeof(Selection::CellDebt),\n      repairs ? 4096u : 0u,\n      (coarsening || bidirectional) ? (repairs ? 8192u : 5120u) : (repairs ? 6144u : 3072u)); };\n",
+      "old_body": " return transfer_memory::Add(sizeof(Selection::CellDebt),\n      repairs ? 4096u : 0u,\n      (coarsening || bidirectional) ? (repairs ? 8192u : 5120u) : (repairs ? 6144u : 3072u)); ",
+      "new_signature": "size_t EngineControl::SelectionBound(EngineContext& context, bool repairs)",
+      "new_aliases": "  auto& coarsening = *this->coarsening;\n  auto& bidirectional = context.bidirectional;\n",
+      "method_definition": "size_t EngineControl::SelectionBound(EngineContext& context, bool repairs) {\n  auto& coarsening = *this->coarsening;\n  auto& bidirectional = context.bidirectional;\n  return transfer_memory::Add(sizeof(Selection::CellDebt), repairs ? 4096u : 0u,\n                              (coarsening || bidirectional) ? (repairs ? 8192u : 5120u) : (repairs ? 6144u : 3072u));\n}\n",
+      "caller_target": "context.control.SelectionBound",
+      "expected_call_count": 10,
+      "original_start_line": 1639,
+      "original_end_line": 1641,
+      "call_substitutions": [
+        {
+          "before": "selection_bound(",
+          "after": "context.control.SelectionBound(context, "
+        },
+        {
+          "before": "selection_bound(",
+          "after": "context.control.SelectionBound(context, "
+        },
+        {
+          "before": "selection_bound(",
+          "after": "context.control.SelectionBound(context, "
+        },
+        {
+          "before": "selection_bound(",
+          "after": "context.control.SelectionBound(context, "
+        },
+        {
+          "before": "selection_bound(",
+          "after": "context.control.SelectionBound(context, "
+        },
+        {
+          "before": "selection_bound(",
+          "after": "context.control.SelectionBound(context, "
+        },
+        {
+          "before": "selection_bound(",
+          "after": "context.control.SelectionBound(context, "
+        },
+        {
+          "before": "selection_bound(",
+          "after": "context.control.SelectionBound(context, "
+        },
+        {
+          "before": "selection_bound(",
+          "after": "context.control.SelectionBound(context, "
+        },
+        {
+          "before": "selection_bound(",
+          "after": "context.control.SelectionBound(context, "
+        }
+      ]
+    },
+    {
+      "name": "length_direction",
+      "old_declaration": "  auto length_direction=[&](bool collapse) {\n    if(coarsening!=collapse) {\n      selection.blocked_edges.swap(inactive_blocked_edges);std::swap(selection.blocked_links,inactive_blocked_links);\n      coarsening=selection.coarsening=collapse;\n      construction_kind=collapse?MetricChange::Coarsen:MetricChange::Refine;\n    }\n    if(length_blocks_dirty[collapse]) {\n      selection.blocked_edges.clear();selection.blocked_links=0;length_blocks_dirty[collapse]=false;\n    }\n  };\n",
+      "old_body": "\n    if(coarsening!=collapse) {\n      selection.blocked_edges.swap(inactive_blocked_edges);std::swap(selection.blocked_links,inactive_blocked_links);\n      coarsening=selection.coarsening=collapse;\n      construction_kind=collapse?MetricChange::Coarsen:MetricChange::Refine;\n    }\n    if(length_blocks_dirty[collapse]) {\n      selection.blocked_edges.clear();selection.blocked_links=0;length_blocks_dirty[collapse]=false;\n    }\n  ",
+      "new_signature": "void EngineQueues::LengthDirection(EngineContext& context, bool collapse)",
+      "new_aliases": "  auto& selection = *context.census.selection;\n  auto& inactive_blocked_edges = *this->inactive_blocked_edges;\n  auto& inactive_blocked_links = *this->inactive_blocked_links;\n  auto& coarsening = *context.control.coarsening;\n  auto& construction_kind = *context.control.construction_kind;\n  auto& length_blocks_dirty = *this->length_blocks_dirty;\n",
+      "method_definition": "void EngineQueues::LengthDirection(EngineContext& context, bool collapse) {\n  auto& selection = *context.census.selection;\n  auto& inactive_blocked_edges = *this->inactive_blocked_edges;\n  auto& inactive_blocked_links = *this->inactive_blocked_links;\n  auto& coarsening = *context.control.coarsening;\n  auto& construction_kind = *context.control.construction_kind;\n  auto& length_blocks_dirty = *this->length_blocks_dirty;\n\n  if (coarsening != collapse) {\n    selection.blocked_edges.swap(inactive_blocked_edges);\n    std::swap(selection.blocked_links, inactive_blocked_links);\n    coarsening = selection.coarsening = collapse;\n    construction_kind = collapse ? MetricChange::Coarsen : MetricChange::Refine;\n  }\n  if (length_blocks_dirty[collapse]) {\n    selection.blocked_edges.clear();\n    selection.blocked_links = 0;\n    length_blocks_dirty[collapse] = false;\n  }\n}\n",
+      "caller_target": "context.queues.LengthDirection",
+      "expected_call_count": 5,
+      "original_start_line": 3251,
+      "original_end_line": 3260,
+      "call_substitutions": [
+        {
+          "before": "length_direction(",
+          "after": "context.queues.LengthDirection(context, "
+        },
+        {
+          "before": "length_direction(",
+          "after": "context.queues.LengthDirection(context, "
+        },
+        {
+          "before": "length_direction(",
+          "after": "context.queues.LengthDirection(context, "
+        },
+        {
+          "before": "length_direction(",
+          "after": "context.queues.LengthDirection(context, "
+        },
+        {
+          "before": "length_direction(",
+          "after": "context.queues.LengthDirection(context, "
+        }
+      ]
+    }
+  ],
+  "EngineControl_fields_moved_textually_no_layout_or_constructor_order_change": true,
+  "proposed_files_sha256": {
+    "Common/src/adaptation/CNativeEngine3D.cpp": "491610fa48964cf4144a4584e85c54413ab24acd7517edd408807042026130fb",
+    "Common/src/adaptation/native_engine3d/EngineContext.hpp": "74d6202b1462cd3ce3670bf89009b08d8e55dfd05f46cd4010e2fd5ae9e5ee9d",
+    "Common/src/adaptation/native_engine3d/EngineControl.hpp": "4d9ba9cacce2c4103745e9711211091bcb9ae56642f67ddb5ebd27ac172fbd7c",
+    "Common/src/adaptation/native_engine3d/EngineControl.cpp": "8a49a7de40d846ad4e7f6164ed2c8b1d345e3939b2aa972408eb9db87a3a4b11",
+    "Common/src/adaptation/native_engine3d/EngineExchange.hpp": "16738e08de8c69af0a5b493004b501030cbbb5ffae1de80b35f6638a7eeda3d1",
+    "Common/src/adaptation/native_engine3d/EngineExchange.cpp": "f094321c8de30e2278629813621b35dea43f60b6e6b095f551b2ca55cc431c62",
+    "Common/src/adaptation/native_engine3d/EngineQueues.hpp": "359d3ef321fa1a6d2722f9ad4fe1667d970f031c5c51c6a1266510b580fc5a55",
+    "Common/src/adaptation/native_engine3d/EngineQueues.cpp": "701f2fe570f59a2d289611f504ca59205cdc14fe98e67855dc50fea301c784e5"
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "rule": "R3 own report helper; preserve written C2.1 gate",
+  "cause": "run_g1_candidate_gate.py required reporter_totals_equal in addition to the table explicitly defined by C2.1. Successful assertion totals redistributed by18 acrossMPI4ranks while all228caseoutcomes/failedassertions remainedidentical. The extra helper condition was not in C2.1.",
+  "written_rule_quote": "G1 passes for a sub-step when its table is equal to the G1 reference: the same test cases, the same passed / failed state, the same failed assertions with the same integer values.",
+  "correction": "New successor wrapper checks that exact table using unchanged strict parser; successful-assert totals retained as observations. Original helper/raw false receipt/pinned files unchanged. Re-evaluate saved MPI4 only, no numerical repeat. Future cohorts use successor wrapper.",
+  "first_difference": {
+    "rank0_successful_assertions_reference": 10505,
+    "rank0_successful_assertions_candidate": 10487,
+    "rank1_reference": 8838,
+    "rank1_candidate": 8856,
+    "rank2_reference": 8041,
+    "rank2_candidate": 8059,
+    "rank3_reference": 8144,
+    "rank3_candidate": 8126
+  },
+  "production_changed": false,
+  "written_gate_changed": false,
+  "tolerance_changed": false,
+  "numerical_run_repeated": false,
+  "new_helper": "candidate_gate_preparation/run_g1_c2_1_exact.py",
+  "strict_positive_negative_helper_selfcheck": "passed"
+}

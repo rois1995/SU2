@@ -1,0 +1,185 @@
+{
+  "scope": "unapplied proposal only; no production files changed",
+  "source": "Common/src/adaptation/CNativeEngine3D.cpp",
+  "source_sha256": "dd97c5e2cb75789b1c35934a6fc3851ba297303a25510df5deceaba65efaf66f",
+  "proposed_cpp_sha256": "81cf80ac97fdb9cda0ea1078668441cf95acc7fcb443143bc6a470c5c60334c4",
+  "canonical_alias_bindings": {
+    "world": "context.world",
+    "options": "context.options",
+    "working": "*context.ownership.working",
+    "selection": "*context.census.selection",
+    "source": "*context.exchange.source",
+    "directory": "*context.exchange.directory",
+    "stats": "context.control.result->stats",
+    "composition": "context.composition"
+  },
+  "segment_checks": [
+    {
+      "name": "RecordRejection body (single-statement else brace normalization)",
+      "old_tokens": 288,
+      "new_tokens": 288,
+      "old_sha256": "3e7a514d91ec2702f07067ee30bd8441e51b638d5d058b3bcc5de986cefc95f7",
+      "new_sha256": "3e7a514d91ec2702f07067ee30bd8441e51b638d5d058b3bcc5de986cefc95f7",
+      "token_equal": true
+    },
+    {
+      "name": "ConsiderFixedMetricRow body",
+      "old_tokens": 252,
+      "new_tokens": 252,
+      "old_sha256": "0dd8bd369160c9d2bf6986724a5c393aac107fe841e93472e4a02b7f5de75735",
+      "new_sha256": "0dd8bd369160c9d2bf6986724a5c393aac107fe841e93472e4a02b7f5de75735",
+      "token_equal": true
+    },
+    {
+      "name": "UpdateFixedMetricCells body (explicit helper/context argument mapping)",
+      "old_tokens": 68,
+      "new_tokens": 68,
+      "old_sha256": "34568388f33f8a93626513d618cb57442bdfac0afd1e9d5c060ecb19ed4ce24c",
+      "new_sha256": "34568388f33f8a93626513d618cb57442bdfac0afd1e9d5c060ecb19ed4ce24c",
+      "token_equal": true
+    },
+    {
+      "name": "ResetFixedMetricCells body (explicit helper/context argument mapping)",
+      "old_tokens": 32,
+      "new_tokens": 32,
+      "old_sha256": "c651a6607d9d0261b0f116f06df5ed68007df6c2b5006deb3b28a324adbceb43",
+      "new_sha256": "c651a6607d9d0261b0f116f06df5ed68007df6c2b5006deb3b28a324adbceb43",
+      "token_equal": true
+    },
+    {
+      "name": "Emit / Initialize body",
+      "old_tokens": 471,
+      "new_tokens": 471,
+      "old_sha256": "f80dd92a2c77334c20515798908a6bca42f55ffd358f275cb841c4dc76c88147",
+      "new_sha256": "f80dd92a2c77334c20515798908a6bca42f55ffd358f275cb841c4dc76c88147",
+      "token_equal": true
+    },
+    {
+      "name": "Emit / Read body",
+      "old_tokens": 320,
+      "new_tokens": 320,
+      "old_sha256": "53a0e1b5e5b4a74b06903eb3ee6f512991fad03555c91e82d9aec6c9439a753b",
+      "new_sha256": "53a0e1b5e5b4a74b06903eb3ee6f512991fad03555c91e82d9aec6c9439a753b",
+      "token_equal": true
+    },
+    {
+      "name": "Emit / Compare body",
+      "old_tokens": 296,
+      "new_tokens": 296,
+      "old_sha256": "ebe1b7dc4f3cc9b48764a3c7c6853ccdb3026b0ef1e65e3d3e1b5304b457499d",
+      "new_sha256": "ebe1b7dc4f3cc9b48764a3c7c6853ccdb3026b0ef1e65e3d3e1b5304b457499d",
+      "token_equal": true
+    }
+  ],
+  "emit_reconstruction": {
+    "old_local_fixed_metric_samples_declaration": "CNativeEngine3D.cpp:1697; removed once and defined once in proposed private header",
+    "old_emit_body_order": [
+      "InitializeFixedMetricDrift: original initialization block",
+      "ReadFixedMetricDrift: original reread/exchange block",
+      "CompareFixedMetricDrift: original comparison block",
+      "unchanged diagnostic timer update and output remain in EmitFixedMetricDrift"
+    ],
+    "include_reversal": [
+      "remove EngineReports.hpp include",
+      "remove EngineReports.cpp include"
+    ],
+    "caller_reversal": [
+      "restore record_rejection lambda at original line 1851 and its 3 call sites",
+      "restore consider/update/reset lambdas at original lines 1979/1995/2000 and 2 update + 1 reset call sites",
+      "restore emit lambda at original line 2004 and its original call site"
+    ]
+  },
+  "function_lengths_after_clang_format_18": [
+    {
+      "name": "RecordRejection",
+      "start_line": 4,
+      "end_line": 35,
+      "line_count": 32,
+      "within_80": true
+    },
+    {
+      "name": "ConsiderFixedMetricRow",
+      "start_line": 37,
+      "end_line": 64,
+      "line_count": 28,
+      "within_80": true
+    },
+    {
+      "name": "UpdateFixedMetricCells",
+      "start_line": 66,
+      "end_line": 76,
+      "line_count": 11,
+      "within_80": true
+    },
+    {
+      "name": "ResetFixedMetricCells",
+      "start_line": 78,
+      "end_line": 85,
+      "line_count": 8,
+      "within_80": true
+    },
+    {
+      "name": "InitializeFixedMetricDrift",
+      "start_line": 88,
+      "end_line": 137,
+      "line_count": 50,
+      "within_80": true
+    },
+    {
+      "name": "ReadFixedMetricDrift",
+      "start_line": 140,
+      "end_line": 184,
+      "line_count": 45,
+      "within_80": true
+    },
+    {
+      "name": "CompareFixedMetricDrift",
+      "start_line": 186,
+      "end_line": 213,
+      "line_count": 28,
+      "within_80": true
+    },
+    {
+      "name": "EmitFixedMetricDrift",
+      "start_line": 216,
+      "end_line": 242,
+      "line_count": 27,
+      "within_80": true
+    }
+  ],
+  "formatting": {
+    "tool": "clang-format-18",
+    "version": "Ubuntu clang-format version 18.1.3 (1ubuntu1)",
+    "files": [
+      "EngineReports.hpp.proposed",
+      "EngineReports.cpp.proposed"
+    ],
+    "dry_run": "formatted proposed files only; no compile or execution"
+  },
+  "alias_and_body_mapping": {
+    "directory_alias": "auto& directory = *context.exchange.directory;",
+    "original_use": "directory->ResidentBytes()",
+    "rejection_limit": "pass diagnostic_rejection_limit directly; no redundant size_t casts",
+    "old_emit_segments": {
+      "Initialize": "CNativeEngine3D.cpp lines 2010-2034; token-identical",
+      "Read": "CNativeEngine3D.cpp lines 2035-2058; token-identical",
+      "Compare": "CNativeEngine3D.cpp lines 2059-2072; token-identical after moving existing available condition to caller"
+    },
+    "reverse_reconstruction": {
+      "include_reversal": [
+        "remove EngineReports.hpp and EngineReports.cpp includes after EngineContext.cpp"
+      ],
+      "local_definition": "restore Adapt-local constexpr FixedMetricSamples=16 at line 1697; remove header definition",
+      "lambda_bodies": [
+        "restore record_rejection body at line 1851",
+        "restore consider/update/reset bodies at lines 1979, 1995, 2000",
+        "restore emit body segments in Initialize, Read, Compare order, then unchanged timer/output body at line 2004"
+      ],
+      "callers": [
+        "restore original calls at lines 2214, 3450, 4043, 6222, 6301, 6554, 6593"
+      ],
+      "callee_mapping": "map old consider_fixed_metric_row(row) to ConsiderFixedMetricRow(context,row); Reset passes row.second; remove context and explicit limit args when reversing reporting calls"
+    }
+  },
+  "passed": true
+}
