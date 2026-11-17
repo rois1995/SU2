@@ -1,0 +1,33 @@
+{
+  "substep": "A2",
+  "base_passed_substep": "dfa2782e17",
+  "base_source_sha256": "711c30e323aae78acca1e0596a36663f2b3872dc53abfb85ea3e5aa37c471a6e",
+  "production_paths_sha256": {
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/Common/src/adaptation/CNativeEngine3D.cpp": "77b3c31bf0a049909001a0455690d8119b91dc686884d4e867c22101f48d5d4d",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/Common/src/adaptation/native_engine3d/EngineSetup.hpp": "21e519c0c65e8da063d11aa1b9203556f21a6c0962ec998c2f46ed8b2d280833",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/Common/src/adaptation/native_engine3d/EngineSetup.cpp": "f96ac45c0e0a7108fce51936244290df55da49d87210d431d9a3b0997b99d6b4"
+  },
+  "proposal_sha256": "95100c3a5b8dbb44101fc9109919c8031b151a5fc3bce59f9e9ad170e4a72dc0",
+  "field_order": [
+    "admission",
+    "timer_session",
+    "d9_profile",
+    "wall_counters",
+    "lane_counters",
+    "private_parameters",
+    "private_geometry",
+    "local_atlas_budget",
+    "restore_budget",
+    "atlas_geometry",
+    "target_geometry_lease"
+  ],
+  "constructors_at_original_points": true,
+  "resource_destruction_reverse_original_order": true,
+  "copy_and_move_deleted": true,
+  "RestoreBudgetWindow_no_temporary": true,
+  "started_clock_and_capture": "Clock::now remains at oldpoint; within_time stillcapturesstarted+maximum BYVALUE",
+  "AtlasBudget_scalar_defaults": "allscalars initialized inCNativeAtlas3D.hpp:30-57, checkedbeforedefault-emplace",
+  "no_public_API_or_separate_TU": true,
+  "no_new_timer_operation_or_collective": true,
+  "validation_pending": true
+}

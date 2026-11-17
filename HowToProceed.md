@@ -4,7 +4,7 @@ Read AGENTS.md, COMPLETE latest NIGHT_WORK_ORDER.md, and R/night_20261115/progre
 
 R=`integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57`.
 
-**No owned job: A1 passed its required G1/G2 gates**, pending this connected source/evidence checkpoint. Build53780.148841s/1604pins; G1all375serial/57MPI2/4ZEROchanges791.683805/13.937737/16.089440s; strictG2everyoldinteger/byte/per-rowtimercall+lawcountEXACT363.081195stop/371.443689seal/all9IDs+controllerterminal. Source711c30e3…/CFD01fe76…/test5efe66…. NEXTcheckpoint/push thenA2draftapply/build538/G1/G2. A1isnotphaseA/N4acceptance; lastfullqualifiedbasef8c7b01085. N11failed/reverted; N10skipped.
+**No owned job: A2 passed its required G1/G2 gates**, pending this connected source/evidence checkpoint. Build53880.123401s/1611pins; G1all375serial/57MPI2/4ZEROchanges790.791954/15.855281/15.099789s; strictG2everyoldinteger/byte/perrowTIMERcall+lawcountEXACT363.203256stop/371.619170seal/all9IDs+controllerterminal. Source77b3c31b…/CFD0ae4fa…/test868b3c…. NEXTcheckpoint/push thenA3Control; read-onlybindingmanifest/planready, noA3codeapplied. A1dfa2782e17PUSHED. Lastfullqualifiedf8c7b01085; phaseA/N4unfinished.
 
 Independentcurrentitem6.3: baseline536rebuildPASSED90.125806s/1598pinsunchanged/12terminalIDs, sharedCFDa144/testb5fb EXACTaccepted534. `R/night_20261115/N4/section6_3_after_N11` hascompletecopiedC2.1/inventories/H/D/Night/AGENTSSHAinputs andWHOLEsourcecheck22readings BEFOREanycutedit. No unresolvedresultcontradictionidentified; no cutproductionedityet.
 

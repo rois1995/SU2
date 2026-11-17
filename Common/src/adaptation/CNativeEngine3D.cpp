@@ -1433,21 +1433,24 @@ struct RepairProposal {
   std::string rejection;
 };
 
+// Keep setup ownership private to the original translation unit and namespace.
+#include "native_engine3d/EngineSetup.cpp"
+
 EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorCell>& original,
                    const PlanarReference& accepted_geometry, MetricComposition composition, EngineOptions options, MetricChange intent, bool bidirectional=false,
                    BoundaryMetric surface_target={}) {
-  RestoreAdmission admission;
+  EngineSetup setup;
   SetShapeAdmission(ShapeAdmission::ValidityOnly);
   using Phase=EnginePhase;
   Phase phase=Phase::Construction;
-  SU2NativeTiming3D::Session timer_session(
+  auto& timer_session = setup.timer_session.emplace(
       options.timings, "native_engine", world.rank, world.size,
       surface_target ? SU2NativeTiming3D::Phase::Surface : SU2NativeTiming3D::Phase::Construction);
   if (timer_session.Owns())
     options.caller_bytes = transfer_memory::Add(options.caller_bytes, SU2NativeTiming3D::Session::ReservedBytes());
-  SU2NativeD9::Root d9_profile(options.timings, world.rank);
-  wall_diagnostics::Counters wall_counters(options.timings && bool(surface_target));
-  lane_census::Counters lane_counters(options.timings);
+  setup.d9_profile.emplace(options.timings, world.rank);
+  auto& wall_counters = setup.wall_counters.emplace(options.timings && bool(surface_target));
+  auto& lane_counters = setup.lane_counters.emplace(options.timings);
   bool region_rebuilt=false,improvement_changed=false,construction_changed=false,construction_handoff_progress=false;
   bool construction_generation_changed=false;
   bool metric_cleanup=false,metric_cleanup_tried=false;
@@ -1455,14 +1458,19 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
   if(options.stage_observer)options.caller_bytes=transfer_memory::Add(options.caller_bytes,options.stage_observer_bytes);
   const auto started=Clock::now();
   const auto started_cpu=options.timings ? std::clock() : std::clock_t{};
-  std::shared_ptr<BoundaryParameterState> private_parameters;std::shared_ptr<const PlanarReference> private_geometry;
-  SU2NativeGeometry::AtlasBudget local_atlas_budget;
+  auto& private_parameters = setup.private_parameters.emplace();
+  auto& private_geometry = setup.private_geometry.emplace();
+  auto& local_atlas_budget = setup.local_atlas_budget.emplace();
   auto& atlas_budget=options.shared_geometry_budget?*options.shared_geometry_budget:local_atlas_budget;
   const auto atlas_work_initial=atlas_budget.work;
-  RestoreBudgetWindow restore_budget{options.shared_geometry_budget,atlas_budget.caller_bytes,atlas_budget.maximum_bytes,
-      atlas_budget.maximum_integer_bits,atlas_budget.maximum_work};
-  std::unique_ptr<PlanarReference> atlas_geometry;
-  std::shared_ptr<void> target_geometry_lease;
+  auto& restore_budget = setup.restore_budget.emplace();
+  restore_budget.budget = options.shared_geometry_budget;
+  restore_budget.caller = atlas_budget.caller_bytes;
+  restore_budget.bytes = atlas_budget.maximum_bytes;
+  restore_budget.bits = atlas_budget.maximum_integer_bits;
+  restore_budget.maximum_work = atlas_budget.maximum_work;
+  auto& atlas_geometry = setup.atlas_geometry.emplace();
+  auto& target_geometry_lease = setup.target_geometry_lease.emplace();
   const auto atlas_scratch=std::max(AtlasScratchBytes,options.geometry_workspace_bytes);
   if(!options.shared_geometry_budget && std::isfinite(options.maximum_seconds) && options.maximum_seconds>0)
     atlas_budget.within_time=[started,maximum=options.maximum_seconds] {
