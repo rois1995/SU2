@@ -59,7 +59,7 @@ def write_report(cases,out):
     (out/"wall_rows.json").write_text(json.dumps(report,indent=2)+"\n")
     columns=["case","marker","line"]+sorted(set().union(*(set(row) for row in all_rows))-{ "case","marker","line"})
     with (out/"wall_rows.csv").open("w",newline="") as stream:
-        writer=csv.DictWriter(stream,fieldnames=columns);writer.writeheader();writer.writerows(all_rows)
+        writer=csv.DictWriter(stream,fieldnames=columns,lineterminator="\n");writer.writeheader();writer.writerows(all_rows)
     lines=["# Wall-stage observations","","Report only; accepted mesh and result gates are separate.","",
            "Missing counter fields stay n/a. Parent coverage/remote attribution limits are explicit in WALL_SPLITS rows.","",
            "| case / rank | "+" | ".join(METRICS)+" |","|---|"+"---:|"*len(METRICS)]
