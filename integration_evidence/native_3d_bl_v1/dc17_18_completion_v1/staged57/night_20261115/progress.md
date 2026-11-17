@@ -2,13 +2,13 @@
 
 Updated 2026-11-17. Read the complete latest `NIGHT_WORK_ORDER.md` after every compaction, then this file.
 
-## Current boundary — B7 scoped gates PASSED; checkpoint next
+## Current boundary — B8 scoped gates PASSED; checkpoint next
 
-CUT B7/build557 PASSED scoped gates: build 90.137656s/1780 pins; G1 serial/MPI2/MPI4 799.466036/16.047393/17.009736s, zero changed cases; strict G2 stop/seal 358.986603/367.124557s, all old integer/model/timer rows exact against adopted552. All actual handles and pins sealed. Prefix HWM sum 6,083,198,976B is not a full-workflow P8 peak. No numerical repeat or efficiency gain claim.
+CUT B8/build558 PASSED scoped gates: build 80.122834s/1781 pins; G1 serial/MPI2/MPI4 782.588145/13.597257/15.629537s, zero changed cases; strict G2 stop/seal 364.021415/372.503794s, all old integer/model/timer rows exact against adopted552. All actual handles and pins sealed. Prefix HWM sum 6,337,683,456B is not a full-workflow P8 peak. No numerical repeat or efficiency gain claim.
 
-Actual exec handles: {"G1_mpi2": 32642, "G1_mpi4": 48973, "G1_serial": 98267, "G2": 57833, "build": 53944}. All PID/start identities were verified terminal in primary receipts.
+Actual exec handles: {"G1_mpi2": 11596, "G1_mpi4": 29843, "G1_serial": 56651, "G2": 25119, "build": 92164}. All PID/start identities were verified terminal in primary receipts.
 
-Commit/push B7, then exact accepted-B7 rebind/apply B8/build558/G1/G2. After end-B gates and commit/push, update current state, verify no owned job, write terminal handles, STOP and wait for the user. Do not start phase C. N6/N7/C/D are deferred at this planned stop.
+Commit/push B8, then end-B G3/G4/GQ. After end-B gates and commit/push, update current state, verify no owned job, write terminal handles, STOP and wait for the user. Do not start phase C. N6/N7/C/D are deferred at this planned stop.
 
 N14/N15 qualification PASSED and PUSHED **0c2cb5c460a5e01c5dde1564c96d209f457e8fa8**. Full4738.250709s/6payloads EXACT/allstandinggates; isolated restart236.822017s/168797points855828cells/coordinate0/positivefinitechangedfields; M26both6ranks/48prepare rows each/96fixedstorage4120summaries/class sums=commits22278/13622. All actual552/full/restart handles were sealed before B3 edits. Exact552binaries preserved locally (not Git). Accepted references adopted without numerical rerun; successor_reference_selection.json names552G1/G2/GQ and firstN14G3. G1wallchangedcasesNONE.
 
@@ -59,12 +59,11 @@ Required/checked counts reconcile: first731 required accepted +33 checked accept
 
 ## Next ordered actions
 
-1. B7 scoped checks are complete; checkpoint next. Historical serial launch was exec98267; build557 and all prelaunch stubs already passed. On terminal, seal the actual process/pin/table receipts. Then fresh host preflight → MPI2 → seal → fresh preflight → MPI4 → seal → fresh preflight → strict G2 → seal. Commit/push B7 only after all scoped gates pass.
-2. Exact accepted-B7 rebind of the integrated B8 candidate, verify reviewed output hashes, apply its three paths, materialize/build558 and run G1serial/MPI2/MPI4/strictG2 once each in order. Seal, commit and push.
-3. End-B G3, G4, GQ. G3 uses first N14 G3 common edits and adjusted entry work, >=336splits/all other physical gates; no P6c first336 identity. G4 2D1/2/4. GQ strict old integers/model/timer rows vs552, all six third windows, zero census delta for the cut.
-4. After passed end gates and commit/push, update progress/HANDOFF, verify NO owned job, write terminal handles, STOP AND WAIT FOR USER. Do not start phase C or final N7 report. If phase B cannot finish under R5, stop after its required revert is committed/pushed.
+1. Preserve B8 serialG1exec56651; build558 and allprelaunchstubsPASSED/sealed. Onterminalsealrealprocessidentities/table/pins. ThenfreshactualpreflightbeforeMPI2→seal→MPI4→seal→strictG2→seal; commit/pushB8.
+2. End-B G3, G4, GQ. FirstN14G3 common edits+adjustedentrywork,>=336splits/allotherphysicalgates; noP6cprefix. G4 2D1/2/4. GQ all6thirdwindows/strictoldints/model/timerrows vs552,zeroCensusdelta.
+3. Afterpassedendgates+commit/push, updateprogress/HANDOFF, verifyNOownedjob,writeterminalhandles,STOPWAITUSER. Do notstartphaseC/finalN7report. IfBcannotfinishunderR5, stopafterrequiredrevertcommitted/pushed.
 
-Earlier preparation details are historical: `progress_preparation_history_through_B6_20261117.md`. Current applied/accepted state is the opening section above.
+Earlier preparation details are historical: progress_preparation_history_through_B6_20261117.md. Current state is above.
 
 ## Own-helper correction ledger (no production/gate/tolerance changes)
 

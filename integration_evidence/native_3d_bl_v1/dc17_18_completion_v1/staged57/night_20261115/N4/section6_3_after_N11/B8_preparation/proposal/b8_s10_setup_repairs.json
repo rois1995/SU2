@@ -1,0 +1,42 @@
+{
+  "status": "unapplied S10 extraction proposal",
+  "source_revision": "ce252",
+  "source_sha256": "806e13eccc41df3a6e19602b38e1297dc8b9852fd4a6a8804af7a8b67d4d80e5",
+  "causes_and_corrections": [
+    {
+      "cause": "The first generator range lookup assumed the CLocalFailure and final admission markers were globally unique, although source has repeated matching tokens.",
+      "correction": "Anchor to the unique initialization Timer, scope ranges to its S10 body, and select the final population range to the body boundary."
+    },
+    {
+      "cause": "Initial borrowed alias map omitted accepted for the first helper and bidirectional/surface_target for the final helper.",
+      "correction": "Add aliases to the existing EngineContext inputs; token comparison and full-main reversal must pass before writing final proposal artifacts."
+    },
+    {
+      "cause": "The two identical validation-vote statements occur once after policy checks and again after wall-row exchange.",
+      "correction": "Keep the first vote in the caller between CheckInitialWallPolicies and ExchangeInitialWallPolicies; retain the exchange vote in the latter helper."
+    },
+    {
+      "cause": "The first borrowed Directory alias used two dereferences and produced Directory&, while moved statements retain the original unique_ptr member-access expressions.",
+      "correction": "Bind the engaged optional's unique_ptr with one dereference so original directory-> calls remain valid; regenerate S10 and S11 proposals."
+    }
+  ],
+  "result": {
+    "command": "python3 generate_b8_s10_proposal.py",
+    "selfcheck": "PASS",
+    "whole_main_byte_exact_reversal": true,
+    "four_helper_source_token_sequences_exact": true,
+    "formatted_function_lengths": [66, 36, 43, 69],
+    "all_functions_under_80_lines": true,
+    "timer_and_failure_remain_in_adapt": true,
+    "final_ready_finish_stays_after_timer": true,
+    "header_preserves_existing_engine_setup_fields_and_lifetime_members": true,
+    "build_or_runtime_validation": "not run; unapplied proposal"
+  },
+  "files": [
+    "generate_b8_s10_proposal.py",
+    "CNativeEngine3D_S10.cpp.proposed",
+    "EngineSetup_S10.hpp.proposed",
+    "EngineSetup_S10.cpp.proposed",
+    "b8_s10_token_reversal_proof.json"
+  ]
+}

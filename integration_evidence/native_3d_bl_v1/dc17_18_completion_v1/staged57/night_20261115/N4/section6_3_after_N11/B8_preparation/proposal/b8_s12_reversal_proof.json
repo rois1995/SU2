@@ -1,0 +1,23 @@
+{
+  "status": "unapplied S12 proposal on immutable ce252 main",
+  "source_revision": "ce252",
+  "source_sha256": "806e13eccc41df3a6e19602b38e1297dc8b9852fd4a6a8804af7a8b67d4d80e5",
+  "proposed_main_sha256": "38b3067bfd777f42ace82d6fb2faadb779c7849e7d8119ace539da7b13da6e63",
+  "reversed_main_sha256": "806e13eccc41df3a6e19602b38e1297dc8b9852fd4a6a8804af7a8b67d4d80e5",
+  "caller_byte_exact_reversal": true,
+  "body_token_equality_after_finish_to_status_mapping": true,
+  "POD_declarations_remain_in_original_caller": true,
+  "direct_finish_remains_in_caller": true,
+  "collective_order_unchanged": true,
+  "formatted_function_lines": 46,
+  "helper_under_80_lines": true,
+  "borrowed_bindings": {
+    "context.world": "World&",
+    "context.options": "EngineOptions&",
+    "context.geometry": "const PlanarReference&",
+    "context.control.result": "engaged optional<EngineResult> borrowed as a reference",
+    "region_applicable": "caller-owned bool&",
+    "prismatic": "caller-computed bool by value",
+    "global_original": "unchanged caller local; not captured by helper"
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "status": "unapplied helper setup record",
+  "variant": "B8",
+  "cause_corrections": [
+    {
+      "cause": "The first setup draft placed the build folder under the cohort directory.",
+      "correction": "B6 path evidence shows the build root is P/build558, while validation outputs are P/B8/validation."
+    },
+    {
+      "cause": "The prefix launcher pins local reference paths although the accepted reference cases reside under N14.",
+      "correction": "The installer links the local expected names to the existing adopted N14/552 reference cases; source cases remain unchanged."
+    },
+    {
+      "cause": "The inherited prefix controller requires the unnumbered run_g2_gq_prefix.py module name.",
+      "correction": "The installer creates this symlink to the versioned run_g2_gq_prefix_558.py wrapper."
+    }
+  ],
+  "checks": {
+    "all_13_python_sources_compiled": true,
+    "build_alias_self_check_no_receipt_read": true,
+    "actual_prelaunch_stubs_run": false,
+    "build_or_numerical_launch": false
+  }
+}

@@ -1,0 +1,48 @@
+{
+  "status": "unapplied S11 proposal",
+  "source_revision": "ce252",
+  "source_sha256": "806e13eccc41df3a6e19602b38e1297dc8b9852fd4a6a8804af7a8b67d4d80e5",
+  "causes_and_corrections": [
+    {
+      "cause": "The direct S11 extraction exceeded the 80-line helper ceiling after formatting.",
+      "correction": "Split the owner scan/publish tail into `PublishRefreshedSurface`, passing the already-created coverage and failure by reference. Finish remains synchronous inside either helper before its locals unwind."
+    },
+    {
+      "cause": "A tail call substituted for the original moved body, so a direct fragment compare was insufficient to prove all statements remained in order.",
+      "correction": "Reconstruct the main helper token stream with the tail body inserted, compare against the full transformed source body, compare the tail separately, and reverse the whole caller replacement byte-for-byte."
+    },
+    {
+      "cause": "The exchange directory slot is an engaged optional containing a unique_ptr; the original arrow operations require retaining the unique_ptr reference.",
+      "correction": "Bind the unique_ptr with one dereference and declare both template methods in the combined proposed header."
+    }
+  ],
+  "validation": {
+    "command": "python3 generate_b8_s11_proposal.py",
+    "result": "PASS",
+    "whole_main_byte_exact_reversal": true,
+    "all_direct_finish_sites_preserved": 7,
+    "formatted_function_lines": [38, 62],
+    "all_functions_under_80_lines": true,
+    "build_or_runtime_validation": "not performed; proposal only"
+  },
+  "borrowed_bindings": {
+    "context.world": "World&",
+    "context.options": "EngineOptions&",
+    "context.geometry": "const PlanarReference&",
+    "context.control.result": "engaged optional<EngineResult>, borrowed as EngineResult&",
+    "result.stats": "EngineStats&",
+    "context.ownership.working": "engaged optional<Owned>, borrowed as Owned&",
+    "context.exchange.source": "engaged optional<CavityMetricSource>, borrowed as CavityMetricSource&",
+    "context.exchange.directory": "engaged optional<unique_ptr<Directory>>, borrowed as unique_ptr<Directory>& through one dereference",
+    "context.setup.atlas_geometry": "engaged optional<unique_ptr<PlanarReference>>, borrowed as unique_ptr&",
+    "context.setup.control_prefix.atlas_work_initial": "engaged optional<size_t>, borrowed as const size_t&",
+    "atlas_budget": "existing local AtlasBudget& selected before EngineContext",
+    "finish": "existing local finalizer lambda, borrowed as template Finish&",
+    "coverage_and_failure": "local BoundaryCoverage and CLocalFailure remain alive in RefreshWorkingSurface and are borrowed by PublishRefreshedSurface"
+  },
+  "limitations": [
+    "Proposal files are not compiled or run.",
+    "EngineResult nothrow-move property remains unverified without compilation.",
+    "Future explicit EngineControl::Finish rebind remains pending."
+  ]
+}

@@ -1,0 +1,23 @@
+{
+  "status": "unapplied S12 proposal",
+  "source_revision": "ce252",
+  "source_sha256": "806e13eccc41df3a6e19602b38e1297dc8b9852fd4a6a8804af7a8b67d4d80e5",
+  "cause": "The existing region applicability block combines scalar eligibility with analytic geometry iteration and two collectives; moving the declarations or finishing from inside it would change caller state/lifetime boundaries.",
+  "correction": "Leave global_original, prismatic and initial region_applicable declarations/predicates in Adapt. Extract only the existing detailed applicability block plus the OR and MIN/MAX agreement into a bool helper. The caller retains the original finish branch on false.",
+  "validation": {
+    "command": "python3 generate_b8_s12_proposal.py",
+    "result": "PASS",
+    "whole_main_byte_exact_reversal": true,
+    "body_tokens_equal_after_return_finish_to_false_mapping": true,
+    "formatted_function_lines": 46,
+    "all_collectives_preserved_in_order": true,
+    "build_or_runtime_validation": "not performed; proposal only"
+  },
+  "files": [
+    "generate_b8_s12_proposal.py",
+    "CNativeEngine3D_S12.cpp.proposed",
+    "EngineSetup_S12.hpp.proposed",
+    "EngineSetup_S12.cpp.proposed",
+    "b8_s12_reversal_proof.json"
+  ]
+}

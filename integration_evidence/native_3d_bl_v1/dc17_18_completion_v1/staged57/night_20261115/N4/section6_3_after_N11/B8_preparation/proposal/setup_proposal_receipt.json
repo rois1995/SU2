@@ -1,0 +1,31 @@
+{
+  "status": "unapplied bounded proposal",
+  "source_revision": "ce252",
+  "source_sha256": "806e13eccc41df3a6e19602b38e1297dc8b9852fd4a6a8804af7a8b67d4d80e5",
+  "cause": "The original B8 proposal grouped S10-S15 without an executable token reversal and proposed moving resource-owning S13/S15 scopes across helper boundaries.",
+  "correction": "This draft narrows concrete extraction to the small S17 construction-pass call and S18 frontier seed block. It leaves timer/failure owners at the caller and keeps S13/S15 inline pending a scope-preserving split.",
+  "files": [
+    "b8_continuation_draft.md",
+    "generate_small_b8_proposal.py",
+    "CNativeEngine3D.cpp.proposed",
+    "EngineSetup.hpp.proposed",
+    "EngineSetup.cpp.proposed",
+    "b8_small_reversal_proof.json"
+  ],
+  "selfcheck": {
+    "command": "python3 generate_small_b8_proposal.py",
+    "outcome": "PASS",
+    "byte_exact_reversal": true,
+    "original_source_sha256": "806e13eccc41df3a6e19602b38e1297dc8b9852fd4a6a8804af7a8b67d4d80e5",
+    "reversal_source_sha256": "806e13eccc41df3a6e19602b38e1297dc8b9852fd4a6a8804af7a8b67d4d80e5",
+    "methods_added": [
+      {"name": "BeginConstructionPass", "lines": 4},
+      {"name": "SeedFrontier", "lines": 10}
+    ]
+  },
+  "not_done": [
+    "S10-S15 actual method-body extraction and whole-main reversal proof",
+    "read-only nothrow move trait assessment for EngineResult",
+    "compile or runtime validation"
+  ]
+}

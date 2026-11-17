@@ -2,9 +2,9 @@
 
 Updated 2026-11-17. **N14/N15 PASSED every ordered check**, including the ONE full workflow (4738.250709s, all6payloads EXACT E1P6c/E2P7), isolated restart (236.822017s,168797points/855828cells, coordinate error0, finite positive changed fields), and M26 reconciliation. Acceptance summary: `N/N14/section6_12/acceptance_summary.json`. All N14 actual handles and pins are sealed.
 
-CUT B7/build557 PASSED scoped gates: build 90.137656s/1780 pins; G1 serial/MPI2/MPI4 799.466036/16.047393/17.009736s, zero changed cases; strict G2 stop/seal 358.986603/367.124557s, all old integer/model/timer rows exact against adopted552. All actual handles and pins sealed. Prefix HWM sum 6,083,198,976B is not a full-workflow P8 peak. No numerical repeat or efficiency gain claim. Commit/push B7, then exact accepted-B7 rebind/apply B8/build558/G1/G2. After end-B gates and commit/push, update current state, verify no owned job, write terminal handles, STOP and wait for the user. Do not start phase C. N6/N7/C/D are deferred at this planned stop.
+CUT B8/build558 PASSED scoped gates: build 80.122834s/1781 pins; G1 serial/MPI2/MPI4 782.588145/13.597257/15.629537s, zero changed cases; strict G2 stop/seal 364.021415/372.503794s, all old integer/model/timer rows exact against adopted552. All actual handles and pins sealed. Prefix HWM sum 6,337,683,456B is not a full-workflow P8 peak. No numerical repeat or efficiency gain claim. Commit/push B8, then end-B G3/G4/GQ. After end-B gates and commit/push, update current state, verify no owned job, write terminal handles, STOP and wait for the user. Do not start phase C. N6/N7/C/D are deferred at this planned stop.
 
-Current shared557 CFD SHA256 `91d631d14f350bcfa73433cf3bd30325462a85a8f6b40606c6471db41c90c72f`; test SHA256 `d70d62412cac19536788b1963ec063cb080606a033366fc0409fc430ed2c8c9b`. N14 full552 qualification, adopted references and local archived binaries remain preserved.
+Current shared558 CFD SHA256 `cb90bfd4bcec97bf0ee657789dca662ed8d416064d7455c06c38514481b87ddb`; test SHA256 `b1462a432c443632640b92ce9c6f44e41ef390bc71641aabf8dc5935053789a4`. N14 full552 qualification, adopted references and local archived binaries remain preserved.
 
 Evidence root: `integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115` (N). Qualified full case: `N/N14/section6_12/validation/full552`; restart `validation/disk_restart_full552_event2`. Primary terminal receipts are `validation/full_primary_terminal_receipt.json` (10actual IDs,1775source/212input/25helper pins) and `restart_primary_terminal_receipt.json` (11actual IDs,2022case/10helper pins). No full or restart numerical repeat occurred. Own helper setup/report corrections are recorded in progress and their R3 history folders.
 
@@ -35,7 +35,7 @@ N14/N15 [report](integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/stag
 
 ## Remaining phase-B cut
 
-Commit/push B7, then exact accepted-B7 rebind/apply B8/build558/G1/G2. After end-B gates and commit/push, update current state, verify no owned job, write terminal handles, STOP and wait for the user. Do not start phase C. N6/N7/C/D are deferred at this planned stop.
+Commit/push B8, then end-B G3/G4/GQ. After end-B gates and commit/push, update current state, verify no owned job, write terminal handles, STOP and wait for the user. Do not start phase C. N6/N7/C/D are deferred at this planned stop.
 
 Detailed timings: [ADAPTATION_TIMINGS](Handbook/ADAPTATION_TIMINGS.md). The fully qualified phase-A workflow had native event times2583.997544/1727.465975s and process-peak sums14,000,402,432/17,305,853,952B, all six payloads and old integer/timer rows identical; isolated restart passed. Older pinsets are historical after intentional source changes.
 

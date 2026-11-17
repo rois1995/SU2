@@ -1,0 +1,35 @@
+{
+  "status": "unapplied S11 proposal on immutable ce252 main",
+  "source_revision": "ce252",
+  "source_sha256": "806e13eccc41df3a6e19602b38e1297dc8b9852fd4a6a8804af7a8b67d4d80e5",
+  "proposed_main_sha256": "61a25b2632b19492c1c6a8ac6a19fbd90249a9064678e8091c4fac852a416370",
+  "reversed_main_sha256": "806e13eccc41df3a6e19602b38e1297dc8b9852fd4a6a8804af7a8b67d4d80e5",
+  "caller_byte_exact_reversal": true,
+  "body_token_equality_after_explicit_finish_transport": true,
+  "tail_function_token_equal": true,
+  "direct_finish_sites_preserved_in_helper": 7,
+  "synchronous_finish_before_helper_local_unwind": true,
+  "caller_uses_nonconst_auto_and_move": true,
+  "formatted_function_lines": [
+    38,
+    62
+  ],
+  "helper_under_80_lines": true,
+  "external_borrowed_bindings": [
+    "context.world",
+    "context.options",
+    "context.geometry",
+    "context.control.result/stats",
+    "context.ownership.working",
+    "context.exchange.source/directory",
+    "context.setup.atlas_geometry",
+    "context.setup.control_prefix.atlas_work_initial",
+    "atlas_budget argument",
+    "existing finish closure by reference"
+  ],
+  "limitations": [
+    "No build or runtime validation; proposal is unapplied.",
+    "Future static EngineControl::Finish binding remains a later read-only rebind.",
+    "Nothrow move trait for EngineResult remains unverified."
+  ]
+}

@@ -1,0 +1,53 @@
+{
+  "status": "UNAPPLIED; no compile or runtime test",
+  "source_revision": "c0486d57daf6ac4a1e66733db4a68b3c2dfe133a",
+  "source_sha256": "6149e2cb2de3af25feefefdf056ce1c2b4aa75aa6170029348d4eedbffde5b0a",
+  "actual_formatted_recursive_layer_reconstruction_token_equal": true,
+  "actual_operation_status_and_optional_continuation_inverse_routes": true,
+  "main_byte_equal_after_restoring_source_formatting": true,
+  "main_sha256_after_restoring_source_formatting": "6149e2cb2de3af25feefefdf056ce1c2b4aa75aa6170029348d4eedbffde5b0a",
+  "formatted_function_lines": {
+    "PlanFirstRows": 73,
+    "PrepareFirstRowPublication": 59,
+    "PublishFirstRows": 55,
+    "ImportFirstRowDonors": 40,
+    "FirstRowBackgrounds": 24,
+    "ScoreFirstRowBackgrounds": 44,
+    "ConstructFirstRowJoint": 12,
+    "ConstructFirstRowCandidate": 47,
+    "ConstructFirstRowGroup": 73,
+    "ConstructFirstRows": 15,
+    "IterateFirstRows": 64,
+    "InitializeFirstRows": 65
+  },
+  "original_nested_operation_boolean_boundaries_preserved": true,
+  "future_b5_finish_binding": "rebind Finish& synchronously to EngineControl::Finish(context,curved,working,atlas_budget,conststarted,conststarted_cpu)",
+  "qualification": "Token proof excludes comments and normalizes formatting. It is not a C++ compiler or semantic lifetime proof.",
+  "formatted_lambda_inventory": [
+    {
+      "function": "PlanFirstRows",
+      "capture_and_parameters": "[](bool x)",
+      "formatted_lines": 1
+    },
+    {
+      "function": "ConstructFirstRowGroup",
+      "capture_and_parameters": "[&]()",
+      "formatted_lines": 4
+    },
+    {
+      "function": "IterateFirstRows",
+      "capture_and_parameters": "[&]()",
+      "formatted_lines": 9
+    },
+    {
+      "function": "IterateFirstRows",
+      "capture_and_parameters": "[&](const auto& item)",
+      "formatted_lines": 6
+    },
+    {
+      "function": "InitializeFirstRows",
+      "capture_and_parameters": "[&](const OwnedCell& row)",
+      "formatted_lines": 8
+    }
+  ]
+}

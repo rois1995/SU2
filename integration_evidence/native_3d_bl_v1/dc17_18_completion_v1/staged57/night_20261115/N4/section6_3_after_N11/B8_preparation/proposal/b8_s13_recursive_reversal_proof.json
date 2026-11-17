@@ -1,0 +1,47 @@
+{
+  "status": "unapplied full S13 proposal on ce252",
+  "source_revision": "ce252",
+  "source_sha256": "806e13eccc41df3a6e19602b38e1297dc8b9852fd4a6a8804af7a8b67d4d80e5",
+  "proposed_main_sha256": "13ffb2601e112e36741dd47cc2f4f408e374b8865b470e91e52fc92beb0fdfd3",
+  "reversed_main_sha256": "806e13eccc41df3a6e19602b38e1297dc8b9852fd4a6a8804af7a8b67d4d80e5",
+  "whole_main_byte_exact_reversal": true,
+  "recursive_callback_token_reconstruction": true,
+  "all_s13_direct_finish_sites_transported": 11,
+  "transported_finish_return_count": 11,
+  "finish_is_synchronous_through_gather_service_run_and_publication": true,
+  "all_helper_formatted_lines": [
+    30,
+    54,
+    54,
+    52,
+    50,
+    52,
+    39,
+    15,
+    44,
+    48
+  ],
+  "all_helpers_under_80_lines": true,
+  "single_original_service_run_callback_retained": true,
+  "single_original_region_service_and_tick_retained": true,
+  "service_remains_alive_through_original_in_region_tail": "PrepareRegionField owns service while RunAndFinalizeRegion synchronously calls FinalizeRegionTail",
+  "post_publication_tail_reconstructed_inside_service_owner": true,
+  "borrowed_bindings": {
+    "context.control.result": "engaged optional<EngineResult> reference",
+    "context.ownership.working": "engaged optional<Owned> reference",
+    "context.exchange.directory": "engaged optional<unique_ptr<Directory>>; one dereference retains unique_ptr&",
+    "context.exchange.source": "engaged optional<CavityMetricSource> reference",
+    "context.census.selection/initial/field_identity": "engaged existing references",
+    "context.commit.maximum_node/maximum_cell": "engaged existing Id references",
+    "context.setup.control_prefix.started": "engaged Clock::time_point reference",
+    "context.setup.wall_counters": "engaged counters reference",
+    "failure/region_active/region_started": "caller-owned active references",
+    "RegionFieldService/RegionReport/rows/patches/replacement/edits": "borrowed references through nested synchronous calls",
+    "finish": "existing local finalizer borrowed by template reference"
+  },
+  "limitations": [
+    "No build or runtime validation; unapplied proposal only.",
+    "Future static EngineControl::Finish rebind remains a later source-only step.",
+    "EngineResult move traits remain unverified."
+  ]
+}

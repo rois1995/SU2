@@ -1,0 +1,45 @@
+{
+  "status": "unapplied S10-only extraction",
+  "source_revision": "ce252",
+  "source_sha256": "806e13eccc41df3a6e19602b38e1297dc8b9852fd4a6a8804af7a8b67d4d80e5",
+  "proposed_main_sha256": "166894404b2b2a92d18e577994513a1219bd5fab201065fd967fee13f7ac0536",
+  "reversed_main_sha256": "806e13eccc41df3a6e19602b38e1297dc8b9852fd4a6a8804af7a8b67d4d80e5",
+  "whole_main_byte_exact_reversal": true,
+  "timer_and_failure_declarations_retained_in_caller": true,
+  "final_ready_finish_after_timer_unchanged": true,
+  "all_s10_statements_partitioned_in_original_order": true,
+  "functions": [
+    {
+      "name": "CheckInitialNumericPolicies",
+      "old_sha256": "e90bffdcf6b3e3a1b336c121878cc16059656c45d3874096d96868fbcb8ef8dc",
+      "moved_sha256": "01d6e469bb4533f4eaa2b717bd126d959d4cdb85d9a6b4069ad3dce80e050404",
+      "tokens_equal": true,
+      "token_count": 844,
+      "formatted_lines": 66
+    },
+    {
+      "name": "CheckInitialWallPolicies",
+      "old_sha256": "dedd4e0651faaa753668bdee94a330c7e7e2e495ade34f2a1b1a1ef87146c193",
+      "moved_sha256": "c935414dd991945167de8a450b8616f5d82f3bbfc4480f2bd111509cca984d15",
+      "tokens_equal": true,
+      "token_count": 424,
+      "formatted_lines": 36
+    },
+    {
+      "name": "ExchangeInitialWallPolicies",
+      "old_sha256": "90b9bf2746eed9405c7b29c3df212403915ec204203313027fde28f21467d820",
+      "moved_sha256": "f96af538168d36ad7d0e99934082493de40595a4f87f2cb76deb5b3a89d07e55",
+      "tokens_equal": true,
+      "token_count": 430,
+      "formatted_lines": 43
+    },
+    {
+      "name": "PopulateInitialStateAndBuildIndexes",
+      "old_sha256": "68bee433a1b32b7063ec675a07c2b007f5c70da71aa26d9859d181745ec98ebf",
+      "moved_sha256": "76207f257e95d48700a116aeb3d539c14374645cc913143c8631dc0b93213315",
+      "tokens_equal": true,
+      "token_count": 561,
+      "formatted_lines": 69
+    }
+  ]
+}

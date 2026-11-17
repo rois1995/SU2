@@ -4,6 +4,8 @@ Current N14/N15 qualification (build552) PASSED and pushed0c2cb5c460. The ONE fu
 
 B6 Ownership extraction PASSED scoped build556/G1/G2. Build 70.159541s/1779 pins; G1 serial/MPI2/MPI4 796.648625/16.245114/32.141896s, zero changed cases; strict G2 stop/seal 422.579359/431.041191s, all old integer/model/timer rows exact against adopted552. All actual handles and pins sealed. Prefix HWM sum 5,229,854,720B is not a full-workflow P8 peak. No numerical repeat or efficiency gain claim.
 
+CUT B8/build558 PASSED scoped gates: build 80.122834s/1781 pins; G1 serial/MPI2/MPI4 782.588145/13.597257/15.629537s, zero changed cases; strict G2 stop/seal 364.021415/372.503794s, all old integer/model/timer rows exact against adopted552. All actual handles and pins sealed. Prefix HWM sum 6,337,683,456B is not a full-workflow P8 peak. No numerical repeat or efficiency gain claim.
+
 CUT B7/build557 PASSED scoped gates: build 90.137656s/1780 pins; G1 serial/MPI2/MPI4 799.466036/16.047393/17.009736s, zero changed cases; strict G2 stop/seal 358.986603/367.124557s, all old integer/model/timer rows exact against adopted552. All actual handles and pins sealed. Prefix HWM sum 6,083,198,976B is not a full-workflow P8 peak. No numerical repeat or efficiency gain claim.
 
 CUTB5/build555 PASSEDscopedgates: build70.163345s/1778pins; G1serial766.075553/MPI2 14.503078/MPI4 14.556237s, zerochangedcases. MPI2launcher10vsref9 isreport-onlyperC2.1; exacttablepassed. StrictG2stop317.596742/seal325.356386s, alloldinteger/model/timerrows exact vsadopted552. ObservedprefixHWMsum6,052,069,376B, notfullP8peak. Allactualhandles/pinssealed. No computational efficiency gain claimed.

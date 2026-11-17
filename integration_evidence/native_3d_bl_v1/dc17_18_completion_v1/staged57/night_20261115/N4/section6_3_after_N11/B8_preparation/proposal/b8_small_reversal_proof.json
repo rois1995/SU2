@@ -1,0 +1,26 @@
+{
+  "status": "unapplied proposal; no build or run",
+  "source_revision": "ce252",
+  "source_path": "Common/src/adaptation/CNativeEngine3D.cpp",
+  "source_sha256": "806e13eccc41df3a6e19602b38e1297dc8b9852fd4a6a8804af7a8b67d4d80e5",
+  "proposed_main_sha256": "85cda5ce031675977ca12925b391b4ded8405bd8133219c34bec05bcb50d1b26",
+  "reversal_sha256": "806e13eccc41df3a6e19602b38e1297dc8b9852fd4a6a8804af7a8b67d4d80e5",
+  "byte_exact_reversal": true,
+  "replacements": [
+    {
+      "old": "  if(bidirectional)directory->BeginConstructionPass();\n",
+      "new": "  EngineSetup::BeginConstructionPass(context);\n",
+      "old_count": 1
+    },
+    {
+      "old": "  {\n    CLocalFailure failure;\n    try{selection.SeedFrontier(working);}catch(const std::exception& e){failure.Set(2,0,e.what());}\n    if(!context.exchange.Vote(context, failure))return finish();\n  }\n",
+      "new": "  {\n    CLocalFailure failure;\n    if (!EngineSetup::SeedFrontier(context, failure)) return finish();\n  }\n",
+      "old_count": 1
+    }
+  ],
+  "scope": "S17 BeginConstructionPass and S18 SeedFrontier only",
+  "limitations": [
+    "S10 through S15 remain unapplied planning; S13/S15 stay inline pending scope-safe partition.",
+    "No proof is claimed for unmodified S10-S15 method extraction."
+  ]
+}

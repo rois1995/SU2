@@ -1,0 +1,461 @@
+{
+  "status": "source-level audit; not a compiler or formal control-flow proof",
+  "terminal_returns": {
+    "RefreshWorkingSurface": {
+      "signature": "std::optional<EngineResult> EngineSetup::RefreshWorkingSurface(EngineContext& context, SU2NativeGeometry::AtlasBudget& atlas_budget, Finish& finish)",
+      "last_unconditional_return": "std::nullopt",
+      "direct_failure_finish_calls": 2,
+      "all_direct_finish_calls_return_engaged_optional": true
+    },
+    "PublishRefreshedSurface": {
+      "signature": "std::optional<EngineResult> EngineSetup::PublishRefreshedSurface(EngineContext& context, SU2NativeGeometry::AtlasBudget& atlas_budget, SU2NativeGeometry::BoundaryCoverage& refreshed, CLocalFailure& failure, size_t before_work, Finish& finish)",
+      "last_unconditional_return": "std::nullopt",
+      "direct_failure_finish_calls": 5,
+      "all_direct_finish_calls_return_engaged_optional": true
+    },
+    "CheckRegionApplicability": {
+      "signature": "bool EngineSetup::CheckRegionApplicability(EngineContext& context, bool& region_applicable, bool prismatic)",
+      "last_unconditional_return": "true",
+      "direct_failure_finish_calls": 0,
+      "all_direct_finish_calls_return_engaged_optional": true
+    },
+    "ConstructRegion": {
+      "signature": "std::optional<EngineResult> EngineSetup::ConstructRegion(EngineContext& context, uint64_t global_original, CLocalFailure& failure, Finish& finish)",
+      "last_unconditional_return": "std::nullopt",
+      "direct_failure_finish_calls": 1,
+      "all_direct_finish_calls_return_engaged_optional": true
+    },
+    "GatherRegion": {
+      "signature": "std::optional<EngineResult> EngineSetup::GatherRegion(EngineContext& context, uint64_t global_original, size_t region_cells, size_t scratch, CLocalFailure& failure, Finish& finish)",
+      "last_unconditional_return": "std::nullopt",
+      "direct_failure_finish_calls": 3,
+      "all_direct_finish_calls_return_engaged_optional": true
+    },
+    "PrepareRegionField": {
+      "signature": "std::optional<EngineResult> EngineSetup::PrepareRegionField(EngineContext& context, uint64_t global_original, size_t region_cells, size_t scratch, CLocalFailure& failure, bool& admitted, Rows& rows, std::vector<DonorRegion>& regions, Patch& old, Patch& fresh, std::vector<OwnedCell>& replacement, std::vector<BoundaryParameterEdit>& region_parameter_edits, bool& core_declined, Finish& finish)",
+      "last_unconditional_return": "std::nullopt",
+      "direct_failure_finish_calls": 1,
+      "all_direct_finish_calls_return_engaged_optional": true
+    },
+    "RunAndFinalizeRegion": {
+      "signature": "std::optional<EngineResult> EngineSetup::RunAndFinalizeRegion( EngineContext& context, RegionFieldService& service, RegionReport& report, CLocalFailure& failure, size_t scratch, bool& admitted, Patch& fresh, std::vector<OwnedCell>& replacement, std::vector<BoundaryParameterEdit>& region_parameter_edits, Finish& finish)",
+      "last_unconditional_return": "EngineSetup::FinalizeRegionTail(context, scratch, admitted, failure, fresh, replacement, region_parameter_edits, finish)",
+      "direct_failure_finish_calls": 1,
+      "all_direct_finish_calls_return_engaged_optional": true
+    },
+    "FinalizeRegionTail": {
+      "signature": "std::optional<EngineResult> EngineSetup::FinalizeRegionTail(EngineContext& context, size_t scratch, bool& admitted, CLocalFailure& failure, Patch& fresh, std::vector<OwnedCell>& replacement, std::vector<BoundaryParameterEdit>& region_parameter_edits, Finish& finish)",
+      "last_unconditional_return": "std::nullopt",
+      "direct_failure_finish_calls": 1,
+      "all_direct_finish_calls_return_engaged_optional": true
+    },
+    "PublishRegionResult": {
+      "signature": "std::optional<EngineResult> EngineSetup::PublishRegionResult(EngineContext& context, size_t scratch, bool& admitted, CLocalFailure& failure, Patch& fresh, std::vector<OwnedCell>& replacement, std::vector<BoundaryParameterEdit>& region_parameter_edits, bool& changed, Finish& finish)",
+      "last_unconditional_return": "std::nullopt",
+      "direct_failure_finish_calls": 4,
+      "all_direct_finish_calls_return_engaged_optional": true
+    },
+    "PlanFirstRows": {
+      "signature": "bool EngineSetup::PlanFirstRows(EngineContext& context, std::set<Id>& pending, CLocalFailure& failure, const size_t& layerScratch, std::vector<Feature>& features, std::vector<Id>& queued, DependencyBatch& dependencies, ImportedBatch& imported, ReservationBatch& reserved)",
+      "last_unconditional_return": "true",
+      "direct_failure_finish_calls": 0,
+      "all_direct_finish_calls_return_engaged_optional": true
+    },
+    "PublishFirstRows": {
+      "signature": "bool EngineSetup::PublishFirstRows(EngineContext& context, CLocalFailure& failure, std::set<Id>& pending, const size_t& layerScratch, uint64_t& epoch, std::vector<Patch>& proposals, ReservationBatch& reserved, ImportedBatch& imported, DependencyBatch& dependencies, NeedsLayer& needs_layer)",
+      "last_unconditional_return": "true",
+      "direct_failure_finish_calls": 0,
+      "all_direct_finish_calls_return_engaged_optional": true
+    },
+    "ImportFirstRowDonors": {
+      "signature": "bool EngineSetup::ImportFirstRowDonors(EngineContext& context, CLocalFailure& failure, const size_t& layerScratch, size_t at, const size_t& slots, size_t& group, size_t& span, DonorPatch& donors, ImportedBatch& imported, ReservationBatch& reserved, JointCandidate& joint_candidate)",
+      "last_unconditional_return": "true",
+      "direct_failure_finish_calls": 0,
+      "all_direct_finish_calls_return_engaged_optional": true
+    },
+    "ConstructFirstRowGroup": {
+      "signature": "bool EngineSetup::ConstructFirstRowGroup(EngineContext& context, CLocalFailure& failure, const size_t& layerScratch, uint64_t& epoch, const size_t& slots, size_t& at, size_t& span, const bool& ranked_background, ImportedBatch& imported, ReservationBatch& reserved, std::vector<Id>& queued, std::vector<Patch>& proposals, TimedOut& timed_out, JointCandidate& joint_candidate)",
+      "last_unconditional_return": "true",
+      "direct_failure_finish_calls": 0,
+      "all_direct_finish_calls_return_engaged_optional": true
+    },
+    "ConstructFirstRows": {
+      "signature": "bool EngineSetup::ConstructFirstRows(EngineContext& context, CLocalFailure& failure, const size_t& layerScratch, uint64_t& epoch, const size_t& slots, size_t& span, const bool& ranked_background, ImportedBatch& imported, ReservationBatch& reserved, std::vector<Id>& queued, std::vector<Patch>& proposals, TimedOut& timed_out, JointCandidate& joint_candidate)",
+      "last_unconditional_return": "true",
+      "direct_failure_finish_calls": 0,
+      "all_direct_finish_calls_return_engaged_optional": true
+    },
+    "IterateFirstRows": {
+      "signature": "std::optional<EngineResult> EngineSetup::IterateFirstRows(EngineContext& context, CLocalFailure& failure, std::set<Id>& pending, const size_t& layerScratch, uint64_t& epoch, NeedsLayer& needs_layer, Finish& finish)",
+      "last_unconditional_return": "std::nullopt",
+      "direct_failure_finish_calls": 6,
+      "all_direct_finish_calls_return_engaged_optional": true
+    },
+    "InitializeFirstRows": {
+      "signature": "std::optional<EngineResult> EngineSetup::InitializeFirstRows(EngineContext& context, Finish& finish)",
+      "last_unconditional_return": "std::nullopt",
+      "direct_failure_finish_calls": 3,
+      "all_direct_finish_calls_return_engaged_optional": true
+    },
+    "SeedFrontier": {
+      "signature": "bool EngineSetup::SeedFrontier(EngineContext& context, CLocalFailure& failure)",
+      "last_unconditional_return": "context.exchange.Vote(context, failure)",
+      "direct_failure_finish_calls": 0,
+      "all_direct_finish_calls_return_engaged_optional": true
+    }
+  },
+  "types_and_borrowed_aliases": {
+    "CheckInitialNumericPolicies": {
+      "signature": "void EngineSetup::CheckInitialNumericPolicies(EngineContext& context, bool curved, SU2NativeGeometry::AtlasBudget& atlas_budget, CLocalFailure& failure)",
+      "aliases": [
+        "auto& world = context.world;",
+        "auto& options = context.options;",
+        "auto& result = *context.control.result;",
+        "auto& stats = result.stats;",
+        "auto& composition = context.composition;",
+        "auto& accepted = context.accepted;",
+        "auto& atlas_geometry = *context.setup.atlas_geometry;",
+        "auto& target_geometry_lease = *context.setup.target_geometry_lease;"
+      ]
+    },
+    "CheckInitialWallPolicies": {
+      "signature": "void EngineSetup::CheckInitialWallPolicies(EngineContext& context, CLocalFailure& failure)",
+      "aliases": [
+        "auto& world = context.world;",
+        "auto& options = context.options;",
+        "auto& composition = context.composition;",
+        "auto& intent = context.intent;",
+        "auto& bidirectional = context.bidirectional;",
+        "auto& surface_target = context.surface_target;"
+      ]
+    },
+    "ExchangeInitialWallPolicies": {
+      "signature": "void EngineSetup::ExchangeInitialWallPolicies(EngineContext& context, CLocalFailure& failure, bool& ready)",
+      "aliases": [
+        "auto& world = context.world;",
+        "auto& options = context.options;",
+        "auto& result = *context.control.result;",
+        "auto& stats = result.stats;"
+      ]
+    },
+    "PopulateInitialStateAndBuildIndexes": {
+      "signature": "void EngineSetup::PopulateInitialStateAndBuildIndexes(EngineContext& context, bool curved, CLocalFailure& failure, bool& ready, Id& maximum_node, Id& maximum_cell)",
+      "aliases": [
+        "auto& world = context.world;",
+        "auto& options = context.options;",
+        "auto& result = *context.control.result;",
+        "auto& stats = result.stats;",
+        "auto& accepted = context.accepted;",
+        "auto& original = context.original;",
+        "auto& geometry = context.geometry;",
+        "auto& bidirectional = context.bidirectional;",
+        "auto& surface_target = context.surface_target;",
+        "auto& coarsening = *context.control.coarsening;",
+        "auto& repairing = *context.control.repairing;",
+        "auto& accepted_bytes = *context.control.accepted_bytes;",
+        "auto& working = *context.ownership.working;",
+        "auto& selection = *context.census.selection;",
+        "auto& field_identity = *context.census.field_identity;",
+        "auto& initial = *context.census.initial;",
+        "auto& eligible_extensions = *context.census.eligible_extensions;",
+        "auto& directory = *context.exchange.directory;",
+        "auto& source = *context.exchange.source;"
+      ]
+    },
+    "RefreshWorkingSurface": {
+      "signature": "std::optional<EngineResult> EngineSetup::RefreshWorkingSurface(EngineContext& context, SU2NativeGeometry::AtlasBudget& atlas_budget, Finish& finish)",
+      "aliases": [
+        "auto& world = context.world;",
+        "auto& options = context.options;",
+        "auto& geometry = context.geometry;",
+        "auto& result = *context.control.result;",
+        "auto& stats = result.stats;",
+        "auto& working = *context.ownership.working;",
+        "auto& source = *context.exchange.source;",
+        "auto& directory = *context.exchange.directory;",
+        "auto& atlas_geometry = *context.setup.atlas_geometry;",
+        "const auto& atlas_work_initial = *context.setup.control_prefix.atlas_work_initial;"
+      ]
+    },
+    "PublishRefreshedSurface": {
+      "signature": "std::optional<EngineResult> EngineSetup::PublishRefreshedSurface(EngineContext& context, SU2NativeGeometry::AtlasBudget& atlas_budget, SU2NativeGeometry::BoundaryCoverage& refreshed, CLocalFailure& failure, size_t before_work, Finish& finish)",
+      "aliases": [
+        "auto& world = context.world;",
+        "auto& options = context.options;",
+        "auto& result = *context.control.result;",
+        "auto& working = *context.ownership.working;",
+        "auto& source = *context.exchange.source;",
+        "auto& directory = *context.exchange.directory;"
+      ]
+    },
+    "CheckRegionApplicability": {
+      "signature": "bool EngineSetup::CheckRegionApplicability(EngineContext& context, bool& region_applicable, bool prismatic)",
+      "aliases": [
+        "auto& world = context.world;",
+        "auto& options = context.options;",
+        "auto& geometry = context.geometry;",
+        "auto& result = *context.control.result;"
+      ]
+    },
+    "ConstructRegion": {
+      "signature": "std::optional<EngineResult> EngineSetup::ConstructRegion(EngineContext& context, uint64_t global_original, CLocalFailure& failure, Finish& finish)",
+      "aliases": [
+        "auto& world = context.world;",
+        "auto& original = context.original;",
+        "auto& result = *context.control.result;",
+        "auto& stats = result.stats;",
+        "auto& working = *context.ownership.working;",
+        "auto& maximum_node = *context.commit.maximum_node;",
+        "auto& maximum_cell = *context.commit.maximum_cell;",
+        "auto& coarsening = *context.control.coarsening;"
+      ]
+    },
+    "GatherRegion": {
+      "signature": "std::optional<EngineResult> EngineSetup::GatherRegion(EngineContext& context, uint64_t global_original, size_t region_cells, size_t scratch, CLocalFailure& failure, Finish& finish)",
+      "aliases": [
+        "auto& world = context.world;",
+        "auto& options = context.options;",
+        "auto& geometry = context.geometry;",
+        "auto& result = *context.control.result;",
+        "auto& working = *context.ownership.working;"
+      ]
+    },
+    "PrepareRegionField": {
+      "signature": "std::optional<EngineResult> EngineSetup::PrepareRegionField(EngineContext& context, uint64_t global_original, size_t region_cells, size_t scratch, CLocalFailure& failure, bool& admitted, Rows& rows, std::vector<DonorRegion>& regions, Patch& old, Patch& fresh, std::vector<OwnedCell>& replacement, std::vector<BoundaryParameterEdit>& region_parameter_edits, bool& core_declined, Finish& finish)",
+      "aliases": [
+        "auto& world = context.world;",
+        "auto& options = context.options;",
+        "auto& geometry = context.geometry;",
+        "auto& composition = context.composition;",
+        "auto& result = *context.control.result;",
+        "auto& stats = result.stats;",
+        "auto& source = *context.exchange.source;",
+        "const auto& started = *context.setup.control_prefix.started;",
+        "auto& directory = *context.exchange.directory;"
+      ]
+    },
+    "RunAndFinalizeRegion": {
+      "signature": "std::optional<EngineResult> EngineSetup::RunAndFinalizeRegion( EngineContext& context, RegionFieldService& service, RegionReport& report, CLocalFailure& failure, size_t scratch, bool& admitted, Patch& fresh, std::vector<OwnedCell>& replacement, std::vector<BoundaryParameterEdit>& region_parameter_edits, Finish& finish)",
+      "aliases": [
+        "auto& world = context.world;",
+        "auto& options = context.options;",
+        "auto& result = *context.control.result;",
+        "auto& stats = result.stats;",
+        "const auto& started = *context.setup.control_prefix.started;",
+        "auto& composition = context.composition;",
+        "const auto& field_stats = service.Statistics();"
+      ]
+    },
+    "FinalizeRegionTail": {
+      "signature": "std::optional<EngineResult> EngineSetup::FinalizeRegionTail(EngineContext& context, size_t scratch, bool& admitted, CLocalFailure& failure, Patch& fresh, std::vector<OwnedCell>& replacement, std::vector<BoundaryParameterEdit>& region_parameter_edits, Finish& finish)",
+      "aliases": [
+        "auto& world = context.world;",
+        "auto& options = context.options;",
+        "auto& result = *context.control.result;",
+        "auto& stats = result.stats;",
+        "auto& working = *context.ownership.working;",
+        "auto& selection = *context.census.selection;",
+        "auto& initial = *context.census.initial;",
+        "auto& maximum_node = *context.commit.maximum_node;",
+        "auto& maximum_cell = *context.commit.maximum_cell;",
+        "auto& coarsening = *context.control.coarsening;",
+        "auto& surface_target = context.surface_target;",
+        "auto& region_rebuilt = *context.setup.control_prefix.region_rebuilt;",
+        "auto& region_active = *context.control.region_active;",
+        "auto& region_started = *context.control.region_started;"
+      ]
+    },
+    "PublishRegionResult": {
+      "signature": "std::optional<EngineResult> EngineSetup::PublishRegionResult(EngineContext& context, size_t scratch, bool& admitted, CLocalFailure& failure, Patch& fresh, std::vector<OwnedCell>& replacement, std::vector<BoundaryParameterEdit>& region_parameter_edits, bool& changed, Finish& finish)",
+      "aliases": [
+        "auto& world = context.world;",
+        "auto& options = context.options;",
+        "auto& geometry = context.geometry;",
+        "auto& result = *context.control.result;",
+        "auto& stats = result.stats;",
+        "auto& working = *context.ownership.working;",
+        "auto& directory = *context.exchange.directory;",
+        "auto& wall_counters = *context.setup.wall_counters;"
+      ]
+    },
+    "EvaluateRegionTarget": {
+      "signature": "void EngineSetup::EvaluateRegionTarget(EngineContext& context, size_t region_cells, const RegionMetric& target, Rows& rows, Patch& old, Patch& fresh, RegionReport& report, bool& core_declined, std::vector<BoundaryParameterEdit>& region_parameter_edits, std::vector<OwnedCell>& replacement)",
+      "aliases": [
+        "auto& options = context.options;",
+        "auto& geometry = context.geometry;",
+        "auto& result = *context.control.result;",
+        "auto& stats = result.stats;",
+        "auto& coarsening = *context.control.coarsening;"
+      ]
+    },
+    "PrepareRegionSkin": {
+      "signature": "void EngineSetup::PrepareRegionSkin(const PlanarReference& geometry, const Patch& old, std::map<Id, Point>& points, std::vector<Facet>& skin)",
+      "aliases": []
+    },
+    "ConstructRegionVolume": {
+      "signature": "void EngineSetup::ConstructRegionVolume(EngineContext& context, size_t region_cells, Patch& old, const std::vector<Facet>& skin, const RegionMetric& target, Patch& fresh, RegionReport& report, bool& constructed)",
+      "aliases": [
+        "auto& geometry = context.geometry;",
+        "auto& options = context.options;",
+        "auto& result = *context.control.result;",
+        "auto& stats = result.stats;",
+        "auto& maximum_node = *context.commit.maximum_node;",
+        "auto& maximum_cell = *context.commit.maximum_cell;",
+        "const auto& started = *context.setup.control_prefix.started;"
+      ]
+    },
+    "RecordRegionResult": {
+      "signature": "void EngineSetup::RecordRegionResult(EngineContext& context, Patch& old, Patch& fresh, Rows& rows, RegionReport& report, bool already_valid, bool short_edges, bool constructed, bool& core_declined, std::vector<BoundaryParameterEdit>& region_parameter_edits, std::vector<OwnedCell>& replacement)",
+      "aliases": [
+        "auto& options = context.options;",
+        "auto& geometry = context.geometry;",
+        "auto& result = *context.control.result;",
+        "auto& stats = result.stats;",
+        "auto& coarsening = *context.control.coarsening;",
+        "auto& last_rejection = *context.control.last_rejection;"
+      ]
+    },
+    "PlanFirstRows": {
+      "signature": "bool EngineSetup::PlanFirstRows(EngineContext& context, std::set<Id>& pending, CLocalFailure& failure, const size_t& layerScratch, std::vector<Feature>& features, std::vector<Id>& queued, DependencyBatch& dependencies, ImportedBatch& imported, ReservationBatch& reserved)",
+      "aliases": [
+        "auto& world = context.world;",
+        "auto& options = context.options;",
+        "auto& geometry = context.geometry;",
+        "auto& result = *context.control.result;",
+        "auto& stats = result.stats;",
+        "auto& working = *context.ownership.working;",
+        "auto& directory = *context.exchange.directory;",
+        "auto& source = *context.exchange.source;",
+        "const auto& row = working.at(*it);",
+        "const auto& item = imported.candidates[i];"
+      ]
+    },
+    "PrepareFirstRowPublication": {
+      "signature": "void EngineSetup::PrepareFirstRowPublication(EngineContext& context, CLocalFailure& failure, std::vector<Patch>& proposals, ReservationBatch& reserved, ImportedBatch& imported, DependencyBatch& dependencies, std::vector<std::vector<Dependency>>& toRemove, std::vector<std::vector<OwnedCell>>& toAdd, size_t& published, std::vector<BoundaryParameterEdit>& layer_parameter_edits, SU2NativeGeometry::BoundaryCoverage& layer_coverage)",
+      "aliases": [
+        "auto& geometry = context.geometry;",
+        "const auto& old = imported.candidates[k].cells.front().cell;",
+        "const auto& fresh = proposals[k];",
+        "const auto& dep = dependencies.candidates[k].cells.front();"
+      ]
+    },
+    "PublishFirstRows": {
+      "signature": "bool EngineSetup::PublishFirstRows(EngineContext& context, CLocalFailure& failure, std::set<Id>& pending, const size_t& layerScratch, uint64_t& epoch, std::vector<Patch>& proposals, ReservationBatch& reserved, ImportedBatch& imported, DependencyBatch& dependencies, NeedsLayer& needs_layer)",
+      "aliases": [
+        "auto& world = context.world;",
+        "auto& options = context.options;",
+        "auto& geometry = context.geometry;",
+        "auto& result = *context.control.result;",
+        "auto& stats = result.stats;",
+        "auto& working = *context.ownership.working;",
+        "auto& directory = *context.exchange.directory;",
+        "auto& source = *context.exchange.source;"
+      ]
+    },
+    "ImportFirstRowDonors": {
+      "signature": "bool EngineSetup::ImportFirstRowDonors(EngineContext& context, CLocalFailure& failure, const size_t& layerScratch, size_t at, const size_t& slots, size_t& group, size_t& span, DonorPatch& donors, ImportedBatch& imported, ReservationBatch& reserved, JointCandidate& joint_candidate)",
+      "aliases": [
+        "auto& world = context.world;",
+        "auto& options = context.options;",
+        "auto& result = *context.control.result;",
+        "auto& stats = result.stats;",
+        "auto& source = *context.exchange.source;"
+      ]
+    },
+    "FirstRowBackgrounds": {
+      "signature": "void EngineSetup::FirstRowBackgrounds(EngineContext& context, const Patch& old, std::vector<Point>& backgrounds, std::map<Id, Point>& coordinates)",
+      "aliases": [
+        "auto& geometry = context.geometry;",
+        "auto& options = context.options;"
+      ]
+    },
+    "ScoreFirstRowBackgrounds": {
+      "signature": "void EngineSetup::ScoreFirstRowBackgrounds(EngineContext& context, const Patch& old, Patch& fresh, Id node, Id cell, std::unique_ptr<FrozenField>& target, std::vector<Point>& backgrounds, long double& bestLength, std::map<Edge, EdgeMeasure>& reuse, bool& approved)",
+      "aliases": [
+        "auto& geometry = context.geometry;",
+        "auto& options = context.options;",
+        "auto& result = *context.control.result;",
+        "auto& stats = result.stats;"
+      ]
+    },
+    "ConstructFirstRowJoint": {
+      "signature": "void EngineSetup::ConstructFirstRowJoint(EngineContext& context, const Patch& old, Patch& fresh, Id node, Id cell, std::unique_ptr<FrozenField>& target, bool& approved)",
+      "aliases": []
+    },
+    "ConstructFirstRowCandidate": {
+      "signature": "void EngineSetup::ConstructFirstRowCandidate(EngineContext& context, CLocalFailure& failure, uint64_t& epoch, size_t k, ImportedBatch& imported, std::vector<Patch>& proposals, std::unique_ptr<FrozenField>& target, JointCandidate& joint_candidate, bool& rejected)",
+      "aliases": [
+        "auto& world = context.world;",
+        "auto& geometry = context.geometry;",
+        "auto& options = context.options;",
+        "auto& result = *context.control.result;",
+        "auto& stats = result.stats;",
+        "auto& maximum_node = *context.commit.maximum_node;",
+        "auto& maximum_cell = *context.commit.maximum_cell;",
+        "auto& fresh = proposals[k];"
+      ]
+    },
+    "ConstructFirstRowGroup": {
+      "signature": "bool EngineSetup::ConstructFirstRowGroup(EngineContext& context, CLocalFailure& failure, const size_t& layerScratch, uint64_t& epoch, const size_t& slots, size_t& at, size_t& span, const bool& ranked_background, ImportedBatch& imported, ReservationBatch& reserved, std::vector<Id>& queued, std::vector<Patch>& proposals, TimedOut& timed_out, JointCandidate& joint_candidate)",
+      "aliases": [
+        "auto& world = context.world;",
+        "auto& geometry = context.geometry;",
+        "auto& options = context.options;",
+        "auto& composition = context.composition;",
+        "auto& result = *context.control.result;",
+        "auto& stats = result.stats;",
+        "auto& field_identity = *context.census.field_identity;",
+        "const auto& started = *context.setup.control_prefix.started;"
+      ]
+    },
+    "ConstructFirstRows": {
+      "signature": "bool EngineSetup::ConstructFirstRows(EngineContext& context, CLocalFailure& failure, const size_t& layerScratch, uint64_t& epoch, const size_t& slots, size_t& span, const bool& ranked_background, ImportedBatch& imported, ReservationBatch& reserved, std::vector<Id>& queued, std::vector<Patch>& proposals, TimedOut& timed_out, JointCandidate& joint_candidate)",
+      "aliases": []
+    },
+    "IterateFirstRows": {
+      "signature": "std::optional<EngineResult> EngineSetup::IterateFirstRows(EngineContext& context, CLocalFailure& failure, std::set<Id>& pending, const size_t& layerScratch, uint64_t& epoch, NeedsLayer& needs_layer, Finish& finish)",
+      "aliases": [
+        "auto& world = context.world;",
+        "auto& options = context.options;",
+        "auto& geometry = context.geometry;",
+        "auto& result = *context.control.result;",
+        "auto& stats = result.stats;",
+        "const auto& started = *context.setup.control_prefix.started;"
+      ]
+    },
+    "InitializeFirstRows": {
+      "signature": "std::optional<EngineResult> EngineSetup::InitializeFirstRows(EngineContext& context, Finish& finish)",
+      "aliases": [
+        "auto& world = context.world;",
+        "auto& options = context.options;",
+        "auto& geometry = context.geometry;",
+        "auto& surface_target = context.surface_target;",
+        "auto& result = *context.control.result;",
+        "auto& stats = result.stats;",
+        "auto& working = *context.ownership.working;",
+        "auto& selection = *context.census.selection;",
+        "auto& initial = *context.census.initial;",
+        "auto& maximum_node = *context.commit.maximum_node;",
+        "auto& maximum_cell = *context.commit.maximum_cell;",
+        "auto& layer_active = *context.control.layer_active;",
+        "auto& layer_started = *context.control.layer_started;"
+      ]
+    },
+    "BeginConstructionPass": {
+      "signature": "void EngineSetup::BeginConstructionPass(EngineContext& context)",
+      "aliases": []
+    },
+    "SeedFrontier": {
+      "signature": "bool EngineSetup::SeedFrontier(EngineContext& context, CLocalFailure& failure)",
+      "aliases": []
+    }
+  },
+  "all_EngineSetup_calls_have_candidate_definitions": true,
+  "no_unbound_original_plan_construct_publish_calls": true,
+  "no_removed_local_calls_in_main": true,
+  "EngineTrial_declaration_included_before_use": true,
+  "EngineReports_reference_absent": true,
+  "single_borrowed_synchronous_setup_finish": true,
+  "all_31_methods_canonical_name_declaration_scan_passed": true,
+  "scan_limit": "lexical name audit; not a C++ type checker"
+}

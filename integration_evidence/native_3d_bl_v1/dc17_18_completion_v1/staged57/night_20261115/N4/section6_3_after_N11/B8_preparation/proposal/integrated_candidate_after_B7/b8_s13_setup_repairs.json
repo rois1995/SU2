@@ -1,0 +1,31 @@
+{
+  "status": "unapplied proposal setup repairs",
+  "source_revision": "ce252",
+  "cause_corrections": [
+    {
+      "cause": "The initial split passed the publication result through GatherRegion and PrepareRegionField before its original declaration point.",
+      "correction": "Changed is now declared inside FinalizeRegionTail at the original post-report point and passed by reference only to PublishRegionResult."
+    },
+    {
+      "cause": "The first tail extraction left region_rebuilt, final votes, identity reductions, timing, and active/result clearing in Adapt after the service owner unwound.",
+      "correction": "The entire original post-publication tail now runs synchronously in FinalizeRegionTail nested under PrepareRegionField's live RegionFieldService."
+    },
+    {
+      "cause": "Combining report accumulation, publication, and finalization exceeded the 80-line helper limit.",
+      "correction": "Split only at the original post-report boundary into RunAndFinalizeRegion and FinalizeRegionTail; the service and caller owners remain live across the synchronous call."
+    },
+    {
+      "cause": "A shared alias prelude emitted unused borrowed references in every split helper.",
+      "correction": "The generator now keeps only aliases referenced by each moved helper body."
+    }
+  ],
+  "verification": {
+    "generator_selfchecks_passed": true,
+    "whole_main_byte_exact_reversal": true,
+    "recursive_callback_token_reconstruction": true,
+    "post_tail_token_reconstruction_inside_service_owner": true,
+    "all_11_direct_finish_returns_transported": true,
+    "all_helpers_at_most_80_formatted_lines": true,
+    "build_or_runtime_validation": false
+  }
+}
