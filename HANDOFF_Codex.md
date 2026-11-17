@@ -1,10 +1,14 @@
 # Native adaptation — current handoff
 
-Updated 2026-11-17. **STOPPED — waiting for the user; no phase C.** Phase B passed on build558; qualification commit `97478b7abae40fcf107ac8132f0eea415a2aaaae`. No owned job runs. Current source is code-equivalent to B8 checkpointdaf75b14e2; all 1,781pins and binary hashes are verified. Latest actual terminal audit: `N4/section6_3_after_N11/end_B_preparation/planned_stop_terminal_audit.json`.
+Updated 2026-11-17. **work order 2 in force; next: cut phase C, sub-step C1; a new session continues.** Phase B passed on build558; qualification commit `97478b7abae40fcf107ac8132f0eea415a2aaaae`. All owned jobs were terminal at the completed phase-B stop. Current source is code-equivalent to B8 checkpointdaf75b14e2; all 1,781pins and binary hashes are verified. Latest actual terminal audit: `N4/section6_3_after_N11/end_B_preparation/planned_stop_terminal_audit.json`.
 
-The user ordered this stop after phase B. **Wait for the user; do not start phase C.** C/D, N6 and final N7 are deferred. N10 is withdrawn and 8.5ab is not implemented.
+Work order 2 is now the order in force and the planned stop is over. **A new session continues with cut phase C, sub-step C1.** This session is limited to the instruction handover, commit/push and stop; no phase C work starts here. N10 remains withdrawn and 8.5ab is not implemented.
 
-[Phase-B report](Handbook/ADAPTATION_CUT_PHASE_B_20261117.md) contains commits, gate numbers, baseline G1 failures, found-during-cut list, exceptions, ten longest functions and every own-helper correction. [Current progress](integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/progress.md) holds handles and evidence links. Read the complete latest scratchpad NIGHT_WORK_ORDER.md and progress after compaction.
+Instruction evidence: `integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/work_order_2_handover_20261117`. Previous AGENTS.md and its SHA256 are archived there. Current AGENTS.md is byte-identical to the preserved AGENTS_CLEAN.pinned.md snapshot (`a256611d0e3a02675e7ba6fea54e5d116a65e7818eeab798549f4f0927df9403`); copied WORK_ORDER_2.md SHA256 is `07512c7b4ced334464eb8b9dcb3ca28cbe3f789bc932d29eacf5e17235629761`.
+
+The two source paths were revised after the verified copy. This handover preserves the exact SHA256 versions supplied by the user; the evidence manifest records the later observed source hashes. Use the pinned evidence copy of WORK_ORDER_2.md for this handover.
+
+[Phase-B report](Handbook/ADAPTATION_CUT_PHASE_B_20261117.md) contains commits, gate numbers, baseline G1 failures, found-during-cut list, exceptions, ten longest functions and every own-helper correction. [Current progress](integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/progress.md) holds handles and evidence links. At the start of the new session, read AGENTS.md, the copied WORK_ORDER_2.md and progress. The earlier NIGHT_WORK_ORDER.md remains history.
 
 End gates: G3 PASSED: 1,170 splits; all 1,113 common edits exact; adjusted entry work 5,113; G4 PASSED at 1/2/4 ranks; GQ PASSED: all six third windows, 18 timer snapshots, all old integer/modeled/call rows exact, zero Census delta. Readability's153 private definitions / 23 lambdas meet80/15; Adapt's80-line deadline remains phase D.
 

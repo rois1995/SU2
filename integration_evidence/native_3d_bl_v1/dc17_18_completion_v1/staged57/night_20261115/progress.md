@@ -1,12 +1,16 @@
 # Night work — current progress
 
-Updated 2026-11-17. Read the complete latest NIGHT_WORK_ORDER.md after compaction, then this file.
+Updated 2026-11-17. Read AGENTS.md and the copied WORK_ORDER_2.md at the start of the new session, then this file.
 
-## Current state — STOPPED — waiting for the user; no phase C
+## Current state — work order 2 in force; next: cut phase C, sub-step C1; a new session continues
 
-Phase B passed on build558. Qualification commit: `97478b7abae40fcf107ac8132f0eea415a2aaaae`. Production source is identical to B8 checkpointdaf75b14e2a761ec1b8abaf5f5cd3e01a65ca7e3. No C++ change followed B8 application. All 1,781source pins and both current binary hashes were verified; owned C++ matches committed source. No owned job is running; actual PID/start identities are in `N4/section6_3_after_N11/end_B_preparation/planned_stop_terminal_audit.json`.
+Phase B passed on build558. Qualification commit: `97478b7abae40fcf107ac8132f0eea415a2aaaae`. Production source is identical to B8 checkpointdaf75b14e2a761ec1b8abaf5f5cd3e01a65ca7e3. No C++ change followed B8 application. All 1,781source pins and both current binary hashes were verified; owned C++ matches committed source. At the completed phase-B stop, all owned jobs were terminal; the recorded PID/start identities are in `N4/section6_3_after_N11/end_B_preparation/planned_stop_terminal_audit.json`.
 
-The latest user order requires STOP after phase B's end gates and commit/push, current state, no-owned-job verification and terminal handles. Do not start phase C. N6/N7/C/D are deferred. N10 is withdrawn; do not implement8.5ab. No question or automatic continuation is pending.
+Work order 2 replaces NIGHT_WORK_ORDER.md as the order in force. The planned phase-B stop is over. This session performs only the instruction handover and then stops; phase C starts with C1 in a new session. N10 remains withdrawn; 8.5ab remains outside scope.
+
+Instruction evidence: `integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/work_order_2_handover_20261117`. The previous AGENTS.md is archived byte for byte with its SHA256; the current AGENTS.md matches the preserved AGENTS_CLEAN.pinned.md snapshot exactly, SHA256 `a256611d0e3a02675e7ba6fea54e5d116a65e7818eeab798549f4f0927df9403`. The copied WORK_ORDER_2.md has SHA256 `07512c7b4ced334464eb8b9dcb3ca28cbe3f789bc932d29eacf5e17235629761`.
+
+The two source paths were revised after the verified copy. This handover preserves the exact SHA256 versions supplied by the user; the evidence manifest records the later observed source hashes. Use the pinned evidence copy of WORK_ORDER_2.md for this handover.
 
 ## Completed phase-B gates
 
@@ -43,4 +47,4 @@ N1/P7P8 accepted429c6c1a60. ConditionalcacheB7/N2 failed modeled12GiB and was re
 
 Historical progress: `progress_history_through_phase_B_qualification_20261117.md`, SHA256 `0e2c115b2607774e26d792b27b5b30b5987147c5a00d4ec2c70321966b38b982`. Its old RUNNING/PENDING notes are historical; this file controls current state.
 
-Next action: **STOP AND WAIT FOR THE USER. DO NOT START PHASE C.**
+Next action: **work order 2 in force; next: cut phase C, sub-step C1; a new session continues**. This session stops after committing and pushing this handover; no phase C work is performed here.
