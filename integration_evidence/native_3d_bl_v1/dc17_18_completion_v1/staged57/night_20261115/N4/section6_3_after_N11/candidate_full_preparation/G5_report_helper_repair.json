@@ -1,0 +1,8 @@
+{
+  "rule": "R3",
+  "cause": "Reused run_full_workflow.main raises SystemExit(0) after successful seal; validate_full.run continuation was unreachable.",
+  "correction": "Separate post-only helper executes the original unchanged comparison calls on the sealed run; original pinned helper retained unchanged.",
+  "production_changed": false,
+  "gates_changed": false,
+  "numerical_run_repeated": false
+}

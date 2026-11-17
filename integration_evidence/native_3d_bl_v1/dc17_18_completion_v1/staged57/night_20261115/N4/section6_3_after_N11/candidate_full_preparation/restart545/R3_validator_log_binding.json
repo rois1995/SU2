@@ -1,0 +1,6 @@
+{
+  "cause": "Inherited522 resource-proof insertion reads log before its later raw-validator assignment. This was repaired post-only in accepted534 but not carried into545 launcher.",
+  "correction": "Reuse accepted534 correction: supply immutable completed run.log in generated validator execution namespace; retain all original pinned wrappers and runinputs unchanged.",
+  "no_numerical_repeat": true,
+  "no_gate_change": true
+}
