@@ -1,0 +1,613 @@
+{
+  "base": {
+    "path": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/Common/src/adaptation/CNativeEngine3D.cpp",
+    "commit": "ce25219f04cb01285bfeb8b33dba1e6a3496782a",
+    "sha256": "806e13eccc41df3a6e19602b38e1297dc8b9852fd4a6a8804af7a8b67d4d80e5",
+    "source_check_sha256": "3fff8559d3f67b42c1314f2388fb8ba9d510fa064e625f53ef99df0d7f17f8a1",
+    "plan_sha256": "c48ae8a9c59ce693a810248806e6fe6ffa76c3400924f157d6081f5f5e16492b",
+    "part1_sha256": "034275df32e2f4b7f4ef9bb2aef0bc16453f6d0249971b90fc42ba6a33b663cd"
+  },
+  "lambda_audit": [
+    {
+      "name": "begin_length_generation",
+      "source_lines": [
+        3079,
+        3094
+      ],
+      "raw_body_lines": 16,
+      "formatted_member_lines_including_required_aliases": 42,
+      "free_outer_identifiers": [
+        "attempted_at_window",
+        "construction_claims",
+        "construction_generation_changed",
+        "deferred_at_window",
+        "directory",
+        "field_identity",
+        "phase_start_round",
+        "progress_at_window",
+        "selection",
+        "stats",
+        "working"
+      ],
+      "aliases_included_for_formatted_size": [
+        "attempted_at_window",
+        "construction_claims",
+        "construction_generation_changed",
+        "deferred_at_window",
+        "directory",
+        "field_identity",
+        "phase_start_round",
+        "progress_at_window",
+        "selection",
+        "stats",
+        "working"
+      ],
+      "canonical_context_bindings": {
+        "attempted_at_window": {
+          "declaration": "auto&",
+          "expression": "*context.control.attempted_at_window"
+        },
+        "construction_claims": {
+          "declaration": "auto&",
+          "expression": "*context.exchange.construction_claims"
+        },
+        "construction_generation_changed": {
+          "declaration": "auto&",
+          "expression": "*context.setup.control_prefix.construction_generation_changed"
+        },
+        "deferred_at_window": {
+          "declaration": "auto&",
+          "expression": "*context.control.deferred_at_window"
+        },
+        "directory": {
+          "declaration": "auto&",
+          "expression": "*context.exchange.directory"
+        },
+        "field_identity": {
+          "declaration": "auto&",
+          "expression": "*context.census.field_identity"
+        },
+        "phase_start_round": {
+          "declaration": "auto&",
+          "expression": "*context.setup.control_prefix.phase_start_round"
+        },
+        "progress_at_window": {
+          "declaration": "auto&",
+          "expression": "*context.control.progress_at_window"
+        },
+        "selection": {
+          "declaration": "auto&",
+          "expression": "*context.census.selection"
+        },
+        "stats": {
+          "declaration": "auto&",
+          "expression": "context.control.result->stats"
+        },
+        "working": {
+          "declaration": "auto&",
+          "expression": "*context.ownership.working"
+        }
+      },
+      "signature_parameters": [
+        "bool collapse"
+      ],
+      "formatted_preview_sha256": "733db5743d3a175bd4f63d651a62cacf8d8527295fe99ccd9f47ecf5717253d0"
+    },
+    {
+      "name": "surface_ready",
+      "source_lines": [
+        3095,
+        3098
+      ],
+      "raw_body_lines": 4,
+      "formatted_member_lines_including_required_aliases": 7,
+      "free_outer_identifiers": [
+        "selection",
+        "world"
+      ],
+      "aliases_included_for_formatted_size": [
+        "selection",
+        "world"
+      ],
+      "canonical_context_bindings": {
+        "selection": {
+          "declaration": "auto&",
+          "expression": "*context.census.selection"
+        },
+        "world": {
+          "declaration": "auto&",
+          "expression": "context.world"
+        }
+      },
+      "signature_parameters": [],
+      "formatted_preview_sha256": "d389e75126273bcbdc7a3588d49db4b8b47b38a82ec097e7763e883d21a0a54a"
+    },
+    {
+      "name": "enter_phase",
+      "source_lines": [
+        3099,
+        3159
+      ],
+      "raw_body_lines": 61,
+      "formatted_member_lines_including_required_aliases": 134,
+      "free_outer_identifiers": [
+        "attempted_at_window",
+        "bidirectional",
+        "construction_changed",
+        "construction_claims",
+        "construction_entry_reported",
+        "construction_generation_changed",
+        "construction_handoff_progress",
+        "deferred_at_window",
+        "directory",
+        "field_identity",
+        "generation_window_count",
+        "geometry",
+        "improvement_changed",
+        "initial",
+        "length_blocks_dirty",
+        "metric_cleanup",
+        "options",
+        "phase",
+        "phase_start_round",
+        "progress_at_window",
+        "repairing",
+        "result",
+        "retired_edges",
+        "seed_slot",
+        "selection",
+        "started",
+        "stats",
+        "surface_target",
+        "working",
+        "world"
+      ],
+      "aliases_included_for_formatted_size": [
+        "attempted_at_window",
+        "bidirectional",
+        "construction_changed",
+        "construction_claims",
+        "construction_entry_reported",
+        "construction_generation_changed",
+        "construction_handoff_progress",
+        "deferred_at_window",
+        "directory",
+        "field_identity",
+        "generation_window_count",
+        "geometry",
+        "improvement_changed",
+        "initial",
+        "length_blocks_dirty",
+        "metric_cleanup",
+        "options",
+        "phase",
+        "phase_start_round",
+        "progress_at_window",
+        "repairing",
+        "result",
+        "retired_edges",
+        "seed_slot",
+        "selection",
+        "started",
+        "stats",
+        "surface_target",
+        "working",
+        "world"
+      ],
+      "canonical_context_bindings": {
+        "attempted_at_window": {
+          "declaration": "auto&",
+          "expression": "*context.control.attempted_at_window"
+        },
+        "bidirectional": {
+          "declaration": "bool&",
+          "expression": "context.bidirectional"
+        },
+        "construction_changed": {
+          "declaration": "auto&",
+          "expression": "*context.setup.control_prefix.construction_changed"
+        },
+        "construction_claims": {
+          "declaration": "auto&",
+          "expression": "*context.exchange.construction_claims"
+        },
+        "construction_entry_reported": {
+          "declaration": "auto&",
+          "expression": "*context.control.construction_entry_reported"
+        },
+        "construction_generation_changed": {
+          "declaration": "auto&",
+          "expression": "*context.setup.control_prefix.construction_generation_changed"
+        },
+        "construction_handoff_progress": {
+          "declaration": "auto&",
+          "expression": "*context.setup.control_prefix.construction_handoff_progress"
+        },
+        "deferred_at_window": {
+          "declaration": "auto&",
+          "expression": "*context.control.deferred_at_window"
+        },
+        "directory": {
+          "declaration": "auto&",
+          "expression": "*context.exchange.directory"
+        },
+        "field_identity": {
+          "declaration": "auto&",
+          "expression": "*context.census.field_identity"
+        },
+        "generation_window_count": {
+          "declaration": "auto&",
+          "expression": "*context.control.generation_window_count"
+        },
+        "geometry": {
+          "declaration": "const auto&",
+          "expression": "context.geometry"
+        },
+        "improvement_changed": {
+          "declaration": "auto&",
+          "expression": "*context.setup.control_prefix.improvement_changed"
+        },
+        "initial": {
+          "declaration": "auto&",
+          "expression": "*context.census.initial"
+        },
+        "length_blocks_dirty": {
+          "declaration": "auto&",
+          "expression": "*context.queues.length_blocks_dirty"
+        },
+        "metric_cleanup": {
+          "declaration": "auto&",
+          "expression": "*context.setup.control_prefix.metric_cleanup"
+        },
+        "options": {
+          "declaration": "auto&",
+          "expression": "context.options"
+        },
+        "phase": {
+          "declaration": "auto&",
+          "expression": "*context.setup.control_prefix.phase"
+        },
+        "phase_start_round": {
+          "declaration": "auto&",
+          "expression": "*context.setup.control_prefix.phase_start_round"
+        },
+        "progress_at_window": {
+          "declaration": "auto&",
+          "expression": "*context.control.progress_at_window"
+        },
+        "repairing": {
+          "declaration": "auto&",
+          "expression": "*context.control.repairing"
+        },
+        "result": {
+          "declaration": "auto&",
+          "expression": "*context.control.result"
+        },
+        "retired_edges": {
+          "declaration": "auto&",
+          "expression": "*context.census.retired_edges"
+        },
+        "seed_slot": {
+          "declaration": "auto&",
+          "expression": "*context.census.seed_slot"
+        },
+        "selection": {
+          "declaration": "auto&",
+          "expression": "*context.census.selection"
+        },
+        "started": {
+          "declaration": "const auto&",
+          "expression": "*context.setup.control_prefix.started"
+        },
+        "stats": {
+          "declaration": "auto&",
+          "expression": "context.control.result->stats"
+        },
+        "surface_target": {
+          "declaration": "auto&",
+          "expression": "context.surface_target"
+        },
+        "working": {
+          "declaration": "auto&",
+          "expression": "*context.ownership.working"
+        },
+        "world": {
+          "declaration": "auto&",
+          "expression": "context.world"
+        }
+      },
+      "signature_parameters": [
+        "EnginePhase next",
+        "bool refine_geometry",
+        "Observer& observe_progress"
+      ],
+      "formatted_preview_sha256": "8b4fb8d7e8facbb5ddf7ac251a358539e1320ddaf78a94b39dd2ee0169169193"
+    },
+    {
+      "name": "discard_checkpoint",
+      "source_lines": [
+        3160,
+        3167
+      ],
+      "raw_body_lines": 8,
+      "formatted_member_lines_including_required_aliases": 15,
+      "free_outer_identifiers": [
+        "checkpoint",
+        "directory"
+      ],
+      "aliases_included_for_formatted_size": [
+        "checkpoint",
+        "directory"
+      ],
+      "canonical_context_bindings": {
+        "checkpoint": {
+          "declaration": "auto&",
+          "expression": "*context.control.checkpoint"
+        },
+        "directory": {
+          "declaration": "auto&",
+          "expression": "*context.exchange.directory"
+        }
+      },
+      "signature_parameters": [],
+      "formatted_preview_sha256": "5ba94c7e279e70d59d0d0bd41c825e809a739ebc93ab22d3185920d4d885e34c"
+    },
+    {
+      "name": "capture_checkpoint",
+      "source_lines": [
+        3168,
+        3194
+      ],
+      "raw_body_lines": 27,
+      "formatted_member_lines_including_required_aliases": 52,
+      "free_outer_identifiers": [
+        "checkpoint",
+        "directory",
+        "geometry",
+        "options",
+        "private_parameters",
+        "result",
+        "selection",
+        "source",
+        "stats",
+        "working",
+        "world"
+      ],
+      "aliases_included_for_formatted_size": [
+        "checkpoint",
+        "directory",
+        "geometry",
+        "options",
+        "private_parameters",
+        "result",
+        "selection",
+        "source",
+        "stats",
+        "working",
+        "world"
+      ],
+      "canonical_context_bindings": {
+        "checkpoint": {
+          "declaration": "auto&",
+          "expression": "*context.control.checkpoint"
+        },
+        "directory": {
+          "declaration": "auto&",
+          "expression": "*context.exchange.directory"
+        },
+        "geometry": {
+          "declaration": "const auto&",
+          "expression": "context.geometry"
+        },
+        "options": {
+          "declaration": "auto&",
+          "expression": "context.options"
+        },
+        "private_parameters": {
+          "declaration": "auto&",
+          "expression": "*context.setup.private_parameters"
+        },
+        "result": {
+          "declaration": "auto&",
+          "expression": "*context.control.result"
+        },
+        "selection": {
+          "declaration": "auto&",
+          "expression": "*context.census.selection"
+        },
+        "source": {
+          "declaration": "auto&",
+          "expression": "*context.exchange.source"
+        },
+        "stats": {
+          "declaration": "auto&",
+          "expression": "context.control.result->stats"
+        },
+        "working": {
+          "declaration": "auto&",
+          "expression": "*context.ownership.working"
+        },
+        "world": {
+          "declaration": "auto&",
+          "expression": "context.world"
+        }
+      },
+      "signature_parameters": [],
+      "formatted_preview_sha256": "09a4d303dffb4ad0e1212ecd19fda96636e79e676377b0c25631c11e79906b70"
+    },
+    {
+      "name": "rollback_checkpoint",
+      "source_lines": [
+        3195,
+        3233
+      ],
+      "raw_body_lines": 39,
+      "formatted_member_lines_including_required_aliases": 69,
+      "free_outer_identifiers": [
+        "campaign_edges",
+        "checkpoint",
+        "construction_changed",
+        "construction_handoff_progress",
+        "directory",
+        "improvement_changed",
+        "private_parameters",
+        "result",
+        "retired_edges",
+        "selection",
+        "stats",
+        "working",
+        "world"
+      ],
+      "aliases_included_for_formatted_size": [
+        "campaign_edges",
+        "checkpoint",
+        "construction_changed",
+        "construction_handoff_progress",
+        "directory",
+        "improvement_changed",
+        "private_parameters",
+        "result",
+        "retired_edges",
+        "selection",
+        "stats",
+        "working",
+        "world"
+      ],
+      "canonical_context_bindings": {
+        "campaign_edges": {
+          "declaration": "auto&",
+          "expression": "*context.census.campaign_edges"
+        },
+        "checkpoint": {
+          "declaration": "auto&",
+          "expression": "*context.control.checkpoint"
+        },
+        "construction_changed": {
+          "declaration": "auto&",
+          "expression": "*context.setup.control_prefix.construction_changed"
+        },
+        "construction_handoff_progress": {
+          "declaration": "auto&",
+          "expression": "*context.setup.control_prefix.construction_handoff_progress"
+        },
+        "directory": {
+          "declaration": "auto&",
+          "expression": "*context.exchange.directory"
+        },
+        "improvement_changed": {
+          "declaration": "auto&",
+          "expression": "*context.setup.control_prefix.improvement_changed"
+        },
+        "private_parameters": {
+          "declaration": "auto&",
+          "expression": "*context.setup.private_parameters"
+        },
+        "result": {
+          "declaration": "auto&",
+          "expression": "*context.control.result"
+        },
+        "retired_edges": {
+          "declaration": "auto&",
+          "expression": "*context.census.retired_edges"
+        },
+        "selection": {
+          "declaration": "auto&",
+          "expression": "*context.census.selection"
+        },
+        "stats": {
+          "declaration": "auto&",
+          "expression": "context.control.result->stats"
+        },
+        "working": {
+          "declaration": "auto&",
+          "expression": "*context.ownership.working"
+        },
+        "world": {
+          "declaration": "auto&",
+          "expression": "context.world"
+        }
+      },
+      "signature_parameters": [
+        "Observer& observe_progress"
+      ],
+      "formatted_preview_sha256": "528e14a56f518107e2df2da159f59b5cbdc719b3e75240ee06c68f659ae77049"
+    }
+  ],
+  "enter_phase_split": {
+    "proposed_boundary": "extract the initial `surface_target && next == Phase::Improvement` branch through its return; replace it with a direct call to `EnterSurfaceRepair(context, observe_progress)`",
+    "branch_original_lines": [
+      3100,
+      3112
+    ],
+    "surface_repair_helper_formatted_lines_with_aliases": 41,
+    "normal_entry_tail_original_lines": [
+      3136,
+      3159
+    ],
+    "normal_entry_tail_formatted_lines_with_aliases": 52,
+    "bidirectional_setup_lines": [
+      3114,
+      3122
+    ],
+    "bidirectional_helper_formatted_lines_with_aliases": 24,
+    "remaining_enter_phase_formatted_lines_with_aliases": 54,
+    "helper_free_outer_identifiers": [
+      "attempted_at_window",
+      "construction_claims",
+      "deferred_at_window",
+      "directory",
+      "field_identity",
+      "phase_start_round",
+      "progress_at_window",
+      "repairing",
+      "result",
+      "selection",
+      "stats",
+      "surface_target",
+      "working"
+    ],
+    "tail_free_outer_identifiers": [
+      "construction_entry_reported",
+      "field_identity",
+      "geometry",
+      "initial",
+      "options",
+      "repairing",
+      "retired_edges",
+      "seed_slot",
+      "selection",
+      "started",
+      "working"
+    ],
+    "bidirectional_free_outer_identifiers": [
+      "bidirectional",
+      "construction_claims",
+      "directory",
+      "generation_window_count",
+      "improvement_changed",
+      "length_blocks_dirty",
+      "selection",
+      "stats",
+      "world"
+    ],
+    "remaining_free_outer_identifiers": [
+      "attempted_at_window",
+      "construction_changed",
+      "construction_entry_reported",
+      "construction_generation_changed",
+      "construction_handoff_progress",
+      "deferred_at_window",
+      "improvement_changed",
+      "metric_cleanup",
+      "phase",
+      "phase_start_round",
+      "progress_at_window",
+      "repairing",
+      "stats",
+      "surface_target",
+      "working",
+      "world"
+    ],
+    "caveat": "line counts are measured on a mechanical preview using alias references; generated helper body proof is not part of this read-only audit"
+  }
+}

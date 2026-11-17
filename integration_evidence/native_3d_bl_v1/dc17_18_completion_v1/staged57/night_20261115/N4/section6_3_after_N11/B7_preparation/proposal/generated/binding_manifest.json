@@ -1,0 +1,495 @@
+{
+  "unapplied": true,
+  "base_commit": "ce25219f04cb01285bfeb8b33dba1e6a3496782a",
+  "base_sha256": {
+    "CNativeEngine3D.cpp": "806e13eccc41df3a6e19602b38e1297dc8b9852fd4a6a8804af7a8b67d4d80e5",
+    "EngineControl.hpp": "4d9ba9cacce2c4103745e9711211091bcb9ae56642f67ddb5ebd27ac172fbd7c",
+    "EngineControl.cpp": "8a49a7de40d846ad4e7f6164ed2c8b1d345e3939b2aa972408eb9db87a3a4b11"
+  },
+  "proposed_sha256": {
+    "CNativeEngine3D.cpp": "d4c39ffe293f5abd8d48af246cf400f7a1b95386cd613d3e3374723e48b176a2",
+    "EngineControl.hpp": "74f63846fa9bd278fd8c02068238e1ba45b3538912493a7c869b99e7ded9717f",
+    "EngineControl.cpp": "47d2bf15dd9897e57ff6bdce661807ec7fbc1bad54a056d3a651c2c445affad8"
+  },
+  "call_routing": [
+    {
+      "old_name": "begin_length_generation",
+      "count": 3
+    },
+    {
+      "old_name": "enter_phase",
+      "count": 7
+    },
+    {
+      "old_name": "capture_checkpoint",
+      "count": 1
+    },
+    {
+      "old_name": "rollback_checkpoint",
+      "count": 2
+    },
+    {
+      "old_name": "discard_checkpoint",
+      "count": 1
+    }
+  ],
+  "method_lines": [
+    {
+      "name": "BeginLengthGeneration",
+      "formatted_lines": 42,
+      "sha256": "733db5743d3a175bd4f63d651a62cacf8d8527295fe99ccd9f47ecf5717253d0"
+    },
+    {
+      "name": "SurfaceReady",
+      "formatted_lines": 7,
+      "sha256": "d389e75126273bcbdc7a3588d49db4b8b47b38a82ec097e7763e883d21a0a54a"
+    },
+    {
+      "name": "EnterSurfaceRepair",
+      "formatted_lines": 37,
+      "sha256": "142b7af49c6c89b91a78932dd8faa6ad5e2ae60745d0b998bdc691e45779d4a6"
+    },
+    {
+      "name": "PreparePhaseDirection",
+      "formatted_lines": 24,
+      "sha256": "dd43076bbaf3fbb60f7196427a1d09e3711b3703bb1b17fbc0cb3f32bc7e92b5"
+    },
+    {
+      "name": "CompletePhaseEntry",
+      "formatted_lines": 51,
+      "sha256": "38166db98d0e0f4e14f1bb3a7fad639815c12a243f80a04efc30b506904e0fff"
+    },
+    {
+      "name": "EnterPhase",
+      "formatted_lines": 55,
+      "sha256": "0dfee3c593618798fb158032d08c202f1940b1722d3216be0a77c49f30d238aa"
+    },
+    {
+      "name": "DiscardCheckpoint",
+      "formatted_lines": 15,
+      "sha256": "38697eb1bba2a761e68d362a88d1a2c8b4f43404702c87ee91c12aa3ce658ed9"
+    },
+    {
+      "name": "CaptureCheckpoint",
+      "formatted_lines": 52,
+      "sha256": "09a4d303dffb4ad0e1212ecd19fda96636e79e676377b0c25631c11e79906b70"
+    },
+    {
+      "name": "RollbackCheckpoint",
+      "formatted_lines": 68,
+      "sha256": "8426269d3e20ee0794182ea0f3ee1d329869da5ccd2c9548fd53d762bf911b4e"
+    }
+  ],
+  "capture_aliases": {
+    "BeginLengthGeneration": {
+      "attempted_at_window": {
+        "declaration": "auto&",
+        "expression": "*context.control.attempted_at_window"
+      },
+      "construction_claims": {
+        "declaration": "auto&",
+        "expression": "*context.exchange.construction_claims"
+      },
+      "construction_generation_changed": {
+        "declaration": "auto&",
+        "expression": "*context.setup.control_prefix.construction_generation_changed"
+      },
+      "deferred_at_window": {
+        "declaration": "auto&",
+        "expression": "*context.control.deferred_at_window"
+      },
+      "directory": {
+        "declaration": "auto&",
+        "expression": "*context.exchange.directory"
+      },
+      "field_identity": {
+        "declaration": "auto&",
+        "expression": "*context.census.field_identity"
+      },
+      "phase_start_round": {
+        "declaration": "auto&",
+        "expression": "*context.setup.control_prefix.phase_start_round"
+      },
+      "progress_at_window": {
+        "declaration": "auto&",
+        "expression": "*context.control.progress_at_window"
+      },
+      "selection": {
+        "declaration": "auto&",
+        "expression": "*context.census.selection"
+      },
+      "stats": {
+        "declaration": "auto&",
+        "expression": "context.control.result->stats"
+      },
+      "working": {
+        "declaration": "auto&",
+        "expression": "*context.ownership.working"
+      }
+    },
+    "SurfaceReady": {
+      "selection": {
+        "declaration": "auto&",
+        "expression": "*context.census.selection"
+      },
+      "world": {
+        "declaration": "auto&",
+        "expression": "context.world"
+      }
+    },
+    "EnterSurfaceRepair": {
+      "attempted_at_window": {
+        "declaration": "auto&",
+        "expression": "*context.control.attempted_at_window"
+      },
+      "construction_claims": {
+        "declaration": "auto&",
+        "expression": "*context.exchange.construction_claims"
+      },
+      "deferred_at_window": {
+        "declaration": "auto&",
+        "expression": "*context.control.deferred_at_window"
+      },
+      "directory": {
+        "declaration": "auto&",
+        "expression": "*context.exchange.directory"
+      },
+      "field_identity": {
+        "declaration": "auto&",
+        "expression": "*context.census.field_identity"
+      },
+      "phase_start_round": {
+        "declaration": "auto&",
+        "expression": "*context.setup.control_prefix.phase_start_round"
+      },
+      "progress_at_window": {
+        "declaration": "auto&",
+        "expression": "*context.control.progress_at_window"
+      },
+      "repairing": {
+        "declaration": "auto&",
+        "expression": "*context.control.repairing"
+      },
+      "result": {
+        "declaration": "auto&",
+        "expression": "*context.control.result"
+      },
+      "selection": {
+        "declaration": "auto&",
+        "expression": "*context.census.selection"
+      },
+      "stats": {
+        "declaration": "auto&",
+        "expression": "context.control.result->stats"
+      },
+      "working": {
+        "declaration": "auto&",
+        "expression": "*context.ownership.working"
+      }
+    },
+    "PreparePhaseDirection": {
+      "bidirectional": {
+        "declaration": "bool&",
+        "expression": "context.bidirectional"
+      },
+      "construction_claims": {
+        "declaration": "auto&",
+        "expression": "*context.exchange.construction_claims"
+      },
+      "directory": {
+        "declaration": "auto&",
+        "expression": "*context.exchange.directory"
+      },
+      "generation_window_count": {
+        "declaration": "auto&",
+        "expression": "*context.control.generation_window_count"
+      },
+      "improvement_changed": {
+        "declaration": "auto&",
+        "expression": "*context.setup.control_prefix.improvement_changed"
+      },
+      "length_blocks_dirty": {
+        "declaration": "auto&",
+        "expression": "*context.queues.length_blocks_dirty"
+      },
+      "selection": {
+        "declaration": "auto&",
+        "expression": "*context.census.selection"
+      },
+      "stats": {
+        "declaration": "auto&",
+        "expression": "context.control.result->stats"
+      },
+      "world": {
+        "declaration": "auto&",
+        "expression": "context.world"
+      }
+    },
+    "CompletePhaseEntry": {
+      "composition": {
+        "declaration": "auto&",
+        "expression": "context.composition"
+      },
+      "construction_entry_reported": {
+        "declaration": "auto&",
+        "expression": "*context.control.construction_entry_reported"
+      },
+      "field_identity": {
+        "declaration": "auto&",
+        "expression": "*context.census.field_identity"
+      },
+      "geometry": {
+        "declaration": "const auto&",
+        "expression": "context.geometry"
+      },
+      "initial": {
+        "declaration": "auto&",
+        "expression": "*context.census.initial"
+      },
+      "options": {
+        "declaration": "auto&",
+        "expression": "context.options"
+      },
+      "repairing": {
+        "declaration": "auto&",
+        "expression": "*context.control.repairing"
+      },
+      "retired_edges": {
+        "declaration": "auto&",
+        "expression": "*context.census.retired_edges"
+      },
+      "seed_slot": {
+        "declaration": "auto&",
+        "expression": "*context.census.seed_slot"
+      },
+      "selection": {
+        "declaration": "auto&",
+        "expression": "*context.census.selection"
+      },
+      "started": {
+        "declaration": "const auto&",
+        "expression": "*context.setup.control_prefix.started"
+      },
+      "working": {
+        "declaration": "auto&",
+        "expression": "*context.ownership.working"
+      }
+    },
+    "EnterPhase": {
+      "attempted_at_window": {
+        "declaration": "auto&",
+        "expression": "*context.control.attempted_at_window"
+      },
+      "construction_changed": {
+        "declaration": "auto&",
+        "expression": "*context.setup.control_prefix.construction_changed"
+      },
+      "construction_entry_reported": {
+        "declaration": "auto&",
+        "expression": "*context.control.construction_entry_reported"
+      },
+      "construction_generation_changed": {
+        "declaration": "auto&",
+        "expression": "*context.setup.control_prefix.construction_generation_changed"
+      },
+      "construction_handoff_progress": {
+        "declaration": "auto&",
+        "expression": "*context.setup.control_prefix.construction_handoff_progress"
+      },
+      "deferred_at_window": {
+        "declaration": "auto&",
+        "expression": "*context.control.deferred_at_window"
+      },
+      "improvement_changed": {
+        "declaration": "auto&",
+        "expression": "*context.setup.control_prefix.improvement_changed"
+      },
+      "metric_cleanup": {
+        "declaration": "auto&",
+        "expression": "*context.setup.control_prefix.metric_cleanup"
+      },
+      "phase": {
+        "declaration": "auto&",
+        "expression": "*context.setup.control_prefix.phase"
+      },
+      "phase_start_round": {
+        "declaration": "auto&",
+        "expression": "*context.setup.control_prefix.phase_start_round"
+      },
+      "progress_at_window": {
+        "declaration": "auto&",
+        "expression": "*context.control.progress_at_window"
+      },
+      "repairing": {
+        "declaration": "auto&",
+        "expression": "*context.control.repairing"
+      },
+      "stats": {
+        "declaration": "auto&",
+        "expression": "context.control.result->stats"
+      },
+      "surface_target": {
+        "declaration": "auto&",
+        "expression": "context.surface_target"
+      },
+      "working": {
+        "declaration": "auto&",
+        "expression": "*context.ownership.working"
+      },
+      "world": {
+        "declaration": "auto&",
+        "expression": "context.world"
+      }
+    },
+    "DiscardCheckpoint": {
+      "checkpoint": {
+        "declaration": "auto&",
+        "expression": "*context.control.checkpoint"
+      },
+      "directory": {
+        "declaration": "auto&",
+        "expression": "*context.exchange.directory"
+      }
+    },
+    "CaptureCheckpoint": {
+      "checkpoint": {
+        "declaration": "auto&",
+        "expression": "*context.control.checkpoint"
+      },
+      "directory": {
+        "declaration": "auto&",
+        "expression": "*context.exchange.directory"
+      },
+      "geometry": {
+        "declaration": "const auto&",
+        "expression": "context.geometry"
+      },
+      "options": {
+        "declaration": "auto&",
+        "expression": "context.options"
+      },
+      "private_parameters": {
+        "declaration": "auto&",
+        "expression": "*context.setup.private_parameters"
+      },
+      "result": {
+        "declaration": "auto&",
+        "expression": "*context.control.result"
+      },
+      "selection": {
+        "declaration": "auto&",
+        "expression": "*context.census.selection"
+      },
+      "source": {
+        "declaration": "auto&",
+        "expression": "*context.exchange.source"
+      },
+      "stats": {
+        "declaration": "auto&",
+        "expression": "context.control.result->stats"
+      },
+      "working": {
+        "declaration": "auto&",
+        "expression": "*context.ownership.working"
+      },
+      "world": {
+        "declaration": "auto&",
+        "expression": "context.world"
+      }
+    },
+    "RollbackCheckpoint": {
+      "campaign_edges": {
+        "declaration": "auto&",
+        "expression": "*context.census.campaign_edges"
+      },
+      "checkpoint": {
+        "declaration": "auto&",
+        "expression": "*context.control.checkpoint"
+      },
+      "construction_changed": {
+        "declaration": "auto&",
+        "expression": "*context.setup.control_prefix.construction_changed"
+      },
+      "construction_handoff_progress": {
+        "declaration": "auto&",
+        "expression": "*context.setup.control_prefix.construction_handoff_progress"
+      },
+      "directory": {
+        "declaration": "auto&",
+        "expression": "*context.exchange.directory"
+      },
+      "improvement_changed": {
+        "declaration": "auto&",
+        "expression": "*context.setup.control_prefix.improvement_changed"
+      },
+      "private_parameters": {
+        "declaration": "auto&",
+        "expression": "*context.setup.private_parameters"
+      },
+      "result": {
+        "declaration": "auto&",
+        "expression": "*context.control.result"
+      },
+      "retired_edges": {
+        "declaration": "auto&",
+        "expression": "*context.census.retired_edges"
+      },
+      "selection": {
+        "declaration": "auto&",
+        "expression": "*context.census.selection"
+      },
+      "stats": {
+        "declaration": "auto&",
+        "expression": "context.control.result->stats"
+      },
+      "working": {
+        "declaration": "auto&",
+        "expression": "*context.ownership.working"
+      },
+      "world": {
+        "declaration": "auto&",
+        "expression": "context.world"
+      }
+    }
+  },
+  "helper_inlining_actual_removed_lambda_token_proofs": [
+    {
+      "old_lambda": "begin_length_generation",
+      "method": "BeginLengthGeneration",
+      "token_equal": true
+    },
+    {
+      "old_lambda": "surface_ready",
+      "method": "SurfaceReady",
+      "token_equal": true
+    },
+    {
+      "old_lambda": "discard_checkpoint",
+      "method": "DiscardCheckpoint",
+      "token_equal": true
+    },
+    {
+      "old_lambda": "capture_checkpoint",
+      "method": "CaptureCheckpoint",
+      "token_equal": true
+    },
+    {
+      "old_lambda": "rollback_checkpoint",
+      "method": "RollbackCheckpoint",
+      "token_equal": true
+    },
+    {
+      "old_lambda": "enter_phase",
+      "member": "EnterPhase with EnterSurfaceRepair, PreparePhaseDirection, and CompletePhaseEntry inlined",
+      "token_equal": true
+    }
+  ],
+  "main_call_lambda_reversal_byte_equal": true,
+  "observer_binding": {
+    "current": "Existing Adapt-local observe_progress is passed as a template reference; no allocation/storage/copy.",
+    "future_B5": "Rebind observer use to EngineControl::ObserveProgress(context, curved, stage)."
+  },
+  "future_B6_binding": "PhaseOwnership(context, quality, curved) is a provisional target and must be rebound to the reviewed B6 API.",
+  "comparison": "C++ lexical token equality after removing only method-local borrowed aliases/type aliases and inlining the extracted EnterPhase helpers.",
+  "no_live_source_written": true
+}

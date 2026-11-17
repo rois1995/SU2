@@ -2365,162 +2365,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
   auto& ownership_evaluated = ownership_evaluated_lifetime.Get();
   ContextValue quality_ownership_round_lifetime(context.ownership.quality_ownership_round, 0);
   auto& quality_ownership_round = quality_ownership_round_lifetime.Get();
-  auto begin_length_generation=[&](bool collapse) {
-    if(!context.exchange.Admit(context, transfer_memory::Add(transfer_memory::Mul(working.size(),context.control.SelectionBound(context, false)),
-        transfer_memory::Mul(transfer_memory::Mul(collapse?12:6,working.size()),sizeof(Edge)+4*sizeof(void*)))))return false;
-    CLocalFailure failure;
-    try {
-      selection.lane=Selection::Lane::Surface;construction_claims=true;
-      stats.split_lane=collapse?0:1;
-      if(!collapse){stats.split_generation=stats.length_split_passes+1;selection.RefreshHistory(true);}
-      directory->BeginConstructionPass();context.queues.LengthDirection(context, collapse);selection.ChangePhase(false,working,field_identity);
-    }catch(const std::exception& error){failure.Set(2,0,error.what());}
-    if(!context.exchange.Vote(context, failure))return false;
-    construction_generation_changed=false;phase_start_round=stats.rounds;
-    progress_at_window=stats.size_progress+stats.quality_progress+stats.cell_removals+stats.geometry_progress;
-    attempted_at_window=stats.attempted;deferred_at_window=stats.length_pass_deferred;
-    return true;
-  };
-  auto surface_ready=[&]() {
-    // Known debt already proves unreadiness; scan coverage only at a possible readiness boundary.
-    return !world.maximum(selection.construction_invalid!=0 || !context.census.ScopeCensusComplete(context));
-  };
-  auto enter_phase=[&](Phase next,bool refine_geometry=false) {
-    if(surface_target && next==Phase::Improvement) {
-      if(surface_ready()){result.surface_prepared=true;result.reason.clear();return true;}
-      // Use the existing repair service without enabling shape measurement or its optimizer.
-      repairing=true;context.queues.LengthDirection(context, false);directory->EndConstructionPass();construction_claims=false;
-      CLocalFailure failure;
-      try {selection.ChangePhase(true,working,field_identity);}
-      catch(const std::exception& e){failure.Set(2,0,e.what());}
-      if(!context.exchange.Vote(context, failure))return false;
-      phase_start_round=stats.rounds;
-      progress_at_window=stats.size_progress+stats.cell_removals+stats.geometry_progress;
-      attempted_at_window=stats.attempted;deferred_at_window=stats.length_pass_deferred;
-      return EngineControl::ObserveProgress(context, working, atlas_budget, "surface_repair_entry");
-    }
-    metric_cleanup=false;
-    if(bidirectional) {
-      construction_claims=next==Phase::Construction;stats.split_lane=0;
-      if(next==Phase::Construction) {
-        generation_window_count=0;selection.edge_history.clear();
-        if(world.maximum(improvement_changed))length_blocks_dirty={{true,true}};
-        if(!refine_geometry)directory->BeginConstructionPass();
-      } else directory->EndConstructionPass();
-      if(!refine_geometry)context.queues.LengthDirection(context, next==Phase::Construction);
-    }
-    if(phase==Phase::Construction && !construction_entry_reported) {
-      if(!EngineControl::ObserveProgress(context, working, atlas_budget, "construction_entry"))return false;
-      construction_entry_reported=true;
-    }
-    construction_handoff_progress=next==Phase::Improvement && world.maximum(construction_changed);
-    if(next==Phase::Construction){construction_changed=false;construction_generation_changed=false;}
-    phase=next;repairing=next==Phase::Improvement;improvement_changed=false;phase_start_round=stats.rounds;
-    progress_at_window=stats.size_progress+stats.quality_progress+stats.cell_removals+stats.geometry_progress;
-    attempted_at_window=stats.attempted;deferred_at_window=stats.length_pass_deferred;
-    if(repairing)++stats.quality_stages;else ++stats.construction_returns;
-    if(!context.exchange.Admit(context, transfer_memory::Add(transfer_memory::Mul(working.size(),sizeof(Id)),
-        transfer_memory::Mul(working.size(),context.control.SelectionBound(context, repairing)))))return false;
-    if(refine_geometry && !begin_length_generation(false))return false;
-    CLocalFailure failure;
-    try {
-      if(!refine_geometry)selection.ChangePhase(repairing,working,field_identity);
-      initial.clear();initial.reserve(working.size());
-      for(const auto& row:working) {const auto found=selection.cells.find(row.first);
-        if(found==selection.cells.end() || (repairing && (!found->second.shape_measured ||
-            (!options.wall_heights.empty() && !found->second.debt.height_measured))))initial.push_back(row.first);}
-      seed_slot=0;
-    }catch(const std::exception& e){failure.Set(2,0,e.what());}
-    if(!context.exchange.Vote(context, failure))return false;
-    // A phase census has no enclosing update timer to debit for donor imports.
-    const bool measured=context.census.Measure(context, initial,false,nullptr);retired_edges.clear();
-    if(!measured)return false;seed_slot=initial.size();
-    if(refine_geometry&&!composition&&options.wall_heights.empty()&&geometry.EntityGeometry()) {
-      if(!context.exchange.Admit(context, selection.GeometryPriorityBytes()))return false;
-      CLocalFailure priority_failure;
-      try{selection.PrioritizeGeometrySplits(started,options.maximum_seconds);}
-      catch(const std::exception& e){priority_failure.Set(2,0,e.what());}
-      if(!context.exchange.Vote(context, priority_failure))return false;
-    }
-    if(!repairing)construction_entry_reported=true;
-    if(repairing && !context.ownership.PhaseOwnership(context, true, atlas_budget))return false;
-    return EngineControl::ObserveProgress(context, working, atlas_budget, repairing?"quality_entry":"construction_entry");
-  };
-  auto discard_checkpoint=[&]() {
-    if(checkpoint.directory)context.exchange.RetireDirectory(checkpoint.directory->Statistics());
-    checkpoint.directory.reset();checkpoint.parameters.reset();
-    Owned().swap(checkpoint.cells);decltype(checkpoint.blocked)().swap(checkpoint.blocked);
-    std::set<Edge>().swap(checkpoint.edges);std::set<Edge>().swap(checkpoint.attempted);
-    std::set<Id>().swap(checkpoint.changed);checkpoint.blocked_links=0;
-    checkpoint.valid=checkpoint.trial=false;
-  };
-  auto capture_checkpoint=[&]() {
-    // This call follows the complete fresh quality census, including measured strict height.
-    // No mutation intervenes; no initial/construction/partial state is presumed certified.
-    CLocalFailure failure;
-    const auto extra=transfer_memory::Add(MapBytes(working),directory->ResidentBytes(),
-        private_parameters ? private_parameters->ResidentBytes() : 0,MapBytes(selection.blocked_edges),
-        transfer_memory::Mul(selection.blocked_links,sizeof(Id)+4*sizeof(void*)),
-        transfer_memory::Mul(transfer_memory::Mul(6,working.size()),sizeof(Edge)+4*sizeof(void*)));
-    if(!context.exchange.Admit(context, extra))return false;
-    try {
-      checkpoint.cells=working;checkpoint.blocked=selection.blocked_edges;checkpoint.blocked_links=selection.blocked_links;
-      for(const auto& row:working)for(unsigned i=0;i<4;++i)for(unsigned j=i+1;j<4;++j) {
-        Edge edge{row.second.cell.v[i].id,row.second.cell.v[j].id};std::sort(edge.begin(),edge.end());checkpoint.edges.insert(edge);
-      }
-      if(private_parameters)checkpoint.parameters=std::make_unique<BoundaryParameterState>(*private_parameters);
-      checkpoint.directory=std::make_unique<Directory>(world,true,geometry.Parameters());
-    }catch(const std::exception& e){failure.Set(3,0,e.what());}
-    if(!context.exchange.Vote(context, failure))return false;
-    // Prebuild while both directories see the checkpoint parameter contents. This dormant
-    // directory is never queried during the speculative trial; rollback needs no allocation.
-    if(!checkpoint.directory->Build(checkpoint.cells,result.reason,options.memory_ceiling,
-        transfer_memory::Add(context.exchange.Bytes(context),source.ResidentBytes(),directory->ResidentBytes())))return false;
-    checkpoint.global_cells=TimedAllreduce(working.size(),CPassiveComm::Op::SUM,world.comm);
-    checkpoint.collapses=result.collapses.size();checkpoint.splits=result.splits.size();
-    checkpoint.valid=true;checkpoint.trial=false;
-    ++stats.coarsen_checkpoints;return true;
-  };
-  auto rollback_checkpoint=[&]() {
-    static_assert(std::is_nothrow_swappable<BoundaryParameterState>::value,
-        "Private checkpoint parameter contents must restore without allocation.");
-    CLocalFailure failure;size_t retired=0;
-    if(!checkpoint.valid || !checkpoint.directory || checkpoint.collapses>result.collapses.size() || checkpoint.splits>result.splits.size())
-      failure.Set(1,0,"Native coarsening rollback lacks its complete checkpoint.");
-    if(bool(private_parameters)!=bool(checkpoint.parameters) || (private_parameters &&
-        private_parameters->Authority().get()!=checkpoint.parameters->Authority().get()))
-      failure.Set(1,0,"Native coarsening rollback changes immutable geometry authority.");
-    if(!context.exchange.Vote(context, failure))return false;
-    if(!context.exchange.Admit(context, transfer_memory::Mul(checkpoint.attempted.size(),2*(sizeof(Edge)+8*sizeof(void*)))))return false;
-    try {
-      for(const auto& edge:checkpoint.attempted) {
-        auto key=edge;std::sort(key.begin(),key.end());
-        if(!checkpoint.edges.count(key))continue; // Descendants are absent after rollback.
-        const bool inserted=checkpoint.blocked[edge[1]].insert(edge[0]).second;
-        checkpoint.blocked_links+=inserted;retired+=inserted;
-      }
-    }catch(const std::exception& e){failure.Set(3,0,e.what());}
-    if(!context.exchange.Vote(context, failure))return false;
-    if(!world.maximum(retired!=0)) {
-      result.reason="Native coarsening trial made no net reduction and retired no new checkpoint obligation.";
-      return false;
-    }
-    // All proposal/import/private-parameter scopes have ended at this phase boundary. Restore
-    // local ownership and exact identities together, leaving IDs/work/deadline/service epochs monotone.
-    if(private_parameters)std::swap(*private_parameters,*checkpoint.parameters);
-    working.swap(checkpoint.cells);directory.swap(checkpoint.directory);
-    selection.blocked_edges.swap(checkpoint.blocked);std::swap(selection.blocked_links,checkpoint.blocked_links);
-    stats.coarsen_rolled_back_collapses+=result.collapses.size()-checkpoint.collapses;
-    result.collapses.resize(checkpoint.collapses);result.splits.resize(checkpoint.splits);
-    ++stats.coarsen_rolled_back_passes;stats.coarsen_retired_directions+=retired;
-    stats.coarsen_restored_cells+=working.size();
-    discard_checkpoint();
-    selection.Reset(true);retired_edges.clear();campaign_edges.clear();
-    construction_changed=construction_handoff_progress=improvement_changed=false;
-    // A strict checkpoint is not permission to return a stale census or to forgive a budget exit.
-    return enter_phase(Phase::Improvement);
-  };
-  if(bidirectional)directory->BeginConstructionPass();
+              if(bidirectional)directory->BeginConstructionPass();
   if(!context.exchange.Admit(context, transfer_memory::Mul(transfer_memory::Mul(coarsening ? 12 : 6,working.size()),sizeof(Edge)+4*sizeof(void*))))return EngineControl::Finish(context, curved, working, atlas_budget, started, started_cpu);
   {
     CLocalFailure failure;
@@ -2539,7 +2384,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
       phase_scope.emplace(phase == Phase::Improvement ? SU2NativeTiming3D::Phase::Quality
                           : surface_target            ? SU2NativeTiming3D::Phase::Surface
                                                       : SU2NativeTiming3D::Phase::Construction);
-    if(surface_target && (result.surface_prepared || (repairing && surface_ready()))) {
+    if(surface_target && (result.surface_prepared || (repairing && context.control.SurfaceReady(context)))) {
       if(world.maximum(stats.global_work>stats.work_limit)) {
         result.surface_prepared=false;stats.stop=EngineStop::WorkBudget;
         result.reason="Surface preparation exhausted work before complete readiness.";return EngineControl::Finish(context, curved, working, atlas_budget, started, started_cpu);
@@ -2619,7 +2464,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     if(surface_target && phase==Phase::Construction && !repairing && coarsening &&
         world.maximum(selection.construction_invalid!=0)) {
       // Required surface debt must not wait for an exhaustive optional short-edge sweep.
-      if(!begin_length_generation(false))return EngineControl::Finish(context, curved, working, atlas_budget, started, started_cpu);
+      if(!context.control.BeginLengthGeneration(context, false))return EngineControl::Finish(context, curved, working, atlas_budget, started, started_cpu);
       ++stats.surface_required_handoffs;
       if(!EngineControl::ObserveProgress(context, working, atlas_budget, "surface_required_entry"))return EngineControl::Finish(context, curved, working, atlas_budget, started, started_cpu);
       continue;
@@ -2632,7 +2477,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     if(refill) {ready=context.census.SeedNext(context);if(!ready)return EngineControl::Finish(context, curved, working, atlas_budget, started, started_cpu);continue;}
     if(standalone_coarsening && !checkpoint.valid && phase==Phase::Construction && !repairing &&
         !world.maximum(selection.cells.size()!=working.size() || selection.construction_invalid!=0)) {
-      if(!enter_phase(Phase::Improvement))return EngineControl::Finish(context, curved, working, atlas_budget, started, started_cpu);
+      if(!context.control.EnterPhase(context, Phase::Improvement, false, atlas_budget))return EngineControl::Finish(context, curved, working, atlas_budget, started, started_cpu);
       continue;
     }
     // Amortize the strict census over a useful repair pass before retrying outstanding construction.
@@ -2647,7 +2492,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
         result.reason="Native3D metric cleanup lost its complete improvement census.";return EngineControl::Finish(context, curved, working, atlas_budget, started, started_cpu);
       }
       ++stats.length_collapse_passes;
-      if(!EngineControl::ObserveProgress(context, working, atlas_budget, "metric_cleanup_exit") || !enter_phase(Phase::Improvement))return EngineControl::Finish(context, curved, working, atlas_budget, started, started_cpu);
+      if(!EngineControl::ObserveProgress(context, working, atlas_budget, "metric_cleanup_exit") || !context.control.EnterPhase(context, Phase::Improvement, false, atlas_budget))return EngineControl::Finish(context, curved, working, atlas_budget, started, started_cpu);
       continue;
     }
     // Close shape/height first, then give existing topology repair the residual length debt.
@@ -2672,24 +2517,24 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
       if(stats.global_work>=stats.work_limit) {
         stats.stop=EngineStop::WorkBudget;result.reason="Native coarsening quality closure exhausted its work budget.";return EngineControl::Finish(context, curved, working, atlas_budget, started, started_cpu);
       }
-      if(!rollback_checkpoint())return EngineControl::Finish(context, curved, working, atlas_budget, started, started_cpu);
+      if(!context.control.RollbackCheckpoint(context, atlas_budget))return EngineControl::Finish(context, curved, working, atlas_budget, started, started_cpu);
       continue;
     }
     if(standalone_coarsening && clean_quality && !world.maximum(selection.construction_invalid!=0)) {
       if(checkpoint.valid && world.maximum(checkpoint.trial)) {
         const size_t cells=TimedAllreduce(working.size(),CPassiveComm::Op::SUM,world.comm);
         if(cells>=checkpoint.global_cells) {
-          if(!rollback_checkpoint())return EngineControl::Finish(context, curved, working, atlas_budget, started, started_cpu);
+          if(!context.control.RollbackCheckpoint(context, atlas_budget))return EngineControl::Finish(context, curved, working, atlas_budget, started, started_cpu);
           continue;
         }
         ++stats.coarsen_committed_passes;
-        discard_checkpoint();
+        context.control.DiscardCheckpoint(context);
       }
       if(!world.maximum(selection.HasCoarseningDemand())) {
         result.valid=true;result.reason.clear();return EngineControl::Finish(context, curved, working, atlas_budget, started, started_cpu);
       }
       if(!checkpoint.valid) {
-        if(!capture_checkpoint() || !enter_phase(Phase::Construction))return EngineControl::Finish(context, curved, working, atlas_budget, started, started_cpu);
+        if(!context.control.CaptureCheckpoint(context) || !context.control.EnterPhase(context, Phase::Construction, false, atlas_budget))return EngineControl::Finish(context, curved, working, atlas_budget, started, started_cpu);
         continue;
       }
     }
@@ -2701,7 +2546,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
       const bool refine_geometry=bidirectional &&
           !world.maximum(!progress.complete || progress.size_bad_cells || progress.height_bad_cells || progress.height_unresolved_cells) &&
           world.maximum(progress.geometry_bad_cells!=0);
-      if(!EngineControl::ObserveProgress(context, working, atlas_budget, "quality_exit") || !enter_phase(Phase::Construction,refine_geometry))return EngineControl::Finish(context, curved, working, atlas_budget, started, started_cpu);
+      if(!EngineControl::ObserveProgress(context, working, atlas_budget, "quality_exit") || !context.control.EnterPhase(context, Phase::Construction, refine_geometry, atlas_budget))return EngineControl::Finish(context, curved, working, atlas_budget, started, started_cpu);
       continue;
     }
     if(bidirectional&&phase==Phase::Construction&&!repairing&&!coarsening&&!any&&selection.lane==Selection::Lane::Surface&&
@@ -2767,15 +2612,15 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
         if(productive && progressing && size_demand) {
           if(stats.global_work>=stats.work_limit){stats.stop=EngineStop::WorkBudget;
             result.reason="Native3D construction generation exhausted global work; feasibility is undetermined.";return EngineControl::Finish(context, curved, working, atlas_budget, started, started_cpu);}
-          if(!begin_length_generation(false))return EngineControl::Finish(context, curved, working, atlas_budget, started, started_cpu);
+          if(!context.control.BeginLengthGeneration(context, false))return EngineControl::Finish(context, curved, working, atlas_budget, started, started_cpu);
           continue;
         }
         if(productive&&!progressing)++stats.construction_stall_handoffs;
-        if(!enter_phase(Phase::Improvement))return EngineControl::Finish(context, curved, working, atlas_budget, started, started_cpu);
+        if(!context.control.EnterPhase(context, Phase::Improvement, false, atlas_budget))return EngineControl::Finish(context, curved, working, atlas_budget, started, started_cpu);
       } else {
         // The major direction boundary is quiescent; no repartition is evaluated at lane/generation switches.
         context.queues.LengthDirection(context, false);directory->EndConstructionPass();
-        if(!context.ownership.PhaseOwnership(context, false, atlas_budget) || !begin_length_generation(false))return EngineControl::Finish(context, curved, working, atlas_budget, started, started_cpu);
+        if(!context.ownership.PhaseOwnership(context, false, atlas_budget) || !context.control.BeginLengthGeneration(context, false))return EngineControl::Finish(context, curved, working, atlas_budget, started, started_cpu);
       }
       continue;
     }
@@ -2796,7 +2641,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
       }
     }
     if(!bidirectional && phase==Phase::Construction && !repairing && (complete || (!any && !world.maximum(selection.cells.size()!=working.size())))) {
-      if(!enter_phase(Phase::Improvement))return EngineControl::Finish(context, curved, working, atlas_budget, started, started_cpu);
+      if(!context.control.EnterPhase(context, Phase::Improvement, false, atlas_budget))return EngineControl::Finish(context, curved, working, atlas_budget, started, started_cpu);
       continue;
     }
     {
@@ -2849,7 +2694,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
         // Fresh rejected directions are finite search work even on invalid meshes; do not declare infeasibility early.
         if (!mesh_progress && !search_progress) {
           if(!bidirectional && phase==Phase::Construction && !repairing && !world.maximum(selection.cells.size()!=working.size())) {
-            if(!enter_phase(Phase::Improvement))return EngineControl::Finish(context, curved, working, atlas_budget, started, started_cpu);
+            if(!context.control.EnterPhase(context, Phase::Improvement, false, atlas_budget))return EngineControl::Finish(context, curved, working, atlas_budget, started, started_cpu);
             continue;
           }
           stats.stop=EngineStop::OperatorStagnation;

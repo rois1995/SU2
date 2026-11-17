@@ -77,6 +77,18 @@ struct EngineControl {
   std::optional<Clock::time_point> layer_started;
   std::optional<Clock::time_point> region_started;
   std::optional<bool> ready;
+
+  bool BeginLengthGeneration(EngineContext&, bool collapse);
+  bool SurfaceReady(EngineContext&);
+  bool EnterSurfaceRepair(EngineContext&, SU2NativeGeometry::AtlasBudget& atlas_budget);
+  void PreparePhaseDirection(EngineContext&, EnginePhase next, bool refine_geometry);
+  bool CompletePhaseEntry(EngineContext&, EnginePhase next, bool refine_geometry,
+                          SU2NativeGeometry::AtlasBudget& atlas_budget);
+  bool EnterPhase(EngineContext&, EnginePhase next, bool refine_geometry, SU2NativeGeometry::AtlasBudget& atlas_budget);
+  void DiscardCheckpoint(EngineContext&);
+  bool CaptureCheckpoint(EngineContext&);
+  bool RollbackCheckpoint(EngineContext&, SU2NativeGeometry::AtlasBudget& atlas_budget);
+
   size_t SelectionBound(EngineContext& context, bool repairs);
   EngineControl() = default;
   EngineControl(const EngineControl&) = delete;

@@ -1,0 +1,82 @@
+{
+  "proposed_sha256": {
+    "CNativeEngine3D.cpp": "d54dd21722faf9bd8ac8ea923974e8f35b50200fbcc7cce9b92bf81217c000e2",
+    "EngineControl.hpp": "865d8740e3a506ccbc7f4b5922d83f2e97eda997b5ae9e6907fe0d6a27b80ba6",
+    "EngineControl.cpp": "cb451a032d5ec8e3c485b744f6e3691a0a6de85bc5d315db61ceb03f2f484d8b"
+  },
+  "method_lines": [
+    {
+      "name": "BeginLengthGeneration",
+      "formatted_lines": 42,
+      "sha256": "733db5743d3a175bd4f63d651a62cacf8d8527295fe99ccd9f47ecf5717253d0"
+    },
+    {
+      "name": "SurfaceReady",
+      "formatted_lines": 7,
+      "sha256": "d389e75126273bcbdc7a3588d49db4b8b47b38a82ec097e7763e883d21a0a54a"
+    },
+    {
+      "name": "EnterSurfaceRepair",
+      "formatted_lines": 37,
+      "sha256": "5ac8600fefa2f292e0f0a2ea323629bd0fd84c1f4b50d6db0e1d25e08ca28ae3"
+    },
+    {
+      "name": "PreparePhaseDirection",
+      "formatted_lines": 24,
+      "sha256": "dd43076bbaf3fbb60f7196427a1d09e3711b3703bb1b17fbc0cb3f32bc7e92b5"
+    },
+    {
+      "name": "CompletePhaseEntry",
+      "formatted_lines": 52,
+      "sha256": "14b73b3f771642b9186176016fe8138a1100febaebf79d071f6f1f9b6303ffb3"
+    },
+    {
+      "name": "EnterPhase",
+      "formatted_lines": 55,
+      "sha256": "8d6f7a285277553a129c0736e11614ed8c12b25c1161f26bbd48cc14be76095c"
+    },
+    {
+      "name": "DiscardCheckpoint",
+      "formatted_lines": 15,
+      "sha256": "38697eb1bba2a761e68d362a88d1a2c8b4f43404702c87ee91c12aa3ce658ed9"
+    },
+    {
+      "name": "CaptureCheckpoint",
+      "formatted_lines": 52,
+      "sha256": "09a4d303dffb4ad0e1212ecd19fda96636e79e676377b0c25631c11e79906b70"
+    },
+    {
+      "name": "RollbackCheckpoint",
+      "formatted_lines": 68,
+      "sha256": "823a707ad486e56837b380249c80bafa1190099c774c34cc196edc8ac8cc585b"
+    }
+  ],
+  "calls": [
+    {
+      "old_name": "begin_length_generation",
+      "count": 3
+    },
+    {
+      "old_name": "surface_ready",
+      "count": 1
+    },
+    {
+      "old_name": "enter_phase",
+      "count": 7
+    },
+    {
+      "old_name": "capture_checkpoint",
+      "count": 1
+    },
+    {
+      "old_name": "rollback_checkpoint",
+      "count": 2
+    },
+    {
+      "old_name": "discard_checkpoint",
+      "count": 1
+    }
+  ]
+}
+free-name, actual binding, header identity, B5 prefix and full-file checks passed
+candidate input pins, direct observer/ownership calls and frozen SHA map passed

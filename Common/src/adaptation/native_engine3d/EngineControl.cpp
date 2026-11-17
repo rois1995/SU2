@@ -1,4 +1,4 @@
-// Owns observer and finalization flow; borrows canonical state and adds no policy.
+// Runs phase and checkpoint transitions, observation and finalization using borrowed canonical state without policy.
 #include "EngineControl.hpp"
 #include "EngineContext.hpp"
 #include "EngineReports.hpp"
@@ -452,4 +452,365 @@ EngineResult EngineControl::Finish(EngineContext& context, bool curved, Owned& w
   CaptureDirectoryDonorStatistics(context, retired_directory, atlas_budget);
   EnrichFinalReasonAndTiming(context, curved, working, started, started_cpu);
   return EmitFinalRowsAndMove(context, working, atlas_budget, started, started_cpu);
+}
+
+bool EngineControl::BeginLengthGeneration(EngineContext& context, bool collapse) {
+  auto& attempted_at_window = *context.control.attempted_at_window;
+  auto& construction_claims = *context.exchange.construction_claims;
+  auto& construction_generation_changed = *context.setup.control_prefix.construction_generation_changed;
+  auto& deferred_at_window = *context.control.deferred_at_window;
+  auto& directory = *context.exchange.directory;
+  auto& field_identity = *context.census.field_identity;
+  auto& phase_start_round = *context.setup.control_prefix.phase_start_round;
+  auto& progress_at_window = *context.control.progress_at_window;
+  auto& selection = *context.census.selection;
+  auto& stats = context.control.result->stats;
+  auto& working = *context.ownership.working;
+
+  if (!context.exchange.Admit(
+          context,
+          transfer_memory::Add(transfer_memory::Mul(working.size(), context.control.SelectionBound(context, false)),
+                               transfer_memory::Mul(transfer_memory::Mul(collapse ? 12 : 6, working.size()),
+                                                    sizeof(Edge) + 4 * sizeof(void*)))))
+    return false;
+  CLocalFailure failure;
+  try {
+    selection.lane = Selection::Lane::Surface;
+    construction_claims = true;
+    stats.split_lane = collapse ? 0 : 1;
+    if (!collapse) {
+      stats.split_generation = stats.length_split_passes + 1;
+      selection.RefreshHistory(true);
+    }
+    directory->BeginConstructionPass();
+    context.queues.LengthDirection(context, collapse);
+    selection.ChangePhase(false, working, field_identity);
+  } catch (const std::exception& error) {
+    failure.Set(2, 0, error.what());
+  }
+  if (!context.exchange.Vote(context, failure)) return false;
+  construction_generation_changed = false;
+  phase_start_round = stats.rounds;
+  progress_at_window = stats.size_progress + stats.quality_progress + stats.cell_removals + stats.geometry_progress;
+  attempted_at_window = stats.attempted;
+  deferred_at_window = stats.length_pass_deferred;
+  return true;
+}
+
+bool EngineControl::SurfaceReady(EngineContext& context) {
+  auto& selection = *context.census.selection;
+  auto& world = context.world;
+
+  // Known debt already proves unreadiness; scan coverage only at a possible readiness boundary.
+  return !world.maximum(selection.construction_invalid != 0 || !context.census.ScopeCensusComplete(context));
+}
+
+bool EngineControl::EnterSurfaceRepair(EngineContext& context, SU2NativeGeometry::AtlasBudget& atlas_budget) {
+  auto& attempted_at_window = *context.control.attempted_at_window;
+  auto& construction_claims = *context.exchange.construction_claims;
+  auto& deferred_at_window = *context.control.deferred_at_window;
+  auto& directory = *context.exchange.directory;
+  auto& field_identity = *context.census.field_identity;
+  auto& phase_start_round = *context.setup.control_prefix.phase_start_round;
+  auto& progress_at_window = *context.control.progress_at_window;
+  auto& repairing = *context.control.repairing;
+  auto& result = *context.control.result;
+  auto& selection = *context.census.selection;
+  auto& stats = context.control.result->stats;
+  auto& working = *context.ownership.working;
+
+  if (SurfaceReady(context)) {
+    result.surface_prepared = true;
+    result.reason.clear();
+    return true;
+  }
+  // Use the existing repair service without enabling shape measurement or its optimizer.
+  repairing = true;
+  context.queues.LengthDirection(context, false);
+  directory->EndConstructionPass();
+  construction_claims = false;
+  CLocalFailure failure;
+  try {
+    selection.ChangePhase(true, working, field_identity);
+  } catch (const std::exception& e) {
+    failure.Set(2, 0, e.what());
+  }
+  if (!context.exchange.Vote(context, failure)) return false;
+  phase_start_round = stats.rounds;
+  progress_at_window = stats.size_progress + stats.cell_removals + stats.geometry_progress;
+  attempted_at_window = stats.attempted;
+  deferred_at_window = stats.length_pass_deferred;
+  return EngineControl::ObserveProgress(context, working, atlas_budget, "surface_repair_entry");
+}
+
+void EngineControl::PreparePhaseDirection(EngineContext& context, EnginePhase next, bool refine_geometry) {
+  using Phase = EnginePhase;
+  bool& bidirectional = context.bidirectional;
+  auto& construction_claims = *context.exchange.construction_claims;
+  auto& directory = *context.exchange.directory;
+  auto& generation_window_count = *context.control.generation_window_count;
+  auto& improvement_changed = *context.setup.control_prefix.improvement_changed;
+  auto& length_blocks_dirty = *context.queues.length_blocks_dirty;
+  auto& selection = *context.census.selection;
+  auto& stats = context.control.result->stats;
+  auto& world = context.world;
+  if (bidirectional) {
+    construction_claims = next == Phase::Construction;
+    stats.split_lane = 0;
+    if (next == Phase::Construction) {
+      generation_window_count = 0;
+      selection.edge_history.clear();
+      if (world.maximum(improvement_changed)) length_blocks_dirty = {{true, true}};
+      if (!refine_geometry) directory->BeginConstructionPass();
+    } else
+      directory->EndConstructionPass();
+    if (!refine_geometry) context.queues.LengthDirection(context, next == Phase::Construction);
+  }
+}
+
+bool EngineControl::CompletePhaseEntry(EngineContext& context, EnginePhase next, bool refine_geometry,
+                                       SU2NativeGeometry::AtlasBudget& atlas_budget) {
+  using Phase = EnginePhase;
+  auto& composition = context.composition;
+  auto& construction_entry_reported = *context.control.construction_entry_reported;
+  auto& field_identity = *context.census.field_identity;
+  const auto& geometry = context.geometry;
+  auto& initial = *context.census.initial;
+  auto& options = context.options;
+  auto& repairing = *context.control.repairing;
+  auto& retired_edges = *context.census.retired_edges;
+  auto& seed_slot = *context.census.seed_slot;
+  auto& selection = *context.census.selection;
+  const auto& started = *context.setup.control_prefix.started;
+  auto& working = *context.ownership.working;
+  CLocalFailure failure;
+  try {
+    if (!refine_geometry) selection.ChangePhase(repairing, working, field_identity);
+    initial.clear();
+    initial.reserve(working.size());
+    for (const auto& row : working) {
+      const auto found = selection.cells.find(row.first);
+      if (found == selection.cells.end() ||
+          (repairing &&
+           (!found->second.shape_measured || (!options.wall_heights.empty() && !found->second.debt.height_measured))))
+        initial.push_back(row.first);
+    }
+    seed_slot = 0;
+  } catch (const std::exception& e) {
+    failure.Set(2, 0, e.what());
+  }
+  if (!context.exchange.Vote(context, failure)) return false;
+  // A phase census has no enclosing update timer to debit for donor imports.
+  const bool measured = context.census.Measure(context, initial, false, nullptr);
+  retired_edges.clear();
+  if (!measured) return false;
+  seed_slot = initial.size();
+  if (refine_geometry && !composition && options.wall_heights.empty() && geometry.EntityGeometry()) {
+    if (!context.exchange.Admit(context, selection.GeometryPriorityBytes())) return false;
+    CLocalFailure priority_failure;
+    try {
+      selection.PrioritizeGeometrySplits(started, options.maximum_seconds);
+    } catch (const std::exception& e) {
+      priority_failure.Set(2, 0, e.what());
+    }
+    if (!context.exchange.Vote(context, priority_failure)) return false;
+  }
+  if (!repairing) construction_entry_reported = true;
+  if (repairing && !context.ownership.PhaseOwnership(context, true, atlas_budget)) return false;
+  return EngineControl::ObserveProgress(context, working, atlas_budget,
+                                        repairing ? "quality_entry" : "construction_entry");
+}
+
+bool EngineControl::EnterPhase(EngineContext& context, EnginePhase next, bool refine_geometry,
+                               SU2NativeGeometry::AtlasBudget& atlas_budget) {
+  using Phase = EnginePhase;
+  auto& attempted_at_window = *context.control.attempted_at_window;
+  auto& construction_changed = *context.setup.control_prefix.construction_changed;
+  auto& construction_entry_reported = *context.control.construction_entry_reported;
+  auto& construction_generation_changed = *context.setup.control_prefix.construction_generation_changed;
+  auto& construction_handoff_progress = *context.setup.control_prefix.construction_handoff_progress;
+  auto& deferred_at_window = *context.control.deferred_at_window;
+  auto& improvement_changed = *context.setup.control_prefix.improvement_changed;
+  auto& metric_cleanup = *context.setup.control_prefix.metric_cleanup;
+  auto& phase = *context.setup.control_prefix.phase;
+  auto& phase_start_round = *context.setup.control_prefix.phase_start_round;
+  auto& progress_at_window = *context.control.progress_at_window;
+  auto& repairing = *context.control.repairing;
+  auto& stats = context.control.result->stats;
+  auto& surface_target = context.surface_target;
+  auto& working = *context.ownership.working;
+  auto& world = context.world;
+
+  if (surface_target && next == Phase::Improvement) {
+    return EnterSurfaceRepair(context, atlas_budget);
+  }
+
+  metric_cleanup = false;
+  PreparePhaseDirection(context, next, refine_geometry);
+
+  if (phase == Phase::Construction && !construction_entry_reported) {
+    if (!EngineControl::ObserveProgress(context, working, atlas_budget, "construction_entry")) return false;
+    construction_entry_reported = true;
+  }
+  construction_handoff_progress = next == Phase::Improvement && world.maximum(construction_changed);
+  if (next == Phase::Construction) {
+    construction_changed = false;
+    construction_generation_changed = false;
+  }
+  phase = next;
+  repairing = next == Phase::Improvement;
+  improvement_changed = false;
+  phase_start_round = stats.rounds;
+  progress_at_window = stats.size_progress + stats.quality_progress + stats.cell_removals + stats.geometry_progress;
+  attempted_at_window = stats.attempted;
+  deferred_at_window = stats.length_pass_deferred;
+  if (repairing)
+    ++stats.quality_stages;
+  else
+    ++stats.construction_returns;
+  if (!context.exchange.Admit(
+          context, transfer_memory::Add(
+                       transfer_memory::Mul(working.size(), sizeof(Id)),
+                       transfer_memory::Mul(working.size(), context.control.SelectionBound(context, repairing)))))
+    return false;
+  if (refine_geometry && !BeginLengthGeneration(context, false)) return false;
+  return CompletePhaseEntry(context, next, refine_geometry, atlas_budget);
+}
+
+void EngineControl::DiscardCheckpoint(EngineContext& context) {
+  auto& checkpoint = *context.control.checkpoint;
+  auto& directory = *context.exchange.directory;
+
+  if (checkpoint.directory) context.exchange.RetireDirectory(checkpoint.directory->Statistics());
+  checkpoint.directory.reset();
+  checkpoint.parameters.reset();
+  Owned().swap(checkpoint.cells);
+  decltype(checkpoint.blocked)().swap(checkpoint.blocked);
+  std::set<Edge>().swap(checkpoint.edges);
+  std::set<Edge>().swap(checkpoint.attempted);
+  std::set<Id>().swap(checkpoint.changed);
+  checkpoint.blocked_links = 0;
+  checkpoint.valid = checkpoint.trial = false;
+}
+
+bool EngineControl::CaptureCheckpoint(EngineContext& context) {
+  auto& checkpoint = *context.control.checkpoint;
+  auto& directory = *context.exchange.directory;
+  const auto& geometry = context.geometry;
+  auto& options = context.options;
+  auto& private_parameters = *context.setup.private_parameters;
+  auto& result = *context.control.result;
+  auto& selection = *context.census.selection;
+  auto& source = *context.exchange.source;
+  auto& stats = context.control.result->stats;
+  auto& working = *context.ownership.working;
+  auto& world = context.world;
+
+  // This call follows the complete fresh quality census, including measured strict height.
+  // No mutation intervenes; no initial/construction/partial state is presumed certified.
+  CLocalFailure failure;
+  const auto extra = transfer_memory::Add(
+      MapBytes(working), directory->ResidentBytes(), private_parameters ? private_parameters->ResidentBytes() : 0,
+      MapBytes(selection.blocked_edges), transfer_memory::Mul(selection.blocked_links, sizeof(Id) + 4 * sizeof(void*)),
+      transfer_memory::Mul(transfer_memory::Mul(6, working.size()), sizeof(Edge) + 4 * sizeof(void*)));
+  if (!context.exchange.Admit(context, extra)) return false;
+  try {
+    checkpoint.cells = working;
+    checkpoint.blocked = selection.blocked_edges;
+    checkpoint.blocked_links = selection.blocked_links;
+    for (const auto& row : working)
+      for (unsigned i = 0; i < 4; ++i)
+        for (unsigned j = i + 1; j < 4; ++j) {
+          Edge edge{row.second.cell.v[i].id, row.second.cell.v[j].id};
+          std::sort(edge.begin(), edge.end());
+          checkpoint.edges.insert(edge);
+        }
+    if (private_parameters) checkpoint.parameters = std::make_unique<BoundaryParameterState>(*private_parameters);
+    checkpoint.directory = std::make_unique<Directory>(world, true, geometry.Parameters());
+  } catch (const std::exception& e) {
+    failure.Set(3, 0, e.what());
+  }
+  if (!context.exchange.Vote(context, failure)) return false;
+  // Prebuild while both directories see the checkpoint parameter contents. This dormant
+  // directory is never queried during the speculative trial; rollback needs no allocation.
+  if (!checkpoint.directory->Build(
+          checkpoint.cells, result.reason, options.memory_ceiling,
+          transfer_memory::Add(context.exchange.Bytes(context), source.ResidentBytes(), directory->ResidentBytes())))
+    return false;
+  checkpoint.global_cells = TimedAllreduce(working.size(), CPassiveComm::Op::SUM, world.comm);
+  checkpoint.collapses = result.collapses.size();
+  checkpoint.splits = result.splits.size();
+  checkpoint.valid = true;
+  checkpoint.trial = false;
+  ++stats.coarsen_checkpoints;
+  return true;
+}
+
+bool EngineControl::RollbackCheckpoint(EngineContext& context, SU2NativeGeometry::AtlasBudget& atlas_budget) {
+  using Phase = EnginePhase;
+  auto& campaign_edges = *context.census.campaign_edges;
+  auto& checkpoint = *context.control.checkpoint;
+  auto& construction_changed = *context.setup.control_prefix.construction_changed;
+  auto& construction_handoff_progress = *context.setup.control_prefix.construction_handoff_progress;
+  auto& directory = *context.exchange.directory;
+  auto& improvement_changed = *context.setup.control_prefix.improvement_changed;
+  auto& private_parameters = *context.setup.private_parameters;
+  auto& result = *context.control.result;
+  auto& retired_edges = *context.census.retired_edges;
+  auto& selection = *context.census.selection;
+  auto& stats = context.control.result->stats;
+  auto& working = *context.ownership.working;
+  auto& world = context.world;
+
+  static_assert(std::is_nothrow_swappable<BoundaryParameterState>::value,
+                "Private checkpoint parameter contents must restore without allocation.");
+  CLocalFailure failure;
+  size_t retired = 0;
+  if (!checkpoint.valid || !checkpoint.directory || checkpoint.collapses > result.collapses.size() ||
+      checkpoint.splits > result.splits.size())
+    failure.Set(1, 0, "Native coarsening rollback lacks its complete checkpoint.");
+  if (bool(private_parameters) != bool(checkpoint.parameters) ||
+      (private_parameters && private_parameters->Authority().get() != checkpoint.parameters->Authority().get()))
+    failure.Set(1, 0, "Native coarsening rollback changes immutable geometry authority.");
+  if (!context.exchange.Vote(context, failure)) return false;
+  if (!context.exchange.Admit(
+          context, transfer_memory::Mul(checkpoint.attempted.size(), 2 * (sizeof(Edge) + 8 * sizeof(void*)))))
+    return false;
+  try {
+    for (const auto& edge : checkpoint.attempted) {
+      auto key = edge;
+      std::sort(key.begin(), key.end());
+      if (!checkpoint.edges.count(key)) continue;  // Descendants are absent after rollback.
+      const bool inserted = checkpoint.blocked[edge[1]].insert(edge[0]).second;
+      checkpoint.blocked_links += inserted;
+      retired += inserted;
+    }
+  } catch (const std::exception& e) {
+    failure.Set(3, 0, e.what());
+  }
+  if (!context.exchange.Vote(context, failure)) return false;
+  if (!world.maximum(retired != 0)) {
+    result.reason = "Native coarsening trial made no net reduction and retired no new checkpoint obligation.";
+    return false;
+  }
+  // All proposal/import/private-parameter scopes have ended at this phase boundary. Restore
+  // local ownership and exact identities together, leaving IDs/work/deadline/service epochs monotone.
+  if (private_parameters) std::swap(*private_parameters, *checkpoint.parameters);
+  working.swap(checkpoint.cells);
+  directory.swap(checkpoint.directory);
+  selection.blocked_edges.swap(checkpoint.blocked);
+  std::swap(selection.blocked_links, checkpoint.blocked_links);
+  stats.coarsen_rolled_back_collapses += result.collapses.size() - checkpoint.collapses;
+  result.collapses.resize(checkpoint.collapses);
+  result.splits.resize(checkpoint.splits);
+  ++stats.coarsen_rolled_back_passes;
+  stats.coarsen_retired_directions += retired;
+  stats.coarsen_restored_cells += working.size();
+  DiscardCheckpoint(context);
+  selection.Reset(true);
+  retired_edges.clear();
+  campaign_edges.clear();
+  construction_changed = construction_handoff_progress = improvement_changed = false;
+  // A strict checkpoint is not permission to return a stale census or to forgive a budget exit.
+  return EnterPhase(context, Phase::Improvement, false, atlas_budget);
 }

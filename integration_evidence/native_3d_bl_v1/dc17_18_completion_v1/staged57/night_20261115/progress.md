@@ -2,11 +2,13 @@
 
 Updated 2026-11-17. Read the complete latest `NIGHT_WORK_ORDER.md` after every compaction, then this file.
 
-## Current boundary — B6 scoped gates PASSED; checkpoint next
+## Current boundary — B7 scoped gates PASSED; checkpoint next
 
-B6 Ownership extraction PASSED scoped build556/G1/G2. Build 70.159541s/1779 pins; G1 serial/MPI2/MPI4 796.648625/16.245114/32.141896s, zero changed cases; strict G2 stop/seal 422.579359/431.041191s, all old integer/model/timer rows exact against adopted552. All actual handles and pins sealed. Prefix HWM sum 5,229,854,720B is not a full-workflow P8 peak. No numerical repeat or efficiency gain claim.
+CUT B7/build557 PASSED scoped gates: build 90.137656s/1780 pins; G1 serial/MPI2/MPI4 799.466036/16.047393/17.009736s, zero changed cases; strict G2 stop/seal 358.986603/367.124557s, all old integer/model/timer rows exact against adopted552. All actual handles and pins sealed. Prefix HWM sum 6,083,198,976B is not a full-workflow P8 peak. No numerical repeat or efficiency gain claim.
 
-BaseB5 accepted/pushed2a05da05ca1f9642fc1847c5dff57e78d2eb50df. Buildexec48969; G1serial37243/MPI243667/MPI457541; G297596. All actual identities terminal. B6 source/main and Ownership headers/implementation match accepted_B5_rebind and original final-body proofs. Commit/pushB6 then rebind/apply B7; do not start phaseC.
+Actual exec handles: {"G1_mpi2": 32642, "G1_mpi4": 48973, "G1_serial": 98267, "G2": 57833, "build": 53944}. All PID/start identities were verified terminal in primary receipts.
+
+Commit/push B7, then exact accepted-B7 rebind/apply B8/build558/G1/G2. After end-B gates and commit/push, update current state, verify no owned job, write terminal handles, STOP and wait for the user. Do not start phase C. N6/N7/C/D are deferred at this planned stop.
 
 N14/N15 qualification PASSED and PUSHED **0c2cb5c460a5e01c5dde1564c96d209f457e8fa8**. Full4738.250709s/6payloads EXACT/allstandinggates; isolated restart236.822017s/168797points855828cells/coordinate0/positivefinitechangedfields; M26both6ranks/48prepare rows each/96fixedstorage4120summaries/class sums=commits22278/13622. All actual552/full/restart handles were sealed before B3 edits. Exact552binaries preserved locally (not Git). Accepted references adopted without numerical rerun; successor_reference_selection.json names552G1/G2/GQ and firstN14G3. G1wallchangedcasesNONE.
 
@@ -57,12 +59,12 @@ Required/checked counts reconcile: first731 required accepted +33 checked accept
 
 ## Next ordered actions
 
-1. B6G1/G2PASSED/allactualIDssealed; commit/pushnext. Historical launch detail: PreserveB6serialG1exec37243. Build556+allprelaunchstubsPASSED/sealed. Onterminal/tmp/b6_seal_g1.py serial37243 verifiesactualIDs/table/pins. ThenfreshpreflightMPI2→MPI4eachseal, strictG2next. Commit/pushB6onlyafterallpass. B5accepted2a05da05caPUSHED.
-2. B5finalproposalagainstacceptedB4c048 inB5_preparation/proposal. Finalactualbodyexpansionproof+primary_static_review passed; MAIN18117d03...;Control/Reportsheader+cpp frozenmap receipts. Allrootdraftcauses/corrections inPRIMARY_DRAFT_REVIEW_LEDGER.md, oldpre-renderproofsexplicitlysuperseded. B5appliedfivepaths;build555andorderedG1/G2PASSED;accepted/PUSHED2a05da05ca.
-3. B6OwnershipactualUNAPPLIED12-methodproposalnowCOMPLETE fromnewagentb6_tail_generator underB6_preparation/proposal: generate_b6_proposal.py, *.proposed,DRAFT_BINDINGS.json,FULL_FILE_FORMATTED_INVENTORY.json,UNAPPLIED_B6_AUDIT.md. Actualfinalbodyrecursiveproof/mainbytereverse passed;14–60lines. RootREADALL12methods/header, approvedlifetimes/queries/counters; requestedminorconst/forwarddecl/purpose/unusedargs cleanupcomplete. PRIMARY_SOURCE_REVIEW_B4_DRAFT.md recordsreview. FrozenB4propspreserved. Separatecandidate_build555_rebindwithcopiedsource18117d03 passedactualproofs/fields/linecounts; outputs mainf82d588.../hppc8563750.../cppdb0b1494.... FINALaccepted_B5_rebindagainst2a05passed/input+3outputidentityverified; B6APPLIEDbuild556PASSED/G1serialexec37243RUNNING. OlderB4/candidatepropspreserved. RootPRIMARY_TAIL_DESIGN.md governscanonicalrefs/lifetimes/observerbudget; rowtypeSelection::CellState. EntryPhaseOwnership(context,boolquality,AtlasBudget&)usesfutureB5ObserveProgress(context,working,atlasBudget,stage), nocurvedparameterneeded.
-4. B7NEWcandidateunderB7_preparation/proposal/candidate_after_B6_build555 nowexists/sixactualbodyproofs/mainreversal<=68lines/directB5observer+futureB6ownership/zero6oldfree-namecalls. RootmustreviewALL9reboundmethods/header/calls beforeapply. Fullheader/cppformatdry-runPASSEDafterrootrequest; newpurposecommentaccurate. Outputs maind54dd217.../hpp865d8740.../cppcb451a03... (bodytokensunchanged7–68lines). Olddraftsremainhistorical. Rootfoundnestedunresolvedbegin_length_generation; fixedtoBeginLengthGeneration(context,false) withactualinverseproofagainstce252. RebindafterB6andfinalB5observerinterface; replaceprovisionalObserver/curvedwithoriginalAtlasBudget&dependencywherecalled. Do notforwardoriginaloldclosurethatB5removed.
-5. B8SetupS10/S11/S12 ANDS17/S18actualpartialdraftsunderB8_preparation/proposal, immutablece252base. S10fourmethods66/36/43/69lines keepsTimer/CLfailure/finalREADYfinishcaller;S11two38/62lines preserves7finishsitesviaowner-tailcontinuation;S12bool46lines keepsglobal_original/prismatic/initialpredicatecaller, movesanalyticvalidation/agreement. Rootmustreviewactualproposals/merge/rebindafterB7; S15WHOLEunapplieddraftnowcompleteunderproposal/S15,12functions<=73/fivelambdas<=9, actualrecursivebody/status/continuationproof/mainreverseandownersLEDGER; futureB5finishwrapperseparate. RootmustreviewALL/merge/rebindafterB7, nocompileyet. S13WHOLEunapplieddraftnowcompletebyr3agent:10helpers15–54lines, actualcallback/posttailreconstruction/11finishroutes/mainreverse, noC++compile. RootmustreadALL/merge/rebind. AllB8piecesnowexistseparately, notintegrated. RootclarifiedALLpost-tailthroughregion_active=false/resultclearstaysINSIDERunAndFinalizeRegion, whosecallerPrepareRegionFieldownsserviceuntiltailreturns; noextraAftercallback/callertailoutsidehelper. NoB8productionedit. EachB6–B8build/G1/G2thencommit/push.
-6. End-BG3/G4/GQ usingadopted552/firstN14G3commonedits,>=336splits/allotherphysicalgates. Commit/push, updateprogress/HANDOFF, verifyNOownedjob,writeterminalhandles, STOPWAITUSER. No phaseC. R5failurestopafterrequiredrevertcommit/push.
+1. B7 scoped checks are complete; checkpoint next. Historical serial launch was exec98267; build557 and all prelaunch stubs already passed. On terminal, seal the actual process/pin/table receipts. Then fresh host preflight → MPI2 → seal → fresh preflight → MPI4 → seal → fresh preflight → strict G2 → seal. Commit/push B7 only after all scoped gates pass.
+2. Exact accepted-B7 rebind of the integrated B8 candidate, verify reviewed output hashes, apply its three paths, materialize/build558 and run G1serial/MPI2/MPI4/strictG2 once each in order. Seal, commit and push.
+3. End-B G3, G4, GQ. G3 uses first N14 G3 common edits and adjusted entry work, >=336splits/all other physical gates; no P6c first336 identity. G4 2D1/2/4. GQ strict old integers/model/timer rows vs552, all six third windows, zero census delta for the cut.
+4. After passed end gates and commit/push, update progress/HANDOFF, verify NO owned job, write terminal handles, STOP AND WAIT FOR USER. Do not start phase C or final N7 report. If phase B cannot finish under R5, stop after its required revert is committed/pushed.
+
+Earlier preparation details are historical: `progress_preparation_history_through_B6_20261117.md`. Current applied/accepted state is the opening section above.
 
 ## Own-helper correction ledger (no production/gate/tolerance changes)
 
@@ -73,7 +75,7 @@ Required/checked counts reconcile: first731 required accepted +33 checked accept
 - After merit passed, monitor review found live polls did not sample descendants. Existing merit case sampler/terminal handles covered the full run, so primary sealed it without repeat; corrected future polling. Its short nonnumerical self-check initially used a symlinked executable and was corrected to the resolved path; passed. `validation/R3_safeguard_resource_monitor`. The old custom merit3.6MB sample is not a peak; full case observed82,264,064B.
 - G3 paired Markdown report had a misplaced second table row; corrected post-only and verified columns. CSV CRLF normalized only in new report output. `reports_G3_pair/report_setup_corrections.md`. Historical raw CSV/logs preserved and exact gzip archives round-trip verified.
 
-## Remaining cut preparation — unapplied
+## Historical preparation notes — superseded by current state
 
 P=`N4/section6_3_after_N11`. Whole-N4 source check `P/source_check.md` remains controlling. B3 production applied/build553 passed; no numerical B3 test launched yet. Older preparation hashes below are historical and superseded by actual_apply_receipt.json and current generated binding manifest.
 
