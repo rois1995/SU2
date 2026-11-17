@@ -1,3 +1,172 @@
+# Latest user orders, 2026-11-17: N14 RELEASED and planned phase-B stop
+
+User order, 2026-11-17 (LATEST): planned stop at the end of phase B of the cut. When phase B has passed its end gates (G3, G4, GQ) and is committed and pushed: update progress.md and HANDOFF_Codex.md, verify that no owned job runs, write the terminal handles, then STOP and wait for the user. Do not start phase C. This order wins over "never idle" for this one point only. Until then, work as ordered (N14 with N15, then the rest of phase B). If phase B cannot be completed under R5: stop at the same point, after the revert is committed and pushed.
+
+### 6.12 M25 result; N14 gets an exact condition (the lift of the split point) (2026-11-17, 10:30; this section wins over 6.10 item 3 where they differ; do not stop a running job)
+
+Facts, from your evidence (`R/night_20261115/N13/section6_10/REPORT.md`, `M25_table.md`,
+`cases/m25_split_20261117T075134_2706022/m25_split_outcomes.csv`; the reviewer's
+read-only scripts are `m25_read.py` and `m25_lift.py` in
+`/tmp/claude-1000/-media-rausa-4TB-SU2-Versions-SU2-NativeIntegrated/f3d988e5-f14f-4a96-b6fb-963ec11730e7/scratchpad/analysis/`):
+
+- N13 is PASSED. Your prediction agrees with the first N11 verdict in 733 of 825 trials.
+- Name: the LIFT of an edge = the distance from the chord midpoint to the bound point
+  (your column `midpoint_distance`).
+- In all 4,816 parent faces the lift is at or below the certified bound of the face
+  (largest ratio 0.995). All 3,814 parent faces on an edge with lift > 1e-4 fail the
+  tolerance (0 pass). So: while an edge with lift > tolerance is in the mesh, no wall
+  face on it can pass the geometry gate. Its split is required.
+- The first N11 verdict of the edges that are in a failing face, by the lift:
+
+  | lift | accepted | rejected by the guidance check | median lift / tolerance of the rejected | rejected ones that your prediction calls an improvement |
+  |---|---:|---:|---:|---:|
+  | above the tolerance | 90 | 399 | 2.60 | 31 of 379 |
+  | at or below the tolerance | 15 | 262 | 0.00 | 0 of 261 |
+
+- For the 399: the smaller child has 0.34 of the parent bound (median), the larger
+  child 1.13, and no child is above (parent bound + tolerance). Where the other old
+  edges of a failing larger child are in the list (562 children), one of them has lift >
+  tolerance in 562 of 562. So the reading of 6.10 is confirmed: the larger child fails
+  because it keeps another edge that needs its own split. The sum check cannot see
+  this progress.
+- For the 262 the check is right (lift near zero: the edge lies along the direction
+  with no curvature).
+- The law estimate is 1.76 times the lift (median; quartiles 1.51 and 2.59; 5 % far
+  above). 181 of the 1,922 edges that pass the law condition of 6.10 item 3 b have a
+  lift at or below the tolerance, and 166 edges with lift > tolerance do not pass it.
+  The lift is exact, it costs nothing (the trial has the bound point), and it needs no
+  law call at the trial. So the lift replaces the law in the condition.
+
+1. N14 = 6.10 item 3 with these changes. Parts a, e and f of 6.10 item 3 stay (B2 and
+   the print-only changes of 6.9 come back by symbol; the gates; the report).
+
+   b (replaces 6.10 item 3 b). Rule "required split". For the validation of the PRIMARY
+   patch of an edge-split trial (the `validate_private` call for the result of
+   `SplitEdge` or `InsertEdgeCavity`; source `primary` of 6.9), `geometric_change` is
+   not called, in none of its call places inside that validation, and the trial
+   continues as if the check passed, when ALL of these are true:
+   - the `Adapt` call has a surface target (`surface_target`) and the patch is `curved`
+     (the two conditions under which the check does work today);
+   - the trial is not a coarsening and not a repair, and the choice comes from the
+     geometry queue (`choice.geometric`);
+   - `fresh` has a node with the identity of the split point (`point.id`);
+   - lift > `options.surface_tolerance` (the tolerance that `GeometryGuidanceExcess`
+     gets), strict. Lift = the Euclidean distance between `point.p` as the successful
+     split call got it (the position on the chord) and the coordinates of that node in
+     `fresh`. Compute the three differences and the sum of squares in `long double`
+     and compare the squares.
+   In each other case the guidance check runs as today. An interior edge has lift 0, so
+   the rule is false for it. The joint path (`RefitWallSplit`, `ReconstructWallSplit`,
+   `ReconstructSplitPatch`) keeps its checks: it runs only when the primary patch was
+   not approved. Each validity guard stays (I part B1 item 2). For a required split
+   `geometric_progress` is false ("not known"); source check as in 6.10: `metric_trial`
+   reads it for the kind `GeometryRepair` only, and the kind here is `GeometryRefine`.
+   The projection has a search tolerance of (tolerance / 8). No margin is added for
+   it: the guidance check is a progress heuristic, not a validity guard, and the
+   final geometry gate does not change.
+
+   c (replaces 6.10 item 3 c). Readable code:
+   - one pure function in the wall law file, with a comment that gives the reason of
+     the rule in two lines, for example
+     `bool SplitPointLiftRequiresSplit(const Point& chord_point, const Point& wall_point, double tolerance)`,
+     and a unit case (lift below, equal, above; equal gives false);
+   - the engine computes the bool ONE time, after the successful primary split call and
+     before the primary `validate_private` call, and gives it to the validation as an
+     explicit argument or as a local of the trial. No test of the rule inside the joint
+     or repair paths;
+   - no law call at the trial, no search for a wall face;
+   - no new field in `CellState`, in a `Choice` row that travels, in `Session`, or in the
+     timer enum. Each `NATIVE3D_TIMER_SUMMARY` row keeps `fixedstorage=4120`.
+
+   d (replaces 6.10 item 3 d). Counters, print only, in the wall counters that exist:
+   `wall_splits_required` (trials, accepted); `wall_splits_checked` (geometry queue,
+   lift at or below the tolerance: trials, rejected by the guidance check, accepted);
+   and for the new wall faces of the required splits, when `Selection::Add` measures
+   them: count, count at or below the tolerance, count above (bound of the parent
+   face + tolerance). The last count is 0 in M25. A value above 0 is a report (R4), not
+   a gate.
+
+2. Release. N14 starts only after the user order with the words "N14 released" (6.10
+   item 3). When that order is there:
+   - When: at the next boundary of the cut (after the sub-step in work has passed its
+     gates and is committed), as N13.
+   - N15 (6.11) goes into the same build. The full two-event run of N14 (I "Gates of B1
+     and B2" item 1) gives the M26 numbers. No other full run.
+   - Purpose rule of 6.10 item 3 e: no change (at least 689 accepted splits at the exit
+     in BOTH G3 runs).
+   - If N14 passes: its G1, G2, GQ and G3 runs are the references of the cut from then
+     on (G1: list each changed case of the wall stage with the old and the new numbers;
+     G2 and GQ: the rule of 6.8 item 2 for the `census` calls, with the smaller count of
+     `NATIVE3D_WALL_LAW` lines of 6.9 item 2 a). No extra reference run.
+   - CORRECTED 2026-11-17, 10:10 (one row was missing; an error of the reviewer). If
+     N14 passes: N14 changes the choice of the edge. So the row "the first 336 edits
+     identical to the P6c reference" of gate G3 (6.6 item 1 a) ends for all later G3
+     checks of the cut. The row "at least 336 splits" and each other row of 6.6 item
+     1 a stay. The identity part (6.6 item 1 b) uses the first G3 run of N14 as its
+     reference run. If N14 is reverted: no change of gate G3.
+   - If N14 fails a result gate: R5. Revert N14 in one commit; the cut goes on with
+     the old references. For N15 then: if the full run of this build was done and its
+     no-BL results are identical, its M26 numbers are valid and the N15 lines stay in.
+     If the full run was not done: revert N15 with N14 and use the second case of
+     6.11 item 1 (one commit before the G5 run at the end of phase C).
+
+3. The morning report (N7): one row for N13 (PASSED, the reading of 6.10 confirmed, the
+   condition changed from the law to the lift), one for N14.
+
+### 6.11 One more print-only measurement: M26, the wall lane census (2026-11-17, 08:00; user decision of 2026-11-17)
+
+Purpose: the user accepted the DEFINITION of design part 8.5ab (D section 5.12,
+revision 2.3; copy D again with its SHA256). Do not implement 8.5ab. The reviewer
+needs two numbers for its text: how many wall commits a rank can make alone.
+
+Item N15. Print only, under `options.timings`, in the census of N12
+(`CNativeLaneCensus3D.hpp` and its call places).
+
+1. When, to add no full run:
+   - if N14 is released before the end of phase C of the cut: in the same build as N14;
+   - if not: as one commit before the G5 full run of the end of phase C. That run gives
+     the numbers. If that G5 run fails and the one diagnosis pass does not name another
+     part: revert N15 first and repeat G5 one time.
+2. Population: the commits of the class local + wall of N12, quality stage only.
+3. For each such commit, from data that the commit place has (`old`, `fresh`, the
+   edits of `BoundaryParameterState::Changes` for this proposal, the coverage delta,
+   the ladder kind). Let e = the count of erased wall points and i = the count of
+   inserted wall points of these edits:
+   a. `link_local`: each wall face on each wall vertex of `old`
+      (`BoundaryParameterState::FacesOnVertex`) is a face of a cell of this rank;
+   b. the class:
+      - S = `SameSkin` true, no parameter edit, empty coverage delta;
+      - W1 = not S, e <= 1 and i <= 1 (one wall point added, moved or removed, or a
+        wall reconnection with no point change);
+      - W2M = not S, e = i >= 2, and `old` and `fresh` have the same count of wall
+        faces (wall points moved only);
+      - W2O = each other commit;
+   c. for class W1 with i = 1: `first_proof` = the exact orientation of the inserted
+      point against each wall face of `old` that is not a wall face of `fresh` is not
+      negative (the sign rule of your M6b code).
+4. One line for each rank at the stage exit:
+   `NATIVE3D_WALL_LANE_CENSUS rank= commits= class_s= class_w1= class_w2m= class_w2o= w1_kind0= w1_kind1= w1_kind2= w2m_kind1= w1_link_local= w2m_link_local= w1_first_proof= w1_link_local_first_proof= seconds_s= seconds_w1= seconds_w2m= seconds_w2o=`
+   (`seconds` = the busy seconds of the slots of these commits, the clock of N12).
+   `commits` must be equal to the `commits` of the N12 row local + wall, and the four
+   classes must sum to it.
+4a. One more number, for the cost of the join of 8.5ab. In `Directory::PrepareParameters`,
+   for the call `parameters->Prepare` on the union of the edits of all ranks: the count
+   of calls, the seconds (a local clock, only under `options.timings`; no new timer
+   operation), the count of edits and the count of faces. One line for each rank at
+   the stage exit: `NATIVE3D_WALL_PREPARE rank= stage= calls= seconds= edits= faces=`.
+5. No decision reads these values. No new timer operation, no new field in `Session`,
+   `CellState` or a row that travels (each `NATIVE3D_TIMER_SUMMARY` row keeps
+   `fixedstorage=4120`).
+6. Gates: identical results. G1 by identity; G2 and GQ with all old integer rows
+   equal; the six files of the full run of item 1 equal to the references.
+7. Report: one table for each event (6 ranks), and for the sums: the share of S, of W1
+   with `link_local`, of W1 with `link_local` and `first_proof`, and of W2M with
+   `link_local`, in commits and in seconds; and the rows of item 4a.
+
+
+
+## Earlier user orders (superseded where above differs)
+
 User order, 2026-11-17 (LATEST): NIGHT_WORK_ORDER.md sections 6.10 and 6.11 govern from now. N10 withdrawn; N13 test-only M25 at the next cut boundary; N14 prepared and NOT released; N15 print-only M26 at the specified phase-C/N14 boundary. Do not implement 8.5ab. Do not stop a running job.
 
 ### 6.10 N11 result, the cause from the trial records, one measurement (N13), one prepared fix (N14, NOT released) (2026-11-17, 07:40; do not stop a running job; the cut goes on)

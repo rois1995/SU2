@@ -1,8 +1,13 @@
 /* I.B0: worker-local observations of existing wall decisions. Inputs are completed checks;
- * outputs are diagnostic rows only. Fixed storage, no geometry query or acceptance side effect. */
+ * outputs are diagnostic rows only. Diagnostic storage, no geometry query or acceptance side effect. */
 #pragma once
 
+#include "CNativeBoundaryParameters3D.hpp"
+#include <algorithm>
 #include <array>
+#include <map>
+#include <cmath>
+#include <limits>
 #include <chrono>
 #include <cstdint>
 #include <iostream>
@@ -11,6 +16,14 @@
 namespace SU2NativeWallDiagnostics3D {
 
 // Counts worker-local observations only; never reads counters to control mesh edits.
+enum class PatchSource : std::uint8_t {
+  Primary,
+  RefitWallSplit,
+  ReconstructWallSplit,
+  ReconstructSplitPatch,
+  Unreported
+};
+
 enum class GuardOrigin : std::uint8_t { Operator, Guidance, Count };
 enum class GuidanceCause : std::uint8_t { Incomplete, Nonfinite, NoProgress, AfterAbove, Exception, Other, Count };
 enum class PreTrialDisposition : std::uint8_t { Other, Oversized, Conflict, Deferred, SplitPosition, Count };
@@ -113,6 +126,87 @@ class Counters {
     if (enabled_) ++accepted_;
   }
 
+  // Counts face encounters and committed split origins without feeding selection.
+  void ObserveLawFace(bool weighted) {
+    if (!enabled_) return;
+    ++law_faces_[static_cast<std::size_t>(weighted)];
+  }
+
+  void ObserveSplit(bool geometric) {
+    if (enabled_) ++accepted_splits_[static_cast<std::size_t>(geometric)];
+  }
+
+  // False collective probes and derived repair patches have no raw source to report.
+  void ObserveSource(PatchSource source, bool available, bool guidance_rejected, bool approved) {
+    const auto index = static_cast<std::size_t>(source);
+    if (!enabled_ || !available || index >= sources_.size()) return;
+    auto& row = sources_[index];
+    ++row.validated;
+    row.guidance_rejected += guidance_rejected;
+    row.approved += approved;
+  }
+
+  void ObservePrimarySplit(bool required) {
+    if (enabled_) ++split_trials_[required ? 0 : 1];
+  }
+
+  void ObserveCheckedRejection(bool rejected) {
+    if (enabled_) checked_guidance_rejected_ += rejected;
+  }
+
+  void AcceptCheckedSplit() {
+    if (enabled_) ++split_accepted_[1];
+  }
+
+  // Reuses existing measured bounds only; missing parent data stays explicitly unknown.
+  void ObserveMeasuredFace(SU2Native3D::Face face, SU2Native3D::Id facet, double bound, double tolerance) {
+    if (!enabled_) return;
+    try {
+      const auto key = FaceIdentity(face, facet);
+      measured_faces_[key] = bound;
+      const auto child = pending_children_.find(key);
+      if (child == pending_children_.end()) return;
+      ++required_faces_;
+      required_faces_passing_ += std::isfinite(bound) && bound <= tolerance;
+      if (std::isfinite(child->second))
+        required_faces_above_parent_ += bound > child->second + tolerance;
+      else
+        ++required_faces_unknown_parent_;
+      pending_children_.erase(child);
+    } catch (...) {
+      ++face_observation_failures_;
+    }
+  }
+
+  void AcceptRequiredSplit(const SU2Native3D::Patch& old, const SU2Native3D::Patch& fresh, SU2Native3D::Edge edge,
+                           SU2Native3D::Id point) {
+    if (!enabled_) return;
+    ++split_accepted_[0];
+    try {
+      for (const auto& parent : old.surface) {
+        const bool first = std::find(parent.v.begin(), parent.v.end(), edge[0]) != parent.v.end();
+        const bool second = std::find(parent.v.begin(), parent.v.end(), edge[1]) != parent.v.end();
+        if (!first || !second) continue;
+        const auto found = measured_faces_.find(FaceIdentity(parent.v, parent.facet));
+        const double bound = found == measured_faces_.end() ? std::numeric_limits<double>::quiet_NaN() : found->second;
+        for (const auto endpoint : edge) {
+          auto child = parent.v;
+          for (auto& vertex : child)
+            if (vertex == endpoint) vertex = point;
+          const auto key = FaceIdentity(child, parent.facet);
+          bool present = false;
+          for (const auto& face : fresh.surface) present = present || FaceIdentity(face.v, face.facet) == key;
+          if (present)
+            pending_children_.emplace(key, bound);
+          else
+            ++required_children_unmatched_;
+        }
+      }
+    } catch (...) {
+      ++face_observation_failures_;
+    }
+  }
+
   // Kept outside the selected-choice partition: these calls need not name a choice.
   void PlanningRefusal() {
     if (enabled_) ++planning_refusals_;
@@ -135,6 +229,8 @@ class Counters {
                     << " count=" << operator_refusals_[op][why] << '\n';
       PrintOperatorReasons(rank);
       PrintFrames(rank);
+      PrintLawSources(rank);
+      PrintRequiredSplits(rank);
       PrintSingle(rank, "PreservePassingFirstHeights", preserve_refusals_);
       PrintSingle(rank, "height_check", height_refusals_);
       PrintSingle(rank, "boundary_replacement_ready", boundary_refusals_);
@@ -185,6 +281,43 @@ class Counters {
   }
 
  private:
+  using FaceKey = std::pair<SU2Native3D::Face, SU2Native3D::Id>;
+  static FaceKey FaceIdentity(SU2Native3D::Face face, SU2Native3D::Id facet) {
+    std::sort(face.begin(), face.end());
+    return {face, facet};
+  }
+
+  void PrintRequiredSplits(int rank) const {
+    std::cout << "NATIVE3D_WALL_SPLITS rank=" << rank << " wall_splits_required_trials=" << split_trials_[0]
+              << " wall_splits_required_accepted=" << split_accepted_[0]
+              << " wall_splits_checked_trials=" << split_trials_[1]
+              << " wall_splits_checked_guidance_rejected=" << checked_guidance_rejected_
+              << " wall_splits_checked_accepted=" << split_accepted_[1] << " new_faces=" << required_faces_
+              << " new_faces_at_or_below_tolerance=" << required_faces_passing_
+              << " new_faces_above_parent_plus_tolerance=" << required_faces_above_parent_
+              << " new_faces_unknown_parent=" << required_faces_unknown_parent_
+              << " children_unmatched=" << required_children_unmatched_
+              << " children_unmeasured=" << pending_children_.size()
+              << " attribution=locally_registered_primary_faces observation_failures=" << face_observation_failures_
+              << '\n';
+  }
+
+  struct SourceCounts {
+    std::uint64_t validated = 0, guidance_rejected = 0, approved = 0;
+  };
+
+  void PrintLawSources(int rank) const {
+    constexpr const char* names[] = {"primary", "RefitWallSplit", "ReconstructWallSplit", "ReconstructSplitPatch"};
+    for (std::size_t i = 0; i < sources_.size(); ++i) {
+      const auto& row = sources_[i];
+      std::cout << "NATIVE3D_WALL_SOURCE rank=" << rank << " source=" << names[i] << " validated=" << row.validated
+                << " guidance_rejected=" << row.guidance_rejected << " approved=" << row.approved << '\n';
+    }
+    std::cout << "NATIVE3D_WALL_LAW_SELECTION rank=" << rank << " law_weighted_faces=" << law_faces_[1]
+              << " law_fallback_faces=" << law_faces_[0] << " accepted_geometry_splits=" << accepted_splits_[1]
+              << " accepted_size_splits=" << accepted_splits_[0] << '\n';
+  }
+
   struct OperatorReason {
     std::array<char, 97> text{};
     std::uint64_t count = 0;
@@ -323,7 +456,14 @@ class Counters {
     return count;
   }
 
+  std::array<std::uint64_t, 2> split_trials_{}, split_accepted_{};
+  std::uint64_t checked_guidance_rejected_ = 0, required_faces_ = 0, required_faces_passing_ = 0;
+  std::uint64_t required_faces_above_parent_ = 0, required_faces_unknown_parent_ = 0;
+  std::uint64_t required_children_unmatched_ = 0, face_observation_failures_ = 0;
+  std::map<FaceKey, double> measured_faces_, pending_children_;
   friend class Choice;
+  std::array<SourceCounts, 4> sources_{};
+  std::array<std::uint64_t, 2> law_faces_{}, accepted_splits_{};
   bool enabled_;
   std::uint64_t geometry_trials_ = 0, geometry_rejected_ = 0;
   std::uint64_t guidance_trials_ = 0, guidance_rejected_ = 0, geometry_queue_guidance_trials_ = 0;

@@ -6,6 +6,7 @@
  */
 #include "../../include/adaptation/CNativeDistributed3D.hpp"
 #include "../../include/adaptation/CNativeTimerTree3D.hpp"
+#include "../../include/adaptation/CNativeD9Profile3D.hpp"
 #include "../../include/adt/CADTElemClass.hpp"
 #include "../../include/option_structure.hpp"
 #include <chrono>
@@ -1566,7 +1567,10 @@ bool Directory::PrepareParameters(const std::vector<OwnedCell>& old,const std::v
   try{atlas_scope.Refresh(peak,ceiling);}catch(const std::exception& e){failure.Set(3,0,e.what());}
   if(!Vote(failure,reason))return false;
   std::string detail;
-  staged=parameters->Prepare(global_edits,faces,detail,ceiling,transfer_memory::Add(local_bound,transfer_memory::Bytes(faces),transfer_memory::Bytes(global_edits),BoundaryCoverageBytes(global_coverage)),global_coverage,reservation);
+  {
+    SU2NativeD9::Prepare observation(global_edits.size(),faces.size());
+    staged=parameters->Prepare(global_edits,faces,detail,ceiling,transfer_memory::Add(local_bound,transfer_memory::Bytes(faces),transfer_memory::Bytes(global_edits),BoundaryCoverageBytes(global_coverage)),global_coverage,reservation);
+  }
   if(!staged.valid)failure.Set(1,0,detail);
   stats.parameter_edits+=global_edits.size();stats.parameter_faces+=faces.size();
   stats.parameter_payload_bytes+=global_edits.size()*88+faces.size()*40;

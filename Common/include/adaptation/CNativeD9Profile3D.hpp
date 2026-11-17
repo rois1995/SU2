@@ -18,8 +18,13 @@ struct Queries {
   uint64_t memo_direct = 0, memo_union = 0, work = 0;
   double seconds = 0, direct_seconds = 0, upper_seconds = 0;
 };
+struct PrepareRecord {
+  uint64_t calls = 0, edits = 0, faces = 0;
+  double seconds = 0;
+};
 struct Data {
   int rank = 0;
+  std::array<PrepareRecord, size_t(SU2NativeTiming3D::Phase::Count)> prepare{};
   std::array<std::array<Queries, SiteCount>, 3> queries{};
   uint64_t stars = 0, candidates = 0, qj_calls = 0, shared_qj_calls = 0;
   double star_seconds = 0, candidate_seconds = 0, shared_qj_seconds = 0;
@@ -64,6 +69,33 @@ inline void PrintMoves(const Data& data) {
               << " inclusive_seconds=" << data.work_seconds[work] << " qj_seconds=" << data.qj_seconds[work] << '\n';
   }
 }
+// Times only the local union preparation, using the existing enabled Adapt diagnostic root.
+struct Prepare {
+  PrepareRecord* row = nullptr;
+  Clock::time_point started{};
+  Prepare(size_t edits, size_t faces) {
+    const auto* frame = SU2NativeTiming3D::current_frame;
+    if (!active || !frame || frame->phase == SU2NativeTiming3D::Phase::Count) return;
+    row = &active->prepare[size_t(frame->phase)];
+    ++row->calls;
+    row->edits += edits;
+    row->faces += faces;
+    started = Clock::now();
+  }
+  ~Prepare() {
+    if (row) row->seconds += Seconds(started);
+  }
+  Prepare(const Prepare&) = delete;
+  Prepare& operator=(const Prepare&) = delete;
+};
+inline void PrintPrepare(const Data& data) {
+  for (size_t stage = 0; stage < data.prepare.size(); ++stage) {
+    const auto& row = data.prepare[stage];
+    std::cout << "NATIVE3D_WALL_PREPARE rank=" << data.rank
+              << " stage=" << SU2NativeTiming3D::PhaseName(SU2NativeTiming3D::Phase(stage)) << " calls=" << row.calls
+              << " seconds=" << row.seconds << " edits=" << row.edits << " faces=" << row.faces << '\n';
+  }
+}
 struct Root {
   Data data;
   Data* previous;
@@ -89,6 +121,7 @@ struct Root {
     std::cout << std::setprecision(17);
     PrintQueries(data);
     PrintMoves(data);
+    PrintPrepare(data);
     std::cout.precision(precision);
     active = previous;
     candidate_depth = previous_candidates;

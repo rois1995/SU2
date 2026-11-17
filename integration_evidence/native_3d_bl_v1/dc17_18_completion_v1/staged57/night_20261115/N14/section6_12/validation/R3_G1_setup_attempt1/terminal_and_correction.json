@@ -1,0 +1,15 @@
+{
+  "unix": 1794909022.5379896,
+  "actual_host_proc": true,
+  "controller": {
+    "pid": 3026570,
+    "start_ticks": 40126985,
+    "alive": false
+  },
+  "exec_session": 98287,
+  "exec_exit_code": 1,
+  "numerical_cases_launched": 0,
+  "cause": "Inherited N11 runner has no RUNTIME global; candidate module owns RUNTIME.",
+  "correction": "ready_receipt binds module.RUNTIME instead of runner.RUNTIME.",
+  "production_or_gate_changed": false
+}

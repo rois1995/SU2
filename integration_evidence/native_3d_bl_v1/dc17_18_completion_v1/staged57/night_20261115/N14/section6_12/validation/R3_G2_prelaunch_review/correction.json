@@ -1,0 +1,8 @@
+{
+  "cause": "New prefix wrapper retained an undefined N11 alias-root variable in its launch-only publish_aliases method; the no-launch selfcheck did not exercise it.",
+  "correction": "Bind build552 alias helper through SECTION, its actual root, and exercise publication without solver launch.",
+  "numerical_run_launched": false,
+  "production_or_gate_changed": false,
+  "before": "87c93b4fa284e01b144db6a43803d6700160a1d0e3dd88ffc6eb109ddebdae9c",
+  "after": "389913567cecba6893c5e2647db4c3b005f5c4d64d7484bc8a48ac09b84df50e"
+}

@@ -417,8 +417,20 @@ class Selection {
   enum class Lane {Surface,Interior};
   bool split_lanes=false;
   Lane lane=Lane::Surface;
-  Selection(bool coarsening, bool repairing, const PlanarReference& geometry, EngineStats& stats, bool timings, double tolerance,const WallHeights& heights,bool quality_only,bool surface_planning=false)
-      : coarsening(coarsening), track_repairs(repairing), repair_event(repairing), quality_only(quality_only), surface_planning(surface_planning), geometry(geometry), stats(stats), timings(timings), tolerance(tolerance), heights(heights) {}
+  Selection(bool coarsening, bool repairing, const PlanarReference& geometry, EngineStats& stats, bool timings,
+            double tolerance, const WallHeights& heights, bool quality_only, bool surface_planning = false,
+            wall_diagnostics::Counters* wall_counters = nullptr)
+      : coarsening(coarsening),
+        track_repairs(repairing),
+        repair_event(repairing),
+        quality_only(quality_only),
+        surface_planning(surface_planning),
+        geometry(geometry),
+        stats(stats),
+        timings(timings),
+        tolerance(tolerance),
+        heights(heights),
+        wall_counters(wall_counters) {}
   bool coarsening, track_repairs, repair_event, prune_collapses = false, track_splits = false;
   const bool quality_only;
   const bool surface_planning;
@@ -428,6 +440,7 @@ class Selection {
   bool timings;
   double tolerance;
   const WallHeights& heights;
+  wall_diagnostics::Counters* wall_counters;
   std::set<std::tuple<long double,Id,Edge>> geometry_queue;
   std::map<Edge,long double> geometry_split_priorities;
   bool geometry_priority_mode=false;
@@ -1043,6 +1056,8 @@ class Selection {
         for(size_t i=0;i<3;++i)for(auto n:cell.v)if(n.id==faces[slot][i])triangle[i]=n.p;
         const double error=geometry.SurfaceDeviation(owned.physical[slot].facet,triangle,SU2NativeGeometry::SurfaceQueryNeed::Magnitude());
         const auto allowed=tolerance;
+        if(surface_planning && wall_counters)
+          wall_counters->ObserveMeasuredFace(faces[slot],owned.physical[slot].facet,error,tolerance);
         if(std::isfinite(error)) {
           const auto excess=hinge(static_cast<long double>(error)-allowed);d.geometry+=excess*excess;
         } else d.geometry_measured=false;
@@ -1060,15 +1075,34 @@ class Selection {
         }
         row.geometry_excess_bin=std::max(row.geometry_excess_bin,static_cast<unsigned char>(bin));
         row.valid=false;row.geometry_invalid=true;
-        for(size_t i=0;i<3;++i)for(size_t j=i+1;j<3;++j) {
-          const auto a=triangle[i],b=triangle[j];
-          const Edge key{std::min(faces[slot][i],faces[slot][j]),std::max(faces[slot][i],faces[slot][j])};
-          if(!std::isfinite(error))continue;
-          const long double excess=static_cast<long double>(error)-allowed;
-          const long double x=static_cast<long double>(b.x)-a.x,y=static_cast<long double>(b.y)-a.y,z=static_cast<long double>(b.z)-a.z;
-          // Queue current geometry demand; the selected complete star owns projection and progress validation.
-          geometry_scores[key]+=excess*excess*(x*x+y*y+z*z);
+        WallFaceWeights law_weights;
+        if (surface_planning && std::isfinite(error)) {
+          std::array<WallEdgeEstimate, 3> estimates{};
+          if (parameters) {
+            size_t edge = 0;
+            for (size_t i = 0; i < 3; ++i)
+              for (size_t j = i + 1; j < 3; ++j)
+                estimates[edge++] =
+                    EstimateWallEdge(*parameters, {faces[slot][i], triangle[i]}, {faces[slot][j], triangle[j]}, facet);
+          }
+          law_weights = WallFaceEdgeWeights(estimates);
+          if (wall_counters) wall_counters->ObserveLawFace(law_weights.weighted);
         }
+        size_t face_edge = 0;
+        for (size_t i = 0; i < 3; ++i)
+          for (size_t j = i + 1; j < 3; ++j, ++face_edge) {
+            const auto a = triangle[i], b = triangle[j];
+            const Edge key{std::min(faces[slot][i], faces[slot][j]), std::max(faces[slot][i], faces[slot][j])};
+            if (!std::isfinite(error)) continue;
+            const long double excess = static_cast<long double>(error) - allowed;
+            const long double x = static_cast<long double>(b.x) - a.x, y = static_cast<long double>(b.y) - a.y,
+                              z = static_cast<long double>(b.z) - a.z;
+            // Queue current geometry demand; the selected complete star owns projection and progress validation.
+            if (surface_planning)
+              geometry_scores[key] += excess * excess * (x * x + y * y + z * z) * law_weights.factors[face_edge];
+            else
+              geometry_scores[key] += excess * excess * (x * x + y * y + z * z);
+          }
       }
     }
     if(!d.geometry_measured)d.geometry=0;
@@ -1447,6 +1481,31 @@ struct RepairProposal {
 #include "native_engine3d/EngineTrial.cpp"
 #include "native_engine3d/EngineReports.cpp"
 
+// Read-only old-state footprint; never participates in publication or acceptance.
+bool WallLinkLocal(const Patch& old, const BoundaryParameterState* parameters, const Selection& selection,
+                   const Owned& working) {
+  if (!parameters) return old.surface.empty();
+  std::set<Id> vertices;
+  for (const auto& face : old.surface) vertices.insert(face.v.begin(), face.v.end());
+  for (const auto vertex : vertices) {
+    const auto incident = parameters->FacesOnVertex(vertex);
+    for (auto face = incident.first; face != incident.second; ++face) {
+      bool local = false;
+      const auto star = selection.vertex_cells.find(vertex);
+      if (star != selection.vertex_cells.end())
+        for (const auto cell : star->second) {
+          const auto row = working.find(cell);
+          if (row == working.end()) continue;
+          const auto faces = Faces(row->second.cell);
+          for (size_t slot = 0; slot < 4; ++slot)
+            local = local || (row->second.physical[slot].present && Key(faces[slot]) == face->second);
+        }
+      if (!local) return false;
+    }
+  }
+  return true;
+}
+
 EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorCell>& original,
                    const PlanarReference& accepted_geometry, MetricComposition composition, EngineOptions options, MetricChange intent, bool bidirectional=false,
                    BoundaryMetric surface_target={}) {
@@ -1542,7 +1601,6 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
   auto& control = context.control;
   if (options.timings)
     PrintAdaptationRequirements(MakeAdaptationRequirements(geometry, bool(composition), options), world.rank, std::cout);
-  PrintWallLawCensus(accepted, geometry, options.surface_tolerance, world.rank, "entry", options.timings);
   ContextValue parameter_setup_lifetime(
       control.parameter_setup, options.timings ? std::chrono::duration<double>(Clock::now() - started).count() : 0);
   const auto& parameter_setup = parameter_setup_lifetime.Get();
@@ -1580,7 +1638,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
   auto& working = working_lifetime.Get();
   ContextValue selection_lifetime(context.census.selection, coarsening, repairing, geometry, stats,
                                   options.timings, options.surface_tolerance, options.wall_heights,
-                                  bidirectional, bool(surface_target));
+                                  bidirectional, bool(surface_target), &wall_counters);
   auto& selection = selection_lifetime.Get();
   selection.split_lanes=bidirectional;
   ContextValue construction_claims_lifetime(context.exchange.construction_claims, bidirectional);
@@ -3116,7 +3174,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     if(!proceed){stats.ownership_seconds+=world.seconds()-transition_started;return true;}
     if (options.timings) ReportOwnershipMemory(world, "before");
     Owned pending;std::vector<Id> pending_initial;std::unique_ptr<Directory> pending_directory;
-    Selection pending_selection(coarsening,repairing,geometry,stats,options.timings,options.surface_tolerance,options.wall_heights,bidirectional,bool(surface_target));
+    Selection pending_selection(coarsening,repairing,geometry,stats,options.timings,options.surface_tolerance,options.wall_heights,bidirectional,bool(surface_target), &wall_counters);
     pending_selection.split_lanes=selection.split_lanes;pending_selection.lane=selection.lane;
     pending_selection.size_repairs=selection.size_repairs;pending_selection.geometry_repairs=selection.geometry_repairs;
     pending_selection.track_repairs=selection.track_repairs;pending_selection.repair_event=selection.repair_event;
@@ -4793,13 +4851,18 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
           if(n.id>=maximum_node+2+node_offset && n.id<maximum_node+1+node_offset+construction_nodes && !previous.count(n.id))ids.insert(n.id);
         return ids.size();
       };
-      auto validate_private=[&](bool candidate,MetricChange kind,bool no_new_oversized=false,bool strict_size=false,size_t relocated=0) {
+      auto validate_private=[&](bool candidate,MetricChange kind,bool no_new_oversized=false,bool strict_size=false,size_t relocated=0,
+                                  wall_diagnostics::PatchSource source=wall_diagnostics::PatchSource::Unreported,
+                                  bool required_split=false) {
+        const bool source_available=bool(surface_target) && !repairing && !coarsening && candidate;
+        const auto source_rejected_before=stats.geometry_guidance_rejected;
         SU2NativeTiming3D::Scope candidate_timer(SU2NativeTiming3D::Operation::Candidate);
         const bool completed=concurrent && approved && !candidate;
         const auto retained=certified;
         certified={};
         const bool merit_first=!surface_target && bidirectional && repairing && kind==MetricChange::Repair && !selection.geometry_repairs;
-        if(!merit_first)candidate=geometric_change(candidate,selection.geometry_repairs?MetricChange::GeometryRepair:kind);
+        if(required_split)geometric_progress=false;
+        if(!merit_first && !required_split)candidate=geometric_change(candidate,selection.geometry_repairs?MetricChange::GeometryRepair:kind);
         PatchMetric metric;
         const std::vector<Cell> empty;
         bool measured=measure_private(candidate ? fresh.cells : empty,metric,true,before.edges,&fresh);
@@ -4828,7 +4891,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
             valid=EngineTrial::MetricTrial(context, valid,certified,effective,geometric_progress);
           }
         }
-        if(valid && merit_first)valid=geometric_change(true,repair_kind());
+        if(valid && merit_first && !required_split)valid=geometric_change(true,repair_kind());
         if(valid && selection.geometry_repairs)valid=EngineTrial::HeightCheck(context, fresh,result.reason);
         // The initial streaming probe precedes repair proposals; it is not an operator failure.
         if(chosen && !valid && !completed && (!repairing || last_geometry_operation)) {
@@ -4853,9 +4916,31 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
         if(observe_rejections || (!repairing && !coarsening))ready=context.exchange.Vote(context, observed);
         if(completed)certified=retained;
         if(repairing&&valid)fresh_flags=measured_flags;
+        wall_counters.ObserveSource(source,source_available,stats.geometry_guidance_rejected>source_rejected_before,valid);
         return valid;
       };
-      approved=validate_private(metric_needed && old_measured && approved,choice.geometric ? MetricChange::GeometryRefine : construction_kind);
+      bool required_split = false, checked_split = false;
+      if (surface_target && curved && !coarsening && !repairing && choice.geometric && approved) {
+        const Node* bound_point = nullptr;
+        for (const auto& cell : fresh.cells)
+          for (const auto& node : cell.v)
+            if (node.id == point.id) bound_point = &node;
+        if (bound_point) {
+          required_split = SplitPointLiftRequiresSplit(point.p, bound_point->p, options.surface_tolerance);
+          checked_split = !required_split;
+          wall_counters.ObservePrimarySplit(required_split);
+        }
+      }
+      const auto primary_guidance_rejected = stats.geometry_guidance_rejected;
+      approved = validate_private(metric_needed && old_measured && approved,
+                                  choice.geometric ? MetricChange::GeometryRefine : construction_kind, false, false, 0,
+                                  wall_diagnostics::PatchSource::Primary, required_split);
+      if (options.timings) {
+        lane_slots[slot].required_primary_split = required_split && approved;
+        lane_slots[slot].checked_primary_split = checked_split && approved;
+        wall_counters.ObserveCheckedRejection(checked_split &&
+                                              stats.geometry_guidance_rejected > primary_guidance_rejected);
+      }
       if (!approved) cavity_inserted=false;
       if (!ready) return false;
       const bool boundary_edge=std::any_of(old.surface.begin(),old.surface.end(),[&](const auto& f) {
@@ -5429,11 +5514,21 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
           // including refitted wall splits; it is not an unconditional size-progress exemption.
           const bool split_refit=compound_refit && !choice.geometric &&
               GetRefineAcceptance()==RefineAcceptance::SplitInsertion;
-          auto validate_joint=[&](bool available){return split_refit ? validate_private(available,MetricChange::Refine,false,false,
-              available ? reserved_relocations() : 0) :
-              validate_private(available,compound_refit?MetricChange::Refine:
-              choice.geometric?MetricChange::GeometryRefine:MetricChange::Refine,false,compound_refit && !choice.geometric);};
-          bool passed=validate_joint(candidate);
+          auto validate_joint = [&](bool available,
+                                    wall_diagnostics::PatchSource source = wall_diagnostics::PatchSource::Unreported) {
+            return split_refit ? validate_private(available, MetricChange::Refine, false, false,
+                                                  available ? reserved_relocations() : 0, source)
+                               : validate_private(available,
+                                                  compound_refit     ? MetricChange::Refine
+                                                  : choice.geometric ? MetricChange::GeometryRefine
+                                                                     : MetricChange::Refine,
+                                                  false, compound_refit && !choice.geometric, 0, source);
+          };
+          const auto source = retained_frame && frame < retained_frames
+                                  ? (frame == 0 ? wall_diagnostics::PatchSource::RefitWallSplit
+                                                : wall_diagnostics::PatchSource::ReconstructWallSplit)
+                                  : wall_diagnostics::PatchSource::ReconstructSplitPatch;
+          bool passed = validate_joint(candidate, source);
           if(!ready)return false;
           const bool missing_closure=participating && retained_frame && frame<retained_frames && wallSplit && !candidate &&
               (compound_refit?refit_obstruction.count>0:obstruction!=Face{});
@@ -6082,6 +6177,10 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
           construction_generation_changed=construction_generation_changed || !repairing;
           ++stats.accepted;
           wall_counters.Accepted();
+          if(!repairing && !coarsening)wall_counters.ObserveSplit(choice.geometric);
+          if(options.timings && lane_slots[slot].required_primary_split)
+            wall_counters.AcceptRequiredSplit(old,fresh,choice.edge,point.id);
+          if(options.timings && lane_slots[slot].checked_primary_split)wall_counters.AcceptCheckedSplit();
           if (options.timings)
             lane_counters.Commit(false, lane_slots[slot], !surface_edit, parameter_edits.empty(),
                                  fresh.coverage.faces.empty() && fresh.coverage.traces.empty());
@@ -6246,9 +6345,23 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
             if(proposal.approved) {
               if(geometry.Mapped()) {
                 auto edits=BoundaryParameterState::Changes(proposal.old,proposal.fresh,geometry.Parameters()->Revision());
-                if (options.timings)
-                  lane_slots[&proposal - repair_proposals.data()].no_parameter_edits = edits.empty();
-                parameter_edits.insert(parameter_edits.end(),edits.begin(),edits.end());
+                if (options.timings) {
+                  auto& lane_slot = lane_slots[&proposal - repair_proposals.data()];
+                  lane_slot.no_parameter_edits = edits.empty();
+                  if (lane_slot.category == 1)
+                    lane_census::DescribeWall(
+                        lane_slot, proposal.old, proposal.fresh, edits, SameSkin(proposal.old, proposal.fresh),
+                        proposal.fresh.coverage.faces.empty() && proposal.fresh.coverage.traces.empty(),
+                        WallLinkLocal(proposal.old, geometry.Parameters(), selection, working), proposal.ladder);
+                }
+                parameter_edits.insert(parameter_edits.end(), edits.begin(), edits.end());
+              } else if (options.timings) {
+                auto& lane_slot = lane_slots[&proposal - repair_proposals.data()];
+                if (lane_slot.category == 1)
+                  lane_census::DescribeWall(
+                      lane_slot, proposal.old, proposal.fresh, {}, SameSkin(proposal.old, proposal.fresh),
+                      proposal.fresh.coverage.faces.empty() && proposal.fresh.coverage.traces.empty(),
+                      WallLinkLocal(proposal.old, geometry.Parameters(), selection, working), proposal.ladder);
               }
               for(const auto& face:proposal.fresh.coverage.faces)if(!coverage.faces.emplace(face).second)
                 throw std::runtime_error("Native3D private repairs share a boundary coverage face.");
@@ -6354,9 +6467,11 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
             ++stats.quality.commits;
             if (options.timings) {
               const auto& lane_slot = lane_slots[&proposal - repair_proposals.data()];
-              lane_counters.Commit(true, lane_slot, SameSkin(proposal.old, proposal.fresh),
+              lane_counters.Commit(true, lane_slot,
+                                   lane_slot.wall.described ? lane_slot.wall.same_skin : SameSkin(proposal.old,proposal.fresh),
                                    lane_slot.no_parameter_edits,
                                    proposal.fresh.coverage.faces.empty() && proposal.fresh.coverage.traces.empty());
+              lane_counters.CommitWall(true,lane_slot);
             }
             if(!surface_target)AccountQualityChurn(proposal.old,proposal.fresh,proposal.old_flags,proposal.fresh_flags,stats.quality);
             if(proposal.ladder<3) {

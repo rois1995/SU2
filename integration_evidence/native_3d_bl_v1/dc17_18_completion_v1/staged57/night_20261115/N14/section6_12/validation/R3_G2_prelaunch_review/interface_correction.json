@@ -1,0 +1,15 @@
+{
+  "numerical_run_launched": false,
+  "production_or_gate_changed": false,
+  "causes": [
+    "Inherited controller requires build552/read_json verifier interface, not exposed by new validator alias.",
+    "Inherited validate API takes (gate,case); implementation takes (case,gate).",
+    "Controller summary references N1_COLLAPSE/N1_FULL names; bind these to actual fresh536 refs.",
+    "Controller provenance expects run_g2_gq_prefix.py alias and GROUP sourcecheck; bind actual new wrapper and N14 sourcecheck."
+  ],
+  "corrections": [
+    "Reuse unchanged existing full build verifier with BUILD552, expose read_json and correct adapter signature/reference names.",
+    "Create validation-local source alias and bind GROUP to N14section sourcecheck."
+  ],
+  "no_candidate_run": true
+}

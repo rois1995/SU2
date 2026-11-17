@@ -1,0 +1,88 @@
+{
+  "schema": "n14_section6_12_validation_helper_setup_v1",
+  "scope": "G1 and G2/GQ only; no G3/full/restart",
+  "production_or_existing_pinned_helper_edited": false,
+  "build_or_numerical_run_launched_by_helper_author": false,
+  "build552": {
+    "state": "terminal_pass_from_primary",
+    "exit_code": 0,
+    "seconds": 120.173935,
+    "source_pin_count": 1775,
+    "primary_terminal_seal": "provided by primary; helper consumes validation/build552_* receipts"
+  },
+  "focused_units": {
+    "state": "passed_by_primary",
+    "cases": 12,
+    "assertions": 113,
+    "seconds": 4.862019
+  },
+  "self_checks": {
+    "run_g1_552": "passed; no launch; reference case record counts serial 375, mpi2 114, mpi4 228",
+    "run_g2_gq_prefix_552": "passed; no launch; dynamic N4 prefix wiring resolves build552 and helper paths",
+    "validate_g2_gq_552": "passed; synthetic two-sided census deltas and actual GQ truncation check passed"
+  },
+  "g1": {
+    "reference_root": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N4/section6_3_after_N11/reference_validation",
+    "fixed_cohorts": {
+      "serial": 375,
+      "mpi2": 114,
+      "mpi4": 228
+    },
+    "wall_allowlist": [
+      "Requested-wall preparation uses construction ownership without claiming final quality",
+      "Complete wall demand precedes a feasible optional collapse",
+      "Known early wall debt does not wait for the complete entry census",
+      "Idle surface census advances without draining ahead of an active round",
+      "Surface preparation closes requested-wall coverage without certifying unrelated volume",
+      "DC-14 FIRST_ROW entry: two wall markers, two symmetry planes, fresh event then halving event"
+    ],
+    "reporter_success_counts": "observations only; no gate based on aggregate successful assertions",
+    "serial_launch_command": "python3 /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N14/section6_12/validation/run_g1_552.py --cohort serial",
+    "serial_preflight": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N14/section6_12/validation/G1_serial_host_preflight.json"
+  },
+  "g2_gq": {
+    "reference_root": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N4/section6_3_after_N11/reference_prefix_preparation/cases",
+    "G2": "fresh G2_reference536; exact collapse work 90809869 and counts 480/473/346/263/469/464, zero upper refinements",
+    "GQ": "fresh GQ_reference536; third NATIVE3D_QUALITY stage=window anchor for all six ranks, including G2 prefix",
+    "comparison": "all old integer rows strict; only census.calls adjustment equals candidate minus reference WALL_LAW rows per rank and timer boundary; fixedstorage remains 4120",
+    "commands": [
+      "python3 /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N14/section6_12/validation/run_g2_gq_prefix_552.py --gate G2 --case-name n14_g2_candidate",
+      "python3 /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N14/section6_12/validation/run_g2_gq_prefix_552.py --gate GQ --case-name n14_gq_candidate"
+    ]
+  },
+  "helpers_sha256": {
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N14/section6_12/validation/run_g1_552.py": "e88f5c12452bf9d6250b20ffc387a1631a2a6b94748a2d9febfb02ab57c74a57",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N14/section6_12/validation/run_g2_gq_prefix_552.py": "87c93b4fa284e01b144db6a43803d6700160a1d0e3dd88ffc6eb109ddebdae9c",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N14/section6_12/validation/validate_g2_gq.py": "7c6fd950235d55e5423268641ec840653f7bacb46d25acb6f95783b4dc6fb6a8",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N14/section6_12/validation/validate_g2_gq_552.py": "091427658a7ea318a9de0166ed7ccf5b7b1214d11cad66213a9fb2a93e7bde91"
+  },
+  "input_sha256": {
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N14/section6_12/inputs/NIGHT_WORK_ORDER.md": "0c446a618cda84b707a66d27551bdd8344db1166206811ee3fa84c0ec9432464",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N14/section6_12/source_check.md": "f5533493cb21c623f9d0963567a7e6357ae679f70bd1d7905909f167249a1638",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N4/section6_3_after_N11/reference_validation/G1_shared_reference_manifest.json": "43456dfb82ddbcadf05889260d7bc700718b3159832272fad0e3049403819464",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N4/section6_3_after_N11/reference_validation/G1_candidate_serial.json": "c72924c738c08d0423fdd3a44bc235d2b575a44c6df170571a9be5991baf598a",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N4/section6_3_after_N11/reference_validation/G1_candidate_mpi2.json": "f65836f35f01b033a62e988ddfba7a9bac191ab620455fad52b39ab6df3048ce",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N4/section6_3_after_N11/reference_validation/G1_candidate_mpi4.json": "47846e04eeac098c05a0e4ac4ae135f197ea95789c6be52e12463ec01e1df62b",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N4/section6_3_after_N11/reference_prefix_preparation/cases/G2_reference536/provenance.json": "cd91122a81094ff884bcefacd6b300e8a1beb5ad792c2db5e0a5dad875ed4852",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N4/section6_3_after_N11/reference_prefix_preparation/cases/GQ_reference536/provenance.json": "18bec307dc396217daef1cedbc8742d82f0bd207df5e0827239501cd0afefa7d",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N11/section6_8_preparation/drafts/compare_timer_census_delta_69.py": "4bb1d3fb92d533d78bf63a4acab90017d066d09995e1ab20c88e9a2c613f5fb9",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N14/section6_12/validation/build552_status.json": "368a99bdf4e39baa6cb2430ba323dbc6dd3ea31039d0751b720d88353ef9c3e1",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N14/section6_12/validation/build552_source_pins.json": "6b9cae2afbf5e827dd7d2f4eea95d918449020b1ad346e0e38d80e7aaac8971f",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N14/section6_12/validation/build552_terminal_handles.json": "ed601c87553d89b3c163621b1245d0b1db701d2059e6e94531079f84820ff81f"
+  },
+  "corrections": [
+    {
+      "cause": "The first inherited G1 self-check assumed the older N10 reference manifest state; the selected P fresh536 manifest uses a different state label and filenames.",
+      "correction": "G1 helper now validates the fresh536 manifest/build tag directly, checks fixed case counts and compares reports to themselves before launch."
+    },
+    {
+      "cause": "Initial candidate root calculation for G1 was one parent too shallow.",
+      "correction": "REPO is bound to STAGED.parents[3], matching the established runner depth."
+    },
+    {
+      "cause": "The inherited N11 cohort labels and reference report filenames do not match build552 and P fresh536.",
+      "correction": "The new wrapper binds the test runner to build552 and creates new validation-local symlink aliases to the immutable fresh536 report files; it pins the wrapper and reference targets in per-cohort readiness receipts."
+    }
+  ],
+  "pending": "No G1 cohort or G2/GQ prefix candidate has been launched by this helper. Primary owns actual-host preflight and the ordered launch."
+}

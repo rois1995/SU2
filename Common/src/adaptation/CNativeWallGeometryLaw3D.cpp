@@ -104,4 +104,30 @@ bool EstimateSaysNeed(const WallEdgeEstimate& estimate, double tau) {
   return estimate.supported && estimate.value > .75 * tau;
 }
 
+// A face retaining an edge whose projected split point lifts above tolerance cannot pass.
+// Its required split must retain all validity guards without a summed-excess progress veto.
+bool SplitPointLiftRequiresSplit(const Point& chord_point, const Point& wall_point, double tolerance) {
+  const long double x = static_cast<long double>(wall_point.x) - chord_point.x;
+  const long double y = static_cast<long double>(wall_point.y) - chord_point.y;
+  const long double z = static_cast<long double>(wall_point.z) - chord_point.z;
+  const long double tau = tolerance;
+  return x * x + y * y + z * z > tau * tau;
+}
+
+WallFaceWeights WallFaceEdgeWeights(const std::array<WallEdgeEstimate, 3>& estimates) {
+  double maximum = 0;
+  for (const auto& estimate : estimates) {
+    if (!estimate.supported) return {};
+    maximum = std::max(maximum, estimate.value);
+  }
+  if (maximum == 0) return {};
+  WallFaceWeights result;
+  result.weighted = true;
+  for (size_t i = 0; i < estimates.size(); ++i) {
+    const long double ratio = static_cast<long double>(estimates[i].value) / maximum;
+    result.factors[i] = ratio * ratio;
+  }
+  return result;
+}
+
 }  // namespace SU2Native3D
