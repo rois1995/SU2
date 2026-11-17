@@ -1,0 +1,31 @@
+{
+  "state": "running",
+  "host": {
+    "hostname": "pc-rausa",
+    "boot_id": "c2e658c2-00e7-4daf-8942-349c59218707",
+    "procfs_pid1": true,
+    "loadavg": "5.33 7.32 6.15 1/3496 3256783",
+    "mem_available_kib": 39532924,
+    "mem_available_mib": 38606
+  },
+  "root": {
+    "pid": 3256770,
+    "state": "R",
+    "ppid": 3256657,
+    "start_ticks": 40652590,
+    "name": "ldd"
+  },
+  "observed_processes": [
+    {
+      "pid": 3256770,
+      "state": "Z",
+      "ppid": 3256657,
+      "start_ticks": 40652590,
+      "name": "ldd"
+    }
+  ],
+  "peak_sampled_tree_rss_bytes": 0,
+  "peak_hwm_by_pid_start_ticks": {
+    "3256770:40652590": 0
+  }
+}

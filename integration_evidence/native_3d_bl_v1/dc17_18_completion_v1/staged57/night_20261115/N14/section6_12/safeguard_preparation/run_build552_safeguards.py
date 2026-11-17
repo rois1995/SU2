@@ -241,6 +241,8 @@ def install_run_monitor(binary):
 
         def poll(self):
             code = self._process.poll()
+            if code is None:
+                self._record(False)
             if code is not None:
                 result = self._record(True)
                 assert not result["live_owned_descendants"], result["live_owned_descendants"]
@@ -255,7 +257,7 @@ def install_run_monitor(binary):
         argv = args[0] if args else kwargs.get("args")
         process = original(*args, **kwargs)
         arguments = [str(item) for item in argv] if isinstance(argv, (list, tuple)) else [str(argv)]
-        if binary in arguments:
+        if binary in arguments and arguments[0] != "ldd":
             cwd = Path(kwargs.get("cwd", HERE)).resolve()
             return MonitoredProcess(process, cwd / "safeguard_process_receipt.json", time.monotonic())
         return process
@@ -385,7 +387,7 @@ def execute_action(mode):
         if code:
             raise
     finally:
-        restore_run_monitor(original_popen)
+        subprocess.Popen = original_popen
         if lock_path.exists():
             lock_path.unlink()
     receipts = sorted((HERE / "cases").glob("*/safeguard_process_receipt.json"),
