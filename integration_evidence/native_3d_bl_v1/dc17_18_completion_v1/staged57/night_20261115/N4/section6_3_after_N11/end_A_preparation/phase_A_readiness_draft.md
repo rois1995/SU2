@@ -1,6 +1,6 @@
 # Phase-A readiness and function-length draft
 
-**State:** readiness draft only. G3 is live (session 41877); this is not a phase-A completion report. No source, pin, or helper was modified, and no build or launch was performed for this report. G3/G4/GQ/G5 remain unevaluated or in progress as applicable. Phase A is not complete until the candidate build has passed its required gates on the same frozen source, including G1, G2, G3, G4, GQ, and G5, and the final function-length accounting is reviewed.
+**State:** readiness draft only. G3/G4/GQ have passed; G5 is live (session30519); this is not a phase-A completion report. No source, pin, or helper was modified, and no build or launch was performed for this report. G5 and the required isolated restart remain unevaluated or in progress as applicable. Phase A is not complete until the candidate build has passed its required gates on the same frozen source, including G1, G2, G3, G4, GQ, and G5, and the final function-length accounting is reviewed.
 
 ## Function boundaries
 
@@ -104,7 +104,7 @@ The combined ranking contains ten definitions, including the three-way49-line ti
 
 ## Preserved source-check findings
 
-The frozen whole-item findings in `N4/section6_3_after_N11/source_check.md` remain the governing list; this report does not open another source-review loop. The preserved behavior findings are: acquisition can throw outside its existing catch region; `import_source` ignores its `requests` argument; receipt sort ties retain input-order dependence; callback presence is not guaranteed symmetric across ranks; retained prepared geometry can change later partition weights; and private collective accounting reads World counters but does not observe direct `Allreduce` calls. These agree with the cut findings in `Handbook/ADAPTATION_ADAPT_CUT_20261115.md` (the handbook lists the first five). They are existing behavior to preserve, not new fixes.
+The frozen whole-item findings in `N4/section6_3_after_N11/source_check.md` remain the governing list; this report does not open another source-review loop. The preserved behavior findings are: acquisition can throw outside its existing catch region; `import_source` ignores its `requests` argument; receipt sort ties retain input-order dependence; callback presence is not guaranteed symmetric across ranks; retained prepared geometry can change later partition weights; and private collective accounting reads World counters but does not observe direct `Allreduce` calls. These agree with the current cut ledger in `Handbook/ADAPTATION_ADAPT_CUT_20261115.md`; its superseded historical list is archived. They are existing behavior to preserve, not new fixes.
 
 **Written length exception:** `EngineLegacyWall` remains the explicit C exception above 80 lines. No other new exception is authorized; the three growth copies remain separate. New functions still follow the 80-line bound and new lambdas the 15-line bound.
 
@@ -114,7 +114,7 @@ The report is based on these current file hashes:
 
 - `Common/src/adaptation/CNativeEngine3D.cpp`: `dd97c5e2cb75789b1c35934a6fc3851ba297303a25510df5deceaba65efaf66f`
 - `N4/section6_3_after_N11/source_check.md`: `3fff8559d3f67b42c1314f2388fb8ba9d510fa064e625f53ef99df0d7f17f8a1`
-- `Handbook/ADAPTATION_ADAPT_CUT_20261115.md`: `1335243e28043797a524bee6ac982cd28d7923acb54b7d1855e861414ca35657`
+- `Handbook/ADAPTATION_ADAPT_CUT_20261115.md`: `8ebc74317348c007f284fa2aee250fd049c75d52ed94c21984542ee791f07384`
 - `N4/section6_3_after_N11/A4/format_dry_run.json`: `7d5ed36923c374a3db2b7592c32619ea38593c983f6e60e9cd366b51046e472e`
 
 Current hashes of all files in `Common/src/adaptation/native_engine3d`:

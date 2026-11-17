@@ -1,11 +1,11 @@
 {
-  "state": "phase_A_G3_G4_passed_GQ_running",
+  "state": "phase_A_GQ_passed_G5_full_running",
   "case": "reference_validation/cases/N8_G1_candidate_serial_20261116T225219_1400489",
   "baseline_build": "build536",
   "baseline_binary_identical_accepted534": true,
   "whole_source_check": "source_check.md",
   "first_cut_production_edit_started": true,
-  "next": "finishsameGQ thenG5full+isolatedrestart once",
+  "next": "finishsameG5; thenisolatedrestart; phaseAreport/checkpoint beforeB1",
   "G1_passed": true,
   "no_cut_production_edits": false,
   "G2_passed": true,
@@ -30,14 +30,15 @@
   "A2_passed_scoped": true,
   "A2_commit": "5880ce9cf1",
   "no_owned_job": false,
-  "current_substep": "phase_A_GQ",
-  "current_state": "GQ_RUNNING",
+  "current_substep": "phase_A_G5",
+  "current_state": "G5_FULL_RUNNING",
   "current_build": 545,
   "last_passed_substep_commit": "423dd23794",
   "last_full_workflow_qualified_commit": "f8c7b01085",
   "owned_job": {
-    "exec_session": 20498,
-    "launch_identity": "A4/GQ_primary_launch_identity.json"
+    "exec_session": 30519,
+    "launch_identity": "candidate_full_preparation/G5_primary_launch_identity.json",
+    "case": "candidate_full_preparation/full_workflow"
   },
   "last_scoped_acceptance": "A4/acceptance_summary.json"
 }

@@ -1,0 +1,49 @@
+{
+  "passed": true,
+  "gate": "phase_A_GQ",
+  "candidate_build": 545,
+  "production_checkpoint": "423dd23794",
+  "case": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N4/section6_3_after_N11/candidate_prefix_preparation/cases/phase_A_GQ_545",
+  "seconds_until_stop": 1228.127955397009,
+  "seconds_total": 1236.2532163519645,
+  "strict_comparison": {
+    "gate": "GQ",
+    "passed": true,
+    "comparison": {
+      "passed": true,
+      "gate": "GQ",
+      "integer_rows": {
+        "passed": true,
+        "first_difference": null,
+        "streams": [
+          "rank_output/1/rank.0/stdout",
+          "rank_output/1/rank.1/stdout",
+          "rank_output/1/rank.2/stdout",
+          "rank_output/1/rank.3/stdout",
+          "rank_output/1/rank.4/stdout",
+          "rank_output/1/rank.5/stdout"
+        ]
+      },
+      "timer_rows": {
+        "passed": true,
+        "timer_snapshots": 18,
+        "wall_law_lines_by_physical_stream": {
+          "rank_output/1/rank.0/stdout": 1,
+          "rank_output/1/rank.1/stdout": 1,
+          "rank_output/1/rank.2/stdout": 1,
+          "rank_output/1/rank.3/stdout": 1,
+          "rank_output/1/rank.4/stdout": 1,
+          "rank_output/1/rank.5/stdout": 1
+        },
+        "rule": "strict per-row timer fields/calls and exact wall-law line counts; only timing values excluded"
+      },
+      "comparison_rule": "all old rows strict; every timer row and census call strict; no census allowance"
+    },
+    "comparator_sha256": "b4ca8efc8469140577f6c347248a24e85df41727e4134c9d860840b7e6c5990a"
+  },
+  "all_inputs_source_binary_helper_pins_unchanged": true,
+  "all_owned_handles_terminal": true,
+  "observed_prefix_hwm_sum_bytes": 14031200256,
+  "scope": "quality-window prefix, not whole-workflow P8 peak",
+  "G5_pending": true
+}
