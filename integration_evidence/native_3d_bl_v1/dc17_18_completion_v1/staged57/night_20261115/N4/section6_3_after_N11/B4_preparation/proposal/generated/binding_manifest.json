@@ -1,0 +1,148 @@
+{
+  "unapplied": true,
+  "base": {
+    "CNativeEngine3D.cpp": "806e13eccc41df3a6e19602b38e1297dc8b9852fd4a6a8804af7a8b67d4d80e5",
+    "EngineQueues.hpp": "359d3ef321fa1a6d2722f9ad4fe1667d970f031c5c51c6a1266510b580fc5a55",
+    "EngineQueues.cpp": "701f2fe570f59a2d289611f504ca59205cdc14fe98e67855dc50fea301c784e5"
+  },
+  "proposed_sha256": {
+    "CNativeEngine3D.cpp": "6149e2cb2de3af25feefefdf056ce1c2b4aa75aa6170029348d4eedbffde5b0a",
+    "EngineQueues.hpp": "33a19869f3dd940ea25bc0c7f0c6171d81502a744c387eb8cf8d3b2d8e5e2813",
+    "EngineQueues.cpp": "09054e196800b3307630c728173c74ca898ad89debd3bfb5d2a551893aaf9661"
+  },
+  "whole_main_file_byte_reversal": true,
+  "removed_lambdas": [
+    {
+      "name": "coalesce",
+      "start": 105850,
+      "end": 109819,
+      "body_token_sha256": "144be31dad243342c3d42e3c5836585c3698692b690736b13745027744a73480"
+    },
+    {
+      "name": "service_frontier",
+      "start": 109819,
+      "end": 113537,
+      "body_token_sha256": "1967462c01f8a4dc25169e8296847c4163c25b417e8016dc37717ce4487427ed"
+    }
+  ],
+  "call_replacements": {
+    "coalesce": 2,
+    "service_frontier": 7
+  },
+  "member_token_proofs": [
+    {
+      "lambda": "coalesce",
+      "members": [
+        "Coalesce",
+        "CoalesceOrder"
+      ],
+      "actual_removed_lambda_body_token_equal_after_inlining": true
+    },
+    {
+      "lambda": "service_frontier",
+      "members": [
+        "ServiceFrontier",
+        "ServiceReceipts"
+      ],
+      "actual_removed_lambda_body_token_equal_after_inlining": true
+    }
+  ],
+  "capture_binding_audit": {
+    "Coalesce": {
+      "bindings_and_types": [
+        "auto& world = context.world;",
+        "auto& options = context.options;",
+        "auto& source = *context.exchange.source;",
+        "auto& directory = *context.exchange.directory;",
+        "auto& result = *context.control.result;",
+        "auto& selection = *context.census.selection;",
+        "auto& repairing = *context.control.repairing;",
+        "auto& coarsening = *context.control.coarsening;",
+        "auto& composition = context.composition;",
+        "auto& bidirectional = context.bidirectional;"
+      ],
+      "parameters": [
+        "context",
+        "choices",
+        "curved"
+      ],
+      "translation_unit_constants": [
+        "MaximumCandidateBatch"
+      ],
+      "free_capture_names": [],
+      "unused_aliases": [],
+      "formatted_lines": 45
+    },
+    "CoalesceOrder": {
+      "bindings_and_types": [
+        "auto& world = context.world;",
+        "auto& stats = context.control.result->stats;",
+        "auto& repairing = *context.control.repairing;"
+      ],
+      "parameters": [
+        "context",
+        "choices",
+        "all",
+        "concurrent_refine",
+        "failure",
+        "feature"
+      ],
+      "translation_unit_constants": [
+        "MaximumCandidateBatch"
+      ],
+      "free_capture_names": [],
+      "unused_aliases": [],
+      "formatted_lines": 51
+    },
+    "ServiceFrontier": {
+      "bindings_and_types": [
+        "auto& world = context.world;",
+        "auto& options = context.options;",
+        "auto& source = *context.exchange.source;",
+        "auto& directory = *context.exchange.directory;",
+        "auto& result = *context.control.result;",
+        "auto& repairing = *context.control.repairing;",
+        "auto& coarsening = *context.control.coarsening;",
+        "auto& checkpoint = *context.control.checkpoint;"
+      ],
+      "parameters": [
+        "context",
+        "feature",
+        "active",
+        "accepted",
+        "extra",
+        "count",
+        "disposition"
+      ],
+      "translation_unit_constants": [
+        "MaximumCandidateBatch"
+      ],
+      "free_capture_names": [],
+      "unused_aliases": [],
+      "formatted_lines": 63
+    },
+    "ServiceReceipts": {
+      "bindings_and_types": [
+        "auto& world = context.world;",
+        "auto& selection = *context.census.selection;",
+        "auto& repairing = *context.control.repairing;",
+        "auto& checkpoint = *context.control.checkpoint;"
+      ],
+      "parameters": [
+        "context",
+        "receipts",
+        "certify_support",
+        "failure"
+      ],
+      "translation_unit_constants": [
+        "MaximumCandidateBatch"
+      ],
+      "free_capture_names": [],
+      "unused_aliases": [],
+      "formatted_lines": 33
+    }
+  },
+  "no_new_fields_or_payload_copies": true,
+  "compiled_or_run": false,
+  "rebind_required": "Regenerate against the post-B3 accepted source before any B4 edit."
+}

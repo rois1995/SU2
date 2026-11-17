@@ -2,9 +2,15 @@
 
 Updated 2026-11-17. Read the complete latest `NIGHT_WORK_ORDER.md` after every compaction, then this file.
 
-## Current boundary — B3 scoped G1/G2 PASSED; no owned job
+## Current boundary — B4 scoped G1/G2 PASSED; no owned job
 
-Build55370.160315s/fouractions/1776pins; G1serial780.160772s/375records(exec73792),MPI2 13.539927s/114(exec84011),MPI4 14.536724s/228(exec19606),allzerochangedcases. Each1990casepins/eightroothelpers andactualIDs6/7/9sealed. StrictG2PASSED317.640179s stop/325.481453s sealed(exec76843),work90,809,869/counts480/473/346/263/469/464/alloldinteger/model/timerrows exact;1776source/221input/19helperpins andalltenactualIDsverifiedterminal. PrefixHWMsum7,946,518,528B, notfullP8peak. Noownedjob. acceptance_summary.json B3_SCOPED_G1_G2_PASSED. Nextcommit/pushB3 thenB4rebind/apply/build554/G1/G2.
+B3 accepted/pushedce25219f04cb01285bfeb8b33dba1e6a3496782a. B4appliedthreepathsfromthatbase; actual_apply_receipt.json; bothactualremovedlambda/inlinedworkerproofs/mainbytereverse/optionalfieldidentity passed; fourmethodsmax63lines.
+
+Build554 PASSED70.160484s/fouractions/1777pins; exec17099/all13actualIDsterminal. CFDde6f81275bd99c4a32a1e0b20eb3786279c84b1c77e4af7df589c58d1ba3c988; test89aa6e4465f1711a1f72697b72211575902757cf84e11d0b9ed5be6cf99b85be.
+
+G1PASSEDserial765.089244s/375records(exec94742),MPI2 13.584711s/114(exec47927),MPI4 13.561882s/228(exec76666),zerochangedcases. Each1991casepins/eightroothelpers/actualIDs6/7/9sealedterminal. StrictG2PASSEDexec51753, stop317.442030s/seal325.206035s, work90,809,869/counts480/473/346/263/469/464, alloldinteger/model/per-rowtimer calls exact, zeroCensusdelta.1777source/221input/19helperpins andtenactualIDsverifiedterminal. PrefixHWMsum6,057,889,792B, notfullP8peak. acceptance_summary.json B4_SCOPED_G1_G2_PASSED. Noownedheavyjob. Nextcommit/pushB4thenB5finaldraftreview/rebind/apply/build555/G1/G2.
+
+B4R3ownmaterializationrepair preserved beforeanytest/CFDlaunch; allG1/G2prelaunchstubspassed. No resultgatefailure or numericalrepeat. B3numbers/receipts preserved underB3/.
 
 N14/N15 qualification PASSED and PUSHED **0c2cb5c460a5e01c5dde1564c96d209f457e8fa8**. Full4738.250709s/6payloads EXACT/allstandinggates; isolated restart236.822017s/168797points855828cells/coordinate0/positivefinitechangedfields; M26both6ranks/48prepare rows each/96fixedstorage4120summaries/class sums=commits22278/13622. All actual552/full/restart handles were sealed before B3 edits. Exact552binaries preserved locally (not Git). Accepted references adopted without numerical rerun; successor_reference_selection.json names552G1/G2/GQ and firstN14G3. G1wallchangedcasesNONE.
 
@@ -55,10 +61,11 @@ Required/checked counts reconcile: first731 required accepted +33 checked accept
 
 ## Next ordered actions
 
-1. Commit/push passed B3 checkpoint (acceptance_summary.json binds receipts). No owned job runs.
-2. B4 Queues rebind/review generator to accepted B3; apply connectedthreepaths, build554, G1serial/MPI2/MPI4, strictG2, commit/push.
-3. B5 Reports/finish, B6 Ownership, B7 Control, B8 Setup, each scopedG1/G2 thencommit/push. Drafts and inventories are unapplied; rebindsource/callinterfaces at each prior acceptedcut. Preserveeverycollective/container/RAII/timer order, allnewmethods<=80.
-4. End-B G3/G4/GQ using adopted552refs andfirstN14G3commonedits;>=336splits/allotherphysicalgates. Thencommit/push, updateprogress/HANDOFF, verifyNOownedjob, writeterminalhandles, STOPWAITUSER. Do notstartphaseC. R5failurestopafterrequiredrevertcommit/push.
+1. Commit/push B4 passed checkpoint. No owned job runs.
+2. B5 Reports/finish: finaldraftunderB5_preparation/proposal againstimmutablece252. Rootreviewfounddraftbindingdefects (resultalias, conststartedparams, void/boolNotify, missingphasealias, duplicatedtimingsguard, fullfilemerge/includes/format/actuallinecounts). Agentcheap_draft_reviewcorrectingall, notyetready/applied. Requirefinalfull5-fileproposalproofs/bindingaudit/<=80methods; rebindtosuccessfulB4main6149e2aftercommit. Build555 thenG1serial/MPI2/MPI4 thenstrictG2,commit/push.
+3. B6Ownership remainsINCOMPLETEunapplied; noactualsplitC++orproof. Prioragentcouldnotsupplyit. Rootdesignedtailhelperchain preservingearlierlocals/sharedCLfailure byref throughEstimate/Migrate/Certificates/Restore/Finalize; mustimplement/reviewafterB5. B7actualunapplied9-methoddraft exists, sixactualbodyproofs/mainreversal/<=68lines. Rootfoundnestedunresolvedbegin_length_generation; agentfixedtoBeginLengthGeneration(context,false) andupdatedinverseproofagainstce252. RebindafterB6andfinalControlobserverinterface.
+4. B8Setup partialunappliedonlyS17/S18methods/reversal; S10–S15stillmissing. Readcontinuation/lifetimeaudit underB8_preparation/proposal, rootmustfinishwholeB8. No production/setupedit. EachB5–B8scopedG1/G2thencommit/push.
+5. End-BG3/G4/GQ usingadopted552/firstN14G3 commonedits,>=336splits/allotherphysicalgates. Commit/push, updateprogress/HANDOFF, verifyNOownedjob, writeterminalhandles, STOPWAITUSER. No phaseC. R5failurestopafterrequiredrevertcommit/push.
 
 ## Own-helper correction ledger (no production/gate/tolerance changes)
 

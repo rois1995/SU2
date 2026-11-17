@@ -1,0 +1,8 @@
+{
+  "unix": 1794925229.7319188,
+  "cause": "Copied an unused B3 historical reference_build convenience symlink whose target was nonexistent. Actual B3 inherited controller overrides BUILD_STATUS/SOURCE_PINS and never reads this alias; its passing receipts remain unchanged.",
+  "correction": "Materialize only required B4 runtime helpers/references and canonical prefix filename alias. Do not copy unused status/source_check/reference_build/reference_binaries convenience aliases. The patched controller uses GROUP/source_check and actual build554 paths.",
+  "numerical_launches": 0,
+  "build_repeats": 0,
+  "production_or_gate_changes": false
+}
