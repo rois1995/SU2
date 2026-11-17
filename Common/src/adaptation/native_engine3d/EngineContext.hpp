@@ -3,6 +3,7 @@
 #include "ContextValue.hpp"
 #include "EngineCensus.hpp"
 #include "EngineQueues.hpp"
+#include "EngineExchange.hpp"
 
 struct EngineControlPrefix {
   std::optional<EnginePhase> phase;
@@ -100,6 +101,7 @@ struct EngineContext {
   EngineControl control;
   EngineCensus census;
   EngineQueues queues;
+  EngineExchange exchange;
 
   EngineContext(EngineSetup&, World&, const Owned&, const std::vector<DonorCell>&, const PlanarReference&,
                 MetricComposition&, EngineOptions&, MetricChange&, bool&, BoundaryMetric&);

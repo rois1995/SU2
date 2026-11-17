@@ -1437,6 +1437,7 @@ struct RepairProposal {
 #include "native_engine3d/EngineSetup.cpp"
 #include "native_engine3d/EngineCensus.cpp"
 #include "native_engine3d/EngineQueues.cpp"
+#include "native_engine3d/EngineExchange.cpp"
 #include "native_engine3d/EngineContext.cpp"
 
 EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorCell>& original,
@@ -1574,7 +1575,8 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
                                   bidirectional, bool(surface_target));
   auto& selection = selection_lifetime.Get();
   selection.split_lanes=bidirectional;
-  bool construction_claims=bidirectional;
+  ContextValue construction_claims_lifetime(context.exchange.construction_claims, bidirectional);
+  auto& construction_claims = construction_claims_lifetime.Get();
   ContextValue edge_progress_lifetime(context.census.edge_progress);
   auto& edge_progress = edge_progress_lifetime.Get();
   ContextValue edge_census_round_lifetime(context.census.edge_census_round, UINT64_MAX);
@@ -1600,11 +1602,15 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
   selection.track_splits=bool(composition) || curved;
   // Every adaptation can enter quality improvement; rejected repair support must be invalidated
   // even for flat, uncomposed refinement/repair events.
-  auto directory=std::make_unique<Directory>(world,true,geometry.Parameters());
-  CavityMetricSource source(world,working,options.timings);
+  ContextValue directory_lifetime(context.exchange.directory,
+                                  std::make_unique<Directory>(world, true, geometry.Parameters()));
+  auto& directory = directory_lifetime.Get();
+  ContextValue source_lifetime(context.exchange.source, world, working, options.timings);
+  auto& source = source_lifetime.Get();
   ContextValue checkpoint_lifetime(control.checkpoint);
   auto& checkpoint = checkpoint_lifetime.Get();
-  DirectoryStats retired_directory;
+  ContextValue retired_directory_lifetime(context.exchange.retired_directory);
+  auto& retired_directory = retired_directory_lifetime.Get();
   auto retire_directory=[&](const DirectoryStats& old) {
     retired_directory.collision_seconds+=old.collision_seconds;
     retired_directory.collision_builds+=old.collision_builds;
@@ -1647,7 +1653,8 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     stats.surface_demand_census_complete=selection.progress_consistent&&selection.census_started&&count[0]==count[1];
     stats.surface_demand_geometry_complete=stats.surface_demand_census_complete&&count[0]==count[2];
   };
-  bool private_repair=false;
+  ContextValue private_repair_lifetime(context.exchange.private_repair, false);
+  auto& private_repair = private_repair_lifetime.Get();
   ContextValue private_optimizer_allowance_lifetime(control.private_optimizer_allowance, 0);
   auto& private_optimizer_allowance = private_optimizer_allowance_lifetime.Get();
   auto elect_trial_failure=[&](const CLocalFailure& local) {

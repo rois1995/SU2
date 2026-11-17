@@ -1,0 +1,27 @@
+[
+  {
+    "name": "construction_claims",
+    "old": "bool construction_claims=bidirectional;",
+    "new": "ContextValue construction_claims_lifetime(context.exchange.construction_claims, bidirectional);\n  auto& construction_claims = construction_claims_lifetime.Get();"
+  },
+  {
+    "name": "directory",
+    "old": "auto directory=std::make_unique<Directory>(world,true,geometry.Parameters());",
+    "new": "ContextValue directory_lifetime(context.exchange.directory,\n                                  std::make_unique<Directory>(world, true, geometry.Parameters()));\n  auto& directory = directory_lifetime.Get();"
+  },
+  {
+    "name": "source",
+    "old": "CavityMetricSource source(world,working,options.timings);",
+    "new": "ContextValue source_lifetime(context.exchange.source, world, working, options.timings);\n  auto& source = source_lifetime.Get();"
+  },
+  {
+    "name": "retired_directory",
+    "old": "DirectoryStats retired_directory;",
+    "new": "ContextValue retired_directory_lifetime(context.exchange.retired_directory);\n  auto& retired_directory = retired_directory_lifetime.Get();"
+  },
+  {
+    "name": "private_repair",
+    "old": "bool private_repair=false;",
+    "new": "ContextValue private_repair_lifetime(context.exchange.private_repair, false);\n  auto& private_repair = private_repair_lifetime.Get();"
+  }
+]
