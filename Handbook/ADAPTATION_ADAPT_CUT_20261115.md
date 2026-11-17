@@ -1,8 +1,8 @@
 # Adapt cut: current gate ledger
 
-Updated2026-11-17. N4 is in phase-A qualification. Production checkpoint423dd23794 passed the required A4 G1/G2 gates and is pushed; evidence/helper checkpoint500f3094c6 preserves the passing phase-A G3/G4 results. GQ passed strict identity. G5 is running (session30519, controller identity `P/candidate_full_preparation/G5_primary_launch_identity.json`). Isolated restart has not started. PhaseA and N4 are not complete. The last full-workflow-qualified production remainsf8c7b01085/build534.
+Updated2026-11-17. PhaseA is qualified and pushed5ec465ca1a:allG1/G2/G3/G4/GQ/G5 and isolatedrestart passed. N13test-onlyM25 also passed on549 (sameCFDbinary), all2408exactprefixchecks and all requestedbounds obtained; report N/N13/section6_10/REPORT.md. CUTB1 is next; N4 is not complete. Latest6.10/6.11areinAGENTS:N10withdrawn,N14notreleased,N15beforeendC_G5unlesssharedwithreleasedN14. No8.5abimplementation.
 
-R=`integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57`, N=`R/night_20261115`, P=`N/N4/section6_3_after_N11`. [Current progress](../integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/progress.md) governs live handles. Keep build545, its source and executing/pinned helpers frozen until every owned handle is terminal.
+R=`integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57`, N=`R/night_20261115`, P=`N/N4/section6_3_after_N11`. [Current progress](../integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/progress.md) governs live handles. All phaseA/N13handles are terminal. Historical545pins were sealed before the AGENTS amendment;549pins cover the new policy and hidden fixture.
 
 ## Reference and scope
 
@@ -36,7 +36,7 @@ All are pushed. Each unit's REPORT.md/acceptance_summary.json records exact timi
 
 Phase-A G3 passed618.164501s:386splits, all375common reference edits equal, first336P6c equal, adjustedentry5113,304784positive cells with sensors, zero upper refinements, modeled11,190,581,249B. All1938casepins and actual5identities including controller verified. Entry/exit law71.2821/71.416430s are nested; reported stage461.173047s includes exit census after configured388.8s budget. This is a provisional valid stage, not an accepted BL mesh.
 
-G4 passed at1/2/4ranks in7.839087/6.904820/6.919375s, unchanged native2D engine/mesh/BL selection, allpins and17actual identities terminal. GQ passed1228.127955s to the planned stop/1236.253216s sealed: allsix third windows, oldinteger/model/timer/lawfields exact,18timer snapshots; allpins/10actual identities terminal. Its prefix HWMsum14,031,200,256B is not a full-workflow P8 peak. G5 is nowrunning on the same frozen545. No numerical gate was repeated. Own setup/report corrections are recorded under candidate_g3_preparation, candidate_g4_preparation, candidate_full_preparation/restart545 and end_A_preparation; none changes production code or a result gate.
+G4 passed at1/2/4ranks in7.839087/6.904820/6.919375s, unchanged native2D engine/mesh/BL selection, allpins and17actual identities terminal. GQ passed1228.127955s to the planned stop/1236.253216s sealed: allsix third windows, oldinteger/model/timer/lawfields exact,18timer snapshots; allpins/10actual identities terminal. Its prefix HWMsum14,031,200,256B is not a full-workflow P8 peak. G5passed4796.320843s sealed/native2583.997544+1727.465975s/SUM14,000,402,432+17,305,853,952B/all6payloads+ALLoldinteger/timeridentityexact. Isolatedrestartpassed246.458883s/coorderror0/finitepositivechangedfields. Two post-only helper corrections retained the original passed numerical cases; no production workflow repeated. Own setup/report corrections are recorded under candidate_g3_preparation, candidate_g4_preparation, candidate_full_preparation/restart545 and end_A_preparation; none changes production code or a result gate.
 
 ## Found during the cut: preserve, do not fix
 

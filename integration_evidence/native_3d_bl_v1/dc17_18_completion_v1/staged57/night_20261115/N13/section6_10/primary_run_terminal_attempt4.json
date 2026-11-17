@@ -1,0 +1,61 @@
+{
+  "actual_host_proc": true,
+  "all_observed_handles_and_controller_terminal": true,
+  "identities": [
+    {
+      "pid": 2706186,
+      "start_ticks": 39420284,
+      "state": "S",
+      "pgid": 2706186,
+      "sid": 2706186,
+      "name": "time",
+      "alive": false,
+      "mpi_rank": null,
+      "actual_terminal": true
+    },
+    {
+      "pid": 2706187,
+      "start_ticks": 39420284,
+      "state": "S",
+      "pgid": 2706187,
+      "sid": 2706186,
+      "name": "timeout",
+      "alive": false,
+      "mpi_rank": null,
+      "actual_terminal": true
+    },
+    {
+      "pid": 2706188,
+      "start_ticks": 39420284,
+      "state": "R",
+      "pgid": 2706187,
+      "sid": 2706186,
+      "name": "test_driver",
+      "alive": false,
+      "mpi_rank": 0,
+      "actual_terminal": true
+    },
+    {
+      "pid": 2706189,
+      "start_ticks": 39420285,
+      "state": "S",
+      "pgid": 2706189,
+      "sid": 2706189,
+      "name": "orted",
+      "alive": false,
+      "mpi_rank": null,
+      "actual_terminal": true
+    },
+    {
+      "pid": 2706022,
+      "start_ticks": 39420044,
+      "actual_terminal": true
+    }
+  ],
+  "exec_session": 40720,
+  "exec_exit_code": 0,
+  "all_case_pins_unchanged_after_terminal": true,
+  "pin_count": 1930,
+  "resource_guard_triggered": false,
+  "test_process_sampled_VmHWM_lower_bound_bytes": 1904635904
+}

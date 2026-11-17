@@ -1,0 +1,7 @@
+{
+  "cause": "MPI_Win_create failed before entering test; missing existing OMPI_MCA_osc=pt2pt setting. Compiler warning also revealed misspelled local pragma ffp-contract=off (produced -fffp-contract=off).",
+  "correction": "Set OMPI_MCA_osc=pt2pt in fixture runner and use GCC optimize fp-contract=off. New test build547 and attempt2 resource receipts, preserve546/attempt1 unchanged as historical evidence.",
+  "production_changed": false,
+  "gates_changed": false,
+  "result_gate_reached": false
+}
