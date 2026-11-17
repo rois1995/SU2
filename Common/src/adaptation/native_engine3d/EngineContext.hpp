@@ -5,6 +5,7 @@
 #include "EngineQueues.hpp"
 #include "EngineExchange.hpp"
 #include "EngineCommit.hpp"
+#include "EngineOwnership.hpp"
 
 struct EngineControlPrefix {
   std::optional<EnginePhase> phase;
@@ -104,6 +105,7 @@ struct EngineContext {
   EngineQueues queues;
   EngineExchange exchange;
   EngineCommit commit;
+  EngineOwnership ownership;
 
   EngineContext(EngineSetup&, World&, const Owned&, const std::vector<DonorCell>&, const PlanarReference&,
                 MetricComposition&, EngineOptions&, MetricChange&, bool&, BoundaryMetric&);

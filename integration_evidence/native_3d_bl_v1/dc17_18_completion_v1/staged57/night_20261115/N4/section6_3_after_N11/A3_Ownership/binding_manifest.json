@@ -1,0 +1,19 @@
+{
+  "marker_bindings": [
+    {
+      "name": "ownership_evaluated",
+      "old": "std::array<bool,2> ownership_evaluated{{false,false}};",
+      "new": "ContextValue ownership_evaluated_lifetime(context.ownership.ownership_evaluated, std::array<bool, 2>{{false, false}});\n  auto& ownership_evaluated = ownership_evaluated_lifetime.Get();"
+    },
+    {
+      "name": "quality_ownership_round",
+      "old": "uint64_t quality_ownership_round=0;",
+      "new": "ContextValue quality_ownership_round_lifetime(context.ownership.quality_ownership_round, 0);\n  auto& quality_ownership_round = quality_ownership_round_lifetime.Get();"
+    }
+  ],
+  "working_storage_binding": {
+    "old": "context.commit.working",
+    "new": "context.ownership.working"
+  },
+  "runtime_working_T_copy_or_move": false
+}

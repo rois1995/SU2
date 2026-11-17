@@ -1,12 +1,11 @@
 {
-  "state": "A2_passed_5880ce9cf1_A3_Control_preparation",
-  "session_id": 95550,
+  "state": "A3_Ownership_G1_G2_passed_checkpoint_pending",
   "case": "reference_validation/cases/N8_G1_candidate_serial_20261116T225219_1400489",
   "baseline_build": "build536",
   "baseline_binary_identical_accepted534": true,
   "whole_source_check": "source_check.md",
-  "first_cut_production_edit_started": false,
-  "next": "finishfreshG1serial/MPI2/4 thenG2/G3/GQrefs beforeA1",
+  "first_cut_production_edit_started": true,
+  "next": "checkpoint/push Ownership then apply reviewed A4; no repeated checks",
   "G1_passed": true,
   "no_cut_production_edits": false,
   "G2_passed": true,
@@ -31,10 +30,11 @@
   "A2_passed_scoped": true,
   "A2_commit": "5880ce9cf1",
   "no_owned_job": true,
-  "current_substep": "A3_Commit",
-  "current_state": "COMMIT_PASSED_G1_G2_checkpoint_pending",
-  "current_build": 543,
-  "last_passed_substep_commit": "260ceeeefb",
+  "current_substep": "A3_Ownership",
+  "current_state": "OWNERSHIP_G1_G2_PASSED",
+  "current_build": 544,
+  "last_passed_substep_commit": "eea842a125",
   "last_full_workflow_qualified_commit": "f8c7b01085",
-  "owned_job": null
+  "owned_job": null,
+  "last_scoped_acceptance": "A3_Ownership/acceptance_summary.json"
 }

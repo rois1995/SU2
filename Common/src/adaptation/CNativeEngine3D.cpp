@@ -1439,6 +1439,7 @@ struct RepairProposal {
 #include "native_engine3d/EngineQueues.cpp"
 #include "native_engine3d/EngineExchange.cpp"
 #include "native_engine3d/EngineCommit.cpp"
+#include "native_engine3d/EngineOwnership.cpp"
 #include "native_engine3d/EngineContext.cpp"
 
 EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorCell>& original,
@@ -1570,7 +1571,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
   ContextValue result_lifetime(control.result);
   auto& result = result_lifetime.Get();
   auto& stats=result.stats;stats.bidirectional=bidirectional;stats.parameter_setup_seconds=parameter_setup;stats.initialization_seconds=parameter_setup;stats.maximum_work_bytes=parameter_bound;
-  ContextValue working_lifetime(context.commit.working);
+  ContextValue working_lifetime(context.ownership.working);
   auto& working = working_lifetime.Get();
   ContextValue selection_lifetime(context.census.selection, coarsening, repairing, geometry, stats,
                                   options.timings, options.surface_tolerance, options.wall_heights,
@@ -3255,8 +3256,10 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
       selection.blocked_edges.clear();selection.blocked_links=0;length_blocks_dirty[collapse]=false;
     }
   };
-  std::array<bool,2> ownership_evaluated{{false,false}};
-  uint64_t quality_ownership_round=0;
+  ContextValue ownership_evaluated_lifetime(context.ownership.ownership_evaluated, std::array<bool, 2>{{false, false}});
+  auto& ownership_evaluated = ownership_evaluated_lifetime.Get();
+  ContextValue quality_ownership_round_lifetime(context.ownership.quality_ownership_round, 0);
+  auto& quality_ownership_round = quality_ownership_round_lifetime.Get();
   auto phase_ownership=[&](bool quality) {
     auto within_time=[&]() {
       if(!options.maximum_seconds)return true;
