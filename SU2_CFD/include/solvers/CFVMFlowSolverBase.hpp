@@ -29,6 +29,7 @@
 #include "../../../Common/include/parallelization/omp_structure.hpp"
 #include "../../../Common/include/toolboxes/geometry_toolbox.hpp"
 #include "CSolver.hpp"
+#include "../numerics/flow/p1_pair_jst.hpp"
 
 class CNumericsSIMD;
 
@@ -453,19 +454,24 @@ class CFVMFlowSolverBase : public CSolver {
   /*!
    * \brief EDGE_FORM_P1_MIXED_DISS: adds |ubar.n_ik| + cbar |n_ik| of every split pair (face and body diagonals of the
    *        non-simplex cells of EDGE_FORM_P1_MIXED) to the inviscid spectral sum of its owned nodes, with the formula of
-   *        the true edges in SetTime_Step_impl. Meshes without non-simplex cells have no split pairs.
+   *        the true edges in SetTime_Step_impl. With aligned (EDGE_FORM_P1_MIXED_DISS_ALIGNED) on the edge projection
+   *        of n_ik, the normal of the pair dissipation. Meshes without non-simplex cells have no split pairs.
    * \param[in] soundSpeed - Function object of the speed of sound, (nodes, iPoint, jPoint) as for the edges.
    * \param[in] geometry - Geometrical definition of the problem.
+   * \param[in] aligned - Spectral radius on the edge projection of n_ik instead of n_ik.
    */
   template<class SoundSpeedFunc>
-  void AddSplitPairSpectralRadius(const SoundSpeedFunc& soundSpeed, const CGeometry *geometry) {
+  void AddSplitPairSpectralRadius(const SoundSpeedFunc& soundSpeed, const CGeometry *geometry, bool aligned) {
     const auto& splitNodes = geometry->edges->GetSplitNodes();
     const auto& splitNormal = geometry->edges->GetSplitNormal();
 
     BEGIN_SU2_OMP_SAFE_GLOBAL_ACCESS {
       for (auto iSplit = 0ul; iSplit < splitNodes.size(); ++iSplit) {
         const auto iPoint = splitNodes[iSplit][0], kPoint = splitNodes[iSplit][1];
-        const su2double* normal = splitNormal[iSplit];
+        su2double alignedNormal[3];
+        const su2double* normal =
+            P1PairJST::DissipationNormal(nDim, aligned, splitNormal[iSplit], geometry->nodes->GetCoord(iPoint),
+                                         geometry->nodes->GetCoord(kPoint), alignedNormal);
         const su2double area2 = GeometryToolbox::SquaredNorm(nDim, normal);
 
         const su2double meanProjVel = 0.5 * (nodes->GetProjVel(iPoint, normal) + nodes->GetProjVel(kPoint, normal));
@@ -619,7 +625,9 @@ class CFVMFlowSolverBase : public CSolver {
 
     /*--- EDGE_FORM_P1_MIXED_DISS: the split pairs carry the JST term on n_ik, so their spectral radius enters the inviscid
      *    sum of both nodes, as the true edges above; a separate pass, the sums of the edges and boundaries are unchanged. ---*/
-    if ((iMesh == MESH_0) && config->GetEdge_Form_P1_Mixed_Diss()) AddSplitPairSpectralRadius(soundSpeed, geometry);
+    if ((iMesh == MESH_0) && config->GetEdge_Form_P1_Mixed_Diss()) {
+      AddSplitPairSpectralRadius(soundSpeed, geometry, config->GetEdge_Form_P1_Mixed_Diss_Aligned());
+    }
 
     if (p1ViscStep) {
       SU2_OMP_FOR_STAT(omp_chunk_size)

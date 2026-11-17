@@ -10384,14 +10384,15 @@ pjst::Node RandomPairNode(std::mt19937& gen, int nDim) {
 
 /*--- Residual, Jacobian blocks and inviscid spectral sums of a model JST-P1 operator on a mesh, in the order of the
  * solver: true edges (central mean of the dissipated variables on n, JST on the dual normal), then the split pairs
- * (central part on n_ik, and with pairDiss the pair JST and the time-step term of AddSplitPairSpectralRadius). ---*/
+ * (central part on n_ik, and with pairDiss the pair JST and the time-step term of AddSplitPairSpectralRadius, on the
+ * edge projection of n_ik with aligned). ---*/
 struct ModelOperator {
   std::vector<su2double> R, lambdaInv;
   std::map<std::pair<unsigned long, unsigned long>, std::array<su2double, 25>> J;
 };
 
 ModelOperator ModelJSTOperator(const CGeometry& g, const std::vector<pjst::Node>& node, const pjst::Params& par,
-                               bool pairDiss) {
+                               bool pairDiss, bool aligned = false) {
   const int nDim = g.GetnDim(), nVar = nDim + 2;
   ModelOperator op;
   op.R.assign(g.GetnPoint() * nVar, 0.0);
@@ -10432,8 +10433,11 @@ ModelOperator ModelJSTOperator(const CGeometry& g, const std::vector<pjst::Node>
   }
   const auto& pairs = g.edges->GetSplitNodes();
   for (auto iSplit = 0ul; iSplit < pairs.size(); ++iSplit) {
+    const auto i = pairs[iSplit][0], k = pairs[iSplit][1];
     const su2double* n = g.edges->GetSplitNormal()[iSplit];
-    addPair(pairs[iSplit][0], pairs[iSplit][1], n, n, pairDiss);
+    su2double buffer[3];
+    const su2double* nDiss = pjst::DissipationNormal(nDim, aligned, n, g.nodes->GetCoord(i), g.nodes->GetCoord(k), buffer);
+    addPair(i, k, n, nDiss, pairDiss);
   }
   return op;
 }
@@ -10608,9 +10612,12 @@ TEST_CASE("EDGE_FORM_P1_MIXED_DISS: pure tetrahedral meshes are unchanged, resid
     pjst::Params par;
     par.weakWall = true;
     const auto off = ModelJSTOperator(geometry, node, par, false);
-    const auto on = ModelJSTOperator(geometry, node, par, true);
-    const su2double ranksDiffering = GlobalSum(BitwiseEqual(off, on) ? 0.0 : 1.0);
-    CHECK((ranksDiffering == 0.0) == !mixed);
+    for (const bool aligned : {false, true}) {
+      INFO("aligned " << aligned);
+      const auto on = ModelJSTOperator(geometry, node, par, true, aligned);
+      const su2double ranksDiffering = GlobalSum(BitwiseEqual(off, on) ? 0.0 : 1.0);
+      CHECK((ranksDiffering == 0.0) == !mixed);
+    }
   }
 }
 
@@ -10687,4 +10694,97 @@ TEST_CASE("EDGE_FORM_P1_MIXED_DISS: pair flux and Jacobian are the JST kernel of
   CHECK(scaleFlux > 0.0);
   CHECK(errFlux <= 1e-14 * scaleFlux);
   CHECK(errJac <= 1e-14 * scaleJac);
+}
+
+/*--- EDGE_FORM_P1_MIXED_DISS_ALIGNED (ONE_GEOMETRY_DISS.md, variant (d)): the pair JST on the edge projection
+ * nu_ik = (n_ik.e_ik/|e_ik|^2) e_ik of the pair coefficient, e_ik = x_k - x_i. ---*/
+TEST_CASE("EDGE_FORM_P1_MIXED_DISS_ALIGNED: the dissipation normal is the edge projection of n_ik", "[P1Flux]") {
+  const int nDim = 3;
+  auto cross2 = [](const su2double* a, const su2double* b) {
+    const su2double c[3] = {a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]};
+    return c[0] * c[0] + c[1] * c[1] + c[2] * c[2];
+  };
+  auto dot = [](const su2double* a, const su2double* b) { return a[0] * b[0] + a[1] * b[1] + a[2] * b[2]; };
+
+  /*--- A known pair: e = (1.2, -0.7, 1.0), n.e = 1.9, |e|^2 = 2.93, so nu = (1.9/2.93) e. ---*/
+  const su2double n[3] = {0.3, -1.2, 0.7}, x_i[3] = {0.1, 0.2, -0.4}, x_k[3] = {1.3, -0.5, 0.6};
+  const su2double e[3] = {1.2, -0.7, 1.0};
+  su2double buffer[3];
+  const su2double* nu = pjst::DissipationNormal(nDim, true, n, x_i, x_k, buffer);
+  REQUIRE(nu == buffer);
+  for (int d = 0; d < nDim; ++d) CHECK(nu[d] == Approx(1.9 / 2.93 * e[d]).epsilon(1e-14));
+  CHECK(cross2(nu, e) <= 1e-28 * dot(nu, nu) * dot(e, e));
+  CHECK(dot(nu, e) == Approx(dot(n, e)).epsilon(1e-14));
+
+  /*--- Option off (variant (b)): the pair coefficient itself, the same pointer, nothing is computed. ---*/
+  CHECK(pjst::DissipationNormal(nDim, false, n, x_i, x_k, buffer) == n);
+
+  /*--- The split pairs of a stretched prism mesh (the face diagonals are nearly perpendicular to n_ik): nu_ik is
+   * parallel to e_ik, keeps n.e and is never longer than n_ik. ---*/
+  for (double stretch : {1.0, 1e-3}) {
+    INFO("stretch " << stretch);
+    const std::string mesh = "p1_pairdiss_aligned_3d.su2";
+    WriteMixedMesh(mesh, nDim, 3, 0.3, stretch);
+    MeshCase test(mesh, MixedOptions + "EDGE_FORM_P1_MIXED_DISS= YES\nEDGE_FORM_P1_MIXED_DISS_ALIGNED= YES\n");
+    auto& geometry = *test.geometry;
+    geometry.SetEdgeFormP1(true);
+    const auto& pairs = geometry.edges->GetSplitNodes();
+    REQUIRE(GlobalSum(su2double(pairs.size())) > 0.0);
+    su2double worstCross = 0.0, worstDot = 0.0, worstLength = 0.0;
+    for (auto iSplit = 0ul; iSplit < pairs.size(); ++iSplit) {
+      const auto i = pairs[iSplit][0], k = pairs[iSplit][1];
+      const su2double* np = geometry.edges->GetSplitNormal()[iSplit];
+      const su2double* xi = geometry.nodes->GetCoord(i);
+      const su2double* xk = geometry.nodes->GetCoord(k);
+      const su2double ep[3] = {xk[0] - xi[0], xk[1] - xi[1], xk[2] - xi[2]};
+      su2double buf[3];
+      const su2double* nup = pjst::DissipationNormal(nDim, true, np, xi, xk, buf);
+      const su2double scale = dot(np, np) * dot(ep, ep);
+      worstCross = std::max(worstCross, su2double(cross2(nup, ep) / scale));
+      worstDot = std::max(worstDot, su2double(fabs(dot(nup, ep) - dot(np, ep)) / sqrt(scale)));
+      worstLength = std::max(worstLength, su2double(sqrt(dot(nup, nup) / dot(np, np))));
+    }
+    INFO("cross " << GlobalMax(worstCross) << ", n.e " << GlobalMax(worstDot) << ", |nu|/|n| " << GlobalMax(worstLength));
+    CHECK(GlobalMax(worstCross) <= 1e-28);
+    CHECK(GlobalMax(worstDot) <= 1e-14);
+    CHECK(GlobalMax(worstLength) <= 1.0 + 1e-14);
+  }
+}
+
+TEST_CASE("EDGE_FORM_P1_MIXED_DISS_ALIGNED: a pair with n_ik perpendicular to e_ik gets no dissipation", "[P1Flux]") {
+  std::mt19937 gen(7373);
+  const int nDim = 3, nVar = 5;
+  /*--- n.e = 0 exactly, so nu = 0 and lambda = 0: flux and Jacobian blocks unchanged and finite. With n_ik itself
+   * (variant (b)) the same pair is dissipated. ---*/
+  const su2double n[3] = {0.0, 0.4, -0.8}, x_i[3] = {0.5, 0.1, 0.2}, x_k[3] = {2.5, 0.1, 0.2};
+  su2double buffer[3];
+  const su2double* nu = pjst::DissipationNormal(nDim, true, n, x_i, x_k, buffer);
+  for (int d = 0; d < nDim; ++d) REQUIRE(nu[d] == 0.0);
+
+  for (int draw = 0; draw < 20; ++draw) {
+    const auto Ni = RandomPairNode(gen, nDim), Nk = RandomPairNode(gen, nDim);
+    pjst::Params par;
+    par.weakWall = (draw % 2 == 0);
+    CHECK(pjst::SpectralRadius(nDim, Ni, Nk, nu) == 0.0);
+
+    su2double flux[5], jac_i[5][5], jac_k[5][5];
+    for (int v = 0; v < nVar; ++v) {
+      flux[v] = 0.1 * (v + 1);
+      for (int w = 0; w < nVar; ++w) jac_i[v][w] = jac_k[v][w] = 0.01 * (v - w);
+    }
+    pjst::AddPairDissipation(nDim, par, Ni, Nk, nu, flux, true, jac_i, jac_k);
+    for (int v = 0; v < nVar; ++v) {
+      CHECK(flux[v] == 0.1 * (v + 1));
+      for (int w = 0; w < nVar; ++w) {
+        CHECK(jac_i[v][w] == 0.01 * (v - w));
+        CHECK(jac_k[v][w] == 0.01 * (v - w));
+      }
+    }
+
+    su2double fluxFull[5] = {}, jFull_i[5][5] = {}, jFull_k[5][5] = {};
+    pjst::AddPairDissipation(nDim, par, Ni, Nk, n, fluxFull, true, jFull_i, jFull_k);
+    su2double sizeFull = 0.0;
+    for (int v = 0; v < nVar; ++v) sizeFull += fabs(jFull_i[v][v]);
+    CHECK(sizeFull > 0.0);
+  }
 }

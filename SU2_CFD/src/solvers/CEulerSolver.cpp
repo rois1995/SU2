@@ -2139,10 +2139,13 @@ void CEulerSolver::SplitEdgeResidual(const CGeometry *geometry, const CConfig *c
    * (JST_P1ES_JACOBIAN_DIAG.md 8.3): EsIsmailRoeJacobian, which at equal states is 0.5 A(U).n, the derivative of the
    * mean flux; matched k as the edge kernel, L(k_up) Jhat T(k). ---*/
   /*--- EDGE_FORM_P1_MIXED_DISS (MIXED_DIAG_SOURCE_CHECK.md 3.3): plus the JST term of the true edges on n_ik, added to
-   * the pair flux and to its Jacobian blocks before the matched k, as in the edge kernel (CJSTScheme::finalizeFlux). ---*/
+   * the pair flux and to its Jacobian blocks before the matched k, as in the edge kernel (CJSTScheme::finalizeFlux).
+   * With EDGE_FORM_P1_MIXED_DISS_ALIGNED the JST term uses the edge projection of n_ik (P1PairJST::DissipationNormal),
+   * the central part keeps n_ik. ---*/
   if (config->GetEdge_Form_P1_Mixed()) {
     const bool ecFlux = config->GetEdge_Form_EC_Flux();
     const bool pairDiss = config->GetEdge_Form_P1_Mixed_Diss();
+    const bool alignedDiss = config->GetEdge_Form_P1_Mixed_Diss_Aligned();
     /*--- Only with the split-pair pattern (not with the OpenMP reducer, which keeps the plain pattern). ---*/
     /*--- The current integration kind (explicit during matrix-free NEWTON_KRYLOV products), as the edge kernel. ---*/
     const bool implicit = (config->GetKind_TimeIntScheme() == EULER_IMPLICIT) && Jacobian.HasSplitPairPattern();
@@ -2202,7 +2205,11 @@ void CEulerSolver::SplitEdgeResidual(const CGeometry *geometry, const CConfig *c
         su2double dissJac_i[P1PairJST::MAX_NVAR][P1PairJST::MAX_NVAR] = {};
         su2double dissJac_k[P1PairJST::MAX_NVAR][P1PairJST::MAX_NVAR] = {};
         if (pairDiss) {
-          P1PairJST::AddPairDissipation(nDim, jst, jstNode(iPoint), jstNode(kPoint), splitNormal[iSplit], flux, implicit,
+          su2double alignedNormal[3];
+          const su2double* dissNormal =
+              P1PairJST::DissipationNormal(nDim, alignedDiss, splitNormal[iSplit], geometry->nodes->GetCoord(iPoint),
+                                           geometry->nodes->GetCoord(kPoint), alignedNormal);
+          P1PairJST::AddPairDissipation(nDim, jst, jstNode(iPoint), jstNode(kPoint), dissNormal, flux, implicit,
                                         dissJac_i, dissJac_k);
         }
         const su2double massFlux = flux[0];

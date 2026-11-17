@@ -39,6 +39,15 @@
  * eps2 = 1/2 every pair is a Rusanov pair (pair positivity), and the eps2 part is entropy dissipative for any lambda >= 0.
  * The functions below are the scalar transcription of CJSTScheme::finalizeFlux and its helpers in
  * numerics_simd/flow/convection/common.hpp, in the same order of operations. ---*/
+/*--- EDGE_FORM_P1_MIXED_DISS_ALIGNED, variant (d) (ONE_GEOMETRY_DISS.md, section 5): lambda_ik on the edge projection
+ *     nu_ik = (n_ik.e_ik / |e_ik|^2) e_ik,  e_ik = x_k - x_i,
+ * instead of n_ik; everything else as above, the central flux keeps n_ik. Reason (P1_OPTIMAL_DUAL.md, Lemma G4, the D1
+ * rule of the true edges): with lambda = s|nu| the dissipation tensor is K = (1/4V) sum_k lambda_ik e_ik e_ik^T, and a
+ * normal at angle theta to its pair inflates the term by sec(theta). The face diagonals of BL prisms have theta ~ 90 deg
+ * (n_ik wall normal, e_ik along the wall, sec(theta) ~ L/h), so lambda(n_ik) inflates the dissipation along the wall.
+ * With nu_ik the term is that of the projection, n.e is kept: nu.e = n.e. The eps2 part stays entropy dissipative
+ * (any lambda >= 0); pair positivity (lambda >= rho(A(n_ik))) is given up, as on BL tetrahedra. A pair with n.e = 0 has
+ * nu = 0, lambda = 0 and no dissipation. ---*/
 namespace P1PairJST {
 
 constexpr unsigned short MAX_NVAR = 5;
@@ -88,6 +97,24 @@ inline su2double SpectralRadius(unsigned short nDim, const Node& Ni, const Node&
     area2 += normal[iDim] * normal[iDim];
   }
   return fabs(projVel) + 0.5 * (Ni.soundSpeed + Nk.soundSpeed) * sqrt(area2);
+}
+
+/*!
+ * \brief Normal of the pair dissipation: n_ik itself, or with aligned (EDGE_FORM_P1_MIXED_DISS_ALIGNED) its edge
+ *        projection nu_ik = (n_ik.e_ik/|e_ik|^2) e_ik, e_ik = x_k - x_i, written to buffer.
+ * \return normal (the same pointer) if not aligned, else buffer.
+ */
+inline const su2double* DissipationNormal(unsigned short nDim, bool aligned, const su2double* normal,
+                                          const su2double* coord_i, const su2double* coord_k, su2double* buffer) {
+  if (!aligned) return normal;
+  su2double edge[3] = {0.0, 0.0, 0.0}, nDotE = 0.0, edge2 = 0.0;
+  for (unsigned short iDim = 0; iDim < nDim; ++iDim) {
+    edge[iDim] = coord_k[iDim] - coord_i[iDim];
+    nDotE += normal[iDim] * edge[iDim];
+    edge2 += edge[iDim] * edge[iDim];
+  }
+  for (unsigned short iDim = 0; iDim < nDim; ++iDim) buffer[iDim] = nDotE / edge2 * edge[iDim];
+  return buffer;
 }
 
 /*!
@@ -147,13 +174,18 @@ inline void AddSurrogateJacobian(unsigned short nDim, su2double gamma, const su2
 /*!
  * \brief Adds the JST term of the pair (i, k) to its flux (from i to k) and, if implicit, the surrogate blocks to
  *        d flux/dU_i and d flux/dU_k.
- * \param[in] normal - Pair coefficient n_ik (SplitNormal).
+ * \param[in] normal - Dissipation normal: the pair coefficient n_ik (SplitNormal) or its edge projection
+ *                     (DissipationNormal).
  */
 template <class Matrix>
 inline void AddPairDissipation(unsigned short nDim, const Params& par, const Node& Ni, const Node& Nk,
                                const su2double* normal, su2double* flux, bool implicit, Matrix& jac_i, Matrix& jac_k) {
   const unsigned short nVar = nDim + 2;
-  const su2double lambda = CorrectedRadius(SpectralRadius(nDim, Ni, Nk, normal), Ni, Nk);
+  const su2double radius = SpectralRadius(nDim, Ni, Nk, normal);
+  /*--- Only an edge projection can vanish (n_ik perpendicular to e_ik): no dissipation, and the stretching factor
+   * (Lambda/lambda)^0.3 is not defined at lambda = 0. ---*/
+  if (radius == 0.0) return;
+  const su2double lambda = CorrectedRadius(radius, Ni, Nk);
   const Coefficients eps = DissipationCoefficients(par, Ni, Nk);
 
   for (unsigned short iVar = 0; iVar < nVar; ++iVar) {
