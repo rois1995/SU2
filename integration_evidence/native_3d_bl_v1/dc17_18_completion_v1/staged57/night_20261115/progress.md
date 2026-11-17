@@ -4,7 +4,11 @@ R7: after compaction read COMPLETE latest scratchpad NIGHT_WORK_ORDER.md and thi
 
 ## Current owned job
 
-NO OWNED JOB. A3 Control ALLrequiredG1/G2PASSED, oneconnectedcommit/push NEXT. G1 serial789.847011/MPI2 13.926688/MPI4 16.181808s,375/57perrank/ZEROchanges/identicalreportertotals/all1834casepinsunchanged/all5/6/8IDs+controllers actualterminal. StrictG2 PASS363.020346s plannedstop/371.248518s seal/alloldinteger/model/perrowTIMERcalls/lawcountsEXACT/12snapshots/6entrylawlines/allpinsunchanged/all9IDs+controller1836409/start37275280 actualterminal; exec1543exit0. Prefix/seal observedSUMrankHWM6,418,857,984B<19,999,490,048B, notfullP8peak. Build539 details below. Acceptance A3_Control/acceptance_summary.json andREPORT.md. NEXT ONEconnected code+evidencecommit/push, thenprimaryapplyCensusproposal/build540/G1/G2. A1/A2alreadyPUSHED. PhaseA/N4unfinished, lastfullqualifiedf8c7b01085.
+NO OWNED JOB. A3 Census ALLrequiredG1/G2PASSED; ONEconnected code+evidencecommit/push NEXT. G1 serial789.755303/MPI2 15.061827/MPI4 15.091666s,375/57perrank/ZEROchanges/identicalreportertotals/all1845casepinsunchanged/all5/6/8IDs+controllers actualterminal. StrictG2PASS368.016698stop/376.343898seal/alloldinteger/model/perrowTIMERcalls/lawcountsEXACT/12snapshots/6entrylawlines/allpinsunchanged/all9IDs+controlleractualterminal; exec17288exit0. Observedprefix/sealSUMrankHWM6,355,832,832B<19,999,490,048B, notfullP8peak. Build54080.149112s/4actions/1631pinsunchanged/all12IDs+controlleractualterminal/exec41365exit0. CFD59d8e8c8bd5ce60cd5160c6d970a5a55614411bc2dd4b6e0fd1b37cc77c57d7f; testae6e0f44b9d4ebd83cd8d020e73de2b6eda8329c466bef3d16a52be0ec4f11a7. Acceptance A3_Census/acceptance_summary.json andREPORT.md. PhaseA/N4unfinished; lastfullqualifiedf8c7b01085.
+
+Fourproductionpaths: CPP/Contextheader/newCensus.hpp/.cpp. Nineoriginaldecls now ContextValue bindings atsamepoints, exactreversal reproducesControlCPP/Contextheader; all lambdas/otherstatementtext unchanged. SameSelectionreferenceidentity. Existingunchangedhelper/fixture reused; no fixture/catalog edits. P/A3_Census/source_identity.json/binding_manifest.json immutable buildpins; do not rewrite. OriginalControlpassed22101148f7PUSHED beforeCensusedit. Only scopedvalidationpending, no fullclaim.
+
+A3 Control ALLrequiredG1/G2PASSED/PUSHED22101148f7. G1 serial789.847011/MPI2 13.926688/MPI4 16.181808s,375/57perrank/ZEROchanges/identicalreportertotals/all1834casepinsunchanged/all5/6/8IDs+controllers actualterminal. StrictG2PASS363.020346stop/371.248518seal/alloldinteger/model/perrowTIMERcalls/lawcountsEXACT/allpinsunchanged/all9IDs+controller1836409/start37275280actualterminal/exec1543exit0. PrefixobservedSUM6,418,857,984B<19,999,490,048B, notfullP8peak. Build53980.117992s/1620pins, lifetimefixturePASS. PhaseA/N4unfinished, lastfullqualifiedf8c7b01085.
 
 P = N4/section6_3_after_N11 relative to this night root.
 
@@ -12,10 +16,10 @@ Build539 PASSED80.117992s/4actions/1620pins unchanged/all12buildIDs+controller t
 
 ## Next actions — do not repeat completed checks
 
-1. All Control checks done ONCE/PASSED/terminal. Commit ONEconnected code+evidence/push; no numerical repeats.
-2. Primary inspect/apply P/A3_Census_preparation/proposal.diff (valid numericpatch, dry-run gitapply--check PASSread-only duringControlfreeze); newEngineCensus optional9payloads, oldpointContextValueguards, Controlgenerationwindow unchanged. Agentdone/nootherworkpending.
-3. Build540 recipe NOTprepared. Afterterminal sourceedit/pins/actualhost preflight, build thenG1serial/MPI2/MPI4+strictG2 once/inorder, oneCensuscommitonlyafterpass.
-4. Then primary inspect/apply Census draft, build540(nextrecipe NOTprepared), same G1/G2. Agent m24 preparing ONLY unpinned A3_Census_preparation drafts <=15min, no production/launch. Other agents idle.
+1. All Census checks PASSED once/terminal. ONEconnectedcode+evidencecommit/push next. Explicit git add -f scoped evidence list (treeignored), no binaries/rawlarge logs/unrelateddirty. Gitdiff--check. Rawpinnedproposal.diff stayslocalunchanged; gzip+rawSHA committed, reconstructbeforecleancheckoutpinverify.
+2. Then primary apply Queuesproposal P/A3_Queues_preparation/proposal.diff SHA bd77bf37a64d881f97e9d7032ba91b10e69c04c65510591fc50b61611c85c503. Primary alreadyreadwholepatchandnotes; newEngineQueues3payloads inactiveblockedmap/linkcount/dirtyarray, oldlocalguards, explicittrivialarrayfalse,false; sharedSelectionSTAYSCensus. Draftredundantstdincludes removedbeforeapply/privateheaderhousepattern, metadataupdated; NOTappliedyet. Basepins verifybeforeapply. Noagentpending.
+3. Build541recipe NOTprepared. AfterCensusterminal/commit/push applyonlyQueuecode, exactreversalproof/currentpins/hostpreflight/build, thenSAMEG1serial/MPI2/MPI4+strictG2 once/inorder. OneQueuecommitonlyafterpass. ResultfailureR5/ownsetupR3. No G5untilphaseend.
+4. Agentm24 DONE. Primary read Queuesmanifest/notes/draft in A3_Queues_preparation; ONLY3external queuepayloads, sharedSelectionstaysCensus, explicittrivialarrayfalse,false copy; numericpatchdry-runPASS, NOTapplied. No agentworkpending. Censusproposalpackaging initiallyillustrative@@diff, changedto validnumericunifieddiff BEFOREapply/build; recordcause/correction in Censusreport. No numericalrepeat.
 
 ## Passed cut substeps and immutable fresh references
 

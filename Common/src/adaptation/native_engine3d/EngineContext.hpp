@@ -1,6 +1,7 @@
 // Canonical Control storage; values are activated and released at the original local scopes.
 #pragma once
 #include "ContextValue.hpp"
+#include "EngineCensus.hpp"
 
 struct EngineControlPrefix {
   std::optional<EnginePhase> phase;
@@ -96,6 +97,7 @@ struct EngineContext {
   bool& bidirectional;
   BoundaryMetric& surface_target;
   EngineControl control;
+  EngineCensus census;
 
   EngineContext(EngineSetup&, World&, const Owned&, const std::vector<DonorCell>&, const PlanarReference&,
                 MetricComposition&, EngineOptions&, MetricChange&, bool&, BoundaryMetric&);

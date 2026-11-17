@@ -1,0 +1,53 @@
+[
+  {
+    "names": [
+      "selection"
+    ],
+    "old": "Selection selection(coarsening,repairing,geometry,stats,options.timings,options.surface_tolerance,options.wall_heights,bidirectional,bool(surface_target));",
+    "new": "ContextValue selection_lifetime(context.census.selection, coarsening, repairing, geometry, stats,\n                                  options.timings, options.surface_tolerance, options.wall_heights,\n                                  bidirectional, bool(surface_target));\n  auto& selection = selection_lifetime.Get();"
+  },
+  {
+    "names": [
+      "edge_progress"
+    ],
+    "old": "GenerationProgress3D edge_progress;",
+    "new": "ContextValue edge_progress_lifetime(context.census.edge_progress);\n  auto& edge_progress = edge_progress_lifetime.Get();"
+  },
+  {
+    "names": [
+      "edge_census_round"
+    ],
+    "old": "uint64_t edge_census_round=UINT64_MAX;",
+    "new": "ContextValue edge_census_round_lifetime(context.census.edge_census_round, UINT64_MAX);\n  auto& edge_census_round = edge_census_round_lifetime.Get();"
+  },
+  {
+    "names": [
+      "retired_edges",
+      "campaign_edges"
+    ],
+    "old": "std::map<Edge,EdgeMeasure> retired_edges,campaign_edges;",
+    "new": "ContextValue retired_edges_lifetime(context.census.retired_edges);\n  auto& retired_edges = retired_edges_lifetime.Get();\n  ContextValue campaign_edges_lifetime(context.census.campaign_edges);\n  auto& campaign_edges = campaign_edges_lifetime.Get();"
+  },
+  {
+    "names": [
+      "field_identity"
+    ],
+    "old": "std::shared_ptr<const FrozenMetricIdentity> field_identity;",
+    "new": "ContextValue field_identity_lifetime(context.census.field_identity);\n  auto& field_identity = field_identity_lifetime.Get();"
+  },
+  {
+    "names": [
+      "initial",
+      "eligible_extensions"
+    ],
+    "old": "std::vector<Id> initial,eligible_extensions;",
+    "new": "ContextValue initial_lifetime(context.census.initial);\n  auto& initial = initial_lifetime.Get();\n  ContextValue eligible_extensions_lifetime(context.census.eligible_extensions);\n  auto& eligible_extensions = eligible_extensions_lifetime.Get();"
+  },
+  {
+    "names": [
+      "seed_slot"
+    ],
+    "old": "size_t seed_slot=0;",
+    "new": "ContextValue seed_slot_lifetime(context.census.seed_slot, 0);\n  auto& seed_slot = seed_slot_lifetime.Get();"
+  }
+]

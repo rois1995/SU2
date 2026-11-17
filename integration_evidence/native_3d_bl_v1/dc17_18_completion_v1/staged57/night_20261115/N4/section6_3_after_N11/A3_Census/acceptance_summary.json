@@ -1,0 +1,77 @@
+{
+  "substep": "A3_Census",
+  "base_passed_substep": "22101148f7",
+  "passed_scoped_G1_G2": true,
+  "phase_A_complete": false,
+  "N4_complete": false,
+  "reused_unchanged_ContextValue_lifetime_fixture": true,
+  "G1": {
+    "serial": {
+      "ranks": 1,
+      "case_records": 375,
+      "changed_case_count": 0,
+      "candidate_elapsed_seconds": 789.7553026676178,
+      "gate_passed": true
+    },
+    "mpi2": {
+      "ranks": 2,
+      "case_records": 114,
+      "changed_case_count": 0,
+      "candidate_elapsed_seconds": 15.061826944351196,
+      "gate_passed": true
+    },
+    "mpi4": {
+      "ranks": 4,
+      "case_records": 228,
+      "changed_case_count": 0,
+      "candidate_elapsed_seconds": 15.091665983200073,
+      "gate_passed": true
+    }
+  },
+  "G2": {
+    "passed": true,
+    "case": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N4/section6_3_after_N11/candidate_prefix_preparation/cases/A3_Census_G2_540",
+    "seconds_until_stop": 368.01669794600457,
+    "seconds_total": 376.3438978770282,
+    "strict_comparison": {
+      "gate": "G2",
+      "passed": true,
+      "comparison": {
+        "passed": true,
+        "gate": "G2",
+        "integer_rows": {
+          "passed": true,
+          "first_difference": null,
+          "streams": [
+            "rank_output/1/rank.0/stdout",
+            "rank_output/1/rank.1/stdout",
+            "rank_output/1/rank.2/stdout",
+            "rank_output/1/rank.3/stdout",
+            "rank_output/1/rank.4/stdout",
+            "rank_output/1/rank.5/stdout"
+          ]
+        },
+        "timer_rows": {
+          "passed": true,
+          "timer_snapshots": 12,
+          "wall_law_lines_by_physical_stream": {
+            "rank_output/1/rank.0/stdout": 1,
+            "rank_output/1/rank.1/stdout": 1,
+            "rank_output/1/rank.2/stdout": 1,
+            "rank_output/1/rank.3/stdout": 1,
+            "rank_output/1/rank.4/stdout": 1,
+            "rank_output/1/rank.5/stdout": 1
+          },
+          "rule": "strict per-row timer fields/calls and exact wall-law line counts; only timing values excluded"
+        },
+        "comparison_rule": "all old rows strict; every timer row and census call strict; no census allowance"
+      },
+      "comparator_sha256": "b4ca8efc8469140577f6c347248a24e85df41727e4134c9d860840b7e6c5990a"
+    },
+    "observed_rank_hwm_sum_bytes": 6355832832,
+    "job_limit_bytes": 19999490048,
+    "inputs_unchanged": true,
+    "source_and_binary_pins_unchanged": true,
+    "all_owned_handles_terminal": true
+  }
+}

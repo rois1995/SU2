@@ -1435,6 +1435,7 @@ struct RepairProposal {
 
 // Keep setup ownership private to the original translation unit and namespace.
 #include "native_engine3d/EngineSetup.cpp"
+#include "native_engine3d/EngineCensus.cpp"
 #include "native_engine3d/EngineContext.cpp"
 
 EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorCell>& original,
@@ -1567,20 +1568,29 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
   auto& result = result_lifetime.Get();
   auto& stats=result.stats;stats.bidirectional=bidirectional;stats.parameter_setup_seconds=parameter_setup;stats.initialization_seconds=parameter_setup;stats.maximum_work_bytes=parameter_bound;
   Owned working;
-  Selection selection(coarsening,repairing,geometry,stats,options.timings,options.surface_tolerance,options.wall_heights,bidirectional,bool(surface_target));
+  ContextValue selection_lifetime(context.census.selection, coarsening, repairing, geometry, stats,
+                                  options.timings, options.surface_tolerance, options.wall_heights,
+                                  bidirectional, bool(surface_target));
+  auto& selection = selection_lifetime.Get();
   selection.split_lanes=bidirectional;
   bool construction_claims=bidirectional;
-  GenerationProgress3D edge_progress;
-  uint64_t edge_census_round=UINT64_MAX;
+  ContextValue edge_progress_lifetime(context.census.edge_progress);
+  auto& edge_progress = edge_progress_lifetime.Get();
+  ContextValue edge_census_round_lifetime(context.census.edge_census_round, UINT64_MAX);
+  auto& edge_census_round = edge_census_round_lifetime.Get();
 
   ContextValue generation_window_lifetime(control.generation_window);
   auto& generation_window = generation_window_lifetime.Get();
   ContextValue generation_window_count_lifetime(control.generation_window_count, 0);
   auto& generation_window_count = generation_window_count_lifetime.Get();
-  std::map<Edge,EdgeMeasure> retired_edges,campaign_edges;
+  ContextValue retired_edges_lifetime(context.census.retired_edges);
+  auto& retired_edges = retired_edges_lifetime.Get();
+  ContextValue campaign_edges_lifetime(context.census.campaign_edges);
+  auto& campaign_edges = campaign_edges_lifetime.Get();
   std::map<Id,std::set<Id>> inactive_blocked_edges;size_t inactive_blocked_links=0;
   std::array<bool,2> length_blocks_dirty{{false,false}};
-  std::shared_ptr<const FrozenMetricIdentity> field_identity;
+  ContextValue field_identity_lifetime(context.census.field_identity);
+  auto& field_identity = field_identity_lifetime.Get();
   // Joint split feasibility depends on neighboring vertex stars, even when the edge itself is unchanged.
   selection.track_splits=bool(composition) || curved;
   // Every adaptation can enter quality improvement; rejected repair support must be invalidated
@@ -1613,8 +1623,12 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
   auto selection_bound=[&](bool repairs) { return transfer_memory::Add(sizeof(Selection::CellDebt),
       repairs ? 4096u : 0u,
       (coarsening || bidirectional) ? (repairs ? 8192u : 5120u) : (repairs ? 6144u : 3072u)); };
-  std::vector<Id> initial,eligible_extensions;
-  size_t seed_slot=0;
+  ContextValue initial_lifetime(context.census.initial);
+  auto& initial = initial_lifetime.Get();
+  ContextValue eligible_extensions_lifetime(context.census.eligible_extensions);
+  auto& eligible_extensions = eligible_extensions_lifetime.Get();
+  ContextValue seed_slot_lifetime(context.census.seed_slot, 0);
+  auto& seed_slot = seed_slot_lifetime.Get();
   auto scope_census_complete=[&]() {
     if(!surface_target)return selection.Progress(working.size()).census_complete;
     if(!selection.progress_consistent||!selection.census_started)return false;

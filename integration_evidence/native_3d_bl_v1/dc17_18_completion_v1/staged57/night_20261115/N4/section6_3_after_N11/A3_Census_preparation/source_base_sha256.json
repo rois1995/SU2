@@ -1,0 +1,38 @@
+{
+  "bindings": [
+    "Selection",
+    "edge_progress",
+    "edge_census_round",
+    "retired_edges",
+    "campaign_edges",
+    "field_identity",
+    "initial",
+    "eligible_extensions",
+    "seed_slot"
+  ],
+  "diff_method": "Python difflib.unified_diff against read-only frozen source texts; no apply or git operation",
+  "frozen_base_sha256": {
+    "Common/src/adaptation/CNativeEngine3D.cpp": "be5610dedb439863d93e7a176fc9085cc8d264199be404a8b30556a168f35766",
+    "Common/src/adaptation/native_engine3d/ContextValue.hpp": "8080f325279156926b04ea05ac907d0e1904bfa92936dbe55bddaaf2fff47b55",
+    "Common/src/adaptation/native_engine3d/EngineContext.cpp": "637c4e0a42147af18635c3398d101892035c5c34cdff5dccd75454b1917dbb58",
+    "Common/src/adaptation/native_engine3d/EngineContext.hpp": "7c25efeb41976d3955d65df5b84aa1605ecf6b601f0f98d474b6c4e837da636a",
+    "Common/src/adaptation/native_engine3d/EngineSetup.hpp": "46bbb95747d1f39dd5dc4faa0553577b3b686fd0cebd198431c6b00b934d2d1b"
+  },
+  "newfiles": {
+    "Common/src/adaptation/native_engine3d/EngineCensus.cpp": {
+      "proposed_source": "EngineCensus.cpp.proposed",
+      "sha256": "314fbe6483953704d96d0ad5582e9bbcd507d740c65295b8a2f49d676979a326"
+    },
+    "Common/src/adaptation/native_engine3d/EngineCensus.hpp": {
+      "proposed_source": "EngineCensus.hpp.proposed",
+      "sha256": "bfe3181885c22e13bc1104c405e3adbf383bced1fff5861baed92a04ce02d739"
+    }
+  },
+  "proposal_diff_sha256": "629641937c4d1438643a276f5af565f3158e1677a7306c411ae6c584f9ff75f9",
+  "purpose": "hash record for the unapplied A3 Census binding proposal",
+  "retained_in_control": [
+    "generation_window",
+    "generation_window_count"
+  ],
+  "state": "PROPOSAL_ONLY_NOT_APPLIED"
+}

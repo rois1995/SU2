@@ -4,7 +4,7 @@ Read AGENTS.md, COMPLETE latest NIGHT_WORK_ORDER.md, and R/night_20261115/progre
 
 R=`integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57`.
 
-**No owned job: A3 Control required G1/G2 PASSED**, checkpoint next. Build53980.117992s/1620pins; G1ZEROchanges789.847011/13.926688/16.181808s; strictG2alloldinteger/model/perrowTIMERcalls/lawcountsEXACT363.020346stop/371.248518seal/allpinsunchanged/all9IDs+controllerterminal. CFDf1d91e46…/test618fa672…. Exact-helperlifetimePASS. NEXTONEconnectedControlcommit/push, thenCensusproposal/build540/G1/G2. A2 5880ce9cf1/A1 dfa2782e17 scopedPASSED/PUSHED. Lastfullqualifiedf8c7b01085; phaseA/N4unfinished.
+**No owned job: A3 Census required G1/G2 PASSED**, checkpoint next. G1ZEROchanges789.755303/15.061827/15.091666s/all1845pinsunchanged. StrictG2alloldinteger/model/perrowTIMERcalls/lawcountsEXACT368.016698stop/376.343898seal/allpinsunchanged/all9IDs+controlleractualterminal. Build54080.149112s/1631pins; CFD59d8e8c8…/testae6e0f44…. NEXTONEconnectedCensuscommit/push, thenQueues3payloads/build541/G1/G2. Control22101148f7/A2 5880ce9cf1/A1 dfa2782e17 scopedPASSED/PUSHED. Lastfullqualifiedf8c7b01085; phaseA/N4unfinished.
 
 Independentcurrentitem6.3: baseline536rebuildPASSED90.125806s/1598pinsunchanged/12terminalIDs, sharedCFDa144/testb5fb EXACTaccepted534. `R/night_20261115/N4/section6_3_after_N11` hascompletecopiedC2.1/inventories/H/D/Night/AGENTSSHAinputs andWHOLEsourcecheck22readings BEFOREanycutedit. No unresolvedresultcontradictionidentified; no cutproductionedityet.
 
