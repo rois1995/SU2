@@ -1752,264 +1752,8 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
   auto& previous_quality_ownership = previous_quality_ownership_lifetime.Get();
   ContextValue quality_census_started_lifetime(control.quality_census_started, false);
   auto& quality_census_started = quality_census_started_lifetime.Get();
-  auto emit_quality_census=[&](const char* stage,const StageProgress& p) {
-    const auto began=Clock::now();
-    const double elapsed=std::chrono::duration<double>(began-started).count();
-    const double tracked_collective=world.collective_seconds+world.election_collective_seconds;
-    const uint64_t construction_edits=stats.length_splits+stats.length_collapses;
-    if(!quality_census_started) {
-      previous_quality=stats.quality;previous_quality_census=p;previous_quality_elapsed=elapsed;
-      previous_quality_collective=tracked_collective;previous_quality_construction=construction_edits;
-      previous_quality_ownership=stats.ownership_changes;quality_census_started=true;
-    }
-    std::array<uint64_t,2> q_location{},j_location{};
-    std::array<uint64_t,3> q_features{},j_features{};
-    std::array<uint64_t,6> q_hist{},j_hist{},geometry_hist{};
-    std::array<uint64_t,8> geometry_types{};
-    uint64_t bad_total=0,bad_short09=0,bad_short05=0,stuck_shape=0,stuck_required=0,missing_features=0,blocked_features=0;
-    auto miss_bin=[](long double value){return !std::isfinite(value)?5u:value<.01L?0u:value<.1L?1u:value<.25L?2u:value<.5L?3u:4u;};
-    for(const auto& item:selection.cells) {
-      const auto& row=item.second;const auto& d=row.debt;
-      const bool bad=d.q_bad||d.j_bad;
-      const unsigned feature=row.feature_known?unsigned(row.near_feature):2u;
-      if(d.q_bad){++q_location[row.surface];++q_features[feature];++q_hist[miss_bin(std::sqrt(d.q))];}
-      if(d.j_bad){++j_location[row.surface];++j_features[feature];++j_hist[miss_bin(std::sqrt(d.j))];}
-      if(bad) {
-        ++bad_total;bool short09=false,short05=false;
-        for(const auto& edge:row.edges) {
-          const auto length=selection.edges.at(edge).measure.length;short09=short09||length<.9L;short05=short05||length<.5L;
-        }
-        bad_short09+=short09;bad_short05+=short05;
-      }
-      if(row.geometry_invalid) {
-        ++geometry_hist.at(row.geometry_excess_bin);
-        if(!row.geometry_types)++geometry_types[7];
-        for(unsigned type=0;type<7;++type)if(row.geometry_types&(1u<<type))++geometry_types[type];
-      }
-      const auto repairs=selection.cell_repairs.find(item.first);
-      if(repairs==selection.cell_repairs.end()||repairs->second.empty()) {missing_features+=bad;continue;}
-      bool blocked=true;
-      for(const auto& key:repairs->second) {
-        const auto demand=selection.repair_users.find(key);
-        if(demand==selection.repair_users.end()||!demand->second.users){missing_features+=bad;blocked=false;break;}
-        if(!demand->second.blocked){blocked=false;break;}
-      }
-      stuck_required+=blocked;stuck_shape+=blocked&&bad;
-    }
-    for(const auto& feature:selection.repair_users)blocked_features+=feature.second.users&&feature.second.blocked;
-    stats.quality.diagnostic_seconds+=std::chrono::duration<double>(Clock::now()-began).count();
-    const auto& q=stats.quality;const auto& old=previous_quality;
-    const double seconds=elapsed-previous_quality_elapsed;
-    if(options.timings) {
-      std::cout<<std::setprecision(17)<<"NATIVE3D_QUALITY rank="<<world.rank<<" stage="<<stage<<" census="<<quality_census_serial
-          <<" complete=1 round="<<stats.rounds<<" elapsed="<<elapsed<<" window_seconds="<<seconds
-          <<" busy_seconds="<<q.busy_seconds-old.busy_seconds<<" join_call_seconds="<<q.join_wait_seconds-old.join_wait_seconds
-          <<" private_work_used="<<q.private_work_used-old.private_work_used
-          <<" tracked_collective_call_seconds="<<tracked_collective-previous_quality_collective
-          <<" diagnostic_seconds="<<q.diagnostic_seconds-old.diagnostic_seconds
-          <<" commits="<<q.commits-old.commits<<" commits_total="<<q.commits
-          <<" private_tracked_collectives="<<q.private_tracked_collectives-old.private_tracked_collectives
-          <<" owned_q_removed="<<int64_t(previous_quality_census.q_bad_cells)-int64_t(p.q_bad_cells)
-          <<" owned_j_removed="<<int64_t(previous_quality_census.j_bad_cells)-int64_t(p.j_bad_cells)
-          <<" owned_debt_removed="<<double(previous_quality_census.q_hinge_squared+previous_quality_census.j_hinge_squared-p.q_hinge_squared-p.j_hinge_squared)
-          <<" q_removed="<<q.q_removed-old.q_removed<<" q_created="<<q.q_created-old.q_created
-          <<" j_removed="<<q.j_removed-old.j_removed<<" j_created="<<q.j_created-old.j_created
-          <<" q_retired="<<q.q_retired-old.q_retired<<" q_introduced="<<q.q_introduced-old.q_introduced
-          <<" j_retired="<<q.j_retired-old.j_retired<<" j_introduced="<<q.j_introduced-old.j_introduced
-          <<" unmeasured_churn="<<q.unmeasured_churn-old.unmeasured_churn
-          <<" construction_edits="<<construction_edits-previous_quality_construction
-          <<" ownership_changes="<<stats.ownership_changes-previous_quality_ownership
-          <<" queue="<<selection.repair_queue.size()<<" blocked_features="<<blocked_features
-          <<" stuck_shape="<<stuck_shape<<" stuck_required="<<stuck_required<<" missing_features="<<missing_features<<'\n';
-      auto histogram=[&](const auto& values){for(size_t i=0;i<values.size();++i){if(i)std::cout<<',';std::cout<<values[i];}};
-      std::cout<<"NATIVE3D_QUALITY_LOCATION rank="<<world.rank<<" census="<<quality_census_serial
-          <<" q_surface="<<q_location[1]<<" q_interior="<<q_location[0]
-          <<" j_surface="<<j_location[1]<<" j_interior="<<j_location[0]
-          <<" q_feature="<<q_features[1]<<" q_no_feature="<<q_features[0]<<" q_feature_unknown="<<q_features[2]
-          <<" j_feature="<<j_features[1]<<" j_no_feature="<<j_features[0]<<" j_feature_unknown="<<j_features[2]
-          <<" bad_union="<<bad_total<<" short09="<<bad_short09<<" short05="<<bad_short05
-          <<" short09_share="<<(bad_total?double(bad_short09)/bad_total:0.)<<" short05_share="<<(bad_total?double(bad_short05)/bad_total:0.)
-          <<" q_miss_hist=";histogram(q_hist);std::cout<<" j_miss_hist=";histogram(j_hist);
-      std::cout<<" geometry_excess_hist=";histogram(geometry_hist);std::cout<<" geometry_authority_types=";histogram(geometry_types);std::cout<<'\n';
-      for(unsigned kind=0;kind<3;++kind) {
-        const auto& now=q.ladder[kind];const auto& prior=old.ladder[kind];
-        std::cout<<"NATIVE3D_QUALITY_LADDER rank="<<world.rank<<" census="<<quality_census_serial<<" kind="<<kind
-            <<" trials="<<now.trials-prior.trials<<" certified="<<now.certified-prior.certified<<" commits="<<now.published-prior.published
-            <<" optimizer_work="<<now.work-prior.work<<" seconds="<<now.seconds-prior.seconds
-            <<" debt_removed="<<double(now.debt_removed-prior.debt_removed)<<" q_removed="<<now.q_removed-prior.q_removed
-            <<" j_removed="<<now.j_removed-prior.j_removed<<" rejected=";
-        for(size_t reason=0;reason<now.rejected.size();++reason){if(reason)std::cout<<',';std::cout<<now.rejected[reason]-prior.rejected[reason];}
-        std::cout<<'\n';
-      }
-    }
-    previous_quality=stats.quality;previous_quality_census=p;previous_quality_elapsed=elapsed;
-    previous_quality_collective=tracked_collective;previous_quality_construction=construction_edits;
-    previous_quality_ownership=stats.ownership_changes;++quality_census_serial;
-  };
-  auto observe_progress=[&](const char* stage) {
-    stats.job_peak_rss_lower = transfer_memory::Add(JobPeakRSS3D(world.comm), options.idle_peak_rss_bytes);
-    CLocalFailure memory_failure;
-    if (options.job_memory_limit && stats.job_peak_rss_lower > options.job_memory_limit)
-      memory_failure.Set(3, 0, "Native3D whole-job process peak RSS exceeds memory budget.");
-    const auto memory_vote = world.elect(memory_failure);
-    if (memory_vote.any) {
-      result.valid = result.surface_prepared = false;
-      stats.stop = EngineStop::MemoryBudget;
-      result.reason = memory_vote.message;
-      return false;
-    }
-    if(options.timings && (std::strcmp(stage, "length_collapse_exit") == 0 ||
-                            std::strcmp(stage, "construction_entry") == 0 || std::strcmp(stage, "exit") == 0))
-      SU2NativeTiming3D::Session::Checkpoint(stage);
-    if(surface_target) {
-      CLocalFailure failure;
-      try{context.census.RefreshSurfaceCensus(context);}catch(const std::exception& e){failure.Set(2,0,e.what());}
-      const auto elected=world.elect(failure);
-      if(elected.any){result.valid=result.surface_prepared=false;result.reason=elected.message;return false;}
-    }
-    if(phase==Phase::Improvement) {
-      SU2NativeTiming3D::Scope progress_timer(SU2NativeTiming3D::Operation::Census);
-      const auto census=selection.Progress(working.size());
-      const bool complete=!world.maximum(!census.census_complete||!census.shape_complete||!census.geometry_complete);
-      if(complete){EngineReports::EmitFixedMetricDrift(context, stage);emit_quality_census(stage,census);}
-    }
-    if(options.timings && (std::string(stage)!="window" || phase==Phase::Improvement)) {
-      SU2NativeTiming3D::Scope output_scope(SU2NativeTiming3D::Operation::Output);
-      const auto p=selection.Progress(working.size());const auto* state=geometry.Parameters();
-      const auto cache=geometry_authority?geometry_authority->GeometryStatsSnapshot():SU2NativeGeometry::MappedFacetReference::GeometryStats{};
-      const auto authority=geometry_authority?geometry_authority->ResidentBytes():0;
-      std::cout<<"NATIVE3D_STORAGE rank="<<world.rank<<" stage="<<stage
-          <<" authority_plus_memo_bytes="<<(authority>=cache.prepared_limit?authority-cache.prepared_limit:authority)
-          <<" prepared_reserved_bytes="<<cache.prepared_limit<<" facet_live_bytes="<<cache.facet_bytes<<" scope_live_bytes="<<cache.scope_bytes
-          <<" private_cells_bytes="<<MapBytes(working)<<" selection_bytes="<<selection.Bytes()<<" directory_bytes="<<directory->ResidentBytes()
-          <<" metric_source_bytes="<<source.ResidentBytes()<<" parameter_bytes="<<(private_parameters?private_parameters->ResidentBytes():0)
-          <<" caller_reservation_bytes="<<options.caller_bytes<<" native_peak_bytes="<<stats.maximum_work_bytes<<'\n';
-      size_t face_pieces=0,trace_pieces=0,limbs=0;
-      auto ratio=[&](const SU2NativeGeometry::ExactRatio& r){limbs=std::max({limbs,r.numerator.size(),r.denominator.size()});};
-      auto bary=[&](const SU2NativeGeometry::ExactBary& b){ratio(b.u);ratio(b.v);};
-      if(state) {
-        for(const auto& row:state->Coverage().faces)for(const auto& piece:row.second.pieces){
-          ++face_pieces;for(const auto& b:piece.reference)bary(b);for(const auto& b:piece.active)bary(b);}
-        for(const auto& row:state->Coverage().traces)for(const auto& piece:row.second.pieces){
-          ++trace_pieces;bary(piece.first);bary(piece.last);ratio(piece.end);}
-      }
-      const auto g=geometry_authority?geometry_authority->GeometryStatsSnapshot():SU2NativeGeometry::MappedFacetReference::GeometryStats{};
-      std::cout<<std::setprecision(17)<<"NATIVE3D_STAGE rank="<<world.rank<<" stage="<<stage
-          <<" job_peak_rss_lower="<<stats.job_peak_rss_lower
-          <<" phase="<<(phase==Phase::Construction?"construction":"improvement")<<" cells="<<p.owned_cells
-          <<" measured="<<p.measured_cells<<" cache_consistent="<<p.cache_consistent
-          <<" census_complete="<<p.census_complete<<" shape_complete="<<p.shape_complete
-          <<" geometry_complete="<<p.geometry_complete<<" q_measured="<<p.q_measured_cells<<" j_measured="<<p.j_measured_cells
-          <<" q_bad="<<p.q_bad_cells<<" j_bad="<<p.j_bad_cells<<" size_bad="<<p.size_bad_cells
-          <<" geometry_bad="<<p.geometry_bad_cells<<" q_debt="<<p.q_hinge_squared<<" j_debt="<<p.j_hinge_squared
-          <<" size_debt="<<p.size_hinge_squared<<" geometry_debt="<<p.geometry_excess_squared
-          <<" distinct_facets="<<g.distinct_facets<<" distinct_scope_keys="<<g.distinct_scope_keys
-          <<" prepared_facet_builds="<<g.prepared_facet_builds<<" prepared_facet_mean_bytes="<<g.prepared_facet_mean_bytes
-          <<" associations="<<(state?state->Records().size():0)<<" working_faces="<<(state?state->Surface().size():0)
-          <<" face_pieces="<<face_pieces<<" trace_pieces="<<trace_pieces<<" maximum_ratio_limbs="<<limbs
-          <<" atlas_work="<<atlas_budget.work<<" atlas_bytes="<<atlas_budget.peak_bytes<<" global_work="<<stats.global_work
-          <<" rounds="<<stats.rounds<<" batch_rounds="<<stats.batch_rounds
-          <<" collapse_corrections="<<stats.collapse_corrections<<" collapse_correction_cells="<<stats.collapse_correction_cells
-          <<" collapse_correction_work="<<stats.collapse_correction_work<<" collapse_correction_seconds="<<stats.collapse_correction_seconds
-          <<" batch_candidates="<<stats.batch_candidates<<" batch_reserved="<<stats.batch_reserved
-          <<" quality_progress="<<stats.quality_progress<<" accepted="<<stats.accepted
-          <<" updated_cells="<<stats.updated_cells<<" update_seconds="<<stats.update_seconds
-          <<" surface_measurement_skipped="<<stats.surface_measurement_skipped
-          <<" surface_required_handoffs="<<stats.surface_required_handoffs
-          <<" surface_demand_required="<<stats.surface_demand_required_cells<<" surface_demand_measured="<<stats.surface_demand_measured_cells
-          <<" surface_demand_complete="<<stats.surface_demand_census_complete<<" surface_geometry_complete="<<stats.surface_demand_geometry_complete
-          <<" seed_cell_classes="<<stats.seed_cell_classes[0]<<','<<stats.seed_cell_classes[1]<<','<<stats.seed_cell_classes[2]
-          <<" updated_cell_classes="<<stats.updated_cell_classes[0]<<','<<stats.updated_cell_classes[1]<<','<<stats.updated_cell_classes[2]
-          <<" geometry_trials="<<stats.geometry_trials<<" geometry_rejected="<<stats.geometry_rejected
-          <<" guidance_trials="<<stats.geometry_guidance_trials<<" guidance_rejected="<<stats.geometry_guidance_rejected
-          <<" guidance_faces="<<stats.geometry_guidance_faces<<" guidance_early_rejected="<<stats.geometry_guidance_early_rejections
-          <<" guidance_seconds="<<stats.geometry_guidance_seconds
-          <<" collective_calls="<<world.collective_calls-tracked_calls_begin<<" collective_seconds="<<world.collective_seconds-tracked_seconds_begin
-          <<" election_calls="<<world.election_collective_calls-election_calls_begin<<" election_seconds="<<world.election_collective_seconds-election_seconds_begin
-          <<" direct_calls="<<g.direct_calls-geometry_begin.direct_calls<<" direct_exceptions="<<g.direct_exceptions-geometry_begin.direct_exceptions
-          <<" direct_work="<<g.direct_work-geometry_begin.direct_work<<" direct_seconds="<<g.direct_seconds-geometry_begin.direct_seconds
-          <<" upper_calls="<<g.upper_calls-geometry_begin.upper_calls<<" union_exceptions="<<g.union_exceptions-geometry_begin.union_exceptions
-          <<" upper_refusals="<<g.upper_refusals-geometry_begin.upper_refusals<<" upper_work="<<g.upper_work-geometry_begin.upper_work
-          <<" upper_refinements="<<g.upper_refinements-geometry_begin.upper_refinements
-          <<" upper_deferred_bounds="<<g.upper_deferred_bounds-geometry_begin.upper_deferred_bounds
-          <<" classification_calls="<<g.classification_calls-geometry_begin.classification_calls
-          <<" classification_work="<<g.classification_work-geometry_begin.classification_work
-          <<" magnitude_calls="<<g.magnitude_calls-geometry_begin.magnitude_calls
-          <<" magnitude_work="<<g.magnitude_work-geometry_begin.magnitude_work
-          <<" limit_calls="<<g.limit_calls-geometry_begin.limit_calls
-          <<" limit_work="<<g.limit_work-geometry_begin.limit_work
-          <<" upper_seconds="<<g.upper_seconds-geometry_begin.upper_seconds<<" full_calls="<<g.full_calls-geometry_begin.full_calls
-          <<" full_work="<<g.full_work-geometry_begin.full_work<<" full_seconds="<<g.full_seconds-geometry_begin.full_seconds
-          <<" facet_hits="<<g.facet_hits-geometry_begin.facet_hits<<" facet_misses="<<g.facet_misses-geometry_begin.facet_misses
-          <<" facet_resolutions="<<g.facet_resolutions
-          <<" scope_hits="<<g.scope_hits-geometry_begin.scope_hits<<" scope_misses="<<g.scope_misses-geometry_begin.scope_misses
-          <<" scope_attempts="<<g.scope_attempts-geometry_begin.scope_attempts
-          <<" scope_builds="<<g.scope_builds-geometry_begin.scope_builds<<" scope_build_work="<<g.scope_build_work-geometry_begin.scope_build_work
-          <<" scope_build_seconds="<<g.scope_build_seconds-geometry_begin.scope_build_seconds
-          <<" support_calls="<<g.support_calls-geometry_begin.support_calls<<" support_facets="<<g.support_facets-geometry_begin.support_facets
-          <<" support_seconds="<<g.support_seconds-geometry_begin.support_seconds
-          <<" facet_build_work="<<g.facet_build_work-geometry_begin.facet_build_work<<" facet_build_seconds="<<g.facet_build_seconds-geometry_begin.facet_build_seconds
-          <<" piece_selection_work="<<g.piece_selection_work-geometry_begin.piece_selection_work<<" piece_selection_seconds="<<g.piece_selection_seconds-geometry_begin.piece_selection_seconds
-          <<" traversal_work="<<g.traversal_work-geometry_begin.traversal_work<<" traversal_seconds="<<g.traversal_seconds-geometry_begin.traversal_seconds
-          <<" selected_pieces="<<g.selected_pieces-geometry_begin.selected_pieces<<" support_pieces="<<g.support_pieces-geometry_begin.support_pieces
-          <<" smooth_boundary_stars="<<stats.boundary_smoothing_stars<<" smooth_boundary_reused="<<stats.boundary_smoothing_reused
-          <<" smooth_boundary_candidates="<<stats.boundary_smoothing_candidates<<" smooth_boundary_rejects="<<stats.boundary_smoothing_validity_rejects<<','<<stats.boundary_smoothing_shape_rejects<<','<<stats.boundary_smoothing_edge_rejects<<','<<stats.boundary_smoothing_geometry_rejects
-          <<" smooth_boundary_guidance="<<stats.boundary_smoothing_guidance_calls<<" smooth_boundary_upper_queries="<<stats.boundary_smoothing_upper_queries
-          <<" smooth_boundary_move_contexts="<<stats.boundary_smoothing_move_contexts<<" smooth_boundary_prepared_trials="<<stats.boundary_smoothing_prepared_trials
-          <<" smooth_boundary_guidance_reused_faces="<<stats.boundary_smoothing_guidance_reused_faces<<" smooth_boundary_guidance_faces="<<stats.boundary_smoothing_guidance_faces<<" smooth_boundary_guidance_early_rejected="<<stats.boundary_smoothing_guidance_early_rejections
-          <<" smooth_boundary_moves="<<stats.boundary_smoothing_moves<<" smooth_boundary_debt_reduction="<<double(stats.boundary_smoothing_debt_reduction)
-          <<" smooth_boundary_seconds="<<stats.boundary_smoothing_seconds
-          <<" smooth_interior_stars="<<stats.interior_smoothing_stars<<" smooth_interior_reused="<<stats.interior_smoothing_reused
-          <<" smooth_interior_candidates="<<stats.interior_smoothing_candidates<<" smooth_interior_rejects="<<stats.interior_smoothing_validity_rejects<<','<<stats.interior_smoothing_shape_rejects<<','<<stats.interior_smoothing_edge_rejects<<','<<stats.interior_smoothing_geometry_rejects
-          <<" smooth_interior_guidance="<<stats.interior_smoothing_guidance_calls<<" smooth_interior_upper_queries="<<stats.interior_smoothing_upper_queries
-          <<" smooth_interior_moves="<<stats.interior_smoothing_moves<<" smooth_interior_debt_reduction="<<double(stats.interior_smoothing_debt_reduction)
-          <<" smooth_interior_seconds="<<stats.interior_smoothing_seconds
-          <<" retention_refusals="<<g.retention_refusals-geometry_begin.retention_refusals<<" prepared_bytes="<<g.prepared_bytes<<" prepared_limit="<<g.prepared_limit<<" facet_bytes="<<g.facet_bytes<<" scope_bytes="<<g.scope_bytes
-          <<" facet_entries="<<g.facet_entries<<" scope_entries="<<g.scope_entries<<" cache_evictions="<<g.evictions<<" cache_evicted_bytes="<<g.evicted_bytes
-          <<" memo_direct_hits="<<g.memo_direct_hits-geometry_begin.memo_direct_hits<<" memo_direct_misses="<<g.memo_direct_misses-geometry_begin.memo_direct_misses
-          <<" memo_union_hits="<<g.memo_union_hits-geometry_begin.memo_union_hits<<" memo_union_misses="<<g.memo_union_misses-geometry_begin.memo_union_misses
-          <<" memo_stores="<<g.memo_stores-geometry_begin.memo_stores<<" memo_evictions="<<g.memo_evictions-geometry_begin.memo_evictions
-          <<" memo_evicted_bytes="<<g.memo_evicted_bytes-geometry_begin.memo_evicted_bytes<<" memo_retention_refusals="<<g.memo_retention_refusals-geometry_begin.memo_retention_refusals
-          <<" memo_maintenance_work="<<g.memo_maintenance_work-geometry_begin.memo_maintenance_work
-          <<" memo_bytes="<<g.memo_bytes<<" memo_limit="<<g.memo_limit<<" memo_direct_entries="<<g.memo_direct_entries<<" memo_union_entries="<<g.memo_union_entries
-          <<" length_splits="<<stats.length_splits<<" length_collapses="<<stats.length_collapses
-          <<" split_passes="<<stats.length_split_passes<<" collapse_passes="<<stats.length_collapse_passes<<" quality_stages="<<stats.quality_stages
-          <<" split_generation="<<stats.split_generation<<" split_lane="<<stats.split_lane
-          <<" surface_rounds="<<stats.surface_rounds<<" interior_rounds="<<stats.interior_rounds
-          <<" surface_seconds="<<stats.surface_seconds<<" interior_seconds="<<stats.interior_seconds
-          <<" surface_conflicts="<<stats.surface_conflicts<<" interior_conflicts="<<stats.interior_conflicts
-          <<" interior_boundary_discoveries="<<stats.interior_boundary_discoveries
-          <<" unique_long_surface="<<stats.unique_long_surface<<" unique_long_interior="<<stats.unique_long_interior
-          <<" unique_edge_debt="<<stats.unique_edge_debt<<" maximum_edge="<<stats.maximum_edge
-          <<" edge_census_round="<<edge_census_round<<" edge_census_current="<<(edge_census_round==stats.rounds)
-          <<" edge_histogram="<<stats.edge_histogram[0]<<','<<stats.edge_histogram[1]<<','<<stats.edge_histogram[2]
-          <<" child_parent_max="<<stats.maximum_child_parent_ratio
-          <<" child_ratio_measured="<<stats.child_ratio_measured
-          <<" elapsed="<<std::chrono::duration<double>(Clock::now()-started).count()<<std::endl;
-      if(std::string(stage)=="length_split_exit")for(const auto& edge:edge_progress.top)
-        std::cout<<"NATIVE3D_EDGE rank="<<world.rank<<" generation="<<stats.split_generation
-            <<" a="<<edge.edge[0]<<" b="<<edge.edge[1]<<" length="<<edge.length<<" surface="<<edge.surface
-            <<" age="<<edge.age<<" disposition="<<edge.disposition<<" disposition_round="<<edge.disposition_round<<'\n';
-    }
-    if(!observe_stage || !stage_storage_admitted || stage_observer_failed)return !stage_observer_failed;
-    CLocalFailure failure;
-    if(options.stage_observer)try {
-      const auto progress=selection.Progress(working.size());
-      options.stage_observer({stage,phase,stats.rounds,result.valid,progress.complete,progress,stats,result.reason,
-          working,original,geometry,composition,options.edge_breakpoints,options.wall_heights,options.region_walls,
-          options.surface_tolerance,options.maximum_seconds,std::chrono::duration<double>(Clock::now()-started).count(),
-          options.maximum_rounds,options.maximum_work,options.memory_ceiling,options.caller_bytes,options.stage_observer_bytes,
-          [&](Id id,CellDiagnostic& out){const auto row=working.find(id);return row!=working.end()&&selection.Diagnose(row->second,out);},
-          &last_rejection,&diagnostic_rejections,world.rank,world.size});
-    }catch(const std::exception& e){failure.Set(2,0,e.what());}
-    const auto elected=world.elect(failure);
-    if(elected.any) {
-      stage_observer_failed=true;result.valid=result.surface_prepared=false;stats.stop=EngineStop::Failure;
-      result.reason+=" Stage progress observer failed: "+elected.message;
-      return false;
-    }
-    return true;
-  };
+;
+;
   ContextValue transaction_captured_lifetime(control.transaction_captured, false);
   auto& transaction_captured = transaction_captured_lifetime.Get();
   ContextValue layer_active_lifetime(control.layer_active, false);
@@ -2020,151 +1764,10 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
   auto& layer_started = layer_started_lifetime.Get();
   ContextValue region_started_lifetime(control.region_started);
   auto& region_started = region_started_lifetime.Get();
-  auto finish=[&]() {
-    // Directory stages can refuse shared work and return directly here without an engine vote.
-    const auto prior_reason=result.reason;const auto prior_stop=stats.stop;
-    if(!context.exchange.Vote(context, CLocalFailure{})) {
-      result.valid=result.surface_prepared=false;
-      if(prior_stop==EngineStop::WorkBudget && !prior_reason.empty())result.reason=prior_reason;
-      else if(!prior_reason.empty() && prior_reason!=result.reason)result.reason+=" Prior failure: "+prior_reason;
-    }
-    if(region_active && options.timings)stats.reconstruction_seconds+=std::chrono::duration<double>(Clock::now()-region_started).count();
-    region_active=false;
-    if(layer_active && options.timings)stats.layer_seconds+=std::chrono::duration<double>(Clock::now()-layer_started).count();
-    layer_active=false;
-    if((result.valid||result.surface_prepared) && geometry.EntityGeometry()) {
-      std::optional<SU2NativeTiming3D::PhaseScope> proof_phase;
-      std::optional<SU2NativeTiming3D::Scope> proof_scope;
-      if (options.timings) {
-        proof_phase.emplace(SU2NativeTiming3D::Phase::FinalProof);
-        proof_scope.emplace(SU2NativeTiming3D::Operation::Certification);
-      }
-      CLocalFailure geometryFailure;
-      try {
-        D9QueryScope d9_query(SU2NativeD9::Site::Finish, &geometry);
-        ProveOwnedSurface(world,working,geometry,atlas_budget,stats);
-      }
-      catch(const std::exception& e){geometryFailure.Set(2,0,e.what());}
-      if(!context.exchange.Vote(context, geometryFailure)){result.valid=result.surface_prepared=false;stats.stop=EngineStop::Failure;}
-    }
-    if(result.surface_prepared && !geometry.EntityGeometry()) {
-      std::optional<SU2NativeTiming3D::PhaseScope> proof_phase;
-      std::optional<SU2NativeTiming3D::Scope> proof_scope;
-      if (options.timings) {
-        proof_phase.emplace(SU2NativeTiming3D::Phase::FinalProof);
-        proof_scope.emplace(SU2NativeTiming3D::Operation::Certification);
-      }
-      CLocalFailure geometryFailure;
-      try {for(const auto& row:working) {
-        const auto patch=GeometryPatch(Imported{{row.second},true,{}},&geometry);
-        for(const auto& face:patch.surface) {
-          std::array<Point,3> triangle{};
-          for(unsigned k=0;k<3;++k)for(const auto& node:row.second.cell.v)if(node.id==face.v[k])triangle[k]=node.p;
-          if(geometry.SurfaceDeviation(face.facet,triangle,SU2NativeGeometry::SurfaceQueryNeed::Classify())>options.surface_tolerance)
-            geometryFailure.Set(1,face.facet,"Prepared surface does not meet the prescribed geometry tolerance.");
-        }
-      }}catch(const std::exception& e){geometryFailure.Set(2,0,e.what());}
-      if(!context.exchange.Vote(context, geometryFailure)){result.surface_prepared=false;stats.stop=EngineStop::Failure;}
-    }
-    if((result.valid||result.surface_prepared) && !options.wall_heights.empty()) {
-      std::optional<SU2NativeTiming3D::PhaseScope> proof_phase;
-      std::optional<SU2NativeTiming3D::Scope> proof_scope;
-      if (options.timings) {
-        proof_phase.emplace(SU2NativeTiming3D::Phase::FinalProof);
-        proof_scope.emplace(SU2NativeTiming3D::Operation::Certification);
-      }
-      CLocalFailure heightFailure;
-      for(const auto& row:working) {
-        std::string reason;
-        if(!EngineTrial::HeightCheck(context, GeometryPatch(Imported{{row.second},true,{}}, &geometry),reason,bool(surface_target)))heightFailure.Set(1,row.first,reason);
-      }
-      if(!context.exchange.Vote(context, heightFailure)){result.valid=result.surface_prepared=false;stats.stop=EngineStop::Failure;}
-    }
-    result.rebuilt_domain=result.valid && region_rebuilt;
-    if (stats.stop==EngineStop::None) stats.stop=result.valid||result.surface_prepared ? EngineStop::Complete : EngineStop::Failure;
-    if(observe_state) {
-      CLocalFailure observed;
-      if(!result.valid&&!result.surface_prepared && options.rejected_state)try {options.rejected_state(working,geometry,result.reason);}
-      catch(const std::exception& e){observed.Set(2,0,e.what());}
-      const auto elected=world.elect(observed);
-      if(elected.any) {
-        result.valid=result.surface_prepared=false;stats.stop=EngineStop::Failure;
-        result.reason+=" Rejected-state diagnostic failed: "+elected.message;
-      }
-    }
-    stats.final_owned_cells=working.size();
-    stats.cached_measured_cells=selection.cells.size();
-    stats.cached_invalid_cells=selection.invalid;
-    stats.remaining_edges=selection.queue.size()+selection.surface_queue.size()+selection.geometry_queue.size();
-    stats.remaining_repairs=selection.repair_queue.size();
-    stats.tracked_bytes=world.bytes_sent-tracked_bytes_begin;
-    stats.tracked_calls=world.collective_calls-tracked_calls_begin;
-    stats.tracked_collective_seconds=world.collective_seconds-tracked_seconds_begin;
-    const auto saved_directory=retired_directory;
-    context.exchange.RetireDirectory(directory->Statistics());
-    if(checkpoint.directory)context.exchange.RetireDirectory(checkpoint.directory->Statistics());
-    const auto all_directory=retired_directory;retired_directory=saved_directory;
-    stats.collision_seconds=all_directory.collision_seconds;
-    stats.collision_builds=all_directory.collision_builds;
-    stats.collision_candidates=all_directory.collision_candidates;
-    stats.collision_checks=all_directory.collision_checks;
-    stats.directory_elections=all_directory.elections;
-    stats.directory_election_seconds=all_directory.election_seconds;
-    stats.parameter_agreement_seconds=all_directory.parameter_agreement_seconds;
-    stats.parameter_publication_seconds=all_directory.parameter_publication_seconds;
-    stats.parameter_edits=all_directory.parameter_edits;stats.parameter_faces=all_directory.parameter_faces;
-    stats.parameter_payload_bytes=all_directory.parameter_payload_bytes;
-    stats.changed_star_scans=all_directory.change_scanned;
-    stats.changed_vertices_sent=all_directory.change_sent;
-    stats.changed_vertices_received=all_directory.change_received;
-    stats.change_notification_seconds=all_directory.change_seconds;
-    stats.maximum_work_bytes=std::max(stats.maximum_work_bytes,all_directory.maximum_work_bytes);
-    const auto& donor = source.Statistics();
-    stats.donor_candidates = donor.index_candidates; stats.donor_filtered = donor.filtered; stats.donor_box_filtered = donor.box_filtered;
-    stats.donor_payloads = donor.payloads; stats.donor_reused = donor.reused_candidates; stats.donor_maximum_patch = donor.maximum_patch;
-    stats.donor_search_seconds = donor.search_seconds; stats.donor_filter_seconds = donor.filter_seconds;
-    stats.metric_support_cells=donor.metric_sample_cells;stats.metric_support_edges=donor.metric_edge_queries;stats.metric_support_skipped=donor.metric_edge_skipped;stats.metric_support_duplicates=donor.metric_edge_duplicates;
-    stats.maximum_work_bytes = std::max(stats.maximum_work_bytes, donor.maximum_work_bytes);
-    stats.atlas_work=atlas_budget.work-atlas_work_initial;stats.atlas_peak_bytes=atlas_budget.peak_bytes;
-    stats.maximum_work_bytes=std::max(stats.maximum_work_bytes,atlas_budget.peak_bytes);
-    result.parameters=private_parameters;result.reference=private_geometry;
-    if(curved && !result.valid && !selection.cells.empty()) {
-      size_t metric_bad=0,geometry_bad=0;
-      for(const auto& row:selection.cells){metric_bad+=!row.second.target_valid;geometry_bad+=row.second.geometry_invalid;}
-      result.reason+=" Local cached demands: geometry_cells="+std::to_string(geometry_bad)+
-          ", metric_or_height_cells="+std::to_string(metric_bad)+", geometry_edges="+std::to_string(selection.geometry_queue.size())+
-          ", metric_edges="+std::to_string(selection.queue.size())+".";
-    }
-    if (!result.valid && !last_rejection.empty()) result.reason += " Last local rejection: " + last_rejection;
-    if (options.timings) {
-      stats.process_cpu_seconds=double(std::clock()-started_cpu)/CLOCKS_PER_SEC;
-      stats.total_seconds=std::chrono::duration<double>(Clock::now()-started).count();
-      const double phases=stats.initialization_seconds+stats.seed_seconds+stats.selection_seconds+
-          stats.dependency_seconds+stats.reservation_seconds+stats.donor_seconds+stats.reconstruction_seconds+
-          stats.metric_seconds+stats.routing_seconds+stats.publication_seconds+stats.update_seconds+stats.completion_seconds+stats.collision_seconds;
-      stats.other_seconds=stats.total_seconds-phases-stats.layer_seconds;
-    }
-    PrintWallLawCensus(working, geometry, options.surface_tolerance, world.rank, "exit", options.timings);
-    observe_progress("exit");
-    wall_counters.Print(world.rank, {stats.geometry_trials, stats.geometry_rejected, stats.geometry_guidance_trials,
-                                     stats.geometry_guidance_rejected, stats.accepted, stats.metric_trials,
-                                     stats.proposed, stats.attempted});
-    lane_counters.Print(world.rank);
-    stats.tracked_bytes=world.bytes_sent-tracked_bytes_begin;
-    stats.tracked_calls=world.collective_calls-tracked_calls_begin;
-    stats.tracked_collective_seconds=world.collective_seconds-tracked_seconds_begin;
-    if(options.timings) {
-      const auto total=std::chrono::duration<double>(Clock::now()-started).count();
-      stats.other_seconds+=total-stats.total_seconds;stats.total_seconds=total;
-      stats.process_cpu_seconds=double(std::clock()-started_cpu)/CLOCKS_PER_SEC;
-    }
-    result.rebuilt_domain=result.valid && region_rebuilt;
-    result.cells.swap(working);
-    return std::move(result);
-  };
+;
   if(observe_stage) {
     stage_storage_admitted=context.exchange.Admit(context, 0);
-    if(!stage_storage_admitted)return finish();
+    if(!stage_storage_admitted)return EngineControl::Finish(context, curved, working, atlas_budget, started, started_cpu);
   }
   ContextValue ready_lifetime(control.ready, false);
   auto& ready = ready_lifetime.Get();
@@ -2299,22 +1902,22 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     if (ready) ready=source.Build(original,result.reason,options.memory_ceiling,
         transfer_memory::Add(context.exchange.Bytes(context),directory->ResidentBytes()));
   }
-  if (!ready) return finish();
+  if (!ready) return EngineControl::Finish(context, curved, working, atlas_budget, started, started_cpu);
   // Freeze donors first; normalization changes working associations, not the source interpretation.
   if(atlas_geometry && !geometry.EntityGeometry()) {
-    if(!context.exchange.Admit(context, 0))return finish();
+    if(!context.exchange.Admit(context, 0))return EngineControl::Finish(context, curved, working, atlas_budget, started, started_cpu);
     SU2NativeGeometry::BoundaryCoverage refreshed;CLocalFailure failure;
     const auto before_work=atlas_budget.work;
     try {
       if(!SU2NativeGeometry::RebuildWorkingSurface(*geometry.Parameters(),refreshed,atlas_budget,result.reason))
         failure.Set(2,0,result.reason);
     }catch(const std::exception& error){failure.Set(2,0,error.what());}
-    if(!context.exchange.Vote(context, failure))return finish();
+    if(!context.exchange.Vote(context, failure))return EngineControl::Finish(context, curved, working, atlas_budget, started, started_cpu);
     if(world.maximum(!refreshed.faces.empty())) {
       std::set<Face> affected;std::vector<Dependency> removed;std::vector<OwnedCell> added;
       const auto face_storage=transfer_memory::Add(SU2Native3D::BoundaryCoverageBytes(refreshed),
           transfer_memory::Mul(refreshed.faces.size(),sizeof(Face)+4*sizeof(void*)));
-      if(!context.exchange.Admit(context, face_storage))return finish();
+      if(!context.exchange.Admit(context, face_storage))return EngineControl::Finish(context, curved, working, atlas_budget, started, started_cpu);
       size_t count=0;
       auto owns=[&](const OwnedCell& row){const auto faces=Faces(row.cell);
         for(unsigned k=0;k<4;++k)if(row.physical[k].present&&affected.count(Key(faces[k])))return true;return false;};
@@ -2322,9 +1925,9 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
         for(const auto& row:refreshed.faces)affected.insert(Key(row.first));
         for(const auto& row:working)count+=owns(row.second);
       }catch(const std::exception& error){failure.Set(2,0,error.what());}
-      if(!context.exchange.Vote(context, failure))return finish();
+      if(!context.exchange.Vote(context, failure))return EngineControl::Finish(context, curved, working, atlas_budget, started, started_cpu);
       const auto local_storage=transfer_memory::Add(face_storage,transfer_memory::Mul(count,sizeof(Dependency)+sizeof(OwnedCell)));
-      if(!context.exchange.Admit(context, local_storage))return finish();
+      if(!context.exchange.Admit(context, local_storage))return EngineControl::Finish(context, curved, working, atlas_budget, started, started_cpu);
       try {
         removed.reserve(count);added.reserve(count);
         for(const auto& row:working)if(owns(row.second)) {
@@ -2332,11 +1935,11 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
           removed.push_back({row.first,row.second.version,world.rank});added.push_back(row.second);++added.back().version;
         }
       }catch(const std::exception& error){failure.Set(2,0,error.what());}
-      if(!context.exchange.Vote(context, failure))return finish();
+      if(!context.exchange.Vote(context, failure))return EngineControl::Finish(context, curved, working, atlas_budget, started, started_cpu);
       const SU2NativeGeometry::BoundaryCoverage empty;
       if(!directory->Publish(working,removed,added,true,result.reason,options.memory_ceiling,
           transfer_memory::Add(context.exchange.RealBytes(context),source.ResidentBytes(),local_storage),{},
-          world.rank?empty:refreshed,&atlas_budget))return finish();
+          world.rank?empty:refreshed,&atlas_budget))return EngineControl::Finish(context, curved, working, atlas_budget, started, started_cpu);
       if(options.timings)std::cout<<"NATIVE3D working surface refresh rank="<<world.rank
           <<" faces="<<refreshed.faces.size()<<" owners="<<added.size()<<" arithmetic_work="<<atlas_budget.work-before_work<<'\n';
     }
@@ -2370,7 +1973,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
   region_applicable=region_applicable || prismatic;
   const int region_lo=TimedAllreduce(int(region_applicable),CPassiveComm::Op::MIN,world.comm);
   const int region_hi=TimedAllreduce(int(region_applicable),CPassiveComm::Op::MAX,world.comm);
-  if(region_lo!=region_hi){result.reason="Native3D region applicability differs across workers.";return finish();}
+  if(region_lo!=region_hi){result.reason="Native3D region applicability differs across workers.";return EngineControl::Finish(context, curved, working, atlas_budget, started, started_cpu);}
   if(region_applicable) {
     region_active=true;region_started=Clock::now();CLocalFailure failure;
     // Fresh regional identities must also exceed frozen donor identities after earlier coarsening.
@@ -2385,13 +1988,13 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     const size_t region_cells=stats.work_limit;
     const auto scratch=transfer_memory::Add(transfer_memory::Mul(global_input,8192),
         transfer_memory::Mul(region_cells,16384),RegionFieldWorkspaceBytes);
-    if(!context.exchange.Admit(context, scratch))return finish();
+    if(!context.exchange.Admit(context, scratch))return EngineControl::Finish(context, curved, working, atlas_budget, started, started_cpu);
     std::vector<std::vector<OwnedCell>> buckets(world.size);
     try {buckets[0].reserve(working.size());for(const auto& row:working)buckets[0].push_back(row.second);}
     catch(const std::exception& e){failure.Set(2,0,e.what());}
-    if(!context.exchange.Vote(context, failure))return finish();bool admitted=false;
+    if(!context.exchange.Vote(context, failure))return EngineControl::Finish(context, curved, working, atlas_budget, started, started_cpu);bool admitted=false;
     auto rows=world.exchange(buckets,&admitted,options.memory_ceiling,transfer_memory::Add(context.exchange.Bytes(context),scratch));
-    if(!admitted){result.reason="Native3D region input exchange exceeds storage.";return finish();}
+    if(!admitted){result.reason="Native3D region input exchange exceeds storage.";return EngineControl::Finish(context, curved, working, atlas_budget, started, started_cpu);}
     std::vector<DonorRegion> regions;Patch old,fresh;std::vector<OwnedCell> replacement;std::vector<BoundaryParameterEdit> region_parameter_edits;bool core_declined=false;
     try {if(!world.rank){
       std::sort(rows.begin(),rows.end(),[](const OwnedCell& a,const OwnedCell& b){return a.cell.id<b.cell.id;});
@@ -2399,10 +2002,10 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
       for(const auto& c:old.cells)for(auto n:c.v){lo={std::min(lo.x,n.p.x),std::min(lo.y,n.p.y),std::min(lo.z,n.p.z)};hi={std::max(hi.x,n.p.x),std::max(hi.y,n.p.y),std::max(hi.z,n.p.z)};}
       regions.push_back({lo.x,lo.y,lo.z,hi.x,hi.y,hi.z});
     }}catch(const std::exception& e){failure.Set(2,0,e.what());}
-    if(!context.exchange.Vote(context, failure))return finish();
+    if(!context.exchange.Vote(context, failure))return EngineControl::Finish(context, curved, working, atlas_budget, started, started_cpu);
     DonorPatch imported;imported.valid=true;
     if(global_original<=MaximumDonors)imported=source.Import(regions,options.memory_ceiling,transfer_memory::Add(context.exchange.Bytes(context),scratch));
-    if(!imported.valid){result.reason=imported.reason;return finish();}
+    if(!imported.valid){result.reason=imported.reason;return EngineControl::Finish(context, curved, working, atlas_budget, started, started_cpu);}
     RegionReport report;
     auto tick=[&](){if(options.maximum_seconds && std::chrono::duration<double>(Clock::now()-started).count()>=options.maximum_seconds)
       throw std::runtime_error("Native3D region construction exhausts elapsed-time budget.");};
@@ -2477,18 +2080,18 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     if(!context.exchange.Vote(context, failure)) {
       if(world.maximum(report.exhausted_work))stats.stop=EngineStop::WorkBudget;
       else if(options.maximum_seconds && world.maximum(std::chrono::duration<double>(Clock::now()-started).count()>=options.maximum_seconds))stats.stop=EngineStop::TimeBudget;
-      return finish();
+      return EngineControl::Finish(context, curved, working, atlas_budget, started, started_cpu);
     }
     const bool changed=world.maximum(!replacement.empty());
     if(changed) {
       std::vector<std::vector<OwnedCell>> to(world.size);
       try {for(auto row:replacement)to[row.cell.id%world.size].push_back(row);}catch(const std::exception& e){failure.Set(2,0,e.what());}
-      if(!context.exchange.Vote(context, failure))return finish();
+      if(!context.exchange.Vote(context, failure))return EngineControl::Finish(context, curved, working, atlas_budget, started, started_cpu);
       const auto added=world.exchange(to,&admitted,options.memory_ceiling,transfer_memory::Add(context.exchange.Bytes(context),scratch));
-      if(!admitted){result.reason="Native3D region result exchange exceeds storage.";return finish();}
+      if(!admitted){result.reason="Native3D region result exchange exceeds storage.";return EngineControl::Finish(context, curved, working, atlas_budget, started, started_cpu);}
       std::vector<Dependency> removed;try{for(const auto& row:working)removed.push_back({row.first,row.second.version,world.rank});}catch(const std::exception& e){failure.Set(2,0,e.what());}
-      if(!context.exchange.Vote(context, failure))return finish();
-      if(!directory->Publish(working,removed,added,true,result.reason,options.memory_ceiling,transfer_memory::Add(context.exchange.RealBytes(context),scratch),region_parameter_edits,fresh.coverage,geometry.AtlasReservation()))return finish();
+      if(!context.exchange.Vote(context, failure))return EngineControl::Finish(context, curved, working, atlas_budget, started, started_cpu);
+      if(!directory->Publish(working,removed,added,true,result.reason,options.memory_ceiling,transfer_memory::Add(context.exchange.RealBytes(context),scratch),region_parameter_edits,fresh.coverage,geometry.AtlasReservation()))return EngineControl::Finish(context, curved, working, atlas_budget, started, started_cpu);
       if (!world.rank) {
         ++stats.accepted;
         wall_counters.Accepted();
@@ -2502,7 +2105,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
       for(const auto& row:working){if(!surface_target||selection.RequestedWall(row.second))initial.push_back(row.first);maximum_cell=std::max(maximum_cell,row.first);
         for(auto node:row.second.cell.v)maximum_node=std::max(maximum_node,node.id);}
     }catch(const std::exception& e){failure.Set(2,0,e.what());}
-    if(!context.exchange.Vote(context, failure))return finish();
+    if(!context.exchange.Vote(context, failure))return EngineControl::Finish(context, curved, working, atlas_budget, started, started_cpu);
     maximum_node=TimedAllreduce(maximum_node,CPassiveComm::Op::MAX,world.comm);
     maximum_cell=TimedAllreduce(maximum_cell,CPassiveComm::Op::MAX,world.comm);
     // Valid coarsening inputs and finer interior fields retain the existing volume search.
@@ -2515,7 +2118,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     std::set<Id> pending;
     const auto layerScratch=transfer_memory::Add(transfer_memory::Mul(working.size(),sizeof(Id)+4*sizeof(void*)),
         transfer_memory::Mul(transfer_memory::Mul(options.candidate_batch,MaximumReplacementCells),8192),MaximumFrozenFieldBytes);
-    if(!context.exchange.Admit(context, layerScratch))return finish();
+    if(!context.exchange.Admit(context, layerScratch))return EngineControl::Finish(context, curved, working, atlas_budget, started, started_cpu);
     auto needs_layer=[&](const OwnedCell& row) {
       bool wall=false;
       for(const auto& f:row.physical)wall=wall || (f.present && options.wall_heights.count(geometry.Get(f.facet).marker));
@@ -2525,17 +2128,17 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     };
     try {for(const auto& row:working)if(needs_layer(row.second))pending.insert(row.first);}
     catch(const std::exception& e){failure.Set(2,0,e.what());}
-    if(!context.exchange.Vote(context, failure))return finish();
+    if(!context.exchange.Vote(context, failure))return EngineControl::Finish(context, curved, working, atlas_budget, started, started_cpu);
     uint64_t epoch=0;
     while(world.maximum(!pending.empty())) {
-      if(stats.global_work>=stats.work_limit) {stats.stop=EngineStop::WorkBudget;result.reason="Native3D first-row initialization exhausts global work budget.";return finish();}
+      if(stats.global_work>=stats.work_limit) {stats.stop=EngineStop::WorkBudget;result.reason="Native3D first-row initialization exhausts global work budget.";return EngineControl::Finish(context, curved, working, atlas_budget, started, started_cpu);}
       auto timed_out=[&]() {
         if(options.maximum_seconds && world.maximum(std::chrono::duration<double>(Clock::now()-started).count()>=options.maximum_seconds)) {
           stats.stop=EngineStop::TimeBudget;result.reason="Native3D first-row initialization exhausts elapsed-time budget.";return true;
         }
         return false;
       };
-      if(timed_out())return finish();
+      if(timed_out())return EngineControl::Finish(context, curved, working, atlas_budget, started, started_cpu);
       std::vector<Feature> features;std::vector<Id> queued;
       DependencyBatch dependencies;ImportedBatch imported;ReservationBatch reserved;
       auto plan=[&]() {
@@ -2576,10 +2179,10 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
         }
         return true;
       };
-      if(!plan())return finish();
+      if(!plan())return EngineControl::Finish(context, curved, working, atlas_budget, started, started_cpu);
       std::vector<Patch> proposals;
       try {proposals.resize(imported.candidates.size());}catch(const std::exception& e){failure.Set(2,0,e.what());}
-      if(!context.exchange.Vote(context, failure))return finish();
+      if(!context.exchange.Vote(context, failure))return EngineControl::Finish(context, curved, working, atlas_budget, started, started_cpu);
       const size_t slots=TimedAllreduce(imported.candidates.size(),CPassiveComm::Op::MAX,world.comm);
       auto joint_candidate=[&](const auto& item) {
         unsigned walls=0;
@@ -2699,7 +2302,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
         }
         return true;
       };
-      if(!construct())return finish();
+      if(!construct())return EngineControl::Finish(context, curved, working, atlas_budget, started, started_cpu);
       auto publish=[&]() {
         Timer timer(stats.layer_publication_seconds,options.timings, SU2NativeTiming3D::Operation::Communication);
         std::vector<std::vector<Dependency>> toRemove(world.size);
@@ -2744,13 +2347,13 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
         stats.layer_published+=published;++epoch;stats.maximum_owned=std::max(stats.maximum_owned,working.size());
         return true;
       };
-      if(!publish())return finish();
+      if(!publish())return EngineControl::Finish(context, curved, working, atlas_budget, started, started_cpu);
     }
     try {
       initial.clear();initial.reserve(working.size());
       for(const auto& row:working){if(!surface_target||selection.RequestedWall(row.second))initial.push_back(row.first);maximum_cell=std::max(maximum_cell,row.first);for(auto n:row.second.cell.v)maximum_node=std::max(maximum_node,n.id);}
     }catch(const std::exception& e){failure.Set(2,0,e.what());}
-    if(!context.exchange.Vote(context, failure))return finish();
+    if(!context.exchange.Vote(context, failure))return EngineControl::Finish(context, curved, working, atlas_budget, started, started_cpu);
     maximum_node=TimedAllreduce(maximum_node,CPassiveComm::Op::MAX,world.comm);
     maximum_cell=TimedAllreduce(maximum_cell,CPassiveComm::Op::MAX,world.comm);
     if(options.timings)stats.layer_seconds+=std::chrono::duration<double>(Clock::now()-layer_started).count();
@@ -2944,7 +2547,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     if(!context.exchange.Vote(context, failure))return false;
     if (options.timings) ReportOwnershipMemory(world, "staged", pending_bytes,
         transfer_memory::Bytes(outgoing), transfer_memory::Bytes(records));
-    if(!within_time() || !observe_progress("ownership_staged"))return false;
+    if(!within_time() || !EngineControl::ObserveProgress(context, working, atlas_budget, "ownership_staged"))return false;
     // No private transaction survives this swap; required features retain their inherited service history.
     context.exchange.RetireDirectory(directory->Statistics());working.swap(pending);directory.swap(pending_directory);selection.SwapState(pending_selection);
     EngineReports::ResetFixedMetricCells(context);
@@ -2965,7 +2568,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
         <<" cells="<<working.size()<<" transition_peak_bytes="<<stats.maximum_work_bytes<<'\n';
     if (options.timings) ReportOwnershipMemory(world, "committed", pending_bytes,
         transfer_memory::Bytes(outgoing), transfer_memory::Bytes(records));
-    return !quality||observe_progress("ownership_committed");
+    return !quality||EngineControl::ObserveProgress(context, working, atlas_budget, "ownership_committed");
   };
   auto begin_length_generation=[&](bool collapse) {
     if(!context.exchange.Admit(context, transfer_memory::Add(transfer_memory::Mul(working.size(),context.control.SelectionBound(context, false)),
@@ -2999,7 +2602,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
       phase_start_round=stats.rounds;
       progress_at_window=stats.size_progress+stats.cell_removals+stats.geometry_progress;
       attempted_at_window=stats.attempted;deferred_at_window=stats.length_pass_deferred;
-      return observe_progress("surface_repair_entry");
+      return EngineControl::ObserveProgress(context, working, atlas_budget, "surface_repair_entry");
     }
     metric_cleanup=false;
     if(bidirectional) {
@@ -3012,7 +2615,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
       if(!refine_geometry)context.queues.LengthDirection(context, next==Phase::Construction);
     }
     if(phase==Phase::Construction && !construction_entry_reported) {
-      if(!observe_progress("construction_entry"))return false;
+      if(!EngineControl::ObserveProgress(context, working, atlas_budget, "construction_entry"))return false;
       construction_entry_reported=true;
     }
     construction_handoff_progress=next==Phase::Improvement && world.maximum(construction_changed);
@@ -3046,7 +2649,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     }
     if(!repairing)construction_entry_reported=true;
     if(repairing && !phase_ownership(true))return false;
-    return observe_progress(repairing?"quality_entry":"construction_entry");
+    return EngineControl::ObserveProgress(context, working, atlas_budget, repairing?"quality_entry":"construction_entry");
   };
   auto discard_checkpoint=[&]() {
     if(checkpoint.directory)context.exchange.RetireDirectory(checkpoint.directory->Statistics());
@@ -3123,16 +2726,16 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     return enter_phase(Phase::Improvement);
   };
   if(bidirectional)directory->BeginConstructionPass();
-  if(!context.exchange.Admit(context, transfer_memory::Mul(transfer_memory::Mul(coarsening ? 12 : 6,working.size()),sizeof(Edge)+4*sizeof(void*))))return finish();
+  if(!context.exchange.Admit(context, transfer_memory::Mul(transfer_memory::Mul(coarsening ? 12 : 6,working.size()),sizeof(Edge)+4*sizeof(void*))))return EngineControl::Finish(context, curved, working, atlas_budget, started, started_cpu);
   {
     CLocalFailure failure;
     try{selection.SeedFrontier(working);}catch(const std::exception& e){failure.Set(2,0,e.what());}
-    if(!context.exchange.Vote(context, failure))return finish();
+    if(!context.exchange.Vote(context, failure))return EngineControl::Finish(context, curved, working, atlas_budget, started, started_cpu);
   }
   // Discover required surface work before optional collapses, without delaying a known deficit for the full census.
   do {
     ready=context.census.SeedNext(context);
-    if (!ready) return finish();
+    if (!ready) return EngineControl::Finish(context, curved, working, atlas_budget, started, started_cpu);
   } while(surface_target && !world.maximum(selection.construction_invalid!=0) && world.maximum(seed_slot<initial.size()));
   for (RoundState round_state;;) {
     auto& round = round_state.round;
@@ -3144,13 +2747,13 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     if(surface_target && (result.surface_prepared || (repairing && surface_ready()))) {
       if(world.maximum(stats.global_work>stats.work_limit)) {
         result.surface_prepared=false;stats.stop=EngineStop::WorkBudget;
-        result.reason="Surface preparation exhausted work before complete readiness.";return finish();
+        result.reason="Surface preparation exhausted work before complete readiness.";return EngineControl::Finish(context, curved, working, atlas_budget, started, started_cpu);
       }
       if(options.maximum_seconds&&world.maximum(std::chrono::duration<double>(Clock::now()-started).count()>=options.maximum_seconds)) {
         result.surface_prepared=false;stats.stop=EngineStop::TimeBudget;
-        result.reason="Surface preparation exhausted elapsed time before complete readiness.";return finish();
+        result.reason="Surface preparation exhausted elapsed time before complete readiness.";return EngineControl::Finish(context, curved, working, atlas_budget, started, started_cpu);
       }
-      result.surface_prepared=true;result.reason.clear();return finish();
+      result.surface_prepared=true;result.reason.clear();return EngineControl::Finish(context, curved, working, atlas_budget, started, started_cpu);
     }
     ContextValue timed_lane_lifetime(
         round_state.timed_lane,
@@ -3203,27 +2806,27 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
         if(ready && !complete && !any)refill=world.maximum(seed_slot<initial.size());
       }
     }
-    if (!ready) return finish();
+    if (!ready) return EngineControl::Finish(context, curved, working, atlas_budget, started, started_cpu);
     if(surface_target && phase==Phase::Construction && any &&
         world.maximum(!choice.active && seed_slot<initial.size())) {
       // One idle-rank census batch must not drain ahead of the active round.
-      if(!context.census.SeedNext(context, !choice.active))return finish();
+      if(!context.census.SeedNext(context, !choice.active))return EngineControl::Finish(context, curved, working, atlas_budget, started, started_cpu);
       bad_field=world.maximum(selection.invalid!=0);
-      if(!pick())return finish();
+      if(!pick())return EngineControl::Finish(context, curved, working, atlas_budget, started, started_cpu);
       complete=!world.maximum(selection.invalid!=0 || seed_slot<initial.size() ||
           !selection.progress_consistent || (coarsening&&!selection.queue.empty()));
       refill=!complete&&!any&&world.maximum(seed_slot<initial.size());
     }
     if(options.maximum_seconds && world.maximum(std::chrono::duration<double>(Clock::now()-started).count()>=options.maximum_seconds)) {
       stats.stop=EngineStop::TimeBudget;result.reason="Native 3D kernel elapsed-time budget exhausted; feasibility is undetermined.";
-      return finish();
+      return EngineControl::Finish(context, curved, working, atlas_budget, started, started_cpu);
     }
     if(surface_target && phase==Phase::Construction && !repairing && coarsening &&
         world.maximum(selection.construction_invalid!=0)) {
       // Required surface debt must not wait for an exhaustive optional short-edge sweep.
-      if(!begin_length_generation(false))return finish();
+      if(!begin_length_generation(false))return EngineControl::Finish(context, curved, working, atlas_budget, started, started_cpu);
       ++stats.surface_required_handoffs;
-      if(!observe_progress("surface_required_entry"))return finish();
+      if(!EngineControl::ObserveProgress(context, working, atlas_budget, "surface_required_entry"))return EngineControl::Finish(context, curved, working, atlas_budget, started, started_cpu);
       continue;
     }
     // Before its first strict checkpoint, coarsening must finish the edge-only entry census.
@@ -3231,10 +2834,10 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     // destructive removals; invalid inputs still use construction until a strict closure exists.
     if(standalone_coarsening && !checkpoint.valid && phase==Phase::Construction && !repairing &&
         world.maximum(selection.cells.size()!=working.size()) && world.maximum(seed_slot<initial.size()))refill=true;
-    if(refill) {ready=context.census.SeedNext(context);if(!ready)return finish();continue;}
+    if(refill) {ready=context.census.SeedNext(context);if(!ready)return EngineControl::Finish(context, curved, working, atlas_budget, started, started_cpu);continue;}
     if(standalone_coarsening && !checkpoint.valid && phase==Phase::Construction && !repairing &&
         !world.maximum(selection.cells.size()!=working.size() || selection.construction_invalid!=0)) {
-      if(!enter_phase(Phase::Improvement))return finish();
+      if(!enter_phase(Phase::Improvement))return EngineControl::Finish(context, curved, working, atlas_budget, started, started_cpu);
       continue;
     }
     // Amortize the strict census over a useful repair pass before retrying outstanding construction.
@@ -3246,52 +2849,52 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     const bool& clean_quality = clean_quality_lifetime.Get();
     if(metric_cleanup && !any) {
       if(world.maximum(!selection.Progress(working.size()).complete)) {
-        result.reason="Native3D metric cleanup lost its complete improvement census.";return finish();
+        result.reason="Native3D metric cleanup lost its complete improvement census.";return EngineControl::Finish(context, curved, working, atlas_budget, started, started_cpu);
       }
       ++stats.length_collapse_passes;
-      if(!observe_progress("metric_cleanup_exit") || !enter_phase(Phase::Improvement))return finish();
+      if(!EngineControl::ObserveProgress(context, working, atlas_budget, "metric_cleanup_exit") || !enter_phase(Phase::Improvement))return EngineControl::Finish(context, curved, working, atlas_budget, started, started_cpu);
       continue;
     }
     // Close shape/height first, then give existing topology repair the residual length debt.
     if(bidirectional && clean_quality && !selection.size_repairs && world.maximum(selection.debt.size_bad_cells!=0)) {
-      if(!context.exchange.Admit(context, transfer_memory::Mul(working.size(),context.control.SelectionBound(context, true))))return finish();
+      if(!context.exchange.Admit(context, transfer_memory::Mul(working.size(),context.control.SelectionBound(context, true))))return EngineControl::Finish(context, curved, working, atlas_budget, started, started_cpu);
       CLocalFailure failure;
       try{selection.EnableSizeRepairs(working);}catch(const std::exception& e){failure.Set(2,0,e.what());}
-      if(!context.exchange.Vote(context, failure) || !observe_progress("size_repair_entry"))return finish();
+      if(!context.exchange.Vote(context, failure) || !EngineControl::ObserveProgress(context, working, atlas_budget, "size_repair_entry"))return EngineControl::Finish(context, curved, working, atlas_budget, started, started_cpu);
       continue;
     }
     // Geometry-only demand gets its own pass after shape, height and size have closed.
     if(bidirectional && clean_quality && !selection.geometry_repairs &&
         !world.maximum(selection.debt.size_bad_cells!=0) && world.maximum(selection.construction_invalid!=0)) {
-      if(!context.exchange.Admit(context, transfer_memory::Mul(working.size(),context.control.SelectionBound(context, true))))return finish();
+      if(!context.exchange.Admit(context, transfer_memory::Mul(working.size(),context.control.SelectionBound(context, true))))return EngineControl::Finish(context, curved, working, atlas_budget, started, started_cpu);
       CLocalFailure failure;
       try{selection.EnableGeometryRepairs(working);}catch(const std::exception& e){failure.Set(2,0,e.what());}
-      if(!context.exchange.Vote(context, failure) || !observe_progress("geometry_repair_entry"))return finish();
+      if(!context.exchange.Vote(context, failure) || !EngineControl::ObserveProgress(context, working, atlas_budget, "geometry_repair_entry"))return EngineControl::Finish(context, curved, working, atlas_budget, started, started_cpu);
       continue;
     }
     if(standalone_coarsening && phase==Phase::Improvement && checkpoint.valid && !any && !clean_quality &&
         !world.maximum(selection.cells.size()!=working.size()) && world.maximum(checkpoint.trial)) {
       if(stats.global_work>=stats.work_limit) {
-        stats.stop=EngineStop::WorkBudget;result.reason="Native coarsening quality closure exhausted its work budget.";return finish();
+        stats.stop=EngineStop::WorkBudget;result.reason="Native coarsening quality closure exhausted its work budget.";return EngineControl::Finish(context, curved, working, atlas_budget, started, started_cpu);
       }
-      if(!rollback_checkpoint())return finish();
+      if(!rollback_checkpoint())return EngineControl::Finish(context, curved, working, atlas_budget, started, started_cpu);
       continue;
     }
     if(standalone_coarsening && clean_quality && !world.maximum(selection.construction_invalid!=0)) {
       if(checkpoint.valid && world.maximum(checkpoint.trial)) {
         const size_t cells=TimedAllreduce(working.size(),CPassiveComm::Op::SUM,world.comm);
         if(cells>=checkpoint.global_cells) {
-          if(!rollback_checkpoint())return finish();
+          if(!rollback_checkpoint())return EngineControl::Finish(context, curved, working, atlas_budget, started, started_cpu);
           continue;
         }
         ++stats.coarsen_committed_passes;
         discard_checkpoint();
       }
       if(!world.maximum(selection.HasCoarseningDemand())) {
-        result.valid=true;result.reason.clear();return finish();
+        result.valid=true;result.reason.clear();return EngineControl::Finish(context, curved, working, atlas_budget, started, started_cpu);
       }
       if(!checkpoint.valid) {
-        if(!capture_checkpoint() || !enter_phase(Phase::Construction))return finish();
+        if(!capture_checkpoint() || !enter_phase(Phase::Construction))return EngineControl::Finish(context, curved, working, atlas_budget, started, started_cpu);
         continue;
       }
     }
@@ -3303,31 +2906,31 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
       const bool refine_geometry=bidirectional &&
           !world.maximum(!progress.complete || progress.size_bad_cells || progress.height_bad_cells || progress.height_unresolved_cells) &&
           world.maximum(progress.geometry_bad_cells!=0);
-      if(!observe_progress("quality_exit") || !enter_phase(Phase::Construction,refine_geometry))return finish();
+      if(!EngineControl::ObserveProgress(context, working, atlas_budget, "quality_exit") || !enter_phase(Phase::Construction,refine_geometry))return EngineControl::Finish(context, curved, working, atlas_budget, started, started_cpu);
       continue;
     }
     if(bidirectional&&phase==Phase::Construction&&!repairing&&!coarsening&&!any&&selection.lane==Selection::Lane::Surface&&
         !world.maximum(!context.census.ScopeCensusComplete(context))) {
-      if(!context.census.GenerationCensus(context)||!observe_progress("split_surface_exit"))return finish();
+      if(!context.census.GenerationCensus(context)||!EngineControl::ObserveProgress(context, working, atlas_budget, "split_surface_exit"))return EngineControl::Finish(context, curved, working, atlas_budget, started, started_cpu);
       // Interior publications can reopen surface demand after the full-vertex claims end.
       selection.geometry_split_priorities.clear();selection.geometry_priority_mode=false;
       directory->EndConstructionPass();construction_claims=false;selection.lane=Selection::Lane::Interior;stats.split_lane=2;
-      if(!observe_progress("split_interior_entry"))return finish();
+      if(!EngineControl::ObserveProgress(context, working, atlas_budget, "split_interior_entry"))return EngineControl::Finish(context, curved, working, atlas_budget, started, started_cpu);
       continue;
     }
     if(bidirectional&&phase==Phase::Construction&&!repairing&&!coarsening&&!any&&selection.lane==Selection::Lane::Interior&&
         world.maximum(!selection.surface_queue.empty()||!selection.geometry_queue.empty())) {
       // Interior publications may reveal/reopen entry-edge surface demand. Drain it before ending
       // the finite generation; newly created edges still cannot enter its immutable frontier.
-      if(!context.census.GenerationCensus(context)||!observe_progress("split_interior_exit"))return finish();
+      if(!context.census.GenerationCensus(context)||!EngineControl::ObserveProgress(context, working, atlas_budget, "split_interior_exit"))return EngineControl::Finish(context, curved, working, atlas_budget, started, started_cpu);
       directory->BeginConstructionPass();construction_claims=true;selection.lane=Selection::Lane::Surface;stats.split_lane=1;
-      if(!observe_progress("split_surface_resume"))return finish();
+      if(!EngineControl::ObserveProgress(context, working, atlas_budget, "split_surface_resume"))return EngineControl::Finish(context, curved, working, atlas_budget, started, started_cpu);
       continue;
     }
     if(bidirectional && phase==Phase::Construction && !repairing && !any &&
         !world.maximum(!context.census.ScopeCensusComplete(context))) {
       const bool productive=world.maximum(construction_generation_changed);
-      if(!context.census.GenerationCensus(context))return finish();
+      if(!context.census.GenerationCensus(context))return EngineControl::Finish(context, curved, working, atlas_budget, started, started_cpu);
       const auto current_debt=context.census.CurrentGenerationDebt(context);bool progressing=true;
       if(coarsening){generation_window_count=1;generation_window[0]=current_debt;}
       else {
@@ -3361,23 +2964,23 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
           <<" atlas_work="<<atlas_budget.work<<" admitted_peak_bytes="<<stats.maximum_work_bytes
           <<" elapsed="<<std::chrono::duration<double>(Clock::now()-started).count()<<'\n';
       }
-      if(!observe_progress(coarsening?"length_collapse_exit":"length_split_exit"))return finish();
+      if(!EngineControl::ObserveProgress(context, working, atlas_budget, coarsening?"length_collapse_exit":"length_split_exit"))return EngineControl::Finish(context, curved, working, atlas_budget, started, started_cpu);
       if(!coarsening) {
         // Descendant size demand stays in construction. Once size closes, give shape/height
         // improvement a turn before more geometry-only splitting; residual geometry can return here.
         const bool size_demand=world.maximum(selection.debt.size_bad_cells!=0);
         if(productive && progressing && size_demand) {
           if(stats.global_work>=stats.work_limit){stats.stop=EngineStop::WorkBudget;
-            result.reason="Native3D construction generation exhausted global work; feasibility is undetermined.";return finish();}
-          if(!begin_length_generation(false))return finish();
+            result.reason="Native3D construction generation exhausted global work; feasibility is undetermined.";return EngineControl::Finish(context, curved, working, atlas_budget, started, started_cpu);}
+          if(!begin_length_generation(false))return EngineControl::Finish(context, curved, working, atlas_budget, started, started_cpu);
           continue;
         }
         if(productive&&!progressing)++stats.construction_stall_handoffs;
-        if(!enter_phase(Phase::Improvement))return finish();
+        if(!enter_phase(Phase::Improvement))return EngineControl::Finish(context, curved, working, atlas_budget, started, started_cpu);
       } else {
         // The major direction boundary is quiescent; no repartition is evaluated at lane/generation switches.
         context.queues.LengthDirection(context, false);directory->EndConstructionPass();
-        if(!phase_ownership(false) || !begin_length_generation(false))return finish();
+        if(!phase_ownership(false) || !begin_length_generation(false))return EngineControl::Finish(context, curved, working, atlas_budget, started, started_cpu);
       }
       continue;
     }
@@ -3388,24 +2991,24 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
       const bool productive=world.maximum(construction_generation_changed);
       if(census && demanded && productive) {
         if(stats.global_work>=stats.work_limit){stats.stop=EngineStop::WorkBudget;
-          result.reason="Native3D construction generation exhausted global work; feasibility is undetermined.";return finish();}
-        if(!context.exchange.Admit(context, transfer_memory::Mul(working.size(),context.control.SelectionBound(context, false))))return finish();
+          result.reason="Native3D construction generation exhausted global work; feasibility is undetermined.";return EngineControl::Finish(context, curved, working, atlas_budget, started, started_cpu);}
+        if(!context.exchange.Admit(context, transfer_memory::Mul(working.size(),context.control.SelectionBound(context, false))))return EngineControl::Finish(context, curved, working, atlas_budget, started, started_cpu);
         CLocalFailure failure;
         try{selection.ChangePhase(false,working,field_identity);}catch(const std::exception& e){failure.Set(2,0,e.what());}
-        if(!context.exchange.Vote(context, failure))return finish();
+        if(!context.exchange.Vote(context, failure))return EngineControl::Finish(context, curved, working, atlas_budget, started, started_cpu);
         construction_generation_changed=false;
         continue;
       }
     }
     if(!bidirectional && phase==Phase::Construction && !repairing && (complete || (!any && !world.maximum(selection.cells.size()!=working.size())))) {
-      if(!enter_phase(Phase::Improvement))return finish();
+      if(!enter_phase(Phase::Improvement))return EngineControl::Finish(context, curved, working, atlas_budget, started, started_cpu);
       continue;
     }
     {
       Timer timer(stats.selection_seconds,options.timings, SU2NativeTiming3D::Operation::Scheduling);
       if (options.maximum_seconds && world.maximum(std::chrono::duration<double>(Clock::now()-started).count()>=options.maximum_seconds)) {
         stats.stop=EngineStop::TimeBudget; result.reason="Native 3D kernel elapsed-time budget exhausted; feasibility is undetermined.";
-        return finish();
+        return EngineControl::Finish(context, curved, working, atlas_budget, started, started_cpu);
       }
     }
     // One finite, shape-preserving short-edge opportunity can change a stalled repair's neighbors.
@@ -3416,23 +3019,23 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
           progress.height_bad_cells || progress.height_unresolved_cells)) {
         bool short_edges=false;for(const auto& edge:selection.edges)short_edges|=edge.second.measure.length<CoarseningMetricEdge;
         if(world.maximum(short_edges)) {
-          if(!context.exchange.Admit(context, transfer_memory::Mul(transfer_memory::Mul(12,working.size()),sizeof(Edge)+4*sizeof(void*))))return finish();
+          if(!context.exchange.Admit(context, transfer_memory::Mul(transfer_memory::Mul(12,working.size()),sizeof(Edge)+4*sizeof(void*))))return EngineControl::Finish(context, curved, working, atlas_budget, started, started_cpu);
           CLocalFailure failure;
           try {
             directory->BeginConstructionPass();construction_claims=true;context.queues.LengthDirection(context, true);
             selection.ChangePhase(false,working,field_identity);
           }catch(const std::exception& e){failure.Set(2,0,e.what());}
-          if(!context.exchange.Vote(context, failure))return finish();
+          if(!context.exchange.Vote(context, failure))return EngineControl::Finish(context, curved, working, atlas_budget, started, started_cpu);
           metric_cleanup=metric_cleanup_tried=true;repairing=false;phase_start_round=stats.rounds;
           progress_at_window=stats.size_progress+stats.quality_progress+stats.cell_removals+stats.geometry_progress;
           attempted_at_window=stats.attempted;deferred_at_window=stats.length_pass_deferred;
-          if(!observe_progress("metric_cleanup_entry"))return finish();
+          if(!EngineControl::ObserveProgress(context, working, atlas_budget, "metric_cleanup_entry"))return EngineControl::Finish(context, curved, working, atlas_budget, started, started_cpu);
           continue;
         }
       }
     }
     if (!metric_cleanup && complete && phase==Phase::Improvement && !world.maximum(selection.unmeasured_shape!=0 || selection.quality_invalid!=0 || selection.construction_invalid!=0)) {
-      result.valid=true;result.reason.clear();return finish();
+      result.valid=true;result.reason.clear();return EngineControl::Finish(context, curved, working, atlas_budget, started, started_cpu);
     }
     {
       Timer timer(stats.selection_seconds,options.timings, SU2NativeTiming3D::Operation::Scheduling);
@@ -3446,17 +3049,17 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
         // Valid coarsening may exhaust rejected directions without changing an already admissible mesh.
         if (!mesh_progress) ++stats.stagnant_windows;
         if (!mesh_progress && search_progress) ++stats.search_windows;
-        if(!observe_progress("window"))return finish();
-        if(!metric_cleanup&&phase==Phase::Improvement&&!phase_ownership(true))return finish();
+        if(!EngineControl::ObserveProgress(context, working, atlas_budget, "window"))return EngineControl::Finish(context, curved, working, atlas_budget, started, started_cpu);
+        if(!metric_cleanup&&phase==Phase::Improvement&&!phase_ownership(true))return EngineControl::Finish(context, curved, working, atlas_budget, started, started_cpu);
         // Fresh rejected directions are finite search work even on invalid meshes; do not declare infeasibility early.
         if (!mesh_progress && !search_progress) {
           if(!bidirectional && phase==Phase::Construction && !repairing && !world.maximum(selection.cells.size()!=working.size())) {
-            if(!enter_phase(Phase::Improvement))return finish();
+            if(!enter_phase(Phase::Improvement))return EngineControl::Finish(context, curved, working, atlas_budget, started, started_cpu);
             continue;
           }
           stats.stop=EngineStop::OperatorStagnation;
           result.reason="Native 3D admitted operators made no certified progress over the observation window; feasibility is undetermined.";
-          return finish();
+          return EngineControl::Finish(context, curved, working, atlas_budget, started, started_cpu);
         }
       }
     }
@@ -3464,7 +3067,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
       stats.stop=EngineStop::OperatorStagnation;
       CLocalFailure failure;
       if (selection.invalid || selection.cells.size()!=working.size()) failure.Set(1,0,"Native 3D adaptation stagnates: admitted operators cannot satisfy the frozen size/shape gates.");
-      context.exchange.Vote(context, failure); return finish();
+      context.exchange.Vote(context, failure); return EngineControl::Finish(context, curved, working, atlas_budget, started, started_cpu);
     }
     // A final census/phase transition consumes no additional operator round.
     if(options.maximum_rounds && round>=options.maximum_rounds)break;
@@ -3483,12 +3086,12 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
       }
       // Every worker votes even if its history already has room.
       if (ready) ready=context.exchange.Vote(context, failure);
-      if (!ready) return finish();
+      if (!ready) return EngineControl::Finish(context, curved, working, atlas_budget, started, started_cpu);
     }
     {
       CLocalFailure failure;
       if(selection.repair_epoch==UINT64_MAX)failure.Set(1,0,"Native repair service epoch overflows.");
-      if(!context.exchange.Vote(context, failure))return finish();
+      if(!context.exchange.Vote(context, failure))return EngineControl::Finish(context, curved, working, atlas_budget, started, started_cpu);
       ++selection.repair_epoch;
     }
     ++stats.rounds;
@@ -3587,14 +3190,14 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
               sizeof(Dependency)+sizeof(OwnedCell)),
           transfer_memory::Mul(transfer_memory::Mul(8,options.candidate_batch*MaximumCavityCells),
               sizeof(Id)+4*sizeof(void*)));
-      if (!context.exchange.Admit(context, 0)) return finish();
+      if (!context.exchange.Admit(context, 0)) return EngineControl::Finish(context, curved, working, atlas_budget, started, started_cpu);
       CLocalFailure failure;
       size_t repair_slots=options.candidate_batch;
       if(repairing) {
         double local_debt=0;
         for(const auto& row:selection.repair_cell_severity)local_debt+=double(row.second);
         if(!std::isfinite(local_debt)||local_debt<0)failure.Set(1,0,"Invalid cached required repair debt.");
-        if(!context.exchange.Vote(context, failure))return finish();
+        if(!context.exchange.Vote(context, failure))return EngineControl::Finish(context, curved, working, atlas_budget, started, started_cpu);
         const bool complete=!world.maximum(!selection.progress_consistent||selection.cells.size()!=working.size()||selection.unmeasured_shape!=0);
         const double total_debt=TimedAllreduce(local_debt,CPassiveComm::Op::SUM,world.comm);
         if(complete&&std::isfinite(total_debt)&&total_debt>0) {
@@ -3610,9 +3213,9 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
               selection.Batch(working,options.candidate_batch);
         }
         catch (const std::exception& e) { failure.Set(2,0,e.what()); }
-        if (!(ready=context.exchange.Vote(context, failure))) return finish();
-        if(!context.queues.Coalesce(context, choices, curved))return finish();
-        if(!plan_choices())return finish();
+        if (!(ready=context.exchange.Vote(context, failure))) return EngineControl::Finish(context, curved, working, atlas_budget, started, started_cpu);
+        if(!context.queues.Coalesce(context, choices, curved))return EngineControl::Finish(context, curved, working, atlas_budget, started, started_cpu);
+        if(!plan_choices())return EngineControl::Finish(context, curved, working, atlas_budget, started, started_cpu);
         slots=TimedAllreduce(choices.size(),CPassiveComm::Op::MAX,world.comm);
         ++stats.batch_rounds; stats.batch_candidates+=choices.size(); stats.proposed+=choices.size()+refused_candidates;
       }
@@ -3622,7 +3225,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
         const uint64_t proposed=TimedAllreduce(uint64_t(choices.size()+refused_candidates),CPassiveComm::Op::SUM,world.comm);
         if (proposed>stats.work_limit-stats.global_work) {
           stats.stop=EngineStop::WorkBudget; result.reason="Native 3D global proposal budget exhausted before admission; feasibility is undetermined.";
-          return finish();
+          return EngineControl::Finish(context, curved, working, atlas_budget, started, started_cpu);
         }
         stats.global_work+=proposed;
       }
@@ -3632,10 +3235,10 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
         try { for (const auto& candidate:choices) features.push_back(repairing ? candidate.feature :
             coarsening ? Feature{{candidate.edge[1],0,0},1} : Feature{{candidate.edge[0],candidate.edge[1],0},2}); }
         catch (const std::exception& e) { failure.Set(2,0,e.what()); }
-        if (!(ready=context.exchange.Vote(context, failure))) return finish();
+        if (!(ready=context.exchange.Vote(context, failure))) return EngineControl::Finish(context, curved, working, atlas_budget, started, started_cpu);
         if(!planned_coarsening)
           dependency_batch=directory->LookupBatch(features,options.memory_ceiling,transfer_memory::Add(context.exchange.Bytes(context),source.ResidentBytes()),repairing);
-        if (!dependency_batch.valid) { result.reason=dependency_batch.reason; return finish(); }
+        if (!dependency_batch.valid) { result.reason=dependency_batch.reason; return EngineControl::Finish(context, curved, working, atlas_budget, started, started_cpu); }
         // A remote complete coordinate star may exceed the ordinary cavity bound. Retained
         // imports and footprint storage stay admitted across every subsequent private slot.
         size_t retained_cells=0;
@@ -3645,10 +3248,10 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
         if(retained_cells>ordinary_cells)batch_bytes=transfer_memory::Add(batch_bytes,
             transfer_memory::Mul(retained_cells-ordinary_cells,
                 sizeof(Dependency)+sizeof(OwnedCell)+8*(sizeof(Id)+4*sizeof(void*))));
-        if(!context.exchange.Admit(context, 0))return finish();
+        if(!context.exchange.Admit(context, 0))return EngineControl::Finish(context, curved, working, atlas_budget, started, started_cpu);
         imported_batch=directory->FetchBatch(dependency_batch,working,options.memory_ceiling,
             transfer_memory::Add(context.exchange.Bytes(context),source.ResidentBytes()));
-        if (!imported_batch.valid) { result.reason=imported_batch.reason; return finish(); }
+        if (!imported_batch.valid) { result.reason=imported_batch.reason; return EngineControl::Finish(context, curved, working, atlas_budget, started, started_cpu); }
         try {
           for (size_t i=0;i<imported_batch.candidates.size();++i) {
             const auto& candidate=imported_batch.candidates[i];
@@ -3658,13 +3261,13 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
             else failure.Set(1,0,candidate.reason);
           }
         } catch (const std::exception& e) { failure.Set(2,0,e.what()); }
-        if (!(ready=context.exchange.Vote(context, failure))) return finish();
+        if (!(ready=context.exchange.Vote(context, failure))) return EngineControl::Finish(context, curved, working, atlas_budget, started, started_cpu);
         if(repairing && curved) {
           const auto support_bytes=transfer_memory::Mul(transfer_memory::Mul(4,choices.size()),
               transfer_memory::Mul(MaximumCavityCells,sizeof(Dependency)+sizeof(OwnedCell)+8*(sizeof(Id)+4*sizeof(void*))));
           batch_bytes=transfer_memory::Add(batch_bytes,support_bytes,
               transfer_memory::Mul(retained_cells,sizeof(OwnedCell)+sizeof(Dependency)));
-          if(!context.exchange.Admit(context, 0))return finish();
+          if(!context.exchange.Admit(context, 0))return EngineControl::Finish(context, curved, working, atlas_budget, started, started_cpu);
           std::vector<Feature> supports;std::vector<std::pair<size_t,size_t>> groups;
           try {
             for(size_t i=0;i<imported_batch.candidates.size();++i) {
@@ -3685,12 +3288,12 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
               for(const auto& node:core->cell.v)supports.push_back({{node.id,0,0},1});
             }
           }catch(const std::exception& e){failure.Set(2,0,e.what());}
-          if(!context.exchange.Vote(context, failure))return finish();
+          if(!context.exchange.Vote(context, failure))return EngineControl::Finish(context, curved, working, atlas_budget, started, started_cpu);
           if(world.maximum(!supports.empty())) {
             // Complete moved stars are fetched before the existing full-vertex-disjoint reservation.
             const auto extra=directory->LookupBatch(supports,options.memory_ceiling,
                 transfer_memory::Add(context.exchange.Bytes(context),source.ResidentBytes()));
-            if(!extra.valid){result.reason=extra.reason;return finish();}
+            if(!extra.valid){result.reason=extra.reason;return EngineControl::Finish(context, curved, working, atlas_budget, started, started_cpu);}
             bool expanded=false;
             try {
               for(const auto& group:groups) {
@@ -3714,17 +3317,17 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
                 original.coordinate_star={};expanded=true;
               }
             }catch(const std::exception& e){failure.Set(2,0,e.what());}
-            if(!context.exchange.Vote(context, failure))return finish();
+            if(!context.exchange.Vote(context, failure))return EngineControl::Finish(context, curved, working, atlas_budget, started, started_cpu);
             if(world.maximum(expanded)) {
               auto complete=directory->FetchBatch(dependency_batch,working,options.memory_ceiling,
                   transfer_memory::Add(context.exchange.Bytes(context),source.ResidentBytes()));
-              if(!complete.valid){result.reason=complete.reason;return finish();}
+              if(!complete.valid){result.reason=complete.reason;return EngineControl::Finish(context, curved, working, atlas_budget, started, started_cpu);}
               imported_batch=std::move(complete);
             }
           }
         }
         if(world.maximum(refused_receipt_count!=0)) {
-          if(!context.queues.ServiceFrontier(context, {},false,false,&refused_receipts,refused_receipt_count))return finish();
+          if(!context.queues.ServiceFrontier(context, {},false,false,&refused_receipts,refused_receipt_count))return EngineControl::Finish(context, curved, working, atlas_budget, started, started_cpu);
           refused_receipt_count=0;
         }
       }
@@ -3733,9 +3336,9 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
         std::vector<unsigned> priorities;
         try {if(repairing)for(const auto& candidate:choices)priorities.push_back(candidate.reservation_priority);}
         catch(const std::exception& e){failure.Set(2,0,e.what());}
-        if(!context.exchange.Vote(context, failure))return finish();
+        if(!context.exchange.Vote(context, failure))return EngineControl::Finish(context, curved, working, atlas_budget, started, started_cpu);
         reserved=directory->ReserveBatch(imported_batch,options.memory_ceiling,transfer_memory::Add(context.exchange.Bytes(context),source.ResidentBytes()),priorities);
-        if (!reserved.valid) { result.reason=reserved.reason; return finish(); }
+        if (!reserved.valid) { result.reason=reserved.reason; return EngineControl::Finish(context, curved, working, atlas_budget, started, started_cpu); }
         size_t winners=0;
         for (bool chosen:reserved.chosen) winners+=chosen;
         for(size_t i=0;i<reserved.pass_deferred.size();++i)if(reserved.pass_deferred[i]) {
@@ -3745,11 +3348,11 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
           ++pass_deferred_candidates;++stats.length_pass_deferred;
         }
         if(world.maximum(refused_receipt_count!=0)) {
-          if(!context.queues.ServiceFrontier(context, {},false,false,&refused_receipts,refused_receipt_count))return finish();
+          if(!context.queues.ServiceFrontier(context, {},false,false,&refused_receipts,refused_receipt_count))return EngineControl::Finish(context, curved, working, atlas_budget, started, started_cpu);
           refused_receipt_count=0;
         }
         stats.batch_reserved+=winners; stats.conflicts+=choices.size()-winners-refused_slots;
-        if (!world.maximum(winners!=0 || refused_candidates!=0 || pass_deferred_candidates!=0)) { result.reason="Native 3D batch reservation made no progress."; return finish(); }
+        if (!world.maximum(winners!=0 || refused_candidates!=0 || pass_deferred_candidates!=0)) { result.reason="Native 3D batch reservation made no progress."; return EngineControl::Finish(context, curved, working, atlas_budget, started, started_cpu); }
       }
     } else {
       Timer timer(stats.selection_seconds,options.timings, SU2NativeTiming3D::Operation::Scheduling);
@@ -3771,14 +3374,14 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
       if(repairing || concurrent || (coarsening && !repairing && !curved && !composition && world.size>1)) {
         CLocalFailure failure;
         try {if(choice.active)choices.push_back(choice);}catch(const std::exception& e){failure.Set(2,0,e.what());}
-        if(!context.exchange.Vote(context, failure) || !context.queues.Coalesce(context, choices, curved) || !plan_choices())return finish();
+        if(!context.exchange.Vote(context, failure) || !context.queues.Coalesce(context, choices, curved) || !plan_choices())return EngineControl::Finish(context, curved, working, atlas_budget, started, started_cpu);
         choice=choices.empty()?Choice{}:choices.front();
       }
       stats.proposed+=choice.active;
       const uint64_t proposed=TimedAllreduce(uint64_t(choice.active),CPassiveComm::Op::SUM,world.comm);
       if (proposed>stats.work_limit-stats.global_work) {
         stats.stop=EngineStop::WorkBudget; result.reason="Native 3D global proposal budget exhausted before admission; feasibility is undetermined.";
-        return finish();
+        return EngineControl::Finish(context, curved, working, atlas_budget, started, started_cpu);
       }
       stats.global_work+=proposed;
     }
@@ -3803,9 +3406,9 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
         retained=transfer_memory::Add(retained,transfer_memory::Mul(std::max(MaximumReplacementCells,imported.cells.size()),16384));
       }
       batch_bytes=transfer_memory::Add(batch_bytes,retained);
-      if(!context.exchange.Admit(context, 0))return finish();
+      if(!context.exchange.Admit(context, 0))return EngineControl::Finish(context, curved, working, atlas_budget, started, started_cpu);
       try {repair_proposals.resize(choices.size());}catch(const std::exception& e){private_failure.Set(2,0,e.what());}
-      if(!context.exchange.Vote(context, private_failure))return finish();
+      if(!context.exchange.Vote(context, private_failure))return EngineControl::Finish(context, curved, working, atlas_budget, started, started_cpu);
       eligible=TimedAllreduce(eligible,CPassiveComm::Op::SUM,world.comm);
       private_optimizer_allowance=eligible?std::min<uint64_t>(160,(stats.work_limit-stats.global_work)/eligible):0;
       private_work_reserved=eligible*private_optimizer_allowance;stats.global_work+=private_work_reserved;
@@ -3863,20 +3466,20 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
           if(choice.active)dependencies=std::move(dependency_batch.candidates.at(0));else dependencies.valid=true;
         } else {
           auto batch=directory->LookupBatch(features,options.memory_ceiling,transfer_memory::Add(context.exchange.Bytes(context),source.ResidentBytes()),repairing);
-          if(!batch.valid) {result.reason=batch.reason;return finish();}
+          if(!batch.valid) {result.reason=batch.reason;return EngineControl::Finish(context, curved, working, atlas_budget, started, started_cpu);}
           if(choice.active)dependencies=std::move(batch.candidates.at(0));else dependencies.valid=true;
           const bool oversized=choice.active && !dependencies.valid && dependencies.oversized;
           CLocalFailure lookup_failure;
           if(choice.active && !dependencies.valid && !oversized)lookup_failure.Set(1,0,dependencies.reason);
-          if(!context.exchange.Vote(context, lookup_failure))return finish();
+          if(!context.exchange.Vote(context, lookup_failure))return EngineControl::Finish(context, curved, working, atlas_budget, started, started_cpu);
           if(oversized) {
             // Refuse this proposal; publication still requires its complete star. Changed stars reactivate it.
             wall_choice.Disposition(wall_diagnostics::PreTrialDisposition::Oversized);
             try {refuse(choice,feature,dependencies.reason);}catch(const std::exception& e){lookup_failure.Set(2,0,e.what());}
             choice.active=false;dependencies=Dependencies{};dependencies.valid=true;
           }
-          if(!context.exchange.Vote(context, lookup_failure))return finish();
-          if(world.maximum(oversized) && !context.queues.ServiceFrontier(context, repairing ? feature : Feature{{choice.edge[0],choice.edge[1],0},2},oversized,false))return finish();
+          if(!context.exchange.Vote(context, lookup_failure))return EngineControl::Finish(context, curved, working, atlas_budget, started, started_cpu);
+          if(world.maximum(oversized) && !context.queues.ServiceFrontier(context, repairing ? feature : Feature{{choice.edge[0],choice.edge[1],0},2},oversized,false))return EngineControl::Finish(context, curved, working, atlas_budget, started, started_cpu);
           // Concurrent peers keep their own proposals; a slot whose every proposal was refused is skipped.
           if(!world.maximum(choice.active))continue;
         }
@@ -3884,7 +3487,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
             transfer_memory::Add(context.exchange.Bytes(context),source.ResidentBytes()));
       }
       if (!dependencies.valid || !imported.valid) {
-        result.reason=dependencies.valid ? imported.reason : dependencies.reason; return finish();
+        result.reason=dependencies.valid ? imported.reason : dependencies.reason; return EngineControl::Finish(context, curved, working, atlas_budget, started, started_cpu);
       }
       if(surface_target && curved && coarsening && !repairing) {
         Timer timer(stats.collapse_correction_seconds,options.timings, SU2NativeTiming3D::Operation::Candidate);
@@ -3893,7 +3496,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
             choice.active,geometry,stats.work_limit-stats.global_work,atlas_budget.within_time,
             options.memory_ceiling,transfer_memory::Add(context.exchange.Bytes(context),source.ResidentBytes()));
         stats.global_work+=correction.work;stats.collapse_correction_work+=correction.work;
-        if(!correction.valid){result.reason=correction.reason;return finish();}
+        if(!correction.valid){result.reason=correction.reason;return EngineControl::Finish(context, curved, working, atlas_budget, started, started_cpu);}
         collapse_corrected=correction.corrected;collapse_apex=correction.apex;
         if(!collapse_corrected)collapse_correction_refusal=std::move(correction.reason);
         if(collapse_corrected){++stats.collapse_corrections;stats.collapse_correction_cells+=correction.imported.cells.size()-seed_cells;}
@@ -3913,11 +3516,11 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
         const int admitted=world.maximum(chosen?2:pass_deferred?1:0);
         if(!admitted)ready=false;
         else if(admitted==1) {
-          if(!context.queues.ServiceFrontier(context, Feature{{choice.edge[0],choice.edge[1],0},2},choice.active&&pass_deferred,false,nullptr,0,2))return finish();
+          if(!context.queues.ServiceFrontier(context, Feature{{choice.edge[0],choice.edge[1],0},2},choice.active&&pass_deferred,false,nullptr,0,2))return EngineControl::Finish(context, curved, working, atlas_budget, started, started_cpu);
           stats.length_pass_deferred+=pass_deferred;continue;
         }
       }
-      if (!ready) return finish();
+      if (!ready) return EngineControl::Finish(context, curved, working, atlas_budget, started, started_cpu);
     }
     // Private cavity evaluation uses the same operators with local reductions and explicit cavity data.
     auto trial_maximum=[&](int value){return private_repair?value:world.maximum(value);};
@@ -5688,8 +5291,8 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
       if(!evaluated)local.Set(2,0,result.reason.empty()?"Native3D private surface collapse evaluation failed.":result.reason);
       if(world.election_collective_calls!=elections || world.collective_calls!=collectives || stats.global_work!=work)
         local.Set(2,0,"Native3D private surface collapse performed collective or unreserved operator work.");
-      if(!(ready=context.exchange.Vote(context, local)))return finish();
-    } else if(!evaluate_candidate())return finish();
+      if(!(ready=context.exchange.Vote(context, local)))return EngineControl::Finish(context, curved, working, atlas_budget, started, started_cpu);
+    } else if(!evaluate_candidate())return EngineControl::Finish(context, curved, working, atlas_budget, started, started_cpu);
     lane_counters.Approved(false, lane_slots[slot], approved);
     if(chosen&&!approved&&!collapse_correction_refusal.empty())
       result.reason+=" Bounded correction: "+collapse_correction_refusal;
@@ -5705,7 +5308,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
       const bool prior=approved;bool deferred=false;
       if(!directory->Clearance(working,old,fresh,approved,result.reason,options.memory_ceiling,
           transfer_memory::Add(context.exchange.Bytes(context),source.ResidentBytes(),private_scratch),&deferred,choice.reservation_priority,
-          coordinate_only ? imported.coordinate_star : Feature{}))return finish();
+          coordinate_only ? imported.coordinate_star : Feature{}))return EngineControl::Finish(context, curved, working, atlas_budget, started, started_cpu);
       if(deferred){chosen=false;++stats.conflicts;++stats.rejected;++stats.proposal_deferred;}
       else if(prior && !approved)EngineTrial::GeometryTrial(context, false);
     }
@@ -5723,7 +5326,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
             throw std::runtime_error("Native3D final proposal lost a versioned old cell.");
         }
       }catch(const std::exception& e){final_failure.Set(2,0,e.what());}
-      if(!context.exchange.Vote(context, final_failure))return finish();
+      if(!context.exchange.Vote(context, final_failure))return EngineControl::Finish(context, curved, working, atlas_budget, started, started_cpu);
       ++stats.final_reservations;
       const bool admitted=reserve_dependencies(imported,approved,result.reason,options.memory_ceiling,
           transfer_memory::Add(context.exchange.Bytes(context),source.ResidentBytes(),private_scratch),choice.reservation_priority);
@@ -5732,7 +5335,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
           approved=false;chosen=false;++stats.conflicts;++stats.rejected;++stats.proposal_deferred;
         }else final_failure.Set(1,0,"Native3D final proposal reservation failed: "+result.reason);
       }
-      if(!context.exchange.Vote(context, final_failure))return finish();
+      if(!context.exchange.Vote(context, final_failure))return EngineControl::Finish(context, curved, working, atlas_budget, started, started_cpu);
       const auto commits=TimedAllreduce(uint64_t(approved),CPassiveComm::Op::SUM,world.comm);
       stats.maximum_parallel_commits=std::max(stats.maximum_parallel_commits,commits);
 
@@ -5747,7 +5350,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     if(approved && !coarsening && !repairing && !repair_approved)
       for(const auto& cell:fresh.cells)for(auto node:cell.v)if(node.id==point.id)point=node;
     try {observe_transaction("transaction_end",approved);}catch(const std::exception& e){failure.Set(2,0,e.what());}
-    if(options.transaction_observer && !context.exchange.Vote(context, failure))return finish();
+    if(options.transaction_observer && !context.exchange.Vote(context, failure))return EngineControl::Finish(context, curved, working, atlas_budget, started, started_cpu);
     if (chosen && !approved) {
       // Keep the completed rejection consistent with the earlier private/budget-exit sample.
       stats.last_metric_rejection=certified;
@@ -5828,13 +5431,13 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
         if (!ready) result.reason="Native 3D publication routing exceeds storage budget.";
       }
     }
-    if (!ready) return finish();
+    if (!ready) return EngineControl::Finish(context, curved, working, atlas_budget, started, started_cpu);
     {
       Timer timer(stats.publication_seconds,options.timings, SU2NativeTiming3D::Operation::Communication);
       ready=directory->Publish(working,removed,added,true,result.reason,options.memory_ceiling,
           transfer_memory::Add(context.exchange.RealBytes(context),source.ResidentBytes(),MaximumFrozenFieldBytes),parameter_edits,approved?fresh.coverage:no_coverage,geometry.AtlasReservation(),repairing);
     }
-    if (!ready) return finish();
+    if (!ready) return EngineControl::Finish(context, curved, working, atlas_budget, started, started_cpu);
     EngineReports::UpdateFixedMetricCells(context, removed,added);
     if(bidirectional&&phase==Phase::Construction&&!coarsening) {
       const auto split_commits=TimedAllreduce(uint64_t(approved),CPassiveComm::Op::SUM,world.comm);
@@ -5845,7 +5448,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     // enter this receipt stream and retain their waiting age.
     stats.length_pass_deferred+=pass_deferred&&!approved;
     const unsigned disposition=pass_deferred&&!chosen?2:certified.failure==MetricFailure::None?4:10+unsigned(certified.failure);
-    if(!context.queues.ServiceFrontier(context, repairing ? choice.feature : Feature{{choice.edge[0],choice.edge[1],0},2},chosen||pass_deferred,approved,nullptr,0,disposition))return finish();
+    if(!context.queues.ServiceFrontier(context, repairing ? choice.feature : Feature{{choice.edge[0],choice.edge[1],0},2},chosen||pass_deferred,approved,nullptr,0,disposition))return EngineControl::Finish(context, curved, working, atlas_budget, started, started_cpu);
     ContextValue changed_lifetime(slot_state.changed);
     std::vector<Id>& changed = changed_lifetime.Get();
     {
@@ -5943,7 +5546,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
       }
       if(!(batched&&repairing))retired_edges.clear();
     }
-    if (!ready) return finish();
+    if (!ready) return EngineControl::Finish(context, curved, working, atlas_budget, started, started_cpu);
     }
     if(repairing) {
       const double private_busy_seconds = std::chrono::duration<double>(Clock::now()-private_started).count();
@@ -5969,7 +5572,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
         stats.stop=EngineStop::TimeBudget;
         private_failure.Set(1,0,"Native3D private repair round exhausts elapsed-time budget.");
       }
-      if(!context.exchange.Vote(context, private_failure))return finish();
+      if(!context.exchange.Vote(context, private_failure))return EngineControl::Finish(context, curved, working, atlas_budget, started, started_cpu);
       CLocalFailure failure;
       std::vector<ClearanceCandidate> contact;
       bool needs_contact=false;
@@ -5996,10 +5599,10 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
           }
         }catch(const std::exception& e){failure.Set(2,0,e.what());}
       }
-      if(!context.exchange.Vote(context, failure))return finish();
+      if(!context.exchange.Vote(context, failure))return EngineControl::Finish(context, curved, working, atlas_budget, started, started_cpu);
       if(world.maximum(needs_contact)) {
         if(!directory->ClearanceBatch(working,contact,result.reason,options.memory_ceiling,
-            transfer_memory::Add(context.exchange.Bytes(context),source.ResidentBytes())))return finish();
+            transfer_memory::Add(context.exchange.Bytes(context),source.ResidentBytes())))return EngineControl::Finish(context, curved, working, atlas_budget, started, started_cpu);
         for(size_t i=0;i<contact.size();++i) {
           auto& proposal=repair_proposals[i];const auto& checked=contact[i];
           if(checked.deferred) {
@@ -6018,14 +5621,14 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
           if(proposal.approved)final_inputs.candidates[i]=std::move(proposal.imported);
         }
       }catch(const std::exception& e){failure.Set(2,0,e.what());}
-      if(!context.exchange.Vote(context, failure))return finish();
+      if(!context.exchange.Vote(context, failure))return EngineControl::Finish(context, curved, working, atlas_budget, started, started_cpu);
       ReservationBatch final_reserved;
       {
         Timer timer(stats.reservation_seconds,options.timings, SU2NativeTiming3D::Operation::Communication);++stats.final_reservations;
         final_reserved=directory->ReserveBatch(final_inputs,options.memory_ceiling,
             transfer_memory::Add(context.exchange.Bytes(context),source.ResidentBytes()),priorities);
       }
-      if(!final_reserved.valid){result.reason=final_reserved.reason;return finish();}
+      if(!final_reserved.valid){result.reason=final_reserved.reason;return EngineControl::Finish(context, curved, working, atlas_budget, started, started_cpu);}
       uint64_t commits=0;
       for(size_t i=0;i<repair_proposals.size();++i) {
         auto& proposal=repair_proposals[i];
@@ -6122,38 +5725,38 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
           }
         }catch(const std::exception& e){failure.Set(2,0,e.what());}
       }
-      if(!context.exchange.Vote(context, failure))return finish();
+      if(!context.exchange.Vote(context, failure))return EngineControl::Finish(context, curved, working, atlas_budget, started, started_cpu);
       std::vector<Dependency> removed;std::vector<OwnedCell> added;std::vector<BlockedEdge> failures;
       {
         Timer timer(stats.routing_seconds,options.timings, SU2NativeTiming3D::Operation::Communication);bool admitted=false;
         const auto baseline=transfer_memory::Add(context.exchange.Bytes(context),source.ResidentBytes(),directory->ResidentBytes());
         removed=world.exchange(removals,&admitted,options.memory_ceiling,baseline);
-        if(!admitted){result.reason="Native3D round removal routing exceeds storage budget.";return finish();}
+        if(!admitted){result.reason="Native3D round removal routing exceeds storage budget.";return EngineControl::Finish(context, curved, working, atlas_budget, started, started_cpu);}
         added=world.exchange(additions,&admitted,options.memory_ceiling,transfer_memory::Add(baseline,transfer_memory::Bytes(removed)));
-        if(!admitted){result.reason="Native3D round addition routing exceeds storage budget.";return finish();}
+        if(!admitted){result.reason="Native3D round addition routing exceeds storage budget.";return EngineControl::Finish(context, curved, working, atlas_budget, started, started_cpu);}
         failures=world.exchange(blocked,&admitted,options.memory_ceiling,
             transfer_memory::Add(baseline,transfer_memory::Bytes(removed),transfer_memory::Bytes(added)));
-        if(!admitted){result.reason="Native3D round rejection routing exceeds storage budget.";return finish();}
+        if(!admitted){result.reason="Native3D round rejection routing exceeds storage budget.";return EngineControl::Finish(context, curved, working, atlas_budget, started, started_cpu);}
       }
       batch_bytes=transfer_memory::Add(batch_bytes,transfer_memory::Bytes(removed),transfer_memory::Bytes(added),
           transfer_memory::Bytes(failures),transfer_memory::Bytes(removals),transfer_memory::Bytes(additions),
           transfer_memory::Bytes(blocked),transfer_memory::Bytes(contact),transfer_memory::Bytes(parameter_edits),
           BoundaryCoverageBytes(coverage),transfer_memory::GrowthBound(added.size(),sizeof(Id)));
-      if(!context.exchange.Admit(context, 0))return finish();
+      if(!context.exchange.Admit(context, 0))return EngineControl::Finish(context, curved, working, atlas_budget, started, started_cpu);
       {
         Timer timer(stats.publication_seconds,options.timings, SU2NativeTiming3D::Operation::Communication);
         if(!directory->Publish(working,removed,added,true,result.reason,options.memory_ceiling,
-            transfer_memory::Add(context.exchange.RealBytes(context),source.ResidentBytes(),MaximumFrozenFieldBytes),parameter_edits,coverage,geometry.AtlasReservation(),true))return finish();
+            transfer_memory::Add(context.exchange.RealBytes(context),source.ResidentBytes(),MaximumFrozenFieldBytes),parameter_edits,coverage,geometry.AtlasReservation(),true))return EngineControl::Finish(context, curved, working, atlas_budget, started, started_cpu);
       }
       EngineReports::UpdateFixedMetricCells(context, removed,added);
       if(!removed.empty()||!added.empty())selection.progress_consistent=false;
-      if(!context.queues.ServiceFrontier(context, {},false,false,&receipts,receipt_count))return finish();
+      if(!context.queues.ServiceFrontier(context, {},false,false,&receipts,receipt_count))return EngineControl::Finish(context, curved, working, atlas_budget, started, started_cpu);
       {
         Timer timer(stats.update_seconds,options.timings, SU2NativeTiming3D::Operation::Topology);
         if(!context.exchange.Admit(context, transfer_memory::Add(transfer_memory::Mul(working.size(),context.control.SelectionBound(context, true)),
             transfer_memory::Mul(transfer_memory::Mul(6,removed.size()),sizeof(std::pair<const Edge,EdgeMeasure>)+4*sizeof(void*)),
             transfer_memory::Mul(transfer_memory::Mul(14,removed.size()),sizeof(RepairFeature)+4*sizeof(void*)),
-            checkpoint.valid?transfer_memory::Mul(transfer_memory::Mul(4,transfer_memory::Add(removed.size(),added.size())),sizeof(Id)+4*sizeof(void*)):0)))return finish();
+            checkpoint.valid?transfer_memory::Mul(transfer_memory::Mul(4,transfer_memory::Add(removed.size(),added.size())),sizeof(Id)+4*sizeof(void*)):0)))return EngineControl::Finish(context, curved, working, atlas_budget, started, started_cpu);
         try {
           for(const auto& row:removed) {
             const auto cached=selection.cells.find(row.cell);
@@ -6200,14 +5803,14 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
           }
           stats.maximum_owned=std::max(stats.maximum_owned,working.size());
         }catch(const std::exception& e){failure.Set(2,0,e.what());}
-        if(!context.exchange.Vote(context, failure)||!context.census.Measure(context, batch_changed,false,&stats.update_seconds))return finish();
+        if(!context.exchange.Vote(context, failure)||!context.census.Measure(context, batch_changed,false,&stats.update_seconds))return EngineControl::Finish(context, curved, working, atlas_budget, started, started_cpu);
         try {
           selection.FinishRepairs();
           for(const auto& support:directory->ChangedRepairSupports())selection.TouchRepairSupport(support);
           for(Id vertex:directory->ChangedVertices())selection.Touch(vertex);
           selection.progress_consistent=true;
         }catch(const std::exception& e){failure.Set(2,0,e.what());}
-        if(!context.exchange.Vote(context, failure))return finish();
+        if(!context.exchange.Vote(context, failure))return EngineControl::Finish(context, curved, working, atlas_budget, started, started_cpu);
         batch_changed.clear();retired_edges.clear();
       }
     }
@@ -6229,7 +5832,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     else if(!result.valid)result.reason="Native 3D adaptation round limit reached before strict quality/coarsening completion.";
     else result.reason.clear();
   }
-  return finish();
+  return EngineControl::Finish(context, curved, working, atlas_budget, started, started_cpu);
 }
 }  // namespace
 bool CollapseConstraintViolation(const OwnedCell& cell,Id removed,Node retained,const PlanarReference& geometry,

@@ -20,4 +20,17 @@ struct EngineReports {
                                       const std::array<bool, FixedMetricSamples>& have, size_t& supported,
                                       size_t& owned, long double& maximum, long double& local_maximum);
   static void EmitFixedMetricDrift(EngineContext&, const char* stage);
+  static void CollectQualityCensus(Selection&, std::array<uint64_t, 2>&, std::array<uint64_t, 2>&,
+                                   std::array<uint64_t, 3>&, std::array<uint64_t, 3>&, std::array<uint64_t, 6>&,
+                                   std::array<uint64_t, 6>&, std::array<uint64_t, 6>&, std::array<uint64_t, 8>&,
+                                   uint64_t&, uint64_t&, uint64_t&, uint64_t&, uint64_t&, uint64_t&, uint64_t&);
+  static void PrintQualityCensus(EngineContext&, const char*, const StageProgress&, double, double, uint64_t,
+                                 const std::array<uint64_t, 2>&, const std::array<uint64_t, 2>&,
+                                 const std::array<uint64_t, 3>&, const std::array<uint64_t, 3>&,
+                                 const std::array<uint64_t, 6>&, const std::array<uint64_t, 6>&,
+                                 const std::array<uint64_t, 6>&, const std::array<uint64_t, 8>&, uint64_t, uint64_t,
+                                 uint64_t, uint64_t, uint64_t, uint64_t, uint64_t);
+  static void EmitQualityCensus(EngineContext&, const char*, const StageProgress&);
+  static void EmitStageRows(EngineContext&, const char*, const StageProgress&, const BoundaryParameterState*,
+                            SU2NativeGeometry::AtlasBudget&);
 };

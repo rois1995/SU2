@@ -238,3 +238,457 @@ void EngineReports::EmitFixedMetricDrift(EngineContext& context, const char* sta
               << " maximum_relative_frobenius=" << maximum << " owned_maximum_relative_frobenius=" << local_maximum
               << " current_nodal_sensor=1 full_target=" << !bool(composition) << '\n';
 }
+
+// Quality reporting helpers retain the original scan and output order.
+// Collects the original quality census without reordering its scans.
+void EngineReports::CollectQualityCensus(Selection& selection, std::array<uint64_t, 2>& q_location,
+                                         std::array<uint64_t, 2>& j_location, std::array<uint64_t, 3>& q_features,
+                                         std::array<uint64_t, 3>& j_features, std::array<uint64_t, 6>& q_hist,
+                                         std::array<uint64_t, 6>& j_hist, std::array<uint64_t, 6>& geometry_hist,
+                                         std::array<uint64_t, 8>& geometry_types, uint64_t& bad_total,
+                                         uint64_t& bad_short09, uint64_t& bad_short05, uint64_t& stuck_shape,
+                                         uint64_t& stuck_required, uint64_t& missing_features,
+                                         uint64_t& blocked_features) {
+  auto miss_bin = [](long double value) {
+    return !std::isfinite(value) ? 5u
+           : value < .01L        ? 0u
+           : value < .1L         ? 1u
+           : value < .25L        ? 2u
+           : value < .5L         ? 3u
+                                 : 4u;
+  };
+  for (const auto& item : selection.cells) {
+    const auto& row = item.second;
+    const auto& d = row.debt;
+    const bool bad = d.q_bad || d.j_bad;
+    const unsigned feature = row.feature_known ? unsigned(row.near_feature) : 2u;
+    if (d.q_bad) {
+      ++q_location[row.surface];
+      ++q_features[feature];
+      ++q_hist[miss_bin(std::sqrt(d.q))];
+    }
+    if (d.j_bad) {
+      ++j_location[row.surface];
+      ++j_features[feature];
+      ++j_hist[miss_bin(std::sqrt(d.j))];
+    }
+    if (bad) {
+      ++bad_total;
+      bool short09 = false, short05 = false;
+      for (const auto& edge : row.edges) {
+        const auto length = selection.edges.at(edge).measure.length;
+        short09 = short09 || length < .9L;
+        short05 = short05 || length < .5L;
+      }
+      bad_short09 += short09;
+      bad_short05 += short05;
+    }
+    if (row.geometry_invalid) {
+      ++geometry_hist.at(row.geometry_excess_bin);
+      if (!row.geometry_types) ++geometry_types[7];
+      for (unsigned type = 0; type < 7; ++type)
+        if (row.geometry_types & (1u << type)) ++geometry_types[type];
+    }
+    const auto repairs = selection.cell_repairs.find(item.first);
+    if (repairs == selection.cell_repairs.end() || repairs->second.empty()) {
+      missing_features += bad;
+      continue;
+    }
+    bool blocked = true;
+    for (const auto& key : repairs->second) {
+      const auto demand = selection.repair_users.find(key);
+      if (demand == selection.repair_users.end() || !demand->second.users) {
+        missing_features += bad;
+        blocked = false;
+        break;
+      }
+      if (!demand->second.blocked) {
+        blocked = false;
+        break;
+      }
+    }
+    stuck_required += blocked;
+    stuck_shape += blocked && bad;
+  }
+  for (const auto& feature : selection.repair_users) blocked_features += feature.second.users && feature.second.blocked;
+}
+
+// Prints the original quality rows when timings are enabled.
+
+// Continues the original quality output on the current stdout stream.
+static void PrintQualityDetails(EngineContext& context, uint64_t quality_census_serial, const QualityRepairStats& q,
+                                const QualityRepairStats& old, const std::array<uint64_t, 2>& q_location,
+                                const std::array<uint64_t, 2>& j_location, const std::array<uint64_t, 3>& q_features,
+                                const std::array<uint64_t, 3>& j_features, const std::array<uint64_t, 6>& q_hist,
+                                const std::array<uint64_t, 6>& j_hist, const std::array<uint64_t, 6>& geometry_hist,
+                                const std::array<uint64_t, 8>& geometry_types, uint64_t bad_total, uint64_t bad_short09,
+                                uint64_t bad_short05, uint64_t stuck_shape, uint64_t stuck_required,
+                                uint64_t missing_features, uint64_t blocked_features) {
+  auto& world = context.world;
+  auto histogram = [&](const auto& values) {
+    for (size_t i = 0; i < values.size(); ++i) {
+      if (i) std::cout << ',';
+      std::cout << values[i];
+    }
+  };
+  std::cout << "NATIVE3D_QUALITY_LOCATION rank=" << world.rank << " census=" << quality_census_serial
+            << " q_surface=" << q_location[1] << " q_interior=" << q_location[0] << " j_surface=" << j_location[1]
+            << " j_interior=" << j_location[0] << " q_feature=" << q_features[1] << " q_no_feature=" << q_features[0]
+            << " q_feature_unknown=" << q_features[2] << " j_feature=" << j_features[1]
+            << " j_no_feature=" << j_features[0] << " j_feature_unknown=" << j_features[2] << " bad_union=" << bad_total
+            << " short09=" << bad_short09 << " short05=" << bad_short05
+            << " short09_share=" << (bad_total ? double(bad_short09) / bad_total : 0.)
+            << " short05_share=" << (bad_total ? double(bad_short05) / bad_total : 0.) << " q_miss_hist=";
+  histogram(q_hist);
+  std::cout << " j_miss_hist=";
+  histogram(j_hist);
+  std::cout << " geometry_excess_hist=";
+  histogram(geometry_hist);
+  std::cout << " geometry_authority_types=";
+  histogram(geometry_types);
+  std::cout << '\n';
+  for (unsigned kind = 0; kind < 3; ++kind) {
+    const auto& now = q.ladder[kind];
+    const auto& prior = old.ladder[kind];
+    std::cout << "NATIVE3D_QUALITY_LADDER rank=" << world.rank << " census=" << quality_census_serial
+              << " kind=" << kind << " trials=" << now.trials - prior.trials
+              << " certified=" << now.certified - prior.certified << " commits=" << now.published - prior.published
+              << " optimizer_work=" << now.work - prior.work << " seconds=" << now.seconds - prior.seconds
+              << " debt_removed=" << double(now.debt_removed - prior.debt_removed)
+              << " q_removed=" << now.q_removed - prior.q_removed << " j_removed=" << now.j_removed - prior.j_removed
+              << " rejected=";
+    for (size_t reason = 0; reason < now.rejected.size(); ++reason) {
+      if (reason) std::cout << ',';
+      std::cout << now.rejected[reason] - prior.rejected[reason];
+    }
+    std::cout << '\n';
+  }
+}
+void EngineReports::PrintQualityCensus(
+    EngineContext& context, const char* stage, const StageProgress& p, double elapsed, double tracked_collective,
+    uint64_t construction_edits, const std::array<uint64_t, 2>& q_location, const std::array<uint64_t, 2>& j_location,
+    const std::array<uint64_t, 3>& q_features, const std::array<uint64_t, 3>& j_features,
+    const std::array<uint64_t, 6>& q_hist, const std::array<uint64_t, 6>& j_hist,
+    const std::array<uint64_t, 6>& geometry_hist, const std::array<uint64_t, 8>& geometry_types, uint64_t bad_total,
+    uint64_t bad_short09, uint64_t bad_short05, uint64_t stuck_shape, uint64_t stuck_required,
+    uint64_t missing_features, uint64_t blocked_features) {
+  auto& world = context.world;
+  auto& options = context.options;
+  auto& stats = context.control.result->stats;
+  auto& selection = *context.census.selection;
+  auto& previous_quality = *context.control.previous_quality;
+  auto& previous_quality_census = *context.control.previous_quality_census;
+  auto& previous_quality_elapsed = *context.control.previous_quality_elapsed;
+  auto& previous_quality_collective = *context.control.previous_quality_collective;
+  auto& previous_quality_construction = *context.control.previous_quality_construction;
+  auto& previous_quality_ownership = *context.control.previous_quality_ownership;
+  auto& quality_census_serial = *context.control.quality_census_serial;
+  const auto& q = stats.quality;
+  const auto& old = previous_quality;
+  const double seconds = elapsed - previous_quality_elapsed;
+  if (options.timings) {
+    std::cout << std::setprecision(17) << "NATIVE3D_QUALITY rank=" << world.rank << " stage=" << stage
+              << " census=" << quality_census_serial << " complete=1 round=" << stats.rounds << " elapsed=" << elapsed
+              << " window_seconds=" << seconds << " busy_seconds=" << q.busy_seconds - old.busy_seconds
+              << " join_call_seconds=" << q.join_wait_seconds - old.join_wait_seconds
+              << " private_work_used=" << q.private_work_used - old.private_work_used
+              << " tracked_collective_call_seconds=" << tracked_collective - previous_quality_collective
+              << " diagnostic_seconds=" << q.diagnostic_seconds - old.diagnostic_seconds
+              << " commits=" << q.commits - old.commits << " commits_total=" << q.commits
+              << " private_tracked_collectives=" << q.private_tracked_collectives - old.private_tracked_collectives
+              << " owned_q_removed=" << int64_t(previous_quality_census.q_bad_cells) - int64_t(p.q_bad_cells)
+              << " owned_j_removed=" << int64_t(previous_quality_census.j_bad_cells) - int64_t(p.j_bad_cells)
+              << " owned_debt_removed="
+              << double(previous_quality_census.q_hinge_squared + previous_quality_census.j_hinge_squared -
+                        p.q_hinge_squared - p.j_hinge_squared)
+              << " q_removed=" << q.q_removed - old.q_removed << " q_created=" << q.q_created - old.q_created
+              << " j_removed=" << q.j_removed - old.j_removed << " j_created=" << q.j_created - old.j_created
+              << " q_retired=" << q.q_retired - old.q_retired << " q_introduced=" << q.q_introduced - old.q_introduced
+              << " j_retired=" << q.j_retired - old.j_retired << " j_introduced=" << q.j_introduced - old.j_introduced
+              << " unmeasured_churn=" << q.unmeasured_churn - old.unmeasured_churn
+              << " construction_edits=" << construction_edits - previous_quality_construction
+              << " ownership_changes=" << stats.ownership_changes - previous_quality_ownership
+              << " queue=" << selection.repair_queue.size() << " blocked_features=" << blocked_features
+              << " stuck_shape=" << stuck_shape << " stuck_required=" << stuck_required
+              << " missing_features=" << missing_features << '\n';
+    PrintQualityDetails(context, quality_census_serial, q, old, q_location, j_location, q_features, j_features, q_hist,
+                        j_hist, geometry_hist, geometry_types, bad_total, bad_short09, bad_short05, stuck_shape,
+                        stuck_required, missing_features, blocked_features);
+  }
+}
+
+// Times, collects, prints, and advances the live quality window.
+void EngineReports::EmitQualityCensus(EngineContext& context, const char* stage, const StageProgress& p) {
+  auto& world = context.world;
+  auto& stats = context.control.result->stats;
+  auto& selection = *context.census.selection;
+  const auto& started = *context.setup.control_prefix.started;
+  auto& previous_quality = *context.control.previous_quality;
+  auto& previous_quality_census = *context.control.previous_quality_census;
+  auto& previous_quality_elapsed = *context.control.previous_quality_elapsed;
+  auto& previous_quality_collective = *context.control.previous_quality_collective;
+  auto& previous_quality_construction = *context.control.previous_quality_construction;
+  auto& previous_quality_ownership = *context.control.previous_quality_ownership;
+  auto& quality_census_serial = *context.control.quality_census_serial;
+  auto& quality_census_started = *context.control.quality_census_started;
+  const auto began = Clock::now();
+  const double elapsed = std::chrono::duration<double>(began - started).count();
+  const double tracked_collective = world.collective_seconds + world.election_collective_seconds;
+  const uint64_t construction_edits = stats.length_splits + stats.length_collapses;
+  if (!quality_census_started) {
+    previous_quality = stats.quality;
+    previous_quality_census = p;
+    previous_quality_elapsed = elapsed;
+    previous_quality_collective = tracked_collective;
+    previous_quality_construction = construction_edits;
+    previous_quality_ownership = stats.ownership_changes;
+    quality_census_started = true;
+  }
+  std::array<uint64_t, 2> q_location{}, j_location{};
+  std::array<uint64_t, 3> q_features{}, j_features{};
+  std::array<uint64_t, 6> q_hist{}, j_hist{}, geometry_hist{};
+  std::array<uint64_t, 8> geometry_types{};
+  uint64_t bad_total = 0, bad_short09 = 0, bad_short05 = 0, stuck_shape = 0, stuck_required = 0, missing_features = 0,
+           blocked_features = 0;
+  CollectQualityCensus(selection, q_location, j_location, q_features, j_features, q_hist, j_hist, geometry_hist,
+                       geometry_types, bad_total, bad_short09, bad_short05, stuck_shape, stuck_required,
+                       missing_features, blocked_features);
+  stats.quality.diagnostic_seconds += std::chrono::duration<double>(Clock::now() - began).count();
+  PrintQualityCensus(context, stage, p, elapsed, tracked_collective, construction_edits, q_location, j_location,
+                     q_features, j_features, q_hist, j_hist, geometry_hist, geometry_types, bad_total, bad_short09,
+                     bad_short05, stuck_shape, stuck_required, missing_features, blocked_features);
+  previous_quality = stats.quality;
+  previous_quality_census = p;
+  previous_quality_elapsed = elapsed;
+  previous_quality_collective = tracked_collective;
+  previous_quality_construction = construction_edits;
+  previous_quality_ownership = stats.ownership_changes;
+  ++quality_census_serial;
+}
+
+// Stage report helpers retain the original stream and row order.
+#include "EngineReports.hpp"
+
+// Emits the first half of the original stage row on the same stream.
+static std::ostream& NativeStagePrefix(EngineContext& context, const char* stage, const StageProgress& p,
+                                       const BoundaryParameterState* state,
+                                       SU2NativeGeometry::AtlasBudget& atlas_budget, size_t face_pieces,
+                                       size_t trace_pieces, size_t limbs,
+                                       const SU2NativeGeometry::MappedFacetReference::GeometryStats& g) {
+  using Phase = EnginePhase;
+  auto& world = context.world;
+  auto& stats = context.control.result->stats;
+  auto& phase = *context.setup.control_prefix.phase;
+  std::cout << std::setprecision(17) << "NATIVE3D_STAGE rank=" << world.rank << " stage=" << stage
+            << " job_peak_rss_lower=" << stats.job_peak_rss_lower
+            << " phase=" << (phase == Phase::Construction ? "construction" : "improvement")
+            << " cells=" << p.owned_cells << " measured=" << p.measured_cells
+            << " cache_consistent=" << p.cache_consistent << " census_complete=" << p.census_complete
+            << " shape_complete=" << p.shape_complete << " geometry_complete=" << p.geometry_complete
+            << " q_measured=" << p.q_measured_cells << " j_measured=" << p.j_measured_cells
+            << " q_bad=" << p.q_bad_cells << " j_bad=" << p.j_bad_cells << " size_bad=" << p.size_bad_cells
+            << " geometry_bad=" << p.geometry_bad_cells << " q_debt=" << p.q_hinge_squared
+            << " j_debt=" << p.j_hinge_squared << " size_debt=" << p.size_hinge_squared
+            << " geometry_debt=" << p.geometry_excess_squared << " distinct_facets=" << g.distinct_facets
+            << " distinct_scope_keys=" << g.distinct_scope_keys << " prepared_facet_builds=" << g.prepared_facet_builds
+            << " prepared_facet_mean_bytes=" << g.prepared_facet_mean_bytes
+            << " associations=" << (state ? state->Records().size() : 0)
+            << " working_faces=" << (state ? state->Surface().size() : 0) << " face_pieces=" << face_pieces
+            << " trace_pieces=" << trace_pieces << " maximum_ratio_limbs=" << limbs
+            << " atlas_work=" << atlas_budget.work << " atlas_bytes=" << atlas_budget.peak_bytes
+            << " global_work=" << stats.global_work << " rounds=" << stats.rounds
+            << " batch_rounds=" << stats.batch_rounds << " collapse_corrections=" << stats.collapse_corrections
+            << " collapse_correction_cells=" << stats.collapse_correction_cells
+            << " collapse_correction_work=" << stats.collapse_correction_work
+            << " collapse_correction_seconds=" << stats.collapse_correction_seconds
+            << " batch_candidates=" << stats.batch_candidates << " batch_reserved=" << stats.batch_reserved
+            << " quality_progress=" << stats.quality_progress << " accepted=" << stats.accepted
+            << " updated_cells=" << stats.updated_cells << " update_seconds=" << stats.update_seconds
+            << " surface_measurement_skipped=" << stats.surface_measurement_skipped
+            << " surface_required_handoffs=" << stats.surface_required_handoffs
+            << " surface_demand_required=" << stats.surface_demand_required_cells
+            << " surface_demand_measured=" << stats.surface_demand_measured_cells
+            << " surface_demand_complete=" << stats.surface_demand_census_complete
+            << " surface_geometry_complete=" << stats.surface_demand_geometry_complete
+            << " seed_cell_classes=" << stats.seed_cell_classes[0] << ',' << stats.seed_cell_classes[1] << ','
+            << stats.seed_cell_classes[2] << " updated_cell_classes=" << stats.updated_cell_classes[0] << ','
+            << stats.updated_cell_classes[1] << ',' << stats.updated_cell_classes[2]
+            << " geometry_trials=" << stats.geometry_trials << " geometry_rejected=" << stats.geometry_rejected
+            << " guidance_trials=" << stats.geometry_guidance_trials
+            << " guidance_rejected=" << stats.geometry_guidance_rejected
+            << " guidance_faces=" << stats.geometry_guidance_faces
+            << " guidance_early_rejected=" << stats.geometry_guidance_early_rejections
+            << " guidance_seconds=" << stats.geometry_guidance_seconds;
+  return std::cout;
+}
+
+// Continues the stage row and terminates it on the same stream.
+static void NativeStageSuffixWork(std::ostream& out, EngineContext& context, const Clock::time_point& started,
+                                  const uint64_t& edge_census_round,
+                                  const SU2NativeGeometry::MappedFacetReference::GeometryStats& g);
+
+static void NativeStageSuffix(std::ostream& out, EngineContext& context,
+                              const SU2NativeGeometry::MappedFacetReference::GeometryStats& g) {
+  using Phase = EnginePhase;
+  auto& world = context.world;
+  auto& stats = context.control.result->stats;
+  const auto& geometry_begin = *context.control.geometry_begin;
+  const auto& started = *context.setup.control_prefix.started;
+  auto& edge_census_round = *context.census.edge_census_round;
+  const auto& tracked_calls_begin = *context.control.tracked_calls_begin;
+  const auto& tracked_seconds_begin = *context.control.tracked_seconds_begin;
+  const auto& election_calls_begin = *context.control.election_calls_begin;
+  const auto& election_seconds_begin = *context.control.election_seconds_begin;
+  out << " collective_calls=" << world.collective_calls - tracked_calls_begin
+      << " collective_seconds=" << world.collective_seconds - tracked_seconds_begin
+      << " election_calls=" << world.election_collective_calls - election_calls_begin
+      << " election_seconds=" << world.election_collective_seconds - election_seconds_begin
+      << " direct_calls=" << g.direct_calls - geometry_begin.direct_calls
+      << " direct_exceptions=" << g.direct_exceptions - geometry_begin.direct_exceptions
+      << " direct_work=" << g.direct_work - geometry_begin.direct_work
+      << " direct_seconds=" << g.direct_seconds - geometry_begin.direct_seconds
+      << " upper_calls=" << g.upper_calls - geometry_begin.upper_calls
+      << " union_exceptions=" << g.union_exceptions - geometry_begin.union_exceptions
+      << " upper_refusals=" << g.upper_refusals - geometry_begin.upper_refusals
+      << " upper_work=" << g.upper_work - geometry_begin.upper_work
+      << " upper_refinements=" << g.upper_refinements - geometry_begin.upper_refinements
+      << " upper_deferred_bounds=" << g.upper_deferred_bounds - geometry_begin.upper_deferred_bounds
+      << " classification_calls=" << g.classification_calls - geometry_begin.classification_calls
+      << " classification_work=" << g.classification_work - geometry_begin.classification_work
+      << " magnitude_calls=" << g.magnitude_calls - geometry_begin.magnitude_calls
+      << " magnitude_work=" << g.magnitude_work - geometry_begin.magnitude_work
+      << " limit_calls=" << g.limit_calls - geometry_begin.limit_calls
+      << " limit_work=" << g.limit_work - geometry_begin.limit_work
+      << " upper_seconds=" << g.upper_seconds - geometry_begin.upper_seconds
+      << " full_calls=" << g.full_calls - geometry_begin.full_calls
+      << " full_work=" << g.full_work - geometry_begin.full_work
+      << " full_seconds=" << g.full_seconds - geometry_begin.full_seconds
+      << " facet_hits=" << g.facet_hits - geometry_begin.facet_hits
+      << " facet_misses=" << g.facet_misses - geometry_begin.facet_misses
+      << " facet_resolutions=" << g.facet_resolutions << " scope_hits=" << g.scope_hits - geometry_begin.scope_hits
+      << " scope_misses=" << g.scope_misses - geometry_begin.scope_misses
+      << " scope_attempts=" << g.scope_attempts - geometry_begin.scope_attempts
+      << " scope_builds=" << g.scope_builds - geometry_begin.scope_builds
+      << " scope_build_work=" << g.scope_build_work - geometry_begin.scope_build_work
+      << " scope_build_seconds=" << g.scope_build_seconds - geometry_begin.scope_build_seconds
+      << " support_calls=" << g.support_calls - geometry_begin.support_calls
+      << " support_facets=" << g.support_facets - geometry_begin.support_facets
+      << " support_seconds=" << g.support_seconds - geometry_begin.support_seconds
+      << " facet_build_work=" << g.facet_build_work - geometry_begin.facet_build_work
+      << " facet_build_seconds=" << g.facet_build_seconds - geometry_begin.facet_build_seconds
+      << " piece_selection_work=" << g.piece_selection_work - geometry_begin.piece_selection_work
+      << " piece_selection_seconds=" << g.piece_selection_seconds - geometry_begin.piece_selection_seconds
+      << " traversal_work=" << g.traversal_work - geometry_begin.traversal_work
+      << " traversal_seconds=" << g.traversal_seconds - geometry_begin.traversal_seconds
+      << " selected_pieces=" << g.selected_pieces - geometry_begin.selected_pieces
+      << " support_pieces=" << g.support_pieces - geometry_begin.support_pieces;
+  NativeStageSuffixWork(out, context, started, edge_census_round, g);
+}
+
+// Continues the original stage row on the same stream without a flush or new query.
+static void NativeStageSuffixWork(std::ostream& out, EngineContext& context, const Clock::time_point& started,
+                                  const uint64_t& edge_census_round,
+                                  const SU2NativeGeometry::MappedFacetReference::GeometryStats& g) {
+  auto& stats = context.control.result->stats;
+  const auto& geometry_begin = *context.control.geometry_begin;
+  out << " smooth_boundary_stars=" << stats.boundary_smoothing_stars
+      << " smooth_boundary_reused=" << stats.boundary_smoothing_reused
+      << " smooth_boundary_candidates=" << stats.boundary_smoothing_candidates
+      << " smooth_boundary_rejects=" << stats.boundary_smoothing_validity_rejects << ','
+      << stats.boundary_smoothing_shape_rejects << ',' << stats.boundary_smoothing_edge_rejects << ','
+      << stats.boundary_smoothing_geometry_rejects
+      << " smooth_boundary_guidance=" << stats.boundary_smoothing_guidance_calls
+      << " smooth_boundary_upper_queries=" << stats.boundary_smoothing_upper_queries
+      << " smooth_boundary_move_contexts=" << stats.boundary_smoothing_move_contexts
+      << " smooth_boundary_prepared_trials=" << stats.boundary_smoothing_prepared_trials
+      << " smooth_boundary_guidance_reused_faces=" << stats.boundary_smoothing_guidance_reused_faces
+      << " smooth_boundary_guidance_faces=" << stats.boundary_smoothing_guidance_faces
+      << " smooth_boundary_guidance_early_rejected=" << stats.boundary_smoothing_guidance_early_rejections
+      << " smooth_boundary_moves=" << stats.boundary_smoothing_moves
+      << " smooth_boundary_debt_reduction=" << double(stats.boundary_smoothing_debt_reduction)
+      << " smooth_boundary_seconds=" << stats.boundary_smoothing_seconds
+      << " smooth_interior_stars=" << stats.interior_smoothing_stars
+      << " smooth_interior_reused=" << stats.interior_smoothing_reused
+      << " smooth_interior_candidates=" << stats.interior_smoothing_candidates
+      << " smooth_interior_rejects=" << stats.interior_smoothing_validity_rejects << ','
+      << stats.interior_smoothing_shape_rejects << ',' << stats.interior_smoothing_edge_rejects << ','
+      << stats.interior_smoothing_geometry_rejects
+      << " smooth_interior_guidance=" << stats.interior_smoothing_guidance_calls
+      << " smooth_interior_upper_queries=" << stats.interior_smoothing_upper_queries
+      << " smooth_interior_moves=" << stats.interior_smoothing_moves
+      << " smooth_interior_debt_reduction=" << double(stats.interior_smoothing_debt_reduction)
+      << " smooth_interior_seconds=" << stats.interior_smoothing_seconds
+      << " retention_refusals=" << g.retention_refusals - geometry_begin.retention_refusals
+      << " prepared_bytes=" << g.prepared_bytes << " prepared_limit=" << g.prepared_limit
+      << " facet_bytes=" << g.facet_bytes << " scope_bytes=" << g.scope_bytes << " facet_entries=" << g.facet_entries
+      << " scope_entries=" << g.scope_entries << " cache_evictions=" << g.evictions
+      << " cache_evicted_bytes=" << g.evicted_bytes
+      << " memo_direct_hits=" << g.memo_direct_hits - geometry_begin.memo_direct_hits
+      << " memo_direct_misses=" << g.memo_direct_misses - geometry_begin.memo_direct_misses
+      << " memo_union_hits=" << g.memo_union_hits - geometry_begin.memo_union_hits
+      << " memo_union_misses=" << g.memo_union_misses - geometry_begin.memo_union_misses
+      << " memo_stores=" << g.memo_stores - geometry_begin.memo_stores
+      << " memo_evictions=" << g.memo_evictions - geometry_begin.memo_evictions
+      << " memo_evicted_bytes=" << g.memo_evicted_bytes - geometry_begin.memo_evicted_bytes
+      << " memo_retention_refusals=" << g.memo_retention_refusals - geometry_begin.memo_retention_refusals
+      << " memo_maintenance_work=" << g.memo_maintenance_work - geometry_begin.memo_maintenance_work
+      << " memo_bytes=" << g.memo_bytes << " memo_limit=" << g.memo_limit
+      << " memo_direct_entries=" << g.memo_direct_entries << " memo_union_entries=" << g.memo_union_entries
+      << " length_splits=" << stats.length_splits << " length_collapses=" << stats.length_collapses
+      << " split_passes=" << stats.length_split_passes << " collapse_passes=" << stats.length_collapse_passes
+      << " quality_stages=" << stats.quality_stages << " split_generation=" << stats.split_generation
+      << " split_lane=" << stats.split_lane << " surface_rounds=" << stats.surface_rounds
+      << " interior_rounds=" << stats.interior_rounds << " surface_seconds=" << stats.surface_seconds
+      << " interior_seconds=" << stats.interior_seconds << " surface_conflicts=" << stats.surface_conflicts
+      << " interior_conflicts=" << stats.interior_conflicts
+      << " interior_boundary_discoveries=" << stats.interior_boundary_discoveries
+      << " unique_long_surface=" << stats.unique_long_surface << " unique_long_interior=" << stats.unique_long_interior
+      << " unique_edge_debt=" << stats.unique_edge_debt << " maximum_edge=" << stats.maximum_edge
+      << " edge_census_round=" << edge_census_round << " edge_census_current=" << (edge_census_round == stats.rounds)
+      << " edge_histogram=" << stats.edge_histogram[0] << ',' << stats.edge_histogram[1] << ','
+      << stats.edge_histogram[2] << " child_parent_max=" << stats.maximum_child_parent_ratio
+      << " child_ratio_measured=" << stats.child_ratio_measured
+      << " elapsed=" << std::chrono::duration<double>(Clock::now() - started).count() << std::endl;
+}
+
+// Counts coverage and emits stage/edge reports in original order.
+void EngineReports::EmitStageRows(EngineContext& context, const char* stage, const StageProgress& p,
+                                  const BoundaryParameterState* state, SU2NativeGeometry::AtlasBudget& atlas_budget) {
+  auto& world = context.world;
+  auto& stats = context.control.result->stats;
+  auto& geometry_authority = *context.control.geometry_authority;
+  auto& edge_progress = *context.census.edge_progress;
+  size_t face_pieces = 0, trace_pieces = 0, limbs = 0;
+  auto ratio = [&](const SU2NativeGeometry::ExactRatio& r) {
+    limbs = std::max({limbs, r.numerator.size(), r.denominator.size()});
+  };
+  auto bary = [&](const SU2NativeGeometry::ExactBary& b) {
+    ratio(b.u);
+    ratio(b.v);
+  };
+  if (state) {
+    for (const auto& row : state->Coverage().faces)
+      for (const auto& piece : row.second.pieces) {
+        ++face_pieces;
+        for (const auto& b : piece.reference) bary(b);
+        for (const auto& b : piece.active) bary(b);
+      }
+    for (const auto& row : state->Coverage().traces)
+      for (const auto& piece : row.second.pieces) {
+        ++trace_pieces;
+        bary(piece.first);
+        bary(piece.last);
+        ratio(piece.end);
+      }
+  }
+  const auto g = geometry_authority ? geometry_authority->GeometryStatsSnapshot()
+                                    : SU2NativeGeometry::MappedFacetReference::GeometryStats{};
+  auto& out = NativeStagePrefix(context, stage, p, state, atlas_budget, face_pieces, trace_pieces, limbs, g);
+  NativeStageSuffix(out, context, g);
+  if (std::string(stage) == "length_split_exit")
+    for (const auto& edge : edge_progress.top)
+      std::cout << "NATIVE3D_EDGE rank=" << world.rank << " generation=" << stats.split_generation
+                << " a=" << edge.edge[0] << " b=" << edge.edge[1] << " length=" << edge.length
+                << " surface=" << edge.surface << " age=" << edge.age << " disposition=" << edge.disposition
+                << " disposition_round=" << edge.disposition_round << '\n';
+}

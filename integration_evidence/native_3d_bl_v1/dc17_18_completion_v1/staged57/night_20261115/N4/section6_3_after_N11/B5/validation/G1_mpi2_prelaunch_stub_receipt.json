@@ -1,0 +1,37 @@
+{
+  "passed": true,
+  "launched": false,
+  "built": false,
+  "cohort": "mpi2",
+  "temporary_host_preflight": true,
+  "housepin_stub": {
+    "argv": [
+      "nice",
+      "-n",
+      "19",
+      "/usr/bin/time",
+      "-v",
+      "timeout",
+      "21",
+      "mpirun",
+      "--bind-to",
+      "none",
+      "-n",
+      "2",
+      "--output-filename",
+      "/tmp/b5_g1_housepin_4ymwgz_b/cases/N8_G1_candidate_mpi2_20261117T150911_3934828/rank_output",
+      "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-p5-20261114/UnitTests/test_driver",
+      "[NativeStagedConstruction3D]~[.],[NativeConstructionHandoff3D]~[.],[NativeInteriorPlacement3D]~[.],[NativeConcurrentRepair3D]~[.],[NativeConcurrentComposed3D]~[.],[NativeQualityPass3D]~[.],[NativeHeightOptimization3D]~[.],[NativeCoarsenQualityReturn3D]~[.],[NativeBatchEngine3D]~[.],[NativeBatchLookup3D]~[.],[NativeBatchPlanning3D]~[.],[NativeCollapseCorrection3D]~[.],[NativeCollision3D]~[.],[NativeConcurrentRepair3D]~[.],[NativeConstructionHandoff3D]~[.],[NativeConstructionPassClaims3D]~[.],[NativeCurvedTransaction3D]~[.],[NativeCycles3D]~[.],[NativeDeadline3D]~[.],[NativeDonorPointProbe3D]~[.],[NativeDonorReuse3D]~[.],[NativeFailureCapture3D]~[.],[NativeFirstLayerRanking3D]~[.],[NativeGeometryReturn3D]~[.],[NativeInteriorBatch3D]~[.],[NativeLayeredDistributed3D]~[.],[NativeMetricFootprint3D]~[.],[NativeMetricSamples3D]~[.],[NativeMidpointSamples3D]~[.],[NativeOriginalSupport3D]~[.],[NativeOversizedStar3D]~[.],[NativePolicy3D]~[.],[NativeProgressiveMeasurement3D]~[.],[NativeQualityPass3D]~[.],[NativeRegionField3D]~[.],[NativeRejectedState3D]~[.],[NativeRepairFairness3D]~[.],[NativeSplitLanes3D]~[.],[NativeStaticFix3D]~[.],[NativeSurfacePreparationEngine3D]~[.]",
+      "--durations",
+      "yes",
+      "--reporter",
+      "xml"
+    ],
+    "case_dir": "/tmp/b5_g1_housepin_4ymwgz_b/cases/N8_G1_candidate_mpi2_20261117T150911_3934828",
+    "saved": {
+      "pins.json": "5c2bb04c88a4c61cbfb9dfed4102b0030110994f30fbedcc3c1fb264ff0e63f3",
+      "command.json": "6dcfce4a9c3070be0e1126ab4c042deeceaecf728fe977493d327fdd7f8ad834"
+    }
+  },
+  "empty_wall_exceptions": true
+}

@@ -83,4 +83,18 @@ struct EngineControl {
   EngineControl& operator=(const EngineControl&) = delete;
   EngineControl(EngineControl&&) = delete;
   EngineControl& operator=(EngineControl&&) = delete;
+  static bool ObserveProgress(EngineContext&, Owned&, SU2NativeGeometry::AtlasBudget&, const char* stage);
+  static EngineResult Finish(EngineContext&, bool curved, Owned&, SU2NativeGeometry::AtlasBudget&,
+                             const Clock::time_point&, const std::clock_t&);
+  static void ProveEntitySurface(EngineContext&, Owned&, SU2NativeGeometry::AtlasBudget&);
+  static void ProvePreparedSurface(EngineContext&, Owned&);
+  static void ProveFinalHeights(EngineContext&, Owned&);
+  static void ObserveRejectedState(EngineContext&, Owned&);
+  static void CaptureFinalCounts(EngineContext&, Owned&);
+  static void CaptureDirectoryDonorStatistics(EngineContext&, DirectoryStats&, SU2NativeGeometry::AtlasBudget&);
+  static void EnrichFinalReasonAndTiming(EngineContext&, bool curved, Owned&, const Clock::time_point&,
+                                         const std::clock_t&);
+  static EngineResult EmitFinalRowsAndMove(EngineContext&, Owned&, SU2NativeGeometry::AtlasBudget&,
+                                           const Clock::time_point&, const std::clock_t&);
+  static bool NotifyStageObserver(EngineContext&, const char*, Owned&);
 };

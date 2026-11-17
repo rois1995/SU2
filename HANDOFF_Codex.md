@@ -2,9 +2,9 @@
 
 Updated 2026-11-17. **N14/N15 PASSED every ordered check**, including the ONE full workflow (4738.250709s, all6payloads EXACT E1P6c/E2P7), isolated restart (236.822017s,168797points/855828cells, coordinate error0, finite positive changed fields), and M26 reconciliation. Acceptance summary: `N/N14/section6_12/acceptance_summary.json`. All actual handles and pins are sealed; the current boundary has NO owned heavy job.
 
-Current cut B4 PASSED scoped build554/G1/G2; no owned job. Build70.160484s/1777pins; G1serial765.089244/MPI2 13.584711/MPI4 13.561882s, zerochangedcases; strictG2 stop317.442030/seal325.206035s alloldintegers/model/timerrows exact. All actualhandles/pinssealed in P/B4/validation; P=N/N4/section6_3_after_N11. Commit/push B4 next, then B5–B8. B3ce25219f04 and N14/N15qualification0c2cb5c460 are pushed. End-BG3/G4/GQ/plannedstopremain. Qualified552referencesadopted without extra run; exact552binaries localonly.
+B5 Reports/finalization PASSED scoped build555/G1/G2; no owned heavy job. Build70.163345s/1778pins; G1serial766.075553/MPI2 14.503078/MPI4 14.556237s, zerochangedcases; strictG2stop317.596742/seal325.356386s alloldinteger/model/timerrowsexact. Allactualhandles/pinssealed inP/B5/validation. MPI2launcher10vsref9 is report-only underC2.1, notacase/failuretablechange. Commit/pushB5next; thenB6–B8/end-BG3/G4/GQ/plannedstop. B4c0486d57da andN14/N15qualification0c2cb5c460alreadyPUSHED.
 
-Current shared554 CFD SHA de6f81275bd99c4a32a1e0b20eb3786279c84b1c77e4af7df589c58d1ba3c988; testSHA89aa6e4465f1711a1f72697b72211575902757cf84e11d0b9ed5be6cf99b85be. Full552 qualification below is preserved historical evidence.
+Current shared555 CFD SHA c0482395d61d23163ecad2df03e81b7cce20b814700b83a365667a22fa515564; testSHA0ee72822c17dcabd68b17a58f13b661a84e1d69342a740b0db9b6d630a023341. N14full552qualification, adopted references and local archived binaries remain preserved.
 
 Evidence root: `integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115` (N). Qualified full case: `N/N14/section6_12/validation/full552`; restart `validation/disk_restart_full552_event2`. Primary terminal receipts are `validation/full_primary_terminal_receipt.json` (10actual IDs,1775source/212input/25helper pins) and `restart_primary_terminal_receipt.json` (11actual IDs,2022case/10helper pins). No full or restart numerical repeat occurred. Own helper setup/report corrections are recorded in progress and their R3 history folders.
 
@@ -35,7 +35,7 @@ N14/N15 [report](integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/stag
 
 ## Remaining phase-B cut
 
-B3 is accepted/pushed; B4 passed scoped gates and is ready for commit/push. B5 actual member draft and B7 draft are being prepared; B6 and B8 have binding inventories. P=`N/N4/section6_3_after_N11`; its `source_check.md` is controlling. Each cut sub-step needs G1/G2 and commit/push. Keep C/D untouched at the planned stop.
+B3/B4 are accepted/pushed; B5 scoped gates passed and checkpoint is next. B6/B7 actual unapplied candidates and all separate B8 block drafts exist; primary integration/review/rebinding and all remaining gates are still required. B5 actual member draft and B7 draft are being prepared; B6 and B8 have binding inventories. P=`N/N4/section6_3_after_N11`; its `source_check.md` is controlling. Each cut sub-step needs G1/G2 and commit/push. Keep C/D untouched at the planned stop.
 
 Detailed timings: [ADAPTATION_TIMINGS](Handbook/ADAPTATION_TIMINGS.md). The fully qualified phase-A workflow had native event times2583.997544/1727.465975s and process-peak sums14,000,402,432/17,305,853,952B, all six payloads and old integer/timer rows identical; isolated restart passed. Older pinsets are historical after intentional source changes.
 
