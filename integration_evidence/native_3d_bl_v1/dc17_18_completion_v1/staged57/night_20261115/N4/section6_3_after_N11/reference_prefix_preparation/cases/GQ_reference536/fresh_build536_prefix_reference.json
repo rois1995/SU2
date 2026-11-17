@@ -1,0 +1,48 @@
+{
+  "passed": true,
+  "gate": "GQ",
+  "case": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N4/section6_3_after_N11/reference_prefix_preparation/cases/GQ_reference536",
+  "build536_binary_sha256": "a144d90cdc50b6ca5d77e23f929294c271a7c15628b28136b65303f15e4083b1",
+  "build536_test_binary_sha256": "b5fb04ffd903d94357467a35d8adc5e9c3ce32ce5dd562bd2539f55aa66f52f3",
+  "accepted_N1_reference": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/section6_1/full_workflow",
+  "N8_comparator_sha256": "1077b87962f593b2ad440ed5facb9a5dcc0aeed81b2b0974013a66d43d7cf28d",
+  "host_preflight": {
+    "host": "pc-rausa",
+    "boot_id": "c2e658c2-00e7-4daf-8942-349c59218707",
+    "pid1_present": true,
+    "loadavg": "3.07 3.05 3.47 1/3466 1524271",
+    "mem_available_mib": 37779,
+    "scratch_free_bytes": 23285456896
+  },
+  "validation_result": {
+    "gate": "GQ",
+    "passed": true,
+    "reference": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/section6_1/full_workflow",
+    "candidate": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N4/section6_3_after_N11/reference_prefix_preparation/cases/GQ_reference536",
+    "comparator_sha256": "1077b87962f593b2ad440ed5facb9a5dcc0aeed81b2b0974013a66d43d7cf28d",
+    "comparison": {
+      "passed": true,
+      "gate": "GQ",
+      "integer_rows": {
+        "passed": true,
+        "first_difference": null,
+        "streams": [
+          "rank_output/1/rank.0/stdout",
+          "rank_output/1/rank.1/stdout",
+          "rank_output/1/rank.2/stdout",
+          "rank_output/1/rank.3/stdout",
+          "rank_output/1/rank.4/stdout",
+          "rank_output/1/rank.5/stdout"
+        ]
+      },
+      "timer_rows": {
+        "passed": true,
+        "snapshot_count": 18,
+        "reference_wall_law_lines": 0,
+        "wall_law_lines_before_cutoffs": 6
+      }
+    },
+    "stdout": "{\n  \"passed\": true,\n  \"gate\": \"GQ\",\n  \"integer_rows\": {\n    \"passed\": true,\n    \"first_difference\": null,\n    \"streams\": [\n      \"rank_output/1/rank.0/stdout\",\n      \"rank_output/1/rank.1/stdout\",\n      \"rank_output/1/rank.2/stdout\",\n      \"rank_output/1/rank.3/stdout\",\n      \"rank_output/1/rank.4/stdout\",\n      \"rank_output/1/rank.5/stdout\"\n    ]\n  },\n  \"timer_rows\": {\n    \"passed\": true,\n    \"snapshot_count\": 18,\n    \"reference_wall_law_lines\": 0,\n    \"wall_law_lines_before_cutoffs\": 6\n  }\n}\n",
+    "stderr": ""
+  }
+}

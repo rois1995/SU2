@@ -4,7 +4,7 @@ Read AGENTS.md, COMPLETE latest NIGHT_WORK_ORDER.md, and R/night_20261115/progre
 
 R=`integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57`.
 
-**Current owned job: fresh CUT GQ reference exec78637**, controller1524197/start36487288, MPIroot1524417/start36487939. Case `N/N4/section6_3_after_N11/reference_prefix_preparation/cases/GQ_reference536`. Do not stop/restart or edit pinned sources/helpers. FreshG1/G2/G3PASSED; G3 375commonedits/P6cfirst336/entry5113/physical/pinsPASS623.153178s/all4IDs+controllerterminal. GQislastreferenceBEFOREfirstcutedit; all13oldA1assertionsfailfreshbase. No cutproductionedit yet. N11failed/reverted0d9d627645; N10skipped.
+**No owned job currently. ALL fresh cut references passed on build536** (G1/G2/G3/GQ), with unchanged pins and actual terminal handles. GQ1212.527148s plannedstop/1220.753742s sealed, all6thirdwindows/strictoldints+calls, observedSUMHWM14021672960B<cap. `N/N4/section6_3_after_N11/fresh_reference_manifest.json` seals the complete reference set before first edit. NEXT: checkpoint/push, preservedA1typehoist, build537, G1serial/MPI2/4 thenG2. No cutproductionedit yet. N11failed/reverted0d9d627645; N10skipped.
 
 Independentcurrentitem6.3: baseline536rebuildPASSED90.125806s/1598pinsunchanged/12terminalIDs, sharedCFDa144/testb5fb EXACTaccepted534. `R/night_20261115/N4/section6_3_after_N11` hascompletecopiedC2.1/inventories/H/D/Night/AGENTSSHAinputs andWHOLEsourcecheck22readings BEFOREanycutedit. No unresolvedresultcontradictionidentified; no cutproductionedityet.
 

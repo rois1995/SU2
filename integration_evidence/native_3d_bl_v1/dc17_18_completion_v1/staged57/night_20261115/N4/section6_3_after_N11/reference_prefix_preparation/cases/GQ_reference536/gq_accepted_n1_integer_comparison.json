@@ -1,0 +1,31 @@
+{
+  "gate": "GQ",
+  "passed": true,
+  "reference": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/section6_1/full_workflow",
+  "candidate": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N4/section6_3_after_N11/reference_prefix_preparation/cases/GQ_reference536",
+  "comparator_sha256": "1077b87962f593b2ad440ed5facb9a5dcc0aeed81b2b0974013a66d43d7cf28d",
+  "comparison": {
+    "passed": true,
+    "gate": "GQ",
+    "integer_rows": {
+      "passed": true,
+      "first_difference": null,
+      "streams": [
+        "rank_output/1/rank.0/stdout",
+        "rank_output/1/rank.1/stdout",
+        "rank_output/1/rank.2/stdout",
+        "rank_output/1/rank.3/stdout",
+        "rank_output/1/rank.4/stdout",
+        "rank_output/1/rank.5/stdout"
+      ]
+    },
+    "timer_rows": {
+      "passed": true,
+      "snapshot_count": 18,
+      "reference_wall_law_lines": 0,
+      "wall_law_lines_before_cutoffs": 6
+    }
+  },
+  "stdout": "{\n  \"passed\": true,\n  \"gate\": \"GQ\",\n  \"integer_rows\": {\n    \"passed\": true,\n    \"first_difference\": null,\n    \"streams\": [\n      \"rank_output/1/rank.0/stdout\",\n      \"rank_output/1/rank.1/stdout\",\n      \"rank_output/1/rank.2/stdout\",\n      \"rank_output/1/rank.3/stdout\",\n      \"rank_output/1/rank.4/stdout\",\n      \"rank_output/1/rank.5/stdout\"\n    ]\n  },\n  \"timer_rows\": {\n    \"passed\": true,\n    \"snapshot_count\": 18,\n    \"reference_wall_law_lines\": 0,\n    \"wall_law_lines_before_cutoffs\": 6\n  }\n}\n",
+  "stderr": ""
+}

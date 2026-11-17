@@ -1,0 +1,41 @@
+{
+  "passed": true,
+  "case": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N4/section6_3_after_N11/reference_prefix_preparation/cases/GQ_reference536",
+  "seconds_until_stop": 1212.5271484060213,
+  "seconds_total": 1220.7537422510213,
+  "third_window_rows": {
+    "0": 3,
+    "1": 3,
+    "2": 3,
+    "3": 3,
+    "4": 3,
+    "5": 3
+  },
+  "old_integer_comparison": {
+    "passed": true,
+    "gate": "GQ",
+    "integer_rows": {
+      "passed": true,
+      "first_difference": null,
+      "streams": [
+        "rank_output/1/rank.0/stdout",
+        "rank_output/1/rank.1/stdout",
+        "rank_output/1/rank.2/stdout",
+        "rank_output/1/rank.3/stdout",
+        "rank_output/1/rank.4/stdout",
+        "rank_output/1/rank.5/stdout"
+      ]
+    },
+    "timer_rows": {
+      "passed": true,
+      "snapshot_count": 18,
+      "reference_wall_law_lines": 0,
+      "wall_law_lines_before_cutoffs": 6
+    }
+  },
+  "observed_rank_peak_hwm_sum_bytes": 14021672960,
+  "job_limit_bytes": 19999490048,
+  "inputs_unchanged": true,
+  "source_and_binary_pins_unchanged": true,
+  "all_owned_handles_terminal": true
+}
