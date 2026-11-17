@@ -2,6 +2,7 @@
 #pragma once
 #include "ContextValue.hpp"
 #include "EngineCensus.hpp"
+#include "EngineQueues.hpp"
 
 struct EngineControlPrefix {
   std::optional<EnginePhase> phase;
@@ -98,6 +99,7 @@ struct EngineContext {
   BoundaryMetric& surface_target;
   EngineControl control;
   EngineCensus census;
+  EngineQueues queues;
 
   EngineContext(EngineSetup&, World&, const Owned&, const std::vector<DonorCell>&, const PlanarReference&,
                 MetricComposition&, EngineOptions&, MetricChange&, bool&, BoundaryMetric&);

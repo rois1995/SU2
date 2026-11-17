@@ -1436,6 +1436,7 @@ struct RepairProposal {
 // Keep setup ownership private to the original translation unit and namespace.
 #include "native_engine3d/EngineSetup.cpp"
 #include "native_engine3d/EngineCensus.cpp"
+#include "native_engine3d/EngineQueues.cpp"
 #include "native_engine3d/EngineContext.cpp"
 
 EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorCell>& original,
@@ -1587,8 +1588,12 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
   auto& retired_edges = retired_edges_lifetime.Get();
   ContextValue campaign_edges_lifetime(context.census.campaign_edges);
   auto& campaign_edges = campaign_edges_lifetime.Get();
-  std::map<Id,std::set<Id>> inactive_blocked_edges;size_t inactive_blocked_links=0;
-  std::array<bool,2> length_blocks_dirty{{false,false}};
+  ContextValue inactive_blocked_edges_lifetime(context.queues.inactive_blocked_edges);
+  auto& inactive_blocked_edges = inactive_blocked_edges_lifetime.Get();
+  ContextValue inactive_blocked_links_lifetime(context.queues.inactive_blocked_links, 0);
+  auto& inactive_blocked_links = inactive_blocked_links_lifetime.Get();
+  ContextValue length_blocks_dirty_lifetime(context.queues.length_blocks_dirty, std::array<bool, 2>{{false, false}});
+  auto& length_blocks_dirty = length_blocks_dirty_lifetime.Get();
   ContextValue field_identity_lifetime(context.census.field_identity);
   auto& field_identity = field_identity_lifetime.Get();
   // Joint split feasibility depends on neighboring vertex stars, even when the edge itself is unchanged.

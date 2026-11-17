@@ -1,0 +1,9 @@
+{
+  "old": "std::map<Id,std::set<Id>> inactive_blocked_edges;size_t inactive_blocked_links=0;\n  std::array<bool,2> length_blocks_dirty{{false,false}};",
+  "new": "ContextValue inactive_blocked_edges_lifetime(context.queues.inactive_blocked_edges);\n  auto& inactive_blocked_edges = inactive_blocked_edges_lifetime.Get();\n  ContextValue inactive_blocked_links_lifetime(context.queues.inactive_blocked_links, 0);\n  auto& inactive_blocked_links = inactive_blocked_links_lifetime.Get();\n  ContextValue length_blocks_dirty_lifetime(context.queues.length_blocks_dirty, std::array<bool, 2>{{false, false}});\n  auto& length_blocks_dirty = length_blocks_dirty_lifetime.Get();",
+  "names": [
+    "inactive_blocked_edges",
+    "inactive_blocked_links",
+    "length_blocks_dirty"
+  ]
+}
