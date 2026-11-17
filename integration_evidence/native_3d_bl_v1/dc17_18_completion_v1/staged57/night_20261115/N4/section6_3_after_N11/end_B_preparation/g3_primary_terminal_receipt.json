@@ -1,0 +1,69 @@
+{
+  "actual_host_proc": true,
+  "unix": 1794936335.700841,
+  "exec_session": 87148,
+  "exec_exit_code": 0,
+  "case": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N4/section6_3_after_N11/end_B_preparation/cases/endb_g3_20261117T171501_130229",
+  "passed": true,
+  "all_owned_handles_terminal": true,
+  "identities": [
+    {
+      "pid": 130513,
+      "state": "S",
+      "start_ticks": 42801079,
+      "name": "time",
+      "alive": false
+    },
+    {
+      "pid": 130514,
+      "state": "S",
+      "start_ticks": 42801080,
+      "name": "timeout",
+      "alive": false
+    },
+    {
+      "pid": 130515,
+      "state": "R",
+      "start_ticks": 42801080,
+      "name": "test_driver",
+      "alive": false
+    },
+    {
+      "pid": 130516,
+      "state": "S",
+      "start_ticks": 42801080,
+      "name": "orted",
+      "alive": false
+    },
+    {
+      "pid": 130229,
+      "start_ticks": 42800415,
+      "name": "primary-controller",
+      "alive": false
+    }
+  ],
+  "case_pins_verified": 2036,
+  "elapsed_seconds": 617.6887118816376,
+  "accepted_splits": 1170,
+  "common_edit_count": 1113,
+  "observer_adjusted_entry_work": {
+    "reference": 5113,
+    "candidate": 5113
+  },
+  "physical_gates": {
+    "executed_successfully": true,
+    "runtime_pins_verified": true,
+    "serial_bounded_command": true,
+    "exact_input_and_target": true,
+    "unchanged_stage_limits": true,
+    "all_private_cells_positive_with_sensors": true,
+    "modeled_storage_within_12GiB": true,
+    "same_frozen_input_contract": true,
+    "same_frozen_configuration": true,
+    "zero_upper_refinements": true,
+    "whole_job_peak_RSS_19073_MiB_serial": true
+  },
+  "actual_fixture_config_byte_identical_to_reference": true,
+  "not_full_workflow_P8_peak": true,
+  "gate_sha256": "ed73a9086e092ae192c80831a709bacd938940ca534dc55adb42c43cf07edb40"
+}

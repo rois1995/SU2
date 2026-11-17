@@ -1,0 +1,9 @@
+# Owned draft-generator resource correction
+
+The first integrated B8 renderer stalled in difflib.SequenceMatcher.get_opcodes on approximately550KB sources. Its wrapper printed only the command output and discarded the running session ID. Wrapper completion was incorrectly treated as command completion. A later sandbox-local process check did not see the host process. The renderer was replaced by a linear prefix/suffix inverse and its successful outputs were reviewed, but the first process remained.
+
+Actual host evidence identifies Python4076260/start42326144 and sandbox parent4076259/start42326143; accumulated CPU was over4,800seconds. It used aboutonecore during the recorded B6/B7/B8 six-rank G2 checks, making seven owned heavy processes rather than the allowed six. Those runs retain strict numerical-counter evidence but do NOT establish R1 compliance. Builds and up-to-four-rank G1 checks stayed at mostfive including this process. The qualified N14 full run predates it.
+
+The primary preserved the process identities and terminated only the verified orphan drafting utility. The active G3 numerical job was untouched. Both recorded orphan-tree identities are terminal; its discarded exec-session ID cannot be recovered and is not invented. No production source, gate, budget or tolerance changed. The new actual-host preflight recognizes owned Python helper paths instead of treating every Python process as an outside observation.
+
+Correction check: after G3 ends, repeat strict G2 once on the SAME integrated build558, with the corrected preflight and source/input/helper provenance. This qualifies the connected B6–B8 production state under the six-process bound; the earlier G2 rows and the resource violation remain preserved. No old-build numerical results are relabeled R1-compliant. Then continue G4 and GQ in order. The gate is unchanged; this is an own validation/ownership-wiring correction under R3, not a production redesign or tolerance change.

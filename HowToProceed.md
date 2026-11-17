@@ -1,9 +1,9 @@
-# Next authorized work
+# Planned stop after phase B
 
-Read the complete latest NIGHT_WORK_ORDER.md and [current progress](integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/progress.md).
+**PHASE B PASSED — qualification checkpoint next.** Qualification commit: `pending qualification checkpoint; code-equivalent to daf75b14e2`. Do not start phase C, N6 or final N7 until the user continues.
 
-1. N14/N15 PASSED all ordered checks/full/restart/M26 and pushed0c2cb5c460. References552adopted without extra run.
-2. CUT B8/build558 PASSED scoped gates: build 80.122834s/1781 pins; G1 serial/MPI2/MPI4 782.588145/13.597257/15.629537s, zero changed cases; strict G2 stop/seal 364.021415/372.503794s, all old integer/model/timer rows exact against adopted552. All actual handles and pins sealed. Prefix HWM sum 6,337,683,456B is not a full-workflow P8 peak. No numerical repeat or efficiency gain claim.
-3. Commit/push B8, then end-B G3/G4/GQ.
-4. After end-B gates and commit/push, update current state, verify no owned job, write terminal handles, STOP and wait for the user. Do not start phase C. N6/N7/C/D are deferred at this planned stop.
-N10 is withdrawn. Do not implement8.5ab. Latest AGENTS orders are applied. One owned heavy workload/max6heavy processes, nice19/libs1, actual host preflight; user apps are observations only. R3 correct own helper setup within90min; never change production/gates/tolerances for it. R5 governs result failures. No questions before the planned stop.
+Phase B's scoped/end gates and readability checks passed on build558. G3/G4/GQ are complete; corrected integrated G2 qualifies the current source after the documented R1 ownership error. No owned job runs; actual terminal handles and pins are sealed.
+
+Read [HANDOFF_Codex.md](HANDOFF_Codex.md), [progress](integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/progress.md), [phase-B report](Handbook/ADAPTATION_CUT_PHASE_B_20261117.md), and the complete latest NIGHT_WORK_ORDER.md before any future work. Preserve build558 source/binary pins and independent local copies. Last full two-event qualification is N14/N15 build552; no extra G5 was required at end B.
+
+N10 is withdrawn; do not implement8.5ab. Keep all gates and resource limits. User applications are observations; our Python helpers count toward owned work. **STOP AND WAIT FOR THE USER.**

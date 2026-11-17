@@ -1,0 +1,6 @@
+{
+  "unix": 1794935550.847309,
+  "cause": "The sealed primary build receipt has a controller PID/start row without an optional alive field. The adapter incorrectly required that field false instead of relying on its existing direct /proc PID/start check.",
+  "correction": "Reject explicitly alive rows, then require actual PID/start identity terminal for every row. No sealed receipt, production source, result gate, tolerance or numerical run changed.",
+  "numerical_launches": 0
+}

@@ -1,0 +1,25 @@
+{
+  "passed": true,
+  "launched": false,
+  "built": false,
+  "setup_boundary": "after pins.json and command.json, before test_driver Popen",
+  "case": "/tmp/endb_g3_setup_1jwh0ivu/cases/endb_g3_setup_stub_20261117T171314_124502",
+  "pins_sha256": "7ad9c53f722e10ab90b994e6f6752ec6259bfb63d239e2177b4d3e9feb8e37e3",
+  "command_sha256": "bf722969115ae0b605782000cffb59ea95f4e25ab4a76d86d4ac0ed3cc576594",
+  "argv": [
+    "nice",
+    "-n",
+    "19",
+    "/usr/bin/time",
+    "-v",
+    "timeout",
+    "900",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-p5-20261114/UnitTests/test_driver",
+    "[NativeActualSavedSurfaceStage3D]",
+    "--durations",
+    "yes"
+  ],
+  "synthetic_setup_only": true,
+  "host_preflight_used": false,
+  "build_binary_sha256": "b1462a432c443632640b92ce9c6f44e41ef390bc71641aabf8dc5935053789a4"
+}

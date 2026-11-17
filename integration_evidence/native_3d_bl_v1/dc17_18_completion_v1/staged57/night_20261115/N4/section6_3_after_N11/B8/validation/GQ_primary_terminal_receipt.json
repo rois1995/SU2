@@ -1,0 +1,130 @@
+{
+  "actual_host_proc": true,
+  "unix": 1794938124.5950167,
+  "identities": [
+    {
+      "pid": 190560,
+      "state": "S",
+      "ppid": 2375,
+      "pgid": 190560,
+      "sid": 190560,
+      "start_ticks": 42931623,
+      "comm": "time",
+      "alive": false
+    },
+    {
+      "pid": 190561,
+      "state": "S",
+      "ppid": 190560,
+      "pgid": 190561,
+      "sid": 190560,
+      "start_ticks": 42931623,
+      "comm": "timeout",
+      "alive": false
+    },
+    {
+      "pid": 190562,
+      "state": "S",
+      "ppid": 190561,
+      "pgid": 190561,
+      "sid": 190560,
+      "start_ticks": 42931623,
+      "comm": "mpirun",
+      "alive": false
+    },
+    {
+      "pid": 190565,
+      "state": "R",
+      "ppid": 190562,
+      "pgid": 190565,
+      "sid": 190560,
+      "start_ticks": 42931626,
+      "comm": "SU2_CFD",
+      "alive": false
+    },
+    {
+      "pid": 190566,
+      "state": "R",
+      "ppid": 190562,
+      "pgid": 190566,
+      "sid": 190560,
+      "start_ticks": 42931626,
+      "comm": "SU2_CFD",
+      "alive": false
+    },
+    {
+      "pid": 190567,
+      "state": "R",
+      "ppid": 190562,
+      "pgid": 190567,
+      "sid": 190560,
+      "start_ticks": 42931626,
+      "comm": "SU2_CFD",
+      "alive": false
+    },
+    {
+      "pid": 190568,
+      "state": "R",
+      "ppid": 190562,
+      "pgid": 190568,
+      "sid": 190560,
+      "start_ticks": 42931626,
+      "comm": "SU2_CFD",
+      "alive": false
+    },
+    {
+      "pid": 190569,
+      "state": "R",
+      "ppid": 190562,
+      "pgid": 190569,
+      "sid": 190560,
+      "start_ticks": 42931627,
+      "comm": "SU2_CFD",
+      "alive": false
+    },
+    {
+      "pid": 190570,
+      "state": "R",
+      "ppid": 190562,
+      "pgid": 190570,
+      "sid": 190560,
+      "start_ticks": 42931627,
+      "comm": "SU2_CFD",
+      "alive": false
+    },
+    {
+      "pid": 190309,
+      "start_ticks": 42931028,
+      "comm": "controller",
+      "alive": false
+    },
+    {
+      "pid": 205993,
+      "start_ticks": 42968508,
+      "comm": "adopted-controller",
+      "alive": false
+    },
+    {
+      "pid": 205985,
+      "start_ticks": 42968501,
+      "comm": "detached-supervisor",
+      "alive": false
+    }
+  ],
+  "all_owned_handles_terminal": true,
+  "exec_session": null,
+  "detached_monitor_actual_exit_code": 0,
+  "original_controller_exec_session": 37929,
+  "original_controller_exec_exit_code": 143,
+  "same_numerical_run_not_restarted": true,
+  "solver_exit_code_unavailable_after_adoption": true,
+  "passed": true,
+  "seconds_until_stop": 1083.2375512526487,
+  "seconds_total": 1091.4362268576515,
+  "source_pins_verified": 1781,
+  "input_pins_verified": 221,
+  "extra_helper_pins_verified": 21,
+  "observed_prefix_rank_hwm_sum_bytes": 13999366144,
+  "not_full_workflow_P8_peak": true,
+  "strict_comparison_sha256": "cdd521bb2444799bcba3d377882556185b20f7b3dc6cc94566c13fa63ebdbe3d"
+}

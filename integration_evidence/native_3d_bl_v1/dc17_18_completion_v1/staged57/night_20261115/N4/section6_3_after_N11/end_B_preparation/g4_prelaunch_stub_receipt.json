@@ -1,0 +1,79 @@
+{
+  "passed": true,
+  "launched": false,
+  "built": false,
+  "stage": "checked_step, source/binary/terminal provenance and run_cases pins",
+  "intercept": "after command.json and pins.json, before test_driver Popen",
+  "gates": [
+    {
+      "case": "build558_2d1",
+      "ranks": 1,
+      "argv": [
+        "nice",
+        "-n",
+        "19",
+        "/usr/bin/time",
+        "-v",
+        "timeout",
+        "600",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-p5-20261114/UnitTests/test_driver",
+        "[NativeEngine2D],[NativeMesh2D],[NativeBL2D]",
+        "--durations",
+        "yes"
+      ],
+      "pins_sha256": "8a4a842ac27a207f95f505d0fb3283872b498ad37d284aa7b70fe550ec523410",
+      "command_sha256": "adc75b75090b58ec62c8f557432ba499ea3f25ab5c6be985bcefddea9c079b08",
+      "pin_count": 1991
+    },
+    {
+      "case": "build558_2d2",
+      "ranks": 2,
+      "argv": [
+        "nice",
+        "-n",
+        "19",
+        "/usr/bin/time",
+        "-v",
+        "timeout",
+        "600",
+        "mpirun",
+        "--bind-to",
+        "none",
+        "-n",
+        "2",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-p5-20261114/UnitTests/test_driver",
+        "[NativeEngine2D],[NativeMesh2D],[NativeBL2D]",
+        "--durations",
+        "yes"
+      ],
+      "pins_sha256": "7b246f2f6e6e14886cd812c739487af90091d04c1d20ccdd34945b65542dedb9",
+      "command_sha256": "b4e062d6c702c08cffa30aed53ec7192b704b117fe9bf70ed2124b5f3e9734d1",
+      "pin_count": 1991
+    },
+    {
+      "case": "build558_2d4",
+      "ranks": 4,
+      "argv": [
+        "nice",
+        "-n",
+        "19",
+        "/usr/bin/time",
+        "-v",
+        "timeout",
+        "600",
+        "mpirun",
+        "--bind-to",
+        "none",
+        "-n",
+        "4",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-p5-20261114/UnitTests/test_driver",
+        "[NativeEngine2D],[NativeMesh2D],[NativeBL2D]",
+        "--durations",
+        "yes"
+      ],
+      "pins_sha256": "cf115f33b4846db78146e5a5f073a65cead782911f625eab727c1fe5e503a33b",
+      "command_sha256": "ab5db72fb966d61f4cea59a09a50b6d544bacff249dfa9300257bebd6e9aafc3",
+      "pin_count": 1991
+    }
+  ]
+}

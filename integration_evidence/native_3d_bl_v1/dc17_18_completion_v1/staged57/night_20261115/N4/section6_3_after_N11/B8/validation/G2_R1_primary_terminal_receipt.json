@@ -1,0 +1,124 @@
+{
+  "actual_host_proc": true,
+  "unix": 1794936770.8241482,
+  "identities": [
+    {
+      "pid": 161908,
+      "state": "S",
+      "ppid": 2375,
+      "pgid": 161908,
+      "sid": 161908,
+      "start_ticks": 42865736,
+      "comm": "time",
+      "alive": false
+    },
+    {
+      "pid": 161909,
+      "state": "S",
+      "ppid": 161908,
+      "pgid": 161909,
+      "sid": 161908,
+      "start_ticks": 42865737,
+      "comm": "timeout",
+      "alive": false
+    },
+    {
+      "pid": 161910,
+      "state": "S",
+      "ppid": 161909,
+      "pgid": 161909,
+      "sid": 161908,
+      "start_ticks": 42865737,
+      "comm": "mpirun",
+      "alive": false
+    },
+    {
+      "pid": 161913,
+      "state": "R",
+      "ppid": 161910,
+      "pgid": 161913,
+      "sid": 161908,
+      "start_ticks": 42865740,
+      "comm": "SU2_CFD",
+      "alive": false
+    },
+    {
+      "pid": 161914,
+      "state": "R",
+      "ppid": 161910,
+      "pgid": 161914,
+      "sid": 161908,
+      "start_ticks": 42865740,
+      "comm": "SU2_CFD",
+      "alive": false
+    },
+    {
+      "pid": 161915,
+      "state": "R",
+      "ppid": 161910,
+      "pgid": 161915,
+      "sid": 161908,
+      "start_ticks": 42865740,
+      "comm": "SU2_CFD",
+      "alive": false
+    },
+    {
+      "pid": 161916,
+      "state": "R",
+      "ppid": 161910,
+      "pgid": 161916,
+      "sid": 161908,
+      "start_ticks": 42865740,
+      "comm": "SU2_CFD",
+      "alive": false
+    },
+    {
+      "pid": 161917,
+      "state": "R",
+      "ppid": 161910,
+      "pgid": 161917,
+      "sid": 161908,
+      "start_ticks": 42865740,
+      "comm": "SU2_CFD",
+      "alive": false
+    },
+    {
+      "pid": 161918,
+      "state": "R",
+      "ppid": 161910,
+      "pgid": 161918,
+      "sid": 161908,
+      "start_ticks": 42865740,
+      "comm": "SU2_CFD",
+      "alive": false
+    },
+    {
+      "pid": 161612,
+      "start_ticks": 42865141,
+      "comm": "controller",
+      "alive": false
+    },
+    {
+      "pid": 174644,
+      "start_ticks": 42896201,
+      "comm": "adopted-controller",
+      "alive": false
+    }
+  ],
+  "all_owned_handles_terminal": true,
+  "exec_session": 29712,
+  "exec_exit_code": 0,
+  "original_controller_exec_session": 2592,
+  "original_controller_exec_exit_code": 143,
+  "same_numerical_run_not_restarted": true,
+  "solver_exit_code_unavailable_after_adoption": true,
+  "passed": true,
+  "seconds_until_stop": 316.07881748117507,
+  "seconds_total": 323.93771219521295,
+  "source_pins_verified": 1781,
+  "input_pins_verified": 221,
+  "extra_helper_pins_verified": 21,
+  "observed_prefix_rank_hwm_sum_bytes": 6440038400,
+  "not_full_workflow_P8_peak": true,
+  "strict_comparison_sha256": "1a6c6510a5f535a5640165dcafe3f085b4d73465dcab08c9b12168fce298f4cb"
+}

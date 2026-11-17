@@ -1,0 +1,345 @@
+{
+  "state": "PHASE_B_PASSED_PLANNED_STOP_REQUIRED",
+  "unix": 1794938175.0145981,
+  "source_commit": "daf75b14e2",
+  "build": 558,
+  "phase_B_complete": true,
+  "phase_C_started": false,
+  "N7_final_report_written": false,
+  "G1_identity_cohorts": [
+    375,
+    114,
+    228
+  ],
+  "G1_changed_cases": 0,
+  "G2_corrected_integrated": {
+    "actual_host_proc": true,
+    "unix": 1794936770.8241482,
+    "identities": [
+      {
+        "pid": 161908,
+        "state": "S",
+        "ppid": 2375,
+        "pgid": 161908,
+        "sid": 161908,
+        "start_ticks": 42865736,
+        "comm": "time",
+        "alive": false
+      },
+      {
+        "pid": 161909,
+        "state": "S",
+        "ppid": 161908,
+        "pgid": 161909,
+        "sid": 161908,
+        "start_ticks": 42865737,
+        "comm": "timeout",
+        "alive": false
+      },
+      {
+        "pid": 161910,
+        "state": "S",
+        "ppid": 161909,
+        "pgid": 161909,
+        "sid": 161908,
+        "start_ticks": 42865737,
+        "comm": "mpirun",
+        "alive": false
+      },
+      {
+        "pid": 161913,
+        "state": "R",
+        "ppid": 161910,
+        "pgid": 161913,
+        "sid": 161908,
+        "start_ticks": 42865740,
+        "comm": "SU2_CFD",
+        "alive": false
+      },
+      {
+        "pid": 161914,
+        "state": "R",
+        "ppid": 161910,
+        "pgid": 161914,
+        "sid": 161908,
+        "start_ticks": 42865740,
+        "comm": "SU2_CFD",
+        "alive": false
+      },
+      {
+        "pid": 161915,
+        "state": "R",
+        "ppid": 161910,
+        "pgid": 161915,
+        "sid": 161908,
+        "start_ticks": 42865740,
+        "comm": "SU2_CFD",
+        "alive": false
+      },
+      {
+        "pid": 161916,
+        "state": "R",
+        "ppid": 161910,
+        "pgid": 161916,
+        "sid": 161908,
+        "start_ticks": 42865740,
+        "comm": "SU2_CFD",
+        "alive": false
+      },
+      {
+        "pid": 161917,
+        "state": "R",
+        "ppid": 161910,
+        "pgid": 161917,
+        "sid": 161908,
+        "start_ticks": 42865740,
+        "comm": "SU2_CFD",
+        "alive": false
+      },
+      {
+        "pid": 161918,
+        "state": "R",
+        "ppid": 161910,
+        "pgid": 161918,
+        "sid": 161908,
+        "start_ticks": 42865740,
+        "comm": "SU2_CFD",
+        "alive": false
+      },
+      {
+        "pid": 161612,
+        "start_ticks": 42865141,
+        "comm": "controller",
+        "alive": false
+      },
+      {
+        "pid": 174644,
+        "start_ticks": 42896201,
+        "comm": "adopted-controller",
+        "alive": false
+      }
+    ],
+    "all_owned_handles_terminal": true,
+    "exec_session": 29712,
+    "exec_exit_code": 0,
+    "original_controller_exec_session": 2592,
+    "original_controller_exec_exit_code": 143,
+    "same_numerical_run_not_restarted": true,
+    "solver_exit_code_unavailable_after_adoption": true,
+    "passed": true,
+    "seconds_until_stop": 316.07881748117507,
+    "seconds_total": 323.93771219521295,
+    "source_pins_verified": 1781,
+    "input_pins_verified": 221,
+    "extra_helper_pins_verified": 21,
+    "observed_prefix_rank_hwm_sum_bytes": 6440038400,
+    "not_full_workflow_P8_peak": true,
+    "strict_comparison_sha256": "1a6c6510a5f535a5640165dcafe3f085b4d73465dcab08c9b12168fce298f4cb"
+  },
+  "G3": {
+    "actual_host_proc": true,
+    "unix": 1794936335.700841,
+    "exec_session": 87148,
+    "exec_exit_code": 0,
+    "case": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N4/section6_3_after_N11/end_B_preparation/cases/endb_g3_20261117T171501_130229",
+    "passed": true,
+    "all_owned_handles_terminal": true,
+    "case_pins_verified": 2036,
+    "elapsed_seconds": 617.6887118816376,
+    "accepted_splits": 1170,
+    "common_edit_count": 1113,
+    "observer_adjusted_entry_work": {
+      "reference": 5113,
+      "candidate": 5113
+    },
+    "physical_gates": {
+      "executed_successfully": true,
+      "runtime_pins_verified": true,
+      "serial_bounded_command": true,
+      "exact_input_and_target": true,
+      "unchanged_stage_limits": true,
+      "all_private_cells_positive_with_sensors": true,
+      "modeled_storage_within_12GiB": true,
+      "same_frozen_input_contract": true,
+      "same_frozen_configuration": true,
+      "zero_upper_refinements": true,
+      "whole_job_peak_RSS_19073_MiB_serial": true
+    },
+    "actual_fixture_config_byte_identical_to_reference": true,
+    "not_full_workflow_P8_peak": true,
+    "gate_sha256": "ed73a9086e092ae192c80831a709bacd938940ca534dc55adb42c43cf07edb40"
+  },
+  "G4": {
+    "actual_host_proc": true,
+    "unix": 1794936894.7567046,
+    "exec_session": 17899,
+    "exec_exit_code": 0,
+    "passed": true,
+    "all_owned_handles_terminal": true,
+    "cases": [
+      {
+        "case": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/build558_2d1_20261117T173339_181469",
+        "seconds": 6.492431402206421,
+        "pins_verified": 1992,
+        "status_sha256": "13ab669645306b540413ee7a36073a3ac51a7158a841ff09eb59a1e3350bd237"
+      },
+      {
+        "case": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/build558_2d2_20261117T173347_181469",
+        "seconds": 6.504021167755127,
+        "pins_verified": 1992,
+        "status_sha256": "6343f2f0f169030c723d25c1097119f8bf8edc331b3642a21feb2bec1b14d581"
+      },
+      {
+        "case": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/build558_2d4_20261117T173355_181469",
+        "seconds": 6.514544486999512,
+        "pins_verified": 1992,
+        "status_sha256": "72a393fdca7ed8e4f4004bf0cd86b0ab6a01ba8e8ca00b2df5367c1f7d476a57"
+      }
+    ],
+    "case_paths_receipt_sha256": "04a5269521ffdef404813ade9bab425db55dc34080836ddf65e6a4f7d9183008"
+  },
+  "GQ": {
+    "actual_host_proc": true,
+    "unix": 1794938124.5950167,
+    "all_owned_handles_terminal": true,
+    "exec_session": null,
+    "detached_monitor_actual_exit_code": 0,
+    "original_controller_exec_session": 37929,
+    "original_controller_exec_exit_code": 143,
+    "same_numerical_run_not_restarted": true,
+    "solver_exit_code_unavailable_after_adoption": true,
+    "passed": true,
+    "seconds_until_stop": 1083.2375512526487,
+    "seconds_total": 1091.4362268576515,
+    "source_pins_verified": 1781,
+    "input_pins_verified": 221,
+    "extra_helper_pins_verified": 21,
+    "observed_prefix_rank_hwm_sum_bytes": 13999366144,
+    "not_full_workflow_P8_peak": true,
+    "strict_comparison_sha256": "cdd521bb2444799bcba3d377882556185b20f7b3dc6cc94566c13fa63ebdbe3d"
+  },
+  "scoped_history": [
+    {
+      "step": "B1",
+      "commit": "c8fd7ff400",
+      "G1_seconds": [
+        791.8193774223328,
+        14.07673168182373,
+        17.073050498962402
+      ],
+      "G2_stop_seconds": 358.315912539023,
+      "G2_total_seconds": 366.57184460101416,
+      "source_pins": 1752,
+      "original_G2_R1_compliant": "these earlier checks preceded the orphan generator",
+      "acceptance_summary": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N4/section6_3_after_N11/B1/acceptance_summary.json"
+    },
+    {
+      "step": "B2",
+      "commit": "76b2ad61db",
+      "G1_seconds": [
+        793.9152257442474,
+        14.066556215286255,
+        16.223246335983276
+      ],
+      "G2_stop_seconds": 368.6267870719894,
+      "G2_total_seconds": 376.9295285709668,
+      "source_pins": 1765,
+      "original_G2_R1_compliant": "these earlier checks preceded the orphan generator",
+      "acceptance_summary": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N4/section6_3_after_N11/B2/acceptance_summary.json"
+    },
+    {
+      "step": "B3",
+      "commit": "ce25219f04",
+      "G1_seconds": [
+        780.1607720851898,
+        13.539926528930664,
+        14.536723613739014
+      ],
+      "G2_stop_seconds": 317.64017948304536,
+      "G2_total_seconds": 325.4814533580211,
+      "source_pins": 1776,
+      "original_G2_R1_compliant": "these earlier checks preceded the orphan generator",
+      "acceptance_summary": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N4/section6_3_after_N11/B3/acceptance_summary.json"
+    },
+    {
+      "step": "B4",
+      "commit": "c0486d57da",
+      "G1_seconds": [
+        765.0892443656921,
+        13.584710597991943,
+        13.561882019042969
+      ],
+      "G2_stop_seconds": 317.44202965899603,
+      "G2_total_seconds": 325.2060353590059,
+      "source_pins": 1777,
+      "original_G2_R1_compliant": "these earlier checks preceded the orphan generator",
+      "acceptance_summary": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N4/section6_3_after_N11/B4/acceptance_summary.json"
+    },
+    {
+      "step": "B5",
+      "commit": "2a05da05ca",
+      "G1_seconds": [
+        766.0755529403687,
+        14.503077745437622,
+        14.556236743927002
+      ],
+      "G2_stop_seconds": 317.5967417769716,
+      "G2_total_seconds": 325.3563862660085,
+      "source_pins": 1778,
+      "original_G2_R1_compliant": "these earlier checks preceded the orphan generator",
+      "acceptance_summary": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N4/section6_3_after_N11/B5/acceptance_summary.json"
+    },
+    {
+      "step": "B6",
+      "commit": "de723482c7",
+      "G1_seconds": [
+        796.6486246585846,
+        16.245113849639893,
+        32.14189577102661
+      ],
+      "G2_stop_seconds": 422.5793592740083,
+      "G2_total_seconds": 431.0411912340205,
+      "source_pins": 1779,
+      "original_G2_R1_compliant": false,
+      "acceptance_summary": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N4/section6_3_after_N11/B6/acceptance_summary.json"
+    },
+    {
+      "step": "B7",
+      "commit": "aa3e78c866",
+      "G1_seconds": [
+        799.4660356044769,
+        16.047393321990967,
+        17.00973629951477
+      ],
+      "G2_stop_seconds": 358.9866033139988,
+      "G2_total_seconds": 367.12455651001073,
+      "source_pins": 1780,
+      "original_G2_R1_compliant": false,
+      "acceptance_summary": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N4/section6_3_after_N11/B7/acceptance_summary.json"
+    },
+    {
+      "step": "B8",
+      "commit": "daf75b14e2",
+      "G1_seconds": [
+        782.5881447792053,
+        13.597256898880005,
+        15.629537343978882
+      ],
+      "G2_stop_seconds": 364.02141480805585,
+      "G2_total_seconds": 372.50379366602283,
+      "source_pins": 1781,
+      "original_G2_R1_compliant": false,
+      "acceptance_summary": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N4/section6_3_after_N11/B8/acceptance_summary.json"
+    }
+  ],
+  "receipt_sha256": {
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N4/section6_3_after_N11/end_B_preparation/g3_primary_terminal_receipt.json": "c5b4ff5a8292c7f71c106080f2f95351b6586596f098e8bbba1866850d6db7bc",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N4/section6_3_after_N11/end_B_preparation/g4_primary_terminal_receipt.json": "d554387648483bd4152381164795c24742fb1ae3d9eaf9851d4c8fdb86d0ade2",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N4/section6_3_after_N11/B8/validation/GQ_primary_terminal_receipt.json": "1bb6812d958cb4136e1d66aa5640fbdf608874bff87406c480565bb067205119",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N4/section6_3_after_N11/B8/validation/G2_R1_primary_terminal_receipt.json": "24b445fa2960b50f4318ae3c7a84ea4612436de93a4e5a4b5df179e5cbac825e",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N4/section6_3_after_N11/end_B_readability_preparation/actual_head_binding.json": "0f20fdfdc12dbfc67efa970e8e08e7b90bdf934d63ca3732d98facfa187c856f"
+  },
+  "resource_qualification": "Earlier B6/B7/B8 six-rank G2 numerical rows passed but had seven owned heavy processes; same integrated build558 requalified by one corrected G2 numerical run. Do not label the old runs R1-compliant.",
+  "full_workflow_reference": "N14/N15 qualified build552; no G5 required at end of phase B",
+  "stop": "Commit/push, update state and terminal handles, verify no owned job, then stop and wait for user. No phase C."
+}
