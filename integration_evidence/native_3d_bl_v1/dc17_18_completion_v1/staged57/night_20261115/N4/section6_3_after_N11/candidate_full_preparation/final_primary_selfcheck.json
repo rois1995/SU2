@@ -1,0 +1,47 @@
+{
+  "passed": true,
+  "launched": false,
+  "build": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N4/section6_3_after_N11/build545",
+  "binary_sha256": "4ca1b712c3eb985d7d9f6132bec067508f3e7943365939a12d97005ab25276da",
+  "pin_count": 1743,
+  "accepted_payload_count": 6,
+  "accepted_reference_timer_report": {
+    "timer_summary_count": 96,
+    "all_fixedstorage_4120": true,
+    "wall_law_row_count": 0,
+    "wall_law_rows": [],
+    "wall_law_rank_coverage": [],
+    "wall_law_required": false,
+    "wall_law_seconds_sum": 0
+  },
+  "strict_full_reference_self_identity": {
+    "passed": true,
+    "integer_rows": {
+      "passed": true,
+      "first_difference": null,
+      "streams": [
+        "rank_output/1/rank.0/stdout",
+        "rank_output/1/rank.1/stdout",
+        "rank_output/1/rank.2/stdout",
+        "rank_output/1/rank.3/stdout",
+        "rank_output/1/rank.4/stdout",
+        "rank_output/1/rank.5/stdout"
+      ]
+    },
+    "timer_rows": {
+      "passed": true,
+      "timer_snapshots": 96,
+      "wall_law_lines_by_physical_stream": {
+        "rank_output/1/rank.0/stdout": 4,
+        "rank_output/1/rank.1/stdout": 4,
+        "rank_output/1/rank.2/stdout": 4,
+        "rank_output/1/rank.3/stdout": 4,
+        "rank_output/1/rank.4/stdout": 4,
+        "rank_output/1/rank.5/stdout": 4
+      },
+      "rule": "strict per-row timer fields/calls and exact wall-law line counts; only timing values excluded"
+    },
+    "reference": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N8/A2_A3_N12/section6_8/validation/full_workflow",
+    "all_old_rows_strict": true
+  }
+}

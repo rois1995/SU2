@@ -1,0 +1,38 @@
+{
+  "causes_and_corrections": [
+    {
+      "cause": "Initial path binding derived N9/N8/run_remaining_checks from the staging root, one parent too high; the source-transform preflight found missing paths before any launch.",
+      "correction": "Bind those helpers through the night root and comparator through the N4 phase directory, then verify all 14 unique runtime/reference inputs exist.",
+      "result": "candidate source transforms and compiles with build545, fresh536 G3 reference, and n4_g3_candidate_bl prefix; no numerical launch."
+    },
+    {
+      "cause": "Transformed candidate source retained the reference runner's reference-result filename even after build and case retargeting.",
+      "correction": "Retarget the output artifact name to g3_candidate545.json and verify that exact transformed constant during the source-only preflight.",
+      "result": "candidate transform passed; no solver launch."
+    },
+    {
+      "cause": "First primary solver-boundary selfcheck created reference-named cases because the case literal in adapted_safeguard_source was not retargeted with CASE_PREFIX; fresh_case found no candidate attempt.",
+      "correction": "Retarget exactly the one case-prefix literal as well; original failed cases and old helper/log retained. No solver launched.",
+      "unix": 1794892133.5315206,
+      "failed_stub_cases": [
+        "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N4/section6_3_after_N11/candidate_g3_preparation/cases/n4_g3_reference_bl_20261117T050751_2298624",
+        "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N4/section6_3_after_N11/candidate_g3_preparation/cases/n4_g3_reference_bl_20261117T050827_2300093"
+      ]
+    },
+    {
+      "cause": "Primary cleanup asserted that an intercepted launch has no status file; run_cases instead writes a terminal exit2 receipt for the explicit Popen stub exception. That assertion aborted before the fix, and an unchanged setup selfcheck repeated.",
+      "correction": "Verify the exact intercepted-Popen terminal error, zero-byte run.log and absent controller launch identity; retain both failed stub cases without altering their receipts, then apply the prefix fix. No production run or result gate was repeated."
+    },
+    {
+      "cause": "After correcting the actual case prefix, the inherited adapted-source preflight still asserted that its generated text contained the reference case prefix. Retry2 stopped in that assertion before Popen.",
+      "correction": "Retarget only that exact setup assertion to the candidate prefix as well. Same production code, physical gates, limits and solver-boundary stub.",
+      "unix": 1794892159.5549242
+    }
+  ],
+  "helper_sha256": {
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N4/section6_3_after_N11/candidate_g3_preparation/build545_aliases.py": "84a87c42eed47a5e9e734be24f2157eabea0b31b30f60f4179a4ec11f2e4ee6d",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N4/section6_3_after_N11/candidate_g3_preparation/run_g3_candidate545.py": "690b700db8704ac3af3bffc10b4e678ad2c312aa4b1028e90f662303653298a9"
+  },
+  "numerical_launch_performed": false,
+  "schema": "candidate_g3_helper_repairs_v1"
+}

@@ -1,0 +1,7 @@
+{
+  "before_any_numerical_launch": true,
+  "cause": "Initial draft only recorded PID/start identities, required even already-disappeared samples to resolve, and did not query actual terminal state or rehash pins in its final receipt.",
+  "correction": "Use each resolved PID/start pair, preserve unresolved sample counts as observations, verify all resolved identities actually terminal and all frozen pins unchanged after all three cases. No test, gate, timeout or production behavior changes.",
+  "unix": 1794891591.6308744,
+  "source_sha256": "e59a15fab2047b1bfe48afbf55b3dc4a9ad053cb0685220debda2bca328a732a"
+}

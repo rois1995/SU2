@@ -1,5 +1,7 @@
 # Adaptation timings and computational work
 
+Phase-A qualification on545: G3 passed618.164501s total,386accepted splits versus375fresh536, all375common edits exact, adjustedentrywork5113; physical304784positive+sensors/zeroUpperRefinements/model11,190,581,249B. Stageconfigured388.8s; reported461.173047s includes exitcensus; lawentry71.2821s/exit71.416430s are nested. Clock-dependent counts are reports under6.6; no efficiency/acceptedBL claim. G4 passed7.839087/6.904820/6.919375s at1/2/4ranks. GQ/G5pending. Evidence: N4/section6_3_after_N11/candidate_g3_preparation/G3_summary.json and candidate_g4_preparation/g4_case_paths.json.
+
 A4 (build545) passed scoped G1/G2: build90.152649s; serial/MPI2/MPI4 790.765579/15.002979/16.232606s; G2 stop/seal368.050631/376.307212s,strict alloldints/model/timer identity. Prefix observed HWMsum7,960,436,736B is not a full-workflow peak. All1915casepins/actualterminal identities verified. No numericalrepeat or efficiency claim. Evidence: night_20261115/N4/section6_3_after_N11/A4/acceptance_summary.json.
 
 A3 Ownership (build544) passed scoped G1/G2: build80.143433s; serial/MPI2/MPI4 794.785246/15.160131/15.404183s; G2 stop/seal368.251504/376.777587s. All old integer/model/timer calls matched and pins/terminal handles verified. Prefix observed HWMsum5,223,751,680B is not a full-workflow peak. State grouping adds no measured efficiency claim. Evidence: night_20261115/N4/section6_3_after_N11/A3_Ownership/acceptance_summary.json.

@@ -1,0 +1,21 @@
+{
+  "corrections": [
+    {
+      "cause": "First preflight listed original restart534 helper paths relative to the N4 phase directory, but those files live under N8/section6_8/validation/restart534.",
+      "correction": "Resolve original534 helper provenance from the night root; runtime source-pinning already used the correct STAGED/night path.",
+      "result": "all nine required inherited/input paths now resolve; runner and validator retargeted source compile; synthetic strict identity passes and missing strict_full_identity fails."
+    },
+    {
+      "cause": "The full workflow receipt reports `strict_full_identity` as a dictionary with a `passed` field, not as a boolean; the initial restart helpers tested the wrong shape.",
+      "correction": "Both helper copies and the generated inherited runner now require `strict_full_identity.passed is true`; synthetic cases verify true passes while a missing object or false passed field fails.",
+      "result": "runner and validator transformations compile and schema checks pass; no full workflow self-check or numerical launch."
+    }
+  ],
+  "latest_helper_sha256": {
+    "run_disk_restart545.py": "b0518f8d27802cf4107913277ccaa9b8f31314ef2c24c750d4f5dcd4703e0b49",
+    "validate_disk_restart545.py": "423845fd814d3aee0f3f0d4592b953184df955f1cf09d994db811993da23f9c4"
+  },
+  "numerical_launch_performed": false,
+  "schema": "restart545_setup_corrections_v1",
+  "statement": "The full self-check was deferred because candidate_full_preparation/full_workflow does not exist until G5 completes."
+}

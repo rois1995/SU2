@@ -1,0 +1,83 @@
+{
+  "passed": true,
+  "build": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N4/section6_3_after_N11/build545",
+  "binary_sha256": "4ca1b712c3eb985d7d9f6132bec067508f3e7943365939a12d97005ab25276da",
+  "test_binary_sha256": "3e265eb16b5f8cc796e548a971f50bf9f7bf3268d12953ff58a3ba18af1e7a1d",
+  "terminal_owned_handles": 9
+}
+{
+  "passed": true,
+  "launched": false,
+  "candidate_build": "build545",
+  "fresh_reference": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N4/section6_3_after_N11/reference_g3_preparation/cases/n4_g3_reference_bl_20261116T233109_1495225",
+  "identity_selfcheck": {
+    "passed": true,
+    "launched": false,
+    "reference_splits": 486,
+    "candidate_splits": 459,
+    "common_edits": 459,
+    "observer_adjusted_work": 5113,
+    "other_integer_differences_report_only": 75
+  },
+  "stubbed_candidate_setup": {
+    "passed": true,
+    "launched": false,
+    "host_preflight": {
+      "hostname": "pc-rausa",
+      "boot_id": "c2e658c2-00e7-4daf-8942-349c59218707",
+      "loadavg": "2.44 4.73 4.89 2/3409 2302623",
+      "mem_available_mib": 38208,
+      "scratch_free_bytes": 22561177600,
+      "active_heavy_processes": []
+    },
+    "build545_binary_sha256": "4ca1b712c3eb985d7d9f6132bec067508f3e7943365939a12d97005ab25276da",
+    "build545_test_binary_sha256": "3e265eb16b5f8cc796e548a971f50bf9f7bf3268d12953ff58a3ba18af1e7a1d",
+    "identity_selfcheck": {
+      "passed": true,
+      "launched": false,
+      "reference_splits": 486,
+      "candidate_splits": 459,
+      "common_edits": 459,
+      "observer_adjusted_work": 5113,
+      "other_integer_differences_report_only": 75
+    },
+    "stubbed_command": {
+      "build": "build545",
+      "case": "n4_g3_candidate_bl",
+      "ranks": 1,
+      "argv": [
+        "nice",
+        "-n",
+        "19",
+        "/usr/bin/time",
+        "-v",
+        "timeout",
+        "900",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-p5-20261114/UnitTests/test_driver",
+        "[NativeActualSavedSurfaceStage3D]",
+        "--durations",
+        "yes"
+      ],
+      "environment": {
+        "OMPI_MCA_osc": "pt2pt",
+        "OMP_NUM_THREADS": "1",
+        "OPENBLAS_NUM_THREADS": "1",
+        "MKL_NUM_THREADS": "1",
+        "OMPI_MCA_orte_tmpdir_base": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/compile-tmp/p5-bl-gjduv15u",
+        "SU2_NATIVE_NOSE_FIXED_FACETS": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/nose492_fixed_facets.dat",
+        "SU2_NATIVE_BL_FRONT_PROBE": "checkpoint_target_surface",
+        "SU2_NATIVE_BL_PLANNING_CAPTURE": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/surface486_current_state",
+        "SU2_NATIVE_BL_REFERENCE": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/prepared_reference441.native_ref",
+        "SU2_NATIVE_TARGET_CHECKPOINT3D": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved492_ramp5_metric_stage_20261113T161313_3653005/target_rank0.bin",
+        "SU2_NATIVE_FROZEN_SENSOR3D": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/curved492_ramp5_metric_stage_20261113T161313_3653005/selected_core_native.bin",
+        "SU2_NATIVE_FROZEN_CORE3D": "0.0047263575870155755",
+        "SU2_NATIVE_FROZEN_TANGENT_SCALE3D": "0.28717458874925855",
+        "SU2_NATIVE_FROZEN_CONFIG": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N4/section6_3_after_N11/candidate_g3_preparation/cases/n4_g3_candidate_bl_20261117T050929_2302623/run.cfg",
+        "TMPDIR": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/compile-tmp"
+      },
+      "timeout_seconds": 900
+    },
+    "published_alias_folder": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N4/section6_3_after_N11/candidate_g3_preparation",
+    "stub_reached_solver_boundary": true
+  }
+}

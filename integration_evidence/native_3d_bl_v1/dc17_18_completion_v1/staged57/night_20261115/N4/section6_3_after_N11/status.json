@@ -1,11 +1,11 @@
 {
-  "state": "A4_G1_G2_passed_checkpoint_pending",
+  "state": "phase_A_G3_G4_passed_GQ_running",
   "case": "reference_validation/cases/N8_G1_candidate_serial_20261116T225219_1400489",
   "baseline_build": "build536",
   "baseline_binary_identical_accepted534": true,
   "whole_source_check": "source_check.md",
   "first_cut_production_edit_started": true,
-  "next": "A4checkpoint/push then phaseA G3/G4/GQ/G5",
+  "next": "finishsameGQ thenG5full+isolatedrestart once",
   "G1_passed": true,
   "no_cut_production_edits": false,
   "G2_passed": true,
@@ -29,12 +29,15 @@
   "A2_G2_passed": true,
   "A2_passed_scoped": true,
   "A2_commit": "5880ce9cf1",
-  "no_owned_job": true,
-  "current_substep": "A4",
-  "current_state": "A4_G1_G2_PASSED",
+  "no_owned_job": false,
+  "current_substep": "phase_A_GQ",
+  "current_state": "GQ_RUNNING",
   "current_build": 545,
-  "last_passed_substep_commit": "5b09822b99",
+  "last_passed_substep_commit": "423dd23794",
   "last_full_workflow_qualified_commit": "f8c7b01085",
-  "owned_job": null,
+  "owned_job": {
+    "exec_session": 20498,
+    "launch_identity": "A4/GQ_primary_launch_identity.json"
+  },
   "last_scoped_acceptance": "A4/acceptance_summary.json"
 }

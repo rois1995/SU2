@@ -1,0 +1,3 @@
+# Phase-A G4 execution
+
+Use the unchanged N4/run_cut_checks.py checked-step adapter with this read-only alias of sealed545. Command: python3 N4/run_cut_checks.py <absolute candidate_g4_preparation> build545 g4. This selects exactly NativeEngine2D, NativeMesh2D and NativeBL2D at1,2,4ranks, using the existing runner. No fixture/gate/timeout alteration. Capture actual controller identity beforeexec and fresh host preflight; append start ticks to existing run_cases monitor in a candidate-only launcher if needed for terminal receipts. Preserve source/helper/runtime pins and all three case/status/result logs. The aliases do not replace or modify original545 build receipts. No numerical run yet.
