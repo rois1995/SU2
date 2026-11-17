@@ -1513,16 +1513,20 @@
         "stage_total_accepted": 1113
       },
       "child_parent_scope": {
-        "registered_new_faces": 2916,
-        "parent_known_derived": 2388,
-        "unknown_parent": 528,
-        "unmatched": 0,
-        "unmeasured": 8,
-        "at_or_below_tolerance": 1319,
-        "above_parent_plus_tolerance": 0,
-        "observation_failures": 0,
-        "attribution": "locally_registered_primary_faces",
-        "coverage_note": "Counters do not establish overlap among parent-unknown, unmeasured and tolerance buckets. Derived parent-known is registered minus unknown; this is not a serial-complete coverage claim."
+        "attribution": "rank-local Selection::Add measurements of matched required children; not a global coverage claim",
+        "coverage_note": "new_faces counts measured matched children only. children_unmeasured is a distinct count of registered pending children. Parent-known and parent-unknown partition measured children. The tolerance counter is an observation over measured children and is not a partition by parent availability. No MPI-remote or serial-complete coverage is established.",
+        "measured_matched_new_faces": 2916,
+        "registered_new_faces_derived": 2924,
+        "registered_new_faces_formula": "measured_matched_new_faces + children_unmeasured; children_unmatched is zero in these runs",
+        "expected_child_faces_from_required_splits": 2924,
+        "parent_known_measured_faces": 2388,
+        "parent_unknown_measured_faces": 528,
+        "children_unmeasured": 8,
+        "children_unmatched": 0,
+        "measured_at_or_below_tolerance": 1319,
+        "measured_above_parent_plus_tolerance": 0,
+        "measurement_observation_failures": 0,
+        "required_accepted_splits": 731
       },
       "physical_and_limits": {
         "passed": true,
@@ -1605,6 +1609,17 @@
       "pinned_source_hashes": {
         "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/Common/include/adaptation/CNativeTimerTree3D.hpp": "d6c090372903b9107634a9f208644762803c8b0671a622dace64a7b8bc449709",
         "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/Common/src/adaptation/CNativeEngine3D.cpp": "7545edb4cea518fffc7e0e5cd4f763891fbe2a002b2d26b177b04b76e0d3b848"
+      },
+      "child_face_semantics_source": {
+        "source": "Common/include/adaptation/CNativeWallDiagnostics3D.hpp",
+        "source_sha256": "854a7474a0e3fd0de5edb7444c8604504c87012aef829105f096e1a38cbb425a",
+        "source_lines": {
+          "ObserveMeasuredFace": "162-180",
+          "AcceptRequiredSplit": "181-208",
+          "PrintRequiredSplits": "290-302"
+        },
+        "semantics": "new_faces/required_faces counts children measured by Selection::Add after matching a pending registered child. children_unmeasured is the remaining pending registry size. Unknown-parent is a subset of measured children; known-parent and unknown-parent partition measured children. Unmeasured pending children are distinct from measured children.",
+        "scope": "rank-local diagnostic only; no remote/global or serial-complete coverage claim."
       }
     },
     "N14_second": {
@@ -2227,16 +2242,20 @@
         "stage_total_accepted": 1099
       },
       "child_parent_scope": {
-        "registered_new_faces": 2864,
-        "parent_known_derived": 2336,
-        "unknown_parent": 528,
-        "unmatched": 0,
-        "unmeasured": 4,
-        "at_or_below_tolerance": 1296,
-        "above_parent_plus_tolerance": 0,
-        "observation_failures": 0,
-        "attribution": "locally_registered_primary_faces",
-        "coverage_note": "Counters do not establish overlap among parent-unknown, unmeasured and tolerance buckets. Derived parent-known is registered minus unknown; this is not a serial-complete coverage claim."
+        "attribution": "rank-local Selection::Add measurements of matched required children; not a global coverage claim",
+        "coverage_note": "new_faces counts measured matched children only. children_unmeasured is a distinct count of registered pending children. Parent-known and parent-unknown partition measured children. The tolerance counter is an observation over measured children and is not a partition by parent availability. No MPI-remote or serial-complete coverage is established.",
+        "measured_matched_new_faces": 2864,
+        "registered_new_faces_derived": 2868,
+        "registered_new_faces_formula": "measured_matched_new_faces + children_unmeasured; children_unmatched is zero in these runs",
+        "expected_child_faces_from_required_splits": 2868,
+        "parent_known_measured_faces": 2336,
+        "parent_unknown_measured_faces": 528,
+        "children_unmeasured": 4,
+        "children_unmatched": 0,
+        "measured_at_or_below_tolerance": 1296,
+        "measured_above_parent_plus_tolerance": 0,
+        "measurement_observation_failures": 0,
+        "required_accepted_splits": 717
       },
       "physical_and_limits": {
         "passed": true,
@@ -2319,6 +2338,17 @@
       "pinned_source_hashes": {
         "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/Common/include/adaptation/CNativeTimerTree3D.hpp": "d6c090372903b9107634a9f208644762803c8b0671a622dace64a7b8bc449709",
         "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/Common/src/adaptation/CNativeEngine3D.cpp": "7545edb4cea518fffc7e0e5cd4f763891fbe2a002b2d26b177b04b76e0d3b848"
+      },
+      "child_face_semantics_source": {
+        "source": "Common/include/adaptation/CNativeWallDiagnostics3D.hpp",
+        "source_sha256": "854a7474a0e3fd0de5edb7444c8604504c87012aef829105f096e1a38cbb425a",
+        "source_lines": {
+          "ObserveMeasuredFace": "162-180",
+          "AcceptRequiredSplit": "181-208",
+          "PrintRequiredSplits": "290-302"
+        },
+        "semantics": "new_faces/required_faces counts children measured by Selection::Add after matching a pending registered child. children_unmeasured is the remaining pending registry size. Unknown-parent is a subset of measured children; known-parent and unknown-parent partition measured children. Unmeasured pending children are distinct from measured children.",
+        "scope": "rank-local diagnostic only; no remote/global or serial-complete coverage claim."
       }
     }
   },

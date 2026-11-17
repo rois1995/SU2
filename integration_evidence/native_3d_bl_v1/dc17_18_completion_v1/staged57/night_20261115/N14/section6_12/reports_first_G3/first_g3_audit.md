@@ -20,12 +20,13 @@ Read-only report for the first N14 G3 fixture. Run two and final N14 acceptance 
 - Source totals 1237 / 118 / 1113: 1237−118=1119 metric trials; 1119−6 metric rejects=1113 accepted. All three source-sum checks pass.
 - N11 source rows and sums are preserved in `wall_rows.json`; N9 baseline predates `NATIVE3D_WALL_SOURCE` rows.
 
-## Child-parent and measurement accounting
+## Child-face registration and measurement
 
-- Registered new faces=2916; derived parent-known=2388; unknown-parent=528.
-- At/below tolerance=1319; above parent bound + tolerance=0.
-- Unmatched=0; unmeasured=8; observation failures=0.
-- Counter definitions do not establish overlap among parent-unknown, unmeasured, and tolerance buckets; no residual or serial-complete-parent-coverage claim is made.
+- Required accepted splits: 731; expected child faces: 4 × 731 = 2924.
+- `new_faces` counts measured matched child faces: 2916. `children_unmeasured` counts distinct registered pending children not yet measured: 8. `children_unmatched`=0. Thus 2916 + 8 = 2924 registered child faces in this run.
+- Among measured faces, parent-known=2388 and parent-unknown=528; these partition the 2916 measured faces.
+- Measured faces at/below tolerance=1319; above parent bound + tolerance=0; measurement observation failures=0. Tolerance is a separate observation and does not partition parent availability.
+- These are rank-local `Selection::Add` measurements, not remote/global surface coverage or a serial-complete parent-coverage claim. Source: `CNativeWallDiagnostics3D.hpp` SHA256 `854a7474a0e3fd0de5edb7444c8604504c87012aef829105f096e1a38cbb425a`, `ObserveMeasuredFace` lines 162–180 and `AcceptRequiredSplit` lines 181–208.
 
 ## Physical, resource, and state limits
 

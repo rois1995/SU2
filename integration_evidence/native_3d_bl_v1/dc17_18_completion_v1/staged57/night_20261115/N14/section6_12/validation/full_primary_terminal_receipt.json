@@ -1,0 +1,125 @@
+{
+  "actual_host_proc": true,
+  "unix": 1794919961.7966318,
+  "exec_session": 79066,
+  "exec_exit_code": 0,
+  "passed": true,
+  "all_owned_handles_terminal": true,
+  "identities": [
+    {
+      "pid": 3295527,
+      "state": "S",
+      "ppid": 3295233,
+      "pgid": 3295527,
+      "sid": 3295527,
+      "start_ticks": 40743317,
+      "comm": "time",
+      "alive": false
+    },
+    {
+      "pid": 3295528,
+      "state": "S",
+      "ppid": 3295527,
+      "pgid": 3295528,
+      "sid": 3295527,
+      "start_ticks": 40743317,
+      "comm": "timeout",
+      "alive": false
+    },
+    {
+      "pid": 3295529,
+      "state": "S",
+      "ppid": 3295528,
+      "pgid": 3295528,
+      "sid": 3295527,
+      "start_ticks": 40743317,
+      "comm": "mpirun",
+      "alive": false
+    },
+    {
+      "pid": 3295532,
+      "state": "R",
+      "ppid": 3295529,
+      "pgid": 3295532,
+      "sid": 3295527,
+      "start_ticks": 40743321,
+      "comm": "SU2_CFD",
+      "alive": false
+    },
+    {
+      "pid": 3295533,
+      "state": "R",
+      "ppid": 3295529,
+      "pgid": 3295533,
+      "sid": 3295527,
+      "start_ticks": 40743321,
+      "comm": "SU2_CFD",
+      "alive": false
+    },
+    {
+      "pid": 3295534,
+      "state": "R",
+      "ppid": 3295529,
+      "pgid": 3295534,
+      "sid": 3295527,
+      "start_ticks": 40743321,
+      "comm": "SU2_CFD",
+      "alive": false
+    },
+    {
+      "pid": 3295535,
+      "state": "R",
+      "ppid": 3295529,
+      "pgid": 3295535,
+      "sid": 3295527,
+      "start_ticks": 40743321,
+      "comm": "SU2_CFD",
+      "alive": false
+    },
+    {
+      "pid": 3295536,
+      "state": "R",
+      "ppid": 3295529,
+      "pgid": 3295536,
+      "sid": 3295527,
+      "start_ticks": 40743321,
+      "comm": "SU2_CFD",
+      "alive": false
+    },
+    {
+      "pid": 3295538,
+      "state": "R",
+      "ppid": 3295529,
+      "pgid": 3295538,
+      "sid": 3295527,
+      "start_ticks": 40743322,
+      "comm": "SU2_CFD",
+      "alive": false
+    },
+    {
+      "pid": 3295233,
+      "start_ticks": 40742631,
+      "comm": "controller",
+      "alive": false
+    }
+  ],
+  "case": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N14/section6_12/validation/full552",
+  "seconds_until_stop": 4728.829883120023,
+  "seconds_total": 4738.250709002023,
+  "verified_pin_counts": [
+    1775,
+    212,
+    25
+  ],
+  "six_payload_hashes": {
+    "adapted_mesh_adap_00001.su2": "2aea6a341b0de7c3175aef7c9671c9f42a17a767c5acc35478a8d89bef87eca7",
+    "adapted_mesh_adap_00001.su2.native_ref": "9bddc9a6317e82cf732adb13ab157c690c46ee7fd820eebf62bf672553e129b9",
+    "restart_flow_adap_00001.dat": "b77362d32483541b97c9ead50bc52ff33e90a0593db3c5d363977a61331c4091",
+    "adapted_mesh_adap_00002.su2": "63690652de1af70f890994fb5054523403ba1dc27200123a660e573827aebc36",
+    "adapted_mesh_adap_00002.su2.native_ref": "36c45abe03d1dc38e523583cc3103cfb9c83b17983b3679df0c424fab8ff088a",
+    "restart_flow_adap_00002.dat": "44766f7f95f14d60011fb27ef1bb864c44e9649f782f2b9a0139c6766c93bc94"
+  },
+  "workflow_receipt_sha256": "3b5452fa4f4ecc13efaa8ebf13bfbf0ea34fab2528ec4e3b4888759acd51d711",
+  "payload_receipt_sha256": "9703b2d114034247824048396c7598e27280cc30ea6aeccd13d7a510f03f96a6",
+  "isolated_restart_pending": true
+}

@@ -1,0 +1,67 @@
+{
+  "item": "N14_with_N15",
+  "state": "G3_first_running",
+  "base_passed_pushed_B2": "76b2ad61db",
+  "build": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N14/section6_12/build552",
+  "build_seconds": 120.17393517494202,
+  "source_pins": 1775,
+  "build_actual_terminal_handles": 20,
+  "focused_cases": 12,
+  "focused_assertions": 113,
+  "focused_seconds": 4.8620195388793945,
+  "focused_pin_count": 1982,
+  "focused_actual_terminal_handles": 3,
+  "owned_heavy_job": {
+    "exec_session": 35565,
+    "launch": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N14/section6_12/validation/G3_first_primary_launch_identity.json"
+  },
+  "next": "G1serial/MPI2/MPI4,thenorderedremaininggates",
+  "G3_purpose_minimum_both_runs": 689,
+  "phase_B_planned_stop": true,
+  "phase_C_forbidden": true,
+  "no_8_5ab": true,
+  "R3_G1_prelaunch_failures": 3,
+  "numerical_G1_repeats": 0,
+  "G1_serial": {
+    "passed": true,
+    "seconds": 798.6224858760834,
+    "case_records": 375,
+    "changed_cases": 0,
+    "case_pins": 1989,
+    "actual_terminal_handles": 6
+  },
+  "G1_mpi2": {
+    "passed": true,
+    "seconds": 13.88175916671753,
+    "changed_cases": 0,
+    "case_records": 114,
+    "actual_terminal_handles": 7,
+    "case_pins": 1989
+  },
+  "G1_mpi4": {
+    "passed": true,
+    "seconds": 16.96354341506958,
+    "changed_cases": 0,
+    "case_records": 228,
+    "actual_terminal_handles": 9,
+    "case_pins": 1989
+  },
+  "G2": {
+    "passed": true,
+    "seconds_until_stop": 358.6130088660284,
+    "seconds_total": 367.12428437999915,
+    "actual_terminal_handles": 10,
+    "observed_prefix_rank_hwm_sum_bytes": 7961542656,
+    "not_full_workflow_peak": true
+  },
+  "implementation_checkpoint": "93ea0f93e8",
+  "implementation_checkpoint_is_accepted": false,
+  "GQ": {
+    "passed": true,
+    "seconds_until_stop": 1234.610041790991,
+    "seconds_total": 1242.8245800950099,
+    "actual_terminal_handles": 10,
+    "observed_prefix_rank_hwm_sum_bytes": 14030856192,
+    "not_full_workflow_peak": true
+  }
+}

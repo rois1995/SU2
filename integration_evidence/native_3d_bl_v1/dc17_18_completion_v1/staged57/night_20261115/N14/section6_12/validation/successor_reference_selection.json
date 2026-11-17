@@ -1,0 +1,33 @@
+{
+  "state": "N14_ACCEPTED_REFERENCE_SET",
+  "accepted_commit": "30c74c7a67448058042cea5d465bb56a1b603dfd",
+  "tested_production_checkpoint": "93ea0f93e8",
+  "N14_G1_passed": true,
+  "N14_G2_passed": true,
+  "N14_GQ_passed": true,
+  "N14_G3_passed": true,
+  "N14_full_passed": true,
+  "isolated_restart_passed": true,
+  "N15_M26_passed": true,
+  "build": 552,
+  "references": {
+    "g1_manifest": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N14/section6_12/validation/adopted_reference/G1_shared_reference_manifest.json",
+    "g1_reports": {
+      "serial": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N14/section6_12/validation/G1_candidate_serial.json",
+      "mpi2": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N14/section6_12/validation/G1_candidate_mpi2.json",
+      "mpi4": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N14/section6_12/validation/G1_candidate_mpi4.json"
+    },
+    "g1_selection": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N10/G1_actual_selection.json",
+    "g2": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N14/section6_12/validation/cases/N14_G2_552",
+    "gq": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N14/section6_12/validation/cases/N14_GQ_552",
+    "g3": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N14/section6_12/validation/cases/n14_g3_first_20261117T104157_3163858"
+  },
+  "G1_changed_wall_cases": {
+    "serial": [],
+    "mpi2": [],
+    "mpi4": []
+  },
+  "no_extra_reference_run": true,
+  "g3_rule": "first N14 G3 is edit reference up to smaller accepted count; >=336 splits and all other physical gates remain; P6c first-336 identity ends",
+  "source_code_sha256": "7545edb4cea518fffc7e0e5cd4f763891fbe2a002b2d26b177b04b76e0d3b848"
+}

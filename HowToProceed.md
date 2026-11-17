@@ -1,10 +1,10 @@
 # Next authorized work
 
-Read the complete latest `NIGHT_WORK_ORDER.md`, then [current progress](integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/progress.md). [HANDOFF_Codex.md](HANDOFF_Codex.md) records current build pins and the live job.
+Read the complete latest NIGHT_WORK_ORDER.md and [current progress](integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/progress.md).
 
-1. Preserve full552 **session79066**, case `night_20261115/N14/section6_12/validation/full552`; do not stop/restart it or edit pinned source/policy/helpers. All earlier N14 checks and safeguards passed and are sealed.
-2. If full passes, seal its pins/actual handles, run the required isolated restart, then make the post-only M26 table. If a result gate fails, follow R5. Correct own fixture/setup errors under R3 without changing production, gates or tolerances.
-3. Only after N14 disposition: adopt its references if passed (otherwise retain old references), then finish CUTB3–B8 with their ordered G1/G2 and commit/push. Drafts remain unapplied and must be rebound/reviewed.
-4. Run end-B G3/G4/GQ. After passed gates and commit/push, update progress/HANDOFF, verify no owned job, write terminal handles, **STOP AND WAIT FOR USER. Do not start phase C.** If phase B cannot finish under R5, stop after its required revert is committed/pushed.
+1. N14/N15 PASSED all ordered checks, the ONE full workflow with6identical reference payloads, isolated restart and M26 reconciliation. All actual handles/pins are sealed; no owned heavy job remains. Commit/push the qualification/reference boundary before B3.
+2. Rebind/review/apply B3 Census; build553, exact C2.1 G1serial/MPI2/MPI4 and strict G2 using adopted552 references. No G1 wall exceptions; successful-assert totals and MPI launcher return codes are observations. Keep source/policy/helpers frozen throughout each campaign and verify actual terminal identities before edits.
+3. Continue B4–B8 with each scoped G1/G2 and commit/push. Whole-item source check is P/source_check.md; do not use the historical N4/source_check.md. Drafts must be rebound after prior cuts. B5 has a partition plan, not generated code/proof.
+4. End-B G3/G4/GQ. G3 uses firstN14G3 for common edits, >=336splits and other physical gates; no P6cfirst336 identity. After passed gates and commit/push: update progress/HANDOFF, verify no owned job, write terminal handles, **STOP AND WAIT FOR USER. No phase C.** If phase B cannot finish under R5, stop after its required revert is committed/pushed.
 
-N14 uses Night6.12 strict split-point lift; N15 is in the same build. N10 is withdrawn; do not implement8.5ab. Latest AGENTS orders are already applied. One owned heavy workload/max6heavy processes; actual RAM/load/handle preflight; nice19/libs1. User apps are observations only. No questions before the planned stop.
+N10 is withdrawn. Do not implement8.5ab. Latest AGENTS orders are applied. One owned heavy workload/max6heavy processes, nice19/libs1, actual host preflight; user apps are observations only. R3 correct own helper setup within90min; never change production/gates/tolerances for it. R5 governs result failures. No questions before the planned stop.

@@ -101,6 +101,7 @@ def event_sidecars(path, rank):
     prepares = [dict() for _ in range(2)]
     timers = [[] for _ in range(2)]
     event = 0
+    all_timer_summaries = 0
     for number, raw in enumerate(path.read_text(errors="replace").splitlines(), 1):
         line = strip_mpi_prefixes(raw)
         match = WALL.search(line)
@@ -123,14 +124,17 @@ def event_sidecars(path, rank):
             summary = fields(match.group(1))
             if summary.get("rank") != str(rank):
                 raise ValueError(f"{path}:{number}: timer summary rank mismatch")
-            if event >= 2:
-                raise ValueError(f"{path}:{number}: more than two rank timer events")
             try:
                 fixed = int(summary["fixedstorage"])
             except (KeyError, ValueError) as exc:
                 raise ValueError(f"{path}:{number}: timer summary missing integer fixedstorage") from exc
             if fixed != 4120:
                 raise ValueError(f"{path}:{number}: timer fixedstorage {fixed} != 4120")
+            all_timer_summaries += 1
+            if summary.get("root") != "remesh":
+                continue
+            if event >= 2:
+                raise ValueError(f"{path}:{number}: more than two remesh timer events")
             timers[event].append(summary)
             if summary.get("root") == "remesh" and summary.get("boundary") == "final":
                 if walls[event] is None:
@@ -143,7 +147,8 @@ def event_sidecars(path, rank):
         raise ValueError(f"{path}: expected two remesh final boundaries; found {event}")
     if any(not rows for rows in timers):
         raise ValueError(f"{path}: event has no NATIVE3D_TIMER_SUMMARY rows")
-    return [{"wall": walls[i], "prepare": prepares[i], "timer_summaries": timers[i]} for i in range(2)]
+    return [{"wall": walls[i], "prepare": prepares[i], "timer_summaries": timers[i],
+             "all_case_timer_summary_count": all_timer_summaries} for i in range(2)]
 
 
 def collect(run_dir):
@@ -168,7 +173,9 @@ def collect(run_dir):
                        "wall_prepare": sorted(prep_rows, key=lambda row: (row["rank"], PREP_PHASES.index(row["stage"]))),
                        "timer_summary_count": sum(len(sidecars[rank][event]["timer_summaries"]) for rank in range(6))})
     combined_rows = [row for event in events for row in event["rows"]]
-    return {"events": events, "combined_shares": shares(combined_rows)}
+    return {"events": events, "combined_shares": shares(combined_rows),
+            "all_case_timer_summary_count": sum(rank[0]["all_case_timer_summary_count"] for rank in sidecars),
+            "timer_scope": "all case summaries checked for rank/fixedstorage; per-event counts include remesh roots only"}
 
 
 def shares(rows):
@@ -192,6 +199,7 @@ def shares(rows):
 def render_markdown(report):
     lines = ["# N15 / M26 report", "", "Rows are grouped by each rank's next `NATIVE3D_TIMER_SUMMARY root=remesh boundary=final`. "
              "The report requires 6 ranks × 2 events, reconciles per-rank quality/local-wall commits, and checks every timer summary has `fixedstorage=4120`.", ""]
+    lines.append(f"All case timer-summary rows checked: {report['all_case_timer_summary_count']}. Non-remesh roots do not advance the two M26 event groups.\n")
     for item in report["events"]:
         lines += [f"## Event {item['event']}", "", "### M26 counts by rank", "",
                   "| rank | quality local-wall commits | M26 commits | S | W1 | W2M | W2O | W1 kind0 | W1 kind1 | W1 kind2 | W2M kind1 | W1 link | W2M link | W1 proof | W1 link+proof |",
@@ -216,7 +224,7 @@ def render_markdown(report):
         lines += ["", "### D9 WALL_PREPARE rows", "", "| rank | stage | calls | seconds | edits | faces |", "|---:|---|---:|---:|---:|---:|"]
         for row in item["wall_prepare"]:
             lines.append(f"| {row['rank']} | {row['stage']} | {row['calls']} | {row['seconds']} | {row['edits']} | {row['faces']} |")
-        lines.append(f"\nTimer-summary rows checked: {item['timer_summary_count']}.")
+        lines.append(f"\nRemesh timer-summary rows assigned to this event: {item['timer_summary_count']}.")
     lines += ["", "## Combined two-event shares", "", "| subset | commits / total | commit share | seconds / total | seconds share |", "|---|---:|---:|---:|---:|"]
     lines.extend(share_lines(report["combined_shares"]))
     lines += ["", "This post-processing report does not make a production result-gate decision."]
@@ -238,18 +246,19 @@ def percent(value):
 
 
 def write_reports(report, prefix):
+    prefix.parent.mkdir(parents=True, exist_ok=True)
     payload = {"scope": "N15 M26 post-only report; no result-gate decision", **report}
     prefix.with_suffix(".json").write_text(json.dumps(payload, indent=2) + "\n")
     fields = ("event", "rank", "quality_local_wall_commits", *WALL_INTS, *WALL_SECONDS)
     with prefix.with_suffix(".csv").open("w", newline="") as stream:
-        writer = csv.DictWriter(stream, fieldnames=fields)
+        writer = csv.DictWriter(stream, fieldnames=fields, lineterminator="\n")
         writer.writeheader()
         for event in report["events"]:
             for row in event["rows"]:
                 writer.writerow({"event": event["event"], **row})
     prep_fields = ("event", "rank", "stage", *PREP_INTS, "seconds")
     with prefix.with_name(prefix.name + "_prepare").with_suffix(".csv").open("w", newline="") as stream:
-        writer = csv.DictWriter(stream, fieldnames=prep_fields)
+        writer = csv.DictWriter(stream, fieldnames=prep_fields, lineterminator="\n")
         writer.writeheader()
         for event in report["events"]:
             for row in event["wall_prepare"]:
@@ -268,7 +277,7 @@ def expect_error(function, expected):
 
 
 def synthetic_log(rank):
-    lines = []
+    lines = [f"NATIVE3D_TIMER_SUMMARY root=metric boundary=final rank={rank} ranks=6 fixedstorage=4120"]
     for event in range(2):
         for stage in base.STAGES:
             for cls in base.CLASSES:
@@ -278,6 +287,8 @@ def synthetic_log(rank):
         for stage in PREP_PHASES:
             lines.append(f"NATIVE3D_WALL_PREPARE rank={rank} stage={stage} calls=1 seconds=0.1 edits=2 faces=3")
         lines.append(f"NATIVE3D_TIMER_SUMMARY root=remesh boundary=final rank={rank} ranks=6 fixedstorage=4120")
+        for extra_root in ("replace", "mesh_output", "metric"):
+            lines.append(f"NATIVE3D_TIMER_SUMMARY root={extra_root} boundary=final rank={rank} ranks=6 fixedstorage=4120")
     return lines
 
 
@@ -290,12 +301,14 @@ def self_check():
             target.write_text("\n".join(synthetic_log(rank)) + "\n")
         report = collect(run)
         assert [len(event["rows"]) for event in report["events"]] == [6, 6]
+        assert report["all_case_timer_summary_count"] == 54
+        assert [event["timer_summary_count"] for event in report["events"]] == [6, 6]
         assert [len(event["wall_prepare"]) for event in report["events"]] == [48, 48]
         assert report["events"][0]["shares"]["W1_link_local_first_proof"]["commits"] == 6
         assert report["events"][0]["shares"]["W1_link_local_first_proof"]["commit_share"] == 0.5
         markdown = render_markdown(report)
         assert "W1 link_local + first_proof" in markdown and "D9 WALL_PREPARE rows" in markdown
-        output = run / "synthetic_report"
+        output = run / "nested" / "synthetic_report"
         write_reports(report, output)
         assert output.with_suffix(".json").is_file() and output.with_suffix(".csv").is_file()
         assert output.with_suffix(".md").is_file() and output.with_name("synthetic_report_prepare.csv").is_file()

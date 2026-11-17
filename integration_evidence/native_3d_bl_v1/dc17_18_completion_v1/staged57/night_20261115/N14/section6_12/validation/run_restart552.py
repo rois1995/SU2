@@ -48,6 +48,8 @@ def runner_context():
         def retargeted_source():
             source = original_source()
             replacements = (
+                ('sys.path.insert(0, str(Path(__file__).resolve().parents[6]))',
+                 f'sys.path.insert(0, str(Path({str(STAGED)!r})))'),
                 ("HERE = Path(__file__).resolve().parent", f"HERE = Path({str(HERE)!r})"),
                 ("STAGED = Path(__file__).resolve().parents[6]", f"STAGED = Path({str(STAGED)!r})"),
                 ('Path(__file__).resolve().parents[2] / "build534/build_status.json"',

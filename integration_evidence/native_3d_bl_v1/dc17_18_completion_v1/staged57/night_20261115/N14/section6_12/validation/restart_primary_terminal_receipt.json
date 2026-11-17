@@ -1,0 +1,135 @@
+{
+  "actual_host_proc": true,
+  "unix": 1794920683.328012,
+  "exec_session": 1603,
+  "exec_exit_code": 0,
+  "validator_session": 8245,
+  "validator_exit_code": 0,
+  "passed": true,
+  "all_owned_handles_terminal": true,
+  "identities": [
+    {
+      "pid": 3547282,
+      "start_ticks": 41260596,
+      "sid": 3547279,
+      "absent": true,
+      "terminal": true,
+      "alive": false
+    },
+    {
+      "pid": 3547279,
+      "start_ticks": 41260596,
+      "sid": 3547279,
+      "absent": true,
+      "terminal": true,
+      "alive": false
+    },
+    {
+      "pid": 3547302,
+      "start_ticks": 41260603,
+      "sid": 3547279,
+      "absent": true,
+      "terminal": true,
+      "alive": false
+    },
+    {
+      "pid": 3547303,
+      "start_ticks": 41260603,
+      "sid": 3547279,
+      "absent": true,
+      "terminal": true,
+      "alive": false
+    },
+    {
+      "pid": 3547304,
+      "start_ticks": 41260604,
+      "sid": 3547279,
+      "absent": true,
+      "terminal": true,
+      "alive": false
+    },
+    {
+      "pid": 3547309,
+      "start_ticks": 41260604,
+      "sid": 3547279,
+      "absent": true,
+      "terminal": true,
+      "alive": false
+    },
+    {
+      "pid": 3547310,
+      "start_ticks": 41260604,
+      "sid": 3547279,
+      "absent": true,
+      "terminal": true,
+      "alive": false
+    },
+    {
+      "pid": 3547311,
+      "start_ticks": 41260605,
+      "sid": 3547279,
+      "absent": true,
+      "terminal": true,
+      "alive": false
+    },
+    {
+      "pid": 3547284,
+      "start_ticks": 41260596,
+      "sid": 3547279,
+      "absent": true,
+      "terminal": true,
+      "alive": false
+    },
+    {
+      "pid": 3547060,
+      "start_ticks": 41260102,
+      "alive": false
+    },
+    {
+      "pid": 3546987,
+      "start_ticks": 41260048,
+      "alive": false
+    }
+  ],
+  "case": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N14/section6_12/validation/disk_restart_full552_event2",
+  "seconds": 236.82201719284058,
+  "case_pins_verified": 2022,
+  "extra_pins_verified": 10,
+  "disk_restart_validated": true,
+  "authoritative_validation_receipt": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N14/section6_12/validation/disk_restart_full552_event2/disk_restart_validation.json",
+  "validation_sha256": "67d5b97e14b96eb3dd388a8123587d85ca94a6808d847c0bfb49aadc260bf5a9",
+  "resource_gate": {
+    "passed": true,
+    "rank_process_count": 6,
+    "rank_process_peak_hwm_bytes": {
+      "3547302:41260603": 338665472,
+      "3547303:41260603": 310362112,
+      "3547304:41260604": 299053056,
+      "3547309:41260604": 305446912,
+      "3547310:41260604": 299008000,
+      "3547311:41260605": 312631296
+    },
+    "sum_rank_process_peak_hwm_bytes": 1865166848,
+    "limit_bytes": 19999490048,
+    "hwm_sample_before_runtime_check": true,
+    "owned_cpu_ids": [
+      0,
+      1
+    ],
+    "affinity_violations": [],
+    "cpu_monitor": {
+      "passed": true,
+      "window_count": 63,
+      "gate_scope": "owned CFD session; user processes are observations only",
+      "window_min_seconds": 3.222646056965459,
+      "window_max_seconds": 16.627139015996363,
+      "covered_seconds": 231.58385773497866,
+      "observed_seconds": 233.94462184800068,
+      "coverage_fraction": 0.9899088763213549,
+      "max_busy_processes": 2,
+      "busy_process_limit": 6,
+      "process_scope": "all /proc processes keyed by PID/start_ticks",
+      "window_method": "sample CPU ticks opportunistically; emit when accumulated interval reaches 3s; no added wait"
+    }
+  }
+}

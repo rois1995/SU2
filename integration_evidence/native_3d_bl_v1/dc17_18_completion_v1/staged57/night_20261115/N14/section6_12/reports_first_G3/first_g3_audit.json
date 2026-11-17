@@ -1005,16 +1005,21 @@
         "law_selection_size_splits": 349
       },
       "child_face_audit": {
-        "registered_new_faces": 2916,
-        "parent_known_derived": 2388,
-        "unknown_parent": 528,
-        "unmatched": 0,
-        "unmeasured": 8,
-        "at_or_below_tolerance": 1319,
-        "above_parent_plus_tolerance": 0,
-        "observation_failures": 0,
-        "attribution": "locally_registered_primary_faces",
-        "note": "The raw counters do not establish overlap between unknown-parent, unmeasured, and tolerance buckets; no residual bucket is inferred."
+        "attribution": "rank-local Selection::Add measurements of matched required children; not a global coverage claim",
+        "note": "Parent-known and parent-unknown partition measured matched children. Pending unmeasured children are separate registry entries. The tolerance counter is another observation over measured children, not a partition by parent availability; no serial-complete coverage is inferred.",
+        "measured_matched_new_faces": 2916,
+        "registered_new_faces_derived": 2924,
+        "registered_new_faces_formula": "measured_matched_new_faces + children_unmeasured; children_unmatched is zero in these runs",
+        "expected_child_faces_from_required_splits": 2924,
+        "parent_known_measured_faces": 2388,
+        "parent_unknown_measured_faces": 528,
+        "children_unmeasured": 8,
+        "coverage_note": "new_faces counts measured matched children only. children_unmeasured is a distinct count of registered pending children. Parent-known and parent-unknown partition measured children. The tolerance counter is an observation over measured children and is not a partition by parent availability. No MPI-remote or serial-complete coverage is established.",
+        "children_unmatched": 0,
+        "measured_at_or_below_tolerance": 1319,
+        "measured_above_parent_plus_tolerance": 0,
+        "measurement_observation_failures": 0,
+        "required_accepted_splits": 731
       },
       "limits_and_physical_status": {
         "physical_gate_passed": true,
@@ -1042,6 +1047,17 @@
         "engine_valid": false,
         "final_mesh_accepted": false,
         "scope_note": "First fixture only. Phase-clock and stop values are reported without adjudication; the receipt reports unchanged stage limits. This does not certify N14 before its second run."
+      },
+      "child_face_semantics_source": {
+        "source": "Common/include/adaptation/CNativeWallDiagnostics3D.hpp",
+        "source_sha256": "854a7474a0e3fd0de5edb7444c8604504c87012aef829105f096e1a38cbb425a",
+        "source_lines": {
+          "ObserveMeasuredFace": "162-180",
+          "AcceptRequiredSplit": "181-208",
+          "PrintRequiredSplits": "290-302"
+        },
+        "semantics": "new_faces/required_faces counts children measured by Selection::Add after matching a pending registered child. children_unmeasured is the remaining pending registry size. Unknown-parent is a subset of measured children; known-parent and unknown-parent partition measured children. Unmeasured pending children are distinct from measured children.",
+        "scope": "rank-local diagnostic only; no remote/global or serial-complete coverage claim."
       }
     }
   },

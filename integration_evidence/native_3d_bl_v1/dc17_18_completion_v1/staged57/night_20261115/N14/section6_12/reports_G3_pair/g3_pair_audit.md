@@ -24,12 +24,12 @@ Source-approved totals match accepted counts. Required plus checked accepted rec
 
 ## Child-parent observations and physical limits
 
-| Run | Output cells; positive / sensors | Upper refinements | Modeled peak / limit (bytes) | Sampled job RSS / limit (bytes) | Registered faces | Parent-known derived | Parent-unknown | Unmeasured | At/below tolerance | Above parent+tolerance |
-|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
-| First | 306462; 306462 / 306462 | 0 | 11215009617 / 12884901888 | 3390308352 / 19999490048 | 2916 | 2388 | 528 | 8 | 1319 | 0 |
-| Second | 306427; 306427 / 306427 | 0 | 11215009617 / 12884901888 | 3390263296 / 19999490048 | 2864 | 2336 | 528 | 4 | 1296 | 0 |
+| Run | Output cells; positive / sensors | Upper refinements | Modeled peak / limit (bytes) | Sampled job RSS / limit (bytes) | Measured matched new faces | Registered children derived | Parent-known measured | Parent-unknown measured | Unmeasured pending | At/below tolerance | Above parent+tolerance |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| First | 306462; 306462 / 306462 | 0 | 11215009617 / 12884901888 | 3390308352 / 19999490048 | 2916 | 2924 | 2388 | 528 | 8 | 1319 | 0 |
+| Second | 306427; 306427 / 306427 | 0 | 11215009617 / 12884901888 | 3390263296 / 19999490048 | 2864 | 2868 | 2336 | 528 | 4 | 1296 | 0 |
 
-Both N14 stage fixtures passed their stated physical and purpose checks. Child-parent counters are scoped to locally registered primary faces; parent-known is registered minus unknown. Parent-unknown, unmeasured and tolerance buckets may overlap, so these data do not establish serial-complete parent coverage. Neither stage fixture reports final mesh acceptance (`engine_valid=false`, `final_mesh_accepted=false`).
+Both N14 stage fixtures passed their stated physical and purpose checks. `new_faces` counts measured matched child faces, while `children_unmeasured` counts distinct registered pending children. Here registered children are derived as measured plus unmeasured (`children_unmatched=0`), giving 2924=4×731 and 2868=4×717. Parent-known and parent-unknown partition measured faces (2388+528=2916; 2336+528=2864); pending unmeasured children are separate from that measured subset. The tolerance count is an observation over measured children, not a partition by parent availability. These are rank-local measurements and do not establish remote/global or serial-complete coverage. Source: `CNativeWallDiagnostics3D.hpp` SHA256 `854a7474a0e3fd0de5edb7444c8604504c87012aef829105f096e1a38cbb425a`, `ObserveMeasuredFace` lines 162–180, `AcceptRequiredSplit` lines 181–208 and `PrintRequiredSplits` lines 290–302. Neither stage fixture reports final mesh acceptance (`engine_valid=false`, `final_mesh_accepted=false`).
 
 ## Timer interpretation
 

@@ -1,10 +1,10 @@
 # Native adaptation — current handoff
 
-Updated 2026-11-17. **N14/N15 full qualification is running; phase B is incomplete.** The newest accepted cut is B2, `76b2ad61db`. Phase A, `5ec465ca1a`, remains the newest fully qualified two-event workflow.
+Updated 2026-11-17. **N14/N15 PASSED every ordered check**, including the ONE full workflow (4738.250709s, all6payloads EXACT E1P6c/E2P7), isolated restart (236.822017s,168797points/855828cells, coordinate error0, finite positive changed fields), and M26 reconciliation. Acceptance summary: `N/N14/section6_12/acceptance_summary.json`. All actual handles and pins are sealed; the current boundary has NO owned heavy job.
 
-The single owned heavy job is full552, **exec session 79066**. Controller PID3295233/start40742631; numerical wrapper PID3295527/start40743317. Preserve the same job and all pinned source, policy and runtime helpers. Do not stop or restart it.
+Next: commit/push qualified N14/N15, then rebind/review/apply B3 Census and build553. Phase B remains incomplete; B2 is the last completed cut. Qualified552 references were adopted without another reference run in `validation/successor_reference_selection.json`; G1 changed wall cases are empty in all cohorts. Exact552executables are preserved locally in build552/qualified_binaries (do not Git-stage large binaries).
 
-Evidence root: `integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115` (N). Current case: `N/N14/section6_12/validation/full552`; console `/tmp/n14_full552_stdout.log`. Launch identities and helper closure are in `validation/full_primary_launch_identity.json` and `full_primary_validation_pins.json`.
+Evidence root: `integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115` (N). Qualified full case: `N/N14/section6_12/validation/full552`; restart `validation/disk_restart_full552_event2`. Primary terminal receipts are `validation/full_primary_terminal_receipt.json` (10actual IDs,1775source/212input/25helper pins) and `restart_primary_terminal_receipt.json` (11actual IDs,2022case/10helper pins). No full or restart numerical repeat occurred. Own helper setup/report corrections are recorded in progress and their R3 history folders.
 
 After compaction, read the complete latest scratchpad `NIGHT_WORK_ORDER.md`, then [current progress](integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/progress.md). Progress holds the complete check/handle/correction ledger and next commands; historical LIVE notes do not override it.
 
@@ -25,9 +25,9 @@ Shared build: `integration_evidence/build-integrated-v3-p5-20261114`; sealed bui
 - Build, focused113assertions/12cases, all G1 cohorts, strict G2/GQ, both G3 runs and their common edit comparison passed. G3 accepted1113/1099splits, both>=689; all1099common edits identical.
 - Six-rank wall report completed normally:459splits,577.391s, conservative process-VmHWM sum5,483,991,040B. It is a report, not accepted BL capability.
 - All six safeguards passed: merit481127.197s; saved481157.009s; saved-current154.507s; 2D1/2/4ranks7.213/7.014/7.095s. All passed-case pins and actual terminal identities are sealed.
-- Implementation checkpoint93ea0f93e8 and evidence checkpointsb09fa8046d/cb5f79ee86/213fb7af05 are pushed, explicitly **qualification pending**. No production result gate has failed.
+- Implementation checkpoint93ea0f93e8 and evidence checkpointsb09fa8046d/cb5f79ee86/213fb7af05 are pushed, originally labelled **qualification pending**; build552 is now qualified. No production result gate failed.
 
-The full workflow is the next required result. If it passes, seal it, run the required isolated restart and produce M26 tables with the existing report helper. On a result failure use R5; own helper/setup errors use R3. Never change a gate or production behavior to make a helper pass. The helper correction ledger and exact raw archives are linked from progress.
+Full workflow, isolated restart and M26 tables are now complete and qualified. On a result failure use R5; own helper/setup errors use R3. Never change a gate or production behavior to make a helper pass. The helper correction ledger and exact raw archives are linked from progress.
 
 N14/N15 [report](integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N14/section6_12/REPORT.md) and [G3 paired observations](integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N14/section6_12/reports_G3_pair/g3_pair_audit.md). Parent bounds have explicit unknown/unmeasured coverage; no complete coverage or final BL mesh claim is made. Stage exit timing includes the post-budget exit census.
 

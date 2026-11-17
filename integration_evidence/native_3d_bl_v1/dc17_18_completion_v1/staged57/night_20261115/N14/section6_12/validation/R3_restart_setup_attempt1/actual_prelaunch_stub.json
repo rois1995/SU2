@@ -1,0 +1,29 @@
+{
+  "passed": true,
+  "stopped_before_CFD_Popen": true,
+  "numerical_solver_launched": false,
+  "commands": [
+    {
+      "argv": [
+        "nice",
+        "-n",
+        "19",
+        "/usr/bin/time",
+        "-v",
+        "timeout",
+        "600",
+        "mpirun",
+        "--oversubscribe",
+        "--bind-to",
+        "none",
+        "--output-filename",
+        "rank_output",
+        "-n",
+        "6",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-p5-20261114/SU2_CFD/src/SU2_CFD",
+        "run.cfg"
+      ],
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N14/section6_12/validation/R3_restart_setup_attempt1/prelaunch_stub_case"
+    }
+  ]
+}
