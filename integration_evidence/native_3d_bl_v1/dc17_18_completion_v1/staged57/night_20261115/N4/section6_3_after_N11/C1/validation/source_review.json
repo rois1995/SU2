@@ -1,0 +1,51 @@
+{
+  "normalized_token_identity_blocks": 25,
+  "max_formatted_lines": 76,
+  "longest_function_bodies": [
+    [
+      "EndLengthGeneration",
+      76
+    ],
+    [
+      "StartMetricCleanup",
+      58
+    ],
+    [
+      "CheckStagnationWindow",
+      51
+    ],
+    [
+      "AdvanceRefinementGeneration",
+      41
+    ],
+    [
+      "CycleCoarseningCheckpoint",
+      34
+    ],
+    [
+      "EmitLengthPass",
+      34
+    ],
+    [
+      "ReturnToConstruction",
+      31
+    ],
+    [
+      "StartInteriorSplits",
+      30
+    ],
+    [
+      "ResumeSurfaceSplits",
+      30
+    ],
+    [
+      "SurfacePreparedExit",
+      29
+    ]
+  ],
+  "clang_format": {
+    "EngineControl.cpp": "passed on moved definitions",
+    "EngineReports.cpp": "passed on moved definitions"
+  },
+  "helper_correction": "The first audit stripped only one canonical-state alias due to an inner line anchor. Anchor the repeated alias group once at the start of the body."
+}

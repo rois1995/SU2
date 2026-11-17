@@ -1,0 +1,57 @@
+{
+  "state": "PASSED",
+  "build": 559,
+  "base_commit": "ad64feb8225540cd98916f4798ce31e0f1ca894a",
+  "source_pins_verified": 1781,
+  "build_seconds": 70.16150879859924,
+  "G1": {
+    "serial": {
+      "records": 375,
+      "elapsed_seconds": 771.3155720233917,
+      "test_process_returncode": 24,
+      "changed_cases": 0,
+      "receipt": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N4/section6_3_after_N11/C1/validation/cases/N8_G1_candidate_serial_20261117T211017_521891/n11_terminal_receipt.json"
+    },
+    "mpi2": {
+      "records": 114,
+      "elapsed_seconds": 12.622384309768677,
+      "test_process_returncode": 9,
+      "changed_cases": 0,
+      "receipt": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N4/section6_3_after_N11/C1/validation/cases/N8_G1_candidate_mpi2_20261117T212406_546801/n11_terminal_receipt.json"
+    },
+    "mpi4": {
+      "records": 228,
+      "elapsed_seconds": 15.801951885223389,
+      "test_process_returncode": 9,
+      "changed_cases": 0,
+      "receipt": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N4/section6_3_after_N11/C1/validation/cases/N8_G1_candidate_mpi4_20261117T212426_547397/n11_terminal_receipt.json"
+    }
+  },
+  "G2": {
+    "work": 90809869,
+    "accepted_collapses": [
+      480,
+      473,
+      346,
+      263,
+      469,
+      464
+    ],
+    "all_required_integer_model_and_timer_rows_match": true,
+    "required_fixedstorage": 4120,
+    "census_delta": 0,
+    "seconds_to_stop": 312.30769653600873,
+    "seconds_sealed": 320.1731234409963,
+    "observed_prefix_rank_hwm_sum_bytes": 6675406848,
+    "observed_rank_count_max": 6,
+    "comparison_sha256": "e30a4f436e952fb704b99c2593e2e3dbebaae6a029a7a909ac738b11b0370740",
+    "solver_exit_code_expected_prefix_stop": -15
+  },
+  "readings_used": [
+    "B02 runs before lane setup. B07\u2013B29 run in order after selection, with finalization inside the original Timer/Failure scopes."
+  ],
+  "observations": [
+    "Preflight recorded Python process 544423 as other busy. It matched no work-owned script and was terminal by the post-run audit."
+  ],
+  "reported_helper_corrections": "The first audit stripped only one canonical-state alias due to an inner line anchor. Anchor the repeated alias group once at the start of the body."
+}

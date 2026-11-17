@@ -2,15 +2,11 @@
 
 Updated 2026-11-17. Read AGENTS.md and the copied WORK_ORDER_2.md at the start of the new session, then this file.
 
-## Current state — work order 2 in force; next: cut phase C, sub-step C1; a new session continues
+## Current state — phase C in progress
 
 Phase B passed on build558. Qualification commit: `97478b7abae40fcf107ac8132f0eea415a2aaaae`. Production source is identical to B8 checkpointdaf75b14e2a761ec1b8abaf5f5cd3e01a65ca7e3. No C++ change followed B8 application. All 1,781source pins and both current binary hashes were verified; owned C++ matches committed source. At the completed phase-B stop, all owned jobs were terminal; the recorded PID/start identities are in `N4/section6_3_after_N11/end_B_preparation/planned_stop_terminal_audit.json`.
 
-Work order 2 replaces NIGHT_WORK_ORDER.md as the order in force. The planned phase-B stop is over. This session performs only the instruction handover and then stops; phase C starts with C1 in a new session. N10 remains withdrawn; 8.5ab remains outside scope.
-
-Instruction evidence: `integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/work_order_2_handover_final_20261117`. The previous AGENTS.md is archived byte for byte with its SHA256; the current AGENTS.md matches the preserved AGENTS_CLEAN.pinned.md snapshot exactly, SHA256 `3f2c42b46a0e32ea97e852c9a7055b24edb832bd55fe583939bea1f5194ddfd2`. The copied WORK_ORDER_2.md has SHA256 `3968a95cfbdb2bfe181edb9e5b715f0a1077c1be8ae3418eef374cf038bd0112`.
-
-The final work order includes R13 (append implementation questions to QUESTIONS_FOR_REVIEWER.md) and section 4 item 1a (print-only M27 before phase C G5). This session installs the final handover only; the new session continues with C1. Earlier handover snapshots remain preserved as history.
+Work order 2 is in force. C1 passed on build559 (70.162 s, 1,781 verified pins). G1 matched 375 / 114 / 228 case records with zero differences in 771.316 / 12.622 / 15.802 s. G2 matched work 90,809,869, rank counts 480/473/346/263/469/464, all required integer/model/timer calls, fixedstorage 4120 and census delta 0. G2 stopped at 312.308 s and sealed at 320.173 s. Six sampled ranks, summed prefix HWM 6,675,406,848 B. All C1 jobs terminal. C1 acceptance and source review are in `N4/section6_3_after_N11/C1/validation`. Pinned H, D, C and I are in `N4/section6_3_after_N11/phase_C/inputs`. Phase B remains the previous integrated checkpoint.
 
 ## Completed phase-B gates
 
@@ -47,4 +43,4 @@ N1/P7P8 accepted429c6c1a60. ConditionalcacheB7/N2 failed modeled12GiB and was re
 
 Historical progress: `progress_history_through_phase_B_qualification_20261117.md`, SHA256 `0e2c115b2607774e26d792b27b5b30b5987147c5a00d4ec2c70321966b38b982`. Its old RUNNING/PENDING notes are historical; this file controls current state.
 
-Next action: **work order 2 in force; next: cut phase C, sub-step C1; a new session continues**. This session stops after committing and pushing this handover; no phase C work is performed here.
+Next action: checkpoint C1 and push, then apply C2. C2–C11 drafts are in their preparation directories. Only C1 is qualified.

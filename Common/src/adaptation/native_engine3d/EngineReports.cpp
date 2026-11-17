@@ -692,3 +692,38 @@ void EngineReports::EmitStageRows(EngineContext& context, const char* stage, con
                 << " surface=" << edge.surface << " age=" << edge.age << " disposition=" << edge.disposition
                 << " disposition_round=" << edge.disposition_round << '\n';
 }
+
+// Prints the existing per-rank length-pass row at the generation boundary.
+void EngineReports::EmitLengthPass(EngineContext& context, SU2NativeGeometry::AtlasBudget& atlas_budget) {
+  auto& world = context.world;
+  auto& options = context.options;
+  auto& working = *context.ownership.working;
+  auto& started = *context.setup.control_prefix.started;
+  auto& stats = context.control.result->stats;
+  auto& selection = *context.census.selection;
+  auto& coarsening = *context.control.coarsening;
+  if (options.timings) {
+    const auto progress = selection.Progress(working.size());
+    size_t short_edges = 0, long_edges = 0;
+    long double minimum = INFINITY, maximum = 0;
+    for (const auto& edge : selection.edges) {
+      const auto length = edge.second.measure.length;
+      short_edges += length < CoarseningMetricEdge;
+      long_edges += length > MaximumMetricEdge;
+      minimum = std::min(minimum, length);
+      maximum = std::max(maximum, length);
+    }
+    std::cout << std::setprecision(17) << "NATIVE3D_LENGTH rank=" << world.rank
+              << " pass=" << (coarsening ? "collapse" : "split") << " cells=" << working.size()
+              << " local_edges=" << selection.edges.size() << " short_local_edges=" << short_edges
+              << " long_local_edges=" << long_edges << " minimum_length=" << (selection.edges.empty() ? 0 : minimum)
+              << " maximum_length=" << maximum << " size_hinge_incidence=" << progress.size_hinge_squared
+              << " geometry_bad_cells=" << progress.geometry_bad_cells << " size_bad_cells=" << progress.size_bad_cells
+              << " q_measured_cells=" << progress.q_measured_cells << " j_measured_cells=" << progress.j_measured_cells
+              << " construction_stall_handoffs=" << stats.construction_stall_handoffs
+              << " maximum_parallel_split_commits=" << stats.maximum_parallel_split_commits
+              << " split_accepted=" << stats.length_splits << " collapse_accepted=" << stats.length_collapses
+              << " atlas_work=" << atlas_budget.work << " admitted_peak_bytes=" << stats.maximum_work_bytes
+              << " elapsed=" << std::chrono::duration<double>(Clock::now() - started).count() << '\n';
+  }
+}
