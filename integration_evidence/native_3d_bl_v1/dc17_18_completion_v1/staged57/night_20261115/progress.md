@@ -2,9 +2,9 @@
 
 Updated 2026-11-17. Read the complete latest NIGHT_WORK_ORDER.md after compaction, then this file.
 
-## Current state — PHASE B PASSED — qualification checkpoint next
+## Current state — STOPPED — waiting for the user; no phase C
 
-Phase B passed on build558. Qualification commit: `pending qualification checkpoint; code-equivalent to daf75b14e2`. Production source is identical to B8 checkpointdaf75b14e2a761ec1b8abaf5f5cd3e01a65ca7e3. No C++ change followed B8 application. All 1,781source pins and both current binary hashes were verified; owned C++ matches committed source. No owned job is running; actual PID/start identities are in `N4/section6_3_after_N11/end_B_preparation/phase_end_after_archive_terminal_audit.json`.
+Phase B passed on build558. Qualification commit: `97478b7abae40fcf107ac8132f0eea415a2aaaae`. Production source is identical to B8 checkpointdaf75b14e2a761ec1b8abaf5f5cd3e01a65ca7e3. No C++ change followed B8 application. All 1,781source pins and both current binary hashes were verified; owned C++ matches committed source. No owned job is running; actual PID/start identities are in `N4/section6_3_after_N11/end_B_preparation/planned_stop_terminal_audit.json`.
 
 The latest user order requires STOP after phase B's end gates and commit/push, current state, no-owned-job verification and terminal handles. Do not start phase C. N6/N7/C/D are deferred. N10 is withdrawn; do not implement8.5ab. No question or automatic continuation is pending.
 

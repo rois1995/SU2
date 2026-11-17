@@ -1,6 +1,6 @@
 # Native adaptation — current handoff
 
-Updated 2026-11-17. **PHASE B PASSED — qualification checkpoint next.** Phase B passed on build558; qualification commit `pending qualification checkpoint; code-equivalent to daf75b14e2`. No owned job runs. Current source is code-equivalent to B8 checkpointdaf75b14e2; all 1,781pins and binary hashes are verified. Latest actual terminal audit: `N4/section6_3_after_N11/end_B_preparation/phase_end_after_archive_terminal_audit.json`.
+Updated 2026-11-17. **STOPPED — waiting for the user; no phase C.** Phase B passed on build558; qualification commit `97478b7abae40fcf107ac8132f0eea415a2aaaae`. No owned job runs. Current source is code-equivalent to B8 checkpointdaf75b14e2; all 1,781pins and binary hashes are verified. Latest actual terminal audit: `N4/section6_3_after_N11/end_B_preparation/planned_stop_terminal_audit.json`.
 
 The user ordered this stop after phase B. **Wait for the user; do not start phase C.** C/D, N6 and final N7 are deferred. N10 is withdrawn and 8.5ab is not implemented.
 

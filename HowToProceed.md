@@ -1,6 +1,6 @@
 # Planned stop after phase B
 
-**PHASE B PASSED — qualification checkpoint next.** Qualification commit: `pending qualification checkpoint; code-equivalent to daf75b14e2`. Do not start phase C, N6 or final N7 until the user continues.
+**STOPPED — waiting for the user; no phase C.** Qualification commit: `97478b7abae40fcf107ac8132f0eea415a2aaaae`. Do not start phase C, N6 or final N7 until the user continues.
 
 Phase B's scoped/end gates and readability checks passed on build558. G3/G4/GQ are complete; corrected integrated G2 qualifies the current source after the documented R1 ownership error. No owned job runs; actual terminal handles and pins are sealed.
 
