@@ -34,6 +34,7 @@ The latest unattended section2 is in AGENTS.md; no user/reviewer answer was requ
 | N8 G1 candidate | PASSED identity |7938b89495|375 serial/57 per rank at MPI2/4, zero changed cases; baseline failed-expression counts24/19/37. Controller seconds839.004931/15.181993/20.688848;4/6/8 terminal identities. |
 | N8 G2 candidate | PASSED identity |836ca18d27|Work90,809,869 and all six counts exact; all old integers/bytes/non-Census calls exact;12 timer snapshots satisfy Census sum rule for6 law lines.398.804320s until planned stop/408.513817s sealed. One solver run; postprocessing repaired underR3. |
 | N8 A2/A3 + N12 | PASSED |3a5d331e37; acceptancef8c7b01085|Passive requirements/lane census; all534group/full/restart gates passed; no8.5. |
+| N4 renewed A1 | PASSED scoped G1/G2 |current source711c30e3/build537|375serial/57MPI2/4 ZEROchanges;791.683805/13.937737/16.089440s; strictG2 ALLoldints/model/per-rowCensuscalls exact363.081195stop/371.443689sealed; phaseA/N4incomplete. |
 | N7 final closure | NOT STARTED |—|This remains a draft until ordered work ends.|
 
 ## Failed items and reversions

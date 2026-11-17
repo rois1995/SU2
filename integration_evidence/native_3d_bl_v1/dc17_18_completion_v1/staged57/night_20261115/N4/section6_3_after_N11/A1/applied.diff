@@ -1,0 +1,133 @@
+diff --git a/Common/src/adaptation/CNativeEngine3D.cpp b/Common/src/adaptation/CNativeEngine3D.cpp
+index c62c0b475b..43580678b7 100644
+--- a/Common/src/adaptation/CNativeEngine3D.cpp
++++ b/Common/src/adaptation/CNativeEngine3D.cpp
+@@ -1379,10 +1379,64 @@ bool OptimizedRepairPatch(const Patch& old,Id first,Id first_node,const RegionMe
+   fresh=std::move(proposal);
+   return true;
+ }
++struct RestoreAdmission {
++  ShapeAdmission previous = GetShapeAdmission();
++  ~RestoreAdmission() { SetShapeAdmission(previous); }
++};
++struct RestoreBudgetWindow {
++  SU2NativeGeometry::AtlasBudget* budget;
++  size_t caller, bytes, bits, maximum_work;
++  ~RestoreBudgetWindow() {
++    if (budget) {
++      budget->caller_bytes = caller;
++      budget->maximum_bytes = bytes;
++      budget->maximum_integer_bits = bits;
++      budget->maximum_work = maximum_work;
++    }
++  }
++};
++struct GenerationDebt {
++  double edges = 0, geometry = 0, maximum = 0;
++  bool geometry_complete = false;
++};
++struct CoarseningCheckpoint {
++  Owned cells;
++  std::unique_ptr<BoundaryParameterState> parameters;
++  std::unique_ptr<Directory> directory;
++  std::map<Id, std::set<Id>> blocked;
++  std::set<Edge> edges, attempted;
++  std::set<Id> changed;
++  size_t blocked_links = 0, global_cells = 0, collapses = 0, splits = 0;
++  bool valid = false, trial = false;
++  size_t Bytes() const {
++    return transfer_memory::Add(MapBytes(cells), MapBytes(blocked), MapBytes(edges), MapBytes(attempted),
++                                MapBytes(changed), transfer_memory::Mul(blocked_links, sizeof(Id) + 4 * sizeof(void*)),
++                                parameters ? parameters->ResidentBytes() : 0,
++                                directory ? transfer_memory::Add(sizeof(Directory), directory->ResidentBytes()) : 0);
++  }
++};
++struct RepairProposal {
++  Choice choice;
++  Dependencies dependencies;
++  Imported imported;
++  Patch old, fresh;
++  Node point;
++  MetricDiagnosis certified;
++  OptimizationOperations optimization;
++  bool chosen = false, approved = false, coordinate_only = false, moved = false, repair_approved = false,
++       cavity_inserted = false;
++  bool optimization_approved = false, geometric_progress = false, capture = false, capture_selected = false;
++  Id first_cell = 0, first_node = 0;
++  size_t optimizer_work = 0;
++  unsigned ladder = 3;
++  std::vector<CellQualityFlag> old_flags, fresh_flags;
++  std::string rejection;
++};
++
+ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorCell>& original,
+                    const PlanarReference& accepted_geometry, MetricComposition composition, EngineOptions options, MetricChange intent, bool bidirectional=false,
+                    BoundaryMetric surface_target={}) {
+-  struct RestoreAdmission {ShapeAdmission previous=GetShapeAdmission();~RestoreAdmission(){SetShapeAdmission(previous);}} admission;
++  RestoreAdmission admission;
+   SetShapeAdmission(ShapeAdmission::ValidityOnly);
+   using Phase=EnginePhase;
+   Phase phase=Phase::Construction;
+@@ -1405,11 +1459,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
+   SU2NativeGeometry::AtlasBudget local_atlas_budget;
+   auto& atlas_budget=options.shared_geometry_budget?*options.shared_geometry_budget:local_atlas_budget;
+   const auto atlas_work_initial=atlas_budget.work;
+-  struct RestoreBudgetWindow {
+-    SU2NativeGeometry::AtlasBudget* budget;size_t caller,bytes,bits,maximum_work;
+-    ~RestoreBudgetWindow(){if(budget){budget->caller_bytes=caller;budget->maximum_bytes=bytes;
+-      budget->maximum_integer_bits=bits;budget->maximum_work=maximum_work;}}
+-  } restore_budget{options.shared_geometry_budget,atlas_budget.caller_bytes,atlas_budget.maximum_bytes,
++  RestoreBudgetWindow restore_budget{options.shared_geometry_budget,atlas_budget.caller_bytes,atlas_budget.maximum_bytes,
+       atlas_budget.maximum_integer_bits,atlas_budget.maximum_work};
+   std::unique_ptr<PlanarReference> atlas_geometry;
+   std::shared_ptr<void> target_geometry_lease;
+@@ -1471,7 +1521,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
+   bool construction_claims=bidirectional;
+   GenerationProgress3D edge_progress;
+   uint64_t edge_census_round=UINT64_MAX;
+-  struct GenerationDebt {double edges=0,geometry=0,maximum=0;bool geometry_complete=false;};
++
+   std::array<GenerationDebt,4> generation_window{};size_t generation_window_count=0;
+   std::map<Edge,EdgeMeasure> retired_edges,campaign_edges;
+   std::map<Id,std::set<Id>> inactive_blocked_edges;size_t inactive_blocked_links=0;
+@@ -1483,21 +1533,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
+   // even for flat, uncomposed refinement/repair events.
+   auto directory=std::make_unique<Directory>(world,true,geometry.Parameters());
+   CavityMetricSource source(world,working,options.timings);
+-  struct CoarseningCheckpoint {
+-    Owned cells;
+-    std::unique_ptr<BoundaryParameterState> parameters;
+-    std::unique_ptr<Directory> directory;
+-    std::map<Id,std::set<Id>> blocked;
+-    std::set<Edge> edges,attempted;
+-    std::set<Id> changed;
+-    size_t blocked_links=0,global_cells=0,collapses=0,splits=0;
+-    bool valid=false,trial=false;
+-    size_t Bytes()const {
+-      return transfer_memory::Add(MapBytes(cells),MapBytes(blocked),MapBytes(edges),MapBytes(attempted),MapBytes(changed),
+-          transfer_memory::Mul(blocked_links,sizeof(Id)+4*sizeof(void*)),
+-          parameters ? parameters->ResidentBytes() : 0,directory ? transfer_memory::Add(sizeof(Directory),directory->ResidentBytes()) : 0);
+-    }
+-  } checkpoint;
++  CoarseningCheckpoint checkpoint;
+   DirectoryStats retired_directory;
+   auto retire_directory=[&](const DirectoryStats& old) {
+     retired_directory.collision_seconds+=old.collision_seconds;
+@@ -4063,16 +4099,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
+       }
+       stats.global_work+=proposed;
+     }
+-    struct RepairProposal {
+-      Choice choice;Dependencies dependencies;Imported imported;Patch old,fresh;Node point;
+-      MetricDiagnosis certified;OptimizationOperations optimization;
+-      bool chosen=false,approved=false,coordinate_only=false,moved=false,repair_approved=false,cavity_inserted=false;
+-      bool optimization_approved=false,geometric_progress=false,capture=false,capture_selected=false;
+-      Id first_cell=0,first_node=0;size_t optimizer_work=0;
+-      unsigned ladder=3;
+-      std::vector<CellQualityFlag> old_flags,fresh_flags;
+-      std::string rejection;
+-    };
++
+     std::vector<RepairProposal> repair_proposals;
+     CLocalFailure private_failure;uint64_t private_work_used=0,private_work_reserved=0;
+     bool private_deadline=false;
