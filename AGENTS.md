@@ -28,12 +28,15 @@ Files (copy each with its SHA256 into your evidence folder, read them completely
 - I8 = `/tmp/claude-1000/-media-rausa-4TB-SU2-Versions-SU2-NativeIntegrated/f3d988e5-f14f-4a96-b6fb-963ec11730e7/scratchpad/IMPLEMENTATION_8_4A.md`
   (for item 3 of section 4 only; the reviewer writes it while you do the cut; do not
   look for it before you reach that item)
+- I8A = `/tmp/claude-1000/-media-rausa-4TB-SU2-Versions-SU2-NativeIntegrated/f3d988e5-f14f-4a96-b6fb-963ec11730e7/scratchpad/MEASUREMENT_M27.md`
+  (for item 1a of section 4 only; same rule)
 
 R = `integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57`.
 
 ## 1. Rules (the same rules as before, in one place)
 
-The user and the reviewer are not available during the work. You cannot ask a question.
+The user and the reviewer are not available during the work. You get no answer during
+the work. A question never stops the work; R13 says where a question goes.
 Where an older text says "stop and wait for the reviewer", read it as "stop THAT ITEM,
 record it, and go to the next item that does not depend on it".
 
@@ -86,6 +89,15 @@ R10. An item with "identical results" adds no timer operation and no field to `S
     `NATIVE3D_TIMER_SUMMARY` row prints `fixedstorage=4120`.
 R11. Print-only code runs under `options.timings`. No decision reads its values.
 R12. A new order never stops a running job. Let the check that runs end first.
+R13. Questions (user order, 2026-11-17). When you have a question about an
+    implementation detail or a choice (examples: a text has two readings; new code has
+    two possible places; R4 lets you choose a reading), write it in the file
+    `R/night_20261115/QUESTIONS_FOR_REVIEWER.md`. One entry: date and time, item and
+    sub-step, the question, the options that you saw, the option that you used and why,
+    the commit. Append only. Then continue the work with the option that R2 and R4
+    permit. Do not wait: no answer comes during the work. If the reviewer answers, the
+    answer comes as a user order at a phase boundary. Only such questions go in this
+    file. Status, failures and contradictions stay in the progress file and the reports.
 
 ## 2. Gates (C has the details; the lines below are the corrections that are in force)
 
@@ -155,6 +167,13 @@ R12. A new order never stops a running job. Let the check that runs end first.
    end of the phase, G3, G4, GQ and G5. Your whole-item source check
    (`R/night_20261115/N4/section6_3_after_N11/source_check.md`) stays valid; its
    reference readings from before N14 are replaced by section 2 of this file.
+1a. N17 = measurement M27, print only (the reviewer needs its numbers for the text of
+   N16). When G3, G4 and GQ of the end of phase C have passed, and before the G5 run of
+   that phase: look for the file I8A. If it exists: copy it with its SHA256, read it
+   completely, and do it as ONE commit with the gates that the file names, so that this
+   G5 run gives its numbers. No extra full run. If this G5 run then fails and the one
+   diagnosis pass does not name another part: revert N17 first and repeat G5 one time.
+   If I8A does not exist at that time: no action, go on with the G5 run.
 2. The cut, phase D (D1, D2, D3) as C says, with its G5.
 3. N16 = design step 8.4a (the quality stage without an exact geometry query for each
    trial). The user accepted this step on 2026-11-16 and ordered it as the first step
@@ -189,7 +208,7 @@ Rules of the cut that stay from the old file:
 
 ## 5. Open items that have their own text
 
-None. Each item of section 4 has its text in C, in I8 or in section 4.
+None. Each item of section 4 has its text in C, in I8, in I8A or in section 4.
 
 ## 6. Not in this work order
 

@@ -8,9 +8,9 @@ Phase B passed on build558. Qualification commit: `97478b7abae40fcf107ac8132f0ee
 
 Work order 2 replaces NIGHT_WORK_ORDER.md as the order in force. The planned phase-B stop is over. This session performs only the instruction handover and then stops; phase C starts with C1 in a new session. N10 remains withdrawn; 8.5ab remains outside scope.
 
-Instruction evidence: `integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/work_order_2_handover_20261117`. The previous AGENTS.md is archived byte for byte with its SHA256; the current AGENTS.md matches the preserved AGENTS_CLEAN.pinned.md snapshot exactly, SHA256 `a256611d0e3a02675e7ba6fea54e5d116a65e7818eeab798549f4f0927df9403`. The copied WORK_ORDER_2.md has SHA256 `07512c7b4ced334464eb8b9dcb3ca28cbe3f789bc932d29eacf5e17235629761`.
+Instruction evidence: `integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/work_order_2_handover_final_20261117`. The previous AGENTS.md is archived byte for byte with its SHA256; the current AGENTS.md matches the preserved AGENTS_CLEAN.pinned.md snapshot exactly, SHA256 `3f2c42b46a0e32ea97e852c9a7055b24edb832bd55fe583939bea1f5194ddfd2`. The copied WORK_ORDER_2.md has SHA256 `3968a95cfbdb2bfe181edb9e5b715f0a1077c1be8ae3418eef374cf038bd0112`.
 
-The two source paths were revised after the verified copy. This handover preserves the exact SHA256 versions supplied by the user; the evidence manifest records the later observed source hashes. Use the pinned evidence copy of WORK_ORDER_2.md for this handover.
+The final work order includes R13 (append implementation questions to QUESTIONS_FOR_REVIEWER.md) and section 4 item 1a (print-only M27 before phase C G5). This session installs the final handover only; the new session continues with C1. Earlier handover snapshots remain preserved as history.
 
 ## Completed phase-B gates
 
