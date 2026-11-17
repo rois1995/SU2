@@ -1,0 +1,454 @@
+{
+  "prefix_fields": [
+    [
+      "EnginePhase",
+      "phase"
+    ],
+    [
+      "bool",
+      "region_rebuilt"
+    ],
+    [
+      "bool",
+      "improvement_changed"
+    ],
+    [
+      "bool",
+      "construction_changed"
+    ],
+    [
+      "bool",
+      "construction_handoff_progress"
+    ],
+    [
+      "bool",
+      "construction_generation_changed"
+    ],
+    [
+      "bool",
+      "metric_cleanup"
+    ],
+    [
+      "bool",
+      "metric_cleanup_tried"
+    ],
+    [
+      "uint64_t",
+      "phase_start_round"
+    ],
+    [
+      "Clock::time_point",
+      "started"
+    ],
+    [
+      "std::clock_t",
+      "started_cpu"
+    ],
+    [
+      "size_t",
+      "atlas_work_initial"
+    ],
+    [
+      "size_t",
+      "atlas_scratch"
+    ],
+    [
+      "CLocalFailure",
+      "parameter_failure"
+    ],
+    [
+      "size_t",
+      "parameter_bound"
+    ]
+  ],
+  "post_geometry_fields": [
+    [
+      "double",
+      "parameter_setup"
+    ],
+    [
+      "bool",
+      "standalone_coarsening"
+    ],
+    [
+      "bool",
+      "coarsening"
+    ],
+    [
+      "bool",
+      "repairing"
+    ],
+    [
+      "MetricChange",
+      "construction_kind"
+    ],
+    [
+      "size_t",
+      "tracked_bytes_begin"
+    ],
+    [
+      "uint64_t",
+      "tracked_calls_begin"
+    ],
+    [
+      "double",
+      "tracked_seconds_begin"
+    ],
+    [
+      "uint64_t",
+      "election_calls_begin"
+    ],
+    [
+      "double",
+      "election_seconds_begin"
+    ],
+    [
+      "const SU2NativeGeometry::MappedFacetReference*",
+      "geometry_authority"
+    ],
+    [
+      "SU2NativeGeometry::MappedFacetReference::GeometryStats",
+      "geometry_begin"
+    ],
+    [
+      "EngineResult",
+      "result"
+    ],
+    [
+      "std::array<GenerationDebt,4>",
+      "generation_window"
+    ],
+    [
+      "size_t",
+      "generation_window_count"
+    ],
+    [
+      "CoarseningCheckpoint",
+      "checkpoint"
+    ],
+    [
+      "size_t",
+      "accepted_bytes"
+    ],
+    [
+      "size_t",
+      "private_optimizer_allowance"
+    ],
+    [
+      "size_t",
+      "batch_bytes"
+    ],
+    [
+      "size_t",
+      "diagnostic_bytes"
+    ],
+    [
+      "std::vector<FixedMetricPoint>",
+      "fixed_metric_points"
+    ],
+    [
+      "std::array<Id,16>",
+      "fixed_metric_cells"
+    ],
+    [
+      "bool",
+      "fixed_metric_initialized"
+    ],
+    [
+      "bool",
+      "fixed_metric_available"
+    ],
+    [
+      "std::string",
+      "last_rejection"
+    ],
+    [
+      "std::vector<RejectionDiagnostic>",
+      "diagnostic_rejections"
+    ],
+    [
+      "uint64_t",
+      "diagnostic_sequence"
+    ],
+    [
+      "uint64_t",
+      "progress_at_window"
+    ],
+    [
+      "uint64_t",
+      "attempted_at_window"
+    ],
+    [
+      "uint64_t",
+      "deferred_at_window"
+    ],
+    [
+      "bool",
+      "observe_rejections"
+    ],
+    [
+      "bool",
+      "observe_state"
+    ],
+    [
+      "bool",
+      "observe_stage"
+    ],
+    [
+      "bool",
+      "stage_storage_admitted"
+    ],
+    [
+      "bool",
+      "stage_observer_failed"
+    ],
+    [
+      "bool",
+      "construction_entry_reported"
+    ],
+    [
+      "QualityRepairStats",
+      "previous_quality"
+    ],
+    [
+      "StageProgress",
+      "previous_quality_census"
+    ],
+    [
+      "double",
+      "previous_quality_elapsed"
+    ],
+    [
+      "double",
+      "previous_quality_collective"
+    ],
+    [
+      "uint64_t",
+      "quality_census_serial"
+    ],
+    [
+      "uint64_t",
+      "previous_quality_construction"
+    ],
+    [
+      "uint64_t",
+      "previous_quality_ownership"
+    ],
+    [
+      "bool",
+      "quality_census_started"
+    ],
+    [
+      "bool",
+      "transaction_captured"
+    ],
+    [
+      "bool",
+      "layer_active"
+    ],
+    [
+      "bool",
+      "region_active"
+    ],
+    [
+      "Clock::time_point",
+      "layer_started"
+    ],
+    [
+      "Clock::time_point",
+      "region_started"
+    ],
+    [
+      "bool",
+      "ready"
+    ]
+  ],
+  "replacements": [
+    {
+      "old": "Phase phase=Phase::Construction;",
+      "new": "ContextValue phase_lifetime(setup.control_prefix.phase, Phase::Construction);\n  auto& phase = phase_lifetime.Get();"
+    },
+    {
+      "old": "bool region_rebuilt=false,improvement_changed=false,construction_changed=false,construction_handoff_progress=false;",
+      "new": "ContextValue region_rebuilt_lifetime(setup.control_prefix.region_rebuilt, false);\n  auto& region_rebuilt = region_rebuilt_lifetime.Get();\n  ContextValue improvement_changed_lifetime(setup.control_prefix.improvement_changed, false);\n  auto& improvement_changed = improvement_changed_lifetime.Get();\n  ContextValue construction_changed_lifetime(setup.control_prefix.construction_changed, false);\n  auto& construction_changed = construction_changed_lifetime.Get();\n  ContextValue construction_handoff_progress_lifetime(setup.control_prefix.construction_handoff_progress, false);\n  auto& construction_handoff_progress = construction_handoff_progress_lifetime.Get();"
+    },
+    {
+      "old": "bool construction_generation_changed=false;",
+      "new": "ContextValue construction_generation_changed_lifetime(setup.control_prefix.construction_generation_changed, false);\n  auto& construction_generation_changed = construction_generation_changed_lifetime.Get();"
+    },
+    {
+      "old": "bool metric_cleanup=false,metric_cleanup_tried=false;",
+      "new": "ContextValue metric_cleanup_lifetime(setup.control_prefix.metric_cleanup, false);\n  auto& metric_cleanup = metric_cleanup_lifetime.Get();\n  ContextValue metric_cleanup_tried_lifetime(setup.control_prefix.metric_cleanup_tried, false);\n  auto& metric_cleanup_tried = metric_cleanup_tried_lifetime.Get();"
+    },
+    {
+      "old": "uint64_t phase_start_round=0;",
+      "new": "ContextValue phase_start_round_lifetime(setup.control_prefix.phase_start_round, 0);\n  auto& phase_start_round = phase_start_round_lifetime.Get();"
+    },
+    {
+      "old": "const auto started=Clock::now();",
+      "new": "ContextValue started_lifetime(setup.control_prefix.started, Clock::now());\n  const auto& started = started_lifetime.Get();"
+    },
+    {
+      "old": "const auto started_cpu=options.timings ? std::clock() : std::clock_t{};",
+      "new": "ContextValue started_cpu_lifetime(setup.control_prefix.started_cpu, options.timings ? std::clock() : std::clock_t{});\n  const auto& started_cpu = started_cpu_lifetime.Get();"
+    },
+    {
+      "old": "const auto atlas_work_initial=atlas_budget.work;",
+      "new": "ContextValue atlas_work_initial_lifetime(setup.control_prefix.atlas_work_initial, atlas_budget.work);\n  const auto& atlas_work_initial = atlas_work_initial_lifetime.Get();"
+    },
+    {
+      "old": "const auto atlas_scratch=std::max(AtlasScratchBytes,options.geometry_workspace_bytes);",
+      "new": "ContextValue atlas_scratch_lifetime(setup.control_prefix.atlas_scratch,\n                                      std::max(AtlasScratchBytes, options.geometry_workspace_bytes));\n  const auto& atlas_scratch = atlas_scratch_lifetime.Get();"
+    },
+    {
+      "old": "CLocalFailure parameter_failure;size_t parameter_bound=0;",
+      "new": "ContextValue parameter_failure_lifetime(setup.control_prefix.parameter_failure);\n  auto& parameter_failure = parameter_failure_lifetime.Get();\n  ContextValue parameter_bound_lifetime(setup.control_prefix.parameter_bound, 0);\n  auto& parameter_bound = parameter_bound_lifetime.Get();"
+    },
+    {
+      "old": "const double parameter_setup=options.timings?std::chrono::duration<double>(Clock::now()-started).count():0;",
+      "new": "ContextValue parameter_setup_lifetime(\n      control.parameter_setup, options.timings ? std::chrono::duration<double>(Clock::now() - started).count() : 0);\n  const auto& parameter_setup = parameter_setup_lifetime.Get();"
+    },
+    {
+      "old": "const bool standalone_coarsening=intent==MetricChange::Coarsen;",
+      "new": "ContextValue standalone_coarsening_lifetime(control.standalone_coarsening, intent == MetricChange::Coarsen);\n  const auto& standalone_coarsening = standalone_coarsening_lifetime.Get();"
+    },
+    {
+      "old": "bool coarsening=standalone_coarsening || bidirectional;",
+      "new": "ContextValue coarsening_lifetime(control.coarsening, standalone_coarsening || bidirectional);\n  auto& coarsening = coarsening_lifetime.Get();"
+    },
+    {
+      "old": "bool repairing=false;",
+      "new": "ContextValue repairing_lifetime(control.repairing, false);\n  auto& repairing = repairing_lifetime.Get();"
+    },
+    {
+      "old": "MetricChange construction_kind=coarsening ? MetricChange::Coarsen : MetricChange::Refine;",
+      "new": "ContextValue construction_kind_lifetime(control.construction_kind,\n                                          coarsening ? MetricChange::Coarsen : MetricChange::Refine);\n  auto& construction_kind = construction_kind_lifetime.Get();"
+    },
+    {
+      "old": "const auto tracked_bytes_begin=world.bytes_sent;",
+      "new": "ContextValue tracked_bytes_begin_lifetime(control.tracked_bytes_begin, world.bytes_sent);\n  const auto& tracked_bytes_begin = tracked_bytes_begin_lifetime.Get();"
+    },
+    {
+      "old": "const auto tracked_calls_begin=world.collective_calls;",
+      "new": "ContextValue tracked_calls_begin_lifetime(control.tracked_calls_begin, world.collective_calls);\n  const auto& tracked_calls_begin = tracked_calls_begin_lifetime.Get();"
+    },
+    {
+      "old": "const auto election_calls_begin=world.election_collective_calls;",
+      "new": "ContextValue election_calls_begin_lifetime(control.election_calls_begin, world.election_collective_calls);\n  const auto& election_calls_begin = election_calls_begin_lifetime.Get();"
+    },
+    {
+      "old": "const double tracked_seconds_begin=world.collective_seconds;",
+      "new": "ContextValue tracked_seconds_begin_lifetime(control.tracked_seconds_begin, world.collective_seconds);\n  const auto& tracked_seconds_begin = tracked_seconds_begin_lifetime.Get();"
+    },
+    {
+      "old": "const double election_seconds_begin=world.election_collective_seconds;",
+      "new": "ContextValue election_seconds_begin_lifetime(control.election_seconds_begin, world.election_collective_seconds);\n  const auto& election_seconds_begin = election_seconds_begin_lifetime.Get();"
+    },
+    {
+      "old": "const auto* geometry_authority=geometry.Parameters()?&geometry.Parameters()->Geometry():nullptr;",
+      "new": "ContextValue geometry_authority_lifetime(control.geometry_authority,\n                                           geometry.Parameters() ? &geometry.Parameters()->Geometry() : nullptr);\n  auto& geometry_authority = geometry_authority_lifetime.Get();"
+    },
+    {
+      "old": "const auto geometry_begin=geometry_authority?geometry_authority->GeometryStatsSnapshot():SU2NativeGeometry::MappedFacetReference::GeometryStats{};",
+      "new": "ContextValue geometry_begin_lifetime(control.geometry_begin,\n                                       geometry_authority ? geometry_authority->GeometryStatsSnapshot()\n                                                          : SU2NativeGeometry::MappedFacetReference::GeometryStats{});\n  const auto& geometry_begin = geometry_begin_lifetime.Get();"
+    },
+    {
+      "old": "EngineResult result;",
+      "new": "ContextValue result_lifetime(control.result);\n  auto& result = result_lifetime.Get();"
+    },
+    {
+      "old": "std::array<GenerationDebt,4> generation_window{};size_t generation_window_count=0;",
+      "new": "ContextValue generation_window_lifetime(control.generation_window);\n  auto& generation_window = generation_window_lifetime.Get();\n  ContextValue generation_window_count_lifetime(control.generation_window_count, 0);\n  auto& generation_window_count = generation_window_count_lifetime.Get();"
+    },
+    {
+      "old": "CoarseningCheckpoint checkpoint;",
+      "new": "ContextValue checkpoint_lifetime(control.checkpoint);\n  auto& checkpoint = checkpoint_lifetime.Get();"
+    },
+    {
+      "old": "size_t accepted_bytes=MapBytes(accepted);",
+      "new": "ContextValue accepted_bytes_lifetime(control.accepted_bytes, MapBytes(accepted));\n  auto& accepted_bytes = accepted_bytes_lifetime.Get();"
+    },
+    {
+      "old": "size_t private_optimizer_allowance=0;",
+      "new": "ContextValue private_optimizer_allowance_lifetime(control.private_optimizer_allowance, 0);\n  auto& private_optimizer_allowance = private_optimizer_allowance_lifetime.Get();"
+    },
+    {
+      "old": "size_t batch_bytes=0;",
+      "new": "ContextValue batch_bytes_lifetime(control.batch_bytes, 0);\n  auto& batch_bytes = batch_bytes_lifetime.Get();"
+    },
+    {
+      "old": "const size_t diagnostic_bytes=transfer_memory::Add(16384,transfer_memory::Mul(world.size,4096));",
+      "new": "ContextValue diagnostic_bytes_lifetime(control.diagnostic_bytes,\n                                         transfer_memory::Add(16384, transfer_memory::Mul(world.size, 4096)));\n  const auto& diagnostic_bytes = diagnostic_bytes_lifetime.Get();"
+    },
+    {
+      "old": "std::vector<FixedMetricPoint> fixed_metric_points;",
+      "new": "ContextValue fixed_metric_points_lifetime(control.fixed_metric_points);\n  auto& fixed_metric_points = fixed_metric_points_lifetime.Get();"
+    },
+    {
+      "old": "std::array<Id,FixedMetricSamples> fixed_metric_cells;",
+      "new": "ContextValue fixed_metric_cells_lifetime(control.fixed_metric_cells);\n  auto& fixed_metric_cells = fixed_metric_cells_lifetime.Get();"
+    },
+    {
+      "old": "bool fixed_metric_initialized=false,fixed_metric_available=false;",
+      "new": "ContextValue fixed_metric_initialized_lifetime(control.fixed_metric_initialized, false);\n  auto& fixed_metric_initialized = fixed_metric_initialized_lifetime.Get();\n  ContextValue fixed_metric_available_lifetime(control.fixed_metric_available, false);\n  auto& fixed_metric_available = fixed_metric_available_lifetime.Get();"
+    },
+    {
+      "old": "std::string last_rejection;",
+      "new": "ContextValue last_rejection_lifetime(control.last_rejection);\n  auto& last_rejection = last_rejection_lifetime.Get();"
+    },
+    {
+      "old": "std::vector<RejectionDiagnostic> diagnostic_rejections;uint64_t diagnostic_sequence=0;",
+      "new": "ContextValue diagnostic_rejections_lifetime(control.diagnostic_rejections);\n  auto& diagnostic_rejections = diagnostic_rejections_lifetime.Get();\n  ContextValue diagnostic_sequence_lifetime(control.diagnostic_sequence, 0);\n  auto& diagnostic_sequence = diagnostic_sequence_lifetime.Get();"
+    },
+    {
+      "old": "uint64_t progress_at_window=0, attempted_at_window=0, deferred_at_window=0;",
+      "new": "ContextValue progress_at_window_lifetime(control.progress_at_window, 0);\n  auto& progress_at_window = progress_at_window_lifetime.Get();\n  ContextValue attempted_at_window_lifetime(control.attempted_at_window, 0);\n  auto& attempted_at_window = attempted_at_window_lifetime.Get();\n  ContextValue deferred_at_window_lifetime(control.deferred_at_window, 0);\n  auto& deferred_at_window = deferred_at_window_lifetime.Get();"
+    },
+    {
+      "old": "const bool observe_rejections=world.maximum(bool(options.rejected_trial) || bool(options.transaction_observer));",
+      "new": "ContextValue observe_rejections_lifetime(\n      control.observe_rejections, world.maximum(bool(options.rejected_trial) || bool(options.transaction_observer)));\n  const auto& observe_rejections = observe_rejections_lifetime.Get();"
+    },
+    {
+      "old": "const bool observe_state=world.maximum(bool(options.rejected_state));",
+      "new": "ContextValue observe_state_lifetime(control.observe_state, world.maximum(bool(options.rejected_state)));\n  const auto& observe_state = observe_state_lifetime.Get();"
+    },
+    {
+      "old": "const bool observe_stage=world.maximum(bool(options.stage_observer));",
+      "new": "ContextValue observe_stage_lifetime(control.observe_stage, world.maximum(bool(options.stage_observer)));\n  const auto& observe_stage = observe_stage_lifetime.Get();"
+    },
+    {
+      "old": "bool stage_storage_admitted=false,stage_observer_failed=false,construction_entry_reported=false;",
+      "new": "ContextValue stage_storage_admitted_lifetime(control.stage_storage_admitted, false);\n  auto& stage_storage_admitted = stage_storage_admitted_lifetime.Get();\n  ContextValue stage_observer_failed_lifetime(control.stage_observer_failed, false);\n  auto& stage_observer_failed = stage_observer_failed_lifetime.Get();\n  ContextValue construction_entry_reported_lifetime(control.construction_entry_reported, false);\n  auto& construction_entry_reported = construction_entry_reported_lifetime.Get();"
+    },
+    {
+      "old": "QualityRepairStats previous_quality;StageProgress previous_quality_census;",
+      "new": "ContextValue previous_quality_lifetime(control.previous_quality);\n  auto& previous_quality = previous_quality_lifetime.Get();\n  ContextValue previous_quality_census_lifetime(control.previous_quality_census);\n  auto& previous_quality_census = previous_quality_census_lifetime.Get();"
+    },
+    {
+      "old": "double previous_quality_elapsed=0,previous_quality_collective=0;",
+      "new": "ContextValue previous_quality_elapsed_lifetime(control.previous_quality_elapsed, 0);\n  auto& previous_quality_elapsed = previous_quality_elapsed_lifetime.Get();\n  ContextValue previous_quality_collective_lifetime(control.previous_quality_collective, 0);\n  auto& previous_quality_collective = previous_quality_collective_lifetime.Get();"
+    },
+    {
+      "old": "uint64_t quality_census_serial=0,previous_quality_construction=0,previous_quality_ownership=0;",
+      "new": "ContextValue quality_census_serial_lifetime(control.quality_census_serial, 0);\n  auto& quality_census_serial = quality_census_serial_lifetime.Get();\n  ContextValue previous_quality_construction_lifetime(control.previous_quality_construction, 0);\n  auto& previous_quality_construction = previous_quality_construction_lifetime.Get();\n  ContextValue previous_quality_ownership_lifetime(control.previous_quality_ownership, 0);\n  auto& previous_quality_ownership = previous_quality_ownership_lifetime.Get();"
+    },
+    {
+      "old": "bool quality_census_started=false;",
+      "new": "ContextValue quality_census_started_lifetime(control.quality_census_started, false);\n  auto& quality_census_started = quality_census_started_lifetime.Get();"
+    },
+    {
+      "old": "bool transaction_captured=false;",
+      "new": "ContextValue transaction_captured_lifetime(control.transaction_captured, false);\n  auto& transaction_captured = transaction_captured_lifetime.Get();"
+    },
+    {
+      "old": "bool layer_active=false,region_active=false;Clock::time_point layer_started,region_started;",
+      "new": "ContextValue layer_active_lifetime(control.layer_active, false);\n  auto& layer_active = layer_active_lifetime.Get();\n  ContextValue region_active_lifetime(control.region_active, false);\n  auto& region_active = region_active_lifetime.Get();\n  ContextValue layer_started_lifetime(control.layer_started);\n  auto& layer_started = layer_started_lifetime.Get();\n  ContextValue region_started_lifetime(control.region_started);\n  auto& region_started = region_started_lifetime.Get();"
+    },
+    {
+      "old": "bool ready=false;",
+      "new": "ContextValue ready_lifetime(control.ready, false);\n  auto& ready = ready_lifetime.Get();"
+    }
+  ],
+  "base": "5880ce9cf1",
+  "validation_pending": true
+}

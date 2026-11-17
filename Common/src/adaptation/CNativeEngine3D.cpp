@@ -1435,6 +1435,7 @@ struct RepairProposal {
 
 // Keep setup ownership private to the original translation unit and namespace.
 #include "native_engine3d/EngineSetup.cpp"
+#include "native_engine3d/EngineContext.cpp"
 
 EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorCell>& original,
                    const PlanarReference& accepted_geometry, MetricComposition composition, EngineOptions options, MetricChange intent, bool bidirectional=false,
@@ -1442,7 +1443,8 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
   EngineSetup setup;
   SetShapeAdmission(ShapeAdmission::ValidityOnly);
   using Phase=EnginePhase;
-  Phase phase=Phase::Construction;
+  ContextValue phase_lifetime(setup.control_prefix.phase, Phase::Construction);
+  auto& phase = phase_lifetime.Get();
   auto& timer_session = setup.timer_session.emplace(
       options.timings, "native_engine", world.rank, world.size,
       surface_target ? SU2NativeTiming3D::Phase::Surface : SU2NativeTiming3D::Phase::Construction);
@@ -1451,18 +1453,33 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
   setup.d9_profile.emplace(options.timings, world.rank);
   auto& wall_counters = setup.wall_counters.emplace(options.timings && bool(surface_target));
   auto& lane_counters = setup.lane_counters.emplace(options.timings);
-  bool region_rebuilt=false,improvement_changed=false,construction_changed=false,construction_handoff_progress=false;
-  bool construction_generation_changed=false;
-  bool metric_cleanup=false,metric_cleanup_tried=false;
-  uint64_t phase_start_round=0;
+  ContextValue region_rebuilt_lifetime(setup.control_prefix.region_rebuilt, false);
+  auto& region_rebuilt = region_rebuilt_lifetime.Get();
+  ContextValue improvement_changed_lifetime(setup.control_prefix.improvement_changed, false);
+  auto& improvement_changed = improvement_changed_lifetime.Get();
+  ContextValue construction_changed_lifetime(setup.control_prefix.construction_changed, false);
+  auto& construction_changed = construction_changed_lifetime.Get();
+  ContextValue construction_handoff_progress_lifetime(setup.control_prefix.construction_handoff_progress, false);
+  auto& construction_handoff_progress = construction_handoff_progress_lifetime.Get();
+  ContextValue construction_generation_changed_lifetime(setup.control_prefix.construction_generation_changed, false);
+  auto& construction_generation_changed = construction_generation_changed_lifetime.Get();
+  ContextValue metric_cleanup_lifetime(setup.control_prefix.metric_cleanup, false);
+  auto& metric_cleanup = metric_cleanup_lifetime.Get();
+  ContextValue metric_cleanup_tried_lifetime(setup.control_prefix.metric_cleanup_tried, false);
+  auto& metric_cleanup_tried = metric_cleanup_tried_lifetime.Get();
+  ContextValue phase_start_round_lifetime(setup.control_prefix.phase_start_round, 0);
+  auto& phase_start_round = phase_start_round_lifetime.Get();
   if(options.stage_observer)options.caller_bytes=transfer_memory::Add(options.caller_bytes,options.stage_observer_bytes);
-  const auto started=Clock::now();
-  const auto started_cpu=options.timings ? std::clock() : std::clock_t{};
+  ContextValue started_lifetime(setup.control_prefix.started, Clock::now());
+  const auto& started = started_lifetime.Get();
+  ContextValue started_cpu_lifetime(setup.control_prefix.started_cpu, options.timings ? std::clock() : std::clock_t{});
+  const auto& started_cpu = started_cpu_lifetime.Get();
   auto& private_parameters = setup.private_parameters.emplace();
   auto& private_geometry = setup.private_geometry.emplace();
   auto& local_atlas_budget = setup.local_atlas_budget.emplace();
   auto& atlas_budget=options.shared_geometry_budget?*options.shared_geometry_budget:local_atlas_budget;
-  const auto atlas_work_initial=atlas_budget.work;
+  ContextValue atlas_work_initial_lifetime(setup.control_prefix.atlas_work_initial, atlas_budget.work);
+  const auto& atlas_work_initial = atlas_work_initial_lifetime.Get();
   auto& restore_budget = setup.restore_budget.emplace();
   restore_budget.budget = options.shared_geometry_budget;
   restore_budget.caller = atlas_budget.caller_bytes;
@@ -1471,13 +1488,18 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
   restore_budget.maximum_work = atlas_budget.maximum_work;
   auto& atlas_geometry = setup.atlas_geometry.emplace();
   auto& target_geometry_lease = setup.target_geometry_lease.emplace();
-  const auto atlas_scratch=std::max(AtlasScratchBytes,options.geometry_workspace_bytes);
+  ContextValue atlas_scratch_lifetime(setup.control_prefix.atlas_scratch,
+                                      std::max(AtlasScratchBytes, options.geometry_workspace_bytes));
+  const auto& atlas_scratch = atlas_scratch_lifetime.Get();
   if(!options.shared_geometry_budget && std::isfinite(options.maximum_seconds) && options.maximum_seconds>0)
     atlas_budget.within_time=[started,maximum=options.maximum_seconds] {
       return std::chrono::duration<double>(Clock::now()-started).count()<maximum;
     };
   const SU2NativeGeometry::BoundaryCoverage no_coverage;
-  CLocalFailure parameter_failure;size_t parameter_bound=0;
+  ContextValue parameter_failure_lifetime(setup.control_prefix.parameter_failure);
+  auto& parameter_failure = parameter_failure_lifetime.Get();
+  ContextValue parameter_bound_lifetime(setup.control_prefix.parameter_bound, 0);
+  auto& parameter_bound = parameter_bound_lifetime.Get();
   const unsigned mapped=accepted_geometry.Mapped();
   const auto mapped_low=TimedAllreduce(mapped,CPassiveComm::Op::MIN,world.comm),mapped_high=TimedAllreduce(mapped,CPassiveComm::Op::MAX,world.comm);
   if(mapped_low!=mapped_high)parameter_failure.Set(1,0,"Native3D parameter geometry mode differs across workers.");
@@ -1505,23 +1527,44 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     if(failure.any){EngineResult rejected;rejected.reason=failure.message;rejected.stats.stop=EngineStop::Failure;rejected.stats.maximum_work_bytes=parameter_bound;return rejected;}
   }
   const auto& geometry=atlas_geometry?*atlas_geometry:private_geometry?*private_geometry:accepted_geometry;
+  EngineContext context(setup, world, accepted, original, geometry, composition, options, intent, bidirectional,
+                        surface_target);
+  auto& control = context.control;
   if (options.timings)
     PrintAdaptationRequirements(MakeAdaptationRequirements(geometry, bool(composition), options), world.rank, std::cout);
   PrintWallLawCensus(accepted, geometry, options.surface_tolerance, world.rank, "entry", options.timings);
-  const double parameter_setup=options.timings?std::chrono::duration<double>(Clock::now()-started).count():0;
+  ContextValue parameter_setup_lifetime(
+      control.parameter_setup, options.timings ? std::chrono::duration<double>(Clock::now() - started).count() : 0);
+  const auto& parameter_setup = parameter_setup_lifetime.Get();
   const bool curved=!geometry.ExtensionComponents().empty();
-  const bool standalone_coarsening=intent==MetricChange::Coarsen;
-  bool coarsening=standalone_coarsening || bidirectional;
-  bool repairing=false;
-  MetricChange construction_kind=coarsening ? MetricChange::Coarsen : MetricChange::Refine;
-  const auto tracked_bytes_begin=world.bytes_sent;
-  const auto tracked_calls_begin=world.collective_calls;
-  const double tracked_seconds_begin=world.collective_seconds;
-  const auto election_calls_begin=world.election_collective_calls;
-  const double election_seconds_begin=world.election_collective_seconds;
-  const auto* geometry_authority=geometry.Parameters()?&geometry.Parameters()->Geometry():nullptr;
-  const auto geometry_begin=geometry_authority?geometry_authority->GeometryStatsSnapshot():SU2NativeGeometry::MappedFacetReference::GeometryStats{};
-  EngineResult result;
+  ContextValue standalone_coarsening_lifetime(control.standalone_coarsening, intent == MetricChange::Coarsen);
+  const auto& standalone_coarsening = standalone_coarsening_lifetime.Get();
+  ContextValue coarsening_lifetime(control.coarsening, standalone_coarsening || bidirectional);
+  auto& coarsening = coarsening_lifetime.Get();
+  ContextValue repairing_lifetime(control.repairing, false);
+  auto& repairing = repairing_lifetime.Get();
+  ContextValue construction_kind_lifetime(control.construction_kind,
+                                          coarsening ? MetricChange::Coarsen : MetricChange::Refine);
+  auto& construction_kind = construction_kind_lifetime.Get();
+  ContextValue tracked_bytes_begin_lifetime(control.tracked_bytes_begin, world.bytes_sent);
+  const auto& tracked_bytes_begin = tracked_bytes_begin_lifetime.Get();
+  ContextValue tracked_calls_begin_lifetime(control.tracked_calls_begin, world.collective_calls);
+  const auto& tracked_calls_begin = tracked_calls_begin_lifetime.Get();
+  ContextValue tracked_seconds_begin_lifetime(control.tracked_seconds_begin, world.collective_seconds);
+  const auto& tracked_seconds_begin = tracked_seconds_begin_lifetime.Get();
+  ContextValue election_calls_begin_lifetime(control.election_calls_begin, world.election_collective_calls);
+  const auto& election_calls_begin = election_calls_begin_lifetime.Get();
+  ContextValue election_seconds_begin_lifetime(control.election_seconds_begin, world.election_collective_seconds);
+  const auto& election_seconds_begin = election_seconds_begin_lifetime.Get();
+  ContextValue geometry_authority_lifetime(control.geometry_authority,
+                                           geometry.Parameters() ? &geometry.Parameters()->Geometry() : nullptr);
+  auto& geometry_authority = geometry_authority_lifetime.Get();
+  ContextValue geometry_begin_lifetime(control.geometry_begin,
+                                       geometry_authority ? geometry_authority->GeometryStatsSnapshot()
+                                                          : SU2NativeGeometry::MappedFacetReference::GeometryStats{});
+  const auto& geometry_begin = geometry_begin_lifetime.Get();
+  ContextValue result_lifetime(control.result);
+  auto& result = result_lifetime.Get();
   auto& stats=result.stats;stats.bidirectional=bidirectional;stats.parameter_setup_seconds=parameter_setup;stats.initialization_seconds=parameter_setup;stats.maximum_work_bytes=parameter_bound;
   Owned working;
   Selection selection(coarsening,repairing,geometry,stats,options.timings,options.surface_tolerance,options.wall_heights,bidirectional,bool(surface_target));
@@ -1530,7 +1573,10 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
   GenerationProgress3D edge_progress;
   uint64_t edge_census_round=UINT64_MAX;
 
-  std::array<GenerationDebt,4> generation_window{};size_t generation_window_count=0;
+  ContextValue generation_window_lifetime(control.generation_window);
+  auto& generation_window = generation_window_lifetime.Get();
+  ContextValue generation_window_count_lifetime(control.generation_window_count, 0);
+  auto& generation_window_count = generation_window_count_lifetime.Get();
   std::map<Edge,EdgeMeasure> retired_edges,campaign_edges;
   std::map<Id,std::set<Id>> inactive_blocked_edges;size_t inactive_blocked_links=0;
   std::array<bool,2> length_blocks_dirty{{false,false}};
@@ -1541,7 +1587,8 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
   // even for flat, uncomposed refinement/repair events.
   auto directory=std::make_unique<Directory>(world,true,geometry.Parameters());
   CavityMetricSource source(world,working,options.timings);
-  CoarseningCheckpoint checkpoint;
+  ContextValue checkpoint_lifetime(control.checkpoint);
+  auto& checkpoint = checkpoint_lifetime.Get();
   DirectoryStats retired_directory;
   auto retire_directory=[&](const DirectoryStats& old) {
     retired_directory.collision_seconds+=old.collision_seconds;
@@ -1561,7 +1608,8 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     retired_directory.change_seconds+=old.change_seconds;
     retired_directory.maximum_work_bytes=std::max(retired_directory.maximum_work_bytes,old.maximum_work_bytes);
   };
-  size_t accepted_bytes=MapBytes(accepted);
+  ContextValue accepted_bytes_lifetime(control.accepted_bytes, MapBytes(accepted));
+  auto& accepted_bytes = accepted_bytes_lifetime.Get();
   auto selection_bound=[&](bool repairs) { return transfer_memory::Add(sizeof(Selection::CellDebt),
       repairs ? 4096u : 0u,
       (coarsening || bidirectional) ? (repairs ? 8192u : 5120u) : (repairs ? 6144u : 3072u)); };
@@ -1581,7 +1629,8 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     stats.surface_demand_geometry_complete=stats.surface_demand_census_complete&&count[0]==count[2];
   };
   bool private_repair=false;
-  size_t private_optimizer_allowance=0;
+  ContextValue private_optimizer_allowance_lifetime(control.private_optimizer_allowance, 0);
+  auto& private_optimizer_allowance = private_optimizer_allowance_lifetime.Get();
   auto elect_trial_failure=[&](const CLocalFailure& local) {
     if(private_repair)return CElectedFailure{local.Failed(),world.rank,local.severity,local.gid,local.message};
     return world.elect(local);
@@ -1612,12 +1661,20 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     }
     return !elected.any;
   };
-  size_t batch_bytes=0;
+  ContextValue batch_bytes_lifetime(control.batch_bytes, 0);
+  auto& batch_bytes = batch_bytes_lifetime.Get();
   constexpr size_t FixedMetricSamples=16;
-  const size_t diagnostic_bytes=transfer_memory::Add(16384,transfer_memory::Mul(world.size,4096));
-  std::vector<FixedMetricPoint> fixed_metric_points;
-  std::array<Id,FixedMetricSamples> fixed_metric_cells;fixed_metric_cells.fill(UINT64_MAX);
-  bool fixed_metric_initialized=false,fixed_metric_available=false;
+  ContextValue diagnostic_bytes_lifetime(control.diagnostic_bytes,
+                                         transfer_memory::Add(16384, transfer_memory::Mul(world.size, 4096)));
+  const auto& diagnostic_bytes = diagnostic_bytes_lifetime.Get();
+  ContextValue fixed_metric_points_lifetime(control.fixed_metric_points);
+  auto& fixed_metric_points = fixed_metric_points_lifetime.Get();
+  ContextValue fixed_metric_cells_lifetime(control.fixed_metric_cells);
+  auto& fixed_metric_cells = fixed_metric_cells_lifetime.Get();fixed_metric_cells.fill(UINT64_MAX);
+  ContextValue fixed_metric_initialized_lifetime(control.fixed_metric_initialized, false);
+  auto& fixed_metric_initialized = fixed_metric_initialized_lifetime.Get();
+  ContextValue fixed_metric_available_lifetime(control.fixed_metric_available, false);
+  auto& fixed_metric_available = fixed_metric_available_lifetime.Get();
   std::vector<Id> batch_changed;
   std::set<Id> batch_touched;
   std::set<std::array<Id,4>> batch_supports;
@@ -1748,8 +1805,12 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     }
     return certify_support || vote(failure);
   };
-  std::string last_rejection;
-  std::vector<RejectionDiagnostic> diagnostic_rejections;uint64_t diagnostic_sequence=0;
+  ContextValue last_rejection_lifetime(control.last_rejection);
+  auto& last_rejection = last_rejection_lifetime.Get();
+  ContextValue diagnostic_rejections_lifetime(control.diagnostic_rejections);
+  auto& diagnostic_rejections = diagnostic_rejections_lifetime.Get();
+  ContextValue diagnostic_sequence_lifetime(control.diagnostic_sequence, 0);
+  auto& diagnostic_sequence = diagnostic_sequence_lifetime.Get();
   constexpr size_t diagnostic_rejection_limit=64;
   if(options.stage_observer && options.stage_observer_bytes>=diagnostic_rejection_limit*sizeof(RejectionDiagnostic)+(size_t(64)<<10))
     diagnostic_rejections.reserve(diagnostic_rejection_limit);
@@ -1766,7 +1827,12 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     if(count<reason.size())while(count && (static_cast<unsigned char>(reason[count])&0xc0)==0x80)--count;
     std::copy_n(reason.data(),count,row.reason.data());row.reason_truncated=count<reason.size();
   };
-  uint64_t progress_at_window=0, attempted_at_window=0, deferred_at_window=0;
+  ContextValue progress_at_window_lifetime(control.progress_at_window, 0);
+  auto& progress_at_window = progress_at_window_lifetime.Get();
+  ContextValue attempted_at_window_lifetime(control.attempted_at_window, 0);
+  auto& attempted_at_window = attempted_at_window_lifetime.Get();
+  ContextValue deferred_at_window_lifetime(control.deferred_at_window, 0);
+  auto& deferred_at_window = deferred_at_window_lifetime.Get();
   auto height_check=[&](const Patch& patch,std::string& reason,bool provisional=false,FirstHeightReport* measured=nullptr) {
     if(options.wall_heights.empty())return true;
     ++stats.height_checks;FirstHeightReport report;
@@ -1830,10 +1896,19 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
       if(edge.second.length>metric.maximum_length){metric.maximum_length=edge.second.length;metric.longest_edge=edge.first;}
     }
   };
-  const bool observe_rejections=world.maximum(bool(options.rejected_trial) || bool(options.transaction_observer));
-  const bool observe_state=world.maximum(bool(options.rejected_state));
-  const bool observe_stage=world.maximum(bool(options.stage_observer));
-  bool stage_storage_admitted=false,stage_observer_failed=false,construction_entry_reported=false;
+  ContextValue observe_rejections_lifetime(
+      control.observe_rejections, world.maximum(bool(options.rejected_trial) || bool(options.transaction_observer)));
+  const auto& observe_rejections = observe_rejections_lifetime.Get();
+  ContextValue observe_state_lifetime(control.observe_state, world.maximum(bool(options.rejected_state)));
+  const auto& observe_state = observe_state_lifetime.Get();
+  ContextValue observe_stage_lifetime(control.observe_stage, world.maximum(bool(options.stage_observer)));
+  const auto& observe_stage = observe_stage_lifetime.Get();
+  ContextValue stage_storage_admitted_lifetime(control.stage_storage_admitted, false);
+  auto& stage_storage_admitted = stage_storage_admitted_lifetime.Get();
+  ContextValue stage_observer_failed_lifetime(control.stage_observer_failed, false);
+  auto& stage_observer_failed = stage_observer_failed_lifetime.Get();
+  ContextValue construction_entry_reported_lifetime(control.construction_entry_reported, false);
+  auto& construction_entry_reported = construction_entry_reported_lifetime.Get();
   auto generation_census=[&]() {
     const auto extra=transfer_memory::Mul(selection.edges.size(),sizeof(EdgeProgressSample)+sizeof(Selection::History)+sizeof(Edge)+4*sizeof(void*));
     if(!admit(extra))return false;
@@ -1967,10 +2042,22 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
         <<" maximum_relative_frobenius="<<maximum<<" owned_maximum_relative_frobenius="<<local_maximum
         <<" current_nodal_sensor=1 full_target="<<!bool(composition)<<'\n';
   };
-  QualityRepairStats previous_quality;StageProgress previous_quality_census;
-  double previous_quality_elapsed=0,previous_quality_collective=0;
-  uint64_t quality_census_serial=0,previous_quality_construction=0,previous_quality_ownership=0;
-  bool quality_census_started=false;
+  ContextValue previous_quality_lifetime(control.previous_quality);
+  auto& previous_quality = previous_quality_lifetime.Get();
+  ContextValue previous_quality_census_lifetime(control.previous_quality_census);
+  auto& previous_quality_census = previous_quality_census_lifetime.Get();
+  ContextValue previous_quality_elapsed_lifetime(control.previous_quality_elapsed, 0);
+  auto& previous_quality_elapsed = previous_quality_elapsed_lifetime.Get();
+  ContextValue previous_quality_collective_lifetime(control.previous_quality_collective, 0);
+  auto& previous_quality_collective = previous_quality_collective_lifetime.Get();
+  ContextValue quality_census_serial_lifetime(control.quality_census_serial, 0);
+  auto& quality_census_serial = quality_census_serial_lifetime.Get();
+  ContextValue previous_quality_construction_lifetime(control.previous_quality_construction, 0);
+  auto& previous_quality_construction = previous_quality_construction_lifetime.Get();
+  ContextValue previous_quality_ownership_lifetime(control.previous_quality_ownership, 0);
+  auto& previous_quality_ownership = previous_quality_ownership_lifetime.Get();
+  ContextValue quality_census_started_lifetime(control.quality_census_started, false);
+  auto& quality_census_started = quality_census_started_lifetime.Get();
   auto emit_quality_census=[&](const char* stage,const StageProgress& p) {
     const auto began=Clock::now();
     const double elapsed=std::chrono::duration<double>(began-started).count();
@@ -2229,8 +2316,16 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     }
     return true;
   };
-  bool transaction_captured=false;
-  bool layer_active=false,region_active=false;Clock::time_point layer_started,region_started;
+  ContextValue transaction_captured_lifetime(control.transaction_captured, false);
+  auto& transaction_captured = transaction_captured_lifetime.Get();
+  ContextValue layer_active_lifetime(control.layer_active, false);
+  auto& layer_active = layer_active_lifetime.Get();
+  ContextValue region_active_lifetime(control.region_active, false);
+  auto& region_active = region_active_lifetime.Get();
+  ContextValue layer_started_lifetime(control.layer_started);
+  auto& layer_started = layer_started_lifetime.Get();
+  ContextValue region_started_lifetime(control.region_started);
+  auto& region_started = region_started_lifetime.Get();
   auto finish=[&]() {
     // Directory stages can refuse shared work and return directly here without an engine vote.
     const auto prior_reason=result.reason;const auto prior_stop=stats.stop;
@@ -2377,7 +2472,8 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     stage_storage_admitted=admit(0);
     if(!stage_storage_admitted)return finish();
   }
-  bool ready=false;
+  ContextValue ready_lifetime(control.ready, false);
+  auto& ready = ready_lifetime.Get();
   Id maximum_node=0,maximum_cell=0;
   {
     Timer timer(stats.initialization_seconds,options.timings, SU2NativeTiming3D::Operation::Communication);

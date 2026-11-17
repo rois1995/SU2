@@ -1,9 +1,11 @@
 // Owns the original setup RAII in declaration order; never performs collectives or decisions.
 // Included privately after its dependencies in CNativeEngine3D.cpp.
 #pragma once
+#include "EngineContext.hpp"
 
 struct EngineSetup {
   RestoreAdmission admission;
+  EngineControlPrefix control_prefix;
   std::optional<SU2NativeTiming3D::Session> timer_session;
   std::optional<SU2NativeD9::Root> d9_profile;
   std::optional<wall_diagnostics::Counters> wall_counters;

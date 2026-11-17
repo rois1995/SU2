@@ -1,0 +1,11 @@
+{
+  "reversing_only_65_declaration_bindings_and_2_inclusions_exactly_reproduces_A2": true,
+  "prefix_fields": 15,
+  "post_geometry_fields": 50,
+  "lambda_and_all_other_statement_text_unchanged": true,
+  "source_sha256": "be5610dedb439863d93e7a176fc9085cc8d264199be404a8b30556a168f35766",
+  "raw_decltype_unchanged": "decltype(checkpoint.blocked)",
+  "return_semantics": "finish retains return std::move(result); no new copies",
+  "constants": "FixedMetricSamples16 and rejection_limit64 remain constexpr at old points",
+  "canonical_stats": "stats still aliases control.result.stats; Selection constructed afterwards"
+}
