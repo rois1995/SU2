@@ -1,0 +1,24 @@
+# B6 extraction design for the primary implementation
+
+Unapplied design, 2026-11-17. This supplies the mechanical partition of the existing `phase_ownership` lambda; it changes no policy. The prior agent delivered an exact source substrate but no working split. The primary must implement and review this whole item after B5 is accepted.
+
+Use tail helpers: each parent retains all earlier original locals and returns the result of its tail helper. Pass those locals by reference. Later helper locals then unwind before their parents, preserving the original destruction order. Keep the one `CLocalFailure` in the estimate parent through the complete migration transaction. Do not introduce a state aggregate, extra copies, allocations, geometry queries, votes, deadlines or timers.
+
+1. `PhaseOwnership`: retain the eligibility checks, `global_cells` and `transition_started`; tail-call `EstimateOwnership`.
+2. `EstimateOwnership`: retain `scratch`, complete vertex-star map, the shared failure, the original vectors and local demand scalars. Call the original cost-collection try/catch helper, then the original vote/deadline check. Normalize weights and evaluate migration benefit; a false eligibility result maps to the original successful early return. Otherwise tail-call migration with all original references alive.
+3. `FillOwnershipCosts`: retain reserves and the original loop/catch. A per-cell helper may replace its loop body; its untouched-volume `return` must reverse to the original `continue` in the proof.
+4. `AccumulateOwnershipCell`: retain per-cell demand, quality debt and edge calculations. The geometry-cost block can be a separate value helper: only a POD double is returned, with the same geometry queries and local length-array scope. No new snapshot or recomputation.
+5. `NormalizeWeights`: the original three maxima and weight loop, in order. Its maxima are POD values unused by later code.
+6. `ShouldMigrate`: the original demand reductions, clocks, cost/benefit computation, participation maximum and diagnostic row. On `!proceed`, make the original ownership-seconds update and return false; the parent returns true at precisely that branch.
+7. `MigrateOwnership`: retain before-report, pending cells/initial IDs/directory/Selection and their inherited settings, allocation try/vote, `PartitionStats`, baseline, deadline, repartition and its result checks. Tail-call certificate migration while these objects remain alive.
+8. `MigrateCertificates`: retain outgoing records, original vote, constant received records, pending bytes, admission, deadline, directory build and result checks. Tail-call restore with the same references.
+9. `RestoreOwnership`: retain the restoration try/catch/vote, staged-memory report and deadline/staged-observer short circuit. Tail-call finalization.
+10. `FinalizeOwnership`: retain directory retirement, swaps, fixed-metric reset, queue/history clearing, counts, elapsed time, committed row, memory report and final observer, in order.
+
+`WithinTime` is the exact original small deadline lambda moved to a member, with unchanged call count and short circuit placement. Every worker must be at most 80 formatted lines; split a remaining diagnostic stream only at an insertion boundary on the same stream, without a flush or new query.
+
+The current B5 draft's final observer signature is `EngineControl::ObserveProgress(EngineContext&, Owned&, AtlasBudget&, const char*)`. It no longer takes `curved`. B6's original lambda has no direct use of `curved`; therefore the final intended entry signature is `PhaseOwnership(EngineContext&, bool quality, AtlasBudget&)`, passing the original chosen atlas-budget reference. Do not reevaluate the shared/local budget choice to avoid this parameter. Rebind the B7 draft accordingly after B6 acceptance: phase/checkpoint methods that invoke the observer/ownership need this borrowed budget, not an invented callback or geometry predicate.
+
+Prove the actual final generated helpers, not a pre-render template: extract their bodies, strip only audited canonical aliases, recursively inline tail calls and explicitly invert the per-cell continue/return and eligibility-return routes. Compare with the actual removed lambda body. Reverse all main-call routing and restore the lambda to recover the entire accepted main file byte-for-byte. Preserve old Ownership constructors/destructor and optional-field declarations. Validate with build, ordered G1 cohorts and strict G2 once, then commit/push. End-B G3/G4/GQ remains required.
+
+Binding note from primary source read: `selection.cells` maps `Id` to `Selection::CellState`, not `CellDebt`. A per-cell geometry helper must borrow `const Selection::CellState&` for the row and `const Owned::value_type&` for the owned pair. Cached migration payloads are `Selection::CachedRow`. Derive each remaining signature from its actual declaration before generating code.

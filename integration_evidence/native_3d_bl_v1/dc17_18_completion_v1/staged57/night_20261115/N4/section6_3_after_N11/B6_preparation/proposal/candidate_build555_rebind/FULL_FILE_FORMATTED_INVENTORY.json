@@ -1,0 +1,1842 @@
+{
+  "tool": "clang-format-18",
+  "scope": "final generated files, full file, lexical function and lambda inventory; includes unchanged pre-existing code",
+  "limitations": "lexical scan can misclassify initializer syntax; inspect >80 entries manually",
+  "files": {
+    "CNativeEngine3D.cpp": [
+      {
+        "signature": "MakeAdaptationRequirements(const PlanarReference& geometry, bool composition, const EngineOptions& options)",
+        "line": 38,
+        "formatted_lines": 24,
+        "lambda": false
+      },
+      {
+        "signature": "PrintAdaptationRequirements(const AdaptationRequirements& r, int rank, std::ostream& out)",
+        "line": 63,
+        "formatted_lines": 31,
+        "lambda": false
+      },
+      {
+        "signature": "PrintWallLawCensus(const Owned& cells, const PlanarReference& geometry, double tau, int rank, const char* boundary, bool enabled)",
+        "line": 100,
+        "formatted_lines": 36,
+        "lambda": false
+      },
+      {
+        "signature": "WallGuidanceCause(bool complete, bool finite, bool needs_progress, bool progress)",
+        "line": 137,
+        "formatted_lines": 6,
+        "lambda": false
+      },
+      {
+        "signature": "D9QueryScope(SU2NativeD9::Site value, const PlanarReference* geometry) : site(value)",
+        "line": 152,
+        "formatted_lines": 8,
+        "lambda": false
+      },
+      {
+        "signature": "~D9QueryScope()",
+        "line": 160,
+        "formatted_lines": 18,
+        "lambda": false
+      },
+      {
+        "signature": "CollapseOutsideTolerance(const Patch& old, Id removed, Id retained, const PlanarReference& geometry, double tolerance)",
+        "line": 180,
+        "formatted_lines": 43,
+        "lambda": false
+      },
+      {
+        "signature": "[&](Id id, Point& value)",
+        "line": 195,
+        "formatted_lines": 14,
+        "lambda": true
+      },
+      {
+        "signature": "Timer(double& value, bool enabled, double* parent = nullptr, SU2NativeTiming3D::Operation operation = SU2NativeTiming3D::Operation::Unattributed) : value(value), enabled(enabled), ",
+        "line": 228,
+        "formatted_lines": 8,
+        "lambda": false
+      },
+      {
+        "signature": "Timer(double& value, bool enabled, SU2NativeTiming3D::Operation operation) : Timer(value, enabled, nullptr, operation)",
+        "line": 237,
+        "formatted_lines": 2,
+        "lambda": false
+      },
+      {
+        "signature": "~Timer()",
+        "line": 239,
+        "formatted_lines": 7,
+        "lambda": false
+      },
+      {
+        "signature": "TimedAllreduce(T value, CPassiveComm::Op operation, CPassiveComm::Communicator communicator)",
+        "line": 256,
+        "formatted_lines": 4,
+        "lambda": false
+      },
+      {
+        "signature": "CpuTimer(double& value, bool enabled) : value(value), enabled(enabled)",
+        "line": 263,
+        "formatted_lines": 3,
+        "lambda": false
+      },
+      {
+        "signature": "~CpuTimer()",
+        "line": 266,
+        "formatted_lines": 3,
+        "lambda": false
+      },
+      {
+        "signature": "MapBytes(const M& m)",
+        "line": 276,
+        "formatted_lines": 3,
+        "lambda": false
+      },
+      {
+        "signature": "Key(Face f)",
+        "line": 279,
+        "formatted_lines": 4,
+        "lambda": false
+      },
+      {
+        "signature": "Faces(const Cell& c)",
+        "line": 283,
+        "formatted_lines": 7,
+        "lambda": false
+      },
+      {
+        "signature": "RetainPhysicalCoverage(Patch& patch)",
+        "line": 291,
+        "formatted_lines": 23,
+        "lambda": false
+      },
+      {
+        "signature": "GeometryPatch(const Imported& imported, const PlanarReference* geometry = nullptr)",
+        "line": 314,
+        "formatted_lines": 11,
+        "lambda": false
+      },
+      {
+        "signature": "Same(Point a, Point b)",
+        "line": 325,
+        "formatted_lines": 1,
+        "lambda": false
+      },
+      {
+        "signature": "ProofStorage(SU2NativeGeometry::AtlasBudget& value, size_t extra) : budget(value), caller(value.caller_bytes)",
+        "line": 330,
+        "formatted_lines": 7,
+        "lambda": false
+      },
+      {
+        "signature": "~ProofStorage()",
+        "line": 337,
+        "formatted_lines": 1,
+        "lambda": false
+      },
+      {
+        "signature": "ProveOwnedSurface(World& world, const Owned& working, const PlanarReference& geometry, SU2NativeGeometry::AtlasBudget& budget, EngineStats& stats)",
+        "line": 340,
+        "formatted_lines": 31,
+        "lambda": false
+      },
+      {
+        "signature": "ReportOwnershipMemory(const World& world, const char* boundary, size_t pending = 0, size_t outgoing = 0, size_t records = 0)",
+        "line": 372,
+        "formatted_lines": 8,
+        "lambda": false
+      },
+      {
+        "signature": "DonorCap(const std::string& reason)",
+        "line": 380,
+        "formatted_lines": 4,
+        "lambda": false
+      },
+      {
+        "signature": "HeightScore(const Patch& patch, const WallHeights& heights, const PlanarReference& geometry)",
+        "line": 385,
+        "formatted_lines": 10,
+        "lambda": false
+      },
+      {
+        "signature": "SameSkin(const Patch& old, const Patch& fresh)",
+        "line": 396,
+        "formatted_lines": 13,
+        "lambda": false
+      },
+      {
+        "signature": "Fields(S& s)",
+        "line": 431,
+        "formatted_lines": 3,
+        "lambda": false
+      },
+      {
+        "signature": "Fields(S& s)",
+        "line": 441,
+        "formatted_lines": 3,
+        "lambda": false
+      },
+      {
+        "signature": "AccountQualityChurn(const Patch& old, const Patch& fresh, const std::vector<CellQualityFlag>& before, const std::vector<CellQualityFlag>& after, QualityRepairStats& stats)",
+        "line": 445,
+        "formatted_lines": 56,
+        "lambda": false
+      },
+      {
+        "signature": "[](const Cell& cell)",
+        "line": 452,
+        "formatted_lines": 6,
+        "lambda": true
+      },
+      {
+        "signature": "Fields(S& s)",
+        "line": 511,
+        "formatted_lines": 3,
+        "lambda": false
+      },
+      {
+        "signature": "Fields(S& s)",
+        "line": 520,
+        "formatted_lines": 3,
+        "lambda": false
+      },
+      {
+        "signature": "CachedScalar(S& s, long double& value)",
+        "line": 525,
+        "formatted_lines": 10,
+        "lambda": false
+      },
+      {
+        "signature": "Selection(bool coarsening, bool repairing, const PlanarReference& geometry, EngineStats& stats, bool timings, double tolerance, const WallHeights& heights, bool quality_only, bool ",
+        "line": 540,
+        "formatted_lines": 14,
+        "lambda": false
+      },
+      {
+        "signature": "GeometryPriority(long double raw, Edge edge) const",
+        "line": 567,
+        "formatted_lines": 5,
+        "lambda": false
+      },
+      {
+        "signature": "GeometryPriorityBytes() const",
+        "line": 572,
+        "formatted_lines": 3,
+        "lambda": false
+      },
+      {
+        "signature": "PrioritizeGeometrySplits(Clock::time_point started, double maximum_seconds)",
+        "line": 575,
+        "formatted_lines": 28,
+        "lambda": false
+      },
+      {
+        "signature": "Note(Edge edge, unsigned disposition)",
+        "line": 612,
+        "formatted_lines": 8,
+        "lambda": false
+      },
+      {
+        "signature": "RefreshHistory(bool generation)",
+        "line": 620,
+        "formatted_lines": 14,
+        "lambda": false
+      },
+      {
+        "signature": "Priority(long double length) const",
+        "line": 634,
+        "formatted_lines": 1,
+        "lambda": false
+      },
+      {
+        "signature": "Candidate(long double length) const",
+        "line": 635,
+        "formatted_lines": 3,
+        "lambda": false
+      },
+      {
+        "signature": "Queue(Edge edge, long double length, bool insert)",
+        "line": 638,
+        "formatted_lines": 26,
+        "lambda": false
+      },
+      {
+        "signature": "Fields(S& s)",
+        "line": 676,
+        "formatted_lines": 9,
+        "lambda": false
+      },
+      {
+        "signature": "Fields(S& s)",
+        "line": 702,
+        "formatted_lines": 6,
+        "lambda": false
+      },
+      {
+        "signature": "Fields(S& s)",
+        "line": 716,
+        "formatted_lines": 5,
+        "lambda": false
+      },
+      {
+        "signature": "Bytes() const",
+        "line": 740,
+        "formatted_lines": 9,
+        "lambda": false
+      },
+      {
+        "signature": "RepairWeight(const CellState& row) const",
+        "line": 749,
+        "formatted_lines": 19,
+        "lambda": false
+      },
+      {
+        "signature": "AddRepairSeverity(const RepairFeature& key, long double value)",
+        "line": 768,
+        "formatted_lines": 9,
+        "lambda": false
+      },
+      {
+        "signature": "RemoveRepairSeverity(const RepairFeature& key, long double value)",
+        "line": 777,
+        "formatted_lines": 7,
+        "lambda": false
+      },
+      {
+        "signature": "UpdateRepairWeight(Id id, const CellState& row)",
+        "line": 784,
+        "formatted_lines": 9,
+        "lambda": false
+      },
+      {
+        "signature": "Account(const CellState& row, bool add)",
+        "line": 793,
+        "formatted_lines": 26,
+        "lambda": false
+      },
+      {
+        "signature": "[&](size_t& total, size_t value)",
+        "line": 794,
+        "formatted_lines": 6,
+        "lambda": true
+      },
+      {
+        "signature": "RequestedWall(const OwnedCell& owned) const",
+        "line": 819,
+        "formatted_lines": 5,
+        "lambda": false
+      },
+      {
+        "signature": "std::any_of(owned.physical.begin(), owned.physical.end(), [&](const FacetBinding& f)",
+        "line": 821,
+        "formatted_lines": 2,
+        "lambda": false
+      },
+      {
+        "signature": "SurfaceCensus(const Owned& owned) const",
+        "line": 825,
+        "formatted_lines": 13,
+        "lambda": false
+      },
+      {
+        "signature": "Progress(size_t owned) const",
+        "line": 838,
+        "formatted_lines": 30,
+        "lambda": false
+      },
+      {
+        "signature": "Diagnose(const OwnedCell& owned, CellDiagnostic& out) const",
+        "line": 868,
+        "formatted_lines": 39,
+        "lambda": false
+      },
+      {
+        "signature": "Best(bool repairing) const",
+        "line": 907,
+        "formatted_lines": 29,
+        "lambda": false
+      },
+      {
+        "signature": "RepairBatch(const Owned& working, size_t limit, bool& oversized) const",
+        "line": 936,
+        "formatted_lines": 80,
+        "lambda": false
+      },
+      {
+        "signature": "[&](const RepairFeature& key, std::vector<Id>& ids, std::set<Id>& vertices, bool& too_large)",
+        "line": 940,
+        "formatted_lines": 32,
+        "lambda": true
+      },
+      {
+        "signature": "std::any_of(cell.v.begin(), cell.v.end(), [&](Node node)",
+        "line": 962,
+        "formatted_lines": 1,
+        "lambda": false
+      },
+      {
+        "signature": "[&](const RepairFeature& key, uint64_t epoch, bool fair)",
+        "line": 972,
+        "formatted_lines": 9,
+        "lambda": true
+      },
+      {
+        "signature": "Batch(const Owned& working, size_t limit)",
+        "line": 1016,
+        "formatted_lines": 44,
+        "lambda": false
+      },
+      {
+        "signature": "Cached(const Cell& cell, std::map<Edge, EdgeMeasure>& values) const",
+        "line": 1060,
+        "formatted_lines": 8,
+        "lambda": false
+      },
+      {
+        "signature": "Block(Edge edge, Feature feature, bool repairing)",
+        "line": 1068,
+        "formatted_lines": 22,
+        "lambda": false
+      },
+      {
+        "signature": "Forget(Edge edge)",
+        "line": 1090,
+        "formatted_lines": 6,
+        "lambda": false
+      },
+      {
+        "signature": "TouchRepairSupport(const std::array<Id, 4>& vertices)",
+        "line": 1096,
+        "formatted_lines": 15,
+        "lambda": false
+      },
+      {
+        "signature": "Touch(Id vertex)",
+        "line": 1111,
+        "formatted_lines": 34,
+        "lambda": false
+      },
+      {
+        "signature": "FilterCollapse(const Choice& choice, const Owned& working)",
+        "line": 1145,
+        "formatted_lines": 50,
+        "lambda": false
+      },
+      {
+        "signature": "Drop(Id id)",
+        "line": 1195,
+        "formatted_lines": 33,
+        "lambda": false
+      },
+      {
+        "signature": "RemoveRepairs(Id id)",
+        "line": 1228,
+        "formatted_lines": 17,
+        "lambda": false
+      },
+      {
+        "signature": "UpdateRepairs(const Cell& cell, const CellState& row)",
+        "line": 1245,
+        "formatted_lines": 11,
+        "lambda": false
+      },
+      {
+        "signature": "ChangePhase(bool improvement, const Owned& working, const std::shared_ptr<const FrozenMetricIdentity>& identity)",
+        "line": 1256,
+        "formatted_lines": 54,
+        "lambda": false
+      },
+      {
+        "signature": "EnableSizeRepairs(const Owned& working)",
+        "line": 1310,
+        "formatted_lines": 8,
+        "lambda": false
+      },
+      {
+        "signature": "EnableGeometryRepairs(const Owned& working)",
+        "line": 1318,
+        "formatted_lines": 9,
+        "lambda": false
+      },
+      {
+        "signature": "ClassifyFeatures(const Cell& cell, CellState& row) const",
+        "line": 1327,
+        "formatted_lines": 14,
+        "lambda": false
+      },
+      {
+        "signature": "RefreshQuality(const OwnedCell& owned, const PatchMetric& metric, bool valid, bool quality_valid, const FirstHeightReport* height, bool height_valid, const std::shared_ptr<const Fr",
+        "line": 1341,
+        "formatted_lines": 64,
+        "lambda": false
+      },
+      {
+        "signature": "[](long double x)",
+        "line": 1363,
+        "formatted_lines": 1,
+        "lambda": true
+      },
+      {
+        "signature": "EnableCollapseFilter()",
+        "line": 1405,
+        "formatted_lines": 4,
+        "lambda": false
+      },
+      {
+        "signature": "LeavesFacet(const OwnedCell& owned, Id removed, Point retained)",
+        "line": 1409,
+        "formatted_lines": 10,
+        "lambda": false
+      },
+      {
+        "signature": "Forbidden(const OwnedCell& owned, Edge edge)",
+        "line": 1419,
+        "formatted_lines": 13,
+        "lambda": false
+      },
+      {
+        "signature": "Add(const OwnedCell& owned, const PatchMetric& metric, bool valid, bool quality_valid, const std::string& reason, const FirstHeightReport* height = nullptr, bool height_valid = tru",
+        "line": 1432,
+        "formatted_lines": 169,
+        "lambda": false
+      },
+      {
+        "signature": "std::any_of(owned.physical.begin(), owned.physical.end(), [](const FacetBinding& face)",
+        "line": 1443,
+        "formatted_lines": 2,
+        "lambda": false
+      },
+      {
+        "signature": "[](long double value)",
+        "line": 1448,
+        "formatted_lines": 1,
+        "lambda": true
+      },
+      {
+        "signature": "AddRepairs(const Cell& cell, bool length_only = false)",
+        "line": 1601,
+        "formatted_lines": 20,
+        "lambda": false
+      },
+      {
+        "signature": "Service(Feature feature, bool accepted)",
+        "line": 1621,
+        "formatted_lines": 14,
+        "lambda": false
+      },
+      {
+        "signature": "FinishRepairs()",
+        "line": 1635,
+        "formatted_lines": 12,
+        "lambda": false
+      },
+      {
+        "signature": "HasCoarseningDemand() const",
+        "line": 1647,
+        "formatted_lines": 11,
+        "lambda": false
+      },
+      {
+        "signature": "SeedFrontier(const Owned& working)",
+        "line": 1658,
+        "formatted_lines": 13,
+        "lambda": false
+      },
+      {
+        "signature": "ServiceEdge(Edge edge)",
+        "line": 1671,
+        "formatted_lines": 19,
+        "lambda": false
+      },
+      {
+        "signature": "ServiceClaimedVertex(Id vertex)",
+        "line": 1690,
+        "formatted_lines": 26,
+        "lambda": false
+      },
+      {
+        "signature": "Restore(const OwnedCell& owned, const CachedRow& record, const std::shared_ptr<const FrozenMetricIdentity>& identity)",
+        "line": 1716,
+        "formatted_lines": 40,
+        "lambda": false
+      },
+      {
+        "signature": "RepairKeys(const CellState& row)",
+        "line": 1756,
+        "formatted_lines": 14,
+        "lambda": false
+      },
+      {
+        "signature": "SaveRepairState(CachedRow& record) const",
+        "line": 1770,
+        "formatted_lines": 16,
+        "lambda": false
+      },
+      {
+        "signature": "RestoreRepairState(const std::vector<CachedRow>& records)",
+        "line": 1786,
+        "formatted_lines": 44,
+        "lambda": false
+      },
+      {
+        "signature": "SwapState(Selection& other) noexcept",
+        "line": 1830,
+        "formatted_lines": 30,
+        "lambda": false
+      },
+      {
+        "signature": "Reset(bool improvement)",
+        "line": 1860,
+        "formatted_lines": 25,
+        "lambda": false
+      },
+      {
+        "signature": "Fields(S& s)",
+        "line": 1890,
+        "formatted_lines": 3,
+        "lambda": false
+      },
+      {
+        "signature": "FieldCounts(EngineStats& stats, const FrozenField& field)",
+        "line": 1894,
+        "formatted_lines": 27,
+        "lambda": false
+      },
+      {
+        "signature": "~FieldAccounting()",
+        "line": 1925,
+        "formatted_lines": 1,
+        "lambda": false
+      },
+      {
+        "signature": "Fields(S& s)",
+        "line": 1931,
+        "formatted_lines": 3,
+        "lambda": false
+      },
+      {
+        "signature": "OptimizedRepairPatch(const Patch& old, Id first, Id first_node, const RegionMetric& target, Patch& fresh, std::string& reason, size_t& work, bool preserve_vertices, const PlanarRef",
+        "line": 1950,
+        "formatted_lines": 108,
+        "lambda": false
+      },
+      {
+        "signature": "~RestoreAdmission()",
+        "line": 2060,
+        "formatted_lines": 1,
+        "lambda": false
+      },
+      {
+        "signature": "~RestoreBudgetWindow()",
+        "line": 2065,
+        "formatted_lines": 8,
+        "lambda": false
+      },
+      {
+        "signature": "Bytes() const",
+        "line": 2087,
+        "formatted_lines": 6,
+        "lambda": false
+      },
+      {
+        "signature": "WallLinkLocal(const Patch& old, const BoundaryParameterState* parameters, const Selection& selection, const Owned& working)",
+        "line": 2127,
+        "formatted_lines": 23,
+        "lambda": false
+      },
+      {
+        "signature": "[started, maximum = options.maximum_seconds]",
+        "line": 2207,
+        "formatted_lines": 3,
+        "lambda": true
+      },
+      {
+        "signature": "[&](const OwnedCell& row)",
+        "line": 2640,
+        "formatted_lines": 6,
+        "lambda": true
+      },
+      {
+        "signature": "std::sort(rows.begin(), rows.end(), [](const OwnedCell& a, const OwnedCell& b)",
+        "line": 2770,
+        "formatted_lines": 2,
+        "lambda": false
+      },
+      {
+        "signature": "[&]()",
+        "line": 2796,
+        "formatted_lines": 5,
+        "lambda": true
+      },
+      {
+        "signature": "service( world, source.Bootstrap(), geometry, composition, options.edge_breakpoints, options.timings, options.memory_ceiling, transfer_memory::Add(context.exchange.Bytes(context), ",
+        "line": 2801,
+        "formatted_lines": 5,
+        "lambda": false
+      },
+      {
+        "signature": "Run( [&](const RegionMetric& target)",
+        "line": 2807,
+        "formatted_lines": 102,
+        "lambda": false
+      },
+      {
+        "signature": "std::sort(skin.begin(), skin.end(), [](const Facet& a, const Facet& b)",
+        "line": 2837,
+        "formatted_lines": 3,
+        "lambda": false
+      },
+      {
+        "signature": "[&]()",
+        "line": 2863,
+        "formatted_lines": 5,
+        "lambda": true
+      },
+      {
+        "signature": "[&](const OwnedCell& row)",
+        "line": 3020,
+        "formatted_lines": 8,
+        "lambda": true
+      },
+      {
+        "signature": "[&]()",
+        "line": 3043,
+        "formatted_lines": 9,
+        "lambda": true
+      },
+      {
+        "signature": "[&]()",
+        "line": 3058,
+        "formatted_lines": 61,
+        "lambda": true
+      },
+      {
+        "signature": "[&](const auto& item)",
+        "line": 3129,
+        "formatted_lines": 6,
+        "lambda": true
+      },
+      {
+        "signature": "[&]()",
+        "line": 3140,
+        "formatted_lines": 175,
+        "lambda": true
+      },
+      {
+        "signature": "[&]()",
+        "line": 3190,
+        "formatted_lines": 4,
+        "lambda": true
+      },
+      {
+        "signature": "[&]()",
+        "line": 3316,
+        "formatted_lines": 87,
+        "lambda": true
+      },
+      {
+        "signature": "[&](bool collapse)",
+        "line": 3429,
+        "formatted_lines": 30,
+        "lambda": true
+      },
+      {
+        "signature": "[&]()",
+        "line": 3459,
+        "formatted_lines": 4,
+        "lambda": true
+      },
+      {
+        "signature": "[&](Phase next, bool refine_geometry = false)",
+        "line": 3463,
+        "formatted_lines": 101,
+        "lambda": true
+      },
+      {
+        "signature": "[&]()",
+        "line": 3564,
+        "formatted_lines": 12,
+        "lambda": true
+      },
+      {
+        "signature": "[&]()",
+        "line": 3576,
+        "formatted_lines": 41,
+        "lambda": true
+      },
+      {
+        "signature": "[&]()",
+        "line": 3617,
+        "formatted_lines": 53,
+        "lambda": true
+      },
+      {
+        "signature": "[&]()",
+        "line": 3735,
+        "formatted_lines": 18,
+        "lambda": true
+      },
+      {
+        "signature": "[](double old, double now)",
+        "line": 3977,
+        "formatted_lines": 1,
+        "lambda": true
+      },
+      {
+        "signature": "[&](const Choice& candidate, const Feature& feature, const std::string& why)",
+        "line": 4249,
+        "formatted_lines": 18,
+        "lambda": true
+      },
+      {
+        "signature": "[&]()",
+        "line": 4268,
+        "formatted_lines": 57,
+        "lambda": true
+      },
+      {
+        "signature": "std::count_if(row.physical.begin(), row.physical.end(), [](const auto& f)",
+        "line": 4463,
+        "formatted_lines": 1,
+        "lambda": false
+      },
+      {
+        "signature": "[&](const Imported& rows, bool active, std::string& why, size_t ceiling, size_t caller, unsigned priority)",
+        "line": 4685,
+        "formatted_lines": 7,
+        "lambda": true
+      },
+      {
+        "signature": "[&](int value)",
+        "line": 4817,
+        "formatted_lines": 1,
+        "lambda": true
+      },
+      {
+        "signature": "[&](auto value, CPassiveComm::Op op)",
+        "line": 4818,
+        "formatted_lines": 3,
+        "lambda": true
+      },
+      {
+        "signature": "[&](const std::vector<Cell>& cells, size_t ceiling, size_t caller)",
+        "line": 4821,
+        "formatted_lines": 4,
+        "lambda": true
+      },
+      {
+        "signature": "[&](const std::vector<Cell>& cells, const std::vector<Id>& extensions, size_t ceiling, size_t caller, const std::vector<unsigned char>& requests, bool shape)",
+        "line": 4825,
+        "formatted_lines": 6,
+        "lambda": true
+      },
+      {
+        "signature": "[&](const std::vector<Point>& points, const std::vector<Id>& extensions, size_t ceiling, size_t caller)",
+        "line": 4831,
+        "formatted_lines": 5,
+        "lambda": true
+      },
+      {
+        "signature": "[&](const std::vector<std::array<Point, 2>>& points, const std::vector<Id>& extensions, size_t ceiling, size_t caller)",
+        "line": 4836,
+        "formatted_lines": 5,
+        "lambda": true
+      },
+      {
+        "signature": "[&](unsigned kind, bool valid, Clock::time_point began, uint64_t geometry_before, uint64_t height_before, size_t work = 0)",
+        "line": 4915,
+        "formatted_lines": 21,
+        "lambda": true
+      },
+      {
+        "signature": "[&](const char* stage, bool passed, const DonorPatch* donors = nullptr)",
+        "line": 4939,
+        "formatted_lines": 7,
+        "lambda": true
+      },
+      {
+        "signature": "~CavityScope()",
+        "line": 4953,
+        "formatted_lines": 1,
+        "lambda": false
+      },
+      {
+        "signature": "physical_edge_lifetime( slot_state.physical_edge, chosen && std::any_of(imported.cells.begin(), imported.cells.end(), [&](const OwnedCell& c)",
+        "line": 4955,
+        "formatted_lines": 11,
+        "lambda": false
+      },
+      {
+        "signature": "[&]()",
+        "line": 4967,
+        "formatted_lines": 44,
+        "lambda": true
+      },
+      {
+        "signature": "[&]() -> bool",
+        "line": 5011,
+        "formatted_lines": 2432,
+        "lambda": true
+      },
+      {
+        "signature": "[&](bool valid, const char* operation = , wall_diagnostics::GuardOrigin origin = wall_diagnostics::GuardOrigin::Operator)",
+        "line": 5024,
+        "formatted_lines": 13,
+        "lambda": true
+      },
+      {
+        "signature": "[&]()",
+        "line": 5037,
+        "formatted_lines": 10,
+        "lambda": true
+      },
+      {
+        "signature": "[&](bool candidate, MetricChange kind)",
+        "line": 5047,
+        "formatted_lines": 68,
+        "lambda": true
+      },
+      {
+        "signature": "[&](MetricChange kind, FrozenField& target, PatchMetric& metric, const std::map<Edge, EdgeMeasure>& reuse)",
+        "line": 5121,
+        "formatted_lines": 19,
+        "lambda": true
+      },
+      {
+        "signature": "std::any_of(g.v.begin(), g.v.end(), [&](Node n)",
+        "line": 5162,
+        "formatted_lines": 3,
+        "lambda": false
+      },
+      {
+        "signature": "[&](long double length)",
+        "line": 5172,
+        "formatted_lines": 10,
+        "lambda": true
+      },
+      {
+        "signature": "[&](bool eligible)",
+        "line": 5312,
+        "formatted_lines": 11,
+        "lambda": true
+      },
+      {
+        "signature": "[&]()",
+        "line": 5323,
+        "formatted_lines": 8,
+        "lambda": true
+      },
+      {
+        "signature": "[&](const Patch& candidate, const RegionMetric& target, bool preserve_vertices)",
+        "line": 5336,
+        "formatted_lines": 50,
+        "lambda": true
+      },
+      {
+        "signature": "[&](bool move, Id vertex)",
+        "line": 5405,
+        "formatted_lines": 99,
+        "lambda": true
+      },
+      {
+        "signature": "[&](const std::vector<Cell>& cells, PatchMetric& measured, bool shape, const std::map<Edge, EdgeMeasure>& frozen_reuse, const Patch* surface_context = nullptr)",
+        "line": 5526,
+        "formatted_lines": 140,
+        "lambda": true
+      },
+      {
+        "signature": "[&]()",
+        "line": 5689,
+        "formatted_lines": 11,
+        "lambda": true
+      },
+      {
+        "signature": "[&](bool candidate, MetricChange kind, bool no_new_oversized = false, bool strict_size = false, size_t relocated = 0, wall_diagnostics::PatchSource source = wall_diagnostics::Patch",
+        "line": 5700,
+        "formatted_lines": 95,
+        "lambda": true
+      },
+      {
+        "signature": "[](Point a, Point b)",
+        "line": 5738,
+        "formatted_lines": 1,
+        "lambda": true
+      },
+      {
+        "signature": "std::any_of(old.surface.begin(), old.surface.end(), [&](const auto& f)",
+        "line": 5819,
+        "formatted_lines": 4,
+        "lambda": false
+      },
+      {
+        "signature": "[&](bool search, const std::vector<Id>& apices, Id height_apex = UINT64_MAX)",
+        "line": 5857,
+        "formatted_lines": 182,
+        "lambda": true
+      },
+      {
+        "signature": "std::find_if(joined.cells.begin(), joined.cells.end(), [&](const auto& d)",
+        "line": 5915,
+        "formatted_lines": 2,
+        "lambda": false
+      },
+      {
+        "signature": "std::max_element(interior.begin(), interior.end(), [](const auto& a, const auto& b)",
+        "line": 6085,
+        "formatted_lines": 2,
+        "lambda": false
+      },
+      {
+        "signature": "std::find_if(joined.cells.begin(), joined.cells.end(), [&](const auto& dep)",
+        "line": 6132,
+        "formatted_lines": 2,
+        "lambda": false
+      },
+      {
+        "signature": "std::find_if(movers.begin(), movers.end(), [&](Id id)",
+        "line": 6359,
+        "formatted_lines": 5,
+        "lambda": false
+      },
+      {
+        "signature": "std::any_of(seed.surface.begin(), seed.surface.end(), [&](const auto& f)",
+        "line": 6360,
+        "formatted_lines": 3,
+        "lambda": false
+      },
+      {
+        "signature": "erase(std::remove_if(frame.cells.begin(), frame.cells.end(), [&](const auto& c)",
+        "line": 6368,
+        "formatted_lines": 5,
+        "lambda": false
+      },
+      {
+        "signature": "std::any_of(seed.cells.begin(), seed.cells.end(), [&](const auto& d)",
+        "line": 6370,
+        "formatted_lines": 2,
+        "lambda": false
+      },
+      {
+        "signature": "std::none_of(old.surface.begin(), old.surface.end(), [&](const auto& f)",
+        "line": 6443,
+        "formatted_lines": 3,
+        "lambda": false
+      },
+      {
+        "signature": "erase(std::remove_if(moves.begin(), moves.end(), [&](const auto& move)",
+        "line": 6465,
+        "formatted_lines": 9,
+        "lambda": false
+      },
+      {
+        "signature": "erase(std::remove_if(fresh.cells.begin(), fresh.cells.end(), [&](const auto& c)",
+        "line": 6499,
+        "formatted_lines": 6,
+        "lambda": false
+      },
+      {
+        "signature": "std::any_of( star.cells.begin(), star.cells.end(), [&](const auto& d)",
+        "line": 6501,
+        "formatted_lines": 3,
+        "lambda": false
+      },
+      {
+        "signature": "[&](const Imported& star, Id vertex)",
+        "line": 6535,
+        "formatted_lines": 11,
+        "lambda": true
+      },
+      {
+        "signature": "[&](const std::vector<Id>& movers)",
+        "line": 6593,
+        "formatted_lines": 12,
+        "lambda": true
+      },
+      {
+        "signature": "std::any_of(old.surface.begin(), old.surface.end(), [&](const auto& f)",
+        "line": 6738,
+        "formatted_lines": 3,
+        "lambda": false
+      },
+      {
+        "signature": "[&]",
+        "line": 6747,
+        "formatted_lines": 6,
+        "lambda": true
+      },
+      {
+        "signature": "[&]",
+        "line": 6757,
+        "formatted_lines": 7,
+        "lambda": true
+      },
+      {
+        "signature": "[&]",
+        "line": 6768,
+        "formatted_lines": 7,
+        "lambda": true
+      },
+      {
+        "signature": "[&](bool available, wall_diagnostics::PatchSource source = wall_diagnostics::PatchSource::Unreported)",
+        "line": 6788,
+        "formatted_lines": 10,
+        "lambda": true
+      },
+      {
+        "signature": "std::find_if(faces.begin(), faces.end(), [&](Face f)",
+        "line": 6944,
+        "formatted_lines": 1,
+        "lambda": false
+      },
+      {
+        "signature": "std::find_if(joined.begin(), joined.end(), [&](const auto& d)",
+        "line": 7018,
+        "formatted_lines": 1,
+        "lambda": false
+      },
+      {
+        "signature": "[&]()",
+        "line": 7161,
+        "formatted_lines": 55,
+        "lambda": true
+      },
+      {
+        "signature": "[&](const Patch& patch, std::set<Edge>* failed_edges = nullptr)",
+        "line": 7304,
+        "formatted_lines": 37,
+        "lambda": true
+      },
+      {
+        "signature": "[&]()",
+        "line": 7457,
+        "formatted_lines": 9,
+        "lambda": true
+      },
+      {
+        "signature": "std::find_if(imported.cells.begin(), imported.cells.end(), [&](const auto& c)",
+        "line": 7588,
+        "formatted_lines": 2,
+        "lambda": false
+      },
+      {
+        "signature": "[&]()",
+        "line": 7925,
+        "formatted_lines": 4,
+        "lambda": true
+      },
+      {
+        "signature": "std::find_if(proposal.imported.cells.begin(), proposal.imported.cells.end(), [&](const OwnedCell& c)",
+        "line": 7959,
+        "formatted_lines": 2,
+        "lambda": false
+      },
+      {
+        "signature": "CollapseConstraintViolation(const OwnedCell& cell, Id removed, Node retained, const PlanarReference& geometry, double tolerance, const WallHeights& heights)",
+        "line": 8333,
+        "formatted_lines": 47,
+        "lambda": false
+      },
+      {
+        "signature": "PrepareSurface(World& world, const Owned& accepted, const std::vector<DonorCell>& original, const PlanarReference& geometry, BoundaryMetric target, EngineOptions options)",
+        "line": 8380,
+        "formatted_lines": 16,
+        "lambda": false
+      },
+      {
+        "signature": "AdaptMetric(World& world, const Owned& accepted, const std::vector<DonorCell>& original, const PlanarReference& geometry, MetricComposition composition, EngineOptions options)",
+        "line": 8396,
+        "formatted_lines": 4,
+        "lambda": false
+      },
+      {
+        "signature": "Refine(World& world, const Owned& accepted, const std::vector<DonorCell>& original, const PlanarReference& geometry, MetricComposition composition, EngineOptions options)",
+        "line": 8400,
+        "formatted_lines": 4,
+        "lambda": false
+      },
+      {
+        "signature": "Coarsen(World& world, const Owned& accepted, const std::vector<DonorCell>& original, const PlanarReference& geometry, MetricComposition composition, EngineOptions options)",
+        "line": 8404,
+        "formatted_lines": 4,
+        "lambda": false
+      },
+      {
+        "signature": "Repair(World& world, const Owned& accepted, const std::vector<DonorCell>& original, const PlanarReference& geometry, MetricComposition composition, EngineOptions options)",
+        "line": 8408,
+        "formatted_lines": 4,
+        "lambda": false
+      },
+      {
+        "signature": "operator()(const std::array<double, 3>& k) const",
+        "line": 8416,
+        "formatted_lines": 9,
+        "lambda": false
+      },
+      {
+        "signature": "OppositeFaces(const Cell& c)",
+        "line": 8426,
+        "formatted_lines": 7,
+        "lambda": false
+      },
+      {
+        "signature": "CellHas(const Cell& c, Id v)",
+        "line": 8433,
+        "formatted_lines": 5,
+        "lambda": false
+      },
+      {
+        "signature": "Score() const",
+        "line": 8440,
+        "formatted_lines": 1,
+        "lambda": false
+      },
+      {
+        "signature": "Valid() const",
+        "line": 8441,
+        "formatted_lines": 1,
+        "lambda": false
+      },
+      {
+        "signature": "FactorOf(const Tensor& m)",
+        "line": 8449,
+        "formatted_lines": 16,
+        "lambda": false
+      },
+      {
+        "signature": "FastScore(const std::array<Point, 4>& p, const Factor3& f, bool debt = false)",
+        "line": 8467,
+        "formatted_lines": 35,
+        "lambda": false
+      },
+      {
+        "signature": "[&](unsigned i, unsigned j, unsigned c)",
+        "line": 8475,
+        "formatted_lines": 1,
+        "lambda": true
+      },
+      {
+        "signature": "CavityBoundary(const std::vector<Cell>& cells)",
+        "line": 8503,
+        "formatted_lines": 15,
+        "lambda": false
+      },
+      {
+        "signature": "PlaceCone(const std::vector<Face>& faces, const std::function<Point(Id)>& point, const std::function<Tensor(Point)>& at, Point start, const std::function<bool(Point)>& admissible, ",
+        "line": 8528,
+        "formatted_lines": 93,
+        "lambda": false
+      },
+      {
+        "signature": "[&](Point x) -> double",
+        "line": 8568,
+        "formatted_lines": 10,
+        "lambda": true
+      },
+      {
+        "signature": "[&](double e0, double e1, double e2) -> Point",
+        "line": 8581,
+        "formatted_lines": 4,
+        "lambda": true
+      },
+      {
+        "signature": "MeshOptimizer(Owned& mesh, const RegionMetric& target, Id& next_node, Id& next_cell, const OptimizeOptions& options, OptimizeReport& report) : mesh(mesh), target(target), next_node",
+        "line": 8623,
+        "formatted_lines": 9,
+        "lambda": false
+      },
+      {
+        "signature": "Limited()",
+        "line": 8660,
+        "formatted_lines": 8,
+        "lambda": false
+      },
+      {
+        "signature": "Bound()",
+        "line": 8668,
+        "formatted_lines": 6,
+        "lambda": false
+      },
+      {
+        "signature": "Index()",
+        "line": 8674,
+        "formatted_lines": 23,
+        "lambda": false
+      },
+      {
+        "signature": "At(Point p)",
+        "line": 8697,
+        "formatted_lines": 10,
+        "lambda": false
+      },
+      {
+        "signature": "Quality(const Cell& c, bool memo = true)",
+        "line": 8708,
+        "formatted_lines": 21,
+        "lambda": false
+      },
+      {
+        "signature": "Score(const Cell& c)",
+        "line": 8729,
+        "formatted_lines": 1,
+        "lambda": false
+      },
+      {
+        "signature": "GeometryPatch(const std::vector<Cell>& cells) const",
+        "line": 8731,
+        "formatted_lines": 17,
+        "lambda": false
+      },
+      {
+        "signature": "Height(const Patch& patch) const",
+        "line": 8748,
+        "formatted_lines": 6,
+        "lambda": false
+      },
+      {
+        "signature": "RowQuality(Id id, const Cell& c)",
+        "line": 8754,
+        "formatted_lines": 5,
+        "lambda": false
+      },
+      {
+        "signature": "RowHeight(Id id, const Cell& c)",
+        "line": 8759,
+        "formatted_lines": 9,
+        "lambda": false
+      },
+      {
+        "signature": "RowScore(Id id, const Cell& c)",
+        "line": 8768,
+        "formatted_lines": 1,
+        "lambda": false
+      },
+      {
+        "signature": "RowPriority(Id id, const Cell& c)",
+        "line": 8769,
+        "formatted_lines": 11,
+        "lambda": false
+      },
+      {
+        "signature": "MinScore(const std::vector<Id>& ids)",
+        "line": 8780,
+        "formatted_lines": 5,
+        "lambda": false
+      },
+      {
+        "signature": "FreshScore(const std::vector<Cell>& cells, bool memo = true, const Patch* patch = nullptr)",
+        "line": 8786,
+        "formatted_lines": 9,
+        "lambda": false
+      },
+      {
+        "signature": "DebtMode(const std::vector<Id>& ids, const Patch* patch = nullptr) const",
+        "line": 8796,
+        "formatted_lines": 8,
+        "lambda": false
+      },
+      {
+        "signature": "OldMerit(const std::vector<Id>& ids, bool debt)",
+        "line": 8804,
+        "formatted_lines": 11,
+        "lambda": false
+      },
+      {
+        "signature": "FreshMerit(const std::vector<Cell>& cells, bool debt, bool memo = true, const Patch* patch = nullptr)",
+        "line": 8815,
+        "formatted_lines": 12,
+        "lambda": false
+      },
+      {
+        "signature": "Progress(long double after, long double before, bool debt, bool length = false) const",
+        "line": 8827,
+        "formatted_lines": 6,
+        "lambda": false
+      },
+      {
+        "signature": "Estimate(Point a, Point b)",
+        "line": 8833,
+        "formatted_lines": 6,
+        "lambda": false
+      },
+      {
+        "signature": "Exact(Point a, Point b)",
+        "line": 8839,
+        "formatted_lines": 11,
+        "lambda": false
+      },
+      {
+        "signature": "Certified(Point a, Point b, long double limit)",
+        "line": 8851,
+        "formatted_lines": 10,
+        "lambda": false
+      },
+      {
+        "signature": "Frozen(Id cell) const",
+        "line": 8861,
+        "formatted_lines": 9,
+        "lambda": false
+      },
+      {
+        "signature": "Movable(Id v) const",
+        "line": 8870,
+        "formatted_lines": 8,
+        "lambda": false
+      },
+      {
+        "signature": "Common(std::vector<Id> x, std::vector<Id> y)",
+        "line": 8878,
+        "formatted_lines": 7,
+        "lambda": false
+      },
+      {
+        "signature": "Adjacent(Id a, Id b) const",
+        "line": 8885,
+        "formatted_lines": 7,
+        "lambda": false
+      },
+      {
+        "signature": "Interface(const std::vector<Id>& old, std::vector<Cell>& fresh)",
+        "line": 8893,
+        "formatted_lines": 15,
+        "lambda": false
+      },
+      {
+        "signature": "RememberRejectedSmooth(Id p)",
+        "line": 8970,
+        "formatted_lines": 5,
+        "lambda": false
+      },
+      {
+        "signature": "BoundaryFacesOf(const std::vector<Id>& cells, Id v) const",
+        "line": 8997,
+        "formatted_lines": 11,
+        "lambda": false
+      },
+      {
+        "signature": "Norm3(Point a, Point b)",
+        "line": 9008,
+        "formatted_lines": 4,
+        "lambda": false
+      },
+      {
+        "signature": "Area2(Point a, Point b, Point c, long double n[3])",
+        "line": 9012,
+        "formatted_lines": 8,
+        "lambda": false
+      },
+      {
+        "signature": "BoundaryReplacement(const std::vector<Id>& old, std::vector<Cell>& fresh, const std::vector<BoundaryFace>& retired, FacetBinding binding, std::map<Face, FacetBinding>& added)",
+        "line": 9022,
+        "formatted_lines": 73,
+        "lambda": false
+      },
+      {
+        "signature": "[](Face f)",
+        "line": 9036,
+        "formatted_lines": 4,
+        "lambda": true
+      },
+      {
+        "signature": "MeshOptimizer::EdgeRemoval(Id a, Id b, bool lengthDriven)",
+        "line": 9104,
+        "formatted_lines": 137,
+        "lambda": false
+      },
+      {
+        "signature": "[&](size_t i, size_t k, size_t j)",
+        "line": 9165,
+        "formatted_lines": 8,
+        "lambda": true
+      },
+      {
+        "signature": "[&](size_t i, size_t j)",
+        "line": 9174,
+        "formatted_lines": 1,
+        "lambda": true
+      },
+      {
+        "signature": "MeshOptimizer::FaceSwap(const Face& f)",
+        "line": 9242,
+        "formatted_lines": 39,
+        "lambda": false
+      },
+      {
+        "signature": "MeshOptimizer::Collapse(Id p, Id q)",
+        "line": 9282,
+        "formatted_lines": 40,
+        "lambda": false
+      },
+      {
+        "signature": "MeshOptimizer::SmoothBoundary(Id p)",
+        "line": 9323,
+        "formatted_lines": 419,
+        "lambda": false
+      },
+      {
+        "signature": "~MeasureScope()",
+        "line": 9336,
+        "formatted_lines": 7,
+        "lambda": false
+      },
+      {
+        "signature": "[&]",
+        "line": 9366,
+        "formatted_lines": 1,
+        "lambda": true
+      },
+      {
+        "signature": "[&](const std::vector<Cell>& cells)",
+        "line": 9373,
+        "formatted_lines": 9,
+        "lambda": true
+      },
+      {
+        "signature": "ForFacets(binding, [&](Id facet)",
+        "line": 9406,
+        "formatted_lines": 13,
+        "lambda": false
+      },
+      {
+        "signature": "ForFacets(binding, [&](Id facet)",
+        "line": 9421,
+        "formatted_lines": 6,
+        "lambda": false
+      },
+      {
+        "signature": "~CallerByteRestore()",
+        "line": 9477,
+        "formatted_lines": 3,
+        "lambda": false
+      },
+      {
+        "signature": "[&](const PlanarReference* candidate_context = nullptr)",
+        "line": 9489,
+        "formatted_lines": 13,
+        "lambda": true
+      },
+      {
+        "signature": "[&]",
+        "line": 9607,
+        "formatted_lines": 5,
+        "lambda": true
+      },
+      {
+        "signature": "[&]",
+        "line": 9660,
+        "formatted_lines": 4,
+        "lambda": true
+      },
+      {
+        "signature": "[&]",
+        "line": 9670,
+        "formatted_lines": 4,
+        "lambda": true
+      },
+      {
+        "signature": "MeshOptimizer::Smooth(Id p)",
+        "line": 9742,
+        "formatted_lines": 320,
+        "lambda": false
+      },
+      {
+        "signature": "~MeasureScope()",
+        "line": 9768,
+        "formatted_lines": 7,
+        "lambda": false
+      },
+      {
+        "signature": "[&](const std::vector<Cell>& cells)",
+        "line": 9780,
+        "formatted_lines": 9,
+        "lambda": true
+      },
+      {
+        "signature": "[&](Point t) -> Point",
+        "line": 9908,
+        "formatted_lines": 6,
+        "lambda": true
+      },
+      {
+        "signature": "erase( std::remove_if(faces.begin(), faces.end(), [&](const Face& f)",
+        "line": 9919,
+        "formatted_lines": 2,
+        "lambda": false
+      },
+      {
+        "signature": "PlaceCone( faces, [&](Id v)",
+        "line": 9926,
+        "formatted_lines": 2,
+        "lambda": false
+      },
+      {
+        "signature": "[&](Point q)",
+        "line": 9927,
+        "formatted_lines": 1,
+        "lambda": true
+      },
+      {
+        "signature": "std::stable_sort(trials.begin(), trials.end(), [](const Trial& u, const Trial& v)",
+        "line": 9991,
+        "formatted_lines": 1,
+        "lambda": false
+      },
+      {
+        "signature": "MeshOptimizer::BoundaryFlip(Id a, Id b)",
+        "line": 10065,
+        "formatted_lines": 156,
+        "lambda": false
+      },
+      {
+        "signature": "[&](size_t i, size_t k, size_t j)",
+        "line": 10140,
+        "formatted_lines": 8,
+        "lambda": true
+      },
+      {
+        "signature": "[&](size_t i, size_t j)",
+        "line": 10149,
+        "formatted_lines": 1,
+        "lambda": true
+      },
+      {
+        "signature": "MeshOptimizer::BoundaryCollapse(Id p, Id q)",
+        "line": 10223,
+        "formatted_lines": 76,
+        "lambda": false
+      },
+      {
+        "signature": "MeshOptimizer::ConeReplace(const std::vector<Id>& old, Point start, Insert kind, const std::pair<Id, Id>* split, long double removed)",
+        "line": 10303,
+        "formatted_lines": 108,
+        "lambda": false
+      },
+      {
+        "signature": "[pa, pb, m, whole](Point x)",
+        "line": 10338,
+        "formatted_lines": 7,
+        "lambda": true
+      },
+      {
+        "signature": "PlaceCone( faces, [&](Id v)",
+        "line": 10346,
+        "formatted_lines": 2,
+        "lambda": false
+      },
+      {
+        "signature": "[&](Point q)",
+        "line": 10347,
+        "formatted_lines": 1,
+        "lambda": true
+      },
+      {
+        "signature": "MeshOptimizer::ShellInsert(Id a, Id b, bool lengthDriven)",
+        "line": 10412,
+        "formatted_lines": 33,
+        "lambda": false
+      },
+      {
+        "signature": "erase(std::remove_if(shell.begin(), shell.end(), [&](Id id)",
+        "line": 10419,
+        "formatted_lines": 1,
+        "lambda": false
+      },
+      {
+        "signature": "MeshOptimizer::NeighbourhoodInsert(Id cell)",
+        "line": 10446,
+        "formatted_lines": 12,
+        "lambda": false
+      },
+      {
+        "signature": "MeshOptimizer::ShellBoundary(Id id)",
+        "line": 10458,
+        "formatted_lines": 89,
+        "lambda": false
+      },
+      {
+        "signature": "MeshOptimizer::TryCell(Id id, bool enrichment)",
+        "line": 10547,
+        "formatted_lines": 66,
+        "lambda": false
+      },
+      {
+        "signature": "MeshOptimizer::AccountNested(const OptimizeReport& n, bool selected)",
+        "line": 10613,
+        "formatted_lines": 60,
+        "lambda": false
+      },
+      {
+        "signature": "MeshOptimizer::CoupledBoundary()",
+        "line": 10673,
+        "formatted_lines": 232,
+        "lambda": false
+      },
+      {
+        "signature": "~Restore()",
+        "line": 10704,
+        "formatted_lines": 1,
+        "lambda": false
+      },
+      {
+        "signature": "[&](const Owned& rows)",
+        "line": 10757,
+        "formatted_lines": 16,
+        "lambda": true
+      },
+      {
+        "signature": "[&](const std::vector<Cell>& cells)",
+        "line": 10820,
+        "formatted_lines": 10,
+        "lambda": true
+      },
+      {
+        "signature": "MeshOptimizer::Run()",
+        "line": 10905,
+        "formatted_lines": 102,
+        "lambda": false
+      },
+      {
+        "signature": "[&](size_t& bad, double& minimum)",
+        "line": 10909,
+        "formatted_lines": 11,
+        "lambda": true
+      },
+      {
+        "signature": "OptimizeMetricMesh(Owned& mesh, const RegionMetric& target, Id& next_node, Id& next_cell, const OptimizeOptions& options, OptimizeReport& report)",
+        "line": 11008,
+        "formatted_lines": 19,
+        "lambda": false
+      },
+      {
+        "signature": "PlaceConeInsertion(const std::vector<Cell>& cavity, Point start, Id node, Id first_cell, const RegionMetric& target, std::vector<Cell>& fresh, double& score, const Edge* split_edge",
+        "line": 11027,
+        "formatted_lines": 87,
+        "lambda": false
+      },
+      {
+        "signature": "[&](Point p)",
+        "line": 11037,
+        "formatted_lines": 8,
+        "lambda": true
+      },
+      {
+        "signature": "[pa, pb, m, limit](Point x)",
+        "line": 11066,
+        "formatted_lines": 7,
+        "lambda": true
+      },
+      {
+        "signature": "[split, &region](Point x)",
+        "line": 11076,
+        "formatted_lines": 1,
+        "lambda": true
+      },
+      {
+        "signature": "PlaceCone(faces, [&](Id v)",
+        "line": 11078,
+        "formatted_lines": 1,
+        "lambda": false
+      },
+      {
+        "signature": "RefineOptimize(World& world, const Owned& accepted, const std::vector<DonorCell>& original, const PlanarReference& geometry, MetricComposition composition, EngineOptions options, O",
+        "line": 11114,
+        "formatted_lines": 100,
+        "lambda": false
+      },
+      {
+        "signature": "~Restore()",
+        "line": 11119,
+        "formatted_lines": 1,
+        "lambda": false
+      },
+      {
+        "signature": "[&]",
+        "line": 11131,
+        "formatted_lines": 1,
+        "lambda": true
+      },
+      {
+        "signature": "Run([&](const RegionMetric& target)",
+        "line": 11189,
+        "formatted_lines": 3,
+        "lambda": false
+      }
+    ],
+    "EngineOwnership.hpp": [],
+    "EngineOwnership.cpp": [
+      {
+        "signature": "EngineOwnership::WithinTime(EngineContext& context)",
+        "line": 8,
+        "formatted_lines": 14,
+        "lambda": false
+      },
+      {
+        "signature": "EngineOwnership::PhaseOwnership(EngineContext& context, bool quality, SU2NativeGeometry::AtlasBudget& atlas_budget)",
+        "line": 23,
+        "formatted_lines": 37,
+        "lambda": false
+      },
+      {
+        "signature": "EngineOwnership::EstimateOwnership(EngineContext& context, bool quality, SU2NativeGeometry::AtlasBudget& atlas_budget, uint64_t global_cells, double transition_started)",
+        "line": 61,
+        "formatted_lines": 41,
+        "lambda": false
+      },
+      {
+        "signature": "EngineOwnership::FillOwnershipCosts(EngineContext& context, bool quality, const std::map<Id, uint64_t>& complete_stars, CLocalFailure& failure, std::vector<uint32_t>& weights, std:",
+        "line": 103,
+        "formatted_lines": 24,
+        "lambda": false
+      },
+      {
+        "signature": "EngineOwnership::AccumulateOwnershipCell(EngineContext& context, bool quality, const Owned::value_type& owned, const std::map<Id, uint64_t>& complete_stars, std::vector<double>& co",
+        "line": 128,
+        "formatted_lines": 43,
+        "lambda": false
+      },
+      {
+        "signature": "EngineOwnership::OwnershipGeometryCost(EngineContext& context, bool quality, const Owned::value_type& owned, double demand)",
+        "line": 172,
+        "formatted_lines": 35,
+        "lambda": false
+      },
+      {
+        "signature": "EngineOwnership::NormalizeOwnershipWeights(EngineContext& context, bool quality, std::vector<uint32_t>& weights, std::vector<uint32_t>& geometric, std::vector<uint32_t>& quality_we",
+        "line": 208,
+        "formatted_lines": 31,
+        "lambda": false
+      },
+      {
+        "signature": "EngineOwnership::ShouldMigrate(EngineContext& context, bool quality, uint64_t global_cells, double transition_started, double local_demand, double local_geometry, double local_qual",
+        "line": 240,
+        "formatted_lines": 53,
+        "lambda": false
+      },
+      {
+        "signature": "EngineOwnership::MigrateOwnership(EngineContext& context, bool quality, SU2NativeGeometry::AtlasBudget& atlas_budget, double transition_started, size_t scratch, CLocalFailure& fail",
+        "line": 294,
+        "formatted_lines": 52,
+        "lambda": false
+      },
+      {
+        "signature": "EngineOwnership::MigrateCertificates(EngineContext& context, bool quality, SU2NativeGeometry::AtlasBudget& atlas_budget, double transition_started, size_t scratch, CLocalFailure& f",
+        "line": 347,
+        "formatted_lines": 58,
+        "lambda": false
+      },
+      {
+        "signature": "EngineOwnership::RestoreOwnership(EngineContext& context, bool quality, SU2NativeGeometry::AtlasBudget& atlas_budget, double transition_started, CLocalFailure& failure, Owned& pend",
+        "line": 406,
+        "formatted_lines": 39,
+        "lambda": false
+      },
+      {
+        "signature": "EngineOwnership::FinalizeOwnership(EngineContext& context, bool quality, SU2NativeGeometry::AtlasBudget& atlas_budget, double transition_started, Owned& pending, std::vector<Id>& p",
+        "line": 446,
+        "formatted_lines": 60,
+        "lambda": false
+      }
+    ]
+  }
+}

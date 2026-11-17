@@ -1,0 +1,6 @@
+from pathlib import Path
+import os,json,time,hashlib,sys
+cohort=sys.argv[1];assert cohort in {'serial','mpi2','mpi4'}
+p=Path('integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N4/section6_3_after_N11/B6').resolve();v=p/'validation';cut=p.parent;night=cut.parents[1];g1=v/'run_g1_556.py'
+paths=[g1,cut/'build556_aliases.py',night/'N11/validation/run_n11_g1.py',night/'N8/A2_A3_N12/section6_8/validation/run_g1_candidate.py',night/'N10/parse_g1_identity.py',v/f'G1_{cohort}_host_preflight.json',cut/'build556/source_pins.json',cut/'build556/build_status.json']
+pins={str(f):hashlib.sha256(f.read_bytes()).hexdigest() for f in paths};out=v/f'G1_{cohort}_primary_validation_pins.json';assert not out.exists();out.write_text(json.dumps(pins,indent=2)+'\n');args=['/usr/bin/python3',str(g1),'--cohort',cohort];f=Path('/proc/self/stat').read_text().rsplit(')',1)[1].split();o=v/f'G1_{cohort}_primary_launch_identity.json';assert not o.exists();o.write_text(json.dumps({'actual_host_proc':True,'unix':time.time(),'controller':{'pid':os.getpid(),'start_ticks':int(f[19])},'argv':args,'extra_validation_pins':str(out),'extra_validation_pins_sha256':hashlib.sha256(out.read_bytes()).hexdigest()},indent=2)+'\n');os.environ.update(OMP_NUM_THREADS='1',OPENBLAS_NUM_THREADS='1',MKL_NUM_THREADS='1',OMPI_MCA_osc='pt2pt');os.nice(19);os.execv(args[0],args)

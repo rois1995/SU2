@@ -1,0 +1,130 @@
+{
+  "UNAPPLIED": true,
+  "base": "c0486d57daf6ac4a1e66733db4a68b3c2dfe133a",
+  "source_sha256": "6149e2cb2de3af25feefefdf056ce1c2b4aa75aa6170029348d4eedbffde5b0a",
+  "main_byte_reversal": true,
+  "aliases": {
+    "WithinTime": {
+      "world": "context.world",
+      "options": "context.options",
+      "started": "*context.setup.control_prefix.started",
+      "stats": "context.control.result->stats",
+      "result": "*context.control.result"
+    },
+    "PhaseOwnership": {
+      "world": "context.world",
+      "options": "context.options",
+      "working": "*context.ownership.working",
+      "ownership_evaluated": "*context.ownership.ownership_evaluated",
+      "quality_ownership_round": "*context.ownership.quality_ownership_round",
+      "stats": "context.control.result->stats",
+      "checkpoint": "*context.control.checkpoint",
+      "selection": "*context.census.selection"
+    },
+    "EstimateOwnership": {
+      "world": "context.world",
+      "options": "context.options",
+      "working": "*context.ownership.working",
+      "stats": "context.control.result->stats",
+      "result": "*context.control.result",
+      "source": "*context.exchange.source",
+      "directory": "*context.exchange.directory",
+      "geometry_authority": "*context.control.geometry_authority"
+    },
+    "FillOwnershipCosts": {
+      "working": "*context.ownership.working"
+    },
+    "AccumulateOwnershipCell": {
+      "surface_target": "context.surface_target",
+      "selection": "*context.census.selection"
+    },
+    "OwnershipGeometryCost": {
+      "options": "context.options",
+      "geometry": "context.geometry",
+      "selection": "*context.census.selection",
+      "geometry_authority": "*context.control.geometry_authority"
+    },
+    "NormalizeOwnershipWeights": {
+      "world": "context.world"
+    },
+    "ShouldMigrate": {
+      "world": "context.world",
+      "options": "context.options",
+      "started": "*context.setup.control_prefix.started",
+      "stats": "context.control.result->stats",
+      "geometry_authority": "*context.control.geometry_authority"
+    },
+    "MigrateOwnership": {
+      "world": "context.world",
+      "options": "context.options",
+      "surface_target": "context.surface_target",
+      "geometry": "context.geometry",
+      "bidirectional": "context.bidirectional",
+      "working": "*context.ownership.working",
+      "stats": "context.control.result->stats",
+      "result": "*context.control.result",
+      "selection": "*context.census.selection",
+      "source": "*context.exchange.source",
+      "directory": "*context.exchange.directory",
+      "coarsening": "*context.control.coarsening",
+      "repairing": "*context.control.repairing",
+      "wall_counters": "*context.setup.wall_counters"
+    },
+    "MigrateCertificates": {
+      "world": "context.world",
+      "options": "context.options",
+      "surface_target": "context.surface_target",
+      "working": "*context.ownership.working",
+      "stats": "context.control.result->stats",
+      "result": "*context.control.result",
+      "selection": "*context.census.selection"
+    },
+    "RestoreOwnership": {
+      "world": "context.world",
+      "options": "context.options",
+      "surface_target": "context.surface_target",
+      "working": "*context.ownership.working",
+      "field_identity": "*context.census.field_identity"
+    },
+    "FinalizeOwnership": {
+      "world": "context.world",
+      "options": "context.options",
+      "bidirectional": "context.bidirectional",
+      "working": "*context.ownership.working",
+      "stats": "context.control.result->stats",
+      "selection": "*context.census.selection",
+      "directory": "*context.exchange.directory",
+      "initial": "*context.census.initial",
+      "seed_slot": "*context.census.seed_slot",
+      "inactive_blocked_edges": "*context.queues.inactive_blocked_edges",
+      "inactive_blocked_links": "*context.queues.inactive_blocked_links",
+      "length_blocks_dirty": "*context.queues.length_blocks_dirty",
+      "retired_edges": "*context.census.retired_edges",
+      "campaign_edges": "*context.census.campaign_edges",
+      "construction_claims": "*context.exchange.construction_claims"
+    }
+  },
+  "future_binding": "EngineControl::ObserveProgress(context, working, atlas_budget, stage)",
+  "compiled": false,
+  "actual_generated_body_tokens_equal_after_recursive_inverse": true,
+  "body_token_sha256": "2bbfa5926a1ae76b5873c2e82e03a74515334bc0d40565b5542affc56735acf3",
+  "formatted_method_lines": {
+    "WithinTime": 14,
+    "PhaseOwnership": 37,
+    "EstimateOwnership": 41,
+    "FillOwnershipCosts": 24,
+    "AccumulateOwnershipCell": 43,
+    "OwnershipGeometryCost": 35,
+    "NormalizeOwnershipWeights": 31,
+    "ShouldMigrate": 53,
+    "MigrateOwnership": 52,
+    "MigrateCertificates": 58,
+    "RestoreOwnership": 39,
+    "FinalizeOwnership": 60
+  },
+  "whole_main_byte_reverse": true,
+  "proof_scope": "actual final generated member bodies and explicit inverse mappings",
+  "risk": "uncompiled; B5 observer binding is future; independent type/lifetime/collective review required",
+  "header_original_fields_and_special_members_token_equal": true,
+  "started_borrow_const_as_original": true
+}

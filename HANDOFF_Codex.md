@@ -1,10 +1,10 @@
 # Native adaptation — current handoff
 
-Updated 2026-11-17. **N14/N15 PASSED every ordered check**, including the ONE full workflow (4738.250709s, all6payloads EXACT E1P6c/E2P7), isolated restart (236.822017s,168797points/855828cells, coordinate error0, finite positive changed fields), and M26 reconciliation. Acceptance summary: `N/N14/section6_12/acceptance_summary.json`. All actual handles and pins are sealed; the current boundary has NO owned heavy job.
+Updated 2026-11-17. **N14/N15 PASSED every ordered check**, including the ONE full workflow (4738.250709s, all6payloads EXACT E1P6c/E2P7), isolated restart (236.822017s,168797points/855828cells, coordinate error0, finite positive changed fields), and M26 reconciliation. Acceptance summary: `N/N14/section6_12/acceptance_summary.json`. All N14 actual handles and pins are sealed.
 
-B5 Reports/finalization PASSED scoped build555/G1/G2; no owned heavy job. Build70.163345s/1778pins; G1serial766.075553/MPI2 14.503078/MPI4 14.556237s, zerochangedcases; strictG2stop317.596742/seal325.356386s alloldinteger/model/timerrowsexact. Allactualhandles/pinssealed inP/B5/validation. MPI2launcher10vsref9 is report-only underC2.1, notacase/failuretablechange. Commit/pushB5next; thenB6–B8/end-BG3/G4/GQ/plannedstop. B4c0486d57da andN14/N15qualification0c2cb5c460alreadyPUSHED.
+B6 Ownership extraction PASSED scoped build556/G1/G2. Build 70.159541s/1779 pins; G1 serial/MPI2/MPI4 796.648625/16.245114/32.141896s, zero changed cases; strict G2 stop/seal 422.579359/431.041191s, all old integer/model/timer rows exact against adopted552. All actual handles and pins sealed. Prefix HWM sum 5,229,854,720B is not a full-workflow P8 peak. No numerical repeat or efficiency gain claim. Commit/push B6 next; then B7/B8 and end-B G3/G4/GQ, followed by the user-ordered stop. B5 2a05da05ca is pushed.
 
-Current shared555 CFD SHA c0482395d61d23163ecad2df03e81b7cce20b814700b83a365667a22fa515564; testSHA0ee72822c17dcabd68b17a58f13b661a84e1d69342a740b0db9b6d630a023341. N14full552qualification, adopted references and local archived binaries remain preserved.
+Current shared556 CFD SHA62a2e7e69b76e471d41c06255d01b8413987e49d816ebe90842e91b0a72c053f; testSHAb8b3031ea505c79793a5f160b357da70c7832bd46cddc7bab295e9f31d835696. N14full552 qualification and archived binaries remain preserved.
 
 Evidence root: `integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115` (N). Qualified full case: `N/N14/section6_12/validation/full552`; restart `validation/disk_restart_full552_event2`. Primary terminal receipts are `validation/full_primary_terminal_receipt.json` (10actual IDs,1775source/212input/25helper pins) and `restart_primary_terminal_receipt.json` (11actual IDs,2022case/10helper pins). No full or restart numerical repeat occurred. Own helper setup/report corrections are recorded in progress and their R3 history folders.
 
@@ -35,7 +35,7 @@ N14/N15 [report](integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/stag
 
 ## Remaining phase-B cut
 
-B3/B4 are accepted/pushed; B5 scoped gates passed and checkpoint is next. B6/B7 actual unapplied candidates and all separate B8 block drafts exist; primary integration/review/rebinding and all remaining gates are still required. B5 actual member draft and B7 draft are being prepared; B6 and B8 have binding inventories. P=`N/N4/section6_3_after_N11`; its `source_check.md` is controlling. Each cut sub-step needs G1/G2 and commit/push. Keep C/D untouched at the planned stop.
+B3–B5 accepted/pushed; B6 scoped gates passed, checkpoint next. B7 candidate primary-reviewed; B8 integrated candidate primary-reviewed, draft corrections recorded. Rebind/apply/build/check each after the preceding checkpoint. P=`N/N4/section6_3_after_N11`; its source_check.md controls. End-B G3/G4/GQ remain; keep C/D untouched.
 
 Detailed timings: [ADAPTATION_TIMINGS](Handbook/ADAPTATION_TIMINGS.md). The fully qualified phase-A workflow had native event times2583.997544/1727.465975s and process-peak sums14,000,402,432/17,305,853,952B, all six payloads and old integer/timer rows identical; isolated restart passed. Older pinsets are historical after intentional source changes.
 
