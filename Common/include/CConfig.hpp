@@ -108,6 +108,7 @@ private:
   bool Visc_P1_Time_Step;      /*!< \brief Viscous local time step from the block row bounds of VISC_P1_ENTROPY and the weak walls (P1_TIME_STEP.md). */
   VISC_P1_JACOBIAN Kind_Visc_P1_Jacobian; /*!< \brief Jacobian of VISC_P1_ENTROPY and its weak walls: Picard (K frozen) or full (plus dK/du). */
   bool Edge_Form_P1_Mixed;     /*!< \brief EDGE_FORM_P1 on quadrilaterals, hexahedra, prisms and pyramids by split averages (P1_MIXED.md). */
+  bool Edge_Form_P1_Mixed_Diss; /*!< \brief EDGE_FORM_P1_MIXED_DISS: JST dissipation on the split pairs of EDGE_FORM_P1_MIXED. */
   bool Positive_Update_Flow;   /*!< \brief Positivity-preserving step length of the implicit flow and SST updates (P1_POSITIVITY.md). */
   su2double Mod_Centroid_Exponent; /*!< \brief Power of the face area in the modified centroid. */
   su2double Highlite_Area;        /*!< \brief Highlite area. */
@@ -10257,6 +10258,12 @@ public:
    *        (P1_MIXED.md, section 8). Simplices keep EDGE_FORM_P1 unchanged.
    */
   bool GetEdge_Form_P1_Mixed() const { return Edge_Form_P1_Mixed; }
+
+  /*!
+   * \brief EDGE_FORM_P1_MIXED_DISS: the JST dissipation of the true edges also on the face and body diagonals of the
+   *        non-simplex cells (split pairs), lambda on the pair coefficient n_ik, its Jacobian and time-step term.
+   */
+  bool GetEdge_Form_P1_Mixed_Diss() const { return Edge_Form_P1_Mixed_Diss; }
 
   /*!
    * \brief POSITIVE_UPDATE_FLOW: the factor of the implicit flow update is reduced so that rho >= eps_r rho_old and

@@ -451,6 +451,34 @@ class CFVMFlowSolverBase : public CSolver {
                         su2double* RestartSolution = nullptr, unsigned short nVar_Restart = 0);
 
   /*!
+   * \brief EDGE_FORM_P1_MIXED_DISS: adds |ubar.n_ik| + cbar |n_ik| of every split pair (face and body diagonals of the
+   *        non-simplex cells of EDGE_FORM_P1_MIXED) to the inviscid spectral sum of its owned nodes, with the formula of
+   *        the true edges in SetTime_Step_impl. Meshes without non-simplex cells have no split pairs.
+   * \param[in] soundSpeed - Function object of the speed of sound, (nodes, iPoint, jPoint) as for the edges.
+   * \param[in] geometry - Geometrical definition of the problem.
+   */
+  template<class SoundSpeedFunc>
+  void AddSplitPairSpectralRadius(const SoundSpeedFunc& soundSpeed, const CGeometry *geometry) {
+    const auto& splitNodes = geometry->edges->GetSplitNodes();
+    const auto& splitNormal = geometry->edges->GetSplitNormal();
+
+    BEGIN_SU2_OMP_SAFE_GLOBAL_ACCESS {
+      for (auto iSplit = 0ul; iSplit < splitNodes.size(); ++iSplit) {
+        const auto iPoint = splitNodes[iSplit][0], kPoint = splitNodes[iSplit][1];
+        const su2double* normal = splitNormal[iSplit];
+        const su2double area2 = GeometryToolbox::SquaredNorm(nDim, normal);
+
+        const su2double meanProjVel = 0.5 * (nodes->GetProjVel(iPoint, normal) + nodes->GetProjVel(kPoint, normal));
+        const su2double lambda = fabs(meanProjVel) + soundSpeed(*nodes, iPoint, kPoint) * sqrt(area2);
+
+        if (geometry->nodes->GetDomain(iPoint)) nodes->AddMax_Lambda_Inv(iPoint, lambda);
+        if (geometry->nodes->GetDomain(kPoint)) nodes->AddMax_Lambda_Inv(kPoint, lambda);
+      }
+    }
+    END_SU2_OMP_SAFE_GLOBAL_ACCESS
+  }
+
+  /*!
    * \brief Generic implementation to compute the time step based on CFL and conv/visc eigenvalues.
    * \param[in] geometry - Geometrical definition of the problem.
    * \param[in] solver_container - Container vector with all the solutions.
@@ -588,6 +616,10 @@ class CFVMFlowSolverBase : public CSolver {
         END_SU2_OMP_FOR
       }
     }
+
+    /*--- EDGE_FORM_P1_MIXED_DISS: the split pairs carry the JST term on n_ik, so their spectral radius enters the inviscid
+     *    sum of both nodes, as the true edges above; a separate pass, the sums of the edges and boundaries are unchanged. ---*/
+    if ((iMesh == MESH_0) && config->GetEdge_Form_P1_Mixed_Diss()) AddSplitPairSpectralRadius(soundSpeed, geometry);
 
     if (p1ViscStep) {
       SU2_OMP_FOR_STAT(omp_chunk_size)

@@ -1875,8 +1875,10 @@ void CConfig::SetConfig_Options() {
   addBoolOption("VISC_P1_TIME_STEP", Visc_P1_Time_Step, false);
   /*!\brief VISC_P1_JACOBIAN \n DESCRIPTION: Jacobian of the VISC_P1_ENTROPY element operator and of the weak walls of BC_WALL_ENTROPY_P1 (and the viscous symmetry SAT of BC_ENTROPY_P1). PICARD: K frozen. FULL: adds the dK/du terms, the derivatives of the frozen state (theta*, v*) and of mu(T) (constant or Sutherland) and kappa(T) (constant or constant Prandtl), mu_t frozen. Blocks between nodes of mixed cells that are not edges stay dropped, they are not in the sparsity pattern. Needs VISC_P1_ENTROPY. \ingroup Config \default PICARD */
   addEnumOption("VISC_P1_JACOBIAN", Kind_Visc_P1_Jacobian, Visc_P1_Jacobian_Map, VISC_P1_JACOBIAN::PICARD);
-  /*!\brief EDGE_FORM_P1_MIXED \n DESCRIPTION: EDGE_FORM_P1 (JST) on meshes with quadrilaterals, hexahedra, prisms and pyramids: each non-simplex cell carries the mean of the neighbour-fan subset of its pulling splits (hexahedra: the 4 Kuhn triangulations; prisms, pyramids, quadrilaterals: all pulling splits), merged into weighted sub-simplices t with W = |t|/(d+1) (no E part, no blend), n_ik on the true edges and on the face and body diagonals (Ismail-Roe with EDGE_FORM_EC_FLUX, no dissipation, no Jacobian on the diagonals), VISC_P1_ENTROPY per sub-simplex, quad boundary faces with both diagonals at 1/2 (BC_WEAK_P1, BC_ENTROPY_P1, BC_WALL_ENTROPY_P1). Simplices keep EDGE_FORM_P1. Needs EDGE_FORM_P1 and JST; steady, static meshes. \ingroup Config \default false */
+  /*!\brief EDGE_FORM_P1_MIXED \n DESCRIPTION: EDGE_FORM_P1 (JST) on meshes with quadrilaterals, hexahedra, prisms and pyramids: each non-simplex cell carries the mean of the neighbour-fan subset of its pulling splits (hexahedra: the 4 Kuhn triangulations; prisms, pyramids, quadrilaterals: all pulling splits), merged into weighted sub-simplices t with W = |t|/(d+1) (no E part, no blend), n_ik on the true edges and on the face and body diagonals (Ismail-Roe with EDGE_FORM_EC_FLUX; on the diagonals no dissipation unless EDGE_FORM_P1_MIXED_DISS, exact Jacobian blocks of the pair flux in the extended split-pair pattern, none with the OpenMP reducer strategy), VISC_P1_ENTROPY per sub-simplex, quad boundary faces with both diagonals at 1/2 (BC_WEAK_P1, BC_ENTROPY_P1, BC_WALL_ENTROPY_P1). Simplices keep EDGE_FORM_P1. Needs EDGE_FORM_P1 and JST; steady, static meshes. \ingroup Config \default false */
   addBoolOption("EDGE_FORM_P1_MIXED", Edge_Form_P1_Mixed, false);
+  /*!\brief EDGE_FORM_P1_MIXED_DISS \n DESCRIPTION: The JST dissipation of the true edges also on the face and body diagonals of the non-simplex cells of EDGE_FORM_P1_MIXED (split pairs): d_ik = lambda_ik (eps2 (U_i - U_k) - eps4 (L_i - L_k)), lambda_ik = |ubar.n_ik| + cbar |n_ik| on the split-average pair coefficient n_ik, with the stretching correction, nodal pressure sensor, eps2 and eps4 with the true-edge neighbour counts, the true-edge undivided Laplacians, the dissipated variables (rho, rho u, rho H, hat states with matched k) and the edge rule of JST_WEAK_WALL_DISSIPATION. Every pair with a central coefficient is then a Rusanov pair at eps2 = 1/2, and the eps2 part is entropy dissipative. The SU2 surrogate Jacobian goes into the split-pair blocks (none with the OpenMP reducer strategy), and lambda_ik is added to the inviscid spectral sum of the local time step at both nodes. The blend of EDGE_FORM_ES_BLEND(_CV) is unchanged. Meshes without non-simplex cells are unchanged. Needs EDGE_FORM_P1_MIXED and JST, not with JST_ENTROPY_BUDGET. \ingroup Config \default false */
+  addBoolOption("EDGE_FORM_P1_MIXED_DISS", Edge_Form_P1_Mixed_Diss, false);
   /*!\brief GCL_EXACT_P1 \n DESCRIPTION: Add the swept terms that make the grid flux of EDGE_FORM_P1 or SPLIT_EDGE_FLUX (or of the median dual of EDGE_DISS_PROJECTED with GRID_ENTROPY_P1) equal to the BDF difference of the volumes, for conservation in time on moving meshes. \ingroup Config*/
   addBoolOption("GCL_EXACT_P1", GCL_Exact_P1, false);
   /*!\brief GRID_ENTROPY_P1 \n DESCRIPTION: ALE terms of the P1 entropy methods with JST (P1_ALE.md): grid term -ubar^EC(u_i,u_k) g_ik with the temporal entropy conservative average, [[w]].ubar^EC = [[rho]], and the pair grid flux g_ik of the GCL (swept terms included); on the moved dual the E part of the relative flux F - u {{v}}^T; relative speeds (u - {{v}}).E in the Lemma 3 bounds of EDGE_FORM_ES_DISS and EDGE_FORM_ES_BLEND; closure C with the grid fluxes of the face points (BC_ENTROPY_P1, BC_WALL_ENTROPY_P1); moving weak no-slip wall w_m + w_E v_w = 0; the nodal swept remainder of GCL_EXACT_P1 enters the wall pressure work instead of -U sigma at walls. Needs grid motion, GCL_EXACT_P1, EDGE_FORM_EC_FLUX and EDGE_FORM_P1 or EDGE_DISS_PROJECTED. \ingroup Config \default false */
@@ -6380,6 +6382,7 @@ void CConfig::CheckP1FluxOptions() const {
   if (Visc_P1_Time_Step) active.push_back("VISC_P1_TIME_STEP");
   if (Kind_Visc_P1_Jacobian == VISC_P1_JACOBIAN::FULL) active.push_back("VISC_P1_JACOBIAN= FULL");
   if (Edge_Form_P1_Mixed) active.push_back("EDGE_FORM_P1_MIXED");
+  if (Edge_Form_P1_Mixed_Diss) active.push_back("EDGE_FORM_P1_MIXED_DISS");
   if (Edge_Form_TeCNO_Adjoint) active.push_back("EDGE_FORM_TECNO_ADJOINT");
   if (Edge_Form_TeCNO_Adjoint_Limiter) active.push_back("EDGE_FORM_TECNO_ADJOINT_LIMITER");
   if (Edge_Form_TeCNO_A4_Jacobian) active.push_back("EDGE_FORM_TECNO_A4_JACOBIAN");
@@ -6878,6 +6881,15 @@ void CConfig::CheckP1FluxOptions() const {
     if (nMGLevels > 0) SU2_MPI::Error(name + "not available with multigrid, set MGLEVEL= 0.", CURRENT_FUNCTION);
     if (Body_Force || Rotating_Frame || GravityForce)
       SU2_MPI::Error(name + "not available with body forces, gravity or a rotating frame (sources scaled by the dual volume).", CURRENT_FUNCTION);
+  }
+  if (Edge_Form_P1_Mixed_Diss) {
+    /*--- MIXED_DIAG_SOURCE_CHECK.md, section 3.3: the edge JST on the split pairs of EDGE_FORM_P1_MIXED. The node entropy
+     * budget of JST_ENTROPY_BUDGET is built from the edge coefficients only and would not cover the pair terms. ---*/
+    const string name = "EDGE_FORM_P1_MIXED_DISS: ";
+    if (!Edge_Form_P1_Mixed) SU2_MPI::Error(name + "needs EDGE_FORM_P1_MIXED= YES.", CURRENT_FUNCTION);
+    if (!(Kind_ConvNumScheme_Flow == SPACE_CENTERED && Kind_Centered_Flow == CENTERED::JST))
+      SU2_MPI::Error(name + "only for JST.", CURRENT_FUNCTION);
+    if (JST_Entropy_Budget) SU2_MPI::Error(name + "not available with JST_ENTROPY_BUDGET (the node budget has no pair terms).", CURRENT_FUNCTION);
   }
   if (Edge_Diss_Projected) {
     /*--- The central part keeps the median normal n and the dissipation uses nu = (n.e/|e|^2) e. This needs the

@@ -27,6 +27,7 @@
 #include "catch.hpp"
 #include <algorithm>
 #include <cmath>
+#include <cstring>
 #include <limits>
 #include <array>
 #include <map>
@@ -55,6 +56,7 @@
 #include "../../SU2_CFD/include/gradients/correctGradientsSymmetry.hpp"
 #include "../../SU2_CFD/include/numerics/flow/p1_sst_matched.hpp"
 #include "../../SU2_CFD/include/numerics/flow/jst_entropy.hpp"
+#include "../../SU2_CFD/include/numerics/flow/p1_pair_jst.hpp"
 #include "../../SU2_CFD/include/numerics_simd/flow/convection/common.hpp"
 #include "../../SU2_CFD/include/numerics_simd/flow/variables.hpp"
 #include "tecno_adjoint_checks.hpp"
@@ -10349,4 +10351,340 @@ TEST_CASE("EDGE_FORM_P1_MIXED: split-pair mean-flux blocks are the Ismail-Roe Ja
   }
   INFO("worst relative error " << worst);
   CHECK(worst < 1e-6);
+}
+
+/*--- EDGE_FORM_P1_MIXED_DISS (MIXED_DIAG_SOURCE_CHECK.md, section 3.3): the JST term of the true edges on the split
+ * pairs (face and body diagonals) of EDGE_FORM_P1_MIXED, P1PairJST as called by CEulerSolver::SplitEdgeResidual. ---*/
+namespace {
+
+namespace pjst = P1PairJST;
+
+/*--- Random nodal JST data: state (rho, u, p) with its dissipated variables (rho, rho u, rho H), Laplacian, sensor,
+ * nodal spectral radius, true-edge neighbour count and weak-wall flag. ---*/
+pjst::Node RandomPairNode(std::mt19937& gen, int nDim) {
+  std::uniform_real_distribution<double> u(-1.0, 1.0), pos(0.5, 2.0), unit(0.0, 1.0);
+  pjst::Node N;
+  const su2double rho = pos(gen), p = pos(gen);
+  su2double v2 = 0.0;
+  for (int d = 0; d < nDim; ++d) {
+    N.vel[d] = 0.6 * u(gen);
+    v2 += N.vel[d] * N.vel[d];
+  }
+  N.soundSpeed = sqrt(kGamma * p / rho);
+  N.diss[0] = rho;
+  for (int d = 0; d < nDim; ++d) N.diss[d + 1] = rho * N.vel[d];
+  N.diss[nDim + 1] = rho * (kGamma * p / ((kGamma - 1.0) * rho) + 0.5 * v2);
+  for (int v = 0; v < nDim + 2; ++v) N.lapl[v] = 0.1 * u(gen);
+  N.sensor = unit(gen);
+  N.lambda = 5.0 * pos(gen);
+  N.nNeighbor = 4 + gen() % 12;
+  N.wall = (gen() % 3 == 0) ? 1.0 : 0.0;
+  return N;
+}
+
+/*--- Residual, Jacobian blocks and inviscid spectral sums of a model JST-P1 operator on a mesh, in the order of the
+ * solver: true edges (central mean of the dissipated variables on n, JST on the dual normal), then the split pairs
+ * (central part on n_ik, and with pairDiss the pair JST and the time-step term of AddSplitPairSpectralRadius). ---*/
+struct ModelOperator {
+  std::vector<su2double> R, lambdaInv;
+  std::map<std::pair<unsigned long, unsigned long>, std::array<su2double, 25>> J;
+};
+
+ModelOperator ModelJSTOperator(const CGeometry& g, const std::vector<pjst::Node>& node, const pjst::Params& par,
+                               bool pairDiss) {
+  const int nDim = g.GetnDim(), nVar = nDim + 2;
+  ModelOperator op;
+  op.R.assign(g.GetnPoint() * nVar, 0.0);
+  op.lambdaInv.assign(g.GetnPoint(), 0.0);
+
+  auto addPair = [&](unsigned long i, unsigned long k, const su2double* n, const su2double* nDiss, bool jst) {
+    su2double flux[5] = {}, jac_i[5][5] = {}, jac_k[5][5] = {};
+    su2double projVel = 0.0;
+    for (int d = 0; d < nDim; ++d) projVel += 0.5 * (node[i].vel[d] + node[k].vel[d]) * n[d];
+    for (int v = 0; v < nVar; ++v) {
+      flux[v] = 0.5 * (node[i].diss[v] + node[k].diss[v]) * projVel;
+      jac_i[v][v] = jac_k[v][v] = 0.5 * projVel;
+    }
+    if (jst) {
+      pjst::AddPairDissipation(nDim, par, node[i], node[k], nDiss, flux, true, jac_i, jac_k);
+      const su2double lam = pjst::SpectralRadius(nDim, node[i], node[k], nDiss);
+      op.lambdaInv[i] += lam;
+      op.lambdaInv[k] += lam;
+    }
+    auto& Jii = op.J[{i, i}];
+    auto& Jik = op.J[{i, k}];
+    auto& Jki = op.J[{k, i}];
+    auto& Jkk = op.J[{k, k}];
+    for (int v = 0; v < nVar; ++v) {
+      op.R[i * nVar + v] += flux[v];
+      op.R[k * nVar + v] -= flux[v];
+      for (int w = 0; w < nVar; ++w) {
+        Jii[v * nVar + w] += jac_i[v][w];
+        Jik[v * nVar + w] += jac_k[v][w];
+        Jki[v * nVar + w] -= jac_i[v][w];
+        Jkk[v * nVar + w] -= jac_k[v][w];
+      }
+    }
+  };
+  for (auto iEdge = 0ul; iEdge < g.GetnEdge(); ++iEdge) {
+    addPair(g.edges->GetNode(iEdge, 0), g.edges->GetNode(iEdge, 1), g.edges->GetFormNormal()[iEdge],
+            g.edges->GetNormal(iEdge), true);
+  }
+  const auto& pairs = g.edges->GetSplitNodes();
+  for (auto iSplit = 0ul; iSplit < pairs.size(); ++iSplit) {
+    const su2double* n = g.edges->GetSplitNormal()[iSplit];
+    addPair(pairs[iSplit][0], pairs[iSplit][1], n, n, pairDiss);
+  }
+  return op;
+}
+
+bool BitwiseEqual(const ModelOperator& a, const ModelOperator& b) {
+  auto same = [](const su2double* x, const su2double* y, size_t n) {
+    return std::memcmp(x, y, n * sizeof(su2double)) == 0;
+  };
+  if (!same(a.R.data(), b.R.data(), a.R.size()) || !same(a.lambdaInv.data(), b.lambdaInv.data(), a.lambdaInv.size()))
+    return false;
+  if (a.J.size() != b.J.size()) return false;
+  for (const auto& block : a.J) {
+    const auto it = b.J.find(block.first);
+    if ((it == b.J.end()) || !same(block.second.data(), it->second.data(), 25)) return false;
+  }
+  return true;
+}
+
+/*--- Stores the nodal spectral radii as CVariable::GetLambda for correctedSpectralRadius. ---*/
+struct NodalLambda {
+  su2activevector lambda;
+  const su2activevector& GetLambda() const { return lambda; }
+};
+
+}  // namespace
+
+TEST_CASE("EDGE_FORM_P1_MIXED_DISS: pair JST is conservative, zero at free stream, Rusanov at eps2 = 1/2", "[P1Flux]") {
+  std::mt19937 gen(4242);
+  std::uniform_real_distribution<double> u(-1.0, 1.0), pos(0.5, 2.0);
+  const int nDim = 3, nVar = 5;
+  for (double stretch : {1.0, 1e-3}) {
+    const std::string mesh = "p1_mixed_pairdiss_3d.su2";
+    WriteMixedMesh(mesh, nDim, 3, 0.3, stretch);
+    MeshCase test(mesh, MixedOptions + "EDGE_FORM_P1_MIXED_DISS= YES\n");
+    auto& geometry = *test.geometry;
+    geometry.SetEdgeFormP1(true);
+    const auto& pairs = geometry.edges->GetSplitNodes();
+    const auto& pairNormal = geometry.edges->GetSplitNormal();
+    REQUIRE(GlobalSum(su2double(pairs.size())) > 0.0);
+    INFO("stretch " << stretch);
+
+    pjst::Params par;
+    par.weakWall = true;
+    std::vector<pjst::Node> node(geometry.GetnPoint());
+    for (auto& N : node) N = RandomPairNode(gen, nDim);
+
+    /*--- Conservation: the flux from k to i (reversed normal) is minus the flux from i to k, and the assembled pair
+     * residual sums to zero. Free stream: equal states and Laplacians give no flux, whatever the other node data. ---*/
+    su2double antisym = 0.0, scale = 0.0, freeStream = 0.0;
+    for (auto iSplit = 0ul; iSplit < pairs.size(); ++iSplit) {
+      const auto i = pairs[iSplit][0], k = pairs[iSplit][1];
+      const su2double* n = pairNormal[iSplit];
+      const su2double nRev[3] = {-n[0], -n[1], -n[2]};
+      su2double f_ik[5] = {}, f_ki[5] = {}, f_eq[5] = {}, jac_i[5][5] = {}, jac_k[5][5] = {};
+      pjst::AddPairDissipation(nDim, par, node[i], node[k], n, f_ik, false, jac_i, jac_k);
+      pjst::AddPairDissipation(nDim, par, node[k], node[i], nRev, f_ki, false, jac_i, jac_k);
+      pjst::Node same = node[i];
+      std::copy(node[k].diss, node[k].diss + nVar, same.diss);
+      std::copy(node[k].lapl, node[k].lapl + nVar, same.lapl);
+      pjst::AddPairDissipation(nDim, par, same, node[k], n, f_eq, false, jac_i, jac_k);
+      for (int v = 0; v < nVar; ++v) {
+        antisym = std::max(antisym, su2double(fabs(f_ik[v] + f_ki[v])));
+        scale = std::max(scale, su2double(fabs(f_ik[v])));
+        freeStream = std::max(freeStream, su2double(fabs(f_eq[v])));
+      }
+    }
+    su2double residualSum = 0.0;
+    {
+      std::vector<su2double> Rnode(geometry.GetnPoint() * nVar, 0.0);
+      for (auto iSplit = 0ul; iSplit < pairs.size(); ++iSplit) {
+        const auto i = pairs[iSplit][0], k = pairs[iSplit][1];
+        su2double flux[5] = {}, jac_i[5][5] = {}, jac_k[5][5] = {};
+        pjst::AddPairDissipation(nDim, par, node[i], node[k], pairNormal[iSplit], flux, false, jac_i, jac_k);
+        for (int v = 0; v < nVar; ++v) {
+          Rnode[i * nVar + v] += flux[v];
+          Rnode[k * nVar + v] -= flux[v];
+        }
+      }
+      for (int v = 0; v < nVar; ++v) {
+        su2double sum = 0.0;
+        for (auto iPoint = 0ul; iPoint < geometry.GetnPoint(); ++iPoint) sum += Rnode[iPoint * nVar + v];
+        residualSum = std::max(residualSum, su2double(fabs(sum)));
+      }
+    }
+    CHECK(GlobalMax(scale) > 0.0);
+    CHECK(GlobalMax(antisym) <= 1e-14 * GlobalMax(scale));
+    CHECK(GlobalMax(residualSum) <= 1e-12 * GlobalMax(scale));
+    CHECK(GlobalMax(freeStream) == 0.0);
+
+    /*--- Pair positivity (P): scalar linear advection u_t + div(a u) = 0 in the first row, |a| <= c, eps2 = 1/2,
+     * eps4 = 0, nodal spectral radii of the true edges on the dual normal (as SetMax_Eigenvalue). The coefficients of
+     * the neighbour in both node residuals, 1/2 (a.n -+ lambda) with the opposite sign, must be <= 0 (LED). ---*/
+    su2double worstLED = -1.0, lamScale = 0.0;
+    for (int draw = 0; draw < 4; ++draw) {
+      su2double a[3];
+      const su2double c = pos(gen);
+      for (int d = 0; d < nDim; ++d) a[d] = c * u(gen) / sqrt(3.0);
+      std::vector<su2double> nodalLambda(geometry.GetnPoint(), 0.0);
+      for (auto iEdge = 0ul; iEdge < geometry.GetnEdge(); ++iEdge) {
+        const su2double* nu = geometry.edges->GetNormal(iEdge);
+        su2double an = 0.0, area2 = 0.0;
+        for (int d = 0; d < nDim; ++d) {
+          an += a[d] * nu[d];
+          area2 += nu[d] * nu[d];
+        }
+        const su2double lam = fabs(an) + c * sqrt(area2);
+        nodalLambda[geometry.edges->GetNode(iEdge, 0)] += lam;
+        nodalLambda[geometry.edges->GetNode(iEdge, 1)] += lam;
+      }
+      for (auto iSplit = 0ul; iSplit < pairs.size(); ++iSplit) {
+        const auto i = pairs[iSplit][0], k = pairs[iSplit][1];
+        /*--- Halo nodes see only part of their true edges here (the solver exchanges the nodal radii). ---*/
+        if (!geometry.nodes->GetDomain(i) || !geometry.nodes->GetDomain(k)) continue;
+        const su2double* n = pairNormal[iSplit];
+        pjst::Node Ni, Nk;
+        for (auto* N : {&Ni, &Nk}) {
+          for (int d = 0; d < nDim; ++d) N->vel[d] = a[d];
+          N->soundSpeed = c;
+          N->sensor = 1.0;
+        }
+        Ni.lambda = nodalLambda[i];
+        Nk.lambda = nodalLambda[k];
+        Ni.nNeighbor = geometry.nodes->GetnNeighbor(i);
+        Nk.nNeighbor = geometry.nodes->GetnNeighbor(k);
+        const su2double sc2 = 3 * (Ni.nNeighbor + Nk.nNeighbor) / (Ni.nNeighbor * Nk.nNeighbor);
+        pjst::Params rusanov;
+        rusanov.kappa2 = 0.5 / sc2;
+        rusanov.kappa4 = 0.0;
+        const auto eps = pjst::DissipationCoefficients(rusanov, Ni, Nk);
+        REQUIRE(fabs(eps.eps2 - 0.5) < 1e-14);
+        REQUIRE(eps.eps4 == 0.0);
+
+        su2double an = 0.0;
+        for (int d = 0; d < nDim; ++d) an += a[d] * n[d];
+        su2double jac_i[5][5] = {}, jac_k[5][5] = {};
+        su2double d_k[5] = {}, d_i[5] = {};
+        Nk.diss[0] = 1.0; /*--- u_i = 0, u_k = 1: the coefficient of u_k in R_i. ---*/
+        pjst::AddPairDissipation(nDim, rusanov, Ni, Nk, n, d_k, false, jac_i, jac_k);
+        Nk.diss[0] = 0.0;
+        Ni.diss[0] = 1.0; /*--- u_i = 1, u_k = 0: R_k gets minus the flux. ---*/
+        pjst::AddPairDissipation(nDim, rusanov, Ni, Nk, n, d_i, false, jac_i, jac_k);
+        const su2double coeff_ik = 0.5 * an + d_k[0];
+        const su2double coeff_ki = -(0.5 * an + d_i[0]);
+        worstLED = std::max({worstLED, coeff_ik, coeff_ki});
+        lamScale = std::max(lamScale, su2double(fabs(d_i[0])));
+      }
+    }
+    INFO("largest neighbour coefficient " << GlobalMax(worstLED) << " (scale " << GlobalMax(lamScale) << ")");
+    CHECK(GlobalMax(worstLED) <= 1e-14 * GlobalMax(lamScale));
+  }
+}
+
+TEST_CASE("EDGE_FORM_P1_MIXED_DISS: pure tetrahedral meshes are unchanged, residual and Jacobian bitwise", "[P1Flux]") {
+  /*--- The pair term and its time-step term run over the split pairs only, which a mesh of simplices does not have:
+   * the model operator with and without the option is bitwise the same there, and differs on a mixed mesh. ---*/
+  std::mt19937 gen(5151);
+  for (const bool mixed : {false, true}) {
+    const std::string mesh = mixed ? "p1_pairdiss_mixed_3d.su2" : "p1_pairdiss_tet_3d.su2";
+    if (mixed) {
+      WriteMixedMesh(mesh, 3, 3, 0.3, 1.0);
+    } else {
+      WriteSimplexMesh(mesh, 3, 4, 0.3, 1.0);
+    }
+    MeshCase test(mesh, MixedOptions + "EDGE_FORM_P1_MIXED_DISS= YES\n");
+    auto& geometry = *test.geometry;
+    geometry.SetEdgeFormP1(true);
+    INFO("mixed " << mixed);
+    CHECK((GlobalSum(su2double(geometry.edges->GetSplitNodes().size())) == 0.0) == !mixed);
+
+    std::vector<pjst::Node> node(geometry.GetnPoint());
+    for (auto& N : node) N = RandomPairNode(gen, 3);
+    pjst::Params par;
+    par.weakWall = true;
+    const auto off = ModelJSTOperator(geometry, node, par, false);
+    const auto on = ModelJSTOperator(geometry, node, par, true);
+    const su2double ranksDiffering = GlobalSum(BitwiseEqual(off, on) ? 0.0 : 1.0);
+    CHECK((ranksDiffering == 0.0) == !mixed);
+  }
+}
+
+TEST_CASE("EDGE_FORM_P1_MIXED_DISS: pair flux and Jacobian are the JST kernel of the true edges", "[P1Flux]") {
+  /*--- The same numbers as CJSTScheme::finalizeFlux with the edge helpers of numerics_simd (correctedSpectralRadius,
+   * jstWallFactor, scalarDissipationJacobian), on the pair coefficient n_ik as normal; weak walls on and off. ---*/
+  std::mt19937 gen(6262);
+  std::uniform_real_distribution<double> u(-1.0, 1.0);
+  constexpr int nDim = 3, nVar = 5;
+  su2double errFlux = 0.0, errJac = 0.0, scaleFlux = 0.0, scaleJac = 0.0;
+  for (int draw = 0; draw < 200; ++draw) {
+    const auto Ni = RandomPairNode(gen, nDim), Nk = RandomPairNode(gen, nDim);
+    su2double n[3];
+    for (int d = 0; d < nDim; ++d) n[d] = 0.1 * u(gen);
+    pjst::Params par;
+    par.gamma = kGamma;
+    par.kappa2 = 0.5;
+    par.kappa4 = 0.02 + 0.1 * (draw % 3);
+    par.fixFactor = 4.0;
+    par.weakWall = (draw % 2 == 0);
+
+    su2double flux[5] = {}, jac_i[5][5] = {}, jac_k[5][5] = {};
+    pjst::AddPairDissipation(nDim, par, Ni, Nk, n, flux, true, jac_i, jac_k);
+
+    /*--- Reference: finalizeFlux, line by line, with avgV the arithmetic mean of the primitives. ---*/
+    CCompressiblePrimitives<3, 8> Vi, Vk;
+    Double projVel = 0.0, area2 = 0.0;
+    for (int d = 0; d < nDim; ++d) {
+      Vi.velocity(d) = Ni.vel[d];
+      Vk.velocity(d) = Nk.vel[d];
+      projVel += 0.5 * (Ni.vel[d] + Nk.vel[d]) * n[d];
+      area2 += n[d] * n[d];
+    }
+    NodalLambda nodal;
+    nodal.lambda.resize(2);
+    nodal.lambda(0) = Ni.lambda;
+    nodal.lambda(1) = Nk.lambda;
+    Double lambda = abs(projVel) + 0.5 * (Ni.soundSpeed + Nk.soundSpeed) * sqrt(area2);
+    const unsigned long index_i = 0, index_k = 1;
+    lambda = correctedSpectralRadius(Int(index_i), Int(index_k), lambda, su2double(0.3), nodal);
+
+    const Double ni = Ni.nNeighbor, nj = Nk.nNeighbor;
+    const Double sc2 = 3 * (ni + nj) / (ni * nj);
+    const Double sc4 = 0.25 * pow(sc2, 2);
+    Double eps2 = par.kappa2 * 0.5 * (Ni.sensor + Nk.sensor) * sc2;
+    Double eps4 = fmax(0.0, par.kappa4 - eps2) * sc4;
+    const Double eps2Jac = eps2;
+    if (par.weakWall) {
+      const Double keep = jstWallFactor(Double(Ni.wall), Double(Nk.wall));
+      eps4 *= keep;
+      eps2 *= keep;
+    }
+    for (int v = 0; v < nVar; ++v) {
+      const Double ref = (eps2 * (Ni.diss[v] - Nk.diss[v]) - eps4 * (Ni.lapl[v] - Nk.lapl[v])) * lambda;
+      errFlux = std::max(errFlux, su2double(fabs(flux[v] - ref[0])));
+      scaleFlux = std::max(scaleFlux, su2double(fabs(ref[0])));
+    }
+    MatrixDbl<nVar> ref_i, ref_k;
+    ref_i = Double(0.0);
+    ref_k = Double(0.0);
+    const Double dissip_i = par.fixFactor * (eps2Jac + eps4 * (ni + 1)) * lambda;
+    const Double dissip_j = -par.fixFactor * (eps2Jac + eps4 * (nj + 1)) * lambda;
+    scalarDissipationJacobian(Vi, Double(par.gamma), dissip_i, ref_i);
+    scalarDissipationJacobian(Vk, Double(par.gamma), dissip_j, ref_k);
+    for (int v = 0; v < nVar; ++v) {
+      for (int w = 0; w < nVar; ++w) {
+        errJac = std::max({errJac, su2double(fabs(jac_i[v][w] - ref_i(v, w)[0])),
+                           su2double(fabs(jac_k[v][w] - ref_k(v, w)[0]))});
+        scaleJac = std::max({scaleJac, su2double(fabs(ref_i(v, w)[0])), su2double(fabs(ref_k(v, w)[0]))});
+      }
+    }
+  }
+  INFO("flux error " << errFlux << " of " << scaleFlux << ", Jacobian error " << errJac << " of " << scaleJac);
+  CHECK(scaleFlux > 0.0);
+  CHECK(errFlux <= 1e-14 * scaleFlux);
+  CHECK(errJac <= 1e-14 * scaleJac);
 }

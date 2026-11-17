@@ -39,6 +39,7 @@
 #include "../../include/numerics/flow/jst_entropy.hpp"
 #include "../../include/numerics/flow/p1_sst_matched.hpp"
 #include "../../include/numerics/flow/p1_boundary_closure.hpp"
+#include "../../include/numerics/flow/p1_pair_jst.hpp"
 #include "../../include/fluid/CIdealGas.hpp"
 #include "../../include/fluid/CVanDerWaalsGas.hpp"
 #include "../../include/fluid/CPengRobinson.hpp"
@@ -2133,11 +2134,15 @@ void CEulerSolver::SplitEdgeResidual(const CGeometry *geometry, const CConfig *c
 
   /*--- EDGE_FORM_P1_MIXED (P1_MIXED.md, 8.3): the face and body diagonals of the split averages carry only the central
    * part along n_ik, E = 0 (W = |t|/(d+1)). With EDGE_FORM_EC_FLUX it is the Ismail-Roe flux, so that the whole central
-   * part is entropy conservative at interior nodes (Theorem X4). No dissipation, static meshes only. Jacobian: the exact
-   * derivatives of the pair flux in the extended pattern (JST_P1ES_JACOBIAN_DIAG.md 8.3): EsIsmailRoeJacobian, which at
-   * equal states is 0.5 A(U).n, the derivative of the mean flux; matched k as the edge kernel, L(k_up) Jhat T(k). ---*/
+   * part is entropy conservative at interior nodes (Theorem X4). No dissipation (unless EDGE_FORM_P1_MIXED_DISS, below),
+   * static meshes only. Jacobian: the exact derivatives of the pair flux in the extended pattern
+   * (JST_P1ES_JACOBIAN_DIAG.md 8.3): EsIsmailRoeJacobian, which at equal states is 0.5 A(U).n, the derivative of the
+   * mean flux; matched k as the edge kernel, L(k_up) Jhat T(k). ---*/
+  /*--- EDGE_FORM_P1_MIXED_DISS (MIXED_DIAG_SOURCE_CHECK.md 3.3): plus the JST term of the true edges on n_ik, added to
+   * the pair flux and to its Jacobian blocks before the matched k, as in the edge kernel (CJSTScheme::finalizeFlux). ---*/
   if (config->GetEdge_Form_P1_Mixed()) {
     const bool ecFlux = config->GetEdge_Form_EC_Flux();
+    const bool pairDiss = config->GetEdge_Form_P1_Mixed_Diss();
     /*--- Only with the split-pair pattern (not with the OpenMP reducer, which keeps the plain pattern). ---*/
     /*--- The current integration kind (explicit during matrix-free NEWTON_KRYLOV products), as the edge kernel. ---*/
     const bool implicit = (config->GetKind_TimeIntScheme() == EULER_IMPLICIT) && Jacobian.HasSplitPairPattern();
@@ -2156,6 +2161,34 @@ void CEulerSolver::SplitEdgeResidual(const CGeometry *geometry, const CConfig *c
       for (auto iDim = 0u; iDim < nDim; ++iDim) S.vel[iDim] = nodes->GetVelocity(iPoint, iDim);
       return S;
     };
+    P1PairJST::Params jst;
+    jst.gamma = Gamma;
+    jst.kappa2 = config->GetKappa_2nd_Flow();
+    jst.kappa4 = config->GetKappa_4th_Flow();
+    jst.fixFactor = config->GetCent_Jac_Fix_Factor();
+    jst.weakWall = config->GetJST_Weak_Wall_Diss();
+    /*--- The nodal data of the edge kernel; with matched k the dissipated energy is rho (H - k), its Laplacian
+     * L(rho H) - L(rho k) (extra column of the undivided Laplacian). ---*/
+    auto jstNode = [&](unsigned long iPoint) {
+      P1PairJST::Node N;
+      const su2double density = nodes->GetDensity(iPoint);
+      su2double enthalpy = nodes->GetEnthalpy(iPoint);
+      if (turbMatched) enthalpy -= tke(iPoint);
+      N.diss[0] = density;
+      for (auto iDim = 0u; iDim < nDim; ++iDim) {
+        N.vel[iDim] = nodes->GetVelocity(iPoint, iDim);
+        N.diss[iDim + 1] = density * N.vel[iDim];
+      }
+      N.diss[nDim + 1] = density * enthalpy;
+      for (auto iVar = 0u; iVar < nVar; ++iVar) N.lapl[iVar] = nodes->GetUndivided_Laplacian(iPoint, iVar);
+      if (turbMatched) N.lapl[nDim + 1] -= nodes->GetUndivided_Laplacian(iPoint, nVar);
+      N.soundSpeed = nodes->GetSoundSpeed(iPoint);
+      N.sensor = nodes->GetSensor(iPoint);
+      N.lambda = nodes->GetLambda(iPoint);
+      N.nNeighbor = geometry->nodes->GetnNeighbor(iPoint);
+      if (jst.weakWall) N.wall = nodes->GetJSTWallNode()(iPoint);
+      return N;
+    };
     BEGIN_SU2_OMP_SAFE_GLOBAL_ACCESS {
       for (auto iSplit = 0ul; iSplit < splitNodes.size(); ++iSplit) {
         const auto iPoint = splitNodes[iSplit][0], kPoint = splitNodes[iSplit][1];
@@ -2165,6 +2198,12 @@ void CEulerSolver::SplitEdgeResidual(const CGeometry *geometry, const CConfig *c
         } else {
           addFlux(iPoint, splitNormal[iSplit], 0.5, flux);
           addFlux(kPoint, splitNormal[iSplit], 0.5, flux);
+        }
+        su2double dissJac_i[P1PairJST::MAX_NVAR][P1PairJST::MAX_NVAR] = {};
+        su2double dissJac_k[P1PairJST::MAX_NVAR][P1PairJST::MAX_NVAR] = {};
+        if (pairDiss) {
+          P1PairJST::AddPairDissipation(nDim, jst, jstNode(iPoint), jstNode(kPoint), splitNormal[iSplit], flux, implicit,
+                                        dissJac_i, dissJac_k);
         }
         const su2double massFlux = flux[0];
         if (turbMatched) addPairKine(iPoint, kPoint, flux);
@@ -2180,6 +2219,14 @@ void CEulerSolver::SplitEdgeResidual(const CGeometry *geometry, const CConfig *c
           } else {
             pbc::EsIsmailRoeJacobian(nDim, Gamma, Si, Si, splitNormal[iSplit], jac_i, dummy);
             pbc::EsIsmailRoeJacobian(nDim, Gamma, Sk, Sk, splitNormal[iSplit], dummy, jac_k);
+          }
+          if (pairDiss) {
+            for (auto a = 0u; a < nVar; ++a) {
+              for (auto b = 0u; b < nVar; ++b) {
+                jac_i[a][b] += dissJac_i[a][b];
+                jac_k[a][b] += dissJac_k[a][b];
+              }
+            }
           }
           if (turbMatched) {
             const su2double kUp = P1SSTMatched::KUpwind(massFlux, tke(iPoint), tke(kPoint));
