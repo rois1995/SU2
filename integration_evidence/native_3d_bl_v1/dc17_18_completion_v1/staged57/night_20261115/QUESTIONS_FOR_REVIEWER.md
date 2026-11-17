@@ -6,3 +6,7 @@ Can B02 use the same entry point as B07–B29 while leaving B03–B06 at their o
 ## 2026-11-17T22:32:54+01:00 · N4 phase C · C2
 
 Where should the Topology timer shared by B35e–g live when those blocks become named functions? Separate stage timers or one scope in the Exchange unit were possible. Used one Exchange scope with the original features and retained-cell state kept alive through expansion and receipt service. This preserves the original timer call and nesting. C2 base commit `f7017771e8`.
+
+## 2026-11-17T22:55:10+01:00 · N4 phase C · C3
+
+Does “join stays first” move the join ahead of ReportPrivateWork? The alternatives were the first post-slot action and the first post-slot collective. Kept the private work observation immediately before the unchanged first collective because C requires the original order and timer scope. C3 base commit `c7b7664853`.

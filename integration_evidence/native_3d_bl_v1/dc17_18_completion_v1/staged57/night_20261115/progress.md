@@ -43,8 +43,10 @@ N1/P7P8 accepted429c6c1a60. ConditionalcacheB7/N2 failed modeled12GiB and was re
 
 Historical progress: `progress_history_through_phase_B_qualification_20261117.md`, SHA256 `0e2c115b2607774e26d792b27b5b30b5987147c5a00d4ec2c70321966b38b982`. Its old RUNNING/PENDING notes are historical; this file controls current state.
 
+The ordered C3–C11 controller is PID 586872 / start 44481329. Its launch, draft pin manifest, compiler-only check and log are under `N4/section6_3_after_N11/phase_C`. It runs one build or numerical gate at a time and pauses on the first error with evidence intact. The M27 handoff and G5 follow the passing phase-end G3, G4 and GQ receipts. The syntax check passed after restoring C8's mutable reuse-map reference.
 
 ## Phase C checkpoint progress
 
+- C2 PASSED at `c7b7664853`, build560, G1 [375, 114, 228] exact, G2 work 90,809,869 and rank counts exact. Receipts in `N4/section6_3_after_N11/C2/validation`.
 
-Current action — C2, build560: passed G1 [375, 114, 228], G2 317.360 s; see scoped gate receipts.
+Current action — C3, build561: passed G1 [375, 114, 228], G2 312.365 s; see scoped gate receipts.
