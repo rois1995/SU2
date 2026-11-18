@@ -179,7 +179,7 @@ def main():
     summaries = update_timings(final)
     progress_path = progress_current(final)
     commit = checkpoint('Close work order 2 with the N18 outcome and final handoff',
-                        [receipt, host, progress_path, NIGHT_REPORT, HANDOFF, NEXT_WORK,
+                        [receipt, host, progress_path, Path(final["report"]), NIGHT_REPORT, HANDOFF, NEXT_WORK,
                          Path(__file__).resolve(), *summaries,
                          *(DRAFTS / name for name in ('night_top.md', 'night_readings.md', 'night_history.md'))])
     print(commit, flush=True)

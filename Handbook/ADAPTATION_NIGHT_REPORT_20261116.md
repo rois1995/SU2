@@ -1,44 +1,73 @@
-# Unattended adaptation work, 2026-11-16
+# Unattended native adaptation work
 
-DRAFT — ordered work continues; N7 is not final. Combined section6.8 is accepted at f8c7b01085 (build534). N11 B2+6.9 failed its FIRST G3 purpose gate: geometry-origin guidance1046/1301=0.803996925442, required<0.70. Physical validity passed. One R5 read-only diagnosis found the proposal cause; connected production reverted in0d9d627645 (pushed), N10 skipped dependent. No second N11 G3/full/restart. Complete failure evidence: [N11 report](../integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N11/REPORT.md).
+Work order 2 and the 2026-11-18 amendment governed this campaign. Phase D completed the `Adapt` cut. N16 retained the clearance preparation and disabled wider-round support. The first production run with larger rounds failed event-one quality and its enabling change was reverted. N6 completed the three further extractions and qualified build578. D/E passed at `3524e11a75`. F failed. Its first difference was event one NATIVE3D complete=0 against the required 1, with rank 3 q_bad=1 against 0. The F enabling change was reverted at `12690f1d99`, and build579 is active. [N18 report](../integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N18/reports/STEP_8_5R2_580.md)
 
-Production now equals accepted f8c7b01085, rebuilt as536 (90.125806s;1598 pins unchanged;12 terminal build identities). CFD/test binaries are byte-identical accepted534. Fresh cut G1 serial/MPI2/MPI4 references all match the accepted-base table; G2, G3 and GQ references must finish before any cut edit. Whole N4 source check is complete in one22-item list. Remaining order:6.3/N4 -> N6 only with completeN4/passedG5 -> finalN7. Latest6.9 copied verbatim into AGENTS before firstN11 edit. No design8.5 or BL/RANS capability claim.
+## Work order results
 
-R = `integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57`.
-NIGHT/H/D/C and both inventories are SHA-sealed in `R/night_20261115/inputs`.
-The latest unattended section2 is in AGENTS.md; no user/reviewer answer was requested.
-
-| Item/sub-step | State | Commit | Numbers and evidence |
+| Item | Result | Checkpoint | Gates and evidence |
 |---|---|---|---|
-| Historical N1 ordered fixtures/checks | PASSED |6322be34ea/d4e9e81cac|Exact first-collapse90809869work; C492461splits/304986positivecells; prior focused/MPI/safeguards passed.|
-| Historical first N1 full identity | FAILED |failed N1; revertedbecb4927c9|Event1 all3hashes identical; event2 firstNELEM855828 vs855760 (+68), points168797 vs168790 (+7), all3hashes differ.|
-| Historical N2 before6.1 | NOT STARTED |—|Accepted N1 dependency false; failed M18 is not qualified condition input.|
-| N3 whole design source review | PASSED |6941fcc41c|Read-only, one14-item list; M11/M15/M17/M19 and conditional T1–T3 answered.|
-| N4 F3b reference rebuild/G2/G3/GQ | PASSED |4798ea3936|Build870.265s; G2exact90809869work; G3fresh473splits/305015positivecells/first336P6c; GQall6thirdwindows.|
-| Historical N4 A1 old G1 stop | REOPENED by C2.1 |historicalec0e8f3ef5; revert8039fc1b59|First old metric assertion209.9357526597 vs656.1522579418, epsilon5e-4;13FAILmarkers, serial600s timeout. MPI/G2notstarted.|
-| N4 later phases | NOT STARTED |—|A1 and unchanged G1 prerequisite failed.|
-| N5 existing F3b timing extraction | PASSED |4f4919ef61|204qualitywindows/180timerrows,2events×6ranks; source/runtime/input/physical receipts retained.|
-| N5 observation prefix gates | PASSED |a90d420937/6e0777868b|G2 all integers/exact90809869work; GQ all6thirdwindows and old integers identical. CFD861737e1.|
-| Historical N5 intermediate profile | PASSED later3d28237f03 |eb5e48174a|Build521; five refreshed stack/channel cases, actual operators and all three geometry measurements passed. Corrected locality check active; full two-event profile pending.|
-| N6 further cuts | NOT STARTED |—|Requires completeN4+passedG5.|
-| N1 /6.1 renewed acceptance | PASSED |429c6c1a60|Full event1 P6c/event2 P7-reference identity,4286.332645s workflow; native2161.697077/1634.828953s; SUMpeaks14,028,087,296/17,349,582,848B; isolatedrestartPASS. section6_1/REPORT.md |
-| N2 /6.2 B7 | FAILED |reverted9831c787e7|Conditiontrue17.70e9<=19.0e9; C492modeled13,061,193,021>12GiB,0splits; no fullB7run. section6_2/REPORT.md |
-| N5 clean measurement repeat | PASSED |3d28237f03|All6P6c/standinggates; native2581.0285/1907.4990s, SUMpeaks13,952,311,296/17,729,433,600B. N5/reports/N5_measurement_table_draft.md; qualified M18/20/21 nowsection6_1. |
-| N9 /6.6 | PASSED |9867041a2e|G3:457commonedits/adjustedentry5113/physical+first336PASS; G2alloldints/exact90,809,869PASS. N9/section6_6/REPORT.md |
-| SharedG1 reference | PASSED (recorded existing failures) |9867041a2e|375serial/57perrank MPI2/4;24/19/37failedexpressions,792.252073/14.745597/15.756263s. N10/G1_shared_reference_manifest.json |
-| Historical N8 A1 old gate | FAILED (correctly reverted;6.8reopens) |candidateeb6d94042c; reverted03fffc52e8|Build532470.250586s/1565pins/130terminalIDs; API10assertionsPASS; Euler293CSVfirstline3score0.00013363402603001954→0.00013363402603001952,need7521same; no later checks. N8/A1/REPORT.md |
-| N11 B2+6.9 | FAILED |candidate5488d1f1b5; revert0d9d627645|FirstG3 geometryguidance1046/1301=.803996925442>=.70; physicalPASS; no secondG3/full. N11/REPORT.md. |
-| N10 correctedB1 | NOT STARTED (dependent skipped) |—|N11 purpose failed; latest6.6 forbids dependentN10. |
-| N4 renewed references | IN PROGRESS |restored0d9d627645/sourcef8c7b01085|Build536 reproduced accepted534 hashes; freshG1allcohortsPASS; no cut production edit. |
-| N8 combined6.8 | PASSED |source527c7c73fa; acceptancecheckpointcurrent|All ordered prerequisites/full/all6hashes/isolatedrestart PASS. native2529.592735/1684.219472s; SUMpeaks14021578752/17419386880B; restart248.353069s. |
-| N8 G1 candidate | PASSED identity |7938b89495|375 serial/57 per rank at MPI2/4, zero changed cases; baseline failed-expression counts24/19/37. Controller seconds839.004931/15.181993/20.688848;4/6/8 terminal identities. |
-| N8 G2 candidate | PASSED identity |836ca18d27|Work90,809,869 and all six counts exact; all old integers/bytes/non-Census calls exact;12 timer snapshots satisfy Census sum rule for6 law lines.398.804320s until planned stop/408.513817s sealed. One solver run; postprocessing repaired underR3. |
-| N8 A2/A3 + N12 | PASSED |3a5d331e37; acceptancef8c7b01085|Passive requirements/lane census; all534group/full/restart gates passed; no8.5. |
-| N4 renewed A1 | PASSED scoped G1/G2 |current source711c30e3/build537|375serial/57MPI2/4 ZEROchanges;791.683805/13.937737/16.089440s; strictG2 ALLoldints/model/per-rowCensuscalls exact363.081195stop/371.443689sealed; phaseA/N4incomplete. |
-| N4 renewed A2 | PASSED scoped G1/G2 |current source77b3c31b/build538|Original-orderEngineSetupprivatepair; G1ZEROchanges790.791954/15.855281/15.099789s; strictG2alloldint/model/per-rowCensuscalls exact363.203256stop/371.619170sealed; phaseA/N4unfinished. |
-| N7 final closure | NOT STARTED |—|This remains a draft until ordered work ends.|
+| N1 · P7/P8 references | PASSED | `429c6c1a60` | Both events and the isolated restart passed in the renewed campaign. The six accepted files use P6c for event one and P7 for event two. Workflow 4286.333 s. [N1 report](../integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/section6_1/REPORT.md) |
+| N2 · B7 cache | FAILED | `9831c787e7` | 13,061,193,021 B modeled against 12,884,901,888 B. The cache admission stopped before the first edit. [Failure report](../integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/section6_2/REPORT.md) |
+| N3 · whole design source check | PASSED | `6941fcc41c` | Fourteen source findings recorded. Numerical gates did not apply to this read-only item. See the source-check list below. |
+| N5 · D §9 measurements | PASSED | `3d28237f03` | Executed measurement gates passed after the R1 correction. Native events 2581.029 / 1907.499 s, six payloads exact. Coverage limits are recorded per measurement. [Measurement table](../integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N5/reports/N5_measurement_table_draft.md) |
+| N9 · wall counters | PASSED | `9867041a2e` | G2 exact at 90,809,869 work, G3 with 457 common edits and adjusted work 5,113. [N9 receipts](../integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N9/section6_6/REPORT.md) |
+| N8 A1–A3 and N12 · law, record view, switch table, M6b/M24 | PASSED | `f8c7b01085` | Scoped gates, six exact files and restart passed on build534. Native maxima 2529.593 / 1684.219 s, isolated restart 248.353 s. [N12 evidence](../integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N8/A2_A3_N12/section6_8) |
+| N11 · B2 alone | FAILED | `0d9d627645` | G3 geometry-guidance share 1046/1301 = 80.3997%, threshold below 70%. Physical gates passed. [N11 report](../integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N11/REPORT.md) |
+| N10 · former B1 | NOT STARTED | — | The order withdrew this item. |
+| N13 · M25 | PASSED | `8ab6da791e` | 2,408 exact prediction-prefix checks, 4,816 parent and 9,632 child bounds obtained. [M25 report](../integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N13/section6_10/REPORT.md) |
+| N14 · B2 with required splits | PASSED | `0c2cb5c460` | G3 1,113 / 1,099 splits against 689 required. Full workflow 4738.251 s and restart 236.822 s passed. Six exact payloads. [N14 report](../integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N14/section6_12/REPORT.md) |
+| N15 · M26 | PASSED | `0c2cb5c460` | Reconciled local-wall and M26 commits at all six ranks for both events and verified 96 timer summaries. [M26 report](../integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N14/section6_12/reports/M26_full552.md) |
+| N4 · phase A | PASSED | `5ec465ca1a` | G1–G5 and GQ passed. Full workflow 4796.321 s, disk restart 246.459 s, six payloads exact. [Phase A report](ADAPTATION_ADAPT_CUT_20261115.md) |
+| N4 · phase B | PASSED | `97478b7aba` | B8 `daf75b14e2`. Corrected six-rank identity run exact at work 90,809,869. G3 1,170 splits, 1,113 common edits exact. G4 and GQ passed. [Phase B report](ADAPTATION_CUT_PHASE_B_20261117.md) |
+| Planned stop after phase B | PASSED | `f818510af9` | 1,781 pins and two binary hashes verified, all owned job handles terminal. [Terminal audit](../integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N4/section6_3_after_N11/end_B_preparation/planned_stop_terminal_audit.json) |
+| §4.1 · N4 phase C | PASSED | `f877ff8175` | C11 `167e353ca7`. G3/G4/GQ passed. G5 4058.303 s, six payloads and 96 timer snapshots exact. Restart 225.848 s. [Phase C report](ADAPTATION_CUT_PHASE_C_20261118.md) |
+| §4.1a · N17 M27 | PASSED | `4787358e7a` | Both events and six ranks, zero observer failures. Phase C G5 supplied all measurements. [M27 report](../integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N17/reports/M27_build570.md) |
+| §4.2 · phase D | PASSED | `c9176e9439` | D1 `829e8db24b`, D2 `4c6cbddbdb`. G5 4140.805 s, six payloads and 96 timer snapshots exact. Restart 233.893 s. [Phase D report](ADAPTATION_CUT_PHASE_D_20261118.md) |
+| §4.3 · N16 8.5r | FAILED | `3276cbb862` | A `4694b26e82` and B `355a40d366` passed. T0 4089.709 s with six exact files and 96 timer snapshots. C failed event one, `complete` 0 and rank 3 `q_bad` 1. [N16 report](../integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N16/reports/STEP_8_5R_575.md) |
+| §4.4 · N6 | PASSED | `19944869a3` | Remesh, MeshOptimizer and Selection passed G1/G2/G3/GQ. G4, G5, isolated restart and three saved-state safeguards passed on build578. G5 4041.079 s, restart 234.819 s. [N6 report](ADAPTATION_CUT_N6_20261118.md) |
+| §4.4a · N18 8.5r2 and M28 | FAILED | `12690f1d99` | D/E passed at `3524e11a75`. F failed. Its first difference was event one NATIVE3D complete=0 against the required 1, with rank 3 q_bad=1 against 0. The F enabling change was reverted at `12690f1d99`, and build579 is active. [N18 report](../integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N18/reports/STEP_8_5R2_580.md) |
+| §4.5 · N7 | PASSED | This report commit | 129 N18 process identities were terminal. Actual-host preflight found zero owned heavy jobs. The handoff and next-work file were updated. [Audit](../integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N18/restored579_terminal_audit.json) |
 
 ## Failed items and reversions
+
+- **N2 B7** modeled 13,061,193,021 B, 176,291,133 B above the 12 GiB guard. Admission refused the first collision trial under the cache-enabled model. The first ordered edit was missing (0 versus 336 required), while the original 303,823 private cells remained positive with sensors. Candidate `6bed5aec53` was reverted by `9831c787e7`. [Failure, attribution and saved patch](../integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/section6_2/REPORT.md)
+- **N11 B2** first failed the purpose gate at 1046 of 1301 geometry-guidance rows (0.803996925442, required below 0.70). The read-only diagnosis found the prescribed weights were active for 2,914 face encounters, with zero fallback. The retained guidance rejected 1,043 geometry cases as incomplete and three for lack of progress. The weight change alone missed the required purpose. Candidate `5488d1f1b5` was reverted by `0d9d627645`. The second G3, full workflow and restart did not run for N11. [N11 failure](../integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N11/REPORT.md)
+- **N16 C** first differed at `complete=0` against 1. The complete rank-3 census recorded `q_bad=1` against 0, with one stuck required shape, 14 blocked features and an empty repair queue. The widened trajectory reached the existing operator-stagnation stop. The one diagnosis found no transcription error. `5dffa5ca5a` was reverted by `3276cbb862`. The purpose gate, event two, restart and repeat were not reached. [Diagnosis](../integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N16/C_failure/failure_diagnosis.json) · [Revert receipt](../integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N16/C_failure/revert_checkpoint.json)
+- **N18 F** first differed at event one NATIVE3D complete=0 against the required 1, with rank 3 q_bad=1 against 0. The prescribed 64-wide path left interior cell 152845591 with one unresolved shape failure. All 14 feature demands stayed blocked and retained the same service epochs and refusal masks between the first M28 observation and exit. The unchanged support-release and no-candidate rules left the cell stuck and returned operator stagnation. The exact F patch and compiled pins matched the proposal, and the ownership cool-down was active. The diagnosis found no transcription or wiring error. Candidate `6b56b42f16` was reverted by `12690f1d99`. [Failure diagnosis](../integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N18/failure_diagnosis.json)
+
+## Readings used and fixture corrections
+
+Each production item used its own pre-edit source check. The reports retain the original contradictions, the readings applied and the recorded corrections. The work order references used the adopted N14 G1, G2, GQ and first G3, plus the P6c/P7 six-file G5 reference. The reviewer ledger records implementation choices made without waiting for an answer. [R13 ledger](../integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/QUESTIONS_FOR_REVIEWER.md)
+
+| Item | Readings used and corrections |
+|---|---|
+| N1, N2 | The renewed N1 adopted the P7 event-two outputs after full and isolated-restart gates. B7 used the written cache admission condition and the original model cap. N1 repaired its harness and restart postprocessing. N2 preserved the declaration and no-quota wiring corrections and the later numeric failure. [N1 report](../integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/section6_1/REPORT.md) · [N2 report](../integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/section6_2/REPORT.md) |
+| N3, N5 | The source findings below retain D's fallback and operator-scope readings. N5's clean measurement scopes and the locality facet-ID, thread accounting, setup and export repairs are in its own index. [Fixture repairs](../integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N5/fixture_repair_index.md) |
+| N9, N8 and N12 | The old-row and wall-law population readings stay with their source reviews. N8 used the held before/after transient-state references and its candidate comparator corrections. [N9 report](../integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N9/section6_6/REPORT.md) · [N8/N12 corrections](../integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N8/A2_A3_N12/own_helper_corrections.json) |
+| N11, N13, N14, N15 | N11 froze all helper pins after the first G2 attempt and repaired a missing SHA binding post-only at G3. M25 measured incomplete prediction prefixes exactly and used marked supplemental bounds. Its wrapper adopted pt2pt, accepted the pinned CSV's CRLF and included all requested bound rows. N14 source bindings and report setup, G3 pair handling and N15 attribution corrections are preserved with the adopted gates. [N11](../integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N11/REPORT.md) · [M25](../integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N13/section6_10/REPORT.md) · [N14 and N15](../integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N14/section6_12/REPORT.md) |
+| Cut phase A | The C §2.1 accepted-base G1 comparison reopened A1. The scope and collective findings are in the single whole-cut source check. The boundary and restart verdicts used post-only repairs on the same numerical cases. [Source check](../integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N4/section6_3_after_N11/source_check.md) · [Phase A report](ADAPTATION_ADAPT_CUT_20261115.md) |
+| Cut phase B | The orphaned draft renderer made the earlier B6–B8 G2 executions exceed R1. Process accounting and draft generation were corrected. The connected build558 rerun met the six-process limit. The controller recoveries reused the original eligible G2/GQ numerical jobs and reported unavailable reparented wait statuses explicitly. [Phase B report](ADAPTATION_CUT_PHASE_B_20261117.md) |
+| Cut phase C, N17 | C1/C2 corrected alias comparison and the progress marker. C8 kept the original mutable reuse-map view and verified already-published aliases by their sealed hashes. C11 corrected moved call-site formatting. The G5 and M27 helpers corrected relative dependency paths, nested process identities, MPI log prefixes and the event-two proof-count self-check. The G5 and restart numerical jobs were reused. [Phase C report](ADAPTATION_CUT_PHASE_C_20261118.md) · [M27 source check](../integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N17/source_check.md) |
+| Cut phase D | D1 kept the live metric timer and collective sequence. D2 follows the original guard and ownership lifetimes. Corrected the D1 amendment source pin and D2 local scope and branch-boundary generation. The disk validator ran post-only and CSV evidence is archived losslessly. [Phase D report](ADAPTATION_CUT_PHASE_D_20261118.md) |
+| N16 | Used full-width-safe agreement and window arithmetic, the explicit repair flag, the accepted rank/field conventions for the construction prefix and the original print scope for choice counts. Fixed the Part A MPI window backend in the fixture and stripped ANSI decoration in the G4 summary helper. [Whole-item source check](../integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N16/source_check.md) · [Part A–C report](../integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N16/reports/STEP_8_5R_575.md) |
+| N6 | The extraction keeps the public failure caller context, reporting clock boundary, distinct ring conflict handling and one Selection lifetime. The private patch generator corrected its repository-root selection. The first optimizer GQ wrapper stopped before launch at the existing disk guard. Lossless archives of the earlier local binary copies freed space, and the passed build and scoped checks were reused. The N6 report records those receipts. [N6 report](ADAPTATION_CUT_N6_20261118.md) |
+| N18 | The whole-item check records the live repair key, the timings-only entry, reservation eligibility, the preserved integer comparisons and the confirmed purpose thresholds. [N18 source check](../integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N18/source_check.md) |
+
+## Unit tests that fail on the accepted base
+
+G1 matched the adopted N14 case and failed-assertion tables at serial, two and four ranks. The linked table gives both printed values and the cohort and rank for each failure variant. [Complete accepted-base failure table](../integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N4/section6_3_after_N11/phase_C/accepted_base_g1_failures.md)
+
+- A failed interior candidate vetoes the whole first-row publication batch · `UnitTests/Common/adaptation/CNativeDistributed3D_tests.cpp:3683`
+- Actual CFD import generates a finite spherical sensor shell with copied boundary values · `UnitTests/SU2_CFD/adaptation/CNativeImport3D_tests.cpp:1229`, `UnitTests/SU2_CFD/adaptation/CNativeImport3D_tests.cpp:1231`
+- Actual CFD import generates bounded bump sensor columns with collective provenance and refusal · `UnitTests/SU2_CFD/adaptation/CNativeImport3D_tests.cpp:1185`, `UnitTests/SU2_CFD/adaptation/CNativeImport3D_tests.cpp:1188`, `UnitTests/SU2_CFD/adaptation/CNativeImport3D_tests.cpp:1190`
+- Canonical ideal-midpoint samples retain physical priority and exact boundary weights · `UnitTests/Common/adaptation/CNativeDistributed3D_tests.cpp:3544`
+- Mapped native runtime completes a uniform target before conservative BDF2 transfer · `UnitTests/SU2_CFD/adaptation/CNativeImport3D_tests.cpp:2779`
+- Native original support preserves affine P1 and falls back at inserted source-edge points · `UnitTests/Common/adaptation/CNativeDistributed3D_tests.cpp:2855`, `UnitTests/Common/adaptation/CNativeDistributed3D_tests.cpp:2858`, `UnitTests/Common/adaptation/CNativeDistributed3D_tests.cpp:2859`
+- Native3D complexity integrates the geometric BL with sensor-only donors · `UnitTests/SU2_CFD/adaptation/BoundaryLayerMetric_tests.cpp:1220`
+- Native3D driver publishes only accepted mesh and transfers affine BDF2 states · `UnitTests/SU2_CFD/adaptation/CNativeImport3D_tests.cpp:543`
+- Native3D production wall policy preserves sensor donors and RANS histories across worker counts · `UnitTests/SU2_CFD/adaptation/CNativeImport3D_tests.cpp:1786`
+
+## Earlier rejected attempts
 
 N1: first difference is event2 mesh line2 (+68 cells). The one bounded read-only
 diagnosis found prepared-cache history feeding StructuralEstimate, MAX-reduced geometry
@@ -56,9 +85,9 @@ not Adapt; its unscaled tangent expectation differs from the current normalizing
 of which side is wrong, and no baseline numerical replay was done. No allowed transcription
 fix exists. Failed code preservedec0e8f3ef5, reverted8039fc1b59. Evidence:
 `R/night_20261115/N4/A1/{first_result_failure,readonly_diagnosis,G1_terminal_handles}.json`.
-No old test, production policy, gate or tolerance was changed to pass G1. Fresh536reference now confirms all13assertions already fail on the accepted base; C2.1 therefore reopens A1 and the historical stop is not a cut result failure. Reapply only after remaining fresh references.
+No old test, production policy, gate or tolerance was changed to pass G1. Fresh536reference now confirms all13assertions already fail on the accepted base; C2.1 therefore reopens A1 and the historical stop is not a cut result failure. The renewed A1 later passed and is included in phase A.
 
-## Full runs beside accepted F3b
+### Earlier full runs beside F3b
 
 | Run/event | Native seconds | Remesh root seconds | Six-rank peak RSS sum B | Result |
 |---|---:|---:|---:|---|
@@ -107,7 +136,7 @@ Busy is wall time, not CPU; join/collective intervals overlap; named exclusive i
 
 14. **D1 memory wording is superseded by the latest user order.** Source's12288MiB option models one rank, while the night order's physical job gate is19073MiB=19999490048B over rank process peaks. **Reading used:**12GiB remains the modeled per-rank ceiling, not the whole-job cap. N1's P8 implementation is reverted; an external strict job gate is still required for subsequent validation. No cache quota from that cap, no gate/budget change, and no P8 acceptance claim follows from this reading.
 
-## N5: measured numbers
+## N5: early measurement provenance
 
 Scope: rows requested by D section 9 for N5. Values below are qualified by each fixture's population and setup. `Measured` does not mean the integrated design is validated. M18/M20/M21 derive from N1 and remain unqualified because N1 failed its second-event result identity gate; emitted values are shown with that qualification and are not accepted evidence.
 
@@ -147,48 +176,4 @@ The first locality2 launch failed in fixture setup at `map::at` before producing
 
 Face-height M10/M12 receipts used build520 test binary `8a77a3fb0e294ecbb143410c08f7fc995dffc88818f8c648653dbf9a3d1bfede` and source-pins receipt SHA-256 `29dfaf2c251de2d53ea38c42f9ead09fb5ff825879e81d062d24fec1bd18101d`. The original Euler input geometry sample used the build515 test binary; the repeated decode12 receipt uses build520 binary `8a77a3fb0e294ecbb143410c08f7fc995dffc88818f8c648653dbf9a3d1bfede` and source pins above. Actual operator receipt used build520 test binary above. Exact case paths and artifact hashes are in the per-case receipts and `stack_measurements.json`.
 
-Unmeasured geometry/locality work remains pending: M3 Classify on the Euler input is unavailable because its source receipt has no parameter payload and Classify support is false; full M9 distributed contact-proof share (locality `item1` counts are available, but contact proof is not); complete all-candidate M2/M6 coverage; new handoff-step-2 quality profile M8 and component timing M16 (M8 reuses the existing accepted F3b profile); and M14 remains unavailable because the source has no implemented/qualified inverse Unlift operator. Do not interpret this draft as completing N5.
-
-## Cut findings, exceptions and function sizes
-
-Found during the cut: uncaught acquisition throw; ignored import_source requests;
-receipt-sort ties depending on input order; asymmetric callback presence; retained
-geometry cache affecting subsequent partition weights. These were preserved, not fixed.
-The only written C exception is EngineLegacyWall's80-line limit; three growth copies
-must remain separate. No cut is retained after8039fc1b59, so there is no accepted set
-of ten longest newly cut functions. N5 diagnostic/helper scan covers158 active functions, all at most80lines; retained proposal drafts are excluded. Current top ten (unrelated to the reverted Adapt cut) follow.
-
-| Function | Lines | File |
-|---|---:|---|
-| produced_artifacts | 79 | `integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N5/run_d9_units.py` |
-| D9MeasureFaces | 77 | `UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp` |
-| D9Measure | 72 | `UnitTests/SU2_CFD/adaptation/fixtures/native_first_row_dc12.inc` |
-| D9MeasureWallEdges | 68 | `UnitTests/SU2_CFD/adaptation/CNativeImport3D_tests.cpp` |
-| D9WriteOperatorReport | 63 | `UnitTests/Common/adaptation/CNativeDistributed3D_tests.cpp` |
-| D9WriteSummary | 62 | `UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp` |
-| D9MeasureProjection | 59 | `UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp` |
-| D9FirstHeights | 57 | `UnitTests/SU2_CFD/adaptation/fixtures/native_first_row_dc12.inc` |
-| run | 55 | `integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N5/run_d9_units.py` |
-| D9Columns | 48 | `UnitTests/SU2_CFD/adaptation/fixtures/native_first_row_dc12.inc` |
-
-Source hashes and precise bounds are in `N5/reports/function_lengths_current.json`.
-[Complete C ledger](ADAPTATION_ADAPT_CUT_20261115.md).
-
-## Readings and fixture repairs
-
-The14N3 readings/qualifications above, the18N4 source-check entries and12N5 entries
-are preserved in their original ledgers. The latest NIGHT order overrides H's dependency
-on a cut engine for N5; F3b is used after N4failed. No reading waived a result gate.
-
-R3 repair details: `R/p7p8_r3_20261115/fixture_corrections.json`, helper receipts named in
-its report; N4 comparator19selfchecks and unit/cut helper repairs inN4 ledgers;
-N5 `fixture_repair_index.md` consolidates all counter, stack, geometry, descriptor, operator and launcher repair receipts and build511–521 setup outcomes. The latest locality setup correction resolves vertex-index face records to authority facet IDs before reading markers. No production policy/gate/tolerance repair is included.
-
-## Terminal state and next authorized work
-
-Pending N5completion and host verification. Design8.3–8.7, A5/B5, job-derived cache quota,
-BL/RANS acceptance and other production redesign remain outside this work order.
-
-## Unit tests that fail on the accepted base
-
-Fresh build536 recorded375serial/57MPI cases per rank at2/4 ranks;24/19/37failedassertion records exactly match the prior table. Complete case/rank/file/line and printed values: [table](../integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N4/section6_3_after_N11/reference_validation/unit_tests_that_fail_on_accepted_base.md), [unabridged values](../integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N4/section6_3_after_N11/reference_validation/unit_tests_that_fail_on_accepted_base.json). All13historicalA1assertions fail on this fresh reference; import-test historical line numbers shifted+1 by an earlier accepted include, expressions unchanged. C2.1 permits A1 after remaining references.
+Unmeasured geometry/locality work remains pending: M3 Classify on the Euler input is unavailable because its source receipt has no parameter payload and Classify support is false; full M9 distributed contact-proof share (locality `item1` counts are available, but contact proof is not); complete all-candidate M2/M6 coverage; new handoff-step-2 quality profile M8 and component timing M16 (M8 reuses the existing accepted F3b profile); and M14 remains unavailable because the source has no implemented/qualified inverse Unlift operator. The qualified N5 repeat and N1 export supply the updated results linked above.

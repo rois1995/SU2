@@ -2,7 +2,11 @@
 
 Updated 2026-11-18. Read AGENTS.md and the copied WORK_ORDER_2.md at the start of the new session, then this file.
 
-## Current state — N18 F full run one
+## Current state — work order 2 complete
+
+Updated 2026-11-18T20:41:03+01:00. D/E passed at `3524e11a75`. F failed. Its first difference was event one NATIVE3D complete=0 against the required 1, with rank 3 q_bad=1 against 0. The F enabling change was reverted at `12690f1d99`, and build579 is active. [N18 report](N18/reports/STEP_8_5R2_580.md) All owned processes are terminal. N7 closes work order 2. Wait for the next user order.
+
+## N6 and N18 entry reference
 
 N6 qualification `19944869a3` accepted build578. G5 completed in 4041.079 s with all six P6c/P7 payloads and 96 timer snapshots exact. The isolated restart passed in 234.819 s, with zero coordinate error. All three standing safeguards passed. The audit verified 1,790 source pins and 271 terminal process identities.
 
@@ -252,3 +256,5 @@ N18. F scoped gates passed G1 375/114/228, G2 90,809,869, G3 1,519 splits and 1,
 N18. All three standing safeguards passed. Starting F G5 run one.
 
 N18. F FAILED. First difference: event one NATIVE3D complete=0 against the required 1, with rank 3 q_bad=1 against 0. Preserving the candidate evidence.
+
+N18. N18 source disposition pushed as `12690f1d99`. The final N7 report follows.

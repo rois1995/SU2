@@ -1,5 +1,5 @@
-# Next work order item
+# Work order status
 
-Phase C passed at C11 `167e353ca7` and build570 with M27 `4787358e7a`. G5, the isolated event-two restart and the standing shared-code safeguards passed. The final terminal audit found zero owned heavy processes. [Phase C report](Handbook/ADAPTATION_CUT_PHASE_C_20261118.md)
+Work order 2 ended at N7. D/E passed at `3524e11a75`. F failed. Its first difference was event one NATIVE3D complete=0 against the required 1, with rank 3 q_bad=1 against 0. The F enabling change was reverted at `12690f1d99`, and build579 is active. [N18 report](integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N18/reports/STEP_8_5R2_580.md)
 
-The next item is work order 2 §4 item 2, phase D. Read AGENTS.md, the copied work order and [current progress](integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/progress.md). Apply D1–D3 and their written gates. Use the sealed phase C G5 and M27 evidence at [the acceptance checkpoint](integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N4/section6_3_after_N11/phase_C/acceptance_summary.json). Record implementation questions in the [R13 ledger](integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/QUESTIONS_FOR_REVIEWER.md).
+Wait for the next user order. At the next start, read AGENTS.md and the current progress file. [Progress](integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/progress.md) · [Final report](Handbook/ADAPTATION_NIGHT_REPORT_20261116.md)
