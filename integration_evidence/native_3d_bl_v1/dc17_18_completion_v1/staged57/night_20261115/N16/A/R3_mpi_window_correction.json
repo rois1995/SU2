@@ -1,0 +1,5 @@
+{
+  "first_returncode": 53,
+  "cause": "OpenMPI singleton window selected the default OSC backend instead of the accepted pt2pt backend.",
+  "correction": "Adopt the exact serial G1 OMPI_MCA_osc=pt2pt environment and build TMPDIR; keep the binary and fixture unchanged."
+}

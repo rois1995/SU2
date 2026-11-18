@@ -1,0 +1,14 @@
+{"actual_host_proc": true, "owned_python_helpers_accounted": true, "preflight_script_sha256": "a99ba5704050db95d622dee3f0e393ea59ae296787754f9019d008df946e93ef", "unix": 1794994603.5631096, "sample_seconds": 3.0581068992614746, "active_OWNED_heavy_processes": [], "other_busy_observations": [], "MemAvailable": "MemAvailable:   40162876 kB", "loadavg": "0.71 1.53 3.42 1/3318 1414624"}
+section6_3_after_N11 build: starting
+section6_3_after_N11 build: terminal in 82.713 s
+{"actual_host_proc": true, "owned_python_helpers_accounted": true, "preflight_script_sha256": "a99ba5704050db95d622dee3f0e393ea59ae296787754f9019d008df946e93ef", "unix": 1794994689.369834, "sample_seconds": 3.0571658611297607, "active_OWNED_heavy_processes": [], "other_busy_observations": [], "MemAvailable": "MemAvailable:   39053028 kB", "loadavg": "1.54 1.66 3.31 2/3331 1416370"}
+N16 A4: starting
+Traceback (most recent call last):
+  File "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N16/run_scoped.py", line 65, in <module>
+    part_a()
+  File "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N16/run_scoped.py", line 56, in part_a
+    wait = cut.run_gate(workspace, 'A4', test_command(status['test_binary'], '[NativeQualityRoundBounds3D]'))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N4/section6_3_after_N11/phase_C/run_cut_step.py", line 69, in run_gate
+    raise RuntimeError(f'{name} exit {code}. See {workspace / (name + "_outer.log")}.')
+RuntimeError: A4 exit 53. See /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N16/A/A4_outer.log.

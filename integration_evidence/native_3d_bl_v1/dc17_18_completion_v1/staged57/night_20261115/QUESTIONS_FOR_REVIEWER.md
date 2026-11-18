@@ -34,3 +34,15 @@ Does deleting the non-streamed metric block remove its outer timer scope as well
 ## 2026-11-18T07:39:38+01:00 · N4 phase D · D2
 
 Should the extracted Adapt helpers group lifetime guards in named methods or share a new owner with its own teardown? Used named methods that retain the original guards until the continuation returns. This preserves construction order, reverse teardown, and the original scope at each Finish call. Draft source base commit `cba3cfe577`.
+
+## 2026-11-18T10:34:02+01:00 · N16 · A–C source check
+
+How should the packed controls and scaled window handle existing full-width inputs? The options were literal unchecked arithmetic and preserving the specified agreement and floor within the existing range. Used invalid-pair sentinel packing with the same two votes, the exact old result when widths match, and overflow-safe scaling when they differ. Phase D base `c9176e9439`.
+
+## 2026-11-18T10:34:02+01:00 · N16 · C3 and reference prefix
+
+Which accepted repair fixture and integer comparison should be used? The explicitly parameterized incomplete or intentionally invalid fixtures cannot prove final acceptance. Use the existing successful concurrent repair fixture with the construction width made explicit and a wide repeat at ranks 2 and 4. For the prefix use the established numeric-field convention, requiring modeled/work/count identity and validating measured RSS separately. Literal all-token comparison would make two accepted, already identical workflows fail on measured RSS. Phase D base `c9176e9439`.
+
+## 2026-11-18T10:34:02+01:00 · N16 · B report fields
+
+Should the maximum-choice report be derived from window totals or measured per round? The totals do not recover the maximum. Append the actual count to the timings-only private-work row at its existing output site, with no additional scope. Phase D base `c9176e9439`.

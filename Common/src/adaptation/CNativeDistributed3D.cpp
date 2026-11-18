@@ -339,7 +339,33 @@ std::array<su2double,6> CollisionBounds(const Cell& cell) {
   }
   return box;
 }
+
+// Boxes of one received proposal, including the envelope of all its cells.
+struct ProposalBounds {
+  std::vector<std::array<su2double, 6>> cells;
+  std::array<su2double, 6> all{INFINITY, INFINITY, INFINITY, -INFINITY, -INFINITY, -INFINITY};
+};
+
+bool Separated(const std::array<su2double, 6>& a, const std::array<su2double, 6>& b) {
+  for (unsigned k = 0; k < 3; ++k)
+    if (a[k] > b[k + 3] || b[k] > a[k + 3]) return true;
+  return false;
 }
+
+ProposalBounds BoundsOf(const CollisionProposal& proposal) {
+  ProposalBounds bounds;
+  bounds.cells.reserve(proposal.count);
+  for (size_t i = 0; i < proposal.count; ++i) {
+    const auto box = CollisionBounds(proposal.cells[i]);
+    for (unsigned k = 0; k < 3; ++k) {
+      bounds.all[k] = std::min(bounds.all[k], box[k]);
+      bounds.all[k + 3] = std::max(bounds.all[k + 3], box[k + 3]);
+    }
+    bounds.cells.push_back(box);
+  }
+  return bounds;
+}
+}  // namespace
 bool Directory::Clearance(const Owned& owned,const Patch& old,const Patch& fresh,bool& candidate,
                           std::string& reason,size_t ceiling,size_t caller_bytes,bool* deferred,unsigned priority,Feature coordinate_star) {
   SU2NativeTiming3D::Scope clearance_timer(SU2NativeTiming3D::Operation::Clearance);
@@ -450,6 +476,7 @@ bool Directory::ClearanceBatch(const Owned& owned,std::vector<ClearanceCandidate
   const auto pages=world.exchange(outgoing,&transported,ceiling,held);
   if(!transported){reason="Native3D collision proposal exchange exceeds storage budget.";return false;}
   std::vector<CollisionProposal> proposals;
+  std::vector<ProposalBounds> bounds;
   try {
     std::map<CollisionKey,std::vector<const CollisionPage*>> grouped;
     for(const auto& page:pages) {
@@ -488,11 +515,18 @@ bool Directory::ClearanceBatch(const Owned& owned,std::vector<ClearanceCandidate
         throw std::runtime_error("Repeated current collision dependency.");
       proposals.push_back(std::move(proposal));
     }
-    std::vector<unsigned long> hits;hits.reserve(collision->rows.size());
-    for(const auto& proposal:proposals) {
-      Id obstruction=0;bool blocked=false;
-      for(size_t k=0;k<proposal.count;++k) {
-        const auto& cell=proposal.cells[k];const auto box=CollisionBounds(cell);hits.clear();
+    bounds.reserve(proposals.size());
+    for (const auto& proposal : proposals) bounds.push_back(BoundsOf(proposal));
+    std::vector<unsigned long> hits;
+    hits.reserve(collision->rows.size());
+    for (size_t i = 0; i < proposals.size(); ++i) {
+      const auto& proposal = proposals[i];
+      Id obstruction = 0;
+      bool blocked = false;
+      for (size_t k = 0; k < proposal.count; ++k) {
+        const auto& cell = proposal.cells[k];
+        const auto& box = bounds[i].cells[k];
+        hits.clear();
         if(collision->tree)collision->tree->DetermineIntersectingElements(box.data(),box.data()+3,hits);
         auto check=[&](Id id) {
           if(blocked || std::binary_search(proposal.removed.begin(),proposal.removed.begin()+proposal.removed_count,id))return;
@@ -546,17 +580,19 @@ bool Directory::ClearanceBatch(const Owned& owned,std::vector<ClearanceCandidate
       std::sort(ordered.begin(),ordered.end(),[](const auto* a,const auto* b) {
         return std::tie(a->priority,a->owner,a->ticket)<std::tie(b->priority,b->owner,b->ticket);
       });
-      for(const auto* proposal:ordered) {
-        bool compatible=true;
-        for(const auto* peer:selected) {
-          for(size_t i=0;i<proposal->count && compatible;++i)for(size_t j=0;j<peer->count && compatible;++j) {
-            const auto a=CollisionBounds(proposal->cells[i]),b=CollisionBounds(peer->cells[j]);bool separated=false;
-            for(unsigned k=0;k<3;++k)separated=separated || a[k]>b[k+3] || b[k]>a[k+3];
-            if(separated)continue;
-            ++stats.collision_checks;
-            compatible=ConformingDisjoint(proposal->cells[i],peer->cells[j]);
-          }
-          if(!compatible)break;
+      for (const auto* proposal : ordered) {
+        bool compatible = true;
+        const auto& mine = bounds[proposal - proposals.data()];
+        for (const auto* peer : selected) {
+          const auto& other = bounds[peer - proposals.data()];
+          if (Separated(mine.all, other.all)) continue;
+          for (size_t i = 0; i < proposal->count && compatible; ++i)
+            for (size_t j = 0; j < peer->count && compatible; ++j) {
+              if (Separated(mine.cells[i], other.cells[j])) continue;
+              ++stats.collision_checks;
+              compatible = ConformingDisjoint(proposal->cells[i], peer->cells[j]);
+            }
+          if (!compatible) break;
         }
         if(compatible)selected.push_back(proposal);
         else if(proposal->owner==world.rank) {

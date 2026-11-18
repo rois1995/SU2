@@ -4328,6 +4328,43 @@ TEST_CASE("Native current collision index follows remote publication and retains
   }
 }
 
+TEST_CASE("Native clearance peer selection retains exact contact at touching box boundaries",
+          "[.][NativeQualityRoundBounds3D]") {
+  World world;
+  const Owned owned;
+  Directory directory(world);
+  std::string reason;
+  REQUIRE(directory.Build(owned, reason));
+
+  auto tet = [](Id id, Point p, double h) {
+    const Id first = 4 * id;
+    return Cell{id, {{{first, p}, {first + 1, {p.x + h, p.y, p.z}}, {first + 2, {p.x, p.y + h, p.z}},
+                      {first + 3, {p.x, p.y, p.z + h}}}}};
+  };
+  const Patch empty;
+  const Patch distant{{tet(1, {2, .25, 0}, 1)}, {}};
+  const Patch first{{tet(2, {0, 0, 0}, 1)}, {}};
+  const Patch overlapping{{tet(3, {.5, .125, .125}, 1.5)}, {}};
+  REQUIRE(ConformingDisjoint(distant.cells.front(), overlapping.cells.front()));
+  REQUIRE_FALSE(ConformingDisjoint(first.cells.front(), overlapping.cells.front()));
+  // The last proposal's box touches distant at x=2 before the overlap with first is tested.
+  std::vector<ClearanceCandidate> proposals;
+  if (world.rank == 0) {
+    proposals.push_back({&empty, &distant, true, false, 0, {}, {}});
+    proposals.push_back({&empty, &first, true, false, 0, {}, {}});
+    proposals.push_back({&empty, &overlapping, true, false, 0, {}, {}});
+  }
+  const auto before = directory.Statistics().collision_checks;
+  REQUIRE(directory.ClearanceBatch(owned, proposals, reason));
+  CHECK(directory.Statistics().collision_checks - before == 2);
+  if (world.rank == 0) {
+    CHECK(proposals[0].candidate);
+    CHECK(proposals[1].candidate);
+    CHECK_FALSE(proposals[2].candidate);
+    CHECK(proposals[2].deferred);
+  }
+}
+
 TEST_CASE("Native MPI interior placement repairs a complete star through ordinary transactions", "[NativeInteriorPlacement3D]") {
   World world;
   struct Restore {ShapeAdmission previous=GetShapeAdmission();~Restore(){SetShapeAdmission(previous);}} restore;
