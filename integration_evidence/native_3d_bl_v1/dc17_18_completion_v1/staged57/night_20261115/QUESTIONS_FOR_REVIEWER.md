@@ -62,3 +62,19 @@ Should census and queue state have separate lifetimes or remain in one Selection
 ## 2026-11-18T15:48+01:00 · N6 · Optimizer GQ evidence storage
 
 Which local data should release disk space for the existing 2 GB preflight? The choices were moving active case material, turning down the guard, or archiving earlier locally copied binaries. Archive the terminal phase C and D backup executables losslessly in the workspace, verify each original SHA256 through decompression, and retain exact raw access at the original paths through a verified copy on the root filesystem. The active case material and the guard stay in use. Base commit `4946b2d126`.
+
+## 2026-11-18T18:26:12+01:00 · N18 · M28 report
+
+Should a quality migration mean the evaluation requested one or the ownership change committed? Count `quality=1 committed=1` for migrations and `quality=1 evaluate=1` for evaluations. A requested migration can fail before the ownership change. Should the last stuck row include a cell from an older census when a rank's last census has none? Use the last actual complete quality census in the rank log, even when it has no stuck lines. Search earlier prints for the same cell ID across ranks in that event to cover migration, using round and census serial to order them. Report any limit or interruption visible in the last census alongside the raw lines. N18 base `7d8f538c00`.
+
+## 2026-11-18T18:25+01:00 · N18 · E1 and E2 binding
+
+Which live feature and print guard supply M28 after N6? The alternatives were the slot's observer feature or the round choice copied into the proposal, and the census call alone or a separate timings guard. Used the round choice and an explicit timings guard after the existing printer. The census can run without timings, and proposal routing reads the copied choice. Base `7d8f538c00`.
+
+## 2026-11-18T18:25+01:00 · N18 · E3 active candidates
+
+Do oversized choices still occupying an index count as reservation losers? Used the live choice and valid dependency conditions, which identify the candidates eligible for the reservation. The real conflict counter already excludes oversized refusals. Applied the specified cell-overlap rule even though the real reservation can also conflict through shared vertices. Base `7d8f538c00`.
+
+## 2026-11-18T18:25+01:00 · N18 · F purpose
+
+The written rounded sum ceiling is 3,288.032 s, and multiplying the two printed T0 times by 0.90 gives 3,288.0321 s. Used the explicit confirmed ceiling 3,288.032 s and the two printed individual ceilings. Base `7d8f538c00`.

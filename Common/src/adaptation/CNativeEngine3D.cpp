@@ -32,6 +32,7 @@
 #include <iomanip>
 #include <tuple>
 #include <stdexcept>
+#include <new>
 #include <type_traits>
 #include <optional>
 #include <utility>

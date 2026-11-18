@@ -1,0 +1,81 @@
+diff --git a/Common/include/adaptation/CNativeEngine3D.hpp b/Common/include/adaptation/CNativeEngine3D.hpp
+index 745306cea4..aba69fc9f2 100644
+--- a/Common/include/adaptation/CNativeEngine3D.hpp
++++ b/Common/include/adaptation/CNativeEngine3D.hpp
+@@ -151,6 +151,13 @@ inline size_t WindowRounds(const EngineOptions& options, bool repairing) {
+                                                 remainder * options.candidate_batch / round_batch));
+ }
+ 
++inline EngineOptions ProductionEngineOptions() {
++  EngineOptions options;
++  // The directory serves 256 features, and curved repair can ask for four per candidate.
++  options.repair_batch = MaximumRepairBatch;
++  return options;
++}
++
+ struct SplitRecord {
+   Edge edge{};
+   Node point;
+diff --git a/SU2_CFD/src/drivers/CSinglezoneDriver.cpp b/SU2_CFD/src/drivers/CSinglezoneDriver.cpp
+index c4810605dc..cbb1e88456 100644
+--- a/SU2_CFD/src/drivers/CSinglezoneDriver.cpp
++++ b/SU2_CFD/src/drivers/CSinglezoneDriver.cpp
+@@ -423,7 +423,9 @@ std::unique_ptr<CRemesher> CSinglezoneDriver::MakeRemesher() {
+           *slot=policy;
+           return policy->Composition();
+         };
+-        auto remesher=std::make_unique<CNativeRemesher3D>(nativeReference3D,SU2Native3D::EngineOptions{},std::move(firstRowTarget),std::move(normalization));
++        auto remesher = std::make_unique<CNativeRemesher3D>(
++            nativeReference3D, SU2Native3D::ProductionEngineOptions(), std::move(firstRowTarget),
++            std::move(normalization));
+         auto continuation=nativeFirstRow3D;
+         continuation->pending.reset();continuation->has_pending_stage=false;
+         remesher->SetConstruction([this,slot,continuation](SU2Native3D::World& world,const SU2Native3D::Owned& cells,
+@@ -455,7 +457,9 @@ std::unique_ptr<CRemesher> CSinglezoneDriver::MakeRemesher() {
+         remesher->PrepareReference(*config_container[ZONE_0],*geometry_container[ZONE_0][INST_0][MESH_0]);
+         return remesher;
+       }
+-      auto remesher=std::make_unique<CNativeRemesher3D>(nativeReference3D,SU2Native3D::EngineOptions{},std::move(constraints),std::move(normalization));
++      auto remesher = std::make_unique<CNativeRemesher3D>(
++          nativeReference3D, SU2Native3D::ProductionEngineOptions(), std::move(constraints),
++          std::move(normalization));
+       if(config_container[ZONE_0]->GetnAdap_BL())
+         remesher->PrepareReference(*config_container[ZONE_0],*geometry_container[ZONE_0][INST_0][MESH_0]);
+       return remesher;
+diff --git a/UnitTests/Common/adaptation/CNativeDistributed3D_tests.cpp b/UnitTests/Common/adaptation/CNativeDistributed3D_tests.cpp
+index 2ce97b8974..a4d0878aa0 100644
+--- a/UnitTests/Common/adaptation/CNativeDistributed3D_tests.cpp
++++ b/UnitTests/Common/adaptation/CNativeDistributed3D_tests.cpp
+@@ -4852,7 +4852,10 @@ TEST_CASE("Independent quality stars commit concurrently with final strict accep
+     fixture.facets.insert(fixture.facets.end(),box.facets.begin(),box.facets.end());
+   }
+   const auto saved=Bytes(input);const PlanarReference geometry(fixture.facets);
+-  const Tensor tensor{1,0,0,1,0,1};EngineOptions options;options.maximum_rounds=128;
++  const Tensor tensor{1, 0, 0, 1, 0, 1};
++  EngineOptions options;
++  options.maximum_rounds = 128;
++  options.candidate_batch = MaximumCandidateBatch;
+   Id first_bad_vertex=UINT64_MAX;
+   for(const auto& cell:fixture.patch.cells) {
+     const auto& v=cell.v;const auto m=Measure({v[0].p,v[1].p,v[2].p,v[3].p},tensor);
+@@ -4878,6 +4881,20 @@ TEST_CASE("Independent quality stars commit concurrently with final strict accep
+     const auto& v=row.second.cell.v;const auto m=Measure({v[0].p,v[1].p,v[2].p,v[3].p},tensor);
+     CHECK(m.mean_ratio>=MinimumMeanRatio);CHECK(m.minimum_scaled_jacobian>=MinimumScaledJacobian);CHECK(m.maximum_edge<=MaximumMetricEdge);
+   }
++
++  if (world.size == 2 || world.size == 4) {
++    options.repair_batch = MaximumRepairBatch;
++    const auto first = Repair(world, input, Uniform(input, tensor), geometry, {}, options);
++    const auto repeat = Repair(world, input, Uniform(input, tensor), geometry, {}, options);
++    INFO(first.reason);
++    INFO(repeat.reason);
++    REQUIRE(first.valid);
++    REQUIRE(repeat.valid);
++    CHECK(first.stats.cached_invalid_cells == 0);
++    CHECK(repeat.stats.cached_invalid_cells == 0);
++    CHECK(Bytes(first.cells) == Bytes(repeat.cells));
++    CHECK(Bytes(input) == saved);
++  }
+ }
+ 
+ TEST_CASE("Metric adaptation resolves opposing length demands before shape census", "[NativeBidirectionalLength3D][NativePhaseOwnership3D]") {

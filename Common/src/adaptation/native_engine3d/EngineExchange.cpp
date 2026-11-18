@@ -394,6 +394,34 @@ bool RoundAcquisition::ServiceFetchRefusals() {
   return true;
 }
 
+// M28, print only: separates reservation losers by overlap with locally chosen dependency cells.
+void RoundAcquisition::CountReservationLosses() {
+  const auto& choices = *round_state.choices;
+  const auto& candidates = round_state.dependency_batch->candidates;
+  const auto& chosen = round_state.reserved->chosen;
+  try {
+    std::vector<Id> held;
+    for (size_t i = 0; i < candidates.size(); ++i)
+      if (chosen[i])
+        for (const auto& cell : candidates[i].cells) held.push_back(cell.cell);
+    std::sort(held.begin(), held.end());
+    for (size_t i = 0; i < candidates.size(); ++i) {
+      if (!choices[i].active || !candidates[i].valid || chosen[i]) continue;
+      const auto& cells = candidates[i].cells;
+      const bool overlaps = std::any_of(cells.begin(), cells.end(), [&](const Dependency& cell) {
+        return std::binary_search(held.begin(), held.end(), cell.cell);
+      });
+      if (overlaps)
+        ++round_state.lost_own;
+      else
+        ++round_state.lost_other;
+    }
+  } catch (const std::bad_alloc&) {
+    round_state.lost_own = 0;
+    round_state.lost_other = 0;
+  }
+}
+
 // Reserves disjoint candidates and services construction deferrals in the existing communication scope.
 bool RoundAcquisition::ReserveBatch(CLocalFailure& failure) {
   auto& world = context.world;
@@ -427,6 +455,7 @@ bool RoundAcquisition::ReserveBatch(CLocalFailure& failure) {
     result.reason = reserved.reason;
     return FinishRound();
   }
+  if (options.timings && repairing) CountReservationLosses();
   size_t winners = 0;
   for (bool chosen : reserved.chosen) winners += chosen;
   for (size_t i = 0; i < reserved.pass_deferred.size(); ++i)

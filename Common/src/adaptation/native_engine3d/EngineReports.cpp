@@ -418,6 +418,64 @@ void EngineReports::PrintQualityCensus(
   }
 }
 
+// Prints one blocked shape cell from the certified census, keeping the feature order.
+static void PrintStuckCell(const Selection& selection, int rank, uint64_t round, const char* stage, Id cell,
+                           const Selection::CellState& row, const std::vector<RepairFeature>& features) {
+  long double shortest = INFINITY, longest = -INFINITY;
+  for (const auto& edge : row.edges) {
+    const auto length = selection.census.edges.at(edge).measure.length;
+    shortest = std::min(shortest, length);
+    longest = std::max(longest, length);
+  }
+  std::cout << "NATIVE3D_M28_STUCK rank=" << rank << " stage=" << stage << " round=" << round << " cell=" << cell
+            << " surface=" << unsigned(row.surface) << " q_bad=" << unsigned(row.debt.q_bad)
+            << " j_bad=" << unsigned(row.debt.j_bad) << " q_debt=" << row.debt.q << " j_debt=" << row.debt.j
+            << " shortest=" << shortest << " longest=" << longest << " epoch_now=" << selection.queues.repair_epoch
+            << " features=" << features.size() << " f=";
+  for (auto feature = features.begin(); feature != features.end(); ++feature) {
+    if (feature != features.begin()) std::cout << ',';
+    const auto& [count, vertices] = *feature;
+    const auto& demand = selection.queues.repair_users.at(*feature);
+    std::cout << count << ':' << vertices[0] << ':' << vertices[1] << ':' << vertices[2] << ':' << demand.epoch << ':'
+              << unsigned(demand.refusals[0]) << ':' << unsigned(demand.refusals[1]) << ':'
+              << unsigned(demand.refusals[2]);
+  }
+  std::cout << '\n';
+}
+
+// M28, print only: names each bad cell whose repair features are all blocked, with the refusal notes.
+void EngineReports::PrintStuckCells(EngineContext& context, const char* stage) {
+  const auto& selection = *context.census.selection;
+  const auto rank = context.world.rank;
+  const auto round = context.control.result->stats.rounds;
+  const auto flags = std::cout.flags();
+  const auto precision = std::cout.precision();
+  std::cout << std::dec << std::defaultfloat << std::setprecision(17);
+  constexpr size_t maximum_printed = 8;
+  size_t printed = 0, not_printed = 0;
+  for (const auto& [cell, row] : selection.census.cells) {
+    if (!row.debt.q_bad && !row.debt.j_bad) continue;
+    const auto repairs = selection.queues.cell_repairs.find(cell);
+    if (repairs == selection.queues.cell_repairs.end() || repairs->second.empty()) continue;
+    const bool blocked = std::all_of(repairs->second.begin(), repairs->second.end(), [&](const RepairFeature& feature) {
+      const auto demand = selection.queues.repair_users.find(feature);
+      return demand != selection.queues.repair_users.end() && demand->second.users && demand->second.blocked;
+    });
+    if (!blocked) continue;
+    if (printed == maximum_printed) {
+      ++not_printed;
+      continue;
+    }
+    PrintStuckCell(selection, rank, round, stage, cell, row, repairs->second);
+    ++printed;
+  }
+  if (not_printed)
+    std::cout << "NATIVE3D_M28_STUCK_MORE rank=" << rank << " stage=" << stage << " round=" << round
+              << " not_printed=" << not_printed << '\n';
+  std::cout.flags(flags);
+  std::cout.precision(precision);
+}
+
 // Times, collects, prints, and advances the live quality window.
 void EngineReports::EmitQualityCensus(EngineContext& context, const char* stage, const StageProgress& p) {
   auto& world = context.world;
@@ -458,6 +516,7 @@ void EngineReports::EmitQualityCensus(EngineContext& context, const char* stage,
   PrintQualityCensus(context, stage, p, elapsed, tracked_collective, construction_edits, q_location, j_location,
                      q_features, j_features, q_hist, j_hist, geometry_hist, geometry_types, bad_total, bad_short09,
                      bad_short05, stuck_shape, stuck_required, missing_features, blocked_features);
+  if (context.options.timings && stuck_shape != 0) PrintStuckCells(context, stage);
   previous_quality = stats.quality;
   previous_quality_census = p;
   previous_quality_elapsed = elapsed;

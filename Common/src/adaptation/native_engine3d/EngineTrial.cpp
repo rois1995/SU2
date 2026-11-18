@@ -196,14 +196,30 @@ void TrialChecks::NoteLadder(unsigned kind, bool valid, Clock::time_point began,
   if (valid)
     accepted_ladder = kind;
   else {
-    counter.rejected[0] += stats.geometry_rejected > geometry_before;
-    counter.rejected[1] += stats.height_rejected + stats.footprint_rejected > height_before;
-    counter.rejected[2] += certified.failure == MetricFailure::Shape;
-    counter.rejected[3] += certified.failure == MetricFailure::Progress;
-    counter.rejected[4] += certified.failure == MetricFailure::Measurement;
-    counter.rejected[7] += stats.geometry_rejected == geometry_before &&
-                           stats.height_rejected + stats.footprint_rejected == height_before &&
-                           certified.failure == MetricFailure::None;
+    const bool geometry_rejected = stats.geometry_rejected > geometry_before;
+    const bool height = stats.height_rejected + stats.footprint_rejected > height_before;
+    const bool shape = certified.failure == MetricFailure::Shape;
+    const bool progress = certified.failure == MetricFailure::Progress;
+    const bool measurement = certified.failure == MetricFailure::Measurement;
+    const bool other = stats.geometry_rejected == geometry_before &&
+                       stats.height_rejected + stats.footprint_rejected == height_before &&
+                       certified.failure == MetricFailure::None;
+    counter.rejected[0] += geometry_rejected;
+    counter.rejected[1] += height;
+    counter.rejected[2] += shape;
+    counter.rejected[3] += progress;
+    counter.rejected[4] += measurement;
+    counter.rejected[7] += other;
+    if (context.options.timings) {
+      auto& selection = *context.census.selection;
+      const auto& feature = round_state.choice->feature;
+      if (geometry_rejected) selection.NoteRepairRefusal(feature, kind, 0);
+      if (height) selection.NoteRepairRefusal(feature, kind, 1);
+      if (shape) selection.NoteRepairRefusal(feature, kind, 2);
+      if (progress) selection.NoteRepairRefusal(feature, kind, 3);
+      if (measurement) selection.NoteRepairRefusal(feature, kind, 4);
+      if (other) selection.NoteRepairRefusal(feature, kind, 7);
+    }
   }
 }
 

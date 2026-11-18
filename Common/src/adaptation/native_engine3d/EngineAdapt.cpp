@@ -514,6 +514,10 @@ struct EngineRun {
     ContextValue refused_candidates_lifetime(round_state.refused_candidates, 0);
     ContextValue refused_slots_lifetime(round_state.refused_slots, 0);
     ContextValue pass_deferred_candidates_lifetime(round_state.pass_deferred_candidates, 0);
+    if (options.timings) {
+      round_state.lost_own = 0;
+      round_state.lost_other = 0;
+    }
     ContextValue refused_receipts_lifetime(round_state.refused_receipts,
                                            std::array<RepairReceipt, MaximumRoundBatch>{});
     ContextValue refused_receipt_count_lifetime(round_state.refused_receipt_count, 0);

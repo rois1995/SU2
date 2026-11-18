@@ -24,6 +24,8 @@ struct RoundState {
   std::optional<size_t> refused_candidates;
   std::optional<size_t> refused_slots;
   std::optional<size_t> pass_deferred_candidates;
+  size_t lost_own = 0;
+  size_t lost_other = 0;
   std::optional<std::array<RepairReceipt, MaximumRoundBatch>> refused_receipts;
   std::optional<size_t> refused_receipt_count;
   std::optional<std::vector<RepairProposal>> repair_proposals;

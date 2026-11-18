@@ -56,5 +56,6 @@ class RoundAcquisition {
   void MergeRepairSupport(const DependencyBatch&, const std::vector<std::pair<size_t, size_t>>&, bool& expanded);
   bool ServiceFetchRefusals();
   bool ReserveBatch(CLocalFailure&);
+  void CountReservationLosses();
   bool AcquireSingle();
 };

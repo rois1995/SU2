@@ -267,6 +267,7 @@ void RoundAcquisition::Refuse(const Choice& candidate, const Feature& feature, c
   auto& refused_receipts = *round_state.refused_receipts;
   auto& refused_receipt_count = *round_state.refused_receipt_count;
   selection.Block(candidate.edge, candidate.feature, repairing);
+  if (context.options.timings && repairing) selection.NoteRepairRefusal(feature, 2, 6);
   ++stats.attempted;
   ++stats.rejected;
   ++stats.oversized_stars;

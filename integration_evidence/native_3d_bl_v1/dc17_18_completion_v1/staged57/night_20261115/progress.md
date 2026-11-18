@@ -2,11 +2,11 @@
 
 Updated 2026-11-18. Read AGENTS.md and the copied WORK_ORDER_2.md at the start of the new session, then this file.
 
-## Current state — N6 G5 running
+## Current state — N18 source binding
 
-Phase D passed at `c9176e9439`. N16 A and B passed; C failed event-one quality and was reverted by `3276cbb862`. N6 scoped checkpoints passed and were pushed: Remesh `4946b2d126`, MeshOptimizer `cd2c46b73d`, Selection `7ffb54c83e`. The full build578 G5 is running on six ranks. Workflow supervisor PID 1940544 / start 51007190, full wrapper PID 1940846 / start 51007905. The recovery controller is PID 1849865 / start 50587915.
+N6 qualification `19944869a3` accepted build578. G5 completed in 4041.079 s with all six P6c/P7 payloads and 96 timer snapshots exact. The isolated restart passed in 234.819 s, with zero coordinate error. All three standing safeguards passed. The audit verified 1,790 source pins and 271 terminal process identities.
 
-The verified I8R2 and the 2026-11-18 N18 amendment follow the N6 terminal qualification. Boundary watcher PID 1849866 / start 50587915 waits for the G5, isolated restart and standing safeguards, then seals N6 and applies the amendment. Read I8R2 completely at that boundary. N7 follows N18.
+The N18 work-order amendment `7d8f538c00` is pushed. I8R2 was verified and read completely after N6. N18 uses one D/E identity checkpoint on build579, then separate F on build580 if D qualifies. The whole-item source check is in `N18/source_check.md`. N7 follows N18.
 
 ## Earlier integrated reference — phase C
 
@@ -222,3 +222,17 @@ N6 G5 interim: event one emitted the exact P6c mesh and native reference. Proof 
 - 2026-11-18T18:23:12+01:00 N6. Qualification pushed as `19944869a3`. N18 follows under the 2026-11-18 amendment.
 
 N18 amendment applied after the passed terminal N6 checkpoint. The pinned copy matched the user SHA256. Next, read the complete I8R2 and complete the N18 source check.
+
+N18 work-order amendment pushed as `7d8f538c00`.
+
+N18. Applied the ownership cool-down and print-only M28. Compiling build579 with the default repair width.
+
+N18 build579 compiled without warnings in 92.826 s. The RepairDemand size assertion compiled. Its D/E controller is PID 2055807 / start 51533058, with default-width G1/G2/G3/G4/GQ ordered. F controller PID 2060557 / start 51553252 waits for the passed and terminal D/E checkpoint. The three-path F patch and non-launch workflow checks are sealed.
+
+N18 D/E passed G1 at 375 / 114 / 228 records with zero differences (766.269 / 12.623 / 13.789 s). G2 is running.
+
+N18 D/E G2 passed work 90,809,869 and exact old rows through the stop at 312.627 s, including fixed storage 4,120 B. G3 is running.
+
+N18 D/E G3 passed with 1,526 splits, 1,113 exact shared edits, all physical gates and adjusted entry work 5,113. G4 and GQ follow.
+
+N18. D/E build579 passed G1 375/114/228, G2 90,809,869, G3 1526 splits with 1113 exact shared edits, G4 and GQ at 1024.978 s. No full D/E run.

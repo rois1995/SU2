@@ -1,0 +1,23 @@
+{
+  "base_commit": "7d8f538c009e90694a8ae36e29c3b499b390e07d",
+  "patch": "E2.patch",
+  "patch_sha256": "025bb81291a9cfd2728448c94cdf1bc8256359fb2afd6e7ca3a10108d25e0e25",
+  "paths": [
+    {
+      "path": "Common/src/adaptation/native_engine3d/EngineReports.cpp",
+      "base_sha256": "4fad7d54da787560322dcddd8f4c1763be5321ea77810ed2b01b8e0f77e9814e",
+      "candidate_sha256": "3ab77c89da64ec487f0b8606f6a2cb9866a10c08fa7a54c57a4dba1edcfbccaa"
+    },
+    {
+      "path": "Common/src/adaptation/native_engine3d/EngineReports.hpp",
+      "base_sha256": "9f2221c1e47f4ed6127ae68b2aebae6fdde79759d443c2bdfb70b564675ab061",
+      "candidate_sha256": "8ca6d1bf962bb10a80cfa17132f4d1ce1f43a875ec4e985202da73a778aac8b4"
+    }
+  ],
+  "clang_format_dry_run_exit": 0,
+  "formatted_function_lines_including_signatures": {
+    "PrintStuckCell": 23,
+    "PrintStuckCells": 31
+  },
+  "dependency": "E1 must provide Selection::RepairDemand::refusals."
+}

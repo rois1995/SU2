@@ -312,6 +312,12 @@ void Selection::Block(Edge edge, Feature feature, bool repairing) {
   if (track_splits && !coarsening) queues.blocked_links += queues.blocked_edges[edge[0]].insert(edge[1]).second;
 }
 
+// M28, print only: records the rejection index for one feature and ladder.
+void Selection::NoteRepairRefusal(const Feature& feature, unsigned kind, unsigned index) {
+  const auto found = queues.repair_users.find(RepairFeature{feature.count, feature.vertices});
+  if (found != queues.repair_users.end() && kind < 3 && index < 8) found->second.refusals[kind] |= uint8_t(1u << index);
+}
+
 // Removes one retired edge direction and its blocked-link accounting.
 void Selection::Forget(Edge edge) {
   const auto found = queues.blocked_edges.find(edge[1]);
@@ -331,6 +337,7 @@ void Selection::TouchRepairSupport(const std::array<Id, 4>& vertices) {
     if (found == queues.repair_users.end() || !found->second.users || !found->second.blocked) continue;
     auto& demand = found->second;
     demand.blocked = false;
+    if (timings) demand.refusals = {};
     demand.epoch = queues.repair_epoch;
     queues.repair_queue.insert({demand.epoch, key});
     queues.repair_severity_queue.insert({-queues.repair_severity.at(key), key});

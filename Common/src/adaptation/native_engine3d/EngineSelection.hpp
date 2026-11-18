@@ -104,12 +104,15 @@ class Selection {
     }
   };
 
-  // Keeps the shared age and availability of one required feature.
+  // users: cells that ask for this repair. epoch: last service. blocked: last trial was refused.
+  // refusals (print only, M28): each ladder's rejection bits since the support last changed.
   struct RepairDemand {
     size_t users = 0;
     uint64_t epoch = 0;
     bool blocked = false;
+    std::array<uint8_t, 3> refusals{};  // Fits in the existing padding.
   };
+  static_assert(sizeof(RepairDemand) == 3 * sizeof(uint64_t), "M28 must not change the modeled repair bytes.");
 
   // Counts live cache rows and keeps the topology that indexes their certificates.
   struct CensusState {
@@ -171,6 +174,7 @@ class Selection {
   std::vector<Choice> Batch(const Owned& working, size_t limit);
   void Cached(const Cell& cell, std::map<Edge, EdgeMeasure>& values) const;
   void Block(Edge edge, Feature feature, bool repairing);
+  void NoteRepairRefusal(const Feature& feature, unsigned kind, unsigned index);
   void Forget(Edge edge);
   void TouchRepairSupport(const std::array<Id, 4>& vertices);
   void Touch(Id vertex);

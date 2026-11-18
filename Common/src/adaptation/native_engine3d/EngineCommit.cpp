@@ -124,7 +124,8 @@ void RepairBatchCommit::ReportPrivateWork() {
     SU2NativeTiming3D::Scope output_timer(SU2NativeTiming3D::Operation::Output);
     std::cout << "NATIVE3D_PRIVATE_WORK rank=" << world.rank << " round=" << stats.rounds
               << " private_work_used=" << private_work_used << " busy_seconds=" << private_busy_seconds
-              << " choices=" << round_state.choices->size() << '\n';
+              << " choices=" << round_state.choices->size() << " lost_own=" << round_state.lost_own
+              << " lost_other=" << round_state.lost_other << '\n';
   }
   stats.quality.private_tracked_collectives +=
       world.collective_calls + world.election_collective_calls - private_collectives;
@@ -227,8 +228,10 @@ bool RepairBatchCommit::CheckContact(std::vector<ClearanceCandidate>& contact, b
         ++stats.proposal_deferred;
       } else if (proposal.approved && !checked.candidate)
         EngineTrial::GeometryTrial(context, false);
-      if (proposal.approved && !checked.candidate && proposal.ladder < 3)
+      if (proposal.approved && !checked.candidate && proposal.ladder < 3) {
         ++stats.quality.ladder[proposal.ladder].rejected[5];
+        if (options.timings) context.census.selection->NoteRepairRefusal(proposal.choice.feature, proposal.ladder, 5);
+      }
       proposal.approved = checked.candidate;
       if (!checked.reason.empty()) proposal.rejection = checked.reason;
     }

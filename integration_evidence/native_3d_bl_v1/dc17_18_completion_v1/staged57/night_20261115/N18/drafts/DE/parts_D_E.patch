@@ -1,0 +1,337 @@
+diff --git a/Common/src/adaptation/CNativeEngine3D.cpp b/Common/src/adaptation/CNativeEngine3D.cpp
+index 474a9f9a0d..ddaafddbd7 100644
+--- a/Common/src/adaptation/CNativeEngine3D.cpp
++++ b/Common/src/adaptation/CNativeEngine3D.cpp
+@@ -32,6 +32,7 @@
+ #include <iomanip>
+ #include <tuple>
+ #include <stdexcept>
++#include <new>
+ #include <type_traits>
+ #include <optional>
+ #include <utility>
+diff --git a/Common/src/adaptation/native_engine3d/EngineAdapt.cpp b/Common/src/adaptation/native_engine3d/EngineAdapt.cpp
+index 1723d9b3f5..66ed07865e 100644
+--- a/Common/src/adaptation/native_engine3d/EngineAdapt.cpp
++++ b/Common/src/adaptation/native_engine3d/EngineAdapt.cpp
+@@ -514,6 +514,10 @@ struct EngineRun {
+     ContextValue refused_candidates_lifetime(round_state.refused_candidates, 0);
+     ContextValue refused_slots_lifetime(round_state.refused_slots, 0);
+     ContextValue pass_deferred_candidates_lifetime(round_state.pass_deferred_candidates, 0);
++    if (options.timings) {
++      round_state.lost_own = 0;
++      round_state.lost_other = 0;
++    }
+     ContextValue refused_receipts_lifetime(round_state.refused_receipts,
+                                            std::array<RepairReceipt, MaximumRoundBatch>{});
+     ContextValue refused_receipt_count_lifetime(round_state.refused_receipt_count, 0);
+diff --git a/Common/src/adaptation/native_engine3d/EngineCommit.cpp b/Common/src/adaptation/native_engine3d/EngineCommit.cpp
+index dbb161a4ae..439681dab4 100644
+--- a/Common/src/adaptation/native_engine3d/EngineCommit.cpp
++++ b/Common/src/adaptation/native_engine3d/EngineCommit.cpp
+@@ -124,7 +124,8 @@ void RepairBatchCommit::ReportPrivateWork() {
+     SU2NativeTiming3D::Scope output_timer(SU2NativeTiming3D::Operation::Output);
+     std::cout << "NATIVE3D_PRIVATE_WORK rank=" << world.rank << " round=" << stats.rounds
+               << " private_work_used=" << private_work_used << " busy_seconds=" << private_busy_seconds
+-              << " choices=" << round_state.choices->size() << '\n';
++              << " choices=" << round_state.choices->size() << " lost_own=" << round_state.lost_own
++              << " lost_other=" << round_state.lost_other << '\n';
+   }
+   stats.quality.private_tracked_collectives +=
+       world.collective_calls + world.election_collective_calls - private_collectives;
+@@ -227,8 +228,10 @@ bool RepairBatchCommit::CheckContact(std::vector<ClearanceCandidate>& contact, b
+         ++stats.proposal_deferred;
+       } else if (proposal.approved && !checked.candidate)
+         EngineTrial::GeometryTrial(context, false);
+-      if (proposal.approved && !checked.candidate && proposal.ladder < 3)
++      if (proposal.approved && !checked.candidate && proposal.ladder < 3) {
+         ++stats.quality.ladder[proposal.ladder].rejected[5];
++        if (options.timings) context.census.selection->NoteRepairRefusal(proposal.choice.feature, proposal.ladder, 5);
++      }
+       proposal.approved = checked.candidate;
+       if (!checked.reason.empty()) proposal.rejection = checked.reason;
+     }
+diff --git a/Common/src/adaptation/native_engine3d/EngineExchange.cpp b/Common/src/adaptation/native_engine3d/EngineExchange.cpp
+index 28b0601bd6..804965a96c 100644
+--- a/Common/src/adaptation/native_engine3d/EngineExchange.cpp
++++ b/Common/src/adaptation/native_engine3d/EngineExchange.cpp
+@@ -394,6 +394,34 @@ bool RoundAcquisition::ServiceFetchRefusals() {
+   return true;
+ }
+ 
++// M28, print only: separates reservation losers by overlap with locally chosen dependency cells.
++void RoundAcquisition::CountReservationLosses() {
++  const auto& choices = *round_state.choices;
++  const auto& candidates = round_state.dependency_batch->candidates;
++  const auto& chosen = round_state.reserved->chosen;
++  try {
++    std::vector<Id> held;
++    for (size_t i = 0; i < candidates.size(); ++i)
++      if (chosen[i])
++        for (const auto& cell : candidates[i].cells) held.push_back(cell.cell);
++    std::sort(held.begin(), held.end());
++    for (size_t i = 0; i < candidates.size(); ++i) {
++      if (!choices[i].active || !candidates[i].valid || chosen[i]) continue;
++      const auto& cells = candidates[i].cells;
++      const bool overlaps = std::any_of(cells.begin(), cells.end(), [&](const Dependency& cell) {
++        return std::binary_search(held.begin(), held.end(), cell.cell);
++      });
++      if (overlaps)
++        ++round_state.lost_own;
++      else
++        ++round_state.lost_other;
++    }
++  } catch (const std::bad_alloc&) {
++    round_state.lost_own = 0;
++    round_state.lost_other = 0;
++  }
++}
++
+ // Reserves disjoint candidates and services construction deferrals in the existing communication scope.
+ bool RoundAcquisition::ReserveBatch(CLocalFailure& failure) {
+   auto& world = context.world;
+@@ -427,6 +455,7 @@ bool RoundAcquisition::ReserveBatch(CLocalFailure& failure) {
+     result.reason = reserved.reason;
+     return FinishRound();
+   }
++  if (options.timings && repairing) CountReservationLosses();
+   size_t winners = 0;
+   for (bool chosen : reserved.chosen) winners += chosen;
+   for (size_t i = 0; i < reserved.pass_deferred.size(); ++i)
+diff --git a/Common/src/adaptation/native_engine3d/EngineOwnership.cpp b/Common/src/adaptation/native_engine3d/EngineOwnership.cpp
+index 2d1a6af796..81fa69c5bb 100644
+--- a/Common/src/adaptation/native_engine3d/EngineOwnership.cpp
++++ b/Common/src/adaptation/native_engine3d/EngineOwnership.cpp
+@@ -33,8 +33,9 @@ bool EngineOwnership::PhaseOwnership(EngineContext& context, bool quality,
+   if (!WithinTime(context)) return false;
+   const unsigned boundary = quality ? 1 : 0;
+   if (world.size == 1 || options.phase_ownership == SU2Native3D::PhaseOwnership::Disabled) return true;
++  // One evaluation has a fixed cost, so its cool-down counts rounds and does not scale with the batch.
+   if (ownership_evaluated[boundary] && (!quality || stats.rounds < quality_ownership_round ||
+-                                        stats.rounds - quality_ownership_round < WindowRounds(options, quality)))
++                                        stats.rounds - quality_ownership_round < options.stagnation_window))
+     return true;
+   if (!quality) {
+     ownership_evaluated[boundary] = true;
+diff --git a/Common/src/adaptation/native_engine3d/EngineQueues.cpp b/Common/src/adaptation/native_engine3d/EngineQueues.cpp
+index 6ac01eeccb..390e15d066 100644
+--- a/Common/src/adaptation/native_engine3d/EngineQueues.cpp
++++ b/Common/src/adaptation/native_engine3d/EngineQueues.cpp
+@@ -267,6 +267,7 @@ void RoundAcquisition::Refuse(const Choice& candidate, const Feature& feature, c
+   auto& refused_receipts = *round_state.refused_receipts;
+   auto& refused_receipt_count = *round_state.refused_receipt_count;
+   selection.Block(candidate.edge, candidate.feature, repairing);
++  if (context.options.timings && repairing) selection.NoteRepairRefusal(feature, 2, 6);
+   ++stats.attempted;
+   ++stats.rejected;
+   ++stats.oversized_stars;
+diff --git a/Common/src/adaptation/native_engine3d/EngineQueues.hpp b/Common/src/adaptation/native_engine3d/EngineQueues.hpp
+index c2e7692a1d..ac05cab91f 100644
+--- a/Common/src/adaptation/native_engine3d/EngineQueues.hpp
++++ b/Common/src/adaptation/native_engine3d/EngineQueues.hpp
+@@ -56,5 +56,6 @@ class RoundAcquisition {
+   void MergeRepairSupport(const DependencyBatch&, const std::vector<std::pair<size_t, size_t>>&, bool& expanded);
+   bool ServiceFetchRefusals();
+   bool ReserveBatch(CLocalFailure&);
++  void CountReservationLosses();
+   bool AcquireSingle();
+ };
+diff --git a/Common/src/adaptation/native_engine3d/EngineReports.cpp b/Common/src/adaptation/native_engine3d/EngineReports.cpp
+index 7d2a05bdae..085cf0162b 100644
+--- a/Common/src/adaptation/native_engine3d/EngineReports.cpp
++++ b/Common/src/adaptation/native_engine3d/EngineReports.cpp
+@@ -418,6 +418,64 @@ void EngineReports::PrintQualityCensus(
+   }
+ }
+ 
++// Prints one blocked shape cell from the certified census, keeping the feature order.
++static void PrintStuckCell(const Selection& selection, int rank, uint64_t round, const char* stage, Id cell,
++                           const Selection::CellState& row, const std::vector<RepairFeature>& features) {
++  long double shortest = INFINITY, longest = -INFINITY;
++  for (const auto& edge : row.edges) {
++    const auto length = selection.census.edges.at(edge).measure.length;
++    shortest = std::min(shortest, length);
++    longest = std::max(longest, length);
++  }
++  std::cout << "NATIVE3D_M28_STUCK rank=" << rank << " stage=" << stage << " round=" << round << " cell=" << cell
++            << " surface=" << unsigned(row.surface) << " q_bad=" << unsigned(row.debt.q_bad)
++            << " j_bad=" << unsigned(row.debt.j_bad) << " q_debt=" << row.debt.q << " j_debt=" << row.debt.j
++            << " shortest=" << shortest << " longest=" << longest << " epoch_now=" << selection.queues.repair_epoch
++            << " features=" << features.size() << " f=";
++  for (auto feature = features.begin(); feature != features.end(); ++feature) {
++    if (feature != features.begin()) std::cout << ',';
++    const auto& [count, vertices] = *feature;
++    const auto& demand = selection.queues.repair_users.at(*feature);
++    std::cout << count << ':' << vertices[0] << ':' << vertices[1] << ':' << vertices[2] << ':' << demand.epoch << ':'
++              << unsigned(demand.refusals[0]) << ':' << unsigned(demand.refusals[1]) << ':'
++              << unsigned(demand.refusals[2]);
++  }
++  std::cout << '\n';
++}
++
++// M28, print only: names each bad cell whose repair features are all blocked, with the refusal notes.
++void EngineReports::PrintStuckCells(EngineContext& context, const char* stage) {
++  const auto& selection = *context.census.selection;
++  const auto rank = context.world.rank;
++  const auto round = context.control.result->stats.rounds;
++  const auto flags = std::cout.flags();
++  const auto precision = std::cout.precision();
++  std::cout << std::dec << std::defaultfloat << std::setprecision(17);
++  constexpr size_t maximum_printed = 8;
++  size_t printed = 0, not_printed = 0;
++  for (const auto& [cell, row] : selection.census.cells) {
++    if (!row.debt.q_bad && !row.debt.j_bad) continue;
++    const auto repairs = selection.queues.cell_repairs.find(cell);
++    if (repairs == selection.queues.cell_repairs.end() || repairs->second.empty()) continue;
++    const bool blocked = std::all_of(repairs->second.begin(), repairs->second.end(), [&](const RepairFeature& feature) {
++      const auto demand = selection.queues.repair_users.find(feature);
++      return demand != selection.queues.repair_users.end() && demand->second.users && demand->second.blocked;
++    });
++    if (!blocked) continue;
++    if (printed == maximum_printed) {
++      ++not_printed;
++      continue;
++    }
++    PrintStuckCell(selection, rank, round, stage, cell, row, repairs->second);
++    ++printed;
++  }
++  if (not_printed)
++    std::cout << "NATIVE3D_M28_STUCK_MORE rank=" << rank << " stage=" << stage << " round=" << round
++              << " not_printed=" << not_printed << '\n';
++  std::cout.flags(flags);
++  std::cout.precision(precision);
++}
++
+ // Times, collects, prints, and advances the live quality window.
+ void EngineReports::EmitQualityCensus(EngineContext& context, const char* stage, const StageProgress& p) {
+   auto& world = context.world;
+@@ -458,6 +516,7 @@ void EngineReports::EmitQualityCensus(EngineContext& context, const char* stage,
+   PrintQualityCensus(context, stage, p, elapsed, tracked_collective, construction_edits, q_location, j_location,
+                      q_features, j_features, q_hist, j_hist, geometry_hist, geometry_types, bad_total, bad_short09,
+                      bad_short05, stuck_shape, stuck_required, missing_features, blocked_features);
++  if (context.options.timings && stuck_shape != 0) PrintStuckCells(context, stage);
+   previous_quality = stats.quality;
+   previous_quality_census = p;
+   previous_quality_elapsed = elapsed;
+diff --git a/Common/src/adaptation/native_engine3d/EngineReports.hpp b/Common/src/adaptation/native_engine3d/EngineReports.hpp
+index 5eb4b97136..1575cfcacf 100644
+--- a/Common/src/adaptation/native_engine3d/EngineReports.hpp
++++ b/Common/src/adaptation/native_engine3d/EngineReports.hpp
+@@ -30,6 +30,7 @@ struct EngineReports {
+                                  const std::array<uint64_t, 6>&, const std::array<uint64_t, 6>&,
+                                  const std::array<uint64_t, 6>&, const std::array<uint64_t, 8>&, uint64_t, uint64_t,
+                                  uint64_t, uint64_t, uint64_t, uint64_t, uint64_t);
++  static void PrintStuckCells(EngineContext&, const char* stage);
+   static void EmitLengthPass(EngineContext&, SU2NativeGeometry::AtlasBudget&);
+   static void EmitQualityCensus(EngineContext&, const char*, const StageProgress&);
+   static void EmitStageRows(EngineContext&, const char*, const StageProgress&, const BoundaryParameterState*,
+diff --git a/Common/src/adaptation/native_engine3d/EngineRound.hpp b/Common/src/adaptation/native_engine3d/EngineRound.hpp
+index e7409549cc..eafe997024 100644
+--- a/Common/src/adaptation/native_engine3d/EngineRound.hpp
++++ b/Common/src/adaptation/native_engine3d/EngineRound.hpp
+@@ -24,6 +24,8 @@ struct RoundState {
+   std::optional<size_t> refused_candidates;
+   std::optional<size_t> refused_slots;
+   std::optional<size_t> pass_deferred_candidates;
++  size_t lost_own = 0;
++  size_t lost_other = 0;
+   std::optional<std::array<RepairReceipt, MaximumRoundBatch>> refused_receipts;
+   std::optional<size_t> refused_receipt_count;
+   std::optional<std::vector<RepairProposal>> repair_proposals;
+diff --git a/Common/src/adaptation/native_engine3d/EngineSelection.hpp b/Common/src/adaptation/native_engine3d/EngineSelection.hpp
+index 988dcfd47c..100d2c988a 100644
+--- a/Common/src/adaptation/native_engine3d/EngineSelection.hpp
++++ b/Common/src/adaptation/native_engine3d/EngineSelection.hpp
+@@ -104,12 +104,15 @@ class Selection {
+     }
+   };
+ 
+-  // Keeps the shared age and availability of one required feature.
++  // users: cells that ask for this repair. epoch: last service. blocked: last trial was refused.
++  // refusals (print only, M28): each ladder's rejection bits since the support last changed.
+   struct RepairDemand {
+     size_t users = 0;
+     uint64_t epoch = 0;
+     bool blocked = false;
++    std::array<uint8_t, 3> refusals{};  // Fits in the existing padding.
+   };
++  static_assert(sizeof(RepairDemand) == 3 * sizeof(uint64_t), "M28 must not change the modeled repair bytes.");
+ 
+   // Counts live cache rows and keeps the topology that indexes their certificates.
+   struct CensusState {
+@@ -171,6 +174,7 @@ class Selection {
+   std::vector<Choice> Batch(const Owned& working, size_t limit);
+   void Cached(const Cell& cell, std::map<Edge, EdgeMeasure>& values) const;
+   void Block(Edge edge, Feature feature, bool repairing);
++  void NoteRepairRefusal(const Feature& feature, unsigned kind, unsigned index);
+   void Forget(Edge edge);
+   void TouchRepairSupport(const std::array<Id, 4>& vertices);
+   void Touch(Id vertex);
+diff --git a/Common/src/adaptation/native_engine3d/EngineSelectionQueues.cpp b/Common/src/adaptation/native_engine3d/EngineSelectionQueues.cpp
+index 41d62f2246..e656bff7aa 100644
+--- a/Common/src/adaptation/native_engine3d/EngineSelectionQueues.cpp
++++ b/Common/src/adaptation/native_engine3d/EngineSelectionQueues.cpp
+@@ -312,6 +312,12 @@ void Selection::Block(Edge edge, Feature feature, bool repairing) {
+   if (track_splits && !coarsening) queues.blocked_links += queues.blocked_edges[edge[0]].insert(edge[1]).second;
+ }
+ 
++// M28, print only: records the rejection index for one feature and ladder.
++void Selection::NoteRepairRefusal(const Feature& feature, unsigned kind, unsigned index) {
++  const auto found = queues.repair_users.find(RepairFeature{feature.count, feature.vertices});
++  if (found != queues.repair_users.end() && kind < 3 && index < 8) found->second.refusals[kind] |= uint8_t(1u << index);
++}
++
+ // Removes one retired edge direction and its blocked-link accounting.
+ void Selection::Forget(Edge edge) {
+   const auto found = queues.blocked_edges.find(edge[1]);
+@@ -331,6 +337,7 @@ void Selection::TouchRepairSupport(const std::array<Id, 4>& vertices) {
+     if (found == queues.repair_users.end() || !found->second.users || !found->second.blocked) continue;
+     auto& demand = found->second;
+     demand.blocked = false;
++    if (timings) demand.refusals = {};
+     demand.epoch = queues.repair_epoch;
+     queues.repair_queue.insert({demand.epoch, key});
+     queues.repair_severity_queue.insert({-queues.repair_severity.at(key), key});
+diff --git a/Common/src/adaptation/native_engine3d/EngineTrial.cpp b/Common/src/adaptation/native_engine3d/EngineTrial.cpp
+index eeacc8e453..32cf9a654f 100644
+--- a/Common/src/adaptation/native_engine3d/EngineTrial.cpp
++++ b/Common/src/adaptation/native_engine3d/EngineTrial.cpp
+@@ -196,14 +196,30 @@ void TrialChecks::NoteLadder(unsigned kind, bool valid, Clock::time_point began,
+   if (valid)
+     accepted_ladder = kind;
+   else {
+-    counter.rejected[0] += stats.geometry_rejected > geometry_before;
+-    counter.rejected[1] += stats.height_rejected + stats.footprint_rejected > height_before;
+-    counter.rejected[2] += certified.failure == MetricFailure::Shape;
+-    counter.rejected[3] += certified.failure == MetricFailure::Progress;
+-    counter.rejected[4] += certified.failure == MetricFailure::Measurement;
+-    counter.rejected[7] += stats.geometry_rejected == geometry_before &&
+-                           stats.height_rejected + stats.footprint_rejected == height_before &&
+-                           certified.failure == MetricFailure::None;
++    const bool geometry_rejected = stats.geometry_rejected > geometry_before;
++    const bool height = stats.height_rejected + stats.footprint_rejected > height_before;
++    const bool shape = certified.failure == MetricFailure::Shape;
++    const bool progress = certified.failure == MetricFailure::Progress;
++    const bool measurement = certified.failure == MetricFailure::Measurement;
++    const bool other = stats.geometry_rejected == geometry_before &&
++                       stats.height_rejected + stats.footprint_rejected == height_before &&
++                       certified.failure == MetricFailure::None;
++    counter.rejected[0] += geometry_rejected;
++    counter.rejected[1] += height;
++    counter.rejected[2] += shape;
++    counter.rejected[3] += progress;
++    counter.rejected[4] += measurement;
++    counter.rejected[7] += other;
++    if (context.options.timings) {
++      auto& selection = *context.census.selection;
++      const auto& feature = round_state.choice->feature;
++      if (geometry_rejected) selection.NoteRepairRefusal(feature, kind, 0);
++      if (height) selection.NoteRepairRefusal(feature, kind, 1);
++      if (shape) selection.NoteRepairRefusal(feature, kind, 2);
++      if (progress) selection.NoteRepairRefusal(feature, kind, 3);
++      if (measurement) selection.NoteRepairRefusal(feature, kind, 4);
++      if (other) selection.NoteRepairRefusal(feature, kind, 7);
++    }
+   }
+ }
+ 
