@@ -36,7 +36,7 @@ bool CoalesceOrder(EngineContext& context, std::vector<Choice>& choices, std::ve
     if (all.size() > std::numeric_limits<unsigned>::max())
       throw std::logic_error("Native edge proposal ordering exceeds its bound.");
     for (const auto& key : all)
-      if (key.rank < 0 || key.rank >= world.size || key.slot >= MaximumCandidateBatch || key.feature.count < 1 ||
+      if (key.rank < 0 || key.rank >= world.size || key.slot >= MaximumRoundBatch || key.feature.count < 1 ||
           key.feature.count > 3 || !std::isfinite(key.score))
         throw std::logic_error("Invalid native edge proposal identity/priority.");
     for (const auto& key : all)
@@ -97,13 +97,13 @@ bool EngineQueues::Coalesce(EngineContext& context, std::vector<Choice>& choices
   if (world.size == 1 || (!repairing && !collapse && !concurrent_refine)) return true;
   const auto feature = [&](const Choice& c) { return repairing ? c.feature : Feature{{c.edge[0], c.edge[1], 0}, 2}; };
   // Replicated vertex/edge/face demands are one proposal; directed collapses retain distinct endpoints.
-  const auto scratch = transfer_memory::Mul(transfer_memory::Mul(world.size, MaximumCandidateBatch),
+  const auto scratch = transfer_memory::Mul(transfer_memory::Mul(world.size, RoundCapacity(options, repairing)),
                                             8 * sizeof(ProposalKey) + 8 * sizeof(void*));
   if (!context.exchange.Admit(context, scratch)) return false;
   CLocalFailure failure;
   std::vector<std::vector<ProposalKey>> to;
   try {
-    if (choices.size() > MaximumCandidateBatch) throw std::logic_error("Native edge proposal table exceeds its bound.");
+    if (choices.size() > MaximumRoundBatch) throw std::logic_error("Native edge proposal table exceeds its bound.");
     std::vector<ProposalKey> local;
     for (size_t i = 0; i < choices.size(); ++i)
       local.push_back({feature(choices[i]), world.rank, i, choices[i].geometric, double(choices[i].priority_score),
@@ -125,7 +125,7 @@ bool EngineQueues::Coalesce(EngineContext& context, std::vector<Choice>& choices
 }
 
 bool EngineQueues::ServiceFrontier(EngineContext& context, Feature feature, bool active, bool accepted,
-                                   const std::array<RepairReceipt, MaximumCandidateBatch>* extra, size_t count,
+                                   const std::array<RepairReceipt, MaximumRoundBatch>* extra, size_t count,
                                    unsigned disposition) {
   auto& world = context.world;
   auto& options = context.options;
@@ -140,18 +140,18 @@ bool EngineQueues::ServiceFrontier(EngineContext& context, Feature feature, bool
   const bool certify_support = coarsening && !repairing && checkpoint.valid;
   const auto scratch = transfer_memory::Add(
       transfer_memory::Mul(world.size, sizeof(std::vector<RepairReceipt>)),
-      transfer_memory::Mul(transfer_memory::Mul(world.size, MaximumCandidateBatch + 1), 4 * sizeof(RepairReceipt)));
+      transfer_memory::Mul(transfer_memory::Mul(world.size, RoundCapacity(options, repairing) + 1), 4 * sizeof(RepairReceipt)));
   if (!context.exchange.Admit(
           context, transfer_memory::Add(
                        scratch, certify_support
-                                    ? transfer_memory::Mul(transfer_memory::Mul(world.size, MaximumCandidateBatch + 1),
+                                    ? transfer_memory::Mul(transfer_memory::Mul(world.size, RoundCapacity(options, repairing) + 1),
                                                            sizeof(Edge) + 4 * sizeof(void*))
                                     : 0)))
     return false;
   CLocalFailure failure;
   std::vector<std::vector<RepairReceipt>> to;
   try {
-    if (count > MaximumCandidateBatch || (count && !extra))
+    if (count > MaximumRoundBatch || (count && !extra))
       throw std::logic_error("Native frontier receipt list exceeds its bound.");
     to.resize(world.size);
     for (auto& bucket : to) {
@@ -171,7 +171,7 @@ bool EngineQueues::ServiceFrontier(EngineContext& context, Feature feature, bool
     return false;
   }
   try {
-    if (receipts.size() > transfer_memory::Mul(world.size, MaximumCandidateBatch + 1))
+    if (receipts.size() > transfer_memory::Mul(world.size, MaximumRoundBatch + 1))
       throw std::logic_error("Native repair service receipts exceed frontier bound.");
     if (certify_support)
       std::sort(receipts.begin(), receipts.end(), [](const auto& a, const auto& b) {
@@ -248,7 +248,7 @@ bool RoundAcquisition::Acquire() { return *round_state.batched ? AcquireBatch() 
 bool RoundAcquisition::AcquireBatch() {
   if (!AdmitBatchStorage()) return false;
   CLocalFailure failure;
-  size_t repair_slots = context.options.candidate_batch;
+  size_t repair_slots = round_state.batch;
   return SetRepairSlots(failure, repair_slots) && SelectBatch(failure, repair_slots) && AdmitBatchWork() &&
          AcquireBatchDependencies(failure) && ReserveBatch(failure);
 }
@@ -271,7 +271,7 @@ void RoundAcquisition::Refuse(const Choice& candidate, const Feature& feature, c
   ++stats.oversized_stars;
   wall_counters.PlanningRefusal();
   if (batched || (!repairing && planned_coarsening)) {
-    if (refused_receipt_count == MaximumCandidateBatch)
+    if (refused_receipt_count == MaximumRoundBatch)
       throw std::logic_error("Native refused frontier exceeds batch bound.");
     refused_receipts[refused_receipt_count++] = {
         repairing ? feature : Feature{{candidate.edge[0], candidate.edge[1], 0}, 2}, false};
@@ -326,7 +326,7 @@ bool RoundAcquisition::PlanChoices() {
       for (size_t i : dependency_batch.refused)
         Refuse(choices.at(i), features.at(i), "Native 3D dependency star exceeds budget.");
       for (size_t i : dependency_batch.pass_deferred) {
-        if (refused_receipt_count == MaximumCandidateBatch)
+        if (refused_receipt_count == MaximumRoundBatch)
           throw std::logic_error("Native construction deferrals exceed frontier bound.");
         const auto edge = choices.at(i).edge;
         refused_receipts[refused_receipt_count++] = {Feature{{edge[0], edge[1], 0}, 2}, false};
@@ -359,7 +359,6 @@ bool RoundAcquisition::PlanChoices() {
 bool RoundAcquisition::SetRepairSlots(CLocalFailure& failure, size_t& repair_slots) {
   auto& world = context.world;
   auto& working = *context.ownership.working;
-  auto& options = context.options;
   auto& selection = *context.census.selection;
   auto& repairing = *context.control.repairing;
   if (repairing) {
@@ -372,7 +371,7 @@ bool RoundAcquisition::SetRepairSlots(CLocalFailure& failure, size_t& repair_slo
     const double total_debt = TimedAllreduce(local_debt, CPassiveComm::Op::SUM, world.comm);
     if (complete && std::isfinite(total_debt) && total_debt > 0) {
       const double share = std::clamp(local_debt / total_debt * world.size, 0., 1.);
-      repair_slots = std::max<size_t>(1, size_t(std::ceil(options.candidate_batch * share)));
+      repair_slots = std::max<size_t>(1, size_t(std::ceil(round_state.batch * share)));
     }
   }
   return true;

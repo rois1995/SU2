@@ -1512,7 +1512,7 @@ RoundDecision RoundHead::CheckStagnationWindow() {
   auto& deferred_at_window = *context.control.deferred_at_window;
   auto& round = round_state.round;
   Timer timer(stats.selection_seconds, options.timings, SU2NativeTiming3D::Operation::Scheduling);
-  if (stats.rounds > phase_start_round && round && round % options.stagnation_window == 0) {
+  if (stats.rounds > phase_start_round && round && round % WindowRounds(options, repairing) == 0) {
     ++stats.progress_windows;
     const uint64_t progress =
         stats.size_progress + stats.quality_progress + stats.cell_removals + stats.geometry_progress;

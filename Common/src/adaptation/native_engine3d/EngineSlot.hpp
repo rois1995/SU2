@@ -26,7 +26,6 @@ struct SlotState {
   std::optional<bool> geometric_progress;
   std::optional<const char*> last_geometry_operation;
   std::optional<std::unique_ptr<FrozenField>> field;
-  std::optional<size_t> epoch;
   std::optional<size_t> token;
   std::optional<size_t> offset;
   std::optional<size_t> construction_nodes;

@@ -34,7 +34,7 @@ bool EngineOwnership::PhaseOwnership(EngineContext& context, bool quality,
   const unsigned boundary = quality ? 1 : 0;
   if (world.size == 1 || options.phase_ownership == SU2Native3D::PhaseOwnership::Disabled) return true;
   if (ownership_evaluated[boundary] && (!quality || stats.rounds < quality_ownership_round ||
-                                        stats.rounds - quality_ownership_round < options.stagnation_window))
+                                        stats.rounds - quality_ownership_round < WindowRounds(options, quality)))
     return true;
   if (!quality) {
     ownership_evaluated[boundary] = true;

@@ -12,6 +12,10 @@
 namespace SU2NativeGeometry {struct AtlasBudget;}
 namespace SU2Native3D {
 constexpr size_t MaximumCandidateBatch = 8;
+// One curved repair candidate can require four of the directory's support stars.
+constexpr size_t MaximumRepairBatch = 64;
+constexpr size_t MaximumRoundBatch = MaximumRepairBatch > MaximumCandidateBatch ? MaximumRepairBatch
+                                                                                : MaximumCandidateBatch;
 enum class EnginePhase { Construction, Improvement };
 enum class PhaseOwnership { Automatic, Disabled, DiagnosticAlways };
 struct EngineStats;
@@ -126,8 +130,27 @@ struct EngineOptions {
   PhaseOwnership phase_ownership=PhaseOwnership::Automatic;  // DiagnosticAlways exercises migration without a profitability veto.
   bool timings = false;
   size_t candidate_batch = MaximumCandidateBatch;  // Internal control for paired correctness/work comparisons.
+  size_t repair_batch = 0;  // Candidates on one rank per repair round. Zero uses candidate_batch.
   MetricSizeControls requirement_size;  // Print-only family controls, never read by remeshing decisions.
 };
+inline size_t RoundBatch(const EngineOptions& options, bool repairing) {
+  return repairing && options.repair_batch ? options.repair_batch : options.candidate_batch;
+}
+
+inline size_t RoundCapacity(const EngineOptions& options, bool repairing) {
+  return repairing && options.repair_batch ? options.repair_batch : MaximumCandidateBatch;
+}
+
+inline size_t WindowRounds(const EngineOptions& options, bool repairing) {
+  const auto round_batch = RoundBatch(options, repairing);
+  if (round_batch == options.candidate_batch) return options.stagnation_window;
+  // Scale the window without overflowing the intermediate product.
+  const auto whole = options.stagnation_window / round_batch;
+  const auto remainder = options.stagnation_window % round_batch;
+  return std::max<size_t>(1, transfer_memory::Add(transfer_memory::Mul(whole, options.candidate_batch),
+                                                remainder * options.candidate_batch / round_batch));
+}
+
 struct SplitRecord {
   Edge edge{};
   Node point;

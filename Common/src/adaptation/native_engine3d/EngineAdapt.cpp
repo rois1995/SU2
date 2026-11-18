@@ -348,6 +348,7 @@ struct EngineRun {
     const auto decision = round_head.Decide(pick);
     if (decision == RoundDecision::Finish) return Done(std::move(*round_head.finished));
     if (decision != RoundDecision::Proceed) return decision;
+    round_state.batch = RoundBatch(options, repairing);
     return ReserveHistoryAndAdvance(round_state);
   }
 
@@ -513,7 +514,7 @@ struct EngineRun {
     ContextValue refused_slots_lifetime(round_state.refused_slots, 0);
     ContextValue pass_deferred_candidates_lifetime(round_state.pass_deferred_candidates, 0);
     ContextValue refused_receipts_lifetime(round_state.refused_receipts,
-                                           std::array<RepairReceipt, MaximumCandidateBatch>{});
+                                           std::array<RepairReceipt, MaximumRoundBatch>{});
     ContextValue refused_receipt_count_lifetime(round_state.refused_receipt_count, 0);
     RoundAcquisition acquisition(context, round_state, atlas_budget, curved, diagnostic_rejection_limit);
     if (!acquisition.Acquire()) return Done(std::move(*acquisition.finished));
@@ -563,7 +564,7 @@ struct EngineRun {
       private_work_reserved = eligible * private_optimizer_allowance;
       stats.global_work += private_work_reserved;
     }
-    ContextValue lane_slots_lifetime(round_state.lane_slots, std::array<lane_census::Slot, MaximumCandidateBatch>{});
+    ContextValue lane_slots_lifetime(round_state.lane_slots, std::array<lane_census::Slot, MaximumRoundBatch>{});
     ContextValue private_started_lifetime(round_state.private_started, repairing ? Clock::now() : Clock::time_point{});
     ContextValue private_collectives_lifetime(round_state.private_collectives,
                                               world.collective_calls + world.election_collective_calls);
@@ -586,6 +587,8 @@ struct EngineRun {
       RepairBatchCommit batch_commit(context, round_state, atlas_budget, curved, diagnostic_rejection_limit);
       if (!batch_commit.Run()) return Done(std::move(*batch_commit.finished));
     }
+    round_state.token_base =
+        transfer_memory::Add(round_state.token_base, transfer_memory::Mul(context.world.size, round_state.batch));
     batch_bytes = 0;
     ++round;
     return RoundDecision::Proceed;
@@ -677,13 +680,10 @@ struct EngineRun {
     auto& world = context.world;
     auto& composition = context.composition;
     auto& options = context.options;
-    auto& round = round_state.round;
     auto& slot = slot_state.slot;
-    ContextValue epoch_lifetime(slot_state.epoch,
-                                transfer_memory::Add(transfer_memory::Mul(round, world.size), world.rank));
-    const size_t& epoch = epoch_lifetime.Get();
-    ContextValue token_lifetime(slot_state.token,
-                                transfer_memory::Add(transfer_memory::Mul(epoch, options.candidate_batch), slot));
+    ContextValue token_lifetime(
+        slot_state.token,
+        transfer_memory::Add(round_state.token_base, transfer_memory::Mul(world.rank, round_state.batch), slot));
     const size_t& token = token_lifetime.Get();
     ContextValue offset_lifetime(slot_state.offset, transfer_memory::Mul(token, MaximumReplacementCells));
     ContextValue construction_nodes_lifetime(slot_state.construction_nodes, !options.wall_heights.empty()
@@ -837,7 +837,7 @@ struct EngineRun {
     CLocalFailure& private_failure = *round_state.private_failure;
     uint64_t& private_work_used = *round_state.private_work_used;
     bool& private_deadline = *round_state.private_deadline;
-    std::array<lane_census::Slot, MaximumCandidateBatch>& lane_slots = *round_state.lane_slots;
+    std::array<lane_census::Slot, MaximumRoundBatch>& lane_slots = *round_state.lane_slots;
     bool& approved = *slot_state.approved;
     size_t& repair_work = *slot_state.repair_work;
     auto& options = context.options;
@@ -984,7 +984,7 @@ struct EngineRun {
     auto& private_repair = *context.exchange.private_repair;
     const auto& observe_rejections = *context.control.observe_rejections;
     auto& ready = *context.control.ready;
-    std::array<lane_census::Slot, MaximumCandidateBatch>& lane_slots = *round_state.lane_slots;
+    std::array<lane_census::Slot, MaximumRoundBatch>& lane_slots = *round_state.lane_slots;
     bool& approved = *slot_state.approved;
     auto& world = context.world;
     auto& surface_target = context.surface_target;

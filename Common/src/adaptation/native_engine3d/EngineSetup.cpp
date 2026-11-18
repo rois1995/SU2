@@ -80,9 +80,15 @@ void EngineSetup::CheckInitialWallPolicies(EngineContext& context, CLocalFailure
   auto& bidirectional = context.bidirectional;
   auto& surface_target = context.surface_target;
   // BEGIN_MOVED_SOURCE
-  const auto batch_lo = TimedAllreduce(options.candidate_batch, CPassiveComm::Op::MIN, world.comm);
-  const auto batch_hi = TimedAllreduce(options.candidate_batch, CPassiveComm::Op::MAX, world.comm);
-  if (batch_lo != batch_hi || !batch_hi || batch_hi > MaximumCandidateBatch)
+  const bool valid_batches = options.candidate_batch && options.candidate_batch <= MaximumCandidateBatch &&
+                             options.repair_batch <= MaximumRepairBatch;
+  // The sentinel lets the existing agreement pair reject any out-of-range input on every rank.
+  const uint64_t batches = valid_batches
+                               ? (uint64_t(options.repair_batch) << 32) | uint64_t(options.candidate_batch)
+                               : UINT64_MAX;
+  const auto batch_lo = TimedAllreduce(batches, CPassiveComm::Op::MIN, world.comm);
+  const auto batch_hi = TimedAllreduce(batches, CPassiveComm::Op::MAX, world.comm);
+  if (batch_lo != batch_hi || batch_hi == UINT64_MAX)
     failure.Set(1, 0, "Native 3D candidate batch must be bounded and equal across workers.");
   const auto mode_lo = TimedAllreduce(16 * int(bool(surface_target)) + 2 * int(intent) + int(bidirectional),
                                       CPassiveComm::Op::MIN, world.comm);

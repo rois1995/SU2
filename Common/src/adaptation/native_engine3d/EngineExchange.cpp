@@ -158,15 +158,14 @@ bool RoundAcquisition::AcquireBatchDependencies(CLocalFailure& failure) {
 
 // Charges retained batch memory before any candidate acquisition.
 bool RoundAcquisition::AdmitBatchStorage() {
-  auto& options = context.options;
   auto& batch_bytes = *context.control.batch_bytes;
   // All retained metadata/payloads remain byte-admitted while each disjoint candidate uses the existing transaction.
   batch_bytes = transfer_memory::Add(
-      transfer_memory::Mul(options.candidate_batch, sizeof(Choice) + sizeof(Feature) + sizeof(Dependencies) +
+      transfer_memory::Mul(round_state.batch, sizeof(Choice) + sizeof(Feature) + sizeof(Dependencies) +
                                                         sizeof(Imported) + 2 * sizeof(bool) + 2 * sizeof(size_t)),
-      transfer_memory::Mul(transfer_memory::Mul(options.candidate_batch, MaximumCavityCells),
+      transfer_memory::Mul(transfer_memory::Mul(round_state.batch, MaximumCavityCells),
                            sizeof(Dependency) + sizeof(OwnedCell)),
-      transfer_memory::Mul(transfer_memory::Mul(8, options.candidate_batch * MaximumCavityCells),
+      transfer_memory::Mul(transfer_memory::Mul(8, round_state.batch * MaximumCavityCells),
                            sizeof(Id) + 4 * sizeof(void*)));
   if (!context.exchange.Admit(context, 0)) return FinishRound();
   return true;
@@ -231,7 +230,7 @@ bool RoundAcquisition::FetchBatch(CLocalFailure& failure, std::vector<Feature>& 
   retained_cells = 0;
   for (const auto& candidate : dependency_batch.candidates)
     retained_cells = transfer_memory::Add(retained_cells, candidate.cells.size());
-  const auto ordinary_cells = transfer_memory::Mul(options.candidate_batch, MaximumCavityCells);
+  const auto ordinary_cells = transfer_memory::Mul(round_state.batch, MaximumCavityCells);
   if (retained_cells > ordinary_cells)
     batch_bytes = transfer_memory::Add(
         batch_bytes, transfer_memory::Mul(retained_cells - ordinary_cells, sizeof(Dependency) + sizeof(OwnedCell) +
@@ -432,7 +431,7 @@ bool RoundAcquisition::ReserveBatch(CLocalFailure& failure) {
   for (bool chosen : reserved.chosen) winners += chosen;
   for (size_t i = 0; i < reserved.pass_deferred.size(); ++i)
     if (reserved.pass_deferred[i]) {
-      if (refused_receipt_count == MaximumCandidateBatch)
+      if (refused_receipt_count == MaximumRoundBatch)
         throw std::logic_error("Native construction deferrals exceed frontier bound.");
       const auto edge = choices.at(i).edge;
       refused_receipts[refused_receipt_count++] = {Feature{{edge[0], edge[1], 0}, 2}, false};

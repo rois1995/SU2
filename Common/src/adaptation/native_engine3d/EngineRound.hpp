@@ -3,6 +3,8 @@
 
 struct RoundState {
   size_t round = 0;
+  size_t batch = 0;       // Agreed width of the current round.
+  size_t token_base = 0;  // Sum of rank count times width for all preceding rounds.
   std::optional<unsigned> timed_lane;
   std::optional<double> untimed_lane;
   std::optional<Choice> choice;
@@ -22,14 +24,14 @@ struct RoundState {
   std::optional<size_t> refused_candidates;
   std::optional<size_t> refused_slots;
   std::optional<size_t> pass_deferred_candidates;
-  std::optional<std::array<RepairReceipt, MaximumCandidateBatch>> refused_receipts;
+  std::optional<std::array<RepairReceipt, MaximumRoundBatch>> refused_receipts;
   std::optional<size_t> refused_receipt_count;
   std::optional<std::vector<RepairProposal>> repair_proposals;
   std::optional<CLocalFailure> private_failure;
   std::optional<uint64_t> private_work_used;
   std::optional<uint64_t> private_work_reserved;
   std::optional<bool> private_deadline;
-  std::optional<std::array<lane_census::Slot, MaximumCandidateBatch>> lane_slots;
+  std::optional<std::array<lane_census::Slot, MaximumRoundBatch>> lane_slots;
   std::optional<Clock::time_point> private_started;
   std::optional<uint64_t> private_collectives;
 

@@ -11,7 +11,7 @@ struct RepairBatchRoutes {
   std::vector<std::vector<BlockedEdge>> blocked;
   std::vector<BoundaryParameterEdit> parameter_edits;
   SU2NativeGeometry::BoundaryCoverage coverage;
-  std::array<RepairReceipt, MaximumCandidateBatch> receipts{};
+  std::array<RepairReceipt, MaximumRoundBatch> receipts{};
   size_t receipt_count = 0;
 
   RepairBatchRoutes() = default;
@@ -123,7 +123,8 @@ void RepairBatchCommit::ReportPrivateWork() {
   if (options.timings) {
     SU2NativeTiming3D::Scope output_timer(SU2NativeTiming3D::Operation::Output);
     std::cout << "NATIVE3D_PRIVATE_WORK rank=" << world.rank << " round=" << stats.rounds
-              << " private_work_used=" << private_work_used << " busy_seconds=" << private_busy_seconds << '\n';
+              << " private_work_used=" << private_work_used << " busy_seconds=" << private_busy_seconds
+              << " choices=" << round_state.choices->size() << '\n';
   }
   stats.quality.private_tracked_collectives +=
       world.collective_calls + world.election_collective_calls - private_collectives;
@@ -403,7 +404,7 @@ void RepairBatchCommit::FinishProposalRouting(const RepairProposal& proposal, Re
   auto& receipts = routes.receipts;
   auto& receipt_count = routes.receipt_count;
   if (proposal.chosen) {
-    if (receipt_count == MaximumCandidateBatch) throw std::logic_error("Native3D repair receipts exceed round bound.");
+    if (receipt_count == MaximumRoundBatch) throw std::logic_error("Native3D repair receipts exceed round bound.");
     receipts[receipt_count++] = {
         proposal.choice.feature, proposal.approved,
         proposal.certified.failure == MetricFailure::None ? 4u : 10u + unsigned(proposal.certified.failure)};

@@ -36,6 +36,9 @@
 #include <optional>
 #include <utility>
 namespace SU2Native3D {
+static_assert(4 * MaximumRepairBatch <= MaximumDirectoryFeatures,
+              "Curved repair support must fit in one directory query.");
+
 AdaptationRequirements MakeAdaptationRequirements(const PlanarReference& geometry, bool composition,
                                                   const EngineOptions& options) {
   AdaptationRequirements result;

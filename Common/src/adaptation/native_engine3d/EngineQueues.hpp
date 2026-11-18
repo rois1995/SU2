@@ -11,7 +11,7 @@ struct EngineQueues {
   void LengthDirection(EngineContext& context, bool collapse);
   bool Coalesce(EngineContext&, std::vector<Choice>& choices, bool curved);
   bool ServiceFrontier(EngineContext&, Feature feature, bool active, bool accepted,
-                       const std::array<RepairReceipt, MaximumCandidateBatch>* extra = nullptr, size_t count = 0,
+                       const std::array<RepairReceipt, MaximumRoundBatch>* extra = nullptr, size_t count = 0,
                        unsigned disposition = 4);
   bool ServiceReceipts(EngineContext&, std::vector<RepairReceipt>& receipts, bool certify_support,
                        CLocalFailure& failure);
