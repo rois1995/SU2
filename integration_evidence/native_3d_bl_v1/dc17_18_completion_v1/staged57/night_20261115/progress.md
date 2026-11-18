@@ -2,9 +2,9 @@
 
 Updated 2026-11-18. Read AGENTS.md and the copied WORK_ORDER_2.md at the start of the new session, then this file.
 
-## Current item — N19, measurement M29
+## Current state — N19
 
-User order 2026-11-18. The M29 text and SHA256 are verified in `N19/inputs`. Whole-item source check and R13 readings are recorded. Part A is the default-width print-only identity checkpoint with G1/G2/G3/G4/GQ. Part B is one six-rank diagnostic on the previously rejected wider candidate, followed by its revert, a fresh default build and the report.
+N19 passed. Part A build581 checkpoint `c6b42a748f`. Build582 printed level counts by rank [[0, 0, 0], [0, 0, 0], [0, 0, 0], [1, 103, 417], [0, 0, 0], [0, 0, 0]]. All four N18 failure comparisons matched. Diagnostic reverted at `efdedbb6d9`. Default build583 restored. 1,790 verified source pins and 200 terminal owned identities. [M29 report](N19/reports/M29_582.md). Wait for the next user order.
 
 ## Current state — work order 2 complete
 
@@ -276,3 +276,13 @@ N19 A. G2 passed with work 90,809,869, counts 480/473/346/263/469/464, exact int
 N19 A. G3 passed all physical gates, 1,494 splits with 1,113 exact common edits and adjusted entry work {'reference': 5113, 'candidate': 5113}. G4 passed at 1 / 2 / 4 ranks. GQ is running.
 
 N19 A. Default-width build581 passed G1 375/114/228, G2 90,809,869, G3 1,494 splits with 1,113 common edits, G4 1/2/4 and GQ 1039.935 s. Fixed storage 4,120, no M29 output on success or measured prefixes. Preparing the checkpoint.
+
+N19 A. Pushed `c6b42a748f`. Next is the exact three-path diagnostic overlay.
+
+N19 B. Pushed the exact three-path DIAGNOSTIC overlay `fe221d90cf`. Controller PID 2408320 / start 53093805 builds 582 and runs the frozen six-rank workflow to its first rejection.
+
+N19 B. Build582 compiled and its pins passed. A launcher setup error stopped before MPI. Preserved the setup evidence, fixed the wrapper source binding, and started the same build's first MPI run. Recovery controller PID 2419479 / start 53143542.
+
+N19 B. Build582 reproduced all four N18 failure values on the single MPI run. M29 captured 1 / 103 / 417 cells at levels 0 / 1 / 2. All rank wrappers are terminal. Diagnostic reverted and pushed at `efdedbb6d9`. Restoring default build583, controller PID 2458758 / start 53338575.
+
+N19 passed. Part A build581 checkpoint `c6b42a748f`. Build582 printed level counts by rank [[0, 0, 0], [0, 0, 0], [0, 0, 0], [1, 103, 417], [0, 0, 0], [0, 0, 0]]. All four N18 failure comparisons matched. Diagnostic reverted at `efdedbb6d9`. Default build583 restored. 1,790 verified source pins and 200 terminal owned identities.

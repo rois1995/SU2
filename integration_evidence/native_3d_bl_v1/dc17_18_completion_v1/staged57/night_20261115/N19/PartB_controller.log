@@ -1,0 +1,21 @@
+{"actual_host_proc": true, "owned_python_helpers_accounted": true, "preflight_script_sha256": "a99ba5704050db95d622dee3f0e393ea59ae296787754f9019d008df946e93ef", "unix": 1795038635.1929975, "sample_seconds": 3.0599911212921143, "active_OWNED_heavy_processes": [], "other_busy_observations": [], "MemAvailable": "MemAvailable:   43636480 kB", "loadavg": "1.50 4.57 4.81 1/3445 2408381"}
+section6_3_after_N11 build: starting
+section6_3_after_N11 build: terminal in 362.802 s
+Build 582 verified: e91490f74f64c32472c21a032dd09808ce1ae35b0e3a9812a448678a6ec84bb4
+{"actual_host_proc": true, "owned_python_helpers_accounted": true, "preflight_script_sha256": "a99ba5704050db95d622dee3f0e393ea59ae296787754f9019d008df946e93ef", "unix": 1795039002.1322002, "sample_seconds": 3.096266508102417, "active_OWNED_heavy_processes": [], "other_busy_observations": [], "MemAvailable": "MemAvailable:   42375468 kB", "loadavg": "1.55 3.08 4.14 1/3447 2416533"}
+N19 run1: starting
+Traceback (most recent call last):
+  File "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N19/run_b.py", line 237, in <module>
+    main()
+  File "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N19/run_b.py", line 229, in main
+    run(args.build, args.retry)
+  File "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N19/run_b.py", line 189, in run
+    cut.run_gate(WORK, f"run{attempt}",
+  File "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N4/section6_3_after_N11/phase_C/run_cut_step.py", line 69, in run_gate
+    raise RuntimeError(f'{name} exit {code}. See {workspace / (name + "_outer.log")}.')
+RuntimeError: run1 exit 1. See /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N19/PartB/run1_outer.log.
+Traceback (most recent call last):
+  File "<string>", line 4, in <module>
+  File "/usr/lib/python3.12/subprocess.py", line 571, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['/usr/bin/python3', '-B', '-u', '/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N19/run_b.py', 'run']' returned non-zero exit status 1.

@@ -1,0 +1,3 @@
+# Part B prelaunch correction
+
+The initial adapter stopped during provenance assembly, before it created a provenance receipt or launched MPI. Its use of `inspect.getsource` recovered the core file from disk and dropped the wrapper's already applied path and ownership substitutions. This incorrectly looked for the frozen F3b timer checker below N19. The adapter now derives its diagnostic main function from the wrapper's compiled source and self-checks preservation of the ownership guard. The first attempt, its preflight, and its terminal wrapper receipt are preserved separately. Build582 and its source pins are unchanged.

@@ -1,0 +1,16 @@
+{
+  "pid": 2408320,
+  "start_ticks": 53093805,
+  "actual_host_proc": true,
+  "command": [
+    "nice",
+    "-n",
+    "19",
+    "/usr/bin/python3",
+    "-B",
+    "-u",
+    "-c",
+    "import subprocess, sys\nscript = sys.argv[1]\nfor arguments in (['build', '582'], ['run']):\n    subprocess.run([sys.executable, '-B', '-u', script, *arguments], check=True)\n",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N19/run_b.py"
+  ]
+}
