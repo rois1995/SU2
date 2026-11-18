@@ -61,4 +61,6 @@ The ordered controller reached C8 G3 and exited on a prelaunch alias collision. 
 
 - C7 PASSED at `bb5cac5265`, build565, G1 [375, 114, 228] exact, G2 work 90,809,869 and rank counts exact. Receipts in `N4/section6_3_after_N11/C7/validation`.
 
-Current action — C8, build566: passed G1 [375, 114, 228], G2 332.443 s; see scoped gate receipts.
+- C8 PASSED at `f3beeb21d8`, build566, G1 [375, 114, 228] exact, G2 work 90,809,869 and rank counts exact. G3 PASSED. GQ PASSED. Receipts in `N4/section6_3_after_N11/C8/validation`.
+
+Current action — C9, build567: passed G1 [375, 114, 228], G2 312.211 s; see scoped gate receipts.

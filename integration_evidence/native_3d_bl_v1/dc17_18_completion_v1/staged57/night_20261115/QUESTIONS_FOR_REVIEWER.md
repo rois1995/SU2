@@ -14,3 +14,7 @@ Does “join stays first” move the join ahead of ReportPrivateWork? The altern
 ## 2026-11-18T01:11:11+01:00 · N4 phase C · C6
 
 Should each private donor call take the imported cavity as an argument, or should the trial switch borrow it once? Used a const reference to the live per-slot Imported object. The former lambdas captured that same object and read its cells at each call, so this keeps the old bindings and ownership. C6 base commit `227187f952`.
+
+## 2026-11-18T02:43:34+01:00 · N4 phase C · C9
+
+Where should the immediate inputs to the legacy strip, apex and growth searches live? The alternatives were caller-local assembly and moving the E18–E24 block together. Moved E18–E24 together to preserve the original scopes and retain the three reservation policies. C9 base commit `f3beeb21d8`.
