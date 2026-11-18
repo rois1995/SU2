@@ -718,7 +718,7 @@ class SlotCommit {
   void ApplyChangedRows();
   void RecordAcceptedSlot();
   void RecordSplitRatio();
-  void MeasureOrAccumulate();
+  void MeasureChangedCells();
   void TouchChangedSupport();
   bool UpdateSelection();
 };
@@ -900,7 +900,6 @@ bool SlotCommit::PrepareParametersAndObserve(Observe& observe_transaction) {
   auto& options = context.options;
   auto& geometry = context.geometry;
   auto& result = *context.control.result;
-  auto& repairing = *context.control.repairing;
   auto& coarsening = *context.control.coarsening;
   auto& old = *slot_state.old;
   auto& fresh = *slot_state.fresh;
@@ -917,7 +916,7 @@ bool SlotCommit::PrepareParametersAndObserve(Observe& observe_transaction) {
       approved = false;
       result.reason = e.what();
     }
-  if (approved && !coarsening && !repairing && !repair_approved)
+  if (approved && !coarsening && !repair_approved)
     for (const auto& cell : fresh.cells)
       for (auto node : cell.v)
         if (node.id == point.id) point = node;
@@ -934,7 +933,6 @@ bool SlotCommit::PrepareParametersAndObserve(Observe& observe_transaction) {
 void SlotCommit::RecordRejectedSlot() {
   auto& stats = context.control.result->stats;
   auto& result = *context.control.result;
-  auto& repairing = *context.control.repairing;
   auto& last_rejection = *context.control.last_rejection;
   auto& choice = *round_state.choice;
   auto& old = *slot_state.old;
@@ -944,14 +942,12 @@ void SlotCommit::RecordRejectedSlot() {
   if (chosen && !approved) {
     // Keep the completed rejection consistent with the earlier private/budget-exit sample.
     stats.last_metric_rejection = certified;
-    stats.last_rejected_feature = repairing ? choice.feature : Feature{{choice.edge[0], choice.edge[1], 0}, 2};
+    stats.last_rejected_feature = Feature{{choice.edge[0], choice.edge[1], 0}, 2};
     if (!old.cells.empty()) stats.last_rejected_cavity_centroid = Centroid(old.cells.front());
   }
   if (chosen && !approved)
-    last_rejection = (repairing ? "feature " + std::to_string(choice.feature.count) + ":" +
-                                      std::to_string(choice.feature.vertices[0])
-                                : "edge " + std::to_string(choice.edge[0]) + "," + std::to_string(choice.edge[1])) +
-                     ": " + result.reason;
+    last_rejection =
+        "edge " + std::to_string(choice.edge[0]) + "," + std::to_string(choice.edge[1]) + ": " + result.reason;
   if (chosen && !approved)
     EngineReports::RecordRejection(context, diagnostic_rejection_limit, stats.last_rejected_feature, &old, &certified,
                                    result.reason);
@@ -1096,7 +1092,6 @@ bool SlotCommit::Publish() {
   auto& directory = *context.exchange.directory;
   auto& source = *context.exchange.source;
   auto& ready = *context.control.ready;
-  auto& repairing = *context.control.repairing;
   auto& fresh = *slot_state.fresh;
   auto& approved = *slot_state.approved;
   auto& parameter_edits = *slot_state.parameter_edits;
@@ -1107,7 +1102,7 @@ bool SlotCommit::Publish() {
     ready = directory->Publish(
         working, removed, added, true, result.reason, options.memory_ceiling,
         transfer_memory::Add(context.exchange.RealBytes(context), source.ResidentBytes(), MaximumFrozenFieldBytes),
-        parameter_edits, approved ? fresh.coverage : no_coverage, geometry.AtlasReservation(), repairing);
+        parameter_edits, approved ? fresh.coverage : no_coverage, geometry.AtlasReservation(), false);
   }
   if (!ready) return FinishSlot();
   return true;
@@ -1120,7 +1115,6 @@ bool SlotCommit::ServiceReceipt() {
   auto& selection = *context.census.selection;
   auto& stats = context.control.result->stats;
   auto& phase = *context.setup.control_prefix.phase;
-  auto& repairing = *context.control.repairing;
   auto& coarsening = *context.control.coarsening;
   auto& choice = *round_state.choice;
   auto& chosen = *slot_state.chosen;
@@ -1141,9 +1135,8 @@ bool SlotCommit::ServiceReceipt() {
   const unsigned disposition = pass_deferred && !chosen                   ? 2
                                : certified.failure == MetricFailure::None ? 4
                                                                           : 10 + unsigned(certified.failure);
-  if (!context.queues.ServiceFrontier(context,
-                                      repairing ? choice.feature : Feature{{choice.edge[0], choice.edge[1], 0}, 2},
-                                      chosen || pass_deferred, approved, nullptr, 0, disposition))
+  if (!context.queues.ServiceFrontier(context, Feature{{choice.edge[0], choice.edge[1], 0}, 2}, chosen || pass_deferred,
+                                      approved, nullptr, 0, disposition))
     return FinishSlot();
   return true;
 }
@@ -1152,30 +1145,14 @@ bool SlotCommit::ServiceReceipt() {
 void SlotCommit::AdmitSelectionUpdate() {
   auto& working = *context.ownership.working;
   auto& selection = *context.census.selection;
-  auto& directory = *context.exchange.directory;
   auto& ready = *context.control.ready;
-  auto& repairing = *context.control.repairing;
   auto& checkpoint = *context.control.checkpoint;
-  auto& batch_changed = *context.commit.batch_changed;
-  auto& batch_touched = *context.commit.batch_touched;
-  auto& batch_supports = *context.commit.batch_supports;
-  auto& batched = *round_state.batched;
   auto& removed = *slot_state.removed;
   auto& added = *slot_state.added;
   auto& failures = *slot_state.failures;
   ready = context.exchange.Admit(
       context,
       transfer_memory::Add(
-          batched && repairing
-              ? transfer_memory::Add(
-                    transfer_memory::GrowthBound(transfer_memory::Add(batch_changed.size(), added.size()), sizeof(Id)),
-                    transfer_memory::Mul(
-                        transfer_memory::Add(batch_touched.size(), directory->ChangedVertices().size()),
-                        sizeof(Id) + 4 * sizeof(void*)),
-                    transfer_memory::Mul(
-                        transfer_memory::Add(batch_supports.size(), directory->ChangedRepairSupports().size()),
-                        sizeof(std::array<Id, 4>) + 4 * sizeof(void*)))
-              : 0,
           checkpoint.valid
               ? transfer_memory::Mul(transfer_memory::Mul(4, transfer_memory::Add(removed.size(), added.size())),
                                      sizeof(Id) + 4 * sizeof(void*))
@@ -1195,9 +1172,7 @@ void SlotCommit::ApplyChangedRows() {
   auto& selection = *context.census.selection;
   auto& stats = context.control.result->stats;
   auto& retired_edges = *context.census.retired_edges;
-  auto& repairing = *context.control.repairing;
   auto& checkpoint = *context.control.checkpoint;
-  auto& batched = *round_state.batched;
   auto& removed = *slot_state.removed;
   auto& added = *slot_state.added;
   auto& failures = *slot_state.failures;
@@ -1221,9 +1196,9 @@ void SlotCommit::ApplyChangedRows() {
     for (auto key : cached->second.edges) retired_edges.emplace(key, selection.edges.at(key).measure);
     selection.Drop(row.cell);
   }
-  selection.progress_consistent = !(batched && repairing);
+  selection.progress_consistent = true;
   for (const auto& row : added) changed.push_back(row.cell.id);
-  for (auto row : failures) selection.Block(row.edge, row.feature, repairing);
+  for (auto row : failures) selection.Block(row.edge, row.feature, false);
 }
 
 // Records accepted slot work and exact split or collapse history.
@@ -1233,10 +1208,8 @@ void SlotCommit::RecordAcceptedSlot() {
   auto& result = *context.control.result;
   auto& wall_counters = *context.setup.wall_counters;
   auto& lane_counters = *context.setup.lane_counters;
-  auto& improvement_changed = *context.setup.control_prefix.improvement_changed;
   auto& construction_changed = *context.setup.control_prefix.construction_changed;
   auto& construction_generation_changed = *context.setup.control_prefix.construction_generation_changed;
-  auto& repairing = *context.control.repairing;
   auto& coarsening = *context.control.coarsening;
   auto& checkpoint = *context.control.checkpoint;
   auto& standalone_coarsening = *context.control.standalone_coarsening;
@@ -1258,24 +1231,21 @@ void SlotCommit::RecordAcceptedSlot() {
   auto& slot = slot_state.slot;
   if (approved) {
     if (standalone_coarsening && checkpoint.valid) checkpoint.trial = true;
-    improvement_changed = improvement_changed || repairing;
-    construction_changed = construction_changed || !repairing;
-    construction_generation_changed = construction_generation_changed || !repairing;
+    construction_changed = true;
+    construction_generation_changed = true;
     ++stats.accepted;
     wall_counters.Accepted();
-    if (!repairing && !coarsening) wall_counters.ObserveSplit(choice.geometric);
+    if (!coarsening) wall_counters.ObserveSplit(choice.geometric);
     if (options.timings && lane_slots[slot].required_primary_split)
       wall_counters.AcceptRequiredSplit(old, fresh, choice.edge, point.id);
     if (options.timings && lane_slots[slot].checked_primary_split) wall_counters.AcceptCheckedSplit();
     if (options.timings)
       lane_counters.Commit(false, lane_slots[slot], !surface_edit, parameter_edits.empty(),
                            fresh.coverage.faces.empty() && fresh.coverage.traces.empty());
-    if (!repairing) {
-      if (coarsening)
-        ++stats.length_collapses;
-      else
-        ++stats.length_splits;
-    }
+    if (coarsening)
+      ++stats.length_collapses;
+    else
+      ++stats.length_splits;
     if (optimization_approved) {
       stats.optimization_moves += repair_optimization.moves;
       stats.optimization_insertions += repair_optimization.insertions;
@@ -1305,7 +1275,6 @@ void SlotCommit::RecordSplitRatio() {
   auto& working = *context.ownership.working;
   auto& stats = context.control.result->stats;
   auto& campaign_edges = *context.census.campaign_edges;
-  auto& repairing = *context.control.repairing;
   auto& coarsening = *context.control.coarsening;
   auto& choice = *round_state.choice;
   auto& point = *slot_state.point;
@@ -1313,7 +1282,7 @@ void SlotCommit::RecordSplitRatio() {
   auto& approved = *slot_state.approved;
   auto& repair_approved = *slot_state.repair_approved;
   stats.maximum_owned = std::max(stats.maximum_owned, working.size());
-  if (chosen && approved && !repairing && !coarsening && !repair_approved && choice.measure.length > 0) {
+  if (chosen && approved && !coarsening && !repair_approved && choice.measure.length > 0) {
     Edge a{choice.edge[0], point.id}, b{choice.edge[1], point.id};
     std::sort(a.begin(), a.end());
     std::sort(b.begin(), b.end());
@@ -1327,30 +1296,14 @@ void SlotCommit::RecordSplitRatio() {
   }
 }
 
-// Measures fresh cells or retains the existing deferred batch census work.
-void SlotCommit::MeasureOrAccumulate() {
+// Votes on the slot update, then measures its fresh cells.
+void SlotCommit::MeasureChangedCells() {
   auto& stats = context.control.result->stats;
-  auto& directory = *context.exchange.directory;
   auto& ready = *context.control.ready;
-  auto& repairing = *context.control.repairing;
-  auto& batch_changed = *context.commit.batch_changed;
-  auto& batch_touched = *context.commit.batch_touched;
-  auto& batch_supports = *context.commit.batch_supports;
-  auto& batched = *round_state.batched;
   auto& failure = *slot_state.failure;
   auto& changed = *slot_state.changed;
   if (ready) ready = context.exchange.Vote(context, failure);
-  if (ready && batched && repairing) {
-    try {
-      batch_changed.insert(batch_changed.end(), changed.begin(), changed.end());
-      batch_touched.insert(directory->ChangedVertices().begin(), directory->ChangedVertices().end());
-      batch_supports.insert(directory->ChangedRepairSupports().begin(), directory->ChangedRepairSupports().end());
-    } catch (const std::exception& e) {
-      failure.Set(2, 0, e.what());
-    }
-    ready = context.exchange.Vote(context, failure);
-  } else if (ready)
-    ready = context.census.Measure(context, changed, false, &stats.update_seconds);
+  if (ready) ready = context.census.Measure(context, changed, false, &stats.update_seconds);
 }
 
 // Reactivates changed supports and retires conflicts in the current pass.
@@ -1364,10 +1317,8 @@ void SlotCommit::TouchChangedSupport() {
   auto& construction_claims = *context.exchange.construction_claims;
   auto& metric_cleanup = *context.setup.control_prefix.metric_cleanup;
   auto& ready = *context.control.ready;
-  auto& repairing = *context.control.repairing;
-  auto& batched = *round_state.batched;
   auto& failure = *slot_state.failure;
-  if (ready && !(batched && repairing)) {
+  if (ready) {
     try {
       selection.FinishRepairs();
       for (const auto& support : directory->ChangedRepairSupports()) selection.TouchRepairSupport(support);
@@ -1382,7 +1333,7 @@ void SlotCommit::TouchChangedSupport() {
     }
     ready = context.exchange.Vote(context, failure);
   }
-  if (!(batched && repairing)) retired_edges.clear();
+  retired_edges.clear();
 }
 
 // Retains the update timer across admission, census rebuild and support refresh.
@@ -1401,7 +1352,7 @@ bool SlotCommit::UpdateSelection() {
       } catch (const std::exception& e) {
         failure.Set(2, 0, e.what());
       }
-    MeasureOrAccumulate();
+    MeasureChangedCells();
     TouchChangedSupport();
   }
   if (!ready) return FinishSlot();

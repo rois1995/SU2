@@ -26,3 +26,11 @@ Which complete log should supply the full integer and timer baseline? The option
 ## 2026-11-18T04:53:47+01:00 · N17 · M27 source check
 
 Does the table size mean the number of faces alone or the instrumented table footprint? Kept the specified face count and added estimated bytes for entries, node links and buckets. The 10 MB expectation refers to memory, and allocator overhead has no portable exact value. N17 base commit `167e353ca7`.
+
+## 2026-11-18T07:25:44+01:00 · N4 phase D · D1
+
+Does deleting the non-streamed metric block remove its outer timer scope as well? Kept the scope, field accounting and elapsed-time subtractions, because they execute after the dead condition and contribute to the old results. D1 base commit `cba3cfe577`.
+
+## 2026-11-18T07:39:38+01:00 · N4 phase D · D2
+
+Should the extracted Adapt helpers group lifetime guards in named methods or share a new owner with its own teardown? Used named methods that retain the original guards until the continuation returns. This preserves construction order, reverse teardown, and the original scope at each Finish call. Draft source base commit `cba3cfe577`.

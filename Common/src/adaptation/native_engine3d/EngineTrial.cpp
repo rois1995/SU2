@@ -1539,16 +1539,8 @@ struct CandidateTrial {
   bool ApplyPrimaryOperator(const TrialSplitPositions& positions);
   void ApplyPrimaryCollapse();
   void ApplyPrimarySplit(const TrialSplitPositions& positions);
-  bool PrepareMeasurement(DonorPatch& sensors, bool& streamed, bool metric_needed);
-  void MeasureNonStreamed(DonorPatch& sensors, bool streamed, bool metric_needed);
-  bool ValidateStoredMetric(MetricChange kind, FrozenField& target, PatchMetric& metric,
-                            const std::map<Edge, EdgeMeasure>& reuse);
-  bool TryStoredFieldRepair(bool move, Id vertex, PatchMetric& metric, const std::map<Edge, EdgeMeasure>& reuse);
-  void TryStoredFieldMove(const std::map<Id, Node>& nodes, Id vertex, Id first, PatchMetric& metric,
-                          const std::map<Edge, EdgeMeasure>& reuse);
-  Point StoredMoveCentre(const std::map<Id, Node>& nodes, Id vertex, const std::set<Id>& neighbors);
-  void TryStoredFieldReconnect(const std::map<Id, Node>& nodes, Id first, PatchMetric& metric,
-                               const std::map<Edge, EdgeMeasure>& reuse);
+  bool PrepareMeasurement(const DonorPatch& sensors);
+  void AccountMetricField();
   bool MeasureStreamedTrial(bool metric_needed, bool split_failed);
   bool ValidatePrimaryPatch(bool metric_needed, bool old_measured, const PatchMetric& before);
 };
@@ -1563,7 +1555,6 @@ bool CandidateTrial<Reserve, BoundaryReady, Observe>::Run() {
   auto& slot = slot_state.slot;
   auto& coarsening = *context.control.coarsening;
   auto& repairing = *context.control.repairing;
-  auto& ready = *context.control.ready;
   auto& bad_field = *round_state.bad_field;
   auto& lane_slots = *round_state.lane_slots;
   auto& approved = *slot_state.approved;
@@ -1582,10 +1573,9 @@ bool CandidateTrial<Reserve, BoundaryReady, Observe>::Run() {
   const bool metric_needed = chosen && (approved || repairing || !coarsening || (bad_field && !surface_target));
   DonorPatch sensors;
   sensors.valid = true;
-  bool streamed = ready;
 
-  if (!PrepareMeasurement(sensors, streamed, metric_needed)) return false;
-  if (streamed && !MeasureStreamedTrial(metric_needed, positions.split_failed)) return false;
+  if (!PrepareMeasurement(sensors)) return false;
+  if (!MeasureStreamedTrial(metric_needed, positions.split_failed)) return false;
   try {
     observe_transaction("construction_end", approved);
   } catch (const std::exception& e) {
@@ -1891,285 +1881,36 @@ void CandidateTrial<Reserve, BoundaryReady, Observe>::ApplyPrimarySplit(const Tr
   }
 }
 
-// Keeps all optimizer reservation and admission calls around the original metric branches.
+// Keeps the optimizer reservation collectives and the live metric accounting.
 template <class Reserve, class BoundaryReady, class Observe>
-bool CandidateTrial<Reserve, BoundaryReady, Observe>::PrepareMeasurement(DonorPatch& sensors, bool& streamed,
-                                                                         bool metric_needed) {
-  auto& result = *context.control.result;
-  auto& composition = context.composition;
+bool CandidateTrial<Reserve, BoundaryReady, Observe>::PrepareMeasurement(const DonorPatch& sensors) {
   auto& stats = context.control.result->stats;
-  auto& coarsening = *context.control.coarsening;
-  auto& repairing = *context.control.repairing;
-  auto& ready = *context.control.ready;
-  auto& approved = *slot_state.approved;
-  auto& chosen = *slot_state.chosen;
   auto& private_scratch = *slot_state.private_scratch;
   auto& repair_budget = *slot_state.repair_budget;
   auto& repair_work = *slot_state.repair_work;
-  auto& field = *slot_state.field;
-  if (!ready || (!sensors.valid && !streamed)) {
-    if (ready) result.reason = sensors.reason;
-    return false;
-  }
-  if (streamed && !context.exchange.Admit(context, private_scratch)) return false;
-  if (streamed) ++stats.private_query_retries;
-  trial_checks.ReserveOptimization(!streamed && chosen && repairing);
+  if (!*context.control.ready || !context.exchange.Admit(context, private_scratch)) return false;
+  ++stats.private_query_retries;
+  trial_checks.ReserveOptimization(false);
   if (trial_comm.Maximum(repair_budget > repair_work) &&
       !context.exchange.Admit(context, transfer_memory::Add(private_scratch, transfer_memory::Bytes(sensors.cells))))
     return false;
-  MeasureNonStreamed(sensors, streamed, metric_needed);
+  AccountMetricField();
   trial_checks.ReleaseOptimization();
-  if (!streamed && composition && !repairing && !coarsening) {
-    if (trial_comm.Maximum(chosen && !approved)) {
-      field.reset();
-      if (!context.exchange.Admit(context, private_scratch)) return false;
-      streamed = true;
-      ++stats.private_query_retries;
-    }
-  }
   return true;
 }
 
-// Preserves the non-streamed metric timer, reconstruction subtraction and legacy branch.
+// Retains the timer and field counters from the streamed path.
 template <class Reserve, class BoundaryReady, class Observe>
-void CandidateTrial<Reserve, BoundaryReady, Observe>::MeasureNonStreamed(DonorPatch& sensors, bool streamed,
-                                                                         bool metric_needed) {
+void CandidateTrial<Reserve, BoundaryReady, Observe>::AccountMetricField() {
   auto& options = context.options;
-  auto& geometry = context.geometry;
-  auto& result = *context.control.result;
-  auto& composition = context.composition;
-  auto& selection = *context.census.selection;
   auto& stats = context.control.result->stats;
-  auto& choice = *round_state.choice;
-  auto& field_identity = *context.census.field_identity;
-  auto& repairing = *context.control.repairing;
-  auto& construction_kind = *context.control.construction_kind;
-  auto& old = *slot_state.old;
-  auto& approved = *slot_state.approved;
-  auto& repair_approved = *slot_state.repair_approved;
-  auto& cavity_inserted = *slot_state.cavity_inserted;
   auto& field = *slot_state.field;
   Timer timer(stats.metric_seconds, options.timings, SU2NativeTiming3D::Operation::MetricNormalization);
   const double reconstruction_before = stats.reconstruction_seconds;
   const double reconstruction_cpu_before = stats.reconstruction_cpu_seconds;
-  if (!streamed && metric_needed) try {
-      CpuTimer private_cpu(stats.metric_cpu_seconds, options.timings);
-      const auto components = AssociatedExtensions(sensors.cells, geometry);
-      observe_transaction("support_donors", sensors.valid, &sensors);
-      field = std::make_unique<FrozenField>(std::move(sensors.cells), composition, options.timings, components,
-                                            options.edge_breakpoints, field_identity, true, MaximumDonors, true);
-      PatchMetric metric;
-      std::map<Edge, EdgeMeasure> reuse;
-      for (const auto& cell : old.cells) selection.Cached(cell, reuse);
-      if (approved) {
-        approved = ValidateStoredMetric(construction_kind, *field, metric, reuse);
-      }
-      if (!approved) cavity_inserted = false;
-      if (repairing) {
-        approved = TryStoredFieldRepair(choice.feature.count == 1, choice.feature.vertices[0], metric, reuse);
-        repair_approved = approved;
-      }
-    } catch (const std::exception& e) {
-      approved = false;
-      result.reason = e.what();
-    }
   if (field) FieldCounts(stats, *field);
   stats.metric_seconds -= stats.reconstruction_seconds - reconstruction_before;
   stats.metric_cpu_seconds -= stats.reconstruction_cpu_seconds - reconstruction_cpu_before;
-}
-
-// Validates a patch under the old vector metric branch using its original frozen inputs.
-template <class Reserve, class BoundaryReady, class Observe>
-bool CandidateTrial<Reserve, BoundaryReady, Observe>::ValidateStoredMetric(MetricChange kind, FrozenField& target,
-                                                                           PatchMetric& metric,
-                                                                           const std::map<Edge, EdgeMeasure>& reuse) {
-  auto& options = context.options;
-  auto& geometry = context.geometry;
-  auto& result = *context.control.result;
-  auto& surface_target = context.surface_target;
-  auto& wall_counters = *context.setup.wall_counters;
-  auto& old = *slot_state.old;
-  auto& fresh = *slot_state.fresh;
-  auto& geometric_progress = *slot_state.geometric_progress;
-  auto& certified = *slot_state.certified;
-  if (!surface_target)
-    return EngineTrial::MetricTrial(
-        context,
-        ValidateMetricChange(old.cells, fresh.cells, kind, target, metric, result.reason, nullptr, &reuse, &certified),
-        certified, kind);
-  if (!trial_checks.GeometricChange(boundary_replacement_ready, observe_transaction, true, kind)) return false;
-  auto before = MeasureSurfacePlanning(old, target, geometry, options.wall_heights, surface_target);
-  metric = MeasureSurfacePlanning(fresh, target, geometry, options.wall_heights, surface_target);
-  EngineTrial::SurfaceMerit(context, before, old);
-  EngineTrial::SurfaceMerit(context, metric, fresh);
-  const auto effective = kind == MetricChange::Repair ? MetricChange::GeometryRepair : kind;
-  return EngineTrial::MetricTrial(
-      context,
-      wall_counters.MetricValidation(ValidateMetricChange(old.cells.size(), before, fresh.cells.size(), metric,
-                                                          effective, result.reason, &certified)),
-      certified, effective, geometric_progress);
-}
-
-// Retains the bounded legacy repair branch until its separate deletion gate.
-template <class Reserve, class BoundaryReady, class Observe>
-bool CandidateTrial<Reserve, BoundaryReady, Observe>::TryStoredFieldRepair(bool move, Id vertex, PatchMetric& metric,
-                                                                           const std::map<Edge, EdgeMeasure>& reuse) {
-  auto& options = context.options;
-  auto& surface_target = context.surface_target;
-  auto& stats = context.control.result->stats;
-  auto& maximum_node = *context.commit.maximum_node;
-  auto& maximum_cell = *context.commit.maximum_cell;
-  auto& old = *slot_state.old;
-  auto& approved = *slot_state.approved;
-  auto& node_offset = *slot_state.node_offset;
-  auto& node_stride = *slot_state.node_stride;
-  auto& offset = *slot_state.offset;
-  auto& moved = *slot_state.moved;
-  auto& optimization_approved = *slot_state.optimization_approved;
-  auto& repair_budget = *slot_state.repair_budget;
-  auto& repair_work = *slot_state.repair_work;
-  auto& field = *slot_state.field;
-  std::map<Id, Node> nodes;
-  for (const auto& cell : old.cells)
-    for (auto node : cell.v) nodes.emplace(node.id, node);
-  const Id first = maximum_cell + 1 + offset;
-  if (move) {
-    if (maximum_node > UINT64_MAX - node_stride || node_offset > UINT64_MAX - maximum_node - node_stride) return false;
-
-    TryStoredFieldMove(nodes, vertex, first, metric, reuse);
-  } else {
-    TryStoredFieldReconnect(nodes, first, metric, reuse);
-  }
-  if (!surface_target && !approved && repair_work < repair_budget) {
-    {
-      Timer geometry_timer(stats.reconstruction_seconds, options.timings, SU2NativeTiming3D::Operation::Candidate);
-      CpuTimer geometry_cpu(stats.reconstruction_cpu_seconds, options.timings);
-      approved = trial_checks.GuardedGeometry(boundary_replacement_ready, observe_transaction,
-                                              trial_checks.OptimizePatch(old, RegionMetric(*field), false));
-    }
-    if (approved) {
-      const auto kind = trial_checks.RepairKind();
-      approved = ValidateStoredMetric(kind, *field, metric, reuse);
-    }
-    if (approved) {
-      moved = false;
-      optimization_approved = true;
-      ++stats.optimization_validated;
-    }
-  }
-  return approved;
-}
-
-// Tries all three coordinates in the existing stored-field order.
-template <class Reserve, class BoundaryReady, class Observe>
-void CandidateTrial<Reserve, BoundaryReady, Observe>::TryStoredFieldMove(const std::map<Id, Node>& nodes, Id vertex,
-                                                                         Id first, PatchMetric& metric,
-                                                                         const std::map<Edge, EdgeMeasure>& reuse) {
-  auto& options = context.options;
-  auto& geometry = context.geometry;
-  auto& result = *context.control.result;
-  auto& composition = context.composition;
-  auto& stats = context.control.result->stats;
-  auto& maximum_node = *context.commit.maximum_node;
-  auto& old = *slot_state.old;
-  auto& fresh = *slot_state.fresh;
-  auto& approved = *slot_state.approved;
-  auto& point = *slot_state.point;
-  auto& node_offset = *slot_state.node_offset;
-  auto& moved = *slot_state.moved;
-  auto& field = *slot_state.field;
-  std::set<Id> neighbors;
-  for (auto face : old.surface)
-    if (std::find(face.v.begin(), face.v.end(), vertex) != face.v.end()) neighbors.insert(face.v.begin(), face.v.end());
-  if (neighbors.empty())
-    for (const auto& row : nodes) neighbors.insert(row.first);
-  neighbors.erase(vertex);
-
-  const Point center = StoredMoveCentre(nodes, vertex, neighbors);
-  if (!neighbors.empty())
-    for (long double step : {1.L, .5L, .25L}) {
-      const auto p = nodes.at(vertex).p;
-      point = {maximum_node + 1 + node_offset,
-               {double(p.x + step * (center.x - p.x)), double(p.y + step * (center.y - p.y)),
-                double(p.z + step * (center.z - p.z))}};
-      if (composition) point = ConstrainMovePoint(old, vertex, point, options.wall_heights, geometry);
-      ++stats.repair_proposals;
-      {
-        Timer geometry_timer(stats.reconstruction_seconds, options.timings, SU2NativeTiming3D::Operation::Candidate);
-        CpuTimer geometry_cpu(stats.reconstruction_cpu_seconds, options.timings);
-        approved = trial_checks.GuardedGeometry(boundary_replacement_ready, observe_transaction,
-                                                MoveVertex(old, vertex, point, first, geometry, fresh, result.reason),
-                                                "MoveVertex");
-      }
-      if (approved) {
-        const auto kind = trial_checks.RepairKind();
-        approved = ValidateStoredMetric(kind, *field, metric, reuse);
-      }
-      if (approved) {
-        moved = true;
-        break;
-      }
-    }
-}
-
-// Calculates the existing Cartesian or composed-metric move centre.
-template <class Reserve, class BoundaryReady, class Observe>
-Point CandidateTrial<Reserve, BoundaryReady, Observe>::StoredMoveCentre(const std::map<Id, Node>& nodes, Id vertex,
-                                                                        const std::set<Id>& neighbors) {
-  auto& composition = context.composition;
-  auto& field = *slot_state.field;
-  long double x = 0, y = 0, z = 0;
-  for (Id id : neighbors) {
-    auto p = nodes.at(id).p;
-    x += p.x;
-    y += p.y;
-    z += p.z;
-  }
-  Point center{};
-  if (!neighbors.empty()) {
-    const auto origin = nodes.at(vertex).p;
-    center = {double(x / neighbors.size()), double(y / neighbors.size()), double(z / neighbors.size())};
-    if (composition) {
-      std::vector<std::pair<Point, Tensor>> samples;
-      for (auto id : neighbors) {
-        const auto q = nodes.at(id).p;
-        samples.emplace_back(q, field->QueryMidpoint(origin, q).target);
-      }
-      center = MetricMeanPoint(origin, samples);
-    }
-  }
-  return center;
-}
-
-// Uses the legacy reconnection order and sixteen-proposal bound.
-template <class Reserve, class BoundaryReady, class Observe>
-void CandidateTrial<Reserve, BoundaryReady, Observe>::TryStoredFieldReconnect(
-    const std::map<Id, Node>& nodes, Id first, PatchMetric& metric, const std::map<Edge, EdgeMeasure>& reuse) {
-  auto& options = context.options;
-  auto& geometry = context.geometry;
-  auto& result = *context.control.result;
-  auto& stats = context.control.result->stats;
-  auto& old = *slot_state.old;
-  auto& fresh = *slot_state.fresh;
-  auto& approved = *slot_state.approved;
-  auto& field = *slot_state.field;
-  unsigned proposals = 0;
-  for (const auto& row : nodes) {
-    if (++proposals > 16) break;
-    ++stats.repair_proposals;
-    {
-      Timer geometry_timer(stats.reconstruction_seconds, options.timings, SU2NativeTiming3D::Operation::Candidate);
-      CpuTimer geometry_cpu(stats.reconstruction_cpu_seconds, options.timings);
-      approved =
-          trial_checks.GuardedGeometry(boundary_replacement_ready, observe_transaction,
-                                       Reconnect(old, row.first, first, geometry, fresh, result.reason), "Reconnect");
-    }
-    if (approved) {
-      const auto kind = trial_checks.RepairKind();
-      approved = ValidateStoredMetric(kind, *field, metric, reuse);
-    }
-    if (approved) break;
-  }
 }
 
 // Measures the old cavity, validates the primary trial and delegates the later repair paths.
