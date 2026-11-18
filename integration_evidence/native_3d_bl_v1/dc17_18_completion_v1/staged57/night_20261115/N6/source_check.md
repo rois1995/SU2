@@ -1,0 +1,32 @@
+# N6 whole-item source inventory
+
+Reviewed before the first production extraction on `3276cbb862`. The accepted source is the Part B build574 state. The full T0 run qualified that source against the six P6c/P7 files and the old integer and timer rows. N16 C was reverted.
+
+## Remesh
+
+- `CNativeRemesher3D.cpp:201–1126` has one outer remesh session. It starts after the public entry initializes options and remains alive through the reports and return. Keep the public entry, its start/CPU/deadline sampling order and its `CURRENT_FUNCTION` value. Readings used: pass the public caller string into moved failure calls so their diagnostics keep the same function. Scope the report clock around printing while the summary buffers are still alive.
+- The support and control reductions (280–305) precede reference setup (306–333). Retain one failure object through the import, target lease and both normalization stages. The pending publication owns a copy of reference state until it is transferred into the acceptance callback. Do not publish at the worker boundary or move it into an earlier callback.
+- The reference admission, initial mobility, normalization factory, donor import and second mobility calls use distinct live bytes and existing votes (334–393). Preserve the original held-byte inputs, including the difference between `options.caller_bytes` and `control.caller_bytes`. First-row authority promotion and analytic/faceted branches stay at the same boundary.
+- The BL target and geometry-workspace lease (394–444) retain their metric timer and work limit. The lease lasts through the imported mesh, parent donor, worker, correction and return packing scopes, and releases before the event budget. The request uses the original deadline origin.
+- Partition and donor migration (445–544) admit weights, import and migration at the previous sites. The parent donor and weight scopes end before phase 3 accounting for teardown. Keep the migrated vector, borrowed worker source, working and original maps and repartition decision through both stages.
+- Worker communicator creates and releases (546–732) are ordered around the original barrier, idle CPU and peak-memory votes. The worker `World`, `ShapeAdmission` restore and stage metric snapshot live through the worker transaction and unwind before the parent barrier. The standalone snapshot copies the same donors into an admitted vector and swaps it only after the same failure election. FIRST_ROW and metric adaptation keep their own clock, work and memory changes under the same caller.
+- Reassessment reads the same parent donor source then the optional normalization correction (733–829). Preserve preparation/correction buffer teardown, allocation and replacement order, especially resetting both indexes before updating current or original nodal sensors. The `ready` and proposal-changed branches still stop the stage loop at the same point.
+- Return packing, final proof report data, late whole-job memory rejection and on-accepted callbacks (830–900) stay in their original order. The output rows at 901–1124 retain stream ordering and precision, the two profile collectives and existing conditional printing. No traveling or modeled type size changes.
+
+## MeshOptimizer
+
+- `CNativeEngine3D.cpp:1648–2850` is one private service and its public `OptimizeMetricMesh` entry. Keep it in the same strict-arithmetic translation unit because it uses the local D9, guidance, geometry and timing helpers. The shared `PlaceConeInsertion` wrapper and the separate `RefineOptimize` caller stay in place.
+- Scope owners are the boundary smoothing atlas allowance and model buffers through commit, per-candidate D9 through each trial, coupled speculative geometry through nested optimization and proof, and the optimization phase timers through the final census. Keep exact order, pruning, sorted/tied candidate policy, resource reservations, frozen and protected nodes, complete contact and mutation behavior.
+- Named stages follow the current scopes in smoothing, shell/face changes, coupled replacement, and the optimization sweep. The original distinction between continue, break with a prior best, and failure is part of the result. The two triangulation paths and their geometry/topology checks stay distinct. The existing late binding check can throw after mutation in the optimizer commit, which belongs to the found-during-cut list.
+- Connected callers include `EngineTrial::OptimizePatch`, `OptimizedRepairPatch`, and BLGrowth12/BLVolume13. They keep the existing reports, adaptive work reservation and refund, public options and retained geometry/parameter contracts.
+
+## Selection
+
+- Split the state of the single existing `Selection` owner into census rows/debt/indexes and candidate queues/history/blockers. The facade retains references, phase switches, construction order and mixed operations. Do not introduce pointers between the new subobjects or duplicate state.
+- Preserve the complete definitions and layout of `CellDebt`, `History`, `CachedRow`, `CellState` and the other nested types. Their existing wire fields and size terms are unchanged. Keep every explicit term and capacity in `Bytes()`.
+- Preserve actual `Reset` and `SwapState` member lists. Reset retains blocked directions and repair age. SwapState holds fixed phase/lane flags and ages. Ownership stages still restore rows then repair state, swap the working/directory/selection state and clear the same invalidated blockers. Preserve transient zero repair users until the existing finish call.
+- Route direct mutable reads/writes to their owning census or queue member without changing callers, including the construction direction swap, checkpoint blockers, seed-start flag and consistency transitions. Keep `Add`/ `Drop` indexed-row update order and `ChangePhase` queue setup. The `RepairBatch` star selection must use the same ordered set, cutoffs, tie handling and refusal path.
+
+## Gates and source readings
+
+Each of the three production sub-steps uses G1/G2 and the affected G3 and GQ. G4 qualifies native 2D at the integration boundary. The completed cut uses G5 and the prescribed isolated restart and shared-case safeguards. The references are adopted N14 G1 (375/114/228), N14 G2/GQ, and the first N14 G3 run (1,113 shared edits, adjusted work 5,113). Work order 2 controls the G5 six files, and the already exact build574 T0 logs provide the immediate full-run comparison. No candidate replaces those references.

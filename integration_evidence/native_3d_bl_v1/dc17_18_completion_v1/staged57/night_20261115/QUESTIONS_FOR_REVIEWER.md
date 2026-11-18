@@ -46,3 +46,15 @@ Which accepted repair fixture and integer comparison should be used? The explici
 ## 2026-11-18T10:34:02+01:00 · N16 · B report fields
 
 Should the maximum-choice report be derived from window totals or measured per round? The totals do not recover the maximum. Append the actual count to the timings-only private-work row at its existing output site, with no additional scope. Phase D base `c9176e9439`.
+
+## 2026-11-18T14:20:45+01:00 · N6 · Remesh
+
+Where should the moved reporting clock end, and which function name should moved failures report? The alternatives were the new helper names and clocking after report-buffer teardown, or keeping the public Remesh identity and the previous lifetime boundary. Used the public caller value and read report time before its summary buffers unwind. Base `3276cbb862`.
+
+## 2026-11-18T14:29:01+01:00 · N6 · MeshOptimizer
+
+Should the interior and boundary ring operators each keep a copy of triangulation scoring and traversal? Used two shared named helpers for the source-identical scoring and traversal loops. The existing memo, retry and diagonal certification state remains at each call site, with separate interface and boundary commit rules. Base `3276cbb862`.
+
+## 2026-11-18T14:29:01+01:00 · N6 · Selection
+
+Should census and queue state have separate lifetimes or remain in one Selection owner? Used two value members within the existing owner, preserving the existing references, the mixed operations and the explicit swap and reset lists. Base `3276cbb862`.
