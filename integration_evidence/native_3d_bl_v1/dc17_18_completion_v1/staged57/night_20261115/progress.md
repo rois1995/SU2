@@ -77,4 +77,8 @@ The G5 supervisor is PID 1069173 / start 46965055. The launch, resource prefligh
 
 The named geometry safeguards `merit481`, `saved481` and `saved_current` are bound to build570 using the accepted N14 driver. All three prelaunch checks passed without starting a test. They passed sequentially after G5 and the restart in 121.145 / 146.766 / 143.969 s. G2, G3 and G4 already cover the other shared-path safeguards.
 
-Current action — Phase C and N17 passed. Phase D is the next work order item. The G5, restart and safeguards receipts are pinned under `N4/section6_3_after_N11/phase_C`; the M27 report and CSV are under `N17/reports`.
+## Work order amendment — 2026-11-18
+
+The user withdrew 8.4a after M27. N16 now means step 8.5r (larger quality rounds). The pinned I8R copy is in `N16/inputs/IMPLEMENTATION_8_5R.md` with `SHA256SUMS`. The SHA256 matches the user order. Read I8R completely on reaching item 3.
+
+Current action — Phase C and N17 passed at evidence commit `f877ff8175`. Start phase D (D1–D3), then N16, N6 and N7 in that order.

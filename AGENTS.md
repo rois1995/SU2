@@ -1,8 +1,8 @@
-User order, 2026-11-17 (LATEST): the planned stop after phase B of the cut is over. Work order 2
-below is the one order in force. It replaces all dated orders of 2026-11-15 to 2026-11-17 that were
-at the top of this file. The old file is archived in your evidence folder with its SHA256. The
-standing user instructions below the work order are unchanged, word for word. Where they and the
-work order differ, the work order wins. Start with section 4, item 1 of the work order.
+User order, 2026-11-18 (LATEST): phase C and N17 are complete. Section 4 item 3
+now calls for N16 = step 8.5r (larger quality rounds). The M27 measurement
+showed a small upper bound on the gain from step 8.4a, which is withdrawn.
+Resume at section 4 item 2 and continue through items 3, 4 and 5 in order.
+All section 1 rules and standing user instructions apply.
 
 # Work order 2 (clean copy of the order in force)
 
@@ -25,9 +25,9 @@ Files (copy each with its SHA256 into your evidence folder, read them completely
 - D = `/tmp/claude-1000/-media-rausa-4TB-SU2-Versions-SU2-NativeIntegrated/f3d988e5-f14f-4a96-b6fb-963ec11730e7/scratchpad/ADAPTATION_ONE_ENGINE_DESIGN_V1.md`
 - C = `/tmp/claude-1000/-media-rausa-4TB-SU2-Versions-SU2-NativeIntegrated/f3d988e5-f14f-4a96-b6fb-963ec11730e7/scratchpad/CUT_PLAN_8_2.md`
 - I = `/tmp/claude-1000/-media-rausa-4TB-SU2-Versions-SU2-NativeIntegrated/f3d988e5-f14f-4a96-b6fb-963ec11730e7/scratchpad/IMPLEMENTATION_8_3_8_4.md`
-- I8 = `/tmp/claude-1000/-media-rausa-4TB-SU2-Versions-SU2-NativeIntegrated/f3d988e5-f14f-4a96-b6fb-963ec11730e7/scratchpad/IMPLEMENTATION_8_4A.md`
-  (for item 3 of section 4 only; the reviewer writes it while you do the cut; do not
-  look for it before you reach that item)
+- I8R = `/tmp/claude-1000/-media-rausa-4TB-SU2-Versions-SU2-NativeIntegrated/f3d988e5-f14f-4a96-b6fb-963ec11730e7/scratchpad/IMPLEMENTATION_8_5R.md`
+  (section 4 item 3 only; SHA256 `32919ed2375b804ace0938974b78f142ae8ba2b03dafb2c003817f5fd199d704`. Copy and verify
+  the pinned bytes now and read them completely upon reaching item 3.)
 - I8A = `/tmp/claude-1000/-media-rausa-4TB-SU2-Versions-SU2-NativeIntegrated/f3d988e5-f14f-4a96-b6fb-963ec11730e7/scratchpad/MEASUREMENT_M27.md`
   (for item 1a of section 4 only; same rule)
 
@@ -175,14 +175,9 @@ R13. Questions (user order, 2026-11-17). When you have a question about an
    diagnosis pass does not name another part: revert N17 first and repeat G5 one time.
    If I8A does not exist at that time: no action, go on with the G5 run.
 2. The cut, phase D (D1, D2, D3) as C says, with its G5.
-3. N16 = design step 8.4a (the quality stage without an exact geometry query for each
-   trial). The user accepted this step on 2026-11-16 and ordered it as the first step
-   for the event time on 2026-11-17. Its complete text is the file I8 (section "Files").
-   - When you reach this item: look for I8. If it exists, copy it with its SHA256, read
-     it completely, and do it. The rules of section 1 apply (one source check first).
-   - If I8 does not exist at that time: do item 4 first, and look again after it. If
-     it still does not exist: do item 5 and stop. Do not write a text of your own for
-     this step (R2).
+3. N16 = design step 8.5r (larger quality rounds). Step 8.4a is withdrawn.
+   After phase D, read the pinned copy of I8R completely and implement its text.
+   Section 1 applies, including one whole-item source check before production edits.
 4. N6: more cuts with identical results, same method and gates as C sections 1, 2 and 5,
    your own inventory first: `CNativeRemesher3D::Remesh`, then `MeshOptimizer`, then the
    split of `Selection` into a census part and a queue part. Only when the cut is
@@ -208,7 +203,7 @@ Rules of the cut that stay from the old file:
 
 ## 5. Open items that have their own text
 
-None. Each item of section 4 has its text in C, in I8, in I8A or in section 4.
+None. Each item of section 4 has its text in C, in I8R, in I8A or in section 4.
 
 ## 6. Not in this work order
 
