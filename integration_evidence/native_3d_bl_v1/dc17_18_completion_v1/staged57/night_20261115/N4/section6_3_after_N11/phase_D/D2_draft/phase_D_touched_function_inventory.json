@@ -1,0 +1,101 @@
+{
+  "files": {
+    "Common/src/adaptation/CNativeEngine3D.cpp": {
+      "sha256": "a9133bc38e003ad1481ae037ee730880663b318e7afc410837a2f61f3b46de28",
+      "functions": 175,
+      "lambdas": 53,
+      "uncertain": []
+    },
+    "Common/src/adaptation/native_engine3d/EngineAdapt.cpp": {
+      "sha256": "64b66318b2092655f06afbdd82a67ecfe0fc4c043e30fcdad7095dafe79dcd45",
+      "functions": 28,
+      "lambdas": 7,
+      "uncertain": []
+    },
+    "Common/src/adaptation/native_engine3d/EngineCommit.cpp": {
+      "sha256": "63bbf84d4cbb9eb5ae5a945acc8374b629d7d3fc13b6fe68e8d8ad27ecf1199d",
+      "functions": 50,
+      "lambdas": 3,
+      "uncertain": []
+    },
+    "Common/src/adaptation/native_engine3d/EngineTrial.cpp": {
+      "sha256": "6ffbc13a966b7116f2e66d0a1633d61a8dbd5ac90256bafde56dd2bc307cbe19",
+      "functions": 51,
+      "lambdas": 3,
+      "uncertain": []
+    }
+  },
+  "ten_longest_in_touched_files": [
+    {
+      "file": "Common/src/adaptation/CNativeEngine3D.cpp",
+      "name": "MeshOptimizer::SmoothBoundary",
+      "line": 3217,
+      "formatted_lines": 423,
+      "signature": "bool MeshOptimizer::SmoothBoundary(Id p)"
+    },
+    {
+      "file": "Common/src/adaptation/CNativeEngine3D.cpp",
+      "name": "MeshOptimizer::Smooth",
+      "line": 3640,
+      "formatted_lines": 320,
+      "signature": "bool MeshOptimizer::Smooth(Id p)"
+    },
+    {
+      "file": "Common/src/adaptation/CNativeEngine3D.cpp",
+      "name": "MeshOptimizer::CoupledBoundary",
+      "line": 4571,
+      "formatted_lines": 232,
+      "signature": "bool MeshOptimizer::CoupledBoundary()"
+    },
+    {
+      "file": "Common/src/adaptation/CNativeEngine3D.cpp",
+      "name": "Add",
+      "line": 1443,
+      "formatted_lines": 169,
+      "signature": "void Add(const OwnedCell& owned, const PatchMetric& metric, bool valid, bool quality_valid, const std::string& reason, const FirstHeightReport* height = nullptr, bool height_valid = true)"
+    },
+    {
+      "file": "Common/src/adaptation/CNativeEngine3D.cpp",
+      "name": "MeshOptimizer::BoundaryFlip",
+      "line": 3963,
+      "formatted_lines": 156,
+      "signature": "bool MeshOptimizer::BoundaryFlip(Id a, Id b)"
+    },
+    {
+      "file": "Common/src/adaptation/CNativeEngine3D.cpp",
+      "name": "MeshOptimizer::EdgeRemoval",
+      "line": 2998,
+      "formatted_lines": 137,
+      "signature": "bool MeshOptimizer::EdgeRemoval(Id a, Id b, bool lengthDriven)"
+    },
+    {
+      "file": "Common/src/adaptation/CNativeEngine3D.cpp",
+      "name": "OptimizedRepairPatch",
+      "line": 1961,
+      "formatted_lines": 108,
+      "signature": "bool OptimizedRepairPatch(const Patch& old, Id first, Id first_node, const RegionMetric& target, Patch& fresh, std::string& reason, size_t& work, bool preserve_vertices, const PlanarReference& geometry, const WallHeights& heights, double su"
+    },
+    {
+      "file": "Common/src/adaptation/CNativeEngine3D.cpp",
+      "name": "MeshOptimizer::ConeReplace",
+      "line": 4201,
+      "formatted_lines": 108,
+      "signature": "bool MeshOptimizer::ConeReplace(const std::vector<Id>& old, Point start, Insert kind, const std::pair<Id, Id>* split, long double removed)"
+    },
+    {
+      "file": "Common/src/adaptation/CNativeEngine3D.cpp",
+      "name": "MeshOptimizer::Run",
+      "line": 4803,
+      "formatted_lines": 102,
+      "signature": "bool MeshOptimizer::Run()"
+    },
+    {
+      "file": "Common/src/adaptation/CNativeEngine3D.cpp",
+      "name": "RefineOptimize",
+      "line": 5012,
+      "formatted_lines": 100,
+      "signature": "EngineResult RefineOptimize(World& world, const Owned& accepted, const std::vector<DonorCell>& original, const PlanarReference& geometry, MetricComposition composition, EngineOptions options, OptimizeOptions optimize, RefineOptimizeReport* "
+    }
+  ],
+  "cautions": "Lexical scan of the formatted copy. Includes pre-existing functions in touched files."
+}

@@ -1,5 +1,22 @@
 # Adaptation timings and computational work
 
+## Phase D — build572
+
+The same six files and old integer and timer rows matched in 4140.805 s of workflow time. The isolated restart passed in 233.893 s. Native event maxima were 2188.708 and 1505.656 s. Minimum timer coverage was 96.4580% and 96.3409%. [Phase D report](ADAPTATION_CUT_PHASE_D_20261118.md)
+
+| Final ledger phase | Event 1 exclusive s, min–max | Event 2 exclusive s, min–max | Event 1 calls, sum | Event 2 calls, sum |
+|---|---:|---:|---:|---:|
+| preparation | 135.178–135.301 | 223.316–223.743 | 1,181,839 | 2,891,851 |
+| metric | 5.076–5.087 | 5.005–5.012 | 267,804 | 335,124 |
+| construction | 462.744–462.759 | 227.735–227.756 | 32,416,907 | 12,690,268 |
+| surface | 0.000–0.000 | 0.000–0.000 | 0 | 0 |
+| quality | 1409.521–1409.535 | 874.701–874.721 | 7,211,139 | 4,257,051 |
+| final proof | 131.620–131.620 | 139.396–139.396 | 31,682 | 35,358 |
+| transfer | 34.425–34.434 | 29.814–29.821 | 150 | 150 |
+| output | 0.000–0.000 | 0.000–0.000 | 0 | 0 |
+
+The maximum final unattributed time was 77.528 s in event one and 55.095 s in event two. The ranges use each rank’s exclusive ledger once. Event and root clocks are nested. The between-run elapsed difference includes different host conditions. [Per-event ledger and work](../integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N4/section6_3_after_N11/phase_D/G5/acceptance_summary.json)
+
 ## Phase C — build570
 
 The full two-event workflow passed in 4058.303 s. The isolated event-two restart passed in 225.848 s. Native event maxima were 2181.430 and 1448.062 s, and the six payloads matched their reference hashes. Minimum timer coverage was 96.5141% and 96.7599%. G2 matched 90,809,869 units and six accepted-collapse counts. GQ and the full run matched the required integer and timer-call rows. [Phase C qualification](ADAPTATION_CUT_PHASE_C_20261118.md)
