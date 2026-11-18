@@ -1,0 +1,26 @@
+{
+  "item": "N4 phase C",
+  "state": "PASSED",
+  "C11_commit": "167e353ca7099c9892e9ffcadb3d182ca5557a4f",
+  "N17_M27_commit": "4787358e7a429727826b168d6bbf285b351d4df4",
+  "qualified_build": 570,
+  "verified_source_pins": 1783,
+  "phase_end_scoped_gates": [
+    "G1",
+    "G2",
+    "G3",
+    "G4",
+    "GQ"
+  ],
+  "full_G5_with_M27": true,
+  "isolated_restart": true,
+  "same_workflow_reused_for_M27": true,
+  "all_owned_handles_terminal": true,
+  "receipts": {
+    "phase_end": "../C11/validation/acceptance_summary.json",
+    "M27_scoped": "../M27/validation/acceptance_summary.json",
+    "G5": "G5/acceptance_summary.json",
+    "safeguards": "safeguards/acceptance_summary.json",
+    "terminal": "phase_C_terminal_audit.json"
+  }
+}

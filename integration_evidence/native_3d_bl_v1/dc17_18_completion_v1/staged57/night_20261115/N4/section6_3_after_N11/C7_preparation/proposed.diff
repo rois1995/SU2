@@ -1,0 +1,958 @@
+--- a/Common/src/adaptation/CNativeEngine3D.cpp
++++ b/Common/src/adaptation/CNativeEngine3D.cpp
+@@ -1998,6 +1998,7 @@
+     if (slot_decision == SlotDecision::Next) continue;
+     if (slot_decision == SlotDecision::Finish) return std::move(*slot_acquisition.finished);
+     TrialComm trial_comm{private_repair, world, source, imported};
++    TrialChecks trial_checks{context, round_state, slot_state, atlas_budget, trial_comm, curved};
+     ContextValue failure_lifetime(slot_state.failure);
+     CLocalFailure& failure = failure_lifetime.Get();
+     ContextValue coordinate_only_lifetime(slot_state.coordinate_only, repairing &&
+@@ -2071,21 +2072,6 @@
+     std::vector<CellQualityFlag>& fresh_flags = fresh_flags_lifetime.Get();
+     ContextValue measured_flags_lifetime(slot_state.measured_flags);
+     std::vector<CellQualityFlag>& measured_flags = measured_flags_lifetime.Get();
+-    auto note_ladder=[&](unsigned kind,bool valid,Clock::time_point began,uint64_t geometry_before,uint64_t height_before,size_t work=0) {
+-      if(!repairing)return;
+-      auto& counter=stats.quality.ladder.at(kind);++counter.trials;counter.certified+=valid;counter.work+=work;
+-      counter.seconds+=std::chrono::duration<double>(Clock::now()-began).count();
+-      if(valid)accepted_ladder=kind;
+-      else {
+-        counter.rejected[0]+=stats.geometry_rejected>geometry_before;
+-        counter.rejected[1]+=stats.height_rejected+stats.footprint_rejected>height_before;
+-        counter.rejected[2]+=certified.failure==MetricFailure::Shape;
+-        counter.rejected[3]+=certified.failure==MetricFailure::Progress;
+-        counter.rejected[4]+=certified.failure==MetricFailure::Measurement;
+-        counter.rejected[7]+=stats.geometry_rejected==geometry_before&&stats.height_rejected+stats.footprint_rejected==height_before&&
+-            certified.failure==MetricFailure::None;
+-      }
+-    };
+     ContextValue transaction_feature_lifetime(
+         slot_state.transaction_feature, repairing ? choice.feature : Feature{{choice.edge[0], choice.edge[1], 0}, 2});
+     const Feature& transaction_feature = transaction_feature_lifetime.Get();
+@@ -2152,88 +2138,13 @@
+       capture=trial_comm.Maximum(capture_selected);
+       transaction_captured=capture;
+     }
+-    auto guarded_geometry = [&](bool valid, const char* operation = "geometry",
+-                                wall_diagnostics::GuardOrigin origin = wall_diagnostics::GuardOrigin::Operator) {
+-      last_geometry_operation=operation;
+-      std::array<bool, 4> guards{valid};
+-      guards[1] = valid && (!surface_target ||
+-                            PreservePassingFirstHeights(old, fresh, options.wall_heights, geometry, result.reason));
+-      guards[2] = guards[1] && EngineTrial::HeightCheck(context, fresh, result.reason, !selection.geometry_repairs);
+-      guards[3] = guards[2] && boundary_replacement_ready();
+-      const bool passed = EngineTrial::GeometryTrial(context, guards[3]);
+-      wall_counters.ObserveGuard(operation, origin, guards[0], guards[1], guards[2], guards[3], result.reason);
+-      observe_transaction(operation,passed);
+-      return passed;
+-    };
+-    auto repair_kind=[&]() {
+-      if(surface_target)return MetricChange::GeometryRepair;
+-      if(selection.geometry_repairs)return MetricChange::GeometryRepair;
+-      if(selection.size_repairs || GetShapeAdmission()!=ShapeAdmission::ValidityOnly || options.wall_heights.empty())return MetricChange::Repair;
+-      const auto before=HeightScore(old,options.wall_heights,geometry),after=HeightScore(fresh,options.wall_heights,geometry);
+-      return std::isfinite(before) && after>before+1e-6 ? MetricChange::GeometryRepair : MetricChange::Repair;
+-    };
+-    auto geometric_change=[&](bool candidate,MetricChange kind) {
+-      if(!candidate || !curved)return candidate;
+-      // Entity refinement constructs valid cells; local surrogate descent is not a geometry permission.
+-      if(!surface_target&&geometry.EntityGeometry()&&phase==Phase::Construction&&kind!=MetricChange::Coarsen)return true;
+-      D9QueryScope d9_query(SU2NativeD9::Site::Guidance, &geometry);
+-      ++stats.geometry_guidance_trials;
+-      wall_counters.GuidanceTrial(choice.geometric);
+-      Timer guidance_timer(stats.geometry_guidance_seconds,options.timings,
+-                           SU2NativeTiming3D::Operation::GeometryBound);
+-      try {
+-        long double before,after;bool complete_guidance=true;
+-        if(kind==MetricChange::Coarsen) {
+-          // A coarsening trial needs zero new excess; rejected trials need no old-surface score.
+-          const auto guidance=GeometryGuidanceExcess(fresh,geometry,options.surface_tolerance,0);
+-          stats.geometry_guidance_faces+=guidance.evaluated_faces;stats.geometry_guidance_early_rejections+=!guidance.complete;after=guidance.excess;
+-          if(!guidance.complete || !std::isfinite(after) || after>0) {
+-            ++stats.geometry_guidance_rejected;
+-            wall_counters.GuidanceReject(WallGuidanceCause(guidance.complete, std::isfinite(after), false, false),
+-                                         choice.geometric);
+-            geometric_progress=false;
+-            result.reason = "Native3D candidate does not preserve/improve its frozen geometry error.";
+-            return guarded_geometry(false, "geometry", wall_diagnostics::GuardOrigin::Guidance);
+-          }
+-          const auto old_guidance=GeometryGuidanceExcess(old,geometry,options.surface_tolerance);
+-          stats.geometry_guidance_faces+=old_guidance.evaluated_faces;before=old_guidance.excess;
+-        } else {
+-          const auto old_guidance=GeometryGuidanceExcess(old,geometry,options.surface_tolerance);
+-          stats.geometry_guidance_faces+=old_guidance.evaluated_faces;before=old_guidance.excess;
+-          const bool allow_increase=kind==MetricChange::GeometryRepair && phase==Phase::Improvement && !selection.geometry_repairs;
+-          const auto guidance=GeometryGuidanceExcess(fresh,geometry,options.surface_tolerance,
+-              allow_increase?std::numeric_limits<long double>::infinity():before);
+-          stats.geometry_guidance_faces+=guidance.evaluated_faces;stats.geometry_guidance_early_rejections+=!guidance.complete;after=guidance.excess;complete_guidance=guidance.complete;
+-        }
+-        geometric_progress=complete_guidance && before>0 && after<before*(1-1e-12L);
+-        if(!complete_guidance || !std::isfinite(after) || (selection.geometry_repairs && !geometric_progress) ||
+-           (kind==MetricChange::GeometryRefine && !geometric_progress) ||
+-           (kind==MetricChange::Coarsen && after>0) ||
+-           (kind!=MetricChange::GeometryRefine && after>before &&
+-            !(kind==MetricChange::GeometryRepair && phase==Phase::Improvement))) {
+-          ++stats.geometry_guidance_rejected;
+-          wall_counters.GuidanceReject(
+-              WallGuidanceCause(complete_guidance, std::isfinite(after),
+-                                selection.geometry_repairs || kind == MetricChange::GeometryRefine, geometric_progress),
+-              choice.geometric);
+-          result.reason = "Native3D candidate does not preserve/improve its frozen geometry error.";
+-          return guarded_geometry(false, "geometry", wall_diagnostics::GuardOrigin::Guidance);
+-        }
+-        return true;
+-      } catch (const std::exception& e) {
+-        ++stats.geometry_guidance_rejected;
+-        wall_counters.GuidanceReject(wall_diagnostics::GuidanceCause::Exception, choice.geometric);
+-        result.reason = e.what();
+-        return guarded_geometry(false, "geometry", wall_diagnostics::GuardOrigin::Guidance);
+-      }
+-    };
+     try {observe_transaction("begin",chosen);}catch(const std::exception& e){failure.Set(2,0,e.what());}
+     if(options.transaction_observer && !context.exchange.Vote(context, failure))return false;
+     auto validate_metric_vector=[&](MetricChange kind,FrozenField& target,PatchMetric& metric,
+                                     const std::map<Edge,EdgeMeasure>& reuse) {
+       if(!surface_target)return EngineTrial::MetricTrial(context, ValidateMetricChange(old.cells,fresh.cells,kind,target,metric,
+           result.reason,nullptr,&reuse,&certified),certified,kind);
+-      if(!geometric_change(true,kind))return false;
++      if(!trial_checks.GeometricChange(boundary_replacement_ready, observe_transaction, true,kind))return false;
+       auto before=MeasureSurfacePlanning(old,target,geometry,options.wall_heights,surface_target);
+       metric=MeasureSurfacePlanning(fresh,target,geometry,options.wall_heights,surface_target);
+       EngineTrial::SurfaceMerit(context, before,old);EngineTrial::SurfaceMerit(context, metric,fresh);
+@@ -2265,14 +2176,7 @@
+         }
+       }
+     }catch(const std::exception& e){failure.Set(2,0,e.what());}
+-    auto incompatible_crease=[&](long double length) {
+-      std::ostringstream message;message<<std::setprecision(17)<<"Native3D exact-facet resolution conflict on crease edge "
+-          <<choice.edge[0]<<","<<choice.edge[1]<<": an interval without an interior binary64 point has frozen metric length "
+-          <<length<<" above "<<MaximumMetricEdge<<"; no admissible subdivision meets the current geometry/metric contract.";
+-      failure.Set(1,choice.edge[0],message.str());stats.last_rejected_feature={{choice.edge[0],choice.edge[1],0},2};
+-      if(!imported.cells.empty())stats.last_rejected_cavity_centroid=Centroid(imported.cells.front().cell);
+-    };
+-    if(crease_freedom==SegmentFreedom::None)incompatible_crease(choice.measure.length);
++    if(crease_freedom==SegmentFreedom::None)trial_checks.IncompatibleCrease(choice.measure.length);
+     if(!repairing && !coarsening && composition) {
+       std::vector<Cell> query;
+       try {if(chosen)query.push_back(imported.cells.front().cell);}catch(const std::exception& e){failure.Set(2,0,e.what());}
+@@ -2291,7 +2195,7 @@
+         bool conflict=false;
+         if(crease_freedom==SegmentFreedom::MidpointOnly) {
+           const auto length=std::max(target.TargetEdgeLength(choice.measure.a,crease_midpoint),target.TargetEdgeLength(crease_midpoint,choice.measure.b));
+-          conflict=length>diagnostic_limit;if(conflict)incompatible_crease(length);
++          conflict=length>diagnostic_limit;if(conflict)trial_checks.IncompatibleCrease(length);
+         }
+         if(!conflict) {
+           if(physical_edge){centralPosition=target.SegmentPoint(choice.measure.a,choice.measure.b,.5);central_available=true;}
+@@ -2319,27 +2223,27 @@
+           if (!repairing && coarsening) {
+             if(!geometry.EntityGeometry()&&CollapseOutsideTolerance(old,choice.edge[1],choice.edge[0],geometry,options.surface_tolerance)) {
+               result.reason="Native3D collapsed boundary leaves an original geometry sample outside tolerance.";
+-              approved=guarded_geometry(false,"CollapseVertex");
+-            } else if(collapse_corrected)approved=guarded_geometry(ReconnectCollapse(old,choice.edge[1],choice.edge[0],
++              approved=trial_checks.GuardedGeometry(boundary_replacement_ready, observe_transaction, false,"CollapseVertex");
++            } else if(collapse_corrected)approved=trial_checks.GuardedGeometry(boundary_replacement_ready, observe_transaction, ReconnectCollapse(old,choice.edge[1],choice.edge[0],
+               collapse_apex,maximum_cell+1+offset,geometry,fresh,result.reason),"ReconnectCollapse");
+-            else approved=guarded_geometry(CollapseVertex(old,choice.edge[1],choice.edge[0],maximum_cell+1+offset,
++            else approved=trial_checks.GuardedGeometry(boundary_replacement_ready, observe_transaction, CollapseVertex(old,choice.edge[1],choice.edge[0],maximum_cell+1+offset,
+               geometry,fresh,result.reason),"CollapseVertex");
+           }
+           else if (!repairing) {
+             point={maximum_node+1+node_offset,{double((static_cast<long double>(a.x)+b.x)/2),
+                 double((static_cast<long double>(a.y)+b.y)/2),double((static_cast<long double>(a.z)+b.z)/2)}};
+             if(composition)point.p=splitPosition;
+-            approved=guarded_geometry(SplitEdge(old,choice.edge,point,maximum_cell+1+offset,geometry,fresh,result.reason),"SplitEdge");
++            approved=trial_checks.GuardedGeometry(boundary_replacement_ready, observe_transaction, SplitEdge(old,choice.edge,point,maximum_cell+1+offset,geometry,fresh,result.reason),"SplitEdge");
+             if (!approved) {
+-              approved=guarded_geometry(InsertEdgeCavity(old,choice.edge,point,maximum_cell+1+offset,geometry,fresh,result.reason),"InsertEdgeCavity");
++              approved=trial_checks.GuardedGeometry(boundary_replacement_ready, observe_transaction, InsertEdgeCavity(old,choice.edge,point,maximum_cell+1+offset,geometry,fresh,result.reason),"InsertEdgeCavity");
+               cavity_inserted=approved;
+             }
+             if(!approved && physical_edge && composition && central_available &&
+                 (point.p.x!=centralPosition.x || point.p.y!=centralPosition.y || point.p.z!=centralPosition.z)) {
+               point.p=centralPosition;
+-              approved=guarded_geometry(SplitEdge(old,choice.edge,point,maximum_cell+1+offset,geometry,fresh,result.reason),"SplitEdge");
++              approved=trial_checks.GuardedGeometry(boundary_replacement_ready, observe_transaction, SplitEdge(old,choice.edge,point,maximum_cell+1+offset,geometry,fresh,result.reason),"SplitEdge");
+               if(!approved) {
+-                approved=guarded_geometry(InsertEdgeCavity(old,choice.edge,point,maximum_cell+1+offset,geometry,fresh,result.reason),"InsertEdgeCavity");
++                approved=trial_checks.GuardedGeometry(boundary_replacement_ready, observe_transaction, InsertEdgeCavity(old,choice.edge,point,maximum_cell+1+offset,geometry,fresh,result.reason),"InsertEdgeCavity");
+                 cavity_inserted=approved;
+               }
+             }
+@@ -2356,51 +2260,9 @@
+     if (!ready || (!sensors.valid && !streamed)) { if (ready) result.reason=sensors.reason; return false; }
+     if (streamed && !context.exchange.Admit(context, private_scratch)) return false;
+     if (streamed) ++stats.private_query_retries;
+-    auto reserve_optimization=[&](bool eligible) {
+-      if(private_repair){repair_budget=eligible?private_optimizer_allowance:repair_work;return;}
+-      const auto count=trial_comm.Reduce(uint64_t(eligible),CPassiveComm::Op::SUM);
+-      const auto budget=count?std::min<uint64_t>(160,(stats.work_limit-stats.global_work)/count):0;
+-      const auto extra=eligible?std::min<uint64_t>(budget,160-repair_work):0;
+-      stats.global_work+=trial_comm.Reduce(uint64_t(extra),CPassiveComm::Op::SUM);
+-      repair_budget=repair_work+extra;
+-    };
+-    auto release_optimization=[&]() {
+-      if(private_repair){repair_budget=repair_work;return;}
+-      stats.global_work-=trial_comm.Reduce(uint64_t(repair_budget-repair_work),CPassiveComm::Op::SUM);
+-      repair_budget=repair_work;
+-    };
+-    reserve_optimization(!streamed && chosen && repairing);
++    trial_checks.ReserveOptimization(!streamed && chosen && repairing);
+     if(trial_comm.Maximum(repair_budget>repair_work) &&
+         !context.exchange.Admit(context, transfer_memory::Add(private_scratch,transfer_memory::Bytes(sensors.cells))))return false;
+-    auto optimize_patch=[&](const Patch& candidate,const RegionMetric& target,bool preserve_vertices) {
+-      optimization_approved=false;repair_optimization={};
+-      const auto reserved=repair_budget-repair_work;
+-      if(!reserved)return false;
+-      const double remaining=options.maximum_seconds ?
+-          options.maximum_seconds-std::chrono::duration<double>(Clock::now()-started).count() : 0;
+-      if(options.maximum_seconds && remaining<=0)return false;
+-      const Id first_node=maximum_node+1+node_offset+construction_nodes+repair_work;
+-      size_t used=reserved;repair_work+=reserved;
+-      ++stats.repair_proposals;++stats.optimization_trials;
+-      const bool changed=OptimizedRepairPatch(candidate,maximum_cell+1+offset,first_node,target,
+-                                              fresh,result.reason,used,preserve_vertices,geometry,options.wall_heights,options.surface_tolerance,repair_optimization,remaining);
+-      repair_work-=reserved-used;
+-      stats.boundary_smoothing_stars+=repair_optimization.boundary_stars;stats.boundary_smoothing_reused+=repair_optimization.boundary_reused;
+-      stats.boundary_smoothing_candidates+=repair_optimization.boundary_candidates;stats.boundary_smoothing_validity_rejects+=repair_optimization.boundary_validity;
+-      stats.boundary_smoothing_shape_rejects+=repair_optimization.boundary_shape;stats.boundary_smoothing_edge_rejects+=repair_optimization.boundary_edge;
+-      stats.boundary_smoothing_geometry_rejects+=repair_optimization.boundary_geometry;stats.boundary_smoothing_guidance_calls+=repair_optimization.boundary_guidance;
+-      stats.boundary_smoothing_move_contexts+=repair_optimization.boundary_move_contexts;stats.boundary_smoothing_prepared_trials+=repair_optimization.boundary_prepared_trials;
+-      stats.boundary_smoothing_guidance_faces+=repair_optimization.boundary_guidance_faces;stats.boundary_smoothing_guidance_reused_faces+=repair_optimization.boundary_guidance_reused_faces;stats.boundary_smoothing_guidance_early_rejections+=repair_optimization.boundary_guidance_early;
+-      stats.boundary_smoothing_upper_queries+=repair_optimization.boundary_upper;stats.boundary_smoothing_moves+=repair_optimization.boundary_moves;
+-      stats.boundary_smoothing_debt_reduction+=repair_optimization.boundary_debt;stats.boundary_smoothing_seconds+=repair_optimization.boundary_seconds;
+-      stats.interior_smoothing_stars+=repair_optimization.interior_stars;stats.interior_smoothing_reused+=repair_optimization.interior_reused;
+-      stats.interior_smoothing_candidates+=repair_optimization.interior_candidates;stats.interior_smoothing_validity_rejects+=repair_optimization.interior_validity;
+-      stats.interior_smoothing_shape_rejects+=repair_optimization.interior_shape;stats.interior_smoothing_edge_rejects+=repair_optimization.interior_edge;
+-      stats.interior_smoothing_geometry_rejects+=repair_optimization.interior_geometry;stats.interior_smoothing_guidance_calls+=repair_optimization.interior_guidance;
+-      stats.interior_smoothing_upper_queries+=repair_optimization.interior_upper;stats.interior_smoothing_moves+=repair_optimization.interior_moves;
+-      stats.interior_smoothing_debt_reduction+=repair_optimization.interior_debt;stats.interior_smoothing_seconds+=repair_optimization.interior_seconds;
+-      return changed;
+-    };
+     {
+       Timer timer(stats.metric_seconds,options.timings, SU2NativeTiming3D::Operation::MetricNormalization);
+       const double reconstruction_before=stats.reconstruction_seconds;
+@@ -2451,8 +2313,8 @@
+                 ++stats.repair_proposals;
+                 { Timer geometry_timer(stats.reconstruction_seconds,options.timings,
+                                        SU2NativeTiming3D::Operation::Candidate); CpuTimer geometry_cpu(stats.reconstruction_cpu_seconds,options.timings);
+-                approved=guarded_geometry(MoveVertex(old,vertex,point,first,geometry,fresh,result.reason),"MoveVertex"); }
+-                if (approved) {const auto kind=repair_kind();
++                approved=trial_checks.GuardedGeometry(boundary_replacement_ready, observe_transaction, MoveVertex(old,vertex,point,first,geometry,fresh,result.reason),"MoveVertex"); }
++                if (approved) {const auto kind=trial_checks.RepairKind();
+                   approved=validate_metric_vector(kind,*field,metric,reuse);}
+                 if (approved) { moved=true; break; }
+               }
+@@ -2463,8 +2325,8 @@
+                 ++stats.repair_proposals;
+                 { Timer geometry_timer(stats.reconstruction_seconds,options.timings,
+                                        SU2NativeTiming3D::Operation::Candidate); CpuTimer geometry_cpu(stats.reconstruction_cpu_seconds,options.timings);
+-                  approved=guarded_geometry(Reconnect(old,row.first,first,geometry,fresh,result.reason),"Reconnect"); }
+-                if (approved) {const auto kind=repair_kind();
++                  approved=trial_checks.GuardedGeometry(boundary_replacement_ready, observe_transaction, Reconnect(old,row.first,first,geometry,fresh,result.reason),"Reconnect"); }
++                if (approved) {const auto kind=trial_checks.RepairKind();
+                   approved=validate_metric_vector(kind,*field,metric,reuse);}
+                 if (approved) break;
+               }
+@@ -2472,8 +2334,8 @@
+             if(!surface_target && !approved && repair_work<repair_budget) {
+               {Timer geometry_timer(stats.reconstruction_seconds,options.timings,
+                                      SU2NativeTiming3D::Operation::Candidate);CpuTimer geometry_cpu(stats.reconstruction_cpu_seconds,options.timings);
+-                approved=guarded_geometry(optimize_patch(old,RegionMetric(*field),false));}
+-              if(approved){const auto kind=repair_kind();
++                approved=trial_checks.GuardedGeometry(boundary_replacement_ready, observe_transaction, trial_checks.OptimizePatch(old,RegionMetric(*field),false));}
++              if(approved){const auto kind=trial_checks.RepairKind();
+                 approved=validate_metric_vector(kind,*field,metric,reuse);}
+               if(approved){moved=false;optimization_approved=true;++stats.optimization_validated;}
+             }
+@@ -2487,7 +2349,7 @@
+       stats.metric_seconds-=stats.reconstruction_seconds-reconstruction_before;
+       stats.metric_cpu_seconds-=stats.reconstruction_cpu_seconds-reconstruction_cpu_before;
+     }
+-    release_optimization();
++    trial_checks.ReleaseOptimization();
+     if(!streamed && composition && !repairing && !coarsening) {
+       if(trial_comm.Maximum(chosen && !approved)) {
+         field.reset();if(!context.exchange.Admit(context, private_scratch))return false;
+@@ -2611,12 +2473,6 @@
+       if (!(ready=context.exchange.Vote(context, old_failure))) return false;
+       // Refits and joint placement give each moved apex a new identity from maximum_node+2+node_offset on (one for one);
+       // the split point is maximum_node+1+node_offset. Only those callers certify relocations (RefineAcceptance).
+-      auto reserved_relocations=[&]() {
+-        std::set<Id> previous,ids;for(const auto& c:old.cells)for(auto n:c.v)previous.insert(n.id);
+-        for(const auto& c:fresh.cells)for(auto n:c.v)
+-          if(n.id>=maximum_node+2+node_offset && n.id<maximum_node+1+node_offset+construction_nodes && !previous.count(n.id))ids.insert(n.id);
+-        return ids.size();
+-      };
+       auto validate_private=[&](bool candidate,MetricChange kind,bool no_new_oversized=false,bool strict_size=false,size_t relocated=0,
+                                   wall_diagnostics::PatchSource source=wall_diagnostics::PatchSource::Unreported,
+                                   bool required_split=false) {
+@@ -2628,7 +2484,7 @@
+         certified={};
+         const bool merit_first=!surface_target && bidirectional && repairing && kind==MetricChange::Repair && !selection.geometry_repairs;
+         if(required_split)geometric_progress=false;
+-        if(!merit_first && !required_split)candidate=geometric_change(candidate,selection.geometry_repairs?MetricChange::GeometryRepair:kind);
++        if(!merit_first && !required_split)candidate=trial_checks.GeometricChange(boundary_replacement_ready, observe_transaction, candidate,selection.geometry_repairs?MetricChange::GeometryRepair:kind);
+         PatchMetric metric;
+         const std::vector<Cell> empty;
+         bool measured=measure_private(candidate ? fresh.cells : empty,metric,true,before.edges,&fresh);
+@@ -2636,7 +2492,7 @@
+         bool valid=false;
+         { Timer timer(stats.metric_seconds,options.timings, SU2NativeTiming3D::Operation::MetricNormalization); CpuTimer cpu(stats.metric_cpu_seconds,options.timings);
+           if (candidate) {
+-            const auto effective=kind==MetricChange::Repair ? (geometric_progress&&!bidirectional?MetricChange::GeometryRepair:repair_kind()) : kind;
++            const auto effective=kind==MetricChange::Repair ? (geometric_progress&&!bidirectional?MetricChange::GeometryRepair:trial_checks.RepairKind()) : kind;
+             if (measured)
+               valid = metric_cleanup ? ValidateMetricCleanup(old.cells.size(), before, fresh.cells.size(), metric,
+                                                              result.reason, &certified)
+@@ -2657,7 +2513,7 @@
+             valid=EngineTrial::MetricTrial(context, valid,certified,effective,geometric_progress);
+           }
+         }
+-        if(valid && merit_first && !required_split)valid=geometric_change(true,repair_kind());
++        if(valid && merit_first && !required_split)valid=trial_checks.GeometricChange(boundary_replacement_ready, observe_transaction, true,trial_checks.RepairKind());
+         if(valid && selection.geometry_repairs)valid=EngineTrial::HeightCheck(context, fresh,result.reason);
+         // The initial streaming probe precedes repair proposals; it is not an operator failure.
+         if(chosen && !valid && !completed && (!repairing || last_geometry_operation)) {
+@@ -2818,13 +2674,13 @@
+           stats.metric_linear_iterations+=report.linear_iterations;stats.metric_solve_trials+=report.solve_trials;
+           placement_obstruction=report.blocked_interior_vertex;
+           if(!candidate && !report.best.cells.empty()){fresh=std::move(report.best);candidate=true;}
+-          candidate=guarded_geometry(candidate);
++          candidate=trial_checks.GuardedGeometry(boundary_replacement_ready, observe_transaction, candidate);
+         }catch(const std::exception& e){failure.Set(2,0,e.what());}
+         if(!(ready=context.exchange.Vote(context, failure)))return false;
+         stats.global_work+=concurrent ? trial_comm.Reduce(uint64_t(report.trials),CPassiveComm::Op::SUM) : trial_comm.Maximum(report.trials);
+         const auto retained_metric=certified;
+         const bool passed=validate_private(candidate,choice.geometric?MetricChange::GeometryRefine:MetricChange::Refine,false,false,
+-            height_apex==UINT64_MAX && candidate ? reserved_relocations() : 0);
++            height_apex==UINT64_MAX && candidate ? trial_checks.ReservedRelocations() : 0);
+         if(search && !approved){approved=passed;stats.placement_validated+=passed;}
+         else if(!search)certified=retained_metric;
+         if(!ready)return false;
+@@ -3111,7 +2967,7 @@
+                   else for(size_t i=0;i<fresh.cells.size();++i)fresh.cells[i].id=maximum_cell+1+offset+i;
+                 }
+               }
+-              candidate=guarded_geometry(candidate);
++              candidate=trial_checks.GuardedGeometry(boundary_replacement_ready, observe_transaction, candidate);
+             }
+           }catch(const std::exception& e){failure.Set(2,0,e.what());}
+           if(!(ready=context.exchange.Vote(context, failure)))return false;
+@@ -3124,13 +2980,6 @@
+         }
+         if(strip && approved){cavity_inserted=true;joint=false;}
+       }
+-      auto movable_star=[&](const Imported& star,Id vertex) {
+-        std::set<Id> components;
+-        for(const auto& row:star.cells)for(unsigned f=0;f<4;++f)
+-          if(row.physical[f].present && row.cell.v[f].id!=vertex)components.insert(geometry.Canonical(row.physical[f].facet));
+-        if(choice.geometric)return components.empty();  // Geometry placement moves free volume support, not its prescribed surface.
+-        return components.size()<=1;  // Smooth physical vertices share the same complete-star admission as interior points.
+-      };
+       bool search=joint && (choice.geometric || (composition && flat_edge)) && wallApices.empty() && !approved;
+       std::vector<Id> apices;
+       if(trial_comm.Maximum(search)) {
+@@ -3156,21 +3005,13 @@
+                 throw std::runtime_error(star.reason);
+               }
+               ++stats.placement_classified_vertices;
+-              if(movable_star(star,candidates[i]))costs.emplace(candidates[i],star.cells.size());
++              if(trial_checks.MovableStar(star,candidates[i]))costs.emplace(candidates[i],star.cells.size());
+             }
+             apices=SplitPatchApices(old,choice.edge,&costs);
+             if(costs.count(initial_placement_obstruction)) {
+-              auto admitted_cells=[&](const std::vector<Id>& movers) {
+-                std::set<Id> cells;
+-                for(const auto& c:old.cells)if(std::count_if(c.v.begin(),c.v.end(),[&](Node n){
+-                    return n.id==choice.edge[0] || n.id==choice.edge[1];})==2)cells.insert(c.id);
+-                for(size_t i=0;i<candidates.size();++i)if(std::find(movers.begin(),movers.end(),candidates[i])!=movers.end())
+-                  for(const auto& row:payload.candidates.at(i).cells)cells.insert(row.cell.id);
+-                return cells.size();
+-              };
+               // Admit an actual blocking star when the all-cell cover cannot fit, without raising the cavity bound.
+               const std::vector<Id> targeted{initial_placement_obstruction};
+-              if((apices.empty() || admitted_cells(apices)>MaximumCavityCells) && admitted_cells(targeted)<=MaximumCavityCells) {
++              if((apices.empty() || trial_checks.AdmittedCells(apices, candidates, payload)>MaximumCavityCells) && trial_checks.AdmittedCells(targeted, candidates, payload)<=MaximumCavityCells) {
+                 apices=targeted;++stats.placement_dependency_expansions;
+               }
+             }
+@@ -3199,7 +3040,7 @@
+               else throw std::runtime_error(star.reason);
+             } else {
+               ++stats.placement_classified_vertices;
+-              expand=movable_star(star,placement_obstruction);
++              expand=trial_checks.MovableStar(star,placement_obstruction);
+             }
+             if(expand){apices.push_back(placement_obstruction);++stats.placement_dependency_expansions;}
+           }catch(const std::exception& e){failure.Set(2,0,e.what());}
+@@ -3254,17 +3095,17 @@
+               stats.wall_reconstruction_trials+=wall;
+               if(retained_frame && frame<retained_frames && wallSplit) {
+                 ++stats.wall_topology_trials;
+-                if(frame==0)candidate=guarded_geometry(wall_counters.TimeFrame("RefitWallSplit", [&] {
++                if(frame==0)candidate=trial_checks.GuardedGeometry(boundary_replacement_ready, observe_transaction, wall_counters.TimeFrame("RefitWallSplit", [&] {
+                     return RefitWallSplit(old,choice.edge,point,maximum_node+2+node_offset,
+                         maximum_cell+1+offset,options.wall_heights,geometry,fresh,refit_obstruction,result.reason);
+                   }),"RefitWallSplit");
+-                else candidate=guarded_geometry(wall_counters.TimeFrame("ReconstructWallSplit", [&] {
++                else candidate=trial_checks.GuardedGeometry(boundary_replacement_ready, observe_transaction, wall_counters.TimeFrame("ReconstructWallSplit", [&] {
+                     return ReconstructWallSplit(old,choice.edge,point,maximum_node+2+node_offset,
+                         maximum_cell+1+offset,options.wall_heights,geometry,fresh,obstruction,result.reason,nullptr,
+                         options.surface_tolerance);
+                   }),"ReconstructWallSplit");
+               } else if(!retained_frame || frame>=retained_frames) {
+-                candidate=guarded_geometry(wall_counters.TimeFrame("ReconstructSplitPatch", [&] {
++                candidate=trial_checks.GuardedGeometry(boundary_replacement_ready, observe_transaction, wall_counters.TimeFrame("ReconstructSplitPatch", [&] {
+                     return ReconstructSplitPatch(old,choice.edge,point,{maximum_node+2+node_offset,{}},
+                         frame>retained_frames?nearPlacement:placement,maximum_cell+1+offset,geometry,
+                         fresh,obstruction,result.reason,nullptr,options.wall_heights);
+@@ -3283,7 +3124,7 @@
+           auto validate_joint = [&](bool available,
+                                     wall_diagnostics::PatchSource source = wall_diagnostics::PatchSource::Unreported) {
+             return split_refit ? validate_private(available, MetricChange::Refine, false, false,
+-                                                  available ? reserved_relocations() : 0, source)
++                                                  available ? trial_checks.ReservedRelocations() : 0, source)
+                                : validate_private(available,
+                                                   compound_refit     ? MetricChange::Refine
+                                                   : choice.geometric ? MetricChange::GeometryRefine
+@@ -3360,7 +3201,7 @@
+                   // Fresh identities invalidate selection reuse and preserve transfer's unchanged-node contract.
+                   for(auto& c:proposal.cells)for(auto& n:c.v)if(renamed.count(n.id))n.id=renamed.at(n.id);
+                   for(auto& f:proposal.surface)for(auto& id:f.v)if(renamed.count(id))id=renamed.at(id);
+-                  fresh=std::move(proposal);repaired=guarded_geometry(true);
++                  fresh=std::move(proposal);repaired=trial_checks.GuardedGeometry(boundary_replacement_ready, observe_transaction, true);
+                 }
+               }catch(const std::exception& e){local.Set(2,0,e.what());}
+               repair_used+=report.trials;
+@@ -3521,7 +3362,7 @@
+         const auto began=Clock::now();const auto calls_before=stats.optimization_trials;const auto work_before=repair_work;
+         const auto geometry_before=stats.geometry_rejected,height_before=stats.height_rejected+stats.footprint_rejected;
+         bool validated=false;
+-        reserve_optimization(!coordinate_only && repair_work<160 && chosen && !approved);
++        trial_checks.ReserveOptimization(!coordinate_only && repair_work<160 && chosen && !approved);
+         DonorPatch donors;
+         {Timer timer(stats.donor_seconds,options.timings, SU2NativeTiming3D::Operation::Import);++stats.donor_batches;
+           donors=trial_comm.ImportCells(!coordinate_only && repair_work<repair_budget && !approved?old.cells:empty,options.memory_ceiling,
+@@ -3534,16 +3375,16 @@
+           FrozenField proposal_field(std::move(donors.cells),composition,options.timings,components,options.edge_breakpoints,field_identity,true,MaximumDonors,true);
+           FieldAccounting accounting{stats,proposal_field};
+           Timer timer(stats.reconstruction_seconds,options.timings, SU2NativeTiming3D::Operation::Candidate);CpuTimer cpu(stats.reconstruction_cpu_seconds,options.timings);
+-          candidate=guarded_geometry(optimize_patch(old,RegionMetric(proposal_field),false),"OptimizeMetricMesh");
++          candidate=trial_checks.GuardedGeometry(boundary_replacement_ready, observe_transaction, trial_checks.OptimizePatch(old,RegionMetric(proposal_field),false),"OptimizeMetricMesh");
+         }catch(const std::exception& e){failure.Set(2,0,e.what());}
+         if(!(ready=context.exchange.Vote(context, failure)))return false;
+-        release_optimization();
++        trial_checks.ReleaseOptimization();
+         if(trial_comm.Maximum(candidate || (selection.size_repairs && chosen))) {
+           const bool placed=validate_private(candidate,MetricChange::Repair);
+           if(!ready)return false;
+           if(placed){approved=repair_approved=true;moved=false;optimization_approved=true;++stats.optimization_validated;validated=true;}
+         }
+-        if(stats.optimization_trials>calls_before)note_ladder(1,validated,began,geometry_before,height_before,repair_work-work_before);
++        if(stats.optimization_trials>calls_before)trial_checks.NoteLadder(1,validated,began,geometry_before,height_before,repair_work-work_before);
+         return true;
+       };
+       for (unsigned trial=0;trial<19;++trial) {
+@@ -3578,16 +3419,16 @@
+                   point.p={double(p.x+step*(moveCenter.x-p.x)),double(p.y+step*(moveCenter.y-p.y)),double(p.z+step*(moveCenter.z-p.z))};
+                   point=ConstrainMovePoint(old,vertex,point,options.wall_heights,geometry);
+                 }
+-                candidate=guarded_geometry(MoveVertex(old,vertex,point,first,geometry,fresh,result.reason,nullptr,
++                candidate=trial_checks.GuardedGeometry(boundary_replacement_ready, observe_transaction, MoveVertex(old,vertex,point,first,geometry,fresh,result.reason,nullptr,
+                     coordinate_only ? old.cells.size() : MaximumCavityCells),"MoveVertex");
+               }
+             } else if (!move_trial) {
+               auto apex=nodes.begin(); std::advance(apex,trial-3);
+               if(move && repairing && choice.feature.count==1) {
+                 if(apex->first!=vertex)
+-                  candidate=guarded_geometry(CollapseVertex(old,vertex,apex->first,first,geometry,fresh,result.reason),"CollapseVertex");
++                  candidate=trial_checks.GuardedGeometry(boundary_replacement_ready, observe_transaction, CollapseVertex(old,vertex,apex->first,first,geometry,fresh,result.reason),"CollapseVertex");
+               }
+-              else candidate=guarded_geometry(Reconnect(old,apex->first,first,geometry,fresh,result.reason),"Reconnect");
++              else candidate=trial_checks.GuardedGeometry(boundary_replacement_ready, observe_transaction, Reconnect(old,apex->first,first,geometry,fresh,result.reason),"Reconnect");
+             }
+           } catch (const std::exception& e) { failure.Set(2,0,e.what()); }
+           ready=context.exchange.Vote(context, failure);
+@@ -3596,38 +3437,14 @@
+         const bool valid=validate_private(candidate,MetricChange::Repair);
+         if (!ready) return false;
+         if (valid) { approved=true; repair_approved=true; moved=move_trial; }
+-        if(participating)note_ladder(move_trial?0:2,valid,trial_started,geometry_before,height_before);
++        if(participating)trial_checks.NoteLadder(move_trial?0:2,valid,trial_started,geometry_before,height_before);
+       }
+       if(selection.geometry_repairs && !coordinate_only && chosen && !approved && curved &&
+           maximum_node<=UINT64_MAX-node_stride && node_offset<=UINT64_MAX-maximum_node-node_stride) {
+-        reserve_optimization(true);
++        trial_checks.ReserveOptimization(true);
+         std::map<Id,Node> nodes;std::set<Edge> edges;
+         for(const auto& cell:old.cells)for(auto n:cell.v)nodes.emplace(n.id,n);
+-        auto geometry_counts=[&](const Patch& patch,std::set<Edge>* failed_edges=nullptr) {
+-          Timer timer(stats.geometry_guidance_seconds,options.timings, SU2NativeTiming3D::Operation::GeometryBound);
+-          auto parameters=geometry.PrivateParameters(patch);const auto& reference=parameters?*parameters:geometry;
+-          std::map<Face,Id> facets;for(const auto& face:patch.surface)facets.emplace(Key(face.v),face.facet);
+-          std::pair<size_t,size_t> counts{};
+-          for(const auto& cell:patch.cells) {
+-            atlas_budget.CheckTime();
+-            bool bad=false;
+-            for(const auto& face:Faces(cell)) {
+-              const auto found=facets.find(Key(face));if(found==facets.end())continue;
+-              std::array<Point,3> triangle;
+-              for(unsigned k=0;k<3;++k)for(auto n:cell.v)if(n.id==face[k])triangle[k]=n.p;
+-              const auto error=reference.SurfaceDeviation(found->second,triangle,SU2NativeGeometry::SurfaceQueryNeed::Classify());++stats.geometry_guidance_faces;
+-              if(!std::isfinite(error))throw std::runtime_error("Native3D coupled repair lacks a complete face certificate.");
+-              if(error<=options.surface_tolerance)continue;
+-              bad=true;++counts.second;
+-              if(failed_edges)for(unsigned k=0;k<3;++k) {
+-                Edge edge{face[k],face[(k+1)%3]};std::sort(edge.begin(),edge.end());failed_edges->insert(edge);
+-              }
+-            }
+-            counts.first+=bad;
+-          }
+-          return counts;
+-        };
+-        const auto old_counts=geometry_counts(old,&edges);
++        const auto old_counts=trial_checks.GeometryCounts(old,&edges);
+         std::set<Face> physical;for(const auto& face:old.surface)physical.insert(Key(face.v));
+         for(const auto& face:Incidence(old.cells).Boundary())if(!physical.count(Key(face)))
+           for(unsigned k=0;k<3;++k) {
+@@ -3654,10 +3471,10 @@
+                 double(((long double)a.y+b.y)/2),double(((long double)a.z+b.z)/2)}};
+             bool candidate;
+             {Timer timer(stats.reconstruction_seconds,options.timings, SU2NativeTiming3D::Operation::Candidate);CpuTimer cpu(stats.reconstruction_cpu_seconds,options.timings);
+-              candidate=guarded_geometry(SplitSurfaceStrip(old,edge,point,{},maximum_cell+1+offset,
++              candidate=trial_checks.GuardedGeometry(boundary_replacement_ready, observe_transaction, SplitSurfaceStrip(old,edge,point,{},maximum_cell+1+offset,
+                   geometry,fresh,result.reason),"SplitSurfaceStrip");}
+             if(candidate) {
+-              const auto counts=geometry_counts(fresh);
++              const auto counts=trial_checks.GeometryCounts(fresh);
+               candidate=EngineTrial::GeometryTrial(context, counts.first<=old_counts.first && counts.second<old_counts.second);
+             }
+             bool valid=validate_private(candidate,MetricChange::GeometryRepair);
+@@ -3668,20 +3485,20 @@
+                 repair_work<repair_budget) {
+               const Patch split=fresh;
+               {Timer timer(stats.reconstruction_seconds,options.timings, SU2NativeTiming3D::Operation::Candidate);CpuTimer cpu(stats.reconstruction_cpu_seconds,options.timings);
+-                candidate=guarded_geometry(optimize_patch(split,RegionMetric(target),false),"OptimizeGeometrySplit");}
++                candidate=trial_checks.GuardedGeometry(boundary_replacement_ready, observe_transaction, trial_checks.OptimizePatch(split,RegionMetric(target),false),"OptimizeGeometrySplit");}
+               valid=validate_private(candidate,MetricChange::GeometryRepair);
+               if(!ready)return false;
+               if(valid) {
+-                const auto counts=geometry_counts(fresh);
++                const auto counts=trial_checks.GeometryCounts(fresh);
+                 valid=EngineTrial::GeometryTrial(context, counts.first<=old_counts.first && counts.second<old_counts.second);
+                 if(valid){optimization_approved=true;++stats.optimization_validated;}
+               }
+             }
+             if(valid){approved=repair_approved=true;moved=false;}
+-            note_ladder(2,valid,began,geometry_before,height_before,repair_work-work_before);
++            trial_checks.NoteLadder(2,valid,began,geometry_before,height_before,repair_work-work_before);
+           }
+         }
+-        release_optimization();
++        trial_checks.ReleaseOptimization();
+       }
+       if(selection.size_repairs && !optimize_repair())return false;
+       if (repair_approved && !repairing) ++stats.fallback_accepted;
+--- a/Common/src/adaptation/native_engine3d/EngineTrial.cpp
++++ b/Common/src/adaptation/native_engine3d/EngineTrial.cpp
+@@ -123,3 +123,398 @@
+     throw;
+   }
+ }
++
++// Borrows active trial state for validity, accounting and guidance checks.
++struct TrialChecks {
++  using Phase = EnginePhase;
++  EngineContext& context;
++  RoundState& round_state;
++  SlotState& slot_state;
++  SU2NativeGeometry::AtlasBudget& atlas_budget;
++  TrialComm& trial_comm;
++  bool curved;
++
++  void NoteLadder(unsigned kind, bool valid, Clock::time_point began, uint64_t geometry_before, uint64_t height_before,
++                  size_t work = 0);
++  template <class BoundaryReady, class Observe>
++  bool GuardedGeometry(BoundaryReady& boundary_replacement_ready, Observe& observe_transaction, bool valid,
++                       const char* operation = "geometry",
++                       wall_diagnostics::GuardOrigin origin = wall_diagnostics::GuardOrigin::Operator);
++  MetricChange RepairKind();
++  template <class BoundaryReady, class Observe>
++  bool GeometricChange(BoundaryReady& boundary_replacement_ready, Observe& observe_transaction, bool candidate,
++                       MetricChange kind);
++  bool SkipConstructionGuidance(MetricChange kind);
++  void IncompatibleCrease(long double length);
++  void ReserveOptimization(bool eligible);
++  void ReleaseOptimization();
++  bool OptimizePatch(const Patch& candidate, const RegionMetric& target, bool preserve_vertices);
++  size_t ReservedRelocations();
++  bool MovableStar(const Imported& star, Id vertex);
++  size_t AdmittedCells(const std::vector<Id>& movers, const std::vector<Id>& candidates, const ImportedBatch& payload);
++  std::pair<size_t, size_t> GeometryCounts(const Patch& patch, std::set<Edge>* failed_edges = nullptr);
++};
++
++// Records the ladder disposition at the existing trial boundary.
++void TrialChecks::NoteLadder(unsigned kind, bool valid, Clock::time_point began, uint64_t geometry_before,
++                             uint64_t height_before, size_t work) {
++  auto& stats = context.control.result->stats;
++  auto& repairing = *context.control.repairing;
++  auto& accepted_ladder = *slot_state.accepted_ladder;
++  auto& certified = *slot_state.certified;
++  if (!repairing) return;
++  auto& counter = stats.quality.ladder.at(kind);
++  ++counter.trials;
++  counter.certified += valid;
++  counter.work += work;
++  counter.seconds += std::chrono::duration<double>(Clock::now() - began).count();
++  if (valid)
++    accepted_ladder = kind;
++  else {
++    counter.rejected[0] += stats.geometry_rejected > geometry_before;
++    counter.rejected[1] += stats.height_rejected + stats.footprint_rejected > height_before;
++    counter.rejected[2] += certified.failure == MetricFailure::Shape;
++    counter.rejected[3] += certified.failure == MetricFailure::Progress;
++    counter.rejected[4] += certified.failure == MetricFailure::Measurement;
++    counter.rejected[7] += stats.geometry_rejected == geometry_before &&
++                           stats.height_rejected + stats.footprint_rejected == height_before &&
++                           certified.failure == MetricFailure::None;
++  }
++}
++
++// Applies the original short-circuit wall guards and reports their disposition.
++template <class BoundaryReady, class Observe>
++bool TrialChecks::GuardedGeometry(BoundaryReady& boundary_replacement_ready, Observe& observe_transaction, bool valid,
++                                  const char* operation, wall_diagnostics::GuardOrigin origin) {
++  auto& options = context.options;
++  auto& geometry = context.geometry;
++  auto& result = *context.control.result;
++  auto& surface_target = context.surface_target;
++  auto& selection = *context.census.selection;
++  auto& wall_counters = *context.setup.wall_counters;
++  auto& old = *slot_state.old;
++  auto& fresh = *slot_state.fresh;
++  auto& last_geometry_operation = *slot_state.last_geometry_operation;
++  last_geometry_operation = operation;
++  std::array<bool, 4> guards{valid};
++  guards[1] = valid && (!surface_target ||
++                        PreservePassingFirstHeights(old, fresh, options.wall_heights, geometry, result.reason));
++  guards[2] = guards[1] && EngineTrial::HeightCheck(context, fresh, result.reason, !selection.geometry_repairs);
++  guards[3] = guards[2] && boundary_replacement_ready();
++  const bool passed = EngineTrial::GeometryTrial(context, guards[3]);
++  wall_counters.ObserveGuard(operation, origin, guards[0], guards[1], guards[2], guards[3], result.reason);
++  observe_transaction(operation, passed);
++  return passed;
++}
++
++// Chooses the existing repair requirement from surface, census and height state.
++MetricChange TrialChecks::RepairKind() {
++  auto& options = context.options;
++  auto& geometry = context.geometry;
++  auto& surface_target = context.surface_target;
++  auto& selection = *context.census.selection;
++  auto& old = *slot_state.old;
++  auto& fresh = *slot_state.fresh;
++  if (surface_target) return MetricChange::GeometryRepair;
++  if (selection.geometry_repairs) return MetricChange::GeometryRepair;
++  if (selection.size_repairs || GetShapeAdmission() != ShapeAdmission::ValidityOnly || options.wall_heights.empty())
++    return MetricChange::Repair;
++  const auto before = HeightScore(old, options.wall_heights, geometry),
++             after = HeightScore(fresh, options.wall_heights, geometry);
++  return std::isfinite(before) && after > before + 1e-6 ? MetricChange::GeometryRepair : MetricChange::Repair;
++}
++
++// Entity construction uses validity; it does not use surrogate descent as permission.
++bool TrialChecks::SkipConstructionGuidance(MetricChange kind) {
++  auto& geometry = context.geometry;
++  auto& surface_target = context.surface_target;
++  auto& phase = *context.setup.control_prefix.phase;
++  return !surface_target && geometry.EntityGeometry() && phase == Phase::Construction && kind != MetricChange::Coarsen;
++}
++
++// Runs the exact guidance comparison under its existing query and timer scopes.
++template <class BoundaryReady, class Observe>
++bool TrialChecks::GeometricChange(BoundaryReady& boundary_replacement_ready, Observe& observe_transaction,
++                                  bool candidate, MetricChange kind) {
++  auto& options = context.options;
++  auto& geometry = context.geometry;
++  auto& result = *context.control.result;
++  auto& selection = *context.census.selection;
++  auto& stats = context.control.result->stats;
++  auto& phase = *context.setup.control_prefix.phase;
++  auto& wall_counters = *context.setup.wall_counters;
++  auto& choice = *round_state.choice;
++  auto& old = *slot_state.old;
++  auto& fresh = *slot_state.fresh;
++  auto& geometric_progress = *slot_state.geometric_progress;
++  if (!candidate || !curved) return candidate;
++  if (SkipConstructionGuidance(kind)) return true;
++  D9QueryScope d9_query(SU2NativeD9::Site::Guidance, &geometry);
++  ++stats.geometry_guidance_trials;
++  wall_counters.GuidanceTrial(choice.geometric);
++  Timer guidance_timer(stats.geometry_guidance_seconds, options.timings, SU2NativeTiming3D::Operation::GeometryBound);
++  try {
++    long double before, after;
++    bool complete_guidance = true;
++    if (kind == MetricChange::Coarsen) {
++      // A coarsening trial needs zero new excess; rejected trials need no old-surface score.
++      const auto guidance = GeometryGuidanceExcess(fresh, geometry, options.surface_tolerance, 0);
++      stats.geometry_guidance_faces += guidance.evaluated_faces;
++      stats.geometry_guidance_early_rejections += !guidance.complete;
++      after = guidance.excess;
++      if (!guidance.complete || !std::isfinite(after) || after > 0) {
++        ++stats.geometry_guidance_rejected;
++        wall_counters.GuidanceReject(WallGuidanceCause(guidance.complete, std::isfinite(after), false, false),
++                                     choice.geometric);
++        geometric_progress = false;
++        result.reason = "Native3D candidate does not preserve/improve its frozen geometry error.";
++        return GuardedGeometry(boundary_replacement_ready, observe_transaction, false, "geometry",
++                               wall_diagnostics::GuardOrigin::Guidance);
++      }
++      const auto old_guidance = GeometryGuidanceExcess(old, geometry, options.surface_tolerance);
++      stats.geometry_guidance_faces += old_guidance.evaluated_faces;
++      before = old_guidance.excess;
++    } else {
++      const auto old_guidance = GeometryGuidanceExcess(old, geometry, options.surface_tolerance);
++      stats.geometry_guidance_faces += old_guidance.evaluated_faces;
++      before = old_guidance.excess;
++      const bool allow_increase =
++          kind == MetricChange::GeometryRepair && phase == Phase::Improvement && !selection.geometry_repairs;
++      const auto guidance =
++          GeometryGuidanceExcess(fresh, geometry, options.surface_tolerance,
++                                 allow_increase ? std::numeric_limits<long double>::infinity() : before);
++      stats.geometry_guidance_faces += guidance.evaluated_faces;
++      stats.geometry_guidance_early_rejections += !guidance.complete;
++      after = guidance.excess;
++      complete_guidance = guidance.complete;
++    }
++    geometric_progress = complete_guidance && before > 0 && after < before * (1 - 1e-12L);
++    if (!complete_guidance || !std::isfinite(after) || (selection.geometry_repairs && !geometric_progress) ||
++        (kind == MetricChange::GeometryRefine && !geometric_progress) || (kind == MetricChange::Coarsen && after > 0) ||
++        (kind != MetricChange::GeometryRefine && after > before &&
++         !(kind == MetricChange::GeometryRepair && phase == Phase::Improvement))) {
++      ++stats.geometry_guidance_rejected;
++      wall_counters.GuidanceReject(
++          WallGuidanceCause(complete_guidance, std::isfinite(after),
++                            selection.geometry_repairs || kind == MetricChange::GeometryRefine, geometric_progress),
++          choice.geometric);
++      result.reason = "Native3D candidate does not preserve/improve its frozen geometry error.";
++      return GuardedGeometry(boundary_replacement_ready, observe_transaction, false, "geometry",
++                             wall_diagnostics::GuardOrigin::Guidance);
++    }
++    return true;
++  } catch (const std::exception& e) {
++    ++stats.geometry_guidance_rejected;
++    wall_counters.GuidanceReject(wall_diagnostics::GuidanceCause::Exception, choice.geometric);
++    result.reason = e.what();
++    return GuardedGeometry(boundary_replacement_ready, observe_transaction, false, "geometry",
++                           wall_diagnostics::GuardOrigin::Guidance);
++  }
++}
++
++// Reports an exact-facet conflict without changing the admitted edge.
++void TrialChecks::IncompatibleCrease(long double length) {
++  auto& stats = context.control.result->stats;
++  auto& choice = *round_state.choice;
++  auto& failure = *slot_state.failure;
++  auto& imported = *slot_state.imported;
++  std::ostringstream message;
++  message << std::setprecision(17) << "Native3D exact-facet resolution conflict on crease edge " << choice.edge[0]
++          << "," << choice.edge[1] << ": an interval without an interior binary64 point has frozen metric length "
++          << length << " above " << MaximumMetricEdge
++          << "; no admissible subdivision meets the current geometry/metric contract.";
++  failure.Set(1, choice.edge[0], message.str());
++  stats.last_rejected_feature = {{choice.edge[0], choice.edge[1], 0}, 2};
++  if (!imported.cells.empty()) stats.last_rejected_cavity_centroid = Centroid(imported.cells.front().cell);
++}
++
++// Reserves optimizer work using the original private or collective accounting.
++void TrialChecks::ReserveOptimization(bool eligible) {
++  auto& stats = context.control.result->stats;
++  auto& private_repair = *context.exchange.private_repair;
++  auto& private_optimizer_allowance = *context.control.private_optimizer_allowance;
++  auto& repair_budget = *slot_state.repair_budget;
++  auto& repair_work = *slot_state.repair_work;
++  if (private_repair) {
++    repair_budget = eligible ? private_optimizer_allowance : repair_work;
++    return;
++  }
++  const auto count = trial_comm.Reduce(uint64_t(eligible), CPassiveComm::Op::SUM);
++  const auto budget = count ? std::min<uint64_t>(160, (stats.work_limit - stats.global_work) / count) : 0;
++  const auto extra = eligible ? std::min<uint64_t>(budget, 160 - repair_work) : 0;
++  stats.global_work += trial_comm.Reduce(uint64_t(extra), CPassiveComm::Op::SUM);
++  repair_budget = repair_work + extra;
++}
++
++// Returns unused optimizer work through the existing trial reduction.
++void TrialChecks::ReleaseOptimization() {
++  auto& stats = context.control.result->stats;
++  auto& private_repair = *context.exchange.private_repair;
++  auto& repair_budget = *slot_state.repair_budget;
++  auto& repair_work = *slot_state.repair_work;
++  if (private_repair) {
++    repair_budget = repair_work;
++    return;
++  }
++  stats.global_work -= trial_comm.Reduce(uint64_t(repair_budget - repair_work), CPassiveComm::Op::SUM);
++  repair_budget = repair_work;
++}
++
++// Records the optimizer counters at the existing successful-return boundary.
++static void AccumulateOptimization(EngineStats& stats, const OptimizationOperations& repair_optimization) {
++  stats.boundary_smoothing_stars += repair_optimization.boundary_stars;
++  stats.boundary_smoothing_reused += repair_optimization.boundary_reused;
++  stats.boundary_smoothing_candidates += repair_optimization.boundary_candidates;
++  stats.boundary_smoothing_validity_rejects += repair_optimization.boundary_validity;
++  stats.boundary_smoothing_shape_rejects += repair_optimization.boundary_shape;
++  stats.boundary_smoothing_edge_rejects += repair_optimization.boundary_edge;
++  stats.boundary_smoothing_geometry_rejects += repair_optimization.boundary_geometry;
++  stats.boundary_smoothing_guidance_calls += repair_optimization.boundary_guidance;
++  stats.boundary_smoothing_move_contexts += repair_optimization.boundary_move_contexts;
++  stats.boundary_smoothing_prepared_trials += repair_optimization.boundary_prepared_trials;
++  stats.boundary_smoothing_guidance_faces += repair_optimization.boundary_guidance_faces;
++  stats.boundary_smoothing_guidance_reused_faces += repair_optimization.boundary_guidance_reused_faces;
++  stats.boundary_smoothing_guidance_early_rejections += repair_optimization.boundary_guidance_early;
++  stats.boundary_smoothing_upper_queries += repair_optimization.boundary_upper;
++  stats.boundary_smoothing_moves += repair_optimization.boundary_moves;
++  stats.boundary_smoothing_debt_reduction += repair_optimization.boundary_debt;
++  stats.boundary_smoothing_seconds += repair_optimization.boundary_seconds;
++  stats.interior_smoothing_stars += repair_optimization.interior_stars;
++  stats.interior_smoothing_reused += repair_optimization.interior_reused;
++  stats.interior_smoothing_candidates += repair_optimization.interior_candidates;
++  stats.interior_smoothing_validity_rejects += repair_optimization.interior_validity;
++  stats.interior_smoothing_shape_rejects += repair_optimization.interior_shape;
++  stats.interior_smoothing_edge_rejects += repair_optimization.interior_edge;
++  stats.interior_smoothing_geometry_rejects += repair_optimization.interior_geometry;
++  stats.interior_smoothing_guidance_calls += repair_optimization.interior_guidance;
++  stats.interior_smoothing_upper_queries += repair_optimization.interior_upper;
++  stats.interior_smoothing_moves += repair_optimization.interior_moves;
++  stats.interior_smoothing_debt_reduction += repair_optimization.interior_debt;
++  stats.interior_smoothing_seconds += repair_optimization.interior_seconds;
++}
++
++// Optimizes the patch within the original local work, ID and deadline bounds.
++bool TrialChecks::OptimizePatch(const Patch& candidate, const RegionMetric& target, bool preserve_vertices) {
++  auto& options = context.options;
++  auto& geometry = context.geometry;
++  auto& result = *context.control.result;
++  auto& stats = context.control.result->stats;
++  auto& started = *context.setup.control_prefix.started;
++  auto& maximum_node = *context.commit.maximum_node;
++  auto& maximum_cell = *context.commit.maximum_cell;
++  auto& fresh = *slot_state.fresh;
++  auto& repair_budget = *slot_state.repair_budget;
++  auto& repair_work = *slot_state.repair_work;
++  auto& optimization_approved = *slot_state.optimization_approved;
++  auto& repair_optimization = *slot_state.repair_optimization;
++  auto& offset = *slot_state.offset;
++  auto& node_offset = *slot_state.node_offset;
++  auto& construction_nodes = *slot_state.construction_nodes;
++  optimization_approved = false;
++  repair_optimization = {};
++  const auto reserved = repair_budget - repair_work;
++  if (!reserved) return false;
++  const double remaining = options.maximum_seconds
++                               ? options.maximum_seconds - std::chrono::duration<double>(Clock::now() - started).count()
++                               : 0;
++  if (options.maximum_seconds && remaining <= 0) return false;
++  const Id first_node = maximum_node + 1 + node_offset + construction_nodes + repair_work;
++  size_t used = reserved;
++  repair_work += reserved;
++  ++stats.repair_proposals;
++  ++stats.optimization_trials;
++  const bool changed = OptimizedRepairPatch(candidate, maximum_cell + 1 + offset, first_node, target, fresh,
++                                            result.reason, used, preserve_vertices, geometry, options.wall_heights,
++                                            options.surface_tolerance, repair_optimization, remaining);
++  repair_work -= reserved - used;
++  AccumulateOptimization(stats, repair_optimization);
++  return changed;
++}
++
++// Counts new apex identities from the existing reserved range.
++size_t TrialChecks::ReservedRelocations() {
++  auto& maximum_node = *context.commit.maximum_node;
++  auto& old = *slot_state.old;
++  auto& fresh = *slot_state.fresh;
++  auto& node_offset = *slot_state.node_offset;
++  auto& construction_nodes = *slot_state.construction_nodes;
++  std::set<Id> previous, ids;
++  for (const auto& c : old.cells)
++    for (auto n : c.v) previous.insert(n.id);
++  for (const auto& c : fresh.cells)
++    for (auto n : c.v)
++      if (n.id >= maximum_node + 2 + node_offset && n.id < maximum_node + 1 + node_offset + construction_nodes &&
++          !previous.count(n.id))
++        ids.insert(n.id);
++  return ids.size();
++}
++
++// Tests the original mobility rule for an imported vertex star.
++bool TrialChecks::MovableStar(const Imported& star, Id vertex) {
++  auto& geometry = context.geometry;
++  auto& choice = *round_state.choice;
++  std::set<Id> components;
++  for (const auto& row : star.cells)
++    for (unsigned f = 0; f < 4; ++f)
++      if (row.physical[f].present && row.cell.v[f].id != vertex)
++        components.insert(geometry.Canonical(row.physical[f].facet));
++  if (choice.geometric)
++    return components.empty();    // Geometry placement moves free volume support, not its prescribed surface.
++  return components.size() <= 1;  // Smooth physical vertices share the same complete-star admission as interior points.
++}
++
++// Counts unique support cells for the proposed movers in the original patch.
++size_t TrialChecks::AdmittedCells(const std::vector<Id>& movers, const std::vector<Id>& candidates,
++                                  const ImportedBatch& payload) {
++  auto& choice = *round_state.choice;
++  auto& old = *slot_state.old;
++  std::set<Id> cells;
++  for (const auto& c : old.cells)
++    if (std::count_if(c.v.begin(), c.v.end(),
++                      [&](Node n) { return n.id == choice.edge[0] || n.id == choice.edge[1]; }) == 2)
++      cells.insert(c.id);
++  for (size_t i = 0; i < candidates.size(); ++i)
++    if (std::find(movers.begin(), movers.end(), candidates[i]) != movers.end())
++      for (const auto& row : payload.candidates.at(i).cells) cells.insert(row.cell.id);
++  return cells.size();
++}
++
++// Counts faces missing an exact certificate using the same local atlas deadline.
++std::pair<size_t, size_t> TrialChecks::GeometryCounts(const Patch& patch, std::set<Edge>* failed_edges) {
++  auto& options = context.options;
++  auto& geometry = context.geometry;
++  auto& stats = context.control.result->stats;
++  Timer timer(stats.geometry_guidance_seconds, options.timings, SU2NativeTiming3D::Operation::GeometryBound);
++  auto parameters = geometry.PrivateParameters(patch);
++  const auto& reference = parameters ? *parameters : geometry;
++  std::map<Face, Id> facets;
++  for (const auto& face : patch.surface) facets.emplace(Key(face.v), face.facet);
++  std::pair<size_t, size_t> counts{};
++  for (const auto& cell : patch.cells) {
++    atlas_budget.CheckTime();
++    bool bad = false;
++    for (const auto& face : Faces(cell)) {
++      const auto found = facets.find(Key(face));
++      if (found == facets.end()) continue;
++      std::array<Point, 3> triangle;
++      for (unsigned k = 0; k < 3; ++k)
++        for (auto n : cell.v)
++          if (n.id == face[k]) triangle[k] = n.p;
++      const auto error =
++          reference.SurfaceDeviation(found->second, triangle, SU2NativeGeometry::SurfaceQueryNeed::Classify());
++      ++stats.geometry_guidance_faces;
++      if (!std::isfinite(error)) throw std::runtime_error("Native3D coupled repair lacks a complete face certificate.");
++      if (error <= options.surface_tolerance) continue;
++      bad = true;
++      ++counts.second;
++      if (failed_edges)
++        for (unsigned k = 0; k < 3; ++k) {
++          Edge edge{face[k], face[(k + 1) % 3]};
++          std::sort(edge.begin(), edge.end());
++          failed_edges->insert(edge);
++        }
++    }
++    counts.first += bad;
++  }
++  return counts;
++}

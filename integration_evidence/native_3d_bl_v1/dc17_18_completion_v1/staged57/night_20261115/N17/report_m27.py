@@ -7,6 +7,7 @@ import hashlib
 import json
 from pathlib import Path
 import re
+import runpy
 
 
 PARTS = ('none', 'a_other', 'a_old', 'a_fresh', 'b_other', 'b_old', 'b_candidate', 'c', 'd', 'e', 'g')
@@ -20,6 +21,8 @@ TABLE = ('faces', 'from_earlier_event', 'observer_failed', 'estimated_bytes')
 MEMO = ('memo_stores', 'memo_evictions', 'memo_union_entries', 'memo_bytes', 'memo_limit')
 MARKERS = re.compile(r'\b(NATIVE3D_M27_(?:QUERY|SMOOTH|TABLE)|NATIVE3D_STAGE|D9_QUERY)\s+(?=rank=)')
 FIELD = re.compile(r'(\w+)=([^\s]+)')
+STRIP_MPI = runpy.run_path(str(Path(__file__).resolve().parents[2] /
+                              'nobl_clean_check_20261114/extract_markers.py'))['strip_mpi_prefixes']
 
 
 def read_rank(content, rank):
@@ -28,10 +31,11 @@ def read_rank(content, rank):
     query, d9 = {}, {}
     smooth, last_stage = None, None
     for lineno, line in enumerate(content.splitlines(), 1):
-        marker = MARKERS.search(line)
+        clean = STRIP_MPI(line)
+        marker = MARKERS.search(clean)
         if marker is None:
             continue
-        values = dict(FIELD.findall(line[marker.end():]))
+        values = dict(FIELD.findall(clean[marker.end():]))
         if int(values['rank']) != rank:
             continue
         tag = marker[1]
@@ -179,7 +183,9 @@ def self_check():
     example += ' '.join(f'{field}={numbers.get(field, 0)}' for field in (*QUERY, 'bypass')) + '\n'
     example += 'NATIVE3D_M27_SMOOTH rank=0 ' + ' '.join(f'{field}=0' for field in SMOOTH) + '\n'
     example += 'NATIVE3D_M27_TABLE rank=0 faces=1 from_earlier_event=0 observer_failed=0 estimated_bytes=96\n'
-    events, raw = read_rank(example * 2, 0)
+    fragmented = example.replace('seconds_new=0.125', 'seconds_neWed Nov 18 06:25:41 2026<stdout>:w=0.125')
+    events, raw = read_rank(fragmented * 2, 0)
+    assert 'seconds_neWed Nov' in raw[0]['raw']
     assert len(events) == 2 and [row['event'] for row in raw] == [1, 1, 1, 2, 2, 2]
     assert sum_query_parts(events[0], 'quality')['seconds_new'] == Decimal('0.125')
     assert '| a_fresh | 6 (1–1) |' in render_event(1, [events[0]] * 6)

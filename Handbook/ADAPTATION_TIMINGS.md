@@ -1,9 +1,28 @@
 # Adaptation timings and computational work
 
-Phase B completed on558: G3 617.688712s/1170splits/1113commonedits exact/adjustedentry5113; G4 6.492431/6.504021/6.514544s; GQ1083.237551stop/1091.436227sealed/all6thirdwindows/18strictsnapshotrows. Corrected integratedG2 316.078817stop/323.937712sealed/work90,809,869/counts480/473/346/263/469/464. Prefix HWM sums6,440,038,400/13,999,366,144B are notfullP8peaks. EarlierB6/B7/B8G2 timings below are numerical observations from runs with an overlooked seventh owned draft-generator process; they do NOT qualify R1. The connected558 state was requalified after terminating the orphan and fixing ownership accounting. G2/GQ controllers were recovered on the SAME numerical runs, no solver restart; see phase-B report. No controlled efficiency gain is claimed. Last full qualification remains552; no new G5 at endB. Planned user stop; no phaseC.
+## Phase C — build570
+
+The full two-event workflow passed in 4058.303 s. The isolated event-two restart passed in 225.848 s. Native event maxima were 2181.430 and 1448.062 s, and the six payloads matched their reference hashes. Minimum timer coverage was 96.5141% and 96.7599%. G2 matched 90,809,869 units and six accepted-collapse counts. GQ and the full run matched the required integer and timer-call rows. [Phase C qualification](ADAPTATION_CUT_PHASE_C_20261118.md)
+
+| Final ledger phase | Event 1 exclusive s, min–max | Event 2 exclusive s, min–max | Event 1 calls, sum | Event 2 calls, sum |
+|---|---:|---:|---:|---:|
+| preparation | 135.513–135.703 | 212.582–213.043 | 1,181,839 | 2,891,851 |
+| metric | 4.102–4.106 | 5.508–5.520 | 267,804 | 335,124 |
+| construction | 465.842–465.853 | 202.619–202.637 | 32,416,907 | 12,690,268 |
+| surface | 0.000–0.000 | 0.000–0.000 | 0 | 0 |
+| quality | 1412.024–1412.034 | 850.710–850.724 | 7,211,139 | 4,257,051 |
+| final proof | 124.009–124.009 | 140.909–140.909 | 31,682 | 35,358 |
+| transfer | 30.235–30.241 | 29.951–29.966 | 150 | 150 |
+| output | 0.000–0.000 | 0.000–0.000 | 0 | 0 |
+
+The maximum final unattributed time was 76.045 s in event one and 46.921 s in event two. The ranges use each rank’s exclusive ledger once. Native event and ledger root clocks are nested, and rank ranges describe different ranks across phases. The elapsed comparison with N14 includes different host and run conditions. The M27 query clocks measure the existing union calls inside this ledger. [Per-event ledger and work evidence](../integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N4/section6_3_after_N11/phase_C/G5/acceptance_summary.json)
+
+## Earlier timings
+
+Phase B completed on558: G3 617.688712s/1170splits/1113commonedits exact/adjustedentry5113; G4 6.492431/6.504021/6.514544s; GQ1083.237551stop/1091.436227sealed/all6thirdwindows/18strictsnapshotrows. Corrected integratedG2 316.078817stop/323.937712sealed/work90,809,869/counts480/473/346/263/469/464. Prefix HWM sums6,440,038,400/13,999,366,144B are notfullP8peaks. EarlierB6/B7/B8G2 timings below are numerical observations from runs with an overlooked seventh owned draft-generator process; they do NOT qualify R1. The connected558 state was requalified after terminating the orphan and fixing ownership accounting. G2/GQ controllers were recovered on the SAME numerical runs, no solver restart; see phase-B report. No controlled efficiency gain is claimed. Build552 was the full-workflow reference at the phase B stop.
 
 
-Current N14/N15 qualification (build552) PASSED and pushed0c2cb5c460. The ONE full two-event workflow sealed4738.250709s (stop4728.829883s); Native event maxima2568.277632/1672.244847s. Both events passed physical/quality/size/transfer/continued-CFD/resource/timer gates, all six payloads exact against accepted references. Exact P8 process-peak sums14,054,744,064/17,397,911,552B<19,999,490,048B; minimum timer coverage96.0177948%/96.0351953%. Root-remesh event1 maximum2568.341873s has a slightly different clock from Native; clocks are nested/nonadditive. Isolated disk restart passed236.822017s,168797points/855828cells,zero coordinate error,positive finite fields changed after one further iteration (no convergence claim). M26 report uses the same full run,35900 quality local-wall commits/3002.832616 committed-slot busy seconds; class intervals and local Prepare clocks are not global wall time. No controlled speed claim. Evidence: night_20261115/N14/section6_12/{acceptance_summary.json,REPORT.md,reports/M26_full552.md}.
+Historical N14/N15 qualification (build552) PASSED and pushed0c2cb5c460. The ONE full two-event workflow sealed4738.250709s (stop4728.829883s); Native event maxima2568.277632/1672.244847s. Both events passed physical/quality/size/transfer/continued-CFD/resource/timer gates, all six payloads exact against accepted references. Exact P8 process-peak sums14,054,744,064/17,397,911,552B<19,999,490,048B; minimum timer coverage96.0177948%/96.0351953%. Root-remesh event1 maximum2568.341873s has a slightly different clock from Native; clocks are nested/nonadditive. Isolated disk restart passed236.822017s,168797points/855828cells,zero coordinate error,positive finite fields changed after one further iteration (no convergence claim). M26 report uses the same full run,35900 quality local-wall commits/3002.832616 committed-slot busy seconds; class intervals and local Prepare clocks are not global wall time. No controlled speed claim. Evidence: night_20261115/N14/section6_12/{acceptance_summary.json,REPORT.md,reports/M26_full552.md}.
 
 B6 Ownership extraction PASSED scoped build556/G1/G2. Build 70.159541s/1779 pins; G1 serial/MPI2/MPI4 796.648625/16.245114/32.141896s, zero changed cases; strict G2 stop/seal 422.579359/431.041191s, all old integer/model/timer rows exact against adopted552. All actual handles and pins sealed. Prefix HWM sum 5,229,854,720B is not a full-workflow P8 peak. No numerical repeat or efficiency gain claim.
 

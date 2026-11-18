@@ -1,0 +1,10 @@
+{
+  "cause": "The supervisor expected the restart runner to call its separate validator and therefore looked for a missing receipt.",
+  "correction": "Wait for the saved restart solver, verify its actual nested PID/start-tick records and run validate_restart570.py against those same outputs.",
+  "initial_terminal_helper_correction": "Flatten each owned_identity_checks entry through its identity key before checking /proc.",
+  "production_edited": false,
+  "workflow_repeated": false,
+  "restart_solver_repeated": false,
+  "source_case": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N4/section6_3_after_N11/phase_C/G5/full570",
+  "restart_case": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N4/section6_3_after_N11/phase_C/G5/disk_restart_full570_event2"
+}

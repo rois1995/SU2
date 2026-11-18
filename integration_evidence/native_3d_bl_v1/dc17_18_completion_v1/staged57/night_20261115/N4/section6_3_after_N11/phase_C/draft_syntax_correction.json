@@ -1,0 +1,8 @@
+{
+  "step": "C8",
+  "first_compiler_error": "MetricEdgeRequests takes the existing mutable reuse map.",
+  "correction": "FetchPrivateBatch now borrows the same mutable map by reference, as in measure_private.",
+  "source_applied": false,
+  "numerical_checks_repeated": false,
+  "first_attempt": "draft_syntax.log"
+}

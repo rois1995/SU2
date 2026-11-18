@@ -1,0 +1,30 @@
+{
+  "passed": true,
+  "integer_rows": {
+    "passed": true,
+    "first_difference": null,
+    "streams": [
+      "rank_output/1/rank.0/stdout",
+      "rank_output/1/rank.1/stdout",
+      "rank_output/1/rank.2/stdout",
+      "rank_output/1/rank.3/stdout",
+      "rank_output/1/rank.4/stdout",
+      "rank_output/1/rank.5/stdout"
+    ]
+  },
+  "timer_rows": {
+    "passed": true,
+    "timer_snapshots": 96,
+    "wall_law_lines_by_physical_stream": {
+      "rank_output/1/rank.0/stdout": 2,
+      "rank_output/1/rank.1/stdout": 2,
+      "rank_output/1/rank.2/stdout": 2,
+      "rank_output/1/rank.3/stdout": 2,
+      "rank_output/1/rank.4/stdout": 2,
+      "rank_output/1/rank.5/stdout": 2
+    },
+    "rule": "strict per-row timer fields/calls and exact wall-law line counts; only timing values excluded"
+  },
+  "reference": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N14/section6_12/validation/full552",
+  "all_old_rows_strict": true
+}

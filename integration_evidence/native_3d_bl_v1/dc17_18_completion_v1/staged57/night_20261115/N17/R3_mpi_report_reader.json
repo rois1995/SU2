@@ -1,0 +1,14 @@
+{
+  "cause": "An embedded OpenMPI stdout prefix split the seconds_other_kind key in rank 1 event 1.",
+  "first_location": "rank_output/1/rank.1/stdout:2092",
+  "correction": "Use the existing strip_mpi_prefixes parser before field extraction and preserve each original line.",
+  "event1_rows_by_rank": [
+    14,
+    14,
+    14,
+    14,
+    14,
+    14
+  ],
+  "numerical_run_repeated": false
+}

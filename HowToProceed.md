@@ -1,9 +1,5 @@
-# Planned stop after phase B
+# Next work order item
 
-**STOPPED — waiting for the user; no phase C.** Qualification commit: `97478b7abae40fcf107ac8132f0eea415a2aaaae`. Do not start phase C, N6 or final N7 until the user continues.
+Phase C passed at C11 `167e353ca7` and build570 with M27 `4787358e7a`. G5, the isolated event-two restart and the standing shared-code safeguards passed. The final terminal audit found zero owned heavy processes. [Phase C report](Handbook/ADAPTATION_CUT_PHASE_C_20261118.md)
 
-Phase B's scoped/end gates and readability checks passed on build558. G3/G4/GQ are complete; corrected integrated G2 qualifies the current source after the documented R1 ownership error. No owned job runs; actual terminal handles and pins are sealed.
-
-Read [HANDOFF_Codex.md](HANDOFF_Codex.md), [progress](integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/progress.md), [phase-B report](Handbook/ADAPTATION_CUT_PHASE_B_20261117.md), and the complete latest NIGHT_WORK_ORDER.md before any future work. Preserve build558 source/binary pins and independent local copies. Last full two-event qualification is N14/N15 build552; no extra G5 was required at end B.
-
-N10 is withdrawn; do not implement8.5ab. Keep all gates and resource limits. User applications are observations; our Python helpers count toward owned work. **STOP AND WAIT FOR THE USER.**
+The next item is work order 2 §4 item 2, phase D. Read AGENTS.md, the copied work order and [current progress](integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/progress.md). Apply D1–D3 and their written gates. Use the sealed phase C G5 and M27 evidence at [the acceptance checkpoint](integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N4/section6_3_after_N11/phase_C/acceptance_summary.json). Record implementation questions in the [R13 ledger](integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/QUESTIONS_FOR_REVIEWER.md).
