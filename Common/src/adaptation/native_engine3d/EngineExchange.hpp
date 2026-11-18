@@ -27,3 +27,22 @@ struct EngineExchange {
   EngineExchange(EngineExchange&&) = delete;
   EngineExchange& operator=(EngineExchange&&) = delete;
 };
+
+// Adapts one trial's live private/collective mode without owning its imports or communicator.
+struct TrialComm {
+  const bool& private_repair;
+  World& world;
+  CavityMetricSource& source;
+  const Imported& imported;
+
+  int Maximum(int value);
+  template <class T>
+  T Reduce(T value, CPassiveComm::Op op);
+  DonorPatch ImportCells(const std::vector<Cell>& cells, size_t ceiling, size_t caller);
+  DonorPatch ImportSamples(const std::vector<Cell>& cells, const std::vector<Id>& extensions, size_t ceiling,
+                           size_t caller, const std::vector<unsigned char>& requests, bool shape);
+  DonorSamples SamplePoints(const std::vector<Point>& points, const std::vector<Id>& extensions, size_t ceiling,
+                            size_t caller);
+  DonorSamples SampleMidpoints(const std::vector<std::array<Point, 2>>& points, const std::vector<Id>& extensions,
+                               size_t ceiling, size_t caller);
+};

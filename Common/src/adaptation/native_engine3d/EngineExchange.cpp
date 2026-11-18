@@ -700,3 +700,40 @@ SlotDecision SlotAcquisition::Run(RoundAcquisition& round_acquisition, wall_diag
   if (!ready) return FinishSlot();
   return SlotDecision::Proceed;
 }
+
+// Private trials already hold the value locally; collective trials preserve the World counter path.
+int TrialComm::Maximum(int value) { return private_repair ? value : world.maximum(value); }
+
+// Preserves the direct timed collective, including its separate accounting.
+template <class T>
+T TrialComm::Reduce(T value, CPassiveComm::Op op) {
+  return private_repair ? value : TimedAllreduce(value, op, world.comm);
+}
+
+// Private trials read the current imported cavity rather than requesting donor cells.
+DonorPatch TrialComm::ImportCells(const std::vector<Cell>& cells, size_t ceiling, size_t caller) {
+  return private_repair ? source.ImportCellsLocal(cells, imported.cells, ceiling, caller)
+                        : source.ImportCells(cells, ceiling, caller);
+}
+
+// Uses the same sampler and request mask in both trial modes.
+DonorPatch TrialComm::ImportSamples(const std::vector<Cell>& cells, const std::vector<Id>& extensions, size_t ceiling,
+                                    size_t caller, const std::vector<unsigned char>& requests, bool shape) {
+  return private_repair
+             ? source.ImportMetricSamplesLocal(cells, imported.cells, extensions, ceiling, caller, requests, shape)
+             : source.ImportMetricSamples(cells, extensions, ceiling, caller, requests, shape);
+}
+
+// Uses cavity-local donors only for private point samples.
+DonorSamples TrialComm::SamplePoints(const std::vector<Point>& points, const std::vector<Id>& extensions,
+                                     size_t ceiling, size_t caller) {
+  return private_repair ? source.SamplePointsLocal(points, imported.cells, extensions, ceiling, caller)
+                        : source.SamplePoints(points, extensions, ceiling, caller);
+}
+
+// Uses the same locality choice for segment midpoint samples.
+DonorSamples TrialComm::SampleMidpoints(const std::vector<std::array<Point, 2>>& points,
+                                        const std::vector<Id>& extensions, size_t ceiling, size_t caller) {
+  return private_repair ? source.SampleMidpointsLocal(points, imported.cells, extensions, ceiling, caller)
+                        : source.SampleMidpoints(points, extensions, ceiling, caller);
+}

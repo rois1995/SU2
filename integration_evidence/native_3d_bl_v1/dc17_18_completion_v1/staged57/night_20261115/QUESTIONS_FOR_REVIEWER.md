@@ -10,3 +10,7 @@ Where should the Topology timer shared by B35e–g live when those blocks become
 ## 2026-11-17T22:55:10+01:00 · N4 phase C · C3
 
 Does “join stays first” move the join ahead of ReportPrivateWork? The alternatives were the first post-slot action and the first post-slot collective. Kept the private work observation immediately before the unchanged first collective because C requires the original order and timer scope. C3 base commit `c7b7664853`.
+
+## 2026-11-18T01:11:11+01:00 · N4 phase C · C6
+
+Should each private donor call take the imported cavity as an argument, or should the trial switch borrow it once? Used a const reference to the live per-slot Imported object. The former lambdas captured that same object and read its cells at each call, so this keeps the old bindings and ownership. C6 base commit `227187f952`.

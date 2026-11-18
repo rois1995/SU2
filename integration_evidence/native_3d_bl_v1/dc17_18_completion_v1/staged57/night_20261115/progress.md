@@ -53,4 +53,6 @@ The ordered C3–C11 controller is PID 586872 / start 44481329. Its launch, draf
 
 - C4 PASSED at `7e101fcb43`, build562, G1 [375, 114, 228] exact, G2 work 90,809,869 and rank counts exact. GQ PASSED. Receipts in `N4/section6_3_after_N11/C4/validation`.
 
-Current action — C5, build563: passed G1 [375, 114, 228], G2 307.181 s; see scoped gate receipts.
+- C5 PASSED at `227187f952`, build563, G1 [375, 114, 228] exact, G2 work 90,809,869 and rank counts exact. GQ PASSED. Receipts in `N4/section6_3_after_N11/C5/validation`.
+
+Current action — C6, build564: passed G1 [375, 114, 228], G2 307.209 s; see scoped gate receipts.
