@@ -1,5 +1,9 @@
 # Adaptation timings and computational work
 
+## Step 8.5r — build574 T0
+
+T0 passed both events in 4089.709 s. Native event maxima were 2236.870 and 1416.499 s. Each event had 1,274 and 801 private quality rounds per rank. The six-rank exclusive join, communication and clearance sums were 5546.566 and 3420.686 s. The 64-wide build575 rejected event one with one q-bad cell after 716 quality rounds. Its 4576.262 s sum is a failed-run observation. [Gate and failure report](../integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N16/reports/STEP_8_5R_575.md)
+
 ## Phase D — build572
 
 The same six files and old integer and timer rows matched in 4140.805 s of workflow time. The isolated restart passed in 233.893 s. Native event maxima were 2188.708 and 1505.656 s. Minimum timer coverage was 96.4580% and 96.3409%. [Phase D report](ADAPTATION_CUT_PHASE_D_20261118.md)

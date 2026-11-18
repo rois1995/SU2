@@ -4852,10 +4852,7 @@ TEST_CASE("Independent quality stars commit concurrently with final strict accep
     fixture.facets.insert(fixture.facets.end(),box.facets.begin(),box.facets.end());
   }
   const auto saved=Bytes(input);const PlanarReference geometry(fixture.facets);
-  const Tensor tensor{1, 0, 0, 1, 0, 1};
-  EngineOptions options;
-  options.maximum_rounds = 128;
-  options.candidate_batch = MaximumCandidateBatch;
+  const Tensor tensor{1,0,0,1,0,1};EngineOptions options;options.maximum_rounds=128;
   Id first_bad_vertex=UINT64_MAX;
   for(const auto& cell:fixture.patch.cells) {
     const auto& v=cell.v;const auto m=Measure({v[0].p,v[1].p,v[2].p,v[3].p},tensor);
@@ -4880,20 +4877,6 @@ TEST_CASE("Independent quality stars commit concurrently with final strict accep
   for(const auto& row:result.cells) {
     const auto& v=row.second.cell.v;const auto m=Measure({v[0].p,v[1].p,v[2].p,v[3].p},tensor);
     CHECK(m.mean_ratio>=MinimumMeanRatio);CHECK(m.minimum_scaled_jacobian>=MinimumScaledJacobian);CHECK(m.maximum_edge<=MaximumMetricEdge);
-  }
-
-  if (world.size == 2 || world.size == 4) {
-    options.repair_batch = MaximumRepairBatch;
-    const auto first = Repair(world, input, Uniform(input, tensor), geometry, {}, options);
-    const auto repeat = Repair(world, input, Uniform(input, tensor), geometry, {}, options);
-    INFO(first.reason);
-    INFO(repeat.reason);
-    REQUIRE(first.valid);
-    REQUIRE(repeat.valid);
-    CHECK(first.stats.cached_invalid_cells == 0);
-    CHECK(repeat.stats.cached_invalid_cells == 0);
-    CHECK(Bytes(first.cells) == Bytes(repeat.cells));
-    CHECK(Bytes(input) == saved);
   }
 }
 
