@@ -1,0 +1,28 @@
+{
+  "build": "build568",
+  "case": "N8_G1_candidate_serial",
+  "ranks": 1,
+  "argv": [
+    "nice",
+    "-n",
+    "19",
+    "/usr/bin/time",
+    "-v",
+    "timeout",
+    "1198",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-p5-20261114/UnitTests/test_driver",
+    "[NativeCollision3D]~[.],[NativeMesh3D]~[.],[NativeOriginalSupport3D]~[.],[NativeMetricFootprint3D]~[.],[NativeMetricSamples3D]~[.],[NativeCurvedMapped3D]~[.],[NativeCurvedMappedGuards3D]~[.],[NativeMappedFacetGeometry]~[.],[NativeMappedPublication3D]~[.],[NativeMappedRealized3D]~[.],[NativeMappedComponent3D]~[.],[NativeParametricGeometry]~[.],[NativeAffineSourceGeometry]~[.],[NativeFirstLayer3D]~[.],[NativeCurvedBL3D]~[.],[NativeJointAffineSource3D]~[.],[NativeGeneratedCoverage3D]~[.],[NativeMappedRuntime3D]~[.],[NativeMappedReader3D]~[.],[NativeConcurrentComposed3D]~[.],[NativeCollapseFilter3D]~[.],[NativeInteriorPlacement3D]~[.],[NativeAutomaticRepair3D]~[.],[NativeShapeAdmission3D]~[.],[NativeOptimize3D]~[.],[NativeDefault3D]~[.],[NativePolicyRuntime3D]~[.],[NativeInteractingBLVolume3D]~[.],[NativeCurvedBLVolume3D]~[.],[NativeCylinderBLVolume3D]~[.],[NativeComplexityEstimate3D]~[.],[NativeParallelBL3D]~[.],[NativeVolumeBL3D]~[.],[NativeStagedConstruction3D]~[.],[NativeConstructionHandoff3D]~[.],[NativeJointGeometry3D]~[.],[NativeConcurrentRepair3D]~[.],[NativeQualityPass3D]~[.],[NativeHeightOptimization3D]~[.],[NativeCoarsenQualityReturn3D]~[.],[NativeCoordinateStar3D]~[.],[NativeMetricSplitRule3D]~[.],[NativeRepairFairness3D]~[.],[NativeConstructionSweep3D]~[.],[NativeCoarsenQualityReturn3D]~[.],[ConservativeClipRobustness]~[.],[NativeStageProgress3D]~[.],[NativeStageCapture3D]~[.],[NativeReference3D]~[.],[NativeBidirectionalLength3D]~[.],[NativeConstructionPassClaims3D]~[.],[NativeAtlas3D]~[.],[NativeCurvedAtlas3D]~[.],[NativeAffineGeometry]~[.],[NativeAtlasReferenceIO3D]~[.],[NativeReferenceTriangulation3D]~[.],[NativeAtlasCoordinatedPublication3D]~[.],[NativeGeometryBackend3D]~[.],[NativeCanonicalTrace3D]~[.],[NativeTraceCoverage3D]~[.],Convex clipping:*~[.],Distributed conservative projection:*~[.],Conservative kernels:*~[.],Distributed conservative kernels:*~[.],Transfer admissibility:*~[.],Distributed conservative transfer:*~[.],Single precision transfer contract~[.],[NativeCurvedLifecycle3D]~[.],[NativeCurvedTransaction3D]~[.],[NativeRuntime3D]~[.],[NativeCurvedRuntime3D]~[.],[NativePolicyVeto3D]~[.],[NativeBLPolicyRuntime3D]~[.],[NativeDistributed3D]~[.],[NativeBridge3D]~[.],[NativeReassessment3D]~[.],[NativeCurrentNormalization3D]~[.],[NativeMetricFamily3D]~[.],[NativeBLTargetNormalization]~[.],Distributed barycentric transfer:*~[.],Conservative projection:*~[.],Conservative transfer:*~[.],[NativeAtlasWorkStop3D]~[.],[NativeAutomaticRepair3D]~[.],[NativeBLColdEngine3D]~[.],[NativeBLCornerEngine3D]~[.],[NativeBatchEngine3D]~[.],[NativeBatchLookup3D]~[.],[NativeBatchPlanning3D]~[.],[NativeBidirectionalLength3D]~[.],[NativeCoarsenClosure3D]~[.],[NativeCoarsenQualityReturn3D]~[.],[NativeCollapseCorrection3D]~[.],[NativeCollapseFilter3D]~[.],[NativeCollision3D]~[.],[NativeConcurrentComposed3D]~[.],[NativeConcurrentRepair3D]~[.],[NativeConstructionHandoff3D]~[.],[NativeConstructionPassClaims3D]~[.],[NativeConstructionSweep3D]~[.],[NativeCoordinateStar3D]~[.],[NativeCoplanar3D]~[.],[NativeCoupledBL3D]~[.],[NativeCoupledBLBudget3D]~[.],[NativeCoupledBLGrouped3D]~[.],[NativeCurvedTransaction3D]~[.],[NativeCycles3D]~[.],[NativeDeadline3D]~[.],[NativeDistributed3D]~[.],[NativeDonorPointProbe3D]~[.],[NativeDonorReuse3D]~[.],[NativeFailureCapture3D]~[.],[NativeFirstLayerBatch3D]~[.],[NativeFirstLayerConcurrency3D]~[.],[NativeFirstLayerEngine3D]~[.],[NativeFirstLayerRanking3D]~[.],[NativeGeometryReturn3D]~[.],[NativeHeightOptimization3D]~[.],[NativeInteriorBatch3D]~[.],[NativeInteriorPlacement3D]~[.],[NativeLayeredDistributed3D]~[.],[NativeMetricCleanupPhase3D]~[.],[NativeMetricFootprint3D]~[.],[NativeMetricPlan3D]~[.],[NativeMetricSamples3D]~[.],[NativeMidpointSamples3D]~[.],[NativeOriginalSupport3D]~[.],[NativeOversizedStar3D]~[.],[NativePhaseOwnership3D]~[.],[NativePointSamples3D]~[.],[NativePolicy3D]~[.],[NativePrismaticAdmission3D]~[.],[NativeProgressiveMeasurement3D]~[.],[NativeQualityPass3D]~[.],[NativeRegionField3D]~[.],[NativeRejectedState3D]~[.],[NativeRepair3D]~[.],[NativeRepairBatch3D]~[.],[NativeRepairFairness3D]~[.],[NativeShapeAdmission3D]~[.],[NativeSplitLanes3D]~[.],[NativeStageCapture3D]~[.],[NativeStageProgress3D]~[.],[NativeStagedConstruction3D]~[.],[NativeStaticFix3D]~[.],[NativeSurfacePlanning3D]~[.],[NativeSurfacePreparationEngine3D]~[.],[NativeGeometryBackend3D]~[.],[NativeTimerTree3D]~[.],[NativeBoundedGuidance3D]~[.],[NativeBoundaryGuidanceMemo3D]~[.]",
+    "--durations",
+    "yes",
+    "--reporter",
+    "xml"
+  ],
+  "environment": {
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1",
+    "OMPI_MCA_osc": "pt2pt",
+    "TMPDIR": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/compile-tmp"
+  },
+  "timeout_seconds": 1198
+}
