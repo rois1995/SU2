@@ -4,7 +4,7 @@ Updated 2026-11-18. Read AGENTS.md and the copied WORK_ORDER_2.md at the start o
 
 ## Current state — N6 qualification in progress
 
-Phase D passed at `c9176e9439`. N16 A and B passed; C failed the event-one quality gate and was reverted by `3276cbb862`. N6 now runs its three extractions in order. The Remesh build576 has passed G1, G2 and G3, and GQ is running. The ordered continuation is PID 1726962 / start 50091756. The 2026-11-18 N18 amendment and its verified I8R2 apply at the N6 terminal boundary before N7.
+Phase D passed at `c9176e9439`. N16 A and B passed; C failed the event-one quality gate and was reverted by `3276cbb862`. N6 now runs its three extractions in order. Remesh passed G1/G2/G3/GQ and was pushed as `4946b2d126`. Optimizer build577 is running. The ordered continuation is PID 1726962 / start 50091756. The 2026-11-18 N18 amendment and verified I8R2 apply at the N6 terminal boundary before N7. Entry watcher PID 1781723 / start 50285332 will publish N6 and apply the amendment after all N6 checks finish.
 
 ## Earlier integrated reference — phase C
 
@@ -172,3 +172,19 @@ User amendment 2026-11-18 (R12). N18, step 8.5r2 plus M28, follows N6 and preced
 N6 Remesh G3 passed with 1,434 splits, 1,113 exact shared edits, adjusted entry work 5,113, all physical gates, and 615.271 s elapsed. GQ is running.
 
 N6. Remesh build576 passed G1 375/114/228, G2 90,809,869, G3 1434 splits with 1113 exact shared edits, and GQ at 1091.439 s.
+
+N6. Remesh checkpoint pushed as `4946b2d126`.
+
+N6. Applied the reviewed Optimizer extraction. Starting build577.
+
+N6 Optimizer build577 compiled without warnings in 82.908 s. Its pinned controller is PID 1799092 / start 50367768. G1 serial is running.
+
+N6 Optimizer build577 passed G1 at 375 / 114 / 228 records with zero differences (782.518 / 13.811 / 14.976 s). G2 is running.
+
+N6 Optimizer G2 passed work 90,809,869, the same six collapse counts and all required integer, model and timer rows. Stop 333.367 s, sealed 341.282 s. G3 is running.
+
+N6 Optimizer G3 passed 1,306 splits, 1,113 exact shared edits, adjusted entry 5,113 and all physical gates. GQ stopped at the prelaunch 2 GB free-space guard with no numerical launch. Preserving the earlier passed gates and restoring disk space.
+
+N6. Optimizer GQ prelaunch recovery preserved all passed gates and restored 3,640,987,648 B free without changing the guard. Starting GQ only.
+
+N6. Optimizer build577 passed G1 375/114/228, G2 90,809,869, G3 1306 splits with 1113 exact shared edits, and GQ at 1061.200 s.

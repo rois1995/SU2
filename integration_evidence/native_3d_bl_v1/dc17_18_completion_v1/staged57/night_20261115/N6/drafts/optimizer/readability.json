@@ -1,0 +1,63 @@
+{
+  "method": "Lexically matched formatted function and lambda bodies, counted from opening through closing braces inclusive. Constructors and local destructors also inspected manually.",
+  "functions_detected": 100,
+  "function_limit": 80,
+  "longest_functions": [
+    {
+      "lines": 76,
+      "function": "MeshOptimizer::BoundaryCollapse",
+      "line": 2125
+    },
+    {
+      "lines": 71,
+      "function": "MeshOptimizer::RemoveInteriorRing",
+      "line": 938
+    },
+    {
+      "lines": 71,
+      "function": "BoundaryReplacement",
+      "line": 651
+    },
+    {
+      "lines": 70,
+      "function": "PlaceCone",
+      "line": 152
+    },
+    {
+      "lines": 70,
+      "function": "MeshOptimizer::Smooth",
+      "line": 1614
+    },
+    {
+      "lines": 68,
+      "function": "MeshOptimizer::ShellBoundary",
+      "line": 2370
+    },
+    {
+      "lines": 68,
+      "function": "MeshOptimizer::FlipBoundaryRing",
+      "line": 2054
+    },
+    {
+      "lines": 66,
+      "function": "MeshOptimizer::TryCell",
+      "line": 2465
+    },
+    {
+      "lines": 65,
+      "function": "MeshOptimizer::TryBoundaryMove",
+      "line": 1463
+    },
+    {
+      "lines": 65,
+      "function": "MeshOptimizer::BoundaryProjection",
+      "line": 1311
+    }
+  ],
+  "lambdas_detected": 25,
+  "lambda_limit": 15,
+  "maximum_lambda_lines": 13,
+  "clang_format_18_dry_run_exit": 0,
+  "outside_range_byte_identity": true,
+  "syntax_only": "Queued by parent after Remesh validation."
+}

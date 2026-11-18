@@ -58,3 +58,7 @@ Should the interior and boundary ring operators each keep a copy of triangulatio
 ## 2026-11-18T14:29:01+01:00 · N6 · Selection
 
 Should census and queue state have separate lifetimes or remain in one Selection owner? Used two value members within the existing owner, preserving the existing references, the mixed operations and the explicit swap and reset lists. Base `3276cbb862`.
+
+## 2026-11-18T15:48+01:00 · N6 · Optimizer GQ evidence storage
+
+Which local data should release disk space for the existing 2 GB preflight? The choices were moving active case material, turning down the guard, or archiving earlier locally copied binaries. Archive the terminal phase C and D backup executables losslessly in the workspace, verify each original SHA256 through decompression, and retain exact raw access at the original paths through a verified copy on the root filesystem. The active case material and the guard stay in use. Base commit `4946b2d126`.
