@@ -1,0 +1,15 @@
+{
+  "step": "C8",
+  "feature": "G3 fixture prelaunch",
+  "cause": "The phase-B G3 publisher expects a fresh directory. G1 had published the same build aliases in the phase-C shared validation directory.",
+  "correction": "Use existing aliases only when all JSON content equals the verified sealed build. Publish only missing aliases. Apply the same check to C9\u2013C11.",
+  "numeric_case_launched": false,
+  "production_touched": false,
+  "repeated_gates": [],
+  "unchanged_alias_keys": [
+    "status",
+    "source_pins",
+    "terminal_handles"
+  ],
+  "original_attempt_path": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N4/section6_3_after_N11/C8/validation/R3_G3_alias_collision"
+}

@@ -85,6 +85,11 @@ def rebind_validation(step, build, workspace):
         for filename in ('run_g3_558.py', 'validate_end_b.py'):
             source = (BASE / filename).read_text().replace('PHASE = HERE.parent', 'PHASE = HERE.parents[1]')
             source = source.replace('558', str(build)).replace('CASE = "endb_g3"', f'CASE = "C{step}_G3"')
+            if filename.startswith('run_g3_'):
+                old = '        if target.exists():\n            raise FileExistsError(target)\n        target.write_text(json.dumps(value, indent=2) + "\\n")'
+                new = '        if target.exists():\n            assert json.loads(target.read_text()) == value, target\n        else:\n            target.write_text(json.dumps(value, indent=2) + "\\n")'
+                assert source.count(old) == 1
+                source = source.replace(old, new, 1)
             (workspace / filename.replace('558', str(build))).write_text(source)
         launcher = (BASE / 'primary_control_archive/end_b_launch_g3.py').read_text()
         launcher = launcher.replace("v=p/'end_B_preparation'", f"v=p/'C{step}/validation'").replace('558', str(build))

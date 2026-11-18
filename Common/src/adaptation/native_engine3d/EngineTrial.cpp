@@ -153,6 +153,30 @@ struct TrialChecks {
   bool MovableStar(const Imported& star, Id vertex);
   size_t AdmittedCells(const std::vector<Id>& movers, const std::vector<Id>& candidates, const ImportedBatch& payload);
   std::pair<size_t, size_t> GeometryCounts(const Patch& patch, std::set<Edge>* failed_edges = nullptr);
+  template <class Observe>
+  bool MeasurePrivate(Observe& observe_transaction, const std::vector<Cell>& cells, PatchMetric& measured, bool shape,
+                      const std::map<Edge, EdgeMeasure>& frozen_reuse, const Patch* surface_context = nullptr);
+  bool FetchPrivateBatch(const std::vector<Cell>& cells, std::map<Edge, EdgeMeasure>& reuse, size_t slot, size_t& batch,
+                         bool usable, bool measure_shape, CLocalFailure& local, DonorPatch& donors);
+  template <class Observe>
+  void ProcessPrivateBatch(Observe& observe_transaction, const std::vector<Cell>& cells, PatchMetric& measured,
+                           std::map<Edge, EdgeMeasure>& reuse, size_t slot, size_t batch, bool measure_shape,
+                           bool shape, const Patch* surface_context, DonorPatch& donors, bool& usable,
+                           std::string& rejected);
+  void MeasureSurfaceBatch(const std::vector<Cell>& cells, size_t slot, size_t batch, const Patch* surface_context,
+                           PatchMetric& planned, FrozenField& target, MetricStats& counted);
+  void AddCellMeasurement(const Cell& cell, PatchMetric& measured, std::map<Edge, EdgeMeasure>& reuse,
+                          bool measure_shape, bool shape, const PatchMetric& planned, FrozenField& target,
+                          MetricStats& counted);
+  template <class BoundaryReady, class Observe>
+  bool ValidatePrivate(BoundaryReady& boundary_replacement_ready, Observe& observe_transaction,
+                       const PatchMetric& before, bool candidate, MetricChange kind, bool no_new_oversized = false,
+                       bool strict_size = false, size_t relocated = 0,
+                       wall_diagnostics::PatchSource source = wall_diagnostics::PatchSource::Unreported,
+                       bool required_split = false);
+  bool ValidateMeasuredTrial(bool candidate, MetricChange kind, bool measured, bool no_new_oversized, bool strict_size,
+                             size_t relocated, const PatchMetric& before, PatchMetric& metric);
+  void ReportPrivateTrialRejection(bool candidate, bool valid, bool completed, CLocalFailure& observed);
 };
 
 // Records the ladder disposition at the existing trial boundary.
@@ -517,4 +541,376 @@ std::pair<size_t, size_t> TrialChecks::GeometryCounts(const Patch& patch, std::s
     counts.first += bad;
   }
   return counts;
+}
+
+// Maximum number of cells per private donor batch, before the other existing bounds.
+constexpr size_t MeasurementBatch = 16;
+
+// Measures the exact private patch over the original globally agreed donor batches.
+template <class Observe>
+bool TrialChecks::MeasurePrivate(Observe& observe_transaction, const std::vector<Cell>& cells, PatchMetric& measured,
+                                 bool shape, const std::map<Edge, EdgeMeasure>& frozen_reuse,
+                                 const Patch* surface_context) {
+  auto& result = *context.control.result;
+  auto& phase = *context.setup.control_prefix.phase;
+  auto& surface_target = context.surface_target;
+  auto& repairing = *context.control.repairing;
+  auto& ready = *context.control.ready;
+  auto& measured_flags = *slot_state.measured_flags;
+  if (repairing) measured_flags.clear();
+  CLocalFailure local;
+  bool usable = true;
+  std::string rejected;
+  std::map<Edge, EdgeMeasure> reuse;
+  try {
+    reuse = frozen_reuse;
+  } catch (const std::exception& e) {
+    local.Set(2, 0, e.what());
+  }
+  if (!(ready = context.exchange.Vote(context, local))) return false;
+  size_t count = trial_comm.Reduce(cells.size(), CPassiveComm::Op::MAX);
+  measured = {};
+  const bool measure_shape = !surface_target && phase == Phase::Improvement;
+  if (measure_shape) {
+    measured.minimum_mean_ratio = measured.minimum_scaled_jacobian = INFINITY;
+    measured.shape_measured = true;
+    if (!cells.empty()) measured.weakest_cell = measured.sliver_cell = cells.front().id;
+  }
+  for (size_t slot = 0; slot < count;) {
+    size_t batch = std::min({MeasurementBatch, MaximumCavityCells / 6, count - slot});
+    DonorPatch donors;
+
+    if (!FetchPrivateBatch(cells, reuse, slot, batch, usable, measure_shape, local, donors)) return false;
+    if (usable && slot < cells.size())
+      ProcessPrivateBatch(observe_transaction, cells, measured, reuse, slot, batch, measure_shape, shape,
+                          surface_context, donors, usable, rejected);
+    slot += batch;
+  }
+  if (usable && surface_target && surface_context) EngineTrial::SurfaceMerit(context, measured, *surface_context);
+  if (!usable) result.reason = rejected;
+  return usable;
+}
+
+// Retries the original donor import with the same batch halving and failure votes.
+bool TrialChecks::FetchPrivateBatch(const std::vector<Cell>& cells, std::map<Edge, EdgeMeasure>& reuse, size_t slot,
+                                    size_t& batch, bool usable, bool measure_shape, CLocalFailure& local,
+                                    DonorPatch& donors) {
+  auto& options = context.options;
+  auto& result = *context.control.result;
+  auto& surface_target = context.surface_target;
+  auto& stats = context.control.result->stats;
+  auto& directory = *context.exchange.directory;
+  auto& eligible_extensions = *context.census.eligible_extensions;
+  auto& campaign_edges = *context.census.campaign_edges;
+  auto& field_identity = *context.census.field_identity;
+  auto& ready = *context.control.ready;
+  auto& private_scratch = *slot_state.private_scratch;
+  for (;;) {
+    std::vector<Cell> query;
+    try {
+      if (usable)
+        for (size_t i = slot; i < std::min(slot + batch, cells.size()); ++i) query.push_back(cells[i]);
+    } catch (const std::exception& e) {
+      local.Set(2, 0, e.what());
+    }
+    std::vector<unsigned char> requests;
+    try {
+      requests = MetricEdgeRequests(query, reuse, field_identity, &campaign_edges);
+      if (surface_target) std::fill(requests.begin(), requests.end(), static_cast<unsigned char>(63));
+    } catch (const std::exception& e) {
+      local.Set(2, 0, e.what());
+    }
+    if (!(ready = context.exchange.Vote(context, local))) return false;
+    {
+      Timer timer(stats.donor_seconds, options.timings, SU2NativeTiming3D::Operation::Import);
+      ++stats.donor_batches;
+      donors = trial_comm.ImportSamples(
+          query, eligible_extensions, options.memory_ceiling,
+          transfer_memory::Add(context.exchange.Bytes(context), directory->ResidentBytes(), private_scratch), requests,
+          measure_shape);
+    }
+    if (donors.valid) break;
+    if (!DonorCap(donors.reason) || batch == 1) {
+      ready = false;
+      result.reason = donors.reason;
+      return false;
+    }
+    batch = (batch + 1) / 2;
+    ++stats.batch_retries;
+  }
+  return true;
+}
+
+// Measures one subscribed donor batch and preserves its original timers and field accounting.
+template <class Observe>
+void TrialChecks::ProcessPrivateBatch(Observe& observe_transaction, const std::vector<Cell>& cells,
+                                      PatchMetric& measured, std::map<Edge, EdgeMeasure>& reuse, size_t slot,
+                                      size_t batch, bool measure_shape, bool shape, const Patch* surface_context,
+                                      DonorPatch& donors, bool& usable, std::string& rejected) {
+  auto& options = context.options;
+  auto& geometry = context.geometry;
+  auto& composition = context.composition;
+  auto& stats = context.control.result->stats;
+  auto& field_identity = *context.census.field_identity;
+  Timer timer(stats.metric_seconds, options.timings, SU2NativeTiming3D::Operation::MetricNormalization);
+  CpuTimer cpu(stats.metric_cpu_seconds, options.timings);
+  MetricStats counted;
+  std::unique_ptr<FrozenField> target;
+  try {
+    observe_transaction("metric_donors", donors.valid, &donors);
+    const auto components = AssociatedExtensions(donors.cells, geometry);
+    observe_transaction("support_donors", donors.valid, &donors);
+    target = std::make_unique<FrozenField>(std::move(donors.cells), composition, options.timings, components,
+                                           options.edge_breakpoints, field_identity, true, MaximumDonors, true);
+    PatchMetric planned;
+
+    MeasureSurfaceBatch(cells, slot, batch, surface_context, planned, *target, counted);
+    for (size_t i = slot; i < std::min(slot + batch, cells.size()); ++i)
+      AddCellMeasurement(cells[i], measured, reuse, measure_shape, shape, planned, *target, counted);
+  } catch (const std::exception& e) {
+    usable = false;
+    rejected = e.what();
+  }
+  if (target) FieldCounts(stats, *target);
+  stats.private_edge_evaluations += counted.edge_evaluations;
+  stats.private_edge_reused += counted.edge_reused;
+  stats.private_edge_campaign_hits += counted.edge_campaign_reused;
+}
+
+// Builds only the surface faces and cells of the current donor batch.
+void TrialChecks::MeasureSurfaceBatch(const std::vector<Cell>& cells, size_t slot, size_t batch,
+                                      const Patch* surface_context, PatchMetric& planned, FrozenField& target,
+                                      MetricStats& counted) {
+  auto& options = context.options;
+  auto& geometry = context.geometry;
+  auto& surface_target = context.surface_target;
+  if (surface_target) {
+    if (!surface_context) throw std::logic_error("Surface planning lacks its current private cavity.");
+    Patch local_surface;
+    std::set<Face> faces;
+    local_surface.parameters = surface_context->parameters;
+    local_surface.coverage = surface_context->coverage;
+    for (size_t i = slot; i < std::min(slot + batch, cells.size()); ++i) {
+      local_surface.cells.push_back(cells[i]);
+      for (auto face : Faces(cells[i])) faces.insert(Key(face));
+    }
+    for (const auto& face : surface_context->surface)
+      if (faces.count(Key(face.v))) local_surface.surface.push_back(face);
+    // Guidance is cell-independent; use the same admitted source batch and current private associations once.
+    planned = MeasureSurfacePlanning(local_surface, target, geometry, options.wall_heights, surface_target, &counted);
+  }
+}
+
+// Folds the original per-cell metric into the patch measure and edge reuse map.
+void TrialChecks::AddCellMeasurement(const Cell& cell, PatchMetric& measured, std::map<Edge, EdgeMeasure>& reuse,
+                                     bool measure_shape, bool shape, const PatchMetric& planned, FrozenField& target,
+                                     MetricStats& counted) {
+  auto& surface_target = context.surface_target;
+  auto& campaign_edges = *context.census.campaign_edges;
+  auto& repairing = *context.control.repairing;
+  auto& certified = *slot_state.certified;
+  auto& measured_flags = *slot_state.measured_flags;
+  PatchMetric part;
+  if (surface_target) {
+    for (unsigned a = 0; a < 4; ++a)
+      for (unsigned b = a + 1; b < 4; ++b) {
+        Edge edge{cell.v[a].id, cell.v[b].id};
+        std::sort(edge.begin(), edge.end());
+        part.edges.emplace(edge, planned.edges.at(edge));
+      }
+  } else
+    part = measure_shape ? MeasureMetricCells({cell}, target, &counted, &reuse, shape, shape ? &certified : nullptr,
+                                              &campaign_edges)
+                         : MeasureMetricEdges({cell}, target, &counted, &reuse, &campaign_edges);
+  if (measure_shape && part.minimum_mean_ratio < measured.minimum_mean_ratio) {
+    measured.minimum_mean_ratio = part.minimum_mean_ratio;
+    measured.weakest_cell = part.weakest_cell;
+  }
+  if (measure_shape && part.minimum_scaled_jacobian < measured.minimum_scaled_jacobian) {
+    measured.minimum_scaled_jacobian = part.minimum_scaled_jacobian;
+    measured.sliver_cell = part.sliver_cell;
+  }
+  measured.shape_cells += part.shape_cells;
+  measured.shape_debt += part.shape_debt;
+  measured.q_bad_cells += part.q_bad_cells;
+  measured.j_bad_cells += part.j_bad_cells;
+  if (repairing && part.shape_measured)
+    measured_flags.push_back({cell.id, part.q_bad_cells != 0, part.j_bad_cells != 0});
+  for (const auto& edge : part.edges) {
+    measured.edges.emplace(edge);
+    reuse[edge.first] = edge.second;
+    if (edge.second.length > measured.maximum_length) {
+      measured.maximum_length = edge.second.length;
+      measured.longest_edge = edge.first;
+    }
+  }
+}
+
+// Validates a trial while keeping its candidate scope around measurement, diagnostics and the existing observer vote.
+template <class BoundaryReady, class Observe>
+bool TrialChecks::ValidatePrivate(BoundaryReady& boundary_replacement_ready, Observe& observe_transaction,
+                                  const PatchMetric& before, bool candidate, MetricChange kind, bool no_new_oversized,
+                                  bool strict_size, size_t relocated, wall_diagnostics::PatchSource source,
+                                  bool required_split) {
+  auto& result = *context.control.result;
+  auto& surface_target = context.surface_target;
+  auto& selection = *context.census.selection;
+  auto& bidirectional = context.bidirectional;
+  auto& stats = context.control.result->stats;
+  auto& wall_counters = *context.setup.wall_counters;
+  auto& concurrent = *round_state.concurrent;
+  auto& coarsening = *context.control.coarsening;
+  auto& repairing = *context.control.repairing;
+  auto& ready = *context.control.ready;
+  auto& observe_rejections = *context.control.observe_rejections;
+  auto& fresh = *slot_state.fresh;
+  auto& approved = *slot_state.approved;
+  auto& geometric_progress = *slot_state.geometric_progress;
+  auto& certified = *slot_state.certified;
+  auto& measured_flags = *slot_state.measured_flags;
+  auto& fresh_flags = *slot_state.fresh_flags;
+  const bool source_available = bool(surface_target) && !repairing && !coarsening && candidate;
+  const auto source_rejected_before = stats.geometry_guidance_rejected;
+  SU2NativeTiming3D::Scope candidate_timer(SU2NativeTiming3D::Operation::Candidate);
+  const bool completed = concurrent && approved && !candidate;
+  const auto retained = certified;
+  certified = {};
+  const bool merit_first =
+      !surface_target && bidirectional && repairing && kind == MetricChange::Repair && !selection.geometry_repairs;
+  if (required_split) geometric_progress = false;
+  if (!merit_first && !required_split)
+    candidate = GeometricChange(boundary_replacement_ready, observe_transaction, candidate,
+                                selection.geometry_repairs ? MetricChange::GeometryRepair : kind);
+  PatchMetric metric;
+  const std::vector<Cell> empty;
+  bool measured =
+      MeasurePrivate(observe_transaction, candidate ? fresh.cells : empty, metric, true, before.edges, &fresh);
+  CLocalFailure observed;
+  bool valid = false;
+
+  valid = ValidateMeasuredTrial(candidate, kind, measured, no_new_oversized, strict_size, relocated, before, metric);
+  if (valid && merit_first && !required_split)
+    valid = GeometricChange(boundary_replacement_ready, observe_transaction, true, RepairKind());
+  if (valid && selection.geometry_repairs) valid = EngineTrial::HeightCheck(context, fresh, result.reason);
+  // The initial streaming probe precedes repair proposals; it is not an operator failure.
+
+  ReportPrivateTrialRejection(candidate, valid, completed, observed);
+  try {
+    observe_transaction("metric", valid);
+  } catch (const std::exception& e) {
+    observed.Set(2, 0, e.what());
+  }
+  if (observe_rejections || (!repairing && !coarsening)) ready = context.exchange.Vote(context, observed);
+  if (completed) certified = retained;
+  if (repairing && valid) fresh_flags = measured_flags;
+  wall_counters.ObserveSource(source, source_available, stats.geometry_guidance_rejected > source_rejected_before,
+                              valid);
+  return valid;
+}
+
+// Runs the original metric gates with the same normalization and CPU scopes.
+bool TrialChecks::ValidateMeasuredTrial(bool candidate, MetricChange kind, bool measured, bool no_new_oversized,
+                                        bool strict_size, size_t relocated, const PatchMetric& before,
+                                        PatchMetric& metric) {
+  auto& options = context.options;
+  auto& result = *context.control.result;
+  auto& bidirectional = context.bidirectional;
+  auto& stats = context.control.result->stats;
+  auto& wall_counters = *context.setup.wall_counters;
+  auto& metric_cleanup = *context.setup.control_prefix.metric_cleanup;
+  auto& old = *slot_state.old;
+  auto& fresh = *slot_state.fresh;
+  auto& geometric_progress = *slot_state.geometric_progress;
+  auto& certified = *slot_state.certified;
+  auto& coordinate_only = *slot_state.coordinate_only;
+  bool valid = false;
+  {
+    Timer timer(stats.metric_seconds, options.timings, SU2NativeTiming3D::Operation::MetricNormalization);
+    CpuTimer cpu(stats.metric_cpu_seconds, options.timings);
+    if (candidate) {
+      const auto effective = kind == MetricChange::Repair
+                                 ? (geometric_progress && !bidirectional ? MetricChange::GeometryRepair : RepairKind())
+                                 : kind;
+      if (measured)
+        valid =
+            metric_cleanup
+                ? ValidateMetricCleanup(old.cells.size(), before, fresh.cells.size(), metric, result.reason, &certified)
+                : wall_counters.MetricValidation(ValidateMetricChange(old.cells.size(), before, fresh.cells.size(),
+                                                                      metric, effective, result.reason, &certified,
+                                                                      relocated, coordinate_only));
+      if (valid && no_new_oversized)
+        for (const auto& edge : metric.edges)
+          if (edge.second.length > MaximumMetricEdge) {
+            const auto previous = before.edges.find(edge.first);
+            auto same = [](Point a, Point b) { return a.x == b.x && a.y == b.y && a.z == b.z; };
+            if (previous == before.edges.end() || !same(previous->second.a, edge.second.a) ||
+                !same(previous->second.b, edge.second.b)) {
+              valid = false;
+              certified.failure = MetricFailure::Progress;
+              result.reason = "Native3D joint strip introduces a new oversized edge.";
+              break;
+            }
+          }
+      if (valid && strict_size && !certified.size_progress) {
+        valid = false;
+        certified.failure = MetricFailure::Progress;
+        result.reason = "Native3D compound wall repair does not reduce frozen changed-edge excess.";
+      }
+      valid = EngineTrial::MetricTrial(context, valid, certified, effective, geometric_progress);
+    }
+  }
+  return valid;
+}
+
+// Reports a failed private trial with the original first-capture and rejected-trial callbacks.
+void TrialChecks::ReportPrivateTrialRejection(bool candidate, bool valid, bool completed, CLocalFailure& observed) {
+  auto& options = context.options;
+  auto& geometry = context.geometry;
+  auto& result = *context.control.result;
+  auto& working = *context.ownership.working;
+  auto& composition = context.composition;
+  auto& stats = context.control.result->stats;
+  auto& maximum_node = *context.commit.maximum_node;
+  auto& maximum_cell = *context.commit.maximum_cell;
+  auto& round = round_state.round;
+  auto& choice = *round_state.choice;
+  auto& coarsening = *context.control.coarsening;
+  auto& repairing = *context.control.repairing;
+  auto& last_rejection = *context.control.last_rejection;
+  auto& transaction_captured = *context.control.transaction_captured;
+  auto& old = *slot_state.old;
+  auto& fresh = *slot_state.fresh;
+  auto& chosen = *slot_state.chosen;
+  auto& point = *slot_state.point;
+  auto& certified = *slot_state.certified;
+  auto& imported = *slot_state.imported;
+  auto& dependencies = *slot_state.dependencies;
+  auto& last_geometry_operation = *slot_state.last_geometry_operation;
+  auto& transaction_feature = *slot_state.transaction_feature;
+  auto& node_offset = *slot_state.node_offset;
+  auto& offset = *slot_state.offset;
+  if (chosen && !valid && !completed && (!repairing || last_geometry_operation)) {
+    stats.last_metric_rejection = certified;
+    stats.last_rejected_feature = repairing ? choice.feature : Feature{{choice.edge[0], choice.edge[1], 0}, 2};
+    if (!old.cells.empty()) stats.last_rejected_cavity_centroid = Centroid(old.cells.front());
+    last_rejection = "feature " + std::to_string(stats.last_rejected_feature.count) + ":" +
+                     std::to_string(stats.last_rejected_feature.vertices[0]) + ": " + result.reason;
+    if (options.transaction_observer && !options.capture_feature.count && !transaction_captured) try {
+        transaction_captured = true;
+        const std::string stage = repairing    ? "first_" + std::string(last_geometry_operation) + "_failure"
+                                  : coarsening ? "first_collapse_failure"
+                                               : "first_split_failure";
+        options.transaction_observer({stage.c_str(), transaction_feature, uint64_t(round), true, false, working,
+                                      geometry, dependencies, imported, old, fresh, point, maximum_cell + 1 + offset,
+                                      maximum_node + 1 + node_offset, certified, result.reason, nullptr, composition,
+                                      options.edge_breakpoints});
+      } catch (const std::exception& e) {
+        observed.Set(2, 0, e.what());
+      }
+    if (options.rejected_trial) try {
+        options.rejected_trial(old, fresh, stats.last_rejected_feature, certified, candidate, result.reason);
+      } catch (const std::exception& e) {
+        observed.Set(2, 0, e.what());
+      }
+  }
 }
