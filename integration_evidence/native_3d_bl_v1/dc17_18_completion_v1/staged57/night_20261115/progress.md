@@ -2,9 +2,11 @@
 
 Updated 2026-11-18. Read AGENTS.md and the copied WORK_ORDER_2.md at the start of the new session, then this file.
 
-## Current state — N6 qualification in progress
+## Current state — N6 G5 running
 
-Phase D passed at `c9176e9439`. N16 A and B passed; C failed the event-one quality gate and was reverted by `3276cbb862`. N6 now runs its three extractions in order. Remesh passed G1/G2/G3/GQ and was pushed as `4946b2d126`. Optimizer build577 is running. The ordered continuation is PID 1726962 / start 50091756. The 2026-11-18 N18 amendment and verified I8R2 apply at the N6 terminal boundary before N7. Entry watcher PID 1781723 / start 50285332 will publish N6 and apply the amendment after all N6 checks finish.
+Phase D passed at `c9176e9439`. N16 A and B passed; C failed event-one quality and was reverted by `3276cbb862`. N6 scoped checkpoints passed and were pushed: Remesh `4946b2d126`, MeshOptimizer `cd2c46b73d`, Selection `7ffb54c83e`. The full build578 G5 is running on six ranks. Workflow supervisor PID 1940544 / start 51007190, full wrapper PID 1940846 / start 51007905. The recovery controller is PID 1849865 / start 50587915.
+
+The verified I8R2 and the 2026-11-18 N18 amendment follow the N6 terminal qualification. Boundary watcher PID 1849866 / start 50587915 waits for the G5, isolated restart and standing safeguards, then seals N6 and applies the amendment. Read I8R2 completely at that boundary. N7 follows N18.
 
 ## Earlier integrated reference — phase C
 
@@ -198,3 +200,21 @@ N6 Selection build578 compiled without warnings in 82.819 s and passed G1 at 375
 N6 Selection G2 passed at 317.610 s with work 90,809,869 and all exact rows. G3 passed 1,368 splits, 1,113 exact shared edits and all physical gates, adjusted entry 5,113. G4 and GQ follow.
 
 N6. Selection build578 passed G1 375/114/228, G2 90,809,869, G3 1368 splits with 1113 exact shared edits, and GQ at 1122.623 s.
+
+N6. Selection checkpoint pushed as `7ffb54c83e`.
+
+- 2026-11-18T17:02:49+01:00 N6. Build578, scoped Selection receipts passed. Starting full G5.
+
+N6 G5 interim: event one emitted the exact P6c mesh and native reference. Proof coverage 67,170 and job/process peak sum 14,014,275,584 B passed. The same six-rank run continued into event two. G5 remains running.
+
+- 2026-11-18T18:10:37+01:00 N6. Both G5 events and six payload identities passed. Starting isolated restart.
+
+- 2026-11-18T18:14:56+01:00 N6. G5 and isolated restart passed. Standing safeguards and phase report pending.
+
+- 2026-11-18T18:17:21+01:00 N6. merit481 passed in 119.201 s with exact saved-state comparison.
+
+- 2026-11-18T18:20:03+01:00 N6. saved481 passed in 146.687 s with exact saved-state comparison.
+
+- 2026-11-18T18:22:39+01:00 N6. saved_current passed in 142.945 s with exact saved-state comparison.
+
+- 2026-11-18T18:23:02+01:00 N6. Build578 passed G5 in 4041.079 s, six payloads and 96 timer snapshots exact. The isolated restart passed in 234.819 s. All standing safeguards passed, source pins verified, and all owned process identities are terminal.

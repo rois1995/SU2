@@ -1,5 +1,22 @@
 # Adaptation timings and computational work
 
+## N6 — build578
+
+G5 passed in 4041.079 s, with native maxima 2173.311 / 1434.914 s and minimum timer coverage 96.4000% / 96.7297%. The isolated restart took 234.819 s. The six payloads, old work and timer calls matched the full build574 reference. [N6 report](ADAPTATION_CUT_N6_20261118.md)
+
+| Final ledger phase | Event 1 exclusive s, min–max | Event 2 exclusive s, min–max | Event 1 calls, sum | Event 2 calls, sum |
+|---|---:|---:|---:|---:|
+| preparation | 137.102–137.292 | 209.673–210.154 | 1,181,839 | 2,891,851 |
+| metric | 4.512–4.520 | 5.349–5.357 | 267,804 | 335,124 |
+| construction | 472.955–472.979 | 202.374–202.391 | 32,416,907 | 12,690,268 |
+| surface | 0.000–0.000 | 0.000–0.000 | 0 | 0 |
+| quality | 1395.891–1395.913 | 842.814–842.827 | 7,211,139 | 4,257,051 |
+| final proof | 122.844–122.844 | 138.810–138.810 | 31,682 | 35,358 |
+| transfer | 30.229–30.236 | 30.091–30.101 | 150 | 150 |
+| output | 0.000–0.000 | 0.000–0.000 | 0 | 0 |
+
+Maximum unattributed time was 78.241 / 46.927 s. Each rank contributes one set of exclusive times. Event and remesh-root clocks are nested, and the build comparisons include host variation. [Per-event timing and work](../integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N4/section6_3_after_N11/phase_N6/G5/acceptance_summary.json)
+
 ## Step 8.5r — build574 T0
 
 T0 passed both events in 4089.709 s. Native event maxima were 2236.870 and 1416.499 s. Each event had 1,274 and 801 private quality rounds per rank. The six-rank exclusive join, communication and clearance sums were 5546.566 and 3420.686 s. The 64-wide build575 rejected event one with one q-bad cell after 716 quality rounds. Its 4576.262 s sum is a failed-run observation. [Gate and failure report](../integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N16/reports/STEP_8_5R_575.md)
