@@ -67,4 +67,6 @@ The ordered controller reached C8 G3 and exited on a prelaunch alias collision. 
 
 - C10 PASSED at `e3444aa51d`, build568, G1 [375, 114, 228] exact, G2 work 90,809,869 and rank counts exact. G3 PASSED. GQ PASSED. Receipts in `N4/section6_3_after_N11/C10/validation`.
 
-Current action — C11, build569: passed G1 [375, 114, 228], G2 312.179 s; see scoped gate receipts.
+- C11 PASSED at `167e353ca7`, build569, G1 [375, 114, 228] exact, G2 work 90,809,869 and rank counts exact. G3 PASSED. G4 PASSED. GQ PASSED. Receipts in `N4/section6_3_after_N11/C11/validation`.
+
+Current action — N17 M27 scoped gates passed on build570. One print-only checkpoint is being sealed for the single phase C G5.

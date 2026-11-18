@@ -10,6 +10,7 @@
 #include "../../include/adaptation/CNativeGeometryValidation2D.hpp"
 #include "../../include/adaptation/CTransferMemory.hpp"
 #include "../../include/adaptation/CNativeCurvedReference.hpp"
+#include "../../include/adaptation/CNativeD9Profile3D.hpp"
 #include "../../include/adaptation/CNativeTimerTree3D.hpp"
 #include "../../include/adt/CADTElemClass.hpp"
 #include "../../include/option_structure.hpp"
@@ -2041,6 +2042,32 @@ MappedFacetReference::SurfaceUnionBounds MappedFacetReference::BoundSurfaceUnion
 MappedFacetReference::SurfaceUnionBounds MappedFacetReference::BoundModelSurface(
     const std::vector<Id>& facets,const std::vector<std::array<Point,3>>& physical,
     double tolerance,AtlasBudget& budget)const {return QuerySurfaceUnion(facets,physical,tolerance,budget,true,false);}
+
+// M27 hashes the existing query identity without its answer kind or cutoff.
+static uint64_t UnionFaceWord(const std::vector<Id>& facets, double tolerance,
+                              const std::vector<std::array<Point, 3>>& triangles) noexcept {
+  uint64_t hash = 14695981039346656037ULL;
+  auto append_word = [&](uint64_t word) {
+    for (unsigned byte = 0; byte < sizeof(word); ++byte) {
+      hash ^= (word >> (8 * byte)) & 255;
+      hash *= 1099511628211ULL;
+    }
+  };
+  auto append_bits = [&](double value) {
+    uint64_t bits;
+    std::memcpy(&bits, &value, sizeof(bits));
+    append_word(bits);
+  };
+  append_word(facets.size());
+  for (Id facet : facets) append_word(facet);
+  append_word(triangles.size());
+  append_bits(tolerance);
+  for (const auto& triangle : triangles)
+    for (const auto point : triangle)
+      for (const auto coordinate : Values(point)) append_bits(coordinate);
+  return hash;
+}
+
 double MappedFacetReference::BoundPhysicalSurface(const std::vector<Id>& facets,
     const std::vector<std::array<Point,3>>& physical,double tolerance,AtlasBudget& budget,SurfaceBoundPurpose purpose,double stop_above)const {
   SU2NativeTiming3D::Scope timer(SU2NativeTiming3D::Operation::GeometryBound);
@@ -2073,8 +2100,12 @@ double MappedFacetReference::BoundPhysicalSurface(const std::vector<Id>& facets,
   };
   const auto canonical_bytes=physical.size()==1 ? transfer_memory::Add(sizeof(physical),
       transfer_memory::GrowthBound(1,sizeof(std::array<Point,3>))) : 0;
-  if(transfer_memory::Add(budget.caller_bytes,canonical_bytes)>budget.maximum_bytes)
-    return traced_result(QuerySurfaceUnion(facets,physical,tolerance,budget,false,true,magnitude,stop_above).mesh_to_model,"bypass");
+  if (transfer_memory::Add(budget.caller_bytes, canonical_bytes) > budget.maximum_bytes) {
+    SU2NativeD9::ObserveUnionBypass();
+    return traced_result(
+        QuerySurfaceUnion(facets, physical, tolerance, budget, false, true, magnitude, stop_above).mesh_to_model,
+        "bypass");
+  }
   AtlasOps op{budget,__func__};
   struct Restore{AtlasBudget& budget;size_t caller;~Restore(){budget.caller_bytes=caller;}} restore{budget,budget.caller_bytes};
   std::vector<std::array<Point,3>> canonical;
@@ -2088,11 +2119,18 @@ double MappedFacetReference::BoundPhysicalSurface(const std::vector<Id>& facets,
     });
   }
   const auto& query=canonical.empty()?physical:canonical;
+  const auto face_word = SU2NativeD9::ObservingUnion() ? UnionFaceWord(facets, tolerance, query) : uint64_t{};
   const auto words=transfer_memory::Add(limited?5:(magnitude?4:3),facets.size(),transfer_memory::Mul(physical.size(),9));
   const auto temporary=transfer_memory::GrowthBound(words,sizeof(uint64_t));
-  if(!face_memo || FaceMemo::UnionBytes(words)>face_memo->Capacity() ||
-      transfer_memory::Add(budget.caller_bytes,temporary)>budget.maximum_bytes)
-    return traced_result(QuerySurfaceUnion(facets,query,tolerance,budget,false,true,magnitude,stop_above).mesh_to_model,"bypass");
+  if (!face_memo || FaceMemo::UnionBytes(words) > face_memo->Capacity() ||
+      transfer_memory::Add(budget.caller_bytes, temporary) > budget.maximum_bytes) {
+    SU2NativeD9::ObserveUnionBypass();
+    return traced_result(
+        QuerySurfaceUnion(facets, query, tolerance, budget, false, true, magnitude, stop_above).mesh_to_model,
+        "bypass");
+  }
+  using SU2NativeD9::Answer;
+  const auto wanted = magnitude ? Answer::Magnitude : Answer::Classified;
   op.Work(words);op.Storage(temporary);
   FaceMemo::UnionKey key;key.reserve(words);
   key.push_back(facets.size());key.insert(key.end(),facets.begin(),facets.end());
@@ -2111,9 +2149,16 @@ double MappedFacetReference::BoundPhysicalSurface(const std::vector<Id>& facets,
     if(found){std::lock_guard<std::mutex> stats_lock(geometry_stats->mutex);
       auto& x=geometry_stats->value;++x.upper_calls;x.upper_refusals+=cached>tolerance;
       if(limited)++x.limit_calls;else if(magnitude)++x.magnitude_calls;else ++x.classification_calls;
+      SU2NativeD9::ObserveUnionHit(face_word, wanted);
       return traced_result(cached,"hit");}}
-  const auto before=budget.work;const auto receipt=QuerySurfaceUnion(facets,query,tolerance,budget,false,true,magnitude,stop_above);
+  const auto before = budget.work;
+  const auto union_start = SU2NativeD9::ObservingUnion() ? SU2NativeD9::Clock::now() : SU2NativeD9::Clock::time_point{};
+  const auto receipt = QuerySurfaceUnion(facets, query, tolerance, budget, false, true, magnitude, stop_above);
   const auto result=receipt.mesh_to_model;
+  if (SU2NativeD9::ObservingUnion()) {
+    const auto given = !limited || result <= stop_above ? wanted : Answer::CutOff;
+    SU2NativeD9::ObserveUnionMiss(face_word, wanted, given, budget.work - before, SU2NativeD9::Seconds(union_start));
+  }
   // A cutoff result at or below its cutoff completed magnitude refinement.
   if(limited&&result<=stop_above){key[purpose_word]=1;key.erase(key.begin()+purpose_word+1);}
   {std::lock_guard<std::mutex> guard(face_memo->lock);face_memo->Store(std::move(key),result,budget.work-before,op);}

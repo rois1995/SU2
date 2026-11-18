@@ -283,7 +283,7 @@ bool TrialChecks::GeometricChange(BoundaryReady& boundary_replacement_ready, Obs
     bool complete_guidance = true;
     if (kind == MetricChange::Coarsen) {
       // A coarsening trial needs zero new excess; rejected trials need no old-surface score.
-      const auto guidance = GeometryGuidanceExcess(fresh, geometry, options.surface_tolerance, 0);
+      const auto guidance = GuidanceOf(SU2NativeD9::Part::GuidanceFresh, fresh, geometry, options.surface_tolerance, 0);
       stats.geometry_guidance_faces += guidance.evaluated_faces;
       stats.geometry_guidance_early_rejections += !guidance.complete;
       after = guidance.excess;
@@ -296,18 +296,17 @@ bool TrialChecks::GeometricChange(BoundaryReady& boundary_replacement_ready, Obs
         return GuardedGeometry(boundary_replacement_ready, observe_transaction, false, "geometry",
                                wall_diagnostics::GuardOrigin::Guidance);
       }
-      const auto old_guidance = GeometryGuidanceExcess(old, geometry, options.surface_tolerance);
+      const auto old_guidance = GuidanceOf(SU2NativeD9::Part::GuidanceOld, old, geometry, options.surface_tolerance);
       stats.geometry_guidance_faces += old_guidance.evaluated_faces;
       before = old_guidance.excess;
     } else {
-      const auto old_guidance = GeometryGuidanceExcess(old, geometry, options.surface_tolerance);
+      const auto old_guidance = GuidanceOf(SU2NativeD9::Part::GuidanceOld, old, geometry, options.surface_tolerance);
       stats.geometry_guidance_faces += old_guidance.evaluated_faces;
       before = old_guidance.excess;
       const bool allow_increase =
           kind == MetricChange::GeometryRepair && phase == Phase::Improvement && !selection.geometry_repairs;
-      const auto guidance =
-          GeometryGuidanceExcess(fresh, geometry, options.surface_tolerance,
-                                 allow_increase ? std::numeric_limits<long double>::infinity() : before);
+      const auto guidance = GuidanceOf(SU2NativeD9::Part::GuidanceFresh, fresh, geometry, options.surface_tolerance,
+                                       allow_increase ? std::numeric_limits<long double>::infinity() : before);
       stats.geometry_guidance_faces += guidance.evaluated_faces;
       stats.geometry_guidance_early_rejections += !guidance.complete;
       after = guidance.excess;

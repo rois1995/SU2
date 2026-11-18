@@ -34,6 +34,7 @@
 #include <stdexcept>
 #include <type_traits>
 #include <optional>
+#include <utility>
 namespace SU2Native3D {
 AdaptationRequirements MakeAdaptationRequirements(const PlanarReference& geometry, bool composition,
                                                   const EngineOptions& options) {
@@ -149,7 +150,9 @@ struct D9QueryScope {
   SU2NativeD9::Clock::time_point start{};
   int phase = -1;
   SU2NativeD9::Site site;
-  D9QueryScope(SU2NativeD9::Site value, const PlanarReference* geometry) : site(value) {
+  SU2NativeD9::PartScope part;
+  D9QueryScope(SU2NativeD9::Site value, const PlanarReference* geometry)
+      : site(value), part(SU2NativeD9::SitePart(value)) {
     phase = SU2NativeD9::Phase();
     if (phase < 0 || !geometry || !geometry->Parameters()) return;
     data = SU2NativeD9::active;
@@ -176,6 +179,14 @@ struct D9QueryScope {
     row.seconds += seconds;
   }
 };
+
+// M27 attributes the existing exact checks to the patch being measured.
+template <class... Arguments>
+GeometryGuidance GuidanceOf(SU2NativeD9::Part part, Arguments&&... arguments) {
+  SU2NativeD9::PartScope scope(part);
+  return GeometryGuidanceExcess(std::forward<Arguments>(arguments)...);
+}
+
 // A successful separation is only a necessary geometry-error rejection, never admission.
 bool CollapseOutsideTolerance(const Patch& old,Id removed,Id retained,const PlanarReference& geometry,double tolerance) {
   const auto* state=geometry.Parameters();
@@ -2823,6 +2834,7 @@ bool MeshOptimizer::SmoothBoundary(Id p) {
     }
   }
   Patch best;long double best_score=before;
+  SU2NativeD9::SmoothChain d9_chain;
   for(Point target_point:targets) {
     if(Limited())break;
     ++report.trials;
@@ -2888,15 +2900,24 @@ bool MeshOptimizer::SmoothBoundary(Id p) {
         guidance_memo_ready=guidance_memo.Prepare(patch,geometry,options.surface_tolerance);
       if(atlas_budget&&!charge_retained_geometry(candidate_parameters.get())){++report.boundary_rejected_geometry;return false;}
       ++report.boundary_guidance_calls;
-      const auto guidance=SU2NativeD9::Measure(SU2NativeD9::Work::Guidance, [&] { return GeometryGuidanceExcess(patch,geometry,options.surface_tolerance,INFINITY,guidance_memo_ready?&guidance_memo:nullptr); });
+      const auto guidance = SU2NativeD9::Measure(SU2NativeD9::Work::Guidance, [&] {
+        return GuidanceOf(SU2NativeD9::Part::SmoothOld, patch, geometry, options.surface_tolerance, INFINITY,
+                          guidance_memo_ready ? &guidance_memo : nullptr);
+      });
       report.boundary_guidance_faces+=guidance.evaluated_faces;report.boundary_guidance_reused_faces+=guidance.reused_faces;geometric_before=guidance.excess;geometry_measured=true;
     }
     ++report.boundary_guidance_calls;
-    const auto guidance=SU2NativeD9::Measure(SU2NativeD9::Work::Guidance, [&] { return GeometryGuidanceExcess(candidate,candidate_geometry,options.surface_tolerance,geometric_before,guidance_memo_ready?&guidance_memo:nullptr); });
+    if (SU2NativeD9::ObservingUnion()) ++d9_chain.checked;
+    const auto guidance = SU2NativeD9::Measure(SU2NativeD9::Work::Guidance, [&] {
+      return GuidanceOf(SU2NativeD9::Part::SmoothCandidate, candidate, candidate_geometry, options.surface_tolerance,
+                        geometric_before, guidance_memo_ready ? &guidance_memo : nullptr);
+    });
     report.boundary_guidance_faces+=guidance.evaluated_faces;report.boundary_guidance_reused_faces+=guidance.reused_faces;report.boundary_guidance_early_rejections+=!guidance.complete;
     const auto after=guidance.excess;
     if(!guidance.complete||!std::isfinite(after)||after>geometric_before){++report.rejected_interface;++report.boundary_rejected_geometry;continue;}
-    best_score=score;best=std::move(candidate);
+    best_score = score;
+    best = std::move(candidate);
+    if (SU2NativeD9::ObservingUnion()) ++d9_chain.passed;
     if(debt?best_score>=0:best_score>=1)break;
   }
   if(best.cells.empty()) {
@@ -2912,6 +2933,7 @@ bool MeshOptimizer::SmoothBoundary(Id p) {
   const auto debt_reduction=old_shape_debt-(debt?-best_score:shape_debt(best.cells));
   if(std::isfinite(old_shape_debt)&&std::isfinite(debt_reduction))report.boundary_debt_reduction+=debt_reduction;
   ++report.boundary_moves;
+  if (SU2NativeD9::ObservingUnion()) d9_chain.moved = true;
   std::map<Face,FacetBinding> added;for(const auto& f:best.surface)added.emplace(Key(f.v),FacetBinding{true,f.facet});
   const Id moved=next_node++;Commit(old,best.cells,p,added);
   report.parameters.erase(p);for(const auto& row:best.parameters)report.parameters.insert_or_assign(row.first,row.second);

@@ -22,3 +22,7 @@ Where should the immediate inputs to the legacy strip, apex and growth searches 
 ## 2026-11-18T04:41:41+01:00 · N4 phase C · G5
 
 Which complete log should supply the full integer and timer baseline? The options were the original phase A comparison input and the adopted N14 full workflow. Used the N14 log for the existing C §1 comparison, and the work order §2 P6c/P7 file hashes for payload identity. The two receipts serve different checks and the phase A comparator validated itself against the sealed N14 logs. Phase end pre-GQ checkpoint `e3444aa51d`.
+
+## 2026-11-18T04:53:47+01:00 · N17 · M27 source check
+
+Does the table size mean the number of faces alone or the instrumented table footprint? Kept the specified face count and added estimated bytes for entries, node links and buckets. The 10 MB expectation refers to memory, and allocator overhead has no portable exact value. N17 base commit `167e353ca7`.
