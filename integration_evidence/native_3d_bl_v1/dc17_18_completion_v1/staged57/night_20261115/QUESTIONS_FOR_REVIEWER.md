@@ -18,3 +18,7 @@ Should each private donor call take the imported cavity as an argument, or shoul
 ## 2026-11-18T02:43:34+01:00 · N4 phase C · C9
 
 Where should the immediate inputs to the legacy strip, apex and growth searches live? The alternatives were caller-local assembly and moving the E18–E24 block together. Moved E18–E24 together to preserve the original scopes and retain the three reservation policies. C9 base commit `f3beeb21d8`.
+
+## 2026-11-18T04:41:41+01:00 · N4 phase C · G5
+
+Which complete log should supply the full integer and timer baseline? The options were the original phase A comparison input and the adopted N14 full workflow. Used the N14 log for the existing C §1 comparison, and the work order §2 P6c/P7 file hashes for payload identity. The two receipts serve different checks and the phase A comparator validated itself against the sealed N14 logs. Phase end pre-GQ checkpoint `e3444aa51d`.

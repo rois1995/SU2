@@ -1612,7 +1612,6 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
   auto& repairing = repairing_lifetime.Get();
   ContextValue construction_kind_lifetime(control.construction_kind,
                                           coarsening ? MetricChange::Coarsen : MetricChange::Refine);
-  auto& construction_kind = construction_kind_lifetime.Get();
   ContextValue tracked_bytes_begin_lifetime(control.tracked_bytes_begin, world.bytes_sent);
   const auto& tracked_bytes_begin = tracked_bytes_begin_lifetime.Get();
   ContextValue tracked_calls_begin_lifetime(control.tracked_calls_begin, world.collective_calls);
@@ -1656,7 +1655,6 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
   auto& inactive_blocked_links = inactive_blocked_links_lifetime.Get();
   ContextValue length_blocks_dirty_lifetime(context.queues.length_blocks_dirty, std::array<bool, 2>{{false, false}});
   ContextValue field_identity_lifetime(context.census.field_identity);
-  auto& field_identity = field_identity_lifetime.Get();
   // Joint split feasibility depends on neighboring vertex stars, even when the edge itself is unchanged.
   selection.track_splits=bool(composition) || curved;
   // Every adaptation can enter quality improvement; rejected repair support must be invalidated
@@ -1739,7 +1737,6 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
 ;
 ;
   ContextValue transaction_captured_lifetime(control.transaction_captured, false);
-  auto& transaction_captured = transaction_captured_lifetime.Get();
   ContextValue layer_active_lifetime(control.layer_active, false);
   auto& layer_active = layer_active_lifetime.Get();
   ContextValue region_active_lifetime(control.region_active, false);
@@ -1979,9 +1976,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     ContextValue pass_deferred_lifetime(slot_state.pass_deferred, false);
     bool& pass_deferred = pass_deferred_lifetime.Get();
     ContextValue collapse_corrected_lifetime(slot_state.collapse_corrected, false);
-    bool& collapse_corrected = collapse_corrected_lifetime.Get();
     ContextValue collapse_apex_lifetime(slot_state.collapse_apex, 0);
-    Id& collapse_apex = collapse_apex_lifetime.Get();
     ContextValue collapse_correction_refusal_lifetime(slot_state.collapse_correction_refusal);
     std::string& collapse_correction_refusal = collapse_correction_refusal_lifetime.Get();
     wall_diagnostics::Choice wall_choice(wall_counters);
@@ -2068,7 +2063,6 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     ContextValue fresh_flags_lifetime(slot_state.fresh_flags);
     std::vector<CellQualityFlag>& fresh_flags = fresh_flags_lifetime.Get();
     ContextValue measured_flags_lifetime(slot_state.measured_flags);
-    std::vector<CellQualityFlag>& measured_flags = measured_flags_lifetime.Get();
     ContextValue transaction_feature_lifetime(
         slot_state.transaction_feature, repairing ? choice.feature : Feature{{choice.edge[0], choice.edge[1], 0}, 2});
     const Feature& transaction_feature = transaction_feature_lifetime.Get();
@@ -2078,7 +2072,6 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
           certified,result.reason,donors,composition,options.edge_breakpoints});
     };
     ContextValue repair_budget_lifetime(slot_state.repair_budget, 0);
-    size_t& repair_budget = repair_budget_lifetime.Get();
     ContextValue repair_work_lifetime(slot_state.repair_work, 0);
     size_t& repair_work = repair_work_lifetime.Get();
     source.SetCavity(&imported.cells);
@@ -2097,7 +2090,6 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
               return true;
           return false;
         }));
-    const bool& physical_edge = physical_edge_lifetime.Get();
     auto boundary_replacement_ready=[&]() {
       if(phase!=Phase::Improvement || !geometry.Mapped() || (old.surface.empty()&&fresh.surface.empty()))return true;
       try {
@@ -2122,298 +2114,15 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
       }catch(const std::bad_alloc&){throw;}
       catch(const std::exception& e){result.reason=e.what();return false;}
     };
-    auto evaluate_candidate=[&]() -> bool {
-    lane_census::Trial lane_trial(lane_counters, repairing, lane_slots[slot], dependencies, imported,
-                                 world.rank, repair_work);
-    const bool coordinate_stream=trial_comm.Maximum(coordinate_only);
-    // Admit large coordinate-star copies, surfaces, query regions and measurements before GeometryPatch
-    // or source-region packing allocates them; the ordinary topology path keeps its existing bound.
-    if(coordinate_stream && !context.exchange.Admit(context, private_scratch))return false;
-    if(options.transaction_observer && options.capture_feature.count && !transaction_captured) {
-      capture_selected=chosen && transaction_feature.count==options.capture_feature.count &&
-          transaction_feature.vertices==options.capture_feature.vertices;
-      capture=trial_comm.Maximum(capture_selected);
-      transaction_captured=capture;
-    }
-    try {observe_transaction("begin",chosen);}catch(const std::exception& e){failure.Set(2,0,e.what());}
-    if(options.transaction_observer && !context.exchange.Vote(context, failure))return false;
-    auto validate_metric_vector=[&](MetricChange kind,FrozenField& target,PatchMetric& metric,
-                                    const std::map<Edge,EdgeMeasure>& reuse) {
-      if(!surface_target)return EngineTrial::MetricTrial(context, ValidateMetricChange(old.cells,fresh.cells,kind,target,metric,
-          result.reason,nullptr,&reuse,&certified),certified,kind);
-      if(!trial_checks.GeometricChange(boundary_replacement_ready, observe_transaction, true,kind))return false;
-      auto before=MeasureSurfacePlanning(old,target,geometry,options.wall_heights,surface_target);
-      metric=MeasureSurfacePlanning(fresh,target,geometry,options.wall_heights,surface_target);
-      EngineTrial::SurfaceMerit(context, before,old);EngineTrial::SurfaceMerit(context, metric,fresh);
-      const auto effective=kind==MetricChange::Repair?MetricChange::GeometryRepair:kind;
-      return EngineTrial::MetricTrial(context,
-          wall_counters.MetricValidation(ValidateMetricChange(old.cells.size(), before, fresh.cells.size(), metric,
-                                                              effective, result.reason, &certified)),
-          certified, effective, geometric_progress);
-    };
-    Point splitPosition{},centralPosition{};bool split_failed=false,central_available=false;
-    if(timed_lane==2&&physical_edge)++stats.interior_boundary_discoveries;
-    SegmentFreedom crease_freedom=SegmentFreedom::Unresolved;Point crease_midpoint{};
-    const long double diagnostic_limit=MaximumMetricEdge*(1+1e-8L); // Conservative diagnostic margin, never an acceptance tolerance.
-    if(!repairing && !coarsening && composition && physical_edge && choice.measure.length>diagnostic_limit)try {
-      std::set<Id> facets;
-      for(const auto& row:imported.cells) {
-        const auto faces=Faces(row.cell);
-        for(unsigned i=0;i<4;++i)if(row.physical[i].present &&
-            std::find(faces[i].begin(),faces[i].end(),choice.edge[0])!=faces[i].end() &&
-            std::find(faces[i].begin(),faces[i].end(),choice.edge[1])!=faces[i].end())
-          facets.insert(geometry.Canonical(row.physical[i].facet));
-      }
-      if(facets.size()==2) {
-        const auto first=*facets.begin(),second=*facets.rbegin();
-        if(!geometry.Declared(first) && !geometry.Declared(second)) {
-          const auto& f=geometry.Get(first);const auto& g=geometry.Get(second);
-          const bool folded=std::any_of(g.v.begin(),g.v.end(),[&](Node n){return Orientation(f.v[0].p,f.v[1].p,f.v[2].p,n.p)!=0;});
-          if(folded)crease_freedom=Binary64SegmentFreedom(choice.measure.a,choice.measure.b,crease_midpoint);
-        }
-      }
-    }catch(const std::exception& e){failure.Set(2,0,e.what());}
-    if(crease_freedom==SegmentFreedom::None)trial_checks.IncompatibleCrease(choice.measure.length);
-    if(!repairing && !coarsening && composition) {
-      std::vector<Cell> query;
-      try {if(chosen)query.push_back(imported.cells.front().cell);}catch(const std::exception& e){failure.Set(2,0,e.what());}
-      if(!context.exchange.Vote(context, failure))return false;
-      if(!context.exchange.Admit(context, transfer_memory::Add(MaximumFrozenFieldBytes,transfer_memory::Bytes(imported.cells))))return false;
-      DonorPatch seed;
-      {Timer timer(stats.donor_seconds,options.timings, SU2NativeTiming3D::Operation::Import);
-        seed=trial_comm.ImportCells(query,options.memory_ceiling,transfer_memory::Add(context.exchange.Bytes(context),directory->ResidentBytes(),MaximumFrozenFieldBytes));}
-      if(!seed.valid){result.reason=seed.reason;return false;}
-      if(chosen)try {
-        Timer timer(stats.metric_seconds,options.timings, SU2NativeTiming3D::Operation::MetricNormalization);CpuTimer cpu(stats.metric_cpu_seconds,options.timings);
-        const auto components=AssociatedExtensions(seed.cells,geometry);
-        observe_transaction("split_donors",seed.valid,&seed);
-        FrozenField target(std::move(seed.cells),composition,options.timings,components,options.edge_breakpoints,field_identity,true,MaximumDonors,true);
-        FieldAccounting accounting{stats,target};
-        bool conflict=false;
-        if(crease_freedom==SegmentFreedom::MidpointOnly) {
-          const auto length=std::max(target.TargetEdgeLength(choice.measure.a,crease_midpoint),target.TargetEdgeLength(crease_midpoint,choice.measure.b));
-          conflict=length>diagnostic_limit;if(conflict)trial_checks.IncompatibleCrease(length);
-        }
-        if(!conflict) {
-          if(physical_edge){centralPosition=target.SegmentPoint(choice.measure.a,choice.measure.b,.5);central_available=true;}
-          splitPosition=target.BalancedSplitPoint(choice.measure.a,choice.measure.b);
-        }
-      }catch(const std::exception& e){
-        result.reason=e.what();split_failed=!(physical_edge && central_available);
-        if(!split_failed)splitPosition=centralPosition;
-      }
-      if(!context.exchange.Vote(context, failure))return false;
-    }
-    {
-      Timer timer(stats.reconstruction_seconds,options.timings, SU2NativeTiming3D::Operation::Candidate);
-      if (chosen && split_failed) wall_choice.Disposition(wall_diagnostics::PreTrialDisposition::SplitPosition);
-      if (chosen && !split_failed) {
-        CpuTimer private_cpu(stats.reconstruction_cpu_seconds,options.timings);
-        wall_choice.EnterOperator();
-        ++stats.attempted;
-        if ((maximum_node>UINT64_MAX-node_stride || node_offset>UINT64_MAX-maximum_node-node_stride) ||
-            maximum_cell>UINT64_MAX-MaximumReplacementCells || offset>UINT64_MAX-maximum_cell-MaximumReplacementCells) {
-          failure.Set(1,0,"Native 3D reserved identity range overflows.");
-        } else try {
-          old=GeometryPatch(imported, &geometry);
-          const auto a=choice.measure.a,b=choice.measure.b;
-          if (!repairing && coarsening) {
-            if(!geometry.EntityGeometry()&&CollapseOutsideTolerance(old,choice.edge[1],choice.edge[0],geometry,options.surface_tolerance)) {
-              result.reason="Native3D collapsed boundary leaves an original geometry sample outside tolerance.";
-              approved=trial_checks.GuardedGeometry(boundary_replacement_ready, observe_transaction, false,"CollapseVertex");
-            } else if(collapse_corrected)approved=trial_checks.GuardedGeometry(boundary_replacement_ready, observe_transaction, ReconnectCollapse(old,choice.edge[1],choice.edge[0],
-              collapse_apex,maximum_cell+1+offset,geometry,fresh,result.reason),"ReconnectCollapse");
-            else approved=trial_checks.GuardedGeometry(boundary_replacement_ready, observe_transaction, CollapseVertex(old,choice.edge[1],choice.edge[0],maximum_cell+1+offset,
-              geometry,fresh,result.reason),"CollapseVertex");
-          }
-          else if (!repairing) {
-            point={maximum_node+1+node_offset,{double((static_cast<long double>(a.x)+b.x)/2),
-                double((static_cast<long double>(a.y)+b.y)/2),double((static_cast<long double>(a.z)+b.z)/2)}};
-            if(composition)point.p=splitPosition;
-            approved=trial_checks.GuardedGeometry(boundary_replacement_ready, observe_transaction, SplitEdge(old,choice.edge,point,maximum_cell+1+offset,geometry,fresh,result.reason),"SplitEdge");
-            if (!approved) {
-              approved=trial_checks.GuardedGeometry(boundary_replacement_ready, observe_transaction, InsertEdgeCavity(old,choice.edge,point,maximum_cell+1+offset,geometry,fresh,result.reason),"InsertEdgeCavity");
-              cavity_inserted=approved;
-            }
-            if(!approved && physical_edge && composition && central_available &&
-                (point.p.x!=centralPosition.x || point.p.y!=centralPosition.y || point.p.z!=centralPosition.z)) {
-              point.p=centralPosition;
-              approved=trial_checks.GuardedGeometry(boundary_replacement_ready, observe_transaction, SplitEdge(old,choice.edge,point,maximum_cell+1+offset,geometry,fresh,result.reason),"SplitEdge");
-              if(!approved) {
-                approved=trial_checks.GuardedGeometry(boundary_replacement_ready, observe_transaction, InsertEdgeCavity(old,choice.edge,point,maximum_cell+1+offset,geometry,fresh,result.reason),"InsertEdgeCavity");
-                cavity_inserted=approved;
-              }
-            }
-          }
-        } catch (const std::exception& e) { failure.Set(2,0,e.what()); }
-      }
-      ready=context.exchange.Vote(context, failure);
-    }
-    if (!ready) return false;
-    // A rejected surface collapse has no later repair route; unrelated debt needs no old-patch measurement.
-    const bool metric_needed=chosen && (approved || repairing || !coarsening || (bad_field && !surface_target));
-    DonorPatch sensors;sensors.valid=true;
-    bool streamed=ready;
-    if (!ready || (!sensors.valid && !streamed)) { if (ready) result.reason=sensors.reason; return false; }
-    if (streamed && !context.exchange.Admit(context, private_scratch)) return false;
-    if (streamed) ++stats.private_query_retries;
-    trial_checks.ReserveOptimization(!streamed && chosen && repairing);
-    if(trial_comm.Maximum(repair_budget>repair_work) &&
-        !context.exchange.Admit(context, transfer_memory::Add(private_scratch,transfer_memory::Bytes(sensors.cells))))return false;
-    {
-      Timer timer(stats.metric_seconds,options.timings, SU2NativeTiming3D::Operation::MetricNormalization);
-      const double reconstruction_before=stats.reconstruction_seconds;
-      const double reconstruction_cpu_before=stats.reconstruction_cpu_seconds;
-      if (!streamed && metric_needed) try {
-        CpuTimer private_cpu(stats.metric_cpu_seconds,options.timings);
-        const auto components=AssociatedExtensions(sensors.cells,geometry);
-        observe_transaction("support_donors",sensors.valid,&sensors);
-        field=std::make_unique<FrozenField>(std::move(sensors.cells),composition,options.timings,components,options.edge_breakpoints,field_identity,true,MaximumDonors,true);
-        PatchMetric metric;
-        std::map<Edge,EdgeMeasure> reuse;
-        for (const auto& cell : old.cells) selection.Cached(cell,reuse);
-        if (approved) {
-          approved=validate_metric_vector(construction_kind,*field,metric,reuse);
-        }
-        if (!approved) cavity_inserted=false;
-        if (repairing) {
-          auto try_repair=[&](bool move,Id vertex) {
-            std::map<Id,Node> nodes;
-            for (const auto& cell:old.cells) for (auto node:cell.v) nodes.emplace(node.id,node);
-            const Id first=maximum_cell+1+offset;
-            if (move) {
-              if (maximum_node>UINT64_MAX-node_stride || node_offset>UINT64_MAX-maximum_node-node_stride) return false;
-              std::set<Id> neighbors;
-              for (auto face:old.surface) if (std::find(face.v.begin(),face.v.end(),vertex)!=face.v.end())
-                neighbors.insert(face.v.begin(),face.v.end());
-              if (neighbors.empty()) for (const auto& row:nodes) neighbors.insert(row.first);
-              neighbors.erase(vertex);
-              long double x=0,y=0,z=0;
-              for (Id id:neighbors) { auto p=nodes.at(id).p; x+=p.x; y+=p.y; z+=p.z; }
-              Point center{};
-              if(!neighbors.empty()) {
-                const auto origin=nodes.at(vertex).p;center={double(x/neighbors.size()),double(y/neighbors.size()),double(z/neighbors.size())};
-                if(composition) {
-                  std::vector<std::pair<Point,Tensor>> samples;
-                  for(auto id:neighbors) {
-                    const auto q=nodes.at(id).p;
-                    samples.emplace_back(q,field->QueryMidpoint(origin,q).target);
-                  }
-                  center=MetricMeanPoint(origin,samples);
-                }
-              }
-              if (!neighbors.empty()) for (long double step:{1.L,.5L,.25L}) {
-                const auto p=nodes.at(vertex).p;
-                point={maximum_node+1+node_offset,{double(p.x+step*(center.x-p.x)),
-                    double(p.y+step*(center.y-p.y)),double(p.z+step*(center.z-p.z))}};
-                if(composition)point=ConstrainMovePoint(old,vertex,point,options.wall_heights,geometry);
-                ++stats.repair_proposals;
-                { Timer geometry_timer(stats.reconstruction_seconds,options.timings,
-                                       SU2NativeTiming3D::Operation::Candidate); CpuTimer geometry_cpu(stats.reconstruction_cpu_seconds,options.timings);
-                approved=trial_checks.GuardedGeometry(boundary_replacement_ready, observe_transaction, MoveVertex(old,vertex,point,first,geometry,fresh,result.reason),"MoveVertex"); }
-                if (approved) {const auto kind=trial_checks.RepairKind();
-                  approved=validate_metric_vector(kind,*field,metric,reuse);}
-                if (approved) { moved=true; break; }
-              }
-            } else {
-              unsigned proposals=0;
-              for (const auto& row:nodes) {
-                if (++proposals>16) break;
-                ++stats.repair_proposals;
-                { Timer geometry_timer(stats.reconstruction_seconds,options.timings,
-                                       SU2NativeTiming3D::Operation::Candidate); CpuTimer geometry_cpu(stats.reconstruction_cpu_seconds,options.timings);
-                  approved=trial_checks.GuardedGeometry(boundary_replacement_ready, observe_transaction, Reconnect(old,row.first,first,geometry,fresh,result.reason),"Reconnect"); }
-                if (approved) {const auto kind=trial_checks.RepairKind();
-                  approved=validate_metric_vector(kind,*field,metric,reuse);}
-                if (approved) break;
-              }
-            }
-            if(!surface_target && !approved && repair_work<repair_budget) {
-              {Timer geometry_timer(stats.reconstruction_seconds,options.timings,
-                                     SU2NativeTiming3D::Operation::Candidate);CpuTimer geometry_cpu(stats.reconstruction_cpu_seconds,options.timings);
-                approved=trial_checks.GuardedGeometry(boundary_replacement_ready, observe_transaction, trial_checks.OptimizePatch(old,RegionMetric(*field),false));}
-              if(approved){const auto kind=trial_checks.RepairKind();
-                approved=validate_metric_vector(kind,*field,metric,reuse);}
-              if(approved){moved=false;optimization_approved=true;++stats.optimization_validated;}
-            }
-            return approved;
-          };
-          approved=try_repair(choice.feature.count==1,choice.feature.vertices[0]);
-          repair_approved=approved;
-        }
-      } catch (const std::exception& e) { approved=false; result.reason=e.what(); }
-      if (field) FieldCounts(stats,*field);
-      stats.metric_seconds-=stats.reconstruction_seconds-reconstruction_before;
-      stats.metric_cpu_seconds-=stats.reconstruction_cpu_seconds-reconstruction_cpu_before;
-    }
-    trial_checks.ReleaseOptimization();
-    if(!streamed && composition && !repairing && !coarsening) {
-      if(trial_comm.Maximum(chosen && !approved)) {
-        field.reset();if(!context.exchange.Admit(context, private_scratch))return false;
-        streamed=true;++stats.private_query_retries;
-      }
-    }
-    if (streamed) {
-      std::map<Edge,EdgeMeasure> reuse;
-      { Timer timer(stats.metric_seconds,options.timings, SU2NativeTiming3D::Operation::MetricNormalization);
-        try { for (const auto& cell:old.cells) selection.Cached(cell,reuse); }
-        catch (const std::exception& e) { failure.Set(2,0,e.what()); }
-        ready=context.exchange.Vote(context, failure);
-      }
-      if (!ready) return false;
-      PatchMetric before;
-      const std::vector<Cell> empty;
-      const bool old_measured=trial_checks.MeasurePrivate(observe_transaction, metric_needed ? old.cells : empty,before,false,reuse,&old);
-      if(repairing&&old_measured)old_flags=measured_flags;
-      // A failed measurement of unchanged accepted geometry invalidates the event on every worker.
-      if (!ready) return false;
-      CLocalFailure old_failure;
-      if (metric_needed && !old_measured) old_failure.Set(1,0,result.reason);
-      if (!(ready=context.exchange.Vote(context, old_failure))) return false;
-      // Refits and joint placement give each moved apex a new identity from maximum_node+2+node_offset on (one for one);
-      // the split point is maximum_node+1+node_offset. Only those callers certify relocations (RefineAcceptance).
-      bool required_split = false, checked_split = false;
-      if (surface_target && curved && !coarsening && !repairing && choice.geometric && approved) {
-        const Node* bound_point = nullptr;
-        for (const auto& cell : fresh.cells)
-          for (const auto& node : cell.v)
-            if (node.id == point.id) bound_point = &node;
-        if (bound_point) {
-          required_split = SplitPointLiftRequiresSplit(point.p, bound_point->p, options.surface_tolerance);
-          checked_split = !required_split;
-          wall_counters.ObservePrimarySplit(required_split);
-        }
-      }
-      const auto primary_guidance_rejected = stats.geometry_guidance_rejected;
-      approved = trial_checks.ValidatePrivate(boundary_replacement_ready, observe_transaction, before, metric_needed && old_measured && approved,
-                                  choice.geometric ? MetricChange::GeometryRefine : construction_kind, false, false, 0,
-                                  wall_diagnostics::PatchSource::Primary, required_split);
-      if (options.timings) {
-        lane_slots[slot].required_primary_split = required_split && approved;
-        lane_slots[slot].checked_primary_split = checked_split && approved;
-        wall_counters.ObserveCheckedRejection(checked_split &&
-                                              stats.geometry_guidance_rejected > primary_guidance_rejected);
-      }
-      if (!approved) cavity_inserted=false;
-      if (!ready) return false;
-      if (!EngineLegacyWall::Run(context, round_state, slot_state, trial_comm, trial_checks, reserve_dependencies,
-                                 boundary_replacement_ready, observe_transaction, split_failed, before, reuse, empty))
-        return false;
-      RepairLadders repair_ladders(context, round_state, slot_state, trial_comm, trial_checks,
-                                   boundary_replacement_ready, observe_transaction, before, empty, curved);
-      if (!repair_ladders.Run(metric_needed, old_measured)) return false;
-    }
-    try {observe_transaction("construction_end",approved);}catch(const std::exception& e){failure.Set(2,0,e.what());}
-    if(options.transaction_observer && !context.exchange.Vote(context, failure))return false;
-      return true;
-    };
+    CandidateTrial candidate_trial(context, round_state, slot_state, trial_comm, trial_checks, reserve_dependencies,
+                                   boundary_replacement_ready, observe_transaction, wall_choice, curved);
     if(repairing) {
       if(options.maximum_seconds&&std::chrono::duration<double>(Clock::now()-started).count()>=options.maximum_seconds) {
         private_deadline=true;private_failure.Set(1,0,"Native3D private repair round exhausts elapsed-time budget.");break;
       }
       bool evaluated=false;private_repair=true;
       try {
-        evaluated=evaluate_candidate();
+        evaluated = candidate_trial.Run();
         if(evaluated) {
           // Coverage has variable piece/limb storage; the per-cell reserve cannot bound retained overlays.
           size_t retained_coverage=0;
@@ -2456,14 +2165,19 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
       // The complete reserved collapse cavity supplies every retained node. Opaque callbacks keep the collective path.
       const auto elections=world.election_collective_calls,collectives=world.collective_calls,work=stats.global_work;
       CLocalFailure local;bool evaluated=false;private_repair=true;
-      try{evaluated=evaluate_candidate();}catch(const std::exception& e){result.reason=e.what();}
+      try {
+        evaluated = candidate_trial.Run();
+      } catch (const std::exception& e) {
+        result.reason = e.what();
+      }
       if(atlas_budget.within_time && !atlas_budget.within_time())atlas_budget.time_exhausted=true;
       private_repair=false;
       if(!evaluated)local.Set(2,0,result.reason.empty()?"Native3D private surface collapse evaluation failed.":result.reason);
       if(world.election_collective_calls!=elections || world.collective_calls!=collectives || stats.global_work!=work)
         local.Set(2,0,"Native3D private surface collapse performed collective or unreserved operator work.");
       if(!(ready=context.exchange.Vote(context, local)))return EngineControl::Finish(context, curved, working, atlas_budget, started, started_cpu);
-    } else if(!evaluate_candidate())return EngineControl::Finish(context, curved, working, atlas_budget, started, started_cpu);
+    } else if (!candidate_trial.Run())
+      return EngineControl::Finish(context, curved, working, atlas_budget, started, started_cpu);
     lane_counters.Approved(false, lane_slots[slot], approved);
     SlotCommit slot_commit(context, round_state, slot_state, atlas_budget, no_coverage, curved,
                            diagnostic_rejection_limit);
