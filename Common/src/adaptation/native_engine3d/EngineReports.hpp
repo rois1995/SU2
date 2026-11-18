@@ -31,6 +31,7 @@ struct EngineReports {
                                  const std::array<uint64_t, 6>&, const std::array<uint64_t, 8>&, uint64_t, uint64_t,
                                  uint64_t, uint64_t, uint64_t, uint64_t, uint64_t);
   static void PrintStuckCells(EngineContext&, const char* stage);
+  static void PrintStuckNeighborhood(const EngineContext&);
   static void EmitLengthPass(EngineContext&, SU2NativeGeometry::AtlasBudget&);
   static void EmitQualityCensus(EngineContext&, const char*, const StageProgress&);
   static void EmitStageRows(EngineContext&, const char*, const StageProgress&, const BoundaryParameterState*,

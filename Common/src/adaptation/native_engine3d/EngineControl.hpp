@@ -95,7 +95,8 @@ struct EngineControl {
   EngineControl& operator=(const EngineControl&) = delete;
   EngineControl(EngineControl&&) = delete;
   EngineControl& operator=(EngineControl&&) = delete;
-  static bool ObserveProgress(EngineContext&, Owned&, SU2NativeGeometry::AtlasBudget&, const char* stage);
+  static bool ObserveProgress(EngineContext&, Owned&, SU2NativeGeometry::AtlasBudget&, const char* stage,
+                              bool* quality_reported = nullptr);
   static EngineResult Finish(EngineContext&, bool curved, Owned&, SU2NativeGeometry::AtlasBudget&,
                              const Clock::time_point&, const std::clock_t&);
   static void ProveEntitySurface(EngineContext&, Owned&, SU2NativeGeometry::AtlasBudget&);

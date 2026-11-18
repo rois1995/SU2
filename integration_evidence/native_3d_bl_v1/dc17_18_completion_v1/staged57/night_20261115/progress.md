@@ -2,6 +2,10 @@
 
 Updated 2026-11-18. Read AGENTS.md and the copied WORK_ORDER_2.md at the start of the new session, then this file.
 
+## Current item — N19, measurement M29
+
+User order 2026-11-18. The M29 text and SHA256 are verified in `N19/inputs`. Whole-item source check and R13 readings are recorded. Part A is the default-width print-only identity checkpoint with G1/G2/G3/G4/GQ. Part B is one six-rank diagnostic on the previously rejected wider candidate, followed by its revert, a fresh default build and the report.
+
 ## Current state — work order 2 complete
 
 Updated 2026-11-18T20:41:03+01:00. D/E passed at `3524e11a75`. F failed. Its first difference was event one NATIVE3D complete=0 against the required 1, with rank 3 q_bad=1 against 0. The F enabling change was reverted at `12690f1d99`, and build579 is active. [N18 report](N18/reports/STEP_8_5R2_580.md) All owned processes are terminal. N7 closes work order 2. Wait for the next user order.
@@ -258,3 +262,17 @@ N18. All three standing safeguards passed. Starting F G5 run one.
 N18. F FAILED. First difference: event one NATIVE3D complete=0 against the required 1, with rank 3 q_bad=1 against 0. Preserving the candidate evidence.
 
 N18. N18 source disposition pushed as `12690f1d99`. The final N7 report follows.
+
+N19 A. Applied the reviewed M29 observer. Starting default-width build581 and the G1/G2/G3/G4/GQ identity checks.
+
+N19 A. The identity controller is PID 2333684 / start 52755311. The preflight found zero owned heavy processes. Build and each gate are sequential.
+
+N19 A. Build581 finished without warnings in 362.857 s with 1790 verified source pins. G1 serial is running.
+
+N19 A. G1 matched 375 / 114 / 228 case records with zero changed failures (771.239 / 14.618 / 14.734 s). G2 is running.
+
+N19 A. G2 passed with work 90,809,869, counts 480/473/346/263/469/464, exact integer/modeled/timer rows and fixedstorage=4120. Stop 322.565 s. G3 is running.
+
+N19 A. G3 passed all physical gates, 1,494 splits with 1,113 exact common edits and adjusted entry work {'reference': 5113, 'candidate': 5113}. G4 passed at 1 / 2 / 4 ranks. GQ is running.
+
+N19 A. Default-width build581 passed G1 375/114/228, G2 90,809,869, G3 1,494 splits with 1,113 common edits, G4 1/2/4 and GQ 1039.935 s. Fixed storage 4,120, no M29 output on success or measured prefixes. Preparing the checkpoint.

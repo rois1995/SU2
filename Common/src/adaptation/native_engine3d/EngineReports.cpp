@@ -443,6 +443,21 @@ static void PrintStuckCell(const Selection& selection, int rank, uint64_t round,
   std::cout << '\n';
 }
 
+constexpr size_t MaximumPrintedStuckCells = 8;
+
+// Keeps the M28 and M29 seed predicates identical.
+static const std::vector<RepairFeature>* BlockedShapeRepairs(const Selection& selection, Id cell,
+                                                             const Selection::CellState& row) {
+  if (!row.debt.q_bad && !row.debt.j_bad) return nullptr;
+  const auto repairs = selection.queues.cell_repairs.find(cell);
+  if (repairs == selection.queues.cell_repairs.end() || repairs->second.empty()) return nullptr;
+  const bool blocked = std::all_of(repairs->second.begin(), repairs->second.end(), [&](const RepairFeature& feature) {
+    const auto demand = selection.queues.repair_users.find(feature);
+    return demand != selection.queues.repair_users.end() && demand->second.users && demand->second.blocked;
+  });
+  return blocked ? &repairs->second : nullptr;
+}
+
 // M28, print only: names each bad cell whose repair features are all blocked, with the refusal notes.
 void EngineReports::PrintStuckCells(EngineContext& context, const char* stage) {
   const auto& selection = *context.census.selection;
@@ -451,22 +466,15 @@ void EngineReports::PrintStuckCells(EngineContext& context, const char* stage) {
   const auto flags = std::cout.flags();
   const auto precision = std::cout.precision();
   std::cout << std::dec << std::defaultfloat << std::setprecision(17);
-  constexpr size_t maximum_printed = 8;
   size_t printed = 0, not_printed = 0;
   for (const auto& [cell, row] : selection.census.cells) {
-    if (!row.debt.q_bad && !row.debt.j_bad) continue;
-    const auto repairs = selection.queues.cell_repairs.find(cell);
-    if (repairs == selection.queues.cell_repairs.end() || repairs->second.empty()) continue;
-    const bool blocked = std::all_of(repairs->second.begin(), repairs->second.end(), [&](const RepairFeature& feature) {
-      const auto demand = selection.queues.repair_users.find(feature);
-      return demand != selection.queues.repair_users.end() && demand->second.users && demand->second.blocked;
-    });
-    if (!blocked) continue;
-    if (printed == maximum_printed) {
+    const auto* repairs = BlockedShapeRepairs(selection, cell, row);
+    if (!repairs) continue;
+    if (printed == MaximumPrintedStuckCells) {
       ++not_printed;
       continue;
     }
-    PrintStuckCell(selection, rank, round, stage, cell, row, repairs->second);
+    PrintStuckCell(selection, rank, round, stage, cell, row, *repairs);
     ++printed;
   }
   if (not_printed)
@@ -474,6 +482,154 @@ void EngineReports::PrintStuckCells(EngineContext& context, const char* stage) {
               << " not_printed=" << not_printed << '\n';
   std::cout.flags(flags);
   std::cout.precision(precision);
+}
+
+// Collects the M28 seeds in census order and exchanges their vertex IDs.
+static std::set<Id> M29SeedVertices(const EngineContext& context, std::vector<Id>& seeds) {
+  const auto& selection = *context.census.selection;
+  std::vector<Id> vertices;
+  for (const auto& [id, row] : selection.census.cells) {
+    if (!BlockedShapeRepairs(selection, id, row)) continue;
+    seeds.push_back(id);
+    vertices.insert(vertices.end(), row.vertices.begin(), row.vertices.end());
+    if (seeds.size() == MaximumPrintedStuckCells) break;
+  }
+  const auto all = CPassiveComm::Allgatherv(vertices, nullptr, context.world.comm);
+  return {all.begin(), all.end()};
+}
+// Tests vertex incidence without expanding a cell into an auxiliary record.
+static bool M29Touches(const Cell& cell, const std::set<Id>& vertices) {
+  return std::any_of(cell.v.begin(), cell.v.end(), [&](const Node& node) { return vertices.count(node.id); });
+}
+
+// A face on another rank can constrain a vertex at the fringe of the dump.
+static void M29CollectConstraints(const EngineContext& context, const OwnedCell& owned, std::set<Id>& constrained) {
+  for (unsigned face = 0; face < 4; ++face) {
+    const auto& binding = owned.physical[face];
+    if (!binding.present) continue;
+    for (unsigned vertex = 0; vertex < 4; ++vertex)
+      if (vertex != face) constrained.insert(owned.cell.v[vertex].id);
+    if (context.composition && !context.options.wall_heights.empty() &&
+        context.options.wall_heights.count(context.geometry.Get(binding.facet).marker))
+      constrained.insert(owned.cell.v[face].id);
+  }
+}
+
+// Scans for the first ring and exchanges its vertex IDs together with the mobility constraints.
+static std::set<Id> M29FirstRing(const EngineContext& context, const std::set<Id>& roots, std::set<Id>& cells,
+                                 std::set<Id>& constrained) {
+  std::set<Id> vertices, local_constraints;
+  if (!roots.empty()) {
+    for (const auto& [id, owned] : *context.ownership.working) {
+      M29CollectConstraints(context, owned, local_constraints);
+      if (!M29Touches(owned.cell, roots)) continue;
+      cells.insert(id);
+      for (const auto& node : owned.cell.v) vertices.insert(node.id);
+    }
+  }
+  std::vector<Id> payload{vertices.size()};
+  payload.insert(payload.end(), vertices.begin(), vertices.end());
+  payload.insert(payload.end(), local_constraints.begin(), local_constraints.end());
+  std::vector<size_t> counts;
+  const auto all = CPassiveComm::Allgatherv(payload, &counts, context.world.comm);
+  std::set<Id> ring;
+  auto start = all.begin();
+  for (const auto count : counts) {
+    const auto end = start + count;
+    const auto split = start + 1 + *start;
+    ring.insert(start + 1, split);
+    constrained.insert(split, end);
+    start = end;
+  }
+  return ring;
+}
+
+// Reproduces the current-nodal centroid query for a positive cell and checks its cached shape.
+static Tensor M29CellMetric(const EngineContext& context, const OwnedCell& owned, const Selection::CellState& row) {
+  try {
+    if (owned.sensor_present && row.shape_measured) {
+      const auto& v = owned.cell.v;
+      const auto center = Centroid(owned.cell);
+      const auto sensor = EvaluateCavitySample({DonorCell{owned.cell, owned.sensor}}, center).sensor;
+      const auto target = context.composition ? context.composition(center, sensor) : sensor;
+      const auto shape = Measure({v[0].p, v[1].p, v[2].p, v[3].p}, target);
+      if (shape.mean_ratio == row.q_value && shape.minimum_scaled_jacobian == row.j_value) return target;
+    }
+  } catch (const std::exception&) {
+  }  // An unavailable diagnostic cannot alter the already rejected result.
+  const double missing = std::numeric_limits<double>::quiet_NaN();
+  return {missing, missing, missing, missing, missing, missing};
+}
+// Writes tensor components in the six-value order shared by both M29 columns.
+static void M29PrintTensor(std::ostream& out, const Tensor& tensor) {
+  out << tensor.xx << ',' << tensor.xy << ',' << tensor.xz << ',' << tensor.yy << ',' << tensor.yz << ',' << tensor.zz;
+}
+
+// Writes the cached census and the coordinates of a single owned cell.
+static void M29PrintCell(const EngineContext& context, const OwnedCell& owned, unsigned level,
+                         const std::set<Id>& constrained) {
+  const auto& census = context.census.selection->census;
+  const auto& cell = owned.cell;
+  const auto& row = census.cells.at(cell.id);
+  std::ostringstream line;
+  line << std::setprecision(17) << "NATIVE3D_M29_CELL rank=" << context.world.rank << " level=" << level
+       << " cell=" << cell.id << " surface=" << unsigned(row.surface) << " q=" << row.q_value << " j=" << row.j_value
+       << " debt=" << row.debt.q + row.debt.j << " lengths=";
+  for (unsigned i = 0; i < 4; ++i)
+    for (unsigned j = i + 1; j < 4; ++j) {
+      Edge edge{cell.v[i].id, cell.v[j].id};
+      std::sort(edge.begin(), edge.end());
+      if (i != 0 || j != 1) line << ',';
+      line << census.edges.at(edge).measure.length;
+    }
+  line << " metric=";
+  M29PrintTensor(line, M29CellMetric(context, owned, row));
+  line << " v=" << cell.v[0].id;
+  for (size_t i = 1; i < cell.v.size(); ++i) line << ',' << cell.v[i].id;
+  line << " x=";
+  for (size_t i = 0; i < cell.v.size(); ++i) {
+    if (i) line << ',';
+    const auto& point = cell.v[i].p;
+    line << point.x << ',' << point.y << ',' << point.z;
+  }
+  line << " m=";
+  for (size_t i = 0; i < owned.sensor.size(); ++i) {
+    if (i) line << ',';
+    M29PrintTensor(line, owned.sensor[i]);
+  }
+  line << " free=" << unsigned(!constrained.count(cell.v[0].id));
+  for (size_t i = 1; i < cell.v.size(); ++i) line << ',' << unsigned(!constrained.count(cell.v[i].id));
+  std::cout << line.str() + '\n';
+}
+
+// Scans once more and emits only cells outside the previous levels.
+static size_t M29PrintSecondRing(const EngineContext& context, const std::set<Id>& first_ring,
+                                 const std::set<Id>& printed, const std::set<Id>& constrained) {
+  if (first_ring.empty()) return 0;
+  size_t count = 0;
+  for (const auto& [id, owned] : *context.ownership.working) {
+    if (!M29Touches(owned.cell, first_ring) || printed.count(id)) continue;
+    M29PrintCell(context, owned, 2, constrained);
+    ++count;
+  }
+  return count;
+}
+// Writes the owned, lowest-level cells of the rejected exit census.
+void EngineReports::PrintStuckNeighborhood(const EngineContext& context) {
+  std::vector<Id> seeds;
+  const auto roots = M29SeedVertices(context, seeds);
+  const auto rank = context.world.rank;
+  const auto round = context.control.result->stats.rounds;
+  std::cout << "NATIVE3D_M29_BEGIN rank=" << rank << " round=" << round << " stuck=" << seeds.size() << '\n';
+  std::set<Id> cells, constrained;
+  const auto first_ring = M29FirstRing(context, roots, cells, constrained);
+  const auto& working = *context.ownership.working;
+  for (const Id id : seeds) M29PrintCell(context, working.at(id), 0, constrained);
+  for (const Id id : cells)
+    if (!std::binary_search(seeds.begin(), seeds.end(), id)) M29PrintCell(context, working.at(id), 1, constrained);
+  const auto second_count = M29PrintSecondRing(context, first_ring, cells, constrained);
+  std::cout << "NATIVE3D_M29_END rank=" << rank << " level0=" << seeds.size()
+            << " level1=" << cells.size() - seeds.size() << " level2=" << second_count << '\n';
 }
 
 // Times, collects, prints, and advances the live quality window.

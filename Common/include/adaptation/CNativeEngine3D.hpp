@@ -129,6 +129,7 @@ struct EngineOptions {
   size_t stage_observer_bytes=0;  // Additional observer storage reserved in every runtime admission while installed.
   PhaseOwnership phase_ownership=PhaseOwnership::Automatic;  // DiagnosticAlways exercises migration without a profitability veto.
   bool timings = false;
+  bool report_rejected_neighborhood = false;       // Print-only final remesh worker census.
   size_t candidate_batch = MaximumCandidateBatch;  // Internal control for paired correctness/work comparisons.
   size_t repair_batch = 0;  // Candidates on one rank per repair round. Zero uses candidate_batch.
   MetricSizeControls requirement_size;  // Print-only family controls, never read by remeshing decisions.

@@ -862,6 +862,7 @@ struct RemeshRun {
     auto& stage_source = trial.stage_source;
     const auto refine_begin = workers.seconds();
     if (kernel.shared_geometry_budget) kernel.memory_ceiling = target_event_budget.maximum_bytes;
+    kernel.report_rejected_neighborhood = true;
     auto refined = AdaptMetric(workers, working, stage_source, *pending->state.original, composition, kernel);
     stats.refine = refined.stats;
     valid = refined.valid;

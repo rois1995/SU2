@@ -250,7 +250,8 @@ EngineResult EngineControl::EmitFinalRowsAndMove(EngineContext& context, Owned& 
   auto& wall_counters = *context.setup.wall_counters;
   auto& lane_counters = *context.setup.lane_counters;
   PrintWallLawCensus(working, geometry, options.surface_tolerance, world.rank, "exit", options.timings);
-  ObserveProgress(context, working, atlas_budget, "exit");
+  bool quality_reported = false;
+  ObserveProgress(context, working, atlas_budget, "exit", &quality_reported);
   wall_counters.Print(world.rank, {stats.geometry_trials, stats.geometry_rejected, stats.geometry_guidance_trials,
                                    stats.geometry_guidance_rejected, stats.accepted, stats.metric_trials,
                                    stats.proposed, stats.attempted});
@@ -265,6 +266,9 @@ EngineResult EngineControl::EmitFinalRowsAndMove(EngineContext& context, Owned& 
     stats.process_cpu_seconds = double(std::clock() - started_cpu) / CLOCKS_PER_SEC;
   }
   result.rebuilt_domain = result.valid && region_rebuilt;
+  if (options.timings && options.report_rejected_neighborhood && quality_reported && !result.valid &&
+      !result.surface_prepared)
+    EngineReports::PrintStuckNeighborhood(context);
   result.cells.swap(working);
   return std::move(result);
 }
@@ -338,7 +342,8 @@ bool EngineControl::NotifyStageObserver(EngineContext& context, const char* stag
 
 // Preserves ordered progress elections, refresh, census, and output.
 bool EngineControl::ObserveProgress(EngineContext& context, Owned& working,
-                                    SU2NativeGeometry::AtlasBudget& atlas_budget, const char* stage) {
+                                    SU2NativeGeometry::AtlasBudget& atlas_budget, const char* stage,
+                                    bool* quality_reported) {
   using Phase = EnginePhase;
   auto& world = context.world;
   auto& options = context.options;
@@ -389,6 +394,7 @@ bool EngineControl::ObserveProgress(EngineContext& context, Owned& working,
     if (complete) {
       EngineReports::EmitFixedMetricDrift(context, stage);
       EngineReports::EmitQualityCensus(context, stage, census);
+      if (quality_reported) *quality_reported = true;
     }
   }
   if (options.timings && (std::string(stage) != "window" || phase == Phase::Improvement)) {
