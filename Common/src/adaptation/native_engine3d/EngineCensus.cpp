@@ -12,7 +12,7 @@ bool EngineCensus::ScopeCensusComplete(EngineContext& context) const {
   auto& selection = *context.census.selection;
   auto& working = *context.ownership.working;
   if (!surface_target) return selection.Progress(working.size()).census_complete;
-  if (!selection.progress_consistent || !selection.census_started) return false;
+  if (!selection.census.progress_consistent || !selection.census.census_started) return false;
   const auto count = selection.SurfaceCensus(working);
   return count[0] == count[1];
 }
@@ -25,9 +25,9 @@ void EngineCensus::RefreshSurfaceCensus(EngineContext& context) const {
   if (!surface_target) return;
   const auto count = selection.SurfaceCensus(working);
   stats.surface_demand_required_cells = count[0];
-  stats.surface_demand_measured_cells = selection.progress_consistent ? count[1] : 0;
+  stats.surface_demand_measured_cells = selection.census.progress_consistent ? count[1] : 0;
   stats.surface_demand_census_complete =
-      selection.progress_consistent && selection.census_started && count[0] == count[1];
+      selection.census.progress_consistent && selection.census.census_started && count[0] == count[1];
   stats.surface_demand_geometry_complete = stats.surface_demand_census_complete && count[0] == count[2];
 }
 
@@ -43,24 +43,24 @@ bool EngineCensus::GenerationCensus(EngineContext& context) {
   auto& source = *context.exchange.source;
   auto& directory = *context.exchange.directory;
   const auto extra =
-      transfer_memory::Mul(selection.edges.size(),
+      transfer_memory::Mul(selection.census.edges.size(),
                            sizeof(EdgeProgressSample) + sizeof(Selection::History) + sizeof(Edge) + 4 * sizeof(void*));
   if (!context.exchange.Admit(context, extra)) return false;
   CLocalFailure failure;
   std::vector<EdgeProgressSample> samples;
   try {
     selection.RefreshHistory(false);
-    samples.reserve(selection.edges.size());
-    for (const auto& row : selection.edges) {
+    samples.reserve(selection.census.edges.size());
+    for (const auto& row : selection.census.edges) {
       if (surface_target && !row.second.physical_users) continue;
-      const auto h = selection.edge_history.find(row.first);
+      const auto h = selection.queues.edge_history.find(row.first);
       const auto length = row.second.measure.length;
       double value = double(length);
       if (value < length) value = std::nextafter(value, INFINITY);
       samples.push_back({row.first, value, row.second.physical_users != 0,
-                         h == selection.edge_history.end() ? 0 : h->second.age,
-                         h == selection.edge_history.end() ? 0 : h->second.disposition,
-                         h == selection.edge_history.end() ? 0 : h->second.round});
+                         h == selection.queues.edge_history.end() ? 0 : h->second.age,
+                         h == selection.queues.edge_history.end() ? 0 : h->second.disposition,
+                         h == selection.queues.edge_history.end() ? 0 : h->second.round});
     }
   } catch (const std::exception& e) {
     failure.Set(2, 0, e.what());
@@ -94,8 +94,8 @@ GenerationDebt EngineCensus::CurrentGenerationDebt(EngineContext& context) const
   bool geometry_complete = p.geometry_complete;
   if (surface_target) {
     const auto count = selection.SurfaceCensus(working);
-    geometry_complete =
-        selection.progress_consistent && selection.census_started && count[0] == count[1] && count[0] == count[2];
+    geometry_complete = selection.census.progress_consistent && selection.census.census_started &&
+                        count[0] == count[1] && count[0] == count[2];
   }
   d.geometry_complete = !world.maximum(!geometry_complete);
   return d;
@@ -204,7 +204,7 @@ void EngineCensus::MeasureCell(EngineContext& context, Id id, bool seed, FrozenF
                     metric.minimum_scaled_jacobian >= MinimumScaledJacobian && height_valid;
     strict = metric_valid && height_valid;
   }
-  if (phase == Phase::Improvement && selection.cells.count(id))
+  if (phase == Phase::Improvement && selection.census.cells.count(id))
     selection.RefreshQuality(working.at(id), metric, strict, quality_valid,
                              !options.wall_heights.empty() ? &height : nullptr, height_valid, field_identity);
   else
@@ -218,7 +218,7 @@ void EngineCensus::MeasureCell(EngineContext& context, Id id, bool seed, FrozenF
   else
     ++stats.updated_cells;
   const auto& owned = working.at(id);
-  const unsigned category = selection.RequestedWall(owned) ? 2 : selection.cells.at(id).surface ? 1 : 0;
+  const unsigned category = selection.RequestedWall(owned) ? 2 : selection.census.cells.at(id).surface ? 1 : 0;
   ++(seed ? stats.seed_cell_classes : stats.updated_cell_classes)[category];
 }
 
@@ -306,7 +306,7 @@ bool EngineCensus::Measure(EngineContext& context, const std::vector<Id>& reques
     if (!context.exchange.Vote(context, failure)) return false;
   }
   const auto& ids = surface_target ? demand : requested_ids;
-  selection.census_started = true;
+  selection.census.census_started = true;
   const size_t count = TimedAllreduce(ids.size(), CPassiveComm::Op::MAX, world.comm);
   for (size_t slot = 0; slot < count;) {
     if (options.maximum_seconds &&
@@ -366,7 +366,7 @@ bool EngineCensus::SeedNext(EngineContext& context, bool local_active) {
     while (local_active && seed_slot < initial.size() && next.size() < MeasurementBatch &&
            scanned++ < MaximumDirectoryScan) {
       const auto id = initial[seed_slot++];
-      if (working.count(id) && !selection.cells.count(id)) next.push_back(id);
+      if (working.count(id) && !selection.census.cells.count(id)) next.push_back(id);
     }
   } catch (const std::exception& e) {
     failure.Set(2, 0, e.what());

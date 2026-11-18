@@ -139,10 +139,11 @@ void EngineControl::CaptureFinalCounts(EngineContext& context, Owned& working) {
   const auto& tracked_calls_begin = *context.control.tracked_calls_begin;
   const auto& tracked_seconds_begin = *context.control.tracked_seconds_begin;
   stats.final_owned_cells = working.size();
-  stats.cached_measured_cells = selection.cells.size();
-  stats.cached_invalid_cells = selection.invalid;
-  stats.remaining_edges = selection.queue.size() + selection.surface_queue.size() + selection.geometry_queue.size();
-  stats.remaining_repairs = selection.repair_queue.size();
+  stats.cached_measured_cells = selection.census.cells.size();
+  stats.cached_invalid_cells = selection.census.invalid;
+  stats.remaining_edges =
+      selection.queues.queue.size() + selection.queues.surface_queue.size() + selection.queues.geometry_queue.size();
+  stats.remaining_repairs = selection.queues.repair_queue.size();
   stats.tracked_bytes = world.bytes_sent - tracked_bytes_begin;
   stats.tracked_calls = world.collective_calls - tracked_calls_begin;
   stats.tracked_collective_seconds = world.collective_seconds - tracked_seconds_begin;
@@ -209,16 +210,16 @@ void EngineControl::EnrichFinalReasonAndTiming(EngineContext& context, bool curv
   auto& stats = result.stats;
   auto& selection = *context.census.selection;
   auto& last_rejection = *context.control.last_rejection;
-  if (curved && !result.valid && !selection.cells.empty()) {
+  if (curved && !result.valid && !selection.census.cells.empty()) {
     size_t metric_bad = 0, geometry_bad = 0;
-    for (const auto& row : selection.cells) {
+    for (const auto& row : selection.census.cells) {
       metric_bad += !row.second.target_valid;
       geometry_bad += row.second.geometry_invalid;
     }
     result.reason += " Local cached demands: geometry_cells=" + std::to_string(geometry_bad) +
                      ", metric_or_height_cells=" + std::to_string(metric_bad) +
-                     ", geometry_edges=" + std::to_string(selection.geometry_queue.size()) +
-                     ", metric_edges=" + std::to_string(selection.queue.size()) + ".";
+                     ", geometry_edges=" + std::to_string(selection.queues.geometry_queue.size()) +
+                     ", metric_edges=" + std::to_string(selection.queues.queue.size()) + ".";
   }
   if (!result.valid && !last_rejection.empty()) result.reason += " Last local rejection: " + last_rejection;
   if (options.timings) {
@@ -475,7 +476,7 @@ bool EngineControl::BeginLengthGeneration(EngineContext& context, bool collapse)
     return false;
   CLocalFailure failure;
   try {
-    selection.lane = Selection::Lane::Surface;
+    selection.queues.lane = Selection::Lane::Surface;
     construction_claims = true;
     stats.split_lane = collapse ? 0 : 1;
     if (!collapse) {
@@ -502,7 +503,7 @@ bool EngineControl::SurfaceReady(EngineContext& context) {
   auto& world = context.world;
 
   // Known debt already proves unreadiness; scan coverage only at a possible readiness boundary.
-  return !world.maximum(selection.construction_invalid != 0 || !context.census.ScopeCensusComplete(context));
+  return !world.maximum(selection.census.construction_invalid != 0 || !context.census.ScopeCensusComplete(context));
 }
 
 bool EngineControl::EnterSurfaceRepair(EngineContext& context, SU2NativeGeometry::AtlasBudget& atlas_budget) {
@@ -559,7 +560,7 @@ void EngineControl::PreparePhaseDirection(EngineContext& context, EnginePhase ne
     stats.split_lane = 0;
     if (next == Phase::Construction) {
       generation_window_count = 0;
-      selection.edge_history.clear();
+      selection.queues.edge_history.clear();
       if (world.maximum(improvement_changed)) length_blocks_dirty = {{true, true}};
       if (!refine_geometry) directory->BeginConstructionPass();
     } else
@@ -589,8 +590,8 @@ bool EngineControl::CompletePhaseEntry(EngineContext& context, EnginePhase next,
     initial.clear();
     initial.reserve(working.size());
     for (const auto& row : working) {
-      const auto found = selection.cells.find(row.first);
-      if (found == selection.cells.end() ||
+      const auto found = selection.census.cells.find(row.first);
+      if (found == selection.census.cells.end() ||
           (repairing &&
            (!found->second.shape_measured || (!options.wall_heights.empty() && !found->second.debt.height_measured))))
         initial.push_back(row.first);
@@ -711,13 +712,14 @@ bool EngineControl::CaptureCheckpoint(EngineContext& context) {
   CLocalFailure failure;
   const auto extra = transfer_memory::Add(
       MapBytes(working), directory->ResidentBytes(), private_parameters ? private_parameters->ResidentBytes() : 0,
-      MapBytes(selection.blocked_edges), transfer_memory::Mul(selection.blocked_links, sizeof(Id) + 4 * sizeof(void*)),
+      MapBytes(selection.queues.blocked_edges),
+      transfer_memory::Mul(selection.queues.blocked_links, sizeof(Id) + 4 * sizeof(void*)),
       transfer_memory::Mul(transfer_memory::Mul(6, working.size()), sizeof(Edge) + 4 * sizeof(void*)));
   if (!context.exchange.Admit(context, extra)) return false;
   try {
     checkpoint.cells = working;
-    checkpoint.blocked = selection.blocked_edges;
-    checkpoint.blocked_links = selection.blocked_links;
+    checkpoint.blocked = selection.queues.blocked_edges;
+    checkpoint.blocked_links = selection.queues.blocked_links;
     for (const auto& row : working)
       for (unsigned i = 0; i < 4; ++i)
         for (unsigned j = i + 1; j < 4; ++j) {
@@ -798,8 +800,8 @@ bool EngineControl::RollbackCheckpoint(EngineContext& context, SU2NativeGeometry
   if (private_parameters) std::swap(*private_parameters, *checkpoint.parameters);
   working.swap(checkpoint.cells);
   directory.swap(checkpoint.directory);
-  selection.blocked_edges.swap(checkpoint.blocked);
-  std::swap(selection.blocked_links, checkpoint.blocked_links);
+  selection.queues.blocked_edges.swap(checkpoint.blocked);
+  std::swap(selection.queues.blocked_links, checkpoint.blocked_links);
   stats.coarsen_rolled_back_collapses += result.collapses.size() - checkpoint.collapses;
   result.collapses.resize(checkpoint.collapses);
   result.splits.resize(checkpoint.splits);
@@ -918,10 +920,11 @@ void RoundHead::MeasureCleanQuality() {
   auto& selection = *context.census.selection;
   auto& metric_cleanup = *context.setup.control_prefix.metric_cleanup;
   // Amortize the strict census over a useful repair pass before retrying outstanding construction.
-  clean_quality_lifetime.emplace(round_state.clean_quality,
-                                 !metric_cleanup && phase == Phase::Improvement &&
-                                     !world.maximum(selection.quality_invalid != 0 || selection.unmeasured_shape != 0 ||
-                                                    selection.cells.size() != working.size()));
+  clean_quality_lifetime.emplace(
+      round_state.clean_quality,
+      !metric_cleanup && phase == Phase::Improvement &&
+          !world.maximum(selection.census.quality_invalid != 0 || selection.census.unmeasured_shape != 0 ||
+                         selection.census.cells.size() != working.size()));
 }
 
 // Refills one idle census rank while other ranks have work.
@@ -943,10 +946,10 @@ RoundDecision RoundHead::SeedIdleSurfaceRank(Pick& pick) {
       world.maximum(!choice.active && seed_slot < initial.size())) {
     // One idle-rank census batch must not drain ahead of the active round.
     if (!context.census.SeedNext(context, !choice.active)) return FinishRound();
-    bad_field = world.maximum(selection.invalid != 0);
+    bad_field = world.maximum(selection.census.invalid != 0);
     if (!pick()) return FinishRound();
-    complete = !world.maximum(selection.invalid != 0 || seed_slot < initial.size() || !selection.progress_consistent ||
-                              (coarsening && !selection.queue.empty()));
+    complete = !world.maximum(selection.census.invalid != 0 || seed_slot < initial.size() ||
+                              !selection.census.progress_consistent || (coarsening && !selection.queues.queue.empty()));
     refill = !complete && !any && world.maximum(seed_slot < initial.size());
   }
   return RoundDecision::Proceed;
@@ -979,7 +982,7 @@ RoundDecision RoundHead::StartRequiredSurfacePass() {
   auto& repairing = *context.control.repairing;
   auto& coarsening = *context.control.coarsening;
   if (surface_target && phase == Phase::Construction && !repairing && coarsening &&
-      world.maximum(selection.construction_invalid != 0)) {
+      world.maximum(selection.census.construction_invalid != 0)) {
     // Required surface debt must not wait for an exhaustive optional short-edge sweep.
     if (!context.control.BeginLengthGeneration(context, false)) return FinishRound();
     ++stats.surface_required_handoffs;
@@ -1006,7 +1009,7 @@ RoundDecision RoundHead::RefillEntryCensus() {
   // A size/geometry-valid input can then establish its checkpoint in the quality phase before
   // destructive removals; invalid inputs still use construction until a strict closure exists.
   if (standalone_coarsening && !checkpoint.valid && phase == Phase::Construction && !repairing &&
-      world.maximum(selection.cells.size() != working.size()) && world.maximum(seed_slot < initial.size()))
+      world.maximum(selection.census.cells.size() != working.size()) && world.maximum(seed_slot < initial.size()))
     refill = true;
   if (refill) {
     ready = context.census.SeedNext(context);
@@ -1026,7 +1029,7 @@ RoundDecision RoundHead::CloseCoarseningEntry() {
   auto& standalone_coarsening = *context.control.standalone_coarsening;
   auto& checkpoint = *context.control.checkpoint;
   if (standalone_coarsening && !checkpoint.valid && phase == Phase::Construction && !repairing &&
-      !world.maximum(selection.cells.size() != working.size() || selection.construction_invalid != 0)) {
+      !world.maximum(selection.census.cells.size() != working.size() || selection.census.construction_invalid != 0)) {
     if (!context.control.EnterPhase(context, Phase::Improvement, false, atlas_budget)) return FinishRound();
     return RoundDecision::Restart;
   }
@@ -1064,7 +1067,8 @@ RoundDecision RoundHead::StartSizeRepair() {
   auto& selection = *context.census.selection;
   auto& clean_quality = *round_state.clean_quality;
   // Close shape/height first, then give existing topology repair the residual length debt.
-  if (bidirectional && clean_quality && !selection.size_repairs && world.maximum(selection.debt.size_bad_cells != 0)) {
+  if (bidirectional && clean_quality && !selection.size_repairs &&
+      world.maximum(selection.census.debt.size_bad_cells != 0)) {
     if (!context.exchange.Admit(context,
                                 transfer_memory::Mul(working.size(), context.control.SelectionBound(context, true))))
       return FinishRound();
@@ -1091,7 +1095,8 @@ RoundDecision RoundHead::StartGeometryRepair() {
   auto& clean_quality = *round_state.clean_quality;
   // Geometry-only demand gets its own pass after shape, height and size have closed.
   if (bidirectional && clean_quality && !selection.geometry_repairs &&
-      !world.maximum(selection.debt.size_bad_cells != 0) && world.maximum(selection.construction_invalid != 0)) {
+      !world.maximum(selection.census.debt.size_bad_cells != 0) &&
+      world.maximum(selection.census.construction_invalid != 0)) {
     if (!context.exchange.Admit(context,
                                 transfer_memory::Mul(working.size(), context.control.SelectionBound(context, true))))
       return FinishRound();
@@ -1122,7 +1127,7 @@ RoundDecision RoundHead::RollbackStalledCoarsening() {
   auto& any = *round_state.any;
   auto& clean_quality = *round_state.clean_quality;
   if (standalone_coarsening && phase == Phase::Improvement && checkpoint.valid && !any && !clean_quality &&
-      !world.maximum(selection.cells.size() != working.size()) && world.maximum(checkpoint.trial)) {
+      !world.maximum(selection.census.cells.size() != working.size()) && world.maximum(checkpoint.trial)) {
     if (stats.global_work >= stats.work_limit) {
       stats.stop = EngineStop::WorkBudget;
       result.reason = "Native coarsening quality closure exhausted its work budget.";
@@ -1144,7 +1149,7 @@ RoundDecision RoundHead::CycleCoarseningCheckpoint() {
   auto& standalone_coarsening = *context.control.standalone_coarsening;
   auto& checkpoint = *context.control.checkpoint;
   auto& clean_quality = *round_state.clean_quality;
-  if (standalone_coarsening && clean_quality && !world.maximum(selection.construction_invalid != 0)) {
+  if (standalone_coarsening && clean_quality && !world.maximum(selection.census.construction_invalid != 0)) {
     if (checkpoint.valid && world.maximum(checkpoint.trial)) {
       const size_t cells = TimedAllreduce(working.size(), CPassiveComm::Op::SUM, world.comm);
       if (cells >= checkpoint.global_cells) {
@@ -1184,8 +1189,9 @@ RoundDecision RoundHead::ReturnToConstruction() {
   auto& clean_quality = *round_state.clean_quality;
   if (!metric_cleanup && phase == Phase::Improvement &&
       (world.maximum(improvement_changed) || (construction_handoff_progress && clean_quality)) &&
-      (standalone_coarsening || world.maximum(selection.construction_invalid != 0)) &&
-      ((!world.maximum(selection.quality_invalid != 0) && !selection.size_repairs && !selection.geometry_repairs) ||
+      (standalone_coarsening || world.maximum(selection.census.construction_invalid != 0)) &&
+      ((!world.maximum(selection.census.quality_invalid != 0) && !selection.size_repairs &&
+        !selection.geometry_repairs) ||
        !any)) {
     const auto progress = selection.Progress(working.size());
     // An exhausted shape pass needs its residual surface rebuilt before another global coarsening sweep.
@@ -1215,16 +1221,17 @@ RoundDecision RoundHead::StartInteriorSplits() {
   auto& coarsening = *context.control.coarsening;
   auto& any = *round_state.any;
   if (bidirectional && phase == Phase::Construction && !repairing && !coarsening && !any &&
-      selection.lane == Selection::Lane::Surface && !world.maximum(!context.census.ScopeCensusComplete(context))) {
+      selection.queues.lane == Selection::Lane::Surface &&
+      !world.maximum(!context.census.ScopeCensusComplete(context))) {
     if (!context.census.GenerationCensus(context) ||
         !EngineControl::ObserveProgress(context, working, atlas_budget, "split_surface_exit"))
       return FinishRound();
     // Interior publications can reopen surface demand after the full-vertex claims end.
-    selection.geometry_split_priorities.clear();
-    selection.geometry_priority_mode = false;
+    selection.queues.geometry_split_priorities.clear();
+    selection.queues.geometry_priority_mode = false;
     directory->EndConstructionPass();
     construction_claims = false;
-    selection.lane = Selection::Lane::Interior;
+    selection.queues.lane = Selection::Lane::Interior;
     stats.split_lane = 2;
     if (!EngineControl::ObserveProgress(context, working, atlas_budget, "split_interior_entry")) return FinishRound();
     return RoundDecision::Restart;
@@ -1246,8 +1253,8 @@ RoundDecision RoundHead::ResumeSurfaceSplits() {
   auto& coarsening = *context.control.coarsening;
   auto& any = *round_state.any;
   if (bidirectional && phase == Phase::Construction && !repairing && !coarsening && !any &&
-      selection.lane == Selection::Lane::Interior &&
-      world.maximum(!selection.surface_queue.empty() || !selection.geometry_queue.empty())) {
+      selection.queues.lane == Selection::Lane::Interior &&
+      world.maximum(!selection.queues.surface_queue.empty() || !selection.queues.geometry_queue.empty())) {
     // Interior publications may reveal/reopen entry-edge surface demand. Drain it before ending
     // the finite generation; newly created edges still cannot enter its immutable frontier.
     if (!context.census.GenerationCensus(context) ||
@@ -1255,7 +1262,7 @@ RoundDecision RoundHead::ResumeSurfaceSplits() {
       return FinishRound();
     directory->BeginConstructionPass();
     construction_claims = true;
-    selection.lane = Selection::Lane::Surface;
+    selection.queues.lane = Selection::Lane::Surface;
     stats.split_lane = 1;
     if (!EngineControl::ObserveProgress(context, working, atlas_budget, "split_surface_resume")) return FinishRound();
     return RoundDecision::Restart;
@@ -1315,7 +1322,7 @@ RoundDecision RoundHead::EndLengthGeneration() {
     if (!coarsening) {
       // Descendant size demand stays in construction. Once size closes, give shape/height
       // improvement a turn before more geometry-only splitting; residual geometry can return here.
-      const bool size_demand = world.maximum(selection.debt.size_bad_cells != 0);
+      const bool size_demand = world.maximum(selection.census.debt.size_bad_cells != 0);
       if (productive && progressing && size_demand) {
         if (stats.global_work >= stats.work_limit) {
           stats.stop = EngineStop::WorkBudget;
@@ -1357,7 +1364,7 @@ RoundDecision RoundHead::AdvanceRefinementGeneration() {
   if (!bidirectional && !coarsening && phase == Phase::Construction && !repairing && !any) {
     // New edges belong to the next finite generation; productive construction need not remeasure quality first.
     const bool census = world.maximum(!selection.Progress(working.size()).census_complete) == 0;
-    const bool demanded = world.maximum(selection.construction_invalid != 0);
+    const bool demanded = world.maximum(selection.census.construction_invalid != 0);
     const bool productive = world.maximum(construction_generation_changed);
     if (census && demanded && productive) {
       if (stats.global_work >= stats.work_limit) {
@@ -1393,7 +1400,7 @@ RoundDecision RoundHead::CloseRefinement() {
   auto& any = *round_state.any;
   auto& complete = *round_state.complete;
   if (!bidirectional && phase == Phase::Construction && !repairing &&
-      (complete || (!any && !world.maximum(selection.cells.size() != working.size())))) {
+      (complete || (!any && !world.maximum(selection.census.cells.size() != working.size())))) {
     if (!context.control.EnterPhase(context, Phase::Improvement, false, atlas_budget)) return FinishRound();
     return RoundDecision::Restart;
   }
@@ -1445,7 +1452,7 @@ RoundDecision RoundHead::StartMetricCleanup() {
     if (!world.maximum(!progress.complete || progress.geometry_bad_cells || progress.size_bad_cells ||
                        progress.height_bad_cells || progress.height_unresolved_cells)) {
       bool short_edges = false;
-      for (const auto& edge : selection.edges) short_edges |= edge.second.measure.length < CoarseningMetricEdge;
+      for (const auto& edge : selection.census.edges) short_edges |= edge.second.measure.length < CoarseningMetricEdge;
       if (world.maximum(short_edges)) {
         if (!context.exchange.Admit(context, transfer_memory::Mul(transfer_memory::Mul(12, working.size()),
                                                                   sizeof(Edge) + 4 * sizeof(void*))))
@@ -1485,8 +1492,8 @@ RoundDecision RoundHead::AcceptCompleteMesh() {
   auto& metric_cleanup = *context.setup.control_prefix.metric_cleanup;
   auto& complete = *round_state.complete;
   if (!metric_cleanup && complete && phase == Phase::Improvement &&
-      !world.maximum(selection.unmeasured_shape != 0 || selection.quality_invalid != 0 ||
-                     selection.construction_invalid != 0)) {
+      !world.maximum(selection.census.unmeasured_shape != 0 || selection.census.quality_invalid != 0 ||
+                     selection.census.construction_invalid != 0)) {
     result.valid = true;
     result.reason.clear();
     return FinishRound();
@@ -1532,7 +1539,7 @@ RoundDecision RoundHead::CheckStagnationWindow() {
     // Fresh rejected directions are finite search work even on invalid meshes; do not declare infeasibility early.
     if (!mesh_progress && !search_progress) {
       if (!bidirectional && phase == Phase::Construction && !repairing &&
-          !world.maximum(selection.cells.size() != working.size())) {
+          !world.maximum(selection.census.cells.size() != working.size())) {
         if (!context.control.EnterPhase(context, Phase::Improvement, false, atlas_budget)) return FinishRound();
         return RoundDecision::Restart;
       }
@@ -1555,7 +1562,7 @@ RoundDecision RoundHead::StopWithoutCandidate() {
   if (!any) {
     stats.stop = EngineStop::OperatorStagnation;
     CLocalFailure failure;
-    if (selection.invalid || selection.cells.size() != working.size())
+    if (selection.census.invalid || selection.census.cells.size() != working.size())
       failure.Set(1, 0,
                   "Native 3D adaptation stagnates: admitted operators cannot satisfy the frozen size/shape gates.");
     context.exchange.Vote(context, failure);

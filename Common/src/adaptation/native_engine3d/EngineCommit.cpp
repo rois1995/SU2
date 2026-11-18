@@ -541,7 +541,7 @@ bool RepairBatchCommit::ServiceReceipts(RepairBatchRoutes& routes, RepairBatchCh
   auto& removed = changes.removed;
   auto& added = changes.added;
   EngineReports::UpdateFixedMetricCells(context, removed, added);
-  if (!removed.empty() || !added.empty()) selection.progress_consistent = false;
+  if (!removed.empty() || !added.empty()) selection.census.progress_consistent = false;
   if (!context.queues.ServiceFrontier(context, {}, false, false, &receipts, receipt_count)) return FinishRound();
   return true;
 }
@@ -557,13 +557,13 @@ void RepairBatchCommit::UpdateRows(RepairBatchChanges& changes) {
   auto& added = changes.added;
   auto& failures = changes.failures;
   for (const auto& row : removed) {
-    const auto cached = selection.cells.find(row.cell);
-    if (cached == selection.cells.end()) {
+    const auto cached = selection.census.cells.find(row.cell);
+    if (cached == selection.census.cells.end()) {
       ++stats.unmeasured_retired;
       continue;
     }
     if (checkpoint.valid) checkpoint.changed.insert(cached->second.vertices.begin(), cached->second.vertices.end());
-    for (const auto& edge : cached->second.edges) retired_edges.emplace(edge, selection.edges.at(edge).measure);
+    for (const auto& edge : cached->second.edges) retired_edges.emplace(edge, selection.census.edges.at(edge).measure);
     selection.Drop(row.cell);
   }
   batch_changed.reserve(added.size());
@@ -671,7 +671,7 @@ bool RepairBatchCommit::UpdateSelection(CLocalFailure& failure, RepairBatchChang
     selection.FinishRepairs();
     for (const auto& support : directory->ChangedRepairSupports()) selection.TouchRepairSupport(support);
     for (Id vertex : directory->ChangedVertices()) selection.Touch(vertex);
-    selection.progress_consistent = true;
+    selection.census.progress_consistent = true;
   } catch (const std::exception& e) {
     failure.Set(2, 0, e.what());
   }
@@ -1129,7 +1129,7 @@ bool SlotCommit::ServiceReceipt() {
     const auto split_commits = TimedAllreduce(uint64_t(approved), CPassiveComm::Op::SUM, world.comm);
     stats.maximum_parallel_split_commits = std::max(stats.maximum_parallel_split_commits, split_commits);
   }
-  if (!removed.empty() || !added.empty()) selection.progress_consistent = false;
+  if (!removed.empty() || !added.empty()) selection.census.progress_consistent = false;
   // A completed attempt is served once on every replica. Conflict/deferred candidates never
   // enter this receipt stream and retain their waiting age.
   stats.length_pass_deferred += pass_deferred && !approved;
@@ -1180,8 +1180,9 @@ void SlotCommit::ApplyChangedRows() {
   auto& changed = *slot_state.changed;
   if (checkpoint.valid) {
     for (const auto& row : removed) {
-      const auto found = selection.cells.find(row.cell);
-      if (found == selection.cells.end()) throw std::logic_error("Checkpoint trial lost a changed owned support row.");
+      const auto found = selection.census.cells.find(row.cell);
+      if (found == selection.census.cells.end())
+        throw std::logic_error("Checkpoint trial lost a changed owned support row.");
       checkpoint.changed.insert(found->second.vertices.begin(), found->second.vertices.end());
     }
     for (const auto& row : added)
@@ -1189,15 +1190,15 @@ void SlotCommit::ApplyChangedRows() {
   }
   // Retain retired scalars until all children are measured against this event's immutable source.
   for (const auto& row : removed) {
-    const auto cached = selection.cells.find(row.cell);
-    if (cached == selection.cells.end()) {
+    const auto cached = selection.census.cells.find(row.cell);
+    if (cached == selection.census.cells.end()) {
       ++stats.unmeasured_retired;
       continue;
     }
-    for (auto key : cached->second.edges) retired_edges.emplace(key, selection.edges.at(key).measure);
+    for (auto key : cached->second.edges) retired_edges.emplace(key, selection.census.edges.at(key).measure);
     selection.Drop(row.cell);
   }
-  selection.progress_consistent = true;
+  selection.census.progress_consistent = true;
   for (const auto& row : added) changed.push_back(row.cell.id);
   for (auto row : failures) selection.Block(row.edge, row.feature, false);
 }

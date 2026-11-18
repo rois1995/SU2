@@ -14,14 +14,14 @@ void EngineQueues::LengthDirection(EngineContext& context, bool collapse) {
   auto& length_blocks_dirty = *this->length_blocks_dirty;
 
   if (coarsening != collapse) {
-    selection.blocked_edges.swap(inactive_blocked_edges);
-    std::swap(selection.blocked_links, inactive_blocked_links);
+    selection.queues.blocked_edges.swap(inactive_blocked_edges);
+    std::swap(selection.queues.blocked_links, inactive_blocked_links);
     coarsening = selection.coarsening = collapse;
     construction_kind = collapse ? MetricChange::Coarsen : MetricChange::Refine;
   }
   if (length_blocks_dirty[collapse]) {
-    selection.blocked_edges.clear();
-    selection.blocked_links = 0;
+    selection.queues.blocked_edges.clear();
+    selection.queues.blocked_links = 0;
     length_blocks_dirty[collapse] = false;
   }
 }
@@ -91,9 +91,10 @@ bool EngineQueues::Coalesce(EngineContext& context, std::vector<Choice>& choices
   auto& bidirectional = context.bidirectional;
 
   const bool collapse = coarsening && !curved && !composition;
-  const bool concurrent_refine = (repairing || (!coarsening && (curved || composition || selection.split_lanes)) ||
-                                  (bidirectional && coarsening)) &&
-                                 options.candidate_batch > 1;
+  const bool concurrent_refine =
+      (repairing || (!coarsening && (curved || composition || selection.queues.split_lanes)) ||
+       (bidirectional && coarsening)) &&
+      options.candidate_batch > 1;
   if (world.size == 1 || (!repairing && !collapse && !concurrent_refine)) return true;
   const auto feature = [&](const Choice& c) { return repairing ? c.feature : Feature{{c.edge[0], c.edge[1], 0}, 2}; };
   // Replicated vertex/edge/face demands are one proposal; directed collapses retain distinct endpoints.
@@ -363,11 +364,12 @@ bool RoundAcquisition::SetRepairSlots(CLocalFailure& failure, size_t& repair_slo
   auto& repairing = *context.control.repairing;
   if (repairing) {
     double local_debt = 0;
-    for (const auto& row : selection.repair_cell_severity) local_debt += double(row.second);
+    for (const auto& row : selection.queues.repair_cell_severity) local_debt += double(row.second);
     if (!std::isfinite(local_debt) || local_debt < 0) failure.Set(1, 0, "Invalid cached required repair debt.");
     if (!context.exchange.Vote(context, failure)) return FinishRound();
-    const bool complete = !world.maximum(!selection.progress_consistent || selection.cells.size() != working.size() ||
-                                         selection.unmeasured_shape != 0);
+    const bool complete =
+        !world.maximum(!selection.census.progress_consistent || selection.census.cells.size() != working.size() ||
+                       selection.census.unmeasured_shape != 0);
     const double total_debt = TimedAllreduce(local_debt, CPassiveComm::Op::SUM, world.comm);
     if (complete && std::isfinite(total_debt) && total_debt > 0) {
       const double share = std::clamp(local_debt / total_debt * world.size, 0., 1.);

@@ -331,8 +331,8 @@ void RoundAcquisition::SelectRepairSupport(std::vector<Feature>& supports,
     const OwnedCell* core = nullptr;
     long double worst = -1;
     for (const auto& row : candidate.cells) {
-      const auto cached = selection.cells.find(row.cell.id);
-      if (cached == selection.cells.end() || !cached->second.geometry_invalid) continue;
+      const auto cached = selection.census.cells.find(row.cell.id);
+      if (cached == selection.census.cells.end() || !cached->second.geometry_invalid) continue;
       const auto physical =
           std::count_if(row.physical.begin(), row.physical.end(), [](const auto& f) { return f.present; });
       if (selection.geometry_repairs

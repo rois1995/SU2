@@ -71,7 +71,7 @@ struct EngineRun {
                                     options.surface_tolerance, options.wall_heights, bidirectional,
                                     bool(surface_target), &wall_counters);
     auto& selection = selection_lifetime.Get();
-    selection.split_lanes = bidirectional;
+    selection.queues.split_lanes = bidirectional;
     ContextValue construction_claims_lifetime(context.exchange.construction_claims, bidirectional);
     ContextValue edge_progress_lifetime(context.census.edge_progress);
     ContextValue edge_census_round_lifetime(context.census.edge_census_round, UINT64_MAX);
@@ -258,7 +258,7 @@ struct EngineRun {
     do {
       ready = context.census.SeedNext(context);
       if (!ready) return Finish();
-    } while (surface_target && !world.maximum(selection.construction_invalid != 0) &&
+    } while (surface_target && !world.maximum(selection.census.construction_invalid != 0) &&
              world.maximum(seed_slot < initial.size()));
     return RunRounds(setup_finish);
   }
@@ -285,13 +285,13 @@ struct EngineRun {
     {
       Timer timer(stats.completion_seconds, options.timings, SU2NativeTiming3D::Operation::Certification);
       const int incomplete =
-          world.maximum(selection.cells.size() != working.size()
+          world.maximum(selection.census.cells.size() != working.size()
                             ? 3
-                            : (selection.invalid ? 2 : (coarsening && !selection.queue.empty() ? 1 : 0)));
+                            : (selection.census.invalid ? 2 : (coarsening && !selection.queues.queue.empty() ? 1 : 0)));
       result.valid =
           !metric_cleanup && phase == Phase::Improvement && incomplete == 0 &&
-          !world.maximum(selection.unmeasured_shape != 0 || selection.quality_invalid != 0 ||
-                         selection.construction_invalid != 0 || (standalone_coarsening && improvement_changed));
+          !world.maximum(selection.census.unmeasured_shape != 0 || selection.census.quality_invalid != 0 ||
+                         selection.census.construction_invalid != 0 || (standalone_coarsening && improvement_changed));
       stats.stop = result.valid ? EngineStop::Complete : EngineStop::RoundBudget;
       if (incomplete == 1)
         result.reason =
@@ -404,10 +404,10 @@ struct EngineRun {
       Timer timer(stats.selection_seconds, options.timings, SU2NativeTiming3D::Operation::Scheduling);
       ++stats.selections;
       // The surface cursor covers only demand owners. Complete versioned coverage is checked at quiescent boundaries.
-      const bool pending_census = surface_target ? seed_slot < initial.size() || !selection.progress_consistent
-                                                 : selection.cells.size() != working.size();
-      int dirty =
-          world.maximum(selection.invalid ? 2 : (pending_census || (coarsening && !selection.queue.empty()) ? 1 : 0));
+      const bool pending_census = surface_target ? seed_slot < initial.size() || !selection.census.progress_consistent
+                                                 : selection.census.cells.size() != working.size();
+      int dirty = world.maximum(
+          selection.census.invalid ? 2 : (pending_census || (coarsening && !selection.queues.queue.empty()) ? 1 : 0));
       bad_field = dirty == 2;
       if (coarsening && !repairing && (!bad_field || bidirectional) && !selection.prune_collapses) {
         // Joint construction filters necessary validity constraints even while target debt remains.
@@ -418,13 +418,13 @@ struct EngineRun {
           failure.Set(2, 0, e.what());
         }
         ready = context.exchange.Vote(context, failure);
-        if (ready) dirty = world.maximum(pending_census || !selection.queue.empty());
+        if (ready) dirty = world.maximum(pending_census || !selection.queues.queue.empty());
       }
       if (ready) {
         complete = dirty == 0;
         PickRound(round_state);
         if (ready && coarsening && !repairing && !bad_field && !any)
-          complete = !world.maximum(pending_census || !selection.queue.empty());
+          complete = !world.maximum(pending_census || !selection.queues.queue.empty());
         if (ready && !complete && !any) refill = world.maximum(seed_slot < initial.size());
       }
     }
@@ -466,9 +466,9 @@ struct EngineRun {
     }
     {
       CLocalFailure failure;
-      if (selection.repair_epoch == UINT64_MAX) failure.Set(1, 0, "Native repair service epoch overflows.");
+      if (selection.queues.repair_epoch == UINT64_MAX) failure.Set(1, 0, "Native repair service epoch overflows.");
       if (!context.exchange.Vote(context, failure)) return Done(Finish());
-      ++selection.repair_epoch;
+      ++selection.queues.repair_epoch;
     }
     return AcquireRound(round_state);
   }
@@ -490,16 +490,17 @@ struct EngineRun {
       ++stats.surface_rounds;
     else if (timed_lane == 2)
       ++stats.interior_rounds;
-    ContextValue concurrent_lifetime(round_state.concurrent,
-                                     (repairing || ((composition || curved || selection.split_lanes) && !coarsening) ||
-                                      (bidirectional && coarsening)) &&
-                                         options.candidate_batch > 1 && world.size > 1);
+    ContextValue concurrent_lifetime(
+        round_state.concurrent,
+        (repairing || ((composition || curved || selection.queues.split_lanes) && !coarsening) ||
+         (bidirectional && coarsening)) &&
+            options.candidate_batch > 1 && world.size > 1);
     const bool& concurrent = concurrent_lifetime.Get();
     stats.concurrent_rounds += concurrent;
     // Repair uses one complete round snapshot, including the one-candidate correctness path.
     ContextValue batched_lifetime(
         round_state.batched,
-        repairing || (options.candidate_batch > 1 && (!(selection.split_lanes && !coarsening) && !curved &&
+        repairing || (options.candidate_batch > 1 && (!(selection.queues.split_lanes && !coarsening) && !curved &&
                                                       !composition && (!coarsening || !bad_field))));
     ContextValue choices_lifetime(round_state.choices);
     ContextValue dependency_batch_lifetime(round_state.dependency_batch);

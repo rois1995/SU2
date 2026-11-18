@@ -103,7 +103,7 @@ void EngineReports::InitializeFixedMetricDrift(EngineContext& context, bool& ava
     const size_t quota = FixedMetricSamples / world.size + (size_t(world.rank) < FixedMetricSamples % world.size);
     std::array<std::vector<Id>, 3> candidates;
     for (const auto& row : working) {
-      const auto& cached = selection.cells.at(row.first);
+      const auto& cached = selection.census.cells.at(row.first);
       const unsigned kind = cached.debt.q_bad || cached.debt.j_bad ? (cached.surface ? 0u : 1u) : 2u;
       if (candidates[kind].size() < quota) candidates[kind].push_back(row.first);
     }
@@ -257,7 +257,7 @@ void EngineReports::CollectQualityCensus(Selection& selection, std::array<uint64
            : value < .5L         ? 3u
                                  : 4u;
   };
-  for (const auto& item : selection.cells) {
+  for (const auto& item : selection.census.cells) {
     const auto& row = item.second;
     const auto& d = row.debt;
     const bool bad = d.q_bad || d.j_bad;
@@ -276,7 +276,7 @@ void EngineReports::CollectQualityCensus(Selection& selection, std::array<uint64
       ++bad_total;
       bool short09 = false, short05 = false;
       for (const auto& edge : row.edges) {
-        const auto length = selection.edges.at(edge).measure.length;
+        const auto length = selection.census.edges.at(edge).measure.length;
         short09 = short09 || length < .9L;
         short05 = short05 || length < .5L;
       }
@@ -289,15 +289,15 @@ void EngineReports::CollectQualityCensus(Selection& selection, std::array<uint64
       for (unsigned type = 0; type < 7; ++type)
         if (row.geometry_types & (1u << type)) ++geometry_types[type];
     }
-    const auto repairs = selection.cell_repairs.find(item.first);
-    if (repairs == selection.cell_repairs.end() || repairs->second.empty()) {
+    const auto repairs = selection.queues.cell_repairs.find(item.first);
+    if (repairs == selection.queues.cell_repairs.end() || repairs->second.empty()) {
       missing_features += bad;
       continue;
     }
     bool blocked = true;
     for (const auto& key : repairs->second) {
-      const auto demand = selection.repair_users.find(key);
-      if (demand == selection.repair_users.end() || !demand->second.users) {
+      const auto demand = selection.queues.repair_users.find(key);
+      if (demand == selection.queues.repair_users.end() || !demand->second.users) {
         missing_features += bad;
         blocked = false;
         break;
@@ -310,7 +310,8 @@ void EngineReports::CollectQualityCensus(Selection& selection, std::array<uint64
     stuck_required += blocked;
     stuck_shape += blocked && bad;
   }
-  for (const auto& feature : selection.repair_users) blocked_features += feature.second.users && feature.second.blocked;
+  for (const auto& feature : selection.queues.repair_users)
+    blocked_features += feature.second.users && feature.second.blocked;
 }
 
 // Prints the original quality rows when timings are enabled.
@@ -408,7 +409,7 @@ void EngineReports::PrintQualityCensus(
               << " unmeasured_churn=" << q.unmeasured_churn - old.unmeasured_churn
               << " construction_edits=" << construction_edits - previous_quality_construction
               << " ownership_changes=" << stats.ownership_changes - previous_quality_ownership
-              << " queue=" << selection.repair_queue.size() << " blocked_features=" << blocked_features
+              << " queue=" << selection.queues.repair_queue.size() << " blocked_features=" << blocked_features
               << " stuck_shape=" << stuck_shape << " stuck_required=" << stuck_required
               << " missing_features=" << missing_features << '\n';
     PrintQualityDetails(context, quality_census_serial, q, old, q_location, j_location, q_features, j_features, q_hist,
@@ -706,7 +707,7 @@ void EngineReports::EmitLengthPass(EngineContext& context, SU2NativeGeometry::At
     const auto progress = selection.Progress(working.size());
     size_t short_edges = 0, long_edges = 0;
     long double minimum = INFINITY, maximum = 0;
-    for (const auto& edge : selection.edges) {
+    for (const auto& edge : selection.census.edges) {
       const auto length = edge.second.measure.length;
       short_edges += length < CoarseningMetricEdge;
       long_edges += length > MaximumMetricEdge;
@@ -715,9 +716,10 @@ void EngineReports::EmitLengthPass(EngineContext& context, SU2NativeGeometry::At
     }
     std::cout << std::setprecision(17) << "NATIVE3D_LENGTH rank=" << world.rank
               << " pass=" << (coarsening ? "collapse" : "split") << " cells=" << working.size()
-              << " local_edges=" << selection.edges.size() << " short_local_edges=" << short_edges
-              << " long_local_edges=" << long_edges << " minimum_length=" << (selection.edges.empty() ? 0 : minimum)
-              << " maximum_length=" << maximum << " size_hinge_incidence=" << progress.size_hinge_squared
+              << " local_edges=" << selection.census.edges.size() << " short_local_edges=" << short_edges
+              << " long_local_edges=" << long_edges
+              << " minimum_length=" << (selection.census.edges.empty() ? 0 : minimum) << " maximum_length=" << maximum
+              << " size_hinge_incidence=" << progress.size_hinge_squared
               << " geometry_bad_cells=" << progress.geometry_bad_cells << " size_bad_cells=" << progress.size_bad_cells
               << " q_measured_cells=" << progress.q_measured_cells << " j_measured_cells=" << progress.j_measured_cells
               << " construction_stall_handoffs=" << stats.construction_stall_handoffs

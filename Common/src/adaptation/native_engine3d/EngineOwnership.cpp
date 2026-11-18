@@ -43,7 +43,7 @@ bool EngineOwnership::PhaseOwnership(EngineContext& context, bool quality,
   // The checkpoint's ownership is part of its rollback contract. Its enclosing speculative
   // coarsening cycle retains that ownership until it is explicitly retired.
   if (world.maximum(checkpoint.valid || !context.census.ScopeCensusComplete(context) ||
-                    (quality && !selection.repair_zero.empty())))
+                    (quality && !selection.queues.repair_zero.empty())))
     return true;
   if (quality && world.maximum(!selection.Progress(working.size()).complete)) return true;
   const auto global_cells = TimedAllreduce(uint64_t(working.size()), CPassiveComm::Op::SUM, world.comm);
@@ -140,7 +140,7 @@ void EngineOwnership::AccumulateOwnershipCell(EngineContext& context, bool quali
     local_demand += 1;
     return;
   }
-  const auto& row = selection.cells.at(owned.first);
+  const auto& row = selection.census.cells.at(owned.first);
   double demand = 1;
   if (quality) {
     if (!row.shape_measured) throw std::logic_error("Quality ownership requires the permitted complete shape census.");
@@ -154,8 +154,8 @@ void EngineOwnership::AccumulateOwnershipCell(EngineContext& context, bool quali
   }
   for (unsigned i = 0; i < 6; ++i) {
     const auto edge = row.edges[i];
-    const auto length = selection.edges.at(edge).measure.length;
-    if (surface_target && !selection.edges.at(edge).physical_users) continue;
+    const auto length = selection.census.edges.at(edge).measure.length;
+    if (surface_target && !selection.census.edges.at(edge).physical_users) continue;
     const double insertions = double(std::max(0.L, length / MaximumMetricEdge - 1));
     const auto star = complete_stars.at(edge[0]) + complete_stars.at(edge[1]);
     demand += insertions * (1 + std::log2(1. + star));
@@ -184,7 +184,7 @@ double EngineOwnership::OwnershipGeometryCost(EngineContext& context, bool quali
       for (unsigned j = i + 1; j < 4; ++j) {
         Edge edge{owned.second.cell.v[i].id, owned.second.cell.v[j].id};
         std::sort(edge.begin(), edge.end());
-        lengths[slot++] = selection.edges.at(edge).measure.length;
+        lengths[slot++] = selection.census.edges.at(edge).measure.length;
       }
     geometry_cost = EstimateGeometryWork(owned.second, geometry, options.surface_tolerance, lengths).work * demand;
   } else
@@ -315,16 +315,16 @@ bool EngineOwnership::MigrateOwnership(EngineContext& context, bool quality,
   std::unique_ptr<Directory> pending_directory;
   Selection pending_selection(coarsening, repairing, geometry, stats, options.timings, options.surface_tolerance,
                               options.wall_heights, bidirectional, bool(surface_target), &wall_counters);
-  pending_selection.split_lanes = selection.split_lanes;
-  pending_selection.lane = selection.lane;
+  pending_selection.queues.split_lanes = selection.queues.split_lanes;
+  pending_selection.queues.lane = selection.queues.lane;
   pending_selection.size_repairs = selection.size_repairs;
   pending_selection.geometry_repairs = selection.geometry_repairs;
   pending_selection.track_repairs = selection.track_repairs;
   pending_selection.repair_event = selection.repair_event;
   pending_selection.track_splits = selection.track_splits;
-  pending_selection.repair_epoch = selection.repair_epoch;
-  pending_selection.census_started = selection.census_started;
-  pending_selection.progress_consistent = selection.progress_consistent;
+  pending_selection.queues.repair_epoch = selection.queues.repair_epoch;
+  pending_selection.census.census_started = selection.census.census_started;
+  pending_selection.census.progress_consistent = selection.census.progress_consistent;
   try {
     pending = working;
     pending_directory = std::make_unique<Directory>(world, true, geometry.Parameters());
@@ -365,15 +365,16 @@ bool EngineOwnership::MigrateCertificates(EngineContext& context, bool quality,
     size_t slot = 0;
     for (const auto& row : working) {
       const auto destination = partition.destinations.at(slot++);
-      const auto found = selection.cells.find(row.first);
-      if (found == selection.cells.end()) {
+      const auto found = selection.census.cells.find(row.first);
+      if (found == selection.census.cells.end()) {
         if (surface_target && !quality && !selection.RequestedWall(row.second)) continue;
         throw std::logic_error("Phase migration lacks a required cached row.");
       }
       Selection::CachedRow record;
       record.id = row.first;
       record.state = found->second;
-      for (unsigned i = 0; i < 6; ++i) record.lengths[i] = selection.edges.at(record.state.edges[i]).measure.length;
+      for (unsigned i = 0; i < 6; ++i)
+        record.lengths[i] = selection.census.edges.at(record.state.edges[i]).measure.length;
       if (quality) selection.SaveRepairState(record);
       outgoing.at(destination).push_back(std::move(record));
     }
@@ -422,7 +423,8 @@ bool EngineOwnership::RestoreOwnership(EngineContext& context, bool quality,
     for (const auto& record : records) pending_selection.Restore(pending.at(record.id), record, field_identity);
     if (surface_target && !quality) {
       const auto count = pending_selection.SurfaceCensus(pending);
-      if (!pending_selection.progress_consistent || !pending_selection.census_started || count[0] != count[1])
+      if (!pending_selection.census.progress_consistent || !pending_selection.census.census_started ||
+          count[0] != count[1])
         throw std::logic_error("Incomplete migrated surface demand census.");
     } else if (records.size() != pending.size())
       throw std::logic_error("Incomplete migrated phase census.");
