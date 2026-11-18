@@ -151,6 +151,13 @@ inline size_t WindowRounds(const EngineOptions& options, bool repairing) {
                                                 remainder * options.candidate_batch / round_batch));
 }
 
+inline EngineOptions ProductionEngineOptions() {
+  EngineOptions options;
+  // The directory serves 256 features, and curved repair can ask for four per candidate.
+  options.repair_batch = MaximumRepairBatch;
+  return options;
+}
+
 struct SplitRecord {
   Edge edge{};
   Node point;
