@@ -2,11 +2,11 @@
 
 Updated 2026-11-18. Read AGENTS.md and the copied WORK_ORDER_2.md at the start of the new session, then this file.
 
-## Current state — N18 source binding
+## Current state — N18 F full run one
 
 N6 qualification `19944869a3` accepted build578. G5 completed in 4041.079 s with all six P6c/P7 payloads and 96 timer snapshots exact. The isolated restart passed in 234.819 s, with zero coordinate error. All three standing safeguards passed. The audit verified 1,790 source pins and 271 terminal process identities.
 
-The N18 work-order amendment `7d8f538c00` is pushed. I8R2 was verified and read completely after N6. N18 uses one D/E identity checkpoint on build579, then separate F on build580 if D qualifies. The whole-item source check is in `N18/source_check.md`. N7 follows N18.
+The N18 work-order amendment `7d8f538c00` is pushed. I8R2 was verified and read completely after N6. N18 uses one D/E identity checkpoint on build579, then separate F on build580 if D qualifies. The whole-item source check is in `N18/source_check.md`. D/E passed and was pushed as `3524e11a75`. Part F build580 passed the exact wide repeat at ranks 2/4, G1/G2/G3/G4 and all three standing safeguards. Part F controller PID 2060557 / start 51553252. Full run-one wrapper PID 2179783 / start 52093696. N7 follows N18.
 
 ## Earlier integrated reference — phase C
 
@@ -236,3 +236,19 @@ N18 D/E G2 passed work 90,809,869 and exact old rows through the stop at 312.627
 N18 D/E G3 passed with 1,526 splits, 1,113 exact shared edits, all physical gates and adjusted entry work 5,113. G4 and GQ follow.
 
 N18. D/E build579 passed G1 375/114/228, G2 90,809,869, G3 1526 splits with 1113 exact shared edits, G4 and GQ at 1024.978 s. No full D/E run.
+
+N18. D/E checkpoint pushed as `3524e11a75`. Part F follows.
+
+N18. Applied the exact three-path F patch. Compiling build580 with the production width of 64.
+
+N18. Build580 compiled without warnings. The exact wide-repeat fixture passed at 2 and 4 ranks.
+
+N18 F wide-repeat fixture passed at 2 and 4 ranks on build580. G1 matched 375 / 114 / 228 records with zero changes. G2 is running.
+
+N18 F G2 passed in 317.393 s to stop with work 90,809,869 and exact old integer, modeled storage and timer rows. The G3 saved-stage fixture is running.
+
+N18. F scoped gates passed G1 375/114/228, G2 90,809,869, G3 1,519 splits and 1,113 exact shared edits, and G4. Running the standing safeguards.
+
+N18. All three standing safeguards passed. Starting F G5 run one.
+
+N18. F FAILED. First difference: event one NATIVE3D complete=0 against the required 1, with rank 3 q_bad=1 against 0. Preserving the candidate evidence.

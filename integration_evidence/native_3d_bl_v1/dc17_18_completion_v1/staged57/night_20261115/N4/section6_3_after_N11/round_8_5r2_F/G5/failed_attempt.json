@@ -1,0 +1,76 @@
+{
+  "passed": false,
+  "interrupted_stage": "G5 run one",
+  "error": "F_run1 exit 1. See /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N4/section6_3_after_N11/round_8_5r2_F/G5/F_run1_outer.log.",
+  "gate8_evaluated": false,
+  "binary_sha256": "3d022b3eaa083288c0f4b5f82c9600c7edd4ac6908ff2bcc3b8ec397dc213b43",
+  "terminal_cases": [
+    {
+      "case": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N4/section6_3_after_N11/round_8_5r2_F/G5/full580_run1",
+      "status_sha256": "70cf115c136f13fff5676ba247a682594423eac1e913f17de0f11f2c46a5664e",
+      "stop_reason": "adaptation_rejected_stop_first_failure",
+      "exit_code": -15,
+      "rank_stdout_sha256": {
+        "rank_output/1/rank.0/stdout": "5c048d3610f4cf34060750e03a73d8cddb4c347c06c768b3724cb5e67b57e050",
+        "rank_output/1/rank.1/stdout": "fbc64908e5ffd113f6da0a6de4f2fca5a3ef6129a44bb53f7f7aa32b71a160e7",
+        "rank_output/1/rank.2/stdout": "ac7a372a17fa4fccf002173801663cfb1e5d697183435ee1388c33f1caa730a2",
+        "rank_output/1/rank.3/stdout": "5c24140fad8f0d0d215431a3847af7a242683cea376b502b074489cf572c1032",
+        "rank_output/1/rank.4/stdout": "fba1d72c6188a26f9386a3c0fa2ab15f4567d49f942bc5b672d42c2a069f08ed",
+        "rank_output/1/rank.5/stdout": "14d2d42d533819944a488002d350da52d57391683335673edb1edf883d9e64e8"
+      },
+      "event_one_prefix": {
+        "passed": true,
+        "ranks": [
+          {
+            "rank": 0,
+            "reference_sha256": "73c0cb9f7a8db9f51fade302c48340f4778d6183a9efbb585a5e6702b599cef9",
+            "candidate_sha256": "5c048d3610f4cf34060750e03a73d8cddb4c347c06c768b3724cb5e67b57e050",
+            "reference_rows": 450,
+            "candidate_rows": 450,
+            "passed": true
+          },
+          {
+            "rank": 1,
+            "reference_sha256": "bc01492500200953b287cb19c2b68a96c0104238acd9508108975c2e77c670f0",
+            "candidate_sha256": "fbc64908e5ffd113f6da0a6de4f2fca5a3ef6129a44bb53f7f7aa32b71a160e7",
+            "reference_rows": 446,
+            "candidate_rows": 446,
+            "passed": true
+          },
+          {
+            "rank": 2,
+            "reference_sha256": "51a1ca10077c3bdca5d2ea5f596c05fec64d63d5f18f01c2b21f5612a43037d7",
+            "candidate_sha256": "ac7a372a17fa4fccf002173801663cfb1e5d697183435ee1388c33f1caa730a2",
+            "reference_rows": 446,
+            "candidate_rows": 446,
+            "passed": true
+          },
+          {
+            "rank": 3,
+            "reference_sha256": "39da294cde50faa1bfcf690029fc72466e16ca2885b92c46f8b46e42b12d2d7f",
+            "candidate_sha256": "5c24140fad8f0d0d215431a3847af7a242683cea376b502b074489cf572c1032",
+            "reference_rows": 446,
+            "candidate_rows": 446,
+            "passed": true
+          },
+          {
+            "rank": 4,
+            "reference_sha256": "f8e8e24b9ecb099a4631b13ed915035169fa2a5c764280f15ba4b687d7abcf6f",
+            "candidate_sha256": "fba1d72c6188a26f9386a3c0fa2ab15f4567d49f942bc5b672d42c2a069f08ed",
+            "reference_rows": 447,
+            "candidate_rows": 447,
+            "passed": true
+          },
+          {
+            "rank": 5,
+            "reference_sha256": "469e6db0827bc301597d337ac448acb0b61b4622c15fb69c740b011b40ea76fb",
+            "candidate_sha256": "14d2d42d533819944a488002d350da52d57391683335673edb1edf883d9e64e8",
+            "reference_rows": 446,
+            "candidate_rows": 446,
+            "passed": true
+          }
+        ]
+      }
+    }
+  ]
+}
