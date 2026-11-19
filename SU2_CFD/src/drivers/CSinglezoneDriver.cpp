@@ -423,7 +423,9 @@ std::unique_ptr<CRemesher> CSinglezoneDriver::MakeRemesher() {
           *slot=policy;
           return policy->Composition();
         };
-        auto remesher=std::make_unique<CNativeRemesher3D>(nativeReference3D,SU2Native3D::EngineOptions{},std::move(firstRowTarget),std::move(normalization));
+        auto remesher = std::make_unique<CNativeRemesher3D>(
+            nativeReference3D, SU2Native3D::ProductionEngineOptions(), std::move(firstRowTarget),
+            std::move(normalization));
         auto continuation=nativeFirstRow3D;
         continuation->pending.reset();continuation->has_pending_stage=false;
         remesher->SetConstruction([this,slot,continuation](SU2Native3D::World& world,const SU2Native3D::Owned& cells,
@@ -455,7 +457,9 @@ std::unique_ptr<CRemesher> CSinglezoneDriver::MakeRemesher() {
         remesher->PrepareReference(*config_container[ZONE_0],*geometry_container[ZONE_0][INST_0][MESH_0]);
         return remesher;
       }
-      auto remesher=std::make_unique<CNativeRemesher3D>(nativeReference3D,SU2Native3D::EngineOptions{},std::move(constraints),std::move(normalization));
+      auto remesher = std::make_unique<CNativeRemesher3D>(
+          nativeReference3D, SU2Native3D::ProductionEngineOptions(), std::move(constraints),
+          std::move(normalization));
       if(config_container[ZONE_0]->GetnAdap_BL())
         remesher->PrepareReference(*config_container[ZONE_0],*geometry_container[ZONE_0][INST_0][MESH_0]);
       return remesher;
