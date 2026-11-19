@@ -572,3 +572,19 @@ FP1 C preparation evidence. G2 reference provenance exposes construction communi
 FP1 B. G1 serial matched 375, and the two-rank table matched all 114 records. The G1 helper stopped on MPI's aggregate exit 10 versus 9. Both runs contain the same rank-local failures (10/9), and MPI selected a different first rank. Removed the helper's extra aggregate-exit equality requirement under R3. Reuse the first two terminal logs and run G1 at four ranks.
 
 FP1 B. All Part B gates passed. G1 matched 375 / 114 / 228 records in 774.618 / 10.428 / 10.972 s. Archive and checkpoint Part B before changing Part C.
+
+FP1 B. Pushed `6dc801d609` with all Part B gates passed. Part C is next.
+
+FP1 C. Wired the native-only option (default NO), the guarded worker call before SnapshotSource, rank-striped IDs, existing construction/topology timers and the two admitted passes with boundary shifts. Fixture 13/14 source is in a new hidden tag. Archived the accepted solver and Part B test executable by hash before linking any C binary. Next is build600, fixture ranks 1/2/4, G1 and the exact OFF G2 comparison.
+
+FP1 C. Build600 is frozen and active under controller PID 301708/start 61412555 (supervisor 301571/start 61412129). The remesher and option fixture translation units compiled. Build resource samples are in C/build600/build_samples.jsonl. The ordered shell runs the 1/2/4 fixtures and G1 after the link. The part C prefix adapter `FP1/run_prefix_fp1.py` has passed its no-launch checks and is next after G1. Independently authenticated the C workflow adapter's no-launch self-check; no G5 workflow has started.
+
+FP1 C. Build600 passed in 843.508 s with zero new warnings. The option fixtures passed 42 assertions per rank at 1, 2 and 4 ranks. The two ON outputs at each rank count matched exactly and each remesh split 8 edges. The wall-height control reported one skipped core row per rank, and the default parsed as NO. G1 serial is running. The next live check is OFF G2 with the code and binary still pinned.
+
+FP1 C. G1 matched all 375 / 114 / 228 adopted records in 768.429 / 9.214 / 10.552 s. The fixture and G1 controllers are terminal. Starting the pinned G2 OFF replay on build600.
+
+FP1 C. OFF G2 is live with the build600 source and solver pins. The runtime controller and process-group identity are in C/prefix/G2_launch.json and C/prefix/cases/G2/status.json; the first-collapse exact comparison will run after the process group is terminal.
+
+FP1 C. OFF G2 FAILED. At rank 0 row 19 the collective call count was 114,332 against 120,046. Construction timer calls were 333,799 against 340,843 on all ranks, and preparation matched N22 C at 250. Physical capture passed 90,809,869 work with collapse counts 480/473/346/263/469/464 in 251.972 s. The one read-only diagnosis matched all compared rows to the accepted N22 C capture and showed zero core/shift rows. No R5 correction or repeat applies. Preserve and revert C only. GQ, G3, safeguards and all G5 runs remain unevaluated.
+
+FP1 close. Parts A/B passed and are retained at `68d28afad0` / `6dc801d609`. Failed C candidate `5bf9b8b4fd` was reverted by `d6e2ee8c4c`. Restored the accepted build591 solver and build599 test driver and verified their hashes. All 41 recorded owned process identities are terminal. Handoff, next-work status and timings updated. GQ, G3, safeguards and full workflows remain unevaluated. Next action under Work order 3 is the next user order.

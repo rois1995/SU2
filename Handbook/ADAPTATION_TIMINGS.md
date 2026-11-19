@@ -1,10 +1,25 @@
 # Adaptation timings and computational work
 
+## Fast path stage 1
+
+The Part C OFF G2 prefix stopped at the first-collapse boundary in 251.972 s with 90,809,869 work units and a sampled rank process high-water sum of 7,958,585,344 B. Preparation kept 250 communication calls per rank. Construction measured 333,799 per rank against the historical gate of 340,843. The exact prefix comparison to the accepted N22 C capture passed. [FP1 Part C report](../integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP1/reports/FP1_600.md)
+
+The option fixtures exercised 8 splits per repeat. Their maximum recorded local pass wall times at 1, 2 and 4 ranks were 0.409, 0.275 and 0.584 ms, respectively. The Part B MPI fixtures verified both shifts and strict engine acceptance. [FP1 Part B report](../integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP1/reports/FP1_599.md)
+
+| Stage | FP1 OFF G5 events 1 and 2 | FP1 ON G5 events 1 and 2 |
+|---|---|---|
+| Preparation | Unevaluated | Unevaluated |
+| Local core | Unevaluated | Unevaluated |
+| Border shifts | Unevaluated | Unevaluated |
+| Engine construction | Unevaluated | Unevaluated |
+| Quality | Unevaluated | Unevaluated |
+| Final proof | Unevaluated | Unevaluated |
+
 ## Step 8.5u, build591
 
 [Step 8.5u report](../integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N22/reports/STEP_8_5U_591.md)
 
-Part C is retained with the purpose timing OPEN. The qualified Part M clocks remain the time reference.
+The user accepted both N22 purpose timing flags on 2026-11-19. The table records the clocks for both parts.
 
 | Run | Event | Maximum native time (s) |
 | --- | --- | --- |

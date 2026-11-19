@@ -1,0 +1,34 @@
+{
+  "state": "terminal",
+  "passed": true,
+  "build": 600,
+  "exit_code": 0,
+  "pins_verified": true,
+  "source_pins_sha256": "17f6611c0031d66eac4b738bf37c957030a3f0ac235928be747e4e6c73c211be",
+  "graph_after": {
+    "build.ninja": "69243df565b9acb23ebe37d281d86a698962e4987614f8c7530418524748b261",
+    "compile_commands.json": "327378d472371bef6d7cdbc3fbb266729cc972cbaa7831216acd90b2eb38e8db"
+  },
+  "binary": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-p5-20261114/SU2_CFD/src/SU2_CFD",
+  "binary_sha256": "29d3d2181be62e3ff476d4d73298a1d50e18a40bb90fd3f387294278ffb4a8c9",
+  "test_binary": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-p5-20261114/UnitTests/test_driver",
+  "test_binary_sha256": "880cfe8b64caef574cbe77683ebaaf100190bedcfd8b39d968ff62fbde23f707",
+  "warnings": [
+    "WARNING: CMake Toolchain: Failed to determine CMake compilers state",
+    "../../SU2_PY/meson.build:75: WARNING: Project targets '>=1.8.2' but uses feature deprecated since '0.60.0': install_subdir with empty directory. It worked by accident and is buggy. Use install_emptydir instead.",
+    "WARNING: Deprecated features used:",
+    "/usr/include/c++/13/bits/stl_algobase.h:437:30: warning: \u2018void* __builtin_memmove(void*, const void*, long unsigned int)\u2019 writing between 9 and 9223372036854775800 bytes into a region of size 0 overflows the destination [-Wstringop-overflow=]",
+    "/usr/include/c++/13/bits/stl_algobase.h:437:30: warning: argument 1 null where non-null expected [-Wnonnull]"
+  ],
+  "new_warnings": [],
+  "wait": {
+    "actual_host_proc": true,
+    "controller": {
+      "pid": 301708,
+      "start_ticks": 61412555
+    },
+    "returncode": 0,
+    "elapsed_seconds": 843.5078155994415,
+    "terminal": true
+  }
+}
