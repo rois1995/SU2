@@ -117,3 +117,15 @@ N20 A implementation question commit: `01d2bbd24f2504a35406ebc529978c97af29c647`
 
 - 2026-11-19T10:00:46+01:00 — N21 P1–P5.7 commit reference for the root-count,
   restart, fixture-access and diagnostic-stream entries above: `08a8d7c7ff`.
+
+- 2026-11-19T13:37:52+01:00 — N22 M, ownership timing statistic. Should the last
+  world.seconds read stay inside ShouldMigrate for the declined-exchange
+  statistic, or move to its caller? Used the caller so the decision function
+  meets the literal clock-free source check. The statistic is unchanged in
+  purpose, and only its call boundary moves. Commit: N22 M checkpoint.
+
+- 2026-11-19T14:45:10+01:00 — N22 C, purpose reference. Does the ordered N21
+  pair apply throughout both parts, or is it the entry reference that §5.1.7
+  advances after Part M? Used the ordered pair for M and the qualified M clocks
+  for C. The pinned text names M as C's reference explicitly, and the latest
+  order changes C's disposition for a purpose-only miss. Commit: N22 report.

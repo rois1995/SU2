@@ -424,3 +424,39 @@ N21 W run2. Both native events completed. Event-one maximum 2,741.581855733 s an
 N21 W PASSED. Build588 passed both workflows, the isolated restart, exact T0 prefix, six repeated payloads and F=0.95. Build589 kept the same solver hash, excluded the MPI-only case from default selection and repeated T1–T4. Final report follows.
 
 N21. Final audit verified 406 terminal owned identities and 1,790 active source pins. Report and handoff updated.
+
+## Current work — N22, then FP0
+
+Verified and read the pinned I8U, FP0 order and FP0 design context. The design is context. N21 wide reference 4fe083d460/build589, six payloads and native maxima 2048.286 / 1278.700 s. The accepted-build GQ reference is running at controller PID 3673595 / start 58403966, solver group PID 3673960 / start 58405070. The full N22 source check is in N22/source_check.md. Keep production sources frozen until GQ is terminal and sealed. A C purpose-only miss is OPEN and retained. FP0 follows the N22 report independently.
+
+N22. Ordered M/C controller PID 3686062 / start 58451924 waits until the accepted GQ is terminal and sealed. It applies the reviewed drafts in order and stops for disposition on a result failure.
+
+N22 M. Applied the reviewed draft after the predecessor was terminal. Starting build590.
+
+N22 M. Build590 compiled without warnings. Running the pinned fixtures and scoped gates.
+
+N22 M. M1 PASSED, M2 PASSED. Starting G1.
+
+N22 M. The accepted N21 GQ stop was 767.437 s with three windows per rank, two identical migrate=1 evaluations per rank, 18 fixedstorage=4120 snapshots and sampled rank peak sum 14,005,395,456 B. Build590 compiled in 372.832 s without warnings. M1 passed 10 assertions and M2 passed 7 per rank at two ranks, including exact local ownership with timings on/off. G1 is running.
+
+N22 M. G1 matched all 375 / 114 / 228 records. Starting G2.
+
+N22 M. G2 matched 90,809,869 first-collapse work units and all six rank counts. Starting G3 and G4.
+
+N22 M. G3 passed with 1,532 splits and 1,113 exact common edits. G4 passed. Starting GQ.
+
+N22 M. GQ reached three windows per rank in 762.305 s, and ownership outcomes matched the reference. Starting standing safeguards.
+
+N22 M. Scoped gates and all standing safeguards passed. Next is the full workflow.
+
+N22 M. Build590 G5 is live. Controller PID 3780441 / start 58833622, solver wrapper PID 3780598 / start 58834221. GQ matched both decisions on all six ranks, with 762.305 s to the prefix stop. The same full run must pass both events and the payload hashes before M is committed and C starts.
+
+N22 M. G5 event one passed the timer and connected event receipts. All 14 ownership decisions on each rank and the three event-one payloads match N21 W. Job peak and process-peak sum both equal 14,001,750,016 B. The same run continued CFD and entered event two.
+
+N22 M. Both native events completed and their timer and connected receipts passed. All 19 ownership decisions match on every rank. Native maxima 1,981.678851184 / 1,348.621272310 s. Event two is 5.986 s above the 5% report-only comparison of 1,342.635 s. Final transfer, continued CFD and the six-file comparison remain before the checkpoint.
+
+N22 M. Build590 reached OPEN for the user with passing standing workflow gates. Preparing checkpoint.
+
+N22 M. The two-event workflow and scopes are terminal. Repacked the final scoped log after the open-log archive mismatch. Reusing the passing numerical results for the checkpoint.
+
+N22 M. Build590 reached OPEN for the user with passing standing workflow gates. Preparing checkpoint.

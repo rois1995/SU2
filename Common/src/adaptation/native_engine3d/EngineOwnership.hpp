@@ -26,8 +26,8 @@ struct EngineOwnership {
                                  std::vector<uint32_t>& geometric, std::vector<uint32_t>& quality_weights,
                                  std::vector<double>& costs, std::vector<double>& geometry_costs,
                                  std::vector<double>& quality_debts);
-  bool ShouldMigrate(EngineContext& context, bool quality, uint64_t global_cells, double transition_started,
-                     double local_demand, double local_geometry, double local_quality_debt);
+  bool ShouldMigrate(EngineContext& context, bool quality, uint64_t global_cells, double local_demand,
+                     double local_geometry, double local_quality_debt);
   bool MigrateOwnership(EngineContext& context, bool quality, SU2NativeGeometry::AtlasBudget& atlas_budget,
                         double transition_started, size_t scratch, CLocalFailure& failure,
                         std::vector<uint32_t>& weights, std::vector<uint32_t>& geometric,

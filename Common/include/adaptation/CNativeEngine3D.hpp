@@ -9,6 +9,7 @@
 #include "CNativeMetric3D.hpp"
 #include "CNativeRequirements3D.hpp"
 #include "CNativeRegion3D.hpp"
+#include <algorithm>
 namespace SU2NativeGeometry {struct AtlasBudget;}
 namespace SU2Native3D {
 constexpr size_t MaximumCandidateBatch = 8;
@@ -18,6 +19,18 @@ constexpr size_t MaximumRoundBatch = MaximumRepairBatch > MaximumCandidateBatch 
                                                                                 : MaximumCandidateBatch;
 enum class EnginePhase { Construction, Improvement };
 enum class PhaseOwnership { Automatic, Disabled, DiagnosticAlways };
+
+inline bool OwnershipExchangePays(double imbalance, double demand, double cells, double measured, double attempts,
+                                  double* predicted_gain = nullptr, double* predicted_cost = nullptr) {
+  // Measurements per attempted edit estimate the remaining measurement work.
+  // Exchange saves W/P * (imbalance - 1) against G/P for moving the cells, so P cancels.
+  const double remaining_work = std::max(0., demand - cells) * measured / std::max(1., attempts);
+  const double gain = remaining_work * (imbalance - 1);
+  if (predicted_gain) *predicted_gain = gain;
+  if (predicted_cost) *predicted_cost = cells;
+  return imbalance > 1.25 && gain > 2 * cells;
+}
+
 struct EngineStats;
 /*! Cached inspection data only; never used for repair admission or candidate ordering. */
 struct CellDiagnostic {

@@ -94,9 +94,10 @@ bool EngineOwnership::EstimateOwnership(EngineContext& context, bool quality,
   if (!context.exchange.Vote(context, failure) || !WithinTime(context)) return false;
   NormalizeOwnershipWeights(context, quality, weights, geometric, quality_weights, costs, geometry_costs,
                             quality_debts);
-  if (!ShouldMigrate(context, quality, global_cells, transition_started, local_demand, local_geometry,
-                     local_quality_debt))
+  if (!ShouldMigrate(context, quality, global_cells, local_demand, local_geometry, local_quality_debt)) {
+    stats.ownership_seconds += world.seconds() - transition_started;
     return true;
+  }
   return MigrateOwnership(context, quality, atlas_budget, transition_started, scratch, failure, weights, geometric,
                           quality_weights);
 }
@@ -239,13 +240,10 @@ void EngineOwnership::NormalizeOwnershipWeights(EngineContext& context, bool qua
 }
 
 bool EngineOwnership::ShouldMigrate(EngineContext& context, bool quality, uint64_t global_cells,
-                                    double transition_started, double local_demand, double local_geometry,
-                                    double local_quality_debt) {
+                                    double local_demand, double local_geometry, double local_quality_debt) {
   auto& world = context.world;
   auto& options = context.options;
-  const auto& started = *context.setup.control_prefix.started;
   auto& stats = context.control.result->stats;
-  auto& geometry_authority = *context.control.geometry_authority;
   const double demand_sum = TimedAllreduce(local_demand, CPassiveComm::Op::SUM, world.comm);
   const double demand_max = TimedAllreduce(local_demand, CPassiveComm::Op::MAX, world.comm);
   const double geometry_sum = TimedAllreduce(local_geometry, CPassiveComm::Op::SUM, world.comm);
@@ -255,41 +253,23 @@ bool EngineOwnership::ShouldMigrate(EngineContext& context, bool quality, uint64
   const double imbalance = std::max({demand_sum ? world.size * demand_max / demand_sum : 1.,
                                      geometry_sum ? world.size * geometry_max / geometry_sum : 1.,
                                      quality_debt_sum ? world.size * quality_debt_max / quality_debt_sum : 1.});
-  const double wall = std::chrono::duration<double>(Clock::now() - started).count();
-  // Conservative benefit proxy: remaining demand relative to observed attempted edits. The
-  // twofold hurdle acknowledges unknown placement, operator mix and destination cache locality.
   const double attempts = TimedAllreduce(double(stats.attempted), CPassiveComm::Op::SUM, world.comm);
-  const double remaining = wall * std::max(0., demand_sum - double(global_cells)) / std::max(1., attempts);
-  const double estimate_seconds =
-      TimedAllreduce(world.seconds() - transition_started, CPassiveComm::Op::MAX, world.comm);
-  const double rebuild =
-      TimedAllreduce(stats.initialization_seconds + stats.seed_seconds, CPassiveComm::Op::MAX, world.comm);
-  double warming = 0;
-  if (geometry_authority) {
-    const auto cache = geometry_authority->GeometryStatsSnapshot();
-    warming = TimedAllreduce(cache.scope_build_seconds / std::max<size_t>(1, cache.scope_builds) * cache.scope_entries,
-                             CPassiveComm::Op::MAX, world.comm);
-  }
-  const double predicted_cost = estimate_seconds + rebuild + warming + stats.ownership_seconds;
-  const double predicted_gain = remaining * (1 - 1 / std::max(1., imbalance));
+  const double measured = TimedAllreduce(double(stats.initial_cells) + double(stats.updated_cells),
+                                         CPassiveComm::Op::SUM, world.comm);
+  double predicted_gain, predicted_cost;
+  const bool pays = OwnershipExchangePays(imbalance, demand_sum, double(global_cells), measured, attempts,
+                                           &predicted_gain, &predicted_cost);
   stats.ownership_predicted_gain += predicted_gain;
   stats.ownership_predicted_cost += predicted_cost;
-  const bool locally_eligible = options.phase_ownership == SU2Native3D::PhaseOwnership::DiagnosticAlways ||
-                                (imbalance > 1.25 && predicted_gain > 2 * predicted_cost &&
-                                 (!options.maximum_seconds || 2 * predicted_cost < options.maximum_seconds - wall));
-  // Local elapsed/cost estimates must not split participation in collective repartition.
+  const bool locally_eligible = options.phase_ownership == SU2Native3D::PhaseOwnership::DiagnosticAlways || pays;
   const bool proceed = !world.maximum(!locally_eligible);
   if (options.timings)
     std::cout << "NATIVE3D_PHASE_OWNERSHIP rank=" << world.rank << " quality=" << quality
               << " evaluate=1 migrate=" << proceed << " predicted_imbalance=" << imbalance
-              << " predicted_gain_seconds=" << predicted_gain << " predicted_cost_seconds=" << predicted_cost
-              << " estimate_seconds=" << estimate_seconds << " rebuild_allowance=" << rebuild
-              << " warming_allowance=" << warming << " uncertainty_factor=2" << '\n';
-  if (!proceed) {
-    stats.ownership_seconds += world.seconds() - transition_started;
-    return false;
-  }
-  return true;
+              << " predicted_gain=" << predicted_gain << " predicted_cost=" << predicted_cost
+              << " demand_sum=" << demand_sum << " global_cells=" << global_cells << " measured=" << measured
+              << " attempts=" << attempts << " uncertainty_factor=2" << '\n';
+  return proceed;
 }
 
 bool EngineOwnership::MigrateOwnership(EngineContext& context, bool quality,

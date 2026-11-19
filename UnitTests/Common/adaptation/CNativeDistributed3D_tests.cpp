@@ -5664,3 +5664,42 @@ TEST_CASE(
                         wall_displacement, cone_found, coverage, repair,
                         wall_star, interior_star);
 }
+
+TEST_CASE("N22 compares ownership exchange benefit in cell measurements", "[.][NativeOwnershipClock3D]") {
+  double gain, cost;
+  CHECK_FALSE(OwnershipExchangePays(1.25, 3e6, 1e6, 2e6, 1e6));
+  CHECK(OwnershipExchangePays(2, 3e6, 1e6, 2e6, 1e6, &gain, &cost));
+  CHECK(gain == 4e6);
+  CHECK(cost == 1e6);
+  CHECK_FALSE(OwnershipExchangePays(2, 3e6, 1e6, 0.9e6, 1e6));
+  CHECK_FALSE(OwnershipExchangePays(2, 3e6, 1e6, 1e6, 1e6));
+  CHECK(OwnershipExchangePays(2, 12, 4, 2, 0, &gain));
+  CHECK(gain == 16);
+  CHECK_FALSE(OwnershipExchangePays(2, 3, 4, 100, 0, &gain));
+  CHECK(gain == 0);
+}
+
+TEST_CASE("N22 automatic ownership agrees with timing on and off", "[.][NativeOwnershipClock3D][mpi]") {
+  World world;
+  REQUIRE(world.size == 2);
+  const auto fixture = Box();
+  const PlanarReference geometry(fixture.facets);
+  const auto input = Partition(Rows(fixture.patch), world);
+  const auto donors = Uniform(input, Tensor{});
+  EngineOptions options;
+  options.phase_ownership = PhaseOwnership::Automatic;
+  options.maximum_work = 64;
+  options.maximum_rounds = 1;
+  options.timings = false;
+  const auto untimed = AdaptMetric(world, input, donors, geometry, {}, options);
+  options.timings = true;
+  const auto timed = AdaptMetric(world, input, donors, geometry, {}, options);
+  INFO(untimed.reason);
+  INFO(timed.reason);
+  CHECK(untimed.valid);
+  CHECK(timed.valid);
+  CHECK(untimed.stats.ownership_predicted_cost > 0);
+  CHECK(untimed.stats.ownership_predicted_cost == timed.stats.ownership_predicted_cost);
+  CHECK(untimed.stats.ownership_changes == timed.stats.ownership_changes);
+  CHECK(Bytes(untimed.cells) == Bytes(timed.cells));
+}
