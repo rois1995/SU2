@@ -334,7 +334,9 @@ def fixture_lines(paths):
         rows = path.read_text().splitlines()
         tags = ('NATIVE3D_FINE_FIXTURE', 'NATIVE3D_FINE_SELECTION', 'N20_F')
         tagged = [line for line in rows if any(tag in line for tag in tags)]
-        lines.extend([link(path.name, path), '', '```text', *(tagged or rows), '```', ''])
+        archive = path.with_suffix(path.suffix + '.gz')
+        lines.extend([link(path.name, archive if archive.is_file() else path), '',
+                      '```text', *(tagged or rows), '```', ''])
     return lines or ['No fixture measurement receipt was available.']
 
 
