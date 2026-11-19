@@ -129,3 +129,7 @@ N20 A implementation question commit: `01d2bbd24f2504a35406ebc529978c97af29c647`
   advances after Part M? Used the ordered pair for M and the qualified M clocks
   for C. The pinned text names M as C's reference explicitly, and the latest
   order changes C's disposition for a purpose-only miss. Commit: N22 report.
+
+- 2026-11-19T15:53:22+01:00 — N22 M, checkpoint association for the ownership
+  timing statistic entry above. The immediate caller retains the statistic
+  and the decision routine reads no clock. Commit: `484f29315f`.

@@ -4,11 +4,28 @@
 struct EngineContext;
 
 struct EngineExchange {
+  struct DeferredVotes {
+    bool active = false;
+    CLocalFailure first;
+  };
+
+  class DeferredVoteScope {
+   public:
+    explicit DeferredVoteScope(DeferredVotes& votes);
+    ~DeferredVoteScope();
+    DeferredVoteScope(const DeferredVoteScope&) = delete;
+    DeferredVoteScope& operator=(const DeferredVoteScope&) = delete;
+
+   private:
+    DeferredVotes& votes;
+  };
+
   std::optional<bool> construction_claims;
   std::optional<std::unique_ptr<Directory>> directory;
   std::optional<CavityMetricSource> source;
   std::optional<DirectoryStats> retired_directory;
   std::optional<bool> private_repair;
+  std::optional<DeferredVotes> deferred_votes;
 
   void RetireDirectory(const DirectoryStats& old);
 

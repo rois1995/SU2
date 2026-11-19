@@ -460,3 +460,33 @@ N22 M. Build590 reached OPEN for the user with passing standing workflow gates. 
 N22 M. The two-event workflow and scopes are terminal. Repacked the final scoped log after the open-log archive mismatch. Reusing the passing numerical results for the checkpoint.
 
 N22 M. Build590 reached OPEN for the user with passing standing workflow gates. Preparing checkpoint.
+
+N22 M. Pushed `484f29315f`. Run Part C next.
+
+N22 C. Applied the reviewed draft after the predecessor was terminal. Starting build591.
+
+N22 C. Build591 compiled without warnings. Running the pinned fixtures and scoped gates.
+
+N22 C. C2 PASSED. Starting G1.
+
+N22 C. Build591 compiled without warnings in 403.046 s. C2 ended in 0.375 s, with 10 / 9 assertions across its two ranks. Both ranks returned the same memory refusal and stop code after the census reached the constrained rank. The ordered recovery controller is PID 3870974 / start 59229379. G1 is running.
+
+N22 C. G1 matched all 375 / 114 / 228 records. Starting G2.
+
+N22 C. G2 matched 90,809,869 first-collapse work units and all six rank counts. Starting G3 and G4.
+
+N22 C. G3 passed with 1,531 splits and 1,113 exact common edits. G4 passed. Starting GQ.
+
+N22 C. GQ reached three windows per rank in 671.241 s, and ownership outcomes matched the reference. Starting standing safeguards.
+
+N22 C. Scoped gates and all standing safeguards passed. Next is the full workflow.
+
+N22 C. Build591 G5 is live. Controller PID 3942632 / start 59561940, solver wrapper PID 3942757 / start 59562547. GQ passed both exact ownership decisions and required integer and modeled-memory rows in 671.241 s to stop. C's timing limits are the qualified M maxima, with combined ceiling 3,163.785117319 s. An isolated purpose miss retains C per the user order.
+
+N22 C. At event one's first-collapse wall, mean preparation communication was 250 calls and 6.932 exclusive seconds per rank, versus M's 33,986 calls and 77.965 seconds. G5 remains active.
+
+N22 C. Event one passed timer and connected gates at 95.2903% minimum coverage and 13,996,220,416 B job/process-peak sum. All 14 ownership decisions per rank and three output files match M. Its maximum native time is 2,018.805346030 s versus M's 1,981.678851184 s. The same run entered event two.
+
+N22 C. Event two passed its timer and connected receipts at 95.2306% minimum coverage and 16,842,575,872 B job/process-peak sum. Maximum native time 1,083.551455574 s. The two native maxima sum to 3,102.356801604 s, below the 3,163.785117319 s ceiling. Event one exceeds its individual purpose limit. The final workflow receipt and six-file comparison remain.
+
+N22 C. Build591 reached OPEN for the user with passing standing workflow gates. Preparing checkpoint.

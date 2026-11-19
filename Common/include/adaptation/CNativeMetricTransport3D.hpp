@@ -266,11 +266,17 @@ class CavityMetricSource {
     ++stats.imports;
     return result;
   }
-  DonorPatch ImportCells(const std::vector<Cell>& cells, size_t ceiling = SIZE_MAX, size_t caller_bytes = 0) {
+  DonorPatch ImportCells(const std::vector<Cell>& cells, size_t ceiling = SIZE_MAX, size_t caller_bytes = 0,
+                         bool elect = true) {
     ++stats.imports;
     auto result=ImportCellsFrom(cells,cavity,true,ceiling,caller_bytes);
-    CLocalFailure failure;if(!result.valid)failure.Set(2,0,result.reason);
-    const auto elected=world.elect(failure);result.reason=elected.message;result.valid=!elected.any;
+    if (elect) {
+      CLocalFailure failure;
+      if (!result.valid) failure.Set(2, 0, result.reason);
+      const auto elected = world.elect(failure);
+      result.reason = elected.message;
+      result.valid = !elected.any;
+    }
     AccountImport(result);return result;
   }
   /*! Local-only import from the caller's complete current cavity; never falls back to current or bootstrap rows. */

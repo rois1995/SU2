@@ -5703,3 +5703,43 @@ TEST_CASE("N22 automatic ownership agrees with timing on and off", "[.][NativeOw
   CHECK(untimed.stats.ownership_changes == timed.stats.ownership_changes);
   CHECK(Bytes(untimed.cells) == Bytes(timed.cells));
 }
+
+TEST_CASE("N22 deferred census joins a one-rank memory refusal", "[.][NativeN22C2][mpi]") {
+  World world;
+  REQUIRE(world.size == 2);
+  const auto fixture = Box();
+  const PlanarReference geometry(fixture.facets);
+  const auto input = Partition(Rows(fixture.patch), world);
+  const auto saved = Bytes(input);
+  const auto donors = Uniform(input, Tensor{});
+  EngineOptions options;
+  options.phase_ownership = PhaseOwnership::Disabled;
+  options.maximum_work = 64;
+  options.maximum_rounds = 1;
+  const auto run = [&](size_t ceiling) {
+    options.memory_ceiling = world.rank == 0 ? ceiling : SIZE_MAX;
+    return AdaptMetric(world, input, donors, geometry, {}, options);
+  };
+
+  // Find the admission boundary of the first import without pinning ABI-dependent workspace sizes.
+  size_t lower = 1, upper = size_t(1) << 30;
+  const auto ample = run(upper);
+  REQUIRE(world.maximum(!ample.valid) == 0);
+  REQUIRE(world.maximum(ample.stats.donor_batches != 0) != 0);
+  while (upper - lower > 1) {
+    const size_t ceiling = lower + (upper - lower) / 2;
+    const auto probe = run(ceiling);
+    if (world.maximum(probe.stats.donor_batches != 0)) upper = ceiling;
+    else lower = ceiling;
+  }
+  const auto refused = run(upper);
+  INFO("rank-zero ceiling " << upper);
+  INFO(refused.reason);
+  CHECK_FALSE(refused.valid);
+  CHECK(refused.stats.stop == EngineStop::Failure);
+  CHECK(refused.reason == "Cavity metric transport exceeds working-storage budget.");
+  CHECK(refused.stats.donor_batches > 0);
+  if (world.rank == 0) CHECK(refused.stats.maximum_work_bytes > upper);
+  CHECK((refused.stats.initial_cells == 0) == (world.rank == 0));
+  CHECK(Bytes(input) == saved);
+}

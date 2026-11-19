@@ -110,6 +110,7 @@ struct EngineRun {
     ContextValue eligible_extensions_lifetime(context.census.eligible_extensions);
     ContextValue seed_slot_lifetime(context.census.seed_slot, 0);
     ContextValue private_repair_lifetime(context.exchange.private_repair, false);
+    ContextValue deferred_votes_lifetime(context.exchange.deferred_votes, EngineExchange::DeferredVotes{});
     ContextValue private_optimizer_allowance_lifetime(control.private_optimizer_allowance, 0);
     ContextValue batch_bytes_lifetime(control.batch_bytes, 0);
     ContextValue diagnostic_bytes_lifetime(control.diagnostic_bytes,

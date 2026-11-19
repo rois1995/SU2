@@ -147,6 +147,7 @@ bool EngineCensus::ImportMeasurementBatch(EngineContext& context, const std::vec
     if (imported.valid) return true;
     if (batch == 1) {
       result.reason = imported.reason;
+      if (context.exchange.deferred_votes->active) failure.Set(2, 0, imported.reason);
       return false;
     }
     batch = (batch + 1) / 2;
@@ -268,17 +269,69 @@ bool EngineCensus::MeasureBatchCells(EngineContext& context, const std::vector<I
   return context.exchange.Vote(context, failure);
 }
 
+static bool StopMeasurementAtDeadline(EngineContext& context, bool seed) {
+  auto& result = *context.control.result;
+  result.stats.stop = EngineStop::TimeBudget;
+  result.reason = seed ? "Native3D metric seeding exhausts elapsed-time budget."
+                       : "Native3D metric update exhausts elapsed-time budget.";
+  return false;
+}
+
+bool EngineCensus::MeasureChunks(EngineContext& context, const std::vector<Id>& ids, size_t count, bool seed,
+                                 size_t plan_scratch, double* enclosing_seconds, bool deferred,
+                                 CLocalFailure& first, bool& time_stop) {
+  auto& options = context.options;
+  auto& world = context.world;
+  auto& stats = context.control.result->stats;
+  const auto& started = *context.setup.control_prefix.started;
+  auto& votes = *context.exchange.deferred_votes;
+  std::optional<EngineExchange::DeferredVoteScope> scope;
+  if (deferred) scope.emplace(votes);
+  bool complete = true;
+  for (size_t slot = 0; slot < count;) {
+    if (options.maximum_seconds) {
+      const bool over = std::chrono::duration<double>(Clock::now() - started).count() >= options.maximum_seconds;
+      if (deferred ? over : world.maximum(over) != 0) {
+        if (!deferred) return StopMeasurementAtDeadline(context, seed);
+        time_stop = true;
+        complete = false;
+        break;
+      }
+    }
+    size_t batch = std::min({MeasurementBatch, MaximumCavityCells / 6, count - slot});
+    DonorPatch imported;
+    std::map<Edge, EdgeMeasure> reuse;
+    CLocalFailure failure;
+    if (!ImportMeasurementBatch(context, ids, slot, batch, plan_scratch, enclosing_seconds, failure, reuse, imported) ||
+        !MeasureBatchCells(context, ids, slot, batch, seed, plan_scratch, failure, imported, reuse)) {
+      if (deferred && failure.Failed() && !votes.first.Failed()) votes.first = failure;
+      complete = false;
+      break;
+    }
+    slot += batch;
+    if (seed) ++stats.seed_batches;
+  }
+  if (deferred) first = votes.first;
+  return complete;
+}
+
+bool EngineCensus::JoinMeasurement(EngineContext& context, bool seed, bool complete, bool time_stop,
+                                   CLocalFailure& first) {
+  const bool timed_out = context.options.maximum_seconds && context.world.maximum(time_stop);
+  if (!complete && !time_stop && !first.Failed())
+    first.Set(2, 0, "Native3D census stopped without a recorded failure.");
+  if (!context.exchange.Vote(context, first)) return false;
+  return !timed_out || StopMeasurementAtDeadline(context, seed);
+}
+
 bool EngineCensus::Measure(EngineContext& context, const std::vector<Id>& requested_ids, bool seed,
                            double* enclosing_seconds) {
   auto& options = context.options;
   auto& world = context.world;
-  const auto& started = *context.setup.control_prefix.started;
   auto& surface_target = context.surface_target;
   auto& selection = *context.census.selection;
   auto& working = *context.ownership.working;
   auto& stats = context.control.result->stats;
-  auto& result = *context.control.result;
-  constexpr size_t MeasurementBatch = 16;
   std::optional<SU2NativeTiming3D::Scope> census_scope;
   if (options.timings) census_scope.emplace(SU2NativeTiming3D::Operation::Census);
   std::vector<Id> demand;
@@ -308,25 +361,12 @@ bool EngineCensus::Measure(EngineContext& context, const std::vector<Id>& reques
   const auto& ids = surface_target ? demand : requested_ids;
   selection.census.census_started = true;
   const size_t count = TimedAllreduce(ids.size(), CPassiveComm::Op::MAX, world.comm);
-  for (size_t slot = 0; slot < count;) {
-    if (options.maximum_seconds &&
-        world.maximum(std::chrono::duration<double>(Clock::now() - started).count() >= options.maximum_seconds)) {
-      stats.stop = EngineStop::TimeBudget;
-      result.reason = seed ? "Native3D metric seeding exhausts elapsed-time budget."
-                           : "Native3D metric update exhausts elapsed-time budget.";
-      return false;
-    }
-    size_t batch = std::min({MeasurementBatch, MaximumCavityCells / 6, count - slot});
-    DonorPatch imported;
-    std::map<Edge, EdgeMeasure> reuse;
-    CLocalFailure failure;
-    if (!ImportMeasurementBatch(context, ids, slot, batch, plan_scratch, enclosing_seconds, failure, reuse, imported))
-      return false;
-    if (!MeasureBatchCells(context, ids, slot, batch, seed, plan_scratch, failure, imported, reuse)) return false;
-    slot += batch;
-    if (seed) ++stats.seed_batches;
-  }
-  return true;
+  const bool deferred = !surface_target && !*context.exchange.private_repair;
+  CLocalFailure first;
+  bool time_stop = false;
+  const bool complete = MeasureChunks(context, ids, count, seed, plan_scratch, enclosing_seconds, deferred, first,
+                                      time_stop);
+  return deferred ? JoinMeasurement(context, seed, complete, time_stop, first) : complete;
 }
 
 bool EngineCensus::SeedNext(EngineContext& context, bool local_active) {
@@ -343,7 +383,6 @@ bool EngineCensus::SeedNext(EngineContext& context, bool local_active) {
   auto& working = *context.ownership.working;
   auto& selection = *context.census.selection;
   const auto& started = *context.setup.control_prefix.started;
-  constexpr size_t MeasurementBatch = 16;
   Timer timer(stats.seed_seconds, options.timings, SU2NativeTiming3D::Operation::Census);
   // Composed or sided planning is expensive; a complete cavity may remove still-unmeasured topology.
   if ((!composition && !surface_target) || phase == Phase::Improvement) {

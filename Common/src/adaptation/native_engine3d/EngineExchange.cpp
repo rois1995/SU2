@@ -5,6 +5,14 @@
 EngineExchange::EngineExchange() = default;
 EngineExchange::~EngineExchange() = default;
 
+EngineExchange::DeferredVoteScope::DeferredVoteScope(DeferredVotes& state) : votes(state) {
+  assert(!votes.active);
+  votes.first = {};
+  votes.active = true;
+}
+
+EngineExchange::DeferredVoteScope::~DeferredVoteScope() { votes.active = false; }
+
 void EngineExchange::RetireDirectory(const DirectoryStats& old) {
   auto& retired_directory = *this->retired_directory;
 
@@ -28,8 +36,11 @@ void EngineExchange::RetireDirectory(const DirectoryStats& old) {
 
 CElectedFailure EngineExchange::ElectTrialFailure(EngineContext& context, const CLocalFailure& local) {
   auto& private_repair = *context.exchange.private_repair;
+  auto& deferred = *context.exchange.deferred_votes;
   auto& world = context.world;
-  if (private_repair) return CElectedFailure{local.Failed(), world.rank, local.severity, local.gid, local.message};
+  if (deferred.active && local.Failed() && local.severity < 4 && !deferred.first.Failed()) deferred.first = local;
+  if (private_repair || deferred.active)
+    return CElectedFailure{local.Failed(), world.rank, local.severity, local.gid, local.message};
   return world.elect(local);
 }
 
@@ -143,7 +154,8 @@ DonorPatch EngineExchange::ImportSource(EngineContext& context, const std::vecto
   else
     ++stats.donor_batches;
   return source.ImportCells(cells, options.memory_ceiling,
-                            transfer_memory::Add(Bytes(context), directory->ResidentBytes(), extra));
+                            transfer_memory::Add(Bytes(context), directory->ResidentBytes(), extra),
+                            !context.exchange.deferred_votes->active);
 }
 
 // Holds the single original Topology scope across lookup, support expansion and frontier receipts.

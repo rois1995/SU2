@@ -20,6 +20,7 @@
 #include "../../include/adaptation/CNativeWallGeometryLaw3D.hpp"
 #include "../../include/adaptation/CNativeLaneCensus3D.hpp"
 #include "../../include/adaptation/CNativeRuntimeProfile3D.hpp"
+#include <cassert>
 #include <chrono>
 #include <cmath>
 #include <cstring>

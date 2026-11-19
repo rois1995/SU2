@@ -25,6 +25,9 @@ struct EngineCensus {
   bool GenerationCensus(EngineContext&);
   GenerationDebt CurrentGenerationDebt(EngineContext&) const;
   bool Measure(EngineContext&, const std::vector<Id>&, bool seed, double* enclosing_seconds);
+  bool MeasureChunks(EngineContext&, const std::vector<Id>&, size_t count, bool seed, size_t plan_scratch,
+                     double* enclosing_seconds, bool deferred, CLocalFailure& first, bool& time_stop);
+  bool JoinMeasurement(EngineContext&, bool seed, bool complete, bool time_stop, CLocalFailure& first);
   bool ImportMeasurementBatch(EngineContext&, const std::vector<Id>& ids, size_t slot, size_t& batch,
                               size_t plan_scratch, double* enclosing_seconds, CLocalFailure&,
                               std::map<Edge, EdgeMeasure>& reuse, DonorPatch& imported);
@@ -40,4 +43,7 @@ struct EngineCensus {
   EngineCensus& operator=(const EngineCensus&) = delete;
   EngineCensus(EngineCensus&&) = delete;
   EngineCensus& operator=(EngineCensus&&) = delete;
+
+ private:
+  static constexpr size_t MeasurementBatch = 16;
 };
