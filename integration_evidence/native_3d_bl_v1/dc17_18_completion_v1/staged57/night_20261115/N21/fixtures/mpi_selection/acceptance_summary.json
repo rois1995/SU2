@@ -1,0 +1,34 @@
+{
+  "passed": true,
+  "build": 589,
+  "gate_build": 588,
+  "fixture_source": "UnitTests/Common/adaptation/CNativeGeometryBackend3D_tests.cpp",
+  "default_exclusion_seconds": 0.3303401470184326,
+  "assertions": {
+    "1": {
+      "assertions_per_rank": [
+        925
+      ],
+      "seconds": 17.18129014968872
+    },
+    "2": {
+      "assertions_per_rank": [
+        103,
+        103
+      ],
+      "seconds": 3.1575839519500732
+    },
+    "4": {
+      "assertions_per_rank": [
+        103,
+        103,
+        103,
+        103
+      ],
+      "seconds": 3.187140464782715
+    }
+  },
+  "qualified_solver_sha256": "d4476c9cf971584bcc128d650d87d9043cb468f82c5a900b5ac2cebfeedb2267",
+  "active_solver_sha256": "d4476c9cf971584bcc128d650d87d9043cb468f82c5a900b5ac2cebfeedb2267",
+  "test_binary_sha256": "569959cc5de1b0ca114aa6a0d0a47a11dbc979d84f5e26e84ffd5094ed4b4879"
+}

@@ -1345,7 +1345,7 @@ TEST_CASE("T3 a missing surface remains outside the model proof", "[NativeOwnedF
   CHECK_FALSE(certificate.within_tolerance);
 }
 
-TEST_CASE("T4 MPI shares join to the same entity certificates", "[NativeOwnedFaceProof3D][N21ProofShare][mpi]") {
+TEST_CASE("T4 MPI shares join to the same entity certificates", "[.][NativeOwnedFaceProof3D][N21ProofShare][mpi]") {
   World world;
   REQUIRE((world.size == 2 || world.size == 4));
   BackendFixture model(true);

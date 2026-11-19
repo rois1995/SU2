@@ -384,7 +384,7 @@ def report(args):
         outputs.append(dump_path)
     if args.timings_draft:
         outputs.append(args.timings_draft)
-    if any(path.exists() for path in outputs):
+    if any(path.exists() for path in outputs if path != dump_path):
         raise FileExistsError('Preserve the earlier output before regenerating this report.')
 
     lines = [f'# Step 8.5t, build{build}', '',
@@ -435,20 +435,22 @@ def report(args):
     lines.extend(OLD['measurement_lines'](records))
     csv_path, provenance = m28_outputs(stem, records, audit)
     lines.extend(['', link('Per-rank M28 measurements', csv_path) + ' · ' + link('Rank-log provenance', provenance)])
-    lines.extend(['', M28['stuck_table'](audit).rstrip()])
+    last_census = M28['stuck_table'](audit).replace('## Stuck cells', '## Stuck cells at the last quality census', 1)
+    lines.extend(['', last_census.rstrip()])
     if rejected_any:
-        with dump_path.open('x') as stream:
-            stream.writelines(row + '\n' for row in dump)
+        if not dump_path.is_file():
+            with dump_path.open('x') as stream:
+                stream.writelines(row + '\n' for row in dump)
         lines.extend(['', link('Rejected-event M28, M29, fine placement and final proof dump', dump_path)])
     lines.extend(disposition(args.diagnosis))
     with main.open('x') as stream:
         stream.write('\n'.join(lines) + '\n')
     if args.timings_draft:
-        timing_excerpt(args, build, cases, events, main)
+        timing_excerpt(args, cases, events, main)
     return outputs
 
 
-def timing_excerpt(args, build, cases, events, report_path):
+def timing_excerpt(args, cases, events, report_path):
     active = {'T0', 'T1', 'run1', 'run2'} if args.w_status == 'PASSED' else {'T0', 'T1'}
     if args.p_status != 'PASSED':
         raise ValueError('A timings excerpt requires an accepted result.')
@@ -456,7 +458,10 @@ def timing_excerpt(args, build, cases, events, report_path):
         ' / '.join(f'{max(proof_seconds(timer_ledgers(cases[run], event)).values()):.3f}'
                    for event in (1, 2)) for run in ('T0', 'T1'))
     handbook = NIGHT.parents[4] / 'Handbook'
-    lines = [f'## Step 8.5t, build{build}', '',
+    build = f'Part P build{args.p_build}'
+    if args.w_status == 'PASSED':
+        build += f' and Part W build{args.w_build}'
+    lines = [f'## Step 8.5t, {build}', '',
              f'Part P reduced the maximum rank-exclusive final certification from {before} s to {after} s '
              'across events 1 and 2. The six P6c/P7 payloads matched.',
              OLD['link']('Step 8.5t report', report_path, handbook)]

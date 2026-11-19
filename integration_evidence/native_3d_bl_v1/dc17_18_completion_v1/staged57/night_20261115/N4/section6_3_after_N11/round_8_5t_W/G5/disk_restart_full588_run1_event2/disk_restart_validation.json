@@ -1,0 +1,64 @@
+{
+  "time": 1795085783.4218326,
+  "disk_restart_verified": true,
+  "adapted_points": 161189,
+  "adapted_cells": 822882,
+  "ranks": 6,
+  "standalone_qualified_cfd": true,
+  "seconds": 284.2359731197357,
+  "source_checkpoint": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N4/section6_3_after_N11/round_8_5t_W/G5/full588_run1",
+  "source_event": 2,
+  "source_event_receipt_sha256": "8f0a176de4039a6fb5cc1dbc331ce978edd9ea7be53c1ae43ca89143f43fd52b",
+  "coordinate_maximum_error": 0.0,
+  "all_output_fields_finite": true,
+  "minimum_density": 0.6260440429615042,
+  "minimum_internal_energy_density": 103851.87081445422,
+  "precision": "Float64",
+  "continued_cfd": {
+    "rms_rho": -2.399975,
+    "CL": 0.270244,
+    "CD": 0.015737
+  },
+  "continued_history": [
+    {
+      "Time_Iter": "0",
+      "Outer_Iter": "0",
+      "Inner_Iter": "0",
+      "rms[Rho]": "-2.399975426",
+      "rms[RhoU]": "0.1026234641",
+      "rms[RhoV]": "0.2841848424",
+      "rms[RhoW]": "0.3499652832",
+      "rms[RhoE]": "3.111513486"
+    }
+  ],
+  "conservative_field_changes": {
+    "Density": 0.03994778323661907,
+    "Momentum_x": 20.35309292522207,
+    "Momentum_y": 6.057797159319122,
+    "Momentum_z": 17.79968546142456,
+    "Energy": 13245.129161438555
+  },
+  "all_inputs_and_pins_unchanged": true,
+  "pin_count": 2037,
+  "validation_helpers": {
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N4/section6_3_after_N11/round_8_5t_W/G5/validate_restart588.py": "cd45e23a09b5ed732836833575beb5b98caea4774bb5f23e20867a71fccc61f8",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/TestCases/adaptation/capability/capcheck.py": "38ee0fe9fc60d7b29ab796303d8c5cec2770ad1beb06e2e5b76d5c687d495f92"
+  },
+  "artifact_sha256": {
+    "accepted508.su2": "0d07cefcf5d9e89bb6d70aa11e2ed5bda8344fee2755b9715d2f360a83f55738",
+    "accepted508.su2.native_ref": "37156953991a561cc0483c015f32229f1083ea9dcd3d2313848d986b2c2cee9b",
+    "accepted508_input.dat": "33c857da60fe3dc018ef25c196994fa8cf3b7ce44d3c65f61a009f4d1a219cd9",
+    "continued508_restart.dat": "0fcaa1b221847c328863b566e87ea7679ec1e6e58a7b70dd39bd1161ccae398e",
+    "run.cfg": "2f568a0c421ac016956980e82cad116c411bb1df1df0ffca60e93df54d2486b2",
+    "run.log": "56bf3309bcefe25d89fb1164df84ac71317dfe4413fa7b808fbbcd50dc7a9c14",
+    "continued508_history.csv": "9f282cfd2d454c1ddbb717800963809ab652e2b13d224dc45a9a8de4b30e4fc5",
+    "status.json": "a1c5abe6c604040efc8d0cdfd6083ce4532c5cc69f94b141d25fdf4af19f2a92",
+    "terminal_handles.json": "ecc2926b7eb53fa806c77ec575f38e90bac7f2d86aeba5b5f0f8e607b89c4ff1",
+    "post_terminal_handles.json": "8effa74013d2a611c1e0efe93fdf532b9a0389f0a0a4641cf72c3ee7ddaf6ac0",
+    "loaded_runtime_startup.json": "3507fb96748008e4f6b0c8f8b20d1c3bb2a9c7e6d6a447ce132f9d4c7f3f210b",
+    "resource_peak_receipt.json": "24a1786133c087e925e96bb20a2586e47d251ae5781269a19179a3a3bab0ac51",
+    "cpu_process_audit.json": "350a962bbdfada53caf1f3f03cfb56187ef81b6adc3bb68b75326e1bd5bb8784",
+    "resource_proof_receipt.json": "3e5cb0a73e08dd21318d73f996b0fe016f8e6d3272b247bb9facbd298f755cb1"
+  },
+  "scope": "Actual isolated steady CFD disk restart on R3 P7/P8 accepted second adapted mesh and matching event-two restart state. One further CFD iteration; not convergence qualification, adaptation resume, or full-goal completion."
+}

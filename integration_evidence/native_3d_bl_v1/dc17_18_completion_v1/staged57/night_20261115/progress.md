@@ -2,9 +2,13 @@
 
 Updated 2026-11-19. Read AGENTS.md and the copied WORK_ORDER_2.md at the start of the new session, then this file.
 
+## Current state — N21
+
+N21 Part P passed at `08a8d7c7ff`. Part W source `7ac99f096d` passed both workflows, the isolated restart, six repeat-identical payloads and the 0.95 timing rule. The selected sum was 3,326.986 s against 3,336.027 s. Build589 uses the qualified solver hash and verified all owned identities terminal. [Step 8.5t report](N21/reports/STEP_8_5T_588.md) · [Adopted reference](N21/accepted_reference.json). Wait for the next user order.
+
 ## Current state — N20
 
-N20 Part A PASSED. Part W FAILED its purpose rule. Build586 is active. [Step 8.5s report](N20/reports/STEP_8_5S_585.md) Wait for the next user order.
+N20 Part A PASSED. Part W FAILED its purpose rule. Build586 was restored at that checkpoint. [Step 8.5s report](N20/reports/STEP_8_5S_585.md) Wait for the next user order.
 
 ## Current state — N19
 
@@ -380,3 +384,43 @@ N21 P. All three event-one payloads match P6c. Maximum native time 2094.50249863
 - 2026-11-19T09:59:52+01:00 N21 P. Build587 matched all six P6c/P7 payloads and old rows. The proof purpose gate passed.
 
 N21 P. Build587 passed scoped identity, safeguards, the two-event G5, all six payload identities and the 53.4 s certification ceiling. The P acceptance receipt records the T1 maxima. Proceed with W.
+
+N21 W. Applied and pushed exact three-path wide candidate `7ac99f096d`. Starting build588.
+
+N21 P. Accepted and pushed as `08a8d7c7ff`. Full build587 G5 completed in 3,960.861 s. All six payloads and 96 timer snapshots passed. The certification maxima were 19.216551329 / 21.516550950 s. T1 native maxima were 2,094.502498638 / 1,417.104791628 s. W uses a combined ceiling of 3,336.02692575270 s and both T1 event ceilings. The W controller is PID 3191786 / start 56467329.
+
+N21 W. Build588 compiled without warnings. The exact wide-repeat fixture passed at 2 and 4 ranks.
+
+N21 W. Build588 passed the exact wide-repeat fixtures at 2 / 4 ranks and matched G1's 375 / 114 / 228 records. G2 matched the 90,809,869-work first-collapse prefix, old integer and modeled rows and timer calls, with fixedstorage=4120. G3 is running.
+
+N21 W. Scoped gates passed G1 375/114/228, G2 90,809,869, G3 1,550 splits and 1,113 exact shared edits, and G4. Running the standing safeguards.
+
+N21 W. Passed all three remaining standing safeguards. Starting G5 run 1.
+
+- 2026-11-19T10:45:59+01:00 N21 W. Build588 passed scoped checks and safeguards. Starting G5 run one.
+
+N21 W. Run-one build588 wrapper PID 3425102 / start 57386927. All three standing safeguards are sealed. T0 construction prefix, isolated restart, run two and the 0.95 timing rule follow.
+
+N21 W run1. Event one fine move on rank 3 at round 25,852, vertex 200812891, closed the 9.4270376918515042e-05 shape debt. Native event maximum 2048.285885933 s, final certification max 19.004350228 s. Timer and connected gates passed. Transfer, continued CFD, event two and exact T0 prefix are pending.
+
+N21 W run1. Both native events completed. Event two native maximum 1,379.449004216 s and final certification maximum 57.537357453 s. The two maxima from run1 sum to 3,427.734890149 s. Standing transfer, exact T0 prefix, restart and run two remain before the purpose decision.
+
+- 2026-11-19T11:51:15+01:00 N21 W. Run one passed its workflow and exact T0 prefix. Starting the isolated event-two restart.
+
+- 2026-11-19T11:56:23+01:00 N21 W. The isolated restart passed. Starting G5 run two on the same binary.
+
+N21 W. Run1 passed in 3,911.928 s with exact T0 construction prefix. Isolated event-two restart passed in 289.993 s. Run2 wrapper PID 3529461 / start 57809324 is active on the same pinned build588.
+
+N21 W run2 at 12:09. Event one is still in preparation under higher host contention. The actual-host observation in N21/W_run2_contention_observation.json identified an unrelated process using roughly seven cores and verified six owned solver ranks. The same run continues under the frozen event and resource limits.
+
+N21 W run2. The fine publication repeated at round 25,852 and event one closed on all six ranks. Native maximum 2741.581855733 s. Run one supplies the smaller event-one time. Event-two and payload repeat evidence are pending.
+
+N21 W run2. All three event-one payloads were independently checked against run1 and match. Event two is active.
+
+N21 W run2. Both native events completed. Event-one maximum 2,741.581855733 s and event-two maximum 1,278.700341572 s. The per-event minima from run1 event one and run2 event two sum to 3,326.986227505 s, against 3,336.026925753 s. Both event ceilings are met. W remains a candidate pending terminal transfer and six-file repeatability.
+
+- 2026-11-19T13:10:58+01:00 N21 W. Both workflows and isolated restart passed with six exact matching files. The time rule passed.
+
+N21 W PASSED. Build588 passed both workflows, the isolated restart, exact T0 prefix, six repeated payloads and F=0.95. Build589 kept the same solver hash, excluded the MPI-only case from default selection and repeated T1–T4. Final report follows.
+
+N21. Final audit verified 406 terminal owned identities and 1,790 active source pins. Report and handoff updated.

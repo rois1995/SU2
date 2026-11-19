@@ -1,5 +1,36 @@
 # Adaptation timings and computational work
 
+## Step 8.5t, Part P build587 and Part W build588
+
+Part P reduced the maximum rank-exclusive final certification from 90.407 / 91.040 s to 19.217 / 21.517 s across events 1 and 2. The six P6c/P7 payloads matched.
+[Step 8.5t report](../integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N21/reports/STEP_8_5T_588.md)
+
+## Workflow measurements
+
+| Run | Event | Native max (s) | Process-peak sum (B) | Minimum timer coverage | Proof faces |
+|---|---:|---:|---:|---:|---:|
+| T0 | 1 | 2236.869538535 | 14,007,504,896 | 96.1996% | 67,170 |
+| T0 | 2 | 1416.499470597 | 17,363,812,352 | 96.7275% | 62,912 |
+| T1 | 1 | 2094.502498638 | 14,003,933,184 | 96.2532% | 67,170 |
+| T1 | 2 | 1417.104791628 | 17,352,138,752 | 96.6015% | 62,912 |
+| run1 | 1 | 2048.285885933 | 14,055,071,744 | 95.2382% | 61,906 |
+| run1 | 2 | 1379.449004216 | 16,693,104,640 | 96.1063% | 58,260 |
+| run2 | 1 | 2741.581855733 | 14,014,971,904 | 96.1846% | 61,906 |
+| run2 | 2 | 1278.700341572 | 16,775,467,008 | 96.1185% | 58,260 |
+
+## Mean rank-exclusive seconds by phase
+
+Each mean uses the six final remesh ledgers. The whole-event wall clock has a wider scope.
+
+| Run | Event | Preparation | Construction | Quality | Final proof |
+|---|---:|---:|---:|---:|---:|
+| T1 | 1 | 135.627946 | 475.363796 | 1386.850431 | 52.318934 |
+| T1 | 2 | 207.377299 | 203.119927 | 882.211175 | 78.756776 |
+| run1 | 1 | 140.104302 | 513.510297 | 1281.016546 | 66.178124 |
+| run1 | 2 | 272.304431 | 240.280538 | 714.701431 | 111.295533 |
+
+The 0.95 rule selected 2,048.286 s from run one for event one and 1,278.700 s from run two for event two. Their sum was 3,326.986 s against a 3,336.027 s ceiling. The second run had higher host contention during event-one preparation. The adoption uses the per-event minima.
+
 ## N6 — build578
 
 G5 passed in 4041.079 s, with native maxima 2173.311 / 1434.914 s and minimum timer coverage 96.4000% / 96.7297%. The isolated restart took 234.819 s. The six payloads, old work and timer calls matched the full build574 reference. [N6 report](ADAPTATION_CUT_N6_20261118.md)

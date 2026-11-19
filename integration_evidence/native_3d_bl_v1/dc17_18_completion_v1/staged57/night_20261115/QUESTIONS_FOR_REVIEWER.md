@@ -114,3 +114,6 @@ N20 A implementation question commit: `01d2bbd24f2504a35406ebc529978c97af29c647`
   diagnostic family out of the old timer parsing path. The proof collector and
   report bind stderr and stdout to the same rank and event. Commit: N21 P
   source checkpoint, recorded in the N21 report.
+
+- 2026-11-19T10:00:46+01:00 — N21 P1–P5.7 commit reference for the root-count,
+  restart, fixture-access and diagnostic-stream entries above: `08a8d7c7ff`.
