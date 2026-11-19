@@ -176,3 +176,5 @@ N20 A implementation question commit: `01d2bbd24f2504a35406ebc529978c97af29c647`
   width comparator. Commit: FP0 checkpoint.
 
 - 2026-11-19 21:02 Europe/Rome, FP1 A, split sweep (base `a59380df18`). Which neighborhood inherits the stamp deferral? The collapse rule refers to stars of ends that can be removed, and a split removes neither end. The choices were the split ring alone or the stars of both eligible split endpoints. Used both endpoint stars because section 7 says to carry over the same stamp rule and checks for earlier edits around the ends.
+
+- 2026-11-19 21:40 Europe/Rome, FP1 C, G2 OFF reference (at `68d28afad0`). Which construction communication count should qualify OFF? N14 reports 340,843 and accepted N22 C reports 333,799 per rank, with Work order 3 section 2a naming only preparation for the substitution. The options were the explicit N14 construction comparison or extending the preparation exception to construction. Used the explicit comparison because R1 holds the gate fixed and OFF has no production core statement. The numeric discrepancy is in the FP1 report.

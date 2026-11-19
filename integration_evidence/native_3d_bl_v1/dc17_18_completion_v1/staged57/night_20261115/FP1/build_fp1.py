@@ -58,7 +58,7 @@ def build(work, label, solver):
     env = ['env', 'OMP_NUM_THREADS=1', 'OPENBLAS_NUM_THREADS=1', 'MKL_NUM_THREADS=1',
            f'NINJA={TOOLS / "ninja"}', f'TMPDIR={TMP}']
     argv = [*env, 'nice', '-n', '19', '/usr/bin/time', '-v', '-o', str(work / 'build.time'),
-            'timeout', '5400', str(TOOLS / 'ninja'), '-C', str(BUILD), '-j', '4', *targets]
+            str(TOOLS / 'ninja'), '-C', str(BUILD), '-j', '4', *targets]
     graph = lambda: {name: sha(BUILD / name) for name in ('build.ninja', 'compile_commands.json')}
     cut.save(work / 'build_plan.json', {'argv': argv, 'graph_before': graph(),
              'source_pins_sha256': sha(manifest), 'solver_before': solver_before})

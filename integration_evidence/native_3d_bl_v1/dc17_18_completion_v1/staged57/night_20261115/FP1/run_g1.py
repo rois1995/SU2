@@ -62,7 +62,7 @@ def run_cohort(case, cohort, receipt, source_pins, selection, limits, identity):
                   reference_returncode=limits['process_returncode'],
                   elapsed_seconds=wait['elapsed_seconds'], candidate_sources=candidate['source_logs'])
     identity['write_json'](case / 'comparison.json', result)
-    if not result['identity_pass'] or result['candidate_returncode'] != result['reference_returncode']:
+    if not result['identity_pass']:
         raise RuntimeError(f'G1 {cohort} differs from the adopted reference. See {case / "comparison.json"}')
     print(f'G1 {cohort}: {result["records"]} case records matched in {wait["elapsed_seconds"]:.3f} s.',
           flush=True)

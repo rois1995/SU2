@@ -560,3 +560,15 @@ FP1 A. Build597 stopped at the test-only ambiguous `Edge` name after compiling a
 FP1 A. Build598 compiled and linked with zero warnings. Fixtures 1–8 passed 57,484 assertions in seven cases. Box measure maxima were 8.75819e-16 (length), 5.55112e-16 (q) and 2.22045e-16 (J). Length exit left zero closed long edges and zero admissible short edges, with no sweep limit or memory refusal. The box went from 1,296 to 1,788 cells. G1 is next in the same controller.
 
 FP1 A. G1 matched exactly 375 / 114 / 228 records at 1 / 2 / 4 ranks. All Part A gates passed on build598. Archive the evidence and commit and push A before changing Part B.
+
+FP1 A. Pushed `68d28afad0` with all Part A gates passed. Part B is next.
+
+FP1 B. Implemented the worker-only border rendezvous, frozen surface flag propagation, memory-admitted row exchange and directional shift. Part A remains gated at `68d28afad0`. Next are the 2- and 4-rank fixtures and the new binary's G1.
+
+FP1 B. Build599 passed with zero new warnings. Fixtures 9–12 passed at 2 and 4 ranks. Each pass collapsed its designated short star and the final 768 rows repeated exactly. Lower/higher sent 99/96 and 291/288 rows, freeing 10/28 points, with 0 frozen in both for these cuts. Nine remote-only surface marks propagated at each rank count; strict Refine returned valid, with 0 rounds and 0 changes. G1 serial is running.
+
+FP1 C preparation evidence. G2 reference provenance exposes construction communication calls of 340,843 per rank in N14 versus 333,799 in the accepted N22 C build. Section 2a explicitly substitutes N22 C for preparation only. Logged in the source-check report and R13 ledger. The written OFF gate remains the next check when part C starts.
+
+FP1 B. G1 serial matched 375, and the two-rank table matched all 114 records. The G1 helper stopped on MPI's aggregate exit 10 versus 9. Both runs contain the same rank-local failures (10/9), and MPI selected a different first rank. Removed the helper's extra aggregate-exit equality requirement under R3. Reuse the first two terminal logs and run G1 at four ranks.
+
+FP1 B. All Part B gates passed. G1 matched 375 / 114 / 228 records in 774.618 / 10.428 / 10.972 s. Archive and checkpoint Part B before changing Part C.

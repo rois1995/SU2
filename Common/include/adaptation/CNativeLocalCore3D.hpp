@@ -20,6 +20,7 @@ using SU2Native3D::Node;
 using SU2Native3D::Owned;
 using SU2Native3D::Point;
 using SU2Native3D::Tensor;
+using SU2Native3D::World;
 
 using Slot = uint32_t;
 using Vertices = std::array<Slot, 4>;
@@ -86,6 +87,43 @@ class IdSequence {
   Id last_, stride_, ranks_;
 };
 
+/*! The worker supplies the retained storage and the production Owned row charge. */
+struct MemoryBudget {
+  size_t ceiling, caller_bytes, owned_row_bytes, maximum_bytes = 0;
+  size_t OwnedBytes(size_t cells) const;
+  void Require(const World& world, size_t bytes, const char* reason);
+};
+
+struct BorderPoint {
+  Id id = 0;
+  int lower = 0, upper = 0;
+  bool surface = false;
+
+  template <class Stream>
+  void Fields(Stream& stream) {
+    stream(id, lower, upper, surface);
+  }
+};
+
+struct BorderMeeting {
+  std::vector<BorderPoint> points;
+  std::vector<Id> rendezvous;
+  const BorderPoint* Find(Id id) const;
+  size_t Bytes() const;
+};
+
+enum class Direction { Lower, Higher };
+
+struct ShiftStats {
+  size_t cells_before = 0, cells_after = 0, sent = 0, received = 0;
+  size_t border_points = 0, frozen_in_both = 0;
+};
+
+BorderMeeting MeetBorderPoints(World& world, const Owned& owned, MemoryBudget& budget, size_t retained = 0,
+                               bool report = true);
+ShiftStats ShiftBorders(World& world, Owned& owned, const BorderMeeting& meeting, Direction direction,
+                        MemoryBudget& budget, const BorderMeeting* previous = nullptr, bool report = true);
+
 /*! One pass owns its arrays. Slots may be reused, while point ids are never reused. */
 class Mesh {
  public:
@@ -97,6 +135,7 @@ class Mesh {
   std::vector<EdgeUse> Edges() const;
   bool ClosedRing(Edge edge, Slot seed) const;
   void MarkWallNear();
+  void MarkBorderSurface(const BorderMeeting& meeting);
 
   double Length(Edge edge) const;
   MetricMeasures Shape(Vertices vertices) const;
