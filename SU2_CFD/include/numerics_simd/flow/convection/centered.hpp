@@ -64,6 +64,7 @@ protected:
   const bool edgeForm;
   const bool exactFormJac;
   const bool projDiss;  /*!< \brief EDGE_DISS_PROJECTED, declared before ecFlux, which depends on it. */
+  const bool alignedDiss; /*!< \brief EDGE_FORM_P1_DISS_ALIGNED, true-edge JST on the edge projection of n_ik. */
   const bool ecFlux;
   const bool esDiss;
   const bool esBlend;
@@ -90,6 +91,7 @@ protected:
      * normal is not the derivative of the form and made the implicit iteration diverge on T6E. ---*/
     exactFormJac(edgeForm && (config.GetEdge_Form_Exact_Jacobian() || config.GetEdge_Form_P1())),
     projDiss(iMesh == MESH_0 && config.GetEdge_Diss_Projected()),
+    alignedDiss(edgeForm && config.GetEdge_Form_P1_Diss_Aligned()),
     ecFlux((edgeForm || projDiss) && config.GetEdge_Form_EC_Flux()),
     esDiss(edgeForm && config.GetEdge_Form_ES_Diss()),
     esBlend(edgeForm && config.GetEdge_Form_ES_Blend()),
@@ -411,19 +413,32 @@ public:
      * radii of the stretching correction and of the time step stay median. Off, the references are the median
      * normal and nothing else is read. ---*/
 
+    /*--- EDGE_FORM_P1_DISS_ALIGNED (rule L): the same projection of the form normal n_ik of the central part above,
+     * nu = (n_ik.e/|e|^2) e, with the same scope (dissipation and its Jacobian only). With MOD_CENTROIDS_EXPONENT= 0
+     * n_ik is the median normal on tetrahedra, which gives the dissipation of EDGE_DISS_PROJECTED, and the true edges
+     * follow the rule of the split pairs of EDGE_FORM_P1_MIXED_DISS_ALIGNED (p1_pair_jst.hpp, not changed here).
+     * |nu| = n_ik.e/|e| enters lambda with its sign, so CGeometry::CheckProjectedDissipation refuses n_ik.e <= 0.
+     * JST_WEAK_WALL_DISSIPATION reads only the wall flags of the nodes and is unchanged. ---*/
+
+    const bool projectedDiss = projDiss || alignedDiss;
     VectorDbl<nDim> projNormal, projUnitNormal;
     Double projArea = 0.0;
-    if (projDiss) {
+    if (projectedDiss) {
       const auto vector_ij = distanceVector<nDim>(iPoint, jPoint, geometry.nodes->GetCoord());
-      projectedNormal(normal, vector_ij, projNormal, projArea, projUnitNormal);
+      if (alignedDiss) {
+        const auto formNormal = gatherVariables<nDim>(iEdge, geometry.edges->GetFormNormal());
+        projectedNormal(formNormal, vector_ij, projNormal, projArea, projUnitNormal);
+      } else {
+        projectedNormal(normal, vector_ij, projNormal, projArea, projUnitNormal);
+      }
     }
-    const VectorDbl<nDim>& rNormal = projDiss ? projNormal : normal;
-    const VectorDbl<nDim>& rUnitNormal = projDiss ? projUnitNormal : unitNormal;
-    const Double& rArea = projDiss ? projArea : area;
+    const VectorDbl<nDim>& rNormal = projectedDiss ? projNormal : normal;
+    const VectorDbl<nDim>& rUnitNormal = projectedDiss ? projUnitNormal : unitNormal;
+    const Double& rArea = projectedDiss ? projArea : area;
 
-    /*--- GRID_ENTROPY_P1 with EDGE_DISS_PROJECTED: the relative speed along the dissipation normal, (u - {{v}}).nu. ---*/
+    /*--- GRID_ENTROPY_P1 with a projected dissipation: the relative speed along the dissipation normal, (u - {{v}}).nu. ---*/
     Double projGridDiss = projGridVel;
-    if (gridEntropy && projDiss) {
+    if (gridEntropy && projectedDiss) {
       const auto& gridVel = geometry.nodes->GetGridVel();
       const auto gridVel_i = gatherVariables<nDim>(iPoint, gridVel);
       const auto gridVel_j = gatherVariables<nDim>(jPoint, gridVel);

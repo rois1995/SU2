@@ -110,6 +110,7 @@ private:
   bool Edge_Form_P1_Mixed;     /*!< \brief EDGE_FORM_P1 on quadrilaterals, hexahedra, prisms and pyramids by split averages (P1_MIXED.md). */
   bool Edge_Form_P1_Mixed_Diss; /*!< \brief EDGE_FORM_P1_MIXED_DISS: JST dissipation on the split pairs of EDGE_FORM_P1_MIXED. */
   bool Edge_Form_P1_Mixed_Diss_Aligned; /*!< \brief EDGE_FORM_P1_MIXED_DISS_ALIGNED: the pair dissipation on the edge projection of n_ik. */
+  bool Edge_Form_P1_Diss_Aligned; /*!< \brief EDGE_FORM_P1_DISS_ALIGNED: the true-edge JST on the edge projection of the form normal n_ik. */
   bool Positive_Update_Flow;   /*!< \brief Positivity-preserving step length of the implicit flow and SST updates (P1_POSITIVITY.md). */
   su2double Mod_Centroid_Exponent; /*!< \brief Power of the face area in the modified centroid. */
   su2double Highlite_Area;        /*!< \brief Highlite area. */
@@ -10271,6 +10272,13 @@ public:
    *        nu_ik = (n_ik.e_ik/|e_ik|^2) e_ik of the pair coefficient, e_ik = x_k - x_i, instead of n_ik.
    */
   bool GetEdge_Form_P1_Mixed_Diss_Aligned() const { return Edge_Form_P1_Mixed_Diss_Aligned; }
+
+  /*!
+   * \brief EDGE_FORM_P1_DISS_ALIGNED: the JST dissipation of the true edges of EDGE_FORM_P1 (and its Jacobian) uses the
+   *        edge projection nu_ik = (n_ik.e_ik/|e_ik|^2) e_ik of the form normal n_ik, e_ik = x_k - x_i, instead of the
+   *        dual normal. The central part, the stretching correction and the time step are unchanged.
+   */
+  bool GetEdge_Form_P1_Diss_Aligned() const { return Edge_Form_P1_Diss_Aligned; }
 
   /*!
    * \brief POSITIVE_UPDATE_FLOW: the factor of the implicit flow update is reduced so that rho >= eps_r rho_old and

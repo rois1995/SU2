@@ -1005,11 +1005,13 @@ class CGeometry {
   void UpdateP1FluxCoefficients(const CConfig* config);
 
   /*!
-   * \brief EDGE_DISS_PROJECTED: check n.e > 0 on every edge with an owned node, so that the dissipation normal
-   *        nu = (n.e/|e|^2) e of the numerics is not null. Always true on simplices (n.e = 2|S_ik|/(d+1)).
+   * \brief EDGE_DISS_PROJECTED (median normal) or EDGE_FORM_P1_DISS_ALIGNED (form normal n_ik): check n.e > 0 on every
+   *        edge with an owned node, so that the dissipation normal nu = (n.e/|e|^2) e of the numerics is not null and
+   *        its acoustic part c n.e/|e| is positive. Always true on simplices (n.e = 2|S_ik|/(d+1)).
    * \note Called from UpdateP1FluxCoefficients, so also after the coordinates change.
+   * \param[in] formNormal - Check the form normals of EDGE_FORM_P1 instead of the dual normals.
    */
-  void CheckProjectedDissipation() const;
+  void CheckProjectedDissipation(bool formNormal = false) const;
 
  protected:
   bool sweptFluxStale = false; /*!< \brief The mesh moved since the terms of GCL_EXACT_P1 were computed. */

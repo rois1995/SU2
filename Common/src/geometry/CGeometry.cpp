@@ -2737,12 +2737,13 @@ void CGeometry::UpdateP1FluxCoefficients(const CConfig* config) {
   if (config->GetSplit_Edge_Flux()) SetSplitEdges();
   if (config->GetGCL_Exact_P1()) sweptFluxStale = true;
   if (config->GetEdge_Diss_Projected()) CheckProjectedDissipation();
+  if (config->GetEdge_Form_P1_Diss_Aligned()) CheckProjectedDissipation(true);
   /*--- One increment whether all threads, one thread or no parallel region calls this; no barrier, so that runs
    * without P1 options synchronize as before. It is read in later residual calls only. ---*/
   if (omp_get_thread_num() == 0) p1FluxVersion++;
 }
 
-void CGeometry::CheckProjectedDissipation() const {
+void CGeometry::CheckProjectedDissipation(bool formNormal) const {
   BEGIN_SU2_OMP_SAFE_GLOBAL_ACCESS {
     /*--- The numerics compute nu = (n.e/|e|^2) e on the fly from the normal and the coordinates. On simplices every
      * element adds n^T.e = 2|T|/(d+1) > 0 to the edge, on other cells the sign is not guaranteed. Edges with no
@@ -2752,7 +2753,7 @@ void CGeometry::CheckProjectedDissipation() const {
       const auto iPoint = edges->GetNode(iEdge, 0);
       const auto jPoint = edges->GetNode(iEdge, 1);
       if (!nodes->GetDomain(iPoint) && !nodes->GetDomain(jPoint)) continue;
-      const su2double* normal = edges->GetNormal(iEdge);
+      const su2double* normal = formNormal ? edges->GetFormNormal()[iEdge] : edges->GetNormal(iEdge);
       su2double proj = 0.0;
       for (unsigned short iDim = 0; iDim < nDim; iDim++) {
         proj += normal[iDim] * (nodes->GetCoord(jPoint, iDim) - nodes->GetCoord(iPoint, iDim));
@@ -2760,7 +2761,8 @@ void CGeometry::CheckProjectedDissipation() const {
       if (!(proj > 0.0)) nBad++;
     }
     if (nBad > 0) {
-      SU2_MPI::Error("EDGE_DISS_PROJECTED: " + std::to_string(nBad) + " edges on rank " +
+      const std::string option = formNormal ? "EDGE_FORM_P1_DISS_ALIGNED: " : "EDGE_DISS_PROJECTED: ";
+      SU2_MPI::Error(option + std::to_string(nBad) + " edges on rank " +
                          std::to_string(SU2_MPI::GetRank()) +
                          " have n.e <= 0, the projected dissipation normal is not defined there.",
                      CURRENT_FUNCTION);
