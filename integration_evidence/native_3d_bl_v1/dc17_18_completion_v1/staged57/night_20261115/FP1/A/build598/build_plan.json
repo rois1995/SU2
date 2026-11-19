@@ -1,0 +1,31 @@
+{
+  "argv": [
+    "env",
+    "OMP_NUM_THREADS=1",
+    "OPENBLAS_NUM_THREADS=1",
+    "MKL_NUM_THREADS=1",
+    "NINJA=/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/tools/ninja",
+    "TMPDIR=/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/compile-tmp",
+    "nice",
+    "-n",
+    "19",
+    "/usr/bin/time",
+    "-v",
+    "-o",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP1/A/build598/build.time",
+    "timeout",
+    "5400",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/tools/ninja",
+    "-C",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-p5-20261114",
+    "-j",
+    "4",
+    "UnitTests/test_driver"
+  ],
+  "graph_before": {
+    "build.ninja": "d3d33ca87396c99b786bd0ab5b675c687d4a6d3f9a0178de919996c2b44eb4d4",
+    "compile_commands.json": "76c232d210ef4cd65090ee4b7fe5d375e6a61c21e18fb521b0d42d67cdf533f7"
+  },
+  "source_pins_sha256": "e4ecd5a02153aefcd5778ed0955d3b71212b94d7e54f61fdee9dbf2cb8f15243",
+  "solver_before": "37e450b8b0d3e440554306a0598bd20b8761a5404ab09b2b76cc6b5887a22806"
+}

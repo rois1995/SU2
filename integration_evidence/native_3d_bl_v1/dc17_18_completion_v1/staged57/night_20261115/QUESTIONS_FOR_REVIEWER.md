@@ -174,3 +174,5 @@ N20 A implementation question commit: `01d2bbd24f2504a35406ebc529978c97af29c647`
   capture remains provenance. Used accepted N21 width and the saved active
   engine time/work limits, so the replay can differ from Part P's default
   width comparator. Commit: FP0 checkpoint.
+
+- 2026-11-19 21:02 Europe/Rome, FP1 A, split sweep (base `a59380df18`). Which neighborhood inherits the stamp deferral? The collapse rule refers to stars of ends that can be removed, and a split removes neither end. The choices were the split ring alone or the stars of both eligible split endpoints. Used both endpoint stars because section 7 says to carry over the same stamp rule and checks for earlier edits around the ends.

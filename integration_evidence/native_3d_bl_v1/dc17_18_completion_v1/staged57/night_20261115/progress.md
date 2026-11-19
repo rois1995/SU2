@@ -548,3 +548,15 @@ FP0. G1 mpi2 matched 114 case records.
 FP0. G1 mpi4 matched 228 case records.
 
 FP0. 44 owned process identities verified terminal. The active N22 solver hash is unchanged.
+
+## Current work — FP1
+
+FP1 input copied with matching SHA256 and read. Whole-item source check recorded before any production edit. Baseline `a59380df18`; no tracked production or test changes in the scoped paths at start. Next is Part A's local operators, fixtures and G1, followed by its checkpoint before Part B.
+
+FP1 A. All five operators, the pass and fixtures 1–8 are wired for build597. The first preflight stopped before compilation on the Work order 3 pin. The pin updater now includes the tracked order change. Next is the build and the single-rank fixtures.
+
+FP1 A. Build597 stopped at the test-only ambiguous `Edge` name after compiling all new core sources. Corrected the two fixture declarations after the job ended. Sweep decisions now use edit results directly, with report counters gated on timings. Next is build598, fixtures 1–8 and G1.
+
+FP1 A. Build598 compiled and linked with zero warnings. Fixtures 1–8 passed 57,484 assertions in seven cases. Box measure maxima were 8.75819e-16 (length), 5.55112e-16 (q) and 2.22045e-16 (J). Length exit left zero closed long edges and zero admissible short edges, with no sweep limit or memory refusal. The box went from 1,296 to 1,788 cells. G1 is next in the same controller.
+
+FP1 A. G1 matched exactly 375 / 114 / 228 records at 1 / 2 / 4 ranks. All Part A gates passed on build598. Archive the evidence and commit and push A before changing Part B.
