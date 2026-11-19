@@ -32,7 +32,32 @@
 
 #include "../code_config.hpp"
 
+#ifndef __CUDA_ARCH__
+#include <cstdlib>
+#include <iostream>
+#endif
+
 namespace SU2_LinAlg {
+
+#ifndef __CUDA_ARCH__
+/*--- [MIXEDPREC-DEBUG] Host-only instrumentation of the pivot regularization (not thread safe,
+ * meant for MPI-only builds). SU2_DEBUG_NO_PIVOT_REG=1 disables the regularization (pre-#2651). ---*/
+namespace debug {
+inline bool PivotRegDisabled() {
+  static const bool disabled = std::getenv("SU2_DEBUG_NO_PIVOT_REG") != nullptr;
+  return disabled;
+}
+inline void CountPivotReg(bool exactZero, const char* where) {
+  static unsigned long n = 0, nZero = 0;
+  ++n;
+  if (exactZero) ++nZero;
+  if ((n & (n - 1)) == 0) {
+    std::cout << "[MIXEDPREC-DEBUG] small pivot (" << where << ") hit #" << n << ", exact zeros " << nZero
+              << (PivotRegDisabled() ? ", NOT regularized" : ", regularized") << std::endl;
+  }
+}
+}  // namespace debug
+#endif
 
 /*!
  * \brief Regularize a pivot that is too small to prevent divide-by-zero, on host and device
@@ -44,7 +69,10 @@ SU2_CUDA_HOST_DEVICE inline void RegularizePivot(ScalarType& pivot) {
 #ifdef __CUDA_ARCH__
   if (fabs(pivot) < eps) pivot = copysign(ScalarType(eps), pivot);
 #else
-  if (std::abs(pivot) < eps) pivot = std::copysign(ScalarType(eps), pivot);
+  if (std::abs(pivot) < eps) {
+    debug::CountPivotReg(pivot == ScalarType(0), "MatrixInverse");
+    if (!debug::PivotRegDisabled()) pivot = std::copysign(ScalarType(eps), pivot);
+  }
 #endif
 }
 

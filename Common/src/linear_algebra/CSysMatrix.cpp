@@ -42,7 +42,8 @@ template <class ScalarType>
 FORCEINLINE void RegularizePivot(ScalarType& pivot, unsigned long row, unsigned long col, const char* context) {
   const float eps = 1e-12;
   if (std::abs(pivot) < eps) {
-    pivot = std::copysign(eps, SU2_TYPE::GetValue(pivot));
+    SU2_LinAlg::debug::CountPivotReg(pivot == ScalarType(0), "GaussElimination");
+    if (!SU2_LinAlg::debug::PivotRegDisabled()) pivot = std::copysign(eps, SU2_TYPE::GetValue(pivot));
 #ifndef NDEBUG
     std::cout << context << ": Regularized small pivot A(" << row << "," << col << ") to " << pivot << std::endl;
 #endif
