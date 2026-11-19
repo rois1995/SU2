@@ -6,12 +6,14 @@
  */
 #include "TransferTestCase.hpp"
 #include "../../../SU2_CFD/include/drivers/CSinglezoneDriver.hpp"
+#include <chrono>
 #include <fstream>
 #include <iomanip>
 #include <cstdlib>
 #include <map>
 #include "../../../Common/include/adaptation/CNativeRemesher3D.hpp"
 #include "../../../Common/include/adaptation/CNativeReferenceIO3D.hpp"
+#include "../../../Common/include/adaptation/CNativeRuntimeProfile3D.hpp"
 #include "../../../Common/include/adaptation/CNativeFailureCapture3D.hpp"
 #include "../../../Common/include/adaptation/CNativeCurvedAtlas3D.hpp"
 #include "../../../Common/include/adaptation/CNativeMetricTransport3D.hpp"
@@ -562,7 +564,8 @@ TEST_CASE("Native3D remeshes an externally frozen original sensor field without 
   NativeTransactionCapture transaction;
   NativeStageCapture stage_capture;
   stage_capture.max_quality_windows=stage_capture_windows;
-  if(stage_capture_windows||std::getenv("SU2_NATIVE_STAGE_CAPTURE"))
+  stage_capture.save_valid_exit = std::getenv("SU2_NATIVE_STAGE_CAPTURE") != nullptr;
+  if(stage_capture_windows||stage_capture.save_valid_exit)
     native->SetStageObserver([&](const StageProgressView& view){stage_capture.Observe(view,world.rank);},NativeStageCapture::limit);
   if(std::getenv("SU2_NATIVE_TRANSACTION_CAPTURE"))
     native->SetTransactionObserver({{{23754,24333,0}},2},[&](const TransactionView& view){transaction.Observe(view);});
@@ -634,12 +637,22 @@ TEST_CASE("Native3D remeshes an externally frozen original sensor field without 
       <<",\"workers\":"<<stats.workers<<",\"normalization_accuracy_established\":false,\"CFD_steps\":0}\n";
     REQUIRE(bool(out));
   }
+  if(stage_capture.save_valid_exit && world.rank == 0) {
+    std::ostringstream row;
+    row << std::setprecision(17) << "FP0 B_exit {\"ranks\":" << world.size
+        << ",\"seconds\":" << elapsed << ",\"cells\":" << result.slices.nElemGlobal
+        << ",\"points\":" << result.slices.nPointGlobal << ",\"valid\":" << (stats.complete ? "true" : "false")
+        << ",\"job_peak_rss_bytes\":" << stats.job_peak_rss_bytes << '}';
+    std::cout << row.str() << std::endl;
+  }
   if(stats.complete) {
     MeshSolution candidate(&driver.Config(),result.slices,0);
     CMeshOutput::WriteMesh(&driver.Config(),&candidate.Fine(),"frozen_geometry_accepted");
   }
   driver.Finalize();
 }
+
+#include "fixtures/native_fp0_exit_refine.inc"
 
 TEST_CASE("Native first-row transactions replay original fields without solver initialization", "[.][NativeFirstRowReplay3D]") {
   World world;const auto* folder=std::getenv("SU2_NATIVE_FIRST_ROW_ROOT");REQUIRE(folder);

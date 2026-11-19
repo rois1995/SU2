@@ -163,6 +163,7 @@ struct NativeStageCapture {
   static constexpr size_t limit=size_t(128)<<20;
   static constexpr size_t streaming_reserve=size_t(64)<<10;
   bool quality_saved=false,rejected_saved=false;
+  bool save_valid_exit = false, valid_exit_saved = false;
   size_t max_quality_windows=0,quality_windows=0;
   bool diagnostic_window_stop=false;
 
@@ -266,6 +267,10 @@ struct NativeStageCapture {
     trace.close();if(!trace)throw std::runtime_error("Cannot close native stage progress trace.");
     if(stage=="quality_entry"&&!quality_saved){Save(view,rank,"quality_entry");quality_saved=true;}
     if(stage=="exit"&&!view.valid&&!rejected_saved){Save(view,rank,"rejected_exit");rejected_saved=true;}
+    if (save_valid_exit && stage == "exit" && view.valid && !valid_exit_saved) {
+      Save(view, rank, "exit");
+      valid_exit_saved = true;
+    }
     if(stop_after_window) {
       Save(view,rank,"observation_stop");
       throw std::runtime_error("Native stage diagnostic observation window complete");

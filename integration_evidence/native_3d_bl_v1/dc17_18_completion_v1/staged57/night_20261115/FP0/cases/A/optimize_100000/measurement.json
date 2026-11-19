@@ -1,0 +1,46 @@
+{
+  "case": "optimize_100000",
+  "peak_kib": 2458024,
+  "elapsed_seconds": 45.92799377441406,
+  "rows": [
+    {
+      "measurement": "A9_begin",
+      "desired": 100000
+    },
+    {
+      "measurement": "A9_setup",
+      "desired": 100000,
+      "cells": 100000,
+      "center_id": 142170,
+      "center_incident_bad": 61,
+      "radius": 0.36334478506631684,
+      "fixed_vertices": 6542,
+      "seconds": 2.8496668290000002
+    },
+    {
+      "measurement": "A9",
+      "desired": 100000,
+      "cells": 100000,
+      "final_cells": 100034,
+      "seconds": 3.032786986,
+      "total_seconds": 5.913532050000001,
+      "ns_per_cell": 30327.86986,
+      "ms_per_cell": 0.030327869860000002,
+      "bad_before": 6761,
+      "bad_after": 6729,
+      "moves": 49,
+      "reconnects": 3,
+      "edge_removals": 3,
+      "length_removals": 0,
+      "face_swaps": 0,
+      "boundary_flips": 0,
+      "collapses": 0,
+      "trials": 160,
+      "work_limit": 160,
+      "stop": "limit",
+      "place": "OptimizeMetricMesh",
+      "error": ""
+    }
+  ],
+  "log_sha256": "ae8e349a822d72a58260b9caff7aa2ec2180c65c24e415a7b35b24e9d1c58174"
+}

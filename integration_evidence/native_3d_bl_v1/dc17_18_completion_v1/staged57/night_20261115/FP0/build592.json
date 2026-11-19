@@ -1,0 +1,126 @@
+{
+  "passed": true,
+  "state": "terminal",
+  "build": 592,
+  "test_binary": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP0/local_source/integration_evidence/build_fp0/UnitTests/test_driver",
+  "test_binary_sha256": "1d68c240aab1cecad164187d0ee7124400da09a2832d0f993ae75b7eaa356bd8",
+  "warnings": [
+    "WARNING: CMake Toolchain: Failed to determine CMake compilers state",
+    "../../SU2_PY/meson.build:75: WARNING: Project targets '>=1.8.2' but uses feature deprecated since '0.60.0': install_subdir with empty directory. It worked by accident and is buggy. Use install_emptydir instead.",
+    "WARNING: Deprecated features used:",
+    "../../externals/cgns/hdf5/H5Dchunk.c:1832:41: warning: passing argument 1 of \u2018H5S_combine_hyperslab\u2019 discards \u2018const\u2019 qualifier from pointer target type [-Wdiscarded-qualifiers]",
+    "../../externals/cgns/hdf5/H5Dchunk.c:4299:52: warning: initialization discards \u2018const\u2019 qualifier from pointer target type [-Wdiscarded-qualifiers]",
+    "../../externals/cgns/hdf5/H5Dchunk.c:6081:75: warning: passing argument 3 of \u2018H5O_copy_expand_ref\u2019 discards \u2018const\u2019 qualifier from pointer target type [-Wdiscarded-qualifiers]",
+    "../../externals/cgns/hdf5/H5Dint.c:2259:49: warning: return discards \u2018const\u2019 qualifier from pointer target type [-Wdiscarded-qualifiers]",
+    "../../externals/cgns/hdf5/H5Gint.c:570:41: warning: return discards \u2018const\u2019 qualifier from pointer target type [-Wdiscarded-qualifiers]",
+    "../../externals/cgns/hdf5/H5HFcache.c:745:12: warning: assignment discards \u2018const\u2019 qualifier from pointer target type [-Wdiscarded-qualifiers]",
+    "../../externals/cgns/hdf5/H5HFcache.c:1331:12: warning: assignment discards \u2018const\u2019 qualifier from pointer target type [-Wdiscarded-qualifiers]",
+    "../../externals/cgns/hdf5/H5T.c:5546:23: warning: assignment discards \u2018const\u2019 qualifier from pointer target type [-Wdiscarded-qualifiers]",
+    "/usr/include/c++/13/bits/stl_algobase.h:437:30: warning: \u2018void* __builtin_memmove(void*, const void*, long unsigned int)\u2019 writing between 9 and 9223372036854775800 bytes into a region of size 0 overflows the destination [-Wstringop-overflow=]",
+    "/usr/include/c++/13/bits/stl_algobase.h:437:30: warning: argument 1 null where non-null expected [-Wnonnull]"
+  ],
+  "source_pins_sha256": "0eac36c9ac85f2994e5cf24df0a0e6ea5c5a9af19b6d489bc0e2454d50b561de",
+  "graph": {
+    "build.ninja": "ce6ed591371835871eecd26d53bc58714b8456acec26aadcf834aed50051278f",
+    "compile_commands.json": "3eaa6d35d04935bbfcc665b1d9220ee3c73b015982f3499b0a0acbcf35f56600"
+  },
+  "local_source": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP0/local_source",
+  "main_solver_sha256": "37e450b8b0d3e440554306a0598bd20b8761a5404ab09b2b76cc6b5887a22806",
+  "wait": {
+    "actual_host_proc": true,
+    "controller": {
+      "pid": 4062041,
+      "start_ticks": 59989994
+    },
+    "returncode": 0,
+    "elapsed_seconds": 829.8342180252075,
+    "terminal": true
+  },
+  "new_warnings": [],
+  "unchanged_source_warnings": [
+    {
+      "object": null,
+      "baseline_log": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP0/configure_outer.log",
+      "baseline_log_sha256": "3cccb1a8f4003b9296cbcaba5fe32a3b5e7af367cee990e6a5b12f4a34cbf9e1",
+      "warnings": [
+        "WARNING: CMake Toolchain: Failed to determine CMake compilers state",
+        "../../SU2_PY/meson.build:75: WARNING: Project targets '>=1.8.2' but uses feature deprecated since '0.60.0': install_subdir with empty directory. It worked by accident and is buggy. Use install_emptydir instead.",
+        "WARNING: Deprecated features used:"
+      ]
+    },
+    {
+      "object": "externals/cgns/hdf5/libsu2hdf5.a.p/H5Dchunk.c.o",
+      "source": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/externals/cgns/hdf5/H5Dchunk.c",
+      "source_sha256": "7e990ba8b0944af474c42d3f56e7545ea5fe6817e5a4e5fbe9c4bca63ff5f8e3",
+      "command_identical": true,
+      "no_fp0_test_dependency": true,
+      "warnings": [
+        "../../externals/cgns/hdf5/H5Dchunk.c:1832:41: warning: passing argument 1 of \u2018H5S_combine_hyperslab\u2019 discards \u2018const\u2019 qualifier from pointer target type [-Wdiscarded-qualifiers]",
+        "../../externals/cgns/hdf5/H5Dchunk.c:4299:52: warning: initialization discards \u2018const\u2019 qualifier from pointer target type [-Wdiscarded-qualifiers]",
+        "../../externals/cgns/hdf5/H5Dchunk.c:6081:75: warning: passing argument 3 of \u2018H5O_copy_expand_ref\u2019 discards \u2018const\u2019 qualifier from pointer target type [-Wdiscarded-qualifiers]"
+      ]
+    },
+    {
+      "object": "externals/cgns/hdf5/libsu2hdf5.a.p/H5Dint.c.o",
+      "source": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/externals/cgns/hdf5/H5Dint.c",
+      "source_sha256": "9f5ec8ea60fe1a0f00ff1c71e85dc693fe5ce1500dfbcdc43212da50d9551634",
+      "command_identical": true,
+      "no_fp0_test_dependency": true,
+      "warnings": [
+        "../../externals/cgns/hdf5/H5Dint.c:2259:49: warning: return discards \u2018const\u2019 qualifier from pointer target type [-Wdiscarded-qualifiers]"
+      ]
+    },
+    {
+      "object": "externals/cgns/hdf5/libsu2hdf5.a.p/H5Gint.c.o",
+      "source": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/externals/cgns/hdf5/H5Gint.c",
+      "source_sha256": "cdddbc8ff9a0fb60d058b704cda64185398d56bc5f72fe1dcdaeaec6dc11c34b",
+      "command_identical": true,
+      "no_fp0_test_dependency": true,
+      "warnings": [
+        "../../externals/cgns/hdf5/H5Gint.c:570:41: warning: return discards \u2018const\u2019 qualifier from pointer target type [-Wdiscarded-qualifiers]"
+      ]
+    },
+    {
+      "object": "externals/cgns/hdf5/libsu2hdf5.a.p/H5HFcache.c.o",
+      "source": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/externals/cgns/hdf5/H5HFcache.c",
+      "source_sha256": "c7786e4ae5864c66a9ccc867f08fd408a9ee83fe9ac4abc0475ce7171a0b9f1c",
+      "command_identical": true,
+      "no_fp0_test_dependency": true,
+      "warnings": [
+        "../../externals/cgns/hdf5/H5HFcache.c:745:12: warning: assignment discards \u2018const\u2019 qualifier from pointer target type [-Wdiscarded-qualifiers]",
+        "../../externals/cgns/hdf5/H5HFcache.c:1331:12: warning: assignment discards \u2018const\u2019 qualifier from pointer target type [-Wdiscarded-qualifiers]"
+      ]
+    },
+    {
+      "object": "externals/cgns/hdf5/libsu2hdf5.a.p/H5T.c.o",
+      "source": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/externals/cgns/hdf5/H5T.c",
+      "source_sha256": "29ea7ae69665b16b384a3efc3101226138f22000d2e0680b4d264d41370f5cc1",
+      "command_identical": true,
+      "no_fp0_test_dependency": true,
+      "warnings": [
+        "../../externals/cgns/hdf5/H5T.c:5546:23: warning: assignment discards \u2018const\u2019 qualifier from pointer target type [-Wdiscarded-qualifiers]"
+      ]
+    },
+    {
+      "object": "Common/src/libSU2Common.a.p/graph_coloring_structure.cpp.o",
+      "source": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP0/local_source/Common/src/graph_coloring_structure.cpp",
+      "source_sha256": "e32c1b0f539c1338f2c91126e8cf1ada7e53df08d1e44588f9db48523848aefd",
+      "command_identical": true,
+      "no_fp0_test_dependency": true,
+      "warnings": [
+        "/usr/include/c++/13/bits/stl_algobase.h:437:30: warning: \u2018void* __builtin_memmove(void*, const void*, long unsigned int)\u2019 writing between 9 and 9223372036854775800 bytes into a region of size 0 overflows the destination [-Wstringop-overflow=]"
+      ]
+    },
+    {
+      "object": "UnitTests/test_driver.p/SU2_CFD_adaptation_CBarycentricTransfer_tests.cpp.o",
+      "source": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP0/local_source/UnitTests/SU2_CFD/adaptation/CBarycentricTransfer_tests.cpp",
+      "source_sha256": "ff199d4051e084cef606783aed784a7968d1e3666012c02ee8414107b3f15adb",
+      "command_identical": true,
+      "no_fp0_test_dependency": true,
+      "warnings": [
+        "/usr/include/c++/13/bits/stl_algobase.h:437:30: warning: argument 1 null where non-null expected [-Wnonnull]"
+      ]
+    }
+  ],
+  "build_log_sha256": "dc4360dcfe49d5f32155ffd09531cba55a9b9d94c5ad467ed0443d7ab770228f"
+}

@@ -2,6 +2,10 @@
 
 Updated 2026-11-19. Read AGENTS.md and the copied WORK_ORDER_2.md at the start of the new session, then this file.
 
+## Current state — FP0 complete
+
+FP0 build596 completed the test-only measurements on the accepted N21 source. G1 matched 375 / 114 / 228 records and all recorded failed assertions. The six-rank frozen replay produced 695,524 cells and 138,878 points. Standalone Refine took 343.064097 s maximum, was valid on all ranks, and changed no local meshes. The terminal audit verified 44 process identities and 1,387 source pins. The build591 production solver hash remains verified. [FP0 report](FP0/reports/FP0_596.md). Stop and wait for the user.
+
 ## Current state — N22, FP0 next
 
 N22 standing result gates passed. Part M timing OPEN at `484f29315f`, Part C purpose timing OPEN and retained at `e40d7e3795`. Active build591. All six N21 W hashes matched in both parts. The audit verified 315 terminal identities and 1,790 source pins. [Step 8.5u report](N22/reports/STEP_8_5U_591.md). FP0 follows immediately.
@@ -496,3 +500,47 @@ N22 C. Event two passed its timer and connected receipts at 95.2306% minimum cov
 N22 C. Build591 reached OPEN for the user with passing standing workflow gates. Preparing checkpoint.
 
 N22 C. Pushed `e40d7e3795`. N22 reporting follows.
+
+## Current work — FP0
+
+N22 report pushed at `03323fa621` before FP0 began. Both FP0 pinned texts were verified and read. The isolated N21 source view verifies 1,383 accepted source and external pins and restores only the 11 later N22 paths in that view, including the pre-N22 test file. The active N22 solver and the reviewer handoff folder are untouched. Exact input extraction verified A at 146,676 points, 726,442 cells, 67,170 surface faces and B at 61,330 points, 303,359 cells, 48,954 faces. Build592 is the isolated test driver, PID 4061893 / start 59989667. Next are the ordered test-only measurements and G1.
+
+FP0. Build592 linked in 829.834 s. The seal verified 13 dependency/configuration warnings and zero new warnings. A's first fixture stopped before measurement because the no-BL remesher factory did not load the sidecar. Preserved the terminal case under FP0/recoveries/A_kernels_592. Build593 (PID 4099073 / start 60112667) rebuilds the test-only sidecar load. Ordered controller PID 4099074 / start 60112667 follows it.
+
+FP0. Part A kernels terminal, 10 measurement rows.
+
+FP0. Part A optimize_10000 terminal, 3 measurement rows.
+
+FP0. Part A optimize_100000 terminal, 3 measurement rows.
+
+FP0. Part A census terminal, 2 measurement rows.
+
+FP0. A10's first call invoked absolute shape admission. The first stop named cell 360 at q=0.18024384633056384 and J=0.028573106646635871. Source confirms the default measurement call still counts both shape failures. Preserve this receipt, let the current pinned campaign finish, and retry only the affected measurement after a test-only rebuild. A1–A8 and both A9 regions have independent receipts.
+
+FP0. Part A proof terminal, 1 measurement rows.
+
+FP0. Part A census terminal, 1 measurement rows.
+
+FP0. Part A float_surface terminal, 1 measurement rows.
+
+FP0. Build595 compiled without warnings after the build594 fixture namespace correction. A10 measured all 726,442 cells in 37.942836 s, matching A5 q/J/long-cell counts 17,427 / 16,623 / 90,050. A12 measured 67,170 faces with zero control-order mismatches in 1,000 comparisons and eight nonfinite projection retries using the same finite face. A1–A9 and A11 are reused from build593. Part B replay is live at six ranks. Controller PID 4123473 / start 60200883, replay wrapper PID 4127371 / start 60216874.
+
+FP0. Part B frozen replay and six valid exit shards verified. Starting standalone Refine.
+
+FP0. Part B replay ended in 2,002.454 s wrapper wall and 1,991.772 s native wall. Valid exit had 695,524 cells / 138,878 points, against the Part P comparator 726,442 / 146,676. Six valid exit manifests and payloads sealed. Native job-peak sum 13,996,642,304 B. The standalone Refine wrapper is PID 4181559 / start 60417519.
+
+FP0. Standalone build595 was valid on all ranks in 366.005233 s maximum, with zero rounds, zero accepted changes and identical local meshes. The test-only aggregate wrapped a 7,292,792,832 B sum through World::sum(int). Preserved all measured rows and logs under FP0/recoveries/B_refine_595. Build596 PID 6867 / start 60474118 changes the aggregate to the existing 64-bit collective. Controller PID 6868 / start 60474118 reuses the six exit shards and runs only standalone Refine and G1.
+
+FP0. Part B frozen replay and six valid exit shards verified. Starting standalone Refine.
+
+FP0. Part B standalone Refine terminal and measured.
+
+FP0. Build596 standalone Refine completed in 343.064097 s maximum rank wall. Six valid identical local meshes, zero rounds and zero accepted changes. The 64-bit job sum matches six process peaks at 7,293,308,928 B. Seed census max 252.659968 s, final proof max 41.747119 rank-exclusive seconds. G1 serial wrapper PID 24960 / start 60545498 is running.
+
+FP0. G1 serial matched 375 case records.
+
+FP0. G1 mpi2 matched 114 case records.
+
+FP0. G1 mpi4 matched 228 case records.
+
+FP0. 44 owned process identities verified terminal. The active N22 solver hash is unchanged.

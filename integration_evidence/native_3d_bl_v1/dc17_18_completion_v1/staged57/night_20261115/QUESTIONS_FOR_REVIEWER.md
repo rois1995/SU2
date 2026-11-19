@@ -133,3 +133,44 @@ N20 A implementation question commit: `01d2bbd24f2504a35406ebc529978c97af29c647`
 - 2026-11-19T15:53:22+01:00 — N22 M, checkpoint association for the ownership
   timing statistic entry above. The immediate caller retains the statistic
   and the decision routine reads no clock. Commit: `484f29315f`.
+
+- 2026-11-19T17:50:00+01:00 — FP0, source. Should the experiment use the checkout
+  after N22 or the accepted source when FP0 was ordered? Used the latter on an
+  isolated view of N21 `4fe083d460`, as the pinned measurement text specifies.
+  The test-only patch applies to the current branch. The existing N22 solver
+  remains active. Commit: FP0 checkpoint.
+
+- 2026-11-19T17:54:00+01:00 — FP0 A7/A8, candidate scope. Is an edge interior when
+  neither endpoint is on a physical face, or when the edge itself is absent
+  from the skin? Used two interior endpoints to preserve the marked surface.
+  A8 tries the lower endpoint first and defers conflicting endpoint stars
+  within the one pass so the incidence used by each collapse remains current.
+  Commit: FP0 checkpoint.
+
+- 2026-11-19T17:54:00+01:00 — FP0 A9, private options and field. Should the
+  region diagnostic retain the 160-trial production cap or scale by region?
+  Used production cap, operator switches, cache and validity-only admission,
+  with the ordered 900 s wall bound. Used indexed frozen P1 samples and the
+  endpoint-linear edge integral. The production cavity's current-nodal scan
+  assumes small donor sets. Both ball centres use the vertex with most A5
+  q/J failures, with vertex ID breaking ties. Commit: FP0 checkpoint.
+
+- 2026-11-19T17:54:00+01:00 — FP0 A11, allowance. Should strict single-rank
+  proof use an unlimited diagnostic or the event-model budget? Used the
+  12,288 MiB native ceiling, 5,400 s event limit and production work formulas
+  for the pinned cell count. The reverse pass and full proof share the
+  allowance and the reverse bounds. Commit: FP0 checkpoint.
+
+- 2026-11-19T17:54:00+01:00 — FP0 A12, stored anchor. How should a cubic be
+  evaluated for a realized face whose corners lack a common chart on its
+  stored anchor? Used forward parameters where available. For other faces,
+  projected each realized sample onto the flat stored anchor for barycentrics,
+  then evaluated that anchor's cubic. The report gives each population and
+  its distances separately. Commit: FP0 checkpoint.
+
+- 2026-11-19T17:54:00+01:00 — FP0 B, exit target and options. Should the donor
+  argument use the archived input donors or a snapshot of the exit tensors?
+  Used the exit tensors to preserve the requested target. The input donor
+  capture remains provenance. Used accepted N21 width and the saved active
+  engine time/work limits, so the replay can differ from Part P's default
+  width comparator. Commit: FP0 checkpoint.
