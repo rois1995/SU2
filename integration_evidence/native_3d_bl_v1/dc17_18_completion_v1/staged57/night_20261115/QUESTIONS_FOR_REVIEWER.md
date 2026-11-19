@@ -92,3 +92,25 @@ N19 A commit reference for its implementation questions: `c6b42a748f91dfcb7331a9
 - 2026-11-19T00:44:17+01:00, N20 A4/W, fine acceptance receipt. Should accepted identify private validation or eventual publication? Use the existing private validation flag and report the publication evidence separately, because the requested print point precedes contact and commit. Commit reference: N20 A checkpoint (recorded in progress).
 
 N20 A implementation question commit: `01d2bbd24f2504a35406ebc529978c97af29c647`.
+
+- 2026-11-19T07:45:51+01:00 — N21 P1/P2, root count. Should the kept count be
+  returned by the backend beside its certificate, or derived from the entity's
+  reference count? Used the latter. Entity and backend membership agree and
+  the modulo count leaves the cache result and caller-byte charges unchanged.
+  Commit: N21 P source checkpoint, recorded in the N21 report.
+- 2026-11-19T07:45:51+01:00 — N21 P/P5.7, restart. Does the Part P run require the
+  separate isolated event-two restart used by some prior G5 campaigns?
+  Used the single two-event run for P under I8T and C §2. The isolated restart
+  is explicitly required and executed under W §6. Commit: N21 P qualification
+  checkpoint, recorded in the N21 report.
+
+- 2026-11-19T08:12:09+01:00 — N21 P3/T4, fixture access. Should the extracted join be
+  declared in a new private engine header or declared directly in the single
+  test translation unit? Used a declaration in the test so T4 calls the same
+  real World function without adding a header or extending the public engine
+  API. Commit: N21 P source checkpoint, recorded in the N21 report.
+- 2026-11-19T08:12:09+01:00 — N21 P4, diagnostic stream. Should proof rows go on the
+  timer ledger's stdout or rank-local stderr? Used stderr to keep the new
+  diagnostic family out of the old timer parsing path. The proof collector and
+  report bind stderr and stdout to the same rank and event. Commit: N21 P
+  source checkpoint, recorded in the N21 report.

@@ -1,0 +1,99 @@
+{
+  "passed": true,
+  "build": 587,
+  "fixtures": {
+    "T1_T3": {
+      "state": "PASSED",
+      "ranks": 1,
+      "cases_per_rank": 3,
+      "command": [
+        "env",
+        "OMP_NUM_THREADS=1",
+        "OPENBLAS_NUM_THREADS=1",
+        "MKL_NUM_THREADS=1",
+        "OMPI_MCA_osc=pt2pt",
+        "TMPDIR=/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/compile-tmp",
+        "nice",
+        "-n",
+        "19",
+        "timeout",
+        "180",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-p5-20261114/UnitTests/test_driver",
+        "[NativeOwnedFaceProof3D][N21ProofShare]~[mpi]"
+      ],
+      "checks_per_rank": [
+        925
+      ],
+      "seconds": 17.068915843963623,
+      "log": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N21/fixtures/T1_T3_outer.log",
+      "sha256": "00825c8ae69efd90a6d19c4f5fdc309098e658144b69ad3d2aac5880e5b61c4f"
+    },
+    "T4_mpi2": {
+      "state": "PASSED",
+      "ranks": 2,
+      "cases_per_rank": 1,
+      "command": [
+        "env",
+        "OMP_NUM_THREADS=1",
+        "OPENBLAS_NUM_THREADS=1",
+        "MKL_NUM_THREADS=1",
+        "OMPI_MCA_osc=pt2pt",
+        "TMPDIR=/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/compile-tmp",
+        "nice",
+        "-n",
+        "19",
+        "timeout",
+        "180",
+        "mpirun",
+        "--bind-to",
+        "none",
+        "-n",
+        "2",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-p5-20261114/UnitTests/test_driver",
+        "[NativeOwnedFaceProof3D][N21ProofShare][mpi]"
+      ],
+      "checks_per_rank": [
+        103,
+        103
+      ],
+      "seconds": 3.152507781982422,
+      "log": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N21/fixtures/T4_mpi2_outer.log",
+      "sha256": "5c51591850e9c9fc175fa68492c52dcb09e7699b24ed0a980cc6bba9e0d2b9c7"
+    },
+    "T4_mpi4": {
+      "state": "PASSED",
+      "ranks": 4,
+      "cases_per_rank": 1,
+      "command": [
+        "env",
+        "OMP_NUM_THREADS=1",
+        "OPENBLAS_NUM_THREADS=1",
+        "MKL_NUM_THREADS=1",
+        "OMPI_MCA_osc=pt2pt",
+        "TMPDIR=/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/compile-tmp",
+        "nice",
+        "-n",
+        "19",
+        "timeout",
+        "180",
+        "mpirun",
+        "--bind-to",
+        "none",
+        "-n",
+        "4",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-p5-20261114/UnitTests/test_driver",
+        "[NativeOwnedFaceProof3D][N21ProofShare][mpi]"
+      ],
+      "checks_per_rank": [
+        103,
+        103,
+        103,
+        103
+      ],
+      "seconds": 3.1961772441864014,
+      "log": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N21/fixtures/T4_mpi4_outer.log",
+      "sha256": "2914b9e90e1a7a43e3f3ee9266de934b207c7a3af7e2051a2afc661eee2f907b"
+    }
+  },
+  "test_binary_sha256": "981faa133ba1bcc2e6fdc76a67cadc3dc0d3355bf26a1e7efbcb36acbea523a4"
+}

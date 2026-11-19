@@ -97,6 +97,38 @@ void PrintAdaptationRequirements(const AdaptationRequirements& r, int rank, std:
   out.precision(precision);
 }
 
+struct FinalProofReport {
+  bool shared = false;
+  size_t reference_facets = 0, own_roots = 0, share_work = 0;
+  double reverse_seconds = 0, share_seconds = 0;
+  const BoundaryParameterState::Certificates* certificates = nullptr;
+};
+
+const BoundaryParameterState::Certificates& ProveSharedModel(World& world, const BoundaryParameterState& state,
+    SU2NativeGeometry::AtlasBudget& budget, const std::vector<double>& bounds, FinalProofReport* report) {
+  std::vector<ModelShareBound> share;
+  CLocalFailure failure;
+  const auto start = report ? std::chrono::steady_clock::now() : std::chrono::steady_clock::time_point{};
+  const size_t work = report ? budget.work : 0;
+  try {
+    share = state.ModelProofShare(budget, bounds, {static_cast<unsigned>(world.rank), static_cast<unsigned>(world.size)});
+  } catch (const std::exception& error) {
+    failure.Set(2, 0, error.what());
+  }
+  if (report) {
+    report->share_seconds = std::chrono::duration<double>(std::chrono::steady_clock::now() - start).count();
+    report->share_work = budget.work - work;
+    for (const auto& entity : share) report->own_roots += entity.roots;
+  }
+  const auto elected = world.elect(failure);
+  if (elected.any) throw std::runtime_error(elected.message);
+  for (auto& entity : share) {
+    entity.model_to_mesh = world.reduce(entity.model_to_mesh, CPassiveComm::Op::MAX);
+    entity.outside = world.reduce(int(entity.outside), CPassiveComm::Op::MAX) != 0;
+  }
+  return state.AdoptModelProof(bounds, share);
+}
+
 namespace {
 namespace wall_diagnostics = SU2NativeWallDiagnostics3D;
 namespace lane_census = SU2NativeLaneCensus3D;
@@ -300,14 +332,11 @@ struct ProofStorage {
   }
   ~ProofStorage() { budget.caller_bytes = caller; }
 };
-/*! Combine the disjoint owned-face reverse proofs before the unchanged entity proof. */
-void ProveOwnedSurface(World& world, const Owned& working, const PlanarReference& geometry,
-                       SU2NativeGeometry::AtlasBudget& budget, EngineStats& stats) {
-  const auto& state = *geometry.Parameters();
-  std::vector<SurfaceFace> faces;
+std::vector<double> ProveOwnedFaceReverse(World& world, const Owned& working, const BoundaryParameterState& state,
+    SU2NativeGeometry::AtlasBudget& budget, EngineStats& stats, std::vector<SurfaceFace>& faces,
+    std::optional<ProofStorage>& storage) {
   std::vector<double> bounds;
   CLocalFailure failure;
-  std::optional<ProofStorage> storage;
   try {
     storage.emplace(budget, transfer_memory::Add(transfer_memory::Mul(working.size(), 8 * sizeof(SurfaceFace)),
         transfer_memory::Mul(state.Geometry().Reference().Facets().size(), 2 * sizeof(double))));
@@ -327,9 +356,57 @@ void ProveOwnedSurface(World& world, const Owned& working, const PlanarReference
   if (world.reduce(uint64_t(faces.size()), CPassiveComm::Op::SUM) != state.Surface().size())
     throw std::runtime_error("Owned wall-face proof does not cover the complete working surface exactly once.");
   for (auto& bound : bounds) bound = world.reduce(bound, CPassiveComm::Op::MAX);
-  for (const auto& row : state.GeometryCertificates(budget, true, &bounds))
+  return bounds;
+}
+
+FinalProofReport ProveOwnedSurface(World& world, const Owned& working, const PlanarReference& geometry,
+    SU2NativeGeometry::AtlasBudget& budget, EngineStats& stats, bool timings) {
+  using Clock = std::chrono::steady_clock;
+  const auto start = timings ? Clock::now() : Clock::time_point{};
+  const auto& state = *geometry.Parameters();
+  std::vector<SurfaceFace> faces;
+  std::optional<ProofStorage> storage;
+  const auto bounds = ProveOwnedFaceReverse(world, working, state, budget, stats, faces, storage);
+  const bool shared = world.size > 1 && state.ReverseProofComplete(bounds);
+  FinalProofReport report;
+  if (timings) {
+    report.shared = shared;
+    report.reference_facets = state.Geometry().Reference().Facets().size();
+    report.reverse_seconds = std::chrono::duration<double>(Clock::now() - start).count();
+  }
+  const auto forward = timings && !shared ? Clock::now() : Clock::time_point{};
+  const size_t work = timings && !shared ? budget.work : 0;
+  const auto& certificates = shared ? ProveSharedModel(world, state, budget, bounds, timings ? &report : nullptr)
+                                    : state.GeometryCertificates(budget, true, &bounds);
+  for (const auto& row : certificates)
     if (!row.second.within_tolerance)
       throw std::runtime_error("Complete working surface does not meet the prescribed two-sided geometry tolerance.");
+  if (timings) {
+    report.certificates = &certificates;
+    if (!shared) {
+      report.own_roots = report.reference_facets;
+      report.share_seconds = std::chrono::duration<double>(Clock::now() - forward).count();
+      report.share_work = budget.work - work;
+    }
+  }
+  return report;
+}
+
+void PrintFinalProof(const FinalProofReport& report, int rank, double tolerance) {
+  const auto& certificates = *report.certificates;
+  std::fprintf(stderr, "NATIVE3D_FINAL_PROOF rank=%d shared=%d entities=%zu reference_facets=%zu own_roots=%zu"
+                       " reverse_seconds=%.17g share_seconds=%.17g share_work=%zu\n",
+               rank, int(report.shared), certificates.size(), report.reference_facets, report.own_roots,
+               report.reverse_seconds, report.share_seconds, report.share_work);
+  if (rank != 0) return;
+  for (const auto& row : certificates) {
+    const auto& bound = row.second;
+    std::fprintf(stderr, "NATIVE3D_FINAL_CERT entity=%llu/%llu/%d faces=%zu mesh_to_model=%.17g model_to_mesh=%.17g"
+                         " tolerance=%.17g within=%d\n",
+                 static_cast<unsigned long long>(std::get<0>(row.first)),
+                 static_cast<unsigned long long>(std::get<1>(row.first)), std::get<2>(row.first), bound.physical_pieces,
+                 bound.mesh_to_model, bound.model_to_mesh, tolerance, int(bound.within_tolerance));
+  }
 }
 /*! Report the ownership spike with live payload sizes; this is not a memory admission model. */
 void ReportOwnershipMemory(const World& world, const char* boundary, size_t pending = 0, size_t outgoing = 0,

@@ -7,8 +7,10 @@
 #include "../../../Common/include/adaptation/CNativeGeometryBackend3D.hpp"
 #include "../../../Common/include/adaptation/CNativeCurvedReference.hpp"
 #include "../../../Common/include/adaptation/CNativeBoundary3D.hpp"
+#include "../../../Common/include/adaptation/CNativeDistributed3D.hpp"
 #include "../../../Common/include/adaptation/CNativeReferenceIO3D.hpp"
 #include <cmath>
+#include <cstring>
 #include <limits>
 #include <cfenv>
 #include <fstream>
@@ -1196,4 +1198,160 @@ TEST_CASE("Owned face reverse bounds preserve complete entity certificates", "[N
   }
   bounds.clear();
   CHECK_THROWS(entity->GeometryCertificates(budget, true, &bounds));
+}
+
+namespace SU2Native3D {
+struct FinalProofReport;
+const BoundaryParameterState::Certificates& ProveSharedModel(World&, const BoundaryParameterState&, AtlasBudget&,
+    const std::vector<double>&, FinalProofReport*);
+}  // namespace SU2Native3D
+
+namespace {
+using namespace SU2Native3D;
+
+struct EntityProofFixture {
+  std::shared_ptr<BoundaryParameterState> state;
+  std::vector<double> bounds;
+
+  explicit EntityProofFixture(const BackendFixture& fixture) {
+    auto budget = BackendBudget();
+    BoundaryPoints points;
+    std::vector<SurfaceFace> skin;
+    for (const auto& face : fixture.facets) {
+      skin.push_back({{face.v[0].id, face.v[1].id, face.v[2].id}, face.id});
+      for (auto node : face.v) points.emplace(node.id, BoundaryPoint{node, fixture.geometry->Vertex(node.id)});
+    }
+    BoundaryParameterState legacy(fixture.geometry, points, skin, 1, SIZE_MAX, 0, BoundaryCoverage{},
+                                  fixture.policy, &budget);
+    state = legacy.WithEntityGeometry(.01, budget);
+    std::vector<SurfaceFace> first, second;
+    for (size_t i = 0; i < skin.size(); ++i) (i % 2 ? second : first).push_back(skin[i]);
+    bounds = state->OwnedFaceReverseBounds(first, budget);
+    const auto other = state->OwnedFaceReverseBounds(second, budget);
+    REQUIRE(bounds.size() == other.size());
+    for (size_t i = 0; i < bounds.size(); ++i) bounds[i] = std::max(bounds[i], other[i]);
+    REQUIRE(state->ReverseProofComplete(bounds));
+  }
+};
+
+void CheckProofCertificates(const BoundaryParameterState::Certificates& actual,
+                            const BoundaryParameterState::Certificates& expected) {
+  REQUIRE(actual.size() == expected.size());
+  for (const auto& row : expected) {
+    const auto& a = actual.at(row.first);
+    const auto& b = row.second;
+    CHECK(a.model_to_mesh == b.model_to_mesh);
+    CHECK(a.mesh_to_model == b.mesh_to_model);
+    CHECK(std::memcmp(&a.model_to_mesh, &b.model_to_mesh, sizeof(double)) == 0);
+    CHECK(std::memcmp(&a.mesh_to_model, &b.mesh_to_model, sizeof(double)) == 0);
+    CHECK(a.model_pieces == b.model_pieces);
+    CHECK(a.physical_pieces == b.physical_pieces);
+    CHECK(a.within_tolerance == b.within_tolerance);
+    CHECK(a.outside_tolerance == b.outside_tolerance);
+  }
+}
+}  // namespace
+
+TEST_CASE("T1 model root shares preserve every entity certificate", "[NativeOwnedFaceProof3D][N21ProofShare]") {
+  BackendFixture model(GENERATE(false, true));
+  EntityProofFixture actual(model), expected(model);
+  auto reference_budget = BackendBudget();
+  const auto& reference = expected.state->GeometryCertificates(reference_budget, true, &expected.bounds);
+  const unsigned parts = GENERATE(1u, 2u, 3u, 6u);
+  std::vector<ModelShareBound> joined(reference.size());
+  size_t empty_shares = 0;
+  for (unsigned part = 0; part < parts; ++part) {
+    auto share_budget = BackendBudget();
+    const auto shares = actual.state->ModelProofShare(share_budget, actual.bounds, {part, parts});
+    REQUIRE(shares.size() == joined.size());
+    if (parts == 1) CHECK(share_budget.work == reference_budget.work);
+    for (size_t entity = 0; entity < shares.size(); ++entity) {
+      const auto& share = shares[entity];
+      auto& sum = joined[entity];
+      sum.model_to_mesh = std::max(sum.model_to_mesh, share.model_to_mesh);
+      sum.outside = sum.outside || share.outside;
+      sum.roots += share.roots;
+      if (share.roots == 0) {
+        ++empty_shares;
+        CHECK(share.model_to_mesh == 0);
+        CHECK_FALSE(share.outside);
+      }
+    }
+  }
+  std::map<BoundaryParameterState::EntityKey, size_t> roots;
+  for (const auto& facet : model.facets) ++roots[actual.state->Entity(facet.id)];
+  size_t i = 0;
+  for (const auto& row : roots) CHECK(joined.at(i++).roots == row.second);
+  if (parts == 6) CHECK(empty_shares > 0);
+  CheckProofCertificates(actual.state->AdoptModelProof(actual.bounds, joined), reference);
+}
+
+TEST_CASE("T2 model root shares reject invalid proof inputs", "[NativeOwnedFaceProof3D][N21ProofShare]") {
+  BackendFixture model;
+  EntityProofFixture fixture(model);
+  auto budget = BackendBudget();
+  auto invalid = fixture.bounds;
+  invalid.front() = std::nextafter(fixture.state->GeometryTolerance(), INFINITY);
+  CHECK_FALSE(fixture.state->ReverseProofComplete(invalid));
+  CHECK_THROWS_AS(fixture.state->ModelProofShare(budget, invalid, {}), std::invalid_argument);
+  NativeMappedGeometryBackend3D backend(model.geometry, model.policy);
+  GeometrySupport scope;
+  MappedFacetReference::SurfaceUnionBounds result;
+  std::string reason;
+  CHECK_THROWS_AS(backend.PatchErrorBounds(scope, {}, 1e-4, result, budget, reason,
+                  GeometryErrorDirection::ModelToMesh, {0, 0}), std::invalid_argument);
+  CHECK_THROWS_AS(backend.PatchErrorBounds(scope, {}, 1e-4, result, budget, reason,
+                  GeometryErrorDirection::ModelToMesh, {2, 2}), std::invalid_argument);
+  CHECK_THROWS_AS(backend.PatchErrorBounds(scope, {}, 1e-4, result, budget, reason,
+                  GeometryErrorDirection::Both, {0, 2}), std::invalid_argument);
+  CHECK(budget.work == 0);
+}
+
+TEST_CASE("T3 a missing surface remains outside the model proof", "[NativeOwnedFaceProof3D][N21ProofShare]") {
+  BackendFixture model(true, false);
+  NativeMappedGeometryBackend3D backend(model.geometry, model.policy);
+  GeometrySupport scope;
+  scope.body = model.geometry->Body(0);
+  scope.marker = 0;
+  std::vector<std::array<Point, 3>> missing;
+  for (const auto& facet : model.facets)
+    if (facet.id < 100) missing.push_back({facet.v[0].p, facet.v[1].p, facet.v[2].p});
+  REQUIRE(missing.size() == 12);
+  const auto a = model.facets[0].v[0].p, b = model.facets[0].v[1].p;
+  const auto c = model.facets[0].v[2].p, d = model.facets[1].v[2].p;
+  missing[0] = {a, b, d};
+  missing[1] = {b, c, d};
+  missing.erase(missing.begin());
+  bool outside = false;
+  for (unsigned part = 0; part < 3; ++part) {
+    auto budget = BackendBudget();
+    std::string reason;
+    MappedFacetReference::SurfaceUnionBounds result;
+    REQUIRE(backend.PatchErrorBounds(scope, missing, 1e-4, result, budget, reason,
+                                     GeometryErrorDirection::ModelToMesh, {part, 3}));
+    outside = outside || result.outside_tolerance;
+  }
+  auto budget = BackendBudget();
+  std::string reason;
+  MappedFacetReference::SurfaceUnionBounds result;
+  REQUIRE(backend.PatchErrorBounds(scope, missing, 1e-4, result, budget, reason, GeometryErrorDirection::ModelToMesh));
+  CHECK(result.outside_tolerance);
+  CHECK(outside == result.outside_tolerance);
+  EntityProofFixture fixture(model);
+  std::vector<ModelShareBound> joined(fixture.bounds.size());
+  joined.front().outside = true;
+  const auto& certificate = fixture.state->AdoptModelProof(fixture.bounds, joined).begin()->second;
+  CHECK(certificate.outside_tolerance);
+  CHECK_FALSE(certificate.within_tolerance);
+}
+
+TEST_CASE("T4 MPI shares join to the same entity certificates", "[NativeOwnedFaceProof3D][N21ProofShare][mpi]") {
+  World world;
+  REQUIRE((world.size == 2 || world.size == 4));
+  BackendFixture model(true);
+  EntityProofFixture actual(model), expected(model);
+  auto share_budget = BackendBudget(), reference_budget = BackendBudget();
+  const auto& joined = ProveSharedModel(world, *actual.state, share_budget, actual.bounds, nullptr);
+  const auto& reference = expected.state->GeometryCertificates(reference_budget, true, &expected.bounds);
+  CheckProofCertificates(joined, reference);
 }

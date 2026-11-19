@@ -28,15 +28,20 @@ void EngineControl::ProveEntitySurface(EngineContext& context, Owned& working,
       proof_scope.emplace(SU2NativeTiming3D::Operation::Certification);
     }
     CLocalFailure geometryFailure;
+    FinalProofReport proof;
     try {
       D9QueryScope d9_query(SU2NativeD9::Site::Finish, &geometry);
-      ProveOwnedSurface(world, working, geometry, atlas_budget, stats);
+      proof = ProveOwnedSurface(world, working, geometry, atlas_budget, stats, options.timings);
     } catch (const std::exception& e) {
       geometryFailure.Set(2, 0, e.what());
     }
     if (!context.exchange.Vote(context, geometryFailure)) {
       result.valid = result.surface_prepared = false;
       stats.stop = EngineStop::Failure;
+    } else if (options.timings) {
+      proof_scope.reset();
+      proof_phase.reset();
+      PrintFinalProof(proof, world.rank, geometry.Parameters()->GeometryTolerance());
     }
   }
 }

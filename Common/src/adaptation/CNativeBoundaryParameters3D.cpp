@@ -441,51 +441,146 @@ std::vector<double> BoundaryParameterState::OwnedFaceReverseBounds(const std::ve
   for (const auto& row : bounds) result.push_back(row.second);
   return result;
 }
-const std::map<BoundaryParameterState::EntityKey,MappedFacetReference::SurfaceUnionBounds>&
-BoundaryParameterState::GeometryCertificates(AtlasBudget& budget,bool complete,const std::vector<double>* reverse_bounds)const {
+size_t BoundaryParameterState::CertificateLiveBytes(const AtlasBudget& budget) const {
+  const auto temporary = transfer_memory::Add(transfer_memory::Mul(surface.size(), 160),
+                                              transfer_memory::Mul(geometry->Reference().Facets().size(), 256));
+  return transfer_memory::Add(budget.caller_bytes, temporary);
+}
+
+std::map<BoundaryParameterState::EntityKey, BoundaryParameterState::EntitySurface>
+BoundaryParameterState::CertificateSurfaces(AtlasBudget& budget, bool complete,
+                                            const std::vector<double>* reverse_bounds) const {
+  // Per-entity metadata remains inside the admitted 256 bytes per reference facet.
+  std::map<EntityKey, EntitySurface> physical;
+  const bool facewise = complete && !geometry->ReferenceComponents();
+  for (const auto& row : geometry->Reference().Facets()) {
+    budget.CheckTime();
+    ++physical[Entity(row.first)].roots;
+  }
+  if (reverse_bounds) {
+    if (!complete || reverse_bounds->size() != physical.size())
+      throw std::invalid_argument("Incomplete reduced entity bounds.");
+    size_t i = 0;
+    for (auto& row : physical) {
+      const double bound = reverse_bounds->at(i++);
+      row.second.reverse = std::isfinite(bound) && bound >= 0 ? bound : INFINITY;
+    }
+  }
+  for (const auto& row : surface) {
+    budget.CheckTime();
+    std::array<Point, 3> points;
+    std::array<SurfaceBinding, 3> binding;
+    for (unsigned k = 0; k < 3; ++k) {
+      const auto& point = records.at(row.second.v[k]).point;
+      points[k] = point.node.p;
+      binding[k] = point.binding;
+    }
+    auto& entity = physical.at(Entity(row.second.facet));
+    entity.faces.push_back(points);
+    if (facewise && !reverse_bounds && entity.reverse <= geometry_tolerance) {
+      const double bound = EntityFaceError(row.second.facet, binding, points, &budget, SurfaceQueryNeed::Magnitude());
+      entity.reverse = std::isfinite(bound) && bound >= 0 ? std::max(entity.reverse, bound) : INFINITY;
+    }
+  }
+  return physical;
+}
+
+namespace {
+MappedFacetReference::SurfaceUnionBounds QueryEntityCertificate(const NativeMappedGeometryBackend3D& backend,
+    const State::EntityKey& entity, const std::vector<std::array<Point, 3>>& faces, double tolerance,
+    AtlasBudget& budget, GeometryErrorDirection direction, ProofShare share = {}) {
+  GeometrySupport scope;
+  std::tie(scope.body, scope.sheet, scope.marker) = entity;
+  MappedFacetReference::SurfaceUnionBounds result;
+  std::string reason;
+  if (!backend.PatchErrorBounds(scope, faces, tolerance, result, budget, reason, direction, share))
+    throw std::invalid_argument(reason);
+  return result;
+}
+
+void CompleteEntityCertificate(MappedFacetReference::SurfaceUnionBounds& result, double reverse,
+                               size_t faces, double tolerance) {
+  result.mesh_to_model = reverse;
+  result.physical_pieces = faces;
+  result.within_tolerance =
+      !result.outside_tolerance && result.model_to_mesh <= tolerance && result.mesh_to_model <= tolerance;
+}
+}  // namespace
+
+const BoundaryParameterState::Certificates& BoundaryParameterState::GeometryCertificates(
+    AtlasBudget& budget, bool complete, const std::vector<double>* reverse_bounds) const {
   SU2NativeTiming3D::Scope certificate_timer(SU2NativeTiming3D::Operation::Certification);
   budget.CheckTime();
-  if(!EntityGeometry())throw std::invalid_argument("Entity geometry certificate requested from a legacy face partition.");
+  if (!EntityGeometry()) throw std::invalid_argument("Entity geometry certificate requested from a legacy face partition.");
   // A source enclosure alone never substitutes for both directed proofs.
-  if(!complete&&certificate_revision==revision)return geometry_certificates;
-  const auto temporary=transfer_memory::Add(transfer_memory::Mul(surface.size(),160),transfer_memory::Mul(geometry->Reference().Facets().size(),256));
-  const auto live=transfer_memory::Add(budget.caller_bytes,temporary);
-  AtlasStorage storage(&budget,live,budget.maximum_bytes);
-  struct EntitySurface {std::vector<std::array<Point,3>> faces;double reverse=0;};
-  // Per-entity metadata remains inside the admitted 256 bytes per reference facet.
-  std::map<EntityKey,EntitySurface> physical;
-  const bool facewise=complete&&!geometry->ReferenceComponents();
-  for(const auto& row:geometry->Reference().Facets()){budget.CheckTime();physical.emplace(Entity(row.first),EntitySurface{});}
-  if(reverse_bounds) {
-    if(!complete || reverse_bounds->size()!=physical.size())throw std::invalid_argument("Incomplete reduced entity bounds.");
-    size_t i=0;
-    for(auto& row:physical) {
-      const double bound=reverse_bounds->at(i++);
-      row.second.reverse=std::isfinite(bound)&&bound>=0?bound:INFINITY;
-    }
+  if (!complete && certificate_revision == revision) return geometry_certificates;
+  AtlasStorage storage(&budget, CertificateLiveBytes(budget), budget.maximum_bytes);
+  const auto physical = CertificateSurfaces(budget, complete, reverse_bounds);
+  const bool facewise = complete && !geometry->ReferenceComponents();
+  NativeMappedGeometryBackend3D backend(geometry, mobility);
+  Certificates fresh;
+  for (const auto& row : physical) {
+    const auto& entity = row.second;
+    const bool reverse_known = facewise && entity.reverse <= geometry_tolerance;
+    const auto direction = complete && !reverse_known ? GeometryErrorDirection::Both : GeometryErrorDirection::ModelToMesh;
+    auto result = QueryEntityCertificate(backend, row.first, entity.faces, geometry_tolerance, budget, direction);
+    if (reverse_known) CompleteEntityCertificate(result, entity.reverse, entity.faces.size(), geometry_tolerance);
+    fresh.emplace(row.first, result);
   }
-  for(const auto& row:surface){budget.CheckTime();std::array<Point,3> points;std::array<SurfaceBinding,3> binding;
-    for(unsigned k=0;k<3;++k){const auto& point=records.at(row.second.v[k]).point;points[k]=point.node.p;binding[k]=point.binding;}
-    auto& entity=physical.at(Entity(row.second.facet));entity.faces.push_back(points);
-    if(facewise&&!reverse_bounds&&entity.reverse<=geometry_tolerance) {
-      const double bound=EntityFaceError(row.second.facet,binding,points,&budget,SurfaceQueryNeed::Magnitude());
-      entity.reverse=std::isfinite(bound)&&bound>=0?std::max(entity.reverse,bound):INFINITY;
-    }
-  }
-  NativeMappedGeometryBackend3D backend(geometry,mobility);std::map<EntityKey,MappedFacetReference::SurfaceUnionBounds> fresh;
-  for(const auto& row:physical){GeometrySupport scope;scope.body=std::get<0>(row.first);scope.sheet=std::get<1>(row.first);scope.marker=std::get<2>(row.first);
-    MappedFacetReference::SurfaceUnionBounds result;std::string reason;
-    const bool reverse_known=facewise&&row.second.reverse<=geometry_tolerance;
-    if(!backend.PatchErrorBounds(scope,row.second.faces,geometry_tolerance,result,budget,reason,
-        complete&&!reverse_known?GeometryErrorDirection::Both:GeometryErrorDirection::ModelToMesh))throw std::invalid_argument(reason);
-    if(reverse_known) {
-      // Every face bounds distance to a subset of this same entity; retain the complete source-to-mesh proof.
-      result.mesh_to_model=row.second.reverse;result.physical_pieces=row.second.faces.size();
-      result.within_tolerance=!result.outside_tolerance&&result.model_to_mesh<=geometry_tolerance&&result.mesh_to_model<=geometry_tolerance;
-    }
-    fresh.emplace(row.first,result);}
-  geometry_certificates=std::move(fresh);certificate_revision=revision;return geometry_certificates;
+  geometry_certificates = std::move(fresh);
+  certificate_revision = revision;
+  return geometry_certificates;
 }
+
+bool BoundaryParameterState::ReverseProofComplete(const std::vector<double>& reverse_bounds) const {
+  if (!EntityGeometry() || geometry->ReferenceComponents()) return false;
+  for (const auto bound : reverse_bounds)
+    if (!std::isfinite(bound) || bound < 0 || bound > geometry_tolerance) return false;
+  std::set<EntityKey> entities;
+  for (const auto& row : geometry->Reference().Facets()) entities.insert(Entity(row.first));
+  return reverse_bounds.size() == entities.size();
+}
+
+std::vector<ModelShareBound> BoundaryParameterState::ModelProofShare(
+    AtlasBudget& budget, const std::vector<double>& reverse_bounds, ProofShare share) const {
+  if (!ReverseProofComplete(reverse_bounds)) throw std::invalid_argument("Incomplete reduced entity bounds.");
+  SU2NativeTiming3D::Scope certificate_timer(SU2NativeTiming3D::Operation::Certification);
+  budget.CheckTime();
+  AtlasStorage storage(&budget, CertificateLiveBytes(budget), budget.maximum_bytes);
+  const auto physical = CertificateSurfaces(budget, true, &reverse_bounds);
+  NativeMappedGeometryBackend3D backend(geometry, mobility);
+  std::vector<ModelShareBound> result;
+  result.reserve(physical.size());
+  for (const auto& row : physical) {
+    const auto& entity = row.second;
+    const auto bound = QueryEntityCertificate(backend, row.first, entity.faces, geometry_tolerance, budget,
+                                              GeometryErrorDirection::ModelToMesh, share);
+    const size_t kept = share.part < entity.roots ? 1 + (entity.roots - 1 - share.part) / share.parts : 0;
+    result.push_back({bound.model_to_mesh, bound.outside_tolerance, kept});
+  }
+  return result;
+}
+
+const BoundaryParameterState::Certificates& BoundaryParameterState::AdoptModelProof(
+    const std::vector<double>& reverse_bounds, const std::vector<ModelShareBound>& joined) const {
+  Certificates fresh;
+  for (const auto& row : geometry->Reference().Facets()) fresh.try_emplace(Entity(row.first));
+  if (joined.size() != fresh.size() || reverse_bounds.size() != fresh.size())
+    throw std::invalid_argument("Incomplete joined entity proof.");
+  for (const auto& row : surface) ++fresh.at(Entity(row.second.facet)).physical_pieces;
+  size_t i = 0;
+  for (auto& row : fresh) {
+    auto& result = row.second;
+    result.model_to_mesh = joined[i].model_to_mesh;
+    result.outside_tolerance = joined[i].outside;
+    CompleteEntityCertificate(result, reverse_bounds[i], result.physical_pieces, geometry_tolerance);
+    ++i;
+  }
+  geometry_certificates = std::move(fresh);
+  certificate_revision = revision;
+  return geometry_certificates;
+}
+
 std::shared_ptr<BoundaryParameterState> BoundaryParameterState::WithMobilityPolicy(double angle,const std::map<int,int>& roles,
     AtlasBudget& reservation,size_t ceiling,size_t caller)const {
   if(geometry->ReferenceComponents())throw std::invalid_argument("Curved mobility policy cannot reinterpret planar components.");

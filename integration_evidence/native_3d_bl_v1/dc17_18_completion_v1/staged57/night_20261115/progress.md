@@ -342,3 +342,41 @@ N20 W run2: the same fine request/trials occurred at rounds 25,850–25,852. Eve
 N20 W FAILED its purpose rule. Both workflows, isolated restart, T0 prefix and six-file repeatability passed. Event minima 3520.726914 s combined against 3288.032 s, event two 1521.530132 s against 1416.499 s. Reverted only W at `1174e4c241` and pushed. Default-width restore build586 PID 2907370 / start 55299029.
 
 N20. Final audit verified 343 terminal owned identities and the active source and binaries.
+
+## Current work — N21
+
+N21 I8T SHA256 439d26f07b0b4357834b8a23dc5a723712ebd3731c8a05a8bc4257aca2eaa766 verified and read in full. Base f968325a69/build586. Scope and R4 readings recorded in N21/source_check.md. Start Part P with the default width. Part W follows only after P passes, with F=0.95.
+
+N21 P. Applied P1–P4 and T1–T4. Controller PID 3159613 / start 56326575 builds 587, runs the new fixtures, then G1–G4, GQ and safeguards.
+
+N21 P. Default-width G5 controller PID 3166783 / start 56355939 waits for the scoped campaign and safeguards to pass and become terminal. It then runs the two-event G5 and checks all six payloads, the permitted proof-row differences and the 53.4 s purpose rule.
+
+N21 P. Build587 compiled without warnings in 462.808 s. Running T1–T4.
+
+N21 P. The serial proof fixtures passed. T4 has its recorded MPI results or R3 note. Starting G1.
+
+N21 P. G1 matched all 375 / 114 / 228 records. Starting G2.
+
+N21 P. Fixtures on build587 passed. T1–T3 gave 925 assertions in three cases. T4 gave 103 assertions per rank at both 2 and 4 ranks. G1 matched 375 / 114 / 228 records with no changed failures. G2 is in progress.
+
+N21 ordered continuation PID 3191786 / start 56467329 waits for terminal P G5. It seals and pushes Part P only after a passing receipt, then starts the exact W overlay and gates.
+
+N21 P. G2 matched exact first-collapse work, rank counts and tracked rows. Starting G3.
+
+N21 P. G3 and G4 passed. Starting GQ.
+
+N21 P. Build587 scoped identity passed. G1 375/114/228, G2 90,809,869, G3 1,388 splits with 1,113 identical shared edits, G4 1/2/4, GQ 1060.849 s. Running the remaining standing safeguards.
+
+N21 P. All three standing geometry safeguards passed. Next is the default-width G5 and its purpose gate.
+
+- 2026-11-19T08:53:46+01:00 N21 P. Build587 passed scoped checks and safeguards. Starting the two-event G5.
+
+N21 P. Full G5 wrapper PID 3258357 / start 56713543. Default-width build587. Both event payloads, rule-6 comparison and the 53.4 s gate are pending.
+
+N21 P. Event one final certification passed its 53.4 s ceiling at 19.216551329 s maximum rank-exclusive. Six ranks reported shared proof; the timer and connected event gates passed. Mesh and native-reference P6c hashes match. Transfer, continued CFD and event two remain.
+
+N21 P. All three event-one payloads match P6c. Maximum native time 2094.502498638 s. The same run continued CFD and entered event two.
+
+- 2026-11-19T09:59:52+01:00 N21 P. Build587 matched all six P6c/P7 payloads and old rows. The proof purpose gate passed.
+
+N21 P. Build587 passed scoped identity, safeguards, the two-event G5, all six payload identities and the 53.4 s certification ceiling. The P acceptance receipt records the T1 maxima. Proceed with W.

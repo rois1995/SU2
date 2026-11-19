@@ -10,6 +10,11 @@
 namespace SU2Native3D {
 struct Patch;
 class Directory;
+struct ModelShareBound {
+  double model_to_mesh = 0;
+  bool outside = false;
+  size_t roots = 0;
+};
 struct SurfaceFace {
   Face v;
   Id facet = 0;
@@ -85,6 +90,7 @@ class BoundaryParameterState {
       uint64_t revision=1,size_t ceiling=SIZE_MAX,size_t caller_bytes=0,
       const SU2NativeGeometry::BoundaryCoverage& coverage={},const SU2NativeGeometry::MobilityPolicy& mobility={},SU2NativeGeometry::AtlasBudget* reservation=nullptr,double geometry_tolerance=0);
   using EntityKey=std::tuple<Id,Id,int>;
+  using Certificates = std::map<EntityKey, SU2NativeGeometry::MappedFacetReference::SurfaceUnionBounds>;
   bool EntityGeometry()const{return geometry_tolerance>0;}
   double GeometryTolerance()const{return geometry_tolerance;}
   EntityKey Entity(Id facet)const;
@@ -94,8 +100,14 @@ class BoundaryParameterState {
   /*! Rigorous whole-face mesh-to-model upper bound with current entity associations. */
   double EntityFaceError(Id facet,const std::array<SU2NativeGeometry::SurfaceBinding,3>&,
       const std::array<Point,3>&,SU2NativeGeometry::AtlasBudget*,SU2NativeGeometry::SurfaceQueryNeed need,double minimum_error=0)const;
-  const std::map<EntityKey,SU2NativeGeometry::MappedFacetReference::SurfaceUnionBounds>&
+  const Certificates&
       GeometryCertificates(SU2NativeGeometry::AtlasBudget&,bool complete=false,const std::vector<double>* reverse_bounds=nullptr)const;
+  bool ReverseProofComplete(const std::vector<double>& reverse_bounds) const;
+  std::vector<ModelShareBound> ModelProofShare(SU2NativeGeometry::AtlasBudget&,
+                                             const std::vector<double>& reverse_bounds,
+                                             SU2NativeGeometry::ProofShare) const;
+  const Certificates& AdoptModelProof(const std::vector<double>& reverse_bounds,
+                                      const std::vector<ModelShareBound>& joined) const;
   /*! Mesh-to-model bounds for the given owned faces, in canonical entity-key order. */
   std::vector<double> OwnedFaceReverseBounds(const std::vector<SurfaceFace>&,SU2NativeGeometry::AtlasBudget&)const;
   const Entries& Records()const{return records;}
@@ -149,6 +161,14 @@ class BoundaryParameterState {
    * Refuses foreign/stale/unprepared receipts before the existing allocation-free commit. */
   void CommitPrivate(Publication&& publication);
  private:
+  struct EntitySurface {
+    std::vector<std::array<Point, 3>> faces;
+    double reverse = 0;
+    size_t roots = 0;
+  };
+  size_t CertificateLiveBytes(const SU2NativeGeometry::AtlasBudget&) const;
+  std::map<EntityKey, EntitySurface> CertificateSurfaces(SU2NativeGeometry::AtlasBudget&, bool complete,
+                                                       const std::vector<double>* reverse_bounds) const;
   void ValidateEntityFeatures(SU2NativeGeometry::AtlasBudget&)const;
   friend class Directory;
   void Commit(Publication&& publication)noexcept;

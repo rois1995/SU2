@@ -21,6 +21,9 @@ namespace SU2Native3D { class PlanarReference; struct Facet; struct SurfaceFace;
 namespace SU2NativeGeometry {
 using SU2Native3D::Point;
 using SU2Native3D::Id;
+struct ProofShare {
+  unsigned part = 0, parts = 1;
+};
 /*! Classify returns <= tolerance iff proven inside at base model accuracy; unproven faces are not accepted.
  * Limit may return a certified rejection lower bound; only Magnitude is a complete score. */
 struct SurfaceQueryNeed {

@@ -1,0 +1,16 @@
+{
+  "pid": 3166783,
+  "start_ticks": 56355939,
+  "argv": [
+    "nice",
+    "-n",
+    "19",
+    "/usr/bin/python3",
+    "-B",
+    "-u",
+    "-c",
+    "\nimport json\nimport os\nfrom pathlib import Path\nimport sys\nimport time\nroot = Path(sys.argv[1])\nsys.path.insert(0, str(root))\nfrom run_p_scoped import cut, WORK, BRANCH\nscoped = json.loads((root / 'P_scoped_launch.json').read_text())\nwhile not cut.terminal(scoped):\n    time.sleep(10)\nassert cut.read(WORK / 'acceptance_summary.json')['state'] == 'PASSED'\nassert cut.read(BRANCH / 'safeguards/acceptance_summary.json')['passed']\nos.execv(cut.PYTHON, [cut.PYTHON, '-B', '-u', str(root / 'run_g5.py'), 'P'])\n",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N21"
+  ],
+  "actual_host_proc": true
+}

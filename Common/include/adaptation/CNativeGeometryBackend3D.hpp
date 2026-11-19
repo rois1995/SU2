@@ -59,7 +59,8 @@ class GeometryBackend3D {
   /*! Complete physical mesh of one semantic model body/sheet/marker, without face partitions.
    * ModelToMesh supplies source enclosure only; within_tolerance requires Both. */
   virtual bool PatchErrorBounds(const GeometrySupport&,const std::vector<std::array<Point,3>>&,double tolerance,
-      MappedFacetReference::SurfaceUnionBounds&,AtlasBudget&,std::string&,GeometryErrorDirection=GeometryErrorDirection::Both)const=0;
+      MappedFacetReference::SurfaceUnionBounds&,AtlasBudget&,std::string&,GeometryErrorDirection=GeometryErrorDirection::Both,
+      ProofShare share = {})const=0;
 };
 /*! Shared immutable cubic/faceted authority; validated parameter-state policy is borrowed for the stage's lifetime.
  * Existing v5-v8 declarations/SurfaceBinding encoding remain the persistent source of truth.
@@ -75,7 +76,8 @@ class NativeMappedGeometryBackend3D final:public GeometryBackend3D {
   bool Project(Point,const GeometryProjectionScope&,GeometryProjection&,AtlasBudget&,std::string&,GeometryProjectionFailure* =nullptr)const override;
   bool RegionErrorBounds(const FaceCoverage&,const std::array<Point,3>&,GeometryRegionBounds&,AtlasBudget&,std::string&)const override;
   bool PatchErrorBounds(const GeometrySupport&,const std::vector<std::array<Point,3>>&,double,
-      MappedFacetReference::SurfaceUnionBounds&,AtlasBudget&,std::string&,GeometryErrorDirection=GeometryErrorDirection::Both)const override;
+      MappedFacetReference::SurfaceUnionBounds&,AtlasBudget&,std::string&,GeometryErrorDirection=GeometryErrorDirection::Both,
+      ProofShare share = {})const override;
  private:
   std::shared_ptr<const MappedFacetReference> authority;
   const MobilityPolicy& policy;

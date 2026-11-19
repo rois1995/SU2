@@ -248,7 +248,11 @@ bool NativeMappedGeometryBackend3D::RegionErrorBounds(const FaceCoverage& covera
 }
 bool NativeMappedGeometryBackend3D::PatchErrorBounds(const GeometrySupport& scope,
     const std::vector<std::array<Point,3>>& physical,double tolerance,
-    MappedFacetReference::SurfaceUnionBounds& result,AtlasBudget& budget,std::string& reason,GeometryErrorDirection direction)const {
+    MappedFacetReference::SurfaceUnionBounds& result,AtlasBudget& budget,std::string& reason,
+    GeometryErrorDirection direction, ProofShare share)const {
+  if (share.parts == 0 || share.part >= share.parts) throw std::invalid_argument("Invalid surface proof share.");
+  if (direction == GeometryErrorDirection::Both && share.parts > 1)
+    throw std::invalid_argument("Two-sided surface proof cannot be shared.");
   try {
     if(direction!=GeometryErrorDirection::Both&&direction!=GeometryErrorDirection::ModelToMesh)throw std::invalid_argument("Invalid geometry error direction.");
     if(scope.body==UINT64_MAX)throw std::invalid_argument("Surface-union query lacks a physical body.");
@@ -260,6 +264,16 @@ bool NativeMappedGeometryBackend3D::PatchErrorBounds(const GeometrySupport& scop
     }
     struct Restore {AtlasBudget& b;size_t caller;~Restore(){b.caller_bytes=caller;}} restore{budget,budget.caller_bytes};
     budget.caller_bytes=transfer_memory::Add(budget.caller_bytes,transfer_memory::Mul(facets.capacity(),sizeof(Id)));
+    if (direction == GeometryErrorDirection::ModelToMesh && share.parts > 1) {
+      size_t kept = 0;
+      for (size_t i = share.part; i < facets.size(); i += share.parts) facets[kept++] = facets[i];
+      facets.resize(kept);
+      if (facets.empty()) {
+        result = {};
+        reason.clear();
+        return true;
+      }
+    }
     const auto bounds=direction==GeometryErrorDirection::Both?authority->BoundSurfaceUnion(facets,physical,tolerance,budget):
         authority->BoundModelSurface(facets,physical,tolerance,budget);
     result=bounds;reason.clear();return true;

@@ -1,0 +1,16 @@
+{
+  "pid": 3191786,
+  "start_ticks": 56467329,
+  "argv": [
+    "nice",
+    "-n",
+    "19",
+    "/usr/bin/python3",
+    "-B",
+    "-u",
+    "-c",
+    "\nimport json\nimport os\nfrom pathlib import Path\nimport sys\nimport time\nroot = Path(sys.argv[1])\nsys.path.insert(0, str(root))\nfrom seal_n21 import P_BRANCH, seal_p, cut\nprevious = cut.read(root / 'P_G5_launch.json')\nwhile not cut.terminal(previous):\n    time.sleep(10)\nreceipt = P_BRANCH / 'G5/acceptance_summary.json'\nif not receipt.is_file() or not cut.read(receipt)['passed']:\n    print('Part P has no passed G5 receipt. Part W was not started.', flush=True)\n    raise SystemExit(0)\nseal_p()\nargv = [cut.PYTHON, '-B', '-u', str(root / 'run_w_scoped.py')]\ncut.save(root / 'W_scoped_launch.json', dict(cut.actual_identity(os.getpid()), actual_host_proc=True, argv=argv))\nos.execv(cut.PYTHON, argv)\n",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N21"
+  ],
+  "actual_host_proc": true
+}
